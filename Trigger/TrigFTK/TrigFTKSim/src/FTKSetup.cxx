@@ -43,7 +43,7 @@ FTKSetup::~FTKSetup()
 }
 
 /** this method print a message with the usage statistic of the 
-    process, it uses the  /proc/<PID>/status file, the results
+    process, it uses the  /proc/\<PID\>/status file, the results
     and their results can depend by the kernel configuration */
 void FTKSetup::usageStat(const char *header /* =0 */)
 {

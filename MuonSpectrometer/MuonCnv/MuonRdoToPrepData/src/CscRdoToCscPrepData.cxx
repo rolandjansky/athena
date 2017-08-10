@@ -12,11 +12,6 @@
 
 /// algorithm to decode RDO into PrepRawData
 
-#include "GaudiKernel/AlgFactory.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/PropertyMgr.h"
-#include "GaudiKernel/IToolSvc.h"
-
 #include "StoreGate/DataHandle.h"
 #include "Identifier/IdentifierHash.h"
 #include "MuonRdoToPrepData/CscRdoToCscPrepData.h"

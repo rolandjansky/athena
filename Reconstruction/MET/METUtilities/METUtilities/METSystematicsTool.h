@@ -140,7 +140,6 @@ namespace met {
     std::string m_truthObj;
     std::string m_vertexCont;
     std::string m_eventInfo;
-    int         m_randSeed ;
     bool        m_useDevArea;
 
     TH3D* m_shiftpara_pthard_njet_mu;

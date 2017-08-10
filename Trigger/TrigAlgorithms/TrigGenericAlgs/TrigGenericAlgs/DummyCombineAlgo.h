@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: HLT Steering
  * @Package: TrigGenericAlgs
- * @Class  : DummyCombineAlgo
+ * @class  : DummyCombineAlgo
  *
  * @brief : PESA algorithm that runs on every input TE combination
  *          (apart from combinations that overlap in the RoI objects).

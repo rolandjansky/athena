@@ -39,7 +39,7 @@ namespace Trk
     ~MassConstraint();
 
     /** method returning the vector of parameters values. Method defined through
-        the <nop>IKinematicConstraint base class 
+        the \<nop\>IKinematicConstraint base class 
         @param[in] cart_coordList vector of particles represented in cartesian frame,
                that is through the parameters (px, py, pz, E, x, y, z).
         @param[in] charges charge information for the vector of particles
@@ -50,7 +50,7 @@ namespace Trk
    const Amg::VectorX vectorOfValues(std::vector<Amg::VectorX> & cart_coordList, std::vector<int> &charges, Amg::Vector3D refPoint, double b_fieldTesla ) const;
    
     /** method returning the matrix of derivatives. Method defined through the
-        <nop>IKinematicConstraint base class
+        \<nop\>IKinematicConstraint base class
         @param[in] cart_coordList vector of particles represented in cartesian frame,
                that is through the parameters (px, py, pz, E, x, y, z).
         @param[in] charges charge information for the vector of particles

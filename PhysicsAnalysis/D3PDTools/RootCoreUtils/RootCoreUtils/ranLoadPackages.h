@@ -21,7 +21,7 @@ namespace RCU
   /// to know whether to run this again or not.
   /// \par Guarantee
   ///   no-fail
-  /// \warn this is the method that should be called to check this, as
+  /// @warning this is the method that should be called to check this, as
   /// the exact mechanism for checking this may change
   bool ranLoadPackages ();
 }

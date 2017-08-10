@@ -14,7 +14,7 @@ use AthenaPoolUtilities      AthenaPoolUtilities-*  Database/AthenaPOOL
 # use DetDescrCondTools    DetDescrCondTools-*  DetectorDescription/DetDescrCond
 
 use LArRecConditions        LArRecConditions-*  LArCalorimeter
-use LArTools                      LArTools-*           LArCalorimeter
+use LArCabling                      LArCabling-*        LArCalorimeter
 use Identifier                      Identifier-*        DetectorDescription
 use LArIdentifier                LArIdentifier-*     LArCalorimeter
 use CaloConditions           CaloConditions-*       Calorimeter

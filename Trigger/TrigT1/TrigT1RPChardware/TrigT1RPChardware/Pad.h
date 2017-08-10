@@ -54,25 +54,25 @@ unsigned short int m_feet_thresholds[3];
 //
 // Load the "Hit in Outer Plane" flag
 //
-ubit16 nBunMax;               // Maximum number of Bunch crossings to be cons.
-ubit16 thHitOuterPlane;       // gives the address from 1 to 3 of the
+ubit16 m_nBunMax;               // Maximum number of Bunch crossings to be cons.
+ubit16 m_thHitOuterPlane;       // gives the address from 1 to 3 of the
                               // threshold used for Outer Plane Confirmation
                               // 0 = no hit In Outer Plane required
 //
 // store this information in hitInOuterPlane
 //
-ubit16 hitInOuterPlane[3];  //  hitInOuterPlane[i] i=0,1,2 threshold address
+ubit16 m_hitInOuterPlane[3];  //  hitInOuterPlane[i] i=0,1,2 threshold address
                             // = 0 => no Outer Plane coincidence required
                             // > 0 =>    Outer Plane coincidence required
 //
 //pad attributes: subsystem, sector, padadd, low/high-pt;
 //
-ubit16 subsystem;  //subsystem 0,1
-ubit16 sector;     //sector address
-ubit16 padadd;     //pad address
-ubit16 lowhigh;    //lowhigh_pt type, 0=low; 1=high
+ubit16 m_subsystem;  //subsystem 0,1
+ubit16 m_sector;     //sector address
+ubit16 m_padadd;     //pad address
+ubit16 m_lowhigh;    //lowhigh_pt type, 0=low; 1=high
 //
-ubit16 projectionLogic;
+ubit16 m_projectionLogic;
 
 
 //  in the data and with the new cabling (m_oldSimulation==false)
@@ -116,7 +116,7 @@ ubit16 projectionLogic;
 //       |  ------------ eta-phi matrix: 0=eta; 1=phi.
 //       --------------- low-pt=0, high-pt=1;
 //
-ubit16 padIn[2][2][2][NOBXS][2];
+ubit16 m_padIn[2][2][2][NOBXS][2];
 //
 // PAD LOGIC STEP n. 2
 //
@@ -137,7 +137,7 @@ ubit16 padIn[2][2][2][NOBXS][2];
 //          -------- bunch-crossing identifier (in NOBXS bunches range)
 //        
 //
-ubit16 padStep2[NOBXS][2][8];
+ubit16 m_padStep2[NOBXS][2][8];
 //
 // PAD LOGIC OUTPUT
 //
@@ -159,7 +159,7 @@ ubit16 padStep2[NOBXS][2][8];
 //         
 //
 //
-ubit16 padOut[NOBXS][7];
+ubit16 m_padOut[NOBXS][7];
 //
 void threshold();
 void overlap();

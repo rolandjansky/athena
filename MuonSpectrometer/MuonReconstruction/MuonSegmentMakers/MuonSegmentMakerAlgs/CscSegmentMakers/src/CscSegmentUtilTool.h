@@ -68,7 +68,7 @@ public:
                               const Amg::Vector3D& lpos000) const;
 
   Muon::MuonSegmentCombination*
-  get4dMuonSegmentCombination(Muon::MuonSegmentCombination* Muon2dSegComb) const;  
+  get4dMuonSegmentCombination(const Muon::MuonSegmentCombination* Muon2dSegComb) const;  
 
   //get2dMuonSegmentCombination : get2dSegments does
   //  -> (1) find_2dsegments (2) find_2dseg3hit (3) add_2dsegments
@@ -76,7 +76,7 @@ public:
   get2dMuonSegmentCombination(Identifier eta_id, Identifier phi_id,
                               ICscSegmentFinder::ChamberTrkClusters& eta_clus,
                               ICscSegmentFinder::ChamberTrkClusters& phi_clus,
-                              const Amg::Vector3D& lpos000, bool use2Lay=false, int badLay1=-1, int badLay2=-1 ) const;
+                              const Amg::Vector3D& lpos000, int etaStat=0, int phiStat=0 ) const;
 
   
   // Return the counts of spoiled and unspoiled measurements from a list
@@ -157,7 +157,7 @@ private:  // data
                       double localPos, double localSlope) const;
 
     // Find 2 hit segments in a chamber.
-  void find_2dseg2hit(bool measphi, int station,  int eta, int phi, std::vector<int> layStat,
+  void find_2dseg2hit(bool measphi, int station,  int eta, int phi, int layStat,
                       const ICscSegmentFinder::ChamberTrkClusters& clus, const Amg::Vector3D& lpos000,
                       ICscSegmentFinder::Segments& segs, 
                       double localPos, double localSlope) const;
@@ -166,7 +166,7 @@ private:  // data
   void add_2dsegments(ICscSegmentFinder::Segments &segs4, ICscSegmentFinder::Segments &segs3) const;
 
   //Stores 2-hit segments (does overlap removal and then saves the remaining segments)
-  void add_2dseg2hits(ICscSegmentFinder::Segments &segs, ICscSegmentFinder::Segments &segs2, std::vector<int> layStat) const;
+  void add_2dseg2hits(ICscSegmentFinder::Segments &segs, ICscSegmentFinder::Segments &segs2, int layStat) const;
   
   // Check to see if 3-hit segment is unique.
   bool unique_hits(ICscSegmentFinder::TrkClusters& fitclus, ICscSegmentFinder::Segments& segs) const;
@@ -175,9 +175,9 @@ private:  // data
                       ICscSegmentFinder::ChamberTrkClusters& eta_clus,
                       ICscSegmentFinder::ChamberTrkClusters& phi_clus,
                       ICscSegmentFinder::Segments& etasegs, ICscSegmentFinder::Segments& phisegs,
-                      const Amg::Vector3D& lpos000, bool use2Lay=false, int badLay1=-1, int badLay2=-1 ) const;
+                      const Amg::Vector3D& lpos000, int etaStat=0, int phiStat=0 ) const;
 
-  Muon::MuonSegment* make_4dMuonSegment(const Muon::MuonSegment& rsg, const Muon::MuonSegment& psg, bool use2LaySegs) const;
+  Muon::MuonSegment* make_4dMuonSegment(const Muon::MuonSegment& rsg, const Muon::MuonSegment& psg, bool use2LaySegsEta, bool use2LaySegsPhi) const;
 
   /***** Find outlier cluster *****/
   /* It finds the biggest chisquare contributing cluster:

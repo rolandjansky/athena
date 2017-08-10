@@ -12,8 +12,6 @@
 
 #include "GeneratorModules/GenFilter.h"
 
-using HepMC::GenEvent;
-
 
 class DecayPositionFilter : public GenFilter {
 public:

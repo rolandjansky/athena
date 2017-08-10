@@ -2,6 +2,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+// STL includes
+#include <sstream>
+
 // Base class
 #include "G4AtlasTools/SensitiveDetectorBase.h"
 
@@ -20,7 +23,7 @@ SensitiveDetectorBase::SensitiveDetectorBase(const std::string& type,
                                              const std::string& name,
                                              const IInterface* parent)
   : AthAlgTool(type,name,parent)
-#ifndef ATHENAHIVE
+#ifndef G4MULTITHREADED
   , m_SD(nullptr)
 #endif
 {
@@ -138,7 +141,7 @@ queryInterface(const InterfaceID& riid, void** ppvIf)
 
 G4VSensitiveDetector* SensitiveDetectorBase::getSD()
 {
-#ifdef ATHENAHIVE
+#ifdef G4MULTITHREADED
   // Get current thread-ID
   const auto tid = std::this_thread::get_id();
   // Retrieve it from the SD map
@@ -152,7 +155,7 @@ G4VSensitiveDetector* SensitiveDetectorBase::getSD()
 
 void SensitiveDetectorBase::setSD(G4VSensitiveDetector* sd)
 {
-#ifdef ATHENAHIVE
+#ifdef G4MULTITHREADED
   const auto tid = std::this_thread::get_id();
   ATH_MSG_DEBUG("Creating and registering SD " << sd << " in thread " << tid);
   m_sdThreadMap.insert( std::make_pair(tid, sd) );
@@ -182,7 +185,11 @@ SetSensitiveDetector(G4LogicalVolume* logVol, G4VSensitiveDetector* aSD) const
         }
       else
         {
-          const G4String msdname = "/MultiSD_"+logVol->GetName();
+          // Construct a unique name using the volume address
+          std::stringstream ss;
+          ss << static_cast<const void*>(logVol);
+          const G4String msdname = "/MultiSD_" + logVol->GetName() + ss.str();
+          //ATH_MSG_INFO("MultiSD name: " << msdname);
           msd = new G4MultiSensitiveDetector(msdname);
           // We need to register the proxy to have correct handling of IDs
           G4SDManager::GetSDMpointer()->AddNewDetector(msd);

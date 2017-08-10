@@ -117,6 +117,7 @@ public:
   inline bool isBoth() const { return (m_status == IOVTime::BOTH) ? 1 : 0; }
 
   operator std::string() const;
+  operator EventIDBase() const;
 
   friend bool operator<(const IOVTime& lhs, const IOVTime& rhs);
   friend bool operator>(const IOVTime& lhs, const IOVTime& rhs);

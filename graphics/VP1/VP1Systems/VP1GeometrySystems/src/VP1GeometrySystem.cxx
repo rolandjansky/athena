@@ -392,7 +392,7 @@ QWidget * VP1GeometrySystem::buildController()
   d->addSubSystem( VP1GeoFlags::CavernInfra,"CavernInfra");
   d->addSubSystem( VP1GeoFlags::BeamPipe,"BeamPipe");
   d->addSubSystem( VP1GeoFlags::LUCID,".*Lucid.*");
-  d->addSubSystem( VP1GeoFlags::ZDC,".*Zdc.*");
+  d->addSubSystem( VP1GeoFlags::ZDC,".*ZDC.*");
   d->addSubSystem( VP1GeoFlags::ALFA,".*ALFA.*");
   d->addSubSystem( VP1GeoFlags::ForwardRegion,".*ForwardRegion.*");
 

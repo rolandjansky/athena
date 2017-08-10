@@ -3,7 +3,6 @@
 */
 
 #include "InDetJiveXML/SCTRDORetriever.h"
-#include "InDetRawData/SCT_RDO_Container.h"
 #include "InDetRawData/SCT_RDO_Collection.h"
 #include "InDetRawData/SCT_RDORawData.h"
 #include "InDetRawData/SCT3_RawData.h"
@@ -11,6 +10,7 @@
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetIdentifier/SCT_ID.h"
 //#include "TrkEventPrimitives/LocalPosition.h"
+#include "StoreGate/ReadHandle.h"
 
 #include "JiveXML/DataType.h"
 
@@ -31,7 +31,7 @@ namespace JiveXML {
     declareInterface<IDataRetriever>(this);
 
     //And properties
-    declareProperty("SCTRDOContainer"  , m_SCTRDOContainerName = "SCT_RDOs");
+    declareProperty("SCTRDOContainer"  , m_SCTRDOContainerName = std::string("SCT_RDOs"));
   }
 
   /**
@@ -43,12 +43,12 @@ namespace JiveXML {
   StatusCode SCTRDORetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
 
     //be verbose
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieving " << dataTypeName() <<endreq; 
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieving " << dataTypeName() <<endmsg; 
 
     //Get an iterator over all containers
-    const DataHandle<SCT_RDO_Container> SCTRDOContainer;
-    if ((evtStore()->retrieve(SCTRDOContainer,m_SCTRDOContainerName)).isFailure()){
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to retrieve SCT_RDO_Container with name " << m_SCTRDOContainerName << endreq;
+    SG::ReadHandle<SCT_RDO_Container> SCTRDOContainer(m_SCTRDOContainerName);
+    if (not SCTRDOContainer.isValid()){
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to retrieve SCT_RDO_Container with name " << m_SCTRDOContainerName.key() << endmsg;
       return StatusCode::RECOVERABLE;
     }
 
@@ -100,7 +100,7 @@ namespace JiveXML {
         const InDetDD::SiDetectorElement *element = geo->SCTGeoManager()->getDetectorElement(id);
         //Make sure we got the detector element
         if (element == NULL){
-          msg(MSG::WARNING) << "Unable to obtain detector element for SCT_RDO hit with id " << id << endreq;
+          msg(MSG::WARNING) << "Unable to obtain detector element for SCT_RDO hit with id " << id << endmsg;
           continue ;
         }
 
@@ -160,10 +160,17 @@ namespace JiveXML {
     dataMap["formatterError"] = formatterError;
 
     //Be verbose
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << ": " << ident.size() << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << ": " << ident.size() << endmsg;
 
      //forward data to formating tool and return
     return FormatTool->AddToEvent(dataTypeName(), "", &dataMap);
+  }
+
+  StatusCode SCTRDORetriever::initialize() {
+    // Read Handle Key
+    ATH_CHECK( m_SCTRDOContainerName.initialize() );
+
+    return geo.retrieve();
   }
 
 } //namespace

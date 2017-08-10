@@ -26,7 +26,7 @@ end_private
 use AthenaBaseComps AthenaBaseComps-*  Control
 use AtlasPolicy    AtlasPolicy-*     
 use GaudiInterface GaudiInterface-*    External
-use DataModel	   DataModel-*         Control
+use AthAllocators  AthAllocators-*     Control
 use StoreGate      StoreGate-*         Control
 use AthenaKernel   AthenaKernel-*      Control
 

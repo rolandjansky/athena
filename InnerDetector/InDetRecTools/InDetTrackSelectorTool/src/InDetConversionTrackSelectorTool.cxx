@@ -70,30 +70,30 @@ namespace InDet
  {
    StatusCode sc = AthAlgTool::initialize();
    if(sc.isFailure()){
-     msg(MSG::ERROR)<<" Unable to initialize the AlgTool"<<endreq;
+     msg(MSG::ERROR)<<" Unable to initialize the AlgTool"<<endmsg;
      return StatusCode::FAILURE;
    }
 
    /* Get the track summary tool from ToolSvc */
    if ( m_trkSumTool.retrieve().isFailure() ) {
-     msg(MSG::ERROR) << "Failed to retrieve tool " << m_trkSumTool << endreq;
+     msg(MSG::ERROR) << "Failed to retrieve tool " << m_trkSumTool << endmsg;
      return StatusCode::FAILURE;
    } else {
-     msg(MSG::INFO) << "Retrieved tool " << m_trkSumTool << endreq;
+     msg(MSG::INFO) << "Retrieved tool " << m_trkSumTool << endmsg;
    }
 
    /* Get the extrapolator tool from ToolSvc */
    if ( m_extrapolator.retrieve().isFailure() ) {
-     msg(MSG::ERROR) << "Failed to retrieve tool " << m_extrapolator << endreq;
+     msg(MSG::ERROR) << "Failed to retrieve tool " << m_extrapolator << endmsg;
      return StatusCode::FAILURE;
    } else {
-     msg(MSG::INFO) << "Retrieved tool " << m_extrapolator << endreq;
+     msg(MSG::INFO) << "Retrieved tool " << m_extrapolator << endmsg;
    }
 
    /* Get BeamCondSvc */
    sc = m_iBeamCondSvc.retrieve();
    if (sc.isFailure()) {
-     msg(MSG::INFO) << "Could not find BeamCondSvc. Will use (0,0,0) if no vertex is given and extrapolation is needed." << endreq;
+     msg(MSG::INFO) << "Could not find BeamCondSvc. Will use (0,0,0) if no vertex is given and extrapolation is needed." << endmsg;
    }
 
    return StatusCode::SUCCESS;
@@ -101,7 +101,7 @@ namespace InDet
     
  StatusCode InDetConversionTrackSelectorTool::finalize()
  {
-  msg(MSG::INFO)  << "Finalize successful" << endreq;
+  msg(MSG::INFO)  << "Finalize successful" << endmsg;
   return StatusCode::SUCCESS;
  }
     
@@ -116,7 +116,7 @@ namespace InDet
      if (!m_iBeamCondSvc.empty()) {
        myVertex=new Trk::RecVertex(m_iBeamCondSvc->beamVtx());
      } else {
-       msg(MSG::WARNING) << " Cannot get beamSpot center from iBeamCondSvc. Using (0,0,0)... " << endreq;
+       msg(MSG::WARNING) << " Cannot get beamSpot center from iBeamCondSvc. Using (0,0,0)... " << endmsg;
        myVertex=new Trk::Vertex(Amg::Vector3D(0,0,0));
      }
    }
@@ -134,7 +134,7 @@ namespace InDet
      //no track selection if firstmeas + perigee does not exist !
      firstmeaspar=track.perigeeParameters();
      if (!firstmeaspar){
-       msg(MSG::WARNING) << " First measurment on track is missing. Using perigee Parameters, but they are missing: 0 pointer! Track selection failed " << endreq;
+       msg(MSG::WARNING) << " First measurment on track is missing. Using perigee Parameters, but they are missing: 0 pointer! Track selection failed " << endmsg;
        //clean up vertex
        if (myVertex!=vx) {
 	 delete myVertex;
@@ -148,9 +148,9 @@ namespace InDet
 //   const Trk::TrackParameters * extrapolatedParameters= firstmeaspar ? m_extrapolator->extrapolate(*firstmeaspar,perigeeSurface,Trk::anyDirection,true,track.info().particleHypothesis() ) : 0;
    perigee = extrapolatedParameters ? dynamic_cast<const Trk::Perigee*>(extrapolatedParameters) : 0; 
    if (perigee==0 || !perigee->covariance() ) {
-     msg(MSG::WARNING) << "Track Selector failed to extrapolate track to the vertex: " << myVertex->position() << endreq;
+     msg(MSG::WARNING) << "Track Selector failed to extrapolate track to the vertex: " << myVertex->position() << endmsg;
      if (extrapolatedParameters!=0) {
-       msg(MSG::WARNING) << "The return object of the extrapolator was not a perigee even if a perigeeSurface was used!" << endreq;
+       msg(MSG::WARNING) << "The return object of the extrapolator was not a perigee even if a perigeeSurface was used!" << endmsg;
        delete extrapolatedParameters;
        if (myVertex!=vx) delete myVertex;
        return false;
@@ -228,7 +228,7 @@ namespace InDet
      if (!m_iBeamCondSvc.empty()) {
        myVertex=new Trk::RecVertex(m_iBeamCondSvc->beamVtx());
      } else {
-       msg(MSG::WARNING) << " Cannot get beamSpot center from iBeamCondSvc. Using (0,0,0)... " << endreq;
+       msg(MSG::WARNING) << " Cannot get beamSpot center from iBeamCondSvc. Using (0,0,0)... " << endmsg;
        myVertex=new Trk::Vertex(Amg::Vector3D(0,0,0));
      }
    }
@@ -246,7 +246,7 @@ namespace InDet
      //using perigee instead of firstmeasurement, since first measurement was not found...
      firstmeaspar=&(track.definingParameters());
      if (!firstmeaspar){
-       msg(MSG::DEBUG) << " Track Paraemters at first measurement not found. Perigee not found. Cannot do TrackSelection..." << endreq;
+       msg(MSG::DEBUG) << " Track Paraemters at first measurement not found. Perigee not found. Cannot do TrackSelection..." << endmsg;
        if (myVertex!=vx) {
 	 delete myVertex;
 	 myVertex=0;
@@ -259,9 +259,9 @@ namespace InDet
    //const Trk::TrackParameters * extrapolatedParameters= firstmeaspar ? m_extrapolator->extrapolate(*firstmeaspar,perigeeSurface,Trk::anyDirection,true,Trk::pion ) : 0;
    perigee = extrapolatedParameters ? dynamic_cast<const Trk::Perigee*>(extrapolatedParameters) : 0; 
    if (perigee==0 || !perigee->covariance()) {
-     msg(MSG::WARNING) << "Track Selector failed to extrapolate track to the vertex: " << myVertex->position() << endreq;
+     msg(MSG::WARNING) << "Track Selector failed to extrapolate track to the vertex: " << myVertex->position() << endmsg;
      if (extrapolatedParameters!=0) {
-       msg(MSG::WARNING) << "The return object of the extrapolator was not a perigee even if a perigeeSurface was used!" << endreq;
+       msg(MSG::WARNING) << "The return object of the extrapolator was not a perigee even if a perigeeSurface was used!" << endmsg;
        delete extrapolatedParameters;
        if (myVertex!=vx) delete myVertex;
        return false;

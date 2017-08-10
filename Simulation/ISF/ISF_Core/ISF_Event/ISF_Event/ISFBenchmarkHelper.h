@@ -17,7 +17,7 @@
 
 namespace ISF {
 
- /** @enum 
+ /** @enum PDGCodeEnum
 
      This enum enhaces readablity for PDGCode profiling with the
      PMonUtils::CustomBenchmarkGuard
@@ -33,9 +33,7 @@ namespace ISF {
    };
 
 
- /** @class 
-
-     ISFBenchmarkHelper class enhances readability for
+ /** @class ISFBenchmarkHelper class enhances readability for
      PMonUtils::CustomBenchmarkGuard usage with ISF::ISFParticle types
 
      @author Elmar.Ritsch -at- cern.ch

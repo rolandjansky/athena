@@ -43,11 +43,11 @@ GeoAccessVolumeAction::GeoAccessVolumeAction (unsigned int Index)
   :
 m_index (Index),
 m_counter (0),
-m_nameTag (NULL),
-m_serialDenominator (NULL),
-m_idTag(NULL),
+m_nameTag (nullptr),
+m_serialDenominator (nullptr),
+m_idTag(nullptr),
 m_serialDenomPosition (0),
-m_serialIdentifier(NULL),
+m_serialIdentifier(nullptr),
 m_serialIdentPosition(0)
   //## end GeoAccessVolumeAction::GeoAccessVolumeAction%3CE1249902FE.initialization
 {
@@ -112,8 +112,8 @@ void GeoAccessVolumeAction::handlePhysVol (const GeoPhysVol *vol)
     }
   else
     {
-	  m_idTag   = NULL;
-      m_nameTag = NULL;
+	  m_idTag   = nullptr;
+      m_nameTag = nullptr;
       m_pendingTransformList.erase (m_pendingTransformList.begin (),
 				  m_pendingTransformList.end ());
     }
@@ -165,8 +165,8 @@ void GeoAccessVolumeAction::handleFullPhysVol (const GeoFullPhysVol *vol)
     {
       m_pendingTransformList.erase (m_pendingTransformList.begin (),
 				  m_pendingTransformList.end ()); 
-	  m_nameTag = NULL;
-      m_idTag   = NULL;
+	  m_nameTag = nullptr;
+      m_idTag   = nullptr;
     }
   //     
   // Increment the counter:     
@@ -231,7 +231,7 @@ void GeoAccessVolumeAction::handleNameTag (const GeoNameTag *nameTag)
 {
   //## begin GeoAccessVolumeAction::handleNameTag%3CEB0D370018.body preserve=yes
   m_nameTag = nameTag;
-  m_serialDenominator = NULL;
+  m_serialDenominator = nullptr;
   m_serialDenomPosition = 0;
   //## end GeoAccessVolumeAction::handleNameTag%3CEB0D370018.body
 }
@@ -268,8 +268,8 @@ void GeoAccessVolumeAction::handleSerialTransformer (const GeoSerialTransformer 
     }
   else
     {
-      m_idTag   = NULL;
-      m_nameTag = NULL;
+      m_idTag   = nullptr;
+      m_nameTag = nullptr;
       m_pendingTransformList.erase (m_pendingTransformList.begin (),
 				  m_pendingTransformList.end ());
       m_counter += sT->getNCopies ();
@@ -281,7 +281,7 @@ void GeoAccessVolumeAction::handleIdentifierTag (const GeoIdentifierTag *idTag)
 {
   //## begin GeoAccessVolumeAction::handleIdentifierTag%3E217F0E0298.body preserve=yes
     m_idTag = idTag;
-    m_serialIdentifier = NULL;
+    m_serialIdentifier = nullptr;
     m_serialIdentPosition = 0;
   //## end GeoAccessVolumeAction::handleIdentifierTag%3E217F0E0298.body
 }

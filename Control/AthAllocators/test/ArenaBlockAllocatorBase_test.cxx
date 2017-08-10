@@ -13,7 +13,9 @@
 #undef NDEBUG
 #include "AthAllocators/ArenaBlockAllocatorBase.h"
 #include "AthAllocators/ArenaBlock.h"
+#include "CxxUtils/checker_macros.h"
 #include <cassert>
+#include <atomic>
 
 
 struct Payload
@@ -25,7 +27,7 @@ struct Payload
 
   int x;
   int y;
-  static int n;
+  static std::atomic<int> n;
   //static std::vector<int> v;
 };
 
@@ -46,7 +48,7 @@ void Payload::clear ()
   y = 0;
 }
 
-int Payload::n = 0;
+std::atomic<int> Payload::n;
 //std::vector<int> Payload::v;
 
 

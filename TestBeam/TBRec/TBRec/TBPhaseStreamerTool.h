@@ -15,8 +15,8 @@
  *
  * \param Guard   - Guard value in TDC counts
  *
- * \Author Rob McPherson
- * \Date   February 10, 2005 - first implementation
+ * \author Rob McPherson
+ * \date   February 10, 2005 - first implementation
  */
 
 #include "TBRec/TBEventStreamerTool.h"

@@ -17,7 +17,7 @@ void TrigMonSeqCnv_p1::persToTrans(const TrigMonSeq_p1* persObj,
 				   MsgStream &log)
 {
   if(log.level() <= MSG::DEBUG) {
-    log << MSG::DEBUG << "TrigMonSeqCnv_p1::persToTrans called " << endreq;
+    log << MSG::DEBUG << "TrigMonSeqCnv_p1::persToTrans called " << endmsg;
   }
 
   transObj->m_encoded     = persObj->m_encoded;
@@ -33,7 +33,7 @@ void TrigMonSeqCnv_p1::transToPers(const TrigMonSeq* transObj,
 				   MsgStream &log)
 {
   if(log.level() <= MSG::DEBUG) {
-    log << MSG::DEBUG << "TrigMonSeqCnv_p1::transToPers called " << endreq;
+    log << MSG::DEBUG << "TrigMonSeqCnv_p1::transToPers called " << endmsg;
   }
 
   persObj->m_encoded    = transObj->m_encoded;

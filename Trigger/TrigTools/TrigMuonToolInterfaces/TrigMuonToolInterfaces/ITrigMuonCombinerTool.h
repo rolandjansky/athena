@@ -11,7 +11,7 @@
 #include "MuonSegment/MuonSegmentCombinationCollection.h"
 #include "TrkTrack/TrackCollection.h"
 #include "Particle/TrackParticleContainer.h"
-#include "DataModel/ElementLinkVector.h"
+#include "AthLinks/ElementLinkVector.h"
 #include "xAODMuon/MuonContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 

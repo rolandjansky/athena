@@ -37,7 +37,7 @@ namespace HepMC {
    *  @author Wolfgang Ehrenfeld, University of Hamburg, Germany
    *  @author Sasha Glazov, DESY Hamburg, Germany
    *
-   * @version $Id: LArG4GenShowerLib.h 797404 2017-02-15 19:01:55Z sfarrell $
+   * @version $Id: LArG4GenShowerLib.h 711210 2015-11-27 15:56:00Z jchapman $
    *
    */
 class LArG4GenShowerLib : public AthAlgorithm {

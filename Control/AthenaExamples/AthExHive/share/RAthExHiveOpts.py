@@ -1,3 +1,7 @@
+#
+#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
+
 
 # 
 ## can only run if Hive enabled
@@ -122,12 +126,5 @@ algCardinality = jp.ConcurrencyFlags.NumThreads()
 if (algCardinality != 1):
    for alg in topSequence:
        name = alg.name()
-       if name in [ "" ] :
-           # Don't clone these algs
-           alg.Cardinality = 1
-           alg.IsClonable = False
-           print " --> cloning suppressed for ", name
-       else:
-           alg.Cardinality = algCardinality
-           alg.IsClonable = True
+       alg.Cardinality = algCardinality
            

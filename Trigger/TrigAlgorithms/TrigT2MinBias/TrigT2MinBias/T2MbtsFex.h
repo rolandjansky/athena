@@ -49,10 +49,6 @@ class T2MbtsFex: public HLT::AllTEAlgo, public T2MbtsUtils {
    HLT::ErrorCode hltEndEvent();
 
   private:
-
-   /** A data member to retain a connection to the MsgStream
-       service. */
-   MsgStream m_log;
    
    /** iterators to TileCells. To be used when on/offline
        TileCellCont/IDC (fast/slow ByteStream Decoder) are to be used.

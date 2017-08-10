@@ -23,14 +23,14 @@ bool DstD0K3piFilter::CheckChildLundId(HepMC::GenParticle* mcpart, int nth, int 
   if (nth ==0) {
     HepMC::GenVertex::particles_in_const_iterator child_mcpartItr  = DecayVtx->particles_out_const_begin();
     HepMC::GenParticle* child_mcpart = *child_mcpartItr;
-    if (fabs(child_mcpart->pdg_id()) == chLundId) return true;
+    if (std::abs(child_mcpart->pdg_id()) == chLundId) return true;
   } else if (nth == 1) {
     HepMC::GenVertex::particles_in_const_iterator child_mcpartItr  = DecayVtx->particles_out_const_begin();
     HepMC::GenVertex::particles_in_const_iterator child_mcpartItrE = DecayVtx->particles_out_const_end();
     ++child_mcpartItr;
     if (child_mcpartItr == child_mcpartItrE) return false;
     HepMC::GenParticle* child_mcpart = *child_mcpartItr;
-    if (fabs(child_mcpart->pdg_id()) == chLundId) return true;
+    if (std::abs(child_mcpart->pdg_id()) == chLundId) return true;
   }
   return false;
 }
@@ -40,8 +40,10 @@ bool DstD0K3piFilter::CheckChildLundId(HepMC::GenParticle* mcpart, int nth, int 
 bool DstD0K3piFilter::IsCandidate(std::vector<float>& lundIds, std::vector<HepMC::GenParticle*>& genParticles) {
   unsigned int nDecay = lundIds.size();
   if (nDecay == 2) {
+    unsigned int id0 = std::abs( static_cast<int>(lundIds[0]) );
+    unsigned int id1 = std::abs( static_cast<int>(lundIds[1]) );
     // 10323  211   k_1+ CLHEP::pi-
-    if ( abs( lundIds[0] ) == 10323 && abs( lundIds[1] ) == 211 ) { // // K_1+ CLHEP::pi-
+    if ( id0 == 10323 && id1 == 211 ) { // // K_1+ CLHEP::pi-
       if ( CheckChildLundId(genParticles[0], 0, 313) ) { // K*0 pi+
         int nChild = 0;
         const HepMC::GenVertex * DecayVtx = genParticles[0]->end_vertex();
@@ -54,24 +56,31 @@ bool DstD0K3piFilter::IsCandidate(std::vector<float>& lundIds, std::vector<HepMC
       } else if ( CheckChildLundId(genParticles[0], 0, 321) ) {  // K+ rho0 or K+ CLHEP::pi CLHEP::pi
         if ( CheckChildLundId(genParticles[0], 1, 113) || CheckChildLundId(genParticles[0], 1, 211) ) return true;
       }
-    } else if (abs(lundIds[0]) == 313 && abs(lundIds[1]) == 113) { // // K^*0 rho0
+    } else if (id0 == 313 && id1 == 113) { // // K^*0 rho0
       if ( CheckChildLundId(genParticles[0], 0, 321) )  // rho0 decays to CLHEP::pi+CLHEP::pi- 100% in decay.dec
         return true;
-    } else if (abs(lundIds[0]) == 321 && abs(lundIds[1]) == 20213) { // // K+ a_1+
+    } else if (id0 == 321 && id1 == 20213) { // // K+ a_1+
       if ( CheckChildLundId(genParticles[1], 0, 113) )  // a_1+ -> rho0 (113) CLHEP::pi+
         return true;
     }
 
   } else if ( nDecay == 3 ) {
-    if (abs(lundIds[0]) == 321 && abs(lundIds[1]) == 211 && abs(lundIds[2]) == 113) { // K+ CLHEP::pi- rho0
+    unsigned int id0 = std::abs( static_cast<int>(lundIds[0]) );
+    unsigned int id1 = std::abs( static_cast<int>(lundIds[1]) );
+    unsigned int id2 = std::abs( static_cast<int>(lundIds[2]) );
+    if (id0 == 321 && id1 == 211 && id2 == 113) { // K+ CLHEP::pi- rho0
       return true;  // rho0 decays to CLHEP::pi+CLHEP::pi- 100% in decay.dec
     }
-    if (abs(lundIds[0]) == 313 && abs(lundIds[1]) == 211 && abs(lundIds[2]) == 211 ) { // K^*+ CLHEP::pi- CLHEP::pi+
+    if (id0 == 313 && id1 == 211 && id2 == 211 ) { // K^*+ CLHEP::pi- CLHEP::pi+
       if ( CheckChildLundId(genParticles[0], 0, 321) ) return true;
     }
 
   } else if (nDecay ==4) { // K CLHEP::pi CLHEP::pi CLHEP::pi non-resonant
-    if (abs(lundIds[0]) == 321 && abs(lundIds[1]) == 211 && abs(lundIds[2]) == 211 && abs(lundIds[3]) == 211) {
+    unsigned int id0 = std::abs( static_cast<int>(lundIds[0]) );
+    unsigned int id1 = std::abs( static_cast<int>(lundIds[1]) );
+    unsigned int id2 = std::abs( static_cast<int>(lundIds[2]) );
+    unsigned int id3 = std::abs( static_cast<int>(lundIds[3]) );
+    if (id0 == 321 && id1 == 211 && id2 == 211 && id3 == 211) {
       return true;
     }
   }
@@ -85,7 +94,7 @@ StatusCode DstD0K3piFilter::filterEvent() {
     const HepMC::GenEvent* genEvt = *itr;
     for (HepMC::GenEvent::particle_const_iterator pitr=genEvt->particles_begin(); pitr!=genEvt->particles_end(); ++pitr) {
       // Work only with D*
-      if (fabs((*pitr)->pdg_id()) != 413) continue; // D*+
+      if (std::abs((*pitr)->pdg_id()) != 413) continue; // D*+
       if ((*pitr)->momentum().perp() < m_Ptmin) continue;
       if (fabs((*pitr)->momentum().pseudoRapidity()) > m_EtaRange) continue;
 
@@ -103,7 +112,7 @@ StatusCode DstD0K3piFilter::filterEvent() {
       HepMC::GenVertex::particles_in_const_iterator child_mcpartItrE = DstDecayVtx->particles_out_const_end();
       for (; child_mcpartItr != child_mcpartItrE; ++child_mcpartItr) {
         HepMC::GenParticle* child_mcpart = (*child_mcpartItr);
-        if (fabs(child_mcpart->pdg_id()) != 421) continue; // D0
+        if (std::abs(child_mcpart->pdg_id()) != 421) continue; // D0
         int nD0Child = 0;
         HepMC::GenParticle* mcpartD0 = *child_mcpartItr;
         const HepMC::GenVertex* D0DecayVtx = mcpartD0->end_vertex();

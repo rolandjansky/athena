@@ -12,7 +12,7 @@ class GenTypes:
     values = ('object',
               'isvc', 'svc',
               'itool', 'tool',
-              'alg',
+              'alg', 'reentrant_alg',
               ## the python ones
               'pyalg', 'pysvc', 'pytool', 'pyaud'
               )
@@ -21,57 +21,33 @@ class GenTypes:
 
 class Templates:
     isvc_hdr_template = """\
-///////////////////////// -*- C++ -*- /////////////////////////////
-// %(klass)s.h 
-// Header file for class %(klass)s
-// Author: S.Binet<binet@cern.ch>
-/////////////////////////////////////////////////////////////////// 
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 #ifndef %(guard)s 
 #define %(guard)s 1 
 
-/** @class %(klass)s
- */
-
-// STL includes
 #include <string>
 
-// FrameWork includes
 #include "GaudiKernel/IService.h"
 
-// %(pkg)s includes
-
 %(namespace_begin)s
+
+/**
+ * @class $(klass)s
+ * @brief 
+ **/
 
 class %(klass)s
   : virtual public ::IService
 { 
-  /////////////////////////////////////////////////////////////////// 
-  // Public methods: 
-  /////////////////////////////////////////////////////////////////// 
  public: 
-
-  /** Destructor: 
-   */
+    
   virtual ~%(klass)s();
-
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
-
-  /////////////////////////////////////////////////////////////////// 
-  // Non-const methods: 
-  /////////////////////////////////////////////////////////////////// 
 
   static const InterfaceID& interfaceID();
 
 }; 
-
-// I/O operators
-//////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
 
 inline const InterfaceID& %(klass)s::interfaceID() 
 { 
@@ -84,109 +60,54 @@ inline const InterfaceID& %(klass)s::interfaceID()
 """
 
     isvc_cxx_template = """\
-///////////////////////// -*- C++ -*- /////////////////////////////
-// %(klass)s.cxx 
-// Implementation file for class %(klass)s
-// Author: S.Binet<binet@cern.ch>
-/////////////////////////////////////////////////////////////////// 
-
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 // %(pkg)s includes
 #include "%(pkg)s/%(klass)s.h"
 
 %(namespace_begin)s
 
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
-// Constructors
-////////////////
-
-// Destructor
-///////////////
 %(klass)s::~%(klass)s()
 {}
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
 
 %(namespace_end)s
 """
 
     itool_hdr_template = """\
-///////////////////////// -*- C++ -*- /////////////////////////////
-// %(klass)s.h 
-// Header file for class %(klass)s
-// Author: S.Binet<binet@cern.ch>
-/////////////////////////////////////////////////////////////////// 
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 #ifndef %(guard)s
 #define %(guard)s 1
 
-// STL includes
-
-// HepMC / CLHEP includes
-
-// FrameWork includes
 #include "GaudiKernel/IAlgTool.h"
-
-// Forward declaration
 
 %(namespace_begin)s
 
 static const InterfaceID IID_%(klass)s("%(klass)s", 1, 0);
 
+/**
+ * @class $(klass)s
+ * @brief 
+ **/
+
 class %(klass)s
   : virtual public ::IAlgTool
 { 
 
-  /////////////////////////////////////////////////////////////////// 
-  // Public methods: 
-  /////////////////////////////////////////////////////////////////// 
  public: 
 
-  /** Destructor: 
-   */
   virtual ~%(klass)s();
 
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
   static const InterfaceID& interfaceID();
 
-  /////////////////////////////////////////////////////////////////// 
-  // Non-const methods: 
-  /////////////////////////////////////////////////////////////////// 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Protected data: 
-  /////////////////////////////////////////////////////////////////// 
  protected: 
+
+ private:
 
 }; 
 
-/// I/O operators
-//////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-/// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
 inline const InterfaceID& %(klass)s::interfaceID() 
 { 
    return IID_%(klass)s; 
@@ -197,12 +118,9 @@ inline const InterfaceID& %(klass)s::interfaceID()
 """
 
     itool_cxx_template = """\
-///////////////////////// -*- C++ -*- /////////////////////////////
-// %(klass)s.cxx 
-// Implementation file for class %(klass)s
-// Author: S.Binet<binet@cern.ch>
-/////////////////////////////////////////////////////////////////// 
-
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 // Framework includes
 //#include "GaudiKernel/MsgStream.h"
 
@@ -211,98 +129,45 @@ inline const InterfaceID& %(klass)s::interfaceID()
 
 %(namespace_begin)s
 
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
-// Constructors
-////////////////
-
-// Destructor
-///////////////
 %(klass)s::~%(klass)s()
 {}
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-///////////////////////////////////////////////////////////////////
 
 %(namespace_end)s
 """
     object_hdr_template = """\
-///////////////////////// -*- C++ -*- /////////////////////////////
-// %(klass)s.h 
-// Header file for class %(klass)s
-// Author: S.Binet<binet@cern.ch>
-/////////////////////////////////////////////////////////////////// 
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 #ifndef %(guard)s
 #define %(guard)s 1
 
-// STL includes
+
 #include <iosfwd>
 
-// Gaudi includes
-
-// Forward declaration
-
 %(namespace_begin)s
+
+/**
+ * @class $(klass)s
+ * @brief 
+ **/
 
 class %(klass)s
 { 
 
-  /////////////////////////////////////////////////////////////////// 
-  // Public methods: 
-  /////////////////////////////////////////////////////////////////// 
  public: 
 
-  /// Default constructor: 
   %(klass)s();
 
-  /// Copy constructor: 
   %(klass)s( const %(klass)s& rhs );
 
-  /// Assignment operator: 
   %(klass)s& operator=( const %(klass)s& rhs ); 
 
-  /// Constructor with parameters: 
-
-  /// Destructor: 
   virtual ~%(klass)s(); 
 
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
-
-  /////////////////////////////////////////////////////////////////// 
-  // Non-const methods: 
-  /////////////////////////////////////////////////////////////////// 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Private data: 
-  /////////////////////////////////////////////////////////////////// 
  private: 
 
 }; 
 
-/////////////////////////////////////////////////////////////////// 
-// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
 //std::ostream& operator<<( std::ostream& out, const %(klass)s& o );
 
 %(namespace_end)s
@@ -311,127 +176,65 @@ class %(klass)s
 """
 
     object_cxx_template = """\
-///////////////////////// -*- C++ -*- /////////////////////////////
-// %(klass)s.cxx 
-// Implementation file for class %(klass)s
-// Author: S.Binet<binet@cern.ch>
-/////////////////////////////////////////////////////////////////// 
-
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 // %(pkg)s includes
 #include "%(pkg)s/%(klass)s.h"
 
-// STL includes
-
 %(namespace_begin)s
-
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
-// Constructors
-////////////////
-
-// Destructor
-///////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
 
 %(namespace_end)s
 """
 
     svc_hdr_template = """\
-///////////////////////// -*- C++ -*- /////////////////////////////
-// %(klass)s.h 
-// Header file for class %(klass)s
-// Author: S.Binet<binet@cern.ch>
-/////////////////////////////////////////////////////////////////// 
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 #ifndef %(guard)s
 #define %(guard)s 1
 
-// STL includes
 #include <string>
 
-// FrameWork includes
 #include "AthenaBaseComps/AthService.h"
 
-// %(ipkg)s
 #include "%(ipkg)s/%(iklass)s.h"
 
-// Forward declaration
 class ISvcLocator;
 template <class TYPE> class SvcFactory;
 
 %(namespace_begin)s
+
+/**
+ * @class $(klass)s
+ * @brief 
+ **/
 
 class %(klass)s
   : virtual public ::%(iklass)s,
             public ::AthService
 { 
   friend class SvcFactory<%(klass)s>;
-
-  /////////////////////////////////////////////////////////////////// 
-  // Public methods: 
-  /////////////////////////////////////////////////////////////////// 
  public: 
 
-  // Copy constructor: 
-
-  /// Constructor with parameters: 
   %(klass)s( const std::string& name, ISvcLocator* pSvcLocator );
 
-  /// Destructor: 
   virtual ~%(klass)s(); 
 
-  // Assignment operator: 
   //%(klass)s &operator=(const %(klass)s &alg); 
 
-  /// Gaudi Service Implementation
-  //@{
   virtual StatusCode initialize();
   virtual StatusCode finalize();
   virtual StatusCode queryInterface( const InterfaceID& riid, 
                                      void** ppvInterface );
-  //@}
-
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
-
-  /////////////////////////////////////////////////////////////////// 
-  // Non-const methods: 
-  /////////////////////////////////////////////////////////////////// 
 
   static const InterfaceID& interfaceID();
-
-  /////////////////////////////////////////////////////////////////// 
-  // Private data: 
-  /////////////////////////////////////////////////////////////////// 
  private: 
-
-  /// Default constructor: 
   %(klass)s();
 
-  /// Containers
   
 
 }; 
-
-// I/O operators
-//////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
 
 inline const InterfaceID& %(klass)s::interfaceID() 
 { 
@@ -444,46 +247,29 @@ inline const InterfaceID& %(klass)s::interfaceID()
 """
 
     svc_cxx_template = """\
-///////////////////////// -*- C++ -*- /////////////////////////////
-// %(klass)s.cxx 
-// Implementation file for class %(klass)s
-// Author: S.Binet<binet@cern.ch>
-/////////////////////////////////////////////////////////////////// 
-
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 // %(pkg)s includes
 #include "%(klass)s.h"
 
-// STL includes
 
-// FrameWork includes
 #include "GaudiKernel/Property.h"
 
 %(namespace_begin)s
 
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
 
-// Constructors
-////////////////
 %(klass)s::%(klass)s( const std::string& name, 
 		      ISvcLocator* pSvcLocator ) : 
   ::AthService( name, pSvcLocator )
 {
-  //
-  // Property declaration
-  // 
   //declareProperty( "Property", m_nProperty );
 
 }
 
-// Destructor
-///////////////
 %(klass)s::~%(klass)s()
 {}
 
-// Athena Service's Hooks
-////////////////////////////
 StatusCode %(klass)s::initialize()
 {
   ATH_MSG_INFO ("Initializing " << name() << "...");
@@ -516,144 +302,75 @@ StatusCode
   return StatusCode::SUCCESS;
 }
 
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
-
 %(namespace_end)s
 """
 
     alg_hdr_template = """\
-///////////////////////// -*- C++ -*- /////////////////////////////
-// %(klass)s.h 
-// Header file for class %(klass)s
-// Author: S.Binet<binet@cern.ch>
-/////////////////////////////////////////////////////////////////// 
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 #ifndef %(guard)s
 #define %(guard)s 1
 
-// STL includes
+
 #include <string>
 
-// FrameWork includes
 #include "AthenaBaseComps/AthAlgorithm.h"
 
 %(namespace_begin)s
 
+/**
+ * @class $(klass)s
+ * @brief 
+ **/
+
 class %(klass)s
   : public ::AthAlgorithm
 { 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Public methods: 
-  /////////////////////////////////////////////////////////////////// 
  public: 
-
-  // Copy constructor: 
-
-  /// Constructor with parameters: 
   %(klass)s( const std::string& name, ISvcLocator* pSvcLocator );
 
-  /// Destructor: 
   virtual ~%(klass)s(); 
 
-  // Assignment operator: 
   //%(klass)s &operator=(const %(klass)s &alg); 
 
-  // Athena algorithm's Hooks
-  virtual StatusCode  initialize();
-  virtual StatusCode  execute();
-  virtual StatusCode  finalize();
+  StatusCode  initialize() override;
+  StatusCode  execute() override;
+  StatusCode  finalize() override;
 
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
-
-  /////////////////////////////////////////////////////////////////// 
-  // Non-const methods: 
-  /////////////////////////////////////////////////////////////////// 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Private data: 
-  /////////////////////////////////////////////////////////////////// 
  private: 
-
-  /// Default constructor: 
   %(klass)s();
 
-  /// Containers
-  
-
 }; 
-
-// I/O operators
-//////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
 
 %(namespace_end)s
 #endif //> !%(guard)s
 """
 
+
+    
     alg_cxx_template = """\
-///////////////////////// -*- C++ -*- /////////////////////////////
-// %(klass)s.cxx 
-// Implementation file for class %(klass)s
-// Author: S.Binet<binet@cern.ch>
-/////////////////////////////////////////////////////////////////// 
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 
 // %(pkg)s includes
 #include "%(klass)s.h"
 
-// STL includes
-
-// FrameWork includes
 #include "GaudiKernel/Property.h"
 
 %(namespace_begin)s
 
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
-// Constructors
-////////////////
 %(klass)s::%(klass)s( const std::string& name, 
 			  ISvcLocator* pSvcLocator ) : 
   ::AthAlgorithm( name, pSvcLocator )
 {
-  //
-  // Property declaration
-  // 
   //declareProperty( "Property", m_nProperty );
-
 }
 
-// Destructor
-///////////////
 %(klass)s::~%(klass)s()
 {}
 
-// Athena Algorithm's Hooks
-////////////////////////////
 StatusCode %(klass)s::initialize()
 {
   ATH_MSG_INFO ("Initializing " << name() << "...");
@@ -675,35 +392,104 @@ StatusCode %(klass)s::execute()
   return StatusCode::SUCCESS;
 }
 
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
+%(namespace_end)s
+"""
 
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
+    reentrant_alg_hdr_template = """\
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+#ifndef %(guard)s
+#define %(guard)s 1
 
-/////////////////////////////////////////////////////////////////// 
-// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
+#include <string>
 
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
+%(namespace_begin)s
+
+/**
+ * @class $(klass)s
+ * @brief 
+ **/
+
+class %(klass)s
+  : public ::AthReentrantAlgorithm
+{ 
+ public: 
+
+  %(klass)s( const std::string& name, ISvcLocator* pSvcLocator );
+
+  virtual ~%(klass)s(); 
+
+
+  //%(klass)s &operator=(const %(klass)s &alg); 
+
+  StatusCode  initialize() override;
+  StatusCode  execute_r(const EventContext& context) const override;
+  StatusCode  finalize() override;
+ 
+ private: 
+  %(klass)s();
+ 
+}; 
+
+%(namespace_end)s
+#endif //> !%(guard)s
+"""
+
+
+    
+    reentrant_alg_cxx_template = """\
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include "GaudiKernel/Property.h"
+#include "%(klass)s.h"
+
+%(namespace_begin)s
+
+%(klass)s::%(klass)s( const std::string& name, 
+			  ISvcLocator* pSvcLocator ) : 
+  ::AthReentrantAlgorithm( name, pSvcLocator )
+{
+  //declareProperty( "Property", m_nProperty );
+
+}
+
+%(klass)s::~%(klass)s()
+{}
+
+StatusCode %(klass)s::initialize()
+{
+  ATH_MSG_INFO ("Initializing " << name() << "...");
+
+  return StatusCode::SUCCESS;
+}
+
+StatusCode %(klass)s::finalize()
+{
+  ATH_MSG_INFO ("Finalizing " << name() << "...");
+
+  return StatusCode::SUCCESS;
+}
+
+StatusCode %(klass)s::execute_r(const EventContext& context) const
+{  
+  ATH_MSG_DEBUG ("Executing " << name() << "...");
+
+  return StatusCode::SUCCESS;
+}
 
 %(namespace_end)s
 """
 
+    
     tool_hdr_template = """\
-///////////////////////// -*- C++ -*- /////////////////////////////
-// %(klass)s.h 
-// Header file for class %(klass)s
-// Author: S.Binet<binet@cern.ch>
-/////////////////////////////////////////////////////////////////// 
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 #ifndef %(guard)s
 #define %(guard)s 1
 
@@ -717,78 +503,43 @@ StatusCode %(klass)s::execute()
 // %(ipkg)s includes
 #include "%(ipkg)s/%(iklass)s.h"
 
-// Forward declaration
-class StoreGateSvc;
-
 %(namespace_begin)s
+
+/**
+ * @class $(klass)s
+ * @brief 
+ **/
 
 class %(klass)s
   : virtual public ::%(iklass)s,
             public ::AthAlgTool
 { 
 
-  /////////////////////////////////////////////////////////////////// 
-  // Public methods: 
-  /////////////////////////////////////////////////////////////////// 
  public: 
 
-  // Copy constructor: 
-
-  /// Constructor with parameters: 
   %(klass)s( const std::string& type,
 	     const std::string& name, 
 	     const IInterface* parent );
 
-  /// Destructor: 
   virtual ~%(klass)s(); 
 
-  // Athena algtool's Hooks
   virtual StatusCode  initialize();
   virtual StatusCode  finalize();
 
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
-
-  /////////////////////////////////////////////////////////////////// 
-  // Non-const methods: 
-  /////////////////////////////////////////////////////////////////// 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Private data: 
-  /////////////////////////////////////////////////////////////////// 
  private: 
 
-  /// Default constructor: 
   %(klass)s();
 
-  typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
-  /// Pointer to the StoreGate service
-  StoreGateSvc_t m_storeGate;
-
-  // Containers
-  
-
 }; 
-
-// I/O operators
-//////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
 
 %(namespace_end)s
 #endif //> !%(guard)s
 """
 
     tool_cxx_template = """\
-///////////////////////// -*- C++ -*- /////////////////////////////
-// %(klass)s.cxx 
-// Implementation file for class %(klass)s
-// Author: S.Binet<binet@cern.ch>
-/////////////////////////////////////////////////////////////////// 
-
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 // %(pkg)s includes
 #include "%(klass)s.h"
 
@@ -797,46 +548,23 @@ class %(klass)s
 // FrameWork includes
 #include "GaudiKernel/IToolSvc.h"
 
-// StoreGate
-#include "StoreGate/StoreGateSvc.h"
 
 %(namespace_begin)s
 
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
-// Constructors
-////////////////
 %(klass)s::%(klass)s( const std::string& type, 
 		      const std::string& name, 
 		      const IInterface* parent ) : 
-  ::AthAlgTool  ( type, name, parent   ),
-  m_storeGate( "StoreGateSvc", name )
+  ::AthAlgTool  ( type, name, parent   )
 {
-  //
-  // Property declaration
-  // 
   //declareProperty( "Property", m_nProperty );
-
 }
 
-// Destructor
-///////////////
 %(klass)s::~%(klass)s()
 {}
 
-// Athena algtool's Hooks
-////////////////////////////
 StatusCode %(klass)s::initialize()
 {
   ATH_MSG_INFO ("Initializing " << name() << "...");
-
-  // Get pointer to StoreGateSvc and cache it :
-  if ( !m_storeGate.retrieve().isSuccess() ) {
-    ATH_MSG_ERROR ("Unable to retrieve pointer to StoreGateSvc");
-    return StatusCode::FAILURE;
-  }
   
   return StatusCode::SUCCESS;
 }
@@ -848,30 +576,14 @@ StatusCode %(klass)s::finalize()
   return StatusCode::SUCCESS;
 }
 
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
-
 %(namespace_end)s
 """
 
     pyalg_template = """\
+#
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
+
 # @file:    %(pkg)s/python/%(fname)s
 # @purpose: <put some purpose here>
 # @author:  Sebastien Binet <binet@cern.ch>
@@ -910,6 +622,10 @@ class %(klass)s (PyAthena.Alg):
 """
 
     pysvc_template = """\
+#
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
+
 # @file:    %(pkg)s/python/%(fname)s
 # @purpose: <put some purpose here>
 # @author:  Sebastien Binet <binet@cern.ch>
@@ -945,6 +661,10 @@ class %(klass)s (PyAthena.Svc):
 """
 
     pytool_template = """\
+#
+#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
+
 # @file:    %(pkg)s/python/%(fname)s
 # @purpose: <put some purpose here>
 # @author:  Sebastien Binet <binet@cern.ch>
@@ -980,6 +700,10 @@ class %(klass)s (PyAthena.AlgTool):
 """
 
     pyaud_template = """\
+#
+#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
+
 # @file:    %(pkg)s/python/%(fname)s
 # @purpose: <put some purpose here>
 # @author:  Sebastien Binet <binet@cern.ch>

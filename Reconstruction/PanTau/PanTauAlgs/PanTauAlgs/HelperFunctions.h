@@ -33,9 +33,9 @@ namespace PanTau {
     public:
 
         // from PhysicsAnalysis/TauID/TauDiscriminant/TauDiscriminant/MethodBase.h        
-        HelperFunctions(const std::string& _name = ""):
-            AsgMessaging(_name),
-	    name(_name)
+        HelperFunctions(const std::string& name = ""):
+            AsgMessaging(name),
+	    m_name(name)
 	{}
 
 	virtual ~HelperFunctions () {};
@@ -82,13 +82,13 @@ namespace PanTau {
 
 	std::string getName() const
 	{
-	  return name;
+	  return m_name;
 	}
         
 
     private:
 	
-	std::string name;
+	std::string m_name;
 
 
     }; //end class Tool_HelperFunctions

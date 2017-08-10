@@ -13,11 +13,6 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           Generators/TruthUtils )
 
-# Set the version of crmc to use:
-set( CRMC_VERSION 1.5.4 )
-set( CRMC_ROOT
-   ${LCG_RELEASE_DIR}/MCGenerators/crmc/${CRMC_VERSION}/${ATLAS_PLATFORM} )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( Crmc COMPONENTS Epos )

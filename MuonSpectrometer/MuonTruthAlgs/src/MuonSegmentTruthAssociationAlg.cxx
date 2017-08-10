@@ -66,7 +66,7 @@ namespace Muon {
     unsigned int segIndex = 0;
     muonSegments.reserve(segments->size());
     for( auto seg : *segments ){
-      seg->auxdata< ElementLink< xAOD::MuonSegmentContainer > >("truthSegmentLink") = ElementLink< xAOD::MuonSegmentContainer >();
+      seg->auxdecor< ElementLink< xAOD::MuonSegmentContainer > >("truthSegmentLink") = ElementLink< xAOD::MuonSegmentContainer >();
       if( seg->muonSegment().isValid() ) {
         const Muon::MuonSegment* mseg = dynamic_cast<const Muon::MuonSegment*>(*seg->muonSegment());
         if( mseg ) {
@@ -84,8 +84,7 @@ namespace Muon {
     // create a map of chamber index onto the truth segments
     std::map<Muon::MuonStationIndex::ChIndex, std::vector<ElementLink< xAOD::MuonSegmentContainer> > > chamberTruthSegmentLinks;
     segIndex = 0;
-    for( auto& truthSegment : *muonTruthSegments ){
-      truthSegment->auxdata< ElementLink< xAOD::MuonSegmentContainer > >("recoSegmentLink") = ElementLink< xAOD::MuonSegmentContainer >();
+    for( auto const& truthSegment : *muonTruthSegments ){
       std::vector<ElementLink< xAOD::MuonSegmentContainer> >& linkVec = chamberTruthSegmentLinks[truthSegment->chamberIndex()];
       linkVec.push_back(ElementLink< xAOD::MuonSegmentContainer >(m_muonTruthSegmentContainerName,segIndex));
       ATH_MSG_DEBUG("New truth segment: index " << segIndex << " " << Muon::MuonStationIndex::chName(truthSegment->chamberIndex()) 
@@ -174,8 +173,8 @@ namespace Muon {
           ATH_MSG_DEBUG("Matched reconstructed segment: barcode " << barcode << " layer " << Muon::MuonStationIndex::chName(chIndex) );
           recoLink.toPersistent();
           truthLink.toPersistent();
-          const_cast<xAOD::MuonSegment*>(truthSegment)->auxdata< ElementLink< xAOD::MuonSegmentContainer > >("recoSegmentLink") = recoLink;
-          const_cast<xAOD::MuonSegment*>(recoSegment)->auxdata< ElementLink< xAOD::MuonSegmentContainer > >("truthSegmentLink") = truthSegLink;
+          truthSegment->auxdecor< ElementLink< xAOD::MuonSegmentContainer > >("recoSegmentLink") = recoLink;
+          recoSegment->auxdecor< ElementLink< xAOD::MuonSegmentContainer > >("truthSegmentLink") = truthSegLink;
         } else { 
           ATH_MSG_DEBUG("barcode mismatch " << barcode << " truthParticle->barcode " << truthParticle->barcode());
         }

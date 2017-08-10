@@ -39,12 +39,12 @@ namespace JiveXML {
   StatusCode TRTRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
 
     //be verbose
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieving " << dataTypeName() <<endreq; 
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieving " << dataTypeName() <<endmsg; 
   
     //First try to retrieve the DriftCircleContainer
     const InDet::TRT_DriftCircleContainer* DriftCircleContainer;
     if ( evtStore()->retrieve(DriftCircleContainer, m_TRTDriftCircleCollName).isFailure()) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to retrive TRT_DriftCircleContainer with name " << m_TRTDriftCircleCollName << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to retrive TRT_DriftCircleContainer with name " << m_TRTDriftCircleCollName << endmsg;
       return StatusCode::RECOVERABLE;
     }
 
@@ -53,7 +53,7 @@ namespace JiveXML {
     if ( evtStore()->contains<PRD_MultiTruthCollection>(m_TRTTruthMapName) ){
       if ( evtStore()->retrieve(TRTMultiTruthMap, m_TRTTruthMapName).isFailure() ){
         //Only warn if this container is not available
-        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to retrieve PRD_MultiTruthCollection with name " << m_TRTTruthMapName << endreq;
+        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to retrieve PRD_MultiTruthCollection with name " << m_TRTTruthMapName << endmsg;
       }
     }
 
@@ -65,7 +65,7 @@ namespace JiveXML {
       NDriftCircleTotal += (*DriftCircleContItr)->size();
 
     //be verbose
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Reserving space for " << NDriftCircleTotal << " entries" << endreq;
+    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Reserving space for " << NDriftCircleTotal << " entries" << endmsg;
     
     //Rerserve space in the map
     DataVect rhoz; rhoz.reserve(NDriftCircleTotal);
@@ -95,13 +95,13 @@ namespace JiveXML {
         InDet::TRT_DriftCircle* driftcircle = (*DriftCircleCollItr);
 
         //In verbose mode, print out drift circle information
-        if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Retrieving information from " << (*driftcircle) << endreq;
+        if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Retrieving information from " << (*driftcircle) << endmsg;
 
         Identifier id = driftcircle->identify();
 
         //Check if it is valid
         if (! id.is_valid()) {
-          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Ignoring TRT_DriftCircle with invalid identifier " << id << endreq;
+          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Ignoring TRT_DriftCircle with invalid identifier " << id << endmsg;
           continue;
         }
 
@@ -187,7 +187,7 @@ namespace JiveXML {
     }
       
     //be verbose
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << ": " << rhoz.size() << endreq;  
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << ": " << rhoz.size() << endmsg;  
 
     //forward data to formating tool and return
     return FormatTool->AddToEvent(dataTypeName(), "", &dataMap);  

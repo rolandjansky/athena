@@ -46,8 +46,8 @@ namespace xAODMaker {
       virtual StatusCode execute();
 
    private:
-      std::string   m_muonSegmentLocation; //!< Location/Key for Muon::MuonSegment
-      std::string   m_xaodContainerName; //!< Location/Key for xAOD::MuonSegment
+     SG::ReadHandleKey<Trk::SegmentCollection>   m_muonSegmentLocation; //!< Location/Key for Muon::MuonSegment
+     SG::WriteHandleKey<xAOD::MuonSegmentContainer>   m_xaodContainerName; //!< Location/Key for xAOD::MuonSegment
 
       ToolHandle<xAODMaker::IMuonSegmentConverterTool>  m_muonSegmentConverterTool;
    }; // class MuonSegmentCnvAlg

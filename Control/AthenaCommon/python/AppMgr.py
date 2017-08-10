@@ -19,9 +19,8 @@ __author__  = 'Wim Lavrijsen (WLavrijsen@lbl.gov)'
 __all__ = [ 'theApp', 'ServiceMgr', 'ToolSvc', 'AuditorSvc', 'theAuditorSvc',
             'athMasterSeq',
             'athFilterSeq',
-            'athBeginSeq',
+            'athCondSeq',
             'athAlgSeq',    'topSequence',
-            'athEndSeq'
             'athOutSeq',
             'athRegSeq',
             ]
@@ -255,14 +254,16 @@ class AthAppMgr( AppMgr ):
 
       def _build():
          Logging.log.debug ("building master sequence...")
-         athMasterSeq = _as.AthSequencer ("AthMasterSeq")
+         athMasterSeq = _as.AthSequencer ("AthMasterSeq",Sequential = True, StopOverride=True)
          athFilterSeq = _as.AthSequencer ("AthFilterSeq"); 
-         athBeginSeq  = _as.AthSequencer ("AthBeginSeq")
+         athBeginSeq  = _as.AthSequencer ("AthBeginSeq",Sequential=True)
+         athCondSeq   = _as.AthSequencer ("AthCondSeq")
          athAlgSeq    = _as.AthSequencer ("AthAlgSeq")
-         athEndSeq    = _as.AthSequencer ("AthEndSeq")
+         athEndSeq    = _as.AthSequencer ("AthEndSeq",Sequential=True)
          athOutSeq    = _as.AthSequencer ("AthOutSeq")
          athRegSeq    = _as.AthSequencer ("AthRegSeq")
-         athMTSeq     = _as.AthSequencer ("AthMTSeq")         
+         athAllAlgSeq = _as.AthSequencer ("AthAllAlgSeq")
+         athAlgEvtSeq = _as.AthSequencer ("AthAlgEvtSeq",Sequential = True, StopOverride=True)
          # transfer old TopAlg to new AthAlgSeq
          _top_alg = _as.AlgSequence("TopAlg")
          # first transfer properties
@@ -283,7 +284,7 @@ class AthAppMgr( AppMgr ):
          #   IPA
          ifaBeg=IFA("BeginIncFiringAlg")
          ifaBeg.Incidents=["BeginEvent"]
-         ifaBeg.FireSerial=True # we want serial incident to be fired as well
+         ifaBeg.FireSerial=False # we want serial incident to be fired as well
          athBeginSeq += ifaBeg
          ipa=IPA("IncidentProcAlg1")
          athBeginSeq += ipa
@@ -293,7 +294,7 @@ class AthAppMgr( AppMgr ):
          #   IPA
          ifaEnd=IFA("EndIncFiringAlg")
          ifaEnd.Incidents=["EndEvent"]
-         ifaEnd.FireSerial=True # we want serial incident to be fired as well
+         ifaEnd.FireSerial=False # we want serial incident to be fired as well
          athEndSeq += ifaEnd
          ipa2=IPA("IncidentProcAlg2")
          athEndSeq += ipa2
@@ -305,13 +306,14 @@ class AthAppMgr( AppMgr ):
 
          # XXX: should we discard empty sequences ?
          #      might save some CPU and memory...
-         athMTSeq+=athBeginSeq
-         athMTSeq+=athAlgSeq
-         athMTSeq+=athEndSeq
-         # athMasterSeq += athBeginSeq
-         # athMasterSeq += athAlgSeq
-         # athMasterSeq += athEndSeq
-         athMasterSeq += athMTSeq
+         athAllAlgSeq += athCondSeq
+         athAllAlgSeq += athAlgSeq
+
+         athAlgEvtSeq += athBeginSeq
+         athAlgEvtSeq += athAllAlgSeq
+         athAlgEvtSeq += athEndSeq
+
+         athMasterSeq += athAlgEvtSeq
          athMasterSeq += athOutSeq
          athMasterSeq += athRegSeq
          
@@ -949,17 +951,24 @@ def AuditorSvc():             # backwards compatibility
 #         |
 #         +-- athFilterSeq
 #                |
-#                +--- athBeginSeq
-#                |
-#                +--- athAlgSeq == TopAlg
-#                |
-#                +--- athEndSeq
+#                +--- athAlgEvtSeq
+#                        |
+#                        +--- athBeginSeq
+#                        |
+#                        +--- athAllAlgSeq
+#                                |
+#                                +--- athCondSeq
+#                                |
+#                                +--- athAlgSeq == TopAlg
+#                        |
+#                        +--- athEndSeq
 #                |
 #                +--- athOutSeq
 #                |
 #                +--- athRegStreams
 athMasterSeq = AlgSequence.AthSequencer( "AthMasterSeq" )
 athFilterSeq = AlgSequence.AthSequencer( "AthFilterSeq" )
+athCondSeq   = AlgSequence.AthSequencer( "AthCondSeq" )
 athAlgSeq    = AlgSequence.AthSequencer( "AthAlgSeq" )
 athOutSeq    = AlgSequence.AthSequencer( "AthOutSeq" )
 athRegSeq    = AlgSequence.AthSequencer( "AthRegSeq" )

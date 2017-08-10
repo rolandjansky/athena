@@ -2,6 +2,11 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+
+#ifdef ROOTCORE
+#   include "xAODRootAccess/TStore.h"
+#endif // ROOTCORE
+
 #include "xAODBTaggingEfficiency/BTaggingEfficiencyTool.h"
 
 #include <string>

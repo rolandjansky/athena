@@ -20,27 +20,41 @@ class MuonLayerHoughAlg : public AthAlgorithm
 
   virtual ~MuonLayerHoughAlg();
 
-  virtual StatusCode initialize();
-  virtual StatusCode execute();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
+  virtual StatusCode finalize() override;
 
 
  private:
+  template<class T> 
+  const T* GetObject(SG::ReadHandleKey<T> &key);
+
 
   /** storegate location of the MuonPrepDataContainer for all four technologies */
-  std::string         m_keyTgc;
-  std::string         m_keyTgcPriorBC;
-  std::string         m_keyTgcNextBC;
-  std::string         m_keyRpc;
-  std::string         m_keyCsc;
-  std::string         m_keyMdt;
-  std::string         m_keysTgc;
-  std::string         m_keyMM;
+  SG::ReadHandleKey<Muon::TgcPrepDataContainer>   m_keyTgc;
+  std::string         m_keyTgcPriorBC;//unused
+  std::string         m_keyTgcNextBC;//unused
+  SG::ReadHandleKey<Muon::RpcPrepDataContainer>   m_keyRpc;
+  SG::ReadHandleKey<Muon::CscPrepDataContainer>   m_keyCsc;
+  SG::ReadHandleKey<Muon::MdtPrepDataContainer>   m_keyMdt;
+  SG::ReadHandleKey<Muon::sTgcPrepDataContainer>  m_keysTgc;
+  SG::ReadHandleKey<Muon::MMPrepDataContainer>    m_keyMM;
 
+  SG::WriteHandleKey<MuonPatternCombinationCollection> m_combis;
   ToolHandle<Muon::MuonEDMPrinterTool> m_printer;     
   ToolHandle<Muon::MuonLayerHoughTool> m_layerTool;     
   bool m_printSummary;
 };
 
+
+template<class T>
+const T* MuonLayerHoughAlg::GetObject(SG::ReadHandleKey<T> &key){
+  SG::ReadHandle<T> handle( key);
+  if( handle.isPresent() && !handle.isValid()) {
+    ATH_MSG_WARNING("MuonLayerHoughAlg Cannot retrieve " << handle.key() );
+    return nullptr;
+  }
+  return handle.cptr();
+}
 
 #endif

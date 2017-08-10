@@ -99,7 +99,10 @@ namespace Muon {
     m_phimax(0.),
     m_refit(false),
     m_isEndcap(false),
-    m_nmultipleHitWarnings(0)
+    m_nmultipleHitWarnings(0),
+    m_rpcKey("RPC_Measurements"),
+    m_tgcKey("TGC_Measurements"),
+    m_mdtKey("MDT_DriftCircles")
   {
     declareInterface<IMuonSegmentMaker>(this);
     declareInterface<IMuonSegmentTriggerHitAssociator>(this);
@@ -140,6 +143,11 @@ namespace Muon {
     declareProperty("UpdatePhiUsingPhiHits",m_updatePhiUsingPhiHits = false );
     declareProperty("AssumePointingPhi",m_assumePointingPhi = false );
     declareProperty("Redo2DFit", m_redo2DFit = true );
+
+    declareProperty("RpcPrepDataContainer", m_rpcKey);
+    declareProperty("TgcPrepDataContainer", m_tgcKey);
+    declareProperty("MdtPrepDataContainer", m_mdtKey);
+
   }
 
   DCMathSegmentMaker::~DCMathSegmentMaker()
@@ -223,6 +231,21 @@ namespace Muon {
       }
       m_dcslFitter = m_dcslFitProvider->getFitter();
       ATH_MSG_INFO(" Using " << m_dcslFitProvider);
+    }
+
+  //initialise for data handles
+
+    if(!m_rpcKey.initialize()){
+      ATH_MSG_ERROR("Couldn't initalize RPC ReadHandleKey");
+      return StatusCode::FAILURE;
+    }
+    if(!m_tgcKey.initialize()){
+      ATH_MSG_ERROR("Couldn't initalize TGC ReadHandleKey");
+      return StatusCode::FAILURE;
+    }
+    if(!m_mdtKey.initialize()){
+      ATH_MSG_ERROR("Couldn't initalize MDT ReadHandleKey");
+      return StatusCode::FAILURE;
     }
 
     return StatusCode::SUCCESS;
@@ -374,8 +397,16 @@ namespace Muon {
 
     if( m_isEndcap ){
       const Muon::TgcPrepDataContainer* prdContainer = 0;
-      if( evtStore()->retrieve(prdContainer,"TGC_Measurements").isFailure() || !prdContainer ) {
+      SG::ReadHandle<Muon::TgcPrepDataContainer> TgcCont(m_tgcKey);
+      if( !TgcCont.isValid() ) {
 	ATH_MSG_WARNING("Cannot retrieve TgcPrepDataContainer ");
+	return;
+      }
+      else {
+        prdContainer = TgcCont.cptr();
+      }
+      if(!prdContainer){
+	ATH_MSG_WARNING("No TGC prd container retrieved");
 	return;
       }
       
@@ -407,8 +438,16 @@ namespace Muon {
 
     }else{
       const Muon::RpcPrepDataContainer* prdContainer = 0;
-      if( evtStore()->retrieve(prdContainer,"RPC_Measurements").isFailure() || !prdContainer ) {
+      SG::ReadHandle<Muon::RpcPrepDataContainer> RpcCont(m_rpcKey);
+      if(!RpcCont.isValid()){
 	ATH_MSG_WARNING("Cannot retrieve RpcPrepDataContainer ");
+	return;
+      }
+      else{
+	prdContainer = RpcCont.cptr();
+      }
+      if(!prdContainer){
+	ATH_MSG_WARNING("No RPC prd container retrieved");
 	return;
       }
       
@@ -2381,8 +2420,16 @@ namespace Muon {
     IdentifierHash colHash;
     if( m_idHelperTool->mdtIdHelper().get_module_hash(m_idHelperTool->chamberId(id),colHash) == 0 ){
       const MdtPrepDataContainer* prdContainer = 0;
-      if( evtStore()->retrieve(prdContainer,"MDT_DriftCircles").isFailure() || !prdContainer ) {
+      SG::ReadHandle<Muon::MdtPrepDataContainer> MdtCont(m_mdtKey);
+      if(!MdtCont.isValid()){
 	ATH_MSG_WARNING("Cannot retrieve MdtPrepDataContainer ");
+	return 0;
+      }
+      else{
+	prdContainer = MdtCont.cptr();
+      }
+      if(!prdContainer){
+	ATH_MSG_WARNING("No MDT prd collection retrieved");
 	return 0;
       }
       MdtPrepDataContainer::const_iterator colIt = prdContainer->indexFind(colHash);

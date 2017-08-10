@@ -26,14 +26,13 @@
 #include <TError.h>
 
 namespace TrigCostRootAnalysis {
-
   /**
    * Monitor constructor. Sets name and calls base constructor.
    */
   MonitorROSChain::MonitorROSChain(const TrigCostData* _costData) : MonitorBase(_costData, "ROS_Chain") {
     m_dummyCounter = newCounter(Config::config().getStr(kDummyString), INT_MIN);
     allowSameIDCounters();
-    m_detailLevel = 0; // No Histogramming 
+    m_detailLevel = 0; // No Histogramming
   }
 
   /**
@@ -41,14 +40,14 @@ namespace TrigCostRootAnalysis {
    * For the ROS, all ROS data is looped over and recorded.
    * @param _weight The event weight.
    */
-  void MonitorROSChain::newEvent(Float_t _weight ) {
+  void MonitorROSChain::newEvent(Float_t _weight) {
     m_timer.start();
-    if ( Config::config().debug() ) {
+    if (Config::config().debug()) {
       Int_t _N = 0;
       for (UInt_t _rob = 0; _rob < m_costData->getNROBs(); ++_rob) {
-        _N += m_costData->getROBDataN( _rob);
+        _N += m_costData->getROBDataN(_rob);
       }
-      Info("MonitorROSChain::newEvent", "*** Processing ROS-CHAIN ***  Size %i ***", _N  );
+      Info("MonitorROSChain::newEvent", "*** Processing ROS-CHAIN ***  Size %i ***", _N);
     }
 
     //Now loop over the counter collections;
@@ -67,19 +66,20 @@ namespace TrigCostRootAnalysis {
         if (_algLocation.first != -1 && _algLocation.second != -1) {
           // Can tell just from the sequence D3PD-ID part
           Int_t _chainID = m_costData->getSequenceChannelCounter(_algLocation.first);
-          _chainName = TrigConfInterface::getHLTNameFromChainID( _chainID, m_costData->getSequenceLevel(_algLocation.first) );
+          _chainName =
+            TrigConfInterface::getHLTNameFromChainID(_chainID, m_costData->getSequenceLevel(_algLocation.first));
         }
         for (StringIntSetMapIt_t _reqIt = _ROSMapping.begin(); _reqIt != _ROSMapping.end(); ++_reqIt) {
           // Get the counter - note we do not store any ID here
           const std::string _robChainName = (*_reqIt).first + Config::config().getStr(kDelimatorString) + _chainName;
-          CounterBase* _counter =  getCounter( _counterMap, _robChainName, 0 /*not used*/ );
+          CounterBase* _counter = getCounter(_counterMap, _robChainName, 0 /*not used*/);
           // This lets the counter know it should ask its parent for the full set of ROBINs to collate
           if (_counter->getCalls() == 0) {
             _counter->decorate(kDecType, Config::config().getStr(kROSString));
             _counter->decorate(kDecMyROS, (*_reqIt).first);
           }
           // The counter will use its name and the above map to find the ROBINs to look at
-          _counter->processEventCounter( _robReq, UINT_MAX /*not used*/, _weight );
+          _counter->processEventCounter(_robReq, UINT_MAX /*not used*/, _weight);
         }
       }
 
@@ -94,11 +94,15 @@ namespace TrigCostRootAnalysis {
    * @return If this monitor should be active for a given mode.
    */
   Bool_t MonitorROSChain::getIfActive(ConfKey_t _mode) {
-    switch(_mode) {
-      case kDoAllSummary:       return kTRUE;
-      case kDoKeySummary:       return kTRUE;
-      case kDoLumiBlockSummary: return kFALSE;
-      default: Error("MonitorROSChain::getIfActive", "An invalid summary mode was provided (key %s)", Config::config().getName(_mode).c_str() );
+    switch (_mode) {
+    case kDoAllSummary:       return kTRUE;
+
+    case kDoKeySummary:       return kTRUE;
+
+    case kDoLumiBlockSummary: return kFALSE;
+
+    default: Error("MonitorROSChain::getIfActive", "An invalid summary mode was provided (key %s)",
+                   Config::config().getName(_mode).c_str());
     }
     return kFALSE;
   }
@@ -107,16 +111,14 @@ namespace TrigCostRootAnalysis {
    * Save the results from this monitors counters as specified in the configuration.
    */
   void MonitorROSChain::saveOutput() {
-
     m_filterOutput = kTRUE; // Apply any user-specified name filter to output
 
     VariableOptionVector_t _toSave = m_dummyCounter->getAllHistograms();
-    sharedHistogramOutputRoutine( _toSave );
+    sharedHistogramOutputRoutine(_toSave);
 
     std::vector<TableColumnFormatter> _toSaveTable;
-    addCommonTableEntries( _toSaveTable );
-    sharedTableOutputRoutine( _toSaveTable );
-
+    addCommonTableEntries(_toSaveTable);
+    sharedTableOutputRoutine(_toSaveTable);
   }
 
   /**
@@ -127,8 +129,7 @@ namespace TrigCostRootAnalysis {
    * @param _ID Reference to ID number of counter.
    * @returns Base class pointer to new counter object of correct derived type.
    */
-  CounterBase* MonitorROSChain::newCounter(  const std::string &_name, Int_t _ID  ) {
-    return new CounterROB( m_costData, _name,  _ID, m_detailLevel, (MonitorBase*)this );
+  CounterBase* MonitorROSChain::newCounter(const std::string& _name, Int_t _ID) {
+    return new CounterROB(m_costData, _name, _ID, m_detailLevel, (MonitorBase*) this);
   }
-
 } // namespace TrigCostRootAnalysis

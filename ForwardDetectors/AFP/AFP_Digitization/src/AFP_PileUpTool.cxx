@@ -115,8 +115,8 @@ StatusCode AFP_PileUpTool::initialize() {
 
   ATH_MSG_DEBUG ( "AFP_PileUpTool::initialize() called" );
   
-  ATH_MSG_DEBUG ( "    CollectionEff: " << m_CollectionEff << endreq
-//		 << " ScalePixel: " << m_ScalePixel << endreq
+  ATH_MSG_DEBUG ( "    CollectionEff: " << m_CollectionEff << endmsg
+//		 << " ScalePixel: " << m_ScalePixel << endmsg
 		    );
   
   if (m_atRndmGenSvc.retrieve().isFailure()) { 

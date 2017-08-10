@@ -18,7 +18,6 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           DetectorDescription/Identifier
                           Generators/GeneratorObjects
-                          Simulation/Tools/AtlasCLHEP_RandomGenerators
                           Tools/PathResolver )
 
 # External dependencies:
@@ -31,7 +30,7 @@ atlas_add_component( ALFA_Digitization
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps AthenaKernel PileUpToolsLib EventInfo ALFA_RawEv ALFA_SimEv GaudiKernel HitManagement Identifier GeneratorObjects AtlasCLHEP_RandomGenerators PathResolver )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps AthenaKernel PileUpToolsLib EventInfo ALFA_RawEv ALFA_SimEv GaudiKernel HitManagement Identifier GeneratorObjects PathResolver )
 
 # Install files from the package:
 atlas_install_headers( ALFA_Digitization )

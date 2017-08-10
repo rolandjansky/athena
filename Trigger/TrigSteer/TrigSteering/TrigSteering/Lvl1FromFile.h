@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: HLT Steering
  * @Package: TrigSteering
- * @Class  : Lvl1FromFile
+ * @class  : Lvl1FromFile
  *
  * @brief produce TriggerElements from a dummy level 1 result file and simply activate all HLT chains
  *

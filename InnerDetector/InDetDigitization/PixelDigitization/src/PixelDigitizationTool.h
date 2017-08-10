@@ -23,7 +23,6 @@
 #include "StoreGate/WriteHandle.h"
 
 #include "InDetSimData/InDetSimDataCollection.h"
-// STSTST #include "SiDigitization/ISiChargedDiodesProcessorTool.h"
 #include "PixelProcessorTool.h"
 #include "SubChargesTool.h"
 #include "FrontEndSimTool.h"
@@ -35,13 +34,13 @@ class PixelDigitizationTool : public PileUpToolBase {
   public:
     PixelDigitizationTool(const std::string &type, const std::string &name, const IInterface *pIID);
 
-    virtual StatusCode initialize();
-    virtual StatusCode processAllSubEvents();
-    virtual StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode processAllSubEvents() override;
+    virtual StatusCode finalize() override;
 
-    StatusCode prepareEvent(unsigned int);
+    virtual StatusCode prepareEvent(unsigned int) override;
     StatusCode digitizeEvent();
-    StatusCode mergeEvent();
+    virtual StatusCode mergeEvent() override;
     virtual StatusCode processBunchXing(int bunchXing, SubEventIterator bSubEvents, SubEventIterator eSubEvents) override final;
 
   protected:
@@ -53,7 +52,7 @@ class PixelDigitizationTool : public PileUpToolBase {
     PixelDigitizationTool(const PixelDigitizationTool&);
     PixelDigitizationTool &operator=(const PixelDigitizationTool&);
 
-    std::vector<SiHitCollection*> hitCollPtrs;
+    std::vector<SiHitCollection*> m_hitCollPtrs;
 
     SG::WriteHandle<PixelRDO_Container>     m_rdoContainer;
     SG::WriteHandle<InDetSimDataCollection> m_simDataColl;
@@ -64,7 +63,6 @@ class PixelDigitizationTool : public PileUpToolBase {
 
     bool              m_onlyHitElements;
 
-// STSTST    ToolHandleArray<ISiChargedDiodesProcessorTool> m_diodesProcsTool;
     ToolHandleArray<PixelProcessorTool>            m_processorTool;
     ToolHandleArray<SubChargesTool>                m_chargeTool;
     ToolHandleArray<FrontEndSimTool>               m_fesimTool;

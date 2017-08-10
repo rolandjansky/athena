@@ -26,11 +26,11 @@
 /////////////////////////////////////////////
 
 #include <string>
+#include <type_traits>
 #include "AthContainers/AuxElement.h"
 #include "xAODBase/IParticle.h"
 #include "xAODJet/JetTypes.h"
 
-using SG::AuxElement;
 namespace xAOD {
 
 
@@ -226,25 +226,6 @@ namespace xAOD {
     /////////////////////////////////////    
     namespace {
       /// This anonymous namespace to define helper classes to deal with template code 
-      /// 
-
-      /// \class InheritsIParticle 
-      /// Only one purpose : define a compile time constant :
-      ///  InheritsIParticle<Obj>::Test is true if Obj inherits IParticle
-      template<typename Obj>
-      class InheritsIParticle
-      {
-       
-        class No { };
-        class Yes { No no[3]; };
-        
-        static Yes testFunc( IParticle* ); // declared, but not defined
-        static No testFunc( ... ); // declared, but not defined
-        
-      public:
-        enum { Test = sizeof(testFunc(static_cast<Obj*>(0))) == sizeof(Yes) };
-      }; 
-      
 
       /// Define typedef to the types used in Auxiliary Store for the template parameter Obj
       template<typename Obj, bool IsIP> 
@@ -277,7 +258,7 @@ namespace xAOD {
     template<class TYPE>
     class ObjectAccessorWrapper: public Named {
     public:
-      typedef InternalTypes<TYPE, InheritsIParticle<TYPE>::Test> InternalType;
+      typedef InternalTypes<TYPE, std::is_base_of<IParticle, TYPE>::value> InternalType;
       typedef typename InternalType::ContainerType ContainerType;
       typedef typename InternalType::LinkType LinkType;
       typedef typename InternalType::AccessorType AccessorType;
@@ -321,7 +302,7 @@ namespace xAOD {
     template<class TYPE>
     class ObjectAccessorWrapper<std::vector<const TYPE*> > : public Named {
     public:
-      typedef InternalVectorTypes<TYPE, InheritsIParticle<TYPE>::Test> InternalType;
+      typedef InternalVectorTypes<TYPE, std::is_base_of<IParticle, TYPE>::value> InternalType;
       typedef typename InternalType::ContainerType ContainerType;
       typedef typename InternalType::LinkType LinkType;
       typedef typename InternalType::AccessorType AccessorType;

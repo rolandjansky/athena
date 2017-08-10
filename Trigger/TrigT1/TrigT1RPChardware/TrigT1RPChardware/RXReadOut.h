@@ -28,28 +28,28 @@ void   topRXBody();
 ubit16 readRXWord();
 RXReadOutStructure getHeader();
 RXReadOutStructure getFooter();
-ubit16 numberOfFragmentWords (){return numberOfWordsInFragment;};
+ubit16 numberOfFragmentWords (){return m_numberOfWordsInFragment;};
 void bytestream(std::ostream &stream);
 //void decodeBytestream();
 
 private:
 //
-static const ubit16 numberOfPads=8;
+static const ubit16 s_numberOfPads=8;
 //
 // control flags for Body scanninng ...
 //
-ubit16 addressOfWordScanned;
-ubit16 numberOfPDFragments;
-ubit16 numberOfWordsInFragment;
-ubit16 newPDIndex;
-ubit16 newPDRO;
-ubit16 numberOfWordsRead;
-ubit16 numberOfWordsInPDRO;
-ubit16 endOfPDFragments;
-PadReadOut *currentPDRO;
+ubit16 m_addressOfWordScanned;
+ubit16 m_numberOfPDFragments;
+ubit16 m_numberOfWordsInFragment;
+ubit16 m_newPDIndex;
+ubit16 m_newPDRO;
+ubit16 m_numberOfWordsRead;
+ubit16 m_numberOfWordsInPDRO;
+ubit16 m_endOfPDFragments;
+PadReadOut *m_currentPDRO;
 //
 //
-RXReadOutStructure RROS;
+RXReadOutStructure m_RROS;
 PadReadOut **m_PROlist;
 ubit16 m_sectorID;
 ubit16 m_Header;

@@ -146,6 +146,7 @@ if InDetTrigFlags.doAmbiSolving():
                                                           usePixel      = EFIDTrackingCutsLowPt.usePixel(),
                                                           useSCT        = EFIDTrackingCutsLowPt.useSCT(),
                                                           minTRTonTrk  = 0,    # no TRT here
+                                                          doEmCaloSeed = False,
                                                           DriftCircleCutTool = InDetTrigTRTDriftCircleCut,
                                                          )
   ToolSvc += InDetTrigScoringToolLowPt

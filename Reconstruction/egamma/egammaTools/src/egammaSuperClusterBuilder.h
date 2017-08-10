@@ -106,7 +106,7 @@ private:
   bool m_refineEta1 ;   //!< Whether to refine the eta1 calculation
   bool m_correctClusters;  //!< Whether to run cluster correction
   bool m_calibrateClusters;  //!< Whether to run cluster calibration
-  /** @breif Handle to the MVA calibration Tool **/
+  /** @brief Handle to the MVA calibration Tool **/
   ToolHandle<IegammaMVATool>  m_MVACalibTool;  
   /** @brief Tool to handle cluster corrections */
   ToolHandle<IegammaSwTool>   m_clusterCorrectionTool;

@@ -32,9 +32,9 @@ GeoPixelLadderServices::GeoPixelLadderServices(int ladderType)
   //   
   // Length and thickness of the Omega are in the db
   //
-  double halflength =0.5* gmt_mgr->PixelLadderLength()+m_epsilon;
+  double halflength =0.5* m_gmt_mgr->PixelLadderLength()+m_epsilon;
   //
-  const GeoMaterial* air = mat_mgr->getMaterial("std::Air");
+  const GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
   //
   //const GeoBox* ladderSvcBox = new GeoBox(thickness/2.,width/2.,halflength);
   // Quick fix - we hardwire the numbers. Need to work out a way to extract this from the database numbers.
@@ -44,7 +44,7 @@ GeoPixelLadderServices::GeoPixelLadderServices(int ladderType)
   // ConnA: Part to fit Connector
   // ConnC: Part to fit Cable
 
-  double xOffsetConnA = xBase + gmt_mgr->PixelLadderCableOffsetX() - gmt_mgr->PixelLadderServicesX();
+  double xOffsetConnA = xBase + m_gmt_mgr->PixelLadderCableOffsetX() - m_gmt_mgr->PixelLadderServicesX();
   double xOffsetConnC = xOffsetConnA;
 
 
@@ -52,12 +52,12 @@ GeoPixelLadderServices::GeoPixelLadderServices(int ladderType)
   // double xMaxConnC = 1.6575 * CLHEP::cm + xOffsetConnC + safety;
   // max offset is 12.5mm + 1/2 thickness of cables
   //  double xMaxConnA = 1.5075 * CLHEP::cm + 0.5* 0.15*CLHEP::cm + xOffsetConnA + safety;
-  double xMaxConnA = gmt_mgr->PixelConnectorPosX(1) + 0.5*gmt_mgr->PixelConnectorWidthX(1)  + xOffsetConnA + safety;
+  double xMaxConnA = m_gmt_mgr->PixelConnectorPosX(1) + 0.5*m_gmt_mgr->PixelConnectorWidthX(1)  + xOffsetConnA + safety;
   double xMaxConnC = 1.25 * CLHEP::cm + 0.5* 0.0125*CLHEP::cm + xOffsetConnC + safety;
   double xMaxOmegaBase = 0.055 * CLHEP::cm + xBase + 1*CLHEP::mm; // The 1 mm is just extra safety. 
   double yWidthConnA = 1.0 * CLHEP::cm;
   double yWidthConnC = 0.2 * CLHEP::cm;
-  double yPosConnA =  gmt_mgr->PixelLadderCableOffsetY() - gmt_mgr->PixelLadderServicesY();
+  double yPosConnA =  m_gmt_mgr->PixelLadderCableOffsetY() - m_gmt_mgr->PixelLadderServicesY();
   double yPosConnC =  yPosConnA;
   double xCenter = 0;
   double xWidthOmegaBase = xMaxOmegaBase - xBase;
@@ -95,9 +95,9 @@ GeoPixelLadderServices::GeoPixelLadderServices(int ladderType)
 
 GeoVPhysVol* GeoPixelLadderServices::Build() {
   GeoPhysVol* ladderSvcPhys = new GeoPhysVol(m_ladderServicesLV);
-  //double thickness = gmt_mgr->PixelLadderThickness()+gmt_mgr->PixelCableThickness();
-  //double thickness = gmt_mgr->PixelLadderThickness() + gmt_mgr->PixelCableThickness() + 0.25*CLHEP::cm; // plus 0.25 cm New DC3 ???
-  //double thickness = gmt_mgr->PixelLadderThickness()+ 6.5;  // gmt_mgr->PixelCableThickness() was 0.4 cm, plus 0.25 cm New DC3
+  //double thickness = m_gmt_mgr->PixelLadderThickness()+m_gmt_mgr->PixelCableThickness();
+  //double thickness = m_gmt_mgr->PixelLadderThickness() + m_gmt_mgr->PixelCableThickness() + 0.25*CLHEP::cm; // plus 0.25 cm New DC3 ???
+  //double thickness = m_gmt_mgr->PixelLadderThickness()+ 6.5;  // m_gmt_mgr->PixelCableThickness() was 0.4 cm, plus 0.25 cm New DC3
   //
   // The Glue
   BuildGlue(ladderSvcPhys);
@@ -136,8 +136,8 @@ GeoVPhysVol* GeoPixelLadderServices::Build() {
   for (int ii = 0; ii < cable.numElements(); ii++) {
     cable.setElement(ii);
     GeoVPhysVol* phys = cable.Build();
-    double xpos = m_xOffset + cable.getStackOffset() + gmt_mgr->PixelLadderCableOffsetX() - gmt_mgr->PixelLadderServicesX();
-    double ypos = m_yOffset + gmt_mgr->PixelLadderCableOffsetY() - gmt_mgr->PixelLadderServicesY();
+    double xpos = m_xOffset + cable.getStackOffset() + m_gmt_mgr->PixelLadderCableOffsetX() - m_gmt_mgr->PixelLadderServicesX();
+    double ypos = m_yOffset + m_gmt_mgr->PixelLadderCableOffsetY() - m_gmt_mgr->PixelLadderServicesY();
     double zpos = cable.zpos();
     GeoTransform* xform = new GeoTransform(HepGeom::Translate3D(xpos,ypos,zpos));
     ladderSvcPhys->add(xform);
@@ -164,16 +164,16 @@ GeoVPhysVol* GeoPixelLadderServices::BuildOmega() {
   double length = 816*CLHEP::mm;
   double zOffset = 0;
   */
-  double xUpperBend = xOffset + gmt_mgr->PixelOmegaUpperBendX();
-  double yUpperBend = yOffset + gmt_mgr->PixelOmegaUpperBendY();
-  double radUpperBend = gmt_mgr->PixelOmegaUpperBendRadius(); 
-  double xLowerBend = xOffset + gmt_mgr->PixelOmegaLowerBendX();
-  double yLowerBend = yOffset + gmt_mgr->PixelOmegaLowerBendY();
-  double radLowerBend = gmt_mgr->PixelOmegaLowerBendRadius(); 
-  double yStart= yOffset + gmt_mgr->PixelOmegaStartY(); 
-  double yEnd =  yOffset + gmt_mgr->PixelOmegaEndY(); 
-  double thick = gmt_mgr->PixelOmegaWallThickness();
-  double length = gmt_mgr->PixelOmegaLength();
+  double xUpperBend = xOffset + m_gmt_mgr->PixelOmegaUpperBendX();
+  double yUpperBend = yOffset + m_gmt_mgr->PixelOmegaUpperBendY();
+  double radUpperBend = m_gmt_mgr->PixelOmegaUpperBendRadius(); 
+  double xLowerBend = xOffset + m_gmt_mgr->PixelOmegaLowerBendX();
+  double yLowerBend = yOffset + m_gmt_mgr->PixelOmegaLowerBendY();
+  double radLowerBend = m_gmt_mgr->PixelOmegaLowerBendRadius(); 
+  double yStart= yOffset + m_gmt_mgr->PixelOmegaStartY(); 
+  double yEnd =  yOffset + m_gmt_mgr->PixelOmegaEndY(); 
+  double thick = m_gmt_mgr->PixelOmegaWallThickness();
+  double length = m_gmt_mgr->PixelOmegaLength();
   double zOffset = 0;
 
   double sepX = (xUpperBend - xLowerBend);
@@ -225,8 +225,8 @@ GeoVPhysVol* GeoPixelLadderServices::BuildOmega() {
     + lowerBendShapeM->volume()
     + lowerStraightBoxM->volume();
 
-  std::string matName = gmt_mgr->getMaterialName("Omega", gmt_mgr->GetLD());
-  const GeoMaterial* omegaMat = mat_mgr->getMaterialForVolume(matName,totVolume);
+  std::string matName = m_gmt_mgr->getMaterialName("Omega", m_gmt_mgr->GetLD());
+  const GeoMaterial* omegaMat = m_mat_mgr->getMaterialForVolume(matName,totVolume);
   GeoLogVol* omegaLV = new GeoLogVol("Omega",&omegaShape,omegaMat);
   return new GeoPhysVol(omegaLV);
 
@@ -249,14 +249,14 @@ GeoVPhysVol* GeoPixelLadderServices::BuildAlTube() {
   double zOffset = 0;
   */
 
-  double xUpperBend = xOffset + gmt_mgr->PixelAlTubeUpperBendX();
-  double yUpperBend = yOffset + gmt_mgr->PixelAlTubeUpperBendY();
-  double radUpperBend =  gmt_mgr->PixelAlTubeUpperBendRadius(); 
-  double xLowerBend = xOffset + gmt_mgr->PixelAlTubeLowerBendX();
-  double yLowerBend = yOffset + gmt_mgr->PixelAlTubeLowerBendY();
-  double radLowerBend = gmt_mgr->PixelAlTubeLowerBendRadius(); 
-  double thick = gmt_mgr->PixelAlTubeWallThickness();
-  double length = gmt_mgr->PixelAlTubeLength();
+  double xUpperBend = xOffset + m_gmt_mgr->PixelAlTubeUpperBendX();
+  double yUpperBend = yOffset + m_gmt_mgr->PixelAlTubeUpperBendY();
+  double radUpperBend =  m_gmt_mgr->PixelAlTubeUpperBendRadius(); 
+  double xLowerBend = xOffset + m_gmt_mgr->PixelAlTubeLowerBendX();
+  double yLowerBend = yOffset + m_gmt_mgr->PixelAlTubeLowerBendY();
+  double radLowerBend = m_gmt_mgr->PixelAlTubeLowerBendRadius(); 
+  double thick = m_gmt_mgr->PixelAlTubeWallThickness();
+  double length = m_gmt_mgr->PixelAlTubeLength();
   double zOffset = 0;
 
   double sepX = (xUpperBend - xLowerBend);
@@ -304,8 +304,8 @@ GeoVPhysVol* GeoPixelLadderServices::BuildAlTube() {
     + lowerBendShapeM->volume();
 
 
-  std::string matName = gmt_mgr->getMaterialName("AlTube", gmt_mgr->GetLD());
-  const GeoMaterial* alMat = mat_mgr->getMaterialForVolume(matName,totVolume);
+  std::string matName = m_gmt_mgr->getMaterialName("AlTube", m_gmt_mgr->GetLD());
+  const GeoMaterial* alMat = m_mat_mgr->getMaterialForVolume(matName,totVolume);
   GeoLogVol* tubeLV = new GeoLogVol("AlTube",&alTubeShape,alMat);
   return new GeoPhysVol(tubeLV);
 
@@ -315,19 +315,19 @@ GeoVPhysVol* GeoPixelLadderServices::BuildAlTube() {
 void GeoPixelLadderServices::BuildGlue(GeoPhysVol * parent) {
 
 
-  int nGlueElements = gmt_mgr->PixelNumOmegaGlueElements();
+  int nGlueElements = m_gmt_mgr->PixelNumOmegaGlueElements();
   for (int i = 0; i < nGlueElements; ++i) {
-    double x1 = gmt_mgr->PixelOmegaGlueStartX(i); 
-    double thickness = gmt_mgr->PixelOmegaGlueThickness(i); 
-    double y1 = gmt_mgr->PixelOmegaGlueStartY(i); 
-    double y2 = gmt_mgr->PixelOmegaGlueEndY(i);  
-    double length =  gmt_mgr->PixelOmegaGlueLength(i); 
-    double zOffset =  gmt_mgr->PixelOmegaGluePosZ(i);
-    int typeNum = gmt_mgr->PixelOmegaGlueTypeNum(i);
+    double x1 = m_gmt_mgr->PixelOmegaGlueStartX(i); 
+    double thickness = m_gmt_mgr->PixelOmegaGlueThickness(i); 
+    double y1 = m_gmt_mgr->PixelOmegaGlueStartY(i); 
+    double y2 = m_gmt_mgr->PixelOmegaGlueEndY(i);  
+    double length =  m_gmt_mgr->PixelOmegaGlueLength(i); 
+    double zOffset =  m_gmt_mgr->PixelOmegaGluePosZ(i);
+    int typeNum = m_gmt_mgr->PixelOmegaGlueTypeNum(i);
  
     GeoBox * glueShape = new GeoBox(0.5*thickness, 0.5*std::abs(y1-y2), 0.5*length);
-    std::string matName = gmt_mgr->getMaterialName("GlueOmegaStave", gmt_mgr->GetLD(), typeNum);
-    const GeoMaterial* glueMat = mat_mgr->getMaterialForVolume(matName, glueShape->volume());
+    std::string matName = m_gmt_mgr->getMaterialName("GlueOmegaStave", m_gmt_mgr->GetLD(), typeNum);
+    const GeoMaterial* glueMat = m_mat_mgr->getMaterialForVolume(matName, glueShape->volume());
     GeoLogVol* glueLV   = new GeoLogVol("Glue",glueShape,glueMat);
     GeoPhysVol* gluePV = new GeoPhysVol(glueLV);
  
@@ -341,44 +341,44 @@ void GeoPixelLadderServices::BuildGlue(GeoPhysVol * parent) {
 
 void GeoPixelLadderServices::BuildPigtailAndConnector(GeoPhysVol * parent) {
  
-  double xOffset = m_xOffset + gmt_mgr->PixelLadderCableOffsetX() - gmt_mgr->PixelLadderServicesX();
-  double yOffset = m_yOffset + gmt_mgr->PixelLadderCableOffsetY() - gmt_mgr->PixelLadderServicesY();
+  double xOffset = m_xOffset + m_gmt_mgr->PixelLadderCableOffsetX() - m_gmt_mgr->PixelLadderServicesX();
+  double yOffset = m_yOffset + m_gmt_mgr->PixelLadderCableOffsetY() - m_gmt_mgr->PixelLadderServicesY();
   
   // Pigtail flat section
-  double xPosPigtail = xOffset + gmt_mgr->PixelPigtailPosX(); 
-  double yPosPigtail = yOffset + 0.5*(gmt_mgr->PixelPigtailStartY() + gmt_mgr->PixelPigtailEndY()); 
-  double zPosPigtail = gmt_mgr->PixelPigtailPosZ();       
-  double xWidthPigtail = gmt_mgr->PixelPigtailThickness(); 
-  double yWidthPigtail = std::abs(gmt_mgr->PixelPigtailStartY() - gmt_mgr->PixelPigtailEndY());
-  double zWidthPigtail = gmt_mgr->PixelPigtailFlatWidthZ();       
-  std::string matNamePigtail = gmt_mgr->getMaterialName("PigtailFlat", gmt_mgr->GetLD());
+  double xPosPigtail = xOffset + m_gmt_mgr->PixelPigtailPosX(); 
+  double yPosPigtail = yOffset + 0.5*(m_gmt_mgr->PixelPigtailStartY() + m_gmt_mgr->PixelPigtailEndY()); 
+  double zPosPigtail = m_gmt_mgr->PixelPigtailPosZ();       
+  double xWidthPigtail = m_gmt_mgr->PixelPigtailThickness(); 
+  double yWidthPigtail = std::abs(m_gmt_mgr->PixelPigtailStartY() - m_gmt_mgr->PixelPigtailEndY());
+  double zWidthPigtail = m_gmt_mgr->PixelPigtailFlatWidthZ();       
+  std::string matNamePigtail = m_gmt_mgr->getMaterialName("PigtailFlat", m_gmt_mgr->GetLD());
   GeoBox * pigtailShape = new GeoBox(0.5*xWidthPigtail, 0.5*yWidthPigtail, 0.5*zWidthPigtail);
-  const GeoMaterial* pigtailMat = mat_mgr->getMaterialForVolume(matNamePigtail,pigtailShape->volume());
+  const GeoMaterial* pigtailMat = m_mat_mgr->getMaterialForVolume(matNamePigtail,pigtailShape->volume());
   GeoLogVol  * pigtailLV   = new GeoLogVol("PigtailFlat",pigtailShape,pigtailMat);
   GeoPhysVol * pigtailPhys = new GeoPhysVol(pigtailLV);
  
   // Connector
-  int numConn = gmt_mgr->PixelNumConnectorElements();
+  int numConn = m_gmt_mgr->PixelNumConnectorElements();
   std::vector<GeoPhysVol *> connectorPhysVols(numConn);
   std::vector<HepGeom::Transform3D> connectorTransforms(numConn);
   for (int iConn = 0; iConn < numConn; iConn++) {
-    double xPosConnector = xOffset + gmt_mgr->PixelConnectorPosX(iConn); 
-    double yPosConnector = yOffset + gmt_mgr->PixelConnectorPosY(iConn); 
-    double zPosConnector = gmt_mgr->PixelConnectorPosZ(iConn);       
-    double xWidthConnector =  gmt_mgr->PixelConnectorWidthX(iConn); 
-    double yWidthConnector =  gmt_mgr->PixelConnectorWidthY(iConn); 
-    double zWidthConnector =  gmt_mgr->PixelConnectorWidthZ(iConn); 
-    std::string matNameConnector = gmt_mgr->getMaterialName("Connector", gmt_mgr->GetLD(), iConn);
+    double xPosConnector = xOffset + m_gmt_mgr->PixelConnectorPosX(iConn); 
+    double yPosConnector = yOffset + m_gmt_mgr->PixelConnectorPosY(iConn); 
+    double zPosConnector = m_gmt_mgr->PixelConnectorPosZ(iConn);       
+    double xWidthConnector =  m_gmt_mgr->PixelConnectorWidthX(iConn); 
+    double yWidthConnector =  m_gmt_mgr->PixelConnectorWidthY(iConn); 
+    double zWidthConnector =  m_gmt_mgr->PixelConnectorWidthZ(iConn); 
+    std::string matNameConnector = m_gmt_mgr->getMaterialName("Connector", m_gmt_mgr->GetLD(), iConn);
     GeoBox * connectorShape = new GeoBox(0.5*xWidthConnector, 0.5*yWidthConnector, 0.5*zWidthConnector);
-    const GeoMaterial* connectorMat = mat_mgr->getMaterialForVolume(matNameConnector,connectorShape->volume());
+    const GeoMaterial* connectorMat = m_mat_mgr->getMaterialForVolume(matNameConnector,connectorShape->volume());
     GeoLogVol  * connectorLV   = new GeoLogVol("Connector",connectorShape,connectorMat);
     connectorPhysVols[iConn] = new GeoPhysVol(connectorLV);
     connectorTransforms[iConn] = HepGeom::Translate3D(xPosConnector, yPosConnector, zPosConnector);
   }
    
-  for (int iModule = 0; iModule<gmt_mgr->PixelNModule(); iModule++) {
-    int moduleEta =  gmt_mgr->PixelModuleEtaFromIndex(iModule);
-    double zShift = gmt_mgr->PixelModuleZPosition(moduleEta);
+  for (int iModule = 0; iModule<m_gmt_mgr->PixelNModule(); iModule++) {
+    int moduleEta =  m_gmt_mgr->PixelModuleEtaFromIndex(iModule);
+    double zShift = m_gmt_mgr->PixelModuleZPosition(moduleEta);
     
     // Place pigtail
     GeoTransform * xformPigtail = new GeoTransform(HepGeom::Translate3D(xPosPigtail, yPosPigtail, zShift+zPosPigtail));

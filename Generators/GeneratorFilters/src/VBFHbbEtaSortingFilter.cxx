@@ -40,17 +40,17 @@ VBFHbbEtaSortingFilter::VBFHbbEtaSortingFilter(const std::string& name, ISvcLoca
 
 //---------------------------------------------------------------------------
 StatusCode VBFHbbEtaSortingFilter::filterInitialize() {
-  msg(MSG:: INFO) << "VBFHbbEtaSortingFilter INITIALISING "  << endreq;   
-  msg(MSG:: INFO) << "m_MinJetPt    = " << m_MinJetPt << endreq;
-  msg(MSG:: INFO) << "m_MaxJetEta   = " << m_MaxJetEta << endreq;  
+  msg(MSG:: INFO) << "VBFHbbEtaSortingFilter INITIALISING "  << endmsg;   
+  msg(MSG:: INFO) << "m_MinJetPt    = " << m_MinJetPt << endmsg;
+  msg(MSG:: INFO) << "m_MaxJetEta   = " << m_MaxJetEta << endmsg;  
   return StatusCode::SUCCESS;
 }
 
 //---------------------------------------------------------------------------
 StatusCode VBFHbbEtaSortingFilter::filterFinalize() {
   msg(MSG:: INFO) << m_passed_all << " events passed out of " << m_total 
-		  << " events : efficiency: " << 100.*double(m_passed_all)/double(m_total) << "%" << endreq;
-  msg(MSG:: INFO) << "      for multiplicity requirement " << m_passed_multiplicity << " events passed" << endreq;  
+		  << " events : efficiency: " << 100.*double(m_passed_all)/double(m_total) << "%" << endmsg;
+  msg(MSG:: INFO) << "      for multiplicity requirement " << m_passed_multiplicity << " events passed" << endmsg;  
   return StatusCode::SUCCESS;
 }
 

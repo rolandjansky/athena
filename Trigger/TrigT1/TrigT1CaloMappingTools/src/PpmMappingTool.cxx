@@ -39,7 +39,7 @@ PpmMappingTool::~PpmMappingTool()
 StatusCode PpmMappingTool::initialize()
 {
   msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << PACKAGE_VERSION << endreq;
+                 << PACKAGE_VERSION << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -107,13 +107,13 @@ bool PpmMappingTool::mapping(const double eta, const double phi,
   EtaPhiMap::iterator iter = m_etaPhiMap->find(key);
   if (iter == m_etaPhiMap->end()) {
     msg(MSG::WARNING) << "Invalid eta/phi: " << eta
-                      << "/" << phi << endreq;
+                      << "/" << phi << endmsg;
     return false;
   }
   const ChannelIds& ids(iter->second);
   const unsigned int chanId = (layer == 0) ? ids.first : ids.second;
   if (chanId == invalidChanId) {
-    msg(MSG::WARNING) << "Invalid ChanId - shouldn't happen" << endreq;
+    msg(MSG::WARNING) << "Invalid ChanId - shouldn't happen" << endmsg;
     return false;
   }
   crate   = chanId / (s_channels * s_modules);

@@ -109,40 +109,40 @@ class SectorLogicRXReadOutStructure : public RPCReadOut {
   //
   // some static parameter describing the structure
   //
-  static const ubit16 headerNum=3;
-  static const ubit16 headerPos[headerNum];
-  static const ubit16 headerLen[headerNum];
-  static const ubit16 headerVal;
+  static const ubit16 s_headerNum=3;
+  static const ubit16 s_headerPos[s_headerNum];
+  static const ubit16 s_headerLen[s_headerNum];
+  static const ubit16 s_headerVal;
 
-  static const ubit16 subHeaderNum=2;
-  static const ubit16 subHeaderPos[subHeaderNum];
-  static const ubit16 subHeaderLen[subHeaderNum];
-  static const ubit16 subHeaderVal;
+  static const ubit16 s_subHeaderNum=2;
+  static const ubit16 s_subHeaderPos[s_subHeaderNum];
+  static const ubit16 s_subHeaderLen[s_subHeaderNum];
+  static const ubit16 s_subHeaderVal;
 
-  static const ubit16 inputHeaderNum=3;
-  static const ubit16 inputHeaderPos[inputHeaderNum];
-  static const ubit16 inputHeaderLen[inputHeaderNum];
-  static const ubit16 inputHeaderVal;
+  static const ubit16 s_inputHeaderNum=3;
+  static const ubit16 s_inputHeaderPos[s_inputHeaderNum];
+  static const ubit16 s_inputHeaderLen[s_inputHeaderNum];
+  static const ubit16 s_inputHeaderVal;
 
-  static const ubit16 outputHeaderNum=3;
-  static const ubit16 outputHeaderPos[outputHeaderNum];
-  static const ubit16 outputHeaderLen[outputHeaderNum];
-  static const ubit16 outputHeaderVal;
+  static const ubit16 s_outputHeaderNum=3;
+  static const ubit16 s_outputHeaderPos[s_outputHeaderNum];
+  static const ubit16 s_outputHeaderLen[s_outputHeaderNum];
+  static const ubit16 s_outputHeaderVal;
 
-  static const ubit16 inputBodyNum=7;
-  static const ubit16 inputBodyPos[inputBodyNum];
-  static const ubit16 inputBodyLen[inputBodyNum];
-  static const ubit16 inputBodyVal;
+  static const ubit16 s_inputBodyNum=7;
+  static const ubit16 s_inputBodyPos[s_inputBodyNum];
+  static const ubit16 s_inputBodyLen[s_inputBodyNum];
+  static const ubit16 s_inputBodyVal;
 
-  static const ubit16 outputBodyNum=4;
-  static const ubit16 outputBodyPos[outputBodyNum];
-  static const ubit16 outputBodyLen[outputBodyNum];
-  static const ubit16 outputBodyVal;
+  static const ubit16 s_outputBodyNum=4;
+  static const ubit16 s_outputBodyPos[s_outputBodyNum];
+  static const ubit16 s_outputBodyLen[s_outputBodyNum];
+  static const ubit16 s_outputBodyVal;
 
-  static const ubit16 footerNum=3;
-  static const ubit16 footerPos[footerNum];
-  static const ubit16 footerLen[footerNum];
-  static const ubit16 footerVal;
+  static const ubit16 s_footerNum=3;
+  static const ubit16 s_footerPos[s_footerNum];
+  static const ubit16 s_footerLen[s_footerNum];
+  static const ubit16 s_footerVal;
   //
 };
 

@@ -72,25 +72,6 @@ StatusCode TileCablingSvc::initialize() {
   //=== 
   CHECK( m_detStore.retrieve() );
 
-  const IGeoModelSvc *geoModel = 0;
-  CHECK( service("GeoModelSvc", geoModel) );
-
-  // dummy parameters for the callback:
-  int dummyInt = 0;
-  std::list<std::string> dummyList;
-
-  if (geoModel->geoInitialized()) {
-    return geoInit(dummyInt, dummyList);
-  } else {
-    CHECK( m_detStore->regFcn(&IGeoModelSvc::geoInit, geoModel, &TileCablingSvc::geoInit, this) );
-  }
-  return StatusCode::SUCCESS;
-}
-
-StatusCode TileCablingSvc::geoInit(IOVSVC_CALLBACK_ARGS) {
-
-  ATH_MSG_DEBUG( "In geoInit() " );
-
   //=== retrieve all helpers from detector store
   const CaloLVL1_ID* caloID(0);
   CHECK( m_detStore->retrieve(caloID) );
@@ -176,14 +157,39 @@ StatusCode TileCablingSvc::geoInit(IOVSVC_CALLBACK_ARGS) {
     int upg  = atlasVersion.compare(0,7,"ATLAS-P") ;
     int comm = atlasVersion.compare(0,10,"ATLAS-Comm");
 
+    bool upgradeA = (tileID->cell_hash_max() == MAX_TILE_CELLS_UPGRADEA);
+    bool upgradeBC = (tileID->cell_hash_max() == MAX_TILE_CELLS_UPGRADEBC);
+    bool upgradeABC = (tileID->cell_hash_max() == MAX_TILE_CELLS_UPGRADEABC);
+
     // choose which geometries are true RUN2 geometries to apply run2 cabling
-    bool RUN2 = /* (geoModel->geoConfig() == GeoModel::GEO_RUN2) || */ 
-                (run2 == 0);
-    //(ibl == 0 || run2 == 0 || slhc == 0 || upg == 0);
+    bool nothing_found = (ctb*geo*run1*ibl*run2*slhc*upg*comm != 0);
+    GeoModel::GeoConfig geoConfig = geoModel->geoConfig();
+    bool RUN2 = (nothing_found && (geoConfig==GeoModel::GEO_RUN2 
+                                   || geoConfig==GeoModel::GEO_RUN3
+                                   )) || (run2 == 0);
+    bool RUN4 = (nothing_found && (geoConfig==GeoModel::GEO_RUN4
+                                   || geoConfig==GeoModel::GEO_ITk));
+    //|| (ibl == 0 || slhc == 0 || upg == 0);
 
     if (RUN2) {
+
       ATH_MSG_INFO( "RUN2 ATLAS geometry flag detected for geometry: " << atlasVersion );
-      m_cablingType = TileCablingService::RUN2Cabling;
+      if (upgradeA) {
+        ATH_MSG_INFO( "RUN2 ATLAS UpgradeA geometry flag detected for geometry: " << atlasVersion );
+        m_cablingType = TileCablingService::UpgradeA;
+      } else if (upgradeBC) {
+        ATH_MSG_INFO( "RUN2 ATLAS UpgradeBC geometry flag detected for geometry: " << atlasVersion );
+        m_cablingType = TileCablingService::UpgradeBC;
+      } else if (upgradeABC) {
+        ATH_MSG_INFO( "RUN2 ATLAS UpgradeABC geometry flag detected for geometry: " << atlasVersion );
+        m_cablingType = TileCablingService::UpgradeABC;
+      } else {
+        m_cablingType = TileCablingService::RUN2Cabling;
+      }
+
+    } else if (RUN4) {
+      ATH_MSG_INFO( "RUN4 ATLAS geometry detected - use RUN1 cabling: " << atlasVersion );
+      m_cablingType = TileCablingService::MBTSOnly;
     } else if (m_cablingType == TileCablingService::RUN2Cabling) {
       ATH_MSG_INFO( "Cabling for RUN2 ATLAS geometry is set via jobOptions " );
     }  else if (ctb == 0) {

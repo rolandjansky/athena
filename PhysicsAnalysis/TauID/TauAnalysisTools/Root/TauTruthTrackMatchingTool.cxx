@@ -15,8 +15,6 @@ TauTruthTrackMatchingTool::TauTruthTrackMatchingTool( const std::string& name )
   : AsgTool(name)
   , m_bIsHadronicTrackAvailable(false)
   , m_bIsHadronicTrackAvailableChecked(false)
-  , m_bIsInitialized(false)
-  , m_tInDetTrackSelectionTool("InDetTrackSelectionTool", this)
 {
 }
 
@@ -28,13 +26,6 @@ TauTruthTrackMatchingTool::~TauTruthTrackMatchingTool( )
 //______________________________________________________________________________
 StatusCode TauTruthTrackMatchingTool::initialize()
 {
-  if (m_bIsInitialized)
-    return StatusCode::SUCCESS;
-  ATH_MSG_INFO( "Initializing TauTruthTrackMatchingTool" );
-  ATH_CHECK(ASG_MAKE_ANA_TOOL(m_tInDetTrackSelectionTool, InDet::InDetTrackSelectionTool));
-  ATH_CHECK(m_tInDetTrackSelectionTool.setProperty( "CutLevel", "Loose" ));
-  ATH_CHECK(m_tInDetTrackSelectionTool.initialize());
-  m_bIsInitialized = true;
   return StatusCode::SUCCESS;
 }
 
@@ -77,20 +68,10 @@ StatusCode TauTruthTrackMatchingTool::checkTrackType(const TAUTRACKPARTICLE& xTr
 {
   const xAOD::TruthParticle* xTruthParticle = getTruthParticle(xTrackParticle);
 
-  static SG::AuxElement::Decorator<int> decTrackType("TrackType");
+  static SG::AuxElement::Decorator<int> decTruthType("TruthType");
   if (!xTruthParticle)
   {
-    decTrackType(xTrackParticle) = TauAnalysisTools::UnclassifiedTrack;
-    return StatusCode::SUCCESS;
-  }
-
-#ifndef XAODTAU_VERSIONS_TAUJET_V3_H
-  if (!m_tInDetTrackSelectionTool->accept(xTrackParticle))
-#else
-  if (!m_tInDetTrackSelectionTool->accept(xTrackParticle.track()))
-#endif // not XAODTAU_VERSIONS_TAUJET_V3_H
-  {
-    decTrackType(xTrackParticle) = TauAnalysisTools::UnclassifiedTrack;
+    decTruthType(xTrackParticle) = TauAnalysisTools::UnclassifiedTrack;
     return StatusCode::SUCCESS;
   }
 
@@ -101,7 +82,7 @@ StatusCode TauTruthTrackMatchingTool::checkTrackType(const TAUTRACKPARTICLE& xTr
   if (accTruthMatchProbability(*(xTrackParticle.track())) < 0.5)
 #endif // not XAODTAU_VERSIONS_TAUJET_V3_H
   {
-    decTrackType(xTrackParticle) = TauAnalysisTools::FakeTrack;
+    decTruthType(xTrackParticle) = TauAnalysisTools::FakeTrack;
     return StatusCode::SUCCESS;
   }
 
@@ -109,14 +90,14 @@ StatusCode TauTruthTrackMatchingTool::checkTrackType(const TAUTRACKPARTICLE& xTr
   static SG::AuxElement::ConstAccessor< int > accIsHadronicTrackDecayDepth("IsHadronicTrackDecayDepth");
   if ((bool)accIsHadronicTrack(xTrackParticle) and accIsHadronicTrackDecayDepth(xTrackParticle) == 0)
   {
-    decTrackType(xTrackParticle) = TauAnalysisTools::TauTrack;
+    decTruthType(xTrackParticle) = TauAnalysisTools::TauTrack;
     return StatusCode::SUCCESS;
   }
 
   int iBarcode = xTruthParticle->barcode();
-  if (iBarcode > 0 && iBarcode < 10000)            decTrackType(xTrackParticle) = TauAnalysisTools::UnderlyingEventTrack;
-  else if (iBarcode >= 10000 && iBarcode < 200000) decTrackType(xTrackParticle) = TauAnalysisTools::PileupTrack;
-  else if (iBarcode == 0)                          decTrackType(xTrackParticle) = TauAnalysisTools::FakeTrack;
+  if (iBarcode > 0 && iBarcode < 10000)            decTruthType(xTrackParticle) = TauAnalysisTools::UnderlyingEventTrack;
+  else if (iBarcode >= 10000 && iBarcode < 200000) decTruthType(xTrackParticle) = TauAnalysisTools::PileupTrack;
+  else if (iBarcode == 0)                          decTruthType(xTrackParticle) = TauAnalysisTools::FakeTrack;
   else if (iBarcode >= 200000)                     ATH_CHECK(classifyConversion(xTrackParticle, *xTruthParticle));
   else ATH_MSG_WARNING("No truth classification possible for barcode "<<iBarcode);
 
@@ -126,16 +107,16 @@ StatusCode TauTruthTrackMatchingTool::checkTrackType(const TAUTRACKPARTICLE& xTr
 //______________________________________________________________________________
 StatusCode TauTruthTrackMatchingTool::classifyConversion(const TAUTRACKPARTICLE& xTrackParticle, const xAOD::TruthParticle& xTruthParticle)
 {
-  static SG::AuxElement::Decorator<int> decTrackType("TrackType");
+  static SG::AuxElement::Decorator<int> decTruthType("TruthType");
   if (!xTruthParticle.isElectron())
   {
-    decTrackType(xTrackParticle) = TauAnalysisTools::SecondaryTrack;
+    decTruthType(xTrackParticle) = TauAnalysisTools::SecondaryTrack;
     return StatusCode::SUCCESS;
   }
   const xAOD::TruthVertex* xProdVertex = xTruthParticle.prodVtx();
   if ( !xProdVertex )
   {
-    decTrackType(xTrackParticle) = TauAnalysisTools::SecondaryTrack;
+    decTruthType(xTrackParticle) = TauAnalysisTools::SecondaryTrack;
     return StatusCode::SUCCESS;
   }
   for ( size_t iIncomingParticle = 0; iIncomingParticle < xProdVertex->nIncomingParticles(); ++iIncomingParticle )
@@ -149,7 +130,7 @@ StatusCode TauTruthTrackMatchingTool::classifyConversion(const TAUTRACKPARTICLE&
 
     if (!xTruthParent->isPhoton())
     {
-      decTrackType(xTrackParticle) = TauAnalysisTools::SecondaryTrack;
+      decTruthType(xTrackParticle) = TauAnalysisTools::SecondaryTrack;
       return StatusCode::SUCCESS;
     }
   }
@@ -166,17 +147,17 @@ StatusCode TauTruthTrackMatchingTool::classifyConversion(const TAUTRACKPARTICLE&
 
     if (!xTruthDaughter->isElectron())
     {
-      decTrackType(xTrackParticle) = TauAnalysisTools::SecondaryTrack;
+      decTruthType(xTrackParticle) = TauAnalysisTools::SecondaryTrack;
       return StatusCode::SUCCESS;
     }
     iElectrons++;
   }
   if (iElectrons != 2)
   {
-    decTrackType(xTrackParticle) = TauAnalysisTools::SecondaryTrack;
+    decTruthType(xTrackParticle) = TauAnalysisTools::SecondaryTrack;
     return StatusCode::SUCCESS;
   }
-  decTrackType(xTrackParticle) = TauAnalysisTools::ConversionTrack;
+  decTruthType(xTrackParticle) = TauAnalysisTools::ConversionTrack;
   return StatusCode::SUCCESS;
 }
 

@@ -1,9 +1,8 @@
-// Dear emacs, this is -*- c++ -*-
-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+// Dear emacs, this is -*- c++ -*-
 #ifndef TAUANALYSISTOOLS_SELECTIONCUTS_H
 #define TAUANALYSISTOOLS_SELECTIONCUTS_H
 
@@ -50,6 +49,8 @@ public:
     return m_sName;
   };
 
+  void setProperty(const std::string& name, const std::string& value);
+
 protected:
   std::string m_sName;
 
@@ -57,6 +58,10 @@ protected:
   TH1F* m_hHistCut;
 
   TauSelectionTool* m_tTST;
+
+  void declareProperty(const std::string& name, std::string& loc);
+  std::map<std::string, std::string&> m_mProperties;
+  std::string getProperty(const std::string& name);
 
 private:
   virtual void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist) = 0;
@@ -129,6 +134,7 @@ public:
   SelectionCutBDTEleScore(TauSelectionTool* tTST);
   bool accept(const xAOD::TauJet& xTau);
 private:
+  std::string m_sEleBDTDecorationName;
   void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist);
 };
 
@@ -139,6 +145,7 @@ public:
   SelectionCutEleBDTWP(TauSelectionTool* tTST);
   bool accept(const xAOD::TauJet& xTau);
 private:
+  std::string m_sEleBDTDecorationName;
   void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist);
 };
 
@@ -160,7 +167,7 @@ private:
   std::string m_sEleOlrPassDecorationName;
 
   void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist);
-  const std::string m_sEleOlrLhScoreDecorationName;
+  std::string m_sEleOlrLhScoreDecorationName;
 };
 
 class SelectionCutMuonVeto

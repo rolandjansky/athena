@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigEventAthenaPool
- * @Class  : TrigCompositeCnv
+ * @class  : TrigCompositeCnv
  *
  * @brief transient persistent converter for TrigComposite
  *

@@ -1,0 +1,8 @@
+we need a new EDM combination.. join makes it too long
+the result of the query overall was
+29ElectronMuonTopoInfoContainer
+following should be known feature
+N3HLT15TypeInformation9type_infoI20ElectronMuonTopoInfoNS0_4listI29ElectronMuonTopoInfoContainerNS3_IS2_NS0_3nilEEEEES4_NS0_6no_auxEEE
+known? 1
+N3HLT15TypeInformation9type_infoIN4xAOD15TrigElectron_v1ENS0_4listI10DataVectorIS3_S5_INS2_9IParticleEN16DataModel_detail6NoBaseEEENS0_3nilEEESA_NS2_27TrigElectronAuxContainer_v1EEE
+known? 1

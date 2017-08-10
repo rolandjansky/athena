@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigSteeringEventTPCnv
- * @Class  : TrigRoiDescriptorCollection_p3
+ * @class  : TrigRoiDescriptorCollection_p3
  *
  * @brief persistent partner for TrigRoiDescriptorCollection_p3
  *

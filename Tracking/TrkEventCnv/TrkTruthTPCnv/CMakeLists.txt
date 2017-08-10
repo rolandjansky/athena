@@ -8,7 +8,8 @@ atlas_subdir( TrkTruthTPCnv )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/CLIDSvc
-                          Control/DataModel
+                          Control/AthLinks
+                          Control/AthContainers
                           Control/DataModelAthenaPool
                           Control/SGTools
                           Control/StoreGate
@@ -30,11 +31,11 @@ atlas_add_tpcnv_library( TrkTruthTPCnv
                          src/*.cxx
                          PUBLIC_HEADERS TrkTruthTPCnv
                          PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                         LINK_LIBRARIES ${ROOT_LIBRARIES} DataModel DataModelAthenaPoolLib SGTools StoreGateLib SGtests AthenaPoolCnvSvcLib GeneratorObjects GeneratorObjectsTPCnv InDetIdentifier TrkTrack TrkTruthData AthenaKernel CxxUtils )
+                         LINK_LIBRARIES ${ROOT_LIBRARIES} AthLinks AthContainers DataModelAthenaPoolLib SGTools StoreGateLib SGtests AthenaPoolCnvSvcLib GeneratorObjects GeneratorObjectsTPCnv InDetIdentifier TrkTrack TrkTruthData AthenaKernel CxxUtils )
 
 atlas_add_dictionary( TrkTruthTPCnvDict
                       src/TrkTruthTPCnvDict.h
                       TrkTruthTPCnv/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} DataModel DataModelAthenaPoolLib SGTools StoreGateLib SGtests AthenaPoolCnvSvcLib GeneratorObjects GeneratorObjectsTPCnv InDetIdentifier TrkTrack TrkTruthData AthenaKernel CxxUtils TrkTruthTPCnv )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthLinks AthContainers DataModelAthenaPoolLib SGTools StoreGateLib SGtests AthenaPoolCnvSvcLib GeneratorObjects GeneratorObjectsTPCnv InDetIdentifier TrkTrack TrkTruthData AthenaKernel CxxUtils TrkTruthTPCnv )
 

@@ -12,50 +12,50 @@ RPCRODDecode::RPCRODDecode() : BaseObject(Hardware,"RPCRODDecode") {
 //
 // define RPC data word indentifiers
 //
-field      = 0xf000; // field map of word identifier
+m_field      = 0xf000; // field map of word identifier
 //reserved3  = 0xd000; // reserved
-reserved4  = 0xe000; // reserved
+m_reserved4  = 0xe000; // reserved
 //reserved5  = 0xf000; // reserved
 //
 // ROD Data Address
 //
-RODDataAddress=noRecord32;
+m_RODDataAddress=m_noRecord32;
 //
-noRecord16=9999;     // no record content for 16bit words
-noRecord32=0xdeadcafe; // no record content for 32bit words
+m_noRecord16=9999;     // no record content for 16bit words
+m_noRecord32=0xdeadcafe; // no record content for 32bit words
 //
 // the ROD header
 //
-headerMarker=         noRecord32;
-headerSize=           noRecord32;
-formatVersion=        noRecord32;
-sourceIdentifier=     noRecord32;
-Level1ID=             noRecord32;
-BunchXingID=          noRecord32;
-Level1Type=           noRecord32;
-DetectorEventType=    noRecord32;
-SourceReserved=       noRecord16;
-SourceModuleType=     noRecord16;
-SourceSubDetectorID=  noRecord16;
-SourceModuleID=       noRecord16;
+headerMarker=         m_noRecord32;
+headerSize=           m_noRecord32;
+formatVersion=        m_noRecord32;
+sourceIdentifier=     m_noRecord32;
+Level1ID=             m_noRecord32;
+BunchXingID=          m_noRecord32;
+Level1Type=           m_noRecord32;
+DetectorEventType=    m_noRecord32;
+SourceReserved=       m_noRecord16;
+SourceModuleType=     m_noRecord16;
+SourceSubDetectorID=  m_noRecord16;
+SourceModuleID=       m_noRecord16;
 //
 // the RPC identifiers
 //
-SectorID=noRecord16;
-PadID   =noRecord16;
-CMID    =noRecord16;
+SectorID=m_noRecord16;
+PadID   =m_noRecord16;
+CMID    =m_noRecord16;
 //
-// previousRecord initialization
+// m_previousRecord initialization
 //
-previousRecord=Empty;
+m_previousRecord=Empty;
 //
 // the structure control flags
 //
-CMFragCheck=noRecord16;
-CMFlag=0;
-PADFlag=0;
-RXFlag=0;
-isSLBody=false;
+CMFragCheck=m_noRecord16;
+m_CMFlag=0;
+m_PADFlag=0;
+m_RXFlag=0;
+m_isSLBody=false;
 m_enablePrintOut = false;
 }//end-of-RPCRODDecode::RPCRODDecode
 //----------------------------------------------------------------------------//
@@ -171,7 +171,7 @@ if(SLROS.isHeader()) {
           DISP<<" RPCRODDecode: SectorLogic Header "<<std::endl;
 	  DISP_DEBUG;
 	}
-        isSLBody=true;
+        m_isSLBody=true;
 	SLRO.reset();
 	SLRO.writeRecord(inword,false);
 	thereIsASL=false;
@@ -184,11 +184,11 @@ if(SLROS.isHeader()) {
           DISP<<" RPCRODDecode: SectorLogic Footer "<<std::endl;
 	  DISP_DEBUG;
         }
-        isSLBody=false;
+        m_isSLBody=false;
 	thereIsASL=true;
 	SLRO.writeRecord(inword,true);
 
-} else if(isSLBody)         {
+} else if(m_isSLBody)         {
 //
 // SL Body
 //
@@ -208,7 +208,7 @@ if(SLROS.isHeader()) {
           DISP<<" RPCRODDecode: RX Header "<<std::endl;
 	  DISP_DEBUG;
         }	  
-	RXFlag++;
+	m_RXFlag++;
 	RXROS.decodeFragment(inword,recField);
 	if(recField=='H') {
 	 SectorID=RXROS.RXid();
@@ -219,7 +219,7 @@ if(SLROS.isHeader()) {
 	  DISP_DEBUG;
 	}
 	
-	switch(previousRecord){
+	switch(m_previousRecord){
 	 case Empty:
 	  break;
 	 case CMHead:
@@ -285,7 +285,7 @@ if(SLROS.isHeader()) {
 	    DISP_DEBUG;
 	  }
 	}//end-of-switch 
-	previousRecord=Empty;	
+	m_previousRecord=Empty;	
 	
 } else if(RXROS.isFooter()) {
 
@@ -296,7 +296,7 @@ if(SLROS.isHeader()) {
           DISP<<" RX footer "<<std::endl;
 	  DISP_DEBUG;
 	}
-	RXFlag--;
+	m_RXFlag--;
         RXROS.decodeFragment(inword,recField);
 	if(recField=='F') {
 	}
@@ -306,7 +306,7 @@ if(SLROS.isHeader()) {
 	  DISP_DEBUG;
 	}
 	
-	switch(previousRecord){
+	switch(m_previousRecord){
 	 case Empty:
 	  break;
 	 case CMHead:
@@ -372,7 +372,7 @@ if(SLROS.isHeader()) {
 	    DISP_DEBUG;
 	  }
 	}//end-of-switch 
-	previousRecord=Empty;
+	m_previousRecord=Empty;
 
 
 
@@ -385,7 +385,7 @@ if(SLROS.isHeader()) {
           DISP<<" PAD Header "<<std::hex<<inword<<std::dec<<std::endl;
 	  DISP_DEBUG;
 	}
-	PADFlag++;
+	m_PADFlag++;
 	PDROS.decodeFragment(inword,recField);
 	if(recField=='H') {
 	 PadID=PDROS.padid();
@@ -396,7 +396,7 @@ if(SLROS.isHeader()) {
 	  DISP_DEBUG;
 	}
 	
-	switch(previousRecord){
+	switch(m_previousRecord){
 	 case Empty:
 	  break;
 	 case CMHead:
@@ -458,7 +458,7 @@ if(SLROS.isHeader()) {
 	    DISP_DEBUG;
 	  }
 	}//end-of-switch 
-	previousRecord=Empty;
+	m_previousRecord=Empty;
 
 
 } else if(PDROS.isSubHeader()) {
@@ -470,7 +470,7 @@ if(SLROS.isHeader()) {
 	  DISP<<"   BCID "<<std::hex<<(inword & 0x0fff)<<std::dec<<std::endl;
 	  DISP_DEBUG;
 	}
-	switch(previousRecord){
+	switch(m_previousRecord){
 	 case Empty:
 	  break;
 	 case CMHead:
@@ -536,7 +536,7 @@ if(SLROS.isHeader()) {
 	    DISP_DEBUG;
 	  }
 	}//end-of-switch 
-	previousRecord=Empty;
+	m_previousRecord=Empty;
 
 } else if(PDROS.isPreFooter()) {
 
@@ -547,7 +547,7 @@ if(SLROS.isHeader()) {
 	  DISP<<"   STATUS ERROR "<<std::hex<<(inword & 0x000f)<<std::dec<<std::endl;
 	  DISP_DEBUG;
 	}
-	switch(previousRecord){
+	switch(m_previousRecord){
 	 case Empty:
 	  break;
 	 case CMHead:
@@ -609,7 +609,7 @@ if(SLROS.isHeader()) {
 	    DISP_DEBUG;
 	  }
 	}//end-of-switch 
-	previousRecord=PadPre;
+	m_previousRecord=PadPre;
 
 } else if(PDROS.isFooter()) {
 
@@ -621,7 +621,7 @@ if(SLROS.isHeader()) {
 	      <<"  ERROR FLAG "<<std::hex<<(inword & 0x0fff)<<std::dec<<std::endl;
 	  DISP_DEBUG;
 	}
-	PADFlag--;
+	m_PADFlag--;
 	PDROS.decodeFragment(inword,recField);
 	if(recField=='F') {
 	}
@@ -631,7 +631,7 @@ if(SLROS.isHeader()) {
 	  DISP_DEBUG;
 	}
 	
-	switch(previousRecord){
+	switch(m_previousRecord){
 	 case Empty:
 	  break;
 	 case CMHead:
@@ -693,19 +693,19 @@ if(SLROS.isHeader()) {
 	    DISP_DEBUG;
 	  }
 	}//end-of-switch 
-	previousRecord=Empty;
+	m_previousRecord=Empty;
 
 } else if(CMROS.isHeader()) {
 
 //
 // CM Header: reset MatrixReadOut and load the word
 //
-	CMFlag++;
+	m_CMFlag++;
         CMRO.reset();
 	CMRO.writeRecord(inword,false);
         thereIsACM=false;
 	
-	switch(previousRecord){
+	switch(m_previousRecord){
 	 case Empty:
 	  break;
 	 case CMHead:
@@ -754,7 +754,7 @@ if(SLROS.isHeader()) {
 	    DISP_DEBUG;
 	  }
 	}//end-of-switch 
-	previousRecord=CMHead;
+	m_previousRecord=CMHead;
 	
 
 } else if(CMROS.isSubHeader()) {
@@ -762,11 +762,11 @@ if(SLROS.isHeader()) {
 //
 // CM Subheader
 //
-	CMFlag++;
+	m_CMFlag++;
 	CMRO.writeRecord(inword,false);
 	thereIsACM=false;
 	
-	switch(previousRecord){
+	switch(m_previousRecord){
 	 case Empty:
 	  if(m_enablePrintOut) {
 	    DISP<<" RPCRODDecode warning: previous record was not a CM Header"<<std::endl;
@@ -823,16 +823,16 @@ if(SLROS.isHeader()) {
 	    DISP_DEBUG;
 	  }
 	}//end-of-switch 
-	previousRecord=CMSub;
+	m_previousRecord=CMSub;
 	
 } else if( CMROS.isBody()) {	  
 //
 // CM hit
 //	  
-	if(CMFlag) CMRO.writeRecord(inword,false);
+	if(m_CMFlag) CMRO.writeRecord(inword,false);
 	thereIsACM=false;
 	
-	switch(previousRecord){
+	switch(m_previousRecord){
 	 case Empty:
 	  if(m_enablePrintOut) {
 	    DISP<<" RPCRODDecode (CMBody1) warning: previous record was not a CM subHeader"
@@ -888,7 +888,7 @@ if(SLROS.isHeader()) {
 	    DISP_DEBUG;
 	  }
 	}//end-of-switch 
-	previousRecord=CMBod;
+	m_previousRecord=CMBod;
 
 	
 } else if(CMROS.isFooter()) {
@@ -897,11 +897,11 @@ if(SLROS.isHeader()) {
 // CM footer
 //  
 	thereIsACM=true;
-	CMFlag--;CMFlag--;
+	m_CMFlag--;m_CMFlag--;
 	CMRO.writeRecord(inword,true);
 	CMFragCheck = CMRO.checkFragment();
 	
-	switch(previousRecord){
+	switch(m_previousRecord){
 	case Empty:
 	  if(m_enablePrintOut) {
 	    DISP<<" RPCRODDecode (CMFooter1) warning: previous record was not a Body record "<<std::endl;
@@ -958,12 +958,12 @@ if(SLROS.isHeader()) {
 	    DISP_DEBUG;
 	  }
 	}//end-of-switch 
-	previousRecord=CMFoot;
+	m_previousRecord=CMFoot;
 	
          //gimeCMROData();
 	
-//} else if(((inword & field)==reserved3) || ((inword & field)==reserved4)) {
-} else if((inword & field)==reserved4) {
+//} else if(((inword & m_field)==reserved3) || ((inword & m_field)==m_reserved4)) {
+} else if((inword & m_field)==m_reserved4) {
 
 //
 // reserved word
@@ -974,7 +974,7 @@ if(SLROS.isHeader()) {
 	  DISP_DEBUG;
 	}
 	
-	switch(previousRecord){
+	switch(m_previousRecord){
 	 case Empty:
 	  break;
 	 case CMHead:
@@ -1040,7 +1040,7 @@ if(SLROS.isHeader()) {
 	    DISP_DEBUG;
 	  }
 	}//end-of-switch 
-	previousRecord=Empty;
+	m_previousRecord=Empty;
 	
 }//end-of-if
 int answer=0;
@@ -1147,15 +1147,15 @@ for(ubit16 i=0; i<headerSize; i++) {
 //RODStatusPosition = *(ROBData + ROBTotalSize-1 + locRODStatusBlockPosition);
 //RODBlockSize =   RODDataSize + RODStatusSize;
 //if(RODStatusPosition) {
-// RODDataAddress = ROBTotalSize-(RODBlockSize+RODTrailerSize-1);
+// m_RODDataAddress = ROBTotalSize-(RODBlockSize+RODTrailerSize-1);
 //} else {
-// RODDataAddress = ROBTotalSize-(RODDataSize+RODTrailerSize-1);
+// m_RODDataAddress = ROBTotalSize-(RODDataSize+RODTrailerSize-1);
 //}
 //
 //cout<<" Object ROB Total Size  "<<ROBTotalSize<<endl;
 //cout<<" Object ROD Data Size   "<<RODDataSize<<endl;
 //cout<<" Object ROD Status Size "<<RODStatusSize<<endl;
-//cout<<" Object ROD Data Address "<<RODDataAddress<<endl;
+//cout<<" Object ROD Data Address "<<m_RODDataAddress<<endl;
 //}//end-of-ROBAddresses
 //----------------------------------------------------------------------------//
 void RPCRODDecode::RODAddresses(const RODword *RODData,
@@ -1165,9 +1165,9 @@ RODHeader(RODData);
 std::cout<<" status block position "<<statusBlockPosition<<std::endl;
 std::cout<<" number of Status Elements "<<numberOfStatusElements<<std::endl;
 if(statusBlockPosition) {
- RODDataAddress = headerSize;
+ m_RODDataAddress = headerSize;
 } else {
- RODDataAddress = headerSize+numberOfStatusElements;
+ m_RODDataAddress = headerSize+numberOfStatusElements;
 }
 }//end-of-RPCRODDecode::RODAddresses
 //----------------------------------------------------------------------------//

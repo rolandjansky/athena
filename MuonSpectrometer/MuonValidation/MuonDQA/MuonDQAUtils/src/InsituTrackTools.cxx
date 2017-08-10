@@ -35,7 +35,7 @@ namespace Muon {
   StatusCode InsituTrackTools::initialize()
   {
     StatusCode sc = AlgTool::initialize();
-    m_log.setLevel(outputLevel());
+    m_log.setLevel(msgLevel());
     if (sc.isFailure()) return sc;
 	
     /// histogram location
@@ -43,7 +43,7 @@ namespace Muon {
     if(sc.isFailure() ){
       m_log   << MSG::ERROR
 	      << "Unable to retrieve pointer to THistSvc"
-	      << endreq;
+	      << endmsg;
       return sc;
     }
 	
@@ -51,11 +51,11 @@ namespace Muon {
     sc = service("StoreGateSvc",m_storeGate);
     if (sc.isFailure())
       {
-	m_log << MSG::FATAL << "StoreGate service not found !" << endreq;
+	m_log << MSG::FATAL << "StoreGate service not found !" << endmsg;
 	return StatusCode::FAILURE;
       }
 	
-    m_log << MSG::INFO << "initialize() successful in " << name() << endreq;
+    m_log << MSG::INFO << "initialize() successful in " << name() << endmsg;
     return StatusCode::SUCCESS;
   }
 

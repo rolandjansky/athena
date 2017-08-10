@@ -54,12 +54,12 @@ GeoPhysVol* BCM_Module::Build(const AbsMaterialManager* mat_mgr, const BCM_Modul
   {
   	diamond = mat_mgr->getMaterial("std::Carbon");
 //  	if(msg)
-//  		(*msg) << "BCM with graphite." << endreq;   //commented out by D.Dobos on request by M.Elsing
+//  		(*msg) << "BCM with graphite." << endmsg;   //commented out by D.Dobos on request by M.Elsing
   }
 //  else
 //  {
 //  	if(msg)
-//  		(*msg) << "BCM with diamond." << endreq;   //commented out by D.Dobos on request by M.Elsing
+//  		(*msg) << "BCM with diamond." << endmsg;   //commented out by D.Dobos on request by M.Elsing
 //  }
 
 

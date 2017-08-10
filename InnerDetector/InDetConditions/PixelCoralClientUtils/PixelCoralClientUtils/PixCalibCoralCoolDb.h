@@ -26,7 +26,6 @@ class PixCalibCoralCoolDb
 
  private:
   std::string m_dbstring;
-  int m_verbose;
 
   CoraCoolDatabasePtr m_coradb;
 };

@@ -715,7 +715,7 @@ public:
   bool hasCalibTag(const std::string& tag) const;
   /** @brief number of calib tags for this jet  */
   int  numCalibTag() const ;
-  /** @brief retrieve calib tag number @i (start at 1). returns "" if non-existant  */
+  /** @brief retrieve calib tag number @c i (start at 1). returns "" if non-existant  */
   std::string getCalibTag(int i) const;
   /** @brief set calib tag @c tag  must be of the form "AAA" */
   void addCalibTag(const std::string& tag);

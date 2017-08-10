@@ -34,7 +34,7 @@ TRTRawContByteStreamCnv::initialize()
    StatusCode sc = Converter::initialize(); 
    if(StatusCode::SUCCESS!=sc) return sc; 
 
-   MsgStream log(messageService(), "TRTRawContByteStreamCnv");
+   MsgStream log(msgSvc(), "TRTRawContByteStreamCnv");
    log << MSG::DEBUG<< " initialize " <<endmsg; 
 
    // Retrieve ByteStreamCnvSvc
@@ -63,7 +63,7 @@ StatusCode
 TRTRawContByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddress*& pAddr) 
 {
   // message stream
-  MsgStream log(messageService(), "TRTRawContByteStreamCnv");
+  MsgStream log(msgSvc(), "TRTRawContByteStreamCnv");
   
   // get RawEvent pointer
   RawEventWrite* re = m_byteStreamEventAccess->getRawEvent(); 

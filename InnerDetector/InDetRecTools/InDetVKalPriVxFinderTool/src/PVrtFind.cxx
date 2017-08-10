@@ -25,7 +25,7 @@ namespace InDet {
 			            	     std::vector< std::vector<const Trk::Track*> >             & TrkPerVrt,
 			           	     std::vector< std::vector<double> >                & TrkWgtPerVrt )
   {
-     if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Primary Vertex Finder called " <<endreq;
+     if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Primary Vertex Finder called " <<endmsg;
 
 //  Select track type for vertex finding.
 
@@ -36,8 +36,8 @@ namespace InDet {
      if( ListParticles.size() == 0 && ListTracks.size() != 0 ){ Selector =2; NTracksVrt=ListTracks.size();}
      if( NTracksVrt == 0) return 0;
      if( NTracksVrt == 1 && !m_BeamConstraint) return 0;
-     if(Selector==1 && msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << " Trk::TrackParticlesBase are used for vertex search!!!="<<NTracksVrt<<endreq;
-     if(Selector==2 && msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << " Trk::Tracks are used for vertex search!!!="<<NTracksVrt<<endreq;
+     if(Selector==1 && msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << " Trk::TrackParticlesBase are used for vertex search!!!="<<NTracksVrt<<endmsg;
+     if(Selector==2 && msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << " Trk::Tracks are used for vertex search!!!="<<NTracksVrt<<endmsg;
 //
      int NFoundVertices = 0;
      std::vector<const Trk::TrackParticleBase*> SelectedParticles;
@@ -61,7 +61,7 @@ namespace InDet {
      while ( 1 ) {
        if(Selector==1) ZStartFit = FindZPosTrk( ListParticles, ControlVariable);
        if(Selector==2) ZStartFit = FindZPosTrk( ListTracks,    ControlVariable);
-       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< " Z pos estimation= " <<ZStartFit<<" for vertex="<<NFoundVertices<< endreq;
+       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< " Z pos estimation= " <<ZStartFit<<" for vertex="<<NFoundVertices<< endmsg;
        if(ZStartFit < -10000.) return NFoundVertices;                  // No more candidates
        if(NFoundVertices > m_NPVertexMax) return NFoundVertices;         // Too many candidates
        Amg::Vector3D IniVertex(m_BeamCnst[0], m_BeamCnst[1], ZStartFit);

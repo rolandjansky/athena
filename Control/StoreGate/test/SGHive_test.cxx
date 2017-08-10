@@ -66,7 +66,7 @@ public:
     return rWB.allocateStore(eventNumber);
   }
 
-  /*** here we test the clearing and freeing of stores which are not needed anymory */
+  /*** here we test the clearing and freeing of stores which are not needed anymore */
   static StatusCode clear(::IHiveWhiteBoard& rWB, size_t slot)
   {  
     return ( rWB.clearStore(slot).isSuccess() && 

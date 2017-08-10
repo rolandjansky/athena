@@ -24,10 +24,10 @@ for(ubit16 i=0; i<8; i++) {m_MROlist[i]=MROlist[i];}
 reset();
 makeFragment();
 DISP<<" After makeFragment number of Words in PAD body ="
-    <<numberOfWordsInFragment;
+    <<m_numberOfWordsInFragment;
 DISP_DEBUG;
 topPADBody();
-for(ubit16 i=0; i<numberOfWordsInFragment; i++) {
+for(ubit16 i=0; i<m_numberOfWordsInFragment; i++) {
  DISP<<" output is "<<hex<<readPADWord()<<dec;
  DISP_DEBUG;
 }
@@ -43,20 +43,20 @@ void PadReadOut::reset() {
 m_Header=0x0000;
 m_Footer=0x0000;
 for(ubit16 i=0; i<8; i++) { m_CMAFragment[i]=0;}
-numberOfCMFragments=0;
-numberOfWordsInFragment=0;
+m_numberOfCMFragments=0;
+m_numberOfWordsInFragment=0;
 //
 topPADBody();
 }//end-of-PadReadOut::reset
 //----------------------------------------------------------------------------//
 void PadReadOut::topPADBody() {
-addressOfWordScanned=0;
-newCMIndex         =0;
-newCMRO            =1;
-numberOfWordsInCMRO=0;
-numberOfWordsRead  =0;
-endOfCMFragments   =0;
-currentCMRO        =0;
+m_addressOfWordScanned=0;
+m_newCMIndex         =0;
+m_newCMRO            =1;
+m_numberOfWordsInCMRO=0;
+m_numberOfWordsRead  =0;
+m_endOfCMFragments   =0;
+m_currentCMRO        =0;
 }//end-of-PadReadOut::topPADBody
 //----------------------------------------------------------------------------//
 void PadReadOut::makeFragment() {
@@ -70,17 +70,17 @@ ubit16 headerval[3];
 headerval[0] = 0;
 headerval[1] = m_padID;
 headerval[2] = 0; // Status bits (to be defined yet)
-m_Header = PROS.makeHeader(headerval);
-numberOfWordsInFragment+=1;
+m_Header = m_PROS.makeHeader(headerval);
+m_numberOfWordsInFragment+=1;
 DISP<<" Header: "<<hex<<m_Header<<dec<<endl;
 DISP_DEBUG;
 }//end-of-PadReadOut::makeHeader()
 //----------------------------------------------------------------------------//
 void PadReadOut::makeFooter() {
 ubit16 errorCodes[6]={0,0,0,0,0,0};
-//m_Footer = PROS.makeFooter(0);
-m_Footer = PROS.makeFooter(errorCodes);
-numberOfWordsInFragment+=1;
+//m_Footer = m_PROS.makeFooter(0);
+m_Footer = m_PROS.makeFooter(errorCodes);
+m_numberOfWordsInFragment+=1;
 }//end-of-PadReadOut::makeFooter()
 //----------------------------------------------------------------------------//
 void PadReadOut::makeBody() {
@@ -127,12 +127,12 @@ for(i=0; i<8; i++) {
   DISP<<" makeBody; number of CM WOrds="
       <<m_CMAFragment[j]->numberOfFragmentWords();
   DISP_DEBUG;
-  numberOfWordsInFragment+=m_CMAFragment[j]->numberOfFragmentWords();
+  m_numberOfWordsInFragment+=m_CMAFragment[j]->numberOfFragmentWords();
   j++;
  }//end-of-if(
 }//end-of-for(i
-numberOfCMFragments=j;
-DISP<<" Number of CMA Fragments= "<<numberOfCMFragments;
+m_numberOfCMFragments=j;
+DISP<<" Number of CMA Fragments= "<<m_numberOfCMFragments;
 DISP_DEBUG;
 }//end-of-PadReadOut::makeBody
 //----------------------------------------------------------------------------//
@@ -147,50 +147,50 @@ ubit16 PadReadOut::readFooter() {
 ubit16 PadReadOut::readBody() {
 ubit16 output=0xffff;
 
-//DISP<<" newCMIndex "<<newCMIndex
-//    <<" newCMRO "<<newCMRO
-//    <<" numberOfWordsInCMRO "<<numberOfWordsInCMRO
-//    <<" numberOfWordsRead "<<numberOfWordsRead
-//    <<" endOfCMFragments "<<endOfCMFragments<<endl;
+//DISP<<" m_newCMIndex "<<m_newCMIndex
+//    <<" m_newCMRO "<<m_newCMRO
+//    <<" m_numberOfWordsInCMRO "<<m_numberOfWordsInCMRO
+//    <<" m_numberOfWordsRead "<<m_numberOfWordsRead
+//    <<" m_endOfCMFragments "<<m_endOfCMFragments<<endl;
 //DISP_DEBUG;
 
- if(newCMRO) {
+ if(m_newCMRO) {
  
-  if(newCMIndex<8) {
-   if(m_CMAFragment[newCMIndex]) {
-    currentCMRO=m_CMAFragment[newCMIndex];
-    currentCMRO->topCMABody();
-    numberOfWordsInCMRO=currentCMRO->numberOfFragmentWords();
-    numberOfWordsRead=0;
-    newCMRO=0;
+  if(m_newCMIndex<8) {
+   if(m_CMAFragment[m_newCMIndex]) {
+    m_currentCMRO=m_CMAFragment[m_newCMIndex];
+    m_currentCMRO->topCMABody();
+    m_numberOfWordsInCMRO=m_currentCMRO->numberOfFragmentWords();
+    m_numberOfWordsRead=0;
+    m_newCMRO=0;
    }//end
-   newCMIndex++;
+   m_newCMIndex++;
   } else {
-   endOfCMFragments=1;
+   m_endOfCMFragments=1;
   }//end
  
- }//end-of-if(newCMRO
+ }//end-of-if(m_newCMRO
 //
- if(!endOfCMFragments) {
-  output = currentCMRO->readCMAWord();
-  numberOfWordsRead++;
-  if(numberOfWordsRead>=numberOfWordsInCMRO) newCMRO=1;
- }//end-of-if(!endOfCMFragments
+ if(!m_endOfCMFragments) {
+  output = m_currentCMRO->readCMAWord();
+  m_numberOfWordsRead++;
+  if(m_numberOfWordsRead>=m_numberOfWordsInCMRO) m_newCMRO=1;
+ }//end-of-if(!m_endOfCMFragments
  return output;
 }//end-of-PadReadOut::readBody()
 //----------------------------------------------------------------------------//
 ubit16 PadReadOut::readPADWord() {
 ubit16 output=0xffff;
-     if(addressOfWordScanned==0)                           output=readHeader();
-else if(addressOfWordScanned==(numberOfWordsInFragment-1)) output=readFooter();
+     if(m_addressOfWordScanned==0)                           output=readHeader();
+else if(m_addressOfWordScanned==(m_numberOfWordsInFragment-1)) output=readFooter();
 else output = readBody();
-addressOfWordScanned++;
+m_addressOfWordScanned++;
 return output;
 }//end-of-PadReadOut::readPADWord
 //----------------------------------------------------------------------------//
 void PadReadOut::bytestream(ostream &stream) {
 stream<<hex<<m_Header<<dec<<endl;               // header
-for(ubit16 i=0; i<numberOfCMFragments; i++) {
+for(ubit16 i=0; i<m_numberOfCMFragments; i++) {
  m_CMAFragment[i]->bytestream(stream);          // body
 }//end-of-for(ubit16 i
 stream<<hex<<m_Footer<<dec<<endl;               // footer
@@ -204,7 +204,7 @@ ubit16 inputData;
 ubit16 padHeaderfound=0;
 //
 topPADBody();
-for(ubit16 i=0; i<numberOfWordsInFragment; i++) {
+for(ubit16 i=0; i<m_numberOfWordsInFragment; i++) {
  inputData = readPADWord();
  DISP<<" bytestream: current word is "<<hex<<inputData<<dec;
  DISP_DEBUG;

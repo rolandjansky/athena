@@ -17,8 +17,8 @@
 #include "TrigNavigation/Navigation.h"
 #include "TrigNavigation/NavigationCore.h"
 
-#include "DataModel/ElementLink.h"
-#include "DataModel/ElementLinkVector.h"
+#include "AthLinks/ElementLink.h"
+#include "AthLinks/ElementLinkVector.h"
 
 class ISvcLocator;
 class ITrigTimerSvc;
@@ -354,7 +354,7 @@ namespace HLT
 
     /**
      * @brief Accessor method for the algorithm configuration.
-     * @parameter cfg new configuration object for this algorithm.
+     * @param cfg new configuration object for this algorithm.
      */
     void setConfig(AlgoConfig* cfg) { m_config = cfg; }
 

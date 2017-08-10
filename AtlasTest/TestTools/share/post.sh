@@ -34,8 +34,12 @@ s/^StoreGateSvc_Impl   DEBUG/StoreGateSvc        DEBUG/
 s/StoreGateSvc_Impl/StoreGateSvc/
 s/SGImplSvc/StoreGateSvc/
 s/SG::DataProxyHolder::sgkey_t/sgkey_t/
-s!\\\\(ERROR\\\\|INFO\\\\|WARNING\\\\|FATAL\\\\) [^ ]*/!\\\\1 ../!
+s!(ERROR|INFO|WARNING|FATAL) [^ ]*/!\\\\1 ../!
+s/(\.cxx|\.cpp|\.h|\.icc|LINE):[0-9]+/\\\\1/
 s/.[[][?]1034h//
+s/([0-9][0-9]* ms)/(xx ms)/
+s/([0-9][0-9]* ms total)/(xx ms total)/
+s/[[][0-9;]*m//g
 EOF
 
 # ignore diff annotations
@@ -152,11 +156,13 @@ PP="$PP"'|^(StoreGateSvc|[^ ]+Store) +(INFO|VERBOSE) (Stop|stop|Start)'
 PP="$PP"'|^warn  .fn-'
 
 # ubsan
-PP="$PP"'|bits/regex.h:1545'
+PP="$PP"'|bits/regex.h:11'
 
 # More StoreGate changes.
 PP="$PP"'|DEBUG trying to create store'
 
+# Differences in MT build.
+PP="$PP"'|^IncidentProcAlg.* INFO|^Ath.*Seq +INFO'
 
 
 if [ "$extrapatterns" != "" ]; then
@@ -175,12 +181,36 @@ else
          echo "$GREEN post.sh> OK: ${test} exited normally. Output is in $joblog $RESET"
        fi
        reflog=../share/${test}.ref
+
+       # If we can't find the reference file, maybe it's located outside
+       # the repo.  With the switch to git, we have to fall back
+       # to handling the versioning manually.
+       # ATLAS_REFERENCE_TAG should be a string of the form PACKAGE/VERSION.
+       # We first look for it in DATAPATH.  If we don't find it,
+       # we then look under ATLAS_REFERENCE_DATA, which falls back
+       # to an afs path if it's not found.
+       if [ \( ! -r $reflog \) -a "$ATLAS_REFERENCE_TAG" != "" ]; then
+           # Look for the file in DATAPATH.
+           # We have to look for the directory, not the file itself,
+           # since get_files is hardcoded not to look more than two
+           # levels down.
+           get_files -data -symlink $ATLAS_REFERENCE_TAG > /dev/null
+           reflog=`basename $ATLAS_REFERENCE_TAG`/${test}.ref
+           if [ ! -r $reflog ]; then
+               testdata=$ATLAS_REFERENCE_DATA
+               if [ "$testdata" = "" ]; then
+                   testdata=/afs/cern.ch/atlas/maxidisk/d33/referencefiles
+               fi
+               reflog=$testdata/$ATLAS_REFERENCE_TAG/${test}.ref
+           fi
+       fi
+
        if [ -r $reflog ]
            then
 	   jobrep=${joblog}-rep
-	   sed "$II" $joblog > $jobrep
+	   sed -r "$II" $joblog > $jobrep
 	   refrep=`basename ${reflog}`-rep
-	   sed "$II" $reflog > $refrep
+	   sed -r "$II" $reflog > $refrep
            jobdiff=${joblog}-todiff
            refdiff=`basename ${reflog}`-todiff
            egrep -a -v "$PP" < $jobrep > $jobdiff

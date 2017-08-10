@@ -24,11 +24,4 @@ typedef std::vector< ElementLink< RingSetConfContainer_v1 > >
   RingSetConfLinks_v1;
 } // namespace xAOD
 
-#ifndef XAOD_STANDALONE
-// NOTE: This shall be uncommented after upgrade to v2
-// Set up a CLID for the container:
-//#include "SGTools/CLASS_DEF.h"
-//CLASS_DEF( xAOD::RingSetConfContainer_v1 , 1177318370 , 1 )
-#endif // XAOD_STANDALONE
-
 #endif // XAODCALORINGS_VERSIONS_RINGSETCONFCONTAINER_V1_H

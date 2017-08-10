@@ -15,11 +15,6 @@ atlas_depends_on_subdirs(
    GaudiKernel
    Generators/GeneratorObjects )
 
-# Set the version of Tauolapp to use:
-set( TAUOLAPP_VERSION 1.1.6 )
-set( TAUOLAPP_ROOT
-   ${LCG_RELEASE_DIR}/MCGenerators/tauola++/${TAUOLAPP_VERSION}/${ATLAS_PLATFORM} )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( HepMC )

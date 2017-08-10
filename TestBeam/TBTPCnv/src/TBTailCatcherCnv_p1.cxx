@@ -42,7 +42,7 @@ TBTailCatcherCnv_p1::persToTrans(const TBTailCatcher_p1* pers,
     // fill the container with the scint object
     trans->addScintillator(scint);
 
-//		log << MSG::DEBUG << "\033[34m" << "\t- pers->trans:  scint->isOverflow()       " << scint->isOverflow() << "\033[0m" <<endreq;
+//		log << MSG::DEBUG << "\033[34m" << "\t- pers->trans:  scint->isOverflow()       " << scint->isOverflow() << "\033[0m" <<endmsg;
   }
 
   unsigned int nSignals=pers->m_signals.size();

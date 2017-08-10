@@ -19,7 +19,7 @@
 
 #include "LArRecEvent/LArCellCollection.h"
 #include "TrigT2CaloCommon/LArRodIdHash.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 #include "LArByteStream/Hid2RESrcID.h"
 #include "Identifier/HWIdentifier.h"
 #include "CaloInterface/ICaloLumiBCIDTool.h"
@@ -30,7 +30,7 @@ class EventInfo;
 class ILArBadChannelMasker;
 class ILArBadChanTool;
 class LArCablingService;
-static std::vector<float> m_corrBCIDref_example;
+static std::vector<float> corrBCIDref_example;
 
 /** Class which contains statically allocated LArCellCollections */
 class LArCellCont : public std::vector<LArCellCollection*>

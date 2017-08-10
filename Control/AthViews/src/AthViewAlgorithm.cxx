@@ -11,6 +11,7 @@
 
 // AthenaBaseComps includes
 #include "AthViews/AthViewAlgorithm.h"
+#include "AthenaKernel/ExtendedEventContext.h"
 
 #include "GaudiKernel/IJobOptionsSvc.h"
 
@@ -67,7 +68,7 @@ StatusCode AthViewAlgorithm::sysExecute(const EventContext& ctx) {
 StatusCode AthViewAlgorithm::sysExecute() {
   const EventContext& ctx = *getContext();
 #endif
-  ATH_MSG_DEBUG( "AthViewAlgorithm sysExecute for " << name() );
+  ATH_MSG_WARNING( "AthViewAlgorithm is now OBSOLETE, please migrate your code" );
 
   //Skip the algorithm if views are required or avoided
   SG::View * myView = eventView(ctx);
@@ -104,10 +105,10 @@ StatusCode AthViewAlgorithm::sysExecute() {
 //Retrieve the EventView pointer from the context if it exists
 SG::View * AthViewAlgorithm::eventView(const EventContext& ctx)
 {
-
   //Try to get the view from context
   if ( ! ctx.valid() ) return 0; //but why no context?
-  SG::View * myView = dynamic_cast< SG::View * >( ctx.proxy() );
+  SG::View * myView = dynamic_cast< SG::View * >
+    ( ctx.getExtension<Atlas::ExtendedEventContext>()->proxy() );
   if ( myView )
   {
     ATH_MSG_DEBUG( "Algorithm " << name() << " is in view " << myView );

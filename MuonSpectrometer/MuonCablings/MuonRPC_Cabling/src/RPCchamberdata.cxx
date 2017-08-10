@@ -45,7 +45,7 @@ RPCchamberdata::RPCchamberdata(DBline& data, int type) :
 	   m_ijk_etaReadout,//m_eta_inv0,m_eta_inv1,
            m_strips_in_Phi_Conn,m_phi_strips,m_phi_connectors,//m_phi_splitters,
 	   m_ijk_phiReadout);//m_phi_inv0,m_phi_inv1);
-           rpc.push_back(cham);
+           m_rpc.push_back(cham);
 	}
         data++;
     }while(!data("}"));
@@ -53,7 +53,7 @@ RPCchamberdata::RPCchamberdata(DBline& data, int type) :
 
 RPCchamberdata::~RPCchamberdata()
 {
-    rpc.clear();
+    m_rpc.clear();
 }
 
 void
@@ -179,10 +179,10 @@ RPCchamberdata::get_data(DBline& data)
 RPCchamber*
 RPCchamberdata::give_rpc(void)
 {
-    if(rpc.size())
+    if(m_rpc.size())
     {
-        RPCchamber* cham = new RPCchamber(rpc.front());
-	rpc.pop_front();
+        RPCchamber* cham = new RPCchamber(m_rpc.front());
+	m_rpc.pop_front();
 	return cham;
     }
     return 0;
@@ -193,9 +193,9 @@ RPCchamberdata::Print(std::ostream& stream, bool detail) const
 {
     stream << "RPC data of station n. " << m_station;
     stream << " belonging to sector type " << m_type << std::endl;
-    stream << "It contains " << rpc.size();
+    stream << "It contains " << m_rpc.size();
     stream << " RPC chambers:" << std::endl;
     std::list < RPCchamber >::const_iterator it;
-    for(it = rpc.begin();it!=rpc.end();++it) 
+    for(it = m_rpc.begin();it!=m_rpc.end();++it) 
         stream << ShowRequest<RPCchamber>(*it,detail); 
 }

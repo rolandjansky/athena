@@ -13,7 +13,7 @@
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetEventTPCnv/InDetPrepRawData/PixelClusterCnv_p3.h"
 #include "InDetEventTPCnv/PixelClusterContainerCnv_p3.h"
-#include "DataModel/DataPool.h"
+#include "AthAllocators/DataPool.h"
 
 // Gaudi
 #include "GaudiKernel/ISvcLocator.h"

@@ -12,10 +12,6 @@
 //<version>	$Name: not supported by cvs2svn $
 
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IDataProviderSvc.h"
-#include "GaudiKernel/AlgFactory.h"
-#include "GaudiKernel/PropertyMgr.h"
-#include "StoreGate/StoreGate.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "MuonGeoModelTest/PerfUtils.h"
@@ -3547,7 +3543,7 @@ void MuonGMCheck::testRpcCache_here()
      std::string gVersion = p_MuonMgr->geometryVersion();
      std::string fileName = "testRpcCache_"+gVersion;
      //std::ofstream fout(fileName.c_str());
-     //exe_log << MSG::INFO << " ***** Writing file "<< fileName << endreq;
+     //exe_log << MSG::INFO << " ***** Writing file "<< fileName << endmsg;
      //fout << setiosflags(std::ios::fixed) << std::setprecision(3)<<std::endl;
 
      int nre = 0;
@@ -3784,7 +3780,7 @@ void MuonGMCheck::testMdtCache_here()
 
                      ATH_MSG_DEBUG(" Filling cache for mdtRE n. "<<nre<<" "<<p_MdtIdHelper->show_to_string(idr) );
                      mdt->fillCache();
-                     //std::cout<<" Filling cache done for mdtRE "<<p_MdtIdHelper->show_to_string(idr)<<endreq;
+                     //std::cout<<" Filling cache done for mdtRE "<<p_MdtIdHelper->show_to_string(idr)<<endmsg;
                  } // end of multilayer
              } // end of stPhi
          } // end of stEta

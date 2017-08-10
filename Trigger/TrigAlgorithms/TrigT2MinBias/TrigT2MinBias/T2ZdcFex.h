@@ -50,11 +50,7 @@ class T2ZdcFex: public HLT::AllTEAlgo {
   
 
  private:
-  
-  /** A data member to retain a connection to the MsgStream
-      service. */
-  MsgStream m_log;
-  
+    
   /** iterators to ZdcCells. To be used when online
       are to be used.
       Used as input for TrigDataAccess::LoadCollections */

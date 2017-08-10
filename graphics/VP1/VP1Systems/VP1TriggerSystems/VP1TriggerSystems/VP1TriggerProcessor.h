@@ -7,7 +7,7 @@
 
 /***********************************************************************************
  * @Package : VP1TriggerSystems
- * @Class   : VP1TriggerProcessor
+ * @class   : VP1TriggerProcessor
  *
  * @brief   : Trigger Processor (Header) - trigger data processing methods;
  *                                       - VP1TriggerTool interface to VP1TriggerSystem

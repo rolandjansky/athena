@@ -49,8 +49,6 @@ private:
   bool m_excludeCFromTop;
 
 
-  MsgStream m_log;
-
   bool passBSelection(const HepMC::GenParticle* part) const;
   bool passCSelection(const HepMC::GenParticle* part) const;
 

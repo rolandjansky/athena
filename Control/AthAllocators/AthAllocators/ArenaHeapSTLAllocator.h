@@ -47,6 +47,7 @@
 
 
 #include "AthAllocators/ArenaHeapAllocator.h"
+#include "CxxUtils/checker_macros.h"
 #include <string>
 
 
@@ -300,13 +301,13 @@ public:
   /**
    * @brief Return the statistics block for this allocator.
    */
-  const ArenaAllocatorBase::Stats& stats() const;
+  ArenaAllocatorBase::Stats stats() const;
 
 
   /**
    * @brief Return a pointer to the underlying allocator (may be 0).
    */
-  ArenaAllocatorBase* poolptr() const;
+  const ArenaAllocatorBase* poolptr() const;
 
 
 private:
@@ -316,9 +317,27 @@ private:
 
 
 
+/// Forward declaration.
+template <class T>
+class ArenaNonConstHeapSTLAllocator;
+
+
 /**
  * @brief STL-style allocator wrapper for @c ArenaHeapAllocator.
  *        This is the specialization for the case of the vetoed type.
+ *
+ *
+ *        We want to allow calling the non-const allocator methods
+ *        reset(), erase(), and reserve() only if the corresponding
+ *        container is non-const.  However, we can't really do that,
+ *        since the get_allocator() method of containers is only const,
+ *        and returns an allocator by value.  So instead, we split up this
+ *        class.  @c ArenaHeapSTLAllocator holds a const pointer to the
+ *        underlying allocator, and supports only the const methods on it.
+ *        Then @c ArenaNonConstHeapSTLAllocator derives from it and
+ *        implements the non-const methods.  To get an instance of the
+ *        latter class, call ArenaHeapSTLAllocator::get_allocator(c),
+ *        where @c is the container --- and @c must be non-const.
  *
  * See the file-level comments for details.
  */
@@ -381,6 +400,61 @@ public:
 
 
   /**
+   * @brief Return the statistics block for this allocator.
+   */
+  ArenaAllocatorBase::Stats stats() const;
+
+
+  /**
+   * @brief Return a pointer to the underlying allocator (may be 0).
+   */
+  const ArenaAllocatorBase* poolptr() const;
+
+
+  /**
+   * @brief Return an allocator supporting non-const methods from
+   *        a non-const container reference.
+   * @param c The (non-const) container.
+   */
+  template <class CONT>
+  static
+  ArenaNonConstHeapSTLAllocator<T> get_allocator (CONT& c);
+
+
+private:
+  /// Saved hinted number of objects per block.
+  size_t m_nblock;
+
+  /// Saved allocator name.
+  std::string m_name;
+
+  /// Point at an underlying allocator from a different specialization.
+  const ArenaAllocatorBase* m_poolptr;
+};
+
+
+/**
+ * @brief STL-style allocator wrapper for @c ArenHeapAllocator.
+ *        Non-const variant for the case of the vetoed type.
+ *
+ *        See documentation above for details.
+ */
+template <class T>
+class ArenaNonConstHeapSTLAllocator
+  : public ArenaHeapSTLAllocator<T, T>
+{
+public:
+  /**
+   * @brief Constructor.
+   * @param a Allocator to reference.
+   * @param poolptr_nc Non-const pointer to the underlying allocator.
+   */
+  template <class U, class V>
+  ArenaNonConstHeapSTLAllocator (const ArenaHeapSTLAllocator<U, V>& a,
+                                 ArenaAllocatorBase* poolptr_nc);
+
+
+  /**
    * @brief Free all allocated elements.
    *
    * All elements allocated are returned to the free state.
@@ -422,27 +496,9 @@ public:
   void reserve (size_t size);
 
 
-  /**
-   * @brief Return the statistics block for this allocator.
-   */
-  const ArenaAllocatorBase::Stats& stats() const;
-
-
-  /**
-   * @brief Return a pointer to the underlying allocator (may be 0).
-   */
-  ArenaAllocatorBase* poolptr() const;
-
-
 private:
-  /// Saved hinted number of objects per block.
-  size_t m_nblock;
-
-  /// Saved allocator name.
-  std::string m_name;
-
-  /// Point at an underlying allocator from a different specialization.
-  ArenaAllocatorBase* m_poolptr;
+  /// Non-const pointer to the underlying allocator.
+  ArenaAllocatorBase* m_poolptr_nc;
 };
 
 

@@ -2,18 +2,19 @@
 
 from DataQualityUtils.DQWebDisplayConfig import DQWebDisplayConfig
 import os
+from ._resolve_data_path import resolve_data_path
 
 dqconfig                = DQWebDisplayConfig()
 dqconfig.config         = "TEST"
 
 # Use this setup to test your new han configuration before committing it. Set "hcfg_dir" manually if the default doesn't work for you.
 # You can change these settings in your local working copy of this file, but please do not commit the change to SVN.
-try:
-    hcfg_dir = os.environ["TestArea"] + "/DataQuality/DataQualityConfigurations/config"
-    print "$TestArea is defined, using it."
-except KeyError:
+hcfg_dir = resolve_data_path('DataQualityConfigurations')
+if hcfg_dir:
+    print "Found DataQualityConfigurations data directory %s, using it" % hcfg_dir
+else:
     hcfg_dir = os.getcwd()
-    print "$TestArea is not defined, using $PWD instead."
+    print "DataQualityConfigurations data directory not found, using $PWD instead."
 print "Looking for heavyions_*.hcfg files in %s" % (hcfg_dir)
 
 dqconfig.hcfg           = "%s/heavyions_run.hcfg"       % (hcfg_dir)

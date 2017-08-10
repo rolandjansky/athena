@@ -71,22 +71,22 @@ StatusCode T2CaloBase::initialize(){
   MsgStream log(msgSvc(), name());
 
   //  if ( msgLvl() <= MSG::INFO ) 
-  log << MSG::INFO << "on initialize()" << endreq;
+  log << MSG::INFO << "on initialize()" << endmsg;
   
   StatusCode stat = HLT::FexAlgo::initialize();
   if (stat.isFailure()) {
-    log << MSG::ERROR << "base class finalize failed!" << endreq;
+    log << MSG::ERROR << "base class finalize failed!" << endmsg;
     return stat;
   }
 
     if( m_emAlgTools.retrieve().isFailure() ) {
       log << MSG::FATAL << "Unable to create " << 
-          "some AlgTool" << endreq;
+          "some AlgTool" << endmsg;
       return StatusCode::FAILURE;
     } ;
 
     if ((m_data.retrieve()).isFailure()) {
-      log << MSG::ERROR << "Could not get m_data" << endreq;
+      log << MSG::ERROR << "Could not get m_data" << endmsg;
       return StatusCode::FAILURE;
     }
 
@@ -94,7 +94,7 @@ StatusCode T2CaloBase::initialize(){
   // Initialize timing service
   
   if( (m_timersvc.retrieve()).isFailure() ) {
-    log << MSG::WARNING << name() << ": Unable to locate TrigTimer Service" << endreq;
+    log << MSG::WARNING << name() << ": Unable to locate TrigTimer Service" << endmsg;
   } 
 
   if ( !m_timersvc.empty()) {
@@ -107,7 +107,7 @@ StatusCode T2CaloBase::initialize(){
 #ifndef NDEBUG
   log << MSG::INFO 
       << "Initialization completed successfully" 
-      << endreq;
+      << endmsg;
 #endif
   
   return StatusCode::SUCCESS;
@@ -119,12 +119,12 @@ StatusCode T2CaloBase::finalize(){
   MsgStream log(msgSvc(), name());
 
 #ifndef NDEBUG
-    log << MSG::INFO << "in finalize()" << endreq;
+    log << MSG::INFO << "in finalize()" << endmsg;
 #endif  
 
     StatusCode stat = HLT::FexAlgo::finalize();
     if (stat.isFailure()) {
-      log << MSG::ERROR << "base class finalize failed!" << endreq;
+      log << MSG::ERROR << "base class finalize failed!" << endmsg;
       return stat;
     }
 

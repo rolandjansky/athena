@@ -49,13 +49,13 @@ namespace JiveXML {
   StatusCode SiClusterRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
 
     //be verbose
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieving " << dataTypeName() <<endreq; 
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieving " << dataTypeName() <<endmsg; 
     
 
     //Retrieve the cluster container
     const InDet::SiClusterContainer* SiClusterCont;
     if (evtStore()->retrieve(SiClusterCont, m_SiClusterCollName).isFailure()){
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve SiClusterContainer with name " << m_SiClusterCollName << endreq;
+      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve SiClusterContainer with name " << m_SiClusterCollName << endmsg;
       return StatusCode::RECOVERABLE;
     }
    
@@ -64,7 +64,7 @@ namespace JiveXML {
     if ( evtStore()->contains<PRD_MultiTruthCollection>(m_SiTruthMapName) ){
       if ( evtStore()->retrieve(simClusterMap, m_SiTruthMapName).isFailure() ){
         //Just write out a warning if this fails
-        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not retrieve PRD_MultiTruthCollection with name " <<  m_SiTruthMapName << endreq;
+        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not retrieve PRD_MultiTruthCollection with name " <<  m_SiTruthMapName << endmsg;
       }
     }  
     //Loop over all collections in the container and count the clusters
@@ -111,7 +111,7 @@ namespace JiveXML {
         Identifier id = geo->SCTIDHelper()->wafer_id(cluster->identify());
         InDetDD::SiDetectorElement* element = geo->SCTGeoManager()->getDetectorElement(id);
         if (!element){
-          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Could not obtain Detector Element with ID " << id << endreq;
+          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Could not obtain Detector Element with ID " << id << endmsg;
           continue ;
         }
             
@@ -179,7 +179,7 @@ namespace JiveXML {
     }
 
     //Be verbose
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Retrieved " << dataTypeName() << ": " <<  x0.size() << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Retrieved " << dataTypeName() << ": " <<  x0.size() << endmsg;
  
      //forward data to formating tool and return
     return FormatTool->AddToEvent(dataTypeName(), "", &dataMap);

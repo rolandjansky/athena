@@ -13,15 +13,17 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "InDetRawData/PixelRDO_Container.h"
-
+#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include <string>
 
 // Forward declarations
 class IPixelRawDataProviderTool;
 class PixelID;
 class IROBDataProviderSvc;
+class IRegSelSvc;
 class IPixelCablingSvc;
 
 class PixelRawDataProvider : public AthAlgorithm {
@@ -43,10 +45,13 @@ class PixelRawDataProvider : public AthAlgorithm {
 
 private:
 
+  ServiceHandle<IRegSelSvc>             m_regionSelector;     
   ServiceHandle<IPixelCablingSvc>      m_pixelCabling;
   ServiceHandle<IROBDataProviderSvc>   m_robDataProvider;
   ToolHandle<IPixelRawDataProviderTool> m_rawDataTool;
   const PixelID*                       m_pixel_id; 
+  bool m_roiSeeded;
+  SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;
   SG::WriteHandleKey<PixelRDO_Container> m_rdoContainerKey;
 };
 

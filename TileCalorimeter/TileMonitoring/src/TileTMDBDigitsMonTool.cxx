@@ -47,8 +47,6 @@ TileTMDBDigitsMonTool::TileTMDBDigitsMonTool(const std::string & type, const std
   , m_lfn_map{}
   , m_hfn_map{}
   , m_nEventsProcessed(0)
-  , m_histogramsNotBooked(true)
-
 /*---------------------------------------------------------*/
 {
   declareInterface<IMonitorToolBase>(this);
@@ -124,29 +122,6 @@ StatusCode TileTMDBDigitsMonTool::fillHistograms() {
   const TileDigitsContainer* digitsContainer;
   CHECK( evtStore()->retrieve(digitsContainer, m_digitsContainerName) );
   
-  if (m_histogramsNotBooked) { // find TMDBs and book histograms for them
-    for (const TileDigitsCollection* digitsCollection : *digitsContainer) {
-      if (digitsCollection->empty()) continue;
-      HWIdentifier adc_id = digitsCollection->front()->adc_HWID();
-      int ros = m_tileHWID->ros(adc_id);
-      if (!m_TMDB_names[ros].empty()) continue; // already booked TMDB histograms for this ros
-      for (const TileDigits* tile_digits : *digitsCollection) {
-        adc_id = tile_digits->adc_HWID();
-        int channel = m_tileHWID->channel(adc_id);
-        CHECK( bookTMDBHistograms(ros, channel) );
-      }
-    }
-    
-    if (m_TMDB_names[1].empty() 
-        && m_TMDB_names[2].empty() 
-        && m_TMDB_names[3].empty() 
-        && m_TMDB_names[4].empty()) return StatusCode::SUCCESS; // no TMDBs found
-    
-    CHECK( bookTMDBSummaryHistograms() );
-    m_histogramsNotBooked = false;
-    
-  }
-
   for (const TileDigitsCollection* digitsCollection : *digitsContainer) {
     
     if (digitsCollection->empty()) continue;
@@ -154,6 +129,8 @@ StatusCode TileTMDBDigitsMonTool::fillHistograms() {
     HWIdentifier adc_id = digitsCollection->front()->adc_HWID();
     int ros = m_tileHWID->ros(adc_id);
     int drawer = m_tileHWID->drawer(adc_id);
+
+    if (m_TMDB_names[ros].empty()) CHECK(bookTMDBHistograms(digitsCollection));
     
     for (const TileDigits* tile_digits : *digitsCollection) {
       
@@ -258,24 +235,38 @@ StatusCode TileTMDBDigitsMonTool::updateSummaryHistograms() {
 
 
 /*---------------------------------------------------------*/
-StatusCode TileTMDBDigitsMonTool::bookTMDBHistograms(unsigned int ros, unsigned int channel) {
+StatusCode TileTMDBDigitsMonTool::bookTMDBHistograms(const TileDigitsCollection* digitsCollection) {
 /*---------------------------------------------------------*/
 
   std::vector<std::string> ros_names = {"AUX", "LBA", "LBC", "EBA", "EBC"};
 
-  std::string TMDB_name(ros_names[ros] + "_" + getTMDBCellName(ros, channel));
+  if (digitsCollection->empty()) return StatusCode::SUCCESS;
 
-  m_pedestal[ros].push_back( book1F("", "TMDB_" + TMDB_name + "_pedestal", "Sample[0] in " + TMDB_name, 101, -0.5, 100.5) );
-  m_pedestal[ros].back()->GetXaxis()->SetTitle("[ADC]");
+  HWIdentifier adc_id = digitsCollection->front()->adc_HWID();
+  int ros = m_tileHWID->ros(adc_id);
+  
+  for (const TileDigits* digits: *digitsCollection) {
 
-  m_hfn[ros].push_back( book1F("", "TMDB_" + TMDB_name + "_hfn", "RMS of 7 samples in " + TMDB_name, 180, -0.5, 179.5) );
-  m_hfn[ros].back()->GetXaxis()->SetTitle("[ADC]");
+    adc_id = digits->adc_HWID();
+    int channel = m_tileHWID->channel(adc_id);
 
-  // temporary until TMDB raw channel monitoring tool be ready
-  m_amplitude[ros].push_back( book1F("", "TMDB_" + TMDB_name + "_amplitude", "Difference betwean maximum and minimum sample in " + TMDB_name, 256, -0.5, 255.5) );
-  m_amplitude[ros].back()->GetXaxis()->SetTitle("[ADC]");
+    std::string TMDB_name(ros_names[ros] + "_" + getTMDBCellName(ros, channel));
+    
+    m_pedestal[ros].push_back( book1F("", "TMDB_" + TMDB_name + "_pedestal", "Sample[0] in " + TMDB_name, 101, -0.5, 100.5) );
+    m_pedestal[ros].back()->GetXaxis()->SetTitle("[ADC]");
+    
+    m_hfn[ros].push_back( book1F("", "TMDB_" + TMDB_name + "_hfn", "RMS of 7 samples in " + TMDB_name, 180, -0.5, 179.5) );
+    m_hfn[ros].back()->GetXaxis()->SetTitle("[ADC]");
+    
+    // temporary until TMDB raw channel monitoring tool be ready
+    m_amplitude[ros].push_back( book1F("", "TMDB_" + TMDB_name + "_amplitude", "Difference betwean maximum and minimum sample in " + TMDB_name, 256, -0.5, 255.5) );
+    m_amplitude[ros].back()->GetXaxis()->SetTitle("[ADC]");
+    
+    m_TMDB_names[ros].push_back(TMDB_name);
 
-  m_TMDB_names[ros].push_back(TMDB_name);
+  }
+
+  if (!m_TMDB_names[ros].empty()) CHECK( bookTMDBSummaryHistograms(ros) );
 
   return StatusCode::SUCCESS;
 }
@@ -283,52 +274,50 @@ StatusCode TileTMDBDigitsMonTool::bookTMDBHistograms(unsigned int ros, unsigned 
 
 
 /*---------------------------------------------------------*/
-StatusCode TileTMDBDigitsMonTool::bookTMDBSummaryHistograms() {
+StatusCode TileTMDBDigitsMonTool::bookTMDBSummaryHistograms(unsigned int ros) {
 /*---------------------------------------------------------*/
 
   std::vector<std::string> ros_names = {"AUX", "LBA", "LBC", "EBA", "EBC"};
 
-  for (unsigned int ros = 1; ros < TileCalibUtils::MAX_ROS; ++ros) {
-    if (m_TMDB_names[ros].empty()) continue; // no TMDBs in this ros
 
-    unsigned int n_TMDB = m_TMDB_names[ros].size();
-
-    m_pedestal_map[ros] = bookProfile2D("", "TMDB_" + ros_names[ros] + "_pedestal_map", "Mean sample[0] in TMDB " + ros_names[ros]
-                                        , 64, 0.5, 64.5, n_TMDB, -0.5, n_TMDB - 0.5, 0, 100);
-
-    SetBinLabel(m_pedestal_map[ros]->GetYaxis(), m_TMDB_names[ros]);
-    m_pedestal_map[ros]->GetZaxis()->SetTitle("[ADC]");
+  unsigned int n_TMDB = m_TMDB_names[ros].size();
+  
+  m_pedestal_map[ros] = bookProfile2D("", "TMDB_" + ros_names[ros] + "_pedestal_map", "Mean sample[0] in TMDB " + ros_names[ros],
+                                      64, 0.5, 64.5, n_TMDB, -0.5, n_TMDB - 0.5, 0, 100);
+  
+  SetBinLabel(m_pedestal_map[ros]->GetYaxis(), m_TMDB_names[ros]);
+  m_pedestal_map[ros]->GetZaxis()->SetTitle("[ADC]");
+  
+  m_amplitude_map[ros] = bookProfile2D("", "TMDB_" + ros_names[ros] + "_amplitude_map", "Difference betwean maximum and minimum sample in TMDB " + ros_names[ros],
+                                       64, 0.5, 64.5, n_TMDB, -0.5, n_TMDB - 0.5, 0, 100);
+  
+  SetBinLabel(m_amplitude_map[ros]->GetYaxis(), m_TMDB_names[ros]);
+  m_amplitude_map[ros]->GetZaxis()->SetTitle("[ADC]");
+  
+  m_hfn_map[ros] = bookProfile2D("", "TMDB_" + ros_names[ros] + "_hfn_map", "Mean RMS of 7 samples in TMDB " + ros_names[ros],
+                                 64, 0.5, 64.5, n_TMDB, -0.5, n_TMDB - 0.5, 0, 180);
+  
+  SetBinLabel(m_hfn_map[ros]->GetYaxis(), m_TMDB_names[ros]);
+  m_hfn_map[ros]->GetZaxis()->SetTitle("[ADC]");
+  
+  m_lfn_map[ros] = bookProfile2D("", "TMDB_" + ros_names[ros] + "_lfn_map", "RMS of sample[0] in TMDB " + ros_names[ros],
+                                 64, 0.5, 64.5, n_TMDB, -0.5, n_TMDB - 0.5, 0, 10);
+  
+  SetBinLabel(m_lfn_map[ros]->GetYaxis(), m_TMDB_names[ros]);
+  m_lfn_map[ros]->GetZaxis()->SetTitle("[ADC]");
+  
+  
+  for (unsigned int drawer = 0; drawer < TileCalibUtils::MAX_DRAWER; drawer += 2) {
+    int module = drawer + 1;
+    std::string module_name = TileCalibUtils::getDrawerString(ros, drawer);
     
-    m_amplitude_map[ros] = bookProfile2D("", "TMDB_" + ros_names[ros] + "_amplitude_map", "Difference betwean maximum and minimum sample in TMDB " + ros_names[ros]
-                                         , 64, 0.5, 64.5, n_TMDB, -0.5, n_TMDB - 0.5, 0, 100);
-
-    SetBinLabel(m_amplitude_map[ros]->GetYaxis(), m_TMDB_names[ros]);
-    m_amplitude_map[ros]->GetZaxis()->SetTitle("[ADC]");
-    
-    m_hfn_map[ros] = bookProfile2D("", "TMDB_" + ros_names[ros] + "_hfn_map", "Mean RMS of 7 samples in TMDB " + ros_names[ros]
-                                   , 64, 0.5, 64.5, n_TMDB, -0.5, n_TMDB - 0.5, 0, 180);
-
-    SetBinLabel(m_hfn_map[ros]->GetYaxis(), m_TMDB_names[ros]);
-    m_hfn_map[ros]->GetZaxis()->SetTitle("[ADC]");
-    
-    m_lfn_map[ros] = bookProfile2D("", "TMDB_" + ros_names[ros] + "_lfn_map", "RMS of sample[0] in TMDB " + ros_names[ros]
-                                   , 64, 0.5, 64.5, n_TMDB, -0.5, n_TMDB - 0.5, 0, 10);
-
-    SetBinLabel(m_lfn_map[ros]->GetYaxis(), m_TMDB_names[ros]);
-    m_lfn_map[ros]->GetZaxis()->SetTitle("[ADC]");
-    
-    
-    for (unsigned int drawer = 0; drawer < TileCalibUtils::MAX_DRAWER; drawer += 2) {
-      int module = drawer + 1;
-      std::string module_name = TileCalibUtils::getDrawerString(ros, drawer);
-
-      m_pedestal_map[ros]->GetXaxis()->SetBinLabel(module, module_name.c_str());
-      m_amplitude_map[ros]->GetXaxis()->SetBinLabel(module, module_name.c_str());
-      m_hfn_map[ros]->GetXaxis()->SetBinLabel(module, module_name.c_str());
-      m_lfn_map[ros]->GetXaxis()->SetBinLabel(module, module_name.c_str());
-    }
-
+    m_pedestal_map[ros]->GetXaxis()->SetBinLabel(module, module_name.c_str());
+    m_amplitude_map[ros]->GetXaxis()->SetBinLabel(module, module_name.c_str());
+    m_hfn_map[ros]->GetXaxis()->SetBinLabel(module, module_name.c_str());
+    m_lfn_map[ros]->GetXaxis()->SetBinLabel(module, module_name.c_str());
   }
+  
+  
 
   return StatusCode::SUCCESS;
 }

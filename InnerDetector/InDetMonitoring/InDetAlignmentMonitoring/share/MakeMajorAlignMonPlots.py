@@ -11,7 +11,7 @@
 ##--------------------------
 # usage:
 #
-# ./MakeAlignmentMonitoringPlots.py -c <configurationFile>
+# ./MakeAlignmentMonitoringPlots.py -c \<configurationFile\>
 #
 ##--------------------------
 userCosmetics = ""

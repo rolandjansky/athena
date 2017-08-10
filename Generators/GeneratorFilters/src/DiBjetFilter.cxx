@@ -74,7 +74,7 @@ StatusCode DiBjetFilter::filterInitialize() {
     /* Set seed with respect to computer clock time */
     m_ranNumGen->SetSeed(0);
   }
-  msg(MSG::INFO) << "Initialized" << endreq;
+  msg(MSG::INFO) << "Initialized" << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -85,8 +85,8 @@ StatusCode DiBjetFilter::filterFinalize() {
   if(m_AcceptSomeLightEvents){
     delete m_ranNumGen;
   }
-  msg(MSG::INFO) <<  m_NPass << " Events out of " << m_Nevt << " passed the filter" << endreq;
-  msg(MSG::INFO) <<  m_SumOfWeigths_Pass << " out of " << m_SumOfWeigths_Evt << " SumOfWeights counter, passed/total" << endreq;
+  msg(MSG::INFO) <<  m_NPass << " Events out of " << m_Nevt << " passed the filter" << endmsg;
+  msg(MSG::INFO) <<  m_SumOfWeigths_Pass << " out of " << m_SumOfWeigths_Evt << " SumOfWeights counter, passed/total" << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -104,7 +104,7 @@ StatusCode DiBjetFilter::filterEvent() {
     msg(MSG::WARNING)
 	<< "No xAOD::JetContainer found in TDS " << m_TruthJetContainerName \
 	<< sc.isFailure() << " "<<   !truthjetTES
-	<< endreq;
+	<< endmsg;
     return StatusCode::SUCCESS;
   }
 

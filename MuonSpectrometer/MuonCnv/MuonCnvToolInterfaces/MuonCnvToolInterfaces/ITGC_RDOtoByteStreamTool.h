@@ -38,7 +38,7 @@ public:
   @param cont RDO container which will be used to fill the raw event
   @param re Raw event to be filled by this method.
   @param log MsgStream to be filled by method.
-  @TODO Do we really need to pass in a logfile? This is a AlgTool and so can provide its own log objects.
+  @todo Do we really need to pass in a logfile? This is a AlgTool and so can provide its own log objects.
   */
   virtual StatusCode convert(const TgcRdoContainer* cont, RawEventWrite* re, MsgStream& log )=0; 
 };

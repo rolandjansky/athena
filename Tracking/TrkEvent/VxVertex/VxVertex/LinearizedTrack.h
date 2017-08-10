@@ -25,10 +25,7 @@
  *                 Andreas Wildauer <Andreas.Wildauer@cern.ch>,
  *                 Giacinto Piacquadio <nicola.giacinto.piacquadio@cern.ch>
  *
- * @start
- *                 20-11-2006
- *
- * @modification
+ * @date           20-11-2006
  *
  */
 

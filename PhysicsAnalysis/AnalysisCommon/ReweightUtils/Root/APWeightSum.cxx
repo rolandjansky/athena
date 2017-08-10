@@ -15,93 +15,93 @@
 using namespace std;
 
 APWeightSum::APWeightSum() {
-  _k_evt_orig = 0;
-  _k_evt_weight = 0.;
-  _k_evt_weight2 = 0.;
-  _k_evt_weight_external = 0.;
-  _variance = 0.;
-  _variance_nocorr = 0.;
-  _variance_fullcorr = 0.;
-  _variance_sys = 0.;
+  m_k_evt_orig = 0;
+  m_k_evt_weight = 0.;
+  m_k_evt_weight2 = 0.;
+  m_k_evt_weight_external = 0.;
+  m_variance = 0.;
+  m_variance_nocorr = 0.;
+  m_variance_fullcorr = 0.;
+  m_variance_sys = 0.;
 
-  _isComputed = false;
+  m_isComputed = false;
 }
 
 APWeightSum::~APWeightSum() {
-  for (vector<THnSparse*>::reverse_iterator it = _linear_uncert.rbegin(); it != _linear_uncert.rend(); ++it) delete *it;
-  _linear_uncert.clear();
+  for (vector<THnSparse*>::reverse_iterator it = m_linear_uncert.rbegin(); it != m_linear_uncert.rend(); ++it) delete *it;
+  m_linear_uncert.clear();
 }
 
 void APWeightSum::AddWeightToEvt(APWeightEntry* weight) {
-  _current_evt_weights.push_back(weight);
+  m_current_evt_weights.push_back(weight);
 }
 
 double APWeightSum::GetSumW() const {
-  return _k_evt_weight;
+  return m_k_evt_weight;
 }
 
 double APWeightSum::GetSumW2() const {
-  return _k_evt_weight2;
+  return m_k_evt_weight2;
 }
 
 double APWeightSum::GetSumWExternal() const {
-  return _k_evt_weight_external;
+  return m_k_evt_weight_external;
 }
 
 double APWeightSum::GetStdDev() {
-  if ( !_isComputed ) Compute();
-  return sqrt(_variance);
+  if ( !m_isComputed ) Compute();
+  return sqrt(m_variance);
 }
 
 double APWeightSum::GetVariance() {
-  if ( !_isComputed ) Compute();
-  return _variance;
+  if ( !m_isComputed ) Compute();
+  return m_variance;
 }
 
 double APWeightSum::GetVarianceNoCorr() {
-  return _variance_nocorr;
+  return m_variance_nocorr;
 }
 
 double APWeightSum::GetVarianceFullCorr() {
-  if ( !_isComputed ) Compute();
-  return _variance_fullcorr;
+  if ( !m_isComputed ) Compute();
+  return m_variance_fullcorr;
 }
 
 double APWeightSum::GetSysUncert() const {
-  return sqrt(_variance_sys);
+  return sqrt(m_variance_sys);
 }
 
 unsigned long APWeightSum::GetKUnweighted() const {
-  return _k_evt_orig;
+  return m_k_evt_orig;
 }
 
 void APWeightSum::FinishEvt(double ext_weight) {
-  ++_k_evt_orig;
+  ++m_k_evt_orig;
   double evt_weight = 1.0;
   double uncert = 0.0;
   double uncert_sys = 0.0;
-  for (unsigned int i = 0, I = _current_evt_weights.size(); i < I; ++i) {
+  for (unsigned int i = 0, I = m_current_evt_weights.size(); i < I; ++i) {
     double uncert_summand = 1.0;
-    evt_weight *= (1. - _current_evt_weights[i]->GetExpectancy());
+    evt_weight *= (1. - m_current_evt_weights[i]->GetExpectancy());
     for (unsigned int k = 0; k < I; ++k) {
-      if (i != k) uncert_summand *= (1. - _current_evt_weights[i]->GetExpectancy());
+      if (i != k) uncert_summand *= (1. - m_current_evt_weights[i]->GetExpectancy());
     }
-    uncert += (uncert_summand * uncert_summand * _current_evt_weights[i]->GetVariance());
-    uncert_sys += (uncert_summand * uncert_summand * _current_evt_weights[i]->GetSysUncert2());
+    uncert += (uncert_summand * uncert_summand * m_current_evt_weights[i]->GetVariance());
+    uncert_sys += (uncert_summand * uncert_summand * m_current_evt_weights[i]->GetSysUncert2());
   }
-  _k_evt_weight += ext_weight * (1. - evt_weight);
-  _k_evt_weight2 += _k_evt_weight*_k_evt_weight;
-  _k_evt_weight_external += ext_weight;
-  _variance += fabs(ext_weight) * uncert;
-  _variance_sys += ext_weight * uncert_sys;
-  _current_evt_weights.clear();
+  m_k_evt_weight += ext_weight * (1. - evt_weight);
+  m_k_evt_weight2 += m_k_evt_weight*m_k_evt_weight;
+  m_k_evt_weight_external += ext_weight;
+  m_variance += fabs(ext_weight) * uncert;
+  m_variance_sys += ext_weight * uncert_sys;
+  m_current_evt_weights.clear();
 }
 
 void APWeightSum::AddEvt(APEvtWeight* evt_weight, double ext_weight) {
-  ++_k_evt_orig;
-  _k_evt_weight += ext_weight * evt_weight->GetWeight();
-  _k_evt_weight2 += _k_evt_weight*_k_evt_weight;
-  _k_evt_weight_external += ext_weight;
+  ++m_k_evt_orig;
+  m_k_evt_weight += ext_weight * evt_weight->GetWeight();
+  m_k_evt_weight2 += m_k_evt_weight*m_k_evt_weight;
+  m_k_evt_weight_external += ext_weight;
 
   vector<APWeightEntry*> temp_vec_mu = evt_weight->GetWeightObjects(APEvtWeight::kMuon);
   vector<APWeightEntry*> temp_vec_dimu = evt_weight->GetWeightObjects(APEvtWeight::kDiMuon);
@@ -135,8 +135,8 @@ void APWeightSum::AddEvt(APEvtWeight* evt_weight, double ext_weight) {
   for( unsigned int iAll = 0, IAll = temp_vec_all.size(); iAll < IAll; ++iAll ) {
     for( unsigned int i = 0, I = temp_vec_all[iAll].size(); i < I; ++i ) {
       unsigned int ID = temp_vec_all[iAll][i]->GetID();
-      if( _linear_uncert.size() < ID+1 ) _linear_uncert.resize(ID+1, 0);
-      if( _linear_uncert[ID] == 0 ) {
+      if( m_linear_uncert.size() < ID+1 ) m_linear_uncert.resize(ID+1, 0);
+      if( m_linear_uncert[ID] == 0 ) {
         vector<int> original_dimensions = temp_vec_all[iAll][i]->GetOriginalDimensions();
         int *bins = new int[original_dimensions.size()];
         double *xmin = new double[original_dimensions.size()];
@@ -146,7 +146,7 @@ void APWeightSum::AddEvt(APEvtWeight* evt_weight, double ext_weight) {
           xmin[j] = 0.;
           xmax[j] = 10.;
         }
-        _linear_uncert[ID] = new THnSparseD("","",original_dimensions.size(), bins, xmin, xmax);
+        m_linear_uncert[ID] = new THnSparseD("","",original_dimensions.size(), bins, xmin, xmax);
       }
     }
   }
@@ -166,8 +166,8 @@ void APWeightSum::AddEvt(APEvtWeight* evt_weight, double ext_weight) {
         if (j == i) continue;
         weight_uncert *= (1.0 - temp_vec_rel[j]->GetExpectancy());
       }
-      _linear_uncert[temp_vec_rel[i]->GetID()]->SetBinContent(&coord.front(), _linear_uncert[temp_vec_rel[i]->GetID()]->GetBinContent(&coord.front())+weight_uncert);
-      _variance_nocorr += weight_uncert*weight_uncert;
+      m_linear_uncert[temp_vec_rel[i]->GetID()]->SetBinContent(&coord.front(), m_linear_uncert[temp_vec_rel[i]->GetID()]->GetBinContent(&coord.front())+weight_uncert);
+      m_variance_nocorr += weight_uncert*weight_uncert;
     }
   }
   
@@ -207,8 +207,8 @@ void APWeightSum::AddEvt(APEvtWeight* evt_weight, double ext_weight) {
           weight_derivative += weight_derivative_temp;
         }
         weight_uncert *= weight_derivative;
-        _linear_uncert[temp_vec_rel[i]->GetID()]->SetBinContent(&coord.front(), _linear_uncert[temp_vec_rel[i]->GetID()]->GetBinContent(&coord.front())+weight_uncert);
-        _variance_nocorr += weight_uncert*weight_uncert;
+        m_linear_uncert[temp_vec_rel[i]->GetID()]->SetBinContent(&coord.front(), m_linear_uncert[temp_vec_rel[i]->GetID()]->GetBinContent(&coord.front())+weight_uncert);
+        m_variance_nocorr += weight_uncert*weight_uncert;
       }
     }
     
@@ -251,8 +251,8 @@ void APWeightSum::AddEvt(APEvtWeight* evt_weight, double ext_weight) {
         }
         variance_k += variance_temp;
         variance_k *= variance_k*temp_vec_rel[k]->GetVariance();
-        _linear_uncert[temp_vec_rel[k]->GetID()]->SetBinContent(&coord.front(), _linear_uncert[temp_vec_rel[k]->GetID()]->GetBinContent(&coord.front())+sqrt(variance_k));
-        _variance_nocorr += variance_k;
+        m_linear_uncert[temp_vec_rel[k]->GetID()]->SetBinContent(&coord.front(), m_linear_uncert[temp_vec_rel[k]->GetID()]->GetBinContent(&coord.front())+sqrt(variance_k));
+        m_variance_nocorr += variance_k;
       }
       
       /* second leg */
@@ -264,8 +264,8 @@ void APWeightSum::AddEvt(APEvtWeight* evt_weight, double ext_weight) {
           variance_temp *= (1. - temp_vec_rel[i+1]->GetExpectancy());
         }
         variance_temp *= variance_temp*temp_vec_rel[k+1]->GetVariance();
-        _linear_uncert[temp_vec_rel[k+1]->GetID()]->SetBinContent(&coord.front(), _linear_uncert[temp_vec_rel[k+1]->GetID()]->GetBinContent(&coord.front())+sqrt(variance_temp));
-        _variance_nocorr += variance_temp;
+        m_linear_uncert[temp_vec_rel[k+1]->GetID()]->SetBinContent(&coord.front(), m_linear_uncert[temp_vec_rel[k+1]->GetID()]->GetBinContent(&coord.front())+sqrt(variance_temp));
+        m_variance_nocorr += variance_temp;
       }
       
       /* second leg | condition leg 1 failed */
@@ -292,8 +292,8 @@ void APWeightSum::AddEvt(APEvtWeight* evt_weight, double ext_weight) {
         }
         variance_k += variance_temp;
         variance_k *= variance_k*temp_vec_rel[k+2]->GetVariance();
-        _linear_uncert[temp_vec_rel[k+2]->GetID()]->SetBinContent(&coord.front(), _linear_uncert[temp_vec_rel[k+2]->GetID()]->GetBinContent(&coord.front())+sqrt(variance_k));
-        _variance_nocorr += variance_k;
+        m_linear_uncert[temp_vec_rel[k+2]->GetID()]->SetBinContent(&coord.front(), m_linear_uncert[temp_vec_rel[k+2]->GetID()]->GetBinContent(&coord.front())+sqrt(variance_k));
+        m_variance_nocorr += variance_k;
       }
       
       /* second leg | condition leg 1 passed */
@@ -305,8 +305,8 @@ void APWeightSum::AddEvt(APEvtWeight* evt_weight, double ext_weight) {
           variance_k *= (1.0 - temp_vec_rel[i]->GetExpectancy())*(1.0 - temp_vec_rel[i+3]->GetExpectancy());
         }
         variance_k *= variance_k*temp_vec_rel[k+3]->GetVariance();
-        _linear_uncert[temp_vec_rel[k+3]->GetID()]->SetBinContent(&coord.front(), _linear_uncert[temp_vec_rel[k+3]->GetID()]->GetBinContent(&coord.front())+sqrt(variance_k));
-        _variance_nocorr += variance_k;
+        m_linear_uncert[temp_vec_rel[k+3]->GetID()]->SetBinContent(&coord.front(), m_linear_uncert[temp_vec_rel[k+3]->GetID()]->GetBinContent(&coord.front())+sqrt(variance_k));
+        m_variance_nocorr += variance_k;
       }
     } 
     
@@ -319,8 +319,8 @@ void APWeightSum::AddEvt(APEvtWeight* evt_weight, double ext_weight) {
         vector<int> coord = temp_vec_all[iAll][i]->GetCoords();
         double weight_uncert = sqrt(temp_vec_all[iAll][i]->GetVariance());
         weight_uncert *= (temp_vec_all[iAll][i]->GetExpectancy() <= numeric_limits<double>::epsilon() ) ? 0. : evt_weight->GetWeight()/temp_vec_all[iAll][i]->GetExpectancy();
-        _linear_uncert[temp_vec_all[iAll][i]->GetID()]->SetBinContent(&coord.front(), _linear_uncert[temp_vec_all[iAll][i]->GetID()]->GetBinContent(&coord.front())+weight_uncert); 
-        _variance_nocorr += weight_uncert*weight_uncert;
+        m_linear_uncert[temp_vec_all[iAll][i]->GetID()]->SetBinContent(&coord.front(), m_linear_uncert[temp_vec_all[iAll][i]->GetID()]->GetBinContent(&coord.front())+weight_uncert); 
+        m_variance_nocorr += weight_uncert*weight_uncert;
       }
     }
   }
@@ -399,8 +399,8 @@ void APWeightSum::AddEvt(APEvtWeight* evt_weight, double ext_weight) {
           else cout << "WARNING: handling for this weight type is unknown! uncertainties will be incorrect" << endl;
         }
         else if( j >= 4 && j <= 7 && temp_weight_rel[j] > numeric_limits<double>::epsilon() ) weight_uncert = weight_uncert*temp_weight_MO/temp_weight_rel[j];
-        _linear_uncert[temp_vec_all[j][i]->GetID()]->SetBinContent(&coord.front(), _linear_uncert[temp_vec_all[j][i]->GetID()]->GetBinContent(&coord.front())+weight_uncert);
-        _variance_nocorr += weight_uncert*weight_uncert;
+        m_linear_uncert[temp_vec_all[j][i]->GetID()]->SetBinContent(&coord.front(), m_linear_uncert[temp_vec_all[j][i]->GetID()]->GetBinContent(&coord.front())+weight_uncert);
+        m_variance_nocorr += weight_uncert*weight_uncert;
       }
     }
     
@@ -439,44 +439,44 @@ void APWeightSum::AddEvt(APEvtWeight* evt_weight, double ext_weight) {
           
           if( j >= 4 && j <= 7 && temp_weight_rel[j] > numeric_limits<double>::epsilon() ) weight_uncert /= temp_weight_rel[j];
           
-          _linear_uncert[temp_vec_all[j][i]->GetID()]->SetBinContent(&coord.front(), _linear_uncert[temp_vec_all[j][i]->GetID()]->GetBinContent(&coord.front())+weight_uncert);
-          _variance_nocorr += weight_uncert*weight_uncert; 
+          m_linear_uncert[temp_vec_all[j][i]->GetID()]->SetBinContent(&coord.front(), m_linear_uncert[temp_vec_all[j][i]->GetID()]->GetBinContent(&coord.front())+weight_uncert);
+          m_variance_nocorr += weight_uncert*weight_uncert; 
         }
       }
     }
   }
 
-  _variance_sys += ext_weight * evt_weight->GetSysVariance();
+  m_variance_sys += ext_weight * evt_weight->GetSysVariance();
   
-  _isComputed = false;
+  m_isComputed = false;
 }
 
 void APWeightSum::Compute() {
-  _variance = 0.;
-  _variance_fullcorr = 0.;
-  for (unsigned int iLinearUncert = 0, ILinearUncert = _linear_uncert.size(); iLinearUncert < ILinearUncert; ++iLinearUncert) {
-    if( _linear_uncert[iLinearUncert] == 0 ) continue;
+  m_variance = 0.;
+  m_variance_fullcorr = 0.;
+  for (unsigned int iLinearUncert = 0, ILinearUncert = m_linear_uncert.size(); iLinearUncert < ILinearUncert; ++iLinearUncert) {
+    if( m_linear_uncert[iLinearUncert] == 0 ) continue;
     double temp_linear_uncerts = 0;
-    for (unsigned int i = 0, I = _linear_uncert[iLinearUncert]->GetNbins(); i < I; ++i ) {
-      double bin_content = _linear_uncert[iLinearUncert]->GetBinContent(i);
-      _variance += bin_content*bin_content;
+    for (unsigned int i = 0, I = m_linear_uncert[iLinearUncert]->GetNbins(); i < I; ++i ) {
+      double bin_content = m_linear_uncert[iLinearUncert]->GetBinContent(i);
+      m_variance += bin_content*bin_content;
       temp_linear_uncerts += bin_content;
     }
-    _variance_fullcorr += temp_linear_uncerts*temp_linear_uncerts;
+    m_variance_fullcorr += temp_linear_uncerts*temp_linear_uncerts;
   }
   
-  _isComputed = true;
+  m_isComputed = true;
 }
 
 THnSparse* APWeightSum::GetUncertHistogram( APReweightBase* weighter ) {
   unsigned int temp_ID = weighter->GetID();
-  if( temp_ID > _linear_uncert.size()-1 ) {
+  if( temp_ID > m_linear_uncert.size()-1 ) {
     cout << "WARNING: ID unknown. Returning 0-pointer!" << endl;
     return 0;
   }
-  else return _linear_uncert[temp_ID];
+  else return m_linear_uncert[temp_ID];
 }
 
 vector<THnSparse*> APWeightSum::GetAllUncertHistograms( ) {
-  return _linear_uncert;
+  return m_linear_uncert;
 }

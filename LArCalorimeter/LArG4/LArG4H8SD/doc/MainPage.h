@@ -5,7 +5,7 @@
 /**
 
 
-@mainpage
+@page H8TestBeamSimulation_page H8 Test Beam simulation
 
 This package contains various classes for H8 Test Beam simulation:
 

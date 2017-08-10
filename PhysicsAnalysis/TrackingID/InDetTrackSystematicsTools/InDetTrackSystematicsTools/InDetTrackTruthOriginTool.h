@@ -1,8 +1,10 @@
+// -*- c++ -*-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#pragma once
+#ifndef INDETTRACKSYSTEMATICSTOOLS_INDETTRACKTRUTHORIGINTOOL_H
+#define INDETTRACKSYSTEMATICSTOOLS_INDETTRACKTRUTHORIGINTOOL_H
 
 #include "IInDetTrackTruthOriginTool.h"
 #include "AsgTools/AsgTool.h"
@@ -52,3 +54,5 @@ private:
 }; // class InDetTrackTruthOriginTool
 
 } // namespace InDet
+
+#endif

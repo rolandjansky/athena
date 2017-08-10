@@ -20,13 +20,13 @@
 #include <TError.h>
 
 namespace TrigCostRootAnalysis {
-
   std::vector<Timer*> Timer::s_timers;
 
   /**
    * Base class constructor. Sets name and ID.
    */
-  Timer::Timer(std::string _type, std::string _name) : m_type(_type), m_name(_name), m_startTime(0), m_time(0), m_calls(0) {
+  Timer::Timer(std::string _type, std::string _name) : m_type(_type), m_name(_name), m_startTime(0), m_time(0), m_calls(
+      0) {
     s_timers.push_back(this);
   }
 
@@ -38,14 +38,16 @@ namespace TrigCostRootAnalysis {
   }
 
   void Timer::stop() {
-    m_time += ((Float_t)clock()-m_startTime)/(Float_t)CLOCKS_PER_SEC*1000.;
+    m_time += ((Float_t) clock() - m_startTime) / (Float_t) CLOCKS_PER_SEC * 1000.;
     ++m_calls;
   }
 
   void Timer::print() {
     if (m_calls == 0) return;
+
     Float_t _avTime = m_time / m_calls;
-    Info("Timer::print","%s timer used\t %.3f ms per call over %i call(s) in '%s'", m_type.c_str(), _avTime, m_calls, m_name.c_str());
+    Info("Timer::print", "%s timer used\t %.3f ms per call over %i call(s) in '%s'",
+         m_type.c_str(), _avTime, m_calls, m_name.c_str());
   }
 
   void Timer::printAll() {
@@ -53,5 +55,4 @@ namespace TrigCostRootAnalysis {
       s_timers.at(_t)->print();
     }
   }
-
 } // namespace TrigCostRootAnalysis

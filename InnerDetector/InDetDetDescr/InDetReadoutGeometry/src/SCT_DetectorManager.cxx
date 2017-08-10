@@ -33,7 +33,7 @@ namespace InDetDD {
     //
     StatusCode sc = detStore->retrieve(m_idHelper, "SCT_ID");  
     if (sc.isFailure() ) {
-      msg(MSG::ERROR) << "Could not retrieve SCT id helper" << endreq;
+      msg(MSG::ERROR) << "Could not retrieve SCT id helper" << endmsg;
     }
     // Initialize the collections.
     if (m_idHelper) {
@@ -214,7 +214,7 @@ namespace InDetDD {
 
       } else {   
         // other not supported
-        msg(MSG::WARNING) << "Frames other than global or local are not supported." << endreq;
+        msg(MSG::WARNING) << "Frames other than global or local are not supported." << endmsg;
         return false;
       }
 
@@ -227,7 +227,7 @@ namespace InDetDD {
       int idModuleHash = idHash / 2;
 
       if (idHash%2) {
-        msg(MSG::WARNING) << "Side 1 wafer id used for module id" << endreq;
+        msg(MSG::WARNING) << "Side 1 wafer id used for module id" << endmsg;
         return false;
       }
 
@@ -250,14 +250,14 @@ namespace InDetDD {
 
       } else {
         // other not supported
-        msg(MSG::WARNING) << "Frames other than global or local are not supported." << endreq;
+        msg(MSG::WARNING) << "Frames other than global or local are not supported." << endmsg;
         return false;
       }
 
     } else { // higher level
 
       if (frame != InDetDD::global) {
-        msg(MSG::WARNING) << "Non global shift at higher levels is not supported." << endreq;
+        msg(MSG::WARNING) << "Non global shift at higher levels is not supported." << endmsg;
         return false;
       }
 
@@ -285,7 +285,7 @@ namespace InDetDD {
       const GeoVFullPhysVol * childFPV = dynamic_cast<const GeoVFullPhysVol *>(child);
       if (!childFPV) { 
         msg(MSG::ERROR) << "Child of alignable transform is not a full physical volume" 
-          << endreq;
+          << endmsg;
       } else {
         addAlignableTransform (level, id, transform, childFPV);
       }
@@ -340,7 +340,7 @@ namespace InDetDD {
     bool alignmentChange = false;
 
     if(msgLvl(MSG::INFO))
-      msg(MSG::INFO) << "Processing new global alignment containers with key " << key << " in the " << frame << " frame at level " << level << endreq;
+      msg(MSG::INFO) << "Processing new global alignment containers with key " << key << " in the " << frame << " frame at level " << level << endmsg;
 
     Identifier ident=Identifier();
     const CondAttrListCollection* atrlistcol=0;
@@ -376,7 +376,7 @@ namespace InDetDD {
 			<< " ,Tz: "     << atrlist["Tz"].data<float>()
 			<< " ,Rx: "     << atrlist["Rx"].data<float>()
 			<< " ,Ry: "     << atrlist["Ry"].data<float>()
-			<< " ,Rz: "     << atrlist["Rz"].data<float>() << endreq;
+			<< " ,Rz: "     << atrlist["Rz"].data<float>() << endmsg;
 
         // Set the new transform; Will replace existing one with updated transform
         bool status = setAlignableTransformDelta(level,
@@ -388,7 +388,7 @@ namespace InDetDD {
           if (msgLvl(MSG::DEBUG)) {
             msg(MSG::DEBUG) << "Cannot set AlignableTransform for identifier."
                             << getIdHelper()->show_to_string(ident)
-                            << " at level " << level << " for new global DB " << endreq;
+                            << " at level " << level << " for new global DB " << endmsg;
           }
         }
 
@@ -398,7 +398,7 @@ namespace InDetDD {
     else {
       if (msgLvl(MSG::INFO))
         msg(MSG::INFO) << "Cannot find new global align Container for key "
-                       << key << " - no new global alignment " << endreq;
+                       << key << " - no new global alignment " << endmsg;
       return alignmentChange;
     }
     return alignmentChange;

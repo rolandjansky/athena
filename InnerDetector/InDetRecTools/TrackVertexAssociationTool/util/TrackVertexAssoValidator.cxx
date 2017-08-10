@@ -4,81 +4,109 @@
 
 // Used for validation the track vertex association tools in RootCore implementation
 
+// System include(s):
 #include <memory>
 #include <cstdlib>
 
+// ROOT include(s):
 #include <TFile.h>
 #include <TH1.h>
 #include <TH1F.h>
 #include <TH1D.h>
+#include <TError.h>
 
+// xAOD include(s):
 #ifdef ROOTCORE
-#include "xAODRootAccess/Init.h"
-#include "xAODRootAccess/TEvent.h"
+#   include "xAODRootAccess/Init.h"
+#   include "xAODRootAccess/TEvent.h"
+#   include "xAODRootAccess/tools/ReturnCheck.h"
 #endif
 
-//#include "xAODEventInfo/EventInfo.h"
+// EDM include(s):
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/VertexContainer.h"
 
+// Local include(s):
 #include "TrackVertexAssociationTool/LooseTrackVertexAssociationTool.h"
 #include "TrackVertexAssociationTool/TightTrackVertexAssociationTool.h"
+#include "TrackVertexAssociationTool/BaseTrackVertexAssociationTool.h"
 
-int main(int argc, char** argv)
-{
-  xAOD::Init();
+int main() {
 
-  TFile *infile=new TFile("/tmp/boliu/mc14_13TeV.147446.PowhegPythia8_AZNLO_Zee_DiLeptonFilter.recon.AOD.e3059_s1982_s2008_r5787_tid01572724_00/AOD.01572724._005433.pool.root.1");
-//  TFile *infile=new TFile("../run/AOD.nomet.pool.root");
+   // The name of the application:
+   static const char* APP_NAME = "TrackVertexAssoValidator";
 
-  xAOD::TEvent event;
+   // Set up the environment:
+   RETURN_CHECK( APP_NAME, xAOD::Init() );
 
-  event.readFrom(infile);
+   // Open the input file:
+   std::unique_ptr< TFile > infile( TFile::Open( "$ASG_TEST_FILE_MC",
+                                                 "READ" ) );
+   if( ( ! infile ) || infile->IsZombie() ) {
+      Error( APP_NAME,
+             XAOD_MESSAGE( "Couldn't open the ASG_TEST_FILE_MC file" ) );
+      return 1;
+   }
 
-  CP::LooseTrackVertexAssociationTool *trktovxtool=new CP::LooseTrackVertexAssociationTool("LooseTrackVertexAssociationTool");
+   // Set up a TEvent object to read from it:
+   xAOD::TEvent event;
+   RETURN_CHECK( APP_NAME, event.readFrom( infile.get() ) );
 
-//  trktovxtool->msg().setLevel( MSG::DEBUG);
-  trktovxtool->msg().setLevel( MSG::ERROR);
+   // Set up the needed tool(s):
+   CP::BaseTrackVertexAssociationTool
+      trktovxtool( "BaseTrackVertexAssociationTool" );
+   RETURN_CHECK( APP_NAME, trktovxtool.setProperty( "OutputLevel",
+                                                    MSG::ERROR ) );
+   RETURN_CHECK( APP_NAME, trktovxtool.setProperty( "dzSinTheta_cut", 0.5 ) );
+   RETURN_CHECK( APP_NAME, trktovxtool.setProperty( "d0sig_cut", 5 ) );
+   RETURN_CHECK( APP_NAME, trktovxtool.initialize() );
 
-  trktovxtool->setProperty("dzSinTheta_cut", 100.);
+   // Loop over the file:
+   const Long64_t nentries = event.getEntries();
+   Info( APP_NAME, "Total Number of Events: %lld ", nentries );
+   for( Long64_t entry = 0; entry < nentries; ++entry ) {
 
-  Long64_t nentries = event.getEntries();
+      // Load the event:
+      if( event.getEntry( entry ) < 0 ) {
+         Error( APP_NAME, XAOD_MESSAGE( "Couldn't load entry %lld" ),
+                entry );
+         return 1;
+      }
 
-  std::cout<<"Total Number of Events: "<<nentries<<std::endl;
+      // Retrieve the necessary containers:
+      const xAOD::TrackParticleContainer *trkCont = 0;
+      const xAOD::VertexContainer *vxCont = 0;
+      RETURN_CHECK( APP_NAME, event.retrieve( trkCont,
+                                              "InDetTrackParticles" ) );
+      RETURN_CHECK( APP_NAME, event.retrieve( vxCont, "PrimaryVertices" ) );
 
-  for(Long64_t entry = 0; entry < nentries; ++entry)
-  {
+      // A sanity check:
+      if( ! vxCont->size() ) {
+         Warning( APP_NAME, "Event with no vertex found!" );
+         continue;
+      }
 
-    event.getEntry( entry );
+      // Excercise the tool(s):
+      xAOD::TrackVertexAssociationMap trktovxmap =
+         trktovxtool.getUniqueMatchMap( *trkCont, *vxCont );
+      Info( APP_NAME, "Size of TrackVertexAssociationMap for primary vertex: "
+            "%lu", trktovxmap[ vxCont->at( 0 ) ].size() );
 
-    const xAOD::TrackParticleContainer *trkCont=0;
-    const xAOD::VertexContainer *vxCont=0;
+      ElementLink< xAOD::VertexContainer > match_vx;
+      if( trkCont->size() > 2 ) {
+         match_vx = trktovxtool.getUniqueMatchVertexLink( *( trkCont->at( 2 ) ),
+                                                          *vxCont );
+      }
+      if( match_vx.isValid() ) {
+         Info( APP_NAME, "Vertex assigned to the 3rd track particle:" );
+         std::cout << match_vx << std::endl;
+         std::cout << *match_vx << std::endl;
+         std::cout << ( *match_vx )->z() << std::endl;
+      }
+   }
 
-    event.retrieve(trkCont, "InDetTrackParticles");
-    event.retrieve(vxCont, "PrimaryVertices");
-
-
-
-    xAOD::TrackVertexAssociationMap trktovxmap=trktovxtool->getUniqueMatchMap(*trkCont, *vxCont);
-
-    std::cout<<"Size: " << trktovxmap[vxCont->at(0)].size()<<std::endl;
-
-
-    ElementLink< xAOD::VertexContainer> match_vx=trktovxtool->getUniqueMatchVertexLink(*(trkCont->at(2)), *vxCont);
-
-    if(match_vx.isValid())
-    {
-      std::cout<< match_vx <<std::endl;
-      std::cout<< *match_vx <<std::endl;
-      std::cout<< (*match_vx)->z() <<std::endl;
-    }
-  }
-
-  infile->Close();
-
-
-  return 0;
+   // Return gracefully:
+   return 0;
 }
-

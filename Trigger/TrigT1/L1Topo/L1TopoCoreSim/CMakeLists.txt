@@ -21,6 +21,7 @@ find_package( Boost COMPONENTS filesystem thread system )
 find_package( ROOT COMPONENTS Core Tree pthread RIO Hist MathCore )
 
 # Component(s) in the package:
+atlas_disable_as_needed()
 atlas_add_library( L1TopoCoreSim
                    Root/*.cxx
                    PUBLIC_HEADERS L1TopoCoreSim

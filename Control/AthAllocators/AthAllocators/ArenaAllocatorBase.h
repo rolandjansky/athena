@@ -272,7 +272,7 @@ public:
   /**
    * @brief Return the statistics block for this allocator.
    */
-  virtual const Stats& stats() const = 0;
+  virtual Stats stats() const = 0;
 
 
   /**

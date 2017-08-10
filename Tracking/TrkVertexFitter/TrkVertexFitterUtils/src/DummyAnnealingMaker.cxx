@@ -21,13 +21,13 @@ namespace Trk
 
   StatusCode DummyAnnealingMaker::initialize() 
   { 
-    msg(MSG::INFO)  << "Initialize successful" << endreq;
+    msg(MSG::INFO)  << "Initialize successful" << endmsg;
     return StatusCode::SUCCESS;
   }
 
   StatusCode DummyAnnealingMaker::finalize() 
   {
-    msg(MSG::INFO)  << "Initialize successful" << endreq;
+    msg(MSG::INFO)  << "Initialize successful" << endmsg;
     return StatusCode::SUCCESS;
   }
 

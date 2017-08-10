@@ -13,7 +13,7 @@
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetEventTPCnv/InDetPrepRawData/SCT_ClusterCnv_p2.h"
 #include "InDetEventTPCnv/SCT_ClusterContainerCnv_p2.h"
-#include "DataModel/DataPool.h"
+#include "AthAllocators/DataPool.h"
 
 // Gaudi
 #include "GaudiKernel/ISvcLocator.h"

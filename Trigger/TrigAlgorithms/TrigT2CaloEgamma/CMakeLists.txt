@@ -12,6 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/CLIDSvc
                           Control/DataModel
                           Control/SGTools
+                          Control/AthenaBaseComps
                           Event/xAOD/xAODTrigCalo
                           Event/xAOD/xAODTrigRinger
                           GaudiKernel

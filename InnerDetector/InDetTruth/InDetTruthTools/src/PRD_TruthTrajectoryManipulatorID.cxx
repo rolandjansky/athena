@@ -25,7 +25,7 @@ StatusCode InDet::PRD_TruthTrajectoryManipulatorID::initialize() {
   ATH_MSG_VERBOSE("Initializing ...");
   StatusCode sc = detStore()->retrieve(m_atlasId, "AtlasID");
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not get AtlasID helper !" << endreq;
+    msg(MSG::ERROR) << "Could not get AtlasID helper !" << endmsg;
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;

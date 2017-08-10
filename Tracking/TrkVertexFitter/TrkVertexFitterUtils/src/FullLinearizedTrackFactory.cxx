@@ -45,11 +45,11 @@ namespace Trk
     }
     
     if (m_magFieldSvc.retrieve().isFailure() ) {
-      msg(MSG::FATAL)<<"Could not find magnetic field service." << endreq;
+      msg(MSG::FATAL)<<"Could not find magnetic field service." << endmsg;
       return StatusCode::FAILURE;
     }
 
-    msg(MSG::INFO)  << "Initialize successful" << endreq;
+    msg(MSG::INFO)  << "Initialize successful" << endmsg;
     return StatusCode::SUCCESS;
   }
 

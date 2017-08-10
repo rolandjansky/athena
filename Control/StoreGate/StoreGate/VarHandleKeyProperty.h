@@ -27,6 +27,8 @@
 #include "StoreGate/WriteHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 #include "StoreGate/UpdateHandleKey.h"
+#include "StoreGate/ReadDecorHandleKey.h"
+#include "StoreGate/WriteDecorHandleKey.h"
 #include "GaudiKernel/Property.h"
 #include <iostream>
 
@@ -76,7 +78,7 @@ namespace SG {
  * The Property object refers to an instance of @c SG::VarHandleKey
  * (the value object) and provides generic methods for manipulating it.
  */
-class GAUDI_API VarHandleKeyProperty : public PropertyWithHandlers 
+  class GAUDI_API VarHandleKeyProperty : public PropertyWithHandlers <>
 {
 public:
 
@@ -103,7 +105,7 @@ public:
    * The new object will be associated with the _same_ value object
    * as the original.
    */
-  VarHandleKeyProperty* clone() const override;
+  virtual VarHandleKeyProperty* clone() const override;
 
 
   /**
@@ -114,7 +116,7 @@ public:
    * by converting to a string and back again.  Returns true on success,
    * false on failure.
    */
-  bool load( Property& destination ) const override;
+  virtual bool load( Property& destination ) const override;
 
 
   /**
@@ -125,20 +127,20 @@ public:
    * by converting to a string and back again.  Returns true on success,
    * false on failure.
    */
-  bool assign( const Property& source ) override;
+  virtual bool assign( const Property& source ) override;
 
 
   /**
    * @brief Return a string representation of the value object.
    */
-  std::string toString() const override;
+  virtual std::string toString() const override;
 
 
   /**
    * @brief Write a string representation of the value object to a stream.
    * @param out Stream to which to write.
    */
-  void toStream(std::ostream& out) const override;
+  virtual void toStream(std::ostream& out) const override;
 
 
   /**
@@ -147,7 +149,7 @@ public:
    *
    * Returns failure if the conversion does not succeed.
    */
-  StatusCode fromString(const std::string& s) override;
+  virtual StatusCode fromString(const std::string& s) override;
 
 
   /**
@@ -179,117 +181,65 @@ private:
 // ** Specializations of SimplePropertyRef for the HandleKey classes.
 
 namespace Gaudi {
+
+
 template<>
-  class Property<::SG::VarHandleKey&> : public ::SG::VarHandleKeyProperty {
+class Property<::SG::VarHandleKey&> : public ::SG::VarHandleKeyProperty {
 public:
-    Property(const std::string& name, ::SG::VarHandleKey& value) : ::SG::VarHandleKeyProperty(name,value) {}
-
-    virtual ~Property() {}
-  };
-
-template<typename T>
-  class Property<::SG::ReadHandleKey<T>&> : public ::SG::VarHandleKeyProperty {
-public:
-    Property(const std::string& name, ::SG::ReadHandleKey<T>& value) : ::SG::VarHandleKeyProperty(name,value) {}
-
-    virtual ~Property() {}
-};
-
-template<typename T>
-  class Property<::SG::WriteHandleKey<T>&> : public ::SG::VarHandleKeyProperty {
-public:
-    Property(const std::string& name, ::SG::WriteHandleKey<T>& value) : ::SG::VarHandleKeyProperty(name,value) {}
-
-    virtual ~Property() {}
-  };
-
-template<typename T>
-  class Property<::SG::UpdateHandleKey<T>&> : public ::SG::VarHandleKeyProperty {
-public:
-    Property(const std::string& name, ::SG::UpdateHandleKey<T>& value) : ::SG::VarHandleKeyProperty(name,value) {}
-
-    virtual ~Property() {}
+  using ::SG::VarHandleKeyProperty::VarHandleKeyProperty;
 };
 
 
 template<typename T>
-  class Property<::SG::ReadCondHandleKey<T>&> : public ::SG::VarHandleKeyProperty {
+class Property<::SG::ReadHandleKey<T>&> : public ::SG::VarHandleKeyProperty {
 public:
-    Property(const std::string& name, ::SG::ReadCondHandleKey<T>& value) : ::SG::VarHandleKeyProperty(name,value) {}
-
-    virtual ~Property() {}
+  using ::SG::VarHandleKeyProperty::VarHandleKeyProperty;
 };
+
 
 template<typename T>
-  class Property<::SG::WriteCondHandleKey<T>&> : public ::SG::VarHandleKeyProperty {
+class Property<::SG::WriteHandleKey<T>&> : public ::SG::VarHandleKeyProperty {
 public:
-    Property(const std::string& name, ::SG::WriteCondHandleKey<T>& value) : ::SG::VarHandleKeyProperty(name,value) {}
-
-    virtual ~Property() {}
+  using ::SG::VarHandleKeyProperty::VarHandleKeyProperty;
 };
 
 
-
-}
-
-
-
-// template<>
-// class SimplePropertyRef< SG::VarHandleKey > :
-//   public SG::VarHandleKeyProperty
-// {
-// public:
-//   SimplePropertyRef(const std::string& name, SG::VarHandleKey& value) :
-//     SG::VarHandleKeyProperty(name, value) {}
-// };
+template<typename T>
+class Property<::SG::ReadDecorHandleKey<T>&> : public ::SG::VarHandleKeyProperty {
+public:
+  using ::SG::VarHandleKeyProperty::VarHandleKeyProperty;
+};
 
 
-// template<typename T>
-// class SimplePropertyRef< SG::ReadHandleKey<T> > :
-//   public SG::VarHandleKeyProperty
-// {
-// public:
-//   SimplePropertyRef(const std::string& name, SG::ReadHandleKey<T>& value) :
-//     SG::VarHandleKeyProperty(name, value) {}
-// };
-
-// template<typename T>
-// class SimplePropertyRef< SG::ReadCondHandleKey<T> > :
-//   public SG::VarHandleKeyProperty
-// {
-// public:
-//   SimplePropertyRef(const std::string& name, SG::ReadCondHandleKey<T>& value) :
-//     SG::VarHandleKeyProperty(name, value) {}
-// };
+template<typename T>
+class Property<::SG::WriteDecorHandleKey<T>&> : public ::SG::VarHandleKeyProperty {
+public:
+  using ::SG::VarHandleKeyProperty::VarHandleKeyProperty;
+};
 
 
-// template<typename T>
-// class SimplePropertyRef< SG::UpdateHandleKey<T> > :
-//   public SG::VarHandleKeyProperty
-// {
-// public:
-//   SimplePropertyRef( const std::string& name, SG::UpdateHandleKey<T>& value ) :
-//     SG::VarHandleKeyProperty(name, value) {}
-// };
+template<typename T>
+class Property<::SG::UpdateHandleKey<T>&> : public ::SG::VarHandleKeyProperty {
+public:
+  using ::SG::VarHandleKeyProperty::VarHandleKeyProperty;
+};
 
 
-// template<typename T>
-// class SimplePropertyRef< SG::WriteHandleKey<T> > :
-//   public SG::VarHandleKeyProperty
-// {
-// public:
-//   SimplePropertyRef( const std::string& name, SG::WriteHandleKey<T>& value ) :
-//     SG::VarHandleKeyProperty(name, value) {}
-// };
+template<typename T>
+class Property<::SG::ReadCondHandleKey<T>&> : public ::SG::VarHandleKeyProperty {
+public:
+  using ::SG::VarHandleKeyProperty::VarHandleKeyProperty;
+};
 
-// template<typename T>
-// class SimplePropertyRef< SG::WriteCondHandleKey<T> > :
-//   public SG::VarHandleKeyProperty
-// {
-// public:
-//   SimplePropertyRef( const std::string& name, SG::WriteCondHandleKey<T>& value ) :
-//     SG::VarHandleKeyProperty(name, value) {}
-// };
+
+template<typename T>
+class Property<::SG::WriteCondHandleKey<T>&> : public ::SG::VarHandleKeyProperty {
+public:
+  using ::SG::VarHandleKeyProperty::VarHandleKeyProperty;
+};
+
+
+} // namespace Gaudi
 
 
 #endif // not STOREGATE_VARHANDLEKEYPROPERTY_H

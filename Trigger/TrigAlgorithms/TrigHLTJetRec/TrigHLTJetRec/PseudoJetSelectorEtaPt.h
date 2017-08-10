@@ -11,7 +11,6 @@
 #include "fastjet/PseudoJet.hh"
 
 class StatusCode;
-using jet::PseudoJetVector;
 
 class PseudoJetSelectorEtaPt: virtual public IPseudoJetSelector, 
   public AthAlgTool {
@@ -24,9 +23,9 @@ public:
 
   ~PseudoJetSelectorEtaPt(){};
   
-  StatusCode initialize();
-  StatusCode select(const PseudoJetVector&,
-                    PseudoJetVector&) const override;
+  virtual StatusCode initialize() override;
+  virtual StatusCode select(const jet::PseudoJetVector&,
+                            jet::PseudoJetVector&) const override;
  private:
 
   class PseudoJetSelector{

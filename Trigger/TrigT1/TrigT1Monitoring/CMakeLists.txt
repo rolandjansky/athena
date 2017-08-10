@@ -39,7 +39,7 @@ atlas_depends_on_subdirs( PRIVATE
 atlas_add_component( TrigT1Monitoring
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES CaloDetDescrLib CaloEvent CaloIdentifier CaloTriggerToolLib AthenaMonitoringLib DataModel Identifier xAODTrigL1Calo GaudiKernel LArRecUtilsLib TileCalibBlobObjs TileConditionsLib TileEvent TileIdentifier LWHists TrigConfL1Data L1TopoRDO TrigT1CaloCalibConditions TrigT1CaloCalibToolInterfaces TrigT1CaloEventLib TrigT1CaloMonitoringToolsLib TrigT1CaloToolInterfaces TrigT1Interfaces TrigT1Result )
+                     LINK_LIBRARIES CaloDetDescrLib CaloEvent CaloIdentifier CaloTriggerToolLib AthenaMonitoringLib DataModel Identifier xAODTrigL1Calo GaudiKernel LArRecUtilsLib TileCalibBlobObjs TileConditionsLib TileEvent TileIdentifier LWHists TrigConfL1Data L1TopoRDO TrigT1CaloCalibConditions TrigT1CaloCalibToolInterfaces TrigT1CaloEventLib TrigT1CaloMonitoringToolsLib TrigT1CaloToolInterfaces TrigT1Interfaces TrigT1Result TrigT1CaloCondSvcLib )
 
 # Install files from the package:
 atlas_install_headers( TrigT1Monitoring )

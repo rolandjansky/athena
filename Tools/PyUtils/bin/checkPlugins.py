@@ -4,7 +4,7 @@
 
 ## @author: Sebastien Binet
 ## @file : checkPlugins.py
-## @purpose: a script to check the definitions of plugins across multiple
+## @brief: A script to check the definitions of plugins across multiple
 ##           so-called 'rootmap' files
 
 __version__ = "$Revision: 1.3 $"

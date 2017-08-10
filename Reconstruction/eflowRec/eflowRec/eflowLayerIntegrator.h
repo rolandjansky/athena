@@ -34,8 +34,8 @@ class eflowLayerIntegrator {
  public:
 
   eflowLayerIntegrator(double stdDev, double error, double rMaxOverStdDev);
-  eflowLayerIntegrator(const eflowLayerIntegrator& anEFlowLayerIntegrator);
-  void operator=(const eflowLayerIntegrator& anEFlowLayerIntegrator);
+  eflowLayerIntegrator(const eflowLayerIntegrator& originalEflowLayerIntegrator);
+  eflowLayerIntegrator&  operator=(const eflowLayerIntegrator& originalEflowLayerIntegrator);
   ~eflowLayerIntegrator();
 
   void measureNewClus(const xAOD::CaloCluster* clus, const eflowTrackCaloPoints& trackCalo);
@@ -64,8 +64,8 @@ class eflowLayerIntegrator {
 
   std::vector<double> m_nUnitCellPerWindowOverCellEtaPhiArea;
 
-  eflowCellIntegrator<0>* m_integrator;
-  eflowCellIntegrator<1>* m_integratorLookup;
+  std::unique_ptr<eflowCellIntegrator<0> > m_integrator;
+  std::unique_ptr<eflowCellIntegrator<1> > m_integratorLookup;
 };
 
 #endif

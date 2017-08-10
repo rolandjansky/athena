@@ -428,13 +428,13 @@ class ConfiguredFactory(object):
         self.logger().setLevel(level)
 
     ## Add types to exclude if the value if the C++ default
-    # Argument <excludeList> is list of names (strings) of configurable types (C++ class names)
+    # Argument \<excludeList\> is list of names (strings) of configurable types (C++ class names)
     # that should not be resolved. A single type name (a string) is also supported.
     def addTypesToExcludeIfDefaultValue(self,excludeList):
         addToListIfNotIn(self._typesToExcludeDefaults, excludeList)
 
     ## Add instance names to exclude if the value if the C++ default
-    # Argument <excludeList> is list of names (strings) of configurable instances
+    # Argument \<excludeList\> is list of names (strings) of configurable instances
     # that should not be resolved. A single instance name (a string) is also supported.
     def addNamesToExcludeIfDefaultValue(self,excludeList):
         addToListIfNotIn(self._namesToExcludeDefaults, excludeList)
@@ -1256,7 +1256,7 @@ class ConfiguredFactory(object):
         nFiles = 0
         startTime = time.time()
 
-        paths = [p for p in sys.path if p.endswith ('InstallArea/python')]
+        paths = [p for p in sys.path if p.endswith ('/python')]
         if not paths: paths = sys.path
 
         for path in paths:

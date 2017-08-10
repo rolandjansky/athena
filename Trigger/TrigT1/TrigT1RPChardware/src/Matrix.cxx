@@ -12,26 +12,26 @@ using namespace std;
 
 //----------------------------------------------------------------------------//
  // number of thresholds
-const ubit16 Matrix::nthres = 3;        
+const ubit16 Matrix::s_nthres = 3;        
  // number of channels in side=0 and side=1;
-const ubit16 Matrix::nchan[2]={32,64};  
+const ubit16 Matrix::s_nchan[2]={32,64};  
  // Bunch Crossing period, ns
-const float  Matrix::BCtime=25.0;
+const float  Matrix::s_BCtime=25.0;
  // Number of DLL cycles
-const ubit16 Matrix::NDLLCYC=8;
+const ubit16 Matrix::s_NDLLCYC=8;
  // DLL period, ns
-const float  Matrix::DLLtime=BCtime/(float)NDLLCYC;
+const float  Matrix::s_DLLtime=s_BCtime/(float)s_NDLLCYC;
  // Number of Bunch-Crossings to be considered
-const sbit16 Matrix::NBunch= NOBXS;
+const sbit16 Matrix::s_NBunch= NOBXS;
  // Lenght of the CMA buffers
-const sbit16 Matrix::nclock=NDLLCYC*NBunch;
+const sbit16 Matrix::s_nclock=s_NDLLCYC*s_NBunch;
  // ReadOut offset in DLL steps
-const sbit16 Matrix::ROOffset = 1;
+const sbit16 Matrix::s_ROOffset = 1;
  // number of channel in a group for the timing setting
-const sbit16 Matrix::timeGroupA=16;
-const sbit16 Matrix::timeGroupB=8;
+const sbit16 Matrix::s_timeGroupA=16;
+const sbit16 Matrix::s_timeGroupB=8;
  // number of bits for a CMAword word
-const sbit16 Matrix::wordlen=32;
+const sbit16 Matrix::s_wordlen=32;
 //----------------------------------------------------------------------------//
 Matrix::Matrix(int run, int event, CMAword debug,
                int subsys, int proj, int sect, 
@@ -44,9 +44,9 @@ m_event=event;
 //
 // debug flags first
 //
-matrixDebug = debug;
+m_matrixDebug = debug;
 
-if(matrixDebug&1<<df) {
+if(m_matrixDebug&1<<df) {
  DISP <<"============================================="<<endl
       <<"Constructor of Matrix called with parameters:"<<endl
       <<subsys<<" "<<proj<<" "<<sect<<" "<<lowhig
@@ -54,10 +54,10 @@ if(matrixDebug&1<<df) {
       <<"============================================="<<endl;
  DISP_DEBUG;
 }
-thisBC=0;                       // temporary initialization
+m_thisBC=0;                       // temporary initialization
 
-BCzero=BCZERO;
-//BCzero=(nclock/NDLLCYC)/2;      // default initialization of BCzero
+m_BCzero=BCZERO;
+//m_BCzero=(s_nclock/s_NDLLCYC)/2;      // default initialization of m_BCzero
                                 // user setting by setBCzero
 
 // 
@@ -76,15 +76,15 @@ BCzero=BCZERO;
 //
 // Matrix attributes
 //
-subsystem=subsys;
-projection=proj;
-sector=sect;
-pad=padadd;
-lowhigh=lowhig;
+m_subsystem=subsys;
+m_projection=proj;
+m_sector=sect;
+m_pad=padadd;
+m_lowhigh=lowhig;
 //
-address[0]=add[0];
-address[1]=add[1];
-localadd=locadd;
+m_address[0]=add[0];
+m_address[1]=add[1];
+m_localadd=locadd;
 //
 // initialize some variables 
 //
@@ -110,7 +110,7 @@ setDefaultConfiguration();
 Matrix::~Matrix() {
 ubit16 df=1;
 deleteRPCdata();
-if(matrixDebug&1<<df) {
+if(m_matrixDebug&1<<df) {
  DISP<<"Distructor of Matrix executed "<<endl;
  DISP_DEBUG;
 }
@@ -124,7 +124,7 @@ rpcdata *rpcpnt, *rpcpntnext;
 // delete the dynamic memory allocated by the Matrix object
 //
 for(i=0;i<2;i++) {
- rpcpnt=datarpc[i];
+ rpcpnt=m_datarpc[i];
  while (rpcpnt) {
   rpcpntnext=rpcpnt->next;
   delete rpcpnt;
@@ -159,47 +159,47 @@ void Matrix::initRegisters() {
 ubit16 i, j, k, l, m;
 for(i=0; i<2; i++)      {     // side address
  for(j=0; j<2; j++)      {    // layer address
-  for(k=0; k<nclock; k++) {   // clock bins
+  for(k=0; k<s_nclock; k++) {   // clock bins
    for(l=0; l<2; l++)      {  // the two words to make 64 bits
     rodat[i][j][k][l]=0;
-    input[i][j][k][l]=0;
-     for(m=0;m<nthres;m++)   {
-     prepr[m][i][j][k][l]=0;
-     mjori[m][i][j][k][l]=0;
+    m_input[i][j][k][l]=0;
+     for(m=0;m<s_nthres;m++)   {
+     m_prepr[m][i][j][k][l]=0;
+     m_mjori[m][i][j][k][l]=0;
     }//end-of-for(m
    }//end-of-for(l
   }//end-of-for(k
  }//end-of-for(j
 }//end-of-for(i
-for(i=0; i<nthres; i++) {    // thresholds
- for(j=0;j<NBunch;j++){ 
-  trigger[i][j]=0;
+for(i=0; i<s_nthres; i++) {    // thresholds
+ for(j=0;j<s_NBunch;j++){ 
+  m_trigger[i][j]=0;
  }//end-of-for(j
- for(j=0; j<nclock; j++) {   // clock bins
-  trigg[i][j]=0;
+ for(j=0; j<s_nclock; j++) {   // clock bins
+  m_trigg[i][j]=0;
  }//end-of-for(j
 }//end-of-for(i
-for(i=0;i<NBunch;i++) {    // loop on left-right overlapping flags
+for(i=0;i<s_NBunch;i++) {    // loop on left-right overlapping flags
  for(j=0; j<2; j++){ 
-  triggerOverlap[i][j]=0;
+  m_triggerOverlap[i][j]=0;
  }//end-of-for(j
 }//end-of-for(i
 //
 // initialize k-pattern out
 //
 
-for(j=0;j<nclock;j++) {
+for(j=0;j<s_nclock;j++) {
  overlapRO[j]           =0;
  highestthRO[j]         =0;
- k_pattern[j]           =0;
+ m_k_pattern[j]           =0;
  k_readout[j]           =0;
  for(i=0;i<2;i++){
-  triggerOverlapRO[j][i]=0;
+  m_triggerOverlapRO[j][i]=0;
  }
 }
-for(i=0;i<NBunch;i++) {
- highestth[i]=0;
- overlap[i]  =0;
+for(i=0;i<s_NBunch;i++) {
+ m_highestth[i]=0;
+ m_overlap[i]  =0;
 }//end-of-for(i
 }//end-of-Matrix::initRegisters
 //-----------------------------------------------------------------------//
@@ -208,7 +208,7 @@ void Matrix::initRPCpointers() {
 // initialize the rpcdata structure
 //
 for(ubit16 i=0;i<2;i++) {
- datarpc[i]=0;
+ m_datarpc[i]=0;
 }//end-of-for(i
 }//end-of-Matrix::initRPCpointers
 //-----------------------------------------------------------------------//
@@ -216,19 +216,19 @@ void Matrix::initPointers() {
 //
 // initialize the Configuration pointers
 //
-chdly = 0;  // pointer to channel delays
-width = 0;  // pointer to pulse widths
-locDi = 0;  // pointer to local Coincidence Direction
-kRead = 0;  // pointer to threshold pattern for readout
-roads = 0;  // pointer to the road Matrix settings
-major = 0;  // pointer to the majority
-overl = 0;  // pointer to the overlapping channel list
-geome = 0;  // pointer to "geometry"
+m_chdly = 0;  // pointer to channel delays
+m_width = 0;  // pointer to pulse widths
+m_locDi = 0;  // pointer to local Coincidence Direction
+m_kRead = 0;  // pointer to threshold pattern for readout
+m_roads = 0;  // pointer to the road Matrix settings
+m_major = 0;  // pointer to the majority
+m_overl = 0;  // pointer to the overlapping channel list
+m_geome = 0;  // pointer to "geometry"
 }//end-of-Matrix::initPointers
 //-----------------------------------------------------------------------//
 void  Matrix::initDat() {
 // put the current BC at the center of the buffer
-BCID = -1;
+m_BCID = -1;
 }//end-of-Matrix::initDat
 //-----------------------------------------------------------------------//
 void  Matrix::setDefaultConfiguration() {
@@ -242,54 +242,54 @@ ubit16 i, j, k, l;
 //
 // Coincidence Windows for the the three thresholds
 //
-for(i=0; i<nthres; i++) {
- for(j=0; j<nchan[0]; j++) {
-  trigRoad[i][j][0]=0x00000000;
-  trigRoad[i][j][1]=0x00000000;
+for(i=0; i<s_nthres; i++) {
+ for(j=0; j<s_nchan[0]; j++) {
+  m_trigRoad[i][j][0]=0x00000000;
+  m_trigRoad[i][j][1]=0x00000000;
  }//end-of-for(j
 }//end-of-for(i
 //
 // Majority setting
 //
-majorities[0]=2;      // majority values for threshold address 0
-majorities[1]=2;      // majority values for threshold address 1
-majorities[2]=2;      // majority values for threshold address 2
+m_majorities[0]=2;      // majority values for threshold address 0
+m_majorities[1]=2;      // majority values for threshold address 1
+m_majorities[2]=2;      // majority values for threshold address 2
 //
 // threshold to be used for coincidence of the lowpt trigger with the
 // external RPC doublet
 //
-lowtohigh  = nthres-1;
+m_lowtohigh  = s_nthres-1;
 //
 // threshold to be used to provide the trigger data in the readout;
 // important for the correct functioning of the LVL2 (muFast)
 //
-toreadout  = 0;       //threshold of the pattern to be sent to the readout
+m_toreadout  = 0;       //threshold of the pattern to be sent to the readout
 //
 // address of the threshold to be considered in overlap (dimuon counting)
 //
-overlapthres = 0;
+m_overlapthres = 0;
 //
 // address of the configuration for the local coincidence
 //
-localDirec[0] = 7;    //majority Direction
-localDirec[1] = 7;    //majority Direction
+m_localDirec[0] = 7;    //majority Direction
+m_localDirec[1] = 7;    //majority Direction
 //
-// default for matOverlap
+// default for m_matOverlap
 //
-for(i=0; i<2; i++)       {matOverlap[i]=0;}
+for(i=0; i<2; i++)       {m_matOverlap[i]=0;}
 //
 // default for the signal delay, deadtime and pulse width arrays
 //
 for(i=0; i<2; i++) {    // side
  for(j=0; j<2; j++) {   // layer
-  for(k=0; k<(nchan[1]/timeGroupB); k++) {  // group
-   pulseWidth[i][j][k]=8;
+  for(k=0; k<(s_nchan[1]/s_timeGroupB); k++) {  // group
+   m_pulseWidth[i][j][k]=8;
   }//end-of-for(k
-  for(k=0; k<(nchan[1]/timeGroupA); k++) {  // group
-   channDelay[i][j][k]=0;
+  for(k=0; k<(s_nchan[1]/s_timeGroupA); k++) {  // group
+   m_channDelay[i][j][k]=0;
   }//end-of-for(k
-  for(k=0; k<(nchan[1]/timeGroupB); k++) {  // group
-   channDeadT[i][j][k]=0;
+  for(k=0; k<(s_nchan[1]/s_timeGroupB); k++) {  // group
+   m_channDeadT[i][j][k]=0;
   }//end-of-for(k  
  }//end-of-for(j
 }//end-of-for(i
@@ -297,38 +297,38 @@ for(i=0; i<2; i++) {    // side
 // Masking to 0 and masking to 1
 //
 for(i=0; i<2; i++) {    // side
- for(j=0; j<2; j++) {   // layer (or "1/2"=0, "2/2"=1 in case of channMask1)
-  for(k=0; k<nchan[1]; k++) {
-   channMask0[i][j][k]=0;
+ for(j=0; j<2; j++) {   // layer (or "1/2"=0, "2/2"=1 in case of m_channMask1)
+  for(k=0; k<s_nchan[1]; k++) {
+   m_channMask0[i][j][k]=0;
   }//end-of-for(k
-  for(l=0; l<nthres; l++) {
-   channMask1[l][i][j][0]=0;
-   channMask1[l][i][j][1]=0;
+  for(l=0; l<s_nthres; l++) {
+   m_channMask1[l][i][j][0]=0;
+   m_channMask1[l][i][j][1]=0;
   }//end-of-for(l=0
-  channReadOutMask[i][j][0]=0;
-  channReadOutMask[i][j][1]=0;
+  m_channReadOutMask[i][j][0]=0;
+  m_channReadOutMask[i][j][1]=0;
  }//end-of-for(j
 }//end-of-for(i
 //
 // default for trigger dead time
 //
-for(k=0; k<(nchan[0]/timeGroupB); k++) {  // group
-  trigDeadTime[k]=8;
+for(k=0; k<(s_nchan[0]/s_timeGroupB); k++) {  // group
+  m_trigDeadTime[k]=8;
 }//end-of-for(
 //
-// initialize BunchPhase and BunchOffset
+// initialize m_BunchPhase and m_BunchOffset
 //
-BunchPhase= 0;  // use this setting for standard ATLAS simulation;
-//BunchPhase=-1;  // use this setting with comparison with the HARDWARE; 
+m_BunchPhase= 0;  // use this setting for standard ATLAS simulation;
+//m_BunchPhase=-1;  // use this setting with comparison with the HARDWARE; 
                   // value fixed with VHDL comparison 1-7 august 2004.
                   // use with setBCzero(0);
-BunchOffset=0; // test with hardware; use with setBCzero(0);
+m_BunchOffset=0; // test with hardware; use with setBCzero(0);
 //
-// default for diagonal
+// default for m_diagonal
 //
-for(i=0; i<nchan[0]; i++) { diagonal[i]=0;}
+for(i=0; i<s_nchan[0]; i++) { m_diagonal[i]=0;}
  
-if(matrixDebug&1<<df) {
+if(m_matrixDebug&1<<df) {
     DISP <<"===================================================================="<<endl
          <<"Matrix::setDefaultConfiguration: "
          <<"Default settings have been loaded."<<std::endl
@@ -350,15 +350,15 @@ DISP_DEBUG;
 DISP <<"--------------------------------"<<std::endl
      <<"+ Coincidence Windows:          "<<std::endl;
 DISP_DEBUG;
-for(i=0; i<nthres; i++) {
+for(i=0; i<s_nthres; i++) {
  DISP  <<" + Threshold address:"<<i;
  DISP_DEBUG;
- for(j=0; j<nchan[0]; j++) {
+ for(j=0; j<s_nchan[0]; j++) {
   DISP  <<"    -Channel address:"<<j
         <<" Window 63-32 "
-	<<std::hex<<trigRoad[i][j][1]
+	<<std::hex<<m_trigRoad[i][j][1]
         <<" Window 31-00 "
-	<<          trigRoad[i][j][0]<<std::dec;
+	<<          m_trigRoad[i][j][0]<<std::dec;
   DISP_DEBUG;
  }//end-of-for(j
 }//end-of-for(i
@@ -369,8 +369,8 @@ DISP <<"--------------------------------"<<std::endl
      <<"+ Majority addresses:           "<<std::endl
      <<"--------------------------------";
 DISP_DEBUG;
-for(i=0; i<nthres; i++) {
- DISP <<" - threshold address "<<i<<" value "<<majorities[i];
+for(i=0; i<s_nthres; i++) {
+ DISP <<" - threshold address "<<i<<" value "<<m_majorities[i];
  DISP_DEBUG;
 }    
 //
@@ -378,25 +378,25 @@ for(i=0; i<nthres; i++) {
 // external RPC doublet
 //
 DISP <<"--------------------------------"<<std::endl
-     <<"+ Threshold address low-to-high: "<<lowtohigh<<std::endl
-     <<"+ Threshold address low-to-readout: "<<toreadout<<std::endl
-     <<"+ Threshold address for overlap: "<<overlapthres;
+     <<"+ Threshold address low-to-high: "<<m_lowtohigh<<std::endl
+     <<"+ Threshold address low-to-readout: "<<m_toreadout<<std::endl
+     <<"+ Threshold address for overlap: "<<m_overlapthres;
 DISP_DEBUG;
 //
 // address of the configuration for the local coincidence
 //
 DISP <<"--------------------------------"<<std::endl
      <<"+ Local coincidence setting:    "<<std::endl
-     <<" -Pivot Plane:       "<<localDirec[0]<<std::endl
-     <<" -Coincidence Plane: "<<localDirec[1];
+     <<" -Pivot Plane:       "<<m_localDirec[0]<<std::endl
+     <<" -Coincidence Plane: "<<m_localDirec[1];
 DISP_DEBUG;
 //
 // Overlap default masking
 //
 DISP <<"--------------------------------"<<std::endl
      <<"+ Overlap mask setting:    "<<std::endl
-     <<" -`right' address          "<<matOverlap[0]<<std::endl
-     <<" -`left ' address          "<<matOverlap[1];
+     <<" -`right' address          "<<m_matOverlap[0]<<std::endl
+     <<" -`left ' address          "<<m_matOverlap[1];
 DISP_DEBUG;
 //
 // default for the signal delay, deadtime and pulse width arrays
@@ -415,19 +415,19 @@ for(i=0; i<2; i++) {    // side
  for(j=0; j<2; j++) {   // layer
   DISP<<"  +Layer "<<j;
   DISP_DEBUG;
-  for(k=0; k<(nchan[i]/timeGroupB); k++) {  // group
+  for(k=0; k<(s_nchan[i]/s_timeGroupB); k++) {  // group
    DISP <<"   -group "<<k
-        <<" pulsewidth "<<pulseWidth[i][j][k];
+        <<" pulsewidth "<<m_pulseWidth[i][j][k];
    DISP_DEBUG;
   }//end-of-for(k
-  for(k=0; k<(nchan[i]/timeGroupA); k++) {  // group
+  for(k=0; k<(s_nchan[i]/s_timeGroupA); k++) {  // group
    DISP <<"   -group "<<k
-	<<" delay "<<channDelay[i][j][k];
+	<<" delay "<<m_channDelay[i][j][k];
    DISP_DEBUG;
   }//end-of-for(k
-  for(k=0; k<(nchan[i]/timeGroupB); k++) {  // group
+  for(k=0; k<(s_nchan[i]/s_timeGroupB); k++) {  // group
    DISP <<"   -group "<<k
-	<<" deadtime "<<channDeadT[i][j][k];
+	<<" deadtime "<<m_channDeadT[i][j][k];
    DISP_DEBUG;
   }//end-of-for(k
  }//end-of-for(j
@@ -449,8 +449,8 @@ for(i=0; i<2; i++) {    // side
  for(j=0; j<2; j++) {   // layer
   DISP<<"  +Layer "<<j;
   DISP_DEBUG;
-  for(k=0; k<nchan[1]; k++) {
-   if(channMask0[i][j][k]) {
+  for(k=0; k<s_nchan[1]; k++) {
+   if(m_channMask0[i][j][k]) {
     DISP<<"   -channel "<<k;
     DISP_DEBUG;
    }//end-of-if
@@ -463,9 +463,9 @@ for(i=0; i<2; i++) {    // side
 DISP <<"-----------------------------------------------"<<std::endl
      <<"+ Trigger Dead Time   ";
 DISP_DEBUG;
-for(k=0; k<(nchan[0]/timeGroupB); k++) {  // group
+for(k=0; k<(s_nchan[0]/s_timeGroupB); k++) {  // group
  DISP <<" -group "<<k
-      <<" Trigger DeadTime "<<trigDeadTime[k];
+      <<" Trigger DeadTime "<<m_trigDeadTime[k];
  DISP_DEBUG;
 }//end-of-for(
 //
@@ -475,14 +475,14 @@ DISP <<"-----------------------------------------------"<<std::endl
      <<"+ Simulation parameters to align with the hardware (not used in CM)";
 DISP_DEBUG;
 //
-// BunchPhase and BunchOffset
+// m_BunchPhase and m_BunchOffset
 //
-DISP <<"+BunchPhase  "<<BunchPhase<<std::endl
+DISP <<"+BunchPhase  "<<m_BunchPhase<<std::endl
      <<"  BunchPhase =  0 : to be used for standard ATLAS LVL1 simulation"<<std::endl
      <<"  BunchPhase = -1 : to be used to compare with the hardware; "<<std::endl
      <<"                    this value fixed with VHDL comparison 1-7 august 2004.";  
 DISP_DEBUG;
-DISP <<"+BunchOffset  "<<BunchOffset<<std::endl
+DISP <<"+BunchOffset  "<<m_BunchOffset<<std::endl
      <<"  BunchOffset = 0 : to test with hardware; use this setting with setBCzero(0).";
 DISP_DEBUG;
 //
@@ -500,22 +500,22 @@ sbit16 BCID;             // BC  time bin (from 0)
 ubit16 DLLID;            // DLL time bin (from 0)
 ubit16 df=2;             // debug flag address
 rpcdata *rpcpntnew;	
-if(matrixDebug&1<<df) {
+if(m_matrixDebug&1<<df) {
  DISP<<"Matrix:putData: putting data on Matrix"<<endl;
  DISP_DEBUG;
 }   
 //
-   BCID = (int)(time/BCtime);
+   BCID = (int)(time/s_BCtime);
    if(time<0.0) BCID--; // to cope with negative times
 //
 // the next line determines the DLL clock bin associated
 // to the given time. For historical reasons, a +1 offset has
 // been used so far:
-// DLLID= (int)((time-(float)BCID*BCtime)/DLLtime)+1;
+// DLLID= (int)((time-(float)BCID*s_BCtime)/s_DLLtime)+1;
 // It should be now removed. Aleandro, 11 November 2008.
 //
-   DLLID= (int)((time-(float)BCID*BCtime)/DLLtime);
-   if(DLLID==NDLLCYC) {
+   DLLID= (int)((time-(float)BCID*s_BCtime)/s_DLLtime);
+   if(DLLID==s_NDLLCYC) {
     BCID++;
     DLLID=0;
    }//end-of-if(DLLID
@@ -529,7 +529,7 @@ if(matrixDebug&1<<df) {
 //
 if (BCID>=NOBXS) return;
 
-   if( stripaddress>=0 && stripaddress < nchan[sidemat] )  {  
+   if( stripaddress>=0 && stripaddress < s_nchan[sidemat] )  {  
   // coverity change
    rpcpntnew = new rpcdata;
 
@@ -553,11 +553,11 @@ if (BCID>=NOBXS) return;
    rpcpntnew->deadtime = 0;
    rpcpntnew->delay    = 0;
    rpcpntnew->mark     = 0;
-   rpcpntnew->next     = datarpc[sidemat];
+   rpcpntnew->next     = m_datarpc[sidemat];
 // 
 // put this element as first in the queue
 //
-   datarpc[sidemat] = rpcpntnew;  
+   m_datarpc[sidemat] = rpcpntnew;  
 
    } else {
     DISP<<" Matrix::putData failure: channel addressed is "
@@ -574,17 +574,17 @@ void Matrix::putPatt (const Matrix *p) {
 CMAword k;
 ubit16 i, j;
 ubit16 df=3; // debug flag address
-if(matrixDebug&1<<df) {
+if(m_matrixDebug&1<<df) {
  DISP<<" method putPatt called; p is "<<p<<endl;
  DISP_DEBUG;
 }
 //
 //
 // for(i=0; i<2; i++)           {     // loop on the two majorities
-//  for(j=0; j<nclock; j++)     {     // loop on the clock bins
+//  for(j=0; j<s_nclock; j++)     {     // loop on the clock bins
 //   for(k=0; k<2; k++)           {   // loop on buffer words
-//    for(n=0; n<nthres; n++) {       // loop on the "nthres" registers
-//     mjori[n][0][i][j][k] = p->k_pattern[j];
+//    for(n=0; n<s_nthres; n++) {       // loop on the "s_nthres" registers
+//     m_mjori[n][0][i][j][k] = p->m_k_pattern[j];
 //    }//end-of-for(n
 //   }//end-of-for(k
 //  }//end-of-for(j
@@ -597,31 +597,31 @@ k=1;
 //   cout<<" RITARDI-1 "<<endl;
 //   for(int iside=0;iside<=1;iside++){
 //     for(int ilayer=0;ilayer<=1;ilayer++){
-//       for(ubit16 k=0; k<(nchan[iside]/timeGroupA); k++) {
+//       for(ubit16 k=0; k<(s_nchan[iside]/s_timeGroupA); k++) {
 //         cout<<" side="<<iside<<" layer="<<ilayer<<" group="<<k
-//  	   <<" delay="<<channDelay[iside][ilayer][k]<<endl;
+//  	   <<" delay="<<m_channDelay[iside][ilayer][k]<<endl;
 //       }
 //     }
 //   }//end-of-for(ubit16 k
 
 
 
-for(i=0; i<nchan[0]; i++) {
- for(j=0; j<nclock; j++) {
-  if( p->k_pattern[j] & k ) {
-   time = ((float)j+0.5)*DLLtime
-        + (float)thisBC*BCtime
-        - (float)(BCzero)*BCtime;
+for(i=0; i<s_nchan[0]; i++) {
+ for(j=0; j<s_nclock; j++) {
+  if( p->m_k_pattern[j] & k ) {
+   time = ((float)j+0.5)*s_DLLtime
+        + (float)m_thisBC*s_BCtime
+        - (float)(m_BCzero)*s_BCtime;
    putData(0,0,i,time);
-  }//end-of-if(p->k_pattern
+  }//end-of-if(p->m_k_pattern
  }//end-of-for(j
  k=k<<1;
 }//end-of-for(i
 //
-if(matrixDebug&1<<df) {
+if(m_matrixDebug&1<<df) {
  DISP<<" copy_pivot; input matrix address "<<p<<endl;
  DISP_DEBUG;
-}//end-of-if(matrixDebug&1<<df)
+}//end-of-if(m_matrixDebug&1<<df)
 }//end-of-method putPatt
 //----------------------------------------------------------------------//
 void Matrix::setRunEvent(int runNum, int eventNum) {
@@ -633,14 +633,14 @@ void Matrix::setBCzero (ubit16 offset) {
 //
 // set the BunchCrossing=0 to the "offset" array address in memory
 //
-if(offset<=NBunch-1) BCzero=offset;
- else BCzero=NBunch-1;
+if(offset<=s_NBunch-1) m_BCzero=offset;
+ else m_BCzero=s_NBunch-1;
 }//end-of-setBCzero
 //----------------------------------------------------------------------//
 void Matrix::setDeadTime (ubit16 deadt) {
 for(ubit16 iside=0; iside<2; iside++) {
  for(ubit16 ilayer=0; ilayer<2; ilayer++) {
-  for(ubit16 k=0; k<(nchan[iside]/timeGroupB); k++) {
+  for(ubit16 k=0; k<(s_nchan[iside]/s_timeGroupB); k++) {
    setDeadTime(iside,ilayer,k,deadt);
   }//end-of-for(ubit16 k
  }//end-of-for(ubit16 ilayer
@@ -649,15 +649,15 @@ for(ubit16 iside=0; iside<2; iside++) {
 //----------------------------------------------------------------------//
 void Matrix::setDeadTime (ubit16 iside, ubit16 ilayer, 
                           ubit16 deadt) {
-for(ubit16 k=0; k<(nchan[iside]/timeGroupB); k++) {
+for(ubit16 k=0; k<(s_nchan[iside]/s_timeGroupB); k++) {
  setDeadTime(iside,ilayer,k,deadt);
 }//end-of-for(ubit16 k
 }//end-of-setDeadTime
 //----------------------------------------------------------------------//
 void Matrix::setDeadTime (ubit16 iside, ubit16 ilayer, ubit16 igroup, 
                           ubit16 deadt) {
-if(iside<2 && ilayer<2 && igroup<(nchan[1]/timeGroupB)) {
- channDeadT[iside][ilayer][igroup]=deadt;
+if(iside<2 && ilayer<2 && igroup<(s_nchan[1]/s_timeGroupB)) {
+ m_channDeadT[iside][ilayer][igroup]=deadt;
  if(iside==0 && igroup>3) {
   DISP<<" Matrix::setDeadTime: problems with side and group addresses"<<endl
       <<" Matrix::setDeadTime: side="<<iside<<" layer="<<ilayer
@@ -679,7 +679,7 @@ if(iside > 1 || ilayer > 1 ) {
        <<" Matrix::setDelay: side="<<iside<<" layer="<<ilayer<<endl;
    DISP_ERROR;
 } else {
-  for(ubit16 k=0; k<(nchan[iside]/timeGroupA); k++) {
+  for(ubit16 k=0; k<(s_nchan[iside]/s_timeGroupA); k++) {
    setDelay(iside,ilayer,k,delay);
   }//end-of-for(ubit16 k
 }
@@ -687,8 +687,8 @@ if(iside > 1 || ilayer > 1 ) {
 //----------------------------------------------------------------------//
 void Matrix::setDelay (ubit16 iside, ubit16 ilayer, ubit16 igroup, 
                        ubit16 delay) {
-if(iside<2 && ilayer<2 && igroup<(nchan[1]/timeGroupA)) {
- channDelay[iside][ilayer][igroup]=delay;
+if(iside<2 && ilayer<2 && igroup<(s_nchan[1]/s_timeGroupA)) {
+ m_channDelay[iside][ilayer][igroup]=delay;
  if(iside==0 && igroup>3) {
   DISP<<" Matrix::setDelay: problems with side and group addresses"<<endl
       <<" Matrix::setDelay: side="<<iside<<" layer="<<ilayer
@@ -706,7 +706,7 @@ if(iside<2 && ilayer<2 && igroup<(nchan[1]/timeGroupA)) {
 void Matrix::setPulseWidth (ubit16 length) {
 for(ubit16 iside=0; iside<2; iside++) {
  for(ubit16 ilayer=0; ilayer<2; ilayer++) {
-  for(ubit16 k=0; k<(nchan[iside]/timeGroupB); k++) {
+  for(ubit16 k=0; k<(s_nchan[iside]/s_timeGroupB); k++) {
    setPulseWidth(iside,ilayer,k,length);
   }//end-of-for(ubit16 k
  }//end-of-for(ubit16 ilayer
@@ -715,15 +715,15 @@ for(ubit16 iside=0; iside<2; iside++) {
 //----------------------------------------------------------------------//
 void Matrix::setPulseWidth (ubit16 iside, ubit16 ilayer, 
                             ubit16 length) {
-for(ubit16 k=0; k<(nchan[iside]/timeGroupB); k++) {
+for(ubit16 k=0; k<(s_nchan[iside]/s_timeGroupB); k++) {
  setPulseWidth(iside,ilayer,k,length);
 }//end-of-for(ubit16 k
 }//end-of-setPulseWidth
 //----------------------------------------------------------------------//
 void Matrix::setPulseWidth (ubit16 iside, ubit16 ilayer, ubit16 igroup, 
                             ubit16 length) {
-if(iside<2 && ilayer<2 && igroup<nchan[1]/timeGroupB) {
- pulseWidth[iside][ilayer][igroup]=length;
+if(iside<2 && ilayer<2 && igroup<s_nchan[1]/s_timeGroupB) {
+ m_pulseWidth[iside][ilayer][igroup]=length;
  if(iside==0 && igroup>3) {
   DISP<<" Matrix::setPulseWidth: problems with side and group addresses"<<endl
       <<" Matrix::setPulseWidth: side="<<iside<<" layer="<<ilayer
@@ -739,29 +739,29 @@ if(iside<2 && ilayer<2 && igroup<nchan[1]/timeGroupB) {
 }//end-of-setPulseWidth
 //----------------------------------------------------------------------//
 void Matrix::setMask0 (ubit16 iside, ubit16 ilayer, ubit16 ichannel) {
-if(iside>1 || ilayer>1 || ichannel>(nchan[iside]-1)) {
+if(iside>1 || ilayer>1 || ichannel>(s_nchan[iside]-1)) {
  DISP<<" Matrix::setMask0: problems with side/layer/channel addresses"<<endl
      <<" Matrix::setMask0: side="<<iside<<" layer="<<ilayer
      <<" channel="<<ichannel<<endl;
  DISP_ERROR;
 } else {
- channMask0[iside][ilayer][ichannel]=1;
+ m_channMask0[iside][ilayer][ichannel]=1;
 }
 }//end-of-setMask0
 //----------------------------------------------------------------------//
 void Matrix::setMask1 (ubit16 ithreshold, ubit16 iside, ubit16 imajority, ubit16 ichannel) {
-if(ithreshold>2 || iside>1 || imajority>1 || ichannel>(nchan[iside]-1)) {
+if(ithreshold>2 || iside>1 || imajority>1 || ichannel>(s_nchan[iside]-1)) {
  DISP<<" Matrix::setMask1: problems with side/layer/channel addresses"<<endl
      <<" Matrix::setMask1: threshold= "<<ithreshold<<" side="<<iside<<" majority="<<imajority
      <<" channel="<<ichannel<<endl;
  DISP_ERROR;
 } else {
- set_to_1 (&channMask1[ithreshold][iside][imajority][0],ichannel);
+ set_to_1 (&m_channMask1[ithreshold][iside][imajority][0],ichannel);
 }
 }//end-of-setMask1
 //----------------------------------------------------------------------//
 void Matrix::setMask1 (ubit16 ithreshold, ubit16 iside, ubit16 imajority) {
-for(int ichannel=0; ichannel<nchan[iside]; ichannel++) {
+for(int ichannel=0; ichannel<s_nchan[iside]; ichannel++) {
  setMask1(ithreshold,iside,imajority,ichannel);
 }
 }//end-of-setMask1
@@ -773,12 +773,12 @@ for(int imajority=0; imajority<2; imajority++) {
 }//end-of-setMask1
 //----------------------------------------------------------------------//
 void Matrix::setMaskReadOut (ubit16 iside, ubit16 ilayer, ubit16 ichannel) {
-if(iside>1 || ilayer>1 || ichannel>(nchan[iside]-1)) {
+if(iside>1 || ilayer>1 || ichannel>(s_nchan[iside]-1)) {
  DISP<<" Matrix::setMaskReadOut: problems with side/layer/channel addresses"<<endl
      <<" Matrix::setMaskReadOut: side= "<<iside<<" layer="<<ilayer<<" channel="<<ichannel<<endl;
  DISP_ERROR;
 } else {
- set_to_1 (&channReadOutMask[iside][ilayer][0],ichannel);
+ set_to_1 (&m_channReadOutMask[iside][ilayer][0],ichannel);
 }
 }//end-of-setMaskReadOut
 //----------------------------------------------------------------------//
@@ -804,41 +804,41 @@ ubit16 i, j, jg;
 ubit16 addGroupMax=0;
 // ubit16 df=4;  // debug flag address 
 ////////////////////////////////////////////////////////////
-locDi=l;      // local coincidence direction              //
-width=p;      // pulse width                              //
-chdly=0;   // delay                                    //
-kRead=k;      // k-readout address                        //
-roads=r;      // programmed coincidence window address    //
-major=m;      // programmed majority address              //
-overl=o;      // programmed overlap flag address          //
-geome=g;      // pre-calculated geometry                  //
+m_locDi=l;      // local coincidence direction              //
+m_width=p;      // pulse width                              //
+m_chdly=0;   // delay                                    //
+m_kRead=k;      // k-readout address                        //
+m_roads=r;      // programmed coincidence window address    //
+m_major=m;      // programmed majority address              //
+m_overl=o;      // programmed overlap flag address          //
+m_geome=g;      // pre-calculated geometry                  //
 ////////////////////////////////////////////////////////////
-for(i=0; i<2; i++) { setLocalDirection(i,*(locDi+i));}
+for(i=0; i<2; i++) { setLocalDirection(i,*(m_locDi+i));}
 // set Pulse Widths
 for(i=0; i<2; i++) {                // side
-       addGroupMax=nchan[0]/timeGroupB;
- if(i) addGroupMax=nchan[1]/timeGroupB;
+       addGroupMax=s_nchan[0]/s_timeGroupB;
+ if(i) addGroupMax=s_nchan[1]/s_timeGroupB;
  for(j=0; j<2; j++) {               // layer
   for(jg=0; jg<addGroupMax; jg++) { // group
-// setPulseWidth(i,j,jg,*(width+jg+8*j+16*i));
-// setDelay     (i,j,jg,*(chdly+jg+8*j+16*i));
+// setPulseWidth(i,j,jg,*(m_width+jg+8*j+16*i));
+// setDelay     (i,j,jg,*(m_chdly+jg+8*j+16*i));
   }//end-of-for(jg
  }//end-of-for(j
 }//end-of-for(i
 // set address of threshold to be readout
-setKReadOut(*kRead);
+setKReadOut(*m_kRead);
 // set majority levels
-for(i=0;i<nthres;i++) { setMajority(i,*(major+i));}
-// set coincidence roads for the nthres thresholds
-for(i=0; i<nthres; i++) {
- for(j=0; j<nchan[0]; j++) {
-  setRoad(i,j,0,*(roads+nchan[0]*2*i+2*j+0));
-  setRoad(i,j,1,*(roads+nchan[0]*2*i+2*j+1));
+for(i=0;i<s_nthres;i++) { setMajority(i,*(m_major+i));}
+// set coincidence roads for the s_nthres thresholds
+for(i=0; i<s_nthres; i++) {
+ for(j=0; j<s_nchan[0]; j++) {
+  setRoad(i,j,0,*(m_roads+s_nchan[0]*2*i+2*j+0));
+  setRoad(i,j,1,*(m_roads+s_nchan[0]*2*i+2*j+1));
  }//end-of-for(j
 }//end-of-for(i
 // set the overlap registers
-for(i=0; i<2; i++) { setMatOverlap(i,*(overl+i));}
-for(i=0; i<nchan[0]; i++) { setDiagonal(i,*(geome+i));}
+for(i=0; i<2; i++) { setMatOverlap(i,*(m_overl+i));}
+for(i=0; i<s_nchan[0]; i++) { setDiagonal(i,*(m_geome+i));}
 }//end-of-Matrix::setConfig
 //----------------------------------------------------------------------//
 void Matrix::setLocalDirection(ubit16 add, int content) {
@@ -846,7 +846,7 @@ if(add>1) {
  DISP<<" Matrix::setLocalDirection :  add= "<<add<<" not valid"<<endl;
  DISP_ERROR;
 } else {
- localDirec[add]=content;
+ m_localDirec[add]=content;
 }//end-of-if;
 }//end-of-Matrix::setLocalDirection
 //----------------------------------------------------------------------//
@@ -856,21 +856,21 @@ if(content<0||content>>2) {
      <<content<<" not valid"<<endl;
  DISP_ERROR;
 } else {
- toreadout=content;
+ m_toreadout=content;
 }//end-of-if
 }//end-of-Matrix::setKReadOut
 //----------------------------------------------------------------------//
 void Matrix::setOverlaThres(int content) {
-if(content>=0 && content<nthres) {
-  overlapthres = content;
+if(content>=0 && content<s_nthres) {
+  m_overlapthres = content;
 } else {
-  overlapthres = 0;
+  m_overlapthres = 0;
 }
 }//end-of-setOverlapThres
 //----------------------------------------------------------------------//
 void Matrix::setTrigDeadTime (ubit16 igroup, ubit16 deadt) {
 if(igroup<4) {
- trigDeadTime[igroup] = deadt;
+ m_trigDeadTime[igroup] = deadt;
 } else {
  DISP<<" Matrix::setTrigDeadTime :  igroup= "<<igroup<<" not valid"<<endl;
  DISP_ERROR;
@@ -878,34 +878,34 @@ if(igroup<4) {
 }//end-of-setTrigDeadTime
 //----------------------------------------------------------------------//
 void Matrix::setTrigDeadTime (ubit16 deadt) {
-for(ubit16 k=0; k<(nchan[0]/timeGroupB); k++) {
+for(ubit16 k=0; k<(s_nchan[0]/s_timeGroupB); k++) {
  setTrigDeadTime(k,deadt);
 }//end-of-for(ubit16 k
 }//end-of-setTrigDeadTime
 //----------------------------------------------------------------------//
 void Matrix::setMajority(ubit16 add, int content) {
-if(add>=nthres) {
+if(add>=s_nthres) {
  DISP<<" Matrix::setMajority :  add= "<<add<<" not valid"<<endl;
  DISP_ERROR;
 } else {
- majorities[add]=content;
+ m_majorities[add]=content;
 }//end-of-if
 }//end-of-Matrix::setMajority
 //----------------------------------------------------------------------//
 void Matrix::setRoad(ubit16 addThres, ubit16 addChn, ubit16 add64, 
                       CMAword content){
-if(addThres>=nthres||addChn>nchan[0]||add64>1) {
+if(addThres>=s_nthres||addChn>s_nchan[0]||add64>1) {
  DISP<<" Matrix::setRoad :  addThres= "<<addThres
      <<" addChn= "<<addChn
      <<" add64= "<<add64<<" not valid"<<endl;
  DISP_ERROR;
 } else {
- trigRoad[addThres][addChn][add64] = content;
+ m_trigRoad[addThres][addChn][add64] = content;
 }//end-of-if
 }//end-of-Matrix::setRoad
 //----------------------------------------------------------------------//
 void Matrix::setRoad(ubit16 addThres, ubit16 addChn, char road[17]) {
-if(addThres>=nthres||addChn>nchan[0]) {
+if(addThres>=s_nthres||addChn>s_nchan[0]) {
  DISP<<" Matrix::setRoad :  addThres= "<<addThres
      <<" addChn= "<<addChn<<endl;
  DISP_ERROR;
@@ -916,11 +916,11 @@ if(addThres>=nthres||addChn>nchan[0]) {
   DISP<<" Matrix::setRoad; outflag from char2int is positive: "
       <<outflag<<endl;
   DISP_ERROR;
-  trigRoad[addThres][addChn][0] = 0;
-  trigRoad[addThres][addChn][1] = 0;
+  m_trigRoad[addThres][addChn][0] = 0;
+  m_trigRoad[addThres][addChn][1] = 0;
  } else {
-  trigRoad[addThres][addChn][0] = the32[0];
-  trigRoad[addThres][addChn][1] = the32[1];
+  m_trigRoad[addThres][addChn][0] = the32[0];
+  m_trigRoad[addThres][addChn][1] = the32[1];
  }
 }//end-of-if
 }//end-of-Matrix::setRoad
@@ -930,16 +930,16 @@ if(add>1) {
  DISP<<" Matrix::setMatOverlap :  add= "<<add<<" not valid"<<endl;
  DISP_ERROR;
 } else {
- matOverlap[add]=content;
+ m_matOverlap[add]=content;
 }
 }//end-of-Matrix::setMatOverlap
 //----------------------------------------------------------------------//
 void Matrix::setDiagonal(ubit16 add, sbit32 content) {
-if(add>nchan[0]) {
+if(add>s_nchan[0]) {
  DISP<<" Matrix::setDiagonal :  add= "<<add<<" not valid"<<endl;
  DISP_ERROR;
 } else {
- diagonal[add]=content;
+ m_diagonal[add]=content;
 }//end-of-if
 }//end-of-Matrix::setDiagonal
 //----------------------------------------------------------------------//
@@ -949,7 +949,7 @@ if(add>1) {
  DISP<<" Matrix::getMatOverlap :  add= "<<add<<" not valid"<<endl;
  DISP_ERROR;
 } else {
- output=matOverlap[add];
+ output=m_matOverlap[add];
 }
 return output;
 }//end-of-Matrix::getMatOverlap
@@ -957,24 +957,24 @@ return output;
 CMAword Matrix::getRoad(ubit16 addThres, 
                                    ubit16 addChn, ubit16 add64){
 CMAword output=0;
-if(addThres>=nthres||addChn>nchan[0]||add64>1) {
+if(addThres>=s_nthres||addChn>s_nchan[0]||add64>1) {
  DISP<<" Matrix::getRoad :  addThres= "<<addThres
      <<" addChn= "<<addChn
      <<" add64= "<<add64<<" not valid"<<endl;
  DISP_ERROR;
 } else {
-output=trigRoad[addThres][addChn][add64];
+output=m_trigRoad[addThres][addChn][add64];
 }//end-of-if
 return output;
 }//end-of-Matrix::getRoad
 //----------------------------------------------------------------------//
 int Matrix::getMajority(ubit16 add) {
 int output=0;
-if(add>=nthres) {
+if(add>=s_nthres) {
  DISP<<" Matrix::getMajority :  add= "<<add<<" not valid"<<endl;
  DISP_ERROR;
 } else {
- output=majorities[add];
+ output=m_majorities[add];
 }//end-of-if
 return output;
 }//end-of-Matrix::getMajority
@@ -982,12 +982,12 @@ return output;
 void Matrix::execute() {
 // returns coincidence flag:  0 if there is no trigger for all thresholds
 //                            1 if there is at least one threshold with trigger
-//                            2 if the lowtohigh threshold (or higher) is trigg
+//                            2 if the lowtohigh threshold (or higher) is m_trigg
 //
 //execute this active CM
 //
 ubit16 df=4;  // debug flag address 
-if(matrixDebug&1<<df) {
+if(m_matrixDebug&1<<df) {
  DISP<<"===================="<<endl
      <<"|                  |"<<endl
      <<"|  Matrix::execute |"<<endl
@@ -996,11 +996,11 @@ if(matrixDebug&1<<df) {
      <<"===================="<<endl;
  DISP_DEBUG;
  show_attributes();
-}//end-of-if(matrixDebug&1<<df)
+}//end-of-if(m_matrixDebug&1<<df)
 //
-// 0) programmed windows (nthres) and time calibration constants for this
+// 0) programmed windows (s_nthres) and time calibration constants for this
 //    matrix
-if(matrixDebug&1<<df) 
+if(m_matrixDebug&1<<df) 
  wind();
 // 1) store deadtime in dyn. structure; deadtime is applied by "applyDeadTime"
 storeDeadtime();
@@ -1028,17 +1028,17 @@ makeOut();
 void Matrix::storeDeadtime() {
 ubit16 df=5;
 rpcdata *rpchit;
-if(matrixDebug&1<<df) {
+if(m_matrixDebug&1<<df) {
  DISP<<"--------------------------"<<endl
      <<"|  Matrix::storeDeadtime |"<<endl
      <<"--------------------------"<<endl;
  DISP_DEBUG;
-}//end-of-if(matrixDebug&1<<df)
+}//end-of-if(m_matrixDebug&1<<df)
 for(ubit16 i=0; i<2; i++) {
- rpchit=datarpc[i];
+ rpchit=m_datarpc[i];
  while(rpchit) {
   rpchit->deadtime = 
-  channDeadT[i][rpchit->layer][rpchit->stripadd/timeGroupB];
+  m_channDeadT[i][rpchit->layer][rpchit->stripadd/s_timeGroupB];
   rpchit=rpchit->next;
  }//end-of-while(rpchit
 }//end-of-for(ubit16 i
@@ -1047,17 +1047,17 @@ for(ubit16 i=0; i<2; i++) {
 void Matrix::masking() {
 ubit16 df=6;
 rpcdata *rpchit;
-if(matrixDebug&1<<df) {
+if(m_matrixDebug&1<<df) {
  DISP<<"--------------------"<<endl 
      <<"|  Matrix::masking |"<<endl
      <<"--------------------"<<endl;
  DISP_DEBUG;
-}//end-of-if(matrixDebug&1<<df)
+}//end-of-if(m_matrixDebug&1<<df)
 for(ubit16 i=0; i<2; i++) {
- rpchit=datarpc[i];
+ rpchit=m_datarpc[i];
  while(rpchit) {
   rpchit->masked =
-  channMask0[i][rpchit->layer][rpchit->stripadd];
+  m_channMask0[i][rpchit->layer][rpchit->stripadd];
   rpchit=rpchit->next;
  }//end-of-while(rpchit
 }//end-of-for(ubit16 i
@@ -1066,17 +1066,17 @@ for(ubit16 i=0; i<2; i++) {
 void Matrix::delay() {
 ubit16 df=7;
 rpcdata *rpchit;
-if(matrixDebug&1<<df) {
+if(m_matrixDebug&1<<df) {
  DISP<<"--------------------"<<endl
      <<"|  Matrix::delay   |"<<endl
      <<"--------------------"<<endl;
  DISP_DEBUG;
-}//end-of-if(matrixDebug&1<<df)
+}//end-of-if(m_matrixDebug&1<<df)
 for(ubit16 i=0; i<2; i++) {
- rpchit=datarpc[i];
+ rpchit=m_datarpc[i];
  while(rpchit) {
   rpchit->delay    = 
-  channDelay[i][rpchit->layer][rpchit->stripadd/timeGroupA];
+  m_channDelay[i][rpchit->layer][rpchit->stripadd/s_timeGroupA];
   rpchit=rpchit->next;
  }//end-of-while(rpchit
 }//end-of-for(ubit16 i
@@ -1087,17 +1087,17 @@ ubit16 df=8;
 sbit32 abs_time, timeadd;
 rpcdata *rpcpnt;
 //
-if(matrixDebug&1<<df) {
+if(m_matrixDebug&1<<df) {
  DISP<<"--------------------"<<endl
      <<"|  Matrix::load    |"<<endl
      <<"--------------------"<<endl;
  DISP_DEBUG;
-}//end-of-if(matrixDebug&1<<df)
+}//end-of-if(m_matrixDebug&1<<df)
 //
 for(ubit16 i=0; i<2; i++) {  // "i" is the CMA side address
- rpcpnt=datarpc[i];
+ rpcpnt=m_datarpc[i];
  while (rpcpnt) {
-  if(matrixDebug&1<<df) {
+  if(m_matrixDebug&1<<df) {
    DISP<<"  Layer= " <<rpcpnt->layer
        <<" stripadd= "<<rpcpnt->stripadd
        <<" time= "<<rpcpnt->time
@@ -1107,15 +1107,15 @@ for(ubit16 i=0; i<2; i++) {  // "i" is the CMA side address
        <<" delay= "<<rpcpnt->delay
        <<endl;
    DISP_DEBUG;
-  }//end-of-if(matrixDebug&1<<df)
-  abs_time = NDLLCYC*rpcpnt->BC
+  }//end-of-if(m_matrixDebug&1<<df)
+  abs_time = s_NDLLCYC*rpcpnt->BC
            + rpcpnt->DLL
 	   + rpcpnt->delay;
   
-  timeadd = abs_time - NDLLCYC*thisBC // synchronize the data to thisBC
-          + NDLLCYC*BCzero;         // put thisBC at the center of the buffer
+  timeadd = abs_time - s_NDLLCYC*m_thisBC // synchronize the data to m_thisBC
+          + s_NDLLCYC*m_BCzero;         // put m_thisBC at the center of the buffer
                                       
-  if(matrixDebug&1<<df) {
+  if(m_matrixDebug&1<<df) {
    DISP<<" abs_time= "<<abs_time<<" timeadd= "<<timeadd<<endl;
    DISP_DEBUG;
   }
@@ -1123,14 +1123,14 @@ for(ubit16 i=0; i<2; i++) {  // "i" is the CMA side address
 //
 // store this digit if it is within time window and not masked
 //   
-  if(timeadd>=0 && timeadd<nclock && !rpcpnt->masked) {
-   if(matrixDebug&1<<df) {
+  if(timeadd>=0 && timeadd<s_nclock && !rpcpnt->masked) {
+   if(m_matrixDebug&1<<df) {
     DISP<<" setting input with side "<<i<<" "<<rpcpnt->layer
         <<" "<<timeadd<<" 0"<<" for channel "<<rpcpnt->stripadd
 	<<" timeadd "<<timeadd<<endl;
     DISP_DEBUG;
-   }//end-of-if(matrixDebug&1<<df)
-   set_to_1(&input[i][rpcpnt->layer][timeadd][0],rpcpnt->stripadd);
+   }//end-of-if(m_matrixDebug&1<<df)
+   set_to_1(&m_input[i][rpcpnt->layer][timeadd][0],rpcpnt->stripadd);
   }//end-of-if(timeadd
 //
   rpcpnt=rpcpnt->next;
@@ -1145,9 +1145,9 @@ void Matrix::copyDataToReadOut() {
 //
 for(ubit16 i=0; i<2; i++)      {     // side address
  for(ubit16 j=0; j<2; j++)      {    // layer address
-  for(ubit16 k=0; k<nclock; k++) {   // clock bins
+  for(ubit16 k=0; k<s_nclock; k++) {   // clock bins
    for(ubit16 l=0; l<2; l++)      {  // the two words to make 64 bits  
-    rodat[i][j][k][l]=input[i][j][k][l] & ~channReadOutMask[i][j][l];
+    rodat[i][j][k][l]=m_input[i][j][k][l] & ~m_channReadOutMask[i][j][l];
    }//end-of-for(l
   }//end-of-for(k
  }//end-of-for(j
@@ -1156,12 +1156,12 @@ for(ubit16 i=0; i<2; i++)      {     // side address
 //------------------------------------------------------------------------//
 void Matrix::prepro () {
 ubit16 df=9;
-if(matrixDebug&1<<df) {
+if(m_matrixDebug&1<<df) {
  DISP<<"-------------------------"<<endl
      <<"| matrix: preprocessing |"<<endl
      <<"-------------------------"<<endl;
  DISP_DEBUG;
-}//end-of-if(matrixDebug&1<<df)
+}//end-of-if(m_matrixDebug&1<<df)
 //
 // 1) pulse width
 pulse_width();
@@ -1191,71 +1191,71 @@ for(i=0;i<4;i++) {
  }
 }
 //
-if(matrixDebug&1<<df) {
+if(m_matrixDebug&1<<df) {
  DISP<<"--------------------"<<endl
      <<"| matrix: coincide |"<<endl
      <<"--------------------"<<endl;
  DISP_DEBUG;
-}//end-of-if(matrixDebug&1<<df)
+}//end-of-if(m_matrixDebug&1<<df)
 //
 // nconf gives the number of possible configurations compatible with
 // the required majority; 
 // conf[i][j] gives the two indices "j" for the side-x (pivot) and side-y
 // array respectively correspondent to the configurtion number "i"
 //
-if(matrixDebug&1<<df) {
- DISP<<" Matrix::coincidence; lowhigh= "<<lowhigh<<endl
+if(m_matrixDebug&1<<df) {
+ DISP<<" Matrix::coincidence; lowhigh= "<<m_lowhigh<<endl
      <<" Matrix::coincidence; majority array ="
-     <<" "<<majorities[0]<<" "<<majorities[1]<<" "<<majorities[2]<<endl;
+     <<" "<<m_majorities[0]<<" "<<m_majorities[1]<<" "<<m_majorities[2]<<endl;
  DISP_DEBUG;
-}//end-of-if(matrixDebug&1<<df)
+}//end-of-if(m_matrixDebug&1<<df)
 //
-for(i=0; i<nclock; i++)             { // loop on clock cycles
- for(thres=0; thres<nthres; thres++){ // loop on the three possible thresholds
+for(i=0; i<s_nclock; i++)             { // loop on clock cycles
+ for(thres=0; thres<s_nthres; thres++){ // loop on the three possible thresholds
                                       // thresholds address increases with
 				      // increasing pT 
   nconf = config(thres,&conf[0][0]);  // number of config. for this threshold
 //
-//if(matrixDebug&1<<df) {
+//if(m_matrixDebug&1<<df) {
 // DISP<<"nconf="<<nconf<<" conf=";
 // DISP_DEBUG;
 // for(int ii=0;ii<4;ii++){ DISP<<" "<<conf[ii][0]; DISP_DEBUG;}
 // DISP<<"  "; DISP_DEBUG;
 // for(int ii=0;ii<4;ii++){ DISP<<" "<<conf[ii][1]; DISP_DEBUG;}
 // DISP<<endl; DISP_DEBUG;
-//}//end-of-if(matrixDebug&1<<df)
+//}//end-of-if(m_matrixDebug&1<<df)
 
   for(l=0; l<nconf; l++)            { // loop on all config. for this threshold
-   for(j=0;j<nchan[0];j++) {          // loop on all side-x channels
+   for(j=0;j<s_nchan[0];j++) {          // loop on all side-x channels
 //
 // coincidence evaluation:
 // for the given configuration "l" and the given channel "j" in the 
 // pivot plane, the coincidence requires 
-// a) the required majority "mjori[thres][0][conf[l][0]][i][0]" 
+// a) the required majority "m_mjori[thres][0][conf[l][0]][i][0]" 
 //    for channel "j"
-// b) the required majority "mjori[thres][1][conf[l][0]][i][0,1]"
-//    in coincidence with the programmed road in "*(roads+2*j)" and
-//    "*(roads+2*j+1)
+// b) the required majority "m_mjori[thres][1][conf[l][0]][i][0,1]"
+//    in coincidence with the programmed road in "*(m_roads+2*j)" and
+//    "*(m_roads+2*j+1)
 //
-//    if(   bitstatus(&mjori[thres][0][conf[l][0]][i][0],j)
-//          *( mjori[thres][1][conf[l][1]][i][0]&(*(roads+32*2*thres+2*j+0))
-//	  |  mjori[thres][1][conf[l][1]][i][1]&(*(roads+32*2*thres+2*j+1)))){
+//    if(   bitstatus(&m_mjori[thres][0][conf[l][0]][i][0],j)
+//          *( m_mjori[thres][1][conf[l][1]][i][0]&(*(m_roads+32*2*thres+2*j+0))
+//	  |  m_mjori[thres][1][conf[l][1]][i][1]&(*(m_roads+32*2*thres+2*j+1)))){
 
 
 
-    if(   bitstatus(&mjori[thres][0][conf[l][0]][i][0],j)
-          *( (mjori[thres][1][conf[l][1]][i][0]&trigRoad[thres][j][0])
-             |  (mjori[thres][1][conf[l][1]][i][1]&trigRoad[thres][j][1]))){
+    if(   bitstatus(&m_mjori[thres][0][conf[l][0]][i][0],j)
+          &( (m_mjori[thres][1][conf[l][1]][i][0]&m_trigRoad[thres][j][0])
+             |  (m_mjori[thres][1][conf[l][1]][i][1]&m_trigRoad[thres][j][1]))){
 
-    if(matrixDebug&1<<df) {
+    if(m_matrixDebug&1<<df) {
      DISP<<"coincidence!!!"<<" clock="<<i<<" xchan="<<j<<endl;
      DISP_DEBUG;
-    }//end-of-if(matrixDebug
+    }//end-of-if(m_matrixDebug
 
-     set_to_1(&trigg[thres][i],j);
-     BCaddress = ((i+BunchPhase)/NDLLCYC)+BunchOffset;
-     if(BCaddress>=0 && BCaddress<NBunch)
-        trigger[thres][BCaddress]=1;  // set "trigger" to 1 for this threshold...
+     set_to_1(&m_trigg[thres][i],j);
+     BCaddress = ((i+m_BunchPhase)/s_NDLLCYC)+m_BunchOffset;
+     if(BCaddress>=0 && BCaddress<s_NBunch)
+        m_trigger[thres][BCaddress]=1;  // set "m_trigger" to 1 for this threshold...
                                       // ...and this Bunch Crossing
 				   
     }//end-of-if(bitstatus...   
@@ -1263,25 +1263,25 @@ for(i=0; i<nclock; i++)             { // loop on clock cycles
   }//end-of-for(l
 //
 //  for(m=0;m<2;m++) {   // loop on left-right sides to evaluate overlap
-//   if(!triggerOverlapRO[i][m])
-//       triggerOverlapRO[i][m]       = (trigg[thres][i] & matOverlap[m]);
-//   if(!triggerOverlap[i/NDLLCYC][m])
-//       triggerOverlap[i/NDLLCYC][m] = (trigg[thres][i] & matOverlap[m]);
+//   if(!m_triggerOverlapRO[i][m])
+//       m_triggerOverlapRO[i][m]       = (m_trigg[thres][i] & m_matOverlap[m]);
+//   if(!m_triggerOverlap[i/s_NDLLCYC][m])
+//       m_triggerOverlap[i/s_NDLLCYC][m] = (m_trigg[thres][i] & m_matOverlap[m]);
 //  }//end-of-for(m
  }//end-of-for(thres
 }//end-of-for(i
 
 if(CMAVERSION==2004) {
 //
-// build the rise pulse for "trigg" (320 MHz trigger output) signals
+// build the rise pulse for "m_trigg" (320 MHz trigger output) signals
 //
  CMAword previousTime=0;
- for(chan=0; chan<nchan[0]; chan++) {
-   for(thres=0; thres<nthres; thres++){ // loop on the three possible thresholds
-     for(i=nclock-1; i>0; i--)             { // loop on clock cycles
-      previousTime = bitstatus(&trigg[thres][i-1],chan);
-      if(bitstatus(&trigg[thres][i],chan) && previousTime) {
-       set_to_0(&trigg[thres][i],chan);
+ for(chan=0; chan<s_nchan[0]; chan++) {
+   for(thres=0; thres<s_nthres; thres++){ // loop on the three possible thresholds
+     for(i=s_nclock-1; i>0; i--)             { // loop on clock cycles
+      previousTime = bitstatus(&m_trigg[thres][i-1],chan);
+      if(bitstatus(&m_trigg[thres][i],chan) && previousTime) {
+       set_to_0(&m_trigg[thres][i],chan);
       }//end-of-if(bitstatus
      }//end-of-for(i
    }//end-of-for(thres
@@ -1289,12 +1289,12 @@ if(CMAVERSION==2004) {
 }//end-of-if(CMAVERSION
 // - - - - - - - - - - -
 
- for(chan=0; chan<nchan[0]; chan++) {
-   for(thres=0; thres<nthres; thres++){ // loop on the three possible thresholds
-     for(i=nclock-1; i>0; i--)             { // loop on clock cycles     
-       if(bitstatus(&trigg[thres][i],chan)) {
-         for(ubit16 idead=1; idead<trigDeadTime[chan/timeGroupB]; idead++) {
-	  set_to_0(&trigg[thres][i+idead],chan);
+ for(chan=0; chan<s_nchan[0]; chan++) {
+   for(thres=0; thres<s_nthres; thres++){ // loop on the three possible thresholds
+     for(i=s_nclock-1; i>0; i--)             { // loop on clock cycles     
+       if(bitstatus(&m_trigg[thres][i],chan)) {
+         for(ubit16 idead=1; idead<m_trigDeadTime[chan/s_timeGroupB]; idead++) {
+	  set_to_0(&m_trigg[thres][i+idead],chan);
 	 }//end-of-for(   
        }//end-of-bitstatus     
      }//end-of-for(i
@@ -1303,18 +1303,18 @@ if(CMAVERSION==2004) {
 
 if(CMAVERSION==2004) {
 //
-// ...now determine the correspondent "trigger" (40 MHz trigger output)
+// ...now determine the correspondent "m_trigger" (40 MHz trigger output)
 //
- for(thres=0; thres<nthres; thres++){ // loop on the three possible thresholds
+ for(thres=0; thres<s_nthres; thres++){ // loop on the three possible thresholds
    // reset trigger
-   for(j=0;j<NBunch;j++) {
-     trigger[thres][j]=0;
+   for(j=0;j<s_NBunch;j++) {
+     m_trigger[thres][j]=0;
    }//end-of-for(j
-   // compute new "trigger"
-   for(i=0; i<nclock; i++)             { // loop on clock cycles
-     BCaddress = ((i+BunchPhase)/NDLLCYC)+BunchOffset;
-     if(BCaddress>=0 && BCaddress<NBunch) {
-      if(trigg[thres][i]) trigger[thres][BCaddress]=1;
+   // compute new "m_trigger"
+   for(i=0; i<s_nclock; i++)             { // loop on clock cycles
+     BCaddress = ((i+m_BunchPhase)/s_NDLLCYC)+m_BunchOffset;
+     if(BCaddress>=0 && BCaddress<s_NBunch) {
+      if(m_trigg[thres][i]) m_trigger[thres][BCaddress]=1;
      }//emd-of-if(BCadd
    }//end-of-for(i
  }//end-of-for(thres
@@ -1323,62 +1323,62 @@ if(CMAVERSION==2004) {
 //
 // find triggers in overlap regions
 //
-//for(thres=0; thres<nthres; thres++){ // loop on the three possible thresholds
-  thres = overlapthres;
-  for(i=0; i<nclock; i++)             { // loop on clock cycles
-   if(trigg[thres][i]) {
+//for(thres=0; thres<s_nthres; thres++){ // loop on the three possible thresholds
+  thres = m_overlapthres;
+  for(i=0; i<s_nclock; i++)             { // loop on clock cycles
+   if(m_trigg[thres][i]) {
     
      for(m=0;m<2;m++) {   // loop on left-right sides to evaluate overlap
-       if(!triggerOverlapRO[i][m]) {
-         triggerOverlapRO[i][m]       = (trigg[thres][i] & matOverlap[m]);
+       if(!m_triggerOverlapRO[i][m]) {
+         m_triggerOverlapRO[i][m]       = (m_trigg[thres][i] & m_matOverlap[m]);
        }
-       BCaddress = ((i+BunchPhase)/NDLLCYC)+BunchOffset;
-       if(BCaddress>=0 && BCaddress<NBunch) {
-         if(!triggerOverlap[BCaddress][m])
-           triggerOverlap[BCaddress][m] = (trigg[thres][i] & matOverlap[m]);
+       BCaddress = ((i+m_BunchPhase)/s_NDLLCYC)+m_BunchOffset;
+       if(BCaddress>=0 && BCaddress<s_NBunch) {
+         if(!m_triggerOverlap[BCaddress][m])
+           m_triggerOverlap[BCaddress][m] = (m_trigg[thres][i] & m_matOverlap[m]);
        }//end-of-if(BCaddress
       }//end-of-for(m
     
-   }//end-of-for(trigg
+   }//end-of-for(m_trigg
   }//end-of-for(i
 //}//end-of-for(thres
 //
-// normalize triggerOverlapRO
+// normalize m_triggerOverlapRO
 //
-for(i=0; i<nclock; i++)             { // loop on clock cycles
+for(i=0; i<s_nclock; i++)             { // loop on clock cycles
  for(m=0;m<2;m++) {   // normalize to 1 overlap flags
-  triggerOverlapRO[i][m] = triggerOverlapRO[i][m] ? 1 : 0; 
+  m_triggerOverlapRO[i][m] = m_triggerOverlapRO[i][m] ? 1 : 0; 
  }//end-of-for(m
 }//end-of-for(i
 //
-// normalize triggerOverlap
+// normalize m_triggerOverlap
 //
-for(i=0;i<NBunch; i++) { //loop on bunches
+for(i=0;i<s_NBunch; i++) { //loop on bunches
  for(m=0;m<2;m++) {   // normalize to 1 overlap flags
-  triggerOverlap[i][m] = triggerOverlap[i][m] ? 1 : 0;
+  m_triggerOverlap[i][m] = m_triggerOverlap[i][m] ? 1 : 0;
  }//end-of-for(m
 }//end-of-for(i
 }//end-of-Matrix::coincide
 //------------------------------------------------------------------------//
 void Matrix::maskTo1 () {
 ubit16 df=11;
-if(matrixDebug&1<<df) {
+if(m_matrixDebug&1<<df) {
  DISP<<"---------------------"<<endl
      <<"| Matrix::mask_to_1 |"<<endl
      <<"---------------------"<<endl;
  DISP_DEBUG;
-}//end-of-if(matrixDebug&1<<df)
+}//end-of-if(m_matrixDebug&1<<df)
 
 ubit16 i, j, k, l, m;
-for(m=0;m<nthres;m++)   {       // thresholds
+for(m=0;m<s_nthres;m++)   {       // thresholds
  for(i=0; i<2; i++)      {      // side address
   for(j=0; j<2; j++)      {     // majority address
-   for(l=0; l<nchan[i]; l++) {  // channel
-    if(bitstatus(&channMask1[m][i][j][0],l)) {
-      for(k=0; k<nclock; k++) {   // clock bins
-       set_to_1(&mjori[m][i][j][k][0],l);
+   for(l=0; l<s_nchan[i]; l++) {  // channel
+    if(bitstatus(&m_channMask1[m][i][j][0],l)) {
+      for(k=0; k<s_nclock; k++) {   // clock bins
+       set_to_1(&m_mjori[m][i][j][k][0],l);
       }//end-of-for(k
-     }//end-of-if(channMask1
+     }//end-of-if(m_channMask1
     }//end-of-for(l
   }//end-of-for(j
  }//end-of-for(i
@@ -1388,35 +1388,35 @@ for(m=0;m<nthres;m++)   {       // thresholds
 //------------------------------------------------------------------------//
 void Matrix::deadTime() {
 ubit16 i, j, k, l; 
-ubit16 temp[nclock];
+ubit16 temp[s_nclock];
 //
 for(i=0;i<2;i++) {             // loop on both matrix sides
  for(j=0;j<2; j++) {           // loop on both trigger layers
-  for(k=0;k<nchan[i]; k++)   { // loop on all channels
+  for(k=0;k<s_nchan[i]; k++)   { // loop on all channels
 //
 // set to 1 the bins in "temp" where signals are "on" for the first time
 //
-   for(l=0;l<(nclock-1);l++) { // loop on clock bins
-    ((!bitstatus(&input[i][j][l  ][0],k)) &&
-       bitstatus(&input[i][j][l+1][0],k) ) ?
+   for(l=0;l<(s_nclock-1);l++) { // loop on clock bins
+    ((!bitstatus(&m_input[i][j][l  ][0],k)) &&
+       bitstatus(&m_input[i][j][l+1][0],k) ) ?
      temp[l+1]=1 : temp[l+1]=0 ;
    }//end-of-for(l
-   temp[0]=bitstatus(&input[i][j][0][0],k);
+   temp[0]=bitstatus(&m_input[i][j][0][0],k);
 //
 // transfer to "input" the signals in "temp" far enough each other in time
 //
    sbit16 lastUp=-1;
-   for(l=0;l<nclock;l++)     { // loop on clock bins
+   for(l=0;l<s_nclock;l++)     { // loop on clock bins
 //   
     if(!temp[l]) {
-     set_to_0(&input[i][j][l][0],k);
+     set_to_0(&m_input[i][j][l][0],k);
     } else {
 //    
-     if( (lastUp<0) || (l-lastUp)>=channDeadT[i][j][k/timeGroupB]) {
+     if( (lastUp<0) || (l-lastUp)>=m_channDeadT[i][j][k/s_timeGroupB]) {
       lastUp=l;
-      set_to_1(&input[i][j][l][0],k);
+      set_to_1(&m_input[i][j][l][0],k);
      } else {
-      set_to_0(&input[i][j][l][0],k);
+      set_to_0(&m_input[i][j][l][0],k);
      }//end-of-if    
     }//end-of-if
 //   
@@ -1430,22 +1430,22 @@ void Matrix::pulse_width () {
 ubit16 df=12;
 ubit16 i,j,l,m;
 sbit16 k;
-if(matrixDebug&1<<df) {
+if(m_matrixDebug&1<<df) {
  DISP<<"-----------------------"<<endl
      <<"| Matrix::pulse_width |"<<endl
      <<"-----------------------"<<endl;
  DISP_DEBUG;
-}//end-of-if(matrixDebug&1<<df)
+}//end-of-if(m_matrixDebug&1<<df)
 //
 for(i=0; i<2; i++) {                // loop on the two Matrix sides 
  for(j=0; j<2; j++)  {              // loop on both layers
-  for(l=0; l<nchan[i]; l++)     {   // loop on all channels
-   for(k=nclock-1; k>=0; k--) {     // loop on the nclock cycles backwards
-    if(bitstatus(&input[i][j][k][0],l)) {
+  for(l=0; l<s_nchan[i]; l++)     {   // loop on all channels
+   for(k=s_nclock-1; k>=0; k--) {     // loop on the s_nclock cycles backwards
+    if(bitstatus(&m_input[i][j][k][0],l)) {
 // loop on all time bins to be set to 1
-     for(m=k+1; m<k+pulseWidth[i][j][l/timeGroupB]; m++) {   
-      if(m<nclock) {
-       set_to_1(&input[i][j][m][0],l);
+     for(m=k+1; m<k+m_pulseWidth[i][j][l/s_timeGroupB]; m++) {   
+      if(m<s_nclock) {
+       set_to_1(&m_input[i][j][m][0],l);
       } else {
        break;
       }//end-of-if(m
@@ -1471,40 +1471,40 @@ void Matrix::majori () {
 ubit16 i, j, k, l, n;
 ubit16 df=13;  // debug flag address
 CMAword buffi[2], buffo[2];
-if(matrixDebug&1<<df) {
+if(m_matrixDebug&1<<df) {
  DISP<<"-------------------"<<endl
      <<"| Matrix::majori  |"<<endl
      <<"-------------------"<<endl;
  DISP_DEBUG;
-}//end-of-if(matrixDebug&1<<df)
+}//end-of-if(m_matrixDebug&1<<df)
 //
 // the loop on the CMA sides has to be made as follows:
 // 1) side=0 and side=1 as long as the lowpt Matrix is concerned;
 // 2) side=1 only as long as the highpt Matrix is concerned.
 // To do this, loop from lowhigh address.
 //
-for(n=0; n<nthres; n++) {    // the nthres thresholds
+for(n=0; n<s_nthres; n++) {    // the s_nthres thresholds
  for(i=0; i<2; i++)       {  // the two Matrix sides
-  for(j=0; j<nclock; j++)  { // the clock cycles
+  for(j=0; j<s_nclock; j++)  { // the clock cycles
    for(k=0;k<2;k++) {        // the two words to make 64 bits
 // copy layer with address 0,1 to buffi; initialize buffoutput
-    buffi[k] = prepr[n][i][1][j][k];
+    buffi[k] = m_prepr[n][i][1][j][k];
     buffo[k] = 0;
    }
    shift(&buffi[0],&buffo[0],i);
    for(k=0; k<2; k++)  {     // the two words
 // 1/2 majority
-    mjori[n][i][0][j][k]=prepr[n][i][0][j][k] | prepr[n][i][1][j][k];
+    m_mjori[n][i][0][j][k]=m_prepr[n][i][0][j][k] | m_prepr[n][i][1][j][k];
 // 2/2 majority 
-    mjori[n][i][1][j][k]=prepr[n][i][0][j][k] & buffo[k];
+    m_mjori[n][i][1][j][k]=m_prepr[n][i][0][j][k] & buffo[k];
    }//end-of-for(k
 //
 // complete preprocessing...
 //
-   for(l=0; l<nchan[i]; l++) { // loop in the number of channel for this side
-    if( bitstatus(&mjori[n][i][1][j][0],l)) {
-     if((l>0)         &&(!bitstatus(&mjori[n][i][1][j][0],l-1))) set_to_0(&mjori[n][i][0][j][0],l-1);
-     if((l<nchan[i]-1)&&(!bitstatus(&mjori[n][i][1][j][0],l+1))) set_to_0(&mjori[n][i][0][j][0],l+1);
+   for(l=0; l<s_nchan[i]; l++) { // loop in the number of channel for this side
+    if( bitstatus(&m_mjori[n][i][1][j][0],l)) {
+     if((l>0)         &&(!bitstatus(&m_mjori[n][i][1][j][0],l-1))) set_to_0(&m_mjori[n][i][0][j][0],l-1);
+     if((l<s_nchan[i]-1)&&(!bitstatus(&m_mjori[n][i][1][j][0],l+1))) set_to_0(&m_mjori[n][i][0][j][0],l+1);
     }//end-of-if(
    }//end-of-for(l  
 // preprocessing completed 
@@ -1516,7 +1516,7 @@ for(n=0; n<nthres; n++) {    // the nthres thresholds
 void Matrix::shift (CMAword *buffi, CMAword *buffo, ubit16 i) {
 //
 ubit16 k;
-switch (localDirec[i]) {
+switch (m_localDirec[i]) {
  case 1:   // n(layer0)-->n(layer1)
   for(k=0;k<2;k++) { *(buffo+k) = *(buffi+k); }
   break;
@@ -1550,8 +1550,8 @@ switch (localDirec[i]) {
   *(buffo+1)=(*(buffi+0) & 0x80000000) ? (*(buffo+1) | 0x1) : (*(buffo+1) | 0);
   break;
  default:
-  cout<<" Matrix::shift -- localDirec["<<i<<"]="<<localDirec[i]
-      <<" not expected; localDirec forced to be 1 "<<endl;
+  cout<<" Matrix::shift -- m_localDirec["<<i<<"]="<<m_localDirec[i]
+      <<" not expected; m_localDirec forced to be 1 "<<endl;
   for(k=0;k<2;k++) { *(buffo+k) = *(buffi+k); }
 }
 //
@@ -1570,25 +1570,25 @@ void Matrix::declus () {
 ubit16 df=14;
 ubit16 nup,first, i,j,k,l;
 first=0;
-if(matrixDebug&1<<df) {
+if(m_matrixDebug&1<<df) {
  DISP<<"------------------------"<<endl
      <<"| matrix: declustering |"<<endl
      <<"------------------------"<<endl;
  DISP_DEBUG;
-}//end-of-if(matrixDebug&1<<df)
+}//end-of-if(m_matrixDebug&1<<df)
 //
-// loop on input data
+// loop on m_input data
 //
 for(i=0; i<2; i++) {        // loop on the two sides
  for(j=0; j<2; j++) {       // loop on the two layers
-  for(k=0; k<nclock; k++) { // loop on the time bins
+  for(k=0; k<s_nclock; k++) { // loop on the time bins
    nup=0;                   // counter of consecutive "on" channels
-   for(l=0; l<nchan[i]; l++) {   // loop on the Matrix channels
-    if(bitstatus(&input[i][j][k][0],l)) {
+   for(l=0; l<s_nchan[i]; l++) {   // loop on the Matrix channels
+    if(bitstatus(&m_input[i][j][k][0],l)) {
      nup++;
      if(nup==1) first=l; 
     }//end-of-if(bitstatus 
-    if (!bitstatus(&input[i][j][k][0],l)||(l==(nchan[i]-1))){
+    if (!bitstatus(&m_input[i][j][k][0],l)||(l==(s_nchan[i]-1))){
      if(nup) {
       reduce(i,j,k,0,nup,first);
       nup=0;
@@ -1608,7 +1608,7 @@ void Matrix::reduce ( ubit16 ia, ubit16 ja, ubit16 ka, ubit16 la,
 //        first  address of the first channel on in the cluster (from 0)
 // returns  nothing
 //
-// It copyes into prepr the channels from input selected by the 
+// It copies into m_prepr the channels from input selected by the 
 // declustering logic.
 // 
 //
@@ -1616,13 +1616,13 @@ ubit16 ncop, i, j, na;
 ubit16 df=15;
 ncop=0;
 j=0;
-if(matrixDebug&1<<df) {
+if(m_matrixDebug&1<<df) {
  DISP<<" --------------------"<<endl
      <<" |  Matrix::reduce  |"<<endl
      <<" --------------------"<<endl
      <<" nup= "<<nup<<" first "<<first<<endl;
  DISP_DEBUG;
-}//end-of-if(matrixDebug&1<<df)
+}//end-of-if(m_matrixDebug&1<<df)
 //
 // analyse nup value and apply the cluster reduction according to it.
 // j     is the first channel of the cluster retained after declustering;
@@ -1641,16 +1641,16 @@ if        (nup<=2) {
            j= first+2;
            ncop=nup-4;
 }//end-of-if
-if(matrixDebug&1<<df) {
+if(m_matrixDebug&1<<df) {
  DISP<<" j= "<<j<<" ncop= "<<ncop<<endl;
  DISP_DEBUG;
-}//end-of-if(matrixDebug&1<<df)
+}//end-of-if(m_matrixDebug&1<<df)
 //
-// copy the reduced cluster into the "nthres" prepr registers
+// copy the reduced cluster into the "s_nthres" m_prepr registers
 //
-for(na=0; na<nthres; na++) {
+for(na=0; na<s_nthres; na++) {
  for(i=j;i<j+ncop;i++) {     // loop on each element of the reduced cluster
-  set_to_1(&prepr[na][ia][ja][ka][la],i);
+  set_to_1(&m_prepr[na][ia][ja][ka][la],i);
  }//end-of-for(i
 }//end-of-for(na
 }//end-of-reduce
@@ -1660,46 +1660,46 @@ ubit16 i, j, k;
 //
 // fill k-pattern
 //
-for(j=0; j<nclock; j++)     {    // loop on the clock bins
- k_pattern[j] = trigg[lowtohigh][j];
- k_readout[j] = trigg[toreadout][j];
+for(j=0; j<s_nclock; j++)     {    // loop on the clock bins
+ m_k_pattern[j] = m_trigg[m_lowtohigh][j];
+ k_readout[j] = m_trigg[m_toreadout][j];
 }//end-of-for(j
 //
 // find the highest satisfied threshold;
 // identify Bunch Crossing and put it in BCID.
 //
-for(j=0;j<NBunch;j++) {
- for(i=0;i<nthres;i++) {
-  if(trigger[i][j]) {
-   highestth[j]=i+1;  // put threshold address+1 (correct threshold value)
-   if(BCID < 0) BCID = j          // local Bunch Crossing IDentifier
-                     + thisBC;    // re-syncronize to absolute BCID
-//		     - BCzero; // remove offset used
-  }//end-of-if(trigger
+for(j=0;j<s_NBunch;j++) {
+ for(i=0;i<s_nthres;i++) {
+  if(m_trigger[i][j]) {
+   m_highestth[j]=i+1;  // put threshold address+1 (correct threshold value)
+   if(m_BCID < 0) m_BCID = j          // local Bunch Crossing IDentifier
+                     + m_thisBC;    // re-syncronize to absolute BCID
+//		     - m_BCzero; // remove offset used
+  }//end-of-if(m_trigger
  }//end-of-for(i
 }//end-of-for(j
 //
-// Trigger in Overlapping channels is reported in triggerOverlap
+// Trigger in Overlapping channels is reported in m_triggerOverlap
 //
-for(j=0;j<NBunch;j++) {
- overlap[j]= triggerOverlap[j][0]+2*triggerOverlap[j][1];
+for(j=0;j<s_NBunch;j++) {
+ m_overlap[j]= m_triggerOverlap[j][0]+2*m_triggerOverlap[j][1];
 }//end-of-for(j
 //
 // find the highest satisfied threshold for ReadOut pourposes;
 //
-for(j=0; j<nclock; j++)     {     // loop on the clock bins
- for(i=0; i<nthres; i++) {        // loop on thresholds
-  for(k=0; k<nchan[0]; k++) {     // loop on channels (pivot side)
-   if(trigg[i][j]&(1<<k)) highestthRO[j]=i+1;
+for(j=0; j<s_nclock; j++)     {     // loop on the clock bins
+ for(i=0; i<s_nthres; i++) {        // loop on thresholds
+  for(k=0; k<s_nchan[0]; k++) {     // loop on channels (pivot side)
+   if(m_trigg[i][j]&(1<<k)) highestthRO[j]=i+1;
   }//end-of-for(k
  }//end-of-for(i
 }//end-of-for(j
 //
 //
-// Trigger in Overlapping channels is reported in triggerOverlapRO
+// Trigger in Overlapping channels is reported in m_triggerOverlapRO
 //
-for(j=0;j<nclock;j++) {
- overlapRO[j]= triggerOverlapRO[j][0]+2*triggerOverlapRO[j][1];
+for(j=0;j<s_nclock;j++) {
+ overlapRO[j]= m_triggerOverlapRO[j][0]+2*m_triggerOverlapRO[j][1];
 }//end-of-for(j
 //
 }//end-of-Matrix::makeOut
@@ -1722,12 +1722,12 @@ strcpy(plane[0],"I0");
 strcpy(plane[1],"I1");
 strcpy(plane[2],"J0");
 strcpy(plane[3],"J1");
-if(matrixDebug&1<<df) {
+if(m_matrixDebug&1<<df) {
  DISP<<"-------------------------------"<<endl
      <<"|  Matrix::makeTestPattern    |"<<endl
      <<"-------------------------------"<<endl;
  DISP_DEBUG;
-}//end-of-if(matrixDebug&1<<df)
+}//end-of-if(m_matrixDebug&1<<df)
 //
 ntimes = 0;
 ubit16 completed = 0;
@@ -1736,7 +1736,7 @@ for(l=0; l<maxtimes; l++) {for(i=0; i<4; i++) {IJ[l][i]=0;}}
 // first reset the marker flags
 //
 for(i=0;i<2;i++) {
- rpcpnt = datarpc[i];
+ rpcpnt = m_datarpc[i];
  while (rpcpnt) {
   rpcpnt->mark = 0;
   rpcpnt=rpcpnt->next;
@@ -1747,7 +1747,7 @@ while(!completed) {
  completed=1;
  timemin = 999999999.;
  for(i=0; i<2; i++) {  // "i" is the CMA side address
-  rpcpnt=datarpc[i];
+  rpcpnt=m_datarpc[i];
   while (rpcpnt) {
    if(rpcpnt->time < timemin && !rpcpnt->mark) {
     timemin=rpcpnt->time;
@@ -1760,7 +1760,7 @@ while(!completed) {
   if(ntimes<maxtimes) ntimes += 1;
   times[ntimes-1]=timemin;
   for(i=0; i<2; i++) {  // "i" is the CMA side address
-  rpcpnt=datarpc[i];
+  rpcpnt=m_datarpc[i];
    while (rpcpnt) {
     if(rpcpnt->time == timemin) {
      rpcpnt->mark=1;
@@ -1786,13 +1786,13 @@ if(!vhdlinput){
      <<" =================================="<<endl<<endl;
  DISP_ERROR;
  } else {
-  if(matrixDebug&1<<df) {
+  if(m_matrixDebug&1<<df) {
    DISP<<" File for vhdl analysis correctly opened"<<endl<<endl;
    DISP_ERROR;
- }//end-of-if(matrixDebug&1<<df)
+ }//end-of-if(m_matrixDebug&1<<df)
 }//end-of-if(!vhdlinput
 if(mode) {
- vhdlinput<<" RUN "<<m_run<<" EVENT "<<m_event<<" WINDOW "<<NBunch;
+ vhdlinput<<" RUN "<<m_run<<" EVENT "<<m_event<<" WINDOW "<<s_NBunch;
  vhdlinput<<" LINES "<<(ntimes+ktimes)<<std::endl;
 }//end-of-if(mode
  for(l=0;l<ntimes; l++) {
@@ -1818,7 +1818,7 @@ CMAword bit;
 ubit16 chanHistory[32];
 for(i=0;i<32;i++) {chanHistory[i]=0;}
 const ubit16 maxchan = 100;
-const ubit16 maxtimes = nclock;
+const ubit16 maxtimes = s_nclock;
 ubit16 ntimes, newtime;
 ubit16 nchannels[maxtimes][2][2], channels[maxtimes][2][2][maxchan];
 float time, times[maxtimes];
@@ -1826,15 +1826,15 @@ float time, times[maxtimes];
 // trigger registers: k-trigger (historically was k-pattern)
 //
 ntimes=0;
-for(i=0; i<nclock; i++) {
+for(i=0; i<s_nclock; i++) {
  nchannels[i][0][0]=0;
 }
-time = (float)thisBC*BCtime - ((float) (BCzero*NDLLCYC))*DLLtime;
-for(i=0; i<nclock; time += DLLtime, i++) {
+time = (float)m_thisBC*s_BCtime - ((float) (m_BCzero*s_NDLLCYC))*s_DLLtime;
+for(i=0; i<s_nclock; time += s_DLLtime, i++) {
   bit=1;
   newtime=1;
-  for(l=0; l<nchan[0];l++) {
-   if(k_pattern[i] & bit ) {
+  for(l=0; l<s_nchan[0];l++) {
+   if(m_k_pattern[i] & bit ) {
     if(!chanHistory[l]) {
      if(newtime) {
       if(ntimes<maxtimes) ntimes+=1;
@@ -1845,19 +1845,19 @@ for(i=0; i<nclock; time += DLLtime, i++) {
       newtime=0;
      }//end-of-if(!chanHistory
     chanHistory[l]=1;  
-   } else { // if(k_pattern
+   } else { // if(m_k_pattern
     chanHistory[l]=0;
-   }//end-of-if(k_pattern
+   }//end-of-if(m_k_pattern
    bit=bit<<1;
   }//end-of-for(l
 }//end-of-for(i
 
 ubit16 nthresPass, thresPass[NOBXS], overlPass[NOBXS], BCidentifier[NOBXS];
 nthresPass=0;
-for(i=0;i<NBunch; i++) {
- if(highestth[i]) {
-  thresPass[nthresPass] = highestth[i];
-  overlPass[nthresPass] = overlap[i];
+for(i=0;i<s_NBunch; i++) {
+ if(m_highestth[i]) {
+  thresPass[nthresPass] = m_highestth[i];
+  overlPass[nthresPass] = m_overlap[i];
   BCidentifier[nthresPass] = i;
   nthresPass += 1;
  }
@@ -1869,7 +1869,7 @@ makeTestPattern(1,ntimes+2*nthresPass);
 ofstream out_k_trigger;
 out_k_trigger.open("k-trigger.output",ios::app);
 //
-// code to print out k_pattern
+// code to print out m_k_pattern
 //
 for(i=0; i<ntimes; i++) {
  out_k_trigger<<" TIME "<<times[i]+timeOffsetKPa<<" K ";
@@ -1908,13 +1908,13 @@ ubit16 Matrix::config (ubit16 i, ubit16 *arr) {
 //
 ubit16 nconf=0;
 //
-// DISP<<"lowhig="<<lowhigh<< "majorities= "<<majorities[0]
-//     <<" "<< majorities[1]<<" "<<majorities[2]<<endl;
+// DISP<<"lowhig="<<m_lowhigh<< "majorities= "<<m_majorities[0]
+//     <<" "<< m_majorities[1]<<" "<<m_majorities[2]<<endl;
 // DISP_DEBUG;
 //
-switch (lowhigh) {
+switch (m_lowhigh) {
  case 0:                    // low-pt trigger matrix
- switch (majorities[i]) {       // select the required majority for each thresh.;
+ switch (m_majorities[i]) {       // select the required majority for each thresh.;
   case 0:                     // 1-out-of-4 majority: no implementation yet
                               // gives 1/2 in I OR 1/2 in J
    nconf=0;
@@ -1933,14 +1933,14 @@ switch (lowhigh) {
    *(arr+0)=1; *(arr+1)=1;
    break;
   default:
-   DISP<<" Matrix::config: the majority "<<majorities[i]
+   DISP<<" Matrix::config: the majority "<<m_majorities[i]
        <<" is unforeseen "<<endl;
    DISP_ERROR;
  }
   break;
  case 1:                    // high-pt trigger matrix
 // high-pt trigger
-  switch(majorities[i]) {
+  switch(m_majorities[i]) {
    case 1:                   // 1-out-of-2 majority
     nconf=1;
     *(arr+0)=0;
@@ -1952,48 +1952,48 @@ switch (lowhigh) {
     *(arr+1)=1;
     break;
    default:
-    DISP<<" Matrix::config: the majority "<<majorities[i]
+    DISP<<" Matrix::config: the majority "<<m_majorities[i]
         <<" is unforeseen "<<endl;
     DISP_ERROR;
   }
   break;
  default:
-  DISP<<" Matrix::config: lowhighpt "<<lowhigh<<" is unforeseen "<<endl;
+  DISP<<" Matrix::config: lowhighpt "<<m_lowhigh<<" is unforeseen "<<endl;
   DISP_ERROR;
 }
  return nconf;
 }//end-of-method-config
 //------------------------------------------------------------------------//
-int Matrix::getSubsystem() {return subsystem;}
+int Matrix::getSubsystem() {return m_subsystem;}
 //------------------------------------------------------------------------//
-int Matrix::getProjection() {return projection;}
+int Matrix::getProjection() {return m_projection;}
 //------------------------------------------------------------------------//
-int Matrix::getSector() {return sector;}
+int Matrix::getSector() {return m_sector;}
 //------------------------------------------------------------------------//
-int Matrix::getPad() {return pad;}
+int Matrix::getPad() {return m_pad;}
 //------------------------------------------------------------------------//
-int Matrix::getLowHigh() {return lowhigh;}
+int Matrix::getLowHigh() {return m_lowhigh;}
 //------------------------------------------------------------------------//
-int Matrix::getAddress0() {return address[0];}
+int Matrix::getAddress0() {return m_address[0];}
 //------------------------------------------------------------------------//
-int Matrix::getAddress1() {return address[1];}
+int Matrix::getAddress1() {return m_address[1];}
 //------------------------------------------------------------------------//
-int Matrix::getLocalAdd() {return localadd;}
+int Matrix::getLocalAdd() {return m_localadd;}
 //------------------------------------------------------------------------//
 ubit16 Matrix::getOutputThres(ubit16 bunch) {
-return highestth[bunch];
+return m_highestth[bunch];
 }//end-of-ubit16-getOutput 
 //------------------------------------------------------------------------//
 ubit16 Matrix::getOutputOverl(ubit16 bunch) {
-return overlap[bunch];
+return m_overlap[bunch];
 }//end-of-ubit16-getOutput
 //------------------------------------------------------------------------//
 sbit16 Matrix::getBunchPhase() {
-return BunchPhase;
+return m_BunchPhase;
 }//end-of-ubit16-getBunchPhase
 //------------------------------------------------------------------------//
 sbit16 Matrix::getBunchOffset() {
-return BunchOffset;
+return m_BunchOffset;
 }//end-of-ubit16-getBunchOffset
 //------------------------------------------------------------------------//
 void Matrix::set_to_1(CMAword *p, sbit16 channel) {
@@ -2040,25 +2040,25 @@ sbit16 i, j;
      <<"-----------------------"<<endl
      <<" Matrix Roads "<<endl;
  DISP_DEBUG;
- for(i=0; i<nthres; i++) {
-  for(j=0; j<nchan[0]; j++) {
+ for(i=0; i<s_nthres; i++) {
+  for(j=0; j<s_nchan[0]; j++) {
    DISP<<" thres. "<<i<<" channel "<<j
-//       <<" Road0 "<<hex<<(*(roads+32*2*i+2*j+0))<<dec
-//       <<" Road1 "<<hex<<(*(roads+32*2*i+2*j+1))<<dec<<endl;
-       <<" Road0 "<<hex<<(trigRoad[i][j][0])<<dec
-       <<" Road1 "<<hex<<(trigRoad[i][j][1])<<dec<<endl;
+//       <<" Road0 "<<hex<<(*(m_roads+32*2*i+2*j+0))<<dec
+//       <<" Road1 "<<hex<<(*(m_roads+32*2*i+2*j+1))<<dec<<endl;
+       <<" Road0 "<<hex<<(m_trigRoad[i][j][0])<<dec
+       <<" Road1 "<<hex<<(m_trigRoad[i][j][1])<<dec<<endl;
    DISP_DEBUG;
   }
  }
  DISP<<" majorities: ";
  DISP_DEBUG;
- for(i=0;i<3;i++) {DISP<<majorities[i]<<" ";DISP_DEBUG;} 
+ for(i=0;i<3;i++) {DISP<<m_majorities[i]<<" ";DISP_DEBUG;} 
  DISP<<" "<<endl; DISP_DEBUG;
- DISP<<" number of overlapping ' low' channels: "<<matOverlap[0]<<endl
-     <<" number of overlapping 'high' channels: "<<matOverlap[1]<<endl;
+ DISP<<" number of overlapping ' low' channels: "<<m_matOverlap[0]<<endl
+     <<" number of overlapping 'high' channels: "<<m_matOverlap[1]<<endl;
  DISP_DEBUG;
- for(i=0;i<nchan[0];i++) {
- DISP<<" channel "<<i<<" in coincidence with "<<diagonal[i]<<endl;
+ for(i=0;i<s_nchan[0];i++) {
+ DISP<<" channel "<<i<<" in coincidence with "<<m_diagonal[i]<<endl;
  DISP_DEBUG;
  }//end-of-for(i
 }//end-of-method-wind
@@ -2083,7 +2083,7 @@ rpcdata *rpcpnt;
  for(i=0; i<2; i++) {
   DISP<<" Matrix Side is "<<i<<endl;
   DISP_DEBUG;
-  rpcpnt=datarpc[i];
+  rpcpnt=m_datarpc[i];
   while (rpcpnt) {
    DISP<<"  Layer= " <<rpcpnt->layer
        <<" stripadd= "<<rpcpnt->stripadd
@@ -2098,26 +2098,26 @@ rpcdata *rpcpnt;
   }//end-of-while(rpcpnt)
  }//end-of-for(i
 //
-if(matrixDebug&1<<(df+0)) {
+if(m_matrixDebug&1<<(df+0)) {
  DISP<<" Display Matrix Input "<<endl;
  DISP_DEBUG;
  disp_CMAreg(0); //display the input registers
 }
 //
 //
-if(matrixDebug&1<<(df+1)) {
+if(m_matrixDebug&1<<(df+1)) {
  DISP<<" Display Matrix Preprocessing "<<endl;
  DISP_DEBUG;
  disp_CMAreg(1); //display the prepro registers
 }
 //
-if(matrixDebug&1<<(df+2)) {
+if(m_matrixDebug&1<<(df+2)) {
  DISP<<" Display Matrix Majority "<<endl;
  DISP_DEBUG;
  disp_CMAreg(2); //display the majority registers
 }
 //
-if(matrixDebug&1<<(df+3)) {
+if(m_matrixDebug&1<<(df+3)) {
  DISP<<" Display Trigger  "<<endl;
  DISP_DEBUG;
  disp_CMAreg(3); //display the trigger registers
@@ -2133,9 +2133,9 @@ if(matrixDebug&1<<(df+3)) {
 //------------------------------------------------------------------------//
 void Matrix::show_attributes () {
 DISP<<" Matrix Attributes: "<<endl
-    <<" Subsystem "<<subsystem<<"; Projection "<<projection
-    <<"; Sector "<<sector<<"; Pad "<<pad<<"; LowHig "<<lowhigh
-    <<"; addresses: "<<address[0]<<"  "<<address[1]<<endl; 
+    <<" Subsystem "<<m_subsystem<<"; Projection "<<m_projection
+    <<"; Sector "<<m_sector<<"; Pad "<<m_pad<<"; LowHig "<<m_lowhigh
+    <<"; addresses: "<<m_address[0]<<"  "<<m_address[1]<<endl; 
 DISP_DEBUG;
 }//end-of-Matrix::attributes
 //------------------------------------------------------------------------//
@@ -2153,12 +2153,12 @@ if(id<2) {
     case 0:
      DISP<<" Layer "<<j<<endl;
      DISP_DEBUG;
-     dispRegister(&input[i][j][0][0],i);
+     dispRegister(&m_input[i][j][0][0],i);
      break;
     case 1:
      DISP<<" Layer "<<j<<endl;
      DISP_DEBUG;
-     dispRegister(&prepr[0][i][j][0][0],i);
+     dispRegister(&m_prepr[0][i][j][0][0],i);
      break;
     default:
      DISP<<" Matrix::disp_CMAreg id value "<<id<<" not foreseen "<<endl;
@@ -2171,7 +2171,7 @@ if(id<2) {
 
  switch (id) {
   case 2:  
-   for(i=0; i<nthres; i++) { // loop on threshold
+   for(i=0; i<s_nthres; i++) { // loop on threshold
     DISP<<" Threshold address "<<i<<endl;
     DISP_DEBUG;
     for(j=0; j<2; j++) {     // loop on matrix sides
@@ -2180,16 +2180,16 @@ if(id<2) {
      for(k=0; k<2; k++) {    // loop on majority types
       DISP<<" Majority type (0=1/2; 1=2/2) "<<k<<endl;
       DISP_DEBUG;
-      dispRegister(&mjori[i][j][k][0][0],j);
+      dispRegister(&m_mjori[i][j][k][0][0],j);
      }//end-of-for(k
     }//end-of-for(j
    }//end-of-for(i
    break;
   case 3:
-   for(i=0; i<nthres; i++) { // loop on the three thresholds
+   for(i=0; i<s_nthres; i++) { // loop on the three thresholds
     DISP<<" Trigger Threshold address "<<i<<endl;
     DISP_DEBUG;
-    dispTrigger(&trigg[i][0]);
+    dispTrigger(&m_trigg[i][0]);
    }//end-of-for(i
    DISP<<" ReadOut Buffer "<<endl;
    DISP_DEBUG;
@@ -2220,14 +2220,14 @@ ubit16 n, j, k;
     __osstream* strdisp = new __osstream(buffer,5000);
 #endif
 //
-n = (nchan[side]-1)/wordlen+1;
+n = (s_nchan[side]-1)/s_wordlen+1;
 *strdisp<<"  ";
 
-for(j=0;j<nchan[side];j+=2) {
+for(j=0;j<s_nchan[side];j+=2) {
  *strdisp<<" "<<j%10;
 }//end-of-for
 *strdisp<<" "<<endl;
-for(j=0; j<nclock; j++) {       // loop on the nclock cycles
+for(j=0; j<s_nclock; j++) {       // loop on the s_nclock cycles
  *strdisp<<" "<<j%10<<" ";
  for(k=0; k<n; k++)      {      // loop on the buffer words
    dispBinary(p+k+2*j,strdisp);
@@ -2260,11 +2260,11 @@ ubit16 j;
 //
 *strdisp<<"  ";
 
-for(j=0;j<nchan[0];j+=2) {
+for(j=0;j<s_nchan[0];j+=2) {
  *strdisp<<" "<<j%10;
 }//end-of-for
 *strdisp<<" "<<endl;
-for(j=0; j<nclock; j++) {       // loop on the nclock cycles
+for(j=0; j<s_nclock; j++) {       // loop on the s_nclock cycles
  *strdisp<<" "<<j%10<<" ";
   dispBinary(p+j,strdisp);
  *strdisp<<" "<<endl;
@@ -2280,7 +2280,7 @@ void Matrix::dispBinary (const CMAword *p, __osstream *strdisp) {
 ubit16 i;
 CMAword j;
 j=1;
-for(i=0; i<wordlen; i++) {
+for(i=0; i<s_wordlen; i++) {
  if((*p) & j ){
   *strdisp<<"|";
  } else {
@@ -2291,7 +2291,7 @@ for(i=0; i<wordlen; i++) {
 }//end-of-Matrix::dispBinary
 //------------------------------------------------------------------------//
 void Matrix::dispWind () {
-for(ubit16 i=0; i<nthres; i++) {dispWind(i);}
+for(ubit16 i=0; i<s_nthres; i++) {dispWind(i);}
 }//end-of-dispWind
 //------------------------------------------------------------------------//
 void Matrix::dispWind (ubit16 thres) {
@@ -2314,7 +2314,7 @@ void Matrix::dispWind (ubit16 thres) {
         <<" ========================="<<endl
         <<endl;
 //
-for(sbit16 j=nchan[1]-1; j>=0; j--) {
+for(sbit16 j=s_nchan[1]-1; j>=0; j--) {
  ubit16 ad1 = j/32;
  ubit16 ad2 = j%32;
  if(j<10) {
@@ -2322,8 +2322,8 @@ for(sbit16 j=nchan[1]-1; j>=0; j--) {
  } else {
   *strdisp<<j<<" ";
  }
- for(ubit16 k=0; k<nchan[0]; k++) {
-  if((trigRoad[thres][k][ad1])&(1<<ad2)) {
+ for(ubit16 k=0; k<s_nchan[0]; k++) {
+  if((m_trigRoad[thres][k][ad1])&(1<<ad2)) {
    *strdisp<<"*";
   } else {
    *strdisp<<".";
@@ -2348,8 +2348,8 @@ void Matrix::inds(ubit16 *i, ubit16 channel){
 //        i[1] is the bit number of word with address i[0] corresponding 
 //             to channel of CMA
 //
-*(i+0) = channel/wordlen; 
-*(i+1) = channel%wordlen;
+*(i+0) = channel/s_wordlen; 
+*(i+1) = channel%s_wordlen;
 }//end-of-Matrix::inds
 //----------------------------------------------------------------------------//
  ubit16 Matrix::char2int(const char *str, CMAword the32[2]) {

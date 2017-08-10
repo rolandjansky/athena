@@ -23,7 +23,23 @@ def getAddressRemappingSvc():
 
 
 def addInputRename (type, from_name, to_name):
-    """Add a new input renaming."""
+    """Add a new input renaming.
+
+    For example:
+
+      addInputRename ("Foo", "foo", "bar")
+
+    to rename the object of type Foo named `foo' to `bar'.
+
+    May also be used to rename dynamic (but NOT static) auxiliary variables:
+
+      addInputRename ("Foo", "foo.d1", "foo.x1")
+
+    If both are combined, write it like this:
+
+      addInputRename ("Foo", "foo", "bar")
+      addInputRename ("Foo", "foo.d1", "bar.x1")
+"""
     ars = getAddressRemappingSvc()
     ars.TypeKeyRenameMaps += [ '%s#%s->%s' % (type, from_name, to_name) ]
     return

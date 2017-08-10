@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigSteeringEventTPCnv
- * @Class  : TrigPassBitsCollectionCnv_p1
+ * @class  : TrigPassBitsCollectionCnv_p1
  *
  *
  * File and Version Information:

@@ -257,7 +257,7 @@ TrigEgammaRec::~TrigEgammaRec()
 
 HLT::ErrorCode TrigEgammaRec::hltStart()
 {
-    if(msgLvl() <= MSG::INFO) msg() << MSG::INFO << "in Start()" << endreq;
+    if(msgLvl() <= MSG::INFO) msg() << MSG::INFO << "in Start()" << endmsg;
 
     return HLT::OK;
 }
@@ -268,7 +268,7 @@ HLT::ErrorCode TrigEgammaRec::hltStart()
 
 HLT::ErrorCode TrigEgammaRec::hltInitialize() {
 
-    msg() << MSG::INFO << "in initialize()" << endreq;
+    msg() << MSG::INFO << "in initialize()" << endmsg;
 
     // Global timers
     if (timerSvc()) m_timerTotal = addTimer("Total");
@@ -276,7 +276,7 @@ HLT::ErrorCode TrigEgammaRec::hltInitialize() {
     // Pointer to Tool Service
     IToolSvc* p_toolSvc = 0;
     if (service("ToolSvc", p_toolSvc).isFailure()) {
-        msg() << MSG::FATAL << "REGTEST: Tool Service not found " << endreq;
+        msg() << MSG::FATAL << "REGTEST: Tool Service not found " << endmsg;
         return HLT::BAD_JOB_SETUP;
     }
 
@@ -564,7 +564,7 @@ HLT::ErrorCode TrigEgammaRec::hltFinalize() {
 
 HLT::ErrorCode TrigEgammaRec::hltEndRun()
 {
-    if(msgLvl() <= MSG::INFO) msg() << MSG::INFO << "in endRun()" << endreq;
+    if(msgLvl() <= MSG::INFO) msg() << MSG::INFO << "in endRun()" << endmsg;
     return HLT::OK;
 }
 
@@ -575,8 +575,8 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
         HLT::TriggerElement* outputTE )
 {
     if ( msgLvl() <= MSG::DEBUG ) {
-        msg() << MSG::DEBUG << "Executing HLT alg. TrigEgammaRec" << endreq;
-        msg() << MSG::DEBUG << "inputTE->getId(): " << inputTE->getId() << endreq;
+        msg() << MSG::DEBUG << "Executing HLT alg. TrigEgammaRec" << endmsg;
+        msg() << MSG::DEBUG << "inputTE->getId(): " << inputTE->getId() << endmsg;
     } 
     // Time total TrigEgammaRec execution time.
     if (timerSvc()) m_timerTotal->start();
@@ -594,13 +594,13 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
     else  stat = getFeatures(inputTE, vectorClusterContainer);
     
     if ( stat!= HLT::OK ) {
-        msg() << MSG::ERROR << " REGTEST: No CaloClusterContainers retrieved for the trigger element" << endreq;
+        msg() << MSG::ERROR << " REGTEST: No CaloClusterContainers retrieved for the trigger element" << endmsg;
         return HLT::OK;
     }
     //debug message
     if ( msgLvl() <= MSG::VERBOSE)
         msg() << MSG::VERBOSE << " REGTEST: Got " << vectorClusterContainer.size()
-            << " CaloClusterContainers associated to the TE " << endreq;
+            << " CaloClusterContainers associated to the TE " << endmsg;
 
     // Check that there is only one ClusterContainer in the RoI
     if (vectorClusterContainer.size() < 1){
@@ -608,7 +608,7 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
             msg() << MSG::ERROR
                 << "REGTEST: Size of vectorClusterContainer is not 1, it is: "
                 << vectorClusterContainer.size()
-                << endreq;
+                << endmsg;
         //return HLT::BAD_JOB_SETUP;
         return HLT::OK;
     }
@@ -619,7 +619,7 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
         if ( msgLvl() <= MSG::ERROR )
             msg() << MSG::ERROR
                 << " REGTEST: Retrieval of CaloClusterContainer from vector failed"
-                << endreq;
+                << endmsg;
         //return HLT::BAD_JOB_SETUP;
         return HLT::OK;
     }
@@ -638,7 +638,7 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
         //debug message
         if ( msgLvl() <= MSG::VERBOSE){
         msg() << MSG::VERBOSE << " REGTEST: Got " << vectorClusterContainerTopo.size()
-             << " CaloCTopoclusterContainers associated to the TE " << endreq;
+             << " CaloCTopoclusterContainers associated to the TE " << endmsg;
         }
         // Get the last ClusterContainer
         if ( !vectorClusterContainerTopo.empty() ) {
@@ -650,7 +650,7 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
 
 
     if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG 
-        << clusContainer->size() << " calo clusters in container" << endreq;
+        << clusContainer->size() << " calo clusters in container" << endmsg;
 
     if(clusContainer->size() < 1){
         return HLT::OK;
@@ -663,14 +663,14 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
     std::string electronKey="";
     HLT::ErrorCode sc = getUniqueKey( m_electron_container, electronContSGKey, electronKey);
     if (sc != HLT::OK) {
-        msg() << MSG::DEBUG << "Could not retrieve the electron container key" << endreq;
+        msg() << MSG::DEBUG << "Could not retrieve the electron container key" << endmsg;
         return sc;
     }
 
     electronContSGKey+="egammaRec";
     //    // just store the thing now!
     if ( store()-> record(m_eg_container,electronContSGKey).isFailure() ) {
-        msg() << MSG::ERROR << "REGTEST: Could not register the EgammaRecContainer" << endreq;
+        msg() << MSG::ERROR << "REGTEST: Could not register the EgammaRecContainer" << endmsg;
         return HLT::ERROR;
     }
     // Create collections used in the navigation
@@ -701,13 +701,13 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
 
     if ( stat != HLT::OK ) {
         //m_showerBuilderToExec = false;
-        msg() << MSG::ERROR << "REGTEST: No CaloCellContainers retrieved for the trigger element, shower builder to be executed: " << m_showerBuilder << endreq;
+        msg() << MSG::ERROR << "REGTEST: No CaloCellContainers retrieved for the trigger element, shower builder to be executed: " << m_showerBuilder << endmsg;
         //Should this be ERROR? Maybe just set to run showerbuilder to false?
         return HLT::ERROR;
         //May need to add ERROR codes for online debugging
     } else{
         if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " REGTEST: Got " << vectorCellContainer.size()
-            << " CaloCellContainers associated to the TE " << endreq;
+            << " CaloCellContainers associated to the TE " << endmsg;
         
         if ( getStoreGateKey( clusContainer, clusCollKey) != HLT::OK) {
             ATH_MSG_ERROR("Failed to get key for ClusterContainer");
@@ -720,7 +720,7 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
             msg() << MSG::ERROR
                 << "REGTEST: Size of calo cell container vector is not 1 but " << vectorCellContainer.size()
                 << " shower builder to be executed: " << m_showerBuilder
-                << endreq;
+                << endmsg;
             return HLT::ERROR;
             //May need to add ERROR codes for online debugging
         } else{
@@ -731,11 +731,11 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
             if(!pCaloCellContainer){
                 msg() << MSG::ERROR
                     << "Retrieval of CaloCellContainer from vector failed, m_showerBuilderToExec: " << m_showerBuilder
-                    << endreq;
+                    << endmsg;
                 return HLT::ERROR;
                 //May need to add ERROR codes for online debugging
             } else{
-                if ( msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "Running m_showerBuilder: " << m_showerBuilder << endreq;
+                if ( msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "Running m_showerBuilder: " << m_showerBuilder << endmsg;
             } //pCaloCellContainer
         }
         if(topoClusTrue) pTopoClusterContainer = vectorClusterContainerTopo.back();
@@ -756,13 +756,13 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
         if (stat != HLT::OK) {
             m_doTrackMatching=false;
             if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG 
-                << " REGTEST: no TrackParticleContainer from TE, m_trackMatchBuilder: " << m_trackMatchBuilder << endreq;
+                << " REGTEST: no TrackParticleContainer from TE, m_trackMatchBuilder: " << m_trackMatchBuilder << endmsg;
 
         } else {
             // check that it is not empty
             if (vectorTrackParticleContainer.size() < 1) {
                 if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG
-                    << " REGTEST: empty TrackParticleContainer from TE, m_trackMatchBuilder: " << m_trackMatchBuilder << endreq;
+                    << " REGTEST: empty TrackParticleContainer from TE, m_trackMatchBuilder: " << m_trackMatchBuilder << endmsg;
 
             } else {
                 // Get the pointer to last TrackParticleContainer 
@@ -772,7 +772,7 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
                     m_doTrackMatching = false;
                     msg() << MSG::ERROR
                         << " REGTEST: Retrieval of TrackParticleContainer from vector failed"
-                        << endreq;
+                        << endmsg;
                 }
                 ATH_MSG_DEBUG("m_doTrackMatching: " << m_doTrackMatching);
                 if ( getStoreGateKey( pTrackParticleContainer, TrkCollKey) != HLT::OK) {
@@ -806,15 +806,15 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
     if (stat != HLT::OK) {
         m_doConversions = false;
         if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG
-            << " REGTEST: no VxContainer from TE, m_doConversions: " << m_doConversions << endreq;
+            << " REGTEST: no VxContainer from TE, m_doConversions: " << m_doConversions << endmsg;
     } else {
         if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " REGTEST: Got " << vectorVxContainer.size()
-            << " VertexContainers associated to the TE " << endreq;
+            << " VertexContainers associated to the TE " << endmsg;
         // check that it is not empty
         if (vectorVxContainer.size() < 1) {
             m_doConversions= false;
             if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG
-                << " REGTEST: no VxContainer from TE, m_doConversions: " << m_doConversions << endreq;
+                << " REGTEST: no VxContainer from TE, m_doConversions: " << m_doConversions << endmsg;
         } else {
             // Get the pointer to last VxContainer 
             pVxContainer = vectorVxContainer.back();
@@ -822,9 +822,9 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
                 m_doConversions = false;
                 msg() << MSG::ERROR
                     << " REGTEST: Retrieval of VxContainer from vector failed"
-                    << endreq;
+                    << endmsg;
             }
-            if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "m_doConversions " << m_doConversions << endreq;
+            if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "m_doConversions " << m_doConversions << endmsg;
         }
     }
 
@@ -863,10 +863,10 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
         for(auto egRec : *m_eg_container) {
             if (timerSvc()) m_timerTool1->start(); //timer
             if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG 
-                << "REGTEST:: Running TrackMatchBuilder" << endreq;
+                << "REGTEST:: Running TrackMatchBuilder" << endmsg;
             if(m_trackMatchBuilder->trackExecute(egRec,pTrackParticleContainer).isFailure())
                 if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG 
-                    << "REGTEST: no Track matched to this cluster" << endreq;
+                    << "REGTEST: no Track matched to this cluster" << endmsg;
             if (timerSvc()) m_timerTool1->stop(); //timer
         } // End track match building
     } //m_trackMatchBuilderToExec
@@ -1058,7 +1058,7 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
         if (timerSvc()) m_timerTool4->start(); //timer
         ATH_MSG_DEBUG("about to run EMFourMomBuilder::hltExecute(eg)");
         if(m_fourMomBuilder->hltExecute(eg)); // 
-        else if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: problem with fourmom tool" << endreq; 
+        else if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: problem with fourmom tool" << endmsg; 
         if (timerSvc()) m_timerTool4->stop(); //timer
 
         // Shower Shape
@@ -1066,7 +1066,7 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
         if (timerSvc()) m_timerTool5->start(); //timer
         ATH_MSG_DEBUG("about to run EMShowerBuilder::recoExecute(eg,pCaloCellContainer)");
         if( m_showerBuilder->recoExecute(eg,pCaloCellContainer) );
-        else if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: no shower built for this cluster" << endreq;
+        else if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: no shower built for this cluster" << endmsg;
         if (timerSvc()) m_timerTool5->stop(); //timer
         
         // Isolation
@@ -1145,14 +1145,14 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
         if (timerSvc()) m_timerTool4->start(); //timer
         ATH_MSG_DEBUG("about to run EMFourMomBuilder::hltExecute(eg)");
         if(m_fourMomBuilder->hltExecute(eg)); // 
-        else if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: problem with fourmom tool" << endreq; 
+        else if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: problem with fourmom tool" << endmsg; 
         if (timerSvc()) m_timerTool4->stop(); //timer
 
         // Shower Shape
         if (timerSvc()) m_timerTool5->start(); //timer
         ATH_MSG_DEBUG("about to run EMShowerBuilderrecoExecute(eg,pCaloCellContainer)");
         if( m_showerBuilder->recoExecute(eg,pCaloCellContainer) );
-        else if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: no shower built for this cluster" << endreq;
+        else if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: no shower built for this cluster" << endmsg;
         if (timerSvc()) m_timerTool5->stop(); //timer
         
         // Isolation
@@ -1262,19 +1262,19 @@ void TrigEgammaRec::PrintElectron(xAOD::Electron *eg){
     //Cluster and ShowerShape info
     //REGTEST printout
     if (eg) {
-        msg() << MSG::DEBUG << " REGTEST: electron energy: " << eg->e() << endreq;
-        msg() << MSG::DEBUG << " REGTEST: electron eta: " << eg->eta() << endreq;
-        msg() << MSG::DEBUG << " REGTEST: electron phi: " << eg->phi() << endreq;
+        msg() << MSG::DEBUG << " REGTEST: electron energy: " << eg->e() << endmsg;
+        msg() << MSG::DEBUG << " REGTEST: electron eta: " << eg->eta() << endmsg;
+        msg() << MSG::DEBUG << " REGTEST: electron phi: " << eg->phi() << endmsg;
         ATH_MSG_DEBUG(" REGTEST: electron charge " << eg->charge());
     } else{
-        msg() << MSG::DEBUG << " REGTEST: problems with electron pointer" << endreq;
+        msg() << MSG::DEBUG << " REGTEST: problems with electron pointer" << endmsg;
     }
 
     ATH_MSG_DEBUG(" REGTEST: cluster variables");
     if (eg->caloCluster()) {
-        msg() << MSG::DEBUG << " REGTEST: electron cluster transverse energy: " << eg->caloCluster()->et() << endreq;
-        msg() << MSG::DEBUG << " REGTEST: electron cluster eta: " << eg->caloCluster()->eta() << endreq;
-        msg() << MSG::DEBUG << " REGTEST: electron cluster phi: " << eg->caloCluster()->phi() << endreq;
+        msg() << MSG::DEBUG << " REGTEST: electron cluster transverse energy: " << eg->caloCluster()->et() << endmsg;
+        msg() << MSG::DEBUG << " REGTEST: electron cluster eta: " << eg->caloCluster()->eta() << endmsg;
+        msg() << MSG::DEBUG << " REGTEST: electron cluster phi: " << eg->caloCluster()->phi() << endmsg;
         double tmpeta = -999.;
         double tmpphi = -999.;
         eg->caloCluster()->retrieveMoment(xAOD::CaloCluster::ETACALOFRAME,tmpeta);
@@ -1282,7 +1282,7 @@ void TrigEgammaRec::PrintElectron(xAOD::Electron *eg){
         ATH_MSG_DEBUG(" REGTEST: electron Calo-frame coords. etaCalo = " << tmpeta); 
         ATH_MSG_DEBUG(" REGTEST: electron Calo-frame coords. phiCalo = " << tmpphi);
     } else{
-        msg() << MSG::DEBUG << " REGTEST: problems with electron cluster pointer" << endreq;
+        msg() << MSG::DEBUG << " REGTEST: problems with electron cluster pointer" << endmsg;
     }
 
     ATH_MSG_DEBUG(" REGTEST: EMShower variables");
@@ -1308,15 +1308,15 @@ void TrigEgammaRec::PrintElectron(xAOD::Electron *eg){
     ATH_MSG_DEBUG(" REGTEST: trackmatch variables");
 
     if(eg->trackParticle()){
-        msg() << MSG::DEBUG << " REGTEST: pt=  " << eg->trackParticle()->pt() << endreq;
-        msg() << MSG::DEBUG << " REGTEST: charge=  " << eg->trackParticle()->charge() << endreq;
-        msg() << MSG::DEBUG << " REGTEST: E/p=  " << eg->caloCluster()->et() / eg->trackParticle()->pt() << endreq;
+        msg() << MSG::DEBUG << " REGTEST: pt=  " << eg->trackParticle()->pt() << endmsg;
+        msg() << MSG::DEBUG << " REGTEST: charge=  " << eg->trackParticle()->charge() << endmsg;
+        msg() << MSG::DEBUG << " REGTEST: E/p=  " << eg->caloCluster()->et() / eg->trackParticle()->pt() << endmsg;
         eg->trackCaloMatchValue(val_float,xAOD::EgammaParameters::deltaEta1);
-        msg() << MSG::DEBUG << " REGTEST: Delta eta 1st sampling=  " << val_float << endreq;
+        msg() << MSG::DEBUG << " REGTEST: Delta eta 1st sampling=  " << val_float << endmsg;
         eg->trackCaloMatchValue(val_float,xAOD::EgammaParameters::deltaPhi2);
-        msg() << MSG::DEBUG << " REGTEST: Delta phi 2nd sampling=  " << val_float << endreq;
+        msg() << MSG::DEBUG << " REGTEST: Delta phi 2nd sampling=  " << val_float << endmsg;
     } else{
-        msg() << MSG::DEBUG << " REGTEST: no electron eg->trackParticle() pointer" << endreq; 
+        msg() << MSG::DEBUG << " REGTEST: no electron eg->trackParticle() pointer" << endmsg; 
     }
 }
 
@@ -1333,22 +1333,22 @@ void TrigEgammaRec::PrintPhoton(xAOD::Photon *eg){
     ATH_MSG_DEBUG("isEMTight bit " << std::hex << isEMbit); 
     float val_float=-99;
     //DEBUG output for Egamma container
-    msg() << MSG::DEBUG << " REGTEST: xAOD Reconstruction Photon variables: " << endreq; 
+    msg() << MSG::DEBUG << " REGTEST: xAOD Reconstruction Photon variables: " << endmsg; 
     //Cluster and ShowerShape info
     //REGTEST printout
     if (eg) {
-        msg() << MSG::DEBUG << " REGTEST: photon energy: " << eg->e() << endreq;
-        msg() << MSG::DEBUG << " REGTEST: photon eta: " << eg->eta() << endreq;
-        msg() << MSG::DEBUG << " REGTEST: photon phi: " << eg->phi() << endreq;
+        msg() << MSG::DEBUG << " REGTEST: photon energy: " << eg->e() << endmsg;
+        msg() << MSG::DEBUG << " REGTEST: photon eta: " << eg->eta() << endmsg;
+        msg() << MSG::DEBUG << " REGTEST: photon phi: " << eg->phi() << endmsg;
     } else{
-        msg() << MSG::DEBUG << " REGTEST: problems with photon pointer" << endreq;
+        msg() << MSG::DEBUG << " REGTEST: problems with photon pointer" << endmsg;
     }
 
     ATH_MSG_DEBUG(" REGTEST: cluster variables");
     if (eg->caloCluster()) {
-        msg() << MSG::DEBUG << " REGTEST: photon cluster transverse energy: " << eg->caloCluster()->et() << endreq;
-        msg() << MSG::DEBUG << " REGTEST: photon cluster eta: " << eg->caloCluster()->eta() << endreq;
-        msg() << MSG::DEBUG << " REGTEST: photon cluster phi: " << eg->caloCluster()->phi() << endreq;
+        msg() << MSG::DEBUG << " REGTEST: photon cluster transverse energy: " << eg->caloCluster()->et() << endmsg;
+        msg() << MSG::DEBUG << " REGTEST: photon cluster eta: " << eg->caloCluster()->eta() << endmsg;
+        msg() << MSG::DEBUG << " REGTEST: photon cluster phi: " << eg->caloCluster()->phi() << endmsg;
         double tmpeta = -999.;
         double tmpphi = -999.;
         eg->caloCluster()->retrieveMoment(xAOD::CaloCluster::ETACALOFRAME,tmpeta);
@@ -1356,7 +1356,7 @@ void TrigEgammaRec::PrintPhoton(xAOD::Photon *eg){
         ATH_MSG_DEBUG(" REGTEST: photon Calo-frame coords. etaCalo = " << tmpeta); 
         ATH_MSG_DEBUG(" REGTEST: photon Calo-frame coords. phiCalo = " << tmpphi); 
     } else{
-        msg() << MSG::DEBUG << " REGTEST: problems with photon cluster pointer" << endreq;
+        msg() << MSG::DEBUG << " REGTEST: problems with photon cluster pointer" << endmsg;
     }
 
     ATH_MSG_DEBUG(" REGTEST: EMShower variables");

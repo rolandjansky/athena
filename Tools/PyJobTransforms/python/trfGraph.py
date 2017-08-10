@@ -168,7 +168,7 @@ class executorGraph(object):
                     
     ## @brief Find a topologically sorted list of the graph nodes
     #  @note If this is not possible, the graph is not a DAG - not supported
-    #  @notes See http://en.wikipedia.org/wiki/Topological_sorting
+    #  @note See http://en.wikipedia.org/wiki/Topological_sorting
     def doToposort(self):
         # We will manipulate the graph, so deepcopy it
         graphCopy = copy.deepcopy(self._nodeDict)

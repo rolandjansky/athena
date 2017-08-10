@@ -22,6 +22,7 @@
 
 #include "AthContainers/normalizedTypeinfoName.h"
 #include "AthContainers/ViewVector.h"
+#include "CxxUtils/no_sanitize_undefined.h"
 #include "CxxUtils/make_unique.h"
 
 #include <memory>
@@ -116,7 +117,7 @@ DATA* finishRead (DATA* d)
  * It handles schema evolution and clears the persistent data.
  */
 template <class DV>
-ViewVector<DV>* finishRead (ViewVector<DV>* d)
+ViewVector<DV>* finishRead NO_SANITIZE_UNDEFINED (ViewVector<DV>* d)
 {
   // In the case of schema evolution, we'll actually get a
   // @c ViewVector for a different _v type.

@@ -53,7 +53,7 @@ Modified: RG Mar 8 2006: replaced EMShowerMinimal with TrigEMCluster
 #include "Navigation/Navigable.h"
 #include "EventKernel/INavigable4Momentum.h"
 
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 
 #include "TrigCaloEvent/TrigEMClusterContainer.h"
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"

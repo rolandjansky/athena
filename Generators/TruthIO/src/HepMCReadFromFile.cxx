@@ -27,7 +27,7 @@ StatusCode HepMCReadFromFile::initialize() {
   
   StatusCode sc = service("StoreGateSvc", m_sgSvc);   
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not find StoreGateSvc" << endreq;
+    msg(MSG::ERROR) << "Could not find StoreGateSvc" << endmsg;
     return sc;
   }
   
@@ -43,14 +43,14 @@ StatusCode HepMCReadFromFile::execute() {
   McEventCollection* mcEvtColl;
 
   if ( m_sgSvc->contains<McEventCollection>(m_mcEventKey) && m_sgSvc->retrieve(mcEvtColl, m_mcEventKey).isSuccess() ) {
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "found an McEventCollecion in store" << endreq;
+    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "found an McEventCollecion in store" << endmsg;
   } else {
     // McCollection doesn't exist. Create it (empty)
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "create new McEventCollecion in store" << endreq;
+    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "create new McEventCollecion in store" << endmsg;
     mcEvtColl = new McEventCollection;
     StatusCode status = m_sgSvc->record( mcEvtColl, m_mcEventKey );
     if (status.isFailure()) {
-      msg(MSG::ERROR) << "Could not record McEventCollection" << endreq;
+      msg(MSG::ERROR) << "Could not record McEventCollection" << endmsg;
       return status;
     }
   }

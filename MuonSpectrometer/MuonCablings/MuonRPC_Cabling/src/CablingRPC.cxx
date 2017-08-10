@@ -15,14 +15,14 @@ CablingRPCBase* MuonRPC_Cabling::CablingRPC::s_instance = 0;
 bool MuonRPC_Cabling::CablingRPC::s_status = false;
 bool MuonRPC_Cabling::CablingRPC::s_cosmic_configuration = false;
 bool MuonRPC_Cabling::CablingRPC::s_RPCMapfromCool = true;
-//std::string MuonRPC_Cabling::CablingRPC::ConfName = "./LVL1conf_ver42.data";
-//std::string MuonRPC_Cabling::CablingRPC::CorrName = "./LVL1conf_ver10.corr";
-std::string MuonRPC_Cabling::CablingRPC::ConfName = "";
-std::string MuonRPC_Cabling::CablingRPC::CorrName = "";
-std::string MuonRPC_Cabling::CablingRPC::DataName = "ATLAS.121108";
-const std::string* MuonRPC_Cabling::CablingRPC::CorrMapPString = 0;
-const std::string* MuonRPC_Cabling::CablingRPC::ConfMapPString = 0;
-const std::map<std::string, std::string>* MuonRPC_Cabling::CablingRPC::p_trigroads = 0;
+//std::string MuonRPC_Cabling::CablingRPC::s_ConfName = "./LVL1conf_ver42.data";
+//std::string MuonRPC_Cabling::CablingRPC::s_CorrName = "./LVL1conf_ver10.corr";
+std::string MuonRPC_Cabling::CablingRPC::s_ConfName = "";
+std::string MuonRPC_Cabling::CablingRPC::s_CorrName = "";
+std::string MuonRPC_Cabling::CablingRPC::s_DataName = "ATLAS.121108";
+const std::string* MuonRPC_Cabling::CablingRPC::s_CorrMapPString = 0;
+const std::string* MuonRPC_Cabling::CablingRPC::s_ConfMapPString = 0;
+const std::map<std::string, std::string>* MuonRPC_Cabling::CablingRPC::s_trigroads = 0;
 
 
 CablingRPC::CablingRPC() : CablingRPCBase(), m_Version(""),m_MaxType(0)
@@ -69,17 +69,17 @@ CablingRPC::~CablingRPC()
 
 void CablingRPC::initMapsFromCOOL()
 {
-    if (ConfMapPString != 0) 	
+    if (s_ConfMapPString != 0) 	
     { // read the map only if the string has been already read from COOL 
 	DISP <<"CablingRPC---InitMaps from COOL: going to read configuration"; DISP_INFO;
-        s_status = ReadConf(ConfMapPString);
+        s_status = ReadConf(s_ConfMapPString);
         DISP <<"CablingRPC---InitMaps from COOL: going to read corrections to configuration";  DISP_INFO;
-        ReadCorr(CorrMapPString);
+        ReadCorr(s_CorrMapPString);
 	DISP <<"CablingRPC---InitMaps from COOL - maps have been parsed"; DISP_INFO;
 	if(!s_status)
 	{
 	    DISP << "CablingRPC---initMapsFromCOOL:: pointers to confMap/corrMaps "
-                 <<ConfMapPString<<" and "<<CorrMapPString
+                 <<s_ConfMapPString<<" and "<<s_CorrMapPString
                  <<"\n  RPC cabling model is not loaded!"; DISP_INFO;
 	    delete s_instance;
 	    s_instance = 0;
@@ -94,14 +94,14 @@ void CablingRPC::initMapsFromCOOL()
 
 void CablingRPC::initMapsFromASCII()
 {
-    if (ConfName != "") 	
+    if (s_ConfName != "") 	
     { // read the map only if the file name has been passed by the cabling svc 
-        s_status = ReadConf(ConfName);
-        ReadCorr(CorrName);
+        s_status = ReadConf(s_ConfName);
+        ReadCorr(s_CorrName);
 	DISP <<"CablingRPC---InitMaps from ASCII executed"; DISP_INFO;
 	if(!s_status)
 	{
-	    DISP  << "CablingRPC---initMapsFromASCII:: file names "<<ConfName<<" and "<<CorrName
+	    DISP  << "CablingRPC---initMapsFromASCII:: file names "<<s_ConfName<<" and "<<s_CorrName
                   <<"\n  RPC cabling model is not loaded!" ; DISP_INFO;
 	    delete s_instance;
 	    s_instance = 0;
@@ -147,9 +147,9 @@ CablingRPC::instance(std::string conf, std::string corr,
     s_RPCMapfromCool = false;
     if (! s_instance) {
         s_cosmic_configuration = cosmic;
-        ConfName = conf;
-        CorrName = corr;
-        DataName = data;
+        s_ConfName = conf;
+        s_CorrName = corr;
+        s_DataName = data;
         
         s_instance = new CablingRPC();
     }
@@ -160,9 +160,9 @@ CablingRPC::instance(std::string conf, std::string corr,
         //std::cout << "CablingRPC--- Setting properties: configuration and ASCII file names"<< std::endl;
         
 	s_cosmic_configuration = cosmic;
-        ConfName = conf;
-        CorrName = corr;
-        DataName = data;
+        s_ConfName = conf;
+        s_CorrName = corr;
+        s_DataName = data;
         //keep this comment for debugging purposes
 	//std::cout<< "CablingRPC--- nothing else can happen here ..."<< std::endl;
     }
@@ -183,9 +183,9 @@ CablingRPC::instance(const std::string* conf, const std::string* corr,
       //keep these comments for debugging purposes
       //std::cout<<"CablingRPC--- getting instance with strings: instance does not exist; make it"<< std::endl;
         s_cosmic_configuration = cosmic;
-        ConfMapPString = conf;
-        CorrMapPString = corr;
-        DataName = data;
+        s_ConfMapPString = conf;
+        s_CorrMapPString = corr;
+        s_DataName = data;
 
         s_instance = new CablingRPC();
     }
@@ -195,9 +195,9 @@ CablingRPC::instance(const std::string* conf, const std::string* corr,
         //keep these comments for debugging purposes
         //std::cout<<"CablingRPC--- Setting properties: configuration and strings from COOL folders"<< std::endl;
 	s_cosmic_configuration = cosmic;
-        ConfMapPString = conf;
-        CorrMapPString = corr;
-        DataName = data;
+        s_ConfMapPString = conf;
+        s_CorrMapPString = corr;
+        s_DataName = data;
  
 	//keep these comments for debugging purposes
 	//std::cout <<"CablingRPC--- nothing else can happen here ..." << std::endl;       
@@ -272,7 +272,7 @@ CablingRPC::ReadConf(std::string file)
             for(int i=1;i<=m_MaxType;++i)
 	    { 
                 m_SectorType[i-1] =
-                    SectorLogicSetup(i,DataName,layout,s_cosmic_configuration);
+                    SectorLogicSetup(i,s_DataName,layout,s_cosmic_configuration);
 	        SectorLogicSetup* sec = &(m_SectorType[i-1]);
                 for(int j=0;j<64;++j) 
                     if(m_SectorMap[j] == i)
@@ -375,9 +375,9 @@ CablingRPC::ReadConf(const std::string* map)
             for(int i=1;i<=m_MaxType;++i)
 	    { 
                 m_SectorType[i-1] =
-                    SectorLogicSetup(i,DataName,layout,s_cosmic_configuration);
+                    SectorLogicSetup(i,s_DataName,layout,s_cosmic_configuration);
 	        SectorLogicSetup* sec = &(m_SectorType[i-1]);
-                m_SectorType[i-1].SetPtoTrigRoads(p_trigroads);
+                m_SectorType[i-1].SetPtoTrigRoads(s_trigroads);
                 for(int j=0;j<64;++j) 
                     if(m_SectorMap[j] == i)
 		    { 
@@ -1696,22 +1696,22 @@ CablingRPC::PrintSector(std::ostream& stream,int sector,int station,
 void
 CablingRPC::SetPtoTrigRoads(const std::map<std::string, std::string>* RPC_trigroads) 
 {
-  p_trigroads=RPC_trigroads;
+  s_trigroads=RPC_trigroads;
 }
 
 void
 CablingRPC::ClearPtoTrigRoads() 
 {
-  p_trigroads=0;
+  s_trigroads=0;
 }
 
 void
 CablingRPC::ClearPtoCablingMap() 
 {
-  ConfName = "";
-  CorrName = "";
-  ConfMapPString = 0;
-  CorrMapPString = 0;
+  s_ConfName = "";
+  s_CorrName = "";
+  s_ConfMapPString = 0;
+  s_CorrMapPString = 0;
 }
 
 unsigned long int CablingRPC::strip_code_fromOffline (int etaPhiView, int logicSector, int cablingStation, int gasGap, int zIndexInCablingStation, int strip) const
@@ -1833,7 +1833,7 @@ unsigned int CablingRPC::computeZIndexInCablingStation(std::string stationName, 
   unsigned int zIndexInCablingStation = 999;
 
   int iStat=0;
-  int astEta = fabs(stationEta);
+  int astEta = std::abs(stationEta);
   // bool nBOE = true;
   // if (stationName=="BOL" && astEta==8 ) nBOE=false;
   

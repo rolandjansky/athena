@@ -42,7 +42,7 @@ namespace SG {
 
     /**
      * @brief Constructor from a WriteHandleKeyArray that takes a vector
-     * of ReaDHandleKeys
+     * of ReadHandleKeys
      * @param v vector of WriteHandleKey
      */
     WriteHandleKeyArray( const std::vector<WriteHandleKey<T>>& v ) :
@@ -79,6 +79,20 @@ namespace SG {
       typename std::vector<WriteHandleKey<T>>::const_iterator itr;
       for (itr = this->begin(); itr != this->end(); ++itr) {
         hndl.push_back ( WriteHandle<T>( *itr) );
+      }
+      return ( std::move( hndl ) );
+    }
+
+    /**
+     * @brief create a vector of WriteHandles from the WriteHandleKeys
+     * in the array, with explicit EventContext.
+     */
+    std::vector< WriteHandle<T> > makeHandles (const EventContext& ctx) const
+    {
+      std::vector< WriteHandle<T> > hndl;
+      typename std::vector<WriteHandleKey<T>>::const_iterator itr;
+      for (itr = this->begin(); itr != this->end(); ++itr) {
+        hndl.push_back ( WriteHandle<T>( *itr, ctx) );
       }
       return ( std::move( hndl ) );
     }

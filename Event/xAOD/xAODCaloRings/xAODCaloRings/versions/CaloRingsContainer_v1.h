@@ -21,12 +21,5 @@ typedef std::vector< ElementLink< CaloRingsContainer_v1 > >
   CaloRingsLinks_v1;
 }
 
-#ifndef XAOD_STANDALONE
-// NOTE: This shall be uncommented after upgrade to v2
-// Set up a CLID for the container:
-//#include "SGTools/CLASS_DEF.h"
-//CLASS_DEF( xAOD::CaloRingsContainer_v1 , 1075651584 , 1 )
-#endif // XAOD_STANDALONE
-
 #endif // XAODCALORINGS_VERSIONS_CALORINGSCONTAINER_V1_H
 

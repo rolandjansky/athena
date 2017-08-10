@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: ATLAS HLT Steering Monitoring
  * @Package: Trigger/TrigMonitoring/TrigSteerMonitor
- * @Class  : TrigSteerMoni
+ * @class  : TrigSteerMoni
  * @Created: Nov, 2006
  *
  * @brief  obsolete

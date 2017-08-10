@@ -46,12 +46,12 @@ StatusCode InDet::TRT_DriftCircleOnTrackUniversalTool::initialize()
   StatusCode sc = AlgTool::initialize(); 
 
   if(m_riontrackTube.retrieve().isFailure()){
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_riontrackTube << endreq;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_riontrackTube << endmsg;
     return StatusCode::FAILURE;
   }
 
   if(m_riontrackDrift.retrieve().isFailure()){
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_riontrackDrift << endreq;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_riontrackDrift << endmsg;
     return StatusCode::FAILURE;
   }
 

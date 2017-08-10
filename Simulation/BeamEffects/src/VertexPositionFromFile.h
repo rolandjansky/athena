@@ -17,6 +17,9 @@
 // FrameWork includes
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "StoreGate/ReadHandleKey.h"
+// EventInfo
+#include "EventInfo/EventInfo.h"
 
 #include "HepMC_Interfaces/ILorentzVectorGenerator.h"
 
@@ -68,7 +71,7 @@ namespace Simulation {
       mutable unsigned int            m_runEventNumbersIndex;      //!< current index in EventNum/RunNum vectors
       std::vector<int>                m_vertexPositionRunNum;      //!< run number override vector
       std::vector<int>                m_vertexPositionEventNum;    //!< event number override vector
-
+      SG::ReadHandleKey<EventInfo>    m_eventInfoKey;              //!< Name of the EventInfo object in StoreGate
   };
 
 }

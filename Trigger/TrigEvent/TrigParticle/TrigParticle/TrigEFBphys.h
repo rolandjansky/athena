@@ -32,8 +32,8 @@ Authour: J.Kirk - Wed May 10
 #include <map>
 
 #include "Particle/TrackParticleContainer.h"
-#include "DataModel/ElementLink.h"
-#include "DataModel/ElementLinkVector.h"
+#include "AthLinks/ElementLink.h"
+#include "AthLinks/ElementLinkVector.h"
 class TrigEFBphysContainer;
 class TrigEFBphys;
 

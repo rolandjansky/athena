@@ -23,7 +23,7 @@ event. Different features of I/O are also tested, i.e.
   - Use of Logical File Names (LFN) instead of Physical File Names
     (PFN).  One can add to the pool file catalog LFN for any file and
     to read back one simply specifies the input collection as
-    LFN:<logical file name>
+    LFN:\<logical file name\>
   - Use of explicit event collections
   - Adding of detector description tags to the EventInfo object
 

@@ -16,6 +16,7 @@
 #undef NDEBUG
 #include "TestTools/initGaudi.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthService.h"
 #include "AthenaKernel/errorcheck.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
@@ -168,7 +169,7 @@ TestContext::~TestContext()
 
 
 class TestEvtSelector
-  : public extends<Service, IEvtSelector>
+  : public extends<AthService, IEvtSelector>
 {
 public:
   TestEvtSelector (const std::string& nam, ISvcLocator* svcLoc);

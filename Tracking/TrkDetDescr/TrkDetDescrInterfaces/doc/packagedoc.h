@@ -5,7 +5,7 @@
 /**
 @page TrkDetDescrInterfaces_page TrkDetDescrInterfaces Package
 
-This package contains all interface classes for <nop>AlgTools to be used for the creation,
+This package contains all interface classes for \<nop\>AlgTools to be used for the creation,
 validation and displaying of the Trk::TrackingGeomtery.
 
 @author Andreas.Salzburger@cern.ch

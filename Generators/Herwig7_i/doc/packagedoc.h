@@ -24,7 +24,7 @@ https://twiki.cern.ch/twiki/bin/view/AtlasProtected/Herwig7ForAtlas
 @subsection AthenaInterface The Interface between Herwig7 and Athena
 
 Herwig 7 can be used in the same way as the Herwig++ 2.X series, in particular
-it is capable of showering MadGraph5_aMC@NLO and PowhegBox events.
+it is capable of showering MadGraph5_aMC\@NLO and PowhegBox events.
 
 Apart from these 'legacy' run modes, the *Matchbox* module in Herwig 7 provides
 automated LO and NLO hard process generation and two alternative internal

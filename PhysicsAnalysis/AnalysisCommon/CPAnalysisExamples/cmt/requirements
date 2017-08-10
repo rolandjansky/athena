@@ -43,11 +43,11 @@ use JetSelectorTools JetSelectorTools-* PhysicsAnalysis/JetMissingEtID
 use xAODBTaggingEfficiency xAODBTaggingEfficiency-* PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration
 
 #General CP Tools
-use GoodRunsLists GoodRunsLists-* DataQuality
 use PileupReweighting PileupReweighting-* PhysicsAnalysis/AnalysisCommon
 use TrigDecisionTool TrigDecisionTool-* Trigger/TrigAnalysis
 use TriggerMatchingTool TriggerMatchingTool-* Trigger/TrigAnalysis
 use AssociationUtils AssociationUtils-* PhysicsAnalysis/AnalysisCommon
+use AsgAnalysisInterfaces AsgAnalysisInterfaces-*   PhysicsAnalysis/Interfaces
 
 #Electrons
 use ElectronPhotonFourMomentumCorrection ElectronPhotonFourMomentumCorrection-* PhysicsAnalysis/ElectronPhotonID
@@ -62,7 +62,6 @@ use MuonEfficiencyCorrections MuonEfficiencyCorrections-* PhysicsAnalysis/MuonID
 
 #Jets
 use JetInterface JetInterface-* Reconstruction/Jet
-use JetJvtEfficiency JetJvtEfficiency-* Reconstruction/Jet
 use JetCalibTools JetCalibTools-* Reconstruction/Jet
 
 use AthAnalysisBaseComps AthAnalysisBaseComps-* Control

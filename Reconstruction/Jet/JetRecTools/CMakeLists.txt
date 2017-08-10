@@ -36,7 +36,7 @@ atlas_add_library( JetRecToolsLib
 		   PUBLIC_HEADERS JetRecTools
 		   INCLUDE_DIRS ${FASTJET_INCLUDE_DIRS} 
 		   PRIVATE_INCLUDE_DIRS ${FASTJETCONTRIB_INCLUDE_DIRS}
-		   LINK_LIBRARIES ${FASTJET_LIBRARIES} AthContainers AsgTools xAODPFlow xAODTracking xAODCore xAODBase xAODCaloEvent xAODTruth xAODEgamma xAODJet GaudiKernel TrackVertexAssociationToolLib JetEDM JetInterface JetRecLib 
+		   LINK_LIBRARIES ${FASTJET_LIBRARIES} AthContainers AsgTools xAODPFlow xAODTracking xAODCore xAODBase xAODCaloEvent xAODTruth xAODEgamma xAODJet GaudiKernel TrackVertexAssociationToolLib JetEDM JetInterface JetRecLib InDetTrackSelectionToolLib
                    PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES} )
 
 atlas_add_component( JetRecTools

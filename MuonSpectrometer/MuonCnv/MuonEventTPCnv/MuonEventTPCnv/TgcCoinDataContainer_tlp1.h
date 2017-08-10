@@ -16,7 +16,7 @@
 
 
 // Token
-//#include "AthenaPoolUtilities/TPCnvTokenList_p1.h"
+#include "AthenaPoolUtilities/TPCnvTokenList_p1.h"
 
 namespace Muon
 {

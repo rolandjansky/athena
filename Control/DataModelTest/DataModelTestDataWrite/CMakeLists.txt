@@ -34,19 +34,19 @@ atlas_add_library( DataModelTestDataWriteLib
                    src/*.cxx
                    PUBLIC_HEADERS DataModelTestDataWrite
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES AthContainers AthLinks DataModelTestDataCommon SGTools xAODCore GaudiKernel DataModelAthenaPoolLib StoreGateLib SGtests TrigNavigationLib EventInfo TrigSteeringEvent
+                   LINK_LIBRARIES AthContainers AthLinks DataModelTestDataCommonLib SGTools xAODCore GaudiKernel DataModelAthenaPoolLib StoreGateLib SGtests TrigNavigationLib EventInfo TrigSteeringEvent
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel CxxUtils )
 
 atlas_add_component( DataModelTestDataWrite
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthLinks DataModelAthenaPoolLib DataModelTestDataCommon SGTools xAODCore GaudiKernel AthenaBaseComps AthenaKernel CxxUtils StoreGateLib SGtests TrigSteeringEvent DataModelTestDataWriteLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthLinks DataModelAthenaPoolLib DataModelTestDataCommonLib SGTools xAODCore GaudiKernel AthenaBaseComps AthenaKernel CxxUtils StoreGateLib SGtests TrigSteeringEvent DataModelTestDataWriteLib )
 
 atlas_add_dictionary( DataModelTestDataWriteDict
                       DataModelTestDataWrite/DataModelTestDataWriteDict.h
                       DataModelTestDataWrite/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthLinks DataModelAthenaPoolLib DataModelTestDataCommon SGTools xAODCore GaudiKernel AthenaBaseComps AthenaKernel CxxUtils StoreGateLib SGtests DataModelTestDataWriteLib
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthLinks DataModelAthenaPoolLib DataModelTestDataCommonLib SGTools xAODCore GaudiKernel AthenaBaseComps AthenaKernel CxxUtils StoreGateLib SGtests DataModelTestDataWriteLib
                       NO_ROOTMAP_MERGE
                       EXTRA_FILES src/dict/*.cxx
                       ELEMENT_LINKS DataVector<DMTest::B> )
@@ -57,4 +57,4 @@ atlas_add_sercnv_library ( DataModelTestDataWriteSerCnv
   FILES DataModelTestDataWrite/HVec.h DataModelTestDataWrite/HView.h DataModelTestDataWrite/HAuxContainer.h
   TYPES_WITH_NAMESPACE DMTest::HVec DMTest::HView DMTest::HAuxContainer
   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-  LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers SGTools xAODCore xAODTrigger GaudiKernel AthLinks TrigSerializeCnvSvcLib DataModelTestDataCommon DataModelTestDataWriteLib )
+  LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers SGTools xAODCore xAODTrigger GaudiKernel AthLinks TrigSerializeCnvSvcLib DataModelTestDataCommonLib DataModelTestDataWriteLib )

@@ -98,7 +98,8 @@ InDetPerfPlot_res::InDetPerfPlot_res(InDetPlotBase* pParent, const std::string& 
   m_pullwidth_theta{},
   m_pullwidth_z0_sin_theta{},
   m_pullwidth_qopt{},
-  m_paramNames{"d0", "z0", "phi", "theta", "z0*sin(theta)", "qopt"} {
+  m_paramNames{"d0", "z0", "phi", "theta", "z0*sin(theta)", "qopt"},
+  m_meanWidthMethod(IDPVM::GetMeanWidth::iterRMS_convergence) {
 //
 }
 
@@ -358,90 +359,33 @@ InDetPerfPlot_res::fill(const xAOD::TrackParticle& trkprt, const xAOD::TruthPart
 }
 
 void
-InDetPerfPlot_res::Refinement(TH1D* temp, const std::string& width, int var, int j, const std::vector<TH1*>& tvec,
+InDetPerfPlot_res::Refinement(TH1D* temp, IDPVM::GetMeanWidth::methods p_method,
+			      int var, int j, const std::vector<TH1*>& tvec,
                               const std::vector<TH1*>& rvec) {
   if (temp->GetXaxis()->TestBit(TAxis::kAxisRange)) {
     // remove range if set previously
     temp->GetXaxis()->SetRange();
     temp->ResetStats();
   }
-  double mean(0.0), mean_error(0.0), prim_RMS(0.0), sec_RMS(0.0), RMS_error(0.0);
-  if (temp->GetEntries() != 0.0) {
-    mean = temp->GetMean();
-    prim_RMS = temp->GetRMS();
-    mean_error = temp->GetMeanError();
-    RMS_error = temp->GetRMSError();
-    if (width == "iterative_convergence") {
-      sec_RMS = prim_RMS + 1.0;
-      unsigned int withinLoopLimit(10);
-      while ((std::fabs(sec_RMS - prim_RMS) > 0.001) and (--withinLoopLimit)) {
-        prim_RMS = temp->GetRMS();
-        double aymin = -3.0 * prim_RMS;
-        double aymax = 3.0 * prim_RMS;
-        if (aymin < temp->GetBinLowEdge(1)) {
-          aymin = temp->GetBinLowEdge(1);
-        }
-        if (aymax > temp->GetBinCenter(temp->GetNbinsX())) {
-          aymax = temp->GetBinCenter(temp->GetNbinsX());
-        }
-        temp->SetAxisRange(aymin, aymax);
-        mean = temp->GetMean();
-        sec_RMS = temp->GetRMS();
-      }
-      //ATH_MSG_INFO("Final loop limit count: "<<loopLimit);
-      if (not withinLoopLimit) ATH_MSG_WARNING("Loop limit reached in <<iterative>> refinement of resolution");
-      mean_error = temp->GetMeanError();
-      RMS_error = temp->GetRMSError();
-    } else if (width == "gaussian") {
-      TFitResultPtr r = temp->Fit("gaus", "QS0");
-      if (r.Get() and r->Status() % 1000 == 0) {
-        mean = r->Parameter(1);
-        mean_error = r->ParError(1);
-        sec_RMS = r->Parameter(2);
-        RMS_error = r->ParError(2);
-      }
-    } else if (width == "fusion") {
-      sec_RMS = prim_RMS + 1.0;
-      double aymin = temp->GetBinLowEdge(1);
-      double aymax = temp->GetBinCenter(temp->GetNbinsX());
-      unsigned int withinLoopLimit(10);
-      while ((std::fabs(sec_RMS - prim_RMS) > 0.001) and (--withinLoopLimit)) {
-        prim_RMS = temp->GetRMS();
-        aymin = -3.0 * prim_RMS;
-        aymax = 3.0 * prim_RMS;
-        if (aymin < temp->GetBinLowEdge(1)) {
-          aymin = temp->GetBinLowEdge(1);
-        }
-        if (aymax > temp->GetBinCenter(temp->GetNbinsX())) {
-          aymax = temp->GetBinCenter(temp->GetNbinsX());
-        }
-        temp->SetAxisRange(aymin, aymax);
-        mean = temp->GetMean();
-        sec_RMS = temp->GetRMS();
-      }
-      //ATH_MSG_INFO("Final loop limit count: "<<loopLimit);
-      if (not withinLoopLimit) ATH_MSG_WARNING("Loop limit reached in <<fusion>> refinement of resolution");
-      TFitResultPtr r = temp->Fit("gaus", "QS0", "", aymin, aymax);
-      if (r.Get() and r->Status() % 1000 == 0) {
-        mean = r->Parameter(1);
-        mean_error = r->ParError(1);
-        sec_RMS = r->Parameter(2);
-        RMS_error = r->ParError(2);
-      }
-    }
-  }
-  (tvec[var])->SetBinContent(j, mean);
-  (tvec[var])->SetBinError(j, mean_error);
-  (rvec[var])->SetBinContent(j, sec_RMS);
-  (rvec[var])->SetBinError(j, RMS_error);
+
+  m_getMeanWidth.setResults(temp, p_method);
+  // print out any warnings and errors
+  for (auto _it : m_getMeanWidth.getInfos())
+    ATH_MSG_INFO(_it);
+  for (auto _it : m_getMeanWidth.getWarnings())
+    ATH_MSG_WARNING(_it);
+  for (auto _it : m_getMeanWidth.getErrors())
+    ATH_MSG_ERROR(_it);
+  // RMS and RMSerror
+  (rvec[var])->SetBinContent(j, m_getMeanWidth.getRMS());
+  (rvec[var])->SetBinError(j, m_getMeanWidth.getRMSError());
+  // mean and meanerror
+  (tvec[var])->SetBinContent(j, m_getMeanWidth.getMean());
+  (tvec[var])->SetBinError(j, m_getMeanWidth.getMeanError());
 }
 
 void
 InDetPerfPlot_res::finalizePlots() {
-  // switch for changing between iterative convergence & gaussian fit methods
-  // iterative convergence with 3*RMS works better than 5*RMS
-  std::string width_method = "iterative_convergence";
-  std::string pull_width_method = "gaussian";
   unsigned int ptBins(0);
   if (m_mean_vs_ptbasePlots[0]) {
     ptBins = m_mean_vs_ptPlots[0]->GetNbinsX();
@@ -452,21 +396,46 @@ InDetPerfPlot_res::finalizePlots() {
   }
   for (unsigned int var(0); var != NPARAMS; ++var) {
     if (m_meanPlots[var]) {
+      // warnings in case input histograms have large % events in under- and over- flow bins
+      std::vector< std::pair<unsigned int,double> > warnUOBinEtaRes;
+      std::vector< std::pair<unsigned int,double> > warnUOBinEtaPull;
+      std::vector< std::pair<unsigned int,double> > warnUOBinPtRes;
+      
       unsigned int etaBins = m_meanPlots[var]->GetNbinsX();
       auto& meanbasePlot = m_meanbasePlots[var];
       auto& pullbasePlot = m_pullbasePlots[var];
       for (unsigned int j = 1; j <= etaBins; j++) {
-        // Create dummy histo w/ content from TH2 in relevant eta bin
-        TH1D* temp = meanbasePlot->ProjectionY(Form("%s_projy_bin%d", "Big_Histo", j), j, j);
+        // Create dummy histo w/ content from TH2 in relevant eta bin		
+        TH1D* temp = meanbasePlot->ProjectionY(Form("%s_projy_bin%d", "Big_Histo", j), j, j);	 
         TH1D* temp_pull = pullbasePlot->ProjectionY(Form("%s_projy_bin%d", "Pull_Histo", j), j, j);
-        Refinement(temp, width_method, var, j, m_meanPlots, m_resoPlots);
-        Refinement(temp_pull, pull_width_method, var, j, m_pullmeanPlots, m_pullwidthPlots);
+        Refinement(temp, m_meanWidthMethod, var, j, m_meanPlots, m_resoPlots);
+	if (m_getMeanWidth.getFracUOflow()>0.)
+	  warnUOBinEtaRes.push_back(std::make_pair(j,m_getMeanWidth.getFracUOflow()));
+	Refinement(temp_pull, m_meanWidthMethod, var, j, m_pullmeanPlots, m_pullwidthPlots);
+	if (m_getMeanWidth.getFracUOflow()>0.)
+	  warnUOBinEtaPull.push_back(std::make_pair(j,m_getMeanWidth.getFracUOflow()));
+      }
+      // print warnings in case of under- and over- flows
+      if (!warnUOBinEtaRes.empty()) {
+	ATH_MSG_WARNING(m_getMeanWidth.reportUOBinVal(m_meanPlots[var]->GetName(),warnUOBinEtaRes));
+	ATH_MSG_WARNING(m_getMeanWidth.reportUOBinVal(m_resoPlots[var]->GetName(),warnUOBinEtaRes));
+      }
+      if (!warnUOBinEtaPull.empty()) {
+	ATH_MSG_WARNING(m_getMeanWidth.reportUOBinVal(m_pullmeanPlots[var]->GetName(),warnUOBinEtaPull));
+	ATH_MSG_WARNING(m_getMeanWidth.reportUOBinVal(m_pullwidthPlots[var]->GetName(),warnUOBinEtaPull));
       }
       auto& mean_vs_ptbasePlot = m_mean_vs_ptbasePlots[var];
       for (unsigned int i = 1; i <= ptBins; i++) {
         TH1D* temp = mean_vs_ptbasePlot->ProjectionY(Form("%s_projy_bin%d", "Big_Histo", i), i, i);
-        Refinement(temp, width_method, var, i, m_mean_vs_ptPlots, m_resptPlots);
+        Refinement(temp, m_meanWidthMethod, var, i, m_mean_vs_ptPlots, m_resptPlots);
+	if (m_getMeanWidth.getFracUOflow()>0.)
+	  warnUOBinPtRes.push_back(std::make_pair(i,m_getMeanWidth.getFracUOflow()));
+      }
+      // print warnings in case of under- and over- flows
+      if (!warnUOBinPtRes.empty()) {
+	ATH_MSG_WARNING(m_getMeanWidth.reportUOBinVal(m_mean_vs_ptPlots[var]->GetName(),warnUOBinPtRes));
+	ATH_MSG_WARNING(m_getMeanWidth.reportUOBinVal(m_resptPlots[var]->GetName(),warnUOBinPtRes));
       }
     }
   }
-}
+}// end of InDetPerfPlot_res::finalizePlots()

@@ -13,7 +13,7 @@
 #include "TrkTruthTPCnv/TrackTruthKey_p0.h"
 #include "TrkTruthTPCnv/DetailedTrackTruth_p0.h"
 //#include "TrkTrack/TrackCollection.h"
-#include "DataModel/DataLink.h"
+#include "AthLinks/DataLink.h"
 #include "CLIDSvc/CLASS_DEF.h"
 
 #include <map>

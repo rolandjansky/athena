@@ -115,6 +115,7 @@
 #include "dqm_algorithms/MDTTubeCheck.h"
 #include "dqm_algorithms/MDTTubeCheckError.h"
 #include "dqm_algorithms/MaskedBinRow.h"
+#include "dqm_algorithms/MaximumBin.h"
 #include "dqm_algorithms/ModuleStatus_All_Bins_Filled.h"
 #include "dqm_algorithms/No_OverFlows.h"
 #include "dqm_algorithms/No_UnderFlows.h"

@@ -49,8 +49,8 @@ public:
 
 
 /**
- * @brief Exception --- Attempt to set DataLink / ElementLink with CLID <clid>
- *                      to object with CLID <clid>.
+ * @brief Exception --- Attempt to set DataLink / ElementLink with CLID \<clid\>
+ *                      to object with CLID \<clid\>.
  *
  *
  * The object being assigned to a link doesn't match the link's

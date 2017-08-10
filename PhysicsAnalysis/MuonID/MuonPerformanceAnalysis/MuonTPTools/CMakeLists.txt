@@ -9,7 +9,7 @@ atlas_subdir( MuonTPTools )
 atlas_depends_on_subdirs(
    PUBLIC
    Control/AthToolSupport/AsgTools
-   DataQuality/GoodRunsLists
+   PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
    Event/xAOD/xAODBase
    Event/xAOD/xAODEventInfo
    Event/xAOD/xAODMuon
@@ -48,7 +48,7 @@ find_package( ROOT COMPONENTS Core Tree MathCore Physics )
 atlas_add_component( MuonTPTools
    MuonTPTools/*.h src/*.cxx Root/*.cxx src/components/*.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools GoodRunsListsLib xAODBase
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODBase
    xAODMuon xAODPrimitives xAODTracking IsolationSelectionLib
    JetSelectorToolsLib MuonEfficiencyCorrectionsLib MuonPerformanceHistUtils
    MuonSelectorToolsLib ICaloTrkMuIdTools RecoToolInterfaces TrkParameters

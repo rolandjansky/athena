@@ -32,8 +32,8 @@ eflowLayerIntegrator::eflowLayerIntegrator(double stdDev, double error, double r
     m_rMax(rMaxOverStdDev * stdDev),
     m_allClustersIntegral(eflowCalo::nRegions, 0.0),
     m_nUnitCellPerWindowOverCellEtaPhiArea(eflowCalo::nRegions),
-    m_integrator(new eflowCellIntegrator<0>(stdDev, error)),
-    m_integratorLookup(new eflowCellIntegrator<1>(stdDev, error)) {
+    m_integrator(std::make_unique<eflowCellIntegrator<0> >(stdDev, error)),
+    m_integratorLookup(std::make_unique<eflowCellIntegrator<1> >(stdDev, error)) {
   eflowDatabase database;
 
   /* Set up density conversion factors */
@@ -56,35 +56,38 @@ eflowLayerIntegrator::eflowLayerIntegrator(double stdDev, double error, double r
   }
 }
 
-eflowLayerIntegrator::eflowLayerIntegrator(const eflowLayerIntegrator& anEFlowLayerIntegrator){
-  m_rMax = anEFlowLayerIntegrator.m_rMax;
-  m_allClustersIntegral =  anEFlowLayerIntegrator.m_allClustersIntegral;
-  m_nUnitCellPerWindowOverCellEtaPhiArea = anEFlowLayerIntegrator.m_nUnitCellPerWindowOverCellEtaPhiArea;
-  m_integrator = new eflowCellIntegrator<0>(*anEFlowLayerIntegrator.m_integrator);
-  m_integratorLookup = new eflowCellIntegrator<1>(*anEFlowLayerIntegrator.m_integratorLookup);
+eflowLayerIntegrator::eflowLayerIntegrator(const eflowLayerIntegrator& originalEflowLayerIntegrator){
+  m_rMax = originalEflowLayerIntegrator.m_rMax;
+  m_allClustersIntegral =  originalEflowLayerIntegrator.m_allClustersIntegral;
+  m_nUnitCellPerWindowOverCellEtaPhiArea = originalEflowLayerIntegrator.m_nUnitCellPerWindowOverCellEtaPhiArea;
+  m_integrator = std::make_unique<eflowCellIntegrator<0> >(*originalEflowLayerIntegrator.m_integrator);
+  m_integratorLookup = std::make_unique<eflowCellIntegrator<1> >(*originalEflowLayerIntegrator.m_integratorLookup);
 
   for (int i = 0; i < eflowCalo::nRegions; i++){
-    m_densityConversion[i] = anEFlowLayerIntegrator.m_densityConversion[i];
-    m_nUnitCellPerWindowOverCellEtaPhiArea[i] = anEFlowLayerIntegrator.m_nUnitCellPerWindowOverCellEtaPhiArea[i];
+    m_densityConversion[i] = originalEflowLayerIntegrator.m_densityConversion[i];
+    m_nUnitCellPerWindowOverCellEtaPhiArea[i] = originalEflowLayerIntegrator.m_nUnitCellPerWindowOverCellEtaPhiArea[i];
   }
 }
 
-void eflowLayerIntegrator::operator=(const eflowLayerIntegrator& anEFlowLayerIntegrator){
-  m_rMax = anEFlowLayerIntegrator.m_rMax;
-  m_allClustersIntegral =  anEFlowLayerIntegrator.m_allClustersIntegral;
-  m_nUnitCellPerWindowOverCellEtaPhiArea = anEFlowLayerIntegrator.m_nUnitCellPerWindowOverCellEtaPhiArea;
-  m_integrator = new eflowCellIntegrator<0>(*anEFlowLayerIntegrator.m_integrator);
-  m_integratorLookup = new eflowCellIntegrator<1>(*anEFlowLayerIntegrator.m_integratorLookup);
+eflowLayerIntegrator& eflowLayerIntegrator::operator=(const eflowLayerIntegrator& originalEflowLayerIntegrator){
+  if (this == &originalEflowLayerIntegrator) return *this;
+  //if not assigning to self, then we copy the data to the new object
+  else {
+    m_rMax = originalEflowLayerIntegrator.m_rMax;
+    m_allClustersIntegral =  originalEflowLayerIntegrator.m_allClustersIntegral;
+    m_nUnitCellPerWindowOverCellEtaPhiArea = originalEflowLayerIntegrator.m_nUnitCellPerWindowOverCellEtaPhiArea;
+    m_integrator = std::make_unique<eflowCellIntegrator<0> >(*originalEflowLayerIntegrator.m_integrator);
+    m_integratorLookup = std::make_unique<eflowCellIntegrator<1> >(*originalEflowLayerIntegrator.m_integratorLookup);
 
-  for (int i = 0; i < eflowCalo::nRegions; i++){
-    m_densityConversion[i] = anEFlowLayerIntegrator.m_densityConversion[i];
-    m_nUnitCellPerWindowOverCellEtaPhiArea[i] = anEFlowLayerIntegrator.m_nUnitCellPerWindowOverCellEtaPhiArea[i];
-  }
+    for (int i = 0; i < eflowCalo::nRegions; i++){
+      m_densityConversion[i] = originalEflowLayerIntegrator.m_densityConversion[i];
+      m_nUnitCellPerWindowOverCellEtaPhiArea[i] = originalEflowLayerIntegrator.m_nUnitCellPerWindowOverCellEtaPhiArea[i];
+    }
+    return *this;
+  }//if not assigning to self, then we have copied the data to the new object
 }
 
 eflowLayerIntegrator::~eflowLayerIntegrator() {
-  delete m_integrator;
-  delete m_integratorLookup;
 }
 
 void eflowLayerIntegrator::resetAllClustersIntegralForNewTrack(const eflowTrackCaloPoints& trackCalo) {

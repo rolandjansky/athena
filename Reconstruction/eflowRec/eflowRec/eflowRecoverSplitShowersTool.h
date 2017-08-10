@@ -67,8 +67,6 @@ class eflowRecoverSplitShowersTool : virtual public eflowISubtractionAlgTool, pu
 
 private:
 
-  int m_debug;
-
   eflowCaloObjectContainer* m_eflowCaloObjectContainer;
   std::vector<eflowRecCluster*> m_clustersToConsider;
   std::vector<eflowRecTrack*> m_tracksToRecover;
@@ -82,8 +80,8 @@ private:
   /** Track-Cluster matching tool */
   ToolHandle<PFTrackClusterMatchingTool> m_matchingTool;
 
-  eflowEEtaBinnedParameters* m_binnedParameters;
-  eflowLayerIntegrator* m_integrator;
+  std::unique_ptr<eflowEEtaBinnedParameters> m_binnedParameters;
+  std::unique_ptr<eflowLayerIntegrator> m_integrator;
 
   double m_subtractionSigmaCut;
 

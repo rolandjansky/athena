@@ -53,7 +53,7 @@ namespace Muon {
 						      bool updatePhi=false, double momentum ) =0;      
       @endcode
       The boolean updatePhi is used to determine whether the predicted phi measurement should be used to update the 
-      $\phi$ coordinate of the segment or whether the center of the tube should be used.
+      @f$ \phi @f$ coordinate of the segment or whether the center of the tube should be used.
 
       It is recommended but not required that users implement all interfaces.
       Currently the following implementations of the interface exist:
@@ -103,7 +103,7 @@ namespace Muon {
 	@param mdts a vector of Muon::MdtDriftCircleOnTrack obejcts
 	@param clusters a vector of Muon::MuonClusterOnTrack obejcts
 	@param updatePhi a boolean to indicate whether the external prediction should be used to set the 
-                                 $\phi$-direction of the segment
+                                 @f$ \phi @f$-direction of the segment
         @param momentum for low momentum tracks the segment finders may increase the errors on the measurements
                         to allow for multiple scattering			       
 
@@ -121,7 +121,7 @@ namespace Muon {
 	@param mdts a vector of Muon::MdtDriftCircleOnTrack obejcts
 	@param clusters a vector of Muon::MuonClusterOnTrack obejcts
 	@param updatePhi a boolean to indicate whether the external prediction should be used to set the 
-                                 $\phi$-direction of the segment
+                                 @f$ \phi @f$-direction of the segment
         @param momentum for low momentum tracks the segment finders may increase the errors on the measurements
                         to allow for multiple scattering			       
 

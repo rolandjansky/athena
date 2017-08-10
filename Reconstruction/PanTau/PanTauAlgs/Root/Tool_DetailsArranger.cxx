@@ -499,7 +499,7 @@ StatusCode PanTau::Tool_DetailsArranger::arrangePFOLinks(PanTau::PanTauSeed2* in
 
 
 // Calculate final 4-vector:
-void PanTau::Tool_DetailsArranger::SetHLVTau( PanTau::PanTauSeed2* inSeed, xAOD::TauJet* tauJet, std::string inputAlg, std::string m_varTypeName_Basic){
+void PanTau::Tool_DetailsArranger::SetHLVTau( PanTau::PanTauSeed2* inSeed, xAOD::TauJet* tauJet, std::string inputAlg, std::string varTypeName_Basic){
 
     std::vector< ElementLink< xAOD::PFOContainer > > finalChrgPFOLinks       = tauJet->chargedPFOLinks();
     std::vector< ElementLink< xAOD::PFOContainer > > finalPi0PFOLinks        = tauJet->pi0PFOLinks();
@@ -530,10 +530,10 @@ void PanTau::Tool_DetailsArranger::SetHLVTau( PanTau::PanTauSeed2* inSeed, xAOD:
     inSeed->setFinalMomentum(tlv_PanTau_Final);
 
     PanTau::TauFeature2* featureMap = inSeed->getFeatures();
-    featureMap->addFeature(inputAlg + "_" + m_varTypeName_Basic + "_FinalMomentumCore_pt", tlv_PanTau_Final.Pt() );
-    featureMap->addFeature(inputAlg + "_" + m_varTypeName_Basic + "_FinalMomentumCore_eta", tlv_PanTau_Final.Eta() );
-    featureMap->addFeature(inputAlg + "_" + m_varTypeName_Basic + "_FinalMomentumCore_phi", tlv_PanTau_Final.Phi() );
-    featureMap->addFeature(inputAlg + "_" + m_varTypeName_Basic + "_FinalMomentumCore_m", tlv_PanTau_Final.M() );
+    featureMap->addFeature(inputAlg + "_" + varTypeName_Basic + "_FinalMomentumCore_pt", tlv_PanTau_Final.Pt() );
+    featureMap->addFeature(inputAlg + "_" + varTypeName_Basic + "_FinalMomentumCore_eta", tlv_PanTau_Final.Eta() );
+    featureMap->addFeature(inputAlg + "_" + varTypeName_Basic + "_FinalMomentumCore_phi", tlv_PanTau_Final.Phi() );
+    featureMap->addFeature(inputAlg + "_" + varTypeName_Basic + "_FinalMomentumCore_m", tlv_PanTau_Final.M() );
 
     return;
 

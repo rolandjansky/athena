@@ -50,12 +50,9 @@ public:
     virtual const std::string & cavernInfraVersionOverride() const =0;
     virtual const std::string & forwardDetectorsVersionOverride() const =0;
     
-    virtual bool geoInitialized() const = 0;
-
     virtual GeoModel::GeoConfig geoConfig() const = 0;
 
     // Callback functions
-    virtual StatusCode geoInit     (IOVSVC_CALLBACK_ARGS) = 0;
     virtual StatusCode align       (IOVSVC_CALLBACK_ARGS) = 0;
     virtual StatusCode compareTags (IOVSVC_CALLBACK_ARGS) = 0;
 

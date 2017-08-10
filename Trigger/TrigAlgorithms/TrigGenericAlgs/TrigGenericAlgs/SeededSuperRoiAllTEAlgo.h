@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: HLT Steering
  * @Package: TrigGenericAlgs
- * @Class  : SeededSuperRoiAllTEAlgo
+ * @class  : SeededSuperRoiAllTEAlgo
  *
  * @brief : PESA algorithm that runs on all given input TE types, ie this is a so-called AllTEAlgo !
  *          This algorithms is a copy or original test algorithm

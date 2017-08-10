@@ -16,10 +16,10 @@ namespace InDet
  {
   if ( m_extrapolator.retrieve().isFailure() ) 
   {                              
-   msg(MSG::ERROR) << "Failed to retrieve tool " << m_extrapolator << endreq;
+   msg(MSG::ERROR) << "Failed to retrieve tool " << m_extrapolator << endmsg;
    return StatusCode::FAILURE;                                                  
   } else {                                                                       
-   msg(MSG::INFO) << "Retrieved tool " << m_extrapolator << endreq;
+   msg(MSG::INFO) << "Retrieved tool " << m_extrapolator << endmsg;
   }                
  
   return StatusCode::SUCCESS;
@@ -28,7 +28,7 @@ namespace InDet
 
  StatusCode InDetTrackZ0SortingTool::finalize()
  {
-  msg(MSG::INFO)  << "Finalize successful" << endreq;
+  msg(MSG::INFO)  << "Finalize successful" << endmsg;
   return StatusCode::SUCCESS;
  }//end of finalize method
   
@@ -79,7 +79,7 @@ namespace InDet
       delete perigee;
       perigee=0;
     }
-   }else msg(MSG::WARNING)<<"This track particle has no perigee state. Not egligible for sorting. Will NOT be written to the sorted vector"<<endreq;
+   }else msg(MSG::WARNING)<<"This track particle has no perigee state. Not egligible for sorting. Will NOT be written to the sorted vector"<<endmsg;
    ++j;
   }//end of loop over all the tracks
  
@@ -127,7 +127,7 @@ namespace InDet
     }
     
    }else{
-    msg(MSG::WARNING)  << "This track particle has no perigee state. Not egligible for sorting. Will NOT be written to the sorted vector" << endreq;
+    msg(MSG::WARNING)  << "This track particle has no perigee state. Not egligible for sorting. Will NOT be written to the sorted vector" << endmsg;
 //    no_perigee.push_back(j);
    }//end of perigee existance check
    ++j;
@@ -176,7 +176,7 @@ namespace InDet
 	    perigee =0;
 	    
 	  }else{
-	  msg(MSG::WARNING)  << "This track particle has no perigee state. Not egligible for sorting. Will NOT be written to the sorted vector" << endreq;
+	  msg(MSG::WARNING)  << "This track particle has no perigee state. Not egligible for sorting. Will NOT be written to the sorted vector" << endmsg;
 	  //    no_perigee.push_back(j);
 	}//end of perigee existance check
 	++j;

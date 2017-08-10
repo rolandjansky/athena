@@ -451,7 +451,7 @@ const std::vector< const Trk::CylinderLayer* >* InDet::SiLayerBuilder::cylindric
               if (zbin <  layerZboundaries[layerCounter].size()-1) 
                  msg(MSG::DEBUG) << ", ";
           }
-          msg(MSG::DEBUG) << endreq;           
+          msg(MSG::DEBUG) << endmsg;           
       }
       // prepare the right overlap descriptor       
       Trk::OverlapDescriptor* olDescriptor = 0;

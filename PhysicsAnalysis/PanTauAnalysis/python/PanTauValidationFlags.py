@@ -2,7 +2,7 @@
 
 ##
 ## @file PanTauAnalysis/python/PanTauValidationFlags.py
-## @purpose Python module to hold common flags to configure PanTau validation
+## @brief Python module to hold common flags to configure PanTau validation
 ##
 
 """ PanTauValidationFlags

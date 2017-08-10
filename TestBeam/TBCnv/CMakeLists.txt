@@ -18,7 +18,7 @@ atlas_depends_on_subdirs(
    Event/EventInfo
    GaudiKernel
    LArCalorimeter/LArIdentifier
-   LArCalorimeter/LArTools
+   LArCalorimeter/LArCabling
    TestBeam/TBEvent
    PRIVATE
    DetectorDescription/Identifier
@@ -34,7 +34,7 @@ atlas_add_library( TBCnvLib
    INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
    LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} CaloIdentifier AthenaBaseComps
    ByteStreamData EventInfo GaudiKernel LArIdentifier TBEvent StoreGateLib
-   ByteStreamCnvSvcLib ByteStreamCnvSvcBaseLib LArToolsLib
+   ByteStreamCnvSvcLib ByteStreamCnvSvcBaseLib LArCablingLib
    PRIVATE_LINK_LIBRARIES Identifier LArRawEvent )
 
 atlas_add_component( TBCnv

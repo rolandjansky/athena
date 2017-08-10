@@ -34,7 +34,7 @@ class G4AffineTransform;
    *  @author Wolfgang Ehrenfeld, University of Hamburg, Germany
    *  @author Sasha Glazov, DESY Hamburg, Germany
    *
-   * @version \$Id: TestActionShowerLib.h 797404 2017-02-15 19:01:55Z sfarrell $
+   * @version \$Id: TestActionShowerLib.h 780759 2016-10-27 13:48:04Z pavol $
    *
    */
 

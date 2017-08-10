@@ -5,29 +5,32 @@
 #ifndef MCTRUTHALGS_TRACKRECORDFILTER_H
 #define MCTRUTHALGS_TRACKRECORDFILTER_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
-// particle table
-#include "HepPDT/ParticleDataTable.hh"
 
+// the TrackRecordCollection
+#include "TrackRecord/TrackRecordCollection.h"
 
 #include <string>
 
-class StoreGateSvc;
-class TrackRecordFilter : public AthAlgorithm {
+namespace HepPDT{
+   class ParticleDataTable;
+}
+
+class TrackRecordFilter : public AthReentrantAlgorithm {
 
 
 public:
   TrackRecordFilter (const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~TrackRecordFilter(){};
 
-  StatusCode initialize();
-  StatusCode finalize();
-  StatusCode execute();
+  StatusCode initialize() override;
+  StatusCode finalize() override;
+  StatusCode execute_r(const EventContext& ctx) const override;
 
 private:
-  std::string m_inputName;
-  std::string m_outputName;
+  SG::ReadHandleKey<TrackRecordCollection> m_inputKey;
+  SG::WriteHandleKey<TrackRecordCollection> m_outputKey;
   double m_cutOff;
   const HepPDT::ParticleDataTable* m_pParticleTable;
 };

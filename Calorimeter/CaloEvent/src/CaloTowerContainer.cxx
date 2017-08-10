@@ -28,7 +28,7 @@ Updated:  Feb 5, 2001    (HMa)
 #include "CaloEvent/CaloTowerSeg.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #ifdef CALOTOWERCONTAINER_USES_DATAPOOL
-#include "DataModel/DataPool.h"
+#include "AthAllocators/DataPool.h"
 #endif
 
 #include <utility>

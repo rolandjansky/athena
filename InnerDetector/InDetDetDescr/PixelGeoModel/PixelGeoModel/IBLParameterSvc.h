@@ -12,7 +12,8 @@
 
 #ifndef PIXELGEOMODEL_IBLPARAMETERSVC_H
 #define PIXELGEOMODEL_IBLPARAMETERSVC_H
- 
+
+#include "PixelGeoModel/IIBLParameterSvc.h" 
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/Service.h"
@@ -24,17 +25,20 @@ class IRDBAccessSvc;
 
 static const InterfaceID IID_IIBLParameterSvc("IBLParameterSvc",1,0); 
 
-class IBLParameterSvc : public AthService,virtual public IInterface {
-
+class IBLParameterSvc
+  : public extends<AthService, IIBLParameterSvc>
+{
 public:
  // Standard Constructor
     IBLParameterSvc(const std::string& name, ISvcLocator* svc);
    // Standard Destructor
     virtual ~IBLParameterSvc();
   
-    virtual StatusCode initialize();
-    virtual StatusCode finalize();
-    virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvIf );	
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
+    // Can get rid of these once all clients are using IIBLParameterSvc
+    // rather than IBLParameterSvc.
+    virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvIf ) override;
     static const InterfaceID& interfaceID();
     bool containsIBL();
     bool contains3D();
@@ -53,19 +57,21 @@ public:
 	if (m_IBLpresent) {
 		columnsPerFE=std::vector<int>(1);
 		rowsPerFE=std::vector<int>(1);
-		columnsPerFE[0]=LayerColumnsPerFE;
-		rowsPerFE[0]=LayerRowsPerFE;
+		columnsPerFE[0]=m_LayerColumnsPerFE;
+		rowsPerFE[0]=m_LayerRowsPerFE;
 		FEsPerHalfModule.clear();
-		FEsPerHalfModule.push_back(LayerFEsPerHalfModule);
+		FEsPerHalfModule.push_back(m_LayerFEsPerHalfModule);
 		if (m_DBMpresent) {
-			if (DBMColumnsPerFE) *DBMColumnsPerFE=LayerColumnsPerFE;
-			if (DBMRowsPerFE) *DBMRowsPerFE=LayerRowsPerFE;
-			if (DBMFEsPerHalfModule) *DBMFEsPerHalfModule=LayerFEsPerHalfModule_3d ? LayerFEsPerHalfModule_3d : LayerFEsPerHalfModule_planar;
+			if (DBMColumnsPerFE) *DBMColumnsPerFE=m_LayerColumnsPerFE;
+			if (DBMRowsPerFE) *DBMRowsPerFE=m_LayerRowsPerFE;
+			if (DBMFEsPerHalfModule) *DBMFEsPerHalfModule=m_LayerFEsPerHalfModule_3d ? m_LayerFEsPerHalfModule_3d : m_LayerFEsPerHalfModule_planar;
 		}
 	}
     }
 
-    void setBoolParameters(bool &param,std::string paramName) {
+    virtual
+    void setBoolParameters(bool& param, const std::string& paramName) override
+    {
 	if (m_IBLpresent) {
 	     if (m_disablePixMapCondDB && paramName=="UsePixMapCondDB") param=false;
 	     if (m_disableSpecialPixels && paramName=="EnableSpecialPixels") param=false;
@@ -82,8 +88,8 @@ protected:
            
 private:
 bool m_IBLpresent,m_DBMpresent;
-int LayerColumnsPerFE,LayerRowsPerFE,LayerFEsPerHalfModule_planar,LayerFEsPerHalfModule_3d,layout;
-std::vector<int> LayerFEsPerHalfModule;
+int m_LayerColumnsPerFE,m_LayerRowsPerFE,m_LayerFEsPerHalfModule_planar,m_LayerFEsPerHalfModule_3d,m_layout;
+std::vector<int> m_LayerFEsPerHalfModule;
 
 ServiceHandle< IGeoDbTagSvc > m_geoDbTagSvc;
 ServiceHandle< IRDBAccessSvc > m_rdbAccessSvc;  
@@ -99,10 +105,10 @@ StatusCode setIblParameters();
 };
 
 inline bool IBLParameterSvc::containsIBL() {return m_IBLpresent;}
-inline bool IBLParameterSvc::contains3D() {return LayerFEsPerHalfModule_3d>0;}
+inline bool IBLParameterSvc::contains3D() {return m_LayerFEsPerHalfModule_3d>0;}
 inline bool IBLParameterSvc::containsDBM() {return m_DBMpresent;}
 
 inline const InterfaceID& IBLParameterSvc::interfaceID(){
-	return IID_IIBLParameterSvc;
+       return IID_IIBLParameterSvc;
 }
 #endif

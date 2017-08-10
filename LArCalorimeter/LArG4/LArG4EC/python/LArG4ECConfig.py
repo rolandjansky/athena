@@ -107,6 +107,3 @@ def getEMECBackOuterBarretteCorrOffCalculator(name="EMECBackOuterBarretteCorrOff
 def getEMECPresamplerCalculator(name="EMECPresamplerCalculator", **kwargs):
     return CfgMgr.LArEndcapPresamplerCalculator(name, **kwargs)
 
-def getEMECPresamplerGeometry(name="EMECPresamplerGeometry", **kwargs):
-    return CfgMgr.LArG4__EC__PresamplerGeometry(name, **kwargs)
-

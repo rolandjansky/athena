@@ -21,8 +21,8 @@ class ALFA_SimHitsTestTool : public SimTestToolBase {
 
   // ALFA test histograms
 
-  TH2 *hit_map_h[8], *E_layer_sum_h[8];
-  TH1 *E_full_sum_h[8];
+  TH2 *m_hit_map_h[8], *m_E_layer_sum_h[8];
+  TH1 *m_E_full_sum_h[8];
 
 };
 

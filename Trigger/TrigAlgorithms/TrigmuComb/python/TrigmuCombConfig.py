@@ -2,6 +2,7 @@
 
 from TrigmuComb.TrigmuCombConf import *
 from TrigmuComb.TrigmuCombMonitoring import *
+from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.AppMgr import ServiceMgr
 from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
@@ -38,6 +39,14 @@ class TrigmuCombConfig (muComb):
           self.UseBackExtrapolatorG4 = False
 
       self.MinPtTRK = 0.
+
+      self.WinEtaSigma_g4 = 7.0
+      self.WinPhiSigma_g4 = 7.0
+      self.Chi2Weight_g4  = 2.0
+      if TriggerFlags.run2Config=='2016':
+        self.WinEtaSigma_g4 = 4.0
+        self.WinPhiSigma_g4 = 4.0
+        self.Chi2Weight_g4  = 1.0
 
       if globalflags.DetDescrVersion().find('CSC')!=-1:
         self.IDSCANBarrelRes  = [0.02169,0.0004186]

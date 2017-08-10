@@ -24,7 +24,6 @@ class TrigCountTrtHitsHypo: public HLT::HypoAlgo {
   HLT::ErrorCode checkDetectorMask();
   Bool_t m_hltExecuteInitialisationRun; //!< Flag to run extra initialisation on the first event when xAOD::EventInfo is present
 
-  MsgStream m_log;
   bool m_acceptAll;
 
   /** detector mask flags */

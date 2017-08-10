@@ -5,7 +5,7 @@
 
 @page xAODPFlow_page xAODPFlow package
 
-@author Michel Janus <janus@cern.h>
+@author Michel Janus <janus@cern.ch>
 
 $Revision: 577912 $
 $Date: 2014-01-11 14:31:58 +0100 (Sat, 11 Jan 2014) $

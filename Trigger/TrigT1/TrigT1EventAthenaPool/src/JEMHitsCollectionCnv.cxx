@@ -16,7 +16,7 @@ JEMHitsCollection_PERS * JEMHitsCollectionCnv::createPersistent( JEMHitsCollecti
   
   MsgStream mlog(msgSvc(), "JEMHitsCollectionConverter" );
 
-  //mlog << MSG::DEBUG << "JEMHitsCollectionCnv::createPersistent called" << endreq;
+  //mlog << MSG::DEBUG << "JEMHitsCollectionCnv::createPersistent called" << endmsg;
 
   JEMHitsCollection_PERS * p_TTColl = m_TPConverter_tlp1.createPersistent( transObj, mlog );
  
@@ -30,7 +30,7 @@ JEMHitsCollection * JEMHitsCollectionCnv::createTransient()
 {
   MsgStream mlog(msgSvc(), "JEMHitsCollectionConverter" );
   
-  //mlog << MSG::DEBUG << "JEMHitsCollectionCnv::createTransient called" << endreq;
+  //mlog << MSG::DEBUG << "JEMHitsCollectionCnv::createTransient called" << endmsg;
 
   static pool::Guid tlp1_guid( "A9D89195-219E-4F33-9B19-4684639CCA5B" );
  

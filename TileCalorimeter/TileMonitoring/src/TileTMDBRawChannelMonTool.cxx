@@ -591,26 +591,3 @@ int TileTMDBRawChannelMonTool::tilemodule_to_check(int sector){
  
   return module;
 } // End of tilemoudle_to_check
-
-
-/*---------------------------------------------------------*/
-void TileTMDBRawChannelMonTool::fillTMDBThresholds() {
-/*---------------------------------------------------------*/
-
-  for (unsigned int drawer = 0; drawer < TileCalibUtils::MAX_DRAWER; ++drawer) {
-    unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(3, drawer);
-    for (int iThreshold = 0; iThreshold < 4; ++iThreshold) {
-      m_thre_a[4 * drawer + iThreshold] = m_tileToolTMDB->getThreshold(drawerIdx, (TMDB::THRESHOLD) iThreshold);
-      std::cout << "m_thre_a[" << 4 * drawer + iThreshold << "] = " << m_thre_a[4 * drawer + iThreshold] << std::endl;
-    }
-  }
-  
-  for (unsigned int drawer = 0; drawer < TileCalibUtils::MAX_DRAWER; ++drawer) {
-    unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(4, drawer);
-    for (int iThreshold = 0; iThreshold < 4; ++iThreshold) {
-      m_thre_c[4 * drawer + iThreshold] = m_tileToolTMDB->getThreshold(drawerIdx, (TMDB::THRESHOLD) iThreshold);
-      std::cout << "m_thre_c[" << 4 * drawer + iThreshold << "] = " << m_thre_a[4 * drawer + iThreshold] << std::endl;
-    }
-  }
-
-}

@@ -21,11 +21,11 @@ TRTUtilities::TRTUtilities() : m_msg("TRTUtilities")
 
   printMessages = pParameters->GetInteger("PrintMessages");
 
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTUtilities" << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTUtilities" << endmsg;
 
   pOutputFile = NULL;
 
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTUtilities done" << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTUtilities done" << endmsg;
 }
 
 
@@ -33,11 +33,11 @@ TRTUtilities::TRTUtilities() : m_msg("TRTUtilities")
 
 TRTUtilities::~TRTUtilities()
 {
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "####### Destructor TRTUtilities" << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "####### Destructor TRTUtilities" << endmsg;
 
   pUtilities = NULL;
 
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "####### Destructor TRTUtilities done" << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "####### Destructor TRTUtilities done" << endmsg;
 }
 
 

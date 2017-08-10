@@ -1,6 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
 exec python -tx "$0" "$@"
+
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ## @file clid_unittest.py
 # @brief Unit tests for clidGenerator

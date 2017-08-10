@@ -18,7 +18,7 @@
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloGeoHelpers/CaloSampling.h"
 #include "CaloClusterCorrection/CaloFillRectangularCluster.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 
 #include <vector>
 #include <string>

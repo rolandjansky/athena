@@ -20,9 +20,7 @@ namespace xAOD {
 typedef CaloRingsAuxContainer_v1 CaloRingsAuxContainer;
 } // namespace xAOD
 
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
+#include "xAODCore/CLASS_DEF.h"
 CLASS_DEF( xAOD::CaloRingsAuxContainer , 1133975188 , 1 )
-#endif
 
 #endif // XAODCALORINGS_CALORINGSAUXCONTAINER_H

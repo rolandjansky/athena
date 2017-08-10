@@ -192,7 +192,7 @@ void TrigT2HistoPrmVtxBase::IPCorr(float d0, float z0, float& d0c, float& z0c, f
     d0c = d0 + m_xBeamSpot*sn - m_yBeamSpot*cs;
     
     if(m_xBeamSpot != 0 && m_yBeamSpot != 0 && m_logLvl <= MSG::DEBUG)
-      m_log << MSG::DEBUG << "d0 (shifted) = " << d0c << " , d0 (referred to origin) = " << d0 << endreq;
+      m_log << MSG::DEBUG << "d0 (shifted) = " << d0c << " , d0 (referred to origin) = " << d0 << endmsg;
   } else {
 
     double rc = fabs(pt)*15.0/(9.0*1.042);
@@ -201,7 +201,7 @@ void TrigT2HistoPrmVtxBase::IPCorr(float d0, float z0, float& d0c, float& z0c, f
     double yc = (fabs(d0)-spt*sd0*rc)*sin(phi0+M_PI/2*sd0) - m_yBeamSpot;
     
     if(m_xBeamSpot != 0 && m_yBeamSpot != 0 && m_logLvl <= MSG::DEBUG)
-      m_log << MSG::DEBUG << "Coordinates of the circle center in transverse plane = (" << xc << "," << yc << ")" << endreq;
+      m_log << MSG::DEBUG << "Coordinates of the circle center in transverse plane = (" << xc << "," << yc << ")" << endmsg;
 
     double newphi;
     double xd01,yd01,xd02,yd02;
@@ -243,9 +243,9 @@ void TrigT2HistoPrmVtxBase::IPCorr(float d0, float z0, float& d0c, float& z0c, f
     z0c = z0 + deltaz0;
 
     if(m_xBeamSpot != 0 && m_yBeamSpot != 0 && m_logLvl <= MSG::DEBUG)
-      m_log << MSG::DEBUG << "z0 (shifted) = " << z0c << " , z0 (referred to origin) = " << z0 << endreq;
+      m_log << MSG::DEBUG << "z0 (shifted) = " << z0c << " , z0 (referred to origin) = " << z0 << endmsg;
     if(m_xBeamSpot != 0 && m_yBeamSpot != 0 && m_logLvl <= MSG::DEBUG)
-      m_log << MSG::DEBUG << "d0 (shifted) = " << d0c << " , d0 (referred to origin) = " << d0 << endreq;
+      m_log << MSG::DEBUG << "d0 (shifted) = " << d0c << " , d0 (referred to origin) = " << d0 << endmsg;
   }
 
 }
@@ -259,8 +259,8 @@ bool TrigT2HistoPrmVtxBase::efTrackSel(const xAOD::TrackParticle*& track, unsign
 
     if (fabs(track->eta()-eta) > 0.2) {
       if (m_logLvl <= MSG::VERBOSE) {
-	m_log << MSG::VERBOSE << "efTrackSel method" << endreq;
-	m_log << MSG::VERBOSE << "  Track number " << i+1 << " is not selected (eta matching)" << endreq;
+	m_log << MSG::VERBOSE << "efTrackSel method" << endmsg;
+	m_log << MSG::VERBOSE << "  Track number " << i+1 << " is not selected (eta matching)" << endmsg;
       }
 
       m_listCutApplied.push_back(0);
@@ -269,8 +269,8 @@ bool TrigT2HistoPrmVtxBase::efTrackSel(const xAOD::TrackParticle*& track, unsign
 
     if (fabs(phiCorr(phiCorr(track->phi())-phiCorr(phi))) > 0.2) {
       if (m_logLvl <= MSG::VERBOSE) {
-	m_log << MSG::VERBOSE << "efTrackSel method" << endreq;
-	m_log << MSG::VERBOSE << "  Track number " << i+1 << " is not selected (phi matching)" << endreq;
+	m_log << MSG::VERBOSE << "efTrackSel method" << endmsg;
+	m_log << MSG::VERBOSE << "  Track number " << i+1 << " is not selected (phi matching)" << endmsg;
       }
 
       m_listCutApplied.push_back(1);
@@ -302,26 +302,26 @@ bool TrigT2HistoPrmVtxBase::efTrackSel(const xAOD::TrackParticle*& track, unsign
 //     IPCorr(track->d0(),track->z0(),d0,z0,track->phi(),track->eta(), pT);
 
   if (m_logLvl <= MSG::VERBOSE) {
-    m_log << MSG::VERBOSE << "efTrackSel method" << endreq;
-    m_log << MSG::VERBOSE << "  Track number " << i+1 << " to be selected must be:" << endreq;
-    m_log << MSG::VERBOSE << "    Pt    " << fabs(pT) << " >= " << m_efTrkSelPt << endreq;
-    m_log << MSG::VERBOSE << "    d0    " << fabs(d0) << " <= " << m_efTrkSelD0 << endreq;
-    m_log << MSG::VERBOSE << "    bLayer " << (int)nBlay << " >= " << m_efTrkSelBLayer << endreq;
-    m_log << MSG::VERBOSE << "    pixelHit " << (int)nPix << " >= " << m_efTrkSelPixHits << endreq; 
-    m_log << MSG::VERBOSE << "    SiHit " << nSi << " >= " << m_efTrkSelSiHits << endreq;
-    m_log << MSG::VERBOSE << "    Prob(chi2) " << TMath::Prob(track->chiSquared(), (int)nSi*3-5) << " > " << m_efTrkSelChi2 << endreq;
+    m_log << MSG::VERBOSE << "efTrackSel method" << endmsg;
+    m_log << MSG::VERBOSE << "  Track number " << i+1 << " to be selected must be:" << endmsg;
+    m_log << MSG::VERBOSE << "    Pt    " << fabs(pT) << " >= " << m_efTrkSelPt << endmsg;
+    m_log << MSG::VERBOSE << "    d0    " << fabs(d0) << " <= " << m_efTrkSelD0 << endmsg;
+    m_log << MSG::VERBOSE << "    bLayer " << (int)nBlay << " >= " << m_efTrkSelBLayer << endmsg;
+    m_log << MSG::VERBOSE << "    pixelHit " << (int)nPix << " >= " << m_efTrkSelPixHits << endmsg; 
+    m_log << MSG::VERBOSE << "    SiHit " << nSi << " >= " << m_efTrkSelSiHits << endmsg;
+    m_log << MSG::VERBOSE << "    Prob(chi2) " << TMath::Prob(track->chiSquared(), (int)nSi*3-5) << " > " << m_efTrkSelChi2 << endmsg;
   }
 
   if (fabs(pT) < m_efTrkSelPt) {
     if (m_logLvl <= MSG::VERBOSE)
-      m_log << MSG::VERBOSE << "    track is not selected (pT cut)" << endreq;
+      m_log << MSG::VERBOSE << "    track is not selected (pT cut)" << endmsg;
 
     m_listCutApplied.push_back(2);
     return false;
   }
   if (fabs(d0) > m_efTrkSelD0) {
     if (m_logLvl <= MSG::VERBOSE)
-      m_log << MSG::VERBOSE << "    track is not selected (d0 cut)" << endreq;
+      m_log << MSG::VERBOSE << "    track is not selected (d0 cut)" << endmsg;
 
     m_listCutApplied.push_back(3);
     return false;
@@ -329,35 +329,35 @@ bool TrigT2HistoPrmVtxBase::efTrackSel(const xAOD::TrackParticle*& track, unsign
   //  if (nBlay < m_efTrkSelBLayer) {
   if (expBL && (nBlay < m_efTrkSelBLayer) ){
     if (m_logLvl <= MSG::VERBOSE)
-      m_log << MSG::VERBOSE << "    track is not selected (missing b-layer hit)" << endreq;
+      m_log << MSG::VERBOSE << "    track is not selected (missing b-layer hit)" << endmsg;
 
     m_listCutApplied.push_back(4);
     return false;
   }
   if (nPix < m_efTrkSelPixHits) {
     if (m_logLvl <= MSG::VERBOSE)
-      m_log << MSG::VERBOSE << "    track is not selected (too few pixel hits)" << endreq;
+      m_log << MSG::VERBOSE << "    track is not selected (too few pixel hits)" << endmsg;
 
     m_listCutApplied.push_back(5);
     return false;
   }
   if (nSi < m_efTrkSelSiHits) {
     if (m_logLvl <= MSG::VERBOSE)
-      m_log << MSG::VERBOSE << "    track is not selected (too few silicon hits)" << endreq;
+      m_log << MSG::VERBOSE << "    track is not selected (too few silicon hits)" << endmsg;
 
     m_listCutApplied.push_back(6);
     return false;
   }
   if (TMath::Prob(track->chiSquared(), (int)nSi*3-5) <= m_efTrkSelChi2) {
     if (m_logLvl <= MSG::VERBOSE)
-      m_log << MSG::VERBOSE << "    track is not selected (chi2 cut)" << endreq;
+      m_log << MSG::VERBOSE << "    track is not selected (chi2 cut)" << endmsg;
 
     m_listCutApplied.push_back(7);
     return false;
   }
   
   if (m_logLvl <= MSG::VERBOSE)
-    m_log << MSG::VERBOSE << "    track is selected" << endreq;
+    m_log << MSG::VERBOSE << "    track is selected" << endmsg;
 
   m_listCutApplied.push_back(8);
   return true;
@@ -377,7 +377,7 @@ void TrigT2HistoPrmVtxBase::findPrmVtx() {
   nVtxFound=0;
 
   if (m_logLvl <= MSG::DEBUG)
-    m_log << MSG::DEBUG << "Finding primary vertex candidates:" << " histogram with "  << m_hisVtx->getNBin() << " bins" << endreq;      
+    m_log << MSG::DEBUG << "Finding primary vertex candidates:" << " histogram with "  << m_hisVtx->getNBin() << " bins" << endmsg;      
 
   for (int j=0; j<3; j++) {
     val=0;
@@ -400,7 +400,7 @@ void TrigT2HistoPrmVtxBase::findPrmVtx() {
 
     if (m_logLvl <= MSG::VERBOSE) {
       m_log << MSG::VERBOSE << " maxVal[" << j << "] = " << maxVal[j] 
-	       << " pos[" << j << "] = " << pos[j] << endreq;
+	       << " pos[" << j << "] = " << pos[j] << endmsg;
     }
 
     for (int i = pos[j]; i < (pos[j]+m_nBins); i++) {

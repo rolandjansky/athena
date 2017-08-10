@@ -10,7 +10,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGateSvc.h" 
 
-#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandFlat.h"
 
 #include "CaloEvent/CaloCellContainer.h"

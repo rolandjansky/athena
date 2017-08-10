@@ -42,6 +42,10 @@
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
 
+#include "StoreGate/ReadHandleKey.h"
+#include "CommissionEvent/ComTime.h"
+#include "xAODEventInfo/EventInfo.h"
+
 class Identifier;
 class PixelID;
 class SCT_ID;
@@ -124,7 +128,7 @@ private:
 
   const SCT_ID*   m_pSCTHelper;
   const InDetDD::SCT_DetectorManager*   m_pManager;
-  std::string m_TrackName;
+  SG::ReadHandle<TrackCollection> m_TrackName;
   IChronoStatSvc * m_chrono;
   const TrackCollection * m_tracks; 
   Trk::TrackSummaryTool* m_TrackSum;
@@ -150,7 +154,7 @@ private:
   UInt_t m_maxTracks;
 
   std::string m_path;
-  std::string m_sctContainerName;
+  SG::ReadHandleKey<InDet::SCT_ClusterContainer> m_sctContainerName;
 
 
   Bool_t m_insideOutOnly;
@@ -287,6 +291,9 @@ private:
   const PixelID * m_pixelId;
   const SCT_ID * m_sctId;
   const TRT_ID * m_trtId;
+
+  SG::ReadHandleKey<ComTime> m_comTimeName;
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey;
 
   /**Convert a layer/disk number (0-21) to a bec index (0,1,2) according to position of that layer
    * Numbering is counter-intuitive, would expect C then B then A; in fact the original ordering was A, C, B

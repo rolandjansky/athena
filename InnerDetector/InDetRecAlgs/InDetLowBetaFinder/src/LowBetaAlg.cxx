@@ -72,10 +72,10 @@ namespace InDet
   // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
   StatusCode LowBetaAlg::initialize(){    
 
-    if (msgLvl(MSG::INFO)) msg() << "initialize()" << endreq;
+    if (msgLvl(MSG::INFO)) msg() << "initialize()" << endmsg;
 
     if (m_fieldServiceHandle.retrieve().isFailure()){
-      if (msgLvl(MSG::WARNING)) msg()  << "Could not find " << m_fieldServiceHandle << endreq;
+      if (msgLvl(MSG::WARNING)) msg()  << "Could not find " << m_fieldServiceHandle << endmsg;
       return( StatusCode::SUCCESS );
     }
 
@@ -105,7 +105,7 @@ namespace InDet
   // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
   StatusCode LowBetaAlg::execute() {
 
-    if (msgLvl(MSG::DEBUG)) msg() << "execute()" << endreq; 
+    if (msgLvl(MSG::DEBUG)) msg() << "execute()" << endmsg; 
 
     std::vector<float> CSMP_indicators;
     InDet::InDetLowBetaContainer*  myInDetLowBetaContainer = new InDet::InDetLowBetaContainer;
@@ -121,7 +121,7 @@ namespace InDet
 	//if ( evtStore()->retrieve ( trackTES, m_tracksName ).isFailure() )
 	if (evtStore()->retrieve(trackTES, m_trackParticleCollection).isFailure()) 
 	  {
-	    if (msgLvl(MSG::WARNING)) msg() << "Could not find TrackParticleCollection " << m_trackParticleCollection << " in StoreGate." << endreq;
+	    if (msgLvl(MSG::WARNING)) msg() << "Could not find TrackParticleCollection " << m_trackParticleCollection << " in StoreGate." << endmsg;
 	  }
 	else{
 	
@@ -178,7 +178,7 @@ namespace InDet
     //---- Recording section: write the results to StoreGate ---//
     if ( evtStore()->record ( myInDetLowBetaContainer, m_InDetLowBetaOutputName,false ).isFailure() )
       {
-	if (msgLvl(MSG::ERROR)) msg() << "Unable to record InDetLowBeta Container in TDS" << endreq;
+	if (msgLvl(MSG::ERROR)) msg() << "Unable to record InDetLowBeta Container in TDS" << endmsg;
 	return StatusCode::FAILURE;
       }
     
@@ -187,7 +187,7 @@ namespace InDet
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
   StatusCode LowBetaAlg::finalize() {
-    if (msgLvl(MSG::INFO)) msg() << "finalize()" << endreq;
+    if (msgLvl(MSG::INFO)) msg() << "finalize()" << endmsg;
     finalizeTrtToolBetaLiklihood();
     return StatusCode::SUCCESS;
   }
@@ -295,12 +295,12 @@ namespace InDet
     double trk_z0   = parameterVector[Trk::z0];
     
     if (tan(theta/2.0) < 0.0001) {
-      if (msgLvl(MSG::DEBUG)) msg() <<"  Track has negative theta or is VERY close to beampipe! (tan(theta/2) < 0.0001) " << endreq;
+      if (msgLvl(MSG::DEBUG)) msg() <<"  Track has negative theta or is VERY close to beampipe! (tan(theta/2) < 0.0001) " << endmsg;
       return Discriminators; // to allow RVO 
     }
 
     if (qOverP == 0.0) {
-      if (msgLvl(MSG::DEBUG)) msg() << "  Track momentum infinite! (i.e. q/p = 0) " << endreq;
+      if (msgLvl(MSG::DEBUG)) msg() << "  Track momentum infinite! (i.e. q/p = 0) " << endmsg;
       return Discriminators; // to allow RVO 
     }
     else pTrk = fabs(1.0 / qOverP);
@@ -698,7 +698,7 @@ namespace InDet
       HighTbits  = -999;
       dEdx       = -999.;
       tegap = -999.0;
-      if (msgLvl(MSG::WARNING)) msg() << "No TRT Bitpattern found for some straws"<< endreq;
+      if (msgLvl(MSG::WARNING)) msg() << "No TRT Bitpattern found for some straws"<< endmsg;
     }
     else if (m_TrtToolInitSuccess)
       {

@@ -607,7 +607,7 @@ bool MagField::MagFieldTestbedAlg::checkWithReference() {
 			std::setprecision(20)
 					<< "1) biggest absolute difference in the mag field comparison: "
 					<< biggestAbsDiff << " (tolerance: " << m_absTolerance
-					<< ")." << endreq << "2) biggest relative difference: "
+					<< ")." << endmsg << "2) biggest relative difference: "
 					<< biggestRelDiff << " (tolerance: " << m_relTolerance
 					<< ")" << std::setprecision(-1));
 

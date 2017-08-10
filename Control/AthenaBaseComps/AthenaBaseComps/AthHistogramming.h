@@ -15,7 +15,7 @@
 #include <string>
 #include <map>
 
-// FrameWork includes
+// Framework includes
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "AthenaBaseComps/AthCheckMacros.h"

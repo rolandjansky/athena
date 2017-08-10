@@ -6,7 +6,7 @@
  *
  * @Project: Trigger
  * @Package: TrigParticleTPCnv
- * @Class  : TrigL2BjetCnv_p2
+ * @class  : TrigL2BjetCnv_p2
  *
  * @brief transient-persistent converter for TrigL2Bjet
  *

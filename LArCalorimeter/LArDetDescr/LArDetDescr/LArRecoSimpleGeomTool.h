@@ -15,14 +15,12 @@
 #include "CaloDetDescr/ICaloRecoSimpleGeomTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
+#include "RDBAccessSvc/IRDBAccessSvc.h"
 
 class IMessageSvc;
 class LArDetDescrManager;
 class StoreGateSvc;
 
-class IRDBAccessSvc;
-class IRDBRecordset;
-class IRDBRecord;
 class IGeoModelSvc;
 
 //<<<<<< INCLUDES >>>>>>
@@ -93,12 +91,12 @@ private:
   IRDBAccessSvc* m_iAccessSvc;
   const IGeoModelSvc* m_geoModelSvc;
 
-  const IRDBRecordset* m_recCryoCyl;
-  const IRDBRecordset* m_recPresGeo;
-  const IRDBRecordset* m_recBarrGeo;
-  const IRDBRecordset* m_recPresPos;
-  const IRDBRecordset* m_EmecGeo;
-  const IRDBRecordset* m_HEC;
+  IRDBRecordset_ptr m_recCryoCyl;
+  IRDBRecordset_ptr m_recPresGeo;
+  IRDBRecordset_ptr m_recBarrGeo;
+  IRDBRecordset_ptr m_recPresPos;
+  IRDBRecordset_ptr m_EmecGeo;
+  IRDBRecordset_ptr m_HEC;
 
   std::string m_tag;
   std::string m_node;

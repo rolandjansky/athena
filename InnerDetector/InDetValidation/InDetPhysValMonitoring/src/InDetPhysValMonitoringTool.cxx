@@ -85,6 +85,8 @@ namespace { // utility functions used here
     return energy * 0.001;
   }
 
+  constexpr float twoPi = 2 * M_PI;
+
   // general utility function to check value is in range
   template <class T>
   inline bool
@@ -241,6 +243,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
   ATH_MSG_DEBUG("Filling vertex plots");
   const xAOD::VertexContainer* pvertex = getContainer<xAOD::VertexContainer>(m_vertexContainerName);
   const xAOD::Vertex* pvtx = nullptr;
+
   if (pvertex and not pvertex->empty()) {
     ATH_MSG_DEBUG("Number of vertices retrieved for this event " << pvertex->size());
     const auto& stdVertexContainer = pvertex->stdcont();
@@ -417,17 +420,19 @@ InDetPhysValMonitoringTool::fillHistograms() {
     const xAOD::TruthParticle* thisTruth = truthParticlesVec[itruth];
     m_monPlots->fillSpectrum(*thisTruth);
 
-    if (thisTruth->pdgId() == 22) {
-      if (thisTruth->nParents() == 0) {
-        m_monPlots->prim_photon_fill(*thisTruth);
-      } else {
-        m_monPlots->brem_photon_fill(*thisTruth);
+    if(debugBacktracking){
+      if (thisTruth->pdgId() == 22) {
+	if (thisTruth->nParents() == 0) {
+	  m_monPlots->prim_photon_fill(*thisTruth);
+	} else {
+	  m_monPlots->brem_photon_fill(*thisTruth);
+	}
       }
     }
 
     const bool accept = m_truthSelectionTool->accept(thisTruth);
     if (accept) {
-      ++m_truthCounter; // total number of truth tracks which pass cuts
+      ++m_truthCounter;     // total number of truth tracks which pass cuts
       ++num_truth_selected; // total number of truth which pass cuts per event
       const float absTruthEta = std::abs(safelyGetEta(thisTruth));
       const unsigned int idx = binIndex(absTruthEta, ETA_PARTITIONS);
@@ -440,22 +445,8 @@ InDetPhysValMonitoringTool::fillHistograms() {
 
       if (debugBacktracking) {
         float lepton_w(0);
-        std::cout << "Barcode: " << thisTruth->barcode() << "\n";
-        std::cout << "PDGId: " << thisTruth->pdgId() << "\n";
-        std::cout << "Number of Parents: " << thisTruth->nParents() << "\n";
-
-        if (thisTruth->hasProdVtx()) {
-          const xAOD::TruthVertex* vtx = thisTruth->prodVtx();
-          double prod_rad = vtx->perp();
-          double prod_z = vtx->z();
-          std::cout << "Vertex Radial Position: " << prod_rad << "\n";
-          std::cout << "Vertex z Position: " << prod_z << "\n";
-        }
         double Px = thisTruth->px();
         double Py = thisTruth->py();
-        std::cout << "Px: " << Px << "\n";
-        std::cout << "Py: " << Py << "\n";
-        std::cout << "Pz: " << thisTruth->pz() << "\n";
         constexpr int electronId = 11;
         if (thisTruth->absPdgId() == electronId) {
           double PtSquared = (Px * Px) + (Py * Py);
@@ -464,55 +455,84 @@ InDetPhysValMonitoringTool::fillHistograms() {
           }
         }
         m_monPlots->lepton_fill(*thisTruth, lepton_w);
-      }// end of debugging backtracking section
-
-      if(debugBacktracking){
 	if(thisTruth->hasProdVtx()){
 	  const xAOD::TruthVertex* vtx = thisTruth->prodVtx();
 	  double prod_rad = vtx->perp();
-	  if(prod_rad < 300){
+	  if(prod_rad < 600){
+	    int truth_id = thisTruth->pdgId();
+	    double truth_charge = thisTruth->charge();
+	    double truth_pt = thisTruth->pt() * 0.001;
 	    double min_dR = 10;
 	    float bestmatch = 0;
-	    double best_inverse_delta_pt(0);
-	    double inverse_delta_pt(0);
+	    double best_inverse_delta_pt(10);
+	    double inverse_delta_pt(10);
+	    
+	    std::cout<<"Han: this Truth has an ID of: "<<truth_id<<"\n";
 	    for(const auto& thisTrack: selectedTracks){
-	      float prob(0);
-	      if((thisTrack->qOverP()) * (thisTruth->auxdata<float>("qOverP")) > 0){
-		prob = getMatchingProbability(*thisTrack);
-		double track_theta = thisTrack->theta();
-		double truth_theta = thisTruth->auxdata< float >("theta");
-		double truth_eta = thisTruth->eta();
-		double track_eta = -std::log(std::tan(track_theta/2));
-		
-		double track_pt = thisTrack->pt() * 0.001;
-		double truth_pt = thisTruth->pt() * 0.001;
-	      
-		if((track_pt != 0) and (truth_pt != 0))  inverse_delta_pt = ((1./track_pt) - (1./truth_pt));
+	      double track_charge = thisTrack->charge();
+	      double track_pt = thisTrack->pt() * 0.001;
+	      float prob = getMatchingProbability(*thisTrack);
+	      double charge_product = truth_charge * track_charge;
 
-		double delta_eta = track_eta - truth_eta;
-		double delta_theta = track_theta - truth_theta;
-		double delta_R = sqrt(delta_eta * delta_eta + delta_theta * delta_theta);
-		if(min_dR > delta_R) min_dR = delta_R;
+	      if(charge_product == 1){
+		//fill the plots we want
+		if(prob > bestmatch){
+		  bestmatch = prob;
+		  double track_theta = thisTrack->theta();
+		  double truth_eta = thisTruth->eta();                                                                                                                           
+		  double track_eta = -std::log(std::tan(track_theta/2));                                                                                                               
+		  double track_phi = thisTrack->phi();                                                                                                                              
+		  double truth_phi = thisTruth->auxdata< float >("phi");
+		  if(track_phi < 0) track_phi += twoPi;
+		  if(truth_phi < 0) truth_phi += twoPi;
+
+		  if((track_pt != 0) and (truth_pt != 0))  inverse_delta_pt = ((1./track_pt) - (1./truth_pt));
+
+		  double delta_phi = track_phi - truth_phi;                                                                                                                            
+		  double delta_eta = track_eta - truth_eta;                                                                                                                       
+		  double delta_R = sqrt(delta_eta * delta_eta + delta_phi * delta_phi);
+		  if(delta_R < min_dR){
+		    min_dR = delta_R;
+		    best_inverse_delta_pt = inverse_delta_pt;
+		  }
+		}
 	      }
-	      if(prob >= bestmatch) best_inverse_delta_pt = inverse_delta_pt;
-	      bestmatch = std::max(prob, bestmatch);
+	    }// End of TrackParticle loop
+	    if(bestmatch < 0.50){
+	      if(prod_rad < 300){
+		for(const auto& thisTrack: selectedTracks){
+		  double charge_product = truth_charge * (thisTrack->charge());
+		  std::cout<<"(Sub-three) Charge_Product: "<<charge_product<<" TMP: "<<getMatchingProbability(*thisTrack)<<" \n";
+		}
+	      }else{
+		for(const auto& thisTrack: selectedTracks){
+                  double charge_product = truth_charge * (thisTrack->charge());
+		  std::cout<<"(Sub-six) Charge_Product: "<<charge_product<<" TMP: "<<getMatchingProbability(*thisTrack)<<" \n";
+                }
+	      }
 	    }
-	    m_monPlots->minDR(min_dR, prod_rad, bestmatch, best_inverse_delta_pt);
+	    m_monPlots->minDR(min_dR, prod_rad, bestmatch, best_inverse_delta_pt, truth_pt);
 	  }
 	}
-      }
+      } // End of debugBackTracking section
 
       std::vector <std::pair<float, const xAOD::TrackParticle*> > matches; // Vector of pairs:
                                                                            // <truth_matching_probability, track> if
                                                                            // prob > minProbEffLow (0.5)
       float bestMatch = 0;
+      float truth_charge = thisTruth->charge();
       for (const auto& thisTrack: selectedTracks) { // Inner loop over selected track particles
         const xAOD::TruthParticle* associatedTruth = getAsTruth.getTruth(thisTrack);
         if (associatedTruth && associatedTruth == thisTruth) {
           float prob = getMatchingProbability(*thisTrack);
+	  float track_charge = thisTrack->charge();
+	  float charge_product = truth_charge * track_charge;
           if (not std::isnan(prob)) {
             bestMatch = std::max(prob, bestMatch);
             if (prob > minProbEffLow) {
+	      if(debugBacktracking){
+		if(charge_product != 1) std::cout<<"Nested_Loop CP is: "<<charge_product<<" \n";
+	      }
               matches.push_back(std::make_pair(prob, thisTrack));
             }
             const bool isFake = (prob < minProbEffLow);

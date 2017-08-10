@@ -40,7 +40,7 @@ GeoAlignableTransform::GeoAlignableTransform (const HepGeom::Transform3D &Transf
   //## begin GeoAlignableTransform::GeoAlignableTransform%3CDE1FCE0285.initialization preserve=yes
   :
 GeoTransform (Transform),
-m_delta (NULL)
+m_delta (nullptr)
   //## end GeoAlignableTransform::GeoAlignableTransform%3CDE1FCE0285.initialization
 {
   //## begin GeoAlignableTransform::GeoAlignableTransform%3CDE1FCE0285.body preserve=yes
@@ -112,7 +112,7 @@ void GeoAlignableTransform::clearDelta ()
   std::set<GeoGraphNode*> uniqueParents;
 
   delete m_delta;
-  m_delta = NULL;
+  m_delta = nullptr;
   for (size_t p = 0; p < m_parentList.size (); p++)
     {
       GeoGraphNode* parent = m_parentList[p];

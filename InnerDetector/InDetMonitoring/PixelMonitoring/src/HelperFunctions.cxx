@@ -61,8 +61,8 @@ int PixelMainMon :: GetPixLayerID(int ec, int ld, bool ibl)
 int PixelMainMon :: GetPixLayerIDDBM(int ec, int ld, bool ibl)
 {
    int layer = 99;
-   if(ec==2) layer = PixLayerDBM::kECA0 + ld;
-   else if(ec==-2) layer = PixLayerDBM::kECC0 + ld;
+   if(ec==2) layer = PixLayerDBM::kECA;
+   else if(ec==-2) layer = PixLayerDBM::kECC;
    else if(ec==0) {
       if(ibl && ld==0) layer = PixLayerDBM::kIBL;
       if(ld==0+ibl) layer = PixLayerDBM::kB0;
@@ -484,7 +484,6 @@ int PixelMainMon::ParseDetailsString(std::string & detailsMod)
 
 bool PixelMainMon :: GetFEID( int pixlayer, int phiid, int etaid, int &oufephi, int &outfeeta)
 {
-   bool dodebug = false;
    bool isValid = true;
    int npixPerFe_phi, npixPerFe_eta;
    if( pixlayer == PixLayer::kECA || pixlayer == PixLayer::kECC) {
@@ -500,6 +499,5 @@ bool PixelMainMon :: GetFEID( int pixlayer, int phiid, int etaid, int &oufephi, 
    }
    oufephi = phiid/npixPerFe_phi;
    outfeeta= etaid/npixPerFe_eta;
-   if(dodebug) std::cout << "pix phi id=" << phiid << "==> fe:" << oufephi << "  pix eta id=" << etaid << "==> fe:" << outfeeta << std::endl;
    return isValid;
 }

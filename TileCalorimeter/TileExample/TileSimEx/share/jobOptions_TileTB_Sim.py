@@ -58,8 +58,12 @@ from AtlasGeoModel import GeoModelInit
 
 #--- Simulation flags -----------------------------------------
 from G4AtlasApps.SimFlags import simFlags
+if 'VP1' in dir():
+    simFlags.ReleaseGeoModel=False
 
 if not 'Geo' in dir():
+    # TileCal standalone setup with 2 barrels and 1 ext.barrel on top
+    #Geo = '2B1EB'
     # TileCal standalone setup with 2 barrels and 2 ext.barrels on top
     #Geo = '2B2EB'
     # TileCal standalone setup with 3 barrels
@@ -173,9 +177,9 @@ if not 'E' in dir():
 if not 'Ybeam' in dir():
     Ybeam=[-20,20]
 if not 'Zbeam' in dir():
-    Zbeam=[-15,15]
+    Zbeam=[-20,20]
 pg.sampler.pid = PID
-pg.sampler.pos = PG.PosSampler(x=-27500, y=Ybeam, z=Zbeam, t=-27500)
+pg.sampler.pos = PG.PosSampler(x=-27500, y=Ybeam, z=Zbeam, t=[-25000,-17500])
 pg.sampler.mom = PG.EEtaMPhiSampler(energy=E, eta=0, phi=0)
 
 topSeq += pg
@@ -190,8 +194,11 @@ except:
         from EvgenProdTools.EvgenProdToolsConf import CopyEventWeight
         topSeq += CopyEventWeight()
 
-from AthenaCommon.CfgGetter import getAlgorithm
-topSeq += getAlgorithm("BeamEffectsAlg")
+try:
+    from AthenaCommon.CfgGetter import getAlgorithm
+    topSeq += getAlgorithm("BeamEffectsAlg")
+except:
+    print "can not import BeamEffectsAlg algorithm"
 
 #--- Geant4 flags ---------------------------------------------
 
@@ -200,6 +207,7 @@ topSeq += getAlgorithm("BeamEffectsAlg")
 #simFlags.PhysicsList.set_Value('QGSP_BERT_EMV')
 #simFlags.PhysicsList.set_Value('QGSP_BERT')
 #simFlags.PhysicsList.set_Value('FTFP_BERT')
+#simFlags.PhysicsList.set_Value('FTFP_BERT_ATL_VALIDATION')
 
 ## Use verbose G4 tracking
 if 'VerboseTracking' in dir():
@@ -221,5 +229,10 @@ if 'RangeCut' in dir():
 ## Populate alg sequence
 from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
 topSeq += PyG4AtlasAlg()
+
+## VP1 algorithm for visualization
+if 'VP1' in dir():
+    from VP1Algs.VP1AlgsConf import VP1Alg
+    topSeq += VP1Alg()
 
 #--- End of jobOptions_TileTB_Sim.py --------------------------

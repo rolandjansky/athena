@@ -11,11 +11,11 @@ using namespace std;
 //----------------------------------------------------------------------------//
 CMROCompare::CMROCompare(MatrixReadOut *h, MatrixReadOut *s)
                          : BaseObject(Hardware,"CMROCompare") {
-hardware=h;
-simulation=s;
-diffOutput=0; 
+m_hardware=h;
+m_simulation=s;
+m_diffOutput=0; 
 //
-// diffOutput= 0             no differences
+// m_diffOutput= 0             no differences
 // 1 1 1 1 1 1 1 1 1 1 
 // ^ ^ ^ ^ ^ ^ ^ ^ ^ ^
 // | | | | | * * * * * --- number of record in Body that shows the first discrepancy
@@ -40,15 +40,15 @@ compareFoot();
 }//end-of-CMROCompare::compare()
 //----------------------------------------------------------------------------//
 void CMROCompare::compareHead() {
-ubit16 hardHeader=hardware->readHeader();
-ubit16 simuHeader=simulation->readHeader();
-if(hardHeader!=simuHeader) diffOutput+=1000000000;
+ubit16 hardHeader=m_hardware->readHeader();
+ubit16 simuHeader=m_simulation->readHeader();
+if(hardHeader!=simuHeader) m_diffOutput+=1000000000;
 }//end-of-compareHead
 //----------------------------------------------------------------------------//
 void CMROCompare::compareSubh() {
-ubit16 hardSubHeader=hardware->readSubHeader();
-ubit16 simuSubHeader=simulation->readSubHeader();
-if(hardSubHeader!=simuSubHeader) diffOutput+=100000000;
+ubit16 hardSubHeader=m_hardware->readSubHeader();
+ubit16 simuSubHeader=m_simulation->readSubHeader();
+if(hardSubHeader!=simuSubHeader) m_diffOutput+=100000000;
 }//end-of-compareSubh
 //----------------------------------------------------------------------------//
 void CMROCompare::compareBody() {
@@ -56,26 +56,26 @@ bool FragmentOK=true;
 bool firstDiff=true;
 
 DISP<<" ora stampo la matrice hardware"<<endl
-    <<hardware<<endl;
+    <<m_hardware<<endl;
 DISP_DEBUG;
 DISP<<" ora stampo la matrice simulata"<<endl
-    <<simulation<<endl;
+    <<m_simulation<<endl;
 DISP_DEBUG;
 
-ubit16 numberOfBodyRecHard = hardware->numberOfBodyWords();
-ubit16 numberOfBodyRecSimu = simulation->numberOfBodyWords();
+ubit16 numberOfBodyRecHard = m_hardware->numberOfBodyWords();
+ubit16 numberOfBodyRecSimu = m_simulation->numberOfBodyWords();
 if(numberOfBodyRecHard!=numberOfBodyRecSimu) {
  FragmentOK=false;
- diffOutput+=1000000;
+ m_diffOutput+=1000000;
  DISP<<" CMROCompare: different number of body words "<<endl
      <<"   hardware: "<<numberOfBodyRecHard
      <<"   simulation: "<<numberOfBodyRecSimu<<endl;
  DISP_DEBUG;
 } else {
-  hardware->topCMABody(); simulation->topCMABody();
+  m_hardware->topCMABody(); m_simulation->topCMABody();
  for(ubit16 i=0; i<numberOfBodyRecHard; i++) {
-  ubit16 hardRec=hardware->readCMABodyCurrent();
-  ubit16 simuRec=simulation->readCMABodyCurrent();
+  ubit16 hardRec=m_hardware->readCMABodyCurrent();
+  ubit16 simuRec=m_simulation->readCMABodyCurrent();
   if(hardRec!=simuRec){
    FragmentOK=false;
    DISP<<" CMROCompare: different body words "
@@ -84,9 +84,9 @@ if(numberOfBodyRecHard!=numberOfBodyRecSimu) {
    DISP_DEBUG;
    if(firstDiff) {
     if(i<50000) 
-     diffOutput+=100000+(i+1);
+     m_diffOutput+=100000+(i+1);
     else
-     diffOutput+=150000;
+     m_diffOutput+=150000;
     firstDiff=false;
    }
   }//end-of-if
@@ -102,8 +102,8 @@ if(FragmentOK) {
 }//end-of-CMROCompare::compareBody()
 //----------------------------------------------------------------------------//
 void CMROCompare::compareFoot() {
-ubit16 hardFooter=hardware->readFooter();
-ubit16 simuFooter=simulation->readFooter();
-if(hardFooter!=simuFooter) diffOutput+=10000000;
+ubit16 hardFooter=m_hardware->readFooter();
+ubit16 simuFooter=m_simulation->readFooter();
+if(hardFooter!=simuFooter) m_diffOutput+=10000000;
 }//end-of-compareFoot
 //----------------------------------------------------------------------------//

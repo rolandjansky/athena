@@ -97,9 +97,6 @@ if __name__ == "__main__":
     print "## importing ROOT..."
     import ROOT
     print "## importing ROOT... [DONE]"
-    import PyCintex
-    PyCintex.Cintex.Enable()
-
     import RootUtils.PyROOTFixes
 
     sys.argv = oldArgs

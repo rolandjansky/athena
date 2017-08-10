@@ -61,9 +61,9 @@ return output;
 
 
 //************************//
- static const ubit16 last2bitsON;
- static const ubit16 last4bitsON;
- static const ubit16 first8bitsON;
+ static const ubit16 s_last2bitsON;
+ static const ubit16 s_last4bitsON;
+ static const ubit16 s_first8bitsON;
 
 };
 #endif

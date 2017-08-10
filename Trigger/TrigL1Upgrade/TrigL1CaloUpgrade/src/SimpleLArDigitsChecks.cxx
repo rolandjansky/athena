@@ -33,7 +33,7 @@ SimpleLArDigitsChecks::~SimpleLArDigitsChecks(){}
 StatusCode SimpleLArDigitsChecks::initialize(){
 	
         MsgStream msg(msgSvc(), name());
-	msg << MSG::DEBUG << "initializing SimpleLArDigitsChecks" << endreq;
+	msg << MSG::DEBUG << "initializing SimpleLArDigitsChecks" << endmsg;
 	std::string filename=name();
 	filename+=".BasicCheck.root";
         counter=0;
@@ -122,7 +122,7 @@ StatusCode SimpleLArDigitsChecks::initialize(){
 
 	// for cell <-> SCell comparison
 	if ( m_cabling.retrieve().isFailure() ){
-		msg << MSG::ERROR << "cannot perform comparisons between SuperCells and digits" << endreq;
+		msg << MSG::ERROR << "cannot perform comparisons between SuperCells and digits" << endmsg;
 	}
 
 	return StatusCode::SUCCESS;
@@ -130,7 +130,7 @@ StatusCode SimpleLArDigitsChecks::initialize(){
 
 StatusCode SimpleLArDigitsChecks::finalize(){
         MsgStream msg(msgSvc(), name());
-	msg << MSG::DEBUG << "finalizing SimpleLArDigitsChecks" << endreq;
+	msg << MSG::DEBUG << "finalizing SimpleLArDigitsChecks" << endmsg;
 	m_file->Write();
 	m_file->Close();
 	return StatusCode::SUCCESS;
@@ -139,20 +139,20 @@ StatusCode SimpleLArDigitsChecks::finalize(){
 StatusCode SimpleLArDigitsChecks::execute(){
 	
         MsgStream msg(msgSvc(), name());
-	msg << MSG::DEBUG << "execute SimpleLArDigitsChecks" << endreq;
+	msg << MSG::DEBUG << "execute SimpleLArDigitsChecks" << endmsg;
         const CaloCellContainer* scells;
         const LArDigitContainer* allcalo(NULL);
 	if ( evtStore()->retrieve(scells,"SCell").isFailure() ){
-		msg << MSG::WARNING << "did not find cell container" << endreq;
+		msg << MSG::WARNING << "did not find cell container" << endmsg;
 		return StatusCode::SUCCESS;
 	}
 	if ( evtStore()->retrieve(allcalo,"LArDigitSCL1").isFailure() ){
-		msg << MSG::WARNING << "did not find lardigit container for regular cells" << endreq;
+		msg << MSG::WARNING << "did not find lardigit container for regular cells" << endmsg;
 		return StatusCode::SUCCESS;
 	}
 	const xAOD::VertexContainer* nvtx(NULL);
 	if ( evtStore()->retrieve(nvtx,"PrimaryVertices").isFailure() ) {
-		msg << MSG::WARNING << "did not find Vectices container" << endreq;
+		msg << MSG::WARNING << "did not find Vectices container" << endmsg;
 		return StatusCode::SUCCESS;
 	}
 	unsigned int count_sCells=0;

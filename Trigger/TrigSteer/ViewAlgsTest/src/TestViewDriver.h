@@ -9,6 +9,7 @@
 
 #include <vector>
 #include <string>
+#include "GaudiKernel/IAlgResourcePool.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "AthContainers/ConstDataVector.h"
 //#include "xAODTrigger/TrigCompositeContainer.h"
@@ -25,15 +26,22 @@ public:
   StatusCode execute();
 
 private:
-  SG::ReadHandle< TrigRoiDescriptorCollection > m_roisContainer;
-  SG::WriteHandle< std::vector<SG::View*> > m_views;
+  SG::ReadHandleKey< TrigRoiDescriptorCollection > m_roisContainer;
 
-  SG::WriteHandle< TestClusterContainer > m_outputClusterContainer;
-  SG::WriteHandle< TestClusterAuxContainer > m_outputClusterContainerAux;
-  //  SG::WriteHandle< xAOD::TrigCompositeContainer > m_outputProxyContainer;
-  //  SG::WriteHandle< xAOD::TrigCompositeAuxContainer > m_outputProxyContainerAux;
+  SG::WriteHandleKey< ConstDataVector<TrigRoiDescriptorCollection> > m_roisViewOutput;
+  // this is problematic and we need to use plain string for the moment
+  SG::ReadHandleKey< TestClusterContainer > m_clustersViewInputHandle;
+  std::string m_clustersViewInput;
 
+  SG::WriteHandleKey< std::vector<SG::View*> > m_views;
+  //  SG::WriteHandleKey< TestClusterContainer > m_outputClusterContainer;
+
+
+  
+  ServiceHandle<IAlgResourcePool> m_viewAlgorithmsPool;
   std::vector<std::string> m_viewAlgorithmNames;
+  int m_roITypeInViews;
+  
 };
 
 #endif

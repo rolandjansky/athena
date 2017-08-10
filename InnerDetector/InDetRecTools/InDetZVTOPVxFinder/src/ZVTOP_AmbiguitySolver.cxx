@@ -47,16 +47,16 @@ StatusCode InDet::ZVTOP_AmbiguitySolver::initialize()
   if (sc.isFailure()) return sc;
   //Gaussian Probability Tube for the Track Trajectory
   if ( m_TrkProbTubeCalc.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_TrkProbTubeCalc<< endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_TrkProbTubeCalc<< endmsg;
       return StatusCode::FAILURE;
-  } else msg (MSG::INFO) << "Retrieved tool " << m_TrkProbTubeCalc << endreq;
+  } else msg (MSG::INFO) << "Retrieved tool " << m_TrkProbTubeCalc << endmsg;
 
   //Vertex Probability Function
   if ( m_VtxProbCalc.retrieve().isFailure() ) {
-      msg (MSG::FATAL) << "Failed to retrieve tool " << m_VtxProbCalc<< endreq;
+      msg (MSG::FATAL) << "Failed to retrieve tool " << m_VtxProbCalc<< endmsg;
       return StatusCode::FAILURE;
-  } else msg (MSG::INFO) << "Retrieved tool " << m_VtxProbCalc << endreq;
-  msg (MSG::INFO) << "initialize() successful in " << name() << endreq;
+  } else msg (MSG::INFO) << "Retrieved tool " << m_VtxProbCalc << endmsg;
+  msg (MSG::INFO) << "initialize() successful in " << name() << endmsg;
   return StatusCode::SUCCESS;
 }
 

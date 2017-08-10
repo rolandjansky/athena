@@ -49,17 +49,15 @@ public:
     /* If results agree within m_error threshold, return the mean... */
     double Imean = (I5 + I6) / 2.0;
     if (fabs(I5 - I6) / Imean <= m_error) {
-//      if (fabs((I5 - I6) / Imean) > m_error){
-//        std::cout << "SKANDAL!!" << "\tdepth =  " << m_depth << "\tI5 = " << I5 << "\tI6 = " << I6 << "\t (I5-I6)/Imean = " << (I5 - I6) / Imean << std::endl;
-//      }
       return Imean;
     } else {
       /* ...else recursively part up the integration into n subRanges */
-//      std::cout << "\tdepth =  " << m_depth << "\tI5 = " << I5 << "\tI6 = " << I6 << "\t (I5-I6)/Imean = " << (I5 - I6) / Imean << std::endl;
       return RecurseIntegration(range, 2);
     }
   }
 
+  double getError() const {return m_error;}
+  
 private:
 
   double DoGaussLegendreIntegration(const eflowRange& range, int nOrder){
@@ -79,14 +77,8 @@ private:
     for (int i = 0; i < nOrder; i++) {
       x = rangeCenter + roots[i] * rangeHalfWidth;
       I += weights[i] * m_integrand->evaluate(x);
-//      if (std::isnan(I)){
-//        std::cout << "Integral getting NAN! Aborting." << std::endl;
-//        throw std::runtime_error("Raus hier!");
-//      }
     }
-    if (I < 0. || rangeHalfWidth < 0.){
-      std::cout << "I = " << I << "\trange = " << range.print() << std::endl;
-    }
+    if (I < 0. || rangeHalfWidth < 0.) std::cerr << "eflowCellIntergrator::DoGaussLegendreIntegration WARNING: I = " << I << "\trange = " << range.print() << std::endl;
 
     return I * rangeHalfWidth;
   }
@@ -158,9 +150,17 @@ template<> inline double eflowCellIntegrand<lookupExp>::evaluate(double phi) { r
  */
 template <int expType> class eflowCellIntegrator {
 public:
-  eflowCellIntegrator(double stdDev, double error) : m_integrand2D(new eflowCellIntegrand<(Exp_t)expType>(stdDev)),
-      m_outerIntegrator(this, error), m_innerIntegrator(m_integrand2D, error) { }
-  ~eflowCellIntegrator() { delete m_integrand2D; }
+  eflowCellIntegrator(double stdDev, double error) : m_integrand2D(std::make_unique<eflowCellIntegrand<(Exp_t)expType> >(stdDev)), m_outerIntegrator(this, error), m_innerIntegrator(m_integrand2D.get(), error) { }
+  eflowCellIntegrator(const eflowCellIntegrator& original) : m_integrand2D(std::make_unique<eflowCellIntegrand<(Exp_t)expType> >(*(original.m_integrand2D.get()))), m_outerIntegrator(this, original.m_outerIntegrator.getError()), m_innerIntegrator( m_integrand2D.get(), original.m_innerIntegrator.getError()) {
+    m_rangePhi = original.m_rangePhi;
+  }
+  eflowCellIntegrator&  operator=(const eflowCellIntegrator& original){
+    m_integrand2D(std::make_unique<eflowCellIntegrand<(Exp_t)expType> >(*(original.m_integrand2D.get())));
+    m_outerIntegrator(this, original.m_outerIntegrator.getError());
+    m_innerIntegrator( m_integrand2D.get(), original.m_innerIntegrator.getError());
+    m_rangePhi = original.m_rangePhi;
+  }
+  ~eflowCellIntegrator() {}
 
   /* Main method, which starts the integration */
   inline double integrate(const eflowRange& etaRange, const eflowRange& phiRange) {
@@ -179,7 +179,7 @@ public:
   }
 
 private:
-  eflowCellIntegrand<(Exp_t)expType>* m_integrand2D;
+  std::unique_ptr<eflowCellIntegrand<(Exp_t)expType> > m_integrand2D;
   eflowRecursiveGaussLegendreIntegrator<eflowCellIntegrator<expType>  > m_outerIntegrator;
   eflowRecursiveGaussLegendreIntegrator<eflowCellIntegrand<(Exp_t)expType> > m_innerIntegrator;
   eflowRange m_rangePhi;

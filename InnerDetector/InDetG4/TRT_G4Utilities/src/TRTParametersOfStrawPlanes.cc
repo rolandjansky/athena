@@ -19,14 +19,14 @@ TRTParametersOfStrawPlanes::TRTParametersOfStrawPlanes() : m_msg("TRTParametersO
 
   printMessages = pParameters->GetInteger("PrintMessages");
 
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTParametersOfStrawPlanes" << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTParametersOfStrawPlanes" << endmsg;
 
   DefineParameters();
 
   if (pParameters->GetInteger("PrintParametersOfStrawPlanes"))
     PrintParameters();
 
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTParametersOfStrawPlanes done" << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTParametersOfStrawPlanes done" << endmsg;
 }
 
 
@@ -34,9 +34,9 @@ TRTParametersOfStrawPlanes::TRTParametersOfStrawPlanes() : m_msg("TRTParametersO
 
 TRTParametersOfStrawPlanes::~TRTParametersOfStrawPlanes()
 {
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "####### Destructor TRTParametersOfStrawPlanes" << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "####### Destructor TRTParametersOfStrawPlanes" << endmsg;
 
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "####### Destructor TRTParametersOfStrawPlanes done" << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "####### Destructor TRTParametersOfStrawPlanes done" << endmsg;
 }
 
 
@@ -44,7 +44,7 @@ TRTParametersOfStrawPlanes::~TRTParametersOfStrawPlanes()
 
 void TRTParametersOfStrawPlanes::DefineParameters()
 {
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfStrawPlanes::DefineParameters" << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfStrawPlanes::DefineParameters" << endmsg;
 
     // Parameters of straw plane:
   innerRadiusOfStrawPlanesAB = pParameters->GetDouble("InnerRadiusOfWheelsAB") +
@@ -126,7 +126,7 @@ void TRTParametersOfStrawPlanes::DefineParameters()
     lengthOfGasC = lengthOfStrawC - lengthOfDeadRegion * 2.;
   }
 
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfStrawPlanes::DefineParameters" << " done" << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfStrawPlanes::DefineParameters" << " done" << endmsg;
 }
 
 
@@ -134,7 +134,7 @@ void TRTParametersOfStrawPlanes::DefineParameters()
 
 void TRTParametersOfStrawPlanes::PrintParameters() const
 {
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfStrawPlanes::PrintParameters" << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfStrawPlanes::PrintParameters" << endmsg;
 
   TRTUtilities* pUtilities = TRTUtilities::GetPointer();
   TRTOutputFile* pOutputFile = TRTOutputFile::GetPointer();
@@ -210,5 +210,5 @@ void TRTParametersOfStrawPlanes::PrintParameters() const
 
   output << std::endl;
 
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfStrawPlanes::PrintParameters done" << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfStrawPlanes::PrintParameters done" << endmsg;
 }

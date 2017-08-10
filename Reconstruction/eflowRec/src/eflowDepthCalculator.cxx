@@ -156,7 +156,7 @@ const double* eflowDepthCalculator::calcDepthArray(double eta, double filler)
 
   if (eta >= 2.5) {
 
-    return 0;
+    return nullptr;
   }
   else {
 

@@ -48,27 +48,27 @@ StatusCode BCM_RawContByteStreamCnv::initialize() {
 
   // Check ByteStreamCnvSvc
   if (StatusCode::SUCCESS != service("ByteStreamCnvSvc", m_ByteStreamEventAccess) || !m_ByteStreamEventAccess) {
-    if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "Can't get ByteStreamEventAccess interface" << endreq;
+    if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "Can't get ByteStreamEventAccess interface" << endmsg;
     return StatusCode::FAILURE;
   }
-  if (msgLevel(MSG::INFO)) msg(MSG::INFO) << "ByteStreamCnvSvc retireved" << endreq;
+  if (msgLevel(MSG::INFO)) msg(MSG::INFO) << "ByteStreamCnvSvc retireved" << endmsg;
 
   // retrieve Tool
   IToolSvc* toolSvc;
   if(StatusCode::SUCCESS != service("ToolSvc",toolSvc)) {
-    if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "Can't get ToolSvc" << endreq;
+    if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "Can't get ToolSvc" << endmsg;
     return StatusCode::FAILURE;
   }
   std::string toolType;
   toolType = "BCM_RawContByteStreamTool"; 
   if(StatusCode::SUCCESS != toolSvc->retrieveTool(toolType,m_BCMRawContBSTool)) {
-    if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "Can't get BCM_RawContByteStreamTool Tool" << endreq;
+    if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "Can't get BCM_RawContByteStreamTool Tool" << endmsg;
     return StatusCode::FAILURE;
   }
 
   StatusCode scChrono =serviceLocator()->service("ChronoStatSvc",m_ChronoStat );
   if (!scChrono.isSuccess()) {
-    if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "Cannot retrieve ChronoStatSvc" << endreq;
+    if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "Cannot retrieve ChronoStatSvc" << endmsg;
   }
 
   return StatusCode::SUCCESS; 
@@ -90,7 +90,7 @@ StatusCode BCM_RawContByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddress*
   BCM_RDO_Container* cont = 0;
   StoreGateSvc::fromStorable(pObj,cont);
   if(!cont) {
-    if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "Can not cast to BCM_RDO_Container" << endreq;
+    if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "Can not cast to BCM_RDO_Container" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -100,7 +100,7 @@ StatusCode BCM_RawContByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddress*
 
   StatusCode sc = m_BCMRawContBSTool->convert(cont, re);
   if(sc.isFailure()){
-    if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << " Could not convert rdo with m_BCMRawContBSTool " << endreq;
+    if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << " Could not convert rdo with m_BCMRawContBSTool " << endmsg;
     return StatusCode::FAILURE;
   }
 

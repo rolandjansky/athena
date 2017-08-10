@@ -4,9 +4,6 @@
 
 #ifndef ConstLink_h
 #define ConstLink_h 1
-#ifndef NULL
-#define NULL            0
-#endif
 /**     @brief Smart links to reference-counted pointers.  Used in this
  *      package for calorimeter cells
  **/
@@ -101,27 +98,27 @@ class ConstLink
   /**
    * @brief Raw pointer to reference counted object.
    */ 
-  mutable T *ptr;
+  mutable T *m_ptr;
 };
 
 
 
 template <class T>
 inline ConstLink<T>::ConstLink()
-  :ptr(NULL)
+  :m_ptr(nullptr)
 {
 }
 
 template <class T>
 inline ConstLink<T>::ConstLink(const ConstLink<T> &right)
-  :ptr(right.ptr)
+  :m_ptr(right.m_ptr)
 {
-  if (ptr) ptr->ref();
+  if (m_ptr) m_ptr->ref();
 }
 
 template <class T>
 inline ConstLink<T>::ConstLink (const T *target)
-  :ptr(const_cast<T *> (target))
+  :m_ptr(const_cast<T *> (target))
 {
   if (target) target->ref();
 }
@@ -130,7 +127,7 @@ inline ConstLink<T>::ConstLink (const T *target)
 template <class T>
 inline ConstLink<T>::~ConstLink()
 {
-  if (ptr) ptr->unref();
+  if (m_ptr) m_ptr->unref();
 }
 
 
@@ -138,9 +135,9 @@ template <class T>
 inline ConstLink<T> & ConstLink<T>::operator=(const ConstLink<T> &right)
 {
   if (this!=&right) {
-    if (ptr) ptr->unref();
-    ptr = right.ptr;
-    if (ptr) ptr->ref();
+    if (m_ptr) m_ptr->unref();
+    m_ptr = right.m_ptr;
+    if (m_ptr) m_ptr->ref();
   }
   return *this;
 }
@@ -149,38 +146,38 @@ inline ConstLink<T> & ConstLink<T>::operator=(const ConstLink<T> &right)
 template <class T>
 inline int ConstLink<T>::operator==(const ConstLink<T> &right) const
 {
-  return ptr==right.ptr;
+  return m_ptr==right.m_ptr;
 }
 
 template <class T>
 inline int ConstLink<T>::operator!=(const ConstLink<T> &right) const
 {
-  return ptr!=right.ptr;
+  return m_ptr!=right.m_ptr;
 }
 
 
 template <class T>
 inline int ConstLink<T>::operator<(const ConstLink<T> &right) const
 {
-  return ptr<right.ptr;
+  return m_ptr<right.m_ptr;
 }
 
 template <class T>
 inline int ConstLink<T>::operator>(const ConstLink<T> &right) const
 {
-  return ptr>right.ptr;
+  return m_ptr>right.m_ptr;
 }
 
 template <class T>
 inline int ConstLink<T>::operator<=(const ConstLink<T> &right) const
 {
-  return ptr<=right.ptr;
+  return m_ptr<=right.m_ptr;
 }
 
 template <class T>
 inline int ConstLink<T>::operator>=(const ConstLink<T> &right) const
 {
-  return ptr>=right.ptr;
+  return m_ptr>=right.m_ptr;
 }
 
 
@@ -188,19 +185,19 @@ inline int ConstLink<T>::operator>=(const ConstLink<T> &right) const
 template <class T>
 inline const T & ConstLink<T>::operator * () const
 {
-  return *ptr;
+  return *m_ptr;
 }
 
 template <class T>
 inline const T * ConstLink<T>::operator -> () const
 {
-  return ptr;
+  return m_ptr;
 }
 
 template <class T>
 inline ConstLink<T>::operator bool () const
 {
-  return ptr;
+  return m_ptr;
 }
 
 #endif

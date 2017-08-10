@@ -3,7 +3,8 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaCommon.AppMgr import ServiceMgr, ToolSvc, theApp
 from AthenaCommon import CfgMgr
 
-filelist = ['/tmp/boliu/AOD.04607224._000001.pool.root.1']
+#filelist = ['/tmp/boliu/AOD.04607224._000001.pool.root.1']
+filelist = [os.environ["ASG_TEST_FILE_MC"]]
 
 ServiceMgr.EventSelector.InputCollections = filelist
 #ServiceMgr.EventSelector.InputCollections =[] 
@@ -15,6 +16,7 @@ topSequence = AlgSequence()
 tighttrackvertexassotool=CfgMgr.CP__TightTrackVertexAssociationTool("TightTrackVertexAssociationTool", dzSinTheta_cut=3, doPV=True)
 
 loosetrackvertexassotool=CfgMgr.CP__LooseTrackVertexAssociationTool("LooseTrackVertexAssociationTool", dzSinTheta_cut=3, d0_cut=2)
+electrontrackvertexassotool=CfgMgr.CP__ElectronTrackVertexAssociationTool("ElectronTrackVertexAssociationTool")
 
 
 
@@ -22,12 +24,14 @@ loosetrackvertexassotool=CfgMgr.CP__LooseTrackVertexAssociationTool("LooseTrackV
 
 ToolSvc += tighttrackvertexassotool
 ToolSvc += loosetrackvertexassotool
+ToolSvc += electrontrackvertexassotool
 
 testAlg=CfgMgr.TrackVertexAssoTestAlg(
         TrackContainer="InDetTrackParticles",
         VertexContainer="PrimaryVertices",
         TightTrackVertexAssoTool=tighttrackvertexassotool,
-        LooseTrackVertexAssoTool=loosetrackvertexassotool
+        LooseTrackVertexAssoTool=loosetrackvertexassotool,
+        ElectronTrackVertexAssoTool=electrontrackvertexassotool
         )
 
 #testAlg.OutputLevel=DEBUG

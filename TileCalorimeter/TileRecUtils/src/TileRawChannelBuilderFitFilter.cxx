@@ -63,10 +63,13 @@ TileRawChannelBuilderFitFilter::TileRawChannelBuilderFitFilter(const std::string
   declareProperty("RMSChannelNoise",m_channelNoiseRMS = 3);
   declareProperty("ExtraSamplesLeft",m_extraSamplesLeft=0);   // increase window on left side
   declareProperty("ExtraSamplesRight",m_extraSamplesRight=0); // increase window on right side
+  declareProperty("SaturatedSample",m_saturatedSample = 1023.0);
   declareProperty("SaturatedSampleError",m_saturatedSampleError = 6.0);
   declareProperty("ZeroSampleError",m_zeroSampleError = 100.0);
   declareProperty("NoiseThresholdRMS",m_noiseThresholdRMS = 3.0);
   declareProperty("MaxTimeFromPeak",m_maxTimeFromPeak = 250.0);
+
+  declareProperty("DisableNegativeAmp",m_disableNegativeAmp = false);
 }
 
 /**
@@ -96,7 +99,8 @@ StatusCode TileRawChannelBuilderFitFilter::initialize() {
 
   // Determine peak sample position 
   // peak sample position defines t=0 
-  m_iPeak0 = (int) (m_frameLength) / 2 + (m_frameLength % 2) - 1;
+  // m_iPeak0 = (int) (m_frameLength) / 2 + (m_frameLength % 2) - 1;
+  m_iPeak0 = (int) m_tileInfo->ItrigSample();
 
   // Min and max time are now calculated based on m_framelength - i.e. on the
   // number of 25 ns samples read out. Don't forget t=0 corresponds to 
@@ -175,6 +179,8 @@ StatusCode TileRawChannelBuilderFitFilter::finalize() {
 
 TileRawChannel* TileRawChannelBuilderFitFilter::rawChannel(const TileDigits* digits) {
 
+  // ATH_MSG_ALWAYS((std::string) *digits);
+
   ++m_chCounter;
 
   const HWIdentifier adcId = digits->adc_HWID();
@@ -230,6 +236,10 @@ TileRawChannel* TileRawChannelBuilderFitFilter::rawChannel(const TileDigits* dig
     m_RChSumL += amplitude;
   }
 
+  /*
+  ATH_MSG_ALWAYS("TileRawChannel Id: " << m_tileHWID->to_string(adcId)
+                 << " => amp/ped/time: " << rawCh->amplitude() << "/" << rawCh->pedestal() << "/" <<  rawCh->time());
+  */
   return rawCh;
 }
 
@@ -320,7 +330,7 @@ void TileRawChannelBuilderFitFilter::pulseFit(const TileDigits *digit
 
   std::vector<float> samples = digit->samples();
   double maxsamp = 0.0;
-  double minsamp = SATURATED_ADC_VALUE;
+  double minsamp = m_saturatedSample;
 
   double xvec[MAX_SAMPLES], yvec0[MAX_SAMPLES];
   double yvec[MAX_SAMPLES], eyvec[MAX_SAMPLES];
@@ -336,13 +346,13 @@ void TileRawChannelBuilderFitFilter::pulseFit(const TileDigits *digit
     if (no_signal) no_signal = (fabs(samples[j] - pedestal) < delta);
 
     // Check for saturated or zero samples and de-weight accordingly
-    if ((yvec0[isamp] < SATURATED_ADC_VALUE) && (yvec0[isamp] > 0)) {
+    if ((yvec0[isamp] < m_saturatedSample) && (yvec0[isamp] > 0)) {
       eyvec[isamp] = rms;
     } else {
-      if (yvec0[isamp] >= SATURATED_ADC_VALUE) {
+      if (yvec0[isamp] >= m_saturatedSample) {
         eyvec[isamp] = m_saturatedSampleError * rms;
         ATH_MSG_VERBOSE( "Saturated ADC value yvec0[" << isamp << "]=" << yvec0[isamp]
-                        << " (MAX=" << SATURATED_ADC_VALUE << " ) RMS=" << eyvec[isamp] );
+                        << " (MAX=" << m_saturatedSample << " ) RMS=" << eyvec[isamp] );
 
       } else { // must be yvec0[isamp]==0
         eyvec[isamp] = m_zeroSampleError * rms;
@@ -383,15 +393,27 @@ void TileRawChannelBuilderFitFilter::pulseFit(const TileDigits *digit
   bool fixedTime = (m_maxIterate < 0);
   
   if (!fixedTime) {
-    if (maxsamp - pedg > m_noiseThresholdRMS * rms) {
-      delta_peak = ipeakMax - m_iPeak0;  // Adjust initial phase guess,
-      m_t0Fit = (delta_peak) * DTIME;       // positive amplitude
-    } else if (pedg - minsamp > m_noiseThresholdRMS * rms) {
-      delta_peak = ipeakMin - m_iPeak0;       // Adjust initial phase guess,
-      m_t0Fit = (delta_peak) * DTIME;     // negative amplitude
+    if (m_disableNegativeAmp) { // try to reproduce Opt Filter behaviour
+      // take first sample as pedestal - like it is done in Opt Filter method
+      pedg = yvec0[0];
+      if (maxsamp - pedg > m_noiseThresholdRMS * rms) {
+        delta_peak = ipeakMax - m_iPeak0;  // Adjust initial phase guess,
+        m_t0Fit = (delta_peak) * DTIME;       // positive amplitude
+      } else {
+        fixedTime = true; // no signal above noise
+        m_t0Fit = 0.0;    // fit with fixed time
+      }
     } else {
-      fixedTime = true; // no signal above noise
-      m_t0Fit = 0.0;    // fit with fixed time
+      if (maxsamp - pedg > m_noiseThresholdRMS * rms) {
+        delta_peak = ipeakMax - m_iPeak0;  // Adjust initial phase guess,
+        m_t0Fit = (delta_peak) * DTIME;       // positive amplitude
+      } else if (pedg - minsamp > m_noiseThresholdRMS * rms) {
+        delta_peak = ipeakMin - m_iPeak0;       // Adjust initial phase guess,
+        m_t0Fit = (delta_peak) * DTIME;     // negative amplitude
+      } else {
+        fixedTime = true; // no signal above noise
+        m_t0Fit = 0.0;    // fit with fixed time
+      }
     }
   }
   

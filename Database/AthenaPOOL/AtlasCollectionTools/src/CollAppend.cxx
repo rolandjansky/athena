@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
    doh = metareg->insert(std::make_pair("WeightedEventSum",gsum)).second;
    if (!doh) cerr << "Could not add " << gsum->name() << " for WeightedEventSum" << endl;
 
-   string thisProgram("CollAppend.exe");
+   string thisProgram("AthCollAppend");
    // Convert argv to vector of strings
    vector<string> argv_v;
    for( int i=0; i<argc; ++ i )

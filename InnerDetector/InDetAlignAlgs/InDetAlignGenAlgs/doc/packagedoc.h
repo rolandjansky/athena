@@ -562,7 +562,7 @@ for any particular module can then be read in Athena by using the following:
       float z=distpars[2];
     }
   } else {
-    log << MSG::ERROR << "Cannot find PixelDisp object" << endreq;
+    log << MSG::ERROR << "Cannot find PixelDisp object" << endmsg;
   }
 </pre>
 For a concrete example, see the methods CreateModuleNtuple in AlignNtuple.cxx

@@ -53,9 +53,6 @@ public:
   eflowRecTrack* getTrack() const { return m_track; }
 
   void setClusterIntegral(const std::vector<double>& clusterIntegral) {
-    if (!m_clusterIntegral.empty()){
-      std::cout << "WARNING\tResetting cluster integral for track-cluster link!" << std::endl;
-    }
     m_clusterIntegral = clusterIntegral;
   }
   const std::vector<double>& getClusterIntegral() const { return m_clusterIntegral; }

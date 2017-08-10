@@ -8,7 +8,8 @@ atlas_subdir( MuonPattern )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/CLIDSvc
-                          Control/DataModel
+                          Control/AthLinks
+                          Control/AthContainers
                           Control/SGTools
                           DetectorDescription/GeoPrimitives
                           Event/EventPrimitives
@@ -28,12 +29,12 @@ atlas_add_library( MuonPattern
                    PUBLIC_HEADERS MuonPattern
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${EIGEN_LIBRARIES} DataModel SGTools GeoPrimitives EventPrimitives MuonPrepRawData TrkParameters TrkTrack TrkTruthData TrkExUtils
+                   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthLinks AthContainers SGTools GeoPrimitives EventPrimitives MuonPrepRawData TrkParameters TrkTrack TrkTruthData TrkExUtils
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
 atlas_add_dictionary( MuonPatternDict
                       MuonPattern/MuonPatternDict.h
                       MuonPattern/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} DataModel SGTools GeoPrimitives EventPrimitives MuonPrepRawData TrkParameters TrkTrack TrkTruthData TrkExUtils MuonPattern )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthLinks AthContainers SGTools GeoPrimitives EventPrimitives MuonPrepRawData TrkParameters TrkTrack TrkTruthData TrkExUtils MuonPattern )
 

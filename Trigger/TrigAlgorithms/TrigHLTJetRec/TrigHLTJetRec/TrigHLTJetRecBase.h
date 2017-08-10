@@ -32,9 +32,6 @@ namespace jet {
   class LabelIndex;
 }
 
-using jet::LabelIndex;
-using jet::PseudoJetVector;
-
 template <typename InputContainer>
 class TrigHLTJetRecBase: public HLT::FexAlgo {
 
@@ -50,8 +47,8 @@ class TrigHLTJetRecBase: public HLT::FexAlgo {
  protected:
 
   virtual HLT::ErrorCode getPseudoJets(const InputContainer*,
-                                      LabelIndex* indexMap,
-                                      PseudoJetVector& pjv);
+                                       jet::LabelIndex* indexMap,
+                                       jet::PseudoJetVector& pjv);
 
   std::string getClusterCalib() const {return m_clusterCalib;}
 

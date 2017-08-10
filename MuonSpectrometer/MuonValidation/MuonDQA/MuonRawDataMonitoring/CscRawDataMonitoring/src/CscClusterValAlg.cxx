@@ -834,7 +834,7 @@ void  CscClusterValAlg::FillCSCClusters( const CscPrepDataContainer& m_cols, con
     ATH_MSG_DEBUG ( " Begin loop over clusters ============================");
     for ( CscPrepDataCollection::const_iterator m_Itclu = m_clus.begin();
         m_Itclu != m_clus.end(); ++m_Itclu ) {
-      CscPrepData& m_iClus = **m_Itclu;
+      const CscPrepData& m_iClus = **m_Itclu;
       const std::vector<Identifier>& m_stripIds = m_iClus.rdoList();    
       float m_clu_charge = m_iClus.charge();
       float m_clu_time = m_iClus.time();

@@ -26,7 +26,7 @@
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 #include "LArIdentifier/LArOnlineID.h"
 //===========for HV
 #include "LArHV/LArHVManager.h"
@@ -142,7 +142,7 @@ StatusCode LArAffectedRegionAlg::initialize() {
    if ((m_detStore->regFcn(&ILArHVTool::LoadCalibration,dynamic_cast<ILArHVTool*>(this), MyMethod2,folderName)).isFailure()) {
       log << MSG::ERROR << "cannot register callback to " << folderName << std::endl;
    }
-   log << MSG::INFO << " registered callback to /LAR/DCS/HV folders " << endreq;
+   log << MSG::INFO << " registered callback to /LAR/DCS/HV folders " << endmsg;
   */
 
   // register incident handler for begin run

@@ -38,9 +38,9 @@ GeoVPhysVol* GeoPixelEnvelope::Build( ) {
   //
   
 
-  bool barrelPresent   = gmt_mgr->partPresent("Barrel");
-  bool endcapAPresent  = gmt_mgr->partPresent("EndcapA");
-  bool endcapCPresent  = gmt_mgr->partPresent("EndcapC");
+  bool barrelPresent   = m_gmt_mgr->partPresent("Barrel");
+  bool endcapAPresent  = m_gmt_mgr->partPresent("EndcapA");
+  bool endcapCPresent  = m_gmt_mgr->partPresent("EndcapC");
 
    // NB. We apply the part transforms only to the active parts.
   // In general though they should always be zero. It would make more sense to apply
@@ -52,33 +52,33 @@ GeoVPhysVol* GeoPixelEnvelope::Build( ) {
   // 
   const GeoShape * envelopeShape;
   InDetDD::Zone * pixZone = 0; 
-  if (gmt_mgr->PixelSimpleEnvelope()) {
-    double rmin = gmt_mgr->PixelRMin();
-    double rmax = gmt_mgr->PixelRMax();
-    double halflength = gmt_mgr->PixelHalfLength();
+  if (m_gmt_mgr->PixelSimpleEnvelope()) {
+    double rmin = m_gmt_mgr->PixelRMin();
+    double rmax = m_gmt_mgr->PixelRMax();
+    double halflength = m_gmt_mgr->PixelHalfLength();
     envelopeShape = new GeoTube(rmin,rmax,halflength);
     pixZone = new InDetDD::TubeZone("Pixel",-halflength,halflength,rmin,rmax);
   } else {
     GeoPcon* envelopeShapeTmp  = new GeoPcon(0.,2*CLHEP::pi);
     // table contains +ve z values only and envelope is assumed to be symmetric around z.
-    int numPlanes = gmt_mgr->PixelEnvelopeNumPlanes();
+    int numPlanes = m_gmt_mgr->PixelEnvelopeNumPlanes();
     for (int i = 0; i < numPlanes * 2; i++) {
       int tableIndex = (i < numPlanes) ?  numPlanes - 1 - i :  i - numPlanes;
       int sign       = (i < numPlanes) ? -1 : 1;
-      double z = gmt_mgr->PixelEnvelopeZ(tableIndex) * sign;
-      double rmin = gmt_mgr->PixelEnvelopeRMin(tableIndex);
-      double rmax = gmt_mgr->PixelEnvelopeRMax(tableIndex);
+      double z = m_gmt_mgr->PixelEnvelopeZ(tableIndex) * sign;
+      double rmin = m_gmt_mgr->PixelEnvelopeRMin(tableIndex);
+      double rmax = m_gmt_mgr->PixelEnvelopeRMax(tableIndex);
       envelopeShapeTmp->addPlane(z, rmin, rmax);
     }
     envelopeShape = envelopeShapeTmp;
     pixZone = new InDetDD::PconZone("Pixel",envelopeShapeTmp);
   }
-  const GeoMaterial* air = mat_mgr->getMaterial("std::Air");
+  const GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
   const GeoLogVol* envelopeLog = new GeoLogVol("Pixel",envelopeShape,air);
   GeoFullPhysVol* envelopePhys = new GeoFullPhysVol(envelopeLog);;
 
   GeoPixelServices * pixServices = 0;
-  if(gmt_mgr->DoServices() ) {
+  if(m_gmt_mgr->DoServices() ) {
     // Takes ownership of pixZone
     pixServices = new GeoPixelServices(pixZone);
   } else {
@@ -87,13 +87,13 @@ GeoVPhysVol* GeoPixelEnvelope::Build( ) {
 
   if (barrelPresent) {
     
-    DDmgr->numerology().addBarrel(0);
+    m_DDmgr->numerology().addBarrel(0);
     //
     // Add the Barrel:
     //
-    HepGeom::Transform3D barrelTransform = gmt_mgr->partTransform("Barrel");
+    HepGeom::Transform3D barrelTransform = m_gmt_mgr->partTransform("Barrel");
     
-    gmt_mgr->SetBarrel();
+    m_gmt_mgr->SetBarrel();
     GeoPixelBarrel brl(pixServices);
     GeoNameTag* tag = new GeoNameTag("Barrel");
     GeoVPhysVol* barrelPhys =  brl.Build() ;
@@ -105,19 +105,19 @@ GeoVPhysVol* GeoPixelEnvelope::Build( ) {
   //
   // Add the EndCaps
   if (endcapAPresent || endcapCPresent) {
-    gmt_mgr->SetEndcap();
+    m_gmt_mgr->SetEndcap();
 
     GeoPixelEndCap pec(pixServices);
-    double zpos = (gmt_mgr->PixelEndcapZMax()+gmt_mgr->PixelEndcapZMin())/2.;
+    double zpos = (m_gmt_mgr->PixelEndcapZMax()+m_gmt_mgr->PixelEndcapZMin())/2.;
 
     // EndCap A
     if (endcapAPresent) {
 
-      DDmgr->numerology().addEndcap(2);
+      m_DDmgr->numerology().addEndcap(2);
     
-      HepGeom::Transform3D endcapATransform = gmt_mgr->partTransform("EndcapA");
+      HepGeom::Transform3D endcapATransform = m_gmt_mgr->partTransform("EndcapA");
       
-      gmt_mgr->SetPos();
+      m_gmt_mgr->SetPos();
       GeoTransform* xform = new GeoTransform(endcapATransform * HepGeom::TranslateZ3D(zpos));
       GeoNameTag* tag  = new GeoNameTag("EndCapA");
       envelopePhys->add(tag);
@@ -129,12 +129,12 @@ GeoVPhysVol* GeoPixelEnvelope::Build( ) {
     // EndCap C
     if (endcapCPresent) {
 
-      DDmgr->numerology().addEndcap(-2);
+      m_DDmgr->numerology().addEndcap(-2);
       
-      HepGeom::Transform3D endcapCTransform = gmt_mgr->partTransform("EndcapC");
+      HepGeom::Transform3D endcapCTransform = m_gmt_mgr->partTransform("EndcapC");
       
-      gmt_mgr->SetEndcap();
-      gmt_mgr->SetNeg();
+      m_gmt_mgr->SetEndcap();
+      m_gmt_mgr->SetNeg();
       GeoTransform* xform = new GeoTransform(endcapCTransform * HepGeom::TranslateZ3D(-zpos) *  HepGeom::RotateY3D(180*CLHEP::deg));
       GeoNameTag* tag  = new GeoNameTag("EndCapC");
       envelopePhys->add(tag);
@@ -144,9 +144,9 @@ GeoVPhysVol* GeoPixelEnvelope::Build( ) {
       
     }
  
-    if(gmt_mgr->DoServices() ) {
+    if(m_gmt_mgr->DoServices() ) {
       // Pixel Frame. In recent versions this taken care of in the general services.
-      if (gmt_mgr->oldFrame()) {
+      if (m_gmt_mgr->oldFrame()) {
 	GeoPixelOldFrame frame;
 	frame.BuildOutBarrel(envelopePhys);
       }
@@ -166,8 +166,8 @@ GeoVPhysVol* GeoPixelEnvelope::Build( ) {
     //
     // Add IBL services
     //
-    gmt_mgr->SetCurrentLD(0);
-    if(gmt_mgr->ibl()&&gmt_mgr->IBLFlexAndWingDefined()&&gmt_mgr->PixelStaveLayout()>3&&gmt_mgr->PixelStaveLayout()<7)
+    m_gmt_mgr->SetCurrentLD(0);
+    if(m_gmt_mgr->ibl()&&m_gmt_mgr->IBLFlexAndWingDefined()&&m_gmt_mgr->PixelStaveLayout()>3&&m_gmt_mgr->PixelStaveLayout()<7)
       {
 	// Build IBL services from endblock to PP0
 	for(int iSection=1; iSection<4; iSection++)
@@ -218,8 +218,8 @@ GeoVPhysVol* GeoPixelEnvelope::Build( ) {
   }
   
   // Build detailed frame
-  if(gmt_mgr->detailedFrame() && gmt_mgr->DoServices()) {
-    int numSections = gmt_mgr->PixelFrameSections();
+  if(m_gmt_mgr->detailedFrame() && m_gmt_mgr->DoServices()) {
+    int numSections = m_gmt_mgr->PixelFrameSections();
     GeoPixelFrame frame;
     for (int iSection = 0; iSection <  numSections; iSection++) {
       //GeoVPhysVol * framePhys =  frame.Build(iSection);
@@ -229,19 +229,19 @@ GeoVPhysVol* GeoPixelEnvelope::Build( ) {
   }
 
   // Extra Material 
-  InDetDD::ExtraMaterial xMat(gmt_mgr->distortedMatManager());
+  InDetDD::ExtraMaterial xMat(m_gmt_mgr->distortedMatManager());
   xMat.add(envelopePhys,"Pixel");
 
   // DBM
   // Z-positon is Hardcoded, 
   // so if change then change in DBM_module too
 
-  if (gmt_mgr->dbm()) {
-    HepGeom::Translate3D dbmTransform1( 0, 0, 887.002*CLHEP::mm + ( gmt_mgr->DBMTelescopeZ() )/2.); //Add 0.002mm to 887mm for safety
+  if (m_gmt_mgr->dbm()) {
+    HepGeom::Translate3D dbmTransform1( 0, 0, 887.002*CLHEP::mm + ( m_gmt_mgr->DBMTelescopeZ() )/2.); //Add 0.002mm to 887mm for safety
 
-    //DDmgr->numerology().addEndcap(4);
-    gmt_mgr->SetPartsDBM();
-    gmt_mgr->SetPos();
+    //m_DDmgr->numerology().addEndcap(4);
+    m_gmt_mgr->SetPartsDBM();
+    m_gmt_mgr->SetPos();
     DBM_Det theDBM;
     GeoNameTag* tag1 = new GeoNameTag("DBMA");
     GeoVPhysVol* dbmPhys1 =  theDBM.Build() ;
@@ -250,36 +250,36 @@ GeoVPhysVol* GeoPixelEnvelope::Build( ) {
     envelopePhys->add(new GeoTransform(dbmTransform1));
     envelopePhys->add(dbmPhys1 );
 
-    //DDmgr->numerology().addEndcap(-4);
-    gmt_mgr->SetNeg();
+    //m_DDmgr->numerology().addEndcap(-4);
+    m_gmt_mgr->SetNeg();
     GeoNameTag* tag2 = new GeoNameTag("DBMC");
-    GeoTransform* dbmTransform2 = new GeoTransform(HepGeom::TranslateZ3D(-887.002*CLHEP::mm - ( gmt_mgr->DBMTelescopeZ() )/2.) *  HepGeom::RotateY3D(180*CLHEP::deg));
+    GeoTransform* dbmTransform2 = new GeoTransform(HepGeom::TranslateZ3D(-887.002*CLHEP::mm - ( m_gmt_mgr->DBMTelescopeZ() )/2.) *  HepGeom::RotateY3D(180*CLHEP::deg));
     envelopePhys->add(tag2);
     envelopePhys->add(new GeoIdentifierTag(-4));
     envelopePhys->add(dbmTransform2);
     envelopePhys->add(theDBM.Build());
   } else {
-    DDmgr->numerology().setNumDisksDBM(0);
-    DDmgr->numerology().setNumBarrelDBM(0);
+    m_DDmgr->numerology().setNumDisksDBM(0);
+    m_DDmgr->numerology().setNumBarrelDBM(0);
   }
 
   // reset BarrelEndcap value to zero
-  gmt_mgr->SetBarrel();
+  m_gmt_mgr->SetBarrel();
 
 
   // BCM
-  if (gmt_mgr->athenaComps()->bcm()) {
+  if (m_gmt_mgr->athenaComps()->bcm()) {
     // Already retrieved in PixelDetectorTool
-    StatusCode sc = gmt_mgr->athenaComps()->bcm()->build(envelopePhys);
+    StatusCode sc = m_gmt_mgr->athenaComps()->bcm()->build(envelopePhys);
     if (sc.isFailure()) {
       std::cout << "PixelGeoModel failed to build BCM." << std::endl;
     }
   }
 	  
   // BLM
-  if (gmt_mgr->athenaComps()->blm()) {
+  if (m_gmt_mgr->athenaComps()->blm()) {
     // Already retrieved in PixelDetectorTool
-    StatusCode sc = gmt_mgr->athenaComps()->blm()->build(envelopePhys);
+    StatusCode sc = m_gmt_mgr->athenaComps()->blm()->build(envelopePhys);
     if (sc.isFailure()) {
       std::cout << "PixelGeoModel failed to build BLM." << std::endl;
     }

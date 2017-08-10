@@ -43,7 +43,7 @@ class RPCchamberdata : BaseObject
     //unsigned int m_phi_inv0;
     //unsigned int m_phi_inv1;
 
-    RPClist rpc;
+    RPClist m_rpc;
 
     void reset_data(void);
     bool get_data(DBline&);

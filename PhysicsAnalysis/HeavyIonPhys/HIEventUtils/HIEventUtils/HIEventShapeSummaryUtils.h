@@ -31,12 +31,12 @@ namespace HI
 
     bool match_num_harmonics;
     
-    AddEventShape(float ww) :  match_num_harmonics(true), weight(ww){};
-    constexpr AddEventShape() : match_num_harmonics(true), weight(1){};
+    AddEventShape(float ww) :  match_num_harmonics(true), m_weight(ww){};
+    constexpr AddEventShape() : match_num_harmonics(true), m_weight(1){};
     void operator()(xAOD::HIEventShape* slice, const xAOD::HIEventShape* in_slice) const;
 
   private:
-    float weight;
+    float m_weight;
   };
 
   constexpr AddEventShape AddES=AddEventShape();

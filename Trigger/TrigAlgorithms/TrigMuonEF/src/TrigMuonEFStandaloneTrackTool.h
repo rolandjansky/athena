@@ -28,6 +28,7 @@
 #include "MuonPrepRawData/CscPrepDataCollection.h"
 #include "MuonPrepRawData/RpcPrepDataCollection.h"
 #include "MuonPrepRawData/TgcPrepDataCollection.h"
+#include "MuonPrepRawData/RpcPrepDataContainer.h"
 #include "IRegionSelector/RegSelEnums.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "xAODMuon/MuonContainer.h"
@@ -60,6 +61,7 @@ namespace Muon {
   class IMuonRdoToPrepDataTool;
   class IMuonTrackFinder;
   class MboyMooSegmentCombinationFinder;
+
 }
 namespace MuonCombined {
   class IMuonCandidateTool;
@@ -380,6 +382,13 @@ class TrigMuonEFStandaloneTrackTool : public AthAlgTool,
   std::ofstream m_fileWithHashIds_mdt;
   std::ofstream m_fileWithHashIds_csc;
 #endif
+
+  SG::ReadHandleKey <Muon::RpcPrepDataContainer> m_rpcKey;
+  SG::ReadHandleKey <Muon::TgcPrepDataContainer> m_tgcKey;
+  SG::ReadHandleKey <Muon::TgcPrepDataContainer> m_tgcKeyNextBC;
+  SG::ReadHandleKey <Muon::CscPrepDataContainer> m_cscKey;
+  SG::ReadHandleKey <Muon::MdtPrepDataContainer> m_mdtKey;
+
 
 };
 

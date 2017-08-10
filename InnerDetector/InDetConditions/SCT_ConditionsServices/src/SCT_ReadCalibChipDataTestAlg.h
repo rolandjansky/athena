@@ -19,11 +19,15 @@
 #include "Identifier/Identifier.h"
 #include "GaudiKernel/ServiceHandle.h"
 
+// Read Handle Key
+#include "StoreGate/ReadHandleKey.h"
+// Event Info
+#include "xAODEventInfo/EventInfo.h"
+
 // Include STL stuff
 #include <string>
 
 // Forward declarations
-class EventInfo;
 class ISvcLocator;
 class StatusCode;
 class ISCT_ReadCalibChipDataSvc;
@@ -52,7 +56,7 @@ class SCT_ReadCalibChipDataTestAlg:public AthAlgorithm
 //----------Private Attributes----------//
   StatusCode                          m_sc;            //!< To check return codes
   const SCT_ID*                       m_id_sct;        //!< ID helper for SCT
-  const EventInfo*                    m_currentEvent;  //!< Current event
+  SG::ReadHandleKey<xAOD::EventInfo>  m_currentEventKey;  //!< Current event
   Identifier                          m_moduleId;      //!< Module identifier
   Identifier                          m_waferId;       //!< Wafer identifier
   Identifier                          m_stripId;       //!< Strip identifier

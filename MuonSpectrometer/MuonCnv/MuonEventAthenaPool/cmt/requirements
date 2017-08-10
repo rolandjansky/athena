@@ -19,7 +19,8 @@ use GaudiInterface       GaudiInterface-*           External
 use AtlasBoost           AtlasBoost-*               External
 use AthenaPoolCnvSvc     AthenaPoolCnvSvc-*         Database/AthenaPOOL
 use CLIDSvc              CLIDSvc-*                  Control
-use DataModel            DataModel-*                Control
+use AthAllocators        AthAllocators-*            Control
+use AthContainers        AthContainers-*            Control
 use Identifier 		 Identifier-* 		    DetectorDescription 
 use MuonEventTPCnv       MuonEventTPCnv-*           MuonSpectrometer/MuonCnv
 use MuonIdHelpers        MuonIdHelpers-*            MuonSpectrometer

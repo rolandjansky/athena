@@ -8,7 +8,7 @@
 
 SimulationHitCollection_PERS* SimulationHitCollectionCnv::createPersistent(SimulationHitCollection* transCont)
 {
-	MsgStream mlog(messageService(), "SimulationHitCollectionConverter" );
+	MsgStream mlog(msgSvc(), "SimulationHitCollectionConverter" );
 
 	SimulationHitCollectionCnv_p1 TPConverter;
 	SimulationHitCollection_PERS *pPersColl = TPConverter.createPersistent( transCont, mlog );
@@ -18,7 +18,7 @@ SimulationHitCollection_PERS* SimulationHitCollectionCnv::createPersistent(Simul
 
 SimulationHitCollection* SimulationHitCollectionCnv::createTransient()
 {
-	MsgStream mlog(messageService(), "SimulationHitCollectionConverter" );
+	MsgStream mlog(msgSvc(), "SimulationHitCollectionConverter" );
 
 	//GUID of persistence collection class (see selection.xml in ForwardRegion_EventTPCnv, class item SimulationHitCollection_p1
 	static const pool::Guid p1_guid("DD6CF87F-4D7E-4BF6-9FAC-156DB34C08C7");

@@ -113,13 +113,13 @@ namespace Trigger {
     ms << level << "*** MuonRoiChain object : "
        << (m_source==Muon_ROI::Barrel ? "Barrel  " : (m_source==Muon_ROI::Endcap ? "Endcap  " : "Forward "))  
        << (m_hemisphere==Muon_ROI::Positive ? "Side A " : "Side C ") 
-       << " ***" << endreq; 
-    ms << level << " Muon_ROI= " << m_muonRoi << " , roiIndex= " << m_roiIndex << endreq; 
-    ms << level << " MuCTPI_RDO_dataWord= " << m_muctpiRdoDataWord << " , dataWordIndex= " << m_dataWordIndex << endreq;
+       << " ***" << endmsg; 
+    ms << level << " Muon_ROI= " << m_muonRoi << " , roiIndex= " << m_roiIndex << endmsg; 
+    ms << level << " MuCTPI_RDO_dataWord= " << m_muctpiRdoDataWord << " , dataWordIndex= " << m_dataWordIndex << endmsg;
     ms << level << "   SectorID= " << dataWordDecoder.getSectorID() << " , RoiNumber= " << dataWordDecoder.getRoiNumber() 
-       << " , Pt= " << dataWordDecoder.getPt() << " , SentRoi= " << dataWordDecoder.getSentRoi() << endreq; 
-    ms << level << " TgcCoinData= " << m_tgcSL << endreq; 
-    ms << level << "*********************************************" << endreq; 
+       << " , Pt= " << dataWordDecoder.getPt() << " , SentRoi= " << dataWordDecoder.getSentRoi() << endmsg; 
+    ms << level << " TgcCoinData= " << m_tgcSL << endmsg; 
+    ms << level << "*********************************************" << endmsg; 
   }
 
   bool MuonRoiChain::isInEndcapChamberBoundary() const {

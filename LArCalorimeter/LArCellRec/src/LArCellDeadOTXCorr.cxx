@@ -41,8 +41,6 @@
 
 #include "Identifier/IdentifierHash.h"
 
-#include "GeoModelInterfaces/IGeoModelSvc.h"
-
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
@@ -189,10 +187,6 @@ StatusCode LArCellDeadOTXCorr::initialize()
 	CHECK( CaloRec::ToolWithConstantsMixin::initialize() );
 
 		
-	// callback to GeoModel to retrieve identifier helpers, etc..
-	const IGeoModelSvc *geoModel=0;
-	ATH_CHECK( service("GeoModelSvc", geoModel) );
-
 	ATH_CHECK(m_TTLocation.initialize());
 
 	if(m_useL1CaloDB)
@@ -204,27 +198,6 @@ StatusCode LArCellDeadOTXCorr::initialize()
                 ATH_MSG_INFO ("L1Calo database won't be used. Pedestal values will be constant and equal to 32.");
 
 
-	// dummy parameters for the callback:
-	int dummyInt=0;
-	std::list<std::string> dummyList;
-
-	if (geoModel->geoInitialized())
-	{
-		return geoInit(dummyInt,dummyList);
-	}
-	else
-	{
-          ATH_CHECK( detStore()->regFcn(&IGeoModelSvc::geoInit,
-                                        geoModel,
-                                        &LArCellDeadOTXCorr::geoInit,this) );
-	}
-		
-	return StatusCode::SUCCESS;
-}
-
-
-StatusCode LArCellDeadOTXCorr::geoInit(IOVSVC_CALLBACK_ARGS)
-{
 	const  CaloIdManager* caloIdMgr;
 	ATH_CHECK( detStore()->retrieve( caloIdMgr ) );
 	m_calo_id = caloIdMgr->getCaloCell_ID();

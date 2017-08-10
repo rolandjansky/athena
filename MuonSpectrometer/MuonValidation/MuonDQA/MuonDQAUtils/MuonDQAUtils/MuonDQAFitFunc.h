@@ -72,7 +72,7 @@ namespace Muon {
     
   protected:
 
-    const static int nbins=6;
+    const static int NBINS=6;
     float m_minMuonEffWindow;
     float m_maxMuonEffWindow;
 

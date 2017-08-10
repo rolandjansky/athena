@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigCaloEventTPCnv
- * @Class  : TrigEMCluster_tlp1
+ * @class  : TrigEMCluster_tlp1
  *
  * @brief "top level" persistent partner for TrigEMCluster
  *

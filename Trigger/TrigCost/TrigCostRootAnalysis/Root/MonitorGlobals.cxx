@@ -27,7 +27,6 @@
 #include "../TrigCostRootAnalysis/TrigXMLService.h"
 
 namespace TrigCostRootAnalysis {
-
   /**
    * Monitor constructor. Sets name and calls base constructor.
    */
@@ -43,7 +42,7 @@ namespace TrigCostRootAnalysis {
    */
   void MonitorGlobals::newEvent(Float_t _weight) {
     m_timer.start();
-    if ( Config::config().debug() ) Info("MonitorGlobals::newEvent", "*** Processing Global Quantites ***");
+    if (Config::config().debug()) Info("MonitorGlobals::newEvent", "*** Processing Global Quantites ***");
 
 
     //Now loop over the counter collections;
@@ -54,19 +53,18 @@ namespace TrigCostRootAnalysis {
 
       //Get the counter for this lumiblock
       std::stringstream _ss;
-      _ss << std::setfill('0') << std::setw(5)  << m_costData->getLumi();
-      const std::string _lumiBlockString = std::string( "LumiBlock_") + _ss.str();
-      CounterBase* _counter = getCounter( _counterMap, _lumiBlockString, m_costData->getLumi() );
-      _counter->processEventCounter( 0, 0, _weight );
+      _ss << std::setfill('0') << std::setw(5) << m_costData->getLumi();
+      const std::string _lumiBlockString = std::string("LumiBlock_") + _ss.str();
+      CounterBase* _counter = getCounter(_counterMap, _lumiBlockString, m_costData->getLumi());
+      _counter->processEventCounter(0, 0, _weight);
 
       // Also process the All LB counter, we give this the ID -1
       // Don't want to do this if we're iterating over a single-LB collection
       if (m_counterMapType[_counterMap] != kDoLumiBlockSummary) {
-        getCounter( _counterMap, Config::config().getStr(kAllString), -1 )->processEventCounter( 0, 0, _weight );
+        getCounter(_counterMap, Config::config().getStr(kAllString), -1)->processEventCounter(0, 0, _weight);
       }
 
       endEvent(_weight);
-
     }
     m_timer.stop();
   }
@@ -77,11 +75,15 @@ namespace TrigCostRootAnalysis {
    * @return If this monitor should be active for a given mode.
    */
   Bool_t MonitorGlobals::getIfActive(ConfKey_t _mode) {
-    switch(_mode) {
-      case kDoAllSummary:       return kTRUE;
-      case kDoKeySummary:       return kTRUE;
-      case kDoLumiBlockSummary: return kTRUE;
-      default: Error("MonitorGlobals::getIfActive", "An invalid summary mode was provided (key %s)", Config::config().getName(_mode).c_str() );
+    switch (_mode) {
+    case kDoAllSummary:       return kTRUE;
+
+    case kDoKeySummary:       return kTRUE;
+
+    case kDoLumiBlockSummary: return kTRUE;
+
+    default: Error("MonitorGlobals::getIfActive", "An invalid summary mode was provided (key %s)",
+                   Config::config().getName(_mode).c_str());
     }
     return kFALSE;
   }
@@ -90,7 +92,6 @@ namespace TrigCostRootAnalysis {
    * Save the results from this monitors counters as specified in the configuration.
    */
   void MonitorGlobals::saveOutput() {
-
     // Now we're done, we want to additionally decorate these counters with their effective LB length, given how many
     // events we saw vs. how many were were expecting to see
     // Loop over all my counter collections
@@ -98,7 +99,9 @@ namespace TrigCostRootAnalysis {
     for (CounterCollectionIt_t _ccIt = m_counterCollections.begin(); _ccIt != m_counterCollections.end(); ++_ccIt) {
       std::string _counterCollectionName = (*_ccIt).first; // This collection name
       CounterMap_t _counterMap = (*_ccIt).second; // This collection's counter map
-      LumiCollector* _collectionLumiCollector = m_collectionLumiCollector[ _counterCollectionName ]; // This collection's lumi counter
+      LumiCollector* _collectionLumiCollector = m_collectionLumiCollector[ _counterCollectionName ]; // This
+                                                                                                     // collection's
+                                                                                                     // lumi counter
       // Loop over my counters
       for (CounterMapIt_t _cmIt = _counterMap.begin(); _cmIt != _counterMap.end(); ++_cmIt) {
         // Get the effective lumi for this LB. The ID of the counter is the LB number
@@ -110,7 +113,7 @@ namespace TrigCostRootAnalysis {
           _lbTime = _collectionLumiCollector->getTotalLumiBlockTime();
         } else {
           // I'm a normal counter
-          _lbTime = _collectionLumiCollector->getLumiBlockTime( _lbNumber );
+          _lbTime = _collectionLumiCollector->getLumiBlockTime(_lbNumber);
         }
         _counter->decorate(kDecLbLength, _lbTime);
       }
@@ -120,142 +123,155 @@ namespace TrigCostRootAnalysis {
 
     // Specify what plots we wish to save from the counters
     VariableOptionVector_t _toSavePlots = m_dummyCounter->getAllHistograms();
-    sharedHistogramOutputRoutine( _toSavePlots );
+    sharedHistogramOutputRoutine(_toSavePlots);
 
     std::vector<TableColumnFormatter> _toSave;
 
-    const Bool_t _isAPrediction =  (Bool_t) Config::config().getInt(kIsCPUPrediction);
+    const Bool_t _isAPrediction = (Bool_t) Config::config().getInt(kIsCPUPrediction);
 
-    if ( _isAPrediction == kTRUE ) {
-      _toSave.push_back( TableColumnFormatter("Effective LB Length (s)",
-      "Effective length of the lumi block after correcting for how many events we have seen.",
-      kDecLbLength, kSavePerCall, 2, kFormatOptionUseFloatDecoration) ); // kSavePerCall is ignored here
+    if (_isAPrediction == kTRUE) {
+      _toSave.push_back(TableColumnFormatter("Effective LB Length (s)",
+                                             "Effective length of the lumi block after correcting for how many events we have seen.",
+                                             kDecLbLength, kSavePerCall, 2, kFormatOptionUseFloatDecoration)); // kSavePerCall
+                                                                                                               // is
+                                                                                                               // ignored
+                                                                                                               // here
     } else {
-      _toSave.push_back( TableColumnFormatter("Lumi Block Length (s)",
-      "Length of this luminosity block.",
-      kDecLbLength, kSavePerCall, 2, kFormatOptionUseFloatDecoration) ); // kSavePerCall is ignored here
+      _toSave.push_back(TableColumnFormatter("Lumi Block Length (s)",
+                                             "Length of this luminosity block.",
+                                             kDecLbLength, kSavePerCall, 2, kFormatOptionUseFloatDecoration)); // kSavePerCall
+                                                                                                               // is
+                                                                                                               // ignored
+                                                                                                               // here
 
-      _toSave.push_back( TableColumnFormatter("HLT PUs",
-        "Number of HLT Processing Units in the HLT farm which were active for this lumi block.",
-        kVarHLTPUs, kSavePerCall, 0) );
+      _toSave.push_back(TableColumnFormatter("HLT PUs",
+                                             "Number of HLT Processing Units in the HLT farm which were active for this lumi block.",
+                                             kVarHLTPUs, kSavePerCall, 0));
     }
 
-    if ( _isAPrediction == kTRUE ) {
-      _toSave.push_back( TableColumnFormatter("Predicted HLT Cores From Algs",
-        "Approximated by Total HLT Algorithm Time / Effective Lumi Block Length",
-        &tableFnGlobalGetHLTNodePrediction, 2) );
+    if (_isAPrediction == kTRUE) {
+      _toSave.push_back(TableColumnFormatter("Predicted HLT Cores From Algs",
+                                             "Approximated by Total HLT Algorithm Time / Effective Lumi Block Length",
+                                             &tableFnGlobalGetHLTNodePrediction, 2));
 
-      _toSave.push_back( TableColumnFormatter("Predicted Cores (Algs) Err",
-        "sqrt(sumW2 AlgTime) / Effective Lumi Block Length",
-        &tableFnGlobalGetHLTNodePredictionErr, 2) );
+      _toSave.push_back(TableColumnFormatter("Predicted Cores (Algs) Err",
+                                             "sqrt(sumW2 AlgTime) / Effective Lumi Block Length",
+                                             &tableFnGlobalGetHLTNodePredictionErr, 2));
 
-      _toSave.push_back( TableColumnFormatter("Predicted HLT Cores From Steering",
-        "Approximated by Total HLT Algorithm Time / Effective Lumi Block Length",
-        &tableFnGlobalGetHLTNodePredictionSteering, 2) );
+      _toSave.push_back(TableColumnFormatter("Predicted HLT Cores From Steering",
+                                             "Approximated by Total HLT Algorithm Time / Effective Lumi Block Length",
+                                             &tableFnGlobalGetHLTNodePredictionSteering, 2));
 
-      _toSave.push_back( TableColumnFormatter("Predicted Cores (Steer) Err",
-        "sqrt(sumW2 AlgTime) / Effective Lumi Block Length",
-        &tableFnGlobalGetHLTNodePredictionErrSteering, 2) );
+      _toSave.push_back(TableColumnFormatter("Predicted Cores (Steer) Err",
+                                             "sqrt(sumW2 AlgTime) / Effective Lumi Block Length",
+                                             &tableFnGlobalGetHLTNodePredictionErrSteering, 2));
     } else {
-      _toSave.push_back( TableColumnFormatter("Farm Usage from Steering (%)",
-        "Approximated by Total HLT Steering Time / (Lumi Block Length * N HLT PUs)",
-        &tableFnGlobalGetSteeringFarmUse, 2) );
+      _toSave.push_back(TableColumnFormatter("Farm Usage from Steering (%)",
+                                             "Approximated by Total HLT Steering Time / (Lumi Block Length * N HLT PUs)",
+                                             &tableFnGlobalGetSteeringFarmUse, 2));
     }
 
-    _toSave.push_back( TableColumnFormatter("Raw Events",
-      "Raw nummber of events for which we have collected statistics for before weighting",
-      kVarEventsActive, kSavePerCall, 0, kFormatOptionUseEntries) );
+    _toSave.push_back(TableColumnFormatter("Raw Events",
+                                           "Raw nummber of events for which we have collected statistics for before weighting",
+                                           kVarEventsActive, kSavePerCall, 0, kFormatOptionUseEntries));
 
-    if ( _isAPrediction == kFALSE ) {
-      _toSave.push_back( TableColumnFormatter("Events Passing L1",
-        "Total number of events where at least one L1 chain is passed after veto.",
-        kVarL1PassEvents, kSavePerCall, 0) );
+    if (_isAPrediction == kFALSE) {
+      _toSave.push_back(TableColumnFormatter("Events Passing L1",
+                                             "Total number of events where at least one L1 chain is passed after veto.",
+                                             kVarL1PassEvents, kSavePerCall, 0));
 
-      _toSave.push_back( TableColumnFormatter("Input Rate from L1",
-        "Total number of events where at least one L1 chain is passed after veto.",
-        kVarL1PassEvents, kSavePerCall, 2, kFormatOptionNormaliseLBTimeDec) );
+      _toSave.push_back(TableColumnFormatter("Input Rate from L1",
+                                             "Total number of events where at least one L1 chain is passed after veto.",
+                                             kVarL1PassEvents, kSavePerCall, 2, kFormatOptionNormaliseLBTimeDec));
     }
 
-    if ( _isAPrediction == kTRUE ) {
+    if (_isAPrediction == kTRUE) {
       // If prediction - then the number of 'pass' events is compilicated and needs the RatesMonitor.
       // Here we can give the effective total number of events however
-      _toSave.push_back( TableColumnFormatter(std::string("# ") + getLevelStr() + std::string(" Events"),
-        "Total number of events seen at this level.",
-        kVarHLTEvents, kSavePerCall, 0) );
+      _toSave.push_back(TableColumnFormatter(std::string("# ") + getLevelStr() + std::string(" Events"),
+                                             "Total number of events seen at this level.",
+                                             kVarHLTEvents, kSavePerCall, 0));
     } else {
       // If not weighting, then just count events where a chain passes
-      _toSave.push_back( TableColumnFormatter(std::string("# ") + getLevelStr() + std::string(" Passes"),
-        "Total number of events seen at this which have at least one chain passing raw.",
-        kVarHLTPassEvents, kSavePerCall, 0) );
+      _toSave.push_back(TableColumnFormatter(std::string("# ") + getLevelStr() + std::string(" Passes"),
+                                             "Total number of events seen at this which have at least one chain passing raw.",
+                                             kVarHLTPassEvents, kSavePerCall, 0));
 
-      _toSave.push_back( TableColumnFormatter(getLevelStr() + std::string(" Pass Fraction [%]"),
-        "What percentage of L1 events are kept",
-        kVarHLTPassEvents, kSavePerCall, kVarL1PassEvents, kSavePerCall, 2, kFormatOptionToPercentage) );
+      _toSave.push_back(TableColumnFormatter(getLevelStr() + std::string(" Pass Fraction [%]"),
+                                             "What percentage of L1 events are kept",
+                                             kVarHLTPassEvents, kSavePerCall, kVarL1PassEvents, kSavePerCall, 2,
+                                             kFormatOptionToPercentage));
 
       // These two are of no help if we're throwing weights and prescales all over the place
-      _toSave.push_back( TableColumnFormatter("Steering Time [s]",
-        "Total difference between the start of the first and the end of the last algorithm execution summed over all events.",
-        kVarSteeringTime, kSavePerEvent, 2, kFormatOptionMiliSecToSec) );
+      _toSave.push_back(TableColumnFormatter("Steering Time [s]",
+                                             "Total difference between the start of the first and the end of the last algorithm execution summed over all events.",
+                                             kVarSteeringTime, kSavePerEvent, 2, kFormatOptionMiliSecToSec));
 
-      _toSave.push_back( TableColumnFormatter("Steering Time/Event [ms]",
-        "Average time difference between the start of the first and the end of the last algorithm execution per event.",
-        kVarSteeringTime, kSavePerEvent, kVarEventsActive, kSavePerCall, 2) );
+      _toSave.push_back(TableColumnFormatter("Steering Time/Event [ms]",
+                                             "Average time difference between the start of the first and the end of the last algorithm execution per event.",
+                                             kVarSteeringTime, kSavePerEvent, kVarEventsActive, kSavePerCall, 2));
     }
 
-    _toSave.push_back( TableColumnFormatter("Alg Walltime Time [s]",
-      "The sum over all algorithms walltimes.",
-      kVarAlgTime, kSavePerCall, 2, kFormatOptionMiliSecToSec) );
+    _toSave.push_back(TableColumnFormatter("Alg Walltime Time [s]",
+                                           "The sum over all algorithms walltimes.",
+                                           kVarAlgTime, kSavePerCall, 2, kFormatOptionMiliSecToSec));
 
-    _toSave.push_back( TableColumnFormatter("Alg Walltime Time/Event [ms]",
-      "Average per event of the sum over all algorithms walltimes.",
-      kVarAlgTime, kSavePerEvent, kVarEventsActive, kSavePerCall, 2) );
+    _toSave.push_back(TableColumnFormatter("Alg Walltime Time/Event [ms]",
+                                           "Average per event of the sum over all algorithms walltimes.",
+                                           kVarAlgTime, kSavePerEvent, kVarEventsActive, kSavePerCall, 2));
 
-    _toSave.push_back( TableColumnFormatter("Alg Walltime Time/Call [ms]",
-      "Average per algorithm call of the sum over all algorithms walltimes.",
-      kVarAlgTime, kSavePerCall, kVarAlgCalls, kSavePerCall, 2) );
+    _toSave.push_back(TableColumnFormatter("Alg Walltime Time/Call [ms]",
+                                           "Average per algorithm call of the sum over all algorithms walltimes.",
+                                           kVarAlgTime, kSavePerCall, kVarAlgCalls, kSavePerCall, 2));
 
-    _toSave.push_back( TableColumnFormatter("Time Use In Rerun [%]",
-      "Percentage of this total CPU usage which comes from resurrection.",
-      kVarRerunTime, kSavePerEvent, kVarAlgTime, kSavePerEvent, 2, kFormatOptionToPercentage) );
+    _toSave.push_back(TableColumnFormatter("Time Use In Rerun [%]",
+                                           "Percentage of this total CPU usage which comes from resurrection.",
+                                           kVarRerunTime, kSavePerEvent, kVarAlgTime, kSavePerEvent, 2,
+                                           kFormatOptionToPercentage));
 
-    _toSave.push_back( TableColumnFormatter("Time Use In Accepted Events [%]",
-      "Percentage of this total CPU usage which comes from resurrection.",
-      kVarPassTime, kSavePerEvent, kVarAlgTime, kSavePerEvent, 2, kFormatOptionToPercentage) );
+    _toSave.push_back(TableColumnFormatter("Time Use In Accepted Events [%]",
+                                           "Percentage of this total CPU usage which comes from resurrection.",
+                                           kVarPassTime, kSavePerEvent, kVarAlgTime, kSavePerEvent, 2,
+                                           kFormatOptionToPercentage));
 
-    _toSave.push_back( TableColumnFormatter("ROS Walltime Time/Event [ms]",
-      "Average per event of the sum over all algorithms ROS request times.",
-      kVarROSTime, kSavePerEvent, kVarEventsActive, kSavePerCall, 2) );
+    _toSave.push_back(TableColumnFormatter("ROS Walltime Time/Event [ms]",
+                                           "Average per event of the sum over all algorithms ROS request times.",
+                                           kVarROSTime, kSavePerEvent, kVarEventsActive, kSavePerCall, 2));
 
-    _toSave.push_back( TableColumnFormatter("Data Requests/Event",
-      "Average per event number of calls made to the Readout System by executed algorithms.",
-      kVarROSCalls, kSavePerEvent, kVarEventsActive, kSavePerCall, 2) );
+    _toSave.push_back(TableColumnFormatter("Data Requests/Event",
+                                           "Average per event number of calls made to the Readout System by executed algorithms.",
+                                           kVarROSCalls, kSavePerEvent, kVarEventsActive, kSavePerCall, 2));
 
-    _toSave.push_back( TableColumnFormatter("RoIs/Event",
-      "Average per event number of Regions of Interest supplied from the lower trigger level.",
-      kVarROI, kSavePerEvent, kVarEventsActive, kSavePerCall, 2) );
+    _toSave.push_back(TableColumnFormatter("RoIs/Event",
+                                           "Average per event number of Regions of Interest supplied from the lower trigger level.",
+                                           kVarROI, kSavePerEvent, kVarEventsActive, kSavePerCall, 2));
 
     const IntStringMap_t _comp = TrigXMLService::trigXMLService().getComputerTypeToNameMap();
     if (_comp.size() >= 4) {
-      _toSave.push_back( TableColumnFormatter(std::string(_comp.at(1) + " Steering Time/Event [ms]"),
-        "Total steering time per event for this type of CPU",
-        kVarSteeringTimeCPUType1, kSavePerEvent, kVarEventsCPUType1, kSavePerCall, 2) );
+      _toSave.push_back(TableColumnFormatter(std::string(_comp.at(1) + " Steering Time/Event [ms]"),
+                                             "Total steering time per event for this type of CPU",
+                                             kVarSteeringTimeCPUType1, kSavePerEvent, kVarEventsCPUType1, kSavePerCall,
+                                             2));
 
-      _toSave.push_back( TableColumnFormatter(std::string(_comp.at(2) + " Steering Time/Event [ms]"),
-        "Total steering time per event for this type of CPU",
-        kVarSteeringTimeCPUType2, kSavePerEvent, kVarEventsCPUType2, kSavePerCall, 2) );
+      _toSave.push_back(TableColumnFormatter(std::string(_comp.at(2) + " Steering Time/Event [ms]"),
+                                             "Total steering time per event for this type of CPU",
+                                             kVarSteeringTimeCPUType2, kSavePerEvent, kVarEventsCPUType2, kSavePerCall,
+                                             2));
 
-      _toSave.push_back( TableColumnFormatter(std::string(_comp.at(3) + " Steering Time/Event [ms]"),
-        "Total steering time per event for this type of CPU",
-        kVarSteeringTimeCPUType3, kSavePerEvent, kVarEventsCPUType3, kSavePerCall, 2) );
+      _toSave.push_back(TableColumnFormatter(std::string(_comp.at(3) + " Steering Time/Event [ms]"),
+                                             "Total steering time per event for this type of CPU",
+                                             kVarSteeringTimeCPUType3, kSavePerEvent, kVarEventsCPUType3, kSavePerCall,
+                                             2));
 
-      _toSave.push_back( TableColumnFormatter(std::string(_comp.at(4) + " Steering Time/Event [ms]"),
-        "Total steering time per event for this type of CPU",
-        kVarSteeringTimeCPUType4, kSavePerEvent, kVarEventsCPUType4, kSavePerCall, 2) );
+      _toSave.push_back(TableColumnFormatter(std::string(_comp.at(4) + " Steering Time/Event [ms]"),
+                                             "Total steering time per event for this type of CPU",
+                                             kVarSteeringTimeCPUType4, kSavePerEvent, kVarEventsCPUType4, kSavePerCall,
+                                             2));
     }
 
-    _toSave.push_back( TableColumnFormatter("CostMon Time/Event [ms]",
-      "Average time per event to execute cost monitoring.",
-      kVarTrigCostTime, kSavePerEvent, kVarEventsActive, kSavePerCall, 2) );
+    _toSave.push_back(TableColumnFormatter("CostMon Time/Event [ms]",
+                                           "Average time per event to execute cost monitoring.",
+                                           kVarTrigCostTime, kSavePerEvent, kVarEventsActive, kSavePerCall, 2));
 
 
     // _toSave.push_back( TableColumnFormatter("Texec Time/Event [ms]",
@@ -280,10 +296,8 @@ namespace TrigCostRootAnalysis {
     // Fin HLT farm usage estimates
     // TODO Lumi block scaling corrections
 
-    sharedTableOutputRoutine( _toSave );
-
+    sharedTableOutputRoutine(_toSave);
   }
-
 
   /**
    * Construct new counter of correct derived type, pass back as base type.
@@ -293,9 +307,7 @@ namespace TrigCostRootAnalysis {
    * @param _ID Reference to ID number of counter.
    * @returns Base class pointer to new counter object of correct serived type.
    */
-  CounterBase* MonitorGlobals::newCounter(  const std::string &_name, Int_t _ID  ) {
-    return new CounterGlobals( m_costData, _name,  _ID, m_detailLevel, (MonitorBase*)this );
+  CounterBase* MonitorGlobals::newCounter(const std::string& _name, Int_t _ID) {
+    return new CounterGlobals(m_costData, _name, _ID, m_detailLevel, (MonitorBase*) this);
   }
-
-
 } // namespace TrigCostRootAnalysis

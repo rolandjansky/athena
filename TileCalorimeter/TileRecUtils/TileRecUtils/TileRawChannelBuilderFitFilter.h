@@ -92,6 +92,7 @@ class TileRawChannelBuilderFitFilter: public TileRawChannelBuilder {
     int m_extraSamplesLeft;
     int m_extraSamplesRight;
 
+    double m_saturatedSample; // defines the saturated sample
     double m_saturatedSampleError; // which error in terms of RMS is assigned to the saturated sample
     double m_zeroSampleError;  // which error in terms of RMS is assigned to the zero sample (== 0)
     double m_noiseThresholdRMS;     // for pedestal-like events only 2-parametric fit is applied
@@ -102,6 +103,8 @@ class TileRawChannelBuilderFitFilter: public TileRawChannelBuilder {
 
     // Pulse shapes
     TilePulseShapesStruct* m_pulseShapes;
+
+    bool m_disableNegativeAmp;
 };
 
 #define DTIME 25.0  // 25 ns distance between subsequent samples

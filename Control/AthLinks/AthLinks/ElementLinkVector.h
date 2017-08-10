@@ -110,6 +110,7 @@ public:
   public:
     typedef boost::transform_iterator<Short2LongRef, Iterator> Base;
     using Base::Base;
+    ELVIterator (const Base& b) : Base (b) {}
     using Base::operator++;
     using Base::operator--;
     ELVIterator operator++(int) { ELVIterator tmp=*this; ++(*this); return tmp; }

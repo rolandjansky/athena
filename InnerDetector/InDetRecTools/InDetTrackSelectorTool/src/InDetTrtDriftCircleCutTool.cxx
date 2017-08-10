@@ -12,15 +12,15 @@ StatusCode  InDet::InDetTrtDriftCircleCutTool::initialize()
   /* Get the trt active fraction tool */
   if(m_useTRT){
     if ( m_trtCondSvc.retrieve().isFailure() ) {
-      msg(MSG::ERROR) << "Failed to retrieve tool " << m_trtCondSvc << endreq;
+      msg(MSG::ERROR) << "Failed to retrieve tool " << m_trtCondSvc << endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_trtCondSvc << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_trtCondSvc << endmsg;
     }
   }
 
   if(sc.isFailure()){
-    msg(MSG::ERROR)<<" Unable to initialize the AlgTool"<<endreq;
+    msg(MSG::ERROR)<<" Unable to initialize the AlgTool"<<endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -29,7 +29,7 @@ StatusCode  InDet::InDetTrtDriftCircleCutTool::initialize()
     
 StatusCode InDet::InDetTrtDriftCircleCutTool::finalize()
 {
-  msg(MSG::INFO)  << "Finalize successful" << endreq;
+  msg(MSG::INFO)  << "Finalize successful" << endmsg;
   return StatusCode::SUCCESS;
 }
     

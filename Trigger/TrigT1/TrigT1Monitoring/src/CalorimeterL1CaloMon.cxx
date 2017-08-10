@@ -241,9 +241,9 @@ StatusCode CalorimeterL1CaloMon::bookHistogramsRecurrent()
     // book histograms that are only relevant for cosmics data...
   }
 
-  if ( newLumiBlock) { }
+  //if ( newLumiBlockFlag()) { }
 
-  if ( newRun ) {	
+  if ( newRunFlag() ) {	
 
     MgmtAttr_t attr = ATTRIB_UNMANAGED;
     MonGroup Calo( this, m_PathInRootFile+"/CalorimeterData", run, attr );
@@ -1175,9 +1175,9 @@ StatusCode CalorimeterL1CaloMon::fillHistograms()
 StatusCode CalorimeterL1CaloMon::procHistograms()
 /*---------------------------------------------------------*/
 {
-  if ( endOfLumiBlock ) { }
+  //if ( endOfLumiBlockFlag() ) { }
 	
-  if ( endOfRun ) { }
+  //if ( endOfRunFlag() ) { }
   
   return StatusCode::SUCCESS;
 }

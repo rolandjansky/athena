@@ -17,7 +17,6 @@
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "Identifier/Identifier.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
 
@@ -46,15 +45,13 @@ using namespace InDetDD;
 TestSiAlignment::TestSiAlignment(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
   m_manager(nullptr),
-  m_managerName(""),
-  m_geoModelSvc("GeoModelSvc", name)
+  m_managerName("")
 {  
   // Get parameter values from jobOptions file
   declareProperty("ManagerName",  m_managerName);
   declareProperty("LongPrintOut", m_longPrintOut = false);
   declareProperty("ErrorRotation",m_errRot = 1e-15);      // For testing if alignment changed
   declareProperty("ErrorTranslation",m_errTrans = 1e-12); // For testing if alignment changed
-  declareProperty("GeoModelSvc",  m_geoModelSvc);
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
@@ -66,31 +63,6 @@ StatusCode TestSiAlignment::initialize(){
   ATH_MSG_INFO( " LongPrintOut:     " << (m_longPrintOut ? "true" : "false") );  
   ATH_MSG_INFO( " ErrorRotation:    " << m_errRot );  
   ATH_MSG_INFO( " ErrorTranslation: " << m_errTrans );  
-  // GeoModelSvc
-  ATH_CHECK (m_geoModelSvc.retrieve());
-  StatusCode sc;
-  if(m_geoModelSvc->geoInitialized()) {
-    ATH_MSG_INFO( "Geometry already initialized. Call geoInitialize." );
-    sc = geoInitialize();
-  } else {
-    ATH_MSG_INFO( "Geometry not yet initialized. Registering callback"  );
-    // Register callback to check when TagInfo has changed
-    sc =  detStore()->regFcn(&IGeoModelSvc::geoInit, &*m_geoModelSvc,&TestSiAlignment::geoInitCallback, this);
-    if (sc.isFailure()) {
-      ATH_MSG_ERROR( "Cannot register geoInitCallback function "  );
-    } else {
-      ATH_MSG_DEBUG( "Registered geoInitCallback callback  " );
-    }
-  }
-  return sc;
-}
-
-StatusCode TestSiAlignment::geoInitCallback(IOVSVC_CALLBACK_ARGS){
-  return geoInitialize();
-}
-
-
-StatusCode TestSiAlignment::geoInitialize() {
   // Retrieve Detector Manager
   ATH_CHECK(detStore()->retrieve(m_manager, m_managerName));
   printAlignmentShifts();

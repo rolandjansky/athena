@@ -13,6 +13,58 @@ The plots are intended to be as simple structures as possible, only retrieving a
 the added decoration variables. There are numerous decorators for either truth or track particles,
 inheriting from a common interface. 
 
+===
+  Instruction for sparse git checkout and build in 'dev' (April 2017)
+===
+Assuming you are starting from a clean user directory and have used git at least once 
+before and have therefore set up your git configuration and already forked the main 
+repository to a new repository with your name:
+
+1. Set up the Atlas environment and clone the repository
+setupATLAS
+lsetup git
+mkdir athena build run
+git-atlas init-workdir https://:@gitlab.cern.ch:8443/atlas/athena.git
+
+2. Do a 'sparse checkout'
+cd ~/athena
+git-atlas addpkg InDetPhysValMonitoring
+git fetch upstream
+git checkout -b 22.0-idpvm upstream/master --no-track
+
+3. Setup the dev release
+asetup master,r02,Athena,gcc62
+(note: the r02 refers to a release on the specific day [2] of the current month)
+
+4. Develop, then build with cmake
+cd ~/build
+cmake ../athena/Projects/AthenaWorkDir
+make
+
+5. Get some data to work on
+cd ~/run
+source ../athena/InnerDetector/InDetValidation/InDetPhysValMonitoring/scripts/getSomeData.sh
+ln -s /tmp/$USER/valid3/ESD.05297574._000080.pool.root.1 AOD.pool.root
+
+6. Run
+source ../build/x86_64-slc6-gcc49-opt/setup.sh
+athena ../athena/InnerDetector/InDetValidation/InDetPhysValMonitoring/run/PhysVal_jobOptions.py
+
+7. Commit code
+cd ~/athena
+git commit -a -m "My new commit"
+(note: at this point you have only committed to your _local_ repository)
+git push --set-upstream origin 22.0-idpvm
+
+At this point, you have committed to your previously forked repository which is public.
+
+8. Make a 'Merge Request'
+This is done on the webpage of your personal forked repository. Your code will be reviewed
+and (hopefully) accepted to master; this may take ~ 1 day.
+
+
+
+
 ====
 	Making and running a test job(CMAKE)
 ====

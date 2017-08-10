@@ -48,8 +48,9 @@ class TrackPattern
    isRpcFailure(false),
    isTgcFailure(false),
    large_dPhidZ(false),
-   outerCorFactor(0)
-     {};
+   outerCorFactor(0),
+   hashID_CSC(999)
+   {};
    
     ~TrackPattern() {};
     
@@ -100,8 +101,10 @@ class TrackPattern
     bool   isRpcFailure;
     bool   isTgcFailure;
 
+    //relevant to CSC pt
     bool large_dPhidZ;
     double outerCorFactor;
+    int hashID_CSC;
 };
  
 // --------------------------------------------------------------------------------

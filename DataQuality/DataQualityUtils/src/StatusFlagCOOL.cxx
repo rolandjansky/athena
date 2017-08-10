@@ -51,7 +51,7 @@ createSpec() {
     spec.extend("Code",cool::StorageType::Int32);
     spec.extend("deadFrac",cool::StorageType::Float);
     spec.extend("Thrust",cool::StorageType::Float);
-    if (!(spec==coolFolder->payloadSpecification())) {
+    if (!(spec==m_coolFolder->payloadSpecification())) {
         std::cout << "ERROR Source and destination folder specifications differ." << std::endl;
     }
     return spec;

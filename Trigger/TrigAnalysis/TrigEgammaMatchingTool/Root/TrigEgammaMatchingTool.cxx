@@ -186,9 +186,9 @@ namespace Trig {
         auto fc = (m_trigDecTool->features(trigger,TrigDefs::alsoDeactivateTEs));
 
 #ifdef XAOD_ANALYSIS
-        const auto vec = fc.containerFeature<xAOD::PhotonContainer>("egamma_Photons",TrigDefs::alsoDeactivateTEs);
+        const auto vec = fc.containerFeature<xAOD::PhotonContainer>("",TrigDefs::alsoDeactivateTEs);
 #else
-        const auto vec = fc.get<xAOD::PhotonContainer>("egamma_Photons",TrigDefs::alsoDeactivateTEs);
+        const auto vec = fc.get<xAOD::PhotonContainer>("",TrigDefs::alsoDeactivateTEs);
 #endif // XAOD_ANALYSIS
         ATH_MSG_DEBUG("EF FC Size " << vec.size());
         double deltaR=0.; 
@@ -221,9 +221,9 @@ namespace Trig {
         auto fc = (m_trigDecTool->features(trigger,TrigDefs::alsoDeactivateTEs));
 
 #ifdef XAOD_ANALYSIS
-            const auto vec = fc.containerFeature<xAOD::ElectronContainer>("egamma_Electrons",TrigDefs::alsoDeactivateTEs);
+            const auto vec = fc.containerFeature<xAOD::ElectronContainer>("",TrigDefs::alsoDeactivateTEs);
 #else
-            const auto vec = fc.get<xAOD::ElectronContainer>("egamma_Electrons",TrigDefs::alsoDeactivateTEs);
+            const auto vec = fc.get<xAOD::ElectronContainer>("",TrigDefs::alsoDeactivateTEs);
 #endif // XAOD_ANALYSIS
         ATH_MSG_DEBUG("EF FC Size " << vec.size());
         double deltaR=0.; 

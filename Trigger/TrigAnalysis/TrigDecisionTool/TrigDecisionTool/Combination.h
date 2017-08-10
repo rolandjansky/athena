@@ -10,7 +10,7 @@
 /**********************************************************************************
  * @Project:
  * @Package: TrigDecision
- * @Class  : TrigDecision
+ * @class  : TrigDecision
  *
  * @brief combination of TEs storage
  *

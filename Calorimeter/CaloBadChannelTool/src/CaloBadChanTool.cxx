@@ -46,11 +46,11 @@ StatusCode CaloBadChanTool::initialize()
 
 CaloBadChannel CaloBadChanTool::caloStatus(Identifier id) const{
   if (m_tileBCT && m_caloID->is_tile(id)) {
-    //(*m_log) << MSG::VERBOSE << "Calling Tile BadChannelTool ... not yet implemeted" << endreq;
+    //(*m_log) << MSG::VERBOSE << "Calling Tile BadChannelTool ... not yet implemeted" << endmsg;
     return m_tileBCT->caloStatus(id);
   }
   else if(m_larBCT && m_caloID->is_lar(id)) {
-   // (*m_log) << MSG::VERBOSE << "Calling LAr BadChannelTool ... not yet implemeted" << endreq;
+   // (*m_log) << MSG::VERBOSE << "Calling LAr BadChannelTool ... not yet implemeted" << endmsg;
     return m_larBCT->caloStatus(id);
   }
   else {

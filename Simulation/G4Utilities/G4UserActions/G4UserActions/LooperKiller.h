@@ -28,7 +28,7 @@ namespace G4UA
       struct Config
       {
         int MaxSteps=1000000;
-        bool PrintSteps=100;
+        int PrintSteps=100;
         int VerboseLevel=1;
         bool AbortEvent=true;
         bool SetError=false;

@@ -33,6 +33,11 @@ globalflags.DetDescrVersion="ATLAS-GEO-16-00-00"
 globalflags.DetGeo="atlas" 
 globalflags.InputFormat="pool" 
 globalflags.DataSource="data" 
+
+eventInfoKey = "ByteStreamEventInfo"
+if globalflags.DataSource()=="geant4":
+  eventInfoKey = "McEventInfo"
+
 #--------------------------------------------------------------
 # Set Detector setup
 #--------------------------------------------------------------
@@ -69,7 +74,7 @@ job = AlgSequence()
 # Local stuff
 #------------------------------------------------------------
 from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_MonitorConditionsSvc
-ServiceMgr +=SCT_MonitorConditionsSvc()
+ServiceMgr +=SCT_MonitorConditionsSvc(EventInfoKey=eventInfoKey)
 
 SCT_MonitorConditions=ServiceMgr.SCT_MonitorConditionsSvc
 #SCT_MonitorConditions.BadModuleIdentifiers=["1","2"]

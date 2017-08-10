@@ -16,7 +16,7 @@ CPMHitsCollection_PERS * CPMHitsCollectionCnv::createPersistent( CPMHitsCollecti
   
   MsgStream mlog(msgSvc(), "CPMHitsCollectionConverter" );
 
-  //mlog << MSG::DEBUG << "CPMHitsCollectionCnv::createPersistent called" << endreq;
+  //mlog << MSG::DEBUG << "CPMHitsCollectionCnv::createPersistent called" << endmsg;
 
   CPMHitsCollection_PERS * p_TTColl = m_TPConverter_tlp1.createPersistent( transObj, mlog );
  
@@ -30,7 +30,7 @@ CPMHitsCollection * CPMHitsCollectionCnv::createTransient()
 {
   MsgStream mlog(msgSvc(), "CPMHitsCollectionConverter" );
   
-  //mlog << MSG::DEBUG << "CPMHitsCollectionCnv::createTransient called" << endreq;
+  //mlog << MSG::DEBUG << "CPMHitsCollectionCnv::createTransient called" << endmsg;
 
   static pool::Guid tlp1_guid( "4A309D12-C11D-4666-8253-72522BF7948E" );
  

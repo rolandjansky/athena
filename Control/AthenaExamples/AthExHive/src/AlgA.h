@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef CONDALGS_ALGA_H
 #define CONDALGS_ALGA_H 1
 
@@ -16,6 +20,8 @@ public:
   
   AlgA (const std::string& name, ISvcLocator* pSvcLocator);
   ~AlgA ();
+
+  bool isClonable() const override { return true; }
   
   StatusCode initialize();
   StatusCode execute();

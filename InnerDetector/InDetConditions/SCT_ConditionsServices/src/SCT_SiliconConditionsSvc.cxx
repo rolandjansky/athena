@@ -192,7 +192,7 @@ SCT_SiliconConditionsSvc::setConditionsFromGeoModel()
   DecodeVersionKey versionKey(&*m_geoModelSvc, "SCT");
   ATH_MSG_DEBUG( "Checking GeoModel Version Tag: "<<  versionKey.tag() << " at Node: " << versionKey.node() );
 
-  const IRDBRecordset * sctConditionsSet = m_rdbSvc->getRecordset("SctConditions",  versionKey.tag(), versionKey.node());
+  IRDBRecordset_ptr  sctConditionsSet = m_rdbSvc->getRecordsetPtr("SctConditions",  versionKey.tag(), versionKey.node());
   if (sctConditionsSet->size()) {
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Default conditions available from GeoModel."  << endmsg;
     const IRDBRecord * defaultConditions = (*sctConditionsSet)[0];

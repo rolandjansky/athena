@@ -64,19 +64,19 @@ StatusCode TrigL2MuonSA::AlignmentBarrelLUT::readLUT(std::string lut_fileName)
 
   for(int i_saddress=0; i_saddress<4; i_saddress++) {
     for(int i_innerR=0; i_innerR<2; i_innerR++) {
-      NbinEta[i_saddress][i_innerR]=0;
-      EtaMin[i_saddress][i_innerR]=0;
-      EtaMax[i_saddress][i_innerR]=0;
-      EtaStep[i_saddress][i_innerR]=0;
-      NbinPhi[i_saddress][i_innerR]=0;
-      PhiMin[i_saddress][i_innerR]=0;
-      PhiMax[i_saddress][i_innerR]=0;
-      PhiStep[i_saddress][i_innerR]=0;
+      m_NbinEta[i_saddress][i_innerR]=0;
+      m_EtaMin[i_saddress][i_innerR]=0;
+      m_EtaMax[i_saddress][i_innerR]=0;
+      m_EtaStep[i_saddress][i_innerR]=0;
+      m_NbinPhi[i_saddress][i_innerR]=0;
+      m_PhiMin[i_saddress][i_innerR]=0;
+      m_PhiMax[i_saddress][i_innerR]=0;
+      m_PhiStep[i_saddress][i_innerR]=0;
       
       for(int i_eta=0; i_eta<15; i_eta++) {
 	for(int i_phi=0; i_phi<30; i_phi++) {
 	  for(int i_etaQ=0; i_etaQ<2; i_etaQ++) {
-	    dZ[i_saddress][i_innerR][i_eta][i_phi][i_etaQ] = 0;
+	    m_dZ[i_saddress][i_innerR][i_eta][i_phi][i_etaQ] = 0;
           }
         }
       }
@@ -92,12 +92,12 @@ StatusCode TrigL2MuonSA::AlignmentBarrelLUT::readLUT(std::string lut_fileName)
   for(int i_lut=0; i_lut<2; i_lut++) {
 
     file >> saddress >> innerR;
-    file >> EtaMin[saddress][innerR] >> EtaMax[saddress][innerR]
-	 >> PhiMin[saddress][innerR] >> PhiMax[saddress][innerR]
-	 >> NbinEta[saddress][innerR] >> NbinPhi[saddress][innerR];
+    file >> m_EtaMin[saddress][innerR] >> m_EtaMax[saddress][innerR]
+	 >> m_PhiMin[saddress][innerR] >> m_PhiMax[saddress][innerR]
+	 >> m_NbinEta[saddress][innerR] >> m_NbinPhi[saddress][innerR];
 
-    EtaStep[saddress][innerR] = (EtaMax[saddress][innerR] - EtaMin[saddress][innerR]) / (float)NbinEta[saddress][innerR];
-    PhiStep[saddress][innerR] = (PhiMax[saddress][innerR] - PhiMin[saddress][innerR]) / (float)NbinPhi[saddress][innerR];
+    m_EtaStep[saddress][innerR] = (m_EtaMax[saddress][innerR] - m_EtaMin[saddress][innerR]) / (float)m_NbinEta[saddress][innerR];
+    m_PhiStep[saddress][innerR] = (m_PhiMax[saddress][innerR] - m_PhiMin[saddress][innerR]) / (float)m_NbinPhi[saddress][innerR];
 
     for (int i_eta=0; i_eta<15; i_eta++) {
       for (int i_phi=0; i_phi<30; i_phi++) {
@@ -105,7 +105,7 @@ StatusCode TrigL2MuonSA::AlignmentBarrelLUT::readLUT(std::string lut_fileName)
 
 	  file >> N0 >> N1 >> N2 >> A0 >> A1 >> A2;
 
-	  dZ[saddress][innerR][i_eta][i_phi][i_etaQ] = A0;
+	  m_dZ[saddress][innerR][i_eta][i_phi][i_etaQ] = A0;
 
 	} // etaQ loop
       } // phi loop
@@ -159,8 +159,8 @@ double TrigL2MuonSA::AlignmentBarrelLUT::GetDeltaZ(int&    saddress,
     int sign_etam=(iEta>14)?-1:1;
     int sign_etap=-sign_etam;
     
-    return (dZ[saddress][innerR][iEta_bin][iPhi_bin][0]*sign_etam
-	    + dZ[saddress][innerR][iEta_bin][iPhi_bin][1]*sign_etap) / 2.;
+    return (m_dZ[saddress][innerR][iEta_bin][iPhi_bin][0]*sign_etam
+	    + m_dZ[saddress][innerR][iEta_bin][iPhi_bin][1]*sign_etap) / 2.;
 
   } else {
     ATH_MSG_INFO("Barrel alignment is implemented only for Large-SP");
@@ -177,14 +177,14 @@ std::pair<int, int> TrigL2MuonSA::AlignmentBarrelLUT::GetBinNumber(int saddress,
 
   if(saddress > 3 || saddress < 0 || innerR < 0 || innerR > 1)  return std::make_pair(-5,-5);
 
-  int etaBin = (int)((etaMap - EtaMin[saddress][innerR])/EtaStep[saddress][innerR]);
-  int phiBin = (int)((phiMap - PhiMin[saddress][innerR])/PhiStep[saddress][innerR]);
+  int etaBin = (int)((etaMap - m_EtaMin[saddress][innerR])/m_EtaStep[saddress][innerR]);
+  int phiBin = (int)((phiMap - m_PhiMin[saddress][innerR])/m_PhiStep[saddress][innerR]);
 
   if(etaBin <= -1) etaBin = 0;
-  if(etaBin >= NbinEta[saddress][innerR]) etaBin = NbinEta[saddress][innerR] - 1;
+  if(etaBin >= m_NbinEta[saddress][innerR]) etaBin = m_NbinEta[saddress][innerR] - 1;
 
   if(phiBin <= -1) phiBin = 0;
-  if(phiBin >= NbinPhi[saddress][innerR]) phiBin = NbinPhi[saddress][innerR] - 1;
+  if(phiBin >= m_NbinPhi[saddress][innerR]) phiBin = m_NbinPhi[saddress][innerR] - 1;
 
   return std::make_pair(etaBin,phiBin);
 }

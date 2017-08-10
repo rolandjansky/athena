@@ -43,16 +43,16 @@ StatusCode InDet::InDetZVTOP_Alg::initialize()
 {
   // Code entered here will be executed once at program start.
   
-  msg (MSG::INFO) << MSG::INFO << name() << " initialize()" << endreq;
+  msg (MSG::INFO) << MSG::INFO << name() << " initialize()" << endmsg;
 
   /* Get the VertexFinderTool */
    if ( m_VertexFinderTool.retrieve().isFailure() ) {
-      msg( MSG::FATAL ) << "Failed to retrieve tool " << m_VertexFinderTool << endreq;
+      msg( MSG::FATAL ) << "Failed to retrieve tool " << m_VertexFinderTool << endmsg;
       return StatusCode::FAILURE;
-   } else msg ( MSG::INFO ) << "Retrieved tool " << m_VertexFinderTool<< endreq;
+   } else msg ( MSG::INFO ) << "Retrieved tool " << m_VertexFinderTool<< endmsg;
 
 
-  msg ( MSG::INFO ) << "initialize() successful in " << name() << endreq;
+  msg ( MSG::INFO ) << "initialize() successful in " << name() << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -81,10 +81,10 @@ StatusCode InDet::InDetZVTOP_Alg::execute()
       const TrackCollection *trackTES(0);
       if (evtStore()->retrieve(trackTES, m_tracksName).isFailure())
 	{
-	  if(msgLvl(MSG::DEBUG)) msg() << "Could not find TrackCollection " << m_tracksName << " in StoreGate." << endreq;
+	  if(msgLvl(MSG::DEBUG)) msg() << "Could not find TrackCollection " << m_tracksName << " in StoreGate." << endmsg;
 	  return StatusCode::SUCCESS;
-	} else if (msgLvl(MSG::VERBOSE)) msg() << "Find TrackCollection " << m_tracksName << " in StoreGate." << endreq;
-      if (msgLvl(MSG::VERBOSE)) msg() << "Number of tracks  = " << trackTES->size() << endreq;
+	} else if (msgLvl(MSG::VERBOSE)) msg() << "Find TrackCollection " << m_tracksName << " in StoreGate." << endmsg;
+      if (msgLvl(MSG::VERBOSE)) msg() << "Number of tracks  = " << trackTES->size() << endmsg;
       //theVxContainer = m_VertexFinderTool->findVertex(trackTES); --David S.
       theXAODContainers = m_VertexFinderTool->findVertex(trackTES);
     }
@@ -93,34 +93,34 @@ StatusCode InDet::InDetZVTOP_Alg::execute()
       const Trk::TrackParticleBaseCollection *trackParticleBaseCollection(0);
       if(evtStore()->retrieve(trackParticleBaseCollection, m_tracksName).isFailure())
 	{
-	  if(msgLvl(MSG::DEBUG)) msg() << "Could not find Trk::TrackParticleBaseCollection" << m_tracksName << " in StoreGate." << endreq;
+	  if(msgLvl(MSG::DEBUG)) msg() << "Could not find Trk::TrackParticleBaseCollection" << m_tracksName << " in StoreGate." << endmsg;
 	  return StatusCode::SUCCESS;
 	}
       //theVxContainer = m_VertexFinderTool->findVertex(trackParticleBaseCollection); --David S.
       theXAODContainers = m_VertexFinderTool->findVertex(trackParticleBaseCollection);
     }
   else {
-    if (msgLvl(MSG::DEBUG)) msg() << "Neither a TrackCollection nor a TrackParticleBaseCollection with key " << m_tracksName << " exist." << endreq;
+    if (msgLvl(MSG::DEBUG)) msg() << "Neither a TrackCollection nor a TrackParticleBaseCollection with key " << m_tracksName << " exist." << endmsg;
     //add check for xAOD::TrackParticleContainer --David S.
     if(evtStore()->contains<xAOD::TrackParticleContainer>(m_tracksName))
     {
-      if (msgLvl (MSG::DEBUG)) msg() << "xAOD::TrackParticleContainer with key " << m_tracksName << " found, but no findVertex method implemented yet for these objects." << endreq; 
+      if (msgLvl (MSG::DEBUG)) msg() << "xAOD::TrackParticleContainer with key " << m_tracksName << " found, but no findVertex method implemented yet for these objects." << endmsg; 
     }
   }
   //---- Recording section: write the results to StoreGate ---//
-  //if (msgLvl(MSG::VERBOSE)) msg() << "Recording to StoreGate: " << m_vxCollectionOutputName << endreq; --David S.
-  if (msgLvl(MSG::VERBOSE)) msg() << "Recording to StoreGate: " << m_vxCollectionOutputName << " with AuxContainer " << vxContainerAuxName << endreq;
+  //if (msgLvl(MSG::VERBOSE)) msg() << "Recording to StoreGate: " << m_vxCollectionOutputName << endmsg; --David S.
+  if (msgLvl(MSG::VERBOSE)) msg() << "Recording to StoreGate: " << m_vxCollectionOutputName << " with AuxContainer " << vxContainerAuxName << endmsg;
   //if (evtStore()->record(theVxContainer,m_vxCollectionOutputName,false).isFailure()) --David S.
   if (evtStore()->record(theXAODContainers.first,m_vxCollectionOutputName,false).isFailure())
     {
-      //if (msgLvl(MSG::INFO)) msg() << "Unable to record VxContainer in TDS" << endreq; --David S.
-      if (msgLvl(MSG::INFO)) msg() << "Unable to record VertexContainer in TDS" << endreq;
+      //if (msgLvl(MSG::INFO)) msg() << "Unable to record VxContainer in TDS" << endmsg; --David S.
+      if (msgLvl(MSG::INFO)) msg() << "Unable to record VertexContainer in TDS" << endmsg;
       return StatusCode::FAILURE;
     }
   //add record AuxContainer to StoreGate --David S.
   if (evtStore()->record(theXAODContainers.second,vxContainerAuxName).isFailure())
     {
-      if (msgLvl(MSG::INFO)) msg() << "Unable to record VertexAuxContainer in TDS" << endreq;
+      if (msgLvl(MSG::INFO)) msg() << "Unable to record VertexAuxContainer in TDS" << endmsg;
       return StatusCode::FAILURE;
     }
   return StatusCode::SUCCESS;

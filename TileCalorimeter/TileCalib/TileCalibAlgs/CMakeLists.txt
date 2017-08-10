@@ -24,12 +24,12 @@ atlas_depends_on_subdirs( PUBLIC
                           Database/RegistrationServices
                           Event/ByteStreamCnvSvcBase
                           Event/xAOD/xAODEventInfo
+                          Event/xAOD/xAODTrigL1Calo                          
                           TileCalorimeter/TileCalib/TileCalibBlobObjs
                           TileCalorimeter/TileEvent
                           TileCalorimeter/TileMonitoring
                           TileCalorimeter/TileRecUtils
-                          TileCalorimeter/TileSvc/TileByteStream
-                          Trigger/TrigT1/TrigT1CaloEvent )
+                          TileCalorimeter/TileSvc/TileByteStream )
 
 # External dependencies:
 find_package( CLHEP )
@@ -41,7 +41,7 @@ atlas_add_component( TileCalibAlgs
                      src/Tile*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} CaloDetDescrLib CaloIdentifier AthenaBaseComps Identifier GaudiKernel TileConditionsLib TileIdentifier TrigT1CaloCalibToolInterfaces CaloEvent AthenaKernel StoreGateLib SGtests AthenaPoolUtilities ByteStreamCnvSvcBaseLib xAODEventInfo TileCalibBlobObjs TileEvent TileRecUtilsLib TileByteStreamLib TrigT1CaloEventLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} CaloDetDescrLib CaloIdentifier AthenaBaseComps Identifier GaudiKernel TileConditionsLib TileIdentifier TrigT1CaloCalibToolInterfaces CaloEvent AthenaKernel StoreGateLib SGtests AthenaPoolUtilities ByteStreamCnvSvcBaseLib xAODEventInfo xAODTrigL1Calo TileCalibBlobObjs TileEvent TileRecUtilsLib TileByteStreamLib )
 
 # Install files from the package:
 atlas_install_headers( TileCalibAlgs )

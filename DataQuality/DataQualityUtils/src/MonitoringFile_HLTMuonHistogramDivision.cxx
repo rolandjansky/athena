@@ -40,13 +40,12 @@ namespace dqutils {
 
   //   static const bool fdbg = false;
   static const bool fdbg = true;
-  bool m_HI_pp_key=false;//true::HI false::pp
+  bool HI_pp_key=false;//true::HI false::pp
 
   void MonitoringFile::HLTMuonHistogramDivision(std::string inFilename, TString& run_dir)
   {
 
     if (fdbg) std::cout << "  Start to Divide HLTMuon Histograms for Efficiency and Rate Ratio" << std::endl;
-
     PostProcessorFileWrapper mf( inFilename , "HLT Histogram Division");
     if (!mf.IsOpen()) {
       std::cerr << "HLTMuonPostProcess(): "
@@ -102,9 +101,9 @@ namespace dqutils {
 	//std::cout<<"HI_PP_Flag :found "<<std::endl;
 	//std::cout<<"bin content "<<hHI_PP_Flag->GetBinContent(0)<<"/"<<hHI_PP_Flag->GetBinContent(1)<<"/"<<hHI_PP_Flag->GetBinContent(2)<<std::endl;
 	if(hHI_PP_Flag->GetBinContent(1) > 0){
-	  m_HI_pp_key = true;
+	  HI_pp_key = true;
 	}else{
-	  m_HI_pp_key = false;
+	  HI_pp_key = false;
 	}
       }
 
@@ -404,56 +403,56 @@ namespace dqutils {
       mf.Write();
 
       //==Turn on
-      std::vector<TString> m_chainsMSonly;  
-      std::vector<TString> m_chainsStandard;
-      std::vector<TString> m_chainsMG;
-      std::vector<TString> m_chainsMI;
-      std::vector<TString> m_chainsGeneric;
-      std::vector<TString> m_chainsEFiso;
-      std::vector<TString> m_chainsEFFS;
+      std::vector<TString> chainsMSonly;  
+      std::vector<TString> chainsStandard;
+      std::vector<TString> chainsMG;
+      std::vector<TString> chainsMI;
+      std::vector<TString> chainsGeneric;
+      std::vector<TString> chainsEFiso;
+      std::vector<TString> chainsEFFS;
 
       // Generic (EFsuper etc.)
-      // m_chainsGeneric.push_back("mu36_tight");             // v4 primary
-      //m_chainsGeneric.push_back("mu4_cosmic_L1MU4_EMPTY");   // LS1
-      //m_chainsGeneric.push_back("mu4_cosmic_L1MU11_EMPTY");  // LS1
-      m_chainsGeneric.push_back("muChain1");   // MAM 
-      m_chainsGeneric.push_back("muChain2");  // MAM
+      // chainsGeneric.push_back("mu36_tight");             // v4 primary
+      //chainsGeneric.push_back("mu4_cosmic_L1MU4_EMPTY");   // LS1
+      //chainsGeneric.push_back("mu4_cosmic_L1MU11_EMPTY");  // LS1
+      chainsGeneric.push_back("muChain1");   // MAM 
+      chainsGeneric.push_back("muChain2");  // MAM
 
       // Generic (Isolated muons)
-      // m_chainsEFiso.push_back("mu24i_tight")  ;            // v4 primary
-      m_chainsEFiso.push_back("muChainEFiso1")  ;            // MAM 
-      m_chainsEFiso.push_back("muChainEFiso2")  ;            // MAM 
+      // chainsEFiso.push_back("mu24i_tight")  ;            // v4 primary
+      chainsEFiso.push_back("muChainEFiso1")  ;            // MAM 
+      chainsEFiso.push_back("muChainEFiso2")  ;            // MAM 
 
       // MSonly
-      // m_chainsMSonly.push_back("mu50_MSonly_barrel_tight");    // v4 primary
-      //m_chainsMSonly.push_back("mu4_msonly_cosmic_L1MU11_EMPTY");    // LS1
-      m_chainsMSonly.push_back("muChainMSonly1");    // MAM 
-      m_chainsMSonly.push_back("muChainMSonly2");    // MAM 
+      // chainsMSonly.push_back("mu50_MSonly_barrel_tight");    // v4 primary
+      //chainsMSonly.push_back("mu4_msonly_cosmic_L1MU11_EMPTY");    // LS1
+      chainsMSonly.push_back("muChainMSonly1");    // MAM 
+      chainsMSonly.push_back("muChainMSonly2");    // MAM 
 
       // EFFS triggers (L. Yuan)
-      // m_chainsEFFS.push_back("mu18_tight_mu8_EFFS");
-      m_chainsEFFS.push_back("muChainEFFS");  // MAM
+      // chainsEFFS.push_back("mu18_tight_mu8_EFFS");
+      chainsEFFS.push_back("muChainEFFS");  // MAM
 
       enum indexINDEP { INDORTH, INDEGAMMA, INDMET, INDJET, INDTAU, INDMBIAS };
-      TString m_trigger[INDMBIAS + 1];
+      TString trigger[INDMBIAS + 1];
 
-      m_trigger[INDORTH] = "Orthog";//EGamma + Tau + Jet + MET
-      m_trigger[INDEGAMMA] = "EGamma";
-      m_trigger[INDMET] = "MET";
-      m_trigger[INDJET] = "Jet";
+      trigger[INDORTH] = "Orthog";//EGamma + Tau + Jet + MET
+      trigger[INDEGAMMA] = "EGamma";
+      trigger[INDMET] = "MET";
+      trigger[INDJET] = "Jet";
 
-      int m_maxindep = 0; // YY 20.01.2012
+      int maxindep = 0; // YY 20.01.2012
 
       // YY added:
-      TString m_ESchainName = "_ES";
+      TString ESchainName = "_ES";
 
       TString bestr[2] = {"_Barrel", "_Endcap"};
 
       // made it as enum: 20.1.2012
-      std::string m_triggerES[7] = {"_ESstd", "_EStag", "_ESid", "_ESindep", "_ESHIL1", "_ESHIid", "_ESHIindep"};
+      std::string triggerES[7] = {"_ESstd", "_EStag", "_ESid", "_ESindep", "_ESHIL1", "_ESHIid", "_ESHIindep"};
       enum indexES { ESSTD, ESTAG, ESID, ESINDEP, ESHIL1, ESHIID, ESHIINDEP };
 
-      int m_maxESbr = ESINDEP;
+      int maxESbr = ESINDEP;
 
       bool CB_mon_ESbr[ESHIINDEP + 1];
       bool MS_mon_ESbr[ESHIINDEP + 1];
@@ -474,20 +473,20 @@ namespace dqutils {
       MS_mon_ESbr[ESHIID] = 0;
       MS_mon_ESbr[ESHIINDEP] = 0;
 
-      std::vector<std::string> m_vectkwd;
+      std::vector<std::string> vectkwd;
 
-      m_vectkwd.push_back(m_triggerES[ESTAG]);
-      m_vectkwd.push_back(m_triggerES[ESID]);
-      m_vectkwd.push_back("_Jet");
-      m_vectkwd.push_back("_all");
+      vectkwd.push_back(triggerES[ESTAG]);
+      vectkwd.push_back(triggerES[ESID]);
+      vectkwd.push_back("_Jet");
+      vectkwd.push_back("_all");
 
-      TString m_hptName = "_hpt";
-      TString m_MSchainName = "_MSb";
+      TString hptName = "_hpt";
+      TString MSchainName = "_MSb";
 
       // YY: pt range.
       int iSTDL;
       int iSTDH;
-      if(m_HI_pp_key){
+      if(HI_pp_key){
 	iSTDL = 45;  // 12 GeV
 	//iSTDL = 54;  // 15 GeV
 	iSTDH = 75; // 25 GeV
@@ -498,7 +497,7 @@ namespace dqutils {
       int iMSL = 105;  // 60 GeV
       int iMSH = 120;  // 100 GeV
 
-      if(m_HI_pp_key){
+      if(HI_pp_key){
 	iMSL=54;//15GeV
 	iMSH=75;//25GeV
       }
@@ -520,8 +519,8 @@ namespace dqutils {
       // start the code add by Yuan //
       //TString FS_pre_trigger = "mu18it_tight";
       TString FS_pre_trigger = "EFFSpre";
-      for(unsigned int i=0; i<m_chainsEFFS.size(); i++){
-	TString chainName = m_chainsEFFS.at(i);
+      for(unsigned int i=0; i<chainsEFFS.size(); i++){
+	TString chainName = chainsEFFS.at(i);
 
 	TString hists_str[9] = {chainName + "_tagEFFSpre" + "_Turn_On_Curve_wrt_probe_MuidCB",
 	  chainName + "_tagEFFSpre" + "_Turn_On_Curve_wrt_probe_MuidCB_Barrel",
@@ -674,15 +673,15 @@ namespace dqutils {
 	  continue;
 	}
 
-	int m_iSTDL = 39;
-	int m_iSTDH = 120;
-	if(m_HI_pp_key){//HI run 4-25GeV
-	  m_iSTDL = 17;
-	  m_iSTDH = 75;				
+	int iSTDL = 39;
+	int iSTDH = 120;
+	if(HI_pp_key){//HI run 4-25GeV
+	  iSTDL = 17;
+	  iSTDH = 75;				
 	}
 	double sumeff, sumerr;
-	double sumn = h1numb->Integral(m_iSTDL, m_iSTDH); // 10-100 GeV
-	double sumd = h1denb->Integral(m_iSTDL, m_iSTDH);
+	double sumn = h1numb->Integral(iSTDL, iSTDH); // 10-100 GeV
+	double sumd = h1denb->Integral(iSTDL, iSTDH);
 	if (sumd == 0.) {
 	  sumeff = 0.;
 	  sumerr = 0.;
@@ -694,8 +693,8 @@ namespace dqutils {
 	h1sumL->SetBinContent(1, sumeff);
 	h1sumL->SetBinError(1, sumerr);
 
-	sumn = h1nume->Integral(m_iSTDL, m_iSTDH);
-	sumd = h1dene->Integral(m_iSTDL, m_iSTDH);
+	sumn = h1nume->Integral(iSTDL, iSTDH);
+	sumd = h1dene->Integral(iSTDL, iSTDH);
 	if (sumd == 0.) {
 	  sumeff = 0.;
 	  sumerr = 0.;
@@ -705,6 +704,8 @@ namespace dqutils {
 	}
 	h1sumL->SetBinContent(2, sumeff);
 	h1sumL->SetBinError(2, sumerr);
+        h1sumL->SetMinimum(0.0);
+        h1sumL->SetMaximum(1.05);
 
 	dir->cd();
 	h1sumL->Write("",TObject::kOverwrite);
@@ -773,8 +774,8 @@ namespace dqutils {
 	  continue;
 	}
 
-	sumn = h1num_mu0_15->Integral(m_iSTDL, m_iSTDH); // 10-100 GeV
-	sumd = h1den_mu0_15->Integral(m_iSTDL, m_iSTDH);
+	sumn = h1num_mu0_15->Integral(iSTDL, iSTDH); // 10-100 GeV
+	sumd = h1den_mu0_15->Integral(iSTDL, iSTDH);
 	if (sumd == 0.) {
 	  sumeff = 0.;
 	  sumerr = 0.;
@@ -786,8 +787,8 @@ namespace dqutils {
 	h1sum_mu->SetBinContent(1, sumeff);
 	h1sum_mu->SetBinError(1, sumerr);
 
-	sumn = h1num_mu15_20->Integral(m_iSTDL, m_iSTDH);
-	sumd = h1den_mu15_20->Integral(m_iSTDL, m_iSTDH);
+	sumn = h1num_mu15_20->Integral(iSTDL, iSTDH);
+	sumd = h1den_mu15_20->Integral(iSTDL, iSTDH);
 	if (sumd == 0.) {
 	  sumeff = 0.;
 	  sumerr = 0.;
@@ -798,8 +799,8 @@ namespace dqutils {
 	h1sum_mu->SetBinContent(2, sumeff);
 	h1sum_mu->SetBinError(2, sumerr);
 
-	sumn = h1num_mu20->Integral(m_iSTDL, m_iSTDH);
-	sumd = h1den_mu20->Integral(m_iSTDL, m_iSTDH);
+	sumn = h1num_mu20->Integral(iSTDL, iSTDH);
+	sumd = h1den_mu20->Integral(iSTDL, iSTDH);
 	if (sumd == 0.) {
 	  sumeff = 0.;
 	  sumerr = 0.;
@@ -815,24 +816,24 @@ namespace dqutils {
       }
       //  end of the code add by Yuan //
       // ******************************************************//
-      TString m_alg2[3] = {"_MuFast", "_MuonEFMS", "_MuonEFSA"};
-      TString m_wrtalg2[3] = {"_L1", "_MuFast", "_MuFast"};
+      TString alg2[3] = {"_MuFast", "_MuonEFMS", "_MuonEFSA"};
+      TString wrtalg2[3] = {"_L1", "_MuFast", "_MuFast"};
 
       // ******************************************************//
       // ******************  MSonly Chains ********************//
       // ******************************************************//
-      for( unsigned int i=0 ; i < m_chainsMSonly.size() ; i++ ){
-	TString chainName = m_chainsMSonly.at(i);
+      for( unsigned int i=0 ; i < chainsMSonly.size() ; i++ ){
+	TString chainName = chainsMSonly.at(i);
 
-	for( int trg = 0 ; trg < m_maxindep ; trg++ ){
-	  sden = nd_dir + chainName + "_Turn_On_Curve_wrt_MuidSA" + m_trigger[trg] + "_Triggered_Denominator";
+	for( int trg = 0 ; trg < maxindep ; trg++ ){
+	  sden = nd_dir + chainName + "_Turn_On_Curve_wrt_MuidSA" + trigger[trg] + "_Triggered_Denominator";
 
 	  for(int alg = 0 ; alg < 3 ; alg++ ){
-	    snum = nd_dir  + chainName + m_alg2[alg] + "_Turn_On_Curve_wrt_MuidSA" + m_trigger[trg] + "_Triggered_Numerator";
-	    seff = eff_dir + chainName + m_alg2[alg] + "_Turn_On_Curve_wrt_MuidSA" + m_trigger[trg] + "_Triggered";
+	    snum = nd_dir  + chainName + alg2[alg] + "_Turn_On_Curve_wrt_MuidSA" + trigger[trg] + "_Triggered_Numerator";
+	    seff = eff_dir + chainName + alg2[alg] + "_Turn_On_Curve_wrt_MuidSA" + trigger[trg] + "_Triggered";
 	    seffg = seff + "_Fit"; // YY added 20.04.10
-	    stmp = chainName + m_alg2[alg] + "_Turn_On_Curve_wrt_MuidSA" + m_trigger[trg] +"_Triggered";
-	    stmpg = chainName + m_alg2[alg] + "_Turn_On_Curve_wrt_MuidSA" + m_trigger[trg] +"_Triggered" + "_Fit";
+	    stmp = chainName + alg2[alg] + "_Turn_On_Curve_wrt_MuidSA" + trigger[trg] +"_Triggered";
+	    stmpg = chainName + alg2[alg] + "_Turn_On_Curve_wrt_MuidSA" + trigger[trg] +"_Triggered" + "_Fit";
 
 	    h1num = 0;
 	    mf.get(snum, h1num);
@@ -893,7 +894,7 @@ namespace dqutils {
 		  }
 
 		  if (iholx >= 0) {
-		    TString s = eff_dir + chainName + "_highpt_effsummary_by" + m_vectkwd.at(2);
+		    TString s = eff_dir + chainName + "_highpt_effsummary_by" + vectkwd.at(2);
 		    // std::cerr << "hist summary: " << s << " n: " << sumn << " d: " << sumd << " eff: " << sumeff << " err: " << sumerr << std::endl;
 		    mf.get(s, h1sumeff);
 		    if (!h1sumeff) {
@@ -904,6 +905,8 @@ namespace dqutils {
 		    }
 		    h1sumeff->SetBinContent(iholx+1, sumeff);
 		    h1sumeff->SetBinError(iholx+1, sumerr);
+                    h1sumeff->SetMinimum(0.0);
+	            h1sumeff->SetMaximum(1.05);
 		    // saving
 		    dir->cd();
 		    h1sumeff->Write("", TObject::kOverwrite);
@@ -919,11 +922,11 @@ namespace dqutils {
 	for( int alg = 0 ; alg < 3 ; alg++ ){
 	  //wrt MuidSA
 	  sden  = nd_dir  + chainName + "_Turn_On_Curve_wrt_MuidSA_Denominator";
-	  snum  = nd_dir  + chainName + m_alg2[alg] + "_Turn_On_Curve_Numerator";
-	  seff  = eff_dir + chainName + m_alg2[alg] + "_Turn_On_Curve_wrt_MuidSA";
+	  snum  = nd_dir  + chainName + alg2[alg] + "_Turn_On_Curve_Numerator";
+	  seff  = eff_dir + chainName + alg2[alg] + "_Turn_On_Curve_wrt_MuidSA";
 	  seffg = seff + "_Fit"; // YY added 20.04.10
-	  stmp = chainName + m_alg2[alg] + "_Turn_On_Curve_wrt_MuidSA";
-	  stmpg = chainName + m_alg2[alg] + "_Turn_On_Curve_wrt_MuidSA"+"_Fit";
+	  stmp = chainName + alg2[alg] + "_Turn_On_Curve_wrt_MuidSA";
+	  stmpg = chainName + alg2[alg] + "_Turn_On_Curve_wrt_MuidSA"+"_Fit";
 
 	  h1num = 0;
 	  mf.get(snum, h1num);
@@ -982,7 +985,7 @@ namespace dqutils {
 	      }
 
 	      if (iholx >= 0) {
-		TString s = eff_dir + chainName + "_highpt_effsummary_by" + m_vectkwd.at(3);
+		TString s = eff_dir + chainName + "_highpt_effsummary_by" + vectkwd.at(3);
 		// std::cerr << "hist summary: " << s << " n: " << sumn << " d: " << sumd << " eff: " << sumeff << " err: " << sumerr << std::endl;
 		mf.get(s, h1sumeff);
 		if (!h1sumeff) {
@@ -993,6 +996,8 @@ namespace dqutils {
 		}
 		h1sumeff->SetBinContent(iholx+1, sumeff);
 		h1sumeff->SetBinError(iholx+1, sumerr);
+  	        h1sumeff->SetMinimum(0.0);
+	        h1sumeff->SetMaximum(1.05);
 		// saving
 		dir->cd();
 		h1sumeff->Write("", TObject::kOverwrite);
@@ -1002,17 +1007,17 @@ namespace dqutils {
 	  //wrt MuidSA
 
 	  // for ES ----------------------------------------------------------------
-	  for (int ies = 0; ies <= m_maxESbr; ies++) {
+	  for (int ies = 0; ies <= maxESbr; ies++) {
 
 	    if(!MS_mon_ESbr[ies])continue;
 	    // for ES, L1 ------------------------------------------------------------
 	    if (0 == alg) {
-	      sden = nd_dir + chainName + m_triggerES[ies] + "_Turn_On_Curve_wrt_MuidSA_Denominator";
-	      snum = nd_dir + chainName + m_triggerES[ies] + "_MuFast" + "_Turn_On_Curve_wrt" + "_L1" + "_Denominator";
-	      seff = eff_dir + chainName + m_triggerES[ies] + "_L1" + "_Turn_On_Curve_wrt_MuidSA";
+	      sden = nd_dir + chainName + triggerES[ies] + "_Turn_On_Curve_wrt_MuidSA_Denominator";
+	      snum = nd_dir + chainName + triggerES[ies] + "_MuFast" + "_Turn_On_Curve_wrt" + "_L1" + "_Denominator";
+	      seff = eff_dir + chainName + triggerES[ies] + "_L1" + "_Turn_On_Curve_wrt_MuidSA";
 	      seffg = seff + "_Fit";
-	      stmp = chainName + m_triggerES[alg] + "_L1"+"_Turn_On_Curve_wrt_MuidSA";
-	      stmpg= chainName + m_triggerES[alg] + "_L1"+"_Turn_On_Curve_wrt_MuidSA" + "_Fit";
+	      stmp = chainName + triggerES[alg] + "_L1"+"_Turn_On_Curve_wrt_MuidSA";
+	      stmpg= chainName + triggerES[alg] + "_L1"+"_Turn_On_Curve_wrt_MuidSA" + "_Fit";
 
 	      h1num = 0;
 	      mf.get(snum, h1num);
@@ -1054,12 +1059,12 @@ namespace dqutils {
 	      }
 
 	      for (int be = 0; be < 2; be++) {
-		sden = nd_dir + chainName + m_triggerES[ies] + "_Turn_On_Curve_wrt_MuidSA" + bestr[be] + "_Denominator";
-		snum = nd_dir + chainName + m_triggerES[ies] + "_MuFast" + "_Turn_On_Curve_wrt" + "_L1" + bestr[be] + "_Denominator";
-		seff  = eff_dir + chainName + m_triggerES[ies] + "_L1" + bestr[be] + "_Turn_On_Curve_wrt_MuidSA";
+		sden = nd_dir + chainName + triggerES[ies] + "_Turn_On_Curve_wrt_MuidSA" + bestr[be] + "_Denominator";
+		snum = nd_dir + chainName + triggerES[ies] + "_MuFast" + "_Turn_On_Curve_wrt" + "_L1" + bestr[be] + "_Denominator";
+		seff  = eff_dir + chainName + triggerES[ies] + "_L1" + bestr[be] + "_Turn_On_Curve_wrt_MuidSA";
 		seffg = seff + "_Fit";
-		stmp = chainName + m_triggerES[ies] + "_L1" + bestr[be] + "_Turn_On_Curve_wrt_MuidSA";
-		stmpg = chainName + m_triggerES[ies] + "_L1" + bestr[be] + "_Turn_On_Curve_wrt_MuidSA"+"_Fit";
+		stmp = chainName + triggerES[ies] + "_L1" + bestr[be] + "_Turn_On_Curve_wrt_MuidSA";
+		stmpg = chainName + triggerES[ies] + "_L1" + bestr[be] + "_Turn_On_Curve_wrt_MuidSA"+"_Fit";
 
 		h1num = 0;
 		mf.get(snum, h1num);
@@ -1103,12 +1108,12 @@ namespace dqutils {
 	    }
 
 	    // for ES, L1 end ------------------------------------------------------------
-	    sden  = nd_dir  + chainName + m_triggerES[ies] + "_Turn_On_Curve_wrt_MuidSA_Denominator";
-	    snum  = nd_dir  + chainName + m_triggerES[ies] + m_alg2[alg] + "_Turn_On_Curve_Numerator";
-	    seff  = eff_dir + chainName + m_triggerES[ies] + m_alg2[alg] + "_Turn_On_Curve_wrt_MuidSA";
+	    sden  = nd_dir  + chainName + triggerES[ies] + "_Turn_On_Curve_wrt_MuidSA_Denominator";
+	    snum  = nd_dir  + chainName + triggerES[ies] + alg2[alg] + "_Turn_On_Curve_Numerator";
+	    seff  = eff_dir + chainName + triggerES[ies] + alg2[alg] + "_Turn_On_Curve_wrt_MuidSA";
 	    seffg = seff + "_Fit"; // YY added 20.04.10
-	    stmp = chainName + m_triggerES[ies] + m_alg2[alg] + "_Turn_On_Curve_wrt_MuidSA";
-	    stmpg = chainName + m_triggerES[ies] + m_alg2[alg] + "_Turn_On_Curve_wrt_MuidSA" +"_Fit";
+	    stmp = chainName + triggerES[ies] + alg2[alg] + "_Turn_On_Curve_wrt_MuidSA";
+	    stmpg = chainName + triggerES[ies] + alg2[alg] + "_Turn_On_Curve_wrt_MuidSA" +"_Fit";
 
 	    h1num = 0;
 	    mf.get(snum, h1num);
@@ -1168,7 +1173,7 @@ namespace dqutils {
 		  }
 
 		  if (iholx >= 0) {
-		    TString s = eff_dir + chainName + "_highpt_effsummary_by" + m_triggerES[ies];
+		    TString s = eff_dir + chainName + "_highpt_effsummary_by" + triggerES[ies];
 		    // std::cerr << "hist summary: " << s << " n: " << sumn << " d: " << sumd << " eff: " << sumeff << " err: " << sumerr << std::endl;
 		    mf.get(s, h1sumeff);
 		    if (!h1sumeff) {
@@ -1179,6 +1184,8 @@ namespace dqutils {
 		    }
 		    h1sumeff->SetBinContent(iholx+1, sumeff);
 		    h1sumeff->SetBinError(iholx+1, sumerr);
+                    h1sumeff->SetMinimum(0.0);
+	            h1sumeff->SetMaximum(1.05);
 		    // saving
 		    dir->cd();
 		    h1sumeff->Write("", TObject::kOverwrite);
@@ -1193,11 +1200,11 @@ namespace dqutils {
 	    for (int be = 0; be < 2; be++) {
 	      //wrt MuidSA
 	      sden  = nd_dir  + chainName + "_Turn_On_Curve_wrt_MuidSA" + bestr[be] + "_Denominator";
-	      snum  = nd_dir  + chainName + m_alg2[alg] + bestr[be] + "_Turn_On_Curve_Numerator";
-	      seff  = eff_dir + chainName + m_alg2[alg] + bestr[be] + "_Turn_On_Curve_wrt_MuidSA";
+	      snum  = nd_dir  + chainName + alg2[alg] + bestr[be] + "_Turn_On_Curve_Numerator";
+	      seff  = eff_dir + chainName + alg2[alg] + bestr[be] + "_Turn_On_Curve_wrt_MuidSA";
 	      seffg = seff + "_Fit"; // YY added 20.04.10
-	      stmp = chainName + m_alg2[alg] + bestr[be] + "_Turn_On_Curve_wrt_MuidSA";
-	      stmpg = chainName + m_alg2[alg] + bestr[be] + "_Turn_On_Curve_wrt_MuidSA" + "_Fit";
+	      stmp = chainName + alg2[alg] + bestr[be] + "_Turn_On_Curve_wrt_MuidSA";
+	      stmpg = chainName + alg2[alg] + bestr[be] + "_Turn_On_Curve_wrt_MuidSA" + "_Fit";
 
 	      h1num = 0;
 	      mf.get(snum, h1num);
@@ -1242,12 +1249,12 @@ namespace dqutils {
 	  }
 
 	  //wrt upstream
-	  sden  = nd_dir  + chainName + m_alg2[alg] + "_Turn_On_Curve_wrt" + m_wrtalg2[alg] + "_Denominator";
-	  snum  = nd_dir  + chainName + m_alg2[alg] + "_Turn_On_Curve_Numerator";
-	  seff  = eff_dir + chainName + m_alg2[alg] + "_Turn_On_Curve_wrt" + m_wrtalg2[alg];
+	  sden  = nd_dir  + chainName + alg2[alg] + "_Turn_On_Curve_wrt" + wrtalg2[alg] + "_Denominator";
+	  snum  = nd_dir  + chainName + alg2[alg] + "_Turn_On_Curve_Numerator";
+	  seff  = eff_dir + chainName + alg2[alg] + "_Turn_On_Curve_wrt" + wrtalg2[alg];
 	  seffg = seff + "_Fit"; // YY added 20.04.10
-	  stmp =  chainName + m_alg2[alg] + "_Turn_On_Curve_wrt" + m_wrtalg2[alg];
-	  stmpg =  chainName + m_alg2[alg] + "_Turn_On_Curve_wrt" + m_wrtalg2[alg]+"_Fit";
+	  stmp =  chainName + alg2[alg] + "_Turn_On_Curve_wrt" + wrtalg2[alg];
+	  stmpg =  chainName + alg2[alg] + "_Turn_On_Curve_wrt" + wrtalg2[alg]+"_Fit";
 
 	  h1num = 0;
 	  mf.get(snum, h1num);
@@ -1290,14 +1297,14 @@ namespace dqutils {
 
 	  //wrt upstream
 	  // for ES --------------------------------------------------------------------
-	  for (int ies = 0; ies <= m_maxESbr; ies++) {
+	  for (int ies = 0; ies <= maxESbr; ies++) {
 	    if(!MS_mon_ESbr[ies])continue; 
-	    sden  = nd_dir  + chainName + m_triggerES[ies] + m_alg2[alg] + "_Turn_On_Curve_wrt" + m_wrtalg2[alg] + "_Denominator";
-	    snum  = nd_dir  + chainName + m_triggerES[ies] + m_alg2[alg] + "_Turn_On_Curve_Numerator";
-	    seff  = eff_dir + chainName + m_triggerES[ies] + m_alg2[alg] + "_Turn_On_Curve_wrt" + m_wrtalg2[alg];
+	    sden  = nd_dir  + chainName + triggerES[ies] + alg2[alg] + "_Turn_On_Curve_wrt" + wrtalg2[alg] + "_Denominator";
+	    snum  = nd_dir  + chainName + triggerES[ies] + alg2[alg] + "_Turn_On_Curve_Numerator";
+	    seff  = eff_dir + chainName + triggerES[ies] + alg2[alg] + "_Turn_On_Curve_wrt" + wrtalg2[alg];
 	    seffg = seff + "_Fit"; // YY added 20.04.10
-	    stmp = chainName + m_triggerES[ies] + m_alg2[alg] + "_Turn_On_Curve_wrt" + m_wrtalg2[alg];
-	    stmpg = chainName + m_triggerES[ies] + m_alg2[alg] + "_Turn_On_Curve_wrt" + m_wrtalg2[alg]+"_Fit";
+	    stmp = chainName + triggerES[ies] + alg2[alg] + "_Turn_On_Curve_wrt" + wrtalg2[alg];
+	    stmpg = chainName + triggerES[ies] + alg2[alg] + "_Turn_On_Curve_wrt" + wrtalg2[alg]+"_Fit";
 
 	    h1num = 0;
 	    mf.get(snum, h1num);
@@ -1343,12 +1350,12 @@ namespace dqutils {
 	  if (0 == alg || 2 == alg) {
 	    for (int be = 0; be < 2; be++) {
 	      //wrt upstream
-	      sden  = nd_dir  + chainName + m_alg2[alg] + "_Turn_On_Curve_wrt" + m_wrtalg2[alg] + bestr[be] + "_Denominator";
-	      snum  = nd_dir  + chainName + m_alg2[alg] + bestr[be] + "_Turn_On_Curve_Numerator";
-	      seff  = eff_dir + chainName + m_alg2[alg] + "_Turn_On_Curve_wrt" + m_wrtalg2[alg] + bestr[be];
+	      sden  = nd_dir  + chainName + alg2[alg] + "_Turn_On_Curve_wrt" + wrtalg2[alg] + bestr[be] + "_Denominator";
+	      snum  = nd_dir  + chainName + alg2[alg] + bestr[be] + "_Turn_On_Curve_Numerator";
+	      seff  = eff_dir + chainName + alg2[alg] + "_Turn_On_Curve_wrt" + wrtalg2[alg] + bestr[be];
 	      seffg = seff + "_Fit"; // YY added 20.04.10
-	      stmp =  chainName + m_alg2[alg] + "_Turn_On_Curve_wrt" + m_wrtalg2[alg] + bestr[be];
-	      stmpg =  chainName + m_alg2[alg] + "_Turn_On_Curve_wrt" + m_wrtalg2[alg] + bestr[be]+"_Fit";
+	      stmp =  chainName + alg2[alg] + "_Turn_On_Curve_wrt" + wrtalg2[alg] + bestr[be];
+	      stmpg =  chainName + alg2[alg] + "_Turn_On_Curve_wrt" + wrtalg2[alg] + bestr[be]+"_Fit";
 
 	      h1num = 0;
 	      mf.get(snum, h1num);
@@ -1448,59 +1455,59 @@ namespace dqutils {
       mf.Write();
 
       // Triggers / Event
-      std::vector<TString> m_chains;
-      std::vector<TString> m_chains2;
+      std::vector<TString> chains;
+      std::vector<TString> chains2;
 
       {
-	std::map<std::string, std::string> m_ztpmap;
+	std::map<std::string, std::string> ztpmap;
 
 	//// cosmic menu items for ZTP
-	//m_ztpmap["mu4_cosmic_L1MU4_EMPTY"] = "L1_MU4";  
-	//m_ztpmap["mu24_imedium"] = "L1_MU15";
-	m_ztpmap["muChain1"] = "L1_MU15";
-	m_ztpmap["muChain2"] = "L1_MU15";
-	m_ztpmap["muChainEFiso1"] = "L1_MU15";
-	m_ztpmap["muChainEFiso2"] = "L1_MU15";
-	m_ztpmap["muChainMSonly1"] = "L1_MU15";
-	m_ztpmap["muChainMSonly2"] = "L1_MU15";
+	//ztpmap["mu4_cosmic_L1MU4_EMPTY"] = "L1_MU4";  
+	//ztpmap["mu24_imedium"] = "L1_MU15";
+	ztpmap["muChain1"] = "L1_MU15";
+	ztpmap["muChain2"] = "L1_MU15";
+	ztpmap["muChainEFiso1"] = "L1_MU15";
+	ztpmap["muChainEFiso2"] = "L1_MU15";
+	ztpmap["muChainMSonly1"] = "L1_MU15";
+	ztpmap["muChainMSonly2"] = "L1_MU15";
 
-	std::map<std::string, int> m_ztp_isomap;
-	//m_ztp_isomap["mu4_cosmic_L1MU4_EMPTY"] = 0;
-	//m_ztp_isomap["mu24_imedium"] = 1;
-	m_ztp_isomap["muChain1"] = 0;
-	m_ztp_isomap["muChain2"] = 0;
-	m_ztp_isomap["muChainEFiso1"] = 1;
-	m_ztp_isomap["muChainEFiso2"] = 1;
-	m_ztp_isomap["muChainMSonly1"] = 0;
-	m_ztp_isomap["muChainMSonly2"] = 0;
+	std::map<std::string, int> ztp_isomap;
+	//ztp_isomap["mu4_cosmic_L1MU4_EMPTY"] = 0;
+	//ztp_isomap["mu24_imedium"] = 1;
+	ztp_isomap["muChain1"] = 0;
+	ztp_isomap["muChain2"] = 0;
+	ztp_isomap["muChainEFiso1"] = 1;
+	ztp_isomap["muChainEFiso2"] = 1;
+	ztp_isomap["muChainMSonly1"] = 0;
+	ztp_isomap["muChainMSonly2"] = 0;
 
 	//// pp_v4 menu items for ZTP
-	//m_ztpmap["mu36_tight"] = "L1_MU15";
-	//m_ztpmap["mu24i_tight"] = "L1_MU15";
-	//m_ztpmap["mu50_MSonly_barrel_tight"] = "L1_MU15";
+	//ztpmap["mu36_tight"] = "L1_MU15";
+	//ztpmap["mu24i_tight"] = "L1_MU15";
+	//ztpmap["mu50_MSonly_barrel_tight"] = "L1_MU15";
 
-	//std::map<std::string, int> m_ztp_isomap;
-	//m_ztp_isomap["mu36_tight"] = 0;
-	//m_ztp_isomap["mu24i_tight"] = 1;
-	//m_ztp_isomap["mu50_MSonly_barrel_tight"] = 0;
+	//std::map<std::string, int> ztp_isomap;
+	//ztp_isomap["mu36_tight"] = 0;
+	//ztp_isomap["mu24i_tight"] = 1;
+	//ztp_isomap["mu50_MSonly_barrel_tight"] = 0;
 
 	// old menu pp_v3 for ZTP
-	// m_ztpmap["mu15"]="L1_MU10";
-	// m_ztpmap["mu15i"]="L1_MU10";
-	// m_ztpmap["mu20i_medium"]="L1_MU11";
-	// m_ztpmap["mu20"]="L1_MU10";
-	// m_ztpmap["mu20_MG"]="L1_MU10";
-	// m_ztpmap["mu22_medium"]="L1_MU11"; // YY
-	// m_ztpmap["mu22_MG_medium"]="L1_MU11";
-	// m_ztpmap["mu40_MSonly_barrel"]="L1_MU10";
-	// m_ztpmap["mu40_MSonly_barrel_medium"]="L1_MU11";
-	// m_ztpmap["mu40_MSonly_tight"]="L1_MU10";
-	// m_ztpmap["mu40_MSonly_tighter"]="L1_MU10";
+	// ztpmap["mu15"]="L1_MU10";
+	// ztpmap["mu15i"]="L1_MU10";
+	// ztpmap["mu20i_medium"]="L1_MU11";
+	// ztpmap["mu20"]="L1_MU10";
+	// ztpmap["mu20_MG"]="L1_MU10";
+	// ztpmap["mu22_medium"]="L1_MU11"; // YY
+	// ztpmap["mu22_MG_medium"]="L1_MU11";
+	// ztpmap["mu40_MSonly_barrel"]="L1_MU10";
+	// ztpmap["mu40_MSonly_barrel_medium"]="L1_MU11";
+	// ztpmap["mu40_MSonly_tight"]="L1_MU10";
+	// ztpmap["mu40_MSonly_tighter"]="L1_MU10";
 
-	for(std::map<std::string, std::string>::iterator itmap=m_ztpmap.begin();itmap!=m_ztpmap.end();++itmap){
+	for(std::map<std::string, std::string>::iterator itmap=ztpmap.begin();itmap!=ztpmap.end();++itmap){
 	  TString histdirmuztp = run_dir + "/HLT/MuonMon/MuZTP/"+itmap->first;
 	  TDirectory* ztpdir = mf.GetDirectory(histdirmuztp);
-	  bool  isefisochain = m_ztp_isomap[itmap->first] > 0; 
+	  bool  isefisochain = ztp_isomap[itmap->first] > 0; 
 
 	  //efficiency histograms
 	  std::vector<std::string> var;
@@ -2001,6 +2008,8 @@ namespace dqutils {
 	      }
 	      h1eff->SetBinContent(ibin-1, sumeff);  ////
 	      h1eff->SetBinError(ibin-1, sumerr);    ////
+	      h1eff->SetMinimum(0.0);
+	      h1eff->SetMaximum(1.05);
 	    }
 	  }
 
@@ -2091,9 +2100,9 @@ namespace dqutils {
 
 	    double sumeff, sumerr;
 	    double sumn = h1numb->Integral(13, 25); // 12-25 GeV
-	    if(m_HI_pp_key)sumn = h1numb->Integral(7, 10); // 30-50 GeV
+	    if(HI_pp_key)sumn = h1numb->Integral(7, 10); // 30-50 GeV
 	    double sumd = h1denb->Integral(13, 25);
-	    if(m_HI_pp_key)sumd = h1denb->Integral(7, 10);
+	    if(HI_pp_key)sumd = h1denb->Integral(7, 10);
 	    if (sumd == 0.) {
 	      sumeff = 0.;
 	      sumerr = 0.;
@@ -2105,9 +2114,9 @@ namespace dqutils {
 	    h1sumL->SetBinError(1, sumerr);
 
 	    sumn = h1nume->Integral(13, 25);
-	    if(m_HI_pp_key)sumn = h1numb->Integral(7, 10); // 30-50 GeV
+	    if(HI_pp_key)sumn = h1numb->Integral(7, 10); // 30-50 GeV
 	    sumd = h1dene->Integral(13, 25);
-	    if(m_HI_pp_key)sumd = h1denb->Integral(7, 10);
+	    if(HI_pp_key)sumd = h1denb->Integral(7, 10);
 	    if (sumd == 0.) {
 	      sumeff = 0.;
 	      sumerr = 0.;
@@ -2117,6 +2126,8 @@ namespace dqutils {
 	    }
 	    h1sumL->SetBinContent(2, sumeff);
 	    h1sumL->SetBinError(2, sumerr);
+	    h1sumL->SetMinimum(0.0);
+	    h1sumL->SetMaximum(1.05);
 	    efdir->cd();
 	    h1sumL->Write("",TObject::kOverwrite);
 	  }
@@ -2142,10 +2153,10 @@ namespace dqutils {
       }
 
       // processing Iso histograms in the same manner
-      m_chainsGeneric.insert(m_chainsGeneric.end(), m_chainsEFiso.begin(), m_chainsEFiso.end());  
+      chainsGeneric.insert(chainsGeneric.end(), chainsEFiso.begin(), chainsEFiso.end());  
 
-      for( unsigned int i=0 ; i < m_chainsGeneric.size() ; i++ ){
-	TString chainName = m_chainsGeneric.at(i);
+      for( unsigned int i=0 ; i < chainsGeneric.size() ; i++ ){
+	TString chainName = chainsGeneric.at(i);
 	if (fdbg) {
 	  std::cout << "proc generic " << chainName << std::endl;
 	}
@@ -2157,9 +2168,9 @@ namespace dqutils {
 	  effi  = chainName + monalg[alg] + "_Turn_On_Curve_wrt_MuidCB";
 	  HLTMuonHDiv(mf, histdireff, numer, denom, effi, "_Fit");
 
-	  denom = chainName + m_MSchainName + "_Turn_On_Curve_wrt_MuidCB_Denominator";
-	  numer = chainName + m_MSchainName + monalg[alg] + "_Turn_On_Curve_Numerator";
-	  effi  = chainName + m_MSchainName + monalg[alg] + "_Turn_On_Curve_wrt_MuidCB";
+	  denom = chainName + MSchainName + "_Turn_On_Curve_wrt_MuidCB_Denominator";
+	  numer = chainName + MSchainName + monalg[alg] + "_Turn_On_Curve_Numerator";
+	  effi  = chainName + MSchainName + monalg[alg] + "_Turn_On_Curve_wrt_MuidCB";
 	  HLTMuonHDiv(mf, histdireff, numer, denom, effi, "_Fit");
 
 	  // Summary all - removed
@@ -2170,28 +2181,28 @@ namespace dqutils {
 	  HLTMuonHDiv(mf, histdireff, numer, denom, effi, "_Fit");
 
 
-	  denom = chainName + m_MSchainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + "_Denominator";
-	  numer = chainName + m_MSchainName + monalg[alg] + "_Turn_On_Curve_Numerator";
-	  effi = chainName + m_MSchainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg];
+	  denom = chainName + MSchainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + "_Denominator";
+	  numer = chainName + MSchainName + monalg[alg] + "_Turn_On_Curve_Numerator";
+	  effi = chainName + MSchainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg];
 	  HLTMuonHDiv(mf, histdireff, numer, denom, effi, "_Fit");
 
 	  //  for ES ------------------------------------------------------------------------------------
-	  for (int i = 0; i <= m_maxESbr; i++) {
+	  for (int i = 0; i <= maxESbr; i++) {
 
 	    if(!CB_mon_ESbr[i]) continue;
 	    if (0 == alg) {
 	      // L1 efficiency: new for 2011 HI runs and afterward
 	      // only division once since it is "the zero-th" algorithm
-	      denom = chainName + m_triggerES[i] + "_Turn_On_Curve_wrt_MuidCB_Denominator";
-	      numer = chainName + m_triggerES[i] + "_MuFast" + "_Turn_On_Curve_wrt" + "_L1" + "_Denominator";
-	      effi  = chainName + m_triggerES[i] + "_L1" + "_Turn_On_Curve_wrt_MuidCB";
+	      denom = chainName + triggerES[i] + "_Turn_On_Curve_wrt_MuidCB_Denominator";
+	      numer = chainName + triggerES[i] + "_MuFast" + "_Turn_On_Curve_wrt" + "_L1" + "_Denominator";
+	      effi  = chainName + triggerES[i] + "_L1" + "_Turn_On_Curve_wrt_MuidCB";
 	      HLTMuonHDiv(mf, histdireff, numer, denom, effi, "_Fit");
 
 	      // Need to implement barrel and endcap ...
 	      for (int be = 0; be < 2; be++) {
-		denom = chainName + m_triggerES[i] + "_Turn_On_Curve_wrt_MuidCB" + bestr[be] + "_Denominator";
-		numer = chainName + m_triggerES[i] + "_MuFast" + "_Turn_On_Curve_wrt" + "_L1" + bestr[be] + "_Denominator";
-		effi  = chainName + m_triggerES[i] + "_L1" + bestr[be] + "_Turn_On_Curve_wrt_MuidCB";
+		denom = chainName + triggerES[i] + "_Turn_On_Curve_wrt_MuidCB" + bestr[be] + "_Denominator";
+		numer = chainName + triggerES[i] + "_MuFast" + "_Turn_On_Curve_wrt" + "_L1" + bestr[be] + "_Denominator";
+		effi  = chainName + triggerES[i] + "_L1" + bestr[be] + "_Turn_On_Curve_wrt_MuidCB";
 		HLTMuonHDiv(mf, histdireff, numer, denom, effi, "_Fit");
 
 		h1num = 0;
@@ -2235,15 +2246,17 @@ namespace dqutils {
 		  }
 		  h1effL1->SetBinContent(be+1, sumeff);
 		  h1effL1->SetBinError(be+1, sumerr);
+		  h1eff->SetMinimum(0.0);
+		  h1eff->SetMaximum(1.05);
 		  efdir->cd();
 		  h1effL1->Write("",TObject::kOverwrite);
 		}
 	      }	  
 	    }
 
-	    denom = chainName + m_triggerES[i] + "_Turn_On_Curve_wrt_MuidCB_Denominator";
-	    numer = chainName + m_triggerES[i] + monalg[alg] + "_Turn_On_Curve_Numerator";
-	    effi  = chainName + m_triggerES[i] + monalg[alg] + "_Turn_On_Curve_wrt_MuidCB";
+	    denom = chainName + triggerES[i] + "_Turn_On_Curve_wrt_MuidCB_Denominator";
+	    numer = chainName + triggerES[i] + monalg[alg] + "_Turn_On_Curve_Numerator";
+	    effi  = chainName + triggerES[i] + monalg[alg] + "_Turn_On_Curve_wrt_MuidCB";
 	    HLTMuonHDiv(mf, histdireff, numer, denom, effi, "_Fit");
 
 	    // Summary ESid and ESindep
@@ -2284,7 +2297,7 @@ namespace dqutils {
 		iholx = static_cast<int>(iEFCB);
 	      }
 
-	      TString s = histdireff + chainName + "_highpt_effsummary_by" + m_triggerES[i];
+	      TString s = histdireff + chainName + "_highpt_effsummary_by" + triggerES[i];
 	      TH1F *h1effsum = 0;
 	      mf.get(s, h1effsum);
 	      if (!h1effsum) {
@@ -2295,13 +2308,15 @@ namespace dqutils {
 	      }
 	      h1effsum->SetBinContent(iholx+1, sumeff);
 	      h1effsum->SetBinError(iholx+1, sumerr);
+	      h1effsum->SetMinimum(0.0);
+	      h1effsum->SetMaximum(1.05);
 	      efdir->cd();
 	      h1effsum->Write("",TObject::kOverwrite);
 	    }
 
-	    denom = chainName + m_triggerES[i] + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + "_Denominator";
-	    numer = chainName + m_triggerES[i] + monalg[alg] + "_Turn_On_Curve_Numerator";
-	    effi = chainName + m_triggerES[i] + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg];
+	    denom = chainName + triggerES[i] + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + "_Denominator";
+	    numer = chainName + triggerES[i] + monalg[alg] + "_Turn_On_Curve_Numerator";
+	    effi = chainName + triggerES[i] + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg];
 	    HLTMuonHDiv(mf, histdireff, numer, denom, effi, "_Fit");
 
 	    }
@@ -2317,9 +2332,9 @@ namespace dqutils {
 	      }
 
 	      for (int be = 0; be < 2; be++) {
-		denom = chainName + m_MSchainName + "_Turn_On_Curve_wrt_MuidCB" + bestr[be] + "_Denominator";
-		numer = chainName + m_MSchainName + monalg[alg] + bestr[be] + "_Turn_On_Curve_Numerator";
-		effi  = chainName + m_MSchainName + monalg[alg] + bestr[be] + "_Turn_On_Curve_wrt_MuidCB";
+		denom = chainName + MSchainName + "_Turn_On_Curve_wrt_MuidCB" + bestr[be] + "_Denominator";
+		numer = chainName + MSchainName + monalg[alg] + bestr[be] + "_Turn_On_Curve_Numerator";
+		effi  = chainName + MSchainName + monalg[alg] + bestr[be] + "_Turn_On_Curve_wrt_MuidCB";
 		HLTMuonHDiv(mf, histdireff, numer, denom, effi, "_Fit");
 	      }
 
@@ -2332,9 +2347,9 @@ namespace dqutils {
 
 
 	      for (int be = 0; be < 2; be++) {
-		denom = chainName + m_MSchainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + bestr[be] + "_Denominator";
-		numer = chainName + m_MSchainName + monalg[alg] + bestr[be] + "_Turn_On_Curve_Numerator";
-		effi = chainName + m_MSchainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + bestr[be];
+		denom = chainName + MSchainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + bestr[be] + "_Denominator";
+		numer = chainName + MSchainName + monalg[alg] + bestr[be] + "_Turn_On_Curve_Numerator";
+		effi = chainName + MSchainName + monalg[alg] + "_Turn_On_Curve_wrt" + wrtalg[alg] + bestr[be];
 		HLTMuonHDiv(mf, histdireff, numer, denom, effi, "_Fit");
 	      }
 

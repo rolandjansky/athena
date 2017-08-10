@@ -45,10 +45,6 @@ class CaloLCWeightTool : public AthAlgTool, virtual public IClusterCellWeightToo
   CaloLCWeightTool(const std::string& type, 
 		   const std::string& name,
 		   const IInterface* parent);
-  /** Callback added to handle Data-driven GeoModel initialisation
-   */
-  virtual StatusCode geoInit(IOVSVC_CALLBACK_ARGS);
-
  private:
 
   /**

@@ -53,163 +53,163 @@ class HIMonitoringElectronsTool : public ManagedMonitorToolBase
 	  double m_FCalEt_C;
 	   
 	  /// histograms 
-	  TH1D* h_FCalEt_looseLH;
-	  TH1D* h_FCalEt_mediumLH;
-	  TH1D* h_FCalEt_tightLH;
+	  TH1D* m_h_FCalEt_looseLH;
+	  TH1D* m_h_FCalEt_mediumLH;
+	  TH1D* m_h_FCalEt_tightLH;
 
-	  TH1D* h_FCalEt_A_looseLH;
-	  TH1D* h_FCalEt_A_mediumLH;
-	  TH1D* h_FCalEt_A_tightLH;
+	  TH1D* m_h_FCalEt_A_looseLH;
+	  TH1D* m_h_FCalEt_A_mediumLH;
+	  TH1D* m_h_FCalEt_A_tightLH;
 
-	  TH1D* h_FCalEt_C_looseLH;
-	  TH1D* h_FCalEt_C_mediumLH;
-	  TH1D* h_FCalEt_C_tightLH;
+	  TH1D* m_h_FCalEt_C_looseLH;
+	  TH1D* m_h_FCalEt_C_mediumLH;
+	  TH1D* m_h_FCalEt_C_tightLH;
 
-	  TH2D_LW* h_electron_eta_phi;
-	  TH1D* h_electron_z0sintheta;
+	  TH2D_LW* m_h_electron_eta_phi;
+	  TH1D* m_h_electron_z0sintheta;
 
 	  //etcone20
-	  TH2D_LW* h_electron_fcal_etcone20_looseLH;
-	  TH2D_LW* h_electron_fcal_etcone20_mediumLH;
-	  TH2D_LW* h_electron_fcal_etcone20_tightLH;
+	  TH2D_LW* m_h_electron_fcal_etcone20_looseLH;
+	  TH2D_LW* m_h_electron_fcal_etcone20_mediumLH;
+	  TH2D_LW* m_h_electron_fcal_etcone20_tightLH;
 
-	  TH2D_LW* h_electron_fcalA_etcone20_looseLH;
-	  TH2D_LW* h_electron_fcalA_etcone20_mediumLH;
-	  TH2D_LW* h_electron_fcalA_etcone20_tightLH;
+	  TH2D_LW* m_h_electron_fcalA_etcone20_looseLH;
+	  TH2D_LW* m_h_electron_fcalA_etcone20_mediumLH;
+	  TH2D_LW* m_h_electron_fcalA_etcone20_tightLH;
 
-	  TH2D_LW* h_electron_fcalC_etcone20_looseLH;
-	  TH2D_LW* h_electron_fcalC_etcone20_mediumLH;
-	  TH2D_LW* h_electron_fcalC_etcone20_tightLH;
+	  TH2D_LW* m_h_electron_fcalC_etcone20_looseLH;
+	  TH2D_LW* m_h_electron_fcalC_etcone20_mediumLH;
+	  TH2D_LW* m_h_electron_fcalC_etcone20_tightLH;
 
 	  //R_eta
-	  TH2D_LW* h_electron_fcal_reta_looseLH;
-	  TH2D_LW* h_electron_fcal_reta_mediumLH;
-	  TH2D_LW* h_electron_fcal_reta_tightLH;
+	  TH2D_LW* m_h_electron_fcal_reta_looseLH;
+	  TH2D_LW* m_h_electron_fcal_reta_mediumLH;
+	  TH2D_LW* m_h_electron_fcal_reta_tightLH;
 
-	  TH2D_LW* h_electron_fcalA_reta_looseLH;
-	  TH2D_LW* h_electron_fcalA_reta_mediumLH;
-	  TH2D_LW* h_electron_fcalA_reta_tightLH;
+	  TH2D_LW* m_h_electron_fcalA_reta_looseLH;
+	  TH2D_LW* m_h_electron_fcalA_reta_mediumLH;
+	  TH2D_LW* m_h_electron_fcalA_reta_tightLH;
 
-	  TH2D_LW* h_electron_fcalC_reta_looseLH;
-	  TH2D_LW* h_electron_fcalC_reta_mediumLH;
-	  TH2D_LW* h_electron_fcalC_reta_tightLH;
+	  TH2D_LW* m_h_electron_fcalC_reta_looseLH;
+	  TH2D_LW* m_h_electron_fcalC_reta_mediumLH;
+	  TH2D_LW* m_h_electron_fcalC_reta_tightLH;
 
 	  //R_phi
-	  TH2D_LW* h_electron_fcal_rphi_looseLH;
-	  TH2D_LW* h_electron_fcal_rphi_mediumLH;
-	  TH2D_LW* h_electron_fcal_rphi_tightLH;
+	  TH2D_LW* m_h_electron_fcal_rphi_looseLH;
+	  TH2D_LW* m_h_electron_fcal_rphi_mediumLH;
+	  TH2D_LW* m_h_electron_fcal_rphi_tightLH;
 
-	  TH2D_LW* h_electron_fcalA_rphi_looseLH;
-	  TH2D_LW* h_electron_fcalA_rphi_mediumLH;
-	  TH2D_LW* h_electron_fcalA_rphi_tightLH;
+	  TH2D_LW* m_h_electron_fcalA_rphi_looseLH;
+	  TH2D_LW* m_h_electron_fcalA_rphi_mediumLH;
+	  TH2D_LW* m_h_electron_fcalA_rphi_tightLH;
 
-	  TH2D_LW* h_electron_fcalC_rphi_looseLH;
-	  TH2D_LW* h_electron_fcalC_rphi_mediumLH;
-	  TH2D_LW* h_electron_fcalC_rphi_tightLH;
+	  TH2D_LW* m_h_electron_fcalC_rphi_looseLH;
+	  TH2D_LW* m_h_electron_fcalC_rphi_mediumLH;
+	  TH2D_LW* m_h_electron_fcalC_rphi_tightLH;
 
 	  //W_eta2
-	  TH2D_LW* h_electron_fcal_weta2_looseLH;
-	  TH2D_LW* h_electron_fcal_weta2_mediumLH;
-	  TH2D_LW* h_electron_fcal_weta2_tightLH;
+	  TH2D_LW* m_h_electron_fcal_weta2_looseLH;
+	  TH2D_LW* m_h_electron_fcal_weta2_mediumLH;
+	  TH2D_LW* m_h_electron_fcal_weta2_tightLH;
 
-	  TH2D_LW* h_electron_fcalA_weta2_looseLH;
-	  TH2D_LW* h_electron_fcalA_weta2_mediumLH;
-	  TH2D_LW* h_electron_fcalA_weta2_tightLH;
+	  TH2D_LW* m_h_electron_fcalA_weta2_looseLH;
+	  TH2D_LW* m_h_electron_fcalA_weta2_mediumLH;
+	  TH2D_LW* m_h_electron_fcalA_weta2_tightLH;
 
-	  TH2D_LW* h_electron_fcalC_weta2_looseLH;
-	  TH2D_LW* h_electron_fcalC_weta2_mediumLH;
-	  TH2D_LW* h_electron_fcalC_weta2_tightLH;
+	  TH2D_LW* m_h_electron_fcalC_weta2_looseLH;
+	  TH2D_LW* m_h_electron_fcalC_weta2_mediumLH;
+	  TH2D_LW* m_h_electron_fcalC_weta2_tightLH;
 
 	  //R_had
-	  TH2D_LW* h_electron_fcal_rhad_looseLH;
-	  TH2D_LW* h_electron_fcal_rhad_mediumLH;
-	  TH2D_LW* h_electron_fcal_rhad_tightLH;
+	  TH2D_LW* m_h_electron_fcal_rhad_looseLH;
+	  TH2D_LW* m_h_electron_fcal_rhad_mediumLH;
+	  TH2D_LW* m_h_electron_fcal_rhad_tightLH;
 
-	  TH2D_LW* h_electron_fcalA_rhad_looseLH;
-	  TH2D_LW* h_electron_fcalA_rhad_mediumLH;
-	  TH2D_LW* h_electron_fcalA_rhad_tightLH;
+	  TH2D_LW* m_h_electron_fcalA_rhad_looseLH;
+	  TH2D_LW* m_h_electron_fcalA_rhad_mediumLH;
+	  TH2D_LW* m_h_electron_fcalA_rhad_tightLH;
 
-	  TH2D_LW* h_electron_fcalC_rhad_looseLH;
-	  TH2D_LW* h_electron_fcalC_rhad_mediumLH;
-	  TH2D_LW* h_electron_fcalC_rhad_tightLH;
+	  TH2D_LW* m_h_electron_fcalC_rhad_looseLH;
+	  TH2D_LW* m_h_electron_fcalC_rhad_mediumLH;
+	  TH2D_LW* m_h_electron_fcalC_rhad_tightLH;
 
 	  //E_ratio
-	  TH2D_LW* h_electron_fcal_eratio_looseLH;
-	  TH2D_LW* h_electron_fcal_eratio_mediumLH;
-	  TH2D_LW* h_electron_fcal_eratio_tightLH;
+	  TH2D_LW* m_h_electron_fcal_eratio_looseLH;
+	  TH2D_LW* m_h_electron_fcal_eratio_mediumLH;
+	  TH2D_LW* m_h_electron_fcal_eratio_tightLH;
 
-	  TH2D_LW* h_electron_fcalA_eratio_looseLH;
-	  TH2D_LW* h_electron_fcalA_eratio_mediumLH;
-	  TH2D_LW* h_electron_fcalA_eratio_tightLH;
+	  TH2D_LW* m_h_electron_fcalA_eratio_looseLH;
+	  TH2D_LW* m_h_electron_fcalA_eratio_mediumLH;
+	  TH2D_LW* m_h_electron_fcalA_eratio_tightLH;
 
-	  TH2D_LW* h_electron_fcalC_eratio_looseLH;
-	  TH2D_LW* h_electron_fcalC_eratio_mediumLH;
-	  TH2D_LW* h_electron_fcalC_eratio_tightLH;
+	  TH2D_LW* m_h_electron_fcalC_eratio_looseLH;
+	  TH2D_LW* m_h_electron_fcalC_eratio_mediumLH;
+	  TH2D_LW* m_h_electron_fcalC_eratio_tightLH;
 
 	  //f_1
-	  TH2D_LW* h_electron_fcal_f1_looseLH;
-	  TH2D_LW* h_electron_fcal_f1_mediumLH;
-	  TH2D_LW* h_electron_fcal_f1_tightLH;
+	  TH2D_LW* m_h_electron_fcal_f1_looseLH;
+	  TH2D_LW* m_h_electron_fcal_f1_mediumLH;
+	  TH2D_LW* m_h_electron_fcal_f1_tightLH;
 
-	  TH2D_LW* h_electron_fcalA_f1_looseLH;
-	  TH2D_LW* h_electron_fcalA_f1_mediumLH;
-	  TH2D_LW* h_electron_fcalA_f1_tightLH;
+	  TH2D_LW* m_h_electron_fcalA_f1_looseLH;
+	  TH2D_LW* m_h_electron_fcalA_f1_mediumLH;
+	  TH2D_LW* m_h_electron_fcalA_f1_tightLH;
 
-	  TH2D_LW* h_electron_fcalC_f1_looseLH;
-	  TH2D_LW* h_electron_fcalC_f1_mediumLH;
-	  TH2D_LW* h_electron_fcalC_f1_tightLH;
+	  TH2D_LW* m_h_electron_fcalC_f1_looseLH;
+	  TH2D_LW* m_h_electron_fcalC_f1_mediumLH;
+	  TH2D_LW* m_h_electron_fcalC_f1_tightLH;
 
 	  //f_3
-	  TH2D_LW* h_electron_fcal_f3_looseLH;
-	  TH2D_LW* h_electron_fcal_f3_mediumLH;
-	  TH2D_LW* h_electron_fcal_f3_tightLH;
+	  TH2D_LW* m_h_electron_fcal_f3_looseLH;
+	  TH2D_LW* m_h_electron_fcal_f3_mediumLH;
+	  TH2D_LW* m_h_electron_fcal_f3_tightLH;
 
-	  TH2D_LW* h_electron_fcalA_f3_looseLH;
-	  TH2D_LW* h_electron_fcalA_f3_mediumLH;
-	  TH2D_LW* h_electron_fcalA_f3_tightLH;
+	  TH2D_LW* m_h_electron_fcalA_f3_looseLH;
+	  TH2D_LW* m_h_electron_fcalA_f3_mediumLH;
+	  TH2D_LW* m_h_electron_fcalA_f3_tightLH;
 
-	  TH2D_LW* h_electron_fcalC_f3_looseLH;
-	  TH2D_LW* h_electron_fcalC_f3_mediumLH;
-	  TH2D_LW* h_electron_fcalC_f3_tightLH;
+	  TH2D_LW* m_h_electron_fcalC_f3_looseLH;
+	  TH2D_LW* m_h_electron_fcalC_f3_mediumLH;
+	  TH2D_LW* m_h_electron_fcalC_f3_tightLH;
 
 	  //delta_eta1
-	  TH2D_LW* h_electron_fcal_deltaeta1_looseLH;
-	  TH2D_LW* h_electron_fcal_deltaeta1_mediumLH;
-	  TH2D_LW* h_electron_fcal_deltaeta1_tightLH;
+	  TH2D_LW* m_h_electron_fcal_deltaeta1_looseLH;
+	  TH2D_LW* m_h_electron_fcal_deltaeta1_mediumLH;
+	  TH2D_LW* m_h_electron_fcal_deltaeta1_tightLH;
 
-	  TH2D_LW* h_electron_fcalA_deltaeta1_looseLH;
-	  TH2D_LW* h_electron_fcalA_deltaeta1_mediumLH;
-	  TH2D_LW* h_electron_fcalA_deltaeta1_tightLH;
+	  TH2D_LW* m_h_electron_fcalA_deltaeta1_looseLH;
+	  TH2D_LW* m_h_electron_fcalA_deltaeta1_mediumLH;
+	  TH2D_LW* m_h_electron_fcalA_deltaeta1_tightLH;
 
-	  TH2D_LW* h_electron_fcalC_deltaeta1_looseLH;
-	  TH2D_LW* h_electron_fcalC_deltaeta1_mediumLH;
-	  TH2D_LW* h_electron_fcalC_deltaeta1_tightLH;
+	  TH2D_LW* m_h_electron_fcalC_deltaeta1_looseLH;
+	  TH2D_LW* m_h_electron_fcalC_deltaeta1_mediumLH;
+	  TH2D_LW* m_h_electron_fcalC_deltaeta1_tightLH;
 
 	  //delta_phi_rescaled
-	  TH2D_LW* h_electron_fcal_deltaphires_looseLH;
-	  TH2D_LW* h_electron_fcal_deltaphires_mediumLH;
-	  TH2D_LW* h_electron_fcal_deltaphires_tightLH;
+	  TH2D_LW* m_h_electron_fcal_deltaphires_looseLH;
+	  TH2D_LW* m_h_electron_fcal_deltaphires_mediumLH;
+	  TH2D_LW* m_h_electron_fcal_deltaphires_tightLH;
 
-	  TH2D_LW* h_electron_fcalA_deltaphires_looseLH;
-	  TH2D_LW* h_electron_fcalA_deltaphires_mediumLH;
-	  TH2D_LW* h_electron_fcalA_deltaphires_tightLH;
+	  TH2D_LW* m_h_electron_fcalA_deltaphires_looseLH;
+	  TH2D_LW* m_h_electron_fcalA_deltaphires_mediumLH;
+	  TH2D_LW* m_h_electron_fcalA_deltaphires_tightLH;
 
-	  TH2D_LW* h_electron_fcalC_deltaphires_looseLH;
-	  TH2D_LW* h_electron_fcalC_deltaphires_mediumLH;
-	  TH2D_LW* h_electron_fcalC_deltaphires_tightLH;
+	  TH2D_LW* m_h_electron_fcalC_deltaphires_looseLH;
+	  TH2D_LW* m_h_electron_fcalC_deltaphires_mediumLH;
+	  TH2D_LW* m_h_electron_fcalC_deltaphires_tightLH;
 
 	  //e_probability_HT
-	  TH2D_LW* h_electron_fcal_eprobabilityht_looseLH;
-	  TH2D_LW* h_electron_fcal_eprobabilityht_mediumLH;
-	  TH2D_LW* h_electron_fcal_eprobabilityht_tightLH;
+	  TH2D_LW* m_h_electron_fcal_eprobabilityht_looseLH;
+	  TH2D_LW* m_h_electron_fcal_eprobabilityht_mediumLH;
+	  TH2D_LW* m_h_electron_fcal_eprobabilityht_tightLH;
 
-	  TH2D_LW* h_electron_fcalA_eprobabilityht_looseLH;
-	  TH2D_LW* h_electron_fcalA_eprobabilityht_mediumLH;
-	  TH2D_LW* h_electron_fcalA_eprobabilityht_tightLH;
+	  TH2D_LW* m_h_electron_fcalA_eprobabilityht_looseLH;
+	  TH2D_LW* m_h_electron_fcalA_eprobabilityht_mediumLH;
+	  TH2D_LW* m_h_electron_fcalA_eprobabilityht_tightLH;
 
-	  TH2D_LW* h_electron_fcalC_eprobabilityht_looseLH;
-	  TH2D_LW* h_electron_fcalC_eprobabilityht_mediumLH;
-	  TH2D_LW* h_electron_fcalC_eprobabilityht_tightLH;
+	  TH2D_LW* m_h_electron_fcalC_eprobabilityht_looseLH;
+	  TH2D_LW* m_h_electron_fcalC_eprobabilityht_mediumLH;
+	  TH2D_LW* m_h_electron_fcalC_eprobabilityht_tightLH;
 	  
 	  /// histograms ranges and binning 
 	  int m_FCalEt_nbins; 

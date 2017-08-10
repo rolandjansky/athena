@@ -1,9 +1,8 @@
-// Dear emacs, this is -*- c++ -*-
-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+// Dear emacs, this is -*- c++ -*-
 #ifndef TAUANALYSISTOOLS_TAUSMEARINGTOOL_H
 #define TAUANALYSISTOOLS_TAUSMEARINGTOOL_H
 
@@ -71,6 +70,8 @@ private:
   bool m_bApplyFading;
 
   bool m_bApplyMVATES;
+  bool m_bApplyMVATESQualityCheck;
+  bool m_bApplyCombinedTES;
 
 }; // class TauSmearingTool
 

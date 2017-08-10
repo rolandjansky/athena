@@ -43,13 +43,13 @@ namespace MuonCalib{
 
   }
 
-// 	    int nRecEta, nDetEta,nRecPhi1,nRecPhi2,nDetPhi1,nDetPhi2;
-// 	    Identifier theGap;
+// 	    int m_nRecEta, m_nDetEta,m_nRecPhi1,m_nRecPhi2,m_nDetPhi1,m_nDetPhi2;
+// 	    Identifier m_theGap;
 // 	    std::vector<RpcCalibData*> m_thePhiData;
 // 	    std::vector<RpcCalibData*> m_theEtaData;
 
 
-  RpcCalibDBEntry::RpcCalibDBEntry(Identifier gapID, std::string payLoad):nRecEta(0),nDetEta(0), nRecPhi1(0),nRecPhi2(0),nDetPhi1(0),nDetPhi2(0),theGap(gapID) {
+  RpcCalibDBEntry::RpcCalibDBEntry(Identifier gapID, std::string payLoad):m_nRecEta(0),m_nDetEta(0), m_nRecPhi1(0),m_nRecPhi2(0),m_nDetPhi1(0),m_nDetPhi2(0),m_theGap(gapID) {
 
     
     string::size_type end=payLoad.find("END ");
@@ -85,23 +85,23 @@ namespace MuonCalib{
     unsigned long int pos = 0;
     std::string::size_type start = etaRec.find_first_not_of(" ",pos);
     if(start == string::npos) {
-      std::cout << "RpcCalibDBEntry::initData -- problems extracting nRecEta -- crashing." << std::endl;
+      std::cout << "RpcCalibDBEntry::initData -- problems extracting m_nRecEta -- crashing." << std::endl;
       throw;      
     }
     std::string::size_type stop = etaRec.find_first_of(" ",start+1);
     if (stop == std::string::npos) stop = etaRec.size();
-    nRecEta = std::stoi(etaRec.substr(start,stop-start),nullptr);
+    m_nRecEta = std::stoi(etaRec.substr(start,stop-start),nullptr);
     etaRec.erase(pos,stop-pos);
 
     pos = 0;
     start = phiRec1.find_first_not_of(" ",pos);
     if(start == string::npos) {
-      std::cout << "RpcCalibDBEntry::initData -- problems extracting nRecPhi1 -- crashing." << std::endl;
+      std::cout << "RpcCalibDBEntry::initData -- problems extracting m_nRecPhi1 -- crashing." << std::endl;
       throw;      
     }
     stop = phiRec1.find_first_of(" ",start+1);
     if (stop == std::string::npos) stop = phiRec1.size();
-    nRecPhi1 = std::stoi(phiRec1.substr(start,stop-start),nullptr);
+    m_nRecPhi1 = std::stoi(phiRec1.substr(start,stop-start),nullptr);
     phiRec1.erase(pos,stop-pos);
 
     istringstream etaRec_str; 
@@ -118,16 +118,16 @@ namespace MuonCalib{
     phiDet1_str.str(phiDet1);
     phiDet2_str.str(phiDet2);
     
-    etaDet_str>>nDetEta;
-    phiRec2_str>>nRecPhi2;
-    phiDet1_str>>nDetPhi1;
-    phiDet2_str>>nDetPhi2;
+    etaDet_str>>m_nDetEta;
+    phiRec2_str>>m_nRecPhi2;
+    phiDet1_str>>m_nDetPhi1;
+    phiDet2_str>>m_nDetPhi2;
 
     float eff, errEff, res1, res2, resX, errRes1, errRes2, errResX, time, errTime, noise, errNoise, noiseC, errNoiseC, cs, errCs;
     
     // start with eta processing, 41 strips
     
-    for(int k=0;k<nRecEta;k++){
+    for(int k=0;k<m_nRecEta;k++){
       
       etaRec_str>>eff>>errEff>>res1>>errRes1>>res2>>errRes2>>resX>>errResX>>time>>errTime;
       etaDet_str>>noise>>errNoise>>noiseC>>errNoiseC>>cs>>errCs;
@@ -158,7 +158,7 @@ namespace MuonCalib{
     
     // now phi
     
-    for(int k=0;k<nRecPhi1;k++){
+    for(int k=0;k<m_nRecPhi1;k++){
       
       phiRec1_str>>eff>>res1>>res2>>resX>>time;
       phiRec2_str>>errEff>>errRes1>>errRes2>>errResX>>errTime;
@@ -193,7 +193,7 @@ namespace MuonCalib{
 
   // initialize from db columns
   
-  RpcCalibDBEntry::RpcCalibDBEntry(Identifier gapID, std::string etaRec, std::string etaDet, std::string phiRec1, std::string phiRec2, std::string phiDet1, std::string phiDet2 ):nRecEta(0),nDetEta(0), nRecPhi1(0),nRecPhi2(0),nDetPhi1(0),nDetPhi2(0),theGap(gapID)
+  RpcCalibDBEntry::RpcCalibDBEntry(Identifier gapID, std::string etaRec, std::string etaDet, std::string phiRec1, std::string phiRec2, std::string phiDet1, std::string phiDet2 ):m_nRecEta(0),m_nDetEta(0), m_nRecPhi1(0),m_nRecPhi2(0),m_nDetPhi1(0),m_nDetPhi2(0),m_theGap(gapID)
   {
     
     this->initData(etaRec, etaDet,phiRec1,phiRec2,phiDet1,phiDet2);
@@ -204,7 +204,7 @@ namespace MuonCalib{
 
   const Identifier  RpcCalibDBEntry::getGapID() const {
     
-    return theGap;
+    return m_theGap;
     
   }
   
@@ -215,18 +215,18 @@ namespace MuonCalib{
 
     float eff, errEff, res1, res2, resX, errRes1, errRes2, errResX, time, errTime, noise, errNoise, noiseC, errNoiseC, cs, errCs;
     
-    recEta_str<<nRecEta<<" ";
-    detEta_str<<nDetEta<<" ";
+    recEta_str<<m_nRecEta<<" ";
+    detEta_str<<m_nDetEta<<" ";
 
-    recPhi1_str<<nRecPhi1<<" ";
-    detPhi1_str<<nDetPhi1<<" ";
+    recPhi1_str<<m_nRecPhi1<<" ";
+    detPhi1_str<<m_nDetPhi1<<" ";
 
-    recPhi2_str<<nRecPhi2<<" ";
-    detPhi2_str<<nDetPhi2<<" ";
+    recPhi2_str<<m_nRecPhi2<<" ";
+    detPhi2_str<<m_nDetPhi2<<" ";
 
 
 
-    for(int k=0;k<nRecEta;k++){
+    for(int k=0;k<m_nRecEta;k++){
       
       const RpcCalibData * theData=m_theEtaData[k];
       
@@ -256,7 +256,7 @@ namespace MuonCalib{
 
     }
 
-    for(int k=0;k<nRecPhi1;k++){
+    for(int k=0;k<m_nRecPhi1;k++){
       
       const RpcCalibData * theData=m_thePhiData[k];
       

@@ -42,7 +42,7 @@
   * phi = [0,phimax] : depends on layout <br><br>
   *
   * eta = [0,8] depends on layout ; <br>
-  *
+  * </pre>
   *
   * @author started by RD Schaffer
   * @author maintained by F Ledroit

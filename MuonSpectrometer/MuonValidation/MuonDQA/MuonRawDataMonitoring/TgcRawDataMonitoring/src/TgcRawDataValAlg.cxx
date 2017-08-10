@@ -57,9 +57,8 @@ using namespace std;
 /////////////////////////////////////////////////////////////////////////////
 
 TgcRawDataValAlg::TgcRawDataValAlg( const std::string & type, const std::string & name, const IInterface* parent )
-  :ManagedMonitorToolBase( type, name, parent ),
-   m_log( msgSvc(), name ),
-   m_debuglevel(false){
+  :ManagedMonitorToolBase( type, name, parent )
+{
   // Declare the properties 
   declareProperty("TgcPrepDataContainer",         m_tgcPrepDataContainerName = "TGC_Measurements");
   declareProperty("TgcPrepDataPreviousContainer", m_tgcPrepDataPreviousContainerName="TGC_MeasurementsPriorBC");
@@ -71,64 +70,37 @@ TgcRawDataValAlg::TgcRawDataValAlg( const std::string & type, const std::string 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 TgcRawDataValAlg::~TgcRawDataValAlg(){
-  m_log << MSG::INFO << " deleting TgcRawDataValAlg " << endreq;
+  ATH_MSG_INFO( " deleting TgcRawDataValAlg "  );
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 StatusCode
 TgcRawDataValAlg::initialize(){
 
-  // init message stream
-  m_log.setLevel(outputLevel());                // individual outputlevel not known before initialise
-  //m_log.setLevel(MSG::DEBUG);
-  m_debuglevel = (m_log.level() <= MSG::DEBUG); // save if threshold for debug printout reached
-  
-  m_log << MSG::INFO << "in initializing TgcRawDataValAlg" << endreq;
+  ATH_MSG_INFO( "in initializing TgcRawDataValAlg"  );
 
-  StatusCode sc;
-  sc = ManagedMonitorToolBase::initialize();
-  if(!sc.isSuccess()) return sc;
+  ATH_CHECK( ManagedMonitorToolBase::initialize() );
   
   /*
   // Store Gate store
-  sc = serviceLocator()->service("StoreGateSvc", m_eventStore);
+  sc = serviceLocator()->service("StoreGateSvc", _eventStore);
   if (sc != StatusCode::SUCCESS ) {
-  m_log << MSG::ERROR << " Cannot get StoreGateSvc " << endreq;
+  m_log << MSG::ERROR << " Cannot get StoreGateSvc " << endmsg;
   return sc ;
   }
   */
 
   // Retrieve the Active Store
-  sc = serviceLocator()->service("ActiveStoreSvc", m_activeStore);
-  if (sc != StatusCode::SUCCESS ) {
-    m_log << MSG::ERROR << " Cannot get ActiveStoreSvc " << endreq;
-    return sc ;
-  }
+  ATH_CHECK(  serviceLocator()->service("ActiveStoreSvc", m_activeStore) );
 
-  // Initialize the IdHelper
-  StoreGateSvc* detStore = 0;
-  sc = service("DetectorStore", detStore);
-  if (sc.isFailure()) {
-    m_log << MSG::FATAL << "DetectorStore service not found !" << endreq;
-    return StatusCode::FAILURE;
-  }   
-  
   // Retrieve the MuonDetectorManager  
-  sc = detStore->retrieve(m_muonMgr);
-  if (sc.isFailure()) {
-    m_log << MSG::FATAL 
-          << "Cannot get MuonDetectorManager from detector store" << endreq;
-    return StatusCode::FAILURE;
-  }   else { if (m_debuglevel) m_log << MSG::DEBUG  << " Found the MuonDetectorManager from detector store. " << endreq; }
+  ATH_CHECK(  detStore()->retrieve(m_muonMgr) );
+  ATH_MSG_DEBUG( " Found the MuonDetectorManager from detector store. "  );
 
-  sc = detStore->retrieve(m_tgcIdHelper,"TGCIDHELPER");
-  if (sc.isFailure()) {
-    m_log << MSG::ERROR << "Can't retrieve TgcIdHelper" << endreq;
-    return sc;
-  }
+  ATH_CHECK(  detStore()->retrieve(m_tgcIdHelper,"TGCIDHELPER") );
   
   //histograms directory names
-  generic_path_tgcmonitoring = "Muon/MuonRawDataMonitoring/TGC";
+  m_generic_path_tgcmonitoring = "Muon/MuonRawDataMonitoring/TGC";
 
   //tgcchamberId();
   
@@ -137,8 +109,6 @@ TgcRawDataValAlg::initialize(){
   setOffset();
   //set minimum and maximum of channel difference
   setChannelDifferenceRange();
-
-  //  m_log << MSG::INFO<<"TgcRawDataValAlg initialize finished "<<endreq;
 
   //do not monitor profile histograms
   //m_mon_profile=false;
@@ -151,65 +121,51 @@ TgcRawDataValAlg::initialize(){
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 StatusCode
 TgcRawDataValAlg::bookHistogramsRecurrent(){
-  if (m_debuglevel) m_log << MSG::DEBUG << "TGC RawData Monitoring Histograms being booked" << endreq;
-  StatusCode sc = StatusCode::SUCCESS; 
+  ATH_MSG_DEBUG( "TGC RawData Monitoring Histograms being booked"  );
 
-  if( newRun || newLowStatInterval ){
+  if( newRunFlag() || newLowStatIntervalFlag() ){
     // not monitor these profiles at GM
     if( m_environment != AthenaMonManager::online ) {
-      sc = bookHistogramsLowStat();
-      if(sc.isFailure()){
-        m_log << MSG::FATAL << "bookLowStatHisto() Failed  " << endreq;       
-        return StatusCode::FAILURE;
-      }
+      ATH_CHECK(  bookHistogramsLowStat() );
     }
     else
       for(int ac=0;ac<2;ac++){
-        tgcwirestripcoinlowstat[ac] = 0;
+        m_tgcwirestripcoinlowstat[ac] = 0;
       }
   }
      
-  if(newLumiBlock){}   
+  if(newLumiBlockFlag()){}   
 
-  if(newRun) {      
-    //if (m_debuglevel) m_log << MSG::DEBUG << "TGC RawData Monitoring : newRun" << endreq;
+  if(newRunFlag()) {      
 
-    sc = bookHistogramsNumberOfHits();
-    sc = bookHistogramsProfile();
-    sc = bookHistogramsXYView();
-    sc = bookHistogramsEfficiency();
-    sc = bookHistogramsSummary();
+    ATH_CHECK( bookHistogramsNumberOfHits() );
+    ATH_CHECK( bookHistogramsProfile() );
+    ATH_CHECK( bookHistogramsXYView() );
+    ATH_CHECK( bookHistogramsEfficiency() );
+    ATH_CHECK(  bookHistogramsSummary() );
     
-    if (m_debuglevel) {
-      m_log << MSG::DEBUG << "INSIDE bookHistograms : " << tgcevents << generic_path_tgcmonitoring << endreq;
-      //m_log << MSG::DEBUG << "SHIFT : " << shift << "  RUN : " << run << "  Booked booktgcevents successfully" << endreq; //attention
-    }
+    ATH_MSG_DEBUG( "INSIDE bookHistograms : " << m_tgcevents << m_generic_path_tgcmonitoring  );
 
 
-    if(m_debuglevel) m_log << MSG::DEBUG << "have registered histograms for Number of Wire/Strip Hits" << endreq ;
+    ATH_MSG_DEBUG( "have registered histograms for Number of Wire/Strip Hits"  );
 
 
   }//new run
-  //m_log << MSG::INFO << "TGC RawData Monitoring Histograms booked" << endreq;
   
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 StatusCode
 TgcRawDataValAlg::fillHistograms(){
-  StatusCode sc = StatusCode::SUCCESS; 
   
-  if (m_debuglevel) m_log << MSG::DEBUG << "TgcRawDataValAlg::TGC RawData Monitoring Histograms being filled" << endreq;
+  ATH_MSG_DEBUG( "TgcRawDataValAlg::TGC RawData Monitoring Histograms being filled"  );
   
   clearVectorsArrays();
 
   //fillEventInfo information
-  if ( (fillEventInfo() ).isFailure() ){
-    m_log << MSG::ERROR << " Cannot fillEventInfo " << endreq;
-    return sc;
-  }
+  ATH_CHECK( fillEventInfo() );
   
   /////////////////////////////////////
   // Get TGC Hit PRD Containers
@@ -218,33 +174,21 @@ TgcRawDataValAlg::fillHistograms(){
   const Muon::TgcPrepDataContainer* tgc_next_prd_container(0);
   
   // Previous
-  sc = (*m_activeStore)->retrieve(tgc_previous_prd_container, m_tgcPrepDataPreviousContainerName);
-  if(sc.isFailure()|| 0 == tgc_previous_prd_container) {
-    m_log << MSG::WARNING << " Cannot retrieve TgcPrepDataContainer for previous BC" << endreq;
-    return sc;
-  }
-  if(m_debuglevel) m_log << MSG::DEBUG << "****** tgc previous prd container size() : " << tgc_previous_prd_container->size() << endreq;
+  ATH_CHECK( (*m_activeStore)->retrieve(tgc_previous_prd_container, m_tgcPrepDataPreviousContainerName) );
+  ATH_MSG_DEBUG( "****** tgc previous prd container size() : " << tgc_previous_prd_container->size()  );
   
   // Current
-  sc = (*m_activeStore)->retrieve(tgc_current_prd_container, m_tgcPrepDataContainerName);
-  if(sc.isFailure()|| 0 == tgc_current_prd_container ) {
-    m_log << MSG::WARNING << " Cannot retrieve TgcPrepDataContainer for current BC" << endreq;
-    return sc;
-  }
-  if(m_debuglevel) m_log << MSG::DEBUG << "****** tgc current prd container size() : " << tgc_current_prd_container->size() << endreq;
+  ATH_CHECK( (*m_activeStore)->retrieve(tgc_current_prd_container, m_tgcPrepDataContainerName) );
+  ATH_MSG_DEBUG( "****** tgc current prd container size() : " << tgc_current_prd_container->size()  );
   
   // Next
-  sc = (*m_activeStore)->retrieve(tgc_next_prd_container, m_tgcPrepDataNextContainerName);
-  if(sc.isFailure()|| 0 == tgc_next_prd_container) {
-    m_log << MSG::WARNING << " Cannot retrieve TgcPrepDataContainer for next BC" << endreq;
-    return sc;
-  }
-  if(m_debuglevel) m_log << MSG::DEBUG << "****** tgc next prd container size() : " << tgc_next_prd_container->size() << endreq;
+  ATH_CHECK(  (*m_activeStore)->retrieve(tgc_next_prd_container, m_tgcPrepDataNextContainerName) );
+  ATH_MSG_DEBUG( "****** tgc next prd container size() : " << tgc_next_prd_container->size()  );
   
   
   // Increment event counter
   m_nEvent++;
-  if(m_debuglevel) m_log << MSG::DEBUG <<"event : " << m_nEvent << endreq;
+  ATH_MSG_DEBUG("event : " << m_nEvent  );
   
   
   /////////////////////////////////////
@@ -260,25 +204,23 @@ TgcRawDataValAlg::fillHistograms(){
   // Fill Histograms
   
   // fill number of hit histograms
-  sc=fillNumberOfHits();
+  ATH_CHECK( fillNumberOfHits() );
   
   // fill profile histograms
-  sc=fillProfile();
+  ATH_CHECK( fillProfile() );
 
   // fill efficiency
-  sc=fillEfficiency();
+  ATH_CHECK( fillEfficiency() );
   
   // fill XY view
-  sc=fillXYView();
+  ATH_CHECK( fillXYView() );
   
   //vector<double> SLEta[2];//[ac]
   //vector<double> SLPhi[2];
   
-  if (m_debuglevel) {
-    m_log << MSG::DEBUG << "********TGC event number : " << m_nEvent << endreq;   
-  }
+  ATH_MSG_DEBUG( "********TGC event number : " << m_nEvent  );
 
-  return sc; // statuscode check 
+  return StatusCode::SUCCESS;
  
 }
 
@@ -286,26 +228,24 @@ TgcRawDataValAlg::fillHistograms(){
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 StatusCode
 TgcRawDataValAlg::procHistograms(){
-  if (m_debuglevel) {
-    m_log << MSG::DEBUG << "********Reached Last Event in TgcRawDataValAlg !!!" << endreq;
-    m_log << MSG::DEBUG << "TgcRawDataValAlg finalize()" << endreq;
-  } 
-  if(endOfLumiBlock){
+  ATH_MSG_DEBUG( "********Reached Last Event in TgcRawDataValAlg !!!"  );
+  ATH_MSG_DEBUG( "TgcRawDataValAlg finalize()"  );
+  if(endOfLumiBlockFlag()){
     //histogram division every LB only for Global Montioring
     if(m_environment==AthenaMonManager::online){
       // calculate occupancy map
       for(int ac=0;ac<2;ac++){
         for(int ws=0;ws<2;ws++){
           
-          if( tgcprofilemap[ac][ws] && tgcoccupancymap[ac][ws] ){
-            int nbinx=tgcprofilemap[ac][ws]->GetNbinsX();
-            int nbiny=tgcprofilemap[ac][ws]->GetNbinsY();
+          if( m_tgcprofilemap[ac][ws] && m_tgcoccupancymap[ac][ws] ){
+            int nbinx=m_tgcprofilemap[ac][ws]->GetNbinsX();
+            int nbiny=m_tgcprofilemap[ac][ws]->GetNbinsY();
             
             for(int binx=1;binx<=nbinx;binx++)
               for(int biny=1;biny<=nbiny;biny++){
-                tgcoccupancymap[ac][ws]->SetBinContent( binx, biny, nWireStripMap( ws, binx, biny ) * m_nEvent );
+                m_tgcoccupancymap[ac][ws]->SetBinContent( binx, biny, nWireStripMap( ws, binx, biny ) * m_nEvent );
               }
-            tgcoccupancymap[ac][ws]->Divide( tgcprofilemap[ac][ws], tgcoccupancymap[ac][ws], 1., 1., "B");
+            m_tgcoccupancymap[ac][ws]->Divide( m_tgcprofilemap[ac][ws], m_tgcoccupancymap[ac][ws], 1., 1., "B");
           }
 
         }// ws
@@ -314,30 +254,30 @@ TgcRawDataValAlg::procHistograms(){
 
       // calculate efficiency histograms and map
       for(int ac=0;ac<2;ac++){
-        if(tgceff[ac] &&
-           tgceffnum[ac] &&
-           tgceffdenom[ac] )
-          tgceff[ac]->Divide(tgceffnum[ac], tgceffdenom[ac], 1., 1., "B");
+        if(m_tgceff[ac] &&
+           m_tgceffnum[ac] &&
+           m_tgceffdenom[ac] )
+          m_tgceff[ac]->Divide(m_tgceffnum[ac], m_tgceffdenom[ac], 1., 1., "B");
       
         for(int ws=0;ws<2;ws++){
-          if(tgceffmap[ac][ws] &&
-             tgceffmapnum[ac][ws] &&
-             tgceffmapdenom[ac][ws]){
-            tgceffmap[ac][ws]->Divide(tgceffmapnum[ac][ws], tgceffmapdenom[ac][ws], 1., 1., "B");
+          if(m_tgceffmap[ac][ws] &&
+             m_tgceffmapnum[ac][ws] &&
+             m_tgceffmapdenom[ac][ws]){
+            m_tgceffmap[ac][ws]->Divide(m_tgceffmapnum[ac][ws], m_tgceffmapdenom[ac][ws], 1., 1., "B");
           }
           
           for(int bc=0;bc<2;bc++){
-            if(tgceffmapbc[ac][ws][bc] &&
-               tgceffmapnumbc[ac][ws][bc] &&
-               tgceffmapdenom[ac][ws]){
-              tgceffmapbc[ac][ws][bc]->Divide(tgceffmapnumbc[ac][ws][bc], tgceffmapdenom[ac][ws], 1., 1., "B" );
+            if(m_tgceffmapbc[ac][ws][bc] &&
+               m_tgceffmapnumbc[ac][ws][bc] &&
+               m_tgceffmapdenom[ac][ws]){
+              m_tgceffmapbc[ac][ws][bc]->Divide(m_tgceffmapnumbc[ac][ws][bc], m_tgceffmapdenom[ac][ws], 1., 1., "B" );
             }
           }
           
-          if(tgceffsector[ac][ws] &&
-             tgceffsectornum[ac][ws] &&
-             tgceffsectordenom[ac][ws] )
-            tgceffsector[ac][ws]->Divide(tgceffsectornum[ac][ws], tgceffsectordenom[ac][ws], 1., 1., "B");
+          if(m_tgceffsector[ac][ws] &&
+             m_tgceffsectornum[ac][ws] &&
+             m_tgceffsectordenom[ac][ws] )
+            m_tgceffsector[ac][ws]->Divide(m_tgceffsectornum[ac][ws], m_tgceffsectordenom[ac][ws], 1., 1., "B");
             
         }// ws
       }// ac
@@ -345,21 +285,21 @@ TgcRawDataValAlg::procHistograms(){
     }// isOnlineMonitoring
   }//endOfLumiBlock
 
-  if(endOfRun){
+  if(endOfRunFlag()){
     // calculate occupancy map
     for(int ac=0;ac<2;ac++){
       for(int ws=0;ws<2;ws++){
         
-        if(tgcprofilemap[ac][ws] && tgcoccupancymap[ac][ws]){
-          int nbinx=tgcprofilemap[ac][ws]->GetNbinsX();
-          int nbiny=tgcprofilemap[ac][ws]->GetNbinsY();
+        if(m_tgcprofilemap[ac][ws] && m_tgcoccupancymap[ac][ws]){
+          int nbinx=m_tgcprofilemap[ac][ws]->GetNbinsX();
+          int nbiny=m_tgcprofilemap[ac][ws]->GetNbinsY();
           
           for(int binx=1;binx<=nbinx;binx++)
             for(int biny=1;biny<=nbiny;biny++){
-              //tgcoccupancymap[ac][ws]->SetBinContent( binx, biny, nWireStripMap(ac, binx, biny ) * m_nEvent );//run1 default
-              tgcoccupancymap[ac][ws]->SetBinContent( binx, biny, nWireStripMap(ws, binx, biny ) * m_nEvent );
+              //m_tgcoccupancymap[ac][ws]->SetBinContent( binx, biny, nWireStripMap(ac, binx, biny ) * m_nEvent );//run1 default
+              m_tgcoccupancymap[ac][ws]->SetBinContent( binx, biny, nWireStripMap(ws, binx, biny ) * m_nEvent );
             }
-          tgcoccupancymap[ac][ws]->Divide( tgcprofilemap[ac][ws], tgcoccupancymap[ac][ws], 1., 1., "B");
+          m_tgcoccupancymap[ac][ws]->Divide( m_tgcprofilemap[ac][ws], m_tgcoccupancymap[ac][ws], 1., 1., "B");
         }
 
       }// ws
@@ -367,22 +307,22 @@ TgcRawDataValAlg::procHistograms(){
 
     // calculate efficiency histogram and map
     for(int ac=0;ac<2;ac++){
-      if(tgceff[ac] &&
-         tgceffnum[ac] &&
-         tgceffdenom[ac] )
-        tgceff[ac]->Divide(tgceffnum[ac], tgceffdenom[ac], 1., 1., "B");
+      if(m_tgceff[ac] &&
+         m_tgceffnum[ac] &&
+         m_tgceffdenom[ac] )
+        m_tgceff[ac]->Divide(m_tgceffnum[ac], m_tgceffdenom[ac], 1., 1., "B");
 
       for(int ws=0;ws<2;ws++){
-        if(tgceffmap[ac][ws] &&
-           tgceffmapnum[ac][ws] &&
-           tgceffmapdenom[ac][ws] ){
-          tgceffmap[ac][ws]->Divide(tgceffmapnum[ac][ws], tgceffmapdenom[ac][ws], 1., 1., "B");
+        if(m_tgceffmap[ac][ws] &&
+           m_tgceffmapnum[ac][ws] &&
+           m_tgceffmapdenom[ac][ws] ){
+          m_tgceffmap[ac][ws]->Divide(m_tgceffmapnum[ac][ws], m_tgceffmapdenom[ac][ws], 1., 1., "B");
         }
         
-        if(tgceffsector[ac][ws] &&
-           tgceffsectornum[ac][ws] &&
-           tgceffsectordenom[ac][ws] )
-          tgceffsector[ac][ws]->Divide(tgceffsectornum[ac][ws], tgceffsectordenom[ac][ws], 1., 1., "B");
+        if(m_tgceffsector[ac][ws] &&
+           m_tgceffsectornum[ac][ws] &&
+           m_tgceffsectordenom[ac][ws] )
+          m_tgceffsector[ac][ws]->Divide(m_tgceffsectornum[ac][ws], m_tgceffsectordenom[ac][ws], 1., 1., "B");
           
       }// ws
     }// ac
@@ -402,13 +342,7 @@ TgcRawDataValAlg::fillEventInfo(){
   //get Event Info
   //const DataHandle<EventInfo> evt;
   const xAOD::EventInfo* evt(0);
-  StatusCode sc = (*m_activeStore)->retrieve(evt);
-  if ( sc.isFailure() || evt==0) {
-    m_log << MSG::ERROR <<" Cannot retrieve EventInfo " <<endreq;
-    //tgceventsinlb->Fill( m_lumiblock );
-    //tgceventsinbcid->Fill( m_BCID );
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( (*m_activeStore)->retrieve(evt) );
 
   m_lumiblock = evt->lumiBlock() ;
   m_event     = evt->eventNumber() ;
@@ -416,8 +350,6 @@ TgcRawDataValAlg::fillEventInfo(){
 
   //tgceventsinlb->Fill( m_lumiblock );
   //tgceventsinbcid->Fill( m_BCID );
-
-  //m_log << MSG::INFO << "event " << m_event <<" lumiblock " << m_lumiblock << endreq;
 
   return StatusCode::SUCCESS;
 

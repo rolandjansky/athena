@@ -9,6 +9,7 @@ HICaloCellCorectionTool::HICaloCellCorectionTool(const std::string& type,
 						 const std::string& name, 
 						 const IInterface* parent)
   :AthAlgTool(type,name,parent),
+   m_eventShape(nullptr),
    m_avgEnergy(0)
 {
   declareInterface<ICaloCellMakerTool>(this);

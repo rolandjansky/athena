@@ -30,13 +30,13 @@ namespace Trk
 
   StatusCode Chi2TrackCompatibilityEstimator::initialize() 
   { 
-    msg(MSG::INFO)  << "Initialize successful" << endreq;
+    msg(MSG::INFO)  << "Initialize successful" << endmsg;
     return StatusCode::SUCCESS;
   }
 
   StatusCode Chi2TrackCompatibilityEstimator::finalize() 
   {
-    msg(MSG::INFO)  << "Finalize successful" << endreq;
+    msg(MSG::INFO)  << "Finalize successful" << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -130,7 +130,7 @@ namespace Trk
         return _compatibility(myNeutralAtaPlane, vertex);
     }
 
-    msg(MSG::WARNING) << " No compatibility plane attached to the VxTrackAtVertex. Compatibility couldn't be found... 0 compatibility returned." << endreq;
+    msg(MSG::WARNING) << " No compatibility plane attached to the VxTrackAtVertex. Compatibility couldn't be found... 0 compatibility returned." << endmsg;
     return 100;
   }
 }

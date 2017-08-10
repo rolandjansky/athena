@@ -58,11 +58,6 @@ private:  // data
   std::string m_sg_inkey;
   std::string m_sg_outkey;
   std::string m_sg_4d_outkey;
-  double m_max_chisquare;
-  double m_max_slope_r;
-  double m_max_slope_phi;
-  unsigned int m_max_seg_per_chamber;
-  double m_fitsegment_tantheta_tolerance;
 
   ToolHandle<ICscSegmentFinder> m_2dseg_finder;
   ToolHandle<ICscSegmentFinder> m_4dseg_finder;

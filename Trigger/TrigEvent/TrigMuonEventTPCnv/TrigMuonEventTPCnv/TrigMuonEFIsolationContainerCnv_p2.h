@@ -6,8 +6,7 @@
 #define TRIGMUONEVENTTPCNV_TRIGMUONEFISOLATIONCONTAINERCNV_P2_H__
 
 /**
- * @Project: Trigger
- * @Package: TrigMuonEventTPCnv
+ * @package: TrigMuonEventTPCnv
  * @class  : TrigMuonEFIsolationContainerCnv_p2
  *
  * @brief T/P Converter for TrigMuonEFIsolationContainer_p2

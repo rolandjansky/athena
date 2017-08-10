@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigMuonEventTPCnv
- * @Class  : TrigMuonEFCbTrackCnv_p7
+ * @class  : TrigMuonEFCbTrackCnv_p7
  *
  * @brief transient-persistent converter for TrigMuonEFCbTrack_p7
  *

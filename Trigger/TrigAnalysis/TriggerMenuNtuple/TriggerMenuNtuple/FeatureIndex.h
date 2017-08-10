@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __FeatureIndex_h__
-#define __FeatureIndex_h__
+#ifndef TRIGGERMENUNTUPLE_FEATUREINDEX_H
+#define TRIGGERMENUNTUPLE_FEATUREINDEX_H
 /*
   FeatureIndex.h
 */
@@ -30,8 +30,8 @@ public:
   void setIndex(int index);
   void setStatus(int status);
 
-  int getIndex() const { return mIndex; }
-  int getStatus() const { return mStatus; }
+  int getIndex() const { return m_index; }
+  int getStatus() const { return m_status; }
 
   bool isValid() const;
   bool sameIndex(const FeatureIndex& x) const;
@@ -41,8 +41,8 @@ public:
   void dump(const std::string& prefix) const;
 
 private:
-  int mIndex;        // index of feature in container
-  int mStatus;       // if mStatus = 0 , is failed
+  int m_index;        // index of feature in container
+  int m_status;       // if mStatus = 0 , is failed
 
 };
 
@@ -52,4 +52,4 @@ bool sameIndex(const std::vector<FeatureIndex>& x,
 	       const std::vector<FeatureIndex>& y);
 
 
-#endif // __FeatureIndex_h__
+#endif // TRIGGERMENUNTUPLE_FEATUREINDEX_H

@@ -4,14 +4,13 @@
 
 #include "TRT_DriftCircleContainerCnv.h"
 #include "InDetIdentifier/TRT_ID.h"
-#include "MsgUtil.h"
 
 #include <memory>
 
 #include <iostream>
 
   TRT_DriftCircleContainerCnv::TRT_DriftCircleContainerCnv (ISvcLocator* svcloc)
-    : TRT_DriftCircleContainerCnvBase(svcloc),
+    : TRT_DriftCircleContainerCnvBase(svcloc, "TRT_DriftCircleContainerCnv"),
       m_converter_p0(),
       m_storeGate(nullptr)
   {}
@@ -20,8 +19,6 @@
 
 
 StatusCode TRT_DriftCircleContainerCnv::initialize() {
-   IDEvtAthPool::setMsgName(this,"TRT_DriftCircleContainerCnv");//So msg() won't use name "AthenaPoolConverter" 
-
    ATH_MSG_INFO("TRT_DriftCircleContainerCnv::initialize()");
 
    StatusCode sc = TRT_DriftCircleContainerCnvBase::initialize();

@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigCombinedEventTPCnv
- * @Class  : TrigCompositeCnv_p1
+ * @class  : TrigCompositeCnv_p1
  *
  * @brief transient persistent converter for TrigComposites
  *

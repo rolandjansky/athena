@@ -3,6 +3,11 @@
 */
 
 
+#ifdef ROOTCORE
+#   include "xAODRootAccess/TEvent.h"
+#   include "xAODRootAccess/TStore.h"
+#endif // ROOTCORE
+
 #include "JetSelectorTools/JetCleaningTool.h"
 #include "JetSelectorTools/Helpers.h"
 

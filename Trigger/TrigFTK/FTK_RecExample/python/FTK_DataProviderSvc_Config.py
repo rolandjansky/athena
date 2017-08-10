@@ -8,8 +8,8 @@ from AthenaCommon.Constants import *   # for "INFO"
 class ConfiguredFTK_DataProviderSvc(FTK_DataProviderSvc) :
 
     def __init__(self, name = "ConfiguredFTK_DataProviderSvc"):
-        print "In FTK_DataProviderSvc_Config.py"  
-        FTK_DataProviderSvc.__init__(self, name) 
+        print "In FTK_DataProviderSvc_Config.py"
+        FTK_DataProviderSvc.__init__(self, name)
         # Track Fitter
         from TrkGlobalChi2Fitter.TrkGlobalChi2FitterConf import Trk__GlobalChi2Fitter
         from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigExtrapolator, InDetTrigNavigator, InDetTrigPropagator, InDetTrigRefitRotCreator,InDetTrigBroadInDetRotCreator, \
@@ -21,7 +21,7 @@ class ConfiguredFTK_DataProviderSvc(FTK_DataProviderSvc) :
         FTK_TrackFitter = Trk__GlobalChi2Fitter(name = "FTK_TrackFitter",
                                                 ExtrapolationTool     = InDetTrigExtrapolator,
                                                 NavigatorTool         = InDetTrigNavigator,
-                                                PropagatorTool        = InDetTrigPropagator,     
+                                                PropagatorTool        = InDetTrigPropagator,
                                                 RotCreatorTool        = InDetTrigRefitRotCreator,
                                                 BroadRotCreatorTool   = InDetTrigBroadInDetRotCreator,
                                                 MeasurementUpdateTool = InDetTrigUpdator,
@@ -34,7 +34,7 @@ class ConfiguredFTK_DataProviderSvc(FTK_DataProviderSvc) :
                                                 RecalibrateTRT        = True,
                                                 ReintegrateOutliers   = True,
                                                 TrackChi2PerNDFCut    = 7,
-                                                TRTExtensionCuts      = False, 
+                                                TRTExtensionCuts      = False,
                                                 MaxIterations         = 40,
                                                 Acceleration          = True,
                                                 Momentum=1000.,
@@ -48,7 +48,7 @@ class ConfiguredFTK_DataProviderSvc(FTK_DataProviderSvc) :
 
 
         from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigExtrapolator,InDetTrigTrackSelectorTool,InDetTrigHoleSearchTool
-        from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackSummaryToolSharedHits, InDetTrigPrdAssociationTool 
+        from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackSummaryToolSharedHits, InDetTrigPrdAssociationTool
 
 
         from InDetTrackSummaryHelperTool.InDetTrackSummaryHelperToolConf import InDet__InDetTrackSummaryHelperTool
@@ -65,9 +65,9 @@ class ConfiguredFTK_DataProviderSvc(FTK_DataProviderSvc) :
 
         ToolSvc += FTK_TrackSummaryHelperTool
         print "added FTK_TrackSummaryHelperTool to ToolSvc"
-        
 
-        
+
+
         from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool
         FTK_TrackSummaryTool = Trk__TrackSummaryTool(name = "FTK_TrackSummaryTool",
                                              InDetSummaryHelperTool = FTK_TrackSummaryHelperTool,
@@ -88,12 +88,12 @@ class ConfiguredFTK_DataProviderSvc(FTK_DataProviderSvc) :
                                                          KeepParameters = True,
                                                          ForceTrackSummaryUpdate = False,  #summary update moved (in the slimmer now)
                                                          )
-        
+
         ToolSvc += FTK_TrackParticleCreatorTool
         print FTK_TrackParticleCreatorTool
         print " added FTK_TrackParticleCreatorTool to ToolSvc"
 
-        
+
         from TrigInDetConf.TrigInDetRecVtxTools import InDetTrigLinFactory, InDetTrigVxEdmCnv
         from TrigInDetConf.TrigInDetRecVtxTools import InDetTrigLinFactory, InDetTrigVxEdmCnv
 
@@ -102,16 +102,16 @@ class ConfiguredFTK_DataProviderSvc(FTK_DataProviderSvc) :
                                                     #Mode1dFinder = # default, no setting needed
                                                     )
         ToolSvc += FTK_VtxSeedFinder
- 
+
         from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__ImpactPoint3dEstimator, Trk__DetAnnealingMaker
-    
+
         FTK_ImpactPoint3dEstimator = Trk__ImpactPoint3dEstimator(name         = "FTK_TrkImpactPoint3dEstimator",
                                                          Extrapolator = InDetTrigExtrapolator,
                                                          )
-        
+
         ToolSvc += FTK_ImpactPoint3dEstimator
 
- 
+
         FTK_AnnealingMaker = Trk__DetAnnealingMaker(name = "FTK_TrkAnnealingMaker")
         FTK_AnnealingMaker.SetOfTemperatures = [64.,16.,4.,2.,1.5,1.] # not default
         ToolSvc += FTK_AnnealingMaker
@@ -128,7 +128,7 @@ class ConfiguredFTK_DataProviderSvc(FTK_DataProviderSvc) :
                                              LinearizedTrackFactory       = InDetTrigLinFactory,
                                              ImpactPoint3dEstimator       = FTK_ImpactPoint3dEstimator,
                                              AnnealingMaker               = FTK_AnnealingMaker,
-                                             #TrackCompatibilityEstimator = 
+                                             #TrackCompatibilityEstimator =
                                              VertexSmoother = FTK_VertexSmoother,
                                              #VertexUpdator = ,  #does not use any tools?
                                              #onlyzseed = ,
@@ -136,7 +136,7 @@ class ConfiguredFTK_DataProviderSvc(FTK_DataProviderSvc) :
 
         FTK_VxFitterTool.XAODConverter = InDetTrigVxEdmCnv
         ToolSvc += FTK_VxFitterTool
-        
+
         from InDetPriVxFinderTool.InDetPriVxFinderToolConf import InDet__InDetIterativePriVxFinderTool
         FTK_PriVxFinderTool = InDet__InDetIterativePriVxFinderTool(name             = "FTK_PriVxFinderTool",
                                                                    VertexFitterTool = FTK_VxFitterTool,
@@ -165,7 +165,7 @@ class ConfiguredFTK_DataProviderSvc(FTK_DataProviderSvc) :
         self.TrackCollectionName= "FTK_TrackCollection"
         self.TrackParticleContainerName= "FTK_TrackParticleContainer"
         self.VxContainerName="FTK_VxContainer"
-        self.VertexContainerName="FTK_VertexContainer"	  
+        self.VertexContainerName="FTK_VertexContainer"
         self.PixelTruthName="FTK_PRD_MultiTruthPixel"
         self.SctTruthName="FTK_PRD_MultiTruthSCT"
         self.PixelClusterContainerName= "FTK_PixelClusterContainer"
@@ -177,6 +177,8 @@ class ConfiguredFTK_DataProviderSvc(FTK_DataProviderSvc) :
         self.TrackParticleCreatorTool=FTK_TrackParticleCreatorTool
         self.RawVertexFinderTool=FTK_RawVertexFinderTool
         self.VertexFinderTool=FTK_PriVxFinderTool
+        self.ROTcreatorTool = InDetTrigRefitRotCreator
+
         from RecExConfig.RecFlags import rec
 
         self.doTruth=rec.doTruth()

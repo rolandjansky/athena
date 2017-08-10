@@ -22,7 +22,7 @@ Modified:
 #ifndef TRIG_EFBPHYS_CONTAINER
 #define TRIG_EFBPHYS_CONTAINER
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "CLIDSvc/CLASS_DEF.h"
 
 #include "TrigParticle/TrigEFBphys.h"

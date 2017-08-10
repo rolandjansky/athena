@@ -60,9 +60,6 @@ ManyLeaksAlg::~ManyLeaksAlg()
 ////////////////////////////
 StatusCode ManyLeaksAlg::initialize()
 {
-  // configure our MsgStream
-  msg().setLevel( outputLevel() );
-
   ATH_MSG_INFO ( "Initializing " << name() << "..." ) ;
   
   // in m_pointers, we'll store the pointers to the allocated space

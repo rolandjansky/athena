@@ -12,6 +12,7 @@
 
 
 #undef NDEBUG
+#include "AthenaKernel/ExtendedEventContext.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/exceptions.h"
 #include "SGTools/TestStore.h"
@@ -68,7 +69,8 @@ void test1()
 
   SGTest::TestStore dumstore;
   EventContext ctx5;
-  ctx5.setProxy (&dumstore);
+  ctx5.setExtension( Atlas::ExtendedEventContext(&dumstore) );
+  
   SG::ReadHandle<MyObj> h5 (k3, ctx5);
   assert (h5.clid() == MyCLID);
   assert (h5.key() == "asd");
@@ -213,7 +215,7 @@ void test3()
   MyObj* foox = new MyObj;
   testStore2.record (foox, "foox");
   EventContext ctx2;
-  ctx2.setProxy (&testStore2);
+  ctx2.setExtension( Atlas::ExtendedEventContext(&testStore2) );
   assert (h3.get(ctx2) == foox);
 }
 
@@ -238,7 +240,8 @@ void test4()
 
   SGTest::TestStore dumstore;
   EventContext ctx;
-  ctx.setProxy (&dumstore);
+  ctx.setExtension( Atlas::ExtendedEventContext(&dumstore) );
+
   auto h2 = SG::makeHandle (k1, ctx);
   assert (h2.clid() == MyCLID);
   assert (h2.key() == "asd");
@@ -261,6 +264,48 @@ void test4()
 }
 
 
+// alias.
+void test5()
+{
+  std::cout << "test5\n";
+
+  SGTest::TestStore testStore;
+
+  SG::ReadHandle<MyObj> h1 ("foo1", "FooSvc");
+  assert (h1.setProxyDict (&testStore).isSuccess());
+
+  MyObj* fooptr = new MyObj(20);
+  testStore.record (fooptr, "foo1");
+  SG::DataProxy* prox1 = testStore.proxy (MyCLID, "foo1");
+  //assert (foo_proxy->refCount() == 1);
+
+#if 0
+  assert (h1.record (std::make_unique<MyObj>(20)).isSuccess());
+  assert (h1.isValid());
+  assert (h1->x == 20);
+  SG::DataProxy* prox1 = testStore.proxy (ClassID_traits<MyObj>::ID(), "foo1");
+  #endif
+
+  // Making alias.
+  SG::WriteHandleKey<MyObj> h2 ("foo3", "FooSvc");
+  assert (h1.alias (h2).isSuccess());
+  assert (testStore.proxy (MyCLID, "foo3") == prox1);
+  assert (prox1->transientAddress()->alias().count ("foo3") == 1);
+  #if 0
+
+  // Making symlink.
+  SG::WriteHandleKey<MyObj2> h3 ("foo1", "FooSvc");
+  assert (h1.symLink (h3).isSuccess());
+  assert (testStore.proxy (ClassID_traits<MyObj2>::ID(), "foo1") == prox1);
+  assert (prox1->transientAddress()->transientID (ClassID_traits<MyObj2>::ID()));
+
+  // Should give an error.
+  SG::WriteHandleKey<MyObj2> h4 ("foo3", "FooSvc");
+  assert (h1.symLink (h4).isFailure());
+  #endif
+}
+
+
 int main()
 {
   errorcheck::ReportMessage::hideErrorLocus();
@@ -271,5 +316,6 @@ int main()
   test2();
   test3();
   test4();
+  test5();
   return 0;
 }

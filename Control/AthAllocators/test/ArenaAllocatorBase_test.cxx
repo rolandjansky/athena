@@ -12,11 +12,12 @@
 
 #undef NDEBUG
 #include "AthAllocators/ArenaAllocatorBase.h"
+#include <atomic>
 #include <cassert>
 #include <sstream>
 
 
-int testcount = 0;
+std::atomic<int> testcount;
 
 class Test
 {
@@ -42,7 +43,7 @@ public:
   virtual void reset() override {}
   virtual void erase() override {}
   virtual void reserve (size_t /*size*/) override { }
-  virtual const ArenaAllocatorBase::Stats& stats() const override
+  virtual ArenaAllocatorBase::Stats stats() const override
   { return m_stats; }
   virtual const std::string& name() const override { return m_name; }
   ArenaAllocatorBase::Stats m_stats;

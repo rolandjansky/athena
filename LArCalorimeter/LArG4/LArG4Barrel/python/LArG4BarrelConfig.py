@@ -31,3 +31,5 @@ def getLArBarrelGeometry(name="LArBarrelGeometry", **kwargs):
 
 def getLArBarrelPresamplerGeometry(name="LArBarrelPresamplerGeometry", **kwargs):
        return CfgMgr.LArG4__BarrelPresampler__Geometry(name, **kwargs)
+
+

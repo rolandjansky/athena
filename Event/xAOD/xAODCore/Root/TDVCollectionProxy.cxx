@@ -18,6 +18,7 @@
 
 // EDM include(s):
 #include "AthContainers/DataVector.h"
+#include "CxxUtils/no_sanitize_undefined.h"
 
 // Local include(s):
 #include "xAODCore/tools/TDVCollectionProxy.h"
@@ -390,7 +391,7 @@ namespace xAOD {
    /// Start working with a new collection.
    ///
    /// @param objstart The address of the collection.
-   void TDVCollectionProxy::PushProxy( void* objstart ) {
+   void TDVCollectionProxy::PushProxy NO_SANITIZE_UNDEFINED ( void* objstart ) {
 
       // Do the base class stuff.
       // This will create an environment buffer if needed.
@@ -407,6 +408,9 @@ namespace xAOD {
       // First, adjust the address to the base DataVector.
       char* dvstart = reinterpret_cast< char* >( objstart ) + fContoff;
       // Cast to DV.
+      // This gets a ubsan warning about casting between types.
+      // However, this is deliberate, so suppress ubsan warnings
+      // for this function.
       DataVector< char >* dv =
          reinterpret_cast< DataVector< char >* >( dvstart );
       // Find the underlying vector.

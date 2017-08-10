@@ -138,17 +138,17 @@ addSCT_SpacePoints(const SCT_ClusterCollection* clusCollection,
 
   if(!m_Sct_clcontainer || m_Sct_clcontainer->size() <1){
     msg(MSG::ERROR) << " Received an invalid cluster container " 
-	<< endreq;
+	<< endmsg;
     return;
   }
 
   if(!clusCollection){
     msg(MSG::ERROR) << " Received an invalid cluster collection " 
-	<< endreq;
+	<< endmsg;
     return;
   }
   if(clusCollection->size()==0){
-    msg(MSG::ERROR) << " Received empty cluster collection" << endreq;
+    msg(MSG::ERROR) << " Received empty cluster collection" << endmsg;
     return;
   }
 

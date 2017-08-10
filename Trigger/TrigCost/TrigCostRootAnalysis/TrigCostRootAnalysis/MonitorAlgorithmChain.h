@@ -20,26 +20,21 @@
 #include "MonitorAlgorithmCommon.h"
 
 namespace TrigCostRootAnalysis {
-
   //Forward declaration
   class TrigCostData;
-  
+
   /**
    * @class MonitorAlgorithmChain
    * Algorithm monitor implimentation.
    */
-  class MonitorAlgorithmChain : public MonitorBase, public MonitorAlgorithmCommon {
-  
-   public:
-   
+  class MonitorAlgorithmChain: public MonitorBase, public MonitorAlgorithmCommon {
+  public:
     MonitorAlgorithmChain(const TrigCostData* _costData);
     void newEvent(Float_t _weight = 1.);
-    CounterBase* newCounter( const std::string &_name, Int_t _ID );
+    CounterBase* newCounter(const std::string& _name, Int_t _ID);
     Bool_t getIfActive(ConfKey_t _mode);
     void saveOutput();
-    
   }; //class MonitorAlgorithmChain
-  
 } // namespace TrigCostRootAnalysis
 
 #endif //TrigCostRootAnalysis_MonitorAlgorithmChain_H

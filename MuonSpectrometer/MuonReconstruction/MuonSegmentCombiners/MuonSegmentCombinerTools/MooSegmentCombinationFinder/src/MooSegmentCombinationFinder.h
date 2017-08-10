@@ -82,8 +82,7 @@ namespace Muon
       void printSummary( std::string stageTag, const Trk::SegmentCollection* col ) const;
 
       /** helper functions to write out intermediate results */
-      void postProcess(  const MuonSegmentCombinationCollection* col, bool write, std::string colLocation );
-      void postProcess(  const MuonPatternCombinationCollection* col, bool write, std::string colLocation );
+      void postProcess(  MuonSegmentCombinationCollection* col, bool write, SG::WriteHandleKey<MuonSegmentCombinationCollection> &colLocation );
 
       /** extract a segment collection from a segment combination collection */
       void extractSegmentCollection( const MuonSegmentCombinationCollection& combiCol, Trk::SegmentCollection& segments  ) const;
@@ -128,10 +127,10 @@ namespace Muon
       ToolHandle<IMuonSegmentSelectionTool>          m_segmentSelector;    
 
       bool m_writeAll;
-      std::string m_csc2dLocation;
-      std::string m_csc4dLocation;
-      std::string m_mdtSegmentCombinationLocation;
-      std::string m_curvedCombinationLocation;
+      SG::WriteHandleKey<MuonSegmentCombinationCollection> m_csc2dLocation;
+      SG::WriteHandleKey<MuonSegmentCombinationCollection> m_csc4dLocation;
+      SG::WriteHandleKey<MuonSegmentCombinationCollection> m_mdtSegmentCombinationLocation;
+      SG::WriteHandleKey<MuonSegmentCombinationCollection> m_curvedCombinationLocation;
       bool m_cloneSegments;
 
       /** counters */

@@ -1,9 +1,8 @@
-// Dear emacs, this is -*- c++ -*-
-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+// Dear emacs, this is -*- c++ -*-
 #ifndef TAUANALYSISTOOLS_ITAUOVERLAPPINGELECTRONLLHDECORATOR_H
 #define TAUANALYSISTOOLS_ITAUOVERLAPPINGELECTRONLLHDECORATOR_H
 
@@ -40,6 +39,8 @@ public:
   virtual StatusCode initializeEvent() __attribute__ ((deprecated("This function is deprecated. Please remove it from your code.\nFor further information please refer to the README:\nhttps://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/doc/README-TauOverlappingElectronLLHDecorator.rst"))) = 0;
 
   virtual StatusCode decorate(const xAOD::TauJet& xTau) const = 0;
+  virtual StatusCode setEleOlrPassDecorationName(const std::string& name) = 0;
+  virtual StatusCode setEleOlrLhScoreDecorationName(const std::string& name) = 0;
 
 }; // class ITauOverlappingElectronLLHDecorator
 

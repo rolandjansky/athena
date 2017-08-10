@@ -41,7 +41,7 @@ UPDATE:   March 15, 2010
 #include "CaloEvent/CaloCell2ClusterMap.h"
 #include "CaloEvent/CaloTowerDataVector.h"
 #include "CaloEvent/CaloTowerContainer.h"
-#include "DataModel/DataLink.h"
+#include "AthLinks/DataLink.h"
 
 #include <utility>
 #include <vector>

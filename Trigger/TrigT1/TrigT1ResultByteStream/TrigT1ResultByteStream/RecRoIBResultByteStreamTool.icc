@@ -24,7 +24,7 @@ StatusCode RecRoIBResultByteStreamTool::convert( const std::vector< ROBF >& robs
                                                  ROIB::RecRoIBResult*& result ) {
 
    MsgStream log( msgSvc(), name() );
-   log << MSG::DEBUG << "executing convert() from ROBFragments to RIO" << endreq;
+   log << MSG::DEBUG << "executing convert() from ROBFragments to RIO" << endmsg;
 
    /* Object defs */
    std::vector< LVL1::RecEmTauRoI > emTauContent;

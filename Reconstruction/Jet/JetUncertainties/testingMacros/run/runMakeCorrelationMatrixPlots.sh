@@ -261,6 +261,27 @@ function Moriond2016_Nominal_CategoryReduction \
     outHistFile="CorrelationMatrix-Moriond2016-Nominal-CategoryReduction.root"
 }
 
+## For the 2015 JES paper
+function Moriond2016_Public_Nominal_GlobalReduction \
+{
+    # Prerec 2015 release, full vs 3NP scenario 4
+    jetDefinition="AntiKt4EMTopo"
+    MCtype="MC15"
+    configFiles="JES_2015/Moriond2016/JES2015_AllNuisanceParameters.config;JES_2015/Moriond2016/JES2015_19NP.config"
+    outFile="CorrelationMatrix-Moriond2016-Nominal-GlobalReduction.pdf"
+    outHistFile="CorrelationMatrix-Moriond2016-NominalGlobalReduction.root"
+}
+
+function Moriond2016_Public_Nominal_SR1 \
+{
+    # Prerec 2015 release, full vs 3NP scenario 4
+    jetDefinition="AntiKt4EMTopo"
+    MCtype="MC15"
+    configFiles="JES_2015/Moriond2016/JES2015_AllNuisanceParameters.config;JES_2015/Moriond2016/JES2015_SR_Scenario1.config"
+    outFile="CorrelationMatrix-Moriond2016-Nominal-StrongReduction1.pdf"
+    outHistFile="CorrelationMatrix-Moriond2016-NominalStrongReduction1.root"
+}
+
 ################################################
 ## ICHEP 2016 correlation plots
 
@@ -400,16 +421,16 @@ function Paper2015_grid \
 
 function testGrid \
 {
-    jetDefinition="AntiKt4LCTopo"
+    jetDefinition="AntiKt4EMTopo"
     MCtype="MC12"
     #configFiles="JES_2015/Prerec/PrerecJES2015_AllNuisanceParameters_50ns.config;JES_2015/Prerec/PrerecJES2015_Dijet2.config"
     configFiles="JES_2012/Final/InsituJES2012_14NP.config;JES_2012/Final/InsituJES2012_AllNuisanceParameters.config"
-    outFile="CorrelationMatrix-NominalInSitu-14NPInSitu-LC4.eps"
+    outFile="CorrelationMatrix-NominalInSitu-14NPInSitu-EM4.pdf"
     outHistFile="" #"CorrelationMatrix-Prerec2015-Dijet2.root"
-    fixedEta="0"
-    fixedPt="" #"60"
-    #fixedEta="0;0.5;1;1.5;2"
-    #fixedPt=""
+    #fixedEta="0"
+    #fixedPt="" #"60"
+    fixedEta="0;0.5;1;1.5;2"
+    fixedPt=""
 }
 
 function testATLASCMS \

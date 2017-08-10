@@ -11,28 +11,28 @@
 using namespace std;
 
   //  header structure
-const ubit16 MatrixReadOutStructure::headerPos[headerNum] ={ 12, 9, 0};
-const ubit16 MatrixReadOutStructure::headerLen[headerNum] ={  4, 3, 9};
-const ubit16 MatrixReadOutStructure::headerVal= 0x000c;
+const ubit16 MatrixReadOutStructure::s_headerPos[s_headerNum] ={ 12, 9, 0};
+const ubit16 MatrixReadOutStructure::s_headerLen[s_headerNum] ={  4, 3, 9};
+const ubit16 MatrixReadOutStructure::s_headerVal= 0x000c;
   //  subheader structure
-const ubit16 MatrixReadOutStructure::subHeaderPos[subHeaderNum]={ 12,  0};
-const ubit16 MatrixReadOutStructure::subHeaderLen[subHeaderNum]={  4, 12};
-const ubit16 MatrixReadOutStructure::subHeaderVal=8;
+const ubit16 MatrixReadOutStructure::s_subHeaderPos[s_subHeaderNum]={ 12,  0};
+const ubit16 MatrixReadOutStructure::s_subHeaderLen[s_subHeaderNum]={  4, 12};
+const ubit16 MatrixReadOutStructure::s_subHeaderVal=8;
   //  body structure
-const ubit16 MatrixReadOutStructure::CMABodyPos[CMABodyNum]={ 14, 11,  8,  5,  0};
-const ubit16 MatrixReadOutStructure::CMABodyLen[CMABodyNum]={  2,  3,  3,  3,  5};
-const ubit16 MatrixReadOutStructure::CMABodyVal=0;
+const ubit16 MatrixReadOutStructure::s_CMABodyPos[s_CMABodyNum]={ 14, 11,  8,  5,  0};
+const ubit16 MatrixReadOutStructure::s_CMABodyLen[s_CMABodyNum]={  2,  3,  3,  3,  5};
+const ubit16 MatrixReadOutStructure::s_CMABodyVal=0;
   //  footer structure
-const ubit16 MatrixReadOutStructure::footerPos[footerNum]={ 14,  8,  0};
-const ubit16 MatrixReadOutStructure::footerLen[footerNum]={  2,  6,  8};
-const ubit16 MatrixReadOutStructure::footerVal=1;
+const ubit16 MatrixReadOutStructure::s_footerPos[s_footerNum]={ 14,  8,  0};
+const ubit16 MatrixReadOutStructure::s_footerLen[s_footerNum]={  2,  6,  8};
+const ubit16 MatrixReadOutStructure::s_footerVal=1;
 //
 // old structure: valid till march 2006; replaced with the new
 // footer length: 2 bits instead of 4 (see above)
 //
-// const ubit16 MatrixReadOutStructure::footerPos[footerNum]={ 12,  8,  0};
-// const ubit16 MatrixReadOutStructure::footerLen[footerNum]={  4,  4,  8};
-// const ubit16 MatrixReadOutStructure::footerVal=4;
+// const ubit16 MatrixReadOutStructure::s_footerPos[s_footerNum]={ 12,  8,  0};
+// const ubit16 MatrixReadOutStructure::s_footerLen[s_footerNum]={  4,  4,  8};
+// const ubit16 MatrixReadOutStructure::s_footerVal=4;
 
 //----------------------------------------------------------------------------//
 MatrixReadOutStructure::MatrixReadOutStructure()
@@ -69,17 +69,17 @@ MatrixReadOutStructure::~MatrixReadOutStructure() {
 }//end-of-MatrixReadOutStructure::~MatrixReadOutStructure
 //----------------------------------------------------------------------------//
 ubit16 MatrixReadOutStructure::makeHeader(ubit16 *inputData) {
-  const ubit16 theHeader[headerNum]={headerVal,*(inputData+1),*(inputData+2)};
+  const ubit16 theHeader[s_headerNum]={s_headerVal,*(inputData+1),*(inputData+2)};
   m_cmid = *(inputData+1);
   m_fel1id = *(inputData+2);
-  m_word = set16Bits(headerNum, headerPos, theHeader);
+  m_word = set16Bits(s_headerNum, s_headerPos, theHeader);
   return m_word;
 }//end-of-MatrixReadOutStructure::makeHeader
 //----------------------------------------------------------------------------//
 ubit16 MatrixReadOutStructure::makeSubHeader() {
   m_febcid =1 ;
-  const ubit16 theSubHeader[subHeaderNum]={subHeaderVal,1};
-  m_word= set16Bits(subHeaderNum,subHeaderPos, theSubHeader);
+  const ubit16 theSubHeader[s_subHeaderNum]={s_subHeaderVal,1};
+  m_word= set16Bits(s_subHeaderNum,s_subHeaderPos, theSubHeader);
   return m_word;
 }//end-of-MatrixReadOutStructure::makeSubHeader
 //----------------------------------------------------------------------------//
@@ -94,17 +94,17 @@ ubit16 MatrixReadOutStructure::makeBody(ubit16 *inputData) {
     m_overlap      = temp>>2;
     m_threshold    = temp&3;
   }
-  ubit16 theCMABody[CMABodyNum];
-  for(ubit16 i=0; i<CMABodyNum; i++) {theCMABody[i]=*(inputData+i);}
-  m_word=  set16Bits(CMABodyNum,CMABodyPos, theCMABody);
+  ubit16 theCMABody[s_CMABodyNum];
+  for(ubit16 i=0; i<s_CMABodyNum; i++) {theCMABody[i]=*(inputData+i);}
+  m_word=  set16Bits(s_CMABodyNum,s_CMABodyPos, theCMABody);
   return m_word;
 }//end-of-MatrixReadOutStructure::makeBodyHit
 //----------------------------------------------------------------------------//
 ubit16 MatrixReadOutStructure::makeFooter(ubit16 inputData) {
   m_status=1;
   m_crc= inputData;
-  const ubit16 theFooter[footerNum]={footerVal, m_status, m_crc};
-  m_word =  set16Bits(footerNum,footerPos,theFooter);
+  const ubit16 theFooter[s_footerNum]={s_footerVal, m_status, m_crc};
+  m_word =  set16Bits(s_footerNum,s_footerPos,theFooter);
   return m_word;
 }//end-of-MatrixReadOutStructure::makeFooter
 //----------------------------------------------------------------------------//
@@ -141,28 +141,28 @@ ubit16 MatrixReadOutStructure::decodeFragment(ubit16 inputWord,
   if(isBody()) 
     {
       m_field = 'B';
-      m_bcid  = get16Bits(inputWord,CMABodyPos[1],CMABodyLen[1]);
-      m_time  = get16Bits(inputWord,CMABodyPos[2],CMABodyLen[2]);
-      m_ijk   = get16Bits(inputWord,CMABodyPos[3],CMABodyLen[3]);
+      m_bcid  = get16Bits(inputWord,s_CMABodyPos[1],s_CMABodyLen[1]);
+      m_time  = get16Bits(inputWord,s_CMABodyPos[2],s_CMABodyLen[2]);
+      m_ijk   = get16Bits(inputWord,s_CMABodyPos[3],s_CMABodyLen[3]);
       if(m_ijk<7) {
-	m_channel  = get16Bits(inputWord,CMABodyPos[4],CMABodyLen[4]);
+	m_channel  = get16Bits(inputWord,s_CMABodyPos[4],s_CMABodyLen[4]);
 	m_strip    = global_channel();
       } else {
-	temp = get16Bits(inputWord,CMABodyPos[4],CMABodyLen[4]);
+	temp = get16Bits(inputWord,s_CMABodyPos[4],s_CMABodyLen[4]);
 	m_overlap      = temp>>2;
 	m_threshold    = temp&3;
       }
     } else if(isHeader()) {
       m_field = 'H';
-      m_cmid      = get16Bits(inputWord,headerPos[1],headerLen[1]);
-      m_fel1id    = get16Bits(inputWord,headerPos[2],headerLen[2]);
+      m_cmid      = get16Bits(inputWord,s_headerPos[1],s_headerLen[1]);
+      m_fel1id    = get16Bits(inputWord,s_headerPos[2],s_headerLen[2]);
     } else  if(isSubHeader()) {
       m_field = 'S';
-      m_febcid    = get16Bits(inputWord,subHeaderPos[1],subHeaderLen[1]);
+      m_febcid    = get16Bits(inputWord,s_subHeaderPos[1],s_subHeaderLen[1]);
     } else if(isFooter()) {
       m_field = 'F';
-      m_status    = get16Bits(inputWord,footerPos[1],footerLen[1]);
-      m_crc       = get16Bits(inputWord,footerPos[2],footerLen[2]);
+      m_status    = get16Bits(inputWord,s_footerPos[1],s_footerLen[1]);
+      m_crc       = get16Bits(inputWord,s_footerPos[2],s_footerLen[2]);
     } else {
       m_field = 'U';
       outputFlag=1;
@@ -176,36 +176,36 @@ ubit16 MatrixReadOutStructure::decodeFragment(ubit16 inputWord,
 bool MatrixReadOutStructure::isHeader()
 {
   bool status= false;
-  ubit16 theHeader[headerNum]={headerVal};
-  if( (m_word&last4bitsON)== set16Bits(1,headerPos,theHeader)) status=true;
+  ubit16 theHeader[s_headerNum]={s_headerVal};
+  if( (m_word&s_last4bitsON)== set16Bits(1,s_headerPos,theHeader)) status=true;
   return status;
 }
 //----------------------------------------------------------------------------//
 bool MatrixReadOutStructure::isSubHeader()
 {
   bool status= false;
-  ubit16 theSubHeader[subHeaderNum]={subHeaderVal};
-  if( (m_word&last4bitsON)== set16Bits(1,subHeaderPos,theSubHeader)) status=true;
+  ubit16 theSubHeader[s_subHeaderNum]={s_subHeaderVal};
+  if( (m_word&s_last4bitsON)== set16Bits(1,s_subHeaderPos,theSubHeader)) status=true;
   return status;
 }
 //----------------------------------------------------------------------------//
 bool MatrixReadOutStructure::isBody()
 {
   bool status= false;
-  ubit16 theCMABody[CMABodyNum]={CMABodyVal};
-  if( (m_word&last2bitsON)== set16Bits(1,CMABodyPos,theCMABody)) status=true;
+  ubit16 theCMABody[s_CMABodyNum]={s_CMABodyVal};
+  if( (m_word&s_last2bitsON)== set16Bits(1,s_CMABodyPos,theCMABody)) status=true;
   return status;
 }
 //----------------------------------------------------------------------------//
 bool MatrixReadOutStructure::isFooter()
 {
   bool status= false;
-  ubit16 theFooter[footerNum]={footerVal};
+  ubit16 theFooter[s_footerNum]={s_footerVal};
   //
   // old field mapping
   //
-  //if( (m_word&last4bitsON)== set16Bits(1,footerPos,theFooter)) status=true;
-  if( (m_word&last2bitsON)== set16Bits(1,footerPos,theFooter)) status=true;
+  //if( (m_word&last4bitsON)== set16Bits(1,s_footerPos,theFooter)) status=true;
+  if( (m_word&s_last2bitsON)== set16Bits(1,s_footerPos,theFooter)) status=true;
   return status;
 }
 //----------------------------------------------------------------------------//

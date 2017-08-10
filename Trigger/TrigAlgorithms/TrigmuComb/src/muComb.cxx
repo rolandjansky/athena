@@ -104,6 +104,7 @@ muComb::muComb(const std::string& name, ISvcLocator* pSvcLocator):
    declareProperty("Chi2MaxEndCaps_g4",      m_Chi2Max_EC_g4  = 1.e33);
    declareProperty("WeightEta_g4",           m_WeightEta_g4   = 2.0);
    declareProperty("WeightPhi_g4",           m_WeightPhi_g4   = 2.0);
+   declareProperty("Chi2Weight_g4",          m_Chi2Weight_g4  = 2.0);
 
    // Simplified DeltaR(/Pt) based match
    declareProperty("WinPt",       m_winPt = -1.0); //in GeV (disabled if < 0)
@@ -388,7 +389,7 @@ int muComb::g4Match(const xAOD::L2StandAloneMuon* feature,
    //      << " / " << std::setw(11) << y
    //      << " / " << std::setw(11) << z << endmsg;
 
-   const Trk::Perigee* muonPerigee = (Trk::Perigee*) m_backExtrapolatorG4->extrapolate(perigeeMS, beamSurface, Trk::oppositeMomentum, Trk::muon);
+   const Trk::Perigee* muonPerigee = (Trk::Perigee*) m_backExtrapolatorG4->extrapolate(perigeeMS, beamSurface, Trk::oppositeMomentum, true, Trk::muon);
 
 
    //Protection against failing extrapolation
@@ -428,6 +429,11 @@ int muComb::g4Match(const xAOD::L2StandAloneMuon* feature,
    double extr_ptinv  = 1.0e33;
    if (extr_pt != 0) extr_ptinv = 1. / extr_pt;
    double extr_eptinv = eptinv;
+
+   if (isBarrel) {//retuned ptinv resolution (only for barrel)
+      extr_eptinv *= m_Chi2Weight_g4;
+      id_eptinv   *= m_Chi2Weight_g4;
+   }
 
    //avoid memory leak
    delete muonPerigee;
@@ -717,6 +723,7 @@ HLT::ErrorCode muComb::hltExecute(const HLT::TriggerElement* inputTE,
       msg() << MSG::DEBUG << " WinPhiSigma g4 EC: " << m_WinPhi_EC_g4 << endmsg;
       msg() << MSG::DEBUG << " WeightEta g4: " << m_WeightEta_g4 << endmsg;
       msg() << MSG::DEBUG << " WeightPhi g4: " << m_WeightPhi_g4 << endmsg;
+      msg() << MSG::DEBUG << " Chi2Weight g4: " << m_Chi2Weight_g4 << endmsg;
       msg() << MSG::DEBUG << " " << endmsg;
    }
 

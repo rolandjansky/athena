@@ -1,5 +1,8 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "AlgD.h"
-#include "CxxUtils/make_unique.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/ReadCondHandle.h"
 #include "EventInfo/EventInfo.h"
@@ -8,6 +11,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include <thread>
 #include <chrono>
+#include <memory>
 
 
 AlgD::AlgD( const std::string& name, 

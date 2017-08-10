@@ -37,80 +37,80 @@ namespace MuonCalib{
   
   //specific set functions
   
-  void RpcCalibData::setId(int stripId){id=stripId;}		  
-  void RpcCalibData::setEff(float theEff){eff=theEff;}		  
-  void RpcCalibData::setErrEff(float theErrEff){errEff=theErrEff;}	  
-  void RpcCalibData::setRes1(float theRes1){res1=theRes1;}	  
-  void RpcCalibData::setRes2(float theRes2){res2=theRes2;}	  
-  void RpcCalibData::setResX(float theResX){resX=theResX;}	  
-  void RpcCalibData::setErrRes1(float theErrRes1){errRes1=theErrRes1;}	  
-  void RpcCalibData::setErrRes2(float theErrRes2){errRes2=theErrRes2;}	  
-  void RpcCalibData::setErrResX(float theErrResX){errResX=theErrResX;}  
-  void RpcCalibData::setTime(float theTime){time=theTime;}	  
-  void RpcCalibData::setErrTime(float theErrTime){errTime=theErrTime;}	  
-  void RpcCalibData::setNoise(float theNoise){noise=theNoise;}	  
-  void RpcCalibData::setNoiseC(float theNoiseC){noiseC=theNoiseC;}	  
-  void RpcCalibData::setErrNoise(float theErrNoise){errNoise=theErrNoise;}  
-  void RpcCalibData::setErrNoiseC(float theErrNoiseC){errNoiseC=theErrNoiseC;}
-  void RpcCalibData::setCs(float theCs){cs=theCs;}
-  void RpcCalibData::setErrCs(float theErrCs){errCs=theErrCs;}
+  void RpcCalibData::setId(int stripId){m_id=stripId;}		  
+  void RpcCalibData::setEff(float theEff){m_eff=theEff;}		  
+  void RpcCalibData::setErrEff(float theErrEff){m_errEff=theErrEff;}	  
+  void RpcCalibData::setRes1(float theRes1){m_res1=theRes1;}	  
+  void RpcCalibData::setRes2(float theRes2){m_res2=theRes2;}	  
+  void RpcCalibData::setResX(float theResX){m_resX=theResX;}	  
+  void RpcCalibData::setErrRes1(float theErrRes1){m_errRes1=theErrRes1;}	  
+  void RpcCalibData::setErrRes2(float theErrRes2){m_errRes2=theErrRes2;}	  
+  void RpcCalibData::setErrResX(float theErrResX){m_errResX=theErrResX;}  
+  void RpcCalibData::setTime(float theTime){m_time=theTime;}	  
+  void RpcCalibData::setErrTime(float theErrTime){m_errTime=theErrTime;}	  
+  void RpcCalibData::setNoise(float theNoise){m_noise=theNoise;}	  
+  void RpcCalibData::setNoiseC(float theNoiseC){m_noiseC=theNoiseC;}	  
+  void RpcCalibData::setErrNoise(float theErrNoise){m_errNoise=theErrNoise;}  
+  void RpcCalibData::setErrNoiseC(float theErrNoiseC){m_errNoiseC=theErrNoiseC;}
+  void RpcCalibData::setCs(float theCs){m_cs=theCs;}
+  void RpcCalibData::setErrCs(float theErrCs){m_errCs=theErrCs;}
   
 
   //Get a parameter
   //They have defaults, but the other database can be requested
   
-  int   RpcCalibData::getId() const {return(id); }
-  float RpcCalibData::getEff() const {return eff;}
-  float RpcCalibData::getErrEff() const {return errEff;}
-  float RpcCalibData::getRes1() const {return res1;}
-  float RpcCalibData::getRes2() const {return res2;}
-  float RpcCalibData::getResX() const {return resX;}
-  float RpcCalibData::getErrRes1() const {return errRes1;}
-  float RpcCalibData::getErrRes2() const {return errRes2;}
-  float RpcCalibData::getErrResX() const {return errResX;}
-  float RpcCalibData::getTime() const {return time;}
-  float RpcCalibData::getErrTime() const {return errTime;}
-  float RpcCalibData::getNoise() const {return noise;}
-  float RpcCalibData::getNoiseC() const {return noiseC;}
-  float RpcCalibData::getErrNoise() const {return errNoise;}
-  float RpcCalibData::getErrNoiseC() const {return errNoiseC;}
-  float RpcCalibData::getCs() const {return cs;}
-  float RpcCalibData::getErrCs() const {return errCs;}
+  int   RpcCalibData::getId() const {return(m_id); }
+  float RpcCalibData::getEff() const {return m_eff;}
+  float RpcCalibData::getErrEff() const {return m_errEff;}
+  float RpcCalibData::getRes1() const {return m_res1;}
+  float RpcCalibData::getRes2() const {return m_res2;}
+  float RpcCalibData::getResX() const {return m_resX;}
+  float RpcCalibData::getErrRes1() const {return m_errRes1;}
+  float RpcCalibData::getErrRes2() const {return m_errRes2;}
+  float RpcCalibData::getErrResX() const {return m_errResX;}
+  float RpcCalibData::getTime() const {return m_time;}
+  float RpcCalibData::getErrTime() const {return m_errTime;}
+  float RpcCalibData::getNoise() const {return m_noise;}
+  float RpcCalibData::getNoiseC() const {return m_noiseC;}
+  float RpcCalibData::getErrNoise() const {return m_errNoise;}
+  float RpcCalibData::getErrNoiseC() const {return m_errNoiseC;}
+  float RpcCalibData::getCs() const {return m_cs;}
+  float RpcCalibData::getErrCs() const {return m_errCs;}
   
   float RpcCalibData::getParameter(RpcCondParType parType) const
   {
     if (parType == RpcCondParType::EFF)
-            return(eff);
+            return(m_eff);
         else if(parType == RpcCondParType::ERREFF)
-            return(errEff);
+            return(m_errEff);
         else if(parType == RpcCondParType::RES1)
-            return(res1);
+            return(m_res1);
         else if(parType == RpcCondParType::RES2)
-            return(res2);
+            return(m_res2);
         else if (parType == RpcCondParType::RESX)
-            return(resX);
+            return(m_resX);
         else if(parType == RpcCondParType::ERRRES1)
-            return(errRes1);
+            return(m_errRes1);
         else if(parType == RpcCondParType::ERRRES2)
-            return(errRes2);
+            return(m_errRes2);
         else if (parType == RpcCondParType::ERRRESX)
-            return(errResX);
+            return(m_errResX);
         else if(parType == RpcCondParType::TIME)
-            return(time);
+            return(m_time);
         else if(parType == RpcCondParType::ERRTIME)
-            return(errTime);
+            return(m_errTime);
         else if (parType == RpcCondParType::NOISE)
-            return(noise);
+            return(m_noise);
         else if (parType == RpcCondParType::NOISEC)
-            return(noiseC);
+            return(m_noiseC);
         else if (parType == RpcCondParType::ERRNOISE)
-            return(errNoise);
+            return(m_errNoise);
         else if (parType == RpcCondParType::ERRNOISEC)
-            return(errNoiseC);
+            return(m_errNoiseC);
         else if (parType == RpcCondParType::CS)
-            return(cs);
+            return(m_cs);
         else if (parType == RpcCondParType::ERRCS)
-            return(errCs);
+            return(m_errCs);
 
         return(-9999); //Didn't provide a valid parameter type
     }

@@ -151,12 +151,12 @@ bool operator== (const MSVertex& a, const MSVertex& b) {
   //* distance used to compare floats *//
   const double DELTA=1e-3;
   
-  if(fabsf(a.getPosition().x()   - b.getPosition().x())   > DELTA) return false;
-  if(fabsf(a.getPosition().y()   - b.getPosition().y())   > DELTA) return false;
-  if(fabsf(a.getPosition().z()   - b.getPosition().z())   > DELTA) return false;
-  if(fabsf(a.getPosition().eta() - b.getPosition().eta()) > DELTA) return false;
-  if(fabsf(a.getPosition().phi() - b.getPosition().phi()) > DELTA) return false;
-  if(fabsf(a.getChi2Probability()- b.getChi2Probability())> DELTA) return false;
+  if(std::abs(a.getPosition().x()   - b.getPosition().x())   > DELTA) return false;
+  if(std::abs(a.getPosition().y()   - b.getPosition().y())   > DELTA) return false;
+  if(std::abs(a.getPosition().z()   - b.getPosition().z())   > DELTA) return false;
+  if(std::abs(a.getPosition().eta() - b.getPosition().eta()) > DELTA) return false;
+  if(std::abs(a.getPosition().phi() - b.getPosition().phi()) > DELTA) return false;
+  if(std::abs(a.getChi2Probability()- b.getChi2Probability())> DELTA) return false;
   
   if(a.getAuthor()       - b.getAuthor()       != 0) return false;
   if(a.getNTracks()      - b.getNTracks()      != 0) return false;

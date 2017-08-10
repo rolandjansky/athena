@@ -63,21 +63,21 @@ StatusCode InDet::TRT_StandaloneTrackFinder::initialize()
 {
   StatusCode  sc;
 
-  msg(MSG::DEBUG) << "Initializing TRT_StandaloneTrackFinder" << endreq;
+  msg(MSG::DEBUG) << "Initializing TRT_StandaloneTrackFinder" << endmsg;
 
   sc = m_segToTrackTool.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_segToTrackTool << endreq;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_segToTrackTool << endmsg;
     return StatusCode::FAILURE;
   }else{
-    msg() << MSG::INFO << "Retrieved tool " << m_segToTrackTool << endreq;
+    msg() << MSG::INFO << "Retrieved tool " << m_segToTrackTool << endmsg;
   }
 
 
   // Get output print level
   //
   if(msgLvl(MSG::DEBUG)) {
-    m_nprint=0; msg(MSG::DEBUG) << (*this) << endreq;
+    m_nprint=0; msg(MSG::DEBUG) << (*this) << endmsg;
   }
 
   //Global counters. See the include file for definitions
@@ -237,7 +237,7 @@ StatusCode InDet::TRT_StandaloneTrackFinder::execute()
   
   // Print common event information
   if(msgLvl(MSG::DEBUG)) {
-    m_nprint=1; msg(MSG::DEBUG) << (*this) << endreq;
+    m_nprint=1; msg(MSG::DEBUG) << (*this) << endmsg;
   }
 
   return StatusCode::SUCCESS;
@@ -249,7 +249,7 @@ StatusCode InDet::TRT_StandaloneTrackFinder::execute()
 
 StatusCode InDet::TRT_StandaloneTrackFinder::finalize()
 {
-  m_nprint=2; msg(MSG::INFO)<<(*this)<<endreq;
+  m_nprint=2; msg(MSG::INFO)<<(*this)<<endmsg;
   return StatusCode::SUCCESS;
 }
 

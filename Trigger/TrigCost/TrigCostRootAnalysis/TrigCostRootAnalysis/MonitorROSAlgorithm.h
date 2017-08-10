@@ -20,7 +20,6 @@
 #include "MonitorROSCommon.h"
 
 namespace TrigCostRootAnalysis {
-
   //Forward declaration
   class TrigCostData;
 
@@ -29,21 +28,15 @@ namespace TrigCostRootAnalysis {
    * ROS monitoring class, called per event if ROS monitoring is enabled.
    * responsible for global monitoring ROS request broken down per algorithm
    */
-  class MonitorROSAlgorithm : public MonitorBase, public MonitorROSCommon {
-
-   public:
-
+  class MonitorROSAlgorithm: public MonitorBase, public MonitorROSCommon {
+  public:
     MonitorROSAlgorithm(const TrigCostData* _costData);
     void newEvent(Float_t _weight = 1.);
-    CounterBase* newCounter( const std::string &_name, Int_t _ID );
+    CounterBase* newCounter(const std::string& _name, Int_t _ID);
     Bool_t getIfActive(ConfKey_t _mode);
     void saveOutput();
-
-   private:
-
-
+  private:
   }; //class MonitorROSAlgorithm
-
 } // namespace TrigCostRootAnalysis
 
 #endif //TrigCostRootAnalysis_MonitorROSAlgorithm_H

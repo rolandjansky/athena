@@ -22,7 +22,6 @@
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include <map> //useful in testMode
@@ -69,41 +68,13 @@ StatusCode CaloCellNeighborsAverageCorr::initialize()
   ATH_MSG_INFO ( "Skip Dead Drawer = " << ((m_skipDeadDrawer)?"true":"false") );
   ATH_MSG_INFO ( "Skip Dead Tile   = " << ((m_skipDeadTile)?"true":"false")   );
 
-      
-  const IGeoModelSvc *geoModel=0;
-  CHECK( service("GeoModelSvc", geoModel) );
-
-  // dummy parameters for the callback:
-  int dummyInt=0;
-  std::list<std::string> dummyList;
-
-  if (geoModel->geoInitialized())
-  {
-    return geoInit(dummyInt,dummyList);
-  }
-  else
-  {
-    CHECK( detStore()->regFcn(&IGeoModelSvc::geoInit,
-                              geoModel,
-                              &CaloCellNeighborsAverageCorr::geoInit,this) );
-  }
-
   
-  ATH_MSG_INFO ( "CaloCellNeighborsAverageCorr initialize() end" );
-  
-  return StatusCode::SUCCESS;
-}
-
-// ============================================================================
-
-StatusCode
-CaloCellNeighborsAverageCorr::geoInit(IOVSVC_CALLBACK_ARGS)
-{
-  ATH_MSG_INFO ( " in geoInit " );
   m_calo_dd_man  = CaloDetDescrManager::instance();
   m_calo_id   = m_calo_dd_man->getCaloCell_ID();  
   m_tile_id   = m_calo_id->tile_idHelper();
 
+  ATH_MSG_INFO ( "CaloCellNeighborsAverageCorr initialize() end" );
+  
   return StatusCode::SUCCESS;
 }
 

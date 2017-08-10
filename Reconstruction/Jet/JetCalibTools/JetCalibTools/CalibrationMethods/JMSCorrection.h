@@ -43,11 +43,11 @@ class JMSCorrection
   virtual StatusCode calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const;
 
  private:
-  float getMassCorr(double pT_uncorr, double m_uncorr, int etabin) const;
-  float getTrackAssistedMassCorr(double pT_uncorr, double m_uncorr, int etabin) const;
-  float getRelCalo(double pT_uncorr, double m_over_pt_uncorr, int etabin) const;
-  float getRelTA(double pT_uncorr, double m_over_pt_uncorr, int etabin) const;
-  float getRho(double pT_uncorr, double m_over_pt_uncorr, int etabin) const;
+  float getMassCorr(double pT_uncorr, double mass_uncorr, int etabin) const;
+  float getTrackAssistedMassCorr(double pT_uncorr, double mass_uncorr, int etabin) const;
+  float getRelCalo(double pT_uncorr, double mass_over_pt_uncorr, int etabin) const;
+  float getRelTA(double pT_uncorr, double mass_over_pt_uncorr, int etabin) const;
+  float getRho(double pT_uncorr, double mass_over_pt_uncorr, int etabin) const;
 
   void setMassEtaBins(VecD etabins) { 
     if (etabins.size()==0) ATH_MSG_ERROR("Please check that the mass eta binning is properly set in your config file");

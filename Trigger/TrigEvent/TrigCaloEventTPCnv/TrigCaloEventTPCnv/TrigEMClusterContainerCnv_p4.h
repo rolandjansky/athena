@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigCaloEventTPCnv
- * @Class  : TrigEMClusterContainerCnv_p4
+ * @class  : TrigEMClusterContainerCnv_p4
  *
  * @brief transient persistent converter for TrigEMClusterContainer
  *

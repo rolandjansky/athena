@@ -112,9 +112,6 @@ namespace Muon
     bool handlePRDHash( IdentifierHash hash, const MdtCsmContainer& rdoContainer, std::vector<IdentifierHash>& idWithDataVect );
     void sortMdtPrdCollection( const Muon::MdtPrepDataCollection* col );
   
-    /// store gate transactions
-    StoreGateSvc * m_sgSvc;
-        
     /// Muon Detector Descriptor
     const MuonGM::MuonDetectorManager * m_muonMgr;
         

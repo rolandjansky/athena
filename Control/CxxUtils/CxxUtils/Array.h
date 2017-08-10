@@ -64,7 +64,7 @@ class ArrayIterator;
  * or to add a new @c Array<1> specialization.  So this is an easier way
  * of achieving the same effect.  @c Array<N> uses as its iterator
  * type @c ArrayIteratorChooser<N>::const_iterator; this small class then gets
- * specialized for @N == 1.  We also need to provide a way to create
+ * specialized for @c N == 1.  We also need to provide a way to create
  * the iterators (since it will be done differently in the two cases).
  * This is supplied by the @c make_iterator method.
  */
@@ -183,7 +183,7 @@ public:
    * @brief Return the size of the array along one dimension.
    * @param dim The dimension of the size to retrieve.
    *            Must be less than the number of dimensions.
-   * @return The array size along dimension @dim.
+   * @return The array size along dimension @c dim.
    */
   unsigned int size (unsigned int dim = 0) const;
 
@@ -303,7 +303,7 @@ public:
    * @brief Return the size of the array along one dimension.
    * @param dim The dimension of the size to retrieve.
    *            Must be less than the number of dimensions.
-   * @return The array size along dimension @dim.
+   * @return The array size along dimension @c dim.
    *
    * For @c Array<0>, @a dim must be 0, and the function
    * will always return 0.
@@ -626,7 +626,7 @@ private:
  * @class WritableArray
  * @brief Read-write multidimensional array.
  *
- * This class derives from @Array<N>.  It allows writing into
+ * This class derives from @c Array<N>.  It allows writing into
  * the array, but otherwise works in the same way.
  */
 template <unsigned int N>

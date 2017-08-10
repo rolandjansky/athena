@@ -43,7 +43,7 @@ class CSCDigitVariables : public ValAlgVariables
   {
     if( (this->deleteVariables()).isFailure() ){
       ATH_MSG_ERROR("Failing to delete CSCDigitVariables.");
-      throw;
+      std::terminate();
     }
   }
 

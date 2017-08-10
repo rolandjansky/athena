@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigMuonEventTPCnv
- * @Class  : TrigMuonClusterFeatureContainerCnv_tlp1
+ * @class  : TrigMuonClusterFeatureContainerCnv_tlp1
  *
  * @brief "top-level" transient-persistent converter for TrigMuonClusterFeatureContainer_tlp1
  *

@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: HLT, PESA algorithms
  * @Package: TrigL2MissingET
- * @Class  : L2MissingET
+ * @class  : L2MissingET
  *
  * @brief  PESA algorithm that takes the LVL2 MissingET from LVL1
  *
@@ -113,7 +113,7 @@ namespace PESA {
                               // || TDAQ_CALO_CLUSTER_PROC_ROI
                               // || TDAQ_CALO_JET_PROC_DAQ
                               // || TDAQ_CALO_JET_PROC_ROI
-    bool firsteventinrun;
+    bool m_firsteventinrun;
 
     float m_lvl1_mex; //!< Monitoring: LVL1 energyX [GeV]
     float m_lvl1_mey; //!< Monitoring: LVL1 energyY [GeV]

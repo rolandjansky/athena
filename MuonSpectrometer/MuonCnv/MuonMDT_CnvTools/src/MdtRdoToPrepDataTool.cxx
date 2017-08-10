@@ -110,7 +110,7 @@ StatusCode Muon::MdtRdoToPrepDataTool::initialize()
   
   
   // Get MdtRawDataProviderTool
-  if (m_rawDataProviderTool.retrieve().isFailure()) {
+  if (m_useBStoRdoTool && m_rawDataProviderTool.retrieve().isFailure()) {
     ATH_MSG_FATAL("Failed to retrieve tool ");
     return StatusCode::FAILURE;
   }

@@ -20,7 +20,7 @@
 // STL
 #include <vector>
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "CLIDSvc/CLASS_DEF.h"
 
 namespace SgTests {

@@ -52,13 +52,13 @@ public:
   ClassDef(APReweight2D,1)
 
 private:
-  TH2D* _denominator_hist;                                                       /*!< Holds the original denominator histogram. */
-  TH2D* _numerator_hist;                                                         /*!< Holds the original numerator histogram. */
-  std::vector< std::vector< APWeightEntry* > > _weights;                         /*!< Holds all weight entries. */
-  unsigned int _n_bins_x;                                                        /*!< Holds the amount of bins in X. */
-  unsigned int _n_bins_y;                                                        /*!< Holds the amount of bins in Y. */
-  TAxis *_axis_x;                                                                /*!< Holds the X axis of the APReweight2D instance (from input histograms). */
-  TAxis *_axis_y;                                                                /*!< Holds the Y axis of the APReweight2D instance (from input histograms). */
+  TH2D* m_denominator_hist;                                                       /*!< Holds the original denominator histogram. */
+  TH2D* m_numerator_hist;                                                         /*!< Holds the original numerator histogram. */
+  std::vector< std::vector< APWeightEntry* > > m_weights;                         /*!< Holds all weight entries. */
+  unsigned int m_n_bins_x;                                                        /*!< Holds the amount of bins in X. */
+  unsigned int m_n_bins_y;                                                        /*!< Holds the amount of bins in Y. */
+  TAxis *m_axis_x;                                                                /*!< Holds the X axis of the APReweight2D instance (from input histograms). */
+  TAxis *m_axis_y;                                                                /*!< Holds the Y axis of the APReweight2D instance (from input histograms). */
 };
 
 #endif

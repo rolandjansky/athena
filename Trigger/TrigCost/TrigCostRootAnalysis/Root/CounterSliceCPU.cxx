@@ -26,19 +26,18 @@
 #include "../TrigCostRootAnalysis/Utility.h"
 
 namespace TrigCostRootAnalysis {
-
   /**
    * @param _name Const ref to algorithm's chain's first group
    * @param _ID Unused
    */
-  CounterSliceCPU::CounterSliceCPU( const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel, MonitorBase* _parent) :
+  CounterSliceCPU::CounterSliceCPU(const TrigCostData* _costData, const std::string& _name, Int_t _ID,
+                                   UInt_t _detailLevel, MonitorBase* _parent) :
     CounterBase(_costData, _name, _ID, _detailLevel, _parent) {
-
     m_dataStore.newVariable(kVarCalls).setSavePerCall().setSavePerEvent();
     m_dataStore.newVariable(kVarEventsActive).setSavePerCall().setSavePerEvent();
     m_dataStore.newVariable(kVarTime)
-      .setSavePerCall("Slice Time Per Call;Slice Algorithm CPU Time [ms];Calls")
-      .setSavePerEvent("Slice Time Per Event;Slice Algorithm CPU Time [ms];Events");
+     .setSavePerCall("Slice Time Per Call;Slice Algorithm CPU Time [ms];Calls")
+     .setSavePerEvent("Slice Time Per Event;Slice Algorithm CPU Time [ms];Events");
   }
 
   /**
@@ -79,6 +78,4 @@ namespace TrigCostRootAnalysis {
     UNUSED(_e);
     return 0;
   }
-
-
 } // namespace TrigCostRootAnalysis

@@ -232,7 +232,7 @@ def py_tool(toolName, createIf=True, iface=None):
     return tool
 
 ### helper method to easily retrieve algorithms by name -----------------------
-#@memoize # don't memoize ?
+# @c memoize # don't memoize ?
 def py_alg(algName, iface='IAlgorithm'):
     """
     Helper function to retrieve an IAlgorithm (managed by the IAlgManager_) by

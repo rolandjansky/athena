@@ -4,7 +4,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 ///
-@page HIJetRec_page \mainpage HIJetRec package
+@page HIJetRec_page HIJetRec package
 ///
 /// \author Aaron Angerami <angerami@cern.ch>
 /// \date Jan, 2015

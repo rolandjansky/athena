@@ -84,6 +84,21 @@ StatusCode TauOverlappingElectronLLHDecorator::initialize()
 }
 
 //______________________________________________________________________________
+StatusCode TauOverlappingElectronLLHDecorator::setEleOlrPassDecorationName(const std::string& name)
+{
+  m_sEleOlrPassDecorationName = name;
+  return StatusCode::SUCCESS;
+}
+
+
+//______________________________________________________________________________
+StatusCode TauOverlappingElectronLLHDecorator::setEleOlrLhScoreDecorationName(const std::string& name)
+{
+  m_sEleOlrLhScoreDecorationName = name;
+  return StatusCode::SUCCESS;
+}
+
+//______________________________________________________________________________
 StatusCode TauOverlappingElectronLLHDecorator::decorate(const xAOD::TauJet& xTau) const
 {
   if (m_bNewEvent)
@@ -91,7 +106,7 @@ StatusCode TauOverlappingElectronLLHDecorator::decorate(const xAOD::TauJet& xTau
     ATH_CHECK(retrieveElectrons());
     m_bNewEvent = false;
 
-    m_bEleOLRMatchAvailable = (xTau.isAvailable<char>(m_sEleOlrPassDecorationName) || xTau.isAvailable<float>("EleMatchLikelihoodScore"));
+    m_bEleOLRMatchAvailable = (xTau.isAvailable<char>(m_sEleOlrPassDecorationName) || xTau.isAvailable<float>(m_sEleOlrLhScoreDecorationName));
     if (m_bEleOLRMatchAvailable)
       ATH_MSG_DEBUG("ele_olr_pass decoration is available in this event.");
     else
@@ -135,16 +150,16 @@ StatusCode TauOverlappingElectronLLHDecorator::decorate(const xAOD::TauJet& xTau
   // }
 
   // decorate tau with score
-  static SG::AuxElement::Decorator< float > decEleMatchLhscore(m_sEleOlrLhScoreDecorationName);
+  SG::AuxElement::Decorator< float > decEleMatchLhscore(m_sEleOlrLhScoreDecorationName);
   decEleMatchLhscore(xTau) = fLHScore;
 
   bool bPass = false;
   if (xTau.nTracks() == 1)
   {
 #ifdef XAODTAU_VERSIONS_TAUJET_V3_H
-    static SG::AuxElement::Accessor< xAOD::TauJet::TauTrackLinks_t > trackAcc( "trackLinks" );
+    const static SG::AuxElement::Accessor< xAOD::TauJet::TauTrackLinks_t > trackAcc( "tauTrackLinks" );
 #else
-    static SG::AuxElement::Accessor< xAOD::TauJet::TrackParticleLinks_t > trackAcc( "trackLinks" );
+    const static SG::AuxElement::Accessor< xAOD::TauJet::TrackParticleLinks_t > trackAcc( "trackLinks" );
 #endif // XAODTAU_VERSIONS_TAUJET_V3_H
     if (trackAcc(xTau)[0].isValid())
       bPass = (fLHScore <= getCutVal(xTau.track(0)->eta(),
@@ -157,7 +172,7 @@ StatusCode TauOverlappingElectronLLHDecorator::decorate(const xAOD::TauJet& xTau
   }
   else
     bPass = true;
-  static SG::AuxElement::Decorator< char > decEleOlrPass(m_sEleOlrPassDecorationName);
+  SG::AuxElement::Decorator< char > decEleOlrPass(m_sEleOlrPassDecorationName);
   decEleOlrPass(xTau) = (char)bPass;
 
   return StatusCode::SUCCESS;

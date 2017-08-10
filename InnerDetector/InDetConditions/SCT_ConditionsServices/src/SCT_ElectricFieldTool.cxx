@@ -12,7 +12,7 @@
 
 SCT_ElectricFieldTool::SCT_ElectricFieldTool(const std::string& t, const std::string& n, const IInterface*  p) : 
         AthAlgTool(t,n,p),
-        m_model(nullptr){
+        m_model{nullptr}{
   declareInterface<ISCT_ElectricFieldTool> ( this );
   declareProperty("EFieldModel",m_eFieldModel=0);           //!< uniform E solution as default
 }

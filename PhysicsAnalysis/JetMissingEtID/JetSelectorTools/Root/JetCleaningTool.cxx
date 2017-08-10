@@ -223,7 +223,7 @@ const Root::TAccept& JetCleaningTool::accept( const double emf,
   }
   if(fmax>0.99 && std::fabs(eta)<2)                       return m_accept;
   //HEC spike
-  if(std::fabs(negE/1000.)>60)                            return m_accept;
+  if(std::fabs(negE*0.001)>60)                            return m_accept;
   if(hecf>0.5 && std::fabs(hecq)>0.5 && AverageLArQF/65535>0.8)                     return m_accept;
   //EM calo noise
   if(emf>0.95 && std::fabs(larq)>0.8 && std::fabs(eta)<2.8 && AverageLArQF/65535>0.8)    return m_accept;
@@ -231,7 +231,7 @@ const Root::TAccept& JetCleaningTool::accept( const double emf,
   //if(fmaxIndex==0 && fmax>0.6) return m_accept;
   // LLP cleaning uses negative energy cut
   // (https://indico.cern.ch/event/472320/contribution/8/attachments/1220731/1784456/JetTriggerMeeting_20160102.pdf)
-  if (useLLP && std::fabs(negE/1000)>4 && fmax >0.85) return m_accept;
+  if (useLLP && std::fabs(negE*0.001)>4 && fmax >0.85) return m_accept;
   
   if (LooseBad==m_cutLevel || LooseBadLLP==m_cutLevel || LooseBadTrigger==m_cutLevel){
     m_accept.setCutResult( "Cleaning", true );

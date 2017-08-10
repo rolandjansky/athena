@@ -97,13 +97,13 @@ StatusCode AFP_SIDLocReco::initialize()
   //write AFP_GeometryReader to StoreGate
   /*if (StatusCode::SUCCESS!=service("DetectorStore",m_pDetStore))
     {
-    LogStream << MSG::ERROR << "Detector store not found" << endreq;
+    LogStream << MSG::ERROR << "Detector store not found" << endmsg;
     return StatusCode::FAILURE;
     }
     sc = m_pDetStore->record(m_pGeometryReader, m_strKeyGeometryForReco);
     if(sc.isFailure())
     {
-    LogStream << MSG::ERROR << "m_pGeometryReader: unable to record to StoreGate" << endreq;
+    LogStream << MSG::ERROR << "m_pGeometryReader: unable to record to StoreGate" << endmsg;
     return sc;
     }*/
 
@@ -144,7 +144,7 @@ StatusCode AFP_SIDLocReco::execute()
   // 	const McEventCollection* mcTru = 0;     
   // 	sc = m_storeGate->retrieve(mcTru,"TruthEvent");
   // 	if(sc.isFailure() || !mcTru){
-  // 		LogStream << MSG::DEBUG << "Container "<< "TruthEvent" <<" NOT FOUND !!!!!!!" << endreq;
+  // 		LogStream << MSG::DEBUG << "Container "<< "TruthEvent" <<" NOT FOUND !!!!!!!" << endmsg;
   // //		return StatusCode::FAILURE;
   // 	}
 	

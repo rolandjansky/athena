@@ -218,7 +218,7 @@ int TSPMap::getPosition(int plane, int val)
   case 2:
     // decompose the 2 coordinates
     posY = val>>m_internal_nbits[plane][0];
-    posX = val&(~(~0<<m_internal_nbits[plane][0]));
+    posX = val&(~(~0u<<m_internal_nbits[plane][0]));
     // convert the value in Gray code
     posX = GC2IEEE(m_internal_nbits[plane][0],posX);
     posY = GC2IEEE(m_internal_nbits[plane][1],posY);

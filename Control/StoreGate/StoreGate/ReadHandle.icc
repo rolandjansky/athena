@@ -239,6 +239,36 @@ ReadHandle<T>::get (const EventContext& ctx) const
 
 
 /**
+ * @brief Make an alias.
+ * @param key Alternate key by which the referenced object should be known.
+ *
+ * The current handle should be valid and referencing an object.
+ *
+ * The object will also be known by the name given in @c key.
+ */
+template <class T>
+StatusCode ReadHandle<T>::alias (const WriteHandleKey<T>& key)
+{
+  if (!cptr())
+    return StatusCode::FAILURE;
+  return symLink_impl (this->clid(), key.key());
+}
+
+
+/**
+ * @brief Protected constructor used by WriteDecorHandle.
+ * @param key The key object holding the clid/key.
+ * @param ctx The event context, or nullptr to use the global default.
+ */
+template <class T>
+inline
+ReadHandle<T>::ReadHandle (const VarHandleKey& key, const EventContext* ctx)
+  : VarHandleBase (key, ctx)
+{
+}
+
+
+/**
  * @brief Helper: dereference the pointer.
  * Throws ExcNullReadHandle on failure.
  */

@@ -228,7 +228,7 @@ StatusCode TruthTestTool::processEvent()
         m_py_truth->Fill( mom.y() );
         m_pz_truth->Fill( mom.z() );
         m_pt_truth->Fill( mom.perp() );
-        m_log_pt_truth->Fill( log(mom.perp()) );
+        m_log_pt_truth->Fill( mom.perp() > 0 ? log(mom.perp()) : -1 );
 
         m_theta_truth->Fill( mom.theta() );
         m_eta_truth->Fill( mom.eta() );
@@ -239,7 +239,8 @@ StatusCode TruthTestTool::processEvent()
         }
         m_barcode_small->Fill((*currentGenParticleIter)->barcode());
         m_barcode_large->Fill((*currentGenParticleIter)->barcode());
-        m_log_barcode_large->Fill( log((*currentGenParticleIter)->barcode()) );
+        int barcode = (*currentGenParticleIter)->barcode();
+        m_log_barcode_large->Fill( barcode > 0 ? log(barcode) : -1);
         m_particle_status->Fill((*currentGenParticleIter)->status());
 
         int pdg = (*currentGenParticleIter)->pdg_id();

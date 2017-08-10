@@ -7,7 +7,7 @@
 #include "InDetPrepRawData/PixelClusterContainer.h"
 #include "InDetEventTPCnv/InDetPrepRawData/PixelGangedClusterAmbiguities_p1.h"
 #include "InDetEventTPCnv/InDetPrepRawData/PixelGangedClusterAmbiguitiesCnv_p1.h"
-#include "DataModel/tools/IdentContIndex.h"
+#include "AthLinks/tools/IdentContIndex.h"
 
 // Gaudi
 #include "GaudiKernel/ISvcLocator.h"

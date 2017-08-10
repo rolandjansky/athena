@@ -7,7 +7,7 @@ use GaudiInterface   GaudiInterface-*      External
 use LArIdentifier    LArIdentifier-*       LArCalorimeter
 use LArRawConditions LArRawConditions-*    LArCalorimeter
 use LArRawEvent      LArRawEvent-*         LArCalorimeter
-use LArTools         LArTools-*            LArCalorimeter
+use LArCabling       LArCabling-*          LArCalorimeter
 use StoreGate        StoreGate-*           Control
 use AthenaBaseComps  AthenaBaseComps-*     Control
 use TBEvent          TBEvent-*             TestBeam

@@ -6,7 +6,7 @@
 // 
 //   Copyright (C) 2007 M.Sutton (sutt@cern.ch)    
 //
-//   $Id: ConfAnalysis.h 770310 2016-08-26 12:34:42Z sutt $
+//   $Id: ConfAnalysis.h 800361 2017-03-12 14:33:19Z sutt $
 
 
 #ifndef __CONFANALYSIS_H
@@ -21,6 +21,9 @@
 #include "TrigInDetAnalysis/TIDDirectory.h"
 #include "TrigInDetAnalysis/Efficiency.h"
 #include "TrigInDetAnalysis/TIDARoiDescriptor.h"
+
+#include "TrigInDetAnalysisExample/ChainString.h"
+
 
 #include "Resplot.h"
 
@@ -50,9 +53,11 @@ class ConfAnalysis : public TrackAnalysis {
 
 public:
   
-  ConfAnalysis( const std::string& name ) : 
-    TrackAnalysis( clean(name) ), Nreco(0), Nref(0), Nmatched(0), m_print(false), m_roi(0), 
-    m_initialised(false), m_initialiseFirstEvent(false), m_lfirst(true)  {
+  ConfAnalysis( const std::string& name, const ChainString& config ) : 
+    TrackAnalysis( clean(name) ), 
+    mconfig(config),
+    Nreco(0), Nref(0), Nmatched(0), m_print(false), m_roi(0), 
+    m_initialised(false), m_initialiseFirstEvent(false) { // , m_lfirst(true)  {
     std::cout << "ConfAnalysis::ConfAnalysis() " << TrackAnalysis::name() << " ..." << std::endl;
   }  
 
@@ -89,6 +94,8 @@ public:
 
   void initialiseFirstEvent(bool b=true) { m_initialiseFirstEvent=b; }
 
+  const ChainString& config() const { return mconfig; }
+
 private:
   
   void addHistogram( TH1F* h ) { 
@@ -114,6 +121,7 @@ private:
 
 private:
 
+  ChainString  mconfig;
 
   TIDDirectory* mdir;
 
@@ -213,6 +221,9 @@ private:
   Resplot* rnsct_pt_rec;
   Resplot* rntrt_pt_rec;
 
+  Resplot* rnpixh_pt_rec;
+  Resplot* rnscth_pt_rec;
+
   std::vector<Resplot*> mres;
 
   std::vector<Resplot*> retares;
@@ -283,7 +294,7 @@ private:
   bool m_initialised;
   bool m_initialiseFirstEvent;
 
-  bool m_lfirst;
+  //  bool m_lfirst;
 
 };
 

@@ -10,6 +10,9 @@
 // Local include(s):
 #include "TrigBunchCrossingTool/WebBunchCrossingTool.h"
 
+#include "TInterpreter.h"
+#include "CxxUtils/ubsan_suppress.h"
+
 /// A little helper macro
 #define SIMPLE_CHECK( EXP )                                       \
    do {                                                           \
@@ -31,6 +34,9 @@
    } while( 0 )
 
 int main() {
+  
+   // Suppress known ubsan warning provoked by TInterpreter.
+   CxxUtils::ubsan_suppress ([]() { TInterpreter::Instance(); } );
 
    // Create the tool to be tested:
    Trig::WebBunchCrossingTool tool;

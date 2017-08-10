@@ -88,7 +88,7 @@ CheckFlow_New::CheckFlow_New(const std::string& name, ISvcLocator* pSvcLocator) 
 StatusCode CheckFlow_New::initialize(){
   StatusCode result = StatusCode::SUCCESS;
   
-  msg(MSG::INFO) << ">>> CheckFlow_New from Initialize" << endreq;
+  msg(MSG::INFO) << ">>> CheckFlow_New from Initialize" << endmsg;
 
   float pt_binvals[n_ptbin+1]={0.0,0.25,0.5,1.0,1.5,2.0,2.5,3.0,3.5,4.0,6.0,8.0,12.0,16.0,20.0,30.0,40.0};
   float eta_bin_max = 4.0;
@@ -96,14 +96,14 @@ StatusCode CheckFlow_New::initialize(){
 
   StatusCode sc = service("StoreGateSvc", m_sgSvc);
   if (sc.isFailure()) {
-     msg(MSG::ERROR) << "Could not find StoreGateSvc" << endreq;
+     msg(MSG::ERROR) << "Could not find StoreGateSvc" << endmsg;
     return sc;
   }
 
 
   ITHistSvc *rootHistSvc;
   if (!service("THistSvc", rootHistSvc, true).isSuccess()) {
-     msg(MSG::ERROR) << "Unable to locate THistSvc" << endreq;
+     msg(MSG::ERROR) << "Unable to locate THistSvc" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -117,7 +117,7 @@ StatusCode CheckFlow_New::initialize(){
     sprintf(name1,"Truth Psi_{%d} distribution;%dPsi_{%d} Truth;events",ihar+1,ihar+1,ihar+1);
     hist_Psi_n_true  [ihar]=new TH1D (name,name1,1000,-M_PI,M_PI);
     if ( rootHistSvc->regHist(histPath+hist_Psi_n_true[ihar]->GetName(),hist_Psi_n_true[ihar]).isFailure() ){
-       msg(MSG::WARNING) << "Can't book "<< histPath+hist_Psi_n_true[ihar]->GetName() << endreq;
+       msg(MSG::WARNING) << "Can't book "<< histPath+hist_Psi_n_true[ihar]->GetName() << endmsg;
     }
     hist_Psi_n_true[ihar]->GetXaxis()->CenterTitle();
     hist_Psi_n_true[ihar]->GetYaxis()->CenterTitle();
@@ -126,7 +126,7 @@ StatusCode CheckFlow_New::initialize(){
     sprintf(name1,"Reconstructed Psi_{%d} distribution;%dPsi_{%d} Reco;events",ihar+1,ihar+1,ihar+1);
     hist_Psi_n_reco  [ihar]=new TH1D (name,name1,1000,-M_PI,M_PI);
     if ( rootHistSvc->regHist(histPath+hist_Psi_n_reco[ihar]->GetName(),hist_Psi_n_reco[ihar]).isFailure() ){
-       msg(MSG::WARNING) << "Can't book "<< histPath+hist_Psi_n_reco[ihar]->GetName() << endreq;
+       msg(MSG::WARNING) << "Can't book "<< histPath+hist_Psi_n_reco[ihar]->GetName() << endmsg;
     }
     hist_Psi_n_reco[ihar]->GetXaxis()->CenterTitle();
     hist_Psi_n_reco[ihar]->GetYaxis()->CenterTitle();
@@ -140,7 +140,7 @@ StatusCode CheckFlow_New::initialize(){
       sprintf(name1,"true Psi_{%d} -Psi_{%d};%dPsi_{%d} -%dPsi_{%d} ;events",ihar+1,ihar2+1,ihar+1,ihar+1,ihar2+1,ihar2+1);
       hist_psi_corr_true  [ihar_i]=new TH1D (name,name1,1000,-2*M_PI,2*M_PI);
       if ( rootHistSvc->regHist(histPath+hist_psi_corr_true[ihar_i]->GetName(),hist_psi_corr_true[ihar_i]).isFailure() ){
-         msg(MSG::WARNING) << "Can't book "<< histPath+hist_psi_corr_true[ihar_i]->GetName() << endreq;
+         msg(MSG::WARNING) << "Can't book "<< histPath+hist_psi_corr_true[ihar_i]->GetName() << endmsg;
       }
       hist_psi_corr_true[ihar_i]->GetXaxis()->CenterTitle();
       hist_psi_corr_true[ihar_i]->GetYaxis()->CenterTitle();
@@ -150,7 +150,7 @@ StatusCode CheckFlow_New::initialize(){
       sprintf(name1,"reco Psi_{%d} -Psi_{%d};%dPsi_{%d} -%dPsi_{%d} ;events",ihar+1,ihar2+1,ihar+1,ihar+1,ihar2+1,ihar2+1);
       hist_psi_corr_reco  [ihar_i]=new TH1D (name,name1,1000,-2*M_PI,2*M_PI);
       if ( rootHistSvc->regHist(histPath+hist_psi_corr_reco[ihar_i]->GetName(),hist_psi_corr_reco[ihar_i]).isFailure() ){
-         msg(MSG::WARNING) << "Can't book "<< histPath+hist_psi_corr_reco[ihar_i]->GetName() << endreq;
+         msg(MSG::WARNING) << "Can't book "<< histPath+hist_psi_corr_reco[ihar_i]->GetName() << endmsg;
       }
       hist_psi_corr_reco[ihar_i]->GetXaxis()->CenterTitle();
       hist_psi_corr_reco[ihar_i]->GetYaxis()->CenterTitle();
@@ -163,7 +163,7 @@ StatusCode CheckFlow_New::initialize(){
     sprintf(name1,"v%d;v%d;events",ihar+1,ihar+1);
     hist_vn_ebe   [ihar]=new TH1D (name,name1,1000,-0.5,0.5);
     if ( rootHistSvc->regHist(histPath+hist_vn_ebe[ihar]->GetName(),hist_vn_ebe[ihar]).isFailure() ){
-       msg(MSG::WARNING) << "Can't book "<< histPath+hist_vn_ebe[ihar]->GetName() << endreq;
+       msg(MSG::WARNING) << "Can't book "<< histPath+hist_vn_ebe[ihar]->GetName() << endmsg;
     }
     hist_vn_ebe[ihar]->GetXaxis()->CenterTitle();
     hist_vn_ebe[ihar]->GetYaxis()->CenterTitle();
@@ -172,7 +172,7 @@ StatusCode CheckFlow_New::initialize(){
     sprintf(name1,"%d#Delta#Psi;%d(#Psi_{reco}-#Psi_{Truth});events",ihar+1,ihar+1);
     hist_Psi_n_ebe [ihar]=new TH1D (name,name1,1000,-M_PI,M_PI);
     if ( rootHistSvc->regHist(histPath+hist_Psi_n_ebe[ihar]->GetName(),hist_Psi_n_ebe[ihar]).isFailure() ){
-      msg(MSG::WARNING) << "Can't book "<< histPath+hist_Psi_n_ebe[ihar]->GetName() << endreq;
+      msg(MSG::WARNING) << "Can't book "<< histPath+hist_Psi_n_ebe[ihar]->GetName() << endmsg;
     }
     hist_Psi_n_ebe[ihar]->GetXaxis()->CenterTitle();
     hist_Psi_n_ebe[ihar]->GetYaxis()->CenterTitle();
@@ -181,7 +181,7 @@ StatusCode CheckFlow_New::initialize(){
     sprintf(name1,"%d#Delta#Psi (pT weighted);%d(#Psi_{reco}-#Psi_{Truth});events",ihar+1,ihar+1);
     hist_Psi_n_ebe_pt [ihar]=new TH1D (name,name1,1000,-M_PI,M_PI);
     if ( rootHistSvc->regHist(histPath+hist_Psi_n_ebe_pt[ihar]->GetName(),hist_Psi_n_ebe_pt[ihar]).isFailure() ){
-      msg(MSG::WARNING) << "Can't book "<< histPath+hist_Psi_n_ebe_pt[ihar]->GetName() << endreq;
+      msg(MSG::WARNING) << "Can't book "<< histPath+hist_Psi_n_ebe_pt[ihar]->GetName() << endmsg;
     }
     hist_Psi_n_ebe_pt[ihar]->GetXaxis()->CenterTitle();
     hist_Psi_n_ebe_pt[ihar]->GetYaxis()->CenterTitle();
@@ -196,7 +196,7 @@ StatusCode CheckFlow_New::initialize(){
       sprintf(name1,"v%d vs pT (eta%d);pT;v%d",ihar+1,ieta,ihar+1);
       profile_pt_dep [ihar][ieta]=new TProfile (name,name1,n_ptbin,pt_binvals);
       if ( rootHistSvc->regHist(histPath+profile_pt_dep[ihar][ieta]->GetName(),profile_pt_dep[ihar][ieta]).isFailure() ){
-        msg(MSG::WARNING) << "Can't book "<< histPath+profile_pt_dep[ihar][ieta]->GetName() << endreq;
+        msg(MSG::WARNING) << "Can't book "<< histPath+profile_pt_dep[ihar][ieta]->GetName() << endmsg;
       }
       profile_pt_dep [ihar][ieta]->GetXaxis()->CenterTitle();
       profile_pt_dep [ihar][ieta]->GetYaxis()->CenterTitle();
@@ -207,7 +207,7 @@ StatusCode CheckFlow_New::initialize(){
       sprintf(name1,"v%d vs #eta; (ipt%d)#eta;v%d",ihar+1,ipt,ihar+1);
       profile_eta_dep [ihar][ipt]=new TProfile (name,name1,2*n_etabin, -eta_bin_max,eta_bin_max);
       if ( rootHistSvc->regHist(histPath+profile_eta_dep[ihar][ipt]->GetName(),profile_eta_dep[ihar][ipt]).isFailure() ){
-        msg(MSG::WARNING) << "Can't book "<< histPath+profile_eta_dep[ihar][ipt]->GetName() << endreq;
+        msg(MSG::WARNING) << "Can't book "<< histPath+profile_eta_dep[ihar][ipt]->GetName() << endmsg;
       }
       profile_eta_dep [ihar][ipt]->GetXaxis()->CenterTitle();
       profile_eta_dep [ihar][ipt]->GetYaxis()->CenterTitle();
@@ -219,7 +219,7 @@ StatusCode CheckFlow_New::initialize(){
       sprintf(name1,"v%d vs pT (eta%d);pT;v%d",ihar+1,ieta,ihar+1);
       profile_pt_dep_reco [ihar][ieta]=new TProfile (name,name1,n_ptbin,pt_binvals);
       if ( rootHistSvc->regHist(histPath+profile_pt_dep_reco[ihar][ieta]->GetName(),profile_pt_dep_reco[ihar][ieta]).isFailure() ){
-        msg(MSG::WARNING) << "Can't book "<< histPath+profile_pt_dep_reco[ihar][ieta]->GetName() << endreq;
+        msg(MSG::WARNING) << "Can't book "<< histPath+profile_pt_dep_reco[ihar][ieta]->GetName() << endmsg;
       }
       profile_pt_dep_reco [ihar][ieta]->GetXaxis()->CenterTitle();
       profile_pt_dep_reco [ihar][ieta]->GetYaxis()->CenterTitle();
@@ -231,7 +231,7 @@ StatusCode CheckFlow_New::initialize(){
       sprintf(name1,"v%d vs #eta (pt%d);#eta;v%d",ihar+1,ipt,ihar+1);
       profile_eta_dep_reco [ihar][ipt]=new TProfile (name,name1,2*n_etabin, -eta_bin_max,eta_bin_max);
       if ( rootHistSvc->regHist(histPath+profile_eta_dep_reco[ihar][ipt]->GetName(),profile_eta_dep_reco[ihar][ipt]).isFailure() ){
-        msg(MSG::WARNING) << "Can't book "<< histPath+profile_eta_dep_reco[ihar][ipt]->GetName() << endreq;
+        msg(MSG::WARNING) << "Can't book "<< histPath+profile_eta_dep_reco[ihar][ipt]->GetName() << endmsg;
       }
       profile_eta_dep_reco [ihar][ipt]->GetXaxis()->CenterTitle();
       profile_eta_dep_reco [ihar][ipt]->GetYaxis()->CenterTitle();
@@ -241,10 +241,10 @@ StatusCode CheckFlow_New::initialize(){
   }
   profile_resolution=new TProfile("profile_resolution","vn resolution;n;resolution",6, 0.5,6.5);
   if(rootHistSvc->regHist(histPath+profile_resolution->GetName(),profile_resolution).isFailure() ){
-    msg(MSG::WARNING) << "Can't book "<< histPath+profile_resolution->GetName() << endreq;
+    msg(MSG::WARNING) << "Can't book "<< histPath+profile_resolution->GetName() << endmsg;
   }
 
-  msg(MSG::DEBUG) << "Histograms have been booked " << endreq;
+  msg(MSG::DEBUG) << "Histograms have been booked " << endmsg;
   m_tesIO = new GenAccessIO();
   return result;
 }
@@ -253,7 +253,7 @@ StatusCode CheckFlow_New::initialize(){
 
 StatusCode CheckFlow_New::execute() {
   MsgStream msglog(messageService(), name());
-  msg(MSG::INFO) << ">>> CheckFlow_New from execute" << endreq;
+  msg(MSG::INFO) << ">>> CheckFlow_New from execute" << endmsg;
 
   float pt_binvals[n_ptbin+1]={0.0,0.25,0.5,1.0,1.5,2.0,2.5,3.0,3.5,4.0,6.0,8.0,12.0,16.0,20.0,30.0,40.0};
   float eta_bin_max = 4.0;
@@ -263,7 +263,7 @@ StatusCode CheckFlow_New::execute() {
 
   if ( m_sgSvc->retrieve(hijing_pars, "Hijing_event_params").isFailure() ) {
 //  if ( evtStore()->retrieve(hijing_pars, "Hijing_event_params").isFailure() ) {
-    msg(MSG::ERROR) << "Could not retrieve Hijing_event_params"<< endreq;
+    msg(MSG::ERROR) << "Could not retrieve Hijing_event_params"<< endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -272,7 +272,7 @@ StatusCode CheckFlow_New::execute() {
   float Psi_n_reco_pos[6],Psi_n_reco_neg[6];
   for(int ihar=0;ihar<6;ihar++){Psi_n[ihar]=hijing_pars->get_psi(ihar+1);}
   msg(MSG::INFO)<<"SOUMYA  "<<hijing_pars->get_psi(1)<<"   "<<hijing_pars->get_psi(2)<<"  "<<hijing_pars->get_psi(3)
-                                  <<hijing_pars->get_psi(4)<<"   "<<hijing_pars->get_psi(5)<<"  "<<hijing_pars->get_psi(6)<<"    "<<b  << endreq;
+                                  <<hijing_pars->get_psi(4)<<"   "<<hijing_pars->get_psi(5)<<"  "<<hijing_pars->get_psi(6)<<"    "<<b  << endmsg;
 
 
   // Check cut on impact parameter b
@@ -291,7 +291,7 @@ StatusCode CheckFlow_New::execute() {
   std::vector<const HepMC::GenParticle*> particles;
   StatusCode stat = m_tesIO->getMC(particles, &ifs, m_key);
   if (stat.isFailure()) {
-    msg(MSG::ERROR) << "Could not find " << m_key << endreq;
+    msg(MSG::ERROR) << "Could not find " << m_key << endmsg;
     return stat;
   }
   for (std::vector<const HepMC::GenParticle*>::iterator pitr = particles.begin();pitr != particles.end(); pitr++) {
@@ -302,7 +302,7 @@ StatusCode CheckFlow_New::execute() {
     double phi    = (*pitr)->momentum().phi();
     msg(MSG::DEBUG)
 	   << " PID = " << pid << " Status = " << p_stat
-	   << " Eta = " << rapid << "  Phi = " << phi<< endreq;
+	   << " Eta = " << rapid << "  Phi = " << phi<< endmsg;
 
     if( (fabs(rapid) >= m_rapcut_min) && (fabs(rapid) <= m_rapcut_max) &&
 	(fabs(pt) >= m_ptcut_min) && (fabs(pt) <= m_ptcut_max) ) {
@@ -428,7 +428,7 @@ StatusCode CheckFlow_New::execute() {
 
 StatusCode CheckFlow_New::finalize() {
   MsgStream msglog(messageService(), name());
-  msg(MSG::INFO) << ">>> CheckFlow_New from finalize" << endreq;
+  msg(MSG::INFO) << ">>> CheckFlow_New from finalize" << endmsg;
 
 /*
   for(int ihar=0;ihar<6;ihar++){

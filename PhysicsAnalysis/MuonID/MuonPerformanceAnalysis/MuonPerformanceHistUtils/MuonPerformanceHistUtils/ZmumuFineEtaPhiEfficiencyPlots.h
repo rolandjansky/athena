@@ -23,9 +23,9 @@ class ZmumuFineEtaPhiEfficiencyPlots: public MuonTPEfficiencyPlotBase {
  private:
 
   bool m_isMatched;
-  TH1* fineEtaPhi_posq;
-  TH1* fineEtaPhi_negq;
-  TH1* fineEtaPhi;
+  TH1* m_fineEtaPhi_posq;
+  TH1* m_fineEtaPhi_negq;
+  TH1* m_fineEtaPhi;
   fineEtaPhiBinning m_fepb;
 
 };

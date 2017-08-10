@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CxxUtils/make_unique.h"
 #include "SteppingValidationTool.h"
 namespace G4UA{ 
 
@@ -12,8 +11,7 @@ namespace G4UA{
   }
   std::unique_ptr<SteppingValidation>  SteppingValidationTool::makeAction(){
     ATH_MSG_DEBUG("makeAction");
-    auto action = CxxUtils::make_unique<SteppingValidation>();
-    return std::move(action);
+    return std::make_unique<SteppingValidation>();
   }
   StatusCode SteppingValidationTool::queryInterface(const InterfaceID& riid, void** ppvIf){
     

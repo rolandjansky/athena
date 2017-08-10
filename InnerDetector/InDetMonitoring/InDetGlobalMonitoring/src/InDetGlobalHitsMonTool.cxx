@@ -129,7 +129,7 @@ InDetGlobalHitsMonTool::InDetGlobalHitsMonTool(const std::string & type,
 StatusCode InDetGlobalHitsMonTool::initialize(){
   if ( ManagedMonitorToolBase::initialize().isFailure() )
     {
-      if ( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << "Could not initialize Monitor tool base!" << endreq;
+      if ( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << "Could not initialize Monitor tool base!" << endmsg;
       return StatusCode::FAILURE;
     }
   
@@ -281,7 +281,7 @@ StatusCode InDetGlobalHitsMonTool::fillHistograms()
       const Trk::Track *track=(*itrack);
       if (track == 0){
 	if ( msgLvl(MSG::WARNING) ) msg(MSG::WARNING) 
-	  << "no pointer to track!!!" << endreq;  break;
+	  << "no pointer to track!!!" << endmsg;  break;
       }
       
       const Trk::Perigee *measPerigee = dynamic_cast<const Trk::Perigee *>(track->perigeeParameters());
@@ -291,7 +291,7 @@ StatusCode InDetGlobalHitsMonTool::fillHistograms()
       if (trackStates == 0) {
 	if ( msgLvl(MSG::ERROR) ) msg(MSG::ERROR) 
 	  << "for current track is TrackStateOnSurfaces == Null " 
-	  << endreq;
+	  << endmsg;
       } else {     
 	DataVector<const Trk::TrackStateOnSurface>::const_iterator it=trackStates->begin();
 	DataVector<const Trk::TrackStateOnSurface>::const_iterator it_end=trackStates->end();
@@ -403,7 +403,7 @@ StatusCode InDetGlobalHitsMonTool::procHistograms()
 StatusCode InDetGlobalHitsMonTool::processHit( const Trk::Track *track, const Trk::TrackStateOnSurface* trackState )
 {
     if (trackState == 0) {
-	if ( msgLvl(MSG::WARNING) ) msg(MSG::WARNING) << "TrackStateOnSurface == Null, is the tracking OK?" << endreq;
+	if ( msgLvl(MSG::WARNING) ) msg(MSG::WARNING) << "TrackStateOnSurface == Null, is the tracking OK?" << endmsg;
 	return StatusCode::FAILURE;
     }
     //if ( !(trackState->type() == 0) ) {
@@ -453,7 +453,7 @@ StatusCode InDetGlobalHitsMonTool::processHit( const Trk::Track *track, const Tr
 	if (RawDataClus==0) {
 	    if ( msgLvl(MSG::WARNING) ) msg(MSG::WARNING)
 		<< "SiCluster WITHOUT prepRawData!!!!"
-	    << endreq;
+	    << endmsg;
 	} else {
 	    if (RawDataClus->detectorElement()->isSCT()) {
 		switch ( m_sctID->barrel_ec( RawDataClus->identify() ) ) {

@@ -8,16 +8,36 @@
 // includes:
 #include <algorithm>
 #include "GaudiKernel/System.h"
+
+
+template <typename VALUE>
+const typename DataPool<VALUE>::alloc_t::Params DataPool<VALUE>::s_params
+  = typename DataPool<VALUE>::alloc_t::initParams<VALUE> (DataPool<VALUE>::s_minRefCount);
+
+
 //-----------------------------------------------------------
 
-/// default constructor will initialize the pool with m_minRefCount
 template <typename VALUE>
-DataPool<VALUE>::DataPool(size_type n /*= 0*/,
-                          size_type block_size /*= 0*/,
-                          SG::Arena* arena /*= 0*/)
-  : m_handle (arena,
-              typename alloc_t::initParams<VALUE> (std::max (block_size,
-                                                             static_cast<size_type>(1024u))))
+DataPool<VALUE>::DataPool(size_type n /*= 0*/)
+  : m_handle (&s_params)
+{
+  if (n > 0)
+    m_handle.reserve (n);
+}
+
+template <typename VALUE>
+DataPool<VALUE>::DataPool(const EventContext& ctx,
+                          size_type n /*= 0*/)
+  : m_handle (static_cast<SG::ArenaHeader*>(nullptr), ctx, &s_params)
+{
+  if (n > 0)
+    m_handle.reserve (n);
+}
+
+template <typename VALUE>
+DataPool<VALUE>::DataPool(SG::Arena* arena,
+                          size_type n /*= 0*/)
+  : m_handle (arena, nullptr, &s_params)
 {
   if (n > 0)
     m_handle.reserve (n);

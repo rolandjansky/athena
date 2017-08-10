@@ -8,7 +8,7 @@
 /**********************************************************************************
  * @Project: TrigDecisionTool
  * @Package: TrigDecisionTool
- * @Class  : CacheGlobalMemory
+ * @class  : CacheGlobalMemory
  *
  * @brief registry for ChainGroups
  *

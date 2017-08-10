@@ -263,7 +263,7 @@ StatusCode Trk::ReFitTrack::execute()
          // get the measurmentsOnTrack
          const DataVector<const MeasurementBase>* measurementsOnTracks = (**itr).measurementsOnTrack();  
          // get the outliersOnTrack, needs sorting 
-         //!< @TODO : include sorting of outliers
+         //!< @todo : include sorting of outliers
          // clone measurements and outliers into the track
          DataVector<const MeasurementBase>::const_iterator measIter = measurementsOnTracks->begin();
          DataVector<const MeasurementBase>::const_iterator measIterEnd = measurementsOnTracks->end();

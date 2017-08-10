@@ -28,10 +28,10 @@ public:
   inline virtual ~TRTUncompressedHit() {};
 
   bool operator < (const TRTUncompressedHit& obj) const
-  {return hitID < obj.hitID;}
+  {return m_hitID < obj.m_hitID;}
 
   int GetHitID() const
-  {return hitID;}
+  {return m_hitID;}
 
   int GetTrackID() const;
 
@@ -40,52 +40,52 @@ public:
 
 
   int GetParticleEncoding() const
-  {return particleEncoding;}
+  {return m_particleEncoding;}
 
   float GetKineticEnergy() const
-  {return kineticEnergy;}
+  {return m_kineticEnergy;}
 
   float GetEnergyDeposit() const
-  {return energyDeposit;}
+  {return m_energyDeposit;}
 
   float GetPreStepX() const
-  {return preStepX;}
+  {return m_preStepX;}
 
   float GetPreStepY() const
-  {return preStepY;}
+  {return m_preStepY;}
 
   float GetPreStepZ() const
-  {return preStepZ;}
+  {return m_preStepZ;}
 
   float GetPostStepX() const
-  {return postStepX;}
+  {return m_postStepX;}
 
   float GetPostStepY() const
-  {return postStepY;}
+  {return m_postStepY;}
 
   float GetPostStepZ() const
-  {return postStepZ;}
+  {return m_postStepZ;}
 
   float GetGlobalTime() const
-  {return globalTime;}
+  {return m_globalTime;}
 
   void SetGlobalTime(float newGlobalTime)
-  {globalTime=newGlobalTime;}
+  {m_globalTime=newGlobalTime;}
 
 private:
-  int hitID; // To identify the hit
+  int m_hitID; // To identify the hit
   //  int trackID;
   HepMcParticleLink m_partLink; // link to the particle generating the hit
-  int particleEncoding;         // PDG id
-  float kineticEnergy;          // kin energy of the particle
-  float energyDeposit;          // energy deposit by the hit
-  float preStepX;
-  float preStepY;
-  float preStepZ;
-  float postStepX;
-  float postStepY;
-  float postStepZ;
-  float globalTime;
+  int m_particleEncoding;         // PDG id
+  float m_kineticEnergy;          // kin energy of the particle
+  float m_energyDeposit;          // energy deposit by the hit
+  float m_preStepX;
+  float m_preStepY;
+  float m_preStepZ;
+  float m_postStepX;
+  float m_postStepY;
+  float m_postStepZ;
+  float m_globalTime;
 };
 
 

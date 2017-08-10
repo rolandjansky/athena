@@ -43,7 +43,7 @@ StatusCode TopCKMKinFilter::filterEvent() {
     // Get the number of parents on the event (ttbar --> 2 tops!)
     int nParents = 0;
     for (partItr = part1; partItr != partE; ++partItr){
-      if (fabs((*partItr)->pdg_id()) == 6) ++nParents;
+      if (std::abs((*partItr)->pdg_id()) == 6) ++nParents;
     }
 
     // Get pointers to both parents
@@ -51,12 +51,12 @@ StatusCode TopCKMKinFilter::filterEvent() {
 
       const HepMC::GenParticle * firstParent = 0;
       for (partItr = part1; partItr != partE; ++partItr){
-        if (fabs((*partItr)->pdg_id()) == 6) firstParent = (*partItr);
+        if (std::abs((*partItr)->pdg_id()) == 6) firstParent = (*partItr);
       }
 
       const HepMC::GenParticle * secondParent = 0;
       for (partItr = part1; partItr != partE; ++partItr){
-        if (fabs((*partItr)->pdg_id()) == 6 && (*partItr) != firstParent) secondParent = (*partItr);
+        if (std::abs((*partItr)->pdg_id()) == 6 && (*partItr) != firstParent) secondParent = (*partItr);
       }
 
       // Now check that the first and second parents have the corresponding childs
@@ -81,23 +81,23 @@ StatusCode TopCKMKinFilter::filterEvent() {
         HepMC::GenParticle * wBoson2 = 0;
 
         for (firstChildItr = firstChild1; firstChildItr != firstChildE; ++firstChildItr){
-          if ((fabs((*firstChildItr)->pdg_id()) == m_PDGChild[0] || fabs((*firstChildItr)->pdg_id()) == m_PDGChild[1])
+          if ((std::abs((*firstChildItr)->pdg_id()) == m_PDGChild[0] || std::abs((*firstChildItr)->pdg_id()) == m_PDGChild[1])
               && (*firstChildItr)->momentum().perp() > m_PtMinChild
               && fabs((*firstChildItr)->momentum().eta()) < m_EtaRangeChild){
             isOK1 = 1;
             quark1 = (*firstChildItr);
           }
-          if (fabs((*firstChildItr)->pdg_id()) == 24) wBoson1 = (*firstChildItr);
+          if (std::abs((*firstChildItr)->pdg_id()) == 24) wBoson1 = (*firstChildItr);
         }
 
         for (secondChildItr = secondChild1; secondChildItr != secondChildE; ++secondChildItr){
-          if ((fabs((*secondChildItr)->pdg_id()) == m_PDGChild[0] || fabs((*secondChildItr)->pdg_id()) == m_PDGChild[1])
+          if ((std::abs((*secondChildItr)->pdg_id()) == m_PDGChild[0] || std::abs((*secondChildItr)->pdg_id()) == m_PDGChild[1])
               && (*secondChildItr)->momentum().perp() > m_PtMinChild
               && fabs((*secondChildItr)->momentum().eta()) < m_EtaRangeChild){
             isOK2 = 1;
             quark2 = (*secondChildItr);
           }
-          if (fabs((*secondChildItr)->pdg_id()) == 24) wBoson2 = (*secondChildItr);
+          if (std::abs((*secondChildItr)->pdg_id()) == 24) wBoson2 = (*secondChildItr);
         }
 
         // Now avoid the decay W --> tau nu and impose kinematic cuts for leptons
@@ -118,20 +118,20 @@ StatusCode TopCKMKinFilter::filterEvent() {
         w2SonE = wVertex2->particles_end(HepMC::children);
 
         for (w1SonItr = w1Son1; w1SonItr != w1SonE; ++w1SonItr){
-          if (fabs((*w1SonItr)->pdg_id()) == 15) isTau1 = 1;
-          if (fabs((*w1SonItr)->pdg_id()) == 11 || fabs((*w1SonItr)->pdg_id()) == 13){
+          if (std::abs((*w1SonItr)->pdg_id()) == 15) isTau1 = 1;
+          if (std::abs((*w1SonItr)->pdg_id()) == 11 || std::abs((*w1SonItr)->pdg_id()) == 13){
             if ((*w1SonItr)->momentum().perp() > m_PtMinChild && fabs((*w1SonItr)->momentum().eta()) < m_EtaRangeChild) isKinLep1 = 1;
           }
         }
 
         for (w2SonItr = w2Son1; w2SonItr != w2SonE; ++w2SonItr){
-          if (fabs((*w2SonItr)->pdg_id()) == 15) isTau2 = 1;
-          if (fabs((*w2SonItr)->pdg_id()) == 11 || fabs((*w2SonItr)->pdg_id()) == 13){
+          if (std::abs((*w2SonItr)->pdg_id()) == 15) isTau2 = 1;
+          if (std::abs((*w2SonItr)->pdg_id()) == 11 || std::abs((*w2SonItr)->pdg_id()) == 13){
             if ((*w2SonItr)->momentum().perp() > m_PtMinChild && fabs((*w2SonItr)->momentum().eta()) < m_EtaRangeChild) isKinLep2 = 1;
           }
         }
 
-        if (isKinLep1 && isKinLep2 && isOK1 && isOK2 && !isTau1 && !isTau2 && fabs(quark1->pdg_id()) != fabs(quark2->pdg_id())){
+        if (isKinLep1 && isKinLep2 && isOK1 && isOK2 && !isTau1 && !isTau2 && std::abs(quark1->pdg_id()) != std::abs(quark2->pdg_id())){
           return StatusCode::SUCCESS;
         }
 

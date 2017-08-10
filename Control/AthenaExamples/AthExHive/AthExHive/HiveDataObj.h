@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef ATHEXHIVE_HIVEDATAOBJ_H
 #define ATHEXHIVE_HIVEDATAOBJ_H
 
@@ -17,6 +21,8 @@ public:
 
   void val(int i) { m_val = i; }
   int val() const { return m_val; }
+
+  typedef std::true_type thread_safe;
 
 private:
   int m_val;

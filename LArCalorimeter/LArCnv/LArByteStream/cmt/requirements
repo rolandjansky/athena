@@ -18,7 +18,7 @@ use LArRecEvent LArRecEvent-* LArCalorimeter
 use LArRecUtils LArRecUtils-* LArCalorimeter
 use LArROD LArROD-* LArCalorimeter
 use LArRecConditions	LArRecConditions-* LArCalorimeter
-use LArTools LArTools-* LArCalorimeter
+use LArCabling LArCabling-* LArCalorimeter
 use LArRecConditions	LArRecConditions-* LArCalorimeter
 use StoreGate StoreGate-* Control
 use AthenaBaseComps AthenaBaseComps-* Control

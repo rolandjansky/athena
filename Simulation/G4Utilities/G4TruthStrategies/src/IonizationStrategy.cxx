@@ -28,12 +28,12 @@ IonizationStrategy::IonizationStrategy(const std::string& n)
   double seco_thr = 100*CLHEP::MeV;
   if(theTruthManager->GetTruthParameter("IonizationPrimaryMinEnergy")==0){
     log() << MSG::INFO << "IonizationPrimaryMinEnergy: "
-          << "setting default value of 100 MeV" << endreq;
+          << "setting default value of 100 MeV" << endmsg;
     theTruthManager->SetTruthParameter("IonizationPrimaryMinEnergy",prim_thr);
   }
   if(theTruthManager->GetTruthParameter("IonizationSecondaryMinEnergy")==0){
     log() << MSG::INFO << "IonizationSecondaryMinEnergy: "
-          << "setting default value of 100 MeV" << endreq;
+          << "setting default value of 100 MeV" << endmsg;
     theTruthManager->SetTruthParameter("IonizationSecondaryMinEnergy",seco_thr);
   }
 }

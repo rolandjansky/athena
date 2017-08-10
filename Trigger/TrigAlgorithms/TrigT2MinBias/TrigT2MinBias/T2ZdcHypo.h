@@ -31,10 +31,6 @@ class T2ZdcHypo: public HLT::HypoAlgo {
    HLT::ErrorCode hltFinalize();
 
  private:
-
-   /** A data member to retain a connection to the MsgStream
-       service. */
-   MsgStream m_log;
    
    /** A flag to allow this Hypo to be disabled. */
    bool m_acceptAll;

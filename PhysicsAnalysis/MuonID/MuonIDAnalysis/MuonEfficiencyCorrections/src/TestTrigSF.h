@@ -1,8 +1,8 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef TRIG_TESTTRIGSF_H
 #define TRIG_TESTTRIGSF_H
@@ -32,67 +32,68 @@ class TH2;
 
 namespace Trig
 {
-  class Object;
+    class Object;
 
-  class TestTrigSF : virtual public AthAlgorithm
-  {
-  public:
-    
-    TestTrigSF(const std::string& name, ISvcLocator* pSvcLocator);
-    virtual ~TestTrigSF() {}
-    
-    StatusCode initialize();
-    StatusCode execute(); 
-    StatusCode finalize();
-    
-  private:
+    class TestTrigSF: virtual public AthAlgorithm
+    {
+        public:
 
-    typedef std::map<std::string, std::string> L1Map;
+            TestTrigSF(const std::string& name, ISvcLocator* pSvcLocator);
+            virtual ~TestTrigSF() {
+            }
 
-  private:
-    
-    void RegHist(TH1 *h, const std::string &key);   
+            StatusCode initialize();
+            StatusCode execute();
+            StatusCode finalize();
 
-    void CheckSF(const xAOD::Muon *ptr);
+        private:
 
-    void CheckSyst(const xAOD::Muon *ptr, const std::string &syst_name, int step, TH2 *h);
+            typedef std::map<std::string, std::string> L1Map;
 
-    void FillHist(TH2 *h, const xAOD::Muon *ptr, double val);
+        private:
 
-  private:
-    
-    // Properties:
-    std::string                         m_outputStream;
-    std::string                         m_inputContainerName;
-    std::string                         m_triggerName;
+            void RegHist(TH1 *h, const std::string &key);
 
-    // Tools and services:
-    ServiceHandle<ITHistSvc>                 m_histSvc;    
-    ToolHandle<CP::IMuonTriggerScaleFactors> m_trigEff;
+            void CheckSF(const xAOD::Muon *ptr);
 
-    // Variables:
-    TStopwatch                          m_timerEvent;       // Total job timer
-    TStopwatch                          m_timerTotal;       // Total job timer
-    
-    int                                 m_countEvent;
+            void CheckSyst(const xAOD::Muon *ptr, const std::string &syst_name, int step, TH2 *h);
 
-    L1Map                               m_mapL1;
+            void FillHist(TH2 *h, const xAOD::Muon *ptr, double val);
 
-    TH2                                *m_barrel_sf;
-    TH2                                *m_endcap_sf;
+        private:
 
-    TH2                                *m_barrel_sf_err_stat_up;
-    TH2                                *m_barrel_sf_err_stat_dw;
+            // Properties:
+            std::string m_outputStream;
+            std::string m_inputContainerName;
+            std::string m_triggerName;
 
-    TH2                                *m_endcap_sf_err_stat_up;
-    TH2                                *m_endcap_sf_err_stat_dw;
+            // Tools and services:
+            ServiceHandle<ITHistSvc> m_histSvc;
+            ToolHandle<CP::IMuonTriggerScaleFactors> m_trigEff;
 
-    TH2                                *m_barrel_sf_err_syst_up;
-    TH2                                *m_barrel_sf_err_syst_dw;
+            // Variables:
+            TStopwatch m_timerEvent; // Total job timer
+            TStopwatch m_timerTotal; // Total job timer
 
-    TH2                                *m_endcap_sf_err_syst_up;
-    TH2                                *m_endcap_sf_err_syst_dw;
-  };
+            int m_countEvent;
+
+            L1Map m_mapL1;
+
+            TH2 *m_barrel_sf;
+            TH2 *m_endcap_sf;
+
+            TH2 *m_barrel_sf_err_stat_up;
+            TH2 *m_barrel_sf_err_stat_dw;
+
+            TH2 *m_endcap_sf_err_stat_up;
+            TH2 *m_endcap_sf_err_stat_dw;
+
+            TH2 *m_barrel_sf_err_syst_up;
+            TH2 *m_barrel_sf_err_syst_dw;
+
+            TH2 *m_endcap_sf_err_syst_up;
+            TH2 *m_endcap_sf_err_syst_dw;
+    };
 }
 
 #endif

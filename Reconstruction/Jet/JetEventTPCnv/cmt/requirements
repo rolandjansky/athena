@@ -22,7 +22,7 @@ use ParticleEventTPCnv   ParticleEventTPCnv-*       PhysicsAnalysis/AnalysisComm
 private
 use AthenaKernel	 AthenaKernel-* 	    Control
 use AtlasReflex          AtlasReflex-*              External
-use DataModel            DataModel-*                Control
+use AthAllocators        AthAllocators-*            Control
 use egammaEvent          egammaEvent-*              Reconstruction/egamma
 use MuonIDEvent          MuonIDEvent-*              PhysicsAnalysis/MuonID
 #use JetTagEvent          JetTagEvent-*              PhysicsAnalysis/JetTagging

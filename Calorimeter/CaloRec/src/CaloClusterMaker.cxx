@@ -47,6 +47,7 @@
 CaloClusterMaker::CaloClusterMaker(const std::string& name, 
 				   ISvcLocator* pSvcLocator) 
   : AthReentrantAlgorithm(name, pSvcLocator)
+  , m_clusterOutput("")
   , m_clusterMakerTools(this)
   , m_clusterCorrectionTools(this)
   , m_chrono("ChronoStatSvc", name)
@@ -55,7 +56,7 @@ CaloClusterMaker::CaloClusterMaker(const std::string& name,
 {
 
   // Name of Cluster Container to be registered in TDS
-  declareProperty("ClustersOutputName",m_clustersOutputName);  
+  declareProperty("ClustersOutputName",m_clusterOutput);  
   
   // Name(s) of Cluster Maker Tools
   declareProperty("ClusterMakerTools",m_clusterMakerTools);
@@ -108,8 +109,10 @@ StatusCode CaloClusterMaker::initialize()
 
   if (m_chronoTools) {
     msg(MSG::INFO) << "Will use ChronoStatSvc to monitor ClusterMaker and ClusterCorrection tools" << endmsg;
-    CHECK( m_chrono.retrieve() );
+    ATH_CHECK( m_chrono.retrieve() );
   }
+
+  ATH_CHECK( m_clusterOutput.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -126,8 +129,8 @@ StatusCode CaloClusterMaker::execute_r (const EventContext& ctx) const
 {
 
   // make a Cluster Container 
-  xAOD::CaloClusterContainer* clusColl=CaloClusterStoreHelper::makeContainer(&(*evtStore()),m_clustersOutputName,msg());
-  if (!clusColl) return StatusCode::FAILURE;
+  SG::WriteHandle<xAOD::CaloClusterContainer> clusColl (m_clusterOutput, ctx);
+  ATH_CHECK(CaloClusterStoreHelper::AddContainerWriteHandle(&(*evtStore()), clusColl, msg()));
   
   ToolHandleArray<CaloClusterCollectionProcessor>::const_iterator toolIt, toolIt_e; //Iterators over Tool handles
   toolIt=m_clusterMakerTools.begin();
@@ -138,7 +141,7 @@ StatusCode CaloClusterMaker::execute_r (const EventContext& ctx) const
   for(;toolIt!=toolIt_e;++toolIt) {
     const std::string chronoName = this->name() + "_" +toolIt->name();
     if (m_chronoTools) m_chrono->chronoStart(chronoName);
-    CHECK((*toolIt)->execute(ctx, clusColl));
+    ATH_CHECK((*toolIt)->execute(ctx, clusColl.ptr()));
     if (m_chronoTools) m_chrono->chronoStop(chronoName);
   } //End loop over maker tools
 
@@ -162,26 +165,26 @@ StatusCode CaloClusterMaker::execute_r (const EventContext& ctx) const
   for(;toolIt!=toolIt_e;++toolIt) {
     const std::string& toolname=(*toolIt).name();
     if (m_keep_each_correction) {
-      const std::string interimContName=m_clustersOutputName + "-pre" +toolname;
+      const std::string interimContName=m_clusterOutput.key() + "-pre" +toolname;
       xAOD::CaloClusterContainer* interimCont=CaloClusterStoreHelper::makeContainer(&(*evtStore()),interimContName,msg());
-      CaloClusterStoreHelper::copyContainer(clusColl,interimCont);
-      CHECK(CaloClusterStoreHelper::finalizeClusters(&(*evtStore()),interimCont, interimContName, msg()));
+      CaloClusterStoreHelper::copyContainer(clusColl.ptr(),interimCont);
+      ATH_CHECK(CaloClusterStoreHelper::finalizeClusters(&(*evtStore()),interimCont, interimContName, msg()));
     }
     
     ATH_MSG_DEBUG(" Applying correction = " << toolname);
     const std::string chronoName = this->name() + "_" + toolname;
     if (m_chronoTools) m_chrono->chronoStart(chronoName);
-    CHECK((*toolIt)->execute(ctx, clusColl));
+    ATH_CHECK((*toolIt)->execute(ctx, clusColl.ptr()));
     if (m_chronoTools) m_chrono->chronoStop(chronoName);
   }//End loop over correction tools
 
   ATH_MSG_DEBUG("Created cluster container with " << clusColl->size() << " clusters");
-  CHECK(CaloClusterStoreHelper::finalizeClusters(&(*evtStore()),clusColl,m_clustersOutputName,msg()));
+  ATH_CHECK(CaloClusterStoreHelper::finalizeClusters(&(*evtStore()),clusColl.ptr(),m_clusterOutput.key(),msg()));
 
   return StatusCode::SUCCESS;
 }
 
 
 const std::string& CaloClusterMaker::getOutputContainerName() const {
-  return m_clustersOutputName;
+  return m_clusterOutput.key();
 }

@@ -85,20 +85,12 @@ namespace Root {
 				// fraction of energy reconstructed in the 3rd sampling
 				float f3,
 				//////////////// - tracking
-				// number of B-layer hits
-				int nBL,
-				int nBLOutliers,
-				// number of next to inner most B-layer hits
-				int nNextToInnerMostLayer,
-				int nNextToInnerMostLayerOutliers,
-				// number of Pixel hits
-				int nPi,
-				int nPiOutliers,
-				int nPiDeadSensors,
-				// number of SCT hits
-				int nSCT,
-				int nSCTOutliers,
-				int nSCTDeadSensors,
+                                // is effective number of BL hits+outliers at least 1?
+                                bool passBLayerRequirement,
+                                // number of pixel hits + dead sensors
+                                int nPixHitsPlusDeadSensors,
+                                // number of silicon hits + dead sensors
+                                int nSiHitsPlusDeadSensors,
 				// TRT hits
 				int nTRThigh,
 				int nTRThighOutliers,
@@ -112,9 +104,7 @@ namespace Root {
 				float deltaeta,
 				float deltaphi,
 				// E/p
-				double ep,
-				bool expectHitInBLayer,
-				bool expectHitNextInBLayer) const;
+				double ep) const;
 
     // calculate the isEM. (Used internally by accept)
     unsigned int calcIsEm(
@@ -152,20 +142,12 @@ namespace Root {
 			  // fraction of energy reconstructed in the 3rd sampling
 			  float f3,
 			  //////////////// - tracking
-			  // number of B-layer hits
-			  int nBL,
-			  int nBLOutliers,
-			  // number of next to inner most B-layer hits
-			  int nNextToInnerMostLayer,
-			  int nNextToInnerMostLayerOutliers,
-			  // number of Pixel hits
-			  int nPi,
-			  int nPiOutliers,
-			  int nPiDeadSensors,
-			  // number of SCT hits
-			  int nSCT,
-			  int nSCTOutliers,
-			  int nSCTDeadSensors,
+                          // is effective number of BL hits+outliers at least 1?
+                          bool passBLayerRequirement,
+                          // number of pixel hits + dead sensors
+                          int nPixHitsPlusDeadSensors,
+                          // number of silicon hits + dead sensors
+                          int nSiHitsPlusDeadSensors,
 			  // TRT hits
 			  int nTRThigh,
 			  int nTRThighOutliers,
@@ -179,9 +161,7 @@ namespace Root {
 			  float deltaeta,
 			  float deltaphi,
 			  // E/p
-			  double ep,
-			  bool expectHitInBLayer,
-			  bool expectHitNextInBLayer) const;
+			  double ep) const;
 
     // used internally by calcIsEm, but left public because it can be useful for users. Note that
     // it doesn't necessarily zero all the values that pass, so make sure that the input iflag
@@ -233,20 +213,12 @@ namespace Root {
 			  float eta2,
 			  // transverse energy in calorimeter (using eta position in second sampling)
 			  double et,
-			  // number of B-layer hits
-			  int nBL,
-			  int nBLOutliers,
-			  // number of next to inner most B-layer hits
-			  int nNextToInnerMostLayer,
-			  int nNextToInnerMostLayerOutliers,
-			  // number of Pixel hits
-			  int nPi,
-			  int nPiOutliers,
-			  int nPiDeadSensors,
-			  // number of SCT hits
-			  int nSCT,
-			  int nSCTOutliers,
-			  int nSCTDeadSensors,
+                          // is effective number of BL hits+outliers at least 1?
+                          bool passBLayerRequirement,
+                          // number of pixel hits + dead sensors
+                          int nPixHitsPlusDeadSensors,
+                          // number of silicon hits + dead sensors
+                          int nSiHitsPlusDeadSensors,
 			  // TRT hits
 			  int nTRThigh,
 			  int nTRThighOutliers,
@@ -261,8 +233,6 @@ namespace Root {
 			  float deltaphi,
 			  // E/p
 			  double ep,
-			  bool expectHitInBLayer,
-			  bool expectHitNextInBLayer,
 			  unsigned int iflag) const;
 
 
@@ -278,19 +248,8 @@ namespace Root {
 
     /** @brief use of TRT outliers*/
     bool useTRTOutliers;
-    /** @brief use of b-layer outliers*/
-    bool useBLOutliers;
-    /** @brief use of PIX outliers*/
-    bool usePIXOutliers;
-    /** @brief use of PIX adn SCT outliers and dead sensor*/
-    bool usePIXDeadSensors;
-    /** @brief use of SCT outliers*/
-    bool useSCTOutliers;
     /** @brief use of TRT Xenon Hits*/ 
     bool useTRTXenonHits; 
-    /** @brief use b-layer prediction tied to conddb */
-    bool useBLayerHitPrediction; 
-
 
     /** @brief range of eta bins for e-ID*/
     std::vector<float> CutBinEta;

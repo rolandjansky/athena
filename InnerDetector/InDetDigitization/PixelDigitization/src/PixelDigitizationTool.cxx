@@ -112,10 +112,7 @@ StatusCode PixelDigitizationTool::finalize() {
 
 StatusCode PixelDigitizationTool::processAllSubEvents() {
 
-  //===============
   // Prepare event
-  //===============
-  // Create Output Containers
   ATH_MSG_DEBUG("Prepare event");
   CHECK(prepareEvent(0));
 
@@ -124,10 +121,7 @@ StatusCode PixelDigitizationTool::processAllSubEvents() {
   TimedHitCollList hitCollList;
   unsigned int numberOfSiHits(0);
   CHECK(m_mergeSvc->retrieveSubEvtsData(m_inputObjectName,hitCollList,numberOfSiHits));
-
-  // Create hit collection
-  m_timedHits     = new TimedHitCollection<SiHit>(numberOfSiHits);
-
+  m_timedHits->reserve(numberOfSiHits);
   // Now merge all collections into one
   for (TimedHitCollList::iterator iColl=hitCollList.begin(); iColl!=hitCollList.end(); iColl++) {
     // Decide if this event will be processed depending on HardScatterSplittingMode
@@ -139,9 +133,7 @@ StatusCode PixelDigitizationTool::processAllSubEvents() {
     ATH_MSG_DEBUG("SiTrackerHitCollection found with"<<p_collection->size()<<" hits");    // loop on the hit collections
   }
 
-  //===============
   // Digitize hits
-  //===============
   CHECK(digitizeEvent());
 
   ATH_MSG_DEBUG("Digitize success!");
@@ -225,7 +217,7 @@ StatusCode PixelDigitizationTool::digitizeEvent() {
     chargedDiodes->clear();
   }
   delete m_timedHits;
-  m_timedHits = 0;
+  m_timedHits = nullptr;
   ATH_MSG_DEBUG("hits processed");
 
   // Loop over the Detectors without hits
@@ -268,6 +260,7 @@ StatusCode PixelDigitizationTool::digitizeEvent() {
       }
     }
   }
+  delete chargedDiodes;
   ATH_MSG_DEBUG("non-hits processed");
 
   return StatusCode::SUCCESS;
@@ -328,10 +321,7 @@ void PixelDigitizationTool::addSDO(SiChargedDiodeCollection* collection) {
 StatusCode PixelDigitizationTool::prepareEvent(unsigned int) {
   ATH_MSG_VERBOSE("PixelDigitizationTool::prepareEvent()");
 
-  //===============
   // Prepare event
-  //===============
-  // Create Output Containers
   if (!m_rdoContainer.isValid()) {
     if (!(m_rdoContainer=CxxUtils::make_unique<PixelRDO_Container>(m_detID->wafer_hash_max())).isValid()) {
       ATH_MSG_FATAL("Could not create PixelRDO_Container");
@@ -348,6 +338,10 @@ StatusCode PixelDigitizationTool::prepareEvent(unsigned int) {
   }
   ATH_MSG_DEBUG("InDetSimDataCollection " << m_simDataColl.name() << " registered in StoreGate");
 
+  // Create hit collection
+  if(m_timedHits) delete m_timedHits;
+  m_timedHits     = new TimedHitCollection<SiHit>();
+
   m_HardScatterSplittingSkipper = false;
   return StatusCode::SUCCESS;
 }
@@ -358,16 +352,14 @@ StatusCode PixelDigitizationTool::prepareEvent(unsigned int) {
 StatusCode PixelDigitizationTool::mergeEvent() {
   ATH_MSG_VERBOSE("PixelDigitizationTool::mergeEvent()");
 
-  //===============
   // Digitize hits
-  //===============
   CHECK(digitizeEvent());
 
-  for (std::vector<SiHitCollection*>::iterator it = hitCollPtrs.begin();it!=hitCollPtrs.end();it++) {
+  for (std::vector<SiHitCollection*>::iterator it = m_hitCollPtrs.begin();it!=m_hitCollPtrs.end();it++) {
     (*it)->Clear();
     delete(*it);
   }
-  hitCollPtrs.clear();
+  m_hitCollPtrs.clear();
 
   return StatusCode::SUCCESS;
 }
@@ -376,8 +368,6 @@ StatusCode PixelDigitizationTool::mergeEvent() {
 // ProcessBunchXing method:
 //----------------------------------------------------------------------
 StatusCode PixelDigitizationTool::processBunchXing(int bunchXing, SubEventIterator bSubEvents, SubEventIterator eSubEvents) {
-
-  if (m_timedHits==0) { m_timedHits = new TimedHitCollection<SiHit>(); }
 
   ATH_MSG_VERBOSE("PixelDigitizationTool::processBunchXing() " << bunchXing);
   //decide if this event will be processed depending on HardScatterSplittingMode & bunchXing
@@ -398,7 +388,7 @@ StatusCode PixelDigitizationTool::processBunchXing(int bunchXing, SubEventIterat
     PileUpTimeEventIndex timeIndex(iEvt->time(),iEvt->index());
     SiHitCollection *hitCollPtr = new SiHitCollection(*seHitColl);
     m_timedHits->insert(timeIndex,hitCollPtr);
-    hitCollPtrs.push_back(hitCollPtr);
+    m_hitCollPtrs.push_back(hitCollPtr);
   }
 
   return StatusCode::SUCCESS;

@@ -65,17 +65,27 @@ StatusCode TileTBHitToNtuple::initialize()
 
   m_ntupleLoc="/NTUPLES" + m_ntupleLoc;
 
-  SmartDataPtr<NTuple::Directory> DirPtr(ntupleService(), m_ntupleLoc);
-  if (!DirPtr) DirPtr = ntupleService()->createDirectory(m_ntupleLoc);
+  SmartDataPtr<NTuple::Directory> DirPtr(ntupleSvc(), m_ntupleLoc);
+  if (!DirPtr) DirPtr = ntupleSvc()->createDirectory(m_ntupleLoc);
   if(!DirPtr) {
     ATH_MSG_ERROR( "Invalid Ntuple Directory: " );
     return StatusCode::FAILURE;
   }
-  m_ntuplePtr=ntupleService()->book(DirPtr.ptr(), m_ntupleID, 
+  m_ntuplePtr=ntupleSvc()->book(DirPtr.ptr(), m_ntupleID, 
                                     CLID_ColumnWiseTuple, "TileTBHit-Ntuple");
   if(!m_ntuplePtr) {
-    ATH_MSG_ERROR( "Failed to book ntuple: TileTBHitToNtuple" );
-    return StatusCode::FAILURE;
+    
+    std::string ntupleCompleteID=m_ntupleLoc+"/"+m_ntupleID;
+
+    NTuplePtr nt(ntupleSvc(),ntupleCompleteID);
+    if (!nt) {
+      ATH_MSG_ERROR( "Failed to book or to retrieve ntuple "
+         << ntupleCompleteID );
+      return StatusCode::FAILURE;
+    } else {
+      ATH_MSG_INFO( "Reaccessing ntuple " << ntupleCompleteID );
+      m_ntuplePtr = nt;
+    }
   }
 
   CHECK( m_ntuplePtr->addItem("TileTBHit/nchan",m_nchan,0,max_chan) );
@@ -121,7 +131,7 @@ StatusCode TileTBHitToNtuple::execute()
   }      
  
   // step3: commit ntuple
-  CHECK( ntupleService()->writeRecord(m_ntuplePtr) );
+  CHECK( ntupleSvc()->writeRecord(m_ntuplePtr) );
 
   // Execution completed.
   ATH_MSG_DEBUG( "execute() completed successfully" );

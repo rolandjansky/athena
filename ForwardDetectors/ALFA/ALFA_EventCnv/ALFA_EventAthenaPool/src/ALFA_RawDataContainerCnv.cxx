@@ -9,12 +9,12 @@ ALFA_RawDataContainer_PERS* ALFA_RawDataContainerCnv::createPersistent(ALFA_RawD
 // std::cout << " Container, cago bello  T->P " << std::endl;
 
   MsgStream log(msgSvc(), "ALFA_RawDataContainerCnv");
-if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << "In ALFA_RawDataContainerCnv::createPersistent" << endreq;
+if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << "In ALFA_RawDataContainerCnv::createPersistent" << endmsg;
 
 ALFA_RawDataContainerCnv_p1 TPConverter;
 ALFA_RawDataContainer_PERS* persCont = TPConverter.createPersistent(transCont, log);
 
-if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << "Wrote persistent BCM RDO Container with " << persCont->size() << " entries" << endreq;
+if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << "Wrote persistent BCM RDO Container with " << persCont->size() << " entries" << endmsg;
  return persCont;
 
 }
@@ -22,7 +22,7 @@ if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << "Wrote persistent BCM RDO Cont
 ALFA_RawDataContainer* ALFA_RawDataContainerCnv::createTransient() {
   
   MsgStream log(msgSvc(), "ALFA_RawDataContainerCnv");
-if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << "In ALFA_RawDataContainerCnv::createTransient" << endreq;
+if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << "In ALFA_RawDataContainerCnv::createTransient" << endmsg;
 
 // std::cout << "Container, bello cago P->T " << std::endl;
 

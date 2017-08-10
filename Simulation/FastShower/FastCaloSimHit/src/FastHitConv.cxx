@@ -114,7 +114,7 @@ StatusCode FastHitConv::initEvent()
 {
 
   //MsgStream log(msgSvc(), name());
-  //log << MSG::DEBUG << "initEvent()" << endreq;
+  //log << MSG::DEBUG << "initEvent()" << endmsg;
   ATH_MSG_DEBUG("initEvent()");
   if(!m_embHitContainer.isValid() ) { m_embHitContainer  = CxxUtils::make_unique<LArHitContainer>(m_embHitContainer.name());}
   if(!m_emecHitContainer.isValid()) { m_emecHitContainer = CxxUtils::make_unique<LArHitContainer>(m_emecHitContainer.name());}

@@ -73,7 +73,7 @@ svcMgr.AthenaPoolCnvSvc.CommitInterval = 10;
 # Load "user algorithm" top algorithms to be run, and the libraries that house them
 
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-Stream1 = AthenaPoolOutputStream( "Stream1" , "SimplePoolReplica1.root" , True )
+Stream1 = AthenaPoolOutputStream( "Stream1" , "SimplePoolReplica1.root" , True, noTag=True )
 Stream1.ItemList += [ "ExampleHitContainer#MyHits" ]
 Stream1.ExtendProvenanceRecord = FALSE;
 Stream1.ForceRead = True

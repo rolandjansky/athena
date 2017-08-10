@@ -80,7 +80,7 @@ void TestPixelModuleDisablingSvc::initModules(){
   for (auto it=m_moduleList.begin(); it!=m_moduleList.end(); ++it){
     Identifier moduleId = m_pixelID->wafer_id(*it);
     disabled_modules.insert(moduleId);
-    ATH_MSG_INFO("inserting " << moduleId.getString() << endreq);
+    ATH_MSG_INFO("inserting " << moduleId.getString() << endmsg);
   }
 }
 

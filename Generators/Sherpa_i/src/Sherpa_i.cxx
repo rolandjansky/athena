@@ -188,7 +188,7 @@ void Sherpa_i::getParameters(int &argc, char** &argv) {
   ***/
 
   std::string verbose_arg;
-  MsgStream log(messageService(), name());
+  MsgStream log(msgSvc(), name());
   if( log.level()==MSG::FATAL || log.level()==MSG::ERROR || log.level()==MSG::WARNING ){
     params.push_back("OUTPUT=0");
   }

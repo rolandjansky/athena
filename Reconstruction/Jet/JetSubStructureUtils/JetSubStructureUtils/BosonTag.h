@@ -90,34 +90,34 @@ namespace JetSubStructureUtils {
       std::map<std::string, std::map<std::string, CONFIG>> m_configurations;
 
       // main 4 details for classifying a jet
-      static SG::AuxElement::ConstAccessor<int> AlgorithmType;
-      static SG::AuxElement::ConstAccessor<float> SizeParameter;
-      static SG::AuxElement::ConstAccessor<int> InputType;
-      static SG::AuxElement::ConstAccessor<int> TransformType;
+      static SG::AuxElement::ConstAccessor<int> s_AlgorithmType;
+      static SG::AuxElement::ConstAccessor<float> s_SizeParameter;
+      static SG::AuxElement::ConstAccessor<int> s_InputType;
+      static SG::AuxElement::ConstAccessor<int> s_TransformType;
 
       // for trimming
-      static SG::AuxElement::ConstAccessor<float> RClus;
-      static SG::AuxElement::ConstAccessor<float> PtFrac;
+      static SG::AuxElement::ConstAccessor<float> s_RClus;
+      static SG::AuxElement::ConstAccessor<float> s_PtFrac;
 
       // for pruning
-      static SG::AuxElement::ConstAccessor<float> RCut;
-      static SG::AuxElement::ConstAccessor<float> ZCut;
+      static SG::AuxElement::ConstAccessor<float> s_RCut;
+      static SG::AuxElement::ConstAccessor<float> s_ZCut;
 
       // for splitting
       // static SG::AuxElement::ConstAccessor<int> NSubjetMax ("NSubjetMax");
-      static SG::AuxElement::ConstAccessor<char> BDRS;
+      static SG::AuxElement::ConstAccessor<char> s_BDRS;
       /* MuMax, YMin, RClus */
       // static SG::AuxElement::ConstAccessor<float> RClus ("RClus"); // defined above for trimming
-      static SG::AuxElement::ConstAccessor<float> YMin;
-      static SG::AuxElement::ConstAccessor<float> MuMax;
+      static SG::AuxElement::ConstAccessor<float> s_YMin;
+      static SG::AuxElement::ConstAccessor<float> s_MuMax;
       //    under splitting; for Run-1 tagger
-      static SG::AuxElement::ConstAccessor<float> YFilt;
+      static SG::AuxElement::ConstAccessor<float> s_YFilt;
 
       // for D2
-      static SG::AuxElement::ConstAccessor<float> D2;
-      static SG::AuxElement::ConstAccessor<float> ECF1;
-      static SG::AuxElement::ConstAccessor<float> ECF2;
-      static SG::AuxElement::ConstAccessor<float> ECF3;
+      static SG::AuxElement::ConstAccessor<float> s_D2;
+      static SG::AuxElement::ConstAccessor<float> s_ECF1;
+      static SG::AuxElement::ConstAccessor<float> s_ECF2;
+      static SG::AuxElement::ConstAccessor<float> s_ECF3;
 
   };
 }

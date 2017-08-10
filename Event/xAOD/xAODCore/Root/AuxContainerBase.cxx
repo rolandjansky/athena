@@ -527,6 +527,11 @@ namespace xAOD {
       if( m_store ) {
         if (!m_store->insertMove( pos, other, ignore ))
           nomove = false;
+
+        // Notice any new variables added as a result of this.
+        const AuxContainerBase::auxid_set_t& dynids = m_store->getAuxIDs();
+        m_auxids.insert (dynids.begin(), dynids.end());
+        ++m_tick;
       }
 
       return nomove;

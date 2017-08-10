@@ -5,34 +5,34 @@
 #include "MCTruth/TrackHelper.h"
 #include "ISF_Event/ISFParticle.h"
 
-TrackHelper::TrackHelper(const G4Track* t): theTrack(t)
+TrackHelper::TrackHelper(const G4Track* t)
 {
-  trackInfo=static_cast<TrackInformation *>(t->GetUserInformation());
+  m_trackInfo=static_cast<TrackInformation *>(t->GetUserInformation());
 }
 bool TrackHelper::IsPrimary() const
 {
-  if (trackInfo==0) return false;
-  return trackInfo->GetClassification()==Primary;
+  if (m_trackInfo==0) return false;
+  return m_trackInfo->GetClassification()==Primary;
 }
 bool TrackHelper::IsRegeneratedPrimary() const
 {
-  if (trackInfo==0) return false;
-  return trackInfo->GetClassification()==RegeneratedPrimary;
+  if (m_trackInfo==0) return false;
+  return m_trackInfo->GetClassification()==RegeneratedPrimary;
 }
 bool TrackHelper::IsRegisteredSecondary() const
 {
-  if (trackInfo==0) return false;
-  return trackInfo->GetClassification()==RegisteredSecondary;
+  if (m_trackInfo==0) return false;
+  return m_trackInfo->GetClassification()==RegisteredSecondary;
 }
 bool TrackHelper::IsSecondary() const
 {
-  if (trackInfo==0) return true;
-  return trackInfo->GetClassification()==Secondary;
+  if (m_trackInfo==0) return true;
+  return m_trackInfo->GetClassification()==Secondary;
 }
 int TrackHelper::GetBarcode() const
 {
-  if (trackInfo==0 || trackInfo->GetHepMCParticle()==0) return 0;
-  return trackInfo->GetParticleBarcode();
+  if (m_trackInfo==0 || m_trackInfo->GetHepMCParticle()==0) return 0;
+  return m_trackInfo->GetParticleBarcode();
 }
 
 HepMcParticleLink TrackHelper::GetParticleLink()

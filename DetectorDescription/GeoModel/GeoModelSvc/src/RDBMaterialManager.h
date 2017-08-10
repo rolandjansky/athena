@@ -19,9 +19,8 @@
 #include <map>
 #include <vector>
 #include <iosfwd>
-class GeoMaterial;
-class StoreGateSvc;
 
+class GeoMaterial;
 class ISvcLocator;
 
 
@@ -30,7 +29,7 @@ class RDBMaterialManager: public StoredMaterialManager {
  public:
 
   // Constructor:
-  RDBMaterialManager(StoreGateSvc* pDetStore, ISvcLocator* pSvcLocator);
+  RDBMaterialManager(ISvcLocator* pSvcLocator);
   
   // Destructor:
   virtual ~RDBMaterialManager();

@@ -208,7 +208,7 @@ Double_t CP::TPileupReweighting::GetIntegratedLumiFraction(Int_t periodNumber, D
 
 
 
-Int_t CP::TPileupReweighting::UsePeriodConfig(const TString configName) {
+Int_t CP::TPileupReweighting::UsePeriodConfig(const TString& configName) {
    if(configName=="MC11a") {
       AddPeriod(180164, 177986,180481); //associates mc runnumber 180164 with data period 177986 to 180481 (period B-D)
       AddPeriod(183003, 180614,184169); //period E-H
@@ -290,6 +290,7 @@ Int_t CP::TPileupReweighting::UsePeriodConfig(const TString configName) {
       AddPeriod(222525,222222,999999);
       AddPeriod(222526,222222,999999);
       AddPeriod(284500,222222,999999);
+      AddPeriod(295000,222222,999999); //mc15c for pPb data in 2016
       if(m_emptyHistogram && (m_emptyHistogram->GetNbinsX()!=100 || fabs(m_emptyHistogram->GetXaxis()->GetBinLowEdge(1))>0.01 || fabs(m_emptyHistogram->GetXaxis()->GetBinUpEdge(100)-100.)>0.01) ) {
          Error("UsePeriodConfig","Cannot use MC15, an incompatible config has already been set up");
          throw std::runtime_error("Throwing 13: Cannot use MC15, an incompatible config has already been set up");
@@ -298,6 +299,15 @@ Int_t CP::TPileupReweighting::UsePeriodConfig(const TString configName) {
       SetUniformBinning(100,0,100); //Thanks Eric </sarcasm>
       Info("UsePeriodConfig","Using MC15 Period configuration");
       return 0;
+   } else if(configName=="Run2") {
+     m_autoRunStart = 222222; m_autoRunEnd = 999999; //periods will be automatically added during Fill
+     if(m_emptyHistogram && (m_emptyHistogram->GetNbinsX()!=100 || fabs(m_emptyHistogram->GetXaxis()->GetBinLowEdge(1))>0.01 || fabs(m_emptyHistogram->GetXaxis()->GetBinUpEdge(100)-100.)>0.01) ) {
+         Error("UsePeriodConfig","Cannot use open Run2, an incompatible config has already been set up");
+         throw std::runtime_error("Throwing 13: Cannot use Run2 config, an incompatible config has already been set up");
+         return -1;
+      }
+      SetUniformBinning(100,0,100); //Thanks Eric </sarcasm>
+      Info("UsePeriodConfig","Using Run2 Period configuration, which assumes period assignment of 222222 to 999999");
    }
    Error("UsePeriodConfig","Unrecognized period config");
    return -1;
@@ -390,7 +400,7 @@ TH1* CP::TPileupReweighting::CloneEmptyHistogram(Int_t runNumber, Int_t channelN
 
 }
 
-Int_t CP::TPileupReweighting::GenerateMetaDataFile(const TString fileName,const TString channelBranchName) {
+Int_t CP::TPileupReweighting::GenerateMetaDataFile(const TString& fileName,const TString& channelBranchName) {
 
    TTree inTree("in","in");
    inTree.ReadFile(fileName);
@@ -434,7 +444,7 @@ Int_t CP::TPileupReweighting::GenerateMetaDataFile(const TString fileName,const 
       return 0;
 }
 
-Int_t CP::TPileupReweighting::AddMetaDataFile(const TString fileName,const TString channelBranchName) {
+Int_t CP::TPileupReweighting::AddMetaDataFile(const TString& fileName,const TString& channelBranchName) {
    TDirectory* origDir = gDirectory;
    TTree* tmp = 0;
    TFile* rootFile = 0;
@@ -654,6 +664,8 @@ void CP::TPileupReweighting::AddDistributionTree(TTree *tree, TFile *file) {
 //data is signalled by a negative channel number
 Int_t CP::TPileupReweighting::AddDistribution(TH1* hist,Int_t runNumber, Int_t channelNumber) {
 
+  //NOTE: should probably just ignore histograms with 0 entries
+
    if(m_isInitialized) {
       Error("AddDistribution","You cannot AddDistribution after initializing the tool. Reorder your code!");
       throw std::runtime_error("Throwing 5: You cannot AddLumiCalcFile after initializing the tool. Reorder your code!");
@@ -663,6 +675,21 @@ Int_t CP::TPileupReweighting::AddDistribution(TH1* hist,Int_t runNumber, Int_t c
       Error("AddDistribution","Unrecognised periodNumber: %d .. please use AddPeriod to define a period",runNumber);
       throw std::runtime_error("Throwing 6: Unrecognised periodNumber. Please use AddPeriod to define a period");
    }
+   
+   if(!m_useMultiPeriods && runNumber>=0) {
+      //not allowing multi periods in a single channel, so before we go any further, require no periods other than this incoming one to have a hist defined for this channel
+      //the global one can though
+      for(auto& period : m_periods) {
+        if(period.first<0) continue; //global sum period
+        if(period.first==runNumber) continue; //ok to add to this
+        if(period.second->inputHists.find(channelNumber)!=period.second->inputHists.end()) {
+          TString myMsg = TString::Format("Attempt to add distribution for channel %d to period %d, but this channels already has period %d defined.\nThis is indicative of use of incompatible PRW config files, please check your config files for multiple periods/runNumbers for the same channel.",channelNumber,runNumber,period.first);
+          Error("AddDistribution",myMsg);
+          throw std::runtime_error(myMsg.Data());
+        }
+      }
+   }
+   
 
    TH1*& inputHist = (channelNumber<0) ? m_runs[runNumber].inputHists["None"] : m_periods[runNumber]->inputHists[channelNumber];
 
@@ -727,7 +754,7 @@ Int_t CP::TPileupReweighting::AddDistribution(TH1* hist,Int_t runNumber, Int_t c
 } 
 
 
-Int_t CP::TPileupReweighting::AddLumiCalcFile(const TString fileName, const TString trigger) {
+Int_t CP::TPileupReweighting::AddLumiCalcFile(const TString& fileName, const TString& trigger) {
 
    if(m_isInitialized) {
       Error("AddLumiCalcFile","You cannot AddLumiCalcFile after initializing the tool. Reorder your code!");
@@ -803,7 +830,7 @@ Int_t CP::TPileupReweighting::AddLumiCalcFile(const TString fileName, const TStr
    return 0;
 }
 
-Int_t CP::TPileupReweighting::AddConfigFile(const TString fileName) {
+Int_t CP::TPileupReweighting::AddConfigFile(const TString& fileName) {
 
    //open the file and look for config TTrees 
    //recognised TTrees are: ChannelMetaData, MCPileupReweighting, MCCustomReweighting, DataCustomReweighting
@@ -1516,7 +1543,7 @@ Float_t CP::TPileupReweighting::GetSecondaryWeight(Int_t periodNumber, Int_t cha
    return l/n;
 }
 
-Double_t CP::TPileupReweighting::GetDataWeight(Int_t runNumber, TString trigger) {
+Double_t CP::TPileupReweighting::GetDataWeight(Int_t runNumber, const TString& trigger) {
    //special mu-independent version of GetDataWeight. Will just use the global luminosity
    m_doGlobalDataWeight=true;
    double out = GetDataWeight(runNumber, trigger, 0);
@@ -1524,7 +1551,7 @@ Double_t CP::TPileupReweighting::GetDataWeight(Int_t runNumber, TString trigger)
    return out;
 }
 
-Double_t CP::TPileupReweighting::GetDataWeight(Int_t runNumber, TString trigger, Double_t x) {
+Double_t CP::TPileupReweighting::GetDataWeight(Int_t runNumber, const TString& trigger, Double_t x) {
 
    if(!m_isInitialized) { Info("GetDataWeight","Initializing the subtool.."); Initialize(); }
    if(m_countingMode) return 0.;
@@ -1592,9 +1619,35 @@ Double_t CP::TPileupReweighting::GetDataWeight(Int_t runNumber, TString trigger,
    if(m_doGlobalDataWeight) return numerHist->Integral(0,numerHist->GetNbinsX()+1)/denomHist->Integral(0,denomHist->GetNbinsX()+1);
 
    Int_t bin=numerHist->FindFixBin(x*m_dataScaleFactorX); //MUST SCALE BY THE DATA SCALE FACTOR!
+   
+   if(!denomHist->GetBinContent(bin)) {
+     if(m_doPrescaleWeight) return -1; //happens if trigger was disabled/unavailable for that mu, even though that mu is in the dataset
+      Error("GetDataWeight","Unrecognised mu value %f ... are you sure you included all lumicalc files",x);
+      throw std::runtime_error("GetDataWeight: Unrecognised mu value. Please AddLumiCalc enough lumi with 'None' trigger");
+   }
+   
    return numerHist->GetBinContent(bin)/denomHist->GetBinContent(bin);
+}
+
+
+Double_t CP::TPileupReweighting::GetPrescaleWeight(Int_t runNumber, const TString& trigger) {
+   //special mu-independent version of GetPrescaleWeight. Will just use the global luminosity
+   m_doGlobalDataWeight=true;
+   double out = GetPrescaleWeight(runNumber, trigger, 0);
+   m_doGlobalDataWeight=false;
+   return out;
+}
+
+Double_t CP::TPileupReweighting::GetPrescaleWeight(Int_t runNumber, const TString& trigger, Double_t x) {
+
+  m_doPrescaleWeight = true;
+  double out = GetDataWeight(runNumber,trigger,x);
+  m_doPrescaleWeight = false;
+  if(out<=0) return 0; //happens when triggers disabled/unavailable for a given mu ... therefore the prescale weight is 0
+  return 1./out;
 
 }
+
 
 //fills the appropriate inputHistograms
 Int_t CP::TPileupReweighting::Fill(Int_t runNumber,Int_t channelNumber,Float_t w,Float_t x, Float_t y) {
@@ -1606,8 +1659,14 @@ Int_t CP::TPileupReweighting::Fill(Int_t runNumber,Int_t channelNumber,Float_t w
    //get the period if mc, get the data run if data 
    if(channelNumber>=0) {
       if(m_periods.find(runNumber)==m_periods.end()) {
-         Error("Fill","Unrecognised runNumber: %d.  Check your period configuration (AddPeriod or UsePeriodConfig)",runNumber);
-         throw std::runtime_error("Throwing 1: Unrecognised periodNumber");
+	//if assume default binning is true, will add binning from 0 to 100 for this run number
+	if(m_autoRunStart || m_autoRunEnd) {
+	  AddPeriod(runNumber,m_autoRunStart,m_autoRunEnd);
+	}
+	 if(m_periods.find(runNumber)==m_periods.end()) {
+	   Error("Fill","Unrecognised runNumber: %d.  Check your period configuration (AddPeriod or UsePeriodConfig)",runNumber);
+	   throw std::runtime_error("Throwing 1: Unrecognised periodNumber");
+	 }
       }
       Period* p = m_periods[runNumber];
       if(!p) {
@@ -1638,7 +1697,7 @@ Int_t CP::TPileupReweighting::Fill(Int_t runNumber,Int_t channelNumber,Float_t w
    return -1;
 }
 
-Int_t CP::TPileupReweighting::WriteToFile(const TString fname) {
+Int_t CP::TPileupReweighting::WriteToFile(const TString& fname) {
    
    if(!m_countingMode) {Warning("WriteToFile","Not in counting mode, so no file will be written");return 0;}
 
@@ -1850,6 +1909,7 @@ void CP::TPileupReweighting::CalculatePrescaledLuminosityHistograms(const TStrin
 }
 
 void CP::TPileupReweighting::calculateHistograms(CompositeTrigger* t) {
+
    //now we need the trigger bits for this trigger for this event
    long tbits = t->getBits(this);
    //1. Open all the lumicalc files
@@ -1934,6 +1994,7 @@ void CP::TPileupReweighting::calculateHistograms(CompositeTrigger* t) {
               Error("CalculatePrescaledLuminosityHistograms","Could not find LBStart branch in Data TTree");throw std::runtime_error("Could not find LBStart branch in Data TTree");
           }
           long nEntries = tmp->GetEntries();
+          //this loop ends up calling the triggerBeforePrescale method each time, but this should hopefully stop once the loading is done
           for(long i=0;i<nEntries;i++) {
               b_runNbr->GetEntry(i);b_intLumi->GetEntry(i);b_mu->GetEntry(i);
               b_lbn->GetEntry(i);
@@ -1949,7 +2010,7 @@ void CP::TPileupReweighting::calculateHistograms(CompositeTrigger* t) {
               }
               pFactor = 1. - pFactor;
   */
-  
+
               double pFactor = t->eval(prescaleByRunAndLbn,runNbr,lbn,this);
   
               //Info("...","prescale in [%d,%d] = %f", runNbr,lbn,1./pFactor);

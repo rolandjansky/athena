@@ -110,6 +110,9 @@ class IMCTruthClassifier : virtual public asg::IAsgTool {
 
   virtual  std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin>
     checkOrigOfBkgElec(const xAOD::TruthParticle*, Info* info = nullptr) const = 0;
+
+  virtual
+  const xAOD::TruthParticle* isHadronFromB(const xAOD::TruthParticle *) const = 0;
 };
 
 #endif // MCTRUTHCLASSIFIER_IMCTRUTHCLASSIFIER_H 

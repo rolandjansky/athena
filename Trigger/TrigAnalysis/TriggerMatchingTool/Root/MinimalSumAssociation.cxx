@@ -32,6 +32,10 @@ IAssociationStrategy::index_assignment_t MinimalSumAssociation::associate(const 
   bool debug = false;
   auto result = munk.run(costs,debug);
   
+  //result is indexed by row
+  //i.e. when matrix is matrxi[reco][trig]
+  //it maps reco particle at index i to trig particle at index
+  //result[i]
   for(int i = 0;i < nrows;++i){
     resultmap[i] = result[i];
   }

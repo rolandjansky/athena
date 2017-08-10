@@ -92,7 +92,7 @@ StatusCode Trk::TrackFitInputPreparator::copyToTrajectory
       worstCaseSorting ?
         stable_sort( sortedHitSet.begin(), sortedHitSet.end(), MB_IndexCompFunc ):
         sort( sortedHitSet.begin(), sortedHitSet.end(), MB_IndexCompFunc );
-      /* std::cout << "input track was not sorted. Now the sequence is :"<<endreq;
+      /* std::cout << "input track was not sorted. Now the sequence is :"<<endmsg;
       MB_IndexVector::iterator itLog = sortedHitSet.begin();
       for ( ; itLog!=sortedHitSet.end(); ++itLog) std::cout <<" " << (*itLog).second;
       std::cout <<std::endl; */
@@ -589,8 +589,8 @@ void Trk::TrackFitInputPreparator::insertStateIntoTrajectory(Trajectory& traject
                             trajectory.back().checkinMaterialEffects(new Trk::ProtoMaterialEffects(meot));
                             trajectory.back().isOutlier(TrackState::Scatterer);
         //                     Identifier id =  tsos->surface().associatedDetectorElementIdentifier();
-        //                     msg ( MSG::INFO ) << "added material TSoS:" << id << " " <<  &(tsos->surface()) << " " << m_idHelper->print_to_string(id) << " " << tsos->dumpType() << endreq;
-        //                     msg ( MSG::INFO ) << "    trk pos=" <<tsos->trackParameters()->position() << " mom=" << tsos->trackParameters()->momentum() << " rho=" << tsos->trackParameters()->position().perp() << endreq;
+        //                     msg ( MSG::INFO ) << "added material TSoS:" << id << " " <<  &(tsos->surface()) << " " << m_idHelper->print_to_string(id) << " " << tsos->dumpType() << endmsg;
+        //                     msg ( MSG::INFO ) << "    trk pos=" <<tsos->trackParameters()->position() << " mom=" << tsos->trackParameters()->momentum() << " rho=" << tsos->trackParameters()->position().perp() << endmsg;
                         } // end if meot
                     }
                     delete tsos;

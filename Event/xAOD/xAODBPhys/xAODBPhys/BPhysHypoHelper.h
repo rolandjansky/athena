@@ -133,9 +133,9 @@ namespace xAOD {
        */
       
       /** @brief: Enum type the proper decay time calculation
-       * 
-       *  @value: TAU_CONST_MASS  the proper decay time calculated with the constant mass hypothesis
-       *  @value: TAU_INV_MASS    the proper decay time calculated with the measured invariant mass
+       *  \enum tau_type
+       *  @c TAU_CONST_MASS  the proper decay time calculated with the constant mass hypothesis
+       *  @c TAU_INV_MASS    the proper decay time calculated with the measured invariant mass
        */
       
       enum tau_type { TAU_CONST_MASS, TAU_INV_MASS };

@@ -77,12 +77,12 @@ StatusCode LUCID_PileUpTool::initialize()
 
   ATH_MSG_DEBUG ( "LUCID_PileUpTool::initialize() called " );
 
-  ATH_MSG_DEBUG ( " numTubes         : " << m_numTubes          << endreq
-                  << " qdcChannelsPerPE : " << m_qdcChannelsPerPE  << endreq
-                  << " qdcPedestal      : " << m_qdcPedestal       << endreq
-                  << " qdcFedNoiseFactor: " << m_qdcFedNoiseFactor << endreq
-                  << " tdcPmtNoiseFactor: " << m_tdcPmtNoiseFactor << endreq
-                  << " tdcFedNoiseFactor: " << m_tdcFedNoiseFactor << endreq
+  ATH_MSG_DEBUG ( " numTubes         : " << m_numTubes          << endmsg
+                  << " qdcChannelsPerPE : " << m_qdcChannelsPerPE  << endmsg
+                  << " qdcPedestal      : " << m_qdcPedestal       << endmsg
+                  << " qdcFedNoiseFactor: " << m_qdcFedNoiseFactor << endmsg
+                  << " tdcPmtNoiseFactor: " << m_tdcPmtNoiseFactor << endmsg
+                  << " tdcFedNoiseFactor: " << m_tdcFedNoiseFactor << endmsg
                   << " fillRootTree     : " << m_fillRootTree      );
 
   CHECK(m_atRndmGenSvc.retrieve());

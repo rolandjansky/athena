@@ -13,7 +13,6 @@
 #include "AthenaKernel/errorcheck.h"
 #include "StoreGate/DataHandle.h"
 //#include "StoreGate/ReadHandle.h"
-//#include "StoreGate/UpdateHandle.h"
 #include "GeneratorObjects/McEventCollection.h"
 
 #include "HepMC/GenEvent.h"
@@ -94,7 +93,7 @@ public:
   ///
   /// @note This function will make a new McEventCollection
   /// if there is not already a valid one _and_ MakeMcEvent=True.
-  SG::UpdateHandle<McEventCollection> events();
+  McEventCollection* events();
 
   /// Access the current event's McEventCollection (const)
   SG::ReadHandle<McEventCollection> events_const() const {
@@ -160,8 +159,6 @@ private:
   /// Handle on the particle property service
   ServiceHandle<IPartPropSvc> m_ppSvc;
 
-  /// Handle to the MC event collection
-  SG::UpdateHandle<McEventCollection> m_mcevents;
   /// Const handle to the MC event collection
   SG::ReadHandle<McEventCollection> m_mcevents_const;
 

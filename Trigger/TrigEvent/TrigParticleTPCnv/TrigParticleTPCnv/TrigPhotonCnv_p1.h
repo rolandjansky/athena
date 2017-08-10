@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigParticleTPCnv
- * @Class  : TrigPhotonCnv_p1
+ * @class  : TrigPhotonCnv_p1
  *
  * @brief transient-persistent converter for TrigPhoton
  *

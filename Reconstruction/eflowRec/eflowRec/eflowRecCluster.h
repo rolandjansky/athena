@@ -30,8 +30,8 @@ class eflowMatchCluster;
 class eflowRecCluster {
 public:
   eflowRecCluster(const ElementLink<xAOD::CaloClusterContainer>& clusElementLink);
-  eflowRecCluster(const eflowRecCluster& anEFlowRecCluster);
-  void operator=(const eflowRecCluster& anEFlowRecCluster);
+  eflowRecCluster(const eflowRecCluster& originalEflowRecCluster);
+  eflowRecCluster&  operator=(const eflowRecCluster& originalEflowRecCluster);
   virtual ~eflowRecCluster();
 
   const xAOD::CaloCluster* getCluster() const { return m_cluster; }
@@ -39,7 +39,7 @@ public:
 
   ElementLink<xAOD::CaloClusterContainer> getClusElementLink() const { return m_clusElementLink; }
 
-  eflowMatchCluster* getMatchCluster() const { return m_matchCluster; }
+  eflowMatchCluster* getMatchCluster() const { return m_matchCluster.get(); }
 
   double getSumExpectedEnergy();
   double getVarianceOfSumExpectedEnergy();
@@ -68,7 +68,7 @@ private:
   /* for EM mode, LC weight for cells are retrieved before doing any subtraction; they will be used after subtraction */
   std::map<IdentifierHash,double> m_cellsWeightMap;
 
-  eflowMatchCluster* m_matchCluster;
+  std::unique_ptr<eflowMatchCluster> m_matchCluster;
   std::vector<eflowTrackClusterLink*> m_trackMatches;
 
   void replaceClusterByCopyInContainer(xAOD::CaloClusterContainer* container);

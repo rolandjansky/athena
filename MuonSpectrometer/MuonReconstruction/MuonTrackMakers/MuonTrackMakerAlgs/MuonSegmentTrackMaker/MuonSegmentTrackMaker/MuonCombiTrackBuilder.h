@@ -9,6 +9,8 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "MuonSegment/MuonSegmentCombinationCollection.h"
+#include "TrkTrack/TrackCollection.h"
 
 namespace Muon {
   class IMuonCombiTrackMaker;
@@ -28,8 +30,8 @@ class MuonCombiTrackBuilder : public AthAlgorithm
 
  private:
 
-  std::string         m_segmentCombiLocation;     //!< Location of input MuonSegmentCombination collection
-  std::string         m_trackLocation;            //!< Location of the track output location
+  SG::ReadHandle<MuonSegmentCombinationCollection>        m_segmentCombiLocation;     //!< Location of input MuonSegmentCombination collection
+  SG::WriteHandle<TrackCollection>                        m_trackLocation;            //!< Location of the track output location
 
   // member set by Joboptions 
   ToolHandle<Muon::IMuonCombiTrackMaker> m_trackMaker;

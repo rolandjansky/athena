@@ -21,11 +21,11 @@ TRTVisualization::TRTVisualization(): m_msg("TRTVisualization")
 
   printMessages = pParameters->GetInteger("PrintMessages");
 
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTVisualization" << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTVisualization" << endmsg;
 
   Initialize();
 
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTVisualization done" << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTVisualization done" << endmsg;
 }
 
 
@@ -33,11 +33,11 @@ TRTVisualization::TRTVisualization(): m_msg("TRTVisualization")
 
 TRTVisualization::~TRTVisualization()
 {
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Destructor TRTVisualization" << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Destructor TRTVisualization" << endmsg;
 
   pVisualization = NULL;
 
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Destructor TRTVisualization done" << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Destructor TRTVisualization done" << endmsg;
 }
 
 
@@ -45,7 +45,7 @@ TRTVisualization::~TRTVisualization()
 
 void TRTVisualization::Initialize()
 {
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTVisualization::Initialize" << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTVisualization::Initialize" << endmsg;
 
   pVisAttributeRed = new G4VisAttributes(G4Colour(1., 0., 0.));
   pVisAttributeRed->SetVisibility(true);
@@ -68,7 +68,7 @@ void TRTVisualization::Initialize()
   pVisAttributeBlack = new G4VisAttributes(G4Colour(0., 0., 0.));
   pVisAttributeBlack->SetVisibility(true);
 
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTVisualization::Initialize done" << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTVisualization::Initialize done" << endmsg;
 }
 
 

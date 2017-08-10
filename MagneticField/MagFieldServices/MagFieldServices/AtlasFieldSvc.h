@@ -13,7 +13,6 @@
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/IIncidentListener.h"
-#include "GaudiKernel/ContextSpecificPtr.h"
 
 // MagField includes
 #include "MagFieldInterfaces/IMagFieldSvc.h"
@@ -43,13 +42,13 @@ namespace MagField {
 
   class AtlasFieldSvc : public IMagFieldSvc, virtual public IIncidentListener, virtual public AthService {
     public:
-     
+
       //** Constructor with parameters */
       AtlasFieldSvc( const std::string& name, ISvcLocator* pSvcLocator );
-     
+
       /** Destructor */
       virtual ~AtlasFieldSvc();
-     
+
       /** Athena algorithm's interface methods */
       StatusCode  initialize();
       StatusCode  finalize();
@@ -59,7 +58,7 @@ namespace MagField {
 
       /** Query the interfaces **/
       StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
-     
+
       /** Call back for possible magnet current update **/
       StatusCode updateCurrent(IOVSVC_CALLBACK_ARGS);
 
@@ -69,8 +68,8 @@ namespace MagField {
       /** get B field value at given position */
       /** xyz[3] is in mm, bxyz[3] is in kT */
       /** if deriv[9] is given, field derivatives are returned in kT/mm */
-      virtual void getField(const double *xyz, double *bxyz, double *deriv = 0) const override final;
-      virtual void getFieldZR(const double *xyz, double *bxyz, double *deriv = 0) const override final;
+      virtual void getField(const double *xyz, double *bxyz, double *deriv = nullptr) const override final;
+      virtual void getFieldZR(const double *xyz, double *bxyz, double *deriv = nullptr) const override final;
 
     private:
       /** Retrieve, initialize and return a thread-local storage object */
@@ -85,7 +84,7 @@ namespace MagField {
 	 // manipulated field
 	 void getFieldManipulated(const double *xyz, double *bxyz, double *deriv = 0);
       */
-      
+
       // Functions used by getField[ZR]
       // search for a "zone" to which the point (z,r,phi) belongs
       inline const BFieldZone* findZone( double z, double r, double phi ) const;
@@ -154,10 +153,10 @@ namespace MagField {
 
       // full 3d map (made of multiple zones)
       std::vector<BFieldZone>        m_zone;
-  
+
       // fast 2d map (made of one zone)
       BFieldMeshZR                  *m_meshZR;
-  
+
       // data members used in zone-finding
       std::vector<double>            m_edge[3];    // zone boundaries in z, r, phi
       std::vector<int>               m_edgeLUT[3]; // look-up table for zone edges

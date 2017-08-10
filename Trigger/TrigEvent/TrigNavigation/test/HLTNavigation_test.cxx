@@ -752,7 +752,7 @@ StatusCode const_attach_test(HLT::Navigation* hns) {
     REPORT_AND_STOP("Got incorrect container");
 
 
-  // now try to reuse some TestB obect stored in another non-const container
+  // now try to reuse some TestB object stored in another non-const container
   const TestBContainer* tb2{nullptr};
   TriggerElement* clu1        = getTE(hns, 111);
   const bool stat =  hns->getFeature(clu1, tb2, "BContainer2"); 

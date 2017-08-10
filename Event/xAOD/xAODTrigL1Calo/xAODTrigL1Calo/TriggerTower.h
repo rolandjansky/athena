@@ -15,7 +15,7 @@ namespace xAOD {
    /// Define the latest version of the TriggerTower class
    typedef TriggerTower_v2 TriggerTower;
 
-   typedef std::map<int, TriggerTower*> TriggerTowerMap_t;
+   typedef std::map<int, const TriggerTower*> TriggerTowerMap_t;
 }
 
 #include "xAODCore/CLASS_DEF.h"

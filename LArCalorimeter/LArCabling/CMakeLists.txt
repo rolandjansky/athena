@@ -44,5 +44,5 @@ atlas_add_dictionary( LArCablingDict
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
-atlas_install_runtime( share/FEBtoRODfred_v10.data share/HVLineToDetector.data share/HVLineToElectrode.data )
+atlas_install_runtime( share/FEBtoRODfred_v10.data )
 

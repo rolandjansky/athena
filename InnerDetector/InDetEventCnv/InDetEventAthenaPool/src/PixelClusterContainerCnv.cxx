@@ -5,14 +5,13 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "PixelClusterContainerCnv.h"
 #include "InDetIdentifier/PixelID.h"
-#include "MsgUtil.h"
 
 #include <memory>
 
 #include <iostream>
 
   PixelClusterContainerCnv::PixelClusterContainerCnv (ISvcLocator* svcloc)
-    : PixelClusterContainerCnvBase(svcloc),
+    : PixelClusterContainerCnvBase(svcloc, "PixelClusterContainerCnv"),
       m_converter_p0(),
       m_storeGate(nullptr)
   {}
@@ -21,8 +20,6 @@
 
 
 StatusCode PixelClusterContainerCnv::initialize() {
-   IDEvtAthPool::setMsgName(this,"PixelClusterContainerCnv");//So msg() won't use name "AthenaPoolConverter" 
-
    ATH_MSG_INFO("PixelClusterContainerCnv::initialize()");
 
    StatusCode sc = PixelClusterContainerCnvBase::initialize();

@@ -84,41 +84,41 @@ GetDetectorPositions::GetDetectorPositions(std::string const&  name, ISvcLocator
 
 /** initialize */
 StatusCode GetDetectorPositions::initialize(){
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "initialize()" << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "initialize()" << endmsg;
   
   /** Retrive TRT info */
   if (detStore()->retrieve(m_TRTHelper, "TRT_ID").isFailure()) {
-    msg(MSG::FATAL) << "Could not get TRT ID helper" << endreq;
+    msg(MSG::FATAL) << "Could not get TRT ID helper" << endmsg;
     return StatusCode::FAILURE;
   }
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "got the TRT ID" << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "got the TRT ID" << endmsg;
 
   if ((detStore()->retrieve(m_TRTDetectorManager)).isFailure()) {
-    if(msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Problem retrieving TRT_DetectorManager" << endreq;
+    if(msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Problem retrieving TRT_DetectorManager" << endmsg;
     return StatusCode::FAILURE;
   }
   
   /** Retrive SCT info */
   if (detStore()->retrieve(m_SCTHelper, "SCT_ID").isFailure()) {
-    msg(MSG::FATAL) << "Could not get SCT ID helper" << endreq;
+    msg(MSG::FATAL) << "Could not get SCT ID helper" << endmsg;
     return StatusCode::FAILURE;
   }
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "got the SCT ID" << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "got the SCT ID" << endmsg;
 
   if ((detStore()->retrieve(m_SCTDetectorManager)).isFailure()) {
-    if(msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Problem retrieving SCT_DetectorManager" << endreq;
+    if(msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Problem retrieving SCT_DetectorManager" << endmsg;
     return StatusCode::FAILURE;
   }
   
   /** Retrive Pixel info */
   if (detStore()->retrieve(m_PixelHelper, "PixelID").isFailure()) {
-    msg(MSG::FATAL) << "Could not get Pixel ID helper" << endreq;
+    msg(MSG::FATAL) << "Could not get Pixel ID helper" << endmsg;
     return StatusCode::FAILURE;
     }
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "got the Pixel ID" << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "got the Pixel ID" << endmsg;
   
   if ((detStore()->retrieve(m_pixelDetectorManager)).isFailure()) {
-    if(msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Problem retrieving PixelDetectorManager" << endreq;
+    if(msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Problem retrieving PixelDetectorManager" << endmsg;
     return StatusCode::FAILURE;
   }
   
@@ -131,7 +131,7 @@ StatusCode GetDetectorPositions::initialize(){
 /** execute */
 StatusCode GetDetectorPositions::execute() {
   
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "execute() check global position" << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "execute() check global position" << endmsg;
   
   //StatusCode sc = StatusCode::SUCCESS;
     static int eventCount(-1); eventCount++;
@@ -158,7 +158,7 @@ StatusCode GetDetectorPositions::execute() {
 
 /** Finalize */
 StatusCode GetDetectorPositions::finalize() {
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "finalize()" << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "finalize()" << endmsg;
   
   /** Close the file */
   outputFile.close();
@@ -168,7 +168,7 @@ StatusCode GetDetectorPositions::finalize() {
 
 /** Writing the Pixel Positions */
 void GetDetectorPositions::writePixelPositions(){
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "In writePixelPositions()" << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "In writePixelPositions()" << endmsg;
 
   //Loop over pixel elements
   std::vector<Identifier>::const_iterator pixIt = m_PixelHelper->wafer_begin();
@@ -197,13 +197,13 @@ void GetDetectorPositions::writePixelPositions(){
 	       << std::endl;
   }
   
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Leaving writePixelPositions()" << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Leaving writePixelPositions()" << endmsg;
   return;
 }
 
 /** Writing the SCT Positions */
 void GetDetectorPositions::writeSCTPositions(){
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "In writeSCTPositions()" << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "In writeSCTPositions()" << endmsg;
   
   //Loop over SCT elements
   std::vector<Identifier>::const_iterator sctIt = m_SCTHelper->wafer_begin();
@@ -232,13 +232,13 @@ void GetDetectorPositions::writeSCTPositions(){
 	       << std::endl;
   }
   
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Leaving writeSCTPositions()" << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Leaving writeSCTPositions()" << endmsg;
   return;
 }
 
 /** Writing the TRT positions (depends on the level of detail) */
 void GetDetectorPositions::writeTRTPositions(){
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "In writeTRTPositions()" << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "In writeTRTPositions()" << endmsg;
 
   //Write TRT positions
   switch(m_detailLevel) {
@@ -259,13 +259,13 @@ void GetDetectorPositions::writeTRTPositions(){
     break;
   }
     
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "In writeTRTPositions()" << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "In writeTRTPositions()" << endmsg;
   return;  
 }
 
 /** Writing the Simple (not all straws) TRT Positions */
 void GetDetectorPositions::writeSimpleTRTPositions(){
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "In writeSimpleTRTPositions()" << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "In writeSimpleTRTPositions()" << endmsg;
 
   //Loop over TRT elements
   std::vector<Identifier>::const_iterator trtStrawLayIt = m_TRTHelper->straw_layer_begin();
@@ -275,13 +275,13 @@ void GetDetectorPositions::writeSimpleTRTPositions(){
     writeTRTPositions(*trtStrawLayIt);
   }
 
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "In writeTRTPositions()" << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "In writeTRTPositions()" << endmsg;
   return;  
 }
 
 /** Writing the Detailed (all straws) TRT Positions */
 void GetDetectorPositions::writeDetailedTRTPositions(bool doDoubleSampling){
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "In writeDetailedTRTPositions()" << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "In writeDetailedTRTPositions()" << endmsg;
   
   TRT_ID::const_expanded_id_iterator trtStrawIt = m_TRTHelper->straw_begin();
   TRT_ID::const_expanded_id_iterator trtStrawItE = m_TRTHelper->straw_end();
@@ -301,13 +301,13 @@ void GetDetectorPositions::writeDetailedTRTPositions(bool doDoubleSampling){
       writeTRTPositions(trtId);
   }
   
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Leaving writeDetailedTRTPositions()" << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Leaving writeDetailedTRTPositions()" << endmsg;
   return;
 }
 
 /** Write the TRT Positions */
 void GetDetectorPositions::writeTRTPositions(Identifier const& trtId){
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "In writeTRTPositions()" << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "In writeTRTPositions()" << endmsg;
 
   const Amg::Vector3D  &p3d = m_TRTDetectorManager->getElement( trtId )->center(trtId);
   
@@ -335,7 +335,7 @@ void GetDetectorPositions::writeTRTPositions(Identifier const& trtId){
 	     << m_trt_z << " "
 	     << std::endl;
   
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Leaving writeTRTPositions()" << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Leaving writeTRTPositions()" << endmsg;
   return;
 }
 
@@ -345,7 +345,7 @@ void GetDetectorPositions::writeTRTPositions(Identifier const& trtId){
     Allows the wire-by-wire alignment to be debugged
  */
 void GetDetectorPositions::writeTwoTRTPositions(Identifier const& trtId){
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "In writeTwoTRTPositions()" << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "In writeTwoTRTPositions()" << endmsg;
 
   const Amg::Vector3D &p3d = m_TRTDetectorManager->getElement( trtId )->center(trtId);
   
@@ -394,6 +394,6 @@ void GetDetectorPositions::writeTwoTRTPositions(Identifier const& trtId){
 	     << std::endl;
 
   
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Leaving writeTRTPositions()" << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Leaving writeTRTPositions()" << endmsg;
   return;
 }

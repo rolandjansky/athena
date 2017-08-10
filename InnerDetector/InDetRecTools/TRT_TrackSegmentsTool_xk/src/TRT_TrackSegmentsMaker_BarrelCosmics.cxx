@@ -71,36 +71,36 @@ StatusCode InDet::TRT_TrackSegmentsMaker_BarrelCosmics::initialize() {
 
   msg(MSG::INFO) << "InDet::TRT_TrackSegmentsMaker_BarrelCosmics::initialize(), March 2012"
                  << ", magnetic field: " << (m_magneticField?"ON":"OFF") 
-                 << " search bins: " << m_nBinsInX << ", " << m_nBinsInPhi << endreq;
+                 << " search bins: " << m_nBinsInX << ", " << m_nBinsInPhi << endmsg;
 
   StatusCode sc = StatusCode::SUCCESS;
 
   // TRT
   if (detStore()->retrieve(m_trtid, "TRT_ID").isFailure()) {
-    msg(MSG::FATAL) << "Could not get TRT ID helper" << endreq;
+    msg(MSG::FATAL) << "Could not get TRT ID helper" << endmsg;
     return StatusCode::FAILURE;
   }
 
   if (m_minHitsForSeed<=0) m_minHitsForSeed = (int) ( 0.601 * m_minHitsForSegment );
   if (m_minHitsAboveTOT<=0) m_minHitsAboveTOT = (int) (0.751 * m_minHitsForSegment );
 
-  msg(MSG::INFO) << "m_minHitsForSegment = " << m_minHitsForSegment << endreq;
-  msg(MSG::INFO) << "m_minHitsForSeed    = " << m_minHitsForSeed << endreq;
-  msg(MSG::INFO) << "m_minHitsAboveTOT   = " << m_minHitsAboveTOT << endreq;
+  msg(MSG::INFO) << "m_minHitsForSegment = " << m_minHitsForSegment << endmsg;
+  msg(MSG::INFO) << "m_minHitsForSeed    = " << m_minHitsForSeed << endmsg;
+  msg(MSG::INFO) << "m_minHitsAboveTOT   = " << m_minHitsAboveTOT << endmsg;
 
   if (m_minSeedTOT<0. || m_minSeedTOT>20.)
-    msg(MSG::WARNING) << "initialize(): are you sure about the MinimalTOTForSeedSearch setting? (set at " << m_minSeedTOT << ")" << endreq;
+    msg(MSG::WARNING) << "initialize(): are you sure about the MinimalTOTForSeedSearch setting? (set at " << m_minSeedTOT << ")" << endmsg;
 
   msg(MSG::INFO) << "InDet::TRT_TrackSegmentsMaker_BarrelCosmics::initialize(), jobProperties: "
                  << "MinimalNumberOfTRTHits " << m_minHitsForSegment << ", MinimalTOTForSeedSearch: " << m_minSeedTOT
-                 << ", m_minHitsForSeed: " << m_minHitsForSeed << ", m_minHitsAboveTOT: " << m_minHitsAboveTOT << endreq;
+                 << ", m_minHitsForSeed: " << m_minHitsForSeed << ", m_minHitsAboveTOT: " << m_minHitsAboveTOT << endmsg;
 
   return sc;
 }
 
 StatusCode InDet::TRT_TrackSegmentsMaker_BarrelCosmics::finalize() {
 
-   msg(MSG::INFO) << "InDet::TRT_TrackSegmentsMaker_BarrelCosmics::finalize()" << endreq;
+   msg(MSG::INFO) << "InDet::TRT_TrackSegmentsMaker_BarrelCosmics::finalize()" << endmsg;
 
    return StatusCode::SUCCESS;
 }
@@ -111,19 +111,19 @@ StatusCode InDet::TRT_TrackSegmentsMaker_BarrelCosmics::finalize() {
 
 void InDet::TRT_TrackSegmentsMaker_BarrelCosmics::newEvent() {
 
-  if (m_debugLevel <= MSG::DEBUG) msg(MSG::DEBUG) << "InDet::TRT_TrackSegmentsMaker_BarrelCosmics::newEvent()" << endreq;
+  if (m_debugLevel <= MSG::DEBUG) msg(MSG::DEBUG) << "InDet::TRT_TrackSegmentsMaker_BarrelCosmics::newEvent()" << endmsg;
 
   clear(); // private method that clears data members from the previous event
 
   const InDet::TRT_DriftCircleContainer* TRTDriftCircleContainer;   // get TRT_DriftCircle list from StoreGate containers
   StatusCode sc = evtStore()->retrieve( TRTDriftCircleContainer, m_driftCirclesName );
-  if (sc.isFailure()) { msg(MSG::ERROR) << "Could not find TRT_DriftCircles collection!" << endreq; return; }
-  if (TRTDriftCircleContainer==0) { msg(MSG::ERROR) << "newEvent(): TRTDriftCircleContainer==0" << endreq; return; }
+  if (sc.isFailure()) { msg(MSG::ERROR) << "Could not find TRT_DriftCircles collection!" << endmsg; return; }
+  if (TRTDriftCircleContainer==0) { msg(MSG::ERROR) << "newEvent(): TRTDriftCircleContainer==0" << endmsg; return; }
 
   for(InDet::TRT_DriftCircleContainer::const_iterator it=TRTDriftCircleContainer->begin(); it!=TRTDriftCircleContainer->end(); it++) {
 
     const InDet::TRT_DriftCircleCollection *colNext=&(**it);
-    if (!colNext) { msg(MSG::WARNING) << "newEvent(): !colNext " << endreq; continue; }
+    if (!colNext) { msg(MSG::WARNING) << "newEvent(): !colNext " << endmsg; continue; }
     
     for (DataVector<InDet::TRT_DriftCircle>::const_iterator circleit=(*colNext).begin();circleit!=(*colNext).end();circleit++){
 	
@@ -142,25 +142,25 @@ void InDet::TRT_TrackSegmentsMaker_BarrelCosmics::newEvent() {
   } // end TRTDriftCircleContainer loop
 
   if ( m_maxTotalHits && ((int)m_listHits.size()) > m_maxTotalHits ) { 
-    if (m_debugLevel <= MSG::DEBUG) msg(MSG::DEBUG) << "skipping high occupancy event of " << m_listHits.size() << " barrel hits, limit at " << m_maxTotalHits << endreq;
+    if (m_debugLevel <= MSG::DEBUG) msg(MSG::DEBUG) << "skipping high occupancy event of " << m_listHits.size() << " barrel hits, limit at " << m_maxTotalHits << endmsg;
     clear(); 
   }
 
   if (m_debugLevel <= MSG::DEBUG) msg(MSG::DEBUG) << "newEvent(): Number of TRT barrel hits: " << m_listHits.size() 
-                                        << " Number of hits with TOT > " << m_minSeedTOT << ": " << m_listHitCenter.size() << endreq;
+                                        << " Number of hits with TOT > " << m_minSeedTOT << ": " << m_listHitCenter.size() << endmsg;
 					
   return;
 }
 
 void InDet::TRT_TrackSegmentsMaker_BarrelCosmics::newRegion(const std::vector<IdentifierHash> &vTRT) {
 
-  if (m_debugLevel <= MSG::DEBUG) msg(MSG::DEBUG) << "InDet::TRT_TrackSegmentsMaker_BarrelCosmics::newRegion()" << endreq;
+  if (m_debugLevel <= MSG::DEBUG) msg(MSG::DEBUG) << "InDet::TRT_TrackSegmentsMaker_BarrelCosmics::newRegion()" << endmsg;
 
   clear();
 
   StatusCode sc = evtStore()->retrieve(m_trtcontainer, m_driftCirclesName);
   if (sc.isFailure() || !m_trtcontainer) {
-    msg(MSG::ERROR) << "m_trtcontainer is empty!!!" << endreq;
+    msg(MSG::ERROR) << "m_trtcontainer is empty!!!" << endmsg;
     return;
   }   
 
@@ -187,23 +187,23 @@ void InDet::TRT_TrackSegmentsMaker_BarrelCosmics::newRegion(const std::vector<Id
   }
 
   if ( m_maxTotalHits && ((int)m_listHits.size()) > m_maxTotalHits ) { 
-    if (m_debugLevel <= MSG::DEBUG) msg(MSG::DEBUG) << "skipping high occupancy event of " << m_listHits.size() << " barrel hits, limit at " << m_maxTotalHits << endreq;
+    if (m_debugLevel <= MSG::DEBUG) msg(MSG::DEBUG) << "skipping high occupancy event of " << m_listHits.size() << " barrel hits, limit at " << m_maxTotalHits << endmsg;
     clear();
   }
   
   if (m_debugLevel <= MSG::DEBUG) msg(MSG::DEBUG) << "newRegion(): Number of TRT barrel hits: " << m_listHits.size() 
-                                      << " Number of hits with TOT > " << m_minSeedTOT << ": " << m_listHitCenter.size() << endreq;
+                                      << " Number of hits with TOT > " << m_minSeedTOT << ": " << m_listHitCenter.size() << endmsg;
 
   return;
 }
 
 void InDet::TRT_TrackSegmentsMaker_BarrelCosmics::endEvent () {
 
-  if (m_debugLevel <= MSG::DEBUG) msg(MSG::DEBUG) << "InDet::TRT_TrackSegmentsMaker_BarrelCosmics::endEvent()" << endreq;
+  if (m_debugLevel <= MSG::DEBUG) msg(MSG::DEBUG) << "InDet::TRT_TrackSegmentsMaker_BarrelCosmics::endEvent()" << endmsg;
 
   if ( m_segmentDriftCirclesCount < m_segments.size() ) { // elements of m_segments created by new have not been passed on
-    msg(MSG::WARNING) << "endEvent() you called the function t create the segments but not retrived them later??" << endreq; 
-    msg(MSG::WARNING) << "endEvent() deleting remaining elements of m_segments" << endreq;
+    msg(MSG::WARNING) << "endEvent() you called the function t create the segments but not retrived them later??" << endmsg; 
+    msg(MSG::WARNING) << "endEvent() deleting remaining elements of m_segments" << endmsg;
     for (unsigned int i=m_segmentDriftCirclesCount; i<m_segments.size(); i++) delete m_segments[i];
   }
 
@@ -218,7 +218,7 @@ void InDet::TRT_TrackSegmentsMaker_BarrelCosmics::find(){
 
   if (!m_magneticField) { findOld(); return; }
 
-  if (m_debugLevel <= MSG::DEBUG) msg(MSG::DEBUG) << "InDet::TRT_TrackSegmentsMaker_BarrelCosmics::find()" << endreq;
+  if (m_debugLevel <= MSG::DEBUG) msg(MSG::DEBUG) << "InDet::TRT_TrackSegmentsMaker_BarrelCosmics::find()" << endmsg;
 
   static int eventCount(-1); eventCount++;
 //  FILE *fout = fopen("findSeedInfo.txt", "a");
@@ -227,7 +227,7 @@ void InDet::TRT_TrackSegmentsMaker_BarrelCosmics::find(){
   if ((int)m_listHitCenter.size()<m_minHitsAboveTOT) return;
 
   if (m_segmentDriftCircles.size()) { // debug only
-    msg(MSG::WARNING) << "TRT_TrackSegmentsMaker_BarrelCosmics::find() probably called twice per event? or newEvent / newRegion have not been called. check your program" << endreq;
+    msg(MSG::WARNING) << "TRT_TrackSegmentsMaker_BarrelCosmics::find() probably called twice per event? or newEvent / newRegion have not been called. check your program" << endmsg;
     clear(); return; 
   } 
 
@@ -288,7 +288,7 @@ void InDet::TRT_TrackSegmentsMaker_BarrelCosmics::find(){
     if (m_magneticField) segFit(measx, measy, countMeas, 0, par+3);
 
 	if (m_debugLevel <= MSG::DEBUG) msg(MSG::DEBUG) << "countAssociatedHits " << countAssociatedHits[0] << " " 
-	                                    << countAssociatedHits[1] << " m_minHitsAboveTOT " << m_minHitsAboveTOT << endreq;
+	                                    << countAssociatedHits[1] << " m_minHitsAboveTOT " << m_minHitsAboveTOT << endmsg;
     x0.push_back( par[0] ); phi.push_back( par[1] ); nHitsPosY.push_back( countAssociatedHits[0] ); nHitsNegY.push_back( countAssociatedHits[1] );
 
     pivotX.push_back( par[3] ); pivotY.push_back( par[4] ); Xparabola.push_back( par[5] ); cotanParabola.push_back( par[6] ); InverseR.push_back( par[7] );
@@ -357,7 +357,7 @@ if (m_mergeSegments) { // merge segments, not yet tested properly
     if (mergeI != mergeJ) {
       if (m_debugLevel <= MSG::DEBUG)
 	    msg(MSG::DEBUG) << "Merge segments " << mergeI << " and " << mergeJ << " of size " << m_segmentDriftCircles[mergeI].size() << ", " << m_segmentDriftCircles[mergeJ].size()
-	        << "; difference in the impact par x: " << mergeX0 << " phi: " << mergePhi << endreq;
+	        << "; difference in the impact par x: " << mergeX0 << " phi: " << mergePhi << endmsg;
 	  for (unsigned int i=0; i<m_segmentDriftCircles[mergeJ].size(); i++) m_segmentDriftCircles[mergeI].push_back(m_segmentDriftCircles[mergeJ][i]);  
 	  m_segmentDriftCircles[mergeJ].clear();
 	}	
@@ -368,7 +368,7 @@ if (m_mergeSegments) { // merge segments, not yet tested properly
   if (m_debugLevel <= MSG::DEBUG) {  // debug: check how many hits per found segments  
     msg(MSG::DEBUG) << "find() debug (" << nFoundSegments << ")" ;
     for (unsigned int i=0; i<m_segmentDriftCircles.size(); i++) msg(MSG::DEBUG) << " " << i << " " << m_segmentDriftCircles[i].size() ;
-    msg(MSG::DEBUG) << endreq;
+    msg(MSG::DEBUG) << endmsg;
   }
   
   for (unsigned int i=0; i<m_segmentDriftCircles.size(); i++) { // convert to segments
@@ -376,7 +376,7 @@ if (m_mergeSegments) { // merge segments, not yet tested properly
     double trackpar[] = {x0[i], phi[i]};
     convert(m_segmentDriftCircles[i], trackpar);
   }
-  if (m_debugLevel <= MSG::DEBUG) msg(MSG::DEBUG) << "find(), number of converted segments: " << m_segments.size() << endreq;
+  if (m_debugLevel <= MSG::DEBUG) msg(MSG::DEBUG) << "find(), number of converted segments: " << m_segments.size() << endmsg;
 
 //  fclose(fout);
  
@@ -393,11 +393,11 @@ Trk::TrackSegment *InDet::TRT_TrackSegmentsMaker_BarrelCosmics::next() {
 
   // next 6 lines: for debugging purposes only
   if (m_debugLevel <= MSG::DEBUG) msg(MSG::DEBUG) << "InDet::TRT_TrackSegmentsMaker_BarrelCosmics::next(): return " 
-                                      << m_segmentDriftCirclesCount << " out of " << m_segments.size() << endreq;
+                                      << m_segmentDriftCirclesCount << " out of " << m_segments.size() << endmsg;
 									  
   if (m_segmentDriftCirclesCount > m_segments.size()) 
     msg(MSG::ERROR) << "m_segmentDriftCirclesCount = " << m_segmentDriftCirclesCount << ", m_segments.size() = " 
-                      << m_segments.size() << endreq;
+                      << m_segments.size() << endmsg;
 		  
   return (m_segmentDriftCirclesCount<m_segments.size())?(m_segments[m_segmentDriftCirclesCount++]):0; 
 }
@@ -408,7 +408,7 @@ Trk::TrackSegment *InDet::TRT_TrackSegmentsMaker_BarrelCosmics::next() {
 
 void InDet::TRT_TrackSegmentsMaker_BarrelCosmics::clear() { // clears data members
 
-  msg(MSG::DEBUG) << "InDet::TRT_TrackSegmentsMaker_BarrelCosmics::clear(), current m_segments.size() = " << m_segments.size() << endreq;
+  msg(MSG::DEBUG) << "InDet::TRT_TrackSegmentsMaker_BarrelCosmics::clear(), current m_segments.size() = " << m_segments.size() << endmsg;
 
   m_listHits.clear();
   m_listHitCenter.clear();
@@ -477,7 +477,7 @@ void InDet::TRT_TrackSegmentsMaker_BarrelCosmics::findSeedInverseR(double *par) 
 	countMeanTransformY++;
   }
   if (!countMeanTransformY) {
-    msg(MSG::WARNING) << "InDet::TRT_TrackSegmentsMaker_BarrelCosmics::findSeedInverseR(), no hits in the seed region???" << endreq;
+    msg(MSG::WARNING) << "InDet::TRT_TrackSegmentsMaker_BarrelCosmics::findSeedInverseR(), no hits in the seed region???" << endmsg;
     return;
   }
   meanTransformY /= (double) countMeanTransformY;
@@ -576,9 +576,9 @@ bool InDet::TRT_TrackSegmentsMaker_BarrelCosmics::sortHits( const InDet::TRT_Dri
 void InDet::TRT_TrackSegmentsMaker_BarrelCosmics::convert(std::vector<const InDet::TRT_DriftCircle *> &hits, double *trackpar) { 
 //Track Segment production - based on TRT_TrackSegmentsMaker_ECcosmics Tool
   
-  if (m_debugLevel <= MSG::DEBUG) msg(MSG::DEBUG) << "InDet::TRT_TrackSegmentsMaker_BarrelCosmics::convert() segment " << m_segments.size() << ", N hits = " << hits.size() << endreq;
+  if (m_debugLevel <= MSG::DEBUG) msg(MSG::DEBUG) << "InDet::TRT_TrackSegmentsMaker_BarrelCosmics::convert() segment " << m_segments.size() << ", N hits = " << hits.size() << endmsg;
   
-  if (hits.size()<5) { msg(MSG::ERROR) << "convert(): empty list of hits! size: " << hits.size() << endreq; return; }
+  if (hits.size()<5) { msg(MSG::ERROR) << "convert(): empty list of hits! size: " << hits.size() << endmsg; return; }
  
   // sort the vector of hits 
   std::sort( hits.begin(), hits.end(), InDet::TRT_TrackSegmentsMaker_BarrelCosmics::sortHits );
@@ -594,9 +594,9 @@ void InDet::TRT_TrackSegmentsMaker_BarrelCosmics::convert(std::vector<const InDe
     else { it++; }
   }
   if (countOppositeSide>5) 
-   if (m_debugLevel <= MSG::DEBUG) msg(MSG::DEBUG) << "convert(): removed " << countOppositeSide << " hits from the other side, N remaining hits: " << hits.size() << endreq; 
+   if (m_debugLevel <= MSG::DEBUG) msg(MSG::DEBUG) << "convert(): removed " << countOppositeSide << " hits from the other side, N remaining hits: " << hits.size() << endmsg; 
   if (hits.size()<5) { 
-    msg(MSG::WARNING) << "convert(): not enough hits after opposite side removal: " << hits.size() << ", removed: " << countOppositeSide << endreq; 
+    msg(MSG::WARNING) << "convert(): not enough hits after opposite side removal: " << hits.size() << ", removed: " << countOppositeSide << endmsg; 
     return; 
   }
 
@@ -628,15 +628,15 @@ void InDet::TRT_TrackSegmentsMaker_BarrelCosmics::convert(std::vector<const InDe
   }
 
   if (iPivot==-1) {
-    msg(MSG::ERROR) << "SF pivot index not found!!! " << yPivot << " " << iPivot << endreq;
+    msg(MSG::ERROR) << "SF pivot index not found!!! " << yPivot << " " << iPivot << endmsg;
     iPivot = 0;
   }
 
   double cotanPhi = mean[2] / mean[4];
   double phi = atan(1./cotanPhi); if (phi<0.) phi += M_PI;
   if (m_debugLevel <= MSG::DEBUG) {
-    msg(MSG::DEBUG) << "compare parameters X  : " << trackpar[0] << " vs. " << mean[0]-mean[1]*cotanPhi << endreq;
-    msg(MSG::DEBUG) << "compare parameters phi: " << trackpar[1] << " vs. " << phi << endreq;
+    msg(MSG::DEBUG) << "compare parameters X  : " << trackpar[0] << " vs. " << mean[0]-mean[1]*cotanPhi << endmsg;
+    msg(MSG::DEBUG) << "compare parameters phi: " << trackpar[1] << " vs. " << phi << endmsg;
   }	
 
   double qOverp = 0.; // units q / MeV, set only if there is magnetic field
@@ -667,9 +667,9 @@ void InDet::TRT_TrackSegmentsMaker_BarrelCosmics::convert(std::vector<const InDe
     double cosphi = sqrt(1.-sinphi*sinphi); if (cotanParabola<0.) cosphi *= -1.;
 
     if (m_debugLevel <= MSG::DEBUG) {
-      msg(MSG::DEBUG) << "TRT_TrackSegmentsMaker_BarrelCosmics: parabola fit, X: " << Xparabola << endreq;
-	  msg(MSG::DEBUG) << "                                      parabola fit, cotan: " << cotanParabola << " compare to " << cotanPhi << endreq;
-	  msg(MSG::DEBUG) << "                                      parabola fit, 1/R: " << inverseR << "/ mm " << endreq;
+      msg(MSG::DEBUG) << "TRT_TrackSegmentsMaker_BarrelCosmics: parabola fit, X: " << Xparabola << endmsg;
+	  msg(MSG::DEBUG) << "                                      parabola fit, cotan: " << cotanParabola << " compare to " << cotanPhi << endmsg;
+	  msg(MSG::DEBUG) << "                                      parabola fit, 1/R: " << inverseR << "/ mm " << endmsg;
 	}  
  
     qOverp = inverseR / 0.6;  // [1/MeV]; 1 / (eBRC) = 1 / (e 2T 3 100 M m/s mm) / R[mm] = (1/R[mm]) / 0.6 
@@ -715,11 +715,11 @@ void InDet::TRT_TrackSegmentsMaker_BarrelCosmics::convert(std::vector<const InDe
 //  if (sur->center().x()*cos(phi)+sur->center().y()*sin(phi)<0.) phi -= M_PI;
 //  if (mean[0]*cos(phi)+mean[1]*sin(phi)<0.) phi -= M_PI;
   if (phi>0.) phi -= M_PI;
-  if (phi<-M_PI || phi>0.) msg(MSG::ERROR) << "phi value problem: " << phi << endreq;
+  if (phi<-M_PI || phi>0.) msg(MSG::ERROR) << "phi value problem: " << phi << endmsg;
 
   Trk::LocalParameters par(0., 0., phi, M_PI_2, qOverp);
 
-  if (m_debugLevel <= MSG::DEBUG) msg(MSG::DEBUG) << "pivot: " << sur->center() << ", cross-check: " << mean[0] << " " << mean[1] << endreq;
+  if (m_debugLevel <= MSG::DEBUG) msg(MSG::DEBUG) << "pivot: " << sur->center() << ", cross-check: " << mean[0] << " " << mean[1] << endmsg;
 
   // calculate TrackParameters so that one can calculate input for TRT_DriftCircleOnTrack
   // Global direction of the track parameters
@@ -733,7 +733,7 @@ void InDet::TRT_TrackSegmentsMaker_BarrelCosmics::convert(std::vector<const InDe
     const InDet::TRT_DriftCircle* DC = hits[i];
 
     // Straw identification
-    const InDetDD::TRT_BaseElement* pE = DC->detectorElement(); if(!pE) {msg(MSG::ERROR) << "convert(): no detectorElement info!" << endreq; continue; }
+    const InDetDD::TRT_BaseElement* pE = DC->detectorElement(); if(!pE) {msg(MSG::ERROR) << "convert(): no detectorElement info!" << endmsg; continue; }
     Identifier     iD = DC->identify();
     IdentifierHash iH = m_trtid->straw_layer_hash(m_trtid->layer_id(iD));
  
@@ -774,13 +774,13 @@ if (1) { // limit the scope of all these variables
   double chi2 = mean[3] - 2.*cotanPhi*mean[2] + mean[4]*cotanPhi*cotanPhi;
   chi2 /= ( 1. + cotanPhi*cotanPhi );
   int ndf = (int) hits.size() - 2;
-  if (m_debugLevel <= MSG::DEBUG) msg(MSG::DEBUG) << "Chi2 = " << chi2 << ", ndf = " << ndf << ", chi2/ndf = " << chi2/ndf << endreq;
+  if (m_debugLevel <= MSG::DEBUG) msg(MSG::DEBUG) << "Chi2 = " << chi2 << ", ndf = " << ndf << ", chi2/ndf = " << chi2/ndf << endmsg;
   Trk::FitQuality      * fqu = new Trk::FitQuality(chi2, ndf);
 
   Trk::TrackSegment *segment = new Trk::TrackSegment(par,cov, sur, rio, fqu, Trk::Segment::TRT_SegmentMaker);
   
   //add segment to list of segments
-  msg(MSG::DEBUG) << "Add " << m_segments.size() << "th segment to list" << endreq;
+  msg(MSG::DEBUG) << "Add " << m_segments.size() << "th segment to list" << endmsg;
   m_segments.push_back(segment);
 
   return; 
@@ -872,12 +872,12 @@ void InDet::TRT_TrackSegmentsMaker_BarrelCosmics::segFit(double *measx, double *
 
 void InDet::TRT_TrackSegmentsMaker_BarrelCosmics::findOld(){
 
-  msg(MSG::DEBUG) << "InDet::TRT_TrackSegmentsMaker_BarrelCosmics::find()" << endreq;
+  msg(MSG::DEBUG) << "InDet::TRT_TrackSegmentsMaker_BarrelCosmics::find()" << endmsg;
 
   if ((int)m_listHitCenter.size()<m_minHitsAboveTOT) return;
 
   if (m_segmentDriftCircles.size()) { // debug only
-    msg(MSG::WARNING) << "find probably called twice per event? or newEvent / newRegion have not been called. check your program" << endreq;
+    msg(MSG::WARNING) << "find probably called twice per event? or newEvent / newRegion have not been called. check your program" << endmsg;
     clear(); return; 
   } 
 
@@ -947,7 +947,7 @@ void InDet::TRT_TrackSegmentsMaker_BarrelCosmics::findOld(){
   // debug: check how many hits per found segments  
   msg(MSG::DEBUG) << "find() debug (" << nFoundSegments << ")" ;
   for (unsigned int i=0; i<m_segmentDriftCircles.size(); i++) msg(MSG::DEBUG) << " " << i << " " << m_segmentDriftCircles[i].size() ;
-  msg(MSG::DEBUG) << endreq;
+  msg(MSG::DEBUG) << endmsg;
   }
   
   for (unsigned int i=0; i<m_segmentDriftCircles.size(); i++) { // convert to segments
@@ -955,7 +955,7 @@ void InDet::TRT_TrackSegmentsMaker_BarrelCosmics::findOld(){
     double trackpar[] = {x0[i], phi[i]};
     convert(m_segmentDriftCircles[i], trackpar);
   }
-  if (m_debugLevel <= MSG::DEBUG) msg(MSG::DEBUG) << "find(), number of converted segments: " << m_segments.size() << endreq;
+  if (m_debugLevel <= MSG::DEBUG) msg(MSG::DEBUG) << "find(), number of converted segments: " << m_segments.size() << endmsg;
 
   return;
 }

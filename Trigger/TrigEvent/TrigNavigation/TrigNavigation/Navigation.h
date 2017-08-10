@@ -22,6 +22,7 @@
 
 #include "AthContainers/OwnershipPolicy.h"
 #include "AthContainers/DataVector.h"
+#include "AthContainers/ConstDataVector.h"
 #include "AthLinks/ElementLinkVector.h"
 
 #include "StoreGate/StoreGateSvc.h"
@@ -137,6 +138,11 @@ namespace HLT {
      */
     template<class T> 
     bool attachFeature( TriggerElement* te, const T* feature,
+			MemoryManagement, std::string& key,
+			const std::string& label="" );
+
+    template<class T> 
+    bool attachFeature( TriggerElement* te, const ConstDataVector<T>* feature,
 			MemoryManagement, std::string& key,
 			const std::string& label="" );
 

@@ -10,8 +10,8 @@
 //   $Id: TIDAEvent.h, v0.0   Mon  1 Feb 2010 11:43:51 GMT sutt $
 
 
-#ifndef __TRACKEVENT_H
-#define __TRACKEVENT_H
+#ifndef TRIGINDETANALYSIS_TIDAEVENT_H
+#define TRIGINDETANALYSIS_TIDAEVENT_H
 
 #include <iostream>
 #include <vector>
@@ -94,7 +94,7 @@ public:
   /// vector operator
   TIDA::Chain& operator[](int i) { return m_chains.at(i); }
 
-  const std::vector<TIDA::Vertex> vertices() const { return m_vertices; }
+  const std::vector<TIDA::Vertex>& vertices() const { return m_vertices; }
 
   std::vector<std::string> chainnames() const;
 
@@ -134,7 +134,7 @@ inline std::ostream& operator<<( std::ostream& s, const TIDA::Event& t ) {
 }
 
 
-#endif  // __TRACKEVENT_H 
+#endif  // TRIGINDETANALYSIS_TIDAEVENT_H
 
 
 

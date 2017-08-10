@@ -75,33 +75,33 @@ namespace Muon {
     static const InterfaceID& interfaceID() { return IID_MuPatCandidateTool; }
     
     /** @brief extend a track candidate with a segment
-	@input can   the MuPatTrack to be extended
-	@input track the new track, ownership is passed to the candidate
-	@input seg   the MuPatSegment to be added, ownership is NOT passed!
-        @output true if any segment was removed from the track, false if not
+	@param[in] can   the MuPatTrack to be extended
+	@param[in] track the new track, ownership is passed to the candidate
+	@param[in] seg   the MuPatSegment to be added, ownership is NOT passed!
+        @param[out] true if any segment was removed from the track, false if not
     */
     bool extendWithSegment( MuPatTrack& can, MuPatSegment& segInfo, const Trk::Track* track ) const;
 
     /** @brief create a track candidate from one segment
-	@input seg1 the first MuPatSegment to be added, ownership is NOT passed!
-	@input seg2 the second MuPatSegment to be added, ownership is NOT passed!
-	@input track the new track, ownership is passed to the candidate
-	@output the new candidate, ownership is passed to caller
+	@param[in] seg1 the first MuPatSegment to be added, ownership is NOT passed!
+	@param[in] seg2 the second MuPatSegment to be added, ownership is NOT passed!
+	@param[in] track the new track, ownership is passed to the candidate
+	@param[out] the new candidate, ownership is passed to caller
     */
     MuPatTrack* createCandidate( MuPatSegment& segInfo, const Trk::Track* track ) const;
 
     /** @brief create a track candidate from two segments
-	@input seg1 the first MuPatSegment to be added, ownership is NOT passed!
-	@input seg2 the second MuPatSegment to be added, ownership is NOT passed!
-	@input track the new track, ownership is passed to the candidate
-	@output the new candidate, ownership is passed to caller
+	@param[in] seg1 the first MuPatSegment to be added, ownership is NOT passed!
+	@param[in] seg2 the second MuPatSegment to be added, ownership is NOT passed!
+	@param[in] track the new track, ownership is passed to the candidate
+	@param[out] the new candidate, ownership is passed to caller
     */
     MuPatTrack* createCandidate( MuPatSegment& segInfo1, MuPatSegment& segInfo2, const Trk::Track* track ) const;
 
 
     /** @brief create a track candidate from a track 
-	@input track the new track, ownership is passed to the candidate
-	@output the new candidate, ownership is passed to caller
+	@param[in] track the new track, ownership is passed to the candidate
+	@param[out] the new candidate, ownership is passed to caller
     */
     MuPatTrack* createCandidate( const Trk::Track* track ) const;
 
@@ -113,20 +113,20 @@ namespace Muon {
     bool recalculateCandidateSegmentContent( MuPatTrack& candidate ) const;
     
     /** @brief copy a candidate without copying the track (lazy pointer copy)
-	@input can the MuPatTrack to be copied
-	@output the new candidate, ownership is passed to caller. The new candidate will not own the track (lazy pointer copy)
+	@param[in] can the MuPatTrack to be copied
+	@param[out] the new candidate, ownership is passed to caller. The new candidate will not own the track (lazy pointer copy)
     */
     MuPatTrack* copyCandidate( MuPatTrack& canIn ) const;
 
     /** @brief copy a candidate and transfer the track ownwership from the old to the new candidate.
-	@input can the MuPatTrack to be copied. After the copy, it will no longer own the track (but keeps pointer to it)
-	@output the new candidate, ownership is passed to caller. The new candidate will own the track.
+	@param[in] can the MuPatTrack to be copied. After the copy, it will no longer own the track (but keeps pointer to it)
+	@param[out] the new candidate, ownership is passed to caller. The new candidate will own the track.
     */
     MuPatTrack* copyCandidateAndTransferTrack( MuPatTrack& canIn ) const;
 
     /** @brief create a MuPatSegment object from a segment
-	@input segment  input segment
-	@output the MuPatSegment object, ownership is passed to caller
+	@param[in] segment  input segment
+	@param[out] the MuPatSegment object, ownership is passed to caller
     */
     MuPatSegment* createSegInfo( const MuonSegment& segment ) const;
 

@@ -1,11 +1,11 @@
+// -*- c++ -*-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifndef INDETTRACKSYSTEMATICSTOOLS_INDETTRACKSMEARINGTOOLTESTER_H
+#define INDETTRACKSYSTEMATICSTOOLS_INDETTRACKSMEARINGTOOLTESTER_H
 
-// Dear emacs, this is -*- c++ -*-
-// $Id: ITSmeToolTester.h 299890 2014-03-29 08:54:38$
-#pragma once
 // Gaudi/Athena include(s):
 #include "AthenaBaseComps/AthHistogramAlgorithm.h"
 #include "AsgTools/ToolHandle.h"
@@ -16,15 +16,9 @@
 
 namespace InDet {
 
-   /// Simple algorithm for using the tools in Athena
+   /// Simple algorithm for testing the tools in Athena
    ///
-   /// This is meant to be the "Athena equivalent" of the code put into
-   /// util/InDetTrackSmearingTool.cxx.
-   ///
-   /// @author 
-   ///
-   /// $Revision: $
-   /// $Date: $
+   /// @author Michael (Felix) Clark <michael.ryan.clark@cern.ch>
    ///
    class InDetTrackSmearingToolTester : public AthHistogramAlgorithm {
 
@@ -50,3 +44,4 @@ namespace InDet {
 
 } // namespace InDet
 
+#endif

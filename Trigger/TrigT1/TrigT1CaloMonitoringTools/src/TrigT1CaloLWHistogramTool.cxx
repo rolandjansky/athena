@@ -72,7 +72,7 @@ TrigT1CaloLWHistogramTool::~TrigT1CaloLWHistogramTool()
 StatusCode TrigT1CaloLWHistogramTool::initialize()
 {
   msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << PACKAGE_VERSION << endreq;
+                 << PACKAGE_VERSION << endmsg;
 
   // Connect to the TrigConfigSvc for the trigger configuration:
 
@@ -80,10 +80,10 @@ StatusCode TrigT1CaloLWHistogramTool::initialize()
     StatusCode sc = m_configSvc.retrieve();
     if ( sc.isFailure() ) {
       msg(MSG::ERROR) << "Couldn't connect to " << m_configSvc.typeAndName()
-                      << endreq;
+                      << endmsg;
       return sc;
     } else msg(MSG::INFO) << "Connected to " << m_configSvc.typeAndName()
-                          << endreq;
+                          << endmsg;
   }
 
   return StatusCode::SUCCESS;
@@ -765,7 +765,7 @@ void TrigT1CaloLWHistogramTool::registerHist(LWHist* hist)
 {
   if (m_monGroup && m_monGroup->regHist(hist) != StatusCode::SUCCESS) {
     msg(MSG::WARNING) << "Could not register histogram : "
-                      << hist->GetName() << endreq;
+                      << hist->GetName() << endmsg;
   }
 }
 
@@ -802,7 +802,7 @@ void TrigT1CaloLWHistogramTool::registerHist(TH1* hist)
 {
   if (m_monGroup && m_monGroup->regHist(hist) != StatusCode::SUCCESS) {
     msg(MSG::WARNING) << "Could not register histogram : "
-                      << hist->GetName() << endreq;
+                      << hist->GetName() << endmsg;
   }
   if (!m_monGroup) hist->SetDirectory(0);
 }
@@ -1679,7 +1679,7 @@ void TrigT1CaloLWHistogramTool::fillEventNumber(LWHist2D* hist, double y)
   const EventInfo* evInfo = 0;
   StatusCode sc = evtStore()->retrieve(evInfo);
   if (sc.isFailure()) {
-    msg(MSG::DEBUG) << "No EventInfo found" << endreq;
+    msg(MSG::DEBUG) << "No EventInfo found" << endmsg;
   } else {
     const EventID* evID = evInfo->event_ID();
     if (evID) eventNumber = evID->event_number();

@@ -15,7 +15,9 @@
 
 
 # TIDV = $(ATLAS_TEST_AREA)/Trigger/TrigValidation/TrigInDetValidation/TrigInDetValidation-00-07-18/build
-TIDV = $(ATLAS_TEST_AREA)/InstallArea/share/TIDAbuild
+# TIDV = $(ATLAS_TEST_AREA)/InstallArea/share/TIDAbuild
+TIDV = ../../TrigInDetValidation/TIDAbuild
+
 
 JOBS =  \
         $(TIDV)/TrigInDetValidation_el_Zee_IBL_pu40.xml                         \
@@ -48,10 +50,19 @@ all: $(XMLFILE)
 
 $(FILES) : $(JOBS)
 
+	cat /tmp/_$@ | grep -v \# > $@
+	validateXML.py $@
+
+
 $(XMLFILE) : clean $(FILES) $(JOBS) $(AUXFILES)
-	cpp -traditional-cpp $(IFILES) $(FILES) -DSTAR="*" | grep -v "\# " | grep -v "emacs:" > /tmp/_$@
+	cpp -traditional-cpp $(IFILES) $(FILES) | sed 's|STAR|\*|g' | grep -v "\# " | grep -v "emacs:" > /tmp/_$@
 	cat /tmp/_$@ | grep -v \# > $@
 	python /afs/cern.ch/user/r/rtt/public/validateXML.py $@
+
+
+move : 
+	mv ../test/$(XMLFILE) ../test/$(XMLFILE).bak
+	mv $(XMLFILE) ../test	
 
 
 scripts : $(patsubst %.xml,$(SCRIPTDIR)/%.sh,$(JOBS))

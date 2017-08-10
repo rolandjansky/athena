@@ -15,7 +15,7 @@ private
 use  CxxUtils                   CxxUtils-*                      Control
 use  AthenaKernel               AthenaKernel-*                  Control
 use  AtlasReflex                AtlasReflex-*                   External                        -no_auto_imports
-use  DataModel                  DataModel-*                     Control
+use  AthAllocators              AthAllocators-*                 Control
 use  GaudiInterface             GaudiInterface-*                External
 use  GeoPrimitives              GeoPrimitives-*                 DetectorDescription
 use  IdDictParser               IdDictParser-*                  DetectorDescription

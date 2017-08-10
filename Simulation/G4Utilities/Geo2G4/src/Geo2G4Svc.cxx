@@ -9,7 +9,6 @@ void InitializeBuilders();
 
 Geo2G4Svc::Geo2G4Svc(const std::string& name, ISvcLocator* svcLocator)
   : AthService(name,svcLocator)
-  , m_pIncSvc(nullptr)
   , m_defaultBuilder(nullptr)
   , m_getTopTransform(true)
 {

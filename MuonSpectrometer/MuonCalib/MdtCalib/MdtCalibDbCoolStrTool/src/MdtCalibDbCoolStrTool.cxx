@@ -44,7 +44,7 @@
 
 #include "AthenaKernel/IIOVDbSvc.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
-#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 
 #include "TSpline.h"
 #include "TFile.h"

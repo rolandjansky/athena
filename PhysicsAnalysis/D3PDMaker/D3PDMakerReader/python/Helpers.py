@@ -14,7 +14,7 @@
 # and source files just based on their names.
 #
 # @param filename A simple list of the names of all the files
-# @returns The a <code>(headers,sources)</code> pair of file name lists
+# @returns The a \<code\>(headers,sources)\</code\> pair of file name lists
 def separateSources( filenames ):
 
     # Loop over the file names, and create the header and source lists:

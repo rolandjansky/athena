@@ -41,12 +41,12 @@ virtual bool isHeader(){return false;};
 virtual bool isBody () {return false;};
 virtual bool isFooter(){return false;};
 //  
-RODword getHeaderMarker(){return headerMarker;};
-RODword getHeaderSize()  {return headerSize;};
-RODword getFooterSize()  {return footerSize;};
-RODword getFormatVersion(){return formatVersion;};
+RODword getHeaderMarker(){return s_headerMarker;};
+RODword getHeaderSize()  {return s_headerSize;};
+RODword getFooterSize()  {return s_footerSize;};
+RODword getFormatVersion(){return s_formatVersion;};
 RODword getSourceID(ubit16 subsystem, ubit16 RODID);
-ubit16  getEmptyDataWord(){return emptyDataWord;};
+ubit16  getEmptyDataWord(){return s_emptyDataWord;};
 
  private:
 ubit16 m_sourceIDreserved;
@@ -56,20 +56,20 @@ ubit16 m_RODID;
 //
 // some static parameter describing the structure
 //
-static const RODword headerMarker      =0xee1234ee;
-static const RODword headerSize        =8;
-static const RODword formatVersion     =0x00000000;
+static const RODword s_headerMarker      =0xee1234ee;
+static const RODword s_headerSize        =8;
+static const RODword s_formatVersion     =0x00000000;
 // parameters needed to define SourceID
-static const ubit16  sourceIDreserved  =0x00;
-static const ubit16  moduleType        =0x00;
-static const ubit16  subDetectorIDA    =0x65;
-static const ubit16  subDetectorIDC    =0x66;
+static const ubit16  s_sourceIDreserved  =0x00;
+static const ubit16  s_moduleType        =0x00;
+static const ubit16  s_subDetectorIDA    =0x65;
+static const ubit16  s_subDetectorIDC    =0x66;
 //
-static const ubit16  emptyDataWord     =0xf000;
+static const ubit16  s_emptyDataWord     =0xf000;
 //
 // some auxiliary parameters
 //
-static const RODword footerSize        =3;
+static const RODword s_footerSize        =3;
 //
 void setInit();
 ubit16  getSubDetectorID(ubit16 subsystem);

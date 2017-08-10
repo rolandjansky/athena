@@ -26,12 +26,12 @@ StatusCode HIPixelTrackletsCollectionCnv::initialize()
 {
   StatusCode sc = HIPixelTrackletsCollectionCnvBase::initialize();
   if( sc.isFailure() ) {
-    m_log << MSG::FATAL << "Could not initialize HIPixelTrackletsCollectionCnvBase" << endreq;
+    m_log << MSG::FATAL << "Could not initialize HIPixelTrackletsCollectionCnvBase" << endmsg;
     return sc;
   }
 
   m_log.setLevel( m_msgSvc->outputLevel() );
-  m_log << MSG::INFO << "HIPixelTrackletsCollectionCnv::initialize()." << endreq;
+  m_log << MSG::INFO << "HIPixelTrackletsCollectionCnv::initialize()." << endmsg;
 
   //
   return StatusCode::SUCCESS;

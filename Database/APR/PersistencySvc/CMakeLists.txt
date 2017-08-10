@@ -30,6 +30,11 @@ atlas_add_library( PersistencySvc
    PRIVATE_LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaKernel FileCatalog
    PersistentDataModel )
 
+
+atlas_add_dictionary( PersistencySvcDict PersistencySvc/dict.h PersistencySvc/dict.xml
+   LINK_LIBRARIES PersistencySvc )
+   
+
 atlas_add_executable( pool_extractFileIdentifier
    utilities/pool_extractFileIdentifier.cpp
    LINK_LIBRARIES PersistencySvc )

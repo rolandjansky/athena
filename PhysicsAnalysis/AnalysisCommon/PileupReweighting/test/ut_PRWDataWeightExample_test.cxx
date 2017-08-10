@@ -11,6 +11,7 @@
 
 #include "AsgTools/AnaToolHandle.h"
 #include "AsgAnalysisInterfaces/IPileupReweightingTool.h"
+#include "TrigDecisionInterface/ITrigDecisionTool.h"
 
 #include "PileupReweighting/TPileupReweighting.h"
 
@@ -37,10 +38,6 @@ int main() {
   
   
   prwTool.setProperty( "LumiCalcFiles" , lcFiles );
-  
-  
-  //prwTool.setProperty( "TrigDecisionTool" , "Trig::TrigDecisionTool/TrigDecisionTool" ); //only works for athena, not for eventloop
-
   //prwTool.setProperty( "OutputLevel", 1 ); //VERBOSE OUTPUT LEVEL
 
   prwTool.initialize();
@@ -52,37 +49,53 @@ int main() {
   
   std::cout << prwTool->expert()->GetDataWeight( 297730 , "HLT_e24_lhvloose_nod0_L1EM20VH", 4) << std::endl; 
   if(! ( fabs(prwTool->expert()->GetDataWeight( 297730 , "HLT_e24_lhvloose_nod0_L1EM20VH", 4)  - 109.155) < 1e-3 ) ) {
-    throw std::runtime_error("data weight not expected value");
+    throw std::runtime_error("data weight not expected value 109.155");
   }
   
   std::cout << prwTool->expert()->GetDataWeight( 297730 , "HLT_e24_lhvloose_nod0_L1EM20VH||HLT_e12_lhvloose_nod0_L1EM10VH", 4) << std::endl; 
   if(! ( fabs(prwTool->expert()->GetDataWeight( 297730 , "HLT_e24_lhvloose_nod0_L1EM20VH||HLT_e12_lhvloose_nod0_L1EM10VH", 4)  - 107.829) < 1e-3 ) ) {
-    throw std::runtime_error("data weight not expected value");
+    throw std::runtime_error("data weight not expected value  107.829");
   }
 
   std::cout << prwTool->expert()->GetDataWeight( 297730 , "HLT_e24_lhvloose_nod0_L1EM20VH&&HLT_e12_lhvloose_nod0_L1EM10VH", 4) << std::endl; 
   if(! ( fabs(prwTool->expert()->GetDataWeight( 297730 , "HLT_e24_lhvloose_nod0_L1EM20VH&&HLT_e12_lhvloose_nod0_L1EM10VH", 4)  - 960312) < 1.0) ) {
-    throw std::runtime_error("data weight not expected value");
+    throw std::runtime_error("data weight not expected value 960312");
   }
   
+  //in this version 4.0 onwards, trigger bits default to assuming the trigger passed
+  
   prwTool->expert()->SetTriggerBit("HLT_e12_lhvloose_nod0_L1EM10VH" , 1);
+  prwTool->expert()->SetTriggerBit("HLT_e24_lhvloose_nod0_L1EM20VH" , 0);
   std::cout << prwTool->expert()->GetDataWeight( 297730 , "HLT_e24_lhvloose_nod0_L1EM20VH||HLT_e12_lhvloose_nod0_L1EM10VH", 4) << std::endl; 
   if(! ( fabs(prwTool->expert()->GetDataWeight( 297730 , "HLT_e24_lhvloose_nod0_L1EM20VH||HLT_e12_lhvloose_nod0_L1EM10VH", 4)  - 8797.7) < 1e-3 ) ) {
-    throw std::runtime_error("data weight not expected value");
+    throw std::runtime_error("data weight not expected value 8797.7");
   }
   
   prwTool->expert()->SetTriggerBit("HLT_e24_lhvloose_nod0_L1EM20VH" , 1);
   std::cout << prwTool->expert()->GetDataWeight( 297730 , "HLT_e24_lhvloose_nod0_L1EM20VH||HLT_e12_lhvloose_nod0_L1EM10VH", 4) << std::endl; 
   if(! ( fabs(prwTool->expert()->GetDataWeight( 297730 , "HLT_e24_lhvloose_nod0_L1EM20VH||HLT_e12_lhvloose_nod0_L1EM10VH", 4)  - 107.829) < 1e-3 ) ) {
-    throw std::runtime_error("data weight not expected value");
+    throw std::runtime_error("data weight not expected value 107.829");
   }
   
   prwTool->expert()->SetTriggerBit("HLT_e12_lhvloose_nod0_L1EM10VH" , 0);
   std::cout << prwTool->expert()->GetDataWeight( 297730 ,  "HLT_e24_lhvloose_nod0_L1EM20VH||HLT_e12_lhvloose_nod0_L1EM10VH", 4) << std::endl; 
   if(! ( fabs(prwTool->expert()->GetDataWeight( 297730 , "HLT_e24_lhvloose_nod0_L1EM20VH||HLT_e12_lhvloose_nod0_L1EM10VH", 4)  - 109.155) < 1e-3 ) ) {
-    throw std::runtime_error("data weight not expected value");
+    throw std::runtime_error("data weight not expected value 109.155");
   }
   
+  
+  
+  /*
+  asg::AnaToolHandle<CP::IPileupReweightingTool> prwTool2("CP::PileupReweightingTool/prw2");
+  prwTool2.setProperty( "LumiCalcFiles" , lcFiles );
+  prwTool2.setProperty( "TrigDecisionTool" , "Trig::TrigDecisionTool/TrigDecisionTool" ); //only works for athena, not for eventloop
+  prwTool2.initialize();
+  evt.getEntry(0);
+  ToolHandle<Trig::ITrigDecisionTool> tdt("Trig::TrigDecisionTool/TrigDecisionTool");
+  tdt.retrieve();
+  evt.getEntry(0);
+  std::cout << prwTool2->expert()->GetDataWeight( 297730 ,  "HLT_e24_lhvloose_nod0_L1EM20VH||HLT_e12_lhvloose_nod0_L1EM10VH", 4) << std::endl; 
+  */
 
    return 0;
 }

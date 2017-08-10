@@ -63,7 +63,7 @@ atlas_add_library( TrkAlignGenToolsLib
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps DataModel GeoPrimitives EventPrimitives xAODTracking GaudiKernel muonEvent TrkAlignEvent TrkEventPrimitives VxVertex TrkFitterUtils StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} AtlasDetDescr xAODEventInfo MuonSegment MuonRecToolInterfaces Particle TrkAlgebraUtils TrkDetElementBase TrkSurfaces TrkCompetingRIOsOnTrack TrkEventUtils TrkMaterialOnTrack TrkMeasurementBase TrkParameters TrkParticleBase TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkTrack TrkVertexOnTrack TrkExInterfaces TrkFitterInterfaces TrkToolInterfaces TrkVertexFitterInterfaces )
+                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} AtlasDetDescr xAODEventInfo MuonSegment MuonRecToolInterfaces Particle TrkAlgebraUtils TrkDetElementBase TrkSurfaces TrkCompetingRIOsOnTrack TrkEventUtils TrkMaterialOnTrack TrkMeasurementBase TrkParameters TrkParticleBase TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkTrack TrkVertexOnTrack TrkExInterfaces TrkFitterInterfaces TrkToolInterfaces TrkVertexFitterInterfaces InDetTrackSelectionToolLib )
 
 atlas_add_component( TrkAlignGenTools
                      src/components/*.cxx

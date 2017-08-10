@@ -80,7 +80,6 @@ class LArCoverage: public ManagedMonitorToolBase
   const LArHEC_ID*   m_LArHEC_IDHelper;
   const CaloIdManager*       m_caloIdMgr;
   const CaloDetDescrManager* m_CaloDetDescrMgr;
-  const LArCoverageFCALBins* m_FCALBins;
 
   LArOnlineIDStrHelper* m_strHelper;
   ITHistSvc* m_rootStore;

@@ -45,28 +45,28 @@ StatusCode iFatras::ISF_TrackSummaryHelperTool::initialize()
 {
   if (m_usePixel) {
     if (detStore()->retrieve(m_pixelId, "PixelID").isFailure()) {
-      msg(MSG::ERROR) << "Could not get PixelID helper !" << endreq;
+      msg(MSG::ERROR) << "Could not get PixelID helper !" << endmsg;
       return StatusCode::FAILURE;
-    } else msg(MSG::VERBOSE) << "PixelID helper retrieved successfully!" << endreq;
+    } else msg(MSG::VERBOSE) << "PixelID helper retrieved successfully!" << endmsg;
   }
   
   if (m_useSCT) {
     if (detStore()->retrieve(m_sctId, "SCT_ID").isFailure()) {
-      msg(MSG::ERROR) << "Could not get SCT_ID helper !" << endreq;
+      msg(MSG::ERROR) << "Could not get SCT_ID helper !" << endmsg;
       return StatusCode::FAILURE;
-    } else msg(MSG::VERBOSE) << "PixelID helper retrieved successfully!" << endreq;
+    } else msg(MSG::VERBOSE) << "PixelID helper retrieved successfully!" << endmsg;
   }
   
   if (m_doSharedHits) {
     if ( m_assoTool.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_assoTool << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_assoTool << endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_assoTool << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_assoTool << endmsg;
     }
   }
 
-  msg(MSG::INFO) << "initialize() successful in " << name() << endreq;
+  msg(MSG::INFO) << "initialize() successful in " << name() << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -83,15 +83,15 @@ void iFatras::ISF_TrackSummaryHelperTool::analyse(const Trk::Track& track,
   bool  isOutlier      = (tsos->type(Trk::TrackStateOnSurface::Outlier));
   bool  ispatterntrack =  (track.info().trackFitter()==Trk::TrackInfo::Unknown);
   
-  if (msgLvl(MSG::DEBUG)) msg() << "Starting analyse()" << endreq;
+  if (msgLvl(MSG::DEBUG)) msg() << "Starting analyse()" << endmsg;
 
   if ( m_usePixel && m_pixelId->is_pixel(id) ) {
 
-    if (msgLvl(MSG::DEBUG)) msg() << "Pixel hit found" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg() << "Pixel hit found" << endmsg;
     
     if (isOutlier && !ispatterntrack ) { // ME: outliers on pattern tracks may be reintegrated by fitter, so count them as hits
       
-      if (msgLvl(MSG::DEBUG)) msg() << "Pixel outlier info storing" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg() << "Pixel outlier info storing" << endmsg;
 
       information[Trk::numberOfPixelOutliers]++;
       if (m_pixelId->is_blayer(id)){
@@ -105,7 +105,7 @@ void iFatras::ISF_TrackSummaryHelperTool::analyse(const Trk::Track& track,
       }
     } else {
       
-      if (msgLvl(MSG::DEBUG)) msg() << "Pixel info storing" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg() << "Pixel info storing" << endmsg;
 
       information[Trk::numberOfPixelHits]++;
       if ((m_pixelId->is_blayer(id))) information[Trk::numberOfBLayerHits]++; // found b layer hit
@@ -113,12 +113,12 @@ void iFatras::ISF_TrackSummaryHelperTool::analyse(const Trk::Track& track,
       if (m_pixelId->layer_disk(id)==1 && m_pixelId->is_barrel(id)) information[Trk::numberOfNextToInnermostPixelLayerHits]++;  
       
       if ( ( m_pixelId->is_barrel(id) ) ) {
-	if (msgLvl(MSG::DEBUG)) msg() << "Barrel hit" << endreq;
+	if (msgLvl(MSG::DEBUG)) msg() << "Barrel hit" << endmsg;
 	int offset = m_pixelId->layer_disk(id); 
 	if (!hitPattern.test(offset)) information[Trk::numberOfContribPixelLayers]++;
 	hitPattern.set(offset); // assumes numbered consecutively
       } else {
-	if (msgLvl(MSG::DEBUG)) msg() << "Endcap hit" << endreq;
+	if (msgLvl(MSG::DEBUG)) msg() << "Endcap hit" << endmsg;
 	int offset = static_cast<int> (Trk::pixelEndCap0); //get int value of first pixel endcap disc
 	offset    += m_pixelId->layer_disk(id);
 	if (!hitPattern.test(offset)) information[Trk::numberOfContribPixelLayers]++;
@@ -128,18 +128,18 @@ void iFatras::ISF_TrackSummaryHelperTool::analyse(const Trk::Track& track,
       if (m_doSharedHits) {
 	// used in more than one track ?
 	if ( m_assoTool->isShared(*(rot->prepRawData())) ) {
-	  if (msgLvl(MSG::DEBUG)) msg() << "shared Pixel hit found" << endreq;
+	  if (msgLvl(MSG::DEBUG)) msg() << "shared Pixel hit found" << endmsg;
 	  information[Trk::numberOfPixelSharedHits]++;
 	  if ( (m_pixelId->is_blayer(id) ) ) {
-	    if (msgLvl(MSG::DEBUG)) msg() << "--> shared Pixel hit is in b-layer" << endreq;
+	    if (msgLvl(MSG::DEBUG)) msg() << "--> shared Pixel hit is in b-layer" << endmsg;
 	    information[Trk::numberOfBLayerSharedHits]++;        
 	  }
 	  if ( (m_pixelId->is_barrel(id) && m_pixelId->layer_disk(id)==0) ) {
-	    if (msgLvl(MSG::DEBUG)) msg() << "--> shared Pixel hit is in innermost layer" << endreq;
+	    if (msgLvl(MSG::DEBUG)) msg() << "--> shared Pixel hit is in innermost layer" << endmsg;
 	    information[Trk::numberOfInnermostPixelLayerSharedHits]++;        
 	  } 
 	  if ( (m_pixelId->is_barrel(id) && m_pixelId->layer_disk(id)==1) ) {
-	    if (msgLvl(MSG::DEBUG)) msg() << "--> shared Pixel hit is in next to innermost layer" << endreq;
+	    if (msgLvl(MSG::DEBUG)) msg() << "--> shared Pixel hit is in next to innermost layer" << endmsg;
 	    information[Trk::numberOfNextToInnermostPixelLayerSharedHits]++;        
 	  }
 	} else ATH_MSG_DEBUG("shared Pixel hit NOT found");
@@ -147,34 +147,34 @@ void iFatras::ISF_TrackSummaryHelperTool::analyse(const Trk::Track& track,
     }
   } else if (m_useSCT && m_sctId->is_sct(id) ) {
     
-    if (msgLvl(MSG::DEBUG)) msg() << "SCT hit found" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg() << "SCT hit found" << endmsg;
     
     if (isOutlier && !ispatterntrack ) { // ME: outliers on pattern tracks may be reintegrated by fitter, so count them as hits    
-      if (msgLvl(MSG::DEBUG)) msg() << "SCT outlier info storing" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg() << "SCT outlier info storing" << endmsg;
       information[Trk::numberOfSCTOutliers]++;
     } else {
-      if (msgLvl(MSG::DEBUG)) msg() << "SCT info storing" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg() << "SCT info storing" << endmsg;
       information[Trk::numberOfSCTHits]++;
       if ( (m_sctId->is_barrel(id) ) ) {
-	if (msgLvl(MSG::DEBUG)) msg() << "Barrel hit" << endreq;
+	if (msgLvl(MSG::DEBUG)) msg() << "Barrel hit" << endmsg;
 	int offset = static_cast<int>(Trk::sctBarrel0);
 	hitPattern.set( offset ) ;
-	if (msgLvl(MSG::DEBUG)) msg() << "offset = " << offset << endreq;
-	if (msgLvl(MSG::DEBUG)) msg() << "m_sctId->layer_disk(id) = " << m_sctId->layer_disk(id) << endreq;
+	if (msgLvl(MSG::DEBUG)) msg() << "offset = " << offset << endmsg;
+	if (msgLvl(MSG::DEBUG)) msg() << "m_sctId->layer_disk(id) = " << m_sctId->layer_disk(id) << endmsg;
 	//hitPattern.set( offset + m_sctId->layer_disk(id) ); // assumes numbered consecutively
       } else {
-	if (msgLvl(MSG::DEBUG)) msg() << "Endcap hit" << endreq;
+	if (msgLvl(MSG::DEBUG)) msg() << "Endcap hit" << endmsg;
 	int offset = static_cast<int>(Trk::sctEndCap0); //get int value of first sct endcap disc
 	hitPattern.set( offset ) ;
-	if (msgLvl(MSG::DEBUG)) msg() << "offset = " << offset << endreq;
-	if (msgLvl(MSG::DEBUG)) msg() << "m_sctId->layer_disk(id) = " << m_sctId->layer_disk(id) << endreq;
+	if (msgLvl(MSG::DEBUG)) msg() << "offset = " << offset << endmsg;
+	if (msgLvl(MSG::DEBUG)) msg() << "m_sctId->layer_disk(id) = " << m_sctId->layer_disk(id) << endmsg;
 	//hitPattern.set( offset + m_sctId->layer_disk(id) ); // assumes numbered consecutively
       }
 
       if (m_doSharedHits) {
 	// used in more than one track ?
 	if ( m_assoTool->isShared(*(rot->prepRawData())) ) {
-	  if (msgLvl(MSG::DEBUG)) msg() << "shared SCT hit found" << endreq;
+	  if (msgLvl(MSG::DEBUG)) msg() << "shared SCT hit found" << endmsg;
 	    information[Trk::numberOfSCTSharedHits]++;
 	} else ATH_MSG_DEBUG("shared SCT hit NOT found");
       }

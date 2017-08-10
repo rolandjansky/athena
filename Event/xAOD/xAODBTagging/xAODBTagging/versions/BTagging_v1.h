@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: BTagging_v1.h 638212 2015-01-08 10:37:30Z filthaut $
+// $Id: BTagging_v1.h 797330 2017-02-15 14:25:13Z guirriec $
 #ifndef XAODBTAGGING_VERSIONS_BTAGGING_V1_H
 #define XAODBTAGGING_VERSIONS_BTAGGING_V1_H
 
@@ -205,20 +205,20 @@ namespace xAOD {
     /// @{
 
     /// @brief JetFitter b probability
-    double JetFitterCombNN_pb() const;
+    //double JetFitterCombNN_pb() const;
     /// @brief set JetFitter b probability
-    void setJetFitterCombNN_pb(double value);
+    //void setJetFitterCombNN_pb(double value);
     /// @brief JetFitter c probability
-    double JetFitterCombNN_pc() const;
+    //double JetFitterCombNN_pc() const;
     /// @brief set JetFitter c probability
-    void setJetFitterCombNN_pc(double value);
+    //void setJetFitterCombNN_pc(double value);
     /// @brief JetFitter light probability
-    double JetFitterCombNN_pu() const;
+    //double JetFitterCombNN_pu() const;
     /// @brief set JetFitter light probability
-    void setJetFitterCombNN_pu(double value);
+    //void setJetFitterCombNN_pu(double value);
     /// @brief get JetFitter log likelihood ratio
-    double JetFitterCombNN_loglikelihoodratio() const { return this->calcLLR(JetFitterCombNN_pb(),JetFitterCombNN_pu());
-    }
+    //double JetFitterCombNN_loglikelihoodratio() const { return this->calcLLR(JetFitterCombNN_pb(),JetFitterCombNN_pu());
+    //}
 
 
     /// @}
@@ -239,7 +239,11 @@ namespace xAOD {
     bool loglikelihoodratio(const std::string& taggername, double &value, 
                             const std::string& signal="pb", const std::string& bckgd="pu") const;
     bool MVx_discriminant(const std::string& taggername, double &value) const;
+    bool pu(const std::string& taggername, double &value) const;
+    bool pb(const std::string& taggername, double &value) const;
+    bool pc(const std::string& taggername, double &value) const;
     double calcLLR(double num, double den) const;
+    double calcDL1LLR(const std::string& taggername) const;
 
 
     /// @}
@@ -334,10 +338,5 @@ namespace xAOD {
   }
 
 } // namespace xAOD
-
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
-CLASS_DEF( xAOD::BTagging_v1, 207121524, 1 )
-#endif
 
 #endif // XAODBTAGGING_VERSIONS_BTAGGING_V1_H

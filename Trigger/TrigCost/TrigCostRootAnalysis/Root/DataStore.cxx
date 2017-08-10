@@ -23,11 +23,11 @@
 #include <TH1.h>
 
 namespace TrigCostRootAnalysis {
-
   /**
    * DataStore constructor, takes no arguments.
    */
-  DataStore::DataStore(CounterBase* _parent) : m_histogrammingEnabled(kTRUE), m_mostRecent(0), m_variableMap(), m_parent(_parent) {
+  DataStore::DataStore(CounterBase* _parent) : m_histogrammingEnabled(kTRUE), m_mostRecent(0), m_variableMap(),
+    m_parent(_parent) {
   }
 
   /**
@@ -35,6 +35,7 @@ namespace TrigCostRootAnalysis {
    */
   DataStore::~DataStore() {
     VariableMapIt_t _it = m_variableMap.begin();
+
     for (; _it != m_variableMap.end(); ++_it) {
       delete _it->second;
     }
@@ -48,8 +49,9 @@ namespace TrigCostRootAnalysis {
    * @return A self reference for chaining.
    */
   DataStore& DataStore::newVariable(ConfKey_t _name) {
-    if ( m_variableMap.count(_name) == 1 ) {
-      Warning("DataStore::newVariable", "Variable %s already registered. Replacing it.", Config::config().getStr(_name).c_str() );
+    if (m_variableMap.count(_name) == 1) {
+      Warning("DataStore::newVariable", "Variable %s already registered. Replacing it.", Config::config().getStr(
+                _name).c_str());
       delete m_variableMap[_name];
     }
     m_mostRecent = new DataVariable(this);
@@ -64,7 +66,8 @@ namespace TrigCostRootAnalysis {
    * @param _denominator Denominator to divide by.
    */
   void DataStore::setVariableDenominator(ConfKey_t _name, Float_t _denominator) {
-    if ( checkRegistered(_name) == kFALSE ) return;
+    if (checkRegistered(_name) == kFALSE) return;
+
     m_mostRecent->setVariableDenominator(_denominator); // m_mostRecent is set by checkRegistered
   }
 
@@ -76,7 +79,8 @@ namespace TrigCostRootAnalysis {
    * @param _weight Weight of entry.
    */
   void DataStore::store(ConfKey_t _name, Float_t _value, Float_t _weight) {
-    if ( checkRegistered(_name) == kFALSE ) return;
+    if (checkRegistered(_name) == kFALSE) return;
+
     m_mostRecent->store(_value, _weight); // m_mostRecent is set by checkRegistered
   }
 
@@ -95,54 +99,57 @@ namespace TrigCostRootAnalysis {
    * @param _titles Vector of histogram X axis bin titles
    */
   void DataStore::setBinLabels(ConfKey_t _name, VariableOption_t _vo, std::vector<std::string> _titles) {
-    if ( checkRegistered(_name) == kFALSE ) {
-      Error("DataStore::setBinLabels","Cannot find entry for %s", Config::config().getName(_name).c_str() );
+    if (checkRegistered(_name) == kFALSE) {
+      Error("DataStore::setBinLabels", "Cannot find entry for %s", Config::config().getName(_name).c_str());
       return;
     }
     m_mostRecent->setBinLabels(_vo, _titles); // m_mostRecent is set by checkRegistered
   }
-
 
   /**
    * Flush buffers for all per-event quantities
    */
   void DataStore::endEvent() {
     VariableMapIt_t _it = m_variableMap.begin();
+
     for (; _it != m_variableMap.end(); ++_it) {
       _it->second->endEvent();
     }
   }
 
   /**
-    * Get a value from the data store.
-    * @param _name Name of variable to retrieve.
-    * @param _vo Variable option to retrieve .
-    * @return The stored result.
-    */
-  Float_t DataStore::getValue(ConfKey_t _name, VariableOption_t _vo) {
-    if ( checkRegistered(_name) == kFALSE ) return 0.;
+   * Get a value from the data store.
+   * @param _name Name of variable to retrieve.
+   * @param _vo Variable option to retrieve .
+   * @return The stored result.
+   */
+  Float_t DataStore::getValue(ConfKey_t _name, VariableOption_t _vo) const {
+    if (checkRegistered(_name) == kFALSE) return 0.;
+
     return m_mostRecent->getValue(_vo); // m_mostRecent is set by checkRegistered
   }
 
   /**
-    * Check if a value key and variable option are available
-    * @param _name Name of variable to check for.
-    * @param _vo Variable option to check for.
-    * @return If the variable is stored with a given VO.
-    */
-  Bool_t DataStore::getValueExists(ConfKey_t _name, VariableOption_t _vo) {
-    if ( checkRegistered(_name, /*silent*/ kTRUE) == kFALSE ) return kFALSE;
+   * Check if a value key and variable option are available
+   * @param _name Name of variable to check for.
+   * @param _vo Variable option to check for.
+   * @return If the variable is stored with a given VO.
+   */
+  Bool_t DataStore::getValueExists(ConfKey_t _name, VariableOption_t _vo) const {
+    if (checkRegistered(_name, /*silent*/ kTRUE) == kFALSE) return kFALSE;
+
     return m_mostRecent->getValueExists(_vo); // m_mostRecent is set by checkRegistered
   }
 
   /**
-    * Get a value error from the data store.
-    * @param _name Name of variable to retrieve.
-    * @param _vo Variable option to retrieve .
-    * @return The stored result.
-    */
-  Float_t DataStore::getValueError(ConfKey_t _name, VariableOption_t _vo) {
-    if ( checkRegistered(_name) == kFALSE ) return 0.;
+   * Get a value error from the data store.
+   * @param _name Name of variable to retrieve.
+   * @param _vo Variable option to retrieve .
+   * @return The stored result.
+   */
+  Float_t DataStore::getValueError(ConfKey_t _name, VariableOption_t _vo) const {
+    if (checkRegistered(_name) == kFALSE) return 0.;
+
     return m_mostRecent->getValueError(_vo); // m_mostRecent is set by checkRegistered
   }
 
@@ -152,22 +159,24 @@ namespace TrigCostRootAnalysis {
    * @param _vo Variable option.
    * @return The number of entries stored.
    */
-  Int_t DataStore::getEntries(ConfKey_t _name, VariableOption_t _vo) {
-    if ( checkRegistered(_name) == kFALSE )  {
-      Error("DataStore::getEntries", "No such entry '%s' registered with VO %s", Config::config().getStr(_name).c_str(), VariableOptionStr[_vo].c_str());
+  Int_t DataStore::getEntries(ConfKey_t _name, VariableOption_t _vo) const {
+    if (checkRegistered(_name) == kFALSE) {
+      Error("DataStore::getEntries", "No such entry '%s' registered with VO %s", Config::config().getStr(
+              _name).c_str(), VariableOptionStr[_vo].c_str());
       return 0;
     }
     return m_mostRecent->getEntries(_vo);  // m_mostRecent is set by checkRegistered
   }
 
   /**
-    * Set a value from the data store.
-    * @param _name Name of variable to retrieve.
-    * @param _vo Variable option to retrieve .
-    * @param _val The value to set.
-    */
+   * Set a value from the data store.
+   * @param _name Name of variable to retrieve.
+   * @param _vo Variable option to retrieve .
+   * @param _val The value to set.
+   */
   void DataStore::setValue(ConfKey_t _name, VariableOption_t _vo, Float_t _val) {
-    if ( checkRegistered(_name) == kFALSE ) return;
+    if (checkRegistered(_name) == kFALSE) return;
+
     m_mostRecent->setValue(_vo, _val); // m_mostRecent is set by checkRegistered
   }
 
@@ -178,8 +187,9 @@ namespace TrigCostRootAnalysis {
    * @param _val The value to set as the number of entries stored.
    */
   void DataStore::setEntries(ConfKey_t _name, VariableOption_t _vo, UInt_t _val) {
-    if ( checkRegistered(_name) == kFALSE )  {
-      Error("DataStore::setEntries", "No such entry '%s' registered with VO %s", Config::config().getStr(_name).c_str(), VariableOptionStr[_vo].c_str());
+    if (checkRegistered(_name) == kFALSE) {
+      Error("DataStore::setEntries", "No such entry '%s' registered with VO %s", Config::config().getStr(
+              _name).c_str(), VariableOptionStr[_vo].c_str());
       return;
     }
     m_mostRecent->setEntries(_vo, _val);  // m_mostRecent is set by checkRegistered
@@ -192,8 +202,9 @@ namespace TrigCostRootAnalysis {
    * @param _val The SQUARE of the error to save.
    */
   void DataStore::setErrorSquared(ConfKey_t _name, VariableOption_t _vo, Float_t _val) {
-    if ( checkRegistered(_name) == kFALSE )  {
-      Error("DataStore::setError", "No such entry '%s' registered with VO %s", Config::config().getStr(_name).c_str(), VariableOptionStr[_vo].c_str());
+    if (checkRegistered(_name) == kFALSE) {
+      Error("DataStore::setError", "No such entry '%s' registered with VO %s", Config::config().getStr(
+              _name).c_str(), VariableOptionStr[_vo].c_str());
       return;
     }
     m_mostRecent->setErrorSquared(_vo, _val);  // m_mostRecent is set by checkRegistered
@@ -207,8 +218,9 @@ namespace TrigCostRootAnalysis {
    * @return Histogram pointer.
    */
   TH1F* DataStore::getHist(ConfKey_t _name, VariableOption_t _vo, Bool_t _silent) {
-    if ( checkRegistered(_name, _silent) == kFALSE ) {
-      if (_silent == kFALSE) Error("DataStore::getHist", "Remember to give axis labels with newVariable() if you want histogramming.");
+    if (checkRegistered(_name, _silent) == kFALSE) {
+      if (_silent == kFALSE) Error("DataStore::getHist",
+                                   "Remember to give axis labels with newVariable() if you want histogramming.");
       return 0;
     }
     return m_mostRecent->getHist(_vo, _silent); // m_mostRecent is set by checkRegistered
@@ -223,7 +235,7 @@ namespace TrigCostRootAnalysis {
    * @param _hist histogram pointer
    */
   void DataStore::setHist(ConfKey_t _name, VariableOption_t _vo, TH1F* _hist) {
-    if ( checkRegistered(_name, kFALSE) == kFALSE ) {
+    if (checkRegistered(_name, kFALSE) == kFALSE) {
       Error("DataStore::setHist", "Cannot find entry");
       return;
     }
@@ -248,20 +260,22 @@ namespace TrigCostRootAnalysis {
   VariableOptionVector_t DataStore::getAllHistograms() {
     VariableOptionVector_t _vec;
     VariableMapIt_t _dsIt = m_variableMap.begin();
+
     for (; _dsIt != m_variableMap.end(); ++_dsIt) {
       ConfKey_t _dvNameEnum = _dsIt->first;
 
       for (Int_t _vo = 0; _vo < kVariableOption_SIZE; ++_vo) {
-        VariableOption_t _voEnum = static_cast<VariableOption_t>( _vo );
+        VariableOption_t _voEnum = static_cast<VariableOption_t>(_vo);
 
-        if ( getHist( _dvNameEnum, _voEnum, /*_silent = */ kTRUE ) == 0 ) continue;
-        if ( getHist( _dvNameEnum, _voEnum, /*_silent = */ kTRUE )->GetEntries() == 0 ) continue;
+        if (getHist(_dvNameEnum, _voEnum, /*_silent = */ kTRUE) == 0) continue;
+        if (getHist(_dvNameEnum, _voEnum, /*_silent = */ kTRUE)->GetEntries() == 0) continue;
 
         if (Config::config().debug()) {
-          Info("DataStore::getAllHistograms", "Adding output histogram %s / %s", Config::config().getName(_dvNameEnum).c_str(), VariableOptionStr[_voEnum].c_str());
+          Info("DataStore::getAllHistograms", "Adding output histogram %s / %s", Config::config().getName(
+                 _dvNameEnum).c_str(), VariableOptionStr[_voEnum].c_str());
         }
 
-        _vec.push_back( std::make_pair( _dvNameEnum, _voEnum ) );
+        _vec.push_back(std::make_pair(_dvNameEnum, _voEnum));
       }
     }
     //Info("","returning vec of size %i", (int)_vec.size());
@@ -276,11 +290,12 @@ namespace TrigCostRootAnalysis {
    * This is to make the vast majority of calls (where DataVariable doesn't care about it's name) as fast as possible.
    * @return Const reference to string with the the name (key) corresponding to m_mostRecent
    */
-  const std::string& DataStore::getNameOfMostRecentCall() {
+  const std::string& DataStore::getNameOfMostRecentCall() const {
     VariableMapIt_t _it = m_variableMap.begin();
+
     // One-to-one mapping is enforced by newVariable, so this reverse-lookup can exit on first success.
     for (; _it != m_variableMap.end(); ++_it) {
-      if ( _it->second == m_mostRecent ) { // Check pointers
+      if (_it->second == m_mostRecent) { // Check pointers
         return Config::config().getStr(_it->first);
       }
     }
@@ -289,17 +304,20 @@ namespace TrigCostRootAnalysis {
 
   /**
    * Check if map contains variable with _name.
-   * If found, pointer to the DataVariable stored in member pointer m_mostRecent (to save us having to do another find to use it!)
+   * If found, pointer to the DataVariable stored in member pointer m_mostRecent (to save us having to do another find
+   *to use it!)
    * Optimisation note: this is a very high-call-rate function.
    * Current implementation means that the map is only searched once per Store call.
    * @param _name Name of variable.
    * @return kTRUE if contains _name, m_mostRecent then points to the counter. Else kFALSE and message to error stream.
    */
-  Bool_t DataStore::checkRegistered(ConfKey_t _name, Bool_t _silent) {
+  Bool_t DataStore::checkRegistered(ConfKey_t _name, Bool_t _silent) const {
     VariableMapIt_t _location = m_variableMap.find(_name);
-    if ( _location == m_variableMap.end() ) {
+
+    if (_location == m_variableMap.end()) {
       if (_silent == kFALSE && Config::config().getDisplayMsg(kMsgCannotFindVar) == kTRUE) {
-        Error("DataStore::checkRegistered", "Unable to find variable with name %s", Config::config().getStr(_name).c_str() );
+        Error("DataStore::checkRegistered", "Unable to find variable with name %s", Config::config().getStr(
+                _name).c_str());
       }
       return kFALSE;
     }
@@ -320,10 +338,11 @@ namespace TrigCostRootAnalysis {
     // Function can be called with or without name. If called with, set m_mostRecent to match the name
     // supplied. Otherwise using chained function calls so check that m_mostRecent is valid.
     if (_name != kBlankString) {
-      if ( checkRegistered(_name) == kFALSE ) return *this;
+      if (checkRegistered(_name) == kFALSE) return *this;
+
       m_mostRecent = m_variableMap[_name];
     } else if (m_mostRecent == 0) {
-      Error("DataStore::setSaveInternal", "No variable to set save state on. Did you call newVariable() first?" );
+      Error("DataStore::setSaveInternal", "No variable to set save state on. Did you call newVariable() first?");
       return *this;
     }
     m_mostRecent->registerSaveState(_vo, _title);
@@ -380,5 +399,4 @@ namespace TrigCostRootAnalysis {
   DataStore& DataStore::setSavePerEventFraction(std::string _title) {
     return setSaveInternal(kSavePerEventFraction, _title);
   }
-
 } // namespace TrigCostRootAnalysis

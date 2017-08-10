@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "GeoMaterial2G4/Geo2G4MatPropTableFactory.h"
 #include "G4MaterialPropertiesTable.hh"
 #include "G4MaterialPropertyVector.hh"
@@ -23,8 +27,8 @@ G4MaterialPropertiesTable* Geo2G4MatPropTableFactory::Build(const GeoMaterialPro
   //
   // Check if this material has already been defined.
   //
-  if(definedTables.find(thePropTable) != definedTables.end())
-    return definedTables[thePropTable];
+  if(m_definedTables.find(thePropTable) != m_definedTables.end())
+    return m_definedTables[thePropTable];
 
   G4MaterialPropertiesTable* newTable = new G4MaterialPropertiesTable();
 
@@ -60,7 +64,7 @@ G4MaterialPropertiesTable* Geo2G4MatPropTableFactory::Build(const GeoMaterialPro
     }
 
   // Save new table to the map
-  definedTables[thePropTable]=newTable;
+  m_definedTables[thePropTable]=newTable;
 
   return newTable;
 }

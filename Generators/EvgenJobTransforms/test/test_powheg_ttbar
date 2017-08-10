@@ -3,6 +3,6 @@
 ## Any arguments are considered overrides, and will be added at the end
 export TRF_ECHO=True;
 Generate_tf.py --ecmEnergy=13000 --runNumber=101010 --maxEvents=10 \
-    --jobConfig=$JODIR/share/tests/MC14.101010.PowhegPythiaPhotosTauola_Perugia2011_tt_example.py  \
+    --jobConfig=$JODIR/share/tests/MC14.101010.PowhegPythia_Perugia2011_tt_example.py  \
     --outputEVNTFile=test_powheg_minbias_inelastic.EVNT.pool.root \
     $@

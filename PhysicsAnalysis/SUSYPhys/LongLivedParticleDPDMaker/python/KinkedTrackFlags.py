@@ -38,6 +38,7 @@ class KinkedTrack_singleJetMetFilterFlags(JobProperty):
     allowedTypes = ['bool']
     StoredValue  = True
     triggerNames = [
+        'HLT_xe70_mht',
         'HLT_xe80_L1XE50',
         'HLT_xe80_tc_lcw_L1XE50',
         'HLT_xe80_tc_em_L1XE50',
@@ -101,6 +102,7 @@ class KinkedTrack_singleJetMetFilterFlags(JobProperty):
         'HLT_xe90_wEFMu',
         'HLT_xe100',
         'HLT_xe100_L1XE60',
+        'HLT_xe100_mht_L1XE50',
         'HLT_xe100_mht_L1XE60',
         'HLT_xe100_tc_lcw_L1XE60',
         'HLT_xe100_L1XE50',
@@ -135,6 +137,7 @@ class KinkedTrack_singleJetMetFilterFlags(JobProperty):
         'HLT_xe100_pufit_wEFMu',
         'HLT_xe100_pufit_wEFMu_L1XE80',
         'HLT_xe110_pueta_L1XE60',
+        'HLT_xe110_pufit_L1XE50',
         'HLT_xe110_pufit_L1XE60',
         'HLT_xe110_L1XE60',
         'HLT_xe110_mht_L1XE60',
@@ -149,6 +152,7 @@ class KinkedTrack_singleJetMetFilterFlags(JobProperty):
         'HLT_xe120_tc_lcw',
         'HLT_xe120_wEFMu',
         'HLT_xe120_mht_wEFMu',
+        'HLT_xe120_mht_L1XE60_xe80_L1XE60',
         'HLT_xe120_pueta_wEFMu',
         'HLT_xe120_pufit_wEFMu',
         'HLT_xe120_tc_em_wEFMu',

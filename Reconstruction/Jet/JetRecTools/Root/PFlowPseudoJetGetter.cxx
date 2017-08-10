@@ -64,6 +64,7 @@ PFlowPseudoJetGetter::PFlowPseudoJetGetter(const std::string &name)
   declareProperty("UseChargedWeights",m_useChargedWeights = true, "True if we make use of weighting scheme for charged PFO");
   declareProperty("UseTrackToVertexTool", m_useTrackToVertexTool=false, "True if we will use the track to vertex tool");
   declareProperty("TrackVertexAssociation", m_trkVtxAssocName, "SG key for the TrackVertexAssociation object");
+  declareProperty("ApplyChargedHadronSubtraction",m_applyChargedHadronSubtraction=true, "True to remove charged hadrons not matched to the PV");
 }
 
 int PFlowPseudoJetGetter::appendTo(PseudoJetVector& psjs, const LabelIndex* pli) const { 
@@ -168,7 +169,7 @@ int PFlowPseudoJetGetter::appendTo(PseudoJetVector& psjs, const LabelIndex* pli)
 	}
       }
 
-      if ( true == matchedToPrimaryVertex){
+      if ( true == matchedToPrimaryVertex || !m_applyChargedHadronSubtraction){
 	if (true == m_useChargedWeights) {
 	  float weight = 0.0;
 	  ATH_CHECK( m_weightPFOTool->fillWeight( *pcpf, weight ) );

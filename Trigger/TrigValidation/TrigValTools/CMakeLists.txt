@@ -21,8 +21,7 @@ atlas_add_dictionary( TrigValToolsDict
                       TrigValTools/TrigValToolsDict.h
                       TrigValTools/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} TrigValTools
-                      OPTIONS " -I$(TRIGVALTOOLSROOT)/src" )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} TrigValTools )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py bin/chainDump.py )
@@ -31,8 +30,5 @@ atlas_install_runtime( macros/*.C bin/chainDump.py )
 atlas_install_scripts( bin/*.py bin/*.pl bin/*.sh )
 atlas_install_generic( html/root2html/*.html
                        DESTINATION share/TrigValTools/root2html
-                       EXECUTABLE )
-atlas_install_generic( html/perfmonrtt/perfmonrtt.* html/perfmonrtt/*.png html/perfmonrtt/intro.html
-                       DESTINATION share/TrigValTools/perfmonrtt
                        EXECUTABLE )
 

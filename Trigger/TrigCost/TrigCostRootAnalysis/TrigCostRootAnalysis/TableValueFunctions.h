@@ -17,11 +17,11 @@
 #include "Utility.h" //Typedefs
 
 namespace TrigCostRootAnalysis {
-
   //Forward declaration
   class CounterBase;
 
   Float_t tableFnChainGetTotalFracTime(CounterMap_t* _map, CounterBase* _TCCB);
+  Float_t tableFnChainGetTotalTimeErr(CounterMap_t* _map, CounterBase* _TCCB);
 
   Float_t tableFnGlobalGetSteeringFarmUse(CounterMap_t* _map, CounterBase* _TCCB);
   Float_t tableFnGlobalGetHLTNodePrediction(CounterMap_t* _map, CounterBase* _TCCB);
@@ -31,7 +31,6 @@ namespace TrigCostRootAnalysis {
 
   Float_t tableFnRateGetWeightedRateErr(CounterMap_t* _map, CounterBase* _TCCB);
   Float_t tableFnRateGetDirectRateErr(CounterMap_t* _map, CounterBase* _TCCB);
-
 }
 
 #endif //TrigCostRootAnalysis_TableValueFunctions_H

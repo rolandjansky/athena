@@ -15,7 +15,7 @@ using namespace std;
 int CombLinks::featureId(const std::string& feature) {
   int id=-1;
   std::map<int, std::string>::iterator p;
-  for (p=sFeatureIdMap.begin(); p!=sFeatureIdMap.end(); ++p) {
+  for (p=s_FeatureIdMap.begin(); p!=s_FeatureIdMap.end(); ++p) {
     if (p->second == feature) {
       id = p->first;
       break;
@@ -23,7 +23,7 @@ int CombLinks::featureId(const std::string& feature) {
   }
   if (id < 0) {
     addFeature(feature);
-    id = static_cast<int>(sFeatureIdMap.size())-1;
+    id = static_cast<int>(s_FeatureIdMap.size())-1;
   }
   return id;
 }
@@ -31,7 +31,7 @@ int CombLinks::featureId(const std::string& feature) {
 std::string CombLinks::featureName(int feature_id) {
   std::string name="";
   std::map<int, std::string>::iterator p;
-  if ( (p=sFeatureIdMap.find(feature_id)) != sFeatureIdMap.end()) {
+  if ( (p=s_FeatureIdMap.find(feature_id)) != s_FeatureIdMap.end()) {
     name = p->second;
   }
   return name;
@@ -43,7 +43,7 @@ int CombLinks::addFeature(const std::string& feature) {
   std::map<int, std::string>::iterator p;
   int id=0;
   bool already_exists=false;
-  for (p=sFeatureIdMap.begin(); p!=sFeatureIdMap.end(); ++p) {
+  for (p=s_FeatureIdMap.begin(); p!=s_FeatureIdMap.end(); ++p) {
     if (p->second == feature) {
       id = p->first;
       already_exists = true;
@@ -53,8 +53,8 @@ int CombLinks::addFeature(const std::string& feature) {
   }
   if (!already_exists) {
     cout << "Found new type of HLT feature: " << feature << endl;
-    id = static_cast<int>(sFeatureIdMap.size());
-    sFeatureIdMap[id] = feature;
+    id = static_cast<int>(s_FeatureIdMap.size());
+    s_FeatureIdMap[id] = feature;
   }
   return id;
 }
@@ -62,7 +62,7 @@ int CombLinks::addFeature(const std::string& feature) {
 int CombLinks::addRoIType(const std::string& roi_type) {
   std::map<int, std::string>::iterator p;
   int id=10000;
-  for (p=sFeatureIdMap.begin(); p!=sFeatureIdMap.end(); ++p) {
+  for (p=s_FeatureIdMap.begin(); p!=s_FeatureIdMap.end(); ++p) {
     if (p->second == roi_type) {
       id = p->first;
       break;
@@ -73,21 +73,21 @@ int CombLinks::addRoIType(const std::string& roi_type) {
 }
 
 const std::map<int, std::string>& CombLinks::featureIdMap() {
-  return sFeatureIdMap;
+  return s_FeatureIdMap;
 }
 
-std::map<int, std::string> CombLinks::sFeatureIdMap;
+std::map<int, std::string> CombLinks::s_FeatureIdMap;
 
-CombLinks::CombLinks() : mRoIType(-1), mLastStep(-1) , mState(false), 
-			 mCombNumber(-1), 
-			 mTENumber(-1), mRoINumber(-1), mTELabelString("") {
+CombLinks::CombLinks() : m_RoIType(-1), m_lastStep(-1) , m_state(false), 
+			 m_combNumber(-1), 
+			 m_TENumber(-1), m_RoINumber(-1), m_TELabelString("") {
 }
 
-CombLinks::CombLinks(int roi_type) : mRoIType(roi_type), 
-				     mLastStep(-1), mState(false), 
-				     mCombNumber(-1), 
-				     mTENumber(-1), mRoINumber(-1), 
-				     mTELabelString("") {
+CombLinks::CombLinks(int roi_type) : m_RoIType(roi_type), 
+				     m_lastStep(-1), m_state(false), 
+				     m_combNumber(-1), 
+				     m_TENumber(-1), m_RoINumber(-1), 
+				     m_TELabelString("") {
 }
 
 CombLinks::~CombLinks() {
@@ -95,8 +95,8 @@ CombLinks::~CombLinks() {
 
 bool CombLinks::hasFeature(const std::string& feature) const {
   int id = featureId(feature);
-  if (mIndexMap.find(id) != mIndexMap.end() || 
-      mIndexVecMap.find(id) != mIndexVecMap.end()) {
+  if (m_indexMap.find(id) != m_indexMap.end() || 
+      m_indexVecMap.find(id) != m_indexVecMap.end()) {
     return true;
   } else {
     return false;
@@ -107,10 +107,10 @@ std::vector<std::string> CombLinks::allFeatureNames() const {
   std::map<int, FeatureIndex>::const_iterator p1;
   std::map<int, FeatureIndexVec_t>::const_iterator p2;
   std::vector<std::string> x;
-  for (p1=mIndexMap.begin(); p1!=mIndexMap.end(); ++p1) {
+  for (p1=m_indexMap.begin(); p1!=m_indexMap.end(); ++p1) {
     x.push_back(featureName(p1->first));
   }
-  for (p2=mIndexVecMap.begin(); p2!=mIndexVecMap.end(); ++p2) {
+  for (p2=m_indexVecMap.begin(); p2!=m_indexVecMap.end(); ++p2) {
     x.push_back(featureName(p2->first));
   }
   return x;
@@ -119,7 +119,7 @@ std::vector<std::string> CombLinks::allFeatureNames() const {
 std::vector<std::string> CombLinks::FeatureNames() const {
   std::map<int, FeatureIndex>::const_iterator p1;
   std::vector<std::string> x;
-  for (p1=mIndexMap.begin(); p1!=mIndexMap.end(); ++p1) {
+  for (p1=m_indexMap.begin(); p1!=m_indexMap.end(); ++p1) {
     x.push_back(featureName(p1->first));
   }
   return x;
@@ -128,7 +128,7 @@ std::vector<std::string> CombLinks::FeatureNames() const {
 std::vector<std::string> CombLinks::FeatureVecNames() const {
   std::map<int, FeatureIndexVec_t>::const_iterator p2;
   std::vector<std::string> x;
-  for (p2=mIndexVecMap.begin(); p2!=mIndexVecMap.end(); ++p2) {
+  for (p2=m_indexVecMap.begin(); p2!=m_indexVecMap.end(); ++p2) {
     x.push_back(featureName(p2->first));
   }
   return x;
@@ -141,12 +141,12 @@ const FeatureIndex* CombLinks::index(const std::string& feature) const {
 }
 
 const FeatureIndex* CombLinks::index(int feature_id) const {
-  std::map<int, FeatureIndex>::const_iterator p = mIndexMap.find(feature_id);
-  if (p != mIndexMap.end()) {
+  std::map<int, FeatureIndex>::const_iterator p = m_indexMap.find(feature_id);
+  if (p != m_indexMap.end()) {
     return &(p->second);
   } else {
 //     cout << "No feature " << featureName(feature_id) 
-// 	 << " found in RoIType " << mRoIType << endl;
+// 	 << " found in RoIType " << m_RoIType << endl;
   }
   return 0;
 }
@@ -158,12 +158,12 @@ const vector<FeatureIndex>* CombLinks::indexVec(const string& feature) const {
 
 const std::vector<FeatureIndex>* CombLinks::indexVec(int feature_id) const {
   std::map<int, FeatureIndexVec_t>::const_iterator p = 
-    mIndexVecMap.find(feature_id);
-  if (p != mIndexVecMap.end()) {
+    m_indexVecMap.find(feature_id);
+  if (p != m_indexVecMap.end()) {
     return &(p->second);
   } else {
 //     cout << "No feature " << featureName(feature_id) 
-// 	 << " found in RoIType " << mRoIType << endl;
+// 	 << " found in RoIType " << m_RoIType << endl;
   }
   return 0;
 }
@@ -177,22 +177,22 @@ void CombLinks::addIndex(const std::string& feature, const FeatureIndex& i) {
 
   int id = featureId(feature);
   //  cout << "CombLinks: Feature id for feature " << feature << " is " << id << endl;
-  mIndexMap[id] = i;
+  m_indexMap[id] = i;
 //   //  if (!hasFeature(feature)) addFeature(feature);
 //   if (hasFeature(feature)) {
 //     cout << "CombLinks: has feature" << endl;
-//     mIndexMap[id] = i;
+//     m_indexMap[id] = i;
 //   } else {
 //     cout << "Does not have feature" << endl;
 //     std::map<int, FeatureIndex>::const_iterator p1;
 //     std::map<int, FeatureIndexVec_t>::const_iterator p2;
-//     cout << "CombLinks type " << mRoIType << " does not have link to a feature "
+//     cout << "CombLinks type " << m_RoIType << " does not have link to a feature "
 // 	 << feature << endl;
 //     cout << "CombLinks: It has links to following features:" << endl;
-//     for (p1=mIndexMap.begin(); p1!=mIndexMap.end(); ++p1) {
+//     for (p1=m_indexMap.begin(); p1!=m_indexMap.end(); ++p1) {
 //       cout << "  " << p1->first << " (int)" << endl;
 //     }
-//     for (p2=mIndexVecMap.begin(); p2!=mIndexVecMap.end(); ++p2) {
+//     for (p2=m_indexVecMap.begin(); p2!=m_indexVecMap.end(); ++p2) {
 //       cout << "  " << p2->first << " (vector<int>)" << endl;
 //     }
 //   }
@@ -203,26 +203,26 @@ void CombLinks::addIndexVec(const std::string& feature,
   if (iv.size() == 0) return;
 
   int id = featureId(feature);
-  mIndexVecMap[id] = iv;
+  m_indexVecMap[id] = iv;
 //   if (hasFeature(feature) || true) {
-//     mIndexVecMap[id] = iv;
+//     m_indexVecMap[id] = iv;
 //   } else {
 //     std::map<int, FeatureIndex>::const_iterator p1;
 //     std::map<int, FeatureIndexVec_t>::const_iterator p2;
-//     cout << "CombLinks type " << mRoIType << " does not have link to a feature "
+//     cout << "CombLinks type " << m_RoIType << " does not have link to a feature "
 // 	 << feature << endl;
 //     cout << "It has links to following features:" << endl;
-//     for (p1=mIndexMap.begin(); p1!=mIndexMap.end(); ++p1) {
+//     for (p1=m_indexMap.begin(); p1!=m_indexMap.end(); ++p1) {
 //       cout << "  " << p1->first << " (int)" << endl;
 //     }
-//     for (p2=mIndexVecMap.begin(); p2!=mIndexVecMap.end(); ++p1) {
+//     for (p2=m_indexVecMap.begin(); p2!=m_indexVecMap.end(); ++p1) {
 //       cout << "  " << p2->first << " (vector<int>)" << endl;
 //     }
 //   }
 }
 
 bool CombLinks::isValid() const {
-  if (mIndexMap.size() > 0 || mIndexVecMap.size() > 0) {
+  if (m_indexMap.size() > 0 || m_indexVecMap.size() > 0) {
     return true;
   } else {
     return false;
@@ -230,7 +230,7 @@ bool CombLinks::isValid() const {
 }
 
 void CombLinks::prependTELabel(const std::string& x) {
-  mTELabelString = x + "," + mTELabelString;
+  m_TELabelString = x + "," + m_TELabelString;
 }
 
 void CombLinks::dump() const {
@@ -242,9 +242,9 @@ bool CombLinks::isSameRoI(const CombLinks& x) const {
   std::map<int, FeatureIndex>::const_iterator p1;
   std::map<int, FeatureIndexVec_t>::const_iterator p2;
 
-  if (mRoIType != x.RoIType()) return false;
+  if (m_RoIType != x.RoIType()) return false;
 
-  for (p1=mIndexMap.begin(); p1!=mIndexMap.end(); ++p1) {
+  for (p1=m_indexMap.begin(); p1!=m_indexMap.end(); ++p1) {
     const FeatureIndex* tmp = x.index(p1->first);
     if (tmp == 0 || p1->second.sameIndex(*tmp)) {
       status = false;
@@ -252,7 +252,7 @@ bool CombLinks::isSameRoI(const CombLinks& x) const {
     }
   }
   if (status) {
-    for (p2=mIndexVecMap.begin(); p2!=mIndexVecMap.end(); ++p2) {
+    for (p2=m_indexVecMap.begin(); p2!=m_indexVecMap.end(); ++p2) {
       const FeatureIndexVec_t* tmp = x.indexVec(p2->first);
       if (tmp == 0 || !sameIndex(p2->second, *tmp)) {
 	status = false;
@@ -268,15 +268,15 @@ bool CombLinks::operator==(const CombLinks& x) const {
   std::map<int, FeatureIndex>::const_iterator p1;
   std::map<int, FeatureIndexVec_t>::const_iterator p2;
 
-  if (mRoIType != x.RoIType() || 
-      mLastStep != x.lastStep() ||
-      mState != x.active() || 
-      mTENumber != x.TENumber() ||
-      mRoINumber != x.RoINumber() ||
-      mIndexMap.size() != x.mIndexMap.size() || 
-      mIndexVecMap.size() != x.mIndexVecMap.size()) return false;
+  if (m_RoIType != x.RoIType() || 
+      m_lastStep != x.lastStep() ||
+      m_state != x.active() || 
+      m_TENumber != x.TENumber() ||
+      m_RoINumber != x.RoINumber() ||
+      m_indexMap.size() != x.m_indexMap.size() || 
+      m_indexVecMap.size() != x.m_indexVecMap.size()) return false;
 
-  for (p1=mIndexMap.begin(); p1!=mIndexMap.end(); ++p1) {
+  for (p1=m_indexMap.begin(); p1!=m_indexMap.end(); ++p1) {
     const FeatureIndex* tmp = x.index(p1->first);
     if (tmp == 0 || p1->second != (*tmp)) {
       status = false;
@@ -284,7 +284,7 @@ bool CombLinks::operator==(const CombLinks& x) const {
     }
   }
   if (status) {
-    for (p2=mIndexVecMap.begin(); p2!=mIndexVecMap.end(); ++p2) {
+    for (p2=m_indexVecMap.begin(); p2!=m_indexVecMap.end(); ++p2) {
       const FeatureIndexVec_t* tmp = x.indexVec(p2->first);
       if (tmp == 0 || p2->second != (*tmp)) {
 	status = false;
@@ -300,12 +300,12 @@ std::ostream& operator<<(std::ostream& o, const CombLinks& x) {
   std::map<int, std::vector<FeatureIndex> >::const_iterator p2;
   std::string feature_str = "";
 
-  o << "CombLinks: RoIType=" << x.mRoIType 
+  o << "CombLinks: RoIType=" << x.m_RoIType 
     << " (valid=" << x.isValid() << ")" << endl;
   o << "  [TE=" << x.TENumber() << "][RoI=" << x.RoINumber()
     << "] active=" << x.active() << endl;
   o << "  TE labels: " << x.TELabelString() << endl;
-  for (p1=x.mIndexMap.begin(); p1!=x.mIndexMap.end(); ++p1) {
+  for (p1=x.m_indexMap.begin(); p1!=x.m_indexMap.end(); ++p1) {
     feature_str = x.featureName(p1->first);
     if (feature_str.length() == 0) {
       ostringstream os;
@@ -314,7 +314,7 @@ std::ostream& operator<<(std::ostream& o, const CombLinks& x) {
     }
     o << "  Feature (" << feature_str << "): " << p1->second << endl;
   }
-  for (p2=x.mIndexVecMap.begin(); p2!=x.mIndexVecMap.end(); ++p2) {
+  for (p2=x.m_indexVecMap.begin(); p2!=x.m_indexVecMap.end(); ++p2) {
     feature_str = x.featureName(p2->first);
     if (feature_str.length() == 0) {
       ostringstream os;

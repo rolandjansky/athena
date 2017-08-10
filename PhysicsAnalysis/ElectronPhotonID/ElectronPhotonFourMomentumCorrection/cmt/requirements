@@ -27,6 +27,7 @@ use  CxxUtils                   CxxUtils-*                      Control
 use  AtlasBoost                 AtlasBoost-*                    External
 use  xAODMetaData               xAODMetaData-*                  Event/xAOD
 use  AthAnalysisBaseComps	AthAnalysisBaseComps-*		Control
+use  xAODTruth                  xAODTruth-*                     Event/xAOD
 
 
 end_private
@@ -44,7 +45,6 @@ apply_pattern declare_xmls extras="-s=../data *.root"
 
 # https://twiki.cern.ch/twiki/bin/view/AtlasComputing/PathResolver#What_if_I_really_have_to_keep_a
 apply_pattern declare_calib files="../data/*.root"
-
 private
 
 ## For reflex dictionary generation
@@ -52,6 +52,7 @@ use AtlasReflex   AtlasReflex-*   External -no_auto_imports
 apply_pattern lcgdict dict=ElectronPhotonFourMomentumCorrection selectionfile=selection.xml headerfiles="..\/ElectronPhotonFourMomentumCorrection/ElectronPhotonFourMomentumCorrectionDict.h"
 
 use TestPolicy     TestPolicy-*
+use AthenaBaseComps AthenaBaseComps-* Control
 #runtime tests:
 apply_pattern athenarun_test \
    name="EgammaCalibrationAndSmearing_test" \

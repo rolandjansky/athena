@@ -25,7 +25,7 @@ public:
   virtual void erase() override {}
   virtual void reserve (size_t /*size*/) override {}
   virtual const std::string& name() const override { return m_name; }
-  virtual const SG::ArenaAllocatorBase::Stats& stats() const override
+  virtual SG::ArenaAllocatorBase::Stats stats() const override
   { return m_stats; }
 private:
   SG::ArenaAllocatorBase::Stats m_stats;
@@ -37,7 +37,8 @@ class Creator
 {
 public:
   Creator (int x) : m_x (x) {}
-  virtual SG::ArenaAllocatorBase* create() override { return new Alloc (m_x); }
+  virtual std::unique_ptr<SG::ArenaAllocatorBase> create() override
+  { return std::make_unique<Alloc> (m_x); }
 private:
   int m_x;
 };
@@ -47,8 +48,8 @@ void test1()
   SG::ArenaAllocatorRegistry* reg =
     SG::ArenaAllocatorRegistry::instance();
   assert (reg->lookup ("foo") == std::string::npos);
-  assert (reg->registerCreator ("foo", new Creator (0)) == 0);
-  assert (reg->registerCreator ("bar", new Creator (1)) == 1);
+  assert (reg->registerCreator ("foo", std::make_unique<Creator> (0)) == 0);
+  assert (reg->registerCreator ("bar", std::make_unique<Creator> (1)) == 1);
   assert (reg->lookup ("foo") == 0);
   assert (reg->lookup ("bar") == 1);
   assert (reg->create(0)->stats().elts.total == 0);

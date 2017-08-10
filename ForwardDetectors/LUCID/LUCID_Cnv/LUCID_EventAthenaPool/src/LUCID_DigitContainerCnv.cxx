@@ -6,9 +6,9 @@
 
 LUCID_DigitContainer_PERS* LUCID_DigitContainerCnv::createPersistent(LUCID_DigitContainer* transCont) {
 
-  MsgStream mlog(messageService(), "LUCID_DigitContainerCnv");
+  MsgStream mlog(msgSvc(), "LUCID_DigitContainerCnv");
 
-  mlog << MSG::DEBUG << "In LUCID_DigitContainerCnv::createPersistent " << endreq;
+  mlog << MSG::DEBUG << "In LUCID_DigitContainerCnv::createPersistent " << endmsg;
   
   LUCID_DigitContainerCnv_p2 converter;
   LUCID_DigitContainer_PERS* persObj = converter.createPersistent(transCont, mlog);
@@ -18,9 +18,9 @@ LUCID_DigitContainer_PERS* LUCID_DigitContainerCnv::createPersistent(LUCID_Digit
 
 LUCID_DigitContainer* LUCID_DigitContainerCnv::createTransient() {
   
-  MsgStream mlog(messageService(), "LUCID_DigitContainer");
+  MsgStream mlog(msgSvc(), "LUCID_DigitContainer");
 
-  mlog << MSG::DEBUG << "In LUCID_DigitContainerCnv::createTransient " << endreq;
+  mlog << MSG::DEBUG << "In LUCID_DigitContainerCnv::createTransient " << endmsg;
   
   LUCID_DigitContainerCnv_p2 converter_p2;
   

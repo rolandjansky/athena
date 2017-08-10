@@ -8,6 +8,7 @@
 
 TCS::StatusCode
 TCS::SortingAlg::doReset() {
+   m_overflow = false;
    return StatusCode::SUCCESS;
 }
 

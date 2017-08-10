@@ -55,16 +55,16 @@ namespace Trk
      if(trk.weight() > m_maxWeight)
      {
        //actual error case
-       msg(MSG::INFO)  << "The VxTrackAtVertex passed does not have a Linearized Track" << endreq;
-       msg(MSG::INFO)  << "Please produce one with corresponding LinearizedTrackFactory"<< endreq;
-       msg(MSG::INFO)  << "The VxTrackAtVertex returned not refitted"<< endreq;
+       msg(MSG::INFO)  << "The VxTrackAtVertex passed does not have a Linearized Track" << endmsg;
+       msg(MSG::INFO)  << "Please produce one with corresponding LinearizedTrackFactory"<< endmsg;
+       msg(MSG::INFO)  << "The VxTrackAtVertex returned not refitted"<< endmsg;
        //    std::cout<<"Weight of the track: "<<trk.weight()<<std::endl;
      }else{
        if (msgLvl(MSG::DEBUG))
        {
-         msg(MSG::DEBUG) << "The VxTrackAtVertex passed does not have a Linearized Track" << endreq;
-         msg(MSG::DEBUG) << "However the weight of this track is less than " << m_maxWeight << endreq;
-         msg(MSG::DEBUG)  << "The VxTrackAtVertex returned not refitted"<< endreq;
+         msg(MSG::DEBUG) << "The VxTrackAtVertex passed does not have a Linearized Track" << endmsg;
+         msg(MSG::DEBUG) << "However the weight of this track is less than " << m_maxWeight << endmsg;
+         msg(MSG::DEBUG)  << "The VxTrackAtVertex returned not refitted"<< endmsg;
        }
      }//end of absent linTrack case
 
@@ -85,7 +85,7 @@ namespace Trk
 
    if (Sm.determinant() == 0.0) {
      ATH_MSG_WARNING("Matrix can not be inverted, new type of check as part of Eigen, please monitor."
-                     << endreq << "Matrix Sm = " << Sm);
+                     << endmsg << "Matrix Sm = " << Sm);
      return;
    }
    Sm = Sm.inverse().eval();
@@ -115,25 +115,25 @@ namespace Trk
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< "-U- phi = " << refTrkPar[Trk::phi0];
     refTrkPar[Trk::phi0] = fmod(refTrkPar[Trk::phi0]+M_PI,2*M_PI)-M_PI;
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< " out of range, now "
-        << "corrected to " << refTrkPar[Trk::phi0] << endreq;
+        << "corrected to " << refTrkPar[Trk::phi0] << endmsg;
    } else if(refTrkPar[Trk::phi0]<-M_PI) {
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< "-U- phi = " << refTrkPar[Trk::phi0];
     refTrkPar[Trk::phi0] = fmod(refTrkPar[Trk::phi0]-M_PI,2*M_PI)+M_PI;
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< " out of range, now "
-        << "corrected to " << refTrkPar[Trk::phi0] << endreq;
+        << "corrected to " << refTrkPar[Trk::phi0] << endmsg;
    }
 
    if (refTrkPar[Trk::theta] > M_PI)
    {
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< " Theta out of range: correcting theta: " << refTrkPar[Trk::theta];
      refTrkPar[Trk::theta]=fmod(refTrkPar[Trk::theta]+M_PI,2*M_PI)-M_PI;
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< " to: " << refTrkPar[Trk::theta] << endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< " to: " << refTrkPar[Trk::theta] << endmsg;
    }
    else if (refTrkPar[Trk::theta]<0)
    {
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< " Theta out of range: correcting theta: " << refTrkPar[Trk::theta];
      refTrkPar[Trk::theta]=fmod(refTrkPar[Trk::theta]-M_PI,2*M_PI)+M_PI;
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< " to: " << refTrkPar[Trk::theta] << endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< " to: " << refTrkPar[Trk::theta] << endmsg;
    }
 
    if (refTrkPar[Trk::theta] < 0)
@@ -156,7 +156,7 @@ namespace Trk
    const AmgSymMatrix(3)& vrt_cov = vtx.covariancePosition();
    if (vrt_cov.determinant() == 0.0) {
      ATH_MSG_WARNING("Matrix can not be inverted, new type of check as part of Eigen, please monitor."
-                     << endreq << "Matrix vrt_cov = " << vrt_cov);
+                     << endmsg << "Matrix vrt_cov = " << vrt_cov);
      return;
    }
    const AmgSymMatrix(3) vrt_weight = vtx.covariancePosition().inverse();

@@ -36,7 +36,10 @@ MuonSegmentFinderAlg::MuonSegmentFinderAlg(const std::string& name, ISvcLocator*
   m_clusterSegMakerNSW("Muon::MuonClusterSegmentFinderTool/MuonClusterSegmentFinderTool"),
   m_truthSummaryTool("Muon::MuonTruthSummaryTool/MuonTruthSummaryTool"),
   m_csc2dSegmentFinder("Csc2dSegmentMaker/Csc2dSegmentMaker"),
-  m_csc4dSegmentFinder("Csc4dSegmentMaker/Csc4dSegmentMaker")
+  m_csc4dSegmentFinder("Csc4dSegmentMaker/Csc4dSegmentMaker"),
+  m_segmentCollectionKey("MuonSegments"),
+  m_cscPrdsKey("CSC_Clusters"),
+  m_patternCollKey("MuonLayerHoughCombis")
 {  
   //tools
   declareProperty("EDMPrinter", m_printer);
@@ -52,10 +55,12 @@ MuonSegmentFinderAlg::MuonSegmentFinderAlg(const std::string& name, ISvcLocator*
   declareProperty("PrintSummary",m_printSummary = false);
   declareProperty("MuonClusterSegmentFinder",m_clusterSegMaker);
   //
-  declareProperty("SegmentCollectionName",m_segmentCollectionName="MuonSegments");
+  declareProperty("SegmentCollectionName", m_segmentCollectionKey);
   declareProperty("UseNSWMode",m_useNSWMode = false);
   declareProperty("doTGCClust",m_doTGCClust = false);
   declareProperty("doRPCClust",m_doRPCClust = false);
+  declareProperty("CSC_clusterkey", m_cscPrdsKey);
+  declareProperty("MuonLayerHoughCombisKey", m_patternCollKey);
 
 }
 
@@ -119,20 +124,25 @@ StatusCode MuonSegmentFinderAlg::initialize()
     return StatusCode::FAILURE;
   }
 
+  ATH_CHECK( m_segmentCollectionKey.initialize() );
+  ATH_CHECK( m_cscPrdsKey.initialize() );
+  ATH_CHECK( m_patternCollKey.initialize() );
+
+
   return StatusCode::SUCCESS; 
 }
 
 StatusCode MuonSegmentFinderAlg::execute()
 {
-
+  
   // vector to hold segments
   std::vector<const Muon::MuonSegment*> segs;
 
   //check for the Muon Layer Hough storegate container
   if( evtStore()->contains<MuonPatternCombinationCollection>("MuonLayerHoughCombis") ) {
-
-    MuonPatternCombinationCollection* patternColl = 0;
-    if(evtStore()->retrieve(patternColl,"MuonLayerHoughCombis").isFailure()) {
+    
+    SG::ReadHandle<MuonPatternCombinationCollection> patternColl(m_patternCollKey);
+    if(!patternColl.isValid()) {
       ATH_MSG_FATAL( "Could not to retrieve the PatternCombinations from StoreGate" );
       return StatusCode::FAILURE;
     }
@@ -158,7 +168,7 @@ StatusCode MuonSegmentFinderAlg::execute()
   std::vector<const Muon::MuonSegment*> resolvedSegments = m_segmentOverlapRemovalTool->removeDuplicates(segs);
   
   //create a new SG container to store the segments
-  Trk::SegmentCollection* segmentCollection = new Trk::SegmentCollection();
+  std::unique_ptr<Trk::SegmentCollection> segmentCollection = std::unique_ptr<Trk::SegmentCollection>( new Trk::SegmentCollection());
   segmentCollection->reserve(resolvedSegments.size());
   for( std::vector<const Muon::MuonSegment*>::iterator sit = resolvedSegments.begin(); sit!=resolvedSegments.end();++sit ){
     segmentCollection->push_back( const_cast<Muon::MuonSegment*>(*sit) );
@@ -177,9 +187,10 @@ StatusCode MuonSegmentFinderAlg::execute()
   if( !m_csc2dSegmentFinder.empty() && !m_csc4dSegmentFinder.empty() ){
 
     std::vector<const Muon::CscPrepDataCollection*> cscCols;
-    const Muon::CscPrepDataContainer* cscPrds = 0;      
-    StatusCode sc =  evtStore()->retrieve(cscPrds,"CSC_Clusters");
-    if (sc.isSuccess() && cscPrds) {
+
+    SG::ReadHandle<Muon::CscPrepDataContainer> cscPrds(m_cscPrdsKey);
+
+    if (cscPrds.isValid()) {
       
       Muon::CscPrepDataContainer::const_iterator it = cscPrds->begin();
       Muon::CscPrepDataContainer::const_iterator it_end = cscPrds->end();
@@ -231,9 +242,10 @@ StatusCode MuonSegmentFinderAlg::execute()
   if( m_printSummary || msgLvl(MSG::DEBUG) ){
     msg() << msg().level() << "Number of segments found " << resolvedSegments.size() << std::endl << m_printer->print(resolvedSegments) << endmsg;
   }
+  SG::WriteHandle<Trk::SegmentCollection> handle(m_segmentCollectionKey);
   
   //Add the segments to store gate
-  if(evtStore()->record(segmentCollection,m_segmentCollectionName).isFailure()) {
+  if(handle.record(std::move(segmentCollection)).isFailure()) {
     ATH_MSG_FATAL( "Could not add the Trk::SegmentCollection to StoreGate" );
     return StatusCode::FAILURE;
   }

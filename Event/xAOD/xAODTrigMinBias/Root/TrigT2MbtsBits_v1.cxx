@@ -57,7 +57,7 @@ namespace xAOD {
       for(;itr != itr_end; ++itr) {
 	log << MSG::DEBUG << (*itr) << " ";
       }
-      log << MSG::DEBUG << " }" << endreq;  
+      log << MSG::DEBUG << " }" << endmsg;  
       
       itr = m_triggerTimes.begin();
       itr_end = m_triggerTimes.end();
@@ -65,7 +65,7 @@ namespace xAOD {
 	for(;itr != itr_end; ++itr) {
 	  log << MSG::DEBUG << (*itr) << " ";
 	}
-	log << MSG::DEBUG << " }" << endreq;
+	log << MSG::DEBUG << " }" << endmsg;
   }
 #endif // 0
 

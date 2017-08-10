@@ -29,7 +29,7 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
 
         indetovl.do_Pixel = True
         if readBS and isRealData:
-           job.InDetPixelRawDataProvider.EvtStore = "OriginalEvent_SG"
+           job.InDetPixelRawDataProvider.RDOKey = "OriginalEvent_SG/PixelRDOs"
            #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "PixelRDO_Container/PixelRDOs" ]
            #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "Trk::PixelClusterContainer/PixelOnlineClusters" ]
     else:
@@ -80,6 +80,7 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
         indetovl.do_TRT = True
         if readBS and isRealData:
            job.InDetTRTRawDataProvider.EvtStore = "OriginalEvent_SG"
+           job.InDetTRTRawDataProvider.RDOKey = "OriginalEvent_SG/TRT_RDOs"
            #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "TRT_RDO_Container/TRT_RDOs" ]
   
            from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc

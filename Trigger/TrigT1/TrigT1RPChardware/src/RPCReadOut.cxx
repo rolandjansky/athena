@@ -8,8 +8,8 @@
 using namespace std;
 
   // initialize some fixed binary pattern
-const ubit16 RPCReadOut::last2bitsON =0xc000;
-const ubit16 RPCReadOut::last4bitsON =0xf000;
+const ubit16 RPCReadOut::s_last2bitsON =0xc000;
+const ubit16 RPCReadOut::s_last4bitsON =0xf000;
 //---------------------------------------------------------------------------//
 RPCReadOut::RPCReadOut() {
 m_word =0xffff;

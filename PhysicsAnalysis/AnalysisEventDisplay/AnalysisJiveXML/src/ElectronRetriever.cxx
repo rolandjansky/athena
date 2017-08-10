@@ -38,39 +38,39 @@ namespace JiveXML {
    */
   StatusCode ElectronRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieveAll()" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieveAll()" << endmsg;
     
     const DataHandle<ElectronContainer> iterator, end;
     const ElectronContainer* electrons;
     
     //obtain the default collection first
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve " << dataTypeName() << " (" << m_sgKey << ")" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve " << dataTypeName() << " (" << m_sgKey << ")" << endmsg;
     StatusCode sc = evtStore()->retrieve(electrons, m_sgKey);
     if (sc.isFailure() ) {
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << m_sgKey << " not found in SG " << endreq; 
+      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << m_sgKey << " not found in SG " << endmsg; 
     }else{
       DataMap data = getData(electrons);
       if ( FormatTool->AddToEvent(dataTypeName(), m_sgKey, &data).isFailure()){
-	if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << m_sgKey << " not found in SG " << endreq;
+	if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << m_sgKey << " not found in SG " << endmsg;
       }else{
-         if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << dataTypeName() << " (" << m_sgKey << ") Electron retrieved" << endreq;
+         if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << dataTypeName() << " (" << m_sgKey << ") Electron retrieved" << endmsg;
       }
     }
 
     //obtain all other collections from StoreGate
     if (( evtStore()->retrieve(iterator, end)).isFailure()){
-       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "Unable to retrieve iterator for Jet collection" << endreq;
+       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "Unable to retrieve iterator for Jet collection" << endmsg;
 //        return StatusCode::WARNING;
     }
       
     for (; iterator!=end; iterator++) {
        if (iterator.key()!=m_sgKey) {
-          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve all " << dataTypeName() << " (" << iterator.key() << ")" << endreq;
+          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve all " << dataTypeName() << " (" << iterator.key() << ")" << endmsg;
             DataMap data = getData(iterator);
             if ( FormatTool->AddToEvent(dataTypeName(), iterator.key(), &data).isFailure()){
-	       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << iterator.key() << " not found in SG " << endreq;
+	       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << iterator.key() << " not found in SG " << endmsg;
 	    }else{
-	      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << " (" << iterator.key() << ") Electron retrieved" << endreq;
+	      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << " (" << iterator.key() << ") Electron retrieved" << endmsg;
             }
 	  }
     }	  
@@ -85,7 +85,7 @@ namespace JiveXML {
    */
   const DataMap ElectronRetriever::getData(const ElectronContainer* elCont) {
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in getData()" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in getData()" << endmsg;
 
     DataMap m_DataMap;
 
@@ -241,7 +241,7 @@ namespace JiveXML {
          std::string clusterKey = clusterLink.dataID(); // Storegate key of 
          int clusterIndex = clusterLink.index(); // index into the contianer
 //         if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << counter << " CaloCluster " << clusterKey << " ," 
-//                        << " Index " << clusterIndex << " " << endreq; 
+//                        << " Index " << clusterIndex << " " << endmsg; 
 
 	  clusterKeyVec.push_back(DataType( clusterKey ));
 	  clusterIndexVec.push_back(DataType( clusterIndex ));
@@ -255,7 +255,7 @@ namespace JiveXML {
          std::string trackKey = trackLink.dataID(); // Storegate key of 
          int trackIndex = trackLink.index(); // index into the contianer
  //         if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << counter << " TrackParticle " << trackKey << " ," 
- //                  << " Index " << trackIndex << " " << endreq; 
+ //                  << " Index " << trackIndex << " " << endmsg; 
 
 	  trackKeyVec.push_back(DataType( trackKey ));
 	  trackIndexVec.push_back(DataType( trackIndex));
@@ -321,7 +321,7 @@ namespace JiveXML {
     m_DataMap["trackIndex"] = trackIndexVec;
 
     if (msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) << dataTypeName() << " retrieved with " << phi.size() << " entries"<< endreq;
+      msg(MSG::DEBUG) << dataTypeName() << " retrieved with " << phi.size() << " entries"<< endmsg;
     }
 
     //All collections retrieved okay

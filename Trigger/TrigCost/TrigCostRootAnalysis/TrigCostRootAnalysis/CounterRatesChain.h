@@ -21,7 +21,6 @@
 #include <Rtypes.h>
 
 namespace TrigCostRootAnalysis {
-
   //Forward declaration
   class TrigCostData;
 
@@ -30,21 +29,17 @@ namespace TrigCostRootAnalysis {
    * Record rates for a single chain
    * @see CounterBase
    */
-  class CounterRatesChain : public CounterBaseRates {
-
-   public:
-
-    CounterRatesChain( const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel = 10, MonitorBase* _parent = 0 );
+  class CounterRatesChain: public CounterBaseRates {
+  public:
+    CounterRatesChain(const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel = 10,
+                      MonitorBase* _parent = 0);
     ~CounterRatesChain();
     void debug(UInt_t _e);
 
     Float_t runDirect(Bool_t _usePrescale = kTRUE);
     Double_t runWeight(Bool_t _includeExpress = kFALSE);
-
-   private:
-
+  private:
   }; //class CounterRatesChain
-
 } // namespace TrigCostRootAnalysis
 
 #endif //TrigCostRootAnalysis_CounterRatesChain_H

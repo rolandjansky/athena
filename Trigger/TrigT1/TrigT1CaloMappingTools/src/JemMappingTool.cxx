@@ -48,7 +48,7 @@ JemMappingTool::~JemMappingTool()
 StatusCode JemMappingTool::initialize()
 {
   msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << PACKAGE_VERSION << endreq;
+                 << PACKAGE_VERSION << endmsg;
 
   // Initialise extreme eta data vectors
   const double etasNeg[s_etaBinsPerRow] = {-4.05, -3.05, -2.8, -2.55 };

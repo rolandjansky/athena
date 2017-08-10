@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigInDetEventTPCnv
- * @Class  : TrigSpacePointCountsCnv_p4
+ * @class  : TrigSpacePointCountsCnv_p4
  *
  * @brief transient-persistent converter for TrigSpacePointCounts
  *

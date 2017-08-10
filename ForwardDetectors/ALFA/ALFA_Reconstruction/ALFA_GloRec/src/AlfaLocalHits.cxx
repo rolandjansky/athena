@@ -305,7 +305,7 @@ int AlfaTrackCand::IsLeftTrack(){
   &&  m_trackcandhits->GetPathPattern().Contains("A7L1L"))
   ){
     MsgStream LogStream(Athena::getMessageSvc(), "ALFA_TrackCand::IsLeftTrack");
-    LogStream << MSG::DEBUG << "Track candidate is left" << endreq;
+    LogStream << MSG::DEBUG << "Track candidate is left" << endmsg;
     return 1;
   }else{
     return 0;
@@ -319,7 +319,7 @@ int AlfaTrackCand::IsRightTrack(){
   &&  m_trackcandhits->GetPathPattern().Contains("A7R1L"))
   ){
     MsgStream LogStream(Athena::getMessageSvc(), "ALFA_TrackCand::IsRightTrack");
-    LogStream << MSG::DEBUG << "Track candidate is right" << endreq;
+    LogStream << MSG::DEBUG << "Track candidate is right" << endmsg;
     return 1;
   }else{
     return 0;
@@ -333,7 +333,7 @@ int AlfaTrackCand::IsLowerArmTrack(){
   &&  m_trackcandhits->GetPathPattern().Contains("A7R1L"))
   ){
     MsgStream LogStream(Athena::getMessageSvc(), "ALFA_TrackCand::IsLowerArmTrack");
-    LogStream << MSG::DEBUG << "Track candidate is in the lower arm" << endreq;
+    LogStream << MSG::DEBUG << "Track candidate is in the lower arm" << endmsg;
     return 1;
   }else{
     return 0;
@@ -347,7 +347,7 @@ int AlfaTrackCand::IsUpperArmTrack(){
   &&  m_trackcandhits->GetPathPattern().Contains("A7R1U"))
   ){
     MsgStream LogStream(Athena::getMessageSvc(), "ALFA_TrackCand::IsUpperArmTrack");
-    LogStream << MSG::DEBUG << "Track candidate is in the upper arm" << endreq;
+    LogStream << MSG::DEBUG << "Track candidate is in the upper arm" << endmsg;
     return 1;
   }else{
     return 0;

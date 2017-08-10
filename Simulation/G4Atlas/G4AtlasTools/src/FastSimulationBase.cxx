@@ -10,8 +10,8 @@
 
 FastSimulationBase::FastSimulationBase(const std::string& type, const std::string& name, const IInterface* parent)
   : AthAlgTool(type,name,parent)
-#ifndef ATHENAHIVE
-    , m_FastSimModel(nullptr)
+#ifndef G4MULTITHREADED
+  , m_FastSimModel(nullptr)
 #endif
 {
   declareProperty("RegionNames" , m_regionNames );
@@ -80,7 +80,7 @@ StatusCode FastSimulationBase::queryInterface(const InterfaceID& riid, void** pp
 
 G4VFastSimulationModel* FastSimulationBase::getFastSimModel()
 {
-#ifdef ATHENAHIVE
+#ifdef G4MULTITHREADED
   // Get current thread-ID
   const auto tid = std::this_thread::get_id();
   // Retrieve it from the FastSimModel map
@@ -94,7 +94,7 @@ G4VFastSimulationModel* FastSimulationBase::getFastSimModel()
 
 void FastSimulationBase::setFastSimModel(G4VFastSimulationModel* fastsimmodel)
 {
-#ifdef ATHENAHIVE
+#ifdef G4MULTITHREADED
   // Make sure one isn't already assigned
   const auto tid = std::this_thread::get_id();
   ATH_MSG_DEBUG("Creating and registering FastSimModel " << fastsimmodel << " in thread " << tid);

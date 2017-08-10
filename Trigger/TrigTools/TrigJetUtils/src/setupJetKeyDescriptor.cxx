@@ -26,7 +26,7 @@ namespace TrigJetUtils {
       if( log.level() <= MSG::DEBUG ) {
          log << MSG::DEBUG
              << "Checking if StoreGate already contains a JetKeyMap ..."
-             << endreq;
+             << endmsg;
       }
 
       const JetKeyDescriptor* jetKeyDescrConst = 0;
@@ -36,20 +36,20 @@ namespace TrigJetUtils {
          if( log.level() <= MSG::VERBOSE ) {
             log << MSG::VERBOSE
                 << "StoreGate contains a JetKeyDescriptor with key <"
-                << storeKey << "> ! Trying to retrieve it " << endreq;
+                << storeKey << "> ! Trying to retrieve it " << endmsg;
          }
 
          if( sg->retrieve( jetKeyDescrConst, storeKey ).isFailure() ) {
             log << MSG::FATAL << "Couldn't retrieve JetKeyDescriptor with "
-                << "key: " << storeKey << endreq;
+                << "key: " << storeKey << endmsg;
             return StatusCode::FAILURE;
          }
 
          if( log.level() <= MSG::VERBOSE ) {
-            log << MSG::VERBOSE << "printing" << endreq;
+            log << MSG::VERBOSE << "printing" << endmsg;
             JetKeyDescriptorInstance::instance()->printOut( log );
             log << MSG::VERBOSE << "PRINT >" << jetKeyDescrConst << "<"
-                << endreq;
+                << endmsg;
          }
 
       } else {
@@ -62,12 +62,12 @@ namespace TrigJetUtils {
 
          if( log.level() <= MSG::DEBUG ) {
             log << MSG::DEBUG << "Trying to record JetKeyDescriptor wit key <"
-                << storeKey << "> into StoreGate !" << endreq;
+                << storeKey << "> into StoreGate !" << endmsg;
          }
          if( sg->record( jetKeyDescr, storeKey ).isFailure() ) {
             log << MSG::WARNING << "Error recording JetKeyMap with key <"
                 << storeKey << "> into StoreGate !"
-                << " Giving up!" << endreq;
+                << " Giving up!" << endmsg;
          }
       }
 

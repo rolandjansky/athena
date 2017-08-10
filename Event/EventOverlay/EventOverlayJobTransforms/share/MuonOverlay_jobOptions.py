@@ -39,7 +39,7 @@ if DetFlags.overlay.MDT_on() or DetFlags.overlay.CSC_on() or DetFlags.overlay.RP
 
     if DetFlags.overlay.CSC_on():
         if readBS:
-           ToolSvc.CscRawDataProviderTool.EvtStore = "OriginalEvent_SG"
+           ToolSvc.CscRawDataProviderTool.RdoLocation = "OriginalEvent_SG/CSCRDO"
         include ( "CscOverlay/CscOverlay_jobOptions.py" )
         job.CscOverlay.IsByteStream = readBS
         job.CscOverlay.DataStore = "OriginalEvent_SG"
@@ -61,7 +61,7 @@ if DetFlags.overlay.MDT_on() or DetFlags.overlay.CSC_on() or DetFlags.overlay.RP
         job.MdtDigitToMdtRDO.EvtStore = job.MdtOverlay.OutputStore
 
         if readBS:
-           ToolSvc.MdtRawDataProviderTool.EvtStore = "OriginalEvent_SG"
+           ToolSvc.MdtRawDataProviderTool.RdoLocation = "OriginalEvent_SG/MDTCSM"
            job.MdtOverlay.ConvertRDOToDigitTool.RetrievePrivateCopy = False
 
         #job.MdtOverlay.OutputLevel = VERBOSE
@@ -75,7 +75,7 @@ if DetFlags.overlay.MDT_on() or DetFlags.overlay.CSC_on() or DetFlags.overlay.RP
         #include ( "RpcOverlay/RpcOverlay_jobOptions.py" )
         #job.RpcOverlay.DataStore = "BkgEvent_2_SG"
         if readBS:
-           ToolSvc.RpcRawDataProviderTool.EvtStore = "OriginalEvent_SG"
+           ToolSvc.RpcRawDataProviderTool.RdoLocation = "OriginalEvent_SG/RPCPAD"
            job.RpcOverlay.ConvertRDOToDigitTool.RetrievePrivateCopy = False 
         #job.RpcOverlay.OutputLevel = VERBOSE
         #job.RpcDigitToRpcRDO.OutputLevel = VERBOSE
@@ -89,6 +89,7 @@ if DetFlags.overlay.MDT_on() or DetFlags.overlay.CSC_on() or DetFlags.overlay.RP
         #job.TgcOverlay.DataStore = "BkgEvent_2_SG"
         if readBS:
            ToolSvc.TgcRawDataProviderTool.EvtStore = "OriginalEvent_SG"
+
            job.TgcOverlay.ConvertRDOToDigitTool.RetrievePrivateCopy = False
 
            # storegate dump

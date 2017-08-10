@@ -59,7 +59,7 @@ public:
    */
   RoiDescriptor(double eta_,   double etaMinus_,   double etaPlus_, 
 		double phi_,   double phiMinus_,   double phiPlus_, 
-		double zed_=0, double zedMinus_=-zedWidthDefault, double zedPlus_=zedWidthDefault   );
+		double zed_=0, double zedMinus_=-s_zedWidthDefault, double zedPlus_=s_zedWidthDefault   );
   /**
    * @brief constructor
    * @param etaMinus eta at rear  of RoI
@@ -185,7 +185,7 @@ protected:
 protected:
 
   /// default parameters - there may be better ways, but this will do
-  static const double zedWidthDefault;
+  static const double s_zedWidthDefault;
 
 protected:
 

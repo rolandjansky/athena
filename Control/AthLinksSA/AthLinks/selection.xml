@@ -1,0 +1,48 @@
+<!-- $Id: selection.xml 572309 2013-11-25 16:22:38Z krasznaa $ -->
+<lcgdict>
+
+  <!-- The element link base class(es): -->
+  <class name="ElementLinkBase" >
+    <field name="m_isDirectIO" transient="true" />
+  </class>
+  <read sourceClass="ElementLinkBase" version="[1-]"
+        targetClass="ElementLinkBase" source=""
+        target="m_isDirectIO" >
+    <![CDATA[
+       // Tell the object that direct ROOT I/O is happening:
+       m_isDirectIO = true;
+       // Let the object prepare for being used:
+       newObj->toTransient();
+    ]]>
+  </read>
+
+  <!-- The element link vector base class(es): -->
+  <class name="ElementLinkVectorBase" >
+    <field name="m_isDirectIO" transient="true" />
+  </class>
+  <read sourceClass="ElementLinkVectorBase" version="[1-]"
+        targetClass="ElementLinkVectorBase" source=""
+        target="m_isDirectIO" >
+    <![CDATA[
+       // Tell the object that direct ROOT I/O is happening:
+       m_isDirectIO = true;
+       // Let the object prepare for being used:
+       newObj->toTransient();
+    ]]>
+  </read>
+
+  <!-- The data link base class(es): -->
+  <class name="DataLinkBase" >
+    <field name="m_isDirectIO" transient="true" />
+  </class>
+  <read sourceClass="DataLinkBase" version="[1-]"
+        targetClass="DataLinkBase" source=""
+        target="m_isDirectIO" >
+    <![CDATA[
+       // Tell the object that direct ROOT I/O is happening:
+       m_isDirectIO = true;
+       // Let the object prepare for being used:
+       newObj->toTransient();
+    ]]>
+  </read>
+</lcgdict>

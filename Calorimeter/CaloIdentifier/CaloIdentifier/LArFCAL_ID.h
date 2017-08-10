@@ -46,6 +46,7 @@
   *                        except phi=5,13: eta = [0,14]   (new FCAL desciption) <br><br>
   *
   * 3524 connected cells in total  <br>
+  * </pre>
   *
   * @author started by RD Schaffer
   * @author maintained by F Ledroit

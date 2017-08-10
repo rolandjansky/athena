@@ -46,8 +46,8 @@ class MatrixReadOutStructure : public RPCReadOut {
   bool is0LocAdd();
   bool is1LocAdd(); 
 //
-  ubit16 getFooterVal() {return footerVal;};
-  ubit16 getFooterPos() {return footerPos[0];};
+  ubit16 getFooterVal() {return s_footerVal;};
+  ubit16 getFooterPos() {return s_footerPos[0];};
 
   virtual bool isHeader();
           bool isSubHeader();
@@ -86,22 +86,22 @@ class MatrixReadOutStructure : public RPCReadOut {
 
 
   //some static parameter describing the structure
-  static const ubit16 headerNum=3;
-  static const ubit16 headerPos[headerNum];
-  static const ubit16 headerLen[headerNum];
-  static const ubit16 headerVal;
-  static const ubit16 subHeaderNum=2;
-  static const ubit16 subHeaderPos[subHeaderNum];
-  static const ubit16 subHeaderLen[subHeaderNum];
-  static const ubit16 subHeaderVal;
-  static const ubit16 CMABodyNum=5;
-  static const ubit16 CMABodyPos[CMABodyNum];
-  static const ubit16 CMABodyLen[CMABodyNum];
-  static const ubit16 CMABodyVal;
-  static const ubit16 footerNum=3;
-  static const ubit16 footerPos[footerNum];
-  static const ubit16 footerLen[footerNum];
-  static const ubit16 footerVal;
+  static const ubit16 s_headerNum=3;
+  static const ubit16 s_headerPos[s_headerNum];
+  static const ubit16 s_headerLen[s_headerNum];
+  static const ubit16 s_headerVal;
+  static const ubit16 s_subHeaderNum=2;
+  static const ubit16 s_subHeaderPos[s_subHeaderNum];
+  static const ubit16 s_subHeaderLen[s_subHeaderNum];
+  static const ubit16 s_subHeaderVal;
+  static const ubit16 s_CMABodyNum=5;
+  static const ubit16 s_CMABodyPos[s_CMABodyNum];
+  static const ubit16 s_CMABodyLen[s_CMABodyNum];
+  static const ubit16 s_CMABodyVal;
+  static const ubit16 s_footerNum=3;
+  static const ubit16 s_footerPos[s_footerNum];
+  static const ubit16 s_footerLen[s_footerNum];
+  static const ubit16 s_footerVal;
 
 
 

@@ -31,7 +31,7 @@ DFlowAlg2::DFlowAlg2( const std::string& name,
 			  ISvcLocator* pSvcLocator ) : 
   ::AthAlgorithm( name, pSvcLocator ),
   m_r_int("dflow_int"),
-  m_rw_int("dflow_int"),
+  m_w_int("dflow_int2"),
   m_ints("dlow_ints")
   
 {
@@ -44,8 +44,8 @@ DFlowAlg2::DFlowAlg2( const std::string& name,
                   m_r_int = SG::ReadHandle<int>("dflow_int"),
                   "Data flow of int");
 
-  declareProperty("RWIntFlow", 
-                  m_rw_int = SG::UpdateHandle<int>("dflow_int"),
+  declareProperty("WIntFlow", 
+                  m_w_int = SG::WriteHandle<int>("dflow_int2"),
                   "Data flow of int");
 
   declareProperty("IntsFlow", 
@@ -88,19 +88,15 @@ StatusCode DFlowAlg2::execute()
   if (m_r_int.isValid()) {
     ATH_MSG_INFO("val: " << *(m_r_int.cptr()));
   }
-  ATH_MSG_INFO("myint rw-handle...");
-  ATH_MSG_INFO("name: [" << m_rw_int.name() << "]");
-  ATH_MSG_INFO("store [" << m_rw_int.store() << "]");
-  ATH_MSG_INFO("clid: [" << m_rw_int.clid() << "]");
+  ATH_MSG_INFO("myint w-handle...");
+  ATH_MSG_INFO("name: [" << m_w_int.name() << "]");
+  ATH_MSG_INFO("store [" << m_w_int.store() << "]");
+  ATH_MSG_INFO("clid: [" << m_w_int.clid() << "]");
 
-  ATH_MSG_INFO("ptr: " << m_rw_int.ptr());
-  if (m_rw_int.isValid()) {
-    ATH_MSG_INFO("val: " << *(m_rw_int.cptr()));
-    *m_rw_int += 100;
+  ATH_CHECK( m_w_int.record (std::make_unique<int> (*m_r_int + 1000)) );
 
-    ATH_MSG_INFO("val: " << *m_rw_int);
-  }
-  ATH_MSG_INFO("cptr: " << m_rw_int.cptr());
+  ATH_MSG_INFO("val: " << *m_w_int);
+  ATH_MSG_INFO("cptr: " << m_w_int.cptr());
 
   ATH_MSG_INFO("ints w-handle...");
   m_ints = CxxUtils::make_unique<std::vector<int> >();

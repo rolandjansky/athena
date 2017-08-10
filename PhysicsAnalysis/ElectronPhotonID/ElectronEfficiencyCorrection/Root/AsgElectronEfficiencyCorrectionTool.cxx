@@ -74,7 +74,7 @@ AsgElectronEfficiencyCorrectionTool::AsgElectronEfficiencyCorrectionTool(std::st
   // Declare the needed properties
   declareProperty("CorrectionFileNameList", m_corrFileNameList,
                   "List of file names that store the correction factors for simulation.");
-  declareProperty("MapFilePath", m_mapFile = "ElectronEfficiencyCorrection/map1.txt" ,
+  declareProperty("MapFilePath", m_mapFile = "ElectronEfficiencyCorrection/2015_2016/rel20.7/Moriond_February2017_v1/map0.txt" ,
                   "Full path to the map file");
   declareProperty("RecoKey", m_recoKey = "" ,
                   "Key associated with reconstruction");
@@ -177,6 +177,9 @@ AsgElectronEfficiencyCorrectionTool::initialize() {
     if (m_corrFileNameList.at(i).find("efficiency.") != std::string::npos) {
       m_sysSubstring = "TriggerEff_";
     }
+    if (m_corrFileNameList.at(i).find("efficiencySF.ChargeID") != std::string::npos) {
+      m_sysSubstring = "ChargeIDSel_";
+    }
     if (m_sysSubstring == "") {
       ATH_MSG_ERROR("Could NOT find systematics Substring file name " << m_sysSubstring);
       return StatusCode::FAILURE;
@@ -228,6 +231,7 @@ AsgElectronEfficiencyCorrectionTool::initialize() {
     eta.push_back(2.47);
 
     std::vector<float> pt;
+    pt.push_back(4500);
     pt.push_back(7000);
     pt.push_back(10000);
     pt.push_back(15000);
@@ -289,7 +293,7 @@ AsgElectronEfficiencyCorrectionTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
-// =============================================================================
+/// =============================================================================
 // Athena finalize method
 // =============================================================================
 StatusCode

@@ -127,16 +127,16 @@ StatusCode CscCalibMonToolPed::finalize()
 CscCalibMonToolPed::~CscCalibMonToolPed()
 {
 
-  m_log << MSG::INFO << "CscCalibMonToolPed :  deleting CscCalibMonToolPed " << endreq;
+  m_log << MSG::INFO << "CscCalibMonToolPed :  deleting CscCalibMonToolPed " << endmsg;
 }
 
 StatusCode CscCalibMonToolPed::bookHistograms()
 { 
   if (!CscCalibMonToolBase::bookHistograms().isSuccess())
   {
-     m_log << MSG::WARNING << "CscCalibMonToolPed : in bookHistograms()" << endreq;
+     m_log << MSG::WARNING << "CscCalibMonToolPed : in bookHistograms()" << endmsg;
   }
-  if (m_debuglevel) m_log << MSG::DEBUG << "CscCalibMonToolPed : in bookHistograms()" << endreq;
+  if (m_debuglevel) m_log << MSG::DEBUG << "CscCalibMonToolPed : in bookHistograms()" << endmsg;
 
   StatusCode sc = StatusCode::SUCCESS;
 
@@ -314,128 +314,128 @@ StatusCode CscCalibMonToolPed::bookHistograms()
 
 
     //initialize, name, and book histograms in histogram collections:
-    if(m_debuglevel) m_log << MSG::DEBUG << "Registering pedNewColl" << endreq;
+    if(m_debuglevel) m_log << MSG::DEBUG << "Registering pedNewColl" << endmsg;
 
     sc = bookHistCollection(m_pedNewColl, pedDataName, pedDataTitle, newCatName, newCatTitle,
         pedAxisLabel, pedNumBins, pedLowBound, pedHighBound, pedSubDir);
     if(!sc.isSuccess())
     {
-      m_log << MSG::FATAL << "Failed to book hist"<< endreq;
+      m_log << MSG::FATAL << "Failed to book hist"<< endmsg;
       return StatusCode::FAILURE;
     } 
-    if(m_debuglevel) m_log << MSG::DEBUG << "Registering pedOldColl" << endreq;
+    if(m_debuglevel) m_log << MSG::DEBUG << "Registering pedOldColl" << endmsg;
     sc = bookHistCollection(m_pedOldColl, pedDataName, pedDataTitle, oldCatName, oldCatTitle,
         pedAxisLabel, pedNumBins, pedLowBound, pedHighBound, pedSubDir);
     if(!sc.isSuccess())
     {
-      m_log << MSG::FATAL << "Failed to book hist"<< endreq;
+      m_log << MSG::FATAL << "Failed to book hist"<< endmsg;
       return StatusCode::FAILURE;
     } 
 
-    if(m_debuglevel) m_log << MSG::DEBUG << "Registering pedDiffColl" << endreq;
+    if(m_debuglevel) m_log << MSG::DEBUG << "Registering pedDiffColl" << endmsg;
     sc = bookHistCollection(m_pedDiffColl, pedDataName, pedDataTitle, diffCatName, diffCatTitle,
         pedDiffAxisLabel, 100, -2, 2, pedSubDir);
     if(!sc.isSuccess())
     {
-      m_log << MSG::FATAL << "Failed to book hist"<< endreq;
+      m_log << MSG::FATAL << "Failed to book hist"<< endmsg;
       return StatusCode::FAILURE;
     } 
 
-    if(m_debuglevel) m_log << MSG::DEBUG << "Registering noiseNewColl" << endreq;
+    if(m_debuglevel) m_log << MSG::DEBUG << "Registering noiseNewColl" << endmsg;
     sc = bookHistCollection(m_noiseNewColl, noiseDataName, noiseDataTitle, newCatName, 
         newCatTitle, noiseAxisLabel, noiseNumBins, noiseLowBound, noiseHighBound, noiseSubDir);
     if(!sc.isSuccess())
     {
-      m_log << MSG::FATAL << "Failed to book hist"<< endreq;
+      m_log << MSG::FATAL << "Failed to book hist"<< endmsg;
       return StatusCode::FAILURE;
     } 
 
-    if(m_debuglevel) m_log << MSG::DEBUG << "Registering noiseOldColl" << endreq;
+    if(m_debuglevel) m_log << MSG::DEBUG << "Registering noiseOldColl" << endmsg;
     sc = bookHistCollection(m_noiseOldColl, noiseDataName, noiseDataTitle, oldCatName, 
         oldCatTitle, noiseAxisLabel, 100, -2, 2, noiseSubDir);
     if(!sc.isSuccess())
     {
-      m_log << MSG::FATAL << "Failed to book hist"<< endreq;
+      m_log << MSG::FATAL << "Failed to book hist"<< endmsg;
       return StatusCode::FAILURE;
     } 
 
-    if(m_debuglevel) m_log << MSG::DEBUG << "Registering noiseDiffColl" << endreq;
+    if(m_debuglevel) m_log << MSG::DEBUG << "Registering noiseDiffColl" << endmsg;
     sc = bookHistCollection(m_noiseDiffColl, noiseDataName, noiseDataTitle, diffCatName, 
         diffCatTitle, noiseDiffAxisLabel, noiseNumBins, -1*noiseHighBound, noiseHighBound,noiseSubDir);
     if(!sc.isSuccess())
     {
-      m_log << MSG::FATAL << "Failed to book hist"<< endreq;
+      m_log << MSG::FATAL << "Failed to book hist"<< endmsg;
       return StatusCode::FAILURE;
     } 
 
-    if(m_debuglevel) m_log << MSG::DEBUG << "Registering rmsNewColl" << endreq;
+    if(m_debuglevel) m_log << MSG::DEBUG << "Registering rmsNewColl" << endmsg;
     sc = bookHistCollection(m_rmsNewColl, rmsDataName, rmsDataTitle, newCatName, 
         newCatTitle, rmsAxisLabel, rmsNumBins, rmsLowBound, rmsHighBound, rmsSubDir);
     if(!sc.isSuccess())
     {
-      m_log << MSG::FATAL << "Failed to book hist"<< endreq;
+      m_log << MSG::FATAL << "Failed to book hist"<< endmsg;
       return StatusCode::FAILURE;
     } 
 
-    if(m_debuglevel) m_log << MSG::DEBUG << "Registering rmsOldColl" << endreq;
+    if(m_debuglevel) m_log << MSG::DEBUG << "Registering rmsOldColl" << endmsg;
     sc = bookHistCollection(m_rmsOldColl, rmsDataName, rmsDataTitle, oldCatName, 
         oldCatTitle, rmsAxisLabel, rmsNumBins, rmsLowBound, rmsHighBound, rmsSubDir);
     if(!sc.isSuccess())
     {
-      m_log << MSG::FATAL << "Failed to book hist"<< endreq;
+      m_log << MSG::FATAL << "Failed to book hist"<< endmsg;
       return StatusCode::FAILURE;
     } 
 
-    if(m_debuglevel) m_log << MSG::DEBUG << "Registering rmsDiffColl" << endreq;
+    if(m_debuglevel) m_log << MSG::DEBUG << "Registering rmsDiffColl" << endmsg;
     sc = bookHistCollection(m_rmsDiffColl, rmsDataName, rmsDataTitle, diffCatName, 
         diffCatTitle, rmsDiffAxisLabel, rmsNumBins, -1*rmsHighBound, rmsHighBound,rmsSubDir);
     if(!sc.isSuccess())
     {
-      m_log << MSG::FATAL << "Failed to book hist"<< endreq;
+      m_log << MSG::FATAL << "Failed to book hist"<< endmsg;
       return StatusCode::FAILURE;
     } 
 
-    if(m_debuglevel) m_log << MSG::DEBUG << "Registering f001NewColl" << endreq;
+    if(m_debuglevel) m_log << MSG::DEBUG << "Registering f001NewColl" << endmsg;
     sc = bookHistCollection(m_f001NewColl, f001DataName, f001DataTitle, newCatName, 
         newCatTitle, f001AxisLabel, f001NumBins, f001LowBound, f001HighBound, f001SubDir);
     if(!sc.isSuccess())
     {
-      m_log << MSG::FATAL << "Failed to book hist"<< endreq;
+      m_log << MSG::FATAL << "Failed to book hist"<< endmsg;
       return StatusCode::FAILURE;
     } 
 
-    if(m_debuglevel) m_log << MSG::DEBUG << "Registering f001OldColl" << endreq;
+    if(m_debuglevel) m_log << MSG::DEBUG << "Registering f001OldColl" << endmsg;
     sc = bookHistCollection(m_f001OldColl, f001DataName, f001DataTitle, oldCatName, 
         oldCatTitle, f001AxisLabel, 100, -2, 2, f001SubDir);
     if(!sc.isSuccess())
     {
-      m_log << MSG::FATAL << "Failed to book hist"<< endreq;
+      m_log << MSG::FATAL << "Failed to book hist"<< endmsg;
       return StatusCode::FAILURE;
     } 
 
-    if(m_debuglevel) m_log << MSG::DEBUG << "Registering f001DiffColl" << endreq;
+    if(m_debuglevel) m_log << MSG::DEBUG << "Registering f001DiffColl" << endmsg;
     sc = bookHistCollection(m_f001DiffColl, f001DataName, f001DataTitle, diffCatName, 
         diffCatTitle, f001DiffAxisLabel, 60, -30, 30, f001SubDir);
     if(!sc.isSuccess())
     {
-      m_log << MSG::FATAL << "Failed to book hist"<< endreq;
+      m_log << MSG::FATAL << "Failed to book hist"<< endmsg;
       return StatusCode::FAILURE;
     } 
     
-    if(m_debuglevel) m_log << MSG::DEBUG << "Registering onlTHoldBreachColl" << endreq;
+    if(m_debuglevel) m_log << MSG::DEBUG << "Registering onlTHoldBreachColl" << endmsg;
     sc = bookHistCollection(m_onlTHoldBreachColl, onlTHoldBreachDataName, onlTHoldBreachDataTitle, "",  
         "" , "Number of Online THold Breachs", 100, 0, 1000, onlTHoldBreachSubDir);
     if(!sc.isSuccess())
     {
-      m_log << MSG::FATAL << "Failed to book hist"<< endreq;
+      m_log << MSG::FATAL << "Failed to book hist"<< endmsg;
       return StatusCode::FAILURE;
     } 
-    if(m_debuglevel) m_log << MSG::DEBUG << "Registering Num Entries" << endreq;
+    if(m_debuglevel) m_log << MSG::DEBUG << "Registering Num Entries" << endmsg;
     sc = bookHistCollection(m_nEntriesColl, nEntriesDataName, nEntriesDataTitle, "", 
         "", nEntriesAxisLabel, nEntriesNumBins, nEntriesLowBound, nEntriesHighBound, nEntriesSubDir, nEntriesHistMask);
     if(!sc.isSuccess())
     {
-      m_log << MSG::FATAL << "Failed to book hist"<< endreq;
+      m_log << MSG::FATAL << "Failed to book hist"<< endmsg;
       return StatusCode::FAILURE;
     } 
 
@@ -443,14 +443,14 @@ StatusCode CscCalibMonToolPed::bookHistograms()
         chi2AxisLabel, chi2NumBins, chi2LowBound, chi2HighBound, chi2SubDir);
     if(!sc.isSuccess())
     {
-      m_log << MSG::FATAL << "Failed to book hist"<< endreq;
+      m_log << MSG::FATAL << "Failed to book hist"<< endmsg;
       return StatusCode::FAILURE;
     }
 
     sc = bookHistCollection(m_tholdDiffColl, "thold", "Threshold", diffCatName, diffCatTitle, "#Delta{}Threshold", 500, -10, 10, "THold");
     if(!sc.isSuccess())
     {
-      m_log << MSG::FATAL << "Failed to book hist"<< endreq;
+      m_log << MSG::FATAL << "Failed to book hist"<< endmsg;
       return StatusCode::FAILURE;
     }
 
@@ -467,7 +467,7 @@ StatusCode CscCalibMonToolPed::bookHistograms()
 //--handleParameter: Processes a vector of parameter values by filling the appropriate histograms
 StatusCode CscCalibMonToolPed::handleParameter(const CscCalibResultCollection* parVals)
 {
-  if (m_debuglevel) m_log << MSG::DEBUG << "CscCalibMonToolPed : in procParameter()" << endreq;
+  if (m_debuglevel) m_log << MSG::DEBUG << "CscCalibMonToolPed : in procParameter()" << endmsg;
 
   //The whole point of this funciton is to pass the correct histograms and setup info 
   //to CsccalibMonToolBase::procParameter. To organize this, we store the setup info into
@@ -568,7 +568,7 @@ StatusCode CscCalibMonToolPed::handleParameter(const CscCalibResultCollection* p
   else
   {
     m_log << MSG::INFO << "CscCalibMonToolPed : Did not recognize parameter name " 
-      << parName << ". This is usually ok." << endreq;
+      << parName << ". This is usually ok." << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -579,7 +579,7 @@ StatusCode CscCalibMonToolPed::handleParameter(const CscCalibResultCollection* p
   if(!procParameter(parVals,&ProcParameterInput).isSuccess())
   {
     m_log << MSG::FATAL << "CscCalibMonToolPed : Failed to process parameter " 
-      << parName << endreq;
+      << parName << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -623,7 +623,7 @@ void CscCalibMonToolPed::genThreshold(HistCollection * pedColl, HistCollection *
 //requested by the user in m_detailedHashIds.  
 StatusCode CscCalibMonToolPed::postProc()
 {
-  if (m_debuglevel) m_log << MSG::DEBUG << "CscCalibMonToolPed : in postProc()" << endreq;
+  if (m_debuglevel) m_log << MSG::DEBUG << "CscCalibMonToolPed : in postProc()" << endmsg;
 
   StatusCode sc = StatusCode::SUCCESS;
 
@@ -651,13 +651,13 @@ StatusCode CscCalibMonToolPed::postProc()
     std::vector<float> & noiseVec = m_noiseNewColl->data;
     size_t nEntries = rmsVec.size();
     if(nEntries != noiseVec.size()){
-      m_log << MSG::ERROR << "Number of noises != number of rmses" << endreq;
+      m_log << MSG::ERROR << "Number of noises != number of rmses" << endmsg;
       return StatusCode::FAILURE;
     }
-    m_log << MSG::DEBUG << "Filling rmsVnoise " << endreq;
+    m_log << MSG::DEBUG << "Filling rmsVnoise " << endmsg;
 
     for(unsigned int hashId = 0; hashId < nEntries; hashId++){
-      m_log << MSG::DEBUG << "Filling rmsVnoise for hash id " << hashId << endreq;
+      m_log << MSG::DEBUG << "Filling rmsVnoise for hash id " << hashId << endmsg;
       Identifier chanId;
       m_cscIdHelper->get_id(IdentifierHash(hashId), chanId, &chanContext);
       int measuresPhi = m_cscIdHelper->measuresPhi(chanId);
@@ -669,7 +669,7 @@ StatusCode CscCalibMonToolPed::postProc()
           h2_rmsVnoiseEta->Fill(noiseVec[hashId], rmsVec[hashId]);
       }
     }
-    m_log <<MSG::DEBUG << "filled rmsVnoise " << endreq;
+    m_log <<MSG::DEBUG << "filled rmsVnoise " << endmsg;
 
   }
 
@@ -681,7 +681,7 @@ StatusCode CscCalibMonToolPed::postProc()
     if( !sc.isSuccess())
     {
       m_log << MSG::WARNING << " Cannot retrieve object from storegate with key " 
-        << m_histKey <<  " aborting retrieving hists " << endreq;
+        << m_histKey <<  " aborting retrieving hists " << endmsg;
       return StatusCode::RECOVERABLE;
     }
 
@@ -689,7 +689,7 @@ StatusCode CscCalibMonToolPed::postProc()
     {
       m_log << MSG::WARNING << "Container with key " << m_histKey 
         << " does not have a size of one. Do not know how to proceed, so aborting"
-        << " retrieving calibration histograms." << endreq;
+        << " retrieving calibration histograms." << endmsg;
       return StatusCode::RECOVERABLE;
     }
 
@@ -698,19 +698,19 @@ StatusCode CscCalibMonToolPed::postProc()
     if(pedReport->getLabel() != "pedAmps")
     {
       m_log << MSG::WARNING << "Incorrect object retrieved from  container."
-        << " Aborting hist retrieval." << endreq;
+        << " Aborting hist retrieval." << endmsg;
       return StatusCode::RECOVERABLE;
     }
 
     const DataVector<TH1I> * pedAmpHists = pedReport->getPedAmpHists();
     if(!pedAmpHists)
       m_log << MSG::WARNING << "No pedAmpHists vector found from calibration. "
-        << " Won't be in monitoring output file" << endreq;
+        << " Won't be in monitoring output file" << endmsg;
 
     const DataVector<TH1I> * bitHists = pedReport->getBitHists();
     if(!bitHists)
       m_log << MSG::INFO << "No bit histogram vector found from calibration. "
-        << " Won't be in monitoring output file. " << endreq;
+        << " Won't be in monitoring output file. " << endmsg;
 
     const DataVector<TH2F> * bitCorrelations = NULL;
 
@@ -725,7 +725,7 @@ StatusCode CscCalibMonToolPed::postProc()
       if(m_expectedHashIdsAll.count(idItr))
       {
         m_log << MSG::VERBOSE << "Debug info for hash " << idItr 
-          << " is being retrieved." << endreq;
+          << " is being retrieved." << endmsg;
         TH1I * sourceHist;
 
         Identifier chanId;
@@ -747,7 +747,7 @@ StatusCode CscCalibMonToolPed::postProc()
         if(bitCorrelations)
           bitCorrelationPath = getFullPath(geoPath, "BitCorrelations", "");
 
-        if(m_debuglevel) m_log << MSG::DEBUG << "Hash Id: " << idItr << ". Booking channel histograms in paths : " << pedAmpPath << " and " << bitHistPath  << endreq;
+        if(m_debuglevel) m_log << MSG::DEBUG << "Hash Id: " << idItr << ". Booking channel histograms in paths : " << pedAmpPath << " and " << bitHistPath  << endmsg;
         //MonGroup chanMonGroup( this, path , run, ATTRIB_MANAGED);
 
         //Pedestal amplitude histograms
@@ -758,7 +758,7 @@ StatusCode CscCalibMonToolPed::postProc()
           if(!sourceHist)
           {
             m_log << MSG::ERROR << "There is no pedestal amplitude histogram with hashId "
-              << idItr << endreq;
+              << idItr << endmsg;
             return StatusCode::RECOVERABLE;
           }
 
@@ -768,7 +768,7 @@ StatusCode CscCalibMonToolPed::postProc()
 
             m_log << MSG::ERROR << "idItr == " << idItr 
               << " but maximum m_nEntriesColl.data.size() == "
-              << m_nEntriesColl->data.size()  << endreq;
+              << m_nEntriesColl->data.size()  << endmsg;
             return StatusCode::RECOVERABLE;
           }
           m_nEntriesColl->data[idItr] = nEntries;
@@ -833,7 +833,7 @@ StatusCode CscCalibMonToolPed::postProc()
           if(!sourceHist)
           {
             m_log << MSG::ERROR << "There is no bit histogram with hashId "
-              << idItr << " Quiting out of detailed histogram loop." <<  endreq;
+              << idItr << " Quiting out of detailed histogram loop." <<  endmsg;
             return StatusCode::RECOVERABLE;
           }
 
@@ -882,7 +882,7 @@ StatusCode CscCalibMonToolPed::postProc()
   }
   else if (m_debuglevel)
     m_log << MSG::DEBUG << "No channels flagged for debug info retrieval"
-      <<endreq;
+      <<endmsg;
 
   //Copy data from the num entries vector to all relevant histograms
   copyDataToHists(m_nEntriesColl);

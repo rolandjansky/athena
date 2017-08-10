@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigMuonEventTPCnv
- * @Class  : IsoMuonFeature_p3
+ * @class  : IsoMuonFeature_p3
  *
  * @brief persistent partner for IsoMuonFeature
  *

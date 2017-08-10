@@ -79,6 +79,7 @@
       </expectations>
    </TEST>
 
+<!-- Problem running pythia
    <TEST name="EvtGen" type="script" suite="PerfMon">
       <package_atn>Control/PerformanceMonitoring/PerfMonTests</package_atn>
       <options_atn>chappy.py PerfMonTests/atn_test_perfMonSvc_evtgen.py</options_atn>
@@ -91,18 +92,6 @@
          <returnValue>0</returnValue>
       </expectations>
    </TEST>
-
-   <TEST name="TruthJets" type="script" suite="PerfMon">
-      <package_atn>Control/PerformanceMonitoring/PerfMonTests</package_atn>
-      <options_atn>chappy.py PerfMonTests/atn_test_perfMonSvc_truthjets.py</options_atn>
-      <timelimit>10</timelimit>
-      <author> Sebastien Binet </author>
-      <mailto> binet@cern.ch </mailto>
-      <expectations>
-         <successMessage>All tests SUCCESSFULLY completed</successMessage>
-         <errorMessage>ERROR</errorMessage>
-         <returnValue>0</returnValue>
-      </expectations>
-   </TEST>
+-->
 
 </atn>

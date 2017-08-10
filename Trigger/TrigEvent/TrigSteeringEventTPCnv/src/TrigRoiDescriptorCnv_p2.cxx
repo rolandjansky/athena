@@ -14,7 +14,7 @@ void TrigRoiDescriptorCnv_p2::persToTrans(const TrigRoiDescriptor_p2* persObj,
 				       TrigRoiDescriptor* transObj, 
 				       MsgStream &log)
 {
-   log << MSG::DEBUG << "TrigRoiDescriptorCnv_p2::persToTrans called " << endreq;
+   log << MSG::DEBUG << "TrigRoiDescriptorCnv_p2::persToTrans called " << endmsg;
 
    double phi       = persObj->geom[PHI]        ;                 
    double eta       = persObj->geom[ETA]        ;                 
@@ -41,8 +41,8 @@ void TrigRoiDescriptorCnv_p2::transToPers(const TrigRoiDescriptor* transObj,
 				       TrigRoiDescriptor_p2* persObj, 
 				       MsgStream &log)
 {
-   log << MSG::DEBUG << "TrigRoiDescriptorCnv_p2::transToPers called " << endreq;
-   //   log << MSG::FATAL << "TrigRoiDescriptorCnv_p1::transToPers called - do not use this converter, use more recent converter" << endreq;  
+   log << MSG::DEBUG << "TrigRoiDescriptorCnv_p2::transToPers called " << endmsg;
+   //   log << MSG::FATAL << "TrigRoiDescriptorCnv_p1::transToPers called - do not use this converter, use more recent converter" << endmsg;  
 
    persObj->geom[PHI]      = transObj->phi()        ;                 
    persObj->geom[ETA]      = transObj->eta()        ;                 

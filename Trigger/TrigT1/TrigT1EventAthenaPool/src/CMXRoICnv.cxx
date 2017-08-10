@@ -20,7 +20,7 @@ CMXRoI_PERS * CMXRoICnv::createPersistent( CMXRoI *transObj)
   
   MsgStream mlog(msgSvc(), "CMXRoIConverter" );
 
-  //mlog << MSG::DEBUG << "CMXRoICnv::createPersistent called" << endreq;
+  //mlog << MSG::DEBUG << "CMXRoICnv::createPersistent called" << endmsg;
 
   CMXRoI_PERS * persObj = m_TPConverter_p1.createPersistent( transObj, mlog );
  
@@ -34,7 +34,7 @@ CMXRoI * CMXRoICnv::createTransient()
 {
   MsgStream mlog(msgSvc(), "CMXRoIConverter" );
   
-  //mlog << MSG::DEBUG << "CMXRoICnv::createTransient called" << endreq;
+  //mlog << MSG::DEBUG << "CMXRoICnv::createTransient called" << endmsg;
 
   static pool::Guid p1_guid( "6EE27E92-E8DE-4F07-810F-025A1450E3BE" );
  

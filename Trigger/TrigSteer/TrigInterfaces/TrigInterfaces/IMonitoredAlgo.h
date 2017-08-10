@@ -14,7 +14,7 @@
 #include <string>
 #include <iostream>
 
-#include <DataModel/DataVector.h>
+#include "AthContainers/DataVector.h"
 /**
  * @brief Interface for HLT algorithms monitoring.
  *

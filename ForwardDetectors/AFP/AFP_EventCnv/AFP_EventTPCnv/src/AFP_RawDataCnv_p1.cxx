@@ -10,7 +10,7 @@ void AFP_RawDataCnv_p1::persToTrans(const AFP_RawData_p1* persObj,
 AFP_RawData* transObj, MsgStream &log) {
 
 
-  log << MSG::DEBUG << "In AFP_RawDataCnv_p1:persToTrans called" << endreq;
+  log << MSG::DEBUG << "In AFP_RawDataCnv_p1:persToTrans called" << endmsg;
 
   transObj->SetZero_PMF();
   transObj->Set_DiscConf (persObj->HitDiscConfig);
@@ -29,7 +29,7 @@ AFP_RawData* transObj, MsgStream &log) {
 void AFP_RawDataCnv_p1::transToPers(const AFP_RawData* transObj, AFP_RawData_p1* persObj, MsgStream &log) {
 
  
-  log << MSG::DEBUG << "In AFP_RawDataCnv_p1:transToPers called" << endreq;
+  log << MSG::DEBUG << "In AFP_RawDataCnv_p1:transToPers called" << endmsg;
  
   persObj->HitDiscConfig  = transObj->Get_DiscConf();
   persObj->Link  = transObj->Get_link();

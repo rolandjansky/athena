@@ -23,7 +23,7 @@ void LUCID_DigiSettings::Initialize(IMessageSvc* msgSvc) {
   
   MsgStream log(m_msgSvc, "LUCID_DigiSettings::initialize");
   
-  log << MSG::INFO << "Initializing" << endreq;
+  log << MSG::INFO << "Initializing" << endmsg;
   
   OverwriteDigiParValues();
 }
@@ -58,7 +58,7 @@ void LUCID_DigiSettings::OverwriteDigiParValues() {
   
   MsgStream log(m_msgSvc, "LUCID_DigiSettings");
 
-  log << MSG::INFO << " OverwriteDigiParValues " << endreq;
+  log << MSG::INFO << " OverwriteDigiParValues " << endmsg;
   
   std::map <std::string, parDouble>::iterator doubleMapIt = m_doubleMap.begin();
   std::map <std::string, parInt>::iterator    intMapIt    = m_intMap.begin();
@@ -74,7 +74,7 @@ void LUCID_DigiSettings::OverwriteDigiParValues() {
 	
 	log << MSG::INFO << " Overwriting: "
 	    << doubleMapIt->second.parDescription << " to : " 
-	    << doubleMapIt->second.overwriteVal   << endreq;
+	    << doubleMapIt->second.overwriteVal   << endmsg;
       } 
     }
   }
@@ -90,7 +90,7 @@ void LUCID_DigiSettings::OverwriteDigiParValues() {
 	
 	log << MSG::INFO << " Overwriting: " 
 	    << intMapIt->second.parDescription << " to : " 
-	    << intMapIt->second.overwriteVal   << endreq;
+	    << intMapIt->second.overwriteVal   << endmsg;
       } 
     }
   }
@@ -103,17 +103,17 @@ void LUCID_DigiSettings::Print() const {
   std::map <std::string, parDouble>::const_iterator doubleMapIt = m_doubleMap.begin();
   std::map <std::string, parInt>::const_iterator    intMapIt    = m_intMap.begin();
   
-  log << MSG::INFO << "===================== Doubles ======================" << endreq;
+  log << MSG::INFO << "===================== Doubles ======================" << endmsg;
 
   for (; doubleMapIt != m_doubleMap.end(); ++doubleMapIt) 
-    log << MSG::INFO << doubleMapIt->second.parDescription << ": " << *(doubleMapIt->second.par) <<endreq; 
+    log << MSG::INFO << doubleMapIt->second.parDescription << ": " << *(doubleMapIt->second.par) <<endmsg; 
   
-  log << MSG::INFO << "===================== Integers ======================" << endreq;
+  log << MSG::INFO << "===================== Integers ======================" << endmsg;
     
   for (; intMapIt != m_intMap.end(); ++intMapIt)
-    log << MSG::INFO  << intMapIt->second.parDescription << ": " << *(intMapIt->second.par) << endreq;
+    log << MSG::INFO  << intMapIt->second.parDescription << ": " << *(intMapIt->second.par) << endmsg;
 
-  log << MSG::INFO << "=====================================================" << endreq;
+  log << MSG::INFO << "=====================================================" << endmsg;
 }
 
 void LUCID_DigiSettings::SetDigiParDouble(std::string parname, double parval) {

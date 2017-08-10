@@ -50,9 +50,9 @@ eflowBuilder::eflowBuilder(const std::string& name,
 		  m_eflowPreparationAlgName);
   declareProperty("eflowObjectBuilderAlgName", m_eflowObjectBuilderAlgName);
   declareProperty("eflowQuantitiesAlgName", m_eflowQuantitiesAlgName);
-  m_eflowPreparationAlg = 0;
-  m_eflowObjectBuilderAlg = 0;
-  m_eflowQuantitiesAlg = 0;
+  m_eflowPreparationAlg = nullptr;
+  m_eflowObjectBuilderAlg = nullptr;
+  m_eflowQuantitiesAlg = nullptr;
 }
 
 eflowBuilder::~eflowBuilder()
@@ -78,7 +78,7 @@ StatusCode eflowBuilder::initialize()
   if( sc.isFailure() ) 
   {
     ATH_MSG_DEBUG( "Unable to create " << m_eflowPreparationAlgName );
-    m_eflowPreparationAlg = 0;
+    m_eflowPreparationAlg = nullptr;
   } 
   else
   {
@@ -94,7 +94,7 @@ StatusCode eflowBuilder::initialize()
   if( sc.isFailure() ) 
   {
     ATH_MSG_DEBUG( "Unable to create " << m_eflowObjectBuilderAlgName );
-    m_eflowObjectBuilderAlg = 0;
+    m_eflowObjectBuilderAlg = nullptr;
   } 
   else
   {
@@ -109,7 +109,7 @@ StatusCode eflowBuilder::initialize()
   if( sc.isFailure() ) 
   {
     ATH_MSG_DEBUG( "Unable to create " << m_eflowQuantitiesAlgName );
-    m_eflowQuantitiesAlg = 0;
+    m_eflowQuantitiesAlg = nullptr;
   } 
   else
   {

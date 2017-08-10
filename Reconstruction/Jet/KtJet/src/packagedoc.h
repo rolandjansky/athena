@@ -3,8 +3,8 @@
 */
 
 // Mainpage for doxygen documentation
-
-@page KtJet_page @mainpage package KtJet
+/**
+@page KtJet_page KtJet package
  *
  * @author  <a href="http://www.hep.ucl.ac.uk/~jmb">J.Butterworth</a>,&nbsp;  
  *          <a href="http://www.hep.ucl.ac.uk/~jpc">J.Couchman</a>,&nbsp;

@@ -21,13 +21,6 @@ InDetPerfPlot_Eff::InDetPerfPlot_Eff(InDetPlotBase* pParent, const std::string& 
   m_trackeff_vs_Z{},
   m_trackeff_vs_prodR{},
   m_trackeff_vs_prodZ{},
-  m_eff_vs_eta_of_daughters{},
-  m_eff_vs_theta_of_daughters{},
-  m_eff_vs_theta_tan_of_daughters{},
-  m_eff_vs_theta_cotan_of_daughters{},
-  m_eff_vs_phi_of_daughters{},
-  m_eff_vs_phi_sin_of_daughters{},
-  m_eff_vs_phi_cos_of_daughters{},
   m_trackinjeteff_vs_eta{},
   m_trackinjeteff_vs_phi{},
   m_trackinjeteff_vs_pt{},
@@ -50,14 +43,6 @@ InDetPerfPlot_Eff::initializePlots() {
 
   book(m_trackeff_vs_prodR, "trackeff_vs_prodR");
   book(m_trackeff_vs_prodZ, "trackeff_vs_prodZ");
-
-  book(m_eff_vs_eta_of_daughters, "eff_vs_eta_of_daughters");
-  book(m_eff_vs_theta_of_daughters, "eff_vs_theta_of_daughters");
-  book(m_eff_vs_theta_tan_of_daughters, "eff_vs_theta_tan_of_daughters");
-  book(m_eff_vs_theta_cotan_of_daughters, "eff_vs_theta_cotan_of_daughters");
-  book(m_eff_vs_phi_of_daughters, "eff_vs_phi_of_daughters");
-  book(m_eff_vs_phi_sin_of_daughters, "eff_vs_phi_sin_of_daughters");
-  book(m_eff_vs_phi_cos_of_daughters, "eff_vs_phi_cos_of_daughters");
 
   book(m_trackinjeteff_vs_eta, "trackinjeteff_vs_eta");
   book(m_trackinjeteff_vs_phi, "trackinjeteff_vs_phi");
@@ -94,26 +79,6 @@ InDetPerfPlot_Eff::fill(const xAOD::TruthParticle& truth, const bool isGood) {
     fillHisto(m_trackeff_vs_prodR, prod_rad, isGood);
     fillHisto(m_trackeff_vs_prodZ, prod_z, isGood);
   }
-}
-
-void
-InDetPerfPlot_Eff::BT_fill(const xAOD::TruthParticle& truth, float weight) {
-  double eta = safelyGetEta(truth);
-  double theta = truth.auxdata< float >("theta");
-  double phi = truth.phi();
-
-  double tan_theta = std::tan(theta);
-  double cot_theta = (1.0 / tan_theta);
-  double sin_phi = std::sin(phi);
-  double cos_phi = std::cos(phi);
-
-  fillHisto(m_eff_vs_eta_of_daughters, eta, weight);
-  fillHisto(m_eff_vs_theta_of_daughters, theta, weight);
-  fillHisto(m_eff_vs_theta_tan_of_daughters, tan_theta, weight);
-  fillHisto(m_eff_vs_theta_cotan_of_daughters, cot_theta, weight);
-  fillHisto(m_eff_vs_phi_of_daughters, phi, weight);
-  fillHisto(m_eff_vs_phi_sin_of_daughters, sin_phi, weight);
-  fillHisto(m_eff_vs_phi_cos_of_daughters, cos_phi, weight);
 }
 
 void

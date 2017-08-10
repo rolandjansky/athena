@@ -115,7 +115,7 @@ typedef struct StackCursor_ StackCursor;
 
 
 /**
- * @Brief Return the handle for a stack trace.
+ * @brief Return the handle for a stack trace.
  * @param addresses Stack trace to store.
  * @param n_addresses Length of the trace.
  *

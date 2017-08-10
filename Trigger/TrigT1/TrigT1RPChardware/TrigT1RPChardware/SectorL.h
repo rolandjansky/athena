@@ -17,15 +17,15 @@ void load(ubit16 padAdd, ubit16 BX, ubit16 RoIAdd, ubit16 pT, ubit16 OPL,
           ubit16 overlapPhi, ubit16 overlapEta, ubit16 RoiAmbiguity, 
 	  ubit16 BCIDcounter);
 void execute();
-ubit16 numberOfBunches(){return nBunMax;};
+ubit16 numberOfBunches(){return m_nBunMax;};
 ubit16 sectorAddress(){return m_sector;};
 CMAword output(ubit16 i);
-CMAword outputToMuCTPI(){return output(nBunMax/2);};
+CMAword outputToMuCTPI(){return output(m_nBunMax/2);};
 // 
 private:
 int m_run;
 int m_event;
-ubit16 nBunMax;                // Maximum number of Bunch crossings to be cons.
+ubit16 m_nBunMax;             // Maximum number of Bunch crossings to be cons.
 ubit16 m_subsystem;
 ubit16 m_sector;
 ubit16 m_maxNumPads;

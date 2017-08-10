@@ -101,9 +101,6 @@ class TileAANtuple : public AthAlgorithm {
     StatusCode execute();
     StatusCode finalize();
 
-    /** Callback to handle Data-driven GeoModel initialisation */
-    virtual StatusCode geoInit(IOVSVC_CALLBACK_ARGS);
-
   private:
 
     StatusCode storeRawChannels(std::string cntID

@@ -24,7 +24,7 @@ using namespace std;
 RandomFunction::RandomFunction( istream & ist,
                               const ResInfo* request) : Resolution(), m_flowMode(Default)
 {
-  m_makeResolution( ist, request );
+  makeResolution( ist, request );
 
 }
 
@@ -39,7 +39,7 @@ RandomFunction::RandomFunction( const TF1 * )  : Resolution(), m_flowMode(Defaul
 void RandomFunction::defineBins(const vector< float > & edges)
 {
   m_axisEdges.push_back(vector<float>(edges)) ;
-  m_initRes() ;
+  initRes() ;
 }
 
 void RandomFunction::defineBins( int nbins, float xlo, float xhi)
@@ -54,7 +54,7 @@ void RandomFunction::defineBins( int nbins, float xlo, float xhi)
   for( int i = 0; i <= nbins; ++i) { 
     m_axisEdges.back().push_back(xlo + ( i * xs )) ;
   }
-  m_initRes() ;
+  initRes() ;
 }
 
 void RandomFunction::addTAxis(const TAxis* axis) {
@@ -62,7 +62,7 @@ void RandomFunction::addTAxis(const TAxis* axis) {
   for( int i = 0; i < axis->GetNbins(); i++) 
     m_axisEdges.back().push_back(axis->GetBinLowEdge( i+1)) ;  
   m_axisEdges.back().push_back(axis->GetBinUpEdge( axis->GetNbins())) ;  
-  m_initRes() ;
+  initRes() ;
 }
 
 int RandomFunction::getNbins(int n) const {
@@ -363,7 +363,7 @@ int RandomFunction::findBin( const vector< float >& loEdges, float x, FindBinMod
 
 
 
-bool RandomFunction::m_parseInputLine( const string & key, const vector< string> & line)
+bool RandomFunction::parseInputLine( const string & key, const vector< string> & line)
 {
   if( key.find("BinEdges") != string::npos ) {
     int npar = line.size();
@@ -372,7 +372,7 @@ bool RandomFunction::m_parseInputLine( const string & key, const vector< string>
     for( int i =0; i < npar; ++i) { 
       m_axisEdges.back().push_back(atof( (line[i]).c_str())) ;
     } 
-    m_initRes() ;
+    initRes() ;
     return true ;
   }
   
@@ -398,7 +398,7 @@ bool RandomFunction::m_parseInputLine( const string & key, const vector< string>
   return false;
 }
 
-void RandomFunction::m_stream( ostream & os) const
+void RandomFunction::stream( ostream & os) const
 {
   // first do bin edges
   for (vector<vector<float> >::const_iterator it =  m_axisEdges.begin();
@@ -432,7 +432,7 @@ void RandomFunction::m_stream( ostream & os) const
 
 
 
-void RandomFunction::m_initRes() {
+void RandomFunction::initRes() {
   m_tf1.resize(getNbins() ) ;  
     
 }

@@ -110,18 +110,18 @@ int m_event;
 //
 // debug flags
 //
-CMAword matrixDebug;
+CMAword m_matrixDebug;
 //
 //Matrix attributes: subsystem, projection, sector, pad, low/high-pt, address;
 //
-int subsystem;  //subsystem 0,1
-int projection; //projection 0=eta view; 1=phi view
-int sector;     //sector address
-int pad;        //pad address in this sector
-int lowhigh;    //lowhigh_pt type, 0=low; 1=high
-int address[2]; //address[0]=eta chamber segment address;
+int m_subsystem;  //subsystem 0,1
+int m_projection; //projection 0=eta view; 1=phi view
+int m_sector;     //sector address
+int m_pad;        //pad address in this sector
+int m_lowhigh;    //lowhigh_pt type, 0=low; 1=high
+int m_address[2]; //address[0]=eta chamber segment address;
                 //address[1]=phi chamber segment address;
-int localadd;   //local Matrix address in the pad
+int m_localadd;   //local Matrix address in the pad
 //
 // dynamic structure for the RPC raw data belonging to this matrix
 //
@@ -138,7 +138,7 @@ struct rpcdata {
   sbit16    delay; // delay time for this hit, in DLL counts
  rpcdata       *next; // pointer to next digit;
 };
-rpcdata *datarpc[2]; // pointers to the rpc raw data, one for each
+rpcdata *m_datarpc[2]; // pointers to the rpc raw data, one for each
 //                   // side of the CMA: 0 for side-x and 1 for side-y;
 //
 // Coincidence Matrix parameters:
@@ -186,16 +186,16 @@ rpcdata *datarpc[2]; // pointers to the rpc raw data, one for each
 ////////////////////////////////////////////////////////////////////////////////
 //
 // CMAword rodat   [2][2][8*NOBXS][2];
-   CMAword input   [2][2][8*NOBXS][2]      // input signals to CMA
-          ,prepr[3][2][2][8*NOBXS][2]      // prepro pattern in CMA
-          ,mjori[3][2][2][8*NOBXS][2]      // majority pattern in CMA
-          ,trigg[3][9*NOBXS]               // trigger pattern in CMA
+   CMAword m_input   [2][2][8*NOBXS][2]      // input signals to CMA
+          ,m_prepr[3][2][2][8*NOBXS][2]      // prepro pattern in CMA
+          ,m_mjori[3][2][2][8*NOBXS][2]      // majority pattern in CMA
+          ,m_trigg[3][9*NOBXS]               // trigger pattern in CMA
           ;                                // to high-pt CM
 //
-ubit16 trigger[3][NOBXS];        // triggered thresholds 0=no_trigger; 1=trigger
-CMAword triggerOverlap[NOBXS][2];// trigger occured in an overlapping region:
+ubit16 m_trigger[3][NOBXS];        // triggered thresholds 0=no_trigger; 1=trigger
+CMAword m_triggerOverlap[NOBXS][2];// trigger occured in an overlapping region:
                                  // 0=legt; 1=right; 
-CMAword triggerOverlapRO[8*NOBXS][2]; // trigger occured in an overlapping 
+CMAword m_triggerOverlapRO[8*NOBXS][2]; // trigger occured in an overlapping 
                                       // region: 0=legt; 1=right;
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -203,64 +203,64 @@ CMAword triggerOverlapRO[8*NOBXS][2]; // trigger occured in an overlapping
 // CMA output                    //
 // ==========                    //
 //                               //
-CMAword k_pattern[8*NOBXS];      // k-pattern for trigger
+CMAword m_k_pattern[8*NOBXS];      // k-pattern for trigger
 //CMAword k_readout[8*NOBXS]   ; // k-pattern for readout
-ubit16 highestth[NOBXS];         // highest triggered threshold: 
+ubit16 m_highestth[NOBXS];         // highest triggered threshold: 
 //                               //                       0=no trigger at all;
 //                               //                       1="0" threshold;
 //			         //                       2="1" threshold;
 //                               //                       3="2" threshold
-ubit16 overlap[NOBXS];           // overlap flag: 
+ubit16 m_overlap[NOBXS];           // overlap flag: 
 //                               //          0 = no trigger in overlap regions
 //                               //          1 = trigger in overlap low channels
 //                               //          2 = trigger in overlap hig channels
 //                               //          3 = trigger in overlap low and high
 //ubit16 highestthRO[8*NOBXS];   // highest triggered threshold (for ReadOut)
 //ubit16 overlapRO[8*NOBXS];       // overlap flag (for ReadOut)
-sbit16 BCID;                     // Bunch Crossing IDentifier
+sbit16 m_BCID;                     // Bunch Crossing IDentifier
 ////////////////////////////////////////////////////////////////////////////////
- ubit16 *chdly;    // channel delay
- ubit16 *width;    // pulse width
-    int *locDi;    // local coincidence direction
-    int *kRead;    // address of pattern threshold for readout
-CMAword *roads;    // programmed 3 roads
-    int *major;    // programmed 3 majorities
-CMAword *overl;    // overlapping channels list
- sbit32 *geome;    // geometry
+ ubit16 *m_chdly;    // channel delay
+ ubit16 *m_width;    // pulse width
+    int *m_locDi;    // local coincidence direction
+    int *m_kRead;    // address of pattern threshold for readout
+CMAword *m_roads;    // programmed 3 roads
+    int *m_major;    // programmed 3 majorities
+CMAword *m_overl;    // overlapping channels list
+ sbit32 *m_geome;    // geometry
 ////////////////////////////////////////////////////////////////////////////////
-static const ubit16 nthres;     // number of thresholds possible
-static const ubit16 nchan[2];   // CMA x-y dimensions
-static const float BCtime;      // Bunch-Crossing separation (25 ns)
-static const ubit16 NDLLCYC;    // Number of DLL Cycles in one Bunch Crossing
-static const float DLLtime;     // Bunch-Crossing IDentifier
-static const sbit16 NBunch;     // number of Bunch-Crossings to be considered
-static const sbit16 nclock;     // length of the CMA buffers
+static const ubit16 s_nthres;     // number of thresholds possible
+static const ubit16 s_nchan[2];   // CMA x-y dimensions
+static const float s_BCtime;      // Bunch-Crossing separation (25 ns)
+static const ubit16 s_NDLLCYC;    // Number of DLL Cycles in one Bunch Crossing
+static const float s_DLLtime;     // Bunch-Crossing IDentifier
+static const sbit16 s_NBunch;     // number of Bunch-Crossings to be considered
+static const sbit16 s_nclock;     // length of the CMA buffers
                                 // crossing in the CMA buffers
-static const sbit16 timeGroupA; // number of channel in a group for 
+static const sbit16 s_timeGroupA; // number of channel in a group for 
                                 // timing setting
-static const sbit16 timeGroupB; // number of channel in a group for 
+static const sbit16 s_timeGroupB; // number of channel in a group for 
                                 // timing setting
-static const sbit16 wordlen;    // number of bits for a single word in CMAword 
+static const sbit16 s_wordlen;    // number of bits for a single word in CMAword 
                                 // (to be fixed to 32);
-sbit16 thisBC;                  // real Bunch Crossing ID 
+sbit16 m_thisBC;                  // real Bunch Crossing ID 
                                 //   (from real data for example...)
-ubit16 BCzero;                  // offset for bunch crossing address
+ubit16 m_BCzero;                  // offset for bunch crossing address
 ///////////////////////// MATRIX CONFIGURATION REGISTERS //////////////////////
-ubit16 lowtohigh;    // address of lowpt thres. to fill high-pt CMA
-ubit16 toreadout;    // address of the threshold to be sent to readout
-ubit16 overlapthres; // address of the threshold to be cosidered in overlap
-ubit16 majorities[3];// majorities levels
-ubit16 localDirec[2];// Direction of majority, from innermost layer to outermost
+ubit16 m_lowtohigh;    // address of lowpt thres. to fill high-pt CMA
+ubit16 m_toreadout;    // address of the threshold to be sent to readout
+ubit16 m_overlapthres; // address of the threshold to be cosidered in overlap
+ubit16 m_majorities[3];// majorities levels
+ubit16 m_localDirec[2];// Direction of majority, from innermost layer to outermost
                      // layer, in radius. Values & configurations:
                      // = 1 ==> layer 0 channel n --> layer 1 channel n
                      // = 2 ==> layer 0 channel n --> layer 1 channel n-1
                      // = 4 ==> layer 0 channel n --> layer 1 channel n+1
                      // localDirec[0] ==> side 0 (=pivot)
                      // localDirec[1] ==> side 1
-sbit16 BunchPhase;
-sbit16 BunchOffset;
+sbit16 m_BunchPhase;
+sbit16 m_BunchOffset;
 //
-CMAword trigRoad[3][32][2];
+CMAword m_trigRoad[3][32][2];
 //
 //               Coincidence trigger roads for each threshold 
 //
@@ -271,7 +271,7 @@ CMAword trigRoad[3][32][2];
 //                                |  ------- pivot channel address
 //                                ---------- threshold address
 //
-ubit16 channDeadT[2][2][8];
+ubit16 m_channDeadT[2][2][8];
 //
 //               delays
 //               
@@ -285,7 +285,7 @@ ubit16 channDeadT[2][2][8];
 //                          -------- side address : 0 (I) or 1 (J)
 //
 //
-ubit16 channDelay[2][2][4];
+ubit16 m_channDelay[2][2][4];
 //
 //               delays
 //               
@@ -299,7 +299,7 @@ ubit16 channDelay[2][2][4];
 //                          -------- side address : 0 (I) or 1 (J)
 //
 //
-ubit16 channMask0[2][2][64];
+ubit16 m_channMask0[2][2][64];
 //
 //               masking-to-0
 //               
@@ -312,7 +312,7 @@ ubit16 channMask0[2][2][64];
 //                          -------- side address : 0 (I) or 1 (J)
 //
 //
-CMAword channMask1[3][2][2][2];
+CMAword m_channMask1[3][2][2][2];
 //
 //               masking-to-1 of OR and AND registers
 //               
@@ -325,7 +325,7 @@ CMAword channMask1[3][2][2][2];
 //                       |  -------- side address : 0 (I) or 1 (J)                      |
 //                       ----------- threshold address 
 //
-CMAword channReadOutMask[2][2][2];
+CMAword m_channReadOutMask[2][2][2];
 //
 //               masking-to-0 of ReadOut RPC registers
 //               
@@ -338,7 +338,7 @@ CMAword channReadOutMask[2][2][2];
 //                       |------- side address : 0 (I) or 1 (J)                      |
 //
 //
-ubit16 pulseWidth[2][2][8];
+ubit16 m_pulseWidth[2][2][8];
 //
 //               Pulse widths
 //               
@@ -352,14 +352,14 @@ ubit16 pulseWidth[2][2][8];
 //                          -------- side address : 0 (I) or 1 (J)
 //
 //
-CMAword matOverlap[2]; // overlap registers
-ubit16  trigDeadTime[4]; // trigger dead time
-sbit32  diagonal[32];  // diagonal map (= pattern for pt=infinite)
+CMAword m_matOverlap[2]; // overlap registers
+ubit16  m_trigDeadTime[4]; // trigger dead time
+sbit32  m_diagonal[32];  // diagonal map (= pattern for pt=infinite)
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                           //
 // READOUT parameters                                                        //
 //                                                                           //
-static const sbit16 ROOffset;     // ROOffset: alignment of CM input and 
+static const sbit16 s_ROOffset;     // ROOffset: alignment of CM input and 
                                   //           k-pattern        
 //                                // channel time; units: DLL cycles         //
 ///////////////////////////////////////////////////////////////////////////////

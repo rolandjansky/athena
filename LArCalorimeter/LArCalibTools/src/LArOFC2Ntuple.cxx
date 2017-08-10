@@ -32,7 +32,7 @@ StatusCode LArOFC2Ntuple::initialize() {
 	return StatusCode::FAILURE;
   }
   if ( m_isMC && m_OFCTool.retrieve().isFailure() ) {
-        (*m_log) <<  MSG::ERROR << "OFC tool required for MC conditions but not available" << endreq;
+        (*m_log) <<  MSG::ERROR << "OFC tool required for MC conditions but not available" << endmsg;
         return StatusCode::FAILURE;
   }
 
@@ -48,39 +48,39 @@ StatusCode LArOFC2Ntuple::stop() {
   
   sc=m_nt->addItem("Gain",gain,-1,2);
   if (sc!=StatusCode::SUCCESS) {
-    (*m_log) <<  MSG::ERROR << "addItem 'gain' failed" << endreq;
+    (*m_log) <<  MSG::ERROR << "addItem 'gain' failed" << endmsg;
     return StatusCode::FAILURE;
   }
 
   //Specific:
   sc=m_nt->addItem("TimeOffset",timeOffset,0,100);
   if (sc!=StatusCode::SUCCESS) {
-    (*m_log) <<  MSG::ERROR << "addItem 'TimeOffset' failed" << endreq;
+    (*m_log) <<  MSG::ERROR << "addItem 'TimeOffset' failed" << endmsg;
     return StatusCode::FAILURE;
   }
   sc=m_nt->addItem("Phase",phase,0,49);
   if (sc!=StatusCode::SUCCESS) {
-    (*m_log) <<  MSG::ERROR << "addItem 'phase' failed" << endreq;
+    (*m_log) <<  MSG::ERROR << "addItem 'phase' failed" << endmsg;
     return StatusCode::FAILURE;
   }
   sc=m_nt->addItem("PhaseTime",phasetime,0,800);
   if (sc!=StatusCode::SUCCESS) {
-    (*m_log) <<  MSG::ERROR << "addItem 'PhaseTime' failed" << endreq;
+    (*m_log) <<  MSG::ERROR << "addItem 'PhaseTime' failed" << endmsg;
     return StatusCode::FAILURE;
   }
   sc=m_nt->addItem("nSamples",nSamples,0,100);
   if (sc!=StatusCode::SUCCESS) {
-    (*m_log) <<  MSG::ERROR << "addItem 'nSamples' failed" << endreq;
+    (*m_log) <<  MSG::ERROR << "addItem 'nSamples' failed" << endmsg;
     return StatusCode::FAILURE;
   }
   sc=m_nt->addItem("OFCa",nSamples,OFCa);
   if (sc!=StatusCode::SUCCESS) {
-    (*m_log) <<  MSG::ERROR << "addItem 'OFCa' failed" << endreq;
+    (*m_log) <<  MSG::ERROR << "addItem 'OFCa' failed" << endmsg;
     return StatusCode::FAILURE;
   }
   sc=m_nt->addItem("OFCb",nSamples,OFCb);
   if (sc!=StatusCode::SUCCESS) {
-    (*m_log) <<  MSG::ERROR << "addItem 'OFCb' failed" << endreq;
+    (*m_log) <<  MSG::ERROR << "addItem 'OFCb' failed" << endmsg;
     return StatusCode::FAILURE;
   }
   
@@ -88,10 +88,10 @@ StatusCode LArOFC2Ntuple::stop() {
   const ILArOFC* larOFC = NULL ;
   //const LArOFCComplete* larOFC = NULL ;
   if ( !m_isMC ) {
-     (*m_log) <<  MSG::DEBUG << "Retrieving ILArOFC object with key " << m_contKey << endreq;
+     (*m_log) <<  MSG::DEBUG << "Retrieving ILArOFC object with key " << m_contKey << endmsg;
      sc = m_detStore->retrieve(larOFC,m_contKey);
      if (sc.isFailure()) {
-       (*m_log) <<  MSG::ERROR << "Can't retrieve ILArOFC with key " << m_contKey << " from Conditions Store" << endreq;
+       (*m_log) <<  MSG::ERROR << "Can't retrieve ILArOFC with key " << m_contKey << " from Conditions Store" << endmsg;
        return StatusCode::FAILURE;
      }
   }
@@ -106,7 +106,7 @@ StatusCode LArOFC2Ntuple::stop() {
       const HWIdentifier chid = *it;
       if (!m_larCablingSvc->isOnlineConnected(chid)) continue;
         (*m_log) <<  MSG::VERBOSE << "Dumping OFC for channel 0x" << MSG::hex 
-	  << chid.get_compact() << MSG::dec << endreq;
+	  << chid.get_compact() << MSG::dec << endmsg;
         ILArOFC::OFCRef_t ofc_a=m_OFCTool->OFC_a(chid,igain);
         ILArOFC::OFCRef_t ofc_b=m_OFCTool->OFC_b(chid,igain);
 	fillFromIdentifier(chid);
@@ -124,7 +124,7 @@ StatusCode LArOFC2Ntuple::stop() {
 	sc = ntupleSvc()->writeRecord(m_nt);
 	cellCounter++;
 	if (sc!=StatusCode::SUCCESS) {
-	  (*m_log) <<  MSG::ERROR << "writeRecord failed" << endreq;
+	  (*m_log) <<  MSG::ERROR << "writeRecord failed" << endmsg;
 	  return StatusCode::FAILURE;
 	}
      }//loop over channels
@@ -133,7 +133,7 @@ StatusCode LArOFC2Ntuple::stop() {
       const HWIdentifier chid = *it;
       if ( !m_larCablingSvc->isOnlineConnected(chid)) continue;
       (*m_log) <<  MSG::VERBOSE << "Dumping OFC for channel 0x" << MSG::hex
-          << chid.get_compact() << MSG::dec << endreq;
+          << chid.get_compact() << MSG::dec << endmsg;
       for (unsigned iphase=0;iphase<larOFC->nTimeBins(chid,igain);iphase++) {
         ILArOFC::OFCRef_t ofc_a=larOFC->OFC_a(chid,igain,iphase);
         //Check if we have OFC for this channel and gain
@@ -155,14 +155,14 @@ StatusCode LArOFC2Ntuple::stop() {
         sc = ntupleSvc()->writeRecord(m_nt);
         cellCounter++;
         if (sc!=StatusCode::SUCCESS) {
-          (*m_log) <<  MSG::ERROR << "writeRecord failed" << endreq;
+          (*m_log) <<  MSG::ERROR << "writeRecord failed" << endmsg;
           return StatusCode::FAILURE;
         }
       }//loop over phases
      }//loop over channels
     } 
   }//loop over gains
-  (*m_log) <<  MSG::INFO << "Total number of cells = " << cellCounter << endreq;
-  (*m_log) <<  MSG::INFO << "LArOFC2Ntuple has finished." << endreq;
+  (*m_log) <<  MSG::INFO << "Total number of cells = " << cellCounter << endmsg;
+  (*m_log) <<  MSG::INFO << "LArOFC2Ntuple has finished." << endmsg;
   return StatusCode::SUCCESS;
 } // end finalize-method.

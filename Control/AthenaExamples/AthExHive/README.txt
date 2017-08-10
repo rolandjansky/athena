@@ -3,7 +3,11 @@
                                                                             
      Data Dependency Graph of AthExHiveOpts.py                   
     ===========================================                             
-                                                                            
+
+capital letters correspond to the Algorithms HiveAlgA, HiveAlgB, etc.
+lowercase letters are the keys of the data objects.
+
+
        B            A                                                       
        |           / \                                                      
      b1|        a1/   \a2                                                   
@@ -25,7 +29,10 @@
                   \|/                                                       
                    V   : runtime configurable ReadHandleKeyArray            
                                                                             
-                                                                            
+
+additional information at
+https://twiki.cern.ch/twiki/bin/view/AtlasComputing/AthenaHiveTutorial201509
+
                                                                             
                                                                             
      Data Dependency Graph for CondHandles
@@ -65,26 +72,3 @@
                         M                         
                                                                             
        the sequence that encloses [L1,L2,L3,M] is meant to have strict ordering
-                                                                            
-                                                                            
-                                                                            
-                                                                            
-                                                                            
-                                                                            
-                                                                            
-                                                                            
-                                                                            
-                                                                            
-                                                                            
-                                                                            
-                                                                            
-                                                                            
-                                                                            
-                                                                            
-                                                                            
-                                                                            
-                                                                            
-                                                                            
-                                                                            
-                                                                            
-                                                                            

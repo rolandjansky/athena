@@ -1,4 +1,8 @@
 #
+#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
+
+#
 # get_files -xmls LVL1config_Physics_pp_v5.xml
 # ln -s /afs/cern.ch/atlas/project/trigger/pesa-sw/validation/atn-test/data15_13TeV.00266904.physics_EnhancedBias.merge.RAW._lb0452._SFO-1._0001.1 input.data
 # 
@@ -87,13 +91,10 @@ print svcMgr
 theApp.EvtMax = 1
 
 
-from GaudiHive.GaudiHiveConf import ForwardSchedulerSvc
-svcMgr += ForwardSchedulerSvc()
-svcMgr.ForwardSchedulerSvc.MaxEventsInFlight = 1
-svcMgr.ForwardSchedulerSvc.MaxAlgosInFlight = 1
-svcMgr.ForwardSchedulerSvc.ThreadPoolSize = 1
-svcMgr.ForwardSchedulerSvc.CheckDependencies = True
-
+from AthenaCommon.AlgScheduler import AlgScheduler
+AlgScheduler.setThreadPoolSize( 1 )
+AlgScheduler.CheckDependencies( True )
+svcMgr.EventDataSvc.NSlots = 1
 
 print "topSequence dump:", topSequence
 #

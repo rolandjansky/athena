@@ -14,22 +14,22 @@ namespace Trk
   StatusCode sc = AlgTool::initialize();
   if(sc.isFailure())
   {
-   log<<MSG::ERROR<<" Unable to initialize the AlgTool"<<endreq;
+   log<<MSG::ERROR<<" Unable to initialize the AlgTool"<<endmsg;
    return StatusCode::FAILURE;
   }
   
   if(m_trackSumTool.retrieve().isFailure())
   {
-   log<<MSG::ERROR<<" Unable to retrieve "<<m_trackSumTool<<endreq;
+   log<<MSG::ERROR<<" Unable to retrieve "<<m_trackSumTool<<endmsg;
    return StatusCode::FAILURE;
-  }else log<<MSG::INFO<<"Track summary tool retrieved"<<endreq;  
+  }else log<<MSG::INFO<<"Track summary tool retrieved"<<endmsg;  
   return StatusCode::SUCCESS;
  }//end of initialize method
     
  StatusCode PVFindingTrackFilter::finalize()
  {
   MsgStream log(msgSvc(), name());
-  log << MSG::INFO  << "Finalize successful" << endreq;
+  log << MSG::INFO  << "Finalize successful" << endmsg;
   return StatusCode::SUCCESS;
  }//end of finalize method
     
@@ -62,7 +62,7 @@ namespace Trk
   if(0==track)
   { 
    MsgStream log(msgSvc(),name());
-   log << MSG::INFO << "Track preselection: Zero track pointer received. This track will not pass." << endreq;
+   log << MSG::INFO << "Track preselection: Zero track pointer received. This track will not pass." << endmsg;
    return false;
   }
 //getting the  perigee parameters of the track
@@ -70,7 +70,7 @@ namespace Trk
   if(0 == perigee)
   {
    MsgStream log(msgSvc(),name());
-   log << MSG::INFO << "Track preselection: cannot make a measured perigee. This track will not pass." << endreq;
+   log << MSG::INFO << "Track preselection: cannot make a measured perigee. This track will not pass." << endmsg;
    return false;
   }
  
@@ -100,7 +100,7 @@ namespace Trk
   if (0==summary )
   { 
    MsgStream log(msgSvc(),name());
-   log << MSG::INFO << "Track preselection: cannot create a track summary. This track will not pass." << endreq;
+   log << MSG::INFO << "Track preselection: cannot create a track summary. This track will not pass." << endmsg;
    return false;
   }
   

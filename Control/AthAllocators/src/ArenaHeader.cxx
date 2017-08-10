@@ -15,6 +15,7 @@
 #include "AthAllocators/ArenaAllocatorRegistry.h"
 #include "AthAllocators/ArenaAllocatorBase.h"
 #include "AthAllocators/ArenaBase.h"
+#include "CxxUtils/checker_macros.h"
 #include <algorithm>
 #include <ostream>
 #include <sstream>
@@ -24,17 +25,16 @@
 namespace SG {
 
 
-void null_allocvec_deleter (ArenaHeader::ArenaAllocVec_t*) {}
+void null_arena_deleter (ArenaBase*) {}
 
 
 /**
  * @brief Constructor.
  */
 ArenaHeader::ArenaHeader()
-    // m_allocvec doesn't own the vectors to which it points.
+    // m_arena doesn't own the objects to which it points.
     // Need to pass in a dummy deleter to prevent them from being deleted.
-  : m_allocvec (null_allocvec_deleter),
-    m_ownedAllocvec (nullptr)
+  : m_arena (null_arena_deleter)
 {
 }
 
@@ -46,30 +46,21 @@ ArenaHeader::ArenaHeader()
  */
 ArenaHeader::~ArenaHeader()
 {
-  if (m_ownedAllocvec) {
-    for (ArenaAllocatorBase* alloc : *m_ownedAllocvec)
-      delete alloc;
-    delete m_ownedAllocvec;
-  }
-
   // We don't own this.
-  m_allocvec.release();
+  m_arena.release();
 }
 
 
 /**
- * @brief Set the current Arena.
- * @param allocvec New vector of Allocator instances.
- * @return The previous vector.
- *
- * This sets the notion of the current Arena.
+ * @brief Set the current Arena for the current thread.
+ * @param arena New current Arena.
+ * @return The previous Arena.
  */
-ArenaHeader::ArenaAllocVec_t*
-ArenaHeader::setAllocVec (ArenaAllocVec_t* allocvec)
+ArenaBase* ArenaHeader::setArena (ArenaBase* arena)
 {
-  ArenaAllocVec_t* ret = m_allocvec.get();
-  m_allocvec.release();
-  m_allocvec.reset (allocvec);
+  ArenaBase* ret = m_arena.get();
+  m_arena.release();
+  m_arena.reset (arena);
   return ret;
 }
 
@@ -82,6 +73,22 @@ void ArenaHeader::addArena (ArenaBase* a)
 {
   std::lock_guard<std::mutex> lock (m_mutex);
   m_arenas.push_back (a);
+}
+
+
+/**
+ * @brief Record the arena associated with an event slot.
+ * @param slot The slot number.
+ * @param a The Arena instance.
+ */
+void ArenaHeader::setArenaForSlot (int slot, ArenaBase* a)
+{
+  if (slot < 0) return;
+  std::lock_guard<std::mutex> lock (m_mutex);
+  if (slot >= static_cast<int> (m_slots.size())) {
+    m_slots.resize (slot+1);
+  }
+  m_slots[slot] = a;
 }
 
 
@@ -115,15 +122,8 @@ void ArenaHeader::report (std::ostream& os) const
   }
 
   // The default Arena.
-  if (m_ownedAllocvec) {
-    os << "=== default ===" << std::endl;
-    ArenaAllocatorBase::Stats::header (os);
-    os << std::endl;
-    for (ArenaAllocatorBase* alloc : *m_ownedAllocvec) {
-      if (alloc)
-        alloc->report (os);
-    }
-  }
+  os << "=== default ===" << std::endl;
+  m_defaultArena.report (os);
 }
 
 
@@ -152,11 +152,8 @@ std::string ArenaHeader::reportStr() const
  */
 void ArenaHeader::reset()
 {
-  if (m_allocvec.get()) {
-    for (size_t i = 0; i < m_allocvec->size(); i++) {
-      if ((*m_allocvec)[i])
-        (*m_allocvec)[i]->reset();
-    }
+  if (m_arena.get()) {
+    m_arena->reset();
   }
 }
 
@@ -166,52 +163,8 @@ void ArenaHeader::reset()
  */
 ArenaHeader* ArenaHeader::defaultHeader()
 {
-  static ArenaHeader head;
+  static ArenaHeader head ATLAS_THREAD_SAFE;
   return &head;
-}
-
-
-/**
- * @brief Make a new Allocator for index i.
- * @param i The index of the Allocator.
- *
- * The Allocator vector was empty for index @c i.  Make an appropriate
- * new Allocator, store it in the vector, and return it.  Will trip
- * an assertion if the index is not valid.
- */
-ArenaAllocatorBase* ArenaHeader::makeAllocator (size_t i)
-{
-  // If we don't have an Arena set, use the default one.
-  if (!m_allocvec.get()) {
-    std::lock_guard<std::mutex> lock (m_mutex);
-
-    // Create the default Arena if needed.
-    if (!m_ownedAllocvec)
-      m_ownedAllocvec = new ArenaAllocVec_t;
-
-    // Install the default Arena.
-    m_allocvec.reset (m_ownedAllocvec);
-
-    // See if the index is now in the default Arena.
-    if (i < m_allocvec->size()) {
-      ArenaAllocatorBase* allocbase = (*m_allocvec)[i];
-      if (allocbase) return allocbase;
-    }
-  }
-
-  // We have to create a new Allocator.
-  // Make sure there's room in the vector.
-  if (m_allocvec->size() <= i)
-    m_allocvec->resize (i+1);
-
-  // Create the Allocator, using the Registry.
-  ArenaAllocatorBase* alloc =
-    ArenaAllocatorRegistry::instance()->create (i);
-
-  // Install it in the vector.
-  (*m_allocvec)[i] = alloc;
-
-  return alloc;
 }
 
 

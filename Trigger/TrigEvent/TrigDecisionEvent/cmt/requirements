@@ -8,7 +8,7 @@ author Fabrizio Salvatore <p.f.salvatore@sussex.ac.uk>
 use AtlasPolicy 	AtlasPolicy-*
 
 use CLIDSvc		CLIDSvc-* 		Control
-use DataModel           DataModel-*             Control
+use AthLinks            AthLinks-*              Control
 
 use TrigSteeringEvent	TrigSteeringEvent-*  	Trigger/TrigEvent
 #use TrigNavigation      TrigNavigation-*        Trigger/TrigEvent

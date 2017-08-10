@@ -1,9 +1,8 @@
-// Dear emacs, this is -*- c++ -*-
-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+// Dear emacs, this is -*- c++ -*-
 #ifndef  TAUANALYSISTOOLS_TAUTRUTHTRACKMATCHINGTOOL_H
 #define  TAUANALYSISTOOLS_TAUTRUTHTRACKMATCHINGTOOL_H
 
@@ -20,9 +19,6 @@
 // Framework include(s):
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/AnaToolHandle.h"
-
-// Tool include(s)
-#include "InDetTrackSelectionTool/InDetTrackSelectionTool.h"
 
 // Local include(s)
 #include "TauAnalysisTools/ITauTruthTrackMatchingTool.h"
@@ -78,8 +74,6 @@ private:
 private:
   bool m_bIsHadronicTrackAvailable;
   bool m_bIsHadronicTrackAvailableChecked;
-  bool m_bIsInitialized;
-  asg::AnaToolHandle<InDet::IInDetTrackSelectionTool> m_tInDetTrackSelectionTool;
 
 }; // class TauTruthTrackMatchingTool
 

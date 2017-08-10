@@ -56,22 +56,22 @@ StatusCode InDet::TRT_DriftCircleOnTrackRecalibrateTool::initialize()
   StatusCode sc = AlgTool::initialize(); 
 
   if(m_drifttool.retrieve().isFailure()){
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_drifttool << endreq;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_drifttool << endmsg;
     return StatusCode::FAILURE;
   }
 
   if(m_riontrackTube.retrieve().isFailure()){
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_riontrackTube << endreq;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_riontrackTube << endmsg;
     return StatusCode::FAILURE;
   }
 
   if ( m_errorScalingTool.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_errorScalingTool << endreq;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_errorScalingTool << endmsg;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_errorScalingTool << endreq;
+    msg(MSG::INFO) << "Retrieved tool " << m_errorScalingTool << endmsg;
     m_scaleTrtCov   = m_errorScalingTool->needToScaleTrt();
-    if (m_scaleTrtCov) msg(MSG::DEBUG) << "Detected need for scaling TRT errors." << endreq;
+    if (m_scaleTrtCov) msg(MSG::DEBUG) << "Detected need for scaling TRT errors." << endmsg;
   }
 
   return sc;
@@ -113,7 +113,7 @@ const Trk::RIO_OnTrack* InDet::TRT_DriftCircleOnTrackRecalibrateTool::correct
   double distance=fabs(fabs(TP.parameters()[0])-driftradius);
 
 
-  msg(MSG::VERBOSE)<<"Old radius: "<< DC->localPosition()[Trk::driftRadius]<<" -> new radius: "<<driftradius<<endreq;
+  msg(MSG::VERBOSE)<<"Old radius: "<< DC->localPosition()[Trk::driftRadius]<<" -> new radius: "<<driftradius<<endmsg;
 
   if(distance>error*m_scalefactor){
     

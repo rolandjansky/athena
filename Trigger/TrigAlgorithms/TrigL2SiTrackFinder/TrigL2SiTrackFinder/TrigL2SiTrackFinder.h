@@ -14,8 +14,8 @@
 // ATLAS Collaboration
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef __TRIG_L2_SITRACK_FINDER_H__
-#define __TRIG_L2_SITRACK_FINDER_H__
+#ifndef TRIGL2SITRACKFINDER_TRIGL2SITRACKFINDER_H
+#define TRIGL2SITRACKFINDER_TRIGL2SITRACKFINDER_H
 
 #include<string>
 #include<vector>
@@ -229,8 +229,8 @@ class TrigL2SiTrackFinder : public HLT::FexAlgo
   
   // Data members for monitoring
 
-  float nStraw_TRT; 
-  float nTR_TRT;
+  float m_nStraw_TRT; 
+  float m_nTR_TRT;
   int m_ntracks;
   int m_nPixSPsInRoI;  // Total number of (filtered) pixel SPs in the RoI
   int m_nSCTSPsInRoI;  // Total number of (filtered) SCT SPs in the RoI
@@ -324,4 +324,5 @@ class TrigL2SiTrackFinder : public HLT::FexAlgo
 
 };
 
-#endif
+#endif // TRIGL2SITRACKFINDER_TRIGL2SITRACKFINDER_H
+

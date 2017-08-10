@@ -59,7 +59,6 @@ class TrigEgammaEFElectronSelectorTool:
     std::string m_lhinfo;
 
     //Isolation
-    bool m_applyIsolation; 
     unsigned int m_EtConeSizes;
     unsigned int m_PtConeSizes;
     bool m_useClusETforCaloIso;

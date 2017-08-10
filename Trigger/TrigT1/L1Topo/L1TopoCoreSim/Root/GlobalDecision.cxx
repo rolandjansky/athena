@@ -24,6 +24,18 @@ GlobalDecision::decision(unsigned int module, unsigned int clock) const {
    }
 }
 
+uint32_t
+GlobalDecision::overflow(unsigned int module, unsigned int clock) const {
+   if(clock==0) {
+      // lower 32 bit
+      return (uint32_t) (m_overflow[module] & 0xffffffff);
+   } else {
+      // upper 32 bit
+      uint64_t clock1 = m_overflow[module] & 0xffffffff00000000;
+      return (uint32_t) (clock1 >> 32);
+   }
+}
+
 
 GlobalDecision::GlobalDecision() :
    TrigConfMessaging("L1TopoGlobalDecision")
@@ -51,12 +63,15 @@ GlobalDecision::collectDecision(const set<DecisionConnector*> & outconn) {
          unsigned int bit = trigger.counter() % 64;  // trigger bit in module
          
          uint64_t & moduleDec = m_decision[trigger.module()];
+         uint64_t & moduleOvf = m_overflow[trigger.module()];
          uint64_t mask(0x1);
 
          //std::cout << "JOERG GlobalDecision::collectDecision: trigger line " << trigger.name() << " [counter="<<trigger.counter()<<"] on module " << trigger.module() << " and bit [0-63] " << bit << " -> dec " << dec << std::endl;
 
          if( dec.bit(pos++) )  // bit set?
             moduleDec |= (mask << bit);
+         if( dec.overflow())
+            moduleOvf |= (mask << bit);
       }
 
    }
@@ -68,6 +83,7 @@ GlobalDecision::collectDecision(const set<DecisionConnector*> & outconn) {
 StatusCode
 GlobalDecision::resetDecision() {
    m_decision[0] = m_decision[1] = m_decision[2] = 0;
+   m_overflow[0] = m_overflow[1] = m_overflow[2] = 0;
    m_valid = false;
    return StatusCode::SUCCESS;
 }

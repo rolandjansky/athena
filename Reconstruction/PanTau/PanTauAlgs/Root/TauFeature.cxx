@@ -131,19 +131,19 @@ std::ostream& operator<< ( std::ostream& out, PanTau::TauFeature2
 MsgStream& PanTau::TauFeature2::dump( MsgStream& out, MSG::Level debugLevel = MSG::VERBOSE ) const
 { 
     std::string name("TauFeature2: ");
-    out << debugLevel << name << endreq;
+    out << debugLevel << name << endmsg;
     FeatureMapConstIter iter = m_featureMap.begin();
     FeatureMapConstIter iterEnd = m_featureMap.end();
     for ( ; iter!=iterEnd; iter++) {
-        out << debugLevel << (*iter).first << " : \t" << (*iter).second <<endreq;
+        out << debugLevel << (*iter).first << " : \t" << (*iter).second <<endmsg;
     }
     
     std::string nameVec("TauVecFeature: ");
-    out << debugLevel << nameVec << endreq;
+    out << debugLevel << nameVec << endmsg;
     VectorFeatureMapConstIter iterVec = m_vecFeatureMap.begin();
     VectorFeatureMapConstIter iterEndVec = m_vecFeatureMap.end();
     for ( ; iterVec!=iterEndVec; iterVec++) {
-        out << debugLevel << (*iterVec).first << " : \t" << (*iterVec).second.size() << " entries" <<endreq;
+        out << debugLevel << (*iterVec).first << " : \t" << (*iterVec).second.size() << " entries" <<endmsg;
     }
     return out; 
 }

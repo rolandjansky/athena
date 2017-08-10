@@ -36,8 +36,24 @@ inline void intrusive_ptr_release (DataObject* o)
 namespace SG {
 
 
+/**
+ * @brief Smart pointer to manage @c DataObject reference counts.
+ */
 template <class T>
-using DataObjectSharedPtr = boost::intrusive_ptr<T>;
+class DataObjectSharedPtr
+  : public boost::intrusive_ptr<T>
+{
+public:
+  typedef boost::intrusive_ptr<T> Base;
+  DataObjectSharedPtr() {}
+  explicit DataObjectSharedPtr (T* p, bool add_ref = true)
+    : Base (p, add_ref) {}
+  DataObjectSharedPtr (const DataObjectSharedPtr& rhs)
+    : Base (rhs) {}
+  template <class U>
+  DataObjectSharedPtr (const DataObjectSharedPtr<U>& rhs)
+    : Base (rhs) {}
+};
 
 
 } // namespace SG

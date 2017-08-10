@@ -29,13 +29,13 @@ namespace LVL1MUCTPI {
    class MultiplicityLogic;
 
    /**
-    *  @short Overlap strategy for the hardware's LUT based overlap removal
+    * @brief Overlap strategy for the hardware's LUT based overlap removal
     *
     *         This overlap strategy simulates the final hardware's overlap
     *         removal logic. It is initialized with the same XML files as the
     *         hardware is.
     *
-    * @authos Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+    * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
     * $Revision: 701446 $
     * $Date: 2015-10-19 17:19:09 +0200 (Mon, 19 Oct 2015) $

@@ -746,9 +746,9 @@ void PixCoralClient::createTable(){
     if (m_verbose) {
       std::cout << "\nCOOLCORAL Client:  Creating table: " << PIXEL_TABLE_DATA <<" for ";
       try {
-        std::cout <<tableTypeName<T>() << std::endl;
+	std::cout <<tableTypeName<T>() << std::endl;
       } catch (coral::AttributeListException) {
-        std::cout <<typeid(T).name() << std::endl;
+	std::cout <<typeid(T).name() << std::endl;
       }
     }
 
@@ -758,7 +758,7 @@ void PixCoralClient::createTable(){
     pixel_columns.insertColumn("FK", coral::AttributeSpecification::typeNameForType<long long>());
     pixel_columns.insertColumn("CONNECTIVITY", coral::AttributeSpecification::typeNameForType<std::string>(), /*size in BYTES = */ 100, /*fixed_size=*/ false);
     pixel_columns.insertColumn("VARIABLE", coral::AttributeSpecification::typeNameForType<std::string>(), /*size in BYTES = */ 100, /*fixed_size=*/ false);
-
+    
     if (typeid(T)==typeid(CAN::AverageResult_t)) {
       pixel_columns.insertColumn("N", coral::AttributeSpecification::typeNameForType<int>());
       pixel_columns.insertColumn("MEAN", coral::AttributeSpecification::typeNameForType<float>());
@@ -768,7 +768,7 @@ void PixCoralClient::createTable(){
     } else if (typeid(T)==typeid(PixelMap_t)) {
       // A size > 4000 triggers the use of a CLOB object
       pixel_columns.insertColumn("VALUE", coral::AttributeSpecification::typeNameForType<std::string>(), /*size = */ 4001, /*fixed_size=*/ false);
-      // added -- A.X.
+    // added -- A.X.
     } else if (typeid(T)==typeid(PixelCoralClientUtils::PixelCalibData)) {
       pixel_columns.insertColumn("IDMOD",coral::AttributeSpecification::typeNameForType<int>());
       pixel_columns.insertColumn("CHIP",coral::AttributeSpecification::typeNameForType<int>());
@@ -797,10 +797,10 @@ void PixCoralClient::createTable(){
     }
 
     //set the foreign key
-    pixel_columns.createForeignKey(variableType<T>()+"_FK","FK",m_pixeltable,"FK");
+    pixel_columns.createForeignKey(tableTypeName<T>()+"_FK","FK",m_pixeltable,"FK");
     // create indices
-    pixel_columns.createIndex(variableType<T>()+"_CONNECTIVITY_IDX", "CONNECTIVITY");
-    pixel_columns.createIndex(variableType<T>()+"_VARIABLE_IDX", "VARIABLE");
+    pixel_columns.createIndex(tableTypeName<T>()+"_CONNECTIVITY_IDX", "CONNECTIVITY");
+    pixel_columns.createIndex(tableTypeName<T>()+"_VARIABLE_IDX", "VARIABLE");
     pixel_columns.setNotNullConstraint ( "CONNECTIVITY" );
     pixel_columns.setNotNullConstraint ( "VARIABLE" );
 

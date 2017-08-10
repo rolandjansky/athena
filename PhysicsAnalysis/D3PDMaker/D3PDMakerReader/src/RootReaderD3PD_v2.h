@@ -18,7 +18,7 @@ namespace D3PD {
     *
     *         Version 2 of the D3PDReader implementation.
     *
-    * @suthor Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+    * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
     * $Revision: 462802 $
     * $Date: 2011-10-12 18:06:24 +0200 (Wed, 12 Oct 2011) $$

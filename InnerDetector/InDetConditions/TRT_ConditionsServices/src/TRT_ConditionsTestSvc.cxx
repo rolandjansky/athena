@@ -3,7 +3,7 @@
 */
 
 /** @file TRT_ConditionsTestSvc.cxx
- *  @Service for example and test of TRT_ConditionsSummarySvc.
+ *  @brief Service for example and test of TRT_ConditionsSummarySvc.
  *  Inherits from ITRT_ConditionsSvc and returns InDet::TRT_GOOD.
  *  @author Denver Whittington
  */

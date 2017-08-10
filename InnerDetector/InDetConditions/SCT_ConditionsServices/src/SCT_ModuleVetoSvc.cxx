@@ -41,7 +41,7 @@ string2Vector(const std::string & s){
 SCT_ModuleVetoSvc::SCT_ModuleVetoSvc( const std::string& name, ISvcLocator* pSvcLocator ) :
   AthService(name, pSvcLocator), 
   m_filled(false), 
-  m_pHelper(0),											   
+  m_pHelper{nullptr},
   m_useDatabase(false), 
   m_maskLayers(false),
   m_maskSide(-1),

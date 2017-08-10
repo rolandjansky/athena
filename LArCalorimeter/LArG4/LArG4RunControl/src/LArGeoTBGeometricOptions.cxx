@@ -4,15 +4,25 @@
 
 #include "LArG4RunControl/LArGeoTBGeometricOptions.h"
 
-#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ISvcLocator.h"
+#include "GaudiKernel/Bootstrap.h"
 #include "StoreGate/StoreGateSvc.h"
 
 void LArGeoTBGeometricOptions::saveMe()
 {
-  ServiceHandle<StoreGateSvc> detStore ("DetectorStore",
-                                        "LArGeoTBGeometricOptions::saveMe");
-  if (detStore.retrieve().isSuccess()) {
-    if (detStore->record(this,"LArGeoTBGeometricOptions").isFailure())
+  IService* pSvc;
+  ISvcLocator* svcLocator = Gaudi::svcLocator();
+  StatusCode result = svcLocator->service("DetectorStore",pSvc);
+
+  if(result.isSuccess())
+  {
+    StoreGateSvc* detStore = dynamic_cast<StoreGateSvc*>(pSvc);
+    if (!detStore){
+      std::cout << "LArGeoTBGeometricOptions::saveMe ERROR Could not dynamic cast det store" << std::endl;
+      return;
+    }
+    result=detStore->record(this,"LArGeoTBGeometricOptions");
+    if(!result.isSuccess())
       std::cout << "Can not record LArGeoTBGeometricOptions" << std::endl;
   }
 }

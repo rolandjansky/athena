@@ -99,18 +99,18 @@ G4double  LArG4::EC::EnergyCalculator::_interpolateCurrentSubStep1(G4double rfor
   G4double shift = lwc()->GetStraightStartSection();
   if(fa.PointFoldMapArea != 0) shift += WaveLength();
 
-  WheelGeometry _wg;
-  SetHalfWave(shift + vmap[2], _wg);
+  WheelGeometry wg;
+  SetHalfWave(shift + vmap[2], wg);
   //std::cout << "\tPointFoldMapArea: " << PointFoldMapArea << ", SetHalfWave(" << shift + vmap[2] << ")" << std::endl;
 
   G4double Ylimits[4];
-  SetYlimitsofPhigapinFieldMap(irlayer, _wg, Ylimits);    //on the lower layer
+  SetYlimitsofPhigapinFieldMap(irlayer, wg, Ylimits);    //on the lower layer
   //std::cout << "\tFieldmap limits: " << Ylimits[0] << " " << Ylimits[1] << " " << Ylimits[2] << " " << Ylimits[3] << std::endl;
   G4double pos_low = 0.;
   if(side < 0) pos_low = Ylimits[0] * (1. - yratio) + Ylimits[1] * yratio;
   else if(side > 0) pos_low = Ylimits[2] * (1. - yratio) + Ylimits[3] * yratio;
 
-  SetYlimitsofPhigapinFieldMap(irlayer + 1, _wg, Ylimits);  //on the upper layer
+  SetYlimitsofPhigapinFieldMap(irlayer + 1, wg, Ylimits);  //on the upper layer
   G4double pos_up = 0.;
   if(side < 0) pos_up = Ylimits[0] * (1. - yratio) + Ylimits[1] * yratio;
   else if(side > 0) pos_up = Ylimits[2] * (1. - yratio) + Ylimits[3] * yratio;
@@ -161,17 +161,17 @@ G4double  LArG4::EC::EnergyCalculator::GetCurrent1(const G4ThreeVector &P1, cons
 
   if(gap1 != gap2) gaperr = -1;
 
-  WheelGeometry _wg;
-  FoldArea _fa;
+  WheelGeometry wg;
+  FoldArea fa;
   //JT.>>>
-  SetFoldArea(P1.z(), _fa);                 // set fold type
-  SetHalfWave(P1.z(), _wg);                 // set halfwave parameters for substep
+  SetFoldArea(P1.z(), fa);                 // set fold type
+  SetHalfWave(P1.z(), wg);                 // set halfwave parameters for substep
   G4double p1[3];
   p1[0] = P1.x();
   p1[1] = P1.y();
   p1[2] = P1.z();
 
-  GetPhiGap(p1, _wg);  //set rotation angle from the wheel to the efield Map system; once for each G4 step
+  GetPhiGap(p1, wg);  //set rotation angle from the wheel to the efield Map system; once for each G4 step
 
   const G4double step = (P2 - P1).mag();
   const G4int nofstep = G4int(step / s_GridSize) + 1;  // step is divided to substeps
@@ -192,13 +192,13 @@ G4double  LArG4::EC::EnergyCalculator::GetCurrent1(const G4ThreeVector &P1, cons
     //std::cout << "step " << i << std::endl;
     //std::cout << "\tpoint (" << Pe.x() << ", " << Pe.y() << ", " << Pe.z() << ")" << std::endl;
 
-    SetFoldArea(Pe.z(), _fa);                 // set fold type
-    SetHalfWave(Pe.z(), _wg);                 // set halfwave parameters for substep
+    SetFoldArea(Pe.z(), fa);                 // set fold type
+    SetHalfWave(Pe.z(), wg);                 // set halfwave parameters for substep
     G4double vstep[3], vmap[3];
     vstep[0] = Pe.x();
     vstep[1] = Pe.y();
     vstep[2] = Pe.z();
-    TransformWheeltoFieldMap(vstep, vmap, _wg, _fa);  //get corresponding point in Map
+    TransformWheeltoFieldMap(vstep, vmap, wg, fa);  //get corresponding point in Map
 
     //JT.>>>
     const G4double rvstep2=vstep[0]*vstep[0]+vstep[1]*vstep[1] ;
@@ -240,7 +240,7 @@ G4double  LArG4::EC::EnergyCalculator::GetCurrent1(const G4ThreeVector &P1, cons
     if(suppression < 0.) suppression = 1.;
     //std::cout << "\tagap: " << agap << ", suppression: " << suppression << std::endl;
 
-    const G4double cur = _interpolateCurrentSubStep1( rforalpha, vmap, Pe, signof(dte), Pe_fan, Pa, signof(dta), Pa_fan, _fa, gaperr );
+    const G4double cur = _interpolateCurrentSubStep1( rforalpha, vmap, Pe, signof(dte), Pe_fan, Pa, signof(dta), Pa_fan, fa, gaperr );
     //(25-05-2005) new current calculation: edep*1/U*IonReco*E*v_drift
     //   normalized so that signal=edep in the straight section of the same gap
     //                             as above;

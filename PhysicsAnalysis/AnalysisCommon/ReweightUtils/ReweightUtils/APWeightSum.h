@@ -54,17 +54,17 @@ public:
 protected:
   void Compute();                                                                /*!< Calculates the final uncertainties including correlations. */
   
-  std::vector< APWeightEntry* > _current_evt_weights;                            /*!< Holds the expectancy values of the weights in the current event. */
-  std::vector< THnSparse* > _linear_uncert;                                      /*!< Holds all histograms for uncertainties. */
-  unsigned long int _k_evt_orig;                                                 /*!< Holds the original amount of unweighted counts ("sum of 1's"). */
-  double _k_evt_weight;                                                          /*!< Holds the sum of weights. */
-  double _k_evt_weight2;                                                         /*!< Holds the sum of squared weights. */
-  double _k_evt_weight_external;                                                 /*!< Holds the sum of external weights (no trigger weighting). */
-  double _variance;                                                              /*!< Holds the variance. */
-  double _variance_nocorr;                                                       /*!< Holds the variance, assuming no correlations. */
-  double _variance_fullcorr;                                                     /*!< Holds the variance, assuming full correlation amongst objects. */
-  double _variance_sys;                                                          /*!< Holds the systematic variance (from systematics assigned to weights). */
-  bool _isComputed;
+  std::vector< APWeightEntry* > m_current_evt_weights;                            /*!< Holds the expectancy values of the weights in the current event. */
+  std::vector< THnSparse* > m_linear_uncert;                                      /*!< Holds all histograms for uncertainties. */
+  unsigned long int m_k_evt_orig;                                                 /*!< Holds the original amount of unweighted counts ("sum of 1's"). */
+  double m_k_evt_weight;                                                          /*!< Holds the sum of weights. */
+  double m_k_evt_weight2;                                                         /*!< Holds the sum of squared weights. */
+  double m_k_evt_weight_external;                                                 /*!< Holds the sum of external weights (no trigger weighting). */
+  double m_variance;                                                              /*!< Holds the variance. */
+  double m_variance_nocorr;                                                       /*!< Holds the variance, assuming no correlations. */
+  double m_variance_fullcorr;                                                     /*!< Holds the variance, assuming full correlation amongst objects. */
+  double m_variance_sys;                                                          /*!< Holds the systematic variance (from systematics assigned to weights). */
+  bool m_isComputed;
 };
 
 #endif

@@ -378,7 +378,7 @@ StatusCode EMShowerBuilder::CalcHadronicLeakage(xAOD::Egamma* eg){
   }
   
   float value=0;
-  /// @bried ethad/et
+  /// @brief ethad/et
   const double et = eg->caloCluster()->et();
   
   value=static_cast<float>(m_HadronicLeakageTool->ethad1());

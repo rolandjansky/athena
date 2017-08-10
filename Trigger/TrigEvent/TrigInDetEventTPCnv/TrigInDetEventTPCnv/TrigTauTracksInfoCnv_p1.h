@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigInDetEventTPCnv
- * @Class  : TrigTauTracksInfoCnv_p1
+ * @class  : TrigTauTracksInfoCnv_p1
  *
  * @brief transient-persistent converter for TrigTauTracksInfo
  *

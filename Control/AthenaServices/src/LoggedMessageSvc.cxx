@@ -521,7 +521,7 @@ std::string LoggedMessageSvc::colTrans(std::string col, int offset) {
 //
 
 void LoggedMessageSvc::reportMessage( const Message& msg, int outputLevel )    {
-  boost::recursive_mutex::scoped_lock lock(m_reportMutex);
+  std::lock_guard<std::mutex> lock(m_reportMutex);
 
   int key = msg.getType();
   int nmsg;
@@ -659,7 +659,7 @@ void LoggedMessageSvc::reportMessage (const std::string& source,
 void LoggedMessageSvc::reportMessage (const StatusCode& key,
                                 const std::string& source)
 {
-  boost::recursive_mutex::scoped_lock lock(m_messageMapMutex);
+  std::lock_guard<std::recursive_mutex> lock(m_messageMapMutex);
 
   MessageMap::const_iterator first = m_messageMap.lower_bound( key );
   if ( first != m_messageMap.end() ) {
@@ -784,7 +784,7 @@ void LoggedMessageSvc::eraseStream( std::ostream* stream )    {
 
 void LoggedMessageSvc::insertMessage( const StatusCode& key, const Message& msg )
 {
-  boost::recursive_mutex::scoped_lock lock(m_messageMapMutex);
+  std::lock_guard<std::recursive_mutex> lock(m_messageMapMutex);
 
   typedef MessageMap::value_type value_type;
   m_messageMap.insert( value_type( key, msg ) );
@@ -799,7 +799,7 @@ void LoggedMessageSvc::insertMessage( const StatusCode& key, const Message& msg 
 
 void LoggedMessageSvc::eraseMessage()
 {
-  boost::recursive_mutex::scoped_lock lock(m_messageMapMutex);
+  std::lock_guard<std::recursive_mutex> lock(m_messageMapMutex);
 
   m_messageMap.erase( m_messageMap.begin(), m_messageMap.end() );
 }
@@ -813,7 +813,7 @@ void LoggedMessageSvc::eraseMessage()
 
 void LoggedMessageSvc::eraseMessage( const StatusCode& key )
 {
-  boost::recursive_mutex::scoped_lock lock(m_messageMapMutex);
+  std::lock_guard<std::recursive_mutex> lock(m_messageMapMutex);
 
   m_messageMap.erase( key );
 }
@@ -827,7 +827,7 @@ void LoggedMessageSvc::eraseMessage( const StatusCode& key )
 
 void LoggedMessageSvc::eraseMessage( const StatusCode& key, const Message& msg )
 {
-  boost::recursive_mutex::scoped_lock lock(m_messageMapMutex);
+  std::lock_guard<std::recursive_mutex> lock(m_messageMapMutex);
 
   bool changed = true;
   while( changed ) {
@@ -869,7 +869,7 @@ int LoggedMessageSvc::outputLevel()   const {
 // ---------------------------------------------------------------------------
 int LoggedMessageSvc::outputLevel( const std::string& source )   const {
 // ---------------------------------------------------------------------------
-  boost::recursive_mutex::scoped_lock lock(m_thresholdMapMutex);
+  std::lock_guard<std::mutex> lock(m_thresholdMapMutex);
 
   ThresholdMap::const_iterator it;
 
@@ -891,7 +891,7 @@ void LoggedMessageSvc::setOutputLevel(int new_level)    {
 // ---------------------------------------------------------------------------
 void LoggedMessageSvc::setOutputLevel(const std::string& source, int level)    {
 // ---------------------------------------------------------------------------
-  boost::recursive_mutex::scoped_lock lock(m_thresholdMapMutex);
+  std::lock_guard<std::mutex> lock(m_thresholdMapMutex);
 
   /*
   std::pair<ThresholdMap::iterator, bool> p;

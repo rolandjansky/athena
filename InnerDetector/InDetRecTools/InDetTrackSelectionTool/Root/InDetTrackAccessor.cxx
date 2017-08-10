@@ -7,7 +7,7 @@
 // InDetTrackAccessor.cxx
 // implementations of accessor objects
 
-#include "src/InDetTrackAccessor.h"
+#include "InDetTrackAccessor.h"
 #include "InDetTrackSelectionTool/InDetTrackSelectionTool.h"
 
 #include "xAODTracking/TrackParticle.h"

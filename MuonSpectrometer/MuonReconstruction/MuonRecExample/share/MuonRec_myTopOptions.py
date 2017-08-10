@@ -2,6 +2,7 @@ from MuonRecExample.MuonRecFlags import muonRecFlags
 from RecExConfig.RecFlags import rec
 from RecExConfig.RecAlgsFlags import recAlgs
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+from MuonRecExample.MuonStandaloneFlags import muonStandaloneFlags
 
 ## flag to set number of events to be processed
 EvtMax = -1
@@ -24,15 +25,7 @@ from MuonRecExample.MuonRecUtils import assertCastorStager,hasJobPropertyBeenSet
 # Input
 #--------------------------------------------------------------------------------
 athenaCommonFlags.FilesInput = [
-"root://eosatlas//eos/atlas/user/j/jomeyer/mc12_8TeV.129681.PowhegPythia8_AU2CT10_Zmumu_DiLeptonFilter/RDO_20131115/Zmumu_devval_20131115.0001.rdo.pool.root",
-"root://eosatlas//eos/atlas/user/j/jomeyer/mc12_8TeV.129681.PowhegPythia8_AU2CT10_Zmumu_DiLeptonFilter/RDO_20131115/Zmumu_devval_20131115.0002.rdo.pool.root",
-"root://eosatlas//eos/atlas/user/j/jomeyer/mc12_8TeV.129681.PowhegPythia8_AU2CT10_Zmumu_DiLeptonFilter/RDO_20131115/Zmumu_devval_20131115.0003.rdo.pool.root",
-"root://eosatlas//eos/atlas/user/j/jomeyer/mc12_8TeV.129681.PowhegPythia8_AU2CT10_Zmumu_DiLeptonFilter/RDO_20131115/Zmumu_devval_20131115.0004.rdo.pool.root",
-"root://eosatlas//eos/atlas/user/j/jomeyer/mc12_8TeV.129681.PowhegPythia8_AU2CT10_Zmumu_DiLeptonFilter/RDO_20131115/Zmumu_devval_20131115.0005.rdo.pool.root",
-"root://eosatlas//eos/atlas/user/j/jomeyer/mc12_8TeV.129681.PowhegPythia8_AU2CT10_Zmumu_DiLeptonFilter/RDO_20131115/Zmumu_devval_20131115.0006.rdo.pool.root",
-"root://eosatlas//eos/atlas/user/j/jomeyer/mc12_8TeV.129681.PowhegPythia8_AU2CT10_Zmumu_DiLeptonFilter/RDO_20131115/Zmumu_devval_20131115.0007.rdo.pool.root",
-"root://eosatlas//eos/atlas/user/j/jomeyer/mc12_8TeV.129681.PowhegPythia8_AU2CT10_Zmumu_DiLeptonFilter/RDO_20131115/Zmumu_devval_20131115.0008.rdo.pool.root",
-"root://eosatlas//eos/atlas/user/j/jomeyer/mc12_8TeV.129681.PowhegPythia8_AU2CT10_Zmumu_DiLeptonFilter/RDO_20131115/Zmumu_devval_20131115.0009.rdo.pool.root"
+"root://eosatlas///eos/atlas/atlasdatadisk/rucio/valid1/18/60/RDO_TRIG.10625506._000001.pool.root.1"
 ]
 
 if not hasJobPropertyBeenSet(athenaCommonFlags.FilesInput):

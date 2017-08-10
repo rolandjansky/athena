@@ -63,9 +63,9 @@ private:
   void ComputeDimensions (G4Polycone&,const G4int,const G4VPhysicalVolume*) const {}
   void ComputeDimensions (G4Ellipsoid&,const G4int,const G4VPhysicalVolume*) const {}
 
-  const GeoXF::Function *function;
-  G4RotationMatrix* rotation;
-  unsigned int nCopies;
+  const GeoXF::Function *m_function;
+  G4RotationMatrix* m_rotation;
+  unsigned int m_nCopies;
 };
 
 #endif

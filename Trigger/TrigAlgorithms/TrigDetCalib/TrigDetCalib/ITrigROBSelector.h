@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: LAr Calibration
  * @Package: TrigDetCalib
- * @Class  : ITrigROBSelector
+ * @class  : ITrigROBSelector
  *
  * @brief : interface for TrigROBSelector
  *

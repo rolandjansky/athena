@@ -10,8 +10,8 @@
 #include <iostream>
 #include <iomanip>
 
-const std::vector<std::string> HIEventShapeSummaryTool::SubCaloNames {"EMBarrel", "EMEC", "HEC", "TileBarrel", "TileGap", "TileExt", "FCal", "EMCal", "Tile","HCal", "PreSampler","ALL"};
-const std::vector<std::initializer_list<int> > HIEventShapeSummaryTool::SubCaloLists{HI::SubCalo::Lists::EMBarrel,
+const std::vector<std::string> HIEventShapeSummaryTool::s_SubCaloNames {"EMBarrel", "EMEC", "HEC", "TileBarrel", "TileGap", "TileExt", "FCal", "EMCal", "Tile","HCal", "PreSampler","ALL"};
+const std::vector<std::initializer_list<int> > HIEventShapeSummaryTool::s_SubCaloLists{HI::SubCalo::Lists::EMBarrel,
     HI::SubCalo::Lists::EMEC,
     HI::SubCalo::Lists::HEC,
     HI::SubCalo::Lists::TileBarrel,
@@ -86,33 +86,33 @@ StatusCode HIEventShapeSummaryTool::initialize()
     auto mItr=m_summary_list.find(s);
     if(mItr!=m_summary_list.end()) continue;
 
-    unsigned int isub=SubCaloNames.size();
-    for(unsigned int i=0; i < SubCaloNames.size(); i++)
+    unsigned int isub=s_SubCaloNames.size();
+    for(unsigned int i=0; i < s_SubCaloNames.size(); i++)
     {
-      if(SubCaloNames.at(i)==s) 
+      if(s_SubCaloNames.at(i)==s) 
       {
 	isub=i;
 	break;
       }
     }
 
-    if(isub==SubCaloNames.size()) 
+    if(isub==s_SubCaloNames.size()) 
     {
       ATH_MSG_WARNING("Subcalo with name " << s << " not defined in standard list, skipping." );
       break;
     }
 
 
-    const std::vector<int> layer_list=SubCaloLists.at(isub);
+    const std::vector<int> layer_list=s_SubCaloLists.at(isub);
     int samp=getSubCaloLayer(layer_list);
     float emin=getSubCaloEtaMin(layer_list);
     float emax=getSubCaloEtaMax(layer_list);
 
-    m_summary_list.emplace(s,summary_info_t(s,emin,emax,samp,HI::ByLayers(SubCaloLists.at(isub))));
+    m_summary_list.emplace(s,summary_info_t(s,emin,emax,samp,HI::ByLayers(s_SubCaloLists.at(isub))));
     if(m_do_sides)
     {
-      m_summary_list.emplace(s+"_pos",summary_info_t(s+"_pos",emin,emax,samp,HI::ByLayersP(SubCaloLists.at(isub))));
-      m_summary_list.emplace(s+"_neg",summary_info_t(s+"_neg",-emax,-emin,samp,HI::ByLayersN(SubCaloLists.at(isub))));
+      m_summary_list.emplace(s+"_pos",summary_info_t(s+"_pos",emin,emax,samp,HI::ByLayersP(s_SubCaloLists.at(isub))));
+      m_summary_list.emplace(s+"_neg",summary_info_t(s+"_neg",-emax,-emin,samp,HI::ByLayersN(s_SubCaloLists.at(isub))));
     }
 
   }

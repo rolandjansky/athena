@@ -112,25 +112,54 @@ namespace JetTagDQA {
 
   StatusCode PhysValBTag::fillHistograms()
   {
-	ATH_MSG_INFO ("Filling hists " << name() << "...");
+    ATH_MSG_INFO ("Filling hists " << name() << "...");
+    
+    if (m_detailLevel < 10) return StatusCode::SUCCESS;
+    
+    ++m_nevents;
+    //int njets = 0;
+    //std::cout << "Number of proccessed events = " << m_nevents << std::endl;
+    // primary vertex
+    const xAOD::VertexContainer *vertices = 0;
+    CHECK( evtStore()->retrieve(vertices, "PrimaryVertices") );
+    int npv(0);
+    size_t indexPV = 0;
+    bool has_pv = false;
+    xAOD::VertexContainer::const_iterator vtx_itr = vertices->begin();
+    xAOD::VertexContainer::const_iterator vtx_end = vertices->end();
+    int count = -1;
+    for (; vtx_itr != vtx_end; ++vtx_itr) {
+      count++;
+      if ((*vtx_itr)->nTrackParticles() >= 2) {
+        //v_PVz->push_back(  (*vtx_itr)->z() );
+        npv++;
+        if ((*vtx_itr)->vertexType() == 1) {
+          if (PV_x != -999) ATH_MSG_WARNING( ".... second PV in the events ...!!!!!!");
+          indexPV = count;
+          has_pv = true;
+          PV_x = (*vtx_itr)->x(); // ANDREA !!!!!!!!
+          PV_y = (*vtx_itr)->y(); // ANDREA !!!!!!!!
+          PV_z = (*vtx_itr)->z();
+        }   //if ((*vtx_itr)->vertexType() == 1) {
+      } //if ((*vtx_itr)->nTrackParticles() >= 2) {
+    }//for (; vtx_itr != vtx_end; ++vtx_itr) {
+    if (!has_pv) {
+      //ATH_MSG_WARNING( ".... rejecting the event due to missing PV!!!!");
+      return StatusCode::SUCCESS;
+    }
+    const xAOD::Vertex *myVertex = vertices->at(indexPV); // the (reco?) primary vertex
+    //std::cout<<"z coordinate of PV: "<< myVertex->z() <<std::endl;
 
-	if (m_detailLevel < 10) return StatusCode::SUCCESS;
-
-	++m_nevents;
-	//int njets = 0;
-	//std::cout << "Number of proccessed events = " << m_nevents << std::endl;
-
-	// Jets
-	for(std::map<std::string,JetTagDQA::BTaggingValidationPlots>::iterator plot_i = m_btagplots.begin(); plot_i != m_btagplots.end(); ++plot_i){
+    for(std::map<std::string,JetTagDQA::BTaggingValidationPlots>::iterator plot_i = m_btagplots.begin(); plot_i != m_btagplots.end(); ++plot_i){
+      
+      //LOOP ON JETS
       const xAOD::JetContainer* jets(0);
       // ATH_CHECK(evtStore()->retrieve(jets, plot_i->first));
       StatusCode jetException = evtStore()->retrieve(jets, plot_i->first);
-    // If StatusCode is not SUCCESS, no jet collection with this name, continue loop
-    if (jetException != StatusCode::SUCCESS)
-      continue;
+      // If StatusCode is not SUCCESS, no jet collection with this name, continue loop
+      if (jetException != StatusCode::SUCCESS) continue;
 
-
-    for (auto jet : *jets) {
+      for (auto jet : *jets) {
 
         //			++njets;
         //     			m_jetPlots.fill(jet);
@@ -154,11 +183,12 @@ namespace JetTagDQA {
           (plot_i->second).fill(label);
           if (btag){
             (plot_i->second).fill(btag);
-            (plot_i->second).fill(jet, btag);
+            //(plot_i->second).fill(jet, btag);
+       	    (plot_i->second).fill(jet, btag, myVertex); //ANDREA: added xAOD::Vertex * as input to BTaggingValidationPlots.cxx
           }
         }
-      }
-	}
+      }//for (auto jet : *jets) {
+    }//for(std::map<std::string,JetTagDQA::BTaggingValidationPlots>::iterator plot_i = m_btagplots.begin(); plot_i != m_btagplots.end(); ++plot_i){
 
     // Tracks/Vertices
     //    const xAOD::TrackParticleContainer* trks(0);

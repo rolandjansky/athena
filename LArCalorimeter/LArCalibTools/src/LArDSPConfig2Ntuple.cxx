@@ -25,19 +25,19 @@ StatusCode LArDSPConfig2Ntuple::initialize() {
 
   StatusCode sc=LArCond2NtupleBase::initialize();
    if (sc!=StatusCode::SUCCESS) {
-     msg(MSG::ERROR) << "Base init failed" << endreq;
+     msg(MSG::ERROR) << "Base init failed" << endmsg;
      return StatusCode::FAILURE;
    }
 
    sc=m_nt->addItem("peakSample",m_peakSample);
    if (sc!=StatusCode::SUCCESS) {
-     msg(MSG::ERROR) << "addItem peakSample failed" << endreq;
+     msg(MSG::ERROR) << "addItem peakSample failed" << endmsg;
      return StatusCode::FAILURE;
    }
    
    sc=m_nt->addItem("useMGIntercept",m_useMgIntercept);
    if (sc!=StatusCode::SUCCESS) {
-     msg(MSG::ERROR) << "addItem useMGIntercept failed" << endreq;
+     msg(MSG::ERROR) << "addItem useMGIntercept failed" << endmsg;
      return StatusCode::FAILURE;
    }
    
@@ -55,7 +55,7 @@ StatusCode LArDSPConfig2Ntuple::stop() {
    const AthenaAttributeList* attrList=0;
    sc=detStore()->retrieve(attrList,m_folder);
    if (sc.isFailure()) {
-     msg(MSG::ERROR) << "Failed to retrieve AthenaAttributeList with key " << m_folder << endreq;
+     msg(MSG::ERROR) << "Failed to retrieve AthenaAttributeList with key " << m_folder << endmsg;
      return sc;
    }
       
@@ -70,16 +70,16 @@ StatusCode LArDSPConfig2Ntuple::stop() {
      m_peakSample=larDSPConfig.peakSample(hwid);
      m_useMgIntercept=larDSPConfig.useMGRampIntercept(hwid);
      fillFromIdentifier(hwid);
-     //msg(MSG::INFO)<<"hwid: "<<hwid.getString()<<" "<<tQThr<<" : "<<samplesThr<<" : "<<trigThr<<endreq;
+     //msg(MSG::INFO)<<"hwid: "<<hwid.getString()<<" "<<tQThr<<" : "<<samplesThr<<" : "<<trigThr<<endmsg;
      
      sc=ntupleSvc()->writeRecord(m_nt);      
      if (sc!=StatusCode::SUCCESS) {
-       msg(MSG::ERROR) << "writeRecord failed" << endreq;
+       msg(MSG::ERROR) << "writeRecord failed" << endmsg;
        return StatusCode::FAILURE;
      }
    }
    
-   msg(MSG::INFO) << "LArDSPConfig2Ntuple has finished." << endreq;
+   msg(MSG::INFO) << "LArDSPConfig2Ntuple has finished." << endmsg;
    return StatusCode::SUCCESS;
    
 }// end finalize-method.

@@ -30,12 +30,6 @@ ToolSvc.LArRoI_Map.Print=FALSE
 ToolSvc.TBByteStreamCnvTool.Dump        = FALSE
 ToolSvc.TBByteStreamCnvTool.OutputLevel = WARNING
 
-theApp.Dlls += ["LArRawUtils"]
-theApp.Dlls += ["LArTools"]
-theApp.Dlls += ["LArROD"]
-theApp.Dlls += [ "TBRec" ]
-
-
 #--- Monitoring ---------------------------
 
 theApp.TopAlg += [ "TBAlgoSequencer/Seq1" ]

@@ -126,31 +126,31 @@ StatusCode InDetAlignWrt::initialize() {
   if (par_wrtbeam) {
     
     if ( m_beamcondsvc.retrieve().isFailure()){
-           msg( MSG::ERROR) <<"Cannot get BeamCondSvc - beamspots will not be put in ntuple" << endreq;
+           msg( MSG::ERROR) <<"Cannot get BeamCondSvc - beamspots will not be put in ntuple" << endmsg;
     }
   }
   
   if (msgLvl(MSG::DEBUG)) {
-    if (par_create) msg() << "ID Alignment database structures will be created" << endreq;
+    if (par_create) msg() << "ID Alignment database structures will be created" << endmsg;
     if (par_rfile!="") {
-      if (par_ntuple) msg() << "Alignment constants will be initialised from ntuple: " << par_rfile << endreq;  
-      else msg() << "Alignment constants will be initialised from text file" << par_rfile << endreq;
+      if (par_ntuple) msg() << "Alignment constants will be initialised from ntuple: " << par_rfile << endmsg;  
+      else msg() << "Alignment constants will be initialised from text file" << par_rfile << endmsg;
     }
     if (par_dispfile!="") 
-      msg() << "Alignment constants will be set according to recipe in file " << par_dispfile << endreq;
+      msg() << "Alignment constants will be set according to recipe in file " << par_dispfile << endmsg;
     if (par_wrt) 
       msg() << "ID Alignment database structures will be written on run " 
-      << par_wrtrun << " event " << par_wrtevent << endreq;
+      << par_wrtrun << " event " << par_wrtevent << endmsg;
     if (par_wfile!="") 
-      msg() << "Structures will be written on file " << par_wfile << endreq;
+      msg() << "Structures will be written on file " << par_wfile << endmsg;
   if (par_wrtbeam) 
     msg() << "Beampos information will be written on run " << par_wrtrun 
-    << " event " << par_wrtevent << endreq;
+    << " event " << par_wrtevent << endmsg;
   if (par_writetop) 
     msg() << "Toplevel transforms will be read from file " << par_topname 
-    << "and written on run " << par_wrtrun << " event " << par_wrtevent << endreq;
+    << "and written on run " << par_wrtrun << " event " << par_wrtevent << endmsg;
   if (!par_wrtiov) 
-    msg() << "IOV writing will be suppressed - only output stream" << endreq;
+    msg() << "IOV writing will be suppressed - only output stream" << endmsg;
   }
 
   return StatusCode::SUCCESS;
@@ -248,7 +248,7 @@ void InDetAlignWrt::doOutput() {
     if (par_wfile=="") {
       ATH_MSG_DEBUG( "doOutput for AlignableTransforms" );
       if (StatusCode::SUCCESS!=p_iddbtool->outputObjs()) 
-        msg(MSG::ERROR) << "Write of AlignableTransforms fails" << endreq;
+        msg(MSG::ERROR) << "Write of AlignableTransforms fails" << endmsg;
       if (par_wrtiov)
   p_iddbtool->fillDB(par_iovtag,par_run1,par_evt1,par_run2,par_evt2);
     } else {
@@ -301,7 +301,7 @@ void InDetAlignWrt::doMigration() {
   p_migratetool->writeFile(false,"migrate.check");
   // write data to POOL file and optionally IOV
   if (StatusCode::SUCCESS!=p_migratetool->outputObjs())
-    msg(MSG::ERROR) << "Write of AlignableTransform fails" << endreq;
+    msg(MSG::ERROR) << "Write of AlignableTransform fails" << endmsg;
   if (par_wrtiov)
     p_migratetool->fillDB(par_iovtag,par_run1,par_evt1,par_run2,par_evt2);
 }

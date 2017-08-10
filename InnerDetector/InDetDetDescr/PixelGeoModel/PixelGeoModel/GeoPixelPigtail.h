@@ -16,7 +16,7 @@ class GeoPixelPigtail : public GeoVPixelFactory {
   double bendCenterY() {return m_posBendY;}
 
  private:
-  const GeoLogVol* thePigtail;
+  const GeoLogVol* m_thePigtail;
   double m_rmin;
   double m_rmax;
   double m_phi;

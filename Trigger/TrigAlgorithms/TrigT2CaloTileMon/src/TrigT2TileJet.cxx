@@ -7,56 +7,7 @@
 #include "TrigCaloEvent/Trig3Momentum.h"
 /// #include "Trig3Momentum.h"
 
-TrigT2TileJet::TrigT2TileJet()
-{
-   if ( !m_towercollection ) m_towercollection = new std::vector<TrigT2Tower>;
-   else m_towercollection->clear();
-}
-
-TrigT2TileJet::TrigT2TileJet(TrigT2TileJet& p)
-{
-   std::vector<TrigT2Tower>* vec = p.towercollection();
-   if ( !m_towercollection ) m_towercollection = new std::vector<TrigT2Tower>;
-   m_towercollection->clear();
-   m_towercollection->insert(m_towercollection->end(),vec->begin(),vec->end() );
-}
-
-void TrigT2TileJet::clearTowerCollection()
-{
-  std::vector<TrigT2Tower>::iterator i_begin;
-  std::vector<TrigT2Tower>::iterator i_end;
-  std::vector<TrigT2Tower>::iterator i_it;
-  i_begin = m_towercollection->begin();
-  i_end = m_towercollection->end();
-  m_towercollection->erase(i_begin,i_end);
-  m_towercollection->clear();
-  delete m_towercollection;
-  m_towercollection = 0;
-}
-
-TrigT2TileJet::~TrigT2TileJet()
-{
-  if ( m_towercollection ) clearTowerCollection();
-}
-
-
-// std::string str (const TrigT2TileJet& a){
-// 
-//   std::string s="";
-//   char buff[1024];
-// 
-//   std::sprintf(buff,"L2 TileJet EHad  = %10.2f MeV\n", a.e());     s += buff;
-//   std::sprintf(buff,"L2 TileJet Eta   = %10.2f \n",    a.eta());   s += buff;
-//   std::sprintf(buff,"L2 TileJet Phi   = %10.2f \n",    a.phi());   s += buff;
-// 
-//   if(a.towercollection())
-//     std::sprintf(buff,"Tower Members = %4d\n", a.towercollection()->size());  s += buff;
-// 
-//   return s;
-// 
-// }
-
-void TrigT2TileJet::insertCell(Trig3Momentum newCell, MsgStream& log)
+void TrigT2TileJet::insertCell(const Trig3Momentum& newCell, MsgStream& log)
 {
    if ( log.level() <= MSG::DEBUG ){
    log << MSG::DEBUG << " REGTEST:     CELL: initial cell info:   eta:" << newCell.eta() << " phi:" << newCell.phi()
@@ -91,19 +42,16 @@ void TrigT2TileJet::insertCell(Trig3Momentum newCell, MsgStream& log)
    }
 }
 
-void TrigT2TileJet::searchTowerAndInsert( Trig3Momentum cell, MsgStream& log, double etaShift )
+void TrigT2TileJet::searchTowerAndInsert( const Trig3Momentum& cell, MsgStream& log, double etaShift )
 {
    bool flag = 0;
    
-   std::vector<TrigT2Tower>::iterator itt, itt_end;
-   itt_end = m_towercollection->end();
-
-   // walk through tower collection and look for appropriate tower exists
-   for (itt = m_towercollection->begin(); itt!=itt_end; itt++)
+   // walk through tower collection and look for an appropriate tower
+   for (TrigT2Tower& tt : m_towercollection)
    {
-      if( (*itt).isMember(cell, log, etaShift) )
+      if( tt.isMember(cell, log, etaShift) )
       {
-         if( (*itt).insertCell(cell, log) )
+         if( tt.insertCell(cell, log) )
          {
             // insert new Cell and end loop immediately
             flag = 1;
@@ -122,32 +70,28 @@ void TrigT2TileJet::searchTowerAndInsert( Trig3Momentum cell, MsgStream& log, do
    {
      if ( log.level() <= MSG::DEBUG )
      log << MSG::DEBUG << " REGTEST:     CELL:          insert in NEW tower" << endmsg;
-      m_towercollection->push_back( TrigT2Tower(cell, log, etaShift) );
+      m_towercollection.emplace_back( cell, log, etaShift );
 
    }
 
 }
 
-void TrigT2TileJet::print(MsgStream& log)
+void TrigT2TileJet::print(MsgStream& log) const
 {
-   std::vector<TrigT2Tower>::iterator itt, itt_end;
-   itt_end = m_towercollection->end();
    log << MSG::DEBUG << " REGTEST: JET:  print jet:" << endmsg;
-   for (itt = m_towercollection->begin(); itt!=itt_end; itt++)
+   for (const TrigT2Tower& tt : m_towercollection)
    {
-      (*itt).print(log,MSG::DEBUG);
+      tt.print(log,MSG::DEBUG);
    }
 }
 
-bool TrigT2TileJet::findHottestTower(TrigT2Tower &tower)
+bool TrigT2TileJet::findHottestTower(TrigT2Tower &tower) const
 {
    tower.setE(0.);
-   std::vector<TrigT2Tower>::iterator itt, itt_end;
-   itt_end = m_towercollection->end();
-   for (itt = m_towercollection->begin(); itt!=itt_end; itt++)
+   for (const TrigT2Tower& tt : m_towercollection)
    {
-      if ( (*itt).e() > tower.e() ) tower = (*itt);
+      if ( tt.e() > tower.e() ) tower = tt;
    }
-   if ( tower.e() > 0.0) return 1;
-   else return 0;
+   if ( tower.e() > 0.0) return true;
+   else return false;
 }

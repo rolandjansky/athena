@@ -8,19 +8,19 @@
 ALFA_CLinkEvent_PERS* ALFA_CLinkEventCnv::createPersistent(ALFA_CLinkEvent* transCont)
 {
 	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_CLinkEventCnv_p1");
-	//LogStream<<MSG::INFO<<"MARK01-ALFA_CLinkEventCnv::createPersistent (AthenaPOOL)"<<endreq;
+	//LogStream<<MSG::INFO<<"MARK01-ALFA_CLinkEventCnv::createPersistent (AthenaPOOL)"<<endmsg;
 
 	ALFA_CLinkEventCnv_p1   TPConverter;
 	ALFA_CLinkEvent_PERS *persObj = TPConverter.createPersistent( transCont, LogStream );
 
-	//LogStream<<MSG::INFO<<"MARK02-ALFA_CLinkEventCnv::createPersistent (AthenaPOOL)"<<endreq;
+	//LogStream<<MSG::INFO<<"MARK02-ALFA_CLinkEventCnv::createPersistent (AthenaPOOL)"<<endmsg;
 	return persObj;
 }
 
 ALFA_CLinkEvent* ALFA_CLinkEventCnv::createTransient()
 {
 	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_CLinkEventCnv_p1");
-	//LogStream<<MSG::INFO<<"MARK01-ALFA_CLinkEventCnv::createTransient (AthenaPOOL)"<<endreq;
+	//LogStream<<MSG::INFO<<"MARK01-ALFA_CLinkEventCnv::createTransient (AthenaPOOL)"<<endmsg;
 
 	ALFA_CLinkEventCnv_p1 TPConverter_p1;
 
@@ -35,7 +35,7 @@ ALFA_CLinkEvent* ALFA_CLinkEventCnv::createTransient()
 		throw std::runtime_error("Unsupported persistent version of Data container");
 	}
 	
-	//LogStream<<MSG::INFO<<"MARK02-ALFA_CLinkEventCnv::createTransient (AthenaPOOL)"<<endreq;
+	//LogStream<<MSG::INFO<<"MARK02-ALFA_CLinkEventCnv::createTransient (AthenaPOOL)"<<endmsg;
 
 	return trans_cont;
 }

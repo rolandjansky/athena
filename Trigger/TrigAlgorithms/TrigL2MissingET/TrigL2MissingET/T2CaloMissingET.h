@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: HLT, PESA algorithms
  * @Package: TrigL2MissingET
- * @Class  : L2CaloMissingET
+ * @class  : L2CaloMissingET
  *
  * @brief  PESA algorithm that takes the LVL2 MissingET from LVL1
  *
@@ -25,7 +25,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "LArRecEvent/LArFebEnergyCollection.h"
 #include "IRegionSelector/RegSelEnums.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArIdentifier/LArReadoutModuleService.h"
 #include "CaloIdentifier/CaloCell_ID.h"

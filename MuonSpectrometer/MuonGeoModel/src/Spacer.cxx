@@ -6,7 +6,7 @@
 #include "MuonGeoModel/Station.h"
 #include "MuonGeoModel/MYSQL.h"
 #include "MuonGeoModel/Technology.h"
-#include "MuonGeoModel/SpacerComponent.h"
+#include "MuonGeoModel/SpaComponent.h"
 #include "GeoModelKernel/GeoTrd.h"
 #include "GeoModelKernel/GeoTube.h"
 #include "GeoModelKernel/GeoVPhysVol.h"
@@ -29,7 +29,7 @@ namespace MuonGM {
 
 Spacer::Spacer(Component *ss): DetectorElement(ss->name)
 {
-  SpacerComponent* s = (SpacerComponent*)ss;
+  SpaComponent* s = dynamic_cast<SpaComponent*>(ss);
   width = s->dx1;
   longWidth = s->dx2;
   MYSQL* mysql = MYSQL::GetPointer();

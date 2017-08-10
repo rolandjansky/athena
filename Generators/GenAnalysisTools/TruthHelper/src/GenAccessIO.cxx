@@ -31,16 +31,16 @@ namespace TruthHelper {
     const DataHandle<McEventCollection> firstMEC;
     const DataHandle<McEventCollection> lastMEC;
     if ( (m_sgSvc->retrieve(firstMEC, lastMEC)).isFailure() ) {
-      log << MSG::ERROR << "Could not retrieve iterators for McEventCollections" << endreq;
+      log << MSG::ERROR << "Could not retrieve iterators for McEventCollections" << endmsg;
     }
     const McEventCollection* mcCollptr(firstMEC);
     int icount = 0;
     for ( ; firstMEC!= lastMEC; firstMEC++) icount++;
-    log << MSG::DEBUG << "Number of McEventCollections=  "<< icount << endreq;
+    log << MSG::DEBUG << "Number of McEventCollections=  "<< icount << endmsg;
 
     // If there is more than one then do the retrieve with the key
     if (icount > 1) {
-      log << MSG::DEBUG << "Key = " << key << endreq;
+      log << MSG::DEBUG << "Key = " << key << endmsg;
       return this->getDH(mcCollptr, key);
     }
 

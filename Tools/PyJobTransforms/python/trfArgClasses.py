@@ -334,7 +334,7 @@ class argList(argument):
 
 
     ## @brief Argument value setter
-    #  @detail If we get a list then set that, otherwise we split a string on the splitter character
+    #  @details If we get a list then set that, otherwise we split a string on the splitter character
     @value.setter
     def value(self, value):
         if isinstance(value, (list, tuple)):
@@ -379,7 +379,7 @@ class argIntList(argList):
     
 
     ## @brief Argument value setter
-    #  @detail If we get a list then set that, otherwise we split a string on the splitter character
+    #  @details If we get a list then set that, otherwise we split a string on the splitter character
     #  @throw trfExceptions.TransformArgException Exception thrown if any list member is not an @c int
     #  @throw trfExceptions.TransformArgException Exception thrown is any @c int() conversion fails
     @value.setter
@@ -435,7 +435,7 @@ class argKeyFloatValueList(argList):
         return self._value
 
     ## @brief Argument value setter
-    #  @detail If we get a dict then set that, otherwise we split a string on the splitter character
+    #  @details If we get a dict then set that, otherwise we split a string on the splitter character
     #  and then on the kvsplitter into key and value, with the value being converted to float
     #  @throw trfExceptions.TransformArgException Exception thrown if any dictionary @c key:value member is not @c string:int
     #  @throw trfExceptions.TransformArgException Exception thrown if any @c int() conversion fails of the kvsplitter is not found
@@ -551,7 +551,7 @@ class argFile(argList):
         return self._value
 
     ## @brief Argument value setter
-    #  @detail Calls the valueSetter function with the standard options
+    #  @details Calls the valueSetter function with the standard options
     @value.setter
     def value(self, value):
         self.valueSetter(value)
@@ -990,7 +990,7 @@ class argFile(argList):
     
     
     ## @brief Set metadata values into the cache
-    #  @detailed Manually sets the metadata cache values to the values given in the
+    #  @details Manually sets the metadata cache values to the values given in the
     #  metadata key dictionary here.
     #  This is useful for setting values to make checks on file metadata handling.
     #  @note To really suppress any external function calls that gather metadata be careful
@@ -1011,7 +1011,7 @@ class argFile(argList):
     
     
     ## @brief Test if certain metadata elements are already cached
-    #  @detailed Will test for a cached value for all files and all keys
+    #  @details Will test for a cached value for all files and all keys
     #  given, aborting as soon as it finds a single uncached value.
     #  @param files Files to check (defaults to all files)
     #  @param metadataKeys Keys to check (defaults to all keys)
@@ -1039,7 +1039,7 @@ class argFile(argList):
         return isCachedFlag
     
     ## @brief Look for dataset name in dataset#filename Tier0 convention
-    #  @detail At the moment all files must be in the same dataset if it's specified. 
+    #  @details At the moment all files must be in the same dataset if it's specified. 
     #          (To change this dataset will need to become a per-file metadatum.)
     #  @note dsn#lfn notation must be used for @b all input values and all dsn values must be the same
     #  @param @c reset If @c True then forget previous dataset setting. Default is @c False.
@@ -1781,7 +1781,7 @@ class argSubstep(argument):
     
     ## @brief Return the value of this substep arg for an executor with the given parameters
     #  @param name Executor name
-    #  @parem substep Executor substep nickname
+    #  @param substep Executor substep nickname
     #  @param first Boolean flag set true if this is the first executor in the chain
     #  @param exe Executor instance, from which 'name', 'substep' and 'first' can be taken.  
     def returnMyValue(self, name=None, substep=None, first=False, exe=None):
@@ -2057,11 +2057,14 @@ class argSubstepSteering(argSubstep):
     # usecases of steering. 
     # "no" - a convenience null option for production managers, does nothing
     # "doRDO_TRIG" - run split trigger for Reco_tf and friends
+    # "doOverlay" - run event overlay on premixed RDOs instead of standard HITtoRDO digitization
     # "afterburn" - run the B decay afterburner for event generation
     # "doRAWtoALL" - produce all DESDs and AODs directly from bytestream
     steeringAlises = {
                       'no': {},
                       'doRDO_TRIG': {'RAWtoESD': [('in', '-', 'RDO'), ('in', '+', 'RDO_TRIG'), ('in', '-', 'BS')]},
+                      'doOverlay': {'HITtoRDO': [('in', '-', 'HITS'), ('out', '-', 'RDO'), ('out', '-', 'RDO_FILT')],
+                                    'OverlayPool': [('in', '+', ('HITS', 'RDO_BKG')), ('out', '+', 'RDO')]},
                       'afterburn': {'generate': [('out', '-', 'EVNT')]},
                       'doRAWtoALL': {'RAWtoALL': [('in', '+', 'BS'), ('in', '+', 'RDO'), ('in', '+', 'RDO_FTK'),
                                                   ('in', '+', 'DRAW_ZMUMU'), ('in', '+', 'DRAW_ZEE'), ('in', '+', 'DRAW_EMU'), ('in', '+', 'DRAW_RPVLL'), 

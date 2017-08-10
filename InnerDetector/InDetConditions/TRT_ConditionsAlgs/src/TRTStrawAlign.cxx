@@ -76,7 +76,7 @@ StatusCode TRTStrawAlign::initialize() {
   StatusCode sc = AthAlgorithm::detStore()->retrieve(m_trtman,"TRT");
   if(sc.isFailure() || m_trtman==0) 
   {
-    msg(MSG::FATAL) << "Could not find TRT manager " << endreq;
+    msg(MSG::FATAL) << "Could not find TRT manager " << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -90,55 +90,55 @@ StatusCode TRTStrawAlign::initialize() {
   //get Database manager tools
   if (m_doStrawAlign) {
     if (StatusCode::SUCCESS!=p_caldbtool.retrieve()) {
-      msg(MSG::FATAL) << "TRTStrawAlignDbTool not found" << endreq;
+      msg(MSG::FATAL) << "TRTStrawAlignDbTool not found" << endmsg;
       return StatusCode::FAILURE;
     }
 
     ATH_MSG_DEBUG(" TRTStrawAlignDbTool found ");
     if (m_doWriteToPOOL && msgLvl(MSG::INFO)) msg(MSG::INFO)
 		       << "Straw alignment will be written to POOL file " 
-		       << m_outputPOOLFile << endreq;
+		       << m_outputPOOLFile << endmsg;
     if (m_doRegIOV) {
       ATH_MSG_INFO("Straw alignment will be registered with IOV");
       if (msgLvl(MSG::INFO)) {
 	msg(MSG::INFO) << " run range: "
-			<< m_runRangeBegin << " to " << m_runRangeEnd << endreq;
-	msg(MSG::INFO) << " version tag: " << m_stawAlignTag << endreq;
+			<< m_runRangeBegin << " to " << m_runRangeEnd << endmsg;
+	msg(MSG::INFO) << " version tag: " << m_stawAlignTag << endmsg;
       }
     }
     if (m_inputStrawAlignmentTextFile!="" && msgLvl(MSG::INFO)) msg(MSG::INFO)
 			       << "Straw Alignment will read from text file "
-			       << m_inputStrawAlignmentTextFile << endreq;
+			       << m_inputStrawAlignmentTextFile << endmsg;
     if (m_outputStrawAlignmentTextFile!="" && msgLvl(MSG::INFO)) msg(MSG::INFO)
 				<< "Straw Alignment will be written on text file "
-				<< m_outputStrawAlignmentTextFile << endreq;
+				<< m_outputStrawAlignmentTextFile << endmsg;
   
   }
   if (m_doModuleAlign) {
 
     if (StatusCode::SUCCESS!=p_aligndbtool.retrieve()) {
-      msg(MSG::FATAL) << "TRTAlignDbTool not found" << endreq;
+      msg(MSG::FATAL) << "TRTAlignDbTool not found" << endmsg;
       return StatusCode::FAILURE;
     }
 
     ATH_MSG_DEBUG(" TRTAlignDbTool found ");
     if (m_doWriteToPOOL && msgLvl(MSG::INFO)) msg(MSG::INFO)
 		       << "Module alignment will be written to POOL file " 
-		       << m_outputPOOLFile << endreq;
+		       << m_outputPOOLFile << endmsg;
     if (m_doRegIOV) {
       ATH_MSG_INFO("Module alignment will be registered with IOV");
       if ( msgLvl(MSG::INFO) ) {
 	msg(MSG::INFO) << " run range: " << m_runRangeBegin << " to " << m_runRangeEnd
-		       << endreq; 
-	msg(MSG::INFO) << " version tag: " << m_moduleAlignTag << endreq;
+		       << endmsg; 
+	msg(MSG::INFO) << " version tag: " << m_moduleAlignTag << endmsg;
       }
     }
     if (m_inputModuleAlignmentTextFile!="" && msgLvl(MSG::INFO)) msg(MSG::INFO)
 			       << "Module Alignment will read from text file "
-			       << m_inputModuleAlignmentTextFile << endreq;
+			       << m_inputModuleAlignmentTextFile << endmsg;
     if (m_outputModuleAlignmentTextFile!="" && msgLvl(MSG::INFO)) msg(MSG::INFO)
 				<< "Module Alignment will be written on text file "
-				<< m_outputModuleAlignmentTextFile << endreq;
+				<< m_outputModuleAlignmentTextFile << endmsg;
   }
 
   return StatusCode::SUCCESS;
@@ -159,7 +159,7 @@ StatusCode TRTStrawAlign::execute() {
 	sc=p_caldbtool->readTextFile(m_inputStrawAlignmentTextFile);
 	if(sc!=StatusCode::SUCCESS) {
           msg(MSG::ERROR) << " Could not read input text file "
-	        << endreq;
+	        << endmsg;
           return StatusCode::FAILURE;
 	}
       }
@@ -169,7 +169,7 @@ StatusCode TRTStrawAlign::execute() {
 	sc=p_caldbtool->writeTextFile(m_outputStrawAlignmentTextFile);
 	if(sc!=StatusCode::SUCCESS) {
           msg(MSG::ERROR) << " Could not write output text file "
-	        << endreq;
+	        << endmsg;
           return StatusCode::FAILURE;
 	}
       }
@@ -177,14 +177,14 @@ StatusCode TRTStrawAlign::execute() {
       if(m_doWriteToPOOL) {
 	if( StatusCode::SUCCESS != p_caldbtool->streamOutObjects()) {
 	  msg(MSG::ERROR) << " Could not stream Straw Alignment objects to "
-		<< m_outputPOOLFile << endreq;
+		<< m_outputPOOLFile << endmsg;
 	  return StatusCode::FAILURE;
 	}
       }
       if(m_doRegIOV) {
 	if( StatusCode::SUCCESS != p_caldbtool->registerObjects(m_stawAlignTag,m_runRangeBegin,m_eventRangeBegin,m_runRangeEnd,m_eventRangeEnd) ) {
 	  msg(MSG::ERROR) << " Could not register Straw Alignment objects "
-		<< endreq;
+		<< endmsg;
 	  return StatusCode::FAILURE;
 	}
       }
@@ -196,7 +196,7 @@ StatusCode TRTStrawAlign::execute() {
 	sc=p_aligndbtool->readAlignTextFile(m_inputModuleAlignmentTextFile);
 	if(sc!=StatusCode::SUCCESS) {
           msg(MSG::ERROR) << " Could not read input text file "
-	        << endreq;
+	        << endmsg;
           return StatusCode::FAILURE;
 	}
       }
@@ -205,14 +205,14 @@ StatusCode TRTStrawAlign::execute() {
       if (m_outputModuleAlignmentTextFile!="") {
 	sc=p_aligndbtool->writeAlignTextFile(m_outputModuleAlignmentTextFile);
 	if(sc!=StatusCode::SUCCESS) {
-          msg(MSG::ERROR) << " Could not write output text file "      << endreq;
+          msg(MSG::ERROR) << " Could not write output text file "      << endmsg;
 	  return StatusCode::FAILURE;
 	}
       }
 
       if(m_doWriteToPOOL) {
 	if( StatusCode::SUCCESS != p_aligndbtool->streamOutAlignObjects()) {
-	  msg(MSG::ERROR) << " Could not stream Module Alignment objects to " << m_outputPOOLFile << endreq;
+	  msg(MSG::ERROR) << " Could not stream Module Alignment objects to " << m_outputPOOLFile << endmsg;
 	  return StatusCode::FAILURE;
 	}
       }
@@ -223,7 +223,7 @@ StatusCode TRTStrawAlign::execute() {
 								       ,m_runRangeEnd
 								       ,m_eventRangeEnd) ) {
 	  
-	  msg(MSG::ERROR) << " Could not register Module Alignment objects " << endreq;
+	  msg(MSG::ERROR) << " Could not register Module Alignment objects " << endmsg;
 	  return StatusCode::FAILURE;
 	}
       }
@@ -248,9 +248,9 @@ StatusCode TRTStrawAlign::finalize() {
       float z = element->strawCenter(str).z();
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)
 	    << "bec -1 layer 0 sector 1 plane "
-            << strlay << " straw " << str << endreq;
+            << strlay << " straw " << str << endmsg;
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)
-	    << " x " << x << " y " << y << " z " << z << endreq;
+	    << " x " << x << " y " << y << " z " << z << endmsg;
       id=m_trt->layer_id(1,1,0,strlay);
       element = m_trtman->getElement(id);
       y = element->strawCenter(str).x();
@@ -258,9 +258,9 @@ StatusCode TRTStrawAlign::finalize() {
       z = element->strawCenter(str).z();
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)
 	    << "bec 1 layer 0 sector 1 plane "
-            << strlay << " straw " << str << endreq;
+            << strlay << " straw " << str << endmsg;
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)
-	    << " x " << x << " y " << y << " z " << z << endreq;
+	    << " x " << x << " y " << y << " z " << z << endmsg;
     }
   }
 

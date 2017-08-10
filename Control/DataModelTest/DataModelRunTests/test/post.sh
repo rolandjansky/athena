@@ -20,7 +20,7 @@ PP="$PP"'|\w+-[[:digit:]]{2}-[[:digit:]]{2}-[[:digit:]]{2}'
 PP="$PP"'|^==> New TileCablingService created$'
 
 # CLIDsvc output depends on module cache, existing files?
-PP="$PP"'|^ClassIDSvc *INFO'
+PP="$PP"'|^ClassIDSvc[ 0]*INFO'
 
 # File catalog stuff.
 PP="$PP"'|^Domain.ROOT_All.:'
@@ -186,6 +186,10 @@ PP="$PP"'|has different type than the branch'
 
 # Gaudi changes
 PP="$PP"'|INFO massageEventInfo:'
+PP="$PP"'|Loop Finished'
+
+# Hive ordering.
+PP="$PP"'|Terminating thread-pool resources|Joining Scheduler thread'
 
 
 
@@ -197,6 +201,31 @@ else
     joblog=${test}.log
     if [ "$testStatus" = 0 ]; then
 	reflog=../share/${test}.ref
+
+        # If we can't find the reference file, maybe it's located outside
+        # the repo.  With the switch to git, we have to fall back
+        # to stone knives and bearskins to manage versioning of these files.
+        # ATLAS_REFERENCE_TAG should be a string of the form PACKAGE/VERSION.
+        # We first look for it in DATAPATH.  If we don't find it,
+        # we then look under ATLAS_REFERENCE_DATA, which falls back
+        # to an afs path if it's not found.
+        # Isn't this so much easier than svn?
+        if [ \( ! -r $reflog \) -a "$ATLAS_REFERENCE_TAG" != "" ]; then
+            # Look for the file in DATAPATH.
+            # We have to look for the directory, not the file itself,
+            # since get_files is hardcoded not to look more than two
+            # levels down.
+            get_files -data -symlink $ATLAS_REFERENCE_TAG > /dev/null
+            reflog=`basename $ATLAS_REFERENCE_TAG`/${test}.ref
+            if [ ! -r $reflog ]; then
+                testdata=$ATLAS_REFERENCE_DATA
+                if [ "$testdata" = "" ]; then
+                    testdata=/afs/cern.ch/atlas/maxidisk/d33/referencefiles
+                fi
+                reflog=$testdata/$ATLAS_REFERENCE_TAG/${test}.ref
+            fi
+        fi
+
 	if [ -r $reflog ]; then
             jobdiff=${joblog}-todiff
             refdiff=`basename ${reflog}`-todiff

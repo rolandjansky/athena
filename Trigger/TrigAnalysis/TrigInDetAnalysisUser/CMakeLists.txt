@@ -46,7 +46,7 @@ atlas_add_library( TIDA
                    Analysis/src/ConfAnalysis.cxx
                    Analysis/src/ConfVtxAnalysis.cxx
                    Analysis/src/PurityAnalysis.cxx
-                   Analysis/src/rmain.cxx
+                   Analysis/src/globals.cxx
                    NO_PUBLIC_HEADERS
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES TrigInDetAnalysisExampleLib Resplot Readcards
@@ -112,9 +112,10 @@ atlas_add_executable( TIDAmakeSmallRefFile
                       LINK_LIBRARIES ${ROOT_LIBRARIES} TrigInDetAnalysis TrigInDetAnalysisExampleLib TrigInDetAnalysisUtils Resplot Readcards TIDA TIDAcomputils )
 
 atlas_add_executable( TIDAruntool
-                      Analysis/src/runtool.cxx
-                      INCLUDE_DIRS 
-                      LINK_LIBRARIES   )
+                      Analysis/src/runtool.cxx 
+                      Analysis/src/computils.cxx
+                      INCLUDE_DIRS  ${ROOT_INCLUDE_DIRS}
+                      LINK_LIBRARIES  ${ROOT_LIBRARIES}   )
 
 atlas_add_executable( TIDAsb
                       Analysis/src/chainparser.cxx
@@ -123,6 +124,6 @@ atlas_add_executable( TIDAsb
 
 
 # Install files from the package:
-atlas_install_runtime( share/TIDA*.dat share/Test_bin.dat share/TIDA*.py )
+atlas_install_runtime( share/TIDA*.dat share/Test*.dat share/TIDA*.py )
 
 atlas_install_scripts( scripts/TIDA*.sh )

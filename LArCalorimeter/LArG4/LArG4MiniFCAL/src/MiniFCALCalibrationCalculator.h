@@ -10,7 +10,7 @@
 #include "CaloG4Sim/SimulationEnergies.h"
 #include "LArG4Code/LArCalibCalculatorSvcImp.h"
 #include "LArG4Code/LArG4Identifier.h"
-#include "LArG4MiniFCAL/MiniFCALAssignIdentifier.h"
+#include "MiniFCALAssignIdentifier.h"
 
 #include "globals.hh"
 
@@ -32,8 +32,8 @@ namespace LArG4 {
     public:
 
       MiniFCALCalibrationCalculator(const std::string& name, ISvcLocator *pSvcLocator);
-      StatusCode initialize();
-      StatusCode finalize() {return StatusCode::SUCCESS;}
+      virtual StatusCode initialize() override;
+      virtual StatusCode finalize() override {return StatusCode::SUCCESS;}
       virtual ~MiniFCALCalibrationCalculator();
 
       virtual G4bool Process (const G4Step* step, LArG4Identifier & identifier,

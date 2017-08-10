@@ -22,6 +22,8 @@
 #include "AthenaKernel/IAddressProvider.h" 
 #include "PixelConditionsTools/IPixelRecoDbTool.h"  // ????
 
+#include "StoreGate/ReadCondHandleKey.h"
+
 
 class Identifier;
 //class StoreGateSvc;
@@ -74,7 +76,7 @@ public:
   //virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvIf ) ;
 
   /** Call back function for Calibration folders from COOL database */ 
-  virtual StatusCode IOVCallBack(IOVSVC_CALLBACK_ARGS); 
+  virtual StatusCode IOVCallBack(IOVSVC_CALLBACK_ARGS) { return StatusCode::SUCCESS; }
 
   //<! create PixelOfflineCalibData Objects from scratch 
   StatusCode createPixelCalibObjects() const; 
@@ -92,25 +94,20 @@ public:
 
 private:
 
-  void PrintConstants(const float* constants);    
-  StatusCode registerCallBack();
-
   //mutable MsgStream m_log;
   //StoreGateSvc*  m_sgSvc;
   //StoreGateSvc* m_detStore; 
   IToolSvc* m_toolsvc; 
   IIOVSvc* m_IOVSvc; 
   int m_inputSource;
-  std::string par_calibfolder;
-  std::string par_caliblocation; 
+  std::string m_par_calibfolder;
+  std::string m_par_caliblocation; 
   std::string m_textFileName1;
   std::string m_textFileName2;
   std::string m_textFileName3;
-  int m_PixelClusterErrorDataVersion;
-  int m_PixelClusterOnTrackErrorDataVersion;
-  int m_PixelChargeInterpolationDataVersion;
   int m_dump;
   mutable PixelCalib::PixelOfflineCalibData* m_calibData; 
+  SG::ReadCondHandleKey<PixelCalib::PixelOfflineCalibData> m_calibDataKey;  
     
 };
 /*  inline StatusCode PixelRecoDbTool::queryInterface(  */
@@ -123,17 +120,36 @@ private:
 /*      } */
 /*      return AthAlgTool::queryInterface( riid, ppvIf ); */
 /*    } */
-                                                                               
-inline PixelCalib::PixelOfflineCalibData*
-       PixelRecoDbTool::getCalibPtr() const {
-    if(!m_calibData) msg(MSG::WARNING) << "No calibrations! " << endmsg;
-    return m_calibData;
- }
 
-inline const PixelCalib::PixelOfflineCalibData*  
-       PixelRecoDbTool::cgetCalibPtr() const {
+inline PixelCalib::PixelOfflineCalibData* PixelRecoDbTool::getCalibPtr() const {
+  if(m_inputSource==2) {
+    // Conditions data access through Conditions Handles
+    SG::ReadCondHandle<PixelCalib::PixelOfflineCalibData> readHandle{m_calibDataKey};
+    const PixelCalib::PixelOfflineCalibData* calibData{nullptr};
+    calibData = *readHandle;
+    return const_cast<PixelCalib::PixelOfflineCalibData*>(calibData);
+  }
+  else {
+    // Old style conditions data access
+    if(!m_calibData) ATH_MSG_WARNING("No calibrations!");
     return m_calibData;
- }
+  }
+}
+
+inline const PixelCalib::PixelOfflineCalibData* PixelRecoDbTool::cgetCalibPtr() const {
+  if(m_inputSource==2) {
+    // Conditions data access through Conditions Handles
+    SG::ReadCondHandle<PixelCalib::PixelOfflineCalibData> readHandle{m_calibDataKey};
+    const PixelCalib::PixelOfflineCalibData* calibData{nullptr};
+    calibData = *readHandle;
+    return calibData;
+  }
+  else {
+    // Old style conditions data access
+    return m_calibData;
+  }
+}
+                                                                               
 
 //}
 #endif 

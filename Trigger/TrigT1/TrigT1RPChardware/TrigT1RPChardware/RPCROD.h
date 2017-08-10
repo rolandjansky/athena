@@ -49,28 +49,28 @@ void bytestream(std::ostream &stream);
 
 private:
 //
-static const ubit16 numberOfSectors=2;
-static const ubit16 maxNumberOfWordsInHeader   =15;
-static const ubit16 maxNumberOfWordsInTrailer  = 5;
+static const ubit16 s_numberOfSectors=2;
+static const ubit16 s_maxNumberOfWordsInHeader   =15;
+static const ubit16 s_maxNumberOfWordsInTrailer  = 5;
 //
 // control flags for Body scanninng ...
 //
-ubit16 addressOfWordScanned;
-ubit16 numberOfRXFragments;
-RODword numberOfWordsInFragment;
-RODword numberOf16bitWords;
-RODword numberOfDataElements;
-static const RODword numberOfStatusElements=1;
-static const RODword statusBlockPosition=0;
-ubit16 newRXIndex;
-ubit16 newRXRO;
-ubit16 numberOfWordsRead;
-ubit16 numberOfWordsInRXRO;
-ubit16 endOfRXFragments;
-ubit16 numberOfTrailerWordsScanned;
-ubit16 numberOfStatusWordsScanned;
-ubit16 numberOfDataWordsScanned;
-RXReadOut *currentRXRO;
+ubit16 m_addressOfWordScanned;
+ubit16 m_numberOfRXFragments;
+RODword m_numberOfWordsInFragment;
+RODword m_numberOf16bitWords;
+RODword m_numberOfDataElements;
+static const RODword s_numberOfStatusElements=1;
+static const RODword s_statusBlockPosition=0;
+ubit16 m_newRXIndex;
+ubit16 m_newRXRO;
+ubit16 m_numberOfWordsRead;
+ubit16 m_numberOfWordsInRXRO;
+ubit16 m_endOfRXFragments;
+ubit16 m_numberOfTrailerWordsScanned;
+ubit16 m_numberOfStatusWordsScanned;
+ubit16 m_numberOfDataWordsScanned;
+RXReadOut *m_currentRXRO;
 //
 //
 //RPCRODStructure RROS;
@@ -79,9 +79,9 @@ ubit16  m_subsystem;
 ubit16  m_RODID;
 RODword m_LVL1ID; 
 ubit16  m_ECRID;
-ubit16  BunchCrossingID;
-ubit16  Level1TriggerType;
-ubit16  EventType;
+ubit16  m_BunchCrossingID2;
+ubit16  m_Level1TriggerType2;
+ubit16  m_EventType;
 //
 //Header
 //
@@ -96,7 +96,7 @@ RODword m_DetectorEventType;
 //
 // Status and Data
 //
-RODword m_StatusElements[numberOfStatusElements];
+RODword m_StatusElements[s_numberOfStatusElements];
 RXReadOut *m_RXFragment[2];
 //
 // Trailer
@@ -107,7 +107,7 @@ RODword m_StatusBlockPosition;
 //
 // useful arrays
 //
-RODword m_HeaderArray[maxNumberOfWordsInHeader];
-RODword m_FooterArray[maxNumberOfWordsInTrailer];
+RODword m_HeaderArray[s_maxNumberOfWordsInHeader];
+RODword m_FooterArray[s_maxNumberOfWordsInTrailer];
 };
 #endif

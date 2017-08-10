@@ -34,9 +34,8 @@
 #include "TrigTauEmulation/ISelectionTool.h"
 #include "TrigTauEmulation/extension.h"
 
-using namespace bitpowder::lib;
 
-class ToolsRegistry : public ExtensionContainer<SelectionTool*>, virtual public IToolsRegistry, virtual public asg::AsgTool
+class ToolsRegistry : public bitpowder::lib::ExtensionContainer<SelectionTool*>, virtual public IToolsRegistry, virtual public asg::AsgTool
 {
   ASG_TOOL_CLASS(ToolsRegistry, IToolsRegistry)
   //using ToolInitializeFunction = StatusCode (ToolsRegistry::*)(void); 

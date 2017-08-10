@@ -40,7 +40,7 @@ TrigMuonRoITool::~TrigMuonRoITool()
 
 StatusCode TrigMuonRoITool::initialize()
 {
-  msg(MSG::INFO) << "Initializing TrigMuonRoITool - package version " << PACKAGE_VERSION << endreq ;
+  msg(MSG::INFO) << "Initializing TrigMuonRoITool - package version " << PACKAGE_VERSION << endmsg ;
   
   ATH_CHECK( AthAlgTool::initialize() );
   ATH_CHECK( evtStore().retrieve() );
@@ -48,7 +48,7 @@ StatusCode TrigMuonRoITool::initialize()
 
   // Print the property values
   msg(MSG::INFO) << " ROB ID: DAQ muCTPi                         = " << m_daqMuCTPiROBid
-	      << std::setw(6) << " (=0x" << MSG::hex << m_daqMuCTPiROBid.value() << MSG::dec << ")" << endreq;
+	      << std::setw(6) << " (=0x" << MSG::hex << m_daqMuCTPiROBid.value() << MSG::dec << ")" << endmsg;
 
   // Build the vector with ROB Ids to retrieve
   m_muCTPiRobIds.push_back(m_daqMuCTPiROBid.value());
@@ -59,7 +59,7 @@ StatusCode TrigMuonRoITool::initialize()
 
 StatusCode TrigMuonRoITool::finalize()
 {
-  msg(MSG::INFO) << "Finalizing TrigMuonRoITool - package version " << PACKAGE_VERSION << endreq ;
+  msg(MSG::INFO) << "Finalizing TrigMuonRoITool - package version " << PACKAGE_VERSION << endmsg ;
 
   ATH_CHECK( AthAlgTool::finalize() );
   return StatusCode::SUCCESS; 
@@ -104,7 +104,7 @@ void TrigMuonRoITool::decodeMuCTPi() {
   // StatusCode sc = m_storeGateSvc->retrieve(p_EventInfo);
   StatusCode sc = evtStore()->retrieve(p_EventInfo);
   if ((sc.isFailure()) || (p_EventInfo == 0)) {
-    msg(MSG::WARNING) << "Can't get EventInfo object for checking data validity." << endreq;
+    msg(MSG::WARNING) << "Can't get EventInfo object for checking data validity." << endmsg;
     m_inTime_muCTPIRoIs.clear();
     m_outOfTime_muCTPIRoIs.clear();
     return;
@@ -121,14 +121,14 @@ void TrigMuonRoITool::decodeMuCTPi() {
       // information is still valid
       if (msgLvl(MSG::DEBUG)) {
 	msg(MSG::DEBUG) << " decodeMuCTPi: Stored information is still valid. Complete EventID = " 
-	    << *(p_EventInfo->event_ID()) << endreq; 
+	    << *(p_EventInfo->event_ID()) << endmsg; 
       }
       return ;
     } else {
       // information is outdated
       if (msgLvl(MSG::DEBUG)) {
 	msg(MSG::DEBUG) << " decodeMuCTPi: Stored information needs to be updated. Complete EventID = " 
-	    << *(p_EventInfo->event_ID()) << endreq; 
+	    << *(p_EventInfo->event_ID()) << endmsg; 
       }
     }
   }
@@ -148,7 +148,7 @@ void TrigMuonRoITool::decodeMuCTPi() {
   muCTPiRobFragmentVec.reserve(m_muCTPiRobIds.size());
   m_robDataProviderSvc->getROBData(m_muCTPiRobIds,muCTPiRobFragmentVec);
   if (muCTPiRobFragmentVec.size()==0) {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " decodeMuCTPi: No muCTPi ROB found." << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " decodeMuCTPi: No muCTPi ROB found." << endmsg;
     return;
   }
 
@@ -157,7 +157,7 @@ void TrigMuonRoITool::decodeMuCTPi() {
     msg(MSG::DEBUG)
 	<< " decodeMuCTPi: ROB id = 0x" 
 	<< std::setw(6)  << MSG::hex << muCTPiRobFragmentVec[0]->source_id() << MSG::dec 
-	<< endreq;
+	<< endmsg;
   }
 
   if (muCTPiRobFragmentVec[0]->source_id() != (uint32_t)m_daqMuCTPiROBid.value()) {
@@ -167,7 +167,7 @@ void TrigMuonRoITool::decodeMuCTPi() {
 	  << std::setw(6) << MSG::hex << muCTPiRobFragmentVec[0]->source_id() << MSG::dec
 	  << " does not match requested ROB id = 0x"
 	  << std::setw(6) << MSG::hex << m_daqMuCTPiROBid.value() << MSG::dec
-	  << endreq;
+	  << endmsg;
     }
     // reset msg() stream flags to original values
     msg().flags(log_flags_save);
@@ -205,20 +205,20 @@ void TrigMuonRoITool::decodeMuCTPi() {
     msg(MSG::DEBUG) << "ROB ID 0x" << MSG::hex << robId <<  " ROD ID 0x"
 	<< rodId << MSG::dec << " ROB fragment size "
 	<< robFragSize << " ROD fragment size " << rodFragSize 
-	<< endreq;
+	<< endmsg;
     msg(MSG::DEBUG) 
 	<< " ROD Header L1 ID " << evtNum
 	<< " ROD Header BCID " << bcId
 	<< " ROD Header Format version " << formatVersion
-     	<< endreq;
+     	<< endmsg;
   }
  
   OFFLINE_FRAGMENTS_NAMESPACE::PointerType it_data;
   muCTPiRobFragmentVec[0]->rod_data( it_data );
   const uint32_t ndata = muCTPiRobFragmentVec[0]->rod_ndata();
   if (msgLvl(MSG::DEBUG)) {
-    msg(MSG::DEBUG) << " Dumping RoI Words:" << endreq;
-    msg(MSG::DEBUG) << " number of data words: " << ndata << endreq;
+    msg(MSG::DEBUG) << " Dumping RoI Words:" << endmsg;
+    msg(MSG::DEBUG) << " number of data words: " << ndata << endmsg;
   }
 
   // candidate multiplicity
@@ -230,7 +230,7 @@ void TrigMuonRoITool::decodeMuCTPi() {
       candidateMultiplicity.push_back( static_cast< uint32_t >( *it_data ) );
       if (msgLvl(MSG::DEBUG)) {
 	msg(MSG::DEBUG) << "     0x" << MSG::hex << std::setw( 8 ) << std::setfill( '0' )
-	    << ( *it_data ) << " (candidate multiplicity)" << std::setfill( log_fill_char_save ) << endreq;
+	    << ( *it_data ) << " (candidate multiplicity)" << std::setfill( log_fill_char_save ) << endmsg;
       }
     } else {
       dataWord.push_back( static_cast< uint32_t >( *it_data ) );
@@ -239,7 +239,7 @@ void TrigMuonRoITool::decodeMuCTPi() {
 	    << ( *it_data ) << " (candidate word)" 
 	    << " (--> RoI word = 0x" << MSG::hex << std::setw( 8 ) << std::setfill( '0' ) 
 	    << mirodToRoIBDataWord( *it_data ) << ")" 
-	    << std::setfill( log_fill_char_save ) << endreq;
+	    << std::setfill( log_fill_char_save ) << endmsg;
       }
     }
   }
@@ -282,19 +282,19 @@ void TrigMuonRoITool::decodeMuCTPi() {
 
   // print contents of RoI arrays
   if (msgLvl(MSG::DEBUG)) {
-    msg(MSG::DEBUG) << "=================================================" << endreq;
-    msg(MSG::DEBUG) << " RoIs in time with event BCID:  Number of RoIs = " << m_inTime_muCTPIRoIs.size() << endreq;
-    msg(MSG::DEBUG) << "=================================================" << endreq;
+    msg(MSG::DEBUG) << "=================================================" << endmsg;
+    msg(MSG::DEBUG) << " RoIs in time with event BCID:  Number of RoIs = " << m_inTime_muCTPIRoIs.size() << endmsg;
+    msg(MSG::DEBUG) << "=================================================" << endmsg;
     for (std::vector< ROIB::MuCTPIRoI >::iterator it = m_inTime_muCTPIRoIs.begin(); it != m_inTime_muCTPIRoIs.end(); ++it) {
       dumpRoIBDataWord((*it).roIWord());
     }
 
-    msg(MSG::DEBUG) << "=====================================================" << endreq;
-    msg(MSG::DEBUG) << " RoIs out of time with event BCID:  Number of RoIs = " << m_outOfTime_muCTPIRoIs.size() << endreq;
-    msg(MSG::DEBUG) << "=====================================================" << endreq;
+    msg(MSG::DEBUG) << "=====================================================" << endmsg;
+    msg(MSG::DEBUG) << " RoIs out of time with event BCID:  Number of RoIs = " << m_outOfTime_muCTPIRoIs.size() << endmsg;
+    msg(MSG::DEBUG) << "=====================================================" << endmsg;
     for (std::vector< std::pair<ROIB::MuCTPIRoI,int> >::iterator it = m_outOfTime_muCTPIRoIs.begin(); it != m_outOfTime_muCTPIRoIs.end(); ++it) {
-      msg(MSG::DEBUG) << " Difference(RoI(BCID) - Event(BCID)) = " << (*it).second << endreq;
-      msg(MSG::DEBUG) << " ------------------------------------- " << endreq;
+      msg(MSG::DEBUG) << " Difference(RoI(BCID) - Event(BCID)) = " << (*it).second << endmsg;
+      msg(MSG::DEBUG) << " ------------------------------------- " << endmsg;
       dumpRoIBDataWord(((*it).first).roIWord());
     }
   }
@@ -323,21 +323,21 @@ void TrigMuonRoITool::dumpRoIBDataWord( uint32_t data_word ) {
     loc = "BARREL";
 
   msg(MSG::DEBUG) << "RoIB word               : 0x"
-      << MSG::hex << roI.roIWord() << MSG::dec << endreq;
-  msg(MSG::DEBUG) << "Threshold               :  pt" << roI.pt() << endreq;
-  msg(MSG::DEBUG) << "Sector location         :  " << loc << endreq;
+      << MSG::hex << roI.roIWord() << MSG::dec << endmsg;
+  msg(MSG::DEBUG) << "Threshold               :  pt" << roI.pt() << endmsg;
+  msg(MSG::DEBUG) << "Sector location         :  " << loc << endmsg;
   std::string sectorOffset("");  
   if ((roI.getSectorAddress() & MuCTPI_RDO::SECTOR_HEMISPHERE_MASK) &&
       (roI.getSectorLocation() == MuCTPI_RDO::BARREL)) sectorOffset = " + 32 for Hemisphere = 1 "; 
-  msg(MSG::DEBUG) << "Sector ID               :  " << roI.getSectorID() << sectorOffset << endreq;
+  msg(MSG::DEBUG) << "Sector ID               :  " << roI.getSectorID() << sectorOffset << endmsg;
   msg(MSG::DEBUG) << "Sector addr             :  0x" << MSG::hex
-      << roI.getSectorAddress() << MSG::dec << endreq;
-  msg(MSG::DEBUG) << "Sector overflow         :  " << roI.getSectorOverflow() << endreq;
-  msg(MSG::DEBUG) << "RoI overflow            :  " << roI.getRoiOverflow() << endreq;
-  msg(MSG::DEBUG) << "RoI number              :  " << roI.getRoiNumber() << endreq;
-  msg(MSG::DEBUG) << "IsHighestPt             :  " << roI.getCandidateIsHighestPt() << endreq;
-  msg(MSG::DEBUG) << "Overlap                 :  " << roI.getOverlapBits() << endreq;
-  msg(MSG::DEBUG) << "Hemisphere              :  " << (roI.getSectorAddress() & MuCTPI_RDO::SECTOR_HEMISPHERE_MASK) << endreq;
-  msg(MSG::DEBUG) << "=================================================" << endreq;
+      << roI.getSectorAddress() << MSG::dec << endmsg;
+  msg(MSG::DEBUG) << "Sector overflow         :  " << roI.getSectorOverflow() << endmsg;
+  msg(MSG::DEBUG) << "RoI overflow            :  " << roI.getRoiOverflow() << endmsg;
+  msg(MSG::DEBUG) << "RoI number              :  " << roI.getRoiNumber() << endmsg;
+  msg(MSG::DEBUG) << "IsHighestPt             :  " << roI.getCandidateIsHighestPt() << endmsg;
+  msg(MSG::DEBUG) << "Overlap                 :  " << roI.getOverlapBits() << endmsg;
+  msg(MSG::DEBUG) << "Hemisphere              :  " << (roI.getSectorAddress() & MuCTPI_RDO::SECTOR_HEMISPHERE_MASK) << endmsg;
+  msg(MSG::DEBUG) << "=================================================" << endmsg;
   return;
 }

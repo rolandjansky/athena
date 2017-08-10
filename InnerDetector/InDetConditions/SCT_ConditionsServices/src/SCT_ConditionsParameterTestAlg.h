@@ -15,11 +15,15 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "Identifier/Identifier.h"
 
+// Read Handle Key
+#include "StoreGate/ReadHandleKey.h"
+// Event Info
+#include "xAODEventInfo/EventInfo.h"
+
 // Include STL stuff
 #include <string>
 
 // Forward declarations
-class EventInfo;
 class ISCT_ConditionsParameterSvc;
 class StatusCode;
 class ISvcLocator;
@@ -39,7 +43,7 @@ public:
     StatusCode finalize();   //!< Gaudi finaliser
     
 private:
-    const EventInfo*                     m_currentEvent;  //!< Current event
+    SG::ReadHandleKey<xAOD::EventInfo> m_currentEventKey;  //!< Current event
     ServiceHandle<ISCT_ConditionsParameterSvc> m_conditionsParameterSvc;
     std::string m_histoString;
    };

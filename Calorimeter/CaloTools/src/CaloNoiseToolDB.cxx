@@ -15,8 +15,6 @@
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/RandGauss.h"
 
-#include "GeoModelInterfaces/IGeoModelSvc.h"
-
 #include "TMath.h"
 
 using CLHEP::RandGauss;
@@ -72,48 +70,6 @@ CaloNoiseToolDB::initialize()
     return StatusCode::FAILURE;
   }
 
-
-  const IGeoModelSvc *geoModel=nullptr;
-  ATH_CHECK( service("GeoModelSvc", geoModel) );
-
-  // dummy parameters for the callback:
-  int dummyInt=0;
-  std::list<std::string> dummyList;
-
-  if (geoModel->geoInitialized())
-  {
-    return geoInit(dummyInt,dummyList);
-  }
-  else
-  {
-    ATH_CHECK( detStore()->regFcn(&IGeoModelSvc::geoInit,
-                                  geoModel,
-                                  &CaloNoiseToolDB::geoInit,this) );
-  }
-
-  return StatusCode::SUCCESS;
-}
-
-
-StatusCode 
-CaloNoiseToolDB::finalize()
-{
-  ATH_MSG_INFO( "CaloNoiseToolDB final(), cleaning m_noiseBlobMap, size = " <<m_noiseBlobMap.size()  );
-  ATH_MSG_INFO( "Cache was recomputed " <<  m_cacheUpdateCounter << " times"  );
-
-  //=== delete old CaloCondBlobFlt (which does not own the blob)
-  std::map<SYSTEM, const CaloCondBlobFlt*>::iterator it = m_noiseBlobMap.begin();
-  std::map<SYSTEM, const CaloCondBlobFlt*>::iterator it_e = m_noiseBlobMap.end();
-  for (; it!=it_e; ++it ){
-    delete it->second;
-  }
-
-  return StatusCode::SUCCESS; 
-
-}
-StatusCode
-CaloNoiseToolDB::geoInit(IOVSVC_CALLBACK_ARGS)
-{
   ATH_MSG_INFO( "CaloNoiseToolDB initialize() begin"  );
 
   //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::  
@@ -163,6 +119,24 @@ CaloNoiseToolDB::geoInit(IOVSVC_CALLBACK_ARGS)
   ATH_MSG_INFO( "CaloNoiseToolDB geoInit() end"  );
 
   return StatusCode::SUCCESS;
+}
+
+
+StatusCode 
+CaloNoiseToolDB::finalize()
+{
+  ATH_MSG_INFO( "CaloNoiseToolDB final(), cleaning m_noiseBlobMap, size = " <<m_noiseBlobMap.size()  );
+  ATH_MSG_INFO( "Cache was recomputed " <<  m_cacheUpdateCounter << " times"  );
+
+  //=== delete old CaloCondBlobFlt (which does not own the blob)
+  std::map<SYSTEM, const CaloCondBlobFlt*>::iterator it = m_noiseBlobMap.begin();
+  std::map<SYSTEM, const CaloCondBlobFlt*>::iterator it_e = m_noiseBlobMap.end();
+  for (; it!=it_e; ++it ){
+    delete it->second;
+  }
+
+  return StatusCode::SUCCESS; 
+
 }
 
 StatusCode

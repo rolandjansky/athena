@@ -37,14 +37,13 @@ using namespace eflowSubtract;
 
 eflowRecoverSplitShowersTool::eflowRecoverSplitShowersTool(const std::string& type,const std::string& name,const IInterface* parent):
 AthAlgTool(type, name, parent),
-m_debug(0),
 m_eflowCaloObjectContainer(0),
 m_rCell(0.75),
 m_windowRms(0.032),
 m_theEOverPTool("eflowCellEOverPTool",this),
 m_matchingTool("PFTrackClusterMatchingTool/RcvrSpltMatchingTool", this),
-m_binnedParameters(new eflowEEtaBinnedParameters()),
-m_integrator(new eflowLayerIntegrator(m_windowRms, 1.0e-3, 3.0)),
+m_binnedParameters(std::make_unique<eflowEEtaBinnedParameters>()),
+m_integrator(std::make_unique<eflowLayerIntegrator>(m_windowRms, 1.0e-3, 3.0)),
 m_subtractionSigmaCut(1.5),
 m_recoverIsolatedTracks(false),
 m_nTrackClusterMatches(0),
@@ -80,7 +79,7 @@ StatusCode eflowRecoverSplitShowersTool::initialize(){
     return StatusCode::SUCCESS;
   }
 
-  if (m_theEOverPTool->execute(m_binnedParameters).isFailure()){
+  if (m_theEOverPTool->execute(m_binnedParameters.get()).isFailure()){
     msg(MSG::WARNING) << "Could not execute eflowCellEOverPTool " << endmsg;
     return StatusCode::SUCCESS;
   }
@@ -107,9 +106,6 @@ void eflowRecoverSplitShowersTool::execute(eflowCaloObjectContainer* theEflowCal
 StatusCode eflowRecoverSplitShowersTool::finalize(){
 
   msg(MSG::INFO) << "Produced " << m_nTrackClusterMatches << " track-cluster matches." << endmsg;
-
-  delete m_binnedParameters;
-  delete m_integrator;
 
   return StatusCode::SUCCESS;
 
@@ -206,15 +202,15 @@ int eflowRecoverSplitShowersTool::matchAndCreateEflowCaloObj() {
     eflowRecTrack* thisEfRecTrack = *itEfRecTrack;
     /* No point to do anything if bin does not exist */
     if (!thisEfRecTrack->hasBin()) {
-      eflowCaloObject* thisEflowCaloObject = new eflowCaloObject();
+      std::unique_ptr<eflowCaloObject> thisEflowCaloObject = std::make_unique<eflowCaloObject>();
       thisEflowCaloObject->addTrack(thisEfRecTrack);
-      m_eflowCaloObjectContainer->push_back(thisEflowCaloObject);
+      m_eflowCaloObjectContainer->push_back(std::move(thisEflowCaloObject));
       continue;
     }
-    if (1 == m_debug) {
+    if (msgLvl(MSG::WARNING)){
       const xAOD::TrackParticle* track = thisEfRecTrack->getTrack();
-      std::cout << "Recovering charged EFO with e,eta and phi " << track->e() << ", "
-                << track->eta() << " and " << track->phi() << std::endl;
+      msg(MSG::DEBUG) << "Recovering charged EFO with e,eta and phi " << track->e() << ", "
+                << track->eta() << " and " << track->phi() << endmsg;
     }
     /* Get list of matched clusters */
     std::vector<eflowRecCluster*> matchedClusters = m_matchingTool->doMatches(thisEfRecTrack, m_clustersToConsider, -1);
@@ -241,7 +237,7 @@ int eflowRecoverSplitShowersTool::matchAndCreateEflowCaloObj() {
   /* integrate cells; determine FLI; eoverp */
   for (unsigned int iCalo = nCaloObj; iCalo < m_eflowCaloObjectContainer->size(); ++iCalo) {
     eflowCaloObject* thisEflowCaloObject = m_eflowCaloObjectContainer->at(iCalo);
-    thisEflowCaloObject->simulateShower(m_integrator, m_binnedParameters, m_useUpdated2015ChargedShowerSubtraction);
+    thisEflowCaloObject->simulateShower(m_integrator.get(), m_binnedParameters.get(), m_useUpdated2015ChargedShowerSubtraction);
   }
   return nCaloObj;
 }
@@ -303,14 +299,4 @@ double eflowRecoverSplitShowersTool::getSumEnergy(const std::vector<xAOD::CaloCl
     result += (*itCluster)->e();
   }
   return result;
-}
-
-void eflowRecoverSplitShowersTool::printClusterList(std::vector<xAOD::CaloCluster*>& clusters, std::string prefix) {
-  std::vector<xAOD::CaloCluster*>::iterator firstMatchedClus = clusters.begin();
-  std::vector<xAOD::CaloCluster*>::iterator lastMatchedClus = clusters.end();
-  for (; firstMatchedClus != lastMatchedClus; ++firstMatchedClus) {
-    std::cout << prefix << " have cluster with E, eta and phi of " << (*firstMatchedClus)->e()
-              << ", " << (*firstMatchedClus)->eta() << " and " << (*firstMatchedClus)->phi()
-              << std::endl;
-  }
 }

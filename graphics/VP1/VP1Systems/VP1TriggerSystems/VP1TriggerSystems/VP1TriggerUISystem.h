@@ -9,7 +9,7 @@
 
 /***********************************************************************************
  * @Package : VP1TriggerSystems
- * @Class   : VP1TriggerUISystem
+ * @class   : VP1TriggerUISystem
  *
  * @brief   : Trigger UI System passing StoreGate and CMDs to VP1TriggerTool (Header)
  *

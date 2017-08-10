@@ -10,7 +10,7 @@
 /////////////////////////////////////////////////////////////////// 
 
 // DataModel includes
-#include "DataModel/DataPool.h"
+#include "AthAllocators/DataPool.h"
 
 // JetEvent includes
 #define private public

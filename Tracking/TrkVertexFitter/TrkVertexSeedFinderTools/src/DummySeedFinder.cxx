@@ -26,13 +26,13 @@ namespace Trk
   
   StatusCode DummySeedFinder::initialize() 
   { 
-    msg(MSG::INFO) << "Initialize successful" << endreq;
+    msg(MSG::INFO) << "Initialize successful" << endmsg;
     return StatusCode::SUCCESS;
   }
 
   StatusCode DummySeedFinder::finalize() 
   {
-    msg(MSG::INFO) << "Finalize successful" << endreq;
+    msg(MSG::INFO) << "Finalize successful" << endmsg;
     return StatusCode::SUCCESS;
   }
 

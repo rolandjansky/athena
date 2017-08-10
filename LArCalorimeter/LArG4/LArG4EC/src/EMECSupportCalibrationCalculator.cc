@@ -103,20 +103,20 @@ namespace LArG4 {
 
     pAccessSvc->connect();
       // getting HEC table
-    const IRDBRecordset *hecNominals = pAccessSvc->getRecordset("HecNominals",detectorKey,detectorNode);
+    IRDBRecordset_ptr hecNominals = pAccessSvc->getRecordsetPtr("HecNominals",detectorKey,detectorNode);
     if (hecNominals->size()==0) {
-      hecNominals = pAccessSvc->getRecordset("HecNominals","HecNominals-00");
+      hecNominals = pAccessSvc->getRecordsetPtr("HecNominals","HecNominals-00");
       if (hecNominals->size()==0) {
         throw std::runtime_error("LArG4EC/CryostatCalibrationMixedCalculator -> Can't find the HecNominals table.");
       }
     }
       // getting emec table
-    const IRDBRecordset *emecGeometry = pAccessSvc->getRecordset("EmecGeometry",detectorKey,detectorNode);
+    IRDBRecordset_ptr emecGeometry = pAccessSvc->getRecordsetPtr("EmecGeometry",detectorKey,detectorNode);
     if (emecGeometry->size()==0) {
       throw std::runtime_error("LArG4EC/CryostatCalibrationMixedCalculator -> Can't find the EmecGeometry table.");
     }
       // getting FCAL parameters
-    const IRDBRecordset *fcalMod = pAccessSvc->getRecordset("FCalMod",detectorKey,detectorNode);
+    IRDBRecordset_ptr fcalMod = pAccessSvc->getRecordsetPtr("FCalMod",detectorKey,detectorNode);
     if (fcalMod->size()==0) {
       throw std::runtime_error("LArG4EC/CryostatCalibrationMixedCalculator -> Can't find FCalMod table.");
     }
@@ -190,23 +190,23 @@ namespace LArG4 {
   }
 
   G4bool EMECSupportCalibrationCalculator::Process (const G4Step* a_step,
-                  LArG4Identifier & _identifier,
-                  std::vector<G4double> & _energies,
+                  LArG4Identifier & identifier,
+                  std::vector<G4double> & energies,
                   const eCalculatorProcessing a_process) const
   {
     // Use the calculators to determine the energies and the
     // identifier associated with this G4Step.  Note that the
     // default is to process both the energy and the ID.
 
-    _energies.reserve(4);
-    _energies.clear();
+    energies.reserve(4);
+    energies.clear();
     if ( a_process == LArG4::kEnergyAndID  ||  a_process == LArG4::kOnlyEnergy ) {
-      m_energyCalculator.Energies( a_step, _energies );
+      m_energyCalculator.Energies( a_step, energies );
     } else {
-      for (unsigned int i=0; i != 4; i++) _energies.push_back( 0. );
+      for (unsigned int i=0; i != 4; i++) energies.push_back( 0. );
     }
 
-    _identifier.clear();
+    identifier.clear();
     if ( a_process == LArG4::kEnergyAndID  ||  a_process == LArG4::kOnlyID )
     {
       static const double oneOverDeta = 10.;       //   1/Deta = 1./0.1 = 10.
@@ -459,7 +459,7 @@ namespace LArG4 {
       {
 // g.p. 09/05/2006
 #ifdef DEBUG_DMXYZ
-        LArG4::CalibrationDefaultCalculator::Print("UNEXP LArG4EC/EMECSupportCalibrationCalculator",_identifier,a_step);
+        LArG4::CalibrationDefaultCalculator::Print("UNEXP LArG4EC/EMECSupportCalibrationCalculator",identifier,a_step);
 #endif
 #if defined (DEBUG_VOLUMES) || defined (DEBUG_HITS)
        static const G4int messageMax = 1000;
@@ -483,12 +483,12 @@ namespace LArG4 {
         }
 #endif
         //m_backupCalculator->Process(a_step, kOnlyID);
-        //_identifier = m_backupCalculator->identifier();
-        std::vector<G4double> _tmpv;
-        m_backupCalculator->Process(a_step, _identifier, _tmpv, kOnlyID);
+        //identifier = m_backupCalculator->identifier();
+        std::vector<G4double> tmpv;
+        m_backupCalculator->Process(a_step, identifier, tmpv, kOnlyID);
       } else {
         // Append the cell ID to the (empty) identifier.
-        _identifier << 10         // Calorimeter
+        identifier << 10         // Calorimeter
           << subdet     // LAr +/-4 where "+" or " -" according to the sign of Z in World coorinate
           << type
           << sampling
@@ -499,23 +499,23 @@ namespace LArG4 {
     } // end of if ( a_process == kEnergyAndID  ||  a_process == kOnlyID )
 
 #ifdef DEBUG_HITS
-//    G4double energy = accumulate(_energies.begin(),_energies.end(),0.);
+//    G4double energy = accumulate(energies.begin(),energies.end(),0.);
     std::cout << "LArG4::EMECSupportCalibrationCalculator::Process"
-      << " ID=" << std::string(_identifier)
+      << " ID=" << std::string(identifier)
 //      << " energy=" << energy
-      << " energies=(" << _energies[0]
-      << "," << _energies[1]
-      << "," << _energies[2]
-      << "," << _energies[3] << ")"
+      << " energies=(" << energies[0]
+      << "," << energies[1]
+      << "," << energies[2]
+      << "," << energies[3] << ")"
       << std::endl;
 #endif
 
 // g.p. 09/05/2006
 #ifdef DEBUG_DMXYZ
-    LArG4::CalibrationDefaultCalculator::Print("DMXYZ LArG4EC/EMECSupportCalibrationCalculator",_identifier,a_step);
+    LArG4::CalibrationDefaultCalculator::Print("DMXYZ LArG4EC/EMECSupportCalibrationCalculator",identifier,a_step);
 #endif
     // Check for bad result.
-    if ( _identifier == LArG4Identifier() ) return false;
+    if ( identifier == LArG4Identifier() ) return false;
 
     return true;
   }

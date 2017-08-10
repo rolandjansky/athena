@@ -21,17 +21,17 @@ GeoVPhysVol* GeoPixelHybrid::Build() {
   //
   // Dimensions
   //
-  double length = gmt_mgr->PixelHybridLength(m_isModule3D);
-  double thickness = gmt_mgr->PixelHybridThickness(m_isModule3D);
-  double width = gmt_mgr->PixelHybridWidth(m_isModule3D);
+  double length = m_gmt_mgr->PixelHybridLength(m_isModule3D);
+  double thickness = m_gmt_mgr->PixelHybridThickness(m_isModule3D);
+  double width = m_gmt_mgr->PixelHybridWidth(m_isModule3D);
 
   const GeoBox* hybridBox = new GeoBox(thickness/2.,width/2.,length/2.);
-  std::string matName = gmt_mgr->getMaterialName("Hybrid",0,gmt_mgr->moduleType());
-  if(m_isModule3D)matName = gmt_mgr->getMaterialName("Hybrid3D",0,gmt_mgr->moduleType());
+  std::string matName = m_gmt_mgr->getMaterialName("Hybrid",0,m_gmt_mgr->moduleType());
+  if(m_isModule3D)matName = m_gmt_mgr->getMaterialName("Hybrid3D",0,m_gmt_mgr->moduleType());
 
-  const GeoMaterial* hybridMat = mat_mgr->getMaterialForVolume(matName,hybridBox->volume());
+  const GeoMaterial* hybridMat = m_mat_mgr->getMaterialForVolume(matName,hybridBox->volume());
   std::string logName = "HybridEC";
-  if(gmt_mgr->isBarrel() ) logName = "HybridBrl";
+  if(m_gmt_mgr->isBarrel() ) logName = "HybridBrl";
   GeoLogVol* theHybrid = new GeoLogVol(logName,hybridBox,hybridMat);
   GeoPhysVol* hybridPhys = new GeoPhysVol(theHybrid);
 

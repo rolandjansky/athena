@@ -13,11 +13,22 @@
       <errorMessage>FAILURE (ERROR)</errorMessage>
       <returnValue>0</returnValue>
     </expectations>
-    <postscript>rootmonitor.py  --lower='{"speed1":50,"speed2":2800}'  --html ut_basicxAODRead_test.results.root</postscript>
+    <postscript>rootmonitor.py  --lower='{"speed1":50,"speed2":3200}'  --html ut_basicxAODRead_test.results.root</postscript>
   </TEST>
 
   <TEST name="POOLRootAccess_python_basicRead_test" type="script" suite="ASG">
     <options_atn>python ${ATN_PACKAGE}/test/ut_basicRead_test.py</options_atn>
+    <timelimit>10</timelimit>
+    <author> Will Buttinger </author>
+    <mailto> will@cern.ch </mailto>
+    <expectations>
+      <errorMessage>FAILURE (ERROR)</errorMessage>
+      <returnValue>0</returnValue>
+    </expectations>
+   </TEST>
+
+  <TEST name="POOLRootAccess_python_elementLink_test" type="script" suite="ASG">
+    <options_atn>python ${ATN_PACKAGE}/test/ut_elementLink_test.py</options_atn>
     <timelimit>10</timelimit>
     <author> Will Buttinger </author>
     <mailto> will@cern.ch </mailto>

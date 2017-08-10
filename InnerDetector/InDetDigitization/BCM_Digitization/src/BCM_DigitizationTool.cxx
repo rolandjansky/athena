@@ -6,7 +6,7 @@
 
 #include "AthenaKernel/errorcheck.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
-#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
 #include "InDetBCM_RawData/BCM_RawData.h"
 #include "InDetBCM_RawData/BCM_RDO_Collection.h"

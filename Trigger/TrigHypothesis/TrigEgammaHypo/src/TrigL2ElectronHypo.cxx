@@ -36,11 +36,11 @@ TrigL2ElectronHypo::TrigL2ElectronHypo(const std::string & name, ISvcLocator* pS
 {
   declareProperty( "AcceptAll",            m_acceptAll  = true );
   declareProperty( "TrackPt",              m_trackPtthr = 5.0*CLHEP::GeV );
-  declareProperty( "CaloTrackdETA",        m_calotrackdeta ); //loose cut
-  declareProperty( "CaloTrackdPHI",        m_calotrackdphi ); //loose cut
-  declareProperty( "CaloTrackdEoverPLow",  m_calotrackdeoverp_low );
-  declareProperty( "CaloTrackdEoverPHigh", m_calotrackdeoverp_high );
-  declareProperty( "TRTRatio", m_trtratio);
+  declareProperty( "CaloTrackdETA",        m_calotrackdeta = 0); //loose cut
+  declareProperty( "CaloTrackdPHI",        m_calotrackdphi = 0); //loose cut
+  declareProperty( "CaloTrackdEoverPLow",  m_calotrackdeoverp_low = 0);
+  declareProperty( "CaloTrackdEoverPHigh", m_calotrackdeoverp_high = 0);
+  declareProperty( "TRTRatio", m_trtratio = 0);
 
   declareMonitoredVariable("CutCounter",m_cutCounter);
   declareMonitoredCollection("PtCalo",*dvec_cast(&m_egamma_container),&TrigL2ElectronHypo::getCaloPt);

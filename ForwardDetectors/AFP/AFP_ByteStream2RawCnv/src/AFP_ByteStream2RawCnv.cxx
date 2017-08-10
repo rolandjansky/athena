@@ -100,7 +100,7 @@ StatusCode AFP_ByteStream2RawCnv::finalize() {
 StatusCode AFP_ByteStream2RawCnv::fillCollection(const ROBFragment *robFrag,
                                                  AFP_RawDataContainer *rdoCont,
                                                  std::vector<unsigned int> *) {
-  ATH_MSG_DEBUG("AFP_ByteStream2RawCnv::fillColelction");
+  ATH_MSG_DEBUG("AFP_ByteStream2RawCnv::fillColelction rob_source_id: in decimal="<<std::dec<<robFrag->rob_source_id()<<",  in hex=0x"<<std::hex<<robFrag->rob_source_id()<<std::dec);
 
   try {
     robFrag->check();
@@ -163,10 +163,9 @@ StatusCode AFP_ByteStream2RawCnv::fillCollection(const ROBFragment *robFrag,
   rdoCont->SetBCId(BC_ID);
   rdoCont->SetLumiBlock(LumiBlock_ID);
   rdoCont->SetLvl1Id(Lvl1_ID);
-  AFP_RawDataCollection *collection = 0;
+  AFP_RawDataCollection *collection = nullptr;
   unsigned int collection_number = 0;
   const uint32_t noHitMarker = 15;
-
 
 
 int first_BCID = 0;
@@ -178,7 +177,7 @@ int hitLvl1 = 0;
 
     m_AFP_RawDataCollectionReadOut->decodeWord(vint[i]);
     if (m_AFP_RawDataCollectionReadOut->is_BOB()) {
-      collection = getCollection(collection_number, rdoCont);
+      collection = getCollection(collection_number, robFrag->rob_source_id(), rdoCont);
 
       if (!collection) {
         ATH_MSG_WARNING(
@@ -193,6 +192,7 @@ int hitLvl1 = 0;
       collection->Set_flag(m_AFP_RawDataCollectionReadOut->flag());
       collection->Set_bcid(m_AFP_RawDataCollectionReadOut->bcid());
       collection->Set_header(collection_number);
+      collection->Set_robID(robFrag->rob_source_id());
       collection_number++;
       if(collection_number == 1) {first_BCID = m_AFP_RawDataCollectionReadOut->bcid();}
       current_BCID = m_AFP_RawDataCollectionReadOut->bcid();
@@ -202,8 +202,6 @@ int hitLvl1 = 0;
       {hitLvl1 = (current_BCID-first_BCID);}
       else if (first_BCID > current_BCID)
       {hitLvl1 = 1024 + (current_BCID - first_BCID);}
-
-
 
     }
 
@@ -255,27 +253,23 @@ int hitLvl1 = 0;
 //////////////////////////
 
 AFP_RawDataCollection *
-AFP_ByteStream2RawCnv::getCollection(unsigned int ColumnNum,
+AFP_ByteStream2RawCnv::getCollection(const unsigned int columnNum, const unsigned int robID,
                                      AFP_RawDataContainer *cont) {
 
   if (!cont) {
     ATH_MSG_WARNING(
         "NULL pointer passed in argument: cont. NULL pointer returned");
-    return NULL;
+    return nullptr;
   }
 
-  AFP_RawDataContainer::const_iterator it = cont->begin();
-  AFP_RawDataContainer::const_iterator itE = cont->end();
-
-  for (; it != itE; ++it) {
-    if ((*it)->Get_header_number_POT() == ColumnNum) {
-      ATH_MSG_WARNING(
-          "Collection already in container, although it should not be there.");
-      return NULL;
+  for (const AFP_RawDataCollection* collection : *cont) {
+    if (collection->Get_header_number_POT() == columnNum && collection->Get_robID() == robID) {
+      ATH_MSG_WARNING("Collection already in container, although it should not be there.");
+      return nullptr;
     }
   }
 
-  AFP_RawDataCollection *coll = new AFP_RawDataCollection(ColumnNum);
+  AFP_RawDataCollection *coll = new AFP_RawDataCollection(columnNum);
   cont->push_back(coll);
   return coll;
 }

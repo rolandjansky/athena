@@ -31,13 +31,13 @@ StatusCode TriggersFiredTest::initialize()
     m_first_event=true;
     
     // print out properties
-    msg(MSG::INFO) << "Initializing TriggersFiredTest ..." << endreq;
+    msg(MSG::INFO) << "Initializing TriggersFiredTest ..." << endmsg;
     
     // get handle to trigger configuration
     //ToolHandle<TrigConf::ITrigConfigTool> configHandle(&m_configTool);
     //StatusCode sc = m_configHandle.retrieve();
     //if ( sc.isFailure() ) {
-    //    msg(MSG::ERROR) << "Could not retrieve TrigDecisionTool!" << endreq;
+    //    msg(MSG::ERROR) << "Could not retrieve TrigDecisionTool!" << endmsg;
     //    return sc;
     //}
 		//sc = m_configHandle->initialize();
@@ -46,18 +46,18 @@ StatusCode TriggersFiredTest::initialize()
     //sc = m_trigDec.retrieve();
     StatusCode sc = m_trigDec.retrieve();
     if ( sc.isFailure() ) {
-        msg(MSG::ERROR) << "Could not retrieve TrigDecisionTool!" << endreq;
+        msg(MSG::ERROR) << "Could not retrieve TrigDecisionTool!" << endmsg;
         return sc;
     }
     //m_trigDec->ExperimentalAndExpertMethods()->enable();
 		//sc = m_trigDec->setProperty("ConfigTool",m_configHandle);
 		//sc = m_trigDec->setProperty("TrigDecisionKey","xTrigDecision");
     //if ( sc.isFailure() ) {
-    //    msg(MSG::ERROR) << "Some problem!" << endreq;
+    //    msg(MSG::ERROR) << "Some problem!" << endmsg;
     //    return sc;
     //}
     
-    msg(MSG::INFO) << "Initialization successful" << endreq;
+    msg(MSG::INFO) << "Initialization successful" << endmsg;
     
     return StatusCode::SUCCESS;
 }
@@ -67,15 +67,15 @@ StatusCode TriggersFiredTest::finalize()
 {
     
     // print summary of trigger decisions for each level
-    msg(MSG::INFO) << "==========================================================" << endreq;
-    msg(MSG::INFO) << "TriggersFiredTest summary:" << endreq;
-    msg(MSG::INFO) << "==========================================================" << endreq;
+    msg(MSG::INFO) << "==========================================================" << endmsg;
+    msg(MSG::INFO) << "TriggersFiredTest summary:" << endmsg;
+    msg(MSG::INFO) << "==========================================================" << endmsg;
     
     
     // print out nr. of events passed in blocks of N events for specific chains (configurable)
     //msg(MSG::INFO) << "REGTEST  Nr.events: ";
     
-    msg(MSG::INFO) << "Finalised successfully" << endreq;
+    msg(MSG::INFO) << "Finalised successfully" << endmsg;
     
     return StatusCode::SUCCESS;
 }
@@ -83,7 +83,7 @@ StatusCode TriggersFiredTest::finalize()
 StatusCode TriggersFiredTest::execute()
 {
     
-    msg(MSG::INFO) << "TriggersFiredTest::execute" << endreq;
+    msg(MSG::INFO) << "TriggersFiredTest::execute" << endmsg;
     
 		passed_l1 += m_trigDec->isPassed("L1_.*");
 		passed_hlt += m_trigDec->isPassed("HLT_.*");
@@ -93,7 +93,7 @@ StatusCode TriggersFiredTest::execute()
 			m_first_event = false;
 		  auto chainGroups = m_trigDec->getChainGroup(".*");
   			for(auto &trig : chainGroups->getListOfTriggers()) {
-    		msg(MSG::INFO) << "  " << trig << " " << m_trigDec->isPassed(trig) << endreq;
+    		msg(MSG::INFO) << "  " << trig << " " << m_trigDec->isPassed(trig) << endmsg;
   		}
 		}
     

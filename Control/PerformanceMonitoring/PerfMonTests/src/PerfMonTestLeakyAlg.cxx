@@ -61,9 +61,6 @@ LeakyAlg::~LeakyAlg()
 ////////////////////////////
 StatusCode LeakyAlg::initialize()
 {
-  // configure our MsgStream
-  msg().setLevel( outputLevel() );
-
   ATH_MSG_INFO ( "Initializing " << name() << "..." ) ;
 
   // Get pointer to StoreGateSvc and cache it :

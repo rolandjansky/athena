@@ -7,6 +7,7 @@
 
 #include "AsgTools/AsgMessaging.h"
 #include <vector>
+#include <utility>
 #include "TString.h"
 #include "JetUncertainties/Helpers.h"
 #include "JetUncertainties/UncertaintyEnum.h"
@@ -41,6 +42,7 @@ class OptionHelper : public asg::AsgMessaging
         bool    SpecifyTagger()   const { checkInit(); return m_specifyTagger; }
         double  AxisMax()         const { checkInit(); return m_axisMax < 0 ? (IsLargeR()? 0.2 : 0.1) : m_axisMax; }
         double  AxisMin()         const { checkInit(); return m_axisMin;       }
+        std::pair<double,double> xAxisRange() const { checkInit(); return m_xAxisRange; }
         bool    AbsValue()        const { checkInit(); return m_absVal;        }
         bool    LogPt()           const { checkInit(); return m_logPt;         }
         TString getMassType()     const { checkInit(); return m_massType;      }
@@ -87,6 +89,7 @@ class OptionHelper : public asg::AsgMessaging
         bool    m_specifyTagger;
         double  m_axisMax;
         double  m_axisMin;
+        std::pair<double,double> m_xAxisRange;
         bool    m_absVal;
         bool    m_logPt;
         TString m_massType;
@@ -140,6 +143,7 @@ OptionHelper::OptionHelper(const std::string& name)
     , m_specifyTagger(true)
     , m_axisMax(-1)
     , m_axisMin(0)
+    , m_xAxisRange(0,0)
     , m_absVal(true)
     , m_logPt(true)
     , m_massType("")
@@ -193,6 +197,19 @@ bool OptionHelper::Initialize(const std::vector<TString>& options)
     m_specifyTagger  = getOptionValueWithDefault(options,"specifyTagger",m_specifyTagger);
     m_axisMax        = getOptionValueWithDefault(options,"axisMax",m_axisMax);
     m_axisMin        = getOptionValueWithDefault(options,"axisMin",m_axisMin);
+    TString xAxisRange  = getOptionValue(options,"xAxisRange");
+    if (xAxisRange != "")
+    {
+        std::vector<double> range = jet::utils::vectorize<double>(xAxisRange,"&");
+        if (range.size() != 2)
+            ATH_MSG_WARNING("xAxisRange doesn't match expected format of \"val1&val2\". Skipping.");
+        else
+        {
+            const double lowX = range.at(0);
+            const double highX = range.at(1);
+            m_xAxisRange = std::make_pair(lowX,highX);
+        }
+    }
     m_absVal         = getOptionValueWithDefault(options,"absVal",m_absVal);
     m_logPt          = getOptionValueWithDefault(options,"logPt",m_logPt);
     m_massType       = getOptionValueWithDefault(options,"massDef",m_massType);

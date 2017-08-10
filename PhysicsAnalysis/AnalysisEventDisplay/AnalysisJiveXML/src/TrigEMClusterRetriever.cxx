@@ -33,12 +33,12 @@ namespace JiveXML {
     
     if ( evtStore()->retrieve(tec,m_sgKey).isFailure() ) {
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "No TrigEMCluster found in SG at "
-          << m_sgKey << endreq;
+          << m_sgKey << endmsg;
       return StatusCode::SUCCESS;
     } 
     int noClu = tec->size();
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Retrieving TrigEMCluster with size " << noClu << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Retrieving TrigEMCluster with size " << noClu << endmsg;
 
     DataVect et; et.reserve(noClu);
     DataVect phi; phi.reserve(noClu);
@@ -72,7 +72,7 @@ namespace JiveXML {
     myDataMap[tagCells] = cells;
     myDataMap["numCells"] = numCells;
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << ": "<< phi.size() << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << ": "<< phi.size() << endmsg;
 
     //forward data to formating tool
     return FormatTool->AddToEvent(dataTypeName(), m_sgKey, &myDataMap);

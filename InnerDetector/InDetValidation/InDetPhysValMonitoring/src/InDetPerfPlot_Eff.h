@@ -32,7 +32,6 @@ public:
   InDetPerfPlot_Eff(InDetPlotBase* pParent, const std::string& dirName);
 
   void fill(const xAOD::TruthParticle& truth, const bool isGood);
-  void BT_fill(const xAOD::TruthParticle& truth, float weight);
   void jet_fill(const xAOD::TrackParticle& track, const xAOD::Jet& jet, float weight);
 private:
   TEfficiency* m_trackeff_vs_eta;
@@ -45,14 +44,6 @@ private:
 
   TEfficiency* m_trackeff_vs_prodR;
   TEfficiency* m_trackeff_vs_prodZ;
-
-  TProfile* m_eff_vs_eta_of_daughters;
-  TProfile* m_eff_vs_theta_of_daughters;
-  TProfile* m_eff_vs_theta_tan_of_daughters;
-  TProfile* m_eff_vs_theta_cotan_of_daughters;
-  TProfile* m_eff_vs_phi_of_daughters;
-  TProfile* m_eff_vs_phi_sin_of_daughters;
-  TProfile* m_eff_vs_phi_cos_of_daughters;
 
   TProfile* m_trackinjeteff_vs_eta;
   TProfile* m_trackinjeteff_vs_phi;

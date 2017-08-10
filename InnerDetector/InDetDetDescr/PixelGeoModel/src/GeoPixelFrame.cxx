@@ -24,14 +24,14 @@ GeoPixelFrame::GeoPixelFrame()
 
 void GeoPixelFrame::BuildAndPlace(GeoFullPhysVol * parent, int section)
 {
-  double rminSide = gmt_mgr->PixelFrameRMinSide(section);
-  double rmaxSide = gmt_mgr->PixelFrameRMaxSide(section);
-  double sideWidth = gmt_mgr->PixelFrameSideWidth(section);
-  double zmin = gmt_mgr->PixelFrameZMin(section);
-  double zmax = gmt_mgr->PixelFrameZMax(section);
-  double phiLoc = gmt_mgr->PixelFramePhiStart(section);
-  int numSides = gmt_mgr->PixelFrameNumSides(section);
-  bool mirrorSides = gmt_mgr->PixelFrameMirrorSides(section);
+  double rminSide = m_gmt_mgr->PixelFrameRMinSide(section);
+  double rmaxSide = m_gmt_mgr->PixelFrameRMaxSide(section);
+  double sideWidth = m_gmt_mgr->PixelFrameSideWidth(section);
+  double zmin = m_gmt_mgr->PixelFrameZMin(section);
+  double zmax = m_gmt_mgr->PixelFrameZMax(section);
+  double phiLoc = m_gmt_mgr->PixelFramePhiStart(section);
+  int numSides = m_gmt_mgr->PixelFrameNumSides(section);
+  bool mirrorSides = m_gmt_mgr->PixelFrameMirrorSides(section);
 
   // No frame defined in the DB table
   if(numSides==0)return;
@@ -39,7 +39,7 @@ void GeoPixelFrame::BuildAndPlace(GeoFullPhysVol * parent, int section)
   double midRadius = 0.5*(rminSide+rmaxSide);
   double zCenter = 0.5*(zmin+zmax);
 
-  const GeoMaterial* air = mat_mgr->getMaterial("std::Air");
+  const GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
 
 
   /////////////////////////
@@ -115,9 +115,9 @@ void GeoPixelFrame::BuildAndPlace(GeoFullPhysVol * parent, int section)
   //                          * (rmaxSide-rminSide)*2*(halflength-epsilon);
   // std::cout << "Volume BREP: GeoModel: " << cornerShape->volume() << "   My calc: " << volumeBrepTest << std::endl;
 
-  std::string cornerMatName =  gmt_mgr->PixelFrameCornerMaterial(section);
-  const GeoMaterial* cornerMat = mat_mgr->getMaterialForVolume(cornerMatName,numSides*cornerShape->volume()); // CHeck volume calc.
-  //const GeoMaterial* cornerMat = mat_mgr->getMaterial("std::Carbon");
+  std::string cornerMatName =  m_gmt_mgr->PixelFrameCornerMaterial(section);
+  const GeoMaterial* cornerMat = m_mat_mgr->getMaterialForVolume(cornerMatName,numSides*cornerShape->volume()); // CHeck volume calc.
+  //const GeoMaterial* cornerMat = m_mat_mgr->getMaterial("std::Carbon");
   GeoLogVol * cornerLV = new GeoLogVol("FrameCorner",cornerShape,cornerMat);
   GeoPhysVol * cornerPV = new GeoPhysVol(cornerLV);
   
@@ -130,7 +130,7 @@ void GeoPixelFrame::BuildAndPlace(GeoFullPhysVol * parent, int section)
   // Put the side in a box
   GeoPhysVol * sideEnvelopePV = 0;
   double zSideCenter = 0;
-  int numElements = gmt_mgr->PixelFrameNumSideElements(section);
+  int numElements = m_gmt_mgr->PixelFrameNumSideElements(section);
 
   if (numElements) {
     double sideThick = rmaxSide - rminSide;
@@ -146,10 +146,10 @@ void GeoPixelFrame::BuildAndPlace(GeoFullPhysVol * parent, int section)
     double totSideVolume = 0;
     for (int iElement = 0; iElement < numElements; iElement++) {
       // 1, 2 (ie zMin1, zMin2 and  zMax1 and zMax2 refers to the lower and upper (in phi) edges of the side element of the frame. 
-      double zMin1 = gmt_mgr->PixelFrameElementZMin1(section, iElement)+2*epsilon;
-      double zMax1 = gmt_mgr->PixelFrameElementZMax1(section, iElement)-2*epsilon;
-      double zMin2 = gmt_mgr->PixelFrameElementZMin2(section, iElement)+2*epsilon;
-      double zMax2 = gmt_mgr->PixelFrameElementZMax2(section, iElement)-2*epsilon;
+      double zMin1 = m_gmt_mgr->PixelFrameElementZMin1(section, iElement)+2*epsilon;
+      double zMax1 = m_gmt_mgr->PixelFrameElementZMax1(section, iElement)-2*epsilon;
+      double zMin2 = m_gmt_mgr->PixelFrameElementZMin2(section, iElement)+2*epsilon;
+      double zMax2 = m_gmt_mgr->PixelFrameElementZMax2(section, iElement)-2*epsilon;
       double zminInput = std::min(zMin1,std::min(zMax1,std::min(zMin2,zMax2)));
       double zmaxInput = std::max(zMin1,std::max(zMax1,std::max(zMin2,zMax2)));
       if (first) {
@@ -198,9 +198,9 @@ void GeoPixelFrame::BuildAndPlace(GeoFullPhysVol * parent, int section)
 
     zSideCenter =  0.5*(zSideMin+zSideMax);
 
-    std::string sideMatName = gmt_mgr->PixelFrameSideMaterial(section);
-    const GeoMaterial* sideMat = mat_mgr->getMaterialForVolume(sideMatName,numSides*totSideVolume); 
-    //const GeoMaterial* sideMat = mat_mgr->getMaterial("std::Carbon");
+    std::string sideMatName = m_gmt_mgr->PixelFrameSideMaterial(section);
+    const GeoMaterial* sideMat = m_mat_mgr->getMaterialForVolume(sideMatName,numSides*totSideVolume); 
+    //const GeoMaterial* sideMat = m_mat_mgr->getMaterial("std::Carbon");
  
     for (int iElement = 0; iElement < numElements; iElement++) {
       GeoTransform * transSideElement = new GeoTransform(HepGeom::TranslateZ3D(-zSideCenter)*sideTransVec[iElement]);

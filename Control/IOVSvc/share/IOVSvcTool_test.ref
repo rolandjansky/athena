@@ -62,7 +62,6 @@ ConditionStore       INFO Initializing ConditionStore - package version StoreGat
 ConditionStore      DEBUG Service base class initialized successfully
 IncidentSvc         DEBUG Adding [EndEvent] listener 'ConditionStore' with priority 100
 IncidentSvc         DEBUG Adding [BeginEvent] listener 'ConditionStore' with priority 100
-CondSvc             DEBUG db file not set
 IOVSvcTool          DEBUG Initializing IOVSvcTool version IOVSvc-00-07-38
 IncidentSvc         DEBUG Adding [BeginEvent] listener 'ToolSvc.IOVSvcTool' with priority 100
 IncidentSvc         DEBUG Adding [BeginRun] listener 'ToolSvc.IOVSvcTool' with priority 100

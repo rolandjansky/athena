@@ -37,27 +37,15 @@
 class LArCoverageFCALBins
 {
 public:
-  
-  // Constructors
-  LArCoverageFCALBins() {}
+  static int getXBins(int iSide, int iSamp);
 
-  // Destructors
-  virtual ~LArCoverageFCALBins() {}
+  static int getYBins(int iSide, int iSamp);
 
-  // Operators
+  static float getRMax(int iSide, int iSamp);
 
-  // Selectors 
+  static float getRMin(int iSide);
 
-  // Methods
-  int getXBins(int iSide, int iSamp) const;
-
-  int getYBins(int iSide, int iSamp) const;
-
-  float getRMax(int iSide, int iSamp) const;
-
-  float getRMin(int iSide) const;
-
-  const unsigned short * getBins(int iSide, int iSamp, int iEta, int iPhi) const;
+  static const unsigned short * getBins(int iSide, int iSamp, int iEta, int iPhi);
   
 };
 

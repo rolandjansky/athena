@@ -67,41 +67,41 @@ GetDetectorLocalFrames::GetDetectorLocalFrames(std::string const&  name, ISvcLoc
 
 /** initialize */
 StatusCode GetDetectorLocalFrames::initialize(){
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "initialize()" << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "initialize()" << endmsg;
   
   /** Retrive TRT info */
   if (detStore()->retrieve(m_TRTHelper, "TRT_ID").isFailure()) {
-    msg(MSG::FATAL) << "Could not get TRT ID helper" << endreq;
+    msg(MSG::FATAL) << "Could not get TRT ID helper" << endmsg;
     return StatusCode::FAILURE;
   }
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "got the TRT ID" << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "got the TRT ID" << endmsg;
 
   if ((detStore()->retrieve(m_TRTDetectorManager)).isFailure()) {
-    if(msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Problem retrieving TRT_DetectorManager" << endreq;
+    if(msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Problem retrieving TRT_DetectorManager" << endmsg;
     return StatusCode::FAILURE;
   }
   
   /** Retrive SCT info */
   if (detStore()->retrieve(m_SCTHelper, "SCT_ID").isFailure()) {
-    msg(MSG::FATAL) << "Could not get SCT ID helper" << endreq;
+    msg(MSG::FATAL) << "Could not get SCT ID helper" << endmsg;
     return StatusCode::FAILURE;
   }
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "got the SCT ID" << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "got the SCT ID" << endmsg;
 
   if ((detStore()->retrieve(m_SCTDetectorManager)).isFailure()) {
-    if(msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Problem retrieving SCT_DetectorManager" << endreq;
+    if(msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Problem retrieving SCT_DetectorManager" << endmsg;
     return StatusCode::FAILURE;
   }
   
   /** Retrive Pixel info */
   if (detStore()->retrieve(m_PixelHelper, "PixelID").isFailure()) {
-    msg(MSG::FATAL) << "Could not get Pixel ID helper" << endreq;
+    msg(MSG::FATAL) << "Could not get Pixel ID helper" << endmsg;
     return StatusCode::FAILURE;
     }
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "got the Pixel ID" << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "got the Pixel ID" << endmsg;
   
   if ((detStore()->retrieve(m_pixelDetectorManager)).isFailure()) {
-    if(msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Problem retrieving PixelDetectorManager" << endreq;
+    if(msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Problem retrieving PixelDetectorManager" << endmsg;
     return StatusCode::FAILURE;
   }
   
@@ -114,7 +114,7 @@ StatusCode GetDetectorLocalFrames::initialize(){
 /** execute */
 StatusCode GetDetectorLocalFrames::execute() {
   
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "execute() check global position" << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "execute() check global position" << endmsg;
   
     StatusCode sc = StatusCode::SUCCESS;
     static int eventCount(-1); eventCount++;
@@ -141,7 +141,7 @@ StatusCode GetDetectorLocalFrames::execute() {
 
 /** Finalize */
 StatusCode GetDetectorLocalFrames::finalize() {
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "finalize()" << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "finalize()" << endmsg;
   
   /** Close the file */
   outputFile.close();
@@ -151,7 +151,7 @@ StatusCode GetDetectorLocalFrames::finalize() {
 
 /** Writing the Pixel Positions */
 void GetDetectorLocalFrames::writePixelFames(){
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "In writePixelFames()" << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "In writePixelFames()" << endmsg;
 
   //Loop over pixel elements
   std::vector<Identifier>::const_iterator pixIt = m_PixelHelper->wafer_begin();
@@ -163,13 +163,13 @@ void GetDetectorLocalFrames::writePixelFames(){
   
   }
   
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Leaving writePixelFames()" << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Leaving writePixelFames()" << endmsg;
   return;
 }
 
 /** Writing the SCT Positions */
 void GetDetectorLocalFrames::writeSCTFrames(){
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "In writeSCTFrames()" << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "In writeSCTFrames()" << endmsg;
   
   //Loop over SCT elements
   std::vector<Identifier>::const_iterator sctIt = m_SCTHelper->wafer_begin();
@@ -180,13 +180,13 @@ void GetDetectorLocalFrames::writeSCTFrames(){
     // Get local Frame
   }
   
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Leaving writeSCTFrames()" << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Leaving writeSCTFrames()" << endmsg;
   return;
 }
 
 /** Writing the Detailed (all straws) TRT Positions */
 void GetDetectorLocalFrames::writeTRTFrames(){
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "In writeTRTFrames()" << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "In writeTRTFrames()" << endmsg;
   
   TRT_ID::const_expanded_id_iterator trtStrawIt = m_TRTHelper->straw_begin();
   TRT_ID::const_expanded_id_iterator trtStrawItE = m_TRTHelper->straw_end();
@@ -238,21 +238,21 @@ void GetDetectorLocalFrames::writeTRTFrames(){
     outputFile << std::endl;
   }
   
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Leaving writeTRTFrames()" << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Leaving writeTRTFrames()" << endmsg;
   return;
 }
 
 void GetDetectorLocalFrames::writeVector(std::string name, const Amg::Vector3D& vector){
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "In writeVector()" << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "In writeVector()" << endmsg;
   
   outputFile << name << " " << vector.x() << " " << vector.y() << "  " << vector.z() << std::endl;
   
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Leaving writeVector()" << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Leaving writeVector()" << endmsg;
   return;
 }
 
 void GetDetectorLocalFrames::writeTransForm(const HepGeom::Transform3D& transform){
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "In writeTransForm()" << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "In writeTransForm()" << endmsg;
   
   outputFile << " Trans(x,y,z): " << transform.dx() << " " << transform.dy() << "  " << transform.dz() << std::endl;
   outputFile << " Rotation Matrix " << std::endl;
@@ -260,7 +260,7 @@ void GetDetectorLocalFrames::writeTransForm(const HepGeom::Transform3D& transfor
   outputFile << transform.yx() << " " << transform.yy() << "  " << transform.yz() << std::endl;
   outputFile << transform.zx() << " " << transform.zy() << "  " << transform.zz() << std::endl;
 
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Leaving writeTransForm()" << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Leaving writeTransForm()" << endmsg;
   return;
 }
 

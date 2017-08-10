@@ -35,6 +35,10 @@ void split(TEnv& rEnv, const std::string& sIn, const char cDelim, std::vector<in
 void split(TEnv& rEnv, const std::string& sIn, const char cDelim, std::vector<float>& vOut);
 void split(TEnv& rEnv, const std::string& sIn, const char cDelim, std::vector<double>& vOut);
 double tauPt(const xAOD::TauJet& xTau);
+double caloTauPt(const xAOD::TauJet& xTau);
+double caloTauEta(const xAOD::TauJet& xTau);
+double caloTauAbsEta(const xAOD::TauJet& xTau);
+double caloTauP(const xAOD::TauJet& xTau);
 double tauP(const xAOD::TauJet& xTau);
 double tauEta(const xAOD::TauJet& xTau);
 double tauAbsEta(const xAOD::TauJet& xTau);

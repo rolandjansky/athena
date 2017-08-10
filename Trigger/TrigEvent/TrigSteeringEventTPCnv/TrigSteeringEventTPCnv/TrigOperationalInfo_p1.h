@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigSteeringEventTPCnv
- * @Class  : TrigOperationalInfo_p1
+ * @class  : TrigOperationalInfo_p1
  *
  * @brief persistent partner for TrigOperationalInfo
  *

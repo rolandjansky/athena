@@ -12,8 +12,11 @@
 #include "IRegionSelector/IRegSelSvc.h" 
 #include "PixelRawDataByteStreamCnv/IPixelRawDataProviderTool.h"
 
-namespace InDet {
 
+using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
+
+
+namespace InDet {
 
   
 
@@ -31,8 +34,8 @@ namespace InDet {
     m_storeGate       ("StoreGateSvc",name),
     m_detStore        ("DetectorStore",name),
     m_IdMapping       ("PixelCablingSvc",name),
-    m_container(0),
-    m_id(0) 
+    m_id(0),
+    m_container(0)
   {
     declareInterface<InDet::ITrigRawDataProviderTool>(this);
     declareProperty("RDOKey", m_RDO_Key = "PixelRDOs_EFID");
@@ -47,55 +50,55 @@ namespace InDet {
   // Initialize
 
   StatusCode TrigPixRawDataProvider::initialize() {
-    msg(MSG::INFO) << "TrigPixRawDataProvider::initialize" << endreq;
+    msg(MSG::INFO) << "TrigPixRawDataProvider::initialize" << endmsg;
     if ( m_regionSelector.retrieve().isFailure() ) {                     
       msg(MSG::FATAL) << m_regionSelector.propertyName()                        
             << " : Unable to retrieve RegionSelector tool "       
-            << m_regionSelector.type() << endreq;                          
+            << m_regionSelector.type() << endmsg;                          
       return StatusCode::FAILURE;
     }                                                                                
 
     // Get ROBDataProviderSvc
     if (m_robDataProvider.retrieve().isFailure()) {
-      msg(MSG::FATAL) << "Failed to retrieve " << m_robDataProvider << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve " << m_robDataProvider << endmsg;
       return StatusCode::FAILURE;
     } else
-      msg(MSG::INFO) << "Retrieved service " << m_robDataProvider << endreq;
+      msg(MSG::INFO) << "Retrieved service " << m_robDataProvider << endmsg;
  
     // Get PixelRawDataProviderTool
     if (m_rawDataTool.retrieve().isFailure()) {
-      msg(MSG::FATAL) << "Failed to retrieve " << m_rawDataTool << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve " << m_rawDataTool << endmsg;
       return StatusCode::FAILURE;
     } else
-      msg(MSG::INFO) << "Retrieved service " << m_rawDataTool << endreq;
+      msg(MSG::INFO) << "Retrieved service " << m_rawDataTool << endmsg;
  
     // Get an detector store
     if (m_detStore.retrieve().isFailure()) {
-      msg(MSG::FATAL) << "Failed to retrieve " << m_detStore << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve " << m_detStore << endmsg;
       return StatusCode::FAILURE;
     } else
-      msg(MSG::INFO) << "Retrieved service " << m_detStore << endreq;
+      msg(MSG::INFO) << "Retrieved service " << m_detStore << endmsg;
  
     StatusCode sc = m_detStore->retrieve(m_id,"PixelID"); 
     if (sc.isFailure()) {
       msg(MSG::FATAL) << "Cannot retrieve Pixel ID helper!"      
-	    << endreq;
+	    << endmsg;
       return StatusCode::FAILURE;
     } 
 
     // Get StoreGateSvc 
     if (m_storeGate.retrieve().isFailure()) {
-      msg(MSG::FATAL) << "Failed to retrieve service " << m_storeGate << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve service " << m_storeGate << endmsg;
       return StatusCode::FAILURE;
     } else
-      msg(MSG::INFO) << "Retrieved service " << m_storeGate << endreq;
+      msg(MSG::INFO) << "Retrieved service " << m_storeGate << endmsg;
   
     // Retrieve id mapping 
     if (m_IdMapping.retrieve().isFailure()) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_IdMapping << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_IdMapping << endmsg;
       return StatusCode::FAILURE;
     } else 
-      msg(MSG::INFO) << "Retrieved tool " << m_IdMapping << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_IdMapping << endmsg;
 
     //RDO container
     m_container = new PixelRDO_Container(m_id->wafer_hash_max()); 
@@ -114,21 +117,21 @@ namespace InDet {
       // record into StoreGate
       m_container->cleanup();
       if (m_storeGate->record(m_container, m_RDO_Key).isFailure()) {
-	msg(MSG::FATAL) << "Unable to record Pixel RDO Container" << endreq;
+	msg(MSG::FATAL) << "Unable to record Pixel RDO Container" << endmsg;
 	return StatusCode::FAILURE;
       } else {
 	msg(MSG::DEBUG) << "Pixel RDO Container " << m_RDO_Key
-	       << " recorded into SG" << endreq;
+	       << " recorded into SG" << endmsg;
       }
 
     } else {
       if (!m_storeGate->retrieve(m_container,m_RDO_Key)){
 	msg(MSG::FATAL) << "Unable to retrieve existing Pixel RDO Container "
-	       << m_RDO_Key << endreq;
+	       << m_RDO_Key << endmsg;
 	return StatusCode::FAILURE;
       } else {
 	msg(MSG::DEBUG) << "Retrieved existing Pixel RDO Container"
-	       << m_RDO_Key << endreq;
+	       << m_RDO_Key << endmsg;
       }
     }
     return sc;
@@ -150,14 +153,14 @@ namespace InDet {
 					  *roi, 
 					  robIDlist); 
     } else {
-      msg(MSG::ERROR) << name() << " invoked without an RoI data " << endreq;
+      msg(MSG::ERROR) << name() << " invoked without an RoI data " << endmsg;
       return StatusCode::FAILURE;
       //robIDlist = m_IdMapping->getAllRods();
     }
 
     StatusCode sg = initContainer();
     if (sg.isFailure()){
-      msg(MSG::ERROR) << "cannot get RDO container" << endreq;
+      msg(MSG::ERROR) << "cannot get RDO container" << endmsg;
       return StatusCode::FAILURE;
     }
 
@@ -170,7 +173,7 @@ namespace InDet {
     if (m_container){
       scon = m_rawDataTool->convert(listOfRobf,m_container);
       if (scon==StatusCode::FAILURE)
-	msg(MSG::ERROR) << "BS conversion into RDOs failed" << endreq;
+	msg(MSG::ERROR) << "BS conversion into RDOs failed" << endmsg;
     }
     return scon;
   }

@@ -19,7 +19,7 @@ static const InterfaceID IID_ITRT_Histogrammer("ITRT_Histogrammer", 1, 0);
 /**@class ITRT_Histogrammer
 
 Abstract base class for TRT_Histogrammer AlgTool
-@performs TRT data access and pattern recognition for a single Track
+@brief TRT data access and pattern recognition for a single Track
      
 @author Alan.Poppleton@cern.ch
 */

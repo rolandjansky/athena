@@ -38,20 +38,20 @@ namespace Trk
     if (!m_LinearizedTrackFactory.empty()) {
       StatusCode sc=m_LinearizedTrackFactory.retrieve();
       if (sc.isFailure()) {
-        msg(MSG::WARNING) << "Could not find TrackLinearizer tool." << endreq;
+        msg(MSG::WARNING) << "Could not find TrackLinearizer tool." << endmsg;
         m_linearizedTrackFactoryIsAvailable=false;
       } else {
         m_linearizedTrackFactoryIsAvailable=true;
       }
     }
 
-    msg(MSG::INFO)  << "Initialize successful" << endreq;
+    msg(MSG::INFO)  << "Initialize successful" << endmsg;
     return StatusCode::SUCCESS;
   }
   
   StatusCode NeutralParticleParameterCalculator::finalize() 
   {
-    msg(MSG::INFO)  << "Finalize successful" << endreq;
+    msg(MSG::INFO)  << "Finalize successful" << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -62,13 +62,13 @@ namespace Trk
 
     if (myVertex.nTrackParticles()!=2) 
     {
-      msg(MSG::WARNING) <<  " More or less than 2 tracks in Vertex.  No Neutral Perigee could be created" << endreq;
+      msg(MSG::WARNING) <<  " More or less than 2 tracks in Vertex.  No Neutral Perigee could be created" << endmsg;
       return 0;
     }
 
     if ( !myVertex.trackParticleLinks()[0].isValid() || !myVertex.trackParticleLinks()[1].isValid() )
     {
-      msg(MSG::WARNING) <<  " Track Particle Element link is not valid" << endreq;
+      msg(MSG::WARNING) <<  " Track Particle Element link is not valid" << endmsg;
       return 0;
   
     }
@@ -88,7 +88,7 @@ namespace Trk
 
     //check if the linearizedTrackFactory is available...
     if (m_linearizedTrackFactoryIsAvailable==false) {
-      msg(MSG::ERROR) << " No LinearizedTrackFactory is defined and no ExtendedVxCandidate is provided. Cannot obtain covariance matrix of neutral particle. Failed... " << endreq;
+      msg(MSG::ERROR) << " No LinearizedTrackFactory is defined and no ExtendedVxCandidate is provided. Cannot obtain covariance matrix of neutral particle. Failed... " << endmsg;
       return 0;
     }
 
@@ -100,7 +100,7 @@ namespace Trk
 
       if (myFirstLinearizedTrack==0||mySecondLinearizedTrack==0)
       {
-        msg(MSG::WARNING) <<  " Could not find one of the linearized tracks.  No Neutral Perigee could be created" << endreq;
+        msg(MSG::WARNING) <<  " Could not find one of the linearized tracks.  No Neutral Perigee could be created" << endmsg;
         if (myFirstLinearizedTrack) delete myFirstLinearizedTrack;
         if (mySecondLinearizedTrack) delete mySecondLinearizedTrack;
         return 0;
@@ -117,7 +117,7 @@ namespace Trk
       delete myFirstLinearizedTrack;
       delete mySecondLinearizedTrack;                                                                    
     } else {
-      msg(MSG::WARNING) <<  " getPosMomentumAndMomentumCovMatrix method failed " << endreq;
+      msg(MSG::WARNING) <<  " getPosMomentumAndMomentumCovMatrix method failed " << endmsg;
       return 0;
     }
     
@@ -231,7 +231,7 @@ namespace Trk
     // same maths, but doesn't compile: AmgSymMatrix(3) Sm = trkParametersWeight.similarityT(B);
     if (Sm.determinant() == 0.0) {
       ATH_MSG_WARNING("S matrix can not be inverted, new type of check as part of Eigen, please monitor."
-                      << endreq << "Matrix Sm = " << Sm);
+                      << endmsg << "Matrix Sm = " << Sm);
       ATH_MSG_WARNING("This track is returned not refitted");
       // throw std::string("Inversion of S matrix fails in track parameters refit");
     }

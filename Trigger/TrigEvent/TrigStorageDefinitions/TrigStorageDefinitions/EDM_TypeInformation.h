@@ -6,8 +6,8 @@
 #ifndef TRIGTYPEINFO_EDM_TYPEINFORMATION_H
 #define TRIGTYPEINFO_EDM_TYPEINFORMATION_H
 
-#include "DataModel/ElementLink.h"
-#include "DataModel/DataLink.h"
+#include "AthLinks/ElementLink.h"
+#include "AthLinks/DataLink.h"
 #include "TrigStorageDefinitions/TypeInformation.h"
 
 #define HLT_BEGIN_TYPE_REGISTRATION typedef HLT::TypeInformation::newlist::

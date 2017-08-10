@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: HLT Steering
  * @Package: TrigSteering
- * @Class  : RandomScaler
+ * @class  : RandomScaler
  *
  * @brief Random prescaler
  *

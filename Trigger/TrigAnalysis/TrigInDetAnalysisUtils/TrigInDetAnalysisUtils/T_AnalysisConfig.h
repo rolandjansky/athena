@@ -33,6 +33,7 @@
 #ifdef XAODTRACKING_TRACKPARTICLE_H
 #include "xAODMuon/MuonContainer.h"
 #include "xAODEgamma/ElectronContainer.h"
+#include "xAODEgamma/ElectronxAODHelpers.h"
 #include "xAODTau/TauJetContainer.h"
 #else
 #include "muonEvent/MuonContainer.h"
@@ -464,7 +465,9 @@ protected:
   ////////////////////////////////////////////////////////////////////////////////////////////
   /// select offline electrons
   ////////////////////////////////////////////////////////////////////////////////////////////
-  unsigned processElectrons( TrigTrackSelector& selectorRef, const unsigned int selection=0, double ETOffline=0,
+  unsigned processElectrons( TrigTrackSelector& selectorRef, const unsigned int selection=0, 
+			     bool raw_track=false,  
+			     double ETOffline=0,
 #                            ifdef XAODTRACKING_TRACKPARTICLE_H
 			     const std::string& containerName = "Electrons"
 #                            else
@@ -498,8 +501,8 @@ protected:
 
     m_provider->msg(MSG::INFO) << "Event with " <<  container->size() << " Electron object(s) " << endmsg;
 
-    auto elec     = container->begin();
-    auto elec_end = container->end();
+    Container::const_iterator elec     = container->begin();
+    Container::const_iterator elec_end = container->end();
 
     for( ; elec!=elec_end ; ++elec ){
       //m_provider->msg(MSG::DEBUG) << " Electron "       << (*elec)
@@ -514,12 +517,15 @@ protected:
 
       bool good_electron = false;
 #     ifdef XAODTRACKING_TRACKPARTICLE_H
-      good_electron = TIDA::isGoodOffline(*(*elec), selection, ETOffline );
+      good_electron = TIDA::isGoodOffline( *(*elec), selection, ETOffline );
 #     else
-      good_electron = TIDA::isGoodOffline(*(*elec));
+      good_electron = TIDA::isGoodOffline( *(*elec));
 #     endif
-      
-      if (good_electron) selectorRef.selectTrack( (*elec)->trackParticle() );
+
+      if (good_electron) { 
+	if ( raw_track ) selectorRef.selectTrack( xAOD::EgammaHelpers::getOriginalTrackParticle( *elec ) );
+	else             selectorRef.selectTrack( (*elec)->trackParticle() );
+      }
     }
 
     return selectorRef.tracks().size();
@@ -588,8 +594,8 @@ protected:
     /// select offline taus
     ////////////////////////////////////////////////////////////////////////////////////////////
 unsigned processTaus( TrigTrackSelector& selectorRef,
-		      bool           doThreeProng=true,
 		      const unsigned selection=0,
+		      int            requireNtracks=0,
 		      double         EtCutOffline=0,
 #                     ifdef XAODTRACKING_TRACKPARTICLE_H
 		      const std::string& containerName = "TauJets"
@@ -631,20 +637,33 @@ unsigned processTaus( TrigTrackSelector& selectorRef,
 
   for ( ; tau!=tau_end ; ++tau ) {
 
+#   ifdef XAODTRACKING_TRACKPARTICLE_H
+    //      unsigned N = (*tau)->nTracks();
+
+#   ifndef XAODTAU_VERSIONS_TAUJET_V3_H
+    int N = (*tau)->nTracks();
+    // std::cout << "SUTT no tau detail " << N << "\t3prong: " << doThreeProng << std::endl;
+#   else
+    int N=0;
+    (*tau)->detail( xAOD::TauJetParameters::nChargedTracks, N );
+    // std::cout << "SUTT tau detail: N " << N << "\t3prong: " << doThreeProng << std::endl;
+#   endif
+
+#   else
+    unsigned N = (*tau)->numTrack(); 
+#   endif
+
+
     bool good_tau = false;
 #   ifdef XAODTRACKING_TRACKPARTICLE_H
-    good_tau = TIDA::isGoodOffline( *(*tau), doThreeProng, selection, EtCutOffline );
+    good_tau = TIDA::isGoodOffline( *(*tau), selection, requireNtracks, EtCutOffline );
 #   else
-    good_tau = TIDA::isGoodOffline( *(*tau), doThreeProng, EtCutOffline );
+    good_tau = TIDA::isGoodOffline( *(*tau), requireNtracks, EtCutOffline );
 #   endif
+
+    //   std::cout << "SUTT tau ntracks: " << N << "\tgoodtau: " << good_tau << "\tpt: " << (*tau)->p4().Et() << "\t3prong: " << doThreeProng << std::endl;  
       
     if (good_tau){
-#     ifdef XAODTRACKING_TRACKPARTICLE_H
-      unsigned N = (*tau)->nTracks();
-#     else
-      unsigned N = (*tau)->numTrack(); 
-#     endif
-
       for ( unsigned i=N ; i-- ; )  {
 #       ifdef XAODTAU_TAUTRACK_H  
         selectorRef.selectTrack((*tau)->track(i)->track());

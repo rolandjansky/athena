@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: HLT
  * @Package: TrigMissingETMuon
- * @Class  : TrigMissingETMuon
+ * @class  : TrigMissingETMuon
  *
  * @brief  Algorithm that add muon contribution to the TrigMissingET object using muons
  *

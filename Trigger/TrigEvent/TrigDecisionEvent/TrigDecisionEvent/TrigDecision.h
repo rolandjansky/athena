@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: HLT
  * @Package: TrigDecisionEvent
- * @Class  : TrigDecision
+ * @class  : TrigDecision
  *
  * @brief transient trigger decision class
  *
@@ -22,7 +22,7 @@
 #ifndef TrigDecisionEvent_TrigDecision_H
 #define TrigDecisionEvent_TrigDecision_H
 
-#include "DataModel/DataLink.h"
+#include "AthLinks/DataLink.h"
 #include "TrigSteeringEvent/Enums.h"
 
 

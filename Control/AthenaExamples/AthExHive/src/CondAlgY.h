@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef CONDALGS_CONDALGY_H
 #define CONDALGS_CONDALGY_H 1
 
@@ -20,6 +24,8 @@ public:
   CondAlgY (const std::string& name, ISvcLocator* pSvcLocator);
   ~CondAlgY();
   
+  bool isClonable() const override { return true; }
+
   StatusCode initialize();
   StatusCode execute();
   StatusCode finalize();

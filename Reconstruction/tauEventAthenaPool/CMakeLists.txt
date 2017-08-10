@@ -33,10 +33,16 @@ endif()
 find_package( AthenaPoolUtilitiesTest )
 
 if( ATHENAPOOLUTILITIESTEST_FOUND )
-  run_tpcnv_test( tauEventTPCnv_15.0.0    AOD-15.0.0-full )
-  run_tpcnv_test( tauEventTPCnv_15.6.9    AOD-15.6.9-full )
-  run_tpcnv_test( tauEventTPCnv_17.2.9.1  AOD-17.2.9.1-full )
-  run_tpcnv_test( tauEventTPCnv_18.0.0    AOD-18.0.0-full )
+   set( TAUEVENTATHENAPOOL_REFERENCE_TAG
+        tauEventAthenaPoolReference-01-00-00 )
+  run_tpcnv_test( tauEventTPCnv_15.0.0    AOD-15.0.0-full
+                   REFERENCE_TAG ${TAUEVENTATHENAPOOL_REFERENCE_TAG} )
+  run_tpcnv_test( tauEventTPCnv_15.6.9    AOD-15.6.9-full
+                   REFERENCE_TAG ${TAUEVENTATHENAPOOL_REFERENCE_TAG} )
+  run_tpcnv_test( tauEventTPCnv_17.2.9.1  AOD-17.2.9.1-full
+                   REFERENCE_TAG ${TAUEVENTATHENAPOOL_REFERENCE_TAG} )
+  run_tpcnv_test( tauEventTPCnv_18.0.0    AOD-18.0.0-full
+                   REFERENCE_TAG ${TAUEVENTATHENAPOOL_REFERENCE_TAG} )
 else()
    message( WARNING "Couldn't find AthenaPoolUtilitiesTest. No test(s) set up." )
 endif()   

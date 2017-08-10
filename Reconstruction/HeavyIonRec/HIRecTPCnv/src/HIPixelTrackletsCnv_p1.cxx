@@ -26,24 +26,24 @@ void HIPixelTrackletsCnv_p1::persToTrans(const HIPixelTracklets_p1 *persObj, HIP
 }
 
 void HIPixelTrackletsCnv_p1::transToPers(const HIPixelTracklets *transObj, HIPixelTracklets_p1 *persObj, MsgStream &log) {
-  log << MSG::INFO << "HIPixelTrackletsCnv_p1:transToPers:starting." << endreq;
+  log << MSG::INFO << "HIPixelTrackletsCnv_p1:transToPers:starting." << endmsg;
   persObj->m_eta = transObj->m_eta;
-  log << MSG::INFO << "eta value finished." << endreq;
+  log << MSG::INFO << "eta value finished." << endmsg;
   persObj->m_phi = transObj->m_phi;
   persObj->m_pt = transObj->m_pt;
   persObj->m_etaS = transObj->m_etaS;
   persObj->m_phiS = transObj->m_phiS;
-  log << MSG::INFO << "phiS value finished." << endreq;
+  log << MSG::INFO << "phiS value finished." << endmsg;
 
   
   //HepGeom::Point3D<double> pointx(transObj->m_vrt.x(),transObj->m_vrt.y(),transObj->m_vrt.z());
   //persObj->m_vrt = HepGeom::Point3D<double>(transObj->m_vrt.x(),transObj->m_vrt.y(),transObj->m_vrt.z());
   //m_hepPoint3DCnv->transToPers(&(transObj->m_vrt),&(persObj->m_vrt),log );
   //persObj->m_vrt = toPersistent(&m_hepPoint3DCnv,&(transObj->m_vrt),log);
-  //log << MSG::INFO << "vrt: " << persObj->m_vrt.x() << endreq;
-//   log << MSG::INFO << "vertex value finished." << endreq;
-//   //log << MSG::INFO << "energy Loss: " << (transObj->m_clusters)[0]->energyLoss() << endreq;
-//   //log << MSG::INFO << "m_clusterVectorCnv: " << m_clusterVectorCnv << endreq;
+  //log << MSG::INFO << "vrt: " << persObj->m_vrt.x() << endmsg;
+//   log << MSG::INFO << "vertex value finished." << endmsg;
+//   //log << MSG::INFO << "energy Loss: " << (transObj->m_clusters)[0]->energyLoss() << endmsg;
+//   //log << MSG::INFO << "m_clusterVectorCnv: " << m_clusterVectorCnv << endmsg;
 //   m_clusterVectorCnv.transToPers( &(transObj->m_clusters), &(persObj->m_clusters), log);  
-//   log << MSG::INFO << "HIPixelTrackletsCnv_p1:transToPers:ending." << endreq;
+//   log << MSG::INFO << "HIPixelTrackletsCnv_p1:transToPers:ending." << endmsg;
 }

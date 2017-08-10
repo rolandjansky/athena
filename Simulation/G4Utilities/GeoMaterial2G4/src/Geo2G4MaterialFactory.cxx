@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "GeoMaterial2G4/Geo2G4MaterialFactory.h"
 #include "Geo2G4ElementFactory.h"
 #include "GeoMaterial2G4/Geo2G4MatPropTableFactory.h"
@@ -24,8 +28,8 @@ G4Material* Geo2G4MaterialFactory::Build(const GeoMaterial* theMat)
   //
   std::string nam = theMat->getName();
 
-  if(definedMaterials.find(theMat) != definedMaterials.end())
-    return definedMaterials[theMat];
+  if(m_definedMaterials.find(theMat) != m_definedMaterials.end())
+    return m_definedMaterials[theMat];
 
   int nelements = theMat->getNumElements();
 
@@ -85,14 +89,14 @@ G4Material* Geo2G4MaterialFactory::Build(const GeoMaterial* theMat)
     newmaterial->AddElement(theG4Ele, theMat->getFraction(ii));
   }
 
-  definedMaterials[theMat]=newmaterial;
+  m_definedMaterials[theMat]=newmaterial;
 
   // Check if we have the situation when on GeoModel side two different
   // materials share the same name.
   // Print an INFO message if so.
-  if(definedMatNames.find(nam)==definedMatNames.end())
-    definedMatNames[nam] = theMat;
-  else if(definedMatNames[nam] != theMat)
+  if(m_definedMatNames.find(nam)==m_definedMatNames.end())
+    m_definedMatNames[nam] = theMat;
+  else if(m_definedMatNames[nam] != theMat)
     ATH_MSG_INFO ( "!!! On GeoModel side two different materials share the name: " << nam );
   return newmaterial;
 }

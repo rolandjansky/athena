@@ -61,10 +61,10 @@ PixelDCSTool::PixelDCSTool(const std::string& type, const std::string& name, con
   m_HVFile(""),
   m_FSMStatusFile(""),
   m_FSMStateFile(""),
-  par_temperatureField("temperature"),
-  par_HVField("HV"),
-  par_FSMStatusField("FSM_status"),
-  par_FSMStateField("FSM_state"),
+  m_par_temperatureField("temperature"),
+  m_par_HVField("HV"),
+  m_par_FSMStatusField("FSM_status"),
+  m_par_FSMStateField("FSM_state"),
   m_temperatureTag(""),
   m_HVTag(""),
   m_FSMStatusTag(""),
@@ -92,10 +92,10 @@ PixelDCSTool::PixelDCSTool(const std::string& type, const std::string& name, con
   declareProperty("HVFile", m_HVFile); 
   declareProperty("FSMStatusFile", m_FSMStatusFile); 
   declareProperty("FSMStateFile", m_FSMStateFile); 
-  declareProperty("TemperatureFieldName", par_temperatureField); 
-  declareProperty("HVFieldName", par_HVField); 
-  declareProperty("FSMStatusFieldName", par_FSMStatusField);
-  declareProperty("FSMStateFieldName", par_FSMStateField); 
+  declareProperty("TemperatureFieldName", m_par_temperatureField); 
+  declareProperty("HVFieldName", m_par_HVField); 
+  declareProperty("FSMStatusFieldName", m_par_FSMStatusField);
+  declareProperty("FSMStateFieldName", m_par_FSMStateField); 
   declareProperty("TemperatureTag", m_temperatureTag); 
   declareProperty("HVTag", m_HVTag); 
   declareProperty("FSMStatusTag", m_FSMStatusTag); 
@@ -279,7 +279,7 @@ StatusCode PixelDCSTool::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I, keys))
       for(itrx_temp = atrc_temp->begin(); itrx_temp !=atrc_temp->end(); ++itrx_temp){ 
 	CondAttrListCollection::ChanNum channum_temp = itrx_temp->first;
 	const coral::AttributeList& atr_temp = itrx_temp->second; 
-	float temperaturedata = atr_temp[par_temperatureField.c_str()].data<float>();
+	float temperaturedata = atr_temp[m_par_temperatureField.c_str()].data<float>();
 	
 	(*m_pixelDCSData)[channum_temp]->setTemperature(temperaturedata);
       }
@@ -300,7 +300,7 @@ StatusCode PixelDCSTool::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I, keys))
       for(itrx_hv = atrc_hv->begin(); itrx_hv !=atrc_hv->end(); ++itrx_hv){ 
 	CondAttrListCollection::ChanNum channum_hv = itrx_hv->first;
 	const coral::AttributeList& atr_hv = itrx_hv->second; 
-	float hvdata = atr_hv[par_HVField.c_str()].data<float>();
+	float hvdata = atr_hv[m_par_HVField.c_str()].data<float>();
 	
 	(*m_pixelDCSData)[channum_hv]->setHV(hvdata);
 
@@ -323,7 +323,7 @@ StatusCode PixelDCSTool::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I, keys))
       for(itrx_fsmstatus = atrc_fsmstatus->begin(); itrx_fsmstatus !=atrc_fsmstatus->end(); ++itrx_fsmstatus){ 
 	CondAttrListCollection::ChanNum channum_fsmstatus = itrx_fsmstatus->first;
 	const coral::AttributeList& atr_fsmstatus = itrx_fsmstatus->second; 
-	std::string fsmstatusdata = atr_fsmstatus[par_FSMStatusField.c_str()].data<std::string>();
+	std::string fsmstatusdata = atr_fsmstatus[m_par_FSMStatusField.c_str()].data<std::string>();
 
 	(*m_pixelDCSData)[channum_fsmstatus]->setFSMStatus(fsmstatusdata);
 
@@ -345,7 +345,7 @@ StatusCode PixelDCSTool::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I, keys))
       for(itrx_fsmstate = atrc_fsmstate->begin(); itrx_fsmstate !=atrc_fsmstate->end(); ++itrx_fsmstate){ 
 	CondAttrListCollection::ChanNum channum_fsmstate = itrx_fsmstate->first;
 	const coral::AttributeList& atr_fsmstate = itrx_fsmstate->second; 
-	std::string fsmstatedata = atr_fsmstate[par_FSMStateField.c_str()].data<std::string>();
+	std::string fsmstatedata = atr_fsmstate[m_par_FSMStateField.c_str()].data<std::string>();
 
 	(*m_pixelDCSData)[channum_fsmstate]->setFSMState(fsmstatedata);
 
@@ -420,23 +420,23 @@ StatusCode PixelDCSTool::writeDataToDB()
 
     CondAttrListCollection* attrListColl_temp = new CondAttrListCollection(true);
     coral::AttributeListSpecification* attrSpec_temp = new coral::AttributeListSpecification(); 
-    attrSpec_temp->extend(par_temperatureField.c_str(), "float");
+    attrSpec_temp->extend(m_par_temperatureField.c_str(), "float");
     coral::AttributeList attrList_temp(*attrSpec_temp);
 
     CondAttrListCollection* attrListColl_hv = new CondAttrListCollection(true);
     coral::AttributeListSpecification* attrSpec_hv = new coral::AttributeListSpecification(); 
-    attrSpec_hv->extend(par_HVField.c_str(), "float");
+    attrSpec_hv->extend(m_par_HVField.c_str(), "float");
     coral::AttributeList attrList_hv(*attrSpec_hv);
 
     CondAttrListCollection* attrListColl_fsmstatus = new CondAttrListCollection(true);
     coral::AttributeListSpecification* attrSpec_fsmstatus = new coral::AttributeListSpecification(); 
-    attrSpec_fsmstatus->extend(par_FSMStatusField.c_str(), "string");
+    attrSpec_fsmstatus->extend(m_par_FSMStatusField.c_str(), "string");
     coral::AttributeList attrList_fsmstatus(*attrSpec_fsmstatus);
 
 
     CondAttrListCollection* attrListColl_fsmstate = new CondAttrListCollection(true);
     coral::AttributeListSpecification* attrSpec_fsmstate = new coral::AttributeListSpecification(); 
-    attrSpec_fsmstate->extend(par_FSMStateField.c_str(), "string");
+    attrSpec_fsmstate->extend(m_par_FSMStateField.c_str(), "string");
     coral::AttributeList attrList_fsmstate(*attrSpec_fsmstate);
 
 
@@ -453,19 +453,19 @@ StatusCode PixelDCSTool::writeDataToDB()
 	  IdentifierHash id_hash = m_pixid->wafer_hash(ident); 
 	  CondAttrListCollection::ChanNum channum = (unsigned int)id_hash;
 
-	  attrList_temp[par_temperatureField.c_str()].setValue(m_temperatureValue);
+	  attrList_temp[m_par_temperatureField.c_str()].setValue(m_temperatureValue);
 	  attrListColl_temp->add(channum, attrList_temp);
 	  attrListColl_temp->add(channum, iov);
 
-	  attrList_hv[par_HVField.c_str()].setValue(m_HVValue);
+	  attrList_hv[m_par_HVField.c_str()].setValue(m_HVValue);
 	  attrListColl_hv->add(channum, attrList_hv);
 	  attrListColl_hv->add(channum, iov);
 
-	  attrList_fsmstatus[par_FSMStatusField.c_str()].setValue(m_FSMStatusValue);
+	  attrList_fsmstatus[m_par_FSMStatusField.c_str()].setValue(m_FSMStatusValue);
 	  attrListColl_fsmstatus->add(channum, attrList_fsmstatus);
 	  attrListColl_fsmstatus->add(channum, iov);
 
-	  attrList_fsmstate[par_FSMStateField.c_str()].setValue(m_FSMStateValue);
+	  attrList_fsmstate[m_par_FSMStateField.c_str()].setValue(m_FSMStateValue);
 	  attrListColl_fsmstate->add(channum, attrList_fsmstate);
 	  attrListColl_fsmstate->add(channum, iov);
 
@@ -545,7 +545,7 @@ StatusCode PixelDCSTool::writeDataToDB()
 
     CondAttrListCollection* attrListColl_temp = new CondAttrListCollection(true);
     coral::AttributeListSpecification* attrSpec_temp = new coral::AttributeListSpecification(); 
-    attrSpec_temp->extend(par_temperatureField.c_str(), "float");
+    attrSpec_temp->extend(m_par_temperatureField.c_str(), "float");
     coral::AttributeList attrList_temp(*attrSpec_temp);
     //AthenaAttributeList attrList_temp(*attrSpec_temp);
 
@@ -588,7 +588,7 @@ StatusCode PixelDCSTool::writeDataToDB()
 
 	moduleToStore.push_back(module_hash);
 	CondAttrListCollection::ChanNum channum_temp = module_hash;
-	attrList_temp[par_temperatureField.c_str()].setValue(temperature);
+	attrList_temp[m_par_temperatureField.c_str()].setValue(temperature);
 	attrListColl_temp->add(channum_temp, attrList_temp);
 	IOVTime start_temp((uint64_t)(startTemperature*1000000000));
 	IOVTime stop_temp(IOVTime::MAXTIMESTAMP);
@@ -627,7 +627,7 @@ StatusCode PixelDCSTool::writeDataToDB()
   
     CondAttrListCollection* attrListColl_hv = new CondAttrListCollection(true);
     coral::AttributeListSpecification* attrSpec_hv = new coral::AttributeListSpecification(); 
-    attrSpec_hv->extend(par_HVField.c_str(), "float");
+    attrSpec_hv->extend(m_par_HVField.c_str(), "float");
     coral::AttributeList attrList_hv(*attrSpec_hv);
 
     float hv = 0;
@@ -670,7 +670,7 @@ StatusCode PixelDCSTool::writeDataToDB()
 	moduleToStore.push_back(module_hash);
 
 	CondAttrListCollection::ChanNum channum_hv = module_hash;
-	attrList_hv[par_HVField.c_str()].setValue(hv);
+	attrList_hv[m_par_HVField.c_str()].setValue(hv);
 	attrListColl_hv->add(channum_hv, attrList_hv);
 	IOVTime start_hv((uint64_t)(starthv*1000000000));
 	IOVTime stop_hv(IOVTime::MAXTIMESTAMP);
@@ -707,7 +707,7 @@ StatusCode PixelDCSTool::writeDataToDB()
 
     CondAttrListCollection* attrListColl_fsmstatus = new CondAttrListCollection(true);
     coral::AttributeListSpecification* attrSpec_fsmstatus = new coral::AttributeListSpecification(); 
-    attrSpec_fsmstatus->extend(par_FSMStatusField.c_str(), "string");
+    attrSpec_fsmstatus->extend(m_par_FSMStatusField.c_str(), "string");
     coral::AttributeList attrList_fsmstatus(*attrSpec_fsmstatus);
 
     std::string fsm = "";
@@ -749,7 +749,7 @@ StatusCode PixelDCSTool::writeDataToDB()
 	moduleToStore.push_back(module_hash);
 
 	CondAttrListCollection::ChanNum channum_fsmstatus = module_hash;
-	attrList_fsmstatus[par_FSMStatusField.c_str()].setValue(fsm);
+	attrList_fsmstatus[m_par_FSMStatusField.c_str()].setValue(fsm);
 	attrListColl_fsmstatus->add(channum_fsmstatus, attrList_fsmstatus);
 	IOVTime start_fsmstatus((uint64_t)(startfsm*1000000000));
 	IOVTime stop_fsmstatus(IOVTime::MAXTIMESTAMP);
@@ -786,7 +786,7 @@ StatusCode PixelDCSTool::writeDataToDB()
 
     CondAttrListCollection* attrListColl_fsmstate = new CondAttrListCollection(true);
     coral::AttributeListSpecification* attrSpec_fsmstate = new coral::AttributeListSpecification(); 
-    attrSpec_fsmstate->extend(par_FSMStateField.c_str(), "string");
+    attrSpec_fsmstate->extend(m_par_FSMStateField.c_str(), "string");
     coral::AttributeList attrList_fsmstate(*attrSpec_fsmstate);
 
     std::string fsm = "";
@@ -828,7 +828,7 @@ StatusCode PixelDCSTool::writeDataToDB()
 	moduleToStore.push_back(module_hash);
 
 	CondAttrListCollection::ChanNum channum_fsmstate = module_hash;
-	attrList_fsmstate[par_FSMStateField.c_str()].setValue(fsm);
+	attrList_fsmstate[m_par_FSMStateField.c_str()].setValue(fsm);
 	attrListColl_fsmstate->add(channum_fsmstate, attrList_fsmstate);
 	IOVTime start_fsmstate((uint64_t)(startfsm*1000000000));
 	IOVTime stop_fsmstate(IOVTime::MAXTIMESTAMP);
@@ -1046,7 +1046,7 @@ StatusCode PixelDCSTool::printData() const
     for(itrx_temp = atrc_temp->begin(); itrx_temp !=atrc_temp->end(); ++itrx_temp){ 
       CondAttrListCollection::ChanNum channum_temp = itrx_temp->first;
       const coral::AttributeList& atr_temp = itrx_temp->second; 
-      std::cout <<"temperature     " << atr_temp[par_temperatureField.c_str()].data<float>() << std::endl;
+      std::cout <<"temperature     " << atr_temp[m_par_temperatureField.c_str()].data<float>() << std::endl;
  
 
       std::ostringstream attrStr_temp;
@@ -1069,7 +1069,7 @@ StatusCode PixelDCSTool::printData() const
     for(itrx_hv = atrc_hv->begin(); itrx_hv !=atrc_hv->end(); ++itrx_hv){ 
       CondAttrListCollection::ChanNum channum_hv = itrx_hv->first;
       const coral::AttributeList& atr_hv = itrx_hv->second; 
-      std::cout <<"HV     " <<  atr_hv[par_HVField.c_str()].data<float>() << std::endl;
+      std::cout <<"HV     " <<  atr_hv[m_par_HVField.c_str()].data<float>() << std::endl;
 
 
       std::ostringstream attrStr_hv;

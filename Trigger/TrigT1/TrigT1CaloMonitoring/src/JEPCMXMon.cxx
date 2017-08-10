@@ -191,7 +191,7 @@ StatusCode JEPCMXMon::bookHistogramsRecurrent()
 
   //if ( newEventsBlock || newLumiBlock) { }
 
-  if ( newRun ) {
+  if ( newRunFlag() ) {
 
     MgmtAttr_t attr = ATTRIB_UNMANAGED;
     MonGroup CMX_inputJet( this, m_rootDir + "/Input/Jet", run, attr );

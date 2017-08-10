@@ -61,18 +61,18 @@ InDetTrigAmbiguitySolver::~InDetTrigAmbiguitySolver(void)
 ///////////////////////////////////////////////////////////////////
 HLT::ErrorCode InDetTrigAmbiguitySolver::hltInitialize() {
 
-  msg() << MSG::INFO << "InDetTrigAmbiguitySolver::initialize(). "<< endreq;
+  msg() << MSG::INFO << "InDetTrigAmbiguitySolver::initialize(). "<< endmsg;
 
   if (m_resolveTracks){
 
     StatusCode sc =  m_ambiTool.retrieve();
     if (sc.isFailure()){
 
-      msg() << MSG::FATAL << "Failed to retrieve tool " << m_ambiTool << endreq;
+      msg() << MSG::FATAL << "Failed to retrieve tool " << m_ambiTool << endmsg;
       return HLT::BAD_ALGO_CONFIG;
     } 
     else
-      msg() << MSG::INFO << "Retrieved tool " << m_ambiTool << endreq;
+      msg() << MSG::INFO << "Retrieved tool " << m_ambiTool << endmsg;
   }
 
 
@@ -98,10 +98,10 @@ HLT::ErrorCode InDetTrigAmbiguitySolver::hltExecute(const HLT::TriggerElement*, 
 
   if(outputLevel <= MSG::DEBUG)
     msg() << MSG::DEBUG << "InDetTrigAmbiguitySolver::execHLTAlgorithm()" 
-	<< endreq;
+	<< endmsg;
 
   if (m_doTimeOutChecks && Athena::Timeout::instance().reached() ) {
-    msg() << MSG::WARNING << "Timeout reached. Aborting sequence." << endreq;
+    msg() << MSG::WARNING << "Timeout reached. Aborting sequence." << endmsg;
     return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::TIMEOUT);
   }
 
@@ -111,22 +111,22 @@ HLT::ErrorCode InDetTrigAmbiguitySolver::hltExecute(const HLT::TriggerElement*, 
   //----------------------------------------------------------------------
   m_oldTracks  = 0;
   if ( HLT::OK != getFeature(outputTE, m_oldTracks, m_inputTracksLabel) ) {
-    msg() << MSG::ERROR << " Input track collection could not be found " << endreq;
+    msg() << MSG::ERROR << " Input track collection could not be found " << endmsg;
     
     return HLT::NAV_ERROR;
   }
 
   if(!m_oldTracks){
     if(outputLevel <= MSG::DEBUG)
-      msg() << MSG::DEBUG << " Input track collection was not attached. Algorithm not executed!" << endreq;
+      msg() << MSG::DEBUG << " Input track collection was not attached. Algorithm not executed!" << endmsg;
     
     return HLT::OK; 
   } else {
     if(outputLevel <= MSG::VERBOSE)
-      msg() << MSG::VERBOSE << " Input track collection has size " << m_oldTracks->size() << endreq;
+      msg() << MSG::VERBOSE << " Input track collection has size " << m_oldTracks->size() << endmsg;
     if ( m_oldTracks->size() == 0 ) {
       if(outputLevel <= MSG::DEBUG)
-	msg() << MSG::DEBUG << " Input track collection has 0 size. Algorithm not executed!" << endreq;
+	msg() << MSG::DEBUG << " Input track collection has 0 size. Algorithm not executed!" << endmsg;
       return HLT::OK; 
     }
 
@@ -138,7 +138,7 @@ HLT::ErrorCode InDetTrigAmbiguitySolver::hltExecute(const HLT::TriggerElement*, 
   if (m_resolveTracks){
     // okay, and let's call the ambiguity processor, just for a laugh.
     if(outputLevel <= MSG::DEBUG) 
-      msg() << MSG::DEBUG << "REGTEST: InDetAmbiguitySolver::resolveTracks() resolving " << m_oldTracks->size()<<"  tracks"<<endreq;
+      msg() << MSG::DEBUG << "REGTEST: InDetAmbiguitySolver::resolveTracks() resolving " << m_oldTracks->size()<<"  tracks"<<endmsg;
 
     m_trackInCount = m_oldTracks->size();
     m_tracks = m_ambiTool->process( m_oldTracks );
@@ -178,7 +178,7 @@ HLT::ErrorCode InDetTrigAmbiguitySolver::hltExecute(const HLT::TriggerElement*, 
   //
   //  Attach resolved tracks to the trigger element. 
   if ( HLT::OK !=  attachFeature(outputTE, m_tracks, m_outputTracksLabel) ) {
-    msg() << MSG::ERROR << "Could not attache feature to the TE" << endreq;
+    msg() << MSG::ERROR << "Could not attache feature to the TE" << endmsg;
     
     return HLT::NAV_ERROR;
   }
@@ -187,13 +187,13 @@ HLT::ErrorCode InDetTrigAmbiguitySolver::hltExecute(const HLT::TriggerElement*, 
 
   if(outputLevel <= MSG::DEBUG){ 
     msg() << MSG::DEBUG << "REGTEST: Stored " << m_tracks->size() 
-	<< " tracks in SG." << endreq;
-    msg() << MSG::DEBUG << "Track collection " << m_outputTracksLabel << endreq; 
+	<< " tracks in SG." << endmsg;
+    msg() << MSG::DEBUG << "Track collection " << m_outputTracksLabel << endmsg; 
   }
 
   if (msgLvl() <= MSG::VERBOSE){
       for (size_t i=0; i<m_tracks->size() ; i++){
-      msg() << MSG::VERBOSE << *(m_tracks->at(i)) << endreq;
+      msg() << MSG::VERBOSE << *(m_tracks->at(i)) << endmsg;
     }
   }
 
@@ -206,7 +206,7 @@ HLT::ErrorCode InDetTrigAmbiguitySolver::hltExecute(const HLT::TriggerElement*, 
 HLT::ErrorCode InDetTrigAmbiguitySolver::hltFinalize() {
 
   msg() << MSG::INFO << "REGTEST: Finalizing with "<< m_TotalTrackInCount
-	<< " tracks processed and " <<  m_TotalTrackOutCount << " saved. Invoked " << m_ntimesInvoked << " times." << endreq;
+	<< " tracks processed and " <<  m_TotalTrackOutCount << " saved. Invoked " << m_ntimesInvoked << " times." << endmsg;
 
   return HLT::OK;
 }

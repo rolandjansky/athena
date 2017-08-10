@@ -24,8 +24,8 @@ class PtEndcapLUTSvc : public AthService, virtual public IInterface
 
   public:
     static const InterfaceID& interfaceID() { 
-      static const InterfaceID _IID(11497, 0 , 0);
-      return _IID;
+      static const InterfaceID IID(11497, 0 , 0);
+      return IID;
     }
 
   public:

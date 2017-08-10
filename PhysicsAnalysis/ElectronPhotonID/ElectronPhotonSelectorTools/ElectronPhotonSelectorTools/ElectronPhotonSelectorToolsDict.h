@@ -24,5 +24,6 @@
 #include "ElectronPhotonSelectorTools/AsgForwardElectronIsEMSelector.h"
 #include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
 #include "ElectronPhotonSelectorTools/EGammaAmbiguityTool.h"
+#include "ElectronPhotonSelectorTools/AsgElectronChargeIDSelectorTool.h"
 
 #endif

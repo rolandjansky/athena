@@ -8,6 +8,9 @@
 #ifndef XAODTRIGL1CALO_CMXETSUMS_H
 #define XAODTRIGL1CALO_CMXETSUMS_H
 
+// System include(s):
+#include <map>
+
 // Local include(s):
 #include "xAODTrigL1Calo/versions/CMXEtSums_v1.h"
 

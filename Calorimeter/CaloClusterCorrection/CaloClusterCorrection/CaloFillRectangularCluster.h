@@ -76,10 +76,6 @@ public:
    */
   virtual StatusCode initialize() override;
 
-  /** Callback added to handle Data-driven GeoModel initialization
-   */
-  virtual StatusCode geoInit(IOVSVC_CALLBACK_ARGS);
-  
   /**
    * @brief CaloClusterCorrection virtual method
    * @param ctx     The event context.
@@ -128,8 +124,8 @@ private:
    * @brief Actually make the correction for one region (barrel or endcap).
    * @param ctx     The event context.
    * @param helper Sampling calculation helper object.
-   * @param eta The @f$\eta$@f seed of the cluster.
-   * @param phi The @f$\phi$@f seed of the cluster.
+   * @param eta The @f$\eta@f$ seed of the cluster.
+   * @param phi The @f$\phi@f$ seed of the cluster.
    * @param samplings List of samplings for this region.
    */
   void makeCorrection1 (const EventContext& ctx,

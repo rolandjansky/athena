@@ -26,6 +26,8 @@
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 
+#include "MuonPrepRawData/RpcPrepDataContainer.h"
+
 #include <vector>
 #include <set>
 #include <string>
@@ -253,7 +255,7 @@ class MdtDriftCircleOnTrack;
 	- a list of MdtDriftCircleOnTrack
 	- a list of MuonClusterOnTrack
 	- a boolean to indicate whether the external prediction should be used to set the 
-	  $\phi$-direction of the segment
+	  @f$ \phi @f$-direction of the segment
         - an estimate of the momentum of the particle
 	
 	The global direction is used to perform a seeded search for segments. 
@@ -429,6 +431,11 @@ class MdtDriftCircleOnTrack;
     mutable Amg::Transform3D m_amdbToGlobal; //<! station to global transform
     mutable std::vector<const Trk::MeasurementBase*> m_measurementsToBeDeleted;
     mutable unsigned int m_nmultipleHitWarnings;
+
+    SG::ReadHandleKey <Muon::RpcPrepDataContainer> m_rpcKey;
+    SG::ReadHandleKey <Muon::TgcPrepDataContainer> m_tgcKey;
+    SG::ReadHandleKey <Muon::MdtPrepDataContainer> m_mdtKey;
+
   };
   
 }

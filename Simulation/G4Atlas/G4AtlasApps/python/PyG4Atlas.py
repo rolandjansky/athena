@@ -141,7 +141,7 @@ class G4AtlasEngine:
         if "init_G4" not in self._InitList:
             G4AtlasEngine.log.debug(' G4AtlasEngine: _init_G4: init Geant4 ')
             if G4AtlasEngine.log.level <= 30:
-                from SimFlags import simFlags
+                from G4AtlasApps.SimFlags import simFlags
                 simFlags.G4Commands += ['/run/verbose 2'] # FIXME make configurable based on Athena message level?
             G4AtlasEngine._ctrl.initializeG4(is_hive)
             self._InitList.append('init_G4')
@@ -589,7 +589,7 @@ class SimSkeleton(object):
         ## only changing it in Hive.
         as_alg = is_hive
         ## NB. Two-arg constructor is needed, since otherwise metadata writing fails!
-        stream1 = AthenaPoolOutputStream("StreamHITS", athenaCommonFlags.PoolHitsOutput(), asAlg=as_alg)
+        stream1 = AthenaPoolOutputStream("StreamHITS", athenaCommonFlags.PoolHitsOutput(), asAlg=as_alg, noTag=True)
 
         ## Write geometry tag info - move to main method
         #import EventInfoMgt.EventInfoMgtInit

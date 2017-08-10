@@ -1,0 +1,11 @@
+//Joboptions to minimize printout when running genCLIDDB
+//based on example in POOLRootAccess/basic.opts
+//Author: Will Buttinger
+
+#pragma print off //do not print
+ApplicationMgr.OutputLevel = 0; //NIL ... so ApplicationMgr is silent
+ApplicationMgr.EventLoop = "MinimalEventLoopMgr"; //for minimal service creation
+
+//Quieten the ClassIDSvc too
+MessageSvc.setWarning = {"ClassIDSvc"};
+

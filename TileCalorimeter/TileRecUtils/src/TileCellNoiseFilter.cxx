@@ -4,7 +4,6 @@
 
 // Atlas includes
 #include "AthenaKernel/errorcheck.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
 
@@ -69,30 +68,6 @@ TileCellNoiseFilter::TileCellNoiseFilter(const std::string& type,
 StatusCode TileCellNoiseFilter::initialize() {
   ATH_MSG_INFO("Initializing...");
 
-  const IGeoModelSvc *geoModel = 0;
-  CHECK( service("GeoModelSvc", geoModel));
-
-  // dummy parameters for the callback:
-  int dummyInt = 0;
-  std::list<std::string> dummyList;
-
-  if (geoModel->geoInitialized()) {
-    return geoInit(dummyInt, dummyList);
-  } else {
-    CHECK( detStore()->regFcn(&IGeoModelSvc::geoInit
-          , geoModel, &TileCellNoiseFilter::geoInit, this));
-
-    ATH_MSG_INFO( "geoInit callback registered");
-  }
-
-  return StatusCode::SUCCESS;
-}
-
-// ============================================================================
-// delayed initialize
-StatusCode TileCellNoiseFilter::geoInit(IOVSVC_CALLBACK_ARGS) {
-  ATH_MSG_INFO("Entering GeoInit");
-
   CHECK( detStore()->retrieve(m_tileID));
   CHECK( detStore()->retrieve(m_tileHWID));
 
@@ -110,8 +85,6 @@ StatusCode TileCellNoiseFilter::geoInit(IOVSVC_CALLBACK_ARGS) {
     //=== CaloNoiseTool
     CHECK( m_noiseTool.retrieve());
   }
-
-  ATH_MSG_INFO("geoInit() end");
 
   return StatusCode::SUCCESS;
 }

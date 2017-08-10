@@ -1,9 +1,8 @@
-// Dear emacs, this is -*- c++ -*-
-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+// Dear emacs, this is -*- c++ -*-
 #ifndef TAUANALYSISTOOLS_TAUSELECTIONTOOL_H
 #define TAUANALYSISTOOLS_TAUSELECTIONTOOL_H
 
@@ -122,6 +121,8 @@ public:
 
 private:
 
+  // Execute at each new input file
+  virtual StatusCode beginInputFile();
   // Execute at each event
   virtual StatusCode beginEvent();
 
@@ -162,6 +163,9 @@ private:
   bool m_bMuonVeto;
   // do muon OLR
   bool m_bMuonOLR;
+  // ignore AODFix check and re-calculate electron OLR 
+  bool m_bIgnoreAODFixCheck;
+  bool m_bRecalcEleOLR;
 
   float m_dPtMin;
   float m_dPtMax;

@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 #ifndef MUON_MUONPATTERNCALIBRATION_H
 #define MUON_MUONPATTERNCALIBRATION_H
 
@@ -141,8 +137,6 @@ namespace Muon {
     ToolHandle<MuonIdHelperTool>              m_idHelperTool;    //<! tool to interpret and print Identifiers
     StoreGateSvc*       m_storeGate;                //!< Pointer to store gate
 
-    std::string m_keyRpc;
-    std::string m_keyTgc;
   
     const MuonGM::MuonDetectorManager*  m_detMgr;
 
@@ -163,6 +157,8 @@ namespace Muon {
     bool m_recoverTriggerHits;
     bool m_removeDoubleMdtHits;
 
+    SG::ReadHandleKey <Muon::RpcPrepDataContainer> m_keyRpc;
+    SG::ReadHandleKey <Muon::TgcPrepDataContainer> m_keyTgc;
     mutable const Muon::RpcPrepDataContainer* m_rpcPrdContainer;
     mutable const Muon::TgcPrepDataContainer* m_tgcPrdContainer;
 

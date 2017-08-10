@@ -43,7 +43,7 @@ public:
   // Access volume builder:
   VolumeBuilder*        GetVolumeBuilder(std::string);
 
-  HepGeom::Transform3D& GetDetectorTransform() {return motherTransform;}
+  HepGeom::Transform3D& GetDetectorTransform() {return m_motherTransform;}
   /// Log a message using the Athena controlled logging system
   MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
   /// Check whether the logging system is active at the provided verbosity level
@@ -53,9 +53,9 @@ private:
 
   // GeoVDetectorManager* theDetectorElement;
   std::string m_detectorName;
-  HepGeom::Transform3D motherTransform;
+  HepGeom::Transform3D m_motherTransform;
   std::vector<PVConstLink> m_treeTops;
-  VolumeBuilder *theBuilder;
+  VolumeBuilder *m_theBuilder;
 
   // std::Air in the case when top boolean envelope has to be built
   GeoMaterial* m_matAir;

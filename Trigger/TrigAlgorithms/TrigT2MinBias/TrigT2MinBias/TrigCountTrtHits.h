@@ -45,10 +45,6 @@ class TrigCountTrtHits: public HLT::AllTEAlgo {
 
   HLT::ErrorCode checkDetectorMask();
   Bool_t m_hltExecuteInitialisationRun; //!< Flag to run extra initialisation on the first event when xAOD::EventInfo is present
-
-  /** A data member to retain a connection to the MsgStream
-      service. */
-  MsgStream m_log;
   
   /** A data member to retain a connection to the Detector Store. */
   ServiceHandle<StoreGateSvc> m_detStore;

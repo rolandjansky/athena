@@ -71,11 +71,11 @@ StatusCode TileCondToolOfcCool::finalize() {
 
 //
 //____________________________________________________________________
-const TileOfcWeightsStruct* TileCondToolOfcCool::getOfcWeights(unsigned int drawerIdx
-                                                               , unsigned int /* channel */
-                                                               , unsigned int adc
-                                                               , float& phase
-                                                               , bool /* of2 */) {
+const TileOfcWeightsStruct* TileCondToolOfcCool::getOfcWeights(unsigned int drawerIdx, 
+                                                               unsigned int channel, 
+                                                               unsigned int adc,
+                                                               float& phase, 
+                                                               bool /* of2 */) {
 
   if (drawerIdx >= TileCalibUtils::MAX_DRAWERIDX) {
     throw TileCalib::IndexOutOfRange("TileCondToolOfcCool::getOfcWeights", drawerIdx, TileCalibUtils::MAX_DRAWERIDX);
@@ -93,8 +93,8 @@ const TileOfcWeightsStruct* TileCondToolOfcCool::getOfcWeights(unsigned int draw
 
   }
 
-  m_pryOfcCool->getCalibDrawer(drawerIdx)->fillOfc(0, adc, phase, m_weights->w_a, m_weights->w_b
-                                                   , m_weights->w_c, m_weights->g, m_weights->dg);
+  m_pryOfcCool->getCalibDrawer(drawerIdx)->fillOfc(channel, adc, phase, m_weights->w_a, m_weights->w_b, 
+                                                   m_weights->w_c, m_weights->g, m_weights->dg);
 
   m_weights->n_samples = m_NSamples;
 
@@ -103,11 +103,11 @@ const TileOfcWeightsStruct* TileCondToolOfcCool::getOfcWeights(unsigned int draw
 
 //
 //____________________________________________________________________
-int TileCondToolOfcCool::getOfcWeights(unsigned int drawerIdx
-                                       , unsigned int /* channel */
-                                       , unsigned int adc
-                                       , float& phase
-                                       , float *a, float *b, float *c, float *g, float *dg) {
+int TileCondToolOfcCool::getOfcWeights(unsigned int drawerIdx,
+                                       unsigned int channel,
+                                       unsigned int adc,
+                                       float& phase, 
+                                       float *a, float *b, float *c, float *g, float *dg) {
 
   if (drawerIdx >= TileCalibUtils::MAX_DRAWERIDX) {
     throw TileCalib::IndexOutOfRange("TileCondToolOfcCool::getOfcWeights", drawerIdx, TileCalibUtils::MAX_DRAWERIDX);
@@ -125,7 +125,7 @@ int TileCondToolOfcCool::getOfcWeights(unsigned int drawerIdx
 
   }
 
-  m_pryOfcCool->getCalibDrawer(drawerIdx)->fillOfc(0, adc, phase, a, b, c, g, dg);
+  m_pryOfcCool->getCalibDrawer(drawerIdx)->fillOfc(channel, adc, phase, a, b, c, g, dg);
 
   return m_NSamples;
 }

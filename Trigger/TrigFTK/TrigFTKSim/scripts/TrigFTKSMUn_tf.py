@@ -79,7 +79,7 @@ def addFTKSimulationArgs(parser):
     parser.add_argument('--bankregion', type=trfArgClasses.argFactory(trfArgClasses.argIntList, runarg=True),
                             help='Bank region number', group='TrigFTKSim', nargs='+')
     parser.add_argument('--sectorpath', type=trfArgClasses.argFactory(trfArgClasses.argList, runarg=True),
-                            help='sectors path file for all the subregions', group='TrigFTKSim', nargs='+')
+                           help='sectors path file for all the subregions', group='TrigFTKSim', nargs='+')
 
     # Add named parameters for each subregion
     for subregion in range(subregions):

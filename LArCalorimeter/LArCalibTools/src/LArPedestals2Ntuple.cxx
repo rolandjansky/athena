@@ -24,7 +24,7 @@ StatusCode LArPedestals2Ntuple::stop() {
   sc=m_detStore->retrieve(larPedestal,m_contKey);
   if (sc!=StatusCode::SUCCESS) {
     (*m_log)  << MSG::ERROR << "Unable to retrieve ILArPedestal with key " 
-	      << m_contKey << " from DetectorStore" << endreq;
+	      << m_contKey << " from DetectorStore" << endmsg;
     return StatusCode::FAILURE;
     } 
 
@@ -35,26 +35,26 @@ StatusCode LArPedestals2Ntuple::stop() {
 
   sc=m_nt->addItem("icell",cellIndex,0,200000);
   if (sc!=StatusCode::SUCCESS)
-    {(*m_log)  << MSG::ERROR << "addItem 'Cell Index' failed" << endreq;
+    {(*m_log)  << MSG::ERROR << "addItem 'Cell Index' failed" << endmsg;
     return StatusCode::FAILURE;
    }
 
   sc=m_nt->addItem("gain",gain,0,3);
   if (sc!=StatusCode::SUCCESS)
-    {(*m_log) << MSG::ERROR << "addItem 'gain' failed" << endreq;
+    {(*m_log) << MSG::ERROR << "addItem 'gain' failed" << endmsg;
     return StatusCode::FAILURE;
    }
 
 
   sc=m_nt->addItem("ped",ped,-1000.,5000.);
   if (sc!=StatusCode::SUCCESS)
-    {(*m_log)  << MSG::ERROR << "addItem 'ped' failed" << endreq;
+    {(*m_log)  << MSG::ERROR << "addItem 'ped' failed" << endmsg;
     return StatusCode::FAILURE;
     }
 
   sc=m_nt->addItem("rms",rms,0.,1e12);
   if (sc!=StatusCode::SUCCESS)
-    {(*m_log)  << MSG::ERROR << "addItem 'rms' failed" << endreq;
+    {(*m_log)  << MSG::ERROR << "addItem 'rms' failed" << endmsg;
     return StatusCode::FAILURE;
     }
 
@@ -75,7 +75,7 @@ StatusCode LArPedestals2Ntuple::stop() {
 
        sc=ntupleSvc()->writeRecord(m_nt);
        if (sc!=StatusCode::SUCCESS) {
-	 (*m_log)  << MSG::ERROR << "writeRecord failed" << endreq;
+	 (*m_log)  << MSG::ERROR << "writeRecord failed" << endmsg;
 	 return StatusCode::FAILURE;
        }
      }// end if Pedestal exists for this channel
@@ -83,7 +83,7 @@ StatusCode LArPedestals2Ntuple::stop() {
    }//end loop over gains
  }//end loop over online ID
 
- (*m_log)  << MSG::INFO << "LArPedestals2Ntuple has finished." << endreq;
+ (*m_log)  << MSG::INFO << "LArPedestals2Ntuple has finished." << endmsg;
  return StatusCode::SUCCESS;
 }// end finalize-method.
    

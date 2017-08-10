@@ -50,16 +50,16 @@ StatusCode BCM_RawDataProviderTool::initialize()
 {
    StatusCode sc = AthAlgTool::initialize(); 
    if (sc.isFailure()) {
-     if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Failed to init baseclass" << endreq;
+     if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Failed to init baseclass" << endmsg;
      return StatusCode::FAILURE;
    }
 
    // Retrieve decoder
    if (m_decoder.retrieve().isFailure()) {
-     if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Failed to retrieve tool " << m_decoder << endreq;
+     if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Failed to retrieve tool " << m_decoder << endmsg;
      return StatusCode::FAILURE;
    } else {
-     if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Retrieved tool " << m_decoder << endreq;
+     if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Retrieved tool " << m_decoder << endmsg;
    }
 
    return StatusCode::SUCCESS;
@@ -87,7 +87,7 @@ StatusCode BCM_RawDataProviderTool::convert( std::vector<const ROBFragment*>& ve
   // are we working on a new event ?
   if ( (*rob_it)->rod_lvl1_id() != LastLvl1ID) {
 #ifdef BCM_DEBUG
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "New event, reset the collection set" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "New event, reset the collection set" << endmsg;
 #endif
     // remember last Lvl1ID
     LastLvl1ID = (*rob_it)->rod_lvl1_id();
@@ -105,15 +105,15 @@ StatusCode BCM_RawDataProviderTool::convert( std::vector<const ROBFragment*>& ve
     // check if this ROBFragment was already decoded
     if (!m_robIdSet.insert(robid).second) {
 #ifdef BCM_DEBUG
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " ROB Fragment with ID " << std::hex<<robid<<std::dec << " already decoded, skip" << endreq; 
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " ROB Fragment with ID " << std::hex<<robid<<std::dec << " already decoded, skip" << endmsg; 
 #endif
     } else {
       StatusCode sc = m_decoder->fillCollection(&**rob_it, rdoCont);
       if (sc != StatusCode::SUCCESS) {
 	if (DecodeErrCount < 100) {
-          if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Problem with BCM ByteStream Decoding!" << endreq;
+          if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Problem with BCM ByteStream Decoding!" << endmsg;
 	} else if (100 == DecodeErrCount) {
-          if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Too many Problems with BCM Decoding. Turning message off." << endreq;
+          if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Too many Problems with BCM Decoding. Turning message off." << endmsg;
         }
         DecodeErrCount++;
       }

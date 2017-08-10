@@ -26,7 +26,7 @@ atlas_add_library( TauTagToolsLib
                    PUBLIC_HEADERS TauTagTools
                    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES AthenaBaseComps AthenaPoolUtilities GaudiKernel TagEvent StoreGateLib SGtests AnalysisUtilsLib
+                   LINK_LIBRARIES AthenaBaseComps AthenaPoolUtilities GaudiKernel TagEvent StoreGateLib SGtests AnalysisUtilsLib TauAnalysisToolsLib
                    PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} xAODTau )
 
 atlas_add_component( TauTagTools

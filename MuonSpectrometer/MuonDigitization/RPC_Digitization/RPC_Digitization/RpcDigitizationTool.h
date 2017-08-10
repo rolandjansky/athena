@@ -125,7 +125,6 @@ private:
   TimedHitCollection<RPCSimHit>* m_thpcRPC;
   ServiceHandle<IRPCConditionsSvc> m_rSummarySvc;
   std::map<Identifier,std::vector<MuonSimData::Deposit> > m_sdo_tmp_map;
-  bool                        m_ctb2004;
   int                         m_deadTime;
   bool                        m_patch_for_rpc_time;
   double                      m_rpc_time_shift    ;

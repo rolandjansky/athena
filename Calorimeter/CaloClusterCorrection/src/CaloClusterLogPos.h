@@ -65,10 +65,6 @@ class CaloClusterLogPos : public CaloClusterProcessor
 		    const std::string& name,
 		    const IInterface* parent);
 
-  /** Callback added to handle Data-driven GeoModel initialization
-   */
-  virtual StatusCode geoInit(IOVSVC_CALLBACK_ARGS);
-
  private:
   // property: offset for the logarithmic weighting
   double m_offset;

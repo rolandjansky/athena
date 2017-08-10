@@ -48,7 +48,7 @@ namespace InDet
   StatusCode  InDetCosmicTrackSelectorTool::initialize()
   {
     if(AthAlgTool::initialize().isFailure()) {
-      msg(MSG::ERROR)<<" Unable to initialize the AlgTool"<<endreq;
+      msg(MSG::ERROR)<<" Unable to initialize the AlgTool"<<endmsg;
       return StatusCode::FAILURE;
     }
 
@@ -56,7 +56,7 @@ namespace InDet
      if (!m_trackSumTool.empty()) {
        if(m_trackSumTool.retrieve().isFailure())
        {
-         msg(MSG::ERROR)<<" Unable to retrieve "<<m_trackSumTool<<endreq;
+         msg(MSG::ERROR)<<" Unable to retrieve "<<m_trackSumTool<<endmsg;
          return StatusCode::FAILURE;
        }
        ATH_MSG_INFO("Track summary tool retrieved");
@@ -64,7 +64,7 @@ namespace InDet
      }
 
      if (m_magFieldSvc.retrieve().isFailure()) {
-       msg(MSG::FATAL) << "Failed to retrieve tool " << m_magFieldSvc << endreq;
+       msg(MSG::FATAL) << "Failed to retrieve tool " << m_magFieldSvc << endmsg;
        return StatusCode::FAILURE;
      }
      ATH_MSG_INFO("Retrieved tool "<<m_magFieldSvc);

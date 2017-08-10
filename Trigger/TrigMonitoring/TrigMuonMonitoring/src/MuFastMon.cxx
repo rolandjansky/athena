@@ -52,13 +52,13 @@ StatusCode HLTMuonMonTool::bookMuFastDQA()
 {
 
   //histograms in each 10LBs 
-  if( newRun || newLowStat){
+  if( newRunFlag() || newLowStatFlag() ){
 
     addHistogram( new TH2F("muFast_eta_vs_phi_in_10LBs",           "muFast eta vs phi in 10LBs; #eta ; #phi",           27, -2.7, 2.7, 16, -CLHEP::pi, CLHEP::pi), m_histdircoverage );
 
   }
 
-  if( newRun ){
+  if( newRunFlag() ){
 
     // basic EDM variables
     addHistogram( new TH1F("muFast_pt_all",        "muFast pt (GeV/c); p_{T} [GeV/c]; Entries",           210, -105., 105.), m_histdirmufast );
@@ -204,8 +204,8 @@ StatusCode HLTMuonMonTool::bookMuFastDQA()
     addHistogram( new TH1F("muFast_effi_toRecMuonCB_phi_denom",     "muFast effi phi denom; #phi; Entries", 32, -CLHEP::pi, CLHEP::pi), m_histdirmufast );
 
 
-  }else if( newLumiBlock ){
   }
+  //else if( newLumiBlockFlag() ){   }
 
   return StatusCode::SUCCESS;
 }
@@ -236,7 +236,7 @@ StatusCode HLTMuonMonTool::fillMuFastDQA()
 
   const DataHandle<xAOD::L2StandAloneMuonContainer> mfContainer;
   const DataHandle<xAOD::L2StandAloneMuonContainer> lastmfContainer;
-  StatusCode sc_mf = m_storeGate->retrieve(mfContainer,lastmfContainer);
+  StatusCode sc_mf = evtStore()->retrieve(mfContainer,lastmfContainer);
   if ( sc_mf.isFailure() ) {
     ATH_MSG_VERBOSE( "Failed to retrieve HLT muFast container" );
     return StatusCode::SUCCESS;    
@@ -840,7 +840,7 @@ StatusCode HLTMuonMonTool::fillMuFastDQA()
 
 StatusCode HLTMuonMonTool::procMuFastDQA()
 {
-  if( endOfRun ){
+  if( endOfRunFlag() ){
 
     // efficiency histograms
     hist("muFast_effi_toRecMuonCB_pt", m_histdireff)->Sumw2();
@@ -858,7 +858,7 @@ StatusCode HLTMuonMonTool::procMuFastDQA()
     hist("muFast_effi_toRecMuonCB_phi", m_histdireff)->Sumw2();
     hist("muFast_effi_toRecMuonCB_phi", m_histdireff)->Divide( hist("muFast_effi_toRecMuonCB_phi_numer", m_histdirmufast), hist("muFast_effi_toRecMuonCB_phi_denom", m_histdirmufast), 1, 1, "B" );
 
-  }else if( endOfLumiBlock ){
   }
+  //else if( endOfLumiBlockFlag() ){  }
   return StatusCode::SUCCESS;
 }

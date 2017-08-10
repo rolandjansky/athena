@@ -16,12 +16,12 @@ GeoVolumeCursor::GeoVolumeCursor (PVConstLink parent)
   m_majorIndex(0),
   m_minorIndex(0),
   m_minorLimit(0),
-  m_serialTransformer(NULL),
-  m_nameTag (NULL),
-  m_serialDenominator (NULL),
-  m_idTag(NULL),
+  m_serialTransformer(nullptr),
+  m_nameTag (nullptr),
+  m_serialDenominator (nullptr),
+  m_idTag(nullptr),
   m_serialDenomPosition (0),
-  m_serialIdentifier(NULL),
+  m_serialIdentifier(nullptr),
   m_serialIdentPosition(0),
   m_volCount(0),
   m_hasAlignTrans(false)
@@ -50,13 +50,13 @@ void GeoVolumeCursor::next() {
   }
   else {           // We are not doing a serial transformer
     
-    m_idTag             = NULL;
-    m_nameTag           = NULL;
-    m_serialTransformer = NULL;
+    m_idTag             = nullptr;
+    m_nameTag           = nullptr;
+    m_serialTransformer = nullptr;
     m_pendingTransformList.erase (m_pendingTransformList.begin (),
 				 m_pendingTransformList.end ());
     m_hasAlignTrans = false;
-    m_volume=NULL;
+    m_volume=nullptr;
     
     int N = m_parent->getNChildNodes();
     if(N==0) return;
@@ -168,7 +168,7 @@ void GeoVolumeCursor::handleSerialTransformer (const GeoSerialTransformer  *sT)
 void GeoVolumeCursor::handleNameTag (const GeoNameTag *nameTag)
 {
   m_nameTag = nameTag;
-  m_serialDenominator = NULL;
+  m_serialDenominator = nullptr;
   m_serialDenomPosition = 0;
 }
 
@@ -182,7 +182,7 @@ void GeoVolumeCursor::handleSerialDenominator (const GeoSerialDenominator *sD)
 void GeoVolumeCursor::handleIdentifierTag (const GeoIdentifierTag *idTag)
 {
     m_idTag = idTag;
-    m_serialIdentifier = NULL;
+    m_serialIdentifier = nullptr;
     m_serialIdentPosition = m_volCount;
 }
 

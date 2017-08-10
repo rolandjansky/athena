@@ -12,6 +12,7 @@
 
 #include "LArG4Code/LArCalibCalculatorSvcImp.h"
 #include "LArG4Code/LArG4Identifier.h"
+#include "ILArBarrelPresamplerGeometry.h"
 
 #include "CaloG4Sim/SimulationEnergies.h"
 
@@ -30,10 +31,10 @@ class G4Step;
 
 namespace LArG4 {
 
-  // Forward declaration
-  class IPresamplerGeometryCalculator;
-
   namespace BarrelPresampler {
+
+    // Forward declaration
+    class Geometry;
 
     class CalibrationCalculator : public LArCalibCalculatorSvcImp {
     public:
@@ -59,13 +60,10 @@ namespace LArG4 {
 
     private:
       // Geometry calculator
-      ServiceHandle<IPresamplerGeometryCalculator> m_geometryCalculator;
+      ServiceHandle<ILArBarrelPresamplerGeometry> m_geometryCalculator;
 
       // Energy calculator
       CaloG4::SimulationEnergies m_energyCalculator;
-
-      // detector name, for translated geometry
-      std::string m_detectorName;
 
     };
 

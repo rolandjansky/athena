@@ -196,7 +196,7 @@ to do this:
   // get DetStatusSvc interface
   const IDetStatusSvc* p_detstatussvc;
   if (StatusCode::SUCCESS!=service("DetStatusSvc",p_detstatussvc)) {
-    m_log << MSG::ERROR << "Cannot get DetStatusSvc" << endreq;
+    m_log << MSG::ERROR << "Cannot get DetStatusSvc" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -206,16 +206,16 @@ to do this:
   // test a particular one - SCTB
   const DetStatus* ptr=p_detstatussvc->findStatus("SCTB");
   if (ptr!=0) {
-    m_log << MSG::INFO << "SCTB status found to be " << ptr->colour() << endreq;
+    m_log << MSG::INFO << "SCTB status found to be " << ptr->colour() << endmsg;
   } else {
-    m_log << MSG::ERROR << "Could not find status of SCTB" << endreq;
+    m_log << MSG::ERROR << "Could not find status of SCTB" << endmsg;
   }
   // loop over all status words, print those which are bad
   DetStatusMap::const_iterator begin,end;
   p_detstatussvc->getIter(begin,end);
   for (DetStatusMap::const_iterator itr=begin;itr!=end;++itr) {
     if (itr->second.code()<3) m_log << MSG::WARNING << "Status of " <<
-      itr->first << " is bad: fullcode " << itr->second.fullCode() << endreq;
+      itr->first << " is bad: fullcode " << itr->second.fullCode() << endmsg;
   }
 </pre>
 

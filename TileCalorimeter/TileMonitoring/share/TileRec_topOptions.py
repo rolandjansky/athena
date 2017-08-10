@@ -19,7 +19,7 @@ def FindFile(path, runinput):
     fullname = []
 
     if path.startswith('/castor') :
-        for f in popen('ls %(path)s | grep %(run)s' % {'path': path, 'run':run }):
+        for f in popen('nsls %(path)s | grep %(run)s' % {'path': path, 'run':run }):
             files.append(f)
 
     elif path.startswith('/eos') :
@@ -27,7 +27,7 @@ def FindFile(path, runinput):
             files.append(f)
 
     else:
-        for f in popen('nsls  %(path)s | grep %(run)s' % {'path': path, 'run':run }):
+        for f in popen('ls  %(path)s | grep %(run)s' % {'path': path, 'run':run }):
             files.append(f)
             
 
@@ -248,19 +248,22 @@ if doTileCells:
    
    # enable interpolation for dead cells
     doCaloNeighborsCorr = False
-    include('TileRec/TileCellMaker_jobOptions.py')
+    if TileBiGainRun:
+        include( "TileRec/TileCellMaker_jobOptions_doublegain.py" )
+    else:
+        include('TileRec/TileCellMaker_jobOptions.py')
 
-   #----------------
-   # create towers from TileCells
-   #----------------
+    #----------------
+    # create towers from TileCells
+    #----------------
     if doTowers:
-       include('TileMonitoring/TileMonTower_jobOptions.py')
-       # CmbTowerBldr +=  TileCmbTwrBldr
-       # CmbTowerBldr.TowerBuilderTools = [ TileCmbTwrBldr ]
+        include('TileMonitoring/TileMonTower_jobOptions.py')
+        # CmbTowerBldr +=  TileCmbTwrBldr
+        # CmbTowerBldr.TowerBuilderTools = [ TileCmbTwrBldr ]
 
-   #----------------
-   # create clusters from TileCells
-   #----------------
+    #----------------
+    # create clusters from TileCells
+    #----------------
     if doClusters:
         # include( 'CaloRec/CaloTopoCluster_jobOptions.py' )
         include('TileMonitoring/TileMonTopoCluster_jobOptions.py')      

@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: HLT Steering
  * @Package: TrigSteering
- * @Class  : Lvl2ConverterFromPersistency
+ * @class  : Lvl2ConverterFromPersistency
  *
  * @brief
  *

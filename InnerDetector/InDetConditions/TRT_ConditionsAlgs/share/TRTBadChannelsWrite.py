@@ -40,7 +40,6 @@ include ( "IOVDbTools/IOVDbTools_jobOptions.py" )
 #include ( "DetDescrCondAthenaPool/DetDescrCondAthenaPool_joboptions.py" )
 
 #uncomment below
-include ("RDBAccessSvc/RDBAccessSvcDevdb_jobOptions.py")
 include( "NovaCnvSvc/NovaCnvSvc_jobOptions.py" )
 include( "NovaConverters/NovaConverters_jobOptions.py" )
 theApp.Dlls += [ "GeoModelSvc" ]

@@ -40,21 +40,21 @@ PpmCoolOrBuiltinMappingTool::~PpmCoolOrBuiltinMappingTool()
 StatusCode PpmCoolOrBuiltinMappingTool::initialize()
 {
   msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << PACKAGE_VERSION << endreq;
+                 << PACKAGE_VERSION << endmsg;
 
   // Retrieve the COOL mapping tool
   StatusCode sc = m_coolTool.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to retrieve tool " << m_coolTool << endreq;
+    msg(MSG::ERROR) << "Failed to retrieve tool " << m_coolTool << endmsg;
     return sc;
-  } else msg(MSG::INFO) << "Retrieved tool " << m_coolTool << endreq;
+  } else msg(MSG::INFO) << "Retrieved tool " << m_coolTool << endmsg;
 
   // Retrieve the built-in mapping tool
   sc = m_builtinTool.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to retrieve tool " << m_builtinTool << endreq;
+    msg(MSG::ERROR) << "Failed to retrieve tool " << m_builtinTool << endmsg;
     return sc;
-  } else msg(MSG::INFO) << "Retrieved tool " << m_builtinTool << endreq;
+  } else msg(MSG::INFO) << "Retrieved tool " << m_builtinTool << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -120,8 +120,8 @@ bool PpmCoolOrBuiltinMappingTool::coolWorks()
     }
     m_coolCheckDone = true;
     if (m_coolCheckResult) {
-      msg(MSG::INFO)      << "COOL mappings selected"     << endreq;
-    } else msg(MSG::INFO) << "Built-in mappings selected" << endreq;
+      msg(MSG::INFO)      << "COOL mappings selected"     << endmsg;
+    } else msg(MSG::INFO) << "Built-in mappings selected" << endmsg;
   }
   return m_coolCheckResult;
 }

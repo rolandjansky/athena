@@ -106,7 +106,7 @@ MCTruthClassifier::egammaClusMatch(const xAOD::CaloCluster* clus,
   }
   ATH_MSG_DEBUG( "xAODTruthParticleContainer  " << m_xaodTruthParticleContainerName<<" successfully retrieved " );
 
-  const xAOD::TruthParticle* thePhoton(0);
+  const xAOD::TruthParticle* theEgamma(0);
   const xAOD::TruthParticle* theLeadingPartInCone(0);
   const xAOD::TruthParticle* theBestPartOutCone(0);
   const xAOD::TruthParticle* theBestPartdR(0);
@@ -164,19 +164,35 @@ MCTruthClassifier::egammaClusMatch(const xAOD::CaloCluster* clus,
       info->egPartClas.push_back(particleTruthClassifier(theMatchPart));
     }
 
-    // the leading photon  inside narrow eleptical cone  m_partExtrConePhi X m_partExtrConeEta 
-    if(!isFwrdEle&&iParticlePDG==22&&isNCone&&pt>LeadingPhtPT)   { thePhoton = thePart; LeadingPhtPT=pt; LeadingPhtdR=dR;}
-    // leading particle (excluding photon) inside narrow eleptic cone m_partExtrConePhi X m_partExtrConeEta 
-    if(!isFwrdEle&&iParticlePDG!=22&&isNCone&&pt>LeadingPartPT)  { theLeadingPartInCone = thePart; LeadingPartPT = pt; LeadingPartdR = dR;};
-    // the best dR matched particle outside  narrow eleptic cone m_partExtrConePhi X m_partExtrConeEta 
-    if(!isFwrdEle&&!isNCone&&dR<BestPartdR)                      { theBestPartOutCone = thePart; BestPartdR = dR; };
-    // for forward electrons
-    if(isFwrdEle&&dR<BestPartdR)                                 { theBestPartdR = thePart; BestPartdR = dR; };
-
-  } // end cycle for Gen particle 
+    //Gen particles
+    //Not forward
+    if(!isFwrdEle){
+    // the leading photon or electron  inside narrow eleptical cone m_phtClasConePhi  X m_phtClasConeEta
+    if((iParticlePDG==22|| abs(iParticlePDG)==11)
+       &&isNCone&&pt>LeadingPhtPT) { 
+      theEgamma = thePart; 
+      LeadingPhtPT=pt; 
+      LeadingPhtdR=dR;}
+    // leading particle (excluding photon and electron) inside narrow eleptic cone m_phtClasConePhi  X m_phtClasConeEta
+    if( (iParticlePDG!=22&&abs(iParticlePDG)!=11)
+       &&isNCone&&pt>LeadingPartPT){ 
+      theLeadingPartInCone = thePart; 
+      LeadingPartPT = pt; 
+      LeadingPartdR = dR;};
+    // the best dR matched particle outside  narrow eleptic cone cone m_phtClasConePhi  X m_phtClasConeEta
+    if(!isNCone&&dR<BestPartdR)   { 
+      theBestPartOutCone = thePart; 
+      BestPartdR = dR; };
+    }
+    else {
+      if(dR<BestPartdR){ 
+	theBestPartdR = thePart; 
+	BestPartdR = dR; };
+    } 
+  }// end cycle for Gen particle 
   
-  if(thePhoton!=0) {
-    theMatchPart = barcode_to_particle(xTruthParticleContainer,thePhoton->barcode()%m_barcodeShift);
+  if(theEgamma!=0) {
+    theMatchPart = barcode_to_particle(xTruthParticleContainer,theEgamma->barcode()%m_barcodeShift);
     if (info)
       info->deltaRMatch=LeadingPhtdR;
   } else if(theLeadingPartInCone!=0) {
@@ -191,11 +207,15 @@ MCTruthClassifier::egammaClusMatch(const xAOD::CaloCluster* clus,
     theMatchPart = barcode_to_particle(xTruthParticleContainer,theBestPartdR->barcode()%m_barcodeShift);
     if (info)
       info->deltaRMatch=BestPartdR;
-  } else theMatchPart = 0;
+  } else {
+    theMatchPart = 0;
+  }
+  if(isFwrdEle||theMatchPart!=0||!m_inclG4part)   {
+    return theMatchPart;
+  }
 
-  if(isFwrdEle||theMatchPart!=0||!m_inclG4part)   {return theMatchPart;}
-  // additional loop over G4 particles for unmatched egamma photons
-  // requested by Photon's group people 
+
+  // additional loop over G4 particles, 
   for(const auto thePart : tps){
     // loop over the stable particle  
     if(thePart->status()!=1) continue;
@@ -206,40 +226,50 @@ MCTruthClassifier::egammaClusMatch(const xAOD::CaloCluster* clus,
     if(abs(iParticlePDG)==12||abs(iParticlePDG)==14||abs(iParticlePDG)==16) continue;
     // exclude particles interacting into the detector volume
     if(thePart->decayVtx()!=0) continue;
-
+    
     if( std::pow((detPhi(phiClus,thePart->phi())/m_partExtrConePhi),2)+
 	std::pow((detEta(etaClus,thePart->eta())/m_partExtrConeEta),2)>1.0 ) continue;
-
+    
     double pt = thePart->pt()/GeV;
     double q  = partCharge(thePart);
     // exclude charged particles with pT<1 GeV
     if(q!=0&&pt<m_pTChargePartCut )  continue;
     if(q==0&&pt<m_pTNeutralPartCut)  continue;
-
+    
     double dR(-999.);
     bool isNCone=false;
     bool isExt = genPartToCalo(clus, thePart, false , dR, isNCone);
     if(!isExt) continue;
-
+    
     theMatchPart = barcode_to_particle(xTruthParticleContainer,thePart->barcode()%m_barcodeShift);
-
+    
     if (info) {
       info->egPartPtr.push_back(thePart);
       info->egPartdR.push_back(dR);
       info->egPartClas.push_back(particleTruthClassifier(theMatchPart));
     }
-
-    // the leading photon  inside narrow eleptical cone m_phtClasConePhi  X m_phtClasConeEta
-    if(iParticlePDG==22&&isNCone&&pt>LeadingPhtPT)   { thePhoton = thePart; LeadingPhtPT=pt; LeadingPhtdR=dR;}
-    // leading particle (excluding photon) inside narrow eleptic cone m_phtClasConePhi  X m_phtClasConeEta
-    if(iParticlePDG!=22&&isNCone&&pt>LeadingPartPT)  { theLeadingPartInCone = thePart; LeadingPartPT = pt; LeadingPartdR = dR;};
+    
+    // the leading photon or electron  inside narrow eleptical cone m_phtClasConePhi  X m_phtClasConeEta
+    if((iParticlePDG==22|| abs(iParticlePDG)==11)
+       &&isNCone&&pt>LeadingPhtPT) { 
+      theEgamma = thePart; 
+      LeadingPhtPT=pt; 
+	  LeadingPhtdR=dR;}
+    
+    // leading particle (excluding photon or electron) inside narrow eleptic cone m_phtClasConePhi  X m_phtClasConeEta
+    if((iParticlePDG!=22&&abs(iParticlePDG)!=11)
+       &&isNCone&&pt>LeadingPartPT){ 
+      theLeadingPartInCone = thePart; 
+      LeadingPartPT = pt; 
+      LeadingPartdR = dR;};
     // the best dR matched particle outside  narrow eleptic cone cone m_phtClasConePhi  X m_phtClasConeEta
-    if(!isNCone&&dR<BestPartdR)                      { theBestPartOutCone = thePart; BestPartdR = dR; };
-
+    if(!isNCone&&dR<BestPartdR)   { 
+      theBestPartOutCone = thePart; 
+      BestPartdR = dR; };
   } // end cycle for G4 particle
-
-  if( thePhoton!=0){
-    theMatchPart = barcode_to_particle(xTruthParticleContainer,thePhoton->barcode()%m_barcodeShift);
+  
+  if( theEgamma!=0){
+    theMatchPart = barcode_to_particle(xTruthParticleContainer,theEgamma->barcode()%m_barcodeShift);
     if (info)
       info->deltaRMatch=LeadingPhtdR;
   } else if( theLeadingPartInCone!=0) {
@@ -250,10 +280,13 @@ MCTruthClassifier::egammaClusMatch(const xAOD::CaloCluster* clus,
     theMatchPart = barcode_to_particle(xTruthParticleContainer,theBestPartOutCone->barcode()%m_barcodeShift);
     if (info)
       info->deltaRMatch=BestPartdR;
-  } else theMatchPart = 0;
+  } else {
+    theMatchPart = 0;
+  }
 
   ATH_MSG_DEBUG( "succeeded  egammaClusMatch ");
   return theMatchPart;
+
 }
 
 //--------------------------------------------------------------

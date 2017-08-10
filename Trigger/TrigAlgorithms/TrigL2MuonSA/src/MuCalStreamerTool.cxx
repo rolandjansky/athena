@@ -586,7 +586,7 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createRpcFragment(const LVL1::RecMuo
 
     RpcPadContainer::const_iterator itPad = rpcPadContainer->indexFind(padIdHash);  
     if( itPad==rpcPadContainer->end() ) {        
-      ATH_MSG_ERROR("Failed to retrieve PAD hash Id " << padIdHash);  
+      ATH_MSG_WARNING("Failed to retrieve PAD hash Id " << padIdHash);  
       return StatusCode::FAILURE;                         
     } 
 

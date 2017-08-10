@@ -83,7 +83,7 @@ HLT::ErrorCode TrigCheckForTracks::hltInitialize()
   //------------------------------
   if( service( "TrigTimerSvc", m_timerSvc).isFailure() ) {
     msg() << MSG::WARNING << name()
-	<< ": Unable to locate TrigTimer Service" << endreq;
+	<< ": Unable to locate TrigTimer Service" << endmsg;
   }
   if (m_timerSvc)    
     m_timers.push_back(m_timerSvc->addItem("TrigCheckForTracks.TrigCheckForTracksTot"));
@@ -111,7 +111,7 @@ HLT::ErrorCode TrigCheckForTracks::hltBeginRun()
 HLT::ErrorCode TrigCheckForTracks::hltFinalize(){
 // ----------------------------------------------------------------------
 
-  msg() << MSG::INFO << "Events accepted/rejected/errors:  "<< m_acceptedEvts <<" / "<< m_rejectedEvts << " / "<< m_errorEvts << endreq;
+  msg() << MSG::INFO << "Events accepted/rejected/errors:  "<< m_acceptedEvts <<" / "<< m_rejectedEvts << " / "<< m_errorEvts << endmsg;
   return HLT::OK;
 }
 
@@ -122,14 +122,14 @@ HLT::ErrorCode TrigCheckForTracks::hltExecute(std::vector<std::vector<HLT::Trigg
 
   if (m_executedEvent) {
     if (msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << "*** Not Executing this TrigCheckForTracks " << name() << ", already executed"  << endreq;
+      msg() << MSG::DEBUG << "*** Not Executing this TrigCheckForTracks " << name() << ", already executed"  << endmsg;
     }
 
     return HLT::OK;
   }
 
   if (msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "***  Executing this TrigCheckForTracks : " << name() << endreq;
+    msg() << MSG::DEBUG << "***  Executing this TrigCheckForTracks : " << name() << endmsg;
   }
 
 
@@ -137,7 +137,7 @@ HLT::ErrorCode TrigCheckForTracks::hltExecute(std::vector<std::vector<HLT::Trigg
 
   PartialEventBuildingInfo* pebInfo = config()->getPEBI();
   if(!pebInfo){
-    if (msgLvl() <= MSG::DEBUG) msg() << "*** Not Executing this TrigCheckForTracks " << name() << ", not a calib chain" << endreq;
+    if (msgLvl() <= MSG::DEBUG) msg() << "*** Not Executing this TrigCheckForTracks " << name() << ", not a calib chain" << endmsg;
     return HLT::OK;
   }
   //--< PEB Related Stuff
@@ -163,30 +163,30 @@ HLT::ErrorCode TrigCheckForTracks::hltExecute(std::vector<std::vector<HLT::Trigg
 
   if (evtStore()->transientContains<TrackCollection>(tracksName)) {
     if (msgLvl() <= MSG::DEBUG ) {
-      msg()  << MSG::DEBUG << "*** TrackCollection with name "<< tracksName <<" found in StoreGate (transientContains)" << endreq;
+      msg()  << MSG::DEBUG << "*** TrackCollection with name "<< tracksName <<" found in StoreGate (transientContains)" << endmsg;
     }
   }
   else {
     if (msgLvl() <= MSG::DEBUG ) {
-      msg()  << MSG::DEBUG << "*** No TrackCollection with name" << tracksName << " found in StoreGate (transientContains)" << endreq;
+      msg()  << MSG::DEBUG << "*** No TrackCollection with name" << tracksName << " found in StoreGate (transientContains)" << endmsg;
     }
     return HLT::OK;
   }
   
   StatusCode sc = evtStore()->retrieve(tracks,tracksName);
   
-  msg()  << MSG::DEBUG << "***** Status code: "<< sc << " for key: " << tracksName << endreq;
+  msg()  << MSG::DEBUG << "***** Status code: "<< sc << " for key: " << tracksName << endmsg;
 
   if (sc.isFailure()) {
     if (msgLvl() <= MSG::DEBUG ) {
-      msg()  << MSG::DEBUG << "No TrackCollection with name "<<tracksName<<" found in StoreGate" << endreq;
+      msg()  << MSG::DEBUG << "No TrackCollection with name "<<tracksName<<" found in StoreGate" << endmsg;
     }
     m_errorEvts++;
     m_rejectedEvts++;
   } else {
     if (msgLvl() <= MSG::DEBUG ) {
-      msg()  << MSG::DEBUG << "TrackCollection with name "<<tracksName<<" found in StoreGate" << endreq;
-      msg()  << MSG::DEBUG << "Retrieved "<< tracks->size() <<" reconstructed tracks from StoreGate" << endreq;
+      msg()  << MSG::DEBUG << "TrackCollection with name "<<tracksName<<" found in StoreGate" << endmsg;
+      msg()  << MSG::DEBUG << "Retrieved "<< tracks->size() <<" reconstructed tracks from StoreGate" << endmsg;
     }
     
 
@@ -225,7 +225,7 @@ HLT::ErrorCode TrigCheckForTracks::hltExecute(std::vector<std::vector<HLT::Trigg
 
 		  const Trk::Perigee *jp = (*jt)->perigeeParameters();
 		  
-		  //	      msg() << MSG::INFO << "pT " << jp->pT() << " eta " << jp->eta() << endreq;
+		  //	      msg() << MSG::INFO << "pT " << jp->pT() << " eta " << jp->eta() << endmsg;
 		  
 
 		  double dphi = fabs(ip->parameters()[Trk::phi] - jp->parameters()[Trk::phi]);
@@ -234,7 +234,7 @@ HLT::ErrorCode TrigCheckForTracks::hltExecute(std::vector<std::vector<HLT::Trigg
 		  double dR = sqrt(pow((ip->eta() - jp->eta()),2) + pow(dphi,2));
 		  m_dR.push_back(dR);
 		  
-		  //	      msg() << MSG::INFO << "DR Tracks " << dR << endreq; 
+		  //	      msg() << MSG::INFO << "DR Tracks " << dR << endmsg; 
 		  
 		  if ((fabs(jp->pT()) > m_pT_min_iso) && (dR > m_dR0_overlap) && (dR < m_dR0 ) ) {
 		    gotIsoTrack = false;	      
@@ -287,7 +287,7 @@ HLT::ErrorCode TrigCheckForTracks::hltExecute(std::vector<std::vector<HLT::Trigg
     
       m_acceptedEvts++;
       n_IsoTracks = count_IsoTracks ;  
-      msg() << MSG::DEBUG << "Found "<< n_IsoTracks <<" Isolated ("<< lookForAnyTracks  <<") Tracks" << endreq;
+      msg() << MSG::DEBUG << "Found "<< n_IsoTracks <<" Isolated ("<< lookForAnyTracks  <<") Tracks" << endmsg;
     }
     else {
       m_rejectedEvts++;

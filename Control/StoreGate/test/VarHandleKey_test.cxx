@@ -14,6 +14,7 @@
 #undef NDEBUG
 #include "StoreGate/VarHandleKey.h"
 #include "StoreGate/exceptions.h"
+#include "AthenaKernel/errorcheck.h"
 #include "TestTools/initGaudi.h"
 #include "TestTools/expect_exception.h"
 #include <cassert>
@@ -81,14 +82,21 @@ void test1()
   assert (k4.storeHandle().name() == "StoreGateSvc");
   assert (!k4.storeHandle().isSet());
   assert (k4.initialize().isFailure());
+  assert (k4.initialize(false).isSuccess());
 
   EXPECT_EXCEPTION (SG::ExcBadHandleKey,
                     SG::VarHandleKey (1237, "a/b/c", Gaudi::DataHandle::Updater));
+
+  SG::VarHandleKey k5 (1236, "BarSvc/ccc", Gaudi::DataHandle::Updater, "FooSvc");
+  assert (k5.key() == "ccc");
+  assert (k5.initialize(false).isSuccess());
+  assert (k5.key() == "");
 }
 
 
 int main()
 {
+  errorcheck::ReportMessage::hideErrorLocus();
   ISvcLocator* pDum;
   Athena_test::initGaudi(pDum); //need MessageSvc
 

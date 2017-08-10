@@ -11,7 +11,6 @@
 
 // Atlas includes
 #include "AthenaKernel/errorcheck.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 
 // Calo includes
 #include "CaloEvent/CaloCellContainer.h"
@@ -143,26 +142,6 @@ StatusCode TileCellCorrection::initialize() {
     ATH_MSG_INFO( "TileCellCorrection created, but BeginOfEvent incident NOT activated " );
   }
 
-  const IGeoModelSvc *geoModel = 0;
-  CHECK( service("GeoModelSvc", geoModel));
-
-  // dummy parameters for the callback:
-  int dummyInt = 0;
-  std::list<std::string> dummyList;
-
-  if (geoModel->geoInitialized()) {
-    return geoInit(dummyInt, dummyList);
-  } else {
-    CHECK( m_detStore->regFcn(&IGeoModelSvc::geoInit, geoModel
-        , &TileCellCorrection::geoInit, this) );
-
-    ATH_MSG_INFO( "geoInit callback registered");
-  }
-
-  return StatusCode::SUCCESS;
-}
-
-StatusCode TileCellCorrection::geoInit(IOVSVC_CALLBACK_ARGS) {
   CHECK( m_detStore->retrieve(m_tileID));
   CHECK( m_detStore->retrieve(m_tileHWID));
 

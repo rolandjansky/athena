@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CxxUtils/make_unique.h"
 #include "AthenaTrackingActionTool.h"
 
 namespace G4UA
@@ -39,8 +38,7 @@ namespace G4UA
   {
     ATH_MSG_DEBUG("Constructing an AthenaTrackingAction");
     // Create and configure the action plugin.
-    auto action = CxxUtils::make_unique<AthenaTrackingAction>( msg().level(), m_secondarySavingLevel );
-    return std::move(action);
+    return std::make_unique<AthenaTrackingAction>( msg().level(), m_secondarySavingLevel );
   }
 
 }

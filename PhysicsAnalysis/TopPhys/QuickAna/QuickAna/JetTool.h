@@ -182,7 +182,7 @@ namespace ana
 
   public:
     /// @name Configurations -- public memebers
-    /// @TODO stop using public config members.
+    /// @todo stop using public config members.
     /// @{
 
     ///\brief At what step should the JVT cut be applied?

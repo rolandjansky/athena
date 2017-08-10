@@ -6,7 +6,7 @@ use Identifier		  Identifier-*	 	   DetectorDescription
 use AthenaPoolUtilities  AthenaPoolUtilities-*	  Database/AthenaPOOL
 
 private
-use DataModel             DataModel-*              Control 
+use AthAllocators         AthAllocators-*          Control 
 use InDetByteStreamErrors InDetByteStreamErrors-*  InnerDetector/InDetConditions
 use AthenaPoolCnvSvc     AthenaPoolCnvSvc-*       Database/AthenaPOOL
 use TRT_ConditionsData   TRT_ConditionsData-*	  InnerDetector/InDetConditions

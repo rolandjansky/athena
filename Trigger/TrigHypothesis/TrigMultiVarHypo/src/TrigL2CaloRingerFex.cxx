@@ -57,28 +57,28 @@ HLT::ErrorCode TrigL2CaloRingerFex::hltInitialize()
 
   ///check configuration
   if(m_weights.size() != m_nDiscr){
-    msg() << MSG::ERROR << "Weight list dont match with the number of discriminators found" << endreq;
+    msg() << MSG::ERROR << "Weight list dont match with the number of discriminators found" << endmsg;
     return StatusCode::FAILURE;
   }
 
   if(m_bias.size() != m_nDiscr){
-    msg() << MSG::ERROR << "Bias list dont match with the number of discriminators found" << endreq;
+    msg() << MSG::ERROR << "Bias list dont match with the number of discriminators found" << endmsg;
     return StatusCode::FAILURE;
   }
 
   if((m_etaBins.size() != m_nDiscr) || (m_etBins.size() != m_nDiscr)){
-    msg() << MSG::ERROR << "Eta/Et list dont match with the number of discriminators found" << endreq;
+    msg() << MSG::ERROR << "Eta/Et list dont match with the number of discriminators found" << endmsg;
     return StatusCode::FAILURE;
   }
 
   
   if(m_nRings.size() != m_normRings.size()){
-    msg() << MSG::ERROR << "Preproc nRings list dont match with the number of discriminators found" << endreq;
+    msg() << MSG::ERROR << "Preproc nRings list dont match with the number of discriminators found" << endmsg;
     return StatusCode::FAILURE;
   }
 
   if(m_sectionRings.size() != m_normRings.size()){
-    msg() << MSG::ERROR << "Preproc section rings list dont match with the number of discriminators found" << endreq;
+    msg() << MSG::ERROR << "Preproc section rings list dont match with the number of discriminators found" << endmsg;
     return StatusCode::FAILURE;
   }
   
@@ -90,12 +90,12 @@ HLT::ErrorCode TrigL2CaloRingerFex::hltInitialize()
     TrigRingerPreprocessor *preproc = nullptr;
     
     if ( msgLvl() <= MSG::INFO ) {
-      msg() << MSG::INFO << "Create multi layer perceptron discriminator using configuration:" << endreq; 
-      msg() << MSG::INFO << "   Input layer   :   " << m_nodes[i*SIZEOF_NODES+0] << endreq;
-      msg() << MSG::INFO << "   Hidden layer  :   " << m_nodes[i*SIZEOF_NODES+1] << endreq;
-      msg() << MSG::INFO << "   Output layer  :   " << m_nodes[i*SIZEOF_NODES+2] << endreq;
-      msg() << MSG::INFO << "   Eta range     :   " << m_etaBins[i][0] << " < |eta|   <=" << m_etaBins[i][1] << endreq;
-      msg() << MSG::INFO << "   Et range      :   " << m_etBins[i][0] << "  < Et[GeV] <=" << m_etBins[i][1]  << endreq;
+      msg() << MSG::INFO << "Create multi layer perceptron discriminator using configuration:" << endmsg; 
+      msg() << MSG::INFO << "   Input layer   :   " << m_nodes[i*SIZEOF_NODES+0] << endmsg;
+      msg() << MSG::INFO << "   Hidden layer  :   " << m_nodes[i*SIZEOF_NODES+1] << endmsg;
+      msg() << MSG::INFO << "   Output layer  :   " << m_nodes[i*SIZEOF_NODES+2] << endmsg;
+      msg() << MSG::INFO << "   Eta range     :   " << m_etaBins[i][0] << " < |eta|   <=" << m_etaBins[i][1] << endmsg;
+      msg() << MSG::INFO << "   Et range      :   " << m_etBins[i][0] << "  < Et[GeV] <=" << m_etBins[i][1]  << endmsg;
     }
     try{
       ///Alloc discriminator
@@ -108,18 +108,18 @@ HLT::ErrorCode TrigL2CaloRingerFex::hltInitialize()
                                        m_etaBins[i][1]);
     }
     catch(std::bad_alloc xa){
-      msg() << MSG::ERROR << "Weight vector size is not compatible with nodes vector." << endreq;
+      msg() << MSG::ERROR << "Weight vector size is not compatible with nodes vector." << endmsg;
       return StatusCode::FAILURE;
     }
     catch(int e){
       if (e == BAD_WEIGHT_SIZE)
       {
-        msg() << MSG::ERROR << "Weight vector size is not compatible with nodes vector." << endreq;
+        msg() << MSG::ERROR << "Weight vector size is not compatible with nodes vector." << endmsg;
         return StatusCode::FAILURE;
       }
       if (e == BAD_BIAS_SIZE)
       {
-        msg() << MSG::ERROR << "Bias vector size is not compatible with nodes vector." << endreq;
+        msg() << MSG::ERROR << "Bias vector size is not compatible with nodes vector." << endmsg;
         return StatusCode::FAILURE;
       }
     }///try and catch alloc protection
@@ -139,7 +139,7 @@ HLT::ErrorCode TrigL2CaloRingerFex::hltInitialize()
       preproc = new TrigRingerPreprocessor(nrings,normrings,sectionrings);
     }
     catch(std::bad_alloc xa){
-      msg() << MSG::ERROR << "Bad alloc for TrigRingerPrepoc." << endreq;
+      msg() << MSG::ERROR << "Bad alloc for TrigRingerPrepoc." << endmsg;
       return StatusCode::FAILURE;
     }
 
@@ -155,7 +155,7 @@ HLT::ErrorCode TrigL2CaloRingerFex::hltInitialize()
   }///Only if time is set on python config
 
   if ( msgLvl() <= MSG::DEBUG )
-    msg() << MSG::DEBUG << "TrigL2CaloRingerHypo initialization completed successfully." << endreq;
+    msg() << MSG::DEBUG << "TrigL2CaloRingerHypo initialization completed successfully." << endmsg;
 
   return HLT::OK;
 }
@@ -167,7 +167,7 @@ HLT::ErrorCode TrigL2CaloRingerFex::hltFinalize() {
     if(m_discriminators.at(i))  delete m_discriminators.at(i);
   }///Loop over all discriminators and prepoc objects
   if ( msgLvl() <= MSG::DEBUG ) 
-    msg() << MSG::DEBUG << "TrigL2CaloRingerHypo finalization completed successfully." << endreq;
+    msg() << MSG::DEBUG << "TrigL2CaloRingerHypo finalization completed successfully." << endmsg;
   return HLT::OK;
 }
 //!===============================================================================================
@@ -178,7 +178,7 @@ HLT::ErrorCode TrigL2CaloRingerFex::hltExecute(const HLT::TriggerElement* /*inpu
   ///Retrieve rings pattern information
   const xAOD::TrigRingerRings *ringerShape = get_rings(outputTE);
   if(!ringerShape){
-    msg() << MSG::WARNING << "Can not retrieve xADO::TrigRingerRings from storegate." << endreq;
+    msg() << MSG::WARNING << "Can not retrieve xADO::TrigRingerRings from storegate." << endmsg;
     return HLT::OK;
   }///protection
 
@@ -187,12 +187,12 @@ HLT::ErrorCode TrigL2CaloRingerFex::hltExecute(const HLT::TriggerElement* /*inpu
 
   ///Check if emCluster link exist
   if(!emCluster){
-    msg() << MSG::WARNING << "Can not found the xAOD::TrigEMCluster link" << endreq;
+    msg() << MSG::WARNING << "Can not found the xAOD::TrigEMCluster link" << endmsg;
     return HLT::OK;
   }///protection
 
   if(msgLvl() <= MSG::DEBUG){
-     msg() << MSG::DEBUG << "Event with roiword: 0x" << std::hex << emCluster->RoIword() << std::dec <<endreq;
+     msg() << MSG::DEBUG << "Event with roiword: 0x" << std::hex << emCluster->RoIword() << std::dec <<endmsg;
   }
 
   ///It's ready to select the correct eta/et bin
@@ -218,13 +218,13 @@ HLT::ErrorCode TrigL2CaloRingerFex::hltExecute(const HLT::TriggerElement* /*inpu
     ///get shape
     const std::vector<float> rings = ringerShape->rings();
     if(msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "ringerShape->rings().size() is: " <<rings.size() << endreq;
+      msg() << MSG::DEBUG << "ringerShape->rings().size() is: " <<rings.size() << endmsg;
  
     std::vector<float> refRings(rings.size());
     refRings.assign(rings.begin(), rings.end());
 
     if(msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "Et = " << et << " GeV, |eta| = " << eta << endreq;
+      msg() << MSG::DEBUG << "Et = " << et << " GeV, |eta| = " << eta << endmsg;
 
     ///pre-processing shape
     if(doTiming())  m_normTimer->start();
@@ -232,21 +232,21 @@ HLT::ErrorCode TrigL2CaloRingerFex::hltExecute(const HLT::TriggerElement* /*inpu
     if(doTiming())  m_normTimer->stop();
 
     if(msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "after preproc refRings.size() is: " <<rings.size() << endreq;
+      msg() << MSG::DEBUG << "after preproc refRings.size() is: " <<rings.size() << endmsg;
  
     ///Apply the discriminator
     if(discr)  m_output = discr->propagate(refRings);
 
   }else{
     if(msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "There is no discriminator into this Fex." << endreq;
+      msg() << MSG::DEBUG << "There is no discriminator into this Fex." << endmsg;
   }
 
 
   if(doTiming())  m_decisionTimer->stop();
 
   if(msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << "Et = " << et << " GeV, |eta| = " << eta << " and rnnoutput = " << m_output << endreq;
+    msg() << MSG::DEBUG << "Et = " << et << " GeV, |eta| = " << eta << " and rnnoutput = " << m_output << endmsg;
 
   if(doTiming())  m_storeTimer->start();
   ///Store outout information for monitoring and studys
@@ -260,7 +260,7 @@ HLT::ErrorCode TrigL2CaloRingerFex::hltExecute(const HLT::TriggerElement* /*inpu
   hltStatus = getFeatureLink<xAOD::TrigRingerRingsContainer,xAOD::TrigRingerRings>(outputTE, ringer_link);
 
   if( (hltStatus != HLT::OK) || (!ringer_link.isValid())){
-    msg() << MSG::WARNING << "Failed to access ElementLink to TrigRingerRings" << endreq;
+    msg() << MSG::WARNING << "Failed to access ElementLink to TrigRingerRings" << endmsg;
   }else{
     rnnOutput->setRingerLink( ringer_link );
   }
@@ -268,7 +268,7 @@ HLT::ErrorCode TrigL2CaloRingerFex::hltExecute(const HLT::TriggerElement* /*inpu
   if(doTiming())  m_storeTimer->stop();
 
   if (hltStatus != HLT::OK) {
-    msg() << MSG::WARNING << "Failed to record xAOD::TrigRNNOutput to StoreGate." << endreq;
+    msg() << MSG::WARNING << "Failed to record xAOD::TrigRNNOutput to StoreGate." << endmsg;
     return HLT::OK;
   }
 

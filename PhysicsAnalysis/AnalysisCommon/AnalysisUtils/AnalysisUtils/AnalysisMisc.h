@@ -27,11 +27,11 @@
 
 namespace AnalysisUtils {
   
-  /** compute \Delta
+  /** compute @f$ \Delta @f$
    */
   namespace Delta {
     
-    /** \Delta\phi
+    /** @f$ \Delta\phi @f$
      */
     inline double phi (const INavigable4Momentum *p1, const INavigable4Momentum *p2) {
       double phi1 = (p1->phi()>M_PI) ? p1->phi()-2*M_PI : p1->phi();
@@ -41,7 +41,7 @@ namespace AnalysisUtils {
       return dphi;
     }
     
-    /** \Delta{R}
+    /** @f$ \Delta{R} @f$
      */
     inline double R (const INavigable4Momentum *p1, const double v_eta, const double v_phi) {
       double phi1 = (p1->phi()>M_PI) ? p1->phi()-2*M_PI : p1->phi();
@@ -52,7 +52,7 @@ namespace AnalysisUtils {
       return sqrt(dphi*dphi+deta*deta);
     }
 
-    /** \Delta{R}
+    /** @f$ \Delta{R} @f$
      */
     inline double R (const INavigable4Momentum *p1, const INavigable4Momentum *p2) {
       return R (p1, p2->eta(), p2->phi());
@@ -83,7 +83,7 @@ namespace AnalysisUtils {
 
     /** find the closest element in R
 	@param index [out] index of the closest element
-	@param deltaR [out] \Delta{R}
+	@param deltaR [out] @f$ \Delta{R} @f$
 	@return true if found
     */
     template <class COLL>
@@ -145,7 +145,7 @@ namespace AnalysisUtils {
 
     /** find the closest element in R - with a condition on E
 	@param index [out] index of the closest element
-	@param deltaR [out] \Delta{R}
+	@param deltaR [out] @f$ \Delta{R} @f$
 	@return true if found
     */
     template <class COLL>
@@ -214,7 +214,7 @@ namespace AnalysisUtils {
 
     /** find the closest element in R
 	@param index [out] index of the closest element
-	@param deltaR [out] \Delta{R}
+	@param deltaR [out] @f$ \Delta{R} @f$
 	@return true if found
     */
     template <class COLL>
@@ -231,7 +231,7 @@ namespace AnalysisUtils {
 
     /** find the closest element in R - with a condition on E
 	@param index [out] index of the closest element
-	@param deltaR [out] \Delta{R}
+	@param deltaR [out] @f$ \Delta{R} @f$
 	@return true if found
     */
     template <class COLL>

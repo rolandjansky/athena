@@ -46,10 +46,8 @@ private:
 
 } // namespace xAOD
 
-#ifndef XAOD_STANDALONE
-#include "SGTools/BaseInfo.h"
+#include "xAODCore/BaseInfo.h"
 SG_BASE( xAOD::CaloRingsAuxContainer_v1, xAOD::AuxContainerBase );
-#endif
 
 #endif // XAODCALORINGS_VERSIONS_CALORINGSAUXCONTAINER_V1_H
 

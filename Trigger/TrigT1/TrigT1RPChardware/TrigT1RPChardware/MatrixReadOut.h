@@ -41,9 +41,9 @@ void writeFooter();
 void writeRecord(ubit16 thisRecord, bool last);
 void overwriteHeader(ubit16 thisRecord){m_Header=thisRecord;};      //new method
 void overwriteSubHeader(ubit16 thisRecord){m_SubHeader=thisRecord;};//new method
-void reComputeFooter(){writeFooter();checkFooterNum--;};            //new method
-ubit16 numberOfBodyWords() {return numberOfWordsInBody;};
-ubit16 numberOfFragmentWords() {return numberOfWordsInFrag;};
+void reComputeFooter(){writeFooter();m_checkFooterNum--;};            //new method
+ubit16 numberOfBodyWords() {return m_numberOfWordsInBody;};
+ubit16 numberOfFragmentWords() {return m_numberOfWordsInFrag;};
 //**************************************************//
 // general user methods to read back ReadOut stream //
 //**************************************************//
@@ -89,24 +89,24 @@ private:
 //fp
 
  friend class ReadOutManager;
- ReadOutManager *myBoss;
+ ReadOutManager *m_myBoss;
  void setManager(ReadOutManager *boss);
  void makeFragment();
 
 MatrixReadOut::DataVersion m_data_version;
 
-MatrixReadOutStructure MROS;
-ubit16 BunchFrom;
-ubit16 BunchTo;
-ubit16 FEL1ID;
-ubit16 ROOffset;
-ubit16 NDLLCYC;
-ubit16 NBunch;
-ubit16 nclock;
-ubit16 nchan[2];
-ubit16 timeSeparation;
-Matrix *CM; // pointer to the CM
-ubit16 *BS; // pointer to Fragment
+MatrixReadOutStructure m_MROS;
+ubit16 m_BunchFrom;
+ubit16 m_BunchTo;
+ubit16 m_FEL1ID;
+ubit16 m_ROOffset;
+ubit16 m_NDLLCYC;
+ubit16 m_NBunch;
+ubit16 m_nclock;
+ubit16 m_nchan[2];
+ubit16 m_timeSeparation;
+Matrix *m_CM; // pointer to the CM
+ubit16 *m_BS; // pointer to Fragment
 //**************************************//
 //                                      //
 //    Matrix ReadOut structure          //
@@ -121,21 +121,21 @@ ubit16  m_Footer;     // Footer record
 ubit16  m_SubHeader;  // Subheader record
 CMROData *m_Body;     // Body structure record
 //**********************************************************//
-ubit16 addressOfWordScanned;
+ubit16 m_addressOfWordScanned;
 CMROData *m_BodyLast; // pointer to the last hit recorded
 CMROData *m_BodyCurr; // pointer to the current hit scanned
 //**********************************************************//
-ubit16 first8bitsON;
-ubit16 numberOfWordsInFrag;
-ubit16 numberOfWordsInBody;
-ubit16 checkHeaderPos;
-ubit16 checkHeaderNum;
-ubit16 checkSubHeaderPos;
-ubit16 checkSubHeaderNum;
-ubit16 checkFooterPos;
-ubit16 checkFooterNum;
-ubit16 checkCR;
-ubit16 checkUnkown;
+ubit16 m_first8bitsON;
+ubit16 m_numberOfWordsInFrag;
+ubit16 m_numberOfWordsInBody;
+ubit16 m_checkHeaderPos;
+ubit16 m_checkHeaderNum;
+ubit16 m_checkSubHeaderPos;
+ubit16 m_checkSubHeaderNum;
+ubit16 m_checkFooterPos;
+ubit16 m_checkFooterNum;
+ubit16 m_checkCR;
+ubit16 m_checkUnkown;
 //************************//
 void initialize();
 void makeHeader();

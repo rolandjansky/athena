@@ -12,7 +12,7 @@ void HLTResultCnv_p1::transToPers(const HLT::HLTResult* trans,
                                      HLTResult_p1* pers, MsgStream &log )
 {
 
-  log << MSG::DEBUG << "HLTResultCnv_p1::transToPers called " << endreq;
+  log << MSG::DEBUG << "HLTResultCnv_p1::transToPers called " << endmsg;
   
   pers->m_headerResult         = trans->m_headerResult         ;
   pers->m_chainsResult         = trans->m_chainsResult         ;
@@ -24,7 +24,7 @@ void HLTResultCnv_p1::persToTrans(const HLT::HLTResult_p1* pers,
                                      HLTResult* trans, MsgStream &log )
 {
 
-  log << MSG::DEBUG << "HLTResultCnv_p1::persToTrans called " << endreq;
+  log << MSG::DEBUG << "HLTResultCnv_p1::persToTrans called " << endmsg;
 
   trans->m_headerResult         = pers->m_headerResult         ;
   trans->m_chainsResult         = pers->m_chainsResult         ;

@@ -15,7 +15,7 @@
 #define MUONEVENTATHENAPOOL_MUONRDOCONTAINERCNV_H
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustCnv.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 class StoreGateSvc;
 

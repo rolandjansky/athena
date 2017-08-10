@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: LAr Calibration
  * @Package: TrigEgammaHypo
- * @Class  : TrigROBListWriter
+ * @class  : TrigROBListWriter
  *
  * @brief : Algorithm to write out a list of LAr ROBs for its input RoI
  *

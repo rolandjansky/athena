@@ -3,7 +3,7 @@
 */
 
 /**********************************************************************************
- * @Class  : ScoutingInfo
+ * @class  : ScoutingInfo
  *
  *
  * @author Noemi Calace <noemi.calace@cern.ch>  - CERN

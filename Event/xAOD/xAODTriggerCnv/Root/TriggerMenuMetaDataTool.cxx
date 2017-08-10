@@ -35,7 +35,7 @@ namespace xAODMaker {
       m_menu.reset(); m_menuAux.reset();
       m_beginFileIncidentSeen = false;
 
-      // Retrun gracefully:
+      // Return gracefully:
       return StatusCode::SUCCESS;
    }
 
@@ -127,7 +127,7 @@ namespace xAODMaker {
                                                m_outputKey + "Aux." ) );
       }
 
-      // Retrun gracefully:
+      // Return gracefully:
       return StatusCode::SUCCESS;
    }
 

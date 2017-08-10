@@ -368,13 +368,13 @@ class egammaMVACalib : public asg::AsgMessaging
       **/
     void defineInitialEnergyFormula();
 
-    /** Return the user infomation added in the xml files in the <UserInfo>
+    /** Return the user infomation added in the xml files in the \<UserInfo\>
      * section as a dictionary
      **/
     static AdditionalInfoMap getUserInfo(const TString & xmlfilename);
 
     /** Used by getMVAResponseTree: clone input tree, activating the branches defined by
-     * <copyBranches> and deactivating all of them first if <deactivateFirst>=true
+     * \<copyBranches\> and deactivating all of them first if \<deactivateFirst\>=true
      **/
     TTree* getOutputTree(TString copyBranches, bool deactivateFirst=true);
 
@@ -403,7 +403,7 @@ class egammaMVACalib : public asg::AsgMessaging
     // Parameters defined in the constructor
     egammaMVACalib::egammaType m_egammaType; //! electron or photon
     bool m_useNewBDTs; //! use egamma::BDT or TMVA::Reader
-    TString fMethodName; //! BDTG
+    TString m_methodName; //! BDTG
     egammaMVACalib::CalibrationType m_calibrationType; //! correct Eaccordion, Ecluster...
     // Variables that define the key and the initial energy (for getMVAEnergy)
     TString m_etaVar, m_energyVar, m_particleTypeVar;

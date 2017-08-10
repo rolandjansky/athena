@@ -21,11 +21,6 @@ MessageSvc.OutputLevel =DEBUG
 AthenaEventLoopMgr = Service ("AthenaEventLoopMgr")
 AthenaEventLoopMgr.OutputLevel=4
 
-#Necessary DLL's 
-theApp.Dlls += [ "LArRawUtils","LArTools"]
-theApp.Dlls += [ "LArByteStream"]
-#theApp.Dlls += [ "CaloDetMgrDetDescrCnv" ]
-
 theApp.Dlls += [ "LArEventTest"]
 theApp.topAlg+=["DumpLArDigits"]
 DumpLArDigits=Algorithm("DumpLArDigits")

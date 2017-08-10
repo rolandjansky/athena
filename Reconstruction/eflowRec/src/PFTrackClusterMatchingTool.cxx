@@ -27,7 +27,7 @@ PFTrackClusterMatchingTool::PFTrackClusterMatchingTool(const std::string& type,
     m_clusterPositionType("GeomCenterEtaPhi"),
     m_distanceType("EtaPhiSquareSignificance"),
     m_matchCut(1.64*1.64),
-    m_matcher(0),
+    m_matcher(nullptr),
     m_tracksProcessed(0),
     m_tracksMatched(0) {
   declareInterface<PFTrackClusterMatchingTool>(this);
@@ -38,16 +38,14 @@ PFTrackClusterMatchingTool::PFTrackClusterMatchingTool(const std::string& type,
 }
 
 StatusCode PFTrackClusterMatchingTool::initialize() {
-  IDistanceProvider* distanceProvider = DistanceFactory::Get(m_distanceType, TrackPositionFactory::Get(m_trackPositionType), ClusterPositionFactory::Get(m_clusterPositionType));
-  m_matcher = new PFMatch::TrackClusterMatcher(distanceProvider, m_matchCut);
 
+  m_matcher = std::make_unique<PFMatch::TrackClusterMatcher>(DistanceFactory::Get(m_distanceType, TrackPositionFactory::Get(m_trackPositionType), ClusterPositionFactory::Get(m_clusterPositionType)),m_matchCut);
+  
   msg(MSG::INFO) << "In initialize:" << endmsg;
   msg(MSG::INFO) << "Track position type is \"" << m_trackPositionType << "\"" << endmsg;
   msg(MSG::INFO) << "Cluster position type is \"" << m_clusterPositionType << "\"" << endmsg;
   msg(MSG::INFO) << "Distance type is \"" << m_distanceType << "\"" << endmsg;
   msg(MSG::INFO) << "Match cut is " << m_matchCut << endmsg;
-
-  //delete distanceProvider;
 
   return StatusCode::SUCCESS;
 }
@@ -56,8 +54,6 @@ StatusCode PFTrackClusterMatchingTool::finalize() {
   msg(MSG::INFO) << "Final summary:" << endmsg;
   msg(MSG::INFO) << "Processed " << m_tracksProcessed << " tracks." << endmsg;
   msg(MSG::INFO) << "Produced  " << m_tracksMatched<< " matches." << endmsg;
-
-  delete m_matcher;
 
   return StatusCode::SUCCESS;
 }

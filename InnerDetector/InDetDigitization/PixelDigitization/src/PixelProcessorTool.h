@@ -9,15 +9,10 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "CLHEP/Random/RandomEngine.h"
-#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 
 #include "SiDigitization/SiChargedDiodeCollection.h"
-// STSSTST #include "InDetRawData/InDetRawDataCLASS_DEF.h"
-
-// STSSTST #include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
-// STSSTST #include "PixelConditionsServices/IPixelCalibSvc.h"
-// STSSTST #include "TimeSvc.h"
 
 static const InterfaceID IID_IPixelProcessorTool("PixelProcessorTool", 1, 0);
 

@@ -33,13 +33,10 @@
  */
 
 namespace TrigCostRootAnalysis {
-
-  
   class XMLExport {
   public:
-
     XMLExport(std::ostream& _fout) : m_level(0), m_spaces(2), m_minimal(kFALSE) {
-        writeHeader(_fout);
+      writeHeader(_fout);
     }
 
     XMLExport() : m_level(0), m_spaces(2), m_minimal(kFALSE) {
@@ -50,12 +47,11 @@ namespace TrigCostRootAnalysis {
     }
 
     void writeHeader(std::ostream& _fout) {
-        _fout << "<?xml version=\"1.0\" encoding=\"us-ascii\"?>" << std::endl;
+      _fout << "<?xml version=\"1.0\" encoding=\"us-ascii\"?>" << std::endl;
     }
 
     void addNode(std::ostream& _fout, std::string _name, std::string _nodeData = "_NONE") { // With or without node data
-
-      if (!m_minimal) _fout << std::string(m_level*m_spaces, ' ');
+      if (!m_minimal) _fout << std::string(m_level * m_spaces, ' ');
 
       _fout << "<" << _name << ">";
 
@@ -64,19 +60,17 @@ namespace TrigCostRootAnalysis {
         _fout << "</" << _name << ">" << std::endl; // Don't have data
       } else {
         _fout << std::endl;
-        m_nodes.push_back( _name );
+        m_nodes.push_back(_name);
         ++m_level;
       }
-
     }
 
-    void addNodeWProperty(std::ostream& _fout, std::string _name, 
-      std::string _p1name, std::string _p1data, 
-      std::string _p2name ="", std::string _p2data ="",
-      std::string _p3name ="", std::string _p3data ="",
-      std::string _p4name ="", std::string _p4data ="") { // node with up to 3 properties
-
-      if (!m_minimal) _fout << std::string(m_level*m_spaces, ' ');
+    void addNodeWProperty(std::ostream& _fout, std::string _name,
+                          std::string _p1name, std::string _p1data,
+                          std::string _p2name = "", std::string _p2data = "",
+                          std::string _p3name = "", std::string _p3data = "",
+                          std::string _p4name = "", std::string _p4data = "") { // node with up to 3 properties
+      if (!m_minimal) _fout << std::string(m_level * m_spaces, ' ');
 
       _fout << "<" << _name << " ";
 
@@ -86,16 +80,15 @@ namespace TrigCostRootAnalysis {
       if (_p4name != Config::config().getStr(kBlankString)) _fout << _p4name << "=\"" << _p4data << "\"";
 
       _fout << "/>" << std::endl;
-
     }
 
     void endNode(std::ostream& _fout) {
       if (m_nodes.size() == 0) {
-        Error("XMLExporter::endNode","Node list empty. All nodes already closed.");
+        Error("XMLExporter::endNode", "Node list empty. All nodes already closed.");
         return;
       }
       --m_level;
-      if (!m_minimal) _fout << std::string(m_level*m_spaces, ' ');
+      if (!m_minimal) _fout << std::string(m_level * m_spaces, ' ');
       _fout << "</" << m_nodes.back() << ">" << std::endl;
       m_nodes.pop_back();
     }
@@ -105,7 +98,6 @@ namespace TrigCostRootAnalysis {
     Bool_t m_minimal;
     std::vector< std::string > m_nodes;
   };
-
 }
 
 #endif //TrigCostRootAnalysis_WriteXML_JSON_H

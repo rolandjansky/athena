@@ -191,7 +191,7 @@ StatusCode FTK_RDO_ReaderAlgo::execute() {
   const EventInfo* eventInfo;
   StatusCode scEv = evtStore()->retrieve(eventInfo);
   if (scEv.isFailure()) {
-        ATH_MSG_ERROR( "Could not retrieve event info" );
+        ATH_MSG_DEBUG( "Could not retrieve event info" );
   } else {
     int eventNumber = eventInfo->event_ID()->event_number();
     ATH_MSG_DEBUG(" Event " << eventNumber);
@@ -1215,7 +1215,7 @@ void FTK_RDO_ReaderAlgo::Fill_Raw_Vertices_fast(unsigned int track_requirement){
     }
     delete(vxr);
   }
-  else ATH_MSG_ERROR( "DataProviderSvc returned no valid vertices");  
+  else ATH_MSG_DEBUG( "DataProviderSvc returned no valid vertices");  
 }
 
 void FTK_RDO_ReaderAlgo::Fill_Refit_Vertices_fast(unsigned int track_requirement){
@@ -1336,7 +1336,7 @@ void FTK_RDO_ReaderAlgo::Fill_Refit_Vertices_fast(unsigned int track_requirement
     }
     delete(vxr);
   }
-  else ATH_MSG_ERROR( "DataProviderSvc returned no valid vertices");
+  else ATH_MSG_DEBUG( "DataProviderSvc returned no valid vertices");
 }
 
 void FTK_RDO_ReaderAlgo::Fill_Converted_Vertices(unsigned int track_requirement){
@@ -1452,7 +1452,7 @@ void FTK_RDO_ReaderAlgo::Fill_Converted_Vertices(unsigned int track_requirement)
     }
     delete(vxc);
   }
-  else ATH_MSG_ERROR( "DataProviderSvc returned no valid vertices");
+  else ATH_MSG_DEBUG( "DataProviderSvc returned no valid vertices");
 }
 
 void FTK_RDO_ReaderAlgo::Fill_Refit_Vertices(unsigned int track_requirement){
@@ -1570,7 +1570,7 @@ void FTK_RDO_ReaderAlgo::Fill_Refit_Vertices(unsigned int track_requirement){
     }
     delete(vxr);
   }
-  else ATH_MSG_ERROR( "DataProviderSvc returned no valid vertices");
+  else ATH_MSG_DEBUG( "DataProviderSvc returned no valid vertices");
 }
 
 
@@ -1581,7 +1581,7 @@ void FTK_RDO_ReaderAlgo::Fill_Offline_Vertices(unsigned int track_requirement){
   float this_vertex_sumpt2 = 0;
   
   if ( evtStore()->retrieve(offlineVertices,"PrimaryVertices").isFailure() || !offlineVertices ) {
-    ATH_MSG_ERROR("Could not retrieve offline algo primary vertices");
+    ATH_MSG_DEBUG("Could not retrieve offline algo primary vertices");
     return;
   }
   else {
@@ -1697,7 +1697,7 @@ void FTK_RDO_ReaderAlgo::Fill_Truth_Vtx(){
      const xAOD::TruthVertexContainer* importedTruthVertices;
 
      if (evtStore()->retrieve(importedTruthVertices,m_verticesKey).isFailure()) {
-       ATH_MSG_ERROR("No TruthVertexContainer with name " << m_verticesKey << " found in StoreGate!");
+       ATH_MSG_DEBUG("No TruthVertexContainer with name " << m_verticesKey << " found in StoreGate!");
        return;
      }
     
@@ -1760,31 +1760,31 @@ std::string FTK_RDO_ReaderAlgo::strVertexType( const Trk::VertexType vxtype) {
 void FTK_RDO_ReaderAlgo::Fill_Clusters(TrackCollection *trackCollection,std::vector<float> *x_residual,std::vector<float> *y_residual,std::vector<float> *x_loc,std::vector<float> *y_loc,std::vector<bool> *is_Pixel,std::vector<bool> *is_Barrel,std::vector<bool> *is_SCT,std::vector<int> *Layer,std::vector<int> *resAssociatedTrack,std::vector<int> *clustID){
 
   if ( m_residualCalc.retrieve().isFailure() ) {
-    ATH_MSG_ERROR("Failed to retrieve tool " << m_residualCalc << endl);
+    ATH_MSG_WARNING("Failed to retrieve tool " << m_residualCalc << endl);
     return;
   }
   if (detStore()->retrieve(m_idHelper, "AtlasID").isFailure()) {
-    ATH_MSG_ERROR( "Could not get AtlasDetectorID helper" << endl);
+    ATH_MSG_WARNING( "Could not get AtlasDetectorID helper" << endl);
     return;
   }
   if (detStore()->retrieve(m_pixelId, "PixelID").isFailure()) {
-    ATH_MSG_ERROR( "Could not get PixelID helper !" << endl);
+    ATH_MSG_WARNING( "Could not get PixelID helper !" << endl);
     return;
   }
   if (detStore()->retrieve(m_sctId, "SCT_ID").isFailure()) {
-    ATH_MSG_ERROR( "Could not get sctID helper !" << endl);
+    ATH_MSG_WARNING( "Could not get sctID helper !" << endl);
     return;
   }
   if( m_iUpdator.retrieve().isFailure() ){
-    ATH_MSG_ERROR( "Could not get updatorTool !" << endl);
+    ATH_MSG_WARNING( "Could not get updatorTool !" << endl);
     return;
   }
   if( detStore()->retrieve(m_PIX_mgr, "Pixel").isFailure() ) {
-    ATH_MSG_ERROR( "Unable to retrieve Pixel manager from DetectorStore" << endl);
+    ATH_MSG_WARNING( "Unable to retrieve Pixel manager from DetectorStore" << endl);
     return;
   }
   if( detStore()->retrieve(m_SCT_mgr, "SCT").isFailure() ) {
-    ATH_MSG_ERROR( "Unable to retrieve SCT manager from DetectorStore" << endl);
+    ATH_MSG_WARNING( "Unable to retrieve SCT manager from DetectorStore" << endl);
     return;
   }
 
@@ -1807,7 +1807,7 @@ void FTK_RDO_ReaderAlgo::Fill_Clusters(TrackCollection *trackCollection,std::vec
   for (int iTrack=0 ; track_it!= last_track; track_it++, iTrack++) {
     
     const DataVector<const Trk::TrackStateOnSurface>* trackStates=(*track_it)->trackStateOnSurfaces();   
-    if(!trackStates)     ATH_MSG_ERROR("trackStates issue");
+    if(!trackStates)     ATH_MSG_DEBUG("trackStates issue");
 
 
     DataVector<const Trk::TrackStateOnSurface>::const_iterator it=trackStates->begin();
@@ -1904,31 +1904,31 @@ void FTK_RDO_ReaderAlgo::Fill_Clusters(const xAOD::TrackParticleContainer *track
 
 
   if ( m_residualCalc.retrieve().isFailure() ) {
-    ATH_MSG_ERROR("Failed to retrieve tool " << m_residualCalc << endl);
+    ATH_MSG_WARNING("Failed to retrieve tool " << m_residualCalc << endl);
     return;
   }
   if (detStore()->retrieve(m_idHelper, "AtlasID").isFailure()) {
-    ATH_MSG_ERROR( "Could not get AtlasDetectorID helper" << endl);
+    ATH_MSG_WARNING( "Could not get AtlasDetectorID helper" << endl);
     return;
   }
   if (detStore()->retrieve(m_pixelId, "PixelID").isFailure()) {
-    ATH_MSG_ERROR( "Could not get PixelID helper !" << endl);
+    ATH_MSG_WARNING( "Could not get PixelID helper !" << endl);
     return;
   }
   if (detStore()->retrieve(m_sctId, "SCT_ID").isFailure()) {
-    ATH_MSG_ERROR( "Could not get sctID helper !" << endl);
+    ATH_MSG_WARNING( "Could not get sctID helper !" << endl);
     return;
   }
   if( m_iUpdator.retrieve().isFailure() ){
-    ATH_MSG_ERROR( "Could not get updatorTool !" << endl);
+    ATH_MSG_WARNING( "Could not get updatorTool !" << endl);
     return;
   }
   if( detStore()->retrieve(m_PIX_mgr, "Pixel").isFailure() ) {
-    ATH_MSG_ERROR( "Unable to retrieve Pixel manager from DetectorStore" << endl);
+    ATH_MSG_WARNING( "Unable to retrieve Pixel manager from DetectorStore" << endl);
     return;
   }
   if( detStore()->retrieve(m_SCT_mgr, "SCT").isFailure() ) {
-    ATH_MSG_ERROR( "Unable to retrieve SCT manager from DetectorStore" << endl);
+    ATH_MSG_WARNING( "Unable to retrieve SCT manager from DetectorStore" << endl);
     return;
   }
 
@@ -1960,14 +1960,14 @@ void FTK_RDO_ReaderAlgo::Fill_Clusters(const xAOD::TrackParticleContainer *track
     
     const DataVector<const Trk::TrackStateOnSurface>* trackStates=track->trackStateOnSurfaces();   
     if(trackStates == 0){
-      ATH_MSG_ERROR("trackStates issue");
+      ATH_MSG_DEBUG("trackStates issue");
       return;
     }
 
     DataVector<const Trk::TrackStateOnSurface>::const_iterator it=trackStates->begin();
     DataVector<const Trk::TrackStateOnSurface>::const_iterator it_end=trackStates->end();
     if (!(*it)) {
-      ATH_MSG_WARNING("TrackStateOnSurface == Null" << endl);
+      ATH_MSG_DEBUG("TrackStateOnSurface == Null" << endl);
       continue;
     }
 

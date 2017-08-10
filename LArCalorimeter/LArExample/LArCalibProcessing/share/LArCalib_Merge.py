@@ -54,7 +54,6 @@ theApp.EvtMax = 1
 conddb.setGlobalTag("LARCALIB-RUN2-00") #For id mapping
 svcMgr.IOVDbSvc.DBInstance=""
 
-svcMgr.PoolSvc.CheckDictionary=False
 svcMgr.PoolSvc.SortReplicas=False
 
 runNoForFileName=2147483647

@@ -14,8 +14,8 @@
 // based on Barton & Nackman's "Scientific and Engineering C++"             // 
 //                                                                          // 
 // -------------------------------------------------------------------------// 
-#ifndef _QUERY_H_
-#define _QUERY_H_
+#ifndef GEOMODELKERNEL_QUERY_H
+#define GEOMODELKERNEL_QUERY_H
 #include <stdexcept>
 template < class T > class Query
 {
@@ -36,34 +36,34 @@ public:
 
 private:
 
-  bool _failed;
-  T _instance;
+  bool m_failed;
+  T m_instance;
 
 };
 
 
 template < class T > inline Query < T >::Query (const T & t):
-_failed (false),
-_instance (t)
+m_failed (false),
+m_instance (t)
 {
 }
 
 template < class T > inline Query < T >::Query ():
-_failed (true),
-_instance (T())
+m_failed (true),
+m_instance (T())
 {
 }
 
 template < class T > inline Query < T >::operator         T () const
 {
-  if (_failed)
+  if (m_failed)
     throw std::range_error ("Failed query");
-  return _instance;
+  return m_instance;
 }
 
 template < class T > inline bool Query < T >::isValid () const
 {
-  return !_failed;
+  return !m_failed;
 }
 
 

@@ -5,7 +5,7 @@ use GaudiInterface             GaudiInterface-*        External
 use AtlasBoost                 AtlasBoost-*            External
 use AthenaKernel               AthenaKernel-*          Control
 use SGTools                    SGTools-*               Control
-use DataModel                  DataModel-*             Control
+use AthLinks                   AthLinks-*              Control
 use StoreGate                  StoreGate-*             Control
 use AthenaBaseComps            AthenaBaseComps-*       Control
 

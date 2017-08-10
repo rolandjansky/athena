@@ -68,10 +68,10 @@ class LumiCalculator{
   bool m_State;
 
 
-  std::string lumi_database;
-  std::string trig_database;
-  std::string lar_database;
-  std::string bs_database;
+  std::string m_lumi_database;
+  std::string m_trig_database;
+  std::string m_lar_database;
+  std::string m_bs_database;
 
   std::string m_trigger;
   std::string m_livetrigger;
@@ -85,8 +85,6 @@ class LumiCalculator{
   std::string m_bsonl;
   std::string m_bstag;
   int m_lumichannel;
-  std::vector<uint32_t> lbstart;
-  std::vector<uint32_t> lbend;
 
   std::string m_parofflumiestfolder;
   std::string m_paronllumiestfolder;
@@ -157,24 +155,24 @@ class LumiCalculator{
   uint32_t m_clumiblocknbrend;
   unsigned int m_triglevel;
   float m_totalPrescaleWLiveTime;
-  float mt_totalPrescaleWLiveTime;
+  float m_t_totalPrescaleWLiveTime;
   float m_totalPrescale;
-  float mt_totalPrescale;
+  float m_t_totalPrescale;
   float m_lumiWOPrescale;
-  float mt_lumiWOPrescale;
+  float m_t_lumiWOPrescale;
   float m_lumiLAr;
-  float mt_lumiLAr;
-  float mt_totalDelL;
-  float mt_totalL;
-  float mt_totalLRun;
-  float mt_totaltime;
-  float mt_deltaT;
-  unsigned int mt_l1acc;
-  unsigned int mt_l2acc;
-  unsigned int mt_l3acc;
-  unsigned int mt_totalgoodblock;
-  unsigned int mt_totalbadblock;
-  unsigned int mt_totall1befpresc;    
+  float m_t_lumiLAr;
+  float m_t_totalDelL;
+  float m_t_totalL;
+  float m_t_totalLRun;
+  float m_t_totaltime;
+  float m_t_deltaT;
+  unsigned int m_t_l1acc;
+  unsigned int m_t_l2acc;
+  unsigned int m_t_l3acc;
+  unsigned int m_t_totalgoodblock;
+  unsigned int m_t_totalbadblock;
+  unsigned int m_t_totall1befpresc;    
   float m_lartime;
   float m_larfrac;
   float m_bsvalid;
@@ -225,16 +223,16 @@ class LumiCalculator{
   bool m_makePlots;
   bool m_makecollList;
 
-  cool::ChannelId Lumiid;
-  cool::ChannelId L3id;
-  cool::ChannelId L2id;
-  cool::ChannelId L1id;
-  cool::ChannelId LiveL1id;
+  cool::ChannelId m_Lumiid;
+  cool::ChannelId m_L3id;
+  cool::ChannelId m_L2id;
+  cool::ChannelId m_L1id;
+  cool::ChannelId m_LiveL1id;
 
-  bool L1Valid;
-  bool L2Valid;
-  bool L3Valid;
-  bool LiveValid;
+  bool m_L1Valid;
+  bool m_L2Valid;
+  bool m_L3Valid;
+  bool m_LiveValid;
 
   bool m_onlinelumi;
   bool m_uselar;

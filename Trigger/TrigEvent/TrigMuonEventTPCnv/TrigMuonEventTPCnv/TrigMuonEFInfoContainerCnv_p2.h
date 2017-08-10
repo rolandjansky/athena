@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigMuonEventTPCnv
- * @Class  : TrigMuonEFInfoContainerCnv_p2
+ * @class  : TrigMuonEFInfoContainerCnv_p2
  *
  * @brief transient-persistent converter for TrigMuonEFInfoContainer_p2
  *

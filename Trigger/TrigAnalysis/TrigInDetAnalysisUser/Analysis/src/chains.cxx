@@ -62,6 +62,12 @@ int main(int argc, char** argv ) {
 
   for ( unsigned i=0 ; i<args.size() ; i++ ) {
     TFile f( args[i].c_str() );
+
+    if ( !f.IsOpen() || f.IsZombie() ) {
+      std::cerr << "Error: could not open input file: " << args[i] << std::endl;
+      std::exit(1);;
+    }
+
     //    gDirectory->ls();
     descend( gDirectory, 0, maxdepth, labels );
   }

@@ -9,6 +9,7 @@
 
 // Gaudi/Athena include(s):
 #include "AthenaKernel/errorcheck.h"
+#include "GaudiKernel/ConcurrencyFlags.h"
 
 // EDM include(s):
 #include "EventInfo/EventInfo.h"
@@ -174,13 +175,13 @@ namespace xAODMaker {
 
    StatusCode EventInfoCnvAlg::beginRun() {
 
-#ifndef ATHENAHIVE
-      // Let the user know what's happening:
-      ATH_MSG_DEBUG( "Preparing xAOD::EventInfo object in beginRun()" );
-
-      // Run the conversion using the execute function:
-      CHECK( execute() );
-#endif
+     if(!Gaudi::Concurrency::ConcurrencyFlags::concurrent()) {
+       // Let the user know what's happening:
+       ATH_MSG_DEBUG( "Preparing xAOD::EventInfo object in beginRun()" );
+       
+       // Run the conversion using the execute function:
+       CHECK( execute() );
+     }
 
       // Return gracefully:
       return StatusCode::SUCCESS;

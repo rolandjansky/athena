@@ -35,7 +35,7 @@ class ID3PD;
  * This is an object filler tool for a collection of objects.
  * The object variables are saved as vectors.
  * I.e., if a block books a variable of type `int', the variable
- * we actually create is of type `vector<int>'.
+ * we actually create is of type `vector\<int\>'.
  * An additional variable giving the object count is added automatically
  * (can be controlled via the @c NrowName property).
  *

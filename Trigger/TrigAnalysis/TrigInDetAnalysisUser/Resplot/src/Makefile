@@ -5,8 +5,7 @@
 #   Description:  builds the new egamma project including
 #                 libraries...
 #
-#                  libeventstore.a   
-#                  libtrig.a
+#                  libResplot.a   
 #                  
 #                 and the executable
 #
@@ -18,21 +17,26 @@
 
 
 
-ifeq ($(CMTCONFIG),)
-#   ARCH_TYPE = $(shell ./setarch.sh)
-    ARCH_TYPE = $(shell uname)
-else 
-    ARCH_TYPE = $(CMTCONFIG)
+ifeq ($(AtlasEvent_PLATFORM),)
+  ifeq ($(PLATFORM),)
+    ATLAS_ARCH = $(shell uname)
+  else 
+    ATLAS_ARCH = $(PLATFORM)
+  endif
+else
+  ATLAS_ARCH = $(AtlasEvent_PLATFORM)
 endif
 
+
+CMTCONFIG=
 
 
 CMDDIR = .
 SRCDIR = ../src
 INCDIR = ../src
-LIBDIR = ../lib/$(ARCH_TYPE)
-OBJDIR = ../obj/$(ARCH_TYPE)
-EXEDIR = ../exe/$(ARCH_TYPE)
+LIBDIR = ../lib/$(ATLAS_ARCH)
+OBJDIR = ../obj/$(ATLAS_ARCH)
+EXEDIR = ../exe/$(ATLAS_ARCH)
 
 
 # Root variables
@@ -87,7 +91,6 @@ TAR = tar
 
 
 OBJECTS  = $(OBJDIR)/main.o  
-COBJECTS = $(OBJDIR)/cock.o  
 ROBJECTS = $(OBJDIR)/rmain.o $(OBJDIR)/Resplot.o 
 
 LOBJECTS = $(OBJDIR)/Resplot.o  $(OBJDIR)/generate.o  \
@@ -112,10 +115,6 @@ res : $(EXEDIR)/res
 $(EXEDIR)/res :   $(OBJECTS) lib
 	$(CXX) $(LDFLAGS) -o $@ $(OBJECTS) $(LIBS) $(LIBS)   $(GLIBS)
 
-
-cock : $(EXEDIR)/cock
-$(EXEDIR)/cock :   $(COBJECTS) lib
-	$(CXX) $(LDFLAGS) -o $@ $(COBJECTS) $(LIBS) $(LIBS)   $(GLIBS)
 
 
 # $(SRCDIR)/*Dict.cxx : $(SRCDIR)/Resplot.cxx  $(INCDIR)/Resplot.h
@@ -153,6 +152,9 @@ all : dirs lib libso res
 
 lib: dirs $(LIBDIR)/libResplot.a
 $(LIBDIR)/libResplot.a : $(LOBJECTS)
+	echo "LIBDIR " $(LIBDIR)
+	echo "ATLAS_ARCH " $(ATLAS_ARCH)
+	echo "AtlasEvent_PLATFORM "  $(AtlasEvent_PLATFORM)
 	$(AR) $(ARFLAGS)  $@ $(LOBJECTS)
 	$(RANLIB) $@
 

@@ -26,10 +26,10 @@ StatusCode DecayLengthFilter::filterInitialize() {
 
 
 StatusCode DecayLengthFilter::filterEvent() {
-  const McEventCollection* m_McEventCollection = 0;
-  CHECK(evtStore()->retrieve( m_McEventCollection, m_McEventCollectionName));
+  const McEventCollection* McEventCollection = 0;
+  CHECK(evtStore()->retrieve( McEventCollection, m_McEventCollectionName));
 
-  const HepMC::GenEvent* theGenEvent = *(m_McEventCollection->begin()); //supose ther is only one, no pile-up
+  const HepMC::GenEvent* theGenEvent = *(McEventCollection->begin()); //supose ther is only one, no pile-up
   HepMC::GenEvent::vertex_const_iterator vtx_iter = theGenEvent->vertices_begin();
   HepMC::GenEvent::vertex_const_iterator vtx_end = theGenEvent->vertices_end();
 

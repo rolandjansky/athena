@@ -22,12 +22,12 @@ ConversionStrategy::ConversionStrategy(const std::string& n)
   double seco_thr = 100*CLHEP::MeV;
   if(theTruthManager->GetTruthParameter("ConversionPrimaryMinEnergy")==0){
     log() << MSG::INFO << "ConversionPrimaryMinEnergy: "
-          << "setting default value of 100 MeV" << endreq;
+          << "setting default value of 100 MeV" << endmsg;
     theTruthManager->SetTruthParameter("ConversionPrimaryMinEnergy", prim_thr);
   }
   if(theTruthManager->GetTruthParameter("ConversionSecondaryMinEnergy")==0){
     log() << MSG::INFO << "ConversionSecondaryMinEnergy: "
-          << "setting default value of 100 MeV" << endreq;
+          << "setting default value of 100 MeV" << endmsg;
     theTruthManager->SetTruthParameter("ConversionSecondaryMinEnergy", seco_thr);
   }
 }

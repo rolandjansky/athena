@@ -353,7 +353,7 @@ char TrigDecisionMaker::getBGByte(int BCId) {
    //   if(bgs->bunchGroups().size()!=8) {
    //     (*m_log) << MSG::WARNING << " Did not find 8 bunchgroups in the set (actual number of BGs is " 
    //              << bgs->bunchGroups().size()
-   //              << ")" << endreq;
+   //              << ")" << endmsg;
    //     return 0;
    //   }
    

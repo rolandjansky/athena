@@ -16,10 +16,7 @@
 // Framework include files
 #include "StorageSvc/OODatabaseImp.h"
 
-#ifdef HAVE_GAUDI_PLUGINSVC
 #include "Gaudi/PluginService.h"
-#endif
-#include "GAUDI_VERSION.h"
 
 /*
  *  POOL namespace
@@ -40,17 +37,10 @@ namespace pool  {
     */
   class RootOODb  : public OODatabaseImp  {
   public:
-#ifdef HAVE_GAUDI_PLUGINSVC
-  #if GAUDI_VERSION > CALC_GAUDI_VERSION(25, 3) 
     typedef Gaudi::PluginService::Factory<IOODatabase*, void*> Factory;
-  #else  
-    typedef Gaudi::PluginService::Factory1<IOODatabase*, void*> Factory;
-  #endif
-#endif
+
     /// Standard Constructor
-    RootOODb(void* ctxt);
-    /// Standard Constructor
-    RootOODb(void* ctxt, DbType typ);
+    RootOODb(void* ctxt, DbType typ=ROOT_StorageType);
     /// Standard Destructor
     virtual ~RootOODb();
     /// Label of the specific class
@@ -62,6 +52,7 @@ namespace pool  {
     /// Create Root Container object
     IDbContainer* createContainer(const DbType& typ);
   };
+
   class RootOOTree : public RootOODb {
   public:
     /// Standard Constructor
@@ -69,6 +60,7 @@ namespace pool  {
     /// Label of the specific class
     static const char* catalogLabel()  {   return "ROOT_Tree";        }
   };
+   
   class RootOOKey : public RootOODb {
   public:
     /// Standard Constructor
@@ -76,6 +68,7 @@ namespace pool  {
     /// Label of the specific class
     static const char* catalogLabel()  {   return "ROOT_Key";         }
   };
+   
 }       // end namespace pool
 
 #endif  /* POOL_ROOTSTORAGESVC_ROOTOODB_H  */

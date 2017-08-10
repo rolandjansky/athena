@@ -41,6 +41,11 @@ IOVRange& IOVRange::operator= (const IOVRange& r) {
   return *this;
 }
 
+IOVRange::operator EventIDRange() const {
+  return EventIDRange( EventIDBase(m_start), EventIDBase(m_stop) );
+}
+
+
 std::ostream& operator << (std::ostream& os, const IOVRange& rhs) {
   os << (std::string) rhs;
   return os;
@@ -50,3 +55,4 @@ MsgStream& operator<< (MsgStream &msg, const IOVRange& rhs) {
   msg << (std::string) rhs;
   return msg;
 }
+

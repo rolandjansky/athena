@@ -16,6 +16,11 @@
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 #include "InDetTruthInterfaces/IPRD_MultiTruthBuilder.h"
 
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
+#include "InDetPrepRawData/SiClusterContainer.h"
+#include "InDetSimData/InDetSimDataCollection.h"
+
 namespace InDet {
 
 class PRD_MultiTruthMaker : public AthAlgorithm  {
@@ -30,14 +35,14 @@ public:
 private:
   
   std::string m_PixelClustersName;
-  std::string m_SCTClustersName;
+  SG::ReadHandleKey<InDet::SiClusterContainer> m_SCTClustersName;
   std::string m_TRTDriftCircleContainerName; 
   std::string m_simDataMapNamePixel;
-  std::string m_simDataMapNameSCT;
+  SG::ReadHandleKey<InDetSimDataCollection> m_simDataMapNameSCT;
   std::string m_simDataMapNameTRT;
 
   std::string m_PRDTruthNamePixel;
-  std::string m_PRDTruthNameSCT;
+  SG::WriteHandleKey<PRD_MultiTruthCollection> m_PRDTruthNameSCT;
   std::string m_PRDTruthNameTRT;
 
   ToolHandle<InDet::IPRD_MultiTruthBuilder> m_PRDTruthTool;

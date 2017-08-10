@@ -1,5 +1,5 @@
 /**
-@mainpage  LArG4FastSimSvc
+@page  LArG4FastSimSvc_page LArG4FastSimSvc
 @author Zach Marshall (zmarshal@caltech.edu)
 
 @section LArG4FastSimSvcIntro Introduction

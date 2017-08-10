@@ -22,7 +22,7 @@ Modified:
 #ifndef TRIG_ELECTRON_CONTAINER
 #define TRIG_ELECTRON_CONTAINER
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "CLIDSvc/CLASS_DEF.h"
 
 #include "TrigParticle/TrigElectron.h"

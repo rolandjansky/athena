@@ -21,6 +21,7 @@
 #include "TestTools/initGaudi.h"
 #include "TestTools/expect_exception.h"
 #include "AthenaKernel/errorcheck.h"
+#include "AthenaKernel/ExtendedEventContext.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 #include <cassert>
 #include <iostream>
@@ -48,6 +49,7 @@ public:
   using SG::VarHandleBase::get_impl;
   using SG::VarHandleBase::record_impl;
   using SG::VarHandleBase::put_impl;
+  using SG::VarHandleBase::symLink_impl;
   using SG::VarHandleBase::m_store;
   using SG::VarHandleBase::m_proxy;
   using SG::VarHandleBase::m_ptr;
@@ -75,7 +77,8 @@ void test1()
 
   SGTest::TestStore dumstore2;
   EventContext ctx3;
-  ctx3.setProxy (&dumstore2);
+  ctx3.setExtension( Atlas::ExtendedEventContext(&dumstore2) );
+
   Gaudi::Hive::setCurrentContext (ctx3);
 
   SG::VarHandleKey k3 (1234, "asd", Gaudi::DataHandle::Updater);
@@ -95,7 +98,7 @@ void test1()
 
   SGTest::TestStore dumstore;
   EventContext ctx5;
-  ctx5.setProxy (&dumstore);
+  ctx5.setExtension( Atlas::ExtendedEventContext(&dumstore) );
   TestHandle h5 (k3, &ctx5);
   assert (h5.clid() == 1234);
   assert (h5.key() == "asd");
@@ -224,6 +227,18 @@ void test2()
   assert (proxy->refCount() == 1);
   assert ((testStore.m_boundHandles == std::vector<IResetable*>{&h1}));
 
+  {
+    SG::VarHandleKey k11 (293847295, "foo", Gaudi::DataHandle::Writer);
+    k11.initialize().ignore();
+    TestHandle h11 (k11, nullptr);
+    assert (proxy->refCount() == 1);
+    assert ((testStore.m_boundHandles == std::vector<IResetable*>{&h1}));
+
+    TestHandle h12 (h11);
+    assert (proxy->refCount() == 1);
+    assert ((testStore.m_boundHandles == std::vector<IResetable*>{&h1}));
+  }
+
   // Test a !resetOnly proxy.
   auto obj5 = std::make_unique<MyObj>();
   //MyObj* objptr5 = obj5.get();
@@ -295,11 +310,11 @@ void test4()
 
   SGTest::TestStore store;
   assert (h1.setProxyDict (&store).isSuccess());
-  assert (h1.initialize().isSuccess()); // ok because it's a writer.
+  assert (h1.setState().isSuccess()); // ok because it's a writer.
 
   TestHandle h2 (293847295, "foo", Gaudi::DataHandle::Reader, "FooSvc");
   assert (h2.setProxyDict (&store).isSuccess());
-  assert (h2.initialize().isFailure());
+  assert (h2.setState().isFailure());
   store.record (new MyObj, "foo");
   assert (h2.setState().isSuccess());
 
@@ -314,6 +329,15 @@ void test4()
   h2.finalReset();
   assert (!h2.isInitialized());
   assert (h2.m_store == 0);
+
+  TestHandle h3 (293847295, "", Gaudi::DataHandle::Writer, "FooSvc");
+  assert (h3.initialize().isFailure());
+  assert (h3.initialize(false).isSuccess());
+
+  TestHandle h4 (293847295, "foo", Gaudi::DataHandle::Writer, "FooSvc");
+  assert (h4.key() == "foo");
+  assert (h4.initialize(false).isSuccess());
+  assert (h4.key() == "");
 }
 
 
@@ -485,7 +509,7 @@ void test8()
   assert (h1.typeless_dataPointer_impl(true) == nullptr);
 
   testStore.record (obj.release(), "foo");
-  assert (h1.initialize().isSuccess());
+  assert (h1.setState().isSuccess());
   testStore.proxy(293847295, "foo")->reset();
 
   assert (h1.typeless_dataPointer_impl(false) == nullptr);
@@ -598,7 +622,8 @@ void test10()
 
   EventContext ctx2;
   SGTest::TestStore store2;
-  ctx2.setProxy (&store2);
+  ctx2.setExtension( Atlas::ExtendedEventContext(&store2) );
+
   obj = std::make_unique<MyObj>();
   objptr = obj.get();
   newptr = h2.put_impl (&ctx2,
@@ -616,6 +641,7 @@ void test10()
                        objptr,
                        true, false, store) == nullptr);
 }
+
 
 // get_impl
 void test11()
@@ -648,12 +674,41 @@ void test11()
   MyObj* foo2 = new MyObj;
   store2.record (foo2, "foo");
   EventContext ctx2;
-  ctx2.setProxy (&store2);
+  ctx2.setExtension( Atlas::ExtendedEventContext(&store2) );
   assert (h4.get_impl(&ctx2, false) == foo2);
   assert (h4.get_impl(&ctx2, true) == foo2);
   Gaudi::Hive::setCurrentContext (ctx2);
   assert (h4.get_impl(nullptr, false) == foo2);
   assert (h4.get_impl(nullptr, true) == foo2);
+}
+
+
+// symLink_impl
+void test12()
+{
+  std::cout << "test12\n";
+
+  SGTest::TestStore testStore;
+  TestHandle h1 (293847295, "foo", Gaudi::DataHandle::Writer, "FooSvc");
+  assert (h1.symLink_impl (293847295, "bar").isFailure()); 
+  assert (h1.setProxyDict (&testStore).isSuccess());
+  assert (h1.symLink_impl (293847295, "bar").isFailure()); 
+
+  auto obj = std::make_unique<MyObj>();
+  MyObj* objptr = obj.get();
+  assert (h1.record_impl (std::unique_ptr<DataObject>(SG::asStorable(std::move(obj))),
+                          objptr,
+                          true, false).isSuccess());
+  SG::DataProxy* prox = testStore.proxy (293847295, "foo");
+  assert (prox != nullptr);
+
+  assert (h1.symLink_impl (293847295, "bar").isSuccess());
+  assert (testStore.proxy (293847295, "bar") == prox);
+
+  assert (h1.symLink_impl (293847294, "foo").isSuccess());
+  assert (testStore.proxy (293847294, "foo") == prox);
+
+  assert (h1.symLink_impl (293847294, "bar").isFailure());
 }
 
 
@@ -674,6 +729,7 @@ int main()
   test9();
   test10();
   test11();
+  test12();
   return 0;
 }
 

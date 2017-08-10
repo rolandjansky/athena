@@ -7,7 +7,7 @@
  * @file ReadDataReentrant.h
  * @author scott snyder <snyder@bnl.gov>
  * @date Jan, 2016
- * @brief 
+ * @brief Testing reentrant algorithms.
  */
 
 
@@ -33,6 +33,7 @@
 #include "AthLinks/ElementLink.h"
 
 #include "AthenaKernel/DefaultKey.h"
+#include "AthenaKernel/errorcheck.h"
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -40,30 +41,28 @@ ReadDataReentrant::ReadDataReentrant(const std::string& name, ISvcLocator* pSvcL
   AthReentrantAlgorithm(name, pSvcLocator)
 {
   
-  declareProperty ("DObjKey3", m_dobjKey3 = std::string("WriteDataReentrant"));
   declareProperty ("CObjKey", m_cobjKey = std::string("cobj"));
   declareProperty ("VFloatKey", m_vFloatKey = std::string("vFloat"));
-  //declareProperty ("NonExistingKey", m_nonexistingKey = std::string("FunnyNonexistingKey"));
   declareProperty ("PLinkListKey", m_pLinkListKey = std::string("WriteDataReentrant"));
   declareProperty ("LinkVectorKey", m_linkVectorKey = std::string("linkvec"));
   declareProperty ("TestObjectKey", m_testObjectKey = "testobj");
-
+  declareProperty ("DObjKeyArray", m_dobjKeyArray = {"dobj_a1", "dobj_a2"});
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
-StatusCode ReadDataReentrant::initialize(){
-
+StatusCode ReadDataReentrant::initialize()
+{
+  errorcheck::ReportMessage::hideErrorLocus();
 
   ATH_MSG_INFO ("in initialize()");
 
-  ATH_CHECK( m_dobjKey3.initialize() );
   ATH_CHECK( m_cobjKey.initialize() );
   ATH_CHECK( m_vFloatKey.initialize() );
-  //ATH_CHECK( m_nonexistingKey.initialize() );
   ATH_CHECK( m_pLinkListKey.initialize() );
   ATH_CHECK( m_linkVectorKey.initialize() );
   ATH_CHECK( m_testObjectKey.initialize() );
+  ATH_CHECK( m_dobjKeyArray.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -100,24 +99,25 @@ StatusCode ReadDataReentrant::execute_r (const EventContext& ctx) const
   //FIXME  if (StatusCode::SUCCESS != p_SGevent->retrieve(dobj) ) {
   //FIXME    log << MSG::ERROR 
   //FIXME	<< "Could not find default MyDataObj" 
-  //FIXME	<< endreq;
+  //FIXME	<< endmsg;
   //FIXME    return( StatusCode::FAILURE);
   //FIXME  }
   //FIXME  log << MSG::INFO 
   //FIXME      << "default MyDataObj Val: " << dobj->val() 
-  //FIXME      << endreq;
+  //FIXME      << endmsg;
 
   /////////////////////////////////////////////////////////////////////
   //   ii) Get a specific MyDataObj by providing its key 
   //       (in this case the name of the algo which recorded it)
 
-  //this time we set a *non-const* pointer. *If* we get back a valid
-  //pointer we'll be able to modify the content of the underlying transient obj
-  SG::UpdateHandle<MyDataObj> dobj3 (m_dobjKey3, ctx);
-  dobj3->val(4);
-
   SG::ReadHandle<TestDataObject> testobj (m_testObjectKey, ctx);
   if (testobj->val() != 10) std::abort();
+
+  // Reading the array of handles.
+  std::vector<SG::ReadHandle<MyDataObj> > vh = m_dobjKeyArray.makeHandles (ctx);
+  for (size_t i = 0; i < vh.size(); i++) {
+    assert (vh[i]->val() == static_cast<int> (100+i));
+  }
   
 #if 0
   /////////////////////////////////////////////////////////////////////
@@ -174,11 +174,11 @@ StatusCode ReadDataReentrant::execute_r (const EventContext& ctx) const
   //FIXME if (p_SGevent->contains<MyDataObj>(SG::DEFAULTKEY)) {
   //FIXME     log << MSG::INFO
   //FIXME 	<<"event store contains default MyDataObj"
-  //FIXME 	<<endreq;
+  //FIXME 	<<endmsg;
   //FIXME   } else {
   //FIXME     log << MSG::ERROR
   //FIXME 	<<"event store claims it does not contain default MyDataObj"
-  //FIXME      	<<endreq;
+  //FIXME      	<<endmsg;
   //FIXME     return( StatusCode::FAILURE);
   //FIXME   }	
 
@@ -224,11 +224,11 @@ StatusCode ReadDataReentrant::execute_r (const EventContext& ctx) const
   //    if (!toBeRead.isValid()) {
   //      log << MSG::ERROR 
   //  	<< "Could not read back MapElement" 
-  //  	<< endreq;
+  //  	<< endmsg;
   //      return( StatusCode::FAILURE);
   //    } else {
   //      log << MSG::INFO <<  "MapElement read back: key " << toBeRead->first
-  //  	<< "  value " << toBeRead->second <<endreq;
+  //  	<< "  value " << toBeRead->second <<endmsg;
   //    }
 
   /////////////////////////////////////////////////////////////////////

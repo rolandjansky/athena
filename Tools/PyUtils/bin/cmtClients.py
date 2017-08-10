@@ -4,7 +4,7 @@
 
 ## @author: Sebastien Binet
 ## @file : cmtClients.py
-## @purpose: a little wrapper around cmt.exe show clients
+## @brief: A little wrapper around cmt.exe show clients
 
 __version__ = "$Revision: 1.4 $"
 __author__  = "Sebastien Binet"

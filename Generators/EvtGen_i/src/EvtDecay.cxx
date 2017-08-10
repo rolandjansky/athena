@@ -79,12 +79,12 @@ EvtDecay::EvtDecay(const std::string& name, ISvcLocator* pSvcLocator):Algorithm(
 StatusCode EvtDecay::initialize() {
 
 	MsgStream log(messageService(), name());
-	log << MSG::INFO << "EvtDecay initialize" << endreq;
+	log << MSG::INFO << "EvtDecay initialize" << endmsg;
 
 	static const bool CREATEIFNOTTHERE(true);
 	StatusCode scRndm = service("AtRndmGenSvc", m_AtRndmGenSvc, CREATEIFNOTTHERE);
 	if (!scRndm.isSuccess() || 0 == m_AtRndmGenSvc) {
-		log << MSG::ERROR << " Could not initialize Random Number Service" << endreq;
+		log << MSG::ERROR << " Could not initialize Random Number Service" << endmsg;
 		return scRndm;
 	}
 	m_evtAtRndmGen = new EvtCLHepRandom(m_AtRndmGenSvc,m_randomStreamName);
@@ -92,12 +92,12 @@ StatusCode EvtDecay::initialize() {
 	// Open an interface to EvtGen
 	m_myGen = new EvtGen(m_DecayDec.c_str(), m_PdtTable.c_str(), m_evtAtRndmGen);
       
-	if (m_userDecFileName =="NONE") log << MSG::INFO << "EvtDecay User did not define his Decay table EvtGen will use standart" << endreq;
+	if (m_userDecFileName =="NONE") log << MSG::INFO << "EvtDecay User did not define his Decay table EvtGen will use standart" << endmsg;
 	else m_myGen->readUDecay(m_userDecFileName.c_str());
 
 	StatusCode sc = service("StoreGateSvc", m_sgSvc);
 	if (sc.isFailure()) {
-		log << MSG::ERROR << "Could not find StoreGateSvc" << endreq;
+		log << MSG::ERROR << "Could not find StoreGateSvc" << endmsg;
 		return sc;
 	}
 
@@ -108,11 +108,11 @@ StatusCode EvtDecay::initialize() {
 StatusCode EvtDecay::execute() {
  
 	MsgStream log(messageService(), name());
-	log << MSG::DEBUG << "EvtDecay executing" << endreq;
+	log << MSG::DEBUG << "EvtDecay executing" << endmsg;
 
 	// Retrieve event from Transient Store (Storegate)
 	if ( m_sgSvc->retrieve(m_McEvtColl, m_inputKeyName).isFailure() ) {
-		log << MSG::ERROR << "Could not retrieve McEventCollection" << endreq;
+		log << MSG::ERROR << "Could not retrieve McEventCollection" << endmsg;
 		return StatusCode::FAILURE;
 	}
   
@@ -171,7 +171,7 @@ StatusCode EvtDecay::callEvtGen( HepMC::GenEvent* hepMCevt ) {
 
 			foundGoodB = true;
 			hepMCpart->set_status(899);
-			log << MSG::DEBUG << "Selected good B is " << id <<endreq;
+			log << MSG::DEBUG << "Selected good B is " << id <<endmsg;
 			EvtId eid=EvtPDL::evtIdFromStdHep(id);
 
 			double en =(hepMCpart->momentum()).e();
@@ -187,7 +187,7 @@ StatusCode EvtDecay::callEvtGen( HepMC::GenEvent* hepMCevt ) {
 
 			m_myGen->generateDecay(part);
 			if ( log.level() <= MSG::DEBUG ) part->printTree();
-			log << MSG::DEBUG << "Converting particles" << endreq;
+			log << MSG::DEBUG << "Converting particles" << endmsg;
 
 			makeHepMC(part, hepMCevt, hepMCpart);
 			if(part->getNDaug()!=0) hepMCpart->set_status(999);  
@@ -203,7 +203,7 @@ StatusCode EvtDecay::callEvtGen( HepMC::GenEvent* hepMCevt ) {
 
 StatusCode EvtDecay::finalize() {
 	MsgStream log(messageService(), name());
-	log << MSG::INFO << "EvtDecay finalized" << endreq;
+	log << MSG::INFO << "EvtDecay finalized" << endmsg;
 	return StatusCode::SUCCESS;
 }
 

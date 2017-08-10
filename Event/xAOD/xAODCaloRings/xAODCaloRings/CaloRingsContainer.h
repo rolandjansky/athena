@@ -32,9 +32,7 @@ typedef SG::AuxElement::ConstAccessor< xAOD::CaloRingsLinks >
 } // namespace xAOD
 
 // Set up a CLID for the container:
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
+#include "xAODCore/CLASS_DEF.h"
 CLASS_DEF( xAOD::CaloRingsContainer , 1146041125 , 1 )
-#endif // XAOD_STANDALONE
 
 #endif // XAODCALORINGS_CALORINGSCONTAINER_H

@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigEventAthenaPool
- * @Class  : TrigHisto1DContainerCnv
+ * @class  : TrigHisto1DContainerCnv
  *
  * @brief transient persistent converter for TrigHisto1DContainer
  *

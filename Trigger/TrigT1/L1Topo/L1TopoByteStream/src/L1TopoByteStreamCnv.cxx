@@ -65,19 +65,19 @@ StatusCode L1TopoByteStreamCnv::initialize() {
     return sc;
   }
 
-  MsgStream log(messageService(), "L1TopoByteStreamCnv");
-  log << MSG::DEBUG << "L1TopoByteStreamCnv in initialize() " << endreq;
+  MsgStream log(msgSvc(), "L1TopoByteStreamCnv");
+  log << MSG::DEBUG << "L1TopoByteStreamCnv in initialize() " << endmsg;
 
   //
   // Get ByteStreamCnvSvc:
   //
   sc = m_ByteStreamEventAccess.retrieve();
   if (sc.isFailure()) {
-    log << MSG::FATAL << "Can't get ByteStreamEventAccess interface" << endreq;
+    log << MSG::FATAL << "Can't get ByteStreamEventAccess interface" << endmsg;
     return sc;
   } else {
     log << MSG::DEBUG << "Connected to ByteStreamEventAccess interface"
-        << endreq;
+        << endmsg;
   }
 
   //
@@ -85,10 +85,10 @@ StatusCode L1TopoByteStreamCnv::initialize() {
   //
   sc = m_tool.retrieve();
   if (sc.isFailure()) {
-    log << MSG::FATAL << "Can't get L1TopoByteStreamTool" << endreq;
+    log << MSG::FATAL << "Can't get L1TopoByteStreamTool" << endmsg;
     return sc;
   } else {
-    log << MSG::DEBUG << "Connected to L1TopoByteStreamTool" << endreq;
+    log << MSG::DEBUG << "Connected to L1TopoByteStreamTool" << endmsg;
   }
 
   //
@@ -96,10 +96,10 @@ StatusCode L1TopoByteStreamCnv::initialize() {
   //
   sc = m_robDataProvider.retrieve();
   if (sc.isFailure()) {
-    log << MSG::WARNING << "Can't get ROBDataProviderSvc" << endreq;
+    log << MSG::WARNING << "Can't get ROBDataProviderSvc" << endmsg;
     // return is disabled for Write BS which does not requre ROBDataProviderSvc
   } else {
-    log << MSG::DEBUG << "Connected to ROBDataProviderSvc" << endreq;
+    log << MSG::DEBUG << "Connected to ROBDataProviderSvc" << endmsg;
   }
 
   //
@@ -146,19 +146,19 @@ StatusCode L1TopoByteStreamCnv::createObj(IOpaqueAddress* pAddr,
  */
 StatusCode L1TopoByteStreamCnv::createRep(DataObject* pObj,
                                           IOpaqueAddress*& pAddr) {
-  MsgStream log(messageService(), "L1TopoByteStreamCnv");
+  MsgStream log(msgSvc(), "L1TopoByteStreamCnv");
 
-  log << MSG::DEBUG << "createRep() called" << endreq;
+  log << MSG::DEBUG << "createRep() called" << endmsg;
 
   RawEventWrite* re = m_ByteStreamEventAccess->getRawEvent();
 
   L1TopoRDOCollection* result;
   if (!SG::fromStorable(pObj, result)) {
-    log << MSG::ERROR << " Cannot cast to L1TopoRDOCollection" << endreq;
+    log << MSG::ERROR << " Cannot cast to L1TopoRDOCollection" << endmsg;
     return StatusCode::FAILURE;
   } else {
     log << MSG::DEBUG << " Found " << result->size()
-        << " L1TopoRDOs to convert to ROBs" << endreq;
+        << " L1TopoRDOs to convert to ROBs" << endmsg;
   }
 
   ByteStreamAddress* addr =
@@ -172,7 +172,7 @@ StatusCode L1TopoByteStreamCnv::createRep(DataObject* pObj,
     StatusCode sc = m_tool->convert(*it, re);
     if (sc.isFailure()) {
       log << MSG::ERROR << " Failed to create ROB for L1TopoRDO:  " << **it
-          << endreq;
+          << endmsg;
       return sc;
     }
   }

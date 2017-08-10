@@ -38,7 +38,7 @@ class PixelRDO_ContainerCnv : public PixelRDO_ContainerCnvBase {
 
 protected:
   PixelRDO_ContainerCnv (ISvcLocator* svcloc)
-    : PixelRDO_ContainerCnvBase(svcloc),
+    : PixelRDO_ContainerCnvBase(svcloc, "PixelRDO_ContainerCnv"),
       m_converter_p0(),
       m_storeGate(nullptr)
   {}

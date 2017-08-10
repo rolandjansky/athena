@@ -40,7 +40,6 @@ class TrkDistanceFinderNeutralCharged : public AthAlgTool
   //parameters for precision
   double m_precision;//as job option
   double m_maxloopnumber;//as job option
-  double m_loopsnumber;
 
   //variables for magnetic field tool needed to retrieve the correct Bz
   ServiceHandle<MagField::IMagFieldSvc> m_magFieldSvc;

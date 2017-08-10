@@ -7,7 +7,7 @@
 #include "TrigT1CaloEvent/TriggerTowerCollection.h"
 
 #include <vector>
-#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h" 
+#include "CLHEP/Random/RandGaussZiggurat.h" 
 #include "CLHEP/Random/Randomize.h"
 
 L1CaloPedestalGenerator::L1CaloPedestalGenerator(const std::string& name, ISvcLocator* pSvcLocator): AthAlgorithm(name, pSvcLocator), m_detStore(0), m_storeGate(0), m_caloMgr(0), m_lvl1Helper(0), m_towerKey(0), m_IntTTContainer(0)

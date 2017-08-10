@@ -23,22 +23,22 @@
 using namespace JetSubStructureUtils;
 
 // make all static accessors static to this file, like extern but hip
-SG::AuxElement::ConstAccessor<int>      BoostedXbbTag::AlgorithmType ("AlgorithmType");
-SG::AuxElement::ConstAccessor<float>    BoostedXbbTag::SizeParameter ("SizeParameter");
-SG::AuxElement::ConstAccessor<int>      BoostedXbbTag::InputType ("InputType");
-SG::AuxElement::ConstAccessor<int>      BoostedXbbTag::TransformType ("TransformType");
-SG::AuxElement::ConstAccessor<float>    BoostedXbbTag::RClus ("RClus");
-SG::AuxElement::ConstAccessor<float>    BoostedXbbTag::PtFrac ("PtFrac");
-SG::AuxElement::ConstAccessor<float>    BoostedXbbTag::RCut ("RCut");
-SG::AuxElement::ConstAccessor<float>    BoostedXbbTag::ZCut ("ZCut");
-SG::AuxElement::ConstAccessor<char>     BoostedXbbTag::BDRS ("BDRS");
-SG::AuxElement::ConstAccessor<float>    BoostedXbbTag::YMin ("YMin");
-SG::AuxElement::ConstAccessor<float>    BoostedXbbTag::MuMax ("MuMax");
-SG::AuxElement::ConstAccessor<float>    BoostedXbbTag::D2 ("D2");
-SG::AuxElement::ConstAccessor<float>    BoostedXbbTag::ECF1 ("ECF1");
-SG::AuxElement::ConstAccessor<float>    BoostedXbbTag::ECF2 ("ECF2");
-SG::AuxElement::ConstAccessor<float>    BoostedXbbTag::ECF3 ("ECF3");
-SG::AuxElement::ConstAccessor<ElementLink<xAOD::JetContainer>> BoostedXbbTag::parent("Parent");
+SG::AuxElement::ConstAccessor<int>      BoostedXbbTag::s_AlgorithmType ("AlgorithmType");
+SG::AuxElement::ConstAccessor<float>    BoostedXbbTag::s_SizeParameter ("SizeParameter");
+SG::AuxElement::ConstAccessor<int>      BoostedXbbTag::s_InputType ("InputType");
+SG::AuxElement::ConstAccessor<int>      BoostedXbbTag::s_TransformType ("TransformType");
+SG::AuxElement::ConstAccessor<float>    BoostedXbbTag::s_RClus ("RClus");
+SG::AuxElement::ConstAccessor<float>    BoostedXbbTag::s_PtFrac ("PtFrac");
+SG::AuxElement::ConstAccessor<float>    BoostedXbbTag::s_RCut ("RCut");
+SG::AuxElement::ConstAccessor<float>    BoostedXbbTag::s_ZCut ("ZCut");
+SG::AuxElement::ConstAccessor<char>     BoostedXbbTag::s_BDRS ("BDRS");
+SG::AuxElement::ConstAccessor<float>    BoostedXbbTag::s_YMin ("YMin");
+SG::AuxElement::ConstAccessor<float>    BoostedXbbTag::s_MuMax ("MuMax");
+SG::AuxElement::ConstAccessor<float>    BoostedXbbTag::s_D2 ("D2");
+SG::AuxElement::ConstAccessor<float>    BoostedXbbTag::s_ECF1 ("ECF1");
+SG::AuxElement::ConstAccessor<float>    BoostedXbbTag::s_ECF2 ("ECF2");
+SG::AuxElement::ConstAccessor<float>    BoostedXbbTag::s_ECF3 ("ECF3");
+SG::AuxElement::ConstAccessor<ElementLink<xAOD::JetContainer>> BoostedXbbTag::s_parent("Parent");
 
 BoostedXbbTag::BoostedXbbTag( std::string working_point,
                               std::string recommendations_file,
@@ -64,11 +64,11 @@ BoostedXbbTag::BoostedXbbTag( std::string working_point,
   m_D2_cut_direction("None"),
   m_muonSelectionTool(new CP::MuonSelectionTool("JSSU_MuonSelection")),
   m_bad_configuration(false),
-  isB(SG::AuxElement::Decorator<int>(m_decor_prefix+"isB")),
-  matchedMuonsLink(SG::AuxElement::Decorator<std::vector<ElementLink<xAOD::IParticleContainer> > >(m_decor_prefix+"MatchedMuonsLink")),
-  correctedJetDecor(SG::AuxElement::Decorator<TLorentzVector>(m_decor_prefix+"CorrectedJetP4")),
-  massWindow(SG::AuxElement::Decorator<std::pair<float, float>>(m_decor_prefix+"MassWindow")),
-  D2Pivot(SG::AuxElement::Decorator<std::pair<float, std::string>>(m_decor_prefix+"D2Pivot"))
+  m_isB(SG::AuxElement::Decorator<int>(m_decor_prefix+"m_isB")),
+  m_matchedMuonsLink(SG::AuxElement::Decorator<std::vector<ElementLink<xAOD::IParticleContainer> > >(m_decor_prefix+"MatchedMuonsLink")),
+  m_correctedJetDecor(SG::AuxElement::Decorator<TLorentzVector>(m_decor_prefix+"CorrectedJetP4")),
+  m_massWindow(SG::AuxElement::Decorator<std::pair<float, float>>(m_decor_prefix+"MassWindow")),
+  m_D2Pivot(SG::AuxElement::Decorator<std::pair<float, std::string>>(m_decor_prefix+"m_D2Pivot"))
 {
 
   /* check configurations passed in, use m_bad_configuration as flag:
@@ -236,55 +236,55 @@ std::pair<bool, std::string> BoostedXbbTag::get_algorithm_name(const xAOD::Jet& 
   // ending of algorithm_name
   switch(jet_transform){
     case xAOD::JetTransform::Trim:
-      if( !PtFrac.isAvailable(jet) ){
+      if( !s_PtFrac.isAvailable(jet) ){
         if(m_debug) printf("<%s>: PtFrac is not defined for the input jet.\r\n", APP_NAME);
         error_flag |= true;
       }
-      if( !RClus.isAvailable(jet) ){
+      if( !s_RClus.isAvailable(jet) ){
         if(m_debug) printf("<%s>: RClus is not defined for the input jet.\r\n" , APP_NAME);
         error_flag |= true;
       }
 
-      if(m_verbose) printf("<%s>: PtFrac: %0.2f\tRClus: %0.2f\r\n", APP_NAME, PtFrac(jet), RClus(jet));
-      algorithm_name += "F" + std::to_string(static_cast<int>(PtFrac(jet)*100))
-                       + "R" + std::to_string(static_cast<int>(RClus(jet)*100));
+      if(m_verbose) printf("<%s>: PtFrac: %0.2f\tRClus: %0.2f\r\n", APP_NAME, s_PtFrac(jet), s_RClus(jet));
+      algorithm_name += "F" + std::to_string(static_cast<int>(s_PtFrac(jet)*100))
+                       + "R" + std::to_string(static_cast<int>(s_RClus(jet)*100));
     break;
     case xAOD::JetTransform::Prune:
-      if( !RCut.isAvailable(jet) ){
+      if( !s_RCut.isAvailable(jet) ){
         if(m_debug) printf("<%s>: RCut is not defined for the input jet.\r\n", APP_NAME);
         error_flag |= true;
       }
-      if( !ZCut.isAvailable(jet) ){
+      if( !s_ZCut.isAvailable(jet) ){
         if(m_debug) printf("<%s>: ZCut is not defined for the input jet.\r\n", APP_NAME);
         error_flag |= true;
       }
 
-      if(m_verbose) printf("<%s>: RCut: %0.2f\tZCut: %0.2f\r\n", APP_NAME, RCut(jet), ZCut(jet));
-      algorithm_name += "R" + std::to_string(static_cast<int>(RCut(jet)*100))
-                       + "Z" + std::to_string(static_cast<int>(ZCut(jet)*100));
+      if(m_verbose) printf("<%s>: RCut: %0.2f\tZCut: %0.2f\r\n", APP_NAME, s_RCut(jet), s_ZCut(jet));
+      algorithm_name += "R" + std::to_string(static_cast<int>(s_RCut(jet)*100))
+                       + "Z" + std::to_string(static_cast<int>(s_ZCut(jet)*100));
     break;
     case xAOD::JetTransform::MassDrop:
-      if( !MuMax.isAvailable(jet) ){
+      if( !s_MuMax.isAvailable(jet) ){
         if(m_debug) printf("<%s>: MuMax is not defined for the input jet.\r\n", APP_NAME);
         error_flag |= true;
       }
-      if( !RClus.isAvailable(jet) ){
+      if( !s_RClus.isAvailable(jet) ){
         if(m_debug) printf("<%s>: RClus is not defined for the input jet.\r\n", APP_NAME);
         error_flag |= true;
       }
-      if( !YMin.isAvailable(jet) ){
+      if( !s_YMin.isAvailable(jet) ){
         if(m_debug) printf("<%s>: YMin is not defined for the input jet.\r\n" , APP_NAME);
         error_flag |= true;
       }
-      if( !BDRS.isAvailable(jet) ){
+      if( !s_BDRS.isAvailable(jet) ){
         if(m_debug) printf("<%s>: BDRS is not defined for the input jet.\r\n" , APP_NAME);
         error_flag |= true;
       }
 
-      if(m_verbose) printf("<%s>: MuMax: %0.2f\tRClus: %0.2f\tYMin: %0.2f\r\n", APP_NAME, MuMax(jet), RClus(jet), YMin(jet));
-      algorithm_name += "M" + std::to_string(static_cast<int>(MuMax(jet)*100))
-                       + "R" + std::to_string(static_cast<int>(RClus(jet)*100))
-                       + "Y" + std::to_string(static_cast<int>(YMin(jet)*100));
+      if(m_verbose) printf("<%s>: MuMax: %0.2f\tRClus: %0.2f\tYMin: %0.2f\r\n", APP_NAME, s_MuMax(jet), s_RClus(jet), s_YMin(jet));
+      algorithm_name += "M" + std::to_string(static_cast<int>(s_MuMax(jet)*100))
+                       + "R" + std::to_string(static_cast<int>(s_RClus(jet)*100))
+                       + "Y" + std::to_string(static_cast<int>(s_YMin(jet)*100));
     break;
     default:
       if(m_debug) printf("<%s>: Current value of xAOD::JetTransform::Type is not supported!\r\n", APP_NAME);
@@ -305,19 +305,19 @@ int BoostedXbbTag::result(const xAOD::Jet& jet, const xAOD::MuonContainer* muons
   }
 
   // if we call via this method, we need these 4 things defined
-  if( !AlgorithmType.isAvailable(jet) ){
+  if( !s_AlgorithmType.isAvailable(jet) ){
     if(m_debug) printf("<%s>: AlgorithmType is not defined for the jet.\r\n", APP_NAME);
     return -9;
   }
-  if( !SizeParameter.isAvailable(jet) ){
+  if( !s_SizeParameter.isAvailable(jet) ){
     if(m_debug) printf("<%s>: SizeParameter is not defined for the jet.\r\n", APP_NAME);
     return -9;
   }
-  if( !InputType.isAvailable(jet) )    {
+  if( !s_InputType.isAvailable(jet) )    {
     if(m_debug) printf("<%s>: InputType is not defined for the jet.\r\n"    , APP_NAME);
     return -9;
   }
-  if( !TransformType.isAvailable(jet) ){
+  if( !s_TransformType.isAvailable(jet) ){
     if(m_debug) printf("<%s>: TransformType is not defined for the jet.\r\n", APP_NAME);
     return -9;
   }
@@ -327,14 +327,14 @@ int BoostedXbbTag::result(const xAOD::Jet& jet, const xAOD::MuonContainer* muons
       "Size Parameter: %0.2f\r\n\t"
       "Input Type:     %d\r\n\t"
       "Transform Type: %d\r\n",
-      APP_NAME, AlgorithmType(jet), SizeParameter(jet), InputType(jet), TransformType(jet));
+      APP_NAME, s_AlgorithmType(jet), s_SizeParameter(jet), s_InputType(jet), s_TransformType(jet));
 
   // get the algorithm name and check result
   std::pair<bool, std::string> res = get_algorithm_name(jet,
-                                                        static_cast<xAOD::JetAlgorithmType::ID>(AlgorithmType(jet)),
-                                                        SizeParameter(jet),
-                                                        static_cast<xAOD::JetInput::Type>(InputType(jet)),
-                                                        static_cast<xAOD::JetTransform::Type>(TransformType(jet)));
+                                                        static_cast<xAOD::JetAlgorithmType::ID>(s_AlgorithmType(jet)),
+                                                        s_SizeParameter(jet),
+                                                        static_cast<xAOD::JetInput::Type>(s_InputType(jet)),
+                                                        static_cast<xAOD::JetTransform::Type>(s_TransformType(jet)));
 
   // is it a valid result?
   if(!res.first){
@@ -390,11 +390,11 @@ int BoostedXbbTag::result(const xAOD::Jet& jet, std::string algorithm_name, cons
 
   // Step 1
   std::vector<const xAOD::Jet*> associated_trackJets;
-  // get the track jets from the parent
+  // get the track jets from the s_parent
   bool problemWithParent = false;
   ElementLink<xAOD::JetContainer> parentEL;
-  if(!parent.isAvailable(jet)) problemWithParent = true;
-  else parentEL = parent(jet);
+  if(!s_parent.isAvailable(jet)) problemWithParent = true;
+  else parentEL = s_parent(jet);
   if(problemWithParent || !parentEL.isValid()){
     if(m_debug) printf("<%s>: ", APP_NAME);
     if(problemWithParent && m_debug) printf("Parent decoration does not exist. ");
@@ -411,7 +411,7 @@ int BoostedXbbTag::result(const xAOD::Jet& jet, std::string algorithm_name, cons
   } else {
     const xAOD::Jet* parentJet = *parentEL;
     if(!parentJet->getAssociatedObjects<xAOD::Jet>("GhostAntiKt2TrackJet", associated_trackJets)){
-      if(m_verbose) printf("<%s>: No associated track jets found on parent jet.\r\n", APP_NAME);
+      if(m_verbose) printf("<%s>: No associated track jets found on s_parent jet.\r\n", APP_NAME);
       return -2; // do not fallback -- comment out to enable fallback
       //// fallback here
       //if(m_debug) printf("Get track jets from groomed jet.\r\n");
@@ -426,7 +426,7 @@ int BoostedXbbTag::result(const xAOD::Jet& jet, std::string algorithm_name, cons
 
   // decorate all trackjets by default
   for(const auto& trackJet: associated_trackJets)
-    isB(*trackJet) = 0;
+    m_isB(*trackJet) = 0;
 
   // filter out the track jets we do not want (pT > 10 GeV and |eta| < 2.5 and at least 2 constituents)
   associated_trackJets.erase(
@@ -479,7 +479,7 @@ int BoostedXbbTag::result(const xAOD::Jet& jet, std::string algorithm_name, cons
 //    }
 //    int isBTagged = static_cast<int>(mv2c00 > m_bTagCut && mv2c100 > m_bTagCutCharm);
 
-    isB(*trackJet) = isBTagged;
+    m_isB(*trackJet) = isBTagged;
     num_bTags += isBTagged;
   }
   if( num_bTags < m_num_bTags ){
@@ -504,7 +504,7 @@ int BoostedXbbTag::result(const xAOD::Jet& jet, std::string algorithm_name, cons
     for(int i = 0; i < num_trackJets_toLookAt; i++){
       auto& trackJet = associated_trackJets.at(i);
       // only match muon to b-tagged track jets
-      if(isB(*trackJet) == 0) continue;
+      if(m_isB(*trackJet) == 0) continue;
       // it's b-tagged, try to match it
       float maxDR(0.2);
       trackJet->getAttribute("SizeParameter", maxDR);
@@ -540,13 +540,13 @@ int BoostedXbbTag::result(const xAOD::Jet& jet, std::string algorithm_name, cons
     matched_muons_links.push_back(el_muon);
   }
   // may not always be the corrected jet, but always contains what is used to cut against
-  correctedJetDecor(jet) = corrected_jet;
-  matchedMuonsLink(jet) = matched_muons_links;
+  m_correctedJetDecor(jet) = corrected_jet;
+  m_matchedMuonsLink(jet) = matched_muons_links;
 
   std::string buffer;
 
   // Step 5
-  massWindow(jet) = std::pair<float, float>(m_massMin, m_massMax);
+  m_massWindow(jet) = std::pair<float, float>(m_massMin, m_massMax);
   buffer = "<%s>: Jet %s the mass window cut.\r\n\tMass: %0.6f GeV\r\n\tMass Window: [ %0.6f, %0.6f ]\r\n";
   if(corrected_jet.M()/1.e3 < m_massMin || corrected_jet.M()/1.e3 > m_massMax){
     if(m_verbose) printf(buffer.c_str(), APP_NAME, "failed", corrected_jet.M()/1.e3, m_massMin, m_massMax);
@@ -559,19 +559,19 @@ int BoostedXbbTag::result(const xAOD::Jet& jet, std::string algorithm_name, cons
   // Step 6
   if(m_D2_cut_direction == "LEFT" || m_D2_cut_direction == "RIGHT"){
     float d2(0.0);
-    if(D2.isAvailable(jet)){
-      d2 = D2(jet);
+    if(s_D2.isAvailable(jet)){
+      d2 = s_D2(jet);
     } else {
-      if((!ECF1.isAvailable(jet) || !ECF2.isAvailable(jet) || !ECF3.isAvailable(jet))){
+      if((!s_ECF1.isAvailable(jet) || !s_ECF2.isAvailable(jet) || !s_ECF3.isAvailable(jet))){
         if(m_debug) printf("<%s>: D2 wasn't calculated. ECF# variables are not available.\r\n", APP_NAME);
         return -9;
       }
-      d2 = ECF3(jet) * pow(ECF1(jet), 3.0) / pow(ECF2(jet), 3.0);
+      d2 = s_ECF3(jet) * pow(s_ECF1(jet), 3.0) / pow(s_ECF2(jet), 3.0);
     }
     buffer = "<%s>: Jet %s the D2 cut from %s\r\n\tD2: %0.6f\r\n\tCut: %0.6f\r\n";
     // then calculate d2 and check that
     float D2Cut = m_D2_params[0] + m_D2_params[1] * jet.pt()/1.e3 + m_D2_params[2] * pow(jet.pt()/1.e3, 2) + m_D2_params[3] * pow(jet.pt()/1.e3, 3) + m_D2_params[4] * pow(jet.pt()/1.e3, 4);
-    D2Pivot(jet) = std::pair<float, std::string>(D2Cut, m_D2_cut_direction);
+    m_D2Pivot(jet) = std::pair<float, std::string>(D2Cut, m_D2_cut_direction);
     if((d2 > D2Cut && m_D2_cut_direction == "RIGHT") || (d2 < D2Cut && m_D2_cut_direction == "LEFT")){
       if(m_verbose) printf(buffer.c_str(), APP_NAME, "failed", (m_D2_cut_direction == "RIGHT")?"above":"below", d2, D2Cut);
       //return 0;
@@ -591,13 +591,13 @@ int BoostedXbbTag::result(const xAOD::Jet& jet, std::string algorithm_name, cons
 
 std::vector<const xAOD::Jet*> BoostedXbbTag::get_bTagged_trackJets(const xAOD::Jet& jet) const {
   std::vector<const xAOD::Jet*> associated_trackJets;
-  // get the track jets from the parent
-  (*parent(jet))->getAssociatedObjects<xAOD::Jet>("GhostAntiKt2TrackJet", associated_trackJets);
+  // get the track jets from the s_parent
+  (*s_parent(jet))->getAssociatedObjects<xAOD::Jet>("GhostAntiKt2TrackJet", associated_trackJets);
   //// IF PROBLEMS with association to ungroomed parent, comment out to get track jets from trimmed jet
   //jet.getAssociatedObjects<xAOD::Jet>("GhostAntiKt2TrackJet", associated_trackJets);
   std::vector<const xAOD::Jet*> bTagged_trackJets;
   for(const auto& trackJet: associated_trackJets){
-    if(isB(*trackJet) == 0) continue;
+    if(m_isB(*trackJet) == 0) continue;
     bTagged_trackJets.push_back(trackJet);
   }
   return bTagged_trackJets;
@@ -606,7 +606,7 @@ std::vector<const xAOD::Jet*> BoostedXbbTag::get_bTagged_trackJets(const xAOD::J
 std::vector<const xAOD::Muon*> BoostedXbbTag::get_matched_muons(const xAOD::Jet& jet) const {
   std::vector<const xAOD::Muon*> muons;
 
-  auto muonsLink = matchedMuonsLink(jet);
+  auto muonsLink = m_matchedMuonsLink(jet);
   for(auto muonLink : muonsLink) {
     if(!muonLink.isValid()) {
       muons.push_back(nullptr);
@@ -621,13 +621,13 @@ std::vector<const xAOD::Muon*> BoostedXbbTag::get_matched_muons(const xAOD::Jet&
 
 
 TLorentzVector BoostedXbbTag::get_correctedJet_TLV(const xAOD::Jet& jet) const {
-  return correctedJetDecor(jet);
+  return m_correctedJetDecor(jet);
 }
 
 std::pair<float, float> BoostedXbbTag::get_mass_window(const xAOD::Jet& jet) const {
-  return massWindow(jet);
+  return m_massWindow(jet);
 }
 
 std::pair<float, std::string> BoostedXbbTag::get_D2_pivot(const xAOD::Jet& jet) const {
-  return D2Pivot(jet);
+  return m_D2Pivot(jet);
 }

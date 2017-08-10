@@ -53,9 +53,3 @@ bool eflowFirstIntParameters::getWeightedParameters(const eflowFirstIntParameter
 
   return true;
 }
-
-void eflowFirstIntParameters::printM_Parameters() {
-  for (int i = 0; i < eflowCalo::nRegions; i++)
-    for (int j = 0; j < m_nShapeParams; j++)
-      std::cout << "m_p[" << i << "][" << j << "] is " << m_parameters[i][j] << std::endl;
-}

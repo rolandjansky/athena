@@ -129,7 +129,7 @@ SimKernel = getAlgorithm(ISF_Flags.Simulator.KernelName())
 
 # Temporary work-around - see ATLASSIM-2351
 if ISF_Flags.UsingGeant4():
-    
+
     # ADS: moved here from iGeant4.py
     try:
         # the non-hive version of G4AtlasApps provides PyG4AtlasAlg
@@ -142,6 +142,9 @@ if ISF_Flags.UsingGeant4():
             ServiceMgr += PyG4AtlasSvc()
         except ImportError:
             print "FATAL: Failed to import PyG4AtlasAlg/Svc"
+
+if ISF_Flags.ValidationMode():
+    topSeq += getAlgorithm("ISF_SimHitTreeCreator")
 
 #--------------------------------------------------------------
 # Setup the random number streams

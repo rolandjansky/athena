@@ -36,7 +36,7 @@ atlas_add_library( TrigMinBiasMonitoringLib
                    PUBLIC_HEADERS TrigMinBiasMonitoring
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES ${ROOT_LIBRARIES} CaloIdentifier xAODEventInfo ZdcIdentifier GaudiKernel AthenaMonitoringLib TrigDecisionToolLib TrigHLTMonitoringLib
-                   PRIVATE_LINK_LIBRARIES CaloEvent CaloGeoHelpers xAODTracking xAODTrigMinBias LUCID_RawEvent ZdcEvent InDetBCM_RawData TileEvent TrigCaloEvent TrigInDetEvent )
+                   PRIVATE_LINK_LIBRARIES CaloEvent CaloGeoHelpers xAODTracking xAODTrigMinBias LUCID_RawEvent ZdcEvent InDetBCM_RawData TileEvent TrigCaloEvent TrigInDetEvent InDetTrackSelectionToolLib )
 
 atlas_add_component( TrigMinBiasMonitoring
                      src/components/*.cxx

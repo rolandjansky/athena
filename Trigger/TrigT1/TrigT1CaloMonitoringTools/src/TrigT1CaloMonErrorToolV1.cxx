@@ -99,7 +99,7 @@ TrigT1CaloMonErrorToolV1::~TrigT1CaloMonErrorToolV1()
 StatusCode TrigT1CaloMonErrorToolV1::initialize()
 {
   msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << PACKAGE_VERSION << endreq;
+                 << PACKAGE_VERSION << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -141,21 +141,21 @@ StatusCode TrigT1CaloMonErrorToolV1::retrieve(const std::vector<unsigned int>*&
   const TriggerTowerCollection* triggerTowerMuonTES = 0;
   sc = evtStore()->retrieve(triggerTowerTES, m_triggerTowerLocation);
   if ( sc.isFailure()  ||  !triggerTowerTES ) {
-    msg(MSG::DEBUG) << "No Trigger Tower container found" << endreq;
+    msg(MSG::DEBUG) << "No Trigger Tower container found" << endmsg;
   }
   if (evtStore()->contains<TriggerTowerCollection>(m_triggerTowerLocation + "Spare")) {
     sc = evtStore()->retrieve(triggerTowerSpareTES,
                               m_triggerTowerLocation + "Spare");
   } else sc = StatusCode::FAILURE;
   if ( sc.isFailure()  ||  !triggerTowerSpareTES ) {
-    msg(MSG::DEBUG) << "No Spare Trigger Tower container found" << endreq;
+    msg(MSG::DEBUG) << "No Spare Trigger Tower container found" << endmsg;
   }
   if (evtStore()->contains<TriggerTowerCollection>(m_triggerTowerLocation + "Muon")) {
     sc = evtStore()->retrieve(triggerTowerMuonTES,
                               m_triggerTowerLocation + "Muon");
   } else sc = StatusCode::FAILURE;
   if ( sc.isFailure()  ||  !triggerTowerMuonTES ) {
-    msg(MSG::DEBUG) << "No Tile Muon Trigger Tower container found" << endreq;
+    msg(MSG::DEBUG) << "No Tile Muon Trigger Tower container found" << endmsg;
   }
 
   //Retrieve Core and Overlap CPM Towers from SG
@@ -163,34 +163,34 @@ StatusCode TrigT1CaloMonErrorToolV1::retrieve(const std::vector<unsigned int>*&
   const CpmTowerCollection* cpmTowerOvTES = 0;
   sc = evtStore()->retrieve(cpmTowerTES, m_cpmTowerLocation);
   if ( sc.isFailure()  ||  !cpmTowerTES ) {
-    msg(MSG::DEBUG) << "No Core CPM Tower container found" << endreq;
+    msg(MSG::DEBUG) << "No Core CPM Tower container found" << endmsg;
   }
   if (evtStore()->contains<CpmTowerCollection>(m_cpmTowerLocationOverlap)) {
     sc = evtStore()->retrieve(cpmTowerOvTES, m_cpmTowerLocationOverlap);
   } else sc = StatusCode::FAILURE;
   if ( sc.isFailure()  ||  !cpmTowerOvTES ) {
-    msg(MSG::DEBUG) << "No Overlap CPM Tower container found" << endreq;
+    msg(MSG::DEBUG) << "No Overlap CPM Tower container found" << endmsg;
   }
 
   //Retrieve CPM RoIs from SG
   const CpmRoiCollection* cpmRoiTES = 0;
   sc = evtStore()->retrieve( cpmRoiTES, m_cpmRoiLocation);
   if ( sc.isFailure()  ||  !cpmRoiTES ) {
-    msg(MSG::DEBUG) << "No CPM RoIs container found" << endreq;
+    msg(MSG::DEBUG) << "No CPM RoIs container found" << endmsg;
   }
 
   //Retrieve CPM Hits from SG
   const CpmHitsCollection* cpmHitsTES = 0;
   sc = evtStore()->retrieve( cpmHitsTES, m_cpmHitsLocation);
   if ( sc.isFailure()  ||  !cpmHitsTES ) {
-    msg(MSG::DEBUG) << "No CPM Hits container found" << endreq;
+    msg(MSG::DEBUG) << "No CPM Hits container found" << endmsg;
   }
 
   //Retrieve CMM-CP Hits from SG
   const CmmCpHitsCollection* cmmCpHitsTES = 0;
   sc = evtStore()->retrieve( cmmCpHitsTES, m_cmmCpHitsLocation);
   if ( sc.isFailure()  ||  !cmmCpHitsTES ) {
-    msg(MSG::DEBUG) << "No CMM-CP Hits container found" << endreq;
+    msg(MSG::DEBUG) << "No CMM-CP Hits container found" << endmsg;
   }
 
   //Retrieve Core and Overlap Jet Elements from SG
@@ -198,55 +198,55 @@ StatusCode TrigT1CaloMonErrorToolV1::retrieve(const std::vector<unsigned int>*&
   const JetElementCollection* jetElementOvTES = 0;
   sc = evtStore()->retrieve(jetElementTES, m_jetElementLocation);
   if ( sc.isFailure()  ||  !jetElementTES ) {
-    msg(MSG::DEBUG) << "No Core Jet Element container found" << endreq;
+    msg(MSG::DEBUG) << "No Core Jet Element container found" << endmsg;
   }
   if (evtStore()->contains<JetElementCollection>(m_jetElementLocationOverlap)) {
     sc = evtStore()->retrieve(jetElementOvTES, m_jetElementLocationOverlap);
   } else sc = StatusCode::FAILURE;
   if ( sc.isFailure()  ||  !jetElementOvTES ) {
-    msg(MSG::DEBUG) << "No Overlap Jet Element container found" << endreq;
+    msg(MSG::DEBUG) << "No Overlap Jet Element container found" << endmsg;
   }
 
   //Retrieve JEM RoIs from SG
   const JemRoiCollection* jemRoiTES = 0;
   sc = evtStore()->retrieve( jemRoiTES, m_jemRoiLocation);
   if ( sc.isFailure()  ||  !jemRoiTES  ) {
-    msg(MSG::DEBUG) << "No DAQ JEM RoIs container found" << endreq;
+    msg(MSG::DEBUG) << "No DAQ JEM RoIs container found" << endmsg;
   }
 
   //Retrieve JEM Hits from SG
   const JemHitsCollection* jemHitsTES = 0;
   sc = evtStore()->retrieve( jemHitsTES, m_jemHitsLocation);
   if ( sc.isFailure()  ||  !jemHitsTES ) {
-    msg(MSG::DEBUG) << "No JEM Hits container found" << endreq;
+    msg(MSG::DEBUG) << "No JEM Hits container found" << endmsg;
   }
 
   //Retrieve CMM-Jet Hits from SG
   const CmmJetHitsCollection* cmmJetHitsTES = 0;
   sc = evtStore()->retrieve( cmmJetHitsTES, m_cmmJetHitsLocation);
   if ( sc.isFailure()  ||  !cmmJetHitsTES ) {
-    msg(MSG::DEBUG) << "No CMM-Jet Hits container found" << endreq;
+    msg(MSG::DEBUG) << "No CMM-Jet Hits container found" << endmsg;
   }
 
   //Retrieve CMM RoIs from SG
   const LVL1::CMMRoI* cmmRoiTES = 0;
   sc = evtStore()->retrieve( cmmRoiTES, m_cmmRoiLocation);
   if ( sc.isFailure()  ||  !cmmRoiTES ) {
-    msg(MSG::DEBUG) << "No CMM RoIs container found" << endreq;
+    msg(MSG::DEBUG) << "No CMM RoIs container found" << endmsg;
   }
 
   //Retrieve JEM Et Sums from SG
   const JemEtSumsCollection* jemEtSumsTES = 0;
   sc = evtStore()->retrieve( jemEtSumsTES, m_jemEtSumsLocation);
   if ( sc.isFailure()  ||  !jemEtSumsTES ) {
-    msg(MSG::DEBUG) << "No JEM Et Sums container found" << endreq;
+    msg(MSG::DEBUG) << "No JEM Et Sums container found" << endmsg;
   }
 
   //Retrieve CMM Et Sums from SG
   const CmmEtSumsCollection* cmmEtSumsTES = 0;
   sc = evtStore()->retrieve( cmmEtSumsTES, m_cmmEtSumsLocation);
   if ( sc.isFailure()  ||  !cmmEtSumsTES ) {
-    msg(MSG::DEBUG) << "No CMM-Energy Et Sums container found" << endreq;
+    msg(MSG::DEBUG) << "No CMM-Energy Et Sums container found" << endmsg;
   }
 
   //Retrieve ROD Headers from SG
@@ -255,7 +255,7 @@ StatusCode TrigT1CaloMonErrorToolV1::retrieve(const std::vector<unsigned int>*&
     sc = evtStore()->retrieve(rodTES, m_rodHeaderLocation);
   } else sc = StatusCode::FAILURE;
   if ( sc.isFailure()  ||  !rodTES ) {
-    msg(MSG::DEBUG) << "No ROD Header container found" << endreq;
+    msg(MSG::DEBUG) << "No ROD Header container found" << endmsg;
   }
 
   //Retrieve CP RoIB ROD Headers from SG
@@ -264,7 +264,7 @@ StatusCode TrigT1CaloMonErrorToolV1::retrieve(const std::vector<unsigned int>*&
     sc = evtStore()->retrieve(cpRoibTES, m_cpRoibRodHeaderLocation);
   } else sc = StatusCode::FAILURE;
   if ( sc.isFailure()  ||  !cpRoibTES ) {
-    msg(MSG::DEBUG) << "No CP RoIB ROD Header container found" << endreq;
+    msg(MSG::DEBUG) << "No CP RoIB ROD Header container found" << endmsg;
   }
 
   //Retrieve JEP RoIB ROD Headers from SG
@@ -273,7 +273,7 @@ StatusCode TrigT1CaloMonErrorToolV1::retrieve(const std::vector<unsigned int>*&
     sc = evtStore()->retrieve(jepRoibTES, m_jepRoibRodHeaderLocation);
   } else sc = StatusCode::FAILURE;
   if ( sc.isFailure()  ||  !jepRoibTES ) {
-    msg(MSG::DEBUG) << "No JEP RoIB ROD Header container found" << endreq;
+    msg(MSG::DEBUG) << "No JEP RoIB ROD Header container found" << endmsg;
   }
 
   //Retrieve ROB Status and Unpacking Error vector from SG
@@ -283,7 +283,7 @@ StatusCode TrigT1CaloMonErrorToolV1::retrieve(const std::vector<unsigned int>*&
   } else sc = StatusCode::FAILURE;
   if ( sc.isFailure()  ||  !errColl ) {
     msg(MSG::DEBUG) << "No ROB Status and Unpacking Error vector found"
-                    << endreq;
+                    << endmsg;
   }
 
   return sc;
@@ -334,7 +334,7 @@ bool TrigT1CaloMonErrorToolV1::missingFragment()
   } else sc = StatusCode::FAILURE;
   if ( sc.isFailure()  ||  !rodTES ) {
     if (debug) msg(MSG::DEBUG) << "No DAQ ROD Header container found"
-                                 << endreq;
+                                 << endmsg;
   }
 
   //Retrieve CP RoIB ROD Headers from SG
@@ -344,7 +344,7 @@ bool TrigT1CaloMonErrorToolV1::missingFragment()
   } else sc = StatusCode::FAILURE;
   if ( sc.isFailure()  ||  !cpRoibTES ) {
     if (debug) msg(MSG::DEBUG) << "No CP RoIB ROD Header container found"
-                                 << endreq;
+                                 << endmsg;
   }
 
   //Retrieve JEP RoIB ROD Headers from SG
@@ -354,7 +354,7 @@ bool TrigT1CaloMonErrorToolV1::missingFragment()
   } else sc = StatusCode::FAILURE;
   if ( sc.isFailure()  ||  !jepRoibTES ) {
     if (debug) msg(MSG::DEBUG) << "No JEP RoIB ROD Header container found"
-                                 << endreq;
+                                 << endmsg;
   }
 
   // Record fragments present

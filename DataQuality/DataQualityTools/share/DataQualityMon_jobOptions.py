@@ -112,7 +112,7 @@ if DQMonFlags.monManEnvironment != 'tier0ESD':
     #ManagedAthenaGlobalMon.AthenaMonTools += [ DQTMuTrkMon ];
 
      # Import Det Synch tool
-    if DQMonFlags.monManEnvironment in ('tier0Raw', 'tier0'):
+    if DQMonFlags.monManEnvironment in ('tier0Raw', 'tier0') and globalflags.DataSource.get_Value() != 'geant4':
         from DataQualityTools.DataQualityToolsConf import  DQTDetSynchMonTool
         DQTDetSynchMon = DQTDetSynchMonTool(name            = 'DQTDetSynchMon',
                                             histoPathBase   = "/GLOBAL/DQTSynch",

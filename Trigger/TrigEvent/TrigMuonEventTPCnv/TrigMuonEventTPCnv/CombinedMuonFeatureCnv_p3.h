@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigMuonEventTPCnv
- * @Class  : CombinedMuonFeatureCnv_p3
+ * @class  : CombinedMuonFeatureCnv_p3
  *
  * @brief persistent version of CombinedMuonFeatureCnv
  *

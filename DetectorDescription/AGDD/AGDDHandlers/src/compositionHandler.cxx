@@ -21,7 +21,7 @@ void compositionHandler::ElementHandle()
 {
 	std::string name=getAttributeAsString("name");
 //	if (msgLog().level()<=MSG::DEBUG)
-//	msgLog()<<MSG::DEBUG<<" Composition "<<name<<endreq;
+//	msgLog()<<MSG::DEBUG<<" Composition "<<name<<endmsg;
 	
 	AGDDComposition *c=new AGDDComposition(name);
 	

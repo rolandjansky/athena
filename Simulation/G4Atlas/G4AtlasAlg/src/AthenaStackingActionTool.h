@@ -42,7 +42,7 @@ namespace G4UA
       { return static_cast<IStackingAction*>( getAction() ); }
 
       /// Query interface for gaudi
-      virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
+      virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
 
     protected:
 

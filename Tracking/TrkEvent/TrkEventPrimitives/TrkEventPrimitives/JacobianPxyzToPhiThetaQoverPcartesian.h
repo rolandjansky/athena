@@ -22,7 +22,7 @@ namespace Trk {
        to momentum in polar cordinates  @f$(\phi,\theta,QoverP)@f$.
 
       The derivatives are:
-      - @f$ r = \sqrt{px\mathrm{^2}+py\mathrm{^2}+pz\mathrm{^2}} 
+      - @f$ r = \sqrt{px\mathrm{^2}+py\mathrm{^2}+pz\mathrm{^2}} @f$
       - @f$ \frac{\partial \phi}{\partial px}   = -\frac{py}{px\mathrm{^2}+py\mathrm{^2}}  @f$
       - @f$ \frac{\partial \theta}{\partial px} = \frac{px\cdot pz}{r\mathrm{^2}\cdot \sqrt{px\mathrm{^2}+py\mathrm{^2}}} @f$
       - @f$ \frac{\partial qOverP}{\partial px} = -\frac{charge \cdot px}{r\mathrm{^3}} @f$

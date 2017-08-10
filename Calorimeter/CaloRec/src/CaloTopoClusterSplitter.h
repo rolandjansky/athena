@@ -61,10 +61,6 @@ class CaloTopoClusterSplitter: public AthAlgTool, virtual public CaloClusterColl
                              xAOD::CaloClusterContainer* theClusters) const override;
   virtual StatusCode initialize() override;
 
-  /** Callback added to handle Data-driven GeoModel initialisation
-   */
-  virtual StatusCode geoInit(IOVSVC_CALLBACK_ARGS);
-  
  private: 
   
   const CaloDetDescrManager* m_calo_dd_man; 

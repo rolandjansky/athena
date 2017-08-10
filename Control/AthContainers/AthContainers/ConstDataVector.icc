@@ -847,6 +847,21 @@ ConstDataVector<DV>::asDataVector() const
 
 
 /**
+ * @brief Cast from a @c DataVector to a @c ConstDataVector.
+ * @param dv Pointer to object to cast.
+ *
+ * Return @c DV cast to a @c ConstDataVector.
+ */
+template <class DV>
+const ConstDataVector<DV>* ConstDataVector<DV>::fromDataVector (const DV* dv)
+{
+  if (typeid (*dv) == typeid (ConstDataVector))
+    return static_cast<const ConstDataVector*> (dv);
+  return nullptr;
+}
+
+
+/**
  * @brief Reset indices / reorder aux data after elements have been permuted.
  * @param beg Start of the range of elements to process.
  * @param end End of the range of elements to process.

@@ -100,15 +100,15 @@ StatusCode Starlight_i::genInitialize()
     //
   MsgStream log(messageService(), name());
   log << MSG::INFO 
-      << "===> January 20 2011 STARLIGHT INTERFACE VERSION. \n"  << endreq;
+      << "===> January 20 2011 STARLIGHT INTERFACE VERSION. \n"  << endmsg;
   log << MSG::INFO 
-      << "===> STARLIGHT INITIALISING. \n"  << endreq;
+      << "===> STARLIGHT INITIALISING. \n"  << endmsg;
 
     StatusCode sc = service("StoreGateSvc", m_storeGate);
     if (sc.isFailure())
       {
 	log << MSG::WARNING 
-	    << "Unable to get pointer to StoreGate Service"  << endreq;
+	    << "Unable to get pointer to StoreGate Service"  << endmsg;
       	return sc;
       }
 
@@ -119,7 +119,7 @@ StatusCode Starlight_i::genInitialize()
       service("AtRndmGenSvc", p_AtRndmGenSvc, CREATEIFNOTTHERE);
     if (!RndmStatus.isSuccess() || 0 == p_AtRndmGenSvc) {
       log << MSG::ERROR 
-	  << " Could not initialize Random Number Service" << endreq;
+	  << " Could not initialize Random Number Service" << endmsg;
       return RndmStatus;
     }   
 
@@ -149,7 +149,7 @@ StatusCode Starlight_i::callGenerator()
 {
     MsgStream log(messageService(), name());
     log << MSG::DEBUG
-	<< " STARLIGHT generating. \n"  << endreq;
+	<< " STARLIGHT generating. \n"  << endmsg;
 
     // Generate event
     m_event = new upcEvent; 
@@ -164,10 +164,10 @@ StatusCode Starlight_i::callGenerator()
     log << MSG::DEBUG
         << "EVENT: " << m_events << " " 
 	<< " with " << numberOfVertices << " vertices "
-	<< " and " << numberofTracks << " tracks" << endreq;
+	<< " and " << numberofTracks << " tracks" << endmsg;
     log << MSG::DEBUG
 	<< "VERTEX: "<< 0. << " " << 0. << " " << 0. 
-	<< " with " << numberofTracks << " tracks" << endreq;
+	<< " with " << numberofTracks << " tracks" << endmsg;
       
     int ipart = 0;
     std::vector<starlightParticle>::const_iterator part = 
@@ -179,11 +179,11 @@ StatusCode Starlight_i::callGenerator()
 	  << starlightParticleCodes::jetsetToGeant((*part).getCharge() * (*part).getPdgCode()) << " "
 	  << (*part).GetPx() << " " << (*part).GetPy() << " "<< (*part).GetPz() 
 	  << " " << m_events << " " << ipart << " " << 0 << " "
-	  << (*part).getCharge() * (*part).getPdgCode() << endreq;
+	  << (*part).getCharge() * (*part).getPdgCode() << endmsg;
     }
 
     log << MSG::DEBUG
-        << " Starlight generating done.  \n"  << endreq;
+        << " Starlight generating done.  \n"  << endmsg;
 
     return StatusCode::SUCCESS;  
 }
@@ -193,7 +193,7 @@ Starlight_i::genFinalize()
 {
     MsgStream log(messageService(), name());
     log << MSG::DEBUG
-        << "  STARLIGHT Ending.  \n"  << endreq;
+        << "  STARLIGHT Ending.  \n"  << endmsg;
 
     return StatusCode::SUCCESS;
 }
@@ -203,7 +203,7 @@ Starlight_i::fillEvt(HepMC::GenEvent* evt)
 {
    MsgStream log(messageService(), name());
    log << MSG::DEBUG
-       << "  STARLIGHT Filing.  \n"  << endreq;
+       << "  STARLIGHT Filing.  \n"  << endmsg;
 
     // Set the event number
     evt->set_event_number( m_events );
@@ -240,13 +240,13 @@ Starlight_i::fillEvt(HepMC::GenEvent* evt)
 	  e  = sqrt(px*px + py*py + pz*pz + mass*mass);
 	}
 	log << MSG::DEBUG
-	    << "saving particle " << ipart << endreq;
+	    << "saving particle " << ipart << endmsg;
 
 	v1->add_particle_out( 
 			     new HepMC::GenParticle(CLHEP::HepLorentzVector(px, py, pz, e), pid, 1) );
       }
     log << MSG::DEBUG
-	<< "Saved " << ipart << " tracks " << endreq;
+	<< "Saved " << ipart << " tracks " << endmsg;
 
     // Convert cm->mm and GeV->MeV
     // 
@@ -274,7 +274,7 @@ bool Starlight_i::set_user_params()
   inputParametersInstance.configureFromFile(m_configFileName);
   if (!inputParametersInstance.init()) {
     log << MSG::WARNING
-	<< "problems initializing input parameters. cannot initialize starlight. " << endreq;
+	<< "problems initializing input parameters. cannot initialize starlight. " << endmsg;
     return false;
   }
   
@@ -289,7 +289,7 @@ bool Starlight_i::prepare_params_file()
     for(CommandVector::iterator i = m_InitializeVector.begin(); i != m_InitializeVector.end(); i++ )
     {
 	log << MSG::INFO
-	    << "  Command is: " << *i << endreq;
+	    << "  Command is: " << *i << endmsg;
 
 	StringParse mystring(*i);
 	std::string myparam = mystring.piece(1);
@@ -425,7 +425,7 @@ bool Starlight_i::prepare_params_file()
 	{
 	    log << MSG::ERROR 
 		<< " ERROR in STARLIGHT INITIALIZATION PARAMETERS  " 
-		<< myparam << " is an invalid parameter !" << endreq;
+		<< myparam << " is an invalid parameter !" << endmsg;
 	    return false;
 	}
     }

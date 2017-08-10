@@ -12,6 +12,7 @@
 
 #include "LArG4Code/LArG4Identifier.h"
 #include "LArG4Code/LArCalculatorSvcImp.h"
+#include "ILArBarrelPresamplerGeometry.h"
 
 #include "globals.hh"
 #include <stdexcept>
@@ -20,11 +21,6 @@ class G4Step;
 class PsMap;
 class LArG4BirksLaw;
 class G4String;
-
-namespace LArG4 {
-  // Forward declaration
-  class IPresamplerGeometryCalculator;
-}
 
 class LArBarrelPresamplerCalculator : public LArCalculatorSvcImp {
 
@@ -53,7 +49,7 @@ private:
   LArBarrelPresamplerCalculator& operator=(const  LArBarrelPresamplerCalculator&);//coverity issue fix. Declared, but not implemented
   //
   // Class for calculating the identifier.
-  ServiceHandle<LArG4::IPresamplerGeometryCalculator> m_geometryCalculator;
+  ServiceHandle<ILArBarrelPresamplerGeometry> m_geometry;
 
   PsMap* m_psmap;
 

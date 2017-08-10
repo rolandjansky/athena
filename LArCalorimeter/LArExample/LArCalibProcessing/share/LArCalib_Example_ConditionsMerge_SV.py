@@ -45,7 +45,6 @@ include("LArCalibProcessing/LArCalib_MinimalSetup.py")
 theApp.EvtMax = 1
 conddb.setGlobalTag("COMCOND-ES1PST-004-01") #For id mapping
 
-svcMgr.PoolSvc.CheckDictionary=False
 svcMgr.PoolSvc.SortReplicas=False
 
 

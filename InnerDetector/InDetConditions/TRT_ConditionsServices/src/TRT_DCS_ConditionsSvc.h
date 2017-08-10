@@ -6,7 +6,7 @@
 #define TRT_DCS_CONDITIONSSVC_H
 
 /** @file TRT_DCS_ConditionsSvc.h
- *  @Service to provide a simple Athena interface to read
+ *  @brief Service to provide a simple Athena interface to read
  *  DCS conditions data from COOL
  * author Denver Whittington <Denver.Whittington@cern.ch>
  **/

@@ -39,7 +39,6 @@ namespace Muon {
 
   MuonTrackTruthTool::MuonTrackTruthTool(const std::string& ty,const std::string& na,const IInterface* pa)
     : AthAlgTool(ty,na,pa), 
-      m_storeGate(0),
       m_detMgr(0),
       m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
       m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),

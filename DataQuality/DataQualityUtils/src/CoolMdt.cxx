@@ -20,6 +20,7 @@
 #include "CoolKernel/Exception.h"
 #include "CoolKernel/IDatabaseSvc.h"
 #include "CoolKernel/StorageType.h"
+#include "CoolKernel/ConstRecordAdapter.h"
 
 ClassImp(dqutils::CoolMdt)
 
@@ -46,7 +47,7 @@ namespace dqutils{
  CoolMdt::
  coolFolderInstance(std::string folderStr) {
      try {
- 	 cool::IFolderPtr folder = coolDb->getFolder(folderStr.c_str());
+ 	 cool::IFolderPtr folder = m_coolDb->getFolder(folderStr.c_str());
  	// std::cout << "Browsing objects of '" << folderStr << "'" << std::endl;
  	 return folder;
      }
@@ -59,21 +60,21 @@ namespace dqutils{
 
 void
  CoolMdt::coolDbFolder(std::string dbStr, std::string folderStr) {
-   coolDb = this->coolDbInstance(dbStr, false); 
-   coolFolder=this->coolFolderInstance(folderStr);  
+   m_coolDb = this->coolDbInstance(dbStr, false); 
+   m_coolFolder=this->coolFolderInstance(folderStr);  
  }
  
 
  void
  CoolMdt::
  setSince(cool::Int64 run, cool::Int64 lumi) {
-     since = ((run << 32) + lumi);
+     m_since = ((run << 32) + lumi);
  }
 
  void
  CoolMdt::
  setUntil(cool::Int64 run, cool::Int64 lumi) {
-     until = ((run << 32) + lumi);
+     m_until = ((run << 32) + lumi);
  }
    
  void
@@ -96,25 +97,25 @@ void
  void
  CoolMdt::
  printIOV(){
-     cool::Int64 runS=since>>32;
-     cool::Int64 lumiS=since-(runS<<32);
-     cool::Int64 runU=until>>32;
-     cool::Int64 lumiU=until-(runU<<32);
-     std::cout << "Using IOVrange [(" << runS << "," << lumiS << "),("  << runU << "," << lumiU << ")] " << "[" << since << "," << until << "]" << std::endl;
+     cool::Int64 runS=m_since>>32;
+     cool::Int64 lumiS=m_since-(runS<<32);
+     cool::Int64 runU=m_until>>32;
+     cool::Int64 lumiU=m_until-(runU<<32);
+     std::cout << "Using IOVrange [(" << runS << "," << lumiS << "),("  << runU << "," << lumiU << ")] " << "[" << m_since << "," << m_until << "]" << std::endl;
  }
 
 
  void
  CoolMdt::
  CoolOpen(std::string dbStr) {
-     coolDb = this->coolDbInstance(dbStr, false);
+     m_coolDb = this->coolDbInstance(dbStr, false);
  
  }
  
  CoolMdt::
  ~CoolMdt () {
-   coolFolder->flushStorageBuffer();
-     coolDb->closeDatabase();
+   m_coolFolder->flushStorageBuffer();
+     m_coolDb->closeDatabase();
      //     std::cout << "Cleared!" << std::endl;
  }
 
@@ -132,12 +133,12 @@ void
      spec.extend("Dead_tube",cool::StorageType::String4k);
     
      if(m_fist_folder){
-       coolFolder=this->coolFolderInstance("/OFFLINE/DQMFOFFLINE/DQMFOFFLINE_DEAD");
-       coolFolder->setupStorageBuffer();
+       m_coolFolder=this->coolFolderInstance("/OFFLINE/DQMFOFFLINE/DQMFOFFLINE_DEAD");
+       m_coolFolder->setupStorageBuffer();
        //std::cout << "Storage Buffer Setup Dead" << std::endl;
        m_fist_folder = false;
      }
-     if (!(spec==coolFolder->payloadSpecification())) {
+     if (!(spec==m_coolFolder->payloadSpecification())) {
        std::cerr << "ERROR Source and destination folder specifications differ." << std::endl;
      }
   //   std::cout << "CREATE DONE" << std::endl;
@@ -177,12 +178,12 @@ void
      spec.extend("Noisy_tube",cool::StorageType::String4k);
     
      if(m_fist_folder){
-       coolFolder=this->coolFolderInstance("/OFFLINE/DQMFOFFLINE/DQMFOFFLINE_NOISY");
-       coolFolder->setupStorageBuffer();
+       m_coolFolder=this->coolFolderInstance("/OFFLINE/DQMFOFFLINE/DQMFOFFLINE_NOISY");
+       m_coolFolder->setupStorageBuffer();
        //std::cout << "Storage Buffer Setup Noisy" << std::endl;
        m_fist_folder = false;
      }
-     if (!(spec==coolFolder->payloadSpecification())) {
+     if (!(spec==m_coolFolder->payloadSpecification())) {
        std::cerr << "ERROR Source and destination folder specifications differ." << std::endl;
      }
   //   std::cout << "CREATE DONE" << std::endl;
@@ -213,7 +214,7 @@ void
  CoolMdt::
  dump(cool::ChannelSelection selection) {
      try {
- 	 cool::IObjectIteratorPtr objects = coolFolder->browseObjects(since, until, selection,"");
+ 	 cool::IObjectIteratorPtr objects = m_coolFolder->browseObjects(m_since, m_until, selection,"");
  	 while (objects->goToNext()) {
  	     const cool::IObject& element = objects->currentRef();
  	     std::cout << element << std::endl;
@@ -231,7 +232,7 @@ void
      std::string result ="";
      try {
  	 cool::ChannelSelection selection = cool::ChannelSelection(channelId);
- 	 cool::IObjectIteratorPtr objects = coolFolder->browseObjects(since, until, selection,"");
+ 	 cool::IObjectIteratorPtr objects = m_coolFolder->browseObjects(m_since, m_until, selection,"");
  	 while (objects->goToNext()) {
  	     const cool::IObject& element = objects->currentRef();
  	     result = element.payloadValue(field);
@@ -270,7 +271,7 @@ void
        coral::AttributeList payload = this->createPayloadDataDead(ChamberName,DeadMultilayer , DeadLayer, DeadMezz, DeadAsd, DeadTube, spec);
        cool::ValidityKey since_u = (run << 32);
        cool::ValidityKey  until_u = (run+1) << 32;
-       coolFolder->storeObject(since_u, until_u, cool::Record(coolFolder->payloadSpecification(), payload), channelId, cool_tag);
+       m_coolFolder->storeObject(since_u, until_u, cool::Record(m_coolFolder->payloadSpecification(), payload), channelId, cool_tag);
        //       std::cout << "stored! With Tag =" << cool_tag <<std::endl;
      }
      catch (cool::Exception& e) {
@@ -290,7 +291,7 @@ void
        coral::AttributeList payload = this->createPayloadDataDead(ChamberName,DeadMultilayer , DeadLayer, DeadMezz, DeadAsd, DeadTube, spec);
        cool::ValidityKey since_u = (run << 32);
        cool::ValidityKey  until_u = (run+1) << 32;
-       coolFolder->storeObject(since_u, until_u, cool::Record(coolFolder->payloadSpecification(), payload), channelId);
+       m_coolFolder->storeObject(since_u, until_u, cool::Record(m_coolFolder->payloadSpecification(), payload), channelId);
        //       std::cout << "stored! without Tag" << std::endl;
      }
      catch (cool::Exception& e) {
@@ -312,7 +313,7 @@ void
        coral::AttributeList payload = this->createPayloadDataNoisy(ChamberName,NoisyMultilayer , NoisyLayer, NoisyMezz, NoisyAsd, NoisyTube, spec);
        cool::ValidityKey since_u = (run << 32);
        cool::ValidityKey  until_u = (run+1) << 32;
-       coolFolder->storeObject(since_u, until_u, cool::Record(coolFolder->payloadSpecification(), payload), channelId, cool_tag);
+       m_coolFolder->storeObject(since_u, until_u, cool::Record(m_coolFolder->payloadSpecification(), payload), channelId, cool_tag);
        //       std::cout << "stored! With Tag =" << cool_tag <<std::endl;
      }
      catch (cool::Exception& e) {
@@ -332,7 +333,7 @@ void
        coral::AttributeList payload = this->createPayloadDataNoisy(ChamberName,NoisyMultilayer , NoisyLayer, NoisyMezz, NoisyAsd, NoisyTube, spec);
        cool::ValidityKey since_u = (run << 32);
        cool::ValidityKey  until_u = (run+1) << 32;
-       coolFolder->storeObject(since_u, until_u, cool::Record(coolFolder->payloadSpecification(), payload), channelId);
+       m_coolFolder->storeObject(since_u, until_u, cool::Record(m_coolFolder->payloadSpecification(), payload), channelId);
        //       std::cout << "stored! without Tag" << std::endl;
      }
      catch (cool::Exception& e) {
@@ -347,13 +348,13 @@ void
  cool::IFolderPtr
  CoolMdt::
  getCoolFolder() {
-     return this->coolFolder;
+     return this->m_coolFolder;
  }
 
  cool::IDatabasePtr
  CoolMdt::
  getCoolDb() {
-     return this->coolDb;
+     return this->m_coolDb;
  }
 
 

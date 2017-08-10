@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigCaloEventTPCnv
- * @Class  : TrigTauClusterContainerCnv_p3
+ * @class  : TrigTauClusterContainerCnv_p3
  *
  * @author M. Pilar Casado <casado@ifae.es>  - IFAE/UAB - Barcelona
  **********************************************************************************/

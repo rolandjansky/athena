@@ -48,8 +48,7 @@ for o, a in opts:
         elif a.startswith("OF"): folderPath = "/TILE/ONL01/FILTER/%s" % a
         else: folderPath = "/TILE/ONL01/FILTER/OF2/%s" % a
     elif o in ("-t","--tag"):
-        print "These are single version folders"
-        sys.exit(2)
+        tag = a
     elif o in ("-s","--schema"):
         schema = a
     elif o in ("-p","--ros"):
@@ -84,10 +83,12 @@ log.setLevel(logging.DEBUG)
 
 #=== set database
 db = TileCalibTools.openDbConn(schema,'READONLY')
+folderTag = TileCalibTools.getFolderTag(schema if 'COMP200' in schema or 'OFLP200' in schema else db, folderPath, tag)
 
 #=== required OF2 folder
-log.info("Initializing folder %s" % (folderPath))
-blobReader = TileCalibTools.TileBlobReader(db,folderPath)
+if len(tag)>0: log.info("Initializing folder %s with tag %s" % (folderPath, folderTag))
+else: log.info("Initializing folder %s" % (folderPath))
+blobReader = TileCalibTools.TileBlobReader(db,folderPath, folderTag)
 #blobReader.log().setLevel(logging.DEBUG)
 
 #=== get drawer with status at given run

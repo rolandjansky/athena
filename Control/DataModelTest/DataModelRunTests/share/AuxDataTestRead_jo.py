@@ -40,7 +40,7 @@ fullItemList+=["DMTest::BAuxVec#bauxvec"]
 fullItemList+=["DMTest::BAuxStandalone#b"]
 fullItemList+=["DMTest::BAuxVec#copy_bauxvec"]
 fullItemList+=["DMTest::BAuxStandalone#copy_b"]
-from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
+
 
 #--------------------------------------------------------------
 # Event related parameters
@@ -65,7 +65,8 @@ topSequence += DMTest__AuxDataTestDecor ('AuxDataTestDecor1',
                                          Offset = 100)
 
 # Stream's output file
-Stream1 = AthenaPoolOutputStream( "Stream1", asAlg = True )
+from OutputStreamAthenaPool.OutputStreamAthenaPool import createOutputStream
+Stream1 = createOutputStream( "Stream1", asAlg = True, noTag = True )
 Stream1.OutputFile =   "auxdata2.root"
 Stream1.ItemList   += fullItemList # List of DO's to write out
 
@@ -76,7 +77,7 @@ topSequence += DMTest__AuxDataTestDecor ('AuxDataTestDecor2',
                                          Offset = 200)
 
 # Stream's output file
-Stream2 = AthenaPoolOutputStream( "Stream2", asAlg = True )
+Stream2 = createOutputStream( "Stream2", asAlg = True, noTag = True )
 Stream2.OutputFile =   "auxdata2b.root"
 Stream2.ItemList   += fullItemList # List of DO's to write out
 

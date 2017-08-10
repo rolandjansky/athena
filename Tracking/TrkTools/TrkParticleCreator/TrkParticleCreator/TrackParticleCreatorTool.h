@@ -181,8 +181,6 @@ private:
   std::vector<std::pair<SG::AuxElement::Decorator<float>,Trk::eProbabilityType> > m_decorateEProbabilities; 
   std::vector<std::pair<SG::AuxElement::Decorator<uint8_t>,Trk::SummaryType> >    m_decorateSummaryTypes; 
 
-  /** Minimum number of TRT hits for which the TRT dE/dx is computed.*/
-  int m_minTRThitsForTRTdEdx;
     
   /** Name used for the decoration of the track particle with TRT dE/dx .*/
   static const std::string s_trtdEdxUsedHitsDecorationName;
@@ -196,6 +194,7 @@ private:
   rather than using the cached summary */
     /** the following keep options are mutually exclusive **/
   bool m_keepParameters;  /** keep all TrackParameters */
+  bool m_keepFirstParameters; ///< keep the first parameters when creating track particles.
   bool m_keepAllPerigee;  /** keep all MeasuredPerigee parameters
   (e.g. adding those that may exist at Volume boundaries) */
   bool m_expressPerigeeToBeamSpot;

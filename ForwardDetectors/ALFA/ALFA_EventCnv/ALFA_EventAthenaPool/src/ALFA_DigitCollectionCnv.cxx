@@ -8,7 +8,7 @@
  
 
 ALFA_DigitCollection_PERS* ALFA_DigitCollectionCnv::createPersistent(ALFA_DigitCollection* transCont) {
-    MsgStream mlog(messageService(), "ALFA_DigitCollectionConverter" );
+    MsgStream mlog(msgSvc(), "ALFA_DigitCollectionConverter" );
     ALFA_DigitCollectionCnv_p1   TPConverter;
     ALFA_DigitCollection_PERS *persObj = TPConverter.createPersistent( transCont, mlog );
     return persObj;
@@ -16,7 +16,7 @@ ALFA_DigitCollection_PERS* ALFA_DigitCollectionCnv::createPersistent(ALFA_DigitC
 
 
 ALFA_DigitCollection* ALFA_DigitCollectionCnv::createTransient() {
-    MsgStream mlog(messageService(), "ALFA_DigitCollectionConverter" );
+    MsgStream mlog(msgSvc(), "ALFA_DigitCollectionConverter" );
     
     ALFA_DigitCollectionCnv_p1   TPConverter_p1;
 

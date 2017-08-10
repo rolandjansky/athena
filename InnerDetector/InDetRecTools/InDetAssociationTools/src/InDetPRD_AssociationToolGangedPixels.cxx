@@ -47,7 +47,7 @@ StatusCode InDet::InDetPRD_AssociationToolGangedPixels::addPRDs( const Trk::Trac
   TrackPrepRawDataMap::const_iterator itvec = m_trackPrepRawDataMap.find(&track);
   if (itvec!=m_trackPrepRawDataMap.end())
   {
-    msg(MSG::ERROR)<<"track already found in cache, should not happen"<<endreq;
+    msg(MSG::ERROR)<<"track already found in cache, should not happen"<<endmsg;
     return StatusCode::FAILURE;
   }
   // get all prds on 'track'
@@ -63,12 +63,12 @@ StatusCode InDet::InDetPRD_AssociationToolGangedPixels::addPRDs( const Trk::Trac
      const PixelCluster* pixel = dynamic_cast<const PixelCluster*> (*it);
      if (pixel!=0) {
        if (pixel->gangedPixel()) {
-	 if (msgLvl(MSG::DEBUG)) msg() << "Found ganged pixel, search for mirror" << endreq;
+	 if (msgLvl(MSG::DEBUG)) msg() << "Found ganged pixel, search for mirror" << endmsg;
 	 std::pair<PixelGangedClusterAmbiguities::const_iterator,
 	           PixelGangedClusterAmbiguities::const_iterator> ambi = m_gangedAmbis->equal_range(pixel);
 	 for (; ambi.first != ambi.second ; ++(ambi.first) ) {
 	   // add ambiguity as used by this track as well
-	   if (msgLvl(MSG::DEBUG)) msg() << "Found mirror pixel, add mirror to association map" << endreq;
+	   if (msgLvl(MSG::DEBUG)) msg() << "Found mirror pixel, add mirror to association map" << endmsg;
 	   m_prepRawDataTrackMap.insert(std::make_pair(ambi.first->second, &track) );
 	 }
        }
@@ -79,7 +79,7 @@ StatusCode InDet::InDetPRD_AssociationToolGangedPixels::addPRDs( const Trk::Trac
   m_trackPrepRawDataMap.insert( std::make_pair(&track, prds) );
     
   if (msgLvl(MSG::DEBUG)) msg()<<"Added PRDs from Track at ("<<&track<<") - map now has size: \t"
-			       <<m_prepRawDataTrackMap.size()<<endreq;
+			       <<m_prepRawDataTrackMap.size()<<endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -101,7 +101,7 @@ StatusCode InDet::InDetPRD_AssociationToolGangedPixels::removePRDs( const Trk::T
   TrackPrepRawDataMap::iterator itvec = m_trackPrepRawDataMap.find(&track);
   if (itvec==m_trackPrepRawDataMap.end())
   {
-    msg(MSG::ERROR)<<"Track not found in cache, this should not happen"<<endreq;
+    msg(MSG::ERROR)<<"Track not found in cache, this should not happen"<<endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -137,7 +137,7 @@ StatusCode InDet::InDetPRD_AssociationToolGangedPixels::removePRDs( const Trk::T
 	          PixelGangedClusterAmbiguities::const_iterator> ambi = m_gangedAmbis->equal_range(pixel);
 	for (; ambi.first != ambi.second ; ++(ambi.first) ) {
 	  // add ambiguity as used by this track as well
-	  if (msgLvl(MSG::DEBUG)) msg()<<MSG::DEBUG<<"Found ganged pixel, remove also mirror from association map"<<endreq;
+	  if (msgLvl(MSG::DEBUG)) msg()<<MSG::DEBUG<<"Found ganged pixel, remove also mirror from association map"<<endmsg;
 
 	  range = m_prepRawDataTrackMap.equal_range(ambi.first->second);
 	  // get iterators for range
@@ -161,7 +161,7 @@ StatusCode InDet::InDetPRD_AssociationToolGangedPixels::removePRDs( const Trk::T
  
   if (msgLvl(MSG::DEBUG)) msg()<<"Removed  PRDs from track ("
 			       <<&track<<") \t- map has changed size from \t"
-			       <<oldSize <<" \tto "<<m_prepRawDataTrackMap.size()<<endreq;
+			       <<oldSize <<" \tto "<<m_prepRawDataTrackMap.size()<<endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -201,7 +201,7 @@ Trk::IPRD_AssociationTool::TrackSet
   connectedTracks.erase(&track);
 
   if (msgLvl(MSG::VERBOSE)) msg()<<"Added in connected tracks for track "<<&track
-				 << "\tsize of list is "<<connectedTracks.size()<<endreq;
+				 << "\tsize of list is "<<connectedTracks.size()<<endmsg;
 
   return connectedTracks;
 }
@@ -215,12 +215,12 @@ std::vector< const Trk::PrepRawData* > InDet::InDetPRD_AssociationToolGangedPixe
   TrackPrepRawDataMap::const_iterator itvec = m_trackPrepRawDataMap.find(&track);
   if (itvec!=m_trackPrepRawDataMap.end())
   {
-    msg(MSG::VERBOSE)<<"found track in cache, return cached PRD vector for track"<<endreq;
+    msg(MSG::VERBOSE)<<"found track in cache, return cached PRD vector for track"<<endmsg;
     return itvec->second;
   }
 
   if (track.measurementsOnTrack()==0) {
-    msg(MSG::WARNING)<<"Track has no RoTs"<<endreq;
+    msg(MSG::WARNING)<<"Track has no RoTs"<<endmsg;
     return PRDs_t(); // return vector optimization
    }
 
@@ -247,7 +247,7 @@ std::vector< const Trk::PrepRawData* > InDet::InDetPRD_AssociationToolGangedPixe
   }
   
   if (msgLvl(MSG::DEBUG)) msg()<<" Getting "<<vec.size()
-			       <<" PRDs from track at:"<<&track<<endreq;
+			       <<" PRDs from track at:"<<&track<<endmsg;
   
   // new mode, we add the outleirs in the TRT
   if (m_addTRToutliers) {
@@ -272,7 +272,7 @@ std::vector< const Trk::PrepRawData* > InDet::InDetPRD_AssociationToolGangedPixe
       }
   
     if (msgLvl(MSG::DEBUG)) msg()<<" Getting "<<vec.size()
-				 <<" PRDs including TRT outlier from track at:"<<&track<<endreq;
+				 <<" PRDs including TRT outlier from track at:"<<&track<<endmsg;
   }
 
   return vec;
@@ -292,14 +292,14 @@ void InDet::InDetPRD_AssociationToolGangedPixels::reset()
       StatusCode sc = evtStore()->retrieve(m_gangedAmbis, m_pixelClusterAmbiguitiesMapName );
       
       if (sc.isFailure()) {
-	msg(MSG::ERROR) << "Could not retrieve "<< m_pixelClusterAmbiguitiesMapName << endreq;
+	msg(MSG::ERROR) << "Could not retrieve "<< m_pixelClusterAmbiguitiesMapName << endmsg;
       } else {
 	if (msgLvl(MSG::DEBUG)) msg() << "Retrieved " << m_pixelClusterAmbiguitiesMapName
 				      << ", number of entries for this event:"
-				      << m_gangedAmbis->size() << endreq;
+				      << m_gangedAmbis->size() << endmsg;
       }
     } else {
-      if (msgLvl(MSG::DEBUG)) msg() << "Could not retrieve "<< m_pixelClusterAmbiguitiesMapName << " this is ok if pixel is off." << endreq;
+      if (msgLvl(MSG::DEBUG)) msg() << "Could not retrieve "<< m_pixelClusterAmbiguitiesMapName << " this is ok if pixel is off." << endmsg;
     } 
   m_prepRawDataTrackMap.clear();
   m_trackPrepRawDataMap.clear();

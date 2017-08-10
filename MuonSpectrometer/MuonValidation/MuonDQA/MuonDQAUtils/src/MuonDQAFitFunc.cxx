@@ -75,8 +75,8 @@ namespace Muon {
 	hmass->SetBinError(i+1,mass_error); 
 	hwidth->SetBinContent(i+1,width);
 	hwidth->SetBinError(i+1,width_error); 
-	//m_log<<MSG::DEBUG<<"mass shift: "<<mass<<" error: "<<mass_error<<endreq;
-	//m_log<<MSG::DEBUG<<"mass width: "<<width<<" error: "<<width_error<<endreq;
+	//m_log<<MSG::DEBUG<<"mass shift: "<<mass<<" error: "<<mass_error<<endmsg;
+	//m_log<<MSG::DEBUG<<"mass width: "<<width<<" error: "<<width_error<<endmsg;
 	if( (fabs(mass)+mass_error)>maxmass ) maxmass=fabs(mass)+mass_error;
 	if( (fabs(width)+width_error)>maxwidth ) maxwidth=fabs(width)+width_error;
       }
@@ -177,7 +177,7 @@ namespace Muon {
     int nBins_2d = h2d->GetNbinsX();
     int nBins_1d = h1d->GetNbinsX();
 
-    if(nBins_2d!=nBins_1d) log << MSG::DEBUG << "Mean/RMS Histograms not set up correctly - nBins mismatch" << endreq;
+    if(nBins_2d!=nBins_1d) log << MSG::DEBUG << "Mean/RMS Histograms not set up correctly - nBins mismatch" << endmsg;
  
     //calling this means that the histogram bin content is flagged 
     //as being an average and so adding histos from different jobs 
@@ -204,7 +204,7 @@ namespace Muon {
 	h1d->SetBinContent(j,hproj->GetRMS());
 	h1d->SetBinError(j,hproj->GetRMSError());
       }
-      else log << MSG::DEBUG << "Incorrect switch in MeanRMSProjectionsBarrel()" << endreq;
+      else log << MSG::DEBUG << "Incorrect switch in MeanRMSProjectionsBarrel()" << endmsg;
  
       delete hproj;
     }
@@ -302,7 +302,7 @@ namespace Muon {
     int nBins_2d = h2d->GetNbinsX();
     int nBins_1d = h1d->GetNbinsX();
  
-    if(nBins_2d!=nBins_1d) log << MSG::DEBUG << "Mean/Width Histograms not set up correctly - nBins mismatch" << endreq;
+    if(nBins_2d!=nBins_1d) log << MSG::DEBUG << "Mean/Width Histograms not set up correctly - nBins mismatch" << endmsg;
  
     for(int i = 1; i!=nBins_2d+1; i++){
 
@@ -330,7 +330,7 @@ namespace Muon {
 	h1d->SetBinContent(i,Width);
 	h1d->SetBinError(i,WidthSigma);
       }
-      else  log << MSG::DEBUG << "Incorrect switch in FillGausMeanOrWidth" << endreq;
+      else  log << MSG::DEBUG << "Incorrect switch in FillGausMeanOrWidth" << endmsg;
  
       delete hProj;
       delete fit;
@@ -359,7 +359,7 @@ namespace Muon {
     int nBins_2d = h2d->GetNbinsX();
     int nBins_1d = h1d->GetNbinsX();
       
-    if(nBins_2d!=nBins_1d) log << MSG::DEBUG << "Mean/Width Histograms not set up correctly - nBins mismatch" << endreq;
+    if(nBins_2d!=nBins_1d) log << MSG::DEBUG << "Mean/Width Histograms not set up correctly - nBins mismatch" << endmsg;
       
     for(int i = 1; i!=nBins_2d+1; i++){
       

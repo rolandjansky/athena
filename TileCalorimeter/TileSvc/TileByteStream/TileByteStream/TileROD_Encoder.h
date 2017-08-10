@@ -46,14 +46,7 @@ class TileROD_Encoder {
 
     /** constructor 
      */
-    TileROD_Encoder()
-        : m_tileHWID(0)
-        , m_verbose(false)
-        , m_type(0)
-        , m_unitType(0)
-        , m_msg("TileROD_Encoder")
-    {
-    }
+    TileROD_Encoder();
 
     /** set all necessary parameters for the encoder
      */
@@ -63,6 +56,11 @@ class TileROD_Encoder {
     /** set OF algorigtm type and amplitude units for a drawer
      */
     void setTypeAndUnit(TileFragHash::TYPE type, TileRawChannelUnit::UNIT unit);
+
+    /** set maximum number of channels in a drawer
+     */
+    void setMaxChannels(int maxChannels);
+
 
     /** destructor 
      */
@@ -152,6 +150,7 @@ class TileROD_Encoder {
     unsigned int m_unitType;
 
     mutable Athena::MsgStreamMember m_msg;
+    int m_maxChannels;
 };
 
 #endif

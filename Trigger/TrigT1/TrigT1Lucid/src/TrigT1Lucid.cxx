@@ -34,10 +34,10 @@ namespace LVL1 {
   //---------------------------------------------------------------------
 
   StatusCode TrigT1Lucid::initialize() {
-    if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "entering intialize()" << endreq;
+    if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "entering intialize()" << endmsg;
     
     if (AthAlgorithm::initialize().isFailure()) {
-      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Couldn't initialize Algorithm base class." << endreq;
+      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Couldn't initialize Algorithm base class." << endmsg;
       return StatusCode::FAILURE;
     }
 
@@ -48,12 +48,12 @@ namespace LVL1 {
     if (sc.isFailure()) { 
       if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Couldn't connect to " 
 					      << m_configSvc.typeAndName() 
-					      << endreq; 
+					      << endmsg; 
       return sc;
     }
     else if(msgLvl(MSG::DEBUG)) {
       msg(MSG::DEBUG) << "Connected to " << m_configSvc.typeAndName() 
-		      << endreq;
+		      << endmsg;
     }
 
     // Get level 1 LUCID threshold settings from the level 1
@@ -65,8 +65,8 @@ namespace LVL1 {
     
     for(; th_itr!=th_itr_end; th_itr++) {
       if(msgLvl(MSG::DEBUG)) {
-	msg(MSG::DEBUG) << "Threshold name  =" << (*th_itr)->name() << endreq;
-	msg(MSG::DEBUG) << "Threshold value =" << (*th_itr)->triggerThresholdValue(0, 0)->ptcut() << endreq;
+	msg(MSG::DEBUG) << "Threshold name  =" << (*th_itr)->name() << endmsg;
+	msg(MSG::DEBUG) << "Threshold value =" << (*th_itr)->triggerThresholdValue(0, 0)->ptcut() << endmsg;
       }
 
       if     ((*th_itr)->name() == "LUCID_A"){ 
@@ -80,7 +80,7 @@ namespace LVL1 {
     }
     if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Cable positions: " 
 					  << m_cablestart_a << ", " 
-					  << m_cablestart_c << endreq;
+					  << m_cablestart_c << endmsg;
     
     return StatusCode::SUCCESS;
   }
@@ -88,7 +88,7 @@ namespace LVL1 {
   //---------------------------------------------------------------------
 
   StatusCode TrigT1Lucid::execute() {
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "execute()" << endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "execute()" << endmsg;
     
     m_digitContainer = 0;
     std::string containerName = m_LUCID_LVL1T1ContainerName;
@@ -99,15 +99,15 @@ namespace LVL1 {
 
     if (sc.isFailure() || !m_digitContainer) {
       if(msgLvl(MSG::WARNING)) {
-	msg(MSG::WARNING) << "BAD DATA!!! Input data does not include " << containerName << endreq;
-	msg(MSG::WARNING) << "Alogrithm will shut down for the rest of the run." << endreq;
+	msg(MSG::WARNING) << "BAD DATA!!! Input data does not include " << containerName << endmsg;
+	msg(MSG::WARNING) << "Alogrithm will shut down for the rest of the run." << endmsg;
       }
       m_badDataFound = true;
       return StatusCode::SUCCESS;
     } 
     else if(msgLvl(MSG::DEBUG)) {
       msg(MSG::DEBUG) << containerName << " Container Successfully Retrieved"
-		      << endreq; 
+		      << endmsg; 
     }
 
 
@@ -138,7 +138,7 @@ namespace LVL1 {
 			<< " isSideA    : " << isSideA 
 			<< " isSideC    : " << isSideC
 			<< " qdcThresold: " << m_qdcThreshold
-			<< " isHit      : " << isHit << endreq;
+			<< " isHit      : " << isHit << endmsg;
       }
     }
     
@@ -152,7 +152,7 @@ namespace LVL1 {
 		      << " nHitsC "           << nHitsC     << " ," 
 		      << " lucid cableWord0 " << cableWord0 << " ," 
 		      << " bits "             << std::setw(6) 
-		      << BitOp::printBits(cableWord0, 0, 20) << endreq;
+		      << BitOp::printBits(cableWord0, 0, 20) << endmsg;
     }
     
     LucidCTP* lucidCTP = new LucidCTP(cableWord0);
@@ -169,13 +169,13 @@ namespace LVL1 {
     if (sc.isFailure()) { 
       if(msgLvl(MSG::ERROR)) {
 	msg(MSG::ERROR) << containerName << " failed to register. " 
-			<< endreq; 
+			<< endmsg; 
       }
       return StatusCode::FAILURE;
     }
     else if(msgLvl(MSG::DEBUG)) { 
       msg(MSG::DEBUG) << containerName << " registered successfully. " 
-		      << endreq;
+		      << endmsg;
     }
 
     return StatusCode::SUCCESS;

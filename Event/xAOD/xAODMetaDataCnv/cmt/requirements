@@ -1,5 +1,5 @@
 package xAODMetaDataCnv
-# $Id: requirements 671783 2015-06-02 16:11:42Z cranshaw $
+# $Id: requirements 744578 2016-05-03 16:26:20Z krasznaa $
 
 public
 
@@ -29,3 +29,4 @@ apply_pattern component_library
 
 # Install the jobOptions of the package:
 apply_pattern declare_joboptions files=*.py
+

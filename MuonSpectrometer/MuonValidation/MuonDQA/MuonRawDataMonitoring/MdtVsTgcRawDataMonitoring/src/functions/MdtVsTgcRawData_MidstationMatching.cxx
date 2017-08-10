@@ -309,7 +309,7 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(vector<const Muon::MuonSegment*> (&so
       // Initialise hit registered arrays
       // bool hitregistered[9][2]       = {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}};
       bool sectorhitregistered[9][2] = {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}};
-      vector<Muon::TgcPrepData*> tpdVector[2];
+      vector<const Muon::TgcPrepData*> tpdVector[2];
       
       // Loop over TGC Prep Data container
       Muon::TgcPrepDataContainer::const_iterator prepit_end=tgc_prepcontainer->end();
@@ -323,7 +323,7 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(vector<const Muon::MuonSegment*> (&so
              prepitc!= prepitc_end;
              ++prepitc){
           // Get PRD and variables
-          Muon::TgcPrepData* tpd=*prepitc;
+          const Muon::TgcPrepData* tpd=*prepitc;
           const MuonGM::TgcReadoutElement *tre = tpd->detectorElement();
           const std::string stationType = tre->getStationType();
           
@@ -412,7 +412,7 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(vector<const Muon::MuonSegment*> (&so
       // Find vector of PRD which forms a coherent line in the vicinity of Segm1
 
       // Variables to hold best PRD matching results
-      vector<Muon::TgcPrepData*> *bestTPDmatches[2];
+      vector<const Muon::TgcPrepData*> *bestTPDmatches[2];
       bestTPDmatches[0] = 0;
       bestTPDmatches[1] = 0;
       if(bestTPDmatches[0]->size()>0) bestTPDmatches[0]->clear();
@@ -429,7 +429,7 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(vector<const Muon::MuonSegment*> (&so
         int nTPD = tpdVector[k].size();
         for(int iTPD1=0;iTPD1<nTPD;iTPD1++){
           // Variables to hold matches found for this PRD
-          vector<Muon::TgcPrepData*> *thisTPDmatches;
+          vector<const Muon::TgcPrepData*> *thisTPDmatches;
 	  thisTPDmatches = 0;
 	  if(thisTPDmatches->size()>0) thisTPDmatches->clear();
           int thisTPDlayerMatches[9] = {0,0,0,0,0,0,0,0,0}; 
@@ -523,7 +523,7 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(vector<const Muon::MuonSegment*> (&so
         // If matching array was somehow empty (should be impossible)
         if(nlayerMax==0)continue;
         if(bestTPDmatches[k]->size()==0){
-          m_log << MSG::WARNING << "MidstationOnly: empty bestTPDmatches["<<k<<"] passed" << endreq;
+          m_log << MSG::WARNING << "MidstationOnly: empty bestTPDmatches["<<k<<"] passed" << endmsg;
           continue;
         }
         
@@ -584,7 +584,7 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(vector<const Muon::MuonSegment*> (&so
               m_log << MSG::WARNING << "MidstationOnly: canCheckSector passed for jTGC=" << stationIndex
               << " but, FE="<<TGCstation_StationFEFill[stationIndex]
               << " Eta="<<TGCstation_StationEtaFill[stationIndex]
-              << " Phi=" << TGCstation_StationPhiFill[stationIndex] << endreq;
+              << " Phi=" << TGCstation_StationPhiFill[stationIndex] << endmsg;
               continue;
             }
             // Get Sector histogram indexes

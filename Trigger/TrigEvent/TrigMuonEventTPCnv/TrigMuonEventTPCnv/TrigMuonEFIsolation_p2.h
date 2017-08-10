@@ -7,8 +7,7 @@
 #ifndef TRIGMUONEVENT_TRIGMUONEFISOLATION_P2_H__
 #define TRIGMUONEVENT_TRIGMUONEFISOLATION_P2_H__
 /**
- * @Project: Trigger
- * @Package: TrigMuonEventTPCnv
+ * @package: TrigMuonEventTPCnv
  * @class  : TrigMuonEFIsolation_p2
  *
  * @brief Persistent partner class for TrigMuonEFIsolation

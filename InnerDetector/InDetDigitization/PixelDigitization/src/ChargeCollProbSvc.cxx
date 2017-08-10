@@ -14,9 +14,6 @@
  
 #include <fstream>
  
-/**
- ** Constructor(s)
- **/
 ChargeCollProbSvc::ChargeCollProbSvc(const std::string& name,ISvcLocator* svc)
   : AthService(name,svc)
     //  : AthService(name,svc),log(msgSvc(),name)
@@ -26,43 +23,25 @@ ChargeCollProbSvc::ChargeCollProbSvc(const std::string& name,ISvcLocator* svc)
   declareProperty( "CCProbMapFileFEI4", m_cc_prob_file_fei4 = "3DFEI4-2E-problist-1um_v0.txt");  
 }
  
-ChargeCollProbSvc::~ChargeCollProbSvc()
-{
-}
+ChargeCollProbSvc::~ChargeCollProbSvc() { }
  
-/**
- ** Initialize Service
- **/
-StatusCode ChargeCollProbSvc::initialize()
-{
-  //MsgStream log(msgSvc(), name());
- 
-  StatusCode result = AthService::initialize();
-  if (result.isFailure())
-  {
-   ATH_MSG_FATAL ( "Unable to initialize the service!" );
-   return result;
-  }
- 
-  // read Charge Collection Probability Maps
- 
-  if ( this->readProbMap(m_cc_prob_file_fei3).isFailure() || this->readProbMap(m_cc_prob_file_fei4).isFailure() ){
-    ATH_MSG_ERROR ( "Charge Collection Prob Maps: error in reading txt files" );
-    return StatusCode::FAILURE;
-  }
- 
-  ATH_MSG_INFO ( "initialized service!" );
-  return result;
- 
+StatusCode ChargeCollProbSvc::initialize() {
+
+  CHECK(AthService::initialize()); 
+
+  CHECK(readProbMap(m_cc_prob_file_fei3));
+
+  CHECK(readProbMap(m_cc_prob_file_fei4));
+
+  ATH_MSG_INFO("initialized service!");
+  return StatusCode::SUCCESS;
 }  
- 
-StatusCode ChargeCollProbSvc::finalize()
-{
-        return StatusCode::SUCCESS;
+
+StatusCode ChargeCollProbSvc::finalize() {
+  return StatusCode::SUCCESS;
 }
- 
-StatusCode ChargeCollProbSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
-{
+
+StatusCode ChargeCollProbSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) {
   if ( IID_IChargeCollProbSvc == riid )    {
     *ppvInterface = (IChargeCollProbSvc*)this;
   }
@@ -97,10 +76,10 @@ StatusCode ChargeCollProbSvc::readProbMap(std::string fileE)
               double prob;
               sline>>xpos>>ypos>>prob;
               if (fileName.find("FEI4")!=std::string::npos){
-                probMapFEI4.insert( std::make_pair( std::make_pair( xpos , ypos ) , prob ) );
+                m_probMapFEI4.insert( std::make_pair( std::make_pair( xpos , ypos ) , prob ) );
                 ATH_MSG_DEBUG ("FEI4 inside xpos  "<<xpos<<"   ypos  "<<ypos<<"    prob  "<<prob);
               }else if(fileName.find("FEI3")!=std::string::npos){
-                probMapFEI3.insert( std::make_pair( std::make_pair( xpos , ypos ) , prob ) );
+                m_probMapFEI3.insert( std::make_pair( std::make_pair( xpos , ypos ) , prob ) );
                 ATH_MSG_DEBUG ("FEI3 inside xpos  "<<xpos<<"   ypos  "<<ypos<<"    prob  "<<prob);
               }else{
                 ATH_MSG_ERROR ("Please check name of Charge Coll Prob Maps! (should contain FEI3 or FEI4) ");
@@ -119,11 +98,11 @@ StatusCode ChargeCollProbSvc::printProbMap(std::string readout)
 {
  
   if(readout == "FEI4"){
-    for ( std::multimap<std::pair<int,int>, double >::iterator it = probMapFEI4.begin(); it != probMapFEI4.end(); ++it ) {
+    for ( std::multimap<std::pair<int,int>, double >::iterator it = m_probMapFEI4.begin(); it != m_probMapFEI4.end(); ++it ) {
       ATH_MSG_DEBUG ("read full probMap  FEI4 --- bin x "<<it->first.first<<"   bin y  "<<it->first.second<<"    prob  "<<it->second);
     }
   }else if(readout == "FEI3"){
-    for ( std::multimap<std::pair<int,int>, double >::iterator it = probMapFEI3.begin(); it != probMapFEI3.end(); ++it ) {
+    for ( std::multimap<std::pair<int,int>, double >::iterator it = m_probMapFEI3.begin(); it != m_probMapFEI3.end(); ++it ) {
       ATH_MSG_DEBUG ("read full probMap  FEI3 --- bin x "<<it->first.first<<"   bin y  "<<it->first.second<<"    prob  "<<it->second);
     }
   }else{
@@ -141,10 +120,10 @@ double ChargeCollProbSvc::getProbMapEntry( std::string readout, int binx, int bi
   double echarge;
  
   if (readout == "FEI4"){
-    std::multimap<  std::pair< int,int >, double >::const_iterator iter = probMapFEI4.find(doublekey);
+    std::multimap<  std::pair< int,int >, double >::const_iterator iter = m_probMapFEI4.find(doublekey);
     echarge = iter->second;
   }else if(readout == "FEI3"){
-    std::multimap<  std::pair< int,int >, double >::const_iterator iter = probMapFEI3.find(doublekey);
+    std::multimap<  std::pair< int,int >, double >::const_iterator iter = m_probMapFEI3.find(doublekey);
     echarge = iter->second;
   }else{
     ATH_MSG_ERROR ("No Map Entry available for the requested readout");

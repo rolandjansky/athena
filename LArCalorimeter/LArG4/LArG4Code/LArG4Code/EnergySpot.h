@@ -2,19 +2,18 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+// EnergySpot
+// Prepared 30-Apr-2003 Bill Seligman
+
+// This is a very primitive "hit" class for recording energy deposits
+// created by fast shower models.
+
 #ifndef __EnergySpot_h__
 #define __EnergySpot_h__
 
 #include "G4ThreeVector.hh"
 #include "globals.hh"
 
-/// @class EnergySpot
-/// This is a very primitive "hit" class for recording energy deposits
-/// created by fast shower models.
-///
-/// @author Bill Seligman
-/// @date 30-Apr-2003
-///
 class EnergySpot
 {
 public:
@@ -23,7 +22,7 @@ public:
     : m_point(G4ThreeVector())
     , m_energy(0)
     , m_time(0)
-  {;}
+    {;}
 
   EnergySpot(const G4ThreeVector& P, G4double E, G4double t)
     : m_point(P)

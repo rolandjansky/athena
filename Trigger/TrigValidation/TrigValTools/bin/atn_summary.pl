@@ -1,6 +1,7 @@
 #!/usr/bin/perl -w
 use strict;
 use File::Basename;
+use Date::Manip::Date;
 
 # Produce summary table for trigtest.pl tests in same dir or first parameter to script
 my $output="index.html";
@@ -85,7 +86,7 @@ sub main(){
     system("printenv > atn_summary_printenv.log");
     print "\nTo test, set the following environment. If unset, results may not reproduce those within ATN. Read this script for more details on testing procedure.\n";
     my $ev;
-    foreach $ev qw(AtlasProject NICOS_NIGHTLY_NAME NICOS_ATLAS_PROJECT NICOS_ATLAS_RELEASE NICOS_PROJECT_RELNAME_COPY){
+    foreach $ev qw(AtlasProject AtlasVersion NICOS_GIT_RELBRANCH NICOS_PROJECT_RELNAME_COPY){
         print "export " . $ev . "=" . getEnv($ev,"") . "\n";
     }
     print "\n";
@@ -97,60 +98,63 @@ sub main(){
     my %doc=();
     my %timer=();
     my %order = getorder();
+    my $project = getEnv('AtlasProject',getEnv('NICOS_ATLAS_PROJECT',''));
+    my $gitbranch = getEnv('NICOS_GIT_RELBRANCH','');
+    my $release = getEnv('AtlasVersion','');
     opendir(DIRHANDLE, $testdir) || die "Cannot opendir $testdir: $!";
     foreach my $name (sort readdir(DIRHANDLE)) {
-	if (-d $name and $name !~ /^\./){
-	    print "found dir: $name ... ";
-	    push @testnames, $name;
-	    if (-f "$name/$summaryout"){
-		print "found summary file\n";
-		open SUMMARYIN, "<$name/$summaryout";
-		while (<SUMMARYIN>){
-		    if (/exitcode = (\d+)/){
-			$exitcodes{$name} = $1;
-		    }
-		    elsif (/maskedcode = (\d+)/){
-			$maskedcodes{$name} = $1;
-		    }
-		}
-		close SUMMARYIN;
-		if (-f "$name/$timerout"){
-		    print "found timer file\n";
-		    open TIMERIN, "<$name/$timerout";
-		    while (<TIMERIN>){
-			my ($wall,$user,$system)=split;
-			$timer{$name}=$wall;
-		    }
-		    close TIMERIN;
-		} 
-		else {
-		    print "no timer file\n";
-		}
-	    } else {
-		print "no summary file\n";
-	    }
-	    $doc{$name}="";
-	    if (-f "$name/$docout"){
-		print "found doc file\n";
-		open DOCIN, "<$name/$docout";
-		while (<DOCIN>){
-		    chomp;
-		    $doc{$name}.=$_;
-		}
-		close DOCIN;
-	    } 
-	    else {
-		print "no doc file\n";
-	    }
-
-	}
+        if (-d $name and $name !~ /^\./){
+            print "found dir: $name ... ";
+            push @testnames, $name;
+            if (-f "$name/$summaryout"){
+                print "found summary file\n";
+                open SUMMARYIN, "<$name/$summaryout";
+                while (<SUMMARYIN>){
+                    if (/exitcode = (\d+)/){
+                        $exitcodes{$name} = $1;
+                    }
+                    elsif (/maskedcode = (\d+)/){
+                        $maskedcodes{$name} = $1;
+                    }
+                }
+                close SUMMARYIN;
+                if (-f "$name/$timerout"){
+                    print "found timer file\n";
+                    open TIMERIN, "<$name/$timerout";
+                    while (<TIMERIN>){
+                        my ($wall,$user,$system)=split;
+                        $timer{$name}=$wall;
+                    }
+                    close TIMERIN;
+                } 
+                else {
+                    print "no timer file\n";
+                }
+            } else {
+                print "no summary file\n";
+            }
+            $doc{$name}="";
+            if (-f "$name/$docout"){
+                print "found doc file\n";
+                open DOCIN, "<$name/$docout";
+                while (<DOCIN>){
+                    chomp;
+                    $doc{$name}.=$_;
+                }
+                close DOCIN;
+            } 
+            else {
+                print "no doc file\n";
+            }
+            
+        }
     }
     closedir(DIRHANDLE);
     
     open HTMLOUT, "> $output" or die "failed to write to $output: $!";
     print HTMLOUT "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 3.2 Final//EN\">
 <html>\n<head>\n<script type=\"text/javascript\" src=\"http://atlas-project-trigger-release-validation.web.cern.ch/atlas-project-trigger-release-validation/www/js/sorttable.js\"></script>\n<script type=\"text/javascript\" src=\"http://atlas-project-trigger-release-validation.web.cern.ch/atlas-project-trigger-release-validation/www/js/suitehighlight.min.js\"></script>\n<meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\" >
-<title>Trigger ATN results for ".getEnv("AtlasProject","").",".getEnv("NICOS_NIGHTLY_NAME","").",$atn_rel</title>\n
+<title>Trigger ATN results for $project,$gitbranch,$release</title>\n
 <script type=\"text/javascript\">
 
 var thisRelease = null;
@@ -169,7 +173,7 @@ function highlightDiffs(clear) {
   var diffs = 0;
   for (var i=1; i < table1.rows.length; i++) {
     var cells = table1.rows[i].cells;
-    for (var j=2; j < cells.length; j++) {   // skip name and wiki column
+    for (var j=1; j < cells.length; j++) {   // skip name
       if (j==9) continue;   // skip timing
       if (!table2 || cells[j].textContent == table2.rows[i].cells[j].textContent) {
         cells[j].style.backgroundColor = '';
@@ -245,103 +249,63 @@ function showBuildFailures(failures,link) {
 ";
 
   
-    my $date=qx(date);
+    my $now=qx(date);
     my $testWWWPage=getTestWWWPage();
     my $nicosWWWPage=dirname($testWWWPage);
-    #print ">>> nicosWWWPage=$nicosWWWPage\ntestWWWPage=$testWWWPage\n";
 
-    print HTMLOUT "<p>Last updated $date</p>\n";
-
-    if ($context){
-        # supported projects: Offline + AtlasHLT for bugfix, P1HLT + Tier0 for caches. Better to use case logic but this will do for now.
-        my $project="AtlasOffline";
-	if (getEnv('NICOS_ATLAS_PROJECT','') =~ /AtlasHLT|AtlasP1HLT|AtlasCAFHLT|AtlasTier0|AtlasProduction|TrigMC|AtlasTestHLT/){
-	    $project=getEnv('NICOS_ATLAS_PROJECT','');
-	}
-	print "NICOS_ATLAS_PROJECT=getEnv('NICOS_ATLAS_PROJECT','') project=$project\n";
-
+    print HTMLOUT "<p>Last updated $now</p>\n";
+    
 	my $atn_relno = $atn_rel;
 	$atn_relno =~ s/rel_//;
-	print HTMLOUT "<p><a href=\"".$testWWWPage."\">Nightly test</a>: ".getEnv("AtlasProject","").",".getEnv("NICOS_NIGHTLY_NAME","").",<b>$atn_rel</b> ($atn_platform)";
+	print HTMLOUT "<p><a href=\"".$testWWWPage."\">Nightly test</a>: $project,$gitbranch,<b>$release</b> ($atn_platform)";
 	print HTMLOUT "<script src=\"".$nicosWWWPage."/build_failures_".$atn_relno.".js\" language=\"JavaScript\"></script>\n";
 	print HTMLOUT "<script type=\"text/javascript\">showBuildFailures(failures_".$atn_relno."(),"."\"".$nicosWWWPage."/nicos_buildsummary_".$atn_relno.".html\")</script>";
-	
+
+    # Link to GitLab diff between today's and yesterday's release
+    my $fmt="%Y-%m-%dT%H%M";
+    my $date = new Date::Manip::Date;
+    $date->parse_format($fmt,$release);
+    my $delta = $date->new_delta();
+    $delta->set(d => -1);  # minus 1 day
+    my $yesterday = $date->calc($delta); 
+    my $prevrel = $yesterday->printf($fmt);
+    my $gitdiff = "https://gitlab.cern.ch/atlas/athena/compare/nightly%2F$gitbranch%2F$prevrel...nightly%2F$gitbranch%2F$release";	
+
 	print HTMLOUT "<br>Other nightlies: ";
-        if (defined $no_of_nightlies_exceptions{$project}){
-            $no_of_nightlies=$no_of_nightlies_exceptions{$project};
-            print "$project exceptionally has $no_of_nightlies nightly builds\n";
-        } else {
-            print "$project normally has $no_of_nightlies nightly builds\n";
-        }
+    if (defined $no_of_nightlies_exceptions{$project}){
+        $no_of_nightlies=$no_of_nightlies_exceptions{$project};
+        print "$project exceptionally has $no_of_nightlies nightly builds\n";
+    } else {
+        print "$project normally has $no_of_nightlies nightly builds\n";
+    }
+
+    my @dow = ('Sun','Mon','Tue','Wed','Thu','Fri','Sat');
 	for (my $i=0; $i<$no_of_nightlies; $i++){
 	    if ("rel_$i" eq $atn_rel){
-		print HTMLOUT " $i ";
+            print HTMLOUT " $dow[$i] ";
 	    } else {
-		my $p=getrelpath();
-		$p =~ s/rel_\d/rel_$i/;
-		$p =~ s/rel_nightly/rel_$i/;
-		print HTMLOUT " <a href=\"$p\">$i</a> ";
+            my $p=getrelpath();
+            $p =~ s/rel_\d/rel_$i/;
+            $p =~ s/rel_nightly/rel_$i/;
+            print HTMLOUT " <a href=\"$p\">$dow[$i]</a> ";
 	    }
 	}
 
-	# useful link to nightly change notes page
-	my $release=getEnv('NICOS_ATLAS_RELEASE','');
-	my $val="";
-	print "NICOS_NIGHTLY_NAME=getEnv('NICOS_NIGHTLY_NAME','')\n";
-        if (getEnv('NICOS_NIGHTLY_NAME','') =~ /-VAL/){
-	    $val="-val";
-	}
-	#my $cnurl="http://cern.ch/atlas-project-trigger-release-validation/www/ReleaseNotes/test/TestReleaseDiff-$release-$atn_rel$val.html";
-        my $cnurl="http://atlas-project-trigger-release-validation.web.cern.ch/atlas-project-trigger-release-validation/www/ReleaseNotes/ChangeNotes$project-$release-$atn_rel$val.html";
-	print "cnurl=$cnurl\n";
-        
 	print HTMLOUT "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<a href=\"$cnurl\">nightly tag diffs</a>
+<a href=\"$gitdiff\">GitLab diff</a>
 &nbsp;&nbsp;&nbsp;&nbsp;Diff results: <select name=\"rel\" size=\"1\" onchange=\"loadPage()\">
-<option value='rel_0'>rel_0</option>
-<option value='rel_1'>rel_1</option>
-<option value='rel_2'>rel_2</option>
-<option value='rel_3'>rel_3</option>
-<option value='rel_4'>rel_4</option>
-<option value='rel_5'>rel_5</option>
-<option value='rel_6'>rel_6</option>
+<option value='rel_0'>Sun</option>
+<option value='rel_1'>Mon</option>
+<option value='rel_2'>Tue</option>
+<option value='rel_3'>Wed</option>
+<option value='rel_4'>Thu</option>
+<option value='rel_5'>Fri</option>
+<option value='rel_6'>Sat</option>
 </select> <span id='nDiffs' style='font-weight:bold'></span>
 </form><script type=\"text/javascript\">setRelease();</script></p>";
-    }
 
-    #my $cmt = $ENV{'CMTPATH'};   
-    #my $nightlykey =  'builds/nightlies/';
-    #my $keylength  = length $nightlykey;
-    #my $relstart  = rindex($cmt,$nightlykey) ;
-    #if( $relstart > -1 ) {
-    #  $relstart =  $relstart + $keylength;
-    #  #  $nightly should be dev,devval, bugfix, val, ect.
-    #  $nightly = substr $cmt, $relstart;
-    #  my $nextslash = index $nightly, '/' ;
-    #  $nightly = substr $nightly, 0, $nextslash ;
-    #}
-    my $nightlywiki = getEnv('NICOS_NIGHTLY_NAME','');
-    print "Nightly wiki page name postfix before deletes: $nightlywiki\n";
-    #remove val from the name
-    $nightlywiki =~ s/val//;
-    $nightlywiki =~ s/VAL//;
-    # remove any . from the nightly name (Wiki doesn't like these)
-    $nightlywiki =~ s/\.//g;
-    # remove any - from the nightly name (Wiki dosen't like these either)
-    $nightlywiki =~ s/-//g;
-    # Strip all but first two characters so that the version
-    # becomes just '16' rather than 16.X.Y etc. Only do this
-    # for versions starting with 16 (or higher) so that older
-    # versions remain with the old links
-    my $shortver = substr $nightlywiki, 0, 2;
-    if ($shortver ge 16) {
-	$nightlywiki=$shortver;
-    }
-    print "Nightly wiki page name using postfix: $nightlywiki\n";
-    
     print HTMLOUT "\n<table class=\"sortable\" id=\"ATNResults\" border=1><thead><tr>
 <th title=\"Click to sort by test suite\">Test name</th> 
-<th>Wiki</th>
 <th>Overall Result</th> 
 <th title=\"exit code of Athena\">Athena exit</th> 
 <th title=\"presence of any error messages in log\">Error Msgs</th> 
@@ -496,11 +460,6 @@ function showBuildFailures(failures,link) {
 	print "logfile=$logfile\n";
 	
 	my $thename = $name;
-        my $shortname = $name;
-	# remove any . from the nightly name (Wiki doesn't like these)
-        $shortname =~ s/\.//g;
-	#truncate to desired 32 character wiki limit
-        $shortname =  substr($shortname,0,32);
 	my $logurl;
 	if ($context){
 	    $logurl = getlogpath($name,$testdir);
@@ -519,7 +478,7 @@ function showBuildFailures(failures,link) {
 	if (exists $order{$name}) {
 	    $order = "suite=\"$order{$name}[1]\" sorttable_customkey=\"$order{$name}[0]\"";
 	}
-	print HTMLOUT "<tr class=\"hi\"><td $order title=\"$doc{$name}\">$thename</td> <td><A HREF=\"https://twiki.cern.ch/twiki/bin/view/Atlas/TriggerValidationATNStatus$nightlywiki#$shortname\" onClick=\"return popup(this, 'notes')\">wiki</A></td> <td>$atn_script</td> <td>$athena_exit</td> <td>$error</td> <td>$warn</td> <td style=\"white-space:nowrap\">$reg_tests</td> <td style=\"white-space:nowrap\">$rootcomp</td> <td>$checkcount</td> <td><a type=\"text/plain\" href=\"$name/$timerout\">$timer</a></td> <td>$exitcode/$maskedcode</td> <td>$postrc</td> <td><a href=\"$name\">dir</a></td><td>$logfile</td></tr>\n";
+	print HTMLOUT "<tr class=\"hi\"><td $order title=\"$doc{$name}\">$thename</td> <td>$atn_script</td> <td>$athena_exit</td> <td>$error</td> <td>$warn</td> <td style=\"white-space:nowrap\">$reg_tests</td> <td style=\"white-space:nowrap\">$rootcomp</td> <td>$checkcount</td> <td><a type=\"text/plain\" href=\"$name/$timerout\">$timer</a></td> <td>$exitcode/$maskedcode</td> <td>$postrc</td> <td><a href=\"$name\">dir</a></td><td>$logfile</td></tr>\n";
     }
     print HTMLOUT "</tbody></table>";
     if (-e "$atn_timeline"){
@@ -589,11 +548,7 @@ sub getcontext(){
     print "$cwd\n";
     if ($cwd =~ /NICOS_.*test([\w\d]+)\//){   # NICOS_qmtest (old) or NICOS_atntest (new) directory
 	$atn_platform=$1;
-	#print "$atn_platform\n";
-	#$atn_log_dir="../../NICOS_TestLog$atn_platform";
-	#print "atn log dir: $atn_log_dir\n";
-	#system("ls $atn_log_dir");
-        print "ATN_JOB_LOGFILE=" . getEnv("ATN_JOB_LOGFILE","") . "\n";
+    print "ATN_JOB_LOGFILE=" . getEnv("ATN_JOB_LOGFILE","") . "\n";
 	print "ATN_PACKAGE=" . getEnv("ATN_PACKAGE","") . "\n";
 	print "--------------------------------------------------------\n";
     }    

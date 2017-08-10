@@ -8,6 +8,42 @@
 
 #include "PixelGeoModel/PixelDetectorDC1DC2.h"
 
+#include "InDetReadoutGeometry/InDetDD_Defs.h"
+#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "InDetReadoutGeometry/PixelDiodeMatrix.h"
+#include "InDetReadoutGeometry/PixelModuleDesign.h"
+#include "InDetReadoutGeometry/SiCommonItems.h"
+#include "InDetReadoutGeometry/SiDetectorElement.h"
+#include "InDetIdentifier/PixelID.h"
+
+#include "GeoModelUtilities/DecodeVersionKey.h"
+#include "GeoModelKernel/GeoAlignableTransform.h"
+#include "GeoModelKernel/GeoBox.h"
+#include "GeoModelKernel/GeoFullPhysVol.h"
+#include "GeoModelKernel/GeoIdentifierTag.h"
+#include "GeoModelKernel/GeoLogVol.h"
+#include "GeoModelKernel/GeoMaterial.h"
+#include "GeoModelKernel/GeoNameTag.h"
+#include "GeoModelKernel/GeoPhysVol.h"
+#include "GeoModelKernel/GeoTransform.h"
+#include "GeoModelKernel/GeoTube.h"
+#include "GeoModelKernel/GeoTubs.h"
+#include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "GeoModelInterfaces/StoredMaterialManager.h"
+#include "Identifier/Identifier.h"
+#include "StoreGate/DataHandle.h"
+#include "StoreGate/StoreGate.h"
+#include "StoreGate/StoreGateSvc.h"
+#include "AthenaKernel/getMessageSvc.h"
+#include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/ISvcLocator.h"
+#include "CLHEP/Units/PhysicalConstants.h"
+
+#include <vector>
+#include <sstream>
+#include <stdexcept>
+
+
 using namespace PixelGeoDC2;
 
 
@@ -18,50 +54,34 @@ using namespace PixelGeoDC2;
 //---------------------------------------------------//
 
 
-//#include "PixelGeoModel/GeoPixelBarrel.h"
-//#include "PixelGeoModel/GeoPixelLayer.h"
-//#include "PixelGeoModel/GeoPixelServices.h"
-#include "GeoModelKernel/GeoTube.h"
-#include "GeoModelKernel/GeoLogVol.h"
-#include "GeoModelKernel/GeoNameTag.h"
-#include "GeoModelKernel/GeoIdentifierTag.h"
-#include "GeoModelKernel/GeoPhysVol.h"
-#include "GeoModelKernel/GeoMaterial.h"
-#include "GeoModelKernel/GeoAlignableTransform.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "Identifier/Identifier.h"
-#include "InDetIdentifier/PixelID.h"
-
-using namespace std;
-
 GeoVPhysVol* GeoPixelBarrel::Build( ) {
 
   //
   // create the Barrel Mother volume
   // 
-  double rmin = gmt_mgr->PixelBarrelRMin();
-  double rmax = gmt_mgr->PixelBarrelRMax();
-  double halflength = gmt_mgr->PixelBarrelHalfLength();
-  GeoMaterial* air = mat_mgr->getMaterial("std::Air");
+  double rmin = m_gmt_mgr->PixelBarrelRMin();
+  double rmax = m_gmt_mgr->PixelBarrelRMax();
+  double halflength = m_gmt_mgr->PixelBarrelHalfLength();
+  GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
   const GeoTube* barrelTube = new GeoTube(rmin,rmax,halflength);
   const GeoLogVol* barrelLog = new GeoLogVol("barrelLog",barrelTube,air);
   GeoPhysVol* barrelPhys = new GeoPhysVol(barrelLog);
 
   // Set numerology
-  DDmgr->numerology().setNumLayers(gmt_mgr->PixelBarrelNLayer());
+  m_DDmgr->numerology().setNumLayers(m_gmt_mgr->PixelBarrelNLayer());
 
   //
   // Build the layers inside
   //
   GeoPixelLayer layer;
-  string lname[3];
+  std::string lname[3];
   lname[0] = "InnerLayer";
   lname[1] = "CenterLayer";
   lname[2] = "OuterLayer";
-  for(int ii = 0; ii < gmt_mgr->PixelBarrelNLayer(); ii++) {
+  for(int ii = 0; ii < m_gmt_mgr->PixelBarrelNLayer(); ii++) {
     //cout << "Layer" << ii << endl;
-    gmt_mgr->SetCurrentLD(ii);
-    if(gmt_mgr->isLDPresent()) {
+    m_gmt_mgr->SetCurrentLD(ii);
+    if(m_gmt_mgr->isLDPresent()) {
       GeoAlignableTransform * xform = new GeoAlignableTransform(HepGeom::Transform3D()); 
       GeoVPhysVol* layerphys = layer.Build();
       GeoNameTag *tag = new GeoNameTag(lname[ii]);         
@@ -71,13 +91,13 @@ GeoVPhysVol* GeoPixelBarrel::Build( ) {
       barrelPhys->add(layerphys);
       
       // Store the transform (at level 1)
-      Identifier id = gmt_mgr->getIdHelper()->wafer_id(0,ii,0,0);
-      DDmgr->addAlignableTransform(1, id, xform, layerphys);
+      Identifier id = m_gmt_mgr->getIdHelper()->wafer_id(0,ii,0,0);
+      m_DDmgr->addAlignableTransform(1, id, xform, layerphys);
     } else {
-      gmt_mgr->msg(MSG::DEBUG) << "Layer " << ii << " not built" << endmsg;
+      m_gmt_mgr->msg(MSG::DEBUG) << "Layer " << ii << " not built" << endmsg;
     }
   }
-  if(gmt_mgr->DoServices() ) {
+  if(m_gmt_mgr->DoServices() ) {
     //
     // Add the services inside the barrel volume
     //
@@ -103,22 +123,14 @@ GeoVPhysVol* GeoPixelBarrel::Build( ) {
 
 
 
-//#include "PixelGeoModel/GeoPixelCable.h"
-#include "GeoModelKernel/GeoBox.h"
-#include "GeoModelKernel/GeoLogVol.h"
-#include "GeoModelKernel/GeoPhysVol.h"
-#include "GeoModelKernel/GeoMaterial.h"
-
-#include <sstream>
-
 GeoVPhysVol* GeoPixelCable::Build() {
   //
   // Dimensions
   //
   double length = this->Length();
   double thickness = this->Thickness();
-  double width = gmt_mgr->PixelCableWidth();
-  GeoMaterial* cable = mat_mgr->getMaterial("pix::Cable");
+  double width = m_gmt_mgr->PixelCableWidth();
+  GeoMaterial* cable = m_mat_mgr->getMaterial("pix::Cable");
   const GeoBox* cableBox = new GeoBox(thickness/2.,width/2.,length/2.);
   std::string logName = "cableLog";
   std::ostringstream o;
@@ -140,8 +152,8 @@ double GeoPixelCable::Length() {
   // the TubeCables factory will have to position this cable in the correct
   // side.
   //
-  double zmax = gmt_mgr->PixelCableZMax();
-  double zmin = gmt_mgr->PixelCableZMin()+m_moduleNumber*gmt_mgr->PixelCableDeltaZ();
+  double zmax = m_gmt_mgr->PixelCableZMax();
+  double zmin = m_gmt_mgr->PixelCableZMin()+m_moduleNumber*m_gmt_mgr->PixelCableDeltaZ();
   return zmax-zmin-m_epsilon;
 }
 
@@ -181,27 +193,21 @@ double GeoPixelCable::Thickness() {
 //
 // Contains: nothing
 //
-//#include "PixelGeoModel/GeoPixelChip.h"
-#include "GeoModelKernel/GeoBox.h"
-#include "GeoModelKernel/GeoLogVol.h"
-#include "GeoModelKernel/GeoNameTag.h"
-#include "GeoModelKernel/GeoPhysVol.h"
-#include "GeoModelKernel/GeoMaterial.h"
 
 GeoVPhysVol* GeoPixelChip::Build() {
   //
   // Dimensions
   //
-  double length = gmt_mgr->PixelChipLength();
-  double thickness = gmt_mgr->PixelChipThickness();
-  double width = gmt_mgr->PixelChipWidth();
-  GeoMaterial* chipMat = mat_mgr->getMaterial("pix::Chip");
+  double length = m_gmt_mgr->PixelChipLength();
+  double thickness = m_gmt_mgr->PixelChipThickness();
+  double width = m_gmt_mgr->PixelChipWidth();
+  GeoMaterial* chipMat = m_mat_mgr->getMaterial("pix::Chip");
   std::string LogName = "chipBrlLog";
   //
   // In G3 is like this...
   //
-  if(gmt_mgr->isEndcap() ) {
-    chipMat =  mat_mgr->getMaterial("std::Silicon");
+  if(m_gmt_mgr->isEndcap() ) {
+    chipMat =  m_mat_mgr->getMaterial("std::Silicon");
     LogName = "chipECLog";
   }
 
@@ -219,21 +225,6 @@ GeoVPhysVol* GeoPixelChip::Build() {
 //                                                   //
 //---------------------------------------------------//
 
-//#include "PixelGeoModel/GeoPixelDisk.h"
-//#include "PixelGeoModel/GeoPixelSubDisk.h"
-//#include "PixelGeoModel/GeoPixelDiskSupports.h"
-//#include "PixelGeoModel/GeoPixelSiCrystal.h"
-
-#include "GeoModelKernel/GeoTube.h"
-#include "GeoModelKernel/GeoLogVol.h"
-#include "GeoModelKernel/GeoNameTag.h"
-#include "GeoModelKernel/GeoIdentifierTag.h"
-#include "GeoModelKernel/GeoFullPhysVol.h"
-#include "GeoModelKernel/GeoMaterial.h"
-#include "GeoModelKernel/GeoTransform.h"
-#include "GeoModelKernel/GeoAlignableTransform.h"
-
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
 
 GeoPixelDisk::GeoPixelDisk() {
 
@@ -246,32 +237,32 @@ GeoPixelDisk::GeoPixelDisk() {
   double rmin = RMin();
   double rmax = RMax();
   double halflength = Thickness()/2.;
-  GeoMaterial* air = mat_mgr->getMaterial("std::Air");
+  GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
   const GeoTube* diskTube = new GeoTube(rmin,rmax,halflength);
-  theDisk = new GeoLogVol("diskLog",diskTube,air);
+  m_theDisk = new GeoLogVol("diskLog",diskTube,air);
 }
 GeoVPhysVol* GeoPixelDisk::Build( ) {
   //
   // Define the Sensor to be used here, so it will be the same for all the disk
   GeoPixelSiCrystal theSensor(false);
-  GeoFullPhysVol* diskPhys = new GeoFullPhysVol(theDisk);
+  GeoFullPhysVol* diskPhys = new GeoFullPhysVol(m_theDisk);
   //
   // Place the disk sectors (on both sides):
   //
   GeoPixelSubDisk psd(theSensor);
-  double zpos = -gmt_mgr->PixelECSiDz1()/2.;
-  double angle = 360.*CLHEP::deg/ (float) gmt_mgr->PixelECNSectors1();
+  double zpos = -m_gmt_mgr->PixelECSiDz1()/2.;
+  double angle = 360.*CLHEP::deg/ (float) m_gmt_mgr->PixelECNSectors1();
   CLHEP::Hep3Vector pos(0.,0.,zpos);
 
   // Set numerology
-  gmt_mgr->SetEta(0);
-  DDmgr->numerology().setNumRingsForDisk(gmt_mgr->GetLD(),1);
-  DDmgr->numerology().setNumPhiModulesForDiskRing(gmt_mgr->GetLD(),0,gmt_mgr->PixelECNSectors1()*2);
+  m_gmt_mgr->SetEta(0);
+  m_DDmgr->numerology().setNumRingsForDisk(m_gmt_mgr->GetLD(),1);
+  m_DDmgr->numerology().setNumPhiModulesForDiskRing(m_gmt_mgr->GetLD(),0,m_gmt_mgr->PixelECNSectors1()*2);
  
   // Even modules
-  gmt_mgr->SetEta(0);
-  for (int ii = 0; ii <  gmt_mgr->PixelECNSectors1(); ii++) {
-    gmt_mgr->SetPhi(ii);
+  m_gmt_mgr->SetEta(0);
+  for (int ii = 0; ii <  m_gmt_mgr->PixelECNSectors1(); ii++) {
+    m_gmt_mgr->SetPhi(ii);
     CLHEP::HepRotation rm;
     rm.rotateX(180.*CLHEP::deg );
     rm.rotateZ(ii*angle+angle/2.);
@@ -285,15 +276,15 @@ GeoVPhysVol* GeoPixelDisk::Build( ) {
 
     // Now store the xform by identifier:
     Identifier id = theSensor.getID();
-    DDmgr->addAlignableTransform(0,id,xform,modulePhys);
+    m_DDmgr->addAlignableTransform(0,id,xform,modulePhys);
   }
 
   // Odd modules
-  gmt_mgr->SetEta(1);
-  zpos = gmt_mgr->PixelECSiDz2()/2.;
+  m_gmt_mgr->SetEta(1);
+  zpos = m_gmt_mgr->PixelECSiDz2()/2.;
   pos = CLHEP::Hep3Vector(0.,0.,zpos);
-  for (int ii = 0; ii <  gmt_mgr->PixelECNSectors1(); ii++) {
-    gmt_mgr->SetPhi(ii);
+  for (int ii = 0; ii <  m_gmt_mgr->PixelECNSectors1(); ii++) {
+    m_gmt_mgr->SetPhi(ii);
     CLHEP::HepRotation rm;
     rm.rotateZ((ii+1)*angle);
     GeoAlignableTransform* xform = new GeoAlignableTransform(HepGeom::Transform3D(rm,pos));
@@ -306,7 +297,7 @@ GeoVPhysVol* GeoPixelDisk::Build( ) {
 
     // Now store the xform by identifier:
     Identifier id = theSensor.getID();
-    DDmgr->addAlignableTransform(0,id,xform,modulePhys);
+    m_DDmgr->addAlignableTransform(0,id,xform,modulePhys);
   }
   //
   // Place the supports for the disks:
@@ -326,11 +317,11 @@ GeoVPhysVol* GeoPixelDisk::Build( ) {
 }
 
 double GeoPixelDisk::RMin() {
-  return gmt_mgr->PixelECCarbonRMin("Inner");
+  return m_gmt_mgr->PixelECCarbonRMin("Inner");
 }
 
 double GeoPixelDisk::RMax() {
-  return gmt_mgr->PixelECCarbonRMax("Outer");
+  return m_gmt_mgr->PixelECCarbonRMax("Outer");
 }
 
 double GeoPixelDisk::Thickness() {
@@ -343,9 +334,9 @@ double GeoPixelDisk::Thickness() {
   // outside this volume.
   //
   //  return 10*CLHEP::mm;
-  double tck = 2*(gmt_mgr->PixelBoardThickness()
-                  +std::max(gmt_mgr->PixelHybridThickness(),gmt_mgr->PixelChipThickness()));
-  tck += std::max(gmt_mgr->PixelECSiDz1(),gmt_mgr->PixelECSiDz2());
+  double tck = 2*(m_gmt_mgr->PixelBoardThickness()
+                  +std::max(m_gmt_mgr->PixelHybridThickness(),m_gmt_mgr->PixelChipThickness()));
+  tck += std::max(m_gmt_mgr->PixelECSiDz1(),m_gmt_mgr->PixelECSiDz2());
   return tck;
 }
 
@@ -357,16 +348,16 @@ double GeoPixelDisk::Thickness() {
 int GeoPixelDisk::getPhiId() {
   int brl_ec=0;
   int phimod;
-    if(gmt_mgr->isBarrel() ) brl_ec = 0;
-    if(gmt_mgr->isEndcap() ) brl_ec = 2*gmt_mgr->GetSide();
+    if(m_gmt_mgr->isBarrel() ) brl_ec = 0;
+    if(m_gmt_mgr->isEndcap() ) brl_ec = 2*m_gmt_mgr->GetSide();
     if(brl_ec == 2) {
-      phimod = gmt_mgr->Phi()*2 + gmt_mgr->Eta();
+      phimod = m_gmt_mgr->Phi()*2 + m_gmt_mgr->Eta();
     } else {
       //
       // The (eta) negative) endcap is more complicated, as there is an extra
       // rotation of the endcap as a whole around Y
       //
-      phimod = 48-gmt_mgr->Phi()*2-gmt_mgr->Eta()-2;
+      phimod = 48-m_gmt_mgr->Phi()*2-m_gmt_mgr->Eta()-2;
       if (phimod == -1) phimod = 47;
     }
     return phimod;
@@ -380,16 +371,6 @@ int GeoPixelDisk::getPhiId() {
 //---------------------------------------------------//
 
 
-//#include "PixelGeoModel/GeoPixelDiskSupports.h"
-#include "GeoModelKernel/GeoTube.h"
-#include "GeoModelKernel/GeoLogVol.h"
-#include "GeoModelKernel/GeoNameTag.h"
-#include "GeoModelKernel/GeoPhysVol.h"
-#include "GeoModelKernel/GeoMaterial.h"
-#include "GeoModelKernel/GeoTransform.h"
-
-#include <sstream>
-
 GeoPixelDiskSupports::GeoPixelDiskSupports() {
   //
   // Initialize the vectors
@@ -399,33 +380,33 @@ GeoPixelDiskSupports::GeoPixelDiskSupports() {
   //
   std::string ele[3] = {"Inner", "Central", "Outer"};
   for (int ii =0; ii<3; ii++) {
-    double rmin = gmt_mgr->PixelECCarbonRMin(ele[ii]);
-    double rmax = gmt_mgr->PixelECCarbonRMax(ele[ii]);
-    double halflength = gmt_mgr->PixelECCarbonThickness(ele[ii])/2.;
+    double rmin = m_gmt_mgr->PixelECCarbonRMin(ele[ii]);
+    double rmax = m_gmt_mgr->PixelECCarbonRMax(ele[ii]);
+    double halflength = m_gmt_mgr->PixelECCarbonThickness(ele[ii])/2.;
     double zpos = 0.;
-    std::string mat = gmt_mgr->PixelECCarbonMaterial(ele[ii]);
-    _rmin.push_back(rmin);
-    _rmax.push_back(rmax);
-    _zpos.push_back(zpos);
-    _halflength.push_back(halflength);
-    material.push_back(mat);
+    std::string mat = m_gmt_mgr->PixelECCarbonMaterial(ele[ii]);
+    m_rmin.push_back(rmin);
+    m_rmax.push_back(rmax);
+    m_zpos.push_back(zpos);
+    m_halflength.push_back(halflength);
+    m_material.push_back(mat);
   }
 }
 
 
  
 GeoVPhysVol* GeoPixelDiskSupports::Build( ) {
-  GeoMaterial* supportMat = mat_mgr->getMaterial(material[_nframe]);
+  GeoMaterial* supportMat = m_mat_mgr->getMaterial(m_material[m_nframe]);
   //
-  // Dimensions: (_nframe set with teh SetCylinder method)
+  // Dimensions: (m_nframe set with teh SetCylinder method)
   //
-  double rmin = _rmin[_nframe];
-  double rmax = _rmax[_nframe];
-  double halflength = _halflength[_nframe];
+  double rmin = m_rmin[m_nframe];
+  double rmax = m_rmax[m_nframe];
+  double halflength = m_halflength[m_nframe];
   const GeoTube* supportTube = new GeoTube(rmin,rmax,halflength);
   std::string logName = "diskSupLog";
   std::ostringstream o;
-  o << _nframe;
+  o << m_nframe;
   logName = logName+o.str();
   GeoLogVol* theSupport = new GeoLogVol(logName,supportTube,supportMat);
   GeoPhysVol* supportPhys = new GeoPhysVol(theSupport);
@@ -439,13 +420,6 @@ GeoVPhysVol* GeoPixelDiskSupports::Build( ) {
 //                                                   //
 //---------------------------------------------------//
 
-//#include "PixelGeoModel/GeoPixelECCable.h"
-#include "GeoModelKernel/GeoTube.h"
-#include "GeoModelKernel/GeoLogVol.h"
-#include "GeoModelKernel/GeoNameTag.h"
-#include "GeoModelKernel/GeoPhysVol.h"
-#include "GeoModelKernel/GeoMaterial.h"
-
 GeoPixelECCable::GeoPixelECCable() {
   //
   // Define the log volume in the constructor, so I do it only once.
@@ -454,16 +428,16 @@ GeoPixelECCable::GeoPixelECCable() {
   //   
   // Dimensions 
   //
-  double rmin = gmt_mgr->PixelECCablesRMin();
-  double rmax = gmt_mgr->PixelECCablesRMax();
-  double thickness = gmt_mgr->PixelECCablesThickness();
-  GeoMaterial* cableMat = mat_mgr->getMaterial("pix::ECCables");
+  double rmin = m_gmt_mgr->PixelECCablesRMin();
+  double rmax = m_gmt_mgr->PixelECCablesRMax();
+  double thickness = m_gmt_mgr->PixelECCablesThickness();
+  GeoMaterial* cableMat = m_mat_mgr->getMaterial("pix::ECCables");
   const GeoTube* cableTube = new GeoTube(rmin,rmax,thickness/2.);
-  theECCable = new GeoLogVol("ECCableLog",cableTube,cableMat);
+  m_theECCable = new GeoLogVol("ECCableLog",cableTube,cableMat);
 }
 
 GeoVPhysVol* GeoPixelECCable::Build( ) {
-  GeoPhysVol* cablePhys = new GeoPhysVol(theECCable);
+  GeoPhysVol* cablePhys = new GeoPhysVol(m_theECCable);
   return cablePhys;
 }
 
@@ -473,53 +447,38 @@ GeoVPhysVol* GeoPixelECCable::Build( ) {
 //                                                   //
 //---------------------------------------------------//
 
-//#include "PixelGeoModel/GeoPixelEndCap.h"
-//#include "PixelGeoModel/GeoPixelDisk.h"
-//#include "PixelGeoModel/GeoPixelECCable.h"
-//#include "PixelGeoModel/GeoPixelServices.h"
-#include "GeoModelKernel/GeoTube.h"
-#include "GeoModelKernel/GeoLogVol.h"
-#include "GeoModelKernel/GeoNameTag.h"
-#include "GeoModelKernel/GeoIdentifierTag.h"
-#include "GeoModelKernel/GeoPhysVol.h"
-#include "GeoModelKernel/GeoMaterial.h"
-#include "GeoModelKernel/GeoTransform.h"
-#include "GeoModelKernel/GeoAlignableTransform.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "Identifier/Identifier.h"
-
 
 GeoVPhysVol* GeoPixelEndCap::Build( ) {
 
   //
   // create the Barrel Mother volume
   // 
-  double rmin = gmt_mgr->PixelEndcapRMin();
-  double rmax = gmt_mgr->PixelEndcapRMax();
-  double halflength = (gmt_mgr->PixelEndcapZMax()-gmt_mgr->PixelEndcapZMin())/2.;
-  GeoMaterial* air = mat_mgr->getMaterial("std::Air");
+  double rmin = m_gmt_mgr->PixelEndcapRMin();
+  double rmax = m_gmt_mgr->PixelEndcapRMax();
+  double halflength = (m_gmt_mgr->PixelEndcapZMax()-m_gmt_mgr->PixelEndcapZMin())/2.;
+  GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
   const GeoTube* ecTube = new GeoTube(rmin,rmax,halflength);
   const GeoLogVol* ecLog = new GeoLogVol("EndCapLog",ecTube,air);
   GeoPhysVol* ecPhys = new GeoPhysVol(ecLog);
 
   // Set numerology
-  DDmgr->numerology().setNumDisks(gmt_mgr->PixelEndcapNDisk());
+  m_DDmgr->numerology().setNumDisks(m_gmt_mgr->PixelEndcapNDisk());
 
   //
   // Place the disks and cables on both sides
   //
   GeoPixelDisk pd;
   GeoPixelECCable pecc;
-  for(int ii = 0; ii < gmt_mgr->PixelEndcapNDisk(); ii++) {
-    gmt_mgr->SetCurrentLD(ii);
-    if(gmt_mgr->isLDPresent()) {
+  for(int ii = 0; ii < m_gmt_mgr->PixelEndcapNDisk(); ii++) {
+    m_gmt_mgr->SetCurrentLD(ii);
+    if(m_gmt_mgr->isLDPresent()) {
       //
       // The position is given w.r.t to the center of the detector!
       //
       // position of the endcap
-      double ecz = (gmt_mgr->PixelEndcapZMax()+gmt_mgr->PixelEndcapZMin())/2.;
+      double ecz = (m_gmt_mgr->PixelEndcapZMax()+m_gmt_mgr->PixelEndcapZMin())/2.;
       //position of the disk
-      double zdisk = gmt_mgr->PixelDiskPosition()-ecz;
+      double zdisk = m_gmt_mgr->PixelDiskPosition()-ecz;
       // place the disk
       CLHEP::Hep3Vector pos(0.,0.,zdisk);
       GeoNameTag* tag = new GeoNameTag("Disk");
@@ -531,14 +490,14 @@ GeoVPhysVol* GeoPixelEndCap::Build( ) {
       ecPhys->add(diskPhys);
 
       // Store the alignable transform
-      int brl_ec = 2*gmt_mgr->GetSide();
-      Identifier id = gmt_mgr->getIdHelper()->wafer_id(brl_ec,ii,0,0);
-      DDmgr->addAlignableTransform(1, id, xform, diskPhys);
+      int brl_ec = 2*m_gmt_mgr->GetSide();
+      Identifier id = m_gmt_mgr->getIdHelper()->wafer_id(brl_ec,ii,0,0);
+      m_DDmgr->addAlignableTransform(1, id, xform, diskPhys);
 
       //
       // place the cables twice for the two active parts
       //
-      double dz = pd.Thickness()/2. + gmt_mgr->PixelECCablesDistance() ;
+      double dz = pd.Thickness()/2. + m_gmt_mgr->PixelECCablesDistance() ;
       pos = CLHEP::Hep3Vector(0.,0.,zdisk+dz);
       tag = new GeoNameTag("ECCables");
       GeoTransform * xformCablesPlus = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(), pos));
@@ -552,11 +511,11 @@ GeoVPhysVol* GeoPixelEndCap::Build( ) {
       ecPhys->add(xformCablesMinus);
       ecPhys->add(pecc.Build() );
     } else {
-      if(gmt_mgr->msgLvl(MSG::DEBUG)) gmt_mgr->msg(MSG::DEBUG) << "Disk " << ii << " not built" << endmsg;
+      if(m_gmt_mgr->msgLvl(MSG::DEBUG)) m_gmt_mgr->msg(MSG::DEBUG) << "Disk " << ii << " not built" << endmsg;
 
     }
   }
-  if(gmt_mgr->DoServices() ) {
+  if(m_gmt_mgr->DoServices() ) {
     //
     // Add the Endcap services inide the EC volume
     //
@@ -580,46 +539,31 @@ GeoVPhysVol* GeoPixelEndCap::Build( ) {
 //                                                   //
 //---------------------------------------------------//
 
-//#include "PixelGeoModel/GeoPixelEnvelope.h"
-#include "GeoModelKernel/GeoTube.h"
-#include "GeoModelKernel/GeoLogVol.h"
-#include "GeoModelKernel/GeoNameTag.h"
-#include "GeoModelKernel/GeoIdentifierTag.h"
-#include "GeoModelKernel/GeoFullPhysVol.h"
-#include "GeoModelKernel/GeoTransform.h"
-#include "GeoModelKernel/GeoMaterial.h"
-
-//#include "PixelGeoModel/GeoPixelBarrel.h"
-//#include "PixelGeoModel/GeoPixelEndCap.h"
-//#include "PixelGeoModel/GeoPixelServices.h"
-//#include "PixelGeoModel/GeoPixelLadder.h"
-//#include "PixelGeoModel/GeoPixelModule.h"
-//#include "PixelGeoModel/GeoPixelTubeCables.h"
 
 GeoVPhysVol* GeoPixelEnvelope::Build( ) {
   //
   // create the External volume where I'll put all the pixel detector
   // 
-  double rmin = gmt_mgr->PixelRMin();
-  double rmax = gmt_mgr->PixelRMax();
-  double halflength = gmt_mgr->PixelHalfLength();
-  //std::cout << "Material Manager " << mat_mgr << std::endl;
-  GeoMaterial* air = mat_mgr->getMaterial("std::Air");
+  double rmin = m_gmt_mgr->PixelRMin();
+  double rmax = m_gmt_mgr->PixelRMax();
+  double halflength = m_gmt_mgr->PixelHalfLength();
+  //std::cout << "Material Manager " << m_mat_mgr << std::endl;
+  GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
   const GeoTube* envelopeTube = new GeoTube(rmin,rmax,halflength);
   const GeoLogVol* envelopeLog = new GeoLogVol("Pixel",envelopeTube,air);
   GeoFullPhysVol* envelopePhys = new GeoFullPhysVol(envelopeLog);
   //
   // Add the Barrel:
   //
-  DDmgr->numerology().addBarrel(0);
-  gmt_mgr->SetBarrel();
+  m_DDmgr->numerology().addBarrel(0);
+  m_gmt_mgr->SetBarrel();
   GeoPixelBarrel brl;
   GeoNameTag* tag = new GeoNameTag("Barrel");
   GeoVPhysVol* barrelPhys =  brl.Build() ;
   envelopePhys->add(tag);
   envelopePhys->add(new GeoIdentifierTag(0));
   envelopePhys->add(barrelPhys );
-  if(gmt_mgr->DoServices() ) {
+  if(m_gmt_mgr->DoServices() ) {
     //
     // Add the Barrel services outside the barrel volume
     //
@@ -638,12 +582,12 @@ GeoVPhysVol* GeoPixelEnvelope::Build( ) {
   //
   // Add the EndCaps
   //
-  DDmgr->numerology().addEndcap(2);
-  DDmgr->numerology().addEndcap(-2);
-  gmt_mgr->SetEndcap();
-  gmt_mgr->SetPos();
+  m_DDmgr->numerology().addEndcap(2);
+  m_DDmgr->numerology().addEndcap(-2);
+  m_gmt_mgr->SetEndcap();
+  m_gmt_mgr->SetPos();
   GeoPixelEndCap pec;
-  double zpos = (gmt_mgr->PixelEndcapZMax()+gmt_mgr->PixelEndcapZMin())/2.;
+  double zpos = (m_gmt_mgr->PixelEndcapZMax()+m_gmt_mgr->PixelEndcapZMin())/2.;
   CLHEP::Hep3Vector pos(0.,0.,zpos);
   GeoTransform* xform = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(),pos));
   tag  = new GeoNameTag("EndCap 1");
@@ -651,7 +595,7 @@ GeoVPhysVol* GeoPixelEnvelope::Build( ) {
   envelopePhys->add(new GeoIdentifierTag(2));
   envelopePhys->add(xform);
   envelopePhys->add(pec.Build() );
-  gmt_mgr->SetNeg();
+  m_gmt_mgr->SetNeg();
   pos = CLHEP::Hep3Vector(0.,0.,-zpos);
   CLHEP::HepRotation rm;
   rm.rotateX(180.*CLHEP::deg);
@@ -661,7 +605,7 @@ GeoVPhysVol* GeoPixelEnvelope::Build( ) {
   envelopePhys->add(new GeoIdentifierTag(-2));
   envelopePhys->add(xform);
   envelopePhys->add(pec.Build() );
-  if(gmt_mgr->DoServices() ) {
+  if(m_gmt_mgr->DoServices() ) {
     //
     // Add the Endcap services outside the EC volume
     //
@@ -705,25 +649,19 @@ GeoVPhysVol* GeoPixelEnvelope::Build( ) {
 //
 // Contains: nothing
 //
-//#include "PixelGeoModel/GeoPixelHybrid.h"
-#include "GeoModelKernel/GeoBox.h"
-#include "GeoModelKernel/GeoLogVol.h"
-#include "GeoModelKernel/GeoNameTag.h"
-#include "GeoModelKernel/GeoPhysVol.h"
-#include "GeoModelKernel/GeoMaterial.h"
 
 GeoVPhysVol* GeoPixelHybrid::Build() {
   //
   // Dimensions
   //
-  double length = gmt_mgr->PixelHybridLength();
-  double thickness = gmt_mgr->PixelHybridThickness();
-  double width = gmt_mgr->PixelHybridWidth();
-  GeoMaterial* hybridMat = mat_mgr->getMaterial("pix::Hybrid");
-  if(gmt_mgr->isEndcap() )hybridMat =  mat_mgr->getMaterial("std::Silicon");
+  double length = m_gmt_mgr->PixelHybridLength();
+  double thickness = m_gmt_mgr->PixelHybridThickness();
+  double width = m_gmt_mgr->PixelHybridWidth();
+  GeoMaterial* hybridMat = m_mat_mgr->getMaterial("pix::Hybrid");
+  if(m_gmt_mgr->isEndcap() )hybridMat =  m_mat_mgr->getMaterial("std::Silicon");
   const GeoBox* hybridBox = new GeoBox(thickness/2.,width/2.,length/2.);
   std::string logName = "hybridECLog";
-  if(gmt_mgr->isBarrel() ) logName = "hybridBrlLog";
+  if(m_gmt_mgr->isBarrel() ) logName = "hybridBrlLog";
   GeoLogVol* theHybrid = new GeoLogVol(logName,hybridBox,hybridMat);
   GeoPhysVol* hybridPhys = new GeoPhysVol(theHybrid);
   return hybridPhys;
@@ -735,26 +673,12 @@ GeoVPhysVol* GeoPixelHybrid::Build() {
 //                                                   //
 //---------------------------------------------------//
 
-//#include "PixelGeoModel/GeoPixelLadder.h"
-//#include "PixelGeoModel/GeoPixelModule.h"
-//#include "PixelGeoModel/GeoPixelSiCrystal.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "GeoModelKernel/GeoBox.h"
-#include "GeoModelKernel/GeoLogVol.h"
-#include "GeoModelKernel/GeoNameTag.h"
-#include "GeoModelKernel/GeoIdentifierTag.h"
-#include "GeoModelKernel/GeoPhysVol.h"
-#include "GeoModelKernel/GeoMaterial.h"
-
-#include "GeoModelKernel/GeoTransform.h"
-#include "GeoModelKernel/GeoAlignableTransform.h"
-
-
-using std::max;
 
 GeoPixelLadder::GeoPixelLadder(GeoPixelSiCrystal& theSensor) :
   m_theSensor(theSensor)
 {
+  using std::max;
+
   //
   // Define the log volume in the constructor, so I do it only once.
   //
@@ -762,36 +686,36 @@ GeoPixelLadder::GeoPixelLadder(GeoPixelSiCrystal& theSensor) :
   //   
   // Length of the ladder is in the db
   //
-  double halflength = gmt_mgr->PixelLadderHalfLength();
+  double halflength = m_gmt_mgr->PixelLadderHalfLength();
   //
   // The width is the maximum among the componenst widths
   //
   double width = max( max(
-			  gmt_mgr->PixelBoardWidth(),
-			  gmt_mgr->PixelHybridWidth()),
-		      gmt_mgr->PixelChipWidth());
+			  m_gmt_mgr->PixelBoardWidth(),
+			  m_gmt_mgr->PixelHybridWidth()),
+		      m_gmt_mgr->PixelChipWidth());
   //
   // The thickness has to be calculated
   //
   double thickness = this->Thickness();
-  GeoMaterial* air = mat_mgr->getMaterial("std::Air");
+  GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
   const GeoBox* ladderBox = new GeoBox(thickness/2.,width/2.,halflength);
-  theLadder = new GeoLogVol("ladderLog",ladderBox,air);
+  m_theLadder = new GeoLogVol("ladderLog",ladderBox,air);
 }
 GeoVPhysVol* GeoPixelLadder::Build( ) {
-  GeoPhysVol* ladderPhys = new GeoPhysVol(theLadder);
+  GeoPhysVol* ladderPhys = new GeoPhysVol(m_theLadder);
   //
   // Place the Modules
   //
   GeoPixelModule pm(m_theSensor);
-  int HalfNModule = gmt_mgr->PixelNModule()/2;
-  for(int ii = 0; ii < gmt_mgr->PixelNModule(); ii++) {
+  int HalfNModule = m_gmt_mgr->PixelNModule()/2;
+  for(int ii = 0; ii < m_gmt_mgr->PixelNModule(); ii++) {
     //
     // Which of the two sides is it?
     //
     float side = 1.;
     int jj = ii-HalfNModule;
-    gmt_mgr->SetEta(jj);
+    m_gmt_mgr->SetEta(jj);
     if(jj < 0) {
       side = -1.;
       jj = -jj;
@@ -799,11 +723,11 @@ GeoVPhysVol* GeoPixelLadder::Build( ) {
 //
 // Shift down the central module, as its flag (from NOVA) is -1.
 //
-    float xpos = gmt_mgr->PixelModuleDrDistance()*gmt_mgr->PixelModuleShiftFlag(jj)/2.;
+    float xpos = m_gmt_mgr->PixelModuleDrDistance()*m_gmt_mgr->PixelModuleShiftFlag(jj)/2.;
 //
 // Get the z position from the db
 //
-    float zpos = gmt_mgr->PixelModulePosition(jj)*side;
+    float zpos = m_gmt_mgr->PixelModulePosition(jj)*side;
     CLHEP::Hep3Vector modulepos(xpos,0.,zpos);
 //
 //
@@ -812,7 +736,7 @@ GeoVPhysVol* GeoPixelLadder::Build( ) {
     //
     // again change sign w.r.t. g4
     //
-    rm.rotateY(gmt_mgr->PixelModuleAngle()*gmt_mgr->PixelModuleAngleSign(ii) );
+    rm.rotateY(m_gmt_mgr->PixelModuleAngle()*m_gmt_mgr->PixelModuleAngleSign(ii) );
 //
 // Place the Module
 //
@@ -820,20 +744,20 @@ GeoVPhysVol* GeoPixelLadder::Build( ) {
     GeoNameTag *tag = new GeoNameTag("Module");         
     GeoAlignableTransform* xform;
     // OLD EXAMPLE FOR ALIGNEMENT!!
-    //    if(gmt_mgr->IsAlign() ) {
+    //    if(m_gmt_mgr->IsAlign() ) {
     //      xform = new GeoSiAlTransform(HepGeom::Transform3D(rm,modulepos), pm.getID() );
     //    } else {
     //      xform = new GeoTransform(HepGeom::Transform3D(rm,modulepos));
     //    }
     xform = new GeoAlignableTransform(HepGeom::Transform3D(rm,modulepos));
     ladderPhys->add(tag);
-    ladderPhys->add(new GeoIdentifierTag(gmt_mgr->Eta() ) );
+    ladderPhys->add(new GeoIdentifierTag(m_gmt_mgr->Eta() ) );
     ladderPhys->add(xform);
     ladderPhys->add(modulephys );
 
     // Now store the xform by identifier:
     Identifier id = m_theSensor.getID();
-    DDmgr->addAlignableTransform(0,id,xform,modulephys);
+    m_DDmgr->addAlignableTransform(0,id,xform,modulephys);
     
   }
   return ladderPhys;
@@ -848,12 +772,12 @@ double GeoPixelLadder::Thickness() {
   // a factor is added to account for the tilt of ~1degree given to
   // have a z overlap of the single modules
   //
-  double tckincl = (gmt_mgr->PixelBoardLength()+gmt_mgr->PixelBalcony())*
-    sin(gmt_mgr->PixelModuleAngle())/2.;
-  double thick = gmt_mgr->PixelBoardThickness()+
-    gmt_mgr->PixelHybridThickness()+
-    gmt_mgr->PixelChipThickness()+
-    fabs(gmt_mgr->PixelModuleDrDistance())+
+  double tckincl = (m_gmt_mgr->PixelBoardLength()+m_gmt_mgr->PixelBalcony())*
+    sin(m_gmt_mgr->PixelModuleAngle())/2.;
+  double thick = m_gmt_mgr->PixelBoardThickness()+
+    m_gmt_mgr->PixelHybridThickness()+
+    m_gmt_mgr->PixelChipThickness()+
+    fabs(m_gmt_mgr->PixelModuleDrDistance())+
     tckincl;
   return thick;
 }
@@ -865,14 +789,6 @@ double GeoPixelLadder::Thickness() {
 //                                                   //
 //---------------------------------------------------//
 
-//#include "PixelGeoModel/GeoPixelLadderStruct.h"
-#include "GeoModelKernel/GeoBox.h"
-#include "GeoModelKernel/GeoLogVol.h"
-#include "GeoModelKernel/GeoNameTag.h"
-#include "GeoModelKernel/GeoPhysVol.h"
-#include "GeoModelKernel/GeoMaterial.h"
-
-
 
 GeoVPhysVol* GeoPixelLadderStruct::Build( ) {
   //
@@ -881,13 +797,13 @@ GeoVPhysVol* GeoPixelLadderStruct::Build( ) {
   //
   // Dimensions
   //
-  double halflength = gmt_mgr->PixelLadderHalfLength();
-  double thickness = gmt_mgr->PixelLadderThickness();
-  double width = gmt_mgr->PixelLadderWidth();
+  double halflength = m_gmt_mgr->PixelLadderHalfLength();
+  double thickness = m_gmt_mgr->PixelLadderThickness();
+  double width = m_gmt_mgr->PixelLadderWidth();
   //
   // This is ladder material
   //
-  GeoMaterial* ladderMat = mat_mgr->getMaterial("pix::Ladder");
+  GeoMaterial* ladderMat = m_mat_mgr->getMaterial("pix::Ladder");
   const GeoBox* ladderStructBox = new GeoBox(thickness/2.,width/2.,halflength);
   const GeoLogVol* ladderStructLog = new GeoLogVol("ladderStructLog",ladderStructBox,ladderMat);
   GeoPhysVol* ladderStructPhys = new GeoPhysVol(ladderStructLog);
@@ -901,18 +817,6 @@ GeoVPhysVol* GeoPixelLadderStruct::Build( ) {
 //                                                   //
 //---------------------------------------------------//
 
-//#include "PixelGeoModel/GeoPixelLayer.h"
-//#include "PixelGeoModel/GeoPixelLadder.h"
-//#include "PixelGeoModel/GeoPixelTubeCables.h"
-//#include "PixelGeoModel/GeoPixelSiCrystal.h"
-
-#include "GeoModelKernel/GeoTube.h"
-#include "GeoModelKernel/GeoLogVol.h"
-#include "GeoModelKernel/GeoNameTag.h"
-#include "GeoModelKernel/GeoIdentifierTag.h"
-#include "GeoModelKernel/GeoFullPhysVol.h"
-#include "GeoModelKernel/GeoMaterial.h"
-#include "GeoModelKernel/GeoTransform.h"
 
 GeoVPhysVol* GeoPixelLayer::Build() {
 
@@ -920,54 +824,54 @@ GeoVPhysVol* GeoPixelLayer::Build() {
   // create the three barrel layers
   // Build the sensor first to use the same for all the module in the layer
   bool isBLayer = false;
-  if(gmt_mgr->GetLD() == 0) isBLayer = true;
+  if(m_gmt_mgr->GetLD() == 0) isBLayer = true;
   GeoPixelSiCrystal theSensor(isBLayer);
   //
   // This is the maximum possible w/o going out of the mother volume!
   //
   double LayerThickness = 8.499*CLHEP::mm;
-  GeoMaterial* air = mat_mgr->getMaterial("std::Air");
+  GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
   //
   // Layer dimensions from the geometry manager
   //
-  double rmin =  gmt_mgr->PixelLayerRadius()-LayerThickness;
-  double rmax =  gmt_mgr->PixelLayerRadius()+LayerThickness;
-  double halflength = gmt_mgr->PixelLadderHalfLength() + m_epsilon;
+  double rmin =  m_gmt_mgr->PixelLayerRadius()-LayerThickness;
+  double rmax =  m_gmt_mgr->PixelLayerRadius()+LayerThickness;
+  double halflength = m_gmt_mgr->PixelLadderHalfLength() + m_epsilon;
   std::string lname[3];
   lname[0] = "InnerLayerLog";
   lname[1] = "CenterLayerLog";
   lname[2] = "OuterLayerLog";
   const GeoTube* layerTube = new GeoTube(rmin,rmax,halflength); //solid
-  const GeoLogVol* layerLog = new GeoLogVol(lname[gmt_mgr->GetLD()],layerTube,air); //log volume
+  const GeoLogVol* layerLog = new GeoLogVol(lname[m_gmt_mgr->GetLD()],layerTube,air); //log volume
   GeoFullPhysVol* layerPhys = new GeoFullPhysVol(layerLog); // phys vol
   //
   // Place the ladders:
   //
   GeoPixelLadder pl(theSensor);
   GeoPixelTubeCables ptc;
-  int nsectors = gmt_mgr->NPixelSectors();
+  int nsectors = m_gmt_mgr->NPixelSectors();
   double angle=360./nsectors*CLHEP::deg;
-  double layerradius = gmt_mgr->PixelLayerRadius();
-  double xcblpos =  layerradius + (pl.Thickness()/2.+ptc.Thickness()/2)/cos(gmt_mgr->PixelLadderTilt());
+  double layerradius = m_gmt_mgr->PixelLayerRadius();
+  double xcblpos =  layerradius + (pl.Thickness()/2.+ptc.Thickness()/2)/cos(m_gmt_mgr->PixelLadderTilt());
   CLHEP::Hep3Vector posladder(layerradius, 0.,0.);
   CLHEP::Hep3Vector postubecables(xcblpos, 0.,0.);
   posladder.rotateZ(angle/2.);
   postubecables.rotateZ(angle/2.);
   
   // Set numerology
-  DDmgr->numerology().setNumPhiModulesForLayer(gmt_mgr->GetLD(),nsectors);
-  DDmgr->numerology().setNumEtaModulesForLayer(gmt_mgr->GetLD(),gmt_mgr->PixelNModule());
+  m_DDmgr->numerology().setNumPhiModulesForLayer(m_gmt_mgr->GetLD(),nsectors);
+  m_DDmgr->numerology().setNumEtaModulesForLayer(m_gmt_mgr->GetLD(),m_gmt_mgr->PixelNModule());
 
   //
   // Place the volumes by rotation.
   //
   for(int ii = 0; ii < nsectors; ii++) {
-    gmt_mgr->SetPhi(ii);
+    m_gmt_mgr->SetPhi(ii);
     CLHEP::HepRotation rm;
     //
     // change the sign w.r.t G4 (same sign as G3)
     //
-    rm.rotateZ(( +(float) ii+0.5)*angle+gmt_mgr->PixelLadderTilt() );
+    rm.rotateZ(( +(float) ii+0.5)*angle+m_gmt_mgr->PixelLadderTilt() );
     //
     // Place the ladders
     //
@@ -979,7 +883,7 @@ GeoVPhysVol* GeoPixelLayer::Build() {
     GeoVPhysVol* ladderphys = pl.Build() ;
     layerPhys->add(ladderphys );
     posladder.rotateZ(angle);     
-    if(gmt_mgr->DoServices() ) {
+    if(m_gmt_mgr->DoServices() ) {
       //
       // Place the box w/ the tubes and cables for the layer
       //
@@ -1002,19 +906,6 @@ GeoVPhysVol* GeoPixelLayer::Build() {
 //                                                   //
 //---------------------------------------------------//
 
-//#include "PixelGeoModel/GeoPixelModule.h"
-//#include "PixelGeoModel/GeoPixelHybrid.h"
-//#include "PixelGeoModel/GeoPixelChip.h"
-//#include "PixelGeoModel/GeoPixelSiCrystal.h"
-#include "GeoModelKernel/GeoBox.h"
-#include "GeoModelKernel/GeoLogVol.h"
-#include "GeoModelKernel/GeoNameTag.h"
-#include "GeoModelKernel/GeoIdentifierTag.h"
-#include "GeoModelKernel/GeoFullPhysVol.h"
-#include "GeoModelKernel/GeoMaterial.h"
-#include "GeoModelKernel/GeoTransform.h"
-
-using std::max;
 
 GeoPixelModule::GeoPixelModule(GeoPixelSiCrystal& theSensor) :
   m_theSensor(theSensor)
@@ -1028,18 +919,18 @@ GeoPixelModule::GeoPixelModule(GeoPixelSiCrystal& theSensor) :
   double length = this->Length();
   double thickness = this->Thickness();
   double width = this->Width();
-  GeoMaterial* air = mat_mgr->getMaterial("std::Air");
+  GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
   const GeoBox* moduleBox = new GeoBox(thickness/2.,width/2.,length/2.);
-  theModule = new GeoLogVol("moduleLog",moduleBox,air);
+  m_theModule = new GeoLogVol("moduleLog",moduleBox,air);
 }
 
 GeoVPhysVol* GeoPixelModule::Build( ) {
-  GeoFullPhysVol* modulePhys = new GeoFullPhysVol(theModule);
+  GeoFullPhysVol* modulePhys = new GeoFullPhysVol(m_theModule);
   //
   // Place the Si Crystal
   //
   GeoVPhysVol *theSi = m_theSensor.Build();
-  _id = m_theSensor.getID();
+  m_id = m_theSensor.getID();
   GeoNameTag *tag = new GeoNameTag("Si Crystal");         
   GeoTransform *xformsi = new GeoTransform(HepGeom::Transform3D());
   modulePhys->add(tag);
@@ -1050,7 +941,7 @@ GeoVPhysVol* GeoPixelModule::Build( ) {
   // Place the Hybrid
   //
   GeoPixelHybrid ph;
-  double xpos = -0.5*(gmt_mgr->PixelBoardThickness()+gmt_mgr->PixelHybridThickness());
+  double xpos = -0.5*(m_gmt_mgr->PixelBoardThickness()+m_gmt_mgr->PixelHybridThickness());
   CLHEP::Hep3Vector hybpos(xpos,0.,0.);
   GeoTransform* xform = new GeoTransform(HepGeom::Transform3D( CLHEP::HepRotation(),hybpos) );
   tag = new GeoNameTag("Hybrid");
@@ -1061,7 +952,7 @@ GeoVPhysVol* GeoPixelModule::Build( ) {
   // Place the Chip
   //
   GeoPixelChip pc;
-  xpos = 0.5*(gmt_mgr->PixelBoardThickness()+gmt_mgr->PixelChipThickness())+gmt_mgr->PixelChipGap();
+  xpos = 0.5*(m_gmt_mgr->PixelBoardThickness()+m_gmt_mgr->PixelChipThickness())+m_gmt_mgr->PixelChipGap();
   CLHEP::Hep3Vector chippos(xpos,0.,0.);
   xform = new GeoTransform(HepGeom::Transform3D (CLHEP::HepRotation(),chippos) );
   tag = new GeoNameTag("Chip");
@@ -1076,13 +967,14 @@ GeoVPhysVol* GeoPixelModule::Build( ) {
 
 
 double GeoPixelModule::Thickness() {
+  using std::max;
   //
   // The thickness of the module is given by the board thickness
   // plus the maximum b/w the hybrid and the chip+gap
   //
-  double thick = gmt_mgr->PixelBoardThickness()+
-    2*max(gmt_mgr->PixelHybridThickness(),
-        gmt_mgr->PixelChipThickness()+gmt_mgr->PixelChipGap());
+  double thick = m_gmt_mgr->PixelBoardThickness()+
+    2*max(m_gmt_mgr->PixelHybridThickness(),
+        m_gmt_mgr->PixelChipThickness()+m_gmt_mgr->PixelChipGap());
   //
   // Don't understand why....
   //
@@ -1090,24 +982,26 @@ double GeoPixelModule::Thickness() {
 }
 
 double GeoPixelModule::Width() {
+  using std::max;
   double width = max( max(
-                     gmt_mgr->PixelBoardWidth(),
-                     gmt_mgr->PixelHybridWidth()),
-                     gmt_mgr->PixelChipWidth());
+                     m_gmt_mgr->PixelBoardWidth(),
+                     m_gmt_mgr->PixelHybridWidth()),
+                     m_gmt_mgr->PixelChipWidth());
   return width;
 }
 double GeoPixelModule::Length() {
+  using std::max;
   double length = max( max( max(
-                                gmt_mgr->PixelHybridLength(),
-                                gmt_mgr->PixelBoardLength()),
-                            2*gmt_mgr->PixelBalcony()),
-                       gmt_mgr->PixelChipLength());
+                                m_gmt_mgr->PixelHybridLength(),
+                                m_gmt_mgr->PixelBoardLength()),
+                            2*m_gmt_mgr->PixelBalcony()),
+                       m_gmt_mgr->PixelChipLength());
 
   return length;
 }
 
 Identifier GeoPixelModule::getID() {
-  return _id;
+  return m_id;
 }
 
 //---------------------------------------------------//
@@ -1140,13 +1034,6 @@ Identifier GeoPixelModule::getID() {
 // Contains: nothing
 //
 
-//#include "PixelGeoModel/GeoPixelServices.h"
-#include "GeoModelKernel/GeoTube.h"
-#include "GeoModelKernel/GeoLogVol.h"
-#include "GeoModelKernel/GeoPhysVol.h"
-#include "GeoModelKernel/GeoMaterial.h"
-
-#include <sstream>
 
 GeoPixelServices::GeoPixelServices(std::string root) {
   //
@@ -1162,7 +1049,7 @@ GeoPixelServices::GeoPixelServices(std::string root) {
   } else {
     std::cerr << "Services can  not be placed in this volume!!!! " << root << std::endl;
   }
-  _nframe = 0;
+  m_nframe = 0;
 }
 
 void GeoPixelServices::initialize(std::string a)
@@ -1174,18 +1061,18 @@ void GeoPixelServices::initialize(std::string a)
   //
   // Loop over the service elements:
   //
-  int NServices =  gmt_mgr->PixelServiceNFrame(a);
+  int NServices =  m_gmt_mgr->PixelServiceNFrame(a);
   for(int ii = 0; ii<NServices ; ii++) {
     //
     // If the element is attached to a layer/disk check if the LD is present.
     //
-    int LD = gmt_mgr->PixelServiceLD(a, ii);
+    int LD = m_gmt_mgr->PixelServiceLD(a, ii);
     //
     // C counts from zero. So the LDs are 0,1,2. -1 correspond to a
     // service which is not attached to any LD.
     //
-    if(LD != -1) gmt_mgr->SetCurrentLD(LD);
-    if(LD ==-1 || gmt_mgr->isLDPresent() == true) {
+    if(LD != -1) m_gmt_mgr->SetCurrentLD(LD);
+    if(LD ==-1 || m_gmt_mgr->isLDPresent() == true) {
       double zpos,halflength;
 //
 // Retrieve/calculate the parameters for the volume.
@@ -1193,9 +1080,9 @@ void GeoPixelServices::initialize(std::string a)
 // Here the atlsim logic has to be interpreted, as this is going into
 // the structure of the PBOI bank that I'm using
 //
-      std::string mat = gmt_mgr->PixelServiceMaterial(a, ii);
-      double* r = gmt_mgr->PixelServiceR(a, ii);
-      double* z = gmt_mgr->PixelServiceZ(a, ii);
+      std::string mat = m_gmt_mgr->PixelServiceMaterial(a, ii);
+      double* r = m_gmt_mgr->PixelServiceR(a, ii);
+      double* z = m_gmt_mgr->PixelServiceZ(a, ii);
       //
       // If zin is 0... (within 10^-5) this is a volume symmetric around
       // the origin
@@ -1219,18 +1106,18 @@ void GeoPixelServices::initialize(std::string a)
         twovolumes = false;
       }
       // only once for the inside endcaps as I already have two endcaps!
-      if(gmt_mgr->isEndcap() && a == "Inside") twovolumes = false;
-      _rmin.push_back(fabs(r[0]));
-      _rmax.push_back(r[1]);
-      _zpos.push_back(zpos);
-      _halflength.push_back(halflength);
-      material.push_back(mat);
+      if(m_gmt_mgr->isEndcap() && a == "Inside") twovolumes = false;
+      m_rmin.push_back(fabs(r[0]));
+      m_rmax.push_back(r[1]);
+      m_zpos.push_back(zpos);
+      m_halflength.push_back(halflength);
+      m_material.push_back(mat);
       if(twovolumes) {
-        _rmin.push_back(fabs(r[0]));
-        _rmax.push_back(r[1]);
-        _zpos.push_back(-zpos);
-        _halflength.push_back(halflength);
-        material.push_back(mat);
+        m_rmin.push_back(fabs(r[0]));
+        m_rmax.push_back(r[1]);
+        m_zpos.push_back(-zpos);
+        m_halflength.push_back(halflength);
+        m_material.push_back(mat);
       }
       delete[] r;
       delete[] z;
@@ -1242,19 +1129,19 @@ void GeoPixelServices::initialize(std::string a)
 }
 
 GeoVPhysVol* GeoPixelServices::Build( ) {
-  GeoMaterial* serviceMat = mat_mgr->getMaterial(material[_nframe]);
+  GeoMaterial* serviceMat = m_mat_mgr->getMaterial(m_material[m_nframe]);
   //
-  // Dimensions: (_nframe set with teh SetCylinder method)
+  // Dimensions: (m_nframe set with teh SetCylinder method)
   //
-  double rmin = _rmin[_nframe];
-  double rmax = _rmax[_nframe];
-  double halflength = _halflength[_nframe];
+  double rmin = m_rmin[m_nframe];
+  double rmax = m_rmax[m_nframe];
+  double halflength = m_halflength[m_nframe];
   const GeoTube* serviceTube = new GeoTube(rmin,rmax,halflength);
   std::string logName;
-  if(gmt_mgr->isBarrel() ) logName = m_zone+"Brl";
+  if(m_gmt_mgr->isBarrel() ) logName = m_zone+"Brl";
   else logName = m_zone+"EC";
   std::ostringstream o;
-  o << _nframe;
+  o << m_nframe;
   logName = logName+o.str();
   GeoLogVol* theService = new GeoLogVol(logName,serviceTube,serviceMat);
   GeoPhysVol* servicePhys = new GeoPhysVol(theService);
@@ -1277,24 +1164,6 @@ GeoVPhysVol* GeoPixelServices::Build( ) {
 // Contains: nothing
 //
 
-//#include "PixelGeoModel/GeoPixelSiCrystal.h"
-#include "GeoModelKernel/GeoBox.h"
-#include "GeoModelKernel/GeoLogVol.h"
-#include "GeoModelKernel/GeoNameTag.h"
-#include "GeoModelKernel/GeoFullPhysVol.h"
-#include "GeoModelKernel/GeoMaterial.h"
-#include "Identifier/Identifier.h"
-#include "InDetIdentifier/PixelID.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
-
-#include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/PixelModuleDesign.h"
-#include "InDetReadoutGeometry/PixelDiodeMatrix.h"
-#include "InDetReadoutGeometry/InDetDD_Defs.h"
-#include "InDetReadoutGeometry/SiCommonItems.h"
-
-#include <vector>
-
 using namespace InDetDD;
 
 GeoPixelSiCrystal::GeoPixelSiCrystal(bool isBLayer) {
@@ -1304,22 +1173,22 @@ GeoPixelSiCrystal::GeoPixelSiCrystal(bool isBLayer) {
   //SiDetectorDesign::Axis etaAxis   = SiDetectorDesign::zAxis;
   //SiDetectorDesign::Axis phiAxis   = SiDetectorDesign::yAxis;
   //SiDetectorDesign::Axis depthAxis = SiDetectorDesign::xAxis;
-  double thickness = gmt_mgr->PixelBoardThickness();
-  int CircPerCol = gmt_mgr->DesignCircuitsPerColumn();
-  int CircPerRow = gmt_mgr->DesignCircuitsPerRow();
-  int CellRowPerCirc = gmt_mgr->DesignCellRowsPerCircuit(isBLayer);
-  int CellColPerCirc = gmt_mgr->DesignCellColumnsPerCircuit(isBLayer);
-  int DiodeRowPerCirc = gmt_mgr->DesignDiodeRowsPerCircuit(isBLayer);
-  int DiodeColPerCirc = gmt_mgr->DesignDiodeColumnsPerCircuit(isBLayer);
+  double thickness = m_gmt_mgr->PixelBoardThickness();
+  int CircPerCol = m_gmt_mgr->DesignCircuitsPerColumn();
+  int CircPerRow = m_gmt_mgr->DesignCircuitsPerRow();
+  int CellRowPerCirc = m_gmt_mgr->DesignCellRowsPerCircuit(isBLayer);
+  int CellColPerCirc = m_gmt_mgr->DesignCellColumnsPerCircuit(isBLayer);
+  int DiodeRowPerCirc = m_gmt_mgr->DesignDiodeRowsPerCircuit(isBLayer);
+  int DiodeColPerCirc = m_gmt_mgr->DesignDiodeColumnsPerCircuit(isBLayer);
 
   // Add the matrix in the same way as from AGDD... 
   //
-  //double startRP = -gmt_mgr->DesignRPActiveArea()/2.;
-  //double startZ =  -gmt_mgr->DesignZActiveArea()/2.;
-  //double ColSize = gmt_mgr->DesignZActiveArea()/gmt_mgr->DesignCircuitsPerRow();
-  double bigEtaPitch =  gmt_mgr->DesignPitchZ(isBLayer) + gmt_mgr->DesignGapZ()/2;
-  double phiPitch = gmt_mgr->DesignPitchRP(isBLayer);
-  double etaPitch = gmt_mgr->DesignPitchZ(isBLayer);
+  //double startRP = -m_gmt_mgr->DesignRPActiveArea()/2.;
+  //double startZ =  -m_gmt_mgr->DesignZActiveArea()/2.;
+  //double ColSize = m_gmt_mgr->DesignZActiveArea()/m_gmt_mgr->DesignCircuitsPerRow();
+  double bigEtaPitch =  m_gmt_mgr->DesignPitchZ(isBLayer) + m_gmt_mgr->DesignGapZ()/2;
+  double phiPitch = m_gmt_mgr->DesignPitchRP(isBLayer);
+  double etaPitch = m_gmt_mgr->DesignPitchZ(isBLayer);
 
  
   PixelDiodeMatrix * normalCell = new PixelDiodeMatrix(phiPitch, etaPitch); 
@@ -1348,16 +1217,16 @@ GeoPixelSiCrystal::GeoPixelSiCrystal(bool isBLayer) {
 							     InDetDD::electrons);
 
   // Multiple connections (ganged pixels)
-  if (gmt_mgr->NumberOfEmptyRows() > 0) {
-    int minRow = gmt_mgr->EmptyRows(0);
+  if (m_gmt_mgr->NumberOfEmptyRows() > 0) {
+    int minRow = m_gmt_mgr->EmptyRows(0);
     int maxRow = minRow;
  
 
-    for (int iConnect = 0; iConnect < gmt_mgr->NumberOfEmptyRows(); iConnect++){
-      minRow = std::min(minRow, gmt_mgr->EmptyRows(iConnect));
-      minRow = std::min(minRow, gmt_mgr->EmptyRowConnections(iConnect));
-      maxRow = std::max(maxRow, gmt_mgr->EmptyRows(iConnect));
-      maxRow = std::max(minRow, gmt_mgr->EmptyRowConnections(iConnect));
+    for (int iConnect = 0; iConnect < m_gmt_mgr->NumberOfEmptyRows(); iConnect++){
+      minRow = std::min(minRow, m_gmt_mgr->EmptyRows(iConnect));
+      minRow = std::min(minRow, m_gmt_mgr->EmptyRowConnections(iConnect));
+      maxRow = std::max(maxRow, m_gmt_mgr->EmptyRows(iConnect));
+      maxRow = std::max(minRow, m_gmt_mgr->EmptyRowConnections(iConnect));
     }
   
     std::vector <int> connections(maxRow-minRow+1);
@@ -1368,8 +1237,8 @@ GeoPixelSiCrystal::GeoPixelSiCrystal(bool isBLayer) {
     }
     
     // Now make the connections.
-    for (int iConnect = 0; iConnect < gmt_mgr->NumberOfEmptyRows(); iConnect++){
-      connections[gmt_mgr->EmptyRows(iConnect)-minRow] = gmt_mgr->EmptyRowConnections(iConnect);
+    for (int iConnect = 0; iConnect < m_gmt_mgr->NumberOfEmptyRows(); iConnect++){
+      connections[m_gmt_mgr->EmptyRows(iConnect)-minRow] = m_gmt_mgr->EmptyRowConnections(iConnect);
     }
     
     //std::cout << "MinRow = " << minRow << std::endl;
@@ -1388,17 +1257,17 @@ GeoPixelSiCrystal::GeoPixelSiCrystal(bool isBLayer) {
 
   m_design = p_barrelDesign2;
 
-  DDmgr->addDesign(m_design);
+  m_DDmgr->addDesign(m_design);
 
 }
 GeoVPhysVol* GeoPixelSiCrystal::Build() {
   //
   // Dimensions
   //
-  double length = gmt_mgr->PixelBoardLength();
-  double thickness = gmt_mgr->PixelBoardThickness();
-  double width = gmt_mgr->PixelBoardWidth();
-  GeoMaterial* siMat = mat_mgr->getMaterial("std::Silicon");
+  double length = m_gmt_mgr->PixelBoardLength();
+  double thickness = m_gmt_mgr->PixelBoardThickness();
+  double width = m_gmt_mgr->PixelBoardWidth();
+  GeoMaterial* siMat = m_mat_mgr->getMaterial("std::Silicon");
   const GeoBox* siBox = new GeoBox(thickness/2.,width/2.,length/2.);
   std::string logname;
   if(m_isBLayer) logname = "siBLayLog";
@@ -1412,12 +1281,12 @@ GeoVPhysVol* GeoPixelSiCrystal::Build() {
   //
   // Build the Identifier for the silicon:
   //
-  if(gmt_mgr->isBarrel() ) brl_ec = 0;
-  if(gmt_mgr->isEndcap() ) brl_ec = 2*gmt_mgr->GetSide();
-  const PixelID *ppp = gmt_mgr->getIdHelper();
+  if(m_gmt_mgr->isBarrel() ) brl_ec = 0;
+  if(m_gmt_mgr->isEndcap() ) brl_ec = 2*m_gmt_mgr->GetSide();
+  const PixelID *ppp = m_gmt_mgr->getIdHelper();
   Identifier idwafer;
   if(brl_ec == 0) {
-    idwafer = ppp->wafer_id(brl_ec,gmt_mgr->GetLD(),gmt_mgr->Phi(),gmt_mgr->Eta());
+    idwafer = ppp->wafer_id(brl_ec,m_gmt_mgr->GetLD(),m_gmt_mgr->Phi(),m_gmt_mgr->Eta());
   } else {
     int phimod;
     //
@@ -1427,29 +1296,29 @@ GeoVPhysVol* GeoPixelSiCrystal::Build() {
     // have to match the start position with the start of the rotation. 
     //
     if(brl_ec == 2) {
-      phimod = gmt_mgr->Phi()*2 + gmt_mgr->Eta();
+      phimod = m_gmt_mgr->Phi()*2 + m_gmt_mgr->Eta();
     } else {
       //
       // The (eta) negative) endcap is more complicated, as there is an extra
       // rotation of the endcap as a whole around Y
       //
-      phimod = 48-gmt_mgr->Phi()*2-gmt_mgr->Eta()-2;
+      phimod = 48-m_gmt_mgr->Phi()*2-m_gmt_mgr->Eta()-2;
       if (phimod == -1) phimod = 47;
     }
       
-    idwafer = ppp->wafer_id(brl_ec,gmt_mgr->GetLD(),phimod,0);
+    idwafer = ppp->wafer_id(brl_ec,m_gmt_mgr->GetLD(),phimod,0);
   }
-  _id=idwafer;
+  m_id=idwafer;
   
-  SiDetectorElement * element = new SiDetectorElement(idwafer, m_design, siPhys, gmt_mgr->commonItems());
+  SiDetectorElement * element = new SiDetectorElement(idwafer, m_design, siPhys, m_gmt_mgr->commonItems());
   // Add conditions:  (do it here as eventually they will come from the cond DB)
-  //SiliconConditions conditions(gmt_mgr->Temperature(m_isBLayer), gmt_mgr->Voltage(m_isBLayer), 0.);
+  //SiliconConditions conditions(m_gmt_mgr->Temperature(m_isBLayer), m_gmt_mgr->Voltage(m_isBLayer), 0.);
   //element->setSiliconConditions(conditions);
   // Pass on G3ComptibleDigits option.
   // NO LONGER POSSIBLE. DC1 not supported anyway.
-  // element->setG3CompatibleOrientation(gmt_mgr->G3CompatibleDigits());
+  // element->setG3CompatibleOrientation(m_gmt_mgr->G3CompatibleDigits());
   // add the element to the manager
-  DDmgr->addDetectorElement(element);
+  m_DDmgr->addDetectorElement(element);
   return siPhys;
 }
 
@@ -1459,18 +1328,6 @@ GeoVPhysVol* GeoPixelSiCrystal::Build() {
 //                                                   //
 //---------------------------------------------------//
 
-//#include "PixelGeoModel/GeoPixelSubDisk.h"
-//#include "PixelGeoModel/GeoPixelChip.h"
-//#include "PixelGeoModel/GeoPixelHybrid.h"
-//#include "PixelGeoModel/GeoPixelSiCrystal.h"
-#include "GeoModelKernel/GeoTubs.h"
-#include "GeoModelKernel/GeoLogVol.h"
-#include "GeoModelKernel/GeoNameTag.h"
-#include "GeoModelKernel/GeoIdentifierTag.h"
-#include "GeoModelKernel/GeoFullPhysVol.h"
-#include "GeoModelKernel/GeoMaterial.h"
-#include "GeoModelKernel/GeoTransform.h"
-#include "GeoModelKernel/GeoAlignableTransform.h"
 
 GeoPixelSubDisk::GeoPixelSubDisk(GeoPixelSiCrystal & theSensor) :
 m_theSensor(theSensor)
@@ -1485,17 +1342,17 @@ m_theSensor(theSensor)
   double rmin = RMin(); 
   double rmax = RMax();
   double halflength = Thickness()/2.;
-  GeoMaterial* air = mat_mgr->getMaterial("std::Air");
-  const GeoTubs* SDTubs = new GeoTubs(rmin,rmax,halflength,-180.*CLHEP::deg/gmt_mgr->PixelECNSectors1()+0.000005,360.*CLHEP::deg/gmt_mgr->PixelECNSectors1()-0.00001);
-  theSubDisk = new GeoLogVol("SubDiskLog",SDTubs,air);
+  GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
+  const GeoTubs* SDTubs = new GeoTubs(rmin,rmax,halflength,-180.*CLHEP::deg/m_gmt_mgr->PixelECNSectors1()+0.000005,360.*CLHEP::deg/m_gmt_mgr->PixelECNSectors1()-0.00001);
+  m_theSubDisk = new GeoLogVol("SubDiskLog",SDTubs,air);
 }
 
 GeoVPhysVol* GeoPixelSubDisk::Build( ) {
-  GeoFullPhysVol* SDPhys = new GeoFullPhysVol(theSubDisk);
+  GeoFullPhysVol* SDPhys = new GeoFullPhysVol(m_theSubDisk);
   //
   // Place the Si Crystal
   //
-  double xpos = RMin()+gmt_mgr->PixelBoardLength()/2.;
+  double xpos = RMin()+m_gmt_mgr->PixelBoardLength()/2.;
   GeoNameTag* tag = new GeoNameTag("SiCrystal");
   CLHEP::HepRotation rm;
   rm.rotateY(90.*CLHEP::deg);
@@ -1511,7 +1368,7 @@ GeoVPhysVol* GeoPixelSubDisk::Build( ) {
   //
   GeoPixelHybrid ph;
   tag = new GeoNameTag("Hybrid");
-  double zpos = 0.5*(gmt_mgr->PixelBoardThickness()+gmt_mgr->PixelHybridThickness())+m_epsilon/2.;
+  double zpos = 0.5*(m_gmt_mgr->PixelBoardThickness()+m_gmt_mgr->PixelHybridThickness())+m_epsilon/2.;
   pos = CLHEP::Hep3Vector(xpos,0.,zpos);
   GeoTransform* xform = new GeoTransform(HepGeom::Transform3D(rm,pos) );
   SDPhys->add(tag);
@@ -1522,7 +1379,7 @@ GeoVPhysVol* GeoPixelSubDisk::Build( ) {
 //
   GeoPixelChip pc;
   tag = new GeoNameTag("Chip");
-  zpos = -0.5*(gmt_mgr->PixelBoardThickness()+gmt_mgr->PixelChipThickness())-gmt_mgr->PixelChipGap();
+  zpos = -0.5*(m_gmt_mgr->PixelBoardThickness()+m_gmt_mgr->PixelChipThickness())-m_gmt_mgr->PixelChipGap();
   pos = CLHEP::Hep3Vector(xpos,0.,zpos);
   xform = new GeoTransform(HepGeom::Transform3D(rm,pos) );
   SDPhys->add(tag);
@@ -1533,11 +1390,11 @@ GeoVPhysVol* GeoPixelSubDisk::Build( ) {
 
 
 double GeoPixelSubDisk::RMin() {
-  return gmt_mgr->PixelDiskRMin()-0.5*(gmt_mgr->PixelBoardLength()-gmt_mgr->PixelBoardActiveLen());
+  return m_gmt_mgr->PixelDiskRMin()-0.5*(m_gmt_mgr->PixelBoardLength()-m_gmt_mgr->PixelBoardActiveLen());
 }
 
 double GeoPixelSubDisk::RMax() {
-  return RMin()+sqrt(pow(gmt_mgr->PixelBoardLength(),2)+pow(gmt_mgr->PixelBoardWidth(),2));
+  return RMin()+sqrt(pow(m_gmt_mgr->PixelBoardLength(),2)+pow(m_gmt_mgr->PixelBoardWidth(),2));
 }
 
 double GeoPixelSubDisk::Thickness() {
@@ -1547,7 +1404,7 @@ double GeoPixelSubDisk::Thickness() {
   // twice for symmetric placement.
   //
 
-  return gmt_mgr->PixelBoardThickness()+2*std::max(gmt_mgr->PixelHybridThickness(),gmt_mgr->PixelChipThickness())+2*m_epsilon;
+  return m_gmt_mgr->PixelBoardThickness()+2*std::max(m_gmt_mgr->PixelHybridThickness(),m_gmt_mgr->PixelChipThickness())+2*m_epsilon;
 }
 
 //---------------------------------------------------//
@@ -1556,16 +1413,6 @@ double GeoPixelSubDisk::Thickness() {
 //                                                   //
 //---------------------------------------------------//
 
-//#include "PixelGeoModel/GeoPixelTubeCables.h"
-//#include "PixelGeoModel/GeoPixelLadderStruct.h"
-//#include "PixelGeoModel/GeoPixelCable.h"
-#include "GeoModelKernel/GeoBox.h"
-#include "GeoModelKernel/GeoLogVol.h"
-#include "GeoModelKernel/GeoNameTag.h"
-// #include "GeoModelKernel/GeoIdentifierTag.h"
-#include "GeoModelKernel/GeoPhysVol.h"
-#include "GeoModelKernel/GeoMaterial.h"
-#include "GeoModelKernel/GeoTransform.h"
 
 GeoPixelTubeCables::GeoPixelTubeCables() {
   //
@@ -1575,24 +1422,24 @@ GeoPixelTubeCables::GeoPixelTubeCables() {
   //   
   // Length is in the db
   //
-  double halflength = gmt_mgr->PixelLadderHalfLength();
+  double halflength = m_gmt_mgr->PixelLadderHalfLength();
   //
   // The width is the maximum among the componenst widths
   //
-  double width = std::max(gmt_mgr->PixelLadderWidth(),
-                     gmt_mgr->PixelCableWidth());
+  double width = std::max(m_gmt_mgr->PixelLadderWidth(),
+                     m_gmt_mgr->PixelCableWidth());
   //
   // The thickness has to be calculated
   //
   double thickness = this->Thickness();
-  GeoMaterial* air = mat_mgr->getMaterial("std::Air");
+  GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
   const GeoBox* solBox = new GeoBox(thickness/2.,width/2.,halflength+m_epsilon);
-  theBox = new GeoLogVol("TubeCablesLog",solBox,air);
+  m_theBox = new GeoLogVol("TubeCablesLog",solBox,air);
 }
 
 
 GeoVPhysVol* GeoPixelTubeCables::Build( ) {
-  GeoPhysVol* TCPhys = new GeoPhysVol(theBox);
+  GeoPhysVol* TCPhys = new GeoPhysVol(m_theBox);
   //
   // Place the Ladder Structure. Don't understand why this is going in the
   // tube & cables section...
@@ -1600,7 +1447,7 @@ GeoVPhysVol* GeoPixelTubeCables::Build( ) {
   GeoPixelLadderStruct pls;
   GeoNameTag* tag = new GeoNameTag("LadderStructure");
   GeoVPhysVol* ladderstructPhys =  pls.Build() ;
-  double xpos = 0.5*(-this->Thickness()+gmt_mgr->PixelLadderThickness());
+  double xpos = 0.5*(-this->Thickness()+m_gmt_mgr->PixelLadderThickness());
   CLHEP::Hep3Vector pos(xpos,0.,0.);
   GeoTransform* xform = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(),pos));
   TCPhys->add(tag);
@@ -1615,11 +1462,11 @@ GeoVPhysVol* GeoPixelTubeCables::Build( ) {
   //
   GeoPixelCable pc;
   double xcabshift = 0.;
-  for(int ii = 0; ii <= gmt_mgr->PixelNModule()/2; ii++) {
+  for(int ii = 0; ii <= m_gmt_mgr->PixelNModule()/2; ii++) {
     pc.SetModuleNumber(ii);
-    double zcabpos = gmt_mgr->PixelCableZMax()-pc.Length()/2.+m_epsilon/2.;
+    double zcabpos = m_gmt_mgr->PixelCableZMax()-pc.Length()/2.+m_epsilon/2.;
     xcabshift += pc.Thickness()/2.;
-    double xcabpos = - this->Thickness()/2. + gmt_mgr->PixelLadderThickness()+xcabshift;
+    double xcabpos = - this->Thickness()/2. + m_gmt_mgr->PixelLadderThickness()+xcabshift;
     //
     // Place the cables on both sides.
     // piling them up. this is slightly different from what in G3
@@ -1661,8 +1508,8 @@ double GeoPixelTubeCables::Thickness() {
   // The thickness of the box is calculated starting from the thickness of
   // its components: Ladder + cables
   //
-  double thick = gmt_mgr->PixelLadderThickness()+
-    gmt_mgr->PixelCableThickness();
+  double thick = m_gmt_mgr->PixelLadderThickness()+
+    m_gmt_mgr->PixelCableThickness();
   return thick;
 }
 
@@ -1675,17 +1522,15 @@ double GeoPixelTubeCables::Thickness() {
 //                                                   //
 //---------------------------------------------------//
 
-//#include "PixelGeoModel/GeoVPixelFactory.h"
-
 using InDetDD::PixelDetectorManager;
 
-PixelDetectorManager * GeoVPixelFactory::DDmgr = 0;
+PixelDetectorManager * GeoVPixelFactory::m_DDmgr = 0;
 
 GeoVPixelFactory::GeoVPixelFactory() :   
   m_epsilon(0.0001)
  {
-  gmt_mgr = PixelGeometryManager::GetPointer();
-  mat_mgr = gmt_mgr->getMaterialManager();
+  m_gmt_mgr = PixelGeometryManager::GetPointer();
+  m_mat_mgr = m_gmt_mgr->getMaterialManager();
 }
 
 GeoVPixelFactory::~GeoVPixelFactory()
@@ -1693,7 +1538,7 @@ GeoVPixelFactory::~GeoVPixelFactory()
 
 
 void GeoVPixelFactory::SetDDMgr(PixelDetectorManager* mgr) {
-  DDmgr = mgr;
+  m_DDmgr = mgr;
 }
 
 
@@ -1703,31 +1548,6 @@ void GeoVPixelFactory::SetDDMgr(PixelDetectorManager* mgr) {
 //                                                   //
 //---------------------------------------------------//
 
-#include "GeoModelKernel/GeoMaterial.h"
-//#include "PixelGeoModel/OraclePixGeoManager.h"
-
-// to permit access to StoreGate
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/IMessageSvc.h"
-#include "AthenaKernel/getMessageSvc.h"
-#include "StoreGate/StoreGateSvc.h"
-
-// Joe's Material Manager
-#include "GeoModelInterfaces/StoredMaterialManager.h"
-#include "GeoModelUtilities/DecodeVersionKey.h"
-
-//
-// Get the pixelDD Manager from SG.
-//
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "StoreGate/StoreGate.h"
-#include "StoreGate/DataHandle.h"
-#include "RDBAccessSvc/IRDBAccessSvc.h"
-//
-// 
-//
-#include "CLHEP/Units/PhysicalConstants.h"
 
 using InDetDD::PixelDetectorManager; 
 
@@ -1737,9 +1557,9 @@ using namespace std;
 OraclePixGeoManager::OraclePixGeoManager()
   : m_eta(0),
     m_phi(0),
-    currentLD(0),
-    BarrelEndcap(0),
-    _side(0),
+    m_currentLD(0),
+    m_BarrelEndcap(0),
+    m_side(0),
     m_services(true),  
     m_g3CompatibleDigits(false), 
     m_initialLayout(false), 
@@ -1785,32 +1605,32 @@ OraclePixGeoManager::OraclePixGeoManager()
   if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "Retrieving Record Sets from database ..." << endmsg;
 
   DecodeVersionKey versionKeyAtlas("Pixel");
-  atls = rdbSvc->getRecordsetPtr("AtlasMother",versionKeyAtlas.tag(), versionKeyAtlas.node());
-  PixelBarrelGeneral = rdbSvc->getRecordsetPtr("PixelBarrelGeneral",     detectorKey, detectorNode);
-  PixelBarrelService = rdbSvc->getRecordsetPtr("PixelBarrelService",     detectorKey, detectorNode);
-  PixelCommon        = rdbSvc->getRecordsetPtr("PixelCommon",            detectorKey, detectorNode);
-  PixelDisk          = rdbSvc->getRecordsetPtr("PixelDisk",              detectorKey, detectorNode);
-  PixelEndcapGeneral = rdbSvc->getRecordsetPtr("PixelEndcapGeneral",     detectorKey, detectorNode);
-  PixelEndcapService = rdbSvc->getRecordsetPtr("PixelEndcapService",     detectorKey, detectorNode);
-  PixelLayer         = rdbSvc->getRecordsetPtr("PixelLayer",             detectorKey, detectorNode);
-  PixelModule        = rdbSvc->getRecordsetPtr("PixelModule",            detectorKey, detectorNode);
-  PixelStave         = rdbSvc->getRecordsetPtr("PixelStave",             detectorKey, detectorNode);
+  m_atls = rdbSvc->getRecordsetPtr("AtlasMother",versionKeyAtlas.tag(), versionKeyAtlas.node());
+  m_PixelBarrelGeneral = rdbSvc->getRecordsetPtr("PixelBarrelGeneral",     detectorKey, detectorNode);
+  m_PixelBarrelService = rdbSvc->getRecordsetPtr("PixelBarrelService",     detectorKey, detectorNode);
+  m_PixelCommon        = rdbSvc->getRecordsetPtr("PixelCommon",            detectorKey, detectorNode);
+  m_PixelDisk          = rdbSvc->getRecordsetPtr("PixelDisk",              detectorKey, detectorNode);
+  m_PixelEndcapGeneral = rdbSvc->getRecordsetPtr("PixelEndcapGeneral",     detectorKey, detectorNode);
+  m_PixelEndcapService = rdbSvc->getRecordsetPtr("PixelEndcapService",     detectorKey, detectorNode);
+  m_PixelLayer         = rdbSvc->getRecordsetPtr("PixelLayer",             detectorKey, detectorNode);
+  m_PixelModule        = rdbSvc->getRecordsetPtr("PixelModule",            detectorKey, detectorNode);
+  m_PixelStave         = rdbSvc->getRecordsetPtr("PixelStave",             detectorKey, detectorNode);
 
 
   // These are for the design
-  pxbi = rdbSvc->getRecordsetPtr("PXBI",     detectorKey, detectorNode);
-  pxei = rdbSvc->getRecordsetPtr("PXEI",     detectorKey, detectorNode);
-  pdch = rdbSvc->getRecordsetPtr("PDCH",     detectorKey, detectorNode);
-  pxbd = rdbSvc->getRecordsetPtr("PXBD",     detectorKey, detectorNode);
-  plor = rdbSvc->getRecordsetPtr("PLOR",     detectorKey, detectorNode);
-  plrn = rdbSvc->getRecordsetPtr("PLRN",     detectorKey, detectorNode);
+  m_pxbi = rdbSvc->getRecordsetPtr("PXBI",     detectorKey, detectorNode);
+  m_pxei = rdbSvc->getRecordsetPtr("PXEI",     detectorKey, detectorNode);
+  m_pdch = rdbSvc->getRecordsetPtr("PDCH",     detectorKey, detectorNode);
+  m_pxbd = rdbSvc->getRecordsetPtr("PXBD",     detectorKey, detectorNode);
+  m_plor = rdbSvc->getRecordsetPtr("PLOR",     detectorKey, detectorNode);
+  m_plrn = rdbSvc->getRecordsetPtr("PLRN",     detectorKey, detectorNode);
    
   if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "... Record Sets retrieved." << endmsg;
 
   // cache the number of inner frames
   
-  m_barrelInFrames =  (*PixelBarrelGeneral)[0]->getInt("NFRAMEIN");
-  m_endcapInFrames =  (*PixelEndcapGeneral)[0]->getInt("NFRAMEIN");
+  m_barrelInFrames =  (*m_PixelBarrelGeneral)[0]->getInt("NFRAMEIN");
+  m_endcapInFrames =  (*m_PixelEndcapGeneral)[0]->getInt("NFRAMEIN");
  //
  // Get the mat manager from the store:
  //
@@ -1841,19 +1661,19 @@ void OraclePixGeoManager::SetCurrentLD(int i)
 {
   if(isBarrel() ) {
     if(i <= PixelBarrelNLayer()) {
-      currentLD=i;
+      m_currentLD=i;
     } else {
       cout << "Layer set out of bounds, defaulting it to 0" << endl;
-      currentLD = 0;
+      m_currentLD = 0;
       std::cout<<" Current layer set to "<<i<<std::endl;
     }
   }
   if(isEndcap() ) {
      if (i<= PixelEndcapNDisk() ) {
-       currentLD=i;
+       m_currentLD=i;
      } else {
        cout << "Disk set out of bounds, defaulting it to 0" << endl;
-       currentLD = 0;
+       m_currentLD = 0;
        std::cout<<" Current disk set to "<<i<<std::endl;
      }
   } 
@@ -1863,10 +1683,10 @@ void OraclePixGeoManager::SetCurrentLD(int i)
 
 void OraclePixGeoManager::SetBarrel() {
   //cout << "Setting Barrel" << endl;
-  BarrelEndcap = 0;
+  m_BarrelEndcap = 0;
 }
 void OraclePixGeoManager::SetEndcap() {
-  BarrelEndcap = 1;
+  m_BarrelEndcap = 1;
   //cout << "Setting Endcap" << endl;
 }
 /////////////////////////////////////////////////////////
@@ -1879,20 +1699,20 @@ void OraclePixGeoManager::SetEndcap() {
 /////////////////////////////////////////////////////////
 bool OraclePixGeoManager::isLDPresent() {
   if(isBarrel()) {
-    if (m_initialLayout && currentLD == 1) return false;
+    if (m_initialLayout && m_currentLD == 1) return false;
     std::ostringstream A;
-    A << "_" << currentLD;
-    if((*PixelBarrelGeneral)[0]->getInt("USELAYER"+A.str()) == 1) {
+    A << "_" << m_currentLD;
+    if((*m_PixelBarrelGeneral)[0]->getInt("USELAYER"+A.str()) == 1) {
       return true;
     } else {
       return false;
     } 
   }
   if(isEndcap() ) {
-    if (m_initialLayout && currentLD == 1) return false;
+    if (m_initialLayout && m_currentLD == 1) return false;
     std::ostringstream A;
-    A << "_" << currentLD;
-    if((*PixelEndcapGeneral)[0]->getInt("USEDISK"+A.str()) == 1) {
+    A << "_" << m_currentLD;
+    if((*m_PixelEndcapGeneral)[0]->getInt("USEDISK"+A.str()) == 1) {
       return true;
     } else {
       return false;
@@ -1903,14 +1723,14 @@ bool OraclePixGeoManager::isLDPresent() {
 
 
 bool OraclePixGeoManager::isBarrel() {
-  if(BarrelEndcap == 0) {
+  if(m_BarrelEndcap == 0) {
     return true;
   } else {
     return false;
   }
 }
 bool OraclePixGeoManager::isEndcap() {
-  if(BarrelEndcap == 1) {
+  if(m_BarrelEndcap == 1) {
     return true;
   } else {
     return false;
@@ -1937,29 +1757,29 @@ double OraclePixGeoManager::CalculateThickness(double tck,string mat) {
 /////////////////////////////////////////////////////////
 double OraclePixGeoManager::PixelBoardWidth() 
 {
-  if(isBarrel()) return (*PixelModule)[currentLD]->getDouble("BOARDWIDTH")*CLHEP::cm;
-  if(isEndcap()) return (*PixelModule)[currentLD+3]->getDouble("BOARDWIDTH")*CLHEP::cm;
+  if(isBarrel()) return (*m_PixelModule)[m_currentLD]->getDouble("BOARDWIDTH")*CLHEP::cm;
+  if(isEndcap()) return (*m_PixelModule)[m_currentLD+3]->getDouble("BOARDWIDTH")*CLHEP::cm;
   return 0.;
 }
 double OraclePixGeoManager::PixelBoardLength() 
 {
-  if(isBarrel()) return (*PixelModule)[currentLD]->getDouble("BOARDLENGTH")*CLHEP::cm;
-  if(isEndcap()) return (*PixelModule)[currentLD+3]->getDouble("BOARDLENGTH")*CLHEP::cm;
+  if(isBarrel()) return (*m_PixelModule)[m_currentLD]->getDouble("BOARDLENGTH")*CLHEP::cm;
+  if(isEndcap()) return (*m_PixelModule)[m_currentLD+3]->getDouble("BOARDLENGTH")*CLHEP::cm;
   return 0.;
 }
 double OraclePixGeoManager::PixelBoardThickness() 
 {
-  if (m_dc1Geometry && isBarrel() && (currentLD == 0)) {
+  if (m_dc1Geometry && isBarrel() && (m_currentLD == 0)) {
     return 200*CLHEP::micrometer;
   }
-  if(isBarrel()) return (*PixelModule)[currentLD]->getDouble("BOARDTHICK")*CLHEP::cm;
-  if(isEndcap()) return (*PixelModule)[currentLD+3]->getDouble("BOARDTHICK")*CLHEP::cm;
+  if(isBarrel()) return (*m_PixelModule)[m_currentLD]->getDouble("BOARDTHICK")*CLHEP::cm;
+  if(isEndcap()) return (*m_PixelModule)[m_currentLD+3]->getDouble("BOARDTHICK")*CLHEP::cm;
   return 0.;
 }
 double  OraclePixGeoManager::PixelBoardActiveLen() 
 {
-  if(isEndcap()) return (*pxei)[currentLD]->getDouble("DRACTIVE")*CLHEP::cm;
-  if(isBarrel()) return (*pxbi)[currentLD]->getDouble("DZELEB")*CLHEP::cm;
+  if(isEndcap()) return (*m_pxei)[m_currentLD]->getDouble("DRACTIVE")*CLHEP::cm;
+  if(isBarrel()) return (*m_pxbi)[m_currentLD]->getDouble("DZELEB")*CLHEP::cm;
   return 0.;
 }
 /////////////////////////////////////////////////////////
@@ -1969,14 +1789,14 @@ double  OraclePixGeoManager::PixelBoardActiveLen()
 /////////////////////////////////////////////////////////
 double OraclePixGeoManager::PixelHybridWidth() 
 {
-  if(isBarrel()) return (*PixelModule)[currentLD]->getDouble("HYBRIDWIDTH")*CLHEP::cm;
-  if(isEndcap()) return (*PixelModule)[currentLD+3]->getDouble("HYBRIDWIDTH")*CLHEP::cm;
+  if(isBarrel()) return (*m_PixelModule)[m_currentLD]->getDouble("HYBRIDWIDTH")*CLHEP::cm;
+  if(isEndcap()) return (*m_PixelModule)[m_currentLD+3]->getDouble("HYBRIDWIDTH")*CLHEP::cm;
   return 0.;
 }
 double OraclePixGeoManager::PixelHybridLength() 
 {
-  if(isBarrel()) return (*PixelModule)[currentLD]->getDouble("HYBRIDLENGTH")*CLHEP::cm;
-  if(isEndcap()) return (*PixelModule)[currentLD+3]->getDouble("HYBRIDLENGTH")*CLHEP::cm;
+  if(isBarrel()) return (*m_PixelModule)[m_currentLD]->getDouble("HYBRIDLENGTH")*CLHEP::cm;
+  if(isEndcap()) return (*m_PixelModule)[m_currentLD+3]->getDouble("HYBRIDLENGTH")*CLHEP::cm;
   return 0.;
 }
 double OraclePixGeoManager::PixelHybridThickness() 
@@ -1985,11 +1805,11 @@ double OraclePixGeoManager::PixelHybridThickness()
   string mat;
   if(isBarrel()){
     // bad data name in db; here is worked around.  Should be DXHYBR
-    thick =(*PixelModule)[currentLD]->getDouble("HYBRIDTHICK"); 
+    thick =(*m_PixelModule)[m_currentLD]->getDouble("HYBRIDTHICK"); 
     mat = "pix::Hybrid";
   }
   if(isEndcap()){
-    thick =(*PixelModule)[currentLD+3]->getDouble("HYBRIDTHICK"); 
+    thick =(*m_PixelModule)[m_currentLD+3]->getDouble("HYBRIDTHICK"); 
     mat = "std::Silicon";
   }
   // if it is negative is given in % of r.l.
@@ -2007,31 +1827,31 @@ double OraclePixGeoManager::PixelHybridThickness()
 
 double OraclePixGeoManager::PixelChipWidth()
 {
-  if(isBarrel()) return (*PixelModule)[currentLD]->getDouble("CHIPWIDTH")*CLHEP::cm;
-  if(isEndcap()) return (*PixelModule)[currentLD+3]->getDouble("CHIPWIDTH")*CLHEP::cm;
+  if(isBarrel()) return (*m_PixelModule)[m_currentLD]->getDouble("CHIPWIDTH")*CLHEP::cm;
+  if(isEndcap()) return (*m_PixelModule)[m_currentLD+3]->getDouble("CHIPWIDTH")*CLHEP::cm;
   return 0.;
 }
 double OraclePixGeoManager::PixelChipLength()
 {
-  if(isBarrel())return (*PixelModule)[currentLD]->getDouble("CHIPLENGTH")*CLHEP::cm;
-  if(isEndcap())return (*PixelModule)[currentLD+3]->getDouble("CHIPLENGTH")*CLHEP::cm;
+  if(isBarrel())return (*m_PixelModule)[m_currentLD]->getDouble("CHIPLENGTH")*CLHEP::cm;
+  if(isEndcap())return (*m_PixelModule)[m_currentLD+3]->getDouble("CHIPLENGTH")*CLHEP::cm;
   return 0.;
 }
 double OraclePixGeoManager::PixelChipGap()
 {
-  if(isBarrel()) return (*PixelModule)[currentLD]->getDouble("CHIPGAP")*CLHEP::cm;
-  if(isEndcap()) return (*PixelModule)[currentLD+3]->getDouble("CHIPGAP")*CLHEP::cm;
+  if(isBarrel()) return (*m_PixelModule)[m_currentLD]->getDouble("CHIPGAP")*CLHEP::cm;
+  if(isEndcap()) return (*m_PixelModule)[m_currentLD+3]->getDouble("CHIPGAP")*CLHEP::cm;
   return 0.;
 }
 double OraclePixGeoManager::PixelChipThickness() {
   double thick=0.;
   string mat;
   if(isBarrel()){
-    thick =(*PixelModule)[currentLD]->getDouble("CHIPTHICK"); 
+    thick =(*m_PixelModule)[m_currentLD]->getDouble("CHIPTHICK"); 
     mat = "pix::Chip";
   }
   if(isEndcap()){
-    thick =(*PixelModule)[currentLD+3]->getDouble("CHIPTHICK"); 
+    thick =(*m_PixelModule)[m_currentLD+3]->getDouble("CHIPTHICK"); 
     mat = "std::Silicon";
   } 
   // if it is negative is given in % of r.l.
@@ -2049,20 +1869,20 @@ double OraclePixGeoManager::PixelChipThickness() {
 /////////////////////////////////////////////////////////
 double OraclePixGeoManager::PixelECCarbonRMin(string a) {
   if(a == "Inner") {
-    return (*PixelDisk)[currentLD]->getDouble("SUP1RMIN")*CLHEP::cm;
+    return (*m_PixelDisk)[m_currentLD]->getDouble("SUP1RMIN")*CLHEP::cm;
   } else if (a == "Central") {
-    return (*PixelDisk)[currentLD]->getDouble("SUP2RMIN")*CLHEP::cm;
+    return (*m_PixelDisk)[m_currentLD]->getDouble("SUP2RMIN")*CLHEP::cm;
   }
-  return (*PixelDisk)[currentLD]->getDouble("SUP3RMIN")*CLHEP::cm;
+  return (*m_PixelDisk)[m_currentLD]->getDouble("SUP3RMIN")*CLHEP::cm;
 }
 
 double OraclePixGeoManager::PixelECCarbonRMax(string a) {
   if(a == "Inner") {
-    return (*PixelDisk)[currentLD]->getDouble("SUP1RMAX")*CLHEP::cm;
+    return (*m_PixelDisk)[m_currentLD]->getDouble("SUP1RMAX")*CLHEP::cm;
   } else if (a == "Central") {
-    return (*PixelDisk)[currentLD]->getDouble("SUP2RMAX")*CLHEP::cm;
+    return (*m_PixelDisk)[m_currentLD]->getDouble("SUP2RMAX")*CLHEP::cm;
   } else {
-    return (*PixelDisk)[currentLD]->getDouble("SUP3RMAX")*CLHEP::cm;
+    return (*m_PixelDisk)[m_currentLD]->getDouble("SUP3RMAX")*CLHEP::cm;
   }
 }
 
@@ -2071,14 +1891,14 @@ double OraclePixGeoManager::PixelECCarbonThickness(string a) {
   int imat;
   string mat[4] = {"std::Berillia","std::Carbon","pix::ECSevices","pix::Disk"} ;
   if(a == "Inner") {
-    tck = (*PixelDisk)[currentLD]->getDouble("SUP1THICK");
-    imat =(*PixelDisk)[currentLD]->getInt("SUP1MAT")-1;
+    tck = (*m_PixelDisk)[m_currentLD]->getDouble("SUP1THICK");
+    imat =(*m_PixelDisk)[m_currentLD]->getInt("SUP1MAT")-1;
   } else if (a == "Central") {
-    tck = (*PixelDisk)[currentLD]->getDouble("SUP2THICK");
-    imat =(*PixelDisk)[currentLD]->getInt("SUP2MAT")-1;
+    tck = (*m_PixelDisk)[m_currentLD]->getDouble("SUP2THICK");
+    imat =(*m_PixelDisk)[m_currentLD]->getInt("SUP2MAT")-1;
   } else {
-    tck = (*PixelDisk)[currentLD]->getDouble("SUP3THICK");
-    imat =(*PixelDisk)[currentLD]->getInt("SUP3MAT")-1;
+    tck = (*m_PixelDisk)[m_currentLD]->getDouble("SUP3THICK");
+    imat =(*m_PixelDisk)[m_currentLD]->getInt("SUP3MAT")-1;
   }
   if(tck>0.) {
     return tck*CLHEP::cm;
@@ -2089,11 +1909,11 @@ string OraclePixGeoManager::PixelECCarbonMaterial(string a) {
   string mat[4] = {"std::Berillia","std::Carbon","pix::ECSevices","pix::Disk"} ; 
   int imat;
   if(a == "Inner") {
-    imat = (*PixelDisk)[currentLD]->getInt("SUP1MAT")-1;
+    imat = (*m_PixelDisk)[m_currentLD]->getInt("SUP1MAT")-1;
   } else if (a == "Central") {
-    imat = (*PixelDisk)[currentLD]->getInt("SUP2MAT")-1;    
+    imat = (*m_PixelDisk)[m_currentLD]->getInt("SUP2MAT")-1;    
   } else {
-    imat = (*PixelDisk)[currentLD]->getInt("SUP3MAT")-1;
+    imat = (*m_PixelDisk)[m_currentLD]->getInt("SUP3MAT")-1;
   }
   return mat[imat];
 }
@@ -2118,38 +1938,38 @@ string OraclePixGeoManager::PixelECCarbonMaterial(string a) {
 
 int OraclePixGeoManager::PixelServiceNFrame(string a) {
   if(isBarrel() ) {
-    if(a == "Inside") return (*PixelBarrelGeneral)[0]->getInt("NFRAMEIN");
-    if(a == "Outside") return (*PixelBarrelGeneral)[0]->getInt("NFRAMEOUT");
+    if(a == "Inside") return (*m_PixelBarrelGeneral)[0]->getInt("NFRAMEIN");
+    if(a == "Outside") return (*m_PixelBarrelGeneral)[0]->getInt("NFRAMEOUT");
   }
   if(isEndcap() ) {
-    if(a == "Inside") return (*PixelEndcapGeneral)[0]->getInt("NFRAMEIN");
-    if(a == "Outside") return (*PixelEndcapGeneral)[0]->getInt("NFRAMEOUT");   
+    if(a == "Inside") return (*m_PixelEndcapGeneral)[0]->getInt("NFRAMEIN");
+    if(a == "Outside") return (*m_PixelEndcapGeneral)[0]->getInt("NFRAMEOUT");   
   }
   return 0;
 }
 
-double*  OraclePixGeoManager::PixelServiceR(string a, int _n) {
+double*  OraclePixGeoManager::PixelServiceR(string a, int n) {
   double rmin=0.;
   double rmax=0.;
   double *r = new double[2];
   if(isBarrel()) {
     if(a == "Inside") {
-      rmin = (*PixelBarrelService)[_n]->getDouble("RIN");
-      rmax = (*PixelBarrelService)[_n]->getDouble("ROUT");
+      rmin = (*m_PixelBarrelService)[n]->getDouble("RIN");
+      rmax = (*m_PixelBarrelService)[n]->getDouble("ROUT");
     }
     else {
-      rmin = (*PixelBarrelService)[_n+m_barrelInFrames]->getDouble("RIN");
-      rmax = (*PixelBarrelService)[_n+m_barrelInFrames]->getDouble("ROUT");
+      rmin = (*m_PixelBarrelService)[n+m_barrelInFrames]->getDouble("RIN");
+      rmax = (*m_PixelBarrelService)[n+m_barrelInFrames]->getDouble("ROUT");
     }
   }
   if(isEndcap()) {
     if(a == "Inside") {
-      rmin = (*PixelEndcapService)[_n]->getDouble("RIN");
-      rmax = (*PixelEndcapService)[_n]->getDouble("ROUT");
+      rmin = (*m_PixelEndcapService)[n]->getDouble("RIN");
+      rmax = (*m_PixelEndcapService)[n]->getDouble("ROUT");
     }
     else {
-      rmin = (*PixelEndcapService)[_n+m_endcapInFrames]->getDouble("RIN");
-      rmax = (*PixelEndcapService)[_n+m_endcapInFrames]->getDouble("ROUT");
+      rmin = (*m_PixelEndcapService)[n+m_endcapInFrames]->getDouble("RIN");
+      rmax = (*m_PixelEndcapService)[n+m_endcapInFrames]->getDouble("ROUT");
     }
   }
   // If this is negative this is the thickness of the cyl in % of r.l.
@@ -2157,44 +1977,44 @@ double*  OraclePixGeoManager::PixelServiceR(string a, int _n) {
   if(rmax > 0) {
     r[1] = rmax*CLHEP::cm;
   } else {
-    string material = PixelServiceMaterial(a,_n);
+    string material = PixelServiceMaterial(a,n);
     r[1] = fabs(rmin*CLHEP::cm)+CalculateThickness(rmax,material);
   }
   return r;
 }
 
 
-double* OraclePixGeoManager::PixelServiceZ(string a,int _n) {
+double* OraclePixGeoManager::PixelServiceZ(string a,int n) {
   double* z = new double[2];
   if(isBarrel()) {
     if(a == "Inside") {
-      z[0] = (*PixelBarrelService)[_n]->getDouble("ZIN");
-      z[1] = (*PixelBarrelService)[_n]->getDouble("ZOUT");
+      z[0] = (*m_PixelBarrelService)[n]->getDouble("ZIN");
+      z[1] = (*m_PixelBarrelService)[n]->getDouble("ZOUT");
     }
     else {
-      z[0] = (*PixelBarrelService)[_n+m_barrelInFrames]->getDouble("ZIN");
-      z[1] = (*PixelBarrelService)[_n+m_barrelInFrames]->getDouble("ZOUT");
+      z[0] = (*m_PixelBarrelService)[n+m_barrelInFrames]->getDouble("ZIN");
+      z[1] = (*m_PixelBarrelService)[n+m_barrelInFrames]->getDouble("ZOUT");
     }
   }
   if(isEndcap()) {
     if(a == "Inside") {
-      z[0] = (*PixelEndcapService)[_n]->getDouble("ZIN");
-      z[1] = (*PixelEndcapService)[_n]->getDouble("ZOUT");
+      z[0] = (*m_PixelEndcapService)[n]->getDouble("ZIN");
+      z[1] = (*m_PixelEndcapService)[n]->getDouble("ZOUT");
     }
     else {
-      z[0] = (*PixelEndcapService)[_n+m_endcapInFrames]->getDouble("ZIN");
-      z[1] = (*PixelEndcapService)[_n+m_endcapInFrames]->getDouble("ZOUT");
+      z[0] = (*m_PixelEndcapService)[n+m_endcapInFrames]->getDouble("ZIN");
+      z[1] = (*m_PixelEndcapService)[n+m_endcapInFrames]->getDouble("ZOUT");
     }
   }
   z[0] = z[0] *CLHEP::cm;
   if(z[0]*(z[1]) > -0.000000001) { // same sign and z[0] > 0.
     z[1] = z[1] *CLHEP::cm;
   } else {
-    string material = PixelServiceMaterial(a,_n);
+    string material = PixelServiceMaterial(a,n);
     z[1] = z[0] * (1 + CalculateThickness(z[1],material)/fabs(z[0]));
   }
   if(isEndcap() && a == "Inside" ) { // Translate to the ecnter of EndCap
-    double center = ((*PixelEndcapGeneral)[0]->getDouble("ZMAX")+(*PixelEndcapGeneral)[0]->getDouble("ZMIN"))/2.*CLHEP::cm;
+    double center = ((*m_PixelEndcapGeneral)[0]->getDouble("ZMAX")+(*m_PixelEndcapGeneral)[0]->getDouble("ZMIN"))/2.*CLHEP::cm;
     z[0] = z[0]-center;
     z[1] = z[1]-center;
   }
@@ -2202,19 +2022,19 @@ double* OraclePixGeoManager::PixelServiceZ(string a,int _n) {
 }
 
 
-int OraclePixGeoManager::PixelServiceLD(string a,int _n) {
+int OraclePixGeoManager::PixelServiceLD(string a,int n) {
   if(isBarrel()) {
-    if(a == "Inside") {return (*PixelBarrelService)[_n]->getInt("LAYERNUM")-1;}
-    else {return (*PixelBarrelService)[_n+m_barrelInFrames]->getInt("LAYERNUM")-1;}
+    if(a == "Inside") {return (*m_PixelBarrelService)[n]->getInt("LAYERNUM")-1;}
+    else {return (*m_PixelBarrelService)[n+m_barrelInFrames]->getInt("LAYERNUM")-1;}
   }
   if(isEndcap()) {
-    if(a == "Inside") {return (*PixelEndcapService)[_n]->getInt("LAYERNUM")-1;}
-    else {return (*PixelEndcapService)[_n+m_endcapInFrames]->getInt("LAYERNUM")-1;}
+    if(a == "Inside") {return (*m_PixelEndcapService)[n]->getInt("LAYERNUM")-1;}
+    else {return (*m_PixelEndcapService)[n+m_endcapInFrames]->getInt("LAYERNUM")-1;}
   }
   return 0;
 }
 
-string OraclePixGeoManager::PixelServiceMaterial(string a,int _n) {
+string OraclePixGeoManager::PixelServiceMaterial(string a,int n) {
   int imat;
   if(isBarrel()) {
     string mat[11] = {
@@ -2229,14 +2049,14 @@ string OraclePixGeoManager::PixelServiceMaterial(string a,int _n) {
       "pix::MatPP15",
       "pix::MatPP16",
       "pix::MatPP17"};
-    if(a == "Inside") {imat  = (*PixelBarrelService)[_n]->getInt("MATERIAL")-1;}
-    else {imat  = (*PixelBarrelService)[_n+m_barrelInFrames]->getInt("MATERIAL")-1;}
+    if(a == "Inside") {imat  = (*m_PixelBarrelService)[n]->getInt("MATERIAL")-1;}
+    else {imat  = (*m_PixelBarrelService)[n+m_barrelInFrames]->getInt("MATERIAL")-1;}
     return mat[imat];
   }
   if(isEndcap()) {
     string mat[4] = {"std::Berillia","std::Carbon","pix::ECServices","pix::Disk"};
-    if(a == "Inside") {imat  = (*PixelEndcapService)[_n]->getInt("MATERIAL")-1;}
-    else {imat =(*PixelEndcapService)[_n+m_endcapInFrames]->getInt("MATERIAL")-1;}
+    if(a == "Inside") {imat  = (*m_PixelEndcapService)[n]->getInt("MATERIAL")-1;}
+    else {imat =(*m_PixelEndcapService)[n+m_endcapInFrames]->getInt("MATERIAL")-1;}
     return mat[imat];
   }
   return "None";
@@ -2320,7 +2140,7 @@ std::string  OraclePixGeoManager::GetLayer0ModuleName() {
 
 double OraclePixGeoManager::PixelLadderThickness() 
 {
-  double tck = (*PixelStave)[0]->getDouble("SUPPORTTHICK");
+  double tck = (*m_PixelStave)[0]->getDouble("SUPPORTTHICK");
   if( tck > 0.) {
     return tck*CLHEP::cm;
   } else {
@@ -2330,7 +2150,7 @@ double OraclePixGeoManager::PixelLadderThickness()
 
 double OraclePixGeoManager::PixelECCablesThickness() 
 {
-  double tck =  (*PixelDisk)[currentLD]->getDouble("CABLETHICK");
+  double tck =  (*m_PixelDisk)[m_currentLD]->getDouble("CABLETHICK");
   if( tck > 0.) {
     return tck*CLHEP::cm;
   } else {
@@ -2374,21 +2194,21 @@ int OraclePixGeoManager::DesignDiodeColumnsPerCircuit(bool isBLayer)
   // Ganged Pixels
 int OraclePixGeoManager::NumberOfEmptyRows()
 {
-  return static_cast<int>((*pdch)[0]->getInt("NYCONNEC"));
+  return static_cast<int>((*m_pdch)[0]->getInt("NYCONNEC"));
 }
 
 int OraclePixGeoManager::EmptyRows(int index)
 {
   std::ostringstream A;
   A << "_" << index;
- return static_cast<int>((*pdch)[0]->getInt("JYEMPTY"+A.str())) - 1;
+ return static_cast<int>((*m_pdch)[0]->getInt("JYEMPTY"+A.str())) - 1;
 }  
 
 int OraclePixGeoManager::EmptyRowConnections(int index)
 {
   std::ostringstream A;
   A << "_" << index;
-  return static_cast<int>((*pdch)[0]->getInt("JYCONNEC"+A.str())) - 1;
+  return static_cast<int>((*m_pdch)[0]->getInt("JYCONNEC"+A.str())) - 1;
 }
 
 double OraclePixGeoManager::Voltage(bool isBLayer){
@@ -2396,13 +2216,13 @@ double OraclePixGeoManager::Voltage(bool isBLayer){
   // value in old DB (approx ratio of thicknesses (200/250 = 0.8)
   // 97.1*0.8 = 77.68. In Nova its 77.7.
   if (isBLayer && m_dc1Geometry) return 77.7*CLHEP::volt; 
-  if(isBLayer) { return (*plor)[0]->getDouble("VOLTAGE")*CLHEP::volt;}
-  return (*plor)[1]->getDouble("VOLTAGE")*CLHEP::volt;
+  if(isBLayer) { return (*m_plor)[0]->getDouble("VOLTAGE")*CLHEP::volt;}
+  return (*m_plor)[1]->getDouble("VOLTAGE")*CLHEP::volt;
 }
 
 double OraclePixGeoManager::Temperature(bool isBLayer){
-  if(isBLayer) { return (*plor)[0]->getDouble("TEMPC")*CLHEP::kelvin+CLHEP::STP_Temperature;}
-  return (*plor)[1]->getDouble("TEMPC")*CLHEP::kelvin+CLHEP::STP_Temperature;
+  if(isBLayer) { return (*m_plor)[0]->getDouble("TEMPC")*CLHEP::kelvin+CLHEP::STP_Temperature;}
+  return (*m_plor)[1]->getDouble("TEMPC")*CLHEP::kelvin+CLHEP::STP_Temperature;
 }
 
 const HepGeom::Vector3D<double> & 
@@ -2410,9 +2230,9 @@ OraclePixGeoManager::magneticField(bool isBLayer) const
 {
   if (m_magFieldFromNova) {
     if(isBLayer) { 
-      m_magField = HepGeom::Vector3D<double>(0, 0, (*plrn)[0]->getDouble("BFIELD") * CLHEP::tesla);
+      m_magField = HepGeom::Vector3D<double>(0, 0, (*m_plrn)[0]->getDouble("BFIELD") * CLHEP::tesla);
     } else {
-      m_magField = HepGeom::Vector3D<double>(0, 0, (*plrn)[1]->getDouble("BFIELD") * CLHEP::tesla);
+      m_magField = HepGeom::Vector3D<double>(0, 0, (*m_plrn)[1]->getDouble("BFIELD") * CLHEP::tesla);
     }
   }
   return m_magField;
@@ -2465,10 +2285,6 @@ OraclePixGeoManager::getIdHelper()
 //                                                   //
 //---------------------------------------------------//
 
-//#include "PixelGeoModel/PixelGeometryManager.h"
-//#include "PixelGeoModel/NovaPixGeoManager.h"
-//#include "PixelGeoModel/OraclePixGeoManager.h"
-#include <stdexcept>
 PixelGeometryManager* PixelGeometryManager::s_geometry_manager = 0;
 
 using namespace std;

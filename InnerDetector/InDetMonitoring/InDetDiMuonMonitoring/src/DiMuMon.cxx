@@ -73,7 +73,7 @@ DiMuMon::~DiMuMon()
 
 StatusCode DiMuMon::initialize(){
 
-  sc = ManagedMonitorToolBase::initialize();
+  ATH_CHECK( ManagedMonitorToolBase::initialize() );
 
   if (m_regions.empty()) {
     m_regions.push_back("All");
@@ -138,19 +138,19 @@ StatusCode DiMuMon::initialize(){
   // IAlgTool* ptool;
   //sc = serviceLocator->service("ToolSvc", toolSvc, true);
   //if ( sc.isFailure() ) {
-  //msg(MSG::WARNING) << "Could not locate toolSvc"<<endreq;
+  //msg(MSG::WARNING) << "Could not locate toolSvc"<<endmsg;
   //return sc;
   //}
   //sc = toolSvc->retrieveTool("TrackIsolationTool", ptool);
   //if ( sc.isFailure() ) {
-  //msg(MSG::WARNING) << "Could not retrieve track isolation tool!" << endreq;
+  //msg(MSG::WARNING) << "Could not retrieve track isolation tool!" << endmsg;
   //return sc;
   //}
   //m_isolationTool = dynamic_cast<TrackIsolationTool*>(ptool);
   m_coneSize = 0.4;
   m_isolationCut = 0.2;
 
-  return sc;
+  return StatusCode::SUCCESS;
 
 }
 
@@ -177,7 +177,7 @@ StatusCode DiMuMon::bookHistograms()
 //    const EventInfo* thisEventInfo;
 //    sc=evtStore()->retrieve(thisEventInfo);
 //    if (sc != StatusCode::SUCCESS) {
-//      if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "No EventInfo object found" << endreq;
+//      if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "No EventInfo object found" << endmsg;
 //    }
 //    else {
 //      m_lumiBlockNum = thisEventInfo->event_ID()->lumi_block();
@@ -186,11 +186,10 @@ StatusCode DiMuMon::bookHistograms()
 //   if (isNewEventsBlock || isNewLumiBlock){
      // do nothing
     // }
-   if ( newLowStat || newLumiBlock ) {
-   }
+   //if ( newLowStatFlag() || newLumiBlockFlag() ) {  }
 
 
-   if( newRun ) {
+   if( newRunFlag() ) {
 
      //   if( isNewRun ) {
 
@@ -294,7 +293,7 @@ StatusCode DiMuMon::fillHistograms()
 
   //  if (m_lumiBlockNum<402 || m_lumiBlockNum>1330) return StatusCode::SUCCESS;
 
-  double m_muonMass = 105.66*CLHEP::MeV;
+  double muonMass = 105.66*CLHEP::MeV;
   //retrieve all muons
   const xAOD::MuonContainer* muons(0);
   StatusCode sc = evtStore()->retrieve(muons, m_muonCollection);
@@ -377,7 +376,7 @@ StatusCode DiMuMon::fillHistograms()
 	}
 
 	//cut on the pair invariant mass
-	double invmass = getInvmass(id1,id2,m_muonMass);
+	double invmass = getInvmass(id1,id2,muonMass);
 	if (invmass<m_minInvmass || invmass>m_maxInvmass) continue;
 	m_stat->Fill("InvMassOK",1);
 
@@ -518,10 +517,9 @@ StatusCode DiMuMon::fillHistograms()
 StatusCode DiMuMon::procHistograms()
 {
 
-  if (endOfLowStat || endOfLumiBlock){
-    //do nothing
-  }
-   if(endOfRun && m_doFits) {
+   //if (endOfLowStatFlag() || endOfLumiBlockFlag()){ }
+
+   if(endOfRunFlag() && m_doFits) {
      std::vector<std::string> ::iterator ireg = m_regions.begin();
      for (ireg = m_regions.begin(); ireg != m_regions.end(); ireg++){
        std::map<std::string, TH2F*>::iterator ivar2D = m_2DinvmassVSx[*ireg].begin();
@@ -562,7 +560,7 @@ void DiMuMon::iterativeGausFit (TH2F* hin, std::vector<TH1F*> hout, int mode){
   for (int i=0; i<nbins;i++){
     std::ostringstream o; o<<i;
     TString projName = hname + o.str();
-    TH1F* htemp = (TH1F*) (hin->ProjectionY(projName,i+1,i+1)->Clone());
+    TH1D* htemp = (TH1D*) (hin->ProjectionY(projName,i+1,i+1)->Clone());
     htemp->SetTitle(projName);
     htemp->Sumw2();
     if (htemp->GetEntries()>50){
@@ -658,7 +656,7 @@ void DiMuMon::RegisterHisto(MonGroup& mon, T* histo) {
 
   StatusCode sc = mon.regHist(histo);
   if (sc.isFailure() ) {
-    msg(MSG::WARNING) << "Cannot book histogram:" << endreq;
+    msg(MSG::WARNING) << "Cannot book histogram:" << endmsg;
   }
 }
 

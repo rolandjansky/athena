@@ -799,7 +799,7 @@ bool TrigNavStructure::getFeatureAccessors( const TriggerElement* te, class_id_t
   bool singleTEstatus = getFeatureAccessorsSingleTE(te,clid,index_or_label,only_single_feature,features,with_cache_recording,source,sourcelabel);
 
    if(!singleTEstatus){
-     // MLOG(WARNING) << "getFeatureAccessorsSingleTE() returned false" << endreq;
+     // MLOG(WARNING) << "getFeatureAccessorsSingleTE() returned false" << endmsg;
    }
 
  
@@ -833,7 +833,7 @@ bool TrigNavStructure::getFeatureAccessors( const TriggerElement* te, class_id_t
     
   if ( only_single_feature &&  ( features.size() > 1 || recursion_status == false) ) {
     // MLOG(DEBUG) << "getFeatureAccessors: looking for object of CLID: " << clid
-    //             << " label: \"" << label << "\"" << " found several objects matching criteria while can only return back one, this is ambiguous" << endreq;
+    //             << " label: \"" << label << "\"" << " found several objects matching criteria while can only return back one, this is ambiguous" << endmsg;
       
     if ( getDirectPredecessors(te).size() > 1 ) // mark bifurcation point as to where one can start again
       source = te;

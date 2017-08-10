@@ -377,7 +377,7 @@ void MuonHoughMathUtils::extrapolateCurvedRoad(const Amg::Vector3D& roadpos, con
       using the curved track model
   */
 
-  //  m_log<< MSG::VERBOSE << "Extrapolate the road to the segment (hit)" <<endreq;
+  //  m_log<< MSG::VERBOSE << "Extrapolate the road to the segment (hit)" <<endmsg;
 
   const double theta = roadmom.theta(); 
   const double phi = roadmom.phi(); 
@@ -419,7 +419,7 @@ void MuonHoughMathUtils::extrapolateCurvedRoad(const Amg::Vector3D& roadpos, con
       ze = roadpos.z() + len/tantheta + diffr*rotationangle;
       thetan = std::atan2(1.,1/tantheta + 2*rotationangle);
       //      std::cout << " Extrapolated Position  xe " << xe << " y " << ye << " z " << ze << std::endl;
-      //     m_log << MSG::VERBOSE << " Barrel extrapolation " <<endreq;
+      //     m_log << MSG::VERBOSE << " Barrel extrapolation " <<endmsg;
     }
   } else {
     double lext=0., rotationangle=0.;
@@ -428,14 +428,14 @@ void MuonHoughMathUtils::extrapolateCurvedRoad(const Amg::Vector3D& roadpos, con
       double diffz = pos.z()-sign*MuonHough::z_cylinder;
       rotationangle = diffz*invcurvature/sctheta.cs;
       lext = (pos.z()-roadpos.z())*tantheta - diffz*rotationangle;
-      // m_log << MSG::VERBOSE << " Forward extrapolation " <<endreq;
+      // m_log << MSG::VERBOSE << " Forward extrapolation " <<endmsg;
       
     } else {
       // Forward OutSide EC Toroid
       double effcurv = invcurvature/sctheta.cs;
       rotationangle = sign*(MuonHough::z_end-MuonHough::z_cylinder)*effcurv;
       lext = (pos.z()-roadpos.z())*tantheta + (MuonHough::z_magnetic_range_squared - 2*sign*pos.z()*MuonHough::z_magnetic_range)*effcurv;
-      // m_log << MSG::VERBOSE << " Forward Outside EC Toroid extrapolation " <<endreq;
+      // m_log << MSG::VERBOSE << " Forward Outside EC Toroid extrapolation " <<endmsg;
     }
     xe = roadpos.x() + lext * scphi.cs;
     ye = roadpos.y() + lext * scphi.sn;

@@ -27,7 +27,7 @@ namespace MuonCalib {
 
 /** @class NtupleRunScanTool
 Scans a run and checks for present chambers and number of hits
-@author rauscher@cern
+@author rauscher@cern.ch
 */
 
 class NtupleRunScanTool:  public AthAlgTool, virtual public NtupleCalibrationTool

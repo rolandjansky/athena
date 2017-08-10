@@ -112,8 +112,8 @@ if not 'mixStreamConfig' in dir():
 ############################################		
 # Usage:
 # m = MixingPartitioner()                      #Selects files
-# m.SetPartition(thisJob)                      #for batch job number <thisJob>
-# m.AddSample(5009,49.01,myListFromDq2)                #Add some QCD jet files from the list of PFN strings <myListFromDq2>
+# m.SetPartition(thisJob)                      #for batch job number \<thisJob\>
+# m.AddSample(5009,49.01,myListFromDq2)                #Add some QCD jet files from the list of PFN strings \<myListFromDq2\>
 # m.ConfigureSelectors()                               #Do the math to get ONLY needed files for this job.  Short file lists generated for staging.
 #    # later, in your athena job options...
 # ...a,b = m.ConfigureServices()                       #Configures strings to "exec" to set jobOpts of your MixingEventSelector. See trf for details on usage.

@@ -48,12 +48,12 @@ HLT::ErrorCode TrigT2HistoPrmVtxCombo::acceptInputs(HLT::TEConstVec& inputTE, bo
 
   // sanity check there has to be as many input Te as ROIS
   if ( msgLvl() <= MSG::DEBUG )
-    msg() << MSG::DEBUG << "Running TrigT2HistoPrmVtxCombo::acceptInputs, got: " << inputTE.size() << " TE as input " << endreq;
+    msg() << MSG::DEBUG << "Running TrigT2HistoPrmVtxCombo::acceptInputs, got: " << inputTE.size() << " TE as input " << endmsg;
 
   m_nTeCounter = inputTE.size(); // Monitoring variable
 
   if ( inputTE.size() != 2) {
-    msg() << MSG::WARNING << "Got less than 2 input TE " << m_nTeCounter << endreq;
+    msg() << MSG::WARNING << "Got less than 2 input TE " << m_nTeCounter << endmsg;
     return HLT::ErrorCode(HLT::Action::ABORT_CHAIN,  HLT::Reason::MISSING_FEATURE); 
   }
   
@@ -66,7 +66,7 @@ HLT::ErrorCode TrigT2HistoPrmVtxCombo::acceptInputs(HLT::TEConstVec& inputTE, bo
 HLT::ErrorCode TrigT2HistoPrmVtxCombo::hltExecute(HLT::TEConstVec& /*inputTE*/, HLT::TriggerElement* /*outputTE*/){
 
   if ( msgLvl() <= MSG::DEBUG )
-    msg() << MSG::DEBUG << "Running TrigT2HistoPrmVtxCombo::hltExecute" << endreq;
+    msg() << MSG::DEBUG << "Running TrigT2HistoPrmVtxCombo::hltExecute" << endmsg;
 
   return HLT::OK;
 }
@@ -74,7 +74,7 @@ HLT::ErrorCode TrigT2HistoPrmVtxCombo::hltExecute(HLT::TEConstVec& /*inputTE*/, 
 HLT::ErrorCode TrigT2HistoPrmVtxCombo::hltFinalize()
 {
   if ( msgLvl() <= MSG::INFO )
-    msg() << MSG::INFO << "in finalize()" << endreq;
+    msg() << MSG::INFO << "in finalize()" << endmsg;
 
   return HLT::OK;
 }

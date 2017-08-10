@@ -91,7 +91,7 @@ TgcRawDataValAlg::readTgcPrepDataContainer(const Muon::TgcPrepDataContainer* tgc
         containerIt!=container_end;
         ++containerIt){
       if(containerIt==container_end || (*containerIt)->size()==0)continue; //check if there are counts  
-      if(m_debuglevel) m_log << MSG::DEBUG << "size of tgc collection is " << (*containerIt) -> size() << endreq;
+      ATH_MSG_DEBUG( "size of tgc collection is " << (*containerIt) -> size()  );
       // Increment Collection counter
       m_nColl++;
       
@@ -194,18 +194,17 @@ TgcRawDataValAlg::readTgcPrepDataContainer(const Muon::TgcPrepDataContainer* tgc
           m_hitPosPhi[ac][ws].push_back(channelPos.phi());
         }
         
-        if(m_debuglevel) m_log << MSG::DEBUG << " TgcPrepData number:  " << m_nPrd << endreq;
-        if(m_nPrd>m_maxPrd-1){
-          m_log << MSG::WARNING << "Maximum number of TgcPrepData in the Histograms reached: " << m_maxPrd << endreq;
+        ATH_MSG_DEBUG( " TgcPrepData number:  " << m_nPrd  );
+        if(m_nPrd>maxPrd-1){
+          ATH_MSG_WARNING( "Maximum number of TgcPrepData in the Histograms reached: " << maxPrd  );
           return;
         }
       }// Collection
       
-      if(m_debuglevel) m_log << MSG::DEBUG << " TgcCollection number  " << m_nColl << endreq;
-      if(m_nColl>m_maxColl-1){
-        m_log << MSG::WARNING
-              << "Maximum number of TgcPrepDataCollection in the TGCRawData Monitoring Histos reached: "
-              << m_maxColl << endreq;
+      ATH_MSG_DEBUG( " TgcCollection number  " << m_nColl  );
+      if(m_nColl>maxColl-1){
+        ATH_MSG_WARNING( "Maximum number of TgcPrepDataCollection in the TGCRawData Monitoring Histos reached: "
+                         << maxColl  );
         return;
       } 
     }// Container

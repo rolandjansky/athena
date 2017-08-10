@@ -109,7 +109,7 @@ namespace Trk {
        << "yv " << m_position(jet_yv) << "+/-" << sqrt(m_positionError(jet_yv,jet_yv)) <<", "
        << "zv " << m_position(jet_zv) << "+/-" << sqrt(m_positionError(jet_zv,jet_zv)) <<", "
        << "phi " << m_position(jet_phi) << "+/-" << sqrt(m_positionError(jet_phi,jet_phi)) <<", "
-       << "theta " << m_position(jet_theta) << "+/-" << sqrt(m_positionError(jet_theta,jet_theta)) << endreq;
+       << "theta " << m_position(jet_theta) << "+/-" << sqrt(m_positionError(jet_theta,jet_theta)) << endmsg;
     if (!m_useWeightTimesPosition) {
       for (int i=5;i<m_position.rows();i++) {
 	sl << "dist" << i << " " << m_position(i) << "+/-" << sqrt(m_positionError(i,i))<<" , ";
@@ -119,10 +119,10 @@ namespace Trk {
 	sl << "dist corrected" << i << " " << (m_positionError*m_position).eval()(i) << "+/-" << sqrt(m_positionError(i,i))<<" , ";
       }
     }
-    sl << endreq;
+    sl << endmsg;
    
    sl << m_positionError << std::endl;
-   sl << "  ndf: " << m_fitQuality.doubleNumberDoF() << "\t chi2: " << m_fitQuality.chiSquared() << endreq;
+   sl << "  ndf: " << m_fitQuality.doubleNumberDoF() << "\t chi2: " << m_fitQuality.chiSquared() << endmsg;
    return sl;
   }
 

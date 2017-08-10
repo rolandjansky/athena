@@ -4,7 +4,7 @@
 
 /**
  * @file SCT_ElectricFieldTool.h
- * @primary author for Pixels giacinto.piacquadio@cern.ch
+ * @note primary author for Pixels giacinto.piacquadio@cern.ch
  * @author for SCT peter.vankov@cern.ch
 **/
 

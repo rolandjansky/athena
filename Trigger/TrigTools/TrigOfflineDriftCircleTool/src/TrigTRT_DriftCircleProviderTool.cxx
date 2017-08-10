@@ -65,8 +65,8 @@ StatusCode TrigTRT_DriftCircleProviderTool::initialize()
   StatusCode sc = AthAlgTool::initialize();
 
 #ifndef NDEBUG
-  msg(MSG::DEBUG) << "TrigTRT_DriftCircleProviderTool: in initialize" << endreq;
-  msg(MSG::INFO) << "RegionSelectorToolName: " << m_regionSelectorToolName << endreq;
+  msg(MSG::DEBUG) << "TrigTRT_DriftCircleProviderTool: in initialize" << endmsg;
+  msg(MSG::INFO) << "RegionSelectorToolName: " << m_regionSelectorToolName << endmsg;
 #endif
 
 //   Get the region selector tool
@@ -74,33 +74,33 @@ StatusCode TrigTRT_DriftCircleProviderTool::initialize()
   sc= m_regionSelector.retrieve();
   if ( sc.isFailure() ) {
     msg(MSG::FATAL) 
-	      << "Unable to retrieve RegionSelector " << m_regionSelector << endreq;
+	      << "Unable to retrieve RegionSelector " << m_regionSelector << endmsg;
     return sc;
   };
 
 
   sc= m_TRT_DCCollBSTool.retrieve();
   if(sc.isFailure()) {
-    msg(MSG::FATAL) << " Could not get TrigTRT_DCCollByteStreamTool tool"<<endreq;
+    msg(MSG::FATAL) << " Could not get TrigTRT_DCCollByteStreamTool tool"<<endmsg;
     return sc;
   }
   //  Get ROBDataProvider
   sc = m_robDataProvider.retrieve();
   if( sc.isFailure() ) {
-    msg(MSG::FATAL) << " Can't get ROBDataProviderSvc " << endreq;
+    msg(MSG::FATAL) << " Can't get ROBDataProviderSvc " << endmsg;
     return sc;
   }
   sc = m_trtByteStreamErrorService.retrieve();
   if (sc.isFailure())
    {
-     msg(MSG::FATAL) << "Failed to retrieve service " << m_trtByteStreamErrorService << endreq;
+     msg(MSG::FATAL) << "Failed to retrieve service " << m_trtByteStreamErrorService << endmsg;
      return sc;
    } 
 
   ITrigTimerSvc* timerSvc;
   StatusCode scTime = service( "TrigTimerSvc", timerSvc);
   if( scTime.isFailure() ) {
-    msg(MSG::INFO) << "Unable to locate Service TrigTimerSvc " << endreq;
+    msg(MSG::INFO) << "Unable to locate Service TrigTimerSvc " << endmsg;
     m_timers = false;
   } 
   else{
@@ -145,10 +145,10 @@ StatusCode TrigTRT_DriftCircleProviderTool::fillCollections(const IRoiDescriptor
   if (m_uIntListOfTRT_Robs.size() > 0) {
 
     if (msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG)<< " Pre-loading the  following TRT RoBs: " << endreq;
+      msg(MSG::DEBUG)<< " Pre-loading the  following TRT RoBs: " << endmsg;
       for ( std::vector<unsigned int>::iterator iTrtRob=m_uIntListOfTRT_Robs.begin() ; 
         iTrtRob!=m_uIntListOfTRT_Robs.end() ;  iTrtRob++) {
-        msg(MSG::DEBUG) << *iTrtRob << " == 0x" << std::hex << *iTrtRob << std::dec << endreq;
+        msg(MSG::DEBUG) << *iTrtRob << " == 0x" << std::hex << *iTrtRob << std::dec << endmsg;
         }
       }
       m_robDataProvider->addROBData( m_uIntListOfTRT_Robs );
@@ -165,7 +165,7 @@ StatusCode TrigTRT_DriftCircleProviderTool::fillCollections(const IRoiDescriptor
   
 
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "REGTEST / TRT : Roi contains " 
-					   << listOfTRTIds.size() << " det. Elements" << endreq;
+					   << listOfTRTIds.size() << " det. Elements" << endmsg;
 
   std::vector<const ROBF*> v;
       
@@ -244,7 +244,7 @@ StatusCode TrigTRT_DriftCircleProviderTool::fillCollections(std::vector<Identifi
 
 #ifndef NDEBUG
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "REGTEST / TRT : Roi contains " 
-					   << listOfTRTIds.size() << " det. Elements" << endreq;
+					   << listOfTRTIds.size() << " det. Elements" << endmsg;
 #endif  
       
   if(m_timers) m_timer[1]->resume();

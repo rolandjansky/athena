@@ -387,7 +387,7 @@ const T* TrigEgammaAnalysisBaseTool::getFeature(const HLT::TriggerElement* te,co
     if ( te == nullptr ) return nullptr;
     if ( (m_trigdec->ancestor<T>(te,key)).te() == nullptr )
         return nullptr;
-    return ( (m_trigdec->ancestor<T>(te)).cptr() );
+    return ( (m_trigdec->ancestor<T>(te,key)).cptr() );
 }
 
 template<class T>
@@ -395,7 +395,7 @@ bool TrigEgammaAnalysisBaseTool::ancestorPassed(const HLT::TriggerElement* te,co
     if ( te == nullptr ) return false;
     if ( (m_trigdec->ancestor<T>(te,key)).te() == nullptr )
         return false;
-    return ( (m_trigdec->ancestor<T>(te)).te()->getActiveState());
+    return ( (m_trigdec->ancestor<T>(te,key)).te()->getActiveState());
 }
 
 template <class T1, class T2>

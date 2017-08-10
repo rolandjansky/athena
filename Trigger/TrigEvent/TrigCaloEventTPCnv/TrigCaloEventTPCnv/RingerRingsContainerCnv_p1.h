@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigCaloEventTPCnv
- * @Class  : RingerRingsContainerCnv_p1
+ * @class  : RingerRingsContainerCnv_p1
  *
  * @brief transient persistent converter for RingerRingsContainer
  *

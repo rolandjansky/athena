@@ -447,11 +447,9 @@ StatusCode IDAlignMonEfficiencies::bookHistograms()
   
   
 
-  if ( newLowStat ) {  
-  }
-  if ( newLumiBlock ) {  
-  }
-  if ( newRun ) {  
+  //if ( newLowStatFlag() ) {    }
+  //if ( newLumiBlockFlag() ) {  }
+  if ( newRunFlag() ) {  
     
     //if user environment specified we don't want to book new histograms at every run boundary
     //we instead want one histogram per job
@@ -982,16 +980,16 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
       }
 
       /** Get information for the TRT hits */
-      int m_barrel_ec      = 99;
-      int m_layer_or_wheel = 99;
-      int m_straw_layer    = 99;
-      int m_phi_module     = 99;
+      int barrel_ec      = 99;
+      int layer_or_wheel = 99;
+      int straw_layer    = 99;
+      int phi_module     = 99;
       bool isTubeHit = false;
       if (detType==2){
-	m_barrel_ec      = m_trtID->barrel_ec(surfaceID);
-	m_layer_or_wheel = m_trtID->layer_or_wheel(surfaceID);
-	m_straw_layer    = m_trtID->straw_layer(surfaceID);
-	m_phi_module     = m_trtID->phi_module(surfaceID);
+	barrel_ec      = m_trtID->barrel_ec(surfaceID);
+	layer_or_wheel = m_trtID->layer_or_wheel(surfaceID);
+	straw_layer    = m_trtID->straw_layer(surfaceID);
+	phi_module     = m_trtID->phi_module(surfaceID);
 	if((mesb->localCovariance()(Trk::locX,Trk::locX) > 1.0))
 	  isTubeHit=true;
       }
@@ -1054,7 +1052,7 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	  } 
 	}// end of sct
 	else if (detType==2){
-	  fillTRTTotalMeasurements(m_barrel_ec,m_layer_or_wheel,m_phi_module,m_straw_layer);
+	  fillTRTTotalMeasurements(barrel_ec,layer_or_wheel,phi_module,straw_layer);
 	}
       } // end of all type of hits
       
@@ -1240,7 +1238,7 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	}//SCT
 	
 	if (detType==2){
-	  fillTRTHits(m_barrel_ec,m_layer_or_wheel,m_phi_module,m_straw_layer,isTubeHit);
+	  fillTRTHits(barrel_ec,layer_or_wheel,phi_module,straw_layer,isTubeHit);
 	}
 	
       } // end of measurements (hits on track)
@@ -1305,7 +1303,7 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
        
 	// TRT hits
 	if (detType==2){
-	  fillTRTOutliers(m_barrel_ec,m_layer_or_wheel,m_phi_module,m_straw_layer);
+	  fillTRTOutliers(barrel_ec,layer_or_wheel,phi_module,straw_layer);
 	}
 	
       } // end of outliers 
@@ -1800,11 +1798,9 @@ void IDAlignMonEfficiencies::makeEffHistoWithCut(TH2F* h_num, TH2F* h_denom, TPr
 StatusCode IDAlignMonEfficiencies::procHistograms()
 {
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In procHistograms" << endmsg;
-  if( endOfLowStat ) {
-  }
-  if( endOfLumiBlock ) {
-  }
-  if( endOfRun || ( ( AthenaMonManager::environment() == AthenaMonManager::online ) && endOfLumiBlock ) ) {
+  //if( endOfLowStatFlag() ) {  }
+  //if( endOfLumiBlockFlag() ) {  }
+  if( endOfRunFlag() || ( ( AthenaMonManager::environment() == AthenaMonManager::online ) && endOfLumiBlockFlag() ) ) {
     // -----------------------------------------------------------------------
     //
     // normalize: divide measurement / outliers / holes by number of possible hits
@@ -3117,163 +3113,163 @@ void IDAlignMonEfficiencies::makeTRTEndcapHistograms(MonGroup& al_mon, MonGroup&
   return;
 }
 
-void IDAlignMonEfficiencies::fillTRTTotalMeasurements(int m_barrel_ec,int m_layer_or_wheel,int m_phi_module,int m_straw_layer){
+void IDAlignMonEfficiencies::fillTRTTotalMeasurements(int barrel_ec,int layer_or_wheel,int phi_module,int straw_layer){
   
   //Barrel
-  if ( m_barrel_ec == 1 || m_barrel_ec == -1) {
-    fillTRTBarrelTotalMeasurements(m_layer_or_wheel,m_phi_module,m_straw_layer);
+  if ( barrel_ec == 1 || barrel_ec == -1) {
+    fillTRTBarrelTotalMeasurements(layer_or_wheel,phi_module,straw_layer);
   }
   
   //Endcap
-  if ( m_barrel_ec == 2 || m_barrel_ec == -2) {
-    fillTRTEndcapTotalMeasurements(m_barrel_ec,m_layer_or_wheel,m_phi_module,m_straw_layer);
+  if ( barrel_ec == 2 || barrel_ec == -2) {
+    fillTRTEndcapTotalMeasurements(barrel_ec,layer_or_wheel,phi_module,straw_layer);
   }
   
   return;
 }
 
-void IDAlignMonEfficiencies::fillTRTHits(int m_barrel_ec,int m_layer_or_wheel,int m_phi_module,int m_straw_layer, bool isTubeHit){
+void IDAlignMonEfficiencies::fillTRTHits(int barrel_ec,int layer_or_wheel,int phi_module,int straw_layer, bool isTubeHit){
   
   //Barrel
-  if ( m_barrel_ec == 1 || m_barrel_ec == -1) {
-    fillTRTBarrelHits(m_layer_or_wheel,m_phi_module,m_straw_layer,isTubeHit);
+  if ( barrel_ec == 1 || barrel_ec == -1) {
+    fillTRTBarrelHits(layer_or_wheel,phi_module,straw_layer,isTubeHit);
   }
   
   //Endcap
-  if ( m_barrel_ec == 2 || m_barrel_ec == -2) {
-    fillTRTEndcapHits(m_barrel_ec,m_layer_or_wheel,m_phi_module,m_straw_layer,isTubeHit);
+  if ( barrel_ec == 2 || barrel_ec == -2) {
+    fillTRTEndcapHits(barrel_ec,layer_or_wheel,phi_module,straw_layer,isTubeHit);
   }
   
   return;
 }
 
-void IDAlignMonEfficiencies::fillTRTOutliers(int m_barrel_ec,int m_layer_or_wheel,int m_phi_module,int m_straw_layer){
+void IDAlignMonEfficiencies::fillTRTOutliers(int barrel_ec,int layer_or_wheel,int phi_module,int straw_layer){
   
   //Barrel
-  if ( m_barrel_ec == 1 || m_barrel_ec == -1) {
-    fillTRTBarrelOutliers(m_layer_or_wheel,m_phi_module,m_straw_layer);
+  if ( barrel_ec == 1 || barrel_ec == -1) {
+    fillTRTBarrelOutliers(layer_or_wheel,phi_module,straw_layer);
   }
   
   //Endcap
-  if ( m_barrel_ec == 2 || m_barrel_ec == -2) {
-    fillTRTEndcapOutliers(m_barrel_ec,m_layer_or_wheel,m_straw_layer);
+  if ( barrel_ec == 2 || barrel_ec == -2) {
+    fillTRTEndcapOutliers(barrel_ec,layer_or_wheel,straw_layer);
   }
   
   return;
 }
 
 
-void IDAlignMonEfficiencies::fillTRTBarrelTotalMeasurements(int m_layer_or_wheel,int m_phi_module,int m_straw_layer){
+void IDAlignMonEfficiencies::fillTRTBarrelTotalMeasurements(int layer_or_wheel,int phi_module,int straw_layer){
 
   //There are different number of straw layers in the differnt types of module layers
   // and the TRT_Id helper returns the layer with the current module (not global the layer)
-  if(m_layer_or_wheel == 0)
-    m_trt_b_hist->totHits_vs_StrawLay->Fill(m_straw_layer);
-  if(m_layer_or_wheel == 1)
-    m_trt_b_hist->totHits_vs_StrawLay->Fill(19+m_straw_layer);
-  if(m_layer_or_wheel == 2)
-    m_trt_b_hist->totHits_vs_StrawLay->Fill(19+24+m_straw_layer);
+  if(layer_or_wheel == 0)
+    m_trt_b_hist->totHits_vs_StrawLay->Fill(straw_layer);
+  if(layer_or_wheel == 1)
+    m_trt_b_hist->totHits_vs_StrawLay->Fill(19+straw_layer);
+  if(layer_or_wheel == 2)
+    m_trt_b_hist->totHits_vs_StrawLay->Fill(19+24+straw_layer);
   
   for(int i=0; i<3; i++)
-    if(m_layer_or_wheel == i)//Filling phi sectors of layer i
-      m_trt_b_hist->totHits_vs_phiSector[i]->Fill(m_phi_module);
+    if(layer_or_wheel == i)//Filling phi sectors of layer i
+      m_trt_b_hist->totHits_vs_phiSector[i]->Fill(phi_module);
 
   return;
 }
 
-void IDAlignMonEfficiencies::fillTRTBarrelHits(int m_layer_or_wheel,int m_phi_module,int m_straw_layer, bool isTubeHit){
+void IDAlignMonEfficiencies::fillTRTBarrelHits(int layer_or_wheel,int phi_module,int straw_layer, bool isTubeHit){
   
   //There are different number of straw layers in the differnt types of module layers
   // and the TRT_Id helper returns the layer with the current module (not global the layer)
   if(!isTubeHit){
-    if(m_layer_or_wheel == 0)
-      m_trt_b_hist->hits_vs_StrawLay->Fill(m_straw_layer);
-    if(m_layer_or_wheel == 1)
-      m_trt_b_hist->hits_vs_StrawLay->Fill(19+m_straw_layer);
-    if(m_layer_or_wheel == 2)
-      m_trt_b_hist->hits_vs_StrawLay->Fill(19+24+m_straw_layer);
+    if(layer_or_wheel == 0)
+      m_trt_b_hist->hits_vs_StrawLay->Fill(straw_layer);
+    if(layer_or_wheel == 1)
+      m_trt_b_hist->hits_vs_StrawLay->Fill(19+straw_layer);
+    if(layer_or_wheel == 2)
+      m_trt_b_hist->hits_vs_StrawLay->Fill(19+24+straw_layer);
   }
   
   if(isTubeHit){
-    if(m_layer_or_wheel == 0)
-      m_trt_b_hist->tubeHits_vs_StrawLay->Fill(m_straw_layer);
-    if(m_layer_or_wheel == 1)
-      m_trt_b_hist->tubeHits_vs_StrawLay->Fill(19+m_straw_layer);
-    if(m_layer_or_wheel == 2)
-      m_trt_b_hist->tubeHits_vs_StrawLay->Fill(19+24+m_straw_layer);
+    if(layer_or_wheel == 0)
+      m_trt_b_hist->tubeHits_vs_StrawLay->Fill(straw_layer);
+    if(layer_or_wheel == 1)
+      m_trt_b_hist->tubeHits_vs_StrawLay->Fill(19+straw_layer);
+    if(layer_or_wheel == 2)
+      m_trt_b_hist->tubeHits_vs_StrawLay->Fill(19+24+straw_layer);
   }
   
   for(int i=0; i<3; i++){
-    if(m_layer_or_wheel == i){//Filling phi sectors of layer i
+    if(layer_or_wheel == i){//Filling phi sectors of layer i
       if(!isTubeHit)
-	m_trt_b_hist->hits_vs_phiSector[i]->Fill(m_phi_module);
+	m_trt_b_hist->hits_vs_phiSector[i]->Fill(phi_module);
       if(isTubeHit)
-	m_trt_b_hist->tubeHits_vs_phiSector[i]->Fill(m_phi_module);
+	m_trt_b_hist->tubeHits_vs_phiSector[i]->Fill(phi_module);
     }
   }
 
   return;
 }
 
-void IDAlignMonEfficiencies::fillTRTBarrelOutliers(int m_layer_or_wheel,int m_phi_module,int m_straw_layer){
+void IDAlignMonEfficiencies::fillTRTBarrelOutliers(int layer_or_wheel,int phi_module,int straw_layer){
   
   //There are different number of straw layers in the differnt types of module layers
   // and the TRT_Id helper returns the layer with the current module (not global the layer)
-  if(m_layer_or_wheel == 0)
-    m_trt_b_hist->outliers_vs_StrawLay->Fill(m_straw_layer);
-  if(m_layer_or_wheel == 1)
-    m_trt_b_hist->outliers_vs_StrawLay->Fill(19+m_straw_layer);
-  if(m_layer_or_wheel == 2)
-    m_trt_b_hist->outliers_vs_StrawLay->Fill(19+24+m_straw_layer);
+  if(layer_or_wheel == 0)
+    m_trt_b_hist->outliers_vs_StrawLay->Fill(straw_layer);
+  if(layer_or_wheel == 1)
+    m_trt_b_hist->outliers_vs_StrawLay->Fill(19+straw_layer);
+  if(layer_or_wheel == 2)
+    m_trt_b_hist->outliers_vs_StrawLay->Fill(19+24+straw_layer);
   
   for(int i=0; i<3; i++){
-    if(m_layer_or_wheel == i)//Filling phi sectors of layer i
-      m_trt_b_hist->outliers_vs_phiSector[i]->Fill(m_phi_module);
+    if(layer_or_wheel == i)//Filling phi sectors of layer i
+      m_trt_b_hist->outliers_vs_phiSector[i]->Fill(phi_module);
   }
   
   return;
 }
 
-void IDAlignMonEfficiencies::fillTRTEndcapTotalMeasurements(int m_barrel_ec, int m_layer_or_wheel,int m_phi_module,int m_straw_layer){
+void IDAlignMonEfficiencies::fillTRTEndcapTotalMeasurements(int barrel_ec, int layer_or_wheel,int phi_module,int straw_layer){
   
   for(unsigned int endcap=0; endcap<2; ++endcap){
     bool doFill = false;
-    if(!endcap && m_barrel_ec == 2)
+    if(!endcap && barrel_ec == 2)
       doFill = true;
-    else if(endcap && m_barrel_ec == -2)
+    else if(endcap && barrel_ec == -2)
       doFill = true;
     
     if(!doFill)
       continue;
     
-    unsigned int ring = getRing(m_layer_or_wheel,m_straw_layer);
+    unsigned int ring = getRing(layer_or_wheel,straw_layer);
     m_trt_ec_hist->totHits_vs_ring[endcap]->Fill(ring);
-    m_trt_ec_hist->totHits_vs_phiSector[endcap]->Fill(m_phi_module);
+    m_trt_ec_hist->totHits_vs_phiSector[endcap]->Fill(phi_module);
   }
 
 }
 
 
-void IDAlignMonEfficiencies::fillTRTEndcapHits(int m_barrel_ec, int m_layer_or_wheel,int m_phi_module,int m_straw_layer, bool isTubeHit){
+void IDAlignMonEfficiencies::fillTRTEndcapHits(int barrel_ec, int layer_or_wheel,int phi_module,int straw_layer, bool isTubeHit){
 
   for(unsigned int endcap=0; endcap<2; ++endcap){
     bool doFill = false;
-    if(!endcap && m_barrel_ec == 2)
+    if(!endcap && barrel_ec == 2)
       doFill = true;
-    else if(endcap && m_barrel_ec == -2)
+    else if(endcap && barrel_ec == -2)
       doFill = true;
     
     if(!doFill)
       continue;
 
-    unsigned int ring = getRing(m_layer_or_wheel,m_straw_layer);
+    unsigned int ring = getRing(layer_or_wheel,straw_layer);
     if(!isTubeHit){
       m_trt_ec_hist->hits_vs_ring[endcap]->Fill(ring);
-      m_trt_ec_hist->hits_vs_phiSector[endcap]->Fill(m_phi_module);
+      m_trt_ec_hist->hits_vs_phiSector[endcap]->Fill(phi_module);
     }
     if(isTubeHit){
       m_trt_ec_hist->tubeHits_vs_ring[endcap]->Fill(ring);
-      m_trt_ec_hist->tubeHits_vs_phiSector[endcap]->Fill(m_phi_module);
+      m_trt_ec_hist->tubeHits_vs_phiSector[endcap]->Fill(phi_module);
     }
   }
   
@@ -3281,19 +3277,19 @@ void IDAlignMonEfficiencies::fillTRTEndcapHits(int m_barrel_ec, int m_layer_or_w
 }
 
 
-void IDAlignMonEfficiencies::fillTRTEndcapOutliers(int m_barrel_ec, int m_layer_or_wheel,int m_straw_layer){
+void IDAlignMonEfficiencies::fillTRTEndcapOutliers(int barrel_ec, int layer_or_wheel,int straw_layer){
 
   for(unsigned int endcap=0; endcap<2; ++endcap){
     bool doFill = false;
-    if(!endcap && m_barrel_ec == 2)
+    if(!endcap && barrel_ec == 2)
       doFill = true;
-    else if(endcap && m_barrel_ec == -2)
+    else if(endcap && barrel_ec == -2)
       doFill = true;
     
     if(!doFill)
       continue;
     
-    unsigned int ring = getRing(m_layer_or_wheel,m_straw_layer);
+    unsigned int ring = getRing(layer_or_wheel,straw_layer);
     m_trt_ec_hist->outliers_vs_ring[endcap]->Fill(ring);
     m_trt_ec_hist->outliers_vs_phiSector[endcap]->Fill(ring);
   }

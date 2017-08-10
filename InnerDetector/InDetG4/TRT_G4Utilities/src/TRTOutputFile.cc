@@ -16,12 +16,12 @@ TRTOutputFile::TRTOutputFile() : output("TRTOutput", std::ios::out), m_msg("TRTO
 {
   printMessages = ReadParameter("PrintMessages");
 
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTOutputFile" << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTOutputFile" << endmsg;
 
   output << std::endl << "                    TRT output file" << std::endl
          << std::endl;
 
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTOutputFile done" << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTOutputFile done" << endmsg;
 }
 
 
@@ -29,13 +29,13 @@ TRTOutputFile::TRTOutputFile() : output("TRTOutput", std::ios::out), m_msg("TRTO
 
 TRTOutputFile::~TRTOutputFile()
 {
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "####### Destructor TRTOutputFile" << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "####### Destructor TRTOutputFile" << endmsg;
 
   output.close();
 
   pOutputFile = NULL;
 
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "####### Destructor TRTOutputFile done" << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "####### Destructor TRTOutputFile done" << endmsg;
 }
 
 

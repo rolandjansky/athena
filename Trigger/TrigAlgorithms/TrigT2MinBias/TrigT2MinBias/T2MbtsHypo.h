@@ -31,9 +31,6 @@ class T2MbtsHypo: public HLT::HypoAlgo, public T2MbtsUtils {
 
  private:
 
-   /** A data member to retain a connection to the MsgStream
-       service. */
-   MsgStream m_log;
    
    /** A flag to allow this Hypo to be disabled. */
    bool m_acceptAll;

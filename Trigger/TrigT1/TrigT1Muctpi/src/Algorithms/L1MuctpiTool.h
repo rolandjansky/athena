@@ -71,14 +71,10 @@ namespace LVL1MUCTPI {
       std::vector<int> m_bcidOffsetList = {-2,-1,1,2};
 
       // Locations of the inputs and outputs of the simulation in StoreGate:
-      static const std::string m_DEFAULT_locationMuCTPItoCTP;
-      static const std::string m_DEFAULT_locationMuCTPItoL1Topo;
-      static const std::string m_DEFAULT_locationMuCTPItoRoIB;
       static const std::string m_DEFAULT_L1MuctpiStoreLocationRPC;
       static const std::string m_DEFAULT_L1MuctpiStoreLocationTGC;
       static const std::string m_DEFAULT_AODLocID;
       static const std::string m_DEFAULT_RDOLocID;
-      static const std::string m_DEFAULT_roibLocation;
 
       // These properties control the way the overlap handling functions:
       std::string m_overlapStrategyName;

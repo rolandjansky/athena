@@ -67,12 +67,10 @@ EgammaFactory::EgammaFactory()
 {
   create_structure();
 
-  ATH_MSG_DEBUG("opening average file");
-  std::string fpath = "$ROOTCOREBIN/data/ElectronPhotonFourMomentumCorrection/average_layers.root";
-  TFile *f = TFile::Open(fpath.c_str());
+  TFile *f = TFile::Open( PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/average_layers.root").c_str(), "READ" );
   if (not f)
   {
-    ATH_MSG_ERROR("cannot open file " << fpath);
+    ATH_MSG_ERROR("cannot open file " << PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v8/average_layers.root").c_str() );
   }
   else { m_fave.reset(f); }
   m_histos_electron = std::array<TProfile2D*, 4> {

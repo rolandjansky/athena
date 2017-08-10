@@ -92,7 +92,7 @@ def add_labels(mr,domains):
     # add label for target branch
     labels.add(mr.target_branch)
     logging.debug("updated labels:\n" + print_collection(labels))
-    mr.labels = ",".join(labels)
+    mr.labels = list(labels)
     mr.save()
 
     return labels

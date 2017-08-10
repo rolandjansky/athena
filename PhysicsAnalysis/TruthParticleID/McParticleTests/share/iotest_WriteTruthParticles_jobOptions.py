@@ -123,7 +123,7 @@ if DUMPTUPLE:
 # Pool Persistency
 #---------------------------------------------------------------
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-outStream = AthenaPoolOutputStream("StreamAOD")
+outStream = AthenaPoolOutputStream("StreamAOD", noTag=True)
 outStream.ItemList  = [ "EventInfo#McEventInfo" ]
 outStream.ItemList += [ "McEventCollection#GEN_EVENT" ]
 outStream.ItemList += [ "McEventCollection#GEN_AOD" ]

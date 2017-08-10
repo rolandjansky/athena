@@ -14,10 +14,7 @@
 
 #include "TTree.h"
 //Gaudi
-#include "GaudiKernel/SmartDataPtr.h"
 #include "GaudiKernel/ITHistSvc.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/PropertyMgr.h"
 
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "TrkParticleBase/TrackParticleBase.h"

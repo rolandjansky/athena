@@ -22,13 +22,13 @@ class JPsiBasicTPEfficiencyPlots: public MuonTPEfficiencyPlotBase {
  private:
 
   bool m_isMatched;
-  TH1* pt;
-  TH1* eta;
-  TH1* phi;
-  TH1* d0;
+  TH1* m_pt;
+  TH1* m_eta;
+  TH1* m_phi;
+  TH1* m_d0;
   //   TH1* phi;
-  TH1* fineEtaPhi;
-  TH1* integrated;
+  TH1* m_fineEtaPhi;
+  TH1* m_integrated;
   fineEtaPhiBinning m_fepb;
 
 };

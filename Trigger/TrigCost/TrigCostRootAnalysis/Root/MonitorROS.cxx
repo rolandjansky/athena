@@ -26,7 +26,6 @@
 #include <TError.h>
 
 namespace TrigCostRootAnalysis {
-
   /**
    * Monitor constructor. Sets name and calls base constructor.
    */
@@ -40,14 +39,14 @@ namespace TrigCostRootAnalysis {
    * For the ROS, all ROS data is looped over and recorded.
    * @param _weight The event weight.
    */
-  void MonitorROS::newEvent(Float_t _weight ) {
+  void MonitorROS::newEvent(Float_t _weight) {
     m_timer.start();
-    if ( Config::config().debug() ) {
+    if (Config::config().debug()) {
       Int_t _N = 0;
       for (UInt_t _rob = 0; _rob < m_costData->getNROBs(); ++_rob) {
-        _N += m_costData->getROBDataN( _rob);
+        _N += m_costData->getROBDataN(_rob);
       }
-      Info("MonitorROS::newEvent", "*** Processing ROS ***  Size %i ***", _N  );
+      Info("MonitorROS::newEvent", "*** Processing ROS ***  Size %i ***", _N);
     }
 
     //Now loop over the counter collections;
@@ -62,14 +61,13 @@ namespace TrigCostRootAnalysis {
         StringIntSetMap_t _ROSMapping = getROSMapping(_robReq);
         for (StringIntSetMapIt_t _reqIt = _ROSMapping.begin(); _reqIt != _ROSMapping.end(); ++_reqIt) {
           // Get the counter - note we do not store any ID here
-          CounterBase* _counter =  getCounter( _counterMap, (*_reqIt).first, 0 /*not used*/ );
+          CounterBase* _counter = getCounter(_counterMap, (*_reqIt).first, 0 /*not used*/);
           // This lets the counter know it should ask its parent for the full set of ROBINs to collate
           if (_counter->getCalls() == 0) {
             _counter->decorate(kDecType, Config::config().getStr(kROSString));
-	    _counter->decorate(kDecMyROS, (*_reqIt).first);
-            
+            _counter->decorate(kDecMyROS, (*_reqIt).first);
           }
-          _counter->processEventCounter( _robReq, UINT_MAX /*not used*/, _weight );
+          _counter->processEventCounter(_robReq, UINT_MAX /*not used*/, _weight);
         }
       }
 
@@ -84,11 +82,15 @@ namespace TrigCostRootAnalysis {
    * @return If this monitor should be active for a given mode.
    */
   Bool_t MonitorROS::getIfActive(ConfKey_t _mode) {
-    switch(_mode) {
-      case kDoAllSummary:       return kTRUE;
-      case kDoKeySummary:       return kTRUE;
-      case kDoLumiBlockSummary: return kTRUE;
-      default: Error("MonitorROS::getIfActive", "An invalid summary mode was provided (key %s)", Config::config().getName(_mode).c_str() );
+    switch (_mode) {
+    case kDoAllSummary:       return kTRUE;
+
+    case kDoKeySummary:       return kTRUE;
+
+    case kDoLumiBlockSummary: return kTRUE;
+
+    default: Error("MonitorROS::getIfActive", "An invalid summary mode was provided (key %s)",
+                   Config::config().getName(_mode).c_str());
     }
     return kFALSE;
   }
@@ -97,16 +99,14 @@ namespace TrigCostRootAnalysis {
    * Save the results from this monitors counters as specified in the configuration.
    */
   void MonitorROS::saveOutput() {
-
     m_filterOutput = kTRUE; // Apply any user-specified name filter to output
 
     VariableOptionVector_t _toSave = m_dummyCounter->getAllHistograms();
-    sharedHistogramOutputRoutine( _toSave );
+    sharedHistogramOutputRoutine(_toSave);
 
     std::vector<TableColumnFormatter> _toSaveTable;
-    addCommonTableEntries( _toSaveTable );
-    sharedTableOutputRoutine( _toSaveTable );
-
+    addCommonTableEntries(_toSaveTable);
+    sharedTableOutputRoutine(_toSaveTable);
   }
 
   /**
@@ -117,8 +117,7 @@ namespace TrigCostRootAnalysis {
    * @param _ID Reference to ID number of counter.
    * @returns Base class pointer to new counter object of correct derived type.
    */
-  CounterBase* MonitorROS::newCounter(  const std::string &_name, Int_t _ID  ) {
-    return new CounterROB( m_costData, _name,  _ID, m_detailLevel, (MonitorBase*)this );
+  CounterBase* MonitorROS::newCounter(const std::string& _name, Int_t _ID) {
+    return new CounterROB(m_costData, _name, _ID, m_detailLevel, (MonitorBase*) this);
   }
-
 } // namespace TrigCostRootAnalysis

@@ -164,7 +164,7 @@ BunchLumisTool::reloadRawLumi()
 
   // Check if we didn't find the preferred channel                                                          
   if (first == last) {
-    ATH_MSG_WARNING( "BUNCHLUMI data not found for channel " << m_channel << "!" <<endreq );
+    ATH_MSG_WARNING( "BUNCHLUMI data not found for channel " << m_channel << "!" <<endmsg );
     return;
   }
 

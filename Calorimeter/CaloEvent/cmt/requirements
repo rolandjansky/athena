@@ -9,7 +9,6 @@ use AtlasPolicy    AtlasPolicy-*
 use CxxUtils       CxxUtils-*          Control
 use CLIDSvc	   CLIDSvc-*	       Control
 use AthLinks       AthLinks-*          Control
-use DataModel	   DataModel-*         Control
 use Navigation     Navigation-*        Control
 use AthContainers  AthContainers-*      Control
 use AthAllocators  AthAllocators-*      Control

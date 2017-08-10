@@ -31,7 +31,7 @@ CMApivotdata::CMApivotdata(DBline& data, int type,std::string layout) :
 		  	   m_eta_index,m_phi_index,m_PAD_index,m_Ixx_index,
 			   m_pivot_station,m_lowPt_station,m_highPt_station,
 			   m_start_ch,m_start_st,m_stop_ch,m_stop_st);
-                etaCMA.push_back(cma);
+                m_etaCMA.push_back(cma);
 	    }
             if (m_view == Phi)
 	    {
@@ -41,7 +41,7 @@ CMApivotdata::CMApivotdata(DBline& data, int type,std::string layout) :
 		  	      m_eta_index,m_phi_index,m_PAD_index,m_Ixx_index,
 			      m_pivot_station,m_lowPt_station,m_highPt_station,
 			      m_start_ch,m_start_st,m_stop_ch,m_stop_st);
-                    evenphiCMA.push_back(cma);
+                    m_evenphiCMA.push_back(cma);
 		}
 		if(m_coverage == OddSectors )
 		{
@@ -49,7 +49,7 @@ CMApivotdata::CMApivotdata(DBline& data, int type,std::string layout) :
 		  	      m_eta_index,m_phi_index,m_PAD_index,m_Ixx_index,
 			      m_pivot_station,m_lowPt_station,m_highPt_station,
 			      m_start_ch,m_start_st,m_stop_ch,m_stop_st);
-                    oddphiCMA.push_back(cma);
+                    m_oddphiCMA.push_back(cma);
 		}
 	    }
 	}
@@ -59,9 +59,9 @@ CMApivotdata::CMApivotdata(DBline& data, int type,std::string layout) :
 
 CMApivotdata::~CMApivotdata()
 {
-    etaCMA.clear();
-    evenphiCMA.clear();
-    oddphiCMA.clear();
+    m_etaCMA.clear();
+    m_evenphiCMA.clear();
+    m_oddphiCMA.clear();
 }
 
 void
@@ -206,10 +206,10 @@ CMApivotdata::get_data(DBline& data)
 EtaCMA*
 CMApivotdata::give_eta_cma()
 {    
-    if(etaCMA.size())
+    if(m_etaCMA.size())
     {
-        EtaCMA* CMA = new EtaCMA(etaCMA.front());
-	etaCMA.pop_front();
+        EtaCMA* CMA = new EtaCMA(m_etaCMA.front());
+	m_etaCMA.pop_front();
 	return CMA;
     }
     return 0;
@@ -218,10 +218,10 @@ CMApivotdata::give_eta_cma()
 EvenPhiCMA*
 CMApivotdata::give_evenphi_cma()
 {    
-    if(evenphiCMA.size())
+    if(m_evenphiCMA.size())
     {
-        EvenPhiCMA* CMA = new EvenPhiCMA(evenphiCMA.front());
-	evenphiCMA.pop_front();
+        EvenPhiCMA* CMA = new EvenPhiCMA(m_evenphiCMA.front());
+	m_evenphiCMA.pop_front();
 	return CMA;
     }
     return 0;
@@ -230,10 +230,10 @@ CMApivotdata::give_evenphi_cma()
 OddPhiCMA*
 CMApivotdata::give_oddphi_cma()
 {    
-    if(oddphiCMA.size())
+    if(m_oddphiCMA.size())
     {
-        OddPhiCMA* CMA = new OddPhiCMA(oddphiCMA.front());
-	oddphiCMA.pop_front();
+        OddPhiCMA* CMA = new OddPhiCMA(m_oddphiCMA.front());
+	m_oddphiCMA.pop_front();
 	return CMA;
     }
     return 0;
@@ -245,22 +245,22 @@ CMApivotdata::Print(std::ostream& stream, bool detail) const
     stream << "CMA pivot segmentation";
     stream << " belonging to sector type " << m_type << std::endl;
 
-    stream << "It contains " << etaCMA.size();
+    stream << "It contains " << m_etaCMA.size();
     stream << " eta CMAs:" << std::endl;
     ETAlist::const_iterator ei;
-    for(ei = etaCMA.begin();ei!=etaCMA.end();++ei) 
+    for(ei = m_etaCMA.begin();ei!=m_etaCMA.end();++ei) 
         stream << ShowRequest<EtaCMA>(*ei,detail);
 
-    stream << "It contains " << evenphiCMA.size();
+    stream << "It contains " << m_evenphiCMA.size();
     stream << "even phi CMAs:" << std::endl;
     EvenPHIlist::const_iterator ev;
-    for(ev=evenphiCMA.begin();ev!=evenphiCMA.end();++ev) 
+    for(ev=m_evenphiCMA.begin();ev!=m_evenphiCMA.end();++ev) 
         stream << ShowRequest<EvenPhiCMA>(*ev,detail);
  
-    stream << "It contains " << oddphiCMA.size();
+    stream << "It contains " << m_oddphiCMA.size();
     stream << "odd phi CMAs:" << std::endl;
     OddPHIlist::const_iterator od;
-    for(od=oddphiCMA.begin();od!=oddphiCMA.end();++od) 
+    for(od=m_oddphiCMA.begin();od!=m_oddphiCMA.end();++od) 
         stream << ShowRequest<OddPhiCMA>(*od,detail);
 
 }

@@ -7,7 +7,7 @@
 #define RECBACKGROUNDEVENT_BEAMBACKGROUNDDATA
 
 #include "CLIDSvc/CLASS_DEF.h"
-#include "DataModel/ElementLinkVector.h"
+#include "AthLinks/ElementLinkVector.h"
 #include "TrkSegment/Segment.h"
 #include "TrkSegment/SegmentCollection.h"
 #include "xAODCaloEvent/CaloCluster.h"
@@ -16,7 +16,7 @@
 #include <vector>
 
 /**
- * @Short Class holding the results of the Beam Background Identification Method
+ * @brief Class holding the results of the Beam Background Identification Method
  *
  *        The results are obtained by BeamBackgroundFiller.
  *

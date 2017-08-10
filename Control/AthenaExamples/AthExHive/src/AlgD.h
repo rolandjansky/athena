@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef CONDALGS_ALGD_H
 #define CONDALGS_ALGD_H 1
 
@@ -17,6 +21,8 @@ public:
   AlgD (const std::string& name, ISvcLocator* pSvcLocator);
   ~AlgD();
   
+  bool isClonable() const override { return true; }
+
   StatusCode initialize();
   StatusCode execute();
   StatusCode finalize();

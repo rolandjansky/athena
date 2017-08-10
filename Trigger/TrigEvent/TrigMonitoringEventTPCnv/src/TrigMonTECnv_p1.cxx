@@ -17,7 +17,7 @@ void TrigMonTECnv_p1::persToTrans(const TrigMonTE_p1* persObj,
 				   MsgStream &log)
 {
   if(log.level() <= MSG::DEBUG) {
-    log << MSG::DEBUG << "TrigMonTECnv_p1::persToTrans called " << endreq;
+    log << MSG::DEBUG << "TrigMonTECnv_p1::persToTrans called " << endmsg;
   }
 
   transObj->m_id          = persObj->m_id;
@@ -36,7 +36,7 @@ void TrigMonTECnv_p1::transToPers(const TrigMonTE* transObj,
 				   MsgStream &log)
 {
   if(log.level() <= MSG::DEBUG) {
-    log << MSG::DEBUG << "TrigMonTECnv_p1::transToPers called " << endreq;
+    log << MSG::DEBUG << "TrigMonTECnv_p1::transToPers called " << endmsg;
   }
 
   persObj->m_id          = transObj->m_id;

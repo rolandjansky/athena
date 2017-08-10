@@ -54,7 +54,7 @@ private:
     bool m_scinCells;
 
     NTuple::Item<int> m_nchan;
-    NTuple::Item<float> m_tolE;
+    NTuple::Item<double> m_tolE;
 
     NTuple::Array<float> m_energy;
     NTuple::Array<float> m_enediff;

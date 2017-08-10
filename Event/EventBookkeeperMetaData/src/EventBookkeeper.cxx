@@ -284,10 +284,10 @@ void
 EventBookkeeper::PrintToMsg(MsgStream &log, const std::string& indent)
 {
   if(log.level()==MSG::DEBUG){
-    log<<MSG::DEBUG<<indent<<m_name<<" "<<m_inputstream<<" "<<m_outputstream<<" "<<m_logic<<" "<<m_cycle<<" ("<<m_childrenEB->size()<<" children) "<<": "<<m_description<<" ==> "<<m_nAcceptedEvents<<" "<<m_nWeightedAcceptedEvents<<endreq;
+    log<<MSG::DEBUG<<indent<<m_name<<" "<<m_inputstream<<" "<<m_outputstream<<" "<<m_logic<<" "<<m_cycle<<" ("<<m_childrenEB->size()<<" children) "<<": "<<m_description<<" ==> "<<m_nAcceptedEvents<<" "<<m_nWeightedAcceptedEvents<<endmsg;
   }
   else{
-    log<<MSG::INFO<<indent<<m_name<<": "<<m_description<<" ==> "<<m_nAcceptedEvents<<endreq;
+    log<<MSG::INFO<<indent<<m_name<<": "<<m_description<<" ==> "<<m_nAcceptedEvents<<endmsg;
   }
   
   return;

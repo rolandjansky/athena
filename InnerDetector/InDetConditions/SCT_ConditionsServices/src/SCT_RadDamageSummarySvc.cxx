@@ -22,7 +22,7 @@ SCT_RadDamageSummarySvc::SCT_RadDamageSummarySvc(const std::string& name, ISvcLo
   : 
   AthService(name, sl),
   m_detStore("DetectorStore", name),
-  m_SCT_ID(0),
+  m_SCT_ID{nullptr},
   // m_ramoPotentialSvc("RamoPotentialSvc",name),
   m_chargeTrappingSvc("SCT_ChargeTrappingSvc",name),
   // m_useRamo(true),

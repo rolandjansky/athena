@@ -38,6 +38,9 @@ namespace CP {
     /** This retrieves a PFO container with theName and adds the PFO* to newContainer */
     StatusCode fillPFOContainer( xAOD::PFOContainer* newContainer, const std::string& theName) const;
 
+    std::string m_inCharged;
+    std::string m_inNeutral;
+
   };
 
 }

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// stl includes
+// STL includes
 #include <sstream>
 #include <map>
 #include <boost/tokenizer.hpp>

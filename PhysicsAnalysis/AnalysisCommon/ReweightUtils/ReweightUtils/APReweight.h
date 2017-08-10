@@ -54,11 +54,11 @@ public:
   ClassDef(APReweight, 1)
 
 private:
-  TH1D* _denominator_hist;                                                       /*!< Holds the original denominator histogram. */
-  TH1D* _numerator_hist;                                                         /*!< Holds the original numerator histogram. */
-  std::vector< APWeightEntry* > _weights;                                        /*!< Holds all weight entries. */
-  unsigned int _n_bins;                                                          /*!< Holds the amount of bins. */
-  TAxis *_axis;                                                                  /*!< Holds the axis of the APReweight instance (from input histograms). */
+  TH1D* m_denominator_hist;                                                       /*!< Holds the original denominator histogram. */
+  TH1D* m_numerator_hist;                                                         /*!< Holds the original numerator histogram. */
+  std::vector< APWeightEntry* > m_weights;                                        /*!< Holds all weight entries. */
+  unsigned int m_n_bins;                                                          /*!< Holds the amount of bins. */
+  TAxis *m_axis;                                                                  /*!< Holds the axis of the APReweight instance (from input histograms). */
 };
 
 #endif

@@ -55,14 +55,14 @@ StatusCode PileUpEventInfoTest::execute()
       const EventInfo* sevt = (*it).pSubEvt;
       if (sevt!=NULL) {
         ATH_MSG_INFO ( "Sub Event Info:" );
-        ATH_MSG_INFO ( "  Time         : " << (*it).time()                             << endreq
-                       << "  Index        : " << (*it).index()                            << endreq
-                       << "  Provenance   : " << (*it).type()                        << endreq // This is the provenance stuff: signal, minbias, cavern, etc
-                        << "  Run Number   : " << sevt->event_ID()->run_number()           << endreq
-                        << "  Event Number : " << sevt->event_ID()->event_number()         << endreq
-                        << "  ns Offset    : " << sevt->event_ID()->time_stamp_ns_offset() << endreq
-                        << "  Lumi Block   : " << sevt->event_ID()->lumi_block()           << endreq
-                        << "  BCID         : " << sevt->event_ID()->bunch_crossing_id()    << endreq
+        ATH_MSG_INFO ( "  Time         : " << (*it).time()                             << endmsg
+                       << "  Index        : " << (*it).index()                            << endmsg
+                       << "  Provenance   : " << (*it).type()                        << endmsg // This is the provenance stuff: signal, minbias, cavern, etc
+                        << "  Run Number   : " << sevt->event_ID()->run_number()           << endmsg
+                        << "  Event Number : " << sevt->event_ID()->event_number()         << endmsg
+                        << "  ns Offset    : " << sevt->event_ID()->time_stamp_ns_offset() << endmsg
+                        << "  Lumi Block   : " << sevt->event_ID()->lumi_block()           << endmsg
+                        << "  BCID         : " << sevt->event_ID()->bunch_crossing_id()    << endmsg
                         << "  User Type    : " << sevt->event_type()->user_type()          );
         // if ((*it).time() == 0) {
         //   NInTimeEvents++;

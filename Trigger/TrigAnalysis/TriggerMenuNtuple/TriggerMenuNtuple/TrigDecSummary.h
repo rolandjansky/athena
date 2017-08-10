@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __TrigDecSummary_h__
-#define __TrigDecSummary_h__
+#ifndef TRIGGERMENUNTUPLE_TRIGDECSUMMARY_H
+#define TRIGGERMENUNTUPLE_TRIGDECSUMMARY_H
 /*
   TrigDecSummary.h
 */
@@ -39,16 +39,16 @@ protected:
   bool bit_status(unsigned int n, const std::vector<unsigned int>& v) const;
 
 private:
-  std::vector<unsigned int> mL1_TBP;
-  std::vector<unsigned int> mL1_TAP;
-  std::vector<unsigned int> mL1_TAV;
+  std::vector<unsigned int> m_L1_TBP;
+  std::vector<unsigned int> m_L1_TAP;
+  std::vector<unsigned int> m_L1_TAV;
 
-  std::vector<unsigned int> mL2_Raw;
-  std::vector<unsigned int> mL2_PT;
+  std::vector<unsigned int> m_L2_Raw;
+  std::vector<unsigned int> m_L2_PT;
 
-  std::vector<unsigned int> mEF_Raw;
-  std::vector<unsigned int> mEF_PT;
+  std::vector<unsigned int> m_EF_Raw;
+  std::vector<unsigned int> m_EF_PT;
 
 };
 
-#endif // __TrigDecSummary_h__
+#endif // TRIGGERMENUNTUPLE_TRIGDECSUMMARY_H

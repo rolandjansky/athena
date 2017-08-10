@@ -20,12 +20,12 @@ StatusCode GenPDG_Property::initialize(const HepPDT::ParticleDataTable* particle
   MsgStream log(m_parent->messageService(), m_parent->name() );
   const HepPDT::ParticleData* particle_data = particleTable->particle(HepPDT::ParticleID(std::abs( m_pdg_id )));
   if (!particle_data) {
-    log << MSG::FATAL << "GenPDG_Property::initialize(): can't get data for particle with pdg_id=" << std::abs(m_pdg_id) << endreq;
+    log << MSG::FATAL << "GenPDG_Property::initialize(): can't get data for particle with pdg_id=" << std::abs(m_pdg_id) << endmsg;
     return StatusCode::FAILURE;
   }
   
   m_mass = particle_data->mass().value();
-  log << MSG::DEBUG << "GenPDG_Property::initialize(): got mass=" << m_mass << " for pdg_id=" << m_pdg_id << endreq;
+  log << MSG::DEBUG << "GenPDG_Property::initialize(): got mass=" << m_mass << " for pdg_id=" << m_pdg_id << endmsg;
   
   return StatusCode::SUCCESS;
 }

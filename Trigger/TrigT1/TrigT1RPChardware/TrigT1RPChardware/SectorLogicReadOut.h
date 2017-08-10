@@ -24,10 +24,10 @@ void reset();
 void overwriteHeader(ubit16 thisRecord){m_Header=thisRecord;};
 void overwriteFooter(ubit16 thisRecord){m_Footer=thisRecord;};
 void writeRecord(ubit16 newHit, bool last);
-ubit16 numberOfFragmentWords() {return numberOfWordsInFrag;};
-ubit16 numberOfBodyWords() {return numberOfWordsInBody;};
-ubit16 numberOfHitWords() {return numberOfWordsInSLHits;};
-ubit16 numberOfCounterWords() {return numberOfWordsInCounters;};
+ubit16 numberOfFragmentWords() {return m_numberOfWordsInFrag;};
+ubit16 numberOfBodyWords() {return m_numberOfWordsInBody;};
+ubit16 numberOfHitWords() {return m_numberOfWordsInSLHits;};
+ubit16 numberOfCounterWords() {return m_numberOfWordsInCounters;};
 void topSLBody() {m_BodyCurr = m_Body;};
 void topSLBodyCounters() {m_BodyCurr = m_BodyCounter;};
 ubit16 readSLHitCurrent();
@@ -72,23 +72,23 @@ ubit16 m_Header;
 ubit16 m_Footer;
 SLROData *m_Body;
 SLROData *m_BodyCounter; // pointer to the SL Counters
-ubit16 numberOfWordsInFrag;
-ubit16 numberOfWordsInBody;
-ubit16 numberOfWordsInCounters;
-ubit16 numberOfWordsInSLHits;
+ubit16 m_numberOfWordsInFrag;
+ubit16 m_numberOfWordsInBody;
+ubit16 m_numberOfWordsInCounters;
+ubit16 m_numberOfWordsInSLHits;
 //*******************************************************//
 SLROData *m_BodyLast; // pointer to the last hit recorded
 SLROData *m_BodyCurr; // pointer to the current hit scanned
 //*******************************************************//
-bool counter32ok;
-bool hitok;
-static const ubit16 nGates                  = 7;
-static const ubit16 nLinks                  = 8;
-ubit16 hit[nLinks][nGates];
-static const ubit16 numberOfDataCounters    =21;
-static const ubit16 numberOfDecodedCounters = 7;
-ubit16  counter16[numberOfDataCounters];
-RODword counter32[numberOfDecodedCounters];
+bool m_counter32ok;
+bool m_hitok;
+static const ubit16 s_nGates                  = 7;
+static const ubit16 s_nLinks                  = 8;
+ubit16 m_hit[s_nLinks][s_nGates];
+static const ubit16 s_numberOfDataCounters    =21;
+static const ubit16 s_numberOfDecodedCounters = 7;
+ubit16  m_counter16[s_numberOfDataCounters];
+RODword m_counter32[s_numberOfDecodedCounters];
 //
 // 14+21 words
 // first 14 words

@@ -67,7 +67,7 @@ topSequence += McAodSymLinkTests( OutputLevel = DEBUG )
 # Pool Persistency
 #---------------------------------------------------------------
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-outStream = AthenaPoolOutputStream("OutStream")
+outStream = AthenaPoolOutputStream("OutStream", noTag=True)
 outStream.ItemList  = [ "EventInfo#*"]
 outStream.ItemList += [ "McEventCollection#GEN_EVENT" ]
 outStream.ItemList += [ "TruthParticleContainer#SpclMC" ]

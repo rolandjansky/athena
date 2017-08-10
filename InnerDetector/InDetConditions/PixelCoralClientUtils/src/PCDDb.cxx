@@ -39,8 +39,8 @@ using namespace std;
 /** Constructor.
     Open the default database and seal context.
 */
-PCDDb::PCDDb(std::string connString, std::string tableName, bool verbose, bool load_text) :
-  m_verbose(verbose), m_load_text(load_text),
+PCDDb::PCDDb(std::string connString, std::string tableName, bool verbose, bool /*load_text*/) :
+  m_verbose(verbose),
   m_session(0), m_connString(connString), m_pixeltable(tableName),
   m_query(0), m_query_2(0), m_cursor(0)
 { 

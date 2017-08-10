@@ -50,8 +50,8 @@ private:
   float getSubCaloEtaMax(const std::vector<int>& samps) const;
   float roundToTenth(float v) const;
 
-  static const std::vector<std::string> SubCaloNames;
-  static const std::vector<std::initializer_list<int> > SubCaloLists;
+  static const std::vector<std::string> s_SubCaloNames;
+  static const std::vector<std::initializer_list<int> > s_SubCaloLists;
 
 };
 

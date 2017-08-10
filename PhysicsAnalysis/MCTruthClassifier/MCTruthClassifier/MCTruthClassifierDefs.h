@@ -15,6 +15,9 @@ CREATED:  Oct 2007
 PURPOSE:  
           
 Updated:  
+
+For more information, please see the twiki page:
+https://twiki.cern.ch/twiki/bin/view/AtlasProtected/MCTruthClassifier
 ********************************************************************/
 #include <vector>
 #include <string>

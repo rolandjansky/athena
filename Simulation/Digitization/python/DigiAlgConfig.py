@@ -7,14 +7,14 @@ from AthenaCommon import CfgMgr
 #####################################
 
 def getTestPileUpTool(name="TestPileUpTool", **kwargs):
-    from AthenaCommon.Constants import *
+    from AthenaCommon.Constants import VERBOSE
     kwargs.setdefault('OutputLevel', VERBOSE )
     kwargs.setdefault('FirstXing', -300 )
     kwargs.setdefault('LastXing', +300 )
     return CfgMgr.TestPileUpTool(name, **kwargs)
 
 def getTestFilterPileUpTool(name="TestFilterPileUpTool", **kwargs):
-    from AthenaCommon.Constants import *
+    from AthenaCommon.Constants import INFO
     kwargs.setdefault('OutputLevel', INFO )
     kwargs.setdefault('DoFiltering', True )
     return getTestPileUpTool(name, **kwargs)
@@ -97,6 +97,23 @@ def getStandardInDetPileUpTools():
             PileUpToolsList += [ "TRTFastDigitizationTool" ]
         else:
             PileUpToolsList += [ "TRTDigitizationTool" ]
+    return PileUpToolsList
+
+def getGeantinoTruthInDetPileUpTools():
+    from AthenaCommon.DetFlags import DetFlags
+    from Digitization.DigitizationFlags import digitizationFlags
+    PileUpToolsList = []
+    unsupportedKeys = ['doFastPixelDigi', 'doLightPixelDigi', 'doSmearedPixelDigi', 'doFastSCT_Digi', 'doFastTRT_Digi']
+    if not set(unsupportedKeys).isdisjoint(set(digitizationFlags.experimentalDigi())):
+        print "DigiAlgConfig.py ERROR The following digitizationFlags.experimentalDigi settings are not supported when digiSteeringConf is set to", digitizationFlags.digitSteeringConf.get_Value(), ": ", str(unsupportedKeys), " and will be ignored."
+    if DetFlags.digitize.BCM_on():
+        PileUpToolsList += [ "BCM_DigitizationTool" ]
+    if DetFlags.digitize.pixel_on():
+        PileUpToolsList += [ "PixelGeantinoTruthDigitizationTool" ]
+    if DetFlags.digitize.SCT_on():
+        PileUpToolsList += [ "SCT_GeantinoTruthDigitizationTool" ]
+    if DetFlags.digitize.TRT_on():
+        PileUpToolsList += [ "TRTGeantinoTruthDigitizationTool" ]
     return PileUpToolsList
 
 def getFastInDetPileUpTools():
@@ -280,6 +297,22 @@ def getStandardInTimeOnlyTruthPileUpToolsList():
     PileUpToolsList += [ "MergeRecoTimingObjTool" ]
     return PileUpToolsList
 
+def getStandardInTimeOnlyGeantinoTruthPileUpToolsList():
+    PileUpToolsList = []
+    ## Truth information
+    PileUpToolsList += getStandardInTimeOnlyTruthPileUpTools()
+    ## Forward Detector Digitization
+    PileUpToolsList += getStandardForwardPileUpTools()
+    ## Inner Detector Digitization
+    PileUpToolsList += getGeantinoTruthInDetPileUpTools()
+    ## Calo Digitization
+    PileUpToolsList += getStandardCaloPileUpTools()
+    ## Muon System Digitization
+    PileUpToolsList += getStandardMuonPileUpTools()
+    ## RecoTimingObj
+    PileUpToolsList += [ "MergeRecoTimingObjTool" ]
+    return PileUpToolsList
+
 def getFastPileUpToolsList():
     PileUpToolsList = []
     ## Truth information
@@ -400,6 +433,10 @@ def getStandardInTimeOnlyTruthPileUpToolsAlg(name="StandardInTimeOnlyTruthPileUp
     kwargs.setdefault('PileUpTools', getStandardInTimeOnlyTruthPileUpToolsList() )
     return getStandardPileUpToolsAlg(name, **kwargs)
 
+def getStandardInTimeOnlyGeantinoTruthPileUpToolsAlg(name="StandardInTimeOnlyGeantinoTruthPileUpToolsAlg", **kwargs):
+    kwargs.setdefault('PileUpTools', getStandardInTimeOnlyGeantinoTruthPileUpToolsList() )
+    return getStandardPileUpToolsAlg(name, **kwargs)
+
 def getSplitNoMergePileUpToolsAlg(name="SplitNoMergePileUpToolsAlg", **kwargs):
     kwargs.setdefault('PileUpTools', getSplitNoMergePileUpToolsList() )
     return getStandardPileUpToolsAlg(name, **kwargs)
@@ -419,20 +456,20 @@ def getSplitNoMergeFFPileUpToolsAlg(name="SplitNoMergeFFPileUpToolsAlg", **kwarg
 def getTestPileUpToolsAlg(name="TestPileUpToolsAlg", **kwargs):
     PileUpToolsList = [ "TestPileUpTool" ]
     kwargs.setdefault('PileUpTools', PileUpToolsList )
-    from AthenaCommon.Constants import *
+    from AthenaCommon.Constants import DEBUG
     kwargs.setdefault('OutputLevel', DEBUG )
     return getStandardPileUpToolsAlg(name, **kwargs)
 
 def getTestFilterPileUpToolsAlg(name="TestFilterPileUpToolsAlg", **kwargs):
     PileUpToolsList = [ "TestFilterPileUpTool" ]
     kwargs.setdefault('PileUpTools', PileUpToolsList )
-    from AthenaCommon.Constants import *
+    from AthenaCommon.Constants import DEBUG
     kwargs.setdefault('OutputLevel', DEBUG )
     return getStandardPileUpToolsAlg(name, **kwargs)
 
 def getTestTruthJetFilterPileUpToolsAlg(name="TestTruthJetFilterPileUpToolsAlg", **kwargs):
     PileUpToolsList = [ "MergeTruthJetsFilterTool" ]
     kwargs.setdefault('PileUpTools', PileUpToolsList )
-    from AthenaCommon.Constants import *
+    from AthenaCommon.Constants import DEBUG
     kwargs.setdefault('OutputLevel', DEBUG )
     return getStandardPileUpToolsAlg(name, **kwargs)

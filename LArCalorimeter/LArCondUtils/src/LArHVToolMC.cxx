@@ -189,8 +189,7 @@ void LArHVToolMC::InitHV()
     {
      // retrieve the payload data
      pAccessSvc->connect("LARHV");
-     const IRDBRecordset* hvGlob;
-     hvGlob = pAccessSvc->getRecordset("HVBarrelGlob",tagName,nodeName,"LARHV");
+     IRDBRecordset_ptr hvGlob = pAccessSvc->getRecordsetPtr("HVBarrelGlob",tagName,nodeName,"LARHV");
 
      if(hvGlob->size()>0)
       defaultHvVal = (*hvGlob)[0]->getDouble("DEFAULTVAL");
@@ -213,8 +212,7 @@ void LArHVToolMC::InitHV()
     // apply imperfections
     if(!setHandcoded)
     {
-      const IRDBRecordset* hvVal;
-      hvVal  = pAccessSvc->getRecordset("HVBarrelVal", tagName,nodeName,"LARHV");
+      IRDBRecordset_ptr hvVal  = pAccessSvc->getRecordsetPtr("HVBarrelVal", tagName,nodeName,"LARHV");
 
       for(unsigned int indx=0; indx<hvVal->size(); indx++)
       {

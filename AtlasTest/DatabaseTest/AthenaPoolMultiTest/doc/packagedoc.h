@@ -3,9 +3,10 @@
 */
 
 /**
-@page AthenaPoolMultiTest_page @mainpage
+@page AthenaPoolMultiTest_page AthenaPoolMultiTest package
  *
- * @date 26 May 2009 J. Cranshaw
+ * @date 26 May 2009
+ * @author J. Cranshaw
  *
 @section AthenaPoolMultiTest_@section Purpose Purpose: TEST
  *

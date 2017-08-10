@@ -23,7 +23,7 @@
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/Egamma.h"
-#include "../Root/ElectronChargeEfficiencyCorrectionTool.h"
+#include "ElectronEfficiencyCorrection/ElectronChargeEfficiencyCorrectionTool.h"
 #include "xAODCore/ShallowCopy.h"
 
 //Asg includes
@@ -31,7 +31,6 @@
 #include "PATInterfaces/SystematicsUtil.h"
 
 #include <ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h>
-
 
 #define CHECK( ARG )                                  \
 do {                                                  \
@@ -50,9 +49,9 @@ int main( int argc, char* argv[] ) {
    const char* APP_NAME = argv[ 0 ];
 
    // Check if we received a file name:
-   if( argc < 2 ) {
+   if( argc < 3 ) {
      Error( APP_NAME, "No file name received!" );
-     Error( APP_NAME, "  Usage: %s [xAOD file name]", APP_NAME );
+     Error( APP_NAME, "  Usage: %s [xAOD file name] [Correction File name]", APP_NAME );
       return 1;
    }
 
@@ -67,12 +66,14 @@ int main( int argc, char* argv[] ) {
    CHECK( xAOD::Init( APP_NAME ) );
 
    // Set message level
-  MSG::Level mylevel=MSG::VERBOSE;
+  MSG::Level mylevel=MSG::DEBUG;
   //this.msg().setLevel(mylevel);
 
   // Open the input file:
   const TString fileName = argv[ 1 ];
-  Info( APP_NAME, "Opening file: %s", fileName.Data() );
+  const TString corrFileName = argv[ 2 ];
+ 
+ Info( APP_NAME, "Opening file: %s", fileName.Data() );
   std::auto_ptr< TFile > ifile( TFile::Open( fileName, "READ" ) );
   CHECK( ifile.get() );
 
@@ -96,30 +97,32 @@ int main( int argc, char* argv[] ) {
   }
 
   //Likelihood
+
   CP::ElectronChargeEfficiencyCorrectionTool myEgCorrections ("myEgCorrections");
   CHECK( myEgCorrections.setProperty("OutputLevel", mylevel) );
 
-  std::string inputFile = "data/ChMisIDSF_TightLL_FixedCutTight.root" ;
+  std::string inputFile = corrFileName.Data();//"data/ChMisIDSF_TightLL_FixedCutTight.root" ;
   CHECK( myEgCorrections.setProperty("CorrectionFileName",inputFile) );
   CHECK( myEgCorrections.setProperty("ForceDataType",1) );
 
-  CHECK( myEgCorrections.setProperty("DefaultRandomRunNumber", (unsigned int)100000 ) );
+  CHECK( myEgCorrections.setProperty("DefaultRandomRunNumber", (unsigned int)311481 ) );
   CHECK( myEgCorrections.setProperty("UseRandomRunNumber",false) );
   myEgCorrections.initialize();
 
   AsgElectronLikelihoodTool * m_LHToolTight = new AsgElectronLikelihoodTool("m_LHToolTight");
-  m_LHToolTight->setProperty("primaryVertexContainer","PrimaryVertices").ignore();
-  m_LHToolTight->setProperty("ConfigFile","ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodTightOfflineConfig2016_Smooth.conf").ignore();
+  CHECK (m_LHToolTight->setProperty("primaryVertexContainer","PrimaryVertices") );
+  m_LHToolTight->setProperty("ConfigFile","ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodLooseOfflineConfig2016_CutBL_Smooth.conf").ignore();
   m_LHToolTight->initialize();
 
 
   // Get a list of systematics
   CP::SystematicSet recSysts = myEgCorrections.recommendedSystematics();
   // Convert into a simple list
-  std::vector<CP::SystematicSet> sysList = CP::make_systematics_vector(recSysts);
+ // std::vector<CP::SystematicSet> sysList = CP::make_systematics_vector(recSysts);
   std::cout << "=="<<std::endl;
+
   // Loop over the events:
-  //  entries = 1;
+    entries = 600;
 
   Long64_t entry = 0;
   for( ; entry < entries; ++entry ) {
@@ -166,8 +169,12 @@ int main( int argc, char* argv[] ) {
 
       xAOD::Electron* el = *el_it;
       if (el->pt() < 25000) continue;//skip electrons outside of recommendations
-      if (fabs(el->eta()) > 2.4) continue;//skip electrons outside of recommendations
-      if(!m_LHToolTight->accept(el)) continue;
+
+bool LHacc = m_LHToolTight->accept(el);
+std::cout << "acc:  "<< LHacc << std::endl;
+      if(!m_LHToolTight->accept(el)) continue; 
+      if (fabs(el->caloCluster()->etaBE(2)) > 2.4) continue;//skip electrons outside of recommendations
+//      if(!m_LHToolTight->accept(el)) continue;
 
       SF_nevents++;
 
@@ -187,10 +194,26 @@ int main( int argc, char* argv[] ) {
         return EXIT_FAILURE;
       }
 
-      Info( APP_NAME, "===>>> Resulting SF (from get function) %f, (from apply function) %f",
-            SF, el->auxdata< float >("SF"));
+//      Info( APP_NAME, "===>>> Resulting SF (from get function) %f, (from apply function) %f",
+ //           SF, el->auxdata< float >("SF"));
 
       SF_chargeID=SF_chargeID+SF;
+
+
+
+     for(const auto& sys : recSysts){  //recSysts){
+       double systematic = 0;
+
+    // Configure the tool for this systematic
+    CHECK( myEgCorrections.applySystematicVariation({sys}) );
+    //
+    if(myEgCorrections.getEfficiencyScaleFactor(*el,systematic) == CP::CorrectionCode::Ok){
+std::cout <<  (sys).name() <<"  sys names    " << (myEgCorrections.affectingSystematics().name()) << std::endl;    
+Info( APP_NAME,  "%f Result %f Systematic value %f ", SF,systematic,systematic-SF );
+   //                     unc.push_back(systematic);
+    //
+}
+}
 
       int truthcharge = (-1)*el->auxdata<int>("firstEgMotherPdgId");
       if (el->auxdata<int>("truthType")) { std::cout << el->charge() << "  " << el->auxdata<int>("firstEgMotherPdgId") << std::endl; }

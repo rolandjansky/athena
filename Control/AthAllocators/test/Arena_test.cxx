@@ -18,9 +18,10 @@
 #include "AthAllocators/ArenaAllocatorRegistry.h"
 #include <cassert>
 #include <sstream>
+#include <atomic>
 
 
-int xxx = 0;
+std::atomic<int> xxx;
 class Alloc
   : public SG::ArenaAllocatorBase
 {
@@ -29,7 +30,7 @@ public:
   virtual void reset() override { xxx += m_x; }
   virtual void erase() override { xxx += 2*m_x; }
   virtual void reserve (size_t /*size*/) override {}
-  virtual const SG::ArenaAllocatorBase::Stats& stats() const override
+  virtual SG::ArenaAllocatorBase::Stats stats() const override
   { return m_stats; }
   virtual const std::string& name() const override { return m_name; }
 private:
@@ -55,7 +56,8 @@ class Creator
 {
 public:
   Creator (int x) : m_x (x) {}
-  virtual SG::ArenaAllocatorBase* create() override { return new Alloc (m_x); }
+  virtual std::unique_ptr<SG::ArenaAllocatorBase> create() override
+  { return std::make_unique<Alloc> (m_x); }
 private:
   int m_x;
 };
@@ -68,8 +70,8 @@ void test1()
     SG::Arena::Push p (a);
     SG::ArenaAllocatorRegistry* reg =
       SG::ArenaAllocatorRegistry::instance();
-    assert (reg->registerCreator ("1", new Creator(1)) == 0);
-    assert (reg->registerCreator ("2", new Creator(2)) == 1);
+    assert (reg->registerCreator ("1", std::make_unique<Creator>(1)) == 0);
+    assert (reg->registerCreator ("2", std::make_unique<Creator>(2)) == 1);
     assert (head.allocator(0)->stats().bytes.inuse == 1);
     assert (head.allocator(1)->stats().bytes.inuse == 2);
 

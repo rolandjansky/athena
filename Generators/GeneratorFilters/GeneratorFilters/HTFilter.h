@@ -38,9 +38,6 @@ private:
 
     std::string m_TruthJetContainerName;  //!< Name of the truth jet container
 
-    MsgStream * m_log;                       //!< The message stream to use
-    ServiceHandle<StoreGateSvc> m_storeGate; //!< StoreGate handle
-
     long m_total;    //!< Total number of events tested
     long m_passed;   //!< Number of events passing all cuts
     long m_ptfailed; //!< Number of events failing the pT cuts 

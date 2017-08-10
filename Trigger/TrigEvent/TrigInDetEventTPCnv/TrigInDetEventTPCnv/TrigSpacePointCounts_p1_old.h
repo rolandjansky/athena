@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigInDetEventTPCnv
- * @Class  : TrigSpacePointCounts_p1
+ * @class  : TrigSpacePointCounts_p1
  *
  * @brief Old version of TrigSpacePointCounts_p1.
  *        Was written in 14.1.0.

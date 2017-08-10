@@ -12,8 +12,8 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 
 // Athena includes
-#include "StoreGate/ReadHandle.h"
-#include "StoreGate/WriteHandle.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 
 // Gaudi includes
 #include "GaudiKernel/ToolHandle.h"
@@ -45,6 +45,9 @@ namespace Simulation {
     /** Destructor */
     virtual ~BeamEffectsAlg();
 
+    /** can clone for AthenaMT **/
+    bool isClonable() const override { return true; }
+
     /** Athena algorithm's interface method initialize() */
     StatusCode  initialize() override final; /** Athena algorithm's interface method execute() */
     StatusCode  execute() override final;
@@ -54,8 +57,8 @@ namespace Simulation {
   private:
     /** Ensure that the GenEvent::signal_process_vertex has been set */
     StatusCode patchSignalProcessVertex(HepMC::GenEvent& ge) const;
-    SG::ReadHandle<McEventCollection> m_inputMcEventCollection;
-    SG::WriteHandle<McEventCollection> m_outputMcEventCollection;
+    SG::ReadHandleKey<McEventCollection> m_inputMcEventCollection;
+    SG::WriteHandleKey<McEventCollection> m_outputMcEventCollection;
     ToolHandleArray<IGenEventManipulator> m_genEventManipulators;     //!< event manipulators (executed in given order)
     bool m_ISFRun; /** Temporary property so that we don't change the output in the initial switch to this code. */
   };

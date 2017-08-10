@@ -43,4 +43,11 @@ class ILArDAC2uA {
 
 CLASS_DEF( ILArDAC2uA,579584,1) 
 
+//ConditionsContainer clid for athenaMT"
+#include "AthenaKernel/CondCont.h"
+CLASS_DEF( CondCont<ILArDAC2uA> , 24734384 , 1 )
+#include "SGTools/BaseInfo.h"
+SG_BASE( CondCont<ILArDAC2uA>, CondContBase );
+
 #endif 
+

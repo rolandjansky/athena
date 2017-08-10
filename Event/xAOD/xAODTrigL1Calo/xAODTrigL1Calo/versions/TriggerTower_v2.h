@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TriggerTower_v2.h 793305 2017-01-21 04:50:50Z ssnyder $
+// $Id: TriggerTower_v2.h 793304 2017-01-21 04:50:44Z ssnyder $
 #ifndef XAODTRIGL1CALO_VERSIONS_TRIGGERTOWER_V2_H
 #define XAODTRIGL1CALO_VERSIONS_TRIGGERTOWER_V2_H
 
@@ -26,8 +26,8 @@ namespace xAOD {
   ///
   /// @author John Morris <john.morris@cern.ch>
   ///
-  /// $Revision: 793305 $
-  /// $Date: 2017-01-21 05:50:50 +0100 (Sat, 21 Jan 2017) $  
+  /// $Revision: 793304 $
+  /// $Date: 2017-01-21 05:50:44 +0100 (Sat, 21 Jan 2017) $  
   ///  
   /// Trigger towers are the inputs to all other parts of the calorimeter trigger.
   /// They are formed by analogue summation of cells (represented in simulation

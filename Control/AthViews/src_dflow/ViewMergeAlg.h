@@ -7,12 +7,12 @@
 
 // STL includes
 #include <string>
+#include <vector>
 
 // FrameWork includes
-#include "AthViews/AthViewAlgorithm.h"
-#include "SGTools/BuiltinsClids.h"
-#include "StoreGate/ReadHandle.h"
-#include "StoreGate/WriteHandle.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 #include "AthViews/View.h"
 
 namespace AthViews {
@@ -58,9 +58,9 @@ class ViewMergeAlg
   /// Containers
   
   // vars
-  SG::WriteHandle< std::vector<int> > m_w_ints;
-  SG::ReadHandle< std::vector<int> > m_r_ints;
-  SG::ReadHandle< std::vector< SG::View* > > m_r_views;
+  SG::WriteHandleKey< std::vector<int> > m_w_ints;
+  SG::ReadHandleKey< std::vector<int> > m_r_ints;
+  SG::ReadHandleKey< std::vector< SG::View* > > m_r_views;
 }; 
 
 // I/O operators

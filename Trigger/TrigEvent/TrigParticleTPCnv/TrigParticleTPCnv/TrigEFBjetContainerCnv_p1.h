@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigParticleTPCnv
- * @Class  : TrigEFBjetContainerCnv_p1
+ * @class  : TrigEFBjetContainerCnv_p1
  *
  * @brief transient persistent converter for TrigEFBjetContainer
  *

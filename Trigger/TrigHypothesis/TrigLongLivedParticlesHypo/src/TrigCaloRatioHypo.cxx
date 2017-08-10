@@ -60,7 +60,7 @@ TrigCaloRatioHypo::~TrigCaloRatioHypo() {}
 
 HLT::ErrorCode TrigCaloRatioHypo::hltInitialize() {
 
-  msg() << MSG::INFO << "in initialize()" << endreq;
+  msg() << MSG::INFO << "in initialize()" << endmsg;
 
   m_accepted=0;
   m_rejected=0;
@@ -68,16 +68,16 @@ HLT::ErrorCode TrigCaloRatioHypo::hltInitialize() {
 
   //* declareProperty overview *//
   if (msgLvl() <= MSG::DEBUG) {  
-    msg() << MSG::DEBUG << "declareProperty review:" << endreq;
-    msg() << MSG::DEBUG << " EtCut       = " << m_etCut << endreq; 
-    msg() << MSG::DEBUG << " LogRatioCut = " << m_logRatioCut << endreq; 
-    msg() << MSG::DEBUG << " PtMinID     = " << m_ptCut << endreq; 
-    msg() << MSG::DEBUG << " TrackCut    = " << m_trackCut << endreq; 
-    msg() << MSG::DEBUG << " DeltaR      = " << m_deltaR << endreq; 
-    msg() << MSG::DEBUG << " EtaCut      = " << m_etaCut << endreq; 
-    msg() << MSG::DEBUG << " Reversed    = " << m_reversedCut << endreq; 
-    msg() << MSG::DEBUG << " DoTrackIso  = " << m_doTrackIso << endreq; 
-    msg() << MSG::DEBUG << " AcceptAll   = " << m_acceptAll << endreq;
+    msg() << MSG::DEBUG << "declareProperty review:" << endmsg;
+    msg() << MSG::DEBUG << " EtCut       = " << m_etCut << endmsg; 
+    msg() << MSG::DEBUG << " LogRatioCut = " << m_logRatioCut << endmsg; 
+    msg() << MSG::DEBUG << " PtMinID     = " << m_ptCut << endmsg; 
+    msg() << MSG::DEBUG << " TrackCut    = " << m_trackCut << endmsg; 
+    msg() << MSG::DEBUG << " DeltaR      = " << m_deltaR << endmsg; 
+    msg() << MSG::DEBUG << " EtaCut      = " << m_etaCut << endmsg; 
+    msg() << MSG::DEBUG << " Reversed    = " << m_reversedCut << endmsg; 
+    msg() << MSG::DEBUG << " DoTrackIso  = " << m_doTrackIso << endmsg; 
+    msg() << MSG::DEBUG << " AcceptAll   = " << m_acceptAll << endmsg;
   }
 
   return HLT::OK;
@@ -89,8 +89,8 @@ HLT::ErrorCode TrigCaloRatioHypo::hltInitialize() {
 
 HLT::ErrorCode TrigCaloRatioHypo::hltFinalize() {
 
-  msg() << MSG::INFO << "in finalize()" << endreq;
-  msg() << MSG::INFO << "Events accepted/rejected/errors: "<< m_accepted <<" / "<<m_rejected <<" / "<< m_errors << endreq;
+  msg() << MSG::INFO << "in finalize()" << endmsg;
+  msg() << MSG::INFO << "Events accepted/rejected/errors: "<< m_accepted <<" / "<<m_rejected <<" / "<< m_errors << endmsg;
   return HLT::OK;
 }
 
@@ -120,24 +120,24 @@ HLT::ErrorCode TrigCaloRatioHypo::hltExecute(const HLT::TriggerElement* outputTE
   m_cutCounter = 0;
 
   if (status != HLT::OK) {
-    msg() << MSG::ERROR << "Failed to get the xAOD jet container" << endreq;
+    msg() << MSG::ERROR << "Failed to get the xAOD jet container" << endmsg;
     m_errors++;
     return HLT::ERROR;
   } else if (msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << "Got the xAOD jet container" << endreq;
+    msg() << MSG::DEBUG << "Got the xAOD jet container" << endmsg;
   
   if (vectorOfJets->size() == 0) {
     if (msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "The xAOD jet container is empty" << endreq;
+      msg() << MSG::DEBUG << "The xAOD jet container is empty" << endmsg;
     m_errors++;
     return HLT::OK;
   } else if (vectorOfJets->size() != 1) {
-    msg() << MSG::ERROR << "More than one xAOD jet, not expected!" << endreq;
+    msg() << MSG::ERROR << "More than one xAOD jet, not expected!" << endmsg;
     m_errors++;
     return HLT::ERROR;
   } else {
     if (msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << vectorOfJets->size() << " jet is found" << endreq;
+      msg() << MSG::DEBUG << vectorOfJets->size() << " jet is found" << endmsg;
   }
 
   const xAOD::Jet *jet = vectorOfJets->front();
@@ -159,7 +159,7 @@ HLT::ErrorCode TrigCaloRatioHypo::hltExecute(const HLT::TriggerElement* outputTE
   
   if(msgLvl() <= MSG::DEBUG)
     msg() << MSG::DEBUG << " jet with et=" << jetEt << ", eta=" << jetEta << ", phi=" << jetPhi 
-	  << ", log-ratio=" << jetRatio << endreq;
+	  << ", log-ratio=" << jetRatio << endmsg;
   
   if(!m_reversedCut) {
     
@@ -195,19 +195,19 @@ HLT::ErrorCode TrigCaloRatioHypo::hltExecute(const HLT::TriggerElement* outputTE
     status = getFeature(outputTE, vectorOfTracks, "InDetTrigTrackingxAODCnv_Tau_IDTrig");
     
     if(status != HLT::OK) {
-      msg() << MSG::ERROR << "Failed to get the xAOD track container" << endreq;
+      msg() << MSG::ERROR << "Failed to get the xAOD track container" << endmsg;
       m_errors++;
       return HLT::ERROR;
     } else if (msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "Got the xAOD track container" << endreq;
+      msg() << MSG::DEBUG << "Got the xAOD track container" << endmsg;
     
     if(vectorOfTracks->size() == 0) {
       if (msgLvl() <= MSG::DEBUG)
-	msg() << MSG::DEBUG << "The xAOD track container is empty" << endreq;
+	msg() << MSG::DEBUG << "The xAOD track container is empty" << endmsg;
       passCutTrk = true; //default is true, but just for clarity
     } else {
       if (msgLvl() <= MSG::DEBUG)
-	msg() << MSG::DEBUG << vectorOfTracks->size() << " tracks are found" << endreq;
+	msg() << MSG::DEBUG << vectorOfTracks->size() << " tracks are found" << endmsg;
       
       xAOD::TrackParticleContainer::const_iterator
 	track     = vectorOfTracks->begin(),
@@ -225,7 +225,7 @@ HLT::ErrorCode TrigCaloRatioHypo::hltExecute(const HLT::TriggerElement* outputTE
 	double eta  = (*track)->eta();
 	
 	if(msgLvl() <= MSG::DEBUG)
-	  msg() << MSG::DEBUG << " track with " << "pt=" << pT << ", eta=" << eta << ", phi=" << phi  << endreq;
+	  msg() << MSG::DEBUG << " track with " << "pt=" << pT << ", eta=" << eta << ", phi=" << phi  << endmsg;
 	
 	double deta = fabs(eta-jetEta);	
 	double dphi = fabs(HLT::wrapPhi(phi-jetPhi));
@@ -242,7 +242,7 @@ HLT::ErrorCode TrigCaloRatioHypo::hltExecute(const HLT::TriggerElement* outputTE
     }
     else{
       if(msgLvl() <= MSG::DEBUG)
-	msg() << MSG::DEBUG << "Jet passed tracking isolation" << endreq; 
+	msg() << MSG::DEBUG << "Jet passed tracking isolation" << endmsg; 
     }
   }
 
@@ -252,11 +252,11 @@ HLT::ErrorCode TrigCaloRatioHypo::hltExecute(const HLT::TriggerElement* outputTE
     m_cutCounter = 1;
 
     if(msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "Jet passing calo-ratio requirements" << endreq; 
+      msg() << MSG::DEBUG << "Jet passing calo-ratio requirements" << endmsg; 
 
   } else {
     if(msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "Jet not passing calo-ratio requirements" << endreq; 
+      msg() << MSG::DEBUG << "Jet not passing calo-ratio requirements" << endmsg; 
   }
 
   return HLT::OK;  

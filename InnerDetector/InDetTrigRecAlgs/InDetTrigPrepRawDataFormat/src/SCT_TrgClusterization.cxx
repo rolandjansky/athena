@@ -28,9 +28,6 @@
 
 
 //Gaudi includes
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/PropertyMgr.h"
-#include "GaudiKernel/ITHistSvc.h"
 #include "AthenaKernel/Timeout.h"
 
 #include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
@@ -130,7 +127,7 @@ namespace InDet{
     /*
     StatusCode sc = m_rawDataProvider->initContainer();
     if (sc.isFailure())
-      msg() << MSG::WARNING << "RDO container cannot be registered" << endreq;
+      msg() << MSG::WARNING << "RDO container cannot be registered" << endmsg;
     */
     return HLT::OK;
   }

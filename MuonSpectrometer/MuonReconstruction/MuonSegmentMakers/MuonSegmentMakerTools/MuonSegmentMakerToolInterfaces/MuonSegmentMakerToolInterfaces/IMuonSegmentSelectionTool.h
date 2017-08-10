@@ -30,10 +30,10 @@ namespace Muon {
 	@param qualityLevel indicate the quality of the segments, see implementation for details
 	@return returns whether segment satisfies criteria
     */
-    virtual bool select( const MuonSegment& seg, bool ignoreHoles = false, int qualityLevel = 0 ) const = 0;
+    virtual bool select( const MuonSegment& seg, bool ignoreHoles = false, int qualityLevel = 0, bool useEta=true, bool usePhi=true ) const = 0;
 
     /** @brief quality */
-    virtual int quality( const MuonSegment& seg, bool ignoreHoles = false ) const = 0;
+    virtual int quality( const MuonSegment& seg, bool ignoreHoles = false, bool useEta=true, bool usePhi=true ) const = 0;
 
   };
 

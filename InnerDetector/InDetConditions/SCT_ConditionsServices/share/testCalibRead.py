@@ -47,6 +47,10 @@ globalflags.InputFormat="pool"
 globalflags.DataSource="data"
 print globalflags
 
+eventInfoKey = "ByteStreamEventInfo"
+if globalflags.DataSource()=="geant4":
+    eventInfoKey = "McEventInfo"
+
 #--------------------------------------------------------------
 # Set Detector setup
 #--------------------------------------------------------------
@@ -87,7 +91,7 @@ from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ReadCalibDataT
 topSequence+= SCT_ReadCalibDataTestAlg()
 
 from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ReadCalibDataSvc
-ServiceMgr += SCT_ReadCalibDataSvc()
+ServiceMgr += SCT_ReadCalibDataSvc(EventInfoKey=eventInfoKey)
 
 SCT_ReadCalibDataSvc=ServiceMgr.SCT_ReadCalibDataSvc
 #SCT_ReadCalibDataSvc.RecoOnly = False

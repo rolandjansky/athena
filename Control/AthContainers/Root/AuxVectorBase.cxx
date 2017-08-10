@@ -216,7 +216,7 @@ void AuxVectorBase::reserve1 (const SG_STD_OR_BOOST::true_type&, size_t size)
  *                      then the variables of the destination are cleared.
  *                      If this flag is true, then this clear is skipped.
  *                      This can be appropriate as part of a push_back,
- *                      where the destiniation is already known to be clear.
+ *                      where the destination is already known to be clear.
  *
  * Element @c p is being added to the container at @c index.
  * If @c p has associated auxiliary data, copy it to the container

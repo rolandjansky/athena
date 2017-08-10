@@ -15,7 +15,7 @@ void TrigPassFlagsCnv_p1::persToTrans(const TrigPassFlags_p1* persObj,
 {
    
    if(log.level()<=MSG::DEBUG)
-      log << MSG::DEBUG << "TrigPassFlagsCnv_p1::persToTrans called " << endreq;
+      log << MSG::DEBUG << "TrigPassFlagsCnv_p1::persToTrans called " << endmsg;
    
    // reserve space in vector<vector<bool> > and set defaults to false
    transObj->m_flagsPerObject.clear();
@@ -64,7 +64,7 @@ void TrigPassFlagsCnv_p1::transToPers(const TrigPassFlags* transObj,
                                       MsgStream &log)
 {
    if(log.level()<=MSG::DEBUG) {
-      log << MSG::DEBUG << "TrigPassFlagsCnv_p1::transToPers called " << endreq;
+      log << MSG::DEBUG << "TrigPassFlagsCnv_p1::transToPers called " << endmsg;
       for(unsigned int i=0; i<transObj->size(); i++) {
          int flag = HLT::FlagAs<int>(transObj->getFlag(i));
          log << "   " << flag << "  [0x" << std::hex << flag << "]" << std::dec << std::endl;
@@ -78,13 +78,13 @@ void TrigPassFlagsCnv_p1::transToPers(const TrigPassFlags* transObj,
    if(persObj->m_nObjects > 0){
       persObj->m_nFlags = transObj->m_flagsPerObject[0].size();
       if(persObj->m_nFlags == 0){
-         log << MSG::WARNING << "TrigPassFlagsCnv_p1::transToPers zero flags to save, this is an empty TrigPassFlags" << endreq;
+         log << MSG::WARNING << "TrigPassFlagsCnv_p1::transToPers zero flags to save, this is an empty TrigPassFlags" << endmsg;
          persObj->m_serialized.clear();
          return;
       }
    }
    else{
-      log << MSG::WARNING << "TrigPassFlagsCnv_p1::transToPers zero objects to save, this is an empty TrigPassFlags" << endreq;
+      log << MSG::WARNING << "TrigPassFlagsCnv_p1::transToPers zero objects to save, this is an empty TrigPassFlags" << endmsg;
       persObj->m_serialized.clear();
       return;
    }

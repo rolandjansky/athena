@@ -29,7 +29,7 @@ struct LArCellVolumeDB_Compare
 
 
 
-LArCellVolumes::LArCellVolumes(const IRDBRecordset* cellVolRec)
+LArCellVolumes::LArCellVolumes(IRDBRecordset_ptr cellVolRec)
 {
   // Get Id Helper
   m_calocell_id = CaloIdManager::instance()->getCaloCell_ID();

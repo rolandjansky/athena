@@ -99,30 +99,30 @@ InDet::InDetTrackSplitterTool::~InDetTrackSplitterTool() { }
 StatusCode InDet::InDetTrackSplitterTool::initialize()
 {
   
-  msg(MSG::DEBUG) << "In initialize()" << endreq;
+  msg(MSG::DEBUG) << "In initialize()" << endmsg;
   
   /** Get TRT helper
    */      
   if ((detStore()->retrieve(m_trtid)).isFailure()) {
-    msg(MSG::WARNING) << "Problem retrieving TRTID helper" << endreq;
+    msg(MSG::WARNING) << "Problem retrieving TRTID helper" << endmsg;
     return StatusCode::SUCCESS;
   }
 
   /** Get SCT helper
    */
   if ((detStore()->retrieve(m_sctid)).isFailure()) {
-    msg(MSG::WARNING) << "Problem retrieving SCT ID helper" << endreq;
+    msg(MSG::WARNING) << "Problem retrieving SCT ID helper" << endmsg;
     return StatusCode::SUCCESS;
   }
   
   /** Fitter
    */
   if(m_trkfitter.retrieve().isFailure()) {
-    msg(MSG::WARNING) << "Could not find refit tool " << m_trkfitter  << endreq;
+    msg(MSG::WARNING) << "Could not find refit tool " << m_trkfitter  << endmsg;
     return StatusCode::SUCCESS;
   } 
 
-  msg(MSG::DEBUG) << "InDetTrackSplitterTool initialized" << endreq;
+  msg(MSG::DEBUG) << "InDetTrackSplitterTool initialized" << endmsg;
   return StatusCode::SUCCESS;
 
 }
@@ -130,7 +130,7 @@ StatusCode InDet::InDetTrackSplitterTool::initialize()
 //=========================================================
 StatusCode InDet::InDetTrackSplitterTool::finalize()
 {
-  msg(MSG::DEBUG) << "In finalize() "<< endreq;
+  msg(MSG::DEBUG) << "In finalize() "<< endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -140,7 +140,7 @@ StatusCode InDet::InDetTrackSplitterTool::finalize()
 std::pair<Trk::Track*, Trk::Track*> InDet::InDetTrackSplitterTool::splitInUpperLowerTrack(Trk::Track const& input, 
                         bool siliconHitsOnly){
   //std::cout << "input: " << input << std::endl;
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " In splitInUpperLowerTrack" <<endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " In splitInUpperLowerTrack" <<endmsg;
 
   //**The returned tracks */
   Trk::Track* upperTrack(0);
@@ -198,7 +198,7 @@ std::pair<Trk::Track*, Trk::Track*> InDet::InDetTrackSplitterTool::splitInUpperL
     if (measb) rio=dynamic_cast<const Trk::RIO_OnTrack*>(measb);
 
     if(rio){
-      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "an rio..." <<endreq; 
+      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "an rio..." <<endmsg; 
       
       totalNumberHits++;
 
@@ -240,18 +240,18 @@ std::pair<Trk::Track*, Trk::Track*> InDet::InDetTrackSplitterTool::splitInUpperL
     lowertraj->push_back((**tsosit).clone());
       }
     }else{
-      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Not an rio" <<endreq; 
+      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Not an rio" <<endmsg; 
       //Trk::PseudoMeasurementOnTrack const* ps = dynamic_cast<Trk::PseudoMeasurementOnTrack const*>(*measb);
       const Trk::PseudoMeasurementOnTrack *ps = dynamic_cast<const Trk::PseudoMeasurementOnTrack *>(measb);
 
       if(ps){
   if (!perigeeseen || totalNumberHits==totalNumberTRTHits) {
-          if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Adding an upper pseudoMeasurement" <<endreq; 
+          if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Adding an upper pseudoMeasurement" <<endmsg; 
           ++numberUpperPseudoMeas;
           uppertraj->push_back((**tsosit).clone());
   }
         if (perigeeseen || totalNumberHits==totalNumberTRTHits) {
-          if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Adding a lower pseudoMeasurement" <<endreq; 
+          if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Adding a lower pseudoMeasurement" <<endmsg; 
           ++numberLowerPseudoMeas;
           lowertraj->push_back((**tsosit).clone());
         }
@@ -277,72 +277,72 @@ std::pair<Trk::Track*, Trk::Track*> InDet::InDetTrackSplitterTool::splitInUpperL
   /** Upper track */
   if(isConstrained(numberUpperPixelHits,numberUpperSCTHits,numberUpperTRTHits,numberUpperPseudoMeas)){
     
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "before calling upper fit" << endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "before calling upper fit" << endmsg;
     //m_upperTrack = m_trkfitter->fit(m_upperHits, *originalPerigee, true, hypo);
     upperTrack = m_trkfitter->fit(upperorigtrack, false, hypo);
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "after calling upper fit" << endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "after calling upper fit" << endmsg;
     
     if(!upperTrack){
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Upper Fit Failed!" << endreq ;
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Upper Fit Failed!" << endmsg ;
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "There was: " 
                << numberUpperPixelHits << " upper Pixel hits, " 
                << numberUpperSCTHits << " upper SCT hits, " 
                << numberUpperTRTHits << "upper TRT hits"
                << numberUpperPseudoMeas << "upper Pseudomeasurements"
-               << endreq;
+               << endmsg;
 
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "There was: " 
                << totalNumberPixelHits << " total Pixel hits, " 
                << totalNumberSCTHits << " total SCT hits, " 
                << totalNumberTRTHits << "total TRT hits"
-               << endreq;
+               << endmsg;
       
     }    
     
   }else{
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Not enough measurements on upper track. Fit fails." << endreq ;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Not enough measurements on upper track. Fit fails." << endmsg ;
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "There was: " 
                << numberUpperPixelHits << " upper Pixel hits, " 
                << numberUpperSCTHits << " upper SCT hits, " 
                << numberUpperTRTHits << "upper TRT hits"
                << numberUpperPseudoMeas << "upper Pseudomeasurements"
-               << endreq;
+               << endmsg;
   }  
   
   /** lower track */
   if(isConstrained(numberLowerPixelHits,numberLowerSCTHits,numberLowerTRTHits,numberLowerPseudoMeas)){
     
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "before calling lower fit" << endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "before calling lower fit" << endmsg;
     lowerTrack = m_trkfitter->fit(lowerorigtrack, false, hypo);
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "after calling lower fit" << endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "after calling lower fit" << endmsg;
     
     if(!lowerTrack){
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Lower Fit Failed!" << endreq ;
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Lower Fit Failed!" << endmsg ;
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "There was: " 
                << numberLowerPixelHits << " upper Pixel hits, " 
                << numberLowerSCTHits << " upper SCT hits, " 
                << numberLowerTRTHits << "upper TRT hits"
                << numberLowerPseudoMeas << "upper Pseudomeasurements"
-               << endreq;
+               << endmsg;
       
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "There was: " 
                << totalNumberPixelHits << " total Pixel hits, " 
                << totalNumberSCTHits << " total SCT hits, " 
                << totalNumberTRTHits << "total TRT hits"
-               << endreq;
+               << endmsg;
     }
     
   }else{
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Not enough measurements on lower track. Fit fails." << endreq ;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Not enough measurements on lower track. Fit fails." << endmsg ;
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "There was: " 
              << numberLowerPixelHits << " upper Pixel hits, " 
              << numberLowerSCTHits << " upper SCT hits, " 
              << numberLowerTRTHits << "upper TRT hits"
              << numberLowerPseudoMeas << "upper Pseudomeasurements"
-             << endreq;
+             << endmsg;
   }
   
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Leaving splitInUpperLowerTrack" <<endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Leaving splitInUpperLowerTrack" <<endmsg;
   return std::make_pair(upperTrack, lowerTrack);  
 }
 
@@ -350,7 +350,7 @@ std::pair<Trk::Track*, Trk::Track*> InDet::InDetTrackSplitterTool::splitInUpperL
  */
 Trk::Track* InDet::InDetTrackSplitterTool::stripTrack(Trk::Track const& input, 
                   bool removeSilicon, bool applyConstraint ){
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " In stripTrack" <<endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " In stripTrack" <<endmsg;
 
   /** The returned track */
   Trk::Track* outputTrack(0);
@@ -364,14 +364,14 @@ Trk::Track* InDet::InDetTrackSplitterTool::stripTrack(Trk::Track const& input,
     outputTrack = stripTRTFromTrack(input, applyConstraint);
   }
 
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Leaving stripTrack" <<endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Leaving stripTrack" <<endmsg;
   return outputTrack;
 }
 
 /** Strip the Si hits, fit the remaining with a theta, z0 constraint.
  */
 Trk::Track* InDet::InDetTrackSplitterTool::stripSiFromTrack(Trk::Track const& input){
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In stripSiFromTrack" <<endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In stripSiFromTrack" <<endmsg;
   
   /** The returned track */
   Trk::Track* outputTrack(0);
@@ -399,14 +399,14 @@ Trk::Track* InDet::InDetTrackSplitterTool::stripSiFromTrack(Trk::Track const& in
     Trk::RIO_OnTrack const* rio = dynamic_cast<Trk::RIO_OnTrack const*>(*meas);
     
     if(!rio){
-      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "No ROT skipping measurement." <<endreq; 
+      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "No ROT skipping measurement." <<endmsg; 
       continue;
     }
 
     Identifier const& surfaceid = (rio->identify());
     
     if(!m_trtid->is_trt(surfaceid)){
-      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Removing Non-TRT hit." <<endreq; 
+      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Removing Non-TRT hit." <<endmsg; 
       continue;
     }
     
@@ -419,18 +419,18 @@ Trk::Track* InDet::InDetTrackSplitterTool::stripSiFromTrack(Trk::Track const& in
   // Should be Constrained !!!
   //if(isConstrained(numberUpperPixelHits,numberUpperSCTHits,numberUpperTRTHits,numberUpperPseudoMeas)){
     
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "before calling fit" << endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "before calling fit" << endmsg;
   outputTrack = m_trkfitter->fit(m_TRTHits, *originalPerigee, true, hypo);
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "after calling fit" << endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "after calling fit" << endmsg;
     
   if(!outputTrack){
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Fit Failed!" << endreq ;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Fit Failed!" << endmsg ;
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "There were: " 
              << totalNumberTRTHits << "TRT hits"
-             << endreq;
+             << endmsg;
   }    
     
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Leaving stripSiFromTrack" <<endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Leaving stripSiFromTrack" <<endmsg;
   return outputTrack;
 }
 
@@ -438,7 +438,7 @@ Trk::Track* InDet::InDetTrackSplitterTool::stripSiFromTrack(Trk::Track const& in
 /** Strip the TRT hits, fit the remaining with a qOverP constraint
  */
 Trk::Track* InDet::InDetTrackSplitterTool::stripTRTFromTrack(Trk::Track const& input, bool applyConstraint){
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In stripTRTFromTrack" <<endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In stripTRTFromTrack" <<endmsg;
 
   /** The returned track */
   Trk::Track* outputTrack(0);
@@ -463,7 +463,7 @@ Trk::Track* InDet::InDetTrackSplitterTool::stripTRTFromTrack(Trk::Track const& i
     Trk::RIO_OnTrack const* rio = dynamic_cast<Trk::RIO_OnTrack const*>(*meas);
     
     if(!rio){
-      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "No ROT skipping measurement." <<endreq; 
+      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "No ROT skipping measurement." <<endmsg; 
       continue;
     }
 
@@ -487,7 +487,7 @@ Trk::Track* InDet::InDetTrackSplitterTool::stripTRTFromTrack(Trk::Track const& i
     }
 
     if(!m_trtid->is_sct(surfaceid) && !m_trtid->is_pixel(surfaceid)){
-      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Removing Non-Si hit." <<endreq; 
+      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Removing Non-Si hit." <<endmsg; 
       continue;
     }
     
@@ -500,23 +500,23 @@ Trk::Track* InDet::InDetTrackSplitterTool::stripTRTFromTrack(Trk::Track const& i
   // Should be Constrained !!!
   //if(isConstrained(numberUpperPixelHits,numberUpperSCTHits,numberUpperTRTHits,numberUpperPseudoMeas)){
     
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "before calling fit" << endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "before calling fit" << endmsg;
   outputTrack = m_trkfitter->fit(m_SiHits, *originalPerigee, false, hypo);
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "after calling fit" << endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "after calling fit" << endmsg;
     
   if(!outputTrack){
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Fit Failed!" << endreq ;
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "There were: " << totalNumberSiHits << "TRT hits" << endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Fit Failed!" << endmsg ;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "There were: " << totalNumberSiHits << "TRT hits" << endmsg;
   }    
     
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Leaving stripTRTFromTrack" <<endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Leaving stripTRTFromTrack" <<endmsg;
   return outputTrack;
 }
 
 /** Make the qOverP constraint
  */
 Trk::PseudoMeasurementOnTrack const* InDet::InDetTrackSplitterTool::makePConstraint(Trk::Perigee const* perigee,Trk::StraightLineSurface const* trtSurf){
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In makePConstraint" <<endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In makePConstraint" <<endmsg;
   
   if( !perigee->covariance() ) return 0;
   
@@ -535,16 +535,16 @@ Trk::PseudoMeasurementOnTrack const* InDet::InDetTrackSplitterTool::makePConstra
   
   /** Debugging
    */
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"Momentum constraint: "<<perigee->parameters()[Trk::qOverP] <<" cov-value: "<<constraintErrMatrix(0,0) <<endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"Momentum constraint: "<<perigee->parameters()[Trk::qOverP] <<" cov-value: "<<constraintErrMatrix(0,0) <<endmsg;
   
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Leaving makePConstraint" <<endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Leaving makePConstraint" <<endmsg;
   return psmom;
 }
 
 /** Make the theta and z0 constraint 
  */
 Trk::PseudoMeasurementOnTrack const* InDet::InDetTrackSplitterTool::makeThetaZ0Constraint(Trk::Perigee const* perigee){
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In makeThetaZ0Constraint" <<endreq;  
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In makeThetaZ0Constraint" <<endmsg;  
 
   if( !perigee->covariance() ) return 0;
   
@@ -575,10 +575,10 @@ Trk::PseudoMeasurementOnTrack const* InDet::InDetTrackSplitterTool::makeThetaZ0C
   
   /** Debugging 
    */
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"theta constraint: "<<perigee->parameters()[Trk::theta] <<" cov-value: "<<constraintErrMatrix(1,1) <<endreq;
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"z0 constraint: "<<perigee->parameters()[Trk::z0] <<" cov-value: "<<constraintErrMatrix(0,0) <<endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"theta constraint: "<<perigee->parameters()[Trk::theta] <<" cov-value: "<<constraintErrMatrix(1,1) <<endmsg;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"z0 constraint: "<<perigee->parameters()[Trk::z0] <<" cov-value: "<<constraintErrMatrix(0,0) <<endmsg;
   
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Leaving makeThetaZ0Constraint" <<endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Leaving makeThetaZ0Constraint" <<endmsg;
   return psmom;
 }
 
@@ -587,7 +587,7 @@ Trk::PseudoMeasurementOnTrack const* InDet::InDetTrackSplitterTool::makeThetaZ0C
     returns a pair of track the first being the upper
 */
 std::pair<Trk::Track*, Trk::Track*> InDet::InDetTrackSplitterTool::splitInOddEvenHitsTrack(Trk::Track const& input){
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " In splitInOddEvenHitsTrack" <<endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " In splitInOddEvenHitsTrack" <<endmsg;
 
   /** The returned tracks */
   Trk::Track* m_oddTrack(0);
@@ -639,7 +639,7 @@ std::pair<Trk::Track*, Trk::Track*> InDet::InDetTrackSplitterTool::splitInOddEve
         if(m_trtid->is_trt(surfaceid)) ++numberOddTRTHits;
   
         if(!m_trtid->is_sct(surfaceid)){
-          if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "adding odd hit" <<endreq;
+          if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "adding odd hit" <<endmsg;
           m_oddHits.push_back( *meas);
           ++totalNumberHits;
           }else{
@@ -651,20 +651,20 @@ std::pair<Trk::Track*, Trk::Track*> InDet::InDetTrackSplitterTool::splitInOddEve
             /** if the SCT hits hasn't been assigned to a tracks */
             if(m_result != m_unusedSCTHits.end()){
       
-              if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "add the (odd) SCT hit" <<endreq;
+              if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "add the (odd) SCT hit" <<endmsg;
               m_oddHits.push_back( *meas);
               ++totalNumberHits;
 
               /** remove hit from unused list */
-              if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "removing the SCT hit from unused list" <<endreq;
+              if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "removing the SCT hit from unused list" <<endmsg;
               m_unusedSCTHits.erase(m_result);
       
               /** find any other hits with same r phi */
               m_result = findSCTHitsFromSameSpacePoint( *meas, m_unusedSCTHits);
               if(m_result != m_unusedSCTHits.end()){
-                if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "adding the other (odd) SCT hit in the spacepoint" <<endreq;
+                if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "adding the other (odd) SCT hit in the spacepoint" <<endmsg;
                 m_oddHits.push_back( *m_result);
-                if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "removing the SCT hit from unused list" <<endreq;
+                if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "removing the SCT hit from unused list" <<endmsg;
                 m_unusedSCTHits.erase(m_result);
               }
             }
@@ -678,7 +678,7 @@ std::pair<Trk::Track*, Trk::Track*> InDet::InDetTrackSplitterTool::splitInOddEve
           ++numberEvenTRTHits;
   
         if(!m_trtid->is_sct(surfaceid)){
-          if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "add the (even) hit" <<endreq;
+          if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "add the (even) hit" <<endmsg;
           m_evenHits.push_back( *meas);
           ++totalNumberHits;
         }else{
@@ -689,20 +689,20 @@ std::pair<Trk::Track*, Trk::Track*> InDet::InDetTrackSplitterTool::splitInOddEve
           /** if the SCT hits hasn't been assigned to a tracks */
           if(m_result != m_unusedSCTHits.end()){
       
-            if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "add the (even) SCT hit" <<endreq;
+            if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "add the (even) SCT hit" <<endmsg;
             m_evenHits.push_back( *meas);
             ++totalNumberHits;
 
             /** remove hit from umused list */
-            if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "removing the SCT hit from unused list" <<endreq;
+            if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "removing the SCT hit from unused list" <<endmsg;
             m_unusedSCTHits.erase(m_result);
       
             /** find any other hits with same r phi */
             m_result = findSCTHitsFromSameSpacePoint( *meas, m_unusedSCTHits);
             if(m_result != m_unusedSCTHits.end()){
-              if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "adding the other (even) SCT hit in the spacepoint" <<endreq;
+              if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "adding the other (even) SCT hit in the spacepoint" <<endmsg;
               m_evenHits.push_back( *m_result);
-              if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "removing the SCT hit from unused list" <<endreq;
+              if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "removing the SCT hit from unused list" <<endmsg;
               m_unusedSCTHits.erase(m_result);
             }
           }
@@ -712,11 +712,11 @@ std::pair<Trk::Track*, Trk::Track*> InDet::InDetTrackSplitterTool::splitInOddEve
       Trk::PseudoMeasurementOnTrack const* ps = dynamic_cast<Trk::PseudoMeasurementOnTrack const*>(*meas);
       
       if(ps){
-        if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Adding an odd pseudoMeasurement" <<endreq; 
+        if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Adding an odd pseudoMeasurement" <<endmsg; 
         ++numberOddPseudoMeas;
         m_oddHits.push_back( ps);
 
-        if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Adding an even pseudoMeasurement" <<endreq; 
+        if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Adding an even pseudoMeasurement" <<endmsg; 
         ++numberEvenPseudoMeas;
         m_evenHits.push_back( ps);
       }
@@ -731,49 +731,49 @@ std::pair<Trk::Track*, Trk::Track*> InDet::InDetTrackSplitterTool::splitInOddEve
   /** track must be overconstrained */
   if(isConstrained(numberOddPixelHits,numberOddSCTHits,numberOddTRTHits,numberOddPseudoMeas)){  
     
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "before calling odd fit" << endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "before calling odd fit" << endmsg;
     m_oddTrack = m_trkfitter->fit(m_oddHits, *originalPerigee, false, hypo);
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "after calling odd fit" << endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "after calling odd fit" << endmsg;
     
     if(!m_oddTrack){
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Odd Fit Failed!" << endreq ;
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Odd Fit Failed!" << endmsg ;
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "There was: " 
                << numberOddPixelHits << " odd Pixel hits, " 
                << numberOddSCTHits << " odd SCT hits, " 
                << numberOddTRTHits << " odd TRT hits"
                << numberOddPseudoMeas << "odd Pseudomeasurements"
-               << endreq;
+               << endmsg;
 
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "There was: " 
                << totalNumberPixelHits << " total Pixel hits, " 
                << totalNumberSCTHits << " total SCT hits, " 
                << totalNumberTRTHits << "total TRT hits"
-               << endreq;
+               << endmsg;
     }    
     
   }else
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Not enough measurements on odd track. Fit fails." << endreq ;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Not enough measurements on odd track. Fit fails." << endmsg ;
   
   /** lower track */
   if(isConstrained(numberEvenPixelHits,numberEvenSCTHits,numberEvenTRTHits,numberEvenPseudoMeas)){
     
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "before calling even fit" << endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "before calling even fit" << endmsg;
     m_evenTrack = m_trkfitter->fit(m_evenHits, *originalPerigee, false, hypo);
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "after calling even fit" << endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "after calling even fit" << endmsg;
     
     if(!m_evenTrack){
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Even Fit Failed!" << endreq ;
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Even Fit Failed!" << endmsg ;
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "There was: " << numberEvenSCTHits << " even si hits and " 
-               << numberEvenTRTHits << "even TRT hits"<< endreq;
+               << numberEvenTRTHits << "even TRT hits"<< endmsg;
       
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "There were: " << totalNumberSCTHits << " total Si hits and " 
-               << totalNumberTRTHits << "total TRT hits"<< endreq;
+               << totalNumberTRTHits << "total TRT hits"<< endmsg;
     }
     
   }else
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Not enough measurements on even track. Fit fails." << endreq ;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Not enough measurements on even track. Fit fails." << endmsg ;
   
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Leaving splitInOddEvenHitsTrack" <<endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Leaving splitInOddEvenHitsTrack" <<endmsg;
   return std::make_pair(m_oddTrack, m_evenTrack);  
 }
   
@@ -786,12 +786,12 @@ std::pair<Trk::Track*, Trk::Track*> InDet::InDetTrackSplitterTool::splitInOddEve
     (for the moment this is just a d0 cut requiring the track went through TRT cavity
 */
 void InDet::InDetTrackSplitterTool::splitTracks(TrackCollection const* inputTracks){
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " In splitTracks" <<endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " In splitTracks" <<endmsg;
   
   upperTracks = new TrackCollection(SG::OWN_ELEMENTS);
   lowerTracks = new TrackCollection(SG::OWN_ELEMENTS);
 
-  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "There are: " << inputTracks->size() << " input tracks."<< endreq;
+  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "There are: " << inputTracks->size() << " input tracks."<< endmsg;
   
   TrackCollection::const_iterator it = inputTracks->begin();
   TrackCollection::const_iterator itE = inputTracks->end();
@@ -799,7 +799,7 @@ void InDet::InDetTrackSplitterTool::splitTracks(TrackCollection const* inputTrac
     
     /** if went though TRT cavity  */
     if(trackIsCandidate( **it) ){
-      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Track is a candidate."<< endreq;
+      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Track is a candidate."<< endmsg;
       
       std::pair<Trk::Track*, Trk::Track*> splitTracks = this->splitInUpperLowerTrack(**it);
       //For debugging
@@ -807,45 +807,45 @@ void InDet::InDetTrackSplitterTool::splitTracks(TrackCollection const* inputTrac
       
       Trk::Track* upperTrack = splitTracks.first;
       if(upperTrack){
-  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Upper track fit suceeded"<< endreq;
+  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Upper track fit suceeded"<< endmsg;
   upperTracks->push_back( upperTrack);
       }else
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Upper track fit failed!"<< endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Upper track fit failed!"<< endmsg;
 
       Trk::Track* lowerTrack = splitTracks.second;
       if(lowerTrack){
-  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Lower track fit suceeded"<< endreq;
+  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Lower track fit suceeded"<< endmsg;
   lowerTracks->push_back( lowerTrack);
       }else
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Lower track fit failed!"<< endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Lower track fit failed!"<< endmsg;
 
     } else
-      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Track is NOT a candidate."<< endreq;
+      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Track is NOT a candidate."<< endmsg;
   }
   
 
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "There are  " << upperTracks->size() << " upper tracks. "<< endreq;
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Recording Upper tracks..." << endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "There are  " << upperTracks->size() << " upper tracks. "<< endmsg;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Recording Upper tracks..." << endmsg;
   
   StatusCode sc = evtStore()->record(upperTracks,m_outputUpperTracksName,false);
   if (sc.isFailure()){
     msg(MSG::FATAL) << "Tracks " << m_outputUpperTracksName << " could not be recorded in StoreGate !"
-  << endreq;
+  << endmsg;
   } else {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Tracks " << m_outputUpperTracksName << " recorded in StoreGate" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Tracks " << m_outputUpperTracksName << " recorded in StoreGate" << endmsg;
   }
   
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "There are  " << lowerTracks->size() << " lower tracks. "<< endreq;
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Recording Upper tracks..." << endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "There are  " << lowerTracks->size() << " lower tracks. "<< endmsg;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Recording Upper tracks..." << endmsg;
   
   sc = evtStore()->record(lowerTracks,m_outputLowerTracksName,false);
   if (sc.isFailure()){
-    msg(MSG::FATAL) << "Tracks " << m_outputLowerTracksName << " could not be recorded in StoreGate !"<< endreq;        
+    msg(MSG::FATAL) << "Tracks " << m_outputLowerTracksName << " could not be recorded in StoreGate !"<< endmsg;        
   }else {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Tracks " << m_outputLowerTracksName << " recorded in StoreGate" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Tracks " << m_outputLowerTracksName << " recorded in StoreGate" << endmsg;
   }
   
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Leaving splitTracks" <<endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Leaving splitTracks" <<endmsg;
   return;
 }
 
@@ -854,29 +854,29 @@ void InDet::InDetTrackSplitterTool::splitTracks(TrackCollection const* inputTrac
   (for the moment this is just a d0 cut requiring the track went through TRT cavity
 */ 
 bool InDet::InDetTrackSplitterTool::trackIsCandidate(Trk::Track const& inputTrack) const{
-  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "In trackIsCandidate."<< endreq;
+  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "In trackIsCandidate."<< endmsg;
   Trk::Perigee const* trackPerigee = inputTrack.perigeeParameters();
   
   if (!trackPerigee)
     {
-      msg(MSG::WARNING) << "Found track with invalid perigee parameters. Not splitting." << endreq; 
+      msg(MSG::WARNING) << "Found track with invalid perigee parameters. Not splitting." << endmsg; 
       return false;
     }
     
   //Trk::Perigee const* measuredperigee = dynamic_cast<Trk::Perigee const*>( trackPerigee );
   double const m_d0 = trackPerigee->parameters()[Trk::d0];
 
-  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "do is: "<<  m_d0 << endreq;
+  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "do is: "<<  m_d0 << endmsg;
 
   /** This can be fleshed out, to have better track selection */
 
   //width of the cavity in the TRT 
   if( fabs(m_d0) < 600){
-    if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "is a candidate" << endreq;
+    if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "is a candidate" << endmsg;
     return true;
   }
 
-  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "is NOT a candidate" << endreq;
+  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "is NOT a candidate" << endmsg;
   return false;
 }
 
@@ -884,7 +884,7 @@ bool InDet::InDetTrackSplitterTool::trackIsCandidate(Trk::Track const& inputTrac
     (used for not breaking up SCT space points, when splitting Odd/Even)
  */
 std::vector<Trk::MeasurementBase const*> InDet::InDetTrackSplitterTool::getSCTHits(Trk::Track const& input){
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In getSCTHits " << endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In getSCTHits " << endmsg;
   std::vector<Trk::MeasurementBase const*> m_SCTHits;
 
   DataVector<Trk::MeasurementBase const>::const_iterator meas = input.measurementsOnTrack()->begin();
@@ -896,17 +896,17 @@ std::vector<Trk::MeasurementBase const*> InDet::InDetTrackSplitterTool::getSCTHi
     if(m_rio){
       Identifier const& surfaceid = (m_rio->identify());
       if(m_trtid->is_sct(surfaceid)){
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "we've found an SCT hit " << endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "we've found an SCT hit " << endmsg;
   m_SCTHits.push_back(*meas);
       }
     }
   }
 
-  //if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "sorting the hits " << endreq;
+  //if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "sorting the hits " << endmsg;
   /** order the hits in y */
   //std::sort(m_SCTHits.begin(), m_SCTHits.end(), InDetTrackSplitterHelpers::CompareYPosition );
   
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Leaving getSCTHits " << endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Leaving getSCTHits " << endmsg;
   return m_SCTHits;
 }
 
@@ -915,7 +915,7 @@ std::vector<Trk::MeasurementBase const*> InDet::InDetTrackSplitterTool::getSCTHi
     (used for not breaking up SCT space points, when splitting Odd/Even)
 */
 std::vector<Trk::MeasurementBase const*>::iterator InDet::InDetTrackSplitterTool::findSCTHitsFromSameSpacePoint(Trk::MeasurementBase const* m_sctHit, std::vector<Trk::MeasurementBase const*>& m_listOfSCTHits){
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in findSCTHitsFromSameSpacePoint " << endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in findSCTHitsFromSameSpacePoint " << endmsg;
   std::vector<Trk::MeasurementBase const*>::iterator m_result = m_listOfSCTHits.end();
   
   Trk::RIO_OnTrack const* rio = dynamic_cast<Trk::RIO_OnTrack const*>(m_sctHit);
@@ -932,14 +932,14 @@ std::vector<Trk::MeasurementBase const*>::iterator InDet::InDetTrackSplitterTool
       if(m_candidateRio){
   Identifier const& candidateSurfaceid = (m_candidateRio->identify());
   if(m_sctid->eta_module(candidateSurfaceid) == targetEta && m_sctid->phi_module(candidateSurfaceid) == targetPhi){
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Found another hit in the SpacePoint " << endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Found another hit in the SpacePoint " << endmsg;
     m_result = find(m_listOfSCTHits.begin(), m_listOfSCTHits.end(), *meas);
   }
       }
     }
   }
   
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Leaving findSCTHitsFromSameSpacePoint " << endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Leaving findSCTHitsFromSameSpacePoint " << endmsg;
   return m_result;
 }
 
@@ -947,17 +947,17 @@ std::vector<Trk::MeasurementBase const*>::iterator InDet::InDetTrackSplitterTool
     Logic to check if the track is constrained given the number of various types of hits
  */
 bool InDet::InDetTrackSplitterTool::isConstrained(unsigned int nPixelHits, unsigned int nSCTHits, unsigned int nTRTHits, unsigned int nPseudomeasurements) const{
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In isConstrained " << endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In isConstrained " << endmsg;
   
   /** Two cases to consider, tracks with Si hits (first case in the ||), and TRT Only tracks (second case) 
    */
   if( (( nPixelHits + nSCTHits) > 1 && (2*nPixelHits + nSCTHits + nTRTHits)  > 5) ||
       (nPseudomeasurements >= 1 && nTRTHits > 10)){
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Leaving isConstrained (true)" << endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Leaving isConstrained (true)" << endmsg;
     return true;
   }
   
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Leaving isConstrained (false)" << endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Leaving isConstrained (false)" << endmsg;
   return false;
 }
 

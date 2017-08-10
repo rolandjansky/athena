@@ -8,7 +8,7 @@
 #define ANALYSISUTILS_ELECTRONIDSELECTOR_H
 
 /**
-   @Project: AnalysisUtils
+   @package: AnalysisUtils
  
    @class ElectronIDSelector
    

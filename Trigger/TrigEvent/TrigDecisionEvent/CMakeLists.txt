@@ -8,7 +8,7 @@ atlas_subdir( TrigDecisionEvent )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/CLIDSvc
-                          Control/DataModel
+                          Control/AthLinks
                           Control/SGTools
                           Trigger/TrigEvent/TrigSteeringEvent
                           PRIVATE
@@ -22,13 +22,13 @@ atlas_add_library( TrigDecisionEvent
                    src/*.cxx
                    PUBLIC_HEADERS TrigDecisionEvent
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES DataModel SGTools TrigSteeringEvent
+                   LINK_LIBRARIES AthLinks SGTools TrigSteeringEvent
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} TestTools )
 
 atlas_add_dictionary( TrigDecisionEventDict
                       TrigDecisionEvent/TrigDecisionEventDict.h
                       TrigDecisionEvent/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} DataModel SGTools TrigSteeringEvent TestTools TrigDecisionEvent
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthLinks SGTools TrigSteeringEvent TestTools TrigDecisionEvent
                       DATA_LINKS HLT::HLTResult )
 

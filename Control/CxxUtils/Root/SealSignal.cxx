@@ -803,7 +803,7 @@ Signal::handleFatal (const char  *applicationName /* = 0 */,
     to #handleFatal(), #fatal() will call #quit() which in turn calls
     the application hook.  Thus the hook should make sure it returns
     @c true if the application has crashed as noted in the
-    documentation for <<QuitHook>>.  */
+    documentation for \<\<QuitHook\>\>.  */
 void
 Signal::quit (int sig, siginfo_t *info, void *x)
 {

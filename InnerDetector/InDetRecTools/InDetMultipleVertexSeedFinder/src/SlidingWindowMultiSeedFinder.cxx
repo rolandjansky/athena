@@ -22,42 +22,42 @@ namespace InDet
  {
   if(m_trkFilter.retrieve().isFailure())
   {
-   msg(MSG::ERROR)<<" Unable to retrieve "<<m_trkFilter<<endreq;
+   msg(MSG::ERROR)<<" Unable to retrieve "<<m_trkFilter<<endmsg;
    return StatusCode::FAILURE;
-  }else msg(MSG::INFO)<<"Track selector tool retrieved"<<endreq; 
+  }else msg(MSG::INFO)<<"Track selector tool retrieved"<<endmsg; 
    
   if(m_sortingTool.retrieve().isFailure())
   {
-   msg(MSG::ERROR)<<" Unable to retrieve "<<m_sortingTool<<endreq;
+   msg(MSG::ERROR)<<" Unable to retrieve "<<m_sortingTool<<endmsg;
    return StatusCode::FAILURE;
-  }else msg(MSG::INFO)<<"Track sorting tool retrieved"<<endreq;  
+  }else msg(MSG::INFO)<<"Track sorting tool retrieved"<<endmsg;  
    
   if(m_beamService.retrieve().isFailure())
   {
-   msg(MSG::ERROR)<<"Unable to retieve "<<m_beamService<<endreq;
+   msg(MSG::ERROR)<<"Unable to retieve "<<m_beamService<<endmsg;
    return StatusCode::FAILURE;
-  }else msg(MSG::INFO)<< "BeamSpot service retrieved"<<endreq; 
+  }else msg(MSG::INFO)<< "BeamSpot service retrieved"<<endmsg; 
 
 
   if(m_vtxSeedFinder.retrieve().isFailure())
   {
-    msg(MSG::ERROR) << "Unable to retrieve " << m_vtxSeedFinder <<endreq;
+    msg(MSG::ERROR) << "Unable to retrieve " << m_vtxSeedFinder <<endmsg;
     return StatusCode::FAILURE;
-  }else msg(MSG::INFO)<< "Vertex seed finder retriever" << endreq; 
+  }else msg(MSG::INFO)<< "Vertex seed finder retriever" << endmsg; 
     
   if ( m_extrapolator.retrieve().isFailure() ) 
   {                              
-   msg(MSG::ERROR) << "Failed to retrieve tool " << m_extrapolator << endreq;
+   msg(MSG::ERROR) << "Failed to retrieve tool " << m_extrapolator << endmsg;
    return StatusCode::FAILURE;                                                  
   } else {                                                                       
-   msg(MSG::INFO) << "Retrieved tool " << m_extrapolator << endreq;
+   msg(MSG::INFO) << "Retrieved tool " << m_extrapolator << endmsg;
   }                                
   return StatusCode::SUCCESS;
  }//end of initialize mtehod
  
  StatusCode SlidingWindowMultiSeedFinder::finalize()
  {
-  msg(MSG::INFO)  << "Finalize successful" << endreq;
+  msg(MSG::INFO)  << "Finalize successful" << endmsg;
   return StatusCode::SUCCESS;
  }
  
@@ -110,7 +110,7 @@ namespace InDet
   
   Trk::RecVertex  beamRecVertex(m_beamService->beamVtx());
   for(;tr!=tre;++tr) if(m_trkFilter->decision(**tr,&beamRecVertex)) preselectedTracks.push_back(*tr);
-  if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Beam spot position is: "<< beamRecVertex.position()<<endreq;
+  if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Beam spot position is: "<< beamRecVertex.position()<<endmsg;
 
   Trk::Vertex* beamVertex=&beamRecVertex;
   
@@ -120,7 +120,7 @@ namespace InDet
     if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<
                               " vtx seed x: " << myVertex->position().x() << 
                               " vtx seed y: " << myVertex->position().y() << 
-                              " vtx seed z: " << myVertex->position().z() << endreq;
+                              " vtx seed z: " << myVertex->position().z() << endmsg;
     beamVertex=myVertex;
   }
 
@@ -146,7 +146,7 @@ namespace InDet
    if(exPerigee) { lastTrackZ0 = exPerigee->parameters()[Trk::z0]; delete exPerigee; }
    else
    {
-     msg(MSG::WARNING)<<"Impossible to extrapolate the first track; returning 0 container for this event"<<endreq;
+     msg(MSG::WARNING)<<"Impossible to extrapolate the first track; returning 0 container for this event"<<endmsg;
      if (m_ignoreBeamSpot) delete beamVertex;
      return result;
    }          	 	 
@@ -166,7 +166,7 @@ namespace InDet
     
     if(!i) prevTrackZ0 = currentTrackZ0; 
      
-    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Z0 of current  track"<< currentTrackZ0<<endreq;    
+    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Z0 of current  track"<< currentTrackZ0<<endmsg;    
     
     if((fabs(currentTrackZ0 - lastTrackZ0)>m_clusterLength && fabs(currentTrackZ0 - prevTrackZ0)>m_addingDistance )|| 
                                                               fabs(currentTrackZ0 - prevTrackZ0)>m_breakingDistance)
@@ -213,7 +213,7 @@ namespace InDet
   
   Trk::RecVertex  beamRecVertex(m_beamService->beamVtx()); 
   for(;tr!=tre;++tr) if(m_trkFilter->decision(**tr,&beamRecVertex)) preselectedTracks.push_back(*tr);
-  if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Beam spot position is: "<< beamRecVertex.position()<<endreq;
+  if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Beam spot position is: "<< beamRecVertex.position()<<endmsg;
   Trk::Vertex* beamVertex=&beamRecVertex;
 
 
@@ -232,7 +232,7 @@ namespace InDet
     if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<
                               " vtx seed x: " << myVertex->position().x() << 
                               " vtx seed y: " << myVertex->position().y() << 
-                              " vtx seed z: " << myVertex->position().z() << endreq;
+                              " vtx seed z: " << myVertex->position().z() << endmsg;
     beamVertex=myVertex;
   }
 
@@ -257,12 +257,12 @@ namespace InDet
    if(exPerigee) { lastTrackZ0 = exPerigee->parameters()[Trk::z0]; delete exPerigee; }
    else
    {
-     msg(MSG::WARNING)<<"Impossible to extrapolate the first track; returning 0 container for this event"<<endreq;
+     msg(MSG::WARNING)<<"Impossible to extrapolate the first track; returning 0 container for this event"<<endmsg;
      if (m_ignoreBeamSpot) delete beamVertex;
      return result;
    }          	   
 
-   if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Z0 of last track"<< lastTrackZ0<<endreq;
+   if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Z0 of last track"<< lastTrackZ0<<endmsg;
 
    
 //looping over sorted container:  storing the Z0 of last iteration...
@@ -280,7 +280,7 @@ namespace InDet
     
     if(!i)prevTrackZ0 = currentTrackZ0;    
     
-    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Z0 of current  track"<< currentTrackZ0<<endreq;   
+    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Z0 of current  track"<< currentTrackZ0<<endmsg;   
     if((fabs(currentTrackZ0 - lastTrackZ0)>m_clusterLength && fabs(currentTrackZ0 - prevTrackZ0)>m_addingDistance )|| 
                                                               fabs(currentTrackZ0 - prevTrackZ0)>m_breakingDistance)
     {
@@ -290,14 +290,14 @@ namespace InDet
      tmp_cluster.clear();
      tmp_cluster.push_back(preselectedTracks[indexOfSorted[i]]);
      lastTrackZ0 = currentTrackZ0;
-     if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Finishing a cluster, starting the new one"<<endreq;
+     if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Finishing a cluster, starting the new one"<<endmsg;
     
     }else{
  
 //this track is within the current cluster  or the distance to next is too short. Keeping populating it.
   
      tmp_cluster.push_back(preselectedTracks[indexOfSorted[i]]);
-     if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Pushing a track to a cluster"<<endreq;
+     if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Pushing a track to a cluster"<<endmsg;
      
      if(i==indexOfSorted.size()-1 && int(tmp_cluster.size())>m_ignoreLevel) result.push_back(tmp_cluster);
      
@@ -313,7 +313,7 @@ namespace InDet
    }//end of loop
   }//end of preselection size check
   
-  if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Returning number of clusters: "<< result.size()<<endreq;
+  if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Returning number of clusters: "<< result.size()<<endmsg;
   if (m_ignoreBeamSpot) delete beamVertex;
   return result; 
    
@@ -335,7 +335,7 @@ std::vector< std::vector<const Trk::TrackParameters *> > SlidingWindowMultiSeedF
     beamposition->setPosition(m_beamService->beamVtx().position());
     beamposition->setCovariancePosition(m_beamService->beamVtx().covariancePosition());
     // for(;tr!=tre;++tr) if(m_trkFilter->decision(**tr, &beamrecposition)) preselectedTracks.push_back(*tr);
-    // if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Beam spot position is: "<< beamrecposition.position()<<endreq;
+    // if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Beam spot position is: "<< beamrecposition.position()<<endmsg;
     //Trk::Vertex* beamposition=&beamrecposition;
     
     for (std::vector<const xAOD::TrackParticle*>::const_iterator itr  = tracks.begin(); itr != tracks.end(); ++itr) {
@@ -360,7 +360,7 @@ std::vector< std::vector<const Trk::TrackParameters *> > SlidingWindowMultiSeedF
 	if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<
 				" vtx seed x: " << myVertex->position().x() << 
 				" vtx seed y: " << myVertex->position().y() << 
-				" vtx seed z: " << myVertex->position().z() << endreq;
+				" vtx seed z: " << myVertex->position().z() << endmsg;
 	beamposition->setPosition(myVertex->position());
 	beamposition->setCovariancePosition(myVertex->covariancePosition());
 	//hmm, will this leak? I think so.
@@ -388,13 +388,13 @@ std::vector< std::vector<const Trk::TrackParameters *> > SlidingWindowMultiSeedF
 	if(exPerigee) { lastTrackZ0 = exPerigee->parameters()[Trk::z0]; delete exPerigee; }
 	else
 	  {
-	    msg(MSG::WARNING)<<"Impossible to extrapolate the first track; returning 0 container for this event"<<endreq;
+	    msg(MSG::WARNING)<<"Impossible to extrapolate the first track; returning 0 container for this event"<<endmsg;
 	    delete beamposition; 
 	    delete myVertex;
 	    return result;
 	  }          	   
 	
-	if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Z0 of last track"<< lastTrackZ0<<endreq;
+	if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Z0 of last track"<< lastTrackZ0<<endmsg;
 	
 	
 	//looping over sorted container:  storing the Z0 of last iteration...
@@ -412,7 +412,7 @@ std::vector< std::vector<const Trk::TrackParameters *> > SlidingWindowMultiSeedF
 	    
 	    if(!i)prevTrackZ0 = currentTrackZ0;    
 	    
-	    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Z0 of current  track"<< currentTrackZ0<<endreq;   
+	    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Z0 of current  track"<< currentTrackZ0<<endmsg;   
 	    if((fabs(currentTrackZ0 - lastTrackZ0)>m_clusterLength && fabs(currentTrackZ0 - prevTrackZ0)>m_addingDistance )|| 
 	       fabs(currentTrackZ0 - prevTrackZ0)>m_breakingDistance)
 	      {
@@ -422,14 +422,14 @@ std::vector< std::vector<const Trk::TrackParameters *> > SlidingWindowMultiSeedF
 		tmp_cluster.clear();
 		tmp_cluster.push_back(&(preselectedTracks[indexOfSorted[i]]->perigeeParameters()));
 		lastTrackZ0 = currentTrackZ0;
-		if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Finishing a cluster, starting the new one"<<endreq;
+		if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Finishing a cluster, starting the new one"<<endmsg;
 		
 	      }else{
 	      
 	      //this track is within the current cluster  or the distance to next is too short. Keeping populating it.
 	      
 	      tmp_cluster.push_back(&(preselectedTracks[indexOfSorted[i]]->perigeeParameters()));
-	      if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Pushing a track to a cluster"<<endreq;
+	      if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Pushing a track to a cluster"<<endmsg;
 	      
 	      if(i==indexOfSorted.size()-1 && int(tmp_cluster.size())>m_ignoreLevel) result.push_back(tmp_cluster);
 	      
@@ -445,7 +445,7 @@ std::vector< std::vector<const Trk::TrackParameters *> > SlidingWindowMultiSeedF
 	  }//end of loop
       }//end of preselection size check
     
-    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Returning number of clusters: "<< result.size()<<endreq;
+    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Returning number of clusters: "<< result.size()<<endmsg;
     delete beamposition; 
     delete myVertex;
     return result; 	
@@ -480,7 +480,7 @@ std::vector< std::vector<const Trk::TrackParameters *> > SlidingWindowMultiSeedF
 	    perigee =0;
 	    
 	  }else{
-	  msg(MSG::WARNING)  << "This track particle has no perigee state. Not egligible for sorting. Will NOT be written to the sorted vector" << endreq;
+	  msg(MSG::WARNING)  << "This track particle has no perigee state. Not egligible for sorting. Will NOT be written to the sorted vector" << endmsg;
 	  //    no_perigee.push_back(j);
 	}//end of perigee existance check
 	++j;

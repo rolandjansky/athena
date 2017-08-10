@@ -157,7 +157,7 @@ class SectorLogic : public BaseObject {
   // if SetTCCheck[i][j][k] = 0 no mapping is done
   // note thet in this way is possible to map a given TileCal signal to more
   // that one threshold and PAD
-  CMAword SetTCCheck[8][6];
+  CMAword m_SetTCCheck[8][6];
 
   // once the geometry of the mapping is specified EnableTCCheck[i][j]
   // tells if the mapping must be done or not
@@ -165,15 +165,15 @@ class SectorLogic : public BaseObject {
   // j threshold is confirmed only if there was an energy deposition in 
   // at least one of the mapped zones of the TileCal
   // if EnableTCCheck[i][j] = 0 a muon candidate is always confirmed
-  CMAword EnableTCCheckLow;
-  CMAword EnableTCCheckHigh;
+  CMAword m_EnableTCCheckLow;
+  CMAword m_EnableTCCheckHigh;
 
   // if SetOPLCheck[i][j][k] = 1 the k OPLFlag signal is mapped to the
   // j low-Pt threshold of the i PAD
   // if SetOPLCheck[i][j][k] = 0 no mapping is done
   // note thet in this way is possible to map a given OPLFlag signal to more
   // that one threshold and PAD
-  ubit16 SetOPLCheck[8][3];
+  ubit16 m_SetOPLCheck[8][3];
 
   // once the geometry of the mapping is specified EnableOPLCheck[i][j]
   // tells if the mapping must be done or not
@@ -181,32 +181,32 @@ class SectorLogic : public BaseObject {
   // j low-Pt threshold is confirmed only if there was track in one of 
   // the PADs belonging to a given Sector
   // if EnableOPLCheck[i][j] = 0 a low-Pt muon candidate is always confirmed
-  CMAword EnableOPLCheck;
+  CMAword m_EnableOPLCheck;
 
   // input and output data
-  DataFromPad InFromPad[NOBXS][8];
-  CMAword InFromTileCal[NOBXS];
-  OutputFromSectorLogic OutFromSectorLogic[NOBXS];
+  DataFromPad m_InFromPad[NOBXS][8];
+  CMAword m_InFromTileCal[NOBXS];
+  OutputFromSectorLogic m_OutFromSectorLogic[NOBXS];
 
   // internal registers of the various steps of the Sector Logic pipeline
   // 1st step registers
   // low Pt filter
-  InternalRegister LowPtFilter_in[NOBXS];
-  InternalRegister LowPtFilter_out[NOBXS];
+  InternalRegister m_LowPtFilter_in[NOBXS];
+  InternalRegister m_LowPtFilter_out[NOBXS];
   // 2nd step registers
-  InternalRegister TileCalConfirm_in[NOBXS];
-  InternalRegister TileCalConfirm_out[NOBXS];
+  InternalRegister m_TileCalConfirm_in[NOBXS];
+  InternalRegister m_TileCalConfirm_out[NOBXS];
   // 3rd step registers
-  InternalRegister SolveEtaOverlap_in[NOBXS];
-  InternalRegister SolveEtaOverlap_out[NOBXS];
+  InternalRegister m_SolveEtaOverlap_in[NOBXS];
+  InternalRegister m_SolveEtaOverlap_out[NOBXS];
   // 4th step registers
-  InternalRegister SortHighest_in[NOBXS];
-  InternalRegister SortHighest_out[NOBXS];
+  InternalRegister m_SortHighest_in[NOBXS];
+  InternalRegister m_SortHighest_out[NOBXS];
   // 5th step registers
-  InternalRegister Sort2ndHighest_in[NOBXS];
-  InternalRegister Sort2ndHighest_out[NOBXS];
+  InternalRegister m_Sort2ndHighest_in[NOBXS];
+  InternalRegister m_Sort2ndHighest_out[NOBXS];
 
-  ubit16 nBunMax;
+  ubit16 m_nBunMax;
     // M.Corradi 1/3/2010
   bool m_oldSimulation;
     
@@ -217,7 +217,7 @@ public:
     SectorLogic(int run, int event, CMAword debug, ubit16 subsys, ubit16 sect, bool oldSimulation); 
   ~SectorLogic(void);
 
-  ubit16 numberOfBunches(){return nBunMax;};
+  ubit16 numberOfBunches(){return m_nBunMax;};
   //    ubit16 sectorAddress(){return m_sector;};
 
     CMAword outputToMuCTPI(int deltaBC=0);

@@ -4,9 +4,6 @@
 
 
 // Gaudi/Athena include(s):
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IRegistry.h"
-
 #include "ByteStreamCnvSvcBase/ByteStreamAddress.h"
 #include "ByteStreamData/RawEvent.h"
 #include "ByteStreamData/ROBData.h"
@@ -77,67 +74,44 @@ StatusCode MuCTPIByteStreamCnv::initialize() {
   //
   // Initialise the base class:
   //
-  StatusCode sc = Converter::initialize();
-  if( sc.isFailure() ) {
-    return sc;
-  }
+  ATH_CHECK(  Converter::initialize() );
 
-  MsgStream log( messageService(), "MuCTPIByteStreamCnv" );
-  log << MSG::DEBUG << "MuCTPIByteStreamCnv in initialize() " << endreq;
+  MsgStream log( msgSvc(), "MuCTPIByteStreamCnv" );
+  log << MSG::DEBUG << "MuCTPIByteStreamCnv in initialize() " << endmsg;
 
   //
   // Get ByteStreamCnvSvc:
   //
-  sc = m_ByteStreamEventAccess.retrieve();
-  if( sc.isFailure() ) {
-    log << MSG::FATAL << "Can't get ByteStreamEventAccess interface" << endreq;
-    return sc;
-  }
+  ATH_CHECK(  m_ByteStreamEventAccess.retrieve() );
 
   //
   // Get MuCTPIByteStreamTool:
   //
-  sc = m_tool.retrieve();
-  if( sc.isFailure() ) {
-    log << MSG::FATAL << "Can't get MuCTPIByteStreamTool" << endreq;
-    return sc;
-  } else {
-    log << MSG::DEBUG << "Connected to MuCTPIByteStreamTool" << endreq;
-  }
+  ATH_CHECK(  m_tool.retrieve() );
+  log << MSG::DEBUG << "Connected to MuCTPIByteStreamTool" << endmsg;
 
 #ifdef CTP_MUCTPI_HAVE_SAME_ROS
   //
   // Get CTPByteStreamTool:
   //
-  sc = m_ctp_tool.retrieve();
-  if( sc.isFailure() ) {
-    log << MSG::FATAL << "Can't get CTPByteStreamTool" << endreq;
-    return sc;
-  } else {
-    log << MSG::DEBUG << "Connected to CTPByteStreamTool" << endreq;
-  }
+  ATH_CHECK( m_ctp_tool.retrieve() );
+  log << MSG::DEBUG << "Connected to CTPByteStreamTool" << endmsg;
 
   //
   // Get RecCTPByteStreamTool:
   //
-  sc = m_ctp_rec_tool.retrieve();
-  if( sc.isFailure() ) {
-    log << MSG::FATAL << "Can't get RecCTPByteStreamTool" << endreq;
-    return sc;
-  } else {
-    log << MSG::DEBUG << "Connected to RecCTPByteStreamTool" << endreq;
-  }
+  ATH_CHECK(  m_ctp_rec_tool.retrieve() );
+  log << MSG::DEBUG << "Connected to RecCTPByteStreamTool" << endmsg;
 #endif
 
   //
   // Get ROBDataProvider:
   //
-  sc = m_robDataProvider.retrieve();
-  if( sc.isFailure() ) {
-    log << MSG::WARNING << "Can't get ROBDataProviderSvc" << endreq;
+  if( m_robDataProvider.retrieve().isFailure() ) {
+    log << MSG::WARNING << "Can't get ROBDataProviderSvc" << endmsg;
     // return is disabled for Write BS which does not requre ROBDataProviderSvc
   } else {
-    log << MSG::DEBUG << "Connected to ROBDataProviderSvc" << endreq;
+    log << MSG::DEBUG << "Connected to ROBDataProviderSvc" << endmsg;
   }
 
   //
@@ -155,18 +129,17 @@ StatusCode MuCTPIByteStreamCnv::initialize() {
  */
 StatusCode MuCTPIByteStreamCnv::createObj( IOpaqueAddress* pAddr, DataObject*& pObj ) {
 
-  MsgStream log( messageService(), "MuCTPIByteStreamCnv" );
-
-  log << MSG::DEBUG << "createObj() called" << endreq;
+  MsgStream log( msgSvc(), "MuCTPIByteStreamCnv" );
+  log << MSG::DEBUG << "createObj() called" << endmsg;
 
   ByteStreamAddress *pBS_Addr;
   pBS_Addr = dynamic_cast< ByteStreamAddress* >( pAddr );
   if ( !pBS_Addr ) {
-    log << MSG::ERROR << " Can not cast to ByteStreamAddress " << endreq ;
+    log << MSG::ERROR << " Can not cast to ByteStreamAddress " << endmsg ;
     return StatusCode::FAILURE;
   }
 
-  log << MSG::DEBUG << " Creating Objects " << *( pBS_Addr->par() ) << endreq;
+  log << MSG::DEBUG << " Creating Objects " << *( pBS_Addr->par() ) << endmsg;
 
   //
   // Get SourceID:
@@ -174,7 +147,7 @@ StatusCode MuCTPIByteStreamCnv::createObj( IOpaqueAddress* pAddr, DataObject*& p
   const uint32_t robId = m_srcIdMap->getRobID( m_srcIdMap->getRodID() );
 
   log << MSG::DEBUG << " expected ROB sub-detector ID: " << std::hex 
-      << robId << std::dec << endreq;  
+      << robId << std::dec << endmsg;  
 
   std::vector< uint32_t > vID;
   vID.push_back( robId );
@@ -211,7 +184,7 @@ StatusCode MuCTPIByteStreamCnv::createObj( IOpaqueAddress* pAddr, DataObject*& p
       m_robDataProvider->getROBData( vID, robFrags );
       
       if( robFrags.size() == 0 ) {
-        log << MSG::WARNING << "No MuCTPI ROB fragments found!" << endreq;
+        log << MSG::WARNING << "No MuCTPI ROB fragments found!" << endmsg;
 
         MuCTPI_RDO* result = new MuCTPI_RDO;
         pObj = SG::asStorable( result );
@@ -224,7 +197,7 @@ StatusCode MuCTPIByteStreamCnv::createObj( IOpaqueAddress* pAddr, DataObject*& p
   MuCTPI_RDO* result = 0;
   StatusCode sc = m_tool->convert( ROBData( *it ).getROBFragment(), result );
   if( sc.isFailure() ) {
-    log << MSG::ERROR << " Failed to create Objects: " << *( pBS_Addr->par() ) << endreq;
+    log << MSG::ERROR << " Failed to create Objects: " << *( pBS_Addr->par() ) << endmsg;
     if (result!=0){
       delete result;
       result=0;
@@ -247,32 +220,15 @@ StatusCode MuCTPIByteStreamCnv::createObj( IOpaqueAddress* pAddr, DataObject*& p
       CTP_RDO* ctp_result = 0;
       CTP_RIO* ctp_rio_result = 0;
 
-      sc = m_ctp_tool->convert( ROBData( *it ).getROBFragment(), ctp_result );
-      if ( sc.isFailure() ) {
-        log << MSG::ERROR << "Failed to create CTP_RDO " << endreq;
-        return sc;
-      }
+      ATH_CHECK(  m_ctp_tool->convert( ROBData( *it ).getROBFragment(), ctp_result ) );
 
       SG::asStorable( ctp_result ) ;
-      sc = m_storeGate->record( ctp_result, "CTP_RDO" );
-      if( sc.isFailure() ) {
-        log << MSG::ERROR << "Cannot record CTP_RDO " << endreq;
-        return sc;
-      }
+      ATH_CHECK(  m_storeGate->record( ctp_result, "CTP_RDO" ) );
 
-      sc = m_ctp_rec_tool->convert( ROBData( *it ).getROBFragment(), ctp_rio_result, log );
-      if( sc.isFailure() ) {
-        log << MSG::ERROR << "Failed to create CTP_RIO object" << endreq;
-        return sc;
-      }
+      ATH_CHECK(  m_ctp_rec_tool->convert( ROBData( *it ).getROBFragment(), ctp_rio_result, log ) );
 
       SG::asStorable( ctp_rio_result ) ;
-      sc = m_storeGate->record( ctp_rio_result, "CTP_RIO" );
-      if( sc.isFailure() ) {
-        log << MSG::ERROR << "Cannot record CTP_RIO " << endreq;
-        return sc;
-      }
-
+      ATH_CHECK(  m_storeGate->record( ctp_rio_result, "CTP_RIO" ) );
     }
 
   }
@@ -288,14 +244,14 @@ StatusCode MuCTPIByteStreamCnv::createObj( IOpaqueAddress* pAddr, DataObject*& p
  */
 StatusCode MuCTPIByteStreamCnv::createRep( DataObject* pObj, IOpaqueAddress*& pAddr ) {
 
-  MsgStream log( messageService(), "MuCTPIByteStreamCnv" );
-  log << MSG::DEBUG << "createRep() called" << endreq;
+  MsgStream log( msgSvc(), "MuCTPIByteStreamCnv" );
+  log << MSG::DEBUG << "createRep() called" << endmsg;
 
   RawEventWrite* re = m_ByteStreamEventAccess->getRawEvent();
 
   MuCTPI_RDO* result;
   if( ! SG::fromStorable( pObj, result ) ) {
-    log << MSG::ERROR << " Cannot cast to MuCTPI_RDO" << endreq;
+    log << MSG::ERROR << " Cannot cast to MuCTPI_RDO" << endmsg;
     return StatusCode::FAILURE;
   }
 

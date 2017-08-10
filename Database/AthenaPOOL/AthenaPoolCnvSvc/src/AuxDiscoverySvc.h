@@ -10,13 +10,17 @@
  *  @author Peter van Gemmeren <gemmeren@anl.gov>
  **/
 
+#include "GaudiKernel/StatusCode.h"
+
 #include "AthContainersInterfaces/AuxTypes.h"
 #include "DataModelRoot/RootType.h"
 
 #include <string>
 
 // Forward declarations
-class Token;
+class Guid;
+class IAthenaSerializeSvc;
+class IAthenaIPCTool;
 class AthenaPoolAuxStore;
 namespace SG {
    class IAuxStoreIO;
@@ -30,7 +34,7 @@ class AuxDiscoverySvc {
 public:
    AuxDiscoverySvc() : m_store(0), m_storeInt(0), m_storeHolder(0) {}
 
-   bool getAuxStore(void* obj, const Token& token);
+   bool getAuxStore(void* obj, const Guid& classId, const std::string& contId);
 
    bool setData(SG::auxid_t auxid, void* data, const RootType& type);
 
@@ -38,7 +42,7 @@ public:
 
    SG::auxid_t getAuxID(const std::string& attrName, const std::string& elemName, const std::string& typeName);
 
-   const SG::auxid_set_t& getAuxIDs(void* obj, const Token& token);
+   const SG::auxid_set_t& getAuxIDs(const void* obj, const Guid& classId, const std::string& contId);
 
    const void* getData(SG::auxid_t auxid);
 
@@ -50,8 +54,19 @@ public:
 
    std::string getElemName(SG::auxid_t auxid);
 
+   /// Receive dynamic aux store variables from streaming tool
+   StatusCode receiveStore(const IAthenaSerializeSvc* serSvc, const IAthenaIPCTool* ipcTool, void* obj, int num = 0);
+
+   /// Send dynamic aux store variables to streaming tool
+   StatusCode sendStore(const IAthenaSerializeSvc* serSvc,
+	   const IAthenaIPCTool* ipcTool,
+	   const void* obj,
+	   const Guid& classId,
+	   const std::string& contName,
+	   int num = 0);
+
 private: // data
-   SG::IAuxStoreIO* m_store;
+   const SG::IAuxStoreIO* m_store;
    AthenaPoolAuxStore* m_storeInt;
    SG::IAuxStoreHolder* m_storeHolder;
 };

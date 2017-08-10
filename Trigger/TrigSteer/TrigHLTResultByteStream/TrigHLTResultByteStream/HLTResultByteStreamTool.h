@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: HLT Steering
  * @Package: HLTResultByteStream
- * @Class  : HLTResultByteStreamTool
+ * @class  : HLTResultByteStreamTool
  *
  * @brief  Gaudi bytestream Converter tool for the HLTResult class
  *

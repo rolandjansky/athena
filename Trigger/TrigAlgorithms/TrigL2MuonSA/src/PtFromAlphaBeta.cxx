@@ -26,6 +26,8 @@ TrigL2MuonSA::PtFromAlphaBeta::PtFromAlphaBeta(const std::string& type,
   m_ptEndcapLUT(0)
 {
   declareInterface<TrigL2MuonSA::PtFromAlphaBeta>(this);
+  declareProperty("useCscPt", m_use_cscpt=false);
+  declareProperty("AvoidMisalignedCSCs", m_avoid_misaligned_cscs=true,"avoid using the 2 new chambers, whose alignment is not completed");
 }
 
 // --------------------------------------------------------------------------------
@@ -49,6 +51,7 @@ StatusCode TrigL2MuonSA::PtFromAlphaBeta::initialize()
     return sc;
   }
 
+  ATH_MSG_DEBUG(m_use_cscpt);
   // 
   return StatusCode::SUCCESS; 
 }
@@ -95,7 +98,9 @@ StatusCode TrigL2MuonSA::PtFromAlphaBeta::setPt(TrigL2MuonSA::TrackPattern& trac
   //
   const float ALPHA_TO_BETA_PT    = 10;
   const float ALPHA_TO_BETA_RATIO = 0.5;
-  
+  const float ALPHA_TO_CSC_RATIO = 0.3;
+  const float ALPHA_TO_CSC_RATIO_PT = 0.025;
+
   // use MDT beta if condition allows
   if (fabs(mdtPt) > ALPHA_TO_BETA_PT && fabs(trackPattern.endcapBeta)>ZERO_LIMIT) {
     float betaPt = (*m_ptEndcapLUT)->lookup(side, charge, PtEndcapLUT::BETAPOL2, trackPattern.etaBin,
@@ -135,6 +140,21 @@ StatusCode TrigL2MuonSA::PtFromAlphaBeta::setPt(TrigL2MuonSA::TrackPattern& trac
   if (trackPattern.ptEndcapRadius>0 && trackPattern.ptEndcapRadius<500)
       trackPattern.pt = trackPattern.ptEndcapRadius;//use pt calculated from endcap radius
 
+  if(m_use_cscpt){
+    const float &cscPt = trackPattern.ptCSC;
+    const int &etabin = trackPattern.etaBin;
+    bool validrange = (20<=etabin && etabin<=27) || (etabin==20 && abs(side-charge)!=1);//side-charge==0 <=> Qeta==1
+    bool validchamber = !m_avoid_misaligned_cscs || (16!=trackPattern.hashID_CSC && 17!=trackPattern.hashID_CSC);
+    if( etabin !=23 && etabin!=24 &&  validrange && validchamber){
+      if(fabs(trackPattern.ptEndcapBeta)<ZERO_LIMIT && fabs(cscPt)>ZERO_LIMIT 
+	 &&  fabs((cscPt - mdtPt) / mdtPt)<ALPHA_TO_CSC_RATIO && fabs(1./cscPt-1./mdtPt)<ALPHA_TO_CSC_RATIO_PT ){
+	trackPattern.pt = fabs(cscPt);
+	//trackPattern.charge = cscPt/fabs(cscPt);//not need 
+      }
+    }
+  }//use pt calculated from CSC-gamma
+  
+  
   bool pTCB = false;
   if( pTCB ){
     double Co_APt = 0.;

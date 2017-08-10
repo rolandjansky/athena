@@ -159,7 +159,7 @@ StatusCode OverviewMon::bookHistogramsRecurrent()
 
   bool online = (m_onlineTest || m_environment == AthenaMonManager::online);
 
-  if (newRun || newLumiBlock) {
+  if (newRunFlag() || newLumiBlockFlag()) {
     // Get lumiblock number
 
     m_lumiNo = 0;
@@ -170,9 +170,9 @@ StatusCode OverviewMon::bookHistogramsRecurrent()
     }
   }
 
-  if ((newLumiBlock && !online) || newRun) {
+  if ((newLumiBlockFlag() && !online) || newRunFlag()) {
     std::string dir(m_rootDir + "/Errors");
-    MonGroup monGlobal(this, dir, (newLumiBlock && !online) ? lumiBlock : run,
+    MonGroup monGlobal(this, dir, (newLumiBlockFlag() && !online) ? lumiBlock : run,
                        ATTRIB_UNMANAGED);
 
     // Global Error Overview
@@ -225,7 +225,7 @@ StatusCode OverviewMon::bookHistogramsRecurrent()
       m_lumipos = 0;
       m_luminumbers[m_lumipos] = m_lumiNo;
     }
-  } else if (newLumiBlock && online) {
+  } else if (newLumiBlockFlag() && online) {
     // Update last few lumiblocks plots
 
     m_lumipos = -1;
@@ -257,12 +257,12 @@ StatusCode OverviewMon::bookHistogramsRecurrent()
 
   } // end if ((newLumiBlock && ...
 
-  if (newRun || newLumiBlock) {
+  if (newRunFlag() || newLumiBlockFlag()) {
     // Errors by lumiblock/time plots
     // On Tier0 only kept if non-empty
 
     if (m_lumiNo) {
-      if (newRun) {
+      if (newRunFlag()) {
         std::string dir(m_rootDir + "/Errors");
         MonGroup monLumi(this, dir, run, ATTRIB_UNMANAGED);
         if (online)
@@ -346,7 +346,7 @@ StatusCode OverviewMon::bookHistogramsRecurrent()
 
   // Total events processed and total rejected as corrupt
 
-  if (newRun) {
+  if (newRunFlag()) {
     MonGroup monEvents(this, m_rootDir, run, ATTRIB_UNMANAGED);
     m_histTool->setMonGroup(&monEvents);
     int bins = (m_errorTool->flagCorruptEvents() == "None") ? 1 : 2;
@@ -730,7 +730,7 @@ StatusCode OverviewMon::procHistograms()
   //}
 
   bool online = (m_onlineTest || m_environment == AthenaMonManager::online);
-  if (endOfRun && !online) {
+  if (endOfRunFlag() && !online) {
     if (m_h_l1calo_1d_ErrorsByLumiblock &&
         m_h_l1calo_1d_ErrorsByLumiblock->GetEntries() == 0.) {
       delete m_h_l1calo_1d_ErrorsByLumiblock;

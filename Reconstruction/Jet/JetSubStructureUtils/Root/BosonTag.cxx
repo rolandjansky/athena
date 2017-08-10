@@ -24,22 +24,22 @@
 using namespace JetSubStructureUtils;
 
 // make all static accessors static to this file, like extern but hip
-SG::AuxElement::ConstAccessor<int>      BosonTag::AlgorithmType ("AlgorithmType");
-SG::AuxElement::ConstAccessor<float>    BosonTag::SizeParameter ("SizeParameter");
-SG::AuxElement::ConstAccessor<int>      BosonTag::InputType ("InputType");
-SG::AuxElement::ConstAccessor<int>      BosonTag::TransformType ("TransformType");
-SG::AuxElement::ConstAccessor<float>    BosonTag::RClus ("RClus");
-SG::AuxElement::ConstAccessor<float>    BosonTag::PtFrac ("PtFrac");
-SG::AuxElement::ConstAccessor<float>    BosonTag::RCut ("RCut");
-SG::AuxElement::ConstAccessor<float>    BosonTag::ZCut ("ZCut");
-SG::AuxElement::ConstAccessor<char>     BosonTag::BDRS ("BDRS");
-SG::AuxElement::ConstAccessor<float>    BosonTag::YMin ("YMin");
-SG::AuxElement::ConstAccessor<float>    BosonTag::MuMax ("MuMax");
-SG::AuxElement::ConstAccessor<float>    BosonTag::YFilt ("YFilt");
-SG::AuxElement::ConstAccessor<float>    BosonTag::D2 ("D2");
-SG::AuxElement::ConstAccessor<float>    BosonTag::ECF1 ("ECF1");
-SG::AuxElement::ConstAccessor<float>    BosonTag::ECF2 ("ECF2");
-SG::AuxElement::ConstAccessor<float>    BosonTag::ECF3 ("ECF3");
+SG::AuxElement::ConstAccessor<int>      BosonTag::s_AlgorithmType ("AlgorithmType");
+SG::AuxElement::ConstAccessor<float>    BosonTag::s_SizeParameter ("SizeParameter");
+SG::AuxElement::ConstAccessor<int>      BosonTag::s_InputType ("InputType");
+SG::AuxElement::ConstAccessor<int>      BosonTag::s_TransformType ("TransformType");
+SG::AuxElement::ConstAccessor<float>    BosonTag::s_RClus ("RClus");
+SG::AuxElement::ConstAccessor<float>    BosonTag::s_PtFrac ("PtFrac");
+SG::AuxElement::ConstAccessor<float>    BosonTag::s_RCut ("RCut");
+SG::AuxElement::ConstAccessor<float>    BosonTag::s_ZCut ("ZCut");
+SG::AuxElement::ConstAccessor<char>     BosonTag::s_BDRS ("BDRS");
+SG::AuxElement::ConstAccessor<float>    BosonTag::s_YMin ("YMin");
+SG::AuxElement::ConstAccessor<float>    BosonTag::s_MuMax ("MuMax");
+SG::AuxElement::ConstAccessor<float>    BosonTag::s_YFilt ("YFilt");
+SG::AuxElement::ConstAccessor<float>    BosonTag::s_D2 ("D2");
+SG::AuxElement::ConstAccessor<float>    BosonTag::s_ECF1 ("ECF1");
+SG::AuxElement::ConstAccessor<float>    BosonTag::s_ECF2 ("ECF2");
+SG::AuxElement::ConstAccessor<float>    BosonTag::s_ECF3 ("ECF3");
 
 
 BosonTag::CONFIG::CONFIG() :
@@ -273,55 +273,55 @@ std::pair<bool, std::string> BosonTag::get_algorithm_name(const xAOD::Jet& jet,
   // ending of algorithm_name
   switch(jet_transform){
     case xAOD::JetTransform::Trim:
-      if( !PtFrac.isAvailable(jet) ){
+      if( !s_PtFrac.isAvailable(jet) ){
         if(m_debug) printf("<%s>: PtFrac is not defined for the input jet.\r\n", APP_NAME);
         error_flag |= true;
       }
-      if( !RClus.isAvailable(jet) ){
+      if( !s_RClus.isAvailable(jet) ){
         if(m_debug) printf("<%s>: RClus is not defined for the input jet.\r\n" , APP_NAME);
         error_flag |= true;
       }
 
-      if(m_verbose) printf("<%s>: PtFrac: %0.2f\tRClus: %0.2f\r\n", APP_NAME, PtFrac(jet), RClus(jet));
-      algorithm_name += "F" + std::to_string(static_cast<int>(PtFrac(jet)*100))
-                       + "R" + std::to_string(static_cast<int>(RClus(jet)*100));
+      if(m_verbose) printf("<%s>: PtFrac: %0.2f\tRClus: %0.2f\r\n", APP_NAME, s_PtFrac(jet), s_RClus(jet));
+      algorithm_name += "F" + std::to_string(static_cast<int>(s_PtFrac(jet)*100))
+                       + "R" + std::to_string(static_cast<int>(s_RClus(jet)*100));
     break;
     case xAOD::JetTransform::Prune:
-      if( !RCut.isAvailable(jet) ){
+      if( !s_RCut.isAvailable(jet) ){
         if(m_debug) printf("<%s>: RCut is not defined for the input jet.\r\n", APP_NAME);
         error_flag |= true;
       }
-      if( !ZCut.isAvailable(jet) ){
+      if( !s_ZCut.isAvailable(jet) ){
         if(m_debug) printf("<%s>: ZCut is not defined for the input jet.\r\n", APP_NAME);
         error_flag |= true;
       }
 
-      if(m_verbose) printf("<%s>: RCut: %0.2f\tZCut: %0.2f\r\n", APP_NAME, RCut(jet), ZCut(jet));
-      algorithm_name += "R" + std::to_string(static_cast<int>(RCut(jet)*100))
-                       + "Z" + std::to_string(static_cast<int>(ZCut(jet)*100));
+      if(m_verbose) printf("<%s>: RCut: %0.2f\tZCut: %0.2f\r\n", APP_NAME, s_RCut(jet), s_ZCut(jet));
+      algorithm_name += "R" + std::to_string(static_cast<int>(s_RCut(jet)*100))
+                       + "Z" + std::to_string(static_cast<int>(s_ZCut(jet)*100));
     break;
     case xAOD::JetTransform::MassDrop:
-      if( !MuMax.isAvailable(jet) ){
+      if( !s_MuMax.isAvailable(jet) ){
         if(m_debug) printf("<%s>: MuMax is not defined for the input jet.\r\n", APP_NAME);
         error_flag |= true;
       }
-      if( !RClus.isAvailable(jet) ){
+      if( !s_RClus.isAvailable(jet) ){
         if(m_debug) printf("<%s>: RClus is not defined for the input jet.\r\n", APP_NAME);
         error_flag |= true;
       }
-      if( !YMin.isAvailable(jet) ){
+      if( !s_YMin.isAvailable(jet) ){
         if(m_debug) printf("<%s>: YMin is not defined for the input jet.\r\n" , APP_NAME);
         error_flag |= true;
       }
-      if( !BDRS.isAvailable(jet) ){
+      if( !s_BDRS.isAvailable(jet) ){
         if(m_debug) printf("<%s>: BDRS is not defined for the input jet.\r\n" , APP_NAME);
         error_flag |= true;
       }
 
-      if(m_verbose) printf("<%s>: MuMax: %0.2f\tRClus: %0.2f\tYMin: %0.2f\r\n", APP_NAME, MuMax(jet), RClus(jet), YMin(jet));
-      algorithm_name += "M" + std::to_string(static_cast<int>(MuMax(jet)*100))
-                       + "R" + std::to_string(static_cast<int>(RClus(jet)*100))
-                       + "Y" + std::to_string(static_cast<int>(YMin(jet)*100));
+      if(m_verbose) printf("<%s>: MuMax: %0.2f\tRClus: %0.2f\tYMin: %0.2f\r\n", APP_NAME, s_MuMax(jet), s_RClus(jet), s_YMin(jet));
+      algorithm_name += "M" + std::to_string(static_cast<int>(s_MuMax(jet)*100))
+                       + "R" + std::to_string(static_cast<int>(s_RClus(jet)*100))
+                       + "Y" + std::to_string(static_cast<int>(s_YMin(jet)*100));
     break;
     default:
       if(m_debug) printf("<%s>: Current value of xAOD::JetTransform::Type is not supported!\r\n", APP_NAME);
@@ -353,19 +353,19 @@ int BosonTag::result(const xAOD::Jet& jet) const
   }
 
   // if we call via this method, we need these 4 things defined
-  if( !AlgorithmType.isAvailable(jet) ){
-    if(m_debug) printf("<%s>: AlgorithmType is not defined for the jet.\r\n", APP_NAME);
+  if( !s_AlgorithmType.isAvailable(jet) ){
+    if(m_debug) printf("<%s>: s_AlgorithmType is not defined for the jet.\r\n", APP_NAME);
     return -9;
   }
-  if( !SizeParameter.isAvailable(jet) ){
+  if( !s_SizeParameter.isAvailable(jet) ){
     if(m_debug) printf("<%s>: SizeParameter is not defined for the jet.\r\n", APP_NAME);
     return -9;
   }
-  if( !InputType.isAvailable(jet) )    {
+  if( !s_InputType.isAvailable(jet) )    {
     if(m_debug) printf("<%s>: InputType is not defined for the jet.\r\n"    , APP_NAME);
     return -9;
   }
-  if( !TransformType.isAvailable(jet) ){
+  if( !s_TransformType.isAvailable(jet) ){
     if(m_debug) printf("<%s>: TransformType is not defined for the jet.\r\n", APP_NAME);
     return -9;
   }
@@ -375,14 +375,14 @@ int BosonTag::result(const xAOD::Jet& jet) const
       "Size Parameter: %0.2f\r\n\t"
       "Input Type:     %d\r\n\t"
       "Transform Type: %d\r\n",
-      APP_NAME, AlgorithmType(jet), SizeParameter(jet), InputType(jet), TransformType(jet));
+      APP_NAME, s_AlgorithmType(jet), s_SizeParameter(jet), s_InputType(jet), s_TransformType(jet));
 
   // get the algorithm name and check result
   std::pair<bool, std::string> res = get_algorithm_name(jet,
-                                                        static_cast<xAOD::JetAlgorithmType::ID>(AlgorithmType(jet)),
-                                                        SizeParameter(jet),
-                                                        static_cast<xAOD::JetInput::Type>(InputType(jet)),
-                                                        static_cast<xAOD::JetTransform::Type>(TransformType(jet)));
+                                                        static_cast<xAOD::JetAlgorithmType::ID>(s_AlgorithmType(jet)),
+                                                        s_SizeParameter(jet),
+                                                        static_cast<xAOD::JetInput::Type>(s_InputType(jet)),
+                                                        static_cast<xAOD::JetTransform::Type>(s_TransformType(jet)));
 
   // is it a valid result?
   if(!res.first){
@@ -428,30 +428,30 @@ int BosonTag::result(const xAOD::Jet& jet, std::string algorithm_name) const {
     }
 
     // start with the mass window
-    float mean_mass_val = c.second.m_mass_params[0] + c.second.m_mass_params[1] * jet.pt()/1.e3;
+    float mean_mass_val = c.second.m_mass_params[0] + c.second.m_mass_params[1] * jet.pt()*1.e-3;
     float window_bottom = mean_mass_val - c.second.m_mass_window;
     float window_top = mean_mass_val + c.second.m_mass_window;
-    if(m_verbose) printf("<%s>: (smooth) Jet pt: %0.6f GeV", APP_NAME, jet.pt()/1.e3);
+    if(m_verbose) printf("<%s>: (smooth) Jet pt: %0.6f GeV", APP_NAME, jet.pt()*1.e-3);
     buffer = "<%s>: (smooth) Jet %s the mass window cut.\r\n\tMass: %0.6f GeV\r\n\tMean Mass Value: %0.6f GeV\r\n\tMass Window: [ %0.6f, %0.6f ] GeV (note: +/- %0.2f GeV)\r\n";
-    if(! ((window_bottom < jet.m()/1.e3)&&(jet.m()/1.e3 < window_top)) ){
-      if(m_verbose) printf(buffer.c_str(), APP_NAME, "failed", jet.m()/1.e3, mean_mass_val, window_bottom, window_top, c.second.m_mass_window);
+    if(! ((window_bottom < jet.m()*1.e-3)&&(jet.m()*1.e-3 < window_top)) ){
+      if(m_verbose) printf(buffer.c_str(), APP_NAME, "failed", jet.m()*1.e-3, mean_mass_val, window_bottom, window_top, c.second.m_mass_window);
       passMass = 0;
     } else {
-      if(m_verbose) printf(buffer.c_str(), APP_NAME, "passed", jet.m()/1.e3, mean_mass_val, window_bottom, window_top, c.second.m_mass_window);
+      if(m_verbose) printf(buffer.c_str(), APP_NAME, "passed", jet.m()*1.e-3, mean_mass_val, window_bottom, window_top, c.second.m_mass_window);
       passMass = 1;
     }
 
     // then calculate d2 and check that
-    float cut_on_d2_val = c.second.m_d2_params[0] + c.second.m_d2_params[1] * jet.pt()/1.e3 + c.second.m_d2_params[2] * pow(jet.pt()/1.e3, 2) + c.second.m_d2_params[3] * pow(jet.pt()/1.e3, 3) + c.second.m_d2_params[4] * pow(jet.pt()/1.e3, 4);
+    float cut_on_d2_val = c.second.m_d2_params[0] + c.second.m_d2_params[1] * jet.pt()*1.e-3 + c.second.m_d2_params[2] * pow(jet.pt()*1.e-3, 2) + c.second.m_d2_params[3] * pow(jet.pt()*1.e-3, 3) + c.second.m_d2_params[4] * pow(jet.pt()*1.e-3, 4);
     float d2(0.0);
-    if(D2.isAvailable(jet)){
-      d2 = D2(jet);
+    if(s_D2.isAvailable(jet)){
+      d2 = s_D2(jet);
     } else {
-      if((!ECF1.isAvailable(jet) || !ECF2.isAvailable(jet) || !ECF3.isAvailable(jet))){
+      if((!s_ECF1.isAvailable(jet) || !s_ECF2.isAvailable(jet) || !s_ECF3.isAvailable(jet))){
         if(m_debug) printf("<%s>: (smooth) D2 wasn't calculated. ECF# variables are not available.\r\n", APP_NAME);
         return -9;
       }
-      d2 = ECF3(jet) * pow(ECF1(jet), 3.0) / pow(ECF2(jet), 3.0);
+      d2 = s_ECF3(jet) * pow(s_ECF1(jet), 3.0) / pow(s_ECF2(jet), 3.0);
     }
 
     // figure out if we tag or not
@@ -479,21 +479,21 @@ int BosonTag::result(const xAOD::Jet& jet, std::string algorithm_name) const {
 
     // at this point, we know the jet is correct, so apply a mass window cut
     buffer = "<%s>: (Run-1) Jet %s the mass window cut.\r\n\tMass: %0.6f GeV\r\n\tMass Window: [ 69.00, 107.00 ] GeV\r\n";
-    if(! (69. < jet.m()/1.e3 && jet.m()/1.e3 < 107.) ){
-      if(m_verbose) printf(buffer.c_str(), APP_NAME, "failed", jet.m()/1.e3);
+    if(! (69. < jet.m()*1.e-3 && jet.m()*1.e-3 < 107.) ){
+      if(m_verbose) printf(buffer.c_str(), APP_NAME, "failed", jet.m()*1.e-3);
       passMass = 0;
     } else {
-      if(m_verbose) printf(buffer.c_str(), APP_NAME, "passed", jet.m()/1.e3);
+      if(m_verbose) printf(buffer.c_str(), APP_NAME, "passed", jet.m()*1.e-3);
       passMass = 1;
     }
 
     //  and a \sqrt{y_S} cut (on subjets moment balance)
     float ys(0.0);
-    if(!YFilt.isAvailable(jet)){
+    if(!s_YFilt.isAvailable(jet)){
       if(m_debug) printf("<%s>: (Run-1) Could not find YFilt on jet (subjets moment balance, y_S)\r\n", APP_NAME);
       return -9;
     }
-    ys = YFilt(jet);
+    ys = s_YFilt(jet);
     buffer = "<%s>: (Run-1) Jet %s the sqrt{y_S} cut.\r\n\tsqrt{y_S}: %0.2f\r\n\tCut: 0.45\r\n";
     if(! (sqrt(ys) > 0.45) ){
       if(m_verbose) printf(buffer.c_str(), APP_NAME, "failed", sqrt(ys));

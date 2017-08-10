@@ -28,12 +28,12 @@ BremsstrahlungStrategy::BremsstrahlungStrategy(const std::string& n)
   // don't overwrite the values already in the strategy manager
   if(theTruthManager->GetTruthParameter("BremsPrimaryMinEnergy")==0){
     log() << MSG::INFO << "BremsPrimaryMinEnergy: setting default value of 100 MeV"
-          << endreq;
+          << endmsg;
     theTruthManager->SetTruthParameter("BremsPrimaryMinEnergy", prim_thr);
   }
   if(theTruthManager->GetTruthParameter("BremsSecondaryMinEnergy")==0){
     log() << MSG::INFO << "BremsSecondaryMinEnergy: setting default value of 100 MeV"
-          << endreq;
+          << endmsg;
     theTruthManager->SetTruthParameter("BremsSecondaryMinEnergy", seco_thr);
   }
 }

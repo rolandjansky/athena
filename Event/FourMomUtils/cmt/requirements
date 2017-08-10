@@ -16,7 +16,6 @@ use  xAODMissingET              xAODMissingET-*                 Event/xAOD
 use_unless  pkg=EventKernel  tag=ManaCore  ver=*  root=Event
 use_unless  pkg=NavFourMom   tag=ManaCore  ver=*  root=Event
 
-
 branches FourMomUtils src doc python Root
 
 library FourMomUtils *.cxx ../Root/*.cxx

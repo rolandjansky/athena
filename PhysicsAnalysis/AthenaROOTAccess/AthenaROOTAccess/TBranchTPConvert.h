@@ -16,6 +16,7 @@
 #ifndef ATHENAROOTACCESS_TBRANCHTPCONVERT_H
 #define ATHENAROOTACCESS_TBRANCHTPCONVERT_H
 
+#include "AthenaPoolCnvSvc/AthenaPoolTopLevelTPCnvBase.h"
 #include "AthenaROOTAccess/ISetSGKey.h"
 #include "GaudiKernel/ClassID.h"
 #include "GaudiKernel/MsgStream.h"
@@ -25,7 +26,6 @@
 #include <string>
 
 class ITPCnvBase;
-class AthenaPoolTopLevelTPCnvBase;
 namespace SG {
 class DataProxy;
 class Arena;
@@ -303,14 +303,21 @@ private:
    * @param obj Object pointer passed into the constructor.
    *            If 0, we'll create one.
    * @param transtree The tree we're being created in.
+   * @param obj_ptr Reference to m_obj_ptr.
+   * @param obj_own Reference to m_obj_own.
+   * @param cls Reference to m_class.
    * @return Pointer-to-pointer to the object.
    *
    * Note: This is run at the start of object construction;
    * don't assume anything about the members.
    */
+  static
   void* addObjInit (const char* clsname,
                     void* obj,
-                    TTreeTrans* transtree);
+                    TTreeTrans* transtree,
+                    void*& obj_ptr,
+                    bool& own_obj,
+                    TClass*& cls);
 
 
   /**

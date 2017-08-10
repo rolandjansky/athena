@@ -16,7 +16,7 @@ CMXCPTobCollection_PERS * CMXCPTobCollectionCnv::createPersistent( CMXCPTobColle
   
   MsgStream mlog(msgSvc(), "CMXCPTobCollectionConverter" );
 
-  //mlog << MSG::DEBUG << "CMXCPTobCollectionCnv::createPersistent called" << endreq;
+  //mlog << MSG::DEBUG << "CMXCPTobCollectionCnv::createPersistent called" << endmsg;
 
   CMXCPTobCollection_PERS * p_TTColl = m_TPConverter_tlp1.createPersistent( transObj, mlog );
  
@@ -30,7 +30,7 @@ CMXCPTobCollection * CMXCPTobCollectionCnv::createTransient()
 {
   MsgStream mlog(msgSvc(), "CMXCPTobCollectionConverter" );
   
-  //mlog << MSG::DEBUG << "CMXCPTobCollectionCnv::createTransient called" << endreq;
+  //mlog << MSG::DEBUG << "CMXCPTobCollectionCnv::createTransient called" << endmsg;
 
   static pool::Guid tlp1_guid( "0E42AA28-7C10-4934-9E54-97C38C249544" );
  

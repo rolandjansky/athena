@@ -584,6 +584,7 @@ void test_decoration()
 
   SG::AuxElement::Decorator<int> ityp3 ("anInt3");
   ityp3(cb) = 12;
+  assert (ityp3.getDecorationArray (v)+5 == &ityp3(cb));
 
   assert (10 == ityp1(cb));
   assert (12 == ityp3(cb));

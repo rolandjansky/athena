@@ -67,12 +67,12 @@
 //   // Find the path to inputFile
 //   std::string fname = PathResolver::find_file("cos_LLR_pdf.root", "DATAPATH");
 //   if(fname==""){
-//     mLog << MSG::ERROR << "Could not find input file " << fname << endreq;
+//     mLog << MSG::ERROR << "Could not find input file " << fname << endmsg;
 //     return StatusCode::FAILURE;
 //   }
 
 //   filePDF = new TFile(fname.c_str());
-//   mLog << MSG::INFO << "The input file is " << fname.c_str() << endreq;
+//   mLog << MSG::INFO << "The input file is " << fname.c_str() << endmsg;
 //   if(filePDF->IsOpen()){
 //      if(JetContainerName.compare("Cone4H1TopoJets")==0){
 //        cosmicPdf_EMFraction.push_back((TH1D*)filePDF->Get("cone4topo_JetEMf_bin0_s_pdf_more"));
@@ -118,21 +118,21 @@
 //        dijetPdf_RconeANDRatio.push_back((TH2D*)filePDF->Get("antikt4topo_Rcone_Ratio_bin3_b_pdf_more"));
 //      }
 //   }else{
-//     mLog << MSG::ERROR << "Could not open file " << fname << endreq;
+//     mLog << MSG::ERROR << "Could not open file " << fname << endmsg;
 //     return StatusCode::FAILURE;
 //   }
 //   /////////////////////////////////////////////////////////////////////////
 //   //for(int i=0; i<int(cosmicPdf_EMFraction.size()); i++)
-//   //mLog << MSG::INFO <<cosmicPdf_EMFraction[i]->GetName()<<":"<<cosmicPdf_EMFraction[i]->GetSumOfWeights()<<endreq;
+//   //mLog << MSG::INFO <<cosmicPdf_EMFraction[i]->GetName()<<":"<<cosmicPdf_EMFraction[i]->GetSumOfWeights()<<endmsg;
 
 //   //for(int i=0; i<int(cosmicPdf_RconeANDRatio.size()); i++)
-//   //mLog << MSG::INFO <<cosmicPdf_RconeANDRatio[i]->GetName()<<":"<<cosmicPdf_RconeANDRatio[i]->GetSumOfWeights()<<endreq;
+//   //mLog << MSG::INFO <<cosmicPdf_RconeANDRatio[i]->GetName()<<":"<<cosmicPdf_RconeANDRatio[i]->GetSumOfWeights()<<endmsg;
 
 //   //for(int i=0; i<int(dijetPdf_EMFraction.size()); i++)
-//   //mLog << MSG::INFO <<dijetPdf_EMFraction[i]->GetName()<<":"<<dijetPdf_EMFraction[i]->GetSumOfWeights()<<endreq;
+//   //mLog << MSG::INFO <<dijetPdf_EMFraction[i]->GetName()<<":"<<dijetPdf_EMFraction[i]->GetSumOfWeights()<<endmsg;
 
 //   //for(int i=0; i<int(dijetPdf_RconeANDRatio.size()); i++)
-//   //mLog << MSG::INFO <<dijetPdf_RconeANDRatio[i]->GetName()<<":"<<dijetPdf_RconeANDRatio[i]->GetSumOfWeights()<<endreq;
+//   //mLog << MSG::INFO <<dijetPdf_RconeANDRatio[i]->GetName()<<":"<<dijetPdf_RconeANDRatio[i]->GetSumOfWeights()<<endmsg;
 
 //   return StatusCode::SUCCESS;
 // }
@@ -216,7 +216,7 @@
 //   // //--- to get pdf ---
 //   // if(filePDF==NULL){
 //   //    StatusCode sc = getpdf();
-//   //    if(sc.isFailure()) mLog << MSG::WARNING << "Some problems with getpdf()! " << endreq;
+//   //    if(sc.isFailure()) mLog << MSG::WARNING << "Some problems with getpdf()! " << endmsg;
 //   // }
 
 //   // //--- to get emfraction and em_pt ---
@@ -227,7 +227,7 @@
 //   // double em_eta=jet->eta();
 //   // emscale_h.resetSignalState(); //Set it back to the original state
 
-//   // //mLog << MSG::DEBUG << "compute_LLREmFraction: em_pt = " <<em_pt<< endreq;
+//   // //mLog << MSG::DEBUG << "compute_LLREmFraction: em_pt = " <<em_pt<< endmsg;
 
 //   // if(em_pt/1000.<20. || fabs(em_eta)>2.5) return -20.;
 
@@ -236,7 +236,7 @@
 //   // while(ptbin_pdf[iptbin]<em_pt/1000.&&iptbin<int(ptbin_pdf.size())){
 //   //   iptbin++;
 //   // }
-//   // //mLog << MSG::INFO << "compute_LLREmFraction iptbin = " <<iptbin<< endreq;
+//   // //mLog << MSG::INFO << "compute_LLREmFraction iptbin = " <<iptbin<< endmsg;
 //   // TH1* hist_cos=cosmicPdf_EMFraction[iptbin];
 //   // TH1* hist_dij=dijetPdf_EMFraction[iptbin];
 
@@ -269,7 +269,7 @@
 //   // //--- to get pdf ---
 //   // if(filePDF==NULL){
 //   //    StatusCode sc = getpdf();
-//   //    if(sc.isFailure()) mLog << MSG::WARNING << "Some problems with getpdf()! " << endreq;
+//   //    if(sc.isFailure()) mLog << MSG::WARNING << "Some problems with getpdf()! " << endmsg;
 //   // }
 
 //   // //--- to get rcone, ratio_leadingcells and em_pt ---
@@ -280,7 +280,7 @@
 //   // double em_pt=jet->pt();
 //   // double em_eta=jet->eta();
 //   // emscale_h.resetSignalState(); //Set it back to the original state
-//   // //mLog << MSG::DEBUG << "compute_LLRRconeANDRatio: em_pt = " <<em_pt<< endreq;
+//   // //mLog << MSG::DEBUG << "compute_LLRRconeANDRatio: em_pt = " <<em_pt<< endmsg;
 
 //   //   if(em_pt/1000.<20. || fabs(em_eta)>2.5) return -20.;
 
@@ -290,7 +290,7 @@
 //   //   iptbin++;
 //   // }
 
-//   // //mLog << MSG::INFO << "compute_LLRLeading iptbin = " <<iptbin<< endreq;
+//   // //mLog << MSG::INFO << "compute_LLRLeading iptbin = " <<iptbin<< endmsg;
 //   // TH2* hist_cos=cosmicPdf_RconeANDRatio[iptbin];
 //   // TH2* hist_dij=dijetPdf_RconeANDRatio[iptbin];
 //   // double xmax=hist_cos->GetXaxis()->GetXmax();
@@ -312,7 +312,7 @@
 
 //   // double sig=hist_cos->Interpolate(rconetmp,ratiotmp);
 //   // double bkg=hist_dij->Interpolate(rconetmp,ratiotmp);
-//   // //mLog << MSG::INFO <<"LLRLeading = "<<log(sig/bkg)<< endreq;
+//   // //mLog << MSG::INFO <<"LLRLeading = "<<log(sig/bkg)<< endmsg;
 
 //   // if(sig!=0&&bkg!=0){
 //   //   return log(sig/bkg);

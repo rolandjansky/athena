@@ -24,7 +24,7 @@
 namespace InDet {
   /** A concrete implementation of IInDetBeamSpotTool, using primary vertex information to 
       determine the position of the beamspot using a chi2 and/or log-likelihood method.
-      @copyDoc InDet::IInDetBeamSpotTool
+      @copydoc InDet::IInDetBeamSpotTool
   */
   class InDetBeamSpotVertex : public AthAlgTool, 
     virtual public IInDetBeamSpotTool {

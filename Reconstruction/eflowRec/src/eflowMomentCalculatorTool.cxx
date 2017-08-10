@@ -38,7 +38,7 @@ void eflowMomentCalculatorTool::execute(eflowCaloObjectContainer* theEflowCaloOb
   /* Collect all the clusters in a temporary container (with VIEW_ELEMENTS!) */
   bool useNonModifiedClusters = true;
   if (true == m_LCMode) useNonModifiedClusters = false;
-  xAOD::CaloClusterContainer* tempClusterContainer = m_clusterCollectionTool->execute(theEflowCaloObjectContainer, useNonModifiedClusters);
+  std::unique_ptr<xAOD::CaloClusterContainer> tempClusterContainer = m_clusterCollectionTool->execute(theEflowCaloObjectContainer, useNonModifiedClusters);
 
   /* Set the layer energies */
   /* This must be set before the cluster moment calculations, which use the layer energies */
@@ -46,11 +46,9 @@ void eflowMomentCalculatorTool::execute(eflowCaloObjectContainer* theEflowCaloOb
 
   /* Remake the cluster moments */
 
-  if (m_clusterMomentsMaker->execute(tempClusterContainer).isFailure()) {
+  if (m_clusterMomentsMaker->execute(tempClusterContainer.get()).isFailure()) {
     msg(MSG::WARNING) << "Could not execute ClusterMomentsMaker " << endmsg;
   }
-
-  delete tempClusterContainer;
 
 }
 

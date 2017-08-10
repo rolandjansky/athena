@@ -9,36 +9,36 @@
 #include <cmath>
 
 T2MbtsUtils::T2MbtsUtils(): m_threshold(0.),
-			    m_timeCut(0.),
-			    m_globalTimeOffset(0.),
-			    m_timeMean_A(0.),
-			    m_timeMean_C(0.),
-			    m_timeDiff_A_C(0.),
-			    m_mult(std::make_pair(0,0)) {
+          m_timeCut(0.),
+          m_globalTimeOffset(0.),
+          m_timeMean_A(0.),
+          m_timeMean_C(0.),
+          m_timeDiff_A_C(0.),
+          m_mult(std::make_pair(0,0)) {
   for(int i=0;i<32;i++) m_timeOffsets[i] = 0.;
 }
 
 int T2MbtsUtils::calculateMultiplicities(const xAOD::TrigT2MbtsBits *t2mbtsBits,
-					 int mode,
-					 MsgStream& mlog, 
-					 unsigned int msgLvl) {
+           int mode,
+           MsgStream& mlog, 
+           unsigned int msgLvl) {
   m_mult = std::make_pair(0,0);
 
   if(!t2mbtsBits) {
     return 0;
   }
 
-  if(msgLvl <= MSG::DEBUG) mlog << MSG::DEBUG << "Getting energy and time values." << endreq;
+  if(msgLvl <= MSG::DEBUG) mlog << MSG::DEBUG << "Getting energy and time values." << endmsg;
 
   std::vector<float> triggerEnergies = t2mbtsBits->triggerEnergies();
   std::vector<float> triggerTimes = t2mbtsBits->triggerTimes();
 
   if(triggerEnergies.size() != xAOD::TrigT2MbtsBits::NUM_MBTS || triggerTimes.size() != xAOD::TrigT2MbtsBits::NUM_MBTS ) {
-    if(msgLvl <= MSG::WARNING) mlog << MSG::WARNING << "Vector sizes are not equal to number of MBTS counters." << endreq; 
+    if(msgLvl <= MSG::WARNING) mlog << MSG::WARNING << "Vector sizes are not equal to number of MBTS counters." << endmsg; 
     return 0;
   }
 
-  if(msgLvl <= MSG::DEBUG) mlog << MSG::DEBUG << "Forming hit multiplicities." << endreq;
+  if(msgLvl <= MSG::DEBUG) mlog << MSG::DEBUG << "Forming hit multiplicities." << endmsg;
   
   std::bitset<16> ebaTriggerBits;
   std::bitset<16> ebcTriggerBits;
@@ -101,12 +101,12 @@ int T2MbtsUtils::calculateMultiplicities(const xAOD::TrigT2MbtsBits *t2mbtsBits,
 
   if(msgLvl <= MSG::DEBUG) { 
     mlog << MSG::DEBUG 
-	  << "average MBTS trigger time side A: " << m_timeMean_A 
-	  << ", side C: " << m_timeMean_C 
-	  << ", difference A-C: "<< m_timeDiff_A_C << endreq;
+    << "average MBTS trigger time side A: " << m_timeMean_A 
+    << ", side C: " << m_timeMean_C 
+    << ", difference A-C: "<< m_timeDiff_A_C << endmsg;
     
-    mlog << MSG::DEBUG << "MBTS EBA trigger bits: " << ebaTriggerBits << endreq;
-    mlog << MSG::DEBUG << "MBTS EBC trigger bits: " << ebcTriggerBits << endreq;
+    mlog << MSG::DEBUG << "MBTS EBA trigger bits: " << ebaTriggerBits << endmsg;
+    mlog << MSG::DEBUG << "MBTS EBC trigger bits: " << ebcTriggerBits << endmsg;
   }
   
   m_mult = std::make_pair(ebaTriggerBits.count(),ebcTriggerBits.count());

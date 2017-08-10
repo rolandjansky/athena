@@ -13,11 +13,8 @@ namespace TrigL2MuonSA {
 class MdtDataPreparatorOptions
 {
    public:
-      MdtDataPreparatorOptions() : m_aaa(true) {};
+      MdtDataPreparatorOptions() {};
       ~MdtDataPreparatorOptions() {};
-
-   private:
-      bool m_aaa;
 };
 
 // --------------------------------------------------------------------------------

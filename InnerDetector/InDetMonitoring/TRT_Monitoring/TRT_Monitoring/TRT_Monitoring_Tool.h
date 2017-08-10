@@ -467,7 +467,7 @@ class TRT_Monitoring_Tool : public ManagedMonitorToolBase
   TH1F_LW* m_trackr_HT[4][2];
   TH1F_LW* m_IntLum;
   TH1F_LW* m_LBvsLum;
-  TH1D_LW* m_LBvsTime;
+  TH1F_LW* m_LBvsTime;
 
   float m_HTfraconTrack_B[32];
   float m_LonTrack_B[32];

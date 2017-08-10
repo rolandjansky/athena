@@ -33,8 +33,6 @@ class ZdcCablingSvc : public AthService
 
   const ZdcCablingService* cablingService() const { return m_cablingService; }
 
-  StatusCode  geoInit(IOVSVC_CALLBACK_ARGS);
-
  private:
 
   ZdcCablingService* m_cablingService;

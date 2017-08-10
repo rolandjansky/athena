@@ -86,7 +86,6 @@ include( "AtlfastAthenaPool/AtlfastAthenaPool_joboptions.py" )
 include( "ParticleBuilderOptions/AOD_PoolCnv_jobOptions.py" )
 
 PoolSvc = Service( "PoolSvc" )
-PoolSvc.CheckDictionary = True
 
 # Run OutputStream as an algorithm
 theApp.TopAlg   += [ "AthenaOutputStream/Stream1" ]
@@ -131,7 +130,6 @@ if 'CHECKDICT' in dir() :
     checkDict = CHECKDICT
     pass
 
-PoolSvc.CheckDictionary       = checkDict
 AthenaSealSvc.CheckDictionary = checkDict
 AthenaSealSvc.IgnoreNames     += ["Trk"]
 AthenaSealSvc.OutputLevel     = DEBUG

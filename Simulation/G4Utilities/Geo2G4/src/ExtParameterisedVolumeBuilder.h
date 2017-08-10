@@ -30,9 +30,9 @@ public:
   ///
   void getMatEther() const;
 
-  mutable bool               _getMatEther;
-  mutable const GeoMaterial* _matEther;
-  mutable const GeoMaterial* _matHypUr;
+  mutable bool               m_getMatEther;
+  mutable const GeoMaterial* m_matEther;
+  mutable const GeoMaterial* m_matHypUr;
   /// Private message stream member
   mutable Athena::MsgStreamMember m_msg;
 };

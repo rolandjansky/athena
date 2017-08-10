@@ -53,7 +53,7 @@ topSequence += PerfMonTest__NoopAlg( "NoopAlg" )
 # Pool Persistency
 #---------------------------------------------------------------
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-outStream = AthenaPoolOutputStream("OutStream")
+outStream = AthenaPoolOutputStream("OutStream", noTag=True)
 outStream.ItemList  = [ "EventInfo#McEventInfo"]
 
 if not 'OUTPUT' in dir():

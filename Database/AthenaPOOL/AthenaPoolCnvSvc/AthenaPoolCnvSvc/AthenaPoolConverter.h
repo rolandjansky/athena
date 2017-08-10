@@ -69,7 +69,8 @@ public:
 
 protected:
    /// Standard Service Constructor
-   AthenaPoolConverter(const CLID& id, ISvcLocator* pSvcLocator);
+   AthenaPoolConverter(const CLID& id, ISvcLocator* pSvcLocator,
+                       const char* name = nullptr);
 
    /// Write an object into POOL.
    /// @param pObj [IN] pointer to the transient object.
@@ -111,7 +112,7 @@ protected: // data
    const Token*          m_i_poolToken;
    const Token*          m_o_poolToken;
 
-   typedef std::recursive_mutex CallMutex;
+   typedef std::mutex CallMutex;
    mutable CallMutex m_conv_mut;
 };
 

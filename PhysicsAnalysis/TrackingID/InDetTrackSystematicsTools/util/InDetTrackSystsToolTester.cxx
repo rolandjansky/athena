@@ -106,8 +106,8 @@ int main( int argc, char* argv[] ) {
    InDet::InDetTrackBiasingTool biasingTool( "InDetTrackBiasingTool" );
    ///  comment / uncomment these lines to test
    // CHECK( biasingTool.setProperty( "isData", true ) ); // override to test, since ROOTCORE_TEST_FILE is simluation
-   // uint32_t testRunNumber = 310000;
-   // CHECK( biasingTool.setProperty( "runNumber", testRunNumber ) ); // this line is only for testing that other files are properly accessibl
+   // uint32_t testRunNumber = 287000;
+   // CHECK( biasingTool.setProperty( "runNumber", testRunNumber ) ); // this line is only for testing that other files are properly accessible
 
    InDet::InDetTrackTruthFilterTool filterTool( "InDetTrackFilterTool" );
    auto originTool = make_unique<InDet::InDetTrackTruthOriginTool> ( "InDetTrackTruthOriginTool" );
@@ -116,24 +116,22 @@ int main( int argc, char* argv[] ) {
    CHECK( filterTool.setProperty("trackOriginTool", trackTruthOriginToolHandle) );
 
    InDet::JetTrackFilterTool jetFilterTool( "JetTrackFilterTool" );
-
+   
    // Not a realistic set of systematics - we just want to make sure they can all be applied without breaking the tools
    CP::SystematicSet systSet = {
-     //     InDet::TrackSystematicMap[InDet::TRK_RES_D0_MEAS], // could use this map, but the CP::SystematicVaration 
-     //     InDet::TrackSystematicMap[InDet::TRK_RES_Z0_MEAS], // interface is more universal:
-     CP::SystematicVariation("TRK_RES_D0_MEAS"),
-     CP::SystematicVariation("TRK_RES_Z0_MEAS"),
+     // CP::SystematicVariation("TRK_RES_D0_MEAS"),
+     // CP::SystematicVariation("TRK_RES_Z0_MEAS"),
      // CP::SystematicVariation("TRK_RES_D0_MEAS", 1), // these options are recommended for advanced users only
      // CP::SystematicVariation("TRK_RES_Z0_MEAS", 1),
-     // CP::SystematicVariation("TRK_RES_D0_MEAS", -1),
-     // CP::SystematicVariation("TRK_RES_Z0_MEAS", -1),
+     CP::SystematicVariation("TRK_RES_D0_MEAS", -1),
+     CP::SystematicVariation("TRK_RES_Z0_MEAS", -1),
      CP::SystematicVariation("TRK_RES_D0_DEAD"),
      CP::SystematicVariation("TRK_RES_Z0_DEAD"),
      CP::SystematicVariation("TRK_BIAS_D0_WM"),
      CP::SystematicVariation("TRK_BIAS_Z0_WM"),
      CP::SystematicVariation("TRK_BIAS_QOVERP_SAGITTA_WM"),
      CP::SystematicVariation("TRK_FAKE_RATE_LOOSE"),
-     // CP::SystematicVariation("TRK_FAKE_RATE_TIGHT"), // have to pick one of these, and TIGHT isn't implmeneted yet
+     // CP::SystematicVariation("TRK_FAKE_RATE_TIGHT"), // have to pick one of these, and TIGHT isn't implemented yet
      CP::SystematicVariation("TRK_EFF_LOOSE_GLOBAL"),
      CP::SystematicVariation("TRK_EFF_LOOSE_IBL"),
      CP::SystematicVariation("TRK_EFF_LOOSE_PP0"),
@@ -146,7 +144,7 @@ int main( int argc, char* argv[] ) {
    };
    std::vector< InDet::InDetTrackSystematicsTool* > tools = {&smearingTool, &biasingTool, &filterTool, &jetFilterTool};
 
-   // Configure and initialise the tool(s):
+   /// Configure and initialise the tool(s):
    for (InDet::InDetTrackSystematicsTool* tool : tools) {
      tool->msg().setLevel( MSG::DEBUG );
      CHECK( tool->initialize() );
@@ -159,17 +157,31 @@ int main( int argc, char* argv[] ) {
 
    bool doTIDE = true;
    string jetCollectionName = "AntiKt4EMTopoJets";
+   if ( !event.contains< xAOD::JetContainer >( jetCollectionName ) ) doTIDE = false;
 
    auto outfile = make_unique<TFile>("InDetTrackSystsToolTester.out.root","RECREATE");
 
-   TH1* d0_B = new TH1F("d0_B","original d_{0}",100,-5,5);
-   TH1* z0_B = new TH1F("z0_B","original z_{0}",100,-200,200);
-   TH1* d0sm = new TH1F("d0sm","d_{0} after smearing",100,-5,5);
-   TH1* z0sm = new TH1F("z0sm","z_{0} after smearing",100,-200,200);
-   TH1* subtract_d0 = new TH1F("subtract_d0","#delta d_{0}",100,-1.0,1.0);
-   TH1* subtract_z0 = new TH1F("subtract_z0","#delta z_{0}",100,-10.0,10.0);
+   TH1* d0_before = new TH1F("d0_before","original d_{0}",100,-5,5);
+   TH1* z0_before = new TH1F("z0_before","original z_{0}",100,-200,200);
+   TH1* qOverP_before = new TH1F("qOverP_before", "original q/p", 200, -0.05, 0.05);
+   TH1* d0_after = new TH1F("d0_after","d_{0} after",100,-5,5);
+   TH1* z0_after = new TH1F("z0_after","z_{0} after",100,-200,200);
+   TH1* qOverP_after = new TH1F("qOverP_after", "q/p after", 200, -0.05, 0.05);
+   TH1* d0_diff = new TH1F("d0_diff","#delta d_{0}",100,-1.0,1.0);
+   TH1* z0_diff = new TH1F("z0_diff","#delta z_{0}",100,-10.0,10.0);
+   TH1* qOverP_diff = new TH1F("qOverP_diff", "#delta q/p", 200, -1.e-5, 1.e-5);
 
+   bool isSim = true;
+   const xAOD::EventInfo* ei = nullptr;
+   auto sc = event.retrieve( ei, "EventInfo" );
+   if ( ! sc.isSuccess() ) {
+     Error( __func__, "Could not retreive event ahead of time to detect data/MC" );
+   } else {
+     isSim = ei->eventType( xAOD::EventInfo::IS_SIMULATION );
+   }
+   
 
+   int debugN = 8; // number of tracks to print debug output for
    // Loop over the events:
    for( Long64_t entry = 0; entry < entries; ++entry ) {
 
@@ -185,17 +197,17 @@ int main( int argc, char* argv[] ) {
 	CHECK( event.retrieve( jets, jetCollectionName ) );
       }
 
-
       std::pair< xAOD::TrackParticleContainer*, xAOD::ShallowAuxContainer* > ParticlesID_shallowCopy = xAOD::shallowCopyContainer( *ParticlesID );
       for ( xAOD::TrackParticle* trkCpy : *(ParticlesID_shallowCopy.first) ) {
 
-	if ( !filterTool.accept(trkCpy) ) continue;
+	if ( isSim ) {
+	  if ( !filterTool.accept(trkCpy) ) continue;
+	}
 	if ( doTIDE && !jetFilterTool.accept( trkCpy, jets ) ) continue;
 
-	double d0_1=0,d0_2=0,z0_1=0,z0_2=0;
-	
-	d0_1 = trkCpy->d0();
-	z0_1 = trkCpy->z0();
+	auto d0b = trkCpy->d0();
+	auto z0b = trkCpy->z0();
+	auto qOverPb = trkCpy->qOverP();
 
 	if (biasingTool.applyCorrection(*trkCpy) == CP::CorrectionCode::Error) {
 	  Error(__func__, "Could not apply bias correction!" );
@@ -204,14 +216,36 @@ int main( int argc, char* argv[] ) {
 	  Error(__func__, "Could not apply smearing correction!" );
 	}
 
-	d0_B->Fill( d0_1 );
-	z0_B->Fill( z0_1 );
-	d0_2 = trkCpy->d0();
-	z0_2 = trkCpy->z0();
-	d0sm->Fill( d0_2 );
-	z0sm->Fill( z0_2 );
-	subtract_d0->Fill( d0_2-d0_1 );
-	subtract_z0->Fill( z0_2-z0_1 );
+	auto d0a = trkCpy->d0();
+	auto z0a = trkCpy->z0();
+	auto qOverPa = trkCpy->qOverP();
+	auto d0d = d0a - d0b;
+	auto z0d = z0a - z0b;
+	auto qOverPd = qOverPa - qOverPb;
+
+	if (debugN > 0) {
+	  std::cout << "d0, before/after/diff:\t" << d0b
+		    << "/" << d0a << "/" << d0d << std::endl;
+	  std::cout << "z0, before/after/diff:\t" << z0b
+		    << "/" << z0a << "/" << z0d << std::endl;
+	  std::cout << "q/p, before/after/diff:\t" << qOverPb
+		    << "/" << qOverPa << "/" << qOverPd << std::endl;
+	  --debugN;
+	}
+	if (debugN == 0) {
+	  std::cout << "supressing debug output..." << std::endl;
+	  --debugN;
+	}
+
+	d0_before->Fill( d0b );
+	z0_before->Fill( z0b );
+	qOverP_before->Fill( qOverPb );
+	d0_after->Fill( d0a );
+	z0_after->Fill( z0a );
+	qOverP_after->Fill( qOverPa );
+	d0_diff->Fill( d0d );
+	z0_diff->Fill( z0d );
+	qOverP_diff->Fill( qOverPd );
       }
 
       delete ParticlesID_shallowCopy.first;

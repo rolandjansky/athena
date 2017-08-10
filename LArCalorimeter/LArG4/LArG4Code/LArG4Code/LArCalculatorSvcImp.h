@@ -8,7 +8,6 @@
 #include "ILArCalculatorSvc.h"
 #include "AthenaBaseComps/AthService.h"
 
-/// TODO: NEEDS DOCUMENTATION
 class LArCalculatorSvcImp: public AthService, virtual public ILArCalculatorSvc {
 
 public:

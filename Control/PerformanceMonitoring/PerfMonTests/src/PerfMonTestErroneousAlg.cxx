@@ -45,9 +45,6 @@ ErroneousAlg::~ErroneousAlg()
 ////////////////////////////
 StatusCode ErroneousAlg::initialize()
 {
-  // configure our MsgStream
-  msg().setLevel( outputLevel() );
-
   ATH_MSG_INFO ( "Initializing " << name() << "..." ) ;
   return StatusCode::SUCCESS;
 }
@@ -89,7 +86,7 @@ bool ErroneousAlg::jumpOnUninitializedValue()
     else
       yesNo[1]++;
   
-  //m_msg << "Jump, jump not, jump, jump not : " << yesNo[0] << " to " << yesNo[1] << endreq;
+  //m_msg << "Jump, jump not, jump, jump not : " << yesNo[0] << " to " << yesNo[1] << endmsg;
   
   return (yesNo[1]==0);
 }
@@ -113,6 +110,9 @@ bool ErroneousAlg::invalidRead()
   return true;
 }
 
+#ifdef __clang__
+#pragma GCC diagnostic ignored "-Wmismatched-new-delete"
+#endif
 bool ErroneousAlg::mismatchedFree()
 {
   const unsigned int maximum=8192;

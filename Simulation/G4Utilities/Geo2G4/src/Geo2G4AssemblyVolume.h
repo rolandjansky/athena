@@ -149,14 +149,14 @@ private:
 
 private:
 
-  std::vector<Geo2G4AssemblyTriplet> fTriplets;
-  std::vector<int> copyNumbers;
-  std::vector<G4String> userComments;
+  std::vector<Geo2G4AssemblyTriplet> m_triplets;
+  std::vector<int> m_copyNumbers;
+  std::vector<G4String> m_userComments;
   //
   // Participating volumes represented as a vector of
   // <logical volume, translation, rotation>.
 
-  std::vector<G4VPhysicalVolume*> fPVStore;
+  std::vector<G4VPhysicalVolume*> m_PVStore;
   //
   // We need to keep list of physical volumes created by MakeImprint() method
   // in order to be able to cleanup the objects when not needed anymore.
@@ -167,15 +167,15 @@ private:
   // When an assembly object is about to die it will destroy all its
   // generated physical volumes and rotation matrices as well !
 
-  unsigned int fImprintsCounter;
+  unsigned int m_imprintsCounter;
   //
   // Number of imprints of the given assembly volume.
 
-  static unsigned int fsInstanceCounter;
+  static unsigned int s_instanceCounter;
   //
   // Class instance counter.
 
-  unsigned int fAssemblyID;
+  unsigned int m_assemblyID;
   //
   // Assembly object ID derived from instance counter at construction time.
 
@@ -184,52 +184,52 @@ private:
 inline
 unsigned int Geo2G4AssemblyVolume::GetImprintsCount() const
 {
-  return fImprintsCounter;
+  return m_imprintsCounter;
 }
 
 inline
 void         Geo2G4AssemblyVolume::SetImprintsCount( unsigned int value )
 {
-  fImprintsCounter = value;
+  m_imprintsCounter = value;
 }
 
 
 inline
 void         Geo2G4AssemblyVolume::ImprintsCountPlus()
 {
-  fImprintsCounter++;
+  m_imprintsCounter++;
 }
 
 inline
 void         Geo2G4AssemblyVolume::ImprintsCountMinus()
 {
-  fImprintsCounter--;
+  m_imprintsCounter--;
 }
 
 inline
 unsigned int Geo2G4AssemblyVolume::GetAssemblyID() const
 {
-  return fAssemblyID;
+  return m_assemblyID;
 }
 
 inline
 void         Geo2G4AssemblyVolume::SetAssemblyID( unsigned int value )
 {
-  fAssemblyID = value;
+  m_assemblyID = value;
 }
 
 inline
 std::vector<G4VPhysicalVolume*>::iterator
 Geo2G4AssemblyVolume::GetVolumesIterator()
 {
-  std::vector<G4VPhysicalVolume*>::iterator iterator = fPVStore.begin();
+  std::vector<G4VPhysicalVolume*>::iterator iterator = m_PVStore.begin();
   return iterator;
 }
 
 inline
 unsigned int Geo2G4AssemblyVolume::TotalImprintedVolumes() const
 {
-  return fPVStore.size();
+  return m_PVStore.size();
 }
 
 #endif

@@ -15,6 +15,7 @@
 #include "xAODTruth/TruthParticle.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "xAODEventInfo/EventInfo.h"
+#include "xAODMuon/MuonContainer.h"
 
 class StoreGate;
 class StoreGateSvc;
@@ -47,7 +48,7 @@ class MuonPerformanceAlg : public AthAlgorithm {
   std::ofstream  m_fileOutput;  
 
   // Containers
-  std::string m_muonsName;
+  SG::ReadHandleKey<xAOD::MuonContainer> m_muonsNameKey;
   unsigned int                    m_nevents;
   std::vector<std::string>        m_hitCutString;
   std::vector<int>                m_ntruth;

@@ -19,7 +19,7 @@
 #include "TTree.h"
 #include "TFile.h"
 
-#define endreq endmsg
+#define endmsg endmsg
 
 class AnalysisConfig_Ntuple : public T_AnalysisConfig<IHLTMonTool> { 
     
@@ -36,7 +36,7 @@ public:
 
   AnalysisConfig_Ntuple(TIDARoiDescriptor* roiInfo, 
 			const std::vector<std::string>& chainNames, std::string outputFileName="TrkNtuple.root", 
-			double tauEtCutOffline=0.0, int TruthPdgId = 0, bool _keepAllEvents=false) : 
+			double tauEtCutOffline=0.0, int TruthPdgId = 0, bool keepAllEvents=false) : 
     T_AnalysisConfig<IHLTMonTool>( "Ntple",
 				   "", "", "",
 				   "", "", "",
@@ -46,29 +46,16 @@ public:
 				   0,
 				   0 ),
     m_event(0),
-    mFile(0),
-    mTree(0),
+    m_file(0),
+    m_tree(0),
     m_doOffline(false),
     m_doVertices(false),
     m_doMuons(false),
     m_doMuonsSP(false),
-    m_doElectrons(false),
-    m_doElectrons_tightCB(false),
-    m_doElectrons_mediumCB(false),
-    m_doElectrons_looseCB(false),
-    m_doElectrons_tightLH(false),
-    m_doElectrons_mediumLH(false),
-    m_doElectrons_looseLH(false),
     m_electronType(),
     m_rawElectrons(),
-    m_doTaus_1Prong(false),
-    m_doTaus_tight_1Prong(false),
-    m_doTaus_medium_1Prong(false),
-    m_doTaus_loose_1Prong(false),
-    m_doTaus_3Prong(false),
-    m_doTaus_tight_3Prong(false),
-    m_doTaus_medium_3Prong(false),
-    m_doTaus_loose_3Prong(false),
+    m_tauType(),
+    m_tauProngs(),
     m_doBjets(false),
     m_hasTruthMap(false),
     m_tauEtCutOffline(tauEtCutOffline),
@@ -78,15 +65,14 @@ public:
   {  
     //    std::cout << "AnalysisConfig_Ntuple::AnalysisConfig_Ntuple() " << chainNames.size() << std::endl;
 
-    this->keepAllEvents( _keepAllEvents ); /// this is now i nthe base class
+    this->keepAllEvents( keepAllEvents ); /// this is now i nthe base class
 
     for ( unsigned i=0 ; i<chainNames.size() ; i++ ) { 
       if ( chainNames[i] != "Offline"     &&
-	   chainNames[i].find("Electrons")!=0 &&
 	   chainNames[i] != "Muons"       &&
-	   chainNames[i] != "Taus_1Prong" &&
-	   chainNames[i] != "Taus_3Prong" &&
-	   chainNames[i] != "Bjets" )   { 
+	   chainNames[i] != "Bjets"       &&
+	   chainNames[i].find("Electrons")!=0 &&
+	   chainNames[i].find("Taus")!=0  )   { 
 	
 	//	std::cout << "AnalysisConfig_Ntuple: chain[" << i << "] " << chainNames[i] << std::endl;
 	
@@ -101,39 +87,19 @@ public:
 
       if ( chainNames[i]=="Offline" )     m_doOffline     = true;
       if ( chainNames[i]=="Vertex" )      m_doVertices    = true;
-
-
-      if ( chain.head()=="Electrons" ) { 
-
-	// m_doElectrons = true;
-	
-	if ( chain.tail()!="" || chain.extra()!="" ) { 
-	  //  std::cout << "\telectrons.head  " << chain.head() << std::endl;
-	  //  std::cout << "\telectrons.tail  " << chain.tail() << std::endl;
-	  //  std::cout << "\telectrons.extra " << chain.extra() << std::endl;
-	  
-	  m_electronType.push_back(chain.tail());
-	  m_rawElectrons.push_back(chain.extra());
-	}
-      }
-      
-      if ( chainNames[i]=="Electrons" )          m_doElectrons   = true;
-      if ( chainNames[i]=="Electrons_TightCB" )  m_doElectrons_tightCB  = true;
-      if ( chainNames[i]=="Electrons_MediumCB" ) m_doElectrons_mediumCB = true;
-      if ( chainNames[i]=="Electrons_LooseCB" )  m_doElectrons_looseCB  = true;
-      if ( chainNames[i]=="Electrons_TightLH" )  m_doElectrons_tightLH  = true;
-      if ( chainNames[i]=="Electrons_MediumLH" ) m_doElectrons_mediumLH = true;
-      if ( chainNames[i]=="Electrons_LooseLH" )  m_doElectrons_looseLH  = true;
       if ( chainNames[i]=="Muons" )       m_doMuons       = true;
       if ( chainNames[i]=="MuonsSP" )     m_doMuonsSP     = true;
-      if ( chainNames[i]=="Taus_1Prong" ) m_doTaus_1Prong = true;
-      if ( chainNames[i]=="Taus_Tight_1Prong" )  m_doTaus_tight_1Prong  = true;
-      if ( chainNames[i]=="Taus_Medium_1Prong" ) m_doTaus_medium_1Prong = true;
-      if ( chainNames[i]=="Taus_Loose_1Prong" )  m_doTaus_loose_1Prong  = true;
-      if ( chainNames[i]=="Taus_3Prong" ) m_doTaus_3Prong = true;
-      if ( chainNames[i]=="Taus_Tight_3Prong" )  m_doTaus_tight_3Prong  = true;
-      if ( chainNames[i]=="Taus_Medium_3Prong" ) m_doTaus_medium_3Prong = true;
-      if ( chainNames[i]=="Taus_Loose_3Prong" )  m_doTaus_loose_3Prong  = true;
+
+      if ( chain.head()=="Electrons" ) { 
+ 	 m_electronType.push_back(chain.tail());
+	 m_rawElectrons.push_back(chain.extra());
+      }
+      
+      if ( chain.head()=="Taus" ) { 
+	 m_tauType.push_back(chain.tail());
+	 m_tauProngs.push_back(chain.extra());
+      }  
+
       if ( chainNames[i]=="Bjets" )       m_doBjets       = true;
     }
     m_event = new TIDA::Event();
@@ -159,12 +125,13 @@ protected:
   IBeamCondSvc*  m_iBeamCondSvc;
   IBeamCondSvc*  m_iOnlineBeamCondSvc;
   
+  bool           m_useBeamCondSvc;
 
   TIDA::Event*  m_event;
 
-  TFile*      mFile;  
-  TTree*      mTree;
-  TDirectory* mDir;
+  TFile*      m_file;  
+  TTree*      m_tree;
+  TDirectory* m_dir;
 
   std::vector<ChainString> m_chainNames;
 
@@ -173,25 +140,12 @@ protected:
   bool m_doMuons;
   bool m_doMuonsSP;
 
-  bool m_doElectrons;
-  bool m_doElectrons_tightCB;
-  bool m_doElectrons_mediumCB;
-  bool m_doElectrons_looseCB;
-  bool m_doElectrons_tightLH;
-  bool m_doElectrons_mediumLH;
-  bool m_doElectrons_looseLH;
-
   std::vector<std::string>  m_electronType;
   std::vector<std::string>  m_rawElectrons;
 
-  bool m_doTaus_1Prong;
-  bool m_doTaus_tight_1Prong;
-  bool m_doTaus_medium_1Prong;
-  bool m_doTaus_loose_1Prong;
-  bool m_doTaus_3Prong;
-  bool m_doTaus_tight_3Prong;
-  bool m_doTaus_medium_3Prong;
-  bool m_doTaus_loose_3Prong;
+  std::vector<std::string>  m_tauType;
+  std::vector<std::string>  m_tauProngs;
+
   bool m_doBjets;
   bool m_hasTruthMap;
   bool m_tauEtCutOffline;

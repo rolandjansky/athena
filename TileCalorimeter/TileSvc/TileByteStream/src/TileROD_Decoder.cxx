@@ -27,6 +27,7 @@
 #include "TileConditions/TileCondToolOfcCool.h"
 #include "TileConditions/TileCondToolTiming.h"
 #include "TileConditions/TileCondToolEmscale.h"
+#include "TileConditions/TileCablingService.h"
 #include "TileRecUtils/TileRawChannelBuilder.h"
 #include "TileByteStream/TileROD_Decoder.h"
 
@@ -40,11 +41,12 @@ static const InterfaceID IID_ITileROD_Decoder("TileROD_Decoder", 1, 0);
 
 TileROD_Decoder::TileROD_Decoder(const std::string& type, const std::string& name,
                                  const IInterface* parent)
-: AthAlgTool(type, name, parent)
-, m_tileToolTiming("TileCondToolTiming")
-, m_tileCondToolOfcCool("TileCondToolOfcCool")
-, m_tileToolEmscale("TileCondToolEmscale")
-, m_hid2re(0)
+  : AthAlgTool(type, name, parent)
+  , m_tileToolTiming("TileCondToolTiming")
+  , m_tileCondToolOfcCool("TileCondToolOfcCool")
+  , m_tileToolEmscale("TileCondToolEmscale")
+  , m_hid2re(0)
+  , m_maxChannels(TileCalibUtils::MAX_CHAN)
 {
   declareInterface<TileROD_Decoder>(this);
   
@@ -67,6 +69,9 @@ TileROD_Decoder::TileROD_Decoder(const std::string& type, const std::string& nam
   declareProperty("suppressDummyFragments", m_suppressDummyFragments = false);
   declareProperty("maskBadDigits", m_maskBadDigits = false); // put -1 in digits vector for channels with bad BCID or CRC in unpack_frag0
   declareProperty("MaxErrorPrint", m_maxErrorPrint = 100);
+
+  declareProperty("AllowedTimeMin", m_allowedTimeMin = -50.); // set amp to zero if time is below allowed time min
+  declareProperty("AllowedTimeMax", m_allowedTimeMax =  50.); // set amp to zero if time is above allowed time max
 
   m_correctAmplitude = false;
   updateAmpThreshold(15.);
@@ -162,19 +167,21 @@ StatusCode TileROD_Decoder::initialize() {
   ATH_MSG_DEBUG( "algtool " << m_TileDefaultChannelBuilder << " created " );
   CHECK( m_RCBuilder->setProperty(BooleanProperty("calibrateEnergy", m_calibrateEnergy)) );
   
-  m_pRwChVec.reserve(48);
-  // Accumulate 48 TileRawChannels for storing temp data
-  for (int i = 0; i < 48; ++i) {
+  m_maxChannels = TileCablingService::getInstance()->getMaxChannels();
+
+  m_pRwChVec.reserve(m_maxChannels);
+  // Accumulate TileRawChannels for storing temp data
+  for (unsigned int i = 0; i < m_maxChannels; ++i) {
     m_pRwChVec.push_back(new TileFastRawChannel());
   }
-  m_Rw2Cell[0].reserve(48);
-  m_Rw2Cell[1].reserve(48);
-  m_Rw2Cell[2].reserve(48 * 64);
-  m_Rw2Cell[3].reserve(48 * 64);
-  m_Rw2Pmt[0].reserve(48);
-  m_Rw2Pmt[1].reserve(48);
-  m_Rw2Pmt[2].reserve(48 * 64);
-  m_Rw2Pmt[3].reserve(48 * 64);
+  m_Rw2Cell[0].reserve(m_maxChannels);
+  m_Rw2Cell[1].reserve(m_maxChannels);
+  m_Rw2Cell[2].reserve(m_maxChannels * TileCalibUtils::MAX_DRAWER);
+  m_Rw2Cell[3].reserve(m_maxChannels * TileCalibUtils::MAX_DRAWER);
+  m_Rw2Pmt[0].reserve(m_maxChannels);
+  m_Rw2Pmt[1].reserve(m_maxChannels);
+  m_Rw2Pmt[2].reserve(m_maxChannels * TileCalibUtils::MAX_DRAWER);
+  m_Rw2Pmt[3].reserve(m_maxChannels * TileCalibUtils::MAX_DRAWER);
   
   if (m_TileDefaultL2Builder.size() > 0) {
     ATH_MSG_DEBUG( "creating algtool " << m_TileDefaultL2Builder );
@@ -744,7 +751,7 @@ void TileROD_Decoder::unpack_frag2(uint32_t /* version */, const uint32_t* p,
   HWIdentifier drawerID = m_tileHWID->drawer_id(frag);
   TileRawChannel* rc;
   
-  for (int ch = 0; ch < 48; ++ch) {
+  for (unsigned int ch = 0; ch < m_maxChannels; ++ch) {
     unsigned int w = (*p);
     
     int gain = m_rc2bytes2.gain(w);
@@ -806,7 +813,7 @@ void TileROD_Decoder::unpack_frag3(uint32_t /* version */, const uint32_t* p,
   HWIdentifier drawerID = m_tileHWID->drawer_id(frag);
   TileRawChannel* rc;
   
-  for (int ch = 0; ch < 48; ++ch) {
+  for (unsigned int ch = 0; ch < m_maxChannels; ++ch) {
     if (checkBit(pMap, ch)) {
       int gain = m_rc2bytes.gain(*p16);
       HWIdentifier adcID = m_tileHWID->adc_id(drawerID, ch, gain);
@@ -864,7 +871,7 @@ void TileROD_Decoder::unpack_frag4(uint32_t /* version */, const uint32_t* p,
   HWIdentifier drawerID = m_tileHWID->drawer_id(frag);
   TileRawChannel* rc;
   
-  for (int ch = 0; ch < 48; ++ch) {
+  for (unsigned int ch = 0; ch < m_maxChannels; ++ch) {
     unsigned int w = (*p);
     
     int gain = m_rc2bytes4.gain(w);
@@ -973,6 +980,163 @@ void TileROD_Decoder::unpack_frag5(uint32_t /* version */, const uint32_t* p, pD
                     << " words in frag" );
   }
   return;
+}
+
+void TileROD_Decoder::unpack_frag6(uint32_t /*version*/, const uint32_t* p, pDigiVec & pDigits) const {
+
+
+  int size = *(p) - m_sizeOverhead;
+
+  // second word is frag ID (0x100-0x4ff) and frag type
+  int frag = *(p + 1) & 0xFFFF;
+  
+  HWIdentifier adcID;
+  HWIdentifier drawerID = m_tileHWID->drawer_id(frag);
+
+  // pointer to current data word
+  const uint32_t* data = p + 2;     // Position of first data word, 
+
+  // check that fragment is not dummy
+  if (m_suppressDummyFragments) {
+    int n = 0;
+    for (; n < size; ++n) {
+      if (data[n] != 0 && data[n] != 0xffffffff) break;
+    }
+    if (n == size) {// nothing reasonable found
+      ATH_MSG_WARNING("FRAG6: Suppress dummy fragment!!!");
+      return; 
+    }
+  }
+
+  unsigned int moduleID[4] = {0};
+  unsigned int runType[4] = {0};
+
+  unsigned int runNumber[4] = {0};
+  
+  unsigned int pedestalHi[4] = {0};
+  unsigned int pedestalLo[4] = {0};
+  
+  unsigned int chargeInjected[4] = {0};
+  unsigned int timeInjected[4] = {0};
+  unsigned int capacitor[4] = {0};
+  
+  
+  uint32_t bcid[4] = {0};
+  uint32_t l1id[4] = {0};
+
+
+  float samples[2][48][16] = {{{0}}};
+
+  const uint32_t* const end_data = data + size;
+  while (data < end_data) {
+    if ((*data & 0x00FFFF00) == 0x00BABE00) {
+      unsigned int miniDrawer = *data & 0xFF;
+
+      if ((++data < end_data) && (*data == 0x12345678) && (++data < end_data)) {
+
+        unsigned int fragSize   = *data & 0xFF;
+        unsigned int paramsSize = (*data >> 8 ) & 0xFF;
+        moduleID[miniDrawer]    = (*data >> 16) & 0xFF;
+        runType[miniDrawer]     = (*data >> 24) & 0xFF;
+
+        if (fragSize != 192) {
+          ATH_MSG_ERROR("FRAG6: Unpacking minidrawer [" << miniDrawer 
+                        << "] with fragment size: " << fragSize 
+                        << " not implemented => skip it!!!");
+          continue;
+        }
+        
+        // check trailer
+        const uint32_t* trailer = data + paramsSize + 3 + fragSize; // 2 = (BCID + L1ID)
+
+        if ((trailer + 3) <= end_data // 3 = (trailer size)
+            && *trailer == 0x87654321
+            && *(++trailer) == 0xBCBCBCDC
+            && *(++trailer) == (0x00DEAD00 | (miniDrawer) | (miniDrawer << 24))) {
+
+          if (paramsSize == 3){
+            runNumber[miniDrawer]  = *(++data);
+            
+            pedestalHi[miniDrawer] = *(++data)      & 0xFFF;
+            pedestalLo[miniDrawer] = (*data >> 12 ) & 0xFFF;
+            
+            chargeInjected[miniDrawer] = *(++data)     & 0xFFF;
+            timeInjected[miniDrawer]   = (*data >> 12) & 0xFF;
+            capacitor[miniDrawer]      = (*data >> 20) & 0x1;
+          } else {
+
+            ATH_MSG_WARNING("FRAG6: Unpacking minidrawer [" << miniDrawer 
+                            << "] parameters with size: " << paramsSize
+                            << " not implemented!!!");
+            
+            data += paramsSize;
+          }
+
+          bcid[miniDrawer] = (*(++data) >> 16) & 0xFFFF;
+          l1id[miniDrawer] = *(++data);
+
+
+          if (msgLvl(MSG::VERBOSE)) {
+            msg(MSG::VERBOSE) << "FRAG6: Found MD[" << miniDrawer << "] fragment"
+                              << ", Run type: " << runType[miniDrawer]
+                              << ", Module ID: " << moduleID[miniDrawer]
+                              << ", BCID: " << bcid[miniDrawer]
+                              << ", L1ID: " << l1id[miniDrawer]  << endmsg;
+
+            if (paramsSize == 3) {
+              msg(MSG::VERBOSE) << "FRAG6: MD[" << miniDrawer << "] Parameters:"
+                                << " Run number: " << runNumber[miniDrawer]
+                                << ", Ppedestal Lo: " << pedestalLo[miniDrawer]
+                                << ", Ppedestal Hi: " << pedestalHi[miniDrawer]
+                                << ", Charge injected: " << chargeInjected[miniDrawer]
+                                << ", Time injected: " << timeInjected[miniDrawer]
+                                << ", Capacitor: " << capacitor[miniDrawer] << endmsg;
+            }
+          }
+
+
+          const uint16_t* sample = (const uint16_t *) (++data);
+
+          std::vector<int> gains = {1, 0}; // HG seems to be first
+          for (int gain : gains) {
+            int start_channel(miniDrawer * 12);
+            int end_channel(start_channel + 12);
+            for (int channel = start_channel; channel < end_channel; ++channel) {
+
+              for (int samplesIdx = 15; samplesIdx >= 0; --samplesIdx) {
+                samples[gain][channel][samplesIdx] = (*sample & 0x0FFF);
+                ++sample;
+              }
+
+            }
+          }
+
+          data = ++trailer;
+
+        } else {
+          ATH_MSG_WARNING("FRAG6: Not found correct MD[" << miniDrawer << "] fragment trailer:  => skip it!!!");
+        }
+      }
+    } else {
+      ++data;
+    }
+  }
+
+
+  pDigits.reserve(96);
+  
+  // always two gains
+  for (int gain = 0; gain < 2; ++gain) {
+    // always 48 channels
+    for (int channel = 0; channel < 48; ++channel) {
+      adcID = m_tileHWID->adc_id(drawerID, channel, gain);
+      // always 16 samples
+      std::vector<float> digiVec(&samples[gain][channel][0], &samples[gain][channel][16]);
+      pDigits.push_back(new TileDigits(adcID, digiVec));
+      ATH_MSG_VERBOSE("FRAG6: " << (std::string) *(pDigits.back()));
+    }
+  }
+  
 }
 
 void TileROD_Decoder::unpack_fragA(uint32_t /* version */, const uint32_t* p,
@@ -3113,13 +3277,24 @@ void TileROD_Decoder::make_copyHLT(pFRwChVec & pChannel, TileCellCollection & v,
   if (pChannel.size() > 0) { // convert raw channels to cells
     
     // Zero all cell energies
+    /*
     for (unsigned int cell = 0; cell < v.size(); ++cell) {
       ((TileCell*) v[cell])->setEnergy_nonvirt(0.0F, 0.0F, 0, CaloGain::INVALIDGAIN);
       ((TileCell*) v[cell])->setTime_nonvirt(-100.0F); // Just to mark a non-initialized cell
       ((TileCell*) v[cell])->setQuality_nonvirt(static_cast<unsigned char>(255), 0, 0);
       ((TileCell*) v[cell])->setQuality_nonvirt(static_cast<unsigned char>(255), 0, 1);
     }
-    int idxraw = drawer * 48;
+    */
+
+    for (TileCell* cell : v) {
+      cell->setEnergy_nonvirt(0.0F, 0.0F, 0, CaloGain::INVALIDGAIN);
+      cell->setTime_nonvirt(-100.0F); // Just to mark a non-initialized cell
+      cell->setQuality_nonvirt(static_cast<unsigned char>(255), 0, 0);
+      cell->setQuality_nonvirt(static_cast<unsigned char>(255), 0, 1);
+    }
+
+
+    int idxraw = drawer * m_maxChannels;
     
     ITERATOR rawItr = pChannel.begin();
     ITERATOR end = pChannel.end();
@@ -3145,11 +3320,16 @@ void TileROD_Decoder::make_copyHLT(pFRwChVec & pChannel, TileCellCollection & v,
                                                  TileRawChannelUnit::MegaElectronVolts);
         }
         // parabolic correction for good but slightly out-of-time signals
-        if (m_correctAmplitude
-            && ener > m_ampMinThresh_MeV
-            && time > m_timeMinThresh
-            && time < m_timeMaxThresh) ener *= TileRawChannelBuilder::correctAmp(time,m_of2);
-        
+        if (m_correctAmplitude) {
+          if (time<m_allowedTimeMin || time>m_allowedTimeMax) {
+            ener = 0.0F;
+            time = 0.0F;
+          } else if (ener > m_ampMinThresh_MeV
+                     && time > m_timeMinThresh
+                     && time < m_timeMaxThresh) {
+            ener *= TileRawChannelBuilder::correctAmp(time,m_of2);
+          }
+        }
       } else {
         // ignore energy from bad channel
         ener = 0.0F;
@@ -3197,11 +3377,16 @@ void TileROD_Decoder::make_copyHLT(pFRwChVec & pChannel, TileCellCollection & v,
                                                    TileRawChannelUnit::MegaElectronVolts);
           }
           // parabolic correction for good but slightly out-of-time signals
-          if (m_correctAmplitude
-              && ener > m_ampMinThresh_MeV
-              && time > m_timeMinThresh
-              && time < m_timeMaxThresh) ener *= TileRawChannelBuilder::correctAmp(time,m_of2);
-          
+          if (m_correctAmplitude) {
+            if (time<m_allowedTimeMin || time>m_allowedTimeMax) {
+              ener = 0.0F;
+              time = 0.0F;
+            } else if (ener > m_ampMinThresh_MeV
+                       && time > m_timeMinThresh
+                       && time < m_timeMaxThresh) {
+              ener *= TileRawChannelBuilder::correctAmp(time,m_of2);
+            }
+          }
           if (pCell->time() != -100.0F) pCell->setTime(time, m_Rw2Pmt[sec][idxraw]);
           else pCell->setTime_nonvirt(time);
           
@@ -3249,10 +3434,16 @@ void TileROD_Decoder::make_copyHLT(pFRwChVec & pChannel, TileCellCollection & v,
                                                    m_rChUnit, TileRawChannelUnit::PicoCoulombs);
           }
           // parabolic correction for good but slightly out-of-time signals
-          if (m_correctAmplitude
-              && ener > m_ampMinThresh_pC
-              && time > m_timeMinThresh
-              && time < m_timeMaxThresh) ener *= TileRawChannelBuilder::correctAmp(time,m_of2);
+          if (m_correctAmplitude) {
+            if (time<m_allowedTimeMin || time>m_allowedTimeMax) {
+              ener = 0.0F;
+              time = 0.0F;
+            } else if (ener > m_ampMinThresh_pC
+                       && time > m_timeMinThresh
+                       && time < m_timeMaxThresh) {
+              ener *= TileRawChannelBuilder::correctAmp(time,m_of2);
+            }
+          }
         } else {
           // ignore energy from bad channel
           ener = 0.0F;
@@ -3291,7 +3482,7 @@ void TileROD_Decoder::unpack_frag2HLT(uint32_t /* version */, const uint32_t* p,
   p += 2; // 2 words so far
   int wc = m_sizeOverhead; // can be 2 or 3 words
   
-  for (unsigned int ch = 0; ch < 48U; ++ch) {
+  for (unsigned int ch = 0; ch < m_maxChannels; ++ch) {
     unsigned int w = (*p);
     
     if (w != 0) { // skip invalid channels
@@ -3387,7 +3578,7 @@ void TileROD_Decoder::unpack_frag4HLT(uint32_t /* version */, const uint32_t* p,
   
   p += 2; // 2 words so far
   int wc = m_sizeOverhead; // can be 2 or 3 words
-  for (unsigned int ch = 0U; ch < 48U; ++ch) {
+  for (unsigned int ch = 0U; ch < m_maxChannels; ++ch) {
     unsigned int w = (*p);
     if (w != 0) { // skip invalid channels
       pChannel[ch]->set(ch

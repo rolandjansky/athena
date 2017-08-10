@@ -7,7 +7,7 @@
 #include "TRT_BSIdErrContainerCnv_p1.h"
 
 #include "Identifier/IdentifierHash.h"
-#include "DataModel/DataPool.h"
+#include "AthAllocators/DataPool.h"
 
 #include <iostream>
 

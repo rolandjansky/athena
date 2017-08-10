@@ -9,7 +9,7 @@
 
 #include "GeneratorObjectsTPCnv/HepMcParticleLinkCnv_p1.h"
 
-#include "DataModel/DataLink.h"
+#include "AthLinks/DataLink.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "TrackParticleTruthTPCnv/TrackParticleTruthCollectionAccessor.h"

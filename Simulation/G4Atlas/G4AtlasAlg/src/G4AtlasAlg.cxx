@@ -257,11 +257,6 @@ StatusCode G4AtlasAlg::finalize() {
 void G4AtlasAlg::finalizeOnce() {
   ATH_MSG_DEBUG("\t terminating the current G4 run");
   // TODO: could probably just use G4RunManager base class generically.
-  //#ifdef ATHENAHIVE
-  //  auto runMgr = G4AtlasMTRunManager::GetG4AtlasMTRunManager();
-  //#else
-  //  auto runMgr = G4AtlasRunManager::GetG4AtlasRunManager();
-  //#endif
   auto runMgr = G4RunManager::GetRunManager();
   runMgr->RunTermination();
 }

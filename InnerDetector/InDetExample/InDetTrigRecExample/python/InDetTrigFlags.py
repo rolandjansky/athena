@@ -2,7 +2,7 @@
 
 ##
 ## @file InDetTrigRecExample/python/InDetTrigFlags.py
-## @purpose link InDetTrigFlags to InDetTRigJobProperties container
+## @brief link InDetTrigFlags to InDetTRigJobProperties container
 ##          automate adding of certain InDetJobProperties
 
 """ InDetTrigFlags

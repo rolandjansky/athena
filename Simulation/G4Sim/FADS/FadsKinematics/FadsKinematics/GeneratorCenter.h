@@ -40,7 +40,7 @@ namespace FADS {
     genMap m_generatorCatalog;
     FadsGenerator *m_currentGenerator;
     // for MCTruth
-    HepMC::GenEvent *m_hepmcEvent;
+    const HepMC::GenEvent *m_hepmcEvent;
     bool m_eventIsDeleted;
     //std::string hepmcCollection; // Not used
     bool m_IncludeParentsInG4Event;
@@ -82,7 +82,7 @@ namespace FADS {
 
     void HepMC2G4(const HepMC::GenEvent* ,G4Event *);
 
-    HepMC::GenEvent* GetGenEvent() const { return m_hepmcEvent; }
+    const HepMC::GenEvent* GetGenEvent() const { return m_hepmcEvent; }
 
     //std::string GetHepMcCollection() const { return hepmcCollection; } // Not used
     //void SetHepMcCollection(std::string a) { hepmcCollection = a; } // Not used

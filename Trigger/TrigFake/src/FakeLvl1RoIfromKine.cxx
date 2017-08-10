@@ -118,7 +118,7 @@ FakeLvl1RoIfromKine::~FakeLvl1RoIfromKine()
 HLT::ErrorCode FakeLvl1RoIfromKine::hltInitialize()
 {
   //  if ( m_particleDataTable.empty() ) {
-  //(*m_log) << MSG::WARNING << "FakeLvl1RoIfromKine failed to read particleDataTable" << endreq;
+  //(*m_log) << MSG::WARNING << "FakeLvl1RoIfromKine failed to read particleDataTable" << endmsg;
   //return StatusCode::FAILURE;
   // }
 
@@ -129,7 +129,7 @@ HLT::ErrorCode FakeLvl1RoIfromKine::hltInitialize()
     for ( ; emParticle != lastEmParticle ; emParticle++ ) {
       msg() << *emParticle << " " ;
     }
-    msg() << endreq;
+    msg() << endmsg;
     ATH_MSG_INFO(" with ET > " << m_emTauRoiPtMin <<
                  " and |eta| < " << m_emTauRoiEtaMax);
   } else {
@@ -143,7 +143,7 @@ HLT::ErrorCode FakeLvl1RoIfromKine::hltInitialize()
     for ( ; muParticle != lastMuParticle ; muParticle++ ) {
       msg() << *muParticle << " " ;
     }
-    msg() << endreq;
+    msg() << endmsg;
     ATH_MSG_INFO(" with pT > " << m_muonRoiPtMin <<
                  " and |eta| < " << m_muonRoiEtaMax);
   } else {
@@ -158,7 +158,7 @@ HLT::ErrorCode FakeLvl1RoIfromKine::hltInitialize()
     for ( ; muParticle != lastMuParticle ; muParticle++ ) {
       msg() << *muParticle << " " ;
     }
-    msg() << endreq;
+    msg() << endmsg;
     ATH_MSG_INFO(" with pT > " << m_jetRoiPtMin<<
                  " and |eta| < " << m_jetRoiEtaMax);
   } else {
@@ -197,7 +197,7 @@ HLT::ErrorCode FakeLvl1RoIfromKine::hltExecute( std::vector<HLT::SteeringChain*>
 
 
   //  HLT::TriggerElement* initialTE = m_config->getNavigation()->getInitialNode();
-  //  (*m_log) << MSG::DEBUG << "initial Navigation node created." << endreq;
+  //  (*m_log) << MSG::DEBUG << "initial Navigation node created." << endmsg;
 
   m_roiId=0;
   std::vector<FakeRoI> *roiList;

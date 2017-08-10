@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigEventAthenaPool
- * @Class  : TrigRoiDescriptorCollectionCnv
+ * @class  : TrigRoiDescriptorCollectionCnv
  *
  * @brief transient persistent converter for TrigRoiDescriptorCollection
  *

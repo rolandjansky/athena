@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CxxUtils/make_unique.h"
 #include "LArGeoH62004SteppingActionTool.h"
 
 #include "LArG4RunControl/LArGeoTB2004Options.h"
@@ -45,8 +44,7 @@ namespace G4UA
   LArGeoH62004SteppingActionTool::makeAction()
   {
     ATH_MSG_DEBUG("makeAction");
-    auto action = CxxUtils::make_unique<LArGeoH62004SteppingAction>(m_config);
-    return std::move(action);
+    return std::make_unique<LArGeoH62004SteppingAction>(m_config);
   }
 
   //---------------------------------------------------------------------------

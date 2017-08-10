@@ -36,17 +36,17 @@ StatusCode TopCKMFilter::filterEvent() {
     // Get the number of parents on the event (ttbar --> 2 tops!)
     int nParents = 0;
     for (partItr = part1; partItr != partE; ++partItr) {
-      if (fabs((*partItr)->pdg_id()) == 6) ++nParents;
+      if (std::abs((*partItr)->pdg_id()) == 6) ++nParents;
     }
 
     if (nParents == 2) {
       const HepMC::GenParticle * firstParent = 0;
       const HepMC::GenParticle * secondParent = 0;
       for (partItr = part1; partItr != partE; ++partItr) {
-        if (fabs((*partItr)->pdg_id()) == 6) firstParent = (*partItr);
+        if (std::abs((*partItr)->pdg_id()) == 6) firstParent = (*partItr);
       }
       for (partItr = part1; partItr != partE; ++partItr) {
-        if (fabs((*partItr)->pdg_id()) == 6 && (*partItr) != firstParent) secondParent = (*partItr);
+        if (std::abs((*partItr)->pdg_id()) == 6 && (*partItr) != firstParent) secondParent = (*partItr);
       }
 
       // Check that the first and second parents have the corresponding childs

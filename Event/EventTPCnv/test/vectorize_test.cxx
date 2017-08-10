@@ -112,7 +112,7 @@ void test_bitmap_bug()
 
     std::vector<unsigned int> v;
     bitmapToUI (b, v);
-    if ((len%32) == 16) {
+    if ((len%32) == 16 && v.size() > 0) {
       v.resize (v.size()-1);
       b.resize (len-32);
     }

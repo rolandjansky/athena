@@ -7,7 +7,7 @@
 /**********************************************************************************
  * @Project: TrigDecisionInterface
  * @Package: TrigDecisionInterface
- * @Class  : Conditions
+ * @class  : Conditions
  *
  * @brief Conditions flags
  *

@@ -70,6 +70,39 @@ void TauAnalysisTools::split(TEnv& rEnv, const std::string& sKey, const char cDe
 }
 
 //______________________________________________________________________________
+double TauAnalysisTools::caloTauPt(const xAOD::TauJet& xTau)
+{
+  // return calo based tau pt in GeV
+  return xTau.auxdata<float>("ptTauEtaCalib")/1000.;
+}
+
+//______________________________________________________________________________
+double TauAnalysisTools::caloTauEta(const xAOD::TauJet& xTau)
+{
+  // return calo based tau eta
+  return xTau.auxdata<float>("etaTauEtaCalib");
+}
+
+//______________________________________________________________________________
+double TauAnalysisTools::caloTauAbsEta(const xAOD::TauJet& xTau)
+{
+  // return calo based absolute tau eta
+  return std::abs(xTau.auxdata<float>("etaTauEtaCalib"));
+}
+
+//______________________________________________________________________________
+double TauAnalysisTools::caloTauP(const xAOD::TauJet& xTau)
+{
+  TLorentzVector tlv;
+  tlv.SetPtEtaPhiM( xTau.auxdata<float>("ptTauEtaCalib"),
+                    xTau.auxdata<float>("etaTauEtaCalib"),
+                    xTau.auxdata<float>("phiTauEtaCalib"),
+                    xTau.auxdata<float>("mTauEtaCalib") );
+  // return tau P in GeV
+  return tlv.P()/1000.;
+}
+
+//______________________________________________________________________________
 double TauAnalysisTools::tauPt(const xAOD::TauJet& xTau)
 {
   // return tau pt in GeV

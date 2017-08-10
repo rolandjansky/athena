@@ -123,7 +123,7 @@ extern "C" void readgravparamint_(int* index, int* parameter)
     *parameter = p.icutoff;
   }  
     //else
-    //log << MSG:: INFO << " ExoGraviton Interface -> Incorrect type cast for ExoGraviton variable OR Incorrect index\n"  << endreq;
+    //log << MSG:: INFO << " ExoGraviton Interface -> Incorrect type cast for ExoGraviton variable OR Incorrect index\n"  << endmsg;
     
 }
 

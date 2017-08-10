@@ -178,9 +178,9 @@ TBCaloCoordinate::ctb_to_local( double& x_ctb, double& y_ctb, double& z_ctb,
   z_local = pt_local.z();
 
   //log << MSG::DEBUG << "ctb : " << x_ctb << " " << y_ctb << " " 
-  //	    << z_ctb << " " << endreq;
+  //	    << z_ctb << " " << endmsg;
   //log << MSG::DEBUG << " ==> local : " << x_local << " " << y_local << " " 
-  //	    << z_local << " " << endreq;
+  //	    << z_local << " " << endmsg;
 }
 
 void   
@@ -197,9 +197,9 @@ TBCaloCoordinate::local_to_ctb(double& x_local,double& y_local,double& z_local,
   z_ctb = pt_ctb.z();
 
   //log << MSG::DEBUG << " local : " << x_local << " " << y_local << " " 
-  //	    << z_local << " " << endreq;
+  //	    << z_local << " " << endmsg;
   //log << MSG::DEBUG << " ==> ctb : " << x_ctb << " " << y_ctb << " " 
-  //	    << z_ctb << " " << endreq;
+  //	    << z_ctb << " " << endmsg;
 }
 
 double    
@@ -434,7 +434,7 @@ TBCaloCoordinate:: read_MC_position()
   }
 
   //log << MSG::DEBUG << " Enveloppe position is read from Pool, and is : " 
-  //    << endreq;
+  //    << endmsg;
   //print_transform( *m_transform_calo_to_ctb );
   
   *m_transform_ctb_to_calo = m_transform_calo_to_ctb->inverse();
@@ -508,7 +508,7 @@ TBCaloCoordinate:: read_user_position()
 
   m_firstevt = 2;
 
-  //log << MSG::DEBUG  << "         x shift = " << m_table_calc_x << endreq;
+  //log << MSG::DEBUG  << "         x shift = " << m_table_calc_x << endmsg;
   //print_transform( *m_transform_calo_to_ctb );
 
 }

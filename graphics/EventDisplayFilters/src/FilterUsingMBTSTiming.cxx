@@ -24,7 +24,7 @@ StatusCode FilterUsingMBTSTiming::initialize()
 
   //Get tile identifier helper
   if (detStore()->retrieve(m_tileTBID).isFailure()){
-    msg(MSG::ERROR) << "Unable to retrieve TileTBID helper" << endreq;
+    msg(MSG::ERROR) << "Unable to retrieve TileTBID helper" << endmsg;
     return StatusCode::FAILURE;
   }
     
@@ -38,7 +38,7 @@ StatusCode FilterUsingMBTSTiming::execute()
   //Retrieve container from StoreGate
   const TileCellContainer *tileCellCnt = NULL;
   if (evtStore()->retrieve(tileCellCnt, m_mbtsContainerName).isFailure()) {
-    msg(MSG::WARNING) << "Unable to retrieving MBTS container with name " << m_mbtsContainerName << endreq;
+    msg(MSG::WARNING) << "Unable to retrieving MBTS container with name " << m_mbtsContainerName << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -58,7 +58,7 @@ StatusCode FilterUsingMBTSTiming::execute()
 
 	  msg(MSG::DEBUG) << "Energy = " << (*MBTSCellItr)->energy() << " pC\t";
 	  msg(MSG::DEBUG) << "Time = " << (*MBTSCellItr)->time() << " ns\t";
-    msg(MSG::DEBUG) << "Side = " << (( m_tileTBID->type((*MBTSCellItr)->ID()) > 0 ) ? "A" : "C") << endreq;
+    msg(MSG::DEBUG) << "Side = " << (( m_tileTBID->type((*MBTSCellItr)->ID()) > 0 ) ? "A" : "C") << endmsg;
 
 	  // cache type, module and channel
 	  // MBTS Id type is  "side"  +/- 1
@@ -73,23 +73,23 @@ StatusCode FilterUsingMBTSTiming::execute()
 		
   //Make sure we have a least n hits on each side
   if ( countA < 1 || countC < 1 ){
-    msg(MSG::INFO) << "Need at least one hit on each side" << endreq;
+    msg(MSG::INFO) << "Need at least one hit on each side" << endmsg;
     setFilterPassed(false);
-    msg(MSG::INFO ) << "Event is rejected" << endreq;
+    msg(MSG::INFO ) << "Event is rejected" << endmsg;
     return StatusCode::SUCCESS;
   }
 
   // Calculate the time difference
   float timeDiff = fabs(timeA/countA - timeC/countC);
-  msg(MSG::INFO) << "Calculated time difference of " << timeDiff << " ns" << endreq;
+  msg(MSG::INFO) << "Calculated time difference of " << timeDiff << " ns" << endmsg;
 
   //And cut
   if (timeDiff <= m_maxTimeDifference) {
     setFilterPassed(true);
-    msg(MSG::INFO ) << "Event is accepted" << endreq;
+    msg(MSG::INFO ) << "Event is accepted" << endmsg;
   } else {
     setFilterPassed(false);
-    msg(MSG::INFO ) << "Event is rejected" << endreq;
+    msg(MSG::INFO ) << "Event is rejected" << endmsg;
   }
 
 	return StatusCode::SUCCESS;

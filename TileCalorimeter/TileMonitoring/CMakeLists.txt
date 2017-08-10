@@ -40,7 +40,7 @@ atlas_depends_on_subdirs(
 # External dependencies:
 find_package( CLHEP )
 find_package( ROOT COMPONENTS Graf Gpad Hist Spectrum Core Tree MathCore
-  RIO pthread Graf3d Html Postscript Gui GX11TTF GX11 )
+  RIO pthread Graf3d Html Postscript Gui GX11TTF GX11 HistPainter )
 
 # Component(s) in the package:
 atlas_add_component( TileMonitoring

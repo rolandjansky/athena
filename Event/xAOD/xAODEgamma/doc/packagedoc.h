@@ -5,9 +5,9 @@
 /**
 @page xAODEgamma_page xAODEgamma package
 
-   @author Jovan Mitrevski <Jovan.Mitrevski@cern.h>
+   @author Jovan Mitrevski <Jovan.Mitrevski@cern.ch>
    @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
-   @author Christos Anastopoulos <Christos.Anastopoulos@cern.h>
+   @author Christos Anastopoulos <Christos.Anastopoulos@cern.ch>
    @author Anthony Morley <Anthony.Morley@cern.ch>
    @author Bruno Lenzi <Bruno.Lenzi@cern.ch>
 

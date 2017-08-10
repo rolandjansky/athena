@@ -48,7 +48,7 @@ private:
   typedef std::map<std::string, std::vector<IOVEntryT<IASCIICondDbSvc::dbData_t>>> registry_t;
   registry_t m_registry;
 
-  mutable std::recursive_mutex m_lock;
+  mutable std::mutex m_lock;
 
 };
 

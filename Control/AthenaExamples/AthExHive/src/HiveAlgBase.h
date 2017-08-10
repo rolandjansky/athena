@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef ATHEXHIVE_BASEALG_H
 #define ATHEXHIVE_BASEALG_H 1
 
@@ -12,19 +16,14 @@
 
 #include <string>
 
-/*
-  
-  This is the HEADER file for the Algorithm SGWrite.
-  It illustrates how to write a data object into StoreGate
-  
-*/
-
 class HiveAlgBase  :  public AthAlgorithm, public rGen {
   
 public:
   
  HiveAlgBase (const std::string& name, ISvcLocator* pSvcLocator);
   ~HiveAlgBase();
+
+  bool isClonable() const override { return true; }
   
   // Define the initialize, execute and finalize methods:
   

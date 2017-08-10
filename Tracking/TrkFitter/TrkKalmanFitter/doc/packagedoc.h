@@ -209,7 +209,7 @@ retrieve the tool:
 <pre>
 if (m_trackFitter.retrieve().isFailure()) {
     m_log << MSG::ERROR << "can not retrieve the track fitter tool "
-          << m_trackFitter.typeAndName() << endreq;
+          << m_trackFitter.typeAndName() << endmsg;
     return StatusCode::FAILURE;
   }
 </pre></td></tr></table>

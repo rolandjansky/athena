@@ -16,7 +16,7 @@ TriggerTowerCollection_PERS * TriggerTowerCollectionCnv::createPersistent( Trigg
   
   MsgStream mlog(msgSvc(), "TriggerTowerCollectionConverter" );
 
-  //mlog << MSG::DEBUG << "TriggerTowerCollectionCnv::createPersistent called" << endreq;
+  //mlog << MSG::DEBUG << "TriggerTowerCollectionCnv::createPersistent called" << endmsg;
 
   TriggerTowerCollection_PERS * p_TTColl = m_TPConverter_tlp1.createPersistent( transObj, mlog );
  
@@ -30,7 +30,7 @@ TriggerTowerCollection * TriggerTowerCollectionCnv::createTransient()
 {
   MsgStream mlog(msgSvc(), "TriggerTowerCollectionConverter" );
   
-  //mlog << MSG::DEBUG << "TriggerTowerCollectionCnv::createTransient called" << endreq;
+  //mlog << MSG::DEBUG << "TriggerTowerCollectionCnv::createTransient called" << endmsg;
 
   static pool::Guid tlp1_guid( "CDF34B04-7594-4A52-8EE0-FE85CF2C2A18" );
   static pool::Guid p0_guid( "1B6DA81A-2F27-4B50-ACF6-D3FC19B40ADB" );

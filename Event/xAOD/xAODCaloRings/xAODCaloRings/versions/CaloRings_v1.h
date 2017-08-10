@@ -266,9 +266,7 @@ void CaloRings_v1::exportRingsTo(
 
 } // End of namespace xAOD
 
-#ifndef XAOD_STANDALONE
 #include "xAODCore/BaseInfo.h"
 SG_BASE ( xAOD::CaloRings_v1, SG::AuxElement );
-#endif
 
 #endif // XAODCALORINGS_VERSIONS_CALORINGS_V1_H

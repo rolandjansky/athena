@@ -18,15 +18,15 @@ namespace MuonGM {
 }
 
 
-class MuonHitTestToolBase : public SimTestToolBase { 
+class MuonHitTestToolBase : public SimTestToolBase {
 
- public:
+public:
   MuonHitTestToolBase(const std::string& type, const std::string& name, const IInterface* parent);
 
- 
+
   StatusCode initialize();
 
- protected:
+protected:
   StatusCode executeCheckEventInfo();
   StatusCode executeFillHistos(const Amg::Vector3D &);
   StatusCode executeFillHistosSectors_Wedge1(const Amg::Vector3D &, std::string);
@@ -34,11 +34,11 @@ class MuonHitTestToolBase : public SimTestToolBase {
   //StatusCode executeFillHistos_sTGc_Wedge1(const Amg::Vector3D &, std::string);
   StatusCode executeFillHistos_sTGc(const Amg::Vector3D &, std::string);
 
- protected:
+protected:
   std::string m_detname;
   const MuonGM::MuonDetectorManager* m_pMuonMgr;
 
-  /// MDT barrel eta cut, applicable to the MDT 2D cross section plot 
+  /// MDT barrel eta cut, applicable to the MDT 2D cross section plot
   double m_BarrelEtaCut;
 
   // general
@@ -50,8 +50,8 @@ class MuonHitTestToolBase : public SimTestToolBase {
   TH1 *m_eta, *m_theta, *m_phi;
   TH1 *m_zResid, *m_phiResid;
   TH2 *m_detBarrel, *m_longView;
-  
-  
+
+
   // helper variables
   Amg::Vector3D m_direction;
 };

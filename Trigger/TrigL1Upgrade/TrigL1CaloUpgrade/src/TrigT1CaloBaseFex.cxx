@@ -27,7 +27,7 @@ TrigT1CaloBaseFex::TrigT1CaloBaseFex( const std::string& name, ISvcLocator* pSvc
 StatusCode TrigT1CaloBaseFex::initialize(){
 	
         MsgStream msg(msgSvc(), name());
-	msg << MSG::DEBUG << "initializing TrigT1CaloBaseFex" << endreq;
+	msg << MSG::DEBUG << "initializing TrigT1CaloBaseFex" << endmsg;
 	m_cellsAboveThr.reserve(200);
 	m_cellsAround.reserve(200);
 	return StatusCode::SUCCESS;
@@ -35,7 +35,7 @@ StatusCode TrigT1CaloBaseFex::initialize(){
 
 StatusCode TrigT1CaloBaseFex::finalize(){
         MsgStream msg(msgSvc(), name());
-	msg << MSG::DEBUG << "finalizing TrigT1CaloBaseFex" << endreq;
+	msg << MSG::DEBUG << "finalizing TrigT1CaloBaseFex" << endmsg;
 	m_cellsAboveThr.clear();
 	m_cellsAround.clear();
 	return StatusCode::SUCCESS;
@@ -46,11 +46,11 @@ StatusCode TrigT1CaloBaseFex::getContainers(CaloCellContainer*& scells, const xA
 	MsgStream msg(msgSvc(), name());
         const CaloCellContainer* scells_from_sg;
 	if ( evtStore()->retrieve(scells_from_sg,"SCell").isFailure() ){
-		msg << MSG::WARNING << "did not find cell container" << endreq;
+		msg << MSG::WARNING << "did not find cell container" << endmsg;
 		return StatusCode::SUCCESS;
 	}
 	if ( evtStore()->retrieve(TTs,"xAODTriggerTowers").isFailure() ){
-		msg << MSG::WARNING << "did not find TT container" << endreq;
+		msg << MSG::WARNING << "did not find TT container" << endmsg;
 		return StatusCode::SUCCESS;
 	}
 
@@ -68,11 +68,11 @@ StatusCode TrigT1CaloBaseFex::getContainers(CaloCellContainer*& scells, const xA
 	}
         for(auto scell : *scells) {
 		if ( scell->et() < 3e3 ) continue;
-		msg << MSG::DEBUG << "scell : " << scell->et() << " " << scell->eta() << " " << scell->phi() << endreq;
+		msg << MSG::DEBUG << "scell : " << scell->et() << " " << scell->eta() << " " << scell->phi() << endmsg;
 	}
         for(auto TT : *TTs) {
 		if ( TT->pt() < 3 ) continue;
-		msg << MSG::DEBUG << "TT : " << TT->pt() << " " << TT->eta() << " " << TT->phi() << endreq;
+		msg << MSG::DEBUG << "TT : " << TT->pt() << " " << TT->eta() << " " << TT->phi() << endmsg;
 	}
 	return StatusCode::SUCCESS;
 }
@@ -82,11 +82,11 @@ StatusCode TrigT1CaloBaseFex::getContainers(CaloCellContainer*& scells, const xA
         MsgStream msg(msgSvc(), name());
         const CaloCellContainer* scells_from_sg;
         if ( evtStore()->retrieve(scells_from_sg,"SCell").isFailure() ){
-                msg << MSG::WARNING << "did not find cell container" << endreq;
+                msg << MSG::WARNING << "did not find cell container" << endmsg;
                 return StatusCode::SUCCESS;
         }
         if ( evtStore()->retrieve(TTs,"xAODTriggerTowers").isFailure() ){
-                msg << MSG::WARNING << "did not find TT container" << endreq;
+                msg << MSG::WARNING << "did not find TT container" << endmsg;
                 return StatusCode::SUCCESS;
         }
 
@@ -106,11 +106,11 @@ StatusCode TrigT1CaloBaseFex::getContainers(CaloCellContainer*& scells, const xA
 
         for(auto scell : *scells) {
                 if ( scell->et() < etThresholdGeV*1e3 ) continue;
-                msg << MSG::DEBUG << "scell : " << scell->et() << " " << scell->eta() << " " << scell->phi() << endreq;
+                msg << MSG::DEBUG << "scell : " << scell->et() << " " << scell->eta() << " " << scell->phi() << endmsg;
         }
         for(auto TT : *TTs) {
                 if ( TT->pt() < etThresholdGeV ) continue;
-                msg << MSG::DEBUG << "TT : " << TT->pt() << " " << TT->eta() << " " << TT->phi() << endreq;
+                msg << MSG::DEBUG << "TT : " << TT->pt() << " " << TT->eta() << " " << TT->phi() << endmsg;
         }
         return StatusCode::SUCCESS;
 }
@@ -119,7 +119,7 @@ StatusCode TrigT1CaloBaseFex::getContainers(const xAOD::TruthParticleContainer*&
 
 	MsgStream msg(msgSvc(), name());
         if ( evtStore()->retrieve(truthContainer,"TruthParticles").isFailure() ){
-                msg << MSG::WARNING << "did not find Truth container" << endreq;
+                msg << MSG::WARNING << "did not find Truth container" << endmsg;
                 return StatusCode::SUCCESS;
         }
  

@@ -169,6 +169,8 @@ class muComb : public HLT::FexAlgo
   DoubleProperty m_WeightEta_g4;
   /** Scale factor for the Phi matching window in LUT backextrapolator */
   DoubleProperty m_WeightPhi_g4;
+  /** Scale factor for the Chi2 1/pt resolutions (MS and ID) (Barrel) */
+  DoubleProperty m_Chi2Weight_g4;
 
   /** configurable string to be used for regular test */
   StringProperty m_test_string;

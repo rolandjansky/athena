@@ -114,48 +114,48 @@ StatusCode TrigInDetTrackTruthMaker::initialize()
 {
   // print out properties
   if (msgLvl(MSG::INFO)) {
-    msg() << MSG::INFO << "Initializing TrigInDetTrackTruthMaker..." << endreq;
-    msg() << MSG::INFO << "Storing truth map as "<<m_trackTruthMapKey<< endreq;
-    msg() << MSG::INFO << "PixelSDO_MapName is "<<m_pixel_SDO_Map<< endreq;
-    msg() << MSG::INFO << "SCT_SDO_MapName is "<<m_SCT_SDO_Map<< endreq;
-    msg() << MSG::INFO << "TRT_SDO_MapName is "<<m_TRT_SDO_Map<< endreq;
-    msg() << MSG::INFO << "Minimum nr.common hits = "<<m_minNrMatchHits<< endreq;
+    msg() << MSG::INFO << "Initializing TrigInDetTrackTruthMaker..." << endmsg;
+    msg() << MSG::INFO << "Storing truth map as "<<m_trackTruthMapKey<< endmsg;
+    msg() << MSG::INFO << "PixelSDO_MapName is "<<m_pixel_SDO_Map<< endmsg;
+    msg() << MSG::INFO << "SCT_SDO_MapName is "<<m_SCT_SDO_Map<< endmsg;
+    msg() << MSG::INFO << "TRT_SDO_MapName is "<<m_TRT_SDO_Map<< endmsg;
+    msg() << MSG::INFO << "Minimum nr.common hits = "<<m_minNrMatchHits<< endmsg;
   }
 
   // get pointer to Pixel ID helper
   if (detStore()->contains<PixelID>( "PixelID" )) {
     if (detStore()->retrieve( m_PIXid, "PixelID").isFailure()) {
-      msg() << MSG::ERROR << "Could not retrieve Pixel ID helper" << endreq;
+      msg() << MSG::ERROR << "Could not retrieve Pixel ID helper" << endmsg;
       return StatusCode::FAILURE; 
     }
   } else {
-    msg() << MSG::ERROR << "Could not retrieve Pixel ID helper" << endreq;
+    msg() << MSG::ERROR << "Could not retrieve Pixel ID helper" << endmsg;
     return StatusCode::FAILURE; 
   }
   
   // get pointer to SCT ID helper
   if (detStore()->contains<SCT_ID>( "SCT_ID" )) {
     if (detStore()->retrieve( m_SCTid, "SCT_ID").isFailure()) {
-      msg() << MSG::ERROR << "Could not retrieve SCT ID helper" << endreq;
+      msg() << MSG::ERROR << "Could not retrieve SCT ID helper" << endmsg;
       return StatusCode::FAILURE; 
     }
   } else {
-    msg() << MSG::ERROR << "Could not retrieve SCT ID helper" << endreq;
+    msg() << MSG::ERROR << "Could not retrieve SCT ID helper" << endmsg;
     return StatusCode::FAILURE; 
   }
   
   // get pointer to TRT ID helper
   if (detStore()->contains<TRT_ID>( "TRT_ID" )) {
     if (detStore()->retrieve( m_TRTid, "TRT_ID").isFailure()) {
-      msg() << MSG::ERROR << "Could not retrieve TRT ID helper" << endreq;
+      msg() << MSG::ERROR << "Could not retrieve TRT ID helper" << endmsg;
       return StatusCode::FAILURE; 
     }
   } else {
-    msg() << MSG::ERROR << "Could not retrieve TRT ID helper" << endreq;
+    msg() << MSG::ERROR << "Could not retrieve TRT ID helper" << endmsg;
     return StatusCode::FAILURE; 
   }
   
-  if (msgLvl(MSG::INFO)) msg() << MSG::INFO << "TrigInDetTrackTruthMaker initialization done" << endreq;
+  if (msgLvl(MSG::INFO)) msg() << MSG::INFO << "TrigInDetTrackTruthMaker initialization done" << endmsg;
   return StatusCode::SUCCESS; 
 }
 
@@ -172,17 +172,17 @@ StatusCode TrigInDetTrackTruthMaker::execute() {
 
   // safeguard to avoid crashes when running from POOL
 //   if ( !( m_havePIXmgr || m_haveSCTmgr || m_haveTRTmgr ) ) {
-//     if (msgLvl(MSG::ERROR)) msg() << MSG::ERROR << "Detector managers not available!" << endreq;
+//     if (msgLvl(MSG::ERROR)) msg() << MSG::ERROR << "Detector managers not available!" << endmsg;
 //     return StatusCode::SUCCESS; 
 //   }
 
   // create truth-association maps for TrigInDetTracks and record to StoreGate
   if (msgLvl(MSG::DEBUG)) msg() << MSG::DEBUG << "Recording truth map to StoreGate with key " 
-             << m_trackTruthMapKey << endreq;
+             << m_trackTruthMapKey << endmsg;
 
   if (evtStore()->contains<TrigInDetTrackTruthMap>( m_trackTruthMapKey )) {
     if (msgLvl(MSG::WARNING)) msg() << MSG::WARNING << m_trackTruthMapKey << " already exists: stop!" 
-           << endreq;
+           << endmsg;
     return StatusCode::SUCCESS;
   }
   
@@ -190,7 +190,7 @@ StatusCode TrigInDetTrackTruthMaker::execute() {
   // declare StatusCode here instead so it is always checked
   StatusCode sc = evtStore()->record(trk_truth_map, m_trackTruthMapKey);
   if (sc.isFailure()) {
-    if (msgLvl(MSG::ERROR)) msg() << MSG::ERROR << "Failed recording truth map to StoreGate!" << endreq;
+    if (msgLvl(MSG::ERROR)) msg() << MSG::ERROR << "Failed recording truth map to StoreGate!" << endmsg;
     delete trk_truth_map;
     return StatusCode::SUCCESS;
   }
@@ -198,7 +198,7 @@ StatusCode TrigInDetTrackTruthMaker::execute() {
   // get truth association maps and check some were found
   bool haveTruthMaps = this->GetTruthMaps();
   if ( !haveTruthMaps ) {
-    if (msgLvl(MSG::WARNING)) msg() << MSG::WARNING << "No truth maps found in StoreGate!" << endreq;
+    if (msgLvl(MSG::WARNING)) msg() << MSG::WARNING << "No truth maps found in StoreGate!" << endmsg;
     return StatusCode::SUCCESS;
   } else {
     std::vector<std::string>::iterator firstKey = m_TrigInDetTrackCollectionKeys.begin();
@@ -211,16 +211,16 @@ StatusCode TrigInDetTrackTruthMaker::execute() {
         StatusCode sc = evtStore()->retrieve(trkColl, *firstKey);
         if (sc.isFailure()) {
           if (msgLvl(MSG::DEBUG)) msg() << MSG::DEBUG << "No TrigInDetTrackCollection found with key "
-                    << *firstKey << endreq;
+                    << *firstKey << endmsg;
           continue;
         }
       } else {
         if (msgLvl(MSG::DEBUG)) msg() << MSG::DEBUG << "No TrigInDetTrackCollection found with key "
-                    << *firstKey << endreq;
+                    << *firstKey << endmsg;
         continue;
       }
       if (msgLvl(MSG::DEBUG)) msg() << MSG::DEBUG << "TrigInDetTrackCollection retrieved with key "
-                    << *firstKey << endreq;
+                    << *firstKey << endmsg;
 
       // tracks      
       TrigInDetTrackCollection::const_iterator trkIter = trkColl->begin();
@@ -228,7 +228,7 @@ StatusCode TrigInDetTrackTruthMaker::execute() {
 
       for (unsigned int iTrk=0; trkIter !=lastTrk; ++trkIter, ++iTrk) {
 
-        if (msgLvl(MSG::VERBOSE)) msg() << MSG::VERBOSE << "Doing TrigInDetTrack " << iTrk << endreq;
+        if (msgLvl(MSG::VERBOSE)) msg() << MSG::VERBOSE << "Doing TrigInDetTrack " << iTrk << endmsg;
 
         // check if track has hit information
         if ((*trkIter)->siSpacePoints() || (*trkIter)->trtDriftCircles()) {
@@ -238,21 +238,21 @@ StatusCode TrigInDetTrackTruthMaker::execute() {
           if ( this->TrackTruth(*trkIter, &trk_truth) ) {
             
             // check against null pointers and put in map
-            if (msgLvl(MSG::VERBOSE)) msg() << MSG::VERBOSE << "Filling truth match family relations" << endreq;
+            if (msgLvl(MSG::VERBOSE)) msg() << MSG::VERBOSE << "Filling truth match family relations" << endmsg;
             int nr_relations = trk_truth.updateFamilyTree();
-            if (msgLvl(MSG::VERBOSE)) msg() << MSG::VERBOSE << nr_relations << " family relations found" << endreq;
+            if (msgLvl(MSG::VERBOSE)) msg() << MSG::VERBOSE << nr_relations << " family relations found" << endmsg;
             
-            if (msgLvl(MSG::VERBOSE)) msg() << MSG::VERBOSE << "Adding truth match to map" << endreq;
+            if (msgLvl(MSG::VERBOSE)) msg() << MSG::VERBOSE << "Adding truth match to map" << endmsg;
             
             // add truth-association object to map
             trk_truth_map->addMatch(trkColl,iTrk,trk_truth);
             
           } else {
-            if (msgLvl(MSG::VERBOSE)) msg() << MSG::VERBOSE << "No truth match found" << endreq;
+            if (msgLvl(MSG::VERBOSE)) msg() << MSG::VERBOSE << "No truth match found" << endmsg;
           }
         } else {
           if (msgLvl(MSG::DEBUG)) msg() << MSG::DEBUG << "TrigInDetTrack " << iTrk 
-               << " in collection with key " << *firstKey << " has no hit information" << endreq;
+               << " in collection with key " << *firstKey << " has no hit information" << endmsg;
         } // any hits in track?
       }   // loop over tracks
     }     // loop over track collections
@@ -265,14 +265,14 @@ StatusCode TrigInDetTrackTruthMaker::execute() {
 
   // lock truth map
   if (msgLvl(MSG::VERBOSE)) msg() << MSG::VERBOSE << "Locking TrigInDetTrackTruthMap with key " 
-               << m_trackTruthMapKey << endreq;
+               << m_trackTruthMapKey << endmsg;
   
   sc = evtStore()->setConst(trk_truth_map);
   if (sc.isFailure()) {
-    if (msgLvl(MSG::WARNING)) msg() << MSG::WARNING << "Could not lock TrigInDetTrackTruthMap!" << endreq;
+    if (msgLvl(MSG::WARNING)) msg() << MSG::WARNING << "Could not lock TrigInDetTrackTruthMap!" << endmsg;
   } else if (evtStore()->contains<TrigInDetTrackTruthMap>( m_trackTruthMapKey )) {
     if (msgLvl(MSG::DEBUG)) msg() << MSG::DEBUG << "TrigInDetTrackTruthMap \"" 
-               << m_trackTruthMapKey << "\" in SG; done!" << endreq;
+               << m_trackTruthMapKey << "\" in SG; done!" << endmsg;
     return StatusCode::SUCCESS;
   }
   return  StatusCode::SUCCESS;
@@ -298,7 +298,7 @@ bool TrigInDetTrackTruthMaker::TrackTruth(const TrigInDetTrack* p_trk, TrigInDet
   if (p_sp_vec) {
     
     if (msgLvl(MSG::VERBOSE)) msg() << MSG::VERBOSE << "TrackTruth() : TrigInDetTrack has " 
-           << p_sp_vec->size() << " SiSpacePoints" << endreq;
+           << p_sp_vec->size() << " SiSpacePoints" << endmsg;
 
     std::vector<const TrigSiSpacePoint*>::iterator spIter = p_sp_vec->begin();
     std::vector<const TrigSiSpacePoint*>::iterator lastSP = p_sp_vec->end();
@@ -314,9 +314,9 @@ bool TrigInDetTrackTruthMaker::TrackTruth(const TrigInDetTrack* p_trk, TrigInDet
         if (msgLvl(MSG::VERBOSE)) {
           msg() << MSG::VERBOSE << "TrackTruth() : Pixel Space Point " << iSP 
               << " R: " << (*spIter)->r() << " phi: " << (*spIter)->phi() 
-              << " z: " << (*spIter)->z() << endreq;
+              << " z: " << (*spIter)->z() << endmsg;
           msg() << MSG::VERBOSE << "TrackTruth() : SP-id: "
-              << m_PIXid->print_to_string((*spIter)->identify()) << endreq;
+              << m_PIXid->print_to_string((*spIter)->identify()) << endmsg;
         }
         
         // get all the GenParticles that contributed to SP
@@ -331,11 +331,11 @@ bool TrigInDetTrackTruthMaker::TrackTruth(const TrigInDetTrack* p_trk, TrigInDet
         if (msgLvl(MSG::VERBOSE)) {
           msg() << MSG::VERBOSE << "TrackTruth() : SCT Space Point " << iSP 
               << " R: " << (*spIter)->r() << " phi: " << (*spIter)->phi() 
-              << " z: " << (*spIter)->z() << endreq;
+              << " z: " << (*spIter)->z() << endmsg;
           msg() << MSG::VERBOSE 
               << "TrackTruth() : SP-id: "
               << m_SCTid->print_to_string((*spIter)->identify())
-              << endreq;
+              << endmsg;
         }
         // get all the GenParticles that contributed to SP
         this->SCTspTruth(*spIter, p_gp_vec);
@@ -359,7 +359,7 @@ bool TrigInDetTrackTruthMaker::TrackTruth(const TrigInDetTrack* p_trk, TrigInDet
   // check TRT_DriftCircles are there and if so carry on
   if (p_dc_vec) {
     if (msgLvl(MSG::VERBOSE)) msg() << MSG::VERBOSE << "TrackTruth() : TrigInDetTrack has " 
-           << p_dc_vec->size() << " TRT_DriftCircles" << endreq;
+           << p_dc_vec->size() << " TRT_DriftCircles" << endmsg;
     
     std::vector<const InDet::TRT_DriftCircle*>::iterator dcIter = p_dc_vec->begin();
     std::vector<const InDet::TRT_DriftCircle*>::iterator lastSP = p_dc_vec->end();
@@ -374,9 +374,9 @@ bool TrigInDetTrackTruthMaker::TrackTruth(const TrigInDetTrack* p_trk, TrigInDet
       if ( m_TRTid->is_trt((*dcIter)->identify()) ) {
       
       if (msgLvl(MSG::VERBOSE)) {
-        msg() << MSG::VERBOSE << "TrackTruth() : TRT Drift Circle " << iDC << endreq;
+        msg() << MSG::VERBOSE << "TrackTruth() : TRT Drift Circle " << iDC << endmsg;
         msg() << MSG::VERBOSE << "TrackTruth() : DC-id: "
-            << m_TRTid->print_to_string((*dcIter)->identify()) << endreq;
+            << m_TRTid->print_to_string((*dcIter)->identify()) << endmsg;
       }
         // get all the GenParticles that contributed to SP
       this->TRTdcTruth(*dcIter, p_gp_vec);    
@@ -420,11 +420,11 @@ bool TrigInDetTrackTruthMaker::TrackTruth(const TrigInDetTrack* p_trk, TrigInDet
     // add matching GenParticle (and hits) to truth association object 
     if (msgLvl(MSG::VERBOSE)) msg() << MSG::VERBOSE << "TrackTruth(): add match to track " << itrk
            << ": hits=" << pix_hits << "(pix), " << sct_hits << "(sct), "
-           << trt_hits << "(trt)"<<endreq;
+           << trt_hits << "(trt)"<<endmsg;
     
     // sanity check
     if ( (*mapIt).second != (pix_hits+sct_hits+trt_hits) ) {
-      msg() << MSG::WARNING << "TrackTruth(): ERROR counting hits" << endreq;
+      msg() << MSG::WARNING << "TrackTruth(): ERROR counting hits" << endmsg;
     }
     
     // if at least one match was found: update success flag
@@ -439,7 +439,7 @@ bool TrigInDetTrackTruthMaker::TrackTruth(const TrigInDetTrack* p_trk, TrigInDet
     if (t_hits.total() > 2) {   
       unsigned int indx = p_truth->addMatch( (*mapIt).first, t_hits);
       if (msgLvl(MSG::VERBOSE)) msg() << MSG::VERBOSE <<
-        "TrackTruth(): matching particle has match index " << indx << endreq;
+        "TrackTruth(): matching particle has match index " << indx << endmsg;
     }
   }
   return success;
@@ -454,17 +454,17 @@ void TrigInDetTrackTruthMaker::updatePLmap(std::vector<HepMcParticleLink>* p_vec
   std::vector<HepMcParticleLink>::iterator gpIter = p_vec->begin();
   std::vector<HepMcParticleLink>::iterator lastGP = p_vec->end();
   
-  if (msgLvl(MSG::VERBOSE)) msg() << MSG::VERBOSE << "updatePLmap() : looping over GenParticles" << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg() << MSG::VERBOSE << "updatePLmap() : looping over GenParticles" << endmsg;
   
   for (int igp=0; gpIter != lastGP; ++gpIter, ++igp) {
     if(hits_map.count(*gpIter) == 0) {
       if (msgLvl(MSG::VERBOSE)) msg() << MSG::VERBOSE << "updatePLmap() : adding GenParticle " << igp 
-             << " to local map for insertion in track truth" <<endreq;
+             << " to local map for insertion in track truth" <<endmsg;
       hits_map[(*gpIter)] = 1;
     } else {
       hits_map[(*gpIter)] = hits_map[(*gpIter)]+1;
       if (msgLvl(MSG::VERBOSE)) msg() << MSG::VERBOSE << "updatePLmap() : GenParticle " << igp 
-             << " already in local map : " << hits_map[(*gpIter)]  << " common hits so far" << endreq;
+             << " already in local map : " << hits_map[(*gpIter)]  << " common hits so far" << endmsg;
     }
   }
   return;
@@ -491,20 +491,20 @@ void TrigInDetTrackTruthMaker::SCTspTruth(const TrigSiSpacePoint* p_SP, std::vec
     }
     
     if (msgLvl(MSG::VERBOSE)) msg() << MSG::VERBOSE << "SCTspTruth() : cluster-id: " 
-           << m_SCTid->print_to_string((*pSCTclus).identify()) << endreq;
+           << m_SCTid->print_to_string((*pSCTclus).identify()) << endmsg;
     
     // get list of Raw Data Objects identifiers in cluster
     const std::vector<Identifier> clusRDOids = pSCTclus->rdoList();
     
     if (msgLvl(MSG::VERBOSE)) msg() << MSG::VERBOSE << "SCTspTruth() : cluster " << iClusInSP << " has " 
-           << clusRDOids.size() << " RDO identifiers" << endreq; 
+           << clusRDOids.size() << " RDO identifiers" << endmsg; 
     
     std::vector<Identifier>::const_iterator rdoIter=clusRDOids.begin();
     std::vector<Identifier>::const_iterator lastRDO=clusRDOids.end();
     
     // loop over RDO identifiers and get collection of InDetSimData
     for (int iRDO=0; rdoIter != lastRDO; ++rdoIter, ++iRDO) {
-      if (msgLvl(MSG::VERBOSE)) msg() << MSG::VERBOSE << "SCTspTruth() : Doing RDO nr " << iRDO << endreq; 
+      if (msgLvl(MSG::VERBOSE)) msg() << MSG::VERBOSE << "SCTspTruth() : Doing RDO nr " << iRDO << endmsg; 
       
       // find InDetSimData object corresponding to this RDO from the
       // SCT InDetSimDataCollection map; a InDetSimData is basically a 
@@ -515,7 +515,7 @@ void TrigInDetTrackTruthMaker::SCTspTruth(const TrigSiSpacePoint* p_SP, std::vec
       // check if the InDetSimData corresponding to the RDO was found
       if (clusSimData == m_id2SimDataMapSCT->end()) {
         if (msgLvl(MSG::DEBUG)) msg() << MSG::DEBUG << "SCTspTruth() : Cannot find simulation info for "
-            <<  m_SCTid->print_to_string(*rdoIter) << endreq;
+            <<  m_SCTid->print_to_string(*rdoIter) << endmsg;
         continue;
       } else {
         // add all GenParticles which contributed to this cluster into vector
@@ -538,13 +538,13 @@ void TrigInDetTrackTruthMaker::PIXspTruth(const TrigSiSpacePoint* p_SP, std::vec
   if (!pPIXclus) return;
     
   if (msgLvl(MSG::VERBOSE)) msg() << MSG::VERBOSE << "PIXspTruth() : cluster-id: " 
-               << m_PIXid->print_to_string((*pPIXclus).identify()) << endreq;
+               << m_PIXid->print_to_string((*pPIXclus).identify()) << endmsg;
     
   // get list of Raw Data Objects identifiers in cluster
   const std::vector<Identifier> clusRDOids = pPIXclus->rdoList(); 
     
   if (msgLvl(MSG::VERBOSE)) msg() << MSG::VERBOSE << "PIXspTruth() : cluster has " 
-               << clusRDOids.size() << " RDO identifiers" << endreq; 
+               << clusRDOids.size() << " RDO identifiers" << endmsg; 
     
   std::vector<Identifier>::const_iterator rdoIter = clusRDOids.begin();
   std::vector<Identifier>::const_iterator lastRDO = clusRDOids.end();
@@ -552,15 +552,15 @@ void TrigInDetTrackTruthMaker::PIXspTruth(const TrigSiSpacePoint* p_SP, std::vec
   // loop over RDO identifiers and get collection of InDetSimData
   for (int iRDO=0; rdoIter != lastRDO; ++rdoIter, ++iRDO) {
       
-    if (msgLvl(MSG::VERBOSE)) msg() << MSG::VERBOSE << "PIXspTruth() : Doing RDO nr " << iRDO << endreq; 
+    if (msgLvl(MSG::VERBOSE)) msg() << MSG::VERBOSE << "PIXspTruth() : Doing RDO nr " << iRDO << endmsg; 
     
     if ( ! (*rdoIter).is_valid() ) {
       if (msgLvl(MSG::VERBOSE)) msg() << MSG::WARNING <<
-        "Invalid identifier from pixel SP->rdoList() !!" << endreq;
+        "Invalid identifier from pixel SP->rdoList() !!" << endmsg;
       continue;
     } else {
       if (msgLvl(MSG::VERBOSE)) msg() << MSG::VERBOSE << "Pixel identifier: "
-             << m_PIXid->print_to_string(*rdoIter) << endreq;
+             << m_PIXid->print_to_string(*rdoIter) << endmsg;
     }
 
     // find InDetSimData object corresponding to this RDO from the
@@ -572,7 +572,7 @@ void TrigInDetTrackTruthMaker::PIXspTruth(const TrigSiSpacePoint* p_SP, std::vec
     if (clusSimData == m_id2SimDataMapPIX->end()) {
       // we didn't find the ID in the map - check if it is a ganged pixel
       if (msgLvl(MSG::VERBOSE)) msg() << MSG::DEBUG << "PIXspTruth() : Cannot find simulation info for " 
-             << m_PIXid->print_to_string(*rdoIter) <<" : looking for ganged pixel" << endreq;
+             << m_PIXid->print_to_string(*rdoIter) <<" : looking for ganged pixel" << endmsg;
       
       const unsigned int phi_index = m_PIXid->phi_index(*rdoIter);
       unsigned int ganged_phi_index=0;
@@ -599,14 +599,14 @@ void TrigInDetTrackTruthMaker::PIXspTruth(const TrigSiSpacePoint* p_SP, std::vec
                    m_PIXid->eta_index(*rdoIter));
     
         if (msgLvl(MSG::VERBOSE)) msg() << MSG::VERBOSE << "PIXspTruth() : ganged to pixel " 
-            <<  m_PIXid->print_to_string(new_rdoID) << endreq;
+            <<  m_PIXid->print_to_string(new_rdoID) << endmsg;
 
         clusSimData = m_id2SimDataMapPIX->find(new_rdoID);
       }
       if(clusSimData == m_id2SimDataMapPIX->end() )  {
         // check again, in case ganged pixel is also not in map
         if (msgLvl(MSG::DEBUG)) msg() << MSG::DEBUG << "SCTspTruth() : Cannot find simulation info for " 
-            <<  m_PIXid->print_to_string(*rdoIter) << endreq;
+            <<  m_PIXid->print_to_string(*rdoIter) << endmsg;
         continue;
       }
     }
@@ -630,7 +630,7 @@ void TrigInDetTrackTruthMaker::TRTdcTruth(const InDet::TRT_DriftCircle* p_DC, st
   const std::vector<Identifier>& dcircRDOids = p_DC->rdoList();
   
   if (msgLvl(MSG::VERBOSE)) msg() << MSG::VERBOSE << "TRTdcTruth() : drift circle has " 
-               << dcircRDOids.size() << " RDO identifiers" << endreq; 
+               << dcircRDOids.size() << " RDO identifiers" << endmsg; 
     
   std::vector<Identifier>::const_iterator rdoIter = dcircRDOids.begin();
   std::vector<Identifier>::const_iterator lastRDO = dcircRDOids.end();
@@ -638,15 +638,15 @@ void TrigInDetTrackTruthMaker::TRTdcTruth(const InDet::TRT_DriftCircle* p_DC, st
   // loop over RDO identifiers and get collection of InDetSimData
   for (int iRDO=0; rdoIter != lastRDO; ++rdoIter, ++iRDO) {
       
-    if (msgLvl(MSG::VERBOSE)) msg() << MSG::VERBOSE << "TRTdcTruth() : Doing RDO nr " << iRDO << endreq; 
+    if (msgLvl(MSG::VERBOSE)) msg() << MSG::VERBOSE << "TRTdcTruth() : Doing RDO nr " << iRDO << endmsg; 
     
     if ( !(*rdoIter).is_valid() ) {
       if (msgLvl(MSG::WARNING)) msg() << MSG::WARNING << "Invalid identifier from TRT DC->rdoList() !!" 
-             << endreq;
+             << endmsg;
       continue;
     } else {
       if (msgLvl(MSG::VERBOSE)) msg() << MSG::VERBOSE << "TRT identifier: "
-             << m_TRTid->print_to_string(*rdoIter) << endreq;
+             << m_TRTid->print_to_string(*rdoIter) << endmsg;
     }
     
     // find InDetSimData object corresponding to this RDO from the
@@ -659,7 +659,7 @@ void TrigInDetTrackTruthMaker::TRTdcTruth(const InDet::TRT_DriftCircle* p_DC, st
       
       // we didn't find the ID in the map
       if (msgLvl(MSG::VERBOSE)) msg() << MSG::DEBUG << "TRTdcTruth() : Cannot find simulation info for " 
-             << m_TRTid->print_to_string(*rdoIter) << endreq;
+             << m_TRTid->print_to_string(*rdoIter) << endmsg;
       continue; 
     }
     
@@ -677,7 +677,7 @@ void TrigInDetTrackTruthMaker::updatePLvector(std::vector<HepMcParticleLink>* p_
   const std::vector< std::pair<HepMcParticleLink,float> >& simDeposits = ((*simData).second).getdeposits();
   
   if (msgLvl(MSG::VERBOSE)) msg() << MSG::VERBOSE << "updatePLvector() : RDO has " 
-               << simDeposits.size() << " deposits" << endreq; 
+               << simDeposits.size() << " deposits" << endmsg; 
   
   // loop over the deposits and get info from HepMcParticleLinks
   std::vector< std::pair<HepMcParticleLink,float> >::const_iterator depIter = simDeposits.begin();
@@ -686,7 +686,7 @@ void TrigInDetTrackTruthMaker::updatePLvector(std::vector<HepMcParticleLink>* p_
   for (int iDep=0 ; depIter != lastDep; ++depIter, ++iDep) {
       
     if (msgLvl(MSG::VERBOSE)) msg() << MSG::VERBOSE << "updatePLvector() : Doing deposit " 
-           << iDep << endreq; 
+           << iDep << endmsg; 
       
     // get the HepMcParticleLink from the Deposit particle link and check it's ok
     HepMcParticleLink partLink =  (*depIter).first;
@@ -694,7 +694,7 @@ void TrigInDetTrackTruthMaker::updatePLvector(std::vector<HepMcParticleLink>* p_
     if (msgLvl(MSG::VERBOSE)) msg() << MSG::VERBOSE << "updatePLvector() : Deposit " << iDep 
            << ": kine " << partLink.barcode() 
            << ", event index " << partLink.eventIndex() 
-           << ", energy deposit " << (*depIter).second << endreq; 
+           << ", energy deposit " << (*depIter).second << endmsg; 
     
     if (partLink.isValid()) {
         
@@ -709,7 +709,7 @@ void TrigInDetTrackTruthMaker::updatePLvector(std::vector<HepMcParticleLink>* p_
         p_GP->push_back(partLink);
         if (msgLvl(MSG::VERBOSE)) msg() << MSG::VERBOSE 
                << "updatePLvector() : Added particle to vector: " 
-               << p_GP->size() << " matches so far" << endreq;
+               << p_GP->size() << " matches so far" << endmsg;
       }
     }
   }
@@ -727,16 +727,16 @@ bool TrigInDetTrackTruthMaker::GetTruthMaps()
      StatusCode sc = evtStore()->retrieve(m_id2SimDataMapPIX, m_pixel_SDO_Map);
      if (sc.isFailure()) {
         if (msgLvl(MSG::DEBUG)) msg() << MSG::DEBUG
-                 << "GetTruthMaps() : Could not retrieve " << m_pixel_SDO_Map << "!" << endreq;
+                 << "GetTruthMaps() : Could not retrieve " << m_pixel_SDO_Map << "!" << endmsg;
         m_havePIXmap=false;
      } else {
        if (msgLvl(MSG::VERBOSE)) msg() << MSG::VERBOSE << "GetTruthMaps() : Retrieved "
-                 << m_pixel_SDO_Map << endreq;
+                 << m_pixel_SDO_Map << endmsg;
        m_havePIXmap=true;
      }
    } else {
      if (msgLvl(MSG::DEBUG)) msg() << MSG::DEBUG
-                 << "GetTruthMaps() : Could not retrieve " << m_pixel_SDO_Map << "!" << endreq;
+                 << "GetTruthMaps() : Could not retrieve " << m_pixel_SDO_Map << "!" << endmsg;
      m_havePIXmap=false;
    }
   
@@ -745,16 +745,16 @@ bool TrigInDetTrackTruthMaker::GetTruthMaps()
      StatusCode sc = evtStore()->retrieve(m_id2SimDataMapSCT, m_SCT_SDO_Map);
      if (sc.isFailure()) {
        if (msgLvl(MSG::DEBUG)) msg() << MSG::DEBUG
-                 << "GetTruthMaps() : Could not retrieve " << m_SCT_SDO_Map << "!" << endreq;
+                 << "GetTruthMaps() : Could not retrieve " << m_SCT_SDO_Map << "!" << endmsg;
        m_haveSCTmap=false;
      } else {
        if (msgLvl(MSG::VERBOSE)) msg() << MSG::VERBOSE
-                 << "GetTruthMaps() : Retrieved " << m_SCT_SDO_Map << endreq;
+                 << "GetTruthMaps() : Retrieved " << m_SCT_SDO_Map << endmsg;
        m_haveSCTmap=true;
      }
    } else {
      if (msgLvl(MSG::DEBUG)) msg() << MSG::DEBUG
-                 << "GetTruthMaps() : Could not retrieve " << m_SCT_SDO_Map << "!" << endreq;
+                 << "GetTruthMaps() : Could not retrieve " << m_SCT_SDO_Map << "!" << endmsg;
      m_haveSCTmap=false;
    }
    
@@ -763,16 +763,16 @@ bool TrigInDetTrackTruthMaker::GetTruthMaps()
      StatusCode sc = evtStore()->retrieve(m_id2SimDataMapTRT, m_TRT_SDO_Map);
      if (sc.isFailure()) {
        if (msgLvl(MSG::DEBUG)) msg() << MSG::DEBUG
-                 << "GetTruthMaps() : Could not retrieve " << m_TRT_SDO_Map << "!" << endreq;
+                 << "GetTruthMaps() : Could not retrieve " << m_TRT_SDO_Map << "!" << endmsg;
        m_haveTRTmap=false;
      } else {
        if (msgLvl(MSG::VERBOSE)) msg() << MSG::VERBOSE << "GetTruthMaps() : Retrieved "
-                 << m_TRT_SDO_Map << endreq;
+                 << m_TRT_SDO_Map << endmsg;
        m_haveTRTmap=true;
      }
    } else {
      if (msgLvl(MSG::DEBUG)) msg() << MSG::DEBUG
-                 << "GetTruthMaps() : Could not retrieve " << m_TRT_SDO_Map << "!" << endreq;
+                 << "GetTruthMaps() : Could not retrieve " << m_TRT_SDO_Map << "!" << endmsg;
      m_haveTRTmap=false;
    }
    

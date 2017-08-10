@@ -50,21 +50,21 @@ PpmCoolMappingTool::~PpmCoolMappingTool()
 StatusCode PpmCoolMappingTool::initialize()
 {
   msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << PACKAGE_VERSION << endreq;
+                 << PACKAGE_VERSION << endmsg;
 
   // Retrieve the CaloTriggerTowerService tool
   StatusCode sc = m_ttSvc.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to retrieve tool " << m_ttSvc << endreq;
+    msg(MSG::ERROR) << "Failed to retrieve tool " << m_ttSvc << endmsg;
     return sc;
-  } else msg(MSG::INFO) << "Retrieved tool " << m_ttSvc << endreq;
+  } else msg(MSG::INFO) << "Retrieved tool " << m_ttSvc << endmsg;
 
   // Retrieve the CaloIdManager from the detector store
   const CaloIdManager* caloMgr = 0;
   sc = detStore()->retrieve(caloMgr);
   if (sc.isFailure()) {
     msg(MSG::ERROR) << "Unable to retrieve CaloIdManager from DetectorStore"
-                    << endreq;
+                    << endmsg;
     return sc;
   }
 
@@ -72,7 +72,7 @@ StatusCode PpmCoolMappingTool::initialize()
   // of the CaloLVL1_ID helper
   m_lvl1Helper = caloMgr->getLVL1_ID();
   if (!m_lvl1Helper) {
-    msg(MSG::ERROR) << "Could not access CaloLVL1_ID helper" << endreq;
+    msg(MSG::ERROR) << "Could not access CaloLVL1_ID helper" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -80,7 +80,7 @@ StatusCode PpmCoolMappingTool::initialize()
   // of the TTOnlineID helper
   m_l1ttonlineHelper = caloMgr->getTTOnlineID();
   if (!m_l1ttonlineHelper ) {
-    msg(MSG::ERROR) << "Could not access TTOnlineID helper" << endreq;
+    msg(MSG::ERROR) << "Could not access TTOnlineID helper" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -88,7 +88,7 @@ StatusCode PpmCoolMappingTool::initialize()
   IIncidentSvc* incSvc = 0;
   sc = service("IncidentSvc", incSvc);
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to retrieve pointer to IncidentSvc " << endreq;
+    msg(MSG::ERROR) << "Unable to retrieve pointer to IncidentSvc " << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -111,7 +111,7 @@ void PpmCoolMappingTool::handle(const Incident& inc)
 {
   if (inc.type()=="BeginRun") {
     if (msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) << "Resetting mapping table at start of run" << endreq;
+      msg(MSG::DEBUG) << "Resetting mapping table at start of run" << endmsg;
     }
 
     m_idTable.clear();
@@ -148,16 +148,16 @@ bool PpmCoolMappingTool::mapping(const int crate, const int module,
         msg(MSG::VERBOSE) << "crate/module/channel " << crate << "/"
                           << module << "/" << channel
   			  << "  maps to crate/slot/pin/asic " << crate << "/"
-			  << slot << "/" << pin << "/" << asic << endreq;
+			  << slot << "/" << pin << "/" << asic << endmsg;
       }
       const HWIdentifier id = m_l1ttonlineHelper->channelId(crate, slot, pin,
                                                                         asic);
       if (verbose) {
-        msg(MSG::VERBOSE) << "hardware_id: " << id << endreq;
+        msg(MSG::VERBOSE) << "hardware_id: " << id << endmsg;
       }
       ttId = m_ttSvc->cnvToIdentifier(id, true);
       if (verbose) {
-        msg(MSG::VERBOSE) << "tower_id: " << ttId << endreq;
+        msg(MSG::VERBOSE) << "tower_id: " << ttId << endmsg;
       }
     }
     catch (CaloID_Exception) { ttId = invalidId; }
@@ -186,7 +186,7 @@ bool PpmCoolMappingTool::mapping(const int crate, const int module,
   if (verbose) {
     msg(MSG::VERBOSE) << "crate/module/channel " << crate << "/" << module
                       << "/" << channel << "  maps to eta/phi/layer "
-  		      << eta << "/" << phi << "/" << layer << endreq;
+  		      << eta << "/" << phi << "/" << layer << endmsg;
   }
 
   return true;
@@ -225,16 +225,16 @@ bool PpmCoolMappingTool::mapping(const double eta, const double phi,
       msg(MSG::VERBOSE) << "eta/phi/layer " << eta << "/" << phi << "/"
                         << layer << "  maps to side/layer/region/ieta/iphi "
                         << side << "/" << layer << "/" << region << "/"
-		        << ieta << "/" << iphi << endreq;
+		        << ieta << "/" << iphi << endmsg;
     }
     const Identifier ttId = m_lvl1Helper->tower_id(side, layer, region,
                                                             ieta, iphi);
     if (verbose) {
-      msg(MSG::VERBOSE) << "tower_id: " << ttId << endreq;
+      msg(MSG::VERBOSE) << "tower_id: " << ttId << endmsg;
     }
     id = m_ttSvc->createTTChannelID(ttId, true);
     if (verbose) {
-      msg(MSG::VERBOSE) << "hardware_id: " << id << endreq;
+      msg(MSG::VERBOSE) << "hardware_id: " << id << endmsg;
     }
   }
   catch (CaloID_Exception) { id = invalidId; }
@@ -251,7 +251,7 @@ bool PpmCoolMappingTool::mapping(const double eta, const double phi,
   if (verbose) {
     msg(MSG::VERBOSE) << "eta/phi/layer " << eta << "/" << phi << "/" << layer
                       << "  maps to crate/module/channel "
-    		      << crate << "/" << module << "/" << channel << endreq;
+    		      << crate << "/" << module << "/" << channel << endmsg;
   }
     
   return true;

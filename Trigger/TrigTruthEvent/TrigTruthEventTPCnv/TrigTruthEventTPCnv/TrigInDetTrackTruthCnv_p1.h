@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigTruthEventTPCnv
- * @Class  : TrigInDetTrackTruthCnv_p1
+ * @class  : TrigInDetTrackTruthCnv_p1
  *
  * @brief transient-persistent converter for TrigInDetTrackTruth
  *

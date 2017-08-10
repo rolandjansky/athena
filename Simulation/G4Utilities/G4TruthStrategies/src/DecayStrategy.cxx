@@ -23,12 +23,12 @@ DecayStrategy::DecayStrategy(const std::string& n)
   double seco_thr = 100*CLHEP::MeV;
   if(theTruthManager->GetTruthParameter("DecayPrimaryMinEnergy")==0){
     log() << MSG::INFO << "DecayPrimaryMinEnergy: setting default value of 100 MeV"
-          << endreq;
+          << endmsg;
     theTruthManager->SetTruthParameter("DecayPrimaryMinEnergy", prim_thr);
   }
   if(theTruthManager->GetTruthParameter("DecaySecondaryMinEnergy")==0){
     log() << MSG::INFO << "DecaySecondaryMinEnergy: setting default value of 100 MeV"
-          << endreq;
+          << endmsg;
     theTruthManager->SetTruthParameter("DecaySecondaryMinEnergy", seco_thr);
   }
 }

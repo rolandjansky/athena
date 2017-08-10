@@ -38,10 +38,6 @@ class CaloCell2ClusterMapper : public AthReentrantAlgorithm
   virtual StatusCode execute_r (const EventContext& ctx) const override;
   virtual StatusCode finalize() override;
 
-  /** Callback added to handle Data-driven GeoModel initialisation
-   */
-  StatusCode geoInit(IOVSVC_CALLBACK_ARGS);
-
  protected:
 
   const CaloDetDescrManager* m_calo_dd_man; 

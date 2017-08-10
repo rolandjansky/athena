@@ -22,7 +22,6 @@ namespace InDetDD{
   class TRT_BaseElement;
 }
 
-class IGeoModelSvc;
 class TRT_ID;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -33,10 +32,6 @@ public:
   StatusCode initialize();
   StatusCode execute();
   StatusCode finalize();
-
-  /// GeoInit callback
-  StatusCode geoInitCallback(IOVSVC_CALLBACK_ARGS);
-  StatusCode geoInitialize();
 
 private:
   
@@ -60,7 +55,6 @@ private:
   double m_errTrans;
   bool m_hardwiredShifts;
   int m_precision;
-  ServiceHandle<IGeoModelSvc> m_geoModelSvc;
 };
 
 #endif // InDetDetDescrExample_TestTRT_Alignment_h

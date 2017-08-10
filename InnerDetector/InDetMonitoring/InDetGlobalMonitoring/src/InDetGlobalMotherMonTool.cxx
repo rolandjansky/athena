@@ -128,7 +128,7 @@ StatusCode InDetGlobalMotherMonTool::registerHist(
     {  
       //std::string msgtext = "Could not register histogram ";  //fix this it did not like the variable
       //if (h1!=0) msg+=h1->GetName();
-      if ( msgLvl(MSG::WARNING) ) msg(MSG::WARNING) << "Could not register histogram :" << endreq;
+      if ( msgLvl(MSG::WARNING) ) msg(MSG::WARNING) << "Could not register histogram :" << endmsg;
     }    
   return rc;
 }
@@ -141,7 +141,7 @@ StatusCode InDetGlobalMotherMonTool::registerHist( MonGroup & theGroup,
     {  
       //std::string msgtext = "Could not register histogram ";  //fix this it did not like the variable
       //if (h1!=0) msg+=h1->GetName();
-      if ( msgLvl(MSG::WARNING) ) msg(MSG::WARNING) << "Could not register histogram :" << endreq;
+      if ( msgLvl(MSG::WARNING) ) msg(MSG::WARNING) << "Could not register histogram :" << endmsg;
     }    
   return rc;
 }
@@ -154,7 +154,7 @@ StatusCode InDetGlobalMotherMonTool::registerHist( MonGroup & theGroup,
     {  
       //std::string msgtext = "Could not register histogram ";  //fix this it did not like the variable
       //if (h1!=0) msg+=h1->GetName();
-      if ( msgLvl(MSG::WARNING) ) msg(MSG::WARNING) << "Could not register histogram :" << endreq;
+      if ( msgLvl(MSG::WARNING) ) msg(MSG::WARNING) << "Could not register histogram :" << endmsg;
     }    
   return rc;
 }
@@ -166,7 +166,7 @@ StatusCode InDetGlobalMotherMonTool::registerHist( MonGroup & theGroup,
     {  
       //std::string msgtext = "Could not register histogram ";  //fix this it did not like the variable
       //if (h1!=0) msg+=h1->GetName();
-      if ( msgLvl(MSG::WARNING) ) msg(MSG::WARNING) << "Could not register histogram :" << endreq;
+      if ( msgLvl(MSG::WARNING) ) msg(MSG::WARNING) << "Could not register histogram :" << endmsg;
     }    
   return rc;
 }
@@ -179,7 +179,7 @@ StatusCode InDetGlobalMotherMonTool::registerHist( MonGroup & theGroup,
     {  
       //std::string msgtext = "Could not register histogram ";  //fix this it did not like the variable
       //if (h1!=0) msg+=h1->GetName();
-      if ( msgLvl(MSG::WARNING) ) msg(MSG::WARNING) << "Could not register histogram :" << endreq;
+      if ( msgLvl(MSG::WARNING) ) msg(MSG::WARNING) << "Could not register histogram :" << endmsg;
     }    
   return rc;
 }
@@ -192,7 +192,7 @@ StatusCode InDetGlobalMotherMonTool::registerHist( MonGroup & theGroup,
     {  
       //std::string msgtext = "Could not register histogram ";  //fix this it did not like the variable
       //if (h1!=0) msg+=h1->GetName();
-      if ( msgLvl(MSG::WARNING) ) msg(MSG::WARNING) << "Could not register histogram :" << endreq;
+      if ( msgLvl(MSG::WARNING) ) msg(MSG::WARNING) << "Could not register histogram :" << endmsg;
     }    
   return rc;
 }
@@ -206,7 +206,7 @@ StatusCode InDetGlobalMotherMonTool::registerHist( MonGroup & theGroup,
     {  
       //std::string msgtext = "Could not register histogram ";  //fix this it did not like the variable
       //if (h1!=0) msg+=h1->GetName();
-      if ( msgLvl(MSG::WARNING) ) msg(MSG::WARNING) << "Could not register histogram :" << endreq;
+      if ( msgLvl(MSG::WARNING) ) msg(MSG::WARNING) << "Could not register histogram :" << endmsg;
     }    
   return rc;
 }
@@ -219,7 +219,7 @@ StatusCode InDetGlobalMotherMonTool::registerHist( MonGroup & theGroup,
     {  
       //std::string msgtext = "Could not register histogram ";  //fix this it did not like the variable
       //if (h1!=0) msg+=h1->GetName();
-      if ( msgLvl(MSG::WARNING) ) msg(MSG::WARNING) << "Could not register histogram :" << endreq;
+      if ( msgLvl(MSG::WARNING) ) msg(MSG::WARNING) << "Could not register histogram :" << endmsg;
     }    
   return rc;
 }
@@ -232,7 +232,7 @@ StatusCode InDetGlobalMotherMonTool::registerHist( MonGroup & theGroup,
     {  
       //std::string msgtext = "Could not register histogram ";  //fix this it did not like the variable
       //if (h1!=0) msg+=h1->GetName();
-      if ( msgLvl(MSG::WARNING) ) msg(MSG::WARNING) << "Could not register histogram :" << endreq;
+      if ( msgLvl(MSG::WARNING) ) msg(MSG::WARNING) << "Could not register histogram :" << endmsg;
     }    
   return rc;
 }
@@ -245,7 +245,7 @@ StatusCode InDetGlobalMotherMonTool::registerHist( MonGroup & theGroup,
     {  
       //std::string msgtext = "Could not register histogram ";  //fix this it did not like the variable
       //if (h1!=0) msg+=h1->GetName();
-      if ( msgLvl(MSG::WARNING) ) msg(MSG::WARNING) << "Could not register histogram :" << endreq;
+      if ( msgLvl(MSG::WARNING) ) msg(MSG::WARNING) << "Could not register histogram :" << endmsg;
     }    
   return rc;
 }
@@ -258,7 +258,7 @@ StatusCode InDetGlobalMotherMonTool::registerHist( MonGroup & theGroup,
     {  
       //std::string msgtext = "Could not register histogram ";  //fix this it did not like the variable
       //if (h1!=0) msg+=h1->GetName();
-      if ( msgLvl(MSG::WARNING) ) msg(MSG::WARNING) << "Could not register histogram :" << endreq;
+      if ( msgLvl(MSG::WARNING) ) msg(MSG::WARNING) << "Could not register histogram :" << endmsg;
     }    
   return rc;
 }
@@ -272,7 +272,7 @@ StatusCode InDetGlobalMotherMonTool::registerHist( MonGroup & theGroup,
     {  
       //std::string msgtext = "Could not register histogram ";  //fix this it did not like the variable
       //if (h1!=0) msg+=h1->GetName();
-      if ( msgLvl(MSG::WARNING) ) msg(MSG::WARNING) << "Could not register histogram :" << endreq;
+      if ( msgLvl(MSG::WARNING) ) msg(MSG::WARNING) << "Could not register histogram :" << endmsg;
     }    
   return rc;
 }

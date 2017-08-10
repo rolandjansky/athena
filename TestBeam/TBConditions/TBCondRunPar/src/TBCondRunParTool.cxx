@@ -174,7 +174,7 @@ bool TBCondRunParTool::extractCool(const int run) {
   if (StatusCode::SUCCESS==detStore()->retrieve(atrlist,table)) {
     // std::ostringstream atrs;
     // atrlist->print(atrs);
-    // m_log << "Attribute list contents: " << atrs.str() << endreq;
+    // m_log << "Attribute list contents: " << atrs.str() << endmsg;
     long ldata;
     m_run_number=(*atrlist)["run_number"].data<int>();
     m_trigger_type=(*atrlist)["trigger_type"].data<int>();

@@ -6,6 +6,6 @@
 #ifndef TRIGGERMATCHINGTOOL_TRIGGERMATCHINGTOOLDICT_H
 #define TRIGGERMATCHINGTOOL_TRIGGERMATCHINGTOOLDICT_H
 
-#include "TriggerMatchingTool/MatchingTool.h"
+#include "TriggerMatchingTool/IMatchingTool.h"
 
 #endif

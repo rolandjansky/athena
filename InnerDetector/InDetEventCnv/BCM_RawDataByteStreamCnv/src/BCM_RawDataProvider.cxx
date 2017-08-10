@@ -44,21 +44,21 @@ BCM_RawDataProvider::~BCM_RawDataProvider(){
 ////////////////////////
 StatusCode BCM_RawDataProvider::initialize() {
 
-  if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "BCM_RawDataProvider::initialize" << endreq;
+  if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "BCM_RawDataProvider::initialize" << endmsg;
 
   // Get ROBDataProviderSvc
   if (m_robDataProvider.retrieve().isFailure()) {
-    if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Failed to retrieve service " << m_robDataProvider << endreq;
+    if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Failed to retrieve service " << m_robDataProvider << endmsg;
     return StatusCode::FAILURE;
   } else
-    if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Retrieved service " << m_robDataProvider << endreq;
+    if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Retrieved service " << m_robDataProvider << endmsg;
  
   // Get BCMRawDataProviderTool
   if (m_rawDataTool.retrieve().isFailure()) {
-    if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Failed to retrieve service " << m_rawDataTool << endreq;
+    if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Failed to retrieve service " << m_rawDataTool << endmsg;
     return StatusCode::FAILURE;
   } else
-    if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Retrieved service " << m_rawDataTool << endreq;
+    if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Retrieved service " << m_rawDataTool << endmsg;
  
   return StatusCode::SUCCESS;
 }
@@ -68,10 +68,10 @@ StatusCode BCM_RawDataProvider::initialize() {
 ////////////////////////
 StatusCode BCM_RawDataProvider::execute() {
 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Create BCM RDO Container" << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Create BCM RDO Container" << endmsg;
   BCM_RDO_Container *container = new BCM_RDO_Container();
   if (evtStore()->record(container, m_RDO_Key).isFailure()) {
-    if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Unable to record BCM RDO Container" << endreq;
+    if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Unable to record BCM RDO Container" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -110,13 +110,13 @@ StatusCode BCM_RawDataProvider::execute() {
   }
   */
   
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Number of ROB fragments is " << listOfRobf.size() << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Number of ROB fragments is " << listOfRobf.size() << endmsg;
 
   // ask BCM_RawDataProviderTool to decode it and to fill the container
   if (m_rawDataTool->convert(listOfRobf,container).isFailure())
-    if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "BS conversion into RDOs failed" << endreq;
+    if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "BS conversion into RDOs failed" << endmsg;
 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Number of collections in container is " << container->size() << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Number of collections in container is " << container->size() << endmsg;
 
   return StatusCode::SUCCESS;
 }

@@ -11,7 +11,6 @@
 
 #include "StoreGate/StoreGate.h"
 #include "StoreGate/DataHandle.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
@@ -131,7 +130,7 @@ int printFullMaterial ( GeoMaterial* &p_material)
 	
 	
 
-RDBMaterialManager::RDBMaterialManager(StoreGateSvc*,ISvcLocator* pSvcLocator )
+RDBMaterialManager::RDBMaterialManager(ISvcLocator* pSvcLocator )
 {
   IGeoModelSvc*  iGeoModel;		
   IRDBAccessSvc* iAccessSvc;

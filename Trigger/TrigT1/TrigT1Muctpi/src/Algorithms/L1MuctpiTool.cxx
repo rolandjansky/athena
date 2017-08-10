@@ -49,14 +49,10 @@
 namespace LVL1MUCTPI {
 
   // Set the default StoreGate locations of input and output objects:
-  const std::string L1MuctpiTool::m_DEFAULT_locationMuCTPItoCTP      = "/Run/L1MuCTPItoCTPLocation";
-  const std::string L1MuctpiTool::m_DEFAULT_locationMuCTPItoL1Topo   = "/Run/L1MuCTPItoL1TopoLocation";
-  const std::string L1MuctpiTool::m_DEFAULT_locationMuCTPItoRoIB     = "/Run/L1MuCTPItoRoIBLocation";
   const std::string L1MuctpiTool::m_DEFAULT_L1MuctpiStoreLocationRPC = "/Event/L1MuctpiStoreRPC";
   const std::string L1MuctpiTool::m_DEFAULT_L1MuctpiStoreLocationTGC = "/Event/L1MuctpiStoreTGC";
   const std::string L1MuctpiTool::m_DEFAULT_AODLocID                 = "LVL1_ROI";
   const std::string L1MuctpiTool::m_DEFAULT_RDOLocID                 = "MUCTPI_RDO";
-  const std::string L1MuctpiTool::m_DEFAULT_roibLocation             = "RoIBResult";
 
   //--------------
   // Constructor
@@ -116,7 +112,7 @@ namespace LVL1MUCTPI {
 		     "Bit on the NIM input of the CTP, showing that there was at least "
 		     "one endcap candidate in the event" );
 
-    declareProperty( "ROIBResultLocation", m_roibLocation=m_DEFAULT_roibLocation, "Storegate key for the reading the ROIBResult" );
+    declareProperty( "ROIBResultLocation", m_roibLocation=ROIB::DEFAULT_RoIBRDOLocation, "Storegate key for the reading the ROIBResult" );
  
   }
 
@@ -382,7 +378,7 @@ namespace LVL1MUCTPI {
     } else if( evtStore()->contains<ROIB::RoIBResult>(m_roibLocation) ) {
       CHECK( evtStore()->retrieve(roibResult, m_roibLocation) );
     } else {
-      ATH_MSG_WARNING("Neither a MuCTPIToRoIBSLink with SG key '/Run/L1MuCTPItoRoIBLocation' nor a an RoIBResult were found in the event.");
+      ATH_MSG_WARNING("Neither a MuCTPIToRoIBSLink with SG key " << m_roibLocation << " nor an RoIBResult were found in the event.");
       return StatusCode::RECOVERABLE;
     }
     

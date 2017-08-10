@@ -15,16 +15,6 @@ atlas_depends_on_subdirs(
    GaudiKernel
    Tools/PathResolver )
 
-# Set the version of ThePEG to use:
-set( THEPEG_VERSION 2.0.3 )
-set( THEPEG_ROOT
-   ${LCG_RELEASE_DIR}/MCGenerators/thepeg/${THEPEG_VERSION}/${ATLAS_PLATFORM} )
-
-# Set the version of Herwigpp to use:
-set( HERWIG3_VERSION 7.0.3 )
-set( HERWIG3_ROOT
-   ${LCG_RELEASE_DIR}/MCGenerators/herwig++/${HERWIG3_VERSION}/${ATLAS_PLATFORM} )
-
 # External dependencies:
 find_package( Boost )
 find_package( Herwig3 )

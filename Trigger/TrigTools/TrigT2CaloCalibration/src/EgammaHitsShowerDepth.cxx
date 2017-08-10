@@ -88,7 +88,7 @@ float EgammaHitsShowerDepth::depth (const float &aeta,
   float depth = rsum / esum;
 
 #ifndef NDEBUG
-  (*m_log) << MSG::DEBUG << "Shower barycenter ---->> " << depth << endreq;
+  (*m_log) << MSG::DEBUG << "Shower barycenter ---->> " << depth << endmsg;
 #endif
 
   return depth;

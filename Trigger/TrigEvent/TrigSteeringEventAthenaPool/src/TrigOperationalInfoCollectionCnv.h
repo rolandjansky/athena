@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigEventAthenaPool
- * @Class  : TrigOperationalInfoCollection
+ * @class  : TrigOperationalInfoCollection
  *
  * @brief transient persistent converter for TrigOperationalInfoCollection
  *

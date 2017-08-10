@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef HISTOHANDLERFORMCPTOOL
 #define HISTOHANDLERFORMCPTOOL
@@ -39,6 +39,8 @@
 #include <cmath>
 
 namespace CP {
+
+    class AxisHandler;
     class HistHandler {
             /// @class HistHandler
             /// @brief  utility class to avoid having to determine the input histo at every single
@@ -48,124 +50,78 @@ namespace CP {
             /// details.
         public:
 
-            virtual double GetBinContent(int bin) = 0;
-            virtual void SetBinContent(int bin, float val) = 0;
-            virtual double GetBinError(int bin) = 0;
-            virtual void SetBinError(int bin, float val) = 0;
-            virtual TH1* GetHist() const = 0;
+            double GetBinContent(int bin) const;
+            void SetBinContent(int bin, float val) const;
+            double GetBinError(int bin) const;
+            void SetBinError(int bin, float val) const;
+            TH1* GetHist() const;
 
-            virtual int NBins() = 0;
-            virtual CorrectionCode FindBin(const xAOD::Muon & muon, int & bin) = 0;
-            virtual ~HistHandler() {
-            }
-            ;
-    };
+            //Function that changes from Implementation to implementation
+            virtual CorrectionCode FindBin(const xAOD::Muon & muon, int & bin) const = 0;
+            virtual int NBins() const = 0;
+            virtual std::string GetBinName(unsigned int bin) const=0;
 
-    class AxisHandler {
-        public:
-
-            virtual CorrectionCode GetBinningParameter(const xAOD::Muon & mu, float & value)=0;
-
-            virtual ~AxisHandler() {
-            }
-            ;
-            static std::string EraseWhiteSpaces(std::string str);
-    };
-
-    class HistHandler_TH1F: public HistHandler {
-
-        public:
-
-            HistHandler_TH1F(TH1F* hist);
-            HistHandler_TH1F(const HistHandler_TH1F & other);
-            virtual HistHandler_TH1F & operator =(const HistHandler_TH1F & other);
-            virtual ~HistHandler_TH1F();
-            virtual double GetBinContent(int bin) {
-                return m_h->GetBinContent(bin);
-            }
-            virtual void SetBinContent(int bin, float val) {
-                m_h->SetBinContent(bin, val);
-            }
-            virtual double GetBinError(int bin) {
-                return m_h->GetBinError(bin);
-            }
-            virtual void SetBinError(int bin, float val) {
-                m_h->SetBinError(bin, val);
-            }
-            virtual TH1* GetHist() const {
-                return m_h;
-            }
-
-            virtual int NBins();
-            virtual CorrectionCode FindBin(const xAOD::Muon & muon, int & bin);
-
+            virtual ~HistHandler();
+        protected:
+            HistHandler(TH1* Hist);
+            HistHandler(const HistHandler & other);
+            void Copy(const HistHandler & other);
         private:
-            TH1F* m_h;
+            TH1* m_H;
+
+    };
+
+    class HistHandler_TH1: public HistHandler {
+
+        public:
+
+            HistHandler_TH1(TH1* hist);
+            HistHandler_TH1(const HistHandler_TH1 & other);
+            virtual HistHandler_TH1 & operator =(const HistHandler_TH1 & other);
+            virtual ~HistHandler_TH1();
+
+            virtual int NBins() const;
+            virtual std::string GetBinName(unsigned int bin) const;
+            virtual CorrectionCode FindBin(const xAOD::Muon & muon, int & bin) const;
+        private:
             AxisHandler *m_x_handler;
     };
 
-    class HistHandler_TH2F: public HistHandler {
+    class HistHandler_TH2: public HistHandler {
 
         public:
 
-            HistHandler_TH2F(TH2F* hist);
-            HistHandler_TH2F(const HistHandler_TH2F & other);
-            virtual HistHandler_TH2F & operator =(const HistHandler_TH2F & other);
-            virtual ~HistHandler_TH2F();
-            virtual double GetBinContent(int bin) {
-                return m_h->GetBinContent(bin);
-            }
-            virtual void SetBinContent(int bin, float val) {
-                m_h->SetBinContent(bin, val);
-            }
-            virtual double GetBinError(int bin) {
-                return m_h->GetBinError(bin);
-            }
-            virtual void SetBinError(int bin, float val) {
-                m_h->SetBinError(bin, val);
-            }
-            virtual TH1* GetHist() const {
-                return m_h;
-            }
+            HistHandler_TH2(TH2* hist);
+            HistHandler_TH2(const HistHandler_TH2 & other);
+            virtual HistHandler_TH2 & operator =(const HistHandler_TH2 & other);
+            virtual ~HistHandler_TH2();
 
-            virtual int NBins();
-            virtual CorrectionCode FindBin(const xAOD::Muon & muon, int & bin);
+            virtual int NBins() const;
+            virtual std::string GetBinName(unsigned int bin) const;
 
-        private:
-            TH2F* m_h;
+            virtual CorrectionCode FindBin(const xAOD::Muon & muon, int & bin) const;
+            private:
+            TH2* m_h;
             AxisHandler *m_x_handler;
             AxisHandler *m_y_handler;
     };
 
-    class HistHandler_TH3F: public HistHandler {
+    class HistHandler_TH3: public HistHandler {
 
         public:
 
-            HistHandler_TH3F(TH3F* hist);
-            HistHandler_TH3F(const HistHandler_TH3F & other);
-            virtual HistHandler_TH3F & operator =(const HistHandler_TH3F & other);
-            virtual ~HistHandler_TH3F();
-            virtual double GetBinContent(int bin) {
-                return m_h->GetBinContent(bin);
-            }
-            virtual void SetBinContent(int bin, float val) {
-                m_h->SetBinContent(bin, val);
-            }
-            virtual double GetBinError(int bin) {
-                return m_h->GetBinError(bin);
-            }
-            virtual void SetBinError(int bin, float val) {
-                m_h->SetBinError(bin, val);
-            }
-            virtual TH1* GetHist() const {
-                return m_h;
-            }
+            HistHandler_TH3(TH3* hist);
+            HistHandler_TH3(const HistHandler_TH3 & other);
+            virtual HistHandler_TH3 & operator =(const HistHandler_TH3 & other);
+            virtual ~HistHandler_TH3();
 
-            virtual int NBins();
-            virtual CorrectionCode FindBin(const xAOD::Muon & muon, int & bin);
+            virtual int NBins() const;
+            virtual std::string GetBinName(unsigned int bin) const;
+
+            virtual CorrectionCode FindBin(const xAOD::Muon & muon, int & bin) const;
 
         private:
-            TH3F* m_h;
+            TH3* m_h;
             AxisHandler *m_x_handler;
             AxisHandler *m_y_handler;
             AxisHandler *m_z_handler;
@@ -179,29 +135,28 @@ namespace CP {
             HistHandler_TH2Poly(const HistHandler_TH2Poly & other);
             virtual HistHandler_TH2Poly & operator =(const HistHandler_TH2Poly & other);
             virtual ~HistHandler_TH2Poly();
-            virtual double GetBinContent(int bin) {
-                return m_h->GetBinContent(bin);
-            }
-            virtual void SetBinContent(int bin, float val) {
-                m_h->SetBinContent(bin, val);
-            }
-            virtual double GetBinError(int bin) {
-                return m_h->GetBinError(bin);
-            }
-            virtual void SetBinError(int bin, float val) {
-                m_h->SetBinError(bin, val);
-            }
-            virtual TH1* GetHist() const {
-                return m_h;
-            }
 
-            virtual int NBins();
-            virtual CorrectionCode FindBin(const xAOD::Muon & muon, int & bin);
+            virtual int NBins() const;
+            virtual std::string GetBinName(unsigned int bin) const;
+
+            virtual CorrectionCode FindBin(const xAOD::Muon & muon, int & bin) const;
 
         private:
             TH2Poly* m_h;
             AxisHandler *m_x_handler;
             AxisHandler *m_y_handler;
+    };
+
+    class AxisHandler {
+        public:
+            virtual CorrectionCode GetBinningParameter(const xAOD::Muon & mu, float & value)=0;
+            virtual ~AxisHandler() {
+            }
+    };
+    class AxisHandlerProvider {
+        public:
+            static AxisHandler *GetAxisHandler(const TAxis* axis);
+            static std::string EraseWhiteSpaces(std::string str);
     };
 
     class PtAxisHandler: public AxisHandler {
@@ -212,7 +167,7 @@ namespace CP {
             }
             virtual ~PtAxisHandler() {
             }
-            ;
+
     };
 
     class ChargeAxisHandler: public AxisHandler {
@@ -223,7 +178,7 @@ namespace CP {
             }
             virtual ~ChargeAxisHandler() {
             }
-            ;
+
     };
 
     class SignedDetRegionAxisHandler: public AxisHandler {
@@ -237,7 +192,7 @@ namespace CP {
             }
             virtual ~SignedDetRegionAxisHandler() {
             }
-            ;
+
         private:
             DetRegionBinning m_drb;
     };
@@ -253,7 +208,7 @@ namespace CP {
             }
             virtual ~DetRegionAxisHandler() {
             }
-            ;
+
         private:
             DetRegionBinning m_drb;
     };
@@ -269,7 +224,7 @@ namespace CP {
             }
             virtual ~FineEtaPhiAxisHandler() {
             }
-            ;
+
         private:
             fineEtaPhiBinning m_fepb;
     };
@@ -281,7 +236,7 @@ namespace CP {
             }
             virtual ~EtaAxisHandler() {
             }
-            ;
+
     };
     class AbsEtaAxisHandler: public AxisHandler {
         public:
@@ -291,7 +246,7 @@ namespace CP {
             }
             virtual ~AbsEtaAxisHandler() {
             }
-            ;
+
     };
     class PhiAxisHandler: public AxisHandler {
         public:
@@ -301,7 +256,7 @@ namespace CP {
             }
             virtual ~PhiAxisHandler() {
             }
-            ;
+
     };
     class dRJetAxisHandler: public AxisHandler {
         public:
@@ -312,7 +267,7 @@ namespace CP {
             }
             virtual ~dRJetAxisHandler() {
             }
-            ;
+
     };
     class UndefinedAxisHandler: public AxisHandler {
         public:
@@ -321,12 +276,8 @@ namespace CP {
             }
             virtual ~UndefinedAxisHandler() {
             }
-            ;
-    };
-    class AxisHandlerProvider {
-        public:
-            static AxisHandler *GetAxisHandler(TAxis* axis);
+
     };
 
-}    // namespace CP
+} // namespace CP
 #endif

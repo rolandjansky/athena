@@ -10,10 +10,10 @@ namespace HI
   void AddEventShape::operator()(xAOD::HIEventShape* slice, const xAOD::HIEventShape* in_slice) const
   {
     //update members
-    slice->setNCells(slice->nCells()+weight*in_slice->nCells());
-    slice->setEt(slice->et()+weight*in_slice->et());
-    slice->setArea(slice->area() + weight*in_slice->area());
-    slice->setRho(slice->rho() + weight*in_slice->rho());
+    slice->setNCells(slice->nCells()+m_weight*in_slice->nCells());
+    slice->setEt(slice->et()+m_weight*in_slice->et());
+    slice->setArea(slice->area() + m_weight*in_slice->area());
+    slice->setRho(slice->rho() + m_weight*in_slice->rho());
 
     unsigned int nord=slice->etCos().size();
     if(nord!=slice->etSin().size()) throw std::domain_error("Input HIEventShape has unequal n-harmonics for Q_x and Q_y");
@@ -43,9 +43,9 @@ namespace HI
     for(unsigned int i=0; i<nord; i++)
     {
       float tmp_cos = slice->etCos().at(i);
-      slice->etCos()[i] = tmp_cos + weight*in_slice->etCos().at(i);
+      slice->etCos()[i] = tmp_cos + m_weight*in_slice->etCos().at(i);
       float tmp_sin = slice->etSin().at(i);
-      slice->etSin()[i] = tmp_sin + weight*in_slice->etSin().at(i);
+      slice->etSin()[i] = tmp_sin + m_weight*in_slice->etSin().at(i);
     }
   }
 

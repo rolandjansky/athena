@@ -68,21 +68,19 @@ IDScanHitFilter::IDScanHitFilter(const std::string& t,
 StatusCode IDScanHitFilter::initialize()
 {
   StatusCode sc = AthAlgTool::initialize();
-  MsgStream athenaLog(msgSvc(), name());
 
   m_dPhidRCut = 0.3/m_pTcutInMeV;
 
-  athenaLog << MSG::INFO << "IDScanHitFilter constructed "                       << endreq;
-  athenaLog << MSG::INFO << "phiBinSize       set to " << m_phiBinSize     << endreq;
-  athenaLog << MSG::INFO << "etaBinSize       set to " << m_etaBinSize     << endreq;
-  athenaLog << MSG::INFO << "layerThreshold   set to " << m_layerThreshold << endreq;
-  athenaLog << MSG::INFO << "enhanceZeroLayer set to " << m_enhanceLayer0  << endreq;
-  athenaLog << MSG::INFO << "Clone removal    set to " << m_cloneRemoval   << endreq;
-  athenaLog << MSG::INFO << "dphidrcut    set to " << m_dPhidRCut   << endreq;
+  ATH_MSG_INFO( "IDScanHitFilter constructed "                        );
+  ATH_MSG_INFO( "phiBinSize       set to " << m_phiBinSize      );
+  ATH_MSG_INFO( "etaBinSize       set to " << m_etaBinSize      );
+  ATH_MSG_INFO( "layerThreshold   set to " << m_layerThreshold  );
+  ATH_MSG_INFO( "enhanceZeroLayer set to " << m_enhanceLayer0   );
+  ATH_MSG_INFO( "Clone removal    set to " << m_cloneRemoval    );
+  ATH_MSG_INFO( "dphidrcut    set to " << m_dPhidRCut    );
 
   if (m_numberingTool.retrieve().isFailure()){
-    athenaLog << MSG::FATAL << "Tool " << m_numberingTool
-	      << " not found " << endreq;
+    ATH_MSG_FATAL( "Tool " << m_numberingTool << " not found "  );
     return StatusCode::FAILURE;
   } 
 
@@ -128,12 +126,9 @@ void IDScanHitFilter::findTracks( std::vector<const TrigSiSpacePoint* > spVec, T
 				  double shiftx=0, double shifty=0,
 				  const int missing_layers=0 )
 {
-  MsgStream athenaLog(msgSvc(), name());
-
   setLayerThresholdTmp(getLayerThreshold()-double(missing_layers));
-  athenaLog << MSG::DEBUG
-	    << "m_layerThreshold="      << m_layerThreshold
-	    << "\tm_layerThresholdTmp=" << m_layerThresholdTmp << endreq;
+  ATH_MSG_DEBUG( "m_layerThreshold="      << m_layerThreshold
+                 << "\tm_layerThresholdTmp=" << m_layerThresholdTmp  );
 
   // 0. check if RoI is in [0,2pi] boundary (boundary for the space point definition!)
   //    and calculate phi offset <- now done in spacepoints themselves!!!
@@ -150,8 +145,8 @@ void IDScanHitFilter::findTracks( std::vector<const TrigSiSpacePoint* > spVec, T
 				zVertex );
 	}
 
-  if (this->outputLevel() <= MSG::DEBUG) athenaLog << MSG::DEBUG << "REGTEST / Made " << m_internalSPs->size() 
-						   << " IdScanSpPoints. Proceeding to HitFilter." << endreq;
+  ATH_MSG_DEBUG( "REGTEST / Made " << m_internalSPs->size() 
+                 << " IdScanSpPoints. Proceeding to HitFilter."  );
   if (m_printDiagnosticMessages) std::cout << "IdScanMain DIAGNOSTIC " <<  " Made " << m_internalSPs->size() 
 					   << " IdScanSpPoints. Proceeding to HitFilter." << std::endl;
 
@@ -177,16 +172,13 @@ void IDScanHitFilter::findTracks( std::vector<const TrigSiSpacePoint* > spVec, T
 void IDScanHitFilter::makeTracks( GroupList& idScanGroups, TrigInDetTrackCollection& recoTracks,  double zPosition, 
 				  double shiftx=0, double shifty=0)
 {
-
-  MsgStream athenaLog(msgSvc(), name());
-
     //  recoTracks->reserve( idScanGroups.size() );
 
   // Since the FilterMap is a hashmap and hash tables are not guaranteed
   // to be sorted, running the code twice sometimes ends up producing
   // differently ordered REGTEST output files. So sort them is debugging:
 
-  if ( this->outputLevel() <= MSG::DEBUG ) idScanGroups.sort();
+  if ( msgLvl(MSG::DEBUG) ) idScanGroups.sort();
 
   for ( GroupList::iterator gItr( idScanGroups.begin() ) ; gItr != idScanGroups.end(); ++gItr ) {
     if(gItr->groupHits().size()==0) continue;
@@ -200,10 +192,10 @@ void IDScanHitFilter::makeTracks( GroupList& idScanGroups, TrigInDetTrackCollect
       {
 	phi0-=2.0*M_PI;
       }
-    if (this->outputLevel() <= MSG::DEBUG) athenaLog << MSG::DEBUG << "REGTEST / group phi0/ptInv/eta: " 
-					       << phi0 << " / " 
-					       << gItr->getPtInv() << " / " 
-					       << gItr->getEta() << endreq;
+    ATH_MSG_DEBUG( "REGTEST / group phi0/ptInv/eta: " 
+                   << phi0 << " / " 
+                   << gItr->getPtInv() << " / " 
+                   << gItr->getEta()  );
 
     if (m_printDiagnosticMessages) std::cout << "IdScanMain DIAGNOSTIC " << " group phi0/ptInv/eta: " 
 					     << phi0 << " / " 

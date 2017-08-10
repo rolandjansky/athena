@@ -48,8 +48,12 @@ class MCTruthClassifier : virtual public IMCTruthClassifier , public asg::AsgToo
 
   // Gaudi algorithm hooks
   virtual StatusCode initialize() override;
-  virtual StatusCode finalize() override;
-    
+  virtual StatusCode finalize()
+#ifndef XAOD_STANDALONE
+  override
+#endif // not XAOD_STANDALONE
+  ;
+
   //Old EDM  
 #ifndef XAOD_ANALYSIS
   virtual
@@ -80,6 +84,9 @@ class MCTruthClassifier : virtual public IMCTruthClassifier , public asg::AsgToo
   std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin>
     checkOrigOfBkgElec(const xAOD::TruthParticle* thePart,
                        Info* info = nullptr) const override;
+
+  virtual
+  const xAOD::TruthParticle* isHadronFromB(const xAOD::TruthParticle *) const override;
 
  private:
 

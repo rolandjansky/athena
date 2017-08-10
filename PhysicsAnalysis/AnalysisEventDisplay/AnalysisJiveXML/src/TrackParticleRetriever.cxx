@@ -101,7 +101,7 @@ namespace JiveXML {
   StatusCode TrackParticleRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
     
     //be verbose
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieving AOD TrackParticle" << endreq; 
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieving AOD TrackParticle" << endmsg; 
   
     //Generate a list of requested track collections
     typedef std::pair< Rec::TrackParticleContainer , std::string > tracksNamePair;
@@ -111,7 +111,7 @@ namespace JiveXML {
     const Rec::TrackParticleContainer* tracks = NULL ;
     if (evtStore()->retrieve(tracks, m_PriorityTrackCollection).isFailure()){
       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Unable to retrieve requested priority track collection "
-                                                  << m_PriorityTrackCollection << endreq;
+                                                  << m_PriorityTrackCollection << endmsg;
     } else {
       //Add this to the list of requested collections
       requestedTrackColls.push_back(tracksNamePair(*tracks,m_PriorityTrackCollection));
@@ -124,7 +124,7 @@ namespace JiveXML {
     for ( ; CollNameItr != m_OtherTrackCollections.end(); ++CollNameItr){
       const Rec::TrackParticleContainer* tracks = NULL ;
       if (evtStore()->retrieve(tracks, (*CollNameItr)).isFailure()){
-        if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Unable to retrieve requested track collection " << (*CollNameItr) << endreq;
+        if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Unable to retrieve requested track collection " << (*CollNameItr) << endmsg;
         continue ;
       }
 
@@ -146,7 +146,7 @@ namespace JiveXML {
       //Get an iterator over all other track collections
       const DataHandle<Rec::TrackParticleContainer> trackCollIter, trackCollEnd;
       if ((evtStore()->retrieve(trackCollIter, trackCollEnd)).isFailure()){
-        if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Unable to retrieve track collection iterator" << endreq;
+        if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Unable to retrieve track collection iterator" << endmsg;
         return StatusCode::SUCCESS; 
       }
 
@@ -158,20 +158,20 @@ namespace JiveXML {
 
         //Check if this is an HLT-AutoKey collection
         if ((trackCollIter.key().find("HLT",0) != std::string::npos) && (!m_doWriteHLT)){
-          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Ignoring HLT-AutoKey collection " << trackCollIter.key() << endreq;
+          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Ignoring HLT-AutoKey collection " << trackCollIter.key() << endmsg;
           continue ;
         }
 
 	// Veto AtlfastTrackParticles as they have different parameter access method. 
 	// Retrieving them will lead to runtime crash currently.  jpt 04Aug07
         if ( (trackCollIter.key() =="AtlfastTrackParticles")) {
-          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Always ignoring collection " << trackCollIter.key() << endreq;
+          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Always ignoring collection " << trackCollIter.key() << endmsg;
           continue ;
         }
 
         //Next try to retrieve the actual collection
         if (evtStore()->retrieve(tracks,trackCollIter.key()).isFailure()){
-          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to retrieve collection " << trackCollIter.key() << endreq;
+          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to retrieve collection " << trackCollIter.key() << endmsg;
           continue ;
         }
 
@@ -199,9 +199,9 @@ namespace JiveXML {
       
       //Some sanity checks
       if ( tpc->size() == 0){
-        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Ignoring empty track collection " << collectionName << endreq;
+        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Ignoring empty track collection " << collectionName << endmsg;
       } else {
-        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieving data for track collection " << collectionName << endreq;
+        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieving data for track collection " << collectionName << endmsg;
       }
  
       // Make a list of track-wise entries and reserve enough space
@@ -248,8 +248,8 @@ namespace JiveXML {
                      "_BLayerHits"+DataType( nBLayerHits ).toString() + "_TRTHits"+DataType( nTRTHits ).toString() ;
           if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Author: " << (*tpcItr)->info().trackFitter() << " Pixel hits: " << nPixelHits
 						  << ", SCT hits: " << nSCTHits << " BLayer hits: " << nBLayerHits
-						  << ", TRT hits: " << nTRTHits << ", pT[GeV]= " << (*tpcItr)->perigee()->pT()/1000. << endreq;
-          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Label: " << labelStr << endreq;
+						  << ", TRT hits: " << nTRTHits << ", pT[GeV]= " << (*tpcItr)->perigee()->pT()/1000. << endmsg;
+          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Label: " << labelStr << endmsg;
         }
 
         if (((*tpcItr)->perigee()->parameters())[Trk::qOverP]==0) {
@@ -359,7 +359,7 @@ namespace JiveXML {
             return StatusCode::RECOVERABLE;
       
       //Be verbose
-       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << " collection " << collectionName << " retrieved with " << id.size() << " entries"<< endreq; 
+       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << " collection " << collectionName << " retrieved with " << id.size() << " entries"<< endmsg; 
     } //loop over track collections
 
     //All collections retrieved okay

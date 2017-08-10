@@ -25,19 +25,38 @@ using eformat::helper::SourceIdentifier;
 // implementation of Tile Frag ID to RESrcID conversion. 
 // 
 
-TileHid2RESrcID::TileHid2RESrcID(const TileHWID* tileHWID)
-{
-  setTileHWID(tileHWID);
-  setTileMuRcvHWID(tileHWID); 
-}
-
-void TileHid2RESrcID::setTileHWID(const TileHWID* tileHWID)
+TileHid2RESrcID::TileHid2RESrcID(const TileHWID* tileHWID, uint32_t runnum)
+  : m_runnum(0)
 {
   m_tileHWID = tileHWID;
-  if (!m_tileHWID) return;  
+  if (m_tileHWID) {
+    // make internal maps 
+    initialize(runnum);
+    initializeMuRcv(runnum);
+  }
+}
 
-  // make internal maps 
-  
+void TileHid2RESrcID::setTileHWID(const TileHWID* tileHWID, uint32_t runnum)
+{
+  m_tileHWID = tileHWID;
+  if (m_tileHWID) {
+    // make internal maps 
+    initialize(runnum);
+  }
+}
+
+void TileHid2RESrcID::setTileMuRcvHWID(const TileHWID* tileHWID, uint32_t runnum)
+{
+  m_tileHWID = tileHWID;
+  if (m_tileHWID) {
+    // make internal maps 
+    initializeMuRcv(runnum);
+  }
+}
+
+void TileHid2RESrcID::initialize(uint32_t runnum)
+{
+  m_runnum = runnum;
   eformat::SubDetector detid[6];
   
   detid[0] = eformat::TILECAL_LASER_CRATE;    // 0x50 - beam crate
@@ -48,38 +67,51 @@ void TileHid2RESrcID::setTileHWID(const TileHWID* tileHWID)
   detid[5] = eformat::TDAQ_BEAM_CRATE;        // 0x70 - common beam crate
   
   /** iterator over all drawer Identifiers */
-  std::vector<HWIdentifier>::const_iterator first = tileHWID->drawer_begin();
-  std::vector<HWIdentifier>::const_iterator  last = tileHWID->drawer_end();
+  std::vector<HWIdentifier>::const_iterator first = m_tileHWID->drawer_begin();
+  std::vector<HWIdentifier>::const_iterator  last = m_tileHWID->drawer_end();
 
   for ( ; first!=last; ++first) {
-    int ros    = tileHWID->ros(*first);
-    int drawer = tileHWID->drawer(*first);
-    int frag   = tileHWID->frag(*first); 
+    int ros    = m_tileHWID->ros(*first);
+    int drawer = m_tileHWID->drawer(*first);
+    int frag   = m_tileHWID->frag(*first); 
 
     uint32_t id = 0; // id is always 0 for Beam ROD (ros=0)
-    // (put 4 drawers in one ROD - remove last 2 bits)
-    if (ros > 0) id = (drawer >> 2);
-    else if (drawer>0x7 && drawer < 0xFF) ros = 5; // frags from common beam crate
+    if (ros > 0) {
+      if (runnum>318000) {
+        // new frag->ROB mapping since March 2017 
+        // put 4 drawers in two subsequent RODs
+        // odd drawers in odd ROD, even drawers in even ROD
+        id = ((drawer & 0xFC) >> 1) | (drawer & 0x1) ;
+      } else {
+        // old mapping
+        // (put 4 drawers in one ROD - remove last 2 bits)
+        id = (drawer >> 2);
+      }
+    } else if (drawer>0x7 && drawer < 0xFF) {
+      ros = 5; // frags from common beam crate
+    }
     
     // build ROD id
     SourceIdentifier sid = SourceIdentifier(detid[ros],id);    
     uint32_t rod_id =  sid.code();
 
     // add ROD id to the map
-    if (frag != 0x16)
-      m_frag2ROD[frag] = rod_id;
-    else
-      m_frag2ROD[frag] = 0x520010;
+    m_frag2ROD[frag] = rod_id;
   }
+
+  // laser fragments in specific ROB
+  if (runnum>318000) {
+    // new frag->ROB mapping since March 2017 
+    m_frag2ROD[0x16] = 0x520020;
+  } else {
+    m_frag2ROD[0x16] = 0x520010;
+  }
+  m_frag2ROD[0x17] = 0;
 }
 
-void TileHid2RESrcID::setTileMuRcvHWID(const TileHWID* tileHWID)
+void TileHid2RESrcID::initializeMuRcv(uint32_t runnum)
 {
-  m_tileHWID = tileHWID;
-  if (!m_tileHWID) return;
-
-  // make internal maps
-
+  m_runnum = runnum;
   eformat::SubDetector detid[6];
 
   detid[0] = eformat::TILECAL_LASER_CRATE;    // 0x50 - beam crate
@@ -90,13 +122,13 @@ void TileHid2RESrcID::setTileMuRcvHWID(const TileHWID* tileHWID)
   detid[5] = eformat::TDAQ_BEAM_CRATE;        // 0x70 - common beam crate
 
   // iterator over all drawer Identifiers
-  std::vector<HWIdentifier>::const_iterator first = tileHWID->drawer_begin();
-  std::vector<HWIdentifier>::const_iterator  last = tileHWID->drawer_end();
+  std::vector<HWIdentifier>::const_iterator first = m_tileHWID->drawer_begin();
+  std::vector<HWIdentifier>::const_iterator  last = m_tileHWID->drawer_end();
 
   for ( ; first!=last; ++first) {
-    int ros    = tileHWID->ros(*first);
-    int drawer = tileHWID->drawer(*first);
-    int frag   = tileHWID->frag(*first);
+    int ros    = m_tileHWID->ros(*first);
+    int drawer = m_tileHWID->drawer(*first);
+    int frag   = m_tileHWID->frag(*first);
     uint32_t id = 0;
 
     //std::cout << "TileHid2RESrcID::setTileMuRcvHWID ros:" << ros << " drawer: " << std::hex <<  drawer << " frag: " << frag << std::dec << std::endl;
@@ -151,6 +183,9 @@ void TileHid2RESrcID::setROD2ROBmap(const std::vector<std::string> & ROD2ROB,
   if (fragCount > 0)
     log << MSG::INFO << "TileHid2RESrcID:: " << fragCount
         << " frag to ROD remappings set via jobOptions" << endmsg;
+
+  if (m_frag2ROD[0x17] != 0) m_frag2ROD[0x16] = m_frag2ROD[0x17];
+  else m_frag2ROD[0x17] = m_frag2ROD[0x16];
 }
 
 void TileHid2RESrcID::setROD2ROBmap (const eformat::FullEventFragment<const uint32_t*> * event,
@@ -159,6 +194,10 @@ void TileHid2RESrcID::setROD2ROBmap (const eformat::FullEventFragment<const uint
   MSG::Level logLevel = log.level();
   bool debug = (logLevel<=MSG::DEBUG);
 
+  uint32_t runnum = event->run_no();
+  if ( (runnum>318000 && m_runnum<=318000) || (runnum<=318000 && m_runnum>318000) )
+    initialize(runnum);
+  
   uint32_t nBeamFrag=0, nRODfrag=0, nDataFrag[10]={0,0,0,0,0,0,0,0,0,0}, flags=0xFFFF, flags5=0xFFFF;
   std::map<int,int> fragMap;
   std::map<int,int> beamMap;
@@ -222,6 +261,22 @@ void TileHid2RESrcID::setROD2ROBmap (const eformat::FullEventFragment<const uint
 
                 if (fragtype >= 0x40 && fragtype < 0x50) break;
 
+                FRAGRODMAP::const_iterator it = m_frag2ROD.find(fragid); 
+                if(it == m_frag2ROD.end()){
+                  log << MSG::INFO << "New frag 0x" << MSG::hex << fragid 
+                      << " in ROB 0x" << ROBid << MSG::dec << endmsg;
+                } else {
+                  if ( (*it).second != ROBid ) {
+                    log << MSG::INFO << "Frag 0x" << MSG::hex << fragid 
+                        <<" remapping from ROB 0x" << (*it).second
+                        << " to 0x" << ROBid << endmsg;
+                  } else {
+                    log << MSG::DEBUG << "Frag 0x" << MSG::hex << fragid 
+                        <<" found in ROB 0x" << (*it).second
+                        << " as expected" << endmsg;
+                  }
+                }
+
                 if (fragid < 0xff) { // all testbeam frags and laser frag
                     ++nBeamFrag;
                     m_frag2ROD[fragid] = ROBid;
@@ -277,6 +332,9 @@ void TileHid2RESrcID::setROD2ROBmap (const eformat::FullEventFragment<const uint
   }
   log << " ) was found in the data" << endmsg;
   
+  if (m_frag2ROD[0x17] != 0) m_frag2ROD[0x16] = m_frag2ROD[0x17];
+  else m_frag2ROD[0x17] = m_frag2ROD[0x16];
+
   if ((nDataFrag[0]+nDataFrag[1]==0 || (nDataFrag[2]+nDataFrag[3]+nDataFrag[4]==0)) && nDataFrag[5] > 0 ) {
     // only frag5 in the data - make sure that TileROD_Decoder is configured properly
     StatusCode sc;

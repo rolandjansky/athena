@@ -18,7 +18,6 @@ atlas_depends_on_subdirs(
    Control/AthLinks
    Control/CLIDSvc
    Control/CxxUtils
-   Control/DataModel
    Control/Navigation
    DetectorDescription/GeoPrimitives
    DetectorDescription/Identifier
@@ -42,7 +41,7 @@ atlas_add_library( CaloEvent CaloEvent/*.h CaloEvent/*.icc src/*.cxx
    PUBLIC_HEADERS CaloEvent
    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
    LINK_LIBRARIES CaloConditions CaloGeoHelpers CaloIdentifier AthAllocators
-   AthContainers AthLinks CxxUtils DataModel Navigation GeoPrimitives
+   AthContainers AthLinks CxxUtils Navigation GeoPrimitives
    Identifier EventKernel FourMom NavFourMom CaloDetDescrLib
    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} AthenaKernel
    SGTools )
@@ -77,12 +76,12 @@ atlas_add_test( CaloConstCellContainer_test
 atlas_add_test( CaloTowerContainer_test
    SOURCES test/CaloTowerContainer_test.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-   LINK_LIBRARIES ${Boost_LIBRARIES} TestTools CaloEvent
+   LINK_LIBRARIES ${Boost_LIBRARIES} TestTools CaloEvent  ${CLHEP_LIBRARIES}
    EXTRA_PATTERNS "${_patterns}" )
 
 atlas_add_test( CaloTopoTowerContainer_test
    SOURCES test/CaloTopoTowerContainer_test.cxx
-   LINK_LIBRARIES TestTools StoreGateLib GaudiKernel CaloEvent
+   LINK_LIBRARIES TestTools StoreGateLib GaudiKernel CaloEvent ${CLHEP_LIBRARIES}
    EXTRA_PATTERNS "${_patterns}"
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share:${CMAKE_JOBOPT_OUTPUT_DIRECTORY}:$ENV{JOBOPTSEARCHPATH}" )
 

@@ -23,6 +23,7 @@
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODTau/TauJetContainer.h"
 #include "xAODTau/TauJetAuxContainer.h"
+#include "xAODCore/ShallowCopy.h"
 
 #include "AsgTools/ToolHandle.h"
 
@@ -116,10 +117,7 @@ int main( int argc, char* argv[] )
 
   // defining needed Container
   const xAOD::EventInfo* xEventInfo = 0;
-#ifndef XAODTAU_VERSIONS_TAUJET_V3_H
-  const
-#endif // not XAODTAU_VERSIONS_TAUJET_V3_H
-  xAOD::TauJetContainer* xTauJetContainer = 0;
+  const xAOD::TauJetContainer* xTauJetContainer = 0;
 
   CP::PileupReweightingTool* m_tPRWTool = new CP::PileupReweightingTool("PileupReweightingTool");
   std::vector<std::string> vLumiCalcFiles = {"ilumicalc_histograms_HLT_tau160_medium1_tracktwo_297730-311481_OflLumi-13TeV-005.root"};
@@ -138,18 +136,22 @@ int main( int argc, char* argv[] )
   CHECK(TauSelTool->setProperty("CreateControlPlots", true ));
   CHECK(TauSelTool->setProperty("MuonOLR", true ));
   CHECK(TauSelTool->setProperty("PtMin", 20. ));
+  CHECK(TauSelTool->setProperty("EleBDTWP", int(ELEIDBDTLOOSE) ));
   CHECK(TauSelTool->setProperty("ConfigPath", "" ));
-  CHECK(TauSelTool->setProperty("SelectionCuts", int(CutPt|CutMuonOLR) ));
+  CHECK(TauSelTool->setProperty("SelectionCuts", int(CutPt|CutMuonOLR|CutEleOLR|CutEleBDTWP) ));
+  CHECK(TauSelTool->setProperty("IgnoreAODFixCheck", true));
+  CHECK(TauSelTool->setProperty("RecalcEleOLR", false));
   CHECK(TauSelTool->initialize());
 
-  // ToolHandle<TauAnalysisTools::ITauSelectionTool> TauSelToolHandle = TauSelTool;
+  ToolHandle<TauAnalysisTools::ITauSelectionTool> TauSelToolHandle = TauSelTool;
 
   // ===========================================================================
   // TauSmearingTool
   // ===========================================================================
   TauAnalysisTools::TauSmearingTool TauSmeTool( "TauSmearingTool" );
-  TauSmeTool.msg().setLevel( MSG::INFO );
-  // CHECK(TauSmeTool.setProperty("ApplyMVATES", true ));
+  TauSmeTool.msg().setLevel( MSG::DEBUG );
+  CHECK(TauSmeTool.setProperty("ApplyMVATES", true ));
+  // CHECK(TauSmeTool.setProperty("ApplyCombinedTES", true ));
   CHECK(TauSmeTool.initialize());
 
   // restructure all recommended systematic variations for smearing tool
@@ -172,7 +174,7 @@ int main( int argc, char* argv[] )
   // ===========================================================================
   TauAnalysisTools::TauEfficiencyCorrectionsTool TauEffCorrTool( "TauEfficiencyCorrectionsTool" );
   TauEffCorrTool.msg().setLevel( MSG::DEBUG );
-  // CHECK(TauEffCorrTool.setProperty("TauSelectionTool",TauSelToolHandle));
+  CHECK(TauEffCorrTool.setProperty("TauSelectionTool",TauSelToolHandle));
   CHECK(TauEffCorrTool.initialize());
 
   // restructure all recommended systematic variations for efficiency tools
@@ -244,6 +246,7 @@ int main( int argc, char* argv[] )
             static_cast< int >( iEntry ) );
 
     RETRIEVE(xAOD::TauJetContainer, xTauJetContainer, "TauJets");
+    std::pair< xAOD::TauJetContainer*, xAOD::ShallowAuxContainer* >xTauShallowContainer = xAOD::shallowCopyContainer(*xTauJetContainer);
 
     // copy truth particles to get truthparticle link for truth taus to work
     CHECK( xEvent.copy("TruthParticles") );
@@ -255,20 +258,13 @@ int main( int argc, char* argv[] )
     CHECK( xEvent.copy("InDetTrackParticles") );
 
     // Print tau properties, using the tools:
-    for ( auto xTau : *xTauJetContainer )
+    for ( auto xTau : *xTauShallowContainer.first )
     {
       // decorate tau with electron llh score
-      CHECK(TOELLHDecorator.decorate(*xTau));
+      // CHECK(TOELLHDecorator.decorate(*xTau));
 
       // perform truth matching
       auto xTruthTau = T2MT.getTruth(*xTau);
-
-      // Select "good" taus:
-      if( ! TauSelTool->accept( *xTau ) ) continue;
-
-      // print some info about the selected tau:
-      Info( "TauAnalysisToolsExample", "Selected tau: pt = %g MeV, eta = %g, phi = %g, prong = %i, charge = %i",
-            xTau->pt(), xTau->eta(), xTau->phi(), int(xTau->nTracks()), int(xTau->charge()));
 
       if ((bool)xTau->auxdata<char>("IsTruthMatched"))
       {
@@ -308,6 +304,19 @@ int main( int argc, char* argv[] )
       else
         Info( "TauAnalysisToolsExample", "Tau was not matched to truth jet" );
 
+      for (auto sSystematicSet: vSmearingSystematicSet)
+      {
+        CHECK( TauSmeTool.applySystematicVariation(sSystematicSet)) ;
+        CHECK( TauSmeTool.applyCorrection(*xTau) );
+        Info( "TauAnalysisToolsExample",
+              "Smeared tau pt: %g for type %s ",
+              xTau->pt(),
+              sSystematicSet.name().c_str());
+      }
+
+      // Select "good" taus:
+      if( ! TauSelTool->accept( *xTau ) ) continue;
+
       for (auto sSystematicSet: vEfficiencyCorrectionsSystematicSet)
       {
         CHECK( TauEffCorrTool.applySystematicVariation(sSystematicSet));
@@ -331,16 +340,10 @@ int main( int argc, char* argv[] )
               xTau->auxdata< double >( "TauScaleFactorTriggerHadTau" ));
       }
 
-      for (auto sSystematicSet: vSmearingSystematicSet)
-      {
-        xAOD::TauJet* xTauCopy = 0;
-        CHECK( TauSmeTool.applySystematicVariation(sSystematicSet)) ;
-        CHECK( TauSmeTool.correctedCopy(*xTau, xTauCopy) );
-        Info( "TauAnalysisToolsExample",
-              "Smeared tau pt: %g for type %s ",
-              xTauCopy->p4().Pt(),
-              sSystematicSet.name().c_str());
-      }
+      // print some info about the selected tau:
+      Info( "TauAnalysisToolsExample", "Selected tau: pt = %g MeV, eta = %g, phi = %g, prong = %i, charge = %i",
+            xTau->pt(), xTau->eta(), xTau->phi(), int(xTau->nTracks()), int(xTau->charge()));
+
 
       // for (size_t iTrack = 1; iTrack < xTau->nTracks(); iTrack++)
       // {

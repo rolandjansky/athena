@@ -65,7 +65,7 @@ JetIntervalFilter::JetIntervalFilter(const std::string & name, ISvcLocator * pSv
   declareProperty("GausSigma", m_gausSigma=2.33*std::pow(10.0,0.0) );
   declareProperty("AbsDEtaCutOff", m_absDEtaCutOff=8.5); //Above which keep all which are generated
 
-  myRandGen = 0;
+  m_myRandGen = 0;
 }
 
 
@@ -105,8 +105,8 @@ StatusCode JetIntervalFilter::filterInitialize() {
 
   // Set up the random number generator for weighting
   if (m_weightingEvents) {
-    myRandGen = new TRandom3();
-    myRandGen->SetSeed(0); // completely random!
+    m_myRandGen = new TRandom3();
+    m_myRandGen->SetSeed(0); // completely random!
   }
 
   return StatusCode::SUCCESS;
@@ -115,7 +115,7 @@ StatusCode JetIntervalFilter::filterInitialize() {
 
 StatusCode JetIntervalFilter::filterFinalize() {
   // Get rid of the random number generator
-  delete myRandGen;
+  delete m_myRandGen;
   return StatusCode::SUCCESS;
 }
 
@@ -235,9 +235,9 @@ StatusCode JetIntervalFilter::filterEvent() {
   double weighting = 1.0;
   int flagW = -1;
   if (m_weightingEvents && intervalSize > 0.0) {
-    weighting = m_calculateProbToKeep(intervalSize);
+    weighting = calculateProbToKeep(intervalSize);
     flagW = 0;
-    if (weighting > myRandGen->Rndm()) {
+    if (weighting > m_myRandGen->Rndm()) {
       flagW = 1;
     }
   }
@@ -270,7 +270,7 @@ StatusCode JetIntervalFilter::filterEvent() {
 }
 
 
-double JetIntervalFilter::m_calculateProbToKeep(double absoluteDeltaEta) {
+double JetIntervalFilter::calculateProbToKeep(double absoluteDeltaEta) {
   // If above cut off return 1.0
   if (absoluteDeltaEta >= m_absDEtaCutOff) return 1.0;
 

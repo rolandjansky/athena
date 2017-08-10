@@ -75,10 +75,10 @@ class TrigL2SpacePointCollectionConverter {
     } 
     StatusCode sc= m_outputContainer->addCollection( spacepointCollection, spacepointCollection->identifyHash() ); 
     if (sc.isSuccess()){ 
-      //	athenaLog << MSG::INFO << spacepointCollection->size() <<" SCT SpacePoints successfully added to Container ! " <<(*idIt) << endreq;
+      //	athenaLog << MSG::INFO << spacepointCollection->size() <<" SCT SpacePoints successfully added to Container ! " <<(*idIt) << endmsg;
     } 
     else{ 
-      //athenaLog << MSG::WARNING << "Failed to add SCT SpacePoints to container" << endreq; 
+      //athenaLog << MSG::WARNING << "Failed to add SCT SpacePoints to container" << endmsg; 
       delete spacepointCollection; 
     }
   }

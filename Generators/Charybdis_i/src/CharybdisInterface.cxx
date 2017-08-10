@@ -241,7 +241,7 @@ extern "C" void readcharybdisparamint_(int* index, int* parameter)
 
   else
   {
-    //log << MSG:: INFO << " Charybdis Interface -> Incorrect type cast for charybdis variable OR Incorrect index\n"  << endreq;
+    //log << MSG:: INFO << " Charybdis Interface -> Incorrect type cast for charybdis variable OR Incorrect index\n"  << endmsg;
   }
     
 }
@@ -305,7 +305,7 @@ extern "C" void readcharybdisparamdbl_(int* index, double* parameter)
 
   else
   {
-    //log << MSG:: INFO << " Charybdis Interface -> Incorrect type cast for charybdis variable OR Incorrect index\n"  << endreq;
+    //log << MSG:: INFO << " Charybdis Interface -> Incorrect type cast for charybdis variable OR Incorrect index\n"  << endmsg;
   }
 
     

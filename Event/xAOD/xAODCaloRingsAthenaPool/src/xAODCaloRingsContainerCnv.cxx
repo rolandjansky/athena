@@ -56,7 +56,7 @@ xAODCaloRingsContainerCnv::createPersistent( xAOD::CaloRingsContainer* trans ) {
                              SG::VIEW_ELEMENTS );
 
   // Prepare the objects to be written out:
-  //msg() << MSG::INFO << "before loop." << endreq;
+  //msg() << MSG::INFO << "before loop." << endmsg;
   //for( xAOD::CaloRings *cr : *result ) {
   //  std::cout << "Rings on transient: ";
   //  for ( xAOD::RingSet *rs : *cr ) {

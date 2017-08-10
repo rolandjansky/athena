@@ -114,7 +114,7 @@ namespace pool  {
     /// Close the container the handle poits to
     DbStatus close()  const;
 
-    /// Open the container residing in <file> with given name and access mode
+    /// Open the container residing in \<file\> with given name and access mode
     /** @param   dbH     [IN]    Valid handle to database object
       * @param   nam     [IN]    Name of the container to be opened.
       * @param   typ     [IN]    Type information in the event the container

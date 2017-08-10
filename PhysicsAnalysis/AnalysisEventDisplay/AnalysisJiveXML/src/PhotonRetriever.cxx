@@ -35,39 +35,39 @@ namespace JiveXML {
    */
   StatusCode PhotonRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieveAll()" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieveAll()" << endmsg;
     
     const DataHandle<PhotonContainer> iterator, end;
     const PhotonContainer* photons;
     
     //obtain the default collection first
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve " << dataTypeName() << " (" << m_sgKey << ")" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve " << dataTypeName() << " (" << m_sgKey << ")" << endmsg;
     StatusCode sc = evtStore()->retrieve(photons, m_sgKey);
     if (sc.isFailure() ) {
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << m_sgKey << " not found in SG " << endreq; 
+      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << m_sgKey << " not found in SG " << endmsg; 
     }else{
       DataMap data = getData(photons);
       if ( FormatTool->AddToEvent(dataTypeName(), m_sgKey, &data).isFailure()){
-	if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << m_sgKey << " not found in SG " << endreq;
+	if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << m_sgKey << " not found in SG " << endmsg;
       }else{
-         if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << dataTypeName() << " (" << m_sgKey << ") Photon retrieved" << endreq;
+         if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << dataTypeName() << " (" << m_sgKey << ") Photon retrieved" << endmsg;
       }
     }
 
     //obtain all other collections from StoreGate
     if (( evtStore()->retrieve(iterator, end)).isFailure()){
-       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "Unable to retrieve iterator for Jet collection" << endreq;
+       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "Unable to retrieve iterator for Jet collection" << endmsg;
 //        return StatusCode::WARNING;
     }
       
     for (; iterator!=end; iterator++) {
        if (iterator.key()!=m_sgKey) {
-          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve all " << dataTypeName() << " (" << iterator.key() << ")" << endreq;
+          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve all " << dataTypeName() << " (" << iterator.key() << ")" << endmsg;
             DataMap data = getData(iterator);
             if ( FormatTool->AddToEvent(dataTypeName(), iterator.key(), &data).isFailure()){
-	       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << iterator.key() << " not found in SG " << endreq;
+	       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << iterator.key() << " not found in SG " << endmsg;
 	    }else{
-	      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << " (" << iterator.key() << ") Photon retrieved" << endreq;
+	      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << " (" << iterator.key() << ") Photon retrieved" << endmsg;
             }
 	  }
     }	  
@@ -82,7 +82,7 @@ namespace JiveXML {
    */
   const DataMap PhotonRetriever::getData(const PhotonContainer* photcont) {
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "retrieve()" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "retrieve()" << endmsg;
 
     DataMap m_DataMap;
 
@@ -161,7 +161,7 @@ namespace JiveXML {
       pz.push_back( DataType((*photonItr)->pz()/CLHEP::GeV ) );
 
       m_MCdataType = (*photonItr)->dataType();
-      // if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << " Which MC datatype, fast or full ? " << m_dataType() << " (" << m_sgKey << ")" << endreq;
+      // if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << " Which MC datatype, fast or full ? " << m_dataType() << " (" << m_sgKey << ")" << endmsg;
   
       if (m_MCdataType != 3){ // full simulation
           isEM.push_back( DataType((**photonItr).isem()) );
@@ -181,7 +181,7 @@ namespace JiveXML {
 	  const EMShower* m_EMShower = (*photonItr)->detail<EMShower>("egDetailAOD");
 	  if (m_EMShower) {
 	    //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "found photon shower, example wtots=" 
-	    //      << m_EMShower->parameter(egammaParameters::wtots1) << endreq;
+	    //      << m_EMShower->parameter(egammaParameters::wtots1) << endmsg;
 	    f1Vec.push_back(    DataType( m_EMShower->parameter(egammaParameters::f1) )); 
             etConeVec.push_back(DataType( m_EMShower->parameter(egammaParameters::etcone20)));
             fracs1Vec.push_back(DataType( m_EMShower->parameter(egammaParameters::fracs1)));
@@ -232,7 +232,7 @@ namespace JiveXML {
     m_DataMap["label"] = label;
 
     if (msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) << dataTypeName() << " retrieved with " << phi.size() << " entries"<< endreq;
+      msg(MSG::DEBUG) << dataTypeName() << " retrieved with " << phi.size() << " entries"<< endmsg;
     }
 
     //All collections retrieved okay

@@ -7,7 +7,7 @@
 /**********************************************************************************
  * @Project: HLT Steering
  * @Package: TrigSteering
- * @Class  : ILvl1ResultAccessTool, Lvl1ResultAccessTool
+ * @class  : ILvl1ResultAccessTool, Lvl1ResultAccessTool
  *
  * @brief This file contains the tool to unpack RoI and threshold info from the LVL1 RoI words.
  *

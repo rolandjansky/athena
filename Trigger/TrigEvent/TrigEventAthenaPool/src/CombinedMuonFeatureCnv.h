@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigEventAthenaPool
- * @Class  : CombinedMuonFeatureCnv
+ * @class  : CombinedMuonFeatureCnv
  *
  * @brief transient persistent converter for CombinedMuonFeature
  *

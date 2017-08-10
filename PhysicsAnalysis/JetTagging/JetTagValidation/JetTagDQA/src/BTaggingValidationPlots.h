@@ -21,7 +21,8 @@ namespace JetTagDQA{
 		void fill(unsigned int nbtag);
 		void fill(int truthLabel);
 		void fill(const xAOD::Jet* jet);
-		void fill(const xAOD::Jet* jet, const xAOD::BTagging* btag);
+		//void fill(const xAOD::Jet* jet, const xAOD::BTagging* btag);
+		void fill(const xAOD::Jet* jet, const xAOD::BTagging* btag, const xAOD::Vertex *myVertex);
 
 		void makeEfficiencyVsPtPlot(TH1* hReco, TProfile* pEff);
 		void makeEfficiencyPlot(TH1* hReco, TProfile* pEff);

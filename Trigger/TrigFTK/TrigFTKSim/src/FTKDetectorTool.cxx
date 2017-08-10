@@ -10,6 +10,10 @@
 #include <fstream>
 #include <iostream>
 
+#include <TFile.h>
+#include <TTree.h>
+#include <TMath.h>
+
 using namespace std;
 
 FTKDetectorTool::FTKDetectorTool(const std::string &algname,const std::string &name, const IInterface *ifc)
@@ -421,12 +425,13 @@ void FTKDetectorTool::dumpIDMap()
 {
   ofstream mapfile("mapfile.txt");
 
-  mapfile << "PXL\tSL\tBEC\tLD\tMPHI\tMETA\tPHIID\tETAID\tHASH\tX\tY\tZ\tSinT\tW\tL" << endl;
+  mapfile << "PXL\tSL\tBEC\tLD\tMPHI\tMETA\tPHIID\tETAID\tHASH\tX\tY\tZ\tSinT\tW\tL\tISBAD" << endl;
 
   for( InDetDD::SiDetectorElementCollection::const_iterator i=m_PIX_mgr->getDetectorElementBegin(), f=m_PIX_mgr->getDetectorElementEnd() ; i!=f; ++i ) {
     const InDetDD::SiDetectorElement* sielement( *i );
     Identifier id = sielement->identify();
     IdentifierHash idhash = sielement->identifyHash();
+    const bool is_bad = !(m_pixelCondSummarySvc->isGood( idhash ));
 
     mapfile << ftk::PIXEL << "\t" << 0 << "\t";
     mapfile << m_pixelId->barrel_ec(id) << "\t";
@@ -440,7 +445,8 @@ void FTKDetectorTool::dumpIDMap()
     mapfile << modcenter[0] << "\t" << modcenter[1] << "\t" << modcenter[2] << "\t";
     mapfile << sielement->sinTilt() << "\t";
     mapfile << sielement->width() << "\t";
-    mapfile << sielement->length();
+    mapfile << sielement->length() << "\t";
+    mapfile << is_bad;
     mapfile << endl;
   }
 
@@ -449,6 +455,7 @@ void FTKDetectorTool::dumpIDMap()
     const InDetDD::SiDetectorElement* sielement( *i );
     Identifier id = sielement->identify();
     IdentifierHash idhash = sielement->identifyHash();
+    const bool is_bad = !(m_sctCondSummarySvc->isGood( idhash ));
 
     mapfile << ftk::SCT << "\t" << (sielement->isStereo() ? 1 : 0) << "\t";
     mapfile << m_sctId->barrel_ec(id) << "\t";
@@ -462,8 +469,45 @@ void FTKDetectorTool::dumpIDMap()
     mapfile << modcenter[0] << "\t" << modcenter[1] << "\t" << modcenter[2] << "\t";
     mapfile << sielement->sinTilt() << "\t";
     mapfile << sielement->width() << "\t";
-    mapfile << sielement->length();
+    mapfile << sielement->length() << "\t";
+    mapfile << is_bad;
     mapfile << endl;
   }
 
+}
+
+void FTKDetectorTool::dumpModulePositions() {
+   m_log << MSG::INFO << "dumpModulePositions"<< endmsg; 
+   TFile *output=new TFile("FTKmodulePositions.root","recreate");
+   TTree *t=new TTree("modulePositions","modulePositions");
+   int idhash;
+   Float_t phi[2],r[2],z[2];
+   t->Branch("id",&idhash,"id/I");
+   t->Branch("phi",phi,"phi[2]/F");
+   t->Branch("r",r,"r[2]/F");
+   t->Branch("z",z,"z[2]/F");
+   for( InDetDD::SiDetectorElementCollection::const_iterator i=m_PIX_mgr->getDetectorElementBegin(), f=m_PIX_mgr->getDetectorElementEnd() ; i!=f; ++i ) {
+      const InDetDD::SiDetectorElement* sielement( *i );
+      idhash=sielement->identifyHash();
+      r[0]=sielement->rMin();
+      r[1]=sielement->rMax();
+      z[0]=sielement->zMin();
+      z[1]=sielement->zMax();
+      phi[0]=sielement->phiMin();
+      phi[1]=sielement->phiMax();
+      t->Fill();
+   }
+   for( InDetDD::SiDetectorElementCollection::const_iterator i=m_SCT_mgr->getDetectorElementBegin(), f=m_SCT_mgr->getDetectorElementEnd() ; i!=f; ++i ) {
+      const InDetDD::SiDetectorElement* sielement( *i );
+      idhash=sielement->identifyHash();
+      r[0]=sielement->rMin();
+      r[1]=sielement->rMax();
+      z[0]=sielement->zMin();
+      z[1]=sielement->zMax();
+      phi[0]=sielement->phiMin();
+      phi[1]=sielement->phiMax();
+      t->Fill();
+   }
+   t->Write();
+   delete output;
 }

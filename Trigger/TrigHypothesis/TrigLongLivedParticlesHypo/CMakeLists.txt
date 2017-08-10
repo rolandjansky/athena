@@ -20,13 +20,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTracking
                           Event/xAOD/xAODTrigger
                           GaudiKernel
-                          Trigger/TrigEvent/TrigParticle 
-			  External
-			  InnerDetector/InDetDetDescr
-			  InnerDetector/InDetRecEvent	
-			  DetectorDescription
-			  Tracking/TrkEvent
-			  Event/xAOD)
+                          Trigger/TrigEvent/TrigParticle )
 
 # External dependencies:
 find_package( CLHEP )

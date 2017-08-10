@@ -4,9 +4,6 @@
 
 #include "LArG4Code/CalibSDTool.h"
 
-// Framework utilities
-#include "CxxUtils/make_unique.h"
-
 // ID helper includes
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/LArEM_ID.h"
@@ -104,7 +101,7 @@ namespace LArG4
     auto parsedVolumes = findLogicalVolumes(volumes, msg());
 
     // Create the calib SD
-    auto sd = CxxUtils::make_unique<LArG4CalibSD>(sdName, calc, m_doPID);
+    auto sd = std::make_unique<LArG4CalibSD>(sdName, calc, m_doPID);
     sd->setupHelpers(m_larEmID, m_larFcalID, m_larHecID, m_larMiniFcalID, m_caloDmID);
 
     // Assign the volumes to the SD
@@ -113,7 +110,7 @@ namespace LArG4
       throw GaudiException("Failed to assign sd: " + sdName,
                            name(), StatusCode::FAILURE);
     }
-    return std::move(sd);
+    return sd;
   }
 
 } // namespace LArG4

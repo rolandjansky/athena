@@ -47,7 +47,7 @@ class IEMConversionBuilder : virtual public IegammaBaseTool
   virtual StatusCode hltExecute(egammaRec* egRec, const xAOD::VertexContainer* conversions)=0;
   /** @brief execute method*/
   virtual StatusCode vertexExecute(egammaRec* egRec, const xAOD::VertexContainer* conversions)=0;
-  /** @bried finalize method*/
+  /** @brief finalize method*/
   virtual StatusCode finalize() = 0;
   
 };

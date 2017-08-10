@@ -1,5 +1,3 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
 # AUTHOR:   Marcin.Wolter@cern.ch
 # CREATED:  20 March 2008
 # 
@@ -15,6 +13,10 @@ from AthenaCommon.AppMgr import ToolSvc
 import traceback
 
 from TrigTauDiscriminant.TrigTauDiscriminantConf import TrigTauDiscriBuilder
+from TriggerJobOpts.TriggerFlags import TriggerFlags
+
+import ROOT
+from tauRec.tauRecFlags import tauFlags
 
 def singleton(cls):
 
@@ -79,18 +81,59 @@ class TrigTauDiscriGetter2015(TrigTauDiscriBuilder):
          
          self.AthenaMonTools = [ time, validation, online ]
          
-         self.Tools = [self.VarCalculatorSet(), self.BDTtoolset()]
+         self.Tools = [self.VarCalculatorSet()] + self.BDTtoolset()
     
 
     def BDTtoolset(self):
-        from TauDiscriminant.TauDiscriminantConf import TauJetBDT
-        return TauJetBDT(inTrigger=True,
-                         calibFolder = 'TrigTauRec/00-11-01/',
-                        # jetBDT = "offline.jet.BDT.MC15.bin",
-                        # jetBDT = "online.jet.BDT.MC15c.bin",
-                         jetBDT = "bdt.2016.bin",
-                         # jetSigBits = "trigger.sig.bits.jet.BDT.MC15.ver1.txt")
-                         jetSigBits = "trigger.sig.bits.jet.BDT.MC15c.ver5.txt")
+
+        if TriggerFlags.run2Config == '2016':
+            from TauDiscriminant.TauDiscriminantConf import TauJetBDT
+            bdt_set = TauJetBDT(
+                inTrigger = True,
+                calibFolder = 'TrigTauRec/00-11-01/',
+                jetBDT = "bdt.2016.bin",
+                jetSigBits = "trigger.sig.bits.jet.BDT.txt")
+            return [bdt_set]
+        
+        else:
+            from tauRecTools.tauRecToolsConf import TauJetBDTEvaluator
+            # BDT evaluators 1p / mp
+            bdt_1p = TauJetBDTEvaluator(
+                "TrigTauJetBDT1P", 
+                calibFolder='tauRecTools/00-02-00/',
+                weightsFile='vars2016_pt_gamma_1p_isofix.root', 
+                inTrigger=True,
+                minNTracks=0, maxNTracks=1)
+            bdt_mp = TauJetBDTEvaluator(
+                "TrigTauJetBDTMP", 
+                calibFolder='tauRecTools/00-02-00/',
+                weightsFile='vars2016_pt_gamma_3p_isofix.root', 
+                inTrigger=True,
+                minNTracks=2, maxNTracks=1000)
+            
+            import PyUtils.RootUtils as ru
+            ROOT = ru.import_root()
+            import cppyy
+            cppyy.loadDictionary('xAODTau_cDict')
+            from tauRecTools.tauRecToolsConf import TauWPDecorator
+            # wp creators 1p / mp
+            wp_decorator = TauWPDecorator(
+                "TrigTauJetWPDecorator",
+                calibFolder='TrigTauRec/00-11-01/',
+                flatteningFile1Prong = "FlatJetBDT1P_trigger_v1.root", 
+                flatteningFile3Prong = "FlatJetBDT3P_trigger_v1.root", 
+                CutEnumVals=[
+                    ROOT.xAOD.TauJetParameters.JetBDTSigVeryLoose, 
+                    ROOT.xAOD.TauJetParameters.JetBDTSigLoose,
+                    ROOT.xAOD.TauJetParameters.JetBDTSigMedium, 
+                    ROOT.xAOD.TauJetParameters.JetBDTSigTight],
+                SigEff1P = [0.995, 0.99, 0.97, 0.90],
+                SigEff3P = [0.995, 0.94, 0.88, 0.78],
+                ScoreName = "BDTJetScore",
+                NewScoreName = "BDTJetScoreSigTrans",
+                DefineWPs = True)
+            return [bdt_1p, bdt_mp, wp_decorator]
+
 
     def VarCalculatorSet(self):
         from tauRecTools.tauRecToolsConf import TauIDVarCalculator

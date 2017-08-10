@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigInDetEventTPCnv
- * @Class  : TrigTrtHitCountsCnv_p2
+ * @class  : TrigTrtHitCountsCnv_p2
  *
  * @brief transient persistent converter for TrigTrtHitCounts
  *

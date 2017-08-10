@@ -327,12 +327,12 @@ def makeSubDirFile( htmlDir, name, s, number, subname, assessIndex, runlistLoc,c
     title = titleStream[1]
     col+=1
     if col==1:
-      h.write('<tr>\n<td class="' + sp[1] + '" align="center"><a href="'+sp[0]+'.html" class="hintanchor" onmouseover="showhint(\'' +title+'\', this, event, \'400px\')"><img src="'+ sp[0] +'.png" height="200"  alt="' + name + ' ' + subname+'/'+sp[0]+'.png" /></a></td>\n')
+      h.write('<tr>\n<td class="' + sp[1] + '" align="center"><a href="'+sp[0]+'.html" class="hintanchor" onmouseover="showhint(\'' +title+'\', this, event, \'400px\')"><img src="'+ sp[0] +'.png" height="200"  alt="' + name + ' ' + subname+'/'+sp[0]+'.png" /></a><br/><div style="text-overflow:ellipsis;overflow:hidden;max-width:240px">'+sp[0]+'</div></td>\n')
     elif col==3:
-      h.write('<td class="' + sp[1] + '" align="center"><a href="'+sp[0]+'.html" class="hintanchor" onmouseover="showhint(\'' +title+'\', this, event, \'500px\')"><img src="'+ sp[0] +'.png" height="200"  alt="' + name + ' ' + subname+'/'+sp[0]+'.png" /></a></td>\n</tr>\n')
+      h.write('<td class="' + sp[1] + '" align="center"><a href="'+sp[0]+'.html" class="hintanchor" onmouseover="showhint(\'' +title+'\', this, event, \'500px\')"><img src="'+ sp[0] +'.png" height="200"  alt="' + name + ' ' + subname+'/'+sp[0]+'.png" /></a><br/><div style="text-overflow:ellipsis;overflow:hidden;max-width:240px">'+sp[0]+'</div></td>\n</tr>\n')
       col=0
     else:
-      h.write('<td class="' + sp[1] + '" align="center"><a href="'+sp[0]+'.html" class="hintanchor" onmouseover="showhint(\'' +title+'\', this, event, \'400px\')"><img src="'+ sp[0] +'.png" height="200" alt="' + name + ' ' + subname+'/'+sp[0]+'.png" /></a></td>\n')
+      h.write('<td class="' + sp[1] + '" align="center"><a href="'+sp[0]+'.html" class="hintanchor" onmouseover="showhint(\'' +title+'\', this, event, \'400px\')"><img src="'+ sp[0] +'.png" height="200" alt="' + name + ' ' + subname+'/'+sp[0]+'.png" /></a><br/><div style="text-overflow:ellipsis;overflow:hidden;max-width:240px">'+sp[0]+'</div></td>\n')
     temp = s[y].rsplit(" title ")
     sp = temp[0].split()
     makeOneHistFile( htmlDir, name, subname, sp, runlistLoc,compare )
@@ -443,7 +443,7 @@ def makeOneHistFile( htmlDir, name, subname, sp, runlistLoc, compare ):
   k.write('<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />\n')
   k.write('<title>'+name+ ' ' + subname+ ' ' + sp[0]+'</title>\n')
   k.write('<link rel="stylesheet" href="AutomChecks.css" type="text/css" />\n')
-##   k.write('<script type=\"text/javascript\" src=\"'+javaScriptLoc +'\"><!-- dont contract-->\n</script>\n')
+#   k.write('<script type=\"text/javascript\" src=\"'+javaScriptLoc +'\"><!-- dont contract-->\n</script>\n')
   k.write('</head>\n')
   k.write('<body>\n')
   k.write('<center>\n')

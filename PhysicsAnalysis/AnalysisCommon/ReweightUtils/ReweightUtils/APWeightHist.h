@@ -39,13 +39,13 @@ public:
   ClassDef(APWeightHist,1);                                                      /*!< ClassDef for ROOTCINT dictionary. */
 
 private:
-  double _computed_entries;                                                      /*!< Flag to store information about the status of the computation. */
-  std::vector< std::vector< APWeightEntry* > > _binned_weights;                  /*!< Holds all filled weights weights as pointers. */
-  std::vector< TH1D* > _bin_dists;                                               /*!< Holds the PDFs for the individual bins. */
-  std::vector< double > fSumSys2;                                                /*!< Holds the variances of systematic uncertainties for the individual bins. */
-  TGraphAsymmErrors* _graph_stat;                                                /*!< Holds the histogram with statistical uncertainties. */
-  TGraphErrors* _graph_syst;                                                     /*!< Holds the histogram with systematic uncertainties. */
-  int _prec;                                                                     /*!< Holds the calculation precision (= amount of histograms & binning factor). */
+  double m_computed_entries;                                                      /*!< Flag to store information about the status of the computation. */
+  std::vector< std::vector< APWeightEntry* > > m_binned_weights;                  /*!< Holds all filled weights weights as pointers. */
+  std::vector< TH1D* > m_bin_dists;                                               /*!< Holds the PDFs for the individual bins. */
+  std::vector< double > m_SumSys2;                                                /*!< Holds the variances of systematic uncertainties for the individual bins. */
+  TGraphAsymmErrors* m_graph_stat;                                                /*!< Holds the histogram with statistical uncertainties. */
+  TGraphErrors* m_graph_syst;                                                     /*!< Holds the histogram with systematic uncertainties. */
+  //int m_prec;                                                                     /*!< Holds the calculation precision (= amount of histograms & binning factor). */
 
 };
 

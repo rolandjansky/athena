@@ -37,17 +37,17 @@ class LayerTestTool : public SimTestToolBase{
   TH1 *m_n_eta;
   TH1 *m_n_phi;
 
-  double energy;
-  double pos_x;
-  double pos_y;
-  double pos_z;
-  double pos_r;
-  double p_x;
-  double p_y;
-  double p_z;
-  double p_rho;
-  double p_phi;
-  double p_eta;
+  double m_energy;
+  double m_pos_x;
+  double m_pos_y;
+  double m_pos_z;
+  double m_pos_r;
+  double m_p_x;
+  double m_p_y;
+  double m_p_z;
+  double m_p_rho;
+  double m_p_phi;
+  double m_p_eta;
 
 };
 

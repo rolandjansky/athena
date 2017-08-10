@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigMuonEventTPCnv
- * @Class  : TrigMuonClusterFeature_p1
+ * @class  : TrigMuonClusterFeature_p1
  *
  * @brief persistent partner for TrigMuonClusterFeature
  *

@@ -26,7 +26,7 @@ class CTP_RDO {
 
    /**
     * Default constructor needed for pool converters
-    * requires that @setCTPVersionNumber is called before anything else
+    * requires that @c setCTPVersionNumber is called before anything else
     */
   CTP_RDO();
 

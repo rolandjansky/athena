@@ -23,7 +23,7 @@ atlas_depends_on_subdirs( PUBLIC
                           LArCalorimeter/LArElecCalib
                           LArCalorimeter/LArGeoModel/LArHV
                           LArCalorimeter/LArRecConditions
-                          LArCalorimeter/LArTools )
+                          LArCalorimeter/LArCabling )
 
 # External dependencies:
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
@@ -33,7 +33,7 @@ atlas_add_component( LArAffectedRegion
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CORAL_LIBRARIES} CaloConditions CaloIdentifier AthenaBaseComps AthenaKernel StoreGateLib SGtests AthenaPoolUtilities GaudiKernel LArIdentifier CaloDetDescrLib CaloGeoHelpers EventInfo LArHV LArRecConditions LArToolsLib )
+                     LINK_LIBRARIES ${CORAL_LIBRARIES} CaloConditions CaloIdentifier AthenaBaseComps AthenaKernel StoreGateLib SGtests AthenaPoolUtilities GaudiKernel LArIdentifier CaloDetDescrLib CaloGeoHelpers EventInfo LArHV LArRecConditions LArCablingLib )
 
 # Install files from the package:
 atlas_install_headers( LArAffectedRegion )

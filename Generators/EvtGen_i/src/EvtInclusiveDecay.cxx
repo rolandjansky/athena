@@ -120,42 +120,42 @@ EvtInclusiveDecay::~EvtInclusiveDecay() {
 
 StatusCode EvtInclusiveDecay::initialize() {
 
-  msg(MSG::INFO) << "EvtInclusiveDecay initialize" << endreq;
-  msg(MSG::INFO) << "Particle properties definition file = " << m_pdtFile << endreq;
-  msg(MSG::INFO) << "Main decay file                     = " << m_decayFile << endreq;
-  msg(MSG::INFO) << "User decay file                     = " << m_userDecayFile << endreq;
-  msg(MSG::INFO) << "Max number of repeated decays       = " << m_maxNRepeatedDecays << endreq;
-  msg(MSG::INFO) << "EvtInclusiveDecay selection parameters:" << endreq;
-  msg(MSG::INFO) << "* prohibitFinalStateDecay = " << m_prohibitFinalStateDecay << endreq;
-  msg(MSG::INFO) << "* prohibitReDecay         = " << m_prohibitReDecay << endreq;
-  msg(MSG::INFO) << "* prohibitUnDecay         = " << m_prohibitUnDecay << endreq;
-  msg(MSG::INFO) << "* prohibitRemoveSelfDecay = " << m_prohibitRemoveSelfDecay << endreq;
-  msg(MSG::INFO) << "* allowAllKnownDecays     = " << m_allowAllKnownDecays << endreq;
-  msg(MSG::INFO) << "* allowDefaultBDecays     = " << m_allowDefaultBDecays << endreq;
-  msg(MSG::INFO) << "Decayed particle status   = " << m_decayedStatus << endreq;
-  msg(MSG::INFO) << "User selection parameters:" << endreq;
-  msg(MSG::INFO) << "* applyUserSelection             = " << m_applyUserSelection << endreq;
-  msg(MSG::INFO) << "* userSelRequireOppositeSignedMu = " << m_userSelRequireOppositeSignedMu << endreq;
-  msg(MSG::INFO) << "* userSelMu1MinPt                = " << m_userSelMu1MinPt << endreq;
-  msg(MSG::INFO) << "* userSelMu2MinPt                = " << m_userSelMu2MinPt << endreq;
-  msg(MSG::INFO) << "* userSelMu1MaxEta               = " << m_userSelMu1MaxEta << endreq;
-  msg(MSG::INFO) << "* userSelMu2MaxEta               = " << m_userSelMu2MaxEta << endreq;
-  msg(MSG::INFO) << "* userSelMinDimuMass             = " << m_userSelMinDimuMass << endreq;
-  msg(MSG::INFO) << "* userSelMaxDimuMass             = " << m_userSelMaxDimuMass << endreq;
+  msg(MSG::INFO) << "EvtInclusiveDecay initialize" << endmsg;
+  msg(MSG::INFO) << "Particle properties definition file = " << m_pdtFile << endmsg;
+  msg(MSG::INFO) << "Main decay file                     = " << m_decayFile << endmsg;
+  msg(MSG::INFO) << "User decay file                     = " << m_userDecayFile << endmsg;
+  msg(MSG::INFO) << "Max number of repeated decays       = " << m_maxNRepeatedDecays << endmsg;
+  msg(MSG::INFO) << "EvtInclusiveDecay selection parameters:" << endmsg;
+  msg(MSG::INFO) << "* prohibitFinalStateDecay = " << m_prohibitFinalStateDecay << endmsg;
+  msg(MSG::INFO) << "* prohibitReDecay         = " << m_prohibitReDecay << endmsg;
+  msg(MSG::INFO) << "* prohibitUnDecay         = " << m_prohibitUnDecay << endmsg;
+  msg(MSG::INFO) << "* prohibitRemoveSelfDecay = " << m_prohibitRemoveSelfDecay << endmsg;
+  msg(MSG::INFO) << "* allowAllKnownDecays     = " << m_allowAllKnownDecays << endmsg;
+  msg(MSG::INFO) << "* allowDefaultBDecays     = " << m_allowDefaultBDecays << endmsg;
+  msg(MSG::INFO) << "Decayed particle status   = " << m_decayedStatus << endmsg;
+  msg(MSG::INFO) << "User selection parameters:" << endmsg;
+  msg(MSG::INFO) << "* applyUserSelection             = " << m_applyUserSelection << endmsg;
+  msg(MSG::INFO) << "* userSelRequireOppositeSignedMu = " << m_userSelRequireOppositeSignedMu << endmsg;
+  msg(MSG::INFO) << "* userSelMu1MinPt                = " << m_userSelMu1MinPt << endmsg;
+  msg(MSG::INFO) << "* userSelMu2MinPt                = " << m_userSelMu2MinPt << endmsg;
+  msg(MSG::INFO) << "* userSelMu1MaxEta               = " << m_userSelMu1MaxEta << endmsg;
+  msg(MSG::INFO) << "* userSelMu2MaxEta               = " << m_userSelMu2MaxEta << endmsg;
+  msg(MSG::INFO) << "* userSelMinDimuMass             = " << m_userSelMinDimuMass << endmsg;
+  msg(MSG::INFO) << "* userSelMaxDimuMass             = " << m_userSelMaxDimuMass << endmsg;
 
   // Initialize and print blackList
   m_blackListSet.insert(m_blackList.begin(),m_blackList.end());
   msg(MSG::INFO) << "* blackList;               = ";
   for (std::set<int>::iterator i = m_blackListSet.begin(); i!=m_blackListSet.end(); ++i)
      msg(MSG::INFO) << (*i) << " ";
-  msg(MSG::INFO)<< endreq;
+  msg(MSG::INFO)<< endmsg;
 
   // Initialize and print whiteList
   m_whiteListSet.insert(m_whiteList.begin(),m_whiteList.end());
   msg(MSG::INFO) << "* whiteList               = ";
   for (std::set<int>::iterator i = m_whiteListSet.begin(); i!=m_whiteListSet.end(); ++i)
     msg(MSG::INFO) << (*i) << " ";
-  msg(MSG::INFO) << endreq;
+  msg(MSG::INFO) << endmsg;
 
   // Obtain random number generator for EvtGen
   static const bool CREATEIFNOTTHERE(true);
@@ -226,7 +226,7 @@ StatusCode EvtInclusiveDecay::execute() {
 
     // Print HepMC in tree format if desired (before doing anything)
     if (m_printHepMCBeforeEvtGen) {
-      msg(MSG::INFO) << "Printing HepMC record at " << hepMC << " BEFORE running EvtGen:" << endreq;
+      msg(MSG::INFO) << "Printing HepMC record at " << hepMC << " BEFORE running EvtGen:" << endmsg;
       if (m_printHepMCHighLightTopLevelDecays)
 	printHepMC(hepMC,&toBeDecayed);
       else
@@ -240,7 +240,7 @@ StatusCode EvtInclusiveDecay::execute() {
       for (std::set<int>::iterator itb = toBeDecayed.begin(); itb!=toBeDecayed.end(); ++itb) {
         HepMC::GenParticle* p = hepMC->barcode_to_particle(*itb);
         if (p==0) {
-          msg(MSG::ERROR ) << "Overlapping decay tree encountered for barcode " << *itb << endreq;
+          msg(MSG::ERROR ) << "Overlapping decay tree encountered for barcode " << *itb << endmsg;
           return StatusCode::FAILURE;
         }
         decayParticle(hepMC,p);
@@ -261,7 +261,7 @@ StatusCode EvtInclusiveDecay::execute() {
     //hepMC->weights().write();
     // Print HepMC in tree format if desired (after finishing all EvtGen decays)
     if (m_printHepMCAfterEvtGen) {
-      msg(MSG::INFO)  << "Printing HepMC record at " << hepMC << " AFTER running EvtGen:" << endreq;
+      msg(MSG::INFO)  << "Printing HepMC record at " << hepMC << " AFTER running EvtGen:" << endmsg;
       if (m_printHepMCHighLightTopLevelDecays)
 	printHepMC(hepMC,&toBeDecayed);
       else

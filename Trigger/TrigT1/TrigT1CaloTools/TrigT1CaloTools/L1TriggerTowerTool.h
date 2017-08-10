@@ -21,7 +21,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "TrigT1CaloToolInterfaces/IL1TriggerTowerTool.h"
-#include "xAODTrigL1Calo/TriggerTower.h"
+#include "xAODTrigL1Calo/TriggerTowerContainer.h"
 
 class CaloIdManager;
 class CaloLVL1_ID;

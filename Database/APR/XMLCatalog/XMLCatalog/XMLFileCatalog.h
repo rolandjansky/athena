@@ -17,7 +17,7 @@ namespace pool {
  *          This class is the concrete implementation of the 
  *          POOL XML based File Catalog 
  *
- *       @Author: Maria Girone
+ *       @author: Maria Girone
  */
 
 class PoolXMLFileCatalog;

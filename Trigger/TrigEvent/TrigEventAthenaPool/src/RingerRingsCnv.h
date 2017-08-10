@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigEventAthenaPool
- * @Class  : RingerRingsCnv
+ * @class  : RingerRingsCnv
  *
  * @brief transient persistent converter for RingerRings
  *

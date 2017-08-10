@@ -51,12 +51,12 @@ StatusCode InDet::TRT_DriftCircleOnTrackTool::initialize()
   // get error scaling tool
   //
   if ( m_errorScalingTool.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_errorScalingTool << endreq;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_errorScalingTool << endmsg;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_errorScalingTool << endreq;
+    msg(MSG::INFO) << "Retrieved tool " << m_errorScalingTool << endmsg;
     m_scaleTrtCov   = m_errorScalingTool->needToScaleTrt();
-    if (m_scaleTrtCov) msg(MSG::DEBUG) << "Detected need for scaling TRT errors." << endreq;
+    if (m_scaleTrtCov) msg(MSG::DEBUG) << "Detected need for scaling TRT errors." << endmsg;
   }
 
   return sc;

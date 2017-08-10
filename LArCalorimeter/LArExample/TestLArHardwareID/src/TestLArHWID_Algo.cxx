@@ -539,7 +539,7 @@ StatusCode TestLArHWID_Algo::execute(){
 	  n_hvline++;
 	  if(n_hvline==n_hvlineold+400){
 	    log << MSG::INFO << "[HVLINE] processing HV line ..# " 
-		<< n_hvline << endreq;
+		<< n_hvline << endmsg;
 	    n_hvlineold=n_hvline;
 	  }
 	  if( m_Detector == "EMB" || m_Detector == "ALL" ){
@@ -721,61 +721,61 @@ StatusCode TestLArHWID_Algo::execute(){
 		<< " HvId2 incorrect: " <<  m_hvHelper->show_to_string(hvId2) 
 		<< " should be: " <<  m_hvHelper->show_to_string(hvId) 
 		<< " hashId: " << hashId
-		<< endreq;
+		<< endmsg;
 	    error = true;
 	  }
 	}
       
       int nDET = nFCAL+nHEC+nEMB+nEMEC+nEMBPS+nEMECPS;
-      log << MSG::INFO << "============================================================================ " << endreq;
+      log << MSG::INFO << "============================================================================ " << endmsg;
       if( m_Detector == "ALL" ){
-	log << MSG::INFO << " [HVLINE] |       SUMMARY    " << endreq;
-	log << MSG::INFO << "============================================================================ " << endreq;
+	log << MSG::INFO << " [HVLINE] |       SUMMARY    " << endmsg;
+	log << MSG::INFO << "============================================================================ " << endmsg;
       }
       if( m_Detector == "EMB" || m_Detector == "ALL" ){
-	log << MSG::INFO << " [HVLINE] |  EMBARREL  SUMMARY (list in ATLAS_HIGHVOLTAGE_EMB.out)   " << endreq;
-	log << MSG::INFO << "============================================================================ " << endreq;	
-	log << MSG::INFO << "  -- EMB          : " << nEMB  << " (ref: 1008)" << endreq;
-	log << MSG::INFO << "        - A-side  :  " << nEMBA  << " (ref: 488)" << endreq;
-	log << MSG::INFO << "        - C-side  :  " << nEMBC  << " (ref: 520)" << endreq;
-	log << MSG::INFO << "  -- EMB electrode: " << nEL_EMB  << " (ref: 28,672)" << endreq;      
+	log << MSG::INFO << " [HVLINE] |  EMBARREL  SUMMARY (list in ATLAS_HIGHVOLTAGE_EMB.out)   " << endmsg;
+	log << MSG::INFO << "============================================================================ " << endmsg;	
+	log << MSG::INFO << "  -- EMB          : " << nEMB  << " (ref: 1008)" << endmsg;
+	log << MSG::INFO << "        - A-side  :  " << nEMBA  << " (ref: 488)" << endmsg;
+	log << MSG::INFO << "        - C-side  :  " << nEMBC  << " (ref: 520)" << endmsg;
+	log << MSG::INFO << "  -- EMB electrode: " << nEL_EMB  << " (ref: 28,672)" << endmsg;      
       }
       if( (m_Detector == "EMB" && m_SubDetector == "S0" ) || m_Detector == "ALL"){
-	log << MSG::INFO << "  -- EMBPS    :  " << nEMBPS << " (ref:  512)" << endreq;
+	log << MSG::INFO << "  -- EMBPS    :  " << nEMBPS << " (ref:  512)" << endmsg;
       }
       if( (m_Detector == "EMEC" && m_SubDetector == "S0" ) || m_Detector == "ALL"){
-	log << MSG::INFO << "  -- EMECPS   :  " << nEMECPS << " (ref:  128)" << endreq;
+	log << MSG::INFO << "  -- EMECPS   :  " << nEMECPS << " (ref:  128)" << endmsg;
       }
       if( m_Detector == "EMEC" || m_Detector == "ALL" ){
-	log << MSG::INFO << " [HVLINE] |   EMEC  SUMMARY  (list in ATLAS_HIGHVOLTAGE_EMEC.out)  " << endreq;
-	log << MSG::INFO << "============================================================================ " << endreq;
-	log << MSG::INFO << "  -- EMEC         : " << nEMEC << " (ref: 1493)" << endreq; 
-	log << MSG::INFO << "        - A-side  :   " << nEMECA << " (ref:  754)" << endreq; 
-	log << MSG::INFO << "        - C-side  :   " << nEMECC << " (ref:  739)" << endreq;
-	log << MSG::INFO << "  --EMEC electrode: " << nEL_EMEC << " (ref: 23,552)" << endreq;      
+	log << MSG::INFO << " [HVLINE] |   EMEC  SUMMARY  (list in ATLAS_HIGHVOLTAGE_EMEC.out)  " << endmsg;
+	log << MSG::INFO << "============================================================================ " << endmsg;
+	log << MSG::INFO << "  -- EMEC         : " << nEMEC << " (ref: 1493)" << endmsg; 
+	log << MSG::INFO << "        - A-side  :   " << nEMECA << " (ref:  754)" << endmsg; 
+	log << MSG::INFO << "        - C-side  :   " << nEMECC << " (ref:  739)" << endmsg;
+	log << MSG::INFO << "  --EMEC electrode: " << nEL_EMEC << " (ref: 23,552)" << endmsg;      
       }
       if( m_Detector == "FCAL" || m_Detector == "ALL" ){ 
-	log << MSG::INFO << " [HVLINE] |   FCAL  SUMMARY (list in ATLAS_HIGHVOLTAGE_FCAL.out)   " << endreq;
-	log << MSG::INFO << "============================================================================ " << endreq;
-	log << MSG::INFO << "  -- FCAL     :  " << nFCAL << " (ref:  224)" << endreq;
-	log << MSG::INFO << "        - A-side  :  " << nFCALA  << " (ref:  112)" << endreq;
-	log << MSG::INFO << "        - C-side  :  " << nFCALC  << " (ref:  112)" << endreq;
-	log << MSG::INFO << "  --FCAL electrode: " << nEL_FCAL  << " (ref: 224)" << endreq;      
+	log << MSG::INFO << " [HVLINE] |   FCAL  SUMMARY (list in ATLAS_HIGHVOLTAGE_FCAL.out)   " << endmsg;
+	log << MSG::INFO << "============================================================================ " << endmsg;
+	log << MSG::INFO << "  -- FCAL     :  " << nFCAL << " (ref:  224)" << endmsg;
+	log << MSG::INFO << "        - A-side  :  " << nFCALA  << " (ref:  112)" << endmsg;
+	log << MSG::INFO << "        - C-side  :  " << nFCALC  << " (ref:  112)" << endmsg;
+	log << MSG::INFO << "  --FCAL electrode: " << nEL_FCAL  << " (ref: 224)" << endmsg;      
       }
       if( m_Detector == "HEC" || m_Detector == "ALL" ){
-	log << MSG::INFO << " [HVLINE] |   HEC  SUMMARY  (list in ATLAS_HIGHVOLTAGE_HEC.out)  " << endreq;
-	log << MSG::INFO << "============================================================================ " << endreq;
-	log << MSG::INFO << "  -- HEC          :  " << nHEC  << " (ref: 1024)" << endreq;	    
-	log << MSG::INFO << "    - A-side      :  " << nHECA  << " (ref: 512)" << endreq;	    
-	log << MSG::INFO << "    - C-side      :  " << nHECC  << " (ref: 512)" << endreq;
-	log << MSG::INFO << "  -- HEC electrode: " << nEL_HEC  << " (ref: 10,240)" << endreq;      
+	log << MSG::INFO << " [HVLINE] |   HEC  SUMMARY  (list in ATLAS_HIGHVOLTAGE_HEC.out)  " << endmsg;
+	log << MSG::INFO << "============================================================================ " << endmsg;
+	log << MSG::INFO << "  -- HEC          :  " << nHEC  << " (ref: 1024)" << endmsg;	    
+	log << MSG::INFO << "    - A-side      :  " << nHECA  << " (ref: 512)" << endmsg;	    
+	log << MSG::INFO << "    - C-side      :  " << nHECC  << " (ref: 512)" << endmsg;
+	log << MSG::INFO << "  -- HEC electrode: " << nEL_HEC  << " (ref: 10,240)" << endmsg;      
       }	    
-      log << MSG::INFO << "============================================================================ " << endreq;
+      log << MSG::INFO << "============================================================================ " << endmsg;
       if( m_Detector == "ALL"){
-	log << MSG::INFO << "  -- TOTAL    : " << nDET << endreq; 
+	log << MSG::INFO << "  -- TOTAL    : " << nDET << endmsg; 
 	log << MSG::INFO << "  -- TOTAL hash:" << n_hvline << ", hvline_hash_max= " 
-	    << m_hvHelper->hvlineHashMax() << endreq;
-	log << MSG::INFO << "============================================================================ " << endreq;     
+	    << m_hvHelper->hvlineHashMax() << endmsg;
+	log << MSG::INFO << "============================================================================ " << endmsg;     
       }
     }// if m_HVlineToOffline
     */
@@ -1177,7 +1177,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		    // Loop over vector of electrodes 
 		    std::vector<HWIdentifier>::const_iterator hv = electrodeIdVec.begin();
 		    std::vector<HWIdentifier>::const_iterator hvEnd = electrodeIdVec.end();
-		    //log << MSG::INFO << "[TestLArHW] electrodeIdSize=" << electrodeIdVec.size() << endreq;
+		    //log << MSG::INFO << "[TestLArHW] electrodeIdSize=" << electrodeIdVec.size() << endmsg;
 		    nelEMB0+=electrodeIdVec.size();
 		    for(; hv!=hvEnd;++hv){
 		      HWIdentifier electrodeId = *hv;
@@ -1219,7 +1219,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		    // Loop over vector of electrodes 
 		    std::vector<HWIdentifier>::const_iterator hv = electrodeIdVec.begin();
 		    std::vector<HWIdentifier>::const_iterator hvEnd = electrodeIdVec.end();
-		    //log << MSG::INFO << "[TestLArHW] electrodeIdSize=" << electrodeIdVec.size() << endreq;
+		    //log << MSG::INFO << "[TestLArHW] electrodeIdSize=" << electrodeIdVec.size() << endmsg;
 		    nelEMB1+=electrodeIdVec.size();
 		    if( region == 0 ){nelEMB1r0+=electrodeIdVec.size();}
 		    if( region == 1 ){nelEMB1r1+=electrodeIdVec.size();}
@@ -1264,7 +1264,7 @@ StatusCode TestLArHWID_Algo::execute(){
 		    // Loop over vector of electrodes 
 		    std::vector<HWIdentifier>::const_iterator hv = electrodeIdVec.begin();
 		    std::vector<HWIdentifier>::const_iterator hvEnd = electrodeIdVec.end();
-		    //log << MSG::INFO << "[TestLArHW] electrodeIdSize=" << electrodeIdVec.size() << endreq;
+		    //log << MSG::INFO << "[TestLArHW] electrodeIdSize=" << electrodeIdVec.size() << endmsg;
 		    nelEMB2+=electrodeIdVec.size();
 		    if( region == 0 ){nelEMB2r0+=electrodeIdVec.size();}
 		    if( region == 1 ){nelEMB2r1+=electrodeIdVec.size();}
@@ -1972,7 +1972,7 @@ StatusCode TestLArHWID_Algo::execute(){
 	}
 	if( m_Detector == "ALL"){
 	  ATH_MSG_INFO  ( "============================================================================ " );
-	  //log << MSG::INFO  << "  -- TOTAL    : " << nelDET << endreq; 
+	  //log << MSG::INFO  << "  -- TOTAL    : " << nelDET << endmsg; 
           ATH_MSG_INFO  ( "============================================================================ " );
 	}
       } // m_HVelectrodeToOffline == ON
@@ -2981,7 +2981,7 @@ StatusCode TestLArHWID_Algo::execute(){
 	}
 	if( m_Detector == "ALL"){
 	  ATH_MSG_INFO  ( "============================================================================ " );
-	  //log << MSG::INFO  << "  -- TOTAL    : " << nelDET << endreq; 
+	  //log << MSG::INFO  << "  -- TOTAL    : " << nelDET << endmsg; 
 	  ATH_MSG_INFO  ( "============================================================================ " );
 	}
       }  

@@ -41,18 +41,18 @@ T2IDTauIPHelper::~T2IDTauIPHelper() {}
 void T2IDTauIPHelper::showParam(const TrigInDetTrack*& track, unsigned int i) {
 
   //* Print track impact parameters at L2 *//
-  m_log << MSG::VERBOSE << "Print track impact parameters at L2:" << endreq;
-  m_log << MSG::VERBOSE << " Track number " << i+1 << endreq;
+  m_log << MSG::VERBOSE << "Print track impact parameters at L2:" << endmsg;
+  m_log << MSG::VERBOSE << " Track number " << i+1 << endmsg;
   m_log << MSG::VERBOSE << "  d0 = " << track->param()->a0() 
         << "  z0 = " << track->param()->z0() 
         << "  eta = " << track->param()->eta() 
         << "  phi0 = " << track->param()->phi0()
-        << "  pT = " << track->param()->pT() << endreq;
+        << "  pT = " << track->param()->pT() << endmsg;
   m_log << MSG::VERBOSE << "  errd0 = " << track->param()->ea0() 
         << "  errz0 = " << track->param()->ez0() 
         << "  errphi0 = " << track->param()->ephi0()
         << "  erreta = " << track->param()->eeta() 
-        << "  errpT = " << track->param()->epT() << endreq;  
+        << "  errpT = " << track->param()->epT() << endmsg;  
 
 }
 
@@ -63,13 +63,13 @@ void T2IDTauIPHelper::showParam(const TrigInDetTrack*& track, unsigned int i) {
 void T2IDTauIPHelper::showParam(const Rec::TrackParticle*& track, unsigned int i) {
   
   //* Print track impact parameters at EF *//
-  m_log << MSG::VERBOSE << "getParam method" << endreq;
-  m_log << MSG::VERBOSE << " Track number " << i+1 << endreq;
+  m_log << MSG::VERBOSE << "getParam method" << endmsg;
+  m_log << MSG::VERBOSE << " Track number " << i+1 << endmsg;
   m_log << MSG::VERBOSE << "  d0 = " << track->measuredPerigee()->parameters()[Trk::d0]  
         << "  z0 = " << track->measuredPerigee()->parameters()[Trk::z0]
         << "  eta = " << track->measuredPerigee()->parameters()[Trk::theta] 
         << "  phi0 = " << track->measuredPerigee()->parameters()[Trk::phi0] 
-        << "  pT = " << track->pt() << endreq;
+        << "  pT = " << track->pt() << endmsg;
 
   //* Extract covariance matrix using new EDM *// 
   const AmgSymMatrix(5)* covariance = track->measuredPerigee()->covariance(); 
@@ -80,7 +80,7 @@ void T2IDTauIPHelper::showParam(const Rec::TrackParticle*& track, unsigned int i
 	    << "  errz0**2 = " << (*covariance)(Trk::z0, Trk::z0) 
 	    << "  errphi0**2 = " << (*covariance)(Trk::phi0, Trk::phi0) 
 	    << "  erreta**2 = " << (*covariance)(Trk::theta, Trk::theta) 
-	    << "  errqOverP**2 = " << (*covariance)(Trk::qOverP, Trk::qOverP) << endreq; 
+	    << "  errqOverP**2 = " << (*covariance)(Trk::qOverP, Trk::qOverP) << endmsg; 
     } 
   
 }
@@ -94,16 +94,16 @@ unsigned int T2IDTauIPHelper::getTrackNumber(const TrigInDetTrackCollection* poi
 
   unsigned int nTracks=-999;
 //    if (m_logLvl <= MSG::DEBUG)
-//      m_log << MSG::DEBUG << "Get track number from tagger helper" << endreq;
+//      m_log << MSG::DEBUG << "Get track number from tagger helper" << endmsg;
 
   if (pointerToL2TrackCollections) {
     nTracks = pointerToL2TrackCollections->size();
  //   if (m_logLvl <= MSG::DEBUG)  
- //     m_log << MSG::DEBUG << "Found " << nTracks << " tracks in the RoI" << endreq;
+ //     m_log << MSG::DEBUG << "Found " << nTracks << " tracks in the RoI" << endmsg;
   } else {
     nTracks = 0;
   //  if (m_logLvl <= MSG::DEBUG)  
-  //    m_log << MSG::DEBUG << "No tracks in the RoI" << endreq;
+  //    m_log << MSG::DEBUG << "No tracks in the RoI" << endmsg;
   }
   
   return nTracks;
@@ -120,11 +120,11 @@ unsigned int T2IDTauIPHelper::getTrackNumber(const Rec::TrackParticleContainer* 
   if (pointerToEFTrackCollections) {
     nTracks = pointerToEFTrackCollections->size();
     if (m_logLvl <= MSG::DEBUG)  
-      m_log << MSG::DEBUG << "Found " << nTracks << " tracks in the RoI" << endreq;
+      m_log << MSG::DEBUG << "Found " << nTracks << " tracks in the RoI" << endmsg;
   } else {
     nTracks = 0;
     if (m_logLvl <= MSG::DEBUG)  
-      m_log << MSG::DEBUG << "No tracks in the RoI" << endreq;
+      m_log << MSG::DEBUG << "No tracks in the RoI" << endmsg;
   }
 
   return nTracks;
@@ -141,11 +141,11 @@ unsigned int T2IDTauIPHelper::getVerticesNumber(const TrigVertexCollection*& poi
   if (pointerToPrmVtxCollections) {
     nVertices = pointerToPrmVtxCollections->size();
     if (m_logLvl <= MSG::DEBUG)  
-      m_log << MSG::DEBUG << "Found " << nVertices << " vertices in the RoI" << endreq;
+      m_log << MSG::DEBUG << "Found " << nVertices << " vertices in the RoI" << endmsg;
   } else {
     nVertices = 0;
     if (m_logLvl <= MSG::DEBUG)  
-      m_log << MSG::DEBUG << "No vertices in the RoI" << endreq;
+      m_log << MSG::DEBUG << "No vertices in the RoI" << endmsg;
   }
 
   return nVertices;
@@ -162,11 +162,11 @@ unsigned int T2IDTauIPHelper::getVerticesNumber(const VxContainer*& pointerToPrm
   if (pointerToPrmVtxCollections) {
     nVertices = pointerToPrmVtxCollections->size();
     if (m_logLvl <= MSG::DEBUG)  
-      m_log << MSG::DEBUG << "Found " << nVertices << " primary vertices in the RoI" << endreq;
+      m_log << MSG::DEBUG << "Found " << nVertices << " primary vertices in the RoI" << endmsg;
   } else {
     nVertices = 0;
     if (m_logLvl <= MSG::DEBUG)  
-      m_log << MSG::DEBUG << "No vertices in the RoI" << endreq;
+      m_log << MSG::DEBUG << "No vertices in the RoI" << endmsg;
   }
 
   return nVertices;
@@ -227,7 +227,7 @@ void T2IDTauIPHelper::IPCorr(float d0, float z0, float& d0c, float& z0c, float p
     d0c = d0 + xBeamSpot*sn - yBeamSpot*cs;
     
 //    if(xBeamSpot != 0 && yBeamSpot != 0 && m_logLvl <= MSG::VERBOSE)
-//      m_log << MSG::VERBOSE << "d0 (shifted) = " << d0c << " , d0 (referred to origin) = " << d0 << endreq;
+//      m_log << MSG::VERBOSE << "d0 (shifted) = " << d0c << " , d0 (referred to origin) = " << d0 << endmsg;
   } else {
 
     double rc = fabs(pt)*(15.0/(9.0*1.042));
@@ -236,7 +236,7 @@ void T2IDTauIPHelper::IPCorr(float d0, float z0, float& d0c, float& z0c, float p
     double yc = (fabs(d0)-spt*sd0*rc)*sin(phi0+M_PI/2*sd0) - yBeamSpot;
     
 //    if(xBeamSpot != 0 && yBeamSpot != 0 && m_logLvl <= MSG::VERBOSE)
-//      m_log << MSG::VERBOSE << "Coordinates of the circle center in transverse plane = (" << xc << "," << yc << ")" << endreq;
+//      m_log << MSG::VERBOSE << "Coordinates of the circle center in transverse plane = (" << xc << "," << yc << ")" << endmsg;
 
     double newphi;
     double xd01,yd01,xd02,yd02;
@@ -279,9 +279,9 @@ void T2IDTauIPHelper::IPCorr(float d0, float z0, float& d0c, float& z0c, float p
     z0c = z0 + deltaz0;
 
 //    if(xBeamSpot != 0 && yBeamSpot != 0 && m_logLvl <= MSG::VERBOSE)
-//      m_log << MSG::VERBOSE << "z0 (shifted) = " << z0c << " , z0 (referred to origin) = " << z0 << endreq;
+//      m_log << MSG::VERBOSE << "z0 (shifted) = " << z0c << " , z0 (referred to origin) = " << z0 << endmsg;
 //    if(xBeamSpot != 0 && yBeamSpot != 0 && m_logLvl <= MSG::VERBOSE)
-//      m_log << MSG::VERBOSE << "d0 (shifted) = " << d0c << " , d0 (referred to origin) = " << d0 << endreq;
+//      m_log << MSG::VERBOSE << "d0 (shifted) = " << d0c << " , d0 (referred to origin) = " << d0 << endmsg;
 
   }
 }

@@ -22,10 +22,10 @@ MatrixReadOut::MatrixReadOut(Matrix *m, ubit16 FEevent, DataVersion ver)
   m_data_version = ver;
   initialize(); 
   FEevent = FEevent%512;
-  FEL1ID  = FEevent;
-  CM = m;
+  m_FEL1ID  = FEevent;
+  m_CM = m;
   makeFragment();
-  BS = 0;
+  m_BS = 0;
 }//end-of-MatrixReadOut::MatrixReadOut
 //----------------------------------------------------------------------------//
 MatrixReadOut::MatrixReadOut(ubit16 FEevent, DataVersion ver) 
@@ -39,13 +39,13 @@ MatrixReadOut::MatrixReadOut(ubit16 FEevent, DataVersion ver)
 //
 m_data_version = ver;
 initialize();
-MROS.setInit(); 
+m_MROS.setInit(); 
 FEevent = FEevent%512;
-FEL1ID  = FEevent;
-CM = 0;
-BS = 0;
-myBoss= 0;
-addressOfWordScanned = 0;
+m_FEL1ID  = FEevent;
+m_CM = 0;
+m_BS = 0;
+m_myBoss= 0;
+m_addressOfWordScanned = 0;
 }//end-of-MatrixReadOut::MatrixReadOut
 //----------------------------------------------------------------------------//
 MatrixReadOut::MatrixReadOut(ubit16 *v, ubit16 numWords, DataVersion ver)
@@ -59,18 +59,18 @@ MatrixReadOut::MatrixReadOut(ubit16 *v, ubit16 numWords, DataVersion ver)
   m_data_version = ver;
   initialize();
   char field;
-  CM = 0;
-  BS = v;
-  myBoss= 0;
-  addressOfWordScanned = 0;
+  m_CM = 0;
+  m_BS = v;
+  m_myBoss= 0;
+  m_addressOfWordScanned = 0;
 
   //
-  numberOfWordsInFrag = numWords;
+  m_numberOfWordsInFrag = numWords;
   ubit16 nWordsMax=100;
   //
   ubit16 nWord=0;
-  while(nWord<nWordsMax&&!checkFooterNum) {
-    MROS.decodeFragment(*(BS+nWord),field);
+  while(nWord<nWordsMax&&!m_checkFooterNum) {
+    m_MROS.decodeFragment(*(m_BS+nWord),field);
     //
     // Fragment Scanning ...
     //
@@ -80,7 +80,7 @@ MatrixReadOut::MatrixReadOut(ubit16 *v, ubit16 numWords, DataVersion ver)
       //
       // this is a Body word
       //
-      makeNewHit(*(BS+nWord));
+      makeNewHit(*(m_BS+nWord));
     } else {
       //
       // this is a control word 
@@ -89,31 +89,31 @@ MatrixReadOut::MatrixReadOut(ubit16 *v, ubit16 numWords, DataVersion ver)
 	//
 	// Header
 	//
-	m_Header = *(BS+nWord);
-	checkHeaderNum++;
-	checkHeaderPos=nWord+1;
+	m_Header = *(m_BS+nWord);
+	m_checkHeaderNum++;
+	m_checkHeaderPos=nWord+1;
       } else
 	if(field=='S') {
 	  //
 	  // Subheader
 	  //
-	  m_SubHeader = *(BS+nWord);
-	  checkSubHeaderNum++;
-	  checkSubHeaderPos=nWord+1;
+	  m_SubHeader = *(m_BS+nWord);
+	  m_checkSubHeaderNum++;
+	  m_checkSubHeaderPos=nWord+1;
 	} else
 	  if(field=='F') {
 	    //
 	    // Footer
 	    //
-	    m_Footer = *(BS+nWord);
-	    checkFooterNum++;
-	    checkFooterPos=nWord+1;
-	    checkCR=checkCRC8(*(BS+nWord));
+	    m_Footer = *(m_BS+nWord);
+	    m_checkFooterNum++;
+	    m_checkFooterPos=nWord+1;
+	    m_checkCR=checkCRC8(*(m_BS+nWord));
 	  } else {
 	    //
 	    // Word code unknown
 	    //
-	    checkUnkown++;
+	    m_checkUnkown++;
 	  }//end-if
     }//end-if
     nWord++;
@@ -127,37 +127,37 @@ MatrixReadOut::MatrixReadOut(const MatrixReadOut &MROOrig)
 //
 m_data_version = MROOrig.m_data_version;
 
-BunchFrom   = MROOrig.BunchFrom;
-BunchTo     = MROOrig.BunchTo;
-FEL1ID      = MROOrig.FEL1ID;
+m_BunchFrom   = MROOrig.m_BunchFrom;
+m_BunchTo     = MROOrig.m_BunchTo;
+m_FEL1ID      = MROOrig.m_FEL1ID;
 m_Header    = MROOrig.m_Header;
 m_Footer    = MROOrig.m_Footer;
 m_SubHeader = MROOrig.m_SubHeader;
 m_Body      = 0;
-addressOfWordScanned = 0;
-first8bitsON = MROOrig.first8bitsON;
+m_addressOfWordScanned = 0;
+m_first8bitsON = MROOrig.m_first8bitsON;
 m_BodyLast  = 0;
 m_BodyCurr  = 0;
-numberOfWordsInFrag = MROOrig.numberOfWordsInFrag;
-numberOfWordsInBody = MROOrig.numberOfWordsInBody;
-checkHeaderPos      = MROOrig.checkHeaderPos;
-checkHeaderNum      = MROOrig.checkHeaderNum;
-checkSubHeaderPos   = MROOrig.checkSubHeaderPos;
-checkSubHeaderNum   = MROOrig.checkSubHeaderNum;
-checkFooterPos      = MROOrig.checkFooterPos;
-checkFooterNum      = MROOrig.checkFooterNum;
-checkCR             = MROOrig.checkCR;
-checkUnkown         = MROOrig.checkUnkown;
-myBoss= 0;
-ROOffset = 2;
-NDLLCYC  = 8;
-NBunch = NOBXS;
-nclock = NBunch*NDLLCYC;
-timeSeparation = 8;
-CM = 0;
-BS = 0; 
+m_numberOfWordsInFrag = MROOrig.m_numberOfWordsInFrag;
+m_numberOfWordsInBody = MROOrig.m_numberOfWordsInBody;
+m_checkHeaderPos      = MROOrig.m_checkHeaderPos;
+m_checkHeaderNum      = MROOrig.m_checkHeaderNum;
+m_checkSubHeaderPos   = MROOrig.m_checkSubHeaderPos;
+m_checkSubHeaderNum   = MROOrig.m_checkSubHeaderNum;
+m_checkFooterPos      = MROOrig.m_checkFooterPos;
+m_checkFooterNum      = MROOrig.m_checkFooterNum;
+m_checkCR             = MROOrig.m_checkCR;
+m_checkUnkown         = MROOrig.m_checkUnkown;
+m_myBoss= 0;
+m_ROOffset = 2;
+m_NDLLCYC  = 8;
+m_NBunch = NOBXS;
+m_nclock = m_NBunch*m_NDLLCYC;
+m_timeSeparation = 8;
+m_CM = 0;
+m_BS = 0; 
 //
-// copy CM hit structure
+// copy m_CM hit structure
 //
 CMROData *q = 0;
 CMROData *r = 0;
@@ -184,30 +184,30 @@ deleteCMABody();
 }//end-of-MatrixReadOut::~MatrixReadOut
 //----------------------------------------------------------------------------//
 void MatrixReadOut::writeRecord(ubit16 thisRecord, bool last) {
- if(numberOfWordsInFrag==0) {
+ if(m_numberOfWordsInFrag==0) {
   m_Header = thisRecord;
-  checkHeaderNum++;
-  checkHeaderPos=numberOfWordsInFrag+1;
+  m_checkHeaderNum++;
+  m_checkHeaderPos=m_numberOfWordsInFrag+1;
  } else 
- if(numberOfWordsInFrag==1) {
+ if(m_numberOfWordsInFrag==1) {
   m_SubHeader = thisRecord;
-  checkSubHeaderNum++;
-  checkSubHeaderPos=numberOfWordsInFrag+1;
+  m_checkSubHeaderNum++;
+  m_checkSubHeaderPos=m_numberOfWordsInFrag+1;
  } else
- if(numberOfWordsInFrag> 1 && !last) {
+ if(m_numberOfWordsInFrag> 1 && !last) {
   makeNewHit(thisRecord);
  } else {
   m_Footer = thisRecord;
-  checkFooterNum++;
-  checkFooterPos=numberOfWordsInFrag+1;
-  checkCR=checkCRC8(thisRecord);
+  m_checkFooterNum++;
+  m_checkFooterPos=m_numberOfWordsInFrag+1;
+  m_checkCR=checkCRC8(thisRecord);
  }//
- numberOfWordsInFrag++;
+ m_numberOfWordsInFrag++;
 }//end-of-MatrixReadOut::writeRecord
 //----------------------------------------------------------------------------//
 void MatrixReadOut::initialize(){
-  BunchFrom   =  0;
-  BunchTo     =  7;
+  m_BunchFrom   =  0;
+  m_BunchTo     =  7;
   m_Header    =  0;
   m_Footer    =  0;
   m_SubHeader =  0;
@@ -215,37 +215,37 @@ void MatrixReadOut::initialize(){
   m_BodyLast  =  0;
   m_BodyCurr  =  0;
   //
-  FEL1ID   = 0;
-//  ROOffset = 1; // use this for comparison with hardware (VHDL) output
-//  ROOffset = 0;  // use this for MC
-  ROOffset = 2;
-  NBunch = NOBXS;
-  NDLLCYC  = 8;
-  nchan[0] = 32;
-  nchan[1] = 64;
-  nclock = NBunch*NDLLCYC;
-  timeSeparation = 8;
+  m_FEL1ID   = 0;
+//  m_ROOffset = 1; // use this for comparison with hardware (VHDL) output
+//  m_ROOffset = 0;  // use this for MC
+  m_ROOffset = 2;
+  m_NBunch = NOBXS;
+  m_NDLLCYC  = 8;
+  m_nchan[0] = 32;
+  m_nchan[1] = 64;
+  m_nclock = m_NBunch*m_NDLLCYC;
+  m_timeSeparation = 8;
   //
-  first8bitsON=0x00ff;
+  m_first8bitsON=0x00ff;
   //
   // initialize check flags
   //
-  numberOfWordsInFrag   =0;
-  numberOfWordsInBody   =0;
-  checkHeaderPos        =0;
-  checkHeaderNum        =0;
-  checkSubHeaderPos     =0;
-  checkSubHeaderNum     =0;
-  checkFooterPos        =0;
-  checkFooterNum        =0;
-  checkCR               =0;
-  checkUnkown           =0;
+  m_numberOfWordsInFrag   =0;
+  m_numberOfWordsInBody   =0;
+  m_checkHeaderPos        =0;
+  m_checkHeaderNum        =0;
+  m_checkSubHeaderPos     =0;
+  m_checkSubHeaderNum     =0;
+  m_checkFooterPos        =0;
+  m_checkFooterNum        =0;
+  m_checkCR               =0;
+  m_checkUnkown           =0;
 }//end-of-initialize
 //----------------------------------------------------------------------------//
 void MatrixReadOut::reset() {
 deleteCMABody();
 initialize();
-MROS.setInit();
+m_MROS.setInit();
 }//end-of-reset
 //----------------------------------------------------------------------------//
 void MatrixReadOut::deleteCMABody() {
@@ -261,7 +261,7 @@ void MatrixReadOut::deleteCMABody() {
   m_Body     = 0;
   m_BodyLast = 0;
   m_BodyCurr = 0;
-  numberOfWordsInBody=0;
+  m_numberOfWordsInBody=0;
 }//end-of-deleteCMABody
 //----------------------------------------------------------------------------//
 void MatrixReadOut::makeFragment() {
@@ -272,58 +272,58 @@ void MatrixReadOut::makeFragment() {
   makeSubHeader();
   makeCMABody();
   makeFooter();
-  checkUnkown=0;
-  numberOfWordsInFrag=
-  numberOfWordsInBody+checkSubHeaderNum+checkHeaderNum+checkFooterNum;
+  m_checkUnkown=0;
+  m_numberOfWordsInFrag=
+  m_numberOfWordsInBody+m_checkSubHeaderNum+m_checkHeaderNum+m_checkFooterNum;
 }//end-of-MatrixReadOut::makeFragment
 //----------------------------------------------------------------------------//
 void MatrixReadOut::makeHeader() {
 
   //  ubit16 headerval[3];
-  if(CM) {
+  if(m_CM) {
     ubit16 CMcode;
     if (m_data_version == MatrixReadOut::Simulation) {
       // storical CMcode defintion (till 30/July/2007)
-      CMcode= 4*CM->getLowHigh()+2*CM->getProjection()+CM->getLocalAdd();
+      CMcode= 4*m_CM->getLowHigh()+2*m_CM->getProjection()+m_CM->getLocalAdd();
     } else {
       // new CMcode defintion, used in the hardware
-      CMcode= 4*CM->getLowHigh()+2*abs(CM->getProjection()-1)+CM->getLocalAdd();
+      CMcode= 4*m_CM->getLowHigh()+2*abs(m_CM->getProjection()-1)+m_CM->getLocalAdd();
     }  
     writeHeader(CMcode);
   } else {
-    DISP<<" MatrixReadOut::makeHeader: CM object does not exist"<<endl;
+    DISP<<" MatrixReadOut::makeHeader: m_CM object does not exist"<<endl;
     DISP_ERROR;
   }//end-of-if
 }//end-of-MatrixReadOut::makeHeader
 //----------------------------------------------------------------------------//
 void MatrixReadOut::makeSubHeader() {
-  if(CM) {
+  if(m_CM) {
     writeSubHeader();
   } else {
-    DISP<<" MatrixReadOut::makeSubHeader: CM object does not exist"<<endl;
+    DISP<<" MatrixReadOut::makeSubHeader: m_CM object does not exist"<<endl;
     DISP_ERROR;
   }//end-of-if
 }//end-of-MatrixReadOut::makeSubHeader
 //----------------------------------------------------------------------------//
 void MatrixReadOut::makeCMABody() {
-  if(CM) {
+  if(m_CM) {
     //    DISP<<"number of hits in matrixReadOut:"<<makeCMABodyHit()<<endl;
     //    DISP_DEBUG;
     makeCMABodyHit();
     makeCMABodyTrg();
   } else {
-    DISP<<" MatrixReadOut::makeCMABody: CM object does not exist"<<endl;
+    DISP<<" MatrixReadOut::makeCMABody: m_CM object does not exist"<<endl;
     DISP_ERROR;
   }//end-of-if
 }//end-of-MatrixReadOut::makeCMABody
 //----------------------------------------------------------------------------//
 void MatrixReadOut::makeFooter() {
-  if(CM) {
+  if(m_CM) {
     writeFooter();
   } else {
-    DISP<<" MatrixReadOut::makeFooter: CM object does not exist"<<endl;
+    DISP<<" MatrixReadOut::makeFooter: m_CM object does not exist"<<endl;
     DISP_ERROR;
-  }//end-of-if(CM
+  }//end-of-if(m_CM
 }//end-of-makeFooter
 //----------------------------------------------------------------------------//
 ubit16 MatrixReadOut::computeCR() {
@@ -358,7 +358,7 @@ ubit16 MatrixReadOut::makeCMABodyHit() {
   ubit16 i, j, k, l, ijk, lijk;
   ubit16 CMABodyval[5];
   ubit16 numberOfHits=0;
-  if(CM) {
+  if(m_CM) {
 
       for(ijk=0; ijk<6; ijk++) {           // ijk values
 //
@@ -372,7 +372,7 @@ ubit16 MatrixReadOut::makeCMABodyHit() {
        if(ijk==0 || ijk==2 || ijk==3) j=0;
         else                          j=1;
 //              
-        for(k=0; k<nclock; k++) {          // clock
+        for(k=0; k<m_nclock; k++) {          // clock
 //
 // loop up to 32 "channels" (lijk)
 //
@@ -385,8 +385,8 @@ ubit16 MatrixReadOut::makeCMABodyHit() {
 	    //        
 	    //       
 	    // Decoding map for CMA_BODY:
-	    //     #1 BCID  filled with  _BC 
-	    //     #2 TIME  filled with  _TIME in DLL steps
+	    //     #1 BCID  filled with  BC 
+	    //     #2 TIME  filled with  TIME in DLL steps
 	    //     #3 IJK   filled with:
 	    //
 	    //        Side  Layer  #Channel   IJK
@@ -409,40 +409,40 @@ ubit16 MatrixReadOut::makeCMABodyHit() {
 	    //                                       2=overlap high chann,
 	    //                                       3 overlap low+high)       
 	    //   
-	    //       #4 STRIP filled with: _CHANNEL  or k-readout 
+	    //       #4 STRIP filled with: CHANNEL  or k-readout 
 	    //    
-	    //	DISP<<"rodat="<<CM->rodat[i][j][k][l/32]<<" boh="<<(1<<(l%32))<<endl;
+	    //	DISP<<"rodat="<<m_CM->rodat[i][j][k][l/32]<<" boh="<<(1<<(l%32))<<endl;
 	    //  DISP_DEBUG;
-	    if( (CM->rodat[i][j][k][l/32]&(1<<(l%32))) ) {
-	      ubit16 _SIDE=i;
-	      ubit16 _TIME =(k+ROOffset)%NDLLCYC;     // from struct rpcdata in Matrix
-	      ubit16 _CHANNEL =l%32;                  // from struct rpcdata
-	      ubit16 _IJK=0;
-	      ubit16 _BC=(k+ROOffset)/NDLLCYC;        // fill BCID word
+	    if( (m_CM->rodat[i][j][k][l/32]&(1<<(l%32))) ) {
+	      ubit16 SIDE=i;
+	      ubit16 TIME =(k+m_ROOffset)%m_NDLLCYC;     // from struct rpcdata in Matrix
+	      ubit16 CHANNEL =l%32;                  // from struct rpcdata
+	      ubit16 IJK=0;
+	      ubit16 BC=(k+m_ROOffset)/m_NDLLCYC;        // fill BCID word
 	      //
-	      if (_SIDE==0) {                
-		_IJK=j;         // Fill the IJK-word(3-bit word for CMA_BODY)
+	      if (SIDE==0) {                
+		IJK=j;         // Fill the IJK-word(3-bit word for CMA_BODY)
 	      } else {
-		_IJK=2*j+l/32+2;
+		IJK=2*j+l/32+2;
 	      }//end-of-if
 	      //
 	      // WARNING !!! BC>=0 ?? TIME >=0??
 	      // Per riprodurre l'output di stefano si deve imporre
 	      // BC>0 and BC<=7 and time>0
 	      //
-              if (_BC>=BunchFrom && _BC<=BunchTo){
-//  		DISP<<"Now store CM_hit with: BCID= "<<_BC<<" TIME = "<<_TIME
-//  		    <<" SIDE = "<<_SIDE<<" layer = "<<j
-//  		    <<" IJK = " <<_IJK<< " CHANNEL = "<<_CHANNEL<<endl; //print
+              if (BC>=m_BunchFrom && BC<=m_BunchTo){
+//  		DISP<<"Now store CM_hit with: BCID= "<<BC<<" TIME = "<<TIME
+//  		    <<" SIDE = "<<SIDE<<" layer = "<<j
+//  		    <<" IJK = " <<IJK<< " CHANNEL = "<<CHANNEL<<endl; //print
 //              DISP_DEBUG;
 		CMABodyval[0] = 0;
-		CMABodyval[1] = _BC-BunchFrom;
-		CMABodyval[2] = _TIME;
-		CMABodyval[3] = _IJK;
-		CMABodyval[4] = _CHANNEL;
-		makeNewHit(MROS.makeBody(CMABodyval));
+		CMABodyval[1] = BC-m_BunchFrom;
+		CMABodyval[2] = TIME;
+		CMABodyval[3] = IJK;
+		CMABodyval[4] = CHANNEL;
+		makeNewHit(m_MROS.makeBody(CMABodyval));
 		numberOfHits++;
-	      } //end of if(_BC
+	      } //end of if(BC
 	    }//end-of-if(input[....
 	  }//end-of-for(lijk
 	}//end-of-for(k
@@ -450,7 +450,7 @@ ubit16 MatrixReadOut::makeCMABodyHit() {
 
     //
   } else {
-    DISP<<" MatrixReadOut::makeCMABodyHit: CM class empty"<<endl;
+    DISP<<" MatrixReadOut::makeCMABodyHit: m_CM class empty"<<endl;
     DISP_DEBUG;
   }//end-of-if
   return numberOfHits;
@@ -459,40 +459,40 @@ ubit16 MatrixReadOut::makeCMABodyHit() {
 ubit16 MatrixReadOut::makeCMABodyTrgObsolete() {
   ubit16 CMABodyval[5];
   ubit16 channel=0;
-  ubit16 _BC, _TIME, _IJK, _CHANNEL;
+  ubit16 BC, TIME, IJK, CHANNEL;
   int set_latenza;
   int h_last[32]; // only pivot plane
 //
 // initialize h_last to value large value
 //
-  for(ubit16 i=0; i<nchan[0]; i++) {h_last[i]=0xffff;}
+  for(ubit16 i=0; i<m_nchan[0]; i++) {h_last[i]=0xffff;}
 //
   ubit16 numberOfHits=0;
-  if(CM) {
+  if(m_CM) {
     CMAword one=1;
     //
-    for (int h=0; h<nclock;h++){               // loop on time clock
-      for (channel=0; channel<nchan[0]; channel++){
-	if(CM->k_readout[h]&(one<<channel)){ //check K-readout register for 
+    for (int h=0; h<m_nclock;h++){               // loop on time clock
+      for (channel=0; channel<m_nchan[0]; channel++){
+	if(m_CM->k_readout[h]&(one<<channel)){ //check K-readout register for 
 	  set_latenza=abs(h-h_last[channel]);
-	  if (set_latenza >timeSeparation) {
+	  if (set_latenza >m_timeSeparation) {
 	    // a real-trigger data!
-	    _BC=(h+ROOffset)/NDLLCYC;       // fill BCID word
-	    _TIME=(h+ROOffset)%NDLLCYC;    // from struct rpcdata in Matrix
-	    _IJK=6;              //Trigger flag for IJK
-	    _CHANNEL=channel;
+	    BC=(h+m_ROOffset)/m_NDLLCYC;       // fill BCID word
+	    TIME=(h+m_ROOffset)%m_NDLLCYC;    // from struct rpcdata in Matrix
+	    IJK=6;              //Trigger flag for IJK
+	    CHANNEL=channel;
 	    h_last[channel]=h;
 
-	    DISP<<"MatrixReadOut: Now store Trigger_hit with: BCID= "<<_BC
-		<<" TIME = "<<_TIME<<" IJK = "<<_IJK<<" CHANNEL = "<<_CHANNEL<<endl;
+	    DISP<<"MatrixReadOut: Now store Trigger_hit with: BCID= "<<BC
+		<<" TIME = "<<TIME<<" IJK = "<<IJK<<" CHANNEL = "<<CHANNEL<<endl;
             DISP_DEBUG;
 	    //       
 	    CMABodyval[0] = 0;
-	    CMABodyval[1] = _BC;
-	    CMABodyval[2] = _TIME;
-	    CMABodyval[3] = _IJK;
-	    CMABodyval[4] = _CHANNEL;
-	    makeNewHit(MROS.makeBody(CMABodyval));
+	    CMABodyval[1] = BC;
+	    CMABodyval[2] = TIME;
+	    CMABodyval[3] = IJK;
+	    CMABodyval[4] = CHANNEL;
+	    makeNewHit(m_MROS.makeBody(CMABodyval));
 	    numberOfHits++;
 	  }//end of if set_latenza   
 	}//end of if k_readout
@@ -502,30 +502,30 @@ ubit16 MatrixReadOut::makeCMABodyTrgObsolete() {
 // Thershold and overlap word
 //
     ubit16 lastTime=0xffff;
-    for (int n=0;n<nclock;n++){
-//**      if(!CM->highestthRO[n] || CM->highestthRO[n]!=highestthprec)????chefamo
-       if(CM->highestthRO[n]){
+    for (int n=0;n<m_nclock;n++){
+//**      if(!m_CM->highestthRO[n] || m_CM->highestthRO[n]!=highestthprec)????chefamo
+       if(m_CM->highestthRO[n]){
         set_latenza=abs(n-lastTime);
-	if(set_latenza>timeSeparation) {
-         ubit16 thresh_n= CM->highestthRO[n];
-	 ubit16 over_n=CM->overlapRO[n];
+	if(set_latenza>m_timeSeparation) {
+         ubit16 thresh_n= m_CM->highestthRO[n];
+	 ubit16 over_n=m_CM->overlapRO[n];
 	 over_n=over_n<<2;
-	 _BC=(n+ROOffset)/NDLLCYC;       // fill BCID word
-	 _TIME=(n+ROOffset)%NDLLCYC;
-	 _CHANNEL =(over_n|thresh_n);
-	 _IJK=7;
+	 BC=(n+m_ROOffset)/m_NDLLCYC;       // fill BCID word
+	 TIME=(n+m_ROOffset)%m_NDLLCYC;
+	 CHANNEL =(over_n|thresh_n);
+	 IJK=7;
 	 lastTime=n;
 //  	 DISP<<"MatrixReadOut: Now store Trigger_hit with: BCID= "
-//  	     <<_BC<<" TIME = "<<_TIME
-//  	     <<" IJK = "<<_IJK<<" CHANNEL = "<<_CHANNEL<<endl;
+//  	     <<BC<<" TIME = "<<TIME
+//  	     <<" IJK = "<<IJK<<" CHANNEL = "<<CHANNEL<<endl;
 //       DISP_DEBUG;
 	 //
 	 CMABodyval[0] = 0;
-	 CMABodyval[1] = _BC;
-	 CMABodyval[2] = _TIME;
-	 CMABodyval[3] = _IJK;
-	 CMABodyval[4] = _CHANNEL;
-	 makeNewHit(MROS.makeBody(CMABodyval));
+	 CMABodyval[1] = BC;
+	 CMABodyval[2] = TIME;
+	 CMABodyval[3] = IJK;
+	 CMABodyval[4] = CHANNEL;
+	 makeNewHit(m_MROS.makeBody(CMABodyval));
 	 numberOfHits++;
 	}//end-of-if(set_latenza
       }//end-of-if(highestthRO  
@@ -534,83 +534,83 @@ ubit16 MatrixReadOut::makeCMABodyTrgObsolete() {
     //    DISP<<"     ** Exit from makeCMABodyTrg method **"<<endl<<endl;
     //    DISP_DEBUG;
   } else {
-    DISP<<" MatrixReadOut::makeCMABodyTrg: CM class empty"<<endl;
+    DISP<<" MatrixReadOut::makeCMABodyTrg: m_CM class empty"<<endl;
     DISP_ERROR;
-  }//end-of-if(CM
+  }//end-of-if(m_CM
   return numberOfHits;
 }//end-of-MatrixReadOut::makeCMABodyTrgObsolete
 //----------------------------------------------------------------------------//
 ubit16 MatrixReadOut::makeCMABodyTrg() {
   ubit16 CMABodyval[5];
   ubit16 channel=0;
-  ubit16 _BC, _TIME, _IJK, _CHANNEL;
+  ubit16 BC, TIME, IJK, CHANNEL;
   //int set_latenza;
   //  Removed h_last because it is not used
   //  int h_last[32]; // only pivot plane
 //
 // initialize h_last with large values
 //
-  //  for(ubit16 i=0; i<nchan[0]; i++) {h_last[i]=0xffff;}
+  //  for(ubit16 i=0; i<m_nchan[0]; i++) {h_last[i]=0xffff;}
 //
   ubit16 numberOfHits=0;
   bool triggerRO; // flag that indicates a trigger hit recorded in the ReadOut
-  if(CM) {
+  if(m_CM) {
     CMAword one=1;
     //
-    for (int h=0; h<nclock;h++){               // loop on time clock
+    for (int h=0; h<m_nclock;h++){               // loop on time clock
       triggerRO=false; //initialize triggeRO
-      for (channel=0; channel<nchan[0]; channel++){
-	if(CM->k_readout[h]&(one<<channel)){ //check K-readout register for 
+      for (channel=0; channel<m_nchan[0]; channel++){
+	if(m_CM->k_readout[h]&(one<<channel)){ //check K-readout register for 
 	  //set_latenza=abs(h-h_last[channel]);
-	  //if (set_latenza >= timeSeparation) {
+	  //if (set_latenza >= m_timeSeparation) {
 	    // a real-trigger data!
-	    _BC=(h+ROOffset)/NDLLCYC;       // fill BCID word
-	    _TIME=(h+ROOffset)%NDLLCYC;    // from struct rpcdata in Matrix
-	    _IJK=6;              //Trigger flag for IJK
-	    _CHANNEL=channel;
+	    BC=(h+m_ROOffset)/m_NDLLCYC;       // fill BCID word
+	    TIME=(h+m_ROOffset)%m_NDLLCYC;    // from struct rpcdata in Matrix
+	    IJK=6;              //Trigger flag for IJK
+	    CHANNEL=channel;
 	    // h_last[channel]=h;
 
-	    DISP<<"MatrixReadOut: Now store Trigger_hit with: BCID= "<<_BC
-		<<" TIME = "<<_TIME<<" IJK = "<<_IJK<<" CHANNEL = "<<_CHANNEL<<endl;
+	    DISP<<"MatrixReadOut: Now store Trigger_hit with: BCID= "<<BC
+		<<" TIME = "<<TIME<<" IJK = "<<IJK<<" CHANNEL = "<<CHANNEL<<endl;
             DISP_DEBUG;
 	    //
-	    if (_BC>=BunchFrom && _BC<=BunchTo){   
+	    if (BC>=m_BunchFrom && BC<=m_BunchTo){   
 	      triggerRO=true; // there is a trigger hit in the ReadOut
 	      CMABodyval[0] = 0;
-	      CMABodyval[1] = _BC-BunchFrom;
-	      CMABodyval[2] = _TIME;
-	      CMABodyval[3] = _IJK;
-	      CMABodyval[4] = _CHANNEL;
-	      makeNewHit(MROS.makeBody(CMABodyval));
+	      CMABodyval[1] = BC-m_BunchFrom;
+	      CMABodyval[2] = TIME;
+	      CMABodyval[3] = IJK;
+	      CMABodyval[4] = CHANNEL;
+	      makeNewHit(m_MROS.makeBody(CMABodyval));
 	      numberOfHits++;
-	    }//end-of-if(_BC
+	    }//end-of-if(BC
 	  // }//end of if set_latenza   
 	}//end of if k_readout
       }//end of for(channel
 //
 // insert here the Threshold and overlap word
 //
-       if(CM->highestthRO[h]){
+       if(m_CM->highestthRO[h]){
         if(triggerRO) {  // if there is a trigger in the RO add IJK=7 record
-         ubit16 thresh_h= CM->highestthRO[h];
-	 ubit16 over_h=CM->overlapRO[h];
+         ubit16 thresh_h= m_CM->highestthRO[h];
+	 ubit16 over_h=m_CM->overlapRO[h];
 	 over_h=over_h<<2;
-	 _BC=(h+ROOffset)/NDLLCYC;       // fill BCID word
-	 _TIME=(h+ROOffset)%NDLLCYC;
-	 _CHANNEL =(over_h|thresh_h);
-	 _IJK=7;
+	 BC=(h+m_ROOffset)/m_NDLLCYC;       // fill BCID word
+	 TIME=(h+m_ROOffset)%m_NDLLCYC;
+	 CHANNEL =(over_h|thresh_h);
+	 IJK=7;
 //
 //  	 DISP<<"MatrixReadOut: Now store Trigger_hit with: BCID= "
-//  	     <<_BC<<" TIME = "<<_TIME
-//  	     <<" IJK = "<<_IJK<<" CHANNEL = "<<_CHANNEL<<endl;
+//  	     <<BC<<" TIME = "<<TIME
+//  	     <<" IJK = "<<IJK<<" CHANNEL = "<<CHANNEL<<endl;
 //       DISP_DEBUG;
 	 //
 	 CMABodyval[0] = 0;
-	 CMABodyval[1] = _BC-BunchFrom;
-	 CMABodyval[2] = _TIME;
-	 CMABodyval[3] = _IJK;
-	 CMABodyval[4] = _CHANNEL;
-	 makeNewHit(MROS.makeBody(CMABodyval));
+	 CMABodyval[1] = BC-m_BunchFrom;
+	 CMABodyval[2] = TIME;
+	 CMABodyval[3] = IJK;
+	 CMABodyval[4] = CHANNEL;
+	 makeNewHit(m_MROS.makeBody(CMABodyval));
 	 numberOfHits++;
 	}//end-of-if(triggerRO
       }//end-of-if(highestthRO  
@@ -620,9 +620,9 @@ ubit16 MatrixReadOut::makeCMABodyTrg() {
 //    DISP_DEBUG;
 //
   } else {
-    DISP<<" MatrixReadOut::makeCMABodyTrg: CM class empty"<<endl;
+    DISP<<" MatrixReadOut::makeCMABodyTrg: m_CM class empty"<<endl;
     DISP_ERROR;
-  }//end-of-if(CM
+  }//end-of-if(m_CM
   return numberOfHits;
 }//end-of-MatrixReadOut::makeCMABodyTrg
 //----------------------------------------------------------------------------//
@@ -630,37 +630,37 @@ void MatrixReadOut::writeHeader(ubit16 CMcode){
   ubit16 headerval[3];
   headerval[0] = 0;
   headerval[1] = CMcode;
-  headerval[2] = FEL1ID;
-  m_Header = MROS.makeHeader(headerval);
-  checkHeaderNum++;//=1
-  checkHeaderPos=1;//=1
+  headerval[2] = m_FEL1ID;
+  m_Header = m_MROS.makeHeader(headerval);
+  m_checkHeaderNum++;//=1
+  m_checkHeaderPos=1;//=1
 }//end-of-writeHeader
 //----------------------------------------------------------------------------//
 void MatrixReadOut::writeSubHeader(){
-  m_SubHeader = MROS.makeSubHeader();
-  checkSubHeaderNum++;//=1
-  checkSubHeaderPos=checkHeaderPos+1;//=2
+  m_SubHeader = m_MROS.makeSubHeader();
+  m_checkSubHeaderNum++;//=1
+  m_checkSubHeaderPos=m_checkHeaderPos+1;//=2
 
 }//end-of-MatrixReadOut::writeSubHeader
 //----------------------------------------------------------------------------//
-void MatrixReadOut::writeCMABody(ubit16 _BC, ubit16 _TIME, ubit16 _IJK,
-                                 ubit16 _CHANNEL) {
+void MatrixReadOut::writeCMABody(ubit16 BC, ubit16 TIME, ubit16 IJK,
+                                 ubit16 CHANNEL) {
   ubit16 CMABodyval[5];
   CMABodyval[0] = 0;
-  CMABodyval[1] = _BC;
-  CMABodyval[2] = _TIME;
-  CMABodyval[3] = _IJK;
-  CMABodyval[4] = _CHANNEL;
-  sortAndMakeNewHit(MROS.makeBody(CMABodyval));
+  CMABodyval[1] = BC;
+  CMABodyval[2] = TIME;
+  CMABodyval[3] = IJK;
+  CMABodyval[4] = CHANNEL;
+  sortAndMakeNewHit(m_MROS.makeBody(CMABodyval));
 }//end-of-MatrixReadOut::writeCMABody
 //----------------------------------------------------------------------------//
 void MatrixReadOut::writeFooter(){
   ubit16 footerval;
-  footerval = computeCR()&first8bitsON;
-  m_Footer = MROS.makeFooter(footerval);
-  checkCR=0;
-  checkFooterPos=numberOfWordsInBody+3 ;
-  checkFooterNum++;
+  footerval = computeCR()&m_first8bitsON;
+  m_Footer = m_MROS.makeFooter(footerval);
+  m_checkCR=0;
+  m_checkFooterPos=m_numberOfWordsInBody+3 ;
+  m_checkFooterNum++;
 }//end-of-MatrixReadOut::writeFooter
 //----------------------------------------------------------------------------//
 void MatrixReadOut::makeNewHit(ubit16 newHit) {
@@ -674,7 +674,7 @@ void MatrixReadOut::makeNewHit(ubit16 newHit) {
     m_BodyLast->next = p;
   }//end-of-if
   m_BodyLast=p;
-  numberOfWordsInBody++;
+  m_numberOfWordsInBody++;
 }//end-of-MatrixReadOut::makeNewHit
 //----------------------------------------------------------------------------//
 void MatrixReadOut::makeNewHit(ubit16 newHit, 
@@ -684,7 +684,7 @@ void MatrixReadOut::makeNewHit(ubit16 newHit,
   newElement->hit = newHit;
   newElement->next = next;
   if(next==m_Body) m_Body=newElement; else previous->next = newElement;
-  numberOfWordsInBody++;
+  m_numberOfWordsInBody++;
 }//end-of-MatrixReadOut::makeNewHit
 //----------------------------------------------------------------------------//
 void MatrixReadOut::sortAndMakeNewHit(ubit16 newHit) {
@@ -695,53 +695,53 @@ void MatrixReadOut::sortAndMakeNewHit(ubit16 newHit) {
   p          = m_Body;
   previous   = m_Body;
   //newElement = 0;
-  MROS.decodeFragment(newHit,field);
+  m_MROS.decodeFragment(newHit,field);
   DISP<<" IELD= "<<field<<endl;
   DISP_DEBUG;
-  const ubit16 hitBCID      = MROS.bcid();
-  const ubit16 hitTIME      = MROS.time();
-  const ubit16 hitIJK       = MROS.ijk();
-  const ubit16 hitCHANNEL   = MROS.channel();
+  const ubit16 hitBCID      = m_MROS.bcid();
+  const ubit16 hitTIME      = m_MROS.time();
+  const ubit16 hitIJK       = m_MROS.ijk();
+  const ubit16 hitCHANNEL   = m_MROS.channel();
   DISP<<" decode HIT "<<hitBCID<<" "<<hitTIME<<" "<<hitIJK<<" "<<hitCHANNEL<<endl;
   DISP_DEBUG;
   //
   do {
 
     if(p) { 
-      MROS.decodeFragment(p->hit,field);
+      m_MROS.decodeFragment(p->hit,field);
 
-      if(hitIJK>MROS.ijk()) {
+      if(hitIJK>m_MROS.ijk()) {
 	previous=p;
 	p=p->next;
       } else 
-	if(hitIJK<MROS.ijk()) {
+	if(hitIJK<m_MROS.ijk()) {
 	  makeNewHit(newHit,previous,p);
 	  break;
 	} else
-	  if(hitIJK==MROS.ijk()) {
-	    if(hitBCID>MROS.bcid()) {
+	  if(hitIJK==m_MROS.ijk()) {
+	    if(hitBCID>m_MROS.bcid()) {
 	      previous=p;
 	      p=p->next;
 	    } else 
-	      if(hitBCID<MROS.bcid()) {
+	      if(hitBCID<m_MROS.bcid()) {
 		makeNewHit(newHit,previous,p);
 		break;
 	      } else
-		if(hitBCID==MROS.bcid()) {
-		  if(hitTIME>MROS.time()) {
+		if(hitBCID==m_MROS.bcid()) {
+		  if(hitTIME>m_MROS.time()) {
 		    previous=p;
 		    p=p->next;
 		  } else 
-		    if(hitTIME<MROS.time()) {
+		    if(hitTIME<m_MROS.time()) {
 		      makeNewHit(newHit,previous,p);
 		      break;
 		    } else
-		      if(hitTIME==MROS.time()) {  
-			if(hitCHANNEL>MROS.channel()) {
+		      if(hitTIME==m_MROS.time()) {  
+			if(hitCHANNEL>m_MROS.channel()) {
 			  previous=p;
 			  p=p->next;
 			} else 
-			  if(hitCHANNEL<MROS.channel()) {
+			  if(hitCHANNEL<m_MROS.channel()) {
 			    makeNewHit(newHit,previous,p);
 			    break;
 			  } else {
@@ -785,9 +785,9 @@ ubit16 MatrixReadOut::readCMABodyCurrent() {
 void MatrixReadOut::readCMABody(ubit16 *Body) {
   ubit16 i=0;
   CMROData *p;
-  if(numberOfWordsInBody) {
+  if(m_numberOfWordsInBody) {
     p=m_Body;
-    for(i=0;i<numberOfWordsInBody; i++) {
+    for(i=0;i<m_numberOfWordsInBody; i++) {
       *(Body+i)=p->hit;
       p=p->next;
     }//end-of-for
@@ -796,12 +796,12 @@ void MatrixReadOut::readCMABody(ubit16 *Body) {
 //----------------------------------------------------------------------------//
 ubit16 MatrixReadOut::readCMAWord() {
 ubit16 output = 0xffff;
-     if(addressOfWordScanned==0) output = readHeader();
-else if(addressOfWordScanned==1) output = readSubHeader();
-else if(addressOfWordScanned==(numberOfFragmentWords()-1)) 
+     if(m_addressOfWordScanned==0) output = readHeader();
+else if(m_addressOfWordScanned==1) output = readSubHeader();
+else if(m_addressOfWordScanned==(numberOfFragmentWords()-1)) 
                                 output = readFooter();
 else output = readCMABodyCurrent();
-addressOfWordScanned++;
+m_addressOfWordScanned++;
 return output;
 }//end-of-MatrixReadout::readCMAWord
 //----------------------------------------------------------------------------//
@@ -809,16 +809,16 @@ MatrixReadOutStructure MatrixReadOut::getCMAHit(int index) {
 
   MatrixReadOutStructure theStruct;
   ubit16 theHit;
-  if((numberOfWordsInBody<=index)||(numberOfWordsInBody==0)){
+  if((m_numberOfWordsInBody<=index)||(m_numberOfWordsInBody==0)){
     DISP<<" getCMAHit: Wrong index given;"
-	<<" numberOfWordsInBody= "<<numberOfWordsInBody
+	<<" numberOfWordsInBody= "<<m_numberOfWordsInBody
 	<<" index = "<<index<<endl;
     DISP_DEBUG;
   } else {
 
     CMROData *p;
     p=m_Body;
-    for(int i=0;i<numberOfWordsInBody; i++) {
+    for(int i=0;i<m_numberOfWordsInBody; i++) {
       theHit=p->hit;
       if(index==i){theStruct=MatrixReadOutStructure(theHit);}
       p=p->next;
@@ -828,7 +828,7 @@ MatrixReadOutStructure MatrixReadOut::getCMAHit(int index) {
 }//end-of-MatrixReadOut::getCMAHit(int index)
 //----------------------------------------------------------------------------//
 void MatrixReadOut::topCMABody() {
-addressOfWordScanned=0;
+m_addressOfWordScanned=0;
 m_BodyCurr = m_Body;
 }//MatrixReadOut::end-of-topCMABody
 //----------------------------------------------------------------------------//
@@ -843,10 +843,10 @@ void MatrixReadOut::displayHeader(ostream &stream){
   char field;
   stream<<endl;
   stream<<hex<<m_Header<<dec;
-  ubit16 errorDecode = MROS.decodeFragment(m_Header, field);
+  ubit16 errorDecode = m_MROS.decodeFragment(m_Header, field);
   if(!errorDecode&&field=='H') {
-    stream<<" -- CMID   "<<MROS.cmid();
-    stream<<" FEL1ID "   <<MROS.fel1id();
+    stream<<" -- CMID   "<<m_MROS.cmid();
+    stream<<" FEL1ID "   <<m_MROS.fel1id();
   } else {
     stream<<" ERROR IN HEADER DECODING ";
   }//end-of-if
@@ -856,9 +856,9 @@ void MatrixReadOut::displayHeader(ostream &stream){
 void MatrixReadOut::displaySubHeader(ostream &stream) {
   char field;
   stream<<hex<<m_SubHeader<<dec;
-  ubit16 errorDecode = MROS.decodeFragment(m_SubHeader, field);
+  ubit16 errorDecode = m_MROS.decodeFragment(m_SubHeader, field);
   if(!errorDecode&&field=='S') {
-    stream<<" -- FEBCID   "<<MROS.febcid();
+    stream<<" -- FEBCID   "<<m_MROS.febcid();
   } else {
     stream<<" ERROR IN SUBHEADER DECODING ";
   }//end-of-if
@@ -874,16 +874,16 @@ void MatrixReadOut::displayBody(ostream &stream) {
 
     stream<<hex<<p->hit<<dec;
     ubit16 errorDecode = 
-      MROS.decodeFragment(p->hit, field);
+      m_MROS.decodeFragment(p->hit, field);
     if(!errorDecode&&field=='B') {
-      stream<<" -- BC     "<<MROS.bcid();
-      stream<<" TIME   "<<MROS.time();
-      if(MROS.ijk()<7) {
-	stream<<" IJK    "<<      MROS.ijk();
-	stream<<" STRIP  "<<      MROS.channel();
+      stream<<" -- BC     "<<m_MROS.bcid();
+      stream<<" TIME   "<<m_MROS.time();
+      if(m_MROS.ijk()<7) {
+	stream<<" IJK    "<<      m_MROS.ijk();
+	stream<<" STRIP  "<<      m_MROS.channel();
       } else {
-	stream<<" OVL    "<<      MROS.overlap();
-	stream<<" THR    "<<      MROS.threshold();
+	stream<<" OVL    "<<      m_MROS.overlap();
+	stream<<" THR    "<<      m_MROS.threshold();
       }//end-of-if
     } else {
       stream<<" ERROR IN BODY DECODING ";
@@ -897,9 +897,9 @@ void MatrixReadOut::displayFooter(ostream &stream) {
   char field;
   stream<<hex<<m_Footer<<dec;
   stream<<" -- CODE   "<<1;
-  ubit16 errorDecode = MROS.decodeFragment(m_Footer, field);
+  ubit16 errorDecode = m_MROS.decodeFragment(m_Footer, field);
   if(!errorDecode&&field=='F') {
-    stream<<" CRC "<<hex<<MROS.crc()<<dec;
+    stream<<" CRC "<<hex<<m_MROS.crc()<<dec;
   } else {
     stream<<" ERROR IN FOOTER DECODING ";
   }//end-of-if(!errorDecode
@@ -922,30 +922,30 @@ ubit16 MatrixReadOut::checkFragment() {
 //DISP<<" MatrixReadOut(ubit16 *pointer, ubit16 num) ";
 //    cout<<endl
 //    cout<<" check dump "<<endl
-//    std::cout<<" checkHeaderNum = "<<checkHeaderNum
-//        <<" CheckHeaderPos = "<<checkHeaderPos<<std::endl;
-//    cout<<" checkSubHeaderNum = "<<checkSubHeaderNum
-//        <<" CheckSubHeaderPos = "<<checkSubHeaderPos<<endl
-//    cout<<" checkFooterNum = "<<checkFooterNum
-//        <<" CheckFooterPos = "<<checkFooterPos<<endl
-//    cout<<" CheckUnkown = "<<checkUnkown<<endl
-//    cout<<" Number of Words In Fragment = "<<numberOfWordsInFrag<<endl;
+//    std::cout<<" m_checkHeaderNum = "<<m_checkHeaderNum
+//        <<" CheckHeaderPos = "<<m_checkHeaderPos<<std::endl;
+//    cout<<" m_checkSubHeaderNum = "<<m_checkSubHeaderNum
+//        <<" CheckSubHeaderPos = "<<m_checkSubHeaderPos<<endl
+//    cout<<" m_checkFooterNum = "<<m_checkFooterNum
+//        <<" CheckFooterPos = "<<m_checkFooterPos<<endl
+//    cout<<" CheckUnkown = "<<m_checkUnkown<<endl
+//    cout<<" Number of Words In Fragment = "<<m_numberOfWordsInFrag<<endl;
 //DISP_DEBUG;
   ubit16 output = 0;
-  if(checkHeaderNum!=1 &&                   !(output&0x00000001)) output+=1;//=1
-  if(checkHeaderPos>1 &&                    !(output&0x00000002)) output+=2;//=1 
-  if(checkSubHeaderNum!=1 &&                !(output&0x00000004)) output+=4;//=1
-  if(checkSubHeaderPos!=2 &&                !(output&0x00000008)) output+=8;//=2
-  if(checkFooterPos!=numberOfWordsInFrag && !(output&0x00000010)) output+=16;
-  if(checkCR &&                             !(output&0x00000020)) output+=32;
-  if(checkUnkown &&                         !(output&0x00000040)) output+=64;
+  if(m_checkHeaderNum!=1 &&                   !(output&0x00000001)) output+=1;//=1
+  if(m_checkHeaderPos>1 &&                    !(output&0x00000002)) output+=2;//=1 
+  if(m_checkSubHeaderNum!=1 &&                !(output&0x00000004)) output+=4;//=1
+  if(m_checkSubHeaderPos!=2 &&                !(output&0x00000008)) output+=8;//=2
+  if(m_checkFooterPos!=m_numberOfWordsInFrag && !(output&0x00000010)) output+=16;
+  if(m_checkCR &&                             !(output&0x00000020)) output+=32;
+  if(m_checkUnkown &&                         !(output&0x00000040)) output+=64;
   if(checkBodyOrder() &&                    !(output&0x00000080)) output+=128;
   return output;
 }//end-of-MatrixReadOut::checkFragment
 //----------------------------------------------------------------------------//
 ubit16 MatrixReadOut::checkCRC8(ubit16 foot) {
   ubit16 output=0;
-  if((computeCR()&first8bitsON)!=(foot&first8bitsON)) output=1;
+  if((computeCR()&m_first8bitsON)!=(foot&m_first8bitsON)) output=1;
   return output;
 }//end-of-MatrixReadOut::checkCRC8()
 //----------------------------------------------------------------------------//
@@ -965,19 +965,19 @@ ubit16 MatrixReadOut::checkBodyOrder() {
   //prevCHANNEL=0;
   
   while(p) {
-    MROS.decodeFragment(p->hit,field);
-    currIJK     = MROS.ijk();
-    currBCID    = MROS.bcid();
-    currTIME    = MROS.time();
-    currCHANNEL = MROS.channel();
+    m_MROS.decodeFragment(p->hit,field);
+    currIJK     = m_MROS.ijk();
+    currBCID    = m_MROS.bcid();
+    currTIME    = m_MROS.time();
+    currCHANNEL = m_MROS.channel();
     pnext=p->next;
     if(pnext) {
       //      output=0;
-      MROS.decodeFragment(pnext->hit,field);
-      nextIJK     = MROS.ijk();
-      nextBCID    = MROS.bcid();
-      nextTIME    = MROS.time();
-      nextCHANNEL = MROS.channel();
+      m_MROS.decodeFragment(pnext->hit,field);
+      nextIJK     = m_MROS.ijk();
+      nextBCID    = m_MROS.bcid();
+      nextTIME    = m_MROS.time();
+      nextCHANNEL = m_MROS.channel();
       //
       
       if(currIJK<6) {          // analyze first IJK=0,1,2,3,4,5 ...
@@ -1006,7 +1006,7 @@ ubit16 MatrixReadOut::checkBodyOrder() {
       
       } else if(currIJK==7) {  // finally IJK=7.
       
-        if(prevIJK!=6) {      // if this CM hit has IJK=7 then the previous on must have IJK=6
+        if(prevIJK!=6) {      // if this m_CM hit has IJK=7 then the previous on must have IJK=6
 	 output+=64;
 	 outTemp=64;
 	}
@@ -1028,8 +1028,8 @@ ubit16 MatrixReadOut::checkBodyOrder() {
       output+=64;
       DISP<<" CheckBodyOrder; IJK 6 exists but the related IJK 7 has been found "<<endl;
       DISP_DEBUG;
-     } else if(currIJK==7 && prevIJK!=6) {   // we are at the last CM hit; if this has IJK=7
-      output+=128;                            // then the previous CM hit must have IJK=6
+     } else if(currIJK==7 && prevIJK!=6) {   // we are at the last m_CM hit; if this has IJK=7
+      output+=128;                            // then the previous m_CM hit must have IJK=6
       DISP<<" CheckBodyOrder; IJK 7 exists but the related IJK 6 has been found "<<endl;
       DISP_DEBUG;
      }    
@@ -1059,16 +1059,16 @@ ubit16 MatrixReadOut::checkBodyOrderObsolete() {
     pnext=p->next;
     if(pnext) {
       //      output=0;
-      MROS.decodeFragment(p->hit,field);
-      currIJK     = MROS.ijk();
-      currBCID    = MROS.bcid();
-      currTIME    = MROS.time();
-      currCHANNEL = MROS.channel();
-      MROS.decodeFragment(pnext->hit,field);
-      nextIJK     = MROS.ijk();
-      nextBCID    = MROS.bcid();
-      nextTIME    = MROS.time();
-      nextCHANNEL = MROS.channel();
+      m_MROS.decodeFragment(p->hit,field);
+      currIJK     = m_MROS.ijk();
+      currBCID    = m_MROS.bcid();
+      currTIME    = m_MROS.time();
+      currCHANNEL = m_MROS.channel();
+      m_MROS.decodeFragment(pnext->hit,field);
+      nextIJK     = m_MROS.ijk();
+      nextBCID    = m_MROS.bcid();
+      nextTIME    = m_MROS.time();
+      nextCHANNEL = m_MROS.channel();
       //
       if(nextIJK<currIJK)          {output+=1; outTemp=1;} else if(nextIJK==currIJK) {
 	if(nextBCID<currBCID)        {output+=2; outTemp=2;} else if(nextBCID==currBCID) {
@@ -1091,7 +1091,7 @@ ubit16 MatrixReadOut::checkBodyOrderObsolete() {
 }//end-of-checkBodyOrderObsolete
 //----------------------------------------------------------------------------//
 void MatrixReadOut::setManager( ReadOutManager* boss ) {
-  myBoss= boss;
+  m_myBoss= boss;
   return;
 }//end-of-MatrixReadOut::setManager( ReadOutManager* boss )
 //----------------------------------------------------------------------------//
@@ -1112,16 +1112,16 @@ MatrixReadOutStructure MatrixReadOut::getFooter() {
 //----------------------------------------------------------------------------//
 void MatrixReadOut::doMatrix(Matrix *CMpointer) {
 //
-//copy the pointer to CMA "CMpointer" in "CM" member
+//copy the pointer to CMA "CMpointer" in "m_CM" member
 //
-CM = CMpointer;
-CM->reset();
+m_CM = CMpointer;
+m_CM->reset();
 ubit16 sidemat=0;
 ubit16 layer  =0;
 ubit16 stripaddress=0;
 const ubit16 ROOffset=2;
 
-for(ubit16 n=0; n<numberOfWordsInBody; n++) {
+for(ubit16 n=0; n<m_numberOfWordsInBody; n++) {
  MatrixReadOutStructure locMRO = getCMAHit(n);
  ubit16 IJK = locMRO.ijk();
  ubit16 CHANNEL = locMRO.global_channel();
@@ -1160,24 +1160,24 @@ for(ubit16 n=0; n<numberOfWordsInBody; n++) {
 // estimate absolute time from CMA time
 //
   absTime = 25.*( (float) BCID + ((float) (TIME-ROOffset))/8.);
-  CM->putData(sidemat,layer,stripaddress,absTime);  
+  m_CM->putData(sidemat,layer,stripaddress,absTime);  
  }//end-of-if(IJK<6
 }//end-of-for(ubit16 n
 //
 // use the Matrix data buffer from the the first available location and not
 // at the center as it is done by default
 //
-CM->setBCzero(0);
+m_CM->setBCzero(0);
 //
 // run the CMA logic
 //
-CM->execute();
+m_CM->execute();
 }//end-of-MatrixReadOut::doMatrix()
 //----------------------------------------------------------------------------//
 void MatrixReadOut::makeTestPattern(ubit16 mode, ubit16 ktimes, int eventNum ) {
 std::cout<<" makeTestPattern "<<std::endl;
-MatrixReadOutStructure MRS=getHeader(); // get the CM Header
-ubit16 cmid = MRS.cmid(); // CM Address (or identifier)
+MatrixReadOutStructure MRS=getHeader(); // get the m_CM Header
+ubit16 cmid = MRS.cmid(); // m_CM Address (or identifier)
 //
 ofstream vhdlinput;
 vhdlinput.open("vhdl.input",ios::app);
@@ -1216,12 +1216,12 @@ std::cout<<this<<std::endl;
 
 while(!completed) {
   float timemin =  timeover;
-  for(int iCMhit=0; iCMhit<numberOfWordsInBody; iCMhit++) {
+  for(int iCMhit=0; iCMhit<m_numberOfWordsInBody; iCMhit++) {
     MatrixReadOutStructure MRS=getCMAHit(iCMhit);
     int ijk = MRS.ijk();  
     if(ijk<6) {
       float time=((float) (MRS.bcid()*8+MRS.time())-0.5)*3.125;
-      //int channel=MRS.global_channel(); // CM channel
+      //int channel=MRS.global_channel(); // m_CM channel
       //std::cout<<"time "<<time<<" IJK= "<<ijk<<" channel "<<channel<<std::endl;
       if(time>timelast && time<timemin ) timemin=time; 
     }//end-of-if(
@@ -1231,11 +1231,11 @@ while(!completed) {
    completed=true;
   } else { 
     ubit16 this_time_counter=0;
-    for(int iCMhit=0; iCMhit<numberOfWordsInBody; iCMhit++) {
+    for(int iCMhit=0; iCMhit<m_numberOfWordsInBody; iCMhit++) {
       MatrixReadOutStructure MRS=getCMAHit(iCMhit);
       int ijk = MRS.ijk();  
       if(ijk<6) {
-        int channel=MRS.global_channel(); // CM channel
+        int channel=MRS.global_channel(); // m_CM channel
         float time=((float) (MRS.bcid()*8+MRS.time())-0.5)*3.125;
         if(time==timemin && ntimes<maxtimes) {
 	  if(!this_time_counter) ntimes++;

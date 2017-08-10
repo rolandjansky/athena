@@ -2,6 +2,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+TH1* get_cumul(TH1* hist);
+void run_epara_validation();
+
+//.x init_epara_validation.C+
+//.x run_epara_validation.C
+
 void run_epara_validation()
 {
  	
@@ -15,11 +21,11 @@ void run_epara_validation()
   
   system("mkdir eparavalidation");
   system(("mkdir eparavalidation/"+sample).c_str());
-  
+  /*
   int setbin=-1;
   cout<<"PCA bin (-1 if random)? "<<endl;
   cin>>setbin;
-  
+  */
   //Prepare the Histograms
   cout<<"Preparing validation histograms"<<endl;
   TFile* file1=TFile::Open(Form("%s/%s/firstPCA.root",dirname.c_str(),sample.c_str()));
@@ -74,8 +80,8 @@ void run_epara_validation()
   for(int event=0;event<read_inputTree->GetEntries();event++)
   {
    read_inputTree->GetEntry(event);
-   if(setbin<0 || (setbin>=1 && read_inputTree->GetVariable("firstPCAbin")==setbin))
-   {
+   //if(setbin<0 || (setbin>=1 && read_inputTree->GetVariable("firstPCAbin")==setbin))
+   //{
    double sum_fraction_elmag=0.0;
    double sum_fraction_had=0.0;
    double data = read_inputTree->GetVariable("energy_totalE");
@@ -97,11 +103,20 @@ void run_epara_validation()
    }
    h_input[layerNr.size()+1]->Fill(sum_fraction_elmag);
    h_input[layerNr.size()+2]->Fill(sum_fraction_had);
-   }
+   //}
   }
   
   TH1D* h_randombin=new TH1D("h_randombin","h_randombin",pcabins,-0.5,pcabins-0.5);
   
+   
+  TFCSPCAEnergyParametrization etest("etest","etest");
+  TFile* file2 = TFile::Open("/afs/cern.ch/atlas/groups/Simulation/FastCaloSimV2/FCSParams.root");
+  cout<<"pca bins before load "<<etest.n_pcabins()<<endl;
+  etest.loadInputs(file2);
+  cout<<"number of pca bins after load "<<etest.n_pcabins()<<" , number from firstPCA file: "<<pcabins<<endl;
+  file2->Close();
+  delete file2;
+
   //Run the loop:
   int ntoys=1000;
   TRandom3* Random=new TRandom3();
@@ -110,45 +125,28 @@ void run_epara_validation()
   const TFCSExtrapolationState* extrapol=new TFCSExtrapolationState();
   for(int i=0;i<ntoys;i++)
   {
-   if(i%100==0) 
+   //if(i%100==0) 
    	cout<<"Now run simulation for Toy "<<i<<endl;
    
-   int randombin;
-   if(setbin>=1)
-    randombin=setbin;
-   else
+   int randombin=0;
+   double uniform=Random->Uniform(1);
+   for(int n=0;n<pcabins;n++)
    {
-    double uniform=Random->Uniform(1);
-    randombin=0;
-    for(int n=0;n<pcabins;n++)
-    {
-     if(uniform>n*1.0/(double)pcabins && uniform<(n+1.)*1.0/(double)pcabins)
-      randombin=n+1;
-    }
+    if(uniform>n*1.0/(double)pcabins && uniform<(n+1.)*1.0/(double)pcabins)
+     randombin=n+1;
    }
    h_randombin->Fill(randombin);
-   
-   TFCSPCAEnergyParametrization* etest=new TFCSPCAEnergyParametrization("etest","etest");
-   TFile* file2;
-   if(setbin!=-1) file2=TFile::Open(Form("%s/%s/secondPCA.root_bin%i",dirname.c_str(),sample.c_str(),randombin));
-   else           file2=TFile::Open(Form("%s/%s/secondPCA.root",dirname.c_str(),sample.c_str()));
-   
-   etest->loadInputs(file2,randombin);
-   
-   file2->Close();
-   delete file2;
          
    TFCSSimulationState simulstate;
    simulstate.set_Ebin(randombin);
-      
-   etest->simulate(simulstate, truth, extrapol);
-   delete etest;
+   
+   etest.simulate(simulstate, truth, extrapol);
    
    //fill the Histograms:
    double sum_fraction_elmag=0.0;
    double sum_fraction_had=0.0;
    
-   for(int s=0;s<30;s++)
+   for(int s=0;s<30;s++) //30 is a dummy number, sth big
    {
    	int is_elmag,is_had;
    	is_elmag=is_had=0;
@@ -156,13 +154,13 @@ void run_epara_validation()
     {
      if(s==layerNr[l])
      {
-   	  h_output[l]->Fill(simulstate.E(s));
+   	  h_output[l]->Fill(simulstate.Efrac(s));
       for(int e=0;e<elmag.size();e++)
       { 	  if(elmag[e]==layerNr[l]) is_elmag=1;   }
       for(int h=0;h<had.size();h++)
       { 	  if(had[h]==layerNr[l]) is_had=1;   }
-      if(is_elmag) sum_fraction_elmag+=simulstate.E(s);
-      if(is_had)   sum_fraction_had+=simulstate.E(s);
+      if(is_elmag) sum_fraction_elmag+=simulstate.Efrac(s);
+      if(is_had)   sum_fraction_had+=simulstate.Efrac(s);
      }
     }
    }
@@ -171,6 +169,7 @@ void run_epara_validation()
    h_output[layerNr.size()+2]->Fill(sum_fraction_had);
    
   } //loop over toys
+  
   
   cout<<"Now making validation plots"<<endl;
   
@@ -255,8 +254,8 @@ void run_epara_validation()
    leg2->Draw();
    
    can->cd(3);
-   TH1D* h_output_cumul=(TH1D*)TFCS1DFunction::get_cumul(h_output_lin); h_output_cumul->SetName("h_output_cumul");
-   TH1D* h_input_cumul =(TH1D*)TFCS1DFunction::get_cumul(h_input_lin);  h_input_cumul->SetName("h_input_cumul");
+   TH1D* h_output_cumul=(TH1D*)get_cumul(h_output_lin); h_output_cumul->SetName("h_output_cumul");
+   TH1D* h_input_cumul =(TH1D*)get_cumul(h_input_lin);  h_input_cumul->SetName("h_input_cumul");
    double sf=h_input_cumul->GetBinContent(h_input_cumul->GetNbinsX());
    h_output_cumul->Scale(1.0/sf);
    h_input_cumul->Scale(1.0/sf);
@@ -277,14 +276,26 @@ void run_epara_validation()
    can->cd(2)->RedrawAxis();
    can->cd(3)->RedrawAxis();
    
-   if(setbin>=1)
-    can->Print(Form("eparavalidation/%s/%s_bin%i.pdf",sample.c_str(),name[l].c_str(),setbin));
-   else
-   	can->Print(Form("eparavalidation/%s/%s.pdf",sample.c_str(),name[l].c_str()));
+   can->Print(Form("eparavalidation/%s/%s.pdf",sample.c_str(),name[l].c_str()));
    
    delete can;
    
   } //for layer
   
+  
 }
+
+
+TH1* get_cumul(TH1* hist)
+{
+  TH1D* h_cumul=(TH1D*)hist->Clone("h_cumul");
+  double sum=0;
+  for(int b=1;b<=h_cumul->GetNbinsX();b++)
+  {
+    sum+=hist->GetBinContent(b);
+    h_cumul->SetBinContent(b,sum);
+  }
+  return h_cumul; 
+}
+
 

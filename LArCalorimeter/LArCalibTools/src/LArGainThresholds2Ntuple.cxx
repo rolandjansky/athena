@@ -17,7 +17,7 @@ LArGainThresholds2Ntuple::LArGainThresholds2Ntuple(const std::string& name, ISvc
 StatusCode LArGainThresholds2Ntuple::initialize() {
 
   if (m_febConfigReader.retrieve().isFailure()) {
-    msg(MSG::ERROR) << "Failed to retrieve tool " << m_febConfigReader << endreq;
+    msg(MSG::ERROR) << "Failed to retrieve tool " << m_febConfigReader << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -34,13 +34,13 @@ StatusCode LArGainThresholds2Ntuple::stop() {
  
    sc=m_nt->addItem("lower",lower,-1000,5000);
    if (sc!=StatusCode::SUCCESS) {
-     msg(MSG::ERROR) << "addItem 'lower' failed" << endreq;
+     msg(MSG::ERROR) << "addItem 'lower' failed" << endmsg;
      return StatusCode::FAILURE;
    }
    
    sc=m_nt->addItem("upper",upper,-1000.,5000.);
    if (sc!=StatusCode::SUCCESS) {
-     msg(MSG::ERROR) << "addItem 'upper' failed" << endreq;
+     msg(MSG::ERROR) << "addItem 'upper' failed" << endmsg;
      return StatusCode::FAILURE;
    }
    
@@ -55,12 +55,12 @@ StatusCode LArGainThresholds2Ntuple::stop() {
      
      sc=ntupleSvc()->writeRecord(m_nt);      
      if (sc!=StatusCode::SUCCESS) {
-       (*m_log) << MSG::ERROR << "writeRecord failed" << endreq;
+       (*m_log) << MSG::ERROR << "writeRecord failed" << endmsg;
        return StatusCode::FAILURE;
      }
    }
  
-   msg(MSG::INFO) << "LArGainThresholds2Ntuple has finished." << endreq;
+   msg(MSG::INFO) << "LArGainThresholds2Ntuple has finished." << endmsg;
    return StatusCode::SUCCESS;
    
 }// end finalize-method.

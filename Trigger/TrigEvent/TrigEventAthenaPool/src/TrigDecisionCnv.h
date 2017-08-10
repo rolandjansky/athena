@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: HLT
  * @Package: TrigEventAthenaPool
- * @Class  : TrigDecisionCnv
+ * @class  : TrigDecisionCnv
  *
  * @brief  The top-level converter for TrigEventAthenaPool/TrigDecision_pX. It calls the
  *         converters for specific persistent data formats (for now only TrigDecision_p1).

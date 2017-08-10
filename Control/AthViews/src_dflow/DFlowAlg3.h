@@ -15,15 +15,14 @@
 #include <string>
 
 // FrameWork includes
-#include "AthViews/AthViewAlgorithm.h"
-#include "StoreGate/ReadHandle.h"
-#include "StoreGate/UpdateHandle.h"
-#include "AthViews/View.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 
 namespace AthViews {
 
 class DFlowAlg3
-  : public ::AthViewAlgorithm
+  : public ::AthAlgorithm
 { 
 
   /////////////////////////////////////////////////////////////////// 
@@ -66,10 +65,9 @@ class DFlowAlg3
   /// Containers
   
   // vars
-  SG::ReadHandle<int>  m_r_int;
-  SG::ReadHandle<std::vector<int> > m_r_ints;
-  //SG::UpdateHandle<std::vector<int> > m_rw_ints;
-  SG::WriteHandle<int> m_w_dflowDummy;
+  SG::ReadHandleKey<int>  m_r_int;
+  SG::ReadHandleKey<std::vector<int> > m_r_ints;
+  SG::WriteHandleKey<int> m_w_dflowDummy;
 
 }; 
 

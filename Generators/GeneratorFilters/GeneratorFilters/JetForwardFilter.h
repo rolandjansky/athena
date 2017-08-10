@@ -42,11 +42,11 @@ private:
   double m_suppressionFactor;
 
   /// Random number generator
-  TRandom3* myRandGen;
+  TRandom3* m_myRandGen;
 
   /// Important functions
-  double m_evaluatePDF(double x, double y, int gausIndex);
-  double m_calculateProbToKeep(double absoluteDeltaY, double leadJetPt);
+  double evaluatePDF(double x, double y, int gausIndex);
+  double calculateProbToKeep(double absoluteDeltaY, double leadJetPt);
 
 };
 

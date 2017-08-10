@@ -105,7 +105,7 @@ namespace Muon
       virtual std::ostream& dump( std::ostream& stream) const;
 
       /** set the sampling phase 
-      @Warning This does not conform to ATLAS Coding Conventions and will be renamed to setSamplingPhase() */
+      @warning This does not conform to ATLAS Coding Conventions and will be renamed to setSamplingPhase() */
       void set_samplingPhase () ;
 
   private:

@@ -8,7 +8,6 @@
 //
 //        Author     : M.Frank
 //====================================================================
-#define POOL_ROOTDOMAIN_CPP 1
 
 // Framework include files
 #include "POOLCore/strcasecmp.h"
@@ -29,6 +28,7 @@ using namespace pool;
 RootDomain::RootDomain(IOODatabase* idb)
 : DbDomainImp(idb),
   m_defCompression(1),
+  m_defCompressionAlg(1),
   m_defSplitLevel(99),
   m_defAutoSave(16*1024*1024),
   m_defBufferSize(16*1024),
@@ -63,6 +63,9 @@ DbStatus RootDomain::setOption(const DbOption& opt)  {
       if ( !strcasecmp(n, "DEFAULT_COMPRESSION") )  {
         return opt._getValue(m_defCompression);
       }
+      else if ( !strcasecmp(n, "DEFAULT_COMPRESSIONALG") )  {
+        return opt._getValue(m_defCompressionAlg);
+      }
       else if ( !strcasecmp(n, "DEFAULT_SPLITLEVEL") )  {
         return opt._getValue(m_defSplitLevel);
       }
@@ -89,6 +92,16 @@ DbStatus RootDomain::setOption(const DbOption& opt)  {
         DbStatus sc = opt._getValue(val);
         if ( sc.isSuccess() )  {
           TFile::SetReadStreamerInfo(val != 0 ? kTRUE : kFALSE);
+        }
+        return sc;
+      }
+      break;
+    case 'M':
+      if( !strcasecmp(n, "MultiThreaded") )  {
+        bool multithreaded = false;
+        DbStatus sc = opt._getValue(multithreaded);
+        if( sc.isSuccess() && multithreaded )  {
+           ROOT::EnableThreadSafety();
         }
         return sc;
       }
@@ -138,6 +151,9 @@ DbStatus RootDomain::getOption(DbOption& opt) const   {
     case 'D':
       if ( !strcasecmp(n, "DEFAULT_COMPRESSION") )  {
         return opt._setValue(int(m_defCompression));
+      }
+      else if ( !strcasecmp(n, "DEFAULT_COMPRESSIONALG") )  {
+        return opt._setValue(int(m_defCompressionAlg));
       }
       else if ( !strcasecmp(n, "DEFAULT_SPLITLEVEL") )  {
         return opt._setValue(int(m_defSplitLevel));

@@ -29,7 +29,7 @@
 
 
 //#define PIXEL_DEBUG
-#include "CLIDSvc/CLASS_DEF.h"
+#include "SGTools/CLASS_DEF.h"
 #include "Identifier/Identifier.h"
 #include <map>
 #include <deque>

@@ -49,7 +49,7 @@ class EgammaHadEnFex: public IAlgToolCalo {
                 if ( IAlgToolCalo::initialize().isFailure() ) {
                         *(new MsgStream(AlgTool::msgSvc(), name()))
                         << MSG::FATAL
-                        << "Could not init base class IAlgTooCalo" << endreq;
+                        << "Could not init base class IAlgTooCalo" << endmsg;
                 }
                 if (m_timersvc) {
                         m_timer[0]->propName("T2CaEm_NCells");

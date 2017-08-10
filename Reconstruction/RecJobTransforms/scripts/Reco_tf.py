@@ -80,6 +80,16 @@ def getTransform(RAWtoALL=False):
     except ImportError, e:
         msg.warning('Failed to import digitisation arguments ({0}). Digitisation substep will not be available.'.format(e))
         
+    # Again, protect core functionality from too tight a dependence on EventOverlay
+    try:
+        from EventOverlayJobTransforms.overlayTrfArgs import addOverlayTrfArgs, addOverlayPoolTrfArgs
+        from EventOverlayJobTransforms.overlayTransformUtils import appendOverlay_PoolSubstep
+        addOverlayTrfArgs(trf.parser)
+        addOverlayPoolTrfArgs(trf.parser)
+        appendOverlay_PoolSubstep(trf, True)
+    except ImportError, e:
+        msg.warning('Failed to import overlay arguments ({0}). Event overlay substep will not be available.'.format(e))
+    
     # Again, protect core functionality from too tight a dependence on PATJobTransforms
     try:
         from PATJobTransforms.PATTransformUtils import addPhysValidationFiles, addValidationArguments, appendPhysValidationSubstep

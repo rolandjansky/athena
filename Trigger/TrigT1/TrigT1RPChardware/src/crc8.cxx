@@ -11,9 +11,9 @@ using namespace std;
 crc8::crc8()
 {
   // cout<<"Inizio della sessione crc8\n";
- _crci=0x00;   //crc iniziale,default="00000000"
- _pol=0x838000;    //polinomio divisore="1000000111"
- _ma=0x800000;     //maschera  
+ m_crci=0x00;   //crc iniziale,default="00000000"
+ m_pol=0x838000;    //polinomio divisore="1000000111"
+ m_ma=0x800000;     //maschera  
 }
 
 crc8::~crc8()
@@ -24,7 +24,7 @@ crc8::~crc8()
 
 int crc8::current()
 {
- return _crci;
+ return m_crci;
  //return pol;
  //return ma;
 }
@@ -35,10 +35,10 @@ int crc8::calc (int dato)
  int masc;
  int poli;
 
- _crci=_crci<<16;   //shifta il crc iniziale per metterlo davanti al dato
- dato=dato^_crci;  //mette,tramite xor,il crc davanti al dato
- masc=_ma;        //carico la maschera
- poli=_pol;       //carico il polinomio divisore
+ m_crci=m_crci<<16;   //shifta il crc iniziale per metterlo davanti al dato
+ dato=dato^m_crci;  //mette,tramite xor,il crc davanti al dato
+ masc=m_ma;        //carico la maschera
+ poli=m_pol;       //carico il polinomio divisore
 
  for (i=0;i<16;i++)  
 {
@@ -47,7 +47,7 @@ int crc8::calc (int dato)
   masc=masc>>1;      //shift per bit successivo
   poli=poli>>1;      //shift per bit successivo
 }
- _crci=dato;           //caricamento del crc ottenuto
+ m_crci=dato;           //caricamento del crc ottenuto
  return 0;
 
 }

@@ -85,19 +85,19 @@ StatusCode AddTRTMomConstr::initialize() {
   //retrieve the DetectorStore service
   StatusCode status=detStore().retrieve() ;
   if( status.isFailure() ) {
-    msg(MSG::ERROR) << "DetectorStore service not found !" << endreq;
+    msg(MSG::ERROR) << "DetectorStore service not found !" << endmsg;
     return status;
   }else{ 
     ATH_MSG_DEBUG( "DetectorStore retrieved!" );
   }
 
   if( detStore()->retrieve(m_trtid).isFailure() ) {
-    msg (MSG::FATAL) << "Problem retrieving TRTID helper" << endreq;
+    msg (MSG::FATAL) << "Problem retrieving TRTID helper" << endmsg;
     return StatusCode::FAILURE;
   }
 
   if (detStore()->retrieve(m_idHelper, "AtlasID").isFailure()) {
-    msg(MSG::FATAL) << "Could not get AtlasDetectorID helper" << endreq;
+    msg(MSG::FATAL) << "Could not get AtlasDetectorID helper" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -108,19 +108,19 @@ StatusCode AddTRTMomConstr::initialize() {
 //   const IdDictManager*  idDictMgr = 0;
 //   status = detStore()->retrieve(idDictMgr, "IdDict");
 //   if( status.isFailure() ) {
-//     msg(MSG::ERROR) << "Could not get IdDictManager !" << endreq;
+//     msg(MSG::ERROR) << "Could not get IdDictManager !" << endmsg;
 //     return status;
 //   }
 
 //   // Initialize the helper with the dictionary information.
 //   if (idDictMgr) {
 //     if (idDictMgr->initializeHelper(*m_idHelper)) { // Returns 1 if there is a problem
-//       msg(MSG::ERROR) << "Unable to initialize ID helper." << endreq;
+//       msg(MSG::ERROR) << "Unable to initialize ID helper." << endmsg;
 //       return StatusCode::FAILURE;
 //     }
 //   } else {
 //     msg(MSG::ERROR) << "IdDictManager pointer is zero. "
-//           << "Unable to initialize id helper. " << endreq;
+//           << "Unable to initialize id helper. " << endmsg;
 //     return StatusCode::FAILURE;
 //   }
 
@@ -129,7 +129,7 @@ StatusCode AddTRTMomConstr::initialize() {
   // get TrackSummaryTool
   StatusCode sc= m_trackSummaryTool.retrieve();
   if (sc.isFailure()) {
-    msg (MSG::FATAL) << "Cannot get TrackSummaryTool" << endreq;
+    msg (MSG::FATAL) << "Cannot get TrackSummaryTool" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -137,7 +137,7 @@ StatusCode AddTRTMomConstr::initialize() {
   status = m_trackFitter.retrieve();
   if (status.isFailure()) {
     msg (MSG::FATAL) << "Could not find tool " << m_trackFitter
-          << ". Exiting." << endreq ;
+          << ". Exiting." << endmsg ;
     return status ;
   } else {
     ATH_MSG_DEBUG( " Got " << m_trackFitter << " as TrackFitter. " ) ;
@@ -171,7 +171,7 @@ StatusCode AddTRTMomConstr::execute() {
   if( !m_trackListOutput.empty() && !m_trackListInput.empty() ) {
     const TrackCollection* inputtracks ;
     if( (sgSvc()->retrieve( inputtracks, m_trackListInput) ).isFailure() ) {
-      msg (MSG::FATAL) << "could not find input track list with name " << m_trackListInput << endreq ;
+      msg (MSG::FATAL) << "could not find input track list with name " << m_trackListInput << endmsg ;
       return StatusCode::FAILURE ;
     }
     TrackCollection* outputtracks = new TrackCollection( SG::VIEW_ELEMENTS ) ;
@@ -196,7 +196,7 @@ StatusCode AddTRTMomConstr::execute() {
     }
 
     if( sgSvc()->record( outputtracks, m_trackListOutput ).isFailure() ) {
-      msg(MSG::ERROR) << "Failed to record trackcollection with name " << m_trackListOutput << endreq ;
+      msg(MSG::ERROR) << "Failed to record trackcollection with name " << m_trackListOutput << endmsg ;
     }
     m_nTracksProcessed += inputtracks->size() ;
     m_nTracksAccepted += outputtracks->size() ;
@@ -225,7 +225,7 @@ bool AddTRTMomConstr::accept( const Trk::Track& track ) {
       if( m_selPtMin > 0 && pt < m_selPtMin ) rc = false ;
     }
   } else {
-    msg (MSG::WARNING) << "theta = 0, q/p conversion to p_T failed!" << endreq ;
+    msg (MSG::WARNING) << "theta = 0, q/p conversion to p_T failed!" << endmsg ;
     return false ;
   }
 
@@ -409,7 +409,7 @@ Trk::Track* AddTRTMomConstr::addTRTMomentumConstraint(const Trk::Track* track) {
   for ( ; it!=itEnd; ++it){ 
     if( !(*it) ) {
       //      log (MSG::WARNING) << "The MeasurementBase set has a void"
-      //    << "  member! Skip it.." << endreq;
+      //    << "  member! Skip it.." << endmsg;
     } else {
       const Trk::RIO_OnTrack* rio = dynamic_cast <const Trk::RIO_OnTrack*>(*it);
       if (rio != 0) {
@@ -452,7 +452,7 @@ Trk::Track* AddTRTMomConstr::addTRTMomentumConstraint(const Trk::Track* track) {
   // now add z_0 and theta from original track as PseudoMeas to the TRT MeasurementSet
   const Trk::PseudoMeasurementOnTrack *pmFromSi = createPMfromSi( perTrk ) ;
   if( !pmFromSi ) {
-    msg(MSG::ERROR) << "TRTMomConstr() : PseudoMeasurementOnTrack creation failed! " << endreq ;
+    msg(MSG::ERROR) << "TRTMomConstr() : PseudoMeasurementOnTrack creation failed! " << endmsg ;
     return NULL ;
   }
   ATH_MSG_DEBUG( "TRTMomConstr() : pmFromSi " << *pmFromSi) ;
@@ -498,7 +498,7 @@ Trk::Track* AddTRTMomConstr::addTRTMomentumConstraint(const Trk::Track* track) {
   // define new PM with the momentum constraint from the TRT to pass to Si
   const Trk::PseudoMeasurementOnTrack *pmFromTRT = createPMfromTRT( perTrk, perTRT ) ;
   if( !pmFromTRT ) {
-    msg(MSG::ERROR) << "TRTMomConstr() : PseudoMeasurementOnTrack creation failed! " << endreq ;
+    msg(MSG::ERROR) << "TRTMomConstr() : PseudoMeasurementOnTrack creation failed! " << endmsg ;
     return NULL ;
   }
   ATH_MSG_DEBUG("TRTMomConstr() : pmFromTRT " << *pmFromTRT ) ;

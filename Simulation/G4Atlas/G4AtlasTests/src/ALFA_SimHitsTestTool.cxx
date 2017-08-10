@@ -22,9 +22,9 @@ ALFA_SimHitsTestTool::ALFA_SimHitsTestTool(const std::string& type, const std::s
 { 
   for (int i(0); i<8; ++i) 
     {
-      E_full_sum_h[i]=0;
-      E_layer_sum_h[i]=0;
-      hit_map_h[i]=0;
+      m_E_full_sum_h[i]=0;
+      m_E_layer_sum_h[i]=0;
+      m_hit_map_h[i]=0;
     }
 
 }
@@ -40,14 +40,14 @@ StatusCode ALFA_SimHitsTestTool::initialize()
 	  s.str("");
 	  s << j+1;
 	
-	  _TH1D(E_full_sum_h[j],("edep_full_in_det_no."+s.str()).c_str(), 100, 0., 5.);
-	  _SET_TITLE(E_full_sum_h[j], "Energy deposit in full detector","E (MeV)","N");
+	  _TH1D(m_E_full_sum_h[j],("edep_full_in_det_no."+s.str()).c_str(), 100, 0., 5.);
+	  _SET_TITLE(m_E_full_sum_h[j], "Energy deposit in full detector","E (MeV)","N");
 	  
-	  _TH2D(E_layer_sum_h[j],("edep_per_layer_detector_no."+s.str()).c_str(), 100, 0., 0.5, 22, 0., 21.);
-	  _SET_TITLE(E_layer_sum_h[j], "Energy deposit in layers","E (MeV)","layer");
+	  _TH2D(m_E_layer_sum_h[j],("edep_per_layer_detector_no."+s.str()).c_str(), 100, 0., 0.5, 22, 0., 21.);
+	  _SET_TITLE(m_E_layer_sum_h[j], "Energy deposit in layers","E (MeV)","layer");
 	  
-	  _TH2D(hit_map_h[j],("hitmap_det_no."+s.str()).c_str(), 22, 0., 21., 66, 0., 65.);
-	  _SET_TITLE(hit_map_h[j], "hit map - layer vs fiber","layer","fiber");
+	  _TH2D(m_hit_map_h[j],("hitmap_det_no."+s.str()).c_str(), 22, 0., 21., 66, 0., 65.);
+	  _SET_TITLE(m_hit_map_h[j], "hit map - layer vs fiber","layer","fiber");
 	  
   }
 
@@ -109,7 +109,7 @@ StatusCode ALFA_SimHitsTestTool::processEvent() {
 					E_full_sum[l] += E_fiber_sum[l][i][j][k];
 					E_layer_sum[l][2*i+k] += E_fiber_sum[l][i][j][k];
 					
-					if (E_fiber_sum[l][i][j][k] > 0.) hit_map_h[l]->Fill(2*i+k+1,j+1);
+					if (E_fiber_sum[l][i][j][k] > 0.) m_hit_map_h[l]->Fill(2*i+k+1,j+1);
 	
 				}
 			}
@@ -118,11 +118,11 @@ StatusCode ALFA_SimHitsTestTool::processEvent() {
 		
 	for ( int l = 0; l < 8; l++ )
 	{
-		E_full_sum_h[l]->Fill(E_full_sum[l]);
+		m_E_full_sum_h[l]->Fill(E_full_sum[l]);
 		
 		for ( int i = 0; i < 20; i++ )
 		{
-			E_layer_sum_h[l]->Fill(E_layer_sum[l][i],i+1);	
+			m_E_layer_sum_h[l]->Fill(E_layer_sum[l][i],i+1);	
 		} 
 	}
 

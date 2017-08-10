@@ -54,13 +54,22 @@ long AthenaPoolConverter::repSvcType() const {
 }
 //__________________________________________________________________________
 StatusCode AthenaPoolConverter::createObj(IOpaqueAddress* pAddr, DataObject*& pObj) {
-   //std::lock_guard<CallMutex> lock(m_conv_mut);
+   std::lock_guard<CallMutex> lock(m_conv_mut);
    TokenAddress* tokAddr = dynamic_cast<TokenAddress*>(pAddr);
    if (tokAddr == nullptr || tokAddr->getToken() == nullptr) {
       if (m_i_poolToken == nullptr) m_i_poolToken = new Token;
       const_cast<Token*>(m_i_poolToken)->fromString(*(pAddr->par()));
    } else {
       m_i_poolToken = tokAddr->getToken();
+   }
+   if (m_i_poolToken != nullptr) {
+      char text[32];
+      if (*(pAddr->ipar()) != IPoolSvc::kInputStream) {
+// Use ipar field of GenericAddress to create custom input context/persSvc in PoolSvc::setObjPtr() (e.g. for conditions)
+         ::sprintf(text, "[CTXT=%08X]", static_cast<int>(*(pAddr->ipar())));
+// Or use context label, e.g.: ::sprintf(text, "[CLABEL=%08X]", pAddr->clID()); to create persSvc
+         const_cast<Token*>(m_i_poolToken)->setAuxString(text);
+      }
    }
    try {
       if (!PoolToDataObject(pObj, m_i_poolToken).isSuccess()) {
@@ -86,7 +95,7 @@ StatusCode AthenaPoolConverter::createObj(IOpaqueAddress* pAddr, DataObject*& pO
 }
 //__________________________________________________________________________
 StatusCode AthenaPoolConverter::createRep(DataObject* pObj, IOpaqueAddress*& pAddr) {
-   //std::lock_guard<CallMutex> lock(m_conv_mut);
+   std::lock_guard<CallMutex> lock(m_conv_mut);
    // Create a Pool object for DataObject
    m_o_poolToken = nullptr;
    try {
@@ -120,9 +129,11 @@ long AthenaPoolConverter::storageType() {
    return(POOL_StorageType);
 }
 //__________________________________________________________________________
-AthenaPoolConverter::AthenaPoolConverter(const CLID& myCLID, ISvcLocator* pSvcLocator) :
+AthenaPoolConverter::AthenaPoolConverter(const CLID& myCLID, ISvcLocator* pSvcLocator,
+                                         const char* name /*= nullptr*/) :
 		::Converter(POOL_StorageType, myCLID, pSvcLocator),
-		::AthMessaging((pSvcLocator != nullptr ? msgSvc() : nullptr), "AthenaPoolConverter"),
+		::AthMessaging((pSvcLocator != nullptr ? msgSvc() : nullptr),
+                               name ? name : "AthenaPoolConverter"),
 	m_athenaPoolCnvSvc("AthenaPoolCnvSvc", "AthenaPoolConverter"),
 	m_placement(nullptr),
 	m_placementHints(),

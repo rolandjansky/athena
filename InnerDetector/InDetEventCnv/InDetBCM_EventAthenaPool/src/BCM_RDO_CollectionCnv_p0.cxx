@@ -8,7 +8,7 @@
 
 void BCM_RDO_CollectionCnv_p0::persToTrans(const BCM_RDO_Collection_p0* persColl, BCM_RDO_Collection* transColl, MsgStream &log) {
 
-  if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << "In BCM_RDO_CollectionCnv_p0::persToTrans" << endreq;
+  if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << "In BCM_RDO_CollectionCnv_p0::persToTrans" << endmsg;
 
   BCM_RDO_CollectionCnv_p0_basetype::persToTrans(persColl, transColl, log);
   transColl->setChannel (persColl->m_chanId);
@@ -16,7 +16,7 @@ void BCM_RDO_CollectionCnv_p0::persToTrans(const BCM_RDO_Collection_p0* persColl
 
 void BCM_RDO_CollectionCnv_p0::transToPers(const BCM_RDO_Collection* transColl, BCM_RDO_Collection_p0* persColl, MsgStream &log) { 
 
-  if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << "In BCM_RDO_CollectionCnv_p0::transToPers" << endreq;
+  if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << "In BCM_RDO_CollectionCnv_p0::transToPers" << endmsg;
 
   BCM_RDO_CollectionCnv_p0_basetype::transToPers(transColl, persColl, log);
   persColl->m_chanId = transColl->getChannel();

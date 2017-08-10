@@ -118,6 +118,7 @@ class TileTBAANtuple: public AthAlgorithm {
     void TRIGGER_addBranch(void);
     void MUON_addBranch(void);
     void ECAL_addBranch(void);
+    void QDC_addBranch(void);
     void LASER_addBranch(void);
     void ADDER_addBranch(void);
     void CISPAR_addBranch(void);
@@ -131,6 +132,7 @@ class TileTBAANtuple: public AthAlgorithm {
     void TRIGGER_clearBranch(void);
     void MUON_clearBranch(void);
     void ECAL_clearBranch(void);
+    void QDC_clearBranch(void);
     void LASER_clearBranch(void);
     void ADDER_clearBranch(void);
     void CISPAR_clearBranch(void);
@@ -208,6 +210,9 @@ class TileTBAANtuple: public AthAlgorithm {
 
     // Ecal
     float* m_ecal;
+
+    // QDC
+    uint32_t* m_qdc;
 
     // laser items
     int m_las_BCID;
@@ -463,6 +468,7 @@ class TileTBAANtuple: public AthAlgorithm {
     bool m_completeNtuple;
     bool m_commitNtuple;
     bool m_bsInput;
+    bool m_pmtOrder;  //!< change channel ordering to pmt ordering in ntuple
     int m_finalUnit;  //!< calibrate everything to this level
     int m_TBperiod;
 

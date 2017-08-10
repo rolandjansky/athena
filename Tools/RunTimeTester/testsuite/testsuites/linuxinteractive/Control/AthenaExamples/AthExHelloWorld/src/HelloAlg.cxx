@@ -61,8 +61,8 @@ StatusCode HelloAlg::initialize() {
 
   // Part 2: Print out the property values
   ATH_MSG_INFO
-    (   "  MyInt =    " << m_myInt << endreq
-     << "  MyBool =   " << (int)m_myBool << endreq
+    (   "  MyInt =    " << m_myInt << endmsg
+     << "  MyBool =   " << (int)m_myBool << endmsg
      << "  MyDouble = " << m_myDouble);
 
   for (unsigned int i=0; i<m_myStringVec.size(); i++) {
@@ -85,13 +85,13 @@ StatusCode HelloAlg::initialize() {
     msg(MSG::INFO) << "  MyMatrix[" << i << "] = [ ";
     std::copy( m_myMatrix[i].begin(), m_myMatrix[i].end(), 
 	       std::ostream_iterator<double>(msg().stream(), " ") );
-    msg() << "]" << endreq;
+    msg() << "]" << endmsg;
   }
 
   ATH_MSG_INFO 
     ("  " << m_myPrivateHelloTool.propertyName() 
      << " = " << m_myPrivateHelloTool.type() 
-     << endreq
+     << endmsg
      << "  " << m_myPublicHelloTool.propertyName() 
      << " = " << m_myPublicHelloTool.type());
 

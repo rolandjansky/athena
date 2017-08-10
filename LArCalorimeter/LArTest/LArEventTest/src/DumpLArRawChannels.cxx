@@ -81,7 +81,7 @@ StatusCode DumpLArRawChannels::execute()
  LArRawChannelVector channelVector;
  LArRawChannelContainer::const_iterator it_chan_coll = channel_cont->begin(); 
  LArRawChannelContainer::const_iterator it_chan_coll_end = channel_cont->end(); 
- //log <<MSG::DEBUG<<" number of LArRawChannel collections "<< channel_cont->size() <<endreq;
+ //log <<MSG::DEBUG<<" number of LArRawChannel collections "<< channel_cont->size() <<endmsg;
  for( ; it_chan_coll!=it_chan_coll_end;++it_chan_coll) {
    m_chan++;
    channelVector.push_back(&(*it_chan_coll));

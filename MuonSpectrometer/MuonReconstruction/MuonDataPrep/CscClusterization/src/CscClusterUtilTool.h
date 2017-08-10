@@ -67,7 +67,7 @@ private:  // data
   // Strip fitter.
   ToolHandle<ICscStripFitter>   m_stripFitter;
   ToolHandle<ICscClusterFitter> m_precClusterFitter;
-  std::string m_cscStripLocation;
+  SG::ReadHandleKey<Muon::CscStripPrepDataContainer> m_cscStripLocation;
   
 
 

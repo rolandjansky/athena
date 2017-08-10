@@ -9,7 +9,8 @@ atlas_subdir( InDetEventTPCnv )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs(
    PUBLIC
-   Control/DataModel
+   Control/AthAllocators
+   Control/AthLinks
    Control/DataModelAthenaPool
    Control/StoreGate
    Database/AthenaPOOL/AthenaPoolCnvSvc
@@ -46,7 +47,7 @@ atlas_add_tpcnv_library( InDetEventTPCnv
    src/InDetCompetingRIOsOnTrack/*.cxx
    InDetEventTPCnv/InDetLowBetaInfo/*.h src/InDetLowBetaInfo/*.cxx
    PUBLIC_HEADERS InDetEventTPCnv
-   LINK_LIBRARIES DataModel DataModelAthenaPoolLib StoreGateLib
+   LINK_LIBRARIES AthAllocators AthLinks DataModelAthenaPoolLib StoreGateLib
    AthenaPoolCnvSvcLib AthenaPoolUtilities Identifier GaudiKernel
    InDetIdentifier InDetCompetingRIOsOnTrack InDetLowBetaInfo
    InDetPrepRawData InDetRIO_OnTrack TrkEventTPCnv

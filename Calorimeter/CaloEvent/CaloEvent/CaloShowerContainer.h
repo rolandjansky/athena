@@ -7,7 +7,7 @@
 
 #include "CLIDSvc/CLASS_DEF.h"
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 #include "CaloEvent/CaloShower.h"
 

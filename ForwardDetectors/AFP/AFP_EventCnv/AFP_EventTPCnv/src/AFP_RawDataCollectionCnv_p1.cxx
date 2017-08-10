@@ -11,7 +11,7 @@
 
 void AFP_RawDataCollectionCnv_p1::transToPers(const AFP_RawDataCollection* transColl, AFP_RawDataCollection_p1* persColl, MsgStream& log) {
  
-  if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << "In AFP_RawDataCollectionCnv_p1::transToPers" << endreq;
+  if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << "In AFP_RawDataCollectionCnv_p1::transToPers" << endmsg;
 
   // Invoke vector converter from the base template
   AFP_RawDataCollection_Cnvp1_base_t::transToPers( transColl, persColl, log );
@@ -29,7 +29,7 @@ void AFP_RawDataCollectionCnv_p1::transToPers(const AFP_RawDataCollection* trans
 
 void AFP_RawDataCollectionCnv_p1::persToTrans(const AFP_RawDataCollection_p1* persColl, AFP_RawDataCollection* transColl, MsgStream& log) {
 
-  if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << "In  AFP_RawDataCollectionCnv_p1::persToTrans" << endreq;
+  if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << "In  AFP_RawDataCollectionCnv_p1::persToTrans" << endmsg;
 
 
   // Invoke vector converter from the base template

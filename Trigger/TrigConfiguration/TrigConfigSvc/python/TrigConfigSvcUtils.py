@@ -664,6 +664,53 @@ def getStreams(connection, smk):
 
     return streams
 
+def getL1Items(connection, smk):     
+
+    cursor,schemaname = getTriggerDBCursor(connection)
+
+    output = ['TI.L1TI_NAME', 'TI.L1TI_CTP_ID' ]         
+    tables = { 'SM'  : 'SUPER_MASTER_TABLE',                
+               'M'   : 'L1_MASTER_TABLE',                
+               'M2I' : 'L1_TM_TO_TI',                
+               'TI'  : 'L1_TRIGGER_ITEM'                
+               }     
+    condition = [ "SM.SMT_ID = :smk",                   
+                  'SM.SMT_L1_MASTER_TABLE_ID = M.L1MT_ID',                   
+                  'M.L1MT_TRIGGER_MENU_ID = M2I.L1TM2TI_TRIGGER_MENU_ID',                   
+                  'M2I.L1TM2TI_TRIGGER_ITEM_ID = TI.L1TI_ID' ]     
+    bindvars = { "smk": smk }     
+
+    res = executeQuery( cursor, output, condition, schemaname, tables, bindvars)     
+    
+    items = {}
+    for r in res:
+        items[r[0]] = r[1]
+    return items 
+
+def getBunchGroupContent(connection, bgsk):     
+
+    cursor,schemaname = getTriggerDBCursor(connection)
+
+    output = [ "BGS.L1BGS2BG_INTERNAL_NUMBER","BG.L1BG2B_BUNCH_NUMBER" ]
+
+    tables = { 'BGS' : 'L1_BGS_TO_BG',
+               'BG' : 'L1_BG_TO_B'}
+
+    condition = [ "BGS.L1BGS2BG_BUNCH_GROUP_SET_ID = :bgsk",
+                 "BGS.L1BGS2BG_BUNCH_GROUP_ID=BG.L1BG2B_BUNCH_GROUP_ID" ]
+
+
+    bindvars = { "bgsk": bgsk }
+
+    res = executeQuery(cursor, output, condition, schemaname, tables, bindvars) 
+
+    bg = dict( enumerate( [[] for x in xrange(16)] ) )
+
+    for e in res:
+        bg[e[0]] += [e[1]]
+
+    return bg
+
 
 def getL1Prescales(connection, l1prescalekey): 
     

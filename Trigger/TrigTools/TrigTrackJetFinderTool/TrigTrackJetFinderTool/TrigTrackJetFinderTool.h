@@ -142,8 +142,8 @@ class TrigTrackJetFinderTool: public AthAlgTool, virtual public ITrigTrackJetFin
   virtual StatusCode initialize();
   virtual StatusCode finalize();
 
-  void setDefTrackSel(bool doTrackSel) { defTrackSel=doTrackSel; }
-  void setExtTrackSel(bool doTrackSel) { extTrackSel=doTrackSel; }
+  void setDefTrackSel(bool doTrackSel) { m_defTrackSel=doTrackSel; }
+  void setExtTrackSel(bool doTrackSel) { m_extTrackSel=doTrackSel; }
 
   void inputPrimaryVertexZ(const float& zPV);
   void addTrack(const TrigInDetTrack*&, unsigned int);
@@ -156,14 +156,11 @@ class TrigTrackJetFinderTool: public AthAlgTool, virtual public ITrigTrackJetFin
   
  private:
 
-  int outputLevel;
-
-  bool defTrackSel;
-  bool extTrackSel;
+  bool m_defTrackSel;
+  bool m_extTrackSel;
 
   float m_trkSelChi2;
   int   m_trkSelBLayer;
-  int   m_trkSelPixHits;
   int   m_trkSelSiHits;
   float m_trkSelPt;
 

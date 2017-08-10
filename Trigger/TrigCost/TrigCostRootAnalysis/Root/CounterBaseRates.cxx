@@ -29,12 +29,12 @@
 
 
 namespace TrigCostRootAnalysis {
-
   /**
    * Chain rates counter constructor. Pass data to base constructor. Also sets up the datastore for all Rates counters
    * @see CounterBase(const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel);
    */
-  CounterBaseRates::CounterBaseRates( const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel, MonitorBase* _parent ) :
+  CounterBaseRates::CounterBaseRates(const TrigCostData* _costData, const std::string& _name, Int_t _ID,
+                                     UInt_t _detailLevel, MonitorBase* _parent) :
     CounterBase(_costData, _name, _ID, _detailLevel, _parent),
     m_L2s(),
     m_L1s(),
@@ -46,47 +46,44 @@ namespace TrigCostRootAnalysis {
     m_doDirectPS(0),
     m_cachedWeight(0),
     m_alwaysDoExpressPS(kFALSE),
-    m_eventLumiExtrapolation(0.)
-  {
+    m_eventLumiExtrapolation(0.) {
+    if (m_detailLevel == 0) {
+      m_dataStore.setHistogramming(kFALSE);
+      m_disableEventLumiExtrapolation = kFALSE;
+    } else { // this is UPGRADE RATES MODE
+      m_dataStore.newVariable(kVarJetEta).setSavePerCall("Jet ROI #eta Distribution;#eta;ROIs");
+      m_dataStore.newVariable(kVarMuEta).setSavePerCall("Muon ROI #eta Distribution;#eta;ROIs");
+      m_dataStore.newVariable(kVarEmEta).setSavePerCall("Electron ROI #eta Distribution;#eta;ROIs");
+      m_dataStore.newVariable(kVarTauEta).setSavePerCall("Tau ROI #eta Distribution;#eta;ROIs");
 
-      if (m_detailLevel == 0) {
-        m_dataStore.setHistogramming(kFALSE);
-        m_disableEventLumiExtrapolation = kFALSE;
-      } else { // this is UPGRADE RATES MODE
-        m_dataStore.newVariable(kVarJetEta).setSavePerCall("Jet ROI #eta Distribution;#eta;ROIs");
-        m_dataStore.newVariable(kVarMuEta).setSavePerCall("Muon ROI #eta Distribution;#eta;ROIs");
-        m_dataStore.newVariable(kVarEmEta).setSavePerCall("Electron ROI #eta Distribution;#eta;ROIs");
-        m_dataStore.newVariable(kVarTauEta).setSavePerCall("Tau ROI #eta Distribution;#eta;ROIs");
+      m_dataStore.newVariable(kVarJetNThresh).setSavePerEvent("Jet ROI N Pass Threshold;N RoIs;Events");
+      m_dataStore.newVariable(kVarMuNThresh).setSavePerEvent("Muon ROI N Pass Threshold;N RoIs;Events");
+      m_dataStore.newVariable(kVarEmNThresh).setSavePerEvent("Electron ROI N Pass Threshold;N RoIs;Events");
+      m_dataStore.newVariable(kVarTauNThresh).setSavePerEvent("Tau ROI N Pass Threshold;N RoIs;Events");
 
-        m_dataStore.newVariable(kVarJetNThresh).setSavePerEvent("Jet ROI N Pass Threshold;N RoIs;Events");
-        m_dataStore.newVariable(kVarMuNThresh).setSavePerEvent("Muon ROI N Pass Threshold;N RoIs;Events");
-        m_dataStore.newVariable(kVarEmNThresh).setSavePerEvent("Electron ROI N Pass Threshold;N RoIs;Events");
-        m_dataStore.newVariable(kVarTauNThresh).setSavePerEvent("Tau ROI N Pass Threshold;N RoIs;Events");
-
-        m_dataStore.newVariable(kVarMu).setSavePerEvent("Obtained <mu> Profile;<mu>;Events");
-        m_dataStore.newVariable(kVarBunchWeight).setSavePerEvent("Number of Bunch Extrapolation;Bunch Weight;Events");
+      m_dataStore.newVariable(kVarMu).setSavePerEvent("Obtained <mu> Profile;<mu>;Events");
+      m_dataStore.newVariable(kVarBunchWeight).setSavePerEvent("Number of Bunch Extrapolation;Bunch Weight;Events");
 
 
-        m_disableEventLumiExtrapolation = kTRUE;
-      }
+      m_disableEventLumiExtrapolation = kTRUE;
+    }
 
-      m_doSacleByPS = Config::config().getInt(kRatesScaleByPS);
-      m_doDirectPS = Config::config().getInt(kDirectlyApplyPrescales);
-      decorate(kDecDoExpressChain, 0); // this will be overwritten as needed
+    m_doSacleByPS = Config::config().getInt(kRatesScaleByPS);
+    m_doDirectPS = Config::config().getInt(kDirectlyApplyPrescales);
+    decorate(kDecDoExpressChain, 0); // this will be overwritten as needed
 
-      if (m_doDirectPS == kTRUE) m_dataStore.newVariable(kVarEventsPassedDP).setSavePerCall();
-      m_dataStore.newVariable(kVarEventsPassedExpress).setSavePerCall();
-      m_dataStore.newVariable(kVarUnbiasedPassed).setSavePerCall();
-      m_dataStore.newVariable(kVarUnbiasedRun).setSavePerCall();
-      m_dataStore.newVariable(kVarEventsPassed).setSavePerCall();
-      m_dataStore.newVariable(kVarEventsPassedNoPS).setSavePerCall();
-      m_dataStore.newVariable(kVarEventsRun).setSavePerCall();
-      m_dataStore.newVariable(kVarEventsPassRawStat).setSavePerCall();
-      m_dataStore.newVariable(kVarEventsRunRawStat).setSavePerCall();
+    if (m_doDirectPS == kTRUE) m_dataStore.newVariable(kVarEventsPassedDP).setSavePerCall();
+    m_dataStore.newVariable(kVarEventsPassedExpress).setSavePerCall();
+    m_dataStore.newVariable(kVarUnbiasedPassed).setSavePerCall();
+    m_dataStore.newVariable(kVarUnbiasedRun).setSavePerCall();
+    m_dataStore.newVariable(kVarEventsPassed).setSavePerCall();
+    m_dataStore.newVariable(kVarEventsPassedNoPS).setSavePerCall();
+    m_dataStore.newVariable(kVarEventsRun).setSavePerCall();
+    m_dataStore.newVariable(kVarEventsPassRawStat).setSavePerCall();
+    m_dataStore.newVariable(kVarEventsRunRawStat).setSavePerCall();
 
-      if (_name == Config::config().getStr(kRateExpressString)) m_alwaysDoExpressPS = kTRUE;
-      //m_dataStore.newVariable(kVarEventsPerLumiblock).setSavePerCall("Rate Per Lumi Block;Lumi Block;Rate [Hz]");
-
+    if (_name == Config::config().getStr(kRateExpressString)) m_alwaysDoExpressPS = kTRUE;
+    //m_dataStore.newVariable(kVarEventsPerLumiblock).setSavePerCall("Rate Per Lumi Block;Lumi Block;Rate [Hz]");
   }
 
   /**
@@ -99,7 +96,7 @@ namespace TrigCostRootAnalysis {
    * Start of event processing. Unused with Rates counters
    */
   void CounterBaseRates::startEvent() {
-    Error("CounterBaseRates::startEvent","Not expected to call this for a rates counter");
+    Error("CounterBaseRates::startEvent", "Not expected to call this for a rates counter");
   }
 
   /**
@@ -114,12 +111,15 @@ namespace TrigCostRootAnalysis {
     ++m_calls;
 
     if (getInEvent() == kFALSE) return;
-    // Reminder - _weight here is the enhanced bias event weight. May be already multiplied up by the basic weight (if not the default value of 1)
 
-    // Optional - when not doin EB weighting. We can scale up individual chains by their L1 PS to get the effective PS=1 rates.
+    // Reminder - _weight here is the enhanced bias event weight. May be already multiplied up by the basic weight (if
+    // not the default value of 1)
+
+    // Optional - when not doin EB weighting. We can scale up individual chains by their L1 PS to get the effective PS=1
+    // rates.
     // Does not work on combinations!
     Float_t _scaleByPS = 1.;
-    if ( m_doSacleByPS && (getStrDecoration(kDecType) == "Chain" || getStrDecoration(kDecType) == "L1")) {
+    if (m_doSacleByPS && (getStrDecoration(kDecType) == "Chain" || getStrDecoration(kDecType) == "L1")) {
       _scaleByPS = getDecoration(kDecPrescaleValOnlineL1);
     }
 
@@ -128,29 +128,43 @@ namespace TrigCostRootAnalysis {
     //m_eventLumiExtrapolation is calculated by runWeight()
     if (m_disableEventLumiExtrapolation) m_eventLumiExtrapolation = 1;
 
-    if (!isZero( _weightPS )) {
-      m_dataStore.store(kVarEventsPassed, 1., _weightPS * _weight * m_eventLumiExtrapolation * _scaleByPS); // Chain passes with weight from PS as a float 0-1. All other weights inc.
-      //m_dataStore.store(kVarEventsPerLumiblock, m_costData->getLumi(), (_weightPS * _weight * _scaleByPS)/((Float_t)m_costData->getLumiLength()) );
-      if (m_detailLevel > 0 && m_L1s.size() == 1) (**m_L1s.begin()).fillHistograms(m_dataStore, _weightPS * _weight * m_eventLumiExtrapolation * _scaleByPS, static_cast<MonitorRatesUpgrade*>(m_parent)->getCollidingBunchFactor());
+    if (!isZero(_weightPS)) {
+      m_dataStore.store(kVarEventsPassed, 1., _weightPS * _weight * m_eventLumiExtrapolation * _scaleByPS);
+      // Chain passes with weight from PS as a float 0-1. All other weights  inc. 
+      // m_dataStore.store(kVarEventsPerLumiblock, m_costData->getLumi(), (_weightPS * _weight *
+      // _scaleByPS)/((Float_t)m_costData->getLumiLength()) );
+      if (m_detailLevel > 0 && m_L1s.size() == 1) (**m_L1s.begin()).fillHistograms(m_dataStore,
+                                                                                   _weightPS * _weight * m_eventLumiExtrapolation * _scaleByPS,
+                                                                                   static_cast<MonitorRatesUpgrade*>(
+                                                                                     m_parent)->getCollidingBunchFactor());
+
     }
 
     // DIRECT Prescale
     if (m_doDirectPS == kTRUE) {
       Float_t _weightDirect = runDirect();
-      if (!isZero( _weightDirect )) m_dataStore.store(kVarEventsPassedDP, 1., _weightDirect * _weight * m_eventLumiExtrapolation * _scaleByPS); // Chain passes with weight from PS either 0 or 1. All other weights inc.
+      if (!isZero(_weightDirect)) m_dataStore.store(kVarEventsPassedDP, 1.,
+                                                    _weightDirect * _weight * m_eventLumiExtrapolation * _scaleByPS);                                                                                                                                                   // Chain
+      // passes with weight from PS either 0 or 1. All other weights inc.
     }
 
     if (getIntDecoration(kDecDoExpressChain) == 1) {
       Double_t _weightPSExpress = runWeight(/*doExpress =*/ kTRUE);
-      if (!isZero( _weightPSExpress )) m_dataStore.store(kVarEventsPassedExpress, 1., _weightPSExpress * _weight * m_eventLumiExtrapolation * _scaleByPS); 
+      if (!isZero(_weightPSExpress)) m_dataStore.store(kVarEventsPassedExpress, 1.,
+                                                       _weightPSExpress * _weight * m_eventLumiExtrapolation *
+        _scaleByPS);
     }
 
     Float_t _passBeforePS = runDirect(/*usePrescales =*/ kFALSE);
-    m_dataStore.store(kVarEventsPassedNoPS, 1., _passBeforePS * _weight * m_eventLumiExtrapolation * _scaleByPS); // Times chain passes, irrespective of any PS. All other weights inc.
-    m_dataStore.store(kVarEventsRun, 1., _weight * m_eventLumiExtrapolation * _scaleByPS); // Times chain is processed, regardless of decision. All other weights inc.
-    m_dataStore.store(kVarEventsPassRawStat, 1., _passBeforePS); // Times chain passes, zero other weights (underlying statistics of input file)
-    m_dataStore.store(kVarEventsRunRawStat, 1.); // Times chain is processed, regardless of decision, zero other weights (underlying statistics of input file).
-
+    m_dataStore.store(kVarEventsPassedNoPS, 1., _passBeforePS * _weight * m_eventLumiExtrapolation * _scaleByPS);
+    // Times chain passes, irrespective of any PS/ All other wieghts inc.
+    m_dataStore.store(kVarEventsRun, 1., _weight * m_eventLumiExtrapolation * _scaleByPS); // Times chain is processed,
+                                                                                           // regardless of decision.
+                                                                                           // All other weights inc.
+    m_dataStore.store(kVarEventsPassRawStat, 1., _passBeforePS); // Times chain passes, zero other weights (underlying
+                                                                 // statistics of input file)
+    m_dataStore.store(kVarEventsRunRawStat, 1.); // Times chain is processed, regardless of decision, zero other weights
+                                                 // (underlying statistics of input file).
   }
 
   /**
@@ -159,7 +173,8 @@ namespace TrigCostRootAnalysis {
    */
   Double_t CounterBaseRates::getPrescaleFactor(UInt_t _e) {
     UNUSED(_e);
-    Error("CounterBaseRates::getPrescaleFactor","This function is not defined for a Rates Counter, see the Rates base class.");
+    Error("CounterBaseRates::getPrescaleFactor",
+          "This function is not defined for a Rates Counter, see the Rates base class.");
     return 0.;
   }
 
@@ -168,7 +183,7 @@ namespace TrigCostRootAnalysis {
    */
   void CounterBaseRates::endEvent(Float_t _weight) {
     UNUSED(_weight);
-    if (m_detailLevel == 0) Error("CounterBaseRates::endEvent","Not expected to call this for a rates counter with detail level = 0 (no histograms)");
+    if (m_detailLevel == 0) Error("CounterBaseRates::endEvent", "Not expected to call this for a rates counter with detail level = 0 (no histograms)");
     m_dataStore.endEvent();
   }
 
@@ -212,12 +227,12 @@ namespace TrigCostRootAnalysis {
   UInt_t CounterBaseRates::getBasicPrescale() {
     if (getStrDecoration(kDecType) == "L1") {
       if (m_L1s.size() != 1) {
-        Warning("CounterBaseRates::getBasicPrescale", "Expected only 1x L1 chain but found %i.", (Int_t)m_L1s.size());
+        Warning("CounterBaseRates::getBasicPrescale", "Expected only 1x L1 chain but found %i.", (Int_t) m_L1s.size());
       }
       return (**m_L1s.begin()).getPS();
     } else if (getStrDecoration(kDecType) == "Chain" || getStrDecoration(kDecType) == "L2") {
       if (m_L2s.size() != 1) {
-        Warning("CounterBaseRates::getBasicPrescale", "Expected only 1x L2 chain but found %i.", (Int_t)m_L2s.size());
+        Warning("CounterBaseRates::getBasicPrescale", "Expected only 1x L2 chain but found %i.", (Int_t) m_L2s.size());
       }
       return (**m_L2s.begin()).getPS();
     } else {
@@ -229,20 +244,20 @@ namespace TrigCostRootAnalysis {
   /**
    * @param _toAdd Add a L1 TriggerItem which is to be used by this rates counter.
    */
-  void CounterBaseRates::addL1Item( RatesChainItem* _toAdd ) {
+  void CounterBaseRates::addL1Item(RatesChainItem* _toAdd) {
     assert(_toAdd != nullptr);
-    m_L1s.insert( _toAdd );
+    m_L1s.insert(_toAdd);
     // Add back-link
-    _toAdd->addCounter( this );
+    _toAdd->addCounter(this);
   }
 
   /**
    * @param _toAdd Add a grouping of items in a CPS.
    * @param _name The name of the chain in this CPS group which is to be active in this counter
    */
-  void CounterBaseRates::addCPSItem( RatesCPSGroup* _toAdd, std::string _name) {
-    if ( _toAdd != nullptr) m_cpsGroups.insert( _toAdd );
-    m_myCPSChains.insert( _name );
+  void CounterBaseRates::addCPSItem(RatesCPSGroup* _toAdd, std::string _name) {
+    if (_toAdd != nullptr) m_cpsGroups.insert(_toAdd);
+    m_myCPSChains.insert(_name);
   }
 
   /**
@@ -260,7 +275,7 @@ namespace TrigCostRootAnalysis {
    */
   Bool_t CounterBaseRates::checkMultiSeed(RatesChainItem* _toAdd) {
     // Perform Union check on number of L1 seeds
-    if ( dynamic_cast<CounterRatesUnion*>(this) != NULL) { //If I am actually a CounterRatesUnion
+    if (dynamic_cast<CounterRatesUnion*>(this) != NULL) { //If I am actually a CounterRatesUnion
       if (_toAdd->getLower().size() > (UInt_t) Config::config().getInt(kMaxMultiSeed)) {
         // We are much stricter if this is a GLOBAL counter - don't want to have to disable it
         Bool_t _isGlobal = kFALSE;
@@ -274,8 +289,8 @@ namespace TrigCostRootAnalysis {
           static std::set<std::string> _toWarnAbout;
           if (_toWarnAbout.count(_toAdd->getName()) == 0) {
             _toWarnAbout.insert(_toAdd->getName());
-            Warning("CounterBaseRates::checkMultiSeed","Not including %s in RATE_GLOBAL/EXSPRESS/UNIQUE calculations due to %u L1 seeds.",
-              _toAdd->getName().c_str(), (UInt_t) _toAdd->getLower().size());
+            Warning("CounterBaseRates::checkMultiSeed", "Not including %s in RATE_GLOBAL/EXSPRESS/UNIQUE calculations due to %u L1 seeds.",
+                    _toAdd->getName().c_str(), (UInt_t) _toAdd->getLower().size());
           }
           return kFALSE;
         }
@@ -287,31 +302,31 @@ namespace TrigCostRootAnalysis {
   /**
    * @param _toAdd Add a HLT TriggerItem which is to be used by this rates counter.
    */
-  void CounterBaseRates::addL2Item( RatesChainItem* _toAdd ) {
+  void CounterBaseRates::addL2Item(RatesChainItem* _toAdd) {
     assert(_toAdd != nullptr);
     if (checkMultiSeed(_toAdd) == kFALSE) return;
-    m_L2s.insert( _toAdd );
-    _toAdd->addCounter( this ); // Add back-link
+
+    m_L2s.insert(_toAdd);
+    _toAdd->addCounter(this); // Add back-link
     for (ChainItemSetIt_t _lower = _toAdd->getLowerStart(); _lower != _toAdd->getLowerEnd(); ++_lower) {
       assert((*_lower) != nullptr);
-      m_L1s.insert( (*_lower) );
+      m_L1s.insert((*_lower));
       //TODO do i need to add this counter to the L1s here? Don't think so
     }
   }
 
-
   /**
    * @param _toAdd Add multiple HLT TriggerItems which should be used by this rates counter
    */
-  void CounterBaseRates::addL2Items( ChainItemSet_t _toAdd ) {
+  void CounterBaseRates::addL2Items(ChainItemSet_t _toAdd) {
     for (ChainItemSetIt_t _it = _toAdd.begin(); _it != _toAdd.end(); ++_it) {
       RatesChainItem* _L2 = (*_it);
       // Perform Union check on number of L1 seeds
       if (checkMultiSeed(_L2) == kFALSE) continue;
-      m_L2s.insert( _L2 );
-      _L2->addCounter( this ); // Add back-link
+      m_L2s.insert(_L2);
+      _L2->addCounter(this); // Add back-link
       for (ChainItemSetIt_t _lower = _L2->getLowerStart(); _lower != _L2->getLowerEnd(); ++_lower) {
-        m_L1s.insert( (*_lower) );
+        m_L1s.insert((*_lower));
       }
     }
   }
@@ -319,13 +334,13 @@ namespace TrigCostRootAnalysis {
   /**
    * @param _toAdd Add a L3 item, for upgrade this will be the new HLT
    */
-  void CounterBaseRates::addL3Item( RatesChainItem* _toAdd ) {
-    m_L3s.insert( _toAdd );
-    _toAdd->addCounter( this ); // Add back-link
+  void CounterBaseRates::addL3Item(RatesChainItem* _toAdd) {
+    m_L3s.insert(_toAdd);
+    _toAdd->addCounter(this); // Add back-link
     for (ChainItemSetIt_t _lower = _toAdd->getLowerStart(); _lower != _toAdd->getLowerEnd(); ++_lower) {
-      m_L2s.insert( (*_lower) );
+      m_L2s.insert((*_lower));
       for (ChainItemSetIt_t _lowerLower = (*_lower)->getLowerStart(); _lowerLower != (*_lower)->getLowerEnd(); ++_lowerLower) {
-        m_L1s.insert( (*_lowerLower) );
+        m_L1s.insert((*_lowerLower));
       }
     }
   }
@@ -333,43 +348,45 @@ namespace TrigCostRootAnalysis {
   /**
    * @param _toAdd Add many L3 items, for upgrade this will be the new HLT
    */
-  void CounterBaseRates::addL3Items( ChainItemSet_t _toAdd ) {
-    for ( auto _item : _toAdd ) {
+  void CounterBaseRates::addL3Items(ChainItemSet_t _toAdd) {
+    for (auto _item : _toAdd) {
       addL3Item(_item);
     }
   }
 
   /**
-   * @param _overlap Pointer to another counter which overlaps with this one, used to get relative rates at the end of run.
+   * @param _overlap Pointer to another counter which overlaps with this one, used to get relative rates at the end of
+   *run.
    */
-  void CounterBaseRates::addOverlap( CounterBase* _overlap ) {
-    m_ovelapCounters.insert( _overlap );
+  void CounterBaseRates::addOverlap(CounterBase* _overlap) {
+    m_ovelapCounters.insert(_overlap);
   }
 
   /**
-   * @return kTRUE if at least one HLT counter of this chain had info in the D3PD for this event or one L1 counter of an L1 chain was in the bunch group.
+   * @return kTRUE if at least one HLT counter of this chain had info in the D3PD for this event or one L1 counter of an
+   *L1 chain was in the bunch group.
    */
   Bool_t CounterBaseRates::getInEvent() {
     if (m_L2s.size() > 0 || m_cpsGroups.size() > 0) { // I'm a HLT Chain(s)
       // Check my individual chains
       for (ChainItemSetIt_t _L2It = m_L2s.begin(); _L2It != m_L2s.end(); ++_L2It) {
-        if ( (*_L2It)->getInEvent() == kTRUE ) return kTRUE;
+        if ((*_L2It)->getInEvent() == kTRUE) return kTRUE;
       }
       // Chekc any CPS groups of chains I may have
       for (CPSGroupSetIt_t _CPSIt = m_cpsGroups.begin(); _CPSIt != m_cpsGroups.end(); ++_CPSIt) {
         RatesCPSGroup* _cpsGroup = (*_CPSIt);
         for (ChainItemSetIt_t _it = _cpsGroup->getChainStart(); _it != _cpsGroup->getChainEnd(); ++_it) {
-          if ( (*_it)->getInEvent() == kTRUE ) return kTRUE;
+          if ((*_it)->getInEvent() == kTRUE) return kTRUE;
         }
       }
     } else if (m_L1s.size() > 0) { // I'm a L1 Chain(s)
       // Still need to check that the L1 chain is active for this bunch group
       for (ChainItemSetIt_t _L1It = m_L1s.begin(); _L1It != m_L1s.end(); ++_L1It) {
-        if ( (*_L1It)->getInEvent() == kTRUE ) return kTRUE;
+        if ((*_L1It)->getInEvent() == kTRUE) return kTRUE;
       }
     } else if (m_L3s.size() > 0) { // I'm a Upgrade HLT Chain(s)
       for (ChainItemSetIt_t _L3It = m_L3s.begin(); _L3It != m_L3s.end(); ++_L3It) {
-        if ( (*_L3It)->getInEvent() == kTRUE ) return kTRUE;
+        if ((*_L3It)->getInEvent() == kTRUE) return kTRUE;
       }
     }
     return kFALSE;
@@ -383,16 +400,17 @@ namespace TrigCostRootAnalysis {
 
 
     //Check compatability of both methods
-    Float_t _chainPasses   = m_dataStore.getValue(kVarEventsPassed,   kSavePerCall);
+    Float_t _chainPasses = m_dataStore.getValue(kVarEventsPassed, kSavePerCall);
     Float_t _chainPassesDP = m_dataStore.getValue(kVarEventsPassedDP, kSavePerCall);
-    Float_t _sig = TMath::Sqrt(TMath::Abs(_chainPassesDP - _chainPasses))/TMath::Max(_chainPassesDP,_chainPasses);
+    Float_t _sig = TMath::Sqrt(TMath::Abs(_chainPassesDP - _chainPasses)) / TMath::Max(_chainPassesDP, _chainPasses);
+
     if (_sig > 3 && !isZero(_chainPassesDP)) {
-      Warning("CounterBaseRates::finalise","Chain %s of %s has Weight:%.4f DP:%.4f MethodDeviation:%.2f sigma! (PS: %s)",
-        getName().c_str(), getStrDecoration(kDecRatesGroupName).c_str(),
-        _chainPasses,
-        _chainPassesDP,
-        _sig,
-        getStrDecoration(kDecPrescaleStr).c_str());
+      Warning("CounterBaseRates::finalise", "Chain %s of %s has Weight:%.4f DP:%.4f MethodDeviation:%.2f sigma! (PS: %s)",
+              getName().c_str(), getStrDecoration(kDecRatesGroupName).c_str(),
+              _chainPasses,
+              _chainPassesDP,
+              _sig,
+              getStrDecoration(kDecPrescaleStr).c_str());
     }
 
     // Check zero rates
@@ -401,7 +419,7 @@ namespace TrigCostRootAnalysis {
       if (getBasicPrescale() > 0 && isZero(_chainPasses) == kTRUE) { // If PS > 0 but no rate
         // Only display this warning once
         if (Config::config().getDisplayMsg(kMsgZeroRate) == kTRUE) {
-          Warning("CounterBaseRates::finalise","There are chains with non-zero prescale but ZERO rate. Please check %s !", _output.c_str() );
+          Warning("CounterBaseRates::finalise", "There are chains with non-zero prescale but ZERO rate. Please check %s !", _output.c_str());
         }
         std::ofstream _fout;
         _fout.open(_output.c_str(), std::ofstream::out | std::ofstream::app); // Open to append
@@ -415,14 +433,14 @@ namespace TrigCostRootAnalysis {
 
     // Do lower chain rate
     Float_t _inputRate = 0.;
-    if ( getStrDecoration(kDecType) == "L1" ) {      // For L1, just eventsRun
+    if (getStrDecoration(kDecType) == "L1") {      // For L1, just eventsRun
       _inputRate = m_dataStore.getValue(kVarEventsRun, kSavePerCall) / _walltime;
       decorate(kDecInputRate, floatToString(_inputRate, 4)); // Save as string
-    } else if ( getStrDecoration(kDecType) == "Chain" && m_lowerRates != nullptr ) { // For HLT, ask the L1 item
+    } else if (getStrDecoration(kDecType) == "Chain" && m_lowerRates != nullptr) { // For HLT, ask the L1 item
       _inputRate = m_lowerRates->m_dataStore.getValue(kVarEventsPassed, kSavePerCall) / _walltime;
       decorate(kDecInputRate, floatToString(_inputRate, 4)); // Save as string
     } else {
-      decorate(kDecInputRate, std::string("-")); 
+      decorate(kDecInputRate, std::string("-"));
     }
 
     // Check express
@@ -434,20 +452,20 @@ namespace TrigCostRootAnalysis {
       decorate(kDecExpressRate, _rateExp); // Save as float too
     } else {
       decorate(kDecExpressRate, std::string("-")); // Not calculated
-      decorate(kDecExpressRate, (Float_t)0.); // Not calculated
-    }   
+      decorate(kDecExpressRate, (Float_t) 0.); // Not calculated
+    }
 
     // Get unique rates
     Float_t _uniqueRate = 0.;
     if (getMyUniqueCounter() != 0) {
       _uniqueRate = getMyUniqueCounter()->getValue(kVarEventsPassed, kSavePerCall);
       _uniqueRate /= _walltime;
-      Info(getMyUniqueCounter()->getName().c_str(), "Rate %f Hz, Unique Rate %f Hz", m_dataStore.getValue(kVarEventsPassed, kSavePerCall)/_walltime, _uniqueRate);
+      Info(getMyUniqueCounter()->getName().c_str(), "Rate %f Hz, Unique Rate %f Hz", m_dataStore.getValue(kVarEventsPassed, kSavePerCall) / _walltime, _uniqueRate);
       decorate(kDecUniqueRate, floatToString(_uniqueRate, 4)); // Save as string
       decorate(kDecUniqueRate, _uniqueRate); // Save as float too
     } else {
       decorate(kDecUniqueRate, std::string("-")); // Not calculated
-      decorate(kDecUniqueRate, (Float_t)0.); // Not calculated
+      decorate(kDecUniqueRate, (Float_t) 0.); // Not calculated
     }
 
 
@@ -463,12 +481,14 @@ namespace TrigCostRootAnalysis {
       decorate(kDecUniqueFraction, _uniqueFraction); // Save as float too
     } else {
       decorate(kDecUniqueFraction, std::string("-")); // Not calculated
-      decorate(kDecUniqueFraction, (Float_t)0.); // Not calculated
+      decorate(kDecUniqueFraction, (Float_t) 0.); // Not calculated
     }
 
     // Next step is only for chain counters
     if (getStrDecoration(kDecType) != "Chain") return;
+
     if (isZero(_chainPasses)) return;
+
     if (m_ovelapCounters.size() <= 1) return; // Bug - doesn't work for one overlap counter strangely
 
     // Get the % overlap with each other counter
@@ -477,12 +497,12 @@ namespace TrigCostRootAnalysis {
     for (CounterSetIt_t _it = m_ovelapCounters.begin(); _it != m_ovelapCounters.end(); ++_it) {
       CounterBase* _overlapCounter = (*_it);
       Float_t _overlapPasses = _overlapCounter->getValue(kVarEventsPassed, kSavePerCall);
-      Float_t _overlapPercentage = 100. * ( _overlapPasses / _chainPasses  ) ;
+      Float_t _overlapPercentage = 100. * (_overlapPasses / _chainPasses);
       if (_overlapPercentage != _overlapPercentage || isinf(_overlapPercentage)) {
-        Error("CounterBaseRates::finalise","%s vs. %s propagated an inf. [Weight]", getName().c_str(), _overlapCounter->getName().c_str());
-        _binValues.push_back( 0. );
+        Error("CounterBaseRates::finalise", "%s vs. %s propagated an inf. [Weight]", getName().c_str(), _overlapCounter->getName().c_str());
+        _binValues.push_back(0.);
       } else {
-        _binValues.push_back( _overlapPercentage );
+        _binValues.push_back(_overlapPercentage);
         if (!isZero(_overlapPercentage)) _allZero = kFALSE;
       }
     }
@@ -494,20 +514,18 @@ namespace TrigCostRootAnalysis {
       CounterBase* _overlapCounter = (*_it);
       // Get the name of the other chain from the name of the AND counter
       std::string _otherName = _overlapCounter->getName();
-      _otherName.erase( _otherName.find(Config::config().getStr(kAndString)), Config::config().getStr(kAndString).size());
-      _otherName.erase( _otherName.find(getName()), getName().size());
-      _chainNames.push_back( _otherName );
+      _otherName.erase(_otherName.find(Config::config().getStr(kAndString)), Config::config().getStr(kAndString).size());
+      _otherName.erase(_otherName.find(getName()), getName().size());
+      _chainNames.push_back(_otherName);
     }
 
     m_dataStore.newVariable(kVarOverlap).setSavePerCall("Chain Overlap Within Rates Group;Chain;Overlap [%]");
     m_dataStore.setBinLabels(kVarOverlap, kSavePerCall, _chainNames); // Set the bins to have this name
     for (size_t _i = 1; _i <= _binValues.size(); ++_i) {
-      m_dataStore.store(kVarOverlap, _i, _binValues.at( _i - 1));  // Use the weight to set the effective value
-      if (_binValues.at( _i - 1) >= Config::config().getInt(kRatesOverlapWarning)) {
-        Warning("CounterBaseRates::finalise", "Chain %s overlaps %.1f%% with %s", getName().c_str(), _binValues.at( _i - 1), _chainNames.at(_i - 1).c_str());
+      m_dataStore.store(kVarOverlap, _i, _binValues.at(_i - 1));  // Use the weight to set the effective value
+      if (_binValues.at(_i - 1) >= Config::config().getInt(kRatesOverlapWarning)) {
+        Warning("CounterBaseRates::finalise", "Chain %s overlaps %.1f%% with %s", getName().c_str(), _binValues.at(_i - 1), _chainNames.at(_i - 1).c_str());
       }
     }
-
   }
-
 } // namespace TrigCostRootAnalysis

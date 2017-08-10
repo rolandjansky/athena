@@ -30,7 +30,7 @@ StatusCode HLTTauMonTool::Emulation(){
   ATH_MSG_DEBUG("HLTTauMonTool::Emulation starting");
  
   const xAOD::EmTauRoIContainer* l1taus = 0;
-  if ( m_storeGate->retrieve( l1taus, "LVL1EmTauRoIs").isFailure() ){ 
+  if ( evtStore()->retrieve( l1taus, "LVL1EmTauRoIs").isFailure() ){ 
     ATH_MSG_WARNING("Failed to retrieve LVL1EmTauRoI container. Exiting.");
     return StatusCode::FAILURE;
   } else{
@@ -38,7 +38,7 @@ StatusCode HLTTauMonTool::Emulation(){
   }   
 
   const xAOD::JetRoIContainer *l1jets = 0;
-  if ( m_storeGate->retrieve( l1jets, "LVL1JetRoIs").isFailure() ){
+  if ( evtStore()->retrieve( l1jets, "LVL1JetRoIs").isFailure() ){
     ATH_MSG_WARNING("Failed to retrieve LVL1JetRoIs container. Exiting.");
     return StatusCode::FAILURE;
   } else{
@@ -46,7 +46,7 @@ StatusCode HLTTauMonTool::Emulation(){
   }
 
   const xAOD::MuonRoIContainer *l1muons = 0;
-  if ( m_storeGate->retrieve( l1muons, "LVL1MuonRoIs").isFailure() ){
+  if ( evtStore()->retrieve( l1muons, "LVL1MuonRoIs").isFailure() ){
     ATH_MSG_WARNING("Failed to retrieve LVL1MuonRoIs container. Exiting.");
     return StatusCode::FAILURE;
   } else{
@@ -54,7 +54,7 @@ StatusCode HLTTauMonTool::Emulation(){
   }
 
   const xAOD::EnergySumRoI *l1xe = 0;
-  if ( m_storeGate->retrieve( l1xe, "LVL1EnergySumRoI").isFailure() ){
+  if ( evtStore()->retrieve( l1xe, "LVL1EnergySumRoI").isFailure() ){
     ATH_MSG_WARNING("Failed to retrieve LVL1EnergySumRoI container. Exiting.");
     return StatusCode::FAILURE;
   } else{

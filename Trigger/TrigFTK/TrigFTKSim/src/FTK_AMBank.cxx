@@ -29,7 +29,8 @@ using namespace std;
 
 //#define USEAMIN2
 //#define PRINT_SS 1
-//#define PRINT_ROADS_SECTOR 1
+//#define PRINT_ROADS_SECTOR -1
+#define PRINT_ROADS_NUM 100
 
 #ifdef TESTTBB
 #include "tbb/parallel_for.h"
@@ -81,7 +82,7 @@ FTK_AMBank::FTK_AMBank(int id, int subid)
      m_bad_module_map(0),
      m_ss_patt_lookup_map(0),
     m_lutsepplane(3), m_upperindex(true),
- ipatt_step(0),
+     m_ipatt_step(0),
      m_stlhit_sort(0x0)
 
 {
@@ -150,8 +151,8 @@ void FTK_AMBank::end()
 int FTK_AMBank::readBankInit()
 {
    // the process counter
-   ipatt_step = (m_npatterns+9)/10;
-   if (!ipatt_step) ipatt_step = 1;
+   m_ipatt_step = (m_npatterns+9)/10;
+   if (!m_ipatt_step) m_ipatt_step = 1;
 
    // create the maps where the SS map used in the events are stored
    m_fired_ssmap = new unordered_map<int,FTKSS>[m_nplanes];
@@ -228,19 +229,19 @@ void FTK_AMBank::applyWildcard()
   m_useWC = true; // set the use of the WC
 
   // adject the WC and Veto IDs if the STL map is used
-  m_VetoID = ~(~0<<(sizeof(int)*8-1));
+  m_VetoID = ~(~0u<<(sizeof(int)*8-1));
   m_WCID = m_VetoID-1;
 
-  unsigned int *m_WC_stat = new unsigned int[m_nplanes]; // store the static collected on the wildcard
-  unsigned int *m_WC_stat_nWClayers = new unsigned int[m_nplanes+1]; // store the number of patterns with N WC layers
-  unsigned int *m_WC_stat_patt = new unsigned int[m_npatterns]; // store the static collected on the wildcard
+  unsigned int *WC_stat = new unsigned int[m_nplanes]; // store the static collected on the wildcard
+  unsigned int *WC_stat_nWClayers = new unsigned int[m_nplanes+1]; // store the number of patterns with N WC layers
+  unsigned int *WC_stat_patt = new unsigned int[m_npatterns]; // store the static collected on the wildcard
  
-  for (int ip=0;ip!=m_nplanes;++ip) m_WC_stat[ip] = 0;
-  for (int ip=0;ip!=m_nplanes+1;++ip) m_WC_stat_nWClayers[ip] = 0;
-  for (int ip=0;ip!=m_npatterns;++ip) m_WC_stat_patt[ip] = 0;
+  for (int ip=0;ip!=m_nplanes;++ip) WC_stat[ip] = 0;
+  for (int ip=0;ip!=m_nplanes+1;++ip) WC_stat_nWClayers[ip] = 0;
+  for (int ip=0;ip!=m_npatterns;++ip) WC_stat_patt[ip] = 0;
   
-  std::set<int> m_WC_patterns; // list of patterns where the wildcard was applied
-  std::set<int> m_Veto_patterns ; // list of patterns where the veto was applied
+  std::set<int> WC_patterns; // list of patterns where the wildcard was applied
+  std::set<int> Veto_patterns ; // list of patterns where the veto was applied
 
   set<int> veto_patt; 
 #if 0 //read ascii file and set veto ID
@@ -268,45 +269,45 @@ void FTK_AMBank::applyWildcard()
       }else if(tmp_WCSS->find(m_patterns[_SSPOS(ipatt,iplane)]) == tmp_WCSS->end()){
       	continue;
       }else {
-	m_WC_stat[iplane]++;
- 	m_WC_stat_patt[ipatt]++;
- 	m_WC_patterns.insert(ipatt);
+	WC_stat[iplane]++;
+ 	WC_stat_patt[ipatt]++;
+ 	WC_patterns.insert(ipatt);
  	m_patterns[_SSPOS(ipatt,iplane)] =  m_WCID;
       }
     } // end loop over the patterns
   } // end plane loop
   
   // print the debug messages to inform of which is the status of the WC
-  cout << "Tower " << getBankID() << " number of patterns with the wildcard: " << m_WC_patterns.size() << endl;
+  cout << "Tower " << getBankID() << " number of patterns with the wildcard: " << WC_patterns.size() << endl;
   for (int ip=0;ip!=m_nplanes;++ip) {
-    cout << "Tower " << getBankID() << " number of WC on layer " << ip << ": " << m_WC_stat[ip] << endl;
+    cout << "Tower " << getBankID() << " number of WC on layer " << ip << ": " << WC_stat[ip] << endl;
   }
 
 #if 0   //Dump the number of WC on pattern(for debug!) 
   ofstream mapfile_WC_patt("nWC_patt.dat");
   for(int tmp_ipatt=0;tmp_ipatt != m_npatterns;++tmp_ipatt){
-    mapfile_WC_patt <<tmp_ipatt <<" "<<m_WC_stat_patt[tmp_ipatt]<<endl;
+    mapfile_WC_patt <<tmp_ipatt <<" "<<WC_stat_patt[tmp_ipatt]<<endl;
     if(tmp_ipatt%10000 == 0 ) cout <<"write patt "<<tmp_ipatt<<endl;
   }
   mapfile_WC_patt.close();
 #endif
 
- if (m_WC_patterns.empty()) {
+ if (WC_patterns.empty()) {
    FTKSetup::PrintMessage(info,"No wildcards applied");
 
    // clear the memory for the information on tge dead-module
-   delete [] m_WC_stat;
-   delete [] m_WC_stat_nWClayers;
-   delete [] m_WC_stat_patt;
+   delete [] WC_stat;
+   delete [] WC_stat_nWClayers;
+   delete [] WC_stat_patt;
 
    return;
  }
  else {
    cout <<" check duplicated patterns and remove them using the veto ID"<<endl;
     // loop over the patterns to check duplicated patterns and remove them using the veto ID
-   set<int>::iterator ipatt_ref = m_WC_patterns.begin();
-   set<int>::iterator ipatt_end = m_WC_patterns.end();
-   // GV,AA: comments for speed up: index m_WC_patterns with SSID 
+   set<int>::iterator ipatt_ref = WC_patterns.begin();
+   set<int>::iterator ipatt_end = WC_patterns.end();
+   // GV,AA: comments for speed up: index WC_patterns with SSID 
    //        make a KDTree that stores the pattern with all SSIDs
    //        the tree must be sorted by SSID (prioritized by layer)
    //        to make the search logarithmic
@@ -315,11 +316,11 @@ void FTK_AMBank::applyWildcard()
      for (int wcplane=0;wcplane!=m_nplanes;++wcplane) { // loop over the planes
        if (m_patterns[_SSPOS(*ipatt_ref,wcplane)] ==  m_WCID) nWC++;
      } 
-     m_WC_stat_nWClayers[nWC]++;	  
+     WC_stat_nWClayers[nWC]++;	  
 
      // veto patterns that have 3 or more m_WCID set.
      if (nWC>=3) {
-       m_Veto_patterns.insert(*ipatt_ref);
+       Veto_patterns.insert(*ipatt_ref);
        for (int wcplane=0;wcplane!=m_nplanes;++wcplane) // loop over the planes
 	 m_patterns[_SSPOS(*ipatt_ref,wcplane)] = m_VetoID;
        continue;
@@ -355,24 +356,24 @@ void FTK_AMBank::applyWildcard()
        
        if (isequal) {
 	 // the patterns are equal, the latter is invalidated using the veto
-	 m_Veto_patterns.insert(*ipatt_chk);
+	 Veto_patterns.insert(*ipatt_chk);
 	 for (int ip=0;ip!=m_nplanes;++ip) m_patterns[_SSPOS(*ipatt_chk,ip)] = m_VetoID;
        }
      } // end loop to search for duplicates
    } // end loop over the patterns with the WC
-   cout <<"Number of veto patterns:"<<m_Veto_patterns.size()<<endl;
+   cout <<"Number of veto patterns:"<<Veto_patterns.size()<<endl;
    for (int ip=0;ip<=m_nplanes;++ip) {
-     cout << "Tower " << getBankID() << " number of patterns with WC on " << ip << " layers : " << m_WC_stat_nWClayers[ip] << endl;
+     cout << "Tower " << getBankID() << " number of patterns with WC on " << ip << " layers : " << WC_stat_nWClayers[ip] << endl;
    }
 
    cout << "Count nWC and nVeto again for debug" << endl;
-   ipatt_ref = m_WC_patterns.begin();
+   ipatt_ref = WC_patterns.begin();
    int nWC0Veto1p=0;
    int nWC1pVeto1p=0;
    int nWC0Veto1=0;
    int nWC1Veto1=0;
    int nWC2pVeto1=0;
-   for (int ip=0;ip!=m_nplanes+1;++ip) m_WC_stat_nWClayers[ip] = 0;
+   for (int ip=0;ip!=m_nplanes+1;++ip) WC_stat_nWClayers[ip] = 0;
    for (;ipatt_ref!=ipatt_end;++ipatt_ref) { // loop over the patterns with the WC
      int nWC = 0;
      int nVeto = 0;
@@ -381,7 +382,7 @@ void FTK_AMBank::applyWildcard()
        if (m_patterns[_SSPOS(*ipatt_ref,wcplane)] ==  m_VetoID) nVeto++;
      } 
      if (nVeto==0)
-       m_WC_stat_nWClayers[nWC]++;
+       WC_stat_nWClayers[nWC]++;
      else {
        if (nWC>=1 and nVeto>1) {
 	 cout << "Pattern with nWC="<<nWC<<" nVeto="<<nVeto<<endl;
@@ -397,7 +398,7 @@ void FTK_AMBank::applyWildcard()
      }
    }
    for (int ip=0;ip<=m_nplanes;++ip) {
-     cout << "DEBUG: Tower " << getBankID() << " number of patterns with WC on " << ip << " layers : " << m_WC_stat_nWClayers[ip] << endl;
+     cout << "DEBUG: Tower " << getBankID() << " number of patterns with WC on " << ip << " layers : " << WC_stat_nWClayers[ip] << endl;
    }
    cout << "nWC0Veto1p=" << nWC0Veto1p << endl;
    cout << "nWC1pVeto1p=" << nWC1pVeto1p << endl;
@@ -407,12 +408,12 @@ void FTK_AMBank::applyWildcard()
   
 #if 0 // Dump WC & veto patterns(for debug!)
     ofstream mapfile_Veto_patt("Veto_patt.dat");
-    for( set<int>::iterator ite_Veto = m_Veto_patterns.begin(); ite_Veto != m_Veto_patterns.end() ; ++ite_Veto){
+    for( set<int>::iterator ite_Veto = Veto_patterns.begin(); ite_Veto != Veto_patterns.end() ; ++ite_Veto){
       mapfile_Veto_patt <<(*ite_Veto) <<endl;
     }
     
     ofstream mapfile_WC_patt("WC_patt.dat");
-    for( set<int>::iterator ite_WC = m_WC_patterns.begin(); ite_WC != m_WC_patterns.end() ; ++ite_WC){
+    for( set<int>::iterator ite_WC = WC_patterns.begin(); ite_WC != WC_patterns.end() ; ++ite_WC){
       mapfile_WC_patt <<(*ite_WC) <<endl;
     }
     
@@ -420,9 +421,9 @@ void FTK_AMBank::applyWildcard()
   }
   
   // clear the memory
-  delete [] m_WC_stat;
-  delete [] m_WC_stat_patt;
-  delete [] m_WC_stat_nWClayers;
+  delete [] WC_stat;
+  delete [] WC_stat_patt;
+  delete [] WC_stat_nWClayers;
 }
 
 
@@ -473,8 +474,8 @@ int FTK_AMBank::readASCIIBank(const char *fname, int maxpatt)
 	 cerr << "*** error reading the pattern " << ipatt << endl;
 	 return -3;
       }
-      else if (ipatt%ipatt_step==0) {
-	cout << ipatt/ipatt_step << flush;
+      else if (ipatt%m_ipatt_step==0) {
+	cout << ipatt/m_ipatt_step << flush;
       }
       //cout<<ipatt<<" "; //hier
       for (int iplane=0;iplane<m_nplanes+1;++iplane) { // loop on the planes
@@ -613,7 +614,7 @@ int FTK_AMBank::readROOTBankSectorOrdered(TFile* pattfile, int maxpatt)
          if((nSub>1)&&(sector%nSub!=iSub)) continue;
          if(patternID>=m_npatterns) break;
 
-         if (patternID%ipatt_step==0) cout << patternID/ipatt_step << flush;
+         if (patternID%m_ipatt_step==0) cout << patternID/m_ipatt_step << flush;
 
          FTKPatternOneSector *data=preader->Read(sector,coverage);
          for(FTKPatternOneSector::Ptr_t i=data->Begin();i!=data->End();i++) {
@@ -847,7 +848,7 @@ void FTK_AMBank::pattlookup_make_map()
   for (int iplane=startplane; iplane!=endplane; ++iplane) {
     // Count patterns for ss;
     for (int i = 0; i < m_npatterns; ++i) {	
-      if(!(i%ipatt_step)) cout << "Layer " << iplane << ": counting patterns per ss (" << i << ")" << endl;
+      if(!(i%m_ipatt_step)) cout << "Layer " << iplane << ": counting patterns per ss (" << i << ")" << endl;
       // m_pattern content is an array, not a matrix
       int iss = m_patterns[_SSPOS(i,iplane)];
       if ( m_ss_patt_lookup_map[iplane].find(iss) == m_ss_patt_lookup_map[iplane].end() ) {
@@ -949,7 +950,7 @@ const std::list<FTKRoad>& FTK_AMBank::getRoads()
 
   }
 #ifdef PRINT_ROADS_SECTOR
-  static int print=1;
+  static int print=PRINT_ROADS_NUM;
   if(print) {
      cout<<"FTK_AMBank::getRoads number of roads="<<m_roads.size()<<"\n";
      printRoads(m_roads,PRINT_ROADS_SECTOR);

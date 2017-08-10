@@ -12,6 +12,10 @@
 
 #include "TrkToolInterfaces/IDetailedTrackTruthBuilder.h"
 
+#include "StoreGate/ReadHandleKey.h"
+
+#include "TrkTruthData/PRD_MultiTruthCollection.h"
+
 namespace InDet {
 
 /**
@@ -33,7 +37,7 @@ public:
 private:
   // PRD inputs
   std::string m_PRDTruthNamePixel;
-  std::string m_PRDTruthNameSCT;
+  SG::ReadHandleKey<PRD_MultiTruthCollection> m_PRDTruthNameSCT;
   std::string m_PRDTruthNameTRT;
   // Track input
   std::string m_trackCollectionName;

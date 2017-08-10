@@ -120,11 +120,9 @@ StatusCode IDAlignMonTruthComparison::bookHistograms()
   std::string outputDirName = "IDAlignMon/" + m_tracksName + "_NoTriggerSelection/TruthComparison";
   MonGroup al_mon ( this, outputDirName, run );
 
-  if ( newLowStat ) {  
-  }
-  if ( newLumiBlock ) {  
-  }
-  if( newRun ) { 
+  //if ( newLowStatFlag() ) {    }
+  //if ( newLumiBlockFlag() ) {   }
+  if( newRunFlag() ) { 
     
     // increase d0 and z0 range for cosmics
     if (AthenaMonManager::dataType() == AthenaMonManager::cosmics ) {
@@ -469,22 +467,22 @@ StatusCode IDAlignMonTruthComparison::fillHistograms()
 		    if (!generatedTrackPerigee)   msg(MSG::WARNING) <<  "Unable to extrapolate genparticle to perigee!" << endmsg;
 		    
 		    if ( generatedTrackPerigee) {
-		      float m_track_truth_qoverpt      = 1000. * generatedTrackPerigee->parameters()[Trk::qOverP]/sin(generatedTrackPerigee->parameters()[Trk::theta]);
-		      float m_track_truth_phi          = generatedTrackPerigee->parameters()[Trk::phi0];       
-		      float m_track_truth_d0           = generatedTrackPerigee->parameters()[Trk::d0];
-		      float m_track_truth_z0           = generatedTrackPerigee->parameters()[Trk::z0];
-		      float m_track_truth_theta        = generatedTrackPerigee->parameters()[Trk::theta];
-		      float m_track_truth_eta          = generatedTrackPerigee->eta();
+		      float track_truth_qoverpt      = 1000. * generatedTrackPerigee->parameters()[Trk::qOverP]/sin(generatedTrackPerigee->parameters()[Trk::theta]);
+		      float track_truth_phi          = generatedTrackPerigee->parameters()[Trk::phi0];       
+		      float track_truth_d0           = generatedTrackPerigee->parameters()[Trk::d0];
+		      float track_truth_z0           = generatedTrackPerigee->parameters()[Trk::z0];
+		      float track_truth_theta        = generatedTrackPerigee->parameters()[Trk::theta];
+		      float track_truth_eta          = generatedTrackPerigee->eta();
 		      delete  generatedTrackPerigee; 		      
-		      float m_track_truth_pt           = 1./fabs(m_track_truth_qoverpt);  
-		      float m_track_truth_charge       = 1; 
-		      if(m_track_truth_qoverpt<0) m_track_truth_charge = -1;
-		      if (m_track_truth_phi<0) m_track_truth_phi+=2*m_Pi;
-		      if (msgLvl(MSG::VERBOSE)) msg() << "Found matched truth track with phi, PT = " << m_track_truth_phi << ", " << m_track_truth_pt << endmsg; 
+		      float track_truth_pt           = 1./fabs(track_truth_qoverpt);  
+		      float track_truth_charge       = 1; 
+		      if(track_truth_qoverpt<0) track_truth_charge = -1;
+		      if (track_truth_phi<0) track_truth_phi+=2*m_Pi;
+		      if (msgLvl(MSG::VERBOSE)) msg() << "Found matched truth track with phi, PT = " << track_truth_phi << ", " << track_truth_pt << endmsg; 
 
-		      m_truthpT->Fill(m_track_truth_pt);
-		      m_truthphi->Fill(m_track_truth_phi);
-		      m_trutheta->Fill(m_track_truth_eta);
+		      m_truthpT->Fill(track_truth_pt);
+		      m_truthphi->Fill(track_truth_phi);
+		      m_trutheta->Fill(track_truth_eta);
 
 		      if(trkpt > ptlast){
 			z_E[0] = fabs(trkpt / sin(trktheta));
@@ -492,69 +490,69 @@ StatusCode IDAlignMonTruthComparison::fillHistograms()
 			z_px[0] = trkpt * sin(trkphi);
 			z_py[0] = trkpt * cos(trkphi);
 			z_eta[0] = trketa;
-			zMC_E[0] = fabs(m_track_truth_pt / sin(m_track_truth_theta));
-			zMC_pz[0] = m_track_truth_pt / tan(m_track_truth_theta);
-			zMC_px[0] = m_track_truth_pt * sin(m_track_truth_phi);
-			zMC_py[0] = m_track_truth_pt * cos(m_track_truth_phi);
+			zMC_E[0] = fabs(track_truth_pt / sin(track_truth_theta));
+			zMC_pz[0] = track_truth_pt / tan(track_truth_theta);
+			zMC_px[0] = track_truth_pt * sin(track_truth_phi);
+			zMC_py[0] = track_truth_pt * cos(track_truth_phi);
 			ptlast = trkpt;
 			chargefirst = (int)charge;
 		      }
 		      
 		      // Fill hitos
-		      m_Deta_vs_eta -> Fill(m_track_truth_eta, trketa-m_track_truth_eta);
-		      m_dphi_vs_eta -> Fill(m_track_truth_eta,trkphi-m_track_truth_phi);
+		      m_Deta_vs_eta -> Fill(track_truth_eta, trketa-track_truth_eta);
+		      m_dphi_vs_eta -> Fill(track_truth_eta,trkphi-track_truth_phi);
 
 		      float eta_barrel = 1.;		      
-		      if (fabs(m_track_truth_eta) < eta_barrel) {
-			m_dpt_vs_truthpt_barrel -> Fill(m_track_truth_charge*m_track_truth_pt,trkpt/m_track_truth_pt);
-			m_Dqopt_vs_pt_barrel -> Fill(m_track_truth_charge*m_track_truth_pt, qOverPt-m_track_truth_qoverpt);
-			m_dqopt_barrel -> Fill(qOverPt-m_track_truth_qoverpt);
-			m_deta_barrel -> Fill(trketa-m_track_truth_eta);
-			m_dphi_barrel -> Fill(trkphi-m_track_truth_phi);
-			m_dphi_barrel_vs_phi -> Fill(m_track_truth_phi,trkphi-m_track_truth_phi);
-			m_dz0_barrel -> Fill(trkz0-m_track_truth_z0);
-			m_dd0_barrel -> Fill(trkd0-m_track_truth_d0);
-		      } else if (m_track_truth_eta > eta_barrel) {
-			m_dpt_vs_truthpt_eca -> Fill(m_track_truth_charge*m_track_truth_pt,trkpt/m_track_truth_pt);
-			m_Dqopt_vs_pt_eca -> Fill(m_track_truth_charge*m_track_truth_pt, qOverPt-m_track_truth_qoverpt);
-			m_dqopt_eca -> Fill(qOverPt-m_track_truth_qoverpt);
-			m_deta_eca -> Fill(trketa-m_track_truth_eta);
-			m_dphi_eca -> Fill(trkphi-m_track_truth_phi);
-			m_dz0_eca -> Fill(trkz0-m_track_truth_z0);
-			m_dd0_eca -> Fill(trkd0-m_track_truth_d0);
+		      if (fabs(track_truth_eta) < eta_barrel) {
+			m_dpt_vs_truthpt_barrel -> Fill(track_truth_charge*track_truth_pt,trkpt/track_truth_pt);
+			m_Dqopt_vs_pt_barrel -> Fill(track_truth_charge*track_truth_pt, qOverPt-track_truth_qoverpt);
+			m_dqopt_barrel -> Fill(qOverPt-track_truth_qoverpt);
+			m_deta_barrel -> Fill(trketa-track_truth_eta);
+			m_dphi_barrel -> Fill(trkphi-track_truth_phi);
+			m_dphi_barrel_vs_phi -> Fill(track_truth_phi,trkphi-track_truth_phi);
+			m_dz0_barrel -> Fill(trkz0-track_truth_z0);
+			m_dd0_barrel -> Fill(trkd0-track_truth_d0);
+		      } else if (track_truth_eta > eta_barrel) {
+			m_dpt_vs_truthpt_eca -> Fill(track_truth_charge*track_truth_pt,trkpt/track_truth_pt);
+			m_Dqopt_vs_pt_eca -> Fill(track_truth_charge*track_truth_pt, qOverPt-track_truth_qoverpt);
+			m_dqopt_eca -> Fill(qOverPt-track_truth_qoverpt);
+			m_deta_eca -> Fill(trketa-track_truth_eta);
+			m_dphi_eca -> Fill(trkphi-track_truth_phi);
+			m_dz0_eca -> Fill(trkz0-track_truth_z0);
+			m_dd0_eca -> Fill(trkd0-track_truth_d0);
 		      } else {
-			m_dpt_vs_truthpt_ecc -> Fill(m_track_truth_charge*m_track_truth_pt,trkpt/m_track_truth_pt);
-			m_Dqopt_vs_pt_ecc -> Fill(m_track_truth_charge*m_track_truth_pt, qOverPt-m_track_truth_qoverpt);
-			m_dqopt_ecc -> Fill(qOverPt-m_track_truth_qoverpt);
-			m_deta_ecc -> Fill(trketa-m_track_truth_eta);
-			m_dphi_ecc -> Fill(trkphi-m_track_truth_phi);
-			m_dz0_ecc -> Fill(trkz0-m_track_truth_z0);
-			m_dd0_ecc -> Fill(trkd0-m_track_truth_d0);
+			m_dpt_vs_truthpt_ecc -> Fill(track_truth_charge*track_truth_pt,trkpt/track_truth_pt);
+			m_Dqopt_vs_pt_ecc -> Fill(track_truth_charge*track_truth_pt, qOverPt-track_truth_qoverpt);
+			m_dqopt_ecc -> Fill(qOverPt-track_truth_qoverpt);
+			m_deta_ecc -> Fill(trketa-track_truth_eta);
+			m_dphi_ecc -> Fill(trkphi-track_truth_phi);
+			m_dz0_ecc -> Fill(trkz0-track_truth_z0);
+			m_dd0_ecc -> Fill(trkd0-track_truth_d0);
 		      }
 
 		      float highpt = 10.;
-		      if(m_track_truth_pt > highpt) {
-			m_Dqopt_vs_eta_highpt -> Fill(m_track_truth_eta, qOverPt-m_track_truth_qoverpt);
+		      if(track_truth_pt > highpt) {
+			m_Dqopt_vs_eta_highpt -> Fill(track_truth_eta, qOverPt-track_truth_qoverpt);
 		      
 			// vs phi
-			if (fabs(m_track_truth_eta) < eta_barrel) {
-			  m_Dqopt_vs_phi_highpt_barrel -> Fill(m_track_truth_phi, qOverPt-m_track_truth_qoverpt);
-			} else if (m_track_truth_eta > eta_barrel) {
-			  m_Dqopt_vs_phi_highpt_eca -> Fill(m_track_truth_phi, qOverPt-m_track_truth_qoverpt);
+			if (fabs(track_truth_eta) < eta_barrel) {
+			  m_Dqopt_vs_phi_highpt_barrel -> Fill(track_truth_phi, qOverPt-track_truth_qoverpt);
+			} else if (track_truth_eta > eta_barrel) {
+			  m_Dqopt_vs_phi_highpt_eca -> Fill(track_truth_phi, qOverPt-track_truth_qoverpt);
 			} else {
-			  m_Dqopt_vs_phi_highpt_ecc -> Fill(m_track_truth_phi, qOverPt-m_track_truth_qoverpt);
+			  m_Dqopt_vs_phi_highpt_ecc -> Fill(track_truth_phi, qOverPt-track_truth_qoverpt);
 			}
 
 		      } else {
-			m_Dqopt_vs_eta_lowpt -> Fill(m_track_truth_eta, qOverPt-m_track_truth_qoverpt);
+			m_Dqopt_vs_eta_lowpt -> Fill(track_truth_eta, qOverPt-track_truth_qoverpt);
 		      
 			// vs phi
-			if (fabs(m_track_truth_eta) < eta_barrel) {
-			  m_Dqopt_vs_phi_lowpt_barrel -> Fill(m_track_truth_phi, qOverPt-m_track_truth_qoverpt);
-			} else if (m_track_truth_eta > eta_barrel) {
-			  m_Dqopt_vs_phi_lowpt_eca -> Fill(m_track_truth_phi, qOverPt-m_track_truth_qoverpt);
+			if (fabs(track_truth_eta) < eta_barrel) {
+			  m_Dqopt_vs_phi_lowpt_barrel -> Fill(track_truth_phi, qOverPt-track_truth_qoverpt);
+			} else if (track_truth_eta > eta_barrel) {
+			  m_Dqopt_vs_phi_lowpt_eca -> Fill(track_truth_phi, qOverPt-track_truth_qoverpt);
 			} else {
-			  m_Dqopt_vs_phi_lowpt_ecc -> Fill(m_track_truth_phi, qOverPt-m_track_truth_qoverpt);
+			  m_Dqopt_vs_phi_lowpt_ecc -> Fill(track_truth_phi, qOverPt-track_truth_qoverpt);
 			}
 		      }
 
@@ -627,15 +625,15 @@ StatusCode IDAlignMonTruthComparison::fillHistograms()
 		    if (!generatedTrackPerigee)   msg(MSG::WARNING) <<  "Unable to extrapolate genparticle to perigee!" << endmsg;
 		    
 		    if ( generatedTrackPerigee) {
-		      float m_track_truth_qoverpt      = 1000. * generatedTrackPerigee->parameters()[Trk::qOverP]/sin(generatedTrackPerigee->parameters()[Trk::theta]);
-		      float m_track_truth_phi          = generatedTrackPerigee->parameters()[Trk::phi0];  
-		      float m_track_truth_theta        = generatedTrackPerigee->parameters()[Trk::theta];
+		      float track_truth_qoverpt      = 1000. * generatedTrackPerigee->parameters()[Trk::qOverP]/sin(generatedTrackPerigee->parameters()[Trk::theta]);
+		      float track_truth_phi          = generatedTrackPerigee->parameters()[Trk::phi0];  
+		      float track_truth_theta        = generatedTrackPerigee->parameters()[Trk::theta];
 		      delete  generatedTrackPerigee; 		      
-		      float m_track_truth_pt           = 1./fabs(m_track_truth_qoverpt);  
-		      //float m_track_truth_charge       = 1; 
-		      //if(m_track_truth_qoverpt<0) m_track_truth_charge = -1;
-		      if (m_track_truth_phi<0) m_track_truth_phi+=2*m_Pi;
-		      if (msgLvl(MSG::VERBOSE)) msg() << "Found matched truth track with phi, PT = " << m_track_truth_phi << ", " << m_track_truth_pt << endmsg; 
+		      float track_truth_pt           = 1./fabs(track_truth_qoverpt);  
+		      //float track_truth_charge       = 1; 
+		      //if(track_truth_qoverpt<0) track_truth_charge = -1;
+		      if (track_truth_phi<0) track_truth_phi+=2*m_Pi;
+		      if (msgLvl(MSG::VERBOSE)) msg() << "Found matched truth track with phi, PT = " << track_truth_phi << ", " << track_truth_pt << endmsg; 
 
 
 		      if(trkpt > ptlast && trkpt < ptfirst && chargefirst*charge < 0 && trkpt > 15){
@@ -644,10 +642,10 @@ StatusCode IDAlignMonTruthComparison::fillHistograms()
 			z_px[1] = trkpt * sin(trkphi);
 			z_py[1] = trkpt * cos(trkphi);
 			z_eta[1] = trketa;
-			zMC_E[1] = fabs(m_track_truth_pt / sin(m_track_truth_theta));
-			zMC_pz[1] = m_track_truth_pt / tan(m_track_truth_theta);
-			zMC_px[1] = m_track_truth_pt * sin(m_track_truth_phi);
-			zMC_py[1] = m_track_truth_pt * cos(m_track_truth_phi);
+			zMC_E[1] = fabs(track_truth_pt / sin(track_truth_theta));
+			zMC_pz[1] = track_truth_pt / tan(track_truth_theta);
+			zMC_px[1] = track_truth_pt * sin(track_truth_phi);
+			zMC_py[1] = track_truth_pt * cos(track_truth_phi);
 			ptlast = trkpt;
 			z_true = true;
 		      } 
@@ -687,251 +685,249 @@ StatusCode IDAlignMonTruthComparison::fillHistograms()
 
 StatusCode IDAlignMonTruthComparison::procHistograms()
 {
-  if( endOfLowStat ) {
-  }
-  if( endOfLumiBlock ) {
-  }
-  if( endOfRun ) {
+  //if( endOfLowStatFlag() ) {  }
+  //if( endOfLumiBlockFlag() ) {  }
+  if( endOfRunFlag() ) {
 
     // deta vs eta
     m_Deta_vs_eta->FitSlicesY(0,1,0,10);
-    TH1F* m_Deta_vs_eta_1 = (TH1F*)gDirectory->Get("Deta_vs_eta_1");
-    TH1F* m_Deta_vs_eta_2 = (TH1F*)gDirectory->Get("Deta_vs_eta_2");
-    TH1F* m_Deta_vs_eta_chi2 = (TH1F*)gDirectory->Get("Deta_vs_eta_chi2");
+    TH1F* Deta_vs_eta_1 = (TH1F*)gDirectory->Get("Deta_vs_eta_1");
+    TH1F* Deta_vs_eta_2 = (TH1F*)gDirectory->Get("Deta_vs_eta_2");
+    TH1F* Deta_vs_eta_chi2 = (TH1F*)gDirectory->Get("Deta_vs_eta_chi2");
 
     // vs pt
     m_Dqopt_vs_pt_barrel->FitSlicesY(0,1,0,10);
-    TH1F* m_Dqopt_vs_pt_barrel_1 = (TH1F*)gDirectory->Get("Dqopt_vs_pt_barrel_1");
-    TH1F* m_Dqopt_vs_pt_barrel_2 = (TH1F*)gDirectory->Get("Dqopt_vs_pt_barrel_2");
-    TH1F* m_Dqopt_vs_pt_barrel_chi2 = (TH1F*)gDirectory->Get("Dqopt_vs_pt_barrel_chi2");
+    TH1F* Dqopt_vs_pt_barrel_1 = (TH1F*)gDirectory->Get("Dqopt_vs_pt_barrel_1");
+    TH1F* Dqopt_vs_pt_barrel_2 = (TH1F*)gDirectory->Get("Dqopt_vs_pt_barrel_2");
+    TH1F* Dqopt_vs_pt_barrel_chi2 = (TH1F*)gDirectory->Get("Dqopt_vs_pt_barrel_chi2");
 
     m_Dqopt_vs_pt_eca->FitSlicesY(0,1,0,10);
-    TH1F* m_Dqopt_vs_pt_eca_1 = (TH1F*)gDirectory->Get("Dqopt_vs_pt_eca_1");
-    TH1F* m_Dqopt_vs_pt_eca_2 = (TH1F*)gDirectory->Get("Dqopt_vs_pt_eca_2");
-    TH1F* m_Dqopt_vs_pt_eca_chi2 = (TH1F*)gDirectory->Get("Dqopt_vs_pt_eca_chi2");
+    TH1F* Dqopt_vs_pt_eca_1 = (TH1F*)gDirectory->Get("Dqopt_vs_pt_eca_1");
+    TH1F* Dqopt_vs_pt_eca_2 = (TH1F*)gDirectory->Get("Dqopt_vs_pt_eca_2");
+    TH1F* Dqopt_vs_pt_eca_chi2 = (TH1F*)gDirectory->Get("Dqopt_vs_pt_eca_chi2");
 
     m_Dqopt_vs_pt_ecc->FitSlicesY(0,1,0,10);
-    TH1F* m_Dqopt_vs_pt_ecc_1 = (TH1F*)gDirectory->Get("Dqopt_vs_pt_ecc_1");
-    TH1F* m_Dqopt_vs_pt_ecc_2 = (TH1F*)gDirectory->Get("Dqopt_vs_pt_ecc_2");
-    TH1F* m_Dqopt_vs_pt_ecc_chi2 = (TH1F*)gDirectory->Get("Dqopt_vs_pt_ecc_chi2");
+    TH1F* Dqopt_vs_pt_ecc_1 = (TH1F*)gDirectory->Get("Dqopt_vs_pt_ecc_1");
+    TH1F* Dqopt_vs_pt_ecc_2 = (TH1F*)gDirectory->Get("Dqopt_vs_pt_ecc_2");
+    TH1F* Dqopt_vs_pt_ecc_chi2 = (TH1F*)gDirectory->Get("Dqopt_vs_pt_ecc_chi2");
 
     // vs eta
     m_Dqopt_vs_eta_highpt->FitSlicesY(0,1,0,10);
-    TH1F* m_Dqopt_vs_eta_highpt_1 = (TH1F*)gDirectory->Get("Dqopt_vs_eta_highpt_1");
-    TH1F* m_Dqopt_vs_eta_highpt_2 = (TH1F*)gDirectory->Get("Dqopt_vs_eta_highpt_2");
-    TH1F* m_Dqopt_vs_eta_highpt_chi2 = (TH1F*)gDirectory->Get("Dqopt_vs_eta_highpt_chi2");
+    TH1F* Dqopt_vs_eta_highpt_1 = (TH1F*)gDirectory->Get("Dqopt_vs_eta_highpt_1");
+    TH1F* Dqopt_vs_eta_highpt_2 = (TH1F*)gDirectory->Get("Dqopt_vs_eta_highpt_2");
+    TH1F* Dqopt_vs_eta_highpt_chi2 = (TH1F*)gDirectory->Get("Dqopt_vs_eta_highpt_chi2");
 
     m_Dqopt_vs_eta_lowpt->FitSlicesY(0,1,0,10);
-    TH1F* m_Dqopt_vs_eta_lowpt_1 = (TH1F*)gDirectory->Get("Dqopt_vs_eta_lowpt_1");
-    TH1F* m_Dqopt_vs_eta_lowpt_2 = (TH1F*)gDirectory->Get("Dqopt_vs_eta_lowpt_2");
-    TH1F* m_Dqopt_vs_eta_lowpt_chi2 = (TH1F*)gDirectory->Get("Dqopt_vs_eta_lowpt_chi2");
+    TH1F* Dqopt_vs_eta_lowpt_1 = (TH1F*)gDirectory->Get("Dqopt_vs_eta_lowpt_1");
+    TH1F* Dqopt_vs_eta_lowpt_2 = (TH1F*)gDirectory->Get("Dqopt_vs_eta_lowpt_2");
+    TH1F* Dqopt_vs_eta_lowpt_chi2 = (TH1F*)gDirectory->Get("Dqopt_vs_eta_lowpt_chi2");
 
     // vs phi
     m_Dqopt_vs_phi_highpt_barrel->FitSlicesY(0,1,0,10);
-    TH1F* m_Dqopt_vs_phi_highpt_barrel_1 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_highpt_barrel_1");
-    TH1F* m_Dqopt_vs_phi_highpt_barrel_2 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_highpt_barrel_2");
-    TH1F* m_Dqopt_vs_phi_highpt_barrel_chi2 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_highpt_barrel_chi2");
+    TH1F* Dqopt_vs_phi_highpt_barrel_1 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_highpt_barrel_1");
+    TH1F* Dqopt_vs_phi_highpt_barrel_2 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_highpt_barrel_2");
+    TH1F* Dqopt_vs_phi_highpt_barrel_chi2 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_highpt_barrel_chi2");
 
     m_Dqopt_vs_phi_highpt_eca->FitSlicesY(0,1,0,10);
-    TH1F* m_Dqopt_vs_phi_highpt_eca_1 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_highpt_eca_1");
-    TH1F* m_Dqopt_vs_phi_highpt_eca_2 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_highpt_eca_2");
-    TH1F* m_Dqopt_vs_phi_highpt_eca_chi2 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_highpt_eca_chi2");
+    TH1F* Dqopt_vs_phi_highpt_eca_1 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_highpt_eca_1");
+    TH1F* Dqopt_vs_phi_highpt_eca_2 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_highpt_eca_2");
+    TH1F* Dqopt_vs_phi_highpt_eca_chi2 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_highpt_eca_chi2");
 
     m_Dqopt_vs_phi_highpt_ecc->FitSlicesY(0,1,0,10);
-    TH1F* m_Dqopt_vs_phi_highpt_ecc_1 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_highpt_ecc_1");
-    TH1F* m_Dqopt_vs_phi_highpt_ecc_2 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_highpt_ecc_2");
-    TH1F* m_Dqopt_vs_phi_highpt_ecc_chi2 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_highpt_ecc_chi2");
+    TH1F* Dqopt_vs_phi_highpt_ecc_1 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_highpt_ecc_1");
+    TH1F* Dqopt_vs_phi_highpt_ecc_2 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_highpt_ecc_2");
+    TH1F* Dqopt_vs_phi_highpt_ecc_chi2 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_highpt_ecc_chi2");
 
     // vs phi
     m_Dqopt_vs_phi_lowpt_barrel->FitSlicesY(0,1,0,10);
-    TH1F* m_Dqopt_vs_phi_lowpt_barrel_1 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_lowpt_barrel_1");
-    TH1F* m_Dqopt_vs_phi_lowpt_barrel_2 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_lowpt_barrel_2");
-    TH1F* m_Dqopt_vs_phi_lowpt_barrel_chi2 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_lowpt_barrel_chi2");
+    TH1F* Dqopt_vs_phi_lowpt_barrel_1 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_lowpt_barrel_1");
+    TH1F* Dqopt_vs_phi_lowpt_barrel_2 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_lowpt_barrel_2");
+    TH1F* Dqopt_vs_phi_lowpt_barrel_chi2 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_lowpt_barrel_chi2");
 
     m_Dqopt_vs_phi_lowpt_eca->FitSlicesY(0,1,0,10);
-    TH1F* m_Dqopt_vs_phi_lowpt_eca_1 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_lowpt_eca_1");
-    TH1F* m_Dqopt_vs_phi_lowpt_eca_2 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_lowpt_eca_2");
-    TH1F* m_Dqopt_vs_phi_lowpt_eca_chi2 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_lowpt_eca_chi2");
+    TH1F* Dqopt_vs_phi_lowpt_eca_1 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_lowpt_eca_1");
+    TH1F* Dqopt_vs_phi_lowpt_eca_2 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_lowpt_eca_2");
+    TH1F* Dqopt_vs_phi_lowpt_eca_chi2 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_lowpt_eca_chi2");
 
     m_Dqopt_vs_phi_lowpt_ecc->FitSlicesY(0,1,0,10);
-    TH1F* m_Dqopt_vs_phi_lowpt_ecc_1 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_lowpt_ecc_1");
-    TH1F* m_Dqopt_vs_phi_lowpt_ecc_2 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_lowpt_ecc_2");
-    TH1F* m_Dqopt_vs_phi_lowpt_ecc_chi2 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_lowpt_ecc_chi2");
+    TH1F* Dqopt_vs_phi_lowpt_ecc_1 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_lowpt_ecc_1");
+    TH1F* Dqopt_vs_phi_lowpt_ecc_2 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_lowpt_ecc_2");
+    TH1F* Dqopt_vs_phi_lowpt_ecc_chi2 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_lowpt_ecc_chi2");
 
 
     // deta vs eta
-    for (int i=1;i<=m_Deta_vs_eta_1->GetNbinsX();i++){
-      double tmp=m_Deta_vs_eta_1->GetBinContent(i);
+    for (int i=1;i<=Deta_vs_eta_1->GetNbinsX();i++){
+      double tmp=Deta_vs_eta_1->GetBinContent(i);
       m_deta_vs_eta_1->SetBinContent(i,tmp);
-      tmp=m_Deta_vs_eta_2->GetBinContent(i);
+      tmp=Deta_vs_eta_2->GetBinContent(i);
       m_deta_vs_eta_2->SetBinContent(i,tmp);
       m_deta_vs_eta_1->SetBinError(i,tmp);
-      tmp=m_Deta_vs_eta_chi2->GetBinContent(i);
+      tmp=Deta_vs_eta_chi2->GetBinContent(i);
       m_deta_vs_eta_chi2->SetBinContent(i,tmp);
     }
 
 
     // vs pT
-    for (int i=1;i<=m_Dqopt_vs_pt_barrel_1->GetNbinsX();i++){
-      double tmp=m_Dqopt_vs_pt_barrel_1->GetBinContent(i);
+    for (int i=1;i<=Dqopt_vs_pt_barrel_1->GetNbinsX();i++){
+      double tmp=Dqopt_vs_pt_barrel_1->GetBinContent(i);
       m_dqopt_vs_pt_barrel_1->SetBinContent(i,tmp);
-      tmp=m_Dqopt_vs_pt_barrel_2->GetBinContent(i);
+      tmp=Dqopt_vs_pt_barrel_2->GetBinContent(i);
       m_dqopt_vs_pt_barrel_2->SetBinContent(i,tmp);
       m_dqopt_vs_pt_barrel_1->SetBinError(i,tmp);
-      tmp=m_Dqopt_vs_pt_barrel_chi2->GetBinContent(i);
+      tmp=Dqopt_vs_pt_barrel_chi2->GetBinContent(i);
       m_dqopt_vs_pt_barrel_chi2->SetBinContent(i,tmp);
 
-      tmp=m_Dqopt_vs_pt_eca_1->GetBinContent(i);
+      tmp=Dqopt_vs_pt_eca_1->GetBinContent(i);
       m_dqopt_vs_pt_eca_1->SetBinContent(i,tmp);
-      tmp=m_Dqopt_vs_pt_eca_2->GetBinContent(i);
+      tmp=Dqopt_vs_pt_eca_2->GetBinContent(i);
       m_dqopt_vs_pt_eca_2->SetBinContent(i,tmp);
       m_dqopt_vs_pt_eca_1->SetBinError(i,tmp);
-      tmp=m_Dqopt_vs_pt_eca_chi2->GetBinContent(i);
+      tmp=Dqopt_vs_pt_eca_chi2->GetBinContent(i);
       m_dqopt_vs_pt_eca_chi2->SetBinContent(i,tmp);
 
-      tmp=m_Dqopt_vs_pt_ecc_1->GetBinContent(i);
+      tmp=Dqopt_vs_pt_ecc_1->GetBinContent(i);
       m_dqopt_vs_pt_ecc_1->SetBinContent(i,tmp);
-      tmp=m_Dqopt_vs_pt_ecc_2->GetBinContent(i);
+      tmp=Dqopt_vs_pt_ecc_2->GetBinContent(i);
       m_dqopt_vs_pt_ecc_2->SetBinContent(i,tmp);
       m_dqopt_vs_pt_ecc_1->SetBinError(i,tmp);
-      tmp=m_Dqopt_vs_pt_ecc_chi2->GetBinContent(i);
+      tmp=Dqopt_vs_pt_ecc_chi2->GetBinContent(i);
       m_dqopt_vs_pt_ecc_chi2->SetBinContent(i,tmp);
     }
     
     // vs eta
-    for (int i=1;i<=m_Dqopt_vs_eta_highpt_1->GetNbinsX();i++){
-      double tmp=m_Dqopt_vs_eta_highpt_1->GetBinContent(i);
+    for (int i=1;i<=Dqopt_vs_eta_highpt_1->GetNbinsX();i++){
+      double tmp=Dqopt_vs_eta_highpt_1->GetBinContent(i);
       m_dqopt_vs_eta_highpt_1->SetBinContent(i,tmp);
-      tmp=m_Dqopt_vs_eta_highpt_2->GetBinContent(i);
+      tmp=Dqopt_vs_eta_highpt_2->GetBinContent(i);
       m_dqopt_vs_eta_highpt_2->SetBinContent(i,tmp);
       m_dqopt_vs_eta_highpt_1->SetBinError(i,tmp);
-      tmp=m_Dqopt_vs_eta_highpt_chi2->GetBinContent(i);
+      tmp=Dqopt_vs_eta_highpt_chi2->GetBinContent(i);
       m_dqopt_vs_eta_highpt_chi2->SetBinContent(i,tmp);
 
-      tmp=m_Dqopt_vs_eta_lowpt_1->GetBinContent(i);
+      tmp=Dqopt_vs_eta_lowpt_1->GetBinContent(i);
       m_dqopt_vs_eta_lowpt_1->SetBinContent(i,tmp);
-      tmp=m_Dqopt_vs_eta_lowpt_2->GetBinContent(i);
+      tmp=Dqopt_vs_eta_lowpt_2->GetBinContent(i);
       m_dqopt_vs_eta_lowpt_2->SetBinContent(i,tmp);
       m_dqopt_vs_eta_lowpt_1->SetBinError(i,tmp);
-      tmp=m_Dqopt_vs_eta_lowpt_chi2->GetBinContent(i);
+      tmp=Dqopt_vs_eta_lowpt_chi2->GetBinContent(i);
       m_dqopt_vs_eta_lowpt_chi2->SetBinContent(i,tmp);
     }
 
     // vs phi
-    for (int i=1;i<=m_Dqopt_vs_phi_highpt_barrel_1->GetNbinsX();i++){
-      double tmp=m_Dqopt_vs_phi_highpt_barrel_1->GetBinContent(i);
+    for (int i=1;i<=Dqopt_vs_phi_highpt_barrel_1->GetNbinsX();i++){
+      double tmp=Dqopt_vs_phi_highpt_barrel_1->GetBinContent(i);
       m_dqopt_vs_phi_highpt_barrel_1->SetBinContent(i,tmp);
-      tmp=m_Dqopt_vs_phi_highpt_barrel_2->GetBinContent(i);
+      tmp=Dqopt_vs_phi_highpt_barrel_2->GetBinContent(i);
       m_dqopt_vs_phi_highpt_barrel_2->SetBinContent(i,tmp);
       m_dqopt_vs_phi_highpt_barrel_1->SetBinError(i,tmp);
-      tmp=m_Dqopt_vs_phi_highpt_barrel_chi2->GetBinContent(i);
+      tmp=Dqopt_vs_phi_highpt_barrel_chi2->GetBinContent(i);
       m_dqopt_vs_phi_highpt_barrel_chi2->SetBinContent(i,tmp);
 
-      tmp=m_Dqopt_vs_phi_highpt_eca_1->GetBinContent(i);
+      tmp=Dqopt_vs_phi_highpt_eca_1->GetBinContent(i);
       m_dqopt_vs_phi_highpt_eca_1->SetBinContent(i,tmp);
-      tmp=m_Dqopt_vs_phi_highpt_eca_2->GetBinContent(i);
+      tmp=Dqopt_vs_phi_highpt_eca_2->GetBinContent(i);
       m_dqopt_vs_phi_highpt_eca_2->SetBinContent(i,tmp);
       m_dqopt_vs_phi_highpt_eca_1->SetBinError(i,tmp);
-      tmp=m_Dqopt_vs_phi_highpt_eca_chi2->GetBinContent(i);
+      tmp=Dqopt_vs_phi_highpt_eca_chi2->GetBinContent(i);
       m_dqopt_vs_phi_highpt_eca_chi2->SetBinContent(i,tmp);
 
-      tmp=m_Dqopt_vs_phi_highpt_ecc_1->GetBinContent(i);
+      tmp=Dqopt_vs_phi_highpt_ecc_1->GetBinContent(i);
       m_dqopt_vs_phi_highpt_ecc_1->SetBinContent(i,tmp);
-      tmp=m_Dqopt_vs_phi_highpt_ecc_2->GetBinContent(i);
+      tmp=Dqopt_vs_phi_highpt_ecc_2->GetBinContent(i);
       m_dqopt_vs_phi_highpt_ecc_2->SetBinContent(i,tmp);
       m_dqopt_vs_phi_highpt_ecc_1->SetBinError(i,tmp);
-      tmp=m_Dqopt_vs_phi_highpt_ecc_chi2->GetBinContent(i);
+      tmp=Dqopt_vs_phi_highpt_ecc_chi2->GetBinContent(i);
       m_dqopt_vs_phi_highpt_ecc_chi2->SetBinContent(i,tmp);
 
-      tmp=m_Dqopt_vs_phi_lowpt_barrel_1->GetBinContent(i);
+      tmp=Dqopt_vs_phi_lowpt_barrel_1->GetBinContent(i);
       m_dqopt_vs_phi_lowpt_barrel_1->SetBinContent(i,tmp);
-      tmp=m_Dqopt_vs_phi_lowpt_barrel_2->GetBinContent(i);
+      tmp=Dqopt_vs_phi_lowpt_barrel_2->GetBinContent(i);
       m_dqopt_vs_phi_lowpt_barrel_2->SetBinContent(i,tmp);
       m_dqopt_vs_phi_lowpt_barrel_1->SetBinError(i,tmp);
-      tmp=m_Dqopt_vs_phi_lowpt_barrel_chi2->GetBinContent(i);
+      tmp=Dqopt_vs_phi_lowpt_barrel_chi2->GetBinContent(i);
       m_dqopt_vs_phi_lowpt_barrel_chi2->SetBinContent(i,tmp);
 
-      tmp=m_Dqopt_vs_phi_lowpt_eca_1->GetBinContent(i);
+      tmp=Dqopt_vs_phi_lowpt_eca_1->GetBinContent(i);
       m_dqopt_vs_phi_lowpt_eca_1->SetBinContent(i,tmp);
-      tmp=m_Dqopt_vs_phi_lowpt_eca_2->GetBinContent(i);
+      tmp=Dqopt_vs_phi_lowpt_eca_2->GetBinContent(i);
       m_dqopt_vs_phi_lowpt_eca_2->SetBinContent(i,tmp);
       m_dqopt_vs_phi_lowpt_eca_1->SetBinError(i,tmp);
-      tmp=m_Dqopt_vs_phi_lowpt_eca_chi2->GetBinContent(i);
+      tmp=Dqopt_vs_phi_lowpt_eca_chi2->GetBinContent(i);
       m_dqopt_vs_phi_lowpt_eca_chi2->SetBinContent(i,tmp);
 
-      tmp=m_Dqopt_vs_phi_lowpt_ecc_1->GetBinContent(i);
+      tmp=Dqopt_vs_phi_lowpt_ecc_1->GetBinContent(i);
       m_dqopt_vs_phi_lowpt_ecc_1->SetBinContent(i,tmp);
-      tmp=m_Dqopt_vs_phi_lowpt_ecc_2->GetBinContent(i);
+      tmp=Dqopt_vs_phi_lowpt_ecc_2->GetBinContent(i);
       m_dqopt_vs_phi_lowpt_ecc_2->SetBinContent(i,tmp);
       m_dqopt_vs_phi_lowpt_ecc_1->SetBinError(i,tmp);
-      tmp=m_Dqopt_vs_phi_lowpt_ecc_chi2->GetBinContent(i);
+      tmp=Dqopt_vs_phi_lowpt_ecc_chi2->GetBinContent(i);
       m_dqopt_vs_phi_lowpt_ecc_chi2->SetBinContent(i,tmp);
     } 
 
-    TH1F* m_Deta_vs_eta_0 = (TH1F*)gDirectory->Get("Deta_vs_eta_0");
-    delete m_Deta_vs_eta_0;
-    delete m_Deta_vs_eta_1;
-    delete m_Deta_vs_eta_2;
-    delete m_Deta_vs_eta_chi2;
+    TH1F* Deta_vs_eta_0 = (TH1F*)gDirectory->Get("Deta_vs_eta_0");
+    delete Deta_vs_eta_0;
+    delete Deta_vs_eta_1;
+    delete Deta_vs_eta_2;
+    delete Deta_vs_eta_chi2;
 
-    TH1F* m_Dqopt_vs_pt_barrel_0 = (TH1F*)gDirectory->Get("Dqopt_vs_pt_barrel_0");
-    delete m_Dqopt_vs_pt_barrel_0;
-    delete m_Dqopt_vs_pt_barrel_1;
-    delete m_Dqopt_vs_pt_barrel_2;
-    delete m_Dqopt_vs_pt_barrel_chi2;
-    TH1F* m_Dqopt_vs_pt_eca_0 = (TH1F*)gDirectory->Get("Dqopt_vs_pt_eca_0");
-    delete m_Dqopt_vs_pt_eca_0;
-    delete m_Dqopt_vs_pt_eca_1;
-    delete m_Dqopt_vs_pt_eca_2;
-    delete m_Dqopt_vs_pt_eca_chi2;
-    TH1F* m_Dqopt_vs_pt_ecc_0 = (TH1F*)gDirectory->Get("Dqopt_vs_pt_ecc_0");
-    delete m_Dqopt_vs_pt_ecc_0;
-    delete m_Dqopt_vs_pt_ecc_1;
-    delete m_Dqopt_vs_pt_ecc_2;
-    delete m_Dqopt_vs_pt_ecc_chi2;
+    TH1F* Dqopt_vs_pt_barrel_0 = (TH1F*)gDirectory->Get("Dqopt_vs_pt_barrel_0");
+    delete Dqopt_vs_pt_barrel_0;
+    delete Dqopt_vs_pt_barrel_1;
+    delete Dqopt_vs_pt_barrel_2;
+    delete Dqopt_vs_pt_barrel_chi2;
+    TH1F* Dqopt_vs_pt_eca_0 = (TH1F*)gDirectory->Get("Dqopt_vs_pt_eca_0");
+    delete Dqopt_vs_pt_eca_0;
+    delete Dqopt_vs_pt_eca_1;
+    delete Dqopt_vs_pt_eca_2;
+    delete Dqopt_vs_pt_eca_chi2;
+    TH1F* Dqopt_vs_pt_ecc_0 = (TH1F*)gDirectory->Get("Dqopt_vs_pt_ecc_0");
+    delete Dqopt_vs_pt_ecc_0;
+    delete Dqopt_vs_pt_ecc_1;
+    delete Dqopt_vs_pt_ecc_2;
+    delete Dqopt_vs_pt_ecc_chi2;
 
-    TH1F* m_Dqopt_vs_eta_highpt_0 = (TH1F*)gDirectory->Get("Dqopt_vs_eta_highpt_0");
-    delete m_Dqopt_vs_eta_highpt_0;
-    delete m_Dqopt_vs_eta_highpt_1;
-    delete m_Dqopt_vs_eta_highpt_2;
-    delete m_Dqopt_vs_eta_highpt_chi2;
-    TH1F* m_Dqopt_vs_eta_lowpt_0 = (TH1F*)gDirectory->Get("Dqopt_vs_eta_lowpt_0");
-    delete m_Dqopt_vs_eta_lowpt_0;
-    delete m_Dqopt_vs_eta_lowpt_1;
-    delete m_Dqopt_vs_eta_lowpt_2;
-    delete m_Dqopt_vs_eta_lowpt_chi2;
+    TH1F* Dqopt_vs_eta_highpt_0 = (TH1F*)gDirectory->Get("Dqopt_vs_eta_highpt_0");
+    delete Dqopt_vs_eta_highpt_0;
+    delete Dqopt_vs_eta_highpt_1;
+    delete Dqopt_vs_eta_highpt_2;
+    delete Dqopt_vs_eta_highpt_chi2;
+    TH1F* Dqopt_vs_eta_lowpt_0 = (TH1F*)gDirectory->Get("Dqopt_vs_eta_lowpt_0");
+    delete Dqopt_vs_eta_lowpt_0;
+    delete Dqopt_vs_eta_lowpt_1;
+    delete Dqopt_vs_eta_lowpt_2;
+    delete Dqopt_vs_eta_lowpt_chi2;
 
-    TH1F* m_Dqopt_vs_phi_highpt_barrel_0 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_highpt_barrel_0");
-    delete m_Dqopt_vs_phi_highpt_barrel_0;
-    delete m_Dqopt_vs_phi_highpt_barrel_1;
-    delete m_Dqopt_vs_phi_highpt_barrel_2;
-    delete m_Dqopt_vs_phi_highpt_barrel_chi2;
-    TH1F* m_Dqopt_vs_phi_highpt_eca_0 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_highpt_eca_0");
-    delete m_Dqopt_vs_phi_highpt_eca_0;
-    delete m_Dqopt_vs_phi_highpt_eca_1;
-    delete m_Dqopt_vs_phi_highpt_eca_2;
-    delete m_Dqopt_vs_phi_highpt_eca_chi2;
-    TH1F* m_Dqopt_vs_phi_highpt_ecc_0 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_highpt_ecc_0");
-    delete m_Dqopt_vs_phi_highpt_ecc_0;
-    delete m_Dqopt_vs_phi_highpt_ecc_1;
-    delete m_Dqopt_vs_phi_highpt_ecc_2;
-    delete m_Dqopt_vs_phi_highpt_ecc_chi2;
+    TH1F* Dqopt_vs_phi_highpt_barrel_0 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_highpt_barrel_0");
+    delete Dqopt_vs_phi_highpt_barrel_0;
+    delete Dqopt_vs_phi_highpt_barrel_1;
+    delete Dqopt_vs_phi_highpt_barrel_2;
+    delete Dqopt_vs_phi_highpt_barrel_chi2;
+    TH1F* Dqopt_vs_phi_highpt_eca_0 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_highpt_eca_0");
+    delete Dqopt_vs_phi_highpt_eca_0;
+    delete Dqopt_vs_phi_highpt_eca_1;
+    delete Dqopt_vs_phi_highpt_eca_2;
+    delete Dqopt_vs_phi_highpt_eca_chi2;
+    TH1F* Dqopt_vs_phi_highpt_ecc_0 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_highpt_ecc_0");
+    delete Dqopt_vs_phi_highpt_ecc_0;
+    delete Dqopt_vs_phi_highpt_ecc_1;
+    delete Dqopt_vs_phi_highpt_ecc_2;
+    delete Dqopt_vs_phi_highpt_ecc_chi2;
 
-    TH1F* m_Dqopt_vs_phi_lowpt_barrel_0 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_lowpt_barrel_0");
-    delete m_Dqopt_vs_phi_lowpt_barrel_0;
-    delete m_Dqopt_vs_phi_lowpt_barrel_1;
-    delete m_Dqopt_vs_phi_lowpt_barrel_2;
-    delete m_Dqopt_vs_phi_lowpt_barrel_chi2;
-    TH1F* m_Dqopt_vs_phi_lowpt_eca_0 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_lowpt_eca_0");
-    delete m_Dqopt_vs_phi_lowpt_eca_0;
-    delete m_Dqopt_vs_phi_lowpt_eca_1;
-    delete m_Dqopt_vs_phi_lowpt_eca_2;
-    delete m_Dqopt_vs_phi_lowpt_eca_chi2;
-    TH1F* m_Dqopt_vs_phi_lowpt_ecc_0 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_lowpt_ecc_0");
-    delete m_Dqopt_vs_phi_lowpt_ecc_0;
-    delete m_Dqopt_vs_phi_lowpt_ecc_1;
-    delete m_Dqopt_vs_phi_lowpt_ecc_2;
-    delete m_Dqopt_vs_phi_lowpt_ecc_chi2;
+    TH1F* Dqopt_vs_phi_lowpt_barrel_0 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_lowpt_barrel_0");
+    delete Dqopt_vs_phi_lowpt_barrel_0;
+    delete Dqopt_vs_phi_lowpt_barrel_1;
+    delete Dqopt_vs_phi_lowpt_barrel_2;
+    delete Dqopt_vs_phi_lowpt_barrel_chi2;
+    TH1F* Dqopt_vs_phi_lowpt_eca_0 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_lowpt_eca_0");
+    delete Dqopt_vs_phi_lowpt_eca_0;
+    delete Dqopt_vs_phi_lowpt_eca_1;
+    delete Dqopt_vs_phi_lowpt_eca_2;
+    delete Dqopt_vs_phi_lowpt_eca_chi2;
+    TH1F* Dqopt_vs_phi_lowpt_ecc_0 = (TH1F*)gDirectory->Get("Dqopt_vs_phi_lowpt_ecc_0");
+    delete Dqopt_vs_phi_lowpt_ecc_0;
+    delete Dqopt_vs_phi_lowpt_ecc_1;
+    delete Dqopt_vs_phi_lowpt_ecc_2;
+    delete Dqopt_vs_phi_lowpt_ecc_chi2;
 
     delete m_deta_vs_eta_2;
     delete m_dqopt_vs_pt_barrel_2;

@@ -12,6 +12,7 @@ use AthenaKernel    AthenaKernel-*      Control
 use AthenaBaseComps AthenaBaseComps-*   Control
 use SGTools         SGTools-*           Control
 use AthLinks        AthLinks-*          Control
+use AthContainers   AthContainers-*     Control
 use StoreGate       StoreGate-*         Control
 
 end_private

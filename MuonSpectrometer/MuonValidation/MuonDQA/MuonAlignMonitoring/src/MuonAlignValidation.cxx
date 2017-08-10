@@ -478,7 +478,7 @@
 
 //       sc = getSegments(h_index);
 //       if (sc.isFailure()) {
-//         msg(MSG::FATAL)  << "Could not fill histograms in MuonAlignValidation::getSegments for collection" << m_segmCollectionName[j] << endreq;
+//         msg(MSG::FATAL)  << "Could not fill histograms in MuonAlignValidation::getSegments for collection" << m_segmCollectionName[j] << endmsg;
 //         return StatusCode::FAILURE;
 //       }
 //     }

@@ -26,7 +26,7 @@ Adopted from RT_Relation_DigiTool
 
 #include "CLHEP/Random/RandFlat.h"
 //#include "CLHEP/Random/RandGauss.h"
-#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 
 #include "AthenaKernel/IAtRndmGenSvc.h"
 //#include "MuonIdHelpers/MdtIdHelper.h"

@@ -22,7 +22,7 @@ Modified:
 #ifndef TRIG_BPHYS_CONTAINER
 #define TRIG_BPHYS_CONTAINER
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "CLIDSvc/CLASS_DEF.h"
 #include "SGTools/BaseInfo.h"
 

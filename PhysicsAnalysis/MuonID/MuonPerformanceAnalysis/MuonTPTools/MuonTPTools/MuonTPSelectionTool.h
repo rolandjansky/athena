@@ -20,7 +20,7 @@
 #include "MuonSelectorTools/IMuonSelectionTool.h"
 #include "AsgTools/AsgToolsConf.h"
 #include "AsgTools/AsgMetadataTool.h"
-#include "GoodRunsLists/IGoodRunsListSelectionTool.h"
+#include "AsgAnalysisInterfaces/IGoodRunsListSelectionTool.h"
 
 
 class MuonTPSelectionTool

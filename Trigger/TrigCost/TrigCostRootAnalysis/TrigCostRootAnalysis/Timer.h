@@ -28,14 +28,12 @@
  */
 
 namespace TrigCostRootAnalysis {
-
   /**
    * @class Timer
    * Has a name, and does average time
    */
   class Timer {
-   public:
-
+  public:
     Timer(std::string _type, std::string _name);
     ~Timer();
     void start();
@@ -43,18 +41,14 @@ namespace TrigCostRootAnalysis {
     void print();
 
     static void printAll();
-
-   private:
-
+  private:
     std::string m_type; //<! What type of thing are we timing
     std::string m_name; //!< Name of what we are doing the time for
     Float_t m_startTime; //<! Holds when the timer is started
     Float_t m_time; //<! Holds the total elapsed time
     UInt_t m_calls; //!< Holds the number of calls
     static std::vector<Timer*> s_timers; //!< Holds a pointer to every timer which has been minted
-
   };  //class Timer
-
 }
 
 #endif //TrigCostRootAnalysis_Timer_H

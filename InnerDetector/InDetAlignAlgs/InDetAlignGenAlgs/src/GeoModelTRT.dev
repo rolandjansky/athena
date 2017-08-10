@@ -4,7 +4,7 @@
 
 // --------- Setting up TRT Geometry ---------
 
-m_log << MSG::INFO << "Starting TRT Geometry" << endreq;
+m_log << MSG::INFO << "Starting TRT Geometry" << endmsg;
 
 m_managerName = "TRT";  
 
@@ -12,15 +12,15 @@ sc = detStore().retrieve(TRTmanager, m_managerName);
 
 if (sc.isFailure() || !TRTmanager) {
   log << MSG::FATAL << "Could not find the TRT Manager "
-      << m_managerName << " !" << endreq;
+      << m_managerName << " !" << endmsg;
   //    return StatusCode::FAILURE;
 } else {
-  log << MSG::INFO << "TRT Manager found" << endreq;
+  log << MSG::INFO << "TRT Manager found" << endmsg;
 }
 
-//  m_log << MSG::INFO << "Retrieving TRT manager OK" << endreq;
+//  m_log << MSG::INFO << "Retrieving TRT manager OK" << endmsg;
 
-//  m_log << MSG::INFO << "TRT manager, getNumTreeTops: " << TRTmanager->getNumTreeTops() << endreq;  
+//  m_log << MSG::INFO << "TRT manager, getNumTreeTops: " << TRTmanager->getNumTreeTops() << endmsg;  
 
 enum {NMODMAX=3};                                                              //
 enum {NWHEELMAX=18};                                                           //
@@ -40,14 +40,14 @@ for (unsigned int ec=0;ec<2;ec++) {
       for (unsigned int sLay=0;sLay<TRTmanager->getNumerology()->getNBarrelLayers(mod);sLay++) {
 
 	imod++;
-	//		    m_log << MSG::INFO << "TRT loop indexes: " << ec << "-" << mod << "-" << phi << "-" << sLay << endreq;
+	//		    m_log << MSG::INFO << "TRT loop indexes: " << ec << "-" << mod << "-" << phi << "-" << sLay << endmsg;
 
 
 	const TRT_BarrelElement * TRTelement = 0;
 
 	TRTelement = TRTmanager->getBarrelElement(ec,mod,phi,sLay);
 
-	if(!TRTelement) log << MSG::FATAL << "null TRT element" << endreq;
+	if(!TRTelement) log << MSG::FATAL << "null TRT element" << endmsg;
 
 	const Identifier ident = TRTelement->identify();
 
@@ -67,9 +67,9 @@ for (unsigned int ec=0;ec<2;ec++) {
 
 	  m_strawlist.push_back(newstraw);
 
-	  //	      if(imod<2) m_log << MSG::INFO << "printing straw x,y,z: "<< TRTelement->strawXPos(istraw) << "-" <<  TRTelement->strawYPos(istraw)<< "-" << TRTelement->strawZPos(istraw) << endreq;
+	  //	      if(imod<2) m_log << MSG::INFO << "printing straw x,y,z: "<< TRTelement->strawXPos(istraw) << "-" <<  TRTelement->strawYPos(istraw)<< "-" << TRTelement->strawZPos(istraw) << endmsg;
 	      
-	  if(imod<2) m_log << MSG::INFO << "Module coordinates x,y,z: "<< center.x() << " - " << center.y() << " - " << center.z() << endreq;
+	  if(imod<2) m_log << MSG::INFO << "Module coordinates x,y,z: "<< center.x() << " - " << center.y() << " - " << center.z() << endmsg;
 
 	}
 
@@ -100,9 +100,9 @@ const TRT_EndcapDescriptor * TRTdescriptor;
 //	  TRT_EndcapDescriptor * TRTdescriptor;
 TRTdescriptor=TRTelement->getDescriptor();	
 
-if(iendcap<(TRTmanager->getNumerology()->getNEndcapLayers(whe)+TRTmanager->getNumerology()->getNEndcapLayers(whe+1))) m_log << MSG::INFO << "ENDCAP - printing straw start phi, inner radius, str length: "<< TRTelement->getDescriptor()->startPhi() << " - " <<  TRTelement->getDescriptor()->innerRadius()<< " - " <<  TRTelement->getDescriptor()->strawLength() << endreq;
+if(iendcap<(TRTmanager->getNumerology()->getNEndcapLayers(whe)+TRTmanager->getNumerology()->getNEndcapLayers(whe+1))) m_log << MSG::INFO << "ENDCAP - printing straw start phi, inner radius, str length: "<< TRTelement->getDescriptor()->startPhi() << " - " <<  TRTelement->getDescriptor()->innerRadius()<< " - " <<  TRTelement->getDescriptor()->strawLength() << endmsg;
 
-if(iendcap<(TRTmanager->getNumerology()->getNEndcapLayers(whe)+TRTmanager->getNumerology()->getNEndcapLayers(whe+1))) m_log << MSG::INFO << "ENDCAP - Module coordinates x,y,z: "<< center.x() << " - " << center.y() << " - " << center.z() << endreq;
+if(iendcap<(TRTmanager->getNumerology()->getNEndcapLayers(whe)+TRTmanager->getNumerology()->getNEndcapLayers(whe+1))) m_log << MSG::INFO << "ENDCAP - Module coordinates x,y,z: "<< center.x() << " - " << center.y() << " - " << center.z() << endmsg;
 
 for (int istraw=1;istraw<=TRTdescriptor->nStraws(); istraw++) {
 

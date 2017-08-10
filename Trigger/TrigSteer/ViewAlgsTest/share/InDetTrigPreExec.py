@@ -1,13 +1,14 @@
+#
+#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
+
 #Early failure warning
-from GaudiHive.GaudiHiveConf import ForwardSchedulerSvc
-from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-svcMgr += ForwardSchedulerSvc()
-svcMgr.ForwardSchedulerSvc.CheckDependencies = True
-## get a handle on the ServiceManager
-
-
 ## get a handle on the ServiceManager
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+
+from AthenaCommon.AlgScheduler import AlgScheduler
+AlgScheduler.CheckDataDependencies( True )
+
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 from SGComps.SGCompsConf import SGInputLoader

@@ -93,7 +93,7 @@ class GeoVPhysVol : public GeoGraphNode  //## Inherits: <unnamed>%3CDD39620209
 
       //## Operation: getParent%3CDE6F5903B1
       //	Gets the parent, if the parent is unique, and otherwise
-      //	returns a NULL pointer.
+      //	returns a nullptr pointer.
       PVConstLink getParent () const;
 
       //## Operation: getLogVol%3CDE67950290
@@ -173,7 +173,7 @@ class GeoVPhysVol : public GeoGraphNode  //## Inherits: <unnamed>%3CDD39620209
 
       //## Attribute: m_parentPtr%3CDE6ECC02B4
       //	If one parent                ...pointer=PARENT;
-      //	If no parent                  ...pointer=NULL.
+      //	If no parent                  ...pointer=nullptr.
       //	If more than one parent...pointer=this;
       //## begin GeoVPhysVol::m_parentPtr%3CDE6ECC02B4.attr preserve=no  private: const GeoVPhysVol* {U} 
       const GeoVPhysVol* m_parentPtr;

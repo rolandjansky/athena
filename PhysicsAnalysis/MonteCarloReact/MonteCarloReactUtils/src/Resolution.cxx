@@ -20,7 +20,7 @@ using namespace MonteCarloReact;
 Resolution::Resolution() { m_isValid = false; }
 
 Resolution::Resolution(istream &fstr, const ResInfo* request) {
-  m_makeResolution( fstr, request);
+  makeResolution( fstr, request);
 }
 
 Resolution::~Resolution(){;}
@@ -35,9 +35,9 @@ bool Resolution::isRequestInFile(istream& fp, const ResInfo* request) {
     getline(fp,str);
     // Tokenize is used to break the input line into a series of "words", the first of which is the "keyword". The fourth parameter to this call
     // is the set of delimeters for defining word boundaries
-    bool goodTokens = m_tokenize(str, key, tokens, "\t\r\n; ");
+    bool goodTokens = tokenize(str, key, tokens, "\t\r\n; ");
     if(!goodTokens)  continue ;
-    if( m_parseInputLine( key, tokens)) {
+    if( parseInputLine( key, tokens)) {
       endOfObject = true ;
       continue ;
     } 
@@ -55,19 +55,19 @@ bool Resolution::isRequestInFile(istream& fp, const ResInfo* request) {
 }
 
 
-void Resolution::m_doStream( ostream & os) const {
+void Resolution::doStream( ostream & os) const {
   // first dump efficiency info
   os << m_spec;
   // now dump the efficiency values themselvs
-  m_stream( os );
+  stream( os );
 }
 
-bool Resolution::m_makeResolution(istream& fstr, const ResInfo* request){
-  if(!m_resParse(fstr, request)) return false;  
+bool Resolution::makeResolution(istream& fstr, const ResInfo* request){
+  if(!resParse(fstr, request)) return false;  
   else return true;
 }
 
-bool Resolution::m_resParse(istream& fp, const ResInfo* request) {
+bool Resolution::resParse(istream& fp, const ResInfo* request) {
   // read in one Resolution object from the input stream
   bool endOfObject = false ; // true after filling one ResInfo object
   while(fp && fp.good()) { 
@@ -80,14 +80,14 @@ bool Resolution::m_resParse(istream& fp, const ResInfo* request) {
     // Tokenize is used to break the input line into a series of "words",
     // the first of which is the "keyword". The fourth parameter to this call
     // is the set of delimeters for defining word boundaries
-    bool goodTokens = m_tokenize(str, key, tokens, "\t\r\n; ");
+    bool goodTokens = tokenize(str, key, tokens, "\t\r\n; ");
     
         
     if(!goodTokens)  continue ;
     // ParseInputLine is implemented by the derived class. It returns true if the derived class 
     // found a key which it recongnised
     // thus endOfObject is set to true the first time a key is found belonging to the derived class.
-    if( m_parseInputLine( key, tokens)) { 
+    if( parseInputLine( key, tokens)) { 
       endOfObject = true ;
       continue ;
     } 
@@ -97,7 +97,7 @@ bool Resolution::m_resParse(istream& fp, const ResInfo* request) {
       // recognised by the derived class after a block of lines (1 or more) which *were* recognised by the 
       // derived class.
       if(request && request->contains(m_spec)) { // does the specification of the efficiency match what we requested?
-	m_isValid = m_doValidateInput(); // is it valid?
+	m_isValid = doValidateInput(); // is it valid?
 	if( m_isValid ) {
 	  // now we need to put the current line back into the buffer in case the controller of the stream (most likely resTool) wants to make 
 	  // a new Resolution object to continue parsing the input stream to look for further instances of matching efficiencies!
@@ -117,12 +117,12 @@ bool Resolution::m_resParse(istream& fp, const ResInfo* request) {
   // if we got to the end of the stream without finding a file. throw an exception here.
   if(request && !request->contains(m_spec)) 
     throw EffRequestNotFoundInFile() ;
-  m_isValid = m_doValidateInput();
+  m_isValid = doValidateInput();
   return m_isValid;
 }
 
 
-bool Resolution::m_tokenize(const string& str, std::string & key, vector<string>& tokens, const string& delimiters) {
+bool Resolution::tokenize(const string& str, std::string & key, vector<string>& tokens, const string& delimiters) {
   int nfound = 0;
   if(str.empty()) return false;
   // Skip delimiters at beginning
@@ -150,13 +150,13 @@ bool Resolution::m_tokenize(const string& str, std::string & key, vector<string>
 
 
 
-bool Resolution::m_doValidateInput() const {
+bool Resolution::doValidateInput() const {
   bool valid = true;
   // first make sure all the things needed to define an arbitrary efficiency have been defined
   
 
   // now allow derived class to check for what it requires
-  if( valid ) valid = valid && m_validateInput();
+  if( valid ) valid = valid && validateInput();
   return valid;
 }
 

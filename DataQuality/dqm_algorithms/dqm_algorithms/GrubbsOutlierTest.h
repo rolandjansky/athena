@@ -4,7 +4,7 @@
 
 /*! \file GrubbsOutlierTest.h
  *  \author Venkatesh Kaushik <venkat.kaushik@cern.ch>
- *  \identify outlier-bins in 1d histogram
+ *  @brief outlier-bins in 1d histogram
 */
 
 #ifndef DQM_ALGORITHMS_GRUBBSOUTLIERTEST_H

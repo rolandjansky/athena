@@ -19,7 +19,7 @@
 #include <vector>
 #include <map>
 #include <math.h>
-using namespace std;
+
 
 double	getContentInRange(TH1F *hist, double centralX, double halfWidth);
 

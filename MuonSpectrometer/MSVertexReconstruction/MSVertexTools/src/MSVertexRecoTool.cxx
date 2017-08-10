@@ -11,10 +11,7 @@
 #include "xAODTracking/VertexAuxContainer.h"
 #include "xAODTracking/TrackParticle.h"
 
-#include "MuonPrepRawData/MdtPrepDataContainer.h"
-#include "MuonPrepRawData/RpcPrepDataContainer.h"
-#include "MuonPrepRawData/TgcPrepDataContainer.h"
-#include "MuonPrepRawData/CscPrepDataContainer.h"
+
 
 #define MAXPLANES 100
 
@@ -40,11 +37,15 @@ namespace Muon {
     m_tgcIdHelper(0),
     m_PI(3.1415927),
     m_rndmEngine(0),
-    m_rndmSvc(0)
+    m_rndmSvc(0),
+    m_xAODContainerKey("MSDisplacedVertex"),
+    m_rpcTESKey("RPC_Measurements"),
+    m_tgcTESKey("TGC_Measurements"),
+    m_mdtTESKey("MDT_DriftCircles")
   {
     declareInterface<IMSVertexRecoTool>(this);
     
-    declareProperty("xAODVertexContainer",m_xAODContainerName="MSDisplacedVertex");//name of SG container
+    declareProperty("xAODVertexContainer",m_xAODContainerKey);//name of SG container
 
     // nominal phi angle for tracklets
     declareProperty("TrackPhiAngle",m_TrackPhiAngle = 0.0);
@@ -75,6 +76,11 @@ namespace Muon {
 
     //extrapolator
     declareProperty("MyExtrapolator", m_extrapolator );
+
+    declareProperty("TESKey", m_rpcTESKey);
+    declareProperty("TGCKey", m_tgcTESKey);
+    declareProperty("MDTKey", m_mdtTESKey);
+
   }
 
 
@@ -118,6 +124,10 @@ namespace Muon {
     
     m_PI = 3.1415927;
     
+    ATH_CHECK(m_xAODContainerKey.initialize());
+    ATH_CHECK(m_rpcTESKey.initialize());
+    ATH_CHECK(m_tgcTESKey.initialize());
+    ATH_CHECK(m_mdtTESKey.initialize());
     return StatusCode::SUCCESS;
   }
   
@@ -133,23 +143,13 @@ namespace Muon {
 
   StatusCode MSVertexRecoTool::findMSvertices(std::vector<Tracklet>& tracklets, std::vector<MSVertex*>& vertices) {
  
+    SG::WriteHandle<xAOD::VertexContainer> xAODVxContainer(m_xAODContainerKey);
+    ATH_CHECK( xAODVxContainer.record (std::make_unique<xAOD::VertexContainer>(),
+                           std::make_unique<xAOD::VertexAuxContainer>()) );
+
+
     //if there are fewer than 3 tracks, vertexing not possible
     if(tracklets.size() < 3) {
-
-      //create xAOD::vertex - the container needs to be created for every event
-      xAOD::VertexContainer* xAODVxContainer = new xAOD::VertexContainer();
-      if(evtStore()->record(xAODVxContainer,m_xAODContainerName).isFailure()) {
-	ATH_MSG_WARNING("Failed to record the xAOD::VertexContainer with key " << m_xAODContainerName);
-	return StatusCode::FAILURE;
-      }
-      
-      xAOD::VertexAuxContainer* aux = new xAOD::VertexAuxContainer();
-      if(evtStore()->record(aux,m_xAODContainerName+"Aux.").isFailure()) {
-	ATH_MSG_WARNING("Failed to record the xAOD::VertexAuxContainer with key " << m_xAODContainerName);
-	return StatusCode::FAILURE;
-      }
-      
-      xAODVxContainer->setStore( aux );
       return StatusCode::SUCCESS;
     }
 
@@ -158,7 +158,7 @@ namespace Muon {
       MSVertex* dummyVtx;
       MakeDummyVertex(dummyVtx);
       vertices.push_back(dummyVtx);
-      StatusCode sc = FillOutputContainer(vertices);
+      StatusCode sc = FillOutputContainer(vertices, xAODVxContainer);
       if(sc.isFailure()) return StatusCode::FAILURE;
       else               return StatusCode::SUCCESS;
     }
@@ -178,7 +178,7 @@ namespace Muon {
       MSVertex* dummyVtx;
       MakeDummyVertex(dummyVtx);
       vertices.push_back(dummyVtx);
-      StatusCode sc = FillOutputContainer(vertices);
+      StatusCode sc = FillOutputContainer(vertices, xAODVxContainer);
       if(sc.isFailure()) return StatusCode::FAILURE;
       else               return StatusCode::SUCCESS;
     }
@@ -193,14 +193,14 @@ namespace Muon {
     for(unsigned int i = 0; i < BarrelClusters.size(); i++) {
       if(BarrelClusters.at(i).ntrks != (int) BarrelClusters.at(i).tracks.size()) {
         ATH_MSG_INFO( "ntrks not equal to track container size; this should never happen.  Exiting quietly." );
-        StatusCode sc = FillOutputContainer(vertices);
+        StatusCode sc = FillOutputContainer(vertices, xAODVxContainer);
         return sc;
       }
     }
     for(unsigned int i = 0; i < EndcapClusters.size(); i++) {
       if(EndcapClusters.at(i).ntrks != (int) EndcapClusters.at(i).tracks.size()) {
         ATH_MSG_INFO( "ntrks not equal to track container size; this should never happen.  Exiting quietly." );
-        StatusCode sc = FillOutputContainer(vertices);
+        StatusCode sc = FillOutputContainer(vertices, xAODVxContainer);
         return sc;
       }
     }
@@ -286,7 +286,7 @@ namespace Muon {
 
     }//end loop on endcap tracklet clusters
 
-    StatusCode sc = FillOutputContainer(vertices);
+    StatusCode sc = FillOutputContainer(vertices, xAODVxContainer);
     if(sc.isFailure()) return StatusCode::FAILURE;
     else               return StatusCode::SUCCESS;
   }//end find vertices
@@ -1091,23 +1091,8 @@ namespace Muon {
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
-  StatusCode MSVertexRecoTool::FillOutputContainer(std::vector<MSVertex*>& vertices) {
-    
-    //create xAOD::vertex - the container needs to be created for every event
-    xAOD::VertexContainer* xAODVxContainer = new xAOD::VertexContainer();
-    if(evtStore()->record(xAODVxContainer,m_xAODContainerName).isFailure()) {
-      ATH_MSG_WARNING("Failed to record the xAOD::VertexContainer with key " << m_xAODContainerName);
-      return StatusCode::FAILURE;
-    }
-    
-    xAOD::VertexAuxContainer* aux = new xAOD::VertexAuxContainer();
-    if(evtStore()->record(aux,m_xAODContainerName+"Aux.").isFailure()) {
-      ATH_MSG_WARNING("Failed to record the xAOD::VertexAuxContainer with key " << m_xAODContainerName);
-      return StatusCode::FAILURE;
-    }
-    
-    xAODVxContainer->setStore( aux );
-    
+  StatusCode MSVertexRecoTool::FillOutputContainer(std::vector<MSVertex*>& vertices, SG::WriteHandle<xAOD::VertexContainer> &xAODVxContainer) {
+     
     for(std::vector<MSVertex*>::const_iterator vxIt=vertices.begin(); vxIt!=vertices.end(); ++vxIt) {
       
       xAOD::Vertex* xAODVx = new xAOD::Vertex();
@@ -1126,12 +1111,8 @@ namespace Muon {
     }
 
     //cleanup
-    for(std::vector<MSVertex*>::iterator vxIt=vertices.begin(); vxIt!=vertices.end(); ++vxIt) {
-      if ( (*vxIt) ) {
-	delete (*vxIt);
-	(*vxIt) = 0;
-      }
-    }
+    for(auto x : vertices) delete x;
+
     vertices.clear();
 
     return StatusCode::SUCCESS;
@@ -1178,8 +1159,8 @@ namespace Muon {
     float sinphi(0),cosphi(0);
     float eta = -1*log(tan(0.5*theta));
     if(fabs(eta) < 1.5) {
-      const Muon::RpcPrepDataContainer* rpcTES = 0;
-      if(evtStore()->retrieve(rpcTES,"RPC_Measurements").isFailure() || !rpcTES) {
+      SG::ReadHandle<Muon::RpcPrepDataContainer> rpcTES(m_rpcTESKey);
+      if(!rpcTES.isValid()) {
         ATH_MSG_WARNING( "No RpcPrepDataContainer found in SG!" );
         return 0;
       }
@@ -1207,8 +1188,8 @@ namespace Muon {
       }  
     }
     if(fabs(eta) > 0.5) {
-      const Muon::TgcPrepDataContainer* tgcTES = 0;
-      if(evtStore()->retrieve(tgcTES,"TGC_Measurements").isFailure()) {     
+      SG::ReadHandle<Muon::TgcPrepDataContainer> tgcTES(m_tgcTESKey);
+      if(!tgcTES.isValid()) {     
 	ATH_MSG_WARNING( "No TgcPrepDataContainer found in SG!" );
 	return 0;
       }
@@ -1247,19 +1228,8 @@ namespace Muon {
   //count the hits (MDT, RPC & TGC) around the vertex
   void MSVertexRecoTool::HitCounter(MSVertex* MSRecoVx) {
     int nHighOccupancy(0);
-    const Muon::MdtPrepDataContainer* mdtTES = 0;
-    if(evtStore()->retrieve(mdtTES,"MDT_DriftCircles").isFailure()) {
-      ATH_MSG_ERROR( "Unable to retrieve the MDT hits" );
-    }
-    const Muon::RpcPrepDataContainer* rpcTES = 0;
-    if(evtStore()->retrieve(rpcTES,"RPC_Measurements").isFailure()) {
-      ATH_MSG_ERROR( "Unable to retrieve the RPC hits" );
-    }
-    const Muon::TgcPrepDataContainer* tgcTES = 0;
-    if(evtStore()->retrieve(tgcTES,"TGC_Measurements").isFailure()) {
-      ATH_MSG_ERROR( "Unable to retrieve the MDT hits" );
-    }
-
+    SG::ReadHandle<Muon::MdtPrepDataContainer> mdtTES(m_mdtTESKey);
+    if(!mdtTES.isValid()) ATH_MSG_ERROR( "Unable to retrieve the MDT hits" );
     //MDTs -- count the number around the vertex
     int nmdt(0);
     Muon::MdtPrepDataContainer::const_iterator MDTItr = mdtTES->begin();
@@ -1292,7 +1262,9 @@ namespace Muon {
     ATH_MSG_DEBUG( "Found " << nHighOccupancy << " chambers near the MS vertex with occupancy greater than " 
 		   << m_ChamberOccupancyMin );
     if(nHighOccupancy < m_minHighOccupancyChambers) return;
-    
+
+    SG::ReadHandle<Muon::RpcPrepDataContainer> rpcTES(m_rpcTESKey);
+    if(!rpcTES.isValid()) ATH_MSG_ERROR( "Unable to retrieve the RPC hits" );
     //RPC -- count the number around the vertex
     int nrpc(0);
     Muon::RpcPrepDataContainer::const_iterator RpcItr = rpcTES->begin();
@@ -1313,6 +1285,8 @@ namespace Muon {
       }
     }  
      //TGC -- count the number around the vertex
+    SG::ReadHandle<Muon::TgcPrepDataContainer> tgcTES(m_tgcTESKey);
+    if(!tgcTES.isValid()) ATH_MSG_ERROR( "Unable to retrieve the TGC hits" );
     int ntgc(0);
     Muon::TgcPrepDataContainer::const_iterator TgcItr = tgcTES->begin();
     Muon::TgcPrepDataContainer::const_iterator TgcItrE = tgcTES->end();

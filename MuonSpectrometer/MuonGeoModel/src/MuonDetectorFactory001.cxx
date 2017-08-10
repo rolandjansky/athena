@@ -163,35 +163,6 @@ namespace MuonGM {
 	//             log<<MSG::WARNING<<"                       => overwriting UseRDB flag"<<endmsg;
 	//             m_rdb = 1;
 	//         }
-        if (m_layout == "Q02_initial") 
-	  {
-            m_includeCutouts = 0;
-            m_includeCutoutsBog = 0;
-            log<<MSG::INFO<<"MuonLayout set to <"<<m_layout<<"> = Preliminary version for Rome workshop "<<endmsg;
-            log<<MSG::INFO<<"                   BOG chambers are shorter; no cutouts implemented"<<endmsg;
-	  }            
-        if (m_layout == "Q02_initial_pro") 
-	  {
-            m_includeCutouts = 0;
-            m_includeCutoutsBog = 1;
-            log<<MSG::INFO<<"MuonLayout set to <"<<m_layout<<"> = Production version for Rome workshop "<<endmsg;
-            log<<MSG::INFO<<"                   BOG cutouts are activated, all other cutouts are disabled"<<endmsg;
-            m_layout = "Q02_initial";
-            log<<MSG::INFO<<"                   Setting internal Layout Name to "<<m_layout<<endmsg;
-            log<<MSG::INFO<<"                           includeCutouts and includeCutoutsBog to "
-               <<m_includeCutouts<<" "
-               <<m_includeCutoutsBog <<endmsg;
-	  }            
-        if (m_layout == "Q02") 
-	  {
-            m_includeCutouts = 0;
-            m_includeCutoutsBog = 1;
-            log<<MSG::INFO<<"MuonLayout set to <"<<m_layout<<"> = Production version for Rome workshop "<<endmsg;
-            log<<MSG::INFO<<"                   BOG cutouts are activated, all other cutouts are disabled"<<endmsg;
-            log<<MSG::INFO<<"                   Setting includeCutouts and includeCutoutsBog to "
-               <<m_includeCutouts<<" "
-               <<m_includeCutoutsBog <<endmsg;
-	  }            
         if (m_layout.substr(0,1) == "R") 
 	  {
             m_includeCutouts = 1;
@@ -402,17 +373,7 @@ namespace MuonGM {
       //             return;
       //         }
     }
-    else if (m_layout.substr(0,11) == "Q02_initial" && m_includeCutoutsBog == 0) {
-      // Preliminary Rome ws version
-      // OracleTag = "ATLAS-Rome-Initial-01";
-      dbr = new RDBReaderAtlas(m_pDetStore, m_pRDBAccess, OracleTag, OracleNode, m_dumpAlines, m_useCscIntAlinesFromGM, m_dumpCscIntAlines);
-    }
-    else if (m_layout.substr(0,11) == "Q02_initial" && m_includeCutoutsBog == 1) {
-      // Production Rome ws version 
-      // OracleTag = "ATLAS-Rome-Initial-02";
-      dbr = new RDBReaderAtlas(m_pDetStore, m_pRDBAccess, OracleTag, OracleNode, m_dumpAlines, m_useCscIntAlinesFromGM, m_dumpCscIntAlines);
-    }
-    else if (m_layout == "Q02" || m_layout.substr(0,1) == "R" )       {
+    else if ( m_layout.substr(0,1) == "R" )       {
       // Production Rome Final
       // OracleTag = "ATLAS-Rome-Final-00";
       //dbr = new RDBReaderAtlas(m_pDetStore, m_pRDBAccess, OracleTag, OracleNode);
@@ -422,12 +383,6 @@ namespace MuonGM {
       RDBReaderAtlas* thisDbr = (RDBReaderAtlas*)dbr;
       thisDbr->setControlCscIntAlines(m_controlCscIntAlines);
      
-    }
-    else if (m_layout == "CTB2004") {
-      // dbr = new DBReaderTB04(m_pDetStore);
-      log<<MSG::ERROR<<"Layout CTB2004 (existing only in NOVA) is NOT supported after 21/02/2007 and MuonGeoModel tag >= 00-04-01"<<endmsg;
-      log<<MSG::ERROR<<"For CTB studies, use AtlasRelease <13.0.0"<<endmsg;
-      return;
     }
     else
       {
@@ -553,107 +508,84 @@ namespace MuonGM {
   
     const GeoMaterial* m4 = theMaterialManager->getMaterial( "std::Air" );
     GeoLogVol*  l4;
-    if (m_layout != "CTB2004")
+    GeoPcon* c4 = new GeoPcon( 0, 360*CLHEP::deg );
+    //--- --- --- CREATE ENVELOPE --- --- ---
+    // First try to get data from the GeomDB
+    IRDBRecordset_ptr muonSysRec = m_pRDBAccess->getRecordsetPtr("MuonSystem",OracleTag,OracleNode);
+    // -- Next two lines allow to use MuonSystem-00 by default instead of hardwired numbers
+    //    even for geometry tags where MuonSystem was not collected 
+    if(muonSysRec->size()==0)
       {
-        GeoPcon* c4 = new GeoPcon( 0, 360*CLHEP::deg );
-        //--- --- --- CREATE ENVELOPE --- --- ---
-        // First try to get data from the GeomDB
-        IRDBRecordset_ptr muonSysRec = m_pRDBAccess->getRecordsetPtr("MuonSystem",OracleTag,OracleNode);
-        // -- Next two lines allow to use MuonSystem-00 by default instead of hardwired numbers
-        //    even for geometry tags where MuonSystem was not collected 
-        if(muonSysRec->size()==0)
+	muonSysRec = m_pRDBAccess->getRecordsetPtr("MuonSystem","MuonSystem-00");
+	log<< MSG::INFO
+	   <<"MuonSystem description from default node in GeomDB, i.e. MuonSystem-00"<<endmsg;
+      }
+    else log<< MSG::INFO
+	    <<"MuonSystem description from OracleTag=<"<<OracleTag<<"> and node=<"<< OracleNode<<">"<<endmsg;
+    //
+    
+    // --- Envelope from DB ....
+    if(muonSysRec->size()!=0)
+      {
+	// Data retrieved
+	muonsysIndMap indmap;
+	muonsysIndMap::const_iterator iter;
+	const IRDBRecord* currentRecord;
+        
+	// First fill the contents of muonsysIndMap
+	for (unsigned int ind=0; ind<muonSysRec->size(); ind++)
 	  {
-            muonSysRec = m_pRDBAccess->getRecordsetPtr("MuonSystem","MuonSystem-00");
-            log<< MSG::INFO
-               <<"MuonSystem description from default node in GeomDB, i.e. MuonSystem-00"<<endmsg;
+	    int key = (*muonSysRec)[ind]->getInt("PLANE_ID");
+	    indmap[key] = ind;
 	  }
-        else log<< MSG::INFO
-                <<"MuonSystem description from OracleTag=<"<<OracleTag<<"> and node=<"<< OracleNode<<">"<<endmsg;
-        //
-
-        // --- Envelope from DB ....
-        if(muonSysRec->size()!=0)
+	
+	// Create the polycone
+	for(unsigned int ind=0; ind<indmap.size(); ind++)
 	  {
-            // Data retrieved
-            muonsysIndMap indmap;
-            muonsysIndMap::const_iterator iter;
-            const IRDBRecord* currentRecord;
-            
-            // First fill the contents of muonsysIndMap
-            for (unsigned int ind=0; ind<muonSysRec->size(); ind++)
-	      {
-                int key = (*muonSysRec)[ind]->getInt("PLANE_ID");
-                indmap[key] = ind;
-	      }
-            
-            // Create the polycone
-            for(unsigned int ind=0; ind<indmap.size(); ind++)
-	      {
-                iter = indmap.find(ind);
+	    iter = indmap.find(ind);
                 
-                if(iter==indmap.end())
-		  throw std::runtime_error("Error in MuonDetectorFactory, missing plane in MuonSystem");
-                else
-		  {
-                    currentRecord = (*muonSysRec)[(*iter).second];
-                    c4->addPlane(currentRecord->getDouble("ZPLANE"),
-                                 currentRecord->getDouble("RMIN"),
-                                 currentRecord->getDouble("RMAX"));
-		  }
+	    if(iter==indmap.end())
+	      throw std::runtime_error("Error in MuonDetectorFactory, missing plane in MuonSystem");
+	    else
+	      {
+		currentRecord = (*muonSysRec)[(*iter).second];
+		c4->addPlane(currentRecord->getDouble("ZPLANE"),
+			     currentRecord->getDouble("RMIN"),
+			     currentRecord->getDouble("RMAX"));
 	      }
-	  }// ... end if  Envelope from DB ---
-        else
-	  {
-            // Muon System node is not present, go for handcoded version
-            log<< MSG::INFO
-               <<"MuonSystem description not available in GeomDB - using hard-wired description"<<endmsg;
-            
-            double ir   = m_muon->barrelInnerRadius;
-            double pir  = m_muon->innerRadius;
-            double orad = m_muon->outerRadius;
-            double l    = m_muon->length;
-            double eff  = m_muon->endcapFrontFace;
-            
-            double extraR = m_muon->extraR;
-            double extraZ = m_muon->extraZ;
-            
-            
-            c4->addPlane(     -l, pir, extraR);
-            c4->addPlane(-extraZ, pir, extraR);
-            c4->addPlane(-extraZ, pir, orad);
-            
-            c4->addPlane(-eff, pir, orad);
-            c4->addPlane(-eff,  ir, orad);
-            c4->addPlane(+eff,  ir, orad);
-            c4->addPlane(+eff, pir, orad);
-            
-            c4->addPlane(extraZ, pir, orad);
-            c4->addPlane(extraZ, pir, extraR);
-            c4->addPlane(     l, pir, extraR);
 	  }
-        l4 = new GeoLogVol( "MuonSys", c4, m4 );
-      }
-    else 
+      }// ... end if  Envelope from DB ---
+    else
       {
-        double xhlen,yhlen,zhlen, xstart;
-        if (mysql->getLayoutName() == "a.05" || mysql->getLayoutName() == "b.01") 
-	  {
-            xhlen=22702.0*CLHEP::mm-1.*CLHEP::mm;
-            yhlen=4100.0*CLHEP::mm-1.*CLHEP::mm;
-            zhlen=2800.0*CLHEP::mm-1.*CLHEP::mm;
-            xstart = 12198.0*CLHEP::mm;
-	  }
-        else
-	  {
-            xhlen=22000.*CLHEP::mm-1.*CLHEP::mm;
-            yhlen=zhlen=6000.*CLHEP::mm-1.*CLHEP::mm;
-            xstart = 12175*CLHEP::mm;
-	  }
-        const GeoShape* c4 = new GeoBox(xhlen,yhlen,zhlen);
-        c4 = & ( (*c4)<<HepGeom::TranslateX3D( xhlen+xstart)  );
-        l4 = new GeoLogVol( "MuonSys", c4, m4 );
-        log<< MSG::INFO<<" Here is the tree top volume for the CTB"<<endmsg;
+	// Muon System node is not present, go for handcoded version
+	log<< MSG::INFO
+	   <<"MuonSystem description not available in GeomDB - using hard-wired description"<<endmsg;
+	
+	double ir   = m_muon->barrelInnerRadius;
+	double pir  = m_muon->innerRadius;
+	double orad = m_muon->outerRadius;
+	double l    = m_muon->length;
+	double eff  = m_muon->endcapFrontFace;
+        
+	double extraR = m_muon->extraR;
+	double extraZ = m_muon->extraZ;
+        
+            
+	c4->addPlane(     -l, pir, extraR);
+	c4->addPlane(-extraZ, pir, extraR);
+	c4->addPlane(-extraZ, pir, orad);
+        
+	c4->addPlane(-eff, pir, orad);
+	c4->addPlane(-eff,  ir, orad);
+	c4->addPlane(+eff,  ir, orad);
+	c4->addPlane(+eff, pir, orad);
+        
+	c4->addPlane(extraZ, pir, orad);
+	c4->addPlane(extraZ, pir, extraR);
+	c4->addPlane(     l, pir, extraR);
       }
+    l4 = new GeoLogVol( "MuonSys", c4, m4 );
+    
     GeoPhysVol* p4 = new GeoPhysVol(l4);
   
     // Cannot (yet) cope with this:

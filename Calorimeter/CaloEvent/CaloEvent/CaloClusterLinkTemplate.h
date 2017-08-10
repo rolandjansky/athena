@@ -5,7 +5,7 @@
 #ifndef CALOEVENT_CALOCLUSTERLINKTEMPLATE_H
 #define CALOEVENT_CALOCLUSTERLINKTEMPLATE_H
 
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 
 #include <algorithm>
 #include <iostream>

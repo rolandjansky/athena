@@ -79,7 +79,6 @@ LArCoverage::LArCoverage(const std::string& type,
 
   m_eventsCounter = 0;
   m_noisycells.clear();
-  m_FCALBins = 0;
 
   m_LArOnlineIDHelper	= NULL;
   m_LArEM_IDHelper	= NULL;
@@ -87,7 +86,6 @@ LArCoverage::LArCoverage(const std::string& type,
   m_LArHEC_IDHelper	= NULL;
   m_caloIdMgr		= NULL;
   m_CaloDetDescrMgr	= NULL;
-  m_FCALBins		= NULL;
   m_hBadChannelsBarrelA = NULL;
   m_hBadChannelsBarrelC = NULL;
   m_hBadChannelsEndcapA = NULL;
@@ -99,10 +97,6 @@ LArCoverage::LArCoverage(const std::string& type,
 /*---------------------------------------------------------*/
 LArCoverage::~LArCoverage()
 {
-  if ( m_FCALBins ) {
-    delete m_FCALBins;
-    m_FCALBins = 0;
-  }
 }
 
 /*---------------------------------------------------------*/
@@ -444,12 +438,12 @@ LArCoverage::bookHistograms()
     for(int iS=1; iS<4; iS++){
       m_hCoverageFCALA[iS] = TH2I_LW::create(Form("CoverSampling%iFCALA",iS),
 					     Form("Coverage - Sampling %i - FCAL A - LB %4d",iS,lb1),
-					     m_FCALBins->getXBins(+2,iS),
-					     -m_FCALBins->getRMax(+2,iS),
-					     m_FCALBins->getRMax(+2,iS),
-					     m_FCALBins->getYBins(+2,iS),
-					     -m_FCALBins->getRMax(+2,iS),
-					     m_FCALBins->getRMax(+2,iS));
+					     LArCoverageFCALBins::getXBins(+2,iS),
+					     -LArCoverageFCALBins::getRMax(+2,iS),
+					     LArCoverageFCALBins::getRMax(+2,iS),
+					     LArCoverageFCALBins::getYBins(+2,iS),
+					     -LArCoverageFCALBins::getRMax(+2,iS),
+					     LArCoverageFCALBins::getRMax(+2,iS));
 
       SetPartCoverageStyle(m_hCoverageFCALA[iS]);
       // in theta-phi space
@@ -463,12 +457,12 @@ LArCoverage::bookHistograms()
 
       m_hCoverageFCALC[iS] = TH2I_LW::create(Form("CoverSampling%iFCALC",iS),
 				     Form("Coverage - Sampling %i - FCAL C - LB %4d",iS,lb1),
-					     m_FCALBins->getXBins(-2,iS),
-					     -m_FCALBins->getRMax(-2,iS),
-					     m_FCALBins->getRMax(-2,iS),
-					     m_FCALBins->getYBins(-2,iS),
-					     -m_FCALBins->getRMax(-2,iS),
-					     m_FCALBins->getRMax(-2,iS));
+					     LArCoverageFCALBins::getXBins(-2,iS),
+					     -LArCoverageFCALBins::getRMax(-2,iS),
+					     LArCoverageFCALBins::getRMax(-2,iS),
+					     LArCoverageFCALBins::getYBins(-2,iS),
+					     -LArCoverageFCALBins::getRMax(-2,iS),
+					     LArCoverageFCALBins::getRMax(-2,iS));
       SetPartCoverageStyle(m_hCoverageFCALC[iS]);
       // in theta-phi space
       // m_hCoverageFCALC[iS]->GetXaxis()->SetTitle("|tan(#theta)| #times sin(#phi)");
@@ -747,10 +741,10 @@ LArCoverage::fillHistograms()
 	int sampling = m_LArFCAL_IDHelper->module(offlineID);
 	int iEta = m_LArFCAL_IDHelper->eta(offlineID);
 	int iPhi = m_LArFCAL_IDHelper->phi(offlineID);
-        const unsigned short * iBin = m_FCALBins->getBins(+2,sampling,iEta,iPhi);
+        const unsigned short * iBin = LArCoverageFCALBins::getBins(+2,sampling,iEta,iPhi);
 	if ( iBin[0] > 0  && iBin[1] > 0 ) {
-	  unsigned short ix = iBin[1]%(m_FCALBins->getXBins(+2,sampling)+2);
-	  unsigned short iy = (iBin[1]-ix)/(m_FCALBins->getXBins(+2,sampling)+2);
+	  unsigned short ix = iBin[1]%(LArCoverageFCALBins::getXBins(+2,sampling)+2);
+	  unsigned short iy = (iBin[1]-ix)/(LArCoverageFCALBins::getXBins(+2,sampling)+2);
 	  cellContent = TMath::Max(cellContent, int(m_hCoverageFCALA[sampling]->GetBinContent(ix,iy)));
 	  m_hCoverageFCALA[sampling]->SetBinContent(ix,iy,cellContent);
 	}
@@ -794,10 +788,10 @@ LArCoverage::fillHistograms()
 	int sampling = m_LArFCAL_IDHelper->module(offlineID);
 	int iEta = m_LArFCAL_IDHelper->eta(offlineID);
 	int iPhi = m_LArFCAL_IDHelper->phi(offlineID);
-        const unsigned short * iBin = m_FCALBins->getBins(-2,sampling,iEta,iPhi);
+        const unsigned short * iBin = LArCoverageFCALBins::getBins(-2,sampling,iEta,iPhi);
 	if ( iBin[0] > 0 && iBin[1] > 0 ) {
-	  unsigned short ix = iBin[1]%(m_FCALBins->getXBins(-2,sampling)+2);
-	  unsigned short iy = (iBin[1]-ix)/(m_FCALBins->getXBins(-2,sampling)+2);
+	  unsigned short ix = iBin[1]%(LArCoverageFCALBins::getXBins(-2,sampling)+2);
+	  unsigned short iy = (iBin[1]-ix)/(LArCoverageFCALBins::getXBins(-2,sampling)+2);
 	  cellContent = TMath::Max(cellContent, int(m_hCoverageFCALC[sampling]->GetBinContent(ix,iy)));
 	  m_hCoverageFCALC[sampling]->SetBinContent(ix,iy,cellContent);
 	}
@@ -1043,10 +1037,10 @@ void LArCoverage::FillKnownMissingFEBs(const CaloDetDescrManager* caloDetDescrMg
 	    int sampling = m_LArFCAL_IDHelper->module(offid);
 	    int ieta = m_LArFCAL_IDHelper->eta(offid);
 	    int iphi = m_LArFCAL_IDHelper->phi(offid);
-	    const unsigned short * iBin = m_FCALBins->getBins(+2,sampling,ieta,iphi);
+	    const unsigned short * iBin = LArCoverageFCALBins::getBins(+2,sampling,ieta,iphi);
 	    if ( iBin[0] > 0 && iBin[1] > 0 ) {
-	      unsigned short ix = iBin[1]%(m_FCALBins->getXBins(+2,sampling)+2);
-	      unsigned short iy = (iBin[1]-ix)/(m_FCALBins->getXBins(+2,sampling)+2);
+	      unsigned short ix = iBin[1]%(LArCoverageFCALBins::getXBins(+2,sampling)+2);
+	      unsigned short iy = (iBin[1]-ix)/(LArCoverageFCALBins::getXBins(+2,sampling)+2);
 	      m_hCoverageFCALA[sampling]->SetBinContent(ix,iy,replace);
 	    }
 	  }
@@ -1141,10 +1135,10 @@ void LArCoverage::FillKnownMissingFEBs(const CaloDetDescrManager* caloDetDescrMg
 	    int sampling = m_LArFCAL_IDHelper->module(offid);
 	    int ieta = m_LArFCAL_IDHelper->eta(offid);
 	    int iphi = m_LArFCAL_IDHelper->phi(offid);
-	    const unsigned short * iBin = m_FCALBins->getBins(-2,sampling,ieta,iphi);
+	    const unsigned short * iBin = LArCoverageFCALBins::getBins(-2,sampling,ieta,iphi);
 	    if ( iBin[0] > 0 && iBin[1] > 0 ) {
-	      unsigned short ix = iBin[1]%(m_FCALBins->getXBins(-2,sampling)+2);
-	      unsigned short iy = (iBin[1]-ix)/(m_FCALBins->getXBins(-2,sampling)+2);
+	      unsigned short ix = iBin[1]%(LArCoverageFCALBins::getXBins(-2,sampling)+2);
+	      unsigned short iy = (iBin[1]-ix)/(LArCoverageFCALBins::getXBins(-2,sampling)+2);
 	      m_hCoverageFCALC[sampling]->SetBinContent(ix,iy,replace);
 	    }
 	  }
@@ -1245,28 +1239,28 @@ void LArCoverage::FixEmptyBins(){
     
     for (int iphi=0;iphi<16;iphi++) {
       for (int ieta=0;ieta<nBinsEtaFCAL[iSFCal];ieta++) {
-	const unsigned short * theBins = m_FCALBins->getBins(+2,iSFCal,ieta,iphi);
+	const unsigned short * theBins = LArCoverageFCALBins::getBins(+2,iSFCal,ieta,iphi);
 	int iBin = 2;
 	if ( theBins[0] > 0 && theBins[1] > 0 ) {
-	  unsigned short ix = theBins[1]%(m_FCALBins->getXBins(+2,iSFCal)+2);
-	  unsigned short iy = (theBins[1]-ix)/(m_FCALBins->getXBins(+2,iSFCal)+2);
+	  unsigned short ix = theBins[1]%(LArCoverageFCALBins::getXBins(+2,iSFCal)+2);
+	  unsigned short iy = (theBins[1]-ix)/(LArCoverageFCALBins::getXBins(+2,iSFCal)+2);
 	  int cellContent = m_hCoverageFCALA[iSFCal]->GetBinContent(ix,iy);
 	  while ( theBins[iBin] > 0 ) {
-	    ix = theBins[iBin]%(m_FCALBins->getXBins(+2,iSFCal)+2);
-	    iy = (theBins[iBin]-ix)/(m_FCALBins->getXBins(+2,iSFCal)+2);
+	    ix = theBins[iBin]%(LArCoverageFCALBins::getXBins(+2,iSFCal)+2);
+	    iy = (theBins[iBin]-ix)/(LArCoverageFCALBins::getXBins(+2,iSFCal)+2);
 	    m_hCoverageFCALA[iSFCal]->SetBinContent(ix,iy,cellContent);
 	    iBin++;
 	  }
 	}
-	theBins = m_FCALBins->getBins(-2,iSFCal,ieta,iphi);
+	theBins = LArCoverageFCALBins::getBins(-2,iSFCal,ieta,iphi);
 	iBin = 2;
 	if ( theBins[0] > 0 && theBins[1] > 0 ) {
-	  unsigned short ix = theBins[1]%(m_FCALBins->getXBins(-2,iSFCal)+2);
-	  unsigned short iy = (theBins[1]-ix)/(m_FCALBins->getXBins(-2,iSFCal)+2);
+	  unsigned short ix = theBins[1]%(LArCoverageFCALBins::getXBins(-2,iSFCal)+2);
+	  unsigned short iy = (theBins[1]-ix)/(LArCoverageFCALBins::getXBins(-2,iSFCal)+2);
 	  int cellContent = m_hCoverageFCALC[iSFCal]->GetBinContent(ix,iy);
 	  while ( theBins[iBin] > 0 ) {
-	    ix = theBins[iBin]%(m_FCALBins->getXBins(-2,iSFCal)+2);
-	    iy = (theBins[iBin]-ix)/(m_FCALBins->getXBins(-2,iSFCal)+2);
+	    ix = theBins[iBin]%(LArCoverageFCALBins::getXBins(-2,iSFCal)+2);
+	    iy = (theBins[iBin]-ix)/(LArCoverageFCALBins::getXBins(-2,iSFCal)+2);
 	    m_hCoverageFCALC[iSFCal]->SetBinContent(ix,iy,cellContent);
 	    iBin++;
 	  }

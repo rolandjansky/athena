@@ -24,9 +24,11 @@ class PixelConditionsServicesSetup:
       self.prefix = prefix
       self.useBS = True
       self.useTDAQ = False
+      self.eventInfoKey = "ByteStreamEventInfo"
       from AthenaCommon.GlobalFlags import globalflags
       if globalflags.DataSource() == 'geant4':      #does not work for transbs
         self.useBS = False
+        self.eventInfoKey = "McEventInfo" 
         #self.useTDAQ=True
     else:
       print 'Not modifying an instance of PixelConditionsSetup as it is locked'
@@ -235,7 +237,10 @@ class SCT_ConditionsServicesSetup:
     
     self.isMC = False
     from AthenaCommon.GlobalFlags import globalflags
-    if globalflags.DataSource() == 'geant4': self.isMC = True
+    self.eventInfoKey = "ByteStreamEventInfo"
+    if globalflags.DataSource() == 'geant4':
+      self.isMC = True
+      self.eventInfoKey = "McEventInfo" 
 
   def config(self, useDCS=True, onlineMode=False, prefix=''):
     if not self._lock:
@@ -352,7 +357,8 @@ class SCT_ConditionsServicesSetup:
       monitorSvc = SCT_MonitorConditionsSvc(name = instanceName, 
                                             WriteCondObjs = False,
                                             RegisterIOV   = False,
-                                            ReadWriteCool = True)
+                                            ReadWriteCool = True,
+                                            EventInfoKey  = self.eventInfoKey)
                                             #OutputLevel = INFO)
       self.svcMgr += monitorSvc
 
@@ -426,7 +432,8 @@ class SCT_ConditionsServicesSetup:
         calibSvc = getattr(self.svcMgr, instanceName); 
       else:
         from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ReadCalibDataSvc
-        calibSvc = SCT_ReadCalibDataSvc(name = instanceName)
+        calibSvc = SCT_ReadCalibDataSvc(name = instanceName,
+                                        EventInfoKey = self.eventInfoKey)
         self.svcMgr += calibSvc
 
       self.summarySvc.ConditionsServices+=[instanceName]

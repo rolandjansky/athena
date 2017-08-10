@@ -87,7 +87,7 @@ StatusCode TileSimInfoLoader::initialize() {
   
   ATH_MSG_INFO ( (std::string)(*m_tileSimInfo) );
 
-  //log << MSG::INFO << "Locking TileG4SimOptions in StoreGate" << endreq;
+  //log << MSG::INFO << "Locking TileG4SimOptions in StoreGate" << endmsg;
   //StatusCode sc = m_storeGate->setConst(m_tileSimInfo);
 
   return StatusCode::SUCCESS;

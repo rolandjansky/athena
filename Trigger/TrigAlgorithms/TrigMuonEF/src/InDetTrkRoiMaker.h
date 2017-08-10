@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGMUONEF_IETTRKROIMAKER_H__
-#define TRIGMUONEF_INDETTRKROIMAKER_H__
+#ifndef TRIGMUONEF_INDETTRKROIMAKER_H
+#define TRIGMUONEF_INDETTRKROIMAKER_H
 
 // ************************************************
 //
@@ -130,4 +130,4 @@ class InDetTrkRoiMaker : public HLT::FexAlgo {
 };//class InDetTrkRoiMaker
 
 
-#endif // TRIGMUONEF_INDETTRKROIMAKER_H__
+#endif // TRIGMUONEF_INDETTRKROIMAKER_H

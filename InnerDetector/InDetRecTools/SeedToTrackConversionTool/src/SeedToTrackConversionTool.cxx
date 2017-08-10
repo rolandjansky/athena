@@ -99,7 +99,7 @@ void InDet::SeedToTrackConversionTool::endEvent()
   // Print event information
   //
   if (outputLevel()<=0) {
-    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endreq;
+    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;
   }
 
   const TrackCollection*  inputTracks = 0;
@@ -111,18 +111,18 @@ void InDet::SeedToTrackConversionTool::endEvent()
     }
 
     msg(MSG::INFO)<<"Check SiSPSeedSegments Collection "<<m_seedsegmentsCollection->size()<<" inputTracks: "
-		  <<inputTracks->size()<<" trackinfo: "<<m_trackinfo<< endreq;
+		  <<inputTracks->size()<<" trackinfo: "<<m_trackinfo<< endmsg;
     StatusCode s = evtStore()->overwrite(m_seedsegmentsCollection,m_seedsegmentsOutput,true);
     if (s.isFailure() ) {
-      msg(MSG::ERROR)<<"Could not overwrite converted SiSPSeedSegments tracks" <<endreq;
+      msg(MSG::ERROR)<<"Could not overwrite converted SiSPSeedSegments tracks" <<endmsg;
     }
   }
   else{
     msg(MSG::INFO)<<" Check SiSPSeedSegments Collection "<<m_seedsegmentsCollection->size()<<" trackinfo: " 
-		  <<m_trackinfo<<endreq;
+		  <<m_trackinfo<<endmsg;
     StatusCode s = evtStore()->record(m_seedsegmentsCollection,m_seedsegmentsOutput,true);
     if (s.isFailure() ) {
-      msg(MSG::ERROR)<<"Could not save converted SiSPSeedSegments tracks" <<endreq;
+      msg(MSG::ERROR)<<"Could not save converted SiSPSeedSegments tracks" <<endmsg;
     }
   }
 

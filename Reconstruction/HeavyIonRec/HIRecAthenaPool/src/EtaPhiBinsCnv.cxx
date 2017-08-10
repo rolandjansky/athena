@@ -45,7 +45,7 @@ EtaPhiBinsCnv::createPersistent( EtaPhiBins* transCont )
   EtaPhiBinsCnv_p1 cnv;
   EtaPhiBins_PERS *persObj = cnv.createPersistent( transCont, msg );
 
-  msg << MSG::DEBUG << "::createPersistent [Success]" << endreq;
+  msg << MSG::DEBUG << "::createPersistent [Success]" << endmsg;
   return persObj; 
 }
 

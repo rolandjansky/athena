@@ -35,7 +35,6 @@
 #include "TFile.h"
 #include "TProfile2D.h"
 //#include "CLHEP/Vector/LorentzVector.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 
 #include "xAODCaloEvent/CaloClusterKineHelper.h"
 
@@ -83,40 +82,6 @@ CaloClusterLocalCalibCone::CaloClusterLocalCalibCone(const std::string& type,
 
 StatusCode CaloClusterLocalCalibCone::initialize()
 {
-  const IGeoModelSvc *geoModel=0;
-  StatusCode sc = service("GeoModelSvc", geoModel);
-  if(sc.isFailure())
-  {
-    msg (MSG::ERROR)  << "Could not locate GeoModelSvc" << endmsg;
-    return sc;
-  }
-
-  // dummy parameters for the callback:
-  int dummyInt=0;
-  std::list<std::string> dummyList;
-
-  if (geoModel->geoInitialized())
-  {
-    return geoInit(dummyInt,dummyList);
-  }
-  else
-  {
-    sc = detStore()->regFcn(&IGeoModelSvc::geoInit,
-			  geoModel,
-			  &CaloClusterLocalCalibCone::geoInit,this);
-    if(sc.isFailure())
-    {
-      msg( MSG::ERROR )<< "Could not register geoInit callback" << endmsg;
-      return sc;
-    }
-  }
-  return sc;
-}
-
-StatusCode
-CaloClusterLocalCalibCone::geoInit(IOVSVC_CALLBACK_ARGS)
-{
-
   msg(MSG::INFO) << "Initializing " << name() << endmsg;
 
 

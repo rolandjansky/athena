@@ -6,7 +6,7 @@
 // 
 //   Copyright (C) 2007 M.Sutton (sutt@cern.ch)    
 //
-//   $Id: ConfAnalysis.cxx 772657 2016-09-12 07:11:42Z sutt $
+//   $Id: ConfAnalysis.cxx 800361 2017-03-12 14:33:19Z sutt $
 
 
 #include "ConfAnalysis.h"
@@ -18,35 +18,18 @@
 #include "TrigInDetAnalysis/TIDAEvent.h"
 #include "TrigInDetAnalysis/TIDARoiDescriptor.h"
 
+#include <fstream>
 
 #include "BinConfig.h"
 
 #include "TF1.h"
 #include "TMath.h"
 
-
-extern int r;
-extern int ev;
-extern int lb;
-extern int ts;
-
-extern double a0;
-
-extern bool hipt;
-
-extern TIDA::Event* gevent;
-
-extern TIDARoiDescriptor* groi;
-
-extern TIDA::Event* gevent;
-
-/// these are all definied on rmain.cxx
-extern bool dumpflag;
-
+#include "globals.h"
 
 bool PRINT_BRESIDUALS = false;
 
-extern int NMod;
+std::ofstream dumpfile("dumpfile.log");
 
 void Normalise(TH1* h) { 
 
@@ -152,8 +135,10 @@ void ConfAnalysis::initialiseInternal() {
   double  pt_a = 1;
   double  pt_b = 1;
   
-  Npt = int(40*_binConfig.pt_NScale);
-  pt_a = 3.5;
+  //  Npt = int(40*_binConfig.pt_NScale);
+  //  pt_a = 3.5;
+  Npt = int(45*_binConfig.pt_NScale);
+  pt_a = 4;
   pt_b = 2;
   // etaBins = 12;
   //  }
@@ -257,6 +242,9 @@ void ConfAnalysis::initialiseInternal() {
   mres.push_back(  rnpix_pt_rec = new Resplot( "npix_pt_rec", ptnbins, ptbinlims,  22, -0.5, 21.5 ) );
   mres.push_back(  rnsct_pt_rec = new Resplot( "nsct_pt_rec", ptnbins, ptbinlims,  22, -0.5, 21.5 ) );
   mres.push_back(  rntrt_pt_rec = new Resplot( "ntrt_pt_rec", ptnbins, ptbinlims, 100, -0.5, 99.5 ) );
+
+  mres.push_back(  rnpixh_pt_rec = new Resplot( "npixh_pt_rec", ptnbins, ptbinlims,  22, -0.5, 21.5 ) );
+  mres.push_back(  rnscth_pt_rec = new Resplot( "nscth_pt_rec", ptnbins, ptbinlims,  22, -0.5, 21.5 ) );
 
 
   mres.push_back(  rChi2prob = new Resplot( "Chi2prob", ptnbins, ptbinlims,  20, 0,   1 ) );
@@ -665,26 +653,28 @@ void ConfAnalysis::initialiseInternal() {
   /// efficiency vs lumi block
 
 
-  TH1F heffvlb("eff vs lb", "eff vs lb", 
-	       100, 
-	       //	       1270515000, 1270560000 
-	       1272040000, 1272200000
-	       );
-  // 1270518944,
-  // 1270558762 );
+  TH1F heffvlb("eff vs lb", "eff vs lb", 301, -0.5, 3009.5 );
 
-  //	       1260470000, 
-  //	       1260680000 ); 
-  //	       1260470000, 
-  //	       1260690000 ); 
-  // TH1F heffvlb("eff vs lb", "eff vs lb", 600, 0, 3000);
-
-  //  TH1F heffvlb("eff vs lb", "eff vs lb", 600, 1260400000, 1260700000); 
+    //	       100, 
+    //	       1270515000, 1270560000 
+    //	       1272040000, 1272200000
+    //    );
+    // 1270518944,
+    // 1270558762 );
+    
+    //	       1260470000, 
+    //	       1260680000 ); 
+    //	       1260470000, 
+    //	       1260690000 ); 
+    // TH1F heffvlb("eff vs lb", "eff vs lb", 600, 0, 3000);
+    
+    //  TH1F heffvlb("eff vs lb", "eff vs lb", 600, 1260400000, 1260700000); 
 
 
   eff_vs_lb = new Efficiency( &heffvlb );
 
-  z_vs_lb = new Resplot("z vs lb", 100, 1270515000,  1270560000, 100, -250, 250);
+  //  z_vs_lb = new Resplot("z vs lb", 100, 1270515000,  1270560000, 100, -250, 250);
+  z_vs_lb = new Resplot("z vs lb", 301, -0.5,  3009.5, 100, -250, 250);
 
   //rmap[142165] = 0;
   //rmap[142166] = 500;
@@ -726,11 +716,11 @@ void ConfAnalysis::initialiseInternal() {
   eff_vs_ntracks2 = new Efficiency( n_vtx_tracks2, "eff_vs_ntracks2");
   delete n_vtx_tracks2;
 
-  n_vtx       = new TH1F("nvtx", "nvtx", 21, -0.5, 20.5);
+  n_vtx       = new TH1F("nvtx", "nvtx", 31, -0.5, 30.5);
   eff_vs_nvtx = new Efficiency( n_vtx, "eff_vs_nvtx");
   //mu          = new TH1F("mu", "mu", 3000, -0.5, 29.5);
-  mu          = new TH1F("mu", "mu", 50, 0, 50);
-  eff_vs_mu = new Efficiency( mu, "eff_vs_mu");
+  mu          = new TH1F("mu", "mu", 70, 0, 70);
+  eff_vs_mu   = new Efficiency( mu, "eff_vs_mu");
 
 
   //  std::cout << "initialize() Directory " << gDirectory->GetName() << " on leaving" << std::endl;
@@ -1322,7 +1312,9 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
 
       //    eff_vs_lb->Fill( rmap[r]+lb );
       // eff_vs_lb->Fill( ts_scale );
-      eff_vs_lb->Fill( ts );
+      //   eff_vs_lb->Fill( ts );
+
+      eff_vs_lb->Fill( gevent->lumi_block() );
 
       Nmatched++;
 
@@ -1380,7 +1372,11 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
 
       double nsctr = matchedreco->sctHits(); 
       double npixr = matchedreco->pixelHits(); 
-      double nsir = matchedreco->pixelHits() * 0.5 + matchedreco->sctHits(); 
+      double nsir  = matchedreco->pixelHits() * 0.5 + matchedreco->sctHits(); 
+      
+      double nscthr = matchedreco->sctHoles(); 
+      double npixhr = matchedreco->pixelHoles(); 
+
 
       //double ntrtr   = matchedreco->trHits(); 
       double nstrawr = matchedreco->strawHits(); 
@@ -1445,13 +1441,14 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
       rDz0res[2]->Fill( z0t, dz0r-dz0t );  
       rDz0res[3]->Fill( phit, dz0r-dz0t );  
       
-      
-      if ( dumpflag ) { 
+
+      if ( dumpflag ) {
+	std::ostream& dumpstream = dumpfile; 
 	if ( dz0t>0 && std::fabs( dz0r-dz0t )>0.04 ) { 
 	  dump = true;
-	  std::cout << "POOR sigma(z0) agreement \n\trefrack:  " << *reftracks[i] << "\n\ttestrack: " << *matchedreco << std::endl; 
+	  dumpstream << "POOR sigma(z0) agreement \n\trefrack:  " << *reftracks[i] << "\n\ttestrack: " << *matchedreco << std::endl; 
 	  //	    std::cout << "dz0r dz0t" << dz0r << "\t" << dz0t << std::endl;
-	}  
+	}
       }
       
 	
@@ -1519,6 +1516,10 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
       rnpix_pt_rec->Fill( std::fabs(pTt), npixr*0.5 );
       rnsct_pt_rec->Fill( std::fabs(pTt), nsctr*1.0 );
       rntrt_pt_rec->Fill( std::fabs(pTt), nstrawr*1.0 );
+
+      rnpixh_pt_rec->Fill( std::fabs(pTt), npixhr*0.5 );
+      rnscth_pt_rec->Fill( std::fabs(pTt), nscthr*1.0 );
+
 
       eff_vs_ntracks->Fill( Nvtxtracks );
       eff_vs_ntracks2->Fill( Nvtxtracks );
@@ -1730,32 +1731,34 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
 
 
 
-      if ( dumpflag ) {  
+      if ( dumpflag ) {
+	std::ostream& dumpstream = dumpfile; 
+  
 	if ( std::fabs(pTt)>1 ) { 
 	  dump = true; 
 
 	  hipt = true;
-	  std::cout << mname << "\tMISSING TRACK run " << r << "\tevent " << ev 
+	  dumpstream << m_name << "\tMISSING TRACK run " << r << "\tevent " << ev 
 		    << "\tlb " << lb << "\tN vertices " << NvtxCount << std::endl;
-	  std::cout << mname << "\tMISSING TRACK RoI   " << *groi << std::endl;
-	  std::cout << mname << "\tMISSING TRACK Track " << *reftracks[i];
-	  if ( std::fabs(pTt)>=30 ) std::cout << "\tvery high pt";
+	  dumpstream << m_name << "\tMISSING TRACK RoI   " << *groi << std::endl;
+	  dumpstream << m_name << "\tMISSING TRACK Track " << *reftracks[i];
+	  if ( std::fabs(pTt)>=30 ) dumpstream << "\tvery high pt";
 	  if ( std::fabs(pTt)>4 &&
-	       std::fabs(pTt)<30  ) std::cout << "\t     high pt";
-	  std::cout << std::endl;
+	       std::fabs(pTt)<30  ) dumpstream << "\t     high pt";
+	  dumpstream << std::endl;
 
 	  if ( std::fabs(pTt)>=20 ){
-	    std::cout << "Test tracks " << std::endl;
+	    dumpstream << "Test tracks " << std::endl;
 	    for (unsigned int ii=0; ii<testtracks.size(); ii++){
-	      std::cout << *testtracks[ii] << std::endl;
+	      dumpstream << *testtracks[ii] << std::endl;
 	    }
 	  }
 	}
       }
 
 
-      eff_vs_lb->FillDenom( ts );
-
+      //      eff_vs_lb->FillDenom( ts );
+      eff_vs_lb->FillDenom( gevent->lumi_block() );
     }
 
   }

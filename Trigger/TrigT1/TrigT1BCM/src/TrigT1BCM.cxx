@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include "TrigT1BCM/TrigT1BCM.h"
 #include "TrigT1Interfaces/BcmCTP.h"
+#include "TrigT1Interfaces/TrigT1StoreGateKeys.h"
 #include "TrigConfL1Data/ThresholdConfig.h"
 
 #include "InDetBCM_RawData/BCM_RawData.h"
@@ -30,10 +31,10 @@ namespace LVL1 {
   }
 
   StatusCode TrigT1BCM::initialize() {
-    if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Initialising" << endreq;
+    if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Initialising" << endmsg;
 
     if (AthAlgorithm::initialize().isFailure()) {
-      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Couldn't initialize Algorithm base class." << endreq;
+      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Couldn't initialize Algorithm base class." << endmsg;
       return StatusCode::FAILURE;
     }
 
@@ -42,10 +43,10 @@ namespace LVL1 {
     // Connect to the LVL1ConfigSvc to retrieve threshold settings.
     sc = m_configSvc.retrieve();
     if (sc.isFailure()) {
-      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Couldn't connect to " << m_configSvc.typeAndName() << endreq;
+      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Couldn't connect to " << m_configSvc.typeAndName() << endmsg;
       return sc;
     } else {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Connected to " << m_configSvc.typeAndName() << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Connected to " << m_configSvc.typeAndName() << endmsg;
     }
     
     // Get level 1 BCM threshold settings from the level 1
@@ -64,9 +65,9 @@ namespace LVL1 {
     std::vector<TrigConf::TriggerThreshold*>::iterator th_itr = thresholds.begin();
     std::vector<TrigConf::TriggerThreshold*>::iterator th_itr_end = thresholds.end();
     for(;th_itr!=th_itr_end;th_itr++) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "1-bit Threshold name=" << (*th_itr)->name() << endreq;
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "1-bit Threshold value=" << (*th_itr)->triggerThresholdValue(0, 0)->ptcut() << endreq;
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "1-bit Thershold cablestart=" << (*th_itr)->cableStart() << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "1-bit Threshold name=" << (*th_itr)->name() << endmsg;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "1-bit Threshold value=" << (*th_itr)->triggerThresholdValue(0, 0)->ptcut() << endmsg;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "1-bit Thershold cablestart=" << (*th_itr)->cableStart() << endmsg;
       if        ((*th_itr)->name() == "BCM_AtoC") {
         m_cablestarts[0]=(*th_itr)->cableStart();
       } else if ((*th_itr)->name() == "BCM_CtoA") {
@@ -91,9 +92,9 @@ namespace LVL1 {
     std::vector<TrigConf::TriggerThreshold*>::iterator cmb_th_itr = cmbthresholds.begin();
     std::vector<TrigConf::TriggerThreshold*>::iterator cmb_th_itr_end = cmbthresholds.end();
     for(;cmb_th_itr!=cmb_th_itr_end;cmb_th_itr++) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "3-bit Threshold name=" << (*cmb_th_itr)->name() << endreq;
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "3-bit Threshold value=" << (*cmb_th_itr)->triggerThresholdValue(0, 0)->ptcut() << endreq;
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "3-bit Thershold cablestart=" << (*cmb_th_itr)->cableStart() << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "3-bit Threshold name=" << (*cmb_th_itr)->name() << endmsg;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "3-bit Threshold value=" << (*cmb_th_itr)->triggerThresholdValue(0, 0)->ptcut() << endmsg;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "3-bit Thershold cablestart=" << (*cmb_th_itr)->cableStart() << endmsg;
       if ((*cmb_th_itr)->name() == "BCM_6BITMULTI") {
         m_cablestarts[9]=(*cmb_th_itr)->cableStart();
       }
@@ -109,19 +110,17 @@ namespace LVL1 {
   }
 
   StatusCode TrigT1BCM::execute() {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "execute()" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "execute()" << endmsg;
     
     StatusCode sc;
-    std::string containerName;
     
     //    Retrieve Lvl1 BCM container
-    containerName = m_bcmL1ContainerName;
     m_bcmRDO = 0;
-    sc = evtStore()->retrieve( m_bcmRDO, containerName);
+    sc = evtStore()->retrieve( m_bcmRDO, m_bcmL1ContainerName);
     if( sc.isFailure()  || !m_bcmRDO ) {
       if (!m_badDataFound) {  
-	if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << containerName << " not found" << endreq; 
-	if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Algorithm will be turned off for the rest of the run." << endreq;
+	if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << m_bcmL1ContainerName << " not found" << endmsg; 
+	if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Algorithm will be turned off for the rest of the run." << endmsg;
 	m_badDataFound = true;
 	return StatusCode::SUCCESS;
       } else {
@@ -129,7 +128,7 @@ namespace LVL1 {
       }
     }
     else {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << containerName << " Container Successfully Retrieved" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << m_bcmL1ContainerName << " Container Successfully Retrieved" << endmsg;
     }
 
   
@@ -157,15 +156,15 @@ namespace LVL1 {
       
       if ( (*l1_bcm_itr)->size() != 0) {
 	BCM_RDO_Collection::const_iterator sample = (*l1_bcm_itr)->begin();
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Channel ID: " << channelID << endreq;
+	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Channel ID: " << channelID << endmsg;
 	
 	int pulse1x = (*sample)->getPulse1Position();
 	int pulse1w = (*sample)->getPulse1Width();
 	int pulse2x = (*sample)->getPulse2Position();
 	int pulse2w = (*sample)->getPulse2Width();
 
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " pulse1pos: " << pulse1x << " pulse1width: " << pulse1w << endreq;
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " pulse1pos: " << pulse2x << " pulse1width: " << pulse2w << endreq;
+	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " pulse1pos: " << pulse1x << " pulse1width: " << pulse1w << endmsg;
+	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " pulse1pos: " << pulse2x << " pulse1width: " << pulse2w << endmsg;
 
 	if (channelID >= 8 && channelID < 12) { // high gain channels, a side
 	    if ((pulse1x > m_OOTPulseX - m_TimeWindow)     && (pulse1x < m_OOTPulseX + m_TimeWindow))     nOOTModA++;
@@ -235,18 +234,17 @@ namespace LVL1 {
     } else {
       cableWord0 = (bit8<<m_cablestarts[8]) | (bit7<<m_cablestarts[7]) | (bit6<<m_cablestarts[6]) | (bit5<<m_cablestarts[5]) | (bit4<<m_cablestarts[4]) | (bit3<<m_cablestarts[3]) | (bit2<<m_cablestarts[2]) | (bit1<<m_cablestarts[1]) | (bit0<<m_cablestarts[0]);
     }
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " cableWord: " << cableWord0 << endreq;    
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " cableWord: " << cableWord0 << endmsg;    
 
     // Record the CTP trigger word in StoreGate.
     BcmCTP *bcmCTP = new BcmCTP(cableWord0);
-    containerName = "/Run/L1BCMtoCTPLocation";
-    sc = evtStore()->record(bcmCTP, containerName, false);
+    sc = evtStore()->record(bcmCTP, LVL1::DEFAULT_BcmCTPLocation, false);
     if(sc.isFailure()) {
-      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Failed to register " << containerName << endreq;
+      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Failed to register " << LVL1::DEFAULT_BcmCTPLocation << endmsg;
       return StatusCode::FAILURE;
     } 
     else {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << containerName << " registered successfully" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << LVL1::DEFAULT_BcmCTPLocation << " registered successfully" << endmsg;
     }
     
     return StatusCode::SUCCESS;

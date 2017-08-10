@@ -377,7 +377,6 @@ void Muon::TgcSlbDataHelper::convertToCoincidences(uint16_t subDetectorId,
       uint16_t threshold[2];
       bool overlap[2];
       uint16_t roi[2];
-      bool veto[2];
       if(forward) {
 	TgcSlbDataHelper::getSL_F(bitArray,  cand3plus,
 				  hitSL,
@@ -393,6 +392,7 @@ void Muon::TgcSlbDataHelper::convertToCoincidences(uint16_t subDetectorId,
       for(size_t i=0; i<2; ++i) {
 	if(!hitSL[i]) continue;
 	//create TgcRawData object
+        bool veto[2] = {false};
 	rCh = new TgcRawData(iBc, 
 			     subDetectorId, rodId,
 			     slb->getL1Id(), slb->getBcId(),
@@ -439,7 +439,6 @@ void Muon::TgcSlbDataHelper::convertToCoincidences(uint16_t subDetectorId,
       uint16_t hitId[N_HPT_E];
       uint16_t sub[N_HPT_E];
       int16_t deltaHPT[N_HPT_E];
-      uint16_t inner[N_HPT_E];
 
       size_t numberOfHit;
       if(forward) {
@@ -500,19 +499,22 @@ void Muon::TgcSlbDataHelper::convertToCoincidences(uint16_t subDetectorId,
         }
 
 	//create TgcRawData object
-	rCh = new TgcRawData(iBc, 
-			     subDetectorId, rodId,
-			     slb->getL1Id(), slb->getBcId(),
-			     strip[i],
-			     forward,
-			     sector,    
-			     chip[i],
-			     index[i],
-			     hipt[i],
-			     hitId[i],
-			     sub[i],
-			     deltaHPT[i],
-                             inner[i]);
+        {
+          uint16_t inner[N_HPT_E] = {0};
+          rCh = new TgcRawData(iBc, 
+                               subDetectorId, rodId,
+                               slb->getL1Id(), slb->getBcId(),
+                               strip[i],
+                               forward,
+                               sector,    
+                               chip[i],
+                               index[i],
+                               hipt[i],
+                               hitId[i],
+                               sub[i],
+                               deltaHPT[i],
+                               inner[i]);
+        }
 	vChannel.push_back(rCh);
 	if(isFirstHit) {
 	  if(m_debug) {

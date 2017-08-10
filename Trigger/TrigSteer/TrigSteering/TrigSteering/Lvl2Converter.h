@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: HLT Steering
  * @Package: TrigSteering
- * @Class  : Lvl2Converter
+ * @class  : Lvl2Converter
  *
  * @brief
  *

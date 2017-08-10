@@ -22,7 +22,6 @@
 #include "../TrigCostRootAnalysis/Config.h"
 
 namespace TrigCostRootAnalysis {
-
   /**
    * Monitor constructor. Sets name and calls base constructor.
    */
@@ -37,7 +36,7 @@ namespace TrigCostRootAnalysis {
    */
   void MonitorROI::newEvent(Float_t _weight) {
     m_timer.start();
-    if ( Config::config().debug() ) Info("MonitorROI::newEvent", "*** Processing ROI ***");
+    if (Config::config().debug()) Info("MonitorROI::newEvent", "*** Processing ROI ***");
 
     //Now loop over the counter collections;
 
@@ -48,21 +47,18 @@ namespace TrigCostRootAnalysis {
 
       // Loop over all chains.
       for (UInt_t _r = 0; _r < m_costData->getNRoIs(); ++_r) {
-
-        CounterBase* _counter =  getCounter(_counterMap, m_costData->getRoITypeString(_r), 0);
+        CounterBase* _counter = getCounter(_counterMap, m_costData->getRoITypeString(_r), 0);
 
         if (_counter != 0) {
-          _counter->processEventCounter( _r, 0, _weight );
+          _counter->processEventCounter(_r, 0, _weight);
         }
 
         // Call another counter on all RoIs to get the global picture
         _counter = getCounter(_counterMap, Config::config().getStr(kAllROIString), 6);
-        _counter->processEventCounter( _r, 0, _weight );
-
+        _counter->processEventCounter(_r, 0, _weight);
       }
 
       endEvent(_weight);
-
     }
     m_timer.stop();
   }
@@ -73,11 +69,15 @@ namespace TrigCostRootAnalysis {
    * @return If this monitor should be active for a given mode.
    */
   Bool_t MonitorROI::getIfActive(ConfKey_t _mode) {
-    switch(_mode) {
-      case kDoAllSummary:       return kTRUE;
-      case kDoKeySummary:       return kTRUE;
-      case kDoLumiBlockSummary: return kTRUE;
-      default: Error("MonitorROI::getIfActive", "An invalid summary mode was provided (key %s)", Config::config().getName(_mode).c_str() );
+    switch (_mode) {
+    case kDoAllSummary:       return kTRUE;
+
+    case kDoKeySummary:       return kTRUE;
+
+    case kDoLumiBlockSummary: return kTRUE;
+
+    default: Error("MonitorROI::getIfActive", "An invalid summary mode was provided (key %s)",
+                   Config::config().getName(_mode).c_str());
     }
     return kFALSE;
   }
@@ -86,29 +86,27 @@ namespace TrigCostRootAnalysis {
    * Save the results from this monitors counters as specified in the configuration.
    */
   void MonitorROI::saveOutput() {
-
     m_filterOutput = kFALSE; // Apply any user-specified name filter to output
 
     // Specify what plots we wish to save from the counters
     VariableOptionVector_t _toSavePlots = m_dummyCounter->getAllHistograms();
-    sharedHistogramOutputRoutine( _toSavePlots );
+    sharedHistogramOutputRoutine(_toSavePlots);
 
     std::vector<TableColumnFormatter> _toSaveTable;
-    _toSaveTable.push_back( TableColumnFormatter("ROIs",
-      "Total number of ROIs of this type.",
-      kVarCalls, kSavePerEvent, 0 ) );
+    _toSaveTable.push_back(TableColumnFormatter("ROIs",
+                                                "Total number of ROIs of this type.",
+                                                kVarCalls, kSavePerEvent, 0));
 
-    _toSaveTable.push_back( TableColumnFormatter("ROIs/Event",
-      "Average number of ROIs of this type per event.",
-      kVarCalls, kSavePerEvent, kVarEventsActive, kSavePerEvent, 2) );
+    _toSaveTable.push_back(TableColumnFormatter("ROIs/Event",
+                                                "Average number of ROIs of this type per event.",
+                                                kVarCalls, kSavePerEvent, kVarEventsActive, kSavePerEvent, 2));
 
-    _toSaveTable.push_back( TableColumnFormatter("L1Thresholds/ROI",
-      "Average number of L1 Thresholds per ROI of this type.",
-       kVarL1Thresh, kSavePerCall, kVarCalls, kSavePerEvent, 2) );
+    _toSaveTable.push_back(TableColumnFormatter("L1Thresholds/ROI",
+                                                "Average number of L1 Thresholds per ROI of this type.",
+                                                kVarL1Thresh, kSavePerCall, kVarCalls, kSavePerEvent, 2));
 
-    sharedTableOutputRoutine( _toSaveTable );
+    sharedTableOutputRoutine(_toSaveTable);
   }
-
 
   /**
    * Construct new counter of correct derived type, pass back as base type.
@@ -118,9 +116,7 @@ namespace TrigCostRootAnalysis {
    * @param _ID Reference to ID number of counter.
    * @returns Base class pointer to new counter object of correct serived type.
    */
-  CounterBase* MonitorROI::newCounter(  const std::string &_name, Int_t _ID  ) {
-    return new CounterROI( m_costData, _name,  _ID, m_detailLevel, (MonitorBase*)this );
+  CounterBase* MonitorROI::newCounter(const std::string& _name, Int_t _ID) {
+    return new CounterROI(m_costData, _name, _ID, m_detailLevel, (MonitorBase*) this);
   }
-
-
 } // namespace TrigCostRootAnalysis

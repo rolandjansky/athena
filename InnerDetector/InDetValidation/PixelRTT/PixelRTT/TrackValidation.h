@@ -27,14 +27,14 @@ public:
 	
 private:
 
-	MultiHisto<TH1D> *PtHistogram;
-	MultiHisto<TH1D> *AngleHistogram;
-	MultiHisto<TH1D> *EtaHistogram;
-	MultiHisto<TProfile> *AngleProfile;
-	MultiHisto<TProfile> *EtaProfile;
-	MultiHisto<TProfile> *PtProfile;
+	MultiHisto<TH1D> *m_PtHistogram;
+	MultiHisto<TH1D> *m_AngleHistogram;
+	MultiHisto<TH1D> *m_EtaHistogram;
+	MultiHisto<TProfile> *m_AngleProfile;
+	MultiHisto<TProfile> *m_EtaProfile;
+	MultiHisto<TProfile> *m_PtProfile;
 
-	std::string globaldirname;
+	std::string m_globaldirname;
 	
 
 

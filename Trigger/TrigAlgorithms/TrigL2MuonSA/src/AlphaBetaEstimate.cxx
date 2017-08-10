@@ -147,7 +147,7 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*
     if ( tgcFitResult.tgcMid1[3]==0. || tgcFitResult.tgcMid2[3]==0. ) {
       if ( tgcFitResult.tgcMid1[3] != 0. ) phi = phi1;
       if ( tgcFitResult.tgcMid2[3] != 0. ) phi = phi2;
-    } else if( phi1*phi2 < 0 && fabsf(phi1)>(CLHEP::pi/2.) ) {
+    } else if( phi1*phi2 < 0 && std::abs(phi1)>(CLHEP::pi/2.) ) {
       double tmp1 = (phi1>0)? phi1 - CLHEP::pi : phi1 + CLHEP::pi;
       double tmp2 = (phi2>0)? phi2 - CLHEP::pi : phi2 + CLHEP::pi;
       double tmp  = (tmp1+tmp2)/2.;
@@ -235,7 +235,7 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*
     trackPattern.slope       = slope; 
     trackPattern.intercept   = inter;    
     if (InnerR) {
-      trackPattern.endcapBeta   = fabsf( atan(InnerSlope) - atan(slope) ); 
+      trackPattern.endcapBeta   = std::abs( atan(InnerSlope) - atan(slope) ); 
       trackPattern.deltaR       = slope * InnerZ + MiddleIntercept - InnerR;
       double sign               = trackPattern.deltaR / fabs(trackPattern.deltaR);
       trackPattern.endcapRadius = computeRadius(InnerSlope, InnerR,  InnerZ,
@@ -244,11 +244,12 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*
     } 
     if (CSCZ) {
       if(trackPattern.large_dPhidZ && (6==trackPattern.phiBin || 7==trackPattern.phiBin) ){
-	trackPattern.cscGamma = fabsf( atan( (MiddleR-CSCR)/(MiddleZ-CSCZ) ) - atan(MiddleSlope) );
+	trackPattern.cscGamma = std::abs( atan( (MiddleR-CSCR)/(MiddleZ-CSCZ) ) - atan(MiddleSlope) );
       }else{     
 	double OuterR_modified=OuterR*trackPattern.outerCorFactor;//assume dphidz=0
 	double slope_modified=(OuterR_modified-MiddleR)/(OuterZ-MiddleZ);
-	trackPattern.cscGamma = fabsf( atan( (MiddleR-CSCR)/(MiddleZ-CSCZ) ) - atan(slope_modified) );
+	trackPattern.cscGamma = std::abs( atan( (MiddleR-CSCR)/(MiddleZ-CSCZ) ) - atan(slope_modified) );
+	ATH_MSG_DEBUG("OuterR_modified=" << OuterR_modified << " slope_modified=" << slope_modified);
       }
     }
   } else {    
@@ -264,7 +265,7 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*
     } 
     
     if (MiddleZ && InnerZ) {
-      trackPattern.endcapBeta   = fabsf( atan(InnerSlope) - atan(MiddleSlope) );
+      trackPattern.endcapBeta   = std::abs( atan(InnerSlope) - atan(MiddleSlope) );
       trackPattern.deltaR       = MiddleSlope*InnerZ + MiddleIntercept - InnerR;
       double sign               = trackPattern.deltaR / fabs(trackPattern.deltaR);
       trackPattern.endcapRadius = computeRadius(InnerSlope,  InnerR,  InnerZ,
@@ -272,7 +273,7 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*
 						sign);
     }
     if(MiddleZ && CSCZ){
-      trackPattern.cscGamma = fabsf( atan( (MiddleR-CSCR)/(MiddleZ-CSCZ) ) - atan(MiddleSlope) );
+      trackPattern.cscGamma = std::abs( atan( (MiddleR-CSCR)/(MiddleZ-CSCZ) ) - atan(MiddleSlope) );
     }
   }
 

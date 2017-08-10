@@ -9,11 +9,11 @@
 #include "StoreGate/StoreGate.h"
 #include "InDetIdentifier/PixelID.h"
 
-#ifdef ATHENAHIVE
+#ifdef G4MULTITHREADED
 #  include "GaudiKernel/ContextSpecificPtr.h"
 #endif
 
-static std::mutex _sgMutex;
+static std::mutex sgMutex;
 
 //
 // private constructor
@@ -22,7 +22,7 @@ SiHitIdHelper::SiHitIdHelper() :HitIdHelper() {
 }
 
 SiHitIdHelper* SiHitIdHelper::GetHelper() {
-#ifdef ATHENAHIVE
+#ifdef G4MULTITHREADED
   // Context-specific singleton
   static Gaudi::Hive::ContextSpecificPtr<SiHitIdHelper> helperPtr;
   if(!helperPtr) helperPtr = new SiHitIdHelper();
@@ -41,7 +41,7 @@ void SiHitIdHelper::Initialize() {
   const PixelID* pix;
   StoreGateSvc* detStore(nullptr);
   {
-    std::lock_guard<std::mutex> lock(_sgMutex);
+    std::lock_guard<std::mutex> lock(sgMutex);
     detStore = StoreGate::pointer("DetectorStore");
     if (detStore->retrieve(pix, "PixelID").isFailure()) { pix = 0; }
   }

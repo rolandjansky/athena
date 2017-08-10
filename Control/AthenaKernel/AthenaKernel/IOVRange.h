@@ -58,6 +58,7 @@ public:
   friend MsgStream& operator<<(MsgStream& os, const IOVRange& rhs);
 
   operator std::string() const;
+  operator EventIDRange() const;
 
 private:
 

@@ -33,14 +33,14 @@ void MCTruthMenu::activateStrategy(const std::string strg_name,
     if(strategy->IsActivated()){
       log() << MSG::INFO << "MCTruth::TruthStrategyManager SetActive: "
             << strg_name << " active in the volume " << vol_name
-            << " at  level ----> " << vol_level << endreq;
+            << " at  level ----> " << vol_level << endmsg;
     } else {
       log() << MSG::WARNING << " Could not activate " << strg_name
-            << " in volume " << vol_name << endreq;
+            << " in volume " << vol_name << endmsg;
     }
   } else {
     log() << MSG::WARNING << " Could not find strategy " << strg_name
-          << " for activation in volume " << vol_name << endreq;
+          << " for activation in volume " << vol_name << endmsg;
   }
 }
 
@@ -70,5 +70,5 @@ void MCTruthMenu::setTruthStrategiesParameter(const std::string paramName,double
   TruthStrategyManager *m=TruthStrategyManager::GetStrategyManager();
   m->SetTruthParameter(paramName,energy);
   log() << MSG::INFO << "setTruthStrategiesParameter " << paramName << " = "
-        << energy*CLHEP::MeV << " MeV" << endreq;
+        << energy*CLHEP::MeV << " MeV" << endmsg;
 }

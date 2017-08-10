@@ -29,7 +29,7 @@
 #include "TBEvent/TBEventInfo.h"
 #include "TBEvent/TBLArDigitContainer.h"
 #include "TBEvent/TBLArCalibDigitContainer.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 
 #include "CaloIdentifier/CaloGain.h"
 

@@ -68,18 +68,21 @@ StatusCode xAODTestWriteCInfo::execute_r (const EventContext& ctx) const
   cinfo->setStore (info_store.get());
 
   static C::Accessor<int> anInt2 ("anInt2");
-  static C::Decorator<int> dInt1 ("dInt1");
   static C::Accessor<ElementLink<DMTest::CVec> > cEL ("cEL");
 
   cinfo->setAnInt (count * 1000);
   cinfo->setAFloat ((float)count * 0.1);
   anInt2(*cinfo) = count * 2000;
-  dInt1(*cinfo) = count * 3000;
 
   cEL(*cinfo).toIndexedElement (*cvec, count % cvec->size());
 
   SG::WriteHandle<DMTest::C> cinfoH (m_cinfoKey, ctx);
-  CHECK( cinfoH.record (std::move(cinfo), std::move(info_store)) );
+  std::unique_ptr<const DMTest::C> cinfo_c (std::move (cinfo));
+  std::unique_ptr<const DMTest::CInfoAuxContainer> info_store_c (std::move (info_store));
+  if (cinfoH.put (std::move(cinfo_c), std::move(info_store_c)) == nullptr) {
+    ATH_MSG_ERROR ("Can't record CInfo");
+    return StatusCode::FAILURE;
+  }
 
   return StatusCode::SUCCESS;
 }

@@ -53,7 +53,7 @@ DBM_Module::DBM_Module() {
 
   m_design = p_dbmdesign;
 
-  DDmgr->addDesign(m_design);
+  m_DDmgr->addDesign(m_design);
 
 
 }
@@ -67,20 +67,20 @@ GeoVPhysVol* DBM_Module::Build()
     double safety = 0.003*CLHEP::mm;
 
     //diamond dimension
-    double diamond_X = gmt_mgr->DBMDiamondX();
-    double diamond_Y = gmt_mgr->DBMDiamondY();
-    double diamond_Z = gmt_mgr->DBMDiamondZ();
-    double air_gap = gmt_mgr->DBMAirGap();
+    double diamond_X = m_gmt_mgr->DBMDiamondX();
+    double diamond_Y = m_gmt_mgr->DBMDiamondY();
+    double diamond_Z = m_gmt_mgr->DBMDiamondZ();
+    double air_gap = m_gmt_mgr->DBMAirGap();
     
     //chip, FEI4 dimension
-    double chip_X = gmt_mgr->DBMFEI4X();
-    double chip_Y = gmt_mgr->DBMFEI4Y();
-    double chip_thick = gmt_mgr->DBMFEI4Z();
+    double chip_X = m_gmt_mgr->DBMFEI4X();
+    double chip_Y = m_gmt_mgr->DBMFEI4Y();
+    double chip_thick = m_gmt_mgr->DBMFEI4Z();
 
     //ceramic dimension
-    double substrate_X = gmt_mgr->DBMCeramicX();
-    double substrate_Y = gmt_mgr->DBMCeramicY();
-    double substrate_Z = gmt_mgr->DBMCeramicZ();
+    double substrate_X = m_gmt_mgr->DBMCeramicX();
+    double substrate_Y = m_gmt_mgr->DBMCeramicY();
+    double substrate_Z = m_gmt_mgr->DBMCeramicZ();
     
     //distances from bottom of the ceramic
     //Hardcoded!
@@ -97,18 +97,18 @@ GeoVPhysVol* DBM_Module::Build()
     double RToBeam = 46.678*CLHEP::mm;
 
     // layer spacing
-    double Zspacing = gmt_mgr->DBMSpacingZ();
-    double Rspacing = gmt_mgr->DBMSpacingRadial();
+    double Zspacing = m_gmt_mgr->DBMSpacingZ();
+    double Rspacing = m_gmt_mgr->DBMSpacingRadial();
     // gap between V-slide and first main plate
-    double layer1Space = gmt_mgr->DBMSpace();
+    double layer1Space = m_gmt_mgr->DBMSpace();
 
     // parameters for rotating the 3-layer unit
-    double angle = gmt_mgr->DBMAngle(); // telescope tilting angle in degree
-    double bracketZ = gmt_mgr->DBMBracketZ(); // total thickness of the bracket unit,
-    double trapBackY = gmt_mgr->DBMTrapezBackY();
-    double trapBackShortZ = gmt_mgr->DBMTrapezBackShortZ();
-    double coolingSidePlateY = gmt_mgr->DBMCoolingSidePlateY();
-    double brcktLockZ = gmt_mgr->DBMBrcktLockZ();
+    double angle = m_gmt_mgr->DBMAngle(); // telescope tilting angle in degree
+    double bracketZ = m_gmt_mgr->DBMBracketZ(); // total thickness of the bracket unit,
+    double trapBackY = m_gmt_mgr->DBMTrapezBackY();
+    double trapBackShortZ = m_gmt_mgr->DBMTrapezBackShortZ();
+    double coolingSidePlateY = m_gmt_mgr->DBMCoolingSidePlateY();
+    double brcktLockZ = m_gmt_mgr->DBMBrcktLockZ();
   
     //double lyRadius = sqrt(layerUnitY*layerUnitY/4 + layerUnitZ*layerUnitZ/4);
     //double lyAngle = atan(layerUnitY/layerUnitZ);
@@ -119,19 +119,19 @@ GeoVPhysVol* DBM_Module::Build()
 
 
 
-    const GeoMaterial* air = mat_mgr->getMaterial("std::Air");
+    const GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
     //first try the Diamond
-    const GeoMaterial* diamond = mat_mgr->getMaterial("pix::Diamond");
+    const GeoMaterial* diamond = m_mat_mgr->getMaterial("pix::Diamond");
     if(diamond == NULL)
     {
-  	diamond = mat_mgr->getMaterial("std::Carbon");	
+  	diamond = m_mat_mgr->getMaterial("std::Carbon");	
     }
   
-    const GeoMaterial* chip_mat = mat_mgr->getMaterial("pix::ChipBase");
+    const GeoMaterial* chip_mat = m_mat_mgr->getMaterial("pix::ChipBase");
     /*if(chip == NULL)
     {
   	std::cout << "MATERIAL ERROR: NO CHIPIBL FOUND\n";
-  	chip = mat_mgr->getMaterial("pix::Chip");
+  	chip = m_mat_mgr->getMaterial("pix::Chip");
   	if(chip == NULL)
   	     std::cout << "MATERIAL ERROR: NO CHIP FOUND\n";
     }
@@ -159,10 +159,10 @@ GeoVPhysVol* DBM_Module::Build()
     //*******************************
     // Create id and add element
     //*******************************
-    const PixelID * idHelper = gmt_mgr->getIdHelper();
-    int dbmdet = 4*gmt_mgr->GetSide();
+    const PixelID * idHelper = m_gmt_mgr->getIdHelper();
+    int dbmdet = 4*m_gmt_mgr->GetSide();
     Identifier idwafer;
-    idwafer = idHelper->wafer_id(dbmdet,gmt_mgr->GetLD(),gmt_mgr->Phi(),gmt_mgr->Eta());
+    idwafer = idHelper->wafer_id(dbmdet,m_gmt_mgr->GetLD(),m_gmt_mgr->Phi(),m_gmt_mgr->Eta());
 
     // if (gmt_mgr->msgLvl(MSG::INFO)) {
     //   gmt_mgr->msg(MSG::INFO) << "BEGIN DBM diamond crystal" << endmsg;
@@ -176,10 +176,10 @@ GeoVPhysVol* DBM_Module::Build()
     //   gmt_mgr->msg(MSG::INFO) << "END DBM diamond crystal" << endmsg;
     //}
 
-    SiDetectorElement * element = new SiDetectorElement(idwafer, m_design, dbmDiamondPhys, gmt_mgr->commonItems());
+    SiDetectorElement * element = new SiDetectorElement(idwafer, m_design, dbmDiamondPhys, m_gmt_mgr->commonItems());
     
     // add the element to the manager
-    DDmgr->addDetectorElement(element);
+    m_DDmgr->addDetectorElement(element);
 
     CLHEP::Hep3Vector dbmDiamondPos(0, bot2Diamond+diamond_Y/2.0-substrate_Y/2.0, diamond_Z/2.0-max_thick/2.0);
     GeoTransform* xform = new GeoTransform(HepGeom::Transform3D(rm,dbmDiamondPos));
@@ -203,7 +203,7 @@ GeoVPhysVol* DBM_Module::Build()
     
     //ceramic support
     const GeoBox* dbmSubstBox = new GeoBox(substrate_X/2.0, substrate_Y/2.0, substrate_Z/2.0);
-    const GeoMaterial* aluminiumNitride = mat_mgr->getMaterialForVolume("pix::DBMCeramic", dbmSubstBox->volume());
+    const GeoMaterial* aluminiumNitride = m_mat_mgr->getMaterialForVolume("pix::DBMCeramic", dbmSubstBox->volume());
     const GeoLogVol* dbmSubstLog = new GeoLogVol("dbmWallLogCe", dbmSubstBox, aluminiumNitride);
     GeoPhysVol* dbmSubstPhys = new GeoPhysVol(dbmSubstLog);
 
@@ -222,7 +222,7 @@ GeoVPhysVol* DBM_Module::Build()
     //  This mean the alignable pos below should be 
     //  the global position of the sensor
 
-    int layer = gmt_mgr->GetLD();
+    int layer = m_gmt_mgr->GetLD();
     double sensorPosInModuleCage_Z = layer1Space + layer*Zspacing - (substrate_Z + chip_thick + air_gap + diamond_Z/2.);
     double sensorPosInModuleCage_Y = Rspacing + bot2Diamond + diamond_Y/2.;
     double globPosZ = ZToIP + layerUnitPos_Z + (sensorPosInModuleCage_Z * cos(angle) - sensorPosInModuleCage_Y * sin(angle));
@@ -232,7 +232,7 @@ GeoVPhysVol* DBM_Module::Build()
     rmX10.rotateX(-10.*CLHEP::deg);
     CLHEP::Hep3Vector alignTransformPos(0, globPosY, globPosZ);
     GeoAlignableTransform *xformAlign = new GeoAlignableTransform(HepGeom::Transform3D(rmX10, alignTransformPos));
-    DDmgr->addAlignableTransform(0, idwafer, xformAlign, dbmDiamondPhys);
+    m_DDmgr->addAlignableTransform(0, idwafer, xformAlign, dbmDiamondPhys);
     //-----------------------------------------------------
 
     return dbmModulePhys;
@@ -259,7 +259,7 @@ PixelDiodeMatrix *  DBM_Module::makeMatrix(double phiPitch, double etaPitch, dou
   
   if (etaPitchLongEnd == etaPitchLong && etaPitchLong != etaPitch) {
     // long:normal:long (standard ATLAS case)
-    if (gmt_mgr->msgLvl(MSG::DEBUG)) gmt_mgr->msg(MSG::DEBUG) <<  "DBMModule: Making matrix (long:normal:long, Standard ATLAS case)" << endmsg;
+    if (m_gmt_mgr->msgLvl(MSG::DEBUG)) m_gmt_mgr->msg(MSG::DEBUG) <<  "DBMModule: Making matrix (long:normal:long, Standard ATLAS case)" << endmsg;
 
     PixelDiodeMatrix * normalCell = new PixelDiodeMatrix(phiPitch, etaPitch); 
     PixelDiodeMatrix * bigCell = new PixelDiodeMatrix(phiPitch, etaPitchLong); 
@@ -277,14 +277,14 @@ PixelDiodeMatrix *  DBM_Module::makeMatrix(double phiPitch, double etaPitch, dou
 				      0, singleRow, circuitsPhi*diodeRowPerCirc, 0);
   } else if (etaPitchLongEnd == etaPitchLong && (etaPitchLong == etaPitch || circuitsEta == 1)) {
     // normal:normal:normal
-    if (gmt_mgr->msgLvl(MSG::DEBUG)) gmt_mgr->msg(MSG::DEBUG) <<  "DBMModule: Making matrix (normal:normal:normal)" << endmsg;
+    if (m_gmt_mgr->msgLvl(MSG::DEBUG)) m_gmt_mgr->msg(MSG::DEBUG) <<  "DBMModule: Making matrix (normal:normal:normal)" << endmsg;
     PixelDiodeMatrix * normalCell = new PixelDiodeMatrix(phiPitch, etaPitch); 
     PixelDiodeMatrix * singleRow = new PixelDiodeMatrix(PixelDiodeMatrix::etaDir,
 							0, normalCell, circuitsEta*diodeColPerCirc, 0);
     fullMatrix = new PixelDiodeMatrix(PixelDiodeMatrix::phiDir,
 				      0, singleRow, circuitsPhi*diodeRowPerCirc, 0);
   } else if (etaPitchLongEnd == etaPitch &&  etaPitchLong != etaPitch && circuitsEta > 2) {
-    if (gmt_mgr->msgLvl(MSG::DEBUG)) gmt_mgr->msg(MSG::DEBUG) <<  "DBMModule: Making matrix (normal:normal:long, > 2 chips)" << endmsg;
+    if (m_gmt_mgr->msgLvl(MSG::DEBUG)) m_gmt_mgr->msg(MSG::DEBUG) <<  "DBMModule: Making matrix (normal:normal:long, > 2 chips)" << endmsg;
     // normal:normal:long: > 2 chips
     PixelDiodeMatrix * normalCell = new PixelDiodeMatrix(phiPitch, etaPitch); 
     PixelDiodeMatrix * bigCell = new PixelDiodeMatrix(phiPitch, etaPitchLong); 
@@ -310,7 +310,7 @@ PixelDiodeMatrix *  DBM_Module::makeMatrix(double phiPitch, double etaPitch, dou
 				      0, singleRow, circuitsPhi*diodeRowPerCirc, 0);
   } else if (etaPitchLongEnd == etaPitch &&  etaPitchLong != etaPitch && circuitsEta == 2) {
     // normal:normal:long: 2 chips (current SLHC case)
-    if (gmt_mgr->msgLvl(MSG::DEBUG)) gmt_mgr->msg(MSG::DEBUG) <<  "DBMModule: Making matrix (normal:normal:long, 2 chips)" << endmsg;
+    if (m_gmt_mgr->msgLvl(MSG::DEBUG)) m_gmt_mgr->msg(MSG::DEBUG) <<  "DBMModule: Making matrix (normal:normal:long, 2 chips)" << endmsg;
     PixelDiodeMatrix * normalCell = new PixelDiodeMatrix(phiPitch, etaPitch); 
     PixelDiodeMatrix * bigCell = new PixelDiodeMatrix(phiPitch, etaPitchLong); 
     
@@ -331,7 +331,7 @@ PixelDiodeMatrix *  DBM_Module::makeMatrix(double phiPitch, double etaPitch, dou
   } else if (circuitsEta == 1 ||  (etaPitchLongEnd != etaPitch &&  etaPitchLong == etaPitch )){ // etaPitchLongEnd != etaPitch at this stage
     // end:normal:end  (for single chip)
     // end:normal:normal  (not likely)
-    if (gmt_mgr->msgLvl(MSG::DEBUG)) gmt_mgr->msg(MSG::DEBUG) <<  "DBMModule: Making matrix (end:normal:end, single chips or end:normal:normal)" << endmsg;
+    if (m_gmt_mgr->msgLvl(MSG::DEBUG)) m_gmt_mgr->msg(MSG::DEBUG) <<  "DBMModule: Making matrix (end:normal:end, single chips or end:normal:normal)" << endmsg;
     PixelDiodeMatrix * normalCell = new PixelDiodeMatrix(phiPitch, etaPitch); 
     PixelDiodeMatrix * bigCell = new PixelDiodeMatrix(phiPitch, etaPitchLongEnd); 
     
@@ -344,7 +344,7 @@ PixelDiodeMatrix *  DBM_Module::makeMatrix(double phiPitch, double etaPitch, dou
 				      0, singleRow, circuitsPhi*diodeRowPerCirc, 0);
   } else {
     // end:normal:long    (not likely)
-    if (gmt_mgr->msgLvl(MSG::DEBUG)) gmt_mgr->msg(MSG::DEBUG) <<  "DBMModule: Making matrix (end:normal:long)" << endmsg;
+    if (m_gmt_mgr->msgLvl(MSG::DEBUG)) m_gmt_mgr->msg(MSG::DEBUG)<<  "DBMModule: Making matrix (end:normal:long)" << endmsg;
     PixelDiodeMatrix * normalCell = new PixelDiodeMatrix(phiPitch, etaPitch); 
     PixelDiodeMatrix * bigCell = new PixelDiodeMatrix(phiPitch, etaPitchLong); 
     PixelDiodeMatrix * endCell = new PixelDiodeMatrix(phiPitch, etaPitchLongEnd); 

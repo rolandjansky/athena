@@ -104,9 +104,6 @@ class TrigEgammaEmulationTool
     const xAOD::CaloClusterContainer    *m_caloClusters;
     const xAOD::TrigEMClusterContainer  *m_trigEMClusters;
     const xAOD::EmTauRoIContainer       *m_emTauRois;
-
-
-    xAOD::EmTauRoIContainer *m_l1Cont;
 };
 
 //************************************************************************************************

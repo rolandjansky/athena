@@ -162,7 +162,7 @@ StatusCode JEPJEMMon::bookHistogramsRecurrent()
 
   //if ( newEventsBlock || newLumiBlock) { }
 
-  if ( newRun ) {
+  if ( newRunFlag() ) {
 
     MgmtAttr_t attr = ATTRIB_UNMANAGED;
     MonGroup JetElements_expert(this, m_rootDir + "/Input", run, attr);

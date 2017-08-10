@@ -116,11 +116,11 @@ namespace xAOD {
       Rphi = 39,
       /// @brief (emaxs1-e2tsts1)/(emaxs1+e2tsts1)
       Eratio = 40,
-      /// @bried ethad/et
+      /// @brief ethad/et
       Rhad = 41,
-      /// @bried ethad1/et
+      /// @brief ethad1/et
       Rhad1 = 42,
-      /// @bried e2tsts1-emins1
+      /// @brief e2tsts1-emins1
       DeltaE =43,
       ///maximum number of enums 
       NumberOfShowerShapes = 44

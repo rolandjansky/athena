@@ -17,7 +17,6 @@
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadHandle.h"
-#include "StoreGate/UpdateHandle.h"
 
 namespace AthEx {
 
@@ -67,7 +66,7 @@ class DFlowAlg3
   // vars
   SG::ReadHandle<int>  m_r_int;
   SG::ReadHandle<std::vector<int> > m_r_ints;
-  SG::UpdateHandle<std::vector<int> > m_rw_ints;
+  SG::WriteHandle<std::vector<int> > m_w_ints;
 
 }; 
 

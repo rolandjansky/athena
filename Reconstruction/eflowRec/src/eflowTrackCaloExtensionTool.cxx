@@ -25,26 +25,21 @@
 #include "CaloDetDescr/CaloDepthTool.h"
 
 #include "GaudiKernel/ListItem.h"
-//#include "GaudiKernel/ToolHandle.h"
 
 #include <map>
 #include <vector>
 #include <utility>
 
-//using std::pair;
-
 eflowTrackCaloExtensionTool::eflowTrackCaloExtensionTool(const std::string& type, const std::string& name, const IInterface* parent)  :
     AthAlgTool(type, name, parent),
     m_theTrackExtrapolatorTool("Trk::ParticleCaloExtensionTool"),
-    m_trackParametersIdHelper(new Trk::TrackParametersIdHelper)//,
-    //m_tracksProcessed(0)
+    m_trackParametersIdHelper(std::make_unique<Trk::TrackParametersIdHelper>())
 {
   declareInterface<eflowTrackExtrapolatorBaseAlgTool>(this);
   declareProperty("TrackCaloExtensionTool", m_theTrackExtrapolatorTool, "TrackCaloExtension Tool Handle");
 }
 
 eflowTrackCaloExtensionTool::~eflowTrackCaloExtensionTool() {
-  delete m_trackParametersIdHelper;
 }
 
 StatusCode eflowTrackCaloExtensionTool::initialize() {
@@ -67,7 +62,7 @@ StatusCode eflowTrackCaloExtensionTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
-eflowTrackCaloPoints* eflowTrackCaloExtensionTool::execute(const xAOD::TrackParticle* track) const {
+std::unique_ptr<eflowTrackCaloPoints> eflowTrackCaloExtensionTool::execute(const xAOD::TrackParticle* track) const {
   //++m_tracksProcessed;
   msg(MSG::VERBOSE) << " Now running eflowTrackCaloExtensionTool" << endmsg;
 
@@ -75,7 +70,7 @@ eflowTrackCaloPoints* eflowTrackCaloExtensionTool::execute(const xAOD::TrackPart
   std::map<eflowCalo::LAYER, const Trk::TrackParameters*> parametersMap;
 
   /*get the CaloExtension object*/
-  const Trk::CaloExtension* extension = 0;
+  const Trk::CaloExtension* extension = nullptr;
   if (m_theTrackExtrapolatorTool->caloExtension(*track, extension)) {
 
     /*extract the CurvilinearParameters*/
@@ -90,12 +85,12 @@ eflowTrackCaloPoints* eflowTrackCaloExtensionTool::execute(const xAOD::TrackPart
         parametersMap[getLayer(clParameter)] = clParameter->clone();
       }
     }
-    return new eflowTrackCaloPoints(parametersMap);
+    return std::make_unique<eflowTrackCaloPoints>(parametersMap);
   }
   else{
     msg(MSG::WARNING) << "TrackExtension failed for track with pt and eta " << track->pt() << " and " << track->eta() << endmsg;
-    parametersMap[eflowCalo::LAYER::Unknown] = 0;
-    return new eflowTrackCaloPoints(parametersMap);
+    parametersMap[eflowCalo::LAYER::Unknown] = nullptr;
+    return std::make_unique<eflowTrackCaloPoints>(parametersMap);
   }
 
 

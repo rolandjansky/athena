@@ -18,12 +18,31 @@
 ######################################################################### 
 
 
-ATLAS_ARCH = $(CMTCONFIG)
+ifeq ($(AtlasEvent_PLATFORM),)
+  ifeq ($(PLATFORM),)
+    ATLAS_ARCH = $(shell uname)
+  else 
+    ATLAS_ARCH = $(PLATFORM)
+  endif
+else
+  ATLAS_ARCH = $(AtlasEvent_PLATFORM)
+endif
+
+
+ifeq ($(TestArea),)
+    ATLASBASE = $(HOME)/atlas/TIDA
+else
+    ATLASBASE = $(TestArea)/Trigger/TrigAnalysis
+endif
+
+CMTCONFIG=
+
+
 
 ifeq ($(CMTCONFIG),)
 
 
-     ATLAS_ARCH = $(shell uname)
+
 #    ATLAS_ARCH = $(shell ./setarch.sh)
 #    ATLAS_ARCH = x86
 
@@ -32,7 +51,8 @@ ifeq ($(CMTCONFIG),)
     # ATLASBASE = $(TestArea)/Trigger/TrigAnalysis/
     # ATLASBASE = /tmp/sutt/new/Trigger/TrigAnalysis
     # ATLASBASE = $(ATLAS_TEST_AREA)/Trigger/TrigAnalysis
-    ATLASBASE = $(HOME)/atlas/TIDA
+    # ATLASBASE = $(TestArea)/Trigger/TrigAnalysis
+    # ATLASBASE = $(HOME)/atlas/TIDA
     # ATLASBASE = /tmp/sutt/duff/Trigger/TrigAnalysis
     # ATLASBASE = /tmp/sutt/tida/Trigger/TrigAnalysis/
 
@@ -58,11 +78,12 @@ else
 
     USEATHENALIBS = 1 	
 
-    ATLASBASE = $(TestArea)/InstallArea
+    ATLASBASE = $(TestArea)/Trigger/TrigAnalysis
+#   ATLASBASE = $(TestArea)/InstallArea
 
-    TID   = $(ATLASBASE)/include/TrigInDetAnalysis
-    TIDU  = $(ATLASBASE)/include/TrigInDetAnalysisUtils
-    TIDE  = $(ATLASBASE)/include/TrigInDetAnalysisExample
+    TID   = $(ATLASBASE)/TrigInDetAnalysis
+    TIDU  = $(ATLASBASE)/TrigInDetAnalysisUtils
+    TIDE  = $(ATLASBASE)/TrigInDetAnalysisExample
     TIDUB = ../..
 
     CXXFLAGS += -I$(TID) -I$(TIDU) -I$(TIDE) 	
@@ -160,7 +181,9 @@ ROBJECTS  = \
 	$(OBJDIR)/rmain.o  \
 	$(OBJDIR)/ConfAnalysis.o  \
 	$(OBJDIR)/ConfVtxAnalysis.o  \
-	$(OBJDIR)/PurityAnalysis.o
+	$(OBJDIR)/PurityAnalysis.o \
+	$(OBJDIR)/globals.o \
+	$(OBJDIR)/computils.o
 
 LOBJECTS  = \
 	$(OBJDIR)/TIDAEvent.o \
@@ -202,7 +225,7 @@ RLIBS += -L$(TIDUB)/Resplot/lib/$(ARCH_TYPE) -lResplot -L$(TIDUB)/Readcards/lib/
 
 # build executable: link
 
-all : dirs resplot readcards rdict wdict reader comparitor cpucost chains skim listroot
+all : dirs resplot readcards rdict wdict reader comparitor cpucost chains skim listroot sb runtool
 
 $(OBJDIR)/computils.o : $(SRCDIR)/computils.h 
 $(OBJDIR)/comparitor.o : $(SRCDIR)/computils.h 
@@ -234,7 +257,6 @@ $(EXEDIR)/refit : dirs $(OBJDIR)/refit.o  $(LIBSO)
 comparitor : $(EXEDIR)/comparitor  
 $(EXEDIR)/comparitor : $(COBJECTS)  $(LIBSO)
 	$(CXX) $(LDFLAGS) -o $@ $(COBJECTS) $(LIBS) $(RLIBS) $(GLIBS)
-	cp $(EXEDIR)/{comparitor,TIDAcomparitor.exe}
 
 cpucost : $(EXEDIR)/cpucost  
 $(EXEDIR)/cpucost : $(CCOBJECTS)  $(LIBSO)
@@ -254,8 +276,8 @@ $(EXEDIR)/listroot : $(OBJDIR)/listroot.o $(OBJDIR)/AtlasStyle.o $(OBJDIR)/Atlas
 	$(CXX) $(LDFLAGS) -o $@ $(OBJDIR)/listroot.o $(OBJDIR)/AtlasStyle.o  $(RLIBS) $(ROOTLIBS)
 
 runtool : dirs $(EXEDIR)/runtool
-$(EXEDIR)/runtool : dirs $(OBJDIR)/runtool.o 
-	$(CXX) $(LDFLAGS) -o $@ $(OBJDIR)/runtool.o $(GLIBS)
+$(EXEDIR)/runtool : dirs $(OBJDIR)/runtool.o $(OBJDIR)/computils.o 
+	$(CXX) $(LDFLAGS) -o $@ $(OBJDIR)/runtool.o $(OBJDIR)/computils.o $(GLIBS)
 
 sb : $(EXEDIR)/sb  
 $(EXEDIR)/sb : $(OBJDIR)/chainparser.o 
@@ -265,6 +287,7 @@ $(EXEDIR)/sb : $(OBJDIR)/chainparser.o
 # compile
 # $(OBJDIR)/%.o : $(SRCDIR)/%.cxx 
 $(OBJDIR)/%.o : %.cxx 
+	echo $(CXXFLAGS)
 	$(CXX) $(CXXFLAGS) -c $<  -o $@
 
 # $(OBJDIR)/%.o : $(SRCDIR)/%.c 
@@ -302,7 +325,7 @@ $(LIBDIR)/libTIDA.a : $(LOBJECTS)
 libso: $(LIBDIR)/libTIDA.so 
 $(LIBDIR)/libTIDA.so : $(LOBJECTS) 
 	$(CXX) $(LDFLAGS) -O3 -dynamiclib -shared -o  $@ $(LOBJECTS) $(RSSOLIB)$(GLIBS)
-	
+
 else
 # if libraries are already build inside athena, do nothing 
 lib:
@@ -322,14 +345,26 @@ libclean :
 	$(RM) -f $(LIBDIR)/lib*.{a,so} 
 
 
-resplot: 
+resplot: $(TIDUB)/Resplot/lib/$(ARCH_TYPE)/.d
 	make -C $(TIDUB)/Resplot/src install
 
-readcards: 
+readcards:  $(TIDUB)/Readcards/lib/$(ARCH_TYPE)/.d
 	make -C $(TIDUB)/Readcards/src install
 
 archive : 
 	cd ../.. ; tar -czf $(BASEDIR).tgz $(BASEDIR)/src $(BASEDIR)/config 
+
+
+INSTALLDIR=$(TestArea)/build/$(ATLAS_ARCH)/bin
+
+$(INSTALLDIR)/TIDA% : $(EXEDIR)/%
+	cp $< $@
+	cp $< $@.exe
+
+
+INSTALLFILES=comparitor chains cpucost runtool sb rdict reader
+
+ginstall : install $(INSTALLDIR)/TIDA$(patsubst %,%,$(INSTALLFILES))
 
 install : all 
 	cp $(EXEDIR)/comparitor $(HOME)/bin

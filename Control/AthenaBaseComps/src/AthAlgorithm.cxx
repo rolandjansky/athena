@@ -11,11 +11,13 @@
 
 // AthenaBaseComps includes
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthAlgorithmDHUpdate.h"
 
 // STL includes
 
-// FrameWork includes
+// Framework includes
 #include "GaudiKernel/Property.h"
+
 
 /////////////////////////////////////////////////////////////////// 
 // Public methods: 
@@ -61,6 +63,14 @@ AthAlgorithm::AthAlgorithm( const std::string& name,
                    m_userStore = UserDataSvc_t ("UserDataSvc/UserDataSvc", name),
                    "Handle to a UserDataSvc/UserDataSvc instance: it will be used to "
                    "retrieve user data during the course of the job" );
+
+  // Set up to run AthAlgorithmDHUpdate in sysInitialize before
+  // merging depedency lists.  This extends the output dependency
+  // list with any symlinks implied by inheritance relations.
+  m_updateDataHandles =
+    std::make_unique<AthenaBaseComps::AthAlgorithmDHUpdate>
+    (m_extendedExtraObjects,
+     std::move (m_updateDataHandles));
 }
 
 // Destructor
@@ -104,4 +114,21 @@ AthAlgorithm::msg_update_handler( Property& outputLevel )
    } else {
       msg().setLevel( msgLevel() );
    }
+}
+
+
+/**
+ * @brief Return the list of extra output dependencies.
+ *
+ * This list is extended to include symlinks implied by inheritance
+ * relations.
+ */
+const DataObjIDColl& AthAlgorithm::extraOutputDeps() const
+{
+  // If we didn't find any symlinks to add, just return the collection
+  // from the base class.  Otherwise, return the extended collection.
+  if (!m_extendedExtraObjects.empty()) {
+    return m_extendedExtraObjects;
+  }
+  return Algorithm::extraOutputDeps();
 }

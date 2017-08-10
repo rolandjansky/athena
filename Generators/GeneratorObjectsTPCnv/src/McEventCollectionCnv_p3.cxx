@@ -194,7 +194,7 @@ McEventCollectionCnv_p3::createGenVertex( const McEventCollection_p3& persEvt,
                                           ParticlesMap_t& partToEndVtx,
                                           HepMC::DataPool* datapools ) const
 {
-  DataPool<HepMC::GenVertex> poolOfVertices = datapools->vtx;
+  DataPool<HepMC::GenVertex>& poolOfVertices = datapools->vtx;
   HepMC::GenVertex * vtx = poolOfVertices.nextElementPtr();
   vtx->m_position.setX( persVtx.m_x );
   vtx->m_position.setY( persVtx.m_y );
@@ -237,7 +237,7 @@ McEventCollectionCnv_p3::createGenParticle( const GenParticle_p3& persPart,
   using std::sqrt;
   using std::pow;
 
-  DataPool<HepMC::GenParticle> poolOfParticles = datapools->part;
+  DataPool<HepMC::GenParticle>& poolOfParticles = datapools->part;
   HepMC::GenParticle* p    = poolOfParticles.nextElementPtr();
   p->m_pdg_id              = persPart.m_pdgId;
   p->m_status              = persPart.m_status;

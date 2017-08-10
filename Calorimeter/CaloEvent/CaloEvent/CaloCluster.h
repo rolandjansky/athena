@@ -59,7 +59,6 @@ Update:  Sep 18, 2005 P Loch
 #include "CaloEvent/CaloClusterBadChannelData.h"
 
 #include <vector>
-#include "tbb/recursive_mutex.h"
 
 #include "GeoPrimitives/GeoPrimitives.h"
 

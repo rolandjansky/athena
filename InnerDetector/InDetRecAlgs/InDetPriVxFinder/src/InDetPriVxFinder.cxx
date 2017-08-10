@@ -65,12 +65,12 @@ namespace InDet
     /* Get the VertexFinderTool */
     if ( m_VertexFinderTool.retrieve().isFailure() )
     {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_VertexFinderTool << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_VertexFinderTool << endmsg;
       return StatusCode::FAILURE;
     }
     else
     {
-      msg(MSG::INFO) << "Retrieved tool " << m_VertexFinderTool << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_VertexFinderTool << endmsg;
     }
 
     /*Get the Vertex Mergin Tool*/
@@ -78,12 +78,12 @@ namespace InDet
     {
       if ( m_VertexMergingTool.retrieve().isFailure() )
       {
-        msg(MSG::FATAL) << "Failed to retrieve tool " << m_VertexMergingTool << endreq;
+        msg(MSG::FATAL) << "Failed to retrieve tool " << m_VertexMergingTool << endmsg;
         return StatusCode::FAILURE;
       }
       else
       {
-        msg(MSG::INFO) << "Retrieved tool " << m_VertexMergingTool << endreq;
+        msg(MSG::INFO) << "Retrieved tool " << m_VertexMergingTool << endmsg;
       }
     }
 
@@ -92,12 +92,12 @@ namespace InDet
     {
       if ( m_VertexCollectionSortingTool.retrieve().isFailure() )
       {
-        msg(MSG::FATAL) << "Failed to retrieve tool " << m_VertexCollectionSortingTool << endreq;
+        msg(MSG::FATAL) << "Failed to retrieve tool " << m_VertexCollectionSortingTool << endmsg;
         return StatusCode::FAILURE;
       }
       else
       {
-        msg(MSG::INFO) << "Retrieved tool " << m_VertexCollectionSortingTool << endreq;
+        msg(MSG::INFO) << "Retrieved tool " << m_VertexCollectionSortingTool << endmsg;
       }
     }
     if ( m_VertexEdmFactory.retrieve().isFailure() ) {
@@ -106,7 +106,7 @@ namespace InDet
     }
    
 
-    msg(MSG::INFO) << "Initialization successful" << endreq;
+    msg(MSG::INFO) << "Initialization successful" << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -128,7 +128,7 @@ namespace InDet
       const TrackCollection *trackTES ( 0 );
       if ( evtStore()->retrieve ( trackTES, m_tracksName ).isFailure() )
       {
-        if (msgLvl(MSG::DEBUG)) msg() << "Could not find TrackCollection " << m_tracksName << " in StoreGate." << endreq;
+        if (msgLvl(MSG::DEBUG)) msg() << "Could not find TrackCollection " << m_tracksName << " in StoreGate." << endmsg;
         return StatusCode::SUCCESS;
       }
       theXAODContainers = m_VertexFinderTool->findVertex ( trackTES );
@@ -139,7 +139,7 @@ namespace InDet
       const xAOD::TrackParticleContainer *trackParticleCollection(0);
       if ( evtStore()->retrieve ( trackParticleCollection, m_tracksName ).isFailure() )
       {
-        if (msgLvl(MSG::DEBUG)) msg() << "Could not find xAOD::TrackParticleContainer " << m_tracksName << " in StoreGate." << endreq;
+        if (msgLvl(MSG::DEBUG)) msg() << "Could not find xAOD::TrackParticleContainer " << m_tracksName << " in StoreGate." << endmsg;
         return StatusCode::SUCCESS;
       }
       theXAODContainers = m_VertexFinderTool->findVertex ( trackParticleCollection );
@@ -150,7 +150,7 @@ namespace InDet
       const Trk::TrackParticleBaseCollection *trackParticleBaseCollection(0);
       if ( evtStore()->retrieve ( trackParticleBaseCollection, m_tracksName ).isFailure() )
       {
-        if (msgLvl(MSG::DEBUG)) msg() << "Could not find Trk::TrackParticleBaseCollection " << m_tracksName << " in StoreGate." << endreq;
+        if (msgLvl(MSG::DEBUG)) msg() << "Could not find Trk::TrackParticleBaseCollection " << m_tracksName << " in StoreGate." << endmsg;
         return StatusCode::SUCCESS;
       }
 
@@ -233,9 +233,9 @@ namespace InDet
   {
     if (msgLvl(MSG::INFO))
     {
-      msg() << "Summary from Primary Vertex Finder (InnerDetector/InDetRecAlgs/InDetPriVxFinder)" << endreq;
-      msg() << "=== " << m_totalNumVerticesWithoutDummy << " vertices recoed in " << m_numEventsProcessed << " events (excluding dummy)." << endreq;
-      if (m_numEventsProcessed!=0) msg() << "=== " << double(m_totalNumVerticesWithoutDummy)/double(m_numEventsProcessed) << " vertices per event (excluding dummy)." << endreq;
+      msg() << "Summary from Primary Vertex Finder (InnerDetector/InDetRecAlgs/InDetPriVxFinder)" << endmsg;
+      msg() << "=== " << m_totalNumVerticesWithoutDummy << " vertices recoed in " << m_numEventsProcessed << " events (excluding dummy)." << endmsg;
+      if (m_numEventsProcessed!=0) msg() << "=== " << double(m_totalNumVerticesWithoutDummy)/double(m_numEventsProcessed) << " vertices per event (excluding dummy)." << endmsg;
     } 
     return StatusCode::SUCCESS;
   }

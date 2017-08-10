@@ -47,7 +47,7 @@ def getCalibConfigs():
     
 
 ## Setup MuonSegmenToCalibSegment algorithm.
-# @input @c segmentKeys list of segment keys to use or single segments key (string)
+# @param[in] segmentKeys list of segment keys to use or single segments key (string)
 def getMuonSegmentToCalibSegment():
     global topSequence,muonRecFlags
     try:
@@ -76,7 +76,7 @@ def getMuonSegmentToCalibSegment():
 
 ## Setup the basic MuonCalibAlg algorithm. Needs further configuration after this call
 # depending on the use-case.
-# @input @c evenTag The event tag written to file
+# @param[in] evenTag The event tag written to file
 def getMuonCalibAlg(eventTag):
     global topSequence,beamFlags
     try:

@@ -15,7 +15,7 @@ void init_geo();
 
 void init_geo()
 {
- 
+
  cout<<"init geometry test tool"<<endl;
 
  gInterpreter->AddIncludePath("..");
@@ -24,7 +24,12 @@ void init_geo()
  gROOT->LoadMacro("CaloSampling.cxx+");
  gROOT->LoadMacro("../src/CaloGeometry.cxx+");
  gROOT->LoadMacro("CaloGeometryFromFile.cxx+");
- 
+ gROOT->LoadMacro("../src/FCAL_ChannelMap.cxx+");
  cout<<"init geometry done"<<endl;
- 
+ cout << "running run_geo.C" << endl;
+
+ gROOT->ProcessLine(".x run_geo.C");
+
+
+
 }

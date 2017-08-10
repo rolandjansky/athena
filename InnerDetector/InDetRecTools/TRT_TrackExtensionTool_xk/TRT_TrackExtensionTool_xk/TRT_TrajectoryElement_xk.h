@@ -23,7 +23,7 @@
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "TrkToolInterfaces/IPatternParametersUpdator.h"
 #include "TrkExInterfaces/IPatternParametersPropagator.h"
-#include "TRT_TrackExtensionTool_xk/TRT_DriftCircleLink_xk.h"
+#include "TRT_TrackExtensionTool_xk/TRT_ExtensionDriftCircleLink_xk.h"
 
 class TRT_ID;
 
@@ -54,7 +54,7 @@ namespace InDet{
       const double&  dpositive()                    const {return m_dpositive ;}
       const double&  dnegative()                    const {return m_dnegative ;}
       const InDetDD::TRT_BaseElement* detElement()  const {return m_detelement;}  
-      const TRT_DriftCircleLink_xk&   link  (int i) const {return m_link[i]    ;}
+      const TRT_ExtensionDriftCircleLink_xk&   link  (int i) const {return m_link[i]    ;}
  
       ///////////////////////////////////////////////////////////////////
       // Main methods
@@ -136,7 +136,7 @@ namespace InDet{
       double                                             m_scale_error;
       double                                             m_dpositive  ;
       double                                             m_dnegative  ;
-      TRT_DriftCircleLink_xk                             m_link[24]   ;
+      TRT_ExtensionDriftCircleLink_xk                    m_link[24]   ;
       const InDetDD::TRT_BaseElement *                   m_detelement ;
       const TRT_ID                   *                   m_trtid      ;
       const Trk::IPatternParametersPropagator*           m_proptool   ;

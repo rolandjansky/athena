@@ -10,6 +10,7 @@
 #include "TileRecUtils/TileRawChannelBuilderMF.h"
 #include "TileRecUtils/TileBeamInfoProvider.h"
 #include "TileRecUtils/TileCellBuilder.h"
+#include "TileRecUtils/TileCellBuilderFromHit.h"
 #include "TileRecUtils/TileCellFakeProb.h"
 #include "TileRecUtils/TileCellMaskingTool.h"
 #include "TileRecUtils/TileRawChannelMaker.h"
@@ -30,6 +31,7 @@ DECLARE_TOOL_FACTORY( TileRawChannelBuilderManyAmps )
 DECLARE_TOOL_FACTORY( TileRawChannelBuilderMF )
 DECLARE_TOOL_FACTORY( TileBeamInfoProvider )
 DECLARE_TOOL_FACTORY( TileCellBuilder )
+DECLARE_TOOL_FACTORY( TileCellBuilderFromHit )
 DECLARE_TOOL_FACTORY( TileCellFakeProb )
 DECLARE_TOOL_FACTORY( TileCellMaskingTool )
 DECLARE_TOOL_FACTORY( TileTowerBuilderTool )
@@ -51,6 +53,7 @@ DECLARE_FACTORY_ENTRIES(TileRecUtils) {
   DECLARE_TOOL( TileRawChannelBuilderMF )
   DECLARE_TOOL( TileBeamInfoProvider )
   DECLARE_TOOL( TileCellBuilder )
+  DECLARE_TOOL( TileCellBuilderFromHit )
   DECLARE_TOOL( TileCellFakeProb )
   DECLARE_TOOL( TileCellMaskingTool )
   DECLARE_TOOL( TileTowerBuilderTool )

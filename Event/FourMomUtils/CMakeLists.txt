@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 742521 2016-04-25 07:29:56Z krasznaa $
+# $Id: CMakeLists.txt 782308 2016-11-04 09:51:01Z krasznaa $
 ################################################################################
 # Package: FourMomUtils
 ################################################################################
@@ -6,30 +6,50 @@
 # Declare the package name:
 atlas_subdir( FourMomUtils )
 
+# Extra dependencies:
+if( NOT XAOD_STANDALONE AND NOT XAOD_ANALYSIS )
+   set( extra_deps Event/EventKernel Event/NavFourMom
+      PRIVATE Event/FourMom )
+endif()
+
 # Declare the package's dependencies:
 atlas_depends_on_subdirs(
    PUBLIC
    Control/AthContainers
    Control/CxxUtils
-   Event/EventKernel
-   Event/NavFourMom
    Event/xAOD/xAODBase
    Event/xAOD/xAODMissingET
-   PRIVATE
-   Event/FourMom )
+   ${extra_deps} )
 
 # External dependencies:
-find_package( CLHEP )
+find_package( CLHEP QUIET )
 
 # Component(s) in the package:
-atlas_add_library( FourMomUtils
-   FourMomUtils/*.h src/*.cxx Root/*.cxx
-   PUBLIC_HEADERS FourMomUtils
-   PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-   PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-   LINK_LIBRARIES AthContainers CxxUtils EventKernel NavFourMom xAODBase
-   xAODMissingET
-   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} FourMom )
+if( XAOD_STANDALONE OR XAOD_ANALYSIS )
+   if( CLHEP_FOUND )
+      atlas_add_library( FourMomUtils
+         FourMomUtils/*.h Root/*.cxx
+         PUBLIC_HEADERS FourMomUtils
+         PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
+         PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
+         LINK_LIBRARIES AthContainers CxxUtils xAODBase xAODMissingET
+         PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} )
+   else()
+      atlas_add_library( FourMomUtils
+         FourMomUtils/*.h Root/*.cxx
+         PUBLIC_HEADERS FourMomUtils
+         LINK_LIBRARIES AthContainers CxxUtils xAODBase xAODMissingET )
+   endif()
+else()
+   atlas_add_library( FourMomUtils
+      FourMomUtils/*.h src/*.cxx Root/*.cxx
+      PUBLIC_HEADERS FourMomUtils
+      PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
+      PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
+      LINK_LIBRARIES AthContainers CxxUtils EventKernel NavFourMom xAODBase
+      xAODMissingET
+      PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} FourMom )
+endif()
 
 atlas_add_dictionary( FourMomUtilsDict
    FourMomUtils/FourMomUtilsDict.h

@@ -6,36 +6,42 @@
 atlas_subdir( PixelCabling )
 
 # Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaKernel
-                          GaudiKernel
-                          PRIVATE
-                          Control/AthenaBaseComps
-                          Control/CLIDSvc
-                          Control/SGTools
-                          Control/StoreGate
-                          Database/AthenaPOOL/AthenaPoolUtilities
-                          DetectorDescription/Identifier
-                          InnerDetector/InDetDetDescr/InDetIdentifier
-                          InnerDetector/InDetDetDescr/PixelGeoModel
-                          Tools/PathResolver )
+atlas_depends_on_subdirs(
+   PUBLIC
+   Control/AthenaKernel
+   GaudiKernel
+   PRIVATE
+   Control/AthenaBaseComps
+   Control/SGTools
+   Control/StoreGate
+   Database/AthenaPOOL/AthenaPoolUtilities
+   DetectorDescription/Identifier
+   InnerDetector/InDetDetDescr/InDetIdentifier
+   InnerDetector/InDetDetDescr/PixelGeoModel
+   Tools/PathResolver )
 
 # External dependencies:
-find_package( Boost COMPONENTS filesystem thread system )
-find_package( CORAL COMPONENTS CoralKernel )
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
+find_package( Boost )
+find_package( CORAL COMPONENTS CoralBase )
 find_package( tdaq-common )
 
 # Component(s) in the package:
+atlas_add_library( PixelCablingLib
+   PixelCabling/*.h
+   INTERFACE
+   PUBLIC_HEADERS PixelCabling
+   LINK_LIBRARIES GaudiKernel AthenaKernel )
+
 atlas_add_component( PixelCabling
-                     src/*.cxx
-                     src/components/*.cxx
-                     INCLUDE_DIRS ${CORAL_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CORAL_LIBRARIES} ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} AthenaKernel GaudiKernel AthenaBaseComps SGTools StoreGateLib SGtests AthenaPoolUtilities Identifier InDetIdentifier PathResolver )
+   src/*.h src/*.cxx src/components/*.cxx
+   INCLUDE_DIRS ${CORAL_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
+   ${TDAQ-COMMON_INCLUDE_DIRS}
+   LINK_LIBRARIES ${CORAL_LIBRARIES} ${Boost_LIBRARIES}
+   ${TDAQ-COMMON_LIBRARIES} GaudiKernel AthenaBaseComps SGTools StoreGateLib
+   AthenaPoolUtilities Identifier InDetIdentifier PathResolver PixelGeoModelLib
+   PixelCablingLib )
 
 # Install files from the package:
-atlas_install_headers( PixelCabling )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 atlas_install_runtime( share/*.dat )
-

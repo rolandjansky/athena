@@ -32,12 +32,12 @@ ReadHepEvtFromAscii::ReadHepEvtFromAscii(const std::string& name, ISvcLocator* p
 
 StatusCode ReadHepEvtFromAscii::initialize(){
 
-  msg(MSG::INFO) << ">>> ReadHepEvtFromAscii from Initialize" << endreq;
+  msg(MSG::INFO) << ">>> ReadHepEvtFromAscii from Initialize" << endmsg;
 
   StatusCode sc = service("StoreGateSvc", m_sgSvc);
     
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not find StoreGateSvc" << endreq;
+    msg(MSG::ERROR) << "Could not find StoreGateSvc" << endmsg;
     return sc;
   }
 
@@ -56,19 +56,19 @@ StatusCode ReadHepEvtFromAscii::initialize(){
 }
 StatusCode ReadHepEvtFromAscii::execute() {
 
-  msg(MSG::INFO) << ">>> ReadHepEvtFromAscii from execute" << endreq;
+  msg(MSG::INFO) << ">>> ReadHepEvtFromAscii from execute" << endmsg;
   
   McEventCollection* mcEvtColl;
 
   if ( m_sgSvc->contains<McEventCollection>(m_key) && m_sgSvc->retrieve(mcEvtColl, m_key).isSuccess() ) {
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "found an McEventCollecion in store" << endreq;
+    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "found an McEventCollecion in store" << endmsg;
   } else {
     // McCollection doesn't exist. Create it (empty)
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "create new McEventCollecion in store" << endreq;
+    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "create new McEventCollecion in store" << endmsg;
     mcEvtColl = new McEventCollection;
     StatusCode status = m_sgSvc->record( mcEvtColl, m_key );
     if (status.isFailure()) {
-      msg(MSG::ERROR) << "Could not record McEventCollection" << endreq;
+      msg(MSG::ERROR) << "Could not record McEventCollection" << endmsg;
       return status;
     }
   }
@@ -99,7 +99,7 @@ StatusCode ReadHepEvtFromAscii::execute() {
 }
 StatusCode ReadHepEvtFromAscii::finalize() {
 
-  msg(MSG::INFO) << ">>> ReadHepEvtFromAscii from finalize" << endreq;
+  msg(MSG::INFO) << ">>> ReadHepEvtFromAscii from finalize" << endmsg;
 
   int ifile=5;
   closefile_(ifile);

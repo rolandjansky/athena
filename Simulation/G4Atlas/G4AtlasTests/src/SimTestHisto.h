@@ -48,7 +48,7 @@ public:
       ISvcLocator* svcLocator = Gaudi::svcLocator();
       if (svcLocator->service("THistSvc", hSvc).isFailure()) {
 	MsgStream log(msgSvc(),"SimTestHisto");
-        log<<MSG::ERROR<<"Could not get the THistSvc!!!"<<endreq;
+        log<<MSG::ERROR<<"Could not get the THistSvc!!!"<<endmsg;
       }
     }
     return hSvc;

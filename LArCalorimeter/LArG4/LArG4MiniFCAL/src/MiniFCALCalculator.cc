@@ -3,7 +3,7 @@
 */
 
 #include "MiniFCALCalculator.h"
-#include "LArG4MiniFCAL/MiniFCALAssignIdentifier.h"
+#include "MiniFCALAssignIdentifier.h"
 
 #include "G4ThreeVector.hh"
 #include "G4StepPoint.hh"

@@ -287,7 +287,7 @@ const GeoGraphNode * const * GeoPhysVol::getChildNode(unsigned int i) const {
 }
 const GeoGraphNode * const * GeoPhysVol::findChildNode(const GeoGraphNode * n) const {
   std::vector<const GeoGraphNode *>::const_iterator i = std::find(m_daughters.begin(),m_daughters.end(),n);
-  if (i==m_daughters.end()) return NULL;
+  if (i==m_daughters.end()) return nullptr;
   else return &*i;
 }
 

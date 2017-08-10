@@ -64,21 +64,23 @@ std::string setaphi(bool measphi) {
 
 CscThresholdClusterBuilderTool::
 CscThresholdClusterBuilderTool(const std::string &type, const std::string &aname, const IInterface* parent)
-  : AthAlgTool(type, aname, parent),m_noiseOption(rms),
+  : AthAlgTool(type, aname, parent),m_noiseOption(rms), 
+    m_digit_key("CSC_Measurements"),
+    m_pclusters("CSC_Clusters"),
     m_cscCalibTool("CscCalibTool/CscCalibTool"),
     m_pstrip_fitter("CalibCscStripFitter/CalibCscStripFitter"),
     m_pfitter_def("SimpleCscClusterFitter/SimpleCscClusterFitter"),
     m_pfitter_prec("QratCscClusterFitter/QratCscClusterFitter"),
     m_pfitter_split("CscSplitClusterFitter/CscSplitClusterFitter"),
-    m_pmuon_detmgr(0), m_pclusters(0), m_phelper(0), m_fullEventDone(false){
+    m_pmuon_detmgr(0), m_phelper(0), m_fullEventDone(false){
 
   declareInterface<ICscClusterBuilder>(this);
   
   declareProperty("threshold", m_threshold = 20000.0);
   declareProperty("kFactor", m_kFactor = 6.5);
   declareProperty("noiseOption", m_noiseOptionStr = "f001");
-  declareProperty("digit_key",  m_digit_key = "CSC_Measurements");
-  declareProperty("cluster_key",  m_cluster_key = "CSC_Clusters");
+  declareProperty("digit_key",  m_digit_key );
+  declareProperty("cluster_key",  m_pclusters );
   declareProperty("cscCalibTool",  m_cscCalibTool);
   declareProperty("strip_fitter", m_pstrip_fitter);
   declareProperty("default_fitter", m_pfitter_def);
@@ -103,6 +105,7 @@ StatusCode CscThresholdClusterBuilderTool::initialize(){
   ATH_MSG_DEBUG ( "  Strip threshold is Max( " << m_threshold << ", "
                  << m_kFactor << "*stripNoise ) where stripNoise is from " << m_noiseOptionStr );
 
+  ATH_CHECK( m_digit_key.initialize() );
   if ( m_noiseOptionStr != "rms"
        && m_noiseOptionStr != "sigma"
        && m_noiseOptionStr != "f001" ) {
@@ -117,8 +120,8 @@ StatusCode CscThresholdClusterBuilderTool::initialize(){
   ATH_MSG_DEBUG ( "  Default cluster fitter is " << m_pfitter_def.typeAndName() );
   ATH_MSG_DEBUG ( "  Precision cluster fitter is " << m_pfitter_prec.typeAndName() );
   ATH_MSG_DEBUG ( "  Split cluster fitter is " << m_pfitter_split.typeAndName() );
-  ATH_MSG_DEBUG ( "  Input digit key is " << m_digit_key );
-  ATH_MSG_DEBUG ( "  Output cluster key is " << m_cluster_key );
+  ATH_MSG_DEBUG ( "  Input digit key is " << m_digit_key.key() );
+  ATH_MSG_DEBUG ( "  Output cluster key is " << m_pclusters.key() );
 
   // CSC calibratin tool for the Condtiions Data base access //
   if ( m_cscCalibTool.retrieve().isFailure() ) {
@@ -165,14 +168,6 @@ StatusCode CscThresholdClusterBuilderTool::initialize(){
 
   m_phelper = m_pmuon_detmgr->cscIdHelper();
 
-  // Construct the cluster container.
-  try {
-    m_pclusters = new CscPrepDataContainer(m_phelper->module_hash_max());  
-  } catch(std::bad_alloc) {
-    ATH_MSG_ERROR ( "Could not create a new CSC PrepRawData Container!" );
-    return StatusCode::RECOVERABLE;
-  }
-  m_pclusters->addRef();
 
   return StatusCode::SUCCESS;
 }
@@ -184,14 +179,14 @@ StatusCode CscThresholdClusterBuilderTool::getClusters(std::vector<IdentifierHas
   // clear output vector of selected data collections containing data
   decodedIds.clear();
 
-  if (!evtStore()->contains<Muon::CscPrepDataContainer>(m_cluster_key)) {
+  if (!m_pclusters.isPresent()) {
     /// clean up the PrepRawData container
-    m_pclusters->cleanup();
+    auto object  = std::make_unique<CscPrepDataContainer>(m_phelper->module_hash_max());  
     
     /// record the container in storeGate
-    if ( evtStore()->record(m_pclusters,m_cluster_key).isFailure() ) {
+    if ( m_pclusters.record(std::move(object)).isFailure() ) {
       ATH_MSG_ERROR ( "Could not record container of CSC Cluster PrepData at "
-                      << m_cluster_key );
+                      << m_pclusters.key() );
       return StatusCode::RECOVERABLE;
     }
     m_fullEventDone=false;
@@ -238,12 +233,12 @@ StatusCode CscThresholdClusterBuilderTool::getClusters(IdentifierHash givenHashI
 
 
   // Retrieve the CSC digits for this event.
-  const CscStripPrepDataContainer *pdigcon;
-  if ( evtStore()->retrieve(pdigcon, m_digit_key).isSuccess() ) {
-    ATH_MSG_DEBUG ( "Retrieved strip container " << m_digit_key << " with "
+  SG::ReadHandle<CscStripPrepDataContainer> pdigcon(m_digit_key);
+  if ( pdigcon.isValid() ) {
+    ATH_MSG_DEBUG ( "Retrieved strip container " << m_digit_key.key() << " with "
                     << pdigcon->size() << " entries." );
   } else {
-    ATH_MSG_WARNING ( "Failure to retrieve strip container " << m_digit_key );
+    ATH_MSG_WARNING ( "Failure to retrieve strip container " << m_digit_key.key() );
     return StatusCode::SUCCESS;
   }
   
@@ -326,12 +321,12 @@ StatusCode CscThresholdClusterBuilderTool::getClusters(IdentifierHash givenHashI
 StatusCode CscThresholdClusterBuilderTool::getClusters(std::vector<IdentifierHash>& decodedIds) {
       
   // Retrieve the CSC digits for this event.
-  const CscStripPrepDataContainer *pdigcon;
-  if ( evtStore()->retrieve(pdigcon, m_digit_key).isSuccess() ) {
-    ATH_MSG_DEBUG ( "Retrieved strip container " << m_digit_key << " with "
+  SG::ReadHandle<CscStripPrepDataContainer> pdigcon(m_digit_key);
+  if ( pdigcon.isValid() ) {
+    ATH_MSG_DEBUG ( "Retrieved strip container " << m_digit_key.key() << " with "
                     << pdigcon->size() << " entries." );
   } else {
-    ATH_MSG_WARNING ( "Failure to retrieve strip container " << m_digit_key );
+    ATH_MSG_WARNING ( "Failure to retrieve strip container " << m_digit_key.key() );
     return StatusCode::SUCCESS;
   }
   
@@ -410,7 +405,6 @@ StatusCode CscThresholdClusterBuilderTool::getClusters(std::vector<IdentifierHas
 
 StatusCode CscThresholdClusterBuilderTool::finalize() {
   ATH_MSG_VERBOSE ( "Finalizing " << name() );
-  m_pclusters->release();
   return StatusCode::SUCCESS;
 }
 

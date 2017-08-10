@@ -224,7 +224,7 @@ namespace Analysis {
         if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "#BTAG# Jet " << ijet 
 	                                            << " Eta= " << p4.pseudoRapidity()
                                                     << " Phi= " << p4.phi() << " Et= " << p4.et() 
-                                                    << " passed: " << pass << endreq;
+                                                    << " passed: " << pass << endmsg;
 
 	/** All jets are passed through the taggers (if requested).  */
         if ( ( pass || m_tagJetIfNotSelected ) ) {
@@ -291,7 +291,7 @@ namespace Analysis {
 			  << nmuo << " muons, "
 			  << nmuo2<< " second muons, "
 			  << nele << " electrons and "
-			  << npho << " potential softE photons." << endreq;
+			  << npho << " potential softE photons." << endmsg;
 	  msg(MSG::VERBOSE) << "#BTAG# -> TAGRESULT for JET " << ijet << " : "
 	                    << " label= " << label
 	                    << " IP2D= " << jetToTag.getFlavourTagWeight("IP2D")
@@ -299,7 +299,7 @@ namespace Analysis {
 	                    << " JetProb= " << jetToTag.getFlavourTagWeight("JetProb")
 	                    << " SV0= " << jetToTag.getFlavourTagWeight("SV0")
 	                    << " TC2= " << jetToTag.getFlavourTagWeight("TrackCounting2D")
-	                    << endreq;
+	                    << endmsg;
 	  
 	  ijet++;
 	  
@@ -330,8 +330,8 @@ namespace Analysis {
 				 << "b:" << m_nbbjettagged << ", "
 				 << "c:" << m_nbcjettagged << ", "
 				 << "tau:" << m_nbtjettagged << ", "
-				 << "light:" << nbl << ") " << endreq;
-      else msg(MSG::INFO) << endreq;
+				 << "light:" << nbl << ") " << endmsg;
+      else msg(MSG::INFO) << endmsg;
       std::string ConstitSumm = m_isMC ? 
 	"#BTAG#  b-tagging summary for b-jet constituents: " : 
 	"#BTAG#  b-tagging summary for jet constituents: ";
@@ -341,44 +341,44 @@ namespace Analysis {
 		     << " <#mu>=" << (nalljet>0 ? m_ncmu/(float)nalljet : 0)
 		     << " <#mu2>="<< (nalljet>0 ? m_ncmu2/(float)nalljet : 0)
 		     << " <#el>=" << (nalljet>0 ? m_ncel/(float)nalljet : 0)
-		     << endreq;
+		     << endmsg;
       msg(MSG::INFO) << "#BTAG#  b-tagging summary for TrackCounting: "
 		     << "<w_all>=" << (m_nbjettagged>0 ? m_watrkc/(float)m_nbjettagged : 0);
       if (m_isMC) msg(MSG::INFO) 
                      << " <w_b>=" << (m_nbbjettagged>0 ? m_wbtrkc/(float)m_nbbjettagged : 0)
 		     << " <w_u>=" << (nbl>0 ? m_wutrkc/(float)nbl : 0)
-		     << endreq;
-      else msg(MSG::INFO) << endreq;
+		     << endmsg;
+      else msg(MSG::INFO) << endmsg;
       msg(MSG::INFO) << "#BTAG#  b-tagging summary for JetProb: "
 		     << "<w_all>=" << (m_nbjettagged>0 ? m_wajetp/(float)m_nbjettagged : 0);
       if (m_isMC) msg(MSG::INFO) 
 		     << " <w_b>=" << (m_nbbjettagged>0 ? m_wbjetp/(float)m_nbbjettagged : 0)
 		     << " <w_u>=" << (nbl>0 ? m_wujetp/(float)nbl : 0)
-		     << endreq;
-      else msg(MSG::INFO) << endreq;
+		     << endmsg;
+      else msg(MSG::INFO) << endmsg;
       msg(MSG::INFO) << "#BTAG#  b-tagging summary for SV0: "
 		     << "<w_all>=" << (m_nbjettagged>0 ? m_wasv0/(float)m_nbjettagged : 0);
       if (m_isMC) msg(MSG::INFO) 
 		     << " <w_b>=" << (m_nbbjettagged>0 ? m_wbsv0/(float)m_nbbjettagged : 0)
 		     << " <w_u>=" << (nbl>0 ? m_wusv0/(float)nbl : 0)
-		     << endreq;
-      else msg(MSG::INFO) << endreq;
+		     << endmsg;
+      else msg(MSG::INFO) << endmsg;
     /*
       msg(MSG::INFO) << "#BTAG#  b-tagging summary for IP2D: "
       << "<w_all>=" << (m_nbjettagged>0 ? m_waip2d/(float)m_nbjettagged : 0);
       if (m_isMC) msg(MSG::INFO) 
       << " <w_b>=" << (m_nbbjettagged>0 ? m_wbip2d/(float)m_nbbjettagged : 0)
       << " <w_u>=" << (nbl>0 ? m_wuip2d/(float)nbl : 0)
-      << endreq;
-      else msg(MSG::INFO) << endreq;
+      << endmsg;
+      else msg(MSG::INFO) << endmsg;
     */
       msg(MSG::INFO) << "#BTAG#  b-tagging summary for IP3D+SV1: "
 		     << "<w_all>=" << (m_nbjettagged>0 ? m_wacmb/(float)m_nbjettagged : 0);
       if (m_isMC) msg(MSG::INFO) 
 		     << " <w_b>=" << (m_nbbjettagged>0 ? m_wbcmb/(float)m_nbbjettagged : 0)
 		     << " <w_u>=" << (nbl>0 ? m_wucmb/(float)nbl : 0)
-		     << endreq;
-      else msg(MSG::INFO) << endreq;
+		     << endmsg;
+      else msg(MSG::INFO) << endmsg;
     }
 
     return StatusCode::SUCCESS;

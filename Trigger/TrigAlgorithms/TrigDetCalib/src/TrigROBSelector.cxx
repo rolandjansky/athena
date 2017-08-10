@@ -118,9 +118,9 @@ StatusCode TrigROBSelector::initialize()
   msg() << MSG::DEBUG << "Selected subdetectors = ";
   for (std::vector<DETID>::const_iterator det = m_detectors.begin(); 
        det != m_detectors.end(); det++) {
-        msg() << MSG::DEBUG << *det << " " << endreq; 
+        msg() << MSG::DEBUG << *det << " " << endmsg; 
   }
-  msg() << endreq;
+  msg() << endmsg;
 
   return sc;
 }
@@ -148,7 +148,7 @@ HLT::ErrorCode TrigROBSelector::fillPEBInfo(PartialEventBuildingInfo& pebInfo,
     msg() << MSG::DEBUG << "ROBs requested for detector " << *detector << " : ";
     
     for (unsigned int i = 0; i < detectorROBs.size(); i++) msg() << MSG::DEBUG << "0x" << std::hex << detectorROBs[i] << std::dec << " ";
-    msg() << endreq;
+    msg() << endmsg;
     
     if (dets) (*dets).push_back(*detector);
     if (nRobs) (*nRobs).push_back(detectorROBs.size());

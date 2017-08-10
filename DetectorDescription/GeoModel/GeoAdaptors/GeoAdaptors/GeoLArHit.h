@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef _GeoLArHit_h_
-#define _GeoLArHit_h_
+#ifndef GEOADAPTORS_GEOLARHIT_H
+#define GEOADAPTORS_GEOLARHIT_H
 //----------------------------------------------------------//
 //                                                          //
 // Adaptor for LArHits.                                    //
@@ -33,17 +33,17 @@ class GeoLArHit
   int SamplingLayer() const;
 
   // Underlying hit.
-  const LArHit &data() const { return *_hit;}
+  const LArHit &data() const { return *m_hit;}
 
   // Is this hit OK?
-  operator bool () const { return _man; }
+  operator bool () const { return s_man; }
 
  private:
 
   static void init();
   
-  const LArHit* _hit;
-  static const CaloDetDescrManager *_man;
+  const LArHit* m_hit;
+  static const CaloDetDescrManager *s_man;
 };
 
 #include "GeoAdaptors/GeoLArHit.icc"

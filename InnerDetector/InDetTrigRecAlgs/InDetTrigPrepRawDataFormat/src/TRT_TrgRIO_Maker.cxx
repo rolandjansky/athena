@@ -91,7 +91,7 @@ namespace InDet{
     /*
     StatusCode sc = m_rawDataProvider->initContainer();
     if (sc.isFailure())
-      msg() << MSG::WARNING << "RDO container cannot be registered" << endreq;
+      msg() << MSG::WARNING << "RDO container cannot be registered" << endmsg;
     */
     return HLT::OK;
   }
@@ -494,7 +494,7 @@ namespace InDet{
     //sc = store()->setConst(m_riocontainer);
     //if(sc.isFailure()) {
     //msg() << MSG::ERROR
-    //<< " ??? " <<endreq;
+    //<< " ??? " <<endmsg;
     //return sc;
     //}
 

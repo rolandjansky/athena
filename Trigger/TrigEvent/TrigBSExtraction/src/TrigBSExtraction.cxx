@@ -146,10 +146,10 @@ bool TrigBSExtraction::repackFeature() {
   try {
     status = m_navigation->getAllFeatures(v);
   } catch ( const std::exception& ex) {
-    log << MSG::WARNING << "Unpacking of the features of type: " << ClassID_traits<T>::typeName() << " caused exception: " << ex.what()  << endreq;
+    log << MSG::WARNING << "Unpacking of the features of type: " << ClassID_traits<T>::typeName() << " caused exception: " << ex.what()  << endmsg;
   }
   if ( status != true )
-    log << MSG::WARNING << "Unpacking of the features of type: " << ClassID_traits<T>::typeName() << " failed" << endreq;
+    log << MSG::WARNING << "Unpacking of the features of type: " << ClassID_traits<T>::typeName() << " failed" << endmsg;
 
   */
   

@@ -19,9 +19,6 @@
 #include "TrigHLTJetRec/IPseudoJetSelector.h"
 #include "TrigHLTJetRec/ITriggerPseudoJetGetter.h"
 
-using jet::LabelIndex;
-using xAOD::IParticle;
-
 template<typename InputContainer>
 TrigHLTJetRecBase<InputContainer>::TrigHLTJetRecBase(const std::string& name, 
                                                      ISvcLocator* pSvcLocator):
@@ -101,7 +98,7 @@ TrigHLTJetRecBase<InputContainer>::hltExecute(const HLT::TriggerElement*
    * CaloClusters...) of type given by the template arguement. This
    * containees must be of type IParticle. Select the inputs
    * using an AlgTool. Convert the selected inputs to pseudojets.
-   * Pass these to the jet buiold tool. Attach the resulting jet
+   * Pass these to the jet build tool. Attach the resulting jet
    * container to the output trigger element.
    */
 
@@ -125,7 +122,7 @@ TrigHLTJetRecBase<InputContainer>::hltExecute(const HLT::TriggerElement*
 
   //convert selected inputs to pseudojets
   // LabelIndex* indexMap = new LabelIndex("PseudoJetLabelMapTrigger");
-  LabelIndex* indexMap = new LabelIndex(m_pseudoJetLabelIndexArg);
+  jet::LabelIndex* indexMap = new jet::LabelIndex(m_pseudoJetLabelIndexArg);
   PseudoJetVector pjv_in;
   
   status = this -> getPseudoJets(inContainer, indexMap, pjv_in);
@@ -267,8 +264,8 @@ TrigHLTJetRecBase<InputContainer>::getInputContainer(const HLT::TriggerElement*
 template<typename InputContainer>
 HLT::ErrorCode
 TrigHLTJetRecBase<InputContainer>::getPseudoJets(const InputContainer* ic,
-                                                 LabelIndex* indexMap,
-                                                 PseudoJetVector& pjv){
+                                                 jet::LabelIndex* indexMap,
+                                                 jet::PseudoJetVector& pjv){
 
   indexMap->addLabel(m_clusterCalib + "Topo");
 

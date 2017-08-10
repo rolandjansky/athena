@@ -396,12 +396,3 @@ TProfile trackinjeteff_vs_jetet "Track in jets efficiency vs jet E_{T} for |#eta
 #trackinjet bad match rates
 TProfile trackinjet_badmatchrate_vs_dr_gr_j100 "Fraction of tracks with &lt; 80% truth matching probability in Jets with E_{T} &gt; 100 GeV" 10 0 0.2 0 2 "#DeltaR" "Bad Match Rate" default
 
-#stuff pilfered from the old Backtracking script
-TH1F eta_of_parent_particles "#eta of parent particles" 20 -2.5 2.5 "#eta" "Entries" default
-TProfile eff_vs_eta_of_daughters "Efficiency vs #eta of daughter particles" 20 -2.5 2.5 0 2.0 "#eta" "Efficiency" default
-TProfile eff_vs_theta_of_daughters "Efficiency vs #theta of daughter particles" 20 0 3.1415926 0 2.0 "#theta" "Efficiency" default
-TProfile eff_vs_theta_tan_of_daughters "Efficiency vs tan(#theta) of daughter particles" 32 -8 8 0 2.0 "tan(#theta)" "Efficiency" default
-TProfile eff_vs_theta_cotan_of_daughters "Efficiency vs cotan(#theta) of daughter particles" 32 -8 8 0 2.0 "cotan(#theta)" "Efficiency" default
-TProfile eff_vs_phi_of_daughters "Efficiency vs #phi of daughter particles" 16 -3.1415926 3.1415926 0 2.0 "#phi" "Efficiency" default
-TProfile eff_vs_phi_sin_of_daughters "Efficiency vs sin(#phi) of daughter particles" 14 -1.2 1.2 0 2.0 "sin(#phi)" "Efficiency" default
-TProfile eff_vs_phi_cos_of_daughters "Efficiency vs cos(#phi) of daughter particles" 14 -1.2 1.2 0 2.0 "cos(#phi)" "Efficiency" default

@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: HLT Steering
  * @Package: TrigSteering
- * @Class  : HLTResultAccessTool
+ * @class  : HLTResultAccessTool
  *
  * @brief Tool to extract HLT chain information from HLTResult
  *

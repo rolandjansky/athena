@@ -46,26 +46,26 @@ namespace Trk
   // ImagingSeedFinder inistialize
   StatusCode ImagingSeedFinder::initialize() 
   { 
-    msg(MSG::INFO) << "ImagingSeedFinder initialization..." << endreq;
+    msg(MSG::INFO) << "ImagingSeedFinder initialization..." << endmsg;
 
     // Get the image maker tool
     if (m_vertexImageMaker.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve vertex image maker tool" << m_vertexImageMaker << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve vertex image maker tool" << m_vertexImageMaker << endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved vertex cluster tool " << m_vertexImageMaker << endreq;
+      msg(MSG::INFO) << "Retrieved vertex cluster tool " << m_vertexImageMaker << endmsg;
     }
     
 
     /* Get the VertexCluster Tool */
     if ( m_VertexClusterFinder.retrieve().isFailure() )
       {
-        msg(MSG::FATAL) << "Failed to retrieve vertex cluster tool" << m_VertexClusterFinder << endreq;
+        msg(MSG::FATAL) << "Failed to retrieve vertex cluster tool" << m_VertexClusterFinder << endmsg;
         return StatusCode::FAILURE;
       }
     else
       {
-        msg(MSG::INFO) << "Retrieved vertex cluster tool " << m_VertexClusterFinder << endreq;
+        msg(MSG::INFO) << "Retrieved vertex cluster tool " << m_VertexClusterFinder << endmsg;
       }
 
     return StatusCode::SUCCESS;
@@ -91,7 +91,7 @@ namespace Trk
     if(evtStore()->retrieve(myEventInfo/*,"MyEvent"*/).isFailure()) {
       // Key "MyEvent" is optional, usually not specified for EventInfo because
       // there'll be only one. When not specified, just takes the first container.
-      msg(MSG::ERROR) << "Failed to retrieve event information" << endreq;
+      msg(MSG::ERROR) << "Failed to retrieve event information" << endmsg;
       return Amg::Vector3D(0.,0.,0.);
     }
     
@@ -127,7 +127,7 @@ namespace Trk
     if(evtStore()->retrieve(myEventInfo/*,"MyEvent"*/).isFailure()) {
       // Key "MyEvent" is optional, usually not specified for EventInfo because
       // there'll be only one. When not specified, just takes the first container.
-      msg(MSG::ERROR) << "Failed to retrieve event information" << endreq;
+      msg(MSG::ERROR) << "Failed to retrieve event information" << endmsg;
       return Amg::Vector3D(0.,0.,0.);
     }
     
@@ -181,7 +181,7 @@ namespace Trk
   std::vector<Amg::Vector3D> ImagingSeedFinder::findMultiSeeds(const std::vector<const Trk::TrackParameters*>& parametersList,const xAOD::Vertex * constraint) {
  
     //implemented to satisfy inheritance but this algorithm only supports one seed at a time
-    msg(MSG::DEBUG) << "findMultiSeeds using ImagingSeedFinder has been called" << endreq;
+    msg(MSG::DEBUG) << "findMultiSeeds using ImagingSeedFinder has been called" << endmsg;
 
     // Make the image from tracks, and immediately
     VertexImage image = m_vertexImageMaker->makeVertexImage( parametersList, constraint );
@@ -190,7 +190,7 @@ namespace Trk
     //Coordinates are relative to the center of the histogram (constraint or (0,0,0) if no constraint)
     std::vector<Amg::Vector3D> relCoordVertices = m_VertexClusterFinder->findVertexClusters( image );
 
-    msg(MSG::DEBUG) << "Found " << relCoordVertices.size() << " candidate clusters" << endreq;
+    msg(MSG::DEBUG) << "Found " << relCoordVertices.size() << " candidate clusters" << endmsg;
  
     // Loop through the vertices in relative coordinate space, ask the image to convert to absolute positions, and set x,y to constraint if we have one.
 
@@ -209,7 +209,7 @@ namespace Trk
 
 
       }		
-        msg(MSG::DEBUG) << "  Seed " << counter << " = ( " << vertices.back().x() << ", " << vertices.back().y() << ", " << vertices.back().z() << " )" << endreq;
+        msg(MSG::DEBUG) << "  Seed " << counter << " = ( " << vertices.back().x() << ", " << vertices.back().y() << ", " << vertices.back().z() << " )" << endmsg;
 
       counter++;
     }

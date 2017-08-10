@@ -7,7 +7,7 @@
 /**********************************************************************************
  * @Project: TrigDecisionTool
  * @Package: TrigDecisionTool
- * @Class  : DecisionAnalysis
+ * @class  : DecisionAnalysis
  *
  * @brief access to information about the trigger configuration
  *

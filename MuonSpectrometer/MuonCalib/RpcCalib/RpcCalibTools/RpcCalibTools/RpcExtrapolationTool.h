@@ -9,7 +9,7 @@
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "DataModel/DataLink.h"
+#include "AthLinks/DataLink.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkGeometry/TrackingGeometry.h"
 #include "TrkTrack/TrackCollection.h"

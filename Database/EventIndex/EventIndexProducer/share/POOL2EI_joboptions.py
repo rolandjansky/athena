@@ -1,5 +1,5 @@
 ## @file: POOL2EI_joboptions.py
-## @purpose: simple joboptions to convert AOD to EI
+## @brief: simple joboptions to convert AOD to EI
 ## @date Feb 2014
 ## @author Javier Sanchez <Javier.Sanchez@ific.uv.es>
 

@@ -48,17 +48,17 @@ StatusCode TrigInDetTrackExtrapolator::initialize()
   MsgStream athenaLog(msgSvc(), name());
   m_outputLevel=msgSvc()->outputLevel( name() );
   
-	athenaLog << MSG::INFO <<"Using Athena magnetic field service"<<endreq;
+	athenaLog << MSG::INFO <<"Using Athena magnetic field service"<<endmsg;
 	sc = m_MagFieldSvc.retrieve();
 	if(sc.isFailure()) 
 	{
-		athenaLog << MSG::ERROR << "Unable to retrieve Athena MagFieldService" << endreq;
+		athenaLog << MSG::ERROR << "Unable to retrieve Athena MagFieldService" << endmsg;
 		return StatusCode::FAILURE;
 	}
   ITrigTimerSvc* timerSvc;
   StatusCode scTime = service( "TrigTimerSvc", timerSvc);
   if( scTime.isFailure() ) {
-    athenaLog << MSG::INFO<< "Unable to locate Service TrigTimerSvc " << endreq;
+    athenaLog << MSG::INFO<< "Unable to locate Service TrigTimerSvc " << endmsg;
     m_timers = false;
   } 
   else{
@@ -69,7 +69,7 @@ StatusCode TrigInDetTrackExtrapolator::initialize()
   if ( m_timers ) {
     m_timer[0] = timerSvc->addItem("TrigExtrap");
   }
-  athenaLog << MSG::INFO << "TrigInDetTrackExtrapolator constructed "<< endreq;
+  athenaLog << MSG::INFO << "TrigInDetTrackExtrapolator constructed "<< endmsg;
   return sc;
 }
 
@@ -151,21 +151,21 @@ TrigInDetTrackFitPar* TrigInDetTrackExtrapolator::extrapolateToBarrel(const Trig
     {
 	  if (m_outputLevel <= MSG::ERROR) 
 	    athenaLog << MSG::ERROR << "TrigInDetTrack has no parameters - extrapolation failed" 
-		      << endreq;
+		      << endmsg;
 	  return NULL;
     }
   if(fabs(pP->pT())<m_minPt)
     {
 
       if (m_outputLevel <= MSG::DEBUG) 
-	athenaLog << MSG::DEBUG << "Track pT is too low - skipping extrapolation" << endreq;
+	athenaLog << MSG::DEBUG << "Track pT is too low - skipping extrapolation" << endmsg;
       return NULL;
     }
 
   if(pP->surfaceType()==TrigInDetTrackFitPar::PERIGEE)
     {
       if (m_outputLevel <= MSG::DEBUG) 
-	athenaLog << MSG::DEBUG << "Parameters at perigee are retrieved" << endreq;
+	athenaLog << MSG::DEBUG << "Parameters at perigee are retrieved" << endmsg;
       double Rk[6],P[5],Theta;
 
       P[0]=pP->a0();
@@ -191,7 +191,7 @@ TrigInDetTrackFitPar* TrigInDetTrackExtrapolator::extrapolateToBarrel(const Trig
 	{
 	  if (m_outputLevel <= MSG::DEBUG) 
 	    athenaLog << MSG::DEBUG << "Parameters at cylinder surface R="<<pP->surfaceCoordinate()<<
-	      " are retrieved"<< endreq;
+	      " are retrieved"<< endmsg;
 	}
       else 
 	{
@@ -199,13 +199,13 @@ TrigInDetTrackFitPar* TrigInDetTrackExtrapolator::extrapolateToBarrel(const Trig
 	    {
 	      if (m_outputLevel <= MSG::DEBUG) 
 		athenaLog << MSG::DEBUG << "Parameters at disk surface Z="<<pP->surfaceCoordinate()<<
-		  " are retrieved"<< endreq;
+		  " are retrieved"<< endmsg;
 	    }
 	  else 
 	    {
 	      if (m_outputLevel <= MSG::ERROR) 
 		athenaLog << MSG::ERROR << "TrigInDetTrackFitPar type is unknown - extrapolation failed" 
-			  << endreq;
+			  << endmsg;
 	      return NULL;
 	    }
 	}
@@ -224,7 +224,7 @@ TrigInDetTrackFitPar* TrigInDetTrackExtrapolator::extrapolateToBarrel(const Trig
 
       if (m_outputLevel <= MSG::DEBUG) 
 	athenaLog << MSG::DEBUG << "Track coordinates at R="<<Radius<<
-	  "  X="<<Y[0]<<"  Y="<<Y[1]<<"  Z="<<Y[2]<<"  r="<<sqrt(Y[0]*Y[0]+Y[1]*Y[1])<<endreq;
+	  "  X="<<Y[0]<<"  Y="<<Y[1]<<"  Z="<<Y[2]<<"  r="<<sqrt(Y[0]*Y[0]+Y[1]*Y[1])<<endmsg;
 
       double Phi0=atan2(Y[1],Y[0]);
       double eta=-log(sin(0.5*pFinalState->m_getTrackState(3))/cos(0.5*pFinalState->m_getTrackState(3)));
@@ -270,7 +270,7 @@ TrigInDetTrackFitPar* TrigInDetTrackExtrapolator::extrapolateToEndcap(const Trig
     {
 	  if (m_outputLevel <= MSG::ERROR) 
 	    athenaLog << MSG::ERROR << "TrigInDetTrack has no parameters - extrapolation failed" 
-		      << endreq;
+		      << endmsg;
 	  return NULL;
     }
 
@@ -278,14 +278,14 @@ TrigInDetTrackFitPar* TrigInDetTrackExtrapolator::extrapolateToEndcap(const Trig
     {
 
       if (m_outputLevel <= MSG::DEBUG) 
-	athenaLog << MSG::DEBUG << "Track pT is too low - skipping extrapolation" << endreq;
+	athenaLog << MSG::DEBUG << "Track pT is too low - skipping extrapolation" << endmsg;
       return NULL;
     }
 
   if(pP->surfaceType()==TrigInDetTrackFitPar::PERIGEE)
     {
       if (m_outputLevel <= MSG::DEBUG) 
-	athenaLog << MSG::DEBUG << "Parameters at perigee point are retrieved" << endreq;
+	athenaLog << MSG::DEBUG << "Parameters at perigee point are retrieved" << endmsg;
       double Rk[5],Theta;
 
       Rk[0]=pP->a0();
@@ -322,7 +322,7 @@ TrigInDetTrackFitPar* TrigInDetTrackExtrapolator::extrapolateToEndcap(const Trig
 	{
 	  if (m_outputLevel <= MSG::DEBUG) 
 	    athenaLog << MSG::DEBUG << "Parameters at cylinder surface R="<<pP->surfaceCoordinate()<<
-	      " are retrieved"<< endreq;
+	      " are retrieved"<< endmsg;
 	}
       else 
 	{
@@ -330,13 +330,13 @@ TrigInDetTrackFitPar* TrigInDetTrackExtrapolator::extrapolateToEndcap(const Trig
 	    {
 	      if (m_outputLevel <= MSG::DEBUG) 
 		athenaLog << MSG::DEBUG << "Parameters at disk surface Z="<<pP->surfaceCoordinate()<<
-		  " are retrieved"<< endreq;
+		  " are retrieved"<< endmsg;
 	    }
 	  else 
 	    {
 	      if (m_outputLevel <= MSG::ERROR) 
 		athenaLog << MSG::ERROR << "TrigInDetTrackFitPar type is unknown - extrapolation failed" 
-			  << endreq;
+			  << endmsg;
 	      return NULL;
 	    }
 	}
@@ -354,7 +354,7 @@ TrigInDetTrackFitPar* TrigInDetTrackExtrapolator::extrapolateToEndcap(const Trig
 
       if (m_outputLevel <= MSG::DEBUG) 
 	athenaLog << MSG::DEBUG << "Track coordinates at Z="<<Zcoordinate<<
-	  "  X="<<Y[0]<<"  Y="<<Y[1]<<"  Z="<<Y[2]<<"  r="<<sqrt(Y[0]*Y[0]+Y[1]*Y[1])<<endreq;
+	  "  X="<<Y[0]<<"  Y="<<Y[1]<<"  Z="<<Y[2]<<"  r="<<sqrt(Y[0]*Y[0]+Y[1]*Y[1])<<endmsg;
 
       double Phi0=atan2(Y[1],Y[0]);
       double R0=sqrt(Y[0]*Y[0]+Y[1]*Y[1]);
@@ -475,7 +475,7 @@ TrigInDetTrackFitPar* TrigInDetTrackExtrapolator::extrapolateBlindly(const TrigI
     {
       if (m_outputLevel <= MSG::DEBUG) 
 	athenaLog << MSG::DEBUG << "Track coordinates at Z="<<Zcoordinate<<
-	  "  X="<<gP[0]<<"  Y="<<gP[1]<<"  Z="<<gP[2]<<"  r="<<sqrt(gP[0]*gP[0]+gP[1]*gP[1])<<endreq;
+	  "  X="<<gP[0]<<"  Y="<<gP[1]<<"  Z="<<gP[2]<<"  r="<<sqrt(gP[0]*gP[0]+gP[1]*gP[1])<<endmsg;
 
       double Phi0=atan2(gP[1],gP[0]);
       double phi=atan2(gV[1],gV[0]);
@@ -496,7 +496,7 @@ TrigInDetTrackFitPar* TrigInDetTrackExtrapolator::extrapolateBlindly(const TrigI
     {
       if (m_outputLevel <= MSG::DEBUG) 
 	athenaLog << MSG::DEBUG << "Track coordinates at R="<<Radius<<
-	  "  X="<<gP[0]<<"  Y="<<gP[1]<<"  Z="<<gP[2]<<"  r="<<sqrt(gP[0]*gP[0]+gP[1]*gP[1])<<endreq;
+	  "  X="<<gP[0]<<"  Y="<<gP[1]<<"  Z="<<gP[2]<<"  r="<<sqrt(gP[0]*gP[0]+gP[1]*gP[1])<<endmsg;
 
       double Phi0=atan2(gP[1],gP[0]);
       double phi=atan2(gV[1],gV[0]);
@@ -533,7 +533,7 @@ StatusCode TrigInDetTrackExtrapolator::extrapolateToCalo(const TrigInDetTrack* p
     {
       if (m_outputLevel <= MSG::ERROR) 
 	athenaLog << MSG::ERROR << "TrigInDetTrack has no parameters - extrapolation to Calo failed" 
-		  << endreq;
+		  << endmsg;
       return StatusCode::FAILURE;
     }
 
@@ -541,7 +541,7 @@ StatusCode TrigInDetTrackExtrapolator::extrapolateToCalo(const TrigInDetTrack* p
     {
 
       if (m_outputLevel <= MSG::DEBUG) 
-	athenaLog << MSG::DEBUG << "Track pT is too low - skipping extrapolation" << endreq;
+	athenaLog << MSG::DEBUG << "Track pT is too low - skipping extrapolation" << endmsg;
       return StatusCode::FAILURE;
     }
   
@@ -555,14 +555,14 @@ StatusCode TrigInDetTrackExtrapolator::extrapolateToCalo(const TrigInDetTrack* p
   if(fabs(d0)>R)
     {
       if (m_outputLevel <= MSG::DEBUG) 
-	athenaLog << MSG::DEBUG << "d0="<<d0<<" exceeds target surface radius="<<R<<endreq;
+	athenaLog << MSG::DEBUG << "d0="<<d0<<" exceeds target surface radius="<<R<<endmsg;
       return StatusCode::FAILURE;
     }
 
   if(fabs(z0)>fabs(Z))
     {
       if (m_outputLevel <= MSG::DEBUG) 
-	athenaLog << MSG::DEBUG << "z0="<<z0<<" is beyond target z="<<Z<<endreq;
+	athenaLog << MSG::DEBUG << "z0="<<z0<<" is beyond target z="<<Z<<endmsg;
       return StatusCode::FAILURE;
     }
 

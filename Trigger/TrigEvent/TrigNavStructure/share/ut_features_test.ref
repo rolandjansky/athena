@@ -1,42 +1,58 @@
-INFO       LINE:146  Test getFromExplicitTE
-DEBUG      LINE:151  Test progressing
+DEBUG      LINE:18   added holder for clid/label/sub: 6171771/initial/0
+DEBUG      LINE:18   added holder for clid/label/sub: 6171771/secondary/1
+DEBUG      LINE:18   added holder for clid/label/sub: 19188792/L2ElectronClusters/3
+DEBUG      LINE:18   added holder for clid/label/sub: 472619874/L2ElectronTracks/0
+DEBUG      LINE:18   added holder for clid/label/sub: 788776/L2Electrons/0
+INFO       LINE:303  build navigation. test.
+INFO       LINE:151  
+INFO       LINE:151  Test getFromExplicitTE
 DEBUG      LINE:156  Test progressing
-DEBUG      LINE:162  Test progressing
-DEBUG      LINE:167  Test progressing
-DEBUG      LINE:172  Test progressing
-INFO       LINE:179  Test getRecursivelyTEbyCLID
-DEBUG      LINE:187  Test progressing
-DEBUG      LINE:195  Test progressing
-DEBUG      LINE:204  Test progressing
+DEBUG      LINE:161  Test progressing
+DEBUG      LINE:165  Test progressing
+DEBUG      LINE:171  Test progressing
+DEBUG      LINE:178  Test progressing
+DEBUG      LINE:184  Test progressing
+DEBUG      LINE:190  Test progressing
+INFO       LINE:197  
+INFO       LINE:197  Test getRecursivelyTEbyCLID
+DEBUG      LINE:205  Test progressing
 DEBUG      LINE:213  Test progressing
-INFO       LINE:219  Test getRecursivelyTEbyLabel
-DEBUG      LINE:226  Test progressing
-DEBUG      LINE:232  Test progressing
-DEBUG      LINE:238  Test progressing
-INFO       LINE:249  Number of TEs before re-serailziation 11
-INFO       LINE:256  size of serialzied navigation is 95
-INFO       LINE:257  elements: 3 95 52 11
-INFO       LINE:268  Number of TEs after deserailziation 11
-INFO       LINE:299  tests after serialization, deserialization
-DEBUG      LINE:33   dumpHolders
-DEBUG      LINE:35   Holder CLID:6171771 label: initial sub: 0
-DEBUG      LINE:35   Holder CLID:6171771 label: secondary sub: 1
-DEBUG      LINE:35   Holder CLID:19188792 label: L2ElectronClusters sub: 3
-DEBUG      LINE:35   Holder CLID:472619874 label: L2ElectronTracks sub: 0
-DEBUG      LINE:35   Holder CLID:788776 label: L2Electrons sub: 0
-INFO       LINE:146  Test getFromExplicitTE
-DEBUG      LINE:151  Test progressing
+DEBUG      LINE:222  Test progressing
+DEBUG      LINE:231  Test progressing
+INFO       LINE:237  
+INFO       LINE:237  Test getRecursivelyTEbyLabel
+DEBUG      LINE:244  Test progressing
+DEBUG      LINE:250  Test progressing
+DEBUG      LINE:256  Test progressing
+INFO       LINE:267  Number of TEs before re-serailziation 11
+INFO       LINE:274  size of serialzied navigation is 95
+INFO       LINE:275  elements: 3 95 52 11
+INFO       LINE:286  Number of TEs after deserailziation 11
+INFO       LINE:319  tests after serialization, deserialization
+DEBUG      LINE:38   dumpHolders
+DEBUG      LINE:40   Holder CLID:788776 label: L2Electrons sub: 0
+DEBUG      LINE:40   Holder CLID:6171771 label: initial sub: 0
+DEBUG      LINE:40   Holder CLID:6171771 label: secondary sub: 1
+DEBUG      LINE:40   Holder CLID:19188792 label: L2ElectronClusters sub: 3
+DEBUG      LINE:40   Holder CLID:472619874 label: L2ElectronTracks sub: 0
+INFO       LINE:151  
+INFO       LINE:151  Test getFromExplicitTE
 DEBUG      LINE:156  Test progressing
-DEBUG      LINE:162  Test progressing
-DEBUG      LINE:167  Test progressing
-DEBUG      LINE:172  Test progressing
-INFO       LINE:179  Test getRecursivelyTEbyCLID
-DEBUG      LINE:187  Test progressing
-DEBUG      LINE:195  Test progressing
-DEBUG      LINE:204  Test progressing
+DEBUG      LINE:161  Test progressing
+DEBUG      LINE:165  Test progressing
+DEBUG      LINE:171  Test progressing
+DEBUG      LINE:178  Test progressing
+DEBUG      LINE:184  Test progressing
+DEBUG      LINE:190  Test progressing
+INFO       LINE:197  
+INFO       LINE:197  Test getRecursivelyTEbyCLID
+DEBUG      LINE:205  Test progressing
 DEBUG      LINE:213  Test progressing
-INFO       LINE:219  Test getRecursivelyTEbyLabel
-DEBUG      LINE:226  Test progressing
-DEBUG      LINE:232  Test progressing
-DEBUG      LINE:238  Test progressing
-OK         LINE:310  test passed
+DEBUG      LINE:222  Test progressing
+DEBUG      LINE:231  Test progressing
+INFO       LINE:237  
+INFO       LINE:237  Test getRecursivelyTEbyLabel
+DEBUG      LINE:244  Test progressing
+DEBUG      LINE:250  Test progressing
+DEBUG      LINE:256  Test progressing
+OK         LINE:330  test passed

@@ -43,28 +43,28 @@ StatusCode LArCaliWaves2Ntuple::stop()
   
   // Check DACSatur jobOption consistency, in case setup default values
   if ( m_dacSaturSkip && m_dacSaturLayer0.size()<3 ) {
-     (*m_log) << MSG::WARNING << "DACSaturPS     jobOption has wrong size. Will use default." << endreq ;
+     (*m_log) << MSG::WARNING << "DACSaturPS     jobOption has wrong size. Will use default." << endmsg ;
      m_dacSaturLayer0.resize(3);
      m_dacSaturLayer0[0] = 15000 ; 
      m_dacSaturLayer0[1] = 50000 ;
      m_dacSaturLayer0[2] = 65000 ;
   }
   if ( m_dacSaturSkip && m_dacSaturLayer1.size()<3 ) {
-     (*m_log) << MSG::WARNING << "DACSaturStrips jobOption has wrong size. Will use default." << endreq ;
+     (*m_log) << MSG::WARNING << "DACSaturStrips jobOption has wrong size. Will use default." << endmsg ;
      m_dacSaturLayer1.resize(3);
      m_dacSaturLayer1[0] = 800 ; 
      m_dacSaturLayer1[1] = 8000 ;
      m_dacSaturLayer1[2] = 65000 ;
   }
   if ( m_dacSaturSkip && m_dacSaturLayer2.size()<3 ) {
-     (*m_log) << MSG::WARNING << "DACSaturMiddle jobOption has wrong size. Will use default." << endreq ;
+     (*m_log) << MSG::WARNING << "DACSaturMiddle jobOption has wrong size. Will use default." << endmsg ;
      m_dacSaturLayer2.resize(3);
      m_dacSaturLayer2[0] = 1000 ; 
      m_dacSaturLayer2[1] = 10000 ;
      m_dacSaturLayer2[2] = 65000 ;
   }
   if ( m_dacSaturSkip && m_dacSaturLayer3.size()<3 ) {
-     (*m_log) << MSG::WARNING << "DACSaturBack   jobOption has wrong size. Will use default." << endreq ;
+     (*m_log) << MSG::WARNING << "DACSaturBack   jobOption has wrong size. Will use default." << endmsg ;
      m_dacSaturLayer3.resize(3);
      m_dacSaturLayer3[0] = 800 ; 
      m_dacSaturLayer3[1] = 8000 ;
@@ -74,32 +74,32 @@ StatusCode LArCaliWaves2Ntuple::stop()
   StatusCode sc;
   sc=m_nt->addItem("DAC",m_dac,0,64000);
   if (sc!=StatusCode::SUCCESS) {
-    (*m_log) << MSG::ERROR << "addItem 'DAC' failed" << endreq;
+    (*m_log) << MSG::ERROR << "addItem 'DAC' failed" << endmsg;
     return StatusCode::FAILURE;
   }
 
   sc=m_nt->addItem("gain",m_gain,0,3);
   if (sc!=StatusCode::SUCCESS) {
-    (*m_log) << MSG::ERROR << "addItem 'gain' failed" << endreq;
+    (*m_log) << MSG::ERROR << "addItem 'gain' failed" << endmsg;
     return StatusCode::FAILURE;
   }
 
   sc=m_nt->addItem("nPulsedCalibLines",m_nPulsedCalibLines,0,4);
   if (sc!=StatusCode::SUCCESS) {
-    (*m_log) << MSG::ERROR << "addItem 'nPulsedCalibLines' failed" << endreq;
+    (*m_log) << MSG::ERROR << "addItem 'nPulsedCalibLines' failed" << endmsg;
     return StatusCode::FAILURE;
   }
     
   sc=m_nt->addItem("pulsedCalibLines",4,m_pulsedCalibLines);
   if (sc!=StatusCode::SUCCESS) {
-    (*m_log) << MSG::ERROR << "addItem 'pulsedCalibLines' failed" << endreq;
+    (*m_log) << MSG::ERROR << "addItem 'pulsedCalibLines' failed" << endmsg;
     return StatusCode::FAILURE;
   }
   
   if (m_saveJitter) {
     sc=m_nt->addItem("Jitter",m_jitter,0.,1.);
     if (sc!=StatusCode::SUCCESS) {
-      (*m_log) << MSG::ERROR << "addItem 'Jitter' failed" << endreq;
+      (*m_log) << MSG::ERROR << "addItem 'Jitter' failed" << endmsg;
       return StatusCode::FAILURE;
     } 
   }
@@ -107,7 +107,7 @@ StatusCode LArCaliWaves2Ntuple::stop()
   if (m_addCorrUndo) {
     sc=m_nt->addItem("corrUndo",m_corrUndo,0,1);
     if (sc!=StatusCode::SUCCESS) {
-      (*m_log) << MSG::ERROR << "addItem 'corrUndo' failed" << endreq;
+      (*m_log) << MSG::ERROR << "addItem 'corrUndo' failed" << endmsg;
       return StatusCode::FAILURE;
     }
   }
@@ -116,27 +116,27 @@ StatusCode LArCaliWaves2Ntuple::stop()
     const std::string& key = m_keylist[k] ;
 
 
-    (*m_log) << MSG::INFO << "Processing WaveContainer from StoreGate! key=" << m_keylist[k] << endreq; 
+    (*m_log) << MSG::INFO << "Processing WaveContainer from StoreGate! key=" << m_keylist[k] << endmsg; 
     const LArCaliWaveContainer* caliWaveContainer;
     StatusCode sc = m_detStore->retrieve(caliWaveContainer,key);	    
     if (sc.isFailure()) {
-      (*m_log) << MSG::ERROR << "Cannot read LArCaliWaveContainer from StoreGate! key=" << key << endreq;
+      (*m_log) << MSG::ERROR << "Cannot read LArCaliWaveContainer from StoreGate! key=" << key << endmsg;
       return StatusCode::FAILURE;
     } else 
-      (*m_log) << MSG::INFO << "Read LArCaliWaveContainer from StoreGate! key= "  << key << endreq;
+      (*m_log) << MSG::INFO << "Read LArCaliWaveContainer from StoreGate! key= "  << key << endmsg;
     
     if (m_applyCorr) {
       if (!caliWaveContainer->correctionsApplied()) {
 	LArCaliWaveContainer* caliWaveContainer_nc=const_cast<LArCaliWaveContainer*>(caliWaveContainer);
 	sc=caliWaveContainer_nc->applyCorrections();
 	if (sc.isFailure()) {
-	  (*m_log) << MSG::ERROR << "Failed to apply corrections to LArCaliWaveContainer!" << endreq;
+	  (*m_log) << MSG::ERROR << "Failed to apply corrections to LArCaliWaveContainer!" << endmsg;
 	}
 	else
-	  (*m_log) << MSG::INFO << "Applied corrections to LArCaliWaveContainer" << endreq;
+	  (*m_log) << MSG::INFO << "Applied corrections to LArCaliWaveContainer" << endmsg;
       }
       else {
-	(*m_log) << MSG::WARNING << "Corrections already applied. Can't apply twice!" << endreq;
+	(*m_log) << MSG::WARNING << "Corrections already applied. Can't apply twice!" << endmsg;
       }
     }// end if applyCorr
 
@@ -160,7 +160,7 @@ StatusCode LArCaliWaves2Ntuple::stop()
 	  if (skip) continue;
 	  sc=ntupleSvc()->writeRecord(m_nt);
 	  if (sc!=StatusCode::SUCCESS) {
-	    (*m_log) << MSG::ERROR << "writeRecord failed" << endreq;
+	    (*m_log) << MSG::ERROR << "writeRecord failed" << endmsg;
 	    return sc;
 	  }
 	}//End loop over DAC 
@@ -185,7 +185,7 @@ StatusCode LArCaliWaves2Ntuple::stop()
 	    if (skip) continue;
 	    sc=ntupleSvc()->writeRecord(m_nt);
 	    if (sc!=StatusCode::SUCCESS) {
-	      (*m_log) << MSG::ERROR << "writeRecord failed" << endreq;
+	      (*m_log) << MSG::ERROR << "writeRecord failed" << endmsg;
 	      return sc;
 	    }
 	  }//end loop over DAC
@@ -193,7 +193,7 @@ StatusCode LArCaliWaves2Ntuple::stop()
       }//end loop over gain
     }//end if addUndoCorr
   }//end loop over container keys
-  (*m_log) << MSG::INFO << "LArWave2Ntuple has finished." << endreq;
+  (*m_log) << MSG::INFO << "LArWave2Ntuple has finished." << endmsg;
   return StatusCode::SUCCESS;
 } // end finalize-method.
 
@@ -227,7 +227,7 @@ bool LArCaliWaves2Ntuple::writeEntry(const HWIdentifier chid, const unsigned gai
   if ( !m_isSC ) {
   const std::vector<HWIdentifier>& calibLineV = ((LArCablingService*)m_larCablingSvc)->calibSlotLine(chid);
   if ( calibLineV.size()>0 ) {
-    (*m_log) << MSG::DEBUG << "wave.getIsPulsedInt() " << wave.getIsPulsedInt()<<" : "<< calibLineV.size()<< endreq;
+    (*m_log) << MSG::DEBUG << "wave.getIsPulsedInt() " << wave.getIsPulsedInt()<<" : "<< calibLineV.size()<< endmsg;
     for(int i=0;i<4;i++)
       m_pulsedCalibLines[i] = NOT_VALID;
     std::vector<HWIdentifier>::const_iterator calibLineIt = calibLineV.begin();
@@ -241,7 +241,7 @@ bool LArCaliWaves2Ntuple::writeEntry(const HWIdentifier chid, const unsigned gai
       }
       iCalibLine++;
     }
-    (*m_log) << MSG::DEBUG << "m_pulsedCalibLines: "<<m_pulsedCalibLines[0]<<"/"<<m_pulsedCalibLines[1]<<"/"<<m_pulsedCalibLines[2]<<"/"<<m_pulsedCalibLines[3]<<endreq;
+    (*m_log) << MSG::DEBUG << "m_pulsedCalibLines: "<<m_pulsedCalibLines[0]<<"/"<<m_pulsedCalibLines[1]<<"/"<<m_pulsedCalibLines[2]<<"/"<<m_pulsedCalibLines[3]<<endmsg;
   }else { 
     m_nPulsedCalibLines = 0 ;
     m_pulsedCalibLines[0] = NOT_VALID;

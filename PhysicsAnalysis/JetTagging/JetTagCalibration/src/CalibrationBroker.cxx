@@ -192,7 +192,7 @@ namespace Analysis {
     for(uint i=0;i<m_channels.size();i++) {
       if( msgLvl(MSG::DEBUG) )msg(MSG::DEBUG)<< " " << m_channels[i];
     }
-    if( msgLvl(MSG::DEBUG) )msg(MSG::DEBUG)<<endreq;
+    if( msgLvl(MSG::DEBUG) )msg(MSG::DEBUG)<<endmsg;
     for(uint i=0;i<m_folders.size();i++) {
       ATH_MSG_DEBUG("#BTAG#         folder " << m_folders[i] 
 		    << " contains " << m_histos[i].size() << " histograms:" );
@@ -211,7 +211,7 @@ namespace Analysis {
         } else {
 	  if( msgLvl(MSG::VERBOSE) )msg(MSG::VERBOSE)<< " NOT YET DEFINED";
 	}
-	if( msgLvl(MSG::VERBOSE) )msg(MSG::VERBOSE)<< endreq;
+	if( msgLvl(MSG::VERBOSE) )msg(MSG::VERBOSE)<< endmsg;
       }
     }
   }
@@ -404,8 +404,6 @@ namespace Analysis {
 	for(uint i=0;i<m_folders.size();i++) {
 	  if((*itr)==m_folders[i]) {
 	    ATH_MSG_DEBUG( "#BTAG# Key and folder match: " << (*itr) );
-	    std::map<std::string, std::pair<TObject*, bool> >::iterator mI = m_histos[i].begin();
-	    std::map<std::string, std::pair<TObject*, bool> >::iterator mE = m_histos[i].end();
 
 	    for(unsigned int j=0; j<m_originalChannels.size(); ++j){
 

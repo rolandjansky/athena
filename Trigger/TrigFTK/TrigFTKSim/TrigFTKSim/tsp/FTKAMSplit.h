@@ -37,33 +37,6 @@ private:
 
     double m_BankVolume;
     double m_volumeReduction;
-    std::list<AMSelection> SplitAMPatternList;
-
-
-    std::vector< std::pair<UInt_t, UInt_t> > cluster;
-    std::vector< std::vector<int> > sim;
-
-    std::vector<UInt_t> dcMask;
-    std::vector<double> splitVolume;
-    std::vector<double> deltaVolumeDeltaPattern;
-    std::vector<double> deltaVolumeCluster;
-    std::vector<int> deltaPatternCluster;
-    std::vector< std::vector<UInt_t> > amPatterns;
-    std::vector< std::pair<int, int> > mergelist;
-
-    TH1D *DCBitsHist;
-    TH1D *deltaVolumeOverDeltaPatternsBin1;
-    TH1D *deltaVolumeOverDeltaPatternsClusterBin1;
-
-    TH1D *deltaVolume;
-    TH1D *deltaVolumeClusterH;
-    TH1D *deltaPatterns;
-    TH1D *deltaPatternsClusterH;
-
-    TH1D *WeightedDeltaVolumeOverDeltaPatternsBin1;
-    TH1D *WeightedDeltaVolumeOverDeltaPatternsClusterBin1;
-
-    TH1D *DeltaVolumeOverDeltaPatternCumulativeH;
 
 
     int countSetBits( UInt_t dc_mask );

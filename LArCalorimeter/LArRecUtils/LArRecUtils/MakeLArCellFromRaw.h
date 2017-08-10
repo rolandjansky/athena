@@ -17,7 +17,7 @@
 #include "LArIdentifier/LArOnlineID.h" 
 #include "CaloUtils/CaloCellCorrection.h"
 #include "CaloIdentifier/CaloGain.h" 
-#include "DataModel/DataPool.h" 
+#include "AthAllocators/DataPool.h" 
 
 #include <map>
 #include <vector>

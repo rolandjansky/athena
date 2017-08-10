@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigCaloEventTPCnv
- * @Class  : TrigT2JetContainer_tlp1
+ * @class  : TrigT2JetContainer_tlp1
  *
  * @brief "top level" persistent partner for TrigT2JetContainer
  *

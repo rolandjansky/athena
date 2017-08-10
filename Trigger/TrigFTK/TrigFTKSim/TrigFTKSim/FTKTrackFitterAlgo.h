@@ -35,6 +35,7 @@ private:
 
   ToolHandle<FTK_RoadMarketToolI> m_roadMarketTool; // road input handler
   ToolHandle<FTK_SGTrackOutputI> m_trackOutputTool; // track output handler
+  ToolHandle<FTK_SGTrackOutputI> m_trackOutputTool_pre_hw; // track output handler
 
   // Second stage fitter flag
   bool m_SecondStageFit;
@@ -119,6 +120,7 @@ private:
 
   bool m_AutoDisable;
   bool m_PrintSSBConstants;  
+  double m_dTIBL; // dT (in K) for IBL compared to reference. For use in correcting for IBL bowing in x(phi) direction
 };
 
 #endif // FTKTrackFitterAlgo_h

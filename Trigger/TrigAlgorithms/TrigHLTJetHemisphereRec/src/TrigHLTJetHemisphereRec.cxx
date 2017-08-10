@@ -75,7 +75,7 @@ HLT::ErrorCode TrigHLTJetHemisphereRec::acceptInput(const HLT::TriggerElement* i
 	HLT::ErrorCode ec = getFeature(inputTE, jetContainer);
 
 	if(ec!=HLT::OK) {
-		msg() << MSG::WARNING << " Failed to get the Jets " << endreq;
+		msg() << MSG::WARNING << " Failed to get the Jets " << endmsg;
 		return ec;
 	}
 

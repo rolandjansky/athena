@@ -10,7 +10,6 @@
 #include "StoreGate/StoreGateSvc.h"
 
 // this package
-#include "Identifier/Identifier.h"
 #include "MuonCalibEvent/MdtCalibHit.h"
 
 #include "MuonIdHelpers/MdtIdHelper.h"
@@ -82,8 +81,7 @@ public:
   double m_resTwin;
 };
 
-MdtCalibrationSvc::Imp::Imp(std::string name)
-  :
+MdtCalibrationSvc::Imp::Imp(std::string name) :
   m_muonGeoManager(0),
   m_mdtIdHelper(0),
   m_inverseSpeedOfLight(1./299.792458),
@@ -326,7 +324,7 @@ bool MdtCalibrationSvc::driftRadiusFromTime( MdtCalibHit &hit,
   hit.setTimeOfFlight( settings.doTof ? triggerTime : 0. ); 
 
   // calculate drift time
-  double driftTime = hit.tdcCount() * tdcBinSize() - hit.timeOfFlight()
+  double driftTime = hit.tdcCount() * tdcBinSize(id) - hit.timeOfFlight()
                      - hit.tubeT0() - hit.propagationTime();
   hit.setDriftTime( driftTime );
       
@@ -396,7 +394,7 @@ bool MdtCalibrationSvc::driftRadiusFromTime( MdtCalibHit &hit,
   // summary
   ATH_MSG_VERBOSE( "driftRadiusFromTime for tube " << m_imp->m_mdtIdHelper->print_to_string(id) 
 		 << (calibOk ? " OK" : "FAILED") );
-  ATH_MSG_VERBOSE( " raw drift time " << hit.tdcCount() * tdcBinSize()
+  ATH_MSG_VERBOSE( " raw drift time " << hit.tdcCount() * tdcBinSize(id)
 		 << " TriggerOffset " << inputData.triggerOffset << endmsg
 		 << "Tof " << inputData.tof << " Propagation Delay "
 		 << hit.propagationTime() << " T0 " << hit.tubeT0() 
@@ -441,15 +439,16 @@ bool MdtCalibrationSvc::twinPositionFromTwinHits( MdtCalibHit &hit,
   driftRadiusFromTime( hit, inputData, settings );
   driftRadiusFromTime( secondHit, secondInputData, settings );
   
-  // get 'raw' drifttimes of twin pair; we don't use timeofFlight or propagationTime cause they are irrelevant for twin coordinate
-  double driftTime = hit.tdcCount()*tdcBinSize()  - hit.tubeT0();
-  double driftTimeSecond = secondHit.tdcCount()*tdcBinSize() - secondHit.tubeT0();
-    
   // get Identifier and MdtReadOutElement for twin tubes
-  const Identifier& id = hit.identify();
-  const Identifier& idSecond = secondHit.identify();
+  const Identifier &id = hit.identify();
+  const Identifier &idSecond = secondHit.identify();
   const MuonGM::MdtReadoutElement *geo = hit.geometry();
   const MuonGM::MdtReadoutElement *geoSecond = secondHit.geometry();
+
+  // get 'raw' drifttimes of twin pair; we don't use timeofFlight or propagationTime cause they are irrelevant for twin coordinate
+  double driftTime = hit.tdcCount()*tdcBinSize(id) - hit.tubeT0();
+  double driftTimeSecond = secondHit.tdcCount()*tdcBinSize(idSecond) - secondHit.tubeT0();
+    
   if(!geo) {
     ATH_MSG_WARNING( "Geometry not set for first hit" );
     return false;
@@ -497,7 +496,6 @@ bool MdtCalibrationSvc::twinPositionFromTwinHits( MdtCalibHit &hit,
 	ATH_MSG_WARNING( "detel "
 			 << geo->getMultilayer() << " lay " << geo->getNLayers() 
 			 << " tubes " << geo->getNtubesperlayer() );
- //     t0 =  800.;
     }
   } else {
     ATH_MSG_WARNING( "MdtTubeCalibContainer not found for "
@@ -508,7 +506,6 @@ bool MdtCalibrationSvc::twinPositionFromTwinHits( MdtCalibHit &hit,
  
   // access t0 for the given second tube
   if ( dataSecond.tubeCalib ){
-
     const int mlSecond    = m_imp->m_mdtIdHelper->multilayer(idSecond)-1;
     const int layerSecond = m_imp->m_mdtIdHelper->tubeLayer(idSecond)-1;
     const int tubeSecond  = m_imp->m_mdtIdHelper->tube(idSecond)-1;
@@ -543,7 +540,6 @@ bool MdtCalibrationSvc::twinPositionFromTwinHits( MdtCalibHit &hit,
   }
 
   // define twin position and error
-
   double zTwin(0.);
   double errZTwin(0.);
   double twin_timedif(0.);
@@ -579,7 +575,6 @@ bool MdtCalibrationSvc::twinPositionFromTwinHits( MdtCalibHit &hit,
   // twin_timedif must be between min and max of possible time-difference
   // between prompt and twin signals
   // accounting for 3 std.dev. of twin time resolution
-
   if ( twin_timedif < (HVdelay - 5.*m_imp->m_resTwin) 
        || twin_timedif > (tubelength*inversePropSpeed
 			  + tubelength*inversePropSpeedSecond
@@ -666,8 +661,14 @@ bool MdtCalibrationSvc::twinPositionFromTwinHits( MdtCalibHit &hit,
   return true;
 }  //end MdtCalibrationSvc::twinPositionFromTwinHits
 
-double MdtCalibrationSvc::tdcBinSize() {
-  return 25.0 / 32.0;  // exact number: (1000.0/40.08)/32.0 
+double MdtCalibrationSvc::tdcBinSize(const Identifier &id) {
+//BMG which uses HPTDC instead of AMT, and has 0.2ns TDC ticksize
+  //if( m_imp->m_mdtIdHelper->stationName(id) == 54 )  //BMG
+    //return 0.2;    
+// Alternative method if you don't like hardcoding BMG stationName (54)
+  if( m_imp->m_mdtIdHelper->stationNameString( m_imp->m_mdtIdHelper->stationName(id) ) == "BMG" ) 
+    return 0.2;
+  return 0.78125;  //25/32; exact number: (1000.0/40.079)/32.0 
 }
 
 double MdtCalibrationSvc::Imp::applyCorrections(MdtCalibHit &hit,

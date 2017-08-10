@@ -44,7 +44,7 @@ class Node(DQHanConfMaker.Node):
         - name : the name of the node
     """
     ## Default constructor
-    # @param name: the name of the element @type name: string
+    # @param name: the name of the element @c name: string
     def __init__(self,name=''):
         """
         Create a han node
@@ -66,8 +66,8 @@ class Node(DQHanConfMaker.Node):
         return self.toprettyhan("","",encoding)
 
     ## Creates a valid han block
-    # @param indent: used as indentation @type indent: string
-    # @param newl: used as new line character @type newl: string
+    # @param indent: used as indentation @c indent: string
+    # @param newl: used as new line character @c newl: string
     # @param encoding: a valid encoding identifier @see: module codecs
     # @return: the string representing the han configuration
     def toprettyhan(self,indent="\t",newl="\n",encoding=None):
@@ -83,10 +83,10 @@ class Node(DQHanConfMaker.Node):
 
 
     ## Writes a han block
-    # @param writer: the writer helper @type writer: an object supporting the write method
-    #    @param indent: used as indentation @type indent: string
-    #    @param addindent: used as additional indentation for each sub node @type addindent: string
-    #    @param newl: used as newline at the end of the element @type newl: string
+    # @param writer: the writer helper @c writer: an object supporting the write method
+    #    @param indent: used as indentation @c indent: string
+    #    @param addindent: used as additional indentation for each sub node @c addindent: string
+    #    @param newl: used as newline at the end of the element @c newl: string
     def writehan(self,writer,indent="",addindent="",newl=""):
         """
         Converts the object in a han string and writes it in the writer object
@@ -104,7 +104,7 @@ class Node(DQHanConfMaker.Node):
             writer.write("%s}%s"%(indent,newl))
 
     ## Adds a sub node
-    # @param child: the node to add @type child: a Node object instance
+    # @param child: the node to add @c child: a Node object instance
     # @raise HanCannotCreaqteConf: in case of errors
     def appendChild(self,child):
         """
@@ -122,8 +122,8 @@ class Node(DQHanConfMaker.Node):
         self.subnodes += [ child ]
 
     ## Adds an attribute to the node
-    # @param key: the attribute identifier @type key: a string
-    # @param attribute: the value for the attribute @type attribute: a string
+    # @param key: the attribute identifier @c key: a string
+    # @param attribute: the value for the attribute @c attribute: a string
     def setAttribute(self,key,attribute):
         """
         The attribute identified by key is added to this node
@@ -132,7 +132,7 @@ class Node(DQHanConfMaker.Node):
             self.attributes = {}
         self.attributes[key]=attribute
     ## Removes an attribute
-    # @param key: the attribute key @type key: a string
+    # @param key: the attribute key @c key: a string
     # @return: True on success
     def removeAttribute(self,key):
         """
@@ -143,7 +143,7 @@ class Node(DQHanConfMaker.Node):
             return True
         return False
     ## Gets the attribute identified by key
-    # @param key: an attribute identifier @type key: string
+    # @param key: an attribute identifier @c key: string
     # @return: the corresponding attribute or None if not found
     def getAttribute(self,key):
         """
@@ -180,11 +180,11 @@ class HanHistogram(Node):
     - the output where to store the dq result
     """
     ## Default constructor
-    # @param histogram: the histogram name @type histogram: a string
-    # @param algorithm: the algorithm element name @type algorithm: a string
-    # @param output: the output key @type output: a string
-    # @param annotations: annotations for the DQRegion @type : a dict
-    # @param attributes: attributes for the DQRegion @type : a dict
+    # @param histogram: the histogram name @c histogram: a string
+    # @param algorithm: the algorithm element name @c algorithm: a string
+    # @param output: the output key @c output: a string
+    # @param annotations: annotations for the DQRegion @c : a dict
+    # @param attributes: attributes for the DQRegion @c : a dict
     # @note: the histogram name is the histogram name without the directory structure. Thus a HanHistogram is usually nested in a directory tree (@see: HanDir)
     def __init__(self,histogram , algorithm , annotations = {}, output=DQHanConfMaker._default_output, attributes = {}):
         """
@@ -223,12 +223,12 @@ class HanAlgorithm(Node):
     The han representation of a DQAlgorithm
     """
     ## Default constructor
-    # @param name: the identifier for the han algorithm @type name: a string
-    # @param algoname: the dqm_algorithm name @type algoname: a string
-    # @param libname: the library containing the algorithm @type libname: a string
+    # @param name: the identifier for the han algorithm @c name: a string
+    # @param algoname: the dqm_algorithm name @c algoname: a string
+    # @param libname: the library containing the algorithm @c libname: a string
     # @param reference: the reference object, can be None
     # @param thresholds: the thresholds objects, can be None
-    # @param parameters: additional parameters, can be empty. @type parameters: a list
+    # @param parameters: additional parameters, can be empty. @c parameters: a list
     def __init__(self,name , algoname , libname = 'libdqm_algorithms.so',reference=None,thresholds=None,
                  parameters = {}):
         """
@@ -254,9 +254,9 @@ class HanCompositeAlgorithm(Node):
     The han representation of a CompositeAlgorithm
     """
     ## Default constructor
-    # @param name: the identifier for the han algorithm @type name: a string
-    # @param algoname: the dqm_algorithm name @type algoname: a string
-    # @param libname: the library containing the algorithm @type libname: a string
+    # @param name: the identifier for the han algorithm @c name: a string
+    # @param algoname: the dqm_algorithm name @c algoname: a string
+    # @param libname: the library containing the algorithm @c libname: a string
     def __init__(self,name , subalgnames=[], libnames=[]):
         """
         Creates a han composite algorithm configuration element
@@ -274,9 +274,9 @@ class HanReference(Node):
     The han representation of a DQReference
     """
     ## Default constructor
-    # @param name: the identifier for the han reference @type name: a string
-    # @param histogramname: the histogram name @type histogramname: a string
-    # @param file: the filename for the reference histogram @type file: a string
+    # @param name: the identifier for the han reference @c name: a string
+    # @param histogramname: the histogram name @c histogramname: a string
+    # @param file: the filename for the reference histogram @c file: a string
     def __init__(self,name,histogramname,file):
         """
         Creates a han reference configuration element
@@ -294,7 +294,7 @@ class HanLimit(Node):
     The han representation of a limit for a HanThreshold
     """
     ## Default constructor
-    # @param name: the name of the limit @type name: a string
+    # @param name: the name of the limit @c name: a string
     # @param warning: the value for the warning level
     # @param error: the value for the error level
     def __init__(self,name,warning,error):
@@ -314,7 +314,7 @@ class HanThreshold(Node):
     The han representation of a DQThreshold
     """
     ## Default constructor
-    # @param name: the threshold identifier @type name: a string
+    # @param name: the threshold identifier @c name: a string
     def __init__(self,name):
         """
         Creates a han threshold configuration element
@@ -342,7 +342,7 @@ class HanDir(Node):
     A han dir element is a Node with sub nodes of type HanDir or HanHisto
     """
     ## Default constructor
-    # @param namne: the name of the directory @type name: a string
+    # @param namne: the name of the directory @c name: a string
     def __init__(self,name):
         """
         Creates a han directory element
@@ -352,7 +352,7 @@ class HanDir(Node):
         self.nodeType = Node.DIR
 
     ## Adds a sub directory
-    # @param name: the name of the subdirectory @type name: a string
+    # @param name: the name of the subdirectory @c name: a string
     # @return: the created HanDir object
     def addSubDir(self,name):
         """
@@ -362,11 +362,11 @@ class HanDir(Node):
         self.appendChild( subdir )
         return subdir
     ## Adds a histogram to the current directory
-    # @param histogram: the name of the histogram @type histogram: a string
-    # @param algorithm: the algorithm name to be used for this check @type algorithm: a string
-    # @param annotations: annotations for the DQRegion @type : a dict
-    # @param attributes: attributes for the DQRegion @type : a dict
-    # @param output: the output path for the result @type output: a string
+    # @param histogram: the name of the histogram @c histogram: a string
+    # @param algorithm: the algorithm name to be used for this check @c algorithm: a string
+    # @param annotations: annotations for the DQRegion @c : a dict
+    # @param attributes: attributes for the DQRegion @c : a dict
+    # @param output: the output path for the result @c output: a string
     # @return: the created HanHistogram object
     def addHistogram(self,histogram,algorithm,annotations={},output=DQHanConfMaker._default_output,attributes={}):
         """
@@ -376,7 +376,7 @@ class HanDir(Node):
         self.appendChild(histo)
         return histo
     ## Gets a sub-directory name
-    # @param name: the subdirectory name @type name: a string
+    # @param name: the subdirectory name @c name: a string
     def getSubDir(self,name):
         """
         returns the sub-directory called name
@@ -393,11 +393,11 @@ class HanOutput(Node):
         - father: the HanOutput that contains this HanOutput
     """
     ## Default constructor
-    # @param name: the output name @type name: a string
-    # @param algorithm: the optional algorithm name for this summary @type algorithm: summary
+    # @param name: the output name @c name: a string
+    # @param algorithm: the optional algorithm name for this summary @c algorithm: summary
     # @param father: the HanOutput containing this node
-    # @param annotations: annotations for the DQRegion @type : a dict
-    # @param attributes: attributes for the DQRegion @type : a dict
+    # @param annotations: annotations for the DQRegion @c : a dict
+    # @param attributes: attributes for the DQRegion @c : a dict
     def __init__(self,name,algorithm=None,father=None,annotations={},attributes={}):
         """
         Creates an output han element
@@ -422,10 +422,10 @@ class HanOutput(Node):
         if self.attributes.has_key('algorithm'):
             return self.getAttribute('algorithm')
     ## Adds a sub-output
-    # @param name: the sub output name @type name: a string
-    # @param algorithm: the algorithm for the sub output @type : a string
-    # @param annotations: annotations for the DQRegion @type : a dict
-    # @param attributes: attributes for the DQRegion @type : a dict
+    # @param name: the sub output name @c name: a string
+    # @param algorithm: the algorithm for the sub output @c : a string
+    # @param annotations: annotations for the DQRegion @c : a dict
+    # @param attributes: attributes for the DQRegion @c : a dict
     # @return: the created HanOutput object
     def addOutput(self,name,algorithm,annotations,attributes):
         """
@@ -435,8 +435,8 @@ class HanOutput(Node):
         self.appendChild(subnode)
         return subnode
     ## Creates the complete output string
-    # @param append: string to be appended to the name @type append: a string
-    # @param delimter: the delimiting characters for the string concatenation @type delimiter: a string
+    # @param append: string to be appended to the name @c append: a string
+    # @param delimter: the delimiting characters for the string concatenation @c delimiter: a string
     # @return: the complete path output string
     def getOutputPath(self,append=None,delimiter="/"):
         """
@@ -470,10 +470,10 @@ class Document(HanDir,HanOutput):
         self.root_output_level = HanOutput('top_level',top_level_algorithm)
         self.appendChild(self.root_output_level)
     ## Adds an output subdirectory
-    # @param name: the sub output name @type name: a string
-    # @param algorithm: the algorithm for the sub output @type : a string
-    # @param annotations: annotations for the DQRegion @type : a dict
-    # @param attributes: attributes for the DQRegion @type : a dict
+    # @param name: the sub output name @c name: a string
+    # @param algorithm: the algorithm for the sub output @c algorithm : a string
+    # @param annotations: annotations for the DQRegion @c annotations : a dict
+    # @param attributes: attributes for the DQRegion @c attributes : a dict
     # @return: the created HanOutput object
     def addOutput(self,name,algorithm,annotations={},attributes={}):
         """
@@ -500,8 +500,8 @@ class Document(HanDir,HanOutput):
     
 
 ## Add a DQParameter object to the HanDocument
-# @param handocument: the document containing the configuration @type handocument: a HanDocument object
-# @param dqparameter: the DQParameter object @type dqparameter: a DQParameter object
+# @param handocument: the document containing the configuration @c handocument: a HanDocument object
+# @param dqparameter: the DQParameter object @c dqparameter: a DQParameter object
 # @param output: the output element for the result
 # @note: This function is used internally and should not be used by users of this module
 def _hanAddDQParameter(handocument,dqparameter,output=DQHanConfMaker._default_output):
@@ -594,7 +594,7 @@ def _hanAddDQParameter(handocument,dqparameter,output=DQHanConfMaker._default_ou
         raise HanCannotCreateConf("Object: "+str(dqparameter)+" is not a valid DQParameter. Reason: "+str(msg))
 
 ## Finds the root han objects of the input collection
-# @param input: the list of objects @type input: a list of DQBase objects
+# @param input: the list of objects @c input: a list of DQBase objects
 # @raise HanCannotCreateConf: in case of errors
 # @return: the list of roots
 # @note: This function is used internally and should not be used by users of this module

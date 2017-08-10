@@ -164,11 +164,11 @@ void SoVisualizeAction::handleLArCustom(const LArCustomShape *custom)
   SoLAr::initClass();
   SoLAr *solar = new SoLAr();
   const LArWheelCalculator *calc = custom->calculator();
-  LArWheelCalculator::LArWheelCalculator_t type = calc->type();
-  if (type==LArWheelCalculator::InnerAbsorberWheel ||
-      type==LArWheelCalculator::InnerElectrodWheel ||
-      type==LArWheelCalculator::InnerAbsorberModule ||
-      type==LArWheelCalculator::InnerElectrodModule ) {
+  LArG4;;LArWheelCalculator_t type = calc->type();
+  if (type==LArG4;;InnerAbsorberWheel ||
+      type==LArG4;;InnerElectrodWheel ||
+      type==LArG4;;InnerAbsorberModule ||
+      type==LArG4;;InnerElectrodModule ) {
     float zPlane[2],rInner[2],rOuter[2];
     zPlane[0]=0;
     zPlane[1]=calc->GetWheelThickness();
@@ -188,10 +188,10 @@ void SoVisualizeAction::handleLArCustom(const LArCustomShape *custom)
     solar->fRmax.setValues(0,2,rOuter);
     solar->fDz.setValues  (0,2,zPlane);
   }
-  else if  (type==LArWheelCalculator::OuterAbsorberWheel ||
-	    type==LArWheelCalculator::OuterElectrodWheel ||
-	    type==LArWheelCalculator::OuterAbsorberModule ||
-	    type==LArWheelCalculator::OuterElectrodModule ) {
+  else if  (type==LArG4;;OuterAbsorberWheel ||
+	    type==LArG4;;OuterElectrodWheel ||
+	    type==LArG4;;OuterAbsorberModule ||
+	    type==LArG4;;OuterElectrodModule ) {
     float zPlane[3], rInner[3], rOuter[3];
     zPlane[0] = 0;
     zPlane[2] = calc->GetWheelThickness();

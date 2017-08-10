@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigTopoEventTPCnv
- * @Class  : ElectronMuonTopoInfoContainer_p3
+ * @class  : ElectronMuonTopoInfoContainer_p3
  *
  * @brief persistent partner for ElectronMuonTopoInfoContainer
  *

@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigMissingEtEventTPCnv
- * @Class  : TrigMissingET_p2
+ * @class  : TrigMissingET_p2
  *
  * @brief persistent partner for TrigMissingET
  *

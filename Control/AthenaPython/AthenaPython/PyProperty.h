@@ -26,7 +26,7 @@ typedef _object PyObject;
 
 
 class PyProperty
-  : public PropertyWithHandlers
+  : public PropertyWithHandlers<>
 { 
 
   /////////////////////////////////////////////////////////////////// 

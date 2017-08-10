@@ -4,10 +4,9 @@
 
 #include "InDetLowBetaCandidateCnv.h"
 #include "InDetEventTPCnv/InDetLowBetaInfo/InDetLowBetaCandidateCnv_tlp1.h"
-#include "MsgUtil.h"
 
 InDetLowBetaCandidateCnv::InDetLowBetaCandidateCnv(ISvcLocator* svcloc) :
-  T_AthenaPoolCustomCnv<InDet::InDetLowBetaCandidate, InDetLowBetaCandidate_PERS >( svcloc ),
+  T_AthenaPoolCustomCnv<InDet::InDetLowBetaCandidate, InDetLowBetaCandidate_PERS >( svcloc, "InDetLowBetaCandidateConverter" ),
   m_TPConverter (new InDetLowBetaCandidateCnv_tlp1)
 { }
 InDetLowBetaCandidateCnv::~InDetLowBetaCandidateCnv()
@@ -18,9 +17,6 @@ InDetLowBetaCandidateCnv::~InDetLowBetaCandidateCnv()
 
 
 InDetLowBetaCandidate_PERS* InDetLowBetaCandidateCnv::createPersistent(InDet::InDetLowBetaCandidate* transCont) {
-  IDEvtAthPool::setMsgName(this,"InDetLowBetaCandidateConverter");//So msg() won't use name "AthenaPoolConverter" 
-  //do it in both createPersistent and createTransient since there is no initialize method (could add it of course)
-
   ATH_MSG_DEBUG("InDetLowBetaCandidateCnv::createPersistent");
 
   InDetLowBetaCandidate_PERS *persObj = m_TPConverter->createPersistent(transCont, msg());
@@ -30,9 +26,6 @@ InDetLowBetaCandidate_PERS* InDetLowBetaCandidateCnv::createPersistent(InDet::In
 
 
 InDet::InDetLowBetaCandidate* InDetLowBetaCandidateCnv::createTransient() {
-  IDEvtAthPool::setMsgName(this,"InDetLowBetaCandidateConverter");//So msg() won't use name "AthenaPoolConverter" 
-  //do it in both createPersistent and createTransient since there is no initialize method (could add it of course)
-
   ATH_MSG_DEBUG("InDetLowBetaCandidateCnv::createTransient ");
   
   static pool::Guid tlp1_guid("8C24589F-FBAA-4686-9254-B5C360A94733");

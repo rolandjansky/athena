@@ -59,10 +59,10 @@ StatusCode CscRegDict :: initialize(){
     m_reg_dict[i].idealAtanNormal= m_reg_dict[i].actualAtanNormal =M_PI-SAtanNormal;
     m_reg_dict[i].posCorrectionMinusR=0.;
     m_reg_dict[i].posCorrectionPlusR=0.;
-    ATH_MSG_DEBUG( "CscRegDict: hash= " << i
-                  << " eta: "  << m_reg_dict[i].etaMin << " - " << m_reg_dict[i].etaMax
-                  << " phi: " << m_reg_dict[i].phiMin << " - " << m_reg_dict[i].phiMax
-                  << " theta: " << m_util->calc_theta(m_reg_dict[i].etaMin) << " - " << m_util->calc_theta(m_reg_dict[i].etaMax) );
+    ATH_MSG_DEBUG( "CscRegDict: hash= " << i << " StationName=" << stationName(i) << " StationEta=" << stationEta(i) << " StationPhi=" << stationPhi(i)
+		   << " eta:["  << m_reg_dict[i].etaMin << "," << m_reg_dict[i].etaMax << "]"
+		   << " phi:[" << m_reg_dict[i].phiMin << "," << m_reg_dict[i].phiMax << "]"
+		   << " theta:[" << m_util->calc_theta(m_reg_dict[i].etaMin) << "," << m_util->calc_theta(m_reg_dict[i].etaMax) << "]");
     ++i;
   }
     //Aside Small
@@ -76,10 +76,10 @@ StatusCode CscRegDict :: initialize(){
     m_reg_dict[i].idealAtanNormal= m_reg_dict[i].actualAtanNormal =SAtanNormal;
     m_reg_dict[i].posCorrectionMinusR=0.;
     m_reg_dict[i].posCorrectionPlusR=0.;
-    ATH_MSG_DEBUG( "CscRegDict: hash= " << i
-                  << " eta: "  << m_reg_dict[i].etaMin << " - " << m_reg_dict[i].etaMax
-                  << " phi: " << m_reg_dict[i].phiMin << " - " << m_reg_dict[i].phiMax
-                  << " theta: " << m_util->calc_theta(m_reg_dict[i].etaMin) << " - " << m_util->calc_theta(m_reg_dict[i].etaMax) );
+    ATH_MSG_DEBUG( "CscRegDict: hash= " << i << " StationName=" << stationName(i) << " StationEta=" << stationEta(i) << " StationPhi=" << stationPhi(i)
+		   << " eta:["  << m_reg_dict[i].etaMin << "," << m_reg_dict[i].etaMax << "]"
+		   << " phi:[" << m_reg_dict[i].phiMin << "," << m_reg_dict[i].phiMax << "]"
+		   << " theta:[" << m_util->calc_theta(m_reg_dict[i].etaMin) << "," << m_util->calc_theta(m_reg_dict[i].etaMax) << "]");
     ++i;
   }
   
@@ -103,10 +103,10 @@ StatusCode CscRegDict :: initialize(){
     m_reg_dict[i].idealAtanNormal= m_reg_dict[i].actualAtanNormal =M_PI-LAtanNormal;
     m_reg_dict[i].posCorrectionMinusR=0.;
     m_reg_dict[i].posCorrectionPlusR=0.;
-    ATH_MSG_DEBUG( "CscRegDict: hash= " << i
-                  << " eta: " << m_reg_dict[i].etaMin << " - " << m_reg_dict[i].etaMax
-                  << " phi: " << m_reg_dict[i].phiMin << " - " << m_reg_dict[i].phiMax
-                  << " theta: " << m_util->calc_theta(m_reg_dict[i].etaMin) << " - " << m_util->calc_theta(m_reg_dict[i].etaMax) );
+    ATH_MSG_DEBUG( "CscRegDict: hash= " << i << " StationName=" << stationName(i) << " StationEta=" << stationEta(i) << " StationPhi=" << stationPhi(i)
+		   << " eta:["  << m_reg_dict[i].etaMin << "," << m_reg_dict[i].etaMax << "]"
+		   << " phi:[" << m_reg_dict[i].phiMin << "," << m_reg_dict[i].phiMax << "]"
+		   << " theta:[" << m_util->calc_theta(m_reg_dict[i].etaMin) << "," << m_util->calc_theta(m_reg_dict[i].etaMax) << "]");
     ++i;
   }
     //Aside Large
@@ -120,10 +120,10 @@ StatusCode CscRegDict :: initialize(){
     m_reg_dict[i].idealAtanNormal= m_reg_dict[i].actualAtanNormal =LAtanNormal;
     m_reg_dict[i].posCorrectionMinusR=0.;
     m_reg_dict[i].posCorrectionPlusR=0.;
-    ATH_MSG_DEBUG( "CscRegDict: hash= " << i
-                  << " eta: " << m_reg_dict[i].etaMin << " - " << m_reg_dict[i].etaMax
-                  << " phi: " << m_reg_dict[i].phiMin << " - " << m_reg_dict[i].phiMax
-                  << " theta: " << m_util->calc_theta(m_reg_dict[i].etaMin) << " - " << m_util->calc_theta(m_reg_dict[i].etaMax) );
+    ATH_MSG_DEBUG( "CscRegDict: hash= " << i << " StationName=" << stationName(i) << " StationEta=" << stationEta(i) << " StationPhi=" << stationPhi(i)
+		   << " eta:["  << m_reg_dict[i].etaMin << "," << m_reg_dict[i].etaMax << "]"
+		   << " phi:[" << m_reg_dict[i].phiMin << "," << m_reg_dict[i].phiMax << "]"
+		   << " theta:[" << m_util->calc_theta(m_reg_dict[i].etaMin) << "," << m_util->calc_theta(m_reg_dict[i].etaMax) << "]");
     ++i;
   }
   /*

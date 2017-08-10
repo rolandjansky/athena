@@ -13,6 +13,7 @@
 #include "AthenaKernel/ITimeKeeper.h"
 #include "AthenaKernel/IEventSeek.h"
 #include "AthenaKernel/IAthenaEvtLoopPreSelectTool.h"
+#include "AthenaKernel/ExtendedEventContext.h"
 
 #include "GaudiKernel/IAlgorithm.h"
 #include "GaudiKernel/SmartIF.h"
@@ -729,9 +730,9 @@ StatusCode AthenaHiveEventLoopMgr::executeEvent(void* createdEvts_IntPtr )
     
     
     // Now add event to the scheduler 
-    info() << "Adding event " << evtContext->evt() 
-	   << ", slot " << evtContext->slot()
-	   << " to the scheduler" << endmsg;
+    debug() << "Adding event " << evtContext->evt() 
+            << ", slot " << evtContext->slot()
+            << " to the scheduler" << endmsg;
     
     m_incidentSvc->fireIncident(Incident(name(), IncidentType::BeginProcessing, 
 					 *evtContext));
@@ -1170,6 +1171,8 @@ StatusCode  AthenaHiveEventLoopMgr::createEventContext(EventContext*& evtContext
     warning() << "Slot " << evtContext->slot()
               << " could not be selected for the WhiteBoard" << endmsg;
   } else {
+    evtContext->setExtension( Atlas::ExtendedEventContext( eventStore()->hiveProxyDict() ) );
+
     debug() << "created EventContext, num: " << evtContext->evt()  << "  in slot: " 
 	    << evtContext->slot() << endmsg;
   }
@@ -1253,9 +1256,9 @@ AthenaHiveEventLoopMgr::drainScheduler(int& finishedEvts){
     // 					 *thisFinishedEvtContext ));
 
 
-    info() << "Clearing slot " << thisFinishedEvtContext->slot() 
-	   << " (event " << thisFinishedEvtContext->evt()
-	   << ") of the whiteboard" << endmsg;
+    debug() << "Clearing slot " << thisFinishedEvtContext->slot() 
+            << " (event " << thisFinishedEvtContext->evt()
+            << ") of the whiteboard" << endmsg;
     
     StatusCode sc = clearWBSlot(thisFinishedEvtContext->slot());
     if (!sc.isSuccess()) {

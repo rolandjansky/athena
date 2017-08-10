@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigTruthEventTPCnv
- * @Class  : TrigIDHitStats_p1
+ * @class  : TrigIDHitStats_p1
  *
  * @brief persistent partner for TrigIDHitStats
  *

@@ -44,14 +44,14 @@ class SectorLogicReadOutStructure : public RPCReadOut {
   //
   // some static parameter describing the structure
   //
-  static const ubit16 headerNum=2;
-  static const ubit16 headerPos[headerNum];
-  static const ubit16 headerLen[headerNum];
-  static const ubit16 headerVal;
-  static const ubit16 footerNum=2;
-  static const ubit16 footerPos[footerNum];
-  static const ubit16 footerLen[footerNum];
-  static const ubit16 footerVal;
+  static const ubit16 s_headerNum=2;
+  static const ubit16 s_headerPos[s_headerNum];
+  static const ubit16 s_headerLen[s_headerNum];
+  static const ubit16 s_headerVal;
+  static const ubit16 s_footerNum=2;
+  static const ubit16 s_footerPos[s_footerNum];
+  static const ubit16 s_footerLen[s_footerNum];
+  static const ubit16 s_footerVal;
   //
 };
 

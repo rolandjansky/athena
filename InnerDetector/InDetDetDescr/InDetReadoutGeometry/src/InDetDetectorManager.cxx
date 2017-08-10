@@ -57,7 +57,7 @@ namespace InDetDD
             if (frame == InDetDD::global) frameStr = "global";
             if (frame == InDetDD::local) frameStr  = "local";
             msg(MSG::INFO) << "Registering alignment channel with key " << key << ", level " << level 
-                << ", with frame " << frameStr << "." <<endreq;
+                << ", with frame " << frameStr << "." <<endmsg;
 	    //}
         m_keys[key] = LevelInfo(level, frame); 
     }
@@ -96,7 +96,7 @@ namespace InDetDD
     {
         (void) I; // avoid warning about unused parameter 
 
-        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "AlignmentCallback called " << endreq;
+        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "AlignmentCallback called " << endmsg;
 
         if (!getIdHelper()) return StatusCode::SUCCESS;
 
@@ -116,7 +116,7 @@ namespace InDetDD
                     alignmentChange = (alignmentChange || status);
                 } catch(std::runtime_error& err) {
                     // keys are empty when running simualtion. It is normal for detector specific aligments not to exist.
-		    msg(MSG::FATAL) << err.what() << endreq;
+		    msg(MSG::FATAL) << err.what() << endmsg;
 		    return StatusCode::FAILURE;
                 }
             }
@@ -131,7 +131,7 @@ namespace InDetDD
                 }
                 catch(std::runtime_error& err) {
                     // alignments should always exist so we return fatal if we could not process the alignment for this key
-                    msg(MSG::FATAL) << err.what() << endreq;
+                    msg(MSG::FATAL) << err.what() << endmsg;
                     return StatusCode::FAILURE;
                 }
             }  
@@ -144,7 +144,7 @@ namespace InDetDD
                     alignmentChange = (alignmentChange || status);
                 } catch(std::runtime_error& err) {
                     // keys are empty when running simualtion. It is normal for detector specific aligments not to exist.
-                    if (msgLvl(MSG::INFO)) msg(MSG::INFO) << err.what() << endreq;
+                    if (msgLvl(MSG::INFO)) msg(MSG::INFO) << err.what() << endmsg;
                     // We continue as detector specific aligments don't always exist.
                 }
             }
@@ -155,7 +155,7 @@ namespace InDetDD
 
                 const std::string & key = *itr;
 
-                if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Processing call back key  " << key << endreq;      
+                if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Processing call back key  " << key << endmsg;      
 
 		if ( m_globalFolders.find(key) != m_globalFolders.end() ) { 
 
@@ -165,7 +165,7 @@ namespace InDetDD
                         alignmentChange = (alignmentChange || status);
                     } catch(std::runtime_error& err) {
                         // alignments should always exist so we return fatal if we could not process the alignment for this key
-                        msg(MSG::FATAL) << err.what() << endreq;
+                        msg(MSG::FATAL) << err.what() << endmsg;
                         return StatusCode::FAILURE;
                     }
 
@@ -177,7 +177,7 @@ namespace InDetDD
                         alignmentChange = (alignmentChange || status);
                     } catch(std::runtime_error& err) {
                         // alignments should always exist so we return fatal if we could not process the alignment for this key
-                        msg(MSG::FATAL) << err.what() << endreq;
+                        msg(MSG::FATAL) << err.what() << endmsg;
                         return StatusCode::FAILURE;
                     }
 
@@ -189,12 +189,12 @@ namespace InDetDD
                     } 
                     catch(std::runtime_error& err) {
                         // Should always exist if the folder was requested so we return fatal if we could not process the alignment for this key
-                        msg(MSG::FATAL) << err.what() << endreq;
+                        msg(MSG::FATAL) << err.what() << endmsg;
                         return StatusCode::FAILURE;
                     }
                 } else {
                     // Should not be any other keys specified in call back.
-                    msg(MSG::ERROR) << "Unrecognized key in call back." << endreq;
+                    msg(MSG::ERROR) << "Unrecognized key in call back." << endmsg;
                     return  StatusCode::SUCCESS;
                 }
             }
@@ -213,18 +213,18 @@ namespace InDetDD
     {
         bool alignmentChange = false;
 
-        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Dealing with key as container" << endreq;
+        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Dealing with key as container" << endmsg;
         const AlignableTransformContainer* container;
         if (StatusCode::SUCCESS!=m_detStore->retrieve(container, key)) {        
             msg(MSG::ERROR) << "Cannot find AlignableTransformContainer for key " 
-                << key << " - no misalignment" << endreq;
+                << key << " - no misalignment" << endmsg;
             // This should not occur in normal situations so we force job to abort.
             throw std::runtime_error("Unable to apply Inner Detector alignments");
         }
         // Check if container is empty - this can occur if it is an invalid IOV.
         if (container->empty()) {
             msg(MSG::ERROR) << "AlignableTransformContainer for key " 
-                << key << " is empty. Probably due to out of range IOV" << endreq;
+                << key << " is empty. Probably due to out of range IOV" << endmsg;
             // This should not occur in normal situations so we force job to abort.
             throw std::runtime_error("Unable to apply Inner Detector alignments.");
         }
@@ -247,9 +247,9 @@ namespace InDetDD
         const LevelInfo & levelInfo = getLevel(key);
         if (msgLvl(MSG::DEBUG)) {
             if (levelInfo.isValid()) {
-                if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Processing channel: " << key << endreq;
+                if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Processing channel: " << key << endmsg;
             } else {
-                msg(MSG::DEBUG) << "Channel " << key << " not registered in this manager" << endreq;
+                msg(MSG::DEBUG) << "Channel " << key << " not registered in this manager" << endmsg;
             }
         }
         // return silently if unrecognised - this can happen in container mode
@@ -264,7 +264,7 @@ namespace InDetDD
             if (msgLvl(MSG::DEBUG)) {
 	      msg(MSG::DEBUG) << "Get alignment for identifier " 
 			     << getIdHelper()->show_to_string(trans_iter->identify())  
-			     << " at level " << levelInfo.level() << endreq;
+			     << " at level " << levelInfo.level() << endmsg;
 
             }
             // The delta in the conditions DB is not necessarily the same as what is needed in the
@@ -284,20 +284,20 @@ namespace InDetDD
                         msg(MSG::DEBUG) << "Cannot set AlignableTransform for identifier."
                             << " Probably OK if its /Indet/Align/ID folder. "  
                             << getIdHelper()->show_to_string(trans_iter->identify())  
-                            << " at level " << levelInfo.level() << endreq;
+                            << " at level " << levelInfo.level() << endmsg;
                     }
                 } else {
                     if (m_suppressWarnings) {
                         if (msgLvl(MSG::DEBUG)) {	      
                             msg(MSG::DEBUG) << "WARNING: Cannot set AlignableTransform for identifier  " 
                                 << getIdHelper()->show_to_string(trans_iter->identify())  
-                                << " at level " << levelInfo.level() << endreq;
+                                << " at level " << levelInfo.level() << endmsg;
                         }
                     } else {
                         msg(MSG::WARNING) << "Cannot set AlignableTransform for identifier  " 
                             << getIdHelper()->show_to_string(trans_iter->identify())  
-                            << " at level " << levelInfo.level() << endreq;
-                        msg(MSG::WARNING) << "Subsequent WARNINGS will be printed at DEBUG level."  << endreq;
+                            << " at level " << levelInfo.level() << endmsg;
+                        msg(MSG::WARNING) << "Subsequent WARNINGS will be printed at DEBUG level."  << endmsg;
                         m_suppressWarnings = true; 
                     }
                 }
@@ -311,15 +311,15 @@ namespace InDetDD
     {
       bool alignmentChange = false;
 
-      msg(MSG::DEBUG) << "processing GlobalAlignmentContainer with key:  " << key  << endreq;
+      msg(MSG::DEBUG) << "processing GlobalAlignmentContainer with key:  " << key  << endmsg;
       // From the key determine what level in hierarchy we are dealing with.                                                                                   
       // returns -1 if unrecognized.                                                                                                                           
       const LevelInfo & levelInfo = getLevel(key);
       if (msgLvl(MSG::DEBUG)) {
 	if (levelInfo.isValid()) {
-	  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Processing channel: " << key << endreq;
+	  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Processing channel: " << key << endmsg;
 	} else {
-	  msg(MSG::DEBUG) << "Channel " << key << " not registered in this manager" << endreq;
+	  msg(MSG::DEBUG) << "Channel " << key << " not registered in this manager" << endmsg;
 	}
       }
       // return silently if unrecognised - this can happen in container mode                                                                                   

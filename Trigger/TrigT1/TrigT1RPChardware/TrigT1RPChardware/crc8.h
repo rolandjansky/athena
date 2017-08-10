@@ -12,8 +12,8 @@ public:
       int calc(int dato);
       int current();
 private:
-      int _crci;
-      int _pol;
-      int _ma;
+      int m_crci;
+      int m_pol;
+      int m_ma;
 }; 
 #endif

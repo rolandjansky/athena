@@ -218,7 +218,7 @@ StatusCode sTgcDigitizationTool::initialize() {
   
   // initialize class to execute digitization 
   m_digitizer = new sTgcDigitMaker(m_hitIdHelper, m_mdManager);
-  m_digitizer->setMessageLevel(static_cast<MSG::Level>(outputLevel()));
+  m_digitizer->setMessageLevel(static_cast<MSG::Level>(msgLevel()));
   if(!m_rndmSvc.retrieve().isSuccess()) {
     ATH_MSG_FATAL(" Could not initialize Random Number Service");
     return StatusCode::FAILURE;
@@ -625,8 +625,8 @@ StatusCode sTgcDigitizationTool::doDigitization() {
 		  Identifier STRIP_ID = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, 1, 1, true);// find the a strip id
 		  bool insideBounds = SURF_STRIP.insideBounds(POSONSURF_STRIP);
 		  if(!insideBounds) {
-			if(MSG::DEBUG) msg(MSG::DEBUG) << "Outside of the strip surface boundary : " <<  m_idHelper->print_to_string(STRIP_ID) << "; local position x = "<< POSONSURF_STRIP.x() << "  y = "<<POSONSURF_STRIP.y() <<endmsg;
-			continue;
+                    ATH_MSG_DEBUG( "Outside of the strip surface boundary : " <<  m_idHelper->print_to_string(STRIP_ID) << "; local position x = "<< POSONSURF_STRIP.x() << "  y = "<<POSONSURF_STRIP.y() );
+                    continue;
 		  }
 
 		  int stripNumber = detEL->stripNumber(POSONSURF_STRIP, STRIP_ID);

@@ -16,7 +16,6 @@
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticle.h"
 #include "InDetTrackSelectionTool/InDetTrackSelectionTool.h"
-// #include "ParticlesInConeTools/ITrackParticlesInConeTool.h" // TO BE ADDED AT SOME POINT!!!
 
 namespace CP {
 
@@ -32,23 +31,22 @@ namespace CP {
         virtual StatusCode initialize();
         virtual StatusCode finalize();
 
-        CP::CorrectionCode getCloseByCorrection(std::vector<float>& corrections, const xAOD::IParticle& par, const std::vector<xAOD::Iso::IsolationType>& types, const std::vector<const xAOD::IParticle*>& closePar, int topoetconeModel = -1) const;
+        virtual const CP::CorrectionCode getCloseByCorrection(std::vector<float>& corrections, const xAOD::IParticle& par, const std::vector<xAOD::Iso::IsolationType>& types, const std::vector<const xAOD::IParticle*>& closePar, int topoetconeModel = -1) const;
 
-        virtual Root::TAccept& acceptCorrected(const xAOD::IParticle& x, const std::vector<const xAOD::IParticle*>& closePar, int topoetconeModel = -1);
-        
-        ToolHandle<CP::IIsolationSelectionTool> m_selectorTool;
+        virtual const Root::TAccept& acceptCorrected(const xAOD::IParticle& x, const std::vector<const xAOD::IParticle*>& closePar, int topoetconeModel = -1) const;
           
     private:
-        const xAOD::IParticle* getReferenceParticle(const xAOD::IParticle& par) const;
-        CP::CorrectionCode getCloseByCorrectionTrackIso(float& correction, const xAOD::IParticle& par, xAOD::Iso::IsolationType type, const std::vector<const xAOD::IParticle*>& closePar) const;
-        CP::CorrectionCode getCloseByCorrectionTopoetcone(float& correction, const xAOD::IParticle& par, xAOD::Iso::IsolationType type, const std::vector<const xAOD::IParticle*>& closePar, int topoetconeModel = -1) const;
+        const xAOD::TrackParticle* getTrackParticle(const xAOD::IParticle& par) const;
+        const CP::CorrectionCode getCloseByCorrectionTrackIso(float& correction, const xAOD::IParticle& par, xAOD::Iso::IsolationType type, const std::vector<const xAOD::IParticle*>& closePar) const;
+        const CP::CorrectionCode getCloseByCorrectionTopoetcone(float& correction, const xAOD::IParticle& par, xAOD::Iso::IsolationType type, const std::vector<const xAOD::IParticle*>& closePar, int topoetconeModel = -1) const;
         const xAOD::Vertex* retrieveIDBestPrimaryVertex() const;
-        CP::CorrectionCode getExtrapEtaPhi(const xAOD::IParticle& par, float& eta, float& phi) const;
-        xAOD::Iso::IsolationType getIsolationTypeFromString(const TString& isoTypeString, int particleType);
+        const CP::CorrectionCode getExtrapEtaPhi(const xAOD::IParticle& par, float& eta, float& phi) const;
+        xAOD::Iso::IsolationType getIsolationTypeFromString(const TString& isoTypeString, xAOD::Type::ObjectType particleType) const;
   
+        static constexpr float m_2PI = 2*M_PI;
         inline float phiInRange(float phi) const { 
-            while (phi >= M_PI) phi -= 2*M_PI;
-            while (phi < -M_PI) phi += 2*M_PI;
+            while (phi >= M_PI) phi -= m_2PI;
+            while (phi < -M_PI) phi += m_2PI;
             return phi;
         }
   
@@ -68,10 +66,7 @@ namespace CP {
             }
         }
   
-        const xAOD::TrackParticleContainer* retrieveTrackParticleContainer() const;
-  
-        CP::CorrectionCode getparticlesInCone(float eta, float phi, float dr, std::vector< const xAOD::TrackParticle*>& output) const; // TO BE REMOVED AT SOME POINT!!!
-
+        ToolHandle<CP::IIsolationSelectionTool> m_selectorTool;
         float m_coreCone;
         float m_ptvarconeRadius;
         mutable Root::TAccept m_accept;
@@ -81,12 +76,8 @@ namespace CP {
         std::vector<xAOD::Iso::IsolationType> m_muon_isoTypes;
         std::vector<xAOD::Iso::IsolationType> m_electron_isoTypes;
         std::vector<xAOD::Iso::IsolationType> m_photon_isoTypes;
-        bool m_muon_isoTypesSet;
-        bool m_electron_isoTypesSet;
-        bool m_photon_isoTypesSet;
         
-	asg::AnaToolHandle<InDet::IInDetTrackSelectionTool> m_trkselTool;
-//         ToolHandle<xAOD::ITrackParticlesInConeTool> m_tracksInConeTool; // TO BE ADDED AT SOME POINT!!!
+	    asg::AnaToolHandle<InDet::IInDetTrackSelectionTool> m_trkselTool;
 
     };
 }

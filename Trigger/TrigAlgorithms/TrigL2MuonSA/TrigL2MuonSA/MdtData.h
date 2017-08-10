@@ -4,6 +4,7 @@
 
 #ifndef  TRIGL2MUONSA_MDTDATA_H
 #define  TRIGL2MUONSA_MDTDATA_H
+#include "Identifier/Identifier.h"
 
 namespace TrigL2MuonSA {
 
@@ -45,6 +46,7 @@ namespace TrigL2MuonSA {
     //
     double Residual;
     int    isOutlier;
+    Identifier Id;
 };
   
 // --------------------------------------------------------------------------------

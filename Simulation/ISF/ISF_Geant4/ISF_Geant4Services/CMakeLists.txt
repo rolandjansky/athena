@@ -11,7 +11,6 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Control/AthenaBaseComps
                           Control/StoreGate
-                          DetectorDescription/GeoModel/GeoModelInterfaces
                           Simulation/G4Atlas/G4AtlasInterfaces
                           Simulation/ISF/ISF_Core/ISF_Event
                           Simulation/ISF/ISF_Core/ISF_Interfaces

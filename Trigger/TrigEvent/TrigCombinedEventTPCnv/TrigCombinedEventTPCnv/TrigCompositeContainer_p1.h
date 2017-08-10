@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigCombinedEventTPCnv
- * @Class  : TrigCompositeContainer_p1
+ * @class  : TrigCompositeContainer_p1
  *
  * @brief persistent partner for TrigCompositeContainer
  *

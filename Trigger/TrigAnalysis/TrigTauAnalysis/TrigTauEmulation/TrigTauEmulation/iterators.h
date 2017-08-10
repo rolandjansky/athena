@@ -27,46 +27,46 @@ namespace lib {
 
 template <class T, class P, class iterator>
 class select_iterator : public std::iterator<std::forward_iterator_tag, T, unsigned int> {
-    iterator it;
-    P func;
-    T value;
+    iterator m_it;
+    P m_func;
+    T m_value;
     void progress() {
         bool cond;
-        while (it && !(std::tie(cond, value) = func(*it), cond)) {
-            ++it;
+        while (m_it && !(std::tie(cond, m_value) = m_func(*m_it), cond)) {
+            ++m_it;
         }
     }
   public:
-    select_iterator(const iterator& it, P&& func) : it(it), func(func), value() {
+    select_iterator(const iterator& it, P&& func) : m_it(it), m_func(func), m_value() {
         progress();
     }
     ~select_iterator() {
     }
     inline T operator*() {
-        return value;
+        return m_value;
     }
     inline T operator->() {
-        return value;
+        return m_value;
     }
     inline void operator++() {
-        ++it;
+        ++m_it;
         progress();
     }
     inline bool operator!=(const select_iterator& b) {
-        return it != b.it;
+        return m_it != b.m_it;
     }
     inline bool operator==(const select_iterator& b) {
-        return it == b.it;
+        return m_it == b.m_it;
     }
     inline operator bool() {
-        return it;
+        return m_it;
     }
     inline void insert(const T& a) {
-        it.insert(a);
+        m_it.insert(a);
     }
     inline T erase() {
-        T retval = std::move(value);
-        it.erase();
+        T retval = std::move(m_value);
+        m_it.erase();
         this->progress();
         return retval;
     }
@@ -74,15 +74,15 @@ class select_iterator : public std::iterator<std::forward_iterator_tag, T, unsig
 
 template <class T, class S, class P>
 struct select_container {
-    S& value;
-    P func;
-    select_container(S& value, P&& func) : value(value), func(func) {
+    S& m_value;
+    P m_func;
+    select_container(S& value, P&& func) : m_value(value), m_func(func) {
     }
-    select_iterator<T, P&, decltype(value.begin())> begin() {
-        return {value.begin(), func};
+    select_iterator<T, P&, decltype(m_value.begin())> begin() {
+        return {m_value.begin(), m_func};
     }
-    select_iterator<T, P&, decltype(value.end())> end() {
-        return {value.end(), func};
+    select_iterator<T, P&, decltype(m_value.end())> end() {
+        return {m_value.end(), m_func};
     }
 };
 

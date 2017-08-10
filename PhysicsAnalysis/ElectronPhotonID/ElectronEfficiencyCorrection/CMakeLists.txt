@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 794295 2017-01-28 13:21:22Z kkoeneke $
+# $Id: CMakeLists.txt 797023 2017-02-14 11:03:58Z christos $
 ################################################################################
 # Package: ElectronEfficiencyCorrection
 ################################################################################
@@ -22,8 +22,8 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODEgamma
    PhysicsAnalysis/AnalysisCommon/PATCore
    PhysicsAnalysis/AnalysisCommon/PATInterfaces
-   PRIVATE
    PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
+   PRIVATE
    Control/AthAnalysisBaseComps
    Tools/PathResolver
    Control/CxxUtils
@@ -32,7 +32,7 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODEventInfo
    Event/xAOD/xAODTracking
    Event/xAOD/xAODMetaData
-
+   PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools	
    ${extra_deps} )
 
 # External dependencies:
@@ -45,7 +45,7 @@ atlas_add_library( ElectronEfficiencyCorrectionLib
    PUBLIC_HEADERS ElectronEfficiencyCorrection
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthContainers AsgTools
-   xAODEgamma PATInterfaces PATCoreLib
+   xAODEgamma PATInterfaces PATCoreLib AsgAnalysisInterfaces
    PRIVATE_LINK_LIBRARIES xAODCaloEvent xAODCore xAODEventInfo xAODTracking
    xAODMetaData PathResolver )
 
@@ -88,6 +88,13 @@ if( XAOD_STANDALONE )
       LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODEventInfo xAODEgamma
       xAODCore xAODCaloEvent xAODTracking AsgTools PATInterfaces
       ElectronEfficiencyCorrectionLib )
+
+   atlas_add_executable( EgEfficiencyCorr_testEgChargeCorr
+      util/testEgChargeCorr.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODEventInfo xAODEgamma
+      xAODCore ElectronPhotonSelectorToolsLib ElectronEfficiencyCorrectionLib )
+
 
 endif()
 

@@ -123,13 +123,13 @@ class TRT_AlignDbSvc: public AthService, virtual public ITRT_AlignDbSvc
   /** get const AlignableTransform pointer for an object key */
   const AlignableTransform* cgetTransPtr(const std::string key) const;
 
-  /** Retruns the ring for a given strawLayer */
+  /** Returns the ring for a given strawLayer */
   int getRingForStrawLayer(int strawlayer) const;
   
-  /** Retruns the true if the input key is from the old endcap scheme*/
+  /** Returns the true if the input key is from the old endcap scheme*/
   bool isOldKey(std::string input) const;
 
-  /** return the prefix tag for a given calibration folder */
+  /** Return the prefix tag for a given calibration folder */
   std::string prefixtag(std::string key) const;
 
   /** Convert from an int to a string */
@@ -141,14 +141,14 @@ class TRT_AlignDbSvc: public AthService, virtual public ITRT_AlignDbSvc
   /** Output the conditions objects currently in memory */
   void printCondObjects() const ;
 
-  /** create an empty set of AlignableTransforms for the GeoModel setup */
+  /** Create an empty set of AlignableTransforms for the GeoModel setup */
   StatusCode createAlignObjects() const;
   
-  /** create an empty set of AlignableTransforms for the transforms 
+  /** Create an empty set of AlignableTransforms for the transforms 
       which are not created by XXXXXXX from the conddb  */
   StatusCode createAlignObjectsWhichDoNotAlreadyExist();
 
-  /** return the object key for a given identifier and data type */
+  /** Return the object key for a given identifier and data type */
   std::string findkey(const Identifier& ident, std::string type) const;
 
   ServiceHandle<StoreGateSvc> m_detStore;

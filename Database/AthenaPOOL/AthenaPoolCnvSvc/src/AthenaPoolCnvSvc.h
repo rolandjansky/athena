@@ -20,7 +20,6 @@
 
 #include <vector>
 #include <map>
-#include <mutex>
 
 // Forward declarations
 class IAthenaIPCTool;
@@ -28,6 +27,7 @@ class IAthenaSerializeSvc;
 class IChronoStatSvc;
 class IClassIDSvc;
 class IPoolSvc;
+class Guid;
 
 template <class TYPE> class SvcFactory;
 
@@ -236,13 +236,6 @@ private: // properties
    BooleanProperty m_skipFirstChronoCommit;
    /// bool to activate the chrono stats, depending on the m_skipFirstChronoCommit data member
    bool m_doChronoStat;
-
-   /// pool connection context
-   std::vector<unsigned long> m_contextIds;
-
-   typedef std::recursive_mutex CallMutex;
-   mutable CallMutex m_i_mut;
-   mutable CallMutex m_o_mut;
 };
 
 #endif

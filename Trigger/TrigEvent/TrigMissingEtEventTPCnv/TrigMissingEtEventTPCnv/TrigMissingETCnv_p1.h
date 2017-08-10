@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigMissingEtEventTPCnv
- * @Class  : TrigMissingETCnv_p1
+ * @class  : TrigMissingETCnv_p1
  *
  * @brief transient-persistent converter for TrigMissingET
  *

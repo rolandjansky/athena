@@ -13,7 +13,7 @@ MuonPerformanceAlg
 
 // FrameWork includes
 #include "GaudiKernel/IToolSvc.h"
-#include "xAODMuon/MuonContainer.h"
+
 #include "xAODMuon/Muon.h"
 #include "xAODTruth/TruthParticle.h"
 #include "xAODTruth/TruthParticleContainer.h"
@@ -32,6 +32,7 @@ MuonPerformanceAlg::MuonPerformanceAlg(const std::string& name, ISvcLocator* pSv
   : 
   AthAlgorithm(name, pSvcLocator),
   m_writeToFile (false),
+  m_muonsNameKey("Muons"),
   m_nevents(0),
   m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
   //m_storeGate(NULL),
@@ -39,7 +40,7 @@ MuonPerformanceAlg::MuonPerformanceAlg(const std::string& name, ISvcLocator* pSv
   m_runNumber(0),
   m_eventNumber(0)
 {
-  declareProperty( "MuonContainerName", m_muonsName = "Muons" );
+  declareProperty( "MuonContainerName", m_muonsNameKey );
 
   //m_muonLocationList.push_back("Muons");
   //declareProperty("MuonLocationList",   m_muonLocationList);
@@ -83,7 +84,7 @@ StatusCode MuonPerformanceAlg::initialize()
     // add pdgs
     for( auto pdg : m_pdgsToBeConsidered.value() ) m_selectedPdgs.insert(pdg);
   }
-  
+  if(!m_muonsNameKey.key().empty()) ATH_CHECK(m_muonsNameKey.initialize());
   return StatusCode::SUCCESS;
 }
  
@@ -459,10 +460,10 @@ StatusCode MuonPerformanceAlg::execute()
     }
 
 
+    SG::ReadHandle<xAOD::MuonContainer> Muons(m_muonsNameKey);
 
-    const xAOD::MuonContainer* Muons = evtStore()->retrieve< const xAOD::MuonContainer >( m_muonsName );
-    if (!Muons) {
-      ATH_MSG_ERROR ("Couldn't retrieve Muons container with key: " << m_muonsName);
+    if (!Muons.isValid()) {
+      ATH_MSG_ERROR ("Couldn't retrieve Muons container with key: " << m_muonsNameKey.key());
       return StatusCode::FAILURE;
     } 
     ATH_MSG_VERBOSE("Retrieved muons " << Muons->size());

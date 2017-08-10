@@ -103,7 +103,7 @@ void AmdcDbSvcMakerFromRDB::AMDC(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcD
 //   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
 //   int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
-  const IRDBRecordset* pIRDBRecordset = pIRDBAccessSvc->getRecordset(NameOfTheSet,m_detectorKey,m_detectorNode);
+  IRDBRecordset_ptr pIRDBRecordset = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,m_detectorKey,m_detectorNode);
   if (pIRDBRecordset->size()==0){
     std::cout << "AmdcDbSvcMakerFromRDB: No " << NameOfTheSet << " in pIRDBAccessSvc " << std::endl;
     std::cout << " for m_detectorKey  " << m_detectorKey  << std::endl;
@@ -151,7 +151,7 @@ void AmdcDbSvcMakerFromRDB::AGDD(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcD
 //   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
 //   int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
-  const IRDBRecordset* pIRDBRecordset = pIRDBAccessSvc->getRecordset(NameOfTheSet,m_detectorKey,m_detectorNode);
+  IRDBRecordset_ptr pIRDBRecordset = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,m_detectorKey,m_detectorNode);
   if (pIRDBRecordset->size()==0){
     std::cout << "AmdcDbSvcMakerFromRDB: No " << NameOfTheSet << " in pIRDBAccessSvc " << std::endl;
     std::cout << " for m_detectorKey  " << m_detectorKey  << std::endl;
@@ -199,7 +199,7 @@ void AmdcDbSvcMakerFromRDB::ATYP(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcD
 //   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
 //   int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
-  const IRDBRecordset* pIRDBRecordset = pIRDBAccessSvc->getRecordset(NameOfTheSet,m_detectorKey,m_detectorNode);
+  IRDBRecordset_ptr pIRDBRecordset = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,m_detectorKey,m_detectorNode);
   if (pIRDBRecordset->size()==0){
     std::cout << "AmdcDbSvcMakerFromRDB: No " << NameOfTheSet << " in pIRDBAccessSvc " << std::endl;
     std::cout << " for m_detectorKey  " << m_detectorKey  << std::endl;
@@ -246,7 +246,7 @@ void AmdcDbSvcMakerFromRDB::ACUT(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcD
 //   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
 //   int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
-  const IRDBRecordset* pIRDBRecordset = pIRDBAccessSvc->getRecordset(NameOfTheSet,m_detectorKey,m_detectorNode);
+  IRDBRecordset_ptr pIRDBRecordset = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,m_detectorKey,m_detectorNode);
   if (pIRDBRecordset->size()==0){
     std::cout << "AmdcDbSvcMakerFromRDB: No " << NameOfTheSet << " in pIRDBAccessSvc " << std::endl;
     std::cout << " for m_detectorKey  " << m_detectorKey  << std::endl;
@@ -290,7 +290,7 @@ void AmdcDbSvcMakerFromRDB::WRPC(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcD
   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
 //  int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
-  const IRDBRecordset* pIRDBRecordset = pIRDBAccessSvc->getRecordset(NameOfTheSet,m_detectorKey,m_detectorNode);
+  IRDBRecordset_ptr pIRDBRecordset = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,m_detectorKey,m_detectorNode);
   if (pIRDBRecordset->size()==0){
     std::cout << "AmdcDbSvcMakerFromRDB: No " << NameOfTheSet << " in pIRDBAccessSvc " << std::endl;
     std::cout << " for m_detectorKey  " << m_detectorKey  << std::endl;
@@ -355,7 +355,7 @@ void AmdcDbSvcMakerFromRDB::AWLN(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcD
   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
 //  int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
-  const IRDBRecordset* pIRDBRecordset = pIRDBAccessSvc->getRecordset(NameOfTheSet,m_detectorKey,m_detectorNode);
+  IRDBRecordset_ptr pIRDBRecordset = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,m_detectorKey,m_detectorNode);
   if (pIRDBRecordset->size()==0){
     std::cout << "AmdcDbSvcMakerFromRDB: No " << NameOfTheSet << " in pIRDBAccessSvc " << std::endl;
     std::cout << " for m_detectorKey  " << m_detectorKey  << std::endl;
@@ -411,7 +411,7 @@ void AmdcDbSvcMakerFromRDB::WTGC(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcD
   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
 //  int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
-  const IRDBRecordset* pIRDBRecordset = pIRDBAccessSvc->getRecordset(NameOfTheSet,m_detectorKey,m_detectorNode);
+  IRDBRecordset_ptr pIRDBRecordset = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,m_detectorKey,m_detectorNode);
   if (pIRDBRecordset->size()==0){
     std::cout << "AmdcDbSvcMakerFromRDB: No " << NameOfTheSet << " in pIRDBAccessSvc " << std::endl;
     std::cout << " for m_detectorKey  " << m_detectorKey  << std::endl;
@@ -475,7 +475,7 @@ void AmdcDbSvcMakerFromRDB::GGLN(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcD
 //  int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
 //  int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
-  const IRDBRecordset* pIRDBRecordset = pIRDBAccessSvc->getRecordset(NameOfTheSet,m_detectorKey,m_detectorNode);
+  IRDBRecordset_ptr pIRDBRecordset = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,m_detectorKey,m_detectorNode);
   if (pIRDBRecordset->size()==0){
     std::cout << "AmdcDbSvcMakerFromRDB: No " << NameOfTheSet << " in pIRDBAccessSvc " << std::endl;
     std::cout << " for m_detectorKey  " << m_detectorKey  << std::endl;
@@ -604,7 +604,7 @@ void AmdcDbSvcMakerFromRDB::ATLN(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcD
   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
 //  int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
-  const IRDBRecordset* pIRDBRecordset = pIRDBAccessSvc->getRecordset(NameOfTheSet,m_detectorKey,m_detectorNode);
+  IRDBRecordset_ptr pIRDBRecordset = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,m_detectorKey,m_detectorNode);
   if (pIRDBRecordset->size()==0){
     std::cout << "AmdcDbSvcMakerFromRDB: No " << NameOfTheSet << " in pIRDBAccessSvc " << std::endl;
     std::cout << " for m_detectorKey  " << m_detectorKey  << std::endl;
@@ -655,7 +655,7 @@ void AmdcDbSvcMakerFromRDB::WCSC(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcD
   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
 //  int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
-  const IRDBRecordset* pIRDBRecordset = pIRDBAccessSvc->getRecordset(NameOfTheSet,m_detectorKey,m_detectorNode);
+  IRDBRecordset_ptr pIRDBRecordset = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,m_detectorKey,m_detectorNode);
   if (pIRDBRecordset->size()==0){
     std::cout << "AmdcDbSvcMakerFromRDB: No " << NameOfTheSet << " in pIRDBAccessSvc " << std::endl;
     std::cout << " for m_detectorKey  " << m_detectorKey  << std::endl;
@@ -727,7 +727,7 @@ void AmdcDbSvcMakerFromRDB::DBAM(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcD
 //  int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
 //  int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
-  const IRDBRecordset* pIRDBRecordset = pIRDBAccessSvc->getRecordset(NameOfTheSet,m_detectorKey,m_detectorNode);
+  IRDBRecordset_ptr pIRDBRecordset = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,m_detectorKey,m_detectorNode);
   if (pIRDBRecordset->size()==0){
     std::cout << "AmdcDbSvcMakerFromRDB: No " << NameOfTheSet << " in pIRDBAccessSvc " << std::endl;
     std::cout << " for m_detectorKey  " << m_detectorKey  << std::endl;
@@ -794,7 +794,7 @@ void AmdcDbSvcMakerFromRDB::ASMP(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcD
 //   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
 //   int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
-  const IRDBRecordset* pIRDBRecordset = pIRDBAccessSvc->getRecordset(NameOfTheSet,m_detectorKey,m_detectorNode);
+  IRDBRecordset_ptr pIRDBRecordset = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,m_detectorKey,m_detectorNode);
   if (pIRDBRecordset->size()==0){
     std::cout << "AmdcDbSvcMakerFromRDB: No " << NameOfTheSet << " in pIRDBAccessSvc " << std::endl;
     std::cout << " for m_detectorKey  " << m_detectorKey  << std::endl;
@@ -840,7 +840,7 @@ void AmdcDbSvcMakerFromRDB::WDED(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcD
   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
 //  int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
-  const IRDBRecordset* pIRDBRecordset = pIRDBAccessSvc->getRecordset(NameOfTheSet,m_detectorKey,m_detectorNode);
+  IRDBRecordset_ptr pIRDBRecordset = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,m_detectorKey,m_detectorNode);
   if (pIRDBRecordset->size()==0){
     std::cout << "AmdcDbSvcMakerFromRDB: No " << NameOfTheSet << " in pIRDBAccessSvc " << std::endl;
     std::cout << " for m_detectorKey  " << m_detectorKey  << std::endl;
@@ -888,7 +888,7 @@ void AmdcDbSvcMakerFromRDB::WLBI(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcD
   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
 //  int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
-  const IRDBRecordset* pIRDBRecordset = pIRDBAccessSvc->getRecordset(NameOfTheSet,m_detectorKey,m_detectorNode);
+  IRDBRecordset_ptr pIRDBRecordset = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,m_detectorKey,m_detectorNode);
   if (pIRDBRecordset->size()==0){
     std::cout << "AmdcDbSvcMakerFromRDB: No " << NameOfTheSet << " in pIRDBAccessSvc " << std::endl;
     std::cout << " for m_detectorKey  " << m_detectorKey  << std::endl;
@@ -938,7 +938,7 @@ void AmdcDbSvcMakerFromRDB::WCRO(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcD
   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
 //  int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
-  const IRDBRecordset* pIRDBRecordset = pIRDBAccessSvc->getRecordset(NameOfTheSet,m_detectorKey,m_detectorNode);
+  IRDBRecordset_ptr pIRDBRecordset = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,m_detectorKey,m_detectorNode);
   if (pIRDBRecordset->size()==0){
     std::cout << "AmdcDbSvcMakerFromRDB: No " << NameOfTheSet << " in pIRDBAccessSvc " << std::endl;
     std::cout << " for m_detectorKey  " << m_detectorKey  << std::endl;
@@ -986,7 +986,7 @@ void AmdcDbSvcMakerFromRDB::WCMI(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcD
   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
 //  int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
-  const IRDBRecordset* pIRDBRecordset = pIRDBAccessSvc->getRecordset(NameOfTheSet,m_detectorKey,m_detectorNode);
+  IRDBRecordset_ptr pIRDBRecordset = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,m_detectorKey,m_detectorNode);
   if (pIRDBRecordset->size()==0){
     std::cout << "AmdcDbSvcMakerFromRDB: No " << NameOfTheSet << " in pIRDBAccessSvc " << std::endl;
     std::cout << " for m_detectorKey  " << m_detectorKey  << std::endl;
@@ -1034,7 +1034,7 @@ void AmdcDbSvcMakerFromRDB::WCHV(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcD
   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
 //  int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
-  const IRDBRecordset* pIRDBRecordset = pIRDBAccessSvc->getRecordset(NameOfTheSet,m_detectorKey,m_detectorNode);
+  IRDBRecordset_ptr pIRDBRecordset = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,m_detectorKey,m_detectorNode);
   if (pIRDBRecordset->size()==0){
     std::cout << "AmdcDbSvcMakerFromRDB: No " << NameOfTheSet << " in pIRDBAccessSvc " << std::endl;
     std::cout << " for m_detectorKey  " << m_detectorKey  << std::endl;
@@ -1082,7 +1082,7 @@ void AmdcDbSvcMakerFromRDB::WSUP(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcD
   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
 //  int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
-  const IRDBRecordset* pIRDBRecordset = pIRDBAccessSvc->getRecordset(NameOfTheSet,m_detectorKey,m_detectorNode);
+  IRDBRecordset_ptr pIRDBRecordset = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,m_detectorKey,m_detectorNode);
   if (pIRDBRecordset->size()==0){
     std::cout << "AmdcDbSvcMakerFromRDB: No " << NameOfTheSet << " in pIRDBAccessSvc " << std::endl;
     std::cout << " for m_detectorKey  " << m_detectorKey  << std::endl;
@@ -1160,7 +1160,7 @@ void AmdcDbSvcMakerFromRDB::WSPA(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcD
   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
 //  int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
-  const IRDBRecordset* pIRDBRecordset = pIRDBAccessSvc->getRecordset(NameOfTheSet,m_detectorKey,m_detectorNode);
+  IRDBRecordset_ptr pIRDBRecordset = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,m_detectorKey,m_detectorNode);
   if (pIRDBRecordset->size()==0){
     std::cout << "AmdcDbSvcMakerFromRDB: No " << NameOfTheSet << " in pIRDBAccessSvc " << std::endl;
     std::cout << " for m_detectorKey  " << m_detectorKey  << std::endl;
@@ -1207,7 +1207,7 @@ void AmdcDbSvcMakerFromRDB::WMDT(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcD
   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
 //  int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
-  const IRDBRecordset* pIRDBRecordset = pIRDBAccessSvc->getRecordset(NameOfTheSet,m_detectorKey,m_detectorNode);
+  IRDBRecordset_ptr pIRDBRecordset = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,m_detectorKey,m_detectorNode);
   if (pIRDBRecordset->size()==0){
     std::cout << "AmdcDbSvcMakerFromRDB: No " << NameOfTheSet << " in pIRDBAccessSvc " << std::endl;
     std::cout << " for m_detectorKey  " << m_detectorKey  << std::endl;
@@ -1292,7 +1292,7 @@ void AmdcDbSvcMakerFromRDB::ALIN(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcD
   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
 //  int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
-  const IRDBRecordset* pIRDBRecordset = pIRDBAccessSvc->getRecordset(NameOfTheSet,m_detectorKey,m_detectorNode);
+  IRDBRecordset_ptr pIRDBRecordset = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,m_detectorKey,m_detectorNode);
   if (pIRDBRecordset->size()==0){
     std::cout << "AmdcDbSvcMakerFromRDB: No " << NameOfTheSet << " in pIRDBAccessSvc " << std::endl;
     std::cout << " for m_detectorKey  " << m_detectorKey  << std::endl;
@@ -1347,7 +1347,7 @@ void AmdcDbSvcMakerFromRDB::ALMN(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcD
   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
 //  int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
-  const IRDBRecordset* pIRDBRecordset = pIRDBAccessSvc->getRecordset(NameOfTheSet,m_detectorKey,m_detectorNode);
+  IRDBRecordset_ptr pIRDBRecordset = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,m_detectorKey,m_detectorNode);
   if (pIRDBRecordset->size()==0){
     std::cout << "AmdcDbSvcMakerFromRDB: No " << NameOfTheSet << " in pIRDBAccessSvc " << std::endl;
     std::cout << " for m_detectorKey  " << m_detectorKey  << std::endl;
@@ -1414,7 +1414,7 @@ void AmdcDbSvcMakerFromRDB::APTP(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcD
   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
   int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
-  const IRDBRecordset* pIRDBRecordset = pIRDBAccessSvc->getRecordset(NameOfTheSet,m_detectorKey,m_detectorNode);
+  IRDBRecordset_ptr pIRDBRecordset = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,m_detectorKey,m_detectorNode);
   if (pIRDBRecordset->size()==0){
     std::cout << "AmdcDbSvcMakerFromRDB: No " << NameOfTheSet << " in pIRDBAccessSvc " << std::endl;
     std::cout << " for m_detectorKey  " << m_detectorKey  << std::endl;
@@ -1487,7 +1487,7 @@ void AmdcDbSvcMakerFromRDB::ASZT(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcD
   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
   int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
-  const IRDBRecordset* pIRDBRecordset = pIRDBAccessSvc->getRecordset(NameOfTheSet,m_detectorKey,m_detectorNode);
+  IRDBRecordset_ptr pIRDBRecordset = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,m_detectorKey,m_detectorNode);
   if (pIRDBRecordset->size()==0){
     std::cout << "AmdcDbSvcMakerFromRDB: No " << NameOfTheSet << " in pIRDBAccessSvc " << std::endl;
     std::cout << " for m_detectorKey  " << m_detectorKey  << std::endl;
@@ -1548,7 +1548,7 @@ void AmdcDbSvcMakerFromRDB::ISZT(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcD
   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
   int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
-  const IRDBRecordset* pIRDBRecordset = pIRDBAccessSvc->getRecordset(NameOfTheSet,m_detectorKey,m_detectorNode);
+  IRDBRecordset_ptr pIRDBRecordset = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,m_detectorKey,m_detectorNode);
   if (pIRDBRecordset->size()==0){
     std::cout << "AmdcDbSvcMakerFromRDB: No " << NameOfTheSet << " in pIRDBAccessSvc " << std::endl;
     std::cout << " for m_detectorKey  " << m_detectorKey  << std::endl;
@@ -1602,7 +1602,7 @@ void AmdcDbSvcMakerFromRDB::ABRT(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcD
   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
 //  int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
-  const IRDBRecordset* pIRDBRecordset = pIRDBAccessSvc->getRecordset(NameOfTheSet,m_detectorKey,m_detectorNode);
+  IRDBRecordset_ptr pIRDBRecordset = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,m_detectorKey,m_detectorNode);
   if (pIRDBRecordset->size()==0){
     std::cout << "AmdcDbSvcMakerFromRDB: No " << NameOfTheSet << " in pIRDBAccessSvc " << std::endl;
     std::cout << " for m_detectorKey  " << m_detectorKey  << std::endl;
@@ -1777,7 +1777,7 @@ void AmdcDbSvcMakerFromRDB::AECT(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcD
   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
 //  int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
-  const IRDBRecordset* pIRDBRecordset = pIRDBAccessSvc->getRecordset(NameOfTheSet,m_detectorKey,m_detectorNode);
+  IRDBRecordset_ptr pIRDBRecordset = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,m_detectorKey,m_detectorNode);
   if (pIRDBRecordset->size()==0){
     std::cout << "AmdcDbSvcMakerFromRDB: No " << NameOfTheSet << " in pIRDBAccessSvc " << std::endl;
     std::cout << " for m_detectorKey  " << m_detectorKey  << std::endl;
@@ -1913,7 +1913,7 @@ void AmdcDbSvcMakerFromRDB::ECST(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcD
   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
 //  int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
-  const IRDBRecordset* pIRDBRecordset = pIRDBAccessSvc->getRecordset(NameOfTheSet,m_detectorKey,m_detectorNode);
+  IRDBRecordset_ptr pIRDBRecordset = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,m_detectorKey,m_detectorNode);
   if (pIRDBRecordset->size()==0){
     std::cout << "AmdcDbSvcMakerFromRDB: No " << NameOfTheSet << " in pIRDBAccessSvc " << std::endl;
     std::cout << " for m_detectorKey  " << m_detectorKey  << std::endl;
@@ -2055,7 +2055,7 @@ void AmdcDbSvcMakerFromRDB::FEET(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcD
   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
 //  int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
-  const IRDBRecordset* pIRDBRecordset = pIRDBAccessSvc->getRecordset(NameOfTheSet,m_detectorKey,m_detectorNode);
+  IRDBRecordset_ptr pIRDBRecordset = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,m_detectorKey,m_detectorNode);
   if (pIRDBRecordset->size()==0){
     std::cout << "AmdcDbSvcMakerFromRDB: No " << NameOfTheSet << " in pIRDBAccessSvc " << std::endl;
     std::cout << " for m_detectorKey  " << m_detectorKey  << std::endl;
@@ -2525,7 +2525,7 @@ void AmdcDbSvcMakerFromRDB::GENV(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcD
   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
 //  int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
-  const IRDBRecordset* pIRDBRecordset = pIRDBAccessSvc->getRecordset(NameOfTheSet,m_detectorKey,m_detectorNode);
+  IRDBRecordset_ptr pIRDBRecordset = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,m_detectorKey,m_detectorNode);
   if (pIRDBRecordset->size()==0){
     std::cout << "AmdcDbSvcMakerFromRDB: No " << NameOfTheSet << " in pIRDBAccessSvc " << std::endl;
     std::cout << " for m_detectorKey  " << m_detectorKey  << std::endl;
@@ -2585,7 +2585,7 @@ void AmdcDbSvcMakerFromRDB::JDSH(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcD
   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
 //  int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
-  const IRDBRecordset* pIRDBRecordset = pIRDBAccessSvc->getRecordset(NameOfTheSet,m_detectorKey,m_detectorNode);
+  IRDBRecordset_ptr pIRDBRecordset = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,m_detectorKey,m_detectorNode);
   if (pIRDBRecordset->size()==0){
     std::cout << "AmdcDbSvcMakerFromRDB: No " << NameOfTheSet << " in pIRDBAccessSvc " << std::endl;
     std::cout << " for m_detectorKey  " << m_detectorKey  << std::endl;
@@ -2763,7 +2763,7 @@ void AmdcDbSvcMakerFromRDB::JFSH(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcD
   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
 //  int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
-  const IRDBRecordset* pIRDBRecordset = pIRDBAccessSvc->getRecordset(NameOfTheSet,m_detectorKey,m_detectorNode);
+  IRDBRecordset_ptr pIRDBRecordset = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,m_detectorKey,m_detectorNode);
   if (pIRDBRecordset->size()==0){
     std::cout << "AmdcDbSvcMakerFromRDB: No " << NameOfTheSet << " in pIRDBAccessSvc " << std::endl;
     std::cout << " for m_detectorKey  " << m_detectorKey  << std::endl;
@@ -2963,7 +2963,7 @@ void AmdcDbSvcMakerFromRDB::JTSH(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcD
   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
 //  int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
-  const IRDBRecordset* pIRDBRecordset = pIRDBAccessSvc->getRecordset(NameOfTheSet,m_detectorKey,m_detectorNode);
+  IRDBRecordset_ptr pIRDBRecordset = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,m_detectorKey,m_detectorNode);
   if (pIRDBRecordset->size()==0){
     std::cout << "AmdcDbSvcMakerFromRDB: No " << NameOfTheSet << " in pIRDBAccessSvc " << std::endl;
     std::cout << " for m_detectorKey  " << m_detectorKey  << std::endl;
@@ -3025,7 +3025,7 @@ void AmdcDbSvcMakerFromRDB::MBAP(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcD
   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
 //  int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
-  const IRDBRecordset* pIRDBRecordset = pIRDBAccessSvc->getRecordset(NameOfTheSet,m_detectorKey,m_detectorNode);
+  IRDBRecordset_ptr pIRDBRecordset = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,m_detectorKey,m_detectorNode);
   if (pIRDBRecordset->size()==0){
     std::cout << "AmdcDbSvcMakerFromRDB: No " << NameOfTheSet << " in pIRDBAccessSvc " << std::endl;
     std::cout << " for m_detectorKey  " << m_detectorKey  << std::endl;
@@ -3252,7 +3252,7 @@ void AmdcDbSvcMakerFromRDB::AgddXMLVariables(IRDBAccessSvc* pIRDBAccessSvc,AmdcD
   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
 //  int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
-  const IRDBRecordset* pIRDBRecordset = pIRDBAccessSvc->getRecordset(NameOfTheSet,m_detectorKey,m_detectorNode);
+  IRDBRecordset_ptr pIRDBRecordset = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,m_detectorKey,m_detectorNode);
   if (pIRDBRecordset->size()==0){
     std::cout << "AmdcDbSvcMakerFromRDB: No " << NameOfTheSet << " in pIRDBAccessSvc " << std::endl;
     std::cout << " for m_detectorKey  " << m_detectorKey  << std::endl;
@@ -3297,7 +3297,7 @@ void AmdcDbSvcMakerFromRDB::HwSwIdMapping(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSv
 //   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
 //   int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
-  const IRDBRecordset* pIRDBRecordset = pIRDBAccessSvc->getRecordset(NameOfTheSet,m_detectorKey,m_detectorNode);
+  IRDBRecordset_ptr pIRDBRecordset = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,m_detectorKey,m_detectorNode);
   if (pIRDBRecordset->size()==0){
     std::cout << "AmdcDbSvcMakerFromRDB: No " << NameOfTheSet << " in pIRDBAccessSvc " << std::endl;
     std::cout << " for m_detectorKey  " << m_detectorKey  << std::endl;
@@ -3347,7 +3347,7 @@ void AmdcDbSvcMakerFromRDB::XtomoData(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* p
 //   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
 //   int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
 
-  const IRDBRecordset* pIRDBRecordset = pIRDBAccessSvc->getRecordset(NameOfTheSet,m_detectorKey,m_detectorNode);
+  IRDBRecordset_ptr pIRDBRecordset = pIRDBAccessSvc->getRecordsetPtr(NameOfTheSet,m_detectorKey,m_detectorNode);
   if (pIRDBRecordset->size()==0){
     std::cout << "AmdcDbSvcMakerFromRDB: No " << NameOfTheSet << " in pIRDBAccessSvc " << std::endl;
     std::cout << " for m_detectorKey  " << m_detectorKey  << std::endl;

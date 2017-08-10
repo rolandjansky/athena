@@ -133,10 +133,10 @@ bool ISF::TrkExtrapolator::retrieveTrackingGeometry() const
   MsgStream log(msgSvc(),name());
   StatusCode sc = m_trackingGeometrySvc.retrieve();
   if ( sc.isFailure() ){
-    log << MSG::WARNING << " failed to retrieve geometry Svc " << m_trackingGeometrySvc << endreq;
+    log << MSG::WARNING << " failed to retrieve geometry Svc " << m_trackingGeometrySvc << endmsg;
     return false;
   } 
-  log << MSG::INFO << "  geometry Svc " << m_trackingGeometrySvc << " retrieved " << endreq;
+  log << MSG::INFO << "  geometry Svc " << m_trackingGeometrySvc << " retrieved " << endmsg;
   
   m_trackingGeometry = m_trackingGeometrySvc->trackingGeometry();
   if ( !m_trackingGeometry ) return false;

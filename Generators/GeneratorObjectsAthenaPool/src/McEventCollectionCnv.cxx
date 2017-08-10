@@ -45,7 +45,7 @@ McEventCollectionCnv::createPersistent( McEventCollection* transCont )
   McEventCollectionCnv_p5 cnv;
   McEventCollection_PERS *persObj = cnv.createPersistent( transCont, msg );
 
-  msg << MSG::DEBUG << "::createPersistent [Success]" << endreq;
+  msg << MSG::DEBUG << "::createPersistent [Success]" << endmsg;
   return persObj; 
 }
 
@@ -66,7 +66,7 @@ McEventCollection* McEventCollectionCnv::createTransient()
    bool isPileup(false);
    if(serviceLocator()->existsService("PileUpEventLoopMgr")) {
       isPileup=true;
-      msg << MSG::DEBUG << "Pile run, disable datapool for McEventCollection " << endreq;
+      msg << MSG::DEBUG << "Pile run, disable datapool for McEventCollection " << endmsg;
    }
 
    if ( compareClassGuid(tr_guid) ) {

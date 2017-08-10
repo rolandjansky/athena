@@ -49,26 +49,43 @@ class egammaTrackSlimmer(JobProperty):
     allowedTypes=['bool']
     StoredValue=True
 
+
+class AddEgammaMuonTracksInAOD(JobProperty):
+    """ If True, add Trk::Tracks associated with Electrons,Conversions,Muons
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+
+
+class AddEgammaTracksInMCAOD(JobProperty):
+    """ If True, add Trk::Tracks associated with Electrons,Conversions to MC
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+
+
 class ThinGeantTruth(JobProperty):
     """ If True, add ThinGeantTruth
     """
     statusOn=True
     allowedTypes=['bool']
-    StoredValue=False
+    StoredValue=True
 
 class ThinNegativeEnergyCaloClusters(JobProperty):
     """ If True, add ThinNegativeEnergyCaloClusters
     """
     statusOn=True
     allowedTypes=['bool']
-    StoredValue=False
+    StoredValue=True
 
 class ThinNegativeEnergyNeutralPFOs(JobProperty):
     """ If True, add ThinNegativeEnergyNeutralPFOs
     """
     statusOn=True
     allowedTypes=['bool']
-    StoredValue=False
+    StoredValue=True
     
 class Muon(JobProperty):
     """ If True, add Muon
@@ -280,6 +297,8 @@ jobproperties.add_Container(AODFlagsContainer)
 # I want always the following flags in the AOD container  
 _list_AOD=[ \
     Photon,Electron,egammaTrackSlimmer, \
+    AddEgammaMuonTracksInAOD, \
+    AddEgammaTracksInMCAOD, \
     ThinGeantTruth, \
     ThinNegativeEnergyCaloClusters, \
     ThinNegativeEnergyNeutralPFOs, \

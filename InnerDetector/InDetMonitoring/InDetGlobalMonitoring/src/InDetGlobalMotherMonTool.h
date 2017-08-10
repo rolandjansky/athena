@@ -300,7 +300,7 @@ public:
 	    StatusCode rc = theGroup.regHist(h1);
 	    if (rc != StatusCode::SUCCESS) {  	
 		if ( msgLvl(MSG::WARNING) ) msg(MSG::WARNING) << "Could not register histogram :" 
-							      << name <<endreq;
+							      << name <<endmsg;
 	    }    
 	    h.push_back(h1);
 	    return rc ;
@@ -323,7 +323,7 @@ public:
 	    StatusCode rc = theGroup.regHist(h1);
 	    if (rc != StatusCode::SUCCESS) {  	
 		if ( msgLvl(MSG::WARNING) ) msg(MSG::WARNING) << "Could not register histogram :" 
-							      << name <<endreq;
+							      << name <<endmsg;
 	    }    
 	    h.push_back(h1);
 	    return rc ;
@@ -368,7 +368,7 @@ public:
 	    StatusCode rc = theGroup.regHist(h2);
 	    if (rc != StatusCode::SUCCESS) {  
 		if ( msgLvl(MSG::WARNING) ) msg(MSG::WARNING) << "Could not register histogram : " 
-							      << name <<endreq;
+							      << name <<endmsg;
 	    } 
 	    
 	    h.push_back(h2); 
@@ -397,7 +397,7 @@ public:
 	    StatusCode rc = theGroup.regHist(h2);
 	    if (rc != StatusCode::SUCCESS) {  
 		if ( msgLvl(MSG::WARNING) ) msg(MSG::WARNING) << "Could not register histogram : " 
-							      << name <<endreq;
+							      << name <<endmsg;
 	    } 
 	    
 	    h.push_back(h2); 
@@ -491,7 +491,7 @@ public:
     inline virtual void  retrieveTools()
       {
 	if (m_trkSummaryTool.retrieve().isFailure() ) {
-	  if ( msgLvl(MSG::ERROR) ) msg(MSG::ERROR) << "Could not retrieve the track summary tool!" << endreq;
+	  if ( msgLvl(MSG::ERROR) ) msg(MSG::ERROR) << "Could not retrieve the track summary tool!" << endmsg;
 	}
       }
 

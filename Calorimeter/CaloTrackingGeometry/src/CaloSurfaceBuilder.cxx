@@ -338,17 +338,17 @@ Trk::Surface*  CaloSurfaceBuilder:: CreateUserSurface (const CaloCell_ID::CaloSa
 	betterz = m_calodepth->radius(sample,etaCaloLocal,0.);
 	z = offset + betterz - (*pos)(2,3);
 	//log <<MSG::DEBUG << " shift z by : betterz + offset - old-z = " << betterz << " + " << offset << " - "
-	//    <<  pos->getTranslation().z() << " = " << z << endreq;
+	//    <<  pos->getTranslation().z() << " = " << z << endmsg;
 	Amg::Translation3D vec(0.,0.,z);
 	*pos =  (*pos) * vec  ;
 
     }
     else{
-      //log<<MSG::DEBUG<<" Is a tile or HEC3 the z won't be changed  "<<z<<endreq;
+      //log<<MSG::DEBUG<<" Is a tile or HEC3 the z won't be changed  "<<z<<endmsg;
     }
 
     //log<<MSG::DEBUG << " got -real- disk for Sample " << (int) sample << " rmin: "<< rmin <<"  rmax: "
-    //   << rmax  << " z = " << pos->getTranslation().z() << " for etaCaloLocal=" << etaCaloLocal << endreq;
+    //   << rmax  << " z = " << pos->getTranslation().z() << " for etaCaloLocal=" << etaCaloLocal << endmsg;
     //m_calo_tb_coord->print_transform ( *pos );
 
     // for Atlas configuration, avoid to create a hole a phi ~ pi by hphi
@@ -508,7 +508,7 @@ CaloSurfaceBuilder::CreateGirderSurface() const {
   return NULL;
 
   /*
-  log <<MSG::DEBUG << "In CreateGirderSurface()"<<endreq;
+  log <<MSG::DEBUG << "In CreateGirderSurface()"<<endmsg;
   const std::vector<const Trk::TrackingVolume*>* tileVolumes = m_tileVolumeBuilder->trackingVolumes();
   //Girder part
   const Trk::TrackingVolume* tileBarrelGirder                 = (*tileVolumes)[11];
@@ -520,7 +520,7 @@ CaloSurfaceBuilder::CreateGirderSurface() const {
   double radius = tileBarrelGirderBounds->outerRadius();
   delete tileBarrelGirderBounds;
   double hlen = 6600; //big enough so the extrapolation will always find it.
-  log<<MSG::DEBUG << "Created Surface right after the Girder with  radius: " << radius << "  hlen: " << hlen << endreq;
+  log<<MSG::DEBUG << "Created Surface right after the Girder with  radius: " << radius << "  hlen: " << hlen << endmsg;
   return (new Trk::CylinderSurface(new Amg::Transform3D,radius,hlen) );
   */
 }
@@ -555,7 +555,7 @@ CaloSurfaceBuilder::CreateDDLayers(CaloSubdetNames::ALIGNVOL alvol, std::vector<
 
     Trk::CylinderBounds* objectBounds    = new Trk::CylinderBounds(radius[i], hlength[i]);
 
-    // log << MSG::DEBUG << "DD barrel Layer constructed with material-properties: " << objectMaterial << endreq;
+    // log << MSG::DEBUG << "DD barrel Layer constructed with material-properties: " << objectMaterial << endmsg;
     // CylinderLayer takes ownership of the transformation.
     thelayer->push_back(new Trk::CylinderLayer(new Amg::Transform3D(htrans),
                                                objectBounds, objectLayerMaterial));
@@ -600,7 +600,7 @@ CaloSurfaceBuilder::CreateDDECLayers(CaloSubdetNames::ALIGNVOL alvol, std::vecto
 
     Trk::DiscBounds* objectBounds    = new Trk::DiscBounds(rmin[i], rmax[i] );
 
-    // log << MSG::DEBUG << "DD endcap Layer constructed with material-properties: " << objectMaterial << endreq;
+    // log << MSG::DEBUG << "DD endcap Layer constructed with material-properties: " << objectMaterial << endmsg;
     thelayer->push_back(new Trk::DiscLayer(eachtrans, objectBounds, objectLayerMaterial));
   }
 
@@ -621,7 +621,7 @@ CaloSurfaceBuilder::setCaloDepth(CaloDepthTool* /*mytool*/ )
 //   else {
 //     StatusCode s = m_toolsvc->retrieveTool("CaloDepthTool",m_calodepth,this);
 //     if (s.isFailure())
-//       log<<MSG::ERROR<<"Could not find CaloDepthTool " <<endreq;
+//       log<<MSG::ERROR<<"Could not find CaloDepthTool " <<endmsg;
 //   }
 }
 
@@ -691,7 +691,7 @@ CaloSurfaceBuilder::get_cylinder_surface (CaloCell_ID::CaloSample sample, int si
   }
 
   else{
-    //log<<MSG::VERBOSE<<" get_cylinder_surface  in TILES sample   "<<sample <<"  side  "<<side<<endreq;
+    //log<<MSG::VERBOSE<<" get_cylinder_surface  in TILES sample   "<<sample <<"  side  "<<side<<endmsg;
     //this are not cylinders
 
     switch (sample) {
@@ -721,7 +721,7 @@ CaloSurfaceBuilder::get_cylinder_surface (CaloCell_ID::CaloSample sample, int si
 	}
       }
     }
-    //log<<MSG::DEBUG<<" get_cylinder_surface with hphi: "<<hphi <<"  radius: "<<radius<<"  hlength: "<<hlength<<endreq;
+    //log<<MSG::DEBUG<<" get_cylinder_surface with hphi: "<<hphi <<"  radius: "<<radius<<"  hlength: "<<hlength<<endmsg;
     result = true;
   }
   return result;
@@ -765,7 +765,7 @@ CaloSurfaceBuilder::get_disk_surface (CaloCell_ID::CaloSample sample, int side,
   if ( sample == CaloCell_ID::TileExt2 )  return false;
 
   double ri, ra, zow;
-  //log<<MSG::VERBOSE<<" get_disk_surface in sample   "<<sample<<endreq;
+  //log<<MSG::VERBOSE<<" get_disk_surface in sample   "<<sample<<endmsg;
   //std::cout << "  disk work ..." << std::endl;
 
   std::vector <CaloDetDescriptor*>::const_iterator  first = m_calo_dd->calo_descriptors_begin();
@@ -785,7 +785,7 @@ CaloSurfaceBuilder::get_disk_surface (CaloCell_ID::CaloSample sample, int side,
   }
 
   if ( sample == CaloCell_ID::TileGap3 ){
-    //log<<MSG::VERBOSE<<" get_disk_surface in TileGap3 sample   "<<sample<<endreq;
+    //log<<MSG::VERBOSE<<" get_disk_surface in TileGap3 sample   "<<sample<<endmsg;
 
     std::vector <CaloDetDescriptor*>::const_iterator  first = m_calo_dd->tile_descriptors_begin();
     std::vector <CaloDetDescriptor*>::const_iterator  last = m_calo_dd->tile_descriptors_end();
@@ -802,7 +802,7 @@ CaloSurfaceBuilder::get_disk_surface (CaloCell_ID::CaloSample sample, int side,
 	  }
       }
     }
-    //log<<MSG::VERBOSE<<" get_disk_surface in TileGap3 sample   "<<sample<<endreq;
+    //log<<MSG::VERBOSE<<" get_disk_surface in TileGap3 sample   "<<sample<<endmsg;
   }
 
   if ( rmin > rmax ) rmin = 0.;
@@ -811,7 +811,7 @@ CaloSurfaceBuilder::get_disk_surface (CaloCell_ID::CaloSample sample, int side,
   *htrans = (*htrans) * vec;
 
   //log<<MSG::DEBUG<<" get_disk_surface  with hphi: "<<hphisec <<"  rmin: "<<rmin<<"  rmax: "<<rmax<<
-  //  "   z: "<<z<<"   depth: "<<depth<<endreq;
+  //  "   z: "<<z<<"   depth: "<<depth<<endmsg;
 
   return result;
 }

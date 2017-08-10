@@ -47,11 +47,6 @@ CscSegmentMaker::
 CscSegmentMaker(const std::string& aname, ISvcLocator* pSvcLocator)
   : AthAlgorithm(aname, pSvcLocator),
     m_dumped(0), m_dump(false), 
-    m_max_chisquare(-1.),
-    m_max_slope_r(-1.),
-    m_max_slope_phi(-1.),
-    m_max_seg_per_chamber(0),
-    m_fitsegment_tantheta_tolerance(-1.),
     m_2dseg_finder(""),
     m_4dseg_finder(""),
     m_psegs(0),

@@ -30,7 +30,7 @@ class ElectronTAccept_v1 {
      * FIXME: Ask m_nBits to be encapsulated and a similar typedef like this to
      * be within TAccept 
      **/
-    typedef std::bitset<m_nBits> bitMskWord;
+    typedef std::bitset<Root::TAccept::NBITS> bitMskWord;
 
     // Grant access to m_accept for BitdefElectron_v1
     friend class BitdefElectron_v1;

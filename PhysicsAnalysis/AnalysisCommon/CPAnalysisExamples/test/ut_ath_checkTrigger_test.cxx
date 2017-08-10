@@ -51,6 +51,8 @@ int main( int argc, char* argv[] ) {
    POOL::TEvent::EReadMode mode = POOL::TEvent::kPOOLAccess; //POOL is slowest, but it can read everything!
    if( argc < 3 ) {
       ANA_MSG_WARNING( "No file name received, using $ASG_TEST_FILE_MC" );
+      if (getenv ("ASG_TEST_FILE_MC") == nullptr)
+        fileName = "/afs/cern.ch/user/a/asgbase/patspace/xAODs/r7725/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.merge.AOD.e3698_s2608_s2183_r7725_r7676/AOD.07915862._000100.pool.root.1";
       
    } else {
       fileName = argv[2]; //use the user provided file

@@ -54,35 +54,22 @@ StatusCode RoIBResultByteStreamCnv< ROBF >::initialize() {
   //
   // Initialise the base class:
   //
-  StatusCode sc = Converter::initialize();
-  if( sc.isFailure() ) {
-    return sc;
-  }
+  ATH_CHECK( Converter::initialize() );
 
-  MsgStream log( messageService(), "RoIBResultByteStreamCnv" );
-  log << MSG::DEBUG << "In initialize()" << endreq;
+  MsgStream log( msgSvc(), "RoIBResultByteStreamCnv" );
+  log << MSG::DEBUG << "In initialize()" << endmsg;
 
   //
   // Get ByteStreamCnvSvc:
   //
-  sc = m_ByteStreamCnvSvc.retrieve();
-  if( sc.isFailure() ) {
-    log << MSG::FATAL << "Can't get ByteStreamCnvSvc" << endreq;
-    return sc;
-  } else {
-    log << MSG::DEBUG << "Connected to ByteStreamCnvSvc" << endreq;
-  }
+  ATH_CHECK( m_ByteStreamCnvSvc.retrieve() );
+  log << MSG::DEBUG << "Connected to ByteStreamCnvSvc" << endmsg;
 
   //
   // Get RoIBResultByteStreamTool:
   //
-  sc = m_tool.retrieve();
-  if( sc.isFailure() ) {
-    log << MSG::FATAL << "Can't get RoIBResultByteStreamTool" << endreq;
-    return sc;
-  } else {
-    log << MSG::DEBUG << "Connected to RoIBResultByteStreamTool" << endreq;
-  }
+  ATH_CHECK( m_tool.retrieve() );
+  log << MSG::DEBUG << "Connected to RoIBResultByteStreamTool" << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -95,13 +82,13 @@ StatusCode RoIBResultByteStreamCnv< ROBF >::initialize() {
 template< class ROBF >
 StatusCode RoIBResultByteStreamCnv< ROBF >::createObj( IOpaqueAddress* pAddr, DataObject*& pObj ) {
 
-  MsgStream log( messageService(), "RoIBResultByteStreamCnv" );
-  log << MSG::DEBUG << "createObj() called" << endreq;
+  MsgStream log( msgSvc(), "RoIBResultByteStreamCnv" );
+  log << MSG::DEBUG << "createObj() called" << endmsg;
 
   ByteStreamAddressL1R *pAddrL1;
   pAddrL1 = dynamic_cast< ByteStreamAddressL1R* >( pAddr );
   if( ! pAddrL1 ) {
-    log << MSG::ERROR << " Cannot cast to ByteStreamAddressL1R" << endreq ;
+    log << MSG::ERROR << " Cannot cast to ByteStreamAddressL1R" << endmsg ;
     return StatusCode::FAILURE;
   }
 
@@ -110,13 +97,9 @@ StatusCode RoIBResultByteStreamCnv< ROBF >::createObj( IOpaqueAddress* pAddr, Da
   const std::vector< ROBF >& robs = pAddrL1->getPointers();
 
   // Convert to Object
-  StatusCode sc = m_tool->convert( robs, result );
-  if( sc.isFailure() ) {
-    log << MSG::ERROR << "Couldn't convert the robs into RoIBResult" << endreq;
-    return sc;
-  }
+  ATH_CHECK( m_tool->convert( robs, result ) );
 
-  log << MSG::DEBUG << " Created Objects: " << *( pAddrL1->par() ) <<endreq;
+  log << MSG::DEBUG << " Created Objects: " << *( pAddrL1->par() ) <<endmsg;
 
   pObj = SG::asStorable( result ) ;
   return StatusCode::SUCCESS;
@@ -131,15 +114,15 @@ StatusCode RoIBResultByteStreamCnv< ROBF >::createObj( IOpaqueAddress* pAddr, Da
 template< class ROBF >
 StatusCode RoIBResultByteStreamCnv< ROBF >::createRep( DataObject* pObj, IOpaqueAddress*& pAddr ) {
 
-  MsgStream log( messageService(), "RoIBResultByteStreamCnv" );
-  log << MSG::DEBUG << "createRep() called" << endreq;
+  MsgStream log( msgSvc(), "RoIBResultByteStreamCnv" );
+  log << MSG::DEBUG << "createRep() called" << endmsg;
 
   RawEventWrite* re = m_ByteStreamCnvSvc->getRawEvent();
 
   ROIB::RoIBResult* result;
 
   if( ! SG::fromStorable( pObj, result ) ) {
-    log << MSG::ERROR << " Cannot cast to RoIBResult" << endreq ;
+    log << MSG::ERROR << " Cannot cast to RoIBResult" << endmsg ;
     return StatusCode::FAILURE;
   }
 

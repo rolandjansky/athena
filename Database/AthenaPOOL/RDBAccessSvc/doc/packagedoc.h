@@ -30,12 +30,6 @@ be retrieved by specifying the field name and calling the appropriate method
 of RDBRecord object (depending on the field data type)
 
 --------------------------------
-  JOB OPTIONS 
---------------------------------
-
-@include RDBAccessSvcPdb_jobOptions.py
-
---------------------------------
   REQUIREMENTS 
 --------------------------------
 

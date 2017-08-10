@@ -31,7 +31,7 @@ SimpleSuperCellChecks::~SimpleSuperCellChecks(){}
 StatusCode SimpleSuperCellChecks::initialize(){
 	
         MsgStream msg(msgSvc(), name());
-	msg << MSG::DEBUG << "initializing SimpleSuperCellChecks" << endreq;
+	msg << MSG::DEBUG << "initializing SimpleSuperCellChecks" << endmsg;
 	std::string filename=name();
 	filename+=".BasicCheck.root";
         counter=0;
@@ -290,7 +290,7 @@ StatusCode SimpleSuperCellChecks::initialize(){
 
 	// for cell <-> SCell comparison
 	if ( m_scidtool.retrieve().isFailure() ){
-		msg << MSG::ERROR << "cannot perform comparisons between cell and SuperCells" << endreq;
+		msg << MSG::ERROR << "cannot perform comparisons between cell and SuperCells" << endmsg;
 	}
 
 	return StatusCode::SUCCESS;
@@ -298,7 +298,7 @@ StatusCode SimpleSuperCellChecks::initialize(){
 
 StatusCode SimpleSuperCellChecks::finalize(){
         MsgStream msg(msgSvc(), name());
-	msg << MSG::DEBUG << "finalizing SimpleSuperCellChecks" << endreq;
+	msg << MSG::DEBUG << "finalizing SimpleSuperCellChecks" << endmsg;
 	m_file->Write();
 	m_file->Close();
 	return StatusCode::SUCCESS;
@@ -307,20 +307,20 @@ StatusCode SimpleSuperCellChecks::finalize(){
 StatusCode SimpleSuperCellChecks::execute(){
 	
         MsgStream msg(msgSvc(), name());
-	msg << MSG::DEBUG << "execute SimpleSuperCellChecks" << endreq;
+	msg << MSG::DEBUG << "execute SimpleSuperCellChecks" << endmsg;
         const CaloCellContainer* scells;
         const CaloCellContainer* allcalo(NULL);
 	if ( evtStore()->retrieve(scells,"SCell").isFailure() ){
-		msg << MSG::WARNING << "did not find cell container" << endreq;
+		msg << MSG::WARNING << "did not find cell container" << endmsg;
 		return StatusCode::SUCCESS;
 	}
 	if ( evtStore()->retrieve(allcalo,"AllCalo").isFailure() ){
-		msg << MSG::WARNING << "did not find cell container for regular cells, no resolution test possible" << endreq;
+		msg << MSG::WARNING << "did not find cell container for regular cells, no resolution test possible" << endmsg;
 	}
 	const xAOD::VertexContainer* nvtx(NULL);
 	int nvtxs=0;
 	if ( evtStore()->retrieve(nvtx,"PrimaryVertices").isFailure() ) {
-		msg << MSG::WARNING << "did not find Vectices container" << endreq;
+		msg << MSG::WARNING << "did not find Vectices container" << endmsg;
 		return StatusCode::SUCCESS;
 	}
 	if ( nvtx != NULL) nvtxs = nvtx->size();
@@ -414,12 +414,12 @@ StatusCode SimpleSuperCellChecks::execute(){
 	m_nSCells_perLayer[11]->Fill ( count_sCells_Layer11 );
 
 	if ( !allcalo || !m_scidtool ) { // VERY IMPORTANT
-		msg << MSG::ERROR << "Nothing more to be done, finish here" << endreq;
+		msg << MSG::ERROR << "Nothing more to be done, finish here" << endmsg;
 		return StatusCode::SUCCESS;
 	}
 	const CaloIdManager* m_calo_id_manager;
 	if ( (detStore()->retrieve(m_calo_id_manager,"CaloIdManager")).isFailure() ){
-		msg << MSG::ERROR << "Not able to map Calo IDs." << endreq;
+		msg << MSG::ERROR << "Not able to map Calo IDs." << endmsg;
 		return StatusCode::SUCCESS;
 	}
 	const CaloCell_SuperCell_ID* calo_sc_id = m_calo_id_manager->getCaloCell_SuperCell_ID();
@@ -428,7 +428,7 @@ StatusCode SimpleSuperCellChecks::execute(){
 	std::vector<std::vector<float> > sc_times; sc_times.resize(40000);
         for(auto cell : *allcalo) {
 		int idx = calo_sc_id->calo_cell_hash( m_scidtool->offlineToSuperCellID ( cell->ID() ) );
-		if ( idx < 0 or idx > 37000 ) { msg << MSG::DEBUG << "Problems with index : " << cell->ID().get_identifier32().get_compact() << " " << m_scidtool->offlineToSuperCellID ( cell->ID() ) << " " << idx << endreq; continue; }
+		if ( idx < 0 or idx > 37000 ) { msg << MSG::DEBUG << "Problems with index : " << cell->ID().get_identifier32().get_compact() << " " << m_scidtool->offlineToSuperCellID ( cell->ID() ) << " " << idx << endmsg; continue; }
 		sc_ets[idx] += cell->et();
 		sc_etsk[idx].push_back( cell->et() );
 		sc_times[idx].push_back( cell->time() );

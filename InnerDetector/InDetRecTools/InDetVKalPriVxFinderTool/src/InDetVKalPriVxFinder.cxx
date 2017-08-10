@@ -110,7 +110,7 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
   InDetVKalPriVxFinderTool::~InDetVKalPriVxFinderTool()
   {    //MsgStream log( msgSvc(), name() ) ;
        //m_sc.isSuccess();
-       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "InDetVKalPriVxFinderTool destructor called" << endreq;
+       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "InDetVKalPriVxFinderTool destructor called" << endmsg;
   }
 
 
@@ -118,24 +118,24 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
 //__________________________________________________________________________
   StatusCode InDetVKalPriVxFinderTool::initialize()
   { 
-    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"InDetVKalVrtPriVxTool initialize()" << endreq;
+    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"InDetVKalVrtPriVxTool initialize()" << endmsg;
     m_SummaryToolExist = 0;
 //       ---------------
 /* Tool Service initialisation.  NOT NEEDED now*/
 //    IToolSvc* toolSvc;
 //    StatusCode sc = service("ToolSvc", toolSvc);
 //    if (sc.isFailure()) {
-//      if(msgLvl(MSG::ERROR))msg(MSG::ERROR) << "Could not find ToolSvc" << endreq;
+//      if(msgLvl(MSG::ERROR))msg(MSG::ERROR) << "Could not find ToolSvc" << endmsg;
 //      return StatusCode::SUCCESS; 
 //    }
 
 //TrkVKalVrtFitter
 //    sc = toolSvc->retrieveTool("TrkVKalVrtFitter",m_fitSvc,this);
 //    if (sc.isFailure()) { 
-//       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << " No VKalVrtFitSvc for InDetVKalPriVxFinderTool !" << endreq;
+//       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << " No VKalVrtFitSvc for InDetVKalPriVxFinderTool !" << endmsg;
 //       return StatusCode::SUCCESS; 
 //    } 
-//    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "VKalVrtPromCpp's VKalVrtFitSvc found" << endreq;
+//    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "VKalVrtPromCpp's VKalVrtFitSvc found" << endmsg;
 //-----------------------------------------------------------------------------------------
 //
 //  Temporary to use old VKalVrt interface
@@ -143,21 +143,21 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
 //     Trk::IVertexFitter * tmp;
 //     sc = toolSvc->retrieveTool("Trk::TrkVKalVrtFitter",tmp,this);
 //     if (sc.isFailure()) { 
-//        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << " No Trk::TrkVKalVrtFitter for InDetVKalPriVxFinderTool !" << endreq;
+//        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << " No Trk::TrkVKalVrtFitter for InDetVKalPriVxFinderTool !" << endmsg;
 //     }else{
 //        m_fitSvc = dynamic_cast<Trk::TrkVKalVrtFitter*>(tmp);
-//        if(!m_fitSvc && msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" No Trk::TrkVKalVrtFitter" << endreq;
+//        if(!m_fitSvc && msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" No Trk::TrkVKalVrtFitter" << endmsg;
 //     }
     if (m_fitSvc.retrieve().isFailure()) {
-        if(msgLvl(MSG::ERROR))msg(MSG::ERROR) << "No Trk::TrkVKalVrtFitter for InDetVKalPriVxFinderTool !" << endreq;
+        if(msgLvl(MSG::ERROR))msg(MSG::ERROR) << "No Trk::TrkVKalVrtFitter for InDetVKalPriVxFinderTool !" << endmsg;
     }else{
-        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Trk::TrkVKalVrtFitter found" << endreq;
+        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Trk::TrkVKalVrtFitter found" << endmsg;
     }
 //
 //TrackSummaryTool
 //
     if (m_sumSvc.retrieve().isFailure()) {
-        if(msgLvl(MSG::ERROR))msg(MSG::ERROR) << "Could not find TrackSummaryTool" << endreq;
+        if(msgLvl(MSG::ERROR))msg(MSG::ERROR) << "Could not find TrackSummaryTool" << endmsg;
     } else { m_SummaryToolExist = 1;}
 //
 //  Data for beam spot constraint
@@ -173,7 +173,7 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
     if(m_BeamConstraint){
       //StatusCode sc = service("BeamCondSvc", m_iBeamCondSvc);
       if (m_iBeamCondSvc.retrieve().isFailure() ) 
-      {	if(msgLvl(MSG::INFO))msg(MSG::INFO) << "Could not find BeamCondSvc." << endreq;
+      {	if(msgLvl(MSG::INFO))msg(MSG::INFO) << "Could not find BeamCondSvc." << endmsg;
         m_BeamCondSvcExist=0;
       }else{
         m_BeamCondSvcExist=1;
@@ -184,14 +184,14 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
 //
     if (m_trkSelector.name() == "DefaultTrackSelection" ){
        m_trkSelectorExist=0;
-       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Use internal track selection - see  default/jobO cuts" << endreq;
+       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Use internal track selection - see  default/jobO cuts" << endmsg;
     }else{
        if (m_trkSelector.retrieve().isFailure()) {
-          if(msgLvl(MSG::ERROR)){ msg(MSG::ERROR) << "Could not find TrackSelectorTool" << endreq;
-                                  msg(MSG::ERROR) << "Use internal track selection - see  default/jobO cuts" << endreq;}
+          if(msgLvl(MSG::ERROR)){ msg(MSG::ERROR) << "Could not find TrackSelectorTool" << endmsg;
+                                  msg(MSG::ERROR) << "Use internal track selection - see  default/jobO cuts" << endmsg;}
           m_trkSelectorExist=0;
        }else{ 
-          if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Finder uses TrackSelectorTool" << endreq;
+          if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Finder uses TrackSelectorTool" << endmsg;
           m_trkSelectorExist=1; 
        }
     }
@@ -206,7 +206,7 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
 
   StatusCode InDetVKalPriVxFinderTool::finalize()
   {
-    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) <<"InDetVKalPriVxFinderTool finalize()" << endreq;
+    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) <<"InDetVKalPriVxFinderTool finalize()" << endmsg;
     return StatusCode::SUCCESS; 
   }
   
@@ -216,8 +216,8 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
    std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetVKalPriVxFinderTool::findVertex(const xAOD::TrackParticleContainer* trackTES) 
    {  
         if(msgLvl(MSG::DEBUG)){
-        msg(MSG::DEBUG) << "N="<<trackTES->size()<<" xAOD::TrackParticles found" << endreq;
-        msg(MSG::DEBUG) << "No InDetVKalPriVxFinderTool implementation for xAOD::TrackParticle" << endreq;
+        msg(MSG::DEBUG) << "N="<<trackTES->size()<<" xAOD::TrackParticles found" << endmsg;
+        msg(MSG::DEBUG) << "No InDetVKalPriVxFinderTool implementation for xAOD::TrackParticle" << endmsg;
      }
      return std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> (0,0);
    }
@@ -229,7 +229,7 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
   {
     //.............................................
     
-    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Primary vertex with InDetVKalPriVxFinderTool starts" << endreq;
+    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Primary vertex with InDetVKalPriVxFinderTool starts" << endmsg;
 //
 //
     savedTrkFittedPerigees.clear();
@@ -271,8 +271,8 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
          m_BeamCnstWid[0]=m_iBeamCondSvc->beamSigma(0);
          m_BeamCnstWid[1]=m_iBeamCondSvc->beamSigma(1);
          if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "BeamSpot from SVC="<<m_BeamCnst[0]<<", "<<m_BeamCnst[1]<<
-	               ", "<<m_BeamCnst[2]<<" wid="<<m_BeamCnstWid[0]<<", "<<m_BeamCnstWid[1]<<endreq;
-         if(msgLvl(MSG::DEBUG) && m_BeamCnst[2]!=0.)msg(MSG::DEBUG) << "BeamSpot Z must be 0 in finder!!! Make Z=0."<<endreq;
+	               ", "<<m_BeamCnst[2]<<" wid="<<m_BeamCnstWid[0]<<", "<<m_BeamCnstWid[1]<<endmsg;
+         if(msgLvl(MSG::DEBUG) && m_BeamCnst[2]!=0.)msg(MSG::DEBUG) << "BeamSpot Z must be 0 in finder!!! Make Z=0."<<endmsg;
          m_BeamCnst[2]=0.;
       }
     }else{
@@ -280,17 +280,17 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
        m_BeamCnst[0]=approx_beam.x();
        m_BeamCnst[1]=approx_beam.y();
        m_BeamCnst[2]=0.;
-       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Approx. BeamSpot="<<m_BeamCnst[0]<<", "<<m_BeamCnst[1]<<endreq;
+       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Approx. BeamSpot="<<m_BeamCnst[0]<<", "<<m_BeamCnst[1]<<endmsg;
     }
     Trk::Vertex selectionVertex(m_BeamCnst);
 
-       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Trk::Track number=" <<newTrkCol->size()<< endreq;
+       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Trk::Track number=" <<newTrkCol->size()<< endmsg;
        DataVector<Trk::Track>::const_iterator    i_ntrk;
        for (i_ntrk = newTrkCol->begin(); i_ntrk < newTrkCol->end(); ++i_ntrk) {
           TrkQual   = (*i_ntrk)->fitQuality();
           m_mPer=GetPerigee( (*i_ntrk) ) ;
  	  if( m_mPer == NULL ){
-            if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) <<" Error!!! No Perigee in TrackParameters"<< endreq;
+            if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) <<" Error!!! No Perigee in TrackParameters"<< endmsg;
 	    continue;
 	  } 
 	  VectPerig = m_mPer->parameters(); 
@@ -325,7 +325,7 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
           }
 	  SelectedTrkTracks.push_back(*i_ntrk);
        }
-       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << " Found="<<SelectedTrkTracks.size()<<" tracks" <<endreq;
+       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << " Found="<<SelectedTrkTracks.size()<<" tracks" <<endmsg;
        if(SelectedTrkTracks.size()<2){
 	 SelectedTrkTracks.clear();
          for (i_ntrk = newTrkCol->begin(); i_ntrk < newTrkCol->end(); ++i_ntrk) {
@@ -361,7 +361,7 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
 //	   }
 	   SelectedTrkTracks.push_back(*i_ntrk);
          }
-         if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << " Found relaxed="<<SelectedTrkTracks.size()<<" tracks" <<endreq;
+         if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << " Found relaxed="<<SelectedTrkTracks.size()<<" tracks" <<endmsg;
        }
                       /* And now primary vertex search itself*/
 //
@@ -383,10 +383,10 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
 //--------------------------------------------------------------------
 
     if( NFoundVrt == 0){
-       if(msgLvl(MSG::ERROR))msg(MSG::ERROR) << "Primary vertex not found" <<endreq;
+       if(msgLvl(MSG::ERROR))msg(MSG::ERROR) << "Primary vertex not found" <<endmsg;
     }else{ 
        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"VKalVrtCpp Primary  Vertex=" << PrimVrtList[0].x()<<", "<<
-             PrimVrtList[0].y()<<", "<<PrimVrtList[0].z()<< endreq;
+             PrimVrtList[0].y()<<", "<<PrimVrtList[0].z()<< endmsg;
     }
 //------------------------------------------------------------------------------- 
 //
@@ -411,7 +411,7 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
   {
     //.............................................
     
-    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Primary vertex with InDetVKalPriVxFinderTool starts" << endreq;
+    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Primary vertex with InDetVKalPriVxFinderTool starts" << endmsg;
 //
 //
     savedTrkFittedPerigees.clear();
@@ -448,18 +448,18 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
          m_BeamCnstWid[0]=m_iBeamCondSvc->beamSigma(0);
          m_BeamCnstWid[1]=m_iBeamCondSvc->beamSigma(1);
          if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "BeamSpot from SVC="<<m_BeamCnst[0]<<", "<<m_BeamCnst[1]<<
-	               ", "<<m_BeamCnst[2]<<" wid="<<m_BeamCnstWid[0]<<", "<<m_BeamCnstWid[1]<<endreq;
+	               ", "<<m_BeamCnst[2]<<" wid="<<m_BeamCnstWid[0]<<", "<<m_BeamCnstWid[1]<<endmsg;
       }
     }else{
        Amg::Vector3D approx_beam=findIniXY(newPrtCol);
        m_BeamCnst[0]=approx_beam.x();
        m_BeamCnst[1]=approx_beam.y();
        m_BeamCnst[2]=0.;
-       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Approx. BeamSpot="<<m_BeamCnst[0]<<", "<<m_BeamCnst[1]<<endreq;
+       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Approx. BeamSpot="<<m_BeamCnst[0]<<", "<<m_BeamCnst[1]<<endmsg;
     }
     Trk::Vertex selectionVertex(m_BeamCnst);
 
-          if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Trk::TrackParticleBase number=" <<newPrtCol->size()<< endreq;
+          if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Trk::TrackParticleBase number=" <<newPrtCol->size()<< endmsg;
           Trk::TrackParticleBaseCollection::const_iterator i_nprt  = newPrtCol->begin();
           for (i_nprt = newPrtCol->begin(); i_nprt < newPrtCol->end(); ++i_nprt) {
               m_mPer=GetPerigee( (*i_nprt) ); if( m_mPer == NULL ){ continue; } 
@@ -467,7 +467,7 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
               TrkQual   = (*i_nprt)->fitQuality();
               double CovTrkMtx11 = (*(m_mPer->covariance()))(0,0);
               double CovTrkMtx22 = (*(m_mPer->covariance()))(2,2);
-//if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << " Error track matrix="<<CovTrkMtx11<<", "<<CovTrkMtx22<<endreq;
+//if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << " Error track matrix="<<CovTrkMtx11<<", "<<CovTrkMtx22<<endmsg;
 	      if ( CovTrkMtx11 > m_A0TrkErrorCut*m_A0TrkErrorCut )  continue;
 	      if ( CovTrkMtx22 > m_ZTrkErrorCut*m_ZTrkErrorCut )    continue;
               if( m_trkSelectorExist ) {
@@ -484,7 +484,7 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
                  //double ImpactSignif = m_fitSvc->VKalGetImpact((*i_nprt), m_BeamCnst, 1, Impact, ImpactError); //VK ImpactSignif not needed
                  m_fitSvc->VKalGetImpact((*i_nprt), m_BeamCnst, 1, Impact, ImpactError);
 	         double ImpactA0=VectPerig[0]; //double ImpactZ=VectPerig[1];   // Temporary
-//if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << " Track impact="<<ImpactA0<<", "<<ImpactZ<<", "<<ImpactSignif<<endreq;
+//if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << " Track impact="<<ImpactA0<<", "<<ImpactZ<<", "<<ImpactSignif<<endmsg;
 	         ImpactA0=Impact[0];           //ImpactZ=Impact[1];   
 
                  StatusCode sc = CutTrk( VectPerig[4] , VectPerig[3] , ImpactA0 ,
@@ -495,7 +495,7 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
 	      SelectedTrackParticles.push_back(*i_nprt);
 	  }
 
-  if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << " Found="<<SelectedTrackParticles.size()<<" particles" <<endreq;
+  if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << " Found="<<SelectedTrackParticles.size()<<" particles" <<endmsg;
                       /* And now primary vertex search itself*/
           if(SelectedTrackParticles.size()<2){
 	    SelectedTrackParticles.clear();
@@ -526,7 +526,7 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
 //	      }
 	      SelectedTrackParticles.push_back(*i_nprt);
 	    }
- if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< " Found relaxed="<<SelectedTrackParticles.size()<<" particles" <<endreq;
+ if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< " Found relaxed="<<SelectedTrackParticles.size()<<" particles" <<endmsg;
                       /* And now primary vertex search itself*/
 	  }
 //--- Cleaning
@@ -546,10 +546,10 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
 //--------------------------------------------------------------------
 
     if( NFoundVrt == 0){
-      if(msgLvl(MSG::ERROR))msg(MSG::ERROR) << "Primary vertex not found" <<endreq;
+      if(msgLvl(MSG::ERROR))msg(MSG::ERROR) << "Primary vertex not found" <<endmsg;
     }else{ 
       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Found Primary  Vertex=" << PrimVrtList[0].x()<<", "<<
-             PrimVrtList[0].y()<<", "<<PrimVrtList[0].z()<< endreq;
+             PrimVrtList[0].y()<<", "<<PrimVrtList[0].z()<< endmsg;
     }
 //------------------------------------------------------------------------------- 
 //

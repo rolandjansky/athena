@@ -163,17 +163,17 @@ class L2EFChain_Beamspot(L2EFChainDef):
 
      elif ('FTKRefit' in self.l2IDAlg):
         if 'trkFS' in self.chainPart['addInfo'] :
-           from TrigT2BeamSpot.T2VertexBeamSpotConfig import T2VertexBeamSpot_FTK
-           theFex = T2VertexBeamSpot_FTK()
+           from TrigT2BeamSpot.T2VertexBeamSpotConfig import T2VertexBeamSpot_FTKRefit
+           theFex = T2VertexBeamSpot_FTKRefit()
         elif 'activeTE' in self.chainPart['addInfo']:
-           from TrigT2BeamSpot.T2VertexBeamSpotConfig import T2VertexBeamSpot_activeTE_FTK
-           theFex = T2VertexBeamSpot_activeTE_FTK()
+           from TrigT2BeamSpot.T2VertexBeamSpotConfig import T2VertexBeamSpot_activeTE_FTKRefit
+           theFex = T2VertexBeamSpot_activeTE_FTKRefit()
         elif 'allTE' in self.chainPart['addInfo']:
-           from TrigT2BeamSpot.T2VertexBeamSpotConfig import T2VertexBeamSpot_activeAllTE_FTK
-           theFex = T2VertexBeamSpot_activeAllTE_FTK()
+           from TrigT2BeamSpot.T2VertexBeamSpotConfig import T2VertexBeamSpot_activeAllTE_FTKRefit
+           theFex = T2VertexBeamSpot_activeAllTE_FTKRefit()
         elif 'idperf' in self.chainPart['addInfo']:
-           from TrigT2BeamSpot.T2VertexBeamSpotConfig import T2VertexBeamSpot_activeAllTE_FTK
-           theFex = T2VertexBeamSpot_activeAllTE_FTK()
+           from TrigT2BeamSpot.T2VertexBeamSpotConfig import T2VertexBeamSpot_activeAllTE_FTKRefit
+           theFex = T2VertexBeamSpot_activeAllTE_FTKRefit()
            from TrigFTK_Monitoring.FtkHltEfficiencyConfig import FtkHltEfficiencyFex
            moni_alg = FtkHltEfficiencyFex()
         else:

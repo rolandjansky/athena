@@ -39,7 +39,7 @@ atlas_add_component( TrigT1CaloTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} AthenaBaseComps DataModel xAODTrigL1Calo GaudiKernel TrigT1CaloEventLib TrigT1CaloToolInterfaces TrigT1CaloUtilsLib TrigT1Interfaces CaloIdentifier CaloTriggerToolLib CxxUtils EventInfo PathResolver TrigConfL1Data TrigT1CaloCalibConditions TrigT1CaloCalibToolInterfaces )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} AthenaBaseComps DataModel xAODTrigL1Calo GaudiKernel TrigT1CaloEventLib TrigT1CaloToolInterfaces TrigT1CaloUtilsLib TrigT1Interfaces CaloIdentifier CaloTriggerToolLib CxxUtils EventInfo PathResolver TrigConfL1Data TrigT1CaloCalibConditions TrigT1CaloCalibToolInterfaces TrigT1CaloCondSvcLib )
 
 # Install files from the package:
 atlas_install_headers( TrigT1CaloTools )

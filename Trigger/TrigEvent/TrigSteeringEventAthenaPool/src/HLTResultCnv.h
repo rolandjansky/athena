@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: HLT
  * @Package: TrigEventAthenaPool
- * @Class  : HLTResultCnv
+ * @class  : HLTResultCnv
  *
  * @brief  The top-level converter for TrigEventAthenaPool/HLTResult_pX. It calls the
  *         converters for specific persistent data formats (for now only HLTResult_p1).

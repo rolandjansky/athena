@@ -91,13 +91,13 @@ public:
     for ( size_t i = 0 ; i < ntrk; ++i ) {
       cont.push_back(generateTrack());
     }
-    log << MSG::DEBUG << "prepareed collection of size " << cont.size() << endreq;
+    log << MSG::DEBUG << "prepareed collection of size " << cont.size() << endmsg;
     std::vector<uint32_t> payload;
     {
       StatusCode sc = encode(&cont, payload, log);
       CPPUNIT_ASSERT( sc.isSuccess() );
     }
-    log << MSG::DEBUG << "Serialized payload to size " << payload.size() << endreq;
+    log << MSG::DEBUG << "Serialized payload to size " << payload.size() << endmsg;
     // copy payload to plain array
     uint32_t * raw = new uint32_t[payload.size()];
     std::copy(payload.begin(), payload.end(), raw);

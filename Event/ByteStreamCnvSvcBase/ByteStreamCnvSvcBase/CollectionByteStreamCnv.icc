@@ -40,7 +40,7 @@ CollectionByteStreamCnv<TOOL>::initialize()
     return sc; 
    } 
 
-   MsgStream log(messageService(), "CollectionByteStreamCnv");
+   MsgStream log(msgSvc(), "CollectionByteStreamCnv");
 
    log << MSG::DEBUG<< " initialize " <<endmsg; 
 
@@ -78,7 +78,7 @@ CollectionByteStreamCnv<TOOL>::initialize()
 template< typename TOOL> 
 StatusCode
 CollectionByteStreamCnv<TOOL>::createObj(IOpaqueAddress* pAddr, DataObject*& pObj) {
-  MsgStream log(messageService(), "CollectionByteStreamCnv");
+  MsgStream log(msgSvc(), "CollectionByteStreamCnv");
 	
   ByteStreamAddress *pBS_Addr;
   pBS_Addr = dynamic_cast<ByteStreamAddress*>(pAddr); 
@@ -126,7 +126,7 @@ CollectionByteStreamCnv<TOOL>::createRep(DataObject* pObj, IOpaqueAddress*& pAdd
   // Fill RawEvent object from DataObject
   // 
 
-   MsgStream log(messageService(), "CollectionByteStreamCnv");
+   MsgStream log(msgSvc(), "CollectionByteStreamCnv");
  
    std::string nm = pObj->registry()->name(); 
 

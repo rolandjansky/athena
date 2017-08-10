@@ -18,8 +18,8 @@
 
 
 #include "D3PDMakerUtils/CollectionGetterToolImpl.h"
-#include "DataModel/ElementLink.h"
-#include "DataModel/DataLink.h"
+#include "AthLinks/ElementLink.h"
+#include "AthLinks/DataLink.h"
 
 
 namespace D3PD {

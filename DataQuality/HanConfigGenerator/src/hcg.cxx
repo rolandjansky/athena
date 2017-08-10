@@ -77,6 +77,7 @@ bool allhists = true;
 
 std::string base     = "HLT";
 
+std::string outref = "";
 
 std::string algorithm = "HLT_Histogram_Not_Empty&GatherData";
 
@@ -103,7 +104,7 @@ std::vector<std::string> tags;
 template<typename T>
 std::ostream& operator<<( std::ostream& s, const std::vector<T>& v ) {
   if ( v.empty() ) return s;
-  for ( int i=0 ; i<v.size() ; i++ ) s << v[i] << "\n";
+  for ( size_t i=0 ; i<v.size() ; i++ ) s << v[i] << "\n";
   return s;
 }
 
@@ -442,7 +443,9 @@ public:
     
     /// oh dear, find the run number from the specified file 
 
-    TFile* r = new TFile(f.c_str());
+    std::cerr << "opening file " << f << std::endl; 
+
+    TFile* r = TFile::Open(f.c_str());
     if ( r==0 ) { 
       std::cerr << "cannot open root file " << f << std::endl;
       std::exit(-1);
@@ -858,7 +861,6 @@ void search( TDirectory* td, const std::string& s, std::string cwd, node* n ) {
 	  //	  node* h = addnode( np, "", get<TObject>(tobj), node::HISTOGRAM );
 	  // node* h = 
 	  addnode( np, tobj->GetName(), get<TObject>(tobj), node::HISTOGRAM );
-
 	  
 
 	  /// get the full path to this object path relative to the file	  
@@ -872,7 +874,10 @@ void search( TDirectory* td, const std::string& s, std::string cwd, node* n ) {
 	  if ( std::string(tobj->GetName())=="Chain" ) { 
 	    double N = ((TH1*)get<TObject>(tobj))->GetEntries();
 
-	    //	    std::cerr << "addrate " << np->name() << " " << np->parent()->name() << " " << N << std::endl;
+	    //	    std::cout << "entries " << np->name() << " " << " " << np->parent()->name() << " " << N << std::endl;
+	    //    std::cout << "\tentries " << np->parent()->name() << "/" << np->name() << "\t" << N << std::endl;
+	    std::cout << "\t" << subdir << "\t" << N << std::endl;
+
 	    node* p  = np->parent();
 	    if ( p && p->name()!="Shifter" ) { 
 
@@ -928,13 +933,13 @@ int cost( std::vector<std::string>& files, node& n, const std::string& directory
 
     std::cerr << "opening " << currentfile << std::endl;
 
-    if ( !file_exists( files[i] ) ){ 
+    if ( !contains( files[i], "root://eosatlas") && !file_exists( files[i] ) ){ 
       std::cerr << "file " << files[i] << " does not exist" << std::endl;
       return -1;	
     }
     
     /// open the output file
-    fptr[i] = new TFile( files[i].c_str() );
+    fptr[i] = TFile::Open( files[i].c_str() );
     
     if ( fptr[i]==0 || fptr[i]->IsZombie() ) { 
       std::cerr << "file " << files[i] << " cannot be opened" << std::endl;
@@ -970,7 +975,8 @@ int cost( std::vector<std::string>& files, node& n, const std::string& directory
       
       if ( relocate && !deleteref ) std::cerr << "saving histograms to file .newhist.root ... " << std::endl;
 
-      TFile* fnew = new TFile( ".newhist.root", "recreate" );
+      if ( outref=="" ) outref = ".newhist.root";
+      TFile* fnew = new TFile( outref.c_str(), "recreate" );
       fnew->cd();
 
       TDirectory*  base = gDirectory;
@@ -1007,12 +1013,14 @@ int cost( std::vector<std::string>& files, node& n, const std::string& directory
     delete fptr[i];
 
     if ( deleteref ) { 
-      std::cerr << "replacing histogram file" << std::endl;
-      std::string cmd = std::string("mv ") + files[i] + " " + files[i] + ".bak";
-      std::system( cmd.c_str() );
-      cmd = std::string("mv .newhist.root ") + files[i];
-      std::system( cmd.c_str() );
-    }  
+      if ( outref==".newhist.root" ) { 
+	std::cerr << "replacing histogram file" << std::endl;
+	std::string cmd = std::string("mv ") + files[i] + " " + files[i] + ".bak";
+	std::system( cmd.c_str() );
+	cmd = std::string("mv .newhist.root ") + files[i];
+	std::system( cmd.c_str() );
+      }
+    }
     
   }
 
@@ -1032,11 +1040,13 @@ int usage(std::ostream& s, int , char** argv, int status=-1) {
   s << "    -r             SRC DST   \tremap directory SRC to directory DST\n"; 
   s << "    -ds,  --desc   DESCRIP   \tuse DESCRIP as the description\n"; 
   s << "    -t,   --tag    VALUE     \tadd the VALUE to the list of command per histogram\n";
-  s << "    -a,   --algorithm VALUE \tuse VALUE as the execution algorithm for each histogram\n";
+  s << "    -a,   --algorithm VALUE  \tuse VALUE as the execution algorithm for each histogram\n";
   s << "    -wc,  --wildcard         \tprint use hist * rather than a separate entry for each histogram\n";
   s << "    -dr,  --deleteref        \tdelete unselected histograms\n";
+  s << "    -or,  --outref FILENAME  \tdelete file to write reduced output to (overwrites input otherwise) \n";
   s << "    -rh,  --relocate         \trelocate selected histograms\n";
   s << "    -ref, --reference TAG FILE \tadd FILE as a reference file with tag TAG\n";
+  s << "    -rc,  --refconf       FILE \tadd FILE to the config as a reference block\n";
   s << "    -v,   --verbose          \tprint verbose output\n";
   s << "    -h,   --help             \tdisplay this help\n";
   s << std::endl;
@@ -1044,6 +1054,12 @@ int usage(std::ostream& s, int , char** argv, int status=-1) {
 }
 
 
+std::vector<std::string> refblock;
+
+void referenceblock( const std::string& file ) { 
+  std::ifstream strm(file.c_str());
+  for ( std::string line ; getline( strm, line ); ) refblock.push_back( line );
+} 
 
 
 int main(int argc, char** argv) { 
@@ -1093,11 +1109,17 @@ int main(int argc, char** argv) {
 
   int offset = 1;
 
+
   for ( int i=1 ; i<argc ; i++ ) { 
     if      ( std::string(argv[i])=="-v" || std::string(argv[i])=="--verbose" ) verbose = true;
     else if ( std::string(argv[i])=="-o" ) {
       ++i;
       if ( i<argc-offset ) outfile = argv[i];
+      else  return usage( std::cerr, argc, argv );
+    } 
+    else if ( std::string(argv[i])=="-or" || std::string(argv[i])=="--outrefr" ) {
+      ++i;
+      if ( i<argc-offset ) outref = argv[i];
       else  return usage( std::cerr, argc, argv );
     } 
     else if ( std::string(argv[i])=="-ref" || std::string(argv[i])=="--reference" ) {
@@ -1111,6 +1133,11 @@ int main(int argc, char** argv) {
       else  return usage( std::cerr, argc, argv );
       references.push_back( reference( reftag, reffile ) ); 
       //      std::cerr << references.back() << std::endl;
+    } 
+    else if ( std::string(argv[i])=="-rc" || std::string(argv[i])=="-refconf" ) {
+      ++i;
+      if ( i<argc-offset ) referenceblock( argv[i] );
+      else  return usage( std::cerr, argc, argv );
     } 
     else if ( std::string(argv[i])=="-dr"  || std::string(argv[i])=="--deleteref" ) deleteref = true;
     else if ( std::string(argv[i])=="-rh"  || std::string(argv[i])=="--relocate" )  relocate  = true;
@@ -1215,6 +1242,8 @@ int main(int argc, char** argv) {
   header h;
 
   for ( unsigned ir=0 ; ir<references.size() ; ir++ ) (*outp) << references[ir] << std::endl; 
+
+  if ( refblock.size() ) (*outp) << refblock << std::endl;
 
   /// create the side bar menu part 
   menu m( n );

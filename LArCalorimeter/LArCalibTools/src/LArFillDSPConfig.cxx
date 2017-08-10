@@ -41,7 +41,7 @@ StatusCode LArFillDSPConfig::stop() {
 
   StatusCode sc=detStore()->retrieve(m_onlineID);
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to get LArOnlineID" << endreq;
+    msg(MSG::ERROR) << "Failed to get LArOnlineID" << endmsg;
     return sc;
   }
 
@@ -61,7 +61,7 @@ StatusCode LArFillDSPConfig::stop() {
   
   std::unique_ptr<AthenaAttributeList> pAttrList(larDSPConfig.attributeList());
   ATH_CHECK(detStore()->record(std::move(pAttrList),m_folderName));
-  msg(MSG::INFO) << "Successfully recorded AthenaAttributeList containing DSP configuration for " << nFebs << " Febs" << endreq;
+  msg(MSG::INFO) << "Successfully recorded AthenaAttributeList containing DSP configuration for " << nFebs << " Febs" << endmsg;
 
   if (m_dump) {
     //Crosscheck:

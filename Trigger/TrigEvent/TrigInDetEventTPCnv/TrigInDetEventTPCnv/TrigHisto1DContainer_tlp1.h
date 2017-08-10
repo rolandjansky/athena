@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigInDetEventTPCnv
- * @Class  : TrigHisto1DContainer_tlp1
+ * @class  : TrigHisto1DContainer_tlp1
  *
  * @brief "top-level" persistent partner for TrigHisto1DContainer
  *

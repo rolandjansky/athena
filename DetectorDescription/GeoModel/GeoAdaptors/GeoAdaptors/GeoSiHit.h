@@ -2,16 +2,16 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef _GeoSiHit_h_
-#define _GeoSiHit_h_
+#ifndef GEOADAPTORS_GEOSIHIT_h
+#define GEOADAPTORS_GEOSIHIT_h
 //----------------------------------------------------------//
 //                                                          //
-// And adaptor for SiHits.                                  //
+// An adaptor for SiHits.                                   //
 //                                                          //
 // Joe Boudreau Feb 04.                                     //
 //                                                          //
 // This adaptor class allows SiHits to behave               //
-// as if they knew which detector they were in..            //
+// as if they knew which detector they were in.             //
 //                                                          //
 //                                                          //
 //----------------------------------------------------------//
@@ -35,21 +35,21 @@ class GeoSiHit {
   HepGeom::Point3D<double> getGlobalPosition() const;
 
   // Underlying hit.
-  const SiHit &data() const { return *_hit;}
+  const SiHit &data() const { return *m_hit;}
 
   // Is this hit ok?
 
-  operator bool () const { return _sct || _pix; }
+  operator bool () const { return s_sct || s_pix; }
 
  private:
   
   static void init();
 
-  const SiHit                                     *_hit;
-  static const InDetDD::SCT_DetectorManager       *_sct;
-  static const InDetDD::PixelDetectorManager      *_pix;
-  static const PixelID                            *_pID;
-  static const SCT_ID                             *_sID;
+  const SiHit                                     *m_hit;
+  static const InDetDD::SCT_DetectorManager       *s_sct;
+  static const InDetDD::PixelDetectorManager      *s_pix;
+  static const PixelID                            *s_pID;
+  static const SCT_ID                             *s_sID;
 };
 
 #include "GeoAdaptors/GeoSiHit.icc"

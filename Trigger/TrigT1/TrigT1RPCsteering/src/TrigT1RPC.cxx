@@ -14,9 +14,6 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/StatusCode.h"
 
-#include "GaudiKernel/PropertyMgr.h"
-#include "GaudiKernel/IToolSvc.h"
-
 #include "MuonIdHelpers/RpcIdHelper.h"
 
 
@@ -298,8 +295,8 @@ StatusCode TrigT1RPC::execute() {
 StatusCode TrigT1RPC::finalize() {
  
     
-    ATH_MSG_DEBUG ( "in finalize()" << endreq
-                    << "processed digits = " << digit_num << endreq
+    ATH_MSG_DEBUG ( "in finalize()" << endmsg
+                    << "processed digits = " << digit_num << endmsg
                     << "digits out of the time window = " 
                     << digit_out );
     

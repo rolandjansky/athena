@@ -29,8 +29,8 @@ UPDATED:
 #include "FourMom/Lib/P4ImplEEtaPhiM.h"
 #include "EventKernel/INavigable4Momentum.h"
 
-#include "DataModel/ElementLink.h"
-#include "DataModel/ElementLinkVector.h"
+#include "AthLinks/ElementLink.h"
+#include "AthLinks/ElementLinkVector.h"
 
 #include "ParticleEvent/ParticleImpl.h"
 
@@ -201,7 +201,7 @@ class egamma
   void setCluster(const CaloClusterContainer*, int);
   /** @brief Set cluster */
   void setCluster(const CaloClusterContainer*, const CaloCluster*);
-  /** @briefSet Cluster Element Link */ 
+  /** @brief Set Cluster Element Link */ 
   void setClusterElementLink(const ElementLink<CaloClusterContainer>& link);
   /** @brief Reset Cluster */
   void resetCluster();
@@ -210,7 +210,7 @@ class egamma
   void setRings(const CaloRingsContainer*, int);
   /** @brief Set rings object */
   void setRings(const CaloRingsContainer*, const CaloRings*);
-  /** @briefSet Rings Element Link */
+  /** @brief Set Rings Element Link */
   void setRingsElementLink(const ElementLink<CaloRingsContainer>& link);
   /** @brief Reset Cluster */
   void resetRings();

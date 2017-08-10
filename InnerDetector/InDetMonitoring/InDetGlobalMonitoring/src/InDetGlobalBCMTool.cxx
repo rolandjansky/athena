@@ -605,7 +605,7 @@ StatusCode InDetGlobalBCMTool::fillHistograms(){
   if ( evtStore()->retrieve(evtInfo).isFailure() ){
     m_current_LB = 0;
     if ( msgLvl(MSG::WARNING) ){
-      msg(MSG::WARNING) << "Could not retrieve the event information container" << endreq;
+      msg(MSG::WARNING) << "Could not retrieve the event information container" << endmsg;
     }
   } else {
       m_current_LB = evtInfo->event_ID()->lumi_block();
@@ -631,7 +631,7 @@ StatusCode InDetGlobalBCMTool::fillHistograms(){
 	
 	if (vxContainer->size() == 1) {
 	    if ( msgLvl(MSG::DEBUG ) ) {
-		msg(MSG::DEBUG) <<  "vxContainer size = 1 ->contains only dummy vertex" << endreq; 
+		msg(MSG::DEBUG) <<  "vxContainer size = 1 ->contains only dummy vertex" << endmsg; 
 	    }
 	}
 	else{
@@ -757,7 +757,7 @@ StatusCode InDetGlobalBCMTool::fillHistograms(){
 	    const EventInfo * evtInfo;
 	    if ( evtStore()->retrieve(evtInfo).isFailure() ){
 	      if ( msgLvl(MSG::WARNING) ){
-		msg(MSG::WARNING) << "Could not retrieve the event information container" << endreq;
+		msg(MSG::WARNING) << "Could not retrieve the event information container" << endmsg;
 	      }
 	    } else {
 		ecr = (evtInfo->trigger_info()->extendedLevel1ID() &  0xff000000) >> 24;   // Returns the extendedLevel1ID of the trigger information object

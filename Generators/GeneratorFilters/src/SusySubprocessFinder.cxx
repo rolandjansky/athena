@@ -20,21 +20,21 @@ SusySubprocessFinder::SusySubprocessFinder(const std::string& name, ISvcLocator*
   declareProperty("VerboseNPart", m_verbose_nPart = 99999);
 
     // initialize all members in ctor
-  for (int i=0; i < nSubprocMax; ++i) nSubproc[i] = 0;
+  for (int i=0; i < nSubprocMax; ++i) m_nSubproc[i] = 0;
 }
 
 
 StatusCode SusySubprocessFinder::filterInitialize() {
   if (m_beforeFilter) {
-    beforeORafter = "BeforeFilter ";
+    m_beforeORafter = "BeforeFilter ";
   } else {
-    beforeORafter = "AfterFilter  ";
+    m_beforeORafter = "AfterFilter  ";
   }
 
-  ATH_MSG_INFO("SusySubprocessFinder::filterInitialize " << beforeORafter );
+  ATH_MSG_INFO("SusySubprocessFinder::filterInitialize " << m_beforeORafter );
 
   for (int i = 0; i < nSubprocMax; ++i) {
-    nSubproc[i] = 0;
+    m_nSubproc[i] = 0;
   }
 
   return StatusCode::SUCCESS;
@@ -42,7 +42,7 @@ StatusCode SusySubprocessFinder::filterInitialize() {
 
 
 StatusCode SusySubprocessFinder::filterFinalize() {
-  ATH_MSG_INFO("SusySubprocessFinder::filterFinalize " << beforeORafter);
+  ATH_MSG_INFO("SusySubprocessFinder::filterFinalize " << m_beforeORafter);
 
   printf("SusySubprocessFinder  Before/After   Process :  nEvents \n");
 
@@ -63,14 +63,14 @@ StatusCode SusySubprocessFinder::filterFinalize() {
                       || (iSub >= 216 && iSub <= 220)
                       || (iSub == nSubprocMax-1) );
 
-    if ( !(isaCateg) && nSubproc[iSub] > 0) {
+    if ( !(isaCateg) && m_nSubproc[iSub] > 0) {
       printf("SusySubprocessFinder::WARNING  is not a categ, but has entries: subproc = %i\n", iSub);
     }
 
     if (!isaCateg) continue;
 
-    printf("SusySubprocessFinder  %s   %7i  %-16s  %7i \n", beforeORafter.data(),
-           iSub, subProcessText(iSub).data(), nSubproc[iSub]);
+    printf("SusySubprocessFinder  %s   %7i  %-16s  %7i \n", m_beforeORafter.data(),
+           iSub, subProcessText(iSub).data(), m_nSubproc[iSub]);
   }
 
   return StatusCode::SUCCESS;
@@ -92,14 +92,14 @@ StatusCode SusySubprocessFinder::filterEvent() {
 
   if (subproc == -1) subproc = nSubprocMax-1;  //use last entry in array for unknown subprocesses
 
-  nSubproc[subproc]++;
-  nSubproc[0]++;  // this contains the sum of all subprocesses (for quick checking)
+  m_nSubproc[subproc]++;
+  m_nSubproc[0]++;  // this contains the sum of all subprocesses (for quick checking)
 
   if (m_verbose) verboseMC(); // by default off ; is only for debugging (allows printing gen table)
 
   char cdum[200];
   sprintf(cdum, "SusySubprocessFinder  %s  %4i  %-16s  %8i  %8i",
-          beforeORafter.data(), subproc, subProcessText(subproc).data(), ID[0], ID[1]);
+          m_beforeORafter.data(), subproc, subProcessText(subproc).data(), ID[0], ID[1]);
   ATH_MSG_INFO(cdum);
   setFilterPassed(true);
   return StatusCode::SUCCESS;

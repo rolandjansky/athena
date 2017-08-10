@@ -22,8 +22,7 @@
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/VertexContainer.h"
 
-
-
+using namespace std;
 
 /////////////////////////////////////////////////////////////////// 
 // Public methods: 
@@ -43,6 +42,7 @@ TrackVertexAssoTestAlg::TrackVertexAssoTestAlg( const std::string& name,
   declareProperty( "VertexContainer", m_vertexContname );
   declareProperty( "TightTrackVertexAssoTool", m_tighttrackvertexassoTool);
   declareProperty( "LooseTrackVertexAssoTool", m_loosetrackvertexassoTool);
+  declareProperty( "ElectronTrackVertexAssoTool", m_electrontrackvertexassoTool);
 
 }
 
@@ -60,6 +60,7 @@ StatusCode TrackVertexAssoTestAlg::initialize()
   //retrieve tool from ToolHandle
   CHECK(m_loosetrackvertexassoTool.retrieve());
   CHECK(m_tighttrackvertexassoTool.retrieve());
+  CHECK(m_electrontrackvertexassoTool.retrieve());
 
 
   return StatusCode::SUCCESS;
@@ -97,7 +98,16 @@ StatusCode TrackVertexAssoTestAlg::execute()
   // do Match, match to all compitable vertices
   xAOD::TrackVertexAssociationMap trkvxassoMap_tight = m_tighttrackvertexassoTool->getMatchMap(*trkCont, *vxCont);
   xAOD::TrackVertexAssociationMap trkvxassoMap_loose = m_loosetrackvertexassoTool->getMatchMap(*trkCont, *vxCont);
+  xAOD::TrackVertexAssociationMap trkvxassoMap_electron = m_electrontrackvertexassoTool->getMatchMap(*trkCont, *vxCont);
 
+  ATH_MSG_INFO("Number of vertices for electron track-vertex association: " << trkvxassoMap_electron.size());
+  for (const auto& assoc: trkvxassoMap_electron) {
+    const xAOD::Vertex *vx = assoc.first;
+    ATH_MSG_INFO("vertex at x, y, z " <<
+                 setprecision(4) << setfill(' ') <<
+                 setw(10) << vx->x() << ", " << setw(10) << vx->y() << ", " << setw(10) << vx->z() <<
+                 " has " << assoc.second.size() << " associated tracks");
+  }
 
   std::vector<const xAOD::Vertex* > v_vx;
   v_vx.clear();
@@ -111,6 +121,7 @@ StatusCode TrackVertexAssoTestAlg::execute()
   // do Match, only match the best matched vertex
   xAOD::TrackVertexAssociationMap trkvxassoUniqueMap_tight = m_tighttrackvertexassoTool->getUniqueMatchMap(*trkCont, *vxCont);
   xAOD::TrackVertexAssociationMap trkvxassoUniqueMap_loose = m_loosetrackvertexassoTool->getUniqueMatchMap(*trkCont, *vxCont);
+  xAOD::TrackVertexAssociationMap trkvxassoUniqueMap_electron = m_electrontrackvertexassoTool->getUniqueMatchMap(*trkCont, *vxCont);
 
 //  std::vector<xAOD::TrackParticle &> trk_list_ref;
 //  trk_list_ref.clear();

@@ -129,8 +129,8 @@ StatusCode Trk::TrackSlimmer::execute()
                       slimmedTracks->push_back(slimmed);
                     }
                   }
-                  //m_log<<MSG::INFO<<"Original Track"<<(**it)<<endreq;
-                  //m_log<<MSG::INFO<<"Slimmed Track"<<(*slimmed)<<endreq;
+                  //m_log<<MSG::INFO<<"Original Track"<<(**it)<<endmsg;
+                  //m_log<<MSG::INFO<<"Slimmed Track"<<(*slimmed)<<endmsg;
                 } else {
                 if (params!=0 && params->size()>0) numTracksFailingPtCut++;
               }

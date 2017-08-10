@@ -11,7 +11,8 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from AthenaServices.AthenaServicesConf import AthenaOutputStream
 from OutputStreamAthenaPoolConf import AthenaPoolOutputStreamTool
 
-def createOutputStream( streamName, fileName = "", asAlg = False ):
+def createOutputStream( streamName, fileName = "", asAlg = False, noTag = True ):
+   # define athena output stream
    writingTool = AthenaPoolOutputStreamTool( streamName + "Tool" )
    writingTool.DataHeaderSatellites = [ "basic/:EventInfo#*" ]
    outputStream = AthenaOutputStream(
@@ -19,11 +20,30 @@ def createOutputStream( streamName, fileName = "", asAlg = False ):
       WritingTool = writingTool,
       ItemList    = [ "EventInfo#*" ]
       )
+   #outputStream.ItemList += [ "xAOD::EventInfo#*" ]
    outputStream.MetadataStore = svcMgr.MetaDataStore
    outputStream.MetadataItemList = [ "EventStreamInfo#" + streamName, "IOVMetaDataContainer#*" ]
+
+   from AthenaCommon.AlgSequence import AlgSequence
+   topSequence = AlgSequence()
+   
+   doTag = not noTag
+   if doTag:
+      outputStream.ItemList += [ "AthenaAttributeList#SimpleTag" ]
+
+      if ('EventInfoTagBuilder/EventInfoTagBuilder' not in topSequence.getProperties()['Members']):
+         key = "SimpleTag"
+         # Tell tool to pick it up
+         outputStream.WritingTool.AttributeListKey=key
+         # build eventinfo attribute list
+         from OutputStreamAthenaPoolConf import EventInfoAttListTool
+         svcMgr.ToolSvc += EventInfoAttListTool()
+         from OutputStreamAthenaPoolConf import EventInfoTagBuilder
+         EventInfoTagBuilder   = EventInfoTagBuilder(AttributeList=key)
+         topSequence += EventInfoTagBuilder
+
+   # decide where to put outputstream in sequencing
    if asAlg:
-      from AthenaCommon.AlgSequence import AlgSequence
-      topSequence = AlgSequence()
       topSequence += outputStream
    else:
       theApp.OutStreamType = "AthenaOutputStream"
@@ -35,6 +55,7 @@ def createOutputStream( streamName, fileName = "", asAlg = False ):
       streamInfoTool = MakeEventStreamInfo( streamName + "_MakeEventStreamInfo" )
       streamInfoTool.Key = streamName
       outputStream.HelperTools = [ streamInfoTool ]
+
    return outputStream
 
 def createOutputConditionStream( streamName, fileName = "" ):

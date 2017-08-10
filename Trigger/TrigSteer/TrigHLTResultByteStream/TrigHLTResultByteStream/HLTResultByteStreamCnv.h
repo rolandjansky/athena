@@ -10,7 +10,7 @@
 /**********************************************************************************
  * @Project: HLT Steering
  * @Package: HLTResultByteStream
- * @Class  : HLTResultByteStreamCnv
+ * @class  : HLTResultByteStreamCnv
  *
  * @brief  Gaudi bytestream Converter for the HLTResult class
  *

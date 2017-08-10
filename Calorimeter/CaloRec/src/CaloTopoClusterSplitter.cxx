@@ -29,7 +29,6 @@
 #include "CaloEvent/CaloCell.h"
 #include "xAODCaloEvent/CaloClusterKineHelper.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "AthAllocators/ArenaPoolAllocator.h"
 #include "AthAllocators/ArenaHandle.h"
 #include "CxxUtils/prefetch.h"
@@ -99,39 +98,6 @@ StatusCode CaloTopoClusterSplitter::initialize()
   msg(MSG::INFO) << "Initializing " << name() << endmsg;
   msg(MSG::INFO) << "Treat L1 Predicted Bad Cells as Good set to" << ((m_treatL1PredictedCellsAsGood) ? "true" : "false") << endmsg;
 
-  const IGeoModelSvc *geoModel=0;
-  StatusCode sc = service("GeoModelSvc", geoModel);
-  if(sc.isFailure())
-  {
-    msg(MSG::ERROR) <<"Could not locate GeoModelSvc" << endmsg;
-    return sc;
-  }
-
-  // dummy parameters for the callback:
-  int dummyInt=0;
-  std::list<std::string> dummyList;
-
-  if (geoModel->geoInitialized())
-  {
-    return geoInit(dummyInt,dummyList);
-  }
-  else
-  {
-    sc = detStore()->regFcn(&IGeoModelSvc::geoInit,
-			  geoModel,
-			  &CaloTopoClusterSplitter::geoInit,this);
-    if(sc.isFailure())
-    {
-      msg(MSG::ERROR) <<"Could not register geoInit callback" << endmsg;
-      return sc;
-    }
-  }
-  return sc;
-}
-
-StatusCode
-CaloTopoClusterSplitter::geoInit(IOVSVC_CALLBACK_ARGS)
-{
   // pointer to detector manager:
   m_calo_dd_man  = CaloDetDescrManager::instance(); 
 

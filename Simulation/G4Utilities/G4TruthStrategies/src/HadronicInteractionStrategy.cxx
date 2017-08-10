@@ -27,13 +27,13 @@ HadronicInteractionStrategy::HadronicInteractionStrategy(const std::string& n)
   double prim_thr = 100*CLHEP::MeV;
   if(theTruthManager->GetTruthParameter("HadronicPrimaryMinEnergy")==0){
     log() << MSG::INFO << "HadronicPrimaryMinEnergy: "
-          << "setting default value of 100 MeV" << endreq;
+          << "setting default value of 100 MeV" << endmsg;
     theTruthManager->SetTruthParameter("HadronicPrimaryMinEnergy", prim_thr);
   }
   double seco_thr = 100*CLHEP::MeV;
   if(theTruthManager->GetTruthParameter("HadronicSecondaryMinEnergy")==0){
     log() << MSG::INFO << "HadronicSecondaryMinEnergy: "
-          << "setting default value of 100 MeV" << endreq;
+          << "setting default value of 100 MeV" << endmsg;
     theTruthManager->SetTruthParameter("HadronicSecondaryMinEnergy", seco_thr);
   }
 }

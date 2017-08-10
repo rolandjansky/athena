@@ -33,7 +33,7 @@ namespace JiveXML {
   StatusCode BeamSpotRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
 
     //be verbose
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieving " << dataTypeName() <<endreq; 
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieving " << dataTypeName() <<endmsg; 
 
     DataVect x; x.reserve( 1 );  
     DataVect y; y.reserve( 1 );  
@@ -51,7 +51,7 @@ namespace JiveXML {
 
 // add the following into the initialize routine.
   if ( m_beamSpotSvc.retrieve().isFailure() ) {
-    if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Failed to retrieve service " << m_beamSpotSvc << endreq;
+    if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Failed to retrieve service " << m_beamSpotSvc << endmsg;
     return StatusCode::RECOVERABLE;
   } else {
 
@@ -72,7 +72,7 @@ namespace JiveXML {
 // tiltX 	Tilt angle in x-z plane (rad)
 // tiltY 	Tilt angle in y-z plane (rad)
 
-    if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Retrieved service " << m_beamSpotSvc << endreq;
+    if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Retrieved service " << m_beamSpotSvc << endmsg;
 
     label.push_back( "Beamspot_position_at_PV_z_position" ); 
 	
@@ -95,21 +95,21 @@ namespace JiveXML {
 
   if (msgLvl(MSG::DEBUG)) {
     msg(MSG::DEBUG)  << "BeamSpot Position: "
-                   << m_beamSpotSvc->beamPos() << endreq;
+                   << m_beamSpotSvc->beamPos() << endmsg;
     msg(MSG::DEBUG)  << "BeamSpot Sigma "
                    << m_beamSpotSvc->beamSigma(0) << ", "
                    << m_beamSpotSvc->beamSigma(1) << ", "
                    << m_beamSpotSvc->beamSigma(2) 
-                   << endreq;
+                   << endmsg;
     msg(MSG::DEBUG)  << "BeamSpot Tilt: "
                    << m_beamSpotSvc->beamTilt(0) << ", "
                    << m_beamSpotSvc->beamTilt(1) 
-                   << endreq;
-    msg(MSG::DEBUG) << "Beamspot position at PV z-position" << endreq;
+                   << endmsg;
+    msg(MSG::DEBUG) << "Beamspot position at PV z-position" << endmsg;
   }
 
     //be verbose about the amount of data we retrieved
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved " << label.size() << "Beamspot" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved " << label.size() << "Beamspot" << endmsg;
 
     //Create a data map
     DataMap dataMap;
@@ -131,7 +131,7 @@ namespace JiveXML {
       return StatusCode::RECOVERABLE;
 
     //Clean up and exit
-    if (msgLvl(MSG::DEBUG)) msg() << dataTypeName() << " retrieved" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg() << dataTypeName() << " retrieved" << endmsg;
     
     return StatusCode::SUCCESS;
     }

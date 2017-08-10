@@ -20,51 +20,44 @@
 #include "Utility.h"
 
 namespace TrigCostRootAnalysis {
-
   /**
    * @class ROSConfService
    * Service class to read in ROS config XMLs and make the data availalbe to other classes.
    */
   class ROSConfService {
-  
-   public:
-
+  public:
     static ROSConfService& rosConfService(); //!< Use this method to get the singleton
-   
+
     const std::string& getRobinNameFromId(UInt_t _Id);
     const std::string& getRosNameFromFromRobinName(const std::string& _robinName);
-    
-   private:
-   
+  private:
     void parseRosXml();
 
     StringStringMap_t m_RobinToRosMap;
-    IntStringMap_t    m_RobToRobinMap;
-    Bool_t            m_serviceEnabled;
+    IntStringMap_t m_RobToRobinMap;
+    Bool_t m_serviceEnabled;
 
     /**
      * Private constructor.
      */
     ROSConfService();
-    
+
     /**
      * Private destructor. Empty
      */
     ~ROSConfService() {
     };
-    
+
     /**
      * Private unimplemented copy constructor.
      */
     ROSConfService(ROSConfService const&);
-    
+
     /**
      * Private unimplemented assignment constructor.
      */
-    void operator=(ROSConfService const&);
-
+    void operator = (ROSConfService const&);
   }; //class ROSConfService
-  
 } // namespace TrigCostRootAnalysis
 
 #endif //TrigCostRootAnalysis_ROSConfService_H

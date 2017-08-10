@@ -49,19 +49,19 @@ StatusCode InDet::TrackFilter::initialize()
   // Code entered here will be executed once at program start.
   
  
-  msg(MSG::INFO) << name() << " initialize()" << endreq;
+  msg(MSG::INFO) << name() << " initialize()" << endmsg;
 
   if (detStore()->retrieve(m_idHelper, "AtlasID").isFailure()) {
-    msg(MSG::FATAL) << "Could not get AtlasDetectorID helper" << endreq;
+    msg(MSG::FATAL) << "Could not get AtlasDetectorID helper" << endmsg;
     return StatusCode::FAILURE;
   }
   
   if(m_inputTrackCollectionNames.size()==0){
-    msg(MSG::ERROR) << "Configuration problem: TrackFilter configured with empty list of TrackCollections. Please fix your jobOptions!"<<endreq;
+    msg(MSG::ERROR) << "Configuration problem: TrackFilter configured with empty list of TrackCollections. Please fix your jobOptions!"<<endmsg;
     return StatusCode::FAILURE;
   }
 
-  msg(MSG::INFO) << "initialize() successful in " << name() << endreq;
+  msg(MSG::INFO) << "initialize() successful in " << name() << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -70,8 +70,8 @@ StatusCode InDet::TrackFilter::initialize()
 StatusCode InDet::TrackFilter::finalize()
 {
   // Code entered here will be executed once at the end of the program run.
-  msg(MSG::INFO) << "finalize() successful in " << name() << endreq;
-  msg(MSG::INFO) << "Events / accepted  = "<<m_evcount <<" / "<<m_accept<<endreq;
+  msg(MSG::INFO) << "finalize() successful in " << name() << endmsg;
+  msg(MSG::INFO) << "Events / accepted  = "<<m_evcount <<" / "<<m_accept<<endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -85,7 +85,7 @@ StatusCode InDet::TrackFilter::execute()
 
   m_evcount++;
 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "execute() called in " << name() << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "execute() called in " << name() << endmsg;
 
 
   std::vector<std::string>::const_iterator it=m_inputTrackCollectionNames.begin();
@@ -98,8 +98,8 @@ StatusCode InDet::TrackFilter::execute()
     
     StatusCode sc = evtStore()->retrieve(tracks, *it);
     if(sc.isFailure()){
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " could not open Track collection : " << *it << endreq;
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " will skip this collection!!"<<endreq;
+      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " could not open Track collection : " << *it << endmsg;
+      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " will skip this collection!!"<<endmsg;
     }else{
 
       //loop over trackcollection and try to find a "good" track
@@ -146,7 +146,7 @@ StatusCode InDet::TrackFilter::execute()
 
 
   setFilterPassed( passed );
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Set filter passed to " << filterPassed() << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Set filter passed to " << filterPassed() << endmsg;
 
   return StatusCode::SUCCESS;
 }

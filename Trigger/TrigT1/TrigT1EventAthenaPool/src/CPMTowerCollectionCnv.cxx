@@ -16,7 +16,7 @@ CPMTowerCollection_PERS * CPMTowerCollectionCnv::createPersistent( CPMTowerColle
   
   MsgStream mlog(msgSvc(), "CPMTowerCollectionConverter" );
 
-  //mlog << MSG::DEBUG << "CPMTowerCollectionCnv::createPersistent called" << endreq;
+  //mlog << MSG::DEBUG << "CPMTowerCollectionCnv::createPersistent called" << endmsg;
 
   CPMTowerCollection_PERS * p_TTColl = m_TPConverter_tlp1.createPersistent( transObj, mlog );
  
@@ -30,7 +30,7 @@ CPMTowerCollection * CPMTowerCollectionCnv::createTransient()
 {
   MsgStream mlog(msgSvc(), "CPMTowerCollectionConverter" );
   
-  //mlog << MSG::DEBUG << "CPMTowerCollectionCnv::createTransient called" << endreq;
+  //mlog << MSG::DEBUG << "CPMTowerCollectionCnv::createTransient called" << endmsg;
 
   static pool::Guid tlp1_guid( "AF950A9C-D929-4E3D-8B95-53D0B36B78D8" );
  

@@ -21,8 +21,8 @@ Author  : Ketevi A. Assamagan
 #include "TrkSegment/SegmentCollection.h"
 #include "muonEvent/MuonCaloEnergyContainer.h"
 #include "muonEvent/MuonParamDefs.h"
-#include "DataModel/ElementLink.h"
-#include "DataModel/ElementLinkVector.h"
+#include "AthLinks/ElementLink.h"
+#include "AthLinks/ElementLinkVector.h"
 
 #include "muonEvent/MuonQualityWord.h"
 

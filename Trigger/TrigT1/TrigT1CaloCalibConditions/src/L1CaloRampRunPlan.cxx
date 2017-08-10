@@ -84,7 +84,7 @@ void L1CaloRampRunPlan::makeTransient(const AthenaAttributeList*& athenaAttribut
 
 void L1CaloRampRunPlan::nextEvent() {
     if(m_bEndOfRampRun) {
-        //log << MSG::INFO << "No more steps to generate - End of ramp run" << endreq;
+        //log << MSG::INFO << "No more steps to generate - End of ramp run" << endmsg;
         //std::cout << "End of ramp run - No more steps to iterate" << std::endl;
         return;
     }

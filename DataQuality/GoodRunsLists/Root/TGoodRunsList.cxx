@@ -399,7 +399,7 @@ Root::TGoodRunsList::HasSameGRLInfo(const TGoodRunsList& other) const
     return kFALSE;
   } 
   /// check RQ version
-  /// <Metadata Name="RQTSVNVersion">CoolRunQuery-unknown</Metadata>
+  /// \<Metadata Name="RQTSVNVersion"\>CoolRunQuery-unknown\</Metadata\>
   std::map<TString,TString>::const_iterator mitr = this->GetMetaData().find("RQTSVNVersion");
   std::map<TString,TString>::const_iterator oitr = other.GetMetaData().find("RQTSVNVersion");
   if ( mitr==this->GetMetaData().end() && oitr==other.GetMetaData().end() ) {

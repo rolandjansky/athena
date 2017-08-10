@@ -117,11 +117,11 @@ StatusCode MDT_MapConversion::initialize()
 //   }
  
 
-  const IRDBRecordset *switchSet = accessSvc->getRecordset("HwSwIdMapping", detectorKey, detectorNode);
+  IRDBRecordset_ptr switchSet = accessSvc->getRecordsetPtr("HwSwIdMapping", detectorKey, detectorNode);
 
   if ((*switchSet).size()==0) {
     log<< MSG::WARNING <<"Old Atlas Version : "<< AtlasVersion << " Only Online Identifier. Falling back to HwSwIdMapping-00 tag"<<endmsg;
-    switchSet = accessSvc->getRecordset("HwSwIdMapping","HwSwIdMapping-00");
+    switchSet = accessSvc->getRecordsetPtr("HwSwIdMapping","HwSwIdMapping-00");
   } 
   
 
@@ -140,7 +140,8 @@ StatusCode MDT_MapConversion::initialize()
     Identifier ChamberId = m_mdtIdHelper->elementID(stName,stEta,stPhi);
     //log << MSG::INFO << "#### Chamber Name Offline" << ChamberId<< endmsg;
     
-    m_Chamber_Map.insert(std::make_pair(hardwareName,ChamberId));
+    //m_Chamber_Map.insert(std::make_pair(hardwareName,ChamberId));
+    m_Chamber_Map[hardwareName]=ChamberId;
     
   }
 	

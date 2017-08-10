@@ -33,8 +33,6 @@ namespace {
 }
 //================================================================
 StatusCode PixelRDO_ContainerCnv::initialize() {
-   IDEvtAthPool::setMsgName(this,"PixelRDO_ContainerCnv");//So msg() won't use name "AthenaPoolConverter" 
-
    StatusCode sc = PixelRDO_ContainerCnvBase::initialize();
    if (sc.isFailure()) {
      ATH_MSG_FATAL("PixelRDO_ContainerCnvBase::initialize() returned failure !");

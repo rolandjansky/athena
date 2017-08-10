@@ -19,8 +19,9 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODBase
    Event/xAOD/xAODEventInfo
    PhysicsAnalysis/AnalysisCommon/PATInterfaces
-   PhysicsAnalysis/AnalysisCommon/AsgAnalysisInterfaces
+   PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
    PRIVATE
+   Control/CxxUtils
    Event/xAOD/xAODParticleEvent
    Event/xAOD/xAODTruth
    Event/xAOD/xAODEgamma
@@ -68,7 +69,7 @@ atlas_add_test( ut_ParticleScaleFactorTool_test
    SOURCES test/ut_ParticleScaleFactorTool_test.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools AsgAnalysisInterfaces
-   PATInterfaces xAODEgamma )
+   PATInterfaces xAODEgamma CxxUtils )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

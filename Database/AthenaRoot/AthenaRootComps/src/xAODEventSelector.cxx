@@ -113,6 +113,7 @@ xAODEventSelector::xAODEventSelector( const std::string& name,
   m_dictsvc  ( "AthDictLoaderSvc", name ),
   m_incsvc   ( "IncidentSvc", name ),
   m_poolSvc  ( "PoolSvc" , name ),
+  m_ppSvc    ( "ProxyProviderSvc" , name ),
   m_nbrEvts  ( 0 ),
   m_curEvt   ( 0 ),
   m_collIdx  ( 0 ),
@@ -132,6 +133,7 @@ xAODEventSelector::xAODEventSelector( const std::string& name,
 
 //Expert Properties:
   declareProperty( "EvtStore", m_dataStore,       "Store where to publish data");
+  declareProperty( "ProxyProviderSvc" , m_ppSvc , "The ProxyProviderSvc that we should register ourself in and connect the EvtStore to");
   declareProperty( "InputMetaStore",m_imetaStore,  "Store where to publish (input) metadata");
   declareProperty( "MetaStore",m_ometaStore,       "Store where to publish (output) metadata");
   declareProperty( "TreeName",m_tupleName = "CollectionTree","Name of the TTree to load/read from input file(s)" );
@@ -258,25 +260,53 @@ StatusCode xAODEventSelector::initialize()
 
   std::vector<std::string> propVal;
   CHECK( Gaudi::Parsers::parse( propVal , epSvc->getProperty("CnvServices").toString() ) );
-  bool foundSvc(false);
+  bool foundSvc(false); bool foundPoolSvc(false);
   for(auto s : propVal) {
-    if(s=="Athena::xAODCnvSvc") { foundSvc=true; break; }
+    if(s=="Athena::xAODCnvSvc") { foundSvc=true; }
+    if(s=="AthenaPoolCnvSvc") { foundPoolSvc=true; } //only need this if in hybrid mode
   }
-  if(!foundSvc) {
-    propVal.push_back("Athena::xAODCnvSvc");
+  if(!foundSvc) propVal.push_back("Athena::xAODCnvSvc");
+  if(!foundPoolSvc && m_readMetadataWithPool) propVal.push_back("AthenaPoolCnvSvc");
+
+  if(!foundSvc || (!foundPoolSvc && m_readMetadataWithPool)) {
     CHECK( epSvc->setProperty("CnvServices", Gaudi::Utils::toString( propVal ) ));
   }
 
 
   //we should also add ourself as a proxy provider
-  ServiceHandle<IProxyProviderSvc> ppSvc("ProxyProviderSvc",name());
-  CHECK( ppSvc.retrieve() );
-  ppSvc->addProvider( this );
+  CHECK( m_ppSvc.retrieve() );
+
+  //ensure the MetaDataSvc is added as a provider first, if we are in hybrid mode
+  if(m_readMetadataWithPool) {
+    std::vector<std::string> propVal;
+    CHECK( Gaudi::Parsers::parse( propVal , dynamic_cast<IProperty*>(&*m_ppSvc)->getProperty("ProviderNames").toString() ) );
+    bool foundSvc(false);
+    for(auto s : propVal) {
+      if(s=="MetaDataSvc") { foundSvc=true; break; }
+    }
+    if(!foundSvc) {
+      propVal.push_back("MetaDataSvc");
+      CHECK( dynamic_cast<IProperty*>(&*m_ppSvc)->setProperty("ProviderNames", Gaudi::Utils::toString( propVal ) ));
+    }
+  }
+
+  //now we add ourself as a provider
+  m_ppSvc->addProvider( this );
   //trigger a reload of proxies in the storegate, which will poke the proxyprovidersvc
   //not actually needed
   //CHECK( m_dataStore->loadEventProxies() );
-  CHECK( ppSvc.release() );
 
+  
+  //finally ensure the storegate has our proxy set in it
+  //FIXME: this doesnt seem to allow multi storegates on the fly ???
+  //m_dataStore->setProxyProviderSvc( &*m_ppSvc );
+
+  CHECK( m_ppSvc.release() );
+
+
+  //load the first file .. this is so metadata can be read even if no events present
+  //checked above that there's at least one file
+  CHECK( setFile(m_inputCollectionsName.value()[0]) );
 
 
   return StatusCode::SUCCESS;
@@ -699,15 +729,29 @@ xAODEventSelector::createRootBranchAddresses(StoreID::type storeID,
   for( auto itr = m_tevent->inputEventFormat()->begin(); itr!=m_tevent->inputEventFormat()->end();++itr) {
     //ATH_MSG_DEBUG("EFE:" << itr->first << " branchName = " << itr->second.branchName() << " className=" << itr->second.className());
       CLID id = 0;
-      if( m_clidsvc->getIDOfTypeInfoName(itr->second.className(), id).isFailure() ) {
+      if( m_clidsvc->getIDOfTypeInfoName(itr->second.className(), id).isFailure() &&
+	  m_clidsvc->getIDOfTypeName(itr->second.className(), id).isFailure()) {
 	//if this is an AuxStore (infer if key ends in Aux.), its possible we schema-evolved away from the version in the input file, but that this evolution is actually 'ok' in some cases. So don't print an error if the CLID is missing for an Aux, but we will print a warning at the end for these aux stores
 	if(itr->second.branchName().compare(itr->second.branchName().length()-4,4,"Aux.")==0) {
-	  missingAux.insert( itr->second.className() );
+	  missingAux.insert( itr->second.className() );continue;
 	} else {
-         ATH_MSG_WARNING("No CLID for class " << itr->second.className() << " , cannot read " << itr->second.branchName());
+	  //vectors can be missing their std:: prefix, so add that and retry before failing
+	  TString className =  itr->second.className();
+	  ///className.ReplaceAll("vector","std::vector");
+	  //ALT solution to this is do what RootNtupleEventSelector does: uses TClass:GetClass
+	  //and GetTypeInfo() method to get the proper type info
+	  TClass *cls = TClass::GetClass(className);
+	  if(cls) {
+	    const std::type_info *ti = cls->GetTypeInfo();
+	    if(ti) className = System::typeinfoName(*ti);
+	  }
+	  
+	  if( m_clidsvc->getIDOfTypeInfoName(className.Data(), id).isFailure() &&
+	      m_clidsvc->getIDOfTypeName(className.Data(), id).isFailure()) {
+	    ATH_MSG_WARNING("No CLID for class " << itr->second.className() << " , cannot read " << itr->second.branchName());
+	    continue;
+	  }
 	}
-	continue;
-
       }
 
       const std::string br_name = itr->second.branchName();

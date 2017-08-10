@@ -688,7 +688,6 @@ def run_protobuf(output):
     return 0
 
 def process(fnames, output, do_gen_protobuf=False):
-    import PyCintex; PyCintex.Cintex.Enable()
     global ROOT
     import PyUtils.RootUtils as ru
     ROOT = ru.import_root(batch=True)

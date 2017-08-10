@@ -20,7 +20,7 @@
 
 // For the Athena-based random numbers.
 #include "AthenaKernel/IAtRndmGenSvc.h"
-#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 #include <CLHEP/Random/Randomize.h>
 
 #include "TrigConfL1Data/ThresholdConfig.h"
@@ -34,9 +34,6 @@
 // Utilities
 #include "PathResolver/PathResolver.h"
 #include <sys/types.h>
-
-// Pedestal Correction
-#include "GaudiKernel/ITHistSvc.h"
 
 #include <numeric>
 
@@ -75,8 +72,7 @@ TriggerTowerMaker::TriggerTowerMaker( const std::string& name, ISvcLocator* pSvc
     m_TTContainer(0),
     m_ADCContainer(0), 
     m_elementFir(true),
-    m_correctFir(true), // Pedestal Correction
-    m_thistSvc("THistSvc", name) 
+    m_correctFir(true)
 {
  
   declareProperty("RndmSvc", m_rndGenSvc, "Random number service");

@@ -21,7 +21,6 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/NTuple.h"
-#include "DataModel/DataLink.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include "AthenaMonitoring/AthenaMonManager.h"
@@ -87,7 +86,7 @@ public:
   int numberOfSL(const Muon::TgcCoinDataContainer* tgctrgcontainer);
 
   // private function to convert local roi numbering to global eta, phi numbering
-  void roi2etaphi(Muon::TgcCoinData& cd, //input
+  void roi2etaphi(const Muon::TgcCoinData& cd, //input
                   int& eta, int& phi);//output
   int phi2sector(int phi,int ef);
   int roiphi2mdtSector(int roiphi,int ef);
@@ -138,7 +137,7 @@ public:
   int m_MdtAdcCut;
   int m_MdtTdcCut;
 
-  Muon::TgcCoinData* theSL;
+  const Muon::TgcCoinData* theSL;
   double SLr;
   double SLz;
   double SLeta;
@@ -187,20 +186,20 @@ public:
                   const Muon::TgcPrepDataContainer *tgc_prepcontainer);
 
  	void SortMDTSegments(const Trk::SegmentCollection *m_segmcollection,                     // Sorts MDT segments into stations
-                       vector<const Muon::MuonSegment*>   (&sortedSegments)[2][4]);
+                       std::vector<const Muon::MuonSegment*>   (&sortedSegments)[2][4]);
   void SortMDTSegments(const xAOD::MuonSegmentContainer *m_newsegment,                     // Sorts MDT segments into stations
-                       vector<const Muon::MuonSegment*>   (&sortedSegments)[2][4]);
+                       std::vector<const Muon::MuonSegment*>   (&sortedSegments)[2][4]);
 
 
-  void DQCheckMDTSegments(vector<const Muon::MuonSegment*> (&sortedSegments)[2][4],              // Runs checks on DQ of segments
-                          vector<const Muon::MuonSegment*> (&disqualifiedSegments)[2][4]);
-  void MatchMDTSegments(vector<const Muon::MuonSegment*> (&sortedSegments)[2][4],                // Matches up segments in different stations into SegmTracks
-                        vector<const Muon::MuonSegment*> (&disqualifiedSegments)[2][4],
-                        vector<SegmTrack>          (&matchedSegments)[2]);
-  void CheckTGConTrack(vector<SegmTrack>                (&matchedSegments)[2],             // Uses SegmTracks to look for TGC PRD 
+  void DQCheckMDTSegments(std::vector<const Muon::MuonSegment*> (&sortedSegments)[2][4],              // Runs checks on DQ of segments
+                          std::vector<const Muon::MuonSegment*> (&disqualifiedSegments)[2][4]);
+  void MatchMDTSegments(std::vector<const Muon::MuonSegment*> (&sortedSegments)[2][4],                // Matches up segments in different stations into SegmTracks
+                        std::vector<const Muon::MuonSegment*> (&disqualifiedSegments)[2][4],
+                        std::vector<SegmTrack>          (&matchedSegments)[2]);
+  void CheckTGConTrack(std::vector<SegmTrack>                (&matchedSegments)[2],             // Uses SegmTracks to look for TGC PRD 
                        const Muon::TgcPrepDataContainer *tgc_prepcontainer);
-  void MidstationOnlyCheck(vector<const Muon::MuonSegment*>       (&sortedSegments)[2][4],       // Matches up segments in different stations into SegmTracks
-                           vector<const Muon::MuonSegment*>       (&disqualifiedSegments)[2][4],
+  void MidstationOnlyCheck(std::vector<const Muon::MuonSegment*>       (&sortedSegments)[2][4],       // Matches up segments in different stations into SegmTracks
+                           std::vector<const Muon::MuonSegment*>       (&disqualifiedSegments)[2][4],
                            const Muon::TgcPrepDataContainer *tgc_prepcontainer);
   void tgceffcalcfinalize();                                                               // Finalize histograms used in tgceffcalc
   // Subsidiary functions used for managing StationMap style histograms

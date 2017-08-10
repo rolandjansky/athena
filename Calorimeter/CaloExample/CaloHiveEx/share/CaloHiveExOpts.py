@@ -1,3 +1,7 @@
+#
+#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
+
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
@@ -9,9 +13,11 @@ nThreads = jp.ConcurrencyFlags.NumThreads()
 nProc = jp.ConcurrencyFlags.NumProcs()
 
 if nThreads >=1 :
-   from GaudiHive.GaudiHiveConf import ForwardSchedulerSvc
-   svcMgr += ForwardSchedulerSvc()
-   svcMgr.ForwardSchedulerSvc.CheckDependencies = True
+   from AthenaCommon.AlgScheduler import AlgScheduler
+   AlgScheduler.OutputLevel( INFO )
+   AlgScheduler.ShowControlFlow( True )
+   AlgScheduler.ShowDataDependencies( True )
+   AlgScheduler.setDataLoaderAlg( 'SGInputLoader' )
 
    # Support for the MT-MP hybrid mode
    if (nProc > 0) :
@@ -37,12 +43,6 @@ if nThreads >=1 :
    from SGComps.SGCompsConf import SGInputLoader
    topSequence+=SGInputLoader(OutputLevel=DEBUG, ShowEventDump=False)
 
-   topSequence.SGInputLoader.Load = [ ('EventInfo', 'McEventInfo'),
-                                      ('LArRawChannelContainer','LArRawChannels'),
-                                      ('TileRawChannelContainer','TileRawChannelCnt'),
-                                      ('CaloCalibrationHitContainer','LArCalibrationHitActive'),
-                                      ('CaloCalibrationHitContainer','LArCalibrationHitDeadMaterial'),
-                                      ('CaloCalibrationHitContainer','LArCalibrationHitInactive') ]
 # MT-specific code
 #---------------------------------------------------------------------------------#
 
@@ -171,18 +171,11 @@ algCardinality = nThreads
 if (algCardinality > 1):   
    for alg in topSequence:      
       name = alg.name()
-      if (             
-         name == "SGInputLoader"
-         or name == "CaloCellMaker" 
-         or name == "StreamESD"
-         ) :
-         # Don't clone these algs
+      if name in ["CaloCellMaker","StreamESD"] :
+         # suppress INFO message about Alg unclonability
          alg.Cardinality = 1
-         alg.IsClonable = False
-         print " -> suppressing cloning for ", name
       else:
          alg.Cardinality = algCardinality
-         alg.IsClonable = True
            
 # MT-specific code
 #---------------------------------------------------------------------------------#

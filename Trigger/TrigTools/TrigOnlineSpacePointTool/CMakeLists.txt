@@ -43,7 +43,7 @@ atlas_add_component( TrigOnlineSpacePointTool
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps IRegionSelector Identifier ByteStreamData ByteStreamData_test GaudiKernel InDetIdentifier InDetReadoutGeometry SCT_CablingLib InDetRawData InDetPrepRawData SiClusterizationToolLib TrkPrepRawData TrigInDetEvent TrigSteeringEvent AtlasDetDescr ByteStreamCnvSvcBaseLib TrkSpacePoint TrigTimeAlgsLib )
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps IRegionSelector Identifier ByteStreamData ByteStreamData_test GaudiKernel InDetIdentifier InDetReadoutGeometry SCT_CablingLib InDetRawData InDetPrepRawData SiClusterizationToolLib TrkPrepRawData TrigInDetEvent TrigSteeringEvent AtlasDetDescr ByteStreamCnvSvcBaseLib TrkSpacePoint TrigTimeAlgsLib PixelCablingLib )
 
 # Install files from the package:
 atlas_install_headers( TrigOnlineSpacePointTool )

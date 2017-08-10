@@ -8,7 +8,7 @@ atlas_subdir( RecBackgroundEvent )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/CLIDSvc
-                          Control/DataModel
+                          Control/AthLinks
                           Control/SGTools
                           Event/xAOD/xAODCaloEvent
                           Event/xAOD/xAODJet
@@ -18,5 +18,5 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_library( RecBackgroundEvent
                    src/*.cxx
                    PUBLIC_HEADERS RecBackgroundEvent
-                   LINK_LIBRARIES DataModel SGTools xAODCaloEvent xAODJet TrkSegment )
+                   LINK_LIBRARIES AthLinks SGTools xAODCaloEvent xAODJet TrkSegment )
 

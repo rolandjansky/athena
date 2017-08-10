@@ -33,9 +33,13 @@ public:
   
   /** constrcutor 
   */ 
-  TileHid2RESrcID(const TileHWID* tileHWID=0); 
-  void setTileHWID (const TileHWID* tileHWID);
-  void setTileMuRcvHWID(const TileHWID* tileHWID);
+  TileHid2RESrcID(const TileHWID* tileHWID=0, uint32_t runnum=0); 
+  void setTileHWID (const TileHWID* tileHWID, uint32_t runnum=0);
+  void setTileMuRcvHWID(const TileHWID* tileHWID, uint32_t runnum=0);
+
+  void initialize(uint32_t runnum);
+  void initializeMuRcv(uint32_t runnum);
+
   void setROD2ROBmap (const std::vector<std::string> & ROD2ROB,
                       MsgStream & log);
 
@@ -66,12 +70,16 @@ public:
   */
   uint32_t getDetID  ( uint32_t ros_id) const;
 
+  /** Retrieve run number for which hash was initialized
+  */
+  uint32_t getRunNum  () { return m_runnum; };
+
 private: 
 
   const TileHWID* m_tileHWID;
   typedef std::map<int, uint32_t> FRAGRODMAP; 
   FRAGRODMAP m_frag2ROD, m_TileMuRcvFrag2ROD;
-
+  uint32_t m_runnum;
 };
 
 #endif 

@@ -38,8 +38,8 @@ public:
   
 private:
   std::string m_chainName;
-  std::map<TString,TH1D*> hMap1D;
-  std::map<TString,TH2D*> hMap2D;
+  std::map<TString,TH1D*> m_hMap1D;
+  std::map<TString,TH2D*> m_hMap2D;
 }; 
 
 #endif

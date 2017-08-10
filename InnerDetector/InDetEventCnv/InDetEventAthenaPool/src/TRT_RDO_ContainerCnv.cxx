@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "MsgUtil.h"
 #include "TRT_RDO_ContainerCnv.h"
 
 #include "InDetIdentifier/TRT_ID.h"
@@ -34,8 +33,6 @@ namespace {
 }
 //================================================================
 StatusCode TRT_RDO_ContainerCnv::initialize() {
-   IDEvtAthPool::setMsgName(this,"TRT_RDO_ContainerCnv");//So msg() won't use name "AthenaPoolConverter" 
-
    ATH_MSG_INFO("TRT_RDO_ContainerCnv::initialize()");
 
    StatusCode sc = TRT_RDO_ContainerCnvBase::initialize();

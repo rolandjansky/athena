@@ -43,7 +43,7 @@
 //Random Numbers
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "CLHEP/Random/RandFlat.h"
-#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandExponential.h"
 
 //Core includes
@@ -90,7 +90,6 @@ RpcDigitizationTool::RpcDigitizationTool(const std::string& type,
   declareInterface<IMuonDigitizationTool>(this);
 
   declareProperty("Parameters"           ,  m_paraFile = "G4RPC_Digitizer.txt");  // File with cluster distributions
-  declareProperty("CTB2004"              ,  m_ctb2004 = false                     , "option to run the CTB - only with release <= 12");
   declareProperty("InputObjectName"      ,  m_inputHitCollectionName    = "RPC_Hits",  "name of the input object");
   declareProperty("OutputObjectName"     ,  m_outputDigitCollectionName = "RPC_DIGITS","name of the output object");
   declareProperty("OutputSDOsName"       ,  m_outputSDO_CollectionName  = "RPC_SDO",   "name of the output object");
@@ -155,7 +154,6 @@ StatusCode RpcDigitizationTool::initialize() {
   ATH_MSG_DEBUG ( "Configuration  RpcDigitizationTool " );
 
   ATH_MSG_DEBUG ( "Parameters             " << m_paraFile                  );
-  ATH_MSG_DEBUG ( "CTB2004                " << m_ctb2004                   );
   ATH_MSG_DEBUG ( "InputObjectName        " << m_inputHitCollectionName    );
   ATH_MSG_DEBUG ( "OutputObjectName       " << m_outputDigitCollectionName );
   ATH_MSG_DEBUG ( "WindowLowerOffset      " << m_timeWindowLowerOffset     );
@@ -702,12 +700,6 @@ StatusCode RpcDigitizationTool::doDigitization() {
 
       if( measphi!=0 ) continue; //Skip phi strip . To be created after efficiency evaluation
 
-      // CTB2004 has different layout for BOL chambers
-      if(m_ctb2004&&stationName=="BOL"){
-	if(doubletZ==1) doubletZ=2;
-	else if(doubletZ==2) doubletZ=1;
-      }
-
       //construct Atlas identifier from components
       ATH_MSG_DEBUG ( "creating id for hit in element:"
 		      << " stationName "  <<    stationName.c_str()
@@ -979,7 +971,7 @@ StatusCode RpcDigitizationTool::doDigitization() {
 	  if (outsideDigitizationWindow)
 	    {
 	      ATH_MSG_VERBOSE ( "hit outside digitization window - do not produce digits" );
-	      ATH_MSG_DEBUG   ( "Hit ouside time window!!" << " hit time (ns) = " << time << " timeWindow  = " << m_timeWindowLowerOffset << " / " << m_timeWindowUpperOffset  );
+	      ATH_MSG_DEBUG   ( "Hit ouside time window!!" << " hit time (ns) = " << newDigit_time << " timeWindow  = " << m_timeWindowLowerOffset << " / " << m_timeWindowUpperOffset  );
 
 	      continue;
 	    }
@@ -1565,9 +1557,22 @@ int RpcDigitizationTool::findStripNumber(Amg::Vector3D posInGap, Identifier digi
   Identifier firstStrip = m_idHelper->channelID(digitId, doubletZ, doubletPhi, gasGap, measuresPhi, 1);
   Identifier lastStrip = m_idHelper->channelID(digitId, doubletZ, doubletPhi, gasGap, measuresPhi, nstrips);
 
-  Amg::Vector3D firstPos=ele->localStripPos(firstStrip);
-  Amg::Vector3D lastPos=ele->localStripPos(lastStrip);
-
+  Amg::Vector3D firstPos(0.,0.,0);
+  try {
+    firstPos=ele->localStripPos(firstStrip);
+  }
+  catch (...) {
+    ATH_MSG_ERROR("RpcReadoutElement::localStripPos call failed.");
+    ATH_MSG_WARNING("firstPos determination failed.");
+  }
+  Amg::Vector3D lastPos(0.,0.,0);
+  try {
+    lastPos=ele->localStripPos(lastStrip);
+  }
+  catch (...) {
+    ATH_MSG_ERROR("RpcReadoutElement::localStripPos call failed.");
+    ATH_MSG_WARNING("lastPos determination failed.");
+  }
 
   // if(ele->Nphigasgaps()!=1) return result; //all but BMS/F and ribs chambers
 

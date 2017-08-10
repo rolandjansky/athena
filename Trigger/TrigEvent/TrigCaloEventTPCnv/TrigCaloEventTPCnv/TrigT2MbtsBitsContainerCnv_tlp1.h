@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigCaloEventTPCnv
- * @Class  : TrigT2MbtsBitsContainerCnv_tlp1
+ * @class  : TrigT2MbtsBitsContainerCnv_tlp1
  *
  * @brief "top-level" transient-persistent converter for TrigT2MbtsBitsContainer_tlp1
  *

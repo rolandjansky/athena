@@ -33,8 +33,6 @@ ByteStreamInputSvc.FilePrefix  += [RawDataFilePrefix]
 ByteStreamInputSvc.RunNumber += [runnumber]
 ToolSvc = Service( "ToolSvc" )
 ToolSvc.LArRoI_Map.Print=FALSE
-theApp.Dlls += [ "LArRawUtils","LArTools"]
-theApp.Dlls += [ "LArByteStream"]
 include( "TBCnv/TBReadH8BS_jobOptions.py" )
 theApp.Dlls += [ "LArEventTest"]
 theApp.topAlg+=["TriggerPatternCount"]

@@ -21,7 +21,7 @@
 #include "InDetRawData/SCT3_RawData.h"
 #include "InDetRawData/InDetRawDataCLASS_DEF.h"
 
-
+#include "StoreGate/ReadHandle.h"
 
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
@@ -57,7 +57,8 @@ m_sct_firstStrip(0),
 m_sct_rdoGroupSize(0),
 m_lumiBlock(0),
 m_LbRange(0),
-m_LbsToMerge(0){
+m_LbsToMerge(0),
+m_rdoContainerKey(std::string("SCT_RDOs")) {
   //nop
 }
 
@@ -74,6 +75,10 @@ SCT_CalibLbSvc::initialize(){
   m_waferItrEnd  = m_pSCTHelper->wafer_end();
   
   m_LbRange=numberOfLb();
+
+  // Read Handle Key
+  ATH_CHECK( m_rdoContainerKey.initialize() );
+
   return StatusCode::SUCCESS;
   
 }
@@ -243,8 +248,8 @@ SCT_CalibLbSvc::fillFromData(){
   bool result(true);
    //--- Retrieve the RDO container
   typedef SCT_RDORawData SCTRawDataType;
-  const SCT_RDO_Container* p_rdoContainer;
-  if (  m_evtStore->retrieve( p_rdoContainer, "SCT_RDOs" ).isFailure() ) {
+  SG::ReadHandle<SCT_RDO_Container> p_rdoContainer(m_rdoContainerKey);
+  if ( not p_rdoContainer.isValid() ) {
    msg( MSG::ERROR ) << "Failed to retrieve SCT RDO container" << endmsg;
   }
  

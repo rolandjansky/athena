@@ -364,6 +364,8 @@ public:
   TH1D*       Uncertainty()         { return m_Nentries; } 
   const TH1D* Uncertainty() const   { return m_Nentries; } 
 
+  bool finalised() const { return m_finalised; }
+
   // and the fitted slices
   std::vector<TH1D*> Slices() { return m_slices; }
 
@@ -550,6 +552,7 @@ public:
   static std::string version()      { return rversion; } 
   static bool setoldrms95(bool b)   { return oldrms95=b; } 
   static bool setscalerms95(bool b) { return scalerms95=b; } 
+  static bool setnofit(bool b)      { return nofit=b; } 
 
   /// flip the x and y axes
   static TH2D* rotate(const TH2* h);
@@ -671,6 +674,9 @@ private:
   /// and new rms95 error estimates
   static bool oldrms95;
   static bool scalerms95;
+
+  static bool nofit;
+
 
   static ERROR ErrorSet; //! don't persistify this 
 

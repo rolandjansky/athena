@@ -6,7 +6,7 @@
 #define ITRT_CONDITIONSTESTSVC_H
 
 /** @file TRT_ConditionsTestSvc.h
- *  @AlgTool for example and test of TRT_ConditionsSummarySvc.
+ *  @brief AlgTool for example and test of TRT_ConditionsSummarySvc.
  *  Simply returns InDet::TRT_GOOD.
  *  @author Denver Whittington
  */

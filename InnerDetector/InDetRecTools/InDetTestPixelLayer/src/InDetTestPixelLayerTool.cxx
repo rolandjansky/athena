@@ -46,6 +46,7 @@ namespace InDet {
     declareProperty("ResidualPullCalculator",m_residualPullCalculator);
     declareProperty("CheckActiveAreas", m_checkActiveAreas = false);
     declareProperty("CheckDeadRegions", m_checkDeadRegions = false);
+    declareProperty("CheckDisabledFEs", m_checkDisabledFEs = false);
     declareProperty("PhiRegionSize", m_phiRegionSize = 3.);
     declareProperty("EtaRegionSize", m_etaRegionSize = 3.);
     declareProperty("GoodFracCut", m_goodFracCut = 0.5);
@@ -62,60 +63,60 @@ namespace InDet {
 
     // retrieve ID helpers:
     if (detStore()->retrieve(m_idHelper, "AtlasID").isFailure()) {
-      msg(MSG::FATAL) << "Could not get AtlasDetectorID helper" << endreq;
+      msg(MSG::FATAL) << "Could not get AtlasDetectorID helper" << endmsg;
       return StatusCode::FAILURE;
     }
     
     sc = detStore()->retrieve(m_pixelId, "PixelID");
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Could not get PixelID helper !" << endreq;
+      msg(MSG::ERROR) << "Could not get PixelID helper !" << endmsg;
       return StatusCode::FAILURE;
     }
     
     m_configured=true;
     if( m_extrapolator.empty() ){
-      msg(MSG::INFO) << "Extrapolator not configured " << endreq; //n
+      msg(MSG::INFO) << "Extrapolator not configured " << endmsg; //n
       m_configured=false;
     }
     else{
       if ( m_extrapolator.retrieve().isFailure() )
 	{
-	  msg(MSG::FATAL) << "Failed to retrieve tool " << m_extrapolator << endreq; //n
+	  msg(MSG::FATAL) << "Failed to retrieve tool " << m_extrapolator << endmsg; //n
 	  return StatusCode::FAILURE;
 	}  else { 
-	msg(MSG::INFO) << "Retrieved tool " << m_extrapolator << endreq; //n
+	msg(MSG::INFO) << "Retrieved tool " << m_extrapolator << endmsg; //n
       }
     }
     
     // Get PixelConditionsSummarySvc
     if( m_pixelCondSummarySvc.empty() ){
-      msg(MSG::INFO) << "PixelConditionsSummarySvc not configured " << endreq; //n
+      msg(MSG::INFO) << "PixelConditionsSummarySvc not configured " << endmsg; //n
       m_configured=false;
     }
     else{
       if ( m_pixelCondSummarySvc.retrieve().isFailure() ) {
-	msg(MSG::FATAL) << "Failed to retrieve tool " << m_pixelCondSummarySvc << endreq; //n
+	msg(MSG::FATAL) << "Failed to retrieve tool " << m_pixelCondSummarySvc << endmsg; //n
 	return StatusCode::FAILURE;
       } else {
-	msg(MSG::INFO) << "Retrieved tool " << m_pixelCondSummarySvc << endreq; //n
+	msg(MSG::INFO) << "Retrieved tool " << m_pixelCondSummarySvc << endmsg; //n
       }
     }
 
     if(!m_configured){
-      msg(MSG::INFO) << "you are using an unconfigured tool" << endreq; 
-      msg(MSG::INFO) << "will not be able to extrapolate to the pixelLayer" << endreq;
-      msg(MSG::INFO) << "the values from the track summary will be returned" << endreq; 
+      msg(MSG::INFO) << "you are using an unconfigured tool" << endmsg; 
+      msg(MSG::INFO) << "will not be able to extrapolate to the pixelLayer" << endmsg;
+      msg(MSG::INFO) << "the values from the track summary will be returned" << endmsg; 
     }
    
     if (m_residualPullCalculator.retrieve().isFailure()) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_residualPullCalculator << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_residualPullCalculator << endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_residualPullCalculator << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_residualPullCalculator << endmsg;
     }
 
 
-    msg(MSG::VERBOSE) << " Initialization of InDetTestPixelLayerTool succesfull" << endreq;
+    msg(MSG::VERBOSE) << " Initialization of InDetTestPixelLayerTool succesfull" << endmsg;
     return StatusCode::SUCCESS;
 
   }
@@ -145,7 +146,7 @@ namespace InDet {
     const Trk::Track* track = trackparticle->originalTrack();
     
     if (!track) {
-      msg(MSG::DEBUG) << "No original track, residual calculation can not be performed" << endreq;
+      msg(MSG::DEBUG) << "No original track, residual calculation can not be performed" << endmsg;
       return 0;
     }
 
@@ -159,7 +160,7 @@ namespace InDet {
     const Trk::Track* track = trackparticle->originalTrack();
     
     if (!track) {
-      msg(MSG::DEBUG) << "No original track, residual calculation can not be performed" << endreq;
+      msg(MSG::DEBUG) << "No original track, residual calculation can not be performed" << endmsg;
       return;
     }
 
@@ -179,7 +180,7 @@ namespace InDet {
 	 it!=trackStates->end();
 	 it++) {
       if (!(*it)) {
-	msg(MSG::WARNING) << "TrackStateOnSurface == Null" << endreq;
+	msg(MSG::WARNING) << "TrackStateOnSurface == Null" << endmsg;
 	continue;
       }
 
@@ -557,13 +558,13 @@ namespace InDet {
        if( siElement->nearBondGap(trackpar->localPosition(), etatol) ) { 
 	 if (msgLvl(MSG::DEBUG)) 
 	   {
-	     msg(MSG::DEBUG) << "---> extrapolation on bond gap within " << etatol << ", return" << endreq;
+	     msg(MSG::DEBUG) << "---> extrapolation on bond gap within " << etatol << ", return" << endmsg;
 	   }
        } else if (!siIn.in()) {
 	 if (msgLvl(MSG::DEBUG)) 
 	   { 
 	     msg(MSG::DEBUG) << "---> extrapolation not inside (active?) detector within "<< phitol << " " << 
-				   etatol << ", return" << endreq;
+				   etatol << ", return" << endmsg;
 	   }
        } else {
 	 return true;
@@ -659,7 +660,8 @@ namespace InDet {
 	design->distanceToDetectorEdge(locPos, etaDist, phiDist); //// implicite cast from Amg::Vector2D to SiLocalPosition
       }
       else{
-	ATH_MSG_WARNING (  "could not get pixel module design for  " <<   m_idHelper->show_to_string(id)  );
+	ATH_MSG_WARNING (  "could not get pixel module design for  " <<   m_idHelper->show_to_string(id)  << ", returning false for getTrackStateOnPixelLayerInfo" );
+	return false;
       }
       pixelLayerInfo.distToModuleEdgePhi(phiDist);
       pixelLayerInfo.distToModuleEdgeEta(etaDist);
@@ -820,14 +822,21 @@ namespace InDet {
       return false;
     }
 
+
     const InDetDD::PixelModuleDesign* design = dynamic_cast<const InDetDD::PixelModuleDesign*>(&sielem->design());
     if(design){
       phitol = std::max(phitol, design->phiPitch()+1e-6);
       etatol = std::max(etatol, design->etaPitch()+1e-6);
     }
     else{
-      ATH_MSG_WARNING (  "could not get pixel module design "  );
+      ATH_MSG_WARNING (  "could not get pixel module design, returning 0 for getFracGood"  );
+      return 0.;
     }
+    
+     
+    
+    
+    Amg::Vector2D LocPos(locx,locy);
 
     double startLocX = locx - phitol;
     double startLocY = locy - etatol;
@@ -840,13 +849,32 @@ namespace InDet {
 
     double etaDist = -9999;
     double phiDist = -9999;
+    
+
     if(design){
+      design->distanceToDetectorEdge(LocPos, etaDist, phiDist); 
+      if(phiDist<0) locx += (fabs(phiDist)+1e-6);/// not exactly on the edge
+      if(etaDist<0) locy += (fabs(etaDist)+1e-6);
       design->distanceToDetectorEdge(startLocPostmp, etaDist, phiDist); 
       if(phiDist<0)startLocX += (fabs(phiDist)+1e-6);/// not exactly on the edge
       if(etaDist<0)startLocY += (fabs(etaDist)+1e-6);
       design->distanceToDetectorEdge(endLocPostmp, etaDist, phiDist); 
       if(phiDist<0)endLocX-=(fabs(phiDist)+1e-6);
       if(etaDist<0)endLocY-=(fabs(etaDist)+1e-6);
+    }
+
+    LocPos = Amg::Vector2D(locx,locy);
+
+    
+   
+    if(m_checkDisabledFEs){
+      const InDetConditions::Hierarchy context = InDetConditions::PIXEL_CHIP;
+      Identifier centreId = sielem->identifierOfPosition(LocPos);
+      if(centreId.is_valid()){
+	if( !m_pixelCondSummarySvc->isGood(centreId, context) ) return 0.;
+      }
+      
+      else ATH_MSG_WARNING (  "Invalid Identifier, skipping check of FE..."  );
     }
 
     Amg::Vector2D startLocPos(startLocX,startLocY);

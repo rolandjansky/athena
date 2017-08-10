@@ -27,7 +27,7 @@ ActiveStoreSvc::~ActiveStoreSvc()
 {}
 
 //////////////////////////////////////////////////////////////
-/// Service initialisation
+/// Service initialization
 StatusCode ActiveStoreSvc::initialize()    {
 
   CHECK( Service::initialize() );

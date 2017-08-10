@@ -39,16 +39,16 @@ public:
 
 private:
     std::string m_configPath;
-    std::string tauContainerKey;
-    std::string vertexContainerKey;
-    std::string calibrationFile; //!< energy calibration file
+    std::string m_tauContainerKey;
+    std::string m_vertexContainerKey;
+    std::string m_calibrationFile; //!< energy calibration file
 
-    static const int nProngBins = 2;
+    static const int s_nProngBins = 2;
 
-    const TF1 * calibFunc[nProngBins][10]; //maximum 10 eta bins; might not be used on the whole 
-    const TH1 * slopeNPVHist[nProngBins]={0};
-    const TH1 * etaBinHist=0;
-    const TH1 * etaCorrectionHist=0;
+    const TF1 * m_calibFunc[s_nProngBins][10]; //maximum 10 eta bins; might not be used on the whole 
+    const TH1 * m_slopeNPVHist[s_nProngBins]={0};
+    const TH1 * m_etaBinHist=0;
+    const TH1 * m_etaCorrectionHist=0;
 
     unsigned int m_minNTrackAtVertex=0;
     int    m_nEtaBins=0;

@@ -9,25 +9,20 @@
 
 #include "SCT_PrepDataToxAOD.h"
 
-#include "InDetPrepRawData/SCT_ClusterContainer.h"
-
-#include "xAODTracking/TrackMeasurementValidationContainer.h"
 #include "xAODTracking/TrackMeasurementValidationAuxContainer.h"
 
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/SCT_ID.h"
 
-#include "InDetRawData/SCT_RDO_Container.h"
 #include "InDetRawData/SCT_RDO_Collection.h"
 
-#include "TrkTruthData/PRD_MultiTruthCollection.h"
 #include "HepMC/GenParticle.h"
 #include "InDetSimEvent/SiHit.h"
-#include "InDetSimData/InDetSimDataCollection.h"
 
 #include "CLHEP/Geometry/Point3D.h"
 
-
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
 
 /////////////////////////////////////////////////////////////////////
 //
@@ -47,10 +42,13 @@ SCT_PrepDataToxAOD::SCT_PrepDataToxAOD(const std::string &name, ISvcLocator *pSv
   declareProperty("WriteSiHits", m_writeSiHits = true);
 
   // --- Configuration keys
-  declareProperty("SiClusterContainer",  m_clustercontainer = "SCT_Clusters");
-  declareProperty("MC_SDOs", m_SDOcontainer = "SCT_SDO_Map");
-  declareProperty("MC_Hits", m_sihitContainer = "SCT_Hits");
-  declareProperty("PRD_MultiTruth", m_multiTruth = "PRD_MultiTruthSCT");
+  declareProperty("SiClusterContainer",  m_clustercontainer = std::string("SCT_Clusters"));
+  declareProperty("MC_SDOs", m_SDOcontainer = std::string("SCT_SDO_Map"));
+  declareProperty("MC_Hits", m_sihitContainer = std::string("SCT_Hits"));
+  declareProperty("PRD_MultiTruth", m_multiTruth = std::string("PRD_MultiTruthSCT"));
+  declareProperty("SctRdoContainer", m_rdoContainer = std::string("SCT_RDOs"));
+  declareProperty("SctxAodContainer", m_xAodContainer = std::string("SCT_Clusters"));
+  declareProperty("SctxAodOffset", m_xAodOffset = std::string("SCT_ClustersOffsets"));
 
   // --- Services and Tools
 }
@@ -75,6 +73,14 @@ StatusCode SCT_PrepDataToxAOD::initialize()
     m_writeSiHits = false;
   }
 
+  ATH_CHECK( m_clustercontainer.initialize() );
+  ATH_CHECK( m_SDOcontainer.initialize(m_writeSDOs) );
+  ATH_CHECK( m_sihitContainer.initialize(m_writeSiHits) );
+  ATH_CHECK( m_multiTruth.initialize(m_useTruthInfo) );
+  ATH_CHECK( m_rdoContainer.initialize(m_writeRDOinformation) );
+  ATH_CHECK( m_xAodContainer.initialize() );
+  ATH_CHECK( m_xAodOffset.initialize() );
+
   return StatusCode::SUCCESS;
 }
 
@@ -85,22 +91,21 @@ StatusCode SCT_PrepDataToxAOD::initialize()
 /////////////////////////////////////////////////////////////////////
 StatusCode SCT_PrepDataToxAOD::execute() 
 {     
-  const SCT_RDO_Container * rdoContainer(0);
-   
   // the cluster ambiguity map
   if ( m_writeRDOinformation ) {
-    if(!evtStore()->contains<SCT_RDO_Container>("SCT_RDOs")){
+    SG::ReadHandle<SCT_RDO_Container> rdoContainer(m_rdoContainer);
+    if(!evtStore()->contains<SCT_RDO_Container>(m_rdoContainer.key())){
       if (m_firstEventWarnings) {
 	ATH_MSG_WARNING("RDO ASSOC: No SCT RDO container in StoreGate");
       }
     }
     else {
-      if(evtStore()->retrieve(rdoContainer,"SCT_RDOs").isFailure()) {
+      if(not rdoContainer.isValid()) {
         ATH_MSG_WARNING( "Failed to retrieve SCT RDO container" );
       }
     }
   
-    if ( rdoContainer != 0){
+    if ( &*rdoContainer != 0){
 
       // get all the RIO_Collections in the container
       
@@ -124,57 +129,19 @@ StatusCode SCT_PrepDataToxAOD::execute()
   ATH_MSG_DEBUG("Size of RDO map is "<<m_IDtoRAWDataMap.size());
 
   // Mandatory. This is needed and required if this algorithm is scheduled.
-  const InDet::SCT_ClusterContainer* sctClusterContainer = 0;     
-  if( evtStore()->retrieve(sctClusterContainer,m_clustercontainer).isFailure() ) {
-    ATH_MSG_ERROR("Cannot retrieve SCT PrepDataContainer " << m_clustercontainer);
+  SG::ReadHandle<InDet::SCT_ClusterContainer> sctClusterContainer(m_clustercontainer);
+  if( not sctClusterContainer.isValid() ) {
+    ATH_MSG_ERROR("Cannot retrieve SCT PrepDataContainer " << m_clustercontainer.key());
     return StatusCode::FAILURE;
   }
 
-  // Optional. Normally only available in Hits files -- samples need to digitised and Hits need to be copied for this to work
-  const SiHitCollection* sihitCollection = 0;
-  if (m_writeSiHits) {
-    if (evtStore()->contains<SiHitCollection>(m_sihitContainer)) {
-      ATH_CHECK(evtStore()->retrieve(sihitCollection, m_sihitContainer));
-    } else {
-      if (m_firstEventWarnings) {
-	ATH_MSG_WARNING("SiHit collection not available (" << m_sihitContainer << "). Skipping although requested.");
-	sihitCollection = 0;
-      }	
-    }
-  }
-
-  // Optional. On RDO
-  const InDetSimDataCollection* sdoCollection = 0;
-  if (m_writeSDOs) {
-    if ( evtStore()->contains<InDetSimDataCollection>(m_SDOcontainer) ) {
-      ATH_CHECK(evtStore()->retrieve(sdoCollection, m_SDOcontainer));
-    } else {
-      ATH_MSG_WARNING("SDO container not available (" << m_SDOcontainer << "). Skipping although requested.");
-      sdoCollection = 0;
-    }
-  }
-
-  // Optional. On ESD and AOD
-  const PRD_MultiTruthCollection* prdmtColl = 0;
-  if (m_useTruthInfo) {
-    if ( evtStore()->contains<PRD_MultiTruthCollection>(m_multiTruth) ) {
-      ATH_CHECK(evtStore()->retrieve(prdmtColl, m_multiTruth));
-    } else {
-      ATH_MSG_WARNING("MultiTruth container not available (" << m_multiTruth << "). Skipping although requested.");
-      prdmtColl = 0;
-    }
-  }
-
-
   // Create the xAOD container and its auxiliary store:
-  xAOD::TrackMeasurementValidationContainer* xaod = new xAOD::TrackMeasurementValidationContainer();
-  CHECK( evtStore()->record( xaod, m_clustercontainer ) );
-  xAOD::TrackMeasurementValidationAuxContainer* aux = new xAOD::TrackMeasurementValidationAuxContainer();
-  CHECK( evtStore()->record( aux, m_clustercontainer + "Aux." ) );
-  xaod->setStore( aux );
+  SG::WriteHandle<xAOD::TrackMeasurementValidationContainer> xaod(m_xAodContainer);
+  ATH_CHECK( xaod.record(std::make_unique<xAOD::TrackMeasurementValidationContainer>(),
+			 std::make_unique<xAOD::TrackMeasurementValidationAuxContainer>()) );
   
-  std::vector<unsigned int>* offsets = new std::vector<unsigned int>( m_SCTHelper->wafer_hash_max(), 0 );
-  CHECK( evtStore()->record( offsets, m_clustercontainer + "Offsets" ) );
+  SG::WriteHandle<std::vector<unsigned int> > offsets(m_xAodOffset);
+  ATH_CHECK( offsets.record(std::make_unique<std::vector<unsigned int> >( m_SCTHelper->wafer_hash_max(), 0 )) );
   
   // Loop over the container
   unsigned int counter(0);
@@ -268,26 +235,35 @@ StatusCode SCT_PrepDataToxAOD::execute()
    
       
       // Use the MultiTruth Collection to get a list of all true particle contributing to the cluster
-      if(prdmtColl){
-        std::vector<int> barcodes;
-        //std::pair<PRD_MultiTruthCollection::const_iterator,PRD_MultiTruthCollection::const_iterator>;
-        auto range = prdmtColl->equal_range(clusterId);
-        for (auto i = range.first; i != range.second; ++i) {
-           barcodes.push_back( i->second.barcode() );
-        }
-        xprd->auxdata< std::vector<int> >("truth_barcode") = barcodes;
+      if(m_useTruthInfo){
+	SG::ReadHandle<PRD_MultiTruthCollection> prdmtColl(m_multiTruth);
+	if(prdmtColl.isValid()) {
+	  std::vector<int> barcodes;
+	  //std::pair<PRD_MultiTruthCollection::const_iterator,PRD_MultiTruthCollection::const_iterator>;
+	  auto range = prdmtColl->equal_range(clusterId);
+	  for (auto i = range.first; i != range.second; ++i) {
+	    barcodes.push_back( i->second.barcode() );
+	  }
+	  xprd->auxdata< std::vector<int> >("truth_barcode") = barcodes;
+	}
       }
 
       // Use the SDO Collection to get a list of all true particle contributing to the cluster per readout element
       //  Also get the energy deposited by each true particle per readout element   
-      if( sdoCollection ){
-        addSDOInformation( xprd, prd,sdoCollection);
+      if( m_writeSDOs ){
+	SG::ReadHandle<InDetSimDataCollection> sdoCollection(m_SDOcontainer);
+	if( sdoCollection.isValid() ) {
+	  addSDOInformation( xprd, prd, &*sdoCollection);
+	}
       }
     
       // Now Get the most detailed truth from the SiHits
       // Note that this could get really slow if there are a lot of hits and clusters
-      if( sihitCollection  ){
-        addSiHitInformation( xprd, prd, sihitCollection); 
+      if( m_writeSiHits ){
+	SG::ReadHandle<SiHitCollection> sihitCollection(m_sihitContainer);
+	if( sihitCollection.isValid() ) {
+	  addSiHitInformation( xprd, prd, &*sihitCollection); 
+	}
       }
     }
   }

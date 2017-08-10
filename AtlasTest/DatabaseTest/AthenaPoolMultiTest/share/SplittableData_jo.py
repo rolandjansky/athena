@@ -96,7 +96,7 @@ svcMgr.AthenaPoolCnvSvc.CommitInterval = 10;
 include( "AthenaPoolMultiTest/ExampleStreamConfig.py" )
 
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-DataStream = AthenaPoolOutputStream( "DataStream" , "AthenaPoolMultiTest_Splittable0.root", True )
+DataStream = AthenaPoolOutputStream( "DataStream" , "AthenaPoolMultiTest_Splittable0.root", True, noTag=True )
 DataStream.ItemList    = exampleItemList  # comes from ExampleStreamConfig
 DataStream.ItemList   += [ "FauxTriggerMap#*" ] # add item not in StreamConfig
 DataStream.MetadataItemList   += exampleMetadataList

@@ -22,20 +22,20 @@ namespace LArBadChanImpl {
 
     combined_ordered_iterator( const Iter& b1, const Iter& e1,
 			       const Iter& b2, const Iter& e2, const CMP& cmp) :
-      b1_(b1), e1_(e1), b2_(b2), e2_(e2), cmp_(cmp)
+      m_b1(b1), m_e1(e1), m_b2(b2), m_e2(e2), m_cmp(cmp)
     {
-      first_ = cmp_( *b1_, *b2_);
+      m_first = m_cmp( *m_b1, *m_b2);
     }
 
-    combined_ordered_iterator() : b1_(Iter()), e1_(Iter()), 
-                                  b2_(Iter()), e2_(Iter()), cmp_(CMP()),
-                                  first_(false){}
+    combined_ordered_iterator() : m_b1(Iter()), m_e1(Iter()), 
+                                  m_b2(Iter()), m_e2(Iter()), m_cmp(CMP()),
+                                  m_first(false){}
 
     combined_ordered_iterator& operator++() {
       advance();
       if (at_the_end()) switch_to_other();
       else if ( !other_at_the_end()) {
-	if (cmp_(other(), current())) switch_to_other();  // we must switch to the other container
+	if (m_cmp(other(), current())) switch_to_other();  // we must switch to the other container
       }
       return *this;
     }
@@ -50,7 +50,7 @@ namespace LArBadChanImpl {
       return current();
     }
 
-    operator bool() const {return b1_ != e1_ || b2_ != e2_;}
+    operator bool() const {return m_b1 != m_e1 || m_b2 != m_e2;}
 
     bool operator!=( const combined_ordered_iterator& other) const {
       if (at_the_end()) return ! other.at_the_end();
@@ -64,42 +64,42 @@ namespace LArBadChanImpl {
 
   private:
   
-    Iter b1_;
-    Iter e1_;
-    Iter b2_;
-    Iter e2_;
-    CMP  cmp_;
-    bool first_;
+    Iter m_b1;
+    Iter m_e1;
+    Iter m_b2;
+    Iter m_e2;
+    CMP  m_cmp;
+    bool m_first;
 
-    const value_type& other() const {return first_ ? *b2_ : *b1_;}
+    const value_type& other() const {return m_first ? *m_b2 : *m_b1;}
 
-    const value_type& current() const {return first_ ? *b1_ : *b2_;}
+    const value_type& current() const {return m_first ? *m_b1 : *m_b2;}
 
-    const Iter& current_iter() const {return first_ ? b1_ : b2_;}
+    const Iter& current_iter() const {return m_first ? m_b1 : m_b2;}
 
     const value_type& next_in_same() const {
-      Iter tmp = (first_? b1_ : b2_);
+      Iter tmp = (m_first? m_b1 : m_b2);
       return *(++tmp);
     }
 
     void advance() {
-      if (first_) {
-	if (b1_ != e1_) ++b1_;
+      if (m_first) {
+	if (m_b1 != m_e1) ++m_b1;
       }
       else {
-	if (b2_ != e2_) ++b2_;
+	if (m_b2 != m_e2) ++m_b2;
       }
     }
 
     bool at_the_end() const { 
-      return first_ ? (b1_ == e1_) : (b2_ == e2_);
+      return m_first ? (m_b1 == m_e1) : (m_b2 == m_e2);
     }
 
     bool other_at_the_end() const { 
-      return first_ ? (b2_ == e2_) : (b1_ == e1_);
+      return m_first ? (m_b2 == m_e2) : (m_b1 == m_e1);
     }
 
-    void switch_to_other() { first_ = !first_;}
+    void switch_to_other() { m_first = !m_first;}
 
   };
 

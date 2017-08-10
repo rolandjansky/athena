@@ -103,6 +103,10 @@ StatusCode L1CaloCondSvc::updateConditions(IOVSVC_CALLBACK_ARGS_K(keys)) {
 
 		// get the keys/folders required by current object
 		std::vector<std::string> vCoolInputKeys = pobj->coolInputKeys();
+                
+                std::vector<std::string> otherkeys = m_map_conditions2key[pobj];
+                vCoolInputKeys.insert(vCoolInputKeys.end(),otherkeys.begin(),otherkeys.end());
+                
 		std::string conditionType = pobj->conditionType();
 
 		if(conditionType=="CondAttrListCollection") {
@@ -161,7 +165,7 @@ StatusCode L1CaloCondSvc::updateConditions(IOVSVC_CALLBACK_ARGS_K(keys)) {
 				pobj->makeTransient(athenaAttributeList);
 
 			} else {
-				log << MSG::ERROR << "Condition type " << conditionType<< "not recognized by L1CaloCondSvc" << endreq;
+				log << MSG::ERROR << "Condition type " << conditionType<< "not recognized by L1CaloCondSvc" << endmsg;
 				return StatusCode::FAILURE;
 			}
 		}
@@ -176,12 +180,12 @@ StatusCode L1CaloCondSvc::updateConditions(IOVSVC_CALLBACK_ARGS_K(keys)) {
 //StatusCode L1CaloCondSvc::updateConditions(IOVSVC_CALLBACK_ARGS_P(/*I*/, keys)) {
 //	MsgStream log(msgSvc(),name());
 //
-//	log<<MSG::VERBOSE<<"updateConditions()"<<endreq;
+//	log<<MSG::VERBOSE<<"updateConditions()"<<endmsg;
 //
 //	std::list<std::string>::const_iterator itr;
 //	for(itr=keys.begin(); itr!=keys.end(); ++itr) {
 //		std::string key = *itr;
-//		log << MSG::VERBOSE << key << endreq;
+//		log << MSG::VERBOSE << key << endmsg;
 //
 //		std::map<std::string, std::vector<IL1CaloPersistenceCapable*> >::const_iterator it_obj = m_mConditions.find(key);
 //		if(it_obj!=m_mConditions.end()) {
@@ -204,13 +208,13 @@ StatusCode L1CaloCondSvc::updateConditions(IOVSVC_CALLBACK_ARGS_K(keys)) {
 //				pobj->makeTransient(athenaAttributeList);
 //
 //			} else {
-//				log << MSG::ERROR << "Condition type " << conditionType<< "not recognized by L1CaloCondSvc" << endreq;
+//				log << MSG::ERROR << "Condition type " << conditionType<< "not recognized by L1CaloCondSvc" << endmsg;
 //				return StatusCode::FAILURE;
 //			}
 //		}
 //	}
 //
-//	log << MSG::VERBOSE << "end of L1CaloCondSvc::updateConditions(IOVSVC_CALLBACK_ARGS_P(/*I*/, keys))" << endreq;
+//	log << MSG::VERBOSE << "end of L1CaloCondSvc::updateConditions(IOVSVC_CALLBACK_ARGS_P(/*I*/, keys))" << endmsg;
 //	return StatusCode::SUCCESS;
 //}
 

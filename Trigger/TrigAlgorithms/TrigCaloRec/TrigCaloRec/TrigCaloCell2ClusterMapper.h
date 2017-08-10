@@ -37,10 +37,6 @@ class TrigCaloCell2ClusterMapper : public HLT::FexAlgo {
   HLT::ErrorCode hltFinalize();
   HLT::ErrorCode hltExecute( const HLT::TriggerElement* inputTE, HLT::TriggerElement* outputTE );
 
-  // Callback added to handle Data-driven GeoModel initialisation
-  virtual StatusCode geoInit(IOVSVC_CALLBACK_ARGS);
-
-
  protected:
 
   const CaloDetDescrManager* m_calo_dd_man; 

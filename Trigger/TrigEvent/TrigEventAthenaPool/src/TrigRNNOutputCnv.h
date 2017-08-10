@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigEventAthenaPool
- * @Class  : TrigRNNOutputCnv
+ * @class  : TrigRNNOutputCnv
  *
  * @brief transient persistent converter for TrigRNNOutput
  *

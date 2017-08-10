@@ -50,7 +50,7 @@ StatusCode TrigFTKUncertiantyTool::initialize() {
     LoadConstants();
 
 
-  athenaLog << MSG::INFO << "TrigFTKUncertiantyTool initialized "<< endreq;
+  athenaLog << MSG::INFO << "TrigFTKUncertiantyTool initialized "<< endmsg;
   return sc;
 }
 
@@ -66,10 +66,10 @@ double TrigFTKUncertiantyTool::getParamCovMtx(const FTKTrack *trk, int id0, int 
 {
   MsgStream athenaLog(msgSvc(), name());
   int outputLevel = msgSvc()->outputLevel( name() );
-  athenaLog << MSG::VERBOSE << "In getParamCovMtx: id0: " << id0 << " id1: " << id1 << endreq; 
+  athenaLog << MSG::VERBOSE << "In getParamCovMtx: id0: " << id0 << " id1: " << id1 << endmsg; 
 
   if(!trk){
-    athenaLog << MSG::ERROR << "FTK Track is Null" << endreq; 
+    athenaLog << MSG::ERROR << "FTK Track is Null" << endmsg; 
     return -99;
   }
 
@@ -82,14 +82,14 @@ double TrigFTKUncertiantyTool::getParamCovMtx(const FTKTrack *trk, int id0, int 
 
   bool hasBL = (trk->getBitmask()&(1<<0));
   if(outputLevel <= MSG::DEBUG)
-    athenaLog << MSG::DEBUG << "TrigFTKUncertiantyTool:: has BL " << hasBL << endreq; 
+    athenaLog << MSG::DEBUG << "TrigFTKUncertiantyTool:: has BL " << hasBL << endmsg; 
   
   double trkIpt (trk->getHalfInvPt());  // NOTE: this is 1./(2xpt)
   double trkEta (trk->getEta()  );
 
   if(outputLevel <= MSG::VERBOSE){
-    athenaLog << MSG::VERBOSE << "TrigFTKUncertiantyTool:: trkIpt " << trkIpt << endreq; 
-    athenaLog << MSG::VERBOSE << "TrigFTKUncertiantyTool:: trkEta " << trkEta << endreq; 
+    athenaLog << MSG::VERBOSE << "TrigFTKUncertiantyTool:: trkIpt " << trkIpt << endmsg; 
+    athenaLog << MSG::VERBOSE << "TrigFTKUncertiantyTool:: trkEta " << trkEta << endmsg; 
   }
 
   double sigmaTP = -1.0;
@@ -118,8 +118,8 @@ double TrigFTKUncertiantyTool::getParamCovMtx(const FTKTrack *trk, int id0, int 
     if(outputLevel <= MSG::DEBUG){
       athenaLog << MSG::DEBUG << "TrigFTKUncertiantyTool:: sigmaTP ("   
 		<< sigmaTP <<") = sqrt("<<allConsts[hasBL].par0(lookUpParam,trkEta) 
-		<< "+" << allConsts[hasBL].par1(lookUpParam,trkEta) << "*" << trkIpt << "**2)" <<  endreq; 
-      athenaLog << MSG::DEBUG << "TrigFTKUncertiantyTool:: (sqrt)cov "   << sigmaTP*sigmaTP << endreq; 
+		<< "+" << allConsts[hasBL].par1(lookUpParam,trkEta) << "*" << trkIpt << "**2)" <<  endmsg; 
+      athenaLog << MSG::DEBUG << "TrigFTKUncertiantyTool:: (sqrt)cov "   << sigmaTP*sigmaTP << endmsg; 
     }
     
   //
@@ -130,13 +130,13 @@ double TrigFTKUncertiantyTool::getParamCovMtx(const FTKTrack *trk, int id0, int 
     if(outputLevel <= MSG::DEBUG){
       athenaLog << MSG::DEBUG << "TrigFTKUncertiantyTool:: sigmaTP ("   
 		<< sigmaTP <<") = "<<allConsts[hasBL].par0(lookUpParam,trkEta) 
-		<< "+" << allConsts[hasBL].par1(lookUpParam,trkEta) << "*" << fabs(trkIpt) <<  endreq; 
-      athenaLog << MSG::DEBUG << "TrigFTKUncertiantyTool:: (linear)cov "   << sigmaTP*sigmaTP << endreq; 
+		<< "+" << allConsts[hasBL].par1(lookUpParam,trkEta) << "*" << fabs(trkIpt) <<  endmsg; 
+      athenaLog << MSG::DEBUG << "TrigFTKUncertiantyTool:: (linear)cov "   << sigmaTP*sigmaTP << endmsg; 
     }
   }
 
   if(sigmaTP < 0)
-    athenaLog << MSG::ERROR << " sigma TP" << sigmaTP << endreq;
+    athenaLog << MSG::ERROR << " sigma TP" << sigmaTP << endmsg;
 
   //
   // Convert eta to theta

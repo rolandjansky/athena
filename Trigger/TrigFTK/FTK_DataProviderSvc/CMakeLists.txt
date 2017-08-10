@@ -66,5 +66,4 @@ atlas_add_component( FTK_DataProviderSvc
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
-atlas_install_runtime( share/FTK_DataProviderLoad.py )
 

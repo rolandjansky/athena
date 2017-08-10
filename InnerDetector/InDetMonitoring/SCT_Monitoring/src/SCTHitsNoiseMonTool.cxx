@@ -26,7 +26,6 @@
 #include "TMath.h"
 #include "TH1F.h"
 #include "TH2I.h"
-#include "TH2I.h"
 #include "TH2F.h"
 #include "TProfile.h"
 #include "TProfile2D.h"
@@ -49,20 +48,16 @@
 #include "InDetPrepRawData/SCT_ClusterContainer.h" // ?
 #include "TrkSpacePoint/SpacePoint.h"
 #include "TrkSpacePoint/SpacePointCollection.h"
-#include "TrkSpacePoint/SpacePointContainer.h"
 #include "TrkSpacePoint/SpacePointOverlapCollection.h"
 #include "TrkSpacePoint/SpacePointCLASS_DEF.h"
-// for TriggerType
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-#include "InDetPrepRawData/SCT_ClusterContainer.h"
 
-#include "TrkTrack/TrackCollection.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkEventUtils/RoT_Extractor.h"
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h" // ?
 #include "InDetRIO_OnTrack/PixelClusterOnTrack.h" // ?
 #include "cArrayUtilities.h"
+
+#include "StoreGate/ReadHandle.h"
 
 typedef Trk::SpacePoint SpacePoint;
 using namespace std;
@@ -219,7 +214,6 @@ SCTHitsNoiseMonTool::SCTHitsNoiseMonTool(const std::string &type,
   m_booltxscan(false),
   m_current_lb(0),
   m_last_reset_lb(0),
-  m_tracks(nullptr),
   m_tbinHisto(nullptr),
   m_tbinHistoECp(nullptr),
   m_tbinHistoECm(nullptr),
@@ -231,6 +225,7 @@ SCTHitsNoiseMonTool::SCTHitsNoiseMonTool(const std::string &type,
   m_tbinfracVsLBECp(nullptr),
   m_tbinfracVsLBECm(nullptr),
   m_initialize(false),
+  m_SCTSPContainerName(std::string("SCT_SpacePoints")),
   m_noisyM100{},
   m_noisyM1000{},
   m_noisyM10000{},
@@ -300,8 +295,11 @@ SCTHitsNoiseMonTool::SCTHitsNoiseMonTool(const std::string &type,
   m_hitoccTriggerECp_lb{},
   m_hitoccTriggerECm_lb{},
   //
+  m_dataObjectName(std::string("SCT_RDOs")),
   m_pSCTHelper(nullptr),
-  m_ConfigurationSvc("InDetSCT_ConfigurationConditionsSvc", name) {
+  m_ConfigurationSvc("InDetSCT_ConfigurationConditionsSvc", name),
+  m_eventInfoKey(std::string("EventInfo")),
+  m_clusContainerKey("SCT_Clusters") {
     /** sroe 3 Sept 2015:
 	histoPathBase is declared as a property in the base class, assigned to m_path
 	with default as empty string.
@@ -349,6 +347,20 @@ SCTHitsNoiseMonTool::~SCTHitsNoiseMonTool() {
 }
 
 // ====================================================================================================
+// ====================================================================================================
+StatusCode SCTHitsNoiseMonTool::initialize() {
+  ATH_CHECK(SCTMotherTrigMonTool::initialize());
+
+  ATH_CHECK(m_SCTSPContainerName.initialize());
+  ATH_CHECK(m_dataObjectName.initialize());
+  ATH_CHECK(m_eventInfoKey.initialize());
+  ATH_CHECK(m_clusContainerKey.initialize());
+  ATH_CHECK(m_tracksName.initialize());
+
+  return StatusCode::SUCCESS;
+}
+
+// ====================================================================================================
 //                           SCTHitsNoiseMonTool :: bookHistograms
 // ====================================================================================================
 StatusCode
@@ -357,7 +369,6 @@ SCTHitsNoiseMonTool::bookHistograms() {
   if (newRunFlag()) {
     m_numberOfEvents = 0;
   }
-  m_dataObjectName = "SCT_RDOs";
   // Get the helper:
   ATH_CHECK(detStore()->retrieve(m_pSCTHelper, "SCT_ID"));
   ATH_CHECK(m_ConfigurationSvc.retrieve());
@@ -449,7 +460,6 @@ StatusCode
 SCTHitsNoiseMonTool::bookHistogramsRecurrent() {
   ATH_MSG_DEBUG("bookHistogramsRecurrent being called");
   m_numberOfEvents = 0;
-  m_dataObjectName = "SCT_RDOs";
   // Get the helper:
   ATH_CHECK(detStore()->retrieve(m_pSCTHelper, "SCT_ID"));
   ATH_CHECK(m_ConfigurationSvc.retrieve());
@@ -538,14 +548,14 @@ StatusCode
 SCTHitsNoiseMonTool::fillHistograms() {
   ++m_numberOfEvents;
   ++m_numberOfEventsRecent;
-  const EventInfo *pEvent(0);
-  if (evtStore()->retrieve(pEvent).isFailure()) {
+  SG::ReadHandle<xAOD::EventInfo> pEvent(m_eventInfoKey);
+  if (not pEvent.isValid()) {
     if (msgLvl(MSG::ERROR)) {
       msg(MSG::ERROR) << "Could not retrieve event info!" << endmsg;
     }
     return StatusCode::RECOVERABLE;
   }
-  int tmp_lb = pEvent->event_ID()->lumi_block();
+  int tmp_lb = pEvent->lumiBlock();
   if ((tmp_lb > m_current_lb) and (m_current_lb<=SCT_Monitoring::NBINS_LBs)) {
     m_noisyM100[m_current_lb] = 0;
     m_noisyM1000[m_current_lb] = 0;
@@ -705,7 +715,7 @@ SCTHitsNoiseMonTool::fillHistograms() {
     m_events_lb = 0;
     m_eventsTrigger_lb = 0;
   }
-  m_current_lb = pEvent->event_ID()->lumi_block();
+  m_current_lb = pEvent->lumiBlock();
   // If track hits are selected, make the vector of track rdo identifiers
   if (m_doTrackHits) {
     if (makeVectorOfTrackRDOIdentifiers().isFailure() and msgLvl(MSG::WARNING)) {
@@ -795,22 +805,21 @@ SCTHitsNoiseMonTool::checkHists(bool /*fromFinalize*/) {
 StatusCode
 SCTHitsNoiseMonTool::generalHistsandNoise() {
   typedef SCT_RDORawData SCTRawDataType;
-  const SCT_RDO_Container *p_rdocontainer;
-  const EventInfo *pEvent(0);
-  if (evtStore()->retrieve(pEvent).isFailure()) {
+  SG::ReadHandle<SCT_RDO_Container> p_rdocontainer(m_dataObjectName);
+  SG::ReadHandle<xAOD::EventInfo> pEvent(m_eventInfoKey);
+  if (not pEvent.isValid()) {
     if (msgLvl(MSG::ERROR)) {
       msg(MSG::ERROR) << "Could not retrieve event info!" << endmsg;
     }
     return StatusCode::FAILURE;
   }
-  unsigned int current_lb = pEvent->event_ID()->lumi_block();
-  if (evtStore()->retrieve(p_rdocontainer, m_dataObjectName).isFailure()) {
+  unsigned int current_lb = pEvent->lumiBlock();
+  if (not p_rdocontainer.isValid()) {
     return StatusCode::FAILURE;
   }
   // Get the space point container
-  const SpacePointContainer *sctContainer;
-  m_SCTSPContainerName = "SCT_SpacePoints";
-  if (evtStore()->retrieve(sctContainer, m_SCTSPContainerName).isFailure()) {
+  SG::ReadHandle<SpacePointContainer> sctContainer(m_SCTSPContainerName);
+  if (not sctContainer.isValid()) {
     return StatusCode::FAILURE;
   }
   Identifier SCT_Identifier;
@@ -1255,9 +1264,8 @@ SCTHitsNoiseMonTool::generalHistsandNoise() {
 
   // if(m_environment!=AthenaMonManager::online){ // Uncomment this line to turn off cluster hists in online
   // Fill Cluster size histogram
-  const InDet::SCT_ClusterContainer *p_clucontainer;
-  StatusCode sc = evtStore()->retrieve(p_clucontainer, "SCT_Clusters");
-  if (sc.isFailure()) {
+  SG::ReadHandle<InDet::SCT_ClusterContainer> p_clucontainer(m_clusContainerKey);
+  if (not p_clucontainer.isValid()) {
     if (msgLvl(MSG::WARNING)) {
       msg(MSG::WARNING) << "Couldn't retrieve clusters" << endmsg;
     }
@@ -3058,12 +3066,10 @@ SCTHitsNoiseMonTool::bookSPvsEventNumber() {
 StatusCode
 SCTHitsNoiseMonTool::makeSPvsEventNumber() {
   // Retrieve the spacepoint collection
-  StatusCode sc;
-  const SpacePointContainer *m_SCT_spcontainer;
+  SG::ReadHandle<SpacePointContainer> SCT_spcontainer(m_SCTSPContainerName);
 
   // get space points for SCT from TDS
-  sc = evtStore()->retrieve(m_SCT_spcontainer, "SCT_SpacePoints");
-  if (sc.isFailure() || !m_SCT_spcontainer) {
+  if (not SCT_spcontainer.isValid()) {
     if (msgLvl(MSG::WARNING)) {
       msg(MSG::WARNING) << "Si SpacePoint container for SCT not found" << endmsg;
     }
@@ -3071,8 +3077,8 @@ SCTHitsNoiseMonTool::makeSPvsEventNumber() {
   }
   int m_sct_nspacepoints(0);
   // loop over SCT space points collections
-  SpacePointContainer::const_iterator it = m_SCT_spcontainer->begin();
-  SpacePointContainer::const_iterator endit = m_SCT_spcontainer->end();
+  SpacePointContainer::const_iterator it = SCT_spcontainer->begin();
+  SpacePointContainer::const_iterator endit = SCT_spcontainer->end();
   for (; it != endit; ++it) {
     const SpacePointCollection *colNext = &(**it);
     if (!colNext) {
@@ -3139,28 +3145,25 @@ SCTHitsNoiseMonTool::positionString(const Identifier &plane) const {
 
 StatusCode
 SCTHitsNoiseMonTool::makeVectorOfTrackRDOIdentifiers() {
-  StatusCode sc;
-
   // Clear the RDOsOnTracks vector
   m_RDOsOnTracks.clear();
-  const SCT_RDO_Container *p_rdocontainer;
-  sc = evtStore()->retrieve(p_rdocontainer, m_dataObjectName);
-  if (sc.isFailure() || !p_rdocontainer) {
-    msg(MSG::FATAL) << "Could not find the data object " << m_dataObjectName << " !" << endmsg;
+  SG::ReadHandle<SCT_RDO_Container> p_rdocontainer(m_dataObjectName);
+  if (not p_rdocontainer.isValid()) {
+    msg(MSG::FATAL) << "Could not find the data object " << m_dataObjectName.key() << " !" << endmsg;
     return StatusCode::FAILURE;
   } else {
     if (msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) << "Data object " << m_dataObjectName << " found" << endmsg;
+      msg(MSG::DEBUG) << "Data object " << m_dataObjectName.key() << " found" << endmsg;
     }
   }
-
-  sc = evtStore()->retrieve(m_tracks, m_tracksName);
-  if (sc.isFailure()) {
+  
+  SG::ReadHandle<TrackCollection> tracks(m_tracksName);
+  if (not tracks.isValid()) {
     msg(MSG::FATAL) << "No tracks for you!" << endmsg;
-    return sc;
+    return StatusCode::FAILURE;
   }
   // Only do for events with less than some number of tracks
-  if (m_tracks->size() > m_maxTracks) {
+  if (tracks->size() > m_maxTracks) {
     if (msgLvl(MSG::DEBUG)) {
       msg(MSG::DEBUG) << "The event has more than " << m_maxTracks
                       << " tracks. Don't do hits-on-track-hists" << endmsg;
@@ -3168,8 +3171,8 @@ SCTHitsNoiseMonTool::makeVectorOfTrackRDOIdentifiers() {
     return StatusCode::SUCCESS;
   }
   // assemble list of rdo ids associated with tracks
-  for (int i = 0; i < (int) m_tracks->size(); i++) {
-    const Trk::Track *track = (*m_tracks)[i];
+  for (int i = 0; i < (int) tracks->size(); i++) {
+    const Trk::Track *track = (*tracks)[i];
     if (track == 0) {
       if (msgLvl(MSG::WARNING)) {
         msg(MSG::WARNING) << "no pointer to track!!!" << endmsg;

@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __CalibMuonsSelectorTool_h__
-#define __CalibMuonsSelectorTool_h__
+#ifndef MUONPTCALIBNUTPLEMAKER_CALIBMUONSSELECTORTOOL_H
+#define MUONPTCALIBNUTPLEMAKER_CALIBMUONSSELECTORTOOL_H
 
 //::: STL includes
 #include <string>
@@ -14,7 +14,7 @@
 #include "GaudiKernel/ToolHandle.h"
 
 //::: GRL includes
-#include "GoodRunsLists/IGoodRunsListSelectionTool.h"
+#include "AsgAnalysisInterfaces/IGoodRunsListSelectionTool.h"
 
 //::: MCP includes
 #include "MuonSelectorTools/IMuonSelectionTool.h"

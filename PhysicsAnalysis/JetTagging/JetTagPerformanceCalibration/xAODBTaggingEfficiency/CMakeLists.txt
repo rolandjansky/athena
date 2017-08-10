@@ -1,10 +1,18 @@
-# $Id: CMakeLists.txt 742367 2016-04-23 09:53:26Z krasznaa $
+# $Id: CMakeLists.txt 780668 2016-10-27 10:10:01Z krasznaa $
 ################################################################################
 # Package: xAODBTaggingEfficiency
 ################################################################################
 
 # Declare the package name:
 atlas_subdir( xAODBTaggingEfficiency )
+
+# Extra dependencies based on the build environment:
+set( extra_deps )
+if( XAOD_STANDALONE )
+   set( extra_deps Control/xAODRootAccess )
+else()
+   set( extra_deps Control/AthenaBaseComps GaudiKernel )
+endif()
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs(
@@ -16,9 +24,8 @@ atlas_depends_on_subdirs(
   PhysicsAnalysis/AnalysisCommon/PATInterfaces
   PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/CalibrationDataInterface
   PRIVATE
-  Control/AthenaBaseComps
-  GaudiKernel
-  Tools/PathResolver )
+  Tools/PathResolver
+  ${extra_deps} )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Hist RIO )
@@ -31,15 +38,28 @@ atlas_add_library( xAODBTaggingEfficiencyLib
   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODBTagging xAODJet
   PATCoreLib PATInterfaces CalibrationDataInterfaceLib PathResolver )
 
-atlas_add_component( xAODBTaggingEfficiency
-  src/*.h src/*.cxx src/components/*.cxx
-  LINK_LIBRARIES xAODJet CalibrationDataInterfaceLib AthenaBaseComps
-  GaudiKernel PathResolver xAODBTaggingEfficiencyLib )
+if( NOT XAOD_STANDALONE )
+   atlas_add_component( xAODBTaggingEfficiency
+      src/*.h src/*.cxx src/components/*.cxx
+      LINK_LIBRARIES xAODJet CalibrationDataInterfaceLib AthenaBaseComps
+      GaudiKernel PathResolver xAODBTaggingEfficiencyLib )
+endif()
 
 atlas_add_dictionary( xAODBTaggingEfficiencyDict
   xAODBTaggingEfficiency/xAODBTaggingEfficiencyDict.h
   xAODBTaggingEfficiency/selection.xml
   LINK_LIBRARIES xAODBTaggingEfficiencyLib )
+
+# Executable(s) in the package:
+if( XAOD_STANDALONE )
+   atlas_add_executable( BTaggingEfficiencyToolTester
+      util/BTaggingEfficiencyToolTester.cxx
+      LINK_LIBRARIES xAODRootAccess xAODBTaggingEfficiencyLib )
+
+   atlas_add_executable( BTaggingSelectionToolTester
+      util/BTaggingSelectionToolTester.cxx
+      LINK_LIBRARIES xAODJet xAODBTagging xAODBTaggingEfficiencyLib )
+endif()
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

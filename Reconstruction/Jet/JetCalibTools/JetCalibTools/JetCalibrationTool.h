@@ -90,7 +90,6 @@ private:
   std::string m_calibAreaTag;
   bool m_devMode;
   bool m_isData;
-  bool m_mass;
   bool m_timeDependentCalib;
   bool m_originCorrectedClusters;
   std::string m_rhoKey;

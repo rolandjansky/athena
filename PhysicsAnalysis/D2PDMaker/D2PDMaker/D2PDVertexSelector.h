@@ -36,9 +36,9 @@
 #include "AthenaBaseComps/AthFilterAlgorithm.h"
 
 // DataModel
-#include "DataModel/DataVector.h"
-#include "DataModel/ElementLink.h"
-#include "DataModel/ElementLinkVector.h"
+#include "AthContainers/DataVector.h"
+#include "AthLinks/ElementLink.h"
+#include "AthLinks/ElementLinkVector.h"
 #include "SGTools/CLASS_DEF.h"
 
 // INav4Mom includes

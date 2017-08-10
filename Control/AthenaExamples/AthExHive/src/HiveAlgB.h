@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef ATHEXHIVE_ALGB_H
 #define ATHEXHIVE_ALGB_H 1
 

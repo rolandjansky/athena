@@ -57,7 +57,7 @@
 #include "CaloTTDetDescr/CaloTTDescrManager.h"
 #include "CaloIdentifier/CaloLVL1_ID.h" 
 #include "CaloIdentifier/CaloID_Exception.h"
-#include "LArTools/LArCablingService.h" 
+#include "LArCabling/LArCablingService.h" 
 //#include "LArIdentifier/LArHardwareID.h" 
 
 //LVL1 Calo trigger includes
@@ -85,10 +85,6 @@
 
 class IAtRndmGenSvc;
 class ILumiBlockMuTool;
-
-// Pedestal Correction
-#include "TProfile.h"
-class ITHistSvc;
 
 namespace LVL1
 {
@@ -443,9 +439,6 @@ class TriggerTowerMaker : public AthAlgorithm,
     int  IetaToElement(int eta, int layer);
     void initLUTsPrepare(const std::vector< std::vector< std::vector<double> > >& PulsesElement);
 
-  protected:
-    //  Athena hist service
-    ServiceHandle<ITHistSvc> m_thistSvc;
 };
 
 } // end of namespace bracket

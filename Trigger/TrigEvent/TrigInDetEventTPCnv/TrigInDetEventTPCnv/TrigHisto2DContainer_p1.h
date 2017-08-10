@@ -5,7 +5,7 @@
 /**********************************************************************************
  * @Project: Trigger
  * @Package: TrigInDetEventTPCnv
- * @Class  : TrigHisto2DContainer_p1
+ * @class  : TrigHisto2DContainer_p1
  *
  * @brief persistent partner for TrigHisto2DContainer
  *

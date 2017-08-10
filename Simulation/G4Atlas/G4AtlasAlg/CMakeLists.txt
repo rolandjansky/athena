@@ -9,7 +9,6 @@ atlas_subdir( G4AtlasAlg )
 atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           PRIVATE
-			  Control/AthToolSupport/AsgTools
                           Control/AthenaBaseComps
                           Control/AthenaKernel
                           Control/CxxUtils

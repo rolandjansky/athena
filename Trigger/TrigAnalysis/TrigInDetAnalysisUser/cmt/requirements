@@ -42,7 +42,7 @@ macro_append TIDAcomputils_cppflags  " -I../Readcards/src -I../Resplot/src "
 application  TIDAreader          "../Analysis/src/reader.cxx
 macro_append TIDAreader_cppflags " -I../Readcards/src"
 
-application  TIDArdict               "../Analysis/src/rmain.cxx"
+application  TIDArdict               "../Analysis/src/rmain.cxx ../Analysis/src/computils.cxx 
 macro_append TIDArdict_cppflags      " -I../Resplot/src -I../Readcards/src "
 macro_append TIDArdictlinkopts       " -lResplot -lReadcards -lTIDA -lXrdPosix "
 macro_append TIDArdict_dependencies  " Resplot Readcards TIDA "
@@ -74,7 +74,10 @@ macro_append TIDAlistroot_cppflags      " -I../Readcards/src "
 macro_append TIDAlistrootlinkopts       " -lReadcards "
 macro_append TIDAlistroot_dependencies  " Readcards " 
 
-application  TIDAruntool  "../Analysis/src/runtool.cxx"
+application  TIDAruntool  "../Analysis/src/runtool.cxx ../Analysis/src/computils.cxx ""
+macro_append TIDAruntool_cppflags      " -I../Readcards/src "
+macro_append TIDArunntoollinkopts       " -lReadcards "
+macro_append TIDAruntool_dependencies  " Readcards " 
 
 # macro_append TIDAlistrootlinkopts       " -lResplot  -lTIDA"
 # macro_append TIDAlistroot_dependencies  " Resplot TIDA "

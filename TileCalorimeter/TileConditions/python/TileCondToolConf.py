@@ -597,7 +597,8 @@ def getTileCondToolOfcCool(source = 'FILE', runType = 'PHY', ofcType = 'OF2', na
         
         proxySource = GetTileOfcCoolSource(ofcType, runType)
         if not tileCoolMgr.isSourceAvailable(proxySource):
-            AddTileOfcCoolSource(ofcType, runType)
+            splitOnline = isUsedDataBaseRun2 and (runType == 'PHY')
+            AddTileOfcCoolSource(ofcType, runType, splitOnline)
             
         proxyName = 'TileCondProxyCool_' + proxySource
 

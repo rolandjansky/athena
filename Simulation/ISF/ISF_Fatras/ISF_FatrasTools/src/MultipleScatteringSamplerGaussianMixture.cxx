@@ -11,7 +11,7 @@
 
 #include "ISF_FatrasTools/MultipleScatteringSamplerGaussianMixture.h"
 
-#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 
 // static particle masses
 Trk::ParticleMasses iFatras::MultipleScatteringSamplerGaussianMixture::s_particleMasses;
