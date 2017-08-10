@@ -31,8 +31,6 @@
 #include <string>
 
 
-using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
-
 class ALFA_RawData;
 class ALFA_RawDataCollection;
 class ALFA_RawDataContainer;
@@ -62,7 +60,7 @@ class ALFA_RawDataProviderTool : public AthAlgTool
   
 
    //! this is the main decoding method
-  StatusCode convert(std::vector<const ROBFragment*>& vecRobs,ALFA_RawDataContainer* rdoCont);
+  StatusCode convert(std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs,ALFA_RawDataContainer* rdoCont);
   
 private:
  

@@ -15,6 +15,7 @@
 #define DATAMODELTESTDATACOMMON_CONDREADERALG_H
 
 
+#include "DataModelTestDataCommon/S1Cond.h"
 #include "EventInfo/EventInfo.h"
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
@@ -52,6 +53,7 @@ public:
 private:
   SG::ReadHandleKey<EventInfo> m_eventInfoKey;
   SG::ReadCondHandleKey<AthenaAttributeList> m_attrListKey;
+  SG::ReadCondHandleKey<DMTest::S1> m_scondKey;
 };
 
 

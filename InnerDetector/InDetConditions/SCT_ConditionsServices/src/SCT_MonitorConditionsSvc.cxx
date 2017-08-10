@@ -16,9 +16,6 @@
 
 #include "SCT_SlhcIdConverter.h"
 
-#include "AthenaPoolUtilities/AthenaAttributeList.h"
-#include "AthenaPoolUtilities/CondAttrListCollection.h"
-
 #include "Identifier/IdentifierHash.h"
 #include "InDetIdentifier/SCT_ID.h"
 
@@ -41,13 +38,14 @@ string SCT_MonitorConditionsSvc::s_defectFolderName{string("/SCT/Derived/Monitor
 
 SCT_MonitorConditionsSvc::SCT_MonitorConditionsSvc(const std::string& name,ISvcLocator* pSvcLocator) :
   AthService(name, pSvcLocator),
-  m_attrListCollection{nullptr},
   m_detStore{"DetectorStore", name},
   m_nhits_noisychip{64},
   m_nhits_noisywafer{384},
   m_nhits_noisymodule{768},
   m_pHelper{nullptr},
-  m_currentDefectList{""}
+  m_currentDefectList{""},
+  m_condData{nullptr},
+  m_condKey{std::string{"SCT_MonitorConditionsCondData"}}
 {
   declareProperty("Nnoisychip",        m_nhits_noisychip);
   declareProperty("Nnoisywafer",       m_nhits_noisywafer);
@@ -68,10 +66,8 @@ SCT_MonitorConditionsSvc::initialize() {
     return StatusCode::FAILURE;
   }
 
-  if(m_detStore->regFcn(&SCT_MonitorConditionsSvc::getAttrListCollection, this, m_DefectData, s_defectFolderName).isFailure()) {
-    ATH_MSG_ERROR("Failed to register callback");
-    return StatusCode::FAILURE;
-  }
+  // Read Cond Handle Key
+  ATH_CHECK(m_condKey.initialize());
   
   return StatusCode::SUCCESS;
 }
@@ -217,49 +213,15 @@ SCT_MonitorConditionsSvc::badStripsAsString(const Identifier & moduleId) {
 
 std::string
 SCT_MonitorConditionsSvc::getList(const Identifier& imodule) const {
-  static const string errorstring{""};
-  //to be completely robust, could use iter->index("DefectList") below (before the loop)
-  if(not m_attrListCollection) {
-    ATH_MSG_ERROR("In getList - no attrListCollection");
-    return errorstring;
-  }
   m_currentDefectList = "";
   int channelNumber{static_cast<int>(imodule.get_identifier32().get_compact())};
-  std::map<const int, const std::string>::iterator it{m_defectListMap.find(channelNumber)};
-  if(it!=m_defectListMap.end()) {
-    m_currentDefectList = it->second;
+  if(getCondData()) {
+    m_condData->find(channelNumber, m_currentDefectList);
+  } else {
+    ATH_MSG_ERROR("In getList - no data");
   }
   return m_currentDefectList;
 
-}
-
-///////////////////////////////////////////////////////////////////////////////////
-
-StatusCode 
-SCT_MonitorConditionsSvc::getAttrListCollection(int& /*i*/ , std::list<std::string>& /*l*/) {
-    // trying to find the pointer in the hashmap
-    // if it exists, return it, otherwise put it in.
-
-  m_attrListCollectionMap.erase(s_defectFolderName);
-  m_defectListMap.clear();
-
-  StatusCode sc{m_detStore->retrieve(m_attrListCollection, s_defectFolderName)};
-  if(sc.isFailure()) {
-    ATH_MSG_ERROR("Could not retrieve " << s_defectFolderName);
-    // Using COOL, is failure
-    return StatusCode::FAILURE;
-  }
-  m_attrListCollectionMap.insert(make_pair(s_defectFolderName, m_attrListCollection));
-  static const unsigned int defectListIndex{7};
-  CondAttrListCollection::const_iterator iter{m_attrListCollection->begin()};
-  CondAttrListCollection::const_iterator last{m_attrListCollection->end()};
-  for(; iter != last; ++iter) {
-      const AthenaAttributeList& list{iter->second};
-      if(list.size()) {
-        m_defectListMap.insert(make_pair(iter->first,list[defectListIndex].data<std::string>()));
-      }
-  }
-  return StatusCode::SUCCESS;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -442,4 +404,19 @@ SCT_MonitorConditionsSvc::computeIstrip4moncond(const Identifier& elementId) con
   unsigned int iiside{static_cast<unsigned int>(m_pHelper->side(elementId))};
   unsigned int iistrip{static_cast<unsigned int>(m_pHelper->strip(elementId))};
   return stripsPerSide*iiside + iistrip;
+}
+
+///////////////////////////////////////////////////////////////////////////////////
+
+bool
+SCT_MonitorConditionsSvc::getCondData() const {
+  if(!m_condData) {
+    SG::ReadCondHandle<SCT_MonitorConditionsCondData> condData{m_condKey};
+    if((not condData.isValid()) or !(*condData)) {
+      ATH_MSG_ERROR("Failed to get " << m_condKey.key());
+      return false;
+    }
+    m_condData = *condData;
+  }
+  return true;
 }

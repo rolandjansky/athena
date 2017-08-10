@@ -23,9 +23,7 @@
 #include "LArG4Code/LArG4SimpleSD.h"
 
 // TileCAL calculators
-#include "TileGeoG4SD/TileGeoG4SDCalc.hh"
-#include "G4SDManager.hh"
-#include "TileGeoG4SD/TileGeoG4SD.hh"
+#include "TileG4Interfaces/ITileCalculator.h"
 
 #include "ISF_FastCaloSimEvent/FCS_StepInfo.h"
 #include "ISF_FastCaloSimEvent/FCS_StepInfoCollection.h"
@@ -50,7 +48,6 @@ namespace G4UA{
     m_current_calculator_Tile(nullptr),
     m_current_solid(nullptr),
     m_current_transform(nullptr),
-    m_calculator_Tile(nullptr),
     m_lar_helper(nullptr),
     m_lar_emID(nullptr),
     m_calo_dd_man(nullptr),
@@ -70,22 +67,6 @@ namespace G4UA{
     //G4cout << "############################################" << G4endl
     // << "##    FastCaloSimParamAction - BeginOfRun ##" << G4endl
     // << "############################################" << G4endl;
-    // ?? Ok, where do I need this??
-    // init tile calculator
-    if (m_calculator_Tile == nullptr)
-      {
-        // Get the tile calculator from the SD
-        G4SDManager *sdManager = G4SDManager::GetSDMpointer();
-        TileGeoG4SD * tileSD = dynamic_cast<TileGeoG4SD*>( sdManager->FindSensitiveDetector("TileGeoG4SD") );
-        if (tileSD){
-          m_calculator_Tile = tileSD->GetCalculator();
-        } else {
-          G4ExceptionDescription description;
-          description << "FastCaloSimParamAction::BeginOfRunAction - can't find TileGeoG4SDCalc";
-          G4Exception("FastCaloSimParamAction", "NoTileGeoG4SDCalc", FatalException, description);
-          abort();
-        }
-      }
 
     if (m_current_transform == nullptr)
       {
@@ -113,12 +94,6 @@ namespace G4UA{
            << "##    FastCaloSimParamAction - EndOfRun   ##" << G4endl
            << "##          deleting calculators          ##" << G4endl
            << "############################################" << G4endl;
-
-    if (m_calculator_Tile !=0) {
-      delete m_calculator_Tile;
-      m_calculator_Tile = 0;
-
-    }
 
     G4cout << "ZH good detector map: " << G4endl;
     for (std::map<std::string, int>::iterator it = m_detectormap.begin(); it!= m_detectormap.end(); ++it)
@@ -148,22 +123,6 @@ namespace G4UA{
     //G4cout << "############################################" << G4endl
     //     << "##  FastCaloSimParamAction - BeginOfEvent ##" << G4endl
     //     << "############################################" << G4endl;
-
-    // init tile calculator
-    if (m_calculator_Tile == nullptr)
-      {
-        // Get the tile calculator from the SD
-        G4SDManager *sdManager = G4SDManager::GetSDMpointer();
-        TileGeoG4SD * tileSD = dynamic_cast<TileGeoG4SD*>( sdManager->FindSensitiveDetector("TileGeoG4SD") );
-        if (tileSD){
-          m_calculator_Tile = tileSD->GetCalculator();
-        } else {
-          G4ExceptionDescription description;
-          description << "FastCaloSimParamAction::BeginOfEventAction - can't find TileGeoG4SDCalc";
-          G4Exception("FastCaloSimParamAction", "NoTileGeoG4SDCalc", FatalException, description);
-          abort();
-        }
-      }
 
     if (m_current_transform == nullptr)
       {
@@ -198,6 +157,18 @@ namespace G4UA{
 #endif
 
     //  G4cout << "FastCaloSimParamAction::EndOfEventAction: After initial cleanup, N=" << m_eventSteps->size() << G4endl;
+
+    // Unpack map into vector
+    for (auto it : m_hit_map){
+      for (auto a_s : * it.second){
+        // Giving away ownership of the objects!
+        m_eventSteps->push_back( a_s );
+      }
+      it.second->clear();
+      delete it.second;
+    } // Vector of IDs in the map
+    m_hit_map.clear();
+  
     if (m_eventSteps->size()==0) return; //don't need to play with it
     G4cout << "FastCaloSimParamAction::EndOfEventAction: After initial cleanup, N=" << m_eventSteps->size() << G4endl;
 
@@ -313,82 +284,82 @@ namespace G4UA{
         if(CurrentLogicalVolumeName == "LArMgr::LAr::FCAL::Module1::Absorber")
           {
             // shower is inside FCAL1
-            m_current_calculator = m_config.calculator_FCAL1;
+            m_current_calculator = &*m_config.calculator_FCAL1;
             //m_current_calculator = nullptr;
             break;
           }
         else if (CurrentLogicalVolumeName == "LArMgr::LAr::FCAL::Module2::Absorber")
           {
             // shower is inside FCAL2
-            m_current_calculator = m_config.calculator_FCAL2;
+            m_current_calculator = &*m_config.calculator_FCAL2;
             //m_current_calculator = nullptr; //try disable..
             break;
           }
         else if (CurrentLogicalVolumeName == "LArMgr::LAr::FCAL::Module3::Absorber")
           {
             // shower is inside FCAL3
-            m_current_calculator = m_config.calculator_FCAL3;
+            m_current_calculator = &*m_config.calculator_FCAL3;
             break;
           }
         else if (CurrentLogicalVolumeName == "LArMgr::LAr::EMEC::Pos::InnerWheel")
           {
-            m_current_calculator = m_config.calculator_EMECIW_pos;
+            m_current_calculator = &*m_config.calculator_EMECIW_pos;
             break;
           }
         else if (CurrentLogicalVolumeName == "LArMgr::LAr::EMEC::Neg::InnerWheel")
           {
             // shower is inside inner EMEC
-            m_current_calculator = m_config.calculator_EMECIW_neg;
+            m_current_calculator = &*m_config.calculator_EMECIW_neg;
             break;
           }
         else if (CurrentLogicalVolumeName == "LArMgr::LAr::EMEC::Pos::OuterWheel")
           {
-            m_current_calculator = m_config.calculator_EMECOW_pos;
+            m_current_calculator = &*m_config.calculator_EMECOW_pos;
             break;
           }
         else if (CurrentLogicalVolumeName == "LArMgr::LAr::EMEC::Neg::OuterWheel")
           {
             // shower is inside outer EMEC positive
-            m_current_calculator = m_config.calculator_EMECOW_neg;
+            m_current_calculator = &*m_config.calculator_EMECOW_neg;
             break;
           }
         else if (CurrentLogicalVolumeName == "LArMgr::LAr::EMB::STAC")
           {
             // shower is inside EMB positive
-            m_current_calculator = m_config.calculator_EMB;
+            m_current_calculator = &*m_config.calculator_EMB;
             break;
           }
         //else if (CurrentLogicalVolumeName == "LArMgr::LAr::EMEC::FrontInnerBarrette::Module::Phidiv")
         //	{
-        //          m_current_calculator = m_config.calculator_BIB;
+        //          m_current_calculator = &*m_config.calculator_BIB;
         //          break;
         //	}
         else if (CurrentLogicalVolumeName == "LArMgr::LAr::EMEC::BackOuterBarrette::Module::Phidiv")
           {
-            m_current_calculator = m_config.calculator_BOB;
+            m_current_calculator = &*m_config.calculator_BOB;
             break;
           }
         //else if (CurrentLogicalVolumeName == "LArMgr::LAr::HEC::Module::Depth::Slice::Local")
         //{
-        //  m_current_calculator = m_config.calculator_HECLocal;
+        //  m_current_calculator = &*m_config.calculator_HECLocal;
         //  break;
         //} //doesn't exist anymore
         else if (CurrentLogicalVolumeName == "LArMgr::LAr::HEC::Module::Depth::Slice")
           {
-            m_current_calculator = m_config.calculator_HEC;
+            m_current_calculator = &*m_config.calculator_HEC;
             break;
           }
         else if (CurrentLogicalVolumeName == "LArMgr::LAr::Barrel::Presampler::Module")
           {
-            m_current_calculator = m_config.calculator_EMBPS;
+            m_current_calculator = &*m_config.calculator_EMBPS;
           }
         else if (CurrentLogicalVolumeName == "LArMgr::LAr::Endcap::Presampler::LiquidArgon")
           {
-            m_current_calculator = m_config.calculator_EMEPS;
+            m_current_calculator = &*m_config.calculator_EMEPS;
           }
         else if (CurrentLogicalVolumeName.find(tilestring)!= std::string::npos)
           {
-            m_current_calculator_Tile = m_calculator_Tile;
+            m_current_calculator_Tile = &*m_config.calculator_TILE;
             break;
           }
 
@@ -682,12 +653,12 @@ namespace G4UA{
                 //double time = results[i].energy)==0 ? 0. : (double) results[i].time/results[i].energy/CLHEP::ns;
                 double time = results[i].time;
                 double energy = results[i].energy/CLHEP::MeV;
-
-                ISF_FCS_Parametrization::FCS_StepInfo* theInfo = new ISF_FCS_Parametrization::FCS_StepInfo(pos, id, energy, time, true, nlarh); //store nlarh as info
+                update_map(pos, id, energy, time, true, nlarh); //store nlarh as info
+                // ISF_FCS_Parametrization::FCS_StepInfo* theInfo = new ISF_FCS_Parametrization::FCS_StepInfo(pos, id, energy, time, true, nlarh); //store nlarh as info
                 //This one stores also StepLength, but it is not yet in SVN...
                 //          ISF_FCS_Parametrization::FCS_StepInfo* theInfo = new ISF_FCS_Parametrization::FCS_StepInfo(pos, id, (double) results[i].energy, (double) results[i].time, true, nlarh, StepLength); //store nlarh as info
                 //std::cout <<"Adding new step info: "<<i<<" at: "<<pos<<" Id: "<<id<<" E: "<<energy<<" time: "<<time<<std::endl;
-                m_eventSteps->push_back(theInfo);
+                // m_eventSteps->push_back(theInfo);
               }//nlarh
             //std::cout <<"----"<<std::endl;
           } //istep
@@ -708,7 +679,8 @@ namespace G4UA{
           //std::cout<<"GG: Hello" << std::endl;
 
           //calculation of MicroHit with aStep
-          TileMicroHit micHit = m_calculator_Tile->TileGeoG4SDCalc::GetTileMicroHit(aStep);
+          TileHitData hitData;
+          TileMicroHit micHit = m_current_calculator_Tile->GetTileMicroHit(aStep, hitData);
           Identifier m_invalid_id;
 
           //Check if MicroHit is not in scintillator
@@ -723,14 +695,15 @@ namespace G4UA{
                 //std::cout <<"Something wrong in identifier: One tile pmt: "<<micHit.pmt_up<<" "<<micHit.pmt_down<<std::endl;
                 //std::cout <<"E up: "<<micHit.e_up<<" E down: "<<micHit.e_down<<" T up: "<<micHit.time_up<<" T down: "<<micHit.time_down<<std::endl;
               }
-            ISF_FCS_Parametrization::FCS_StepInfo* theInfo_Tile_up = new ISF_FCS_Parametrization::FCS_StepInfo(pos, micHit.pmt_up, micHit.e_up, micHit.time_up, true,1);
+            update_map(pos, micHit.pmt_up, micHit.e_up, micHit.time_up, true,1); 
+            // ISF_FCS_Parametrization::FCS_StepInfo* theInfo_Tile_up = new ISF_FCS_Parametrization::FCS_StepInfo(pos, micHit.pmt_up, micHit.e_up, micHit.time_up, true,1);
             //Commented out version needs ISF_Event which is not yet in SVN..
             //      ISF_FCS_Parametrization::FCS_StepInfo* theInfo_Tile_up = new ISF_FCS_Parametrization::FCS_StepInfo(pos, micHit.pmt_up, micHit.e_up, micHit.time_up, true,1,StepLength);
-            m_eventSteps->push_back(theInfo_Tile_up);
-
-            ISF_FCS_Parametrization::FCS_StepInfo* theInfo_Tile_down = new ISF_FCS_Parametrization::FCS_StepInfo(pos, micHit.pmt_down, micHit.e_down,micHit.time_down , true,1);
+            // m_eventSteps->push_back(theInfo_Tile_up);
+            update_map(pos, micHit.pmt_down, micHit.e_down,micHit.time_down , true,1);
+            // ISF_FCS_Parametrization::FCS_StepInfo* theInfo_Tile_down = new ISF_FCS_Parametrization::FCS_StepInfo(pos, micHit.pmt_down, micHit.e_down,micHit.time_down , true,1);
             //ISF_FCS_Parametrization::FCS_StepInfo* theInfo_Tile_down = new ISF_FCS_Parametrization::FCS_StepInfo(pos, micHit.pmt_down, micHit.e_down,micHit.time_down , true,1,StepLength);
-            m_eventSteps->push_back(theInfo_Tile_down);
+            // m_eventSteps->push_back(theInfo_Tile_down);
 
             //std::cout << "GG: GetTileMicroHit: pmtID_up,pmtID_down,edep_up,edep_down,scin_Time_up,scin_Time_down:\t" << micHit.pmt_up <<";\t"<< micHit.pmt_down <<";\t"<< micHit.e_up <<";\t"<< micHit.e_down <<";\t" << micHit.time_up <<";\t"<< micHit.time_down << std::endl;
 
@@ -751,5 +724,89 @@ namespace G4UA{
 
 
   }
+
+
+// We are keeping a map instead of trying to keep the full vector
+// At the end of run we'll push the map back into the flat vector for storage in StoreGate
+void FastCaloSimParamAction::update_map(const CLHEP::Hep3Vector & l_vec, const Identifier & l_cell, double l_energy, double l_time, bool l_valid, int l_detector)
+{
+  // Drop any hits that don't have a good identifier attached
+  if (!m_calo_dd_man->get_element(l_cell)) return;
+
+  auto map_item = m_hit_map.find( l_cell );
+  if (map_item==m_hit_map.end()){
+    m_hit_map[l_cell] = new std::vector< ISF_FCS_Parametrization::FCS_StepInfo* >;
+    m_hit_map[l_cell]->push_back( new ISF_FCS_Parametrization::FCS_StepInfo( l_vec , l_cell , l_energy , l_time , l_valid , l_detector ) );
+  } 
+  else {
+
+    // Get the appropriate merging limits
+    double tsame;
+    const CaloCell_ID::CaloSample& layer = m_calo_dd_man->get_element(l_cell)->getSampling();
+    if (layer >= CaloCell_ID::PreSamplerB && layer <= CaloCell_ID::EME3){
+      tsame = m_config.m_maxTimeLAr;
+    } else if (layer >= CaloCell_ID::HEC0  && layer <= CaloCell_ID::HEC3){
+      tsame = m_config.m_maxTimeHEC;
+    } else if (layer >= CaloCell_ID::TileBar0 && layer <= CaloCell_ID::TileExt2){
+      tsame = m_config.m_maxTimeTile;
+    } else if (layer >=CaloCell_ID::FCAL0 && layer <= CaloCell_ID::FCAL2){
+      tsame = m_config.m_maxTimeFCAL;
+    } else {
+      tsame = m_config.m_maxTime;
+    }
+
+    bool match = false;
+    for (auto map_it : * map_item->second){
+      // Time check is straightforward
+      if ( fabs(map_it->time()-l_time)>=tsame ) continue;
+      // Distance check is less straightforward
+      CLHEP::Hep3Vector a_diff = l_vec - map_it->position();
+      double a_inv_length = 1./a_diff.mag();
+      if (layer==CaloCell_ID::PreSamplerB || layer==CaloCell_ID::PreSamplerE){
+        // 5mm in eta, 5mm in phi, no cut in r
+        if (fabs(sin(l_vec.phi()-map_it->position().phi())*a_diff.mag())>=5) continue; // phi
+        if (fabs(sin(l_vec.theta()-map_it->position().theta())*a_diff.mag())>=5) continue; // eta
+      } else if (layer==CaloCell_ID::EMB1 || layer==CaloCell_ID::EME1){
+        // 1mm in eta, 5mm in phi, 15mm in r
+        if ( a_diff.dot( l_vec ) * a_inv_length >= 15 ) continue; // r
+        if (fabs(sin(l_vec.phi()-map_it->position().phi())*a_diff.mag())>=5) continue; // phi
+        if (fabs(sin(l_vec.theta()-map_it->position().theta())*a_diff.mag())>=1) continue; // eta
+      } else if (layer==CaloCell_ID::EMB2 || layer==CaloCell_ID::EME2){
+        // 5mm in eta, 5mm in phi, 60mm in r
+        if ( a_diff.dot( l_vec ) * a_inv_length >= 60 ) continue; // r
+        if (fabs(sin(l_vec.phi()-map_it->position().phi())*a_diff.mag())>=5) continue; // phi
+        if (fabs(sin(l_vec.theta()-map_it->position().theta())*a_diff.mag())>=5) continue; // eta
+      } else if (layer==CaloCell_ID::EMB3 || layer==CaloCell_ID::EMB3){
+        // 5mm in eta, 5mm in phi, 8mm in r
+        if ( a_diff.dot( l_vec ) * a_inv_length >= 8 ) continue; // r
+        if (fabs(sin(l_vec.phi()-map_it->position().phi())*a_diff.mag())>=5) continue; // phi
+        if (fabs(sin(l_vec.theta()-map_it->position().theta())*a_diff.mag())>=5) continue; // eta
+      } else if (layer >= CaloCell_ID::PreSamplerB && layer <= CaloCell_ID::EME3){
+        if ( map_it->position().diff2( l_vec ) >= m_config.m_maxRadiusLAr ) continue;
+      } else if (layer >= CaloCell_ID::HEC0  && layer <= CaloCell_ID::HEC3){
+        if ( map_it->position().diff2( l_vec ) >= m_config.m_maxRadiusHEC ) continue;
+      } else if (layer >= CaloCell_ID::TileBar0 && layer <= CaloCell_ID::TileExt2){
+        if ( map_it->position().diff2( l_vec ) >= m_config.m_maxRadiusTile ) continue;
+      } else if (layer >=CaloCell_ID::FCAL0 && layer <= CaloCell_ID::FCAL2){
+        if ( map_it->position().diff2( l_vec ) >= m_config.m_maxRadiusFCAL ) continue;
+      } else {
+        if ( map_it->position().diff2( l_vec ) >= m_config.m_maxRadius ) continue;
+      }
+
+      // Found a match.  Make a temporary that will be deleted!
+      ISF_FCS_Parametrization::FCS_StepInfo my_info( l_vec , l_cell , l_energy , l_time , l_valid , l_detector );
+      *map_it += my_info;
+      match = true;
+      break;
+    } // End of search for match in time and space
+    if (!match){
+      map_item->second->push_back( new ISF_FCS_Parametrization::FCS_StepInfo( l_vec , l_cell , l_energy , l_time , l_valid , l_detector ) );
+    } // Didn't match
+  } // ID already in the map
+
+} // That's it for updating the map!
+
+
+
 
 } // namespace G4UA

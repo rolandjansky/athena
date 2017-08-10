@@ -1734,7 +1734,8 @@ namespace Muon {
 	      ATH_MSG_VERBOSE (" Summary nHits " << matchedHits << " nl1 " << matchWithLine.hitsMl1() 
                                << " nl2 " << matchWithLine.hitsMl2());
 	      if (matchedHits > nHits || (matchedHits ==  nHits && psi < angleDif )) {
-		int dnl = abs(matchWithLine.hitsMl1()-matchWithLine.hitsMl2());
+		int dnl = std::abs(static_cast<int>(matchWithLine.hitsMl1())-
+                                   static_cast<int>(matchWithLine.hitsMl2()));
                 ATH_MSG_DEBUG (" matchWithLine.hitsOnTrack() >  nHits old " << nHits << " new: " << matchedHits);
                 ATH_MSG_DEBUG (" dnl " << dnl << " old dnl " << std::abs(nl1-nl2));
                 ATH_MSG_DEBUG (" hit cos phi " << cphi << " line " << coshit << " sin phi " << sphi << " line " << sinhit << " psi " << psi);

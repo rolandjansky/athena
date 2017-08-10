@@ -21,7 +21,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Tools/LWHists
                           Tracking/TrkEvent/TrkParticleBase
                           Tracking/TrkEvent/VxSecVertex
-                          Tracking/TrkVertexFitter/TrkVertexFitterInterfaces )
+                          Tracking/TrkVertexFitter/TrkVertexFitterInterfaces
+                          Trigger/TrigAnalysis/TrigDecisionTool )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
@@ -31,7 +32,7 @@ atlas_add_component( JetTagMonitoring
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaMonitoringLib xAODJet ITrackToVertex xAODBTagging xAODEventInfo xAODTracking GaudiKernel LArRecEvent JetTagToolsLib LWHists TrkParticleBase VxSecVertex TrkVertexFitterInterfaces )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaMonitoringLib xAODJet ITrackToVertex xAODBTagging xAODEventInfo xAODTracking GaudiKernel LArRecEvent JetTagToolsLib LWHists TrkParticleBase VxSecVertex TrkVertexFitterInterfaces TrigDecisionToolLib )
 
 # Install files from the package:
 atlas_install_headers( JetTagMonitoring )

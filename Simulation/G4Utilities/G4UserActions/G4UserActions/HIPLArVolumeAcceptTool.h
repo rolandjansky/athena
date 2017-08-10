@@ -37,10 +37,6 @@ namespace G4UA
       virtual IEndEventAction* getEndEventAction() override final
       { return static_cast<IEndEventAction*>( getAction() ); }
 
-      /// Gaudi boiler plate
-      virtual StatusCode
-      queryInterface(const InterfaceID& riid, void** ppvInterface) override;
-
       virtual StatusCode finalize() override;
 
     protected:

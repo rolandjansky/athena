@@ -149,6 +149,7 @@ public:
   virtual void lock() { m_locked = true; }
   virtual void clearDecorations() { std::abort(); }
   virtual size_t size() const { std::abort(); }
+  virtual void lockDecoration (SG::auxid_t) { std::abort(); }
 
   bool m_locked;
 

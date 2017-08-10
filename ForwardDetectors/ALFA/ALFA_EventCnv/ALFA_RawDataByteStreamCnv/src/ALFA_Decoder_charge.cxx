@@ -99,7 +99,7 @@ msg(MSG::DEBUG) << " Bytestream summary:" << m_fragment_number << " fragments fo
 ////////////////////////
 // fillCollection() -
 ////////////////////////
-StatusCode ALFA_Decoder_charge::fillCollection(const ROBFragment *robFrag, ALFA_RawDataContainer_charge* rdoCont, std::vector<unsigned int>* ) {
+StatusCode ALFA_Decoder_charge::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment *robFrag, ALFA_RawDataContainer_charge* rdoCont, std::vector<unsigned int>* ) {
  msg(MSG::DEBUG) << " ALFA_RoDDecoder_charge::fillCollection" << endmsg;
 
 StatusCode sc = StatusCode::SUCCESS;

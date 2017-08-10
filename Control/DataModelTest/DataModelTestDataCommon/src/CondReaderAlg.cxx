@@ -26,10 +26,12 @@ namespace DMTest {
  */
 CondReaderAlg::CondReaderAlg (const std::string &name, ISvcLocator *pSvcLocator)
   : AthReentrantAlgorithm (name, pSvcLocator),
-    m_attrListKey ("/DMTest/TestAttrList")
+    m_attrListKey ("/DMTest/TestAttrList"),
+    m_scondKey ("scond", "DMTest")
 {
   declareProperty ("EventInfoKey", m_eventInfoKey = "McEventInfo");
   declareProperty ("AttrListKey",  m_attrListKey);
+  declareProperty ("SCondKey",  m_scondKey);
 }
 
 
@@ -40,6 +42,7 @@ StatusCode CondReaderAlg::initialize()
 {
   ATH_CHECK( m_eventInfoKey.initialize() );
   ATH_CHECK( m_attrListKey.initialize() );
+  ATH_CHECK( m_scondKey.initialize() );
   return StatusCode::SUCCESS;
 }
 
@@ -56,6 +59,9 @@ StatusCode CondReaderAlg::execute_r (const EventContext& ctx) const
 
   SG::ReadCondHandle<AthenaAttributeList> attrList (m_attrListKey, ctx);
   ATH_MSG_INFO ("  xint " << (**attrList)["xint"]);
+
+  SG::ReadCondHandle<DMTest::S1> s1 (m_scondKey, ctx);
+  ATH_MSG_INFO ("  scond " << s1->m_x );
 
   return StatusCode::SUCCESS;
 }

@@ -18,6 +18,8 @@
 
 #include <memory>
 
+#include "TrigT1Interfaces/FrontPanelCTP.h"
+
 class TH1;
 class IMonitorToolBase;
 class ITHistSvc;
@@ -79,8 +81,9 @@ namespace LVL1 {
       BooleanProperty m_enableBitwise { false }; // for enabling bitwise algorithms
 
       StringProperty  m_inputDumpFile { "inputdump.txt" }; // input dump file
-      StringProperty  m_topoCTPLocation { "" }; ///< SG key of decision bits for CTP
-      StringProperty  m_topoOverflowCTPLocation { "" }; ///< SG key of overflow bits for CTP
+//      SG::ReadHandleKey<EventInfo> m_EventInfoKey;
+      SG::WriteHandleKey<LVL1::FrontPanelCTP>  m_topoCTPLocation { "" }; ///< SG key of decision bits for CTP
+      SG::WriteHandleKey<LVL1::FrontPanelCTP>  m_topoOverflowCTPLocation { "" }; ///< SG key of overflow bits for CTP
       int m_topoOutputLevel{TrigConf::MSGTC::WARNING};                                  // property to set the outputlevel of the topo algorithms
       int m_topoSteeringOutputLevel{TrigConf::MSGTC::WARNING};                          // property to set the outputlevel of the topo steering
 

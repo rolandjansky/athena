@@ -1,8 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging  # loads logger 
-from AthenaCommon.SystemOfUnits import * #gives us access to deg
-from AthenaCommon.Constants import * #gives us access to INFO
 
 from eflowRec.eflowRecConf import eflowLCCalibTool
 

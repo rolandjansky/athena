@@ -304,6 +304,17 @@ public:
   virtual bool setOption (auxid_t id, const AuxDataOption& option) override;
 
 
+  /**
+   * @brief Lock a decoration.
+   * @param auxid Identifier of the decoration to lock.
+   *
+   * A decoration is locked by changing from a decoration to an ordinary
+   * variable.  If the container itself is locked, then modifications
+   * to be variable are not permitted after this call.
+   */
+  virtual void lockDecoration (SG::auxid_t auxid) override;
+
+
 protected:
   /**
    * @brief Return a pointer to the data to be stored for one aux data item.

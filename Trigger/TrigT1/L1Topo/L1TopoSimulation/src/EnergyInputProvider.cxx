@@ -13,8 +13,6 @@
 #include "TrigT1CaloEvent/EnergyRoI_ClassDEF.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 
-#include "TrigT1CaloEvent/EnergyTopoData.h"
-
 #include "L1TopoEvent/ClusterTOB.h"
 #include "L1TopoEvent/TopoInputEvent.h"
 
@@ -45,7 +43,9 @@ EnergyInputProvider::initialize() {
    CHECK(incidentSvc.retrieve());
    incidentSvc->addListener(this,"BeginRun", 100);
    incidentSvc.release().ignore();
-  
+
+   CHECK(m_energyLocation.initialize());  
+
    return StatusCode::SUCCESS;
 }
 
@@ -95,12 +95,10 @@ EnergyInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
 //                  << ", word2 = " << hex << energyROI->roiWord2());
 
 
-   const EnergyTopoData* topoData = 0;
+   SG::ReadHandle< EnergyTopoData > topoData (m_energyLocation);
 
-   if( evtStore()->contains<EnergyTopoData>(m_energyLocation) ) {
-      CHECK( evtStore()->retrieve(topoData, m_energyLocation) );
-   } else {
-      ATH_MSG_WARNING("No EnergyTopoData with SG key '" << m_energyLocation.toString() << "' found in the event. No MET input for the L1Topo simulation.");
+   if( !topoData.isValid()){
+      ATH_MSG_WARNING("No EnergyTopoData with SG key '" << m_energyLocation.key() << "' found in the event. No MET input for the L1Topo simulation.");
       return StatusCode::RECOVERABLE;
    }
 

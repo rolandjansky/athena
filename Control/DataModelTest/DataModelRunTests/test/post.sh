@@ -199,7 +199,6 @@ PP="$PP"'|db-read|read from COOL|ReadTime:'
 PP="$PP"'|Got release version'
 
 
-
 test=$1
 if [ -z "$testStatus" ]; then
     echo "post.sh> Warning: athena exit status is not available "

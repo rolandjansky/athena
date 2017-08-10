@@ -42,6 +42,7 @@ atlas_add_dictionary( AthenaKernelDict
    LINK_LIBRARIES GaudiKernel AthenaKernel )
 
 atlas_install_python_modules( python/*.py )
+atlas_install_joboptions( share/*.txt )
 
 # Test(s) in the package:
 atlas_add_test( getMessageSvc_test
@@ -93,6 +94,10 @@ atlas_add_test( RCUObject_test
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} AthenaKernel )
 
+atlas_add_test( CondCont_test
+   SOURCES test/CondCont_test.cxx
+   LINK_LIBRARIES AthenaKernel )
+
 atlas_add_test( CLIDRegistry_test
    SOURCES test/CLIDRegistry_test.cxx
    LINK_LIBRARIES AthenaKernel )
@@ -104,3 +109,8 @@ atlas_add_test( ClassName_test
 atlas_add_test( BaseInfo_test
    SOURCES test/BaseInfo_test.cxx
    LINK_LIBRARIES AthenaKernel )
+
+atlas_add_test( SlotSpecificObj_test
+   SOURCES test/SlotSpecificObj_test.cxx
+   LINK_LIBRARIES AthenaKernel TestTools
+   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )

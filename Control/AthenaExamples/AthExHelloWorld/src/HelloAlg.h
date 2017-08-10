@@ -9,6 +9,7 @@
 
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "GaudiKernel/Property.h"
 
 #include <string>
 #include <vector>
@@ -30,20 +31,31 @@ public:
   StatusCode endRun();
   
 private:
-  int    m_myInt;
-  bool   m_myBool;
-  double m_myDouble;
-  std::vector< std::string > m_myStringVec;
+  // Properties
+  Gaudi::Property<int>    m_myInt    {this, "MyInt", 0, "An Integer"};
+  Gaudi::Property<bool>   m_myBool   {this, "MyBool", false, "A Bool"};
+  Gaudi::Property<double> m_myDouble {this, "MyDouble", 0., "A Double"};
 
-  ToolHandle< IHelloTool > m_myPrivateHelloTool;
-  ToolHandle< IHelloTool > m_myPublicHelloTool;
+  Gaudi::Property< std::vector<std::string> > m_myStringVec {this, "MyStringVec", {}, "an entire vector of strings"};
 
   typedef std::map<std::string, std::string> Dict_t;
-  Dict_t m_myDict;
+  Gaudi::Property<Dict_t> m_myDict {this, "MyDict", {}, "A little dictionary"};
+
+  typedef std::vector<std::vector<double> > Matrix_t;
+  Gaudi::Property<Matrix_t> m_myMatrix {this, "MyMatrix", {}, "A matrix of doubles"};
+
+  // legacy style Property
   typedef std::vector<std::pair<double, double> > Table_t;
   Table_t m_myTable;
-  typedef std::vector<std::vector<double> > Matrix_t;
-  Matrix_t m_myMatrix;
+
+
+  // ToolHandles as Properties
+  ToolHandle< IHelloTool > m_myPrivateHelloTool {this, "MyPrivateHelloTool", 
+      "HelloTool", "private IHelloTool"};
+
+  PublicToolHandle< IHelloTool > m_myPublicHelloTool {this, "MyPublicHelloTool",
+      "HelloTool", "public, shared IHelloTool"};
+  
 };
 
 #endif // ATHEXHELLOWORLD_HELLOALG_H

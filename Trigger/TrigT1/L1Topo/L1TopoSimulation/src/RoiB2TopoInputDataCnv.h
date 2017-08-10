@@ -15,13 +15,18 @@
 #include <string>
 
 // FrameWork includes
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "TrigT1Result/RoIBResult.h"
+#include "TrigT1CaloEvent/EnergyTopoData.h"
+#include "TrigT1CaloEvent/CPCMXTopoData.h"
+#include "TrigT1CaloEvent/JetCMXTopoDataCollection.h"
+
 
 namespace LVL1 {
 
    class L1TopoDataMaker;
 
-   class RoiB2TopoInputDataCnv : public ::AthAlgorithm 
+   class RoiB2TopoInputDataCnv : public ::AthReentrantAlgorithm 
    { 
    public: 
 
@@ -30,9 +35,9 @@ namespace LVL1 {
       virtual ~RoiB2TopoInputDataCnv(); 
 
       // Athena algorithm's Hooks
-      virtual StatusCode  initialize();
-      virtual StatusCode  execute();
-      virtual StatusCode  finalize();
+      virtual StatusCode  execute_r (const EventContext& ctx) const override;
+      virtual StatusCode  initialize() override;
+      //Finalize not overriden because no work is required
 
    private: 
 
@@ -41,10 +46,10 @@ namespace LVL1 {
 
       L1TopoDataMaker * datamaker { nullptr };
 
-      StringProperty m_roibLocation;
-      StringProperty m_emTauLocation;
-      StringProperty m_jetLocation;
-      StringProperty m_energyLocation;
+      SG::ReadHandleKey<ROIB::RoIBResult>             m_roibLocation;
+      SG::WriteHandleKey<DataVector<CPCMXTopoData>>   m_emTauLocation;
+      SG::WriteHandleKey<DataVector<JetCMXTopoData>>  m_jetLocation;
+      SG::WriteHandleKey<EnergyTopoData>              m_energyLocation;
 
    }; 
 } 

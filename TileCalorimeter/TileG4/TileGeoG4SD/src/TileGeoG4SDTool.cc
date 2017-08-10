@@ -10,14 +10,15 @@
 //************************************************************
 
 #include "TileGeoG4SDTool.h"
-#include "TileGeoG4SD/TileGeoG4SD.hh"
-
+#include "TileGeoG4SD.hh"
+#include "TileG4Interfaces/ITileCalculator.h"
 
 TileGeoG4SDTool::TileGeoG4SDTool(const std::string& type, const std::string& name, const IInterface* parent)
-    : SensitiveDetectorBase(type,name,parent)
+  : SensitiveDetectorBase(type,name,parent)
+  , m_tileCalculator("TileGeoG4SDCalc", name)
 {
   declareInterface<ISensitiveDetector>(this);
-
+  declareProperty( "TileCalculator", m_tileCalculator);
   declareProperty( "DeltaTHit" , m_options.deltaTHit );
   declareProperty( "TimeCut" , m_options.timeCut );
   declareProperty( "TileTB" , m_options.tileTB );
@@ -28,6 +29,12 @@ TileGeoG4SDTool::TileGeoG4SDTool(const std::string& type, const std::string& nam
   declareProperty( "DoTOFCorrection" , m_options.doTOFCorrection );
   declareProperty( "DoCalibHitParticleID" , m_options.doCalibHitParticleID );
 
+}
+
+StatusCode TileGeoG4SDTool::initialize()
+{
+  ATH_CHECK(m_tileCalculator.retrieve());
+  return StatusCode::SUCCESS;
 }
 
 StatusCode TileGeoG4SDTool::Gather()
@@ -56,6 +63,6 @@ G4VSensitiveDetector* TileGeoG4SDTool::makeSD()
   // Create a fresh SD
   if(msgLvl(MSG::VERBOSE))    { m_options.verboseLevel = 10; }
   else if(msgLvl(MSG::DEBUG)) { m_options.verboseLevel = 5;  }
-  return new TileGeoG4SD(name(), m_outputCollectionNames[0], m_options);
+  return new TileGeoG4SD(name(), m_outputCollectionNames[0], &*m_tileCalculator, m_options);
 }
 

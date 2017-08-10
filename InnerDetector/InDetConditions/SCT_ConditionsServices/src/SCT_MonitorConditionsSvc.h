@@ -16,8 +16,6 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/StatusCode.h"
 
-//COOL includes
-
 // Athena includes
 #include "Identifier/Identifier.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -27,11 +25,16 @@
 #include "SCT_ConditionsServices/ISCT_ConditionsSvc.h"
 #include "SCT_ConditionsServices/ISCT_MonitorConditionsSvc.h"
 
+#include "SCT_ConditionsData/SCT_MonitorConditionsCondData.h"
+
+// Read Handle Key
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/ReadCondHandleKey.h"
+
 //forward declarations
 class ISvcLocator;
 class IdentifierHash;
 class SCT_ID;
-class CondAttrListCollection;
 
 /**
  ** Class for keeping track of errors caught by the monitoring
@@ -88,8 +91,6 @@ private:
   // ------------------------------------------------------------------------------------
   std::string getList(const Identifier & imodule) const;
 
-  virtual StatusCode getAttrListCollection(int& i, std::list<std::string>& l);
-
   bool stripIsNoisy(const int strip, const std::string& defectList) const;
 
   bool chipIsNoisy(int strip, const std::string& defectList) const;
@@ -123,18 +124,17 @@ private:
   static std::string s_defectFolderName;
 
   mutable std::map<const int, const std::string>  m_defectListMap;
-  mutable std::map<const std::string, const CondAttrListCollection*>  m_attrListCollectionMap;
-  const DataHandle<CondAttrListCollection> m_DefectData;
-  const CondAttrListCollection*      m_attrListCollection;
   ServiceHandle<StoreGateSvc>  m_detStore;
   IntegerProperty              m_nhits_noisychip;
   IntegerProperty              m_nhits_noisywafer;
   IntegerProperty              m_nhits_noisymodule;
-  StringProperty               m_streamName;
   bool                         m_filled;
   const SCT_ID*                m_pHelper;
   mutable std::string          m_currentDefectList;
 
+  const mutable SCT_MonitorConditionsCondData *m_condData;
+  SG::ReadCondHandleKey<SCT_MonitorConditionsCondData> m_condKey;
+  bool getCondData() const;
 };
 
 #endif // SCT_MonitorConditinosSvc.h

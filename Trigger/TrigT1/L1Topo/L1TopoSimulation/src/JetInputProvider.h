@@ -8,6 +8,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "L1TopoSimulation/IInputTOBConverter.h"
 #include "GaudiKernel/IIncidentListener.h"
+#include "TrigT1CaloEvent/JetCMXTopoDataCollection.h"
 
 class TH1I;
 class TH2I;
@@ -33,7 +34,7 @@ namespace LVL1 {
 
       ServiceHandle<ITHistSvc> m_histSvc;
 
-      StringProperty m_jetLocation;    //!<  Jet ROIs SG key
+      SG::ReadHandleKey< DataVector<JetCMXTopoData> >  m_jetLocation;    //!<  Jet ROIs SG key
 
       TH1I * m_hPt1 {nullptr};
       TH1I * m_hPt2 {nullptr};

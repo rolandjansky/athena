@@ -51,7 +51,8 @@ int main() {
   //  ROOT::Reflex::PluginService::SetDebug(8);
   std::cout << "*** IOVSvcTool_test starts ***" << std::endl;
   ISvcLocator* pSvc;
-  initGaudi("IOVSvcTool_test.txt", pSvc); 
+  if (!initGaudi("IOVSvcTool_test.txt", pSvc))
+    return 1;
   //initGaudi(pSvc); 
   IToolSvc* pTS(0);
   assert((pSvc->service("ToolSvc", pTS, true)).isSuccess());

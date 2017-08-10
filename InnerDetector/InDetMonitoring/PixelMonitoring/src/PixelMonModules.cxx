@@ -8,14 +8,10 @@
 
 #include "PixelMonitoring/PixelMonModules.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
-#include "TH1I.h"
-#include "TH2I.h"
-#include "TProfile.h"
 #include "LWHists/TH1F_LW.h"
 #include "LWHists/TProfile_LW.h"
 #include "InDetIdentifier/PixelID.h"
 #include "GaudiKernel/StatusCode.h"       
-#include <iostream>
 #include <string.h>
 
 PixelMonModules::~PixelMonModules()
@@ -128,7 +124,7 @@ void PixelMonModulesProf::Reset()
 StatusCode PixelMonModulesProf::regHist(ManagedMonitorToolBase* thisptr, std::string path, ManagedMonitorToolBase::Interval_t Run)
 {
    for (int i = 0; i < 1744 + 280 * m_doIBL; i++) {
-      ManagedMonitorToolBase::MonGroup mgroup(thisptr, (path+"/"+getHistName(i,true)).c_str(),Run);
+     ManagedMonitorToolBase::MonGroup mgroup(thisptr, (path+"/"+getHistName(i,true,m_doIBL)).c_str(),Run);
       if (mgroup.regHist(getHist(i)).isFailure()) {
          return StatusCode::FAILURE;
       }
@@ -162,24 +158,6 @@ void PixelMonModulesProf::Fill(double value0, double value1, Identifier &id, con
    else if (bec == 0) {
       if (m_doIBL) ld--;
       const int em = pixID->eta_module(id);
-      if (ld == 0) B0[em+6][pm]->Fill(value0, value1);
-      else if (ld == 1) B1[em+6][pm]->Fill(value0, value1);
-      else if (ld == 2) B2[em+6][pm]->Fill(value0, value1);
-      else if (ld == -1) IBL[em+10][pm]->Fill(value0, value1);
-   }
-}
-
-void PixelMonModules2D::Fill(double value0, double value1, Identifier &id, const PixelID* pixID)
-{
-   const int bec = pixID->barrel_ec(id);
-   const int pm  = pixID->phi_module(id);
-   int ld = pixID->layer_disk(id);
-
-   if (bec == 2) A[ld][pm]->Fill(value0, value1); 
-   else if (bec == -2) C[ld][pm]->Fill(value0, value1);
-   else if (bec == 0) {
-      if (m_doIBL) ld--;
-      const int em  = pixID->eta_module(id);
       if (ld == 0) B0[em+6][pm]->Fill(value0, value1);
       else if (ld == 1) B1[em+6][pm]->Fill(value0, value1);
       else if (ld == 2) B2[em+6][pm]->Fill(value0, value1);
@@ -244,7 +222,7 @@ void PixelMonModules1D::Fill(double value, Identifier &id, const PixelID* pixID)
 StatusCode PixelMonModules1D::regHist(ManagedMonitorToolBase* thisptr, std::string path, ManagedMonitorToolBase::Interval_t Run)
 {
    for (int i = 0; i < 1744 + 280 * m_doIBL; i++) {
-      ManagedMonitorToolBase::MonGroup mgroup(thisptr, (path+"/"+getHistName(i,true)).c_str(),Run);
+     ManagedMonitorToolBase::MonGroup mgroup(thisptr, (path+"/"+getHistName(i,true,m_doIBL)).c_str(),Run);
       if (mgroup.regHist(getHist(i)).isFailure()) {
          return StatusCode::FAILURE;
       }
@@ -255,7 +233,7 @@ StatusCode PixelMonModules1D::regHist(ManagedMonitorToolBase* thisptr, std::stri
 StatusCode PixelMonModules2D::regHist(ManagedMonitorToolBase* thisptr, std::string path, ManagedMonitorToolBase::Interval_t Run)
 {
    for (int i = 0; i < 1744 + 280 * m_doIBL; i++) {
-      ManagedMonitorToolBase::MonGroup mgroup(thisptr, (path+"/"+getHistName(i,true)).c_str(),Run);
+     ManagedMonitorToolBase::MonGroup mgroup(thisptr, (path+"/"+getHistName(i,true,m_doIBL)).c_str(),Run);
       if (mgroup.regHist(getHist(i)).isFailure()) {
          return StatusCode::FAILURE;
       }

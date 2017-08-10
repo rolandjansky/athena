@@ -16,22 +16,6 @@
 #include <cmath>
 #include <iostream>
 
-namespace {
-  // limit angle difference to -pi < x <= pi
-  inline double limit_angle_2pi(double x) {
-    while ( x <= -M_PI ) x += 2.0 * M_PI;
-    while ( x >  +M_PI ) x -= 2.0 * M_PI;
-    return x;
-  }
-
-  inline double robust_acos(double x) {
-    if ( x >= +1.0 ) return 0.0;
-    if ( x <= -1.0 ) return M_PI;
-    return std::acos(x);
-  }
-  
-} // unnamed namespace
-
 
 namespace Muon {
 

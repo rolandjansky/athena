@@ -323,6 +323,15 @@ namespace xAOD {
       return;
    }
    
+   /// Lock a decoration.
+   void AuxContainerBase::lockDecoration (SG::auxid_t auxid)
+   { 
+     guard_t guard (m_mutex);
+     if (m_store) {
+       m_store->lockDecoration (auxid);
+     }
+   }
+
    size_t AuxContainerBase::size() const {
 
       // Guard against multi-threaded execution:

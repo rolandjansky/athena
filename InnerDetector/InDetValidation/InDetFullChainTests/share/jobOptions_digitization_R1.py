@@ -17,6 +17,7 @@ DetFlags.LVL1_setOff()
 
 from AthenaCommon.GlobalFlags import jobproperties
 jobproperties.Global.DetDescrVersion='ATLAS-R1-2012-03-00-00'
+jobproperties.Global.ConditionsTag='OFLCOND-RUN12-SDR-31'
 
 ## Random Number Seed offsets
 ## should be altered between jobs in order to change noise etc.

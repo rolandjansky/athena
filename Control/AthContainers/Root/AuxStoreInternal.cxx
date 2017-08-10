@@ -654,4 +654,21 @@ void* AuxStoreInternal::getDataInternal (auxid_t auxid,
 }
 
 
+/**
+ * @brief Lock a decoration.
+ * @param auxid Identifier of the decoration to lock.
+ *
+ * A decoration is locked by changing from a decoration to an ordinary
+ * variable.  If the container itself is locked, then modifications
+ * to be variable are not permitted after this call.
+ */
+void AuxStoreInternal::lockDecoration (SG::auxid_t auxid)
+{
+  guard_t guard (m_mutex);
+  if (auxid < m_isDecoration.size()) {
+    m_isDecoration[auxid] = false;
+  }
+}
+
+
 } // namespace SG

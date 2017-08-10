@@ -145,11 +145,9 @@ private:
   template <class T>
   Property& declareGaudiProperty(Gaudi::Property<T> &hndl, 
                                  std::true_type, std::false_type) {
-    // FIXME: string mangling can be removed when Gaudi patched
-    std::string doc = hndl.documentation();
-    doc.erase(doc.rfind("["),doc.length());
 
-    return *AthAlgorithm::declareProperty(hndl.name(), hndl.value(), doc);
+    return *AthAlgorithm::declareProperty(hndl.name(), hndl.value(), 
+                                          hndl.documentation());
 
   }
 
@@ -160,10 +158,9 @@ private:
   template <class T>
   Property& declareGaudiProperty(Gaudi::Property<T> &hndl, 
                                  std::false_type, std::true_type) {
-    std::string doc = hndl.documentation();
-    doc.erase(doc.rfind("["),doc.length());
 
-    return *AthAlgorithm::declareProperty(hndl.name(), hndl.value(), doc);
+    return *AthAlgorithm::declareProperty(hndl.name(), hndl.value(), 
+                                          hndl.documentation());
 
   }
 

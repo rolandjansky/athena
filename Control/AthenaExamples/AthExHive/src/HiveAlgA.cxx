@@ -14,18 +14,8 @@
 
 HiveAlgA::HiveAlgA( const std::string& name, 
 		    ISvcLocator* pSvcLocator ) : 
-  ::HiveAlgBase( name, pSvcLocator ),
-  m_evt("McEventInfo"),
-  m_wrh1("a1"),
-  m_wrh2("a2")
+  ::HiveAlgBase( name, pSvcLocator ), m_i(1)
 {
-  
-  declareProperty("Key_W1",m_wrh1);
-  declareProperty("Key_W2",m_wrh2);  
-  declareProperty("EvtInfo", m_evt);
-  
-  m_i = 1;
-
 }
 
 HiveAlgA::~HiveAlgA() {}

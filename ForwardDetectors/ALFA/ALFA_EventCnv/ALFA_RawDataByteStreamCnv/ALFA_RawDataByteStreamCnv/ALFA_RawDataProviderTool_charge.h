@@ -31,8 +31,6 @@
 #include <string>
 
 
-using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
-
 class ALFA_RawData_charge;
 class ALFA_RawDataCollection_charge;
 class ALFA_RawDataContainer_charge;
@@ -62,7 +60,7 @@ class ALFA_RawDataProviderTool_charge : public AthAlgTool
   
 
    //! this is the main decoding method
-  StatusCode convert_charge(std::vector<const ROBFragment*>& vecRobs,ALFA_RawDataContainer_charge* rdoCont);
+  StatusCode convert_charge(std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs,ALFA_RawDataContainer_charge* rdoCont);
   
 private:
  

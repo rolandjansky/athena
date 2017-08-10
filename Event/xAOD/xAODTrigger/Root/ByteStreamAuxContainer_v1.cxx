@@ -199,6 +199,16 @@ namespace xAOD {
    }
 
 
+   /// Lock a decoration.
+   void ByteStreamAuxContainer_v1::lockDecoration (SG::auxid_t auxid)
+   { 
+     guard_t guard (m_mutex);
+     if (auxid < m_isDecoration.size()) {
+       m_isDecoration[auxid] = false;
+     }
+   }
+
+
    size_t ByteStreamAuxContainer_v1::size_noLock() const
    {
      auxid_set_t::const_iterator i = m_auxids.begin();

@@ -12,14 +12,14 @@
 
 SCT_TdaqEnabledCondAlg::SCT_TdaqEnabledCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
-  , m_readKey("/TDAQ/Resources/ATLAS/SCT/Robins")
-  , m_writeKey("SCT_TdaqEnabledCondData", "SCT_TdaqEnabledCondData")
-  , m_condSvc("CondSvc", name)
-  , m_cablingSvc("SCT_CablingSvc", name)
+  , m_readKey{"/TDAQ/Resources/ATLAS/SCT/Robins"}
+  , m_writeKey{"SCT_TdaqEnabledCondData", "SCT_TdaqEnabledCondData"}
+  , m_condSvc{"CondSvc", name}
+  , m_cablingSvc{"SCT_CablingSvc", name}
 {
-  declareProperty("ReadKey", m_readKey);
-  declareProperty("WriteKey", m_writeKey);
-  declareProperty("EventInfoKey", m_eventInfoKey=std::string("ByteStreamEventInfo"));
+  declareProperty("ReadKey", m_readKey, "Key of input (raw) conditions folder");
+  declareProperty("WriteKey", m_writeKey, "Key of output (derived) conditions folder");
+  declareProperty("EventInfoKey", m_eventInfoKey=std::string{"ByteStreamEventInfo"}, "Key of non-xAOD EventInfo");
 }
 
 SCT_TdaqEnabledCondAlg::~SCT_TdaqEnabledCondAlg()
@@ -71,7 +71,7 @@ StatusCode SCT_TdaqEnabledCondAlg::execute()
   }
 
   // Construct the output Cond Object and fill it in
-  SCT_TdaqEnabledCondData* writeCdo = new SCT_TdaqEnabledCondData();
+  SCT_TdaqEnabledCondData* writeCdo{new SCT_TdaqEnabledCondData()};
   // clear structures before filling
   writeCdo->clear();
 
@@ -80,9 +80,9 @@ StatusCode SCT_TdaqEnabledCondAlg::execute()
 
   // check whether we expect valid data at this time
   if(unfilledRun()) {
-    EventIDBase unfilledStart(0, 0, 0, 0); // run 0, event 0, timestamp 0, timestamp_ns 0
-    EventIDBase unfilledStop(s_earliestRunForFolder, 0, s_earliestTimeStampForFolder, 0); // run 119253, event 0, timestamp 1245064619, timestamp_ns 0
-    EventIDRange unfilledRange(unfilledStart, unfilledStop);
+    EventIDBase unfilledStart{0, 0, 0, 0}; // run 0, event 0, timestamp 0, timestamp_ns 0
+    EventIDBase unfilledStop{s_earliestRunForFolder, 0, s_earliestTimeStampForFolder, 0}; // run 119253, event 0, timestamp 1245064619, timestamp_ns 0
+    EventIDRange unfilledRange{unfilledStart, unfilledStop};
     rangeW = unfilledRange;
     writeCdo->setNoneBad(true);
     writeCdo->setFilled(true);
@@ -97,16 +97,16 @@ StatusCode SCT_TdaqEnabledCondAlg::execute()
 
     ATH_MSG_INFO("Size of CondAttrListCollection readCdo->size()= " << readCdo->size());
 
-    CondAttrListCollection::const_iterator attrList(readCdo->begin());
-    CondAttrListCollection::const_iterator end(readCdo->end());
+    CondAttrListCollection::const_iterator attrList{readCdo->begin()};
+    CondAttrListCollection::const_iterator end{readCdo->end()};
     // CondAttrListCollection doesnt support C++11 type loops, no generic 'begin'
     for(; attrList!=end; ++attrList) {
       // A CondAttrListCollection is a map of ChanNum and AttributeList
-      CondAttrListCollection::ChanNum channelNumber = attrList->first;
-      CondAttrListCollection::AttributeList payload = attrList->second;
-      std::string enabled = payload["class"].data<std::string>();
-      std::string chanName = readCdo->chanName(channelNumber);
-      unsigned int rodNumber = parseChannelName(chanName);
+      CondAttrListCollection::ChanNum channelNumber{attrList->first};
+      CondAttrListCollection::AttributeList payload{attrList->second};
+      std::string enabled{payload["class"].data<std::string>()};
+      std::string chanName{readCdo->chanName(channelNumber)};
+      unsigned int rodNumber{parseChannelName(chanName)};
       // range check on the rod channel number has been removed, since it refers both to existing channel names
       // which can be rods in slots 1-128 but also historical names which have since been removed
       if(SCT_OnlineId::rodIdInRange(rodNumber)) {
@@ -124,8 +124,8 @@ StatusCode SCT_TdaqEnabledCondAlg::execute()
       return StatusCode::FAILURE;
     }
     
-    unsigned int nBad = s_NRODS-writeCdo->getGoodRods().size();
-    std::string howMany = inWords(nBad);
+    long unsigned int nBad{s_NRODS-writeCdo->getGoodRods().size()};
+    std::string howMany{inWords(nBad)};
     ATH_MSG_DEBUG(howMany << " declared bad in the database.");
     
     // provide short-cut for no rods bad (hopefully the most common case)
@@ -135,7 +135,7 @@ StatusCode SCT_TdaqEnabledCondAlg::execute()
     } else {
       // now find the modules which belong to those rods...
       //      const int modulesPerRod(48);
-      std::vector<IdentifierHash> tmpIdVec(0);
+      std::vector<IdentifierHash> tmpIdVec{0};
       tmpIdVec.reserve(s_modulesPerRod);
       for(const auto & thisRod : writeCdo->getGoodRods()) {
 	tmpIdVec.clear();
@@ -169,10 +169,10 @@ StatusCode SCT_TdaqEnabledCondAlg::finalize()
 }
 
 bool SCT_TdaqEnabledCondAlg::unfilledRun() const {
-  SG::ReadHandle<EventInfo> event(m_eventInfoKey);
+  SG::ReadHandle<EventInfo> event{m_eventInfoKey};
   if (event.isValid()) {
-    const unsigned int runNumber=event->event_ID()->run_number();
-    const bool noDataExpected=(runNumber < s_earliestRunForFolder);
+    const unsigned int runNumber{event->event_ID()->run_number()};
+    const bool noDataExpected{runNumber < s_earliestRunForFolder};
     if (noDataExpected) ATH_MSG_INFO("This run occurred before the /TDAQ/EnabledResources/ATLAS/SCT/Robins folder was filled in COOL; assuming the SCT is all ok.");
     return noDataExpected;
   }
@@ -183,11 +183,11 @@ bool SCT_TdaqEnabledCondAlg::unfilledRun() const {
 //parse a rod channel name to a rod number, names are of the format 'ROL-SCT-BA-00-210000'
 //October 2014: names can now also be of format 'ROL-SCT-B-00-210100'
 unsigned int SCT_TdaqEnabledCondAlg::parseChannelName(const std::string &chanNameString) const {
-  unsigned int result(0);
-  const unsigned int length=chanNameString.size();
+  unsigned int result{0};
+  const long unsigned int length{chanNameString.size()};
   if (length < 19) return result; //very rough check on sanity of string, should use regex
   //get the last six numbers, these are in hex  
-  std::istringstream iss(chanNameString.substr(length-6, 6));
+  std::istringstream iss{chanNameString.substr(length-6, 6)};
   iss.exceptions(std::ios_base::badbit|std::ios_base::failbit);
   try{
     iss>>std::hex>>result;
@@ -212,7 +212,7 @@ std::string SCT_TdaqEnabledCondAlg::inWords(const unsigned int aNumber) const {
   }
 }
 
-const unsigned int SCT_TdaqEnabledCondAlg::s_NRODS(128);
-const unsigned int SCT_TdaqEnabledCondAlg::s_modulesPerRod(48);
-const unsigned int SCT_TdaqEnabledCondAlg::s_earliestRunForFolder(119253);
-const unsigned int SCT_TdaqEnabledCondAlg::s_earliestTimeStampForFolder(1245064619); // 20090615T111659 UTC for run 119253
+const unsigned int SCT_TdaqEnabledCondAlg::s_NRODS{128};
+const unsigned int SCT_TdaqEnabledCondAlg::s_modulesPerRod{48};
+const unsigned int SCT_TdaqEnabledCondAlg::s_earliestRunForFolder{119253};
+const unsigned int SCT_TdaqEnabledCondAlg::s_earliestTimeStampForFolder{1245064619}; // 20090615T111659 UTC for run 119253

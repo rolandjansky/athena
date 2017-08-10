@@ -108,7 +108,7 @@ DecayInFlyTruthTrajectoryBuilder::truthTrajectoryCuts(const HepMC::GenVertex *vt
 	    }
 	  }
 	  // allow pi/k->mu decay
-	  else if(fabs(candidate->pdg_id()) == 13){
+	  else if(std::abs(candidate->pdg_id()) == 13){
 	    passed_cuts = candidate;
 	    ++num_passed_cuts;
 	  }

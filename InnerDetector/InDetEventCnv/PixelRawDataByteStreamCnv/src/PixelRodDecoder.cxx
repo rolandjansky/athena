@@ -38,6 +38,8 @@
     else {++this->m_numBCIDWarnings; /* No warning */}
 
 
+using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
+
 
 //--------------------------------------------------------------------------- constructor
 PixelRodDecoder::PixelRodDecoder

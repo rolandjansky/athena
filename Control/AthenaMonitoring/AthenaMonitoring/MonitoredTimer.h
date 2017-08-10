@@ -9,58 +9,58 @@
 #include <chrono>
 
 #include "AthenaMonitoring/IMonitoredVariable.h"
-#include "AthenaMonitoring/MonitoredHelpers.h"
 
 namespace Monitored {
-    namespace MonitoredTimer {
+  namespace MonitoredTimer {
 
-        class MonitoredTimer;       
-        MonitoredTimer declare(std::string name);
+    class MonitoredTimer;
+
+    /**
+     * Declare a monitored timer
+     *
+     * The timer name needs to start with "TIME_"
+     *
+     * \code
+     *    auto t1 = MonitoredTimer::declare("TIME_t1");
+     * \endcode
+     **/
+    MonitoredTimer declare(std::string name);
 
 	/**
-	 * @class Timer class suitable for insertions to monitoring histograms
-	 * The time is measured from execution of the start to stop 
-	 * And if they are not used
-	 * from creation to the moment they are harvested to monitoring output (call of conversion to double operator)
-	 **/
-	
-        class MonitoredTimer : public IMonitoredVariable {
-        public:
+	 * Monitored Timer
+     *
+     * The time is measured either between explicit stop/start calls or between the creation
+     * and the time the value is read by the monitoring tool.
+     * The timer name needs to start with the string "TIME_".
+	 **/	
+    class MonitoredTimer : public IMonitoredVariable {
+    public:
 	  
-            friend MonitoredTimer declare(std::string name);
-            
-            MonitoredTimer(MonitoredTimer&&) = default;
+      friend MonitoredTimer declare(std::string name) {
+        return MonitoredTimer(std::move(name));
+      }
+      
+      MonitoredTimer(MonitoredTimer&&) = default;
 
-	    /**
-	     * @brief (re)starts the timer 
-	     **/
-	    void start();
-	    /**
-	     * @brief stops the timer
-	     **/
-	    void stop() const;
+      void start();         //<! (re)starts the timer
+      void stop() const;    //<! stops the timer
 
-	    /**
-	     * @brief returns duration between the start and stop in microseconds
-	     **/	    
-            operator double() const;
+      operator double() const; //!< duration between start and stop in microseconds
             
-            const std::vector<double> getVectorRepresentation() const override { return { double(*this) }; }
-        private:
-	    typedef std::chrono::high_resolution_clock clock_type;
-	    clock_type::time_point m_startTime; 
-	    mutable clock_type::time_point m_stopTime;  
+      const std::vector<double> getVectorRepresentation() const override { return { double(*this) }; }
+
+    private:
+      static constexpr const char* TIMER_PREFIX = "TIME_";   //<! prefix required for all timers
+
+      typedef std::chrono::high_resolution_clock clock_type;
+      clock_type::time_point m_startTime; 
+      mutable clock_type::time_point m_stopTime;  
 	    
-            MonitoredTimer(std::string name);
-            MonitoredTimer(MonitoredTimer const&) = delete;
-            MonitoredTimer& operator=(MonitoredTimer const&) = delete;
-        };
-        
-
-        MonitoredTimer declare(std::string name) {
-            return MonitoredTimer(std::move(name));
-        }
-    }
+      MonitoredTimer(std::string name);
+      MonitoredTimer(MonitoredTimer const&) = delete;
+      MonitoredTimer& operator=(MonitoredTimer const&) = delete;
+    };        
+  }
 }
 
 #endif /* AthenaMonitoring_MonitoredTimer_h */
