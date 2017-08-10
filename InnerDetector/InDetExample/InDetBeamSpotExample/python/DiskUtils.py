@@ -228,6 +228,8 @@ class EOS(Backend):
           retcode = subprocess.call(args, stderr=null)
         return retcode
 
+class FilterError(RuntimeError): pass
+
 class FileSet:
     """ Represents a list of input files.
     This class abstracts over the different ways files can be specified, and
@@ -319,7 +321,7 @@ class FileSet:
                         yield f
                 if strict and self._explicit:
                     for f in self._explicit: print('Missing:', f)
-                    raise RuntimeError('Not all explicit files were found.')
+                    raise FilterError('Not all explicit files were found.')
             it = generator(it, self._strict)
         if self._dedup: # see: only_latest
             def fn(m, f):
