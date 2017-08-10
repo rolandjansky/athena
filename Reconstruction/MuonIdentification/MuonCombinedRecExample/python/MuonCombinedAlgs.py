@@ -42,8 +42,9 @@ def MuGirlStauAlg(name="MuGirlStauAlg",**kwargs):
     return CfgMgr.MuonCombinedInDetExtensionAlg(name,**kwargs)
 
 def MuonCombinedInDetCandidateAlg( name="MuonCombinedInDetCandidateAlg",**kwargs ):
+    from InDetRecExample.InDetJobProperties import InDetFlags
     kwargs.setdefault("InDetCandidateTool",getPublicTool("InDetCandidateTool") )
-    if muonCombinedRecFlags.doSiAssocForwardMuons():
+    if muonCombinedRecFlags.doSiAssocForwardMuons() and InDetFlags.doForwardTracks():
         kwargs.setdefault("DoSiliconAssocForwardMuons", True )
         kwargs.setdefault("InDetForwardCandidateTool", getPublicTool("MuonInDetForwardCandidateTool") )
     return CfgMgr.MuonCombinedInDetCandidateAlg(name,**kwargs)
