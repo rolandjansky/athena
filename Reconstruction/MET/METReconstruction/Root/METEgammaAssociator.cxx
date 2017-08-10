@@ -118,7 +118,11 @@ namespace met {
       static const SG::AuxElement::ConstAccessor<std::vector<ElementLink<CaloClusterContainer> > > tcLinkAcc("constituentClusterLinks");
       // Fill a vector of vectors
       for(const auto& el : tcLinkAcc(*swclus)) {
-	inputTC.push_back(*el);
+	if (el.isValid()) {
+          inputTC.push_back(*el);
+        } else {
+          ATH_MSG_VERBOSE("Found invalid topocluster link");
+        }
       }
       ATH_MSG_VERBOSE("Found " << inputTC.size() << " linked topoclusters");
     } else {
