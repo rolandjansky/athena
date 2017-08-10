@@ -321,6 +321,24 @@ namespace EL
 
 
 
+  bool Worker ::
+  filterPassed () const noexcept
+  {
+    RCU_READ_INVARIANT (this);
+    return !m_skipEvent;
+  }
+
+
+
+  void Worker ::
+  setFilterPassed (bool val_filterPassed) noexcept
+  {
+    RCU_CHANGE_INVARIANT (this);
+    m_skipEvent = !val_filterPassed;
+  }
+
+
+
   Worker ::
   Worker (const SH::MetaObject *val_metaData, TList *output)
     : m_metaData (val_metaData), m_inputFile (0), m_tree (0), m_treeEntry (0),

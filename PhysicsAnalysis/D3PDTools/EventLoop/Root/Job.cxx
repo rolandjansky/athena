@@ -19,6 +19,7 @@
 
 #include <memory>
 #include <EventLoop/MessageCheck.h>
+#include <EventLoop/AnaAlgorithmWrapper.h>
 #include <EventLoop/Algorithm.h>
 #include <EventLoop/OutputStream.h>
 #include <EventLoop/TEventSvc.h>
@@ -245,6 +246,15 @@ namespace EL
     alg->sysSetupJob (*this);
     m_algs.push_back (alg.get());
     alg.release();
+  }
+
+
+
+  void Job ::
+  algsAdd (const AnaAlgorithmConfig& config)
+  {
+    // no invariant used
+    algsAdd (new AnaAlgorithmWrapper (config));
   }
 
 

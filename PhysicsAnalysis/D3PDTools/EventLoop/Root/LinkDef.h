@@ -43,6 +43,7 @@
 #pragma link C++ nestedclass;
 
 #pragma link C++ class EL::Algorithm+;
+#pragma link C++ class EL::AnaAlgorithmWrapper+;
 #pragma link C++ class EL::BackgroundDriver+;
 #pragma link C++ class EL::BackgroundJob+;
 #pragma link C++ class EL::BackgroundTSelector+;

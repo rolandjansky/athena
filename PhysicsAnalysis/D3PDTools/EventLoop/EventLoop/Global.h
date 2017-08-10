@@ -21,6 +21,7 @@
 namespace EL
 {
   class Algorithm;
+  class AnaAlgorithmWrapper;
   struct BackgroundJob;
   class BackgroundSocket;
   class BackgroundWorker;
