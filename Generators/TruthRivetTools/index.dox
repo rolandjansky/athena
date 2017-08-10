@@ -1,0 +1,13 @@
+/*! \mainpage Classification tool for Higgs boson simplified template cross section analysis
+ *
+ * \section intro_sec Introduction
+ * \htmlonly
+ * This package contain a generic Rivet analysis routine 
+ * <p>Useful Resources
+ * <ul>
+ *  <li><a href="https://cds.cern.ch/record/2138079/">Draft writeup on Higgs boson simplified template cross sections for YR4</a>
+ *  <li><a href="https://rivet.hepforge.org/">Rivet webpage</a>
+ * </ul>
+ * \endhtmlonly
+ */
+
