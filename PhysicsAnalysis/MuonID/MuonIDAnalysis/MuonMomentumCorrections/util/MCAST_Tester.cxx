@@ -118,7 +118,7 @@ int main( int argc, char* argv[] ) {
   //corrTool.setProperty("Release","Recs2016_08_07");
   corrTool.setProperty("StatComb",true);
   corrTool.setProperty("SagittaCorr",true); 
-  corrTool.setProperty("SagittaRelease","sagittaBiasDataAll_06_02_17"); 
+  corrTool.setProperty("SagittaRelease","sagittaBiasDataAll_02_08_17"); 
   corrTool.setProperty("doSagittaMCDistortion",false);
   corrTool.setProperty("noEigenDecor",false);
   if(corrTool.initialize()!=StatusCode::SUCCESS) return 1;

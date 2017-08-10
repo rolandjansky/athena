@@ -28,7 +28,7 @@ MuonCalibrationAndSmearingTool::MuonCalibrationAndSmearingTool( const std::strin
   m_g0( 0. ), m_g1( 0. ), m_g2( 0. ), m_g3( 0. ), m_g4( 0. ), m_charge( 0. ),
   
   m_loadNames( false ), m_nb_regions( 0. ), m_doMacroRegions( false ), 
-  m_StatCombPtThreshold(300.00), m_useStatComb(false), m_SagittaCorrPhaseSpace(false), m_doSagittaCorrection(false),m_doSagittaMCDistortion(false),m_SagittaRelease("sagittaBiasDataAll_25_07_17"){
+  m_StatCombPtThreshold(300.00), m_useStatComb(false), m_SagittaCorrPhaseSpace(false), m_doSagittaCorrection(false),m_doSagittaMCDistortion(false),m_SagittaRelease("sagittaBiasDataAll_02_08_17"){
   declareProperty( "Year", m_year = "Data16" );
   declareProperty( "Algo", m_algo = "muons" );
   declareProperty( "SmearingType", m_type = "q_pT" );
@@ -38,7 +38,7 @@ MuonCalibrationAndSmearingTool::MuonCalibrationAndSmearingTool( const std::strin
   declareProperty( "StatComb", m_useStatComb = false);  
   declareProperty( "MinCombPt", m_StatCombPtThreshold=300.0); 
   declareProperty( "SagittaCorr", m_doSagittaCorrection = false); 
-  declareProperty("SagittaRelease", m_SagittaRelease = "sagittaBiasDataAll_25_07_17");
+  declareProperty("SagittaRelease", m_SagittaRelease = "sagittaBiasDataAll_02_08_17");
   declareProperty("doSagittaMCDistortion",m_doSagittaMCDistortion=false);
   declareProperty("SagittaCorrPhaseSpace",m_SagittaCorrPhaseSpace=false);
   declareProperty("sgItersCB",m_sgItersCB=11);
