@@ -77,7 +77,7 @@ public:
    virtual bool canFillDuringInitialize();
   
 private:
-   const mutable SCT_TdaqEnabledCondData *m_condData;
+   mutable const SCT_TdaqEnabledCondData *m_condData;
   
    const SCT_ID * m_pHelper;
    bool m_useDatabase;
