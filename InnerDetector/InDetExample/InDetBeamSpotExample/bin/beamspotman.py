@@ -265,11 +265,14 @@ if cmd=='runMon' and len(args)==3:
             project=options.project,
             stream=options.stream,
             base=options.eospath)
-    datasets = list(fs.use_files_from(options.filelist).matching(options.filter + tag + '.*').excluding(r'.*\.TMP\.log.*'))
-    if len(datasets) != 1:
-        fail('{:d} datasets found (use full TAG to uniquely identify dataset)'.format(len(datasets)))
-    dataset = datasets[0]
-    dsname = '.'.join(dataset.split('.')[:3])
+    datasets = list(fs
+            .strict_mode()
+            .use_files_from(options.filelist)
+            .matching(options.filter + tag + '.*')
+            .excluding(r'.*\.TMP\.log.*')
+            .only_single_dataset())
+    dataset = os.path.dirname(datasets[0])
+    dsname = '.'.join(os.path.basename(datasets[0]).split('.')[:3])
 
     # NOTE: The command below may be executed via a cron job, so we need set STAGE_SVCCLASS
     #       explicitly in all cases, since it may not be inherited from the environment.
