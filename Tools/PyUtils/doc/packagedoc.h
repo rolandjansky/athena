@@ -109,20 +109,6 @@ lxplus> diffPoolFiles.py mc1.event.pool mc2.event.pool
 ## Comparison : [OK]
 @endcode
 
-  - @c cmtClients.py : a wrapper around the slow 'cmt show clients' command. It provides the same functionality than the CMT command, only it is just super fast. It will also allow you to check out from CVS all the clients in one go (useful to check that a change in your package does not impact compilation of your clients):
-@code
-lxplus> cmtClients.py --help
-lxplus> cmtClients.py AthenaKernel
-PyCmt   : INFO     cmt show clients [AthenaKernel]
-PyCmt   : INFO     building dependencies...
-PyCmt   : INFO     projects used: ['AtlasCore', 'AtlasConditions', 'AtlasEvent', 'AtlasReconstruction', 'AtlasTrigger', 'AtlasAnalysis', 'AtlasSimulation', 'AtlasOffline', 'AtlasProduction']
-PyCmt   : INFO     building packages db...
-PyCmt   : INFO     building packages dependency tree...
-PyCmt   : INFO     => [PhysicsAnalysis/AnalysisCommon/AnalysisAssociation] (AnalysisAssociation-00-04-01)
-PyCmt   : INFO     => [PhysicsAnalysis/AnalysisCommon/AnalysisUtils] (AnalysisUtils-00-02-01)
-[...snip...]
-PyCmt   : INFO     Found [149] clients for [AthenaKernel]
-@endcode
 
 
 

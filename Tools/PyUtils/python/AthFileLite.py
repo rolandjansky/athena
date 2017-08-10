@@ -13,7 +13,7 @@ import sys
 import uuid
 
 import PyUtils.dbsqlite as dbsqlite
-from PyCmt.Logging import msg, logging
+from PyUtils.Logging import msg, logging
 
 def _create_file_info_template():
     """simple helper function to create consistent dicts for the

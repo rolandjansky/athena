@@ -23,28 +23,27 @@ class TrigTAGFilePeeker:
         # this is a TAG file, open it and read all run numbers
         # fileinfos have only the run number from the first TAG
         import PyUtils.Helpers as H
-        with H.restricted_ldenviron(projects=['AtlasCore']):
-            import re
-            with H.ShutUp(filters=[re.compile('TClass::TClass:0: RuntimeWarning: no dictionary for.*'),
-                                   re.compile('.*duplicate entry.*')]):
-                msg.debug("Opening TAG file %s" % fname)
-                import PyUtils.RootUtils as ru
-                f = ru.import_root().TFile.Open(fname, "read")
-                if f is None or not f:
-                    msg.warning("Failed to open TAG file %s" % fname)
-                    return []
-                coll_tree = f.Get('POOLCollectionTree')
-                run_numbers = set()
-                if coll_tree is not None:
-                    for row in xrange(0, coll_tree.GetEntries()):
-                        coll_tree.GetEntry(row)
-                        run_numbers.add( getattr(coll_tree, self.run_attr_name) )
-                    del coll_tree
-                f.Close()
-                del f
-                self.file_cache[fname] = run_numbers
-                msg.info("TAG file: %s, found runs: %s" % (fname, str(run_numbers)))
-                return run_numbers
+        import re
+        with H.ShutUp(filters=[re.compile('TClass::TClass:0: RuntimeWarning: no dictionary for.*'),
+                               re.compile('.*duplicate entry.*')]):
+            msg.debug("Opening TAG file %s" % fname)
+            import PyUtils.RootUtils as ru
+            f = ru.import_root().TFile.Open(fname, "read")
+            if f is None or not f:
+                msg.warning("Failed to open TAG file %s" % fname)
+                return []
+            coll_tree = f.Get('POOLCollectionTree')
+            run_numbers = set()
+            if coll_tree is not None:
+                for row in xrange(0, coll_tree.GetEntries()):
+                    coll_tree.GetEntry(row)
+                    run_numbers.add( getattr(coll_tree, self.run_attr_name) )
+                del coll_tree
+            f.Close()
+            del f
+            self.file_cache[fname] = run_numbers
+            msg.info("TAG file: %s, found runs: %s" % (fname, str(run_numbers)))
+            return run_numbers
 
     def get_runs_from_all_taginput(self):
         from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
