@@ -1,0 +1,5 @@
+<lcgdict>
+  <class name="xAOD::ICaloTopoClusterIsolationTool"/>
+  <class name="xAOD::INeutralEFlowIsolationTool"/>
+  <class name="xAOD::ITrackIsolationTool"/>
+</lcgdict>
