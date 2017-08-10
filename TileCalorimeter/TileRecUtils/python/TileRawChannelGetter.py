@@ -45,9 +45,9 @@ class TileRawChannelGetter ( Configured)  :
 
         # Configure TileInfoLoader
         from AthenaCommon.AppMgr import ServiceMgr
-        if not hasattr( ServiceMgr, "TileInfoLoader" ):
-            from TileConditions.TileInfoConfigurator import TileInfoConfigurator
-            tileInfoConfigurator = TileInfoConfigurator()
+
+        from TileConditions.TileInfoConfigurator import TileInfoConfigurator
+        tileInfoConfigurator = TileInfoConfigurator()
 
         # register output in objKeyStore
         from RecExConfig.ObjKeyStore import objKeyStore
@@ -99,8 +99,6 @@ class TileRawChannelGetter ( Configured)  :
         if jobproperties.TileRecFlags.noiseFilter() == 1:
 
             if globalflags.DataSource() == 'data':
-                from TileConditions.TileInfoConfigurator import TileInfoConfigurator
-                tileInfoConfigurator = TileInfoConfigurator()
 
                 # check if there are DSP thresholds in DB
                 if jobproperties.TileRecFlags.zeroAmplitudeWithoutDigits() and not tileInfoConfigurator.setupCOOLDspThreshold():
@@ -139,6 +137,30 @@ class TileRawChannelGetter ( Configured)  :
         # run optimal filter only if readDigits is set
         if jobproperties.TileRecFlags.readDigits():
 
+            TilePulseTypes = {0 : 'PHY', 1 : 'PHY', 2 : 'LAS', 4 : 'PHY', 8 : 'CIS'}
+            TilePulse = TilePulseTypes[jobproperties.TileRecFlags.TileRunType()]
+
+            if (jobproperties.TileRecFlags.doTileFitCool()
+                or (not jobproperties.TileRecFlags.OfcFromCOOL()
+                    and (jobproperties.TileRecFlags.doTileMF()
+                         or jobproperties.TileRecFlags.doTileOF1()
+                         or jobproperties.TileRecFlags.doTileOpt2()
+                         or jobproperties.TileRecFlags.doTileOptATLAS()))):
+
+                    tileInfoConfigurator.setupCOOLPULSE(type = TilePulse)
+                    tileInfoConfigurator.setupCOOLAutoCr()
+
+            if jobproperties.TileRecFlags.OfcFromCOOL():
+                if (jobproperties.TileRecFlags.doTileMF()
+                    or jobproperties.TileRecFlags.doTileOpt2()
+                    or jobproperties.TileRecFlags.doTileOptATLAS()):
+
+                    tileInfoConfigurator.setupCOOLOFC(type = TilePulse)
+
+                if jobproperties.TileRecFlags.doTileOF1():
+                    tileInfoConfigurator.setupCOOLOFC(type = TilePulse, ofcType = 'OF1')
+
+
             if jobproperties.TileRecFlags.doTileQIE():
                 try:
                     from TileRecUtils.TileRecUtilsConf import TileRawChannelBuilderQIEFilter
@@ -147,17 +169,6 @@ class TileRawChannelGetter ( Configured)  :
                     mlog.error("could not get handle to TileRawChannelBuilderQIEFilter Quit")
                     print traceback.format_exc()
                     return False
-                
-                ## setup COOL to get OFCs
-                #if jobproperties.TileRecFlags.OfcFromCOOL():
-                #    from TileConditions.TileInfoConfigurator import TileInfoConfigurator
-                #    tileInfoConfigurator = TileInfoConfigurator()
-                #    tileInfoConfigurator.setupCOOLOFC()
-                #else:
-                #    from TileConditions.TileInfoConfigurator import TileInfoConfigurator
-                #    tileInfoConfigurator = TileInfoConfigurator()
-                #    tileInfoConfigurator.setupCOOLPHYPULSE()
-                #    tileInfoConfigurator.setupCOOLAutoCr()
                     
                 #TileRawChannelBuilderQIEFilter Options:
                 jobproperties.TileRecFlags.TileRawChannelContainer = "TileRawChannelQIE"
@@ -166,13 +177,7 @@ class TileRawChannelGetter ( Configured)  :
                 theTileRawChannelBuilderQIEFilter.calibrateEnergy = jobproperties.TileRecFlags.calibrateEnergy()
                 theTileRawChannelBuilderQIEFilter.correctTime     = jobproperties.TileRecFlags.correctTime()
                 theTileRawChannelBuilderQIEFilter.NoiseFilterTools= NoiseFilterTools
-                ##theTileRawChannelBuilderQIEFilter.BestPhase       = False; # no point to use best phase with interations
                 theTileRawChannelBuilderQIEFilter.PedestalMode = 1
-                ##theTileRawChannelBuilderQIEFilter.MaxIterations = 5
-                ##theTileRawChannelBuilderQIEFilter.Minus1Iteration = True
-                ##theTileRawChannelBuilderQIEFilter.AmplitudeCorrection = False; # don't need correction after iterations
-                #from TileConditions.TileCondToolConf import getTileCondToolPulseShape
-                #ToolSvc.TileCondToolOfc.TileCondToolPulseShape = getTileCondToolPulseShape('COOL','PHY')
       
                 mlog.info(" adding now TileRawChannelBuilderQIEFilter to ToolSvc")   
                 ToolSvc += theTileRawChannelBuilderQIEFilter
@@ -302,15 +307,7 @@ class TileRawChannelGetter ( Configured)  :
                                     
                 # setup COOL to get OFCs, needed for COF to retrieve pulse shape and derivatives
                 if jobproperties.TileRecFlags.OfcFromCOOL():
-                    from TileConditions.TileInfoConfigurator import TileInfoConfigurator
-                    tileInfoConfigurator = TileInfoConfigurator()
-                    tileInfoConfigurator.setupCOOLOFC()
                     theTileRawChannelBuilderMF.TileCondToolOfc = ToolSvc.TileCondToolOfcCool
-                else:
-                    from TileConditions.TileInfoConfigurator import TileInfoConfigurator
-                    tileInfoConfigurator = TileInfoConfigurator()
-                    tileInfoConfigurator.setupCOOLPHYPULSE()
-                    tileInfoConfigurator.setupCOOLAutoCr()
 
                 #TileRawChannelBuilderMF Options:
                 jobproperties.TileRecFlags.TileRawChannelContainer = "TileRawChannelMF"
@@ -376,16 +373,14 @@ class TileRawChannelGetter ( Configured)  :
                 
                 # setup COOL to get OFCs
                 if jobproperties.TileRecFlags.OfcFromCOOL():
-                    from TileConditions.TileInfoConfigurator import TileInfoConfigurator
-                    tileInfoConfigurator = TileInfoConfigurator()
-                    tileInfoConfigurator.setupCOOLOFC(ofcType = 'OF1')
-                    theTileRawChannelBuilderOF1.TileCondToolOfc = ToolSvc.TileCondToolOfcCoolOF1
-                else:
-                    from TileConditions.TileInfoConfigurator import TileInfoConfigurator
-                    tileInfoConfigurator = TileInfoConfigurator()
-                    tileInfoConfigurator.setupCOOLPHYPULSE()
-                    tileInfoConfigurator.setupCOOLAutoCr()
-                    
+                    if hasattr(ToolSvc, 'TileCondToolOfcCoolOF1'):
+                        theTileRawChannelBuilderOF1.TileCondToolOfc = ToolSvc.TileCondToolOfcCoolOF1
+                    else:
+                        # There are no OF1 OFC in the COOL
+                        # OFC will be calculated on the fly
+                        tileInfoConfigurator.setupCOOLPULSE(type = TilePulse)
+                        tileInfoConfigurator.setupCOOLAutoCr()
+
                 #TileRawChannelBuilderOF1 Options:
                 jobproperties.TileRecFlags.TileRawChannelContainer = "TileRawChannelOF1"
                 theTileRawChannelBuilderOF1.TileRawChannelContainer = "TileRawChannelOF1"
@@ -424,15 +419,7 @@ class TileRawChannelGetter ( Configured)  :
                 
                 # setup COOL to get OFCs
                 if jobproperties.TileRecFlags.OfcFromCOOL():
-                    from TileConditions.TileInfoConfigurator import TileInfoConfigurator
-                    tileInfoConfigurator = TileInfoConfigurator()
-                    tileInfoConfigurator.setupCOOLOFC()
                     theTileRawChannelBuilderOpt2Filter.TileCondToolOfc = ToolSvc.TileCondToolOfcCool
-                else:
-                    from TileConditions.TileInfoConfigurator import TileInfoConfigurator
-                    tileInfoConfigurator = TileInfoConfigurator()
-                    tileInfoConfigurator.setupCOOLPHYPULSE()
-                    tileInfoConfigurator.setupCOOLAutoCr()
                     
                 #TileRawChannelBuilderOpt2Filter Options:
                 jobproperties.TileRecFlags.TileRawChannelContainer = "TileRawChannelOpt2"
@@ -448,14 +435,11 @@ class TileRawChannelGetter ( Configured)  :
                 theTileRawChannelBuilderOpt2Filter.Minus1Iteration = True
                 theTileRawChannelBuilderOpt2Filter.AmplitudeCorrection = False; # don't need correction after iterations
                 theTileRawChannelBuilderOpt2Filter.TimeCorrection    = False; # don't need correction after iterations
-                #from TileConditions.TileCondToolConf import getTileCondToolPulseShape
-                #ToolSvc.TileCondToolOfc.TileCondToolPulseShape = getTileCondToolPulseShape('COOL','PHY')
       
                 mlog.info(" adding now TileRawChannelBuilderOpt2Filter to ToolSvc")   
                 ToolSvc += theTileRawChannelBuilderOpt2Filter
       
                 theTileRawChannelMaker.TileRawChannelBuilder += [ToolSvc.TileRawChannelBuilderOpt2Filter]
-
       
       
             if jobproperties.TileRecFlags.doTileOptATLAS():
@@ -469,15 +453,7 @@ class TileRawChannelGetter ( Configured)  :
                 
                 # setup COOL to get OFCs
                 if jobproperties.TileRecFlags.OfcFromCOOL():
-                    from TileConditions.TileInfoConfigurator import TileInfoConfigurator
-                    tileInfoConfigurator = TileInfoConfigurator()
-                    tileInfoConfigurator.setupCOOLOFC()
                     theTileRawChannelBuilderOptATLAS.TileCondToolOfc = ToolSvc.TileCondToolOfcCool
-                else:
-                    from TileConditions.TileInfoConfigurator import TileInfoConfigurator
-                    tileInfoConfigurator = TileInfoConfigurator()
-                    tileInfoConfigurator.setupCOOLPHYPULSE()
-                    tileInfoConfigurator.setupCOOLAutoCr()
                     
                 #TileRawChannelBuilderOptATLAS Options:
                 if globalflags.DataSource()=='data': # don't use the name which is used for reco data from DSP
@@ -511,8 +487,6 @@ class TileRawChannelGetter ( Configured)  :
                 
                 theTileRawChannelMaker.TileRawChannelBuilder += [ToolSvc.TileRawChannelBuilderOptATLAS]
             
-
-
 
             # now add algorithm to topSequence
             # this should always come at the end
