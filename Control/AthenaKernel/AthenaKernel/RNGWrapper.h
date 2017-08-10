@@ -57,12 +57,12 @@ namespace ATHRNG{
     /// Dereference engine pointer operator.
     /// Retrieves the current event context and returns the engine
     /// corresponding to the current event slot.
-    operator CLHEP::HepRandomEngine*(){
+    operator CLHEP::HepRandomEngine*() const {
       return m_engines[Gaudi::Hive::currentContext().slot()];
     }
 
     /// Retrieve the random engine corresponding to the provided EventContext.
-    CLHEP::HepRandomEngine* getEngine(const EventContext &ctx){
+    CLHEP::HepRandomEngine* getEngine(const EventContext &ctx) const {
       return m_engines[ctx.slot()];
     }
 
