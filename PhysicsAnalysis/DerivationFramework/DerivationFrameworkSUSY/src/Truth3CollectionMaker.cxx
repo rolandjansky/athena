@@ -100,7 +100,7 @@ StatusCode DerivationFramework::Truth3CollectionMaker::addBranches() const
 {
     
     // Retrieve truth collections
-    const xAOD::TruthParticleContainer* importedTruthParticles;
+    const xAOD::TruthParticleContainer* importedTruthParticles = 0;
     if (evtStore()->retrieve(importedTruthParticles,m_particlesKey).isFailure()) {
         ATH_MSG_ERROR("No TruthParticle collection with name " << m_particlesKey << " found in StoreGate!");
         return StatusCode::FAILURE;

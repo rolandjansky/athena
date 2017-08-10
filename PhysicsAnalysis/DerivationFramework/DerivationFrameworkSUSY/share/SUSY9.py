@@ -160,7 +160,7 @@ if globalflags.DataSource()=='geant4':
 
 # loose objects
 electronRequirements = '(Electrons.pt > 10*GeV) && (abs(Electrons.eta) < 2.6) && ((Electrons.Loose) || (Electrons.DFCommonElectronsLHLoose))'
-muonRequirements     = '(Muons.pt > 10*GeV) && (abs(Muons.eta) < 2.6) && (Muons.DFCommonGoodMuon)'
+muonRequirements     = '(Muons.pt > 10*GeV) && (abs(Muons.eta) < 2.6) && (Muons.DFCommonMuonsPreselection)'
 tauRequirements      = '(TauJets.pt > 15.*GeV) && (abs(TauJets.eta) < 2.6) && (TauJets.nTracks < 4) && (TauJets.DFCommonTausLoose)'
 photonRequirements   = '(DFCommonPhotons_et > 20.*GeV) && (abs(DFCommonPhotons_eta) < 2.6)'
 jetRequirements      = '(AntiKt4EMTopoJets.JetConstitScaleMomentum_pt - AntiKt4EMTopoJets.ActiveArea4vec_pt * Kt4EMTopoEventShape.Density >= 30.*GeV) && \
