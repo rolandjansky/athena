@@ -6,6 +6,7 @@
 export MENU="Physics_pp_v7"
 export EVENTS="10"
 export EXTRA="chainOrderOption=-1;"
+export COST_MONITORING="False"
 
 # Run with ascending
 source exec_athena_art_trigger_validation.sh
