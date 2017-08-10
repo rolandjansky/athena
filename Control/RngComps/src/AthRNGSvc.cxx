@@ -13,7 +13,7 @@
 #include "GaudiKernel/ConcurrencyFlags.h"
 
 AthRNGSvc::AthRNGSvc(const std::string& name, ISvcLocator* svc)
-  : AthService(name, svc),
+  : base_class(name, svc),
     m_RNGType("dSFMT"),
     m_numSlots(1),
     m_initialized(false)
@@ -167,17 +167,4 @@ void AthRNGSvc::print(const std::string& /*streamName*/){
 
 void AthRNGSvc::print(){
   ATH_MSG_WARNING("This is not implemented");
-}
-
-StatusCode AthRNGSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
-{
-  if ( IAthRNGSvc::interfaceID().versionMatch(riid) ) {
-    *ppvInterface = (IAthRNGSvc*)this;
-  }
-  else  {
-    // Interface is not directly available: try out a base class
-    return AthService::queryInterface(riid, ppvInterface);
-  }
-  addRef();
-  return StatusCode::SUCCESS;
 }

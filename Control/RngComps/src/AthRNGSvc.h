@@ -31,9 +31,7 @@ namespace CLHEP{
 ///
 /// @todo Move from manual pointer management to smart pointer management.
 ///
-class AthRNGSvc : virtual public IAthRNGSvc,
-                  virtual public IIncidentListener,
-                  public AthService
+class AthRNGSvc : public extends<AthService, IAthRNGSvc, IIncidentListener>
 {
 
 public:
@@ -52,7 +50,6 @@ public:
   virtual void handle( const Incident& incident );
   virtual void print(const std::string& streamName) override final;
   virtual void print() override final;
-  StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
   StatusCode initialize() override final;
   StatusCode start() override final;
   StatusCode finalize() override final;
