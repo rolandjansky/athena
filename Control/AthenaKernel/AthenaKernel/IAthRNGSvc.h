@@ -50,16 +50,9 @@ public:
   virtual void print()=0;
   //@}
 
-  /// Gaudi boilerplate
-  static const InterfaceID& interfaceID();
+  /// Declare interface to the framework
+  DeclareInterfaceID( IAthRNGSvc, 1, 0 );
 
 };
-
-inline
-const InterfaceID& 
-IAthRNGSvc::interfaceID() {
-  static const InterfaceID IID("IAthRNGSvc", 1, 0);
-  return IID;
-}
 
 #endif // ATHENAKERNEL_IATHRNGSVC_H
