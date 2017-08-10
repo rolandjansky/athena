@@ -47,8 +47,8 @@ StatusCode ResidualOffsetCorrection::initializeTool(const std::string&) {
   //Add the residual offset correction factors to the config TEnv
   TString ResidualOffsetCalibFile = m_config->GetValue("ResidualOffset.CalibFile","");
   if(m_dev){
+    ResidualOffsetCalibFile.Remove(0,33);
     ResidualOffsetCalibFile.Insert(0,"JetCalibTools/");
-    ResidualOffsetCalibFile.Insert(28,m_calibAreaTag);
   }
   else{ResidualOffsetCalibFile.Insert(14,m_calibAreaTag);}
   TString calibFile = PathResolverFindCalibFile(ResidualOffsetCalibFile.Data());

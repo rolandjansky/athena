@@ -59,8 +59,8 @@ StatusCode JMSCorrection::initializeTool(const std::string&) {
     return StatusCode::FAILURE;
   }
   if(m_dev){
+    JMSFile.Remove(0,33);
     JMSFile.Insert(0,"JetCalibTools/");
-    JMSFile.Insert(28,m_calibAreaTag);
   }
   else{JMSFile.Insert(14,m_calibAreaTag);}
   TString fileName = PathResolverFindCalibFile(JMSFile.Data());
@@ -108,8 +108,8 @@ StatusCode JMSCorrection::initializeTool(const std::string&) {
       return StatusCode::FAILURE;
     }
     if(m_dev){
+      JMS_TrackAssisted_File.Remove(0,33);
       JMS_TrackAssisted_File.Insert(0,"JetCalibTools/");
-      JMS_TrackAssisted_File.Insert(28,m_calibAreaTag);
     }
     else{JMS_TrackAssisted_File.Insert(14,m_calibAreaTag);}
     file_trkAssisted_Name = PathResolverFindCalibFile(JMS_TrackAssisted_File.Data());
@@ -151,8 +151,8 @@ StatusCode JMSCorrection::initializeTool(const std::string&) {
       return StatusCode::FAILURE;
     }
     if(m_dev){
+      Combination_File.Remove(0,33);
       Combination_File.Insert(0,"JetCalibTools/");
-      Combination_File.Insert(28,m_calibAreaTag);
     }
     else{Combination_File.Insert(14,m_calibAreaTag);}
     file_combination_Name = PathResolverFindCalibFile(Combination_File.Data());
