@@ -19,6 +19,7 @@
 #include "GaudiKernel/IService.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ClassID.h"
+#include "GaudiKernel/EventContext.h"
 
 class IAddressProvider;
 class IProxyRegistry; //this is the store
@@ -42,10 +43,6 @@ public:
   virtual SG::DataProxy* retrieveProxy(const CLID& id, 
 				       const std::string& key,
 				       IProxyRegistry& dataStore) = 0;
-
-  /// Update a transient Address:
-  virtual StatusCode updateAddress(StoreID::type sID,
-				   SG::TransientAddress* pTAd) = 0; 
 
   ///IAddressProvider manager functionality
   ///add a provider to the set of known ones. PROVIDER IS OWNED BY THE CLIENT
