@@ -66,11 +66,6 @@ namespace xAOD {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode TrackIsolationTool::finalize() 
-  {
-    return StatusCode::SUCCESS;
-  }
-
   const TrackParticleContainer* TrackIsolationTool::retrieveTrackParticleContainer() const 
   {
     const TrackParticleContainer* indetTrackParticles = 0;
@@ -130,7 +125,7 @@ namespace xAOD {
                                            TrackCorrection corrbitset, 
 					   const Vertex* vertex, 
                                            const std::set<const TrackParticle*>* exclusionSet,
-                                           const TrackParticleContainer* indetTrackParticles ) 
+                                           const TrackParticleContainer* indetTrackParticles )  const
   {
     /// prepare input
     // If not vertex is given, use the ID best one. If one does not want to cut on z0sinT, use the TrackSelectionTool config
@@ -268,7 +263,7 @@ namespace xAOD {
   }
 
 
-  bool TrackIsolationTool::binnedIsolation( TrackIsolationInput& input, TrackIsolation& result ) 
+  bool TrackIsolationTool::binnedIsolation( TrackIsolationInput& input, TrackIsolation& result )  const
   {
     /// prepare look-up structure
     std::vector<const TrackParticle*> tps;
@@ -352,7 +347,7 @@ namespace xAOD {
 
   void TrackIsolationTool::initresult(TrackIsolation& result, 
 				      TrackCorrection corrlist, 
-				      unsigned int typesize){
+				      unsigned int typesize) const {
 
     result.corrlist = corrlist;
     result.coreCorrections.clear();
@@ -368,7 +363,7 @@ namespace xAOD {
   }
 
 #ifdef XAOD_ANALYSIS
-  bool TrackIsolationTool::getparticlesInCone( float eta, float phi, float dr, std::vector< const TrackParticle*>& output ) {
+  bool TrackIsolationTool::getparticlesInCone( float eta, float phi, float dr, std::vector< const TrackParticle*>& output ) const {
 
     /// retrieve container
     const TrackParticleContainer* trks = retrieveTrackParticleContainer();
