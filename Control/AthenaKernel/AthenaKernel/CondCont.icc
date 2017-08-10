@@ -80,6 +80,7 @@ CondCont<T>::CondCont (const DataObjID& id, SG::DataProxy* proxy /*=nullptr*/)
     m_id (id),
     m_proxy (proxy)
 {
+  CondCont<T>::registerBaseInit();
 }
 
 
@@ -347,6 +348,7 @@ CondCont<T>::CondCont (CLID clid, const DataObjID& id, SG::DataProxy* proxy)
     m_id(id),
     m_proxy(proxy)
 {
+  CondCont<T>::registerBaseInit();
 }
 
 
@@ -429,3 +431,15 @@ const void* CondCont<T>::findByCLID (CLID clid,
 }
 
 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
+/**
+ * @brief Helper to ensure that the inheritance information for this class
+ *               gets initialized.
+ */
+template <class T>
+void CondCont<T>::registerBaseInit()
+{
+  static const SG::RegisterBaseInit<CondCont> rbi;
+}

@@ -15,6 +15,7 @@
 
 #include "AthenaKernel/IOVEntryT.h"
 #include "AthenaKernel/ClassID_traits.h"
+#include "AthenaKernel/BaseInfo.h"
 
 #include "GaudiKernel/EventIDBase.h"
 #include "GaudiKernel/EventIDRange.h"
@@ -167,6 +168,9 @@ private:
 ///////////////////////////////////////////////////////////////////////////
 
 
+template <class T> class CondCont;
+
+
 /**
  * @brief Traits class to find the base for @c CondCont.
  *
@@ -182,6 +186,19 @@ public:
 };
 
 
+namespace SG {
+template <typename T>
+struct Bases<CondCont<T> >
+{
+  typedef CondContBase Base1;               
+  typedef NoBase Base2;          
+  typedef NoBase Base3;      
+};
+} // namespace SG
+
+
+
+
 /**
  * @brief Declare that conditions object @c D derives from @c B.
  *
@@ -194,7 +211,10 @@ class CondContBaseInfo<D>         \
 {                                 \
 public:                           \
   typedef CondCont<B> Base;       \
-}
+};                                 \
+SG_BASE(CondCont<D>, CondCont<B>); \
+SG_BASE(D, B)
+  
 
 
 
@@ -385,6 +405,12 @@ protected:
 
 
 private:
+
+  /// Helper to ensure that the inheritance information for this class
+  /// gets initialized.
+  static void registerBaseInit();
+
+
   /// Mutex used to protect the container.
   typedef std::mutex mutex_t;
   typedef std::lock_guard<mutex_t> lock_t;
