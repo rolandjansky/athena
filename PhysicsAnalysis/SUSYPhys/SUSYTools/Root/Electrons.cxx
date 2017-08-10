@@ -184,10 +184,9 @@ StatusCode SUSYObjDef_xAOD::FillElectron(xAOD::Electron& input, float etcut, flo
     }
   }
 
-#if ROOTCORE_RELEASE_SERIES==24
-  if ( m_egammaCalibTool->applyCorrection(input) != CP::CorrectionCode::Ok)
-    ATH_MSG_ERROR( "FillElectron: EgammaCalibTool applyCorrection failed ");
-#endif
+//  No correction for the time being -- this might come back?
+//  if ( m_egammaCalibTool->applyCorrection(input) != CP::CorrectionCode::Ok)
+//    ATH_MSG_ERROR( "FillElectron: EgammaCalibTool applyCorrection failed ");
 
   if (m_isoCorrTool->applyCorrection(input)  != CP::CorrectionCode::Ok)
     ATH_MSG_ERROR("FillElectron: IsolationCorrectionTool applyCorrection failed");

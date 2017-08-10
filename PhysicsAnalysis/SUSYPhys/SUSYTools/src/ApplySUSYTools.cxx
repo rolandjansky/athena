@@ -1006,11 +1006,7 @@ StatusCode ApplySUSYTools::execute()
 
   for(unsigned int j=0; j<p_TauJets->size(); ++j){
     if( !(*tauCutMask)[j] ) continue;
-#if ROOTCORE_RELEASE_SERIES==25
     const auto& tpLinks = (*p_TauJets)[j]->tauTrackLinks();
-#else
-    const auto& tpLinks = (*p_TauJets)[j]->trackLinks();
-#endif
     int nTrkTau = 0;
     for(const auto& tpLink : tpLinks){
       if( !tpLink.isValid() ) continue;

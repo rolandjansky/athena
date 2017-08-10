@@ -155,17 +155,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     SET_DUAL_TOOL( m_jetCalibTool, JetCalibrationTool, toolName ); 
 
     // pick the right config file for the JES tool
-    //#ifdef ASGSeries24
-#if ROOTCORE_RELEASE_SERIES==24
-    std::string JES_config_file("JES_data2016_data2015_Recommendation_Dec2016.config"); //JES_MC15cRecommendation_May2016.config");
-    
-    if(!m_JMScalib.empty()){ //with JMS calibration (if requested)
-      JES_config_file = "JES_data2016_data2015_Recommendation_Dec2016_JMS.config";
-    }
-    
-#else
-    //std::string JES_config_file("JES_MC15cRecommendation_May2016_rel21.config");
-    //:: +SZ
     std::string JES_config_file("JES_MC16Recommendation_Aug2017.config");
     if (isData()){
       // The in-situ correction only works in 20.7 for the moment
@@ -174,9 +163,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     if(!m_JMScalib.empty()){ //with JMS calibration (if requested)
       JES_config_file = "JES_data2016_data2015_Recommendation_Dec2016_JMS_rel21.config";
     }
-    //:: !SZ
-
-#endif
     
     if (isAtlfast()) {
 
@@ -196,17 +182,11 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
     }
 
-//:: +SZ
     // form the string describing the calibration sequence to use
-#if ROOTCORE_RELEASE_SERIES==24    
-    std::string calibseq("JetArea_Residual_Origin_EtaJES_GSC");
-#else    
     std::string calibseq("JetArea_Residual_EtaJES");
     if (isData()){
       calibseq = "JetArea_Residual_EtaJES_GSC";
     }
-#endif
-//:: !SZ
     if(!m_JMScalib.empty()){
       calibseq += "_JMS";
     }
@@ -220,11 +200,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       //Note! : There is no origin correction explicitly included in the PFlow JES
       //
       
-#if ROOTCORE_RELEASE_SERIES==24
       JES_config_file = "JES_MC15cRecommendation_PFlow_Aug2016.config"; //JES_MC15Prerecommendation_PFlow_July2015.config";
-#else
-      JES_config_file = "JES_MC15cRecommendation_PFlow_Aug2016.config"; //JES_MC15Prerecommendation_PFlow_July2015.config";
-#endif
       calibseq = "JetArea_Residual_EtaJES_GSC";
 
       if(!m_JMScalib.empty()){
@@ -465,11 +441,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   if (!m_muonCalibrationAndSmearingTool.isUserConfigured()) {
     toolName = "MuonCalibrationAndSmearingTool";
     SET_DUAL_TOOL(m_muonCalibrationAndSmearingTool, CP::MuonCalibrationAndSmearingTool, toolName);
-#if ROOTCORE_RELEASE_SERIES==24
-    ATH_CHECK( m_muonCalibrationAndSmearingTool.setProperty("StatComb", true) );
-#else
     ATH_CHECK( m_muonCalibrationAndSmearingTool.setProperty("StatComb", false) );
-#endif
     ATH_CHECK( m_muonCalibrationAndSmearingTool.retrieve() );
   }
 
@@ -989,12 +961,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   if (!m_egammaCalibTool.isUserConfigured()) {
     SET_DUAL_TOOL(m_egammaCalibTool, CP::EgammaCalibrationAndSmearingTool, "EgammaCalibrationAndSmearingTool");
     ATH_MSG_DEBUG( "Initialising EgcalibTool " );
-#if ROOTCORE_RELEASE_SERIES==24  
-    ATH_CHECK( m_egammaCalibTool.setProperty("ESModel", "es2016data_mc15c") ); //want to use _summer as soon as possible; see ATLASG-1255; used for analysis using 2015 or 2016 or 2015+2016 data (all processed with 20.7).
-#else
     ATH_CHECK( m_egammaCalibTool.setProperty("ESModel", "es2017_R21_PRE") ); //used for analysis using data processed with 21.0
-    //ATH_CHECK( m_egammaCalibTool.setProperty("ESModel", "es2016data_mc15c") );
-#endif
     ATH_CHECK( m_egammaCalibTool.setProperty("decorrelationModel", "1NP_v1") );
     if (isAtlfast()) ATH_CHECK( m_egammaCalibTool.setProperty("useAFII", 1) );
     
@@ -1003,28 +970,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////
-// Initialize tau score re-decorator
-#if ROOTCORE_RELEASE_SERIES==24  
-  if (!m_tauWPdecorator.isUserConfigured()) {
-    toolName = "TauWPDecorator";
-    SET_DUAL_TOOL(m_tauWPdecorator, TauWPDecorator, toolName);
-    
-    if (!m_tauWPdecorator.empty()) {
-      ATH_CHECK( m_tauWPdecorator.setProperty("flatteningFile1Prong", "flat1SmoothAODfix.root") );
-      ATH_CHECK( m_tauWPdecorator.setProperty("flatteningFile3Prong", "flat3SmoothAODfix.root") );
-      ATH_CHECK( m_tauWPdecorator.setProperty("DefineWPs", true) );
-      ATH_CHECK( m_tauWPdecorator.setProperty("SigEffWPVeryLoose1P", 0.95) );
-      ATH_CHECK( m_tauWPdecorator.setProperty("SigEffWPLoose1P", 0.85) );
-      ATH_CHECK( m_tauWPdecorator.setProperty("SigEffWPMedium1P", 0.75) );
-      ATH_CHECK( m_tauWPdecorator.setProperty("SigEffWPTight1P", 0.60) );
-      ATH_CHECK( m_tauWPdecorator.setProperty("SigEffWPVeryLoose3P", 0.95) );
-      ATH_CHECK( m_tauWPdecorator.setProperty("SigEffWPLoose3P", 0.75) );
-      ATH_CHECK( m_tauWPdecorator.setProperty("SigEffWPMedium3P", 0.60) );
-      ATH_CHECK( m_tauWPdecorator.setProperty("SigEffWPTight3P", 0.45) );
-    }
-    ATH_CHECK( m_tauWPdecorator.retrieve() );
-  }
-#endif  
+// No tau score re-decorator in R21; might come back some day, would go here
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 // Initialise tau selection tools
@@ -1043,17 +989,13 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     SET_DUAL_TOOL(m_tauSelTool, TauAnalysisTools::TauSelectionTool, toolName);
     ATH_CHECK( m_tauSelTool.setProperty("ConfigPath", inputfile) );
 
-    if(m_tauRecalcOLR){
-      ATH_CHECK( m_tauSelTool.setProperty("RecalcEleOLR", true) );     
-    }
-    if(m_tauNoAODFixCheck){
-      ATH_CHECK( m_tauSelTool.setProperty("IgnoreAODFixCheck", true) );
-    }
-
-#if ROOTCORE_RELEASE_SERIES>24
     ATH_CHECK( m_tauSelTool.setProperty("IgnoreAODFixCheck", true) );
     ATH_CHECK( m_tauSelTool.setProperty("RecalcEleOLR", false) );
-#endif
+    if (m_tauRecalcOLR || !m_tauNoAODFixCheck){
+      ATH_MSG_WARNING("Release 21 requires IgnoreAODFixCheck=true and RecalcEleOLR=false (you set IgnoreAODFixCheck="
+                      << m_tauNoAODFixCheck << " and RecalcEleOLR=" << m_tauRecalcOLR << ")");
+      ATH_MSG_WARNING("Please update your settings");
+    }
 
     ATH_CHECK( m_tauSelTool.retrieve() );
   }
@@ -1246,16 +1188,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
     if (m_jetInputType == xAOD::JetInput::EMPFlow) {
       ATH_CHECK( m_metMaker.setProperty("DoPFlow", true) );
-#if ROOTCORE_RELEASE_SERIES == 24
-      ATH_CHECK( m_metMaker.setProperty("JetSelection", "Expert") );
-      ATH_CHECK( m_metMaker.setProperty("CustomJetJvtCut", -1.) );
-#endif
     }
-
-//#ifdef ASGSeries24
-#if ROOTCORE_RELEASE_SERIES == 24
-    ATH_CHECK( m_metMaker.setProperty("GreedyPhotons", m_metGreedyPhotons) );
-#endif
 
     ATH_CHECK( m_metMaker.retrieve() );
   }
