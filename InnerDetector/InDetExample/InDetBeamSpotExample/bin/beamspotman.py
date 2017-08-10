@@ -276,7 +276,8 @@ if cmd=='runMon' and len(args)==3:
     if 'ESD' in options.filter:
         # NOTE: We pass along the filter setting, but currently we can do --lbperjob only for ESD since for
         #       other data sets we have only the merged files.
-        os.system('runJobs.py --lbperjob 10 -c -f \'%s\' -p "cmdjobpreprocessing=\'export STAGE_SVCCLASS=atlcal\', useBeamSpot=True, beamspottag=\'%s\'" %s %s %s.%s %s/' % (options.filter,options.beamspottag,options.monjoboptions,dsname,options.montaskname,tag,'/'.join([c,dataset])))
+        cmd = 'runJobs.py --lbperjob 10 -c -f \'%s\' -p "cmdjobpreprocessing=\'export STAGE_SVCCLASS=atlcal\', useBeamSpot=True, beamspottag=\'%s\'" %s %s %s.%s %s/' % (
+                options.filter,options.beamspottag,options.monjoboptions,dsname,options.montaskname,tag,dataset)
     elif options.filelist != None:
         lbinfoinfiles=True
         for line in open(options.filelist,'r'):
@@ -284,13 +285,15 @@ if cmd=='runMon' and len(args)==3:
                 lbinfoinfiles=False
                 break
         lboptions='--lbperjob 10' if lbinfoinfiles else '-n 10'
-        cmd = 'runJobs.py %s -f \'%s\' -q atlasb1_long -p "useBeamSpot=True, beamspottag=\'%s\', tracksAlreadyOnBeamLine=True" %s %s %s.%s %s' % (lboptions,options.filter,options.beamspottag,options.monjoboptions,dsname,options.montaskname,tag,dataset)
-        print cmd
-        os.system(cmd)
+        cmd = 'runJobs.py %s -f \'%s\' -q atlasb1_long -p "useBeamSpot=True, beamspottag=\'%s\', tracksAlreadyOnBeamLine=True" %s %s %s.%s %s' % (
+                lboptions,options.filter,options.beamspottag,options.monjoboptions,dsname,options.montaskname,tag,)
     else:
-        cmd = 'runJobs.py --lbperjob 10 -c -f \'%s\' -p "cmdjobpreprocessing=\'export STAGE_SVCCLASS=atlcal\', useBeamSpot=True, beamspottag=\'%s\'" %s %s %s.%s %s/' % (options.filter,options.beamspottag,options.monjoboptions,dsname,options.montaskname,tag,'/'.join([c,dataset]))
-        os.system(cmd)
+        cmd = 'runJobs.py --lbperjob 10 -c -f \'%s\' -p "cmdjobpreprocessing=\'export STAGE_SVCCLASS=atlcal\', useBeamSpot=True, beamspottag=\'%s\'" %s %s %s.%s %s/' % (
+                options.filter,options.beamspottag,options.monjoboptions,dsname,options.montaskname,tag,dataset)
 
+    print cmd
+    if not options.testonly:
+        os.system(cmd)
     sys.exit(0)
 
 
