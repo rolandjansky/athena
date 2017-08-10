@@ -255,6 +255,7 @@ HIGG1D1Stream.AddItem("xAOD::EventShapeAuxInfo_v1#*")
 HIGG1D1SlimmingHelper.SmartCollections = ["Electrons",
                                           "Photons",
                                           "Muons",
+                                          "TauJets",
                                           "MET_Reference_AntiKt4EMTopo",
                                           "AntiKt4EMTopoJets",
                                           "AntiKt4EMPFlowJets",
