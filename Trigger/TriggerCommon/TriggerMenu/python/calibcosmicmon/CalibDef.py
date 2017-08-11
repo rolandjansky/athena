@@ -141,6 +141,8 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
         self.setupRPCCalibrationChains()
       elif 'idpsl1' in self.chainPart['purpose']:
         self.setupIDPSCalibrationChains()
+      elif 'larpebcalib' in self.chainPart['purpose']:
+        self.setupLArPEBCalibCalibrationChains()
       else:
          log.error('Chain %s could not be assembled' % (self.chainPartName))
          return False      
@@ -503,4 +505,15 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
      self.L2sequenceList += [['', self.robWriter, 'L2_zdc']]     
      self.L2signatureList += [[['L2_zdc']]]
 
+######################################################################
+   def setupLArPEBCalibCalibrationChains(self):
+     from TrigDetCalib.TrigDetCalibConfig import TrigSubDetListWriter
+     larpebSubDetListWriter = TrigSubDetListWriter("LArPEBSubDetListWriter")
+     larpebSubDetListWriter.SubdetId = ['TDAQ_CTP','LAr']
 
+     larpebSubDetListWriter.MaxRoIsPerEvent=1
+
+     self.robWriter = [larpebSubDetListWriter]
+     self.L2sequenceList += [['', self.robWriter, 'L2_larpeb']]
+     self.L2signatureList += [[['L2_larpeb']]]
+ 

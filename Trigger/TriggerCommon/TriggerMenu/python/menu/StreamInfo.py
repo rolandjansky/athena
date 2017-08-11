@@ -52,7 +52,8 @@ calibStreams = [
                 'AFP',
                 'BphysPEB',
                 'RPCNoise',
-                'IDprescaledL1'
+                'IDprescaledL1',
+                'LArPEB'
                 ]
 
 ##NOTE: DataScouting_xx_NAME: 
