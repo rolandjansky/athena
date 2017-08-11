@@ -835,32 +835,25 @@ void HLTTauMonTool::bookHistogramsAllItem(){
         }
     }
  
-	// pt, eta binning
-//	const int nbin_pt = 8;
-//	float bins_pt[nbin_pt] = {100, 150, 200, 250, 300, 350, 400, 600};
-
-	const int nbin_eta_temp = 9;
-	double bins_eta_temp[nbin_eta_temp] = {-2.47,-1.52,-1.37,-0.69,0.,0.69,1.37,1.52,2.47};
-
     for(unsigned int i=0;i<m_topo_chains_ditau.size(); ++i){
    	addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/TopoDiTau/"+m_topo_chains_ditau.at(i),run));
     	setCurrentMonGroup("HLT/TauMon/Expert/TopoDiTau/"+m_topo_chains_ditau.at(i));
         addProfile(new TProfile("TProfRecoL1_dREfficiency", "dR eff; dR(tau,tau); Efficiency",50,0.,4.));
-        addHistogram(new TH1F("hHLTdR", "dR; dR(tau,tau); Events",50,0.,5.));        
+        addHistogram(new TH1F("hHLTdR", "dR; dR(tau,tau); Events",50,0.,4.));        
     }
 
     for(unsigned int i=0;i<m_topo_chains_mutau.size(); ++i){
    	addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/TopoMuTau/"+m_topo_chains_mutau.at(i),run));
     	setCurrentMonGroup("HLT/TauMon/Expert/TopoMuTau/"+m_topo_chains_mutau.at(i));
         addProfile(new TProfile("TProfRecoL1_dREfficiency", "dR eff; dR(muon,tau); Efficiency",50,0.,4.)); 
-        addHistogram(new TH1F("hHLTdR", "dR; dR(muon,tau); Events",50,0.,5.));        
+        addHistogram(new TH1F("hHLTdR", "dR; dR(muon,tau); Events",50,0.,4.));        
     }
 
     for(unsigned int i=0;i<m_topo_chains_eltau.size(); ++i){
    	addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/TopoElTau/"+m_topo_chains_eltau.at(i),run));
     	setCurrentMonGroup("HLT/TauMon/Expert/TopoElTau/"+m_topo_chains_eltau.at(i));
         addProfile(new TProfile("TProfRecoL1_dREfficiency", "dR eff; dR(electron,tau); Efficiency",50,0.,4.));
-        addHistogram(new TH1F("hHLTdR", "dR; dR(electron,tau); Events",50,0.,5.));        
+        addHistogram(new TH1F("hHLTdR", "dR; dR(electron,tau); Events",50,0.,4.));        
     }
 
     if(m_doTopoValidation){
