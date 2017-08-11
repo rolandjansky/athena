@@ -533,10 +533,6 @@ void EL::PrunDriver::doSubmit(const EL::Job& job,
   processAllInState(sh, JobState::INIT, 0); 
 
   sh.save(location + "/input");
-
-  //If doRetrieve is called immediately, panda client will print ugly warnings
-  //as task info is not yet available
-  sleep(60);
 }
 
 bool EL::PrunDriver::doRetrieve(const std::string& location) const 
