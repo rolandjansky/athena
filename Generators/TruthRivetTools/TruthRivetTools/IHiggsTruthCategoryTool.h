@@ -13,7 +13,7 @@
 
 #include "AsgTools/IAsgTool.h"
 #include "TLorentzVector.h"
-#include "HiggsTemplateCrossSections.h"
+#include "HiggsTemplateCrossSectionsDefs.h"
 #include "HepMC/GenEvent.h"
 
 class IHiggsTruthCategoryTool : public virtual asg::IAsgTool {

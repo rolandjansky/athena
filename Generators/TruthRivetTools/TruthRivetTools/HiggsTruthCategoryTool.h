@@ -13,7 +13,13 @@
 
 #include "TLorentzVector.h"
 #include "Rivet/AnalysisHandler.hh"
-#include "TruthRivetTools/HiggsTemplateCrossSections.cc"
+#include "TruthRivetTools/HiggsTemplateCrossSections.h"
+
+// To avoid coflict of UNUSED macro of
+// Control/CxxUtils/CxxUtils/unused.h and Rivet/Tools/Utils.hh
+#ifdef UNUSED
+#undef UNUSED
+#endif // UNUSED
 
 #include "AsgTools/AsgTool.h"
 #include "TruthRivetTools/IHiggsTruthCategoryTool.h"
