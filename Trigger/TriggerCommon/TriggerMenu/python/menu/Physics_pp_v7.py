@@ -3611,7 +3611,7 @@ def setupMenu():
 
         ['rpcpeb_L1RD0_EMPTY', 'L1_RD0_EMPTY', [], ['RPCNoise'], ["BW:Detector", "RATE:Calibration", "RATE:RPCCalibration",], -1],
 
-        ['idpsl1_L1IDprescaled','L1_IDprescaled', [], ['IDprescaledL1'], ["RATE:SeededStreamers","BW:Other"], -1],
+        ['idpsl1_L1IDprescaled','', [], ['IDprescaledL1'], ["RATE:SeededStreamers","BW:Other"], -1],
 
         ]
 
