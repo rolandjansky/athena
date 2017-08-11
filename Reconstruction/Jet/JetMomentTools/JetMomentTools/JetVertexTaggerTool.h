@@ -97,7 +97,7 @@ public:
   //   scale - name of the jet scale holding the original pT
   // The new value for JVT is returned.
   float updateJvt(const xAOD::Jet& jet, std::string sjvt = "Jvt",
-                  std::string scale ="JetPileupScaleMomentum") const;
+                  std::string scale ="JetEtaJESScaleMomentum") const;
 
   // Local method to return the HS vertex - that of type PriVtx
   const xAOD::Vertex* findHSVertex(const xAOD::VertexContainer*&) const;
