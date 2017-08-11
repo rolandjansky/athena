@@ -147,8 +147,9 @@ namespace ST {
 
   static inline int getMCShowerType(const std::string& sample_name) {
     /** Get MC generator index for the b-tagging efficiency maps*/
-    //don't change this order! //MT
-    const static std::vector<TString> gen_mc_generator_keys = {"PYTHIAEVTGEN", "HERWIGPPEVTGEN", "PYTHIA8EVTGEN", "SHERPA_CT10", "SHERPA"};
+    // This needs VERY careful syncing with m_showerType in SUSYToolsInit!  Change with care!
+    const static std::vector<TString> gen_mc_generator_keys = {"PYTHIA8EVTGEN"};
+    //This was the 20.7 vector... {"PYTHIAEVTGEN", "HERWIGPPEVTGEN", "PYTHIA8EVTGEN", "SHERPA_CT10", "SHERPA"};
 
     //pre-process sample name
     TString tmp_name(sample_name);
@@ -166,7 +167,13 @@ namespace ST {
       ishower++;
     }
 
-    std::cout << "WARNING: Unknown MC generator detected. Returning default 0=PowhegPythia6(410000) ShowerType for btagging MC/MC maps." << std::endl;
+    // See if they are doing something really unwise, just in case
+    if (tmp_name.Contains("data16_13TeV") || tmp_name.Contains("data17_13TeV") || tmp_name.Contains("data15_13TeV")){
+      std::cout << "WARNING: Asking for the MC shower when running on a data file is not advised.  Just returning 0." << std::endl;
+      return 0;
+    }
+
+    std::cout << "WARNING: Unknown MC generator detected. Returning default 0=PowhegPythia8(410501) ShowerType for btagging MC/MC maps." << std::endl;
     return 0;
   }
 
