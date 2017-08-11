@@ -68,12 +68,4 @@ if doG4SimConfig:
             simFlags.PhysicsOptions += ['CharginoPlusToMuPlusNeutralino']
             simFlags.PhysicsOptions += ['CharginoMinusToMuMinusNeutralino']
 
-    def amsb_applycalomctruthstrategy():
-## Applying the MCTruth strategies: add decays in the Calorimeter
-        from G4AtlasApps import AtlasG4Eng
-        myDecay = AtlasG4Eng.G4Eng.Dict_MCTruthStrg.get('Decay')
-        myDecay.add_Volumes('CALO::CALO', 1)
-
-    simFlags.InitFunctions.add_function("postInit", amsb_applycalomctruthstrategy)
-
 del doG4SimConfig, simdict
