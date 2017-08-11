@@ -14,7 +14,7 @@
 from AthenaCommon.AppMgr import theApp
 from AthenaCommon.AppMgr import ServiceMgr
 #
-from AthenaCommon.AlgSequence import AlgSequence
+from AthenaCommon.AlgSequence import AlgSequence, AthSequencer
 topSequence = AlgSequence()
 #
 from AthenaCommon.AppMgr import ToolSvc
@@ -72,6 +72,12 @@ else:
   if 'athenaCommonFlags' in dir() and athenaCommonFlags.FilesInput():
     ServiceMgr.EventSelector.InputCollections   = athenaCommonFlags.FilesInput()
     ServiceMgr.EventSelector.SkipEvents         = athenaCommonFlags.SkipEvents()
+
+
+# --- Conditions input loader.
+from IOVSvc.IOVSvcConf import CondInputLoader
+condSeq = AthSequencer("AthCondSeq")
+condSeq += CondInputLoader()
 
 
 # ---- Beam Spot service
