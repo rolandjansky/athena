@@ -201,8 +201,7 @@ namespace HTXS {
 
 
 #ifdef RIVET_Particle_HH
-//#ifdef HIGGSTRUTHCLASSIFIER_HIGGSTRUTHCLASSIFIER_CC
-//#include "Rivet/Particle.hh"
+
 namespace Rivet {
 
   /// @struct HiggsClassification
