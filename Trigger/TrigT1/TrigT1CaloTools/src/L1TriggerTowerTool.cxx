@@ -36,6 +36,9 @@
 #include "TrigT1CaloCalibConditions/L1CaloPprChanStrategy.h"
 #include "TrigT1CaloCalibConditions/L1CaloPprChanStrategyContainer.h"
 
+#include "TrigT1CaloCalibConditions/L1CaloRunParameters.h"
+#include "TrigT1CaloCalibConditions/L1CaloRunParametersContainer.h"
+
 #include "TrigT1CaloCalibToolInterfaces/IL1CaloTTIdTools.h"
 #include "TrigT1CaloMappingToolInterfaces/IL1CaloMappingTool.h"
 #include "TrigT1CaloToolInterfaces/IL1DynamicPedestalProvider.h"
@@ -209,6 +212,14 @@ StatusCode L1TriggerTowerTool::retrieveConditions()
         ATH_MSG_WARNING("Empty L1CaloDerivedRunParsContainer");
         return StatusCode::FAILURE;
       }
+
+      CHECK_WITH_CONTEXT(m_l1CondSvc->retrieve(m_runParametersContainer), "L1TriggerTowerTool");
+      if (std::cbegin(*m_runParametersContainer) == std::cend(*m_runParametersContainer)) {
+        ATH_MSG_WARNING("Empty L1CaloRunParametersContainer");
+        return StatusCode::FAILURE;
+      }
+
+
       std::string timingRegime = std::cbegin(*m_derivedRunParsContainer)->timingRegime();
 
       CHECK_WITH_CONTEXT(m_l1CondSvc->retrieve(m_strategyContainer), "L1TriggerTowerTool");
@@ -227,7 +238,7 @@ StatusCode L1TriggerTowerTool::retrieveConditions()
             "/TRIGGER/L1Calo/V2/Configuration/PprChanDefaults"
            }
          };
-
+      
       if (strategy.empty()){
         coolFoldersKeysMap[L1CaloPprConditionsContainerRun2::ePprChanCalib] 
           = "/TRIGGER/L1Calo/V2/Calibration/" + timingRegime + "/PprChanCalib";
@@ -247,6 +258,7 @@ StatusCode L1TriggerTowerTool::retrieveConditions()
       CHECK(retrieveGeneric<L1CaloPprDisabledChannelContainer>(m_l1CondSvc, m_disabledChannelContainer));
     }
 
+    
     if(verbose) {
       ATH_MSG_VERBOSE( "Retrieved ConditionsContainer" );
       if(m_isRun2){
@@ -260,6 +272,8 @@ StatusCode L1TriggerTowerTool::retrieveConditions()
       if(m_isRun2){
         ATH_MSG_VERBOSE( "Retrieved DerivedRunParsContainer" );
         m_derivedRunParsContainer->dump();
+	ATH_MSG_VERBOSE( "Retrieved RunParametersContainer" );
+	m_runParametersContainer->dump();
         ATH_MSG_VERBOSE( "Retrieved StrategyContainer" );
         m_strategyContainer->dump();
       }
@@ -364,10 +378,42 @@ std::vector<DST> convertVectorType(const std::vector<SRC>& s) {
 } 
 }
 
+
 /** All-in-one routine - give it the TT identifier, and  it returns the results */
 void L1TriggerTowerTool::simulateChannel(const xAOD::TriggerTower& tt, std::vector<int>& outCpLut, std::vector<int>& outJepLut, std::vector<int>& bcidResults, std::vector<int>& bcidDecisions)
 {
-  const auto& digits = convertVectorType<int>(tt.adc());
+
+  //If we have 80 MHz readout, we need to extract the 40 MHz samples. The central 80 MHz sample is always a 40 MHz sample. We use the cool database (runParameters folder) to understand if we are in 80MHz readout
+
+  unsigned int readoutConfigID   = std::cbegin(*m_runParametersContainer)->readoutConfigID();
+
+  if(m_debug){
+    ATH_MSG_VERBOSE("ReadoutConfigID = " << readoutConfigID );
+  }
+
+  std::vector<uint16_t> digits40;
+
+  if(readoutConfigID == 5 or readoutConfigID == 6){
+
+    if(m_debug){
+      ATH_MSG_VERBOSE("80 MHz readout detected, emulating 40 MHz samples");
+    }
+ 
+    int nSlices = tt.adc().size();
+
+    for (int i=0 ; i < (nSlices-1)/2 ; i++ ){
+      digits40.push_back(tt.adc().at(2*i+1));
+    }
+
+  }else{
+    if(m_debug){
+      ATH_MSG_VERBOSE("40 MHz readout detected");
+    }
+    digits40 = tt.adc();
+  }
+  
+  const auto& digits = convertVectorType<int>(digits40);
+
   L1CaloCoolChannelId channelId {tt.coolId()}; 
 
   if (m_debug) {
