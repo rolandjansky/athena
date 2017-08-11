@@ -169,11 +169,11 @@ namespace ST {
 
     // See if they are doing something really unwise, just in case
     if (tmp_name.Contains("data16_13TeV") || tmp_name.Contains("data17_13TeV") || tmp_name.Contains("data15_13TeV")){
-      std::cout << "WARNING: Asking for the MC shower when running on a data file is not advised.  Just returning 0." << std::endl;
+      std::cout << "ST::getMCShowerType WARNING: Asking for the MC shower when running on a data file is not advised.  Just returning 0." << std::endl;
       return 0;
     }
 
-    std::cout << "WARNING: Unknown MC generator detected. Returning default 0=PowhegPythia8(410501) ShowerType for btagging MC/MC maps." << std::endl;
+    std::cout << "ST::getMCShowerType WARNING: Unknown MC generator detected. Returning default 0=PowhegPythia8(410501) ShowerType for btagging MC/MC maps." << std::endl;
     return 0;
   }
 
