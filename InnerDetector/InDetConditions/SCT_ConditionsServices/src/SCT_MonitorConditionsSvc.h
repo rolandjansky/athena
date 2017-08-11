@@ -132,7 +132,7 @@ private:
   const SCT_ID*                m_pHelper;
   mutable std::string          m_currentDefectList;
 
-  const mutable SCT_MonitorConditionsCondData *m_condData;
+  mutable const SCT_MonitorConditionsCondData *m_condData;
   SG::ReadCondHandleKey<SCT_MonitorConditionsCondData> m_condKey;
   bool getCondData() const;
 };
