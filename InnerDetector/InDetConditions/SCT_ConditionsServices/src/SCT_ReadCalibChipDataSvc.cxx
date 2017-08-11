@@ -31,8 +31,6 @@
 #include "boost/tokenizer.hpp"
 #include "boost/lexical_cast.hpp"
 
-using namespace SCT_ConditionsServices;
-
 boost::array<std::string, SCT_ReadCalibChipDataSvc::N_NPTGAIN> nPtGainDbParameterNames{ {"gainByChip", "gainRMSByChip", "offsetByChip", "offsetRMSByChip", "noiseByChip", "noiseRMSByChip"} };
 boost::array<std::string, SCT_ReadCalibChipDataSvc::N_NPTGAIN> nPtGainParameterNames{ {"GainByChip", "GainRMSByChip", "OffsetByChip", "OffsetRMSByChip", "NoiseByChip", "NoiseRMSByChip"} };
 
@@ -77,15 +75,6 @@ namespace {
     }
     return noNan;
   }
-
-  /**
-   //decide whether folder contains noise occupancy or gain
-   FolderType folderType(const std::string & folderName) {
-   if ( folderName.find("Gain")!=std::string::npos) return NPTGAIN;
-   if ( folderName.find("Noise")!=std::string::npos) return NOISEOCC;
-   return UNKNOWN_FOLDER;
-   }
-  **/
 }//end of anon namespace
 
 
@@ -312,7 +301,7 @@ bool
 SCT_ReadCalibChipDataSvc::isGood(const IdentifierHash& elementHashId) {
   int moduleIdx{static_cast<int>(elementHashId/2)};
   // Retrieve defect data from map
-  NoiseOccParameters_t &noiseOccData{m_noiseOccData[moduleIdx]};
+  NoiseOccParameters_t& noiseOccData{m_noiseOccData[moduleIdx]};
 
   // Retrieve the data
   int i{noiseOccIndex("NoiseByChip")};
@@ -346,7 +335,7 @@ SCT_ReadCalibChipDataSvc::isGood(const IdentifierHash& elementHashId) {
 //----------------------------------------------------------------------
 // Returns a bool summary of the data
 bool
-SCT_ReadCalibChipDataSvc::isGood(const Identifier & elementId, InDetConditions::Hierarchy h) {
+SCT_ReadCalibChipDataSvc::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) {
   if (h==InDetConditions::SCT_SIDE) { //Could do by chip too
     const IdentifierHash elementIdHash{m_id_sct->wafer_hash(elementId)};
     return isGood(elementIdHash);

@@ -29,19 +29,16 @@
 
 // Forward declarations
 class ISvcLocator;
-class StatusCode;
 class ISCT_ReadCalibChipDataSvc;
 class SCT_ID;
 
-class ISCT_ConditionsSvc;
-
 /** This class acts as a test/sample client to the SCT_ReadSCalibChipDataSvc class.*/
-class SCT_ReadCalibChipDataTestAlg:public AthAlgorithm 
+class SCT_ReadCalibChipDataTestAlg : public AthAlgorithm 
 {
  public:
   //----------Public Member Functions----------//
   // Structors
-  SCT_ReadCalibChipDataTestAlg (const std::string& name, ISvcLocator* pSvcLocator); //!< Constructor
+  SCT_ReadCalibChipDataTestAlg(const std::string& name, ISvcLocator* pSvcLocator); //!< Constructor
   ~SCT_ReadCalibChipDataTestAlg();                                                  //!< Destructor
   
   // Standard Gaudi functions
@@ -49,11 +46,11 @@ class SCT_ReadCalibChipDataTestAlg:public AthAlgorithm
   StatusCode execute();    //!< Gaudi executer
   StatusCode finalize();   //!< Gaudi finaliser
   
-  private:
+ private:
   //----------Private Member Functions----------//
   StatusCode processProperties();             //!< Process jobOpt properties
   
-//----------Private Attributes----------//
+  //----------Private Attributes----------//
   StatusCode                          m_sc;            //!< To check return codes
   const SCT_ID*                       m_id_sct;        //!< ID helper for SCT
   SG::ReadHandleKey<xAOD::EventInfo>  m_currentEventKey;  //!< Current event

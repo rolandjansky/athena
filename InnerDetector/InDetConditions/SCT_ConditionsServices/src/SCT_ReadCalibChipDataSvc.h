@@ -13,20 +13,11 @@
 // Include interface class
 #include "SCT_ConditionsServices/ISCT_ReadCalibChipDataSvc.h"
 
-// Include top level interface
-#include "InDetConditionsSummaryService/InDetHierarchy.h"
-#include "SCT_ConditionsServices/ISCT_ConditionsSvc.h"
-
 // Include Athena stuff 
 #include "AthenaBaseComps/AthService.h"
+#include "AthenaKernel/IIOVDbSvc.h" 
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/DataHandle.h"
-#include "AthenaKernel/IIOVDbSvc.h" 
-
-// Include STL stuff
-#include <string>
-#include <list>
-#include <vector>
 
 // Include boost stuff
 #include "boost/array.hpp"
@@ -34,23 +25,16 @@
 // Forward declarations
 class CondAttrListCollection;
 class ISvcLocator;
-class SCT_CalibData;
 class StoreGateSvc;
-class Identifier;
-class StatusCode;
 class SCT_ID;
 namespace InDetDD{class SCT_DetectorManager;}
 namespace coral{class AttributeList;}
-template <class TYPE> class SvcFactory;
-
-//class Identifier;
 
 /** This class contains a Service that reads SCT calibration data and makes it available to 
     other algorithms. The current implementation reads the data from a COOL database. 
 */
 
 class SCT_ReadCalibChipDataSvc: virtual public ISCT_ReadCalibChipDataSvc, virtual public AthService {
-  friend class SvcFactory<SCT_ReadCalibChipDataSvc>;
 
  public:
   enum {CHIPS_PER_MODULE=12, NUMBER_OF_MODULES=4088, N_NPTGAIN=6, N_NOISEOCC=4};
@@ -88,7 +72,6 @@ class SCT_ReadCalibChipDataSvc: virtual public ISCT_ReadCalibChipDataSvc, virtua
   virtual StatusCode fillCalibData(std::list<std::string>& keys); //!< Callback for retriving defect data
   
   // Methods to return calibration data
-  //virtual float getNPtGainData(const Identifier & moduleId); //!<Get NPtGain data per wafer
   virtual std::vector<float> getNPtGainData(const Identifier& moduleId, const int side, const std::string& datatype); //!<Get NPtGain data per wafer
   virtual std::vector<float> getNoiseOccupancyData(const Identifier& moduleId, const int side, const std::string& datatype); //!<Get NoiseOccupancy data wafer
 
@@ -128,8 +111,8 @@ class SCT_ReadCalibChipDataSvc: virtual public ISCT_ReadCalibChipDataSvc, virtua
   float m_noiseLevel;
   BooleanProperty m_printCalibDataMaps; //!< Print the calib data maps?
 
-  void insertNptGainFolderData(GainParameters_t& theseCalibData, const coral::AttributeList & folderData);
-  void insertNoiseOccFolderData(NoiseOccParameters_t& theseCalibData, const coral::AttributeList & folderData);
+  void insertNptGainFolderData(GainParameters_t& theseCalibData, const coral::AttributeList& folderData);
+  void insertNoiseOccFolderData(NoiseOccParameters_t& theseCalibData, const coral::AttributeList& folderData);
 };
 
 //---------------------------------------------------------------------- 
