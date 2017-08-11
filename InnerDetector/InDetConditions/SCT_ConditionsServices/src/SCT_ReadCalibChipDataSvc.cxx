@@ -6,11 +6,9 @@
     @author Per Johansson (23/03/09), Shaun Roe (17/2/2010)
 */
 
-// Include SCT_ReadCalibChipDataSvc.h 
 #include "SCT_ReadCalibChipDataSvc.h"
 
 // Include Athena stuff
-#include "StoreGate/StoreGateSvc.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "Identifier/Identifier.h"
@@ -19,22 +17,20 @@
 #include "InDetReadoutGeometry/SCT_DetectorManager.h" 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "SCT_SlhcIdConverter.h"
+#include "StoreGate/StoreGateSvc.h"
+
 // Include Gaudi stuff
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/StatusCode.h"
 
 // Include STL stuff
-#include <sstream>
-#include <vector>
-#include <string>
-#include <list>
 #include <limits>
-#include <map>
 #include <algorithm>
+
+// Include boost stuff
 #include "boost/tokenizer.hpp"
 #include "boost/lexical_cast.hpp"
 
-using namespace std;
 using namespace SCT_ConditionsServices;
 
 boost::array<std::string, SCT_ReadCalibChipDataSvc::N_NPTGAIN> nPtGainDbParameterNames{ {"gainByChip", "gainRMSByChip", "offsetByChip", "offsetRMSByChip", "noiseByChip", "noiseRMSByChip"} };
@@ -63,7 +59,7 @@ namespace {
     bool fillFromString(const std::string& source, C& userContainer) {
     if (source.empty()) return false;
     typedef typename C::value_type V_t;
-    V_t errVal{numeric_limits<V_t>::has_quiet_NaN ? (numeric_limits<V_t>::quiet_NaN()) : 0};
+    V_t errVal{std::numeric_limits<V_t>::has_quiet_NaN ? (std::numeric_limits<V_t>::quiet_NaN()) : 0};
     boost::char_separator<char> sep{" "};
     typedef boost::tokenizer<boost::char_separator<char> > Tokenizer;
     Tokenizer tok{source, sep};
@@ -171,7 +167,7 @@ SCT_ReadCalibChipDataSvc::initialize() {
       }
     }
   }
-  const float errVal{numeric_limits<float>::quiet_NaN()};
+  const float errVal{std::numeric_limits<float>::quiet_NaN()};
   //double check: initialize arrays to NaN
   for (int m{0}; m!=NUMBER_OF_MODULES; ++m) {
     for (int p{0}; p!=N_NPTGAIN; ++p) {
@@ -260,8 +256,8 @@ SCT_ReadCalibChipDataSvc::fillData(int& /*i*/, std::list<std::string>& l) {
 // Callback for Calib data
 StatusCode
 SCT_ReadCalibChipDataSvc::fillCalibData(std::list<std::string>& keys) {
-  const string noiseOccFolder{"/SCT/DAQ/Calibration/ChipNoise"};
-  const string nPtGainFolder{"/SCT/DAQ/Calibration/ChipGain"};
+  const std::string noiseOccFolder{"/SCT/DAQ/Calibration/ChipNoise"};
+  const std::string nPtGainFolder{"/SCT/DAQ/Calibration/ChipGain"};
   // Retrieve CondAttrListCollection
   if (std::find(keys.begin(), keys.end(), noiseOccFolder) != keys.end()) {
     if (m_detStoreSvc->retrieve(m_coolNoiseData, noiseOccFolder).isFailure()) {

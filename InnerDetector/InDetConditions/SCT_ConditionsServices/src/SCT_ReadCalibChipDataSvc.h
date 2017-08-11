@@ -23,13 +23,13 @@
 #include "StoreGate/DataHandle.h"
 #include "AthenaKernel/IIOVDbSvc.h" 
 
-//boost
-#include "boost/array.hpp"
-
 // Include STL stuff
 #include <string>
 #include <list>
 #include <vector>
+
+// Include boost stuff
+#include "boost/array.hpp"
 
 // Forward declarations
 class CondAttrListCollection;
@@ -106,11 +106,8 @@ class SCT_ReadCalibChipDataSvc: virtual public ISCT_ReadCalibChipDataSvc, virtua
   bool m_dataFilled;  
   // List folders to be read as CondAttrListCollection*
   StringArrayProperty m_atrcollist;
-  // Calib data maps
-  //SCT_CalibData* m_NPGCalibData;
-  //SCT_CalibData* m_NOCalibData;
 
-  //
+  // Calib data maps
   typedef boost::array<float, CHIPS_PER_MODULE> ModuleGain_t;
   typedef boost::array<float, CHIPS_PER_MODULE> ModuleNoise_t;
   //
@@ -121,6 +118,7 @@ class SCT_ReadCalibChipDataSvc: virtual public ISCT_ReadCalibChipDataSvc, virtua
   typedef boost::array< NoiseOccParameters_t, NUMBER_OF_MODULES> AllModulesNoise_t;
   AllModulesGains_t m_nPtGainData;
   AllModulesNoise_t m_noiseOccData;
+
   // DataHandles for callback
   const DataHandle<CondAttrListCollection> m_coolGainData;
   const DataHandle<CondAttrListCollection> m_coolNoiseData;
@@ -128,7 +126,8 @@ class SCT_ReadCalibChipDataSvc: virtual public ISCT_ReadCalibChipDataSvc, virtua
   std::string m_key;
   // Noise level for isGood::Side
   float m_noiseLevel;
-  BooleanProperty m_printCalibDataMaps;           //!< Print the calib data maps?
+  BooleanProperty m_printCalibDataMaps; //!< Print the calib data maps?
+
   void insertNptGainFolderData(GainParameters_t& theseCalibData, const coral::AttributeList & folderData);
   void insertNoiseOccFolderData(NoiseOccParameters_t& theseCalibData, const coral::AttributeList & folderData);
 };
