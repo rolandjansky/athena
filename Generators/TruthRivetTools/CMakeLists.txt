@@ -25,7 +25,7 @@ atlas_disable_as_needed()
 
 # Component(s) in the package:
 atlas_add_library( TruthRivetToolsLib
-	Root/*.cxx TruthRivetTools/HiggsTemplateCrossSections.cc TruthRivetTools/*.h
+	Root/*.cxx TruthRivetTools/*.h
    SHARED
    PUBLIC_HEADERS TruthRivetTools
    INCLUDE_DIRS ${HEPMC_INCLUDE_DIRS} ${RIVET_INCLUDE_DIRS} ${YODA_INCLUDE_DIRS}
