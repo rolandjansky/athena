@@ -22,6 +22,8 @@
 
 #include <iostream>
 // Fixed size dimensions of array or collections stored in the TTree if any.
+// const int CaloHitAna::MAX_LAYER =25; //number of calorimeter layers/samplings, use last (MAX_LAYER-1) for invalid cells/hits 
+
 
 class CaloHitAna {
 public :
@@ -38,8 +40,9 @@ public :
    Int_t m_Debug;
    Int_t m_PrintOutFrequency;
    Int_t m_max_nentries;
+   bool m_do_g4_hits = false;
 
-   static const int MAX_LAYER;
+   const static int MAX_LAYER = 25;
 
    // Declaration of leaf types
    std::vector<float>   *HitX;
@@ -102,9 +105,50 @@ public :
    std::vector<double>* newTTC_IDCaloBoundary_z;
    std::vector<double>* newTTC_Angle3D;
    std::vector<double>* newTTC_AngleEta;
+
+   std::vector<std::vector<double> >* m_newTTC_entrance_eta = new std::vector<std::vector<double>>;
+   std::vector<std::vector<double> >* m_newTTC_entrance_phi = new std::vector<std::vector<double>>;
+   std::vector<std::vector<double> >* m_newTTC_entrance_r = new std::vector<std::vector<double>>;
+   std::vector<std::vector<double> >* m_newTTC_entrance_z = new std::vector<std::vector<double>>;
+   std::vector<std::vector<double> >* m_newTTC_back_eta = new std::vector<std::vector<double>>;
+   std::vector<std::vector<double> >* m_newTTC_back_phi = new std::vector<std::vector<double>>;
+   std::vector<std::vector<double> >* m_newTTC_back_r = new std::vector<std::vector<double>>;
+   std::vector<std::vector<double> >* m_newTTC_back_z = new std::vector<std::vector<double>>;
+   std::vector<double>* m_newTTC_IDCaloBoundary_eta = new std::vector<double>;
+   std::vector<double>* m_newTTC_IDCaloBoundary_phi = new std::vector<double>;
+   std::vector<double>* m_newTTC_IDCaloBoundary_r = new std::vector<double>;
+   std::vector<double>* m_newTTC_IDCaloBoundary_z = new std::vector<double>;
+   std::vector<double>* m_newTTC_Angle3D = new std::vector<double>;
+   std::vector<double>* m_newTTC_AngleEta = new std::vector<double>;
+
+   FCS_matchedcellvector* oneeventcells = new FCS_matchedcellvector; //these are all matched cells in a single event
+   FCS_matchedcellvector* layercells[MAX_LAYER]; //these are all matched cells in a given layer in a given event
+
+   std::vector<FCS_truth>* truthcollection = new std::vector<FCS_truth>;
+
+
+   Float_t total_cell_e = 0;
+   Float_t total_hit_e = 0;
+   Float_t total_g4hit_e = 0;
+
+   // Float_t* p_total_cell_e = &total_cell_e;
+   // Float_t* p_total_hit_e = &total_hit_e;
+   // Float_t* p_total_g4hit_e = &total_g4hit_e;
+
+   std::vector<Float_t>* cell_energy = new std::vector<Float_t>(MAX_LAYER+1); 
+   std::vector<Float_t>* hit_energy = new std::vector<Float_t>(MAX_LAYER+1);
+   std::vector<Float_t>* g4hit_energy = new std::vector<Float_t>(MAX_LAYER+1);
+
+   std::vector<Float_t>* new_truthE = new std::vector<Float_t>;
+   std::vector<Float_t>* new_truthPx = new std::vector<Float_t>;
+   std::vector<Float_t>* new_truthPy = new std::vector<Float_t>;
+   std::vector<Float_t>* new_truthPz = new std::vector<Float_t>;
+   std::vector<int>* new_truthBarcode = new std::vector<int>;
+   std::vector<int>* new_truthPDG = new std::vector<int>;
+   std::vector<int>* new_truthVtxBarcode = new std::vector<int>;
    
    //If this won't work, we will have to change it... (memory??)
-   std::vector<FCS_matchedcellvector> m_all_cells; //hm, make it a vector of (vector of FCS_matchedcell) and have it for all 1000 events at once in memory??
+   // std::vector<FCS_matchedcellvector*> m_all_cells; //hm, make it a vector of (vector of FCS_matchedcell) and have it for all 1000 events at once in memory??
 
    // List of branches
    TBranch        *b_HitX;   //!
@@ -176,6 +220,7 @@ public :
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree);
+   virtual void     InitOutTree();
    virtual void     Loop();
    virtual void     Finish(std::vector<Int_t> settings, TString outputname="output_cells.root");
    virtual Bool_t   Notify();
@@ -212,13 +257,16 @@ CaloHitAna::CaloHitAna(TString filename, TString outputname, std::vector<Int_t> 
    m_OutputName = outputname;
    m_PrintOutFrequency = 100;
    m_max_nentries=-1;
+   m_Output = new TFile(m_OutputName, "RECREATE");
+   m_OutputTree = new TTree("FCS_ParametrizationInput","Output_Matched_cell_Tree");
+   InitOutTree();
    //std::cout <<"Input: "<<fFilename<<" output: "<<m_OutputName<<" debug: "<<m_Debug<<" TC: "<<m_TimingCut<<std::endl;
 }
 
 CaloHitAna::~CaloHitAna()
 {
-  //if (m_OutputTree) delete m_OutputTree;
-  //if (m_Output) delete m_Output;
+   // if (m_OutputTree) delete m_OutputTree;
+   // if (m_Output) delete m_Output;
    if (!fChain) return;
    delete fChain->GetCurrentFile();
 }
@@ -240,6 +288,72 @@ Long64_t CaloHitAna::LoadTree(Long64_t entry)
       Notify();
    }
    return centry;
+}
+
+void CaloHitAna::InitOutTree()
+{
+
+   m_OutputTree->Branch("TruthE",&new_truthE);
+   m_OutputTree->Branch("TruthPx",&new_truthPx);
+   m_OutputTree->Branch("TruthPy",&new_truthPy);
+   m_OutputTree->Branch("TruthPz",&new_truthPz); 
+   m_OutputTree->Branch("TruthPDG",&new_truthPDG);
+   m_OutputTree->Branch("TruthBarcode",&new_truthBarcode);
+   m_OutputTree->Branch("TruthVtxBarcode",&new_truthVtxBarcode); //this is duplicate of what is in the truth collection, will be good to remove/hide at some point
+
+   m_OutputTree->Branch("newTTC_back_eta",&m_newTTC_back_eta);
+   m_OutputTree->Branch("newTTC_back_phi",&m_newTTC_back_phi);
+   m_OutputTree->Branch("newTTC_back_r",  &m_newTTC_back_r);
+   m_OutputTree->Branch("newTTC_back_z",  &m_newTTC_back_z);
+   m_OutputTree->Branch("newTTC_entrance_eta",&m_newTTC_entrance_eta);
+   m_OutputTree->Branch("newTTC_entrance_phi",&m_newTTC_entrance_phi);
+   m_OutputTree->Branch("newTTC_entrance_r",  &m_newTTC_entrance_r);
+   m_OutputTree->Branch("newTTC_entrance_z",  &m_newTTC_entrance_z);
+   m_OutputTree->Branch("newTTC_IDCaloBoundary_eta",&m_newTTC_IDCaloBoundary_eta);
+   m_OutputTree->Branch("newTTC_IDCaloBoundary_phi",&m_newTTC_IDCaloBoundary_phi);
+   m_OutputTree->Branch("newTTC_IDCaloBoundary_r",&m_newTTC_IDCaloBoundary_r);
+   m_OutputTree->Branch("newTTC_IDCaloBoundary_z",&m_newTTC_IDCaloBoundary_z);
+   m_OutputTree->Branch("newTTC_Angle3D", &m_newTTC_Angle3D);
+   m_OutputTree->Branch("newTTC_AngleEta",&m_newTTC_AngleEta);
+
+   //create branches in the output tree according to the settings vector
+   if(! m_Settings.size() || m_Settings[0]==1)
+   {
+      //Write all FCS_matchedcells
+      m_OutputTree->Branch("AllCells", &oneeventcells);
+   }
+   if (m_Settings.size()>=2 && m_Settings[1]==1)
+   {
+      //write cells per layer
+      for (Int_t i=0; i<MAX_LAYER; i++)
+      {
+         TString branchname="Sampling_";
+         branchname+=i;
+         // std::cout<< "fail?" << std::endl;
+         layercells[i] = new FCS_matchedcellvector;
+         m_OutputTree->Branch(branchname, &layercells[i]);
+      }
+   }
+   if (m_Settings.size()>=3 && m_Settings[2]==1)
+   {
+      //write also energies per layer:
+      m_OutputTree->Branch("cell_energy", &cell_energy);
+      m_OutputTree->Branch("hit_energy",  &hit_energy);
+      m_OutputTree->Branch("g4hit_energy",&g4hit_energy);
+
+      //This is a duplicate of cell_energy[25]
+      m_OutputTree->Branch("total_cell_energy", &total_cell_e);
+      m_OutputTree->Branch("total_hit_energy",  &total_hit_e);
+      m_OutputTree->Branch("total_g4hit_energy", &total_g4hit_e);
+   }
+   // Enable/Disable recording of g4hits
+   if (m_Settings.size()>=4 && m_Settings[3]==1){
+      std::cout << "do g4hits!" << std::endl;
+      m_do_g4_hits = true;
+   }
+
+
+
 }
 
 void CaloHitAna::Init(TTree *tree)
