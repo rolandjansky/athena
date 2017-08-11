@@ -236,10 +236,7 @@ SystematicCode JetJvtEfficiency::sysApplySystematicVariation(const CP::Systemati
   else if (!m_dofJVT && systVar == JvtEfficiencyDown) m_appliedSystEnum = JVT_EFFICIENCY_DOWN;
   else if (m_dofJVT && systVar == fJvtEfficiencyUp) m_appliedSystEnum = FJVT_EFFICIENCY_UP;
   else if (m_dofJVT && systVar == fJvtEfficiencyDown) m_appliedSystEnum = FJVT_EFFICIENCY_DOWN;
-  else {
-    ATH_MSG_WARNING("unsupported systematic applied");
-    return SystematicCode::Unsupported;
-  }
+  else m_appliedSystEnum = NONE;
 
   ATH_MSG_DEBUG("applied systematic is " << m_appliedSystEnum);
   return SystematicCode::Ok;
