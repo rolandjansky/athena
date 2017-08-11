@@ -153,7 +153,7 @@ class MuonHoughPatternTool : virtual public IMuonHoughPatternTool, public AthAlg
   bool hitThroughCut(MuonHoughHit* hit)const;
 
   /** pointer to the file name for the hough histograms */
-  TFile *f_file;
+  TFile *m_file;
   /** object for use of mathematical formulas for trackmodels */
   MuonHoughMathUtils m_muonhoughmathutils;
 
@@ -170,7 +170,7 @@ class MuonHoughPatternTool : virtual public IMuonHoughPatternTool, public AthAlg
   mutable MuonHoughPatternContainerShip m_houghpattern; 
 
   /** hough histograms for visualisation in root stored per id */
-  mutable std::vector <TH2F*> h_histogram;
+  mutable std::vector <TH2F*> m_h_histogram;
 
   /** output histograms (false) */
   bool m_use_histos;
