@@ -15,7 +15,6 @@
 #include "PileUpTools/PileUpToolBase.h"
 
 #include "AthenaKernel/IAtRndmGenSvc.h"
-#include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
 #include "HitManagement/TimedHitCollection.h"
 #include "Identifier/Identifier.h"
 #include "MuonSimEvent/GenericMuonSimHitCollection.h"
@@ -25,6 +24,7 @@
 
 #include "sTGC_Digitization/sTgcDigitInfoCollection.h"
 
+#include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Geometry/Point3D.h"
 #include "CLHEP/Vector/ThreeVector.h"
