@@ -2,29 +2,65 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+// Athena/Gaudi includes
+//#include "GaudiKernel/ITHistSvc.h"
+//#include "GaudiKernel/IIncidentSvc.h"
+
 // local includes
 #include "MMLoadVariables.h"
 
-// //Event info includes
+//Event info includes
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 
+//#include "HitManagement/TimedHitPtr.h"
+
+// Muon software includes
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include "MuonReadoutGeometry/MMReadoutElement.h"
+#include "MuonIdHelpers/MmIdHelper.h"
+#include "MuonDigitContainer/MmDigitContainer.h"
+#include "MuonDigitContainer/MmDigit.h"
+#include "MuonSimData/MuonSimDataCollection.h"
+#include "MuonSimData/MuonSimData.h"
+#include "MuonSimEvent/GenericMuonSimHitCollection.h"
+#include "MuonSimEvent/MM_SimIdToOfflineId.h"
+//#include "MuonReadoutGeometry/NSWenumeration.h"
+//#include "MuonReadoutGeometry/NSWgeometry.h"
+#include "GeneratorObjects/McEventCollection.h"
+#include "HepMC/GenEvent.h"
+#include "HepMC/GenVertex.h"
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include "TrackRecord/TrackRecordCollection.h"
+#include "CLHEP/Vector/ThreeVector.h"
+
+
 // random numbers
+//#include "AthenaKernel/IAtRndmGenSvc.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGauss.h"
 
+// local includes
+#include "TTree.h"
+#include "TVector3.h"
+//#include "MMStripUtil.h"
 
-// using namespace std;
+#include <functional>
+#include <algorithm>
+#include <map>
+#include <utility>
 
-MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetectorManager* detManager, const MmIdHelper* idhelper, MMT_Parameters *par){
+using namespace std;
+
+    MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetectorManager* detManager, const MmIdHelper* idhelper, MMT_Parameters *par){
       m_par = par;
       m_evtStore = evtStore;
       m_detManager = detManager;
       m_MmIdHelper = idhelper;
-}
+    }
 
-MMLoadVariables::~MMLoadVariables() {
-}
+    MMLoadVariables::~MMLoadVariables() {
+    }
 
     void MMLoadVariables::getMMDigitsInfo(vector<athena_entry>& entries, map<hdst_key,hdst_entry>& Hits_Data_Set_Time, map<int,evInf_entry>& Event_Info){
       //*******Following MuonPRD code to access all the variables**********
@@ -188,14 +224,33 @@ MMLoadVariables::~MMLoadVariables() {
             int stationName  = m_MmIdHelper->stationName(Id);
 
             string sname(stName);
+            // if(sname.compare("MML")!=0){
+            //   cout << "BADWEDGE";
+            //   particle_info.bad_wedge=true;break;//if not from the correct wedge type, ignore
+            // }
+
+
+           // rdoEl->surface(Id).localToGlobal(hit_on_surface, Amg::Vector3D(0., 0., 0.), hit_gpos);
+
 
             int mult=m_MmIdHelper->multilayer(Id),gap=m_MmIdHelper->gasGap(Id);
 
+            //fillVars.NSWMM_dig_stationName.push_back(stName);
             fillVars.NSWMM_dig_stationEta.push_back(stationEta);
             fillVars.NSWMM_dig_stationPhi.push_back(stationPhi);
             fillVars.NSWMM_dig_multiplet.push_back(multiplet);
             fillVars.NSWMM_dig_gas_gap.push_back(gas_gap);
             fillVars.NSWMM_dig_channel.push_back(channel);
+
+            // fillVars.NSWMM_dig_truth_barcode.push_back( truth_barcode );
+            // fillVars.NSWMM_dig_truth_localPosX.push_back( truth_localPosX );
+            // fillVars.NSWMM_dig_truth_localPosY.push_back( truth_localPosY );
+            // fillVars.NSWMM_dig_truth_XZ_angle.push_back( truth_angle );
+
+            // fillVars.NSWMM_dig_truth_globalPosX.push_back( hit_gpos[0] );
+            // fillVars.NSWMM_dig_truth_globalPosY.push_back( hit_gpos[1] );
+            // fillVars.NSWMM_dig_truth_globalPosZ.push_back( hit_gpos[2] );
+
 
             //match to truth particle
             TLorentzVector truthPart;
@@ -355,14 +410,14 @@ MMLoadVariables::~MMLoadVariables() {
                 TVector3(globalPosX[indForPos],globalPosY[indForPos],globalPosZ[indForPos]),
                 charge[indForPos],stripPosition[indForPos],abs(stationEta),stationPhi));
 
-                // cout << "HITX    " << globalPosition.x() << " HITY " << globalPosition.y() << endl;
-                // cout << "HITPHI  " << atan2(globalPosition.y(),globalPosition.x())  << " " << phi_shift(atan2(globalPosition.y(),globalPosition.x()),wedgeType,stationPhi) << endl;
-                // cout << "LOCALX  " << localPosX[indForPos] << " LOCALY " << localPosY[indForPos] << endl;
-                // cout << "GLOBALX " << globalPosX[indForPos] << " GLOBALY " << globalPosY[indForPos] << endl;
-                // cout << "CHARGE  " << charge[indForPos] << " STRIPPOS " << stripPosition[indForPos] << " STATIONETA " << stationEta << endl;
-                // cout << "MULT    " << mult << " GAP " << gap << " GLOBALTIME " << hit.globalTime() << " TIME " << time[indForPos] << endl;
-                // cout << "GLOBALZ " << globalPosZ[indForPos] << std::endl;
-                // cout << "STATIONPHI " << stationPhi << std::endl;
+                cout << "HITX    " << globalPosition.x() << " HITY " << globalPosition.y() << endl;
+                cout << "HITPHI  " << atan2(globalPosition.y(),globalPosition.x())  << " " << phi_shift(atan2(globalPosition.y(),globalPosition.x()),wedgeType,stationPhi) << endl;
+                cout << "LOCALX  " << localPosX[indForPos] << " LOCALY " << localPosY[indForPos] << endl;
+                cout << "GLOBALX " << globalPosX[indForPos] << " GLOBALY " << globalPosY[indForPos] << endl;
+                cout << "CHARGE  " << charge[indForPos] << " STRIPPOS " << stripPosition[indForPos] << " STATIONETA " << stationEta << endl;
+                cout << "MULT    " << mult << " GAP " << gap << " GLOBALTIME " << hit.globalTime() << " TIME " << time[indForPos] << endl;
+                cout << "GLOBALZ " << globalPosZ[indForPos] << std::endl;
+                cout << "STATIONPHI " << stationPhi << std::endl;
 
               }
               hit_count++;
@@ -453,7 +508,17 @@ MMLoadVariables::~MMLoadVariables() {
         //DLM_NEW plane assignments
         //stated [3,2,1,0;7,6,5,4]
         int plane=(examine.multiplet-1)*4+examine.gas_gap-1;
-        // cout<<"SUBSTR CALL MMT_L--0...plane: "<<plane<<", multiplet: "<<examine.multiplet<<endl;
+        // int plane = -999;
+        // if(examine.multiplet==1 and examine.gas_gap==1) plane = 0;
+        // if(examine.multiplet==2 and examine.gas_gap==1) plane = 4;
+        // if(examine.multiplet==1 and examine.gas_gap==2) plane = 1;
+        // if(examine.multiplet==2 and examine.gas_gap==2) plane = 5;
+        // if(examine.multiplet==1 and examine.gas_gap==3) plane = 2;
+        // if(examine.multiplet==2 and examine.gas_gap==3) plane = 6;
+        // if(examine.multiplet==1 and examine.gas_gap==4) plane = 3;
+        // if(examine.multiplet==2 and examine.gas_gap==4) plane = 7;
+        //if(m_par->dlm_new)plane=examine.multiplet*4-examine.gas_gap;
+        cout<<"SUBSTR CALL MMT_L--0...plane: "<<plane<<", multiplet: "<<examine.multiplet<<endl;
         int BC_id=ceil(examine.time/25.);
 
         TVector3 mazin_check(examine.strip_gpos.X(),examine.strip_gpos.Y(),examine.strip_gpos.Z());
@@ -471,7 +536,13 @@ MMLoadVariables::~MMLoadVariables() {
         if(uvxxmod){
           xxuv_to_uvxx(truth,plane);xxuv_to_uvxx(recon,plane);
         }
-        double charge = examine.charge;
+
+        //Cut on being in the intended wedge, i.e. no small wedge hits
+        //if(truth.Z()<m_par->z_nominal.front()||truth.Z()>m_par->z_nominal.back()) particle_info.pass_cut=false;
+        //TESTING
+        //if(m_par->z_nominal.front()>(truth.Z()+1.)||m_par->z_nominal.back()<(truth.Z()-1.)) particle_info.pass_cut=false;
+        // if(!particle_info.pass_cut) cout<<"event FAIL at z cut with Z="<<truth.Z()<<" not in ["<<m_par->z_nominal.front().getFloat()<<","<<m_par->z_nominal.back().getFloat()<<"] "<<(m_par->z_nominal.front()>truth.Z())<<" "<<(m_par->z_nominal.back()<truth.Z())<<endl;
+        double charge = examine.charge;//,  module_y_center = fabs(examine.strip_gpos.X());
         int strip = Get_Strip_ID(recon.X(),recon.Y(),plane), strip_pos=examine.strip_pos, station=examine.eta_station;  //theta_strip_id,module_y_center,plane); // true_x,true_y,plane);
         fstation=station;
         string schar=m_par->setup.substr(plane,1);
@@ -486,6 +557,15 @@ MMLoadVariables::~MMLoadVariables() {
           if(schar=="v"){
             msl=tan(TMath::DegToRad()*(m_par->stereo_degree.getFloat()));
           }
+          //strip_poss[station-1][plane].push_back(strip_pos);
+          //yvals[station-1][plane].push_back(yhere);
+          //ybases_solved[station-1][plane]->Fill(yhere-strip_pos*width-msl*xhere);
+          //double ypos=m_par->z_nominal[plane]*tan(theta_pos),yent=m_par->z_nominal[plane]*tan(theta_ent);
+          //double ypos=m_par->z_nominal[plane].getFloat()*tan(theta_pos),yent=m_par->z_nominal[plane]*tan(theta_ent);
+          //ybases_pos[station-1][plane]->Fill(ypos-strip_pos*width);ybases_ent[station-1][plane]->Fill(yent-strip_pos*width);
+          //strip_widths[station-1][plane]->Fill((yhere-base)/strip_pos);
+          //gposx_strippos_l[station-1][plane]->Fill(strip_pos,recon.Y());
+          //glposx_strippos_l[station-1][plane]->Fill(strip_pos,truth.Y()); //not sure what these do...
         }
         int VMM_chip = Get_VMM_chip(strip);
 
@@ -519,6 +599,13 @@ MMLoadVariables::~MMLoadVariables() {
       vector<bool>plane_hit(m_par->setup.size(),false);
 
       for(map<hdst_key,hdst_entry>::iterator it=hit_info.begin(); it!=hit_info.end(); ++it){
+        /*
+        if(Hits_Data_Set_Time.find(it->first)!=Hits_Data_Set_Time.end()){
+          cout<<"WE HAVE A TIE!"<<endl;
+          it->second.print();
+          Hits_Data_Set_Time[it->first].print();
+          continue;
+          }*/
         int plane=it->second.plane;
         plane_hit[plane]=true;
         particle_info.N_hits_postVMM++;
@@ -579,6 +666,9 @@ MMLoadVariables::~MMLoadVariables() {
     else if(n>8)  return (athena_phi+sectorPi);
     else return athena_phi;
 
+
+    //return athena_phi+(athena_phi>=0?-1:1)*TMath::Pi();
+    //return (-1.*athena_phi+(athena_phi>=0?1.5*TMath::Pi():-0.5*TMath::Pi()));
   }
   void MMLoadVariables::xxuv_to_uvxx(TVector3& hit,int plane)const{
     if(plane<4)return;

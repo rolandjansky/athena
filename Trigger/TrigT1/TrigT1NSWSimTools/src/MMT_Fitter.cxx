@@ -2,11 +2,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+
 // Athena/Gaudi includes
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 #include "MMT_Fitter.h"
-
+// const bool div_hack=false;
 
 
 MMT_Fitter::MMT_Fitter(MMT_Parameters *par, int nlg, double lgmin, double lgmax): /*m_par(par),*/ number_LG_regions(nlg), LG_min(lgmin), LG_max(lgmax), m_msg("MMT_Fitter")
