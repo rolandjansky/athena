@@ -906,7 +906,7 @@ void MMT_Parameters::fill_crep_table(const string&dir,const string&tag){
   double fudge_factor=(correct.translate.Z()!=0||correct.rotate.X()!=0?0.5:1.);
   int nk=nsimmax_1d();
   ostringstream crep_nom;crep_nom<<dir<<(dir.substr(dir.length()-1)=="/"?"":"/")<<"pcrep"<<bill.print_pars()<<"_"<<tag<<".txt";
-  std::ifstream crep(crep_nom.str().c_str());
+  ifstream crep(crep_nom.str().c_str());
   crep_table=vector<vector<vector<vector<float> > > >(n_etabins,vector<vector<vector<float> > >(n_phibins,vector<vector<float> >(nk,vector<float>(3,0))));
   if(crep.good()){
     for(int i=0;i<n_etabins;i++){

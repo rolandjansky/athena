@@ -5,7 +5,17 @@
 #ifndef MM_STRUCT_H
 #define MM_STRUCT_H
 
+#include <cassert>
+#include <algorithm>
+#include <vector>
+#include <string>
 #include <fstream>
+#include <sstream>
+#include <iostream>
+#include <cmath>
+#include <iomanip>
+#include <cstdlib>
+#include <cstdio>
 #include "fixed_point.h"
 
 #include "MuonReadoutGeometry/MMReadoutElement.h"
@@ -35,7 +45,10 @@ const double crep_pt=200.;
 
 //constants and convsersions
 const int yzdex=2,bkdex=13,zbardex=2;
-double store_const;
+// double pi();
+double store_const();
+// double degtorad(double degree_value);
+// double radtodeg(double radian_value);
 
 
 

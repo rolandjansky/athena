@@ -27,6 +27,12 @@
 #include "TTree.h"
 #include "TVector3.h"
 
+#include <functional>
+#include <algorithm>
+#include <map>
+#include <utility>
+
+using namespace std;
 
 namespace NSWL1 {
 
@@ -163,7 +169,6 @@ namespace NSWL1 {
         MMLoadVariables m_load = MMLoadVariables(&(*(evtStore())), m_detManager, m_MmIdHelper, m_par);
         m_load.getMMDigitsInfo(entries, Hits_Data_Set_Time, Event_Info);
         this->fillNtuple(m_load);
-
         //Originally boom, this is the saved "particle_info" (originally primer)
         evInf_entry truth_info(Event_Info.find(pevt->event_ID()->event_number())->second);
 
@@ -184,6 +189,7 @@ namespace NSWL1 {
         if(pass_cuts){
         //Make sure hit info is not empy
         if(!hdsts.empty()){
+
 
           //////////////////////////////////////////////////////////////
           //                                                          //
@@ -221,13 +227,11 @@ namespace NSWL1 {
             }
 
           }
-
           //////////////////////////////////////////////////////////////
           //                                                          //
           //                 Fitter Applied Here                      //
           //                                                          //
           //////////////////////////////////////////////////////////////
-
           MMT_Fitter m_fit = MMT_Fitter(m_par);
 
           //First loop over the roads and planes and apply the fitter
@@ -246,7 +250,6 @@ namespace NSWL1 {
           vector<pair<double,double> > mxmy;
 
           for(int road=0; road<roads; road++){
-
             vector<bool> plane_is_hit;
             vector<Hit> track;
             pair<int,int>key(road,0);
@@ -255,23 +258,22 @@ namespace NSWL1 {
             m_find.checkBufferForHits(plane_is_hit, track, key, hitBuffer);
             //Look for coincidences
             int road_num=m_find.Coincidence_Gate(plane_is_hit);
-
             if(road_num>0){
-
               if(fits_occupied>=nfit_max) break;
               //Perform the fit -> calculate local, global X, UV slopes -> calculate ROI and TriggerTool signal (theta, phi, deltaTheta)
               evFit_entry candidate=m_fit.fit_event(event,track,hdsts,fits_occupied,mxmy,mxl,mvGlobal,muGlobal);
               //HERE IS THE PROBLEM
               ATH_MSG_DEBUG( "THETA " << candidate.fit_theta.getValue() << " PHI " << candidate.fit_phi.getValue() << " DTH " << candidate.fit_dtheta.getValue() );
+              //Removing dTheta cut for now
+              //if(abs(candidate.fit_dtheta.getValue())<m_par->dtheta_cut){
+
                 road_fits[road]=candidate;
                 fillmxl = mxl;
                 fits_occupied++;
-
+              //}
             }
-
             road_fits[road].hcode=road_num;
-
-          } //end roads
+          }//end roads
 
           //////////////////////////////////////////////////////////////
           //                                                          //
