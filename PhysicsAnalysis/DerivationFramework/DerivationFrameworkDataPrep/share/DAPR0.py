@@ -16,9 +16,9 @@ DAPR0Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 from RecExConfig.InputFilePeeker import inputFileSummary
 
 if 'metadata' in inputFileSummary and '/Digitization/Parameters' in inputFileSummary['metadata']:
-  ToolSvc += CfgMgr.CP__PileupReweightingTool("auto",ConfigFiles=[],LumiCalcFiles=[])
-  DerivationFrameworkJob += CfgMgr.CP__PileupReweightingProvider(ConfigOutputStream="DFMETADATA",Tool=ToolSvc.auto)
-  if not hasattr(svcMgr,'THistSvc'):
-    svcMgr += CfgMgr.THistSvc()
-  histString = "DFMETADATA DATAFILE=\'"+pileupFileName+"\' OPT=\'RECREATE\'"
-  svcMgr.THistSvc.Output += [histString]
+    ToolSvc += CfgMgr.CP__PileupReweightingTool("auto",ConfigFiles=[],LumiCalcFiles=[])
+    DerivationFrameworkJob += CfgMgr.CP__PileupReweightingProvider(ConfigOutputStream="DFMETADATA",Tool=ToolSvc.auto,RunSystematics=False)
+    if not hasattr(svcMgr,'THistSvc'):
+        svcMgr += CfgMgr.THistSvc()
+    histString = "DFMETADATA DATAFILE=\'"+pileupFileName+"\' OPT=\'RECREATE\'"
+    svcMgr.THistSvc.Output += [histString]
