@@ -40,7 +40,9 @@ namespace {
  
 #define ATH_MSG_VERBOSE(x) ATH_MSG_LVL(MSG::VERBOSE, x)
 #define ATH_MSG_DEBUG(x)   ATH_MSG_LVL(MSG::DEBUG, x)
-#define ATH_MSG_INFO(x)   ATH_MSG_LVL(MSG::INFO, x)
+#define ATH_MSG_INFO(x)    ATH_MSG_LVL(MSG::INFO, x)
+#define ATH_MSG_ERROR(x)   ATH_MSG_LVL(MSG::ERROR, x)
+#define ATH_MSG_FATAL(x)   ATH_MSG_LVL(MSG::FATAL, x)
 
 }
 
@@ -111,16 +113,14 @@ bool ClassIDSvc::getRegistryEntries(const std::string& moduleName) {
   if (!CLIDRegistry::hasNewEntries()) return true;
 
   bool allOK(true);
+  size_t nE = 0;
   //to speed up processing we only take entries added to CLIDRegistry
   //since last call (thanks Niels!)
-  std::pair<CLIDRegistry::const_iterator, CLIDRegistry::const_iterator> er =
-    CLIDRegistry::newEntries();
-  CLIDRegistry::const_iterator iEntry=er.first, endEntry=er.second;
-  while (allOK && (iEntry < endEntry)) {
-    const CLID& clid                   = boost::get<0>(*iEntry);
-    const std::string& typeName        = boost::get<1>(*iEntry);
-    const Athena::PackageInfo& pkgInfo = boost::get<2>(*iEntry);
-    const std::string& typeInfoName    = boost::get<3>(*iEntry);
+  for (const CLIDRegistry::tuple_t& ent : CLIDRegistry::newEntries()) {
+    const CLID& clid                   = std::get<0>(ent);
+    const std::string& typeName        = std::get<1>(ent);
+    const Athena::PackageInfo& pkgInfo = std::get<2>(ent);
+    const std::string& typeInfoName    = std::get<3>(ent);
 #ifndef NDEBUG		
     ATH_MSG_VERBOSE(
 		    "reading [" 
@@ -129,21 +129,24 @@ bool ClassIDSvc::getRegistryEntries(const std::string& moduleName) {
 		    << pkgInfo << ", "
 		    << typeInfoName << "]");
 #endif
-    allOK &= setTypePackageForID(clid, 
-				 typeName,
-				 pkgInfo, 
-				 typeInfoName).isSuccess();
-    ++iEntry;
+    if (setTypePackageForID (clid, 
+                             typeName,
+                             pkgInfo, 
+                             typeInfoName).isSuccess())
+    {
+      ++nE;
+    }
+    else {
+      allOK = false;
+    }
   }
   
   if (allOK) {
-    int nE = distance(er.first, er.second);
     ATH_MSG_INFO( " getRegistryEntries: read " << nE 
 		  << " CLIDRegistry entries for module " << moduleName );
   } else {
-    msg() << MSG::ERROR 
-	  << " getRegistryEntries: can not read  CLIDRegistry entries for module " 
-	  << moduleName << endmsg;
+    ATH_MSG_ERROR(" getRegistryEntries: can not read  CLIDRegistry entries for module " 
+                  << moduleName);
   }
 
   return allOK;
@@ -203,9 +206,9 @@ ClassIDSvc::finalize()
 CLID 
 ClassIDSvc::nextAvailableID() const {
   maybeRescan();
-  CLID valid(CLIDRegistry::MINCLID);
-  while (valid <= CLIDRegistry::MAXCLID && isIDInUse(valid)) ++valid;
-  if (valid > CLIDRegistry::MAXCLID) throw runtime_error("ClassIDSvc::nextAvailableID: none in range");
+  CLID valid(CLIDdetail::MINCLID);
+  while (valid <= CLIDdetail::MAXCLID && isIDInUse(valid)) ++valid;
+  if (valid > CLIDdetail::MAXCLID) throw runtime_error("ClassIDSvc::nextAvailableID: none in range");
   return valid;
 }
 
@@ -331,10 +334,10 @@ ClassIDSvc::setTypePackageForID(const CLID& id,
 				const std::string& typeName,
 				const Athena::PackageInfo& info,
 				const std::string& typeInfoName) {
-  if (id < CLIDRegistry::MINCLID || id > CLIDRegistry::MAXCLID) {
-    msg() << MSG::FATAL << "setTypeNameForID: input id " << id 
-	  << " is out of allowed range " << CLIDRegistry::MINCLID 
-	  << " : " << CLIDRegistry::MAXCLID << endmsg;
+  if (id < CLIDdetail::MINCLID || id > CLIDdetail::MAXCLID) {
+    ATH_MSG_FATAL( "setTypeNameForID: input id " << id 
+                   << " is out of allowed range " << CLIDdetail::MINCLID 
+                   << " : " << CLIDdetail::MAXCLID );
     return StatusCode::FAILURE;
   }
   return uncheckedSetTypePackageForID(id, typeName, info, typeInfoName);
