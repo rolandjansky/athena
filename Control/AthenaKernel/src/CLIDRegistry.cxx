@@ -1,93 +1,60 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+ * Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration.
+ */
 
 #include "AthenaKernel/CLIDRegistry.h"
+#include "CxxUtils/checker_macros.h"
 #include <unordered_map>
-#include <memory>
-/* #include <algorithm> */
-using namespace std;
-
-const unsigned long CLIDRegistry::MINCLID = CLIDdetail::MINCLID;
-const unsigned long CLIDRegistry::MAXCLID = CLIDdetail::MAXCLID;
-
-namespace {
-unsigned int alreadyDone (0);
-}
+#include <mutex>
 
 
-//   bool 
-//   CLIDRegistry::addEntry(unsigned long id, const string& typeName) {
-//     assert( MINCLID <= id && id <= MAXCLID );
-//     registry().push_back(pair<unsigned long, string>(id,typeName));
-//     return true;
-//   }
-
-
-CLIDRegistry::const_iterator CLIDRegistry::begin() {
-#ifdef CLIDREG_DEBUG
-  cerr << "CLIDRegistry::begin: returns " 
-	    << &*(registry().begin()) << " for registry " <<&registry() 
-	    <<endl;
-#endif	
-  return registry().begin();
-}
-
-
-CLIDRegistry::const_iterator CLIDRegistry::end() {
-#ifdef CLIDREG_DEBUG
-  cerr << "CLIDRegistry::end: returns " 
-	    << &*(registry().end()) << " for registry " <<&registry() 
-	    <<endl;
-#endif	
-  return registry().end();
-  //return unique(registry().begin(), registry().end());  //FIXME O(N)!
-}
-
-bool
-CLIDRegistry::hasNewEntries() {
-  return (alreadyDone < CLIDRegistry::registry().size());
-}
-
-std::pair<CLIDRegistry::const_iterator, CLIDRegistry::const_iterator> 
-CLIDRegistry::newEntries() {
-  std::pair<CLIDRegistry::const_iterator, CLIDRegistry::const_iterator> ret =
-     std::make_pair(CLIDRegistry::begin()+alreadyDone, 
-                    CLIDRegistry::end());
-  alreadyDone = CLIDRegistry::registry().size();
-  return ret;
-}
-
-
-CLIDRegistry::CLIDRegistryImpl& CLIDRegistry::registry() {
-  static CLIDRegistryImpl reg;
-  return reg;
-}
-
-
-namespace {
-typedef std::unordered_map<unsigned long, const std::type_info*> clid_ti_map_t;
-std::unique_ptr<clid_ti_map_t> clid_ti_map;
-
-typedef std::unordered_map<const std::type_info*, unsigned long> ti_clid_map_t;
-std::unique_ptr<ti_clid_map_t> ti_clid_map;
-}
-
-
-/**
- * @brief Add a new CLID <> type_info mapping.
- * @param clid The CLID of the class.
- * @param ti The @c type_info of the class.
- */
-void CLIDRegistry::addCLIDMapping (unsigned long clid, const std::type_info& ti)
+class CLIDRegistryImpl
 {
-  if (!clid_ti_map)
-    clid_ti_map = std::make_unique<clid_ti_map_t>();
-  if (!ti_clid_map)
-    ti_clid_map = std::make_unique<ti_clid_map_t>();
+public:
+  bool hasNewEntries() const;
 
-  (*clid_ti_map)[clid] = &ti;
-  (*ti_clid_map)[&ti] = clid;
+  CLIDRegistry::CLIDVector_t newEntries();
+
+  const std::type_info* CLIDToTypeinfo (CLID clid) const;
+  CLID typeinfoToCLID (const std::type_info& ti) const;
+
+  bool addEntry (unsigned long clid,
+                 const std::type_info& ti,
+                 const char* typeName, 
+                 const Athena::PackageInfo& pkgInfo,
+                 const std::string& typeInfoName);
+
+
+private:
+  typedef std::mutex mutex_t;
+  typedef std::lock_guard<mutex_t> lock_t;
+  mutable mutex_t m_mutex;
+
+  CLIDRegistry::CLIDVector_t m_vec;
+  size_t m_alreadyDone = 0;
+  
+  typedef std::unordered_map<CLID, const std::type_info*> clid_ti_map_t;
+  clid_ti_map_t m_clid_ti_map;
+
+  typedef std::unordered_map<const std::type_info*, CLID> ti_clid_map_t;
+  ti_clid_map_t m_ti_clid_map;
+};
+
+
+bool CLIDRegistryImpl::hasNewEntries() const
+{
+  lock_t lock (m_mutex);
+  return m_alreadyDone < m_vec.size();
+}
+
+
+CLIDRegistry::CLIDVector_t
+CLIDRegistryImpl::newEntries()
+{
+  lock_t lock (m_mutex);
+  size_t pos = m_alreadyDone;
+  m_alreadyDone = m_vec.size();
+  return CLIDRegistry::CLIDVector_t (m_vec.begin()+pos, m_vec.end());
 }
 
 
@@ -97,12 +64,12 @@ void CLIDRegistry::addCLIDMapping (unsigned long clid, const std::type_info& ti)
  *
  * Returns the corresponding @c type_info or nullptr.
  */
-const std::type_info* CLIDRegistry::CLIDToTypeinfo (unsigned long clid)
+const std::type_info* CLIDRegistryImpl::CLIDToTypeinfo (CLID clid) const
 {
-  if (clid_ti_map) {
-    auto i = clid_ti_map->find (clid);
-    if (i != clid_ti_map->end())
-      return i->second;
+  lock_t lock (m_mutex);
+  auto i = m_clid_ti_map.find (clid);
+  if (i != m_clid_ti_map.end()) {
+    return i->second;
   }
   return nullptr;
 }
@@ -114,14 +81,75 @@ const std::type_info* CLIDRegistry::CLIDToTypeinfo (unsigned long clid)
  *
  * Returns the corresponding @c CLID or CLID_NULL.
  */
-unsigned long CLIDRegistry::typeinfoToCLID (const std::type_info& ti)
+CLID CLIDRegistryImpl::typeinfoToCLID (const std::type_info& ti) const
 {
-  if (ti_clid_map) {
-    auto i = ti_clid_map->find (&ti);
-    if (i != ti_clid_map->end())
-      return i->second;
+  lock_t lock (m_mutex);
+  auto i = m_ti_clid_map.find (&ti);
+  if (i != m_ti_clid_map.end()) {
+    return i->second;
   }
-  return 0;
+  return CLID_NULL;
+}
+
+
+bool CLIDRegistryImpl::addEntry (unsigned long clid,
+                                 const std::type_info& ti,
+                                 const char* typeName, 
+                                 const Athena::PackageInfo& pkgInfo,
+                                 const std::string& typeInfoName)
+{
+  lock_t lock (m_mutex);
+  m_vec.emplace_back (clid, std::string(typeName), pkgInfo, typeInfoName);
+  m_clid_ti_map[clid] = &ti;
+  m_ti_clid_map[&ti] = clid;
+  return true;
+}
+
+
+//***************************************************************************
+
+
+bool
+CLIDRegistry::hasNewEntries()
+{
+  return impl().hasNewEntries();
+}
+
+CLIDRegistry::CLIDVector_t
+CLIDRegistry::newEntries()
+{
+  return impl().newEntries();
+}
+
+
+CLIDRegistryImpl& CLIDRegistry::impl()
+{
+  static CLIDRegistryImpl reg ATLAS_THREAD_SAFE;
+  return reg;
+}
+
+
+/**
+ * @brief Return the @c type_info corresponding to a CLID.
+ * @param clid The CLID to find.
+ *
+ * Returns the corresponding @c type_info or nullptr.
+ */
+const std::type_info* CLIDRegistry::CLIDToTypeinfo (CLID clid)
+{
+  return impl().CLIDToTypeinfo (clid);
+}
+
+
+/**
+ * @brief Return the CLID corresponding to a @c type_info.
+ * @param ti The @c type_info to find.
+ *
+ * Returns the corresponding @c CLID or CLID_NULL.
+ */
+CLID CLIDRegistry::typeinfoToCLID (const std::type_info& ti)
+{
+  return impl().typeinfoToCLID (ti);
 }
 
 
@@ -132,13 +160,6 @@ bool CLIDRegistry::addEntry (unsigned long clid,
                              const Athena::PackageInfo& pkgInfo,
                              const std::string& typeInfoName)
 {
-  registry().push_back(tuple_t(clid, std::string(typeName), pkgInfo, typeInfoName));
-#ifdef CLIDREG_DEBUG
-  std::cerr << "CLIDRegistry::addEntry: for CLID/type " 
-	    << clid << '/' << typeName << " to registry " <<&registry() 
-	    <<std::endl;
-#endif		
-  addCLIDMapping (clid, ti);
-  return true;
+  return impl().addEntry (clid, ti, typeName, pkgInfo, typeInfoName);
 }
 
