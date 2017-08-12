@@ -191,6 +191,14 @@ namespace CP {
         } else if (muWPname == "FixedCutLoose") {
             wp->addCut(new IsolationConditionFormula("MuonFixedCutLoose_track", xAOD::Iso::ptvarcone30, "0.15*x"));
             wp->addCut(new IsolationConditionFormula("MuonFixedCutLoose_calo", xAOD::Iso::topoetcone20, "0.30*x"));
+        } else if (muWPname == "FixedCutTight") {
+            wp->addCut(new IsolationConditionFormula("ptvarcone30R0p06", xAOD::Iso::ptvarcone30, "0.06*x"));
+            wp->addCut(new IsolationConditionFormula("topoetcone20R0p06", xAOD::Iso::topoetcone20, "0.06*x"));
+        } else if (muWPname == "FixedCutLoose") {
+            wp->addCut(new IsolationConditionFormula("MuonFixedCutLoose_track", xAOD::Iso::ptvarcone30, "0.15*x"));
+            wp->addCut(new IsolationConditionFormula("MuonFixedCutLoose_calo", xAOD::Iso::topoetcone20, "0.30*x"));
+        } else if (muWPname == "FixedCutHighPtTrackOnly") {
+            wp->addCut(new IsolationConditionFormula("ptcone20_1p25", xAOD::Iso::ptcone20, "1.25E03"));  //units are MeV!
         } else {
             ATH_MSG_ERROR("Unknown muon isolation WP: " << muWPname);
             delete wp;
