@@ -67,7 +67,7 @@ class SLHC_Setup_XMLReader :
                                  addBCL=False, #True # If you want to set this to True, you must also change InnerDetector/InDetDetDescr/GmxLayouts/cmt/requirements to point to the Strips layout containing the BCL, otherwise Reco will segfault - Ben
                                  )
 
-        elif (SLHC_Flags.LayoutOption == "InclinedDuals" ):
+        elif (SLHC_Flags.LayoutOption == "InclinedDuals" or SLHC_Flags.LayoutOption == "InclinedDuals_wFlex"):
             SLHC_Setup_XMLReader(PixelLayout = "InclBrl4Ref_InclinedDuals",
                                  PixelEndcapLayout = "ECRing4Ref_InclinedDuals",
                                  SCTLayout = "FourLayersNoStub_23-25-dev0",
@@ -195,7 +195,7 @@ class SLHC_Setup :
                 "PIXELROUTINGSERVICE":"InclBrl4_InclinedQuads_PixelRoutingService",
                 }
 
-        elif (SLHC_Flags.LayoutOption == "InclinedDuals" ):
+        elif (SLHC_Flags.LayoutOption == "InclinedDuals" or SLHC_Flags.LayoutOption == "InclinedDuals_wFlex"):
             xmlFileDict["Pixel"]={
                 "PIXELGENERAL":"InclBrl4_PixelGeneral_InclinedDuals",
                 "PIXELSIMPLESERVICE":"InclBrl_PixelSimpleService",
@@ -206,6 +206,8 @@ class SLHC_Setup :
                 "MATERIAL":"InclBrl_Material",
                 "PIXELROUTINGSERVICE":"InclBrl4_InclinedDuals_PixelRoutingService",
                 }
+            if(SLHC_Flags.LayoutOption == "InclinedDuals_wFlex"):
+                xmlFileDict["Pixel"]["PIXELROUTINGSERVICE"]="InclBrl4_InclinedDuals_PixelRoutingService_wFlex"
 
         elif (SLHC_Flags.LayoutOption == "InclinedAlternative" ):
             xmlFileDict["Pixel"]={
