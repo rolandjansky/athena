@@ -2,4 +2,8 @@
   <class name="xAOD::ICaloTopoClusterIsolationTool"/>
   <class name="xAOD::INeutralEFlowIsolationTool"/>
   <class name="xAOD::ITrackIsolationTool"/>
+  <class name="xAOD::CaloCorrection"/>
+  <class name="xAOD::TrackCorrection"/>
+  <class name="xAOD::CaloIsolation"/>
+  <class name="xAOD::TrackIsolation"/>
 </lcgdict>

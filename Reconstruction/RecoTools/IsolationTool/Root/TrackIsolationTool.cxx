@@ -2,15 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-//////////////////////////////////////////////////////////////////////////////
 // TrackIsolationTool
-//
-//  (c) ATLAS software
-//////////////////////////////////////////////////////////////////////////////
 
 //<<<<<< INCLUDES                                                       >>>>>>
 #include "IsolationTool/TrackIsolationTool.h"
-// #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODPrimitives/IsolationFlavour.h"
 #include "xAODPrimitives/IsolationConeSize.h"
@@ -20,22 +15,18 @@
 #include "xAODPrimitives/tools/getIsolationCorrectionAccessor.h"
 #include "xAODMuon/Muon.h"
 
-#include <iomanip>
-
 namespace xAOD {
- 
+  
   //<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
 
   TrackIsolationTool::TrackIsolationTool (const std::string& name):
     asg::AsgTool(name)
 #ifndef XAOD_ANALYSIS
     , m_tracksInConeTool("xAOD::TrackParticlesInConeTool/TrackParticlesInConeTool"),
-	m_trkselTool( "InDet::InDetTrackSelectionTool/TrackSelectionTool", this )
+    m_trkselTool( "InDet::InDetTrackSelectionTool/TrackSelectionTool", this )
 #endif // XAOD_ANALYSIS
   {
 #ifndef XAOD_ANALYSIS
-    declareInterface<ITrackIsolationTool>(this);
-    //declareInterface<IChargedEFlowIsolationTool>(this);
     declareProperty("TracksInConeTool", m_tracksInConeTool);
 #endif // XAOD_ANALYSIS
     declareProperty("TrackParticleLocation",m_indetTrackParticleLocation = "InDetTrackParticles");
@@ -49,16 +40,15 @@ namespace xAOD {
 
   //<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
 
-  StatusCode TrackIsolationTool::initialize() 
-  {
+  StatusCode TrackIsolationTool::initialize() {
 #ifndef XAOD_ANALYSIS
     if( !m_simpleIsolation ) ATH_CHECK(m_tracksInConeTool.retrieve());
 #endif // XAOD_ANALYSIS
 
-      if(m_trkselTool.retrieve().isFailure()){
-	ATH_MSG_FATAL("Could not retrieve InDetTrackSelectionTool");    
-	return 0.;
-      }
+    if(m_trkselTool.retrieve().isFailure()){
+      ATH_MSG_FATAL("Could not retrieve InDetTrackSelectionTool");    
+      return 0.;
+    }
 
     /** square cone */
     m_overlapCone2 *= m_overlapCone2;
@@ -177,7 +167,7 @@ namespace xAOD {
       }else{
         msg(MSG::DEBUG) << "Calculated track isolation: ";
         for( unsigned int i = 0; i< result.ptcones.size();++i ){
-          msg(MSG::DEBUG) << " coneSizeSquared " << std::setw(3) << input.coneSizesSquared[i] << " value " << result.ptcones[i];
+          msg(MSG::DEBUG) << " coneSizeSquared " << input.coneSizesSquared[i] << " value " << result.ptcones[i];
         }
         msg(MSG::DEBUG) << endmsg;
       }
@@ -268,9 +258,9 @@ namespace xAOD {
     /// prepare look-up structure
     std::vector<const TrackParticle*> tps;
 #ifndef XAOD_ANALYSIS
-     if( !m_tracksInConeTool->particlesInCone(input.particle->eta(),input.particle->phi(),input.maxRadius,tps) ) return false;
+    if( !m_tracksInConeTool->particlesInCone(input.particle->eta(),input.particle->phi(),input.maxRadius,tps) ) return false;
 #else
-     if( !getparticlesInCone(input.particle->eta(),input.particle->phi(),input.maxRadius,tps) ) return false;
+    if( !getparticlesInCone(input.particle->eta(),input.particle->phi(),input.maxRadius,tps) ) return false;
 #endif
     
     for( const auto& tp : tps ) {
@@ -310,12 +300,12 @@ namespace xAOD {
   {
     // check if track pointer matches the one of input or one of the exclusion set
     if(input.corrections.trackbitset.test(static_cast<unsigned int>(Iso::coreTrackPtr))){
-	 if(input.particle == &tp2 || (input.exclusionSet && input.exclusionSet->count(&tp2))){
-	   ATH_MSG_DEBUG("track pointer " << &tp2 << ", track pt = " << tp2.pt() << ", input pt = " << input.particle->pt()) ;
-	   result.coreCorrections[Iso::coreTrackPtr] += tp2.pt();
-	   return;
-	 }
-       }
+      if(input.particle == &tp2 || (input.exclusionSet && input.exclusionSet->count(&tp2))){
+	ATH_MSG_DEBUG("track pointer " << &tp2 << ", track pt = " << tp2.pt() << ", input pt = " << input.particle->pt()) ;
+	result.coreCorrections[Iso::coreTrackPtr] += tp2.pt();
+	return;
+      }
+    }
 
     // check eta
     float deta = input.particle->eta()-tp2.eta();

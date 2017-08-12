@@ -1,4 +1,6 @@
 <lcgdict>
   <class name="xAOD::CaloIsolationTool"/>
   <class name="xAOD::TrackIsolationTool"/>
+  <class name="CP::IIsolationHelper"/>
+  <class name="CP::IsolationHelper"/>
 </lcgdict>
