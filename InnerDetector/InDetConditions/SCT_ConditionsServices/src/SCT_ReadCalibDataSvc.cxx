@@ -83,8 +83,8 @@ SCT_ReadCalibDataSvc::SCT_ReadCalibDataSvc(const std::string& name, ISvcLocator*
   m_NODefects{nullptr},
   m_printCalibDefectMaps{false},
   m_recoOnly{true},
-  m_ignoreDefects{0},
-  m_ignoreDefectParameters{0} {
+  m_ignoreDefects{},
+  m_ignoreDefectParameters{} {
     declareProperty("PrintCalibDefectMaps", m_printCalibDefectMaps=false, "Print data read from the Calib Defect map?");
     declareProperty("AttrListCollFolders", m_atrcollist, "List of calibration data folder?"); 
     declareProperty("RecoOnly", m_recoOnly, "Use new improved isGood method, all other methods defunct"); 
