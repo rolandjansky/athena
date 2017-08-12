@@ -17,9 +17,9 @@ SCT_TdaqEnabledCondAlg::SCT_TdaqEnabledCondAlg(const std::string& name, ISvcLoca
   , m_condSvc{"CondSvc", name}
   , m_cablingSvc{"SCT_CablingSvc", name}
 {
-  declareProperty("ReadKey", m_readKey);
-  declareProperty("WriteKey", m_writeKey);
-  declareProperty("EventInfoKey", m_eventInfoKey=std::string{"ByteStreamEventInfo"});
+  declareProperty("ReadKey", m_readKey, "Key of input (raw) conditions folder");
+  declareProperty("WriteKey", m_writeKey, "Key of output (derived) conditions folder");
+  declareProperty("EventInfoKey", m_eventInfoKey=std::string{"ByteStreamEventInfo"}, "Key of non-xAOD EventInfo");
 }
 
 SCT_TdaqEnabledCondAlg::~SCT_TdaqEnabledCondAlg()
@@ -31,23 +31,23 @@ StatusCode SCT_TdaqEnabledCondAlg::initialize()
   ATH_MSG_DEBUG("initialize " << name());
 
   // CondSvc
-  ATH_CHECK(m_condSvc.retrieve());
+  ATH_CHECK( m_condSvc.retrieve() );
   // SCT cabling service
-  ATH_CHECK(m_cablingSvc.retrieve());
+  ATH_CHECK( m_cablingSvc.retrieve() );
 
   // Read Cond Handle
-  ATH_CHECK(m_readKey.initialize());
+  ATH_CHECK( m_readKey.initialize() );
 
   // Write Cond Handle
-  ATH_CHECK(m_writeKey.initialize());
+  ATH_CHECK( m_writeKey.initialize() );
   // Register write handle
-  if (m_condSvc->regHandle(this, m_writeKey, m_writeKey.dbKey()).isFailure()) {
+  if(m_condSvc->regHandle(this, m_writeKey, m_writeKey.dbKey()).isFailure()) {
     ATH_MSG_ERROR("unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
     return StatusCode::FAILURE;
   }
 
   // Read Handle
-  ATH_CHECK(m_eventInfoKey.initialize());
+  ATH_CHECK( m_eventInfoKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -60,7 +60,7 @@ StatusCode SCT_TdaqEnabledCondAlg::execute()
   SG::WriteCondHandle<SCT_TdaqEnabledCondData> writeHandle{m_writeKey};
 
   // Do we have a valid Write Cond Handle for current time?
-  if (writeHandle.isValid()) {
+  if(writeHandle.isValid()) {
     // in theory this should never be called in MT
     writeHandle.updateStore();
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid."
@@ -79,7 +79,7 @@ StatusCode SCT_TdaqEnabledCondAlg::execute()
   EventIDRange rangeW;
 
   // check whether we expect valid data at this time
-  if (unfilledRun()) {
+  if(unfilledRun()) {
     EventIDBase unfilledStart{0, 0, 0, 0}; // run 0, event 0, timestamp 0, timestamp_ns 0
     EventIDBase unfilledStop{s_earliestRunForFolder, 0, s_earliestTimeStampForFolder, 0}; // run 119253, event 0, timestamp 1245064619, timestamp_ns 0
     EventIDRange unfilledRange{unfilledStart, unfilledStop};
@@ -89,8 +89,8 @@ StatusCode SCT_TdaqEnabledCondAlg::execute()
   } else {
     // Read Cond Handle 
     SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey};
-    const CondAttrListCollection* readCdo{*readHandle};
-    if (readCdo==nullptr) {
+    const CondAttrListCollection* readCdo{*readHandle}; 
+    if(readCdo==nullptr) {
       ATH_MSG_ERROR("Null pointer to the read conditions object");
       return StatusCode::FAILURE;
     }
@@ -100,7 +100,7 @@ StatusCode SCT_TdaqEnabledCondAlg::execute()
     CondAttrListCollection::const_iterator attrList{readCdo->begin()};
     CondAttrListCollection::const_iterator end{readCdo->end()};
     // CondAttrListCollection doesnt support C++11 type loops, no generic 'begin'
-    for (; attrList!=end; ++attrList) {
+    for(; attrList!=end; ++attrList) {
       // A CondAttrListCollection is a map of ChanNum and AttributeList
       CondAttrListCollection::ChanNum channelNumber{attrList->first};
       CondAttrListCollection::AttributeList payload{attrList->second};
@@ -109,8 +109,8 @@ StatusCode SCT_TdaqEnabledCondAlg::execute()
       unsigned int rodNumber{parseChannelName(chanName)};
       // range check on the rod channel number has been removed, since it refers both to existing channel names
       // which can be rods in slots 1-128 but also historical names which have since been removed
-      if (SCT_OnlineId::rodIdInRange(rodNumber)) {
-	if ((not enabled.empty()) and (not writeCdo->setGoodRod(rodNumber))) {
+      if(SCT_OnlineId::rodIdInRange(rodNumber)) {
+	if((not enabled.empty()) and (not writeCdo->setGoodRod(rodNumber))) {
 	  ATH_MSG_WARNING("Set insertion failed for rod "<<rodNumber);
 	}
       } else {
@@ -118,26 +118,26 @@ StatusCode SCT_TdaqEnabledCondAlg::execute()
       }
     }
 
-    if (writeCdo->getGoodRods().size()>s_NRODS) {
+    if(writeCdo->getGoodRods().size()>s_NRODS) {
       ATH_MSG_ERROR("The number of rods declared as good appears to be greater than the permissible number of rods ("<<s_NRODS<<")");
       writeCdo->setFilled(false);
       return StatusCode::FAILURE;
     }
     
-    unsigned int nBad{s_NRODS-static_cast<unsigned int>(writeCdo->getGoodRods().size())};
+    long unsigned int nBad{s_NRODS-writeCdo->getGoodRods().size()};
     std::string howMany{inWords(nBad)};
     ATH_MSG_DEBUG(howMany << " declared bad in the database.");
     
     // provide short-cut for no rods bad (hopefully the most common case)
     writeCdo->setNoneBad(nBad==0);
-    if (writeCdo->isNoneBad()) {
+    if(writeCdo->isNoneBad()) {
       writeCdo->setFilled(true);
     } else {
       // now find the modules which belong to those rods...
       //      const int modulesPerRod(48);
-      std::vector<IdentifierHash> tmpIdVec{};
+      std::vector<IdentifierHash> tmpIdVec{0};
       tmpIdVec.reserve(s_modulesPerRod);
-      for (const auto& thisRod : writeCdo->getGoodRods()) {
+      for(const auto & thisRod : writeCdo->getGoodRods()) {
 	tmpIdVec.clear();
 	m_cablingSvc->getHashesForRod(tmpIdVec, thisRod);
 	writeCdo->setGoodModules(tmpIdVec);
@@ -145,13 +145,13 @@ StatusCode SCT_TdaqEnabledCondAlg::execute()
       writeCdo->setFilled(true);
     } 
 
-    if (!readHandle.range(rangeW)) {
+    if(!readHandle.range(rangeW)) {
       ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandle.key());
       return StatusCode::FAILURE;
     }
   }
 
-  if (writeHandle.record(rangeW, writeCdo).isFailure()) {
+  if(writeHandle.record(rangeW, writeCdo).isFailure()) {
     ATH_MSG_ERROR("Could not record SCT_TdaqEnabledCondData " << writeHandle.key() 
 		  << " with EventRange " << rangeW
 		  << " into Conditions Store");
@@ -182,31 +182,31 @@ bool SCT_TdaqEnabledCondAlg::unfilledRun() const {
 
 //parse a rod channel name to a rod number, names are of the format 'ROL-SCT-BA-00-210000'
 //October 2014: names can now also be of format 'ROL-SCT-B-00-210100'
-unsigned int SCT_TdaqEnabledCondAlg::parseChannelName(const std::string& chanNameString) const {
+unsigned int SCT_TdaqEnabledCondAlg::parseChannelName(const std::string &chanNameString) const {
   unsigned int result{0};
   const long unsigned int length{chanNameString.size()};
   if (length < 19) return result; //very rough check on sanity of string, should use regex
   //get the last six numbers, these are in hex  
   std::istringstream iss{chanNameString.substr(length-6, 6)};
   iss.exceptions(std::ios_base::badbit|std::ios_base::failbit);
-  try {
+  try{
     iss>>std::hex>>result;
-  } catch (std::ios_base::failure) { //bad conversion to int
+  } catch (std::ios_base::failure){ //bad conversion to int
     std::cerr<<"Bad conversion of last 6 digits of "<<chanNameString<<" to a hex number"<<std::endl;
-    throw (std::ios_base::failure("stringToInt failure in SCT_TdaqEnabledSvc"));
+    throw(std::ios_base::failure("stringToInt failure in SCT_TdaqEnabledSvc"));
   } 
   return result; 
 }
 
 std::string SCT_TdaqEnabledCondAlg::inWords(const unsigned int aNumber) const {
-  switch (aNumber) {
+  switch (aNumber){
   case 0:
     return std::string("No SCT rods were");
     break;
   case 1:
     return std::string("One SCT rod was");
     break;
-  default:
+   default:
     return std::to_string(aNumber) + " SCT rods were"; //C++11
     break;
   }
