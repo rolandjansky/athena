@@ -39,7 +39,7 @@
 namespace xAOD {
   
   class CaloIsolationTool: 
-    virtual public ICaloTopoClusterIsolationTool,
+  virtual public ICaloTopoClusterIsolationTool,
     virtual public INeutralEFlowIsolationTool,
 #ifndef XAOD_ANALYSIS
     virtual public ICaloCellIsolationTool,
@@ -50,10 +50,10 @@ namespace xAOD {
 #ifndef XAOD_ANALYSIS
     ASG_TOOL_CLASS3( CaloIsolationTool, ICaloTopoClusterIsolationTool, ICaloCellIsolationTool, INeutralEFlowIsolationTool )
 #else
-    ASG_TOOL_CLASS2( CaloIsolationTool, ICaloTopoClusterIsolationTool, INeutralEFlowIsolationTool )
+      ASG_TOOL_CLASS2( CaloIsolationTool, ICaloTopoClusterIsolationTool, INeutralEFlowIsolationTool )
 #endif
     
-    public:
+      public:
     CaloIsolationTool(const std::string& name);
     ~CaloIsolationTool(void); // destructor
       
@@ -133,13 +133,23 @@ namespace xAOD {
 			    , double coneCoreSize
 			    , const derefMap_t& derefMap
 			    ) const;
-#endif
 
     /** cast for egamma (etcone egamma)*/    
-#ifndef XAOD_ANALYSIS
     bool caloCellIsolation( CaloIsolation& result, const Egamma& tp, const std::vector<Iso::IsolationType>& cones, CaloCorrection corrections
 			    , const CaloCellContainer* container
 			    ) const;
+
+    // etcone computation for TrackParticle
+    bool etConeIsolation( CaloIsolation& result, const TrackParticle& tp, 
+			  const std::vector<Iso::IsolationType>& isoTypes, 
+			  const CaloCellContainer* container,
+			  double coneCoreSize,
+			  const derefMap_t& derefMap) const;
+      
+    bool etConeIsolation( CaloIsolation& result, const Egamma& eg, 
+			  const std::vector<Iso::IsolationType>& isoTypes, 
+			  const CaloCellContainer* container ) const;
+
 #endif
 
     /** cast for TrackParticle (topoetcone muon)*/    
@@ -167,18 +177,6 @@ namespace xAOD {
 			  IParticle& tp,
 			  const std::vector<Iso::IsolationType>& cones,
 			  CaloCorrection corrections);
-#ifndef XAOD_ANALYSIS
-    // etcone computation for TrackParticle
-    bool etConeIsolation( CaloIsolation& result, const TrackParticle& tp, 
-			  const std::vector<Iso::IsolationType>& isoTypes, 
-			  const CaloCellContainer* container,
-			  double coneCoreSize,
-			  const derefMap_t& derefMap) const;
-      
-    bool etConeIsolation( CaloIsolation& result, const Egamma& eg, 
-			  const std::vector<Iso::IsolationType>& isoTypes, 
-			  const CaloCellContainer* container ) const;
-#endif
 			    
 			    
     // topoetcone computation (common for TrackParticle and Egamma)
@@ -331,7 +329,6 @@ namespace xAOD {
       return x;
     }
   };
-  
 }// end of namespace
 
 #endif
