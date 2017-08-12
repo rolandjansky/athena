@@ -132,8 +132,8 @@ HLTTauMonTool::HLTTauMonTool(const std::string & type, const std::string & n, co
     declareProperty("doTopoValidation",         m_doTopoValidation=false);
     declareProperty("doL1JetPlots", 		m_doL1JetPlots=false);
     declareProperty("doEFTProfiles", 		m_doEFTProfiles=false);
-	declareProperty("domuCut40", 		m_domuCut40=false);    
-	declareProperty("doL1TopoLeptonsMonitoringWarnings",	m_doL1TopoLeptonsMonitoringWarnings=false);
+    declareProperty("domuCut40", 		m_domuCut40=false);    
+    declareProperty("doL1TopoLeptonsMonitoringWarnings",	m_doL1TopoLeptonsMonitoringWarnings=false);
     declareProperty("topo_ditau_chains",    m_topo_chains_ditau);
     declareProperty("topo_eltau_chains",    m_topo_chains_eltau);
     declareProperty("topo_mutau_chains",    m_topo_chains_mutau);
