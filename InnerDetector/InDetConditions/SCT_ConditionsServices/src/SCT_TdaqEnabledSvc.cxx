@@ -6,7 +6,7 @@
  * @file SCT_TdaqEnabledSvc.cxx
  * implementation file for service allowing one to declare rods as bad, or read the bad rods from the Tdaq entries in COOL db
  * @author shaun.roe@cern.ch
-**/
+ **/
 
 #include "SCT_TdaqEnabledSvc.h"
 
@@ -36,26 +36,27 @@
 #include "InDetIdentifier/SCT_ID.h"
 
 // Constructor
-SCT_TdaqEnabledSvc::SCT_TdaqEnabledSvc( const std::string& name, ISvcLocator* pSvcLocator ) : AthService(name, pSvcLocator), 
-m_data{nullptr},
-m_pHelper{nullptr},
-m_useDatabase(true), m_detStore("DetectorStore",name),
-m_condKey(std::string("SCT_TdaqEnabledCondData"))
-{
-  //declareProperty("BadRodIdentifiers",m_badElements);
-  declareProperty("EventInfoKey", m_eventInfoKey=std::string("ByteStreamEventInfo"));
-}
+SCT_TdaqEnabledSvc::SCT_TdaqEnabledSvc(const std::string& name, ISvcLocator* pSvcLocator) : 
+  AthService(name, pSvcLocator), 
+  m_data{nullptr},
+  m_pHelper{nullptr},
+  m_useDatabase{true},
+  m_detStore{"DetectorStore", name},
+  m_condKey{std::string{"SCT_TdaqEnabledCondData"}}
+  {
+    declareProperty("EventInfoKey", m_eventInfoKey=std::string{"ByteStreamEventInfo"});
+  }
 
 //Initialize
 StatusCode 
 SCT_TdaqEnabledSvc::initialize(){
-  const std::string databaseUseString(m_useDatabase?"":"not ");
-  ATH_MSG_INFO(" Database will "<<databaseUseString<<"be used.");
+  const std::string databaseUseString{m_useDatabase ? "" : "not "};
+  ATH_MSG_INFO(" Database will " << databaseUseString << "be used.");
 
   ATH_CHECK(m_detStore->retrieve(m_pHelper,"SCT_ID"));
   // Read (Cond) Handle Key
   ATH_CHECK(m_eventInfoKey.initialize());
-  if(m_useDatabase) {
+  if (m_useDatabase) {
     ATH_CHECK(m_condKey.initialize());
   }
   return StatusCode::SUCCESS;
@@ -64,8 +65,7 @@ SCT_TdaqEnabledSvc::initialize(){
 //Finalize
 StatusCode
 SCT_TdaqEnabledSvc::finalize(){
-  StatusCode sc(StatusCode::SUCCESS);
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 // From s.binet
@@ -77,7 +77,7 @@ SCT_TdaqEnabledSvc::finalize(){
 StatusCode 
 SCT_TdaqEnabledSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) 
 {
-  if ( ISCT_ConditionsSvc::interfaceID().versionMatch(riid) ) {
+  if (ISCT_ConditionsSvc::interfaceID().versionMatch(riid)) {
     *ppvInterface = dynamic_cast<ISCT_ConditionsSvc*>(this);
   } else {
     // Interface is not directly available : try out a base class
@@ -88,21 +88,21 @@ SCT_TdaqEnabledSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
 }
 
 bool 
-SCT_TdaqEnabledSvc::canReportAbout(InDetConditions::Hierarchy h){
+SCT_TdaqEnabledSvc::canReportAbout(InDetConditions::Hierarchy h) {
   return (h==InDetConditions::DEFAULT or h==InDetConditions::SCT_SIDE or h==InDetConditions::SCT_MODULE); 
 }
 
 bool 
-SCT_TdaqEnabledSvc::isGood(const Identifier & elementId, InDetConditions::Hierarchy h){
+SCT_TdaqEnabledSvc::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) {
   if (not canReportAbout(h)) return true;
   //turn to hash, given the identifier
-  const IdentifierHash hashId=m_pHelper->wafer_hash(elementId);
+  const IdentifierHash hashId{m_pHelper->wafer_hash(elementId)};
   return isGood(hashId);
 }
 
 bool 
-SCT_TdaqEnabledSvc::isGood(const IdentifierHash & hashId){
-  if(not getCondData()) return false;
+SCT_TdaqEnabledSvc::isGood(const IdentifierHash& hashId){
+  if (not getCondData()) return false;
   return m_data->isGood(hashId);
 }
 
@@ -113,15 +113,15 @@ SCT_TdaqEnabledSvc::canFillDuringInitialize(){
 
 bool
 SCT_TdaqEnabledSvc::filled() const{
-  if(not getCondData()) return false;
+  if (not getCondData()) return false;
   return m_data->isFilled();
 }
 
 bool
 SCT_TdaqEnabledSvc::getCondData() const {
-  if(!m_data) {
-    SG::ReadCondHandle<SCT_TdaqEnabledCondData> data(m_condKey);
-    if((not data.isValid()) or !(*data)) {
+  if (!m_data) {
+    SG::ReadCondHandle<SCT_TdaqEnabledCondData> data{m_condKey};
+    if ((not data.isValid()) or !(*data)) {
       ATH_MSG_ERROR("Failed to get " << m_condKey.key());
       return false;
     }

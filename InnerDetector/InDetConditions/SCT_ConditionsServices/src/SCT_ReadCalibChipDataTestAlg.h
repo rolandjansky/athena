@@ -39,7 +39,7 @@ class SCT_ReadCalibChipDataTestAlg : public AthAlgorithm
   //----------Public Member Functions----------//
   // Structors
   SCT_ReadCalibChipDataTestAlg(const std::string& name, ISvcLocator* pSvcLocator); //!< Constructor
-  ~SCT_ReadCalibChipDataTestAlg();                                                  //!< Destructor
+  ~SCT_ReadCalibChipDataTestAlg();                                                 //!< Destructor
   
   // Standard Gaudi functions
   StatusCode initialize(); //!< Gaudi initialiser

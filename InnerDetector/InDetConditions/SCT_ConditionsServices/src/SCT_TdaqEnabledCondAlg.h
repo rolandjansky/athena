@@ -31,7 +31,7 @@ class SCT_TdaqEnabledCondAlg : public AthAlgorithm
   SG::WriteCondHandleKey<SCT_TdaqEnabledCondData> m_writeKey;
   SG::ReadHandleKey<EventInfo> m_eventInfoKey;
   ServiceHandle<ICondSvc> m_condSvc; 
-  ServiceHandle<ISCT_CablingSvc>        m_cablingSvc;                    //!< Handle on SCT cabling service
+  ServiceHandle<ISCT_CablingSvc> m_cablingSvc; //!< Handle on SCT cabling service
 
   unsigned int parseChannelName(const std::string &chanNameString) const;
   std::string inWords(const unsigned int aNumber) const;
