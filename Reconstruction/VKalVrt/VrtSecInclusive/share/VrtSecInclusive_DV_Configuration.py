@@ -3,6 +3,10 @@
 # The options here are needed both when running on RAW and ESD inputs.
 # Must run after the large-radius tracking to use large-d0 tracks.
 
+## get a handle on the top sequence of algorithms -import AlgSequence
+from AthenaCommon.AlgSequence import AlgSequence
+topSequence = AlgSequence()
+
 # instantiate the vertexing alg
 from VrtSecInclusive.VrtSecInclusive import VrtSecInclusive
 topSequence.insert(-1, VrtSecInclusive())
