@@ -25,7 +25,7 @@ DataBucketBranch::~DataBucketBranch()
 
 void*
 DataBucketBranch::cast(CLID clid, SG::IRegisterTransient* /*itr*/,
-                       bool /*isConst*/) const
+                       bool /*isConst*/)
 {
   // no conversion needed
   if (allowMismatchCLID || clid == m_clid) {
@@ -50,7 +50,7 @@ DataBucketBranch::cast(const std::type_info& tinfo,
 DataBucketBranch::cast(const std::type_info& /*tinfo*/,
 #endif
                        SG::IRegisterTransient* /*itr*/,
-                       bool /*isConst*/) const
+                       bool /*isConst*/)
 {
 #if ROOT_VERSION_CODE < ROOT_VERSION(5,99,0)
   // no conversion needed
