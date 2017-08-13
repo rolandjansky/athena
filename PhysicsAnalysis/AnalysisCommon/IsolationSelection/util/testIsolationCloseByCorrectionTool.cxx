@@ -37,14 +37,11 @@
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODMuon/MuonContainer.h"
-// Local include(s):
 #include <xAODCore/ShallowCopy.h>
 #include <xAODBase/ObjectType.h>
 #include <xAODBase/IParticleHelpers.h>
+
 // Tools
-
-#include "POOLRootAccess/TEvent.h"
-
 #include "IsolationSelection/IsolationCloseByCorrectionTool.h"
 #include "IsolationSelection/TestMacroHelpers.h"
 #include "IsolationSelection/IsolationSelectionTool.h"
