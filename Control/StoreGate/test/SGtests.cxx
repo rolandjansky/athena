@@ -167,8 +167,8 @@ public:
   virtual const CLID& clID() const override { return m_clid; }
   virtual void* object() override { return m_obj; }
   virtual const std::type_info& tinfo() const override { return typeid(Foo); }
-  virtual void* cast (CLID, SG::IRegisterTransient*, bool) const override { std::abort(); }
-  virtual void* cast (const std::type_info&, SG::IRegisterTransient*, bool) const override { std::abort(); }
+  virtual void* cast (CLID, SG::IRegisterTransient*, bool) override { std::abort(); }
+  virtual void* cast (const std::type_info&, SG::IRegisterTransient*, bool) override { std::abort(); }
   virtual DataBucketBase* clone() const override { std::abort(); }
   virtual void relinquish() override { std::abort(); }
   virtual void lock() override { std::abort(); }
