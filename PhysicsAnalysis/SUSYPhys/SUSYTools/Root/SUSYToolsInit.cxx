@@ -236,7 +236,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       if(!m_JMScalib.empty()){
         ATH_MSG_ERROR("JMS calibration is not supported for AF-II samples. Please modify your settings.");
         return StatusCode::FAILURE;
-        // ATH_MSG_WARNING("*** JMS calibration is not validated for AF-II samples. Please modify your settings if this is not intended ! ***");
       }
 
     }
@@ -279,6 +278,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_jetCalibTool.setProperty("IsData", data_par) );
     ATH_CHECK( m_jetCalibTool.setProperty("OutputLevel", MSG::VERBOSE) );
     std::cout << "Setting up the calib tool for retrieve" << std::endl;
+    std::cout << m_jetCalibTool << std::endl;
     ATH_CHECK( m_jetCalibTool.retrieve() );
     std::cout << "Done with retrieve" << std::endl;
   }
