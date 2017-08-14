@@ -59,6 +59,7 @@ archivepath = '/eos/atlas/atlascerngroupdisk/phys-beamspot/jobs/archive'
 
 import sys, os, stat,commands
 import re
+import subprocess
 import time
 from copy import copy
 
@@ -209,6 +210,22 @@ def dataset_from_run_and_tag(run, tag):
     dsname = '.'.join(os.path.basename(datasets[0]).split('.')[:3])
     return (dataset, dsname)
 
+def run_jobs(script, ds_name, task_name, params, *args):
+    ''' Invoke runJobs.py '''
+    arg_list = ['runJobs']
+    arg_list.extend(map(str, args))
+    if params:
+        param_args = []
+        for k,v in params.items():
+            param_args.append("{}={}".format(k,repr(v)))
+        arg_list.extend(['--params', ', '.join(param_args)])
+    if options.testonly:
+        arg_list.append('--test')
+    arg_list.extend([script, ds_name, task_name])
+
+    print subprocess.list2cmdline(arg_list)
+    subprocess.check_call(arg_list)
+
 
 #
 # Upload any SQLite file to COOL (independent of task, w/o book keeping)
@@ -251,9 +268,16 @@ if cmd=='run' and len(args)==3:
     run = args[1]
     tag = args[2]
     dataset, dsname = dataset_from_run_and_tag(run, tag)
-    #os.system('runJobs.py -n0 -c %s %s %s.%s %s' % (options.runjoboptions,dsname,options.runtaskname,tag,'/'.join([c,datasets[0]])))
-    #os.system('runJobs.py -n0 -c -p "LumiRange=2" %s %s %s.%s %s' % (options.runjoboptions,dsname,options.runtaskname+'-LR2',tag,'/'.join([c,datasets[0]])))
-    os.system('runJobs.py -n0 -c -f \'%s\' -p "LumiRange=5" %s %s %s.%s %s' % (options.filter,options.runjoboptions,dsname,options.runtaskname+'-LR5',tag,'/'.join([c,datasets[0]])))
+
+    run_jobs(options.runjoboptions, dsname,
+            '{}-LR5.{}'.format(options.runtaskname, tag),
+            {
+                'LumiRange' : 5,
+                },
+            '--files-per-job', 0,
+            '--match', options.filter,
+            '--exclude', r'.*\.TMP\.log.*',
+            '--directory', dataset)
     sys.exit(0)
 
 
@@ -274,24 +298,47 @@ if cmd=='runMon' and len(args)==3:
     if 'ESD' in options.filter:
         # NOTE: We pass along the filter setting, but currently we can do --lbperjob only for ESD since for
         #       other data sets we have only the merged files.
-        cmd = 'runJobs.py --lbperjob 10 -c -f \'%s\' -p "cmdjobpreprocessing=\'export STAGE_SVCCLASS=atlcal\', useBeamSpot=True, beamspottag=\'%s\'" %s %s %s.%s %s/' % (
-                options.filter,options.beamspottag,options.monjoboptions,dsname,options.montaskname,tag,dataset)
+        run_jobs(options.monjoboptions, dsname,
+                '{}.{}'.format(options.montaskname, tag),
+                {
+                    'cmdjobpreprocessing' : 'export STAGE_SVCCLASS=atlcal',
+                    'useBeamSpot' : True,
+                    'beamspottag' : options.beamspottag,
+                    },
+                '--lbperjob', 10,
+                '--match', options.filter,
+                '--exclude', r'.*\.TMP\.log.*',
+                '--directory', dataset)
     elif options.filelist != None:
-        lbinfoinfiles=True
-        for line in open(options.filelist,'r'):
+        lbinfoinfiles = True
+        for line in open(options.filelist, 'r'):
             if "lb" not in line:
-                lbinfoinfiles=False
+                lbinfoinfiles = False
                 break
-        lboptions='--lbperjob 10' if lbinfoinfiles else '-n 10'
-        cmd = 'runJobs.py %s -f \'%s\' -q atlasb1_long -p "useBeamSpot=True, beamspottag=\'%s\', tracksAlreadyOnBeamLine=True" %s %s %s.%s %s' % (
-                lboptions,options.filter,options.beamspottag,options.monjoboptions,dsname,options.montaskname,tag,)
+        lboptions='--lbperjob=10' if lbinfoinfiles else '--files-per-job=10'
+        run_jobs(options.monjoboptions, dsname, '{}.{}'.format(options.montaskname, tag),
+                {
+                    'tracksAlreadyOnBeamLine' : True,
+                    'useBeamSpot' : True,
+                    'beamspottag' : options.beamspottag,
+                    },
+                lboptions,
+                '--match', options.filter,
+                '--exclude', r'.*\.TMP\.log.*',
+                '--directory', dataset,
+                '--queue', 'atlasb1_long')
     else:
-        cmd = 'runJobs.py --lbperjob 10 -c -f \'%s\' -p "cmdjobpreprocessing=\'export STAGE_SVCCLASS=atlcal\', useBeamSpot=True, beamspottag=\'%s\'" %s %s %s.%s %s/' % (
-                options.filter,options.beamspottag,options.monjoboptions,dsname,options.montaskname,tag,dataset)
+        run_jobs(options.monjoboptions, dsname, '{}.{}'.format(options.montaskname, tag),
+                {
+                    'cmdjobpreprocessing' : 'export STAGE_SVCCLASS=atlcal',
+                    'useBeamSpot' : True,
+                    'beamspottag' : options.beamspottag,
+                    },
+                '--lbperjob', 10,
+                '--match', options.filter,
+                '--exclude', r'.*\.TMP\.log.*',
+                '--directory', dataset)
 
-    print cmd
-    if not options.testonly:
-        os.system(cmd)
     sys.exit(0)
 
 
@@ -801,8 +848,8 @@ if cmd=='runMonJobs' and len(args)<3:
             if int(runnr)<240000:
                 print '   ',r
             print '... Submitting monitoring task'
-            cmd = 'beamspotman.py --eospath=%s -p %s -s %s -f \'.*\\.%s\\..*\' -t %s --montaskname %s runMon %i %s' % (eospath,ptag,stream,filter,bstag,'MON.'+taskName,int(runnr),datatag)
-            print '    %s' % cmd
+            cmd = 'beamspotman --eospath=%s -p %s -s %s -f \'.*\\.%s\\..*\' -t %s --montaskname %s runMon %i %s' % (eospath,ptag,stream,filter,bstag,monTaskName,int(runnr),datatag)
+            print cmd
             sys.stdout.flush()
             status = os.system(cmd) >> 8   # Convert to standard Unix exit code
             if status:
@@ -1357,14 +1404,18 @@ if cmd=='runBCID' and len(args)==3:
 
     # NOTE: The command below may be executed via a cron job, so we need set STAGE_SVCCLASS
     #       explicitly in all cases, since it may not be inherited from the environment.
-    if 'ESD' in options.filter:
-        # For ESD, run over 10 LBs
-        # NOTE: We pass along the filter setting, but currently we can do --lbperjob only for ESD since for
-        #       other data sets we have only the merged files.
-        os.system('runJobs.py -c -n 0 -f \'%s\' -z \'BCIDDefaultProcessing\' -p "cmdjobpreprocessing=\'export STAGE_SVCCLASS=atlcal\', SeparateByBCID=True, VertexNtuple=False" %s %s %s.%s %s/' % (options.filter,options.bcidjoboptions,dsname,options.bcidtaskname,tag,'/'.join([c,datasets[0]])))
-    else:
-        # Non-ESD format (most likely merged AOD) - run over 2 files
-        os.system('runJobs.py -c -n 0 -f \'%s\' -z \'BCIDDefaultProcessing\' -p "cmdjobpreprocessing=\'export STAGE_SVCCLASS=atlcal\', SeparateByBCID=True, VertexNtuple=False" %s %s %s.%s %s/' % (options.filter,options.bcidjoboptions,dsname,options.bcidtaskname,tag,'/'.join([c,datasets[0]])))
+    # NOTE: We pass along the filter setting, but currently we can do --lbperjob only for ESD since for
+    #       other data sets we have only the merged files.
+    run_jobs(options.bcidjoboptions, dsname, options.bcidtaskname,
+            {
+                'cmdjobpreprocessing' : 'export STAGE_SVCCLASS=atlcal',
+                'SeparateByBCID' : True,
+                'VertexNtuple' : False,
+                },
+            '--files-per-job', 0,
+            '--match', options.filter,
+            '--exclude', r'.*\.TMP\.log.*',
+            '-postprocsteps', 'BCIDDefaultProcessing')
 
     sys.exit(0)
 
