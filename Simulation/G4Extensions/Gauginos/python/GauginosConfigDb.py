@@ -2,4 +2,4 @@
 
 from AthenaCommon.CfgGetter import addTool
 addTool("Gauginos.GauginosConfig.getGauginosPhysicsTool"         , "GauginosPhysicsTool" )
-addTool("Gauginos.GauginosConfig.getNeutralinoToPhotonPlusGravitino", "NeutralinoToPhotonPlusGravitino")
+addTool("Gauginos.GauginosConfig.getNeutralinoToPhotonGravitino", "NeutralinoToPhotonGravitino")

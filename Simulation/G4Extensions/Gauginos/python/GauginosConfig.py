@@ -26,7 +26,7 @@ def getGauginosPhysicsTool(name="GauginosPhysicsTool", **kwargs):
     return CfgMgr.GauginosPhysicsTool(name, **kwargs)
 
 
-def getNeutralinoToPhotonPlusGravitino(name="NeutralinoToPhotonPlusGravitino", **kwargs):
+def getNeutralinoToPhotonGravitino(name="NeutralinoToPhotonGravitino", **kwargs):
     kwargs.setdefault("ParticleName","s_chi_0_1")
     kwargs.setdefault("BR", 1.0) # Branching Ratio
     kwargs.setdefault("Daughters","s_G,gamma")
