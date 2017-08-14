@@ -77,7 +77,7 @@ namespace G4UA{
     {
       bool shift_lar_subhit=true;
       bool shorten_lar_step=false;
-      std::string stepInfoCollName="ZHEventSteps";
+      std::string stepInfoCollName="EventSteps";
       // calculators
       ServiceHandle<ILArCalculatorSvc> calculator_EMECIW_pos=ServiceHandle<ILArCalculatorSvc>("EMECPosInnerWheelCalculator", "FastCaloSimParamAction");            //!< handle to EMEC positive inner wheel calculator
       ServiceHandle<ILArCalculatorSvc> calculator_EMECIW_neg=ServiceHandle<ILArCalculatorSvc>("EMECNegInnerWheelCalculator", "FastCaloSimParamAction");            //!< handle to EMEC negative inner wheel calculator
