@@ -19,22 +19,10 @@ import sys
 import glob
 import os
 import re
+import subprocess
 import InDetBeamSpotExample
 from InDetBeamSpotExample import TaskManager
 from InDetBeamSpotExample import DiskUtils
-
-def quote_arguments(args):
-    ''' Create a properly quoted string of the command line to save. '''
-    qargv = [ ]
-    for s in args:
-        if re.search('\s|\*|\?',s):   # any white space or special characters in word so we need quoting?
-            if "'" in s:
-                qargv.append('"%s"' % re.sub('"',"'",s))
-            else:
-                qargv.append("'%s'" % re.sub("'",'"',s))
-        else:
-            qargv.append(s)
-    return ' '.join(qargv)
 
 def extract_file_list_legacy(inputdata, options):
     ''' Reads several legacy options to work out what input data to use. '''
@@ -126,8 +114,7 @@ def make_runner(runner_type, flags):
     return runner_class(**flags)
 
 if __name__ == '__main__':
-    cmd = quote_arguments(sys.argv)
-    # cmd = subprocess.list2cmdline(sys.argv)
+    cmd = subprocess.list2cmdline(sys.argv)
 
     from optparse import OptionParser, OptionGroup
     parser = OptionParser(usage=__usage__, version=__version__)
@@ -143,7 +130,7 @@ if __name__ == '__main__':
             help='max number of events per job')
     parser.add_option('', '--lbperjob', dest='lbperjob', type='int', default=0, metavar='N',
             help='number of luminosity blocks per job (default: 0 - no bunching)')
-    parser.add_option('-o', '--outputfilelist', dest='outputfilelist', default='', metavar='FILES'
+    parser.add_option('-o', '--outputfilelist', dest='outputfilelist', default='', metavar='FILES',
             help='list of desired output files (default: "dpd.root,nt.root,monitoring.root,beamspot.db"; must be specified explicitly for grid)')
     parser.add_option('-k', '--taskdb', dest='taskdb', default='',
             help='TaskManager database (default: from TASKDB or sqlite_file:taskdata.db; set to string None to avoid using a task database)')
