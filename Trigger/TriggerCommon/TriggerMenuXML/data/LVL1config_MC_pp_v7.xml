@@ -3789,10 +3789,10 @@
         <InternalTrigger name="BGRP5"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="470" partition="1" name="L1_MU4_TE10" complex_deadtime="0" definition="(MU4[x1]&amp;TE50[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10001000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="470" partition="1" name="L1_MU4_TE10" complex_deadtime="0" definition="(MU4[x1]&amp;TE10[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10001000" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="1" name="MU4_x1" triggerthreshold="MU4"/>
-        <TriggerCondition multi="1" name="TE50_x1" triggerthreshold="TE50"/>
+        <TriggerCondition multi="1" name="TE10_x1" triggerthreshold="TE10"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
