@@ -12,9 +12,6 @@
 #include <map>
 #include <stdlib.h>
 
-//#include <ext/hash_map>
-//namespace std { using namespace __gnu_cxx; }
-
 namespace SUSY
 {
 

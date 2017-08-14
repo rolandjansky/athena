@@ -28,14 +28,7 @@
 #include "xAODMissingET/MissingETContainer.h"
 #include "xAODTruth/TruthEvent.h"
 #include "xAODTruth/TruthParticleContainer.h"
-//#include "xAODEventInfo/EventInfo.h"
-//#include "xAODJet/JetTypes.h"
 #include "xAODCore/ShallowCopy.h"
-//#include "TrigDecisionTool/ChainGroup.h"
-
-// Local include(s):
-//#include "PATInterfaces/CorrectionCode.h"
-//#include "PATInterfaces/ISystematicsTool.h"
 
 // For the SystInfo struct
 #include "PATInterfaces/SystematicSet.h"
@@ -236,8 +229,6 @@ namespace ST {
 
     virtual StatusCode setRunNumber(const int run_number) = 0;
 
-    //virtual bool passTSTCleaning(xAOD::MissingETContainer& met) = 0;
-
     virtual bool IsSignalJet(const xAOD::Jet& input,  const float ptcut, const float etacut) const = 0;
 
     virtual bool IsBadJet(const xAOD::Jet& input) const = 0;
@@ -259,8 +250,6 @@ namespace ST {
 
     virtual bool IsSignalPhoton(const xAOD::Photon& input, const float ptcut, const float etacut = DUMMYDEF) const = 0;
 
-    //rel20 0.77 eff value (22/6/15) from https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/BTaggingBenchmarks#MV2c20_tagger_AntiKt4EMTopoJets    
-    //assumes JVT>0.64 working point
     virtual bool IsBJet(const xAOD::Jet& input) const = 0;
 
     virtual bool IsTruthBJet(const xAOD::Jet& input) const = 0;
@@ -285,8 +274,6 @@ namespace ST {
 
 
     virtual double GetMuonTriggerEfficiency(const xAOD::Muon& mu, const std::string& trigExpr = "HLT_mu20_iloose_L1MU15_OR_HLT_mu50", const bool isdata = false) = 0; 
-
-    //virtual double GetMuonTriggerEfficiencySF(const xAOD::Muon& mu, const std::string& trigExpr = "HLT_mu20_iloose_L1MU15_OR_HLT_mu50") = 0;
 
     virtual double GetTotalMuonTriggerSF(const xAOD::MuonContainer& sfmuons, const std::string& trigExpr) = 0;
 

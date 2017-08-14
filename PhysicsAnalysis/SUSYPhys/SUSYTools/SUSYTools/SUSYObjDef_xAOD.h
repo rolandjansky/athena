@@ -33,9 +33,6 @@
 // Configuration
 #include "TEnv.h"
 
-//#include "AssociationUtils/IOverlapTool.h"
-//#include "JetJvtEfficiency/IJetJvtEfficiency.h"
-
 #include <map>
 #include <set>
 #include <iterator>
@@ -94,12 +91,10 @@ namespace TauAnalysisTools {
   class ITauTruthMatchingTool;
 }
 
-//class TauWPDecorator; 
 class ITauToolBase;
 
 namespace ORUtils {
   class IOverlapTool;
-//  class IOverlapRemovalTool;
 }
 
 namespace TrigConf {
@@ -178,10 +173,6 @@ namespace ST {
 
     StatusCode setRunNumber(const int run_number) override final;
 
-    //bool passTSTCleaning(xAOD::MissingETContainer& met);
-
-    //static bool passTSTCleaning(float MET, float TST, float MET_phi, float TST_phi);
-
     bool IsSignalJet(const xAOD::Jet& input, const float ptcut, const float etacut) const override final;
 
     bool IsBadJet(const xAOD::Jet& input) const override final;
@@ -205,8 +196,6 @@ namespace ST {
 
     bool IsSignalPhoton(const xAOD::Photon& input, const float ptcut, const float etacut = DUMMYDEF) const override final;
 
-    //rel20 0.77 eff value (22/6/15) from https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/BTaggingBenchmarks#MV2c20_tagger_AntiKt4EMTopoJets
-    //assumes JVT>0.64 working point
     bool IsBJet(const xAOD::Jet& input) const override final;
 
     bool IsTruthBJet(const xAOD::Jet& input) const override final;
@@ -226,7 +215,6 @@ namespace ST {
     float GetSignalMuonSF(const xAOD::Muon& mu, const bool recoSF = true, const bool isoSF = true, const bool doBadMuonHP = true, const bool warnOVR = true) override final;
 
     double GetMuonTriggerEfficiency(const xAOD::Muon& mu, const std::string& trigExpr, const bool isdata = false ) override final;
-    //    double GetMuonTriggerEfficiencySF(const xAOD::Muon& mu, const std::string& trigExpr = "HLT_mu20_iloose_L1MU15_OR_HLT_mu50");
 
     double GetTotalMuonTriggerSF(const xAOD::MuonContainer& sfmuons, const std::string& trigExpr) override final;
 
@@ -599,7 +587,6 @@ namespace ST {
 
     CP::SystematicSet m_defaultSyst = CP::SystematicSet();
     CP::SystematicSet m_currentSyst;
-    //std::string m_currentSyst;
 
     std::string m_EG_corrModel;
     bool m_applyJVTCut;
@@ -704,11 +691,8 @@ namespace ST {
   const static SG::AuxElement::Decorator<char> dec_signal("signal");
   const static SG::AuxElement::Decorator<char> dec_isol("isol");
   const static SG::AuxElement::Decorator<char> dec_passOR("passOR");
-  //    const static SG::AuxElement::Decorator<char> dec_passBaseID("passBaseID");
   const static SG::AuxElement::Decorator<double> dec_effscalefact("effscalefact");
-  // const static SG::AuxElement::Decorator<double> dec_trigscalefact("trigscalefact");
   const static SG::AuxElement::Decorator<char> dec_signal_less_JVT("signal_less_JVT"); //!< Decorator for signal jets without a JVT requirement
-
   // const accessors for reading decorations that we set
   const static SG::AuxElement::ConstAccessor<char> acc_baseline("baseline");
   const static SG::AuxElement::ConstAccessor<char> acc_selected("selected"); //for priority-aware OR of baseline objects

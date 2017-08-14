@@ -121,7 +121,6 @@ StatusCode SUSYObjDef_xAOD::FillElectron(xAOD::Electron& input, float etcut, flo
   dec_selected(input) = 0;
   dec_signal(input) = false;
   dec_isol(input) = false;
-  //dec_passBaseID(input) = false;
   dec_passSignalID(input) = false;
   dec_passChID(input) = false;
   dec_ecisBDT(input) = -999.;
@@ -447,7 +446,7 @@ double SUSYObjDef_xAOD::GetEleTriggerEfficiencySF(const xAOD::Electron& el, cons
       break;
   }
 
-  return trig_sf; //CorrectionCode::Ok
+  return trig_sf;
 }
 
 
@@ -476,7 +475,7 @@ double SUSYObjDef_xAOD::GetEleTriggerEfficiency(const xAOD::Electron& el, const 
     break;
   }
 
-  return trig_eff; //CorrectionCode::Ok
+  return trig_eff;
 }
 
 

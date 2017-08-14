@@ -68,62 +68,7 @@ using namespace ST;
 #include "PathResolver/PathResolver.h"
 #include "AssociationUtils/IOverlapRemovalTool.h"
 
-
-//#include "JetCalibTools/JetCalibrationTool.h"
-//#include "JetSelectorTools/JetCleaningTool.h"
-//#include "JetResolution/JERTool.h"
-//#include "JetResolution/JERSmearingTool.h"
-//#include "JetUncertainties/JetUncertaintiesTool.h"
-//#include "JetMomentTools/JetVertexTaggerTool.h"
-//#include "JetJvtEfficiency/JetJvtEfficiency.h"
-//#include "JetMomentTools/JetForwardJvtTool.h"
-////
-//#include "MuonMomentumCorrections/MuonCalibrationAndSmearingTool.h"
-//#include "MuonEfficiencyCorrections/MuonEfficiencyScaleFactors.h"
-//#include "MuonSelectorTools/MuonSelectionTool.h"
-//#include "MuonEfficiencyCorrections/MuonTriggerScaleFactors.h"
-////
-//#include "ElectronPhotonFourMomentumCorrection/EgammaCalibrationAndSmearingTool.h"
-//#include "ElectronEfficiencyCorrection/AsgElectronEfficiencyCorrectionTool.h"
-//#include "ElectronEfficiencyCorrection/ElectronChargeEfficiencyCorrectionTool.h"
-//#include "ElectronPhotonSelectorTools/AsgElectronIsEMSelector.h"
-//#include "ElectronPhotonSelectorTools/AsgPhotonIsEMSelector.h"
-//#include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
-//#include "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonShowerShapeFudgeTool.h"
-//#include "PhotonEfficiencyCorrection/AsgPhotonEfficiencyCorrectionTool.h"
-//#include "ElectronPhotonSelectorTools/EGammaAmbiguityTool.h"
-//#include "ElectronPhotonSelectorTools/AsgElectronChargeIDSelectorTool.h"
-////
-//#include "TauAnalysisTools/TauSelectionTool.h"
-//#include "TauAnalysisTools/TauEfficiencyCorrectionsTool.h"
-//#include "TauAnalysisTools/TauSmearingTool.h"
-//#include "TauAnalysisTools/TauTruthMatchingTool.h" 
-//#include "TauAnalysisTools/TauOverlappingElectronLLHDecorator.h"
-//#include "tauRecTools/TauWPDecorator.h"
-////
-//#include "xAODBTaggingEfficiency/BTaggingEfficiencyTool.h"
-//#include "xAODBTaggingEfficiency/BTaggingSelectionTool.h"
-////
-//#include "METUtilities/METMaker.h"
-//#include "METUtilities/METSystematicsTool.h"
-//// xAOD trigger
-//#include "TrigConfxAOD/xAODConfigTool.h"
-//#include "TrigDecisionTool/TrigDecisionTool.h"
-//#include "TriggerMatchingTool/MatchingTool.h"
-////
-//#include "IsolationCorrections/IsolationCorrectionTool.h"
-//#include "IsolationSelection/IsolationSelectionTool.h"
-//#include "IsolationSelection/IsolationCloseByCorrectionTool.h"
-//
-//#include "PileupReweighting/PileupReweightingTool.h"
 #include "PathResolver/PathResolver.h"
-//
-//#include "AssociationUtils/OverlapRemovalInit.h"
-//#include "AssociationUtils/OverlapRemovalTool.h"
-//#include "AssociationUtils/EleJetOverlapTool.h"
-//#include "AssociationUtils/MuJetOverlapTool.h"
-//
-//#include "PMGTools/PMGSherpa22VJetsWeightTool.h"
 
 #define CONFIG_EG_EFF_TOOL( TOOLHANDLE, TOOLNAME, CORRFILE )                \
   if( !TOOLHANDLE.isUserConfigured() ) {                                \
@@ -288,8 +233,8 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     m_jetFatCalibTool.setTypeAndName("JetCalibrationTool/"+toolName);
 
     // pick the right config file for the JES tool
-    //std::string JES_config_file("JES_MC15recommendation_FatJet_June2015.config");   //Supported as a standard jet definition, but less performant at high pT<\sub>
-    std::string JES_config_file("JES_MC15recommendation_FatJet_Nov2016_QCDCombinationUncorrelatedWeights.config"); //Supported/recommended if you are performing an analysis intending to tag W/Z/H/top jets 
+    std::string JES_config_file("JES_MC15recommendation_FatJet_Nov2016_QCDCombinationUncorrelatedWeights.config");
+    //Supported/recommended if you are performing an analysis intending to tag W/Z/H/top jets 
 
     // form the string describing the calibration sequence to use
     std::string calibseq("EtaJES_JMS");
@@ -383,13 +328,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_jetUncertaintiesTool.setProperty("MCType", isAtlfast() ? "AFII" : "MC15") );    
     ATH_CHECK( m_jetUncertaintiesTool.setProperty("ConfigFile", configfile) );
     ATH_CHECK( m_jetUncertaintiesTool.retrieve() );
-
-    // CP::SystematicSet defaultSet;
-    // CP::SystematicCode ret = m_jetUncertaintiesTool->applySystematicVariation(defaultSet);
-    // if (ret != CP::SystematicCode::Ok) {
-    //   ATH_MSG_ERROR("Cannot configure JetUncertaintiesTool for default systematic setting.");
-    //   return StatusCode::FAILURE;
-    // }
   }
 
   // Initialise jet uncertainty tool for fat jets
@@ -424,12 +362,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     }
 
     ATH_CHECK( m_fatjetUncertaintiesTool.retrieve() );
-    // CP::SystematicSet defaultSet;
-    // CP::SystematicCode ret = m_fatjetUncertaintiesTool->applySystematicVariation(defaultSet);
-    // if (ret != CP::SystematicCode::Ok) {
-    //   ATH_MSG_ERROR("Cannot configure (Fat)JetUncertaintiesTool for default systematic setting.");
-    //   return StatusCode::FAILURE;
-    // }
   }
 
   ///////////////////////////////////////////////////////////////////////////////////////////
@@ -657,7 +589,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       ATH_MSG_WARNING(" CAUTION: Setting " << m_eleId << " as signal electron ID");
       ATH_MSG_WARNING(" These may be used for loose electron CRs but no scale factors are provided.");
       ATH_MSG_WARNING(" ****************************************************************************");
-      //        return StatusCode::FAILURE;
     }
     ATH_CHECK( m_elecSelLikelihood.setProperty("WorkingPoint", EG_WP(m_eleId) ));
     ATH_CHECK( m_elecSelLikelihood.retrieve() );
@@ -1153,7 +1084,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_MSG_WARNING("  *** HACK *** Treating LCTopoJets jets as EMTopo -- use at your own risk!");
     jetcollBTag = "AntiKt4EMTopoJets";
   }
-  //if (m_btagSelTool.empty() && !m_BtagWP.empty()) {
   if (!m_btagSelTool.isUserConfigured() && !m_BtagWP.empty()) {
     if (jetcoll != "AntiKt4EMTopoJets" && jetcoll != "AntiKt4EMPFlowJets") {
       ATH_MSG_WARNING("** Only AntiKt4EMTopoJets and AntiKt3PV0TrackJets are supported with scale factors!");
@@ -1171,7 +1101,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_btagSelTool.retrieve() );
   }
 
-  //if (m_btagSelTool_OR.empty() && !m_orBtagWP.empty()) {
   if (!m_btagSelTool_OR.isUserConfigured() && !m_orBtagWP.empty()) {
     if (jetcoll != "AntiKt4EMTopoJets" && jetcoll != "AntiKt4EMPFlowJets") {
       ATH_MSG_WARNING("** Only AntiKt4EMTopoJets and AntiKt3PV0TrackJets are supported with scale factors!");

@@ -297,8 +297,6 @@ double SUSYObjDef_xAOD::GetTotalPhotonSFsys(const xAOD::PhotonContainer& photons
   }
 
   return sf;
-
 }
-
 
 }

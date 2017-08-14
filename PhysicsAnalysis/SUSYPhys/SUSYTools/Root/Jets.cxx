@@ -19,7 +19,6 @@
 #include "JetInterface/IJetUpdateJvt.h"
 #include "JetInterface/IJetModifier.h"
 #include "JetJvtEfficiency/IJetJvtEfficiency.h"
-//#include "JetMomentTools/JetForwardJvtTool.h"
 
 #include "xAODBTaggingEfficiency/IBTaggingEfficiencyTool.h"
 #include "xAODBTaggingEfficiency/IBTaggingSelectionTool.h"
@@ -103,11 +102,9 @@ namespace ST {
       }
       m_jetFwdJvtTool->modify(*copy); //compute FwdJVT for all jets
       for (const auto& jet : *copy) {
-        //      if( m_jetFwdJvtTool->forwardJet(*jet) ){ //redefine Jvt for fwd jets
         if( fabs((*jet).eta()) > m_fwdjetEtaMin ){
           dec_passJvt(*jet) = acc_passFJvt(*jet); 
-          //dec_baseline(*jet) &= dec_passJvt(*jet); //redefine baseline after that
-          
+
           //new state for OR   .  0=non-baseline objects, 1=for baseline jets not passing JVT, 2=for any other baseline object 
           if ( acc_baseline(*jet) ){
             if( acc_passJvt(*jet) )     dec_selected(*jet) = 2;
@@ -329,11 +326,6 @@ namespace ST {
     else{
       dec_selected(input) = 0;
     }
-
-    // if (!acc_passJvt(input)) {
-    //   dec_baseline(input) = false;
-    //   return StatusCode::SUCCESS;
-    // }
 
     if (m_useBtagging && !m_orBtagWP.empty()) {
       bool isbjet_loose = m_btagSelTool_OR->accept(input); //note : b-tag applies only to jet with eta < 2.5
