@@ -142,8 +142,8 @@ parser.add_option('', '--scans', dest='scans', default='', help='comma-separated
 parser.add_option('', '--acqFlag', dest='acqFlag', default = False, action='store_true', help='Cut on AcquistionFlag=1.0 for stationary points of VdM scan')
 parser.add_option('', '--overlayScans', dest='overlayScans', default = False, action='store_true', help='overlay VdM scans on same plot')
 parser.add_option('', '--useAve', dest='useAve', action='store_true', default=False, help='Average over poor fits in the beamspot -- performed during merging step')
-parser.add_option('', '--database', dest='database', default='COOLOFL_INDET/CONDBR2', help='DB to read beamspot info from when -t BeamSpotCOOL is enabled and running merge')
-parser.add_option('', '--dbfolder', dest='dbfolder', default='/Indet/Beampos', help='Folder to read beamspot info from when -t BeamSpotCOOL is enabled and running merge')
+parser.add_option('', '--database', dest='database', default='COOLOFL_INDET/CONDBR2', help='DB to read beamspot info from when -s BeamSpotCOOL is enabled and running merge')
+parser.add_option('', '--dbfolder', dest='dbfolder', default='/Indet/Beampos', help='Folder to read beamspot info from when -s BeamSpotCOOL is enabled and running merge')
 
 (options,args) = parser.parse_args()
 if len(args) < 1:
