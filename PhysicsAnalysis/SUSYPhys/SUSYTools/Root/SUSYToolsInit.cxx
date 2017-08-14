@@ -277,10 +277,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_jetCalibTool.setProperty("CalibSequence", calibseq) );
     ATH_CHECK( m_jetCalibTool.setProperty("IsData", data_par) );
     ATH_CHECK( m_jetCalibTool.setProperty("OutputLevel", MSG::VERBOSE) );
-    std::cout << "Setting up the calib tool for retrieve" << std::endl;
-    std::cout << m_jetCalibTool << std::endl;
     ATH_CHECK( m_jetCalibTool.retrieve() );
-    std::cout << "Done with retrieve" << std::endl;
   }
 
   //same for fat groomed jets
