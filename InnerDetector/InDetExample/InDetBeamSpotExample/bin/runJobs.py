@@ -307,7 +307,7 @@ if __name__ == '__main__':
         runner.registerToBeCopied('beamspotfile')
 
     print
-    runner.showParams()
+    runner.showParams(-1)
     print
 
     # Temporary warning. TODO: still needed?
