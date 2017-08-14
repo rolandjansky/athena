@@ -3,6 +3,7 @@
 # art-description: MC v7 tight TriggerTest on MC
 # art-type: grid
 
+export NAME="mc_pp_v7_tight_grid"
 export MENU="MC_pp_v7_tight_mc_prescale"
 export EVENTS="500"
 

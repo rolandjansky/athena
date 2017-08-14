@@ -3,6 +3,7 @@
 # art-description: Physics v7 TriggerTest on MC
 # art-type: build
 
+export NAME="physics_pp_v7_build"
 export MENU="Physics_pp_v7"
 export EVENTS="5"
 export COST_MONITORING="False"

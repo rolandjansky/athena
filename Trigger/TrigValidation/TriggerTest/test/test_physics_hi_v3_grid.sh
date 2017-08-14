@@ -3,6 +3,7 @@
 # art-description: Heavy ion physics v3 TriggerTest on MC
 # art-type: grid
 
+export NAME="physics_hi_v3_grid"
 export MENU="Physics_HI_v3"
 export EVENTS="500"
 export INPUT="pbpb"

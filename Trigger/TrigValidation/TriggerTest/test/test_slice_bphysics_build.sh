@@ -3,6 +3,7 @@
 # art-description: Bphysics slice TriggerTest on MC using Jpsimu6mu6 to AOD
 # art-type: build
 
+export NAME="slice_bphysics_build"
 export SLICE="bphysics"
 export INPUT="bphysics"
 export EVENTS="10"
