@@ -87,14 +87,13 @@ ATHRNG::RNGWrapper* AthRNGSvc::getEngine(const std::string& streamName)
   auto it = m_wrappers.find(streamName);
   if(it == m_wrappers.end()){
     ATH_MSG_INFO("Creating engine for " << streamName);
-    CLHEP::HepRandomEngine *eng(0);
     auto wrp = new ATHRNG::RNGWrapper(m_fact, m_numSlots);
-    m_wrappers.insert(std::make_pair(streamName, std::make_pair(wrp, eng)));
+    m_wrappers.insert( std::make_pair(streamName, wrp) );
     return wrp;
   }
   ATH_MSG_WARNING("Returning engine for " << streamName);
 
-  return it->second.first;
+  return it->second;
 }
 
 void AthRNGSvc::handle( const Incident& incident )
@@ -107,7 +106,7 @@ void AthRNGSvc::handle( const Incident& incident )
     auto evId = currCtx.eventID().event_number();
     auto run = currCtx.eventID().run_number();
     for(const auto &w :m_wrappers){
-      w.second.first->setSeed(w.first, currSlot, evId, run);
+      w.second->setSeed(w.first, currSlot, evId, run);
     }
   }
 }
@@ -116,7 +115,6 @@ AthRNGSvc::~AthRNGSvc()
 {
   // Clean up the RNGWrappers and HepRandomEngines
   for(auto& wrapperPair : m_wrappers) {
-    delete wrapperPair.second.first;
-    delete wrapperPair.second.second;
+    delete wrapperPair.second;
   }
 }

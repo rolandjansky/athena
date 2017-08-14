@@ -53,15 +53,10 @@ public:
   /// Incident handling method, where we reseed the engine of this slot.
   virtual void handle( const Incident& incident );
 
-  /// Print methods not yet implemented.
-  virtual void print(const std::string& streamName) override final;
-  virtual void print() override final;
-
 private:
 
   /// The structure for storing the RNGWrappers.
-  std::unordered_map<std::string,
-    std::pair<ATHRNG::RNGWrapper*, CLHEP::HepRandomEngine*>> m_wrappers;
+  std::unordered_map<std::string, ATHRNG::RNGWrapper*> m_wrappers;
 
   /// Mutex for protecting access to the wrapper structure.
   std::mutex m_mutex;
