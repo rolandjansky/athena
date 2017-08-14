@@ -1501,5 +1501,5 @@ if cmd=='mctag' and len(args)<12:
     sys.exit(0)
 
 
-print 'ERROR: Illegal command or number of arguments'
+print 'ERROR: Illegal command or number of arguments ({})'.format(' '.join(args))
 sys.exit(1)
