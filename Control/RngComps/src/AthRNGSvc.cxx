@@ -77,7 +77,7 @@ StatusCode AthRNGSvc::finalize()
   return StatusCode::SUCCESS;
 }
 
-ATHRNG::RNGWrapper* AthRNGSvc::GetEngine(const std::string& streamName)
+ATHRNG::RNGWrapper* AthRNGSvc::getEngine(const std::string& streamName)
 {
   if(!m_initialized){
     ATH_MSG_FATAL("RNGService is not initialized yet! " <<
@@ -97,18 +97,6 @@ ATHRNG::RNGWrapper* AthRNGSvc::GetEngine(const std::string& streamName)
   return it->second.first;
 }
 
-void AthRNGSvc::CreateStream(uint64_t seed1, uint64_t seed2,
-                             const std::string& streamName)
-{
-  std::lock_guard<std::mutex> lock(m_mutex);
-  auto it = m_wrappers.find(streamName);
-  if(it != m_wrappers.end()){
-    return;
-  }
-  size_t hash = hashCombine(seed1,seed2);
-  hash = hashCombine(std::hash<std::string>{}(streamName), hash);
-}
-
 void AthRNGSvc::handle( const Incident& incident )
 {
   const auto &currCtx = incident.context();
@@ -122,31 +110,6 @@ void AthRNGSvc::handle( const Incident& incident )
       w.second.first->setSeed(w.first, currSlot, evId, run);
     }
   }
-}
-
-ATHRNG::RNGWrapper* AthRNGSvc::setOnDefinedSeeds(uint64_t /*theSeed*/,
-                                                 const std::string& /*streamName*/)
-{
-  ATH_MSG_ERROR("You should not call AthRNGSvc::setAllOnDefinedSeeds");
-  return nullptr;
-}
-
-ATHRNG::RNGWrapper* AthRNGSvc::setOnDefinedSeeds(uint64_t /*eventNumber*/,
-                                                 uint64_t /*runNumber*/,
-                                                 const std::string& /*streamName*/)
-{
-  ATH_MSG_ERROR("You should not call AthRNGSvc::setAllOnDefinedSeeds");
-  return nullptr;
-}
-///seed all streams we manage, combining theSeed and the stream names
-bool AthRNGSvc::setAllOnDefinedSeeds (uint64_t /*theSeed*/){
-  ATH_MSG_ERROR("You should not call AthRNGSvc::setAllOnDefinedSeeds");
-  return false;
-}
-///seed all streams, combining eventNumber, runNumber and the stream names
-bool AthRNGSvc::setAllOnDefinedSeeds (uint64_t /*eventNumber*/, uint64_t /*runNumber*/){
-  ATH_MSG_ERROR("You should not call AthRNGSvc::setAllOnDefinedSeeds");
-  return false;
 }
 
 AthRNGSvc::~AthRNGSvc()

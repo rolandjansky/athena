@@ -27,27 +27,16 @@ class IAthRNGSvc : virtual public IService
 
 public:
 
-  /// Interface to the CLHEP engine
-  //@{
-  virtual ATHRNG::RNGWrapper* GetEngine(const std::string& streamName)=0;
-  virtual ATHRNG::RNGWrapper* setOnDefinedSeeds(uint64_t theSeed,
-                                                const std::string& streamName)=0;
-  virtual ATHRNG::RNGWrapper* setOnDefinedSeeds(uint64_t eventNumber,
-                                                uint64_t runNumber,
-                                                const std::string& streamName)=0;
-  ///seed all streams we manage, combining theSeed and the stream names
-  virtual bool setAllOnDefinedSeeds (uint64_t theSeed)=0; 
-  ///seed all streams, combining eventNumber, runNumber and the stream names
-  virtual bool setAllOnDefinedSeeds (uint64_t eventNumber, uint64_t runNumber)=0;
-  //@}
+  /// Interface to retrieve the CLHEP engine
+  virtual ATHRNG::RNGWrapper* getEngine(const std::string& streamName) = 0;
 
   /// out-of-line destructor
   virtual ~IAthRNGSvc();
   
   /// Print methods
   //@{
-  virtual void print(const std::string& streamName)=0;
-  virtual void print()=0;
+  virtual void print(const std::string& streamName) = 0;
+  virtual void print() = 0;
   //@}
 
   /// Declare interface to the framework

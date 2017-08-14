@@ -35,23 +35,10 @@ class AthRNGSvc : public extends<AthService, IAthRNGSvc, IIncidentListener>
 {
 
 public:
-  virtual ATHRNG::RNGWrapper* GetEngine(const std::string& streamName) override final;
-  virtual ATHRNG::RNGWrapper* setOnDefinedSeeds(uint64_t theSeed,
-                                                const std::string& streamName) override final;
-  virtual ATHRNG::RNGWrapper* setOnDefinedSeeds(uint64_t eventNumber,
-                                                uint64_t runNumber,
-                                                const std::string& streamName) override final;
-  ///seed all streams we manage, combining theSeed and the stream names
-  virtual bool setAllOnDefinedSeeds (uint64_t theSeed) override final;
-  ///seed all streams, combining eventNumber, runNumber and the stream names
-  virtual bool setAllOnDefinedSeeds (uint64_t eventNumber, uint64_t runNumber) override final;
 
   /// Standard constructor
   AthRNGSvc(const std::string& name, ISvcLocator* svc);
   virtual ~AthRNGSvc();
-  virtual void handle( const Incident& incident );
-  virtual void print(const std::string& streamName) override final;
-  virtual void print() override final;
 
   /// Initialize the service; this is not where the RNGs are constructed.
   StatusCode initialize() override final;
@@ -60,10 +47,17 @@ public:
   /// Nothing currently happens in finalization.
   StatusCode finalize() override final;
 
+  /// IAthRNGSvc method to retrieve the random number wrapper.
+  virtual ATHRNG::RNGWrapper* getEngine(const std::string& streamName) override final;
+
+  /// Incident handling method, where we reseed the engine of this slot.
+  virtual void handle( const Incident& incident );
+
+  /// Print methods not yet implemented.
+  virtual void print(const std::string& streamName) override final;
+  virtual void print() override final;
+
 private:
-  void CreateStream(uint64_t seed1, uint64_t seed2,
-                    const std::string& streamName);
-  size_t hashCombine(size_t h1, size_t h2){ return (h1^(h2+(h1<<6)+(h1>>2)));};
 
   /// The structure for storing the RNGWrappers.
   std::unordered_map<std::string,
