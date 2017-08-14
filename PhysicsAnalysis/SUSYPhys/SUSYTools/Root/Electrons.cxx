@@ -26,6 +26,9 @@
 
 #include "PATCore/TResult.h"
 
+// For getting the beam spot information
+#include "xAODEventInfo/EventInfo.h"
+
 #ifndef XAOD_STANDALONE // For now metadata is Athena-only
 #include "AthAnalysisBaseComps/AthAnalysisHelper.h"
 #endif

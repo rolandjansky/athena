@@ -18,7 +18,8 @@
 #include "JetCPInterfaces/ICPJetUncertaintiesTool.h"
 #include "JetInterface/IJetUpdateJvt.h"
 #include "JetInterface/IJetModifier.h"
-#include "JetMomentTools/JetForwardJvtTool.h"
+#include "JetJvtEfficiency/IJetJvtEfficiency.h"
+//#include "JetMomentTools/JetForwardJvtTool.h"
 
 #include "xAODBTaggingEfficiency/IBTaggingEfficiencyTool.h"
 #include "xAODBTaggingEfficiency/IBTaggingSelectionTool.h"

@@ -11,6 +11,7 @@
 #include "AsgTools/IAsgTool.h"
 
 // EDM include(s):
+// Note that these are type defs, so we must include headers here
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODMuon/Muon.h"
@@ -23,26 +24,37 @@
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODTau/TauJet.h"
 #include "xAODTau/TauJetContainer.h"
-#include "xAODEventInfo/EventInfo.h"
-#include "xAODJet/JetTypes.h"
 #include "xAODMissingET/MissingET.h"
 #include "xAODMissingET/MissingETContainer.h"
-#include "xAODCore/ShallowCopy.h"
-#include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTruth/TruthEvent.h"
-#include "TrigDecisionTool/ChainGroup.h"
+#include "xAODTruth/TruthParticleContainer.h"
+//#include "xAODEventInfo/EventInfo.h"
+//#include "xAODJet/JetTypes.h"
+#include "xAODCore/ShallowCopy.h"
+//#include "TrigDecisionTool/ChainGroup.h"
 
 // Local include(s):
-#include "PATInterfaces/CorrectionCode.h"
-#include "PATInterfaces/ISystematicsTool.h"
+//#include "PATInterfaces/CorrectionCode.h"
+//#include "PATInterfaces/ISystematicsTool.h"
 
-#include "MCTruthClassifier/MCTruthClassifier.h"
+// For the SystInfo struct
+#include "PATInterfaces/SystematicSet.h"
+
+// For the TrigDefs
+#include "TrigDecisionInterface/Conditions.h"
 
 // For string search
 #include "TString.h"
 
 // System includes
 #include <iostream> // For warnings in static functions
+#include <vector>
+#include <string>
+
+// Forward declarations
+namespace Trig {
+  class ChainGroup;
+}
 
 namespace ST {
 

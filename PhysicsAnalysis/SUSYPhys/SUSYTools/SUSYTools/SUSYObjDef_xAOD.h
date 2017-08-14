@@ -17,30 +17,37 @@
 // Framework include(s):
 #include "AsgTools/AsgMetadataTool.h"
 
+// Interface class
 #include "SUSYTools/ISUSYObjDef_xAODTool.h"
 
-///////////////////////// -*- C++ -*- /////////////////////////////
+// Includes for systematics
 #include "PATInterfaces/SystematicCode.h"
 #include "PATInterfaces/SystematicSet.h"
 #include "PATInterfaces/SystematicRegistry.h"
 #include "PATInterfaces/SystematicVariation.h"
 
+// Tool handles
 #include "AsgTools/ToolHandle.h"
 #include <AsgTools/AnaToolHandle.h>
-//#include "AsgTools/SetProperty.h"
+
+// Configuration
 #include "TEnv.h"
 
-#include "AssociationUtils/ToolBox.h"
-#include "AssociationUtils/IOverlapTool.h"
-#include "JetJvtEfficiency/IJetJvtEfficiency.h"
-#include "JetSubStructureUtils/BosonTag.h"
+//#include "AssociationUtils/IOverlapTool.h"
+//#include "JetJvtEfficiency/IJetJvtEfficiency.h"
 
 #include <map>
 #include <set>
 #include <iterator>
 #include <functional>
+#include <string>
+#include <vector>
 
 // Tool interfaces
+// No abstract interface class for this tool
+#include "JetSubStructureUtils/BosonTag.h"
+// Toolbox, which holds the tools
+#include "AssociationUtils/ToolBox.h"
 
 class IJetCalibrationTool;
 class IJERTool;
@@ -76,7 +83,7 @@ namespace CP {
   class IIsolationCloseByCorrectionTool;
   class IIsolationCorrectionTool;
   class IPileupReweightingTool;
-  //  class IJetJvtEfficiency;
+  class IJetJvtEfficiency;
 }
 
 namespace TauAnalysisTools {
@@ -87,16 +94,19 @@ namespace TauAnalysisTools {
   class ITauTruthMatchingTool;
 }
 
-class TauWPDecorator; 
+//class TauWPDecorator; 
+class ITauToolBase;
 
 namespace ORUtils {
-  class IOverlapRemovalTool;
+  class IOverlapTool;
+//  class IOverlapRemovalTool;
 }
 
 namespace TrigConf {
   class ITrigConfigTool;
 }
 namespace Trig {
+  // Need the TrigDecisionTool directly for getChainGroup, features, and GetPreScale
   class TrigDecisionTool;
   class IMatchingTool;
   class FeatureContainer;
@@ -311,9 +321,6 @@ namespace ST {
 
     StatusCode NearbyLeptonCorrections(const xAOD::ElectronContainer *electrons = nullptr, const xAOD::MuonContainer *muons = nullptr) const override final;
 
-// ZM - not implemented?
-//    StatusCode IsoOverlapRemoval(const xAOD::IParticleContainer *parts);
-
     CP::SystematicCode resetSystematics() override final;
 
     const CP::SystematicSet& currentSystematic() const;
@@ -325,13 +332,9 @@ namespace ST {
     bool isPrompt(const xAOD::IParticle* part) const override final;
 
     StatusCode FindSusyHP(int& pdgid1, int& pdgid2) const;
-
     StatusCode FindSusyHP(const xAOD::TruthParticleContainer *truthP, int& pdgid1, int& pdgid2, bool isTruth3=false) const override final;
-
-    static bool FindSusyHardProc(const xAOD::TruthParticleContainer *truthP, int& pdgid1, int& pdgid2, bool isTruth3=false);
-
     StatusCode FindSusyHP(const xAOD::TruthEvent *truthE, int& pdgid1, int& pdgid2) const override final;
-
+    static bool FindSusyHardProc(const xAOD::TruthParticleContainer *truthP, int& pdgid1, int& pdgid2, bool isTruth3=false);
     static bool FindSusyHardProc(const xAOD::TruthEvent *truthE, int& pdgid1, int& pdgid2);
 
     //trigger helpers
@@ -667,7 +670,7 @@ namespace ST {
     asg::AnaToolHandle<TauAnalysisTools::ITauEfficiencyCorrectionsTool> m_tauTrigEffTool3;
     asg::AnaToolHandle<TauAnalysisTools::ITauEfficiencyCorrectionsTool> m_tauTrigEffTool4;
     asg::AnaToolHandle<TauAnalysisTools::ITauOverlappingElectronLLHDecorator> m_tauElORdecorator;
-    asg::AnaToolHandle<TauWPDecorator> m_tauWPdecorator;
+    asg::AnaToolHandle<ITauToolBase> m_tauWPdecorator;
     //
     asg::AnaToolHandle<IBTaggingEfficiencyTool> m_btagEffTool;
     asg::AnaToolHandle<IBTaggingSelectionTool> m_btagSelTool;

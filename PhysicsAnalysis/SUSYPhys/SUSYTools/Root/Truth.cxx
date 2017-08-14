@@ -16,6 +16,9 @@
 //#include "AthContainers/ConstDataVector.h"
 //#include "PATInterfaces/SystematicsUtil.h"
 
+// For using the MCTruthClassifier definitions
+#include "MCTruthClassifier/MCTruthClassifierDefs.h"
+
 #ifndef XAOD_STANDALONE // For now metadata is Athena-only
 #include "AthAnalysisBaseComps/AthAnalysisHelper.h"
 #endif
