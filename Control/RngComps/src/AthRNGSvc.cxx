@@ -120,11 +120,3 @@ AthRNGSvc::~AthRNGSvc()
     delete wrapperPair.second.second;
   }
 }
-
-void AthRNGSvc::print(const std::string& /*streamName*/){
-  ATH_MSG_WARNING("This is not implemented");
-}
-
-void AthRNGSvc::print(){
-  ATH_MSG_WARNING("This is not implemented");
-}

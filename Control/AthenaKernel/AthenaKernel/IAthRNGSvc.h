@@ -32,12 +32,6 @@ public:
 
   /// out-of-line destructor
   virtual ~IAthRNGSvc();
-  
-  /// Print methods
-  //@{
-  virtual void print(const std::string& streamName) = 0;
-  virtual void print() = 0;
-  //@}
 
   /// Declare interface to the framework
   DeclareInterfaceID( IAthRNGSvc, 1, 0 );
