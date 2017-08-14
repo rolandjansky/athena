@@ -193,6 +193,22 @@ def fail(message):
     print 'ERROR:', message
     sys.exit(1)
 
+def dataset_from_run_and_tag(run, tag):
+    ''' Given a run number and tag, check input dataset and work out name. '''
+    fs = DiskUtils.FileSet.from_ds_info(run,
+            project=options.project,
+            stream=options.stream,
+            base=options.eospath)
+    datasets = list(fs
+            .strict_mode()
+            .use_files_from(options.filelist)
+            .matching(options.filter + tag + '.*')
+            .excluding(r'.*\.TMP\.log.*')
+            .only_single_dataset())
+    dataset = os.path.dirname(datasets[0])
+    dsname = '.'.join(os.path.basename(datasets[0]).split('.')[:3])
+    return (dataset, dsname)
+
 
 #
 # Upload any SQLite file to COOL (independent of task, w/o book keeping)
@@ -228,23 +244,13 @@ if cmd == 'upload' and len(cmdargs) == 1:
     if stat: fail("UPLOADING TO COOL FAILED - PLEASE CHECK CAREFULLY!")
     sys.exit(0)
 
-
 #
 # Run beam spot reconstruction jobs
 #
 if cmd=='run' and len(args)==3:
     run = args[1]
     tag = args[2]
-
-    fs = DiskUtils.FileSet.from_ds_info(run,
-            project=options.project,
-            stream=options.stream,
-            base=options.eospath)
-    datasets = list(fs.matching(options.filter + tag + '.*'))
-    if len(datasets) != 1:
-        fail('{:d} datasets found (use full TAG to uniquely identify dataset)'.format(len(datasets)))
-
-    dsname = '.'.join(datasets[0].split('.')[:3])
+    dataset, dsname = dataset_from_run_and_tag(run, tag)
     #os.system('runJobs.py -n0 -c %s %s %s.%s %s' % (options.runjoboptions,dsname,options.runtaskname,tag,'/'.join([c,datasets[0]])))
     #os.system('runJobs.py -n0 -c -p "LumiRange=2" %s %s %s.%s %s' % (options.runjoboptions,dsname,options.runtaskname+'-LR2',tag,'/'.join([c,datasets[0]])))
     os.system('runJobs.py -n0 -c -f \'%s\' -p "LumiRange=5" %s %s %s.%s %s' % (options.filter,options.runjoboptions,dsname,options.runtaskname+'-LR5',tag,'/'.join([c,datasets[0]])))
@@ -261,18 +267,7 @@ if cmd=='runMon' and len(args)==3:
     if not options.beamspottag:
         fail('No beam spot tag specified')
 
-    fs = DiskUtils.FileSet.from_ds_info(run,
-            project=options.project,
-            stream=options.stream,
-            base=options.eospath)
-    datasets = list(fs
-            .strict_mode()
-            .use_files_from(options.filelist)
-            .matching(options.filter + tag + '.*')
-            .excluding(r'.*\.TMP\.log.*')
-            .only_single_dataset())
-    dataset = os.path.dirname(datasets[0])
-    dsname = '.'.join(os.path.basename(datasets[0]).split('.')[:3])
+    dataset, dsname = dataset_from_run_and_tag(run, tag)
 
     # NOTE: The command below may be executed via a cron job, so we need set STAGE_SVCCLASS
     #       explicitly in all cases, since it may not be inherited from the environment.
@@ -1358,15 +1353,7 @@ if cmd=='runBCID' and len(args)==3:
     run = args[1]
     tag = args[2]
 
-    fs = DiskUtils.FileSet.from_ds_info(run,
-            project=options.project,
-            stream=options.stream,
-            base=options.eospath)
-    datasets = list(fs.matching(options.filter + tag + '.*'))
-
-    if len(datasets) != 1:
-        fail('{:d} datasets found (use full TAG to uniquely identify dataset)'.format(len(datasets)))
-    dsname = '.'.join(datasets[0].split('.')[:3])
+    dataset, dsname = dataset_from_run_and_tag(run, tag)
 
     # NOTE: The command below may be executed via a cron job, so we need set STAGE_SVCCLASS
     #       explicitly in all cases, since it may not be inherited from the environment.
