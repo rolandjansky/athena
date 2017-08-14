@@ -46,6 +46,8 @@ def generateChainDefs(chainDict):
     
     if "bBmumuxv3" in chainDict['chainName'] :  # OI this mc 2016 chain was never enabled, and is not needed in future
         thisIsBphysChain = False
+    if 'Zmumu' in chainDict['chainName'] or 'idperf' in chainDict['chainName']  : # keep idperf chains with default muon config
+        thisIsBphysChain = False
     if 'legacyVtx' in chainDict['chainName'] :  # OI Drell-Yan chains are not migrated
         thisIsBphysChain = False
     if 'invm' in chainDict['chainName'] :  # OI Drell-Yan chains are not migrated
@@ -752,11 +754,11 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
         from TrigBphysHypo.TrigL2BMuMuFexConfig import L2BMuMuFex_noId
         from TrigBphysHypo.TrigL2BMuMuHypoConfig import L2BMuMuHypo_Jpsi_noId
         from TrigBphysHypo.TrigEFBMuMuFexConfig import EFBMuMuFex_noId
-        from TrigBphysHypo.TrigEFBMuMuHypoConfig import EFBMuMuHypo_Jpsi
+        from TrigBphysHypo.TrigEFBMuMuHypoConfig import EFBMuMuHypo_Jpsi_noId
         L2Fex  = L2BMuMuFex_noId()
         L2Hypo = L2BMuMuHypo_Jpsi_noId()
         EFFex  = EFBMuMuFex_noId()
-        EFHypo = EFBMuMuHypo_Jpsi()
+        EFHypo = EFBMuMuHypo_Jpsi_noId()
     elif ('bDimu' in topoAlgs) & ('noL2' in topoAlgs):
         from TrigBphysHypo.TrigL2BMuMuFexConfig  import L2BMuMuFex_DiMu_passL2
         from TrigBphysHypo.TrigL2BMuMuHypoConfig import L2BMuMuHypo_DiMu_passL2
