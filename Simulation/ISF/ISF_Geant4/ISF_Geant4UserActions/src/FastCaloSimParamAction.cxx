@@ -352,10 +352,12 @@ namespace G4UA{
         else if (CurrentLogicalVolumeName == "LArMgr::LAr::Barrel::Presampler::Module")
           {
             m_current_calculator = &*m_config.calculator_EMBPS;
+            break;
           }
         else if (CurrentLogicalVolumeName == "LArMgr::LAr::Endcap::Presampler::LiquidArgon")
           {
             m_current_calculator = &*m_config.calculator_EMEPS;
+            break;
           }
         else if (CurrentLogicalVolumeName.find(tilestring)!= std::string::npos)
           {
