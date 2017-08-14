@@ -26,7 +26,6 @@ std::string PixelMainMon :: makeHistname(std::string set, bool ontrk)
 {
    std::string name = set;
    if( ontrk && m_doOnTrack ) name += "_OnTrack";
-   if( ontrk && m_doOnPixelTrack ) name += "_OnPixelTrack";
    return name;
 }
 
@@ -34,7 +33,6 @@ std::string PixelMainMon :: makeHisttitle(std::string set, std::string axis, boo
 {
    std::string name = set;
    if( ontrk && m_doOnTrack ) name += "_OnTrack";
-   if( ontrk && m_doOnPixelTrack ) name += "_OnPixelTrack";
    name = name + m_histTitleExt + axis;
    return name;
 }
