@@ -156,10 +156,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
     // pick the right config file for the JES tool
     std::string JES_config_file("JES_MC16Recommendation_Aug2017.config");
-    if (isData()){
-      // The in-situ correction only works in 20.7 for the moment
-      JES_config_file = "JES_data2016_data2015_Recommendation_Dec2016_rel21.config";
-    }
     if(!m_JMScalib.empty()){ //with JMS calibration (if requested)
       JES_config_file = "JES_data2016_data2015_Recommendation_Dec2016_JMS_rel21.config";
     }
@@ -183,17 +179,11 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     }
 
     // form the string describing the calibration sequence to use
-    std::string calibseq("JetArea_Residual_EtaJES");
-    if (isData()){
-      calibseq = "JetArea_Residual_EtaJES_GSC";
-    }
+    std::string calibseq("JetArea_Residual_EtaJES_GSC");
     if(!m_JMScalib.empty()){
       calibseq += "_JMS";
     }
-    if (isData()) { 
-      calibseq += "_Insitu";
-    }
-    
+
     // finally, PFlow jets need special care
     if (m_jetInputType == xAOD::JetInput::EMPFlow) {
       //Following : https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/ApplyJetCalibration2016#Calibration_of_PFlow_jets_in_20
