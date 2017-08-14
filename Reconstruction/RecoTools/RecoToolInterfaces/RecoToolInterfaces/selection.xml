@@ -6,4 +6,13 @@
   <class name="xAOD::TrackCorrection"/>
   <class name="xAOD::CaloIsolation"/>
   <class name="xAOD::TrackIsolation"/>
+  <class name="xAOD::ICaloCellIsolationTool"/>
+  <class name="Trk::ICaloCellSelector"/>
+  <class name="xAOD::ICaloIsolationDecoratorTool"/>
+  <class name="xAOD::IChargedEFlowIsolationTool"/>
+  <class name="Rec::IMuonCaloEnergyTool"/>
+  <class name="Rec::IParticleCaloCellAssociationTool"/>
+  <class name="Rec::IParticleCaloClusterAssociationTool"/>
+  <class name="Trk::IParticleCaloExtensionTool"/>
 </lcgdict>
+
