@@ -63,6 +63,9 @@ namespace DerivationFramework {
 	std::unique_ptr<std::vector<std::vector<float> > > cellE( new std::vector<std::vector<float>>() );
 	std::unique_ptr<std::vector<std::vector<unsigned int> > > cellID( new std::vector<std::vector<unsigned int>>() );
 	std::unique_ptr<std::vector<std::vector<int> > > cellSampling( new std::vector<std::vector<int>>() );
+	std::unique_ptr<std::vector<std::vector<int> > > cellQuality( new std::vector<std::vector<int>>() );
+	std::unique_ptr<std::vector<std::vector<int> > > cellProvenance( new std::vector<std::vector<int>>() );
+	std::unique_ptr<std::vector<std::vector<int> > > cellGain( new std::vector<std::vector<int>>() );
 	std::vector<float> trackCellEta;
 	std::vector<float> trackCellPhi;
 	std::vector<float> trackCellR;
@@ -79,6 +82,9 @@ namespace DerivationFramework {
 	std::vector<float> trackCellE;
 	std::vector<unsigned int> trackCellID;
 	std::vector<int> trackCellSampling;
+	std::vector<int> trackCellQuality;
+	std::vector<int> trackCellProvenance;
+	std::vector<int> trackCellGain;
         SG::AuxElement::Decorator< std::vector<float> > dec_cellEta( m_sgName+"_CaloCellEta");
         SG::AuxElement::Decorator< std::vector<float> > dec_cellPhi( m_sgName+"_CaloCellPhi");
         SG::AuxElement::Decorator< std::vector<float> > dec_cellR( m_sgName+"_CaloCellR");
@@ -95,6 +101,9 @@ namespace DerivationFramework {
         SG::AuxElement::Decorator< std::vector<float> > dec_cellE( m_sgName+"_CaloCellE");
         SG::AuxElement::Decorator< std::vector<unsigned int> > dec_cellID( m_sgName+"_CaloCellID");
         SG::AuxElement::Decorator< std::vector<int> > dec_cellSampling( m_sgName+"_CaloCellSampling");
+        SG::AuxElement::Decorator< std::vector<int> > dec_cellQuality( m_sgName+"_CaloCellQuality");
+        SG::AuxElement::Decorator< std::vector<int> > dec_cellProvenance( m_sgName+"_CaloCellProvenance");
+        SG::AuxElement::Decorator< std::vector<int> > dec_cellGain( m_sgName+"_CaloCellGain");
 
   	// retrieve track container
   	const xAOD::TrackParticleContainer* tracks = evtStore()->retrieve< const xAOD::TrackParticleContainer >( m_containerName );
@@ -120,6 +129,9 @@ namespace DerivationFramework {
 		trackCellE.clear();
 		trackCellID.clear();
 		trackCellSampling.clear();
+		trackCellQuality.clear();
+		trackCellProvenance.clear();
+		trackCellGain.clear();
 		cellEta->push_back(trackCellEta);
 		cellPhi->push_back(trackCellPhi);
 		cellR->push_back(trackCellR);
@@ -136,6 +148,9 @@ namespace DerivationFramework {
 		cellE->push_back(trackCellE);
 		cellID->push_back(trackCellID);
 		cellSampling->push_back(trackCellSampling);
+		cellQuality->push_back(trackCellQuality);
+		cellProvenance->push_back(trackCellProvenance);
+		cellGain->push_back(trackCellGain);
         	dec_cellEta( **track_itr ) = trackCellEta;
         	dec_cellPhi( **track_itr ) = trackCellPhi;
         	dec_cellR( **track_itr ) = trackCellR;
@@ -152,6 +167,9 @@ namespace DerivationFramework {
         	dec_cellE( **track_itr ) = trackCellE;
         	dec_cellID( **track_itr ) = trackCellID;
         	dec_cellSampling( **track_itr ) = trackCellSampling;
+        	dec_cellQuality( **track_itr ) = trackCellQuality;
+        	dec_cellProvenance( **track_itr ) = trackCellProvenance;
+        	dec_cellGain( **track_itr ) = trackCellGain;
   	} // end of loop over tracks                                 
 
 
@@ -194,6 +212,9 @@ namespace DerivationFramework {
 				trackCellE.clear();
 				trackCellID.clear();
 				trackCellSampling.clear();
+				trackCellQuality.clear();
+				trackCellProvenance.clear();
+				trackCellGain.clear();
           			const xAOD::CaloCluster* cluster = *(assocClusters->caloClusterLinks().at(c));
 				const CaloClusterCellLink* cellLinks = cluster->getCellLinks();
           			if ( !cellLinks ) {
@@ -226,6 +247,9 @@ namespace DerivationFramework {
 						Identifier32 IdOfCell = pCell->ID().get_identifier32();
 						trackCellID.push_back(IdOfCell.get_compact());
 						trackCellSampling.push_back(sampling);
+						trackCellQuality.push_back(pCell->quality());
+						trackCellProvenance.push_back(pCell->provenance());
+						trackCellGain.push_back(pCell->gain());
 					} // if ( caloDDE )
 				} // for cellIter
 			} // for caloClusterLinks
@@ -246,6 +270,9 @@ namespace DerivationFramework {
 		cellE->at(trk->index()) = trackCellE;
 		cellID->at(trk->index()) = trackCellID;
 		cellSampling->at(trk->index()) = trackCellSampling;
+		cellQuality->at(trk->index()) = trackCellQuality;
+		cellProvenance->at(trk->index()) = trackCellProvenance;
+		cellGain->at(trk->index()) = trackCellGain;
                 dec_cellEta( *trk ) = trackCellEta;
                 dec_cellPhi( *trk ) = trackCellPhi;
                 dec_cellR( *trk ) = trackCellR;
@@ -262,6 +289,9 @@ namespace DerivationFramework {
                 dec_cellE( *trk ) = trackCellE;
                 dec_cellID( *trk ) = trackCellID;
                 dec_cellSampling( *trk ) = trackCellSampling;
+                dec_cellQuality( *trk ) = trackCellQuality;
+                dec_cellProvenance( *trk ) = trackCellProvenance;
+                dec_cellGain( *trk ) = trackCellGain;
 	} // for assoc clusters
 
 	CHECK( evtStore()->record( std::move(cellEta), m_sgName+"_CaloCellEta" ));       
@@ -280,6 +310,9 @@ namespace DerivationFramework {
         CHECK( evtStore()->record( std::move(cellE), m_sgName+"_CaloCellE" ));
         CHECK( evtStore()->record( std::move(cellID), m_sgName+"_CaloCellID" ));
         CHECK( evtStore()->record( std::move(cellSampling), m_sgName+"_CaloCellSampling" ));
+        CHECK( evtStore()->record( std::move(cellQuality), m_sgName+"_CaloCellQuality" ));
+        CHECK( evtStore()->record( std::move(cellProvenance), m_sgName+"_CaloCellProvenance" ));
+        CHECK( evtStore()->record( std::move(cellGain), m_sgName+"_CaloCellGain" ));
 
   	return StatusCode::SUCCESS;
   } 
