@@ -77,6 +77,8 @@ AsgElectronLikelihoodTool::AsgElectronLikelihoodTool(std::string myname) :
   declareProperty("CutLikelihoodPileupCorrection4GeV",m_rootTool->CutLikelihoodPileupCorrection4GeV,"Pileup correction for LH discriminant, 4 GeV special bin");
   // do the conversion cut
   declareProperty("doCutConversion",m_rootTool->doCutConversion,"Apply the conversion bit cut");
+  // do the ambiguity cut
+  declareProperty("CutAmbiguity" ,m_rootTool->CutAmbiguity ,"Apply a cut on the ambiguity bit");
   // cut on b-layer
   declareProperty("CutBL",m_rootTool->CutBL,"Cut on b-layer");
   // cut on pixel hits
@@ -202,6 +204,8 @@ StatusCode AsgElectronLikelihoodTool::initialize()
     m_rootTool->CutLikelihoodPileupCorrection4GeV = AsgConfigHelper::HelperDouble("CutLikelihoodPileupCorrection4GeV", env);
     // do the conversion cut
     m_rootTool->doCutConversion = env.GetValue("doCutConversion", false);
+    // do the ambiguity cut
+    m_rootTool->CutAmbiguity  = AsgConfigHelper::HelperInt("CutAmbiguity", env);
     // cut on b-layer
     m_rootTool->CutBL = AsgConfigHelper::HelperInt("CutBL",env);
     // cut on pixel hits
@@ -329,6 +333,7 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg
   float deltaEta=0, deltaPhiRescaled2=0;
   float wstot=0, EoverP=0;
   int convBit(0); // this no longer works
+  uint8_t ambiguityBit(0); 
   double ip(0);
 
   bool allFound = true;
@@ -336,6 +341,15 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg
   // Wstot for use when CutWstotAtHighET vector is filled
   allFound = allFound && eg->showerShapeValue(wstot, xAOD::EgammaParameters::wtots1);
 
+  // get the ambiguity type from the decoration
+  if ( eg->isAvailable<uint8_t>("ambiguityType") ) {
+    static const SG::AuxElement::Accessor<uint8_t> acc("ambiguityType");    
+    ambiguityBit = acc(*eg);
+  } else {
+    allFound = false;
+  }
+
+  
   if(!m_caloOnly) {
       // retrieve associated track
       const xAOD::TrackParticle* t  = eg->trackParticle();    
@@ -368,11 +382,11 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg
   // for now don't cache. 
   double likelihood = calculate(eg, ip); 
 
-  ATH_MSG_VERBOSE ( Form("PassVars: LH=%8.5f, eta=%8.5f, et=%8.5f, nSiHitsPlusDeadSensors=%i, nHitsPlusPixDeadSensors=%i, passBLayerRequirement=%i, convBit=%i, d0=%8.5f, deltaEta=%8.5f, deltaphires=%5.8f, wstot=%8.5f, EoverP=%8.5f, ip=%8.5f",
+  ATH_MSG_VERBOSE ( Form("PassVars: LH=%8.5f, eta=%8.5f, et=%8.5f, nSiHitsPlusDeadSensors=%i, nHitsPlusPixDeadSensors=%i, passBLayerRequirement=%i, convBit=%i, ambiguityBit=%i, d0=%8.5f, deltaEta=%8.5f, deltaphires=%5.8f, wstot=%8.5f, EoverP=%8.5f, ip=%8.5f",
                          likelihood, eta, et,
                          nSiHitsPlusDeadSensors, nPixHitsPlusDeadSensors, 
                          passBLayerRequirement,
-                         convBit, d0, deltaEta, deltaPhiRescaled2, 
+                         convBit, ambiguityBit, d0, deltaEta, deltaPhiRescaled2, 
                          wstot, EoverP, ip ) );
 
 
@@ -388,6 +402,7 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg
                              nPixHitsPlusDeadSensors,
                              passBLayerRequirement,
                              convBit,
+                             ambiguityBit,
                              d0,
                              deltaEta,
                              deltaPhiRescaled2,
@@ -436,6 +451,7 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Egamma* eg, 
   uint8_t nPixHitsPlusDeadSensors(0);
   bool passBLayerRequirement(false); 
   int convBit(0); // this no longer works
+  uint8_t ambiguityBit(0);
 
   // Get the pileup or centrality information
   double ip(0);
@@ -452,11 +468,11 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Egamma* eg, 
   // for now don't cache. 
   double likelihood = calculate(eg, ip); 
 
-  ATH_MSG_VERBOSE ( Form("PassVars: LH=%8.5f, eta=%8.5f, et=%8.5f, nSiHitsPlusDeadSensors=%i, nPixHitsPlusDeadSensors=%i, passBLayerRequirement=%i, convBit=%i, ip=%8.5f",
+  ATH_MSG_VERBOSE ( Form("PassVars: LH=%8.5f, eta=%8.5f, et=%8.5f, nSiHitsPlusDeadSensors=%i, nPixHitsPlusDeadSensors=%i, passBLayerRequirement=%i, convBit=%i, ambiguityBit=%i, ip=%8.5f",
                          likelihood, eta, et,
                          nSiHitsPlusDeadSensors, nPixHitsPlusDeadSensors, 
                          passBLayerRequirement,
-                         convBit, ip ) );
+                         convBit, ambiguityBit, ip ) );
 
   double deltaEta=0,deltaPhiRescaled2=0,d0=0;
   float wstot=0, EoverP=0;
@@ -478,6 +494,7 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Egamma* eg, 
                              nPixHitsPlusDeadSensors,
                              passBLayerRequirement,
                              convBit,
+                             ambiguityBit,
                              d0,
                              deltaEta,
                              deltaPhiRescaled2,
