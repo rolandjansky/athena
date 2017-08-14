@@ -453,13 +453,6 @@ namespace G4UA{
               G4ThreeVector subpoint1=position1*(1-fraction1) + position2*fraction1;
               G4ThreeVector subpoint2=position1*(1-fraction2) + position2*fraction2;
 
-              //G4StepPoint *startpoint = 0;
-              //startpoint = const_cast<G4StepPoint*>(aStep->GetPreStepPoint());
-              //startpoint->SetPosition(subpoint1);
-              //G4StepPoint *endpoint = 0;
-              //endpoint = const_cast<G4StepPoint*>(aStep->GetPostStepPoint());
-              //endpoint->SetPosition(subpoint2);
-
               G4StepPoint *startpoint = new G4StepPoint(*(aStep->GetPreStepPoint()));
               G4StepPoint *endpoint = new G4StepPoint(*(aStep->GetPostStepPoint()));
               startpoint->SetPosition(subpoint1);
@@ -467,9 +460,6 @@ namespace G4UA{
 
               //std::cout <<"ZH substep: "<<i<<" Pos: "<<subpoint1<<" "<<subpoint2<<std::endl;
               G4Step* newstep = new G4Step(*aStep);
-              //newstep = const_cast<G4Step*>(aStep);
-              if(newstep->GetPreStepPoint()) delete newstep->GetPreStepPoint();
-              if(newstep->GetPostStepPoint()) delete newstep->GetPostStepPoint();
               newstep->SetPreStepPoint(startpoint);
               newstep->SetPostStepPoint(endpoint);
               newstep->SetStepLength( (subpoint1-subpoint2).mag());
