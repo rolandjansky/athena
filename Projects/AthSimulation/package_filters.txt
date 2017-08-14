@@ -327,6 +327,7 @@
 + TileCalorimeter/TileG4/TileAncillary/DeadMaterial
 + TileCalorimeter/TileG4/TileAncillary/MinBiasScintillator
 + TileCalorimeter/TileG4/TileAncillary/TileG4DetDescr
++ TileCalorimeter/TileG4/TileG4Interfaces
 + TileCalorimeter/TileG4/TileGeoG4Calib
 + TileCalorimeter/TileG4/TileGeoG4SD
 + TileCalorimeter/TileGeoModel
