@@ -774,7 +774,7 @@ StatusCode ISF_HitAnalysis::execute()
   
  //Get the FastCaloSim step info collection from store
  const ISF_FCS_Parametrization::FCS_StepInfoCollection* eventStepsES;
- StatusCode sc = evtStore()->retrieve(eventStepsES, "ZHMergedEventSteps");
+ StatusCode sc = evtStore()->retrieve(eventStepsES, "MergedEventSteps");
  if (sc.isFailure())
  {
   ATH_MSG_WARNING( "No FastCaloSim steps read from StoreGate?" );
