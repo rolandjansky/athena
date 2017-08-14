@@ -3,24 +3,17 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 # Front-end script to run JobRunner jobs
 
-__author__  = 'Juerg Beringer'
+__authors__  = ['Juerg Beringer', 'Carl Suster']
 __version__ = 'runJobs.py atlas/athena'
 __usage__   = """%prog [options] JOBOPTIONTEMPLATE DATASET TASK
 
-Templates:  - InDetBeamSpotExample/ESDToDPDTemplate.py
-            - InDetBeamSpotExample/BSToDPDTemplate.py
-            - InDetBeamSpotExample/VertexTemplate.py
-            - InDetBeamSpotExample/TrackChi2Template.py
-            - InDetBeamSpotExample/MonitoringTemplate.py
-            - your own template file
+Templates: - InDetBeamSpotExample/VertexTemplate.py
+           - InDetBeamSpotExample/*Template.py
+           - your own template file
 
-Examples:   - runJobs InDetBeamSpotExample/ESDToDPDTemplate.py 105039 DPD 105039/ESD
-            - runJobs -d InDetBeamSpotExample/VertexTemplate.py 105039 VTX DPD
-            - runJobs -d -q all.64bit.q -r PDSFJobRunner InDetBeamSpotExample/TrackChi2Template.py 105039 TRK DPD
-            - runJobs -o dpd.root -g user09.YourName -p 'DetDescrVersion="ATLAS-GEO-02-01-00"' \\
-                      InDetBeamSpotExample/ESDToDPDTemplate.py 105039 DPD \\
-                      mc08.105039.J0_pythia_jetjetNU.recon.ESD.e372_s490_r603/"""
-
+See the comment field of jobs (e.g. MON.DB_BEAMSPOT jobs) in the beam spot
+summary webpage for real usage examples.
+"""
 
 import sys
 import glob
@@ -144,23 +137,23 @@ if __name__ == '__main__':
             help='input data is from Monte-Carlo instead of data (automatically chooses between COMP200 and OFLP200 / CONDBR2 conditions DBs)')
     parser.add_option('-j', '--maxjobs', dest='maxjobs', type='int', default=0,
             help='max number of jobs (default: 0 ie no maximum)')
-    parser.add_option('', '--files-per-job', dest='nfiles', type='int', default=1,
+    parser.add_option('', '--files-per-job', dest='nfiles', type='int', default=1, metavar='N',
             help='number of files per job (default: 1, set to 0 for single job over all files)')
     parser.add_option('-e', '--maxevents', dest='evtmax', type='int', default=-1,
             help='max number of events per job')
-    parser.add_option('', '--lbperjob', dest='lbperjob', type='int', default=0,
+    parser.add_option('', '--lbperjob', dest='lbperjob', type='int', default=0, metavar='N',
             help='number of luminosity blocks per job (default: 0 - no bunching)')
-    parser.add_option('-o', '--outputfilelist', dest='outputfilelist', default='',
+    parser.add_option('-o', '--outputfilelist', dest='outputfilelist', default='', metavar='FILES'
             help='list of desired output files (default: "dpd.root,nt.root,monitoring.root,beamspot.db"; must be specified explicitly for grid)')
     parser.add_option('-k', '--taskdb', dest='taskdb', default='',
             help='TaskManager database (default: from TASKDB or sqlite_file:taskdata.db; set to string None to avoid using a task database)')
-    parser.add_option('-l', '--logmail', dest='users', default='',
+    parser.add_option('-l', '--logmail', dest='users', default='', metavar='USERS',
             help='send log mail to specified users (default: no mail)')
-    parser.add_option('-z', '--postprocsteps', dest='postprocsteps', default='JobPostProcessing',
+    parser.add_option('-z', '--postprocsteps', dest='postprocsteps', default='JobPostProcessing', metavar='STEPS',
             help='Task-level postprocessing steps (Default: JobPostProcessing)')
     parser.add_option('-t', '--test', dest='testonly', action='store_true', default=False,
             help='show only options and input files')
-    parser.add_option('-v', '--verbosity', dest='outputlevel', type='int', default=4,
+    parser.add_option('-v', '--verbosity', dest='outputlevel', type='int', default=4, metavar='LEVEL',
             help='output level (default:4, where 1=VERBOSE, 2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL)')
     parser.add_option('-p', '--params', dest='params', default='',
             help='job option parameters to pass to job option template')
@@ -169,17 +162,18 @@ if __name__ == '__main__':
 
     # Additional optional files requiring special treatment (other parameters
     # should be passed to the job option template via "-p params")
-    parser.add_option('-a', '--alignment-file', dest='alignmentfile', default='',
+    parser.add_option('-a', '--alignment-file', dest='alignmentfile', default='', metavar='FILE',
             help='alignment file (default: none)')
-    parser.add_option('-b', '--beamspot-file', dest='beamspotfile', default='',
+    parser.add_option('-b', '--beamspot-file', dest='beamspotfile', default='', metavar='FILE',
             help='beam spot SQLite file (default: none)')
 
     execopt = OptionGroup(parser, 'Execution Options')
-    execopt.add_option('', '--submit', dest='submit', default='lsf', choices=['grid', 'lsf', 'shell', 'bg', 'pdsf', 'simple'],
-            help='submission type (default: lsf)')
-    execopt.add_option('', '--grid-user', dest='grid_user', default=None,
+    execopt.add_option('', '--submit', dest='submit', default='lsf', metavar='TYPE',
+            choices=['grid', 'lsf', 'shell', 'bg', 'pdsf', 'simple'],
+            help='submission type (default: lsf, choices: grid,lsf,shell,bg,pdsf,simple)')
+    execopt.add_option('', '--grid-user', dest='grid_user', default=None, metavar='USER',
             help='grid username (default: $USER)')
-    execopt.add_option('', '--grid-site', dest='gridsite', default='AUTO',
+    execopt.add_option('', '--grid-site', dest='gridsite', default='AUTO', metavar='SITE',
             help='site name where jobs are sent (default: AUTO)')
     execopt.add_option('', '--lsf-submit', dest='lsf_submit', default=False, action='store_true',
             help='submit on the LSF batch system')
