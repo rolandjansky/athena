@@ -25,9 +25,12 @@
 // numbers obtained using clid.db
 namespace InDet {
 typedef Trk::PrepRawDataContainer< TRT_DriftCircleCollection > TRT_DriftCircleContainer;
+typedef EventContainers::IdentifiableCache< TRT_DriftCircleCollection > TRT_DriftCircleContainerCache;
 }
 
 CLASS_DEF(InDet::TRT_DriftCircleContainer,1128766825,1)
 CONTAINER_IS_IDENTCONT(InDet::TRT_DriftCircleContainer)
+
+CLASS_DEF( InDet::TRT_DriftCircleContainerCache , 1226029651 , 1 )
 
 #endif // TRKPREPRAWDATA_PREPRAWDATACLASS_DEF_H

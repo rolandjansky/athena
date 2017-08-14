@@ -51,9 +51,9 @@ namespace InDet{
     virtual ~TRT_RIO_Maker()  ;
     /**    @name Usual algorithm methods */
     //@{
-    StatusCode initialize ()  ;
-    StatusCode execute    ()  ;
-    StatusCode finalize   ()  ;
+    StatusCode initialize ()  override;
+    StatusCode execute    ()  override;
+    StatusCode finalize   ()  override;
     //@}
   private:
   
@@ -73,6 +73,7 @@ namespace InDet{
     bool m_roiSeeded;                                //!< detector manager name in StoreGate
     SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;
     ServiceHandle<IRegSelSvc>     m_regionSelector;     //!< region selector service
+    SG::UpdateHandleKey<InDet::TRT_DriftCircleContainerCache> m_rioContainerCacheKey;
 
   };
 }//end of namespace

@@ -20,14 +20,18 @@
 #include "TrkPrepRawData/PrepRawDataContainer.h"
 #include "InDetPrepRawData/PixelClusterCollection.h"
 #include "AthLinks/DeclareIndexingPolicy.h"
+#include "EventContainers/IdentifiableCache.h"
 
 // Containers
 // numbers obtained using clid.db
 namespace InDet {
-typedef Trk::PrepRawDataContainer< PixelClusterCollection > PixelClusterContainer; 
+typedef Trk::PrepRawDataContainer< PixelClusterCollection > PixelClusterContainer;
+typedef EventContainers::IdentifiableCache< PixelClusterCollection > PixelClusterContainerCache;  
 }
 
 CLASS_DEF(InDet::PixelClusterContainer,2560,1)
 CONTAINER_IS_IDENTCONT(InDet::PixelClusterContainer)
+
+CLASS_DEF( InDet::PixelClusterContainerCache , 1224316430 , 1 )
 
 #endif // TRKPREPRAWDATA_PREPRAWDATACLASS_DEF_H
