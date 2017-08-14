@@ -234,18 +234,17 @@ def PRWEntries(fileName):
 
     for key in fname.GetListOfKeys():
         if key.GetName()=='PileupReweighting':
-            rundir = 'PileupReweighting'
+            rundir = fname.Get('PileupReweighting')
             break
         # Not PRW...
 
     if rundir is None: return None
 
-    mydir = fname.Get('PileupReweighting')
     total = 0
-    for key in mydir.GetListOfKeys():
+    for key in rundir.GetListOfKeys():
         if 'pileup' in key.GetName():
             msg.debug('Working on file '+fileName+' histo '+key.GetName())
-            total += mydir.Get(key.GetName()).GetEntries()
+            total += rundir.Get(key.GetName()).GetEntries()
         # Was not one of our histograms
     return total
 
