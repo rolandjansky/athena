@@ -79,7 +79,6 @@ bool CLIDRegistry::addEntry(const std::type_info& ti,
                             const char* typeName, 
 			    const Athena::PackageInfo& pkgInfo,
 			    const std::string& typeInfoName) {
-  //more drudgery
   static_assert (CLIDdetail::MINCLID <= CLID && CLID <= CLIDdetail::MAXCLID,
                  "CLID out of CLIDRegistry range");
 
