@@ -1,3 +1,4 @@
+# $Id: CMakeLists.txt 769074 2016-08-22 10:04:26Z krasznaa $
 ################################################################################
 # Package: TruthRivetTools
 ################################################################################
@@ -8,9 +9,9 @@ atlas_subdir( TruthRivetTools )
 # Declare the dependencies of the package:
 atlas_depends_on_subdirs(
    PUBLIC
-   Control/AthToolSupport/AsgTools 
+	Control/AthToolSupport/AsgTools 
    PRIVATE
-   GaudiKernel )
+	GaudiKernel )
 
 # External dependencies:
 find_package( HepMC )
@@ -24,11 +25,12 @@ atlas_disable_as_needed()
 
 # Component(s) in the package:
 atlas_add_library( TruthRivetToolsLib
-   TruthRivetTools/*.h Root/*.cxx
+	Root/*.cxx TruthRivetTools/*.h
+   SHARED
    PUBLIC_HEADERS TruthRivetTools
    INCLUDE_DIRS ${HEPMC_INCLUDE_DIRS} ${RIVET_INCLUDE_DIRS} ${YODA_INCLUDE_DIRS}
    ${FASTJET_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${HEPMC_LIBRARIES} ${RIVET_LIBRARIES} ${YODA_LIBRARIES}
+	LINK_LIBRARIES ${HEPMC_LIBRARIES} ${RIVET_LIBRARIES} ${YODA_LIBRARIES}
    ${FASTJET_LIBRARIES} ${ROOT_LIBRARIES} AsgTools )
 
 atlas_add_component( TruthRivetTools
