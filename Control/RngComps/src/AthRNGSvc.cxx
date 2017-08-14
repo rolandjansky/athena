@@ -51,10 +51,7 @@ StatusCode AthRNGSvc::initialize()
     ATH_MSG_WARNING ("Unable to retrieve the IncidentSvc");
   }
   else {
-    //incSvc->addListener(this, IncidentType::BeginRun);
     incSvc->addListener(this, IncidentType::BeginEvent);
-    //incSvc->addListener(this, IncidentType::EndRun);
-    //incSvc->addListener(this, IncidentType::EndEvent);
   }
 
   return StatusCode::SUCCESS;

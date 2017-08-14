@@ -45,25 +45,40 @@ public:
   virtual bool setAllOnDefinedSeeds (uint64_t theSeed) override final;
   ///seed all streams, combining eventNumber, runNumber and the stream names
   virtual bool setAllOnDefinedSeeds (uint64_t eventNumber, uint64_t runNumber) override final;
+
+  /// Standard constructor
   AthRNGSvc(const std::string& name, ISvcLocator* svc);
   virtual ~AthRNGSvc();
   virtual void handle( const Incident& incident );
   virtual void print(const std::string& streamName) override final;
   virtual void print() override final;
+
+  /// Initialize the service; this is not where the RNGs are constructed.
   StatusCode initialize() override final;
+  /// Gaudi "start" state is where we construct the RNGs.
   StatusCode start() override final;
+  /// Nothing currently happens in finalization.
   StatusCode finalize() override final;
 
 private:
   void CreateStream(uint64_t seed1, uint64_t seed2,
                     const std::string& streamName);
   size_t hashCombine(size_t h1, size_t h2){ return (h1^(h2+(h1<<6)+(h1>>2)));};
+
+  /// The structure for storing the RNGWrappers.
   std::unordered_map<std::string,
     std::pair<ATHRNG::RNGWrapper*, CLHEP::HepRandomEngine*>> m_wrappers;
+
+  /// Mutex for protecting access to the wrapper structure.
   std::mutex m_mutex;
+
+  /// @name configurable properties
+  /// @{
   std::string m_RNGType;
-  std::size_t m_numSlots;
   std::vector<std::string> m_seeds;
+  /// @}
+
+  std::size_t m_numSlots;
   bool m_initialized;
   typedef std::function<CLHEP::HepRandomEngine*(void)> factoryFunc;
   factoryFunc m_fact;
