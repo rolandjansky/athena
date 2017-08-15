@@ -998,7 +998,7 @@ void averageCluster(cluster &clu) {
     // always count IBL as layer0 and BLayer as layer1
     int layer = first->getLayer();
     bool isIBLmodule  = hitOnIBLmodule(*first);
-    bool isIBL_Planar = false; //Keisuke 20170712
+    bool isIBL_Planar = false;
     bool isPixelmodule = !isIBLmodule;
     if (FTKSetup::getFTKSetup().getIBLMode()==0)
         layer++; 
@@ -1025,7 +1025,12 @@ void averageCluster(cluster &clu) {
         pixYScaleFactor = ftk::clustering::yScaleFactorIbl; ///<multiply by 10 to count in unit of 25um
         pixXScaleFactor = ftk::clustering::xScaleFactorIbl;
         etaModule = first->getEtaModule()-8;
-	isIBL_Planar = (first->getEtaModule() >= -6 && first->getEtaModule() <= 5 ? true : false); //Keisuke 20170712
+	isIBL_Planar = (first->getEtaModule() >= -6 && first->getEtaModule() <= 5 ? true : false);
+	if(!isIBL_Planar && IBL3D_REALISTIC){ // 3D
+	  sensorThickness = 230*ftk::micrometer; // 3D
+	  moduleActiveLength = 80*250; // 3D
+	  numberOfEtaPixelsInModule = 80; // 3D
+	}
     }
     bool hasGanged = false;
 
