@@ -13,7 +13,7 @@ from DerivationFrameworkFlavourTag.HbbCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkInDet.InDetCommon import *
-# from DerivationFrameworkCore.WeightMetadata import *
+from DerivationFrameworkCore.WeightMetadata import *
 from DerivationFrameworkHiggs.TruthCategories import *
 import AthenaCommon.SystemOfUnits as Units
 
@@ -21,7 +21,7 @@ if DerivationFrameworkIsMonteCarlo:
   from DerivationFrameworkTau.TauTruthCommon import * 
 
 # Add sumOfWeights metadata for LHE3 multiweights =======
-# from DerivationFrameworkCore.LHE3WeightMetadata import *
+from DerivationFrameworkCore.LHE3WeightMetadata import *
 
 #==================================================================== 
 # SET UP STREAM 

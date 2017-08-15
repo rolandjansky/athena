@@ -12,11 +12,11 @@ from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkInDet.InDetCommon import *
-# from DerivationFrameworkCore.WeightMetadata import *
+from DerivationFrameworkCore.WeightMetadata import *
 import AthenaCommon.SystemOfUnits as Units
 
 # Add sumOfWeights metadata for LHE3 multiweights =======
-# from DerivationFrameworkCore.LHE3WeightMetadata import *
+from DerivationFrameworkCore.LHE3WeightMetadata import *
 
 #====================================================================
 # SET UP STREAM
