@@ -18,6 +18,7 @@
 #include "JetCPInterfaces/ICPJetUncertaintiesTool.h"
 #include "JetInterface/IJetUpdateJvt.h"
 #include "JetInterface/IJetModifier.h"
+#include "JetInterface/ISingleJetModifier.h"
 #include "JetJvtEfficiency/IJetJvtEfficiency.h"
 
 #include "xAODBTaggingEfficiency/IBTaggingEfficiencyTool.h"
@@ -167,14 +168,21 @@ namespace ST {
       const static SG::AuxElement::Decorator<int> dec_wtagged("wtagged");
       const static SG::AuxElement::Decorator<int> dec_ztagged("ztagged");
       if ( doLargeRdecorations ){
-#ifdef XAOD_STANDALONE 
-        dec_wtagged(*jet) = m_WTaggerTool->result(*jet);
-        dec_ztagged(*jet) = m_ZTaggerTool->result(*jet);
-#else
-        ATH_MSG_DEBUG("Boson tagging only available in RootCore at the moment!");
-        dec_wtagged(*jet) = -1;
-        dec_ztagged(*jet) = -1;
-#endif
+        int is_w_tagged=-1;
+        if (m_WTaggerTool->modifyJet(*jet)!=0){
+          ATH_MSG_WARNING("Failed to W-tag jet");
+        } else {
+          is_w_tagged = jet->getAttribute<int>("BosonTag");
+        }
+        dec_wtagged(*jet) = is_w_tagged;
+
+        int is_z_tagged=-1;
+        if (m_ZTaggerTool->modifyJet(*jet)!=0){
+          ATH_MSG_WARNING("Failed to Z-tag jet");
+        } else {
+          is_z_tagged = jet->getAttribute<int>("BosonTag");
+        }
+        dec_ztagged(*jet) = is_z_tagged;
       }
       else{
         dec_wtagged(*jet) = -1;

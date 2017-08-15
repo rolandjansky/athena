@@ -30,6 +30,7 @@
 #include "JetCPInterfaces/ICPJetUncertaintiesTool.h"
 #include "JetInterface/IJetUpdateJvt.h"
 #include "JetInterface/IJetModifier.h"
+#include "JetInterface/ISingleJetModifier.h"
 #include "JetJvtEfficiency/IJetJvtEfficiency.h"
 
 #include "AsgAnalysisInterfaces/IEfficiencyScaleFactorTool.h"
@@ -236,8 +237,8 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_jetFwdJvtTool(""),
     m_jetJvtEfficiencyTool(""),
     //
-    m_WTaggerTool(0),
-    m_ZTaggerTool(0),
+    m_WTaggerTool(""),
+    m_ZTaggerTool(""),
     //
     m_muonSelectionTool(""),
     m_muonSelectionHighPtTool(""),
@@ -2246,15 +2247,6 @@ SUSYObjDef_xAOD::~SUSYObjDef_xAOD() {
   // so that they don't get re-used if we set up another SUSYTools
   // instance, e.g. when processing two datasets in one EventLoop
   // job
-
-  if(m_WTaggerTool){
-    delete m_WTaggerTool;
-    m_WTaggerTool=0;
-  }
-  if(m_ZTaggerTool){
-    delete m_ZTaggerTool;
-    m_ZTaggerTool=0;
-  }
   if (!m_trigDecTool.empty()){
     if (asg::ToolStore::contains<Trig::TrigDecisionTool>("ToolSvc.TrigDecisionTool") ){
       // Ignore both of these so that we are safe if others have cleaned up

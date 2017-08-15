@@ -249,8 +249,15 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
   ///////////////////////////////////////////////////////////////////////////////////////////
   // Initialise Boson taggers     
-  m_WTaggerTool = new JetSubStructureUtils::BosonTag(m_WtagWP, "smooth", PathResolverFindCalibFile("JetSubStructureUtils/config_13TeV_Wtagging_MC15_Prerecommendations_20150809.dat"), false, false);
-  m_ZTaggerTool = new JetSubStructureUtils::BosonTag(m_ZtagWP, "smooth", PathResolverFindCalibFile("JetSubStructureUtils/config_13TeV_Ztagging_MC15_Prerecommendations_20150809.dat"), false, false);
+  m_WTaggerTool.setTypeAndName("BosonTagTool/WTagger");
+  ATH_CHECK( m_WTaggerTool.setProperty("WorkingPoint",m_WtagWP) );
+  ATH_CHECK( m_WTaggerTool.setProperty("RecommendationsFile",PathResolverFindCalibFile("JetSubStructureUtils/config_13TeV_Wtagging_MC15_Prerecommendations_20150809.dat") ));
+  ATH_CHECK( m_WTaggerTool.retrieve() );
+
+  m_ZTaggerTool.setTypeAndName("BosonTagTool/ZTagger");
+  ATH_CHECK( m_ZTaggerTool.setProperty("WorkingPoint",m_ZtagWP) );
+  ATH_CHECK( m_ZTaggerTool.setProperty("RecommendationsFile",PathResolverFindCalibFile("JetSubStructureUtils/config_13TeV_Ztagging_MC15_Prerecommendations_20150809.dat") ));
+  ATH_CHECK( m_ZTaggerTool.retrieve() );
 
   ///////////////////////////////////////////////////////////////////////////////////////////
   // Initialise jet resolution tools

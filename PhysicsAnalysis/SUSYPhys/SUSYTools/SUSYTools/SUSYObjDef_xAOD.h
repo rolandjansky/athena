@@ -41,8 +41,6 @@
 #include <vector>
 
 // Tool interfaces
-// No abstract interface class for this tool
-#include "JetSubStructureUtils/BosonTag.h"
 // Toolbox, which holds the tools
 #include "AssociationUtils/ToolBox.h"
 
@@ -53,6 +51,7 @@ class ICPJetUncertaintiesTool;
 class IJetSelector;
 class IJetUpdateJvt;
 class IJetModifier;
+class ISingleJetModifier;
 
 class IAsgElectronLikelihoodTool;
 class IAsgElectronEfficiencyCorrectionTool;
@@ -606,9 +605,8 @@ namespace ST {
     
     std::string m_WtagWP;
     std::string m_ZtagWP;
-
-    JetSubStructureUtils::BosonTag* m_WTaggerTool;
-    JetSubStructureUtils::BosonTag* m_ZTaggerTool;
+    asg::AnaToolHandle<ISingleJetModifier> m_WTaggerTool;
+    asg::AnaToolHandle<ISingleJetModifier> m_ZTaggerTool;
 
     //
     asg::AnaToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;
