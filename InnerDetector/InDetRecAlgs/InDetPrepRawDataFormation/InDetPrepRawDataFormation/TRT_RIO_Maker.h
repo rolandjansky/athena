@@ -62,7 +62,7 @@ namespace InDet{
     TRT_RIO_Maker(const TRT_RIO_Maker&) = delete;
     TRT_RIO_Maker &operator=(const TRT_RIO_Maker&) = delete;
   
-    const TRT_ID* pTRTHelper;
+    const TRT_ID* m_pTRTHelper;
     SG::ReadHandleKey<TRT_RDO_Container> m_rdoContainerKey;
     ToolHandle< ITRT_DriftCircleTool > m_driftcircle_tool;
     SG::WriteHandleKey<InDet::TRT_DriftCircleContainer> m_rioContainerKey;

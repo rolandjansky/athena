@@ -28,7 +28,7 @@ namespace InDet {
   TRT_RIO_Maker::TRT_RIO_Maker
   (const std::string& name,ISvcLocator* pSvcLocator) : 
   AthAlgorithm(name,pSvcLocator),
-  pTRTHelper(nullptr),
+  m_pTRTHelper(nullptr),
   m_rdoContainerKey("TRT_RDOs"),
   m_driftcircle_tool("InDet::TRT_DriftCircleTool", this), //made private
   m_rioContainerKey("TRT_DriftCircles"),
@@ -56,7 +56,7 @@ namespace InDet {
   StatusCode TRT_RIO_Maker::initialize() {
     // Get TRT_DriftCircle tool
     ATH_CHECK(m_driftcircle_tool.retrieve());
-    ATH_CHECK(detStore()->retrieve(pTRTHelper,"TRT_ID"));
+    ATH_CHECK(detStore()->retrieve(m_pTRTHelper,"TRT_ID"));
 
     ATH_CHECK( m_rdoContainerKey.initialize() );
     ATH_CHECK( m_rioContainerKey.initialize() );
@@ -77,7 +77,7 @@ namespace InDet {
 
     SG::WriteHandle<InDet::TRT_DriftCircleContainer> rioContainer(m_rioContainerKey);
     if(m_rioContainerCacheKey.key().empty()){
-      rioContainer = std::make_unique<InDet::TRT_DriftCircleContainer>(pTRTHelper->straw_layer_hash_max());
+      rioContainer = std::make_unique<InDet::TRT_DriftCircleContainer>(m_pTRTHelper->straw_layer_hash_max());
     }else{
       SG::UpdateHandle<TRT_DriftCircleContainerCache> clusterContainercache(m_rioContainerCacheKey);
       ATH_CHECK( rioContainer.record (std::make_unique<TRT_DriftCircleContainer>(clusterContainercache.ptr()) ));
