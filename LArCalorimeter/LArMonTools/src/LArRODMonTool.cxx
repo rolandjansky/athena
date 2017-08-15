@@ -181,7 +181,7 @@ LArRODMonTool::initialize() {
 
   StatusCode sc = detStore()->retrieve(m_LArOnlineIDHelper, "LArOnlineID");
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Could not get LArOnlineIDHelper" << endmsg;
+    ATH_MSG_FATAL( "Could not get LArOnlineIDHelper" );
     return sc;
   }
 
@@ -191,41 +191,41 @@ LArRODMonTool::initialize() {
 //  if (m_doDspTestDump) {
     sc = detStore()->regHandle(m_dd_ofc,m_keyOFC);
     if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::FATAL) << "Cannot register DataHandle for OFC object with key " << m_keyOFC << endmsg; 
+      ATH_MSG_FATAL( "Cannot register DataHandle for OFC object with key " << m_keyOFC ); 
       return sc;
     }
 
     sc = detStore()->regHandle(m_dd_shape,m_keyShape);
     if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::FATAL) << "Cannot register DataHandle for Shape object with key " << m_keyShape << endmsg; 
+      ATH_MSG_FATAL( "Cannot register DataHandle for Shape object with key " << m_keyShape ); 
       return sc;
     }
 
     sc = detStore()->regHandle(m_dd_HVScaleCorr,"LArHVScaleCorr");
     if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::FATAL) << "Cannot register DataHandle for HVScaleCorr object with key LArHVScaleCorr" << endmsg; 
+      ATH_MSG_FATAL( "Cannot register DataHandle for HVScaleCorr object with key LArHVScaleCorr" ); 
       return sc;
     }
     // ADC2MeV Tool
     sc = m_adc2mevtool.retrieve();
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Unable to find tool for LArADC2MeV" << endmsg;
+      ATH_MSG_ERROR( "Unable to find tool for LArADC2MeV" );
       return StatusCode::FAILURE;
     }
 
     sc = m_calo_noise_tool.retrieve();
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Unable to find calo noise tool" << endmsg;
+      ATH_MSG_ERROR( "Unable to find calo noise tool" );
       return StatusCode::FAILURE;
     }
     sc = m_cable_service_tool.retrieve();
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Unable to find cabling service tool" << endmsg;
+      ATH_MSG_ERROR( "Unable to find cabling service tool" );
       return StatusCode::FAILURE;
     }
     sc = detStore()->retrieve(m_calo_description_mgr);
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Unable to find CeloDetDescrManager " << endmsg;
+      ATH_MSG_ERROR( "Unable to find CeloDetDescrManager " );
       return StatusCode::FAILURE;
     }
 //  }
@@ -233,14 +233,14 @@ LArRODMonTool::initialize() {
 //  if (m_skipNullPed || m_doDspTestDump) {
     sc=detStore()->retrieve(m_larpedestal,m_larpedestalkey);
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Cannot register DataHandle for Pedestal object with key " << m_larpedestalkey << endmsg;
+      ATH_MSG_ERROR( "Cannot register DataHandle for Pedestal object with key " << m_larpedestalkey );
       return StatusCode::FAILURE;
     }
 //  }
   if (m_skipKnownProblematicChannels) { 
     sc=m_badChannelMask.retrieve();
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Could not retrieve BadChannelMask" << m_badChannelMask<< endmsg;
+      ATH_MSG_ERROR( "Could not retrieve BadChannelMask" << m_badChannelMask);
       return StatusCode::FAILURE;
     }
   
@@ -626,7 +626,7 @@ LArRODMonTool::bookHistograms()
     //  }
 
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Bookhistograms failed" << endmsg;
+    ATH_MSG_ERROR( "Bookhistograms failed" );
   }
 
   return sc;
@@ -638,7 +638,7 @@ bool LArRODMonTool::FebStatus_Check() {
   const LArFebHeaderContainer* febCont=NULL;
   StatusCode sc = evtStore()->retrieve(febCont);
   if (sc.isFailure() || !febCont) {
-    msg(MSG::WARNING) << "No LArFEB container found in TDS" << endmsg; 
+    ATH_MSG_WARNING( "No LArFEB container found in TDS" ); 
     return false;
   }
   LArFebHeaderContainer::const_iterator itFEB = febCont->begin(); 
@@ -668,7 +668,7 @@ StatusCode LArRODMonTool::fillHistograms() {
 
   const xAOD::EventInfo* thisEventInfo;
   if (evtStore()->retrieve(thisEventInfo).isFailure()) {
-    msg(MSG::ERROR) << "No EventInfo object found! Can't read run number!" << endmsg;
+    ATH_MSG_ERROR( "No EventInfo object found! Can't read run number!" );
     return StatusCode::FAILURE;
   }
 
@@ -679,12 +679,12 @@ StatusCode LArRODMonTool::fillHistograms() {
 
   if ( thisEventInfo->isEventFlagBitSet(xAOD::EventInfo::LAr,0) ) {
     isEventFlaggedByLArNoisyROAlg = true;
-    msg(MSG::DEBUG) << " !!! Noisy event found from LArNoisyROAlg !!!" << endmsg;
+    ATH_MSG_DEBUG( " !!! Noisy event found from LArNoisyROAlg !!!" );
   }
 
   if ( thisEventInfo->isEventFlagBitSet(xAOD::EventInfo::LAr,3) ) {
     isEventFlaggedByLArNoisyROAlgInTimeW = true;
-    msg(MSG::DEBUG) << " !!! Noisy event found by LArNoisyROAlg in Time window of 500ms!!!" << endmsg;
+    ATH_MSG_DEBUG( " !!! Noisy event found by LArNoisyROAlg in Time window of 500ms!!!" );
   }
   
   // Noise bursts cleaning (LArNoisyRO_Std or TimeWindowVeto) added by B.Trocme - 19/7/12
@@ -738,7 +738,7 @@ StatusCode LArRODMonTool::fillHistograms() {
   const LArRawChannelContainer* rawColl_fromDigits;
   StatusCode sc = evtStore()->retrieve(rawColl_fromDigits, m_channelKey_fromDigits);
   if(sc.isFailure()) {
-    msg(MSG::WARNING) << "Can\'t retrieve LArRawChannelContainer with key " << m_channelKey_fromDigits <<endmsg;
+    ATH_MSG_WARNING( "Can\'t retrieve LArRawChannelContainer with key " << m_channelKey_fromDigits );
     return StatusCode::FAILURE;
   }
 
@@ -746,7 +746,7 @@ StatusCode LArRODMonTool::fillHistograms() {
   const LArRawChannelContainer* rawColl_fromBytestream;
   sc = evtStore()->retrieve(rawColl_fromBytestream, m_channelKey_fromBytestream);
   if(sc.isFailure()) {
-    msg(MSG::WARNING) << "Can\'t retrieve LArRawChannelContainer with key " << m_channelKey_fromBytestream <<endmsg;
+    ATH_MSG_WARNING( "Can\'t retrieve LArRawChannelContainer with key " << m_channelKey_fromBytestream );
     return StatusCode::FAILURE;
   }
 
@@ -755,7 +755,7 @@ StatusCode LArRODMonTool::fillHistograms() {
 //  if (m_dumpDigits) {
     sc = evtStore()->retrieve(pLArDigitContainer, m_LArDigitContainerKey);
     if (sc.isFailure()) {
-      msg(MSG::WARNING) << "Can't retrieve LArDigitContainer with key " << m_LArDigitContainerKey <<". Turn off digit dump." <<  endmsg;
+      ATH_MSG_WARNING( "Can't retrieve LArDigitContainer with key " << m_LArDigitContainerKey <<". Turn off digit dump." );
       closeDumpfiles();
       m_dumpDigits=false;
       m_doDspTestDump=false;
@@ -787,7 +787,7 @@ StatusCode LArRODMonTool::fillHistograms() {
   LArRawChannelContainer::const_iterator rcBSIt_e=rawColl_fromBytestream->end();
 
   //Loop over indices in LArRawChannelContainer built offline (the small one)
-  msg(MSG::DEBUG) << "Entering the LArRawChannel loop." << endmsg;
+  ATH_MSG_DEBUG( "Entering the LArRawChannel loop." );
 
   for (;rcDigIt!=rcDigIt_e;++rcDigIt) {
     const HWIdentifier idDig=rcDigIt->hardwareID();
@@ -810,11 +810,11 @@ StatusCode LArRODMonTool::fillHistograms() {
     LArRawChannelContainer::const_iterator currIt=rcBSIt; //Remember current position in container
     for (;rcBSIt!=rcBSIt_e && rcBSIt->hardwareID() != idDig; ++rcBSIt);
     if (rcBSIt==rcBSIt_e) {
-      msg(MSG::WARNING) << "LArRawChannelContainer not in the expected order. Change of LArByteStream format?" << endmsg;
+      ATH_MSG_WARNING( "LArRawChannelContainer not in the expected order. Change of LArByteStream format?" );
       //Wrap-around
       for (rcBSIt=rawColl_fromBytestream->begin();rcBSIt!=currIt && rcBSIt->hardwareID() != idDig; ++rcBSIt);
       if (rcBSIt==currIt) {
-	msg(MSG::ERROR) << "Channel " << m_LArOnlineIDHelper->channel_name(idDig) << " not found." << endmsg;
+	ATH_MSG_ERROR( "Channel " << m_LArOnlineIDHelper->channel_name(idDig) << " not found." );
 	return StatusCode::FAILURE;
       }
     }
@@ -826,7 +826,7 @@ StatusCode LArRODMonTool::fillHistograms() {
       const unsigned digContSize=pLArDigitContainer->size();
       for(;index<digContSize && pLArDigitContainer->at(index)->hardwareID()!=idDig;++index);
       if (index==digContSize) {
-	msg(MSG::ERROR) << "Can't find LArDigit corresponding to channel " << m_LArOnlineIDHelper->channel_name(idDig) << ". Turn off digit dump" << endmsg;
+	ATH_MSG_ERROR( "Can't find LArDigit corresponding to channel " << m_LArOnlineIDHelper->channel_name(idDig) << ". Turn off digit dump" );
 	closeDumpfiles();
 	m_dumpDigits=false;
 	m_doDspTestDump=false;
@@ -848,19 +848,19 @@ StatusCode LArRODMonTool::fillHistograms() {
 
     if ((maxSamples-minSamples) > m_adc_th || m_adc_th <= 0) compareChannels(idDig,(*rcDigIt),(*rcBSIt),dig).ignore();
     else {
-      if (dig) msg(MSG::DEBUG) << "Samples : "<< maxSamples << " " << minSamples << endmsg;
+      if (dig) ATH_MSG_DEBUG( "Samples : "<< maxSamples << " " << minSamples );
     }      
 
   }//end loop over rawColl_fromDigits
-  msg(MSG::DEBUG) << "End of rawChannels loop" << endmsg;
+  ATH_MSG_DEBUG( "End of rawChannels loop" );
 
   if(m_IsOnline && m_last_lb < m_curr_lb && (m_curr_lb - m_last_lb) % m_history_granularity == m_history_granularity -1 ) { // if new LB subtract the old for Out_[E,Q,T]_FT_vs_SLOT 
-    msg(MSG::INFO) << " Last LB: "<<m_last_lb<<" curr. LB: "<<m_curr_lb<<" subtracting histos"<<endmsg;
+    ATH_MSG_INFO( " Last LB: "<<m_last_lb<<" curr. LB: "<<m_curr_lb<<" subtracting histos");
     // subtract all previously not done bins....
     int hbin = (m_curr_lb % m_history_size) / m_history_granularity;
     for(int i=0; i<=hbin; ++i) {
       if(!m_hdone[i]) {
-        msg(MSG::INFO) << " Going to subtract and reset the: "<< i << " bin of shadow histo"<<endmsg;
+        ATH_MSG_INFO( " Going to subtract and reset the: "<< i << " bin of shadow histo");
         for(unsigned l=0; l<m_histos.size(); ++l) {// go through all histo groups
            m_histos[l].m_hOut_E_FT_vs_SLOT->Add(m_histos[l].m_hOut_E_FT_vs_SLOT_shadow[i], -1.);
            m_histos[l].m_hOut_E_FT_vs_SLOT_shadow[i]->Reset();
@@ -899,18 +899,18 @@ StatusCode LArRODMonTool::fillHistograms() {
 
 
   if (msgLvl(MSG::VERBOSE)) {
-    msg(MSG::VERBOSE) << "*Number of errors in Energy Computation : " << endmsg;
-    msg(MSG::VERBOSE) << "*     Low Gain : " << MSG::dec << allEC.errors_E[2] << " / " << m_count_gain[2] << endmsg;
-    msg(MSG::VERBOSE) << "*     Medium Gain : " << MSG::dec << allEC.errors_E[1] << " / " << m_count_gain[1] << endmsg;
-    msg(MSG::VERBOSE) << "*     High Gain : " << MSG::dec << allEC.errors_E[0] << " / " << m_count_gain[0] << endmsg;
-    msg(MSG::VERBOSE) << "*Number of errors in Time Computation : " << endmsg;
-    msg(MSG::VERBOSE) << "*     Low Gain : " << MSG::dec << allEC.errors_T[2] << " / " << m_count_gain[2] << endmsg;
-    msg(MSG::VERBOSE) << "*     Medium Gain : " << MSG::dec << allEC.errors_T[1] <<  " / " << m_count_gain[1] << endmsg;
-    msg(MSG::VERBOSE) << "*     High Gain : " << MSG::dec << allEC.errors_T[0] << " / " << m_count_gain[0] <<  endmsg;
-    msg(MSG::VERBOSE) << "*Number of errors in Quality Computation : " << " / " << m_count_gain[2] << endmsg;
-    msg(MSG::VERBOSE) << "*     Low Gain : " << MSG::dec << allEC.errors_Q[2] << " / " << m_count_gain[2] << endmsg;
-    msg(MSG::VERBOSE) << "*     Medium Gain : " << MSG::dec << allEC.errors_Q[1] << " / " << m_count_gain[1] << endmsg;
-    msg(MSG::VERBOSE) << "*     High Gain : " << MSG::dec << allEC.errors_Q[0] << " / " << m_count_gain[0] << endmsg;
+    ATH_MSG_VERBOSE( "*Number of errors in Energy Computation : " );
+    ATH_MSG_VERBOSE( "*     Low Gain : " << MSG::dec << allEC.errors_E[2] << " / " << m_count_gain[2] );
+    ATH_MSG_VERBOSE( "*     Medium Gain : " << MSG::dec << allEC.errors_E[1] << " / " << m_count_gain[1] );
+    ATH_MSG_VERBOSE( "*     High Gain : " << MSG::dec << allEC.errors_E[0] << " / " << m_count_gain[0] );
+    ATH_MSG_VERBOSE( "*Number of errors in Time Computation : " );
+    ATH_MSG_VERBOSE( "*     Low Gain : " << MSG::dec << allEC.errors_T[2] << " / " << m_count_gain[2] );
+    ATH_MSG_VERBOSE( "*     Medium Gain : " << MSG::dec << allEC.errors_T[1] <<  " / " << m_count_gain[1] );
+    ATH_MSG_VERBOSE( "*     High Gain : " << MSG::dec << allEC.errors_T[0] << " / " << m_count_gain[0] );
+    ATH_MSG_VERBOSE( "*Number of errors in Quality Computation : " << " / " << m_count_gain[2] );
+    ATH_MSG_VERBOSE( "*     Low Gain : " << MSG::dec << allEC.errors_Q[2] << " / " << m_count_gain[2] );
+    ATH_MSG_VERBOSE( "*     Medium Gain : " << MSG::dec << allEC.errors_Q[1] << " / " << m_count_gain[1] );
+    ATH_MSG_VERBOSE( "*     High Gain : " << MSG::dec << allEC.errors_Q[0] << " / " << m_count_gain[0] );
   }// end if verbose
   
 
@@ -1067,7 +1067,7 @@ void LArRODMonTool::closeDumpfiles() {
 }
 
 StatusCode LArRODMonTool::compareChannels(const HWIdentifier chid,const LArRawChannel& rcDig, const LArRawChannel& rcBS, const LArDigit* dig) {
-  msg(MSG::DEBUG) << " I am entering compareChannels method" << endmsg;
+  ATH_MSG_DEBUG( " I am entering compareChannels method" );
   const int slot_fD = m_LArOnlineIDHelper->slot(chid);
   const  int feedthrough_fD = m_LArOnlineIDHelper->feedthrough(chid);
   const float timeOffline = rcDig.time()/m_unit_offline - m_timeOffset*m_BC;
@@ -1080,7 +1080,7 @@ StatusCode LArRODMonTool::compareChannels(const HWIdentifier chid,const LArRawCh
   const float abs_en_fB=fabs(en_fB);
 
   if (fabs(timeOffline) > m_peakTime_cut*1000.){
-    msg(MSG::DEBUG) << " timeOffline too large " << timeOffline << endmsg;
+    ATH_MSG_DEBUG( " timeOffline too large " << timeOffline );
     return StatusCode::SUCCESS;
   }
 // Set the cuts corresponding to the range
@@ -1209,62 +1209,67 @@ StatusCode LArRODMonTool::compareChannels(const HWIdentifier chid,const LArRawCh
       if(m_IsOnline && ndump<max_dump) {
          const int channel=m_LArOnlineIDHelper->channel(chid);
          const HWIdentifier febid=m_LArOnlineIDHelper->feb_Id(chid);
-         msg(MSG::INFO) << "Channel: " << channel << " of FEB " << febid << endmsg;
+         ATH_MSG_INFO( "Channel: " << channel << " of FEB " << febid );
          //if(fabs(DiffE) > DECut && hvscale == 1.) { // only for channels without HV corrections
          if(fabs(DiffE) > DECut ) { 
          // absolute cut on energy 1.MeV
          //if(fabs(DiffE) > 1.) {
-             msg(MSG::INFO) << "DSP Energy Error : " << m_LArOnlineIDHelper->channel_name(chid) << endmsg;
-             msg(MSG::INFO)	<< "   Eonl = " << en_fB << " , Eoff = " << rcDig.energy()
-	     		        << " , Eoff - Eonl = " << rcDig.energy() - en_fB << endmsg;
-             msg(MSG::INFO)	<< "   Qonl = " << q_fB << " , Qoff = " << rcDig.quality()
-	     		        << " (Qoff - Qnl)/sqrt(Qoff) = " << (rcDig.quality() - q_fB)/TMath::Sqrt(rcDig.quality())  << endmsg;
+             ATH_MSG_INFO( "DSP Energy Error : " << m_LArOnlineIDHelper->channel_name(chid) );
+             ATH_MSG_INFO( "   Eonl = " << en_fB << " , Eoff = " << rcDig.energy()
+	     		        << " , Eoff - Eonl = " << rcDig.energy() - en_fB );
+             ATH_MSG_INFO( "   Qonl = " << q_fB << " , Qoff = " << rcDig.quality()
+	     		        << " (Qoff - Qnl)/sqrt(Qoff) = " << (rcDig.quality() - q_fB)/TMath::Sqrt(rcDig.quality())  );
          }
          if(keepQ && (fabs(DiffQ) > DQCut)) {
-             msg(MSG::INFO) << "DSP Quality Error : " << m_LArOnlineIDHelper->channel_name(chid) << endmsg;
-             msg(MSG::INFO)	<< "   Qonl = " << q_fB << " , Qoff = " << rcDig.quality()
-	     		        << " (Qoff - Qnl)/sqrt(Qoff) = " << (rcDig.quality() - q_fB)/TMath::Sqrt(rcDig.quality())  << endmsg;
-             msg(MSG::INFO)	<< "   Eonl = " << en_fB << " , Eoff = " << rcDig.energy()
-	     		        << " , Eoff - Eonl = " << rcDig.energy() - en_fB << endmsg;
+             ATH_MSG_INFO( "DSP Quality Error : " << m_LArOnlineIDHelper->channel_name(chid) );
+             ATH_MSG_INFO( "   Qonl = " << q_fB << " , Qoff = " << rcDig.quality()
+	     		        << " (Qoff - Qnl)/sqrt(Qoff) = " << (rcDig.quality() - q_fB)/TMath::Sqrt(rcDig.quality())  );
+             ATH_MSG_INFO( "   Eonl = " << en_fB << " , Eoff = " << rcDig.energy()
+	     		        << " , Eoff - Eonl = " << rcDig.energy() - en_fB );
          }
-         msg(MSG::INFO) << " Tauonl = " << rcBS.time() << " , Tauoff = " << rcDig.time() << endmsg;
+         ATH_MSG_INFO( " Tauonl = " << rcBS.time() << " , Tauoff = " << rcDig.time() );
          const std::vector<short>& samples=dig->samples();
-         msg(MSG::INFO) << "Digits : ";
-         for (unsigned int k = 0; k<samples.size(); k++) {msg(MSG::INFO) << samples.at(k) << " ";}
-         msg(MSG::INFO) << endmsg;
+         std::ostringstream os; 
+         os << "Digits : ";
+         for (unsigned int k = 0; k<samples.size(); k++) {os << samples.at(k) << " ";}
+         ATH_MSG_INFO( os.str() );
          ILArOFC::OFCRef_t this_OFC_a_test = m_dd_ofc->OFC_a(chid,rcDig.gain());
-         msg(MSG::INFO) << "OFCa : ";
-         for (unsigned int k = 0; k<this_OFC_a_test.size(); ++k) {msg(MSG::INFO) << this_OFC_a_test.at(k) << " ";}
-         msg(MSG::INFO) << endmsg;
+         os.clear(); os.seekp(0);
+         os << "OFCa : ";
+         for (unsigned int k = 0; k<this_OFC_a_test.size(); ++k) {os << this_OFC_a_test.at(k) << " ";}
+         ATH_MSG_INFO( os.str() );
          ILArOFC::OFCRef_t this_OFC_b_test = m_dd_ofc->OFC_b(chid,rcDig.gain());
-         msg(MSG::INFO) << "OFCb : ";
-         for (unsigned int k = 0; k<this_OFC_b_test.size(); ++k) {msg(MSG::INFO) << this_OFC_b_test.at(k) << " ";}
-         msg(MSG::INFO) << endmsg;
+         os.clear(); os.seekp(0);
+         os << "OFCb : ";
+         for (unsigned int k = 0; k<this_OFC_b_test.size(); ++k) {os << this_OFC_b_test.at(k) << " ";}
+         ATH_MSG_INFO( os.str() );
          ILArShape::ShapeRef_t this_Shape_test = m_dd_shape->Shape(chid,rcDig.gain());
-         msg(MSG::INFO) << "Shape : ";
-         for (unsigned int k = 0; k<this_Shape_test.size(); ++k) {msg(MSG::INFO) << this_Shape_test.at(k) << " ";}
-         msg(MSG::INFO) << endmsg;
+         os.clear(); os.seekp(0);
+         os << "Shape : ";
+         for (unsigned int k = 0; k<this_Shape_test.size(); ++k) {os << this_Shape_test.at(k) << " ";}
+         ATH_MSG_INFO( os.str() );
          ILArShape::ShapeRef_t this_ShapeDer_test = m_dd_shape->ShapeDer(chid,rcDig.gain());
-         msg(MSG::INFO) << "ShapeDer : ";
-         for (unsigned int k = 0; k<this_ShapeDer_test.size(); ++k) {msg(MSG::INFO) << this_ShapeDer_test.at(k) << " ";}
-         msg(MSG::INFO) << endmsg;
+         os.clear(); os.seekp(0);
+         os << "ShapeDer : ";
+         for (unsigned int k = 0; k<this_ShapeDer_test.size(); ++k) {os << this_ShapeDer_test.at(k) << " ";}
+         ATH_MSG_INFO( os.str() );
          const std::vector<float>& ramp=m_adc2mevtool->ADC2MEV(chid,rcDig.gain());
          const float escale = ramp[1];
          float ramp0 = ramp[0];
          if (q_gain == 0) ramp0 = 0.; // no ramp intercepts in HG
          const float ped = m_larpedestal->pedestal(chid,rcDig.gain());
-         msg(MSG::INFO) << "Escale: "<<escale<<" intercept: "<<ramp0<<" pedestal: "<<ped<<" gain: "<<rcDig.gain() <<endmsg;
+         ATH_MSG_INFO( "Escale: "<<escale<<" intercept: "<<ramp0<<" pedestal: "<<ped<<" gain: "<<rcDig.gain() );
          const Identifier cellid=m_cable_service_tool->cnvToIdentifier(chid);
          CaloDetDescrElement* cellDDE = m_calo_description_mgr->get_element(cellid); 
          const float noise=m_calo_noise_tool->totalNoiseRMS(cellDDE,rcDig.gain(),20.);
-         msg(MSG::INFO) << "Noise for mu=20: "<<noise<<endmsg;
-         msg(MSG::INFO) << "HVScaleCorr: "<<hvscale<<endmsg;
+         ATH_MSG_INFO( "Noise for mu=20: "<<noise);
+         ATH_MSG_INFO( "HVScaleCorr: "<<hvscale);
          double emon=0.;
 	 const unsigned nOFCSamp=std::min(samples.size(),this_OFC_a_test.size());
          for (unsigned k=0; k<nOFCSamp; ++k) emon += (samples.at(k)-ped)*this_OFC_a_test.at(k);
          emon *= escale;
          emon += ramp0;
-         msg(MSG::INFO) << "intercept + Escale*Sum[(sample-ped)*OFCa] "<<emon<<endmsg;
+         ATH_MSG_INFO( "intercept + Escale*Sum[(sample-ped)*OFCa] "<<emon);
        ++ndump;
       } // DE cut
     } // dumper
@@ -1343,9 +1348,9 @@ StatusCode LArRODMonTool::compareChannels(const HWIdentifier chid,const LArRawCh
 
   if (m_printEnergyErrors && msgLvl(MSG::DEBUG)) {
     if (fabs(rcDig.energy() - en_fB) > DECut) {
-      msg(MSG::DEBUG) << "DSP Energy Error : " << m_LArOnlineIDHelper->channel_name(chid) << endmsg;
-      msg(MSG::DEBUG)	<< "   Eonl = " << en_fB << " , Eoff = " << rcDig.energy()
-			<< " , Eoff - Eonl = " << rcDig.energy() - en_fB << endmsg;
+      ATH_MSG_DEBUG( "DSP Energy Error : " << m_LArOnlineIDHelper->channel_name(chid) );
+      ATH_MSG_DEBUG( "   Eonl = " << en_fB << " , Eoff = " << rcDig.energy()
+			<< " , Eoff - Eonl = " << rcDig.energy() - en_fB );
     }
   }
  
@@ -1382,7 +1387,7 @@ StatusCode LArRODMonTool::compareChannels(const HWIdentifier chid,const LArRawCh
       m_counter++;
     }//end if E,t or Q cut passed
   }//end if dig
-  msg(MSG::DEBUG) << " I am leaving compareChannels method" << endmsg;
+  ATH_MSG_DEBUG( " I am leaving compareChannels method" );
   return StatusCode::SUCCESS;
 }
 
