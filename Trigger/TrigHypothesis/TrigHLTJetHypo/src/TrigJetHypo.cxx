@@ -6,15 +6,10 @@
 #include "TrigJetHypo.h"
 
 TrigJetHypo::TrigJetHypo( const std::string& name, 
-				      ISvcLocator* pSvcLocator ) : 
+                          ISvcLocator* pSvcLocator ) : 
   ::AthReentrantAlgorithm( name, pSvcLocator ),
-  m_hypoTools(this),
-  m_jetsKey("Jets"),
-  m_decisionsKey("JetHypoDecisions") {
-
+  m_hypoTools(this){
   declareProperty("HypoTools", m_hypoTools);
-  declareProperty("Jets", m_jetsKey);
-  declareProperty("Decisions", m_decisionsKey); 
 }
 
 TrigJetHypo::~TrigJetHypo(){

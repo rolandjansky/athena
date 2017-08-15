@@ -1,5 +1,14 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
+  This initial version of TrigJetHypo is not yet production code.
+  In particular, it can read in a jet collection at given (default or
+  configured) store address, whereas different chains may require
+  different jet collections (constructed with different jet reco paramters).
+
+  Either there will need to be more than one instance of TrigJetRec,
+  or an association between chain name and collection name will ned tobe set
+  up.
 */
 #ifndef TRIGHLTJETHYPO_TRIGJETHYPO_H
 #define TRIGHLTJETHYPO_TRIGJETHYPO_H
@@ -34,10 +43,21 @@ class TrigJetHypo
  private: 
 
   ToolHandleArray<ITrigHLTJetHypoTool> m_hypoTools;
-  SG::ReadHandleKey<xAOD::JetContainer> m_jetsKey;
-  SG::WriteHandleKey<DecisionContainer> m_decisionsKey;
- 
-}; 
+
+  SG::ReadHandleKey<xAOD::JetContainer> m_jetsKey{
+    this, 
+      "JetCollection",  // name of python instance attribute 
+      "JetCollection",  // default store key name 
+      "jet container name in store" // doc
+      };
+
+  SG::WriteHandleKey<DecisionContainer> m_decisionsKey{
+    this,
+      "JetHypoDecisions", // name of python instance attribute
+      "JetHypoDecisions", // default store key name 
+      "name of jet hypo decisions object in store" // doc
+      };
+};
 
 
-#endif //> !TRIGEGAMMAHYPO_TRIGL2CALOHYPOALG_H
+#endif
