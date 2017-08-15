@@ -253,7 +253,16 @@ svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection=False
 
 from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_FastAlgo
 algo=T2CaloEgamma_FastAlgo("testFastAlgo")
-algo.RoIs="EMRoIs"
 algo.OutputLevel=VERBOSE
 #TopHLTSeq += algo
-topSequence += algo
+
+if ( viewTest ):
+  algo.RoIs="EMViewRoIs"
+  allViewAlgorithms += algo
+  svcMgr.ViewAlgPool.TopAlg += [ "testFastAlgo" ]
+  topSequence.viewMaker.AlgorithmNameSequence += [ "testFastAlgo" ]
+else:
+  algo.RoIs="EMRoIs"
+  topSequence += algo
+
+include ("RecExCond/AllDet_detDescr.py")
