@@ -46,7 +46,11 @@ def TOPQTriggerChains(TriggerFilter='allTriggers'):
 # MAIN SETUP FUNCTION
 #============================
 def setup(TOPQname, TOPQThinningSvc, ToolSvc):
+  from AthenaCommon.GlobalFlags import globalflags
+
   thinningTools=[]
+
+  DFisMC = (globalflags.DataSource()=='geant4')
 
   #========================
   # Track Particle Thinning !!! BUGGY (yes, that's a technical term)...CURRENTLY NOT USING !!!
@@ -54,7 +58,7 @@ def setup(TOPQname, TOPQThinningSvc, ToolSvc):
   # PhysicsAnalysis/DerivationFramework/DerivationFrameworkInDet/trunk/src/TrackParticleThinning.cxx
   thinning_expression = "(InDetTrackParticles.pt > 0.5*GeV) && (InDetTrackParticles.numberOfPixelHits > 0) && (InDetTrackParticles.numberOfSCTHits > 5) && (abs(DFCommonInDetTrackZ0AtPV) < 1.5)"
   from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-  TOPQTPThinningTool = DerivationFramework__TrackParticleThinning(  
+  TOPQTPThinningTool = DerivationFramework__TrackParticleThinning(
                          name                    = TOPQname + "TPThinningTool",
                          ThinningService         = TOPQThinningSvc,
                          SelectionString         = thinning_expression,
@@ -64,18 +68,27 @@ def setup(TOPQname, TOPQThinningSvc, ToolSvc):
   #ToolSvc += TOPQTPThinningTool
   #thinningTools.append(TOPQTPThinningTool)
   #print TOPQname+".py", TOPQname+"TPThinningTool: ", TOPQTPThinningTool
-  
+
   #============================
   # Jet Track Particle Thinning
   #============================
+
+  # On MC we need to use a lower calibrated jet pT cut because a systematic
+  # variation might just fluctuate above threshold.
+  if DFisMC:
+    track_particle_thinning_jetpt_cut =  "(AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 15*GeV)"
+  else:
+    track_particle_thinning_jetpt_cut =  "(AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 20*GeV)"
+
+
   # PhysicsAnalysis/DerivationFramework/DerivationFrameworkInDet/trunk/src/JetTrackParticleThinning.cxx
   from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
   TOPQJetTPThinningTool = DerivationFramework__JetTrackParticleThinning(
                             name                    = TOPQname + "JetTPThinningTool",
                             ThinningService         = TOPQThinningSvc,
                             JetKey                  = "AntiKt4EMTopoJets",
-                            InDetTrackParticlesKey  = "InDetTrackParticles",      
-                            SelectionString         = "(AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 20*GeV)",
+                            InDetTrackParticlesKey  = "InDetTrackParticles",
+                            SelectionString         = track_particle_thinning_jetpt_cut,
                             ApplyAnd                = False)
 
   ToolSvc += TOPQJetTPThinningTool
@@ -87,8 +100,8 @@ def setup(TOPQname, TOPQThinningSvc, ToolSvc):
                             name                    = TOPQname + "SV1TrackThinning",
                             ThinningService         = TOPQThinningSvc,
                             JetKey                  = "AntiKt4EMTopoJets",
-                            InDetTrackParticlesKey  = "InDetTrackParticles",      
-                            SelectionString         = "(AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 20*GeV)",
+                            InDetTrackParticlesKey  = "InDetTrackParticles",
+                            SelectionString         = track_particle_thinning_jetpt_cut,
                             ApplyAnd                = False)
 
   ToolSvc += TOPQSV1ThinningTool
@@ -234,7 +247,7 @@ def setup(TOPQname, TOPQThinningSvc, ToolSvc):
   thinningTools.append(TOPQTauTPThinningTool)
   print TOPQname+".py", TOPQname+"TauTPThinningTool: ", TOPQTauTPThinningTool
 
-#  #============================== 
+#  #==============================
 #  # Large-R jet thinning
 #  #==============================
 #
@@ -260,7 +273,7 @@ def setup(TOPQname, TOPQThinningSvc, ToolSvc):
 #    thinningTools.append(TOPQLargeRJetThinning)
 #    print TOPQname+".py", TOPQname+largeRjetColl+"Thinning: ", TOPQLargeRJetThinning
 
-  #============================== 
+  #==============================
   # Photon thinning
   #==============================
 
@@ -314,8 +327,8 @@ def setup(TOPQname, TOPQThinningSvc, ToolSvc):
                               PreserveDescendants        = False,  # keep descendants of retained particles?
                               PreserveAncestors          = True,   # keep ancestors of retained particles?
                               SimBarcodeOffset           = 200000, # barcode offset for simulation particles
-                              WritettHFHadrons           = True)   # keep tt+HF hadrons         
-                              
+                              WritettHFHadrons           = True)   # keep tt+HF hadrons
+
     ToolSvc += TOPQTruthThinningTool
     thinningTools.append(TOPQTruthThinningTool)
     print TOPQname+".py", TOPQname+"TruthThinningTool: ", TOPQTruthThinningTool
@@ -328,7 +341,7 @@ def setup(TOPQname, TOPQThinningSvc, ToolSvc):
     TOPQPhotonThinning = DerivationFramework__GenericTruthThinning(
                            name                    = TOPQname + "PhotonThinning",
                            ThinningService         = TOPQThinningSvc,
-                           ParticlesKey            = "TruthPhotons", 
+                           ParticlesKey            = "TruthPhotons",
                            ParticleSelectionString = "(TruthPhotons.classifierParticleOrigin != 42) || (TruthPhotons.pt > 20.0*GeV)")
 
     ToolSvc += TOPQPhotonThinning
@@ -343,12 +356,12 @@ def setup(TOPQname, TOPQThinningSvc, ToolSvc):
     #TOPQGluonThinning = DerivationFramework__GenericTruthThinning(
     #                      name                    = TOPQname + "GluonThinning",
     #                      ThinningService         = TOPQThinningSvc,
-    #                      ParticlesKey            = "TruthParticles", 
+    #                      ParticlesKey            = "TruthParticles",
     #                      ParticleSelectionString = "(TruthParticles.pdgId  != 21)")
 
     #ToolSvc += TOPQGluonThinning
     #thinningTools.append(TOPQGluonThinning)
     #print TOPQname+".py", TOPQname+"GluonThinning: ", TOPQGluonThinning
-  
+
   return thinningTools
 # end setup(TOPQname, TOPQThinningSvc, ToolSvc)

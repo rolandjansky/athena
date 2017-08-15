@@ -3,7 +3,7 @@
 # SINGLE TOP SELECTION PLUS J/PSI->MUMU CANDIDATE
 #   >=1 electron(pT>20GeV) OR
 #   >=1 muon(pT>20GeV)
-#   2 additional muons with 2GeV<M_mumu<4GeV
+#   2 additional muons with 0GeV<M_mumu<20GeV
 # reductionConf flag TOPQ5 in Reco_tf.py
 # Shares most settings with TOPQ1
 #====================================================================
@@ -68,8 +68,8 @@ TOPQ5JpsiFinder = Analysis__JpsiFinder(
   muAndTrack                  = False,
   TrackAndTrack               = False,
   assumeDiMuons               = True,    # If true, will assume dimu hypothesis and use PDG value for mu mass
-  invMassUpper                = 4000.0,
-  invMassLower                = 1500.0,
+  invMassUpper                = 20000.0,
+  invMassLower                = 0.0,
   Chi2Cut                     = 200.,
   oppChargesOnly                    = True,
   atLeastOneComb              = True,
@@ -126,8 +126,8 @@ TOPQ5_Select_Jpsi2mumu = DerivationFramework__Select_onia2mumu(
   HypothesisName        = "Jpsi",
   InputVtxContainerName = "TOPQ5OniaCandidates",
   VtxMassHypo           = 3096.916,
-  MassMin               = 2000.0,
-  MassMax               = 3600.0,
+  MassMin               = 0.0,
+  MassMax               = 20000.0,
   Chi2Max               = 200,
   DoVertexType          = 7)
 
@@ -217,6 +217,10 @@ DerivationFrameworkJob += TOPQ5Sequence
 #====================================================================
 # SLIMMING
 #====================================================================
+from DerivationFrameworkTop.TOPQCommonExtraContent import TOPQStaticContent
+TOPQStaticContent += ['xAOD::VertexContainer#TOPQ5RefittedPrimaryVertices']
+TOPQStaticContent += ['xAOD::VertexAuxContainer#TOPQ5RefittedPrimaryVerticesAux.']
+
 import DerivationFrameworkTop.TOPQCommonSlimming
 DerivationFrameworkTop.TOPQCommonSlimming.setup('TOPQ5', TOPQ5Stream)
 
