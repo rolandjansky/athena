@@ -25,8 +25,8 @@ class TileDCSDataPlotter:
         logLvl = logging.WARNING
         if verbose:
             logLvl = logging.DEBUG
-            
-#        self.dataGrabber = TileDCSDataGrabber.TileDCSDataGrabber(dbSource, logLvl, dbstring, putDuplicates) 
+
+#        self.dataGrabber = TileDCSDataGrabber.TileDCSDataGrabber(dbSource, logLvl, dbstring, putDuplicates)
 #        self.info = self.dataGrabber.info
 
         self.cmd     = argv[1]
@@ -36,19 +36,19 @@ class TileDCSDataPlotter:
         end          = argv[5]
         self.iovBeg  = int(time.mktime(time.strptime(beg,"%Y-%m-%d %H:%M:%S")))
         self.iovEnd  = int(time.mktime(time.strptime(end,"%Y-%m-%d %H:%M:%S")))
-        
+
         self.dataGrabber = TileDCSDataGrabber.TileDCSDataGrabber(dbSource, logLvl, dbstring, putDuplicates, self.iovBeg)
         self.info = self.dataGrabber.info
-        
+
         self.cutExp  = ""
         if len(argv) >6:
             self.cutExp = argv[6]
         beg = beg.replace(' ','_')
         end = end.replace(' ','_')
         self.outName   = self.drawer+"_"+self.varExp+"__"+beg+"__"+end
-        self.outName   = self.outName.replace('/',':')    
-        self.outName   = self.outName.replace('(','0')    
-        self.outName   = self.outName.replace(')','0')    
+        self.outName   = self.outName.replace('/',':')
+        self.outName   = self.outName.replace('(','0')
+        self.outName   = self.outName.replace(')','0')
         print "---> OUTNAME: " , self.outName
         if len(argv) >7:
             self.outName = argv[7]
@@ -100,7 +100,7 @@ class TileDCSDataPlotter:
                     posLength=len(positions)
                 else:
                     iPos+=1
-                    
+
         varList = varDict.values()
         if "ALL_LVPS_AI" in varExpression:
             varList.extend(self.info.vars_LVPS_AI.keys())
@@ -170,12 +170,12 @@ class TileDCSDataPlotter:
                     if cut and "Set." in cut and not "Set." in var: self.cutExp=cut
                 else:
                     self.varExp = self.varExp.replace(var,self.drawer+"."+var)
-                    self.cutExp = self.cutExp.replace(var,self.drawer+"."+var)                      
+                    self.cutExp = self.cutExp.replace(var,self.drawer+"."+var)
                     self.varExp = self.varExp.replace("Set."+self.drawer,"Set")
                     self.cutExp = self.cutExp.replace("Set."+self.drawer,"Set")
                     self.varExp = self.varExp.replace(self.drawer+"."+self.drawer,self.drawer)
                     self.cutExp = self.cutExp.replace(self.drawer+"."+self.drawer,self.drawer)
-            if "ALL_LVPS_AI" in self.varExp: 
+            if "ALL_LVPS_AI" in self.varExp:
                 newvar=""
                 for dr in self.drawer.split(","):
                     for var in self.info.vars_LVPS_AI.keys():
@@ -355,7 +355,7 @@ class TileDCSDataPlotter:
         YA=hist.GetYaxis()
         for i in xrange(ny):
           YA.SetBinLabel(i + 1, yaxis[i])
-        
+
         tree.GetEntry(0)
         val = {}
         for leaf in leaves:
@@ -365,11 +365,11 @@ class TileDCSDataPlotter:
             val[leaf.GetTitle()] = leaf.GetValue()
 
         ne=tree.GetEntries()
-        if opt==1: 
+        if opt==1:
             n1=ne-1
-        elif opt==2: 
+        elif opt==2:
             n1=1
-        else: 
+        else:
             n1=0
         bar = ProgressBar.progressBar(n1,ne, 78)
         for n in xrange(n1,ne):
@@ -430,7 +430,7 @@ class TileDCSDataPlotter:
         for var in sorted(self.varExp.split(",")):
             cut=self.cutExp
             dim = var.count(':')
-            if dim>0: 
+            if dim>0:
                 varX = var.split(":")[1]
                 varY = var.split(":")[0]
                 if len(cut):
@@ -559,7 +559,7 @@ class TileDCSDataPlotter:
 
         """
 
-        if "ALL_LVPS_AI" in self.varExp: 
+        if "ALL_LVPS_AI" in self.varExp:
             self.varExp = self.varExp.replace("ALL_LVPS_AI",",".join(sorted(self.info.vars_LVPS_AI.keys())))
         if "ALL_LVPS_STATES" in self.varExp:
             self.varExp = self.varExp.replace("ALL_LVPS_STATES",",".join(sorted(self.info.vars_LVPS_STATES.keys())))
@@ -587,7 +587,7 @@ class TileDCSDataPlotter:
                     vlist.remove("temp%d" % (i+1))
             self.varExp = self.varExp.replace("ALL_HV",",".join(sorted(vlist)))
         print self.varExp
-            
+
         reslist=[]
         cutlist = self.parseVarExpression(self.cutExp)
         print cutlist
@@ -660,7 +660,7 @@ if callName=="TileDCSDataPlotter.py":
     if "--cool" in sys.argv:
         useCool=True
         sys.argv.remove("--cool")
-    
+
     #=== check if we are in Oracle mode
     useTestBeam = False
     if "--testbeam" in sys.argv:
@@ -756,7 +756,7 @@ if callName=="TileDCSDataPlotter.py":
         #=== save output in eps and png
         can.Print(dp.outName+"_"+cmd+".eps")
         can.Print(dp.outName+"_"+cmd+".png")
-    
-        #=== display plot 
+
+        #=== display plot
         if not batch:
             os.system("display "+dp.outName+"_"+cmd+".png")
