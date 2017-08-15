@@ -29,6 +29,7 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetConditions/InDetCoolCoralClientUtils
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
+                          InnerDetector/InDetRecTools/InDetRecToolInterfaces
                           Tools/PathResolver )
 
 # External dependencies:
