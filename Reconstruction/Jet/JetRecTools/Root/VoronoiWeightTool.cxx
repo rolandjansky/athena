@@ -178,7 +178,7 @@ StatusCode VoronoiWeightTool::process_impl(xAOD::IParticleContainer* particlesin
     // Call set on every object
     // Leave it to the base class to determine if the correction
     // should not be applied
-    float w = newPt/part->pt();
+    float w = part->pt()>FLT_MIN ? newPt/part->pt() : 0.;
     ATH_CHECK(setEnergyPt(part,part->e()*w,newPt,&weightAcc));
   }
   return StatusCode::SUCCESS;
@@ -262,15 +262,15 @@ void VoronoiWeightTool::spreadPt(std::vector< std::pair< fastjet::PseudoJet,std:
     //iterate over nearby positive pT particles
     for(size_t j=0; j<particle_drs[i].size(); j++){
       float dr = particle_drs[i][j].second;
-      if(dr>0) sumdR2 += 1./(pow(dr,alpha/2));
+      if(dr>FLT_MIN) sumdR2 += 1./(pow(dr,alpha/2));
     }
     //if at least one neighbor
-    if(sumdR2 > 0){
+    if(sumdR2 > FLT_MIN){
       float spreadPT_orig = spreadPT[i];
       for(size_t j=0; j<particle_drs[i].size(); j++){
         float dr = particle_drs[i][j].second;
         float realid = particle_drs[i][j].first;
-        if(dr>0){
+        if(dr>FLT_MIN){
           float weight = (1./pow(dr,alpha/2))/sumdR2;
           if(fabs(weight*spreadPT_orig)>spreadPT[realid]){
             spreadPT[i]+=spreadPT[realid];
