@@ -1,4 +1,4 @@
-q#from AthenaCommon.AppMgr import ToolSvc
+#from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.AppMgr import ServiceMgr
 import AthenaPoolCnvSvc.ReadAthenaPool
 
