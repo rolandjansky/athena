@@ -13,9 +13,3 @@ simFlags.CosmicFilterVolumeName = "Calo"
 simFlags.CosmicFilterID = "13"
 simFlags.CosmicFilterPTmin = "6000" # in MeV
 simFlags.CosmicFilterPTmax = "50000" # in MeV
-
-def cosmics_muonfilter():
-    from G4AtlasApps import AtlasG4Eng
-    include('G4CosmicFilter/G4CosmicFilter.py')
-
-simFlags.InitFunctions.add_function("preInitG4", cosmics_muonfilter)
