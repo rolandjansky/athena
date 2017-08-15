@@ -38,14 +38,15 @@ void CaloHitAna::Loop()
 	FCS_g4hit  one_g4hit;
 	FCS_hit    one_hit;
 	FCS_matchedcell one_matchedcell;
-	FCS_truth  one_truth;
+	//FCS_truth  one_truth;
 
 	//From here: Loop over events:
 	Long64_t nbytes = 0, nb = 0;
 	std::cout << "before event loop" << std::endl;
-	for(Long64_t jentry=0; jentry<nentries;jentry++) 
+	for(Long64_t jentry=0; jentry<nentries;jentry++)
 	{
-		if(jentry%100==0) cout<<"jentry "<<jentry<<endl;
+		if(jentry%100==0)
+		 std::cout<<"jentry "<<jentry<<endl;
 	 	
 	 	Long64_t ientry = LoadTree(jentry);
 	 	if (ientry < 0) break;
@@ -65,7 +66,7 @@ void CaloHitAna::Loop()
 		new_truthPDG->clear();
 		new_truthBarcode->clear();
 		new_truthVtxBarcode->clear();
-		truthcollection->clear();
+		//truthcollection->clear();
 		m_newTTC_entrance_eta->clear();
 		m_newTTC_entrance_phi->clear();
 		m_newTTC_entrance_r->clear();
@@ -83,64 +84,41 @@ void CaloHitAna::Loop()
 
 		oneeventcells->m_vector.clear();
 	  
-	  	for(unsigned int truth_i = 0; truth_i < TruthE->size(); truth_i++)
+	  if(TruthE->size()!=1)
+	   std::cout<<"Strange! TruthE->size() is "<<TruthE->size()<<", but it should be 1. Please check input."<<std::endl;
+	  
+	  for(unsigned int truth_i = 0; truth_i < TruthE->size(); truth_i++)
 		{
-			std::cout <<truth_i<<" "<<TruthE->size()<<" "<<TruthPDG->at(truth_i)<<std::endl;
+			//std::cout <<truth_i<<" "<<TruthE->size()<<" "<<TruthPDG->at(truth_i)<<std::endl;
 			//std::cout <<"TTC2: "<<(*TTC_entrance_eta)[truth_i].size()<<std::endl;//this one has 24 layers ->ok
-			new_truthE->push_back( TruthE->at(truth_i));
+			
+			new_truthE->push_back(TruthE->at(truth_i));
 			new_truthPx->push_back(TruthPx->at(truth_i));
 			new_truthPy->push_back(TruthPy->at(truth_i));
 			new_truthPz->push_back(TruthPz->at(truth_i));
 			new_truthPDG->push_back(TruthPDG->at(truth_i));
 			new_truthBarcode->push_back(TruthBarcode->at(truth_i));
-			new_truthVtxBarcode->push_back(TruthVtxBarcode->at(truth_i));
-			/*
-			m_TTC_IDCaloBoundary_eta->push_back(TTC_IDCaloBoundary_eta->at(truth_i));
-			m_TTC_IDCaloBoundary_phi->push_back(TTC_IDCaloBoundary_phi->at(truth_i));
-			m_TTC_IDCaloBoundary_r  ->push_back(TTC_IDCaloBoundary_r->at(truth_i));
-			m_TTC_IDCaloBoundary_z  ->push_back(TTC_IDCaloBoundary_z->at(truth_i));
-			m_TTC_Angle3D           ->push_back(TTC_Angle3D->at(truth_i));
-			m_TTC_AngleEta          ->push_back(TTC_AngleEta->at(truth_i));
-			*/
-
+			//new_truthVtxBarcode->push_back(TruthVtxBarcode->at(truth_i));
+		  
 			m_newTTC_IDCaloBoundary_eta->push_back(newTTC_IDCaloBoundary_eta->at(truth_i));
 			m_newTTC_IDCaloBoundary_phi->push_back(newTTC_IDCaloBoundary_phi->at(truth_i));
 			m_newTTC_IDCaloBoundary_r  ->push_back(newTTC_IDCaloBoundary_r->at(truth_i));
 			m_newTTC_IDCaloBoundary_z  ->push_back(newTTC_IDCaloBoundary_z->at(truth_i));
 			m_newTTC_Angle3D           ->push_back(newTTC_Angle3D->at(truth_i));
 			m_newTTC_AngleEta          ->push_back(newTTC_AngleEta->at(truth_i));
-
-			/*
-			vector<double> entrance_eta;
-			vector<double> entrance_phi;
-			vector<double> entrance_r;
-			vector<double> entrance_z;
-			vector<double> back_eta;
-			vector<double> back_phi;
-			vector<double> back_r;
-			vector<double> back_z;
-			*/
-
-			vector<double> new_entrance_eta;
-			vector<double> new_entrance_phi;
-			vector<double> new_entrance_r;
-			vector<double> new_entrance_z;
-			vector<double> new_back_eta;
-			vector<double> new_back_phi;
-			vector<double> new_back_r;
-			vector<double> new_back_z;
+			
+      //create temporary vectors
+			vector<float> new_entrance_eta;
+			vector<float> new_entrance_phi;
+			vector<float> new_entrance_r;
+			vector<float> new_entrance_z;
+			vector<float> new_back_eta;
+			vector<float> new_back_phi;
+			vector<float> new_back_r;
+			vector<float> new_back_z;
+			
 			for(unsigned int s=0;s<24;s++)
 			{
-				/*
-				entrance_eta.push_back((TTC_entrance_eta->at(truth_i))[s]);
-				entrance_phi.push_back((TTC_entrance_phi->at(truth_i))[s]);
-				entrance_r  .push_back((TTC_entrance_r->at(truth_i))[s]);
-				entrance_z  .push_back((TTC_entrance_z->at(truth_i))[s]);
-				back_eta    .push_back((TTC_back_eta->at(truth_i))[s]);
-				back_phi    .push_back((TTC_back_phi->at(truth_i))[s]);
-				back_r      .push_back((TTC_back_r->at(truth_i))[s]);
-				back_z      .push_back((TTC_back_z->at(truth_i))[s]);
-				*/
 				new_entrance_eta.push_back((newTTC_entrance_eta->at(truth_i))[s]);
 				new_entrance_phi.push_back((newTTC_entrance_phi->at(truth_i))[s]);
 				new_entrance_r.push_back((newTTC_entrance_r->at(truth_i))[s]);
@@ -150,16 +128,8 @@ void CaloHitAna::Loop()
 				new_back_r.push_back((newTTC_back_r->at(truth_i))[s]);
 				new_back_z.push_back((newTTC_back_z->at(truth_i))[s]);
 		 	}
-			/*
-			m_TTC_entrance_eta->push_back(entrance_eta);
-			m_TTC_entrance_phi->push_back(entrance_phi);
-			m_TTC_entrance_r  ->push_back(entrance_r);
-			m_TTC_entrance_z  ->push_back(entrance_z);
-			m_TTC_back_eta    ->push_back(back_eta);
-			m_TTC_back_phi    ->push_back(back_phi);
-			m_TTC_back_r      ->push_back(back_r);
-			m_TTC_back_z      ->push_back(back_z);
-		   	*/
+      
+      //push back temporary vectors
 			m_newTTC_entrance_eta->push_back(new_entrance_eta);
 			m_newTTC_entrance_phi->push_back(new_entrance_phi);
 			m_newTTC_entrance_r->push_back(new_entrance_r);
@@ -168,17 +138,18 @@ void CaloHitAna::Loop()
 			m_newTTC_back_phi->push_back(new_back_phi);
 			m_newTTC_back_r->push_back(new_back_r);
 			m_newTTC_back_z->push_back(new_back_z);
-	   
+	    
 			/*
 			one_truth.SetPxPyPzE((*TruthPx)[truth_i], (*TruthPy)[truth_i], (*TruthPz)[truth_i], (*TruthE)[truth_i]);
-			*/
-
 			one_truth.pdgid   = TruthPDG->at(truth_i);
 			one_truth.barcode = TruthBarcode->at(truth_i);
 			one_truth.vtxbarcode = TruthVtxBarcode->at(truth_i);
 			truthcollection->push_back(one_truth);
-
+			*/
+      
 		}
+	  
+	  //std::cout<<"check. after truth block"<<std::endl;
 	  
 		//Now matching between cells, G4hits and G4detailed hits                                                                               
 		//sort cells by identifier: 

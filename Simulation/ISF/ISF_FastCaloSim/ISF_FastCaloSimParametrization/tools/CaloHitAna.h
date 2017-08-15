@@ -75,52 +75,39 @@ public :
    std::vector<Long64_t>  *G4HitCellIdentifier;
    std::vector<float>   *G4HitSamplingFraction;
    std::vector<int>     *G4HitSampling;
-   /*
-   std::vector<std::vector<double> > *TTC_back_eta;
-   std::vector<std::vector<double> > *TTC_back_phi;
-   std::vector<std::vector<double> > *TTC_back_r;
-   std::vector<std::vector<double> > *TTC_back_z;
-   std::vector<std::vector<double> > *TTC_entrance_eta;
-   std::vector<std::vector<double> > *TTC_entrance_phi;
-   std::vector<std::vector<double> > *TTC_entrance_r;
-   std::vector<std::vector<double> > *TTC_entrance_z;
-   std::vector<double>  *TTC_IDCaloBoundary_eta; 
-   std::vector<double>  *TTC_IDCaloBoundary_phi;
-   std::vector<double>  *TTC_IDCaloBoundary_r;
-   std::vector<double>  *TTC_IDCaloBoundary_z;
-   std::vector<double>  *TTC_Angle3D;
-   std::vector<double>  *TTC_AngleEta;
-   */
-   std::vector<std::vector<double> >* newTTC_entrance_eta;
-   std::vector<std::vector<double> >* newTTC_entrance_phi;
-   std::vector<std::vector<double> >* newTTC_entrance_r;
-   std::vector<std::vector<double> >* newTTC_entrance_z;
-   std::vector<std::vector<double> >* newTTC_back_eta;
-   std::vector<std::vector<double> >* newTTC_back_phi;
-   std::vector<std::vector<double> >* newTTC_back_r;
-   std::vector<std::vector<double> >* newTTC_back_z;
-   std::vector<double>* newTTC_IDCaloBoundary_eta;
-   std::vector<double>* newTTC_IDCaloBoundary_phi;
-   std::vector<double>* newTTC_IDCaloBoundary_r;
-   std::vector<double>* newTTC_IDCaloBoundary_z;
-   std::vector<double>* newTTC_Angle3D;
-   std::vector<double>* newTTC_AngleEta;
-
-   std::vector<std::vector<double> >* m_newTTC_entrance_eta = new std::vector<std::vector<double>>;
-   std::vector<std::vector<double> >* m_newTTC_entrance_phi = new std::vector<std::vector<double>>;
-   std::vector<std::vector<double> >* m_newTTC_entrance_r = new std::vector<std::vector<double>>;
-   std::vector<std::vector<double> >* m_newTTC_entrance_z = new std::vector<std::vector<double>>;
-   std::vector<std::vector<double> >* m_newTTC_back_eta = new std::vector<std::vector<double>>;
-   std::vector<std::vector<double> >* m_newTTC_back_phi = new std::vector<std::vector<double>>;
-   std::vector<std::vector<double> >* m_newTTC_back_r = new std::vector<std::vector<double>>;
-   std::vector<std::vector<double> >* m_newTTC_back_z = new std::vector<std::vector<double>>;
-   std::vector<double>* m_newTTC_IDCaloBoundary_eta = new std::vector<double>;
-   std::vector<double>* m_newTTC_IDCaloBoundary_phi = new std::vector<double>;
-   std::vector<double>* m_newTTC_IDCaloBoundary_r = new std::vector<double>;
-   std::vector<double>* m_newTTC_IDCaloBoundary_z = new std::vector<double>;
-   std::vector<double>* m_newTTC_Angle3D = new std::vector<double>;
-   std::vector<double>* m_newTTC_AngleEta = new std::vector<double>;
-
+     
+   //input (from is hit analysis ntuple):
+   std::vector<std::vector<float> >* newTTC_entrance_eta;
+   std::vector<std::vector<float> >* newTTC_entrance_phi;
+   std::vector<std::vector<float> >* newTTC_entrance_r;
+   std::vector<std::vector<float> >* newTTC_entrance_z;
+   std::vector<std::vector<float> >* newTTC_back_eta;
+   std::vector<std::vector<float> >* newTTC_back_phi;
+   std::vector<std::vector<float> >* newTTC_back_r;
+   std::vector<std::vector<float> >* newTTC_back_z;
+   std::vector<float>* newTTC_IDCaloBoundary_eta;
+   std::vector<float>* newTTC_IDCaloBoundary_phi;
+   std::vector<float>* newTTC_IDCaloBoundary_r;
+   std::vector<float>* newTTC_IDCaloBoundary_z;
+   std::vector<float>* newTTC_Angle3D;
+   std::vector<float>* newTTC_AngleEta;
+   
+   //output:
+   std::vector<std::vector<float> >* m_newTTC_entrance_eta = new std::vector<std::vector<float>>;
+   std::vector<std::vector<float> >* m_newTTC_entrance_phi = new std::vector<std::vector<float>>;
+   std::vector<std::vector<float> >* m_newTTC_entrance_r = new std::vector<std::vector<float>>;
+   std::vector<std::vector<float> >* m_newTTC_entrance_z = new std::vector<std::vector<float>>;
+   std::vector<std::vector<float> >* m_newTTC_back_eta = new std::vector<std::vector<float>>;
+   std::vector<std::vector<float> >* m_newTTC_back_phi = new std::vector<std::vector<float>>;
+   std::vector<std::vector<float> >* m_newTTC_back_r = new std::vector<std::vector<float>>;
+   std::vector<std::vector<float> >* m_newTTC_back_z = new std::vector<std::vector<float>>;
+   std::vector<float>* m_newTTC_IDCaloBoundary_eta = new std::vector<float>;
+   std::vector<float>* m_newTTC_IDCaloBoundary_phi = new std::vector<float>;
+   std::vector<float>* m_newTTC_IDCaloBoundary_r = new std::vector<float>;
+   std::vector<float>* m_newTTC_IDCaloBoundary_z = new std::vector<float>;
+   std::vector<float>* m_newTTC_Angle3D = new std::vector<float>;
+   std::vector<float>* m_newTTC_AngleEta = new std::vector<float>;
+   
    FCS_matchedcellvector* oneeventcells = new FCS_matchedcellvector; //these are all matched cells in a single event
    FCS_matchedcellvector* layercells[MAX_LAYER]; //these are all matched cells in a given layer in a given event
 
