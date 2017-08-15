@@ -21,27 +21,27 @@ class progressBar:
         if newAmount > self.max: newAmount = self.max
 
         #=== only continue if something new to draw
-        if newAmount < self.nextUpdate and newAmount<self.max : return 
+        if newAmount < self.nextUpdate and newAmount<self.max : return
         self.nextUpdate = self.nextUpdate+float(self.span/100.0)
         self.amount = newAmount
-        
+
         # Figure out the new percent done, round to an integer
         diffFromMin = float(self.amount - self.min)
         percentDone = (diffFromMin / float(self.span)) * 100.0
         percentDone = round(percentDone)
         percentDone = int(percentDone)
-        
+
         # Figure out how many hash bars the percentage should be
         numHashes = (percentDone / 100.0) * self.width
         numHashes = int(round(numHashes))
-        
+
         # build a progress bar with hashes and spaces
         self.progBar = self.prefix + '#'*numHashes + ' '*(self.width-numHashes) + self.suffix
-        
+
         # figure out where to put the percentage, roughly centered
         percentPlace = (len(self.progBar) / 2) - len(str(percentDone))
         percentString = str(percentDone) + "%"
-        
+
         # slice the percentage into the bar
         self.progBar = self.progBar[0:percentPlace] + percentString + self.progBar[percentPlace+len(percentString):]
 
@@ -52,6 +52,6 @@ class progressBar:
         self.update(self.max)
         sys.stdout.write('\r' + self.progBar + '\n')
         sys.stdout.flush()# force updating of screen
-        
+
     def __str__(self):
         return str(self.progBar)

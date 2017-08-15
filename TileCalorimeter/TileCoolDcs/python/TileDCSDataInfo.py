@@ -11,7 +11,7 @@ class TileDCSDataInfo:
     """
 
     LVPS_AI     = ("/TILE/DCS/", "AI")
-    LVPS_STATES = ("/TILE/DCS/", "STATES") 
+    LVPS_STATES = ("/TILE/DCS/", "STATES")
     VARS_HV     = ("/TILE/DCS/", "HV")
     VARS_HVSET  = ("/TILE/DCS/", "HVSET")
     VARS_DAQ    = ("/DAQdummy/","/DAQdummy")
@@ -110,18 +110,18 @@ class TileDCSDataInfo:
                     1 : "LBA",
                     2 : "LBC",
                     3 : "EBC"}
-    
+
     def __init__( self, dbstring=None ):
 
         self.vars = {}
         for var, info in self.vars_LVPS_AI.iteritems():
-            self.vars[var] = info 
+            self.vars[var] = info
         for var, info in self.vars_LVPS_STATES.iteritems():
-            self.vars[var] = info 
+            self.vars[var] = info
         for var, info in self.vars_HV.iteritems():
-            self.vars[var] = info 
+            self.vars[var] = info
         for var, info in self.vars_HVSET.iteritems():
-            self.vars[var] = info 
+            self.vars[var] = info
         for var, info in self.vars_DAQ.iteritems():
             self.vars[var] = info
 
@@ -135,7 +135,7 @@ class TileDCSDataInfo:
                 line = line.strip()
                 folder, drawer, channel, oracleId = line.split()
 
-                keyFolderDrawer = ( folder , drawer) 
+                keyFolderDrawer = ( folder , drawer)
                 if keyFolderDrawer in self.folderDrawer_to_channel:
                     raise "trying to generate key twice: ", keyFolderDrawer
                 self.folderDrawer_to_channel[ keyFolderDrawer] = int(channel)
@@ -145,7 +145,7 @@ class TileDCSDataInfo:
                 if keyFolderChannel in self.folderChannel_to_drawer:
                     raise "trying to generate key twice: ", keyFolderChannel
                 self.folderChannel_to_drawer[keyFolderChannel] = drawer
-                
+
         self.dbstring = {"DEFAULT":[],"COOL":[],"ORACLE":[],"TESTBEAM":[]}
         self.dbstring['DEFAULT'] += [dbstring]*3
         dbstring = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_DCS;dbname=COMP200;"
@@ -224,7 +224,7 @@ class TileDCSDataInfo:
         if drawerNum<1 or drawerNum>64:
             return False
         return True
-    
+
     def get_variables_by_folder(self, variables, drawer):
         """
         Return a dictionary listing all folders that need to be

@@ -55,9 +55,9 @@ if stmt.Process()==True:
         result_hv     = re_hv.search(element_name)
         result_hvset  = re_hvset.search(element_name)
         result_daq    = re_daq.search(element_name)
-        
+
         if result_ai:
-            partition = partitionID[int(result_ai.groups()[0])] 
+            partition = partitionID[int(result_ai.groups()[0])]
             drawer    = partition+('00'+result_ai.groups()[2])[-2:]
             oracleId  = "ATLTILLV"
             for part in result_ai.groups(): oracleId += part
@@ -65,7 +65,7 @@ if stmt.Process()==True:
             buffer.append( "/TILE/DCS/AI\t%s\t%s\t%s\n"%(drawer,channel_id,oracleId) )
 
         elif result_states:
-            partition = partitionID[int(result_states.groups()[0])] 
+            partition = partitionID[int(result_states.groups()[0])]
             drawer    = partition+('00'+result_states.groups()[2])[-2:]
             oracleId  = "ATLTILLV"
             for part in result_states.groups(): oracleId += part
@@ -74,7 +74,7 @@ if stmt.Process()==True:
 
         elif result_hv:
             part = result_hv.groups()
-            partition = partitionID[int(part[0])] 
+            partition = partitionID[int(part[0])]
             drawer    = partition+('00'+part[1])[-2:]
             oracleId  = "ATLTILLV"+part[0]
             oracleId += ":Drawer"+part[1]+".Readings.Monitoring"
@@ -82,7 +82,7 @@ if stmt.Process()==True:
 
         elif result_hvset:
             part = result_hvset.groups()
-            partition = partitionID[int(part[0])] 
+            partition = partitionID[int(part[0])]
             drawer    = partition+('00'+part[1])[-2:]
             oracleId  = "ATLTILLV"+part[0]
             oracleId += ":Drawer"+part[1]+".Readings.Requests"
@@ -95,8 +95,8 @@ if stmt.Process()==True:
             #=== only one entry per partition, set module number to "XX"
             drawer = partition + "XX"
             buffer.append( "/DAQdummy/%s/DAQdummy\t%s\t%s\t%s\n"%(partition,drawer,channel_id,oracleId) )
-            
-            
+
+
 #=== write file
 oldname=info.find_data_file("cool_channel_id.dat")
 newname="cool_channel_id.dat"
