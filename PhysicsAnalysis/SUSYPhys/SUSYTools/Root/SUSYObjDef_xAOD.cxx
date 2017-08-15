@@ -1001,7 +1001,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_trkMETsyst, "MET.DoTrkSyst", rEnv, true);
   configFromFile(m_caloMETsyst, "MET.DoCaloSyst", rEnv, false);
   configFromFile(m_metGreedyPhotons, "MET.GreedyPhotons", rEnv, false);
-  configFromFile(m_metJetSelection, "MET.JetSelection", rEnv, "Loose"); // set to non-empty to override default
+  configFromFile(m_metJetSelection, "MET.JetSelection", rEnv, "Tight"); // set to non-empty to override default
   //
   configFromFile(m_muUncert, "PRW.MuUncertainty", rEnv, 0.2);
   //

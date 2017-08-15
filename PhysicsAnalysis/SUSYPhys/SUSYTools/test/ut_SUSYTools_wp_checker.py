@@ -134,7 +134,7 @@ MET.TauTerm: RefTau
 MET.JetTerm: RefJet
 MET.MuonTerm: Muons
 MET.OutputTerm: Final
-MET.JetSelection: Loose
+MET.JetSelection: Tight
 MET.RemoveOverlappingCaloTaggedMuons: 1
 MET.DoMuonJetOR: 1
 MET.DoTrkSyst: 1
