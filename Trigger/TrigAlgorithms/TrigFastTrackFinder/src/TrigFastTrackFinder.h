@@ -165,7 +165,7 @@ protected:
 
   int m_roi_nSPs;
 
-  double m_roiPhi, m_roiEta, m_roiZ;  
+  double m_roiPhi, m_roiEta, m_roiZ;
   double m_roiPhiWidth, m_roiEtaWidth, m_roiZ_Width;  
   double m_timePattReco;
 
@@ -226,7 +226,7 @@ protected:
 
   // Monitoring member functions 
 
-  void fillMon(const TrackCollection& tracks);
+  void fillMon(const TrackCollection& tracks, const TrigRoiDescriptor& roi);
   void runResidualMonitoring(const Trk::Track& track);
 
   void calculateRecoEfficiency(const std::vector<TrigSiSpacePointBase>&,
