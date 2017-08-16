@@ -12,7 +12,7 @@ import PyJobTransforms.trfArgClasses as trfArgClasses
 
 from PyJobTransforms.trfExe import athenaExecutor
 from PyJobTransforms.trfArgs import listKnownD3PDs, getExtraDPDList
-from PyJobTransforms.trfExe import  NTUPMergeExecutor, hybridPOOLMergeExecutor
+from PyJobTransforms.trfExe import  NTUPMergeExecutor, hybridPOOLMergeExecutor, archiveExecutor
 
 def addPhysValidationFiles(parser):
     # Better to somehow auto-import this from PhysicsAnalysis/PhysicsValidation/PhysValMonitoring
@@ -69,6 +69,17 @@ def addDAODArguments(parser, mergerTrf=True):
     if mergerTrf:
         parser.defineArgGroup('Input DAOD', 'Input DAOD files to be merged')
         parser.defineArgGroup('Output DAOD', 'Output merged DAOD files')
+        parser.defineArgGroup('Input Logs', 'Input Log files to be merged')
+        parser.defineArgGroup('Output Archive', 'Output Archive file')        
+        parser.add_argument('--inputDataFile','--inputLogFile', nargs='+', 
+                        type=trfArgClasses.argFactory(trfArgClasses.argFile, io='input', type='misc'),
+                        help='Input log file(s)', group='Input Logs')
+        parser.add_argument('--outputArchFile', 
+                            type=trfArgClasses.argFactory(trfArgClasses.argFile, io='output', type='misc'),
+                            help='Output archive file', group='Output Archive')
+        parser.add_argument('--compressionType', group='Output Archive',
+                        help='Underlying compression type', choices=['gzip', 'bzip2', 'none'],
+                        default='none')
         for DAOD in DAODTypes:
             parser.add_argument("--input" + DAOD + "File", nargs="+",
                                 type=trfArgClasses.argFactory(trfArgClasses.argPOOLFile, io="input", type="AOD", subtype=DAOD),
@@ -90,6 +101,7 @@ def addDAODMergerSubsteps(executorSet):
         executorSet.add(hybridPOOLMergeExecutor(name = DAOD.lstrip("DAOD_") + 'Merge', skeletonFile = 'RecJobTransforms/skeleton.MergePool_tf.py',
                         inData = [DAOD], outData = [DAOD+'_MRG'])
                         )
+    executorSet.add(archiveExecutor(name = 'Archiver',inData = ['Data'], outData = ['Arch'], exe='tar'))
 
 def knownDAODTypes():
     DAODTypes = []
