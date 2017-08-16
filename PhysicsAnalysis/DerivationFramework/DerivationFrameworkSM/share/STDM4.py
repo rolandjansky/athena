@@ -250,11 +250,6 @@ if not "STDM4Jets" in OutputJets.keys():
 import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
 STDM4Sequence += JetTagConfig.GetDecoratePromptLeptonAlgs()
 
-# FIX TRUTH JETS
-if globalflags.DataSource()=='geant4':
-    replaceBuggyAntiKt4TruthWZJets(STDM4Sequence,"STDM4")
-
-
 # ADD SEQUENCE TO JOB  
 DerivationFrameworkJob += STDM4Sequence
 

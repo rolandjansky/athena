@@ -214,10 +214,6 @@ if not "STDM5Jets" in OutputJets.keys():
 import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
 STDM5Sequence += JetTagConfig.GetDecoratePromptLeptonAlgs()
 
-# FIX TRUTH JETS
-if isMC:
-    replaceBuggyAntiKt4TruthWZJets(STDM5Sequence,"STDM5")
-
 # ADD SEQUENCE TO JOB  
 DerivationFrameworkJob += STDM5Sequence
 

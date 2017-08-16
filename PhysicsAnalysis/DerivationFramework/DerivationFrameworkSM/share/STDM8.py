@@ -169,9 +169,6 @@ STDM8Sequence = CfgMgr.AthSequencer("STDM8Sequence")
 STDM8Sequence += CfgMgr.DerivationFramework__DerivationKernel("STDM8Kernel",
                                                               SkimmingTools = [STDM8SkimmingTool],
                                                               ThinningTools = thinningTools)
-# FIX TRUTH JETS
-if globalflags.DataSource()=='geant4':
-    replaceBuggyAntiKt4TruthWZJets(STDM8Sequence,"STDM8")
 
 # ADD SEQUENCE TO JOB  
 DerivationFrameworkJob += STDM8Sequence

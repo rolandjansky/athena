@@ -221,9 +221,6 @@ from DerivationFrameworkSM import STDMHelpers
 if not "STDM3Jets" in OutputJets.keys():
     OutputJets["STDM3Jets"] = STDMHelpers.STDMRecalcJets(STDM3Sequence, "STDM3", isMC)
 
-# FIX TRUTH JETS
-if isMC:
-    replaceBuggyAntiKt4TruthWZJets(STDM3Sequence,"STDM3")
 
 # FAKE LEPTON TAGGER
 import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig

@@ -141,9 +141,6 @@ STDM7Sequence = CfgMgr.AthSequencer("STDM7Sequence")
 STDM7Sequence += CfgMgr.DerivationFramework__DerivationKernel("STDM7Kernel",
                                                               SkimmingTools = [STDM7SkimmingTool],
                                                               ThinningTools = thinningTools)
-# FIX TRUTH JETS
-if globalflags.DataSource()=='geant4':
-    replaceBuggyAntiKt4TruthWZJets(STDM7Sequence,"STDM7")  
 
 # ADD SEQUENCE TO JOB
 DerivationFrameworkJob += STDM7Sequence

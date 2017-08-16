@@ -193,12 +193,6 @@ isMC = globalflags.DataSource()=='geant4'
 reducedJetList = ["AntiKt4TruthJets", "AntiKt4TruthWZJets", "AntiKt4PV0TrackJets"]
 replaceAODReducedJets(reducedJetList, STDM2Sequence, "STDM2");
 
-# FIX TRUTH JETS 
-#if DerivationFrameworkIsMonteCarlo:
-#    replaceBuggyAntiKt4TruthWZJets(STDM2Sequence,"STDM2")
-
-
-        
 # ADD SEQUENCE TO JOB
 DerivationFrameworkJob += STDM2Sequence
         
