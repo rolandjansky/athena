@@ -9,7 +9,7 @@
 #include "TTree.h"
 #include "TH1.h"
 
-#include "tools/FCS_Cell.h"
+#include "tools/newFCS_Cell.h"
 
 
 
@@ -100,9 +100,12 @@ private:
    std::vector<float> *m_truthPy;
    std::vector<float> *m_truthPz;
    std::vector<float> *m_truthE;
+   float m_total_hit_energy;
+   float m_total_g4hit_energy;
 
    // * for hits TTree
    int m_eventNumber;
+   bool m_newEvent;
    float m_energy;
    float m_etaHit;
    float m_phiHit;

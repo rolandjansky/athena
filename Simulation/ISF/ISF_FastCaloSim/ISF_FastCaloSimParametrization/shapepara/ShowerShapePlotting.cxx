@@ -153,18 +153,20 @@ void ShowerShapePlotting::PlotPolar(std::vector<string> histNameVec, bool isOutp
 {
    cout << " * Plotting NNinput polar plots ..." << endl;
 
-   //gStyle->SetPalette(1);
+   gStyle->SetPalette(1);
    SetCustomPalette();
    std::string labeltitle = CreateLabels();
 
 
    TFile *NNinputFile  = TFile::Open(m_NNinputName.c_str());
+   cout << " input file = " << m_NNinputName.c_str() << endl;
    TFile *NNoutputFile = TFile::Open(m_NNoutputName.c_str());
 
 
    for (unsigned int ihist = 0; ihist < histNameVec.size(); ihist++)
    {
-      TH2F *href = (TH2F *)NNinputFile->Get((histNameVec.at(ihist)).c_str());
+      TH2F *href = (TH2F *)NNinputFile->Get("hEnergyNorm");
+      //href->Scale(1 / href->Integral());
       TH2F *hout;
 
 
@@ -225,51 +227,58 @@ void ShowerShapePlotting::PlotPolar(std::vector<string> histNameVec, bool isOutp
          myr[1] = 0;
          myr[2] = zoom;
 
-         TLatex *l = new TLatex(-1 * zoom, -1.15 * zoom, "ATLAS");
-         l->SetTextSize(.03);
+         TLatex *l = new TLatex(-1 * zoom, -1.20 * zoom, "ATLAS");
+         l->SetTextSize(.035);
          l->SetTextFont(72);
 
-         TLatex *l2 = new TLatex(-0.7 * zoom, -1.15 * zoom, "Simulation Preliminary");
-         l2->SetTextSize(.03);
+         TLatex *l2 = new TLatex(-0.6 * zoom, -1.20 * zoom, "Simulation Preliminary");
+         l2->SetTextSize(.035);
          l2->SetTextFont(42);
 
-         TLatex *lInputTitle = new TLatex(-zoom, 1.02 * zoom, (labeltitle + ", " + labelzoom + ", NN input").c_str());
-         lInputTitle->SetTextSize(.02);
+         TLatex *lInputTitle = new TLatex(-zoom, 1.02 * zoom, (labeltitle + /*", " + labelzoom +*/ ", Geant4").c_str());
+         lInputTitle->SetTextSize(.03);
          lInputTitle->SetTextFont(42);
 
 
-         TLatex *lOutputTitle = new TLatex(-zoom, 1.02 * zoom, (labeltitle + ", " + labelzoom + ", NN output, neurons =" + std::to_string(m_neurons)).c_str());
-         lOutputTitle->SetTextSize(.02);
+         TLatex *lOutputTitle = new TLatex(-zoom, 1.02 * zoom, (labeltitle + /*", " + labelzoom + */", NN output" /*, neurons =" + std::to_string(m_neurons)*/).c_str());
+         lOutputTitle->SetTextSize(.03);
          lOutputTitle->SetTextFont(42);
 
 
-         TLatex *lRatioTitle = new TLatex(-zoom, 1.02 * zoom, (labeltitle + ", " + labelzoom + ", Ratio, neurons =" + std::to_string(m_neurons)).c_str());
-         lRatioTitle->SetTextSize(.02);
+         TLatex *lRatioTitle = new TLatex(-zoom, 1.02 * zoom, (labeltitle + /*", " + labelzoom + */", Ratio" /*neurons =" + std::to_string(m_neurons)*/).c_str());
+         lRatioTitle->SetTextSize(.03);
          lRatioTitle->SetTextFont(42);
 
 
          TH2F *hdummy = new TH2F(("hdummy" + histNameVec.at(ihist) + labelzoom).c_str(), "", 2, myr, 2, myr);
          hdummy->GetYaxis()->SetRangeUser(-float(zoom), float(zoom));
          hdummy->GetXaxis()->SetRangeUser(-float(zoom), float(zoom));
-         hdummy->GetYaxis()->SetLabelSize(.02);
-         hdummy->GetXaxis()->SetLabelSize(.02);
+         hdummy->GetYaxis()->SetLabelSize(.025);
+         hdummy->GetXaxis()->SetLabelSize(.025);
 
          hdummy->GetXaxis()->SetTitle("x [mm]");
+         hdummy->GetXaxis()->SetTitleSize(0.035);
          hdummy->GetYaxis()->SetTitle("y [mm]");
+         hdummy->GetYaxis()->SetTitleSize(0.035);
+
 
 
          href->SetContour(20);
          href->GetYaxis()->SetRangeUser(-float(zoom), float(zoom));
-         href->GetZaxis()->SetLabelSize(0.02);
-         href->GetZaxis()->SetTitle(label.c_str());
-         href->GetZaxis()->SetTitleSize(0.03);
-         href->GetZaxis()->SetTitleOffset(1.3);
+         //href->GetZaxis()->SetRangeUser(4000, 6500);
+         href->GetZaxis()->SetLabelSize(0.025);
+         href->GetZaxis()->SetTitle("Energy normalized to unity");
+         href->GetZaxis()->SetTitleSize(0.035);
+         href->GetZaxis()->SetTitleOffset(1.4);
          href->Sumw2();
+         //href->Scale(1.0 / href->Integral());
 
+         TFile *fNN = new TFile("fNN.root", "recreate");
 
-         TCanvas *c1 = new TCanvas(("NNinput_" + histNameVec.at(ihist) + labelzoom).c_str(), ("NNinput_" + histNameVec.at(ihist) + labelzoom).c_str(), 800, 800);
+         TCanvas *c1 = new TCanvas(("NNinput_" + histNameVec.at(ihist) + labelzoom).c_str(), ("NNinput_" + histNameVec.at(ihist) + labelzoom).c_str(), 900, 900);
          c1->cd();
-         c1->SetRightMargin(0.14);
+         c1->SetLeftMargin(0.14);
+         c1->SetRightMargin(0.17);
          hdummy->Draw("COLZ");
          href->Draw("COLZ POL SAME");
 
@@ -278,26 +287,31 @@ void ShowerShapePlotting::PlotPolar(std::vector<string> histNameVec, bool isOutp
          lInputTitle->Draw();
 
          c1->SaveAs((m_outputDirName + "NNinput_" + histNameVec.at(ihist) + "_" + labelzoom + ".png").c_str());
+
+         fNN->cd();
+         c1->Write();
          c1->Close();
 
          if (isOutput)
          {
-            hout = (TH2F *)NNoutputFile->Get((histNameVec.at(ihist)).c_str());
+            hout = (TH2F *)NNoutputFile->Get("hHits");
             //hout->Scale(1 / hout->Integral());
             hout->SetContour(20);
             hout->GetYaxis()->SetRangeUser(-float(zoom), float(zoom));
-            //hout->GetZaxis()->SetRangeUser(0, .012);
-            hout->GetZaxis()->SetLabelSize(0.02);
-            hout->GetZaxis()->SetTitle(label.c_str());
-            hout->GetZaxis()->SetTitleSize(0.03);
-            hout->GetZaxis()->SetTitleOffset(1.3);
+            hout->GetZaxis()->SetRangeUser(4000, 6500);
+            hout->GetZaxis()->SetLabelSize(0.025);
+            //hout->GetZaxis()->SetRangeUser(0.0, 0.011);
+            hout->GetZaxis()->SetTitle("Number of hits");
+            hout->GetZaxis()->SetTitleSize(0.035);
+            hout->GetZaxis()->SetTitleOffset(1.4);
             hout->Sumw2();
 
 
 
-            TCanvas *c2 = new TCanvas(("NNoutput_" + histNameVec.at(ihist) + labelzoom).c_str(), ("NNoutput_" + histNameVec.at(ihist) + labelzoom).c_str(), 800, 800);
+            TCanvas *c2 = new TCanvas(("NNoutput_" + histNameVec.at(ihist) + labelzoom).c_str(), ("NNoutput_" + histNameVec.at(ihist) + labelzoom).c_str(), 900, 900);
             c2->cd();
-            c2->SetRightMargin(0.14);
+            c2->SetLeftMargin(0.14);
+            c2->SetRightMargin(0.17);
             hdummy->Draw("COLZ");
             hout->Draw("COLZ POL SAME");
 
@@ -306,17 +320,24 @@ void ShowerShapePlotting::PlotPolar(std::vector<string> histNameVec, bool isOutp
             lOutputTitle->Draw();
 
             c2->SaveAs((m_outputDirName + "NNoutput_" + histNameVec.at(ihist) + "_" + labelzoom + ".png").c_str());
+            fNN->cd();
+            c2->Write();
             c2->Close();
+            fNN->Close();
 
             // * ratio
             TH2F *hratio = (TH2F *)href->Clone(("hratio_" + histNameVec.at(ihist) + labelzoom).c_str());
             hratio->Divide(hout);
-            hratio->GetZaxis()->SetTitle("");
-            hratio->GetZaxis()->SetRangeUser(0, +1.5);
+            hratio->GetYaxis()->SetRangeUser(-float(zoom), float(zoom));
+            hratio->GetZaxis()->SetTitle("Geant4 / NN output ");
+            hratio->GetZaxis()->SetRangeUser(0.8, +1.2);
+            hratio->GetZaxis()->SetLabelSize(0.025);
+            hratio->GetZaxis()->SetTitleSize(0.035);
+            hratio->GetZaxis()->SetTitleOffset(1.4);
 
-            TCanvas *c3 = new TCanvas(("Ratio_" + histNameVec.at(ihist) + labelzoom).c_str(), ("Ratio_" + histNameVec.at(ihist) + labelzoom).c_str(), 800, 800);
+            TCanvas *c3 = new TCanvas(("Ratio_" + histNameVec.at(ihist) + labelzoom).c_str(), ("Ratio_" + histNameVec.at(ihist) + labelzoom).c_str(), 900, 900);
             c3->cd();
-            c3->SetRightMargin(0.14);
+            c3->SetRightMargin(0.17);
             hdummy->Draw("COLZ");
             hratio->Draw("COLZ POL SAME");
 
@@ -399,7 +420,7 @@ std::string ShowerShapePlotting::CreateLabels()
    }
    else if (m_particle.compare("photon") == 0)
    {
-      particle = "#gamma^0";
+      particle = "#gamma^{0}";
    }
 
    std::string calolayer;
@@ -438,7 +459,7 @@ std::string ShowerShapePlotting::CreateLabels()
 
    bin = "#alpha nbins = " + std::to_string(final_nbinsAlpha) + ", r nbins = " + std::to_string(final_nbinsR);
 
-   std::string label = energy + " " + particle + ", " + eta + ", " + calolayer + ", " + binpca + ", " + bin;
+   std::string label = energy + " " + particle + ", " + eta /*+ ", " + calolayer + ", " + binpca + ", " + bin*/;
 
    return label;
 }

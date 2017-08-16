@@ -5,12 +5,11 @@
 // ***************************************************************************
 // Liquid Argon FCAL detector description package
 // -----------------------------------------
-// Copyright (C) 1998 by ATLAS Collaboration
 //
 //
 // 10-Sep-2000 S.Simion   Handling of the FCAL read-out identifiers
 //    Jan-2001 R.Sobie    Modify for persistency
-//    Feb-2002 R.Sobie    Use same FCAL geometry files as simulation 
+//    Feb-2002 R.Sobie    Use same FCAL geometry files as simulation
 //****************************************************************************
 
 #include "ISF_FastCaloSimParametrization/FCAL_ChannelMap.h"
@@ -27,7 +26,7 @@ const double cm = 10.;
 //const double FCAL_ChannelMap::m_tubeSpacing[] = {0.75*CLHEP::cm, 0.8179*CLHEP::cm, 0.90*CLHEP::cm};
 const double FCAL_ChannelMap::m_tubeSpacing[] = {0.75*cm, 0.8179*cm, 0.90*cm};
 
-FCAL_ChannelMap::FCAL_ChannelMap( int flag)          
+FCAL_ChannelMap::FCAL_ChannelMap( int flag)
 {
 
   /* === Initialize geometrical dimensions */
@@ -39,7 +38,7 @@ FCAL_ChannelMap::FCAL_ChannelMap( int flag)
   // FCAL1 small cells are 2x2 tubes
   m_tileDx[0] = 2. * m_tubeSpacing[0];
   m_tileDy[0] = 2. * m_tubeSpacing[0] * sqrt(3.)/2.;
-  
+
   // FCAL2 small cells are 2x3 tubes
   m_tileDx[1] = 2. * m_tubeSpacing[1];
   m_tileDy[1] = 3. * m_tubeSpacing[1] * sqrt(3.)/2.;
@@ -49,8 +48,8 @@ FCAL_ChannelMap::FCAL_ChannelMap( int flag)
   m_tileDy[2] = 6. * m_tubeSpacing[2] * sqrt(3.)/2.;
 
 
-  m_invert_x = flag & 1; 
-  m_invert_xy = flag & 2; 
+  m_invert_x = flag & 1;
+  m_invert_xy = flag & 2;
 
 }
 
@@ -84,7 +83,7 @@ void FCAL_ChannelMap::add_tube(const std::string & tileName, int mod, int /*id*/
 
   TubePosition tb(tilename, x*cm, y*cm,"");
   // Add offsets, becaues iy and ix can be negative HMA
-  
+
   i = i+200;
   j = j+200;
   //  m_tubeMap[mod-1][(j <<  16) + i] = tb;
@@ -110,7 +109,7 @@ void FCAL_ChannelMap::add_tube(const std::string & tileName, int mod, int /*id*/
 
   TubePosition tb(tilename, x*cm,y*cm, hvFT);
   // Add offsets, becaues iy and ix can be negative HMA
-  
+
   i = i+200;
   j = j+200;
   //  m_tubeMap[mod-1][(j <<  16) + i] = tb;
@@ -147,29 +146,29 @@ FCAL_ChannelMap::create_tileMap(int isam)
       float y             = (first->second).y();
       unsigned int ntubes = 1;
       TilePosition tp(x, y, ntubes);
-      m_tileMap[isam-1][tileName] = tp; 
+      m_tileMap[isam-1][tileName] = tp;
     }
     else{                                             // Existing tile
       float x             = (tile->second).x() + (first->second).x();
       float y             = (tile->second).y() + (first->second).y();
       unsigned int ntubes = (tile->second).ntubes() + 1;
       TilePosition tp(x, y, ntubes);
-      m_tileMap[isam-1][tileName] = tp; 
+      m_tileMap[isam-1][tileName] = tp;
     }
     ++first;
   }
 
   //
-  // List the number of tubes and tiles 
+  // List the number of tubes and tiles
   //
-  // std::cout << "FCAL::create_tilemap: FCAL # " << isam  
-  //	    << " Number of tiles = " << m_tileMap[isam-1].size() 
-  //	    << " Number of tubes = " << m_tubeMap[isam-1].size()
-  //	    << std::endl;
+  // std::cout << "FCAL::create_tilemap: FCAL # " << isam
+  //        << " Number of tiles = " << m_tileMap[isam-1].size()
+  //        << " Number of tubes = " << m_tubeMap[isam-1].size()
+  //        << std::endl;
 
   // this->print_tubemap(isam);
-  
-  
+
+
   //
   // loop over tiles and set (x,y) to average tile positions
   //
@@ -182,48 +181,48 @@ FCAL_ChannelMap::create_tileMap(int isam)
     float x             = (tilefirst->second).x() / xtubes;
     float y             = (tilefirst->second).y() / xtubes;
     TilePosition tp(x, y, ntubes);
-    m_tileMap[isam-1][tileName] = tp; 
+    m_tileMap[isam-1][tileName] = tp;
     ++tilefirst;
   }
 
 }
 
-//---------- for New LArFCAL_ID ------------------------ 
+//---------- for New LArFCAL_ID ------------------------
 
 // *********************************************************************
 //  get Tile ID
-//  
+//
 // Original code: Stefan Simion, Randy Sobie
 // -------------------------------------------------------------------
-//   This function computes the tile identifier for any given position 
+//   This function computes the tile identifier for any given position
 //   Inputs:
 //   - isam the sampling number, from G3 data;
 //   - x the tube x position, in CLHEP::cm, from G3 data;
 //   - y the tube y position, in CLHEP::cm, from G3 data.
 //   Outputs:
-//   - pair of indices eta, phi 
+//   - pair of indices eta, phi
 //
 //   Attention side-effect: x is changed by this function.
-// -------------------------------------------------------------------- 
-//   June 2002  HMA 
+// --------------------------------------------------------------------
+//   June 2002  HMA
 // ***********************************************************************
-bool 
-FCAL_ChannelMap::getTileID(int isam, float x_orig, float y_orig, 
-	int& eta, int& phi) const throw (std::range_error) 
+bool
+FCAL_ChannelMap::getTileID(int isam, float x_orig, float y_orig,
+        int& eta, int& phi) const throw (std::range_error)
 {
 
 //  /* ### MIRROR for compatibility between G3 and ASCII files ### */
 
-  float x = x_orig; 
-  float y = y_orig; 
+  float x = x_orig;
+  float y = y_orig;
 
   if(m_invert_xy){
-    x = y_orig; 
-    y = x_orig; 
-  } 
+    x = y_orig;
+    y = x_orig;
+  }
 
   if(m_invert_x) x = -x;
-  
+
   /* === Compute the tubeID */
   int ktx = (int) (x / m_tubeDx[isam-1]);
   int kty = (int) (y / m_tubeDy[isam-1]);
@@ -238,13 +237,13 @@ FCAL_ChannelMap::getTileID(int isam, float x_orig, float y_orig,
   // # # # #
   //  # # # #
   // # # # #
-  // 
+  //
   // in order to avoid this problem we have to make sure the integer
   // indices for x and y have either both to be even or both to be odd
   // (For Module 0 one has to be odd the other even ...). We take the
   // y-index and check for odd/even and change the x-index in case
   // it's different from the first tube in the current sampling ...
-  // 
+  //
   // S.M. update: in case we are in a hole of the integer grid the
   // relative x and y w.r.t to the original tube are used to assign a
   // tube according to the hexagonal pattern.
@@ -252,10 +251,10 @@ FCAL_ChannelMap::getTileID(int isam, float x_orig, float y_orig,
   tubemap_const_iterator  it = m_tubeMap[isam-1].begin();
   unsigned int firstId = it->first;
 
-  // take offset from actual map 
+  // take offset from actual map
   int ix = ktx+((int)((firstId&0xffff)-it->second.x()/m_tubeDx[isam-1]))+1;
   int iy = kty+((int)((firstId>>16)-it->second.y()/m_tubeDy[isam-1]))+1;
-  
+
   int isOddEven = (((firstId>>16)%2)+(firstId%2))%2;
   bool movex = false;
 
@@ -264,25 +263,25 @@ FCAL_ChannelMap::getTileID(int isam, float x_orig, float y_orig,
     if ( fabs(yc) > 0.5/sqrt(3) ) {
       double xk = x/m_tubeDx[isam-1] - ktx;
       if ( xk > 0.5 ) {
-	xk = 1 - xk;
+        xk = 1 - xk;
       }
       double yn = 0.5-xk/3;
       if ( fabs(yc) > fabs(yn) ) {
-	if ( yc > 0 ) 
-	  iy++;
-	else
-	  iy--;
+        if ( yc > 0 )
+          iy++;
+        else
+          iy--;
       }
-      else 
-	movex = true;
+      else
+        movex = true;
     }
-    else 
+    else
       movex = true;
     if ( movex ) {
-      if ( x/m_tubeDx[isam-1] - ktx > 0.5 ) 
-	ix++;
+      if ( x/m_tubeDx[isam-1] - ktx > 0.5 )
+        ix++;
       else
-	ix--;
+        ix--;
     }
   }
 
@@ -294,10 +293,10 @@ FCAL_ChannelMap::getTileID(int isam, float x_orig, float y_orig,
     phi = tilename & 0xffff;
     eta = tilename >> 16;
     return true ;
-  } 
-  // reach here only if it failed the second time. 
+  }
+  // reach here only if it failed the second time.
 
-  return false; 
+  return false;
 
 }
 
@@ -306,27 +305,27 @@ FCAL_ChannelMap::getTileID(int isam, float x_orig, float y_orig,
 /* ----------------------------------------------------------------------
    To decode the tile x position from the tile identifier
    ---------------------------------------------------------------------- */
-float 
+float
 FCAL_ChannelMap::x(int isam, int eta, int phi) const
                                     throw(std::range_error)
 {
-  if(m_invert_xy){ 
-   // temp turn off the flag 
-   m_invert_xy=false; 
-   float y1 =  y(isam,eta,phi); 
-   m_invert_xy=true; 
-   return y1; 
-  } 
+  if(m_invert_xy){
+   // temp turn off the flag
+   m_invert_xy=false;
+   float y1 =  y(isam,eta,phi);
+   m_invert_xy=true;
+   return y1;
+  }
   float x;
 
-  tileName_t tilename = (eta << 16) + phi  ; 
+  tileName_t tilename = (eta << 16) + phi  ;
 
   tileMap_const_iterator it = m_tileMap[isam-1].find(tilename);
   if(it != m_tileMap[isam-1].end())
   {
-    x = (it->second).x(); 
-  } else 
-  { // can't find the tile, throw exception. 
+    x = (it->second).x();
+  } else
+  { // can't find the tile, throw exception.
       char l_str[200] ;
       snprintf(l_str, sizeof(l_str),
    "Error in FCAL_ChannelMap::x, wrong tile,phi= %d ,eta=: %d ",phi,eta);
@@ -341,7 +340,7 @@ FCAL_ChannelMap::x(int isam, int eta, int phi) const
     return x;
   }
 
-  return x; 
+  return x;
 
 }
 
@@ -349,30 +348,30 @@ FCAL_ChannelMap::x(int isam, int eta, int phi) const
 /* ----------------------------------------------------------------------
    To decode the tile y position from the tile identifier
    ---------------------------------------------------------------------- */
-float 
+float
 FCAL_ChannelMap::y(int isam, int eta, int phi) const
                                     throw(std::range_error)
 {
   if(m_invert_xy){
 
-   // temp turn off the flag 
-   m_invert_xy=false; 
-   float x1 =  x(isam,eta,phi); 
-   m_invert_xy=true; 
-   return x1; 
+   // temp turn off the flag
+   m_invert_xy=false;
+   float x1 =  x(isam,eta,phi);
+   m_invert_xy=true;
+   return x1;
 
   }
 
   float y;
 
-  tileName_t tilename = (eta << 16) + phi  ; 
+  tileName_t tilename = (eta << 16) + phi  ;
 
   tileMap_const_iterator it = m_tileMap[isam-1].find(tilename);
   if(it != m_tileMap[isam-1].end())
   {
-    y = (it->second).y(); 
-  } else 
-  { // can't find the tile, throw exception. 
+    y = (it->second).y();
+  } else
+  { // can't find the tile, throw exception.
       char l_str[200] ;
       snprintf(l_str, sizeof(l_str),
    "Error in FCAL_ChannelMap::x, wrong tile,phi= %d ,eta=: %d",phi,eta);
@@ -380,7 +379,7 @@ FCAL_ChannelMap::y(int isam, int eta, int phi) const
       throw std::range_error(errorMessage.c_str());
   }
 
-  return y; 
+  return y;
 }
 
 /* ----------------------------------------------------------------------
@@ -391,57 +390,57 @@ void FCAL_ChannelMap::tileSize(int sam, int ntubes, float &dx, float &dy) const 
 
   dx = m_tubeDx[sam-1];
   dy = m_tubeDy[sam-1];
-  //      float ntubes =  (it->second).ntubes(); 
-  if(sam == 1 || sam == 3) { 
-    float scale =sqrt(ntubes);  
-    dx = dx * scale; 
-    dy = dy * scale; 
-  } 
-  else  {
-    float scale = sqrt(ntubes/1.5); 
-    dx = dx * scale; 
-    dy = dy * scale * 1.5 ;               
+  //      float ntubes =  (it->second).ntubes();
+  if(sam == 1 || sam == 3) {
+    float scale =sqrt(ntubes);
+    dx = dx * scale;
+    dy = dy * scale;
   }
-  
+  else  {
+    float scale = sqrt(ntubes/1.5);
+    dx = dx * scale;
+    dy = dy * scale * 1.5 ;
+  }
+
 
   // There is a fundamental discrepancy between dx and dy. A cell will
   // contain twice as many distinct x-positions as y-positions.  Diagram:
-  
+
   // . . . .        -
   //. . . .         -
   //  . . . .       -   4 x dy
   // . . . .        -
-  // ||||||||             
-  //    8 x dx 
-  
+  // ||||||||
+  //    8 x dx
+
   dx = 2*dx;
-  
+
   if(m_invert_xy){
-    // switch xy 
-    float temp = dx; 
+    // switch xy
+    float temp = dx;
     dx = dy;
     dy = temp;
-  } 
-  
+  }
+
 }
 
 void FCAL_ChannelMap::tileSize(int sam, int eta, int phi,
-	float& dx, float& dy ) const  throw(std::range_error)
+        float& dx, float& dy ) const  throw(std::range_error)
 {
-  
-  tileName_t tilename = (eta << 16) + phi  ; 
-  
+
+  tileName_t tilename = (eta << 16) + phi  ;
+
   tileMap_const_iterator it = m_tileMap[sam-1].find(tilename);
   if(it != m_tileMap[sam-1].end()) {
-    int ntubes =  (it->second).ntubes(); 
+    int ntubes =  (it->second).ntubes();
     tileSize(sam,ntubes,dx,dy);
-    return ; 
+    return ;
   }
   else {
-    // can't find the tile, throw exception. 
+    // can't find the tile, throw exception.
     char l_str[200] ;
     snprintf(l_str, sizeof(l_str),
-	    "Error in FCAL_ChannelMap::tilesize, wrong tile,phi= %d ,eta=: %d ",phi,eta);
+            "Error in FCAL_ChannelMap::tilesize, wrong tile,phi= %d ,eta=: %d ",phi,eta);
     std::string errorMessage(l_str);
     throw std::range_error(errorMessage.c_str());
   }
@@ -458,10 +457,10 @@ FCAL_ChannelMap::print_tubemap( int imap) const
   std::cout << "First 10 elements of the New FCAL tube map : " << imap << std::endl;
   std::cout.precision(5);
   for ( int i=0;  i<10; i++, it++)
-    std::cout << std::hex << it->first << "\t" 
-	      << (it->second).get_tileName() << std::dec <<"\t" 
-	      << (it->second).x() <<"\t" 
-	      << (it->second).y() << std::endl;
+    std::cout << std::hex << it->first << "\t"
+              << (it->second).get_tileName() << std::dec <<"\t"
+              << (it->second).x() <<"\t"
+              << (it->second).y() << std::endl;
 
 }
 
@@ -487,5 +486,3 @@ FCAL_ChannelMap::tubemap_size (int imap) const
 {
   return m_tubeMap[imap-1].size();
 }
-
-

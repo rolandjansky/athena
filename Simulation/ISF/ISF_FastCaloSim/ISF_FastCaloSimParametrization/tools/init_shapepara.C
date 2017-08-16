@@ -25,9 +25,9 @@ void init_shapepara(bool isStandAlone) {
         gInterpreter->AddIncludePath("./");
 
 
-        gROOT->LoadMacro("CaloSampling.cxx+");
-        gROOT->LoadMacro("../src/CaloGeometry.cxx+");
-        gROOT->LoadMacro("CaloGeometryFromFile.cxx+");
+        // gROOT->LoadMacro("CaloSampling.cxx+");
+        gROOT->LoadMacro("../src/CaloGeoGeometry.cxx+");
+        gROOT->LoadMacro("../src/CaloGeometryFromFile.cxx+");
         gROOT->LoadMacro("../src/FCAL_ChannelMap.cxx+");
         gROOT->LoadMacro("../shapepara/ShowerShapeThinning.cxx+");
         gROOT->LoadMacro("../shapepara/ShowerShapeStudy.cxx+");
