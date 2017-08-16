@@ -257,11 +257,22 @@ STDM5SlimmingHelper.IncludeMuonTriggerContent = True
 STDM5SlimmingHelper.ExtraVariables = ExtraContentAll
 STDM5SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
 
+# # btagging variables
+from  DerivationFrameworkFlavourTag.BTaggingContent import *
+
+STDM5SlimmingHelper.ExtraVariables += BTaggingStandardContent("AntiKt4EMTopoJets")
+STDM5SlimmingHelper.ExtraVariables += BTaggingStandardContent("AntiKt2PV0TrackJets")
+
+ExtraDictionary["BTagging_AntiKt4EMTopo"]    = "xAOD::BTaggingContainer"
+ExtraDictionary["BTagging_AntiKt4EMTopoAux"] = "xAOD::BTaggingAuxContainer"
+ExtraDictionary["BTagging_AntiKt2Track"]     = "xAOD::BTaggingContainer"
+ExtraDictionary["BTagging_AntiKt2TrackAux"]  = "xAOD::BTaggingAuxContainer"
+
 STDM5SlimmingHelper.AllVariables = ExtraContainersAll
 if isMC:
     STDM5SlimmingHelper.ExtraVariables += ExtraContentAllTruth
     STDM5SlimmingHelper.AllVariables += ExtraContainersTruth
-    STDM5SlimmingHelper.AppendToDictionary = ExtraDictionary
+    STDM5SlimmingHelper.AppendToDictionary.update(ExtraDictionary)
 
 addJetOutputs(STDM5SlimmingHelper,["STDM5","STDM5Jets"])
 

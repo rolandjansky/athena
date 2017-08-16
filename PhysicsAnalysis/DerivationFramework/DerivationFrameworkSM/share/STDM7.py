@@ -184,6 +184,12 @@ STDM7SlimmingHelper.IncludeMuonTriggerContent = True
 STDM7SlimmingHelper.ExtraVariables = ExtraContentAll
 STDM7SlimmingHelper.ExtraVariables += ["AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m"]
 
+# btagging variables
+from  DerivationFrameworkFlavourTag.BTaggingContent import *
+STDM7SlimmingHelper.ExtraVariables += BTaggingStandardContent("AntiKt4EMTopoJets")
+
+ExtraDictionary["BTagging_AntiKt4EMTopo"]    = "xAOD::BTaggingContainer"
+ExtraDictionary["BTagging_AntiKt4EMTopoAux"] = "xAOD::BTaggingAuxContainer"
 
 STDM7SlimmingHelper.AllVariables = ExtraContainersAll
 STDM7SlimmingHelper.AllVariables += ["Electrons"]
@@ -191,9 +197,8 @@ STDM7SlimmingHelper.AllVariables += ["Electrons"]
 if globalflags.DataSource()=='geant4':
     STDM7SlimmingHelper.ExtraVariables += ExtraContentAllTruth
     STDM7SlimmingHelper.AllVariables += ExtraContainersTruth
-    STDM7SlimmingHelper.AppendToDictionary = ExtraDictionary
+    STDM7SlimmingHelper.AppendToDictionary.update(ExtraDictionary)
 
     
 STDM7SlimmingHelper.AppendContentToStream(STDM7Stream)
-
 

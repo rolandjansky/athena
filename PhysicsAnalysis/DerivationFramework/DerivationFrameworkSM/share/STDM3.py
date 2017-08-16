@@ -270,10 +270,21 @@ STDM3SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxA
 
 STDM3SlimmingHelper.AllVariables = ExtraContainersAll
 
+# # btagging variables
+from  DerivationFrameworkFlavourTag.BTaggingContent import *
+
+STDM3SlimmingHelper.ExtraVariables += BTaggingStandardContent("AntiKt4EMTopoJets")
+STDM3SlimmingHelper.ExtraVariables += BTaggingStandardContent("AntiKt2PV0TrackJets")
+
+ExtraDictionary["BTagging_AntiKt4EMTopo"]    = "xAOD::BTaggingContainer"
+ExtraDictionary["BTagging_AntiKt4EMTopoAux"] = "xAOD::BTaggingAuxContainer"
+ExtraDictionary["BTagging_AntiKt2Track"]     = "xAOD::BTaggingContainer"
+ExtraDictionary["BTagging_AntiKt2TrackAux"]  = "xAOD::BTaggingAuxContainer"
+
 if isMC:
     STDM3SlimmingHelper.ExtraVariables += ExtraContentAllTruth
     STDM3SlimmingHelper.AllVariables += ExtraContainersTruth
-    STDM3SlimmingHelper.AppendToDictionary = ExtraDictionary
+    STDM3SlimmingHelper.AppendToDictionary.update(ExtraDictionary)
 
 addJetOutputs(STDM3SlimmingHelper,["STDM3","STDM3Jets"])
 

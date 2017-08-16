@@ -296,11 +296,21 @@ STDM4SlimmingHelper.ExtraVariables = ExtraContentAll +["JetETMissChargedParticle
 STDM4SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
 STDM4SlimmingHelper.AllVariables = ExtraContainersAll
 
+# # btagging variables
+from  DerivationFrameworkFlavourTag.BTaggingContent import *
+
+STDM4SlimmingHelper.ExtraVariables += BTaggingStandardContent("AntiKt4EMTopoJets")
+STDM4SlimmingHelper.ExtraVariables += BTaggingStandardContent("AntiKt2PV0TrackJets")
+
+ExtraDictionary["BTagging_AntiKt4EMTopo"]    = "xAOD::BTaggingContainer"
+ExtraDictionary["BTagging_AntiKt4EMTopoAux"] = "xAOD::BTaggingAuxContainer"
+ExtraDictionary["BTagging_AntiKt2Track"]     = "xAOD::BTaggingContainer"
+ExtraDictionary["BTagging_AntiKt2TrackAux"]  = "xAOD::BTaggingAuxContainer"
 
 if globalflags.DataSource()=='geant4':
     STDM4SlimmingHelper.ExtraVariables += ExtraContentAllTruth
     STDM4SlimmingHelper.AllVariables += ExtraContainersTruth
-    STDM4SlimmingHelper.AppendToDictionary = ExtraDictionary
+    STDM4SlimmingHelper.AppendToDictionary.update(ExtraDictionary)
 
 addJetOutputs(STDM4SlimmingHelper,["STDM4","STDM4Jets"])
 
