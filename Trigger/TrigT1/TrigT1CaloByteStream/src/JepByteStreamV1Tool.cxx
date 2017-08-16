@@ -154,9 +154,8 @@ StatusCode JepByteStreamV1Tool::convert(
   const IROBDataProviderSvc::VROBFRAG& robFrags,
   DataVector<LVL1::JetElement>* const jeCollection)
 {
-  m_jeCollection = jeCollection;
-  m_jeMap.clear();
-  return convertBs(robFrags, JET_ELEMENTS);
+  JetElementData data (jeCollection);
+  return convertBs(robFrags, data);
 }
 
 // Conversion bytestream to jet hits
@@ -165,9 +164,8 @@ StatusCode JepByteStreamV1Tool::convert(
   const IROBDataProviderSvc::VROBFRAG& robFrags,
   DataVector<LVL1::JEMHits>* const hitCollection)
 {
-  m_hitCollection = hitCollection;
-  m_hitsMap.clear();
-  return convertBs(robFrags, JET_HITS);
+  JetHitsData data (hitCollection);
+  return convertBs(robFrags, data);
 }
 
 // Conversion bytestream to energy sums
@@ -176,9 +174,8 @@ StatusCode JepByteStreamV1Tool::convert(
   const IROBDataProviderSvc::VROBFRAG& robFrags,
   DataVector<LVL1::JEMEtSums>* const etCollection)
 {
-  m_etCollection = etCollection;
-  m_etMap.clear();
-  return convertBs(robFrags, ENERGY_SUMS);
+  EnergySumsData data (etCollection);
+  return convertBs(robFrags, data);
 }
 
 // Conversion bytestream to CMM hits
@@ -187,9 +184,8 @@ StatusCode JepByteStreamV1Tool::convert(
   const IROBDataProviderSvc::VROBFRAG& robFrags,
   DataVector<LVL1::CMMJetHits>* const hitCollection)
 {
-  m_cmmHitCollection = hitCollection;
-  m_cmmHitsMap.clear();
-  return convertBs(robFrags, CMM_HITS);
+  CmmHitsData data (hitCollection);
+  return convertBs(robFrags, data);
 }
 
 // Conversion bytestream to CMM energy sums
@@ -198,9 +194,8 @@ StatusCode JepByteStreamV1Tool::convert(
   const IROBDataProviderSvc::VROBFRAG& robFrags,
   DataVector<LVL1::CMMEtSums>* const etCollection)
 {
-  m_cmmEtCollection = etCollection;
-  m_cmmEtMap.clear();
-  return convertBs(robFrags, CMM_SUMS);
+  CmmSumsData data (etCollection);
+  return convertBs(robFrags, data);
 }
 
 // Conversion of JEP container to bytestream
@@ -597,7 +592,7 @@ const std::vector<uint32_t>& JepByteStreamV1Tool::sourceIDs(
 
 StatusCode JepByteStreamV1Tool::convertBs(
   const IROBDataProviderSvc::VROBFRAG& robFrags,
-  const CollectionType collection)
+  JepByteStreamToolData& data)
 {
   const bool debug = msgLvl(MSG::DEBUG);
   if (debug) msg(MSG::DEBUG);
@@ -731,8 +726,8 @@ StatusCode JepByteStreamV1Tool::convertBs(
             m_rodErr = L1CaloSubBlock::ERROR_CRATE_NUMBER;
             break;
           }
-          if (collection == CMM_HITS) {
-            decodeCmmJet(m_cmmJetSubBlock, trigCmm);
+          if (data.m_collection == CMM_HITS) {
+            decodeCmmJet(m_cmmJetSubBlock, trigCmm, static_cast<CmmHitsData&>(data));
             if (m_rodErr != L1CaloSubBlock::ERROR_NONE) {
               if (debug) msg() << "decodeCmmJet failed" << endmsg;
               break;
@@ -747,8 +742,8 @@ StatusCode JepByteStreamV1Tool::convertBs(
             m_rodErr = L1CaloSubBlock::ERROR_CRATE_NUMBER;
             break;
           }
-          if (collection == CMM_SUMS) {
-            decodeCmmEnergy(m_cmmEnergySubBlock, trigCmm);
+          if (data.m_collection == CMM_SUMS) {
+            decodeCmmEnergy(m_cmmEnergySubBlock, trigCmm, static_cast<CmmSumsData&>(data));
             if (m_rodErr != L1CaloSubBlock::ERROR_NONE) {
               if (debug) msg() << "decodeCmmEnergy failed" << endmsg;
               break;
@@ -769,9 +764,9 @@ StatusCode JepByteStreamV1Tool::convertBs(
           m_rodErr = L1CaloSubBlock::ERROR_CRATE_NUMBER;
           break;
         }
-        if (collection == JET_ELEMENTS || collection == JET_HITS ||
-            collection == ENERGY_SUMS) {
-          decodeJem(m_jemSubBlock, trigJem, collection);
+        if (data.m_collection == JET_ELEMENTS || data.m_collection == JET_HITS ||
+            data.m_collection == ENERGY_SUMS) {
+          decodeJem(m_jemSubBlock, trigJem, data);
           if (m_rodErr != L1CaloSubBlock::ERROR_NONE) {
             if (debug) msg() << "decodeJem failed" << endmsg;
             break;
@@ -789,7 +784,8 @@ StatusCode JepByteStreamV1Tool::convertBs(
 // Unpack CMM-Energy sub-block
 
 void JepByteStreamV1Tool::decodeCmmEnergy(CmmEnergySubBlock* subBlock,
-    int trigCmm)
+                                          int trigCmm,
+                                          CmmSumsData& data)
 {
   const bool debug = msgLvl(MSG::DEBUG);
   if (debug) msg(MSG::DEBUG);
@@ -892,7 +888,7 @@ void JepByteStreamV1Tool::decodeCmmEnergy(CmmEnergySubBlock* subBlock,
       eyErr = eyErrBits.error();
       etErr = etErrBits.error();
       if (ex || ey || et || exErr || eyErr || etErr) {
-        LVL1::CMMEtSums* sums = findCmmSums(crate, dataID);
+        LVL1::CMMEtSums* sums = findCmmSums(data, crate, dataID);
         if ( ! sums ) {   // create new CMM energy sums
           m_exVec.assign(timeslices, 0);
           m_eyVec.assign(timeslices, 0);
@@ -906,11 +902,12 @@ void JepByteStreamV1Tool::decodeCmmEnergy(CmmEnergySubBlock* subBlock,
           m_exErrVec[slice] = exErr;
           m_eyErrVec[slice] = eyErr;
           m_etErrVec[slice] = etErr;
-          sums = new LVL1::CMMEtSums(swCrate, dataID, m_etVec, m_exVec, m_eyVec,
-                                     m_etErrVec, m_exErrVec, m_eyErrVec, trigCmm);
+          auto sumsp =
+            std::make_unique<LVL1::CMMEtSums>(swCrate, dataID, m_etVec, m_exVec, m_eyVec,
+                                              m_etErrVec, m_exErrVec, m_eyErrVec, trigCmm);
           const int key = crate * 100 + dataID;
-          m_cmmEtMap.insert(std::make_pair(key, sums));
-          m_cmmEtCollection->push_back(sums);
+          data.m_cmmEtMap.insert(std::make_pair(key, sumsp.get()));
+          data.m_cmmEtCollection->push_back(std::move(sumsp));
         } else {
           m_exVec = sums->ExVec();
           m_eyVec = sums->EyVec();
@@ -951,18 +948,19 @@ void JepByteStreamV1Tool::decodeCmmEnergy(CmmEnergySubBlock* subBlock,
       const unsigned int missEt = subBlock->missingEtHits(slice);
       if ( missEt || ssError ) {
         const int dataID = LVL1::CMMEtSums::MISSING_ET_MAP;
-        LVL1::CMMEtSums* map = findCmmSums(crate, dataID);
+        LVL1::CMMEtSums* map = findCmmSums(data, crate, dataID);
         if ( ! map ) {
           m_etVec.assign(timeslices, 0);
           m_etErrVec.assign(timeslices, 0);
           m_etVec[slice]    = missEt;
           m_etErrVec[slice] = ssError;
-          map = new LVL1::CMMEtSums(swCrate, dataID,
-                                    m_etVec, m_etVec, m_etVec,
-                                    m_etErrVec, m_etErrVec, m_etErrVec, trigCmm);
+          auto mapp =
+            std::make_unique<LVL1::CMMEtSums>(swCrate, dataID,
+                                              m_etVec, m_etVec, m_etVec,
+                                              m_etErrVec, m_etErrVec, m_etErrVec, trigCmm);
           const int key = crate * 100 + dataID;
-          m_cmmEtMap.insert(std::make_pair(key, map));
-          m_cmmEtCollection->push_back(map);
+          data.m_cmmEtMap.insert(std::make_pair(key, mapp.get()));
+          data.m_cmmEtCollection->push_back(std::move(mapp));
         } else {
           m_etVec    = map->EtVec();
           m_etErrVec = map->EtErrorVec();
@@ -988,18 +986,19 @@ void JepByteStreamV1Tool::decodeCmmEnergy(CmmEnergySubBlock* subBlock,
       const unsigned int sumEt = subBlock->sumEtHits(slice);
       if ( sumEt || ssError ) {
         const int dataID = LVL1::CMMEtSums::SUM_ET_MAP;
-        LVL1::CMMEtSums* map = findCmmSums(crate, dataID);
+        LVL1::CMMEtSums* map = findCmmSums(data, crate, dataID);
         if ( ! map ) {
           m_etVec.assign(timeslices, 0);
           m_etErrVec.assign(timeslices, 0);
           m_etVec[slice]    = sumEt;
           m_etErrVec[slice] = ssError;
-          map = new LVL1::CMMEtSums(swCrate, dataID,
-                                    m_etVec, m_etVec, m_etVec,
-                                    m_etErrVec, m_etErrVec, m_etErrVec, trigCmm);
+          auto mapp =
+            std::make_unique<LVL1::CMMEtSums>(swCrate, dataID,
+                                              m_etVec, m_etVec, m_etVec,
+                                              m_etErrVec, m_etErrVec, m_etErrVec, trigCmm);
           const int key = crate * 100 + dataID;
-          m_cmmEtMap.insert(std::make_pair(key, map));
-          m_cmmEtCollection->push_back(map);
+          data.m_cmmEtMap.insert(std::make_pair(key, mapp.get()));
+          data.m_cmmEtCollection->push_back(std::move(mapp));
         } else {
           m_etVec    = map->EtVec();
           m_etErrVec = map->EtErrorVec();
@@ -1026,18 +1025,19 @@ void JepByteStreamV1Tool::decodeCmmEnergy(CmmEnergySubBlock* subBlock,
         const unsigned int missEtSig = subBlock->missingEtSigHits(slice);
         if ( missEtSig || ssError ) {
           const int dataID = LVL1::CMMEtSums::MISSING_ET_SIG_MAP;
-          LVL1::CMMEtSums* map = findCmmSums(crate, dataID);
+          LVL1::CMMEtSums* map = findCmmSums(data, crate, dataID);
           if ( ! map ) {
             m_etVec.assign(timeslices, 0);
             m_etErrVec.assign(timeslices, 0);
             m_etVec[slice]    = missEtSig;
             m_etErrVec[slice] = ssError;
-            map = new LVL1::CMMEtSums(swCrate, dataID,
-                                      m_etVec, m_etVec, m_etVec,
-                                      m_etErrVec, m_etErrVec, m_etErrVec, trigCmm);
+            auto mapp =
+              std::make_unique<LVL1::CMMEtSums>(swCrate, dataID,
+                                                m_etVec, m_etVec, m_etVec,
+                                                m_etErrVec, m_etErrVec, m_etErrVec, trigCmm);
             const int key = crate * 100 + dataID;
-            m_cmmEtMap.insert(std::make_pair(key, map));
-            m_cmmEtCollection->push_back(map);
+            data.m_cmmEtMap.insert(std::make_pair(key, mapp.get()));
+            data.m_cmmEtCollection->push_back(std::move(mapp));
           } else {
             m_etVec    = map->EtVec();
             m_etErrVec = map->EtErrorVec();
@@ -1070,7 +1070,8 @@ void JepByteStreamV1Tool::decodeCmmEnergy(CmmEnergySubBlock* subBlock,
 
 // Unpack CMM-Jet sub-block
 
-void JepByteStreamV1Tool::decodeCmmJet(CmmJetSubBlock* subBlock, int trigCmm)
+void JepByteStreamV1Tool::decodeCmmJet(CmmJetSubBlock* subBlock, int trigCmm,
+                                       CmmHitsData& data)
 {
   const bool debug = msgLvl(MSG::DEBUG);
   if (debug) msg(MSG::DEBUG);
@@ -1165,16 +1166,17 @@ void JepByteStreamV1Tool::decodeCmmJet(CmmJetSubBlock* subBlock, int trigCmm)
                   subBlock->jetHitsError(slice, source));
       const int err = errBits.error();
       if (hits || err) {
-        LVL1::CMMJetHits* jh = findCmmHits(crate, dataID);
+        LVL1::CMMJetHits* jh = findCmmHits(data, crate, dataID);
         if ( ! jh ) {   // create new CMM hits
           m_hitsVec.assign(timeslices, 0);
           m_errVec.assign(timeslices, 0);
           m_hitsVec[slice] = hits;
           m_errVec[slice]  = err;
-          jh = new LVL1::CMMJetHits(swCrate, dataID, m_hitsVec, m_errVec, trigCmm);
+          auto jhp =
+            std::make_unique<LVL1::CMMJetHits>(swCrate, dataID, m_hitsVec, m_errVec, trigCmm);
           const int key = crate * 100 + dataID;
-          m_cmmHitsMap.insert(std::make_pair(key, jh));
-          m_cmmHitCollection->push_back(jh);
+          data.m_cmmHitsMap.insert(std::make_pair(key, jhp.get()));
+          data.m_cmmHitCollection->push_back(std::move(jhp));
         } else {
           m_hitsVec = jh->HitsVec();
           m_errVec  = jh->ErrorVec();
@@ -1203,16 +1205,17 @@ void JepByteStreamV1Tool::decodeCmmJet(CmmJetSubBlock* subBlock, int trigCmm)
       const unsigned int etMap = subBlock->jetEtMap(slice);
       if ( etMap || ssError ) {
         const int dataID = LVL1::CMMJetHits::ET_MAP;
-        LVL1::CMMJetHits* map = findCmmHits(crate, dataID);
+        LVL1::CMMJetHits* map = findCmmHits(data, crate, dataID);
         if ( ! map ) {
           m_hitsVec.assign(timeslices, 0);
           m_errVec.assign(timeslices, 0);
           m_hitsVec[slice] = etMap;
           m_errVec[slice]  = ssError;
-          map = new LVL1::CMMJetHits(swCrate, dataID, m_hitsVec, m_errVec, trigCmm);
+          auto mapp =
+            std::make_unique<LVL1::CMMJetHits>(swCrate, dataID, m_hitsVec, m_errVec, trigCmm);
           const int key = crate * 100 + dataID;
-          m_cmmHitsMap.insert(std::make_pair(key, map));
-          m_cmmHitCollection->push_back(map);
+          data.m_cmmHitsMap.insert(std::make_pair(key, mapp.get()));
+          data.m_cmmHitCollection->push_back(std::move(mapp));
         } else {
           m_hitsVec = map->HitsVec();
           m_errVec  = map->ErrorVec();
@@ -1242,7 +1245,7 @@ void JepByteStreamV1Tool::decodeCmmJet(CmmJetSubBlock* subBlock, int trigCmm)
 // Unpack JEM sub-block
 
 void JepByteStreamV1Tool::decodeJem(JemSubBlockV1* subBlock, int trigJem,
-                                    const CollectionType collection)
+                                    JepByteStreamToolData& data)
 {
   const bool debug   = msgLvl(MSG::DEBUG);
   const bool verbose = msgLvl(MSG::VERBOSE);
@@ -1294,7 +1297,8 @@ void JepByteStreamV1Tool::decodeJem(JemSubBlockV1* subBlock, int trigJem,
   const int sliceEnd = ( neutralFormat ) ? timeslices : sliceNum + 1;
   for (int slice = sliceBeg; slice < sliceEnd; ++slice) {
 
-    if (collection == JET_ELEMENTS) {
+    if (data.m_collection == JET_ELEMENTS) {
+      JetElementData& jedata = static_cast<JetElementData&>(data);
 
       // Loop over jet element channels and fill jet elements
 
@@ -1306,13 +1310,15 @@ void JepByteStreamV1Tool::decodeJem(JemSubBlockV1* subBlock, int trigJem,
           int layer = 0;
           if (m_jemMaps->mapping(crate, module, chan, eta, phi, layer)) {
             if (layer == m_coreOverlap) {
-              LVL1::JetElement* je = findJetElement(eta, phi);
+	      LVL1::JetElement* je = findJetElement(jedata, eta, phi);
               if ( ! je ) {   // create new jet element
                 const unsigned int key = m_elementKey->jeKey(phi, eta);
-                je = new LVL1::JetElement(phi, eta, dummy, dummy, key,
-                                          dummy, dummy, dummy, trigJem);
-                m_jeMap.insert(std::make_pair(key, je));
-                m_jeCollection->push_back(je);
+                auto jep =
+                  std::make_unique<LVL1::JetElement>(phi, eta, dummy, dummy, key,
+                                                     dummy, dummy, dummy, trigJem);
+                je = jep.get();
+                jedata.m_jeMap.insert(std::make_pair(key, jep.get()));
+                jedata.m_jeCollection->push_back(std::move(jep));
               } else {
                 const std::vector<int>& emEnergy(je->emEnergyVec());
                 const std::vector<int>& hadEnergy(je->hadEnergyVec());
@@ -1357,19 +1363,21 @@ void JepByteStreamV1Tool::decodeJem(JemSubBlockV1* subBlock, int trigJem,
           msg(MSG::DEBUG);
         }
       }
-    } else if (collection == JET_HITS) {
+    } else if (data.m_collection == JET_HITS) {
+      JetHitsData& jhdata = static_cast<JetHitsData&>(data);
 
       // Get jet hits
 
       const unsigned int hits = subBlock->jetHits(slice);
       if (hits) {
-        LVL1::JEMHits* jh = findJetHits(crate, module);
+        LVL1::JEMHits* jh = findJetHits(jhdata, crate, module);
         if ( ! jh ) {   // create new jet hits
           m_hitsVec.assign(timeslices, 0);
           m_hitsVec[slice] = hits;
-          jh = new LVL1::JEMHits(swCrate, module, m_hitsVec, trigJem);
-          m_hitsMap.insert(std::make_pair(crate * m_modules + module, jh));
-          m_hitCollection->push_back(jh);
+          auto jhp =
+            std::make_unique<LVL1::JEMHits>(swCrate, module, m_hitsVec, trigJem);
+          jhdata.m_hitsMap.insert(std::make_pair(crate * m_modules + module, jhp.get()));
+          jhdata.m_hitCollection->push_back(std::move(jhp));
         } else {
           m_hitsVec = jh->JetHitsVec();
           const int nsl = m_hitsVec.size();
@@ -1396,7 +1404,8 @@ void JepByteStreamV1Tool::decodeJem(JemSubBlockV1* subBlock, int trigJem,
                           << endmsg;
         msg(MSG::DEBUG);
       }
-    } else if (collection == ENERGY_SUMS) {
+    } else if (data.m_collection == ENERGY_SUMS) {
+      EnergySumsData& sumdata = static_cast<EnergySumsData&>(data);
 
       // Get energy subsums
 
@@ -1404,7 +1413,7 @@ void JepByteStreamV1Tool::decodeJem(JemSubBlockV1* subBlock, int trigJem,
       const unsigned int ey = subBlock->ey(slice);
       const unsigned int et = subBlock->et(slice);
       if (ex | ey | et) {
-        LVL1::JEMEtSums* sums = findEnergySums(crate, module);
+	LVL1::JEMEtSums* sums = findEnergySums(sumdata, crate, module);
         if ( ! sums ) {   // create new energy sums
           m_exVec.assign(timeslices, 0);
           m_eyVec.assign(timeslices, 0);
@@ -1412,10 +1421,11 @@ void JepByteStreamV1Tool::decodeJem(JemSubBlockV1* subBlock, int trigJem,
           m_exVec[slice] = ex;
           m_eyVec[slice] = ey;
           m_etVec[slice] = et;
-          sums = new LVL1::JEMEtSums(swCrate, module, m_etVec, m_exVec, m_eyVec,
-                                     trigJem);
-          m_etMap.insert(std::make_pair(crate * m_modules + module, sums));
-          m_etCollection->push_back(sums);
+          auto sumsp =
+            std::make_unique<LVL1::JEMEtSums>(swCrate, module, m_etVec, m_exVec, m_eyVec,
+                                              trigJem);
+          sumdata.m_etMap.insert(std::make_pair(crate * m_modules + module, sumsp.get()));
+          sumdata.m_etCollection->push_back(std::move(sumsp));
         } else {
           m_exVec = sums->ExVec();
           m_eyVec = sums->EyVec();
@@ -1455,63 +1465,104 @@ void JepByteStreamV1Tool::decodeJem(JemSubBlockV1* subBlock, int trigJem,
 
 // Find a jet element given eta, phi
 
+const 
 LVL1::JetElement* JepByteStreamV1Tool::findJetElement(const double eta,
-    const double phi)
+                                                      const double phi) const
 {
-  LVL1::JetElement* tt = 0;
   const unsigned int key = m_elementKey->jeKey(phi, eta);
-  JetElementMap::const_iterator mapIter;
-  mapIter = m_jeMap.find(key);
-  if (mapIter != m_jeMap.end()) tt = mapIter->second;
-  return tt;
+  ConstJetElementMap::const_iterator mapIter = m_jeMap.find(key);
+  if (mapIter != m_jeMap.end()) return mapIter->second;
+  return nullptr;
+}
+
+LVL1::JetElement* JepByteStreamV1Tool::findJetElement(const JetElementData& data,
+                                                      const double eta,
+                                                      const double phi) const
+{
+  const unsigned int key = m_elementKey->jeKey(phi, eta);
+  JetElementMap::const_iterator mapIter = data.m_jeMap.find(key);
+  if (mapIter != data.m_jeMap.end()) return mapIter->second;
+  return nullptr;
 }
 
 // Find jet hits for given crate, module
 
+const
 LVL1::JEMHits* JepByteStreamV1Tool::findJetHits(const int crate,
-    const int module)
+                                                const int module) const
 {
-  LVL1::JEMHits* hits = 0;
-  JetHitsMap::const_iterator mapIter;
-  mapIter = m_hitsMap.find(crate * m_modules + module);
-  if (mapIter != m_hitsMap.end()) hits = mapIter->second;
-  return hits;
+  ConstJetHitsMap::const_iterator mapIter = m_hitsMap.find(crate * m_modules + module);
+  if (mapIter != m_hitsMap.end()) return mapIter->second;
+  return nullptr;
+}
+
+LVL1::JEMHits* JepByteStreamV1Tool::findJetHits(const JetHitsData& data,
+                                                const int crate,
+                                                const int module) const
+{
+  JetHitsMap::const_iterator mapIter = data.m_hitsMap.find(crate * m_modules + module);
+  if (mapIter != data.m_hitsMap.end()) return mapIter->second;
+  return nullptr;
 }
 
 // Find energy sums for given crate, module
 
+const
 LVL1::JEMEtSums* JepByteStreamV1Tool::findEnergySums(const int crate,
-    const int module)
+                                                     const int module) const
 {
-  LVL1::JEMEtSums* sums = 0;
-  EnergySumsMap::const_iterator mapIter;
-  mapIter = m_etMap.find(crate * m_modules + module);
-  if (mapIter != m_etMap.end()) sums = mapIter->second;
-  return sums;
+  ConstEnergySumsMap::const_iterator mapIter = m_etMap.find(crate * m_modules + module);
+  if (mapIter != m_etMap.end()) return mapIter->second;
+  return nullptr;
+}
+
+LVL1::JEMEtSums* JepByteStreamV1Tool::findEnergySums(const EnergySumsData& data,
+                                                     const int crate,
+                                                     const int module) const
+{
+  EnergySumsMap::const_iterator mapIter = data.m_etMap.find(crate * m_modules + module);
+  if (mapIter != data.m_etMap.end()) return mapIter->second;
+  return nullptr;
 }
 
 // Find CMM hits for given crate, dataID
 
+const
 LVL1::CMMJetHits* JepByteStreamV1Tool::findCmmHits(const int crate,
-    const int dataID)
+                                                   const int dataID) const
 {
-  LVL1::CMMJetHits* hits = 0;
-  CmmHitsMap::const_iterator mapIter;
-  mapIter = m_cmmHitsMap.find(crate * 100 + dataID);
-  if (mapIter != m_cmmHitsMap.end()) hits = mapIter->second;
-  return hits;
+  ConstCmmHitsMap::const_iterator mapIter = m_cmmHitsMap.find(crate * 100 + dataID);
+  if (mapIter != m_cmmHitsMap.end()) return mapIter->second;
+  return nullptr;
+}
+
+LVL1::CMMJetHits* JepByteStreamV1Tool::findCmmHits(const CmmHitsData& data,
+                                                   const int crate,
+                                                   const int dataID) const
+{
+  CmmHitsMap::const_iterator mapIter = data.m_cmmHitsMap.find(crate * 100 + dataID);
+  if (mapIter != data.m_cmmHitsMap.end()) return mapIter->second;
+  return nullptr;
 }
 
 // Find CMM energy sums for given crate, module, dataID
 
+const
 LVL1::CMMEtSums* JepByteStreamV1Tool::findCmmSums(const int crate,
-    const int dataID)
+                                                  const int dataID) const
 {
-  LVL1::CMMEtSums* sums = 0;
-  CmmSumsMap::const_iterator mapIter;
-  mapIter = m_cmmEtMap.find(crate * 100 + dataID);
-  if (mapIter != m_cmmEtMap.end()) sums = mapIter->second;
-  return sums;
+  ConstCmmSumsMap::const_iterator mapIter = m_cmmEtMap.find(crate * 100 + dataID);
+  if (mapIter != m_cmmEtMap.end()) return mapIter->second;
+  return nullptr;
+}
+
+LVL1::CMMEtSums* JepByteStreamV1Tool::findCmmSums(const CmmSumsData& data,
+                                                  const int crate,
+                                                  const int dataID) const
+{
+  CmmSumsMap::const_iterator mapIter = data.m_cmmEtMap.find(crate * 100 + dataID);
+  if (mapIter != data.m_cmmEtMap.end()) return mapIter->second;
+  return nullptr;
 }
 
 // Set up jet element map
@@ -1531,6 +1582,7 @@ void JepByteStreamV1Tool::setupJeMap(const JetElementCollection*
   }
 }
 
+
 // Set up jet hits map
 
 void JepByteStreamV1Tool::setupHitsMap(const JetHitsCollection*
@@ -1541,7 +1593,7 @@ void JepByteStreamV1Tool::setupHitsMap(const JetHitsCollection*
     JetHitsCollection::const_iterator pos  = hitCollection->begin();
     JetHitsCollection::const_iterator pose = hitCollection->end();
     for (; pos != pose; ++pos) {
-      LVL1::JEMHits* const hits = *pos;
+      const LVL1::JEMHits* const hits = *pos;
       const int crate = hits->crate() - m_crateOffsetSw;
       const int key   = m_modules * crate + hits->module();
       m_hitsMap.insert(std::make_pair(key, hits));
@@ -1559,7 +1611,7 @@ void JepByteStreamV1Tool::setupEtMap(const EnergySumsCollection*
     EnergySumsCollection::const_iterator pos  = etCollection->begin();
     EnergySumsCollection::const_iterator pose = etCollection->end();
     for (; pos != pose; ++pos) {
-      LVL1::JEMEtSums* const sums = *pos;
+      const LVL1::JEMEtSums* const sums = *pos;
       const int crate = sums->crate() - m_crateOffsetSw;
       const int key   = m_modules * crate + sums->module();
       m_etMap.insert(std::make_pair(key, sums));
@@ -1577,7 +1629,7 @@ void JepByteStreamV1Tool::setupCmmHitsMap(const CmmHitsCollection*
     CmmHitsCollection::const_iterator pos  = hitCollection->begin();
     CmmHitsCollection::const_iterator pose = hitCollection->end();
     for (; pos != pose; ++pos) {
-      LVL1::CMMJetHits* const hits = *pos;
+      const LVL1::CMMJetHits* const hits = *pos;
       const int crate = hits->crate() - m_crateOffsetSw;
       const int key   = crate * 100 + hits->dataID();
       m_cmmHitsMap.insert(std::make_pair(key, hits));
@@ -1595,7 +1647,7 @@ void JepByteStreamV1Tool::setupCmmEtMap(const CmmSumsCollection*
     CmmSumsCollection::const_iterator pos  = etCollection->begin();
     CmmSumsCollection::const_iterator pose = etCollection->end();
     for (; pos != pose; ++pos) {
-      LVL1::CMMEtSums* const sums = *pos;
+      const LVL1::CMMEtSums* const sums = *pos;
       const int crate = sums->crate() - m_crateOffsetSw;
       const int key   = crate * 100 + sums->dataID();
       m_cmmEtMap.insert(std::make_pair(key, sums));

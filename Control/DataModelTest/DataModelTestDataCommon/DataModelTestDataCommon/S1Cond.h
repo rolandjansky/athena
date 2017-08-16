@@ -21,7 +21,6 @@
 
 
 CLASS_DEF (CondCont<DMTest::S1>, 243030043, 0)
-SG_BASE (CondCont<DMTest::S1>, CondContBase);
 
 
 #endif // not DATAMODELTESTDATACOMMON_S1COND_H

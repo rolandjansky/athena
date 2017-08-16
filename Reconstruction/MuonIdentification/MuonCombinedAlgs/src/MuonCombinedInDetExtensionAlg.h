@@ -7,6 +7,8 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "MuonCombinedEvent/InDetCandidateCollection.h"
 #include <string>
 
 namespace MuonCombined {
@@ -26,8 +28,7 @@ class MuonCombinedInDetExtensionAlg : public AthAlgorithm
 
  private:
   ToolHandleArray<MuonCombined::IMuonCombinedInDetExtensionTool> m_muonCombinedInDetExtensionTools;
-  std::string m_indetCandidateCollectionName;
-
+  SG::ReadHandleKey<InDetCandidateCollection> m_indetCandidateCollectionName;
 };
 
 

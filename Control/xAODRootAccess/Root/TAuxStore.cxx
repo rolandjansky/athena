@@ -464,6 +464,15 @@ namespace xAOD {
       return;
    }
 
+   /// Lock a decoration.
+   void TAuxStore::lockDecoration (SG::auxid_t auxid)
+   { 
+     if( m_transientStore ) {
+       m_transientStore->lockDecoration (auxid);
+     }
+   }
+
+
    size_t TAuxStore::size() const {
 
       // First, try to find a managed vector in the store:

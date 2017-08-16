@@ -711,39 +711,37 @@ StatusCode HLTBjetMonTool::book(){
       HistExt = "_"+trigItem;
       ATH_MSG_DEBUG(" HistDir " << HistDir << " HistExt " << HistExt );
       // Set container names (2016/03/03) see TrigBtagEmulation.cxx
-      // Non split input chaines
+      // Set keys
+      // HLT non split input chaines
       std::string m_jetKey = "";
       std::string m_priVtxKey = "EFHistoPrmVtx";
       std::string m_trackKey  = "";
-      // Split input chaines
+      // HLT split input chaines
       std::size_t found = trigItem.find("split");
       if (found!=std::string::npos) {
 	m_jetKey = "SplitJet";
 	m_priVtxKey = "xPrimVx";
 	m_trackKey  = "InDetTrigTrackingxAODCnv_Bjet_IDTrig";
       }
-      // FTK input chains
+      // FTK input chains: John Baines and Julie Hart 
       std::size_t found1 = trigItem.find("FTK");
       if (found1!=std::string::npos) {
 	m_priVtxKey = "HLT_PrimVertexFTK";
 	m_trackKey  = "InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig";
 	std::size_t found2 = trigItem.find("FTKRefit");
         if (found2!=std::string::npos) {
-	  //          m_priVtxKey = "HLT_PrimVertexFTKRefit";
-	  //          m_trackKey  = "InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig";
           m_trackKey  = "InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig";
         }//found2
 	std::size_t found3 = trigItem.find("FTKVtx");
         if (found3!=std::string::npos) {
           m_trackKey  = "InDetTrigTrackingxAODCnv_Bjet_IDTrig";
         }//found3
-	/*
-	else {
-	  //          m_priVtxKey = "HLT_PrimVertexFTK";
-          m_trackKey  = "InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig";
-        }//else
-	*/
       }//found1
+      // gsc input chains: Ruch Gupta 2017/08/02 
+      std::size_t found4 = trigItem.find("gsc");
+      if (found4!=std::string::npos) {
+	m_jetKey = "GSCJet";
+      } // if found4
       ATH_MSG_DEBUG( " Trigger chain name: " << trigItem << " m_jetKey: " << m_jetKey << " m_priVtxKey: " << m_priVtxKey << " m_trackKey: " << m_trackKey );
       ATH_MSG_DEBUG("PROCESSING TRIGITEM  -  " << trigItem);
       // Set flag MuJet

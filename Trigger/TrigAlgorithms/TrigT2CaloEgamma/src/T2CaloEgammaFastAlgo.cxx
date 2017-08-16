@@ -86,6 +86,7 @@ StatusCode T2CaloEgammaFastAlgo::execute()
   (*m_log) << MSG::INFO << "in execute()" << endmsg;
 #endif
 
+  m_trigEmClusterCollection = SG::WriteHandle<xAOD::TrigEMClusterContainer>( m_clusterContainerKey, getContext() );
   ATH_CHECK( m_trigEmClusterCollection.record( CxxUtils::make_unique<xAOD::TrigEMClusterContainer>(), CxxUtils::make_unique<xAOD::TrigEMClusterAuxContainer>() ) );
 
   auto roisHandle = SG::makeHandle( m_roiCollectionKey );

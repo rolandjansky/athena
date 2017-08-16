@@ -10,18 +10,16 @@
 
 #include <string>
 
-class HelloTool : virtual public IHelloTool, virtual public AthAlgTool {
+class HelloTool : virtual public extends<AthAlgTool, IHelloTool> {
 public:
    HelloTool( const std::string&, const std::string&, const IInterface* );
-
-// to allow access to the IHelloTool interface
-   StatusCode queryInterface( const InterfaceID& riid, void** ppvIf );
 
 // the magic method this tool provides
    virtual StatusCode saySomething();
 
 private:
-   std::string m_myMessage;
+  Gaudi::Property<std::string> m_myMessage {this, "MyMessage", 
+      "Default message set in HelloTool.h", "something to say"};
 };
 
 #endif

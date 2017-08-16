@@ -12,8 +12,7 @@ TrigTRTHTHhypo::TrigTRTHTHhypo(const std::string& name, ISvcLocator* pSvcLocator
   m_minTRTHTHitsWedge(0),
   m_minHTratioWedge(0.),
   m_doWedge(0),
-  m_doRoad(0),
-  m_minCaloE(0.)
+  m_doRoad(0)
 {
   declareProperty("AcceptAll",         m_acceptAll = false ); 
   declareProperty("MinTRTHTHitsRoad",  m_minTRTHTHitsRoad = 20); 

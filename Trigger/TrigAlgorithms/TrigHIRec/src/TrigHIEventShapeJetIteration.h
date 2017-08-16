@@ -65,8 +65,6 @@ private:
 
   mutable bool m_isInit;
 
-  bool m_do_remodulation;
-  unsigned int m_modulation_scheme;
   std::string m_modulation_key;
 };
 

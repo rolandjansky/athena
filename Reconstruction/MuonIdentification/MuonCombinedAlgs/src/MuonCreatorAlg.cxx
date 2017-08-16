@@ -5,7 +5,6 @@
 #include "MuonCreatorAlg.h"
 #include "MuonCombinedToolInterfaces/IMuonCreatorTool.h"
 
-#include "MuonCombinedEvent/InDetCandidateCollection.h"
 #include "MuonCombinedEvent/MuonCandidateCollection.h"
 #include "xAODMuon/MuonContainer.h"
 #include "xAODMuon/MuonAuxContainer.h"
@@ -36,14 +35,12 @@ MuonCreatorAlg::MuonCreatorAlg(const std::string& name, ISvcLocator* pSvcLocator
   declareProperty("ClusterContainerName",m_clusterContainerName="MuonClusterCollection");
 }
 
-MuonCreatorAlg::~MuonCreatorAlg()
-{
-
-}
+MuonCreatorAlg::~MuonCreatorAlg(){}
 
 StatusCode MuonCreatorAlg::initialize()
 {
   ATH_CHECK(m_muonCreatorTool.retrieve());
+  ATH_CHECK(m_indetCandidateCollectionName.initialize());
 
   return StatusCode::SUCCESS; 
 }
@@ -51,14 +48,12 @@ StatusCode MuonCreatorAlg::initialize()
 StatusCode MuonCreatorAlg::execute()
 {
 
-  InDetCandidateCollection* indetCandidateCollection = 0;
-  if(evtStore()->contains<InDetCandidateCollection>(m_indetCandidateCollectionName)) {
-    if(evtStore()->retrieve(indetCandidateCollection,m_indetCandidateCollectionName).isFailure()) {
-      ATH_MSG_FATAL( "Unable to retrieve " << m_indetCandidateCollectionName );
-      return StatusCode::FAILURE;
-    }
+  SG::ReadHandle<InDetCandidateCollection> indetCandidateCollection(m_indetCandidateCollectionName);
+  if(!indetCandidateCollection.isValid()){
+    ATH_MSG_ERROR("Could not read "<< m_indetCandidateCollectionName);
+    return StatusCode::FAILURE;
   }
-  
+
   MuonCandidateCollection* muonCandidateCollection = 0;
   if(evtStore()->contains<MuonCandidateCollection>(m_muonCandidateCollectionName)) {
     if(evtStore()->retrieve(muonCandidateCollection,m_muonCandidateCollectionName).isFailure()) {
@@ -106,10 +101,11 @@ StatusCode MuonCreatorAlg::execute()
   if( m_clusterContainerName != "" ) ATH_CHECK(retrieveOrCreateAndRecord(output.clusterContainer));
   
   // build muons
-  if(!muonCandidateCollection || !indetCandidateCollection){
+  if(!muonCandidateCollection){
     ATH_MSG_WARNING("candidate collection missing, skip muon creation");
   }
-  else m_muonCreatorTool->create(muonCandidateCollection,indetCandidateCollection,output);
+
+  else m_muonCreatorTool->create(muonCandidateCollection, indetCandidateCollection.cptr() ,output);
 
   return StatusCode::SUCCESS;
 }

@@ -143,6 +143,7 @@ from TriggerMenu.egamma.EgammaSliceFlags import EgammaSliceFlags
 from egammaMVACalib import egammaMVACalibConf 
 mlog.info("MVA version version %s"%EgammaSliceFlags.calibMVAVersion() )
 mlog.info("Cluster Correction version %s"%EgammaSliceFlags.clusterCorrectionVersion() )
+EgammaSliceFlags.calibMVAVersion.set_On()
 TrigEgammaMVACalibTool = ToolFactory(egammaMVACalibConf.egammaMVATool,name="TrigEgammaMVACalibTool",
         folder=EgammaSliceFlags.calibMVAVersion(),use_layer_corrected = False)
 

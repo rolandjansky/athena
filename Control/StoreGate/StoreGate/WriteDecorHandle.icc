@@ -75,6 +75,22 @@ WriteDecorHandle<T, D>::WriteDecorHandle (WriteDecorHandle&& rhs)
 
 
 /**
+ * @brief Destructor.  This will lock the decoration.
+ */
+template <class T, class D>
+WriteDecorHandle<T, D>::~WriteDecorHandle()
+{
+  // Lock the decoration.  But don't do anything if we haven't touched it.
+  if (this->cachedPtr()) {
+    const IConstAuxStore* store = this->vectorData()->getConstStore();
+    if (store) {
+      const_cast<IConstAuxStore*>(store)->lockDecoration (auxid());
+    }
+  }
+}
+
+
+/**
  * @brief Assignment operator.
  */
 template <class T, class D>

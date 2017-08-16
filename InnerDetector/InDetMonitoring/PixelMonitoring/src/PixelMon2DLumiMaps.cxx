@@ -8,7 +8,6 @@
 
 #include "PixelMonitoring/PixelMon2DLumiMaps.h"
 #include "InDetIdentifier/PixelID.h"
-//#include "TH2I.h"
 #include "LWHists/TH2F_LW.h"
 #include "GaudiKernel/StatusCode.h"     
 #include <string.h>
@@ -63,18 +62,6 @@ void PixelMon2DLumiMaps::Fill(double LB,Identifier &id, const PixelID* pixID,dou
          IBLlbm->Fill(LB, em + 4 + 20 * pm, weight);
       }
    }
-}
-
-void PixelMon2DLumiMaps::Scale (double number)
-{
-   if (number==0) return; //shouldn't happen the way function is called, but dummy check to avoid divide by zero
-
-   Albm->scaleContentsAndErrors((float) 1.0/number);
-   Clbm->scaleContentsAndErrors((float) 1.0/number);
-   B0lbm->scaleContentsAndErrors((float) 1.0/number);
-   B1lbm->scaleContentsAndErrors((float) 1.0/number);
-   B2lbm->scaleContentsAndErrors((float) 1.0/number);
-   if (!m_errorHist && m_doIBL) IBLlbm->scaleContentsAndErrors((float) 1.0/number);
 }
 
 void PixelMon2DLumiMaps::formatHist()
