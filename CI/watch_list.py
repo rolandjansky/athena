@@ -23,4 +23,4 @@ WATCH_LIST['(PixelMonitoring)|(PixelConditionsServices)|(PixelRawData)'] = set([
 WATCH_LIST['IsolationSelection'] = set(['maklein','jojungge','jpoveda','dzhang'])
 WATCH_LIST['PhysicsAnalysis/SUSYPhys'] = set(['zmarshal','szambito'])
 WATCH_LIST['DerivationFrameworkDataPrep'] = set(['zmarshal'])
-WATCH_LIST['DerivationFrameworkSUSY'] = set('zmarshal','martindl','whopkins'])
+WATCH_LIST['DerivationFrameworkSUSY'] = set(['zmarshal','martindl','whopkins'])
