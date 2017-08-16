@@ -21,6 +21,7 @@
 
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IIncidentListener.h"
 
 #include "xAODTrigL1Calo/TriggerTower.h"
@@ -29,6 +30,10 @@
 class TH1F_LW;
 class TH2F_LW;
 class TH2I_LW;
+
+class L1CaloCondSvc;
+class L1CaloRunParametersContainer;
+class L1CaloReadoutConfigContainer;
 
 class StatusCode;
 class EventInfo;
@@ -85,7 +90,7 @@ private:
   ToolHandle<Trig::TrigDecisionTool> m_trigDec;
 
     
-
+  StatusCode retrieveConditions();
   void bookEventHistograms(std::string number);
   bool pulseQuality(std::vector<uint16_t> ttPulse, int peakSlice);
   
@@ -140,6 +145,12 @@ private:
   std::string m_PathInRootFile;
   /// xAODTriggerTower Container key
   std::string m_xAODTriggerTowerContainerName;
+  /// L1Calo conditions                                                                               
+  ServiceHandle<L1CaloCondSvc> m_l1CondSvc;
+  /// Database container for the run parameters
+  L1CaloRunParametersContainer* m_runParametersContainer;
+  /// Database container for the readout configuration
+  L1CaloReadoutConfigContainer* m_readoutConfigContainer;
     
 };
 

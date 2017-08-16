@@ -166,6 +166,11 @@ if l1caloRawMon:
         )
         ToolSvc += L1MistimedStreamTool
         L1CaloMan.AthenaMonTools += [L1MistimedStreamTool]
+        from TrigT1CaloCondSvc.TrigT1CaloCondSvcConf import L1CaloCondSvc
+        ServiceMgr += L1CaloCondSvc()
+        from IOVDbSvc.CondDB import conddb
+        conddb.addFolderWithTag("TRIGGER","/TRIGGER/L1Calo/V1/Conditions/RunParameters","HEAD")
+        conddb.addFolderWithTag("TRIGGER","/TRIGGER/L1Calo/V2/Configuration/ReadoutConfig","HEAD")
         
         if isData:
 
@@ -181,7 +186,6 @@ if l1caloRawMon:
             ServiceMgr += L1CaloCondSvc()
             from IOVDbSvc.CondDB import conddb
             conddb.addFolderWithTag("TRIGGER","/TRIGGER/L1Calo/V1/Conditions/RunParameters","HEAD")
-
 
             #--------------------------------- PPM Spare Channels--------------
             from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__PPrSpareMon

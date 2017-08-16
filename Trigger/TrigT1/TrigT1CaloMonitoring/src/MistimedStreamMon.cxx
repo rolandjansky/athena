@@ -32,6 +32,13 @@
 #include "TrigT1CaloEvent/TriggerTower_ClassDEF.h"
 #include "TrigT1CaloUtils/DataError.h"
 
+//for the 80MHz functionality (db access)
+#include "TrigT1CaloCondSvc/L1CaloCondSvc.h"
+#include "TrigT1CaloCalibConditions/L1CaloRunParameters.h"  
+#include "TrigT1CaloCalibConditions/L1CaloRunParametersContainer.h"  
+#include "TrigT1CaloCalibConditions/L1CaloReadoutConfig.h"  
+#include "TrigT1CaloCalibConditions/L1CaloReadoutConfigContainer.h"  
+
 #include "xAODTrigL1Calo/TriggerTowerContainer.h"
 #include "xAODTrigL1Calo/TriggerTowerAuxContainer.h"
 #include "xAODTrigL1Calo/CPMTowerContainer.h"
@@ -49,6 +56,7 @@ MistimedStreamMon::MistimedStreamMon(const std::string & type, const std::string
       m_selectedEventCounter(0),
       m_errorTool("LVL1::TrigT1CaloMonErrorTool/TrigT1CaloMonErrorTool"),
       m_histTool("LVL1::TrigT1CaloLWHistogramTool/TrigT1CaloLWHistogramTool"),
+      m_l1CondSvc("L1CaloCondSvc",name),      
       m_ttTool("LVL1::L1TriggerTowerTool/L1TriggerTowerTool"), // can provide coolID, prob. not needed
       m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
       m_h_1d_cutFlow_mistimedStreamAna(0),
@@ -73,8 +81,7 @@ MistimedStreamMon::MistimedStreamMon(const std::string & type, const std::string
 {
      declareProperty("PathInRootFile", m_PathInRootFile = "L1Calo/MistimedStream");
      declareProperty("TrigDecisionTool", m_trigDec, "The tool to access TrigDecision" );
-     declareProperty("BS_xAODTriggerTowerContainer",
-                  m_xAODTriggerTowerContainerName =                     LVL1::TrigT1CaloDefs::xAODTriggerTowerLocation);
+     declareProperty("BS_xAODTriggerTowerContainer", m_xAODTriggerTowerContainerName = LVL1::TrigT1CaloDefs::xAODTriggerTowerLocation);
 }
 
 MistimedStreamMon::~MistimedStreamMon()
@@ -97,7 +104,8 @@ StatusCode MistimedStreamMon::initialize()
   CHECK(m_histTool.retrieve());
   CHECK(m_ttTool.retrieve());
   CHECK(m_trigDec.retrieve());
-
+  CHECK(m_l1CondSvc.retrieve());
+  
   std::cout<<"Here comes the MistimedStream Analysis"<<std::endl;
   
   return StatusCode::SUCCESS;
@@ -128,6 +136,32 @@ bool MistimedStreamMon::pulseQuality(std::vector<uint16_t> ttPulse, int peakSlic
 //     std::cout<<"Pulse qual= "<< goodPulse<<" tim = "<<tim<<" wid = "<<wid <<std::endl;
 //     std::cout<<"a = "<< a <<" b = "<<b<<" c = "<<c <<std::endl;
     return goodPulse;
+}
+
+/*---------------------------------------------------------*/
+StatusCode MistimedStreamMon:: retrieveConditions()
+/*---------------------------------------------------------*/
+{
+  ATH_MSG_VERBOSE("PPMSimBSMon::retrieveConditions");
+  if (m_l1CondSvc) {
+    ATH_MSG_VERBOSE( "Retrieving Run Parameters Containers" );
+    CHECK_WITH_CONTEXT(m_l1CondSvc->retrieve(m_runParametersContainer),"MistimedStreamMon");
+    if (std::cbegin(*m_runParametersContainer) == std::cend(*m_runParametersContainer)) {
+      ATH_MSG_ERROR("Empty L1CaloRunParametersContainer");
+      return StatusCode::FAILURE;
+    }
+    ATH_MSG_VERBOSE( "Retrieving Readount Configuration Containers" );
+    CHECK_WITH_CONTEXT(m_l1CondSvc->retrieve(m_readoutConfigContainer),"MistimedStreamMon");
+    if (std::cbegin(*m_readoutConfigContainer) == std::cend(*m_readoutConfigContainer)) {
+      ATH_MSG_ERROR("Empty L1CaloReadoutConfigContainer");
+      return StatusCode::FAILURE;
+    }
+
+  }else{
+    ATH_MSG_ERROR("L1CondSvc not present!");
+  }
+
+  return StatusCode::SUCCESS;
 }
 
 
@@ -238,7 +272,7 @@ StatusCode MistimedStreamMon::bookHistogramsRecurrent() // based on bookHistogra
                            9, 0, 9); // overall cutflow plot
    
     m_h_1d_cutFlow_mistimedStreamAna->GetXaxis()->SetBinLabel( 1, "All" );
-    m_h_1d_cutFlow_mistimedStreamAna->GetXaxis()->SetBinLabel( 2, "5 slice readout" );
+    m_h_1d_cutFlow_mistimedStreamAna->GetXaxis()->SetBinLabel( 2, "unsuitable readout" );
     m_h_1d_cutFlow_mistimedStreamAna->GetXaxis()->SetBinLabel( 3, "HLT_mistimemonj400" );
     m_h_1d_cutFlow_mistimedStreamAna->GetXaxis()->SetBinLabel( 4, "L1_J100" );
     m_h_1d_cutFlow_mistimedStreamAna->GetXaxis()->SetBinLabel( 5, "<= 4 bad peak TT" );
@@ -324,6 +358,42 @@ StatusCode MistimedStreamMon::fillHistograms()
   const xAOD::JetElementContainer* jetEleCon = 0;
   CHECK(evtStore()->retrieve(jetEleCon,"JetElements")); 
   
+  //Get readout info from data base
+  if(this->retrieveConditions().isFailure()) {
+      REPORT_MESSAGE(MSG::WARNING);
+      return StatusCode::FAILURE;
+  }
+  
+  m_readoutConfigContainer->readoutConfig(6);
+  
+  unsigned int readoutConfigID   = std::cbegin(*m_runParametersContainer)->readoutConfigID();
+  unsigned int channelID = 0;
+  unsigned int numFadcSlices = 0; 
+  unsigned int l1aFadcSlice = 0; 
+  unsigned int readout80ModePpm = 0;
+  std::cout<<"readoutConfigID = "<<readoutConfigID<<std::endl;
+
+  for(const auto& it: *m_readoutConfigContainer){
+    if (it.channelId() == readoutConfigID){
+        channelID = it.channelId();
+        numFadcSlices = it.numFadcSlices();
+        l1aFadcSlice = it.l1aFadcSlice();
+        readout80ModePpm = it.readout80ModePpm();
+    }else{
+        std::cout<<"Julia, help! I do not find a thing..."<<std::endl;
+    }  
+  }
+  
+  if(msgLvl(MSG::DEBUG)){
+    ATH_MSG_VERBOSE("ReadoutConfigID = " << readoutConfigID );
+  } 
+  //the readout config ID tells you, which readoutConfig is loaded. now you can retrieve the l1aFadcSlice from this DB entry
+  // and the readout80Mode (0 = 40 MHz) if need be also numFacdSlices, but this should equal TT.adc().size()
+  std::cout<<"ChannelID = "<<channelID<<std::endl;
+  std::cout<<"numFadcSlices = "<<numFadcSlices<<std::endl;
+  std::cout<<"l1aFadcSlice = "<<l1aFadcSlice<<std::endl;
+  std::cout<<"readout80ModePpm = "<<readout80ModePpm<<std::endl;
+  
   // Retrieve EventInfo from SG and save lumi block number, global event number and run number
   unsigned int lumiNo = 0;
   unsigned int currentRunNo = 0;
@@ -351,26 +421,51 @@ StatusCode MistimedStreamMon::fillHistograms()
       TriggerTowerTES->begin();
   xAOD::TriggerTowerContainer_v2::const_iterator TriggerTowerIteratorEnd =
       TriggerTowerTES->end();
-
-   // right now this code only works on 5 slice readout:
-   if((*TriggerTowerIterator)->adc().size() != 5){
-       msg(MSG::DEBUG) << "Number of ADC slices != 5, aborting..." << endmsg;
+    
+  //right now this code only works on 5 slice readout, this can be removed soon
+  //for the algorithm to run, we need the 2 adc slices before and after the l1a-slice
+  //add some readout compatibility checks of the algo here
+  if(readout80ModePpm){
+     if(numFadcSlices < 9){
+       msg(MSG::DEBUG) << "Number of ADC slices < 9 for 80 MHz readout, algorithm cannot run, aborting..." << endmsg;
        return StatusCode::SUCCESS;
-   }
-   
+     }
+     if(l1aFadcSlice < 4){
+       msg(MSG::DEBUG) << "L1a readout pointer < 4 for 80 MHz readout, algorithm cannot run, aborting..." << endmsg;
+       return StatusCode::SUCCESS;
+     }
+     if(numFadcSlices - l1aFadcSlice < 4){
+       msg(MSG::DEBUG) << "L1a readout pointer is at "<< l1aFadcSlice << " with "<< numFadcSlices << "slices at 80 MHz readout mode, algorithm cannot run, aborting..." << endmsg;
+       return StatusCode::SUCCESS;
+     } 
+  }else{
+     if(numFadcSlices < 5){
+       msg(MSG::DEBUG) << "Number of ADC slices < 5 for 40 MHz readout, algorithm cannot run, aborting..." << endmsg;
+       return StatusCode::SUCCESS;
+     }
+     if(l1aFadcSlice < 2){
+       msg(MSG::DEBUG) << "L1a readout pointer < 2 for 40 MHz readout, algorithm cannot run, aborting..." << endmsg;
+       return StatusCode::SUCCESS;
+     } 
+     if(numFadcSlices - l1aFadcSlice < 2){
+       msg(MSG::DEBUG) << "L1a readout pointer is at "<< l1aFadcSlice << " with "<< numFadcSlices << "slices at 40 MHz readout mode, algorithm cannot run, aborting..." << endmsg;
+       return StatusCode::SUCCESS;
+     }  
+  }   
   m_h_1d_cutFlow_mistimedStreamAna->Fill(1.5);
   
-  //Select events that fired HLT_mistimedmonj400
-  if(! (m_trigDec->isPassed("HLT_mistimemonj400",TrigDefs::requireDecision))){
-    return StatusCode::SUCCESS;
-  }
-  m_h_1d_cutFlow_mistimedStreamAna->Fill(2.5);
-
-  //Only select events which passed the L1_J100
-  if(! (m_trigDec->isPassed("L1_J100"))){
-    return StatusCode::SUCCESS;
-  }
-  m_h_1d_cutFlow_mistimedStreamAna->Fill(3.5);
+  //Julia: commented out for testing purposes (statistics)
+//   //Select events that fired HLT_mistimedmonj400
+//   if(! (m_trigDec->isPassed("HLT_mistimemonj400",TrigDefs::requireDecision))){
+//     return StatusCode::SUCCESS;
+//   }
+//   m_h_1d_cutFlow_mistimedStreamAna->Fill(2.5);
+// 
+//   //Only select events which passed the L1_J100
+//   if(! (m_trigDec->isPassed("L1_J100"))){
+//     return StatusCode::SUCCESS;
+//   }
+//   m_h_1d_cutFlow_mistimedStreamAna->Fill(3.5);
 
   // now classify the tower signals by looking at their FADC counts, if it exceeds 70
   int satCounter = 0; // saturated TT
@@ -384,20 +479,40 @@ StatusCode MistimedStreamMon::fillHistograms()
        ++TriggerTowerIterator) {
     auto vecIndexTT = std::distance( TriggerTowerTES->begin(), TriggerTowerIterator ) ;
     float ttPulseCategory = 0;
+    std::vector<uint16_t> ttADC = TriggerTowerTES->at(vecIndexTT)->adc();
+    //Check which RunParameters are set in COOL database -> modify acd input accordingly
+    // need to know: - readout mode (40 or 80MHz)
+    //               - central slice position
+    //               - number of readout slices (== .adc().size())
+ 
+    std::vector<uint16_t> readoutCorrectedADC; //this is the standard readout ADC vector: 5 40MHz samples with l1A in the middle
+    if(!readout80ModePpm){//40 MHz
+       //just acess the acd vector, as the sanity checks where done above
+       readoutCorrectedADC.push_back(ttADC.at(l1aFadcSlice-2));
+       readoutCorrectedADC.push_back(ttADC.at(l1aFadcSlice-1));
+       readoutCorrectedADC.push_back(ttADC.at(l1aFadcSlice));
+       readoutCorrectedADC.push_back(ttADC.at(l1aFadcSlice+1));
+       readoutCorrectedADC.push_back(ttADC.at(l1aFadcSlice+2));
+    }else{//80 MHz
+       readoutCorrectedADC.push_back(ttADC.at(l1aFadcSlice-4));
+       readoutCorrectedADC.push_back(ttADC.at(l1aFadcSlice-2));
+       readoutCorrectedADC.push_back(ttADC.at(l1aFadcSlice));
+       readoutCorrectedADC.push_back(ttADC.at(l1aFadcSlice+2));
+       readoutCorrectedADC.push_back(ttADC.at(l1aFadcSlice+4));
+    }
+  
     // retrieve max ADC value and position, this seems to be buggy in the DAOD
-//     std::cout<<vecIndexTT<< " TT index; lumi block "<<lumiBlock<<std::endl;
-//     << " event Number " <<eventNumber<<" run number "<<runNumber 
-    auto maxValIterator = std::max_element(TriggerTowerTES->at(vecIndexTT)->adc().begin(), TriggerTowerTES->at(vecIndexTT)->adc().end());
+    auto maxValIterator = std::max_element(readoutCorrectedADC.begin(), readoutCorrectedADC.end());
     int maxADCval = *maxValIterator;
-    int adcPeakPositon = std::distance(std::begin(TriggerTowerTES->at(vecIndexTT)->adc()), maxValIterator);
-
+    int adcPeakPositon = std::distance(std::begin(readoutCorrectedADC), maxValIterator);
+    
     if(maxADCval < 70){
        ttPulseCategory = 0.1;
     }else if(maxADCval == 1023) {
         satCounter++;
         ttPulseCategory = 1;
     }else{
-        bool goodQual = pulseQuality(TriggerTowerTES->at(vecIndexTT)->adc(), adcPeakPositon);
+        bool goodQual = pulseQuality(readoutCorrectedADC, adcPeakPositon);
         //look at any of the five FADC values
         if(adcPeakPositon == 2){ // can be class 3 or 4 now
           if(goodQual){
@@ -462,7 +577,7 @@ StatusCode MistimedStreamMon::fillHistograms()
 
   //Only fill the detailed histos for the first 10 selected events in the run
   if(m_selectedEventCounter < 10){
-     //set the title of the classification histos to indicate the run number, event number and lumi block
+    //set the title of the classification histos to indicate the run number, event number and lumi block
     std::string titleEM = "#eta - #phi Map of TT classification, EM layer: event no. " + std::to_string(currentEventNo) + " in lb. " + std::to_string(lumiBlock) + " of run " + std::to_string(currentRunNo);
     m_v_em_2d_etaPhi_tt_classification_mistimedStreamAna[m_selectedEventCounter]->GetXaxis()->SetTitle(titleEM.c_str());
     std::string titleHAD = "#eta - #phi Map of TT classification, HAD layer: event no. " + std::to_string(currentEventNo) + " in lb. " + std::to_string(lumiBlock) + " of run " + std::to_string(currentRunNo);
@@ -482,9 +597,7 @@ StatusCode MistimedStreamMon::fillHistograms()
             m_histTool->fillPPMEmEtaVsPhi(m_v_em_2d_etaPhi_tt_classification_mistimedStreamAna[m_selectedEventCounter], eta, phi, pulseCat);
             if(pulseCat > 0.5){
                m_histTool->fillPPMEmEtaVsPhi(m_v_em_2d_etaPhi_tt_pseBits_mistimedStreamAna[m_selectedEventCounter], eta, phi, (unsigned int)bcidWord);
-                
             }
-
         }
         else if(layer == 1) { //========== HADRONIC LAYER ===============================
             m_histTool->fillPPMEmEtaVsPhi(m_v_had_2d_etaPhi_tt_classification_mistimedStreamAna[m_selectedEventCounter], eta, phi, pulseCat);
