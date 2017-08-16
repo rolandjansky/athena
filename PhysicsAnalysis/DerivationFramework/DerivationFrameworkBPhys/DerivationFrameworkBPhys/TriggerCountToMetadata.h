@@ -1,5 +1,6 @@
-//============================================================================
-// TriggerCountToMetadata.h, (c) ATLAS Detector software
+/*
+Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 //============================================================================
 // 
 // Author : Wolfgang Walkowiak <Wolfgang.Walkowiak@cern.ch.>
