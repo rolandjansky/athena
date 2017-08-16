@@ -28,6 +28,7 @@ namespace G4UA{
   {
     declareProperty("shift_lar_subhit",m_config.shift_lar_subhit, "");
     declareProperty("shorten_lar_step",m_config.shorten_lar_step, "");
+    declareProperty("stepInfoCollName",m_config.stepInfoCollName, "");
 
     declareProperty("maxRadius",m_config.m_maxRadius, "");
     declareProperty("maxRadiusLAr",m_config.m_maxRadiusLAr, "");
@@ -53,7 +54,7 @@ namespace G4UA{
     declareProperty("HECWheelCalculator", m_heccalc);
     declareProperty("EMBPSCalculator",m_pscalc);
     declareProperty("EMECPSCalculator", m_emepscalc);
-    declareProperty( "TileCalculator", m_tileCalculator);
+    declareProperty("TileCalculator", m_tileCalculator);
     }
 
   StatusCode FastCaloSimParamActionTool::initialize()

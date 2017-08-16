@@ -7,6 +7,7 @@
 
 #include <stdexcept>
 #include <map>
+#include <memory>
 #include <string>
 #include <stdlib.h>
 #include <string.h>
@@ -40,19 +41,19 @@
 namespace G4UA{
 
 
-  FastCaloSimParamAction::FastCaloSimParamAction(const Config& config):
-    m_config(config),
-    m_evtStore("StoreGateSvc/StoreGateSvc","FastCaloSimParamAction"),
-    m_detStore("StoreGateSvc/DetectorStore","FastCaloSimParamAction"),
-    m_current_calculator(nullptr),
-    m_current_calculator_Tile(nullptr),
-    m_current_solid(nullptr),
-    m_current_transform(nullptr),
-    m_lar_helper(nullptr),
-    m_lar_emID(nullptr),
-    m_calo_dd_man(nullptr),
-    m_eventSteps(nullptr),
-    m_ndetectors(0){
+  FastCaloSimParamAction::FastCaloSimParamAction(const Config& config)
+    : m_config(config)
+    , m_detStore("StoreGateSvc/DetectorStore","FastCaloSimParamAction")
+    , m_current_calculator(nullptr)
+    , m_current_calculator_Tile(nullptr)
+    , m_current_solid(nullptr)
+    , m_current_transform(nullptr)
+    , m_lar_helper(nullptr)
+    , m_lar_emID(nullptr)
+    , m_calo_dd_man(nullptr)
+    , m_eventSteps(m_config.stepInfoCollName)
+    , m_ndetectors(0)
+  {
 
 #ifdef _myDEBUG_
     G4cout << "############################################" << G4endl
@@ -114,22 +115,19 @@ namespace G4UA{
            << "############################################" << G4endl;
 
     return;
-
-
   }
 
-  void FastCaloSimParamAction::beginOfEvent(const G4Event*){
+  void FastCaloSimParamAction::beginOfEvent(const G4Event*)
+  {
 
     //G4cout << "############################################" << G4endl
     //     << "##  FastCaloSimParamAction - BeginOfEvent ##" << G4endl
     //     << "############################################" << G4endl;
 
-    if (m_current_transform == nullptr)
-      {
-        m_current_transform = new G4AffineTransform ();
-      }
-
-    m_eventSteps = new ISF_FCS_Parametrization::FCS_StepInfoCollection();
+    if (m_current_transform == nullptr) {
+      m_current_transform = new G4AffineTransform ();
+    }
+    if (!m_eventSteps.isValid()) m_eventSteps = std::make_unique<ISF_FCS_Parametrization::FCS_StepInfoCollection>();
     //G4cout << "############################################" << G4endl
     //     << "## FastCaloSimParamAction - BeginOfEvent2 ##" << G4endl
     //     << "############################################" << G4endl;
@@ -172,57 +170,6 @@ namespace G4UA{
     if (m_eventSteps->size()==0) return; //don't need to play with it
     G4cout << "FastCaloSimParamAction::EndOfEventAction: After initial cleanup, N=" << m_eventSteps->size() << G4endl;
 
-    //
-    // Put eventSteps into event store
-    //
-    std::string location("ZHEventSteps");
-    ISF_FCS_Parametrization::FCS_StepInfoCollection* test;
-    // std::cout <<"Check if already in StoreGate:"<<std::endl;
-    if (m_evtStore->contains<ISF_FCS_Parametrization::FCS_StepInfoCollection>(location))
-      {
-        StatusCode check = m_evtStore->retrieve(test,location);
-        if (check.isSuccess())
-          {
-            //std::cout <<"ZH, Already have in StoreGate : "<<test->size()<<std::endl;
-            //want to merge and overwrite!
-            for (ISF_FCS_Parametrization::FCS_StepInfoCollection::iterator iter = m_eventSteps->begin();iter != m_eventSteps->end();iter++)
-              {
-                test->push_back((*iter));
-              }
-            //std::cout <<"Now have: "<<test->size()<<std::endl;
-            //      StatusCode sc = evtStore()->remove(
-            //check
-            check = m_evtStore->retrieve(test,location);
-            if (check.isSuccess())
-              {
-                std::cout <<"ZH, check in StoreGate : "<<test->size()<<std::endl;
-              }
-            /*
-              StatusCode sc = evtStore()->record( test, location); //want to overwrite? but current release doesn't have this method???
-              if( sc.isFailure() ) {
-              G4cout << "Error: Couldn't store EventSteps object in event store at location: " << location << G4endl;//
-              } else {
-
-              G4cout << "Info: Stored EventSteps object (size: " << test->size() << ")"
-              << " in event store at location: " << location << G4endl;
-              }
-            */
-          }
-        else
-          {
-            std::cout <<"ZH WTF ??"<<std::endl;
-          }
-      }
-    else
-      {
-        StatusCode sc = m_evtStore->record( m_eventSteps, location, true );
-        if( sc.isFailure() ) {
-          G4cout << "Error: Couldn't store EventSteps object in event store at location: " << location << G4endl;
-        } else {
-          G4cout << "Info: Stored EventSteps object (size: " << m_eventSteps->size() << ")"
-                 << " in event store at location: " << location << G4endl;
-        }
-      }
     return;
   }
 
@@ -352,10 +299,12 @@ namespace G4UA{
         else if (CurrentLogicalVolumeName == "LArMgr::LAr::Barrel::Presampler::Module")
           {
             m_current_calculator = &*m_config.calculator_EMBPS;
+            break;
           }
         else if (CurrentLogicalVolumeName == "LArMgr::LAr::Endcap::Presampler::LiquidArgon")
           {
             m_current_calculator = &*m_config.calculator_EMEPS;
+            break;
           }
         else if (CurrentLogicalVolumeName.find(tilestring)!= std::string::npos)
           {
@@ -451,13 +400,6 @@ namespace G4UA{
               G4ThreeVector subpoint1=position1*(1-fraction1) + position2*fraction1;
               G4ThreeVector subpoint2=position1*(1-fraction2) + position2*fraction2;
 
-              //G4StepPoint *startpoint = 0;
-              //startpoint = const_cast<G4StepPoint*>(aStep->GetPreStepPoint());
-              //startpoint->SetPosition(subpoint1);
-              //G4StepPoint *endpoint = 0;
-              //endpoint = const_cast<G4StepPoint*>(aStep->GetPostStepPoint());
-              //endpoint->SetPosition(subpoint2);
-
               G4StepPoint *startpoint = new G4StepPoint(*(aStep->GetPreStepPoint()));
               G4StepPoint *endpoint = new G4StepPoint(*(aStep->GetPostStepPoint()));
               startpoint->SetPosition(subpoint1);
@@ -465,9 +407,6 @@ namespace G4UA{
 
               //std::cout <<"ZH substep: "<<i<<" Pos: "<<subpoint1<<" "<<subpoint2<<std::endl;
               G4Step* newstep = new G4Step(*aStep);
-              //newstep = const_cast<G4Step*>(aStep);
-              if(newstep->GetPreStepPoint()) delete newstep->GetPreStepPoint();
-              if(newstep->GetPostStepPoint()) delete newstep->GetPostStepPoint();
               newstep->SetPreStepPoint(startpoint);
               newstep->SetPostStepPoint(endpoint);
               newstep->SetStepLength( (subpoint1-subpoint2).mag());
