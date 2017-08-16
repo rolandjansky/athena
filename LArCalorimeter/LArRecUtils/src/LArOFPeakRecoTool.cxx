@@ -64,9 +64,9 @@ StatusCode LArOFPeakRecoTool::initialize() {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
-const LArOFPeakRecoTool::Result& LArOFPeakRecoTool::peak(const std::vector<short>& samples, HWIdentifier chID,
-							 CaloGain::CaloGain gain, int delay) {
-
+LArOFIterResults LArOFPeakRecoTool::peak(const std::vector<short>& samples, HWIdentifier chID,
+					 CaloGain::CaloGain gain, int delay) const {
+  
   std::vector<float> newsamples;
   for(unsigned int i=0;i<samples.size();i++)
     {
@@ -78,35 +78,35 @@ const LArOFPeakRecoTool::Result& LArOFPeakRecoTool::peak(const std::vector<short
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
-const LArOFPeakRecoTool::Result& LArOFPeakRecoTool::peak(
-			   const std::vector<float>& samples, // raw data after pedestal subtraction
-			   const HWIdentifier chID,           // online channel id
-			   const CaloGain::CaloGain gain,     // gain 
-			   const float delayIn,               // initial delay for Shape and OFC  
-			   const unsigned nIter,		  // number of iteration 
-			   const unsigned npeak,            // initial peak position.                  
-			   unsigned peak_low,         // lower limit for peak position
-			   unsigned peak_high        // upper limit for peak position
-			   ){
+LArOFIterResults LArOFPeakRecoTool::peak(const std::vector<float>& samples, // raw data after pedestal subtraction
+					 const HWIdentifier chID,           // online channel id
+					 const CaloGain::CaloGain gain,     // gain 
+					 const float delayIn,               // initial delay for Shape and OFC  
+					 const unsigned nIter,		  // number of iteration 
+					 const unsigned npeak,            // initial peak position.                  
+					 unsigned peak_low,         // lower limit for peak position
+					 unsigned peak_high        // upper limit for peak position
+					 ) const{
 
-  float epsilon=0.001;
+  const float epsilon=0.001;
+  LArOFIterResults result;
 
   //Fill m_result with default/input values, 
   //calculation will be done with this object
-  m_result.m_valid=false;
-  m_result.m_converged=false;
-  m_result.m_amplitude= 0;
-  m_result.m_tau     =  0;
-  m_result.m_quality =  0;
-  m_result.m_delay_final      = delayIn;
-  m_result.m_peakSample_init  =  npeak; 
-  m_result.m_peakSample_final =  npeak; //Assumed index of highest sample (may change in the process)
-  m_result.m_chid = chID;
+  result.m_valid=false;
+  result.m_converged=false;
+  result.m_amplitude= 0;
+  result.m_tau     =  0;
+  result.m_quality =  0;
+  result.m_delay_final      = delayIn;
+  result.m_peakSample_init  =  npeak; 
+  result.m_peakSample_final =  npeak; //Assumed index of highest sample (may change in the process)
+  result.m_chid = chID;
   //Set some reference to improve readablity of the code:
-  unsigned& kMax =  m_result.m_peakSample_final; //Make reference just to have code more readable 
-  float& delay = m_result.m_delay_final;
-  float& q=m_result.m_quality;
-  unsigned& delayIdx=m_result.m_ofcIndex;
+  unsigned& kMax =  result.m_peakSample_final; //Make reference just to have code more readable 
+  float& delay = result.m_delay_final;
+  float& q=result.m_quality;
+  unsigned& delayIdx=result.m_ofcIndex;
   //Quantities used during iteration
   unsigned kIter=0;
   //Computation is done as double
@@ -122,7 +122,7 @@ const LArOFPeakRecoTool::Result& LArOFPeakRecoTool::peak(
   //if (samples.size()<5){ 
   //  msg() << MSG::WARNING << "Not enough ADC samples (" << nSamples << ") found for channel 0x"  
  //	     << std::hex << chID.get_compact() << std::dec << endmsg;
- //   return m_result;
+ //   return result;
  // }
 
   // force uses of high gain if required for OFC and shape
@@ -150,7 +150,7 @@ const LArOFPeakRecoTool::Result& LArOFPeakRecoTool::peak(
     timeMax =  (nOFCPhase-1)*timeBinWidth;
     if (timeBinWidth==0.) {
       ATH_MSG_ERROR( "timeBinWidth is zero for channel " << m_lar_on_id->channel_name(chID)  );
-      return m_result;
+      return result;
     }
     //Check if initial delay isn't too big
     if (delay>timeMax) delay=timeMax-epsilon;
@@ -170,14 +170,14 @@ const LArOFPeakRecoTool::Result& LArOFPeakRecoTool::peak(
   //some sanity check on the OFCs
   if ( ofcSize == 0 || this_OFC_b.size() == 0 ) {
     ATH_MSG_DEBUG("OFC not found for channel " << m_lar_on_id->channel_name(chID));
-    return m_result;
+    return result;
   }
 
   if ( this_OFC_a.size() != this_OFC_b.size() ) {
     ATH_MSG_ERROR( "OFC a (" << this_OFC_a.size() << 
                    ")and b (" << this_OFC_b.size() << ") are not the same size for channel 0x" 
                    << std::hex << chID.get_compact() << std::dec  );
-    return m_result;
+    return result;
   }
 
   //Coerce kmax, peak_high and peak_low to someting that can work
@@ -186,7 +186,7 @@ const LArOFPeakRecoTool::Result& LArOFPeakRecoTool::peak(
   if (peak_high<peak_low) {
     ATH_MSG_WARNING( "Channel 0x"  << std::hex << chID.get_compact() << std::dec 
                      << "Not enough ADC samples (" << nSamples << ") to apply " << ofcSize << " OFCs."  );
-    return m_result;
+    return result;
   }
   if(kMax<peak_low)  kMax=peak_low; 
   if(kMax>peak_high) kMax=peak_high; 
@@ -218,14 +218,14 @@ const LArOFPeakRecoTool::Result& LArOFPeakRecoTool::peak(
     if ( this_OFC_a.size() == 0 || this_OFC_b.size() == 0 ) {
       ATH_MSG_DEBUG( "OFC not found for channel 0x"  << std::hex << chID.get_compact() << std::dec  );
       std::cout << "OFC not found for channel 0x"  << std::hex << chID.get_compact() << std::dec << std::endl;
-      return m_result;
+      return result;
     }
 
     if ( this_OFC_a.size() != this_OFC_b.size() ) {
       ATH_MSG_ERROR( "OFC a (" << this_OFC_a.size() << 
 	")and b (" << this_OFC_b.size() << ") are not the same size for channel 0x" 
 	  << std::hex << chID.get_compact() << std::dec  );
-      return m_result;
+      return result;
     }
     */
     
@@ -239,16 +239,16 @@ const LArOFPeakRecoTool::Result& LArOFPeakRecoTool::peak(
       At += this_OFC_b.at(k) * this_sample ;
     }
     //Validate the result
-    m_result.m_valid = true; //Doesn't mean that the result is really good, but we have something
+    result.m_valid = true; //Doesn't mean that the result is really good, but we have something
     if ( A == 0 ) {
       ATH_MSG_DEBUG("Null amplitude: " << A << "  for channel" << m_lar_on_id->channel_name(chID));
-      m_result.m_amplitude=0;
-      m_result.m_tau=0;
-      return m_result;
+      result.m_amplitude=0;
+      result.m_tau=0;
+      return result;
     }
-    m_result.m_amplitude=A; 
-    m_result.m_tau = At / A ;
-    //std::cout << "Iteration step: " <<  kIter << " Delay=" << delay << " A = " << A << " tau=" << m_result.m_tau << std::endl;
+    result.m_amplitude=A; 
+    result.m_tau = At / A ;
+    //std::cout << "Iteration step: " <<  kIter << " Delay=" << delay << " A = " << A << " tau=" << result.m_tau << std::endl;
 
     //First iteration done, break loop if possible.... 
     if (mynIter<=1) {
@@ -263,8 +263,8 @@ const LArOFPeakRecoTool::Result& LArOFPeakRecoTool::peak(
     }
 
     // if we are within +-0.5*Dt of time bin, we have converged for sure
-    if (fabs(m_result.m_tau) <= (0.5*timeBinWidth)) { 
-      m_result.m_converged=true;
+    if (fabs(result.m_tau) <= (0.5*timeBinWidth)) { 
+      result.m_converged=true;
      // std::cout << "Converged." << std::endl;
       delay = delayIdx*timeBinWidth;
       break;
@@ -273,33 +273,33 @@ const LArOFPeakRecoTool::Result& LArOFPeakRecoTool::peak(
     if (kIter>=mynIter) { //Max. number of iterations reached
       //std::cout << "Did not converge after " << nIter << " iterations." << std::endl;
       delay = delayIdx*timeBinWidth;
-      if (m_result.m_converged) {
-        if (fabs(tau_save) < fabs(m_result.m_tau)) {
-            m_result.m_amplitude = amplitude_save;
-            m_result.m_tau       = tau_save;
+      if (result.m_converged) {
+        if (fabs(tau_save) < fabs(result.m_tau)) {
+            result.m_amplitude = amplitude_save;
+            result.m_tau       = tau_save;
             kMax                 = kMax_save;
             delay                = delay_save;
             delayIdx             = delayIdx_save;
         }
       }
-      if (fabs(m_result.m_tau) <= timeBinWidth) m_result.m_converged=true;
+      if (fabs(result.m_tau) <= timeBinWidth) result.m_converged=true;
       break;
     }
 
     // if we are within +-Dt of time bin, we consider that we have converged but we allow for one more
     // iteration to see if we can find a smaller tau, if not we keep the previous one
-    if (fabs(m_result.m_tau) <= timeBinWidth) {
-       m_result.m_converged = true;
+    if (fabs(result.m_tau) <= timeBinWidth) {
+       result.m_converged = true;
        mynIter = kIter+1;    // allow only for more iteration
-       amplitude_save = m_result.m_amplitude;
-       tau_save       = m_result.m_tau;
+       amplitude_save = result.m_amplitude;
+       tau_save       = result.m_tau;
        kMax_save      = kMax;
        delay_save     =  delayIdx*timeBinWidth;
        delayIdx_save  = delayIdx;
     }
 
     //std::cout << "not yet converged" << std::endl ;
-    delay = delay - m_result.m_tau;  // moved this line up so first iteration delay results treated like subsequent
+    delay = delay - result.m_tau;  // moved this line up so first iteration delay results treated like subsequent
 
     if(delay<(-0.5*timeBinWidth)) { 
       if(kMax<peak_high){ 
@@ -341,7 +341,7 @@ const LArOFPeakRecoTool::Result& LArOFPeakRecoTool::peak(
   // go back to overal time
   delay = delay + timeOffset;  // sign to check
 
-  //std::cout << "Done! A= " << m_result.m_amplitude << " ; tau= " << m_result.m_tau << " kIter=" << kIter << " nIter=" << nIter << std::endl;
+  //std::cout << "Done! A= " << result.m_amplitude << " ; tau= " << result.m_tau << " kIter=" << kIter << " nIter=" << nIter << std::endl;
   // get shape
   if (m_useShape){
     q = 0.; 
@@ -352,9 +352,9 @@ const LArOFPeakRecoTool::Result& LArOFPeakRecoTool::peak(
       for ( unsigned k=0 ; k<ofcSize ; k++ ) {
 	const float& this_sample = samples[kMax-2+k];
          if (m_useShapeDer && thisShapeDer.size() >= ofcSize) 
-	    q += std::pow((m_result.m_amplitude*(thisShape[k]-m_result.m_tau*thisShapeDer[k]) - this_sample),2); 
+	    q += std::pow((result.m_amplitude*(thisShape[k]-result.m_tau*thisShapeDer[k]) - this_sample),2); 
         else
-            q += std::pow((m_result.m_amplitude*thisShape[k] - this_sample),2);
+            q += std::pow((result.m_amplitude*thisShape[k] - this_sample),2);
       }
     }
     else {
@@ -362,7 +362,7 @@ const LArOFPeakRecoTool::Result& LArOFPeakRecoTool::peak(
     } 
   }
 
-  m_result.m_nIterPerf = kIter;
-  m_result.m_valid    =    true;
-  return m_result;
+  result.m_nIterPerf = kIter;
+  result.m_valid    =    true;
+  return result;
 }

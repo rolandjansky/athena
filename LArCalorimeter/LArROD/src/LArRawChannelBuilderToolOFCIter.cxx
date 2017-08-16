@@ -214,11 +214,11 @@ bool LArRawChannelBuilderToolOFCIter::buildRawChannel(const LArDigit* digit,
 
   float ADCPeak=0;
   float time=0.;
-  const LArOFPeakRecoTool::Result &results = m_peakReco->peak(m_signal, chid, gain, 
-							      m_defaultPhase, 
-							      nIteration,
-							      ipeak,peak_min, peak_max 
-							      );
+  const LArOFPeakRecoTool::Result results = m_peakReco->peak(m_signal, chid, gain, 
+							     m_defaultPhase, 
+							     nIteration,
+							     ipeak,peak_min, peak_max 
+							     );
 
   if (m_larOFIterCont) {
     //the iteration works always on teh same copy of the results object. Need to do a deep-copy in order to publish...
