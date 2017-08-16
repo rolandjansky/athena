@@ -2,21 +2,23 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef PFISUBTRACTIONALGTOOL_H
-#define PFISUBTRACTIONALGTOOL_H
+#ifndef IPFSUBTRACTIONALGTOOL_H
+#define IPFSUBTRACTIONALGTOOL_H
 
 #include "GaudiKernel/IAlgTool.h"
+
+#include "xAODCaloEvent/CaloClusterContainer.h"
 
 class eflowCaloObjectContainer;
 class eflowRecTrackContainer;
 class eflowRecClusterContainer;
 
-class PFISubtractionTool : virtual public IAlgTool {
+class IPFSubtractionTool : virtual public IAlgTool {
 
  public:
 
   virtual StatusCode intialize() {return StatusCode::SUCCESS;}
-  virtual void execute(eflowCaloObjectContainer*, eflowRecTrackContainer*, eflowRecClusterContainer*) = 0;
+  virtual void execute(eflowCaloObjectContainer*, eflowRecTrackContainer*, eflowRecClusterContainer*, xAOD::CaloClusterContainer&) = 0;
   virtual StatusCode finalize() {return StatusCode::SUCCESS;}
 
 };

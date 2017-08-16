@@ -1,8 +1,8 @@
 #include "eflowRec/eflowCaloObject.h"
-#include "eflowRec/PFISubtractionTool.h"
+#include "eflowRec/IPFSubtractionTool.h"
 #include "eflowRec/PFAlgorithm.h"
 
-PFAlgorithm::PFAlgorithm(const std::string& name,  ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator), m_tools(this), m_eflowRecTracksReadHandle("eflowRecTracks"), m_eflowRecClustersReadHandle("eflowRecCluster"),  m_caloClustersWriteHandle("PFCaloCluster")   
+PFAlgorithm::PFAlgorithm(const std::string& name,  ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator), m_tools(this), m_eflowRecTracksReadHandle("eflowRecTracks"), m_eflowRecClustersReadHandle("eflowRecClusters"),  m_caloClustersWriteHandle("PFCaloCluster")   
 {
   declareProperty( "PrivateToolList",  m_tools, "List of Private Subtraction eflowISubtractionAlgTools" );
   declareProperty("eflowRecTracksInputName",  m_eflowRecTracksReadHandle);
@@ -30,10 +30,13 @@ StatusCode PFAlgorithm::execute(){
 
   eflowCaloObjectContainer theElowCaloObjectContainer;
 
+  ATH_CHECK(m_caloClustersWriteHandle.record(std::make_unique<xAOD::CaloClusterContainer>(),std::make_unique<xAOD::CaloClusterAuxContainer>()));
+  ATH_MSG_DEBUG("CaloClusterWriteHandle has container of size" << m_caloClustersWriteHandle->size());
+  
    /* Run the SubtractionTools
    * --> CellLevelSubtractionTool, RecoverSplitShowersTool */
   for (auto thisPFISubtractionTool : m_tools){
-    thisPFISubtractionTool->execute(&theElowCaloObjectContainer,const_cast<eflowRecTrackContainer*>(m_eflowRecTracksReadHandle.ptr()),const_cast<eflowRecClusterContainer*>(m_eflowRecClustersReadHandle.ptr()));
+    thisPFISubtractionTool->execute(&theElowCaloObjectContainer,const_cast<eflowRecTrackContainer*>(m_eflowRecTracksReadHandle.ptr()),const_cast<eflowRecClusterContainer*>(m_eflowRecClustersReadHandle.ptr()),*(m_caloClustersWriteHandle.ptr()));
   }
   
   return StatusCode::SUCCESS;

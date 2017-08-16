@@ -83,7 +83,8 @@ svcMgr += CondSvc()
 include( "PerfMonGPerfTools/DisablePerfMon_jobOFragment.py" )
 
 # Input file
-dataFile="/eos/atlas/atlascerngroupdisk/phys-rig/MC15Samples/ESD/mc15_13TeV.361022.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ2W.recon.ESD.e3668_s2832_r7968/ESD.08355655._001904.pool.root.1"
+dataFile="/data/hodgkinson/scratchFiles/mc15_13TeV.361022.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ2W.recon.ESD.e3668_s2832_r7968/ESD.08355655._001904.pool.root.1"
+#dataFile="/eos/atlas/atlascerngroupdisk/phys-rig/MC15Samples/ESD/mc15_13TeV.361022.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ2W.recon.ESD.e3668_s2832_r7968/ESD.08355655._001904.pool.root.1"
 
 from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
 athenaCommonFlags.FilesInput=[dataFile,dataFile]
@@ -174,6 +175,57 @@ from eflowRec.eflowRecConf import PFClusterSelector
 PFClusterSelector=PFClusterSelector("PFClusterSelector")
 
 topSequence += PFClusterSelector
+
+from eflowRec.eflowRecConf import PFAlgorithm
+PFAlgorithm = PFAlgorithm("PFAlgorithm")
+
+PFAlgorithm.PrivateToolList  = []
+
+from eflowRec.eflowRecConf import PFCellLevelSubtractionTool
+PFCellLevelSubtractionTool = PFCellLevelSubtractionTool("PFCellLevelSubtractionTool")
+
+from eflowRec.eflowRecConf import eflowCellEOverPTool_mc12_JetETMiss
+CellEOverPTool=eflowCellEOverPTool_mc12_JetETMiss()
+
+PFCellLevelSubtractionTool.eflowCellEOverPTool=CellEOverPTool
+
+from eflowRec.eflowRecFlags import jobproperties
+if jobproperties.eflowRecFlags.eflowAlgType == "EOverP":
+   PFCellLevelSubtractionTool.nMatchesInCellLevelSubtraction = -1
+else:
+   PFCellLevelSubtractionTool.nMatchesInCellLevelSubtraction = 1
+
+from eflowRec.eflowRecConf import PFTrackClusterMatchingTool
+MatchingTool = PFTrackClusterMatchingTool("CalObjBldMatchingTool")
+MatchingTool_Pull_02 = PFTrackClusterMatchingTool("MatchingTool_Pull_02")
+MatchingTool_Pull_015 = PFTrackClusterMatchingTool("MatchingTool_Pull_015")
+
+MatchingTool_Pull_015.TrackPositionType   = 'EM2EtaPhi' # str
+MatchingTool_Pull_015.ClusterPositionType = 'PlainEtaPhi' # str
+MatchingTool_Pull_015.DistanceType        = 'EtaPhiSquareDistance' # str
+MatchingTool_Pull_015.MatchCut = 0.15*0.15 # float
+PFCellLevelSubtractionTool.PFTrackClusterMatchingTool_015 = MatchingTool_Pull_015
+
+MatchingTool_Pull_02.TrackPositionType   = 'EM2EtaPhi' # str
+MatchingTool_Pull_02.ClusterPositionType = 'PlainEtaPhi' # str
+MatchingTool_Pull_02.DistanceType        = 'EtaPhiSquareDistance' # str
+MatchingTool_Pull_02.MatchCut = 0.2*0.2 # float
+PFCellLevelSubtractionTool.PFTrackClusterMatchingTool_02 = MatchingTool_Pull_02
+
+PFCellLevelSubtractionTool.PFTrackClusterMatchingTool = MatchingTool
+
+if jobproperties.eflowRecFlags.eflowAlgType == "EOverP":
+   MatchingTool.ClusterPositionType = 'PlainEtaPhi' # str
+   MatchingTool.DistanceType        = 'EtaPhiSquareDistance'
+   MatchingTool.MatchCut = 0.2*0.2 # float
+   
+
+   
+
+PFAlgorithm.PrivateToolList += [PFCellLevelSubtractionTool]
+
+topSequence += PFAlgorithm
+
 
 import AthenaPoolCnvSvc.WriteAthenaPool
 logRecoOutputItemList_jobOptions = logging.getLogger( 'py:RecoOutputItemList_jobOptions' )

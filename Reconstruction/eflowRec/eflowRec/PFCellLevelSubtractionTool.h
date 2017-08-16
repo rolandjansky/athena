@@ -6,7 +6,7 @@
 #define PFCELLLEVELSUBTRACTIONTOOL_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "eflowRec/PFISubtractionTool.h"
+#include "eflowRec/IPFSubtractionTool.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include "eflowRec/eflowCellList.h"
@@ -27,7 +27,7 @@ class eflowRecTrack;
 
 static const InterfaceID IID_PFCellLevelSubtractionTool("PFCellLevelSubtractionTool", 1, 0);
 
-class PFCellLevelSubtractionTool : virtual public PFISubtractionTool, public AthAlgTool {
+class PFCellLevelSubtractionTool : virtual public IPFSubtractionTool, public AthAlgTool {
 public:
 
   PFCellLevelSubtractionTool(const std::string& type,const std::string& name,const IInterface* parent);
@@ -37,14 +37,14 @@ public:
   static const InterfaceID& interfaceID();
 
   StatusCode initialize();
-  void execute(eflowCaloObjectContainer* theEflowCaloObjectContainer, eflowRecTrackContainer* recTrackContainer, eflowRecClusterContainer* recClusterContainer);
+  void execute(eflowCaloObjectContainer* theEflowCaloObjectContainer, eflowRecTrackContainer* recTrackContainer, eflowRecClusterContainer* recClusterContainer,xAOD::CaloClusterContainer& theCaloClusterContainer);
   StatusCode finalize();
 
  private:
 
-  void calculateRadialEnergyProfiles();
+  void calculateRadialEnergyProfiles(xAOD::CaloClusterContainer& theCaloClusterContainer);
   void calculateAverageEnergyDensity();
-  void performSubtraction();
+  void performSubtraction(xAOD::CaloClusterContainer& theCaloClusterContainer);
   bool runInGoldenMode() { return ((m_goldenModeString == "golden1") || (m_goldenModeString == "golden2")); }
   bool isEOverPFail(double expectedEnergy, double sigma, double clusterEnergy, bool consistencySigmaCut, bool useGoldenMode);
   bool canAnnihilated(double expectedEnergy, double sigma, double clusterEnergy);

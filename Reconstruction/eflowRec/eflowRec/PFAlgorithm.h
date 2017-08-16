@@ -10,7 +10,7 @@
 
 #include "xAODCaloEvent/CaloClusterContainer.h"
 
-class PFISubtractionTool;
+class IPFSubtractionTool;
 
 class PFAlgorithm : public AthAlgorithm {
 
@@ -24,7 +24,7 @@ public:
 
 private:
   /** List of PFISubtractionTool, which will be executed by this algorithm */
-  ToolHandleArray<PFISubtractionTool> m_tools;
+  ToolHandleArray<IPFSubtractionTool> m_tools;
 
   /** ReadHandle for the eflowRecTrackContainer to be read in */
   SG::ReadHandle<eflowRecTrackContainer> m_eflowRecTracksReadHandle;
