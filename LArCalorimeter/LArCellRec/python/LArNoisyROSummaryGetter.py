@@ -1,5 +1,3 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
 from RecExConfig.Configured import Configured
 from LArCellRec.LArNoisyROFlags import larNoisyROFlags
 
@@ -38,11 +36,26 @@ class LArNoisyROSummaryGetter ( Configured )  :
             print traceback.format_exc()
             return False
 
+        from AthenaCommon.AppMgr import ToolSvc    
+        from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
+        theBadFebTool=LArBadChanTool("KnownBADFEBsTool")
+        theBadFebTool.CoolMissingFEBsFolder="/LAR/BadChannelsOfl/KnownBADFEBs"
+        ToolSvc+=theBadFebTool
+        theMNBFebTool=LArBadChanTool("KnownMNBFEBsTool")
+        theMNBFebTool.CoolMissingFEBsFolder="/LAR/BadChannelsOfl/KnownMNBFEBs"
+        ToolSvc+=theMNBFebTool
+        #theLArNoisyROTool=LArNoisyROTool(PrintSummary=True,
+        #                                 CellQualityCut=larNoisyROFlags.CellQualityCut(),
+        #                                 BadChanPerFEB=larNoisyROFlags.BadChanPerFEB(),
+        #                                 BadFEBCut=larNoisyROFlags.BadFEBCut(),
+        #                                 KnownMNBFEBs=larNoisyROFlags.KnownMNBFEBs()
+        #                                 )
         theLArNoisyROTool=LArNoisyROTool(PrintSummary=True,
                                          CellQualityCut=larNoisyROFlags.CellQualityCut(),
                                          BadChanPerFEB=larNoisyROFlags.BadChanPerFEB(),
                                          BadFEBCut=larNoisyROFlags.BadFEBCut(),
-                                         KnownMNBFEBs=larNoisyROFlags.KnownMNBFEBs()
+                                         KnownBADFEBsTool=theBadFebTool,
+                                         KnownMNBFEBsTool=theMNBFebTool
                                          )
 
 
