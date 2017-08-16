@@ -109,7 +109,12 @@ public:
   void add_base (bool is_virtual)
   {
     // Make sure the bib for the base class exists.
-    BaseInfo<B>::maybeInit();
+    if (!std::is_same<T, B>::value) {
+      // Don't call it if the types are the same.
+      // Otherwise, we can get recursive calls to instance(), triggering
+      // a deadlock.
+      BaseInfo<B>::maybeInit();
+    }
 
     // Add the information for this base.
     this->add_info (typeid(B),
@@ -471,9 +476,7 @@ const BaseInfoBase& BaseInfo<T>::baseinfo()
 template <class T>
 void BaseInfo<T>::maybeInit()
 {
-  BaseInfoImpl<T>* inst = s_instance.instance;
-  if (inst)
-    inst->maybeInit();
+  instance();
 }
 
 
@@ -482,29 +485,14 @@ void BaseInfo<T>::maybeInit()
  *        for this class.
  */
 template <class T>
-const BaseInfoImpl<T>& BaseInfo<T>::instance()
+BaseInfoImpl<T>& BaseInfo<T>::instance()
 {
-  BaseInfoImpl<T>* inst = s_instance.instance;
-  if (inst)
-    inst->maybeInit();
-  return *inst;
+  s_instance.maybeInit();
+  return s_instance;
 }
 
-
-/**
- * @brief Constructor to get the singleton instance set up.
- */
 template <class T>
-BaseInfo<T>::instance_holder::instance_holder()
-{
-  static BaseInfoImpl<T> inst;
-  instance = &inst;
-}
-
-
-/// Declare the static member of @c BaseInfo.
-template <class T>
-typename BaseInfo<T>::instance_holder BaseInfo<T>::s_instance;
+BaseInfoImpl<T> BaseInfo<T>::s_instance;
 
 
 /**
@@ -538,10 +526,10 @@ RegisterBaseInit<T>::RegisterBaseInit()
  * @brief Helper to get @c BaseInfo initialized.
  */
 template <class T> struct BaseInit {
-  static RegisterBaseInit<T> s_regbase;
+  static const RegisterBaseInit<T> s_regbase;
 };
 #ifndef __APPLE__
-template <class T> RegisterBaseInit<T> BaseInit<T>::s_regbase;
+template <class T> const RegisterBaseInit<T> BaseInit<T>::s_regbase;
 #endif
 
 
@@ -576,10 +564,9 @@ const BaseInfoBase& RegisterAddBaseInit<D, B>::doinit()
   bool is_virtual = BaseType<B>::is_virtual::value;
 
   // Look up the BIB.
-  SG::BaseInfoBase* bib =
-    const_cast<SG::BaseInfoBase*> (SG::BaseInfoBase::find (typeid(D)));
+  SG::BaseInfoBase* bib = SG::BaseInfoBase::find_nc (typeid(D));
   if (!bib)
-    bib = const_cast<SG::BaseInfoBase*> (&BaseInfo<D>::baseinfo());
+    bib = &BaseInfo<D>::instance();
   if (bib) {
     // Add the new base to it.
     SG::BaseInfoImpl<D>& impl = *static_cast<SG::BaseInfoImpl<D>*> (bib);
@@ -604,11 +591,11 @@ RegisterAddBaseInit<D, B>::RegisterAddBaseInit()
  * @brief Helper to get @c AddBaseInfo initialized.
  */
 template <class D, class B> struct AddBaseInit {
-  static RegisterAddBaseInit<D, B> s_regbase;
+  static const RegisterAddBaseInit<D, B> s_regbase;
 };
 #ifndef __APPLE__
 template <class D, class B>
-RegisterAddBaseInit<D,B> AddBaseInit<D,B>::s_regbase;
+const RegisterAddBaseInit<D,B> AddBaseInit<D,B>::s_regbase;
 #endif
 
 
@@ -635,10 +622,9 @@ template <class T, class C>
 const BaseInfoBase& RegisterAddCopyConversionInit<T, C>::doinit()
 {
   // Look up the BIB.
-  SG::BaseInfoBase* bib =
-    const_cast<SG::BaseInfoBase*> (SG::BaseInfoBase::find (typeid(T)));
+  SG::BaseInfoBase* bib = SG::BaseInfoBase::find_nc (typeid(T));
   if (!bib)
-    bib = const_cast<SG::BaseInfoBase*> (&BaseInfo<T>::baseinfo());
+    bib = &BaseInfo<T>::instance();
   if (bib) {
     typedef typename C::target_type target_type;
     bib->add_copy_conversion (typeid(target_type),
@@ -663,11 +649,11 @@ RegisterAddCopyConversionInit<T, C>::RegisterAddCopyConversionInit()
  * @brief Helper to get @c AddBaseInfo initialized.
  */
 template <class T, class C> struct AddCopyConversionInit {
-  static RegisterAddCopyConversionInit<T, C> s_regbase;
+  static const RegisterAddCopyConversionInit<T, C> s_regbase;
 };
 #ifndef __APPLE__
 template <class T, class C>
-RegisterAddCopyConversionInit<T,C> AddCopyConversionInit<T,C>::s_regbase;
+const RegisterAddCopyConversionInit<T,C> AddCopyConversionInit<T,C>::s_regbase;
 #endif
 
 

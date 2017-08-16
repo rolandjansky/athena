@@ -74,19 +74,19 @@ struct BaseInfoBaseImpl {
 
   /// Map of all @c type_info pointers to @c BaseInfoBase instances.
   typedef std::unordered_map<const std::type_info*, BaseInfoBase*> bi_by_ti_map_type;
-  static bi_by_ti_map_type* s_bi_by_ti;
+  static bi_by_ti_map_type* s_bi_by_ti ATLAS_THREAD_SAFE;
 
 
   /// Used to canonicalize @c type_info instances.
   typedef std::unordered_map<std::string, const std::type_info*> ti_by_name_map_type;
-  static ti_by_name_map_type* s_ti_by_name;
+  static ti_by_name_map_type* s_ti_by_name ATLAS_THREAD_SAFE;
 
 
   /// Holds @c BaseInfo classes awaiting initialization.
   /// This is used to defer initialization until everything's loaded.
   typedef std::unordered_multimap<const std::type_info*,
                                   BaseInfoBase::init_func_t*> init_list_t;
-  static init_list_t* s_init_list;
+  static init_list_t* s_init_list ATLAS_THREAD_SAFE;
 
 
   // To make sure that the maps get deleted at program termination.
@@ -96,9 +96,10 @@ struct BaseInfoBaseImpl {
   static Deleter s_deleter;
 
   /// For thread-safety.
-  typedef std::recursive_mutex mutex_t;
+  typedef std::mutex mutex_t;
   typedef std::lock_guard<mutex_t> lock_t;
-  static mutex_t s_mutex;
+  static mutex_t s_mutex ATLAS_THREAD_SAFE;   // For the static variables.
+  mutable mutex_t m_mutex;  // For the class members.
 
 
   /**
@@ -133,6 +134,7 @@ struct BaseInfoBaseImpl {
  */
 CLID BaseInfoBase::clid() const
 {
+  BaseInfoBaseImpl::lock_t lock (m_impl->m_mutex);
   return m_impl->m_clid;
 }
 
@@ -142,6 +144,7 @@ CLID BaseInfoBase::clid() const
  */
 const std::type_info& BaseInfoBase::typeinfo() const
 {
+  BaseInfoBaseImpl::lock_t lock (m_impl->m_mutex);
   return *m_impl->m_typeinfo;
 }
 
@@ -173,9 +176,9 @@ void* BaseInfoBase::cast (void* p, CLID clid) const
  */
 void* BaseInfoBase::cast (void* p, const std::type_info& tinfo) const
 {
-  const BaseInfoBaseImpl::info* i = m_impl->findInfo (tinfo);
-  if (i)
-    return i->m_converter (p);
+  if (BaseInfoBase::castfn_t* converter = castfn (tinfo)) {
+    return converter (p);
+  }
   return nullptr;
 }
 
@@ -209,9 +212,9 @@ void* BaseInfoBase::castTo (void* p, CLID clid) const
  */
 void* BaseInfoBase::castTo (void* p, const std::type_info& tinfo) const
 {
-  const BaseInfoBaseImpl::info* i = m_impl->findInfo (tinfo);
-  if (i)
-    return i->m_converterTo (p);
+  if (BaseInfoBase::castfn_t* converterTo = castfnTo (tinfo)) {
+    return converterTo (p);
+  }
   return nullptr;
 }
 
@@ -244,6 +247,7 @@ BaseInfoBase::castfn_t* BaseInfoBase::castfn (CLID clid) const
 BaseInfoBase::castfn_t*
 BaseInfoBase::castfn (const std::type_info& tinfo) const
 {
+  BaseInfoBaseImpl::lock_t lock (m_impl->m_mutex);
   const BaseInfoBaseImpl::info* i = m_impl->findInfo (tinfo);
   if (i)
     return i->m_converter;
@@ -279,6 +283,7 @@ BaseInfoBase::castfn_t* BaseInfoBase::castfnTo (CLID clid) const
 BaseInfoBase::castfn_t*
 BaseInfoBase::castfnTo (const std::type_info& tinfo) const
 {
+  BaseInfoBaseImpl::lock_t lock (m_impl->m_mutex);
   const BaseInfoBaseImpl::info* i = m_impl->findInfo (tinfo);
   if (i)
     return i->m_converterTo;
@@ -292,6 +297,7 @@ BaseInfoBase::castfnTo (const std::type_info& tinfo) const
  */
 std::vector<CLID> BaseInfoBase::get_bases() const
 {
+  BaseInfoBaseImpl::lock_t lock (m_impl->m_mutex);
   const BaseInfoBaseImpl::ti_map_type& map = m_impl->m_timap;
   std::vector<CLID> v;
   v.reserve (map.size());
@@ -310,6 +316,7 @@ std::vector<CLID> BaseInfoBase::get_bases() const
  */
 std::vector<const std::type_info*> BaseInfoBase::get_ti_bases() const
 {
+  BaseInfoBaseImpl::lock_t lock (m_impl->m_mutex);
   const BaseInfoBaseImpl::ti_map_type& map = m_impl->m_timap;
   std::vector<const std::type_info*> v;
   v.reserve (map.size());
@@ -342,6 +349,7 @@ bool BaseInfoBase::is_base (CLID clid) const
  */
 bool BaseInfoBase::is_base (const std::type_info& tinfo) const
 {
+  BaseInfoBaseImpl::lock_t lock (m_impl->m_mutex);
   const BaseInfoBaseImpl::info* i = m_impl->findInfo (tinfo);
   return i != 0;
 }
@@ -370,6 +378,7 @@ bool BaseInfoBase::is_virtual (CLID clid) const
  */
 bool BaseInfoBase::is_virtual (const std::type_info& tinfo) const
 {
+  BaseInfoBaseImpl::lock_t lock (m_impl->m_mutex);
   const BaseInfoBaseImpl::info* i = m_impl->findInfo (tinfo);
   if (i)
     return i->m_is_virtual;
@@ -386,6 +395,7 @@ bool BaseInfoBase::is_virtual (const std::type_info& tinfo) const
 const CopyConversionBase*
 BaseInfoBase::copy_conversion (const std::type_info& tinfo) const
 {
+  BaseInfoBaseImpl::lock_t lock (m_impl->m_mutex);
   for (const auto& p : m_impl->m_ti_copyconversion_map) {
     if (p.first == &tinfo)
       return p.second;
@@ -421,6 +431,7 @@ void
 BaseInfoBase::add_copy_conversion (const std::type_info& tinfo,
                                    const CopyConversionBase* cnv)
 {
+  BaseInfoBaseImpl::lock_t lock (m_impl->m_mutex);
   m_impl->m_ti_copyconversion_map.emplace_back (&tinfo, cnv);
 }
 
@@ -434,6 +445,7 @@ BaseInfoBase::add_copy_conversion (const std::type_info& tinfo,
 std::vector<CLID>
 BaseInfoBase::get_copy_conversions() const
 {
+  BaseInfoBaseImpl::lock_t lock (m_impl->m_mutex);
   std::vector<CLID> out;
   out.reserve (m_impl->m_ti_copyconversion_map.size());
   for (const auto& i : m_impl->m_ti_copyconversion_map) {
@@ -460,6 +472,7 @@ void BaseInfoBase::add_info (const std::type_info& tinfo,
                              castfn_t* converterTo,
                              bool is_virtual)
 {
+  BaseInfoBaseImpl::lock_t lock (m_impl->m_mutex);
   {
     const BaseInfoBaseImpl::info* i = m_impl->findInfo (tinfo);
     if (!i) {
@@ -546,7 +559,6 @@ BaseInfoBase::~BaseInfoBase()
  */
 const BaseInfoBase* BaseInfoBase::find (CLID clid)
 {
-  BaseInfoBaseImpl::lock_t lock (BaseInfoBaseImpl::s_mutex);
   const std::type_info* ti = CLIDRegistry::CLIDToTypeinfo (clid);
   if (ti)
     return BaseInfoBase::find (*ti);
@@ -561,34 +573,85 @@ const BaseInfoBase* BaseInfoBase::find (CLID clid)
  *
  * Returns 0 if no @c BaseInfoBase instance is available.
  */
-const BaseInfoBase* BaseInfoBase::find1 (const std::type_info& tinfo)
+BaseInfoBase* BaseInfoBase::find1 (const std::type_info& tinfo)
 {
-  BaseInfoBaseImpl::lock_t lock (BaseInfoBaseImpl::s_mutex);
-  if (!BaseInfoBaseImpl::s_bi_by_ti) return 0;
-  BaseInfoBaseImpl::bi_by_ti_map_type::iterator i = 
-    BaseInfoBaseImpl::s_bi_by_ti->find (&tinfo);
-  if (i != BaseInfoBaseImpl::s_bi_by_ti->end()) {
-    if (!i->second->m_impl->m_needs_init)
-      return i->second;
-    i->second->m_impl->m_needs_init = false;
+  BaseInfoBase* bib = nullptr;
+  {
+    BaseInfoBaseImpl::lock_t lock (BaseInfoBaseImpl::s_mutex);
+    if (!BaseInfoBaseImpl::s_bi_by_ti) return 0;
+    BaseInfoBaseImpl::bi_by_ti_map_type::iterator i = 
+      BaseInfoBaseImpl::s_bi_by_ti->find (&tinfo);
+    if (i != BaseInfoBaseImpl::s_bi_by_ti->end()) {
+      bib = i->second;
+      BaseInfoBaseImpl::lock_t lock (bib->m_impl->m_mutex);
+      if (!bib->m_impl->m_needs_init)
+        return bib;
+      bib->m_impl->m_needs_init = false;
+    }
   }
 
   // Try the initlist.
-  if (BaseInfoBaseImpl::s_init_list) {
-    while (true) {
+  while (true) {
+    BaseInfoBase::init_func_t* init = nullptr;
+    {
+      BaseInfoBaseImpl::lock_t lock (BaseInfoBaseImpl::s_mutex);
+      if (!BaseInfoBaseImpl::s_init_list) break;
+      BaseInfoBaseImpl::bi_by_ti_map_type::iterator i = 
+        BaseInfoBaseImpl::s_bi_by_ti->find (&tinfo);
+      if (i != BaseInfoBaseImpl::s_bi_by_ti->end())
+        bib = i->second;
       BaseInfoBaseImpl::init_list_t::iterator it = 
         BaseInfoBaseImpl::s_init_list->find (&tinfo);
       if (it == BaseInfoBaseImpl::s_init_list->end()) break;
-      BaseInfoBase::init_func_t* init = it->second;
+      init = it->second;
       BaseInfoBaseImpl::s_init_list->erase (it);
-      init();
-      i = BaseInfoBaseImpl::s_bi_by_ti->find (&tinfo);
+    }
+    init();
+  }
+
+  return bib;
+}
+
+
+/**
+ * @brief Find the @c BaseInfoBase instance for @c tinfo.
+ * @param tinfo The @c std::type_info of the class
+ *              for which we want information.
+ *
+ * Returns 0 if no @c BaseInfoBase instance is available.
+ */
+BaseInfoBase* BaseInfoBase::find_nc (const std::type_info& tinfo)
+{
+  BaseInfoBase* bib = find1 (tinfo);
+
+  // If we didn't find it, try looking up by name.
+  // This to deal with the issue of sometimes getting duplicate
+  // @c std::type_info instances.
+  if (!bib) {
+    const std::type_info* tinfo2 = nullptr;
+    {
+      BaseInfoBaseImpl::lock_t lock (BaseInfoBaseImpl::s_mutex);
+      if (BaseInfoBaseImpl::s_ti_by_name) {
+        BaseInfoBaseImpl::ti_by_name_map_type::iterator i = 
+          BaseInfoBaseImpl::s_ti_by_name->find (tinfo.name());
+        if (i != BaseInfoBaseImpl::s_ti_by_name->end() && i->second != &tinfo) {
+          tinfo2 = i->second;
+        }
+      }
+    }
+    if (tinfo2) {
+      bib = find1 (*tinfo2);
     }
   }
-  if (i != BaseInfoBaseImpl::s_bi_by_ti->end())
-    return i->second;
 
-  return 0;
+  if (bib) {
+    BaseInfoBaseImpl& impl = *bib->m_impl;
+    BaseInfoBaseImpl::lock_t lock (impl.m_mutex);
+    if (impl.m_clid == CLID_NULL)
+      impl.m_clid = CLIDRegistry::typeinfoToCLID (*impl.m_typeinfo);
+  }
+
+  return bib;
 }
 
 
@@ -601,25 +664,7 @@ const BaseInfoBase* BaseInfoBase::find1 (const std::type_info& tinfo)
  */
 const BaseInfoBase* BaseInfoBase::find (const std::type_info& tinfo)
 {
-  const BaseInfoBase* bib = find1 (tinfo);
-
-  // If we didn't find it, try looking up by name.
-  // This to deal with the issue of sometimes getting duplicate
-  // @c std::type_info instances.
-  if (!bib && BaseInfoBaseImpl::s_ti_by_name) {
-    BaseInfoBaseImpl::ti_by_name_map_type::iterator i = 
-      BaseInfoBaseImpl::s_ti_by_name->find (tinfo.name());
-    if (i != BaseInfoBaseImpl::s_ti_by_name->end() && i->second != &tinfo)
-      bib = find1 (*i->second);
-  }
-
-  if (bib) {
-    BaseInfoBaseImpl& impl = *bib->m_impl;
-    if (impl.m_clid == CLID_NULL)
-      impl.m_clid = CLIDRegistry::typeinfoToCLID (*impl.m_typeinfo);
-  }
-
-  return bib;
+  return find_nc (tinfo);
 }
 
 
@@ -640,6 +685,7 @@ void BaseInfoBase::addInit (const std::type_info* tinfo,
   if (BaseInfoBaseImpl::s_bi_by_ti) {
     auto i = BaseInfoBaseImpl::s_bi_by_ti->find (tinfo);
     if (i != BaseInfoBaseImpl::s_bi_by_ti->end()) {
+      BaseInfoBaseImpl::lock_t lock (i->second->m_impl->m_mutex);
       BaseInfoBaseImpl& impl = *i->second->m_impl;
       impl.m_needs_init = true;
       if (impl.m_clid == CLID_NULL)
@@ -654,8 +700,21 @@ void BaseInfoBase::addInit (const std::type_info* tinfo,
  */
 void BaseInfoBase::maybeInit()
 {
-  if (m_impl->m_needs_init)
-    find (*m_impl->m_typeinfo);
+  // This may be null during initialization, if we're initializing a
+  // BaseInfo<T>::s_instance instance which references another type
+  // for which the s_instance constructor has not yet been run.
+  if (!m_impl) return;
+
+  bool needs_init = false;
+  const std::type_info* ti = nullptr;
+  {
+    BaseInfoBaseImpl::lock_t lock (m_impl->m_mutex);
+    needs_init = m_impl->m_needs_init;
+    ti = m_impl->m_typeinfo;
+  }
+  
+  if (needs_init)
+    find (*ti);
 }
 
 
@@ -679,6 +738,7 @@ BaseInfoBaseImpl::Deleter::~Deleter()
 // Helper for dumping within the debugger.
 void dumpBaseInfo()
 {
+  BaseInfoBaseImpl::lock_t lock (BaseInfoBaseImpl::s_mutex);
   std::cout << "map:\n";
   if (BaseInfoBaseImpl::s_bi_by_ti) {
     std::vector<const std::type_info*> vv;
