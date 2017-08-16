@@ -18,6 +18,7 @@
 #include <mutex>
 #include <map>
 #include <unordered_map>
+#include <algorithm>
 #include "string.h"
 
 

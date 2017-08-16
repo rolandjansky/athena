@@ -70,7 +70,7 @@
     static const bool s_isDataObject = isDObj_t::value;                 \
     typedef std::integral_constant<bool, s_isDataObject> is_DataObject_tag; \
     typedef std::true_type has_classID_tag;                             \
-    static const CLID& ID() { static CLID c(CID); return  c; }		\
+    static const CLID& ID() { static const CLID c(CID); return  c; }    \
     static const char* typeNameString() {                               \
       return #NAME;                                                     \
     }									\
@@ -79,7 +79,7 @@
       return name;		 					\
     }									\
     static  Athena::PackageInfo packageInfo() {				\
-      static Athena::PackageInfo pi( BOOST_PP_STRINGIZE(PACKAGE_VERSION_UQ)  ); \
+      static const Athena::PackageInfo pi( BOOST_PP_STRINGIZE(PACKAGE_VERSION_UQ)  ); \
       return pi;							\
     }									\
     static const std::type_info& typeInfo() {				\
@@ -111,7 +111,7 @@
     typedef std::integral_constant<bool, s_isDataObject> is_DataObject_tag; \
     typedef std::true_type has_classID_tag;                             \
     static const CLID& ID() {						\
-      static CLID c(CID); return  c;					\
+      static const CLID c(CID); return  c;                              \
     }									\
     static const char* typeNameString() {				\
       return #ARG1 "," #ARG2;                                           \
