@@ -31,11 +31,11 @@ namespace DerivationFramework {
   TriggerCountToMetadata::TriggerCountToMetadata(const std::string& t,
 				       const std::string& n,
 				       const IInterface*  p)
-    : AthAlgTool(t,n,p),  m_outputMetaStore("StoreGateSvc/MetaDataStore", n), m_trigDecisionTool( "Trig::TrigDecisionTool/TrigDecisionTool" )
+    : AthAlgTool(t,n,p),   m_trigDecisionTool( "Trig::TrigDecisionTool/TrigDecisionTool" ), m_outputMetaStore("StoreGateSvc/MetaDataStore", n)
  {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
     
-	declareProperty("TrigDecisionTool", m_trigDecisionTool );
+    declareProperty("TrigDecisionTool", m_trigDecisionTool );
     declareProperty("FolderName",       m_folderName = "DerivationLevel");
     declareProperty("TriggerList",      m_triggerList);
 
