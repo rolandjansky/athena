@@ -191,7 +191,8 @@ class ConfiguredVertexingCuts :
      #cluster and track quality cuts   
 
       self.__nHitSct             = 0
-      self.__nHitSi              = 6
+      self.__nHitSi              = 7
+      self.__nHitPix             = 3
       self.__useTrackQualityInfo = True      
 
 #-------------"Heavy Ion running mode"-----------------------------------

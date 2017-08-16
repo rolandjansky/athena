@@ -821,7 +821,7 @@ else:
         else:
             PixelClusterCont    = InDetKeys.PixelClusters()
             SCT_ClusterCont     = InDetKeys.SCT_Clusters()
-            if InDetFlags.doTrackSegmentsTRT() :
+            if DetFlags.TRT_on() :
                 TRT_DriftCircleCont = InDetKeys.TRT_DriftCircles()
             else:
                 TRT_DriftCircleCont ="" 
@@ -854,6 +854,9 @@ else:
             InDetTruthTrajectoryManipulator = InDet__PRD_TruthTrajectoryManipulatorID(name='InDetTruthTrajectoryManipulator')
             ToolSvc += InDetTruthTrajectoryManipulator
 #            InDetTruthTrajectoryManipulator.OutputLevel = VERBOSE
+            from RngComps.RandomFlags import randomFlags
+            randomFlags.RandomSeedList.addSeed("PRD_TruthTrajectoryManipulatorID", 1435239, 642321368 ) # two arbitrary numbers
+            randomFlags.RandomSeedList.addtoService()
 
         # --- the trajectory shared cluster hits fixer
 #        from InDetTruthTools.InDetTruthToolsConf import InDet__PRD_TruthTrajectorySharedFixerID

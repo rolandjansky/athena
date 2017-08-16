@@ -1695,6 +1695,7 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
                                                        enableMultipleVertices = InDetPrimaryVertexingCuts.enableMultipleVertices(),
                                                        useBeamConstraint = InDetFlags.useBeamConstraint(),
                                                        InternalEdmFactory= InDetVxEdmCnv)
+                                                     
 
   elif (InDetFlags.primaryVertexSetup() == 'MedImgMultiFinding') :
     #
@@ -1730,6 +1731,10 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
                                                                 doMaxTracksCut           = InDetPrimaryVertexingCuts.doMaxTracksCut(),
                                                                 MaxTracks                = InDetPrimaryVertexingCuts.MaxTracks()
                                                                 )
+    if InDetFlags.doSLHC():
+      InDetPriVxFinderTool.reassignTracksAfterFirstFit = True
+      InDetPriVxFinderToo.maximumChi2cutForSeeding = 9.
+                   
 
   elif InDetFlags.primaryVertexSetup() == 'AdaptiveMultiFinding':
     #
@@ -1744,7 +1749,11 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
                                                                     selectiontype     = 0,
                                                                     do3dSplitting     = InDetFlags.doPrimaryVertex3DFinding(),
                                                                     InternalEdmFactory= InDetVxEdmCnv)
-  
+    if InDetFlags.doSLHC():
+      InDetPriVxFinderTool.maxIterations      = 200
+      InDetPriVxFinderTool.MinWeight          = 0.02
+      InDetPriVxFinderTool.TracksMaxZinterval = 0.5
+
   elif InDetFlags.primaryVertexSetup() == 'DefaultVKalVrtFinding':
     #
     # --- load vkal vertex finder tool
