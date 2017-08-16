@@ -3,7 +3,7 @@
 
 splitPoint() {
     # Split before InDetRec_all called and InDetFlags locked
-    splitLine=`grep -n "IMPORTANT NOTE" ../share/jobOptions_monitoring.py | cut -d ':' -f 1 | grep -v "^$"`
+    splitLine=`grep -n "IMPORTANT NOTE" $ATN_PACKAGE/share/jobOptions_monitoring.py | cut -d ':' -f 1 | grep -v "^$"`
     echo $splitLine
 }
 
@@ -13,7 +13,7 @@ makePixOpts() {
     splitLine=`splitPoint`
     splitLineMinus1=$(( splitLine - 1 ))
 
-    head -n $splitLineMinus1  ../share/jobOptions_monitoring.py > jobOptions_nopixel.py
+    head -n $splitLineMinus1  $ATN_PACKAGE/share/jobOptions_monitoring.py > jobOptions_nopixel.py
     cat >> jobOptions_nopixel.py << EOF
 # Test script options
 DetFlags.pixel_setOff()
@@ -27,7 +27,7 @@ InDetFlags.doTIDE_Ambi = False
 # End
 
 EOF
-    tail -n +$splitLine  ../share/jobOptions_monitoring.py >> jobOptions_nopixel.py
+    tail -n +$splitLine  $ATN_PACKAGE/share/jobOptions_monitoring.py >> jobOptions_nopixel.py
     echo "theApp.EvtMax = 1" >> jobOptions_nopixel.py
 }
 
@@ -37,7 +37,7 @@ makeSCTOpts() {
     splitLine=`splitPoint`
     splitLineMinus1=$(( splitLine - 1 ))
 
-    head -n $splitLineMinus1  ../share/jobOptions_monitoring.py > jobOptions_nosct.py
+    head -n $splitLineMinus1  $ATN_PACKAGE/share/jobOptions_monitoring.py > jobOptions_nosct.py
     cat >> jobOptions_nosct.py << EOF
 # Test script options
 DetFlags.SCT_setOff()
@@ -47,7 +47,7 @@ InDetFlags.doMonitoringSCT       = False
 # End
 
 EOF
-    tail -n +$splitLine  ../share/jobOptions_monitoring.py >> jobOptions_nosct.py
+    tail -n +$splitLine  $ATN_PACKAGE/share/jobOptions_monitoring.py >> jobOptions_nosct.py
     echo "theApp.EvtMax = 1" >> jobOptions_nosct.py
 }
 
@@ -57,27 +57,24 @@ makeTRTOpts() {
     splitLine=`splitPoint`
     splitLineMinus1=$(( splitLine - 1 ))
 
-    head -n $splitLineMinus1  ../share/jobOptions_monitoring.py > jobOptions_notrt.py
+    head -n $splitLineMinus1  $ATN_PACKAGE/share/jobOptions_monitoring.py > jobOptions_notrt.py
     cat >> jobOptions_notrt.py << EOF
 # Test script options
 DetFlags.TRT_setOff()
 DetFlags.detdescr.TRT_setOn()
 InDetFlags.doTrackSegmentsTRT    = False
 InDetFlags.doMonitoringTRT       = False
+InDetFlags.doTrackSegmentsPixelPrdAssociation = False
 # End
 
 EOF
-    tail -n +$splitLine  ../share/jobOptions_monitoring.py >> jobOptions_notrt.py
+    tail -n +$splitLine  $ATN_PACKAGE/share/jobOptions_monitoring.py >> jobOptions_notrt.py
     echo "theApp.EvtMax = 1" >> jobOptions_notrt.py
 }
 
 preCheck() {
     # Pre test steps
     echo "## Starting pre-checks"
-    
-    # Run directory
-    cd ../../../InnerDetector/InDetMonitoring/InDetMonitoringATN/run    
-    echo "## Running in $PWD"
     
     # Cleaning
     echo "## Cleaning"
@@ -87,10 +84,6 @@ preCheck() {
     #echo "## Setting up local DB access"
     #setupLocalDBReplica_CERN.sh
        
-    # Set environment
-    echo "## Setting up environment "
-    source ../cmt/setup.sh
-	
     # Make job options
     makePixOpts
     makeSCTOpts
@@ -116,7 +109,7 @@ postCheck() {
  
     # Cleaning
     echo "## Cleaning"
-    /bin/rm -f geomDB sqlite200 nopixel.log nosct.log notrt.log jobOptions_nopixel.py jobOptions_nosct.py jobOptions_notrt.py
+    /bin/rm -f geomDB sqlite200 # nopixel.log nosct.log notrt.log jobOptions_nopixel.py jobOptions_nosct.py jobOptions_notrt.py
 }
 
 logCheck() {
