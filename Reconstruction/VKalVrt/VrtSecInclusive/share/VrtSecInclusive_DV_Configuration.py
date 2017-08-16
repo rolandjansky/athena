@@ -54,3 +54,4 @@ HadronicVertexMapper = Trk__VertexMapper("HadronicVertexMapper")
 ToolSvc += HadronicVertexMapper
 topSequence.VrtSecInclusive.VertexMapper = HadronicVertexMapper
 
+include("VrtSecInclusive/VrtSecInclusive_DV_postInclude.py")
