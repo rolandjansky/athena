@@ -1024,6 +1024,18 @@ class WriteDAOD_SUSY17Stream(JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_SUSY17Stream)
 listAODtoDPD.append(WriteDAOD_SUSY17Stream.StreamName)
 
+class WriteDAOD_SUSY18Stream(JobProperty):
+    """SUSY18 derivation"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_SUSY18'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkSUSY/SUSY18.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_SUSY18Stream)
+listAODtoDPD.append(WriteDAOD_SUSY18Stream.StreamName)
 
 #################################
 # Defined by the Exotics group
