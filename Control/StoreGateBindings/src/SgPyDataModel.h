@@ -117,7 +117,7 @@ namespace SG {
      * @param isConst True if the object being converted is regarded as const.
      */
     virtual void* cast (CLID clid, IRegisterTransient* itr = 0,
-                        bool isConst = true) const override;
+                        bool isConst = true) override;
 
 
     /**
@@ -130,7 +130,7 @@ namespace SG {
      */
     virtual void* cast (const std::type_info& tinfo,
                         IRegisterTransient* itr = 0,
-                        bool isConst = true) const override;
+                        bool isConst = true) override;
 
     /**
      * @brief Retrieve reference to class definition structure

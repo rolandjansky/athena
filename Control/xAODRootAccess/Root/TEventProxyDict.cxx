@@ -75,7 +75,7 @@ namespace xAODPrivate {
 
       /// Return the object, cast to a CLID's type
       void* cast( CLID, SG::IRegisterTransient*,
-                  bool ) const override {
+                  bool ) override {
 
          throw std::runtime_error( "THolderBucket::cast not implemented" );
          return 0;
@@ -84,7 +84,7 @@ namespace xAODPrivate {
       /// Return the object, cast to a certain type
       void* cast( const std::type_info& tinfo,
                   SG::IRegisterTransient*,
-                  bool isConst ) const override {
+                  bool isConst ) override {
 
          // Do the cast:
          static const bool QUIET = true;
