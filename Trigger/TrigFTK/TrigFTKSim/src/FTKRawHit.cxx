@@ -65,10 +65,12 @@ FTKRawHit::FTKRawHit(const FTKRawHit &cpy) :
   m_barcode(cpy.m_barcode),
   m_barcode_pt(cpy.m_barcode_pt),
   m_parentage_mask(cpy.m_parentage_mask),
-  m_truth(0), m_channels(cpy.m_channels)
+  m_channels(cpy.m_channels)
 {
   if (cpy.m_truth)
     m_truth = new MultiTruth(*(cpy.m_truth));
+  else
+    m_truth = 0;
 }
 
 FTKRawHit::~FTKRawHit()
@@ -106,6 +108,9 @@ FTKRawHit& FTKRawHit::operator=(const FTKRawHit &cpy)
       m_hw_word = cpy.m_hw_word;
       m_truth = 0;
       m_channels.assign(cpy.m_channels.begin(),cpy.m_channels.end());
+      if (cpy.m_truth)
+	m_truth = new MultiTruth(*(cpy.m_truth));
+      ///
     }
   return *this;
 }
