@@ -80,8 +80,6 @@ CommonSmearingTool::CommonSmearingTool(std::string sName)
   , m_tCombinedP4FromRecoTaus("CombinedP4FromRecoTaus", this)
   , m_eCheckTruth(TauAnalysisTools::Unknown)
   , m_bNoMultiprong(false)
-  , m_bPtFinalCalibIsAvailable(false)
-  , m_bPtFinalCalibIsAvailableIsChecked(false)
   , m_bPtTauEtaCalibIsAvailable(false)
   , m_bPtTauEtaCalibIsAvailableIsChecked(false)
 {
@@ -189,35 +187,17 @@ CP::CorrectionCode CommonSmearingTool::applyCorrection( xAOD::TauJet& xTau )
   }
 
   if (m_bApplyMVATES)
-  {
-    if (not m_bPtFinalCalibIsAvailableIsChecked)
-    {
-      m_bPtFinalCalibIsAvailable = xTau.isAvailable<float>("ptFinalCalib");
-      m_bPtFinalCalibIsAvailableIsChecked = true;
-    }
-
-    if (not m_bPtFinalCalibIsAvailable)
-    {
-#ifndef XAODTAU_VERSIONS_TAUJET_V3_H
-      // TODO: only call eventInitialize once per event, probably via migration to
-      // AsgMetadataTool
-      if (m_tMvaTESVariableDecorator->eventInitialize().isFailure())
-        return CP::CorrectionCode::Error;
-      if (m_tMvaTESVariableDecorator->execute(xTau).isFailure())
-        return CP::CorrectionCode::Error;
-      if (m_tMvaTESEvaluator->execute(xTau).isFailure())
-        return CP::CorrectionCode::Error; 
-#else
-      ATH_MSG_ERROR("MVA TES decoration 'ptFinalCalib' is not available ");
-      return CP::CorrectionCode::Error;
-#endif
-    }
-    
+  {    
     // veto MVA TES for unreasonably low resolution values
     bool bVeto = dynamic_cast<CombinedP4FromRecoTaus*>(m_tCombinedP4FromRecoTaus.get())->GetUseCaloPtFlag(&xTau);
 
     if (xTau.nTracks() > 0 and xTau.nTracks() < 6)
     {
+      static SG::AuxElement::ConstAccessor<float> accPtFinalCalib("ptFinalCalib");
+      static SG::AuxElement::ConstAccessor<float> accEtaFinalCalib("etaFinalCalib");
+      static SG::AuxElement::ConstAccessor<float> accPhiFinalCalib("phiFinalCalib");
+      static SG::AuxElement::ConstAccessor<float> accMFinalCalib("mFinalCalib");
+
       xTau.auxdecor<char>("MVATESQuality") = (char)bVeto;
       if (bVeto && m_bApplyMVATESQualityCheck)
       {
@@ -229,10 +209,10 @@ CP::CorrectionCode CommonSmearingTool::applyCorrection( xAOD::TauJet& xTau )
       }
       else
       {
-        xTau.setP4(xTau.auxdata<float>("ptFinalCalib"),
-                   xTau.auxdata<float>("etaFinalCalib"),
-                   xTau.auxdata<float>("phiFinalCalib"),
-                   xTau.auxdata<float>("mFinalCalib"));
+        xTau.setP4(accPtFinalCalib(xTau),
+                   accEtaFinalCalib(xTau),
+                   accPhiFinalCalib(xTau),
+                   accMFinalCalib(xTau));
       }
     }
   }
