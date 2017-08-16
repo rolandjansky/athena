@@ -17,7 +17,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
                           Reconstruction/RecoTools/RecoToolInterfaces
                           Event/EventPrimitives
-			  PhysicsAnalysis/BPhys/BPhysTools
+		          PhysicsAnalysis/BPhys/BPhysTools
                           PRIVATE
                           Event/xAOD/xAODBase			
                           Tracking/TrkVertexFitter/TrkVertexAnalysisUtils
@@ -29,7 +29,9 @@ atlas_depends_on_subdirs( PUBLIC
                           Reconstruction/RecoTools/TrackToVertex
                           Tracking/TrkEvent/TrkCaloExtension
                           InnerDetector/InDetConditions/InDetBeamSpotService
-			  InnerDetector/InDetRecTools/InDetTrackSelectionTool)
+			  InnerDetector/InDetRecTools/InDetTrackSelectionTool
+			  Trigger/TrigAnalysis/TrigDecisionTool
+			  )
 
 # External dependencies:
 find_package( CLHEP )
@@ -41,26 +43,27 @@ atlas_add_library( DerivationFrameworkBPhysLib
                    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES xAODMuon DataModel AthenaBaseComps
-		   JpsiUpsilonTools xAODTracking xAODBPhysLib
+		   DerivationFrameworkInterfaces JpsiUpsilonTools
+		   xAODTracking xAODBPhysLib
 		   AthenaKernel RecoToolInterfaces EventPrimitives
 		   BPhysToolsLib
                    PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} xAODBase
 		   TrkVertexAnalysisUtils xAODEventInfo AthenaPoolUtilities
 		   xAODPrimitives CaloEvent TrackToCalo TrackToVertex
-		   TrkCaloExtension InDetBeamSpotServiceLib
-		   InDetTrackSelectionToolLib)
+		   TrkCaloExtension InDetBeamSpotService
+		   InDetTrackSelectionTool TrigDecisionTool)
 
 atlas_add_component( DerivationFrameworkBPhys
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                      LINK_LIBRARIES ${CLHEP_LIBRARIES} xAODMuon xAODBase
-		     DataModel AthenaBaseComps
+		     DataModel AthenaBaseComps DerivationFrameworkInterfaces
 		     JpsiUpsilonTools xAODTracking xAODBPhysLib
 		     AthenaKernel RecoToolInterfaces TrkVertexAnalysisUtils
 		     xAODEventInfo AthenaPoolUtilities xAODPrimitives CaloEvent
 		     TrackToCalo TrackToVertex TrkCaloExtension
-		     DerivationFrameworkBPhysLib EventPrimitives BPhysToolsLib
-		     InDetBeamSpotServiceLib InDetTrackSelectionToolLib)
+		     DerivationFrameworkBPhysLib EventPrimitives
+		     InDetBeamSpotService InDetTrackSelectionTool TrigDecisionTool)
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

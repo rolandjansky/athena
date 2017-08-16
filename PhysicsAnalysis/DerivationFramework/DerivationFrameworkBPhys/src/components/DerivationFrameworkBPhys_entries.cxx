@@ -25,6 +25,8 @@
 #include "DerivationFrameworkBPhys/Select_Bmumu.h"
 #include "DerivationFrameworkBPhys/BmumuThinningTool.h"
 #include "DerivationFrameworkBPhys/VertexPlus1TrackCascade.h"
+#include "DerivationFrameworkBPhys/TriggerCountToMetadata.h"
+
 
 using namespace DerivationFramework;
 
@@ -54,6 +56,8 @@ DECLARE_TOOL_FACTORY( BTrackVertexMapLogger )
 DECLARE_TOOL_FACTORY( Select_Bmumu )
 DECLARE_TOOL_FACTORY( BmumuThinningTool )
 DECLARE_TOOL_FACTORY( VertexPlus1TrackCascade )
+DECLARE_TOOL_FACTORY( TriggerCountToMetadata )
+
 
 DECLARE_FACTORY_ENTRIES( DerivationFrameworkBPhys ) {
    DECLARE_TOOL( Reco_mumu )
@@ -82,5 +86,7 @@ DECLARE_FACTORY_ENTRIES( DerivationFrameworkBPhys ) {
    DECLARE_TOOL( Select_Bmumu )
    DECLARE_TOOL( BmumuThinningTool )
    DECLARE_TOOL( VertexPlus1TrackCascade )
+   DECLARE_TOOL( TriggerCountToMetadata )
+
 }
 
