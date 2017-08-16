@@ -2,15 +2,15 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRGHLTJETHYPO2_H
-#define TRIGHLTJETHYPO2_H
+#ifndef TRIGHLTJETHYPO_TRIGHLTJETHYPOBASE_H
+#define TRIGHLTJETHYPO_TRIGHLTJETHYPOBASE_H
 /********************************************************************
  *
- * NAME:     Trighltjethypo2.h
+ * NAME:     TrigHLTJetHypoBase.h
  * PACKAGE:  Trigger/TrigHypothesis/TrigHLTJetHypo
  *
  * AUTHOR:   P. Sherwood
- * CREATED:  March 21, 2015
+ * CREATED:  February 13, 2017
  *           
  *
  *********************************************************************/
@@ -25,42 +25,36 @@
 
 class TriggerElement;
 class TrigHLTJetHypoHelper;
-enum class HypoStrategy;
 
 using namespace std::chrono;
 
-class TrigHLTJetHypo2 : public HLT::HypoAlgo {
+class TrigHLTJetHypoBase : public HLT::HypoAlgo {
 
  public:
 
-  TrigHLTJetHypo2(const std::string& name, ISvcLocator* pSvcLocator);
-  ~TrigHLTJetHypo2();
+  TrigHLTJetHypoBase(const std::string& name, ISvcLocator* pSvcLocator);
+  ~TrigHLTJetHypoBase();
 
   HLT::ErrorCode hltInitialize();
   HLT::ErrorCode hltFinalize();
   HLT::ErrorCode hltExecute(const HLT::TriggerElement* outputTE, bool& pass);
 
+ protected:
+
+  // set values provided by sub classes
+  void setConditions();
+  void setJetGrouper();
+
+  virtual std::vector<std::shared_ptr<ICleaner>> getCleaners() const = 0;  // sub class provides                                                                                                       
+  virtual std::shared_ptr<IJetGrouper> getJetGrouper() const = 0 ; // subclass provides
+  virtual Conditions getConditions() const = 0;  // sub class provides
+  virtual bool checkVals()  const = 0;  // sub class provides
+
+  void addCleaner(const CleanerBridge&);
+
  private:
   
-  bool checkStrategy(HypoStrategy);
-  bool checkEtaEtStrategy();
-  bool checkTLAStrategy();
-  bool checkDijetMassDEtaStrategy();
-  bool checkHTStrategy();
-  bool checksinglemassStrategy();
-
-  void setCleaner();
-
-  bool setConditions(HypoStrategy);
-  bool setEtaEtConditions();
-  bool setTLAConditions();
-  bool setDijetMassDEtaConditions();
-  bool setHTConditions();
-  bool setsinglemassConditions();
-
-  bool setJetGrouper(HypoStrategy);
-
-  std::vector<double> getStringBoundaries (const std::vector<std::string>& stv);
+  void setCleaners();
 
   HLT::ErrorCode checkJets(const xAOD::JetContainer*);
   void publishResult(const TrigHLTJetHypoHelper&, bool,
@@ -80,28 +74,7 @@ class TrigHLTJetHypo2 : public HLT::HypoAlgo {
   void accumulateTime(nanoseconds) noexcept;
 
   std::string m_chainName;  // used for configuration of dimass chains
-  // vectors with Et thresholds, eta nins and eta maxs
-  // (thresh, eta min, eta max) triplets will bbe converted to Conditon objs.
-  std::vector<double> m_EtThresholds;
-  std::vector<std::string> m_JetMassMin;
-  std::vector<std::string> m_JetMassMax;
-  std::vector<double> m_etaMins;
-  std::vector<double> m_etaMaxs;
-  std::vector<int> m_asymmetricEtas;
 
-  // vector of indices find ofssets into the jet vector,
-  // and other Condition variables used for TLA style hypos.
-  std::vector<double> m_ystarMins;
-  std::vector<double> m_ystarMaxs;
-  std::vector<double> m_massMins;
-  std::vector<double> m_massMaxs;
-
-  // delta eta cut (DimassDeta strategy)
-  std::vector<double> m_dEtaMins;
-  std::vector<double> m_dEtaMaxs;
-
-  //HT
-  double m_htMin;
 
   // Dijets
   /*double m_invm;
@@ -130,12 +103,7 @@ class TrigHLTJetHypo2 : public HLT::HypoAlgo {
   
   std::string m_cleaningAlg;  // determines cleaner obj
   std::string m_matchingAlg;  // determines matcher obj;
-  std::string m_hypoStrategy; // determines Conditions, jetGrouper
 
-
-  // Jet Grouper parameters:
-  std::vector<unsigned int> m_jetvec_indices; //indexed jets
-  unsigned int m_combinationsSize;  // jet combinations
 
   // Cleaning parameters
   //basic cleaning
@@ -184,4 +152,7 @@ class TrigHLTJetHypo2 : public HLT::HypoAlgo {
 
   bool m_dumpJets{false};
 };
+
+std::vector<double> getEtThresholds(const std::vector<double>& dEtas,
+                                    const std::vector<double>& etThresholds);
 #endif
