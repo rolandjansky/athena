@@ -78,7 +78,7 @@ FTKRawHit::~FTKRawHit()
   if (m_truth) delete m_truth;
 }
 
-// shallow copy - MultiTruth is NOT copied!
+// shallow copy - MultiTruth did not used to be copied, but is now!
 FTKRawHit& FTKRawHit::operator=(const FTKRawHit &cpy)
 {
 #ifdef PROTECT_SA // speedup
