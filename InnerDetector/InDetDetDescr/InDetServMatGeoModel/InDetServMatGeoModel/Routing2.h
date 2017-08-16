@@ -92,11 +92,11 @@ private:
   std::string nextVolumeName( const Route& route) const;
 
   // the message stream (same for all derived classes)
-  const Athena::MsgStreamMember m_msg;
-  MsgStream& msg (MSG::Level lvl) const { return m_msg << lvl; }
-  const Athena::MsgStreamMember& msgStream() const {return m_msg;}
+  Athena::MsgStreamMember m_msg;
+  MsgStream& msg (MSG::Level lvl) { return m_msg << lvl; }
+  Athena::MsgStreamMember& msgStream() {return m_msg;}
   //Declaring the Method providing Verbosity Level
-  bool msgLvl (MSG::Level lvl) const { return m_msg.get().level() <= lvl; }
+  bool msgLvl (MSG::Level lvl) { return m_msg.get().level() <= lvl; }
 };
 
 #endif

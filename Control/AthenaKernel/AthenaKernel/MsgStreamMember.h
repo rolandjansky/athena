@@ -68,17 +68,17 @@ namespace Athena {
     ~MsgStreamMember();
 
     /// upon first access sets m_ims as needed
-    MsgStream& get() const;
+    MsgStream& get();
 
   private:
-    mutable IMessageSvcHolder m_ims; //mutable to have op() const
+    IMessageSvcHolder m_ims;
     /// the label to be printed by the stream (usually name())
     std::string m_label;
-    mutable MsgStream* m_stream; //mutable to have op() const
+    MsgStream* m_stream;
   };
 }
 template <typename T>
-MsgStream& operator << (const Athena::MsgStreamMember& stream, const T& rhs) {
+MsgStream& operator << (Athena::MsgStreamMember& stream, const T& rhs) {
   return (stream.get() << rhs);
 }
 

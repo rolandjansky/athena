@@ -32,7 +32,7 @@ MsgStreamMember& MsgStreamMember::operator= (const MsgStreamMember& rhs)
 MsgStreamMember::~MsgStreamMember() { delete m_stream; }
 
 /// upon first access sets m_ims as needed
-MsgStream& MsgStreamMember::get() const {
+MsgStream& MsgStreamMember::get() {
   if (0 == m_stream) m_stream = new MsgStream(m_ims.get(), m_label);
   return *m_stream;
 }
