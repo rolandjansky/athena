@@ -186,10 +186,7 @@ STDM2Sequence += CfgMgr.DerivationFramework__DerivationKernel("STDM2Kernel",
 
 isMC = globalflags.DataSource()=='geant4'
 # JET REBUILDING
-#from DerivationFrameworkSM import STDMHelpers
-#if not "STDM2Jets" in OutputJets.keys():
-#    OutputJets["STDM2Jets"] = STDMHelpers.STDMRecalcJets(STDM2Sequence, "STDM2", isMC)
-#New method to replace the jet collections removed in the AOD size reduction
+# New method to replace the jet collections removed in the AOD size reduction
 reducedJetList = ["AntiKt4TruthJets", "AntiKt4TruthWZJets", "AntiKt4PV0TrackJets"]
 replaceAODReducedJets(reducedJetList, STDM2Sequence, "STDM2");
 

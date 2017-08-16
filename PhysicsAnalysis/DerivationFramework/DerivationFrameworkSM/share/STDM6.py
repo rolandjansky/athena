@@ -41,9 +41,8 @@ STDM6Sequence += CfgMgr.DerivationFramework__DerivationKernel("STDM6Kernel",
                                                                  ThinningTools = [])
 
 # JET REBUILDING
-from DerivationFrameworkSM import STDMHelpers
-if not "STDM6Jets" in OutputJets.keys():
-    OutputJets["STDM6Jets"] = STDMHelpers.STDMRecalcJets(STDM6Sequence, "STDM6", isMC)
+reducedJetList = ["AntiKt4TruthJets", "AntiKt4TruthWZJets"]
+replaceAODReducedJets(reducedJetList, STDM6Sequence, "STDM6Jets")
 
 # ADD MBTS Container
 from xAODForwardCnv.xAODMBTSModuleCreator import xAODMaker__MBTSModuleCnvAlg
