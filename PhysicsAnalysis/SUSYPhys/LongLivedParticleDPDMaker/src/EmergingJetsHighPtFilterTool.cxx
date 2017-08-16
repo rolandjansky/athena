@@ -66,8 +66,8 @@ StatusCode DerivationFramework::EmergingJetsHighPtFilterTool::finalize()
 {
      ATH_MSG_VERBOSE("finalize() ...");
      ATH_MSG_INFO("Processed " << m_ntot << " events, " << m_npass << " events passed filter ");
-     ATH_MSG_INFO(m_nptpass << " jets passed " << m_ptCut << " GeV pt cut");
-     ATH_MSG_INFO(m_nhighptpass << " jets passed " << m_highPtCut << " GeV high-pt cut");
+     //ATH_MSG_INFO(m_nptpass << " jets passed " << m_ptCut << " GeV pt cut");
+     //ATH_MSG_INFO(m_nhighptpass << " jets passed " << m_highPtCut << " GeV high-pt cut");
      return StatusCode::SUCCESS;
 }
 

@@ -61,7 +61,7 @@ StatusCode DerivationFramework::EmergingJetsFilterTool::finalize()
 {
      ATH_MSG_VERBOSE("finalize() ...");
      ATH_MSG_INFO("Processed "<< m_ntot <<" events, "<< m_npass<<" events passed filter ");
-     ATH_MSG_INFO(m_nptpass << " jets passed " << m_ptCut << " GeV pt cut");
+     ATH_MSG_INFO(m_nptpass << " jets passed " << m_ptCut << " *0.001 GeV pt cut");
      return StatusCode::SUCCESS;
 }
 

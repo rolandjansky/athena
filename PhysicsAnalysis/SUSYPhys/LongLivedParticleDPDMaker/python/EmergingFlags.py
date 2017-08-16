@@ -43,16 +43,6 @@ class Emerging_DiJet110FilterFlags(JobProperty):
     Triggers     = ["HLT_j110"]
 primRPVLLDESDM.add_JobProperty(Emerging_DiJet110FilterFlags)
 
-class Emerging_DiJet150FilterFlags(JobProperty):
-    statusOn     = True
-    allowedTypes = ['bool']
-    StoredValue  = True
-    cutEtMin     = 100.0*Units.GeV
-    cutEtaMax    = 2.5
-    nPassed      = 2
-    Triggers     = ["HLT_j150"]
-primRPVLLDESDM.add_JobProperty(Emerging_DiJet150FilterFlags)
-
 class Emerging_DiJet175FilterFlags(JobProperty):
     statusOn     = True
     allowedTypes = ['bool']
