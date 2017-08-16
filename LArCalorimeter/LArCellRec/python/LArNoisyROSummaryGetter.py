@@ -39,10 +39,10 @@ class LArNoisyROSummaryGetter ( Configured )  :
         from AthenaCommon.AppMgr import ToolSvc    
         from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
         theBadFebTool=LArBadChanTool("KnownBADFEBsTool")
-        theBadFebTool.CoolMissingFEBsFolder="/LAR/BadChannelsOfl/KnownBADFEBs"
+        theBadFebTool.CoolMissingFEBsFolder="/LAR/BadChannels/KnownBADFEBs"
         ToolSvc+=theBadFebTool
         theMNBFebTool=LArBadChanTool("KnownMNBFEBsTool")
-        theMNBFebTool.CoolMissingFEBsFolder="/LAR/BadChannelsOfl/KnownMNBFEBs"
+        theMNBFebTool.CoolMissingFEBsFolder="/LAR/BadChannels/KnownMNBFEBs"
         ToolSvc+=theMNBFebTool
         #theLArNoisyROTool=LArNoisyROTool(PrintSummary=True,
         #                                 CellQualityCut=larNoisyROFlags.CellQualityCut(),

@@ -205,9 +205,9 @@ from CaloRec.CaloCellGetter import CaloCellGetter
 CaloCellGetter()
 
 #fix to use DSPThresholds
-topSequence.LArRawChannelBuilder.LArRawChannelBuilderToolOFCIter.useDSPThreshold=True
-topSequence.LArRawChannelBuilder.LArRawChannelBuilderToolOFCIter.DSPThresholdsFolder="/LAR/Configuration/DSPThresholdFlat/Thresholds"
-conddb.addFolder("LAR_ONL","/LAR/Configuration/DSPThresholdFlat/Thresholds")
+#topSequence.LArRawChannelBuilder.LArRawChannelBuilderToolOFCIter.useDSPThreshold=True
+#topSequence.LArRawChannelBuilder.LArRawChannelBuilderToolOFCIter.DSPThresholdsFolder="/LAR/Configuration/DSPThresholdFlat/Thresholds"
+#conddb.addFolder("LAR_ONL","/LAR/Configuration/DSPThresholdFlat/Thresholds")
 
 from LArCellRec.LArNoisyROSummaryGetter import LArNoisyROSummaryGetter
 LArNoisyROSummaryGetter()
