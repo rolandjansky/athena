@@ -6,29 +6,16 @@
 // Function to handle 2D profile histograms of modules, one for each region
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "PixelMonitoring/Components.h"
-#include "PixelMonitoring/PixelMon2DProfilesLW.h"
 #include "PixelMonitoring/PixelMon2DMapsLW.h"
+#include "PixelMonitoring/PixelMon2DProfilesLW.h"
+#include "PixelMonitoring/Components.h"
 #include "InDetIdentifier/PixelID.h"
 #include "LWHists/TH2F_LW.h"
 #include "LWHists/TProfile2D_LW.h"
 #include "GaudiKernel/StatusCode.h"     
 #include <string.h>
 
-PixelMon2DProfilesLW::PixelMon2DProfilesLW(std::string name, std::string title, const PixMon::HistConf& config, bool copy2DFEval)
-    : IBL3D(nullptr),
-      IBL2D(nullptr),
-      IBL(nullptr),
-      B0(nullptr),
-      B1(nullptr),
-      B2(nullptr),
-      A(nullptr),
-      C(nullptr),
-      DBMA(nullptr),
-      DBMC(nullptr),
-      m_config(config),
-      m_copy2DFEval(copy2DFEval)
-{
+PixelMon2DProfilesLW::PixelMon2DProfilesLW(std::string name, std::string title, const PixMon::HistConf& config, bool copy2DFEval) : HolderTemplate<TProfile2D_LW>(config, copy2DFEval) {
    std::string setatext = ";shifted eta index of module";
    std::string etatext = ";eta index of module";
    std::string phitext = ";phi index of module";
@@ -86,29 +73,20 @@ PixelMon2DProfilesLW::PixelMon2DProfilesLW(std::string name, std::string title, 
                                    PixMon::kNumModulesDBM, -0.5, -0.5 + PixMon::kNumModulesDBM);
    }
 
-   m_histograms = {IBL, IBL2D, IBL3D, B0, B1, B2, A, C, DBMA, DBMC};
-
    formatHist();
-}
-
-PixelMon2DProfilesLW::~PixelMon2DProfilesLW()
-{
-   for (auto& hist : m_histograms) {
-      if (hist) LWHist::safeDelete(hist);
-   }
 }
 
 void PixelMon2DProfilesLW::SetMaxValue(float max)
 {
    for (auto& hist : m_histograms) {
-      if (hist) hist->SetMaximum(max);
+      if (*hist) (*hist)->SetMaximum(max);
    }
 }
 
 void PixelMon2DProfilesLW::Reset()
 {
    for (auto& hist : m_histograms) {
-      if (hist) hist->Reset();
+      if (*hist) (*hist)->Reset();
    }
 }
 
@@ -213,14 +191,14 @@ void PixelMon2DProfilesLW::formatHist()
    }
 
    for (auto& hist : m_histograms) {
-      if (!hist) continue;
-      if (hist == A || hist == C) {
-         hist->GetYaxis()->SetLabelSize(0.02);
+      if (!*hist) continue;
+      if (*hist == A || *hist == C) {
+         (*hist)->GetYaxis()->SetLabelSize(0.02);
       } else {
-         hist->GetYaxis()->SetLabelSize(0.03);
+         (*hist)->GetYaxis()->SetLabelSize(0.03);
       }
-      hist->SetOption("colz");
-      hist->SetMinimum(0.);
+      (*hist)->SetOption("colz");
+      (*hist)->SetMinimum(0.);
    }
 }
 
@@ -229,13 +207,13 @@ void PixelMon2DProfilesLW::Fill2DMon(PixelMon2DProfilesLW* oldmap)
    for (unsigned int index = 0; index < m_histograms.size(); ++index) {
       auto& hist = m_histograms.at(index);
       auto& oldhist = oldmap->m_histograms.at(index);
-      if (!hist) continue;
-      if (!oldhist) continue;
-      for (unsigned int x = 1; x <= hist->GetNbinsX(); ++x) {
-         for (unsigned int y = 1; y <= hist->GetNbinsY(); ++y) {
-            const auto content = oldhist->GetBinContent(x, y);
-            hist->SetBinContent(x, y, content);
-            oldhist->SetBinContent(x, y, 0);
+      if (!*hist) continue;
+      if (!*oldhist) continue;
+      for (unsigned int x = 1; x <= (*hist)->GetNbinsX(); ++x) {
+         for (unsigned int y = 1; y <= (*hist)->GetNbinsY(); ++y) {
+            const auto content = (*oldhist)->GetBinContent(x, y);
+            (*hist)->SetBinContent(x, y, content);
+            (*oldhist)->SetBinContent(x, y, 0);
          }
       }
    }
@@ -249,37 +227,21 @@ void PixelMon2DProfilesLW::FillFromMap(PixelMon2DMapsLW* inputmap, bool clear_in
    for (unsigned int index = 0; index < m_histograms.size(); ++index) {
       auto& hist = m_histograms.at(index);
       auto& map = inputmap->m_histograms.at(index);
-      if (!hist) continue;
+      if (!*hist) continue;
       if (!*map) continue;
-      for (unsigned int x = 1; x <= hist->GetNbinsX(); x++) {
-         for (unsigned int y = 1; y <= hist->GetNbinsY(); y++) {
+      for (unsigned int x = 1; x <= (*hist)->GetNbinsX(); x++) {
+         for (unsigned int y = 1; y <= (*hist)->GetNbinsY(); y++) {
             auto content = (*map)->GetBinContent(x, y);
-            if (hist == IBL || hist == IBL3D || hist == DBMA || hist == DBMC) {
+            if (*hist == IBL || *hist == IBL3D || *hist == DBMA || *hist == DBMC) {
                content *= weightIBL;
-            } else if (hist == IBL2D) {
+            } else if (*hist == IBL2D) {
                content *= weightIBL * 0.5;
             } else {
                content *= weightPixel;
             }
-            hist->Fill((*map)->GetXaxis()->GetBinCenter(x), (*map)->GetYaxis()->GetBinCenter(y), content);
+            (*hist)->Fill((*map)->GetXaxis()->GetBinCenter(x), (*map)->GetYaxis()->GetBinCenter(y), content);
          }
       }
       if (clear_inputmap) (*map)->Reset();
    }
 }
-
-StatusCode PixelMon2DProfilesLW::regHist(ManagedMonitorToolBase::MonGroup &group)
-{
-   StatusCode sc = StatusCode::SUCCESS;
-
-   for (auto& hist : m_histograms) {
-      if (!hist) continue;
-      if (group.regHist(hist).isFailure()) {
-         sc = StatusCode::FAILURE;
-      }
-   }
-  
-   return sc;
-}
-
-const bool PixelMon2DProfilesLW::m_doIBL{true};
