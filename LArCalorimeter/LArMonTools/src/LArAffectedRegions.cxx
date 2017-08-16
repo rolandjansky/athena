@@ -214,8 +214,7 @@ LArAffectedRegions::bookHistograms()
 StatusCode 
 LArAffectedRegions::fillHistograms()
 {
-  bool debug = msg().level() <= MSG::DEBUG ; 
-  if (debug)   ATH_MSG_DEBUG( "in fillHists()"  );
+  ATH_MSG_DEBUG( "in fillHists()"  );
 
   m_eventsCounter++;
 
@@ -251,13 +250,11 @@ LArAffectedRegions::fillHistograms()
       float etamin=region->get_eta_min();
       float etamax=region->get_eta_max();
      
-      if (debug){
-	ATH_MSG_DEBUG( " Print list of affected regions:"  );
-	ATH_MSG_DEBUG( region << " " 
+      ATH_MSG_DEBUG( " Print list of affected regions:"  );
+      ATH_MSG_DEBUG( region << " " 
 		      << region->get_eta_min() << " " << region->get_eta_max() << " " 
 		      << region->get_phi_min() << " " << region->get_phi_max() << " "
 		      << region->get_layer_min() << " " << region->get_layer_max() << " " << region->get_problem()  );
-      }
       /////////////////////////////////
       // Build Affected Regions maps //
       /////////////////////////////////
@@ -282,13 +279,11 @@ LArAffectedRegions::fillHistograms()
 	    while(phi<phimax){
 	      if(eta>=0){
 		m_hLArAffectedRegionsEMBPS[0]->Fill(eta,phi,problem); 
-		if (debug) ATH_MSG_DEBUG(  "EMBAPS " << eta << " " << phi << " " << problem << " " 
-				<< layermin << " " << layermax << " " << region  );
+		ATH_MSG_DEBUG(  "EMBAPS " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
 	      }
 	      if(eta<0){
 		m_hLArAffectedRegionsEMBPS[1]->Fill(eta,phi,problem); 
-		if (debug)  ATH_MSG_DEBUG(  "EMBCPS " << eta << " " << phi << " " << problem << " " 
-				<< layermin << " " << layermax << " " << region  );
+		ATH_MSG_DEBUG(  "EMBCPS " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
 	      }
 	      phi+=(2*TMath::Pi()/32);
               if(fabs(phi)<1.e-4) phi=0.;
@@ -299,13 +294,11 @@ LArAffectedRegions::fillHistograms()
 	    while(phi<TMath::Pi()){
 	      if(eta>=0){
 		m_hLArAffectedRegionsEMBPS[0]->Fill(eta,phi,problem); 
-		if (debug)  ATH_MSG_DEBUG(  "EMBAPS " << eta << " " << phi << " " << problem << " " 
-				<< layermin << " " << layermax << " " << region  );
+		ATH_MSG_DEBUG(  "EMBAPS " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
 	      }
 	      if(eta<0){
 		m_hLArAffectedRegionsEMBPS[1]->Fill(eta,phi,problem); 
-		if (debug)  ATH_MSG_DEBUG(  "EMBCPS " << eta << " " << phi << " " << problem << " " 
-				<< layermin << " " << layermax << " " << region  );
+		ATH_MSG_DEBUG(  "EMBCPS " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
 	      }
 	      phi+=(2*TMath::Pi()/32);
               if(fabs(phi)<1.e-4) phi=0.;
@@ -314,13 +307,11 @@ LArAffectedRegions::fillHistograms()
 	    while(phi<phimax){
 	      if(eta>=0){
 		m_hLArAffectedRegionsEMBPS[0]->Fill(eta,phi,problem); 
-		if (debug)  ATH_MSG_DEBUG(  "EMBAPS " << eta << " " << phi << " " << problem << " " 
-				<< layermin << " " << layermax << " " << region  );
+		ATH_MSG_DEBUG(  "EMBAPS " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
 	      }
 	      if(eta<0){
 		m_hLArAffectedRegionsEMBPS[1]->Fill(eta,phi,problem); 
-		if (debug)  ATH_MSG_DEBUG(  "EMBCPS " << eta << " " << phi << " " << problem << " " 
-				<< layermin << " " << layermax << " " << region  );
+		ATH_MSG_DEBUG(  "EMBCPS " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
 	      }
 	      phi+=(2*TMath::Pi()/32);
               if(fabs(phi)<1.e-4) phi=0.;
@@ -340,13 +331,11 @@ LArAffectedRegions::fillHistograms()
 	    while(phi<phimax){
 	      if(eta >=0){
 		m_hLArAffectedRegionsEMB[0]->Fill(eta,phi,problem);
-		if (debug)  ATH_MSG_DEBUG(  "EMBA " << eta << " " << phi << " " << problem << " " 
-				<< layermin << " " << layermax << " " << region  );
+		ATH_MSG_DEBUG(  "EMBA " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
 	      }
 	      if(eta <0){
 		m_hLArAffectedRegionsEMB[1]->Fill(eta,phi,problem);
-		if (debug)  ATH_MSG_DEBUG(  "EMBC " << eta << " " << phi << " " << problem << " " 
-				<< layermin << " " << layermax << " " << region  );
+		ATH_MSG_DEBUG(  "EMBC " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
 	      }
 	      phi+=(2*TMath::Pi()/128);
               if(fabs(phi)<1.e-4) phi=0.;
@@ -357,13 +346,11 @@ LArAffectedRegions::fillHistograms()
 	    while(phi<TMath::Pi()){
 	      if(eta >=0){
 		m_hLArAffectedRegionsEMB[0]->Fill(eta,phi,problem);
-		if (debug) ATH_MSG_DEBUG(  "EMBA " << eta << " " << phi << " " << problem << " " 
-				<< layermin << " " << layermax << " " << region  );
+		ATH_MSG_DEBUG(  "EMBA " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
 	      }
 	      if(eta <0){
 		m_hLArAffectedRegionsEMB[1]->Fill(eta,phi,problem);
-		if (debug) ATH_MSG_DEBUG(  "EMBC " << eta << " " << phi << " " << problem << " " 
-				<< layermin << " " << layermax << " " << region  );
+		ATH_MSG_DEBUG(  "EMBC " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
 	      }
 	      phi+=(2*TMath::Pi()/128);
               if(fabs(phi)<1.e-4) phi=0.;
@@ -372,13 +359,11 @@ LArAffectedRegions::fillHistograms()
 	    while(phi<phimax){
 	      if(eta >=0){
 		m_hLArAffectedRegionsEMB[0]->Fill(eta,phi,problem);
-		if (debug) ATH_MSG_DEBUG(  "EMBA " << eta << " " << phi << " " << problem << " " 
-				<< layermin << " " << layermax << " " << region  );
+		ATH_MSG_DEBUG(  "EMBA " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
 	      }
 	      if(eta <0){
 		m_hLArAffectedRegionsEMB[1]->Fill(eta,phi,problem);
-		if (debug) ATH_MSG_DEBUG(  "EMBC " << eta << " " << phi << " " << problem << " " 
-				<< layermin << " " << layermax << " " << region  );
+		ATH_MSG_DEBUG(  "EMBC " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
 	      }
 	      phi+=(2*TMath::Pi()/128);
               if(fabs(phi)<1.e-4) phi=0.;
@@ -398,13 +383,11 @@ LArAffectedRegions::fillHistograms()
 	    while(phi<phimax){
 	      if(eta>=0){
 		m_hLArAffectedRegionsEMECPS[0]->Fill(eta,phi,problem); 
-		if (debug) ATH_MSG_DEBUG(  "EMECAPS " << eta << " " << phi << " " << problem << "  " 
-				<< layermin << " " << layermax << " " << region  );
+		ATH_MSG_DEBUG(  "EMECAPS " << eta << " " << phi << " " << problem << "  " << layermin << " " << layermax << " " << region  );
 	      }
 	      if(eta<0){
 		m_hLArAffectedRegionsEMECPS[1]->Fill(eta,phi,problem); 
-		if (debug) ATH_MSG_DEBUG(  "EMECCPS " << eta << " " << phi << " " << problem << "  " 
-				<< layermin << " " << layermax << " " << region  );
+		ATH_MSG_DEBUG(  "EMECCPS " << eta << " " << phi << " " << problem << "  " << layermin << " " << layermax << " " << region  );
 	      }
 	      phi+=(2*TMath::Pi()/64);
               if(fabs(phi)<1.e-4) phi=0.;
@@ -415,13 +398,11 @@ LArAffectedRegions::fillHistograms()
 	    while(phi<TMath::Pi()){
 	      if(eta>=0){
 		m_hLArAffectedRegionsEMECPS[0]->Fill(eta,phi,problem); 
-		if (debug) ATH_MSG_DEBUG(  "EMECAPS " << eta << " " << phi << " " << problem << "  " 
-				<< layermin << " " << layermax << " " << region  );
+		ATH_MSG_DEBUG(  "EMECAPS " << eta << " " << phi << " " << problem << "  " << layermin << " " << layermax << " " << region  );
 	      }
 	      if(eta<0){
 		m_hLArAffectedRegionsEMECPS[1]->Fill(eta,phi,problem); 
-		if (debug) ATH_MSG_DEBUG(  "EMECCPS " << eta << " " << phi << " " << problem << "  " 
-				<< layermin << " " << layermax << " " << region  );
+		ATH_MSG_DEBUG(  "EMECCPS " << eta << " " << phi << " " << problem << "  " << layermin << " " << layermax << " " << region  );
 	      }
 	      phi+=(2*TMath::Pi()/64);
               if(fabs(phi)<1.e-4) phi=0.;
@@ -430,13 +411,11 @@ LArAffectedRegions::fillHistograms()
 	    while(phi<phimax){
 	      if(eta>=0){
 		m_hLArAffectedRegionsEMECPS[0]->Fill(eta,phi,problem); 
-		if (debug) ATH_MSG_DEBUG(  "EMECAPS " << eta << " " << phi << " " << problem << " " 
-				<< layermin << " " << layermax << " " << region  );
+		ATH_MSG_DEBUG(  "EMECAPS " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
 	      }
 	      if(eta<0){
 		m_hLArAffectedRegionsEMECPS[1]->Fill(eta,phi,problem); 
-		if (debug) ATH_MSG_DEBUG(  "EMECCPS " << eta << " " << phi << " " << problem << " " 
-				<< layermin << " " << layermax << " " << region  );
+		ATH_MSG_DEBUG(  "EMECCPS " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
 	      }
 	      phi+=(2*TMath::Pi()/64);
               if(fabs(phi)<1.e-4) phi=0.;
@@ -457,13 +436,11 @@ LArAffectedRegions::fillHistograms()
 	    while(phi<phimax){
 	      if(eta>=0){
 		m_hLArAffectedRegionsEMEC[0]->Fill(eta,phi,problem);
-		if (debug) ATH_MSG_DEBUG(  "EMECA " << eta << " " << phi << " " << problem << " " 
-				<< layermin << " " << layermax << " " << region  );
+		ATH_MSG_DEBUG(  "EMECA " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
 	      } 
 	      if(eta<0){
 		m_hLArAffectedRegionsEMEC[1]->Fill(eta,phi,problem); 
-		if (debug) ATH_MSG_DEBUG(  "EMECC " << eta << " " << phi << " " << problem << " " 
-				<< layermin << " " << layermax << " " << region  );
+		ATH_MSG_DEBUG(  "EMECC " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
 	      }
 	      phi+=(2*TMath::Pi()/256);
               if(fabs(phi)<1.e-4) phi=0.;
@@ -474,13 +451,11 @@ LArAffectedRegions::fillHistograms()
 	    while(phi<TMath::Pi()){
 	      if(eta>=0){
 		m_hLArAffectedRegionsEMEC[0]->Fill(eta,phi,problem);
-		if (debug) ATH_MSG_DEBUG(  "EMECA " << eta << " " << phi << " " << problem << " " 
-				<< layermin << " " << layermax << " " << region  );
+		ATH_MSG_DEBUG(  "EMECA " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
 	      } 
 	      if(eta<0){
 		m_hLArAffectedRegionsEMEC[1]->Fill(eta,phi,problem); 
-		if (debug) ATH_MSG_DEBUG(  "EMECC " << eta << " " << phi << " " << problem << " " 
-				<< layermin << " " << layermax << " " << region  );
+		ATH_MSG_DEBUG(  "EMECC " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
 	      }
 	      phi+=(2*TMath::Pi()/256);
               if(fabs(phi)<1.e-4) phi=0.;
@@ -489,13 +464,11 @@ LArAffectedRegions::fillHistograms()
 	    while(phi<phimax){
 	      if(eta>=0){
 		m_hLArAffectedRegionsEMEC[0]->Fill(eta,phi,problem);
-		if (debug) ATH_MSG_DEBUG(  "EMECA " << eta << " " << phi << " " << problem << " " 
-				<< layermin << " " << layermax << " " << region  );
+		ATH_MSG_DEBUG(  "EMECA " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
 	      } 
 	      if(eta<0){
 		m_hLArAffectedRegionsEMEC[1]->Fill(eta,phi,problem); 
-		if (debug) ATH_MSG_DEBUG(  "EMECC " << eta << " " << phi << " " << problem << " " 
-				<< layermin << " " << layermax << " " << region  );
+		ATH_MSG_DEBUG(  "EMECC " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
 	      }
 	      phi+=(2*TMath::Pi()/256);
               if(fabs(phi)<1.e-4) phi=0.;
@@ -516,13 +489,11 @@ LArAffectedRegions::fillHistograms()
 	  while(phi<phimax){
 	    if(eta>=0){
 	      m_hLArAffectedRegionsHECA[layermin-8]->Fill(eta,phi,problem); 
-	      if (debug) ATH_MSG_DEBUG(  "HECA " << eta << " " << phi << " " << problem << " " 
-			      << layermin << " " << layermax << " " << region  );
+	      ATH_MSG_DEBUG(  "HECA " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
 	    } 
 	    if(eta<0){
 	      m_hLArAffectedRegionsHECC[layermin-8]->Fill(eta,phi,problem); 
-	      if (debug) ATH_MSG_DEBUG(  "HECC " << eta << " " << phi << " " << problem << " " 
-			      << layermin << " " << layermax << " "  << region  );
+	      ATH_MSG_DEBUG(  "HECC " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " "  << region  );
 	    } 
 	    phi+=(2*TMath::Pi()/32);
             if(fabs(phi)<1.e-4) phi=0.;
@@ -533,13 +504,11 @@ LArAffectedRegions::fillHistograms()
 	  while(phi<TMath::Pi()){
 	    if(eta>=0){
 	      m_hLArAffectedRegionsHECA[layermin-8]->Fill(eta,phi,problem); 
-	      if (debug) ATH_MSG_DEBUG(  "HECA " << eta << " " << phi << " " << problem << " " 
-			      << layermin << " " << layermax << " " << region  );
+	      ATH_MSG_DEBUG(  "HECA " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
 	    } 
 	    if(eta<0){
 	      m_hLArAffectedRegionsHECC[layermin-8]->Fill(eta,phi,problem); 
-	      if (debug) ATH_MSG_DEBUG(  "HECC " << eta << " " << phi << " " << problem << " " 
-			      << layermin << " " << layermax << " "  << region  );
+	      ATH_MSG_DEBUG(  "HECC " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " "  << region  );
 	    } 
 	    phi+=(2*TMath::Pi()/32);
             if(fabs(phi)<1.e-4) phi=0.;
@@ -548,13 +517,11 @@ LArAffectedRegions::fillHistograms()
 	  while(phi<phimax){
 	    if(eta>=0){
 	      m_hLArAffectedRegionsHECA[layermin-8]->Fill(eta,phi,problem); 
-	      if (debug) ATH_MSG_DEBUG(  "HECA " << eta << " " << phi << " " << problem << " " 
-			      << layermin << " " << layermax << " " << region  );
+	      ATH_MSG_DEBUG(  "HECA " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
 	    } 
 	    if(eta<0){
 	      m_hLArAffectedRegionsHECC[layermin-8]->Fill(eta,phi,problem); 
-	      if (debug) ATH_MSG_DEBUG(  "HECC " << eta << " " << phi << " " << problem << " " 
-			      << layermin << " " << layermax << " "  << region  );
+	      ATH_MSG_DEBUG(  "HECC " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " "  << region  );
 	    } 
 	    phi+=(2*TMath::Pi()/32);
             if(fabs(phi)<1.e-4) phi=0.;
@@ -571,13 +538,11 @@ LArAffectedRegions::fillHistograms()
 	  while(phi<phimax){
 	    if(eta>=0){
 	      m_hLArAffectedRegionsFCALA[layermin-21]->Fill(eta,phi,problem); 
-	      if (debug) ATH_MSG_DEBUG(  "FCALA " << eta << " " << phi << " " << problem << " " 
-			      << layermin << " " << layermax << " " << region  );
+	      ATH_MSG_DEBUG(  "FCALA " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
 	    } 
 	    if(eta<0){
 	      m_hLArAffectedRegionsFCALC[layermin-21]->Fill(eta,phi,problem); 
-	      if (debug) ATH_MSG_DEBUG(  "FCALC " << eta << " " << phi << " " << problem << " " 
-			      << layermin << " " << layermax << " " << region  );
+	      ATH_MSG_DEBUG(  "FCALC " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
 	    } 
 	    phi+=(2*TMath::Pi()/16);
             if(fabs(phi)<1.e-4) phi=0.;
@@ -588,13 +553,11 @@ LArAffectedRegions::fillHistograms()
 	  while(phi<TMath::Pi()){
 	    if(eta>=0){
 	      m_hLArAffectedRegionsFCALA[layermin-21]->Fill(eta,phi,problem); 
-	      if (debug) ATH_MSG_DEBUG(  "FCALA " << eta << " " << phi << " " << problem << " " 
-			      << layermin << " " << layermax << " " << region  );
+	      ATH_MSG_DEBUG(  "FCALA " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
 	    } 
 	    if(eta<0){
 	      m_hLArAffectedRegionsFCALC[layermin-21]->Fill(eta,phi,problem); 
-	      if (debug) ATH_MSG_DEBUG(  "FCALC " << eta << " " << phi << " " << problem << " " 
-			      << layermin << " " << layermax << " " << region  );
+	      ATH_MSG_DEBUG(  "FCALC " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
 	    } 
 	    phi+=(2*TMath::Pi()/16);
             if(fabs(phi)<1.e-4) phi=0.;
@@ -603,13 +566,11 @@ LArAffectedRegions::fillHistograms()
 	  while(phi<phimax){
 	    if(eta>=0){
 	      m_hLArAffectedRegionsFCALA[layermin-21]->Fill(eta,phi,problem); 
-	      if (debug) ATH_MSG_DEBUG(  "FCALA " << eta << " " << phi << " " << problem << " " 
-			      << layermin << " " << layermax << " " << region  );
+	      ATH_MSG_DEBUG(  "FCALA " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
 	    } 
 	    if(eta<0){
 	      m_hLArAffectedRegionsFCALC[layermin-21]->Fill(eta,phi,problem); 
-	      if (debug) ATH_MSG_DEBUG(  "FCALC " << eta << " " << phi << " " << problem << " " 
-			      << layermin << " " << layermax << " " << region  );
+	      ATH_MSG_DEBUG(  "FCALC " << eta << " " << phi << " " << problem << " " << layermin << " " << layermax << " " << region  );
 	    } 
 	    phi+=(2*TMath::Pi()/16);
             if(fabs(phi)<1.e-4) phi=0.;
