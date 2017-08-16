@@ -17,6 +17,8 @@
 #include "../TrigL2CaloHypoAlg.h"
 #include "../TrigL2CaloHypoTool.h"
 #include "../TrigL2ElectronFexMT.h"
+#include "../TrigL2ElectronHypoAlg.h"
+#include "../TrigL2ElectronHypoTool.h"
 
 #include "GaudiKernel/DeclareFactoryEntries.h"
 
@@ -38,6 +40,8 @@ DECLARE_ALGORITHM_FACTORY( TrigEFTrackHypo )
 DECLARE_ALGORITHM_FACTORY( TrigL2CaloLayersHypo )
 DECLARE_ALGORITHM_FACTORY( TrigL2CaloHypoAlg )
 DECLARE_TOOL_FACTORY( TrigL2CaloHypoTool )
+DECLARE_ALGORITHM_FACTORY( TrigL2ElectronHypoAlg )
+DECLARE_TOOL_FACTORY( TrigL2ElectronHypoTool )
 
 DECLARE_FACTORY_ENTRIES( TrigEgammaHypo ) {
     DECLARE_ALGORITHM( TrigL2CaloHypo )
@@ -57,5 +61,8 @@ DECLARE_FACTORY_ENTRIES( TrigEgammaHypo ) {
     DECLARE_ALGORITHM( TrigL2CaloLayersHypo )
     DECLARE_ALGORITHM( TrigL2CaloHypoAlg )
     DECLARE_TOOL( TrigL2CaloHypoTool )
+    DECLARE_ALGORITHM( TrigL2ElectronHypoAlg )
+    DECLARE_TOOL( TrigL2ElectronHypoTool )
+
 }
 
