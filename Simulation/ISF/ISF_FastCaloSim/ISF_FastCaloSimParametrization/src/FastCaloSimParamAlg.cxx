@@ -193,7 +193,7 @@ StatusCode FastCaloSimParamAlg::execute()
     }
   //clusterize(eventSteps);
   std::cout << "Size after clusterization: " << MergeeventSteps->size() << std::endl;
-  StatusCode sc = evtStore()->record(MergeeventSteps,"ZHMergedEventSteps");
+  StatusCode sc = evtStore()->record(MergeeventSteps,"MergedEventSteps");
   if (sc.isFailure()) 
     {
       std::cout<<"Coudn't resave merged collection "<<std::endl;
@@ -219,7 +219,7 @@ const HepMC::GenParticle* FastCaloSimParamAlg::getParticleFromMC()
 const ISF_FCS_Parametrization::FCS_StepInfoCollection* FastCaloSimParamAlg::getFCS_StepInfo()
 {
   const ISF_FCS_Parametrization::FCS_StepInfoCollection* eventStepsES;
-  StatusCode sc = evtStore()->retrieve(eventStepsES, "ZHEventSteps");
+  StatusCode sc = evtStore()->retrieve(eventStepsES, "EventSteps");
   if (sc.isFailure()) return NULL;
   
   return eventStepsES;

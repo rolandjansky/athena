@@ -57,13 +57,13 @@ TileFCSmStepToTileHitVec::TileFCSmStepToTileHitVec(const std::string& name, ISvc
   , m_allHits(0)
   , m_Ushape(-1)
 {
-  m_FCS_StepInfo  = "ZHMergedEventSteps";
+  m_FCS_StepInfo  = "MergedEventSteps";
   m_hitVec        = "TileHitVec_FCS";
   m_infoName      = "TileInfo";
 
   declareProperty( "GeoModelSvc", m_geoModSvc );
   declareProperty( "TileCalculator", m_calc);
-  declareProperty("ZHMergedEventSteps",   m_FCS_StepInfo, "Name of input container (default=TileHitCnt)");
+  declareProperty("StepInfoCollection",   m_FCS_StepInfo, "Name of input container (default=TileHitCnt)");
   declareProperty("TileHitVector",        m_hitVec,       "Name of output hit vector (default=TileHitVec)");
   declareProperty("TileInfoName",         m_infoName,     "Name of TileInfo store (default=TileInfo");
   declareProperty("DeltaT",               m_deltaT,       "Minimal Time granularity in TileHit (default=0.5ns)");
