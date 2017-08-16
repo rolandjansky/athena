@@ -43,27 +43,27 @@ atlas_add_library( DerivationFrameworkBPhysLib
                    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES xAODMuon DataModel AthenaBaseComps
-		   DerivationFrameworkInterfaces JpsiUpsilonTools
+		   JpsiUpsilonTools
 		   xAODTracking xAODBPhysLib
 		   AthenaKernel RecoToolInterfaces EventPrimitives
 		   BPhysToolsLib
                    PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} xAODBase
 		   TrkVertexAnalysisUtils xAODEventInfo AthenaPoolUtilities
 		   xAODPrimitives CaloEvent TrackToCalo TrackToVertex
-		   TrkCaloExtension InDetBeamSpotService
-		   InDetTrackSelectionTool TrigDecisionTool)
+		   TrkCaloExtension InDetBeamSpotServiceLib
+		   InDetTrackSelectionToolLib TrigDecisionTool)
 
 atlas_add_component( DerivationFrameworkBPhys
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                      LINK_LIBRARIES ${CLHEP_LIBRARIES} xAODMuon xAODBase
-		     DataModel AthenaBaseComps DerivationFrameworkInterfaces
+		     DataModel AthenaBaseComps 
 		     JpsiUpsilonTools xAODTracking xAODBPhysLib
 		     AthenaKernel RecoToolInterfaces TrkVertexAnalysisUtils
 		     xAODEventInfo AthenaPoolUtilities xAODPrimitives CaloEvent
 		     TrackToCalo TrackToVertex TrkCaloExtension
 		     DerivationFrameworkBPhysLib EventPrimitives
-		     InDetBeamSpotService InDetTrackSelectionTool TrigDecisionTool)
+		     InDetBeamSpotServiceLib InDetTrackSelectionToolLib TrigDecisionTool)
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
