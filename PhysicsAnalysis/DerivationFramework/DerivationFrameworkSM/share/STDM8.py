@@ -55,7 +55,7 @@ STDM8JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name    
                                                                         JetKey                  = "AntiKt4EMTopoJets",
                                                                         SelectionString         = "AntiKt4EMTopoJets.pt > 10*GeV",
                                                                         InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                        ApplyAnd                = True) 
+                                                                        ApplyAnd                = False) 
 ToolSvc += STDM8JetTPThinningTool
 thinningTools.append(STDM8JetTPThinningTool)
 

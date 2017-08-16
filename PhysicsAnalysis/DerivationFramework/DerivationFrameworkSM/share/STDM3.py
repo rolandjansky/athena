@@ -60,9 +60,9 @@ from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFram
 STDM3JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          = "STDM3JetTPThinningTool",
                                                                         ThinningService         = STDM3ThinningHelper.ThinningSvc(),
                                                                         JetKey                  = "AntiKt4EMTopoJets",
-#                                                                        SelectionString         = "AntiKt4EMTopoJets.pt > 10*GeV",
+                                                                        SelectionString         = "AntiKt4EMTopoJets.pt > 10*GeV",
                                                                         InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                        ApplyAnd                = True)
+                                                                        ApplyAnd                = False)
 ToolSvc += STDM3JetTPThinningTool
 thinningTools.append(STDM3JetTPThinningTool)
 

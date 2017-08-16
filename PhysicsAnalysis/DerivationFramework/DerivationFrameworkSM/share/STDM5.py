@@ -58,7 +58,7 @@ STDM5JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name    
                                                                         JetKey                  = "AntiKt4EMTopoJets",
                                                                         SelectionString         = "AntiKt4EMTopoJets.pt > 15*GeV",
                                                                         InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                        ApplyAnd                = True)
+                                                                        ApplyAnd                = False)
 ToolSvc += STDM5JetTPThinningTool
 
 
