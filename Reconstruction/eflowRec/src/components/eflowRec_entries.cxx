@@ -20,6 +20,7 @@
 #include "eflowRec/PFClusterSelector.h"
 #include "eflowRec/PFAlgorithm.h"
 #include "eflowRec/PFCellLevelSubtractionTool.h"
+#include "eflowRec/PFRecoverSplitShowersTool.h"
 #include "GaudiKernel/DeclareFactoryEntries.h"
 
 DECLARE_ALGORITHM_FACTORY( eflowBuilder )
@@ -33,6 +34,7 @@ DECLARE_ALGORITHM_FACTORY( PFClusterSelector )
 DECLARE_ALGORITHM_FACTORY( PFTrackSelector )
 DECLARE_ALGORITHM_FACTORY( PFAlgorithm )
 DECLARE_TOOL_FACTORY( PFCellLevelSubtractionTool )
+DECLARE_TOOL_FACTORY( PFRecoverSplitShowersTool )
 DECLARE_TOOL_FACTORY( eflowRecoverSplitShowersTool )
 DECLARE_TOOL_FACTORY( eflowCellLevelSubtractionTool )
 DECLARE_TOOL_FACTORY( eflowLCCalibTool )
@@ -57,6 +59,7 @@ DECLARE_FACTORY_ENTRIES(eflowRec) {
     DECLARE_ALGORITHM( PFTrackSelector )
     DECLARE_ALGORITHM( PFAlgorithm )
     DECLARE_TOOL( PFCellLevelSubtractionTool )
+    DECLARE_TOOL( PFRecoverSplitShowersTool )
     DECLARE_TOOL ( eflowRecoverSplitShowersTool )
     DECLARE_TOOL ( eflowCellLevelSubtractionTool )
     DECLARE_TOOL ( eflowMomentCalculatorTool )
