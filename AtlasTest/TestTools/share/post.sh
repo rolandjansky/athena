@@ -161,8 +161,7 @@ PP="$PP"'|bits/regex.h:11'
 # More StoreGate changes.
 PP="$PP"'|DEBUG trying to create store'
 
-# Differences in MT build.
-PP="$PP"'|^IncidentProcAlg.* INFO|^Ath.*Seq +INFO'
+PP="$PP"'|^IncidentProcAlg.* INFO|^Ath.*Seq +INFO|Loop Finished .seconds'
 PP="$PP"'|INFO massageEventInfo:'
 PP="$PP"'|Loop Finished'
 PP="$PP"'|Terminating thread-pool resources|Joining Scheduler thread'
