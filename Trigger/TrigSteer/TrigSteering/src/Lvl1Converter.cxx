@@ -536,24 +536,6 @@ ErrorCode Lvl1Converter::hltExecute(std::vector<HLT::SteeringChain*>& chainsToRu
 
    if(m_doTiming) m_totalTime->stop();
 
-   // Check for L1Calo overflows
-   std::bitset<3> overflow = m_lvl1Tool->lvl1EMTauJetOverflow(*result);
-   std::vector<std::string> ignore;
-   const char* thr[] = {"EM","TAU","JET"};
-   for (size_t i=0; i<overflow.size(); ++i) {
-     if (overflow[i]) {
-       ATH_MSG_WARNING("All " << thr[i] << " L1 thresholds were forced on due to overflow in TOB transmission to CMX");     
-       ignore.push_back(thr[i]);
-     }
-   }
-
-   // Consistency check
-   HLT::ErrorCode ecl1 = m_lvl1ConsistencyTool->check(items, m_config->getNavigation(), ignore);
-   if ( ecl1  != HLT::OK ) {
-      ATH_MSG_WARNING("Lvl1 decision inconsistent: "); 
-      return ecl1;
-   }
-
    // if this is calibration event we do not apply RoI count cuts (meansy any busy event is just OK)
    if ( ! m_lvl1Tool->isCalibrationEvent(*result) ) {
 
@@ -587,6 +569,24 @@ ErrorCode Lvl1Converter::hltExecute(std::vector<HLT::SteeringChain*>& chainsToRu
          chains.clear(); // we do not want chains returned because PT chains will bias streaming
          return HLT::ErrorCode(HLT::Action::ABORT_EVENT, HLT::Reason::UNKNOWN, HLT::SteeringInternalReason::BUSY );
       }
+   }
+
+   // Check for L1Calo overflows
+   std::bitset<3> overflow = m_lvl1Tool->lvl1EMTauJetOverflow(*result);
+   std::vector<std::string> ignore;
+   const char* thr[] = {"EM","TAU","JET"};
+   for (size_t i=0; i<overflow.size(); ++i) {
+     if (overflow[i]) {
+       ATH_MSG_WARNING("All " << thr[i] << " L1 thresholds were forced on due to overflow in TOB transmission to CMX");     
+       ignore.push_back(thr[i]);
+     }
+   }
+
+   // Consistency check
+   HLT::ErrorCode ecl1 = m_lvl1ConsistencyTool->check(items, m_config->getNavigation(), ignore);
+   if ( ecl1  != HLT::OK ) {
+      ATH_MSG_WARNING("Lvl1 decision inconsistent");
+      return ecl1;
    }
 
    return HLT::OK;

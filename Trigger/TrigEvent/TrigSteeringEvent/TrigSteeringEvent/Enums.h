@@ -60,6 +60,9 @@ namespace HLT {
       TIMEOUT,          //!< timeout forced by the steering
       BUSY,             //!< to flag that the event was busy
       BAD_JOB_SETUP,    //!< job is badly configured
+      MISSING_CALO_ROI, //!< one ore more missing CALO RoIs
+      MISSING_MUON_ROI, //!< one ore more missing MUON RoIs
+      MISSING_OTHER_ROI,//!< one ore more missing RoI except CALO/MUON (e.g. MBTS, NIM, ...)
       LAST_,            //!< there is basically no restriction on size since these errors are not saved per chain so do not need to be serialized in 6 bits.
       UNSPECIFIED_ = -1 //!< do not use
     } Code;
