@@ -19,6 +19,7 @@
 #include "HepMC/GenParticle.h"
 #include "HepMC/GenVertex.h"
 
+
 /** Constructor **/
 Trk::PRD_TruthTrajectoryBuilder::PRD_TruthTrajectoryBuilder(const std::string& t, const std::string& n, const IInterface* p) : 
   AthAlgTool(t,n,p),
