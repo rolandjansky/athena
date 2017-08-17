@@ -151,7 +151,7 @@ namespace EL
 
 
 
-    /// effects: generate the splits for the sample 
+    /// effects: generate the splits for the sample
     /// guarantee: basic
     /// failures: out of memory II
     /// failures: i/o errors
@@ -200,7 +200,7 @@ namespace EL
 
 
 
-    /// effects: generate the splits for the sample 
+    /// effects: generate the splits for the sample
     /// guarantee: basic
     /// failures: out of memory II
     /// failures: i/o errors
@@ -414,6 +414,28 @@ namespace EL
 
 #ifndef USE_CMAKE
     const char *ROOTCORECONFIG = getenv ("ROOTCORECONFIG");
+#else
+    const char* AB_SETUP = getenv("AnalysisBase_SET_UP");
+    const char* AT_SETUP = getenv("AnalysisTop_SET_UP");
+    bool rel_AnalysisBase(false);
+    bool rel_AnalysisTop(false);
+    if(AB_SETUP) rel_AnalysisBase = strcmp(AB_SETUP, "1") == 0;
+    if(AT_SETUP) rel_AnalysisBase = strcmp(AT_SETUP, "1") == 0;
+    if(rel_AnalysisBase && rel_AnalysisTop) RCU_THROW_MSG("AnalysisBase_SET_UP and AnalysisTop_SET_UP both seem to be set to 1.");
+    if(!rel_AnalysisBase && !rel_AnalysisTop) RCU_THROW_MSG("AnalysisBase_SET_UP and AnalysisTop_SET_UP both seem to be set to 0.");
+
+    const char *ANALYSIS_PLATFORM = nullptr;
+    const char *ANALYSIS_VERSION = nullptr;
+    if(rel_AnalysisBase){
+      ANALYSIS_PLATFORM = getenv ("AnalysisBase_PLATFORM");
+      ANALYSIS_VERSION = getenv ("AnalysisBase_VERSION");
+    }
+    if(rel_AnalysisTop){
+      ANALYSIS_PLATFORM = getenv ("AnalysisTop_PLATFORM");
+      ANALYSIS_VERSION = getenv ("AnalysisTop_VERSION");
+    }
+    const char *WORKDIR_DIR = getenv ("WorkDir_DIR");
+    const char *ATLASBUILDSTAMP = getenv ("AtlasBuildStamp");
 #endif
 
     const std::string writeLocation=getWriteLocation(location);
@@ -477,8 +499,13 @@ namespace EL
 
 	if(!sharedFileSystem)
 	  {
+#ifndef USE_CMAKE
 	    file << "tar -xf RootCore.par || abortJob\n";
 	    file << "\n";
+#else
+        file << "mkdir -p build && tar -C build/ -xf " << ANALYSIS_PLATFORM << ".tar.gz || abortJob\n";
+        file << "\n";
+#endif
 	  }
 
 #ifndef USE_CMAKE
@@ -498,6 +525,31 @@ namespace EL
 	file << "  fi\n";
 	file << "fi\n";
 	file << "\n";
+#else
+    file << "\n";
+    file << "export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase\n";
+    file << "source $ATLAS_LOCAL_ROOT_BASE/user/atlasLocalSetup.sh --quiet\n";
+
+    // default setup command
+    std::ostringstream defaultSetupCommand;
+    {
+      // figuring out the default setup command now
+      defaultSetupCommand << "asetup ";
+      if(rel_AnalysisBase) defaultSetupCommand << "AnalysisBase,";
+      if(rel_AnalysisTop)  defaultSetupCommand << "AnalysisTop,";
+      if ((ATLASBUILDSTAMP != NULL) && (ATLASBUILDSTAMP[0] == '\0')) {
+        // probably not a nightly release
+        defaultSetupCommand << ANALYSIS_VERSION << " || abortJob\n";
+      } else {
+        // ANALYSIS_VERSION is always x.y.z
+        std::string version = ANALYSIS_VERSION;
+        std::size_t found = version.find_last_of(".");
+        defaultSetupCommand << version.substr(0, found) << "," << ATLASBUILDSTAMP;
+      }
+    }
+    file << options()->castString(Job::optBatchSetupCommand, defaultSetupCommand.str()) << " || abortJob\n";
+	file << "source build/setup.sh || abortJob\n";
+	file << "\n";
 #endif
 
 	file << "eventloop_batch_worker $EL_JOBID '" << submitLocation << "/config.root' || abortJob\n";
@@ -515,6 +567,22 @@ namespace EL
 	  RCU_THROW_MSG (("failed to execute: " + cmd.str()).c_str());
       }
     }
+
+#ifdef USE_CMAKE
+    {
+  std::ostringstream cmd;
+  //cmd << "tar --dereference --exclude=\"*.dbg\" --exclude=\"include/*\" -C " << WORKDIR_DIR << " -czvf " << ANALYSIS_PLATFORM << ".tar.gz .";
+  gSystem->RedirectOutput("/dev/null");
+  cmd << "tar --dereference -C " << WORKDIR_DIR << " -czvf " << ANALYSIS_PLATFORM << ".tar.gz .";
+  if (gSystem->Exec (cmd.str().c_str()) != 0){
+    gSystem->RedirectOutput(0);
+    RCU_THROW_MSG (("failed to execute: " + cmd.str()).c_str());
+  }
+  gSystem->RedirectOutput(0);
+
+    }
+#endif
+
   }
 
 
@@ -601,7 +669,7 @@ namespace EL
     return result;
   }
 
-  const std::string BatchDriver :: 
+  const std::string BatchDriver ::
   getWriteLocation (const std::string& location) const
   {
     RCU_READ_INVARIANT (this);
@@ -611,7 +679,7 @@ namespace EL
       return ".";
   }
 
-  const std::string BatchDriver :: 
+  const std::string BatchDriver ::
   getSubmitLocation (const std::string& location) const
   {
     RCU_READ_INVARIANT (this);
@@ -622,7 +690,7 @@ namespace EL
   }
 
 #ifndef USE_CMAKE
-  const std::string BatchDriver :: 
+  const std::string BatchDriver ::
   getRootCoreBin () const
   {
     RCU_READ_INVARIANT (this);

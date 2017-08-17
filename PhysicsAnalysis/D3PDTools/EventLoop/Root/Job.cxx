@@ -82,6 +82,7 @@ namespace EL
   const std::string Job::optBatchSharedFileSystem = "nc_sharedFileSystem";
   const std::string Job::optBatchSlurmExtraConfigLines = "nc_SlurmExtraConfig";
   const std::string Job::optBatchSlurmWrapperExec = "nc_SlurmWrapperExec";
+  const std::string Job::optBatchSetupCommand = "nc_BatchSetupCommand";
   const std::string Job::optTmpDir = "nc_tmpDir";
   const std::string Job::optRootVer = "nc_rootVer";
   const std::string Job::optCmtConfig = "nc_cmtConfig";
@@ -211,7 +212,7 @@ namespace EL
   {
     using namespace msgEventLoop;
 
-    std::auto_ptr<Algorithm> alg (alg_swallow);    
+    std::auto_ptr<Algorithm> alg (alg_swallow);
 
     RCU_CHANGE_INVARIANT (this);
     RCU_REQUIRE_SOFT (alg_swallow != 0);
