@@ -35,7 +35,7 @@ namespace xAOD
 }
 
 class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
-                                virtual public asg::AsgTool
+                                public asg::AsgTool
 {
     ASG_TOOL_CLASS(JetUncertaintiesTool,ICPJetUncertaintiesTool)
 

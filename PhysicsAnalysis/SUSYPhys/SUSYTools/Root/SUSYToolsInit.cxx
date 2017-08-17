@@ -434,8 +434,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   // Initialise muon calibration tool
 
   if (!m_muonCalibrationAndSmearingTool.isUserConfigured()) {
-    toolName = "MuonCalibrationAndSmearingTool";
-    m_muonCalibrationAndSmearingTool.setTypeAndName("CP::MuonCalibrationAndSmearingTool/"+toolName);
+    m_muonCalibrationAndSmearingTool.setTypeAndName("CP::MuonCalibrationAndSmearingTool/MuonCalibrationAndSmearingTool");
     ATH_CHECK( m_muonCalibrationAndSmearingTool.setProperty("StatComb", false) );
     ATH_CHECK( m_muonCalibrationAndSmearingTool.retrieve() );
   }
