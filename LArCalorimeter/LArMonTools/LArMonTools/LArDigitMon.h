@@ -54,7 +54,7 @@ public:
   
   
   StatusCode initialize();
-  StatusCode finalize();
+  StatusCode finalHists();
   StatusCode bookHistograms();
   StatusCode fillHistograms();
   StatusCode procHistograms();
