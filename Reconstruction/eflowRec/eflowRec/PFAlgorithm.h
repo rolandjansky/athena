@@ -9,8 +9,8 @@
 #include "eflowRec/eflowRecTrack.h"
 
 #include "xAODCaloEvent/CaloClusterContainer.h"
-
-class IPFSubtractionTool;
+#include "eflowRec/IPFBaseTool.h"
+#include "eflowRec/IPFSubtractionTool.h"
 
 class PFAlgorithm : public AthAlgorithm {
 
@@ -23,9 +23,12 @@ public:
   StatusCode finalize();
 
 private:
-  /** List of PFISubtractionTool, which will be executed by this algorithm */
-  ToolHandleArray<IPFSubtractionTool> m_tools;
+  /** List of IPFSubtractionTool, which will be executed by this algorithm */
+  ToolHandleArray<IPFSubtractionTool> m_IPFSubtractionTools;
 
+  /** List of PFBaseAlgTool, which will be executed by this algorithm */
+  ToolHandleArray<IPFBaseTool> m_IPFBaseTools;
+  
   /** ReadHandle for the eflowRecTrackContainer to be read in */
   SG::ReadHandle<eflowRecTrackContainer> m_eflowRecTracksReadHandle;
 

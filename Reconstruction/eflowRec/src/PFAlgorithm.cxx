@@ -1,10 +1,9 @@
 #include "eflowRec/eflowCaloObject.h"
-#include "eflowRec/IPFSubtractionTool.h"
 #include "eflowRec/PFAlgorithm.h"
 
-PFAlgorithm::PFAlgorithm(const std::string& name,  ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator), m_tools(this), m_eflowRecTracksReadHandle("eflowRecTracks"), m_eflowRecClustersReadHandle("eflowRecClusters"),  m_caloClustersWriteHandle("PFCaloCluster")   
+PFAlgorithm::PFAlgorithm(const std::string& name,  ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator), m_IPFSubtractionTools(this), m_IPFBaseTools(this), m_eflowRecTracksReadHandle("eflowRecTracks"), m_eflowRecClustersReadHandle("eflowRecClusters"),  m_caloClustersWriteHandle("PFCaloCluster")   
 {
-  declareProperty( "PrivateToolList",  m_tools, "List of Private Subtraction eflowISubtractionAlgTools" );
+  declareProperty( "PrivateToolList",  m_IPFSubtractionTools, "List of Private Subtraction eflowISubtractionAlgTools" );
   declareProperty("eflowRecTracksInputName",  m_eflowRecTracksReadHandle);
   declareProperty("eflowRecClustersInputName",  m_eflowRecClustersReadHandle);
   declareProperty("PFCaloClustersOutputName", m_caloClustersWriteHandle);
@@ -12,8 +11,9 @@ PFAlgorithm::PFAlgorithm(const std::string& name,  ISvcLocator* pSvcLocator) : A
 
 StatusCode PFAlgorithm::initialize(){
 
-  ATH_CHECK(m_tools.retrieve());
-
+  ATH_CHECK(m_IPFSubtractionTools.retrieve());
+  ATH_CHECK( m_IPFBaseTools.retrieve());
+  
   ATH_CHECK(m_eflowRecTracksReadHandle.initialize());
   ATH_CHECK(m_eflowRecClustersReadHandle.initialize());
 
@@ -33,11 +33,16 @@ StatusCode PFAlgorithm::execute(){
   ATH_CHECK(m_caloClustersWriteHandle.record(std::make_unique<xAOD::CaloClusterContainer>(),std::make_unique<xAOD::CaloClusterAuxContainer>()));
   ATH_MSG_DEBUG("CaloClusterWriteHandle has container of size" << m_caloClustersWriteHandle->size());
   
-   /* Run the SubtractionTools
-   * --> CellLevelSubtractionTool, RecoverSplitShowersTool */
-  for (auto thisPFISubtractionTool : m_tools){
-    thisPFISubtractionTool->execute(&theElowCaloObjectContainer,const_cast<eflowRecTrackContainer*>(m_eflowRecTracksReadHandle.ptr()),const_cast<eflowRecClusterContainer*>(m_eflowRecClustersReadHandle.ptr()),*(m_caloClustersWriteHandle.ptr()));
+  /* Run the SubtractionTools */
+  for (auto thisIPFSubtractionTool : m_IPFSubtractionTools){
+    thisIPFSubtractionTool->execute(&theElowCaloObjectContainer,const_cast<eflowRecTrackContainer*>(m_eflowRecTracksReadHandle.ptr()),const_cast<eflowRecClusterContainer*>(m_eflowRecClustersReadHandle.ptr()),*(m_caloClustersWriteHandle.ptr()));
   }
+
+  /* Run the other AglTools */
+  for (auto thisIPFBaseTool :  m_IPFBaseTools){
+    thisIPFBaseTool->execute(&theElowCaloObjectContainer,*(m_caloClustersWriteHandle.ptr()));
+  }
+  
   
   return StatusCode::SUCCESS;
 }
@@ -46,18 +51,35 @@ StatusCode PFAlgorithm::finalize(){ return StatusCode::SUCCESS;}
 
 void PFAlgorithm::printTools() {
   ATH_MSG_VERBOSE(" ");
-  ATH_MSG_VERBOSE("List of tools in execution sequence:");
+  ATH_MSG_VERBOSE("List of IPFSubtraction tools in execution sequence:");
   ATH_MSG_VERBOSE("------------------------------------");
   ATH_MSG_VERBOSE(" ");
-  unsigned int toolCtr = 0;
-  for (auto thisPFISubtractionTool : m_tools){
-    toolCtr++;
-    ATH_MSG_VERBOSE(std::setw(2) << std::setiosflags(std::ios_base::right) << toolCtr << ".) "
+  unsigned int subtractionToolCtr = 0;
+  for (auto thisIPFSubtractionTool : m_IPFSubtractionTools){
+    subtractionToolCtr++;
+    ATH_MSG_VERBOSE(std::setw(2) << std::setiosflags(std::ios_base::right) << subtractionToolCtr << ".) "
 		    << std::resetiosflags(std::ios_base::right) << std::setw(36) << std::setfill('.')
-		    << std::setiosflags(std::ios_base::left) << thisPFISubtractionTool->type() << std::setfill('.')
-                    << thisPFISubtractionTool->name() << std::setfill(' '));
+		    << std::setiosflags(std::ios_base::left) << thisIPFSubtractionTool->type() << std::setfill('.')
+                    << thisIPFSubtractionTool->name() << std::setfill(' '));
   }  
   ATH_MSG_VERBOSE(" ");
   ATH_MSG_VERBOSE("------------------------------------");
+
+  ATH_MSG_VERBOSE(" ");
+  ATH_MSG_VERBOSE("List of IPFBase tools in execution sequence:");
+  ATH_MSG_VERBOSE("------------------------------------");
+  ATH_MSG_VERBOSE(" ");
+  unsigned int baseToolCtr = 0;
+  for (auto thisIPFBaseTool : m_IPFBaseTools){
+    baseToolCtr++;
+    ATH_MSG_VERBOSE(std::setw(2) << std::setiosflags(std::ios_base::right) << baseToolCtr << ".) "
+		    << std::resetiosflags(std::ios_base::right) << std::setw(36) << std::setfill('.')
+		    << std::setiosflags(std::ios_base::left) << thisIPFBaseTool->type() << std::setfill('.')
+                    << thisIPFBaseTool->name() << std::setfill(' '));
+  }  
+  ATH_MSG_VERBOSE(" ");
+  ATH_MSG_VERBOSE("------------------------------------");
+  
+  
 }
 

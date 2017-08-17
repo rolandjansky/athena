@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef IPFSUBTRACTIONALGTOOL_H
-#define IPFSUBTRACTIONALGTOOL_H
+#ifndef IPFSUBTRACTIONTOOL_H
+#define IPFSUBTRACTIONTOOL_H
 
 #include "GaudiKernel/IAlgTool.h"
 
