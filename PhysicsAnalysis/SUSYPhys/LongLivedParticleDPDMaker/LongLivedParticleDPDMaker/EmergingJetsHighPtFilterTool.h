@@ -6,8 +6,8 @@
 // Emerging jets
 ///////////////////////////////////////////////////////////////////
 
-#ifndef DERIVATIONFRAMEWORK_EMERGINGJETSFILTERTOOL_H
-#define DERIVATIONFRAMEWORK_EMERGINGJETSFILTERTOOL_H 
+#ifndef DERIVATIONFRAMEWORK_EMERGINGJETSHIGHPTFILTERTOOL_H
+#define DERIVATIONFRAMEWORK_EMERGINGJETSHIGHPTFILTERTOOL_H 
 
 #include<string>
 
@@ -20,7 +20,7 @@
 
 namespace DerivationFramework {
 
-  /** @class EmergingJetsFilterTool
+  /** @class EmergingJetsHighPtFilterTool
   
       the code used in this implementation is kindly stolen from:
       atlasoff:: ISF/ISF_Core/ISF_Tools
@@ -28,14 +28,14 @@ namespace DerivationFramework {
       @author James Catmore -at- cern.ch
   **/
   
-  class EmergingJetsFilterTool : public AthAlgTool, public ISkimmingTool {
+  class EmergingJetsHighPtFilterTool : public AthAlgTool, public ISkimmingTool {
     
   public: 
     /** Constructor with parameters */
-    EmergingJetsFilterTool( const std::string& t, const std::string& n, const IInterface* p );
+    EmergingJetsHighPtFilterTool( const std::string& t, const std::string& n, const IInterface* p );
     
     /** Destructor */
-    ~EmergingJetsFilterTool();
+    ~EmergingJetsHighPtFilterTool();
     
     // Athena algtool's Hooks
     StatusCode  initialize();
@@ -50,11 +50,14 @@ namespace DerivationFramework {
     mutable unsigned int m_ntot;
     mutable unsigned int m_npass;
     mutable unsigned int m_nptpass;
+    mutable unsigned int m_nhighptpass;
     std::string m_jetSGKey;
 
     double m_ptCut;
+    double m_highPtCut;
     double m_etaCut;
     int m_nJetsRequired;
+    int m_nHighPtJetsRequired;
     
   }; 
   
