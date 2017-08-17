@@ -289,6 +289,7 @@ HLT::ErrorCode TrigBjetHypoAllTE::hltExecute(std::vector<std::vector<HLT::Trigge
   // Setting the output TE
   //
   HLT::TEVec allTEs;
+  allTEs.reserve(inputTE.at(0).size());
   if ((inputTE.size()>0)){
     for(HLT::TriggerElement* btagTE : inputTE.at(0)){
       allTEs.push_back(btagTE);
