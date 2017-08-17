@@ -396,6 +396,7 @@ namespace CP {
         const std::string quality = m_muonquality;
 
         const std::string histname = "_MuonTrigEff_Period" + m_dataPeriod + "_" + trigger + "_" + quality + "_" + "_EtaPhi_" + m_binning + region + type + "_" + systematic;
+        const std::string histname = "_MuonTrigEff_Period" + m_dataPeriod + "_" + trigger + "_" + quality + "_" + "_EtaPhi_" + m_binning + region + type + "_" + (configuration.isData?"nominal":systematic);
 
         TH2* eff_h2 = nullptr;
         if (configuration.replicaIndex >= 0) { //Only look into the replicas if asking for them
