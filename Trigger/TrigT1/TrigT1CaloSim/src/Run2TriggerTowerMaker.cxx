@@ -267,11 +267,7 @@ namespace LVL1 {
     if(!ei) {
       ATH_MSG_WARNING("Could not determine if input file is data or simulation. Will assume simulation.");
     } else {
-      const EventType *eventType=nullptr;
-      
-      if (ei->eventInfo().event_type()){
-        eventType = ei->eventInfo().event_type();
-      }
+      const EventType *eventType = ei->eventInfo().event_type();
       
       if (eventType == nullptr){
         const EventInfo* eventInfo = nullptr;
