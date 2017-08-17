@@ -289,8 +289,12 @@ HLT::ErrorCode TrigBjetHypoAllTE::hltExecute(std::vector<std::vector<HLT::Trigge
   // Setting the output TE
   //
   HLT::TEVec allTEs;
-  if ((inputTE.size()>0) && (inputTE[0].size()>0)) 
-    allTEs.push_back(inputTE[0][0]);
+  allTEs.reserve(inputTE.at(0).size());
+  if ((inputTE.size()>0)){
+    for(HLT::TriggerElement* btagTE : inputTE.at(0)){
+      allTEs.push_back(btagTE);
+    }
+  }
 
   HLT::TriggerElement* outputTE = config()->getNavigation()->addNode(allTEs, output);
   outputTE->setActiveState(false); 
