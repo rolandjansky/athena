@@ -19,6 +19,7 @@ class TestTestBeam(unittest.TestCase):
             '--testBeamConfig', 'tbtile',
             '--postInclude', 'PyJobTransforms/UseFrontier.py',
             '--physicsList', 'FTFP_BERT_ATL',
+            '--truthStrategy', 'MC12',
             # would otherwise fail due to missing HITS file:
             '--outputFileValidation', 'False',
         ]

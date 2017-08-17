@@ -21,6 +21,7 @@ class TestAtlasG4(unittest.TestCase):
             '--DataRunNumber', '284500',
             '--inputEVNTFile', '/afs/cern.ch/atlas/groups/Simulation/EVNT_files/mc12_valid.110401.PowhegPythia_P2012_ttbar_nonallhad.evgen.EVNT.e3099.01517252._000001.pool.root.1',
             '--outputHITSFile', 'Hits.atlasg4.pool.root',
+            '--truthStrategy', 'MC12',
             # would otherwise fail due to missing HITS file:
             '--outputFileValidation', 'False',
         ]

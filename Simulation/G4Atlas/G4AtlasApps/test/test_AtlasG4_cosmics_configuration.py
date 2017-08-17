@@ -25,6 +25,7 @@ class TestAtlasG4Cosmics(unittest.TestCase):
             '--CosmicPtSlice', 'NONE',
             '--outputEVNT_COSMICSTRFile', 'test.TR.pool.root',
             '--beamType', 'cosmics',
+            '--truthStrategy', 'MC12',
             # would otherwise fail due to missing HITS file:
             '--outputFileValidation', 'False',
         ]
