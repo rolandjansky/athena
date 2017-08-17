@@ -25,6 +25,10 @@
 #include <QDragEnterEvent>
 #include <QDropEvent>
 #include <QShortcut>
+#include <QMimeData>
+#include <QDrag>
+
+
 //____________________________________________________________________
 class TrackCollectionSettingsButton::Imp {
 public:
@@ -499,6 +503,10 @@ bool TrackCollectionSettingsButton::cutTruthExcludeNeutrals() const
   return d->editwindow_ui.checkBox_cut_truthtracks_excludeneutrals->isChecked();
 }
 
+
+
+// "POSSIBLECHANGE" SLOTS
+//____________________________________________________________________
 void TrackCollectionSettingsButton::possibleChange_useDefaultCuts()
 {
   if (d->last_useDefaultCuts==useDefaultCuts()) return;
@@ -506,7 +514,7 @@ void TrackCollectionSettingsButton::possibleChange_useDefaultCuts()
   d->last_useDefaultCuts= useDefaultCuts();
   emit useDefaultCutsChanged(d->last_useDefaultCuts);
 }
-
+//____________________________________________________________________
 void TrackCollectionSettingsButton::possibleChange_cutAllowedPt()
 {
   messageVerbose("possibleChange_cutAllowedPt() ");
@@ -516,7 +524,7 @@ void TrackCollectionSettingsButton::possibleChange_cutAllowedPt()
   d->last_cutAllowedPt= cutAllowedPt();
   emit cutAllowedPtChanged(d->last_cutAllowedPt);
 }
-
+//____________________________________________________________________
 void TrackCollectionSettingsButton::possibleChange_cutAllowedEta()
 {
   if (d->last_cutAllowedEta==cutAllowedEta()) return;
@@ -524,7 +532,7 @@ void TrackCollectionSettingsButton::possibleChange_cutAllowedEta()
   d->last_cutAllowedEta=cutAllowedEta();
   emit cutAllowedEtaChanged(d->last_cutAllowedEta);
 }
-
+//____________________________________________________________________
 void TrackCollectionSettingsButton::possibleChange_cutAllowedPhi()
 {
   if (d->last_cutAllowedPhi==cutAllowedPhi()) return;
@@ -532,7 +540,7 @@ void TrackCollectionSettingsButton::possibleChange_cutAllowedPhi()
   d->last_cutAllowedPhi=cutAllowedPhi();
   emit cutAllowedPhiChanged(d->last_cutAllowedPhi);
 }
-
+//____________________________________________________________________
 void TrackCollectionSettingsButton::possibleChange_cutRequiredNHits()
 {
   if (d->last_cutRequiredNHits!=cutRequiredNHits()) return;
@@ -540,7 +548,7 @@ void TrackCollectionSettingsButton::possibleChange_cutRequiredNHits()
   d->last_cutRequiredNHits=cutRequiredNHits();
   emit cutRequiredNHitsChanged(d->last_cutRequiredNHits);
 }
-
+//____________________________________________________________________
 void TrackCollectionSettingsButton::possibleChange_cutTruthFromIROnly()
 {
   if (d->last_cutTruthFromIROnly!=cutTruthFromIROnly()) return;
@@ -548,7 +556,7 @@ void TrackCollectionSettingsButton::possibleChange_cutTruthFromIROnly()
   d->last_cutTruthFromIROnly=cutTruthFromIROnly();
   emit cutTruthFromIROnlyChanged(d->last_cutTruthFromIROnly);
 }
-
+//____________________________________________________________________
 void TrackCollectionSettingsButton::possibleChange_cutExcludeBarcodeZero()
 {
   if (d->last_cutExcludeBarcodeZero!=cutExcludeBarcodeZero()) return;
@@ -557,7 +565,7 @@ void TrackCollectionSettingsButton::possibleChange_cutExcludeBarcodeZero()
   emit cutExcludeBarcodeZeroChanged(d->last_cutExcludeBarcodeZero);
 }
 
-
+//____________________________________________________________________
 void TrackCollectionSettingsButton::possibleChange_cutTruthExcludeNeutrals()
 {
   if (d->last_cutTruthExcludeNeutrals!=cutTruthExcludeNeutrals()) return;
@@ -566,4 +574,11 @@ void TrackCollectionSettingsButton::possibleChange_cutTruthExcludeNeutrals()
   emit cutTruthExcludeNeutralsChanged(d->last_cutTruthExcludeNeutrals);
 }
 
-
+//____________________________________________________________________
+void TrackCollectionSettingsButton::possibleChange_cutOnlyVertexAssocTracks()
+{
+  if (d->last_cutOnlyVertexAssocTracks!=cutOnlyVertexAssocTracks()) return;
+  messageVerbose("cutOnlyVertexAssocTracks() changed");
+  d->last_cutOnlyVertexAssocTracks=cutOnlyVertexAssocTracks();
+  emit cutOnlyVertexAssocTracksChanged(d->last_cutOnlyVertexAssocTracks);
+}
