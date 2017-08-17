@@ -22,5 +22,9 @@ namespace xAOD {
 // Set up a CLID for the container:
 #include "xAODCore/CLASS_DEF.h"
 CLASS_DEF( xAOD::CutBookkeeperContainer, 1234982351, 1 )
+#include "AthenaKernel/MetaCont.h"
+CLASS_DEF( MetaCont<xAOD::CutBookkeeperContainer> , 34480468 , 1 )
+#include "SGTools/BaseInfo.h"
+SG_BASE( MetaCont<xAOD::CutBookkeeperContainer>, MetaContBase );
 
 #endif // XAODCUTFLOW_CUTBOOKKEEPERCONTAINER_H

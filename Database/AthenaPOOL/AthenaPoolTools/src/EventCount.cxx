@@ -92,7 +92,7 @@ StatusCode EventCount::execute()
    ATH_MSG_DEBUG ( "in execute()" );
 
    // Get the event header, print out event and run number
-   ATH_MSG_INFO ( evtStore()->dump() );
+   //ATH_MSG_INFO ( evtStore()->dump() );
    const DataHandle<xAOD::EventInfo> evt;
    ATH_CHECK( evtStore()->retrieve(evt) );
    if (!evt.isValid()) {
