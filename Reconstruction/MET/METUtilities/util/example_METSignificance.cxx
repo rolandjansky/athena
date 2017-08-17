@@ -114,6 +114,7 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
   metSignif.setTypeAndName("met::METSignificance/metSignif");
   ANA_CHECK( metSignif.setProperty("SoftTermParam", met::Random) );
   ANA_CHECK( metSignif.setProperty("TreatPUJets",   true) );
+  ANA_CHECK( metSignif.setProperty("DoPhiReso",     true) );
   ANA_CHECK( metSignif.retrieve() );
   
   // reconstruct the MET
