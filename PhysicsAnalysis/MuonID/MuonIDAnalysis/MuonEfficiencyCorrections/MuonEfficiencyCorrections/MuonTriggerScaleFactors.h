@@ -44,7 +44,7 @@ class TDirectory;
 
 namespace CP {
 
-    class MuonTriggerScaleFactors: public CP::IMuonTriggerScaleFactors, public asg::AsgTool {
+    class MuonTriggerScaleFactors: virtual public CP::IMuonTriggerScaleFactors, public asg::AsgTool {
             ASG_TOOL_CLASS( MuonTriggerScaleFactors, CP::IMuonTriggerScaleFactors )
 
             public:
