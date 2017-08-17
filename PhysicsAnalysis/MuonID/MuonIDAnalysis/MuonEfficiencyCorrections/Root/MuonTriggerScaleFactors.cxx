@@ -395,7 +395,6 @@ namespace CP {
         const std::string region = ((fabs(mu_eta) < muon_barrel_endcap_boundary) ? "_barrel" : "_endcap");
         const std::string quality = m_muonquality;
 
-        const std::string histname = "_MuonTrigEff_Period" + m_dataPeriod + "_" + trigger + "_" + quality + "_" + "_EtaPhi_" + m_binning + region + type + "_" + systematic;
         const std::string histname = "_MuonTrigEff_Period" + m_dataPeriod + "_" + trigger + "_" + quality + "_" + "_EtaPhi_" + m_binning + region + type + "_" + (configuration.isData?"nominal":systematic);
 
         TH2* eff_h2 = nullptr;

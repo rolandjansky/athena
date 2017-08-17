@@ -10,5 +10,6 @@
   <class name="CP::IIsolationCloseByCorrectionTool" />
   <class name="CP::IsoVariableHelper" />
   <class name="CP::IsoCorrectionTestHelper" />
-
+  <class name="ToolHandle<CP::IIsolationSelectionTool>" />
+  <class name="ToolHandle<CP::IIsolationCloseByCorrectionTool>" />
 </lcgdict>

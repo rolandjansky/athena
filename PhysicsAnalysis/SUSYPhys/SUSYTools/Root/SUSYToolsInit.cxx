@@ -221,7 +221,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_jetCalibTool.setProperty("ConfigFile", JES_config_file) );
     ATH_CHECK( m_jetCalibTool.setProperty("CalibSequence", calibseq) );
     ATH_CHECK( m_jetCalibTool.setProperty("IsData", data_par) );
-    ATH_CHECK( m_jetCalibTool.setProperty("OutputLevel", MSG::VERBOSE) );
     ATH_CHECK( m_jetCalibTool.retrieve() );
   }
 
@@ -508,7 +507,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
   ///////////////////////////////////////////////////////////////////////////////////////////
   // Initialise muon efficiency tools
-
   if (!m_muonEfficiencySFTool.isUserConfigured() && m_muId != xAOD::Muon::VeryLoose) {
     toolName = "MuonEfficiencyScaleFactors_" + muQual;
     m_muonEfficiencySFTool.setTypeAndName("CP::MuonEfficiencyScaleFactors/"+toolName);
@@ -547,7 +545,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   
   ///////////////////////////////////////////////////////////////////////////////////////////
   // Initialise muon isolation tool
-  
   if (!m_muonIsolationSFTool.isUserConfigured()) { // so far only one supported WP
     toolName = "MuonIsolationScaleFactors_" + m_muIso_WP;
     m_muonIsolationSFTool.setTypeAndName("CP::MuonEfficiencyScaleFactors/"+toolName);
@@ -1254,7 +1251,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_isoCloseByTool.setProperty("IsolationSelectionTool", m_isoTool) );
     ATH_CHECK( m_isoCloseByTool.retrieve() );
   }
-
 
 // /////////////////////////////////////////////////////////////////////////////////////////
 // Initialise Overlap Removal Tool
