@@ -20,7 +20,7 @@
 // Set trajectory element
 ///////////////////////////////////////////////////////////////////
 
-bool InDet::SiTrajectoryElement_xk::set
+void InDet::SiTrajectoryElement_xk::set
 (int                                               st,
  const InDet::SiDetElementBoundaryLink_xk*&        dl,
  const InDet::SiClusterCollection::const_iterator& sb, 
@@ -46,7 +46,7 @@ bool InDet::SiTrajectoryElement_xk::set
   m_ntsos        = 0                       ;
   m_detelement   = dl->detElement()        ;
   m_detlink      = dl                      ;
-  m_surface      = &m_detelement->surface(); if(!m_surface) return false;
+  m_surface      = &m_detelement->surface();
   m_sibegin      = sb                      ;
   m_siend        = se                      ; 
   m_cluster      = si                      ;
@@ -87,7 +87,7 @@ bool InDet::SiTrajectoryElement_xk::set
   m_Tr[ 9] = T(0,3); m_Tr[10]=T(1,3); m_Tr[11]=T(2,3);
   m_Tr[12] = m_Tr[ 9]*m_Tr[ 6]+m_Tr[10]*m_Tr[ 7]+m_Tr[11]*m_Tr[ 8];
   m_A[0] = 1.; m_A[1] = 0.; m_A[2] = 0.;
-  return true;
+  return;
 }
 
 ///////////////////////////////////////////////////////////////////
