@@ -16,6 +16,7 @@
 #include "xAODTau/TauJetContainer.h"
 #include "xAODTau/TauJetAuxContainer.h"
 #include "xAODMissingET/MissingETAuxContainer.h"
+#include "xAODEventInfo/EventInfo.h"
 
 // For the forcing of the tau truth container build 
 #include "TauAnalysisTools/ITauTruthMatchingTool.h"
