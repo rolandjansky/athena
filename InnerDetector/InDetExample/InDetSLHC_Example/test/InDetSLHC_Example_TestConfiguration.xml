@@ -192,7 +192,7 @@
               --geometryVersion=ATLAS-P2-ITK-08-00-00_VALIDATION \
               --conditionsTag=OFLCOND-MC15c-SDR-14-02 \
               --preInclude='sim:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.SiliconOnly.py,InDetSLHC_Example/preInclude.SLHC_Setup_InclBrl_4.py' \
-              --postInclude='sim:InDetSLHC_Example/postInclude.SLHC_Setup_InclBrl_4.py' \
+              --postInclude='sim:InDetSLHC_Example/postInclude.SLHC_Setup_InclBrl_4.py,InDetSLHC_Example/postInclude.SiHitAnalysis.py' \
               --postExec 'sim:ToolSvc.ISF_ParticlePositionFilterDynamic.CheckRegion=[1]' \
               --DataRunNumber 241000
             </jobTransformCmd>
@@ -291,7 +291,7 @@
               --conditionsTag OFLCOND-MC15c-SDR-14-02 \
               --preExec 'from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags;SLHC_Flags.doGMX.set_Value_and_Lock(True)' \
               --preInclude InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.NoTRT_NoBCM_NoDBM.py,InDetSLHC_Example/preInclude.SLHC_Setup_InclBrl_4.py,InDetSLHC_Example/preInclude.SLHC_Setup_Strip_GMX.py \
-              --postInclude InDetSLHC_Example/postInclude.SLHC_Setup_InclBrl_4.py \
+              --postInclude InDetSLHC_Example/postInclude.SLHC_Setup_InclBrl_4.py,InDetSLHC_Example/postInclude.SiHitAnalysis.py \
               --postExec 'ServiceMgr.DetDescrCnvSvc.DoInitNeighbours = False' \
               --DataRunNumber=241000
             </jobTransformCmd>
@@ -348,7 +348,7 @@
                 <jobTransform userJobId="SimInclBrl4_GMX_Reg">
                   <doc>Regression test</doc>
                   <jobTransformJobName>chainRecoInclBrl4_GMX_SimDigi_RegSLHCRTT</jobTransformJobName>
-                  <jobTransformCmd>sim_reg_test.py RecoInclBrl4_GMX RDO_truth.root</jobTransformCmd>
+                  <jobTransformCmd>sim_reg_test.py SimInclBrl4_GMX SiHitValid.root</jobTransformCmd>
                   <group>SLHCFCTTransform</group>
                   <queue>long</queue>
                   <test position="1">
@@ -360,7 +360,7 @@
                     </arg>
                     <arg>
                       <argname>DCubeRef</argname>
-                      <argvalue>yesterday.RDO_truth.root</argvalue>
+                      <argvalue>yesterday.SiHitValid.root</argvalue>
                     </arg>
                     <arg>
                       <argname>localRefFile</argname>
@@ -368,9 +368,9 @@
                     </arg>
                     <arg>
                       <argname>DCubeMon</argname>
-                      <argvalue>today.RDO_truth.root</argvalue>
+                      <argvalue>today.SiHitValid.root</argvalue>
                     </arg>
-                    <keepFilePattern>DCube-yesterday.RDO_truth.root/today.RDO_truth.root.dcube.xml.php</keepFilePattern>
+                    <keepFilePattern>DCube-yesterday.SiHitValid.root/today.SiHitValid.root.dcube.xml.php</keepFilePattern>
                   </test>
                   <testToRemove>
                     <jobGroupName>RTT:Top</jobGroupName>
@@ -529,7 +529,7 @@
               --conditionsTag OFLCOND-MC15c-SDR-14-02 \
               --preExec 'from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags;SLHC_Flags.doGMX.set_Value_and_Lock(True)' \
               --preInclude InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.NoTRT_NoBCM_NoDBM.py,InDetSLHC_Example/preInclude.SLHC_Setup_InclBrl_4_OptRing.py,InDetSLHC_Example/preInclude.SLHC_Setup_Strip_GMX.py \
-              --postInclude InDetSLHC_Example/postInclude.SLHC_Setup_InclBrl_4_OptRing.py \
+              --postInclude InDetSLHC_Example/postInclude.SLHC_Setup_InclBrl_4_OptRing.py,InDetSLHC_Example/postInclude.SiHitAnalysis.py \
               --postExec 'ServiceMgr.DetDescrCnvSvc.DoInitNeighbours = False' \
               --DataRunNumber=241300
             </jobTransformCmd>
@@ -586,7 +586,7 @@
                 <jobTransform userJobId="SimInclBrl4_OptRing_GMX_Reg">
                   <doc>Regression test</doc>
                   <jobTransformJobName>chainRecoInclBrl4_OptRing_GMX_SimDigi_RegSLHCRTT</jobTransformJobName>
-                  <jobTransformCmd>sim_reg_test.py RecoInclBrl4_OptRing_GMX RDO_truth.root</jobTransformCmd>
+                  <jobTransformCmd>sim_reg_test.py SimInclBrl4_OptRing_GMX SiHitValid.root</jobTransformCmd>
                   <group>SLHCFCTTransform</group>
                   <queue>long</queue>
                   <test position="1">
@@ -598,7 +598,7 @@
                     </arg>
                     <arg>
                       <argname>DCubeRef</argname>
-                      <argvalue>yesterday.RDO_truth.root</argvalue>
+                      <argvalue>yesterday.SiHitValid.root</argvalue>
                     </arg>
                     <arg>
                       <argname>localRefFile</argname>
@@ -606,9 +606,9 @@
                     </arg>
                     <arg>
                       <argname>DCubeMon</argname>
-                      <argvalue>today.RDO_truth.root</argvalue>
+                      <argvalue>today.SiHitValid.root</argvalue>
                     </arg>
-                    <keepFilePattern>DCube-yesterday.RDO_truth.root/today.RDO_truth.root.dcube.xml.php</keepFilePattern>
+                    <keepFilePattern>DCube-yesterday.SiHitValid.root/today.SiHitValid.root.dcube.xml.php</keepFilePattern>
                   </test>
                   <testToRemove>
                     <jobGroupName>RTT:Top</jobGroupName>
@@ -679,7 +679,7 @@
               --truthStrategy 'MC15aPlus' \
               --preInclude 'all:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.NoTRT_NoBCM_NoDBM.py,InDetSLHC_Example/preInclude.SLHC_Setup_InclBrl_4.py,InDetSLHC_Example/preInclude.SLHC_Setup_Strip_GMX.py' \
               --preExec 'all:from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags;SLHC_Flags.doGMX.set_Value_and_Lock(True);SLHC_Flags.LayoutOption="InclinedQuads"' \
-              --postInclude 'all:PyJobTransforms/UseFrontier.py,InDetSLHC_Example/postInclude.SLHC_Setup_InclBrl_4.py,InDetSLHC_Example/postInclude.SLHC_Setup.py' \
+              --postInclude 'all:PyJobTransforms/UseFrontier.py,InDetSLHC_Example/postInclude.SLHC_Setup_InclBrl_4.py,InDetSLHC_Example/postInclude.SLHC_Setup.py',InDetSLHC_Example/postInclude.SiHitAnalysis.py \
               --postExec 'EVNTtoHITS:ServiceMgr.DetDescrCnvSvc.DoInitNeighbours = False; from AthenaCommon import CfgGetter;CfgGetter.getService("ISF_MC15aPlusTruthService").BeamPipeTruthStrategies+=["ISF_MCTruthStrategyGroupIDHadInt_MC15"];' \
               --DataRunNumber=240000
             </jobTransformCmd>
@@ -691,6 +691,38 @@
 
         <parallel>
           <sequential>
+
+            <chainElement>
+              <jobTransform userJobId="DigiInclinedQuads_GMX">
+                <doc>SLHCReconstruction</doc>
+                <jobTransformJobName>chainDigiInclinedQuadsGMXSLHCRTT</jobTransformJobName>
+                <jobTransformCmd> 
+                  Digi_tf.py \
+                  --inputHITSFile=SLHCtest.InclinedQuads_GMX.HITS.pool.root \
+                  --outputRDOFile=SLHCtest.DigiInclinedQuads_GMX.RDO.pool.root \
+                  --maxEvents=10 \
+                  --digiSteeringConf 'StandardInTimeOnlyTruth' \
+                  --geometryVersion=ATLAS-P2-ITK-19-00-00 \
+                  --conditionsTag=OFLCOND-MC15c-SDR-14-02 \
+                  --postInclude 'all:InDetSLHC_Example/postInclude.SLHC_Setup_InclBrl_4.py' 'HITtoRDO:InDetSLHC_Example/postInclude.SLHC_Digitization_lowthresh.py' \
+                  --preExec 'all:from AthenaCommon.GlobalFlags import globalflags; globalflags.DataSource.set_Value_and_Lock("geant4");from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags;SLHC_Flags.doGMX.set_Value_and_Lock(True);SLHC_Flags.LayoutOption="InclinedQuads"' 'HITtoRDO:from Digitization.DigitizationFlags import digitizationFlags; digitizationFlags.doInDetNoise.set_Value_and_Lock(False); digitizationFlags.overrideMetadata+=["SimLayout","PhysicsList"];' \
+                  --preInclude 'all:InDetSLHC_Example/preInclude.SLHC_Setup_InclBrl_4.py,InDetSLHC_Example/preInclude.SLHC_Setup_Strip_GMX.py,InDetSLHC_Example/preInclude.SLHC_Calorimeter_mu0.py' 'HITtoRDO:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.NoTRT_NoBCM_NoDBM.py' 'RDOMergeAthenaMP:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.NoTRT_NoBCM_NoDBM.py' \
+                  --postExec 'HITtoRDO:pixeldigi.EnableSpecialPixels=False; CfgMgr.MessageSvc().setError+=["HepMcParticleLink"];' \
+                  --DataRunNumber '240000'
+                </jobTransformCmd>
+                <group>SLHCFCTTransform</group>
+                <chaindataset_info>
+                  <jobTransformData/>
+                  <chaindatasetName>SLHCtest.InclinedQuads_GMX.HITS.pool.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData/>
+                    <datasetName>NONE.pool.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
+                <queue>medium</queue>
+              </jobTransform>
+              <chainfileout>SLHCtest.DigiInclinedQuads_GMX.RDO.pool.root</chainfileout>
+            </chainElement>
 
             <chainElement>
               <jobTransform userJobId="RecoInclinedQuads_GMX">
@@ -708,7 +740,7 @@
                   --geometryVersion=ATLAS-P2-ITK-19-00-00 \
                   --conditionsTag=OFLCOND-MC15c-SDR-14-02 \
                   --postInclude 'all:InDetSLHC_Example/postInclude.SLHC_Setup_InclBrl_4.py' 'HITtoRDO:InDetSLHC_Example/postInclude.SLHC_Digitization_lowthresh.py' 'RAWtoESD:InDetSLHC_Example/postInclude.DigitalClustering.py,InDetSLHC_Example/postInclude.NoJetPtFilter.py' \
-                  --preExec 'all:from AthenaCommon.GlobalFlags import globalflags; globalflags.DataSource.set_Value_and_Lock("geant4");from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags;SLHC_Flags.doGMX.set_Value_and_Lock(True);SLHC_Flags.LayoutOption="InclinedQuads"' 'HITtoRDO:from Digitization.DigitizationFlags import digitizationFlags; digitizationFlags.doInDetNoise.set_Value_and_Lock(False); digitizationFlags.overrideMetadata+=["SimLayout","PhysicsList"];' 'ESDtoDPD:rec.DPDMakerScripts.set_Value_and_Lock(["InDetPrepRawDataToxAOD/InDetDxAOD.py","PrimaryDPDMaker/PrimaryDPDMaker.py"]);InDetFlags.doStandardPlots.set_Value_and_Lock(True);' \
+                  --preExec 'all:from AthenaCommon.GlobalFlags import globalflags; globalflags.DataSource.set_Value_and_Lock("geant4");from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags;SLHC_Flags.doGMX.set_Value_and_Lock(True);SLHC_Flags.LayoutOption="InclinedQuads"' 'HITtoRDO:from Digitization.DigitizationFlags import digitizationFlags; digitizationFlags.doInDetNoise.set_Value_and_Lock(False); digitizationFlags.overrideMetadata+=["SimLayout","PhysicsList"];' 'RAWtoESD:from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doStandardPlots.set_Value_and_Lock(True);' 'ESDtoDPD:rec.DPDMakerScripts.set_Value_and_Lock(["InDetPrepRawDataToxAOD/InDetDxAOD.py","PrimaryDPDMaker/PrimaryDPDMaker.py"]);' \
                   --preInclude 'all:InDetSLHC_Example/preInclude.SLHC_Setup_InclBrl_4.py,InDetSLHC_Example/preInclude.SLHC_Setup_Strip_GMX.py,InDetSLHC_Example/preInclude.SLHC_Calorimeter_mu0.py' 'HITtoRDO:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.NoTRT_NoBCM_NoDBM.py' 'default:InDetSLHC_Example/preInclude.SLHC.NoTRT_NoBCM_NoDBM.Reco.py,InDetSLHC_Example/SLHC_Setup_Reco_Alpine.py' 'RDOMergeAthenaMP:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.NoTRT_NoBCM_NoDBM.py' 'POOLMergeAthenaMPAOD0:InDetSLHC_Example/preInclude.SLHC.NoTRT_NoBCM_NoDBM.Ana.py,InDetSLHC_Example/SLHC_Setup_Reco_Alpine.py' 'POOLMergeAthenaMPDAODIDTRKVALID0:InDetSLHC_Example/preInclude.SLHC.NoTRT_NoBCM_NoDBM.Ana.py,InDetSLHC_Example/SLHC_Setup_Reco_Alpine.py' \
                   --postExec 'HITtoRDO:pixeldigi.EnableSpecialPixels=False; CfgMgr.MessageSvc().setError+=["HepMcParticleLink"];' 'RAWtoESD:ToolSvc.InDetSCT_ClusteringTool.useRowInformation=True;from AthenaCommon.AppMgr import ToolSvc;  ToolSvc.InDetTrackSummaryTool.OutputLevel = INFO;' \
                   --DataRunNumber '240000'
@@ -729,6 +761,7 @@
               <chainfileout>SLHCtest.InclinedQuads_GMX.AOD.pool.root</chainfileout>
               <chainfileout>SLHCtest.InclinedQuads_GMX.InDetDxAOD.pool.root</chainfileout>
             </chainElement>
+
             
             <parallel>
               
@@ -736,7 +769,7 @@
                 <jobTransform userJobId="SimInclinedQuads_GMX_Reg">
                   <doc>Regression test</doc>
                   <jobTransformJobName>chainRecoInclinedQuads_GMX_SimDigi_RegSLHCRTT</jobTransformJobName>
-                  <jobTransformCmd>sim_reg_test.py RecoInclinedQuads_GMX RDO_truth.root</jobTransformCmd>
+                  <jobTransformCmd>sim_reg_test.py SimInclinedQuads_GMX SiHitValid.root</jobTransformCmd>
                   <group>SLHCFCTTransform</group>
                   <queue>long</queue>
                   <test position="1">
@@ -748,7 +781,7 @@
                     </arg>
                     <arg>
                       <argname>DCubeRef</argname>
-                      <argvalue>yesterday.RDO_truth.root</argvalue>
+                      <argvalue>yesterday.SiHitValid.root</argvalue>
                     </arg>
                     <arg>
                       <argname>localRefFile</argname>
@@ -756,9 +789,9 @@
                     </arg>
                     <arg>
                       <argname>DCubeMon</argname>
-                      <argvalue>today.RDO_truth.root</argvalue>
+                      <argvalue>today.SiHitValid.root</argvalue>
                     </arg>
-                    <keepFilePattern>DCube-yesterday.RDO_truth.root/today.RDO_truth.root.dcube.xml.php</keepFilePattern>
+                    <keepFilePattern>DCube-yesterday.SiHitValid.root/today.SiHitValid.root.dcube.xml.php</keepFilePattern>
                   </test>
                   <testToRemove>
                     <jobGroupName>RTT:Top</jobGroupName>
@@ -829,7 +862,7 @@
               --truthStrategy 'MC15aPlus' \
               --preInclude 'all:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.NoTRT_NoBCM_NoDBM.py,InDetSLHC_Example/preInclude.SLHC_Setup_InclBrl_4.py,InDetSLHC_Example/preInclude.SLHC_Setup_Strip_GMX.py' \
               --preExec 'all:from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags;SLHC_Flags.doGMX.set_Value_and_Lock(True);SLHC_Flags.LayoutOption="InclinedDuals"' \
-              --postInclude 'all:PyJobTransforms/UseFrontier.py,InDetSLHC_Example/postInclude.SLHC_Setup_InclBrl_4.py,InDetSLHC_Example/postInclude.SLHC_Setup.py' \
+              --postInclude 'all:PyJobTransforms/UseFrontier.py,InDetSLHC_Example/postInclude.SLHC_Setup_InclBrl_4.py,InDetSLHC_Example/postInclude.SLHC_Setup.py,InDetSLHC_Example/postInclude.SiHitAnalysis.py' \
               --postExec 'EVNTtoHITS:ServiceMgr.DetDescrCnvSvc.DoInitNeighbours = False; from AthenaCommon import CfgGetter;CfgGetter.getService("ISF_MC15aPlusTruthService").BeamPipeTruthStrategies+=["ISF_MCTruthStrategyGroupIDHadInt_MC15"];' \
               --DataRunNumber=240000
             </jobTransformCmd>
@@ -841,6 +874,38 @@
 
         <parallel>
           <sequential>
+
+            <chainElement>
+              <jobTransform userJobId="DigiInclinedDuals_GMX">
+                <doc>SLHCReconstruction</doc>
+                <jobTransformJobName>chainDigiInclinedDualsGMXSLHCRTT</jobTransformJobName>
+                <jobTransformCmd> 
+                  Digi_tf.py \
+                  --inputHITSFile=SLHCtest.InclinedDuals_GMX.HITS.pool.root \
+                  --outputRDOFile=SLHCtest.DigiInclinedDuals_GMX.RDO.pool.root \
+                  --maxEvents=10 \
+                  --digiSteeringConf 'StandardInTimeOnlyTruth' \
+                  --geometryVersion=ATLAS-P2-ITK-20-00-00 \
+                  --conditionsTag=OFLCOND-MC15c-SDR-14-02 \
+                  --postInclude 'all:InDetSLHC_Example/postInclude.SLHC_Setup_InclBrl_4.py' 'HITtoRDO:InDetSLHC_Example/postInclude.SLHC_Digitization_lowthresh.py' \
+                  --preExec 'all:from AthenaCommon.GlobalFlags import globalflags; globalflags.DataSource.set_Value_and_Lock("geant4");from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags;SLHC_Flags.doGMX.set_Value_and_Lock(True);SLHC_Flags.LayoutOption="InclinedDuals"' 'HITtoRDO:from Digitization.DigitizationFlags import digitizationFlags; digitizationFlags.doInDetNoise.set_Value_and_Lock(False); digitizationFlags.overrideMetadata+=["SimLayout","PhysicsList"];' \
+                  --preInclude 'all:InDetSLHC_Example/preInclude.SLHC_Setup_InclBrl_4.py,InDetSLHC_Example/preInclude.SLHC_Setup_Strip_GMX.py,InDetSLHC_Example/preInclude.SLHC_Calorimeter_mu0.py' 'HITtoRDO:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.NoTRT_NoBCM_NoDBM.py' 'RDOMergeAthenaMP:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.NoTRT_NoBCM_NoDBM.py' \
+                  --postExec 'HITtoRDO:pixeldigi.EnableSpecialPixels=False; CfgMgr.MessageSvc().setError+=["HepMcParticleLink"];' \
+                  --DataRunNumber '240000'
+                </jobTransformCmd>
+                <group>SLHCFCTTransform</group>
+                <chaindataset_info>
+                  <jobTransformData/>
+                  <chaindatasetName>SLHCtest.InclinedDuals_GMX.HITS.pool.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData/>
+                    <datasetName>NONE.pool.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
+                <queue>medium</queue>
+              </jobTransform>
+              <chainfileout>SLHCtest.DigiInclinedDuals_GMX.RDO.pool.root</chainfileout>
+            </chainElement>
 
             <chainElement>
               <jobTransform userJobId="RecoInclinedDuals_GMX">
@@ -858,7 +923,7 @@
                   --geometryVersion=ATLAS-P2-ITK-20-00-00 \
                   --conditionsTag=OFLCOND-MC15c-SDR-14-02 \
                   --postInclude 'all:InDetSLHC_Example/postInclude.SLHC_Setup_InclBrl_4.py' 'HITtoRDO:InDetSLHC_Example/postInclude.SLHC_Digitization_lowthresh.py' 'RAWtoESD:InDetSLHC_Example/postInclude.DigitalClustering.py,InDetSLHC_Example/postInclude.NoJetPtFilter.py' \
-                  --preExec 'all:from AthenaCommon.GlobalFlags import globalflags; globalflags.DataSource.set_Value_and_Lock("geant4");from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags;SLHC_Flags.doGMX.set_Value_and_Lock(True);SLHC_Flags.LayoutOption="InclinedDuals"' 'HITtoRDO:from Digitization.DigitizationFlags import digitizationFlags; digitizationFlags.doInDetNoise.set_Value_and_Lock(False); digitizationFlags.overrideMetadata+=["SimLayout","PhysicsList"];' 'ESDtoDPD:rec.DPDMakerScripts.set_Value_and_Lock(["InDetPrepRawDataToxAOD/InDetDxAOD.py","PrimaryDPDMaker/PrimaryDPDMaker.py"]);InDetFlags.doStandardPlots.set_Value_and_Lock(True);' \
+                  --preExec 'all:from AthenaCommon.GlobalFlags import globalflags; globalflags.DataSource.set_Value_and_Lock("geant4");from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags;SLHC_Flags.doGMX.set_Value_and_Lock(True);SLHC_Flags.LayoutOption="InclinedDuals"' 'HITtoRDO:from Digitization.DigitizationFlags import digitizationFlags; digitizationFlags.doInDetNoise.set_Value_and_Lock(False); digitizationFlags.overrideMetadata+=["SimLayout","PhysicsList"];' 'RAWtoESD:from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doStandardPlots.set_Value_and_Lock(True)' 'ESDtoDPD:rec.DPDMakerScripts.set_Value_and_Lock(["InDetPrepRawDataToxAOD/InDetDxAOD.py","PrimaryDPDMaker/PrimaryDPDMaker.py"]);' \
                   --preInclude 'all:InDetSLHC_Example/preInclude.SLHC_Setup_InclBrl_4.py,InDetSLHC_Example/preInclude.SLHC_Setup_Strip_GMX.py,InDetSLHC_Example/preInclude.SLHC_Calorimeter_mu0.py' 'HITtoRDO:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.NoTRT_NoBCM_NoDBM.py' 'default:InDetSLHC_Example/preInclude.SLHC.NoTRT_NoBCM_NoDBM.Reco.py,InDetSLHC_Example/SLHC_Setup_Reco_Alpine.py' 'RDOMergeAthenaMP:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.NoTRT_NoBCM_NoDBM.py' 'POOLMergeAthenaMPAOD0:InDetSLHC_Example/preInclude.SLHC.NoTRT_NoBCM_NoDBM.Ana.py,InDetSLHC_Example/SLHC_Setup_Reco_Alpine.py' 'POOLMergeAthenaMPDAODIDTRKVALID0:InDetSLHC_Example/preInclude.SLHC.NoTRT_NoBCM_NoDBM.Ana.py,InDetSLHC_Example/SLHC_Setup_Reco_Alpine.py' \
                   --postExec 'HITtoRDO:pixeldigi.EnableSpecialPixels=False; CfgMgr.MessageSvc().setError+=["HepMcParticleLink"];' 'RAWtoESD:ToolSvc.InDetSCT_ClusteringTool.useRowInformation=True;from AthenaCommon.AppMgr import ToolSvc;  ToolSvc.InDetTrackSummaryTool.OutputLevel = INFO;' \
                   --DataRunNumber '240000'
@@ -886,7 +951,7 @@
                 <jobTransform userJobId="SimInclinedDuals_GMX_Reg">
                   <doc>Regression test</doc>
                   <jobTransformJobName>chainRecoInclinedDuals_GMX_SimDigi_RegSLHCRTT</jobTransformJobName>
-                  <jobTransformCmd>sim_reg_test.py RecoInclinedDuals_GMX RDO_truth.root</jobTransformCmd>
+                  <jobTransformCmd>sim_reg_test.py SimInclinedDuals_GMX SiHitValid.root</jobTransformCmd>
                   <group>SLHCFCTTransform</group>
                   <queue>long</queue>
                   <test position="1">
@@ -898,7 +963,7 @@
                     </arg>
                     <arg>
                       <argname>DCubeRef</argname>
-                      <argvalue>yesterday.RDO_truth.root</argvalue>
+                      <argvalue>yesterday.SiHitValid.root</argvalue>
                     </arg>
                     <arg>
                       <argname>localRefFile</argname>
@@ -906,9 +971,9 @@
                     </arg>
                     <arg>
                       <argname>DCubeMon</argname>
-                      <argvalue>today.RDO_truth.root</argvalue>
+                      <argvalue>today.SiHitValid.root</argvalue>
                     </arg>
-                    <keepFilePattern>DCube-yesterday.RDO_truth.root/today.RDO_truth.root.dcube.xml.php</keepFilePattern>
+                    <keepFilePattern>DCube-yesterday.SiHitValid.root/today.SiHitValid.root.dcube.xml.php</keepFilePattern>
                   </test>
                   <testToRemove>
                     <jobGroupName>RTT:Top</jobGroupName>
@@ -978,7 +1043,7 @@
               --conditionsTag OFLCOND-MC15c-SDR-14-02 \
               --preExec 'from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags;SLHC_Flags.doGMX.set_Value_and_Lock(True)' \
               --preInclude InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.NoTRT_NoBCM_NoDBM.py,InDetSLHC_Example/preInclude.SLHC_Setup_InclBrl_4.py,InDetSLHC_Example/preInclude.SLHC_Setup_Strip_GMX.py \
-              --postInclude InDetSLHC_Example/postInclude.SLHC_Setup_InclBrl_4.py \
+              --postInclude InDetSLHC_Example/postInclude.SLHC_Setup_InclBrl_4.py,InDetSLHC_Example/postInclude.SiHitAnalysis.py \
               --postExec 'ServiceMgr.DetDescrCnvSvc.DoInitNeighbours = False' \
               --DataRunNumber=241000
             </jobTransformCmd>
