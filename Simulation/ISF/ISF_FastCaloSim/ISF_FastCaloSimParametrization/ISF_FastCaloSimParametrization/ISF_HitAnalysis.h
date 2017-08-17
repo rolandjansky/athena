@@ -160,23 +160,6 @@ class ISF_HitAnalysis : public AthAlgorithm {
    double m_ptruth_p;
    int m_pdgid;
 
-   /*
-   std::vector<std::vector<float> >* m_TTC_entrance_eta;
-   std::vector<std::vector<float> >* m_TTC_entrance_phi;
-   std::vector<std::vector<float> >* m_TTC_entrance_r;
-   std::vector<std::vector<float> >* m_TTC_entrance_z;
-   std::vector<std::vector<float> >* m_TTC_back_eta;
-   std::vector<std::vector<float> >* m_TTC_back_phi;
-   std::vector<std::vector<float> >* m_TTC_back_r;
-   std::vector<std::vector<float> >* m_TTC_back_z;
-   std::vector<float>* m_TTC_IDCaloBoundary_eta;
-   std::vector<float>* m_TTC_IDCaloBoundary_phi;
-   std::vector<float>* m_TTC_IDCaloBoundary_r;
-   std::vector<float>* m_TTC_IDCaloBoundary_z;
-   std::vector<float>* m_TTC_Angle3D;
-   std::vector<float>* m_TTC_AngleEta;
-   */
-
    std::vector<std::vector<float> >* m_newTTC_entrance_eta;
    std::vector<std::vector<float> >* m_newTTC_entrance_phi;
    std::vector<std::vector<float> >* m_newTTC_entrance_r;
