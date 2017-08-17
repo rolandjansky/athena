@@ -738,6 +738,14 @@ class TRTRangeCut(JobProperty):
     StoredValue=0.05
 
 #
+class PileUpPremixing(JobProperty):
+    """ Run pile-up premixing
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+
+#
 # Defines the container for the digitization flags
 class Digitization(JobPropertyContainer):
     """ The global Digitization flag/job property container.
@@ -808,7 +816,7 @@ list_jobproperties=[doInDetNoise,doCaloNoise,doMuonNoise,doFwdNoise,doRadiationD
                     bunchSpacing,initialBunchCrossing,finalBunchCrossing,doXingByXingPileUp,\
                     simRunNumber,dataRunNumber,BeamIntensityPattern,FixedT0BunchCrossing,cavernIgnoresBeamInt,\
                     RunAndLumiOverrideList,SignalPatternForSteppingCache,
-                    experimentalDigi,pileupDSID,specialConfiguration,digiSteeringConf,TRTRangeCut]
+                    experimentalDigi,pileupDSID,specialConfiguration,digiSteeringConf,TRTRangeCut,PileUpPremixing]
 
 for i in list_jobproperties:
     jobproperties.Digitization.add_JobProperty(i)

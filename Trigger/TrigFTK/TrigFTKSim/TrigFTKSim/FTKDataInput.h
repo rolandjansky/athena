@@ -71,6 +71,7 @@ protected:
   unsigned int m_PixelClusteringMode; // 1 means ToT information is used
                                       //   && 400/600um pixels are accounted for
                                       // 0 is default used up to 2013
+  bool m_Ibl3DRealistic; // If true, use HWlike clustering in IBL 3D mod
   bool m_DuplicateGanged;
   bool m_GangedPatternRecognition;
 
@@ -158,6 +159,9 @@ public:
 
   void setPixelClusteringMode(unsigned int v) { m_PixelClusteringMode = v; }
   bool getPixelClusteringMode() const { return m_PixelClusteringMode; }
+
+  void setIbl3DRealistic(bool v) { m_Ibl3DRealistic = v; }
+  bool getIbl3DRealistic() const { return m_Ibl3DRealistic; }
 
   void setDuplicateGanged(bool v) { m_DuplicateGanged = v; }
   bool getDuplicateGanged() const { return m_DuplicateGanged; }

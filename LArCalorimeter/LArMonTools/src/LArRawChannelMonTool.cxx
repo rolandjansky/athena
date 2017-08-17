@@ -166,7 +166,7 @@ LArRawChannelMonTool::~LArRawChannelMonTool()
 /*----------------------------------------------------------------------------*/
 StatusCode LArRawChannelMonTool::initialize()
 {
-  ATH_MSG(DEBUG) << "===> start " << name() << "::initialize <=== " << endmsg;
+  ATH_MSG_DEBUG( "===> start " << name() << "::initialize <=== " );
 
   m_event_counter = 0;
   m_noise_stream_event_counter = 0;
@@ -176,12 +176,12 @@ StatusCode LArRawChannelMonTool::initialize()
   // --- non-trivial ManagedMonitorToolBase intialize routine ---
   if ( ManagedMonitorToolBase::initialize().isSuccess() ) {
 
-    ATH_MSG(DEBUG) << "initialized ManagedMonitorToolBase" << endmsg;
+    ATH_MSG_DEBUG( "initialized ManagedMonitorToolBase" );
 
   } else {
 
-    msg(MSG::FATAL) << "Unable to initialize ManagedMonitorToolBase"
-		    << endmsg;
+    ATH_MSG_FATAL( "Unable to initialize ManagedMonitorToolBase"
+		    );
     return StatusCode::FAILURE;
 
   }
@@ -189,11 +189,11 @@ StatusCode LArRawChannelMonTool::initialize()
   // --- get LArOnlineID ---
   if ( detStore()->retrieve( m_lar_online_id_ptr, "LArOnlineID" ).isSuccess() ) {
 
-    ATH_MSG(DEBUG) << "connected non-tool: LArOnlineID" << endmsg;
+    ATH_MSG_DEBUG( "connected non-tool: LArOnlineID" );
 
   } else {
 
-    msg(MSG::FATAL) << "unable to connect non-tool: LArOnlineID" << endmsg;
+    ATH_MSG_FATAL( "unable to connect non-tool: LArOnlineID" );
     return StatusCode::FAILURE;
 
   }
@@ -203,12 +203,12 @@ StatusCode LArRawChannelMonTool::initialize()
   // --- get CaloDetDescrManager ---
   if ( detStore()->retrieve( m_calo_description_mgr_ptr ).isSuccess() ) {
 
-    ATH_MSG(DEBUG) << "connected non-tool: CaloDetDescrManager " << endmsg;
+    ATH_MSG_DEBUG( "connected non-tool: CaloDetDescrManager " );
 
   } else {
 
-    msg(MSG::FATAL) << "unable to connect non-tool: CaloDetDescrMgr "
-	<< endmsg;
+    ATH_MSG_FATAL( "unable to connect non-tool: CaloDetDescrMgr "
+	);
     return StatusCode::FAILURE;
 
   }
@@ -216,12 +216,12 @@ StatusCode LArRawChannelMonTool::initialize()
   // --- get CaloIDManager ---
   if ( detStore()->retrieve( m_calo_id_mgr_ptr ).isSuccess() ) {
 
-    ATH_MSG(DEBUG) << "connected non-tool: CaloIdManager" << endmsg;
+    ATH_MSG_DEBUG( "connected non-tool: CaloIdManager" );
 
   } else {
 
-    msg(MSG::FATAL) << "unable to connect non-tool: CaloIdManager "
-	<< endmsg;
+    ATH_MSG_FATAL( "unable to connect non-tool: CaloIdManager "
+	);
     return StatusCode::FAILURE;
 
   }
@@ -295,7 +295,7 @@ StatusCode LArRawChannelMonTool::initialize()
 
     } catch ( std::out_of_range &err ) {
 
-      msg(MSG::WARNING) << "FEB hash out of range" << err.what() << endmsg;
+      ATH_MSG_WARNING( "FEB hash out of range" << err.what() );
 
     }
 
@@ -346,12 +346,11 @@ StatusCode LArRawChannelMonTool::initialize()
   }
 
   if (msgLvl(MSG::DEBUG)) {
-    msg(MSG::DEBUG) << "Number of channels in detectors: " << std::endl;
+    ATH_MSG_DEBUG( "Number of channels in detectors: " );
     typedef std::map<Detector,unsigned int> det_int_map_t;
     foreach( det_int_map_t::value_type i, m_det_to_nchannels){
-      msg(MSG::DEBUG) << detector_str( i.first ) << " has " << i.second << "channels " << std::endl;
+      ATH_MSG_DEBUG( detector_str( i.first ) << " has " << i.second << "channels " );
     }
-    msg(MSG::DEBUG) << endmsg;
   }
 
 
@@ -362,7 +361,7 @@ StatusCode LArRawChannelMonTool::initialize()
 
 
   m_noise_streams_set.insert(m_noise_streams.begin(),m_noise_streams.end());
-  ATH_MSG(DEBUG) << "===> end " << name() << "::initialize <=== " << endmsg;
+  ATH_MSG_DEBUG( "===> end " << name() << "::initialize <=== " );
 
   return StatusCode::SUCCESS;
 
@@ -373,7 +372,7 @@ StatusCode LArRawChannelMonTool::initialize()
 StatusCode LArRawChannelMonTool::bookHistograms()
 {
 
-  ATH_MSG(DEBUG) << "===> start " << name() << "::bookHistograms <=== " << endmsg;
+  ATH_MSG_DEBUG( "===> start " << name() << "::bookHistograms <=== " );
 
   std::deque<Detector> detectors = list_of( EMBA )( EMBC )( EMECA )( EMECC )( HECA )( HECC )( FCALA )( FCALC );
 
@@ -403,8 +402,8 @@ StatusCode LArRawChannelMonTool::bookHistograms()
 //  case file:
 //  case all:
 //  default:
-//    msg(MSG::WARNING) << "given bad interval job-option: " << m_interval_str
-//     << " ... booking histograms per run ..." << endmsg;
+//    ATH_MSG_WARNING( "given bad interval job-option: " << m_interval_str
+//     << " ... booking histograms per run ..." );
 //      is_new_interval = isNewRun;
 //  }
 //
@@ -893,7 +892,7 @@ StatusCode LArRawChannelMonTool::bookHistograms()
 	// --- Book and register per Feedthrough Histograms ---
 	if ( m_monitor_feedthroughs ) {
 
-	  ATH_MSG(DEBUG) << " - Booking per feedthrough histos" << endmsg;
+	  ATH_MSG_DEBUG( " - Booking per feedthrough histos" );
 
 	  // --- Look for existing feedthough histogram ---
 	  bool is_new_ft = false;
@@ -1015,7 +1014,7 @@ StatusCode LArRawChannelMonTool::bookHistograms()
 
       } catch ( std::out_of_range &err ){
 
-	msg(MSG::WARNING) << "FEB hash out of range: " << err.what() << endmsg;
+	ATH_MSG_WARNING( "FEB hash out of range: " << err.what() );
 
       }
 
@@ -1235,7 +1234,7 @@ StatusCode LArRawChannelMonTool::bookHistograms()
 
   } // --- end booking for monitoring interval ---
 
-  ATH_MSG(DEBUG) << "===> end " << name() << "::bookHistograms <=== " << endmsg;
+  ATH_MSG_DEBUG( "===> end " << name() << "::bookHistograms <=== " );
 
   return StatusCode::SUCCESS;
 
@@ -1246,12 +1245,12 @@ StatusCode LArRawChannelMonTool::bookHistograms()
 StatusCode LArRawChannelMonTool::fillHistograms()
 {
 
-  ATH_MSG(DEBUG) << "===> start " << name() << "::fillHistograms boulou <=== " << endmsg;
+  ATH_MSG_DEBUG( "===> start " << name() << "::fillHistograms boulou <=== " );
 
 
   // -- Set ATLAS Ready Filter
   setIsATLASReady();
-  //  ATH_MSG(DEBUG) << "Vikas Says: ATLAS READY Flag is set to " << isATLASReady() << endmsg;
+  //  ATH_MSG_DEBUG( "Vikas Says: ATLAS READY Flag is set to " << isATLASReady() );
 
   // --- check set in bookHistogram ---
   if ( !m_has_lar_raw_channels ) return StatusCode::SUCCESS;
@@ -1260,8 +1259,8 @@ StatusCode LArRawChannelMonTool::fillHistograms()
   const LArRawChannelContainer *raw_channels = 0;
   if ( !evtStore()->retrieve( raw_channels, m_LArRawChannel_container_key ).isSuccess() ) {
 
-    msg(MSG::WARNING) << "Cannot retrieve LArRawChannelContainer with key: "
-	<< m_LArRawChannel_container_key << endmsg;
+    ATH_MSG_WARNING( "Cannot retrieve LArRawChannelContainer with key: "
+	<< m_LArRawChannel_container_key );
     return StatusCode::FAILURE;
 
   }
@@ -1276,24 +1275,24 @@ StatusCode LArRawChannelMonTool::fillHistograms()
   //  double event_time_minutes = -1;
   if ( evtStore()->retrieve( event_info ).isSuccess()) {
    
-    //ATH_MSG(DEBUG) << "event_info->isEventFlagBitSet(xAOD::EventInfo::LAr,0"<<event_info->isEventFlagBitSet(xAOD::EventInfo::LAr,0) << endmsg;
+    //ATH_MSG_DEBUG( "event_info->isEventFlagBitSet(xAOD::EventInfo::LAr,0"<<event_info->isEventFlagBitSet(xAOD::EventInfo::LAr,0) );
     // Check for LArNoisyROAlg event info
     //    if (event_info->errorState(EventInfo::LAr) == EventInfo::Warning) {
     if ( event_info->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::BADFEBS) ) {
       isEventFlaggedByLArNoisyROAlg = true;
-      ATH_MSG(DEBUG) << " !!! Noisy event found from LArNoisyROAlg !!!" << endmsg;
+      ATH_MSG_DEBUG( " !!! Noisy event found from LArNoisyROAlg !!!" );
     }
 
    
     if ( event_info->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::BADFEBS_W) ) {
       isEventFlaggedByLArNoisyROAlg_W = true;
-      ATH_MSG(DEBUG) << " !!! Noisy event found from LArNoisyROAlg_W !!!" << endmsg;
+      ATH_MSG_DEBUG( " !!! Noisy event found from LArNoisyROAlg_W !!!" );
     }
    
 
     if ( event_info->isEventFlagBitSet(xAOD::EventInfo::LAr,3) ) {
       isEventFlaggedByLArNoisyROAlgInTimeW = true;
-      ATH_MSG(DEBUG) << " !!! Noisy event found by LArNoisyROAlg in Time window of 500ms!!!" << endmsg;
+      ATH_MSG_DEBUG( " !!! Noisy event found by LArNoisyROAlg in Time window of 500ms!!!" );
     }
 
 
@@ -1329,7 +1328,7 @@ StatusCode LArRawChannelMonTool::fillHistograms()
       std::vector<TriggerInfo::StreamTag> event_stream_tags = trig->streamTags();
       foreach( const std::string & stream_name, m_noise_streams ) {
 	foreach( const TriggerInfo::StreamTag stream_tag, event_stream_tags ) {
-	  ATH_MSG(DEBUG) << "Keeping Stream Tag: " << stream_tag.type() << "_" << stream_tag.name()  << endmsg;
+	  ATH_MSG_DEBUG( "Keeping Stream Tag: " << stream_tag.type() << "_" << stream_tag.name()  );
 	  if( stream_name == stream_tag.name()) {
 	    m_is_noise_event = true;
 	    break;
@@ -1338,7 +1337,7 @@ StatusCode LArRawChannelMonTool::fillHistograms()
       }
     }
     */
-  } else ATH_MSG(DEBUG) << "Cannot retrieve EventInfo" << endmsg;
+  } else ATH_MSG_DEBUG( "Cannot retrieve EventInfo" );
 
 
   ++m_event_counter;
@@ -1530,14 +1529,14 @@ StatusCode LArRawChannelMonTool::fillHistograms()
 
     } catch ( const std::out_of_range &err ) {
 
-      msg(MSG::WARNING) << "FEB hash out of range. Detector undefined"
-	  << err.what() << endmsg;
+      ATH_MSG_WARNING( "FEB hash out of range. Detector undefined"
+	  << err.what() );
       continue; // skip this channel
 
     } catch ( const LArID_Exception& err ) {
 
-      msg(MSG::WARNING) << "channel offline id undefined ... skipping"
-	  << endmsg;
+      ATH_MSG_WARNING( "channel offline id undefined ... skipping"
+	  );
       continue; // skip this channel
 
     }
@@ -1579,11 +1578,11 @@ StatusCode LArRawChannelMonTool::fillHistograms()
 
       } catch ( std::out_of_range &err ) {
 
-	msg(MSG::WARNING) <<"failed per FEB monitoring "<< err.what() << endmsg;
+	ATH_MSG_WARNING("failed per FEB monitoring "<< err.what() );
 
       } catch ( std::bad_cast &err ) {
 
-	msg(MSG::WARNING) <<"failed per FEB monitoring "<< err.what() << endmsg;
+	ATH_MSG_WARNING("failed per FEB monitoring "<< err.what() );
 
       }
 
@@ -1622,8 +1621,8 @@ StatusCode LArRawChannelMonTool::fillHistograms()
 
       } catch ( std::out_of_range &err ) {
 
-	msg(MSG::WARNING) << "failed per feedthrough monitoring " << err.what()
-			  << endmsg;
+	ATH_MSG_WARNING( "failed per feedthrough monitoring " << err.what()
+			  );
 
       }
 
@@ -1729,18 +1728,18 @@ StatusCode LArRawChannelMonTool::fillHistograms()
 	case 7: 
 	  per_detector_total_energy[FCALC] += energy; break;	  
 	default:
-	  msg(MSG::WARNING) << "Something is wrong with choosing of detector partition " << endmsg;	  
+	  ATH_MSG_WARNING( "Something is wrong with choosing of detector partition " );	  
 	}
 
 
 
       } catch ( const std::out_of_range &err ) {
 
-	msg(MSG::WARNING) << "Failed monitoring " << err.what() << endmsg;
+	ATH_MSG_WARNING( "Failed monitoring " << err.what() );
 
       } catch ( const std::bad_cast &err ) {
 
-	msg(MSG::WARNING) << "Failed monitoring " << err.what() << endmsg;
+	ATH_MSG_WARNING( "Failed monitoring " << err.what() );
 
       }
 
@@ -1949,7 +1948,7 @@ StatusCode LArRawChannelMonTool::fillHistograms()
 StatusCode LArRawChannelMonTool::procHistograms()
 {
 
-  ATH_MSG(DEBUG) << "===> start " << name() << "::procHistograms <=== " << endmsg;
+  ATH_MSG_DEBUG( "===> start " << name() << "::procHistograms <=== " );
 
   bool is_new_interval = false;
   switch ( m_interval ) {
@@ -1965,8 +1964,8 @@ StatusCode LArRawChannelMonTool::procHistograms()
     is_new_interval = endOfRunFlag();
     break;
   default:
-    msg(MSG::WARNING) << "given bad interval job-option: " << m_interval_str
-	<< " ... booking histograms per run ..." << endmsg;
+    ATH_MSG_WARNING( "given bad interval job-option: " << m_interval_str
+	<< " ... booking histograms per run ..." );
     is_new_interval = endOfRunFlag();
   }
 
@@ -2041,7 +2040,7 @@ StatusCode LArRawChannelMonTool::procHistograms()
 
   }
 
-  ATH_MSG(DEBUG) << "===> end " << name() << "::procHistograms <=== " << endmsg;
+  ATH_MSG_DEBUG( "===> end " << name() << "::procHistograms <=== " );
 
   return StatusCode::SUCCESS;
 
@@ -2060,8 +2059,8 @@ std::string LArRawChannelMonTool::threshold_histogram_title_snippet( const doubl
 
   } catch ( const bad_lexical_cast& err ) {
 
-    msg(MSG::WARNING) << "Could not include threshold for histogram titles."
-	<< err.what() << endmsg;
+    ATH_MSG_WARNING( "Could not include threshold for histogram titles."
+	<< err.what() );
     return "";
 
   }
@@ -2079,8 +2078,8 @@ std::string LArRawChannelMonTool::threshold_histogram_title_snippet( const int& 
 
   } catch ( const bad_lexical_cast& err ) {
 
-    msg(MSG::WARNING) << "Could not include threshold for histogram titles."
-	<< err.what() << endmsg;
+    ATH_MSG_WARNING( "Could not include threshold for histogram titles."
+	<< err.what() );
     return "";
 
   }
@@ -2092,12 +2091,12 @@ bool LArRawChannelMonTool::registerHistogram( LWHist* histo, const std::string& 
   MonGroup histGroup(this,dir,m_interval,ATTRIB_MANAGED,"",merge);
   if ( !histGroup.regHist(histo).isSuccess() ) {
 
-    msg(MSG::ERROR) << "Cannot book: " << histo->GetName() << endmsg;
+    ATH_MSG_ERROR( "Cannot book: " << histo->GetName() );
     return false;
 
   } else {
 
-    ATH_MSG(DEBUG) << "Booked: " << histo->GetName() << endmsg;
+    ATH_MSG_DEBUG( "Booked: " << histo->GetName() );
     return true;
 
   }

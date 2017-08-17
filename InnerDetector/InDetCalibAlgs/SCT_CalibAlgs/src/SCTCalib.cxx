@@ -1921,7 +1921,7 @@ StatusCode SCTCalib::getBSErrors() {
                             if ( iType == errItr->first ) {
                                 ostringstream streamHist;
                                 //temporal fix: folder and histogram names should be Preamble
-                                streamHist << "T" << errItr->second << "Errs" << detector_part << "_" << iDisk << "_" << iSide;
+                                streamHist << errItr->second << "Errs" << "_" << iDisk << "_" << iSide;
                                 //		    streamHist << "T" << errItr->second << "Errs" << detector_part << "_" << iDisk << "_" << iSide;
                                 std::string folder = errItr->second+std::string("/");
                                 //histogram might or might not be inside a folder with the same name
