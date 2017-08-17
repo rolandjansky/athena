@@ -21,11 +21,11 @@ JetStandardAux = \
     ]
 
 BTaggingStandardAux = \
-    [ "MV2c10"
-    , "MV2c10mu"
-    , "MV2c10rnn"
-    , "MV2c100"
-    , "MV2cl100"
+    [ "MV2c10_discriminant"
+    , "MV2c10mu_discriminant"
+    , "MV2c10rnn_discriminant"
+    , "MV2c100_discriminant"
+    , "MV2cl100_discriminant"
     , "DL1_pu"
     , "DL1_pc"
     , "DL1_pb"
