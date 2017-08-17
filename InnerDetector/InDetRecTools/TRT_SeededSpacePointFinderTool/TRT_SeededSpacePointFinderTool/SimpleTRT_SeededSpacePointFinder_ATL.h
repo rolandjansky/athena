@@ -118,8 +118,10 @@ namespace InDet{
 
       std::string                        m_spacepointsSCTname        ;
       std::string                        m_spacepointsOverlapname    ; 
-      const SpacePointContainer*         m_spacepointsSCT            ;
-      const SpacePointOverlapCollection* m_spacepointsOverlap        ;
+      SG::ReadHandle<SpacePointContainer>         m_spacepointsSCT            ;
+      SG::ReadHandle<SpacePointOverlapCollection> m_spacepointsOverlap        ;
+      //const SpacePointContainer*         m_spacepointsSCT            ;
+      //const SpacePointOverlapCollection* m_spacepointsOverlap        ;
 
       /** Lookup table that contains the SCT Layers to be considered to provide
 	  SP for the pairing in dependence on the TRT part the track parameter is on */

@@ -75,8 +75,8 @@ InDet::TRT_SeededSpacePointFinder_ATL::TRT_SeededSpacePointFinder_ATL
   m_spacepointsPixname     = "PixelSpacePoints"  ;  //Name of Pixel space point container
   m_spacepointsSCTname     = "SCT_SpacePoints"   ;  //Name of SCT space point container
   m_spacepointsOverlapname = "OverlapSpacePoints";  //Name of SCT overlap space point container
-  m_spacepointsSCT         = 0                   ;
-  m_spacepointsOverlap     = 0                   ;
+  //m_spacepointsSCT         = 0                   ;
+  //m_spacepointsOverlap     = 0                   ;
 
   declareInterface<ITRT_SeededSpacePointFinder>(this);
 
@@ -178,10 +178,10 @@ void InDet::TRT_SeededSpacePointFinder_ATL::newEvent ()
   if(m_loadFull){
     // Get pixel space points containers from store gate 
     //
-    m_spacepointsPix = 0;
-    StatusCode sc1 = evtStore()->retrieve(m_spacepointsPix,m_spacepointsPixname);
-    if(!sc1.isFailure() && m_spacepointsPix) {
-
+    //m_spacepointsPix = 0;
+    //StatusCode sc1 = evtStore()->retrieve(m_spacepointsPix,m_spacepointsPixname);
+    //if(!sc1.isFailure() && m_spacepointsPix) {
+    if (m_spacepointsPix.isValid()) {
      SpacePointContainer::const_iterator spc =  m_spacepointsPix->begin  (); 
       SpacePointContainer::const_iterator spce =  m_spacepointsPix->end  ();
 
@@ -204,9 +204,10 @@ void InDet::TRT_SeededSpacePointFinder_ATL::newEvent ()
 
   // Get sct space points containers from store gate 
   //
-  m_spacepointsSCT = 0;
-  StatusCode sc = evtStore()->retrieve(m_spacepointsSCT,m_spacepointsSCTname);
-  if(!sc.isFailure() && m_spacepointsSCT) {
+  //m_spacepointsSCT = 0;
+  //StatusCode sc = evtStore()->retrieve(m_spacepointsSCT,m_spacepointsSCTname);
+  //if(!sc.isFailure() && m_spacepointsSCT) {
+  if (m_spacepointsSCT.isValid()) {
 
     SpacePointContainer::const_iterator spc  =  m_spacepointsSCT->begin();
     SpacePointContainer::const_iterator spce =  m_spacepointsSCT->end  ();
@@ -237,10 +238,10 @@ void InDet::TRT_SeededSpacePointFinder_ATL::newEvent ()
 
   // Get sct overlap space points containers from store gate 
   //
-  m_spacepointsOverlap = 0;
-  sc = evtStore()->retrieve(m_spacepointsOverlap,m_spacepointsOverlapname);
-  if(!sc.isFailure() && m_spacepointsOverlap) {
-
+  //m_spacepointsOverlap = 0;
+  //sc = evtStore()->retrieve(m_spacepointsOverlap,m_spacepointsOverlapname);
+  //if(!sc.isFailure() && m_spacepointsOverlap) {
+  if (m_spacepointsOverlap.isValid()) {
     SpacePointOverlapCollection::const_iterator sp  = m_spacepointsOverlap->begin();
     SpacePointOverlapCollection::const_iterator spe = m_spacepointsOverlap->end  ();
 
@@ -279,10 +280,10 @@ void InDet::TRT_SeededSpacePointFinder_ATL::newRegion
   if(m_loadFull && vPixel.size()){
     // Get pixel space points containers from store gate 
     //
-    m_spacepointsPix = 0;
-    StatusCode sc1 = evtStore()->retrieve(m_spacepointsPix,m_spacepointsPixname);
-    if(!sc1.isFailure() && m_spacepointsPix) {
-
+    //m_spacepointsPix = 0;
+    //StatusCode sc1 = evtStore()->retrieve(m_spacepointsPix,m_spacepointsPixname);
+    //if(!sc1.isFailure() && m_spacepointsPix) {
+    if (m_spacepointsPix.isValid()) {
       SpacePointContainer::const_iterator spce =  m_spacepointsPix->end  ();
 
       std::vector<IdentifierHash>::const_iterator l = vPixel.begin(), le = vPixel.end();
@@ -314,9 +315,10 @@ void InDet::TRT_SeededSpacePointFinder_ATL::newRegion
   //
   if(vSCT.size()) {
 
-    m_spacepointsSCT = 0;
-    StatusCode sc = evtStore()->retrieve(m_spacepointsSCT,m_spacepointsSCTname);
-    if(!sc.isFailure() && m_spacepointsSCT) {
+    //m_spacepointsSCT = 0;
+    //StatusCode sc = evtStore()->retrieve(m_spacepointsSCT,m_spacepointsSCTname);
+    //if(!sc.isFailure() && m_spacepointsSCT) {
+    if (m_spacepointsSCT.isValid()) {
 
       //SpacePointContainer::const_iterator spc  =  m_spacepointsSCT->begin();
       SpacePointContainer::const_iterator spce =  m_spacepointsSCT->end  ();
