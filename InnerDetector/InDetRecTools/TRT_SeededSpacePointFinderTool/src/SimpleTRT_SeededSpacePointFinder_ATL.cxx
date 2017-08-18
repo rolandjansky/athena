@@ -43,8 +43,8 @@ InDet::SimpleTRT_SeededSpacePointFinder_ATL::SimpleTRT_SeededSpacePointFinder_AT
     m_directionEtaCut(0.5),
     m_positionPhiCut(5.),
     m_positionZ_Cut(250.),
-    m_spacepointsSCTname("SCT_SpacePoints"),
-    m_spacepointsOverlapname("OverlapSpacePoints"),
+    m_spacepointsSCT("SCT_SpacePoints"),
+    m_spacepointsOverlap("OverlapSpacePoints"),
     m_pRegionSelector("RegSelSvc",n)
 {
 
@@ -292,9 +292,7 @@ void InDet::SimpleTRT_SeededSpacePointFinder_ATL::getSpacePointsInROI(std::set<I
   const std::set<IdentifierHash>::const_iterator endSCT_Hashes = setOfSCT_Hashes.end();
   
   // retrieve SP Container
-  //m_spacepointsSCT = 0;
-  //StatusCode sc = evtStore()->retrieve(m_spacepointsSCT,m_spacepointsSCTname);
-
+ 
   if(m_spacepointsSCT.isValid()) 
     {
       // loop over SP collections in SP container
@@ -371,8 +369,7 @@ void InDet::SimpleTRT_SeededSpacePointFinder_ATL::getSpacePointsInROI(std::set<I
     }
 
   // retrieve the overlap collection
-  // m_spacepointsOverlap = 0;
-  //sc = evtStore()->retrieve(m_spacepointsOverlap,m_spacepointsOverlapname);
+
   if(m_spacepointsOverlap.isValid()) 
     {
 

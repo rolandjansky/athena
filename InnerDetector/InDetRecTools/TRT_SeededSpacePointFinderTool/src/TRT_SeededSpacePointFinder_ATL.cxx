@@ -14,6 +14,8 @@
 #include <iomanip>
 #include <set>
 #include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 #include "CLHEP/Vector/ThreeVector.h"
 #include "TrkSpacePoint/SpacePointCLASS_DEF.h" 
 #include "TRT_SeededSpacePointFinderTool/TRT_SeededSpacePointFinder_ATL.h"
@@ -46,7 +48,10 @@ InDet::TRT_SeededSpacePointFinder_ATL::TRT_SeededSpacePointFinder_ATL
 (const std::string& t,const std::string& n,const IInterface* p)
   : AthAlgTool(t,n,p),
     m_fieldServiceHandle("AtlasFieldSvc",n),
-    m_assotool("InDet::InDetPRD_AssociationToolGangedPixels")
+    m_assotool("InDet::InDetPRD_AssociationToolGangedPixels"),
+    m_spacepointsPix("PixelSpacePoints"),
+    m_spacepointsSCT("SCT_SpacePoints"),
+    m_spacepointsOverlap("OverlapSpacePoints")
 {
   m_fieldmode = "MapSolenoid"              ;
   m_ptmin     =   500.  ;  //Lowest pT of track.Up to 2000MeV bending in (r,phi) is +-4
@@ -178,9 +183,7 @@ void InDet::TRT_SeededSpacePointFinder_ATL::newEvent ()
   if(m_loadFull){
     // Get pixel space points containers from store gate 
     //
-    //m_spacepointsPix = 0;
-    //StatusCode sc1 = evtStore()->retrieve(m_spacepointsPix,m_spacepointsPixname);
-    //if(!sc1.isFailure() && m_spacepointsPix) {
+
     if (m_spacepointsPix.isValid()) {
      SpacePointContainer::const_iterator spc =  m_spacepointsPix->begin  (); 
       SpacePointContainer::const_iterator spce =  m_spacepointsPix->end  ();
@@ -204,9 +207,7 @@ void InDet::TRT_SeededSpacePointFinder_ATL::newEvent ()
 
   // Get sct space points containers from store gate 
   //
-  //m_spacepointsSCT = 0;
-  //StatusCode sc = evtStore()->retrieve(m_spacepointsSCT,m_spacepointsSCTname);
-  //if(!sc.isFailure() && m_spacepointsSCT) {
+
   if (m_spacepointsSCT.isValid()) {
 
     SpacePointContainer::const_iterator spc  =  m_spacepointsSCT->begin();
@@ -238,9 +239,6 @@ void InDet::TRT_SeededSpacePointFinder_ATL::newEvent ()
 
   // Get sct overlap space points containers from store gate 
   //
-  //m_spacepointsOverlap = 0;
-  //sc = evtStore()->retrieve(m_spacepointsOverlap,m_spacepointsOverlapname);
-  //if(!sc.isFailure() && m_spacepointsOverlap) {
   if (m_spacepointsOverlap.isValid()) {
     SpacePointOverlapCollection::const_iterator sp  = m_spacepointsOverlap->begin();
     SpacePointOverlapCollection::const_iterator spe = m_spacepointsOverlap->end  ();
@@ -280,9 +278,7 @@ void InDet::TRT_SeededSpacePointFinder_ATL::newRegion
   if(m_loadFull && vPixel.size()){
     // Get pixel space points containers from store gate 
     //
-    //m_spacepointsPix = 0;
-    //StatusCode sc1 = evtStore()->retrieve(m_spacepointsPix,m_spacepointsPixname);
-    //if(!sc1.isFailure() && m_spacepointsPix) {
+
     if (m_spacepointsPix.isValid()) {
       SpacePointContainer::const_iterator spce =  m_spacepointsPix->end  ();
 
@@ -315,9 +311,7 @@ void InDet::TRT_SeededSpacePointFinder_ATL::newRegion
   //
   if(vSCT.size()) {
 
-    //m_spacepointsSCT = 0;
-    //StatusCode sc = evtStore()->retrieve(m_spacepointsSCT,m_spacepointsSCTname);
-    //if(!sc.isFailure() && m_spacepointsSCT) {
+
     if (m_spacepointsSCT.isValid()) {
 
       //SpacePointContainer::const_iterator spc  =  m_spacepointsSCT->begin();
