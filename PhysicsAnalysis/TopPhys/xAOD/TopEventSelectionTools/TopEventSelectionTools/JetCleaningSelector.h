@@ -10,6 +10,7 @@
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/ToolHandle.h"
 #include "JetInterface/IJetSelector.h"
+#include "JetSelectorTools/IEventCleaningTool.h"
 
 namespace top {
   class TopConfig;
@@ -55,6 +56,10 @@ private:
     ///The jet cleaning tools
     ToolHandle<IJetSelector> m_jetCleaningToolLooseBad;
     ToolHandle<IJetSelector> m_jetCleaningToolTightBad;    
+
+    ///The jet event cleaning tools
+    ToolHandle<ECUtils::IEventCleaningTool> m_jetEventCleaningToolLooseBad;
+    ToolHandle<ECUtils::IEventCleaningTool> m_jetEventCleaningToolTightBad;
 
     ///The level to configure to, so we can print it in the name.
     std::string m_level;
