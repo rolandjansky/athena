@@ -14,6 +14,7 @@
    */
 #include <cassert>
 #include <string>
+#include <atomic>
 
 class IMessageSvc;
 namespace Athena {
@@ -38,7 +39,7 @@ namespace Athena {
 
   /// Set this to force off the warning messages from getMessageSvc
   /// (in unit tests, for example).
-  extern bool getMessageSvcQuiet;
+  extern std::atomic<bool> getMessageSvcQuiet;
 
   //@{
   /** Wrappers for some of the IMessageSvc methods
@@ -80,13 +81,11 @@ namespace Athena {
     /// releases the IMessageSvc
     ~IMessageSvcHolder();
     /// upon first access sets m_ims as needed
-    IMessageSvc* get() const;
-    /// conversion to IMessageSvc*, same as get
-    operator const IMessageSvc*() const { return this->get(); }
+    IMessageSvc* get();
     /// conversion to IMessageSvc*, same as get
     operator IMessageSvc*() { return this->get(); }
   private:
-    mutable IMessageSvc* m_ims; //mutable to have op() const
+    IMessageSvc* m_ims;
   };
 }
 

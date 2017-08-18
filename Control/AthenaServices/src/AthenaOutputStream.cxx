@@ -87,11 +87,11 @@ namespace {
     virtual const std::type_info& tinfo() const override { return m_tinfo; }
     virtual void* cast (CLID /*clid*/,
                         SG::IRegisterTransient* /*irt*/ = nullptr,
-                        bool /*isConst*/ = true) const override
+                        bool /*isConst*/ = true) override
     { std::abort(); }
     virtual void* cast (const std::type_info& tinfo,
                         SG::IRegisterTransient* /*irt*/ = nullptr,
-                        bool /*isConst*/ = true) const override
+                        bool /*isConst*/ = true) override
     { if (tinfo == m_tinfo)
         return m_ptr;
       return nullptr;

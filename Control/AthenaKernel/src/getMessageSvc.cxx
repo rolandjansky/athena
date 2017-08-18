@@ -14,7 +14,7 @@ using std::endl;
 
 /// Set this to force off the warning messages from getMessageSvc
 /// (in unit tests, for example).
-bool Athena::getMessageSvcQuiet = false;
+std::atomic<bool> Athena::getMessageSvcQuiet;
 
 IMessageSvc* Athena::getMessageSvc( bool quiet ) { return getMessageSvc( Options::Lazy, quiet ); }
 IMessageSvc* Athena::getMessageSvc( const Options::CreateOptions opt, bool quiet ) {
@@ -74,7 +74,7 @@ IMessageSvcHolder::~IMessageSvcHolder() {
 }
 
 IMessageSvc*
-IMessageSvcHolder::get() const {
+IMessageSvcHolder::get() {
   if (!m_ims) m_ims = getMessageSvc();
   return m_ims;
 }

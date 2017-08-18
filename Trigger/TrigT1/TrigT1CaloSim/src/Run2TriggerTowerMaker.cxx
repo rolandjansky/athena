@@ -267,12 +267,25 @@ namespace LVL1 {
     if(!ei) {
       ATH_MSG_WARNING("Could not determine if input file is data or simulation. Will assume simulation.");
     } else {
-      bool isData = !(ei->eventInfo().event_type()->test(EventType::IS_SIMULATION));
-      m_isDataReprocessing = isData;
-      if(m_isDataReprocessing) {
-        ATH_MSG_INFO("Detected data reprocessing. Will take pedestal correction values from input trigger towers.");
+      const EventType *eventType = ei->eventInfo().event_type();
+      
+      if (eventType == nullptr){
+        const EventInfo* eventInfo = nullptr;
+        if (evtStore()->retrieve(eventInfo).isSuccess() ) {
+          eventType = eventInfo->event_type();
+        }
+      }
+      
+      if (eventType == nullptr) {
+        ATH_MSG_WARNING("Could not determine if input file is data or simulation. Will assume simulation.");
       } else {
-        ATH_MSG_VERBOSE("No data reprocessing - running normal simulation.");
+        bool isData = !eventType->test(EventType::IS_SIMULATION);
+        m_isDataReprocessing = isData;
+        if(m_isDataReprocessing) {
+          ATH_MSG_INFO("Detected data reprocessing. Will take pedestal correction values from input trigger towers.");
+        } else {
+          ATH_MSG_VERBOSE("No data reprocessing - running normal simulation.");
+        }
       }
     }
     

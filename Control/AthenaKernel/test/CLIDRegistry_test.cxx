@@ -20,9 +20,8 @@
 #include <iostream>
 #include <typeinfo>
 
-#include <boost/tuple/tuple.hpp>
-using boost::get;
 #include "AthenaKernel/tools/AthenaPackageInfo.h"
+using std::get;
 
 class Foo {};
 class Bar {};
@@ -31,8 +30,7 @@ class Baz {};
 int main () {
   std::cerr << "*** CLIDRegistry_test starts ***" <<std::endl;
   //reset newEntries before we start counting
-  std::pair<CLIDRegistry::const_iterator, CLIDRegistry::const_iterator>  er =
-    CLIDRegistry::newEntries();
+  CLIDRegistry::CLIDVector_t er = CLIDRegistry::newEntries();
   Athena::PackageInfo info(PACKAGE_VERSION);
 #ifdef COMPILEFAIL
   CLIDRegistry::addEntry<12>(typeid(Foo), "Foo", info, "Foo");
@@ -42,10 +40,10 @@ int main () {
   CLIDRegistry::addEntry<4321>(typeid(Bar), "Bar", info, "Bar");
   assert(CLIDRegistry::hasNewEntries());
   er = CLIDRegistry::newEntries();
-  assert( distance(er.first, er.second) == 2 );
-  assert( get<0>(*(CLIDRegistry::end()-2)) == 1234 );
-  assert( get<1>(*(CLIDRegistry::end()-2)) == "Foo" );
-  assert( get<2>(*(CLIDRegistry::end()-2)).name() == "AthenaKernel" );
+  assert( er.size() == 2 );
+  assert( get<0>(er[0]) == 1234 );
+  assert( get<1>(er[0]) == "Foo" );
+  assert( get<2>(er[0]).name() == "AthenaKernel" );
 
   assert (CLIDRegistry::CLIDToTypeinfo (4321) == &typeid(Bar));
   assert (CLIDRegistry::CLIDToTypeinfo (43213) == 0);
@@ -57,7 +55,7 @@ int main () {
   assert (CLIDRegistry::typeinfoToCLID (typeid(Baz)) == 43213);
 
   er = CLIDRegistry::newEntries();
-  assert( distance(er.first, er.second) == 1 );
+  assert( er.size() == 1 );
   assert( !CLIDRegistry::hasNewEntries());
   std::cerr << "*** CLIDRegistry_test OK ***" <<std::endl;
 

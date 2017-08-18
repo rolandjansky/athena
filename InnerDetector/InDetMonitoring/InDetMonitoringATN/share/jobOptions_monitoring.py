@@ -163,4 +163,8 @@ InDetFlags.doPrintConfigurables = True
 #--------------------------------------------------------------
 
 include("InDetRecExample/InDetRec_all.py")
+if not hasattr (svcMgr, 'TrigConfigSvc'):
+  from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
+  TriggerConfigGetter()
+ToolSvc.TrigDecisionTool.TrigConfigSvc = 'Trig::TrigConfigSvc/TrigConfigSvc'
 

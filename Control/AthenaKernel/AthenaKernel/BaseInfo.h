@@ -191,9 +191,11 @@
 #ifndef ATHENAKERNEL_BASEINFO_H
 #define ATHENAKERNEL_BASEINFO_H
 
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/ClassID.h"
 #include <vector>
 #include <typeinfo>
+#include <type_traits>
 
 
 //===========================================================================
@@ -431,12 +433,24 @@ public:
 //
 
 
+template <class D, class B>
+struct RegisterAddBaseInit;
+template <class D, class B>
+struct RegisterAddCopyConversionInit;
+
+
 /**
  * @brief The non-template portion of the @a BaseInfo implementation.
  */
 class BaseInfoBase
 {
 public:
+  template <class D, class B>
+  friend struct RegisterAddBaseInit;
+  template <class D, class B>
+  friend struct RegisterAddCopyConversionInit;
+
+
   /**
    * @brief Return the CLID for this class.
    */
@@ -708,7 +722,17 @@ private:
    *
    * Returns 0 if no @c BaseInfoBase instance is available.
    */
-  static const BaseInfoBase* find1 (const std::type_info& tinfo);
+  static BaseInfoBase* find1 (const std::type_info& tinfo);
+
+
+  /**
+   * @brief Find the @c BaseInfoBase instance for @c tinfo.
+   * @param tinfo The @c std::type_info of the class
+   *              for which we want information.
+   *
+   * Returns 0 if no @c BaseInfoBase instance is available.
+   */
+  static BaseInfoBase* find_nc (const std::type_info& tinfo);
 
 
   /// Pointer to internal state.
@@ -731,6 +755,12 @@ template <class T>
 class BaseInfo
 {
 public:
+  template <class D, class B>
+  friend struct RegisterAddCopyConversionInit;
+  template <class D, class B>
+  friend struct RegisterAddBaseInit;
+
+
   /**
    * @brief Cast to a base pointer.
    * @param p The pointer to cast.
@@ -879,15 +909,9 @@ public:
 private:
   /// Return a reference to the (singleton) implementation object
   /// for this class.
-  static const BaseInfoImpl<T>& instance();
+  static BaseInfoImpl<T>& instance();
 
-  /// This holds the singleton implementation object instance.
-  struct instance_holder
-  {
-    instance_holder();
-    BaseInfoImpl<T>* instance;
-  };
-  static instance_holder s_instance;
+  static BaseInfoImpl<T> s_instance ATLAS_THREAD_SAFE;
 };
 
 

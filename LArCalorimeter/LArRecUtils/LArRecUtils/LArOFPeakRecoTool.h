@@ -56,17 +56,17 @@ class LArOFPeakRecoTool: public AthAlgTool
   // Retrieve interface ID
   static const InterfaceID& interfaceID() { return IID_LArOFPeakRecoTool;}
 
-  const Result& peak (const std::vector<short>& samples, HWIdentifier chID, CaloGain::CaloGain gain, int delay);
+  LArOFIterResults peak (const std::vector<short>& samples, HWIdentifier chID, CaloGain::CaloGain gain, int delay) const;
 
-  const Result& peak(const std::vector<float>& samples, // raw data after pedestal subtraction
-		     const HWIdentifier chID,           // online channel id
-		     const CaloGain::CaloGain gain,     // gain 
-		     const float delayIn,               // initial delay for Shape and OFC  
-		     const unsigned  nIter=0,		  // number of iteration 
-		     const unsigned npeak=2,            // initial peak position.                  
-		     unsigned peak_low=2,         // lower limit for peak position
-		     unsigned peak_high=2        // upper limit for peak position
-		     );
+  LArOFIterResults peak(const std::vector<float>& samples, // raw data after pedestal subtraction
+			const HWIdentifier chID,           // online channel id
+			const CaloGain::CaloGain gain,     // gain 
+			const float delayIn,               // initial delay for Shape and OFC  
+			const unsigned  nIter=0,		  // number of iteration 
+			const unsigned npeak=2,            // initial peak position.                  
+			unsigned peak_low=2,         // lower limit for peak position
+			unsigned peak_high=2        // upper limit for peak position
+			) const;
 
   // initialize and finalize methods
   virtual StatusCode initialize();
@@ -87,8 +87,6 @@ class LArOFPeakRecoTool: public AthAlgTool
   int m_delayShift;
   float m_samplingPeriod;
   bool m_forceHighGain;
-  //LArOFIterResults m_result;
-  Result m_result;
 
   const LArOnlineID*        m_lar_on_id; 
 

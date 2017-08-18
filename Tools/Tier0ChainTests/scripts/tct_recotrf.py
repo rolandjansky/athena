@@ -88,7 +88,7 @@ def updateTCTCastor(runnumber,trigStream,castordir,nfiles,listlb):
         ffilelist = os.popen('xrd castoratlas ls %s' % (castordir))
     elif 'eos' in castordir:
         #ffilelist = os.popen('xrd eosatlas ls %s' % (castordir))
-	ffilelist = os.popen('/afs/cern.ch/project/eos/installation/0.3.84-aquamarine/bin/eos.select ls %s' % (castordir))
+	ffilelist = os.popen('eos ls %s' % (castordir))
     nGoodFiles = 0
     print "tct_recotrf.py : updateTCTCastor : look for files in:", castordir
     for ifile,filestr in enumerate(ffilelist):

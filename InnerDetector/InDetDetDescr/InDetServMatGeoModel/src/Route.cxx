@@ -9,7 +9,7 @@
 #include <iostream>
 using namespace std;
 
-ServiceVolume* Route::entryVolume( double pos, bool ascending, const Athena::MsgStreamMember& msg) const 
+ServiceVolume* Route::entryVolume( double pos, bool ascending, Athena::MsgStreamMember& msg) const 
 {
   msg << MSG::DEBUG  << "entering entryVolume with ascending = " << ascending 
        << " and pos = " << pos << endmsg;
@@ -46,7 +46,7 @@ ServiceVolume* Route::entryVolume( double pos, bool ascending, const Athena::Msg
   //}
 }
 
-ServiceVolume* Route::exitVolume( bool ascending, const Athena::MsgStreamMember& msg) const 
+ServiceVolume* Route::exitVolume( bool ascending, Athena::MsgStreamMember& msg) const 
 {
 
   msg << MSG::DEBUG  << "entering exitVolume with ascending = " << ascending 

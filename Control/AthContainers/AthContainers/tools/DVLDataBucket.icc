@@ -141,7 +141,7 @@ DVLDataBucket<T>::~DVLDataBucket()
 template <typename T> 
 void*
 DVLDataBucket<T>::cast (CLID clid, IRegisterTransient* irt /*= 0*/,
-                        bool /*isConst = true*/) const
+                        bool /*isConst = true*/)
 {
   const T* ptr = *((DataBucket<T>*)this);
 
@@ -193,7 +193,7 @@ template <typename T>
 void*
 DVLDataBucket<T>::cast (const std::type_info& tinfo,
                         IRegisterTransient* irt /*= 0*/,
-                        bool /*isConst = true*/) const
+                        bool /*isConst = true*/)
 {
   const T* ptr = *((DataBucket<T>*)this);
 

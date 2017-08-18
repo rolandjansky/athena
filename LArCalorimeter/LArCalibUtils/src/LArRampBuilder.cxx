@@ -583,7 +583,7 @@ StatusCode LArRampBuilder::stop()
            //nIter = 10;
           }
 	  //const LArOFPeakRecoTool::Result &results=m_peakOFTool->peak(ramppoint.Samples,chid,gain,delay,0,kMax,kMax,kMax);
-	  const LArOFPeakRecoTool::Result &results=m_peakOFTool->peak(ramppoint.Samples,chid,gain,delay,0,kMax,kLow,kUp);
+	  const LArOFPeakRecoTool::Result results=m_peakOFTool->peak(ramppoint.Samples,chid,gain,delay,0,kMax,kLow,kUp);
 	  if (results.getValid()) {
 	    adcpeak  = results.getAmplitude();
 	    timepeak = results.getTau();
