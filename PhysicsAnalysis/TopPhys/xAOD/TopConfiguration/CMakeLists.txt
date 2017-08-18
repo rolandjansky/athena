@@ -6,7 +6,7 @@ atlas_subdir( TopConfiguration None )
 # This package depends on other packages:
 atlas_depends_on_subdirs( PUBLIC
 			  xAODCore
-                          PATInterfaces)
+                          PATInterfaces )
 
 # This package uses ROOT:
 find_package( ROOT REQUIRED COMPONENTS Core Gpad Tree Hist RIO MathCore Graf )
@@ -25,7 +25,7 @@ atlas_add_library( TopConfiguration Root/*.cxx Root/*.h Root/*.icc
                    TopConfiguration/*/*.icc ${_cintDictSource} 
                    PUBLIC_HEADERS TopConfiguration
                    LINK_LIBRARIES xAODCore
-		                  PATInterfaces
+		   		  PATInterfaces
                                   ${ROOT_LIBRARIES}
 				  ${Boost_LIBRARIES} 
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} 

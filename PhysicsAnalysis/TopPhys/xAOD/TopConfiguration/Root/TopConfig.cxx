@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TopConfig.cxx 808115 2017-07-11 17:40:10Z tpelzer $
+// $Id: TopConfig.cxx 809568 2017-08-18 13:09:22Z iconnell $
 #include "TopConfiguration/TopConfig.h"
 #include "TopConfiguration/AodMetaDataAccess.h"
 #include "TopConfiguration/ConfigurationSettings.h"
@@ -327,6 +327,7 @@ namespace top{
 
     m_sgKeyPseudoTop("PseudoTopResult"),
     m_systSgKeyMapPseudoTop(nullptr),
+    m_systSgKeyMapPseudoTopLoose(nullptr),
     m_systMapJetGhostTrack(nullptr),
     m_systDecoKeyMapJetGhostTrack(nullptr),
 
@@ -335,7 +336,8 @@ namespace top{
     m_systAllTTreeIndex(nullptr),
     m_systAllTTreeLooseIndex(nullptr),
     m_saveBootstrapWeights(false),
-    m_BootstrapReplicas(100)
+    m_BootstrapReplicas(100),
+    m_useEventLevelJetCleaningTool(false)
   {
     m_allSelectionNames = std::shared_ptr<std::vector<std::string>> ( new std::vector<std::string> );
 
@@ -417,6 +419,7 @@ namespace top{
     m_systSgKeyMapKLFitterLoose  = std::shared_ptr<std::unordered_map<std::size_t,std::string>> ( new std::unordered_map<std::size_t,std::string> );
 
     m_systSgKeyMapPseudoTop  = std::shared_ptr<std::unordered_map<std::size_t,std::string>> ( new std::unordered_map<std::size_t,std::string> );
+    m_systSgKeyMapPseudoTopLoose  = std::shared_ptr<std::unordered_map<std::size_t,std::string>> ( new std::unordered_map<std::size_t,std::string> );
 
     m_systMapJetGhostTrack  = std::shared_ptr<std::unordered_map<std::size_t,CP::SystematicSet>> ( new std::unordered_map<std::size_t,CP::SystematicSet> );
     m_systDecoKeyMapJetGhostTrack  = std::shared_ptr<std::unordered_map<std::size_t,std::string>> ( new std::unordered_map<std::size_t,std::string> );
@@ -559,7 +562,7 @@ namespace top{
 	this->setSaveBootstrapWeights(true);
 	this->setNumberOfBootstrapReplicas(std::atoi(settings->value("NumberOfBootstrapReplicas").c_str()));
       }
-      
+     
 
     }
 
@@ -580,6 +583,11 @@ namespace top{
         }
       }
       m_doTightEvents = (settings->value("DoTight") == "Data" || settings->value("DoTight") == "Both");
+    }
+
+    // Switch to set event level jet cleaning tool [false by default]
+    if(settings->value("UseEventLevelJetCleaningTool") == "True"){
+      this->setUseEventLevelJetCleaningTool(true);
     }
 
     // Object Selection Name
@@ -795,15 +803,34 @@ namespace top{
                std::back_inserter(all_btagging_WP) );
 
     // loop through all btagging WPs requested
-    for (auto tag : all_btagging_WP) {
-      std::cout << "TopConfig: ==================================================> " << tag << std::endl;
+    for (auto AlgTag : all_btagging_WP) {
+      std::vector<std::string> btagAlg_btagWP;
+      tokenize(AlgTag, btagAlg_btagWP, ":");
+      // DEFAULT algorithm - May remove in future
+      std::string alg = "MV2c10";
+      std::string tag = "";
+      // If no ':' delimiter, assume we want default algorithm, and take the WP from the option
+      if(btagAlg_btagWP.size() == 2){
+	alg = btagAlg_btagWP.at(0);
+	tag = btagAlg_btagWP.at(1);
+      }
+      else if(btagAlg_btagWP.size() == 1){
+	tag = btagAlg_btagWP.at(0);
+      }
+      else{
+	std::cerr << "Error with btag ALGORITHM_NAME:WP. Incorrect format." << std::endl;
+	continue;
+      }
+
+      std::cout << "TopConfig ==========================================================> " << alg << ", " << tag << std::endl;
       std::string formatedWP = FormatedWP(tag);
+      std::pair<std::string, std::string> alg_tag = std::make_pair(alg, tag);
       // take care that no WP is taken twice
-      if ( std::find(m_chosen_btaggingWP.begin(), m_chosen_btaggingWP.end(), formatedWP) == m_chosen_btaggingWP.end() ) {
-        m_chosen_btaggingWP.push_back(formatedWP);
-        std::cout << "chosen btagging WP  ===============================================> " << m_chosen_btaggingWP.back() << std::endl;
+      if ( std::find(m_chosen_btaggingWP.begin(), m_chosen_btaggingWP.end(), alg_tag) == m_chosen_btaggingWP.end() ) {
+        m_chosen_btaggingWP.push_back(alg_tag);
+	std::cout << "chosen btag alg, WP  ===============================================> " << alg_tag.first << ", " << alg_tag.second << std::endl;
       } else {
-        std::cout << "WP " << formatedWP << " aldready choosen" << std::endl;
+        std::cout << "alg, WP " << alg_tag.first << " " << alg_tag.second << " already choosen" << std::endl;
       }
     }
 
@@ -1677,7 +1704,11 @@ namespace top{
       if (m_doLooseEvents)
         m_systSgKeyMapKLFitterLoose->insert( std::make_pair( (*i).first , m_sgKeyKLFitter + "_Loose_" + (*i).second ) );
 
-      m_systSgKeyMapPseudoTop->insert( std::make_pair( (*i).first , m_sgKeyPseudoTop + "_" + (*i).second ) );
+      if (m_doTightEvents)
+	m_systSgKeyMapPseudoTop->insert( std::make_pair( (*i).first , m_sgKeyPseudoTop + "_" + (*i).second ) );
+      if (m_doLooseEvents)
+	m_systSgKeyMapPseudoTopLoose->insert( std::make_pair( (*i).first , m_sgKeyPseudoTop + "_Loose_" + (*i).second ) );
+      
       
     }
 
@@ -2047,6 +2078,15 @@ namespace top{
     return m_sgKeyDummy;
   }
 
+  const std::string& TopConfig::sgKeyPseudoTopLoose( const std::size_t hash ) const
+  {
+    std::unordered_map<std::size_t,std::string>::const_iterator key = m_systSgKeyMapPseudoTopLoose->find( hash );
+    if (key != m_systSgKeyMapPseudoTopLoose->end()) {
+      return (*key).second;
+    }
+    return m_sgKeyDummy;
+  }
+
   const std::string & TopConfig::decoKeyJetGhostTrack(const std::size_t hash) const {
       // If it's in the map, use the mapped value, otherwise use the nominal.
       auto it = m_systDecoKeyMapJetGhostTrack->find(hash);
@@ -2220,7 +2260,7 @@ namespace top{
 
     typedef std::unordered_map<std::size_t,std::string>::const_iterator Itr;
 
-    for (std::vector<std::string>::const_iterator i=m_chosen_btaggingWP.begin();i!=m_chosen_btaggingWP.end();++i)
+    for (std::vector<std::pair<std::string, std::string> >::const_iterator i=m_chosen_btaggingWP.begin();i!=m_chosen_btaggingWP.end();++i)
         out->m_chosen_btaggingWP.push_back( *i );
 
     for (Itr i=m_systSgKeyMapPhotons->begin();i!=m_systSgKeyMapPhotons->end();++i)
@@ -2264,6 +2304,9 @@ namespace top{
 
     for (Itr i=m_systSgKeyMapPseudoTop->begin();i!=m_systSgKeyMapPseudoTop->end();++i)
       out->m_systSgKeyMapPseudoTop.insert( std::make_pair( (*i).first , (*i).second ) );
+
+    for (Itr i=m_systSgKeyMapPseudoTopLoose->begin();i!=m_systSgKeyMapPseudoTopLoose->end();++i)
+      out->m_systSgKeyMapPseudoTopLoose.insert( std::make_pair( (*i).first , (*i).second ) );
 
     for (Itr i=m_systDecoKeyMapJetGhostTrack->begin();i!=m_systDecoKeyMapJetGhostTrack->end();++i)
         out->m_systDecoKeyMapJetGhostTrack.insert( std::make_pair( (*i).first , (*i).second ) );
@@ -2344,7 +2387,7 @@ TopConfig::TopConfig( const top::TopPersistentSettings* settings ) :
     m_muonIsolation = settings->m_muonIsolation;
     m_muonIsolationLoose = settings->m_muonIsolationLoose;
     
-    for (std::vector<std::string>::const_iterator i=settings->m_chosen_btaggingWP.begin();i!=settings->m_chosen_btaggingWP.end();++i)
+    for (std::vector<std::pair<std::string, std::string> >::const_iterator i=settings->m_chosen_btaggingWP.begin();i!=settings->m_chosen_btaggingWP.end();++i)
         m_chosen_btaggingWP.push_back( *i );
 
     typedef std::map<std::size_t,std::string>::const_iterator Itr;
@@ -2390,6 +2433,9 @@ TopConfig::TopConfig( const top::TopPersistentSettings* settings ) :
 
     for (Itr i=settings->m_systSgKeyMapPseudoTop.begin();i!=settings->m_systSgKeyMapPseudoTop.end();++i)
         m_systSgKeyMapPseudoTop->insert( std::make_pair( (*i).first , (*i).second ) );
+
+    for (Itr i=settings->m_systSgKeyMapPseudoTopLoose.begin();i!=settings->m_systSgKeyMapPseudoTopLoose.end();++i)
+        m_systSgKeyMapPseudoTopLoose->insert( std::make_pair( (*i).first , (*i).second ) );
 
     for (Itr i=settings->m_systDecoKeyMapJetGhostTrack.begin();i!=settings->m_systDecoKeyMapJetGhostTrack.end();++i)
         m_systDecoKeyMapJetGhostTrack->insert( std::make_pair( (*i).first , (*i).second ) );

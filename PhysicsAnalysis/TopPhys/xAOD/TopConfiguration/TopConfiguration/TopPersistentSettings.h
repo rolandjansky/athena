@@ -12,8 +12,8 @@
  *   We presist this information into the mini-xAOD 
  *   It allows us to reconstruct the state of the top-xaod code
  *
- * $Revision: 806020 $
- * $Date: 2017-06-06 20:03:56 +0100 (Tue, 06 Jun 2017) $
+ * $Revision: 809568 $
+ * $Date: 2017-08-18 14:09:22 +0100 (Fri, 18 Aug 2017) $
  *
  *
  **/
@@ -23,6 +23,7 @@
 #include <vector>
 #include <map>
 #include <unordered_map>
+#include <utility>
 
 namespace top{
   class TopPersistentSettings{
@@ -63,7 +64,7 @@ namespace top{
       std::string m_muonIsolation;
       std::string m_muonIsolationLoose;
 
-      std::vector<std::string> m_chosen_btaggingWP;
+      std::vector<std::pair<std::string, std::string> > m_chosen_btaggingWP;
 
       std::map<std::size_t,std::string> m_systSgKeyMapPhotons;
       std::map<std::size_t,std::string> m_systSgKeyMapElectrons;
@@ -79,6 +80,7 @@ namespace top{
       std::map<std::size_t,std::string> m_systSgKeyMapKLFitter;
       std::map<std::size_t,std::string> m_systSgKeyMapKLFitterLoose;
       std::map<std::size_t,std::string> m_systSgKeyMapPseudoTop;
+      std::map<std::size_t,std::string> m_systSgKeyMapPseudoTopLoose;
       std::map<std::size_t,std::string> m_systPersistantAllTTreeNames;
 
       std::map<std::size_t,std::string> m_systDecoKeyMapJetGhostTrack;
