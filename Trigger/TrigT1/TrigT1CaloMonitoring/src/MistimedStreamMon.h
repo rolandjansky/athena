@@ -116,17 +116,17 @@ private:
   // eta-phi Map of HAD PSE bits
   std::vector<TH2F_LW*> m_v_had_2d_etaPhi_tt_pseBits_mistimedStreamAna;
   // eta-phi Map of EM lut-cp for timeslice 0 = BCID-1 
-  std::vector<TH2F_LW*> m_v_em_2d_etaPhi_tt_lut_cp0_mistimedStreamAna;
+  std::vector<TH2F_LW*> m_v_em_2d_etaPhi_tt_lut0_mistimedStreamAna;
   // eta-phi Map of EM lut-cp for timeslice 1 = BCID
-  std::vector<TH2F_LW*> m_v_em_2d_etaPhi_tt_lut_cp1_mistimedStreamAna;
+  std::vector<TH2F_LW*> m_v_em_2d_etaPhi_tt_lut1_mistimedStreamAna;
   // eta-phi Map of EM lut-cp for timeslice 2 = BCID+1
-  std::vector<TH2F_LW*> m_v_em_2d_etaPhi_tt_lut_cp2_mistimedStreamAna;
+  std::vector<TH2F_LW*> m_v_em_2d_etaPhi_tt_lut2_mistimedStreamAna;
   // eta-phi Map of HAD lut-cp for timeslice 0 = BCID-1
-  std::vector<TH2F_LW*> m_v_had_2d_etaPhi_tt_lut_cp0_mistimedStreamAna;
+  std::vector<TH2F_LW*> m_v_had_2d_etaPhi_tt_lut0_mistimedStreamAna;
   // eta-phi Map of HAD lut-cp for timeslice 1 = BCID
-  std::vector<TH2F_LW*> m_v_had_2d_etaPhi_tt_lut_cp1_mistimedStreamAna;
+  std::vector<TH2F_LW*> m_v_had_2d_etaPhi_tt_lut1_mistimedStreamAna;
   // eta-phi Map of HAD lut-cp for timeslice 2 = BCID+1
-  std::vector<TH2F_LW*> m_v_had_2d_etaPhi_tt_lut_cp2_mistimedStreamAna;
+  std::vector<TH2F_LW*> m_v_had_2d_etaPhi_tt_lut2_mistimedStreamAna;
   // eta-phi Map of EM lut-jep for timeslice 0 = BCID-1 
   std::vector<TH2F_LW*> m_v_em_2d_etaPhi_tt_lut_jep0_mistimedStreamAna;
   // eta-phi Map of EM lut-jep for timeslice 1 = BCID
