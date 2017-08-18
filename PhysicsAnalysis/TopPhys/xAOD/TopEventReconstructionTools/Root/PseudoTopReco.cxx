@@ -53,6 +53,10 @@ namespace top{
   /// Function executing the tool
   StatusCode PseudoTopReco::execute(const top::Event& event)
   {
+    if ( (!event.m_isLoose && evtStore()->contains<xAOD::PseudoTopResultContainer>(m_config->sgKeyPseudoTop(event.m_hashValue))) || 
+       ( event.m_isLoose && evtStore()->contains<xAOD::PseudoTopResultContainer>(m_config->sgKeyPseudoTopLoose(event.m_hashValue))) ) {
+	return StatusCode::SUCCESS;     
+    }
 
     // Create the partonHistory xAOD object                                                                                                                             
     xAOD::PseudoTopResultAuxContainer* pseudoTopAuxCont = new xAOD::PseudoTopResultAuxContainer{};
@@ -108,8 +112,14 @@ namespace top{
 
     }
 
-    // Save to StoreGate / TStore                                                                                                                                       
-    std::string outputSGKey    = m_config->sgKeyPseudoTop(event.m_hashValue);
+    // Save to StoreGate / TStore  
+    std::string outputSGKey("SetMe");
+    if (!event.m_isLoose) {
+      outputSGKey = m_config->sgKeyPseudoTop( event.m_hashValue );
+    }
+    else {
+      outputSGKey = m_config->sgKeyPseudoTopLoose( event.m_hashValue );
+    }    
     std::string outputSGKeyAux = outputSGKey + "Aux.";
 
     xAOD::TReturnCode save    = evtStore()->tds()->record( pseudoTop , outputSGKey );
@@ -124,6 +134,9 @@ namespace top{
 
   StatusCode PseudoTopReco::execute(const top::ParticleLevelEvent& plEvent)
   {
+    if (evtStore()->contains<xAOD::PseudoTopResultContainer>(m_config->sgKeyPseudoTop(0))) {
+	return StatusCode::SUCCESS;     
+    }
 
     // Create the pseudoTopHistory xAOD object                                                                                                                             
     xAOD::PseudoTopResultAuxContainer* pseudoTopAuxCont = new xAOD::PseudoTopResultAuxContainer{};
