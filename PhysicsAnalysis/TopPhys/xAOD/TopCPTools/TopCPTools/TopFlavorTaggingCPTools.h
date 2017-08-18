@@ -44,6 +44,7 @@ class FlavorTaggingCPTools final : public asg::AsgTool {
   std::string m_cdi_file = "";
   std::string m_efficiency_maps;
   const std::vector<std::string> m_jet_flavors = {"B", "C", "T", "Light"};
+  std::vector<std::string> m_tagger_algorithms;
   std::vector<std::string> m_calo_WPs_calib;
   std::vector<std::string> m_calo_WPs;
   std::vector<std::string> m_trackAntiKt2_WPs_calib;
