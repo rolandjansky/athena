@@ -4,6 +4,7 @@
 
 
 #include "DecisionHandling/HLTIdentifier.h"
+#include "DecisionHandling/Combinators.h"
 
 #include "TrigL2ElectronHypoTool.h"
 
@@ -13,7 +14,7 @@ TrigL2ElectronHypoTool::TrigL2ElectronHypoTool( const std::string& type,
 		    const std::string& name, 
 		    const IInterface* parent ) :
   AthAlgTool( type, name, parent ),
-  m_id( name )
+  m_decisionId( name )
 {}
 
 StatusCode TrigL2ElectronHypoTool::initialize()  {
@@ -51,7 +52,7 @@ bool TrigL2ElectronHypoTool::decideOnSingleObject( const xAOD::TrigElectron* ele
 						   size_t cutIndex ) const {
   using namespace Monitored;
   auto cutCounter = MonitoredScalar::declare<int>( "CutCounter", -1 );  
-  auto cutIndex   = MonitoredScalar::declare<int>( "CutIndex", cutIndex );  // one can do 2D plots for each cut independently
+  auto cutIndexM  = MonitoredScalar::declare<int>( "CutIndex", cutIndex );  // one can do 2D plots for each cut independently
   auto ptCalo     = MonitoredScalar::declare( "PtCalo", -999. );
   auto ptTrack    = MonitoredScalar::declare( "PtTrack", -999. );
   auto dEtaCalo   = MonitoredScalar::declare( "CaloTrackEta", -1. );
@@ -60,7 +61,7 @@ bool TrigL2ElectronHypoTool::decideOnSingleObject( const xAOD::TrigElectron* ele
   auto caloEta    = MonitoredScalar::declare( "CaloEta", -100. );
   auto caloPhi    = MonitoredScalar::declare( "CaloEta", -100. );
   auto monitorIt  = MonitoredScope::declare( m_monTool, 
-					     cutCounter, cutIndex,
+					     cutCounter, cutIndexM,
 					     ptCalo, ptTrack,    
 					     dEtaCalo, dPhiCalo,   
 					     eToverPt,   
@@ -123,97 +124,61 @@ bool TrigL2ElectronHypoTool::decideOnSingleObject( const xAOD::TrigElectron* ele
 
 StatusCode TrigL2ElectronHypoTool::inclusiveSelection( std::vector<Input>& input ) const {
     for ( auto i: input ) {
-      if ( i.previousDecisionIDs.count( decisionId() ) == 0 ) continue; // the decision was negative or not even made in previous stage
+      if ( i.previousDecisionIDs.count( m_decisionId.numeric() ) == 0 ) continue; // the decision was negative or not even made in previous stage
       auto objDecision = decideOnSingleObject( i.electron, 0);
       if ( objDecision == true ) {
-	addDecisionID( decisionId(), i.decision );
+	addDecisionID( m_decisionId.numeric(), i.decision );
       }
     }
     return StatusCode::SUCCESS;
 }
 
 
+StatusCode TrigL2ElectronHypoTool::markPassing( std::vector<Input>& input, const std::set<size_t>& passing ) const {
 
-size_t TrigL2ElectronHypoTool::countBits( const std::vector< std::vector<bool> >& passingSelection ) const {
-  // the logic is as follows, 
-  // if count of all the decision bits anded is smaller than the required multiplicity we do not have sufficient number of objects
-  // else we do
-  std::vector<bool> compressed( passingSelection[0].size(), false );
-  std::vector< std::vector<bool>::const_iterator > bIters;
-
-
-  for ( auto& b: passingSelection ) 
-    bIters = b.begin();
-  auto itersMove = [&](){ for ( auto& i: bIters ) ++i; }
-  auto itersEnd  = [&](){ return bIters[0] == passingSelection[0].end(); } // assumptrion here, passingSelection has all member vectors of same size
-
-  for ( ; not itersEnd(); itersMove() ) {
-    for ( auto b: bIters ) {
-      compressed[i] = compressed[i] or *b;
-    }
-  }
-  retrun std::count_if( compressed.begin(), compressed.end(), true );
-}
-
-
-
-StatusCode TrigL2ElectronHypoTool::markPassing( std::vector<Input>& input, const std::vector< std::vector<bool> >& passingSelection ) const {
-
-  size_t bitIndex = 0;
-  for ( auto& i: input ) {
-    for ( size_t sel = 0;  sel < m_multiplicity; ++sel ) {
-      if ( passingSelection[sel][bitIndex] == true )  {
-	addDecisionID( decisionId(), i.decision );
-	break;
-      }
-    }
-    bitIndex++;
-  }
+  for ( auto idx: passing ) 
+    addDecisionID( m_decisionId.numeric(), input[idx].decision );
+  return StatusCode::SUCCESS;
 }
 
 
 StatusCode TrigL2ElectronHypoTool::multiplicitySelection( std::vector<Input>& input ) const {
-  std::vector< std::vector<bool> > passingSelection( m_multiplicity );
-  bool decision = false;
+  HLT::Index2DVec passingSelection( m_multiplicity );
+  
   for ( size_t cutIndex = 0; cutIndex < m_multiplicity; ++ cutIndex ) {
-    
-    for ( auto elIter =  input.begin(); elIter != input.end(); ++elIter ) {
-      passingSelection.back().push_back( decideOnSingleObject( elIter, cutIndex ) );
+    size_t elIndex;
+    for ( auto elIter =  input.begin(); elIter != input.end(); ++elIter, ++elIndex ) {
+      if ( decideOnSingleObject( elIter->electron, cutIndex ) ) 
+	passingSelection[cutIndex].push_back( elIndex );
     }
-    // counting to see if the cut failed entirely - this means fast rejection w/o checking combinations
-    if ( all_of( passingSelection.back().begin(), passingSelection.back().end(), 
-		 []( const std::vector<bool>& bits) { return bits.empty(); } ) )
-      retrun StatusCode::SUCCESS;
+    // checking if by chance noe of the objects passed the single obj selection, if so there will be no valid combination and we can skip
+    if ( passingSelection[cutIndex].empty() ) {
+      ATH_MSG_DEBUG( "No object passed selection " << cutIndex << " rejecting" );
+      return StatusCode::SUCCESS;
+    }
   }
   
   // go to the tedious counting
-  // compress the bits to "one" per RoI == OR of all decsions per RoI
-  if ( m_decisionPerCluster ) {
-    std::vector< std::vector<bool> > compressedPassingSelection;
-    size_t bitIndex = 0;
-    const xAOD::TrigEMCluster* cluster = 0;
-    for ( auto& i: input ) {
-      if ( i.cluster != cluster ) { // we have moved to a new cluster, need to OR with per RoI bits
-	cluster = i.cluster;
-	for ( size_t sel = 0; sel < m_multiplicity; ++sel ) {
-	  compressedPassingSelection[sel].back() =  compressedPassingSelection[sel].back() or passingSelection[sel][bitIndex];
-	}
-      } else { // just copy bits
-	compressedPassingSelection[sel].push_back( passingSelection[sel][bitIndex] );
+  std::set<size_t> passingIndices;
+  if ( m_decisionPerCluster ) {            
+    // additional constrain has to be applied for each combination
+    // from each combination we extract set of clustusters associated to it
+    // if all are distinct then size of the set shoudl be == size of combination, 
+    // if size of clusters is smaller then the combination consists of electrons from the same RoI
+    auto notFromSameRoI = [&](const HLT::Index1DVec& comb ) {
+      std::set<const xAOD::TrigEMCluster*> setOfClusters;
+      for ( auto index: comb ) {
+	setOfClusters.insert( input[index].cluster );
       }
-      bitIndex ++;
-    }
-    decision = countBits( compressedPassingSelection, m_multiplicity ) >= m_multiplicity;
+      return setOfClusters.size() == comb.size();
+    };
+
+    HLT::elementsInUniqueCombinations( passingSelection, passingIndices, notFromSameRoI );    
   } else {
-    // respect decisions per object
-    decision = countBits( passingSelection, m_multiplicity ) >= m_multiplicity;
+    HLT::elementsInUniqueCombinations( passingSelection, passingIndices );
   }
   
-  if ( decision == false )    
-    retrun StatusCode::SUCCESS;
-
-  // go back to the input and mark electrons as passing
-  return markPassing( input, passingSelection );
+  return markPassing( input, passingIndices );
 }
 
 

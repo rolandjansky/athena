@@ -38,9 +38,6 @@ class TrigL2ElectronHypoTool
 
   static const InterfaceID& interfaceID();
 
-  TrigCompositeUtils::DecisionID decisionId() const {
-    return m_id.numeric();
-  }
 
   struct Input {
     Decision* decision;
@@ -70,22 +67,17 @@ class TrigL2ElectronHypoTool
   StatusCode multiplicitySelection( std::vector<Input>& input ) const;
 
   /**
-   * @brief a method counting how many unique objects (bits set to true) there is
-   * It is an implementation of bitwise OR of all stored vector<bool> and then counting of bits set to true
-   **/
-  size_t countBits( const std::vector< std::vector<bool> >& passingSelection ) const;
-
-  /**
    * @brief stores decisions for all object passing multiple cuts
    * The passsingSelection inner vectors have to have size == input size
    **/
-  StatusCode markPassing( std::vector<Input>& input, const std::vector< std::vector<bool> >& passingSelection ) const;
+  StatusCode markPassing( std::vector<Input>& input, const std::set<size_t>& passing ) const;
+
 
 
 
   
  private:
-  HLT::Identifier m_id;
+  HLT::Identifier m_decisionId;
   Gaudi::Property<bool>  m_decisionPerCluster{ this, "DecisionPerCluster", true, "Is multiplicity requirement refering to electrons (false) or RoIs/clusters with electrons (false), relevant only in when multiplicity > 1" };
 
   Gaudi::Property<bool>  m_acceptAll{ this, "AcceptAll", false, "Ignore selection" };
@@ -97,6 +89,7 @@ class TrigL2ElectronHypoTool
   Gaudi::Property< std::vector<float> > m_trtRatio{ this,  "TRTRatio", 0, "TRT HT ratio" };
 
   size_t m_multiplicity = 1;
+
   ToolHandle<GenericMonitoringTool> m_monTool{ this, "MonTool", "GenericMonitoringTool/MOnTool", "Monitoring tool"};
 }; 
 
