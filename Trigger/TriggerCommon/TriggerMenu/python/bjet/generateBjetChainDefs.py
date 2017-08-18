@@ -418,20 +418,15 @@ def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=
     #--------------------
 
     # tracking
-#    from TrigInDetConf.TrigInDetSequence import TrigInDetSequence # new
-#    [trkvtx, trkftf, trkprec] = TrigInDetSequence("Bjet", "bjet", "IDTrig", "2step").getSequence() # new
     if 'FTKVtx' in chainParts['bTracking']:
         [trkftf, trkprec] = TrigInDetSequence("Bjet", "bjet", "IDTrig").getSequence() # new
         [ftkvtx, trkftk] = TrigInDetFTKSequence("Bjet", "bjet", sequenceFlavour=["FTKVtx"]).getSequence() # new
-        ftkvtx[0].getVertexContainer=True
     elif 'FTKRefit' in chainParts['bTracking']:
         [ftkvtx, trkftf, trkprec] = TrigInDetFTKSequence("Bjet", "bjet", sequenceFlavour=["FTKVtx","refit","PT"]).getSequence() # new
-        ftkvtx[0].getVertexContainer=True
     elif 'FTK' in chainParts['bTracking']:
         [ftkvtx, trkftf, trkprec] = TrigInDetFTKSequence("Bjet", "bjet", sequenceFlavour=["FTKVtx","PT"]).getSequence() # new
-        ftkvtx[0].getVertexContainer=True
     else:
-        [trkvtx, trkftf, trkprec] = TrigInDetSequence("Bjet", "bjet", "IDTrig", "2step").getSequence() # new
+        [trkvtx, trkftf, trkprec] = TrigInDetSequence("Bjet", "bjet", "IDTrig", sequenceFlavour=["2step"]).getSequence() # new
 
     # for b-tagging
     theBjetTracks = trkftf+trkprec
@@ -637,7 +632,7 @@ def myBjetConfig1(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=1):
     else                         : ef_ethypo_startseq = getBjetEtHypoInstance("EF","StartSequence","35GeV")
 
     # tracking
-    [trkvtx, trkftf, trkprec] = TrigInDetSequence("Bjet", "bjet", "IDTrig", "2step").getSequence() 
+    [trkvtx, trkftf, trkprec] = TrigInDetSequence("Bjet", "bjet", "IDTrig", sequenceFlavour=["2step"]).getSequence() 
     ef_bjet_tracks = trkftf+trkprec
 
 

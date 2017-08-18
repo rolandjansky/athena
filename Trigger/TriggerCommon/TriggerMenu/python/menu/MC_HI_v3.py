@@ -25,7 +25,10 @@ def setupMenu():
 
     TriggerFlags.TestSlice.signatures = TriggerFlags.TestSlice.signatures() + [
         ]
-    
+
+    TriggerFlags.AFPSlice.signatures = TriggerFlags.AFPSlice.signatures() + [
+	]
+
     TriggerFlags.MuonSlice.signatures = TriggerFlags.MuonSlice.signatures() + [
         ]
     

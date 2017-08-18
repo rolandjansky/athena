@@ -1092,6 +1092,8 @@ int usage(std::ostream& s, int , char** argv, int status=-1) {
   s << "    -ref, --reference TAG FILE  \tadd FILE as a reference file with tag TAG\n";
   s << "    -rc,  --refconf       FILE  \tadd FILE to the config as a reference block\n";
   s << "    -v,   --verbose             \tprint verbose output\n";
+  s << "    -vv,  --vverbose            \tprint very verbose output\n";
+  s << "    -vvv, --vvverbose           \tprint very, very verbose output\n";
   s << "    -h,   --help                \tdisplay this help\n";
   s << std::endl;
   return status;

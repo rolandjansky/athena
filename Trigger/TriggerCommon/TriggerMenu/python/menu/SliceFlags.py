@@ -7,6 +7,7 @@ import TriggerMenu.muon.MuonSliceFlags                      # noqa: F401
 import TriggerMenu.met.METSliceFlags                        # noqa: F401
 import TriggerMenu.tau.TauSliceFlags                        # noqa: F401
 import TriggerMenu.bphysics.BphysicsSliceFlags              # noqa: F401
+import TriggerMenu.afp.AFPSliceFlags                        # noqa: F401
 import TriggerMenu.minbias.MinBiasSliceFlags                # noqa: F401
 import TriggerMenu.heavyion.HeavyIonSliceFlags              # noqa: F401
 import TriggerMenu.combined.CombinedSliceFlags              # noqa: F401

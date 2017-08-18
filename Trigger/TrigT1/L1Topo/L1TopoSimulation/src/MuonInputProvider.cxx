@@ -200,7 +200,8 @@ MuonInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
       for( const ROIB::MuCTPIRoI & muonRoI : rois ) {
 
 	if( !( muonRoI.roIWord() & LVL1::CandidateVetoMask  )  )
-	  inputEvent.addMuon( MuonInputProvider::createMuonTOB( muonRoI.roIWord() ) );
+        inputEvent.addMuon(MuonInputProvider::hackMuonTOB(
+                               MuonInputProvider::createMuonTOB( muonRoI.roIWord() )));
     // overflow implemented only for reduced granularity encoding (see below)
 	else
 	  ATH_MSG_DEBUG(" Ignore Vetoed L1 Mu RoI " <<  muonRoI.roIWord() );
@@ -223,7 +224,8 @@ MuonInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
 	  continue;
        
 	if( !( roiword & LVL1::CandidateVetoMask  )  )
-	  inputEvent.addMuon( MuonInputProvider::createMuonTOB( roiword ) );
+        inputEvent.addMuon(MuonInputProvider::hackMuonTOB(
+                               MuonInputProvider::createMuonTOB( roiword )));
 	else
 	  ATH_MSG_DEBUG(" Ignore Vetoed L1 Mu RoI " << roiword );
        
@@ -247,7 +249,8 @@ MuonInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
       for(  std::vector<MuCTPIL1TopoCandidate>::const_iterator iMuCand = candList.begin(); iMuCand != candList.end(); iMuCand++)
 	{
 	  //MuonInputProvider::createMuonTOB( *iMuCand );
-	  inputEvent.addMuon( MuonInputProvider::createMuonTOB( *iMuCand ) );
+        inputEvent.addMuon(MuonInputProvider::hackMuonTOB(
+                               MuonInputProvider::createMuonTOB( *iMuCand )));
       if(iMuCand->moreThan2CandidatesOverflow()){
           inputEvent.setOverflowFromMuonInput(true);
           ATH_MSG_DEBUG("setOverflowFromMuonInput : true (MuCTPIL1TopoCandidate from SG)");
@@ -264,7 +267,8 @@ MuonInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
       
             
       for( const MuCTPIL1TopoCandidate & cand : l1topo.getCandidates() ) {
-          inputEvent.addMuon( MuonInputProvider::createMuonTOB( cand ) );
+          inputEvent.addMuon(MuonInputProvider::hackMuonTOB(
+                                 MuonInputProvider::createMuonTOB( cand )));
           if(cand.moreThan2CandidatesOverflow()){
               inputEvent.setOverflowFromMuonInput(true);
               ATH_MSG_DEBUG("setOverflowFromMuonInput : true (MuCTPIL1TopoCandidate from MuctpiSimTool)");
@@ -272,24 +276,44 @@ MuonInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
       }
     }
     
-    //BC+1 ... this can only come from simulation, in data taking this is collected by the L1Topo at its input
-    // so no need to do anything else here
+    //BC+1
+    // first see if L1Muctpi simulation already ran and object is in storegate, if not
+    // call tool version of the L1MuctpiSimulation and create it on the fly
+    std::vector<MuCTPIL1TopoCandidate> candList;
     if( evtStore()->contains<LVL1::MuCTPIL1Topo>(m_MuCTPItoL1TopoLocation.toString()+std::to_string(1)) ) {
       LVL1::MuCTPIL1Topo* l1topoBC1  {nullptr};
       CHECK( evtStore()->retrieve( l1topoBC1,m_MuCTPItoL1TopoLocation.toString()+std::to_string(1)));
       ATH_MSG_DEBUG( "Contains L1Topo LateMuons L1Muctpi object from StoreGate!" );
       //      l1topoBC1->print();
-      
-      std::vector<MuCTPIL1TopoCandidate> candList = l1topoBC1->getCandidates();
-      for(  std::vector<MuCTPIL1TopoCandidate>::const_iterator iMuCand = candList.begin(); iMuCand != candList.end(); iMuCand++)
-	{
-	  //or would it be better to create muon and dynamic_cast?
-	  ATH_MSG_DEBUG("MuonInputProvider addLateMuon ");
-	  inputEvent.addLateMuon( MuonInputProvider::createLateMuonTOB( *iMuCand ) );	   
-	}
-     }  
+      candList = l1topoBC1->getCandidates();
+    }else{
+      ATH_MSG_DEBUG("Use MuCTPiToTopo granularity Muon ROIs: calculate from ROIs sent to ROS");
+      LVL1::MuCTPIL1Topo l1topoBC1;
+      int bcidOffset = 1;
+      CHECK(m_MuctpiSimTool->fillMuCTPIL1Topo(l1topoBC1, bcidOffset));
+      l1topoBC1.setBcidOffset(bcidOffset);
+      //l1topoBC1.print();
+      candList = l1topoBC1.getCandidates();
+    }  
+    
+    for(  std::vector<MuCTPIL1TopoCandidate>::const_iterator iMuCand = candList.begin(); iMuCand != candList.end(); iMuCand++)
+      {
+	//or would it be better to create muon and dynamic_cast?
+	ATH_MSG_DEBUG("MuonInputProvider addLateMuon ");
+	inputEvent.addLateMuon( MuonInputProvider::createLateMuonTOB( *iMuCand ) );	   
+      }
   }
+  
+  return StatusCode::SUCCESS;
+}
 
-
-   return StatusCode::SUCCESS;
+TCS::MuonTOB
+MuonInputProvider::hackMuonTOB(const TCS::MuonTOB &muon) const
+{
+    TCS::MuonTOB mu = muon;
+    if(mu.Et()>10) {
+        mu.setEt(10);
+        mu.setEtDouble(10.0);
+    }
+    return mu;
 }

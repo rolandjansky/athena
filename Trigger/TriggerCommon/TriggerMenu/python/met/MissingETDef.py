@@ -174,7 +174,8 @@ class L2EFChain_met(L2EFChainDef):
                 #Muon correction fex
                 theEFMETMuonFex = EFTrigMissingETMuon_Fex_Jets("EFTrigMissingETMuon_Fex_Jets{0}".format(calibCorr) )
                 #mucorr= '_wMu' if EFmuon else ''
-                theEFMETHypo = EFMetHypoJetsXE('EFMetHypo_Jets_xe%s_tc%s%s%s'%(threshold,jetCalib,calibration,mucorr),ef_thr=float(threshold)*GeV)
+                theEFMETHypo = EFMetHypoJetsXE('EFMetHypo_Jets_xe%s_tc%s%s%s'%(threshold,jetCalib,calibration,mucorr),ef_thr=float(threshold)*GeV, extraCalib=calibCorr)
+
 
              ##MET based on trigger jets
             if EFrecoAlg=='trkmht':
@@ -323,7 +324,7 @@ class L2EFChain_met(L2EFChainDef):
             self.EFsequenceList +=[[ ['EF_xe_step1',muonSeed], [theEFMETMuonFex, theEFMETHypo], 'EF_xe_step2' ]]
             if "FStracks" in addInfo:
                 from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
-                trk_algs = TrigInDetSequence("FullScan", "fullScan", "IDTrig", "FTF").getSequence()
+                trk_algs = TrigInDetSequence("FullScan", "fullScan", "IDTrig", sequenceFlavour=["FTF"]).getSequence()
                 print "XXXXXXXXXXXXXXXXXX"
                 print trk_algs[0]
                 dummyAlg = PESA__DummyUnseededAllTEAlgo("EF_DummyFEX_xe")
@@ -346,7 +347,7 @@ class L2EFChain_met(L2EFChainDef):
 
             else:
                 from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
-                trk_algs = TrigInDetSequence("FullScan", "fullScan", "IDTrig", "FTF").getSequence()
+                trk_algs = TrigInDetSequence("FullScan", "fullScan", "IDTrig", sequenceFlavour=["FTF"]).getSequence()
                 dummyAlg = PESA__DummyUnseededAllTEAlgo("EF_DummyFEX_xe")
                 self.EFsequenceList +=[[ [''], [dummyAlg]+trk_algs[0], 'EF_xe_step0' ]]
 

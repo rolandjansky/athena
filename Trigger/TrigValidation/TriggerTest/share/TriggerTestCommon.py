@@ -105,7 +105,8 @@ if hasattr(svcMgr,'THistSvc'):
 print AlgSequence
 print ServiceMgr
 
-# Tempory - 24/05/17
-from TrigT2CaloCommon.TrigT2CaloCommonConfig import TrigDataAccess;
-ToolSvc+=TrigDataAccess();ToolSvc.TrigDataAccess.fullTileMode=False;
-ToolSvc.TileRegionSelectorTable.FullRODs=False;
+# Tempory - 24/05/17 # this can be later removed
+if not hasattr(svcMgr.ToolSvc,"TileROD_Decoder"):
+   from TileByteStream.TileByteStreamConf import TileROD_Decoder
+   svcMgr.ToolSvc+=TileROD_Decoder()
+svcMgr.ToolSvc.TileROD_Decoder.fullTileMode=0

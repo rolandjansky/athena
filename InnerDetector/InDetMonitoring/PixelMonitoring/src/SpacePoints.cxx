@@ -30,7 +30,6 @@
 //#include "TrkTrack/TrackCollection.h"            
 //#include "InDetReadoutGeometry/SiDetectorElement.h"
 //#include "TrkTrackSummary/TrackSummary.h"
-#include "PixelMonitoring/PixelMon2DMaps.h"
 #include "PixelMonitoring/PixelMonModules.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 

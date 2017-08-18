@@ -57,7 +57,7 @@ class doRinger(JobProperty):
     '''apply ringer selection for Electron chains'''
     statusOn=True
     allowedTypes=['bool']
-    StoredValue=False
+    StoredValue=True
 
 _flags.append(doRinger) 
 

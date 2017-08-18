@@ -137,7 +137,7 @@ protected:
   float m_tripletMinPtFrac;
   float m_pTmin;
   float m_initialD0Max;
-
+  float m_Z0Max;                        
   bool m_checkSeedRedundancy;
 
   // Names of IDCs with input data 

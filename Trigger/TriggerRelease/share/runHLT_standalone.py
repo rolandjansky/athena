@@ -126,7 +126,7 @@ menuMap={
          }
 
 # Useful in job options beyond our control to always run the latest menu via 'testCurrentMenu=True'
-menuMap['CurrentMenu'] = menuMap['PhysicsV6']
+menuMap['CurrentMenu'] = menuMap['PhysicsV7']
 
 newMenuSetup=0
 for name in menuMap:
@@ -256,6 +256,7 @@ else:           # More data modifiers
                                 #'ignoreL1Vetos',  #also run L2 prescaled and disabled L1 items
                                 #'disablePixels',
                                 #'disableSCTBarrel',
+                                'useDynamicAlignFolders',
     ]
 
 #make some more common trig cost operations easier to setup

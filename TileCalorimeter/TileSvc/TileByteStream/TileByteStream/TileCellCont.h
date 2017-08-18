@@ -11,6 +11,7 @@
 #include <vector>
 
 class TileCellCollection;
+class TileHid2RESrcID;
 
   
 /**
@@ -58,8 +59,8 @@ class TileCellCont : public std::vector<TileCellCollection*>
   
   StatusCode initialize( void ) ;
   StatusCode finalize( void ) ;
-  void forceRunNumber ( unsigned int runNumberToForce )
-	{ m_forceRun = runNumberToForce; }
+  void setHashIdToROD ( const TileHid2RESrcID* p )
+       { m_src = p; }
 
   void eventNumber ( const unsigned int eN) { m_event=eN; };
   bool cached( const unsigned int&rodid ){
@@ -97,6 +98,8 @@ private:
 	int m_MBTS_channel;
 	std::vector<int> m_masked;
 	unsigned int m_forceRun;
+        /** map Hash ID to ROD */
+        const TileHid2RESrcID* m_src;
   
 };
 

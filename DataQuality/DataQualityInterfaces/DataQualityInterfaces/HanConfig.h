@@ -9,6 +9,7 @@
 #include <set>
 #include <map>
 #include <TList.h>
+#include <TMap.h>
 
 #include <TObject.h>
 
@@ -66,18 +67,20 @@ protected:
 
   class RefVisitor : public MiniConfigTreeNode::Visitor {
   public:
-    RefVisitor( TFile* outfile_, HanConfig::DirMap_t& directories_ );
+    RefVisitor( TFile* outfile_, HanConfig::DirMap_t& directories_, TMap* refsourcedata );
     virtual void Visit( const MiniConfigTreeNode* node ) const;
   protected:
     TFile* outfile;
     HanConfig::DirMap_t& directories;
+    TMap* m_refsourcedata;
   };
   
   class AssessmentVisitorBase : public MiniConfigTreeNode::Visitor {
   public:
     AssessmentVisitorBase( HanConfigGroup* root_, const MiniConfig& algConfig_,
                            const MiniConfig& thrConfig_, const MiniConfig& refConfig_,
-                           TFile* outfile_, HanConfig::DirMap_t& directories_ );
+                           TFile* outfile_, HanConfig::DirMap_t& directories_,
+			   TMap* refsourcedata_ );
   
   protected:
   
@@ -90,6 +93,7 @@ protected:
     const MiniConfig& refConfig;
     TFile* outfile;
     HanConfig::DirMap_t& directories;
+    TMap* m_refsourcedata;
   };
   
   
@@ -106,7 +110,8 @@ protected:
   public:
     AssessmentVisitor( HanConfigGroup* root_, const MiniConfig& algConfig_,
                        const MiniConfig& thrConfig_, const MiniConfig& refConfig_,
-                       TFile* outfile_, HanConfig::DirMap_t& directories_ );
+                       TFile* outfile_, HanConfig::DirMap_t& directories_,
+		       TMap* refsourcedata_ );
     virtual void Visit( const MiniConfigTreeNode* node ) const;
   };
 

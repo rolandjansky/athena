@@ -2027,15 +2027,10 @@ namespace TrigCostRootAnalysis {
     set(kVersionString, _version, "Version");
 
     // Different variables to save
+    for (int i = 0; i <= 90; ++i) {
+      set(ConfKey_t(kVarSteeringTimeCPUType + 8192 + i), std::string("Rack" + intToString(i)) );
+    }
     set(kVarTime, "Time");
-    set(kVarSteeringTimeCPUType1, "SteeringTimeCPUType1");
-    set(kVarSteeringTimeCPUType2, "SteeringTimeCPUType2");
-    set(kVarSteeringTimeCPUType3, "SteeringTimeCPUType3");
-    set(kVarSteeringTimeCPUType4, "SteeringTimeCPUType4");
-    set(kVarEventsCPUType1, "EventsCPUType1");
-    set(kVarEventsCPUType2, "EventsCPUType2");
-    set(kVarEventsCPUType3, "EventsCPUType3");
-    set(kVarEventsCPUType4, "EventsCPUType4");
     set(kVarRerunTime, "RerunTime");
     set(kVarPassTime, "PassTime");
     set(kVarTimeExec, "TimeExec");

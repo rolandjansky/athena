@@ -64,7 +64,7 @@ StatusCode TileLaserObjByteStreamCnv::initialize() {
   m_ROBID.clear();
   // m_ROBID.push_back( 0x500000 );
   // m_ROBID.push_back( 0x520010 );
-  const TileHid2RESrcID* hid2re = m_decoder->getHid2re();
+  const TileHid2RESrcID* hid2re = m_decoder->getHid2reHLT();
   m_ROBID.push_back( hid2re->getRobFromFragID(LASER_OBJ_FRAG) );
 
   return StatusCode::SUCCESS ;

@@ -51,8 +51,8 @@ class BjetHypo (TrigBjetHypo):
             return None
 
         if instance=="EF" :
-            self.AcceptAll = False
-            self.Instance  = "EF"
+            self.AcceptAll       = False
+            self.Instance        = "EF"
             self.UseBeamSpotFlag = False
 
         self.JetKey = ""
@@ -139,9 +139,10 @@ class BjetHypoNoCut (TrigBjetHypo):
         if instance in AllowedInstances :
             
             if instance=="EF" :
-                self.AcceptAll = True
-                self.Instance  = "EF"
-                self.UseBeamSpotFlag = False
+                self.AcceptAll             = True
+                self.Instance              = "EF"
+                self.UseBeamSpotFlag       = False
+                self.OverrideBeamSpotValid = True
                 from TrigBjetHypo.TrigBjetHypoMonitoring import TrigEFBjetHypoValidationMonitoring, TrigEFBjetHypoOnlineMonitoring
                 validation = TrigEFBjetHypoValidationMonitoring()
                 online     = TrigEFBjetHypoOnlineMonitoring()
@@ -192,8 +193,8 @@ class BjetHypoSplit (TrigBjetHypo):
             instance = "EF"
 
         if instance=="EF" :
-            self.AcceptAll = False
-            self.Instance  = "EF"
+            self.AcceptAll       = False
+            self.Instance        = "EF"
             self.UseBeamSpotFlag = False
         
         if instance=="EF" :
@@ -283,9 +284,10 @@ class BjetHypoSplitNoCut (TrigBjetHypo):
                 instance = "EF"
                 
             if instance=="EF" :
-                self.AcceptAll = True
-                self.Instance  = "EF"
-                self.UseBeamSpotFlag = False
+                self.AcceptAll             = True
+                self.Instance              = "EF"
+                self.UseBeamSpotFlag       = False
+                self.OverrideBeamSpotValid = True
                 from TrigBjetHypo.TrigBjetHypoMonitoring import TrigEFBjetHypoValidationMonitoring, TrigEFBjetHypoOnlineMonitoring
                 validation = TrigEFBjetHypoValidationMonitoring()
                 online     = TrigEFBjetHypoOnlineMonitoring()
