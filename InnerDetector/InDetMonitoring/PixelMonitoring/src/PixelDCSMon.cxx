@@ -41,18 +41,10 @@ StatusCode PixelMainMon::BookPixelDCSMon(void)
 
    msg(MSG::DEBUG)  << "[BookPixelDCSMon]" << endmsg;
 
-   //if(m_doOnTrack) return StatusCode::SUCCESS;
-
    std::string path = "Pixel/DCS";
    if(m_doOnTrack) path.replace(path.begin(), path.end(), "Pixel/DCSOnTrack");
-   if(m_doOnPixelTrack) path.replace(path.begin(), path.end(), "Pixel/DCSOnPixelTrack");
-   //MonGroup dcsShift(   this, path.c_str(), run, ATTRIB_MANAGED ); //declare a group of histograms
    MonGroup dcsExpert ( this, path.c_str(), run, ATTRIB_MANAGED ); //declare a group of histograms
 
-  //sc = dcsExpert.regHist(m_hist_moduleTemperature2D = TH2F_LW::create("module Temperature_chanNum_all", "Module Temprerature vs Channel Number; Channel Number;Temperature",2048,0,2048,100,-15,5));
-  //sc = dcsExpert.regHist(m_hist_coolingPipeTemperatureInlet2D = TH2F_LW::create("cooling Pipe TemperatureInlet_chanNum", "cooling Pipe TempreratureInlet vs Channel Number; Channel Number;Temperature",14,1,15,150,-15,15));
-  //sc = dcsExpert.regHist(m_hist_coolingPipeTemperatureOutlet2D = TH2F_LW::create("cooling Pipe TemperatureOutlet_chanNum", "cooling Pipe TempreratureOutlet vs Channel Number; Channel Number;Temperature",14,1,15,150,-15,15));
-  //sc = dcsExpert.regHist(m_hist_HV_voltage2D = TH2F_LW::create("HV voltage_chanNum", "HV vs Channel Number; Channel Number;HV",14,1,15,100,-100,0));
   float min_temperature = -20.; float max_temperature = 0.; int nbins_temperature = 100;
   float min_LB = 0.;            float max_LB = 1500.;       int nbins_LB = 1500;
   float min_module = -10.;      float max_module = 10.;     int nbins_module = 20;
@@ -578,39 +570,6 @@ StatusCode PixelMainMon::FillPixelDCSMon(void)
   }
 
   msg(MSG::DEBUG)  << "[FillPixelDCSMon]" << endmsg;
-
-  // loop over DCS directories
-//  const CondAttrListCollection* atrlistcol;
-//  for (std::vector<std::string>::const_iterator itr=m_atrcollist.begin();
-//       itr!=m_atrcollist.end();++itr) {
-//    if (StatusCode::SUCCESS==detStore()->retrieve(atrlistcol,*itr)) {
-//      // loop over collection
-//      int chanNum(0); // loop counter
-//      for (CondAttrListCollection::const_iterator citr=atrlistcol->begin();
-//           citr!=atrlistcol->end();++citr) {
-//        // the following code dumps the attribute list into a string for printing
-//        // to access individual elements by name, use e.g.
-//        // float var1=(((*citr).second)["T04"]).data<float>();
-//        // to get the value of a float column called T04 into var1
-//        float var = 0.;
-//        int element_index = 0; // 0 or 1
-//        for (auto& chan : (*citr).second) {
-//          try {
-//            var = chan.data<float>();
-//            if( m_elementsMap[*itr][element_index] == "temperature") m_moduleTemperature2D->Fill(chanNum, var);
-//          }
-//          catch (...)
-//          {
-//            ATH_MSG_ERROR("Channel " << (*citr).first << " does not have any values!");
-//            continue;
-//          }
-//        }
-//        chanNum++;
-//      }
-//    } else {
-//      ATH_MSG_INFO("Could not retrieve CondAttrListCollection " << *itr);
-//    }
-//  }
 
   // loop over DCS directories
   const CondAttrListCollection* atrlistcol;
@@ -1199,7 +1158,6 @@ StatusCode PixelMainMon::ProcPixelDCSMon(void)
      for(const auto& valueMap : *( m_coolingPipeTemperatureInlet->m_values->at( chanNum ) ) ){
        LB = valueMap.first;
        value = valueMap.second;
-       //m_hist_coolingPipeTemperatureInlet2D->Fill(chanNum, valueMap.second);
        m_hist_Pipes_inlet2Dscatter->Fill(staveNum, value);
        m_hist_Pipes_inletLB[staveNum - 1]->Fill(LB,value);
        m_hist_LB_staveID_coolingPipeInlet->Fill(LB,staveNum,value);
@@ -1253,7 +1211,6 @@ StatusCode PixelMainMon::ProcPixelDCSMon(void)
      for(const auto& valueMap : *( m_LV_voltage->m_values->at( chanNum ) ) ){
        LB = valueMap.first;
        value = valueMap.second;
-       //m_hist_coolingPipeTemperatureInlet2D->Fill(chanNum, valueMap.second);
        //m_hist_Pipes_inlet2D->Fill(staveNum, value);
        //m_hist_Pipes_inletLB[staveNum - 1]->Fill(LB,value);
        //std::cout << "ProcPixelDCSMon(): LB " << LB << ", value " << value << std::endl;
@@ -1284,7 +1241,6 @@ StatusCode PixelMainMon::ProcPixelDCSMon(void)
        LB = valueMap.first;
        value = valueMap.second;
        //m_hist_Pipes_outlet2D->Fill(staveNum, value);
-       ////m_hist_coolingPipeTemperatureOutlet2D->Fill(chanNum, valueMap.second);
        //m_hist_Pipes_outletLB[staveNum - 1]->Fill(LB,value);
        m_hist_LB_moduleGroup_LVcurrent[staveNum - 1]->Fill(LB, moduleGroup, value);
        m_hist_LB_staveID_LVcurrent->Fill(LB,staveNum,value);
