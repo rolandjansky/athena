@@ -32,6 +32,8 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "EventPrimitives/EventPrimitives.h"
 #include "xAODEventInfo/EventInfo.h"
+
+#include "StoreGate/ReadHandle.h"
 ///////////////////////////////////////////////////////////////////
 // Constructior
 ///////////////////////////////////////////////////////////////////
@@ -69,7 +71,8 @@ InDet::TRT_DriftCircleTool::TRT_DriftCircleTool(const std::string& t,
   m_mask_middle_HT_bit(false),
   m_mask_middle_HT_bit_argon(false),
   m_mask_last_HT_bit(false),
-  m_mask_last_HT_bit_argon(false)
+  m_mask_last_HT_bit_argon(false),
+  m_eventInfoKey(std::string("EventInfo"))
 {
   declareInterface<ITRT_DriftCircleTool>(this);
   declareProperty("TrtDescrManageLocation",m_trt_mgr_location);
@@ -152,6 +155,9 @@ StatusCode InDet::TRT_DriftCircleTool::initialize()
     return sc;
   }
 
+  // Initialize readhandle key
+  ATH_CHECK(m_eventInfoKey.initialize());
+
   return sc;
 }
 
@@ -203,8 +209,10 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleTool::convert(int Mode,c
   }
 
   float mu = -10;
-  const xAOD::EventInfo* m_eventInfo = 0;
-      if ( StatusCode::SUCCESS ==  evtStore()->retrieve(m_eventInfo) ){
+  SG::ReadHandle<xAOD::EventInfo> m_eventInfo(m_eventInfoKey);
+  if (m_eventInfo.isValid()) {
+  //const xAOD::EventInfo* m_eventInfo = 0;
+  //    if ( StatusCode::SUCCESS ==  evtStore()->retrieve(m_eventInfo) ){
                 mu = (float)           m_eventInfo->averageInteractionsPerCrossing();
       }
 
