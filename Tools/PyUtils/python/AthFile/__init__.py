@@ -29,7 +29,7 @@ import impl as _impl
 import tests as _tests
 AthFile = _impl.AthFile
 
-from PyCmt.decorator import decorator as _dec
+from decorator import decorator as _dec
 @_dec
 def _update_cache(fct, *args):
     res = fct(*args)

@@ -564,13 +564,12 @@ class PoolFile(object):
         else:
             import PyUtils.Helpers as _H
             projects = 'AtlasCore' if PoolOpts.FAST_MODE else None
-            with _H.restricted_ldenviron (projects=projects):
-                if self.verbose==True:
-                    print "## opening file [%s]..." % str(fileName)
-                self.__openPoolFile( fileName )
-                if self.verbose==True:
-                    print "## opening file [OK]"
-                self.__processFile()
+            if self.verbose==True:
+                print "## opening file [%s]..." % str(fileName)
+            self.__openPoolFile( fileName )
+            if self.verbose==True:
+                print "## opening file [OK]"
+            self.__processFile()
             
         return
 
