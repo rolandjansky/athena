@@ -160,8 +160,7 @@ namespace InDet{
       double                                                   m_outlierCut    ; /** Outlier chi2 cut when propagating through the seed */
       bool                                                     m_searchInCaloROI; /** Outlier chi2 cut when propagating through the seed */
       SG::ReadHandleKey<CaloClusterROI_Collection> m_inputClusterContainerName; 
-      //std::string					       m_inputClusterContainerName; /** Outlier chi2 cut when propagating through the seed */
- 
+
       ///////////////////////////////////////////////////////////////////
       /** Private Methods                                              */
       ///////////////////////////////////////////////////////////////////

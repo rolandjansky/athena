@@ -105,7 +105,6 @@ InDet::TRT_SeededTrackFinder_ATL::TRT_SeededTrackFinder_ATL
   m_etaWidth     = 4.0                ;
   m_ClusterE     = 15000.0                ;
 
-  //m_inputClusterContainerName = "InDetCaloClusterROIs";
 
   declareInterface<ITRT_SeededTrackFinder>(this);
 
@@ -390,12 +389,8 @@ void InDet::TRT_SeededTrackFinder_ATL::newEvent()
     m_caloF.clear();
     m_caloE.clear();
 
-    //const CaloClusterROI_Collection* calo = 0;
-    //StatusCode sc = evtStore()->retrieve(calo,m_inputClusterContainerName);
-
     SG::ReadHandle<CaloClusterROI_Collection> calo(m_inputClusterContainerName);
 
-    //if(sc == StatusCode::SUCCESS && calo) {
     if (calo.isValid()) {
 
       CaloClusterROI_Collection::const_iterator c = calo->begin(), ce = calo->end();
