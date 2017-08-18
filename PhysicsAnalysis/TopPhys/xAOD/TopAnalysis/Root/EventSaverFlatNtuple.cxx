@@ -2134,8 +2134,17 @@ namespace top {
 	  const xAOD::PseudoTopResultContainer* pseudoTopResultContainer(nullptr);
 	  const xAOD::PseudoTopResult* pseudoTopResult(nullptr);
 
-	  if (evtStore()->contains<xAOD::PseudoTopResultContainer>(m_config->sgKeyPseudoTop(event.m_hashValue))) {
-	    top::check(evtStore()->retrieve(pseudoTopResultContainer, m_config->sgKeyPseudoTop(event.m_hashValue)),"Failed to retrieve PseudoTop");
+          if ( (!event.m_isLoose && evtStore()->contains<xAOD::PseudoTopResultContainer>(topConfig()->sgKeyPseudoTop(event.m_hashValue))) || 
+               ( event.m_isLoose && evtStore()->contains<xAOD::PseudoTopResultContainer>(topConfig()->sgKeyPseudoTopLoose(event.m_hashValue))) ) 
+          {
+            if (!event.m_isLoose) 
+            {
+                top::check(evtStore()->retrieve(pseudoTopResultContainer, topConfig()->sgKeyPseudoTop(event.m_hashValue)),"Failed to retrieve PseudoTop");
+            }
+            else
+            {
+                top::check(evtStore()->retrieve(pseudoTopResultContainer, topConfig()->sgKeyPseudoTopLoose(event.m_hashValue)),"Failed to retrieve PseudoTop");
+            }
 
 	    pseudoTopResult = pseudoTopResultContainer->at(0);
 
