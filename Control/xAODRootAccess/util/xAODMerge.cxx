@@ -19,6 +19,7 @@
 // System include(s):
 #include <cstring>
 #include <vector>
+#include <cstdlib>
 
 // ROOT include(s):
 #include <TError.h>
