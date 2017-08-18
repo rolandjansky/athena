@@ -53,23 +53,50 @@ class TrigL2ElectronHypoTool
    * @brief decides upon a collection of electrons
    **/
   StatusCode decide( std::vector<Input>& decisions )  const;
-  std::pair<bool,int> decideOnSingleObject( const xAOD::TrigElectron* electron ) const;
-  
+
+  /**
+   * @brief Auxiluary method, single electron selection
+   **/
+  bool decideOnSingleObject( const xAOD::TrigElectron* electron, size_t cutIndex ) const;
+
+  /**
+   * @brief actual implementation of decide, in case of inclusive selection (one object cut)
+   **/
+  StatusCode inclusiveSelection( std::vector<Input>& input ) const;
+
+  /**
+   * @brief actual implementation of decide, in case of multiple objects selection (independentone)
+   **/
+  StatusCode multiplicitySelection( std::vector<Input>& input ) const;
+
+  /**
+   * @brief a method counting how many unique objects (bits set to true) there is
+   * It is an implementation of bitwise OR of all stored vector<bool> and then counting of bits set to true
+   **/
+  size_t countBits( const std::vector< std::vector<bool> >& passingSelection ) const;
+
+  /**
+   * @brief stores decisions for all object passing multiple cuts
+   * The passsingSelection inner vectors have to have size == input size
+   **/
+  StatusCode markPassing( std::vector<Input>& input, const std::vector< std::vector<bool> >& passingSelection ) const;
+
+
 
   
  private:
   HLT::Identifier m_id;
-  Gaudi::Property<int>   m_multiplicity{ this, "Multiplicity", 1, "Multiplicity requirement" };
-  Gaudi::Property<bool>  m_roisMultiplicity{ this, "RoIsMultiplicity", true, "Is multiplicity requirement refering to electrons (false) or RoIs with electrons (false)" };
+  Gaudi::Property<bool>  m_decisionPerCluster{ this, "DecisionPerCluster", true, "Is multiplicity requirement refering to electrons (false) or RoIs/clusters with electrons (false), relevant only in when multiplicity > 1" };
 
   Gaudi::Property<bool>  m_acceptAll{ this, "AcceptAll", false, "Ignore selection" };
-  Gaudi::Property<float> m_trackPtthr{ this, "TrackPt",  5.0*CLHEP::GeV, "Track pT requirement" };
-  Gaudi::Property<float> m_calotrackdeta{ this,  "CaloTrackdETA", 0, "Delta Eta between the track and cluster"      }; //loose cut
-  Gaudi::Property<float> m_calotrackdphi{ this,  "CaloTrackdPHI", 0, "Delta Phi between track and cluster"     }; //loose cut
-  Gaudi::Property<float> m_calotrackdeoverp_low{ this,  "CaloTrackdEoverPLow", 0, "Min E over Pt cut "};
-  Gaudi::Property<float> m_calotrackdeoverp_high{ this,  "CaloTrackdEoverPHigh", 0, "Max E over pT cut" };
-  Gaudi::Property<float> m_trtratio{ this,  "TRTRatio", 0, "TRT HT ratio" };
+  Gaudi::Property< std::vector<float> > m_trackPt{ this, "TrackPt",  5.0*CLHEP::GeV, "Track pT requirement (separate threshold for each electron)" };
+  Gaudi::Property< std::vector<float> > m_caloTrackDEta{ this,  "CaloTrackdETA", 0, "Delta Eta between the track and cluster"      }; //loose cut
+  Gaudi::Property< std::vector<float> > m_caloTrackDPhi{ this,  "CaloTrackdPHI", 0, "Delta Phi between track and cluster"     }; //loose cut
+  Gaudi::Property< std::vector<float> > m_caloTrackdEoverPLow{ this,  "CaloTrackdEoverPLow", 0, "Min E over Pt cut "};
+  Gaudi::Property< std::vector<float> > m_caloTrackdEoverPHigh{ this,  "CaloTrackdEoverPHigh", 0, "Max E over pT cut" };
+  Gaudi::Property< std::vector<float> > m_trtRatio{ this,  "TRTRatio", 0, "TRT HT ratio" };
 
+  size_t m_multiplicity = 1;
   ToolHandle<GenericMonitoringTool> m_monTool{ this, "MonTool", "GenericMonitoringTool/MOnTool", "Monitoring tool"};
 }; 
 
