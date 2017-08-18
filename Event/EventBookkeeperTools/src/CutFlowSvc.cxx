@@ -26,8 +26,6 @@
 #include "xAODCutFlow/CutBookkeeper.h"
 #include "xAODCutFlow/CutBookkeeperContainer.h"
 #include "xAODCutFlow/CutBookkeeperAuxContainer.h"
-//#include "EventBookkeeperMetaData/EventBookkeeperCollection.h"
-//#include "EventBookkeeperMetaData/EventBookkeeper.h"
 #include "xAODEventInfo/EventInfo.h"
 
 
@@ -151,11 +149,9 @@ StatusCode CutFlowSvc::determineCycleNumberFromInput( const std::string& collNam
     ATH_CHECK( m_inMetaDataStore->retrieveAllVersions( constColl, collName ) );
     for (auto tColl = constColl.begin(); tColl != constColl.end(); ++tColl) {
       //
-      //xAOD::CutBookkeeperContainer* tmpColl = const_cast<xAOD::CutBookkeeperContainer*>(tColl->dataObject);
-      const xAOD::CutBookkeeperContainer* xxx = tColl->dataObject;
-      ATH_MSG_INFO("BLARG " << xxx);
-      if (xxx!=0) {
-        xAOD::CutBookkeeperContainer* tmpColl = const_cast<xAOD::CutBookkeeperContainer*>(xxx);
+      const xAOD::CutBookkeeperContainer* tColl_do = tColl->dataObject;
+      if (tColl_do!=nullptr) {
+        xAOD::CutBookkeeperContainer* tmpColl = const_cast<xAOD::CutBookkeeperContainer*>(tColl_do);
         if ( !(tmpColl->hasStore()) ) {
           ATH_MSG_VERBOSE("Setting store of xAOD::CutBookkeeperContainer");
           // Get also the auxilliary store
@@ -188,13 +184,6 @@ StatusCode CutFlowSvc::determineCycleNumberFromInput( const std::string& collNam
                   << "')... have now cycle number = " << m_skimmingCycle );
   return StatusCode::SUCCESS;
 }
-
-
-StatusCode CutFlowSvc::determineCycleNumberFromOldInput( const std::string&  )
-{
-  return StatusCode::SUCCESS;
-}
-
 
 
 
@@ -759,27 +748,6 @@ CutFlowSvc::updateContainer( xAOD::CutBookkeeperContainer* contToUpdate,
     } // Done fixing siblings
     ebkToModify->setSiblings (newSiblings);
   } // Done fixing all cross references
-  return StatusCode::SUCCESS;
-}
-
-
-
-
-StatusCode CutFlowSvc::updateContainerFromOldEDM( xAOD::CutBookkeeperContainer* contToUpdate,
-                                                  const EventBookkeeperCollection* otherContOldEDM ) {
-
-  ATH_MSG_ERROR("EventBookkeepers no longer supported.");
-  return StatusCode::SUCCESS;
-}
-
-
-
-
-StatusCode CutFlowSvc::updateContainerFromOldEDM( xAOD::CutBookkeeperContainer* contToUpdate,
-                                                  xAOD::CutBookkeeper* newEBK,
-                                                  const EventBookkeeper* oldEBK,
-                                                  const xAOD::CutBookkeeper* parentEBK ) {
-  ATH_MSG_ERROR("EventBookkeepers no longer supported.");
   return StatusCode::SUCCESS;
 }
 
