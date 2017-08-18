@@ -39,7 +39,9 @@ namespace SG {
     
     virtual ~ReadMetaHandle() override {};
     
+    // retrieve <T> for current SID in data header
     const_pointer_type retrieve();
+    // retrieve <T> for specified SID
     const_pointer_type retrieve( const MetaContBase::SourceID& t);
 
     const_pointer_type  operator->()  { return  retrieve(); }
@@ -52,15 +54,18 @@ namespace SG {
 
     bool initMetaHandle();
         
+    // current SID
     MetaContBase::SourceID m_sid;
+    // pinter to container
     MetaCont<T>*  m_cont {nullptr};
+    // pointer to object in container for current SID
     T* m_ent {nullptr};
     
     const SG::ReadMetaHandleKey<T>& m_hkey;
   };
 
 
-  //---------------------------------------------------------------------------
+  //------------------------------------------------------------------------
 
   template <typename T>
   ReadMetaHandle<T>::ReadMetaHandle(const SG::ReadMetaHandleKey<T>& key):
@@ -68,7 +73,7 @@ namespace SG {
   { 
   }
 
-  //---------------------------------------------------------------------------
+  //------------------------------------------------------------------------
 
   template <typename T>
   ReadMetaHandle<T>::ReadMetaHandle(const SG::ReadMetaHandleKey<T>& key,
@@ -96,7 +101,7 @@ namespace SG {
   
   }
 
-  //---------------------------------------------------------------------------
+  //------------------------------------------------------------------------
 
   template <typename T>
   bool
@@ -122,7 +127,7 @@ namespace SG {
     return true;
   }
 
-  //---------------------------------------------------------------------------
+  //------------------------------------------------------------------------
 
   template <typename T>
   const T*
@@ -140,7 +145,7 @@ namespace SG {
     return cobj;
   }
 
-  //---------------------------------------------------------------------------
+  //------------------------------------------------------------------------
 
   template <typename T>
   const T*

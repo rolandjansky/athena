@@ -15,7 +15,7 @@ namespace SG {
     m_dbKey(dbKey)
   {}
 
-  //---------------------------------------------------------------------------  
+  //------------------------------------------------------------------------  
   
   template <class T>
   StatusCode
@@ -36,7 +36,9 @@ namespace SG {
       return StatusCode::FAILURE;
     }
 
-    
+
+    // If container does not exist, then create it in the store
+    //   otherwise cache pointer to container    
     if (m_store->contains< MetaCont<T> > (Gaudi::DataHandle::objKey())) {      
       if (m_store->retrieve(m_cont, Gaudi::DataHandle::objKey()).isFailure()) {
         MsgStream msg(Athena::getMessageSvc(), "MetaHandleKey");
@@ -59,6 +61,7 @@ namespace SG {
       }
     }
 
+    // Retrieve the guid/SID from the data header
     const DataHeader* thisDH;
     ServiceHandle<StoreGateSvc> instore("StoreGateSvc/InputMetaDataStore","MetaHandleKey");
     if (instore.retrieve().isFailure()) return StatusCode::FAILURE;
@@ -71,6 +74,7 @@ namespace SG {
     // Get string guid for SourceID
     m_dbKey = thisDH->begin()->getToken()->dbID().toString();
 
+    // if you can't get the sid, then this won't work, so fail
     if (m_dbKey.size()==0) {
       MsgStream msg(Athena::getMessageSvc(), "MetaHandleKey");
       msg << MSG::ERROR << "Unable to get source id from dataheader" << endmsg;
@@ -83,7 +87,7 @@ namespace SG {
 
   }
 
-  //---------------------------------------------------------------------------
+  //------------------------------------------------------------------------
 
   template <class T>
   StoreGateSvc* 

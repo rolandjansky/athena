@@ -51,11 +51,6 @@ MetaInputLoader::initialize()
 {
   ATH_MSG_INFO ("Initializing " << name() << "...");
 
-  //if (!m_metaSvc.isValid()) {
-  //  ATH_MSG_ERROR("could not get the CondSvc");
-  //  return StatusCode::FAILURE;
-  //}
-
   if (!m_inputStore.isValid()) {
     ATH_MSG_ERROR("could not get the InputMetaDataStore");
     return StatusCode::FAILURE;
@@ -86,13 +81,6 @@ MetaInputLoader::initialize()
       str << "   ERROR: empty key is not allowed!";
     } else {
       Gaudi::DataHandle dh(e, Gaudi::DataHandle::Writer, this);
-/*
-      if (m_condSvc->regHandle(this, dh, e.key()).isFailure()) {
-        ATH_MSG_ERROR("Unable to register WriteCondHandle " << dh.fullKey());
-        sc = StatusCode::FAILURE;
-      }
-      m_IOVSvc->ignoreProxy(dh.fullKey().clid(), e.key());
-*/
     }
   }
 
@@ -121,7 +109,6 @@ MetaInputLoader::execute()
   if (m_first) {
     DataObjIDColl::iterator itr;
     for (itr = m_load.begin(); itr != m_load.end(); ) {
-      //      if ( ! m_metaStore->contains(itr->clid(), itr->key() ) ){
       if ( ! m_metaStore->contains<MetaContBase>( "MetaDataStore+"+itr->key() ) ){
         ATH_MSG_INFO("ConditionStore does not contain a MetaCont<> of "
                      << *itr

@@ -14,7 +14,6 @@
 #include <string>
 
 
-//#include "GaudiKernel/DataObjID.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ClassID.h"
 
@@ -83,7 +82,6 @@ class MetaInputLoader
 
   ServiceHandle<StoreGateSvc> m_metaStore;
   ServiceHandle<StoreGateSvc> m_inputStore;
-  //ServiceHandle<MetaDataSvc> m_metaSvc;
   
   std::map<std::string,std::string> m_keyFolderMap;
 }; 
