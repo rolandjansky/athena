@@ -26,7 +26,8 @@ namespace DerivationFramework {
       atlasoff:: ISF/ISF_Core/ISF_Tools
 
       @author James Catmore -at- cern.ch
-     */
+  **/
+  
   class EmergingJetsFilterTool : public AthAlgTool, public ISkimmingTool {
     
   public: 
@@ -48,14 +49,11 @@ namespace DerivationFramework {
     std::vector< std::string > m_triggers;
     mutable unsigned int m_ntot;
     mutable unsigned int m_npass;
+    mutable unsigned int m_nptpass;
     std::string m_jetSGKey;
-    std::string m_BjetSGKey;
-    std::string m_trackSGKey;
 
     double m_ptCut;
     double m_etaCut;
-    double m_sumPtTrkCut;
-    double m_sumJetsPtCut;
     int m_nJetsRequired;
     
   }; 

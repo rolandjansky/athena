@@ -50,67 +50,58 @@ namespace Overlay {
                         IDC_Container *outputContainer,       
 			OvlAlg *parent)
   {
-    typedef typename IDC_Container::base_value_type Collection;
-std::cout<<"start overlayContainer"<<std::endl;
-    if(parent->msgLvl(MSG::DEBUG)) { parent->msg(MSG::DEBUG)<<"overlayContainerNew<>() begin"<<endmsg; }
+   typedef typename IDC_Container::base_value_type Collection;
+   std::cout<<"start overlayContainer"<<std::endl;
+   if(parent->msgLvl(MSG::DEBUG)) { parent->msg(MSG::DEBUG)<<"overlayContainerNew<>() begin"<<endmsg; }
 
    /** Add data from the data container to the output one */
    typename IDC_Container::const_iterator p_data = dataContainer->begin();
    typename IDC_Container::const_iterator p_data_end = dataContainer->end();
 
    for(; p_data != p_data_end; ++p_data) {
-   IdentifierHash hashId = p_data.hashId();
-   Collection *coll_data=new Collection(hashId); 
-   copyCollection(p_data->cptr(),coll_data);
-   
-   if ( outputContainer->addCollection(coll_data, p_data.hashId()).isFailure() ) {
-      parent->msg(MSG::WARNING) <<"add data Collection failed for output "<< p_data.hashId()<<endmsg; //" collectionNo "<<collectionNo<<endmsg; 
-      delete coll_data;
+      IdentifierHash hashId = p_data.hashId();
+      auto coll_data = std::make_unique<Collection>(hashId);	
+      copyCollection(p_data->cptr(),coll_data.get());
+
+      if ( outputContainer->addCollection(coll_data.release(), p_data.hashId()).isFailure() ) {
+      	 parent->msg(MSG::WARNING) <<"add data Collection failed for output "<< p_data.hashId()<<endmsg;  
       }
    }     
 
-  /** Add data from the ovl container to the output one */
-  typename IDC_Container::const_iterator p_ovl = mcContainer->begin(); 
-  typename IDC_Container::const_iterator p_ovl_end = mcContainer->end();
+   /** Add data from the ovl container to the output one */
+   typename IDC_Container::const_iterator p_ovl = mcContainer->begin(); 
+   typename IDC_Container::const_iterator p_ovl_end = mcContainer->end();
 
-  for(; p_ovl != p_ovl_end; ++p_ovl) {
- 
-  IdentifierHash coll_id = p_ovl.hashId();//(*p_ovl)->identify();
-  Collection *coll_ovl=new Collection(coll_id); 
-  copyCollection(p_ovl->cptr(),coll_ovl);
+   for(; p_ovl != p_ovl_end; ++p_ovl) {
+      IdentifierHash coll_id = p_ovl.hashId();//(*p_ovl)->identify();
+      auto coll_ovl = std::make_unique<Collection>(coll_id);	
+      copyCollection(p_ovl->cptr(),coll_ovl.get());
 
-   /** The newly created stuff will go to the output EventStore SG */
-   Collection *out_coll = new Collection( coll_id );
-   out_coll->setIdentifier((*p_ovl)->identify());
+      /** The newly created stuff will go to the output EventStore SG */
+      auto coll_out = std::make_unique<Collection>(coll_id);
+      coll_out->setIdentifier((*p_ovl)->identify());
 
-/** Look for the same ID in the main StoreGate EventStore */ 
-    typename IDC_Container::const_iterator q = outputContainer->indexFind( coll_id );
-    if( q != outputContainer->end() ) {
-      /** Need to merge the collections
-          Retrieve q */
+      /** Look for the same ID in the main StoreGate EventStore */ 
+      typename IDC_Container::const_iterator q = outputContainer->indexFind( coll_id );
+      if( q != outputContainer->end() ) {
+         /** Need to merge the collections
+             Retrieve q */
+         std::unique_ptr <Collection> coll_data ((Collection *)q->cptr());
+         mergeCollectionsNew(coll_data.get(),coll_ovl.get(),coll_out.get(),parent);
 
-      Collection *coll_data = (Collection *) q->cptr();
-      mergeCollectionsNew(coll_data,coll_ovl, out_coll,parent);
-
-      outputContainer->removeCollection(p_ovl.hashId());
-      if (outputContainer->addCollection(out_coll, p_ovl.hashId()).isFailure() ) {
-	parent->msg(MSG::WARNING) << "overlay addCollection failed " << endreq; 
-        delete out_coll;
+         outputContainer->removeCollection(p_ovl.hashId());
+         if (outputContainer->addCollection(coll_out.release(), p_ovl.hashId()).isFailure() ) {
+	    parent->msg(MSG::WARNING) << "overlay addCollection failed " << endreq; 
+         }
       }
-      delete coll_data;
-      delete coll_ovl;
+      else {
+         /** Copy the complete collection from ovl to output, 
+             hopefully preserving the "most derived" type of its raw data */ 
+         if ( outputContainer->addCollection(coll_ovl.release(), coll_id).isFailure() ) {
+            parent->msg(MSG::WARNING) << "add mc Collection failed " << endreq; 
+         }
       }
-    else {
-      /** Copy the complete collection from ovl to output, 
-          hopefully preserving the "most derived" type of its raw data */ 
-       if ( outputContainer->addCollection(coll_ovl, coll_id).isFailure() ) {
-        	parent->msg(MSG::WARNING) << "add mc Collection failed " << endreq; 
-           delete coll_ovl;
-      }
-      delete out_coll;
-  }
-   }
-
+    }
   }
 
 
@@ -131,70 +122,69 @@ std::cout<<"start overlayContainer"<<std::endl;
     // min bias and pile up.   Thus we firstly copy data collection to the 
     // output and then merge with MC inputs.
 
-   /** Add data from the data container to the output one */
-   typename IDC_Container::const_iterator p_data = dataContainer->begin();
-   typename IDC_Container::const_iterator p_data_end = dataContainer->end();
+    /** Add data from the data container to the output one */
+    typename IDC_Container::const_iterator p_data = dataContainer->begin();
+    typename IDC_Container::const_iterator p_data_end = dataContainer->end();
  
-   for(; p_data != p_data_end; ++p_data) {
-     IdentifierHash hashId = p_data.hashId();
-     Identifier ident = p_data->cptr()->identify();	
-     Collection *coll_data=new Collection(ident, hashId); 
+    for(; p_data != p_data_end; ++p_data) {
+       IdentifierHash hashId = p_data.hashId();
+       Identifier ident = p_data->cptr()->identify();
+       auto coll_data = std::make_unique<Collection>(ident, hashId); 
 
-     typename Collection::const_iterator firstData = p_data->cptr()->begin();
-     typename Collection::const_iterator lastData = p_data->cptr()->end();    
-     for (; firstData != lastData; ++firstData) {		       
-        Datum* newData = new Datum (*(dynamic_cast<const Datum*>(*firstData)));
-        coll_data->push_back(newData);
-    }	
+       typename Collection::const_iterator firstData = p_data->cptr()->begin();
+       typename Collection::const_iterator lastData = p_data->cptr()->end();    
+       for (; firstData != lastData; ++firstData) {		       
+          Datum* newData = new Datum (*(dynamic_cast<const Datum*>(*firstData)));
+          coll_data->push_back(newData);
+       }	
    
-   if ( outputContainer->addCollection(coll_data, p_data.hashId()).isFailure() ) {
-     parent->msg(MSG::WARNING) <<"add data Collection failed for output "<< p_data.hashId()<<endmsg; 
-      }
-   }     
+       if( outputContainer->addCollection(coll_data.release(), p_data.hashId()).isFailure() ) {
+          parent->msg(MSG::WARNING) <<"add data Collection failed for output "<< p_data.hashId()<<endmsg; 
+       }
+    }     
 
-   /** Add data from the ovl container to the output one */
-   typename IDC_Container::const_iterator p_ovl = mcContainer->begin(); 
-   typename IDC_Container::const_iterator p_ovl_end = mcContainer->end();
+    /** Add data from the ovl container to the output one */
+    typename IDC_Container::const_iterator p_ovl = mcContainer->begin(); 
+    typename IDC_Container::const_iterator p_ovl_end = mcContainer->end();
 
-   for(; p_ovl != p_ovl_end; ++p_ovl) {
-    IdentifierHash coll_id = p_ovl.hashId();//(*p_ovl)->identify();
-    Identifier elemId = p_ovl->cptr()->identify();
-    Collection *coll_ovl=new Collection(elemId, coll_id); 
+    for(; p_ovl != p_ovl_end; ++p_ovl) {
+      IdentifierHash coll_id = p_ovl.hashId();//(*p_ovl)->identify();
+      Identifier elemId = p_ovl->cptr()->identify();
+      auto coll_ovl = std::make_unique<Collection>(elemId, coll_id);		
 
-    typename Collection::const_iterator firstData = p_ovl->cptr()->begin();
-    typename Collection::const_iterator lastData = p_ovl->cptr()->end();    
-    for (; firstData != lastData; ++firstData) {		       
-        Datum* newData = new Datum (*(dynamic_cast<const Datum*>(*firstData)));
-        coll_ovl->push_back(newData);
-    }	
+      typename Collection::const_iterator firstData = p_ovl->cptr()->begin();
+      typename Collection::const_iterator lastData = p_ovl->cptr()->end();    
+      for (; firstData != lastData; ++firstData) {		       
+         Datum* newData = new Datum (*(dynamic_cast<const Datum*>(*firstData)));
+         coll_ovl->push_back(newData);
+      }	
    	
-   /** The newly created stuff will go to the output EventStore SG */
-   Collection *out_coll = new Collection(elemId, coll_id);
+      /** The newly created stuff will go to the output EventStore SG */
+auto coll_out = std::make_unique<Collection>(elemId, coll_id);	    
+     
+       /** Look for the same ID in the main StoreGate EventStore */ 
+       typename IDC_Container::const_iterator q = outputContainer->indexFind(coll_id);
+       if( q != outputContainer->end() ) {
+       /** Need to merge the collections
+           Retrieve q */
 
-   /** Look for the same ID in the main StoreGate EventStore */ 
-   typename IDC_Container::const_iterator q = outputContainer->indexFind(coll_id);
-   if( q != outputContainer->end() ) {
-      /** Need to merge the collections
-          Retrieve q */
+          std::unique_ptr <Collection> coll_data ((Collection *)q->cptr());
+          parent->mergeCollections(coll_data.get(),coll_ovl.get(),coll_out.get());
 
-      Collection *coll_data = (Collection *) q->cptr();
-      parent->mergeCollections(coll_data,coll_ovl, out_coll);
-
-      outputContainer->removeCollection(p_ovl.hashId());
-      if (outputContainer->addCollection(out_coll, p_ovl.hashId()).isFailure() ) {
-	parent->msg(MSG::WARNING) << "overlay addCollection failed " << endreq; 
-      }
-      }
-    else {
-      /** Copy the complete collection from ovl to output, 
-          hopefully preserving the "most derived" type of its raw data */ 
-       if ( outputContainer->addCollection(coll_ovl, coll_id).isFailure() ) {
-        parent->msg(MSG::WARNING) << "add mc Collection failed " << endreq; 
-      }  
-    }   
-   }
-  }
-
+          outputContainer->removeCollection(p_ovl.hashId());
+          if (outputContainer->addCollection(coll_out.release(), p_ovl.hashId()).isFailure() ) {
+	     parent->msg(MSG::WARNING) << "overlay addCollection failed " << endmsg; 
+          }
+       }
+       else {
+       /** Copy the complete collection from ovl to output, 
+           hopefully preserving the "most derived" type of its raw data */ 
+           if ( outputContainer->addCollection(coll_ovl.release(), coll_id).isFailure() ) {
+              parent->msg(MSG::WARNING) << "add mc Collection failed " << endmsg; 
+           }  
+       }   
+    }  
+ }
 } // namespace Overlay
 
 //================================================================

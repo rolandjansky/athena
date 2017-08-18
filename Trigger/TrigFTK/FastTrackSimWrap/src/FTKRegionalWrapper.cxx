@@ -60,6 +60,7 @@ FTKRegionalWrapper::FTKRegionalWrapper (const std::string& name, ISvcLocator* pS
   m_DiagClustering(true),
   m_SctClustering(false),
   m_PixelClusteringMode(1),
+  m_Ibl3DRealistic(false),
   m_DuplicateGanged(true),
   m_GangedPatternRecognition(false),
   m_WriteClustersToESD(false),
@@ -151,6 +152,7 @@ FTKRegionalWrapper::FTKRegionalWrapper (const std::string& name, ISvcLocator* pS
   declareProperty("DiagClustering",m_DiagClustering);
   declareProperty("SctClustering",m_SctClustering);
   declareProperty("PixelClusteringMode",m_PixelClusteringMode);
+  declareProperty("Ibl3DRealistic",m_Ibl3DRealistic);
   declareProperty("DuplicateGanged",m_DuplicateGanged);
   declareProperty("GangedPatternRecognition",m_GangedPatternRecognition);
 
@@ -365,6 +367,7 @@ StatusCode FTKRegionalWrapper::initialize()
   DIAG_CLUSTERING = m_DiagClustering;
   SCT_CLUSTERING = m_SctClustering;
   PIXEL_CLUSTERING_MODE = m_PixelClusteringMode;
+  IBL3D_REALISTIC = m_Ibl3DRealistic;
   DUPLICATE_GANGED = m_DuplicateGanged;
   GANGED_PATTERN_RECOGNITION = m_GangedPatternRecognition;
 

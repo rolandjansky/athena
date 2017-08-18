@@ -3,7 +3,7 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf
 
 import os,commands
 def getCastorDirectoryList(path,fileRange):
-    cmd  = '/afs/cern.ch/project/eos/installation/pro/bin/eos.select ls %s/ ' % (path)
+    cmd  = 'eos ls %s/ ' % (path)
     files = []
     for i in commands.getoutput(cmd).split('\n'):
         fileNumber = i[i.rfind(".pool.root")-5:i.rfind(".pool.root")]
@@ -15,7 +15,7 @@ def getCastorDirectoryList(path,fileRange):
     return files 
 
 def getCastorDirectoryListRepeat(path,fileRange,repeatN):
-    cmd  = '/afs/cern.ch/project/eos/installation/pro/bin/eos.select ls %s/ ' % (path)
+    cmd  = 'eos ls %s/ ' % (path)
     files = []
     for j in range(repeatN):
         for i in commands.getoutput(cmd).split('\n'):
@@ -28,7 +28,7 @@ def getCastorDirectoryListRepeat(path,fileRange,repeatN):
         return files 
 
 def getEOSDirectoryList(path,fileRange):
-    cmd  = '/afs/cern.ch/project/eos/installation/pro/bin/eos.select ls %s/ ' % (path)
+    cmd  = 'eos ls %s/ ' % (path)
     files = []
     print cmd
     for i in commands.getoutput(cmd).split('\n'):
@@ -45,7 +45,7 @@ def getEOSDirectoryList(path,fileRange):
     return files
 
 def getEOSDirectoryListRepeat(path,fileRange,repeatN):
-    cmd  = '/afs/cern.ch/project/eos/installation/pro/bin/eos.select ls %s/ ' % (path)
+    cmd  = 'eos ls %s/ ' % (path)
     files = []
     for j in range(repeatN):
         for i in commands.getoutput(cmd).split('\n'):

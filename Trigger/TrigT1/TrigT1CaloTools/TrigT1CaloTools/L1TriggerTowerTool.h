@@ -30,6 +30,7 @@ class Incident;
 class L1CaloCondSvc;
 class L1CaloPpmFineTimeRefsContainer;
 class L1CaloDerivedRunParsContainer;
+class L1CaloRunParametersContainer;
 class L1CaloPprChanStrategyContainer;
 
 namespace TrigConf { class ILVL1ConfigSvc; }
@@ -161,7 +162,8 @@ namespace LVL1
       /// For Run2 strategy (LowMu, HighMu)
       L1CaloPprChanStrategyContainer* m_strategyContainer;
       L1CaloDerivedRunParsContainer* m_derivedRunParsContainer;
-
+      L1CaloRunParametersContainer* m_runParametersContainer;
+      
       boost::any m_conditionsContainer;
       // one of L1CaloPprDisabledChannelContainer{,Run2}*
       boost::any m_disabledChannelContainer;
