@@ -53,8 +53,8 @@ InDet::SimpleTRT_SeededSpacePointFinder_ATL::SimpleTRT_SeededSpacePointFinder_AT
 
   declareProperty("RestrictROI"           ,m_useROI                );
   declareProperty("AssociationTool"       ,m_assoTool              );
-  declareProperty("SpacePointsSCTName"    ,m_spacepointsSCTname    );
-  declareProperty("SpacePointsOverlapName",m_spacepointsOverlapname);
+  declareProperty("SpacePointsSCTName"    ,m_spacepointsSCT        );                                                      
+  declareProperty("SpacePointsOverlapName",m_spacepointsOverlap    );
   declareProperty("MaxLayers"             ,m_maxLayers             );
   declareProperty("MaxHoles"              ,m_maxHoles              );
   declareProperty("PerigeeCut"            ,m_perigeeCut            );
@@ -124,6 +124,8 @@ StatusCode InDet::SimpleTRT_SeededSpacePointFinder_ATL::initialize()
 
   setupLookUpTable();
 
+  ATH_CHECK(m_spacepointsSCT.initialize());
+  ATH_CHECK(m_spacepointsOverlap.initialize());
 
   return sc;
 }
