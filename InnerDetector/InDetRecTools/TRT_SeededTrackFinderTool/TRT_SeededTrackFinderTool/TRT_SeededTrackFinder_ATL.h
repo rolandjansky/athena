@@ -43,6 +43,13 @@
 //
 #include "InDetRecToolInterfaces/ISiCombinatorialTrackFinder.h"
 
+//ReadHandle key
+//
+#include "StoreGate/ReadHandleKey.h"
+
+//ClusterCaloROI Collection
+//
+#include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
 class MsgStream;
 class TRT_ID   ;
 
@@ -152,7 +159,8 @@ namespace InDet{
       std::multimap<const Trk::PrepRawData*,const Trk::Track*> m_clusterTrack  ; /** Multimap of tracks and associated PRDs  */
       double                                                   m_outlierCut    ; /** Outlier chi2 cut when propagating through the seed */
       bool                                                     m_searchInCaloROI; /** Outlier chi2 cut when propagating through the seed */
-      std::string					       m_inputClusterContainerName; /** Outlier chi2 cut when propagating through the seed */
+      SG::ReadHandleKey<CaloClusterROI_Collection> m_inputClusterContainerName; 
+      //std::string					       m_inputClusterContainerName; /** Outlier chi2 cut when propagating through the seed */
  
       ///////////////////////////////////////////////////////////////////
       /** Private Methods                                              */
