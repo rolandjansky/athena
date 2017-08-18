@@ -24,7 +24,12 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("PHYSVALK
 # JET/MET   
 #====================================================================
 
-OutputJets["PHYSVAL"] = ["AntiKtVR30Rmax4Rmin02TrackJets"]
+OutputJets["PHYSVAL"] = ["AntiKtVR30Rmax4Rmin02TrackJets",
+                         "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+                         "AntiKt10TruthTrimmedPtFrac5SmallR20Jets",
+                         "AntiKt4EMTopoLowPtJets",
+                         "AntiKt4LCTopoLowPtJets",
+                         "AntiKt4EMPFlowLowPtJets"]
 
 reducedJetList = [ "AntiKt10PV0TrackJets",
                    "AntiKt4TruthWZJets",
@@ -104,6 +109,9 @@ PHYSVALSlimmingHelper.IncludeBJetTriggerContent = True
 PHYSVALSlimmingHelper.IncludeBPhysTriggerContent = True
 PHYSVALSlimmingHelper.IncludeMinBiasTriggerContent = True
 
+# Add the jet containers to the stream (defined in JetCommon if import needed)
+addJetOutputs(PHYSVALSlimmingHelper,["PHYSVAL"])
+
 #----------------------------------------------------------------------
 # NamesAndTypes lookup table for on-the-fly containers
 PHYSVALSlimmingHelper.AppendToDictionary = {
@@ -125,6 +133,16 @@ PHYSVALSlimmingHelper.AppendToDictionary = {
   "AntiKt4TruthJetsAux"                        :   "xAOD::JetAuxContainer"     ,
   "AntiKtVR30Rmax4Rmin02TrackJets"             :   "xAOD::JetContainer"        ,
   "AntiKtVR30Rmax4Rmin02TrackJetsAux"          :   "xAOD::JetAuxContainer"     ,
+  "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"   :   "xAOD::JetContainer"        ,   
+  "AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsAux":   "xAOD::JetAuxContainer"     ,
+  "AntiKt10TruthTrimmedPtFrac5SmallR20Jets"    :   "xAOD::JetContainer"        ,
+  "AntiKt10TruthTrimmedPtFrac5SmallR20JetsAux" :   "xAOD::JetContainer"        ,
+  "AntiKt4EMTopoLowPtJets"                     :   "xAOD::JetContainer"        ,
+  "AntiKt4EMTopoLowPtJetsAux"                  :   "xAOD::JetAuxContainer"     ,
+  "AntiKt4LCTopoLowPtJets"                     :   "xAOD::JetContainer"        ,
+  "AntiKt4LCTopoLowPtJetsAux"                  :   "xAOD::JetAuxContainer"     ,
+  "AntiKt4EMPFlowLowPtJets"                    :   "xAOD::JetContainer"        ,
+  "AntiKt4EMPFlowLowPtJetsAux"                 :   "xAOD::JetAuxContainer"     ,
   "BTagging_AntiKtVR30Rmax4Rmin02TrackJFVtx"   :   "xAOD::BTaggingContainer"   ,
   "BTagging_AntiKtVR30Rmax4Rmin02TrackJFVtxAux":   "xAOD::BTaggingAuxContainer",
   "BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtx"  :   "xAOD::VertexContainer"     ,
