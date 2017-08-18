@@ -63,7 +63,5 @@ atlas_add_test( idCaloRunData   SCRIPT test/test_id_calo_run_data.sh
 
 atlas_add_test( EmuL1Decoding SCRIPT test/test_emu_l1_decoding.sh)
 
-atlas_add_test( DataL1Decoding SCRIPT test/test_data_l1_decoding.sh )
-
 atlas_install_joboptions( share/*.py )
 atlas_install_python_modules( python/*.py )
