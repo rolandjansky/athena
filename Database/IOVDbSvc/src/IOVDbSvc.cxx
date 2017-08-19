@@ -440,7 +440,9 @@ StatusCode IOVDbSvc::loadAddresses(StoreID::type /*storeID*/, tadList& /*list*/ 
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-StatusCode IOVDbSvc::updateAddress(StoreID::type storeID, SG::TransientAddress* tad) {
+StatusCode IOVDbSvc::updateAddress(StoreID::type storeID, SG::TransientAddress* tad,
+                                   const EventContext& /*ctx*/)
+{
   // Provide TAD and associated range, actually reading the conditions data
 
   // Read information for folders and setup TADs
