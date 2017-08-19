@@ -77,21 +77,23 @@ StatusCode AthRNGSvc::finalize()
   return StatusCode::SUCCESS;
 }
 
-ATHRNG::RNGWrapper* AthRNGSvc::getEngine(const std::string& streamName)
+ATHRNG::RNGWrapper* AthRNGSvc::getEngine(const INamedInterface* client,
+                                         const std::string& streamName)
 {
   if(!m_initialized){
     ATH_MSG_FATAL("RNGService is not initialized yet! " <<
                   "Number of slots is not known. This will create serious problems!");
   }
+  const std::string rngName = client->name() + "/" + streamName;
   std::lock_guard<std::mutex> lock(m_mutex);
-  auto it = m_wrappers.find(streamName);
+  auto it = m_wrappers.find(rngName);
   if(it == m_wrappers.end()){
-    ATH_MSG_INFO("Creating engine for " << streamName);
+    ATH_MSG_INFO("Creating engine " << rngName);
     auto wrp = new ATHRNG::RNGWrapper(m_fact, m_numSlots);
-    m_wrappers.insert( std::make_pair(streamName, wrp) );
+    m_wrappers.insert( std::make_pair(rngName, wrp) );
     return wrp;
   }
-  ATH_MSG_WARNING("Returning engine for " << streamName);
+  ATH_MSG_WARNING("Returning engine " << rngName);
 
   return it->second;
 }

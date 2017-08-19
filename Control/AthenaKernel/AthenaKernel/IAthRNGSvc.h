@@ -15,6 +15,8 @@
 #define ATHENAKERNEL_IATHRNGSVC_H
 
 #include "GaudiKernel/IService.h"
+#include "GaudiKernel/INamedInterface.h"
+
 #include <string>
 #include "stdint.h"
 
@@ -28,7 +30,8 @@ class IAthRNGSvc : virtual public IService
 public:
 
   /// Interface to retrieve the CLHEP engine
-  virtual ATHRNG::RNGWrapper* getEngine(const std::string& streamName) = 0;
+  virtual ATHRNG::RNGWrapper* getEngine(const INamedInterface* client,
+                                        const std::string& streamName) = 0;
 
   /// out-of-line destructor
   virtual ~IAthRNGSvc();

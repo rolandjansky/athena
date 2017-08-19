@@ -48,7 +48,8 @@ public:
   StatusCode finalize() override final;
 
   /// IAthRNGSvc method to retrieve the random number wrapper.
-  virtual ATHRNG::RNGWrapper* getEngine(const std::string& streamName) override final;
+  virtual ATHRNG::RNGWrapper* getEngine(const INamedInterface* client,
+                                        const std::string& streamName="") override final;
 
   /// Incident handling method, where we reseed the engine of this slot.
   virtual void handle( const Incident& incident );
