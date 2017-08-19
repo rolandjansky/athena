@@ -227,7 +227,8 @@ StatusCode MetaDataSvc::loadAddresses(StoreID::type storeID, IAddressProvider::t
    return(StatusCode::SUCCESS);
 }
 //________________________________________________________________________________
-StatusCode MetaDataSvc::updateAddress(StoreID::type, SG::TransientAddress*) {
+StatusCode MetaDataSvc::updateAddress(StoreID::type, SG::TransientAddress*,
+                                      const EventContext&) {
    return(StatusCode::FAILURE);
 }
 //__________________________________________________________________________
