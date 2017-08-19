@@ -58,6 +58,22 @@ conddb.addFolder ('condtest.db', '/DMTest/S2 <tag>tag S2_noTag</tag>',
 theApp.EvtMax = 20
 
 
+#--------------------------------------------------------------
+# Set up the algorithm.
+#--------------------------------------------------------------
+
+
+from AthenaCommon.ConcurrencyFlags import jobproperties as jp
+nThreads = jp.ConcurrencyFlags.NumThreads()
+if nThreads >= 1:
+  from AthenaCommon.AlgScheduler import AlgScheduler
+  AlgScheduler.ShowDataDependencies (True)
+  AlgScheduler.setDataLoaderAlg ('SGInputLoader')
+
+  from SGComps.SGCompsConf import SGInputLoader
+  topSequence += SGInputLoader( OutputLevel=INFO, ShowEventDump=False )
+
+
 from DataModelTestDataCommon.DataModelTestDataCommonConf import \
      DMTest__CondReaderAlg, DMTest__CondAlg1
 topSequence += DMTest__CondReaderAlg()
