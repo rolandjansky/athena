@@ -314,7 +314,7 @@
  *@code
  *   struct B {};
  *   struct D : public B {};
- *   SG_ADD_BASES (D, B);
+ *   SG_ADD_BASE (D, B);
  @endcode
  */
 #define SG_ADD_BASE(D, B) \
