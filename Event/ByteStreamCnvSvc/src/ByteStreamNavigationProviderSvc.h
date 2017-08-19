@@ -48,7 +48,9 @@ public:
    virtual StatusCode loadAddresses(StoreID::type id, tadList& tlist);
 
    /// Update an existing transient Address
-   virtual StatusCode updateAddress(StoreID::type id, SG::TransientAddress* tad);
+   virtual StatusCode updateAddress(StoreID::type id,
+                                    SG::TransientAddress* tad,
+                                    const EventContext& ctx);
 
 private:
    /// Return pointer to active event SG

@@ -107,7 +107,9 @@ StatusCode ByteStreamNavigationProviderSvc::loadAddresses(StoreID::type storeId,
    return(sc_pLA);
 }
 //------------------------------------------------------------------------------------
-StatusCode ByteStreamNavigationProviderSvc::updateAddress(StoreID::type storeId, SG::TransientAddress* tad) {
+StatusCode ByteStreamNavigationProviderSvc::updateAddress(StoreID::type storeId,
+                                                          SG::TransientAddress* tad,
+                                                          const EventContext& ctx) {
    ATH_MSG_DEBUG("In updateAddress for: " << tad->clID() << " / " << tad->name());
    if (storeId != StoreID::EVENT_STORE) {
       return(StatusCode::FAILURE);
@@ -129,7 +131,7 @@ StatusCode ByteStreamNavigationProviderSvc::updateAddress(StoreID::type storeId,
       m_robDataProviderSvc->setNextEvent(m_rawEvent);
    }
    // Do Update address like in ByteStreamAddressProviderSvc
-   StatusCode sc_dUA = m_addressProvider->updateAddress(storeId, tad);
+   StatusCode sc_dUA = m_addressProvider->updateAddress(storeId, tad, ctx);
    return(sc_dUA);
 }
 //------------------------------------------------------------------------------------
