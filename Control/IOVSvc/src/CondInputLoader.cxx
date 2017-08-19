@@ -49,7 +49,6 @@ CondInputLoader::CondInputLoader( const std::string& name,
   declareProperty( "Load", m_load); 
   //->declareUpdateHandler(&CondInputLoader::loader, this);
   declareProperty( "ShowEventDump", m_dump=false);
-  declareProperty( "InputKey", m_inputKey="Input" );
 }
 
 // Destructor
@@ -90,8 +89,6 @@ CondInputLoader::initialize()
     ATH_MSG_FATAL("unable to retrieve IOVDbSvc");
     return StatusCode::FAILURE;
   }
-
-  ATH_CHECK( m_inputKey.initialize() );
 
   std::vector<std::string> keys = idb->getKeyList();
   std::string folderName, tg;
@@ -250,7 +247,9 @@ CondInputLoader::execute()
   // may be different from that of the event itself.  If we have
   // a ConditionsRun attribute defined, use that to override
   // the event number.
-  SG::ReadHandle<AthenaAttributeList> input (m_inputKey, getContext());
+  SG::ReadHandleKey<AthenaAttributeList> inputKey ("Input");
+  ATH_CHECK( inputKey.initialize() );
+  SG::ReadHandle<AthenaAttributeList> input (inputKey, getContext());
   if (input.isValid()) {
     if (input->exists ("ConditionsRun"))
       now.set_run_number ((*input)["ConditionsRun"].data<unsigned int>());
