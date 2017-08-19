@@ -39,7 +39,9 @@ public:
    virtual StatusCode preLoadAddresses(StoreID::type id, tadList& tlist);
 
    /// update an existing transient Address
-   virtual StatusCode updateAddress(StoreID::type id, SG::TransientAddress* tad) ;
+   virtual StatusCode updateAddress(StoreID::type id,
+                                    SG::TransientAddress* tad,
+                                    const EventContext& ctx);
 
 private:
    // type and name of the objects to create the address for.
