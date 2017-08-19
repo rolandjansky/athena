@@ -19,19 +19,46 @@ from AthenaCommon.AppMgr import theApp
 
 
 #--------------------------------------------------------------
+# Load POOL support
+#--------------------------------------------------------------
+import AthenaPoolCnvSvc.WriteAthenaPool
+
+
+#--------------------------------------------------------------
 # Event related parameters
 #--------------------------------------------------------------
 theApp.EvtMax = 20
 
+#--------------------------------------------------------------
+# Output options
+#--------------------------------------------------------------
+import ROOT
+import cppyy
+cppyy.loadDictionary("libDataModelTestDataCommonDict")
+ROOT.DMTest.B
+ROOT.DMTest.setConverterLibrary ('libDataModelTestDataWriteCnvPoolCnv.so')
+
+
+#--------------------------------------------------------------
+
+
+from OutputStreamAthenaPool.OutputStreamAthenaPoolConf import AthenaPoolOutputStreamTool
+condstream = AthenaPoolOutputStreamTool ('CondStream',
+                                         OutputFile = 'condtest.pool.root',
+                                         PoolContainerPrefix = 'ConditionsContainer')
 
 from DataModelTestDataCommon.DataModelTestDataCommonConf import \
      DMTest__CondWriterAlg
-topSequence += DMTest__CondWriterAlg()
+topSequence += DMTest__CondWriterAlg (Streamer = condstream)
 
 
 # Configure conditions DB output to local sqlite file.
 try:
     os.remove('condtest.db')
+except OSError:
+    pass
+try:
+    os.remove('condtest.pool.root')
 except OSError:
     pass
 import IOVDbSvc.IOVDb
