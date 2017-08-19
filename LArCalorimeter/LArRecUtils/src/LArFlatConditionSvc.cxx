@@ -218,7 +218,9 @@ StatusCode LArFlatConditionSvc::preLoadAddresses(StoreID::type storeID,tadList& 
 }
 
 
-StatusCode LArFlatConditionSvc::updateAddress(StoreID::type, SG::TransientAddress* tad) {
+StatusCode LArFlatConditionSvc::updateAddress(StoreID::type,
+                                              SG::TransientAddress* tad,
+                                              const EventContext& /*ctx*/) {
   // Provide TAD and associated range, actually reading the conditions data
 
 
