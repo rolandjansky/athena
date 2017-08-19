@@ -500,7 +500,8 @@ TTreeEventSelector::loadAddresses(StoreID::type /*storeID*/, tadList& /*tads*/)
  
 /// update a transient Address
 StatusCode 
-TTreeEventSelector::updateAddress(StoreID::type /*storeID*/, SG::TransientAddress* tad)
+TTreeEventSelector::updateAddress(StoreID::type /*storeID*/, SG::TransientAddress* tad,
+                                  const EventContext& /*ctx*/)
 {
   // FIXME: check if we couldn't just use TTree::GetListOfBranches...
   // check memory usage/cpu consumption tradeoff

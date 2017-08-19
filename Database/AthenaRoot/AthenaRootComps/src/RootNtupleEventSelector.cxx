@@ -796,7 +796,8 @@ RootNtupleEventSelector::loadAddresses(StoreID::type storeID, tadList& tads)
  
 /// update a transient Address
 StatusCode 
-RootNtupleEventSelector::updateAddress(StoreID::type /*storeID*/, SG::TransientAddress* tad)
+RootNtupleEventSelector::updateAddress(StoreID::type /*storeID*/, SG::TransientAddress* tad,
+                                       const EventContext& /*ctx*/)
 {
   // FIXME: check if we couldn't just use TTree::GetListOfBranches...
   // check memory usage/cpu consumption tradeoff
