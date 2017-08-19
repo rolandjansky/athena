@@ -643,9 +643,9 @@ void TrackFitter711::processor(const FTKRoad &road) {
     }
     else{
       if (m_processor_stage == 1) {
-        processor_Incomplete(road,sector_tracks);
+        processor_Incomplete(road,m_sector_tracks);
         // JAAA not used anymore
-        // processor_ResolutionMode(road,sector_tracks);
+        // processor_ResolutionMode(road,m_sector_tracks);
       }
     }
   }
@@ -672,13 +672,13 @@ void TrackFitter711::processor(const FTKRoad &road) {
     }
     else {
       if (m_processor_stage == 1) 
-        processor_Incomplete(road,sector_tracks);
+        processor_Incomplete(road,m_sector_tracks);
       else if (m_processor_stage == 2) {
-        if (sector_tracks.empty()) return;
+        if (m_sector_tracks.empty()) return;
         if (!m_super_extrapolate)
-          processor_Extrapolate(road,sector_tracks);
+          processor_Extrapolate(road,m_sector_tracks);
         else 
-          processor_SuperExtrapolate(road,sector_tracks);
+          processor_SuperExtrapolate(road,m_sector_tracks);
       }
     }
   }

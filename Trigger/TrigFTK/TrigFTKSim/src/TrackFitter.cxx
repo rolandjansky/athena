@@ -326,12 +326,12 @@ int TrackFitter::nextEvent()
           cur_road = m_roadinput->nextRoad(ibank);
         }
 
-        m_tracks_first.splice(m_tracks_first.end(), sector_tracks);
+        m_tracks_first.splice(m_tracks_first.end(), m_sector_tracks);
 
       }
 
       vSectorID.clear();
-      sector_tracks.clear();
+      m_sector_tracks.clear();
 
     }
 
