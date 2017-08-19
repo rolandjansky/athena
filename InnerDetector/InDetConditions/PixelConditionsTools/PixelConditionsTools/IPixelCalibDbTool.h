@@ -24,7 +24,8 @@ public:
   
     /** required by the IAddressProvider interface **/
   virtual StatusCode updateAddress(StoreID::type storeID,
-                                   SG::TransientAddress* tad)=0; 
+                                   SG::TransientAddress* tad,
+                                   const EventContext& ctx)=0; 
 
      /** Default Destructor */
   virtual ~IPixelCalibDbTool(){};
