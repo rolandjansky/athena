@@ -56,7 +56,9 @@ CSC_DCSConditionsTool::CSC_DCSConditionsTool (const std::string& type,
 
 
 //StatusCode CSC_DCSConditionsTool::updateAddress(SG::TransientAddress* /*tad*/)
-StatusCode CSC_DCSConditionsTool::updateAddress(StoreID::type /*storeID*/, SG::TransientAddress* /*tad*/)
+StatusCode CSC_DCSConditionsTool::updateAddress(StoreID::type /*storeID*/,
+                                                SG::TransientAddress* /*tad*/,
+                                                const EventContext& /*ctx*/)
 {
   return StatusCode::FAILURE;
 }

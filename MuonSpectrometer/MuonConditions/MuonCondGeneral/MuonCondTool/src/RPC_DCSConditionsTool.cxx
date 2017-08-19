@@ -62,7 +62,9 @@ RPC_DCSConditionsTool::RPC_DCSConditionsTool (const std::string& type,
 
 
 //StatusCode RPC_DCSConditionsTool::updateAddress(SG::TransientAddress* /*tad*/)
-StatusCode RPC_DCSConditionsTool::updateAddress(StoreID::type /*storeID*/, SG::TransientAddress* /*tad*/)
+StatusCode RPC_DCSConditionsTool::updateAddress(StoreID::type /*storeID*/,
+                                                SG::TransientAddress* /*tad*/,
+                                                const EventContext& /*ctx*/)
 {
  
   return StatusCode::FAILURE;

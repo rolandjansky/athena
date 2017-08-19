@@ -68,7 +68,9 @@ MDT_DQConditionsTool::MDT_DQConditionsTool (const std::string& type,
 
 
 //StatusCode MDT_DQConditionsTool::updateAddress(SG::TransientAddress* /*tad*/)
-StatusCode MDT_DQConditionsTool::updateAddress(StoreID::type /*storeID*/, SG::TransientAddress* /*tad*/)
+StatusCode MDT_DQConditionsTool::updateAddress(StoreID::type /*storeID*/,
+                                               SG::TransientAddress* /*tad*/,
+                                               const EventContext& /*ctx*/)
 {
 //   MsgStream m_log(msgSvc(), name());
 //   CLID clid        = tad->clID();

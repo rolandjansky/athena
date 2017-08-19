@@ -79,7 +79,9 @@ MuonAlignmentDbTool::MuonAlignmentDbTool (const std::string& type,
 }
 
 //StatusCode MuonAlignmentDbTool::updateAddress(SG::TransientAddress* tad)
-StatusCode MuonAlignmentDbTool::updateAddress(StoreID::type /*storeID*/, SG::TransientAddress* tad)
+StatusCode MuonAlignmentDbTool::updateAddress(StoreID::type /*storeID*/,
+                                              SG::TransientAddress* tad,
+                                              const EventContext& /*ctx*/)
 {
   m_log.setLevel(msgLevel());
   m_debug = m_log.level() <= MSG::DEBUG;
