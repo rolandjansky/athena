@@ -89,6 +89,11 @@ PHYSVALSlimmingHelper.AllVariables = [ "Electrons", "Photons", "Muons", "Primary
                                        "BTagging_AntiKtVR30Rmax4Rmin02Track",
                                        "BTagging_AntiKt4EMPFlowJFVtx",
                                        "BTagging_AntiKt4EMPFlow",
+                                       "METAssoc_AntiKt4EMTopo","METAssoc_AntiKt4LCTopo","METAssoc_AntiKt4EMPFlow",
+                                       "MET_Core_AntiKt4EMTopo","MET_Core_AntiKt4LCTopo","MET_Core_AntiKt4EMPFlow",
+                                       "MET_Reference_AntiKt4EMTopo","MET_Reference_AntiKt4LCTopo","MET_Reference_AntiKt4EMPFlow",
+                                       "MET_LocHadTopo","MET_LocHadTopoRegions","MET_EMTopo","MET_EMTopoRegions",
+                                       "MET_Truth","MET_TruthRegions","MET_Track","MET_Calo"	
                                        "TruthParticles", "TruthEvents", "TruthVertices"
                                      ]
 
