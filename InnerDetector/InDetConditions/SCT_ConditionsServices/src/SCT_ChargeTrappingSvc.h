@@ -23,12 +23,13 @@
 #include <string>
 #include <vector>
 
+#include "SCT_ElectricFieldTool.h"
+
 //forward declarations
 class IdentifierHash;
 class ISiliconConditionsSvc;
 class IGeoModelSvc;
 class StoreGateSvc;
-class ISCT_ElectricFieldTool;
 
 namespace InDetDD {
   class SiDetectorManager;
@@ -122,7 +123,7 @@ private:
   double m_PotentialValue[81][115];
 
   // -- Tool Handle for Electric field
-  ToolHandle<ISCT_ElectricFieldTool> m_electricFieldTool;
+  ToolHandle<ISCT_ElectricFieldTool> m_electricFieldTool{this, "SCT_ElectricFieldTool", "SCT_ElectricFieldTool", "SCT electric field tool"};
 
 };
 inline const InterfaceID & SCT_ChargeTrappingSvc::interfaceID(){

@@ -54,7 +54,6 @@ SCT_ConfigurationConditionsSvc::SCT_ConfigurationConditionsSvc( const std::strin
   m_IOVDbSvc("IOVDbSvc", name),
   m_pHelper{nullptr},
   m_cablingSvc("SCT_CablingSvc", name),
-  m_readoutTool("SCT_ReadoutTool", this),
   m_pManager{nullptr},
   m_checkStripsInsideModules(true) 
 { 
@@ -68,7 +67,6 @@ StatusCode SCT_ConfigurationConditionsSvc::initialize(){
   ATH_CHECK(m_detStore.retrieve());
   ATH_CHECK(m_detStore->retrieve(m_pManager,"SCT"));
   ATH_CHECK(m_detStore->retrieve(m_pHelper, "SCT_ID"));
-  ATH_CHECK(m_readoutTool.retrieve());
   ATH_CHECK(m_IOVSvc.retrieve());
   ATH_CHECK(m_IOVDbSvc.retrieve());
     // Assign memory for structres
