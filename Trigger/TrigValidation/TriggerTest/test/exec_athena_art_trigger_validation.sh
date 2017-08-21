@@ -62,3 +62,5 @@ ${EXTRA}\
 LVL1OutputLevel=WARNING;\
 HLTOutputLevel=WARNING;" \
 TriggerTest/${JOBOPTION} > ${JOB_LOG} 2>&1
+
+export ATH_EXIT=$?

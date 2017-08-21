@@ -3,6 +3,7 @@
 # art-description: MinBias Enhanced (High Multiplicity Trigger) slice TriggerTest on MC
 # art-type: grid
 
+export NAME="slice_minbias_hmt_grid"
 export SLICE="minbiasEnhanced"
 export MENU="Physics_pp_v7"
 export EVENTS="50"
