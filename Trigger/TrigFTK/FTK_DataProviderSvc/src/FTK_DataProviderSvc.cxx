@@ -714,6 +714,7 @@ xAOD::VertexContainer* FTK_DataProviderSvc::getVertexContainer(const bool withRe
 #endif
 
   if (fillTrackParticleCache(withRefit).isFailure()) {
+
     // must always create a VertexContainer in StroreGate
 
     std::string cacheName= m_vertexCacheName;
@@ -1005,17 +1006,19 @@ void FTK_DataProviderSvc::getFTK_RawTracksFromSG(){
 
   if (!m_storeGate->contains<FTK_RawTrackContainer>(m_RDO_key)) {
     ATH_MSG_DEBUG( "getFTK_RawTracksFromSG: FTK tracks  "<< m_RDO_key <<" not found in StoreGate !");
-    return;
   } else {
     ATH_MSG_VERBOSE( "getFTK_RawTracksFromSG:  Doing storegate retreive");
     StatusCode sc = m_storeGate->retrieve(m_ftk_tracks, m_RDO_key);
     if (sc.isFailure()) {
       ATH_MSG_VERBOSE( "getFTK_RawTracksFromSG: Failed to get FTK Tracks Container");
-      return;
+    } else {
+      ATH_MSG_DEBUG( "getFTK_RawTracksFromSG:  Got " << m_ftk_tracks->size() << " raw FTK tracks (RDO) from  StoreGate ");
+      if (m_ftk_tracks->size()==0){
+	ATH_MSG_VERBOSE( "no FTK Tracks in the event");
+      } else {
+	m_gotRawTracks = true;
+      }
     }
-    ATH_MSG_DEBUG( "getFTK_RawTracksFromSG:  Got " << m_ftk_tracks->size() << " raw FTK tracks (RDO) from  StoreGate ");
-    m_gotRawTracks = true;
-
   }
   // Creating collection for pixel clusters
 
@@ -1104,7 +1107,9 @@ StatusCode FTK_DataProviderSvc::initTrackParticleCache(bool withRefit) {
   bool gotTracks=false;
   getFTK_RawTracksFromSG();
   if (m_gotRawTracks) {
-    if (!initTrackCache(withRefit).isFailure()) {  gotTracks=true; }
+    if (!initTrackCache(withRefit).isFailure()) {  
+      gotTracks=true; 
+    } 
   }
 
   if (withRefit) {
