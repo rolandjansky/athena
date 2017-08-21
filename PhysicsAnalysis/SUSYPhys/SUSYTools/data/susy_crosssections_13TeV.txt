@@ -168,9 +168,9 @@ id/I:name/C:xsec/F:kfac/F:eff/F:relunc/F
 410100  PowhegPythiaEvtGen_P2012radLo_Wt_inclusive_top				33.407	1.073	1.		1.
 410101  PowhegPythiaEvtGen_P2012radHi_Wt_inclusive_antitop			34.893	1.027	1.		1.
 410102  PowhegPythiaEvtGen_P2012radLo_Wt_inclusive_antitop			33.388	1.073	1.		1.
-410107  PowhegPythiaEvtGen_P2012radHi_SingleTopSchan_lept_top			2.0517 	1.0046	1.		1.
+410107  PowhegPythiaEvtGen_P2012radHi_SingleTopSchan_lept_top			2.0755 	0.993115	1.		1.
 410108  PowhegPythiaEvtGen_P2012radLo_SingleTopSchan_lept_top			2.0517 	1.0046	1.		1.
-410109  PowhegPythiaEvtGen_P2012radHi_SingleTopSchan_lept_antitop		1.2615 	1.0215	1.		1.
+410109  PowhegPythiaEvtGen_P2012radHi_SingleTopSchan_lept_antitop		1.2753 	1.01048	1.		1.
 410110  PowhegPythiaEvtGen_P2012radLo_SingleTopSchan_lept_antitop		1.2615 	1.0215	1.		1.
 
 410178  MadGraphPythia8EvtGen_A14NNPDF23LO_WtbMET200                            9.6916  1.0     0.0426          1.
@@ -729,14 +729,14 @@ id/I:name/C:xsec/F:kfac/F:eff/F:relunc/F
 ####################################################
 # Sherpa 2.2.1 Z->tau tau with different lepton cuts
 
-344772	Sherpa_221_NNPDF30NNLO_Ztautau_MAXHTPTV0_70_l13l7		246.05262	0.9751	0.02501856	1
-344774	Sherpa_221_NNPDF30NNLO_Ztautau_MAXHTPTV0_70_l15h20		452.1783	0.9751	0.048784	1
+344772	Sherpa_221_NNPDF30NNLO_Ztautau_MAXHTPTV0_70_l13l7		246.05262	0.9751	0.203784	1
+344774	Sherpa_221_NNPDF30NNLO_Ztautau_MAXHTPTV0_70_l15h20		904.3217	0.9751	0.116820	1
 344775	Sherpa_221_NNPDF30NNLO_Ztautau_MAXHTPTV0_70_h30h20		831.33468	0.9751	0.14707		1
 344776	Sherpa_221_NNPDF30NNLO_Ztautau_MAXHTPTV70_140_l13l7		13.7241		0.9751	0.0355256	1
-344778	Sherpa_221_NNPDF30NNLO_Ztautau_MAXHTPTV70_140_l15h20	25.229792	0.9751	0.089376	1
+344778	Sherpa_221_NNPDF30NNLO_Ztautau_MAXHTPTV70_140_l15h20	50.4673		0.9751	0.1574293	1
 344779	Sherpa_221_NNPDF30NNLO_Ztautau_MAXHTPTV70_140_h30h20	46.352088	0.9751	0.20358		1
 344780	Sherpa_221_NNPDF30NNLO_Ztautau_MAXHTPTV140_280_l13l7	5.0442588	0.9751	0.0403827	1
-344781	Sherpa_221_NNPDF30NNLO_Ztautau_MAXHTPTV140_280_l15h20	9.2742762	0.9751	0.20511		1
+344781	Sherpa_221_NNPDF30NNLO_Ztautau_MAXHTPTV140_280_l15h20	18.5497		0.9751	0.20511		1
 344782	Sherpa_221_NNPDF30NNLO_Ztautau_MAXHTPTV140_280_h30h20	17.0637084	0.9751	0.26126		1
 
 
@@ -2617,7 +2617,7 @@ id/I:name/C:xsec/F:kfac/F:eff/F:relunc/F
 410114	MadGraphPythia8EvtGen_A14NNPDF23LO_ttmumu_Np1		0.014375        1.51	1. 1.
 410115	MadGraphPythia8EvtGen_A14NNPDF23LO_tttautau_Np0		0.0090148       1.51	1. 1.
 410116	MadGraphPythia8EvtGen_A14NNPDF23LO_tttautau_Np1		0.014636        1.51	1. 1.
-407321  MadGraphPythia8EvtGen_ttbarWll                     	0.000266        1.34    1. 1.
+407321  MadGraphPythia8EvtGen_ttbarWll                     	0.00026618      1.34    1. 1.
 
 ################################################################################################################
 # aMC@NLO ttbar+X
@@ -2647,7 +2647,7 @@ id/I:name/C:xsec/F:kfac/F:eff/F:relunc/F
 
 410142	 Sherpa_NNPDF30NNLO_ttll_mll5	0.11309	1.09	1.	1.
 410143	 Sherpa_NNPDF30NNLO_ttZnnqq	0.6881	1.1	1.	1.
-410144	 Sherpa_NNPDF30NNLO_ttW		0.57729	1.12	1.	1.
+410144	 Sherpa_NNPDF30NNLO_ttW		0.57729	1.0407	1.	1.
 
 
 ################################################################################################################
