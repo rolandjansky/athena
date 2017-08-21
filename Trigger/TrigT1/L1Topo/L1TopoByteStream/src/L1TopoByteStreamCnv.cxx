@@ -65,8 +65,8 @@ StatusCode L1TopoByteStreamCnv::initialize() {
     return sc;
   }
 
-  MsgStream log(messageService(), "L1TopoByteStreamCnv");
-  log << MSG::DEBUG << "L1TopoByteStreamCnv in initialize() " << endreq;
+  MsgStream log(msgSvc(), "L1TopoByteStreamCnv");
+  log << MSG::DEBUG << "L1TopoByteStreamCnv in initialize() " << endmsg;
 
   //
   // Get ByteStreamCnvSvc:
@@ -146,7 +146,7 @@ StatusCode L1TopoByteStreamCnv::createObj(IOpaqueAddress* pAddr,
  */
 StatusCode L1TopoByteStreamCnv::createRep(DataObject* pObj,
                                           IOpaqueAddress*& pAddr) {
-  MsgStream log(messageService(), "L1TopoByteStreamCnv");
+  MsgStream log(msgSvc(), "L1TopoByteStreamCnv");
 
   log << MSG::DEBUG << "createRep() called" << endreq;
 
