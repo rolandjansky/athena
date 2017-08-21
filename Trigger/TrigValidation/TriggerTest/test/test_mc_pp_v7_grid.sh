@@ -3,6 +3,7 @@
 # art-description: MC v7 TriggerTest on MC
 # art-type: grid
 
+export NAME="mc_pp_v7_grid"
 export MENU="MC_pp_v7"
 export EVENTS="500"
 
