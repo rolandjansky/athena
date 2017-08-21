@@ -49,4 +49,5 @@ def add_LLP_truth_strategies():
 def add_EnergyConservationTest():
     from G4AtlasApps.SimFlags import simFlags
     # Enable the energy conservation test action
-    simFlags.OptionalUserActionList.addAction('G4UA::EnergyConservationTestTool', ['BeginOfEvent','PreTracking','Step','PostTracking','EndOfEvent'])
+    simFlags.OptionalUserActionList.addAction(
+        'G4UA::EnergyConservationTestTool', ['Event', 'Tracking', 'Step'])

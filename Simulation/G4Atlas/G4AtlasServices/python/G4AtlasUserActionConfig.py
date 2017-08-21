@@ -4,25 +4,16 @@ from AthenaCommon import CfgGetter,CfgMgr,Logging
 
 # Common methods to return default UserAction(Tool)s
 
-# actions to be run at begin of run
-def getDefaultBoRActions():
+# actions to be run at begin/end of run
+def getDefaultRunActions():
     from G4AtlasApps.SimFlags import simFlags
-    defaultUA=[]
-    if hasattr(simFlags, 'StoppedParticleFile') and simFlags.StoppedParticleFile.statusOn:
-        defaultUA+=['G4UA::StoppedParticleActionTool']
-    return defaultUA
-
-# actions to be run at end of run
-def getDefaultEoRActions():
-    from G4AtlasApps.SimFlags import simFlags
-    from AthenaCommon.BeamFlags import jobproperties
     defaultUA=[]
     if hasattr(simFlags, 'StoppedParticleFile') and simFlags.StoppedParticleFile.statusOn:
         defaultUA+=['G4UA::StoppedParticleActionTool']
     return defaultUA
 
 # begin of event
-def getDefaultBoEActions():
+def getDefaultEventActions():
     from G4AtlasApps.SimFlags import simFlags
     from AthenaCommon.BeamFlags import jobproperties
     defaultUA=[]
@@ -30,29 +21,17 @@ def getDefaultBoEActions():
         defaultUA+=['G4UA::G4SimTimerTool']
         defaultUA+=['G4UA::MCTruthSteppingActionTool']
     defaultUA+=['G4UA::G4TrackCounterTool']
-
-    if jobproperties.Beam.beamType() == 'cosmics' and hasattr(simFlags, 'CavernBG') and not simFlags.CavernBG.statusOn:
-        defaultUA+=['G4UA::CosmicPerigeeActionTool']
-    if hasattr(simFlags, 'StoppedParticleFile') and simFlags.StoppedParticleFile.statusOn:
-        defaultUA+=['G4UA::StoppedParticleActionTool']
-    if hasattr(simFlags, 'CalibrationRun') and simFlags.CalibrationRun() == 'LAr+Tile':
-        defaultUA+=['G4UA::CaloG4::CalibrationDefaultProcessingTool']
-    return defaultUA
-
-# end of event
-def getDefaultEoEActions():
-    from G4AtlasApps.SimFlags import simFlags
-    from AthenaCommon.BeamFlags import jobproperties
-    defaultUA=[]
-    if not simFlags.ISFRun:
-        defaultUA+=['G4UA::G4SimTimerTool']
     if hasattr(simFlags, 'CavernBG') and simFlags.CavernBG.statusOn and simFlags.CavernBG.get_Value() == 'Read':
         defaultUA+=['G4UA::HitWrapperTool']
+    if jobproperties.Beam.beamType() == 'cosmics' and hasattr(simFlags, 'CavernBG') and not simFlags.CavernBG.statusOn:
+        defaultUA+=['G4UA::CosmicPerigeeActionTool']
     if hasattr(simFlags, 'StoppedParticleFile') and simFlags.StoppedParticleFile.statusOn:
         defaultUA+=['G4UA::StoppedParticleActionTool']
         defaultUA+=['G4UA::G4CosmicFilterTool']
     if jobproperties.Beam.beamType() == 'cosmics' and not simFlags.ISFRun:
         defaultUA+=['G4UA::G4CosmicFilterTool']
+    if hasattr(simFlags, 'CalibrationRun') and simFlags.CalibrationRun() == 'LAr+Tile':
+        defaultUA+=['G4UA::CaloG4::CalibrationDefaultProcessingTool']
     return defaultUA
 
 # stepping
@@ -70,8 +49,8 @@ def getDefaultSteppingActions():
         defaultUA+=['G4UA::PhotonKillerTool']
     return defaultUA
 
-# PreUserTracking
-def getDefaultBoTActions():
+# tracking
+def getDefaultTrackingActions():
     from G4AtlasApps.SimFlags import simFlags
     defaultUA=[]
     if not simFlags.ISFRun:
@@ -79,28 +58,11 @@ def getDefaultBoTActions():
     defaultUA+=['G4UA::G4TrackCounterTool']
     return defaultUA
 
-# PostUserTracking
-def getDefaultEoTActions():
-    from G4AtlasApps.SimFlags import simFlags
-    defaultUA=[]
-    if not simFlags.ISFRun:
-        defaultUA+=['G4UA::AthenaTrackingActionTool']
-    return defaultUA
-
 # Stacking Classification
 def getDefaultStackingActions():
     defaultUA=[]
     defaultUA+=['G4UA::AthenaStackingActionTool']
     return defaultUA
-
-# Stacking PrepareNewEvent
-def getDefaultStaPrepareActions():
-    return []
-
-# Stacking NewStage
-def getDefaultStaNewStageActions():
-    return []
-
 
 def getUserActionSvc(name="G4UA::UserActionSvc", **kwargs):
     """
@@ -110,13 +72,15 @@ def getUserActionSvc(name="G4UA::UserActionSvc", **kwargs):
 
     from G4AtlasApps.SimFlags import simFlags
 
-    kwargs.setdefault('BeginRunActionTools', getDefaultBoRActions()+simFlags.OptionalUserActionList.get_Value()['BeginOfRun'])
-    kwargs.setdefault('EndRunActionTools', getDefaultEoRActions()+simFlags.OptionalUserActionList.get_Value()['EndOfRun'])
-    kwargs.setdefault('BeginEventActionTools', getDefaultBoEActions()+simFlags.OptionalUserActionList.get_Value()['BeginOfEvent'])
-    kwargs.setdefault('EndEventActionTools', getDefaultEoEActions()+simFlags.OptionalUserActionList.get_Value()['EndOfEvent'])
-    kwargs.setdefault('SteppingActionTools', getDefaultSteppingActions()+simFlags.OptionalUserActionList.get_Value()['Step'])
-    kwargs.setdefault('PreTrackingActionTools', getDefaultBoTActions()+simFlags.OptionalUserActionList.get_Value()['PreTracking'])
-    kwargs.setdefault('PostTrackingActionTools', getDefaultEoTActions()+simFlags.OptionalUserActionList.get_Value()['PostTracking'])
+    optionalActions = simFlags.OptionalUserActionList
+    kwargs.setdefault('RunActionTools',
+        getDefaultRunActions() + optionalActions.get_Value()['Run'])
+    kwargs.setdefault('EventActionTools',
+        getDefaultEventActions() + optionalActions.get_Value()['Event'])
+    kwargs.setdefault('SteppingActionTools',
+        getDefaultSteppingActions() + optionalActions.get_Value()['Step'])
+    kwargs.setdefault('TrackingActionTools',
+        getDefaultTrackingActions() + optionalActions.get_Value()['Tracking'])
     # no optional actions for stacking
     kwargs.setdefault('StackingActionTools', getDefaultStackingActions())
 
@@ -125,13 +89,11 @@ def getUserActionSvc(name="G4UA::UserActionSvc", **kwargs):
 
 def getCTBUserActionSvc(name="G4UA::CTBUserActionSvc", **kwargs):
     from G4AtlasApps.SimFlags import simFlags
-    bor = getDefaultBoRActions()+simFlags.OptionalUserActionList.get_Value()['BeginOfRun']
-    eor = getDefaultEoRActions()+simFlags.OptionalUserActionList.get_Value()['EndOfRun']
-    boe = getDefaultBoEActions()+simFlags.OptionalUserActionList.get_Value()['BeginOfEvent']
-    eoe = getDefaultEoEActions()+simFlags.OptionalUserActionList.get_Value()['EndOfEvent']
-    bot = getDefaultBoTActions()+simFlags.OptionalUserActionList.get_Value()['PreTracking']
-    eot = getDefaultEoTActions()+simFlags.OptionalUserActionList.get_Value()['PostTracking']
-    stepping = getDefaultSteppingActions()+simFlags.OptionalUserActionList.get_Value()['Step']
+    optionalActions = simFlags.OptionalUserActionList
+    run = getDefaultRunActions() + optionalActions.get_Value()['Run']
+    event = getDefaultEventActions() + optionalActions.get_Value()['Event']
+    tracking = getDefaultTrackingActions() + optionalActions.get_Value()['Tracking']
+    stepping = getDefaultSteppingActions() + optionalActions.get_Value()['Step']
     stacking = getDefaultStackingActions()
 
     # FIXME: ADS these actions are not yet migrated to Hive
@@ -141,17 +103,14 @@ def getCTBUserActionSvc(name="G4UA::CTBUserActionSvc", **kwargs):
     #    if simFlags.LArTB_H6Step.statusOn:
     #        if simFlags.LArTB_H6Step.get_Value():
     #            stepping+=['LArGeoH62004SteppingAction']
-    #            boe+=['RadLenNtuple']
+    #            event+=['RadLenNtuple']
     #            eoe+=['RadLenNtuple']
     #            stepping+=['RadLenNtuple']
 
-    kwargs.setdefault('BeginRunActionTools', bor)
-    kwargs.setdefault('EndRunActionTools', eor)
-    kwargs.setdefault('BeginEventActionTools', boe)
-    kwargs.setdefault('EndEventActionTools', eoe)
+    kwargs.setdefault('RunActionTools', run)
+    kwargs.setdefault('EventActionTools', event)
     kwargs.setdefault('SteppingActionTools', stepping)
-    kwargs.setdefault('PreTrackingActionTools', bot)
-    kwargs.setdefault('PostTrackingActionTools', eot)
+    kwargs.setdefault('TrackingActionTools', tracking)
     kwargs.setdefault('StackingActionTools', stacking)
 
     # placeholder for more advanced config, if needed
@@ -164,22 +123,22 @@ def getISFUserActionSvc(name="G4UA::ISFUserActionSvc", **kwargs):
     MCTruthUserAction = kwargs.pop('MCTruthUserAction',['ISFMCTruthUserActionTool'])
 
     from G4AtlasApps.SimFlags import simFlags
-    bor = getDefaultBoRActions()+simFlags.OptionalUserActionList.get_Value()['BeginOfRun'] + PhysicsValidationUserAction
-    eor = getDefaultEoRActions()+simFlags.OptionalUserActionList.get_Value()['EndOfRun']
-    boe = getDefaultBoEActions()+simFlags.OptionalUserActionList.get_Value()['BeginOfEvent'] + TrackProcessorUserAction + PhysicsValidationUserAction
-    eoe = getDefaultEoEActions()+simFlags.OptionalUserActionList.get_Value()['EndOfEvent'] + TrackProcessorUserAction + PhysicsValidationUserAction
-    bot = TrackProcessorUserAction + MCTruthUserAction + getDefaultBoTActions()+simFlags.OptionalUserActionList.get_Value()['PreTracking'] + PhysicsValidationUserAction
-    eot = TrackProcessorUserAction + MCTruthUserAction + getDefaultEoTActions()+simFlags.OptionalUserActionList.get_Value()['PostTracking']
-    stepping = getDefaultSteppingActions()+simFlags.OptionalUserActionList.get_Value()['Step'] + TrackProcessorUserAction + PhysicsValidationUserAction
+    optionalActions = simFlags.OptionalUserActionList
+    run = (getDefaultRunActions() + optionalActions.get_Value()['Run'] +
+           PhysicsValidationUserAction)
+    event = (getDefaultEventActions() + optionalActions.get_Value()['Event'] +
+             TrackProcessorUserAction + PhysicsValidationUserAction)
+    tracking = (TrackProcessorUserAction + MCTruthUserAction +
+                getDefaultTrackingActions() + optionalActions.get_Value()['Tracking'] +
+                PhysicsValidationUserAction)
+    stepping = (getDefaultSteppingActions() + optionalActions.get_Value()['Step'] +
+                TrackProcessorUserAction + PhysicsValidationUserAction)
     stacking = getDefaultStackingActions()
 
-    kwargs.setdefault('BeginRunActionTools', bor)
-    kwargs.setdefault('EndRunActionTools', eor)
-    kwargs.setdefault('BeginEventActionTools', boe)
-    kwargs.setdefault('EndEventActionTools', eoe)
+    kwargs.setdefault('RunActionTools', run)
+    kwargs.setdefault('EventActionTools', event)
     kwargs.setdefault('SteppingActionTools', stepping)
-    kwargs.setdefault('PreTrackingActionTools', bot)
-    kwargs.setdefault('PostTrackingActionTools', eot)
+    kwargs.setdefault('TrackingActionTools', tracking)
     kwargs.setdefault('StackingActionTools', stacking)
 
     return CfgMgr.G4UA__UserActionSvc(name, **kwargs)
@@ -232,12 +191,9 @@ def addAction(actionTool, roles, systemAction=False):
 
     from AthenaCommon.AppMgr import theApp, AthAppMgr, ServiceMgr
 
-    roleMap={'BeginOfRun': 'BeginRunActionTools',
-             'EndOfRun': 'EndRunActionTools',
-             'BeginOfEvent': 'BeginEventActionTools',
-             'EndOfEvent': 'EndEventActionTools',
-             'BeginOfTracking': 'PreTrackingActionTools',
-             'EndOfTracking': 'PostTrackingActionTools',
+    roleMap={'Run': 'RunActionTools',
+             'Event': 'EventActionTools',
+             'Tracking': 'TrackingActionTools',
              'Step': 'SteppingActionTools',
              'Stack': 'StackingActionTools'}
 
