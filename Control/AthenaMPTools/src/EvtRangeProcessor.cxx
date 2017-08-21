@@ -48,6 +48,7 @@ EvtRangeProcessor::EvtRangeProcessor(const std::string& type
   , m_rankId(-1)
   , m_nEventsBeforeFork(0)
   , m_chronoStatSvc("ChronoStatSvc", name)
+  , m_incidentSvc("IncidentSvc", name)
   , m_evtSeek(0)
   , m_channel2Scatterer("")
   , m_channel2EvtSel("")
@@ -91,11 +92,8 @@ StatusCode EvtRangeProcessor::initialize()
     return StatusCode::FAILURE;
   }
   
-  sc = m_chronoStatSvc.retrieve();
-  if (!sc.isSuccess()) {
-    ATH_MSG_ERROR("Cannot get ChronoStatSvc.");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_chronoStatSvc.retrieve());
+  ATH_CHECK(m_incidentSvc.retrieve());
   
   return StatusCode::SUCCESS;
 }
@@ -398,7 +396,6 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeProcessor::exec_func(
   int nEvt(1);
   int nEventsProcessed(0);
 
-  bool all_ok(true);
   std::queue<std::string> queueTokens;
 
   // Get the yampl connection channels
@@ -409,21 +406,15 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeProcessor::exec_func(
   std::ostringstream pidstr;
   pidstr << getpid();
 
-  // Get the IncidentSvc
-  IIncidentSvc* p_incidentSvc(0);
-  if(!serviceLocator()->service("IncidentSvc", p_incidentSvc).isSuccess()) {
-    ATH_MSG_ERROR("Unable to retrieve IncidentSvc");
-    all_ok = false;
-  }
-
   // Construct a "welcome" message to be sent to the EvtRangeScatterer
   std::string ping = pidstr.str() + std::string(" ready for event processing");
-  void* message2scatterer = malloc(ping.size());
-  memcpy(message2scatterer,ping.data(),ping.size());
-  socket2Scatterer->send(message2scatterer,ping.size());
-  ATH_MSG_INFO("Sent a welcome message to the Scatterer");
 
-  while(all_ok) {
+  while(true) {
+    void* message2scatterer = malloc(ping.size());   
+    memcpy(message2scatterer,ping.data(),ping.size());   
+    socket2Scatterer->send(message2scatterer,ping.size());
+    ATH_MSG_INFO("Sent a welcome message to the Scatterer");
+
     // Get the response - list of tokens - from the scatterer. 
     // The format of the response: | ResponseSize | RangeID, | evtEvtRange[,evtToken] |
     char *responseBuffer(0);
@@ -453,9 +444,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeProcessor::exec_func(
     queueTokens.pop();
     ATH_MSG_INFO("Received RangeID=" << rangeID);
     // Fire an incident
-    if(!queueTokens.empty()) {
-      p_incidentSvc->fireIncident(FileIncident(name(),"NextEventRange",rangeID));
-    }
+    m_incidentSvc->fireIncident(FileIncident(name(),"NextEventRange",rangeID));
 
     // Here we need to support two formats of the responseStr
     // Format 1. RangeID,startEvent,endEvent
@@ -467,6 +456,8 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeProcessor::exec_func(
     //
     // The seeking part is identical for Format 1 and 2
 
+    AthenaMPToolBase::ESRange_Status rangeStatus(AthenaMPToolBase::ESRANGE_SUCCESS);
+
     // Determine the format
     std::string filename("");
     if(queueTokens.front().find("PFN:")==0) {
@@ -474,8 +465,11 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeProcessor::exec_func(
       // Update InputCollections property of the Event Selector with the file name from Event Range
       filename = queueTokens.front().substr(4);
       if(setNewInputFile(filename).isFailure()) {
-        all_ok=false;
-        break;
+	ATH_MSG_WARNING("Failed to set input file for the range: " << rangeID);
+	rangeStatus = AthenaMPToolBase::ESRANGE_BADINPFILE;
+	reportError(socket2Scatterer,rangeStatus);
+	m_incidentSvc->fireIncident(FileIncident(name(),"NextEventRange","dummy"));
+	continue;
       }
       queueTokens.pop();
     }
@@ -485,55 +479,58 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeProcessor::exec_func(
     queueTokens.pop();
     int endEvent = std::atoi(queueTokens.front().c_str());
     queueTokens.pop();
-    if(filename.empty()) {
-      ATH_MSG_INFO("Range fields. "
-                   << "First Event:" << startEvent
-                   << ", Last Event:" << endEvent);
-    } 
-    else {
-      ATH_MSG_INFO("Range fields. File Name: " << filename
-                   << ", First Event:" << startEvent
-                   << ", Last Event:" << endEvent);
-    }
+    ATH_MSG_INFO("Range fields. File Name: " << (filename.empty()?"N/A":filename)
+		 << ", First Event:" << startEvent
+		 << ", Last Event:" << endEvent);
 
     // Process the events
     for(int i(startEvent-1); i<endEvent; ++i) {
-      if(m_evtSeek->seek(i).isFailure()) {
-        ATH_MSG_ERROR("Unable to seek to " << i);
-        all_ok=false;
+      StatusCode sc = m_evtSeek->seek(i);
+      if(sc.isRecoverable()) {
+	ATH_MSG_WARNING("Event " << i << " from range: " << rangeID << " not in the input file");
+	rangeStatus = AthenaMPToolBase::ESRANGE_NOTFOUND;
+	break;
+      }
+      else if(sc.isFailure()) {
+        ATH_MSG_WARNING("Failed to seek to " << i << " in range: " << rangeID);
+	rangeStatus = AthenaMPToolBase::ESRANGE_SEEKFAILED;
         break;
       }
       ATH_MSG_INFO("Seek to " << i << " succeeded");
       m_chronoStatSvc->chronoStart("AthenaMP_nextEvent");
-      StatusCode sc = m_evtProcessor->nextEvent(nEvt++);
+      sc = m_evtProcessor->nextEvent(nEvt++);
+      m_chronoStatSvc->chronoStop("AthenaMP_nextEvent");
       if(sc.isFailure()){
-        ATH_MSG_ERROR("Unable to process the event");
-        all_ok=false;
+        ATH_MSG_WARNING("Failed to process the event " << i << " in range:" << rangeID);
+        rangeStatus = AthenaMPToolBase::ESRANGE_PROCFAILED;
+	break;
       }
       else {
         ATH_MSG_DEBUG("Event processed");
         nEventsProcessed++;
       }
-      m_chronoStatSvc->chronoStop("AthenaMP_nextEvent");
-      if(!all_ok) break;
     }
 
+    // Fire dummy NextEventRange incident in order to cut the previous output and report it
+    m_incidentSvc->fireIncident(FileIncident(name(),"NextEventRange","dummy"));
+    if(rangeStatus!=AthenaMPToolBase::ESRANGE_SUCCESS) {
+      reportError(socket2Scatterer,rangeStatus);
+      continue;
+    }
+
+    // Event range successfully processed
     std::string strOutpFile;
-    if(all_ok) {
-      // Get the full path of the event range output file
-      for(boost::filesystem::directory_iterator fdIt(boost::filesystem::current_path()); fdIt!=boost::filesystem::directory_iterator(); fdIt++) {
-	if(fdIt->path().string().find(rangeID)!=std::string::npos) {
-	  if(strOutpFile.empty()) {
-	    strOutpFile = fdIt->path().string();
-	  }
-	  else {
-	    strOutpFile += (std::string(",")+fdIt->path().string());
-	  }	
+    // Get the full path of the event range output file
+    for(boost::filesystem::directory_iterator fdIt(boost::filesystem::current_path()); fdIt!=boost::filesystem::directory_iterator(); fdIt++) {
+      if(fdIt->path().string().find(rangeID)!=std::string::npos) {
+	if(strOutpFile.empty()) {
+	  strOutpFile = fdIt->path().string();
 	}
+	else {
+	  strOutpFile += (std::string(",")+fdIt->path().string());
+	}	
       }
     }
-
-    if(!all_ok) break;
 
     // Stop timing
     System::ProcessTime time_delta = System::getProcessTime() - time_start;
@@ -550,29 +547,22 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeProcessor::exec_func(
 			 << ",CPU:" << time_delta.cpuTime<System::Sec>()
 			 << ",WALL:" << time_delta.elapsedTime<System::Sec>();
       std::string outputFileReport = outputReportStream.str();
-
-      // Fire dummy NextEventRange incident in order to cut the previous output and report it
-      p_incidentSvc->fireIncident(FileIncident(name(),"NextEventRange","dummy"));
-
+      
       // Report the output
       message2scatterer = malloc(outputFileReport.size());
       memcpy(message2scatterer,outputFileReport.data(),outputFileReport.size());
       socket2Scatterer->send(message2scatterer,outputFileReport.size());
       ATH_MSG_INFO("Reported the output " << outputFileReport);
     }
-
-    // Request the next available range
-    message2scatterer = malloc(ping.size());
-    memcpy(message2scatterer,ping.data(),ping.size());
-    socket2Scatterer->send(message2scatterer,ping.size());
-    ATH_MSG_DEBUG("Sent a message to the scatterer: " << ping);
+    else {
+      // This is an error: range successfully processed but no outputs were made
+      ATH_MSG_WARNING("Failed to make an output file for range: " << rangeID);
+      reportError(socket2Scatterer,AthenaMPToolBase::ESRANGE_FILENOTMADE);
+    }
   } // Main "event loop"
 
-  if(all_ok) {
-    if(m_evtProcessor->executeRun(0).isFailure()) {
-      ATH_MSG_ERROR("Could not finalize the Run");
-      all_ok=false;
-    }
+  if(m_evtProcessor->executeRun(0).isFailure()) {
+    ATH_MSG_WARNING("Could not finalize the Run");
   }
 
   std::unique_ptr<AthenaInterprocess::ScheduledWork> outwork(new AthenaInterprocess::ScheduledWork);
@@ -580,7 +570,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeProcessor::exec_func(
   // Return value: "ERRCODE|Func_Flag|NEvt"
   int outsize = 2*sizeof(int)+sizeof(AthenaMPToolBase::Func_Flag);
   void* outdata = malloc(outsize);
-  *(int*)(outdata) = (all_ok?0:1); // Error code: for now use 0 success, 1 failure
+  *(int*)(outdata) = 0; // Error code: for now use 0 success, 1 failure
   AthenaMPToolBase::Func_Flag func = AthenaMPToolBase::FUNC_EXEC;
   memcpy((char*)outdata+sizeof(int),&func,sizeof(func));
   memcpy((char*)outdata+sizeof(int)+sizeof(func),&nEventsProcessed,sizeof(int));
@@ -602,16 +592,12 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeProcessor::fin_func()
 {
   ATH_MSG_INFO("Fin function in the AthenaMP worker PID=" << getpid());
 
-  bool all_ok(true);
-
   if(m_appMgr->stop().isFailure()) {
-    ATH_MSG_ERROR("Unable to stop AppMgr"); 
-    all_ok=false;
+    ATH_MSG_WARNING("Unable to stop AppMgr"); 
   }
   else { 
     if(m_appMgr->finalize().isFailure()) {
-      ATH_MSG_ERROR("Unable to finalize AppMgr");
-      all_ok=false;
+      ATH_MSG_WARNING("Unable to finalize AppMgr");
     }
   }
 
@@ -620,7 +606,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeProcessor::fin_func()
   // Return value: "ERRCODE|Func_Flag|NEvt"  (Here NEvt=-1)
   int outsize = 2*sizeof(int)+sizeof(AthenaMPToolBase::Func_Flag);
   void* outdata = malloc(outsize);
-  *(int*)(outdata) = (all_ok?0:1); // Error code: for now use 0 success, 1 failure
+  *(int*)(outdata) = 0; // Error code: for now use 0 success, 1 failure
   AthenaMPToolBase::Func_Flag func = AthenaMPToolBase::FUNC_FIN;
   memcpy((char*)outdata+sizeof(int),&func,sizeof(func));
   int nEvt = -1;
@@ -750,4 +736,14 @@ StatusCode EvtRangeProcessor::setNewInputFile(const std::string& newFile)
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
+}
+
+void EvtRangeProcessor::reportError(yampl::ISocket* socket, AthenaMPToolBase::ESRange_Status status)
+{
+  pid_t pid = getpid();
+  size_t messageSize = sizeof(pid_t)+sizeof(AthenaMPToolBase::ESRange_Status);
+  void* message2scatterer = malloc(messageSize);
+  memcpy(message2scatterer,&pid,sizeof(pid_t));
+  memcpy((pid_t*)message2scatterer+1,&status,sizeof(AthenaMPToolBase::ESRange_Status));
+  socket->send(message2scatterer,messageSize);
 }
