@@ -228,6 +228,8 @@ class EOS(Backend):
           retcode = subprocess.call(args, stderr=null)
         return retcode
 
+class FilterError(RuntimeError): pass
+
 class FileSet:
     """ Represents a list of input files.
     This class abstracts over the different ways files can be specified, and
@@ -248,6 +250,7 @@ class FileSet:
         self._strict = True
         self._explicit = None
         self._dedup = False
+        self._single_dataset = False
         self.broken = []
         self.lb_map = {}
 
@@ -319,7 +322,7 @@ class FileSet:
                         yield f
                 if strict and self._explicit:
                     for f in self._explicit: print('Missing:', f)
-                    raise RuntimeError('Not all explicit files were found.')
+                    raise FilterError('Not all explicit files were found.')
             it = generator(it, self._strict)
         if self._dedup: # see: only_latest
             def fn(m, f):
@@ -333,6 +336,20 @@ class FileSet:
                 for name, ext in em.items():
                     yield '.'.join([name, ext])
             it = generator(reduce(fn, self, {}))
+        if self._single_dataset: # see: only_single_dataset
+            def generator(i):
+                dataset = None
+                for f in i:
+                    ds = '.'.join(f.split('.')[0:3])
+                    if dataset is None:
+                        dataset = ds
+                    if ds == dataset:
+                        yield f
+                    else:
+                        raise FilterError(
+                                "Files found from more than one dataset: '{}' != '{}'"
+                                .format(ds, dataset))
+            it = generator(it)
         it = itertools.imap(lambda x: self.backend.wrap(x), it)
         return it
 
@@ -376,6 +393,11 @@ class FileSet:
     def only_latest(self, setting=True):
         ''' Keep only the latest retry from sets like `*.1`, `*.2`. '''
         self._dedup = setting
+        return self
+
+    def only_single_dataset(self, setting=True):
+        ''' Require all files to be from the same dataset. '''
+        self._single_dataset = setting
         return self
 
     def with_lumi_blocks(self, map_file=None):

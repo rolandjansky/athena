@@ -217,8 +217,8 @@ class JobRunner:
         """Show current job parameters."""
         for p in self.paramOrder:
             s = str(self.params[p])
-            if len(s)>maxLineLength:
-                s = s[0:maxLineLength-3]+'...'
+            if maxLineLength > 0 and len(s) > maxLineLength:
+                s = s[0:maxLineLength-3] + '...'
             print s
 
 
