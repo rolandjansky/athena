@@ -6,5 +6,5 @@ addTool("Charginos.CharginosConfig.getCharginoPlusToPiPlusNeutralino", "Chargino
 addTool("Charginos.CharginosConfig.getCharginoMinusToPiMinusNeutralino", "CharginoMinusToPiMinusNeutralino"):
 addTool("Charginos.CharginosConfig.getCharginoPlusToEPlusNeutralino", "CharginoPlusToEPlusNeutralino"):
 addTool("Charginos.CharginosConfig.getCharginoMinusToEMinusNeutralino", "CharginoMinusToEMinusNeutralino"):
-addTool("Charginos.CharginosConfig.getCharginoMinusToEMinusNeutralino", "CharginoMinusToEMinusNeutralino"):
 addTool("Charginos.CharginosConfig.getCharginoPlusToMuPlusNeutralino", "CharginoPlusToMuPlusNeutralino"):
+addTool("Charginos.CharginosConfig.getCharginoMinusToMuMinusNeutralino", "CharginoMinusToMuMinusNeutralino"):
