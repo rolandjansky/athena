@@ -29,6 +29,9 @@ class TFCS1DFunctionHistogram:public TFCS1DFunction
     double sample_from_histo(TH1* hist, double);
     double sample_from_histovalues(double);
 
+    vector<float> get_HistoBorders() {return m_HistoBorders;};
+    vector<float> get_HistoContents()  {return m_HistoContents;};
+
   private:
 
     vector<float> m_HistoBorders;

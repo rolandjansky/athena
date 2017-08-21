@@ -79,19 +79,26 @@ void ShowerShapeRegression::Run(std::vector<string> targetVarVec)
 
    for (unsigned int itarget = 0; itarget < targetVarVec.size(); itarget++)
    {
-      string histoName = "h" + targetVarVec.at(itarget);
+      string histoName = "hEnergyNorm"; /*h" + targetVarVec.at(itarget)*/;
 
-      TH2F *hin = (TH2F *)NNinputFile->Get(histoName.c_str());
+      TH2F *hin = (TH2F *)NNinputFile->Get("hEnergyNorm");
+
+      cout << "===> hin = " << hin << endl;
 
 
       cout << " ======> Run regrression training with target variable = " << (targetVarVec.at(itarget)).c_str() << " <======" << endl;
 
       TMVARegressionTraining(targetVarVec.at(itarget));
 
+      std::cout << " ======> after regression training " << std::endl;
+
       //* Define a histogram with alpha and Ln(r) boundaries
 
+      std::cout << " ===> 1 " << std::endl;
       int nalpha = hin->GetNbinsX() + 1;
       int nr = hin->GetNbinsY() + 1;
+
+      std::cout << " ===> 2 " << std::endl;
 
       // * get the bin boundaries
 
@@ -115,8 +122,8 @@ void ShowerShapeRegression::Run(std::vector<string> targetVarVec)
       }
 
       TH2F* houtLn = new TH2F("houtLn", "houtLn", nalpha - 1, xbinsalpha, nr - 1, xbinsLnr);
-      TH2F *hout = (TH2F *)hin->Clone(histoName.c_str());
-      hout->Reset();
+      //TH2F *hout = (TH2F *)hin->Clone(histoName.c_str());
+      //hout->Reset();
 
       //* Use random numbers for tmva application
 
@@ -125,32 +132,36 @@ void ShowerShapeRegression::Run(std::vector<string> targetVarVec)
          double random = myRandom->Uniform(0, 1);
          double random2 = myRandom2->Uniform(0, 1);
 
+         std::cout << " ======> before regression application " << std::endl;
+
          std::vector<float> value = TMVARegressionApplication(random, random2, targetVarVec.at(itarget));
+         std::cout << " ======> after regression application " << std::endl;
+
 
          houtLn->Fill(value.at(0), value.at(1));
-         hout->Fill(value.at(0), TMath::Exp(value.at(1)));
+         //hout->Fill(value.at(0), TMath::Exp(value.at(1)));
 
       }
 
 
       // // * change Ln(r) to r
 
-      // TH2F *hout = (TH2F *)hin->Clone(histoName.c_str());
-      // hout->Reset();
+      TH2F *hout = (TH2F *)hin->Clone(histoName.c_str());
+      hout->Reset();
 
 
-      // for (int ibinx = 1; ibinx < houtLn->GetNbinsX() + 1; ibinx++)
-      // {
-      //    for (int ibiny = 1; ibiny < houtLn->GetNbinsY() + 1; ibiny++)
-      //    {
-      //       hout->SetBinContent(ibinx, ibiny, houtLn->GetBinContent(ibinx, ibiny));
-      //       hout->SetBinError(ibinx, ibiny, houtLn->GetBinError(ibinx, ibiny));
-      //    }
-      // }
-      //
+      for (int ibinx = 1; ibinx < houtLn->GetNbinsX() + 1; ibinx++)
+      {
+         for (int ibiny = 1; ibiny < houtLn->GetNbinsY() + 1; ibiny++)
+         {
+            hout->SetBinContent(ibinx, ibiny, houtLn->GetBinContent(ibinx, ibiny));
+            hout->SetBinError(ibinx, ibiny, houtLn->GetBinError(ibinx, ibiny));
+         }
+      }
 
-      hout->Scale(1 / (hout->Integral()));
-      houtLn->Scale(1 / (houtLn->Integral()));
+
+      //hout->Scale(1.0 / hout->Integral());
+      // houtLn->Scale(1 / (houtLn->Integral()));
       NNoutputFile->cd();
       hout->Write();
       houtLn->Write();
@@ -275,7 +286,7 @@ void ShowerShapeRegression::TMVARegressionTraining(std::string target)
    // * Neural network (MLP)
    if (Use["MLP"])
    {
-      factory->BookMethod(dataloader, TMVA::Types::kMLP, "MLP", Form("!H:!V:VarTransform=Norm:NeuronType=tanh:NCycles=20000:HiddenLayers=%i,%i,%i,%i:TestRate=6:TrainingMethod=BFGS:Sampling=0.3:SamplingEpoch=0.8:ConvergenceImprove=1e-6:ConvergenceTests=20:!UseRegulator", m_neurons, m_neurons, m_neurons, m_neurons));
+      factory->BookMethod(dataloader, TMVA::Types::kMLP, "MLP", Form("!H:!V:VarTransform=Norm:NeuronType=tanh:NCycles=20000:HiddenLayers=%i,:TestRate=6:TrainingMethod=BFGS:Sampling=0.3:SamplingEpoch=0.8:ConvergenceImprove=1e-6:ConvergenceTests=20:!UseRegulator", m_neurons));
    }
 
 
@@ -383,6 +394,8 @@ std::vector<float> ShowerShapeRegression::TMVARegressionApplication(float xval, 
 
    TString dir    = "RegWeight_" + target + "_neuron" + std::to_string(m_neurons) + "_nbinsR" + std::to_string(m_nbinsR) + m_fileName + "/weights/";
    TString prefix = "TMVARegression";
+
+   std::cout << "===> Reg file = " << dir << std::endl;
 
    // Book method(s)
    for (std::map<std::string, int>::iterator it = Use.begin(); it != Use.end(); it++)

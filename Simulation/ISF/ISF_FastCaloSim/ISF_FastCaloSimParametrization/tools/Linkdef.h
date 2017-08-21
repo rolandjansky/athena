@@ -14,4 +14,5 @@
 #pragma link C++ class std::vector<Float_t>+;
 #pragma link C++ struct FCS_truth+;
 #pragma link C++ struct std::vector<FCS_truth>+;
+#pragma link C++ class std::vector<std::vector<float> >+;
 #endif
