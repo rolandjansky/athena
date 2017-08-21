@@ -73,8 +73,11 @@ namespace CP {
       void setPassesIDCuts(xAOD::Muon&) const;
 	  
       /// set the passes high pT cuts variable of the muon 
-      virtual void setPassesHighPtCuts( xAOD::Muon& mu ) const;
+      void setPassesHighPtCuts( xAOD::Muon& mu ) const;
 
+      /// set the passes low pT cuts variable of the muon
+      //void setPassesLowPtEfficiencyCuts( xAOD::Muon& mu ) const;
+     
       /// set the passes quality variable of the muon 
       void setQuality( xAOD::Muon& mu ) const;
 
@@ -90,17 +93,24 @@ namespace CP {
       /// Returns true if the muon passes the standard MCP High Pt cuts. To set the value on the muon, instead call setPassesHighPtCuts(xAOD::Muon&) const
       bool passedHighPtCuts(const xAOD::Muon&) const;
 
+      /// Returns true if the muon passes the standard MCP low pt cuts. To set the value on the muon, instead call setPassesLowPtEfficiencyCuts(xAOD::Muon&) const
+      bool passedLowPtEfficiencyCuts(const xAOD::Muon&) const;
+      bool passedLowPtEfficiencyCuts(const xAOD::Muon&, xAOD::Muon::Quality thisMu_quality) const;
+
+      /// Returns true if a CB muon fails a pt- and eta-dependent cut on the relative CB q/p error
+      bool passedErrorCutCB(const xAOD::Muon&) const;
+
       /// Returns true if a CB muon fails some loose quaility requirements designed to remove pathological tracks
       bool isBadMuon(const xAOD::Muon&) const;
 
       /// Returns the quality of the muon. To set the value on the muon, instead call setQuality(xAOD::Muon&) const
-      xAOD::Muon::Quality     getQuality( const xAOD::Muon& mu ) const;
+      xAOD::Muon::Quality getQuality( const xAOD::Muon& mu ) const;
 
-     /// Returns true if the muon passed additional calo-tag quality cuts
-     bool passedCaloTagQuality (const xAOD::Muon& mu) const;
+      /// Returns true if the muon passed additional calo-tag quality cuts
+      bool passedCaloTagQuality (const xAOD::Muon& mu) const;
 
-     /// Returns true if the muon passed the tight working point cuts    
-     bool passTight(const xAOD::Muon& mu, float rho, float oneOverPSig) const;
+      /// Returns true if the muon passed the tight working point cuts    
+      bool passTight(const xAOD::Muon& mu, float rho, float oneOverPSig) const;
       /// @}
 
 
