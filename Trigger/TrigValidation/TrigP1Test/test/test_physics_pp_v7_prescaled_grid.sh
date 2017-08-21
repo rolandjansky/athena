@@ -16,7 +16,8 @@ echo 'ART_dir: '${ART_dir}
 MENU='Physics_pp_v7'
 echo 'Menu:' ${MENU}
 
-lsetup git
+export ATLAS_LOCAL_ROOT_BASE="/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase"
+source $ATLAS_LOCAL_ROOT_BASE/packageSetups/localSetup.sh git
 #TODO: at the moment working on RB master
 git clone https://:@gitlab.cern.ch:8443/atlas-trigger-menu/TrigMenuRulebook.git
 #git clone /afs/cern.ch/user/t/tamartin/public/TrigMenuRulebook/
