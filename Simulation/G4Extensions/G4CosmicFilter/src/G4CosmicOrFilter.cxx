@@ -24,7 +24,7 @@ namespace G4UA
   {
   }
 
-  void G4CosmicOrFilter::endOfEvent(const G4Event*)
+  void G4CosmicOrFilter::EndOfEventAction(const G4Event*)
   {
     int counterOne(0), counterTwo(0), counterThree(0);
     //need way to get "and" or "or" in

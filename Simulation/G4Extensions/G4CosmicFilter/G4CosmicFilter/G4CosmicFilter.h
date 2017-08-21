@@ -5,7 +5,7 @@
 #ifndef G4COSMICFILTER_G4CosmicFilter_H
 #define G4COSMICFILTER_G4CosmicFilter_H
 
-#include "G4AtlasInterfaces/IEndEventAction.h"
+#include "G4UserEventAction.hh"
 #include "AthenaBaseComps/AthMessaging.h"
 
 #include "StoreGate/StoreGateSvc.h"
@@ -19,7 +19,7 @@ namespace G4UA
   /// an action to query the SD responsible for the storing of the
   /// TrackRecords *at the entrance of the ID* if no track it aborts
   /// the event - jamie boyd 15 nov 06
-  class G4CosmicFilter: public AthMessaging, public IEndEventAction
+  class G4CosmicFilter: public AthMessaging, public G4UserEventAction
   {
 
     public:
@@ -46,7 +46,7 @@ namespace G4UA
       const Report& getReport() const
       { return m_report; }
 
-      virtual void endOfEvent(const G4Event*) override;
+      virtual void EndOfEventAction(const G4Event*) override;
 
     private:
 

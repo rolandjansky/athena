@@ -25,7 +25,7 @@ namespace G4UA
   {
   }
 
-  void G4CosmicAndFilter::endOfEvent(const G4Event*)
+  void G4CosmicAndFilter::EndOfEventAction(const G4Event*)
   {
 
     m_report.ntot++;

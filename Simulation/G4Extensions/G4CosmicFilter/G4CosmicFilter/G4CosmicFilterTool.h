@@ -5,7 +5,7 @@
 #ifndef G4COSMICFILTER_G4UA__G4COSMICFILTERTOOL_H
 #define G4COSMICFILTER_G4UA__G4COSMICFILTERTOOL_H
 
-#include "G4AtlasInterfaces/IEndEventActionTool.h"
+#include "G4AtlasInterfaces/IG4EventActionTool.h"
 #include "G4AtlasTools/ActionToolBase.h"
 #include "G4CosmicFilter/G4CosmicFilter.h"
 
@@ -13,15 +13,15 @@ namespace G4UA
 {
 
   class G4CosmicFilterTool: public ActionToolBaseReport<G4CosmicFilter>,
-                            public IEndEventActionTool
+                            public IG4EventActionTool
   {
 
     public:
 
       G4CosmicFilterTool(const std::string& type, const std::string& name,const IInterface* parent);
 
-      virtual IEndEventAction* getEndEventAction() override final
-      { return static_cast<IEndEventAction*>( getAction() ); }
+      virtual G4UserEventAction* getEventAction() override final
+      { return static_cast<G4UserEventAction*>( getAction() ); }
 
       virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
       virtual StatusCode finalize() override;
