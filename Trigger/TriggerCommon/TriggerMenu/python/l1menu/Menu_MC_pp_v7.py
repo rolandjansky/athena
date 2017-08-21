@@ -422,6 +422,10 @@ def defineMenu():
         'L1_J25_2J20_3J12_BOX-TAU20ITAU12I',  
         'L1_DR-MU10TAU12I_TAU12I-J25', 
         "L1_MU10_TAU12I-J25",
+        "L1_2TAU20IM_3J20",
+        "L1_2TAU20IM_J25_3J20",
+        "L1_TAU25IM_2TAU12IM_J25_3J12",
+
 
 
         # combined tau - xe
@@ -912,7 +916,7 @@ def defineMenu():
     
 
 #CTP IDs are taken from this mapping. Every L1 item needs a unique ctpid.
-#Free CTP IDs (2017-07-20) are: 473-479, 481, 486, 487, 488
+#Free CTP IDs (2017-08-18) are: 473-478, 
 # 463-464 are reserved for L1_RD2_BGRP14 and L1_RD3_BGRP15 (in MC_Physics_pp_v7)
 # 509-511 are reserved for CALREQ
 
@@ -1003,6 +1007,10 @@ def defineMenu():
         'L1_MU10_TAU20IM' : 67,
         'L1_MU11_TAU20IM' : 430,
         'L1_MU10_TAU20IM_J25_2J20' : 377,
+
+        'L1_2TAU20IM_3J20' : 486, 
+        'L1_2TAU20IM_J25_3J20' : 479, 
+        'L1_TAU25IM_2TAU12IM_J25_3J12' : 481,
 
         'L1_TAU20IM_2TAU12IM_J25_2J20_3J12' : 70,
         'L1_TAU25IM_2TAU20IM_2J25_3J20' : 398,
