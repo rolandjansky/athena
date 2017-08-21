@@ -3,7 +3,8 @@
 
 PFAlgorithm::PFAlgorithm(const std::string& name,  ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator), m_IPFSubtractionTools(this), m_IPFBaseTools(this), m_eflowRecTracksReadHandle("eflowRecTracks"), m_eflowRecClustersReadHandle("eflowRecClusters"),  m_caloClustersWriteHandle("PFCaloCluster")   
 {
-  declareProperty( "PrivateToolList",  m_IPFSubtractionTools, "List of Private Subtraction eflowISubtractionAlgTools" );
+  declareProperty( "SubtractionToolList",  m_IPFSubtractionTools, "List of Private Subtraction IPFSubtractionTools" );
+  declareProperty( "BaseToolList",  m_IPFBaseTools, "List of Private IPFBaseTools" );
   declareProperty("eflowRecTracksInputName",  m_eflowRecTracksReadHandle);
   declareProperty("eflowRecClustersInputName",  m_eflowRecClustersReadHandle);
   declareProperty("PFCaloClustersOutputName", m_caloClustersWriteHandle);
