@@ -407,7 +407,7 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
             L2Hypo = L2MultiMuHypo_Upsi()        
             
         from TrigBphysHypo.TrigEFMultiMuFexConfig import EFMultiMuFex_Upsi
-        from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_Upsi 
+        from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_Upsi
         EFFex = EFMultiMuFex_Upsi()
         EFHypo = EFMultiMuHypo_Upsi()
     

@@ -1,5 +1,4 @@
 #include "GaudiKernel/DeclareFactoryEntries.h"
-#include "TrigBjetHypo/TrigBjetHypoAllTE.h"
 #include "TrigBjetHypo/TrigBjetHypo.h"
 #include "TrigBjetHypo/TrigBjetFex.h"
 #include "TrigBjetHypo/TrigBtagFex.h"
@@ -12,7 +11,6 @@
 #include "TrigBjetHypo/TrigBjetEtHypo.h"
 #include "TrigBjetHypo/TrigFarawayJetFinderAllTE.h"
 
-DECLARE_ALGORITHM_FACTORY( TrigBjetHypoAllTE )
 DECLARE_ALGORITHM_FACTORY( TrigBjetHypo )
 DECLARE_ALGORITHM_FACTORY( TrigBjetFex )
 DECLARE_ALGORITHM_FACTORY( TrigBtagFex )
@@ -27,7 +25,6 @@ DECLARE_ALGORITHM_FACTORY( TrigFarawayJetFinderAllTE )
 
 DECLARE_FACTORY_ENTRIES( TrigBjetHypo ) { 
 
-    DECLARE_ALGORITHM( TrigBjetHypoAllTE )
     DECLARE_ALGORITHM( TrigBjetHypo )
     DECLARE_ALGORITHM( TrigBjetFex )
     DECLARE_ALGORITHM( TrigBtagFex )

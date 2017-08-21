@@ -440,7 +440,7 @@ class GenerateMenu:
         log.debug("\n chainDicts1 %s ", chainDicts)
         chainDicts = splitInterSignatureChainDict(chainDicts)        
         log.debug("\n chainDicts2 %s", chainDicts)
-
+        
 
         #print 'doEgammaChains, doMuonChains', self.doEgammaChains, self.doMuonChains
 
@@ -618,7 +618,6 @@ class GenerateMenu:
                 
 
         doTopo = self.CheckIntraSignatureTopo(chainDicts) and chainDict["topo"]
-
 
         if len(listOfChainDefs) == 0:# or not (len(listOfChainDefs)==len(chainDicts)):
             return False
@@ -888,6 +887,7 @@ class GenerateMenu:
 
 
             chainDef = self.getChainDef(chainDicts)
+
             #Insert entry for chain counter later
             #For now, just modify it by assigning it automatically
             streams = chain[3]
