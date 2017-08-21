@@ -26,7 +26,7 @@ namespace G4UA
   {
   }
 
-  void G4CosmicFilter::endOfEvent(const G4Event*)
+  void G4CosmicFilter::EndOfEventAction(const G4Event*)
   {
     int counter(0);
 

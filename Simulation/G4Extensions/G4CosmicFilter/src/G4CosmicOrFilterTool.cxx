@@ -28,8 +28,8 @@ namespace G4UA
 
   StatusCode G4CosmicOrFilterTool::queryInterface(const InterfaceID& riid, void** ppvIf)
   {
-    if(riid == IEndEventActionTool::interfaceID()) {
-      *ppvIf = (IEndEventActionTool*) this;
+    if(riid == IG4EventActionTool::interfaceID()) {
+      *ppvIf = (IG4EventActionTool*) this;
       addRef();
       return StatusCode::SUCCESS;
     } return ActionToolBase<G4CosmicOrFilter>::queryInterface(riid, ppvIf);
