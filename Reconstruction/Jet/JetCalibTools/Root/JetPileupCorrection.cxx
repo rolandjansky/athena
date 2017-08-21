@@ -5,19 +5,19 @@
 #include "JetCalibTools/CalibrationMethods/JetPileupCorrection.h"
 
 JetPileupCorrection::JetPileupCorrection()
-  : asg::AsgTool( "JetPileupCorrection::JetPileupCorrection" ), JetCalibrationToolBase::JetCalibrationToolBase(),
+  : JetCalibrationToolBase::JetCalibrationToolBase("JetPileupCorrection::JetPileupCorrection"),
     m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""), m_dev(false), m_doResidual(false), m_doOrigin(false), m_isData(false),
     m_useFull4vectorArea(false), m_residualOffsetCorr(NULL)
 { }
 
 JetPileupCorrection::JetPileupCorrection(const std::string& name)
-  : asg::AsgTool( name ), JetCalibrationToolBase::JetCalibrationToolBase( name ),
+  : JetCalibrationToolBase::JetCalibrationToolBase( name ),
     m_config(NULL), m_jetAlgo(""), m_calibAreaTag(), m_dev(false), m_doResidual(false), m_doOrigin(false), m_isData(false),
     m_useFull4vectorArea(false), m_residualOffsetCorr(NULL)
 { }
 
 JetPileupCorrection::JetPileupCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag, bool doResidual, bool doOrigin, bool isData, bool dev)
-  : asg::AsgTool( name ), JetCalibrationToolBase::JetCalibrationToolBase( name ),
+  : JetCalibrationToolBase::JetCalibrationToolBase( name ),
     m_config(config), m_jetAlgo(jetAlgo), m_calibAreaTag(calibAreaTag), m_dev(dev), m_doResidual(doResidual), m_doOrigin(doOrigin), m_isData(isData),
     m_useFull4vectorArea(false), m_residualOffsetCorr(NULL)
 { }

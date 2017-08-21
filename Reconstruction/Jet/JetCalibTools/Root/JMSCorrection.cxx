@@ -16,19 +16,19 @@
 
 
 JMSCorrection::JMSCorrection()
-  : asg::AsgTool( "JMSCorrection::JMSCorrection" ), JetCalibrationToolBase::JetCalibrationToolBase(),
+  : JetCalibrationToolBase::JetCalibrationToolBase("JMSCorrection::JMSCorrection"),
     m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""), m_dev(false)
    
 { }
 
 JMSCorrection::JMSCorrection(const std::string& name)
-  : asg::AsgTool( name ), JetCalibrationToolBase::JetCalibrationToolBase( name ),
+  : JetCalibrationToolBase::JetCalibrationToolBase( name ),
     m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""), m_dev(false)
    
 { }
 
 JMSCorrection::JMSCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag, bool dev)
-  : asg::AsgTool( name ), JetCalibrationToolBase::JetCalibrationToolBase( name ),
+  : JetCalibrationToolBase::JetCalibrationToolBase( name ),
     m_config(config), m_jetAlgo(jetAlgo), m_calibAreaTag(calibAreaTag), m_dev(dev)
 { }
 

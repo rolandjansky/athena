@@ -40,10 +40,6 @@ public:
   // invalid ID return "" string
   std::string name(int id) const { return pmgxs.getSampleName(id); }
 
-  // Allow iteration over all samples, denying modification of private data
-  //private:
-  //  bool m_extended;
-
 };
 
 }

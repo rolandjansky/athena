@@ -33,8 +33,8 @@
 #include "JetCalibTools/JetCalibUtils.h"
 
 class JetCalibrationToolBase
-  : virtual public asg::AsgTool,
-    virtual public CP::CorrectionTool< xAOD::JetContainer >,
+  : public asg::AsgTool,
+    public CP::CorrectionTool< xAOD::JetContainer >,
     virtual public ::IJetCalibrationTool,
     virtual public ::IJetModifier,
     virtual public ::ISingleJetModifier

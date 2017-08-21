@@ -18,7 +18,8 @@
 #include "JetCPInterfaces/ICPJetUncertaintiesTool.h"
 #include "JetInterface/IJetUpdateJvt.h"
 #include "JetInterface/IJetModifier.h"
-#include "JetMomentTools/JetForwardJvtTool.h"
+#include "JetInterface/ISingleJetModifier.h"
+#include "JetJvtEfficiency/IJetJvtEfficiency.h"
 
 #include "xAODBTaggingEfficiency/IBTaggingEfficiencyTool.h"
 #include "xAODBTaggingEfficiency/IBTaggingSelectionTool.h"
@@ -102,11 +103,9 @@ namespace ST {
       }
       m_jetFwdJvtTool->modify(*copy); //compute FwdJVT for all jets
       for (const auto& jet : *copy) {
-        //      if( m_jetFwdJvtTool->forwardJet(*jet) ){ //redefine Jvt for fwd jets
         if( fabs((*jet).eta()) > m_fwdjetEtaMin ){
           dec_passJvt(*jet) = acc_passFJvt(*jet); 
-          //dec_baseline(*jet) &= dec_passJvt(*jet); //redefine baseline after that
-          
+
           //new state for OR   .  0=non-baseline objects, 1=for baseline jets not passing JVT, 2=for any other baseline object 
           if ( acc_baseline(*jet) ){
             if( acc_passJvt(*jet) )     dec_selected(*jet) = 2;
@@ -169,14 +168,21 @@ namespace ST {
       const static SG::AuxElement::Decorator<int> dec_wtagged("wtagged");
       const static SG::AuxElement::Decorator<int> dec_ztagged("ztagged");
       if ( doLargeRdecorations ){
-#ifdef XAOD_STANDALONE 
-        dec_wtagged(*jet) = m_WTaggerTool->result(*jet);
-        dec_ztagged(*jet) = m_ZTaggerTool->result(*jet);
-#else
-        ATH_MSG_DEBUG("Boson tagging only available in RootCore at the moment!");
-        dec_wtagged(*jet) = -1;
-        dec_ztagged(*jet) = -1;
-#endif
+        int is_w_tagged=-1;
+        if (m_WTaggerTool->modifyJet(*jet)!=0){
+          ATH_MSG_WARNING("Failed to W-tag jet");
+        } else {
+          is_w_tagged = jet->getAttribute<int>("BosonTag");
+        }
+        dec_wtagged(*jet) = is_w_tagged;
+
+        int is_z_tagged=-1;
+        if (m_ZTaggerTool->modifyJet(*jet)!=0){
+          ATH_MSG_WARNING("Failed to Z-tag jet");
+        } else {
+          is_z_tagged = jet->getAttribute<int>("BosonTag");
+        }
+        dec_ztagged(*jet) = is_z_tagged;
       }
       else{
         dec_wtagged(*jet) = -1;
@@ -328,11 +334,6 @@ namespace ST {
     else{
       dec_selected(input) = 0;
     }
-
-    // if (!acc_passJvt(input)) {
-    //   dec_baseline(input) = false;
-    //   return StatusCode::SUCCESS;
-    // }
 
     if (m_useBtagging && !m_orBtagWP.empty()) {
       bool isbjet_loose = m_btagSelTool_OR->accept(input); //note : b-tag applies only to jet with eta < 2.5

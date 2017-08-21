@@ -105,7 +105,7 @@
 namespace CP {
     class SystematicSet;
 
-    class IMuonEfficiencyScaleFactors: public virtual asg::IAsgTool, public virtual CP::ISystematicsTool {
+    class IMuonEfficiencyScaleFactors: public virtual CP::ISystematicsTool {
             ///
             /// @class IMuonEfficiencyScaleFactors
             /// @brief Interface class.
@@ -115,8 +115,6 @@ namespace CP {
             ASG_TOOL_INTERFACE (CP::IMuonEfficiencyScaleFactors)
 
         public:
-            /// initialize the tool. Call once all properties are set up to your liking
-            virtual StatusCode initialize()= 0;
 
             /// Retrieve the Scale factor
             virtual CorrectionCode getEfficiencyScaleFactor(const xAOD::Muon& mu, float& sf, const xAOD::EventInfo* info = 0) const = 0;
