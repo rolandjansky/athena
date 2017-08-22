@@ -8,57 +8,56 @@
 // Author: Frank Paige <paige@bnl.gov>
 ///////////////////////////////////////////////////////////////////
 
+// Class header file
 #include "ApplySUSYTools.h"
-#include "SUSYTools/SUSYObjDef_xAOD.h"
+
+// Tools and services used here
 #include "AthenaKernel/IThinningSvc.h"
 
 // EDM includes:
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODMuon/MuonContainer.h"
-#include "xAODMuon/MuonAuxContainer.h"
-#include "xAODPrimitives/IsolationType.h"
 #include "xAODJet/JetContainer.h"
-#include "xAODJet/JetAuxContainer.h"
-#include "xAODJet/JetAttributes.h"
-#include "xAODJet/JetTypes.h"
-#include "xAODBTagging/BTagging.h"
 #include "xAODEgamma/ElectronContainer.h"
-#include "xAODEgamma/ElectronAuxContainer.h"
 #include "xAODMissingET/MissingETContainer.h"
 #include "xAODMissingET/MissingETAuxContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/VertexContainer.h"
-#include "xAODTracking/TrackingPrimitives.h"
 #include "xAODTau/TauJetContainer.h"
-#include "xAODTau/TauJetAuxContainer.h"
-#include "TauAnalysisTools/ITauTruthMatchingTool.h"
 #include "xAODEgamma/PhotonContainer.h"
-#include "xAODEgamma/PhotonAuxContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
+#include "xAODBTagging/BTaggingContainer.h"
+
+// Various typedefs and enums used in the code
+#include "xAODJet/JetAttributes.h"
+#include "xAODJet/JetTypes.h"
+#include "xAODPrimitives/IsolationType.h"
+
+// For tau truth matching
+#include "TauAnalysisTools/ITauTruthMatchingTool.h"
 
 // For the forcing of the tau truth container build
 #include "tauRecTools/IBuildTruthTaus.h"
 
+// Shallow copies for jet passing
 #include "xAODCore/ShallowCopy.h"
+
+// Decorators
 #include "AthContainers/AuxElement.h"
-#include "AsgTools/AsgMetadataTool.h"
-#include "xAODBase/IParticleHelpers.h"
+
+// Cut book keeper objects
 #include "xAODCutFlow/CutBookkeeperContainer.h"
 #include "xAODCutFlow/CutBookkeeperAuxContainer.h"
 
 // Needed for systematics
 #include "PATInterfaces/SystematicCode.h"
 #include "PATInterfaces/SystematicSet.h"
-//#include "PATInterfaces/SystematicList.h"
-#include "PATInterfaces/SystematicRegistry.h"
-#include "PATInterfaces/SystematicVariation.h"
 
-// FrameWork includes
-#include "GaudiKernel/Property.h"
-#include "GaudiKernel/ITHistSvc.h"
-#include "GaudiKernel/ServiceHandle.h"
-
+// For finding calibration files
 #include "PathResolver/PathResolver.h"
+
+// For environment setup
+#include "TEnv.h"
 
 namespace ST {
 

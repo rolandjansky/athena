@@ -9,16 +9,23 @@
 #ifndef SUSYToolsAlg_H
 #define SUSYToolsAlg_H
 
+// Base class
 #include "AthAnalysisBaseComps/AthAnalysisAlgorithm.h"
-#include "GaudiKernel/ToolHandle.h"
+
+// Tool handles
+#include "AsgTools/AnaToolHandle.h"
+
+// For SystInfo needs to be included
 #include "SUSYTools/ISUSYObjDef_xAODTool.h"
-#include "PATInterfaces/SystematicSet.h"
+
+// Timing
 #include "TStopwatch.h"
 
+// Standard library includes
+#include <string>
+#include <vector>
+
 // Need truth matching for TauJet CP tools 
-namespace tauRecTools {
-  class IBuildTruthTaus;
-}
 namespace TauAnalysisTools {
   class ITauTruthMatchingTool;
 }
@@ -57,7 +64,7 @@ class SUSYToolsAlg : public AthAnalysisAlgorithm {
     std::vector<std::string> syst_btag_weights;
     std::vector<std::string> syst_event_weights;
 
-    ToolHandle<ST::ISUSYObjDef_xAODTool> m_SUSYTools;
+    asg::AnaToolHandle<ST::ISUSYObjDef_xAODTool> m_SUSYTools;
 
     unsigned int m_Nevts;
     std::string m_configFile;
@@ -77,8 +84,7 @@ class SUSYToolsAlg : public AthAnalysisAlgorithm {
     int count_ph_signal;
     int count_mu_signal;
 
-    ToolHandle< TauAnalysisTools::ITauTruthMatchingTool > m_tauTruthTool;
-    ToolHandle< tauRecTools::IBuildTruthTaus > m_tauTruthBuilderTool;
+    asg::AnaToolHandle< TauAnalysisTools::ITauTruthMatchingTool > m_tauTruthTool;
 
     bool m_CheckTruthJets;
 }; 
