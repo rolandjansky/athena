@@ -179,7 +179,7 @@ topSequence += PFClusterSelector
 from eflowRec.eflowRecConf import PFAlgorithm
 PFAlgorithm = PFAlgorithm("PFAlgorithm")
 
-PFAlgorithm.PrivateToolList  = []
+PFAlgorithm.SubtractionToolList  = []
 
 from eflowRec.eflowRecConf import PFCellLevelSubtractionTool
 PFCellLevelSubtractionTool = PFCellLevelSubtractionTool("PFCellLevelSubtractionTool")
@@ -219,10 +219,125 @@ if jobproperties.eflowRecFlags.eflowAlgType == "EOverP":
    MatchingTool.DistanceType        = 'EtaPhiSquareDistance'
    MatchingTool.MatchCut = 0.2*0.2 # float
    
+PFAlgorithm.SubtractionToolList += [PFCellLevelSubtractionTool]
 
+from eflowRec.eflowRecConf import PFRecoverSplitShowersTool
+PFRecoverSplitShowersTool = PFRecoverSplitShowersTool("PFRecoverSplitShowersTool")
+
+CellEOverPTool_Recover=eflowCellEOverPTool_mc12_JetETMiss("eflowCellEOverPTool_mc12_JetETMiss_Recover")
+
+PFRecoverSplitShowersTool.eflowCellEOverPTool=CellEOverPTool_Recover
+
+if jobproperties.eflowRecFlags.recoverIsolatedTracks == True:
+   PFRecoverSplitShowersTool.RecoverIsolatedTracks = True
    
+if jobproperties.eflowRecFlags.useUpdated2015ChargedShowerSubtraction == False:
+   PFRecoverSplitShowersTool.useUpdated2015ChargedShowerSubtraction = False
 
-PFAlgorithm.PrivateToolList += [PFCellLevelSubtractionTool]
+MatchingTool_Recover = PFTrackClusterMatchingTool()
+MatchingTool_Recover.TrackPositionType   = 'EM2EtaPhi' # str
+MatchingTool_Recover.ClusterPositionType = 'PlainEtaPhi' # str
+MatchingTool_Recover.DistanceType        = 'EtaPhiSquareDistance' # str
+MatchingTool_Recover.MatchCut = 0.2*0.2 # float
+PFRecoverSplitShowersTool.PFTrackClusterMatchingTool = MatchingTool
+
+PFAlgorithm.SubtractionToolList += [PFRecoverSplitShowersTool]
+
+from eflowRec.eflowRecConf import PFMomentCalculatorTool
+PFMomentCalculatorTool = PFMomentCalculatorTool("PFMomentCalculatorTool")
+
+from CaloRec.CaloRecConf import CaloClusterMomentsMaker
+PFClusterMomentsMaker = CaloClusterMomentsMaker("PFClusterMomentsMaker")
+
+from CaloRec.CaloTopoClusterFlags import jobproperties
+
+from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
+theCaloNoiseTool = CaloNoiseToolDefault()
+from AthenaCommon.AppMgr import ToolSvc
+ToolSvc += theCaloNoiseTool
+
+PFClusterMomentsMaker.MaxAxisAngle = 20*deg
+PFClusterMomentsMaker.WeightingOfNegClusters = jobproperties.CaloTopoClusterFlags.doTreatEnergyCutAsAbsolute() 
+PFClusterMomentsMaker.MinBadLArQuality = 4000
+PFClusterMomentsMaker.CaloNoiseTool = theCaloNoiseTool
+PFClusterMomentsMaker.UsePileUpNoise = True
+PFClusterMomentsMaker.TwoGaussianNoise = jobproperties.CaloTopoClusterFlags.doTwoGaussianNoise()
+PFClusterMomentsMaker.OutputLevel = INFO
+PFClusterMomentsMaker.MomentsNames = [
+   "FIRST_PHI" 
+   ,"FIRST_ETA"
+   ,"SECOND_R" 
+   ,"SECOND_LAMBDA"
+   ,"DELTA_PHI"
+   ,"DELTA_THETA"
+   ,"DELTA_ALPHA" 
+   ,"CENTER_X"
+   ,"CENTER_Y"
+   ,"CENTER_Z"
+   ,"CENTER_MAG"
+   ,"CENTER_LAMBDA"
+   ,"LATERAL"
+   ,"LONGITUDINAL"
+   ,"FIRST_ENG_DENS" 
+   ,"ENG_FRAC_EM" 
+   ,"ENG_FRAC_MAX" 
+   ,"ENG_FRAC_CORE" 
+   ,"FIRST_ENG_DENS" 
+   ,"SECOND_ENG_DENS"
+   ,"ISOLATION"
+   ,"EM_PROBABILITY"
+   ,"ENG_POS"
+   ,"ENG_BAD_CELLS"
+   ,"N_BAD_CELLS"
+   ,"BADLARQ_FRAC"
+   ,"AVG_LAR_Q"
+   ,"AVG_TILE_Q"
+   ,"SIGNIFICANCE"
+]
+
+PFMomentCalculatorTool.CaloClusterMomentsMaker = PFClusterMomentsMaker
+
+from eflowRec.eflowRecConf import PFClusterCollectionTool
+PFClusterCollectionTool_default = PFClusterCollectionTool("PFClusterCollectionTool")
+
+PFMomentCalculatorTool.PFClusterCollectionTool = PFClusterCollectionTool_default
+
+PFAlgorithm.BaseToolList = [PFMomentCalculatorTool]
+
+from eflowRec.eflowRecConf import PFLCCalibTool
+PFLCCalibTool = PFLCCalibTool("PFLCCalibTool")
+
+from eflowRec.eflowLocalHadCal import eflowLocalHadCal
+LocalHadCal = eflowLocalHadCal()
+Calib = LocalHadCal.eflowCaloClusterLocalCalib("PFLCCalibTool")
+CalibOO = LocalHadCal.eflowCaloClusterLocalCalibOO("PFLCCalibTool")
+CalibOOPi0 = LocalHadCal.eflowCaloClusterLocalCalibOOPi0("PFLCCalibTool")
+CalibDM = LocalHadCal.eflowCaloClusterLocalCalibDM("PFLCCalibTool")
+
+from CaloRec.CaloTopoClusterFlags import jobproperties
+if not (jobproperties.CaloTopoClusterFlags.doTopoClusterLocalCalib()):
+   #load local hadron calibration database, if not done so by CaloRec already
+   from CaloRec import CaloClusterTopoCoolFolder
+
+PFLCCalibTool.CaloClusterLocalCalib=Calib
+PFLCCalibTool.CaloClusterLocalCalibOOCC=CalibOO
+PFLCCalibTool.CaloClusterLocalCalibOOCCPi0=CalibOOPi0
+PFLCCalibTool.CaloClusterLocalCalibDM=CalibDM
+
+PFClusterCollectionTool_LCCalib = PFClusterCollectionTool("PFClusterCollectionTool_LCCalib")
+PFLCCalibTool.eflowRecClusterCollectionTool=PFClusterCollectionTool_LCCalib
+PFLCCalibTool.UseLocalWeight = False
+
+PFAlgorithm.BaseToolList += [PFLCCalibTool]
+
+from eflowRec.eflowRecConf import PFOChargedCreatorTool
+PFOChargedCreatorTool = PFOChargedCreatorTool("PFOChargedCreatorTool")
+
+from TrackVertexAssociationTool.TrackVertexAssociationToolConf import CP__TightTrackVertexAssociationTool        
+PFlowTrackVertexAssociationTool = CP__TightTrackVertexAssociationTool(name="PFlowTightCPTool", dzSinTheta_cut=2.0, doPV=True)
+PFOChargedCreatorTool.TrackVertexAssociationTool = PFlowTrackVertexAssociationTool
+
+PFAlgorithm.BaseToolList += [PFOChargedCreatorTool]
 
 topSequence += PFAlgorithm
 
@@ -234,6 +349,9 @@ from OutputStreamAthenaPool.OutputStreamAthenaPool import  createOutputStream
 StreamESD=createOutputStream("StreamESD","myESD.pool.root",True)
 include ("CaloRecEx/CaloRecOutputItemList_jobOptions.py")
 StreamESD.ItemList+=CaloESDList
+
+StreamESD.ItemList += [ "xAOD::PFOContainer#JetETMissChargedParticleFlowObjectsV2"]
+StreamESD.ItemList += [ "xAOD::PFOAuxContainer#JetETMissChargedParticleFlowObjectsV2Aux."]
 
 print StreamESD.ItemList
 
