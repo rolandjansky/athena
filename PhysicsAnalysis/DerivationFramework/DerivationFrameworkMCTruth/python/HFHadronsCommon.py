@@ -143,7 +143,15 @@ DSIDList=[
 
 import PyUtils.AthFile as af
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-f = af.fopen(athenaCommonFlags.PoolAODInput()[0])
+
+# Peek at the file -- this depends on what kind of file we have
+from RecExConfig.ObjKeyStore import objKeyStore
+if objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ):
+    f = af.fopen(athenaCommonFlags.FilesInput()[0])
+elif objKeyStore.isInInput( "McEventCollection", "TruthEvent"):
+    f = af.fopen(athenaCommonFlags.FilesInput()[0])        
+else:
+    f = af.fopen(athenaCommonFlags.PoolAODInput()[0])
 if len(f.mc_channel_number) > 0:
   if(int(f.mc_channel_number[0]) in DSIDList):
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__HadronOriginClassifier
