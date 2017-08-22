@@ -9,8 +9,6 @@
 #include <cstdlib>
 #include <string>
 #include <iostream>
-// #include <valgrind/callgrind.h>
-//#include <gperftools/profiler.h>
 
 // ROOT include(s):
 #include <TFile.h>
@@ -51,24 +49,19 @@
 #include "xAODCore/ShallowCopy.h"
 #include "xAODMissingET/MissingETContainer.h"
 #include "xAODMissingET/MissingETAuxContainer.h"
-#include "xAODBTaggingEfficiency/BTaggingEfficiencyTool.h"
 #include "xAODBase/IParticleHelpers.h"
 #include "xAODTruth/xAODTruthHelpers.h"
-#include "TauAnalysisTools/TauTruthMatchingTool.h"
 #include "GoodRunsLists/GoodRunsListSelectionTool.h"
-#include "PileupReweighting/PileupReweightingTool.h"
 
 // Local include(s):
 #include "SUSYTools/SUSYObjDef_xAOD.h"
 #include "SUSYTools/SUSYCrossSection.h"
 
 // Other includes
-#include "PATInterfaces/SystematicVariation.h"
-#include "PATInterfaces/SystematicRegistry.h"
+#include "PATInterfaces/SystematicSet.h"
 #include "PATInterfaces/SystematicCode.h"
+#include "PATInterfaces/CorrectionCode.h"
 #include "PathResolver/PathResolver.h"
-
-#include "METUtilities/METSystematicsTool.h"
 
 #include "xAODCutFlow/CutBookkeeper.h"
 #include "xAODCutFlow/CutBookkeeperContainer.h"
