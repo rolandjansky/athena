@@ -54,93 +54,9 @@ DerivationFrameworkJob += metAlg
 #==============================================================================
 # HEAVY FLAVOR DECORATIONS (ttbar)
 #==============================================================================
+import HFHadronsCommon
 # PhysicsAnalysis/DerivationFramework/DerivationFrameworkMCTruth/trunk/src/HadronOriginClassifier.cxx
 # PhysicsAnalysis/DerivationFramework/DerivationFrameworkMCTruth/trunk/src/HadronOriginDecorator.cxx
-# list of ttbar samples by mc_channel_number
-TRUTH1DSIDList=[
-  410000,
-  410001,
-  410002,
-  410003,
-  410004,
-  410007,
-  410008,
-  410009,
-  301528,
-  301529,
-  301530,
-  301531,
-  301532,
-  303722,
-  303723,
-  303724,
-  303725,
-  303726,
-  407009,
-  407010,
-  407011,
-  407012,
-  410120,
-  410121,
-  426090,
-  426091,
-  426092,
-  426093,
-  426094,
-  426095,
-  426096,
-  426097,
-  429007,
-  410051,
-  410244,
-  410245,
-  410323,
-  410324,
-  410325,
-  410342,
-  410343,
-  410344,
-  410345,
-  410346,
-  410347,
-  410350,
-  410351,
-  410352,
-  410353,
-  410354,
-  410355,
-  410357,
-  410358,
-  410359,
-  410361,
-  410362,
-  410363,
-  410364,
-  410365,
-  410366,
-  410367,
-  410281,
-  410282,
-  410283,
-  410507, 
-  410508, 
-]
-
-import PyUtils.AthFile as af
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-f = af.fopen(athenaCommonFlags.FilesInput()[0])
-if len(f.infos['run_number']) > 0:
-  if(int((f.infos['run_number'])[0]) in TRUTH1DSIDList):
-    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__HadronOriginClassifier
-    TRUTH1hadronorigintool = DerivationFramework__HadronOriginClassifier("TRUTH1HadronOriginClassifier",DSID=int((f.infos['run_number'])[0]))
-    ToolSvc += TRUTH1hadronorigintool
-    print "TRUTH1hadronorigintool: ", TRUTH1hadronorigintool
-    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__HadronOriginDecorator
-    TRUTH1hadronorigindecorator = DerivationFramework__HadronOriginDecorator(name = "TRUTH1HadronOriginDecorator")
-    TRUTH1hadronorigindecorator.ToolName = TRUTH1hadronorigintool
-    ToolSvc += TRUTH1hadronorigindecorator
-    print "TRUTH1hadronorigindecorator: ", TRUTH1hadronorigindecorator
-    augmentationTools.append(TRUTH1hadronorigindecorator)
 
 #==============================================================================
 # Thinning the master truth collection 
