@@ -53,7 +53,7 @@ namespace G4UA{
   }
   
   
-  void TestActionShowerLib::beginOfEvent(const G4Event*){
+  void TestActionShowerLib::BeginOfEventAction(const G4Event*){
     if (m_current_transform == 0)
       m_current_transform = new G4AffineTransform ();
     
@@ -69,7 +69,7 @@ namespace G4UA{
     
   }
   
-  void TestActionShowerLib::endOfEvent(const G4Event*){
+  void TestActionShowerLib::EndOfEventAction(const G4Event*){
 #ifdef _myDEBUG_
     G4cout << "#########################################" << G4endl
 	   << "##    TestActionShowerLib - EndOfEvent ##" << G4endl
@@ -128,7 +128,7 @@ namespace G4UA{
     
   }
   
-  void TestActionShowerLib::beginOfRun(const G4Run*){
+  void TestActionShowerLib::BeginOfRunAction(const G4Run*){
 #ifdef _myDEBUG_
     G4cout << "#########################################" << G4endl
 	   << "##    TestActionShowerLib - BeginOfRun ##" << G4endl
@@ -166,7 +166,7 @@ namespace G4UA{
   return;
 }
 
-void TestActionShowerLib::endOfRun(const G4Run*){
+void TestActionShowerLib::EndOfRunAction(const G4Run*){
     
 #ifdef _myDEBUG_
     G4cout << "#########################################" << G4endl
@@ -178,7 +178,7 @@ void TestActionShowerLib::endOfRun(const G4Run*){
 }
 
   
-void TestActionShowerLib::processStep(const G4Step* aStep){
+void TestActionShowerLib::UserSteppingAction(const G4Step* aStep){
     
     bool hasCalc=true;
     bool emptydet = (m_eventSteps->detector[0] == '\0'); //empty string. man, i hate pure C!
