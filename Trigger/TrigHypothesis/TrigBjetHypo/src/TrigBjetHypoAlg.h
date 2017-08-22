@@ -21,7 +21,6 @@
  * @class Implements b-jet selection for the new HLT framework
  * @brief 
  **/
-using namespace TrigCompositeUtils;
 
 class TrigBjetHypoAlg
   : public ::AthReentrantAlgorithm
@@ -32,9 +31,9 @@ class TrigBjetHypoAlg
 
   virtual ~TrigBjetHypoAlg(); 
 
-  StatusCode  initialize() override;
-  StatusCode  execute_r( const EventContext& context ) const override;
-  StatusCode  finalize() override;
+  virtual StatusCode  initialize() override;
+  virtual StatusCode  execute_r( const EventContext& context ) const override;
+  virtual StatusCode  finalize() override;
  
  private: 
   TrigBjetHypoAlg();
@@ -43,7 +42,7 @@ class TrigBjetHypoAlg
   // ----->>>>>>>
   SG::ReadHandleKey< TrigRoiDescriptorCollection > m_roisKey;
   SG::ReadHandleKey< xAOD::BTaggingContainer> m_bTagKey;
-  SG::WriteHandleKey< DecisionContainer > m_decisionsKey;
+  SG::WriteHandleKey< TrigCompositeUtils::DecisionContainer > m_decisionsKey;
  
 }; 
 

@@ -5,6 +5,8 @@
 #include "GaudiKernel/Property.h"
 #include "TrigBjetHypoAlg.h"
 
+using namespace TrigCompositeUtils;
+
 TrigBjetHypoAlg::TrigBjetHypoAlg( const std::string& name, 
 				      ISvcLocator* pSvcLocator ) : 
   ::AthReentrantAlgorithm( name, pSvcLocator ),
