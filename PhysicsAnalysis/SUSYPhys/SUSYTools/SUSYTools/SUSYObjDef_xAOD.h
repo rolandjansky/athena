@@ -27,7 +27,7 @@
 #include "PATInterfaces/SystematicVariation.h"
 
 // Tool handles
-#include <AsgTools/AnaToolHandle.h>
+#include "AsgTools/AnaToolHandle.h"
 
 // Configuration
 #include "TEnv.h"

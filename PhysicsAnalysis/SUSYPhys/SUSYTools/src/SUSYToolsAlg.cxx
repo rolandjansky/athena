@@ -3,36 +3,40 @@
 */
 
 // SUSYToolsAlg.cxx
-
+// Base class
 #include "SUSYToolsAlg.h"
-#include "SUSYTools/ISUSYObjDef_xAODTool.h"
 
-#include "xAODCore/ShallowCopy.h"
-#include "xAODBase/IParticleHelpers.h"
+// EDM includes
+#include "xAODEventInfo/EventInfo.h"
 #include "xAODMuon/MuonContainer.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODTau/TauJetContainer.h"
-#include "xAODTau/TauJetAuxContainer.h"
+#include "xAODMissingET/MissingETContainer.h"
 #include "xAODMissingET/MissingETAuxContainer.h"
-#include "xAODEventInfo/EventInfo.h"
+
+// For shallow copy containers
+#include "xAODCore/ShallowCopy.h"
 
 // For the forcing of the tau truth container build 
 #include "TauAnalysisTools/ITauTruthMatchingTool.h"
 #include "TauAnalysisTools/IBuildTruthTaus.h"
 
-#include "PATInterfaces/SystematicVariation.h"
-#include "PATInterfaces/SystematicRegistry.h"
+// For handling systematics
 #include "PATInterfaces/SystematicCode.h"
+#include "PATInterfaces/SystematicSet.h"
+
+// For finding calibration files
 #include "PathResolver/PathResolver.h"
 
+// For output of histograms
 #include "TH1F.h"
 #include "TFile.h"
+
+// For configuration
 #include "TString.h"
 #include "TEnv.h"
-
-using std::string;
 
 const unsigned int nSel=5;
 enum Cut {
@@ -304,17 +308,17 @@ StatusCode SUSYToolsAlg::finalize() {
 
   //normalize and label efficiency histograms
   TH1* el_trigmatch_eff_nominal = hist("el_trigmatch_eff_nominal");
-  for (unsigned int i=1; i < el_triggers.size()+1; i++){ el_trigmatch_eff_nominal->GetXaxis()->SetBinLabel(i, el_triggers[i-1].substr(4,string::npos).c_str()); }
+  for (unsigned int i=1; i < el_triggers.size()+1; i++){ el_trigmatch_eff_nominal->GetXaxis()->SetBinLabel(i, el_triggers[i-1].substr(4,std::string::npos).c_str()); }
   el_trigmatch_eff_nominal->GetXaxis()->SetLabelSize(0.05);
   el_trigmatch_eff_nominal->Scale(1/(float)count_el_signal);
 
   TH1* ph_trigmatch_eff_nominal = hist("ph_trigmatch_eff_nominal");
-  for (unsigned int i=1; i < ph_triggers.size()+1; i++){ ph_trigmatch_eff_nominal->GetXaxis()->SetBinLabel(i, ph_triggers[i-1].substr(4,string::npos).c_str()); }
+  for (unsigned int i=1; i < ph_triggers.size()+1; i++){ ph_trigmatch_eff_nominal->GetXaxis()->SetBinLabel(i, ph_triggers[i-1].substr(4,std::string::npos).c_str()); }
   ph_trigmatch_eff_nominal->GetXaxis()->SetLabelSize(0.05);
   ph_trigmatch_eff_nominal->Scale(1/(float)count_ph_signal);
 
   TH1* mu_trigmatch_eff_nominal = hist("mu_trigmatch_eff_nominal");
-  for (unsigned int i=1; i < mu_triggers.size()+1; i++){ mu_trigmatch_eff_nominal->GetXaxis()->SetBinLabel(i, mu_triggers[i-1].substr(4,string::npos).c_str()); }
+  for (unsigned int i=1; i < mu_triggers.size()+1; i++){ mu_trigmatch_eff_nominal->GetXaxis()->SetBinLabel(i, mu_triggers[i-1].substr(4,std::string::npos).c_str()); }
   mu_trigmatch_eff_nominal->GetXaxis()->SetLabelSize(0.05);
   mu_trigmatch_eff_nominal->Scale(1/(float)count_mu_signal);
 
