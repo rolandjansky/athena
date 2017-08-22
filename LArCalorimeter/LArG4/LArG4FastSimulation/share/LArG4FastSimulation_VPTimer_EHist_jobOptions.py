@@ -19,7 +19,7 @@ actionProperties={
 ## # volume/particle timing - prints cpu time spent per particle, per volume to outfile
 ## # DO NOT USE SIMULTANEOUSLY WITH EHistAction!
 from G4AtlasApps.SimFlags import simFlags
-simFlags.OptionalUserActionList.addAction('G4UA::TestActionVPTimerTool',['BeginOfRun','EndOfRun','BeginOfEvent','EndOfEvent','Step'])
+simFlags.OptionalUserActionList.addAction('G4UA::TestActionVPTimerTool',['Run','Event','Step'])
 for key, value in actionProperties.iteritems():
     simFlags.UserActionConfig.addConfig('G4UA::TestActionVPTimerTool',key,value)
 print "volume/particle timing ON (see stdout)"
@@ -27,7 +27,7 @@ print "volume/particle timing ON (see stdout)"
 ## # energy histogramming - creates ROOT file with histograms of kinetic energy by particle, by volume
 
 ## EHist-only options:
-#simFlags.OptionalUserActionList.addAction('G4UA::TestActionEHistTool',['BeginOfRun','EndOfRun','PreTracking','PostTracking','Step'])
+#simFlags.OptionalUserActionList.addAction('G4UA::TestActionEHistTool',['Run','Tracking','Step'])
 #for key, value in actionProperties.iteritems():
 #    simFlags.UserActionConfig.addConfig('G4UA::TestActionEHistTool',key,value)
 #simFlags.UserActionConfig.addConfig('G4UA::TestActionEHistTool','ROOTFileName','top_ke_test.root') # name of .root file output
