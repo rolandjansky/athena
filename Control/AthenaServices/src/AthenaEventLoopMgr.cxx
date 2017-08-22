@@ -656,6 +656,7 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
 {
   const EventInfo* pEvent(nullptr);
   std::unique_ptr<EventInfo> pEventPtr;
+  unsigned int conditionsRun = EventIDBase::UNDEFNUM;
   if ( m_evtContext )
   { // Deal with the case when an EventSelector is provided
     // Retrieve the Event object
@@ -671,6 +672,11 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
         pEventPtr = CxxUtils::make_unique<EventInfo>
           (new EventID(runNumber, eventNumber, eventTime, eventTimeNS, lumiBlock, bunchId), (EventType*)nullptr);
         pEvent = pEventPtr.get();
+
+        if (pAttrList->exists ("ConditionsRun"))
+          conditionsRun = (*pAttrList)["ConditionsRun"].data<unsigned int>();
+        else
+          conditionsRun = runNumber;
         
       } catch (...) {
       }
@@ -715,7 +721,8 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
   m_eventContext.setEventID( *((EventIDBase*) pEvent->event_ID()) );
   m_eventContext.set(m_nev,0);
 
-  m_eventContext.setExtension( Atlas::ExtendedEventContext( eventStore()->hiveProxyDict() ) );
+  m_eventContext.setExtension( Atlas::ExtendedEventContext( eventStore()->hiveProxyDict(),
+                                                            conditionsRun) );
   Gaudi::Hive::setCurrentContext( m_eventContext );
 
   m_aess->reset(m_eventContext);
