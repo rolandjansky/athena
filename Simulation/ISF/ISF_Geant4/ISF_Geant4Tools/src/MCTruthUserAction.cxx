@@ -57,7 +57,7 @@ namespace G4UA{
       m_truthRecordSvcQuick = &(*(m_config.truthRecordSvc));
     }
 
-    void MCTruthUserAction::preTracking(const G4Track* inTrack){;
+    void MCTruthUserAction::PreUserTrackingAction(const G4Track* inTrack){
       //ATH_MSG_DEBUG("Starting to track a new particle");
 
       //m_sHelper.ResetNrOfSecondaries();
@@ -80,7 +80,7 @@ namespace G4UA{
 
     }
 
-    void MCTruthUserAction::postTracking(const G4Track*){
+    void MCTruthUserAction::PostUserTrackingAction(const G4Track*){
       //ATH_MSG_DEBUG("Finished tracking a particle");
       G4EventManager::GetEventManager()->GetTrackingManager()->SetStoreTrajectory(false);
     }
