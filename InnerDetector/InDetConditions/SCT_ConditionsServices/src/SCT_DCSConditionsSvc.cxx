@@ -7,7 +7,8 @@
 
 #include "SCT_DCSConditionsSvc.h"
 #include "SCT_SlhcIdConverter.h"
-#include "SCT_ConditionsData/SCT_DCSConditionsData.h"
+#include "SCT_ConditionsData/SCT_DCSStatCondData.h"
+#include "SCT_ConditionsData/SCT_DCSFloatCondData.h"
 #include "InDetIdentifier/SCT_ID.h"
 
 using SCT_ConditionsServices::castId;
@@ -128,10 +129,10 @@ StatusCode SCT_DCSConditionsSvc::initialize() {
       ATH_MSG_INFO("Cannot registered callback for key: " << *itr <<" Missing data handle.");
     }
   }
-  m_pBadModules = new SCT_DCSConditionsData;
-  m_pModulesHV = new std::map<CondAttrListCollection::ChanNum, float>;
-  m_pModulesTemp0 = new std::map<CondAttrListCollection::ChanNum, float>;
-  m_pModulesTemp1 = new std::map<CondAttrListCollection::ChanNum, float>;
+  m_pBadModules = new SCT_DCSStatCondData;
+  m_pModulesHV = new SCT_DCSFloatCondData;
+  m_pModulesTemp0 = new SCT_DCSFloatCondData;
+  m_pModulesTemp1 = new SCT_DCSFloatCondData;
   return StatusCode::SUCCESS;
 }
 
@@ -220,9 +221,9 @@ float SCT_DCSConditionsSvc::modHV(const Identifier& elementId, InDetConditions::
   m_moduleId = getModuleID(elementId, h);
   if (not m_moduleId.is_valid()) return s_defaultHV; // not canreportabout, return s_defaultHV(-30)
 
-  std::map<CondAttrListCollection::ChanNum, float>::const_iterator pPair{m_pModulesHV->find(castId(m_moduleId))}; // find the module 
-  if (pPair!=m_pModulesHV->end() and isGood(elementId, h)) {
-    return pPair->second;  //return the hv 
+  float hvval{s_defaultHV};
+  if (m_pModulesHV->getValue(castId(m_moduleId), hvval) and isGood(elementId, h)) {
+    return hvval;
   }
   return s_defaultHV; //didn't find the module, return s_defaultHV(-30)
 }
@@ -238,9 +239,10 @@ float SCT_DCSConditionsSvc::modHV(const IdentifierHash& hashId) {
 float SCT_DCSConditionsSvc::hybridTemperature(const Identifier& elementId, InDetConditions::Hierarchy h) {
   m_moduleId = getModuleID(elementId, h);
   if (not m_moduleId.is_valid()) return s_defaultTemperature; // not canreportabout
-  std::map<CondAttrListCollection::ChanNum, float>::const_iterator pPair{m_pModulesTemp0->find(castId(m_moduleId))};  // find the module 
-  if (pPair!=m_pModulesTemp0->end() and isGood(elementId, h)) {
-    return pPair->second;  //return the temp
+
+  float temperature{s_defaultTemperature};
+  if (m_pModulesTemp0->getValue(castId(m_moduleId), temperature) and isGood(elementId, h)) {
+    return temperature;
   }
   return s_defaultTemperature;//didn't find the module, return -40. 
 } 
@@ -256,17 +258,18 @@ float SCT_DCSConditionsSvc::hybridTemperature(const IdentifierHash& hashId) {
 float SCT_DCSConditionsSvc::sensorTemperature(const Identifier& elementId, InDetConditions::Hierarchy h) {
   m_moduleId = getModuleID(elementId, h);
   if (not m_moduleId.is_valid()) return s_defaultTemperature; // not canreportabout
-  std::map<CondAttrListCollection::ChanNum, float>::const_iterator pPair{m_pModulesTemp0->find(castId(m_moduleId))};  // find the module 
-  if (pPair!=m_pModulesTemp0->end() and isGood(elementId, h)) {
+
+  float temperature{s_defaultTemperature};
+  if (m_pModulesTemp0->getValue(castId(m_moduleId), temperature) and isGood(elementId, h)) {
     int bec{m_pHelper->barrel_ec(m_moduleId)};
     if (bec==0) { // Barrel
-      return ( pPair->second + m_barrel_correction);  //return the temp+correction    
+      return ( temperature + m_barrel_correction);  //return the temp+correction
     } else { // Endcaps
       int modeta{m_pHelper->eta_module(m_moduleId)};
       if (modeta==2) {
-      	return (pPair->second + m_ecInner_correction);  //return the temp+correction
+      	return (temperature + m_ecInner_correction);  //return the temp+correction
       } else {
-	return (pPair->second + m_ecOuter_correction);  //return the temp+correction	
+	return (temperature + m_ecOuter_correction);  //return the temp+correction
       }
     }
   }
@@ -341,20 +344,20 @@ StatusCode SCT_DCSConditionsSvc::fillData(int& /* i */, std::list<std::string>& 
 		m_pBadModules->remove(channelNumber, param);
 	      }
 	      if (m_returnHVTemp) {
-		(*m_pModulesHV)[channelNumber]=hvval;
+		m_pModulesHV->setValue(channelNumber, hvval);
 	      }
 	    } catch(...) {
 	      ATH_MSG_DEBUG("Exception caught while trying to access HVCHVOLT_RECV");
 	    }
 	  } else if (m_returnHVTemp and param=="MOCH_TM0_RECV") {
 	    try {
-              (*m_pModulesTemp0)[channelNumber]=(*attrList).second[param].data<float>();
+              m_pModulesTemp0->setValue(channelNumber, (*attrList).second[param].data<float>());
 	    } catch(...) {
 	      ATH_MSG_DEBUG("Exception caught while trying to access MOCH_TM0_RECV");
 	    }
 	  } else if (m_returnHVTemp and param=="MOCH_TM1_RECV") { //2 temp sensors per module
 	    try {
-	      (*m_pModulesTemp1)[channelNumber]=(*attrList).second[param].data<float>();
+	      m_pModulesTemp1->setValue(channelNumber, (*attrList).second[param].data<float>());
 	    } catch(...) {
 	      ATH_MSG_DEBUG("Exception caught while trying to access MOCH_TM1_RECV");
 	    }

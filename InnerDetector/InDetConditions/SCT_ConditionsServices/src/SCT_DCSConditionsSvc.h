@@ -30,7 +30,8 @@
 #include <string>
 #include <map>
 
-class SCT_DCSConditionsData;
+class SCT_DCSStatCondData;
+class SCT_DCSFloatCondData;
 class SCT_ID;
 
 /**
@@ -97,13 +98,13 @@ private:
   float m_ecOuter_correction;
   float m_hvLowLimit;
   float m_hvUpLimit;
-  SCT_DCSConditionsData* m_pBadModules;
-  std::map<CondAttrListCollection::ChanNum, float>* m_pModulesHV;
-  std::map<CondAttrListCollection::ChanNum, float>* m_pModulesTemp0;
-  std::map<CondAttrListCollection::ChanNum, float>* m_pModulesTemp1;
-  const SCT_ID*  m_pHelper;
-  Identifier  m_moduleId;
-  Identifier  m_waferId;
+  SCT_DCSStatCondData* m_pBadModules;
+  SCT_DCSFloatCondData* m_pModulesHV;
+  SCT_DCSFloatCondData* m_pModulesTemp0;
+  SCT_DCSFloatCondData* m_pModulesTemp1;
+  const SCT_ID* m_pHelper;
+  Identifier m_moduleId;
+  Identifier m_waferId;
   std::string m_folderPrefix;
   std::string m_chanstatCut;
   bool m_useHV;

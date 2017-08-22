@@ -6,7 +6,7 @@
 //The object is a map of channel number<->vector<string>
 //Each string is the name of the guilty DCS parameter
 
-#include "SCT_ConditionsData/SCT_DCSConditionsData.h"
+#include "SCT_ConditionsData/SCT_DCSStatCondData.h"
 
 #include <iostream>
 #include <algorithm>
@@ -14,15 +14,15 @@ using namespace std;
 
 //////////////////////////////////
 //constructor
-SCT_DCSConditionsData::SCT_DCSConditionsData() {
+SCT_DCSStatCondData::SCT_DCSStatCondData() {
 }
 //////////////////////////////////
 //destructor
-SCT_DCSConditionsData::~SCT_DCSConditionsData() {
+SCT_DCSStatCondData::~SCT_DCSStatCondData() {
 }
 //////////////////////////////////
 //add map entries
-void SCT_DCSConditionsData::fill(const CondAttrListCollection::ChanNum& chanNum, const string param) {
+void SCT_DCSStatCondData::fill(const CondAttrListCollection::ChanNum& chanNum, const string param) {
   if (m_bad_channels.find(chanNum)!=m_bad_channels.end()) {
     // chan num has an entry already
     //get the parameter list for this chan num
@@ -46,7 +46,7 @@ void SCT_DCSConditionsData::fill(const CondAttrListCollection::ChanNum& chanNum,
 }
 //////////////////////////////////
 //remove entries in map vector
-void SCT_DCSConditionsData::remove(const CondAttrListCollection::ChanNum& chanNum, const string param) {
+void SCT_DCSStatCondData::remove(const CondAttrListCollection::ChanNum& chanNum, const string param) {
   map<CondAttrListCollection::ChanNum, vector<string> >::iterator itr{m_bad_channels.find(chanNum)};
   if (itr!=m_bad_channels.end()) {
     vector<string>::iterator vec_itr{find((*itr).second.begin(), (*itr).second.end(), param)};
@@ -58,7 +58,7 @@ void SCT_DCSConditionsData::remove(const CondAttrListCollection::ChanNum& chanNu
 }
 //////////////////////////////////
 //output map vector
-int SCT_DCSConditionsData::output(const CondAttrListCollection::ChanNum& chanNum, vector<string>& usersVector) {
+int SCT_DCSStatCondData::output(const CondAttrListCollection::ChanNum& chanNum, vector<string>& usersVector) {
   DCSConditions::const_iterator pPair{m_bad_channels.find(chanNum)};
   if (pPair!=m_bad_channels.end()) {
     const vector<string>& v{pPair->second};
@@ -68,7 +68,7 @@ int SCT_DCSConditionsData::output(const CondAttrListCollection::ChanNum& chanNum
 }
 //////////////////////////////////
 //output map size
-int SCT_DCSConditionsData::output(const CondAttrListCollection::ChanNum& chanNum) {
+int SCT_DCSStatCondData::output(const CondAttrListCollection::ChanNum& chanNum) {
   DCSConditions::const_iterator pPair{m_bad_channels.find(chanNum)};
   return (pPair!=m_bad_channels.end()) ? (pPair->second.size()) : 0;
 }

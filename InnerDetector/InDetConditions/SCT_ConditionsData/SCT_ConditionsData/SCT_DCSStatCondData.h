@@ -3,13 +3,13 @@
 */
 
 /**
- * SCT_DCSConditionsData.h
+ * SCT_DCSStatCondData.h
  * @file header file for data object
  * @author A. Robichaud-Veronneau - 23/02/07
  **/
 
-#ifndef SCT_DCSCONDITIONSDATA_H
-#define SCT_DCSCONDITIONSDATA_H
+#ifndef SCT_DCSSTATCONDDATA_H
+#define SCT_DCSSTATCONDDATA_H
 
 #include "CLIDSvc/CLASS_DEF.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
@@ -17,13 +17,13 @@
 #include <vector>
 #include <string>
 
-class SCT_DCSConditionsData {
+class SCT_DCSStatCondData {
 public:
   //constructor
-  SCT_DCSConditionsData();
+  SCT_DCSStatCondData();
 
   //destructor
-  virtual ~SCT_DCSConditionsData();
+  virtual ~SCT_DCSStatCondData();
   //@name main methods
   //@{
   /// add defect
@@ -41,6 +41,12 @@ private:
   DCSConditions m_bad_channels;
 };
 
-CLASS_DEF( SCT_DCSConditionsData , 91615746 , 1 )
+CLASS_DEF( SCT_DCSStatCondData , 254074432 , 1 )
 
-#endif // SCT_DCSCONDITIONSDATA_H
+#include "AthenaKernel/CondCont.h"
+CLASS_DEF( CondCont<SCT_DCSStatCondData> , 162792902 , 1 )
+
+#include "SGTools/BaseInfo.h"
+SG_BASE( CondCont<SCT_DCSStatCondData>, CondContBase );
+
+#endif // SCT_DCSSTATCONDDATA_H
