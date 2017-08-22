@@ -115,8 +115,9 @@ def _getTrimmedJetCalibrationModifier(jet_calib,int_merge_param,cluster_calib,rc
         raise RuntimeError(error%("only R=1.0 is supported"))
 
     # We only have calibrations for rclus=0.2, ptfrac=0.05
-    if rclus != 0.2 or ptfrac != 0.05:
-        raise RuntimeError(error%("only rclus=0.2 and ptfrac=0.05 are supported"))
+    # However, we use ptfrac=0.04 to avoid resolution problems with the ptfrac=0.05 calibrations
+    if rclus != 0.2 or ptfrac != 0.04:
+        raise RuntimeError(error%("only rclus=0.2 and ptfrac=0.04 (in place of 0.05) are supported"))
     
     # If we got here, everything checks out
     # Do a generic build from the arguments
@@ -124,7 +125,8 @@ def _getTrimmedJetCalibrationModifier(jet_calib,int_merge_param,cluster_calib,rc
 
     alg="AntiKt"
     rad=float(int_merge_param)/10.
-    inp="%sTopoTrimmedPtFrac%sSmallR%s"%(cluster_calib,str(int(ptfrac*100+0.1)),str(int(rclus*100+0.1)))
+    #inp="%sTopoTrimmedPtFrac%sSmallR%s"%(cluster_calib,str(int(ptfrac*100+0.1)),str(int(rclus*100+0.1)))
+    inp="%sTopoTrimmedPtFrac%sSmallR%s"%(cluster_calib,str(int(0.05*100+0.1)),str(int(rclus*100+0.1))) #hardcoded for now due to 0.04 vs 0.05 choice
     seq="jm"
     config="triggerTrim"
     evsprefix="HLTKt4"
@@ -168,6 +170,35 @@ def addTrkMomsTool(toolname,
         print 'TrigHLTJetRecConfig.addTrkMomsTool '\
             'Added trkmoms tools "%s" to jtm' % toolname
 
+
+
+def addJVFTool(toolname,
+                  tvSGkey,
+                  vcSGkey,
+                  tpcSGkey, ):
+
+    global jtm
+
+    try:
+        jvfTool  = getattr(jtm, toolname)
+    except AttributeError:       
+        from JetMomentTools.JetMomentToolsConf import JetVertexFractionTool
+ 
+        # Build the tool :
+        jvfTool = JetVertexFractionTool(toolname,
+                                        VertexContainer = vcSGkey, 
+                                        AssociatedTracks = "GhostTrack",
+                                        TrackVertexAssociation = tvSGkey,
+                                        TrackParticleContainer = tpcSGkey, 
+                                        TrackSelector = jtm.trackselloose,
+                                        JVFName = "JVF",
+                                        IsTrigger=True,)
+        
+        jtm += jvfTool
+        print 'TrigHLTJetRecConfig.addJVFTool '\
+            'Added jvf tool "%s" to jtm' % toolname
+
+
 # *** FTK track moment tool helpers set up ***
 def configTVassocTool(name,
                     tvSGkey,
@@ -182,6 +213,7 @@ def configTVassocTool(name,
         TrackParticleContainer = tpcSGkey,
         TrackVertexAssociation = tvSGkey,
         VertexContainer = vcSGkey,
+        TrackVertexAssoTool = jtm.jetLooseTVAtool,
     )
 
     # Build the tool :
@@ -263,6 +295,14 @@ def _getJetBuildTool(merge_param,
             trkmoms_ghosttrack.AssociatedTracks = secondary_label
             trkmoms_ghosttrack.lock()
             mymods.append(trkmoms_ghosttrack)
+        if not hasattr(jtm, 'jvf_GhostTracks'):
+            print "In TrigHLTJetRecConfig._getJetBuildTool: Something went wrong. GhostTrack label set but no JVF tool configured. Continuing without jvf calculations."
+        else:        
+            jvf_ghosttrack = getattr(jtm, 'jvf_GhostTracks')
+            jvf_ghosttrack.unlock()
+            jvf_ghosttrack.AssociatedTracks = secondary_label
+            jvf_ghosttrack.lock()
+            mymods.append(jvf_ghosttrack)
 
     if not do_minimalist_setup:
         # add in extra modofiers. This allows monitoring the ability
@@ -740,7 +780,7 @@ class TrigHLTJetRecGroomer(TrigHLTJetRecConf.TrigHLTJetRecGroomer):
                  output_collection_label='defaultJetCollection',
                  pseudojet_labelindex_arg='PseudoJetLabelMapTriggerFromCluster',
                  rclus= 0.2,
-                 ptfrac= 0.05,
+                 ptfrac= 0.04,
                  ):
         
         TrigHLTJetRecConf.TrigHLTJetRecGroomer.__init__(self, name = name)
@@ -1070,6 +1110,15 @@ class TrigHLTTrackMomentHelpers(TrigHLTJetRecConf.TrigHLTTrackMomentHelpers):
                        vcSGkey=primVtxSGkey,
                        )
         addTrkMomsTool(trkmomstoolname, **trkmomsoptions)
+        
+        # add  a specially configured jvf tool to jtm 
+        jvftoolname = 'jvf_GhostTracks'
+        
+        jvfoptions = dict(tvSGkey=tvassocSGkey,
+                       tpcSGkey=trackSGkey,
+                       vcSGkey=primVtxSGkey,
+                       )
+        addJVFTool(jvftoolname, **jvfoptions)
 
 # Data scouting algorithm
 class TrigHLTJetDSSelector(TrigHLTJetRecConf.TrigHLTJetDSSelector):

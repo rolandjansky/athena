@@ -226,6 +226,15 @@ class DictFromChainName(object):
                 mdicts.append(m_groupdict)
                 break # stop loop here so mb doesn't get picked up from min bias slice as it's streaming info
 
+## Not sure if this is necessary, per suggestion from C. Bernius
+            elif cpart=='afp': 
+                logDict.debug('Doing AFP')
+                multichainindex.append(chainName.index(cpart)) 
+                m_groupdict = {'signature': 'AFP', 'threshold': '', 'multiplicity': '', 
+                               'trigType': 'afp', 'extra': ''}
+                if 'AFP' not in signatureNames:  signatureNames.append('AFP')
+                mdicts.append(m_groupdict)
+
             elif cpart=='mb': 
                 logDict.debug('Doing MB')
                 multichainindex.append(chainName.index(cpart)) 

@@ -54,6 +54,16 @@ namespace LVL1 {
       TCS::MuonTOB createMuonTOB(uint32_t roiword) const;
       TCS::MuonTOB createMuonTOB(const MuCTPIL1TopoCandidate & roi) const;
       TCS::LateMuonTOB createLateMuonTOB(const MuCTPIL1TopoCandidate & roi) const;
+      /**
+         This is a hack to modify the unphysical muon pt values
+
+         The muon TOB should be able to encode pt values only up to 10GeV.
+         However, we observe TOBs with larger pt values, leading to
+         hdw-sim mismatches for items using the INVM algorithm.
+         This hack should be removed once the origin of the problem
+         has been identified and fixed.
+       */
+      TCS::MuonTOB hackMuonTOB(const TCS::MuonTOB &mu) const;
 
       StringProperty m_roibLocation;
 

@@ -1,3 +1,7 @@
+/*
+     Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef AFP_LOCRECO_IAFPSIDLOCRECOTOOL_H
 #define AFP_LOCRECO_IAFPSIDLOCRECOTOOL_H 1
 
@@ -9,8 +13,6 @@
 
 
 // STL includes
-
-// HepMC / CLHEP includes
 
 // FrameWork includes
 #include "GaudiKernel/IAlgTool.h"

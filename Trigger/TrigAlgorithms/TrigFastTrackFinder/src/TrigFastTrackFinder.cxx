@@ -149,6 +149,7 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   declareProperty("Triplet_MinPtFrac",        m_tripletMinPtFrac = 0.3);
   declareProperty("pTmin",                    m_pTmin = 1000.0);
   declareProperty("TrackInitialD0Max",            m_initialD0Max      = 10.0);
+  declareProperty("TrackZ0Max",                   m_Z0Max      = 300.0);
 
   declareProperty("doSeedRedundancyCheck",            m_checkSeedRedundancy = false);
 
@@ -766,9 +767,9 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* /*inpu
         if((*t)) {
           float d0 = (*t)->perigeeParameters()==0 ? 10000.0 : (*t)->perigeeParameters()->parameters()[Trk::d0]; 
           if (fabs(d0) > m_initialD0Max) {
-            ATH_MSG_DEBUG("REGTEST / Reject track with d0 = " << d0 << " > " << m_initialD0Max);
-            qualityTracks.push_back(std::make_tuple(false,0,(*t)));//Flag track as bad, but keep in vector for later deletion
-            continue;
+	     ATH_MSG_DEBUG("REGTEST / Reject track with d0 = " << d0 << " > " << m_initialD0Max);
+	     qualityTracks.push_back(std::make_tuple(false,0,(*t)));//Flag track as bad, but keep in vector for later deletion
+	     continue;
           }
           if(m_checkSeedRedundancy) {
             //update clusterMap 
@@ -855,11 +856,28 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* /*inpu
       ATH_MSG_DEBUG("REGTEST / No tracks fitted");
     }
 
-    for (auto fittedTrack = fittedTracks->begin(); fittedTrack!=fittedTracks->end(); ++fittedTrack) {
+    size_t counter(1);
+    for (auto fittedTrack = fittedTracks->begin(); fittedTrack!=fittedTracks->end(); ) {
+      if ((*fittedTrack)->perigeeParameters()){
+	float d0 = (*fittedTrack)->perigeeParameters()->parameters()[Trk::d0]; 
+	float z0 = (*fittedTrack)->perigeeParameters()->parameters()[Trk::z0]; 
+	if (fabs(d0) > m_initialD0Max || fabs(z0) > m_Z0Max) {
+	  ATH_MSG_WARNING("REGTEST / Reject track after fit with d0 = " << d0 << " z0= "  << z0
+			  << " larger than limits (" << m_initialD0Max << ", " << m_Z0Max << ")");
+	  ATH_MSG_DEBUG(**fittedTrack);
+	  fittedTrack = fittedTracks->erase(fittedTrack);
+	  continue;
+	}
+
+      } 
+
       (*fittedTrack)->info().setPatternRecognitionInfo(Trk::TrackInfo::FastTrackFinderSeed);
-      ATH_MSG_VERBOSE("Updating fitted track: " << **fittedTrack);
+      ATH_MSG_VERBOSE("Updating fitted track: " << counter);
+      ATH_MSG_VERBOSE(**fittedTrack);
       m_trackSummaryTool->updateTrack(**fittedTrack);
-      ATH_MSG_VERBOSE("Updated track: " << **fittedTrack);
+      ATH_MSG_VERBOSE("Updated track: " << counter);
+      ATH_MSG_VERBOSE(**fittedTrack);
+      counter++; fittedTrack++;
     }
 
     if ( timerSvc() ) { 

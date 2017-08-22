@@ -5,8 +5,8 @@ import __main__
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import QLabel, QCheckBox, QMessageBox
 from PyQt5.QtGui import QColor, QPalette, QPixmap
-import timeit
-import socket
+import timeit, socket, getpass
+from collections import OrderedDict
 
 class StringVar:
     def __init__(self,value=""):
@@ -183,7 +183,8 @@ class Config:
         # green
         self.addOption('jobName', 'Default',"Job name", 'Job name:')
         self.addOption('jobOption','',"The python job option file", 'Joboption file')
-        self.addOption('userPreCommand','',"The users precommands to be run", 'Pre-command:')
+        self.addOption('userPreCommand','',"The user pre-commands to be run", 'Pre-command:')
+        self.addOption('userPostCommand', '', "The post-commands to be run", 'Post-command:')
         self.addOption('setupDir','./setup',"Directory for setup and xml files (a subdir for each job is created)", 'Output directory:')
         self.addOption('tmpDir',tempdir,"Directory for temporary results", 'Temp directory:')
         self.addOption('nEvt',10,"Number of Events", 'Number of Events:')
@@ -281,29 +282,32 @@ class Config:
 
     def setPreCommandModifier(self, name, value):
         pc = self.userPreCommand().strip(';')
-        mods = {} if not pc else dict([tuple(m.split('=')) for m in pc.split(';')])
+        mods = {} if not pc else OrderedDict([tuple(m.split('=')) if '=' in m else [m,''] for m in pc.split(';')])
+
         if value==None:
             if name in mods: mods.pop(name)
         else:
             mods[name] = value
-        pc = ';'.join(['='.join([k,v]) for k,v in sorted(mods.iteritems())])
+        pc = ';'.join(['='.join([k,v]) if v != '' else ''.join([k,v]) for k,v in mods.iteritems()])
         self.userPreCommand.set(pc)            
 
     def write(self):
         outputfile = 'myPref_%s.py' % self.jobName()
         print "Saving configuration to %s !" % outputfile
-        f = open(outputfile, 'w')
-        print >>f, 'option = {}'
-        print >>f, 'process = {}\n'
-        for opt in self.options:
-            if opt in self.excempt: continue
-            print >>f, self.options[opt]
-        for pro in self.processes:
-            if pro in self.excempt: continue
-            print >>f, self.processes[pro]
-        f.close()
-
-
+        try:
+          f = open(outputfile, 'w')
+          print >>f, 'option = {}'
+          print >>f, 'process = {}\n'
+          for opt in self.options:
+              if opt in self.excempt: continue
+              print >>f, self.options[opt]
+          for pro in self.processes:
+              if pro in self.excempt: continue
+              print >>f, self.processes[pro]
+          f.close()
+        except:
+          print "Error: couldn't write the configuration files, not sure why!" 
+ 
 class KeyPrep(QtWidgets.QScrollArea):
     def __init__(self, configFile, parent=None):
         super(KeyPrep,self).__init__(parent)
@@ -338,7 +342,7 @@ class KeyPrep(QtWidgets.QScrollArea):
 
         self.gr_setup = {
             'box' : QtWidgets.QGroupBox("Job configuration"),
-            'cont': [ self.config.jobName, self.config.jobOption, self.config.userPreCommand, self.config.setupDir,
+            'cont': [ self.config.jobName, self.config.jobOption, self.config.userPreCommand,self.config.userPostCommand, self.config.setupDir,
                       self.config.tmpDir, self.config.dbAlias, self.config.dbPW, self.config.nEvt,
                       self.config.inputBSFile, self.config.l1menu, self.config.l1topomenu, self.config.hltmenu,
                       self.config.setupEF, self.config.cfgKey, self.config.l1psKey, self.config.hltpsKey ]
@@ -397,7 +401,7 @@ class KeyPrep(QtWidgets.QScrollArea):
         line = 0
         for c in self.gr_setup['cont']:
             c.w_label.setStyleSheet("QWidget { color: #ffffff; }")
-            if c.name=='userPreCommand':
+            if c.name=='userPreCommand' or c.name=='userPostCommand':
                 grid.addWidget(c.w_label,line,0) # label
                 grid.addWidget(self.d_menu,line+1,0,QtCore.Qt.AlignTop) # menu combo box
                 grid.addWidget(c.qtw,line,1,2,7) # field
@@ -465,7 +469,15 @@ class KeyPrep(QtWidgets.QScrollArea):
         pixmap = QPixmap('/afs/cern.ch/user/a/attrgcnf/TriggerDBReplica/TrigDbHltUploadFiles/logo.png') 
         label.setPixmap(pixmap)
         label.setGeometry(675-5-100,5,675-5,100+5)
-       
+
+    def changeWidgetSetting(self, setting):
+        self.config.onlineMonitoring.cb.setEnabled(setting)
+        self.config.doDBConfig.cb.setEnabled(setting) 
+        self.config.cafConfig.cb.setEnabled(setting)
+        self.config.l1rerun.cb.setEnabled(setting)
+        for c in self.gr_setup['cont']:
+            c.qtw.setEnabled(setting)
+
     def updateMenuComboBox(self):
         menus = self.config.menus
         try:
@@ -525,7 +537,7 @@ class KeyPrep(QtWidgets.QScrollArea):
 
     def guessMenuInPreCommand(self):
         pc = self.config.userPreCommand().strip(';')
-        mods = {} if not pc else dict([tuple(m.split('=')) for m in pc.split(';')])
+        mods = {} if not pc else OrderedDict([tuple(m.split('=')) if '=' in m else [m,''] for m in pc.split(';')])
         p = re.compile("test.*")
         menucands = filter(p.match,mods.keys())
         self.menuInPreCommand = menucands[0][4:] if menucands else None
@@ -565,23 +577,28 @@ class KeyPrep(QtWidgets.QScrollArea):
                     if proc_conf.inError():
                         self.gui.addFrameTitle(' -> Failure')
                     self.success = False
+                    self.gui.changeWidgetSetting(True)
                     return
                 if not proc(proc_conf): # exec
                     if proc_conf.inError(): self.gui.addFrameTitle(' -> Failure')
                     if proc_conf.isKilled(): self.gui.addFrameTitle(' -> Killed')
                     self.success = False
+                    self.gui.changeWidgetSetting(True)
                     return
                 proc_conf.setSuccess()
                 print >>self.gui, "===>>> Success"
                 elapsed = timeit.default_timer() - start_time
-		timer_line = "Elapsed time: " + str(elapsed)
+		timer_line = "Elapsed time for " + job + ": " + str(elapsed)
                 print timer_line
                 processing_times += [timer_line]
+            makeTimingFile(processing_times)     
             print "===>>> Success"
             self.gui.setFrameTitle('Success')
+            self.gui.changeWidgetSetting(True)
             self.success = True
             return
 
+    
     def run(self):
         import os
         tmpdir = self.config.tmpDir()
@@ -592,6 +609,7 @@ class KeyPrep(QtWidgets.QScrollArea):
                 os.makedirs(tmpdir)
             except OSError, e:
                 raise RuntimeError("Can't create temporary directory %s (reason: %s)" % (tmpdir,e) )
+        self.changeWidgetSetting(False)
         self.runThread.start() # starts the thread
 
     def killCurrentProcess(self):
@@ -601,15 +619,14 @@ class KeyPrep(QtWidgets.QScrollArea):
                 if pr.isRunning():
                     runningProcess=pr
                     break
-            if QMessageBox.question(None, '', "Are you sure you want to kill \nthe process '' ?" % runningProcess.label,
+            if QMessageBox.question(None, '', "Are you sure you want to kill \nthe process %s ?" % runningProcess.label,
                                     QMessageBox.Yes | QMessageBox.No,
                                     QMessageBox.No) == QMessageBox.Yes:
                 if self.currentSubprocess:
                     self.currentSubprocess.kill()
+                    self.changeWidgetSetting(True)
         else:
             QMessageBox.information(None, '', "No process running!")
-
-
 
     # helper functions
     # check existence of file
@@ -650,11 +667,33 @@ class KeyPrep(QtWidgets.QScrollArea):
         for opt in optlist:
             getattr(self.config,opt).clear()
 
-    # execute cmd (string)
+    # 	 cmd (string)
     def executeProcess(self, cmd, proc_conf):
         try:
             FD = open(proc_conf.logfile,'w')
             self.currentSubprocess = subprocess.Popen(cmd.split(),stdout=FD,stderr=FD)
+            self.currentSubprocess.wait()
+            retCode = self.currentSubprocess.returncode
+            self.currentSubprocess = None
+        except OSError, v:
+            print 'ERROR: <%s> %r' % (proc_conf.name,v)
+            proc_conf.setError()
+            FD.close()
+            return False
+        FD.close()
+        if retCode==-9:
+            proc_conf.setKilled()
+            return False
+        if retCode!=0:
+            print 'ERROR: <%s> job failed with exit code: %r' % (proc_conf.name, retCode)
+            proc_conf.setError()
+            return False
+        return True
+
+    def executeProcessList(self, cmd_list, proc_conf):
+        try:
+            FD = open(proc_conf.logfile,'w')
+            self.currentSubprocess = subprocess.Popen(cmd_list,stdout=FD,stderr=FD)
             self.currentSubprocess.wait()
             retCode = self.currentSubprocess.returncode
             self.currentSubprocess = None
@@ -697,11 +736,18 @@ class KeyPrep(QtWidgets.QScrollArea):
 
         args = [ '-n 1 -f %s' % self.config.inputBSFile(),
                  '-M' if self.config.onlineMonitoring() else '', 
-                 "" if self.config.userPreCommand().strip()=='' else " -c %s"  % self.config.userPreCommand().strip() ]
+                 "" if self.config.userPreCommand().strip()=='' else " -c %s"  % self.config.userPreCommand().strip(),
+                 "" if self.config.userPostCommand().strip()=='' else " -C %s"  % self.config.userPostCommand().strip() ]
         cmd = 'athenaHLT.py %s %s' % ( " ".join(args), self.config.jobOption() )
-        print >>self, '%s &> %s' % (cmd,logfile)
 
-        if not self.executeProcess(cmd, proc_conf): return False
+        cmd_list = ['athenaHLT.py' ,  '-n', '1', '-f','%s' % self.config.inputBSFile(),
+                 '-M' if self.config.onlineMonitoring() else '', 
+                  '-c', "%s"  % self.config.userPreCommand().strip(),'-C', "%s"  % self.config.userPostCommand().strip(), self.config.jobOption()]
+
+        print >>self, '%s &> %s' % (cmd,logfile)
+        print cmd_list
+
+        if not self.executeProcessList(cmd_list, proc_conf): return False
 
         try:
             self.config.l1menu     = subprocess.Popen("egrep 'DBCONFIG LVL1XML' %s" % logfile, shell=True,stdout=subprocess.PIPE).communicate()[0].split()[-1]
@@ -769,6 +815,7 @@ class KeyPrep(QtWidgets.QScrollArea):
 
         cmd = 'ConvertHLTSetup_txt2xml.py efsetup.txt efsetup_setup.txt'
         print >>self,'%s &> %s' % (cmd,logfile)
+
         if not self.executeProcess(cmd, proc_conf): return False
 
         os.chdir(cwd)
@@ -825,6 +872,7 @@ class KeyPrep(QtWidgets.QScrollArea):
                  '-efs %s/efsetup.xml'  % fullSetupDir,
                  '-rel %s'  % self.config.release(),
                  '-m \"Upload from script\"',
+                 '-onl',
                  '-o %sTTlog'  % logfile ]
 
         cmd  = '%s %s' % (TT,' '.join(args))
@@ -867,9 +915,9 @@ class KeyPrep(QtWidgets.QScrollArea):
 
         cmd  = 'athenaHLT.py %s' % ' '.join(args)
         print >>self,'%s &> %s' % (cmd,logfile)
-
+      
         os.unsetenv("FRONTIER_SERVER")
-        
+       
         if not self.executeProcess(cmd, proc_conf): return False
         return True
 
@@ -1066,6 +1114,15 @@ def parse_programm_options():
             inputFile = v
     return inputFile
 
+def makeTimingFile(lines = []):
+    import time
+    timestr = time.strftime("%Y%m%d-%H%M%S")
+    timing_file = open('/afs/cern.ch/user/a/attrgcnf/TriggerDBReplica/TrigDbHltUploadFiles/timingLogs/logTiming'+timestr, 'w')
+    timing_file.write('Machine: '+socket.gethostname()+'\n')
+    timing_file.write('User: '+getpass.getuser()+'\n') 
+    for line in lines:
+        timing_file.write(line+'\n')
+    timing_file.close()  # you can omit in most cases as the destructor will call it
 
 def main():
     signal.signal(signal.SIGINT, sigint_handler)

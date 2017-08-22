@@ -137,7 +137,12 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
         self.setupZDCPEBChains()
       elif 'calibAFP' in self.chainPart['purpose']:
         self.setupAFPCalibrationChains()
-        
+      elif 'rpcpeb' in self.chainPart['purpose']:
+        self.setupRPCCalibrationChains()
+      elif 'idpsl1' in self.chainPart['purpose']:
+        self.setupIDPSCalibrationChains()
+      elif 'larpebcalib' in self.chainPart['purpose']:
+        self.setupLArPEBCalibCalibrationChains()
       else:
          log.error('Chain %s could not be assembled' % (self.chainPartName))
          return False      
@@ -295,6 +300,47 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
      self.L2signatureList += [[['L2_']]]
      self.TErenamingDict = {
        'L2_':     'L2_l1ALFAcalib',
+       }
+
+
+   ###########################################################################
+   # RPC Calibration chains
+   ###########################################################################
+   def setupRPCCalibrationChains(self):
+     
+     from TrigDetCalib.TrigDetCalibConfig import TrigSubDetListWriter
+     
+     l2_RPCSubDetListWriter = TrigSubDetListWriter("RPCSubDetListWriter")
+     l2_RPCSubDetListWriter.SubdetId = ['TDAQ_MUON', 'TDAQ_CTP', 'TDAQ_HLT', 'RPC']
+
+     l2_RPCSubDetListWriter.MaxRoIsPerEvent=1
+     
+     self.robWriter = [l2_RPCSubDetListWriter]            
+     self.L2sequenceList += [['', self.robWriter, 'L2_']]
+     
+     self.L2signatureList += [[['L2_']]]
+     self.TErenamingDict = {
+       'L2_':     'L2_l1RPCcalib',
+       }
+  
+   ###########################################################################
+   # IDprescaledL1 Calibration chains
+   ###########################################################################
+   def setupIDPSCalibrationChains(self):
+
+     from TrigDetCalib.TrigDetCalibConfig import TrigSubDetListWriter
+
+     l2_IDPSSubDetListWriter = TrigSubDetListWriter("IDPSSubDetListWriter")
+     l2_IDPSSubDetListWriter.SubdetId = ['TDAQ_CTP','TDAQ_HLT','InnerDetector']
+
+     l2_IDPSSubDetListWriter.MaxRoIsPerEvent=1
+
+     self.robWriter = [l2_IDPSSubDetListWriter]
+     self.L2sequenceList += [['', self.robWriter, 'L2_']]
+
+     self.L2signatureList += [[['L2_']]]
+     self.TErenamingDict = {
+       'L2_':     'L2_l1IDPScalib',
        }
 
 
@@ -459,4 +505,15 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
      self.L2sequenceList += [['', self.robWriter, 'L2_zdc']]     
      self.L2signatureList += [[['L2_zdc']]]
 
+######################################################################
+   def setupLArPEBCalibCalibrationChains(self):
+     from TrigDetCalib.TrigDetCalibConfig import TrigSubDetListWriter
+     larpebSubDetListWriter = TrigSubDetListWriter("LArPEBSubDetListWriter")
+     larpebSubDetListWriter.SubdetId = ['TDAQ_CTP','LAr']
 
+     larpebSubDetListWriter.MaxRoIsPerEvent=1
+
+     self.robWriter = [larpebSubDetListWriter]
+     self.L2sequenceList += [['', self.robWriter, 'L2_larpeb']]
+     self.L2signatureList += [[['L2_larpeb']]]
+ 

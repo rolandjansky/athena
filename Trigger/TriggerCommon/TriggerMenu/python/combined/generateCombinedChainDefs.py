@@ -117,52 +117,6 @@ def _addTopoInfo(theChainDef,chainDicts,listOfChainDefs,doAtL2AndEF=True):
         else:
             theChainDef=_addMVis(theChainDef,chainDicts,listOfChainDefs)
 
-
-    tau_topo_chain_type = ''
-    if any('MuonTau' in x  for x in chainDicts[0]['groups']):
-        tau_topo_chain_type = 'mutau'
-
-    if any('ElectronTau' in x  for x in chainDicts[0]['groups']):
-        tau_topo_chain_type = 'eltau'
-
-
-    if 'dR' in theChainDef.chain_name and tau_topo_chain_type in ('eltau', 'mutau'):
-        log.debug('Running the topo algo for %s' % tau_topo_chain_type)
-
-        maxdR=-1
-        mindR=-1
-        for topo_item in chainDicts[0]['topo']:
-            if 'dR' in topo_item:
-               mindR=float(topo_item.split('dR')[0])
-               maxdR=float(topo_item.split('dR')[1])
-        log.debug("dR cuts at: %d and %d", mindR, maxdR)
-        if mindR == -1 or maxdR == -1:
-           log.error("No dR chain part found in tau-tau / tau-mu / tau-e dR Topo cut")
-
-        from TrigTauHypo.TrigTauHypoConfig2012 import EFTauTopoHypo
-        from TrigTauHypo.TrigTauHypoConf       import EFTauTopoFex
-
-        inputTEsEF = []
-        for chain_def in listOfChainDefs:
-            inputTEsEF += chain_def.signatureList[-1]['listOfTriggerElements']
-        # inputTEsEF = theChainDef.signatureList[-1]['listOfTriggerElements']
-
-        EFFex  =  EFTauTopoFex(comb=tau_topo_chain_type)
-        theVars    = ['DRMin', 'DRMax']
-        theThresh  = [mindR * 0.1, maxdR * 0.1] # treshold specified as integers -> change them to e.g. 0.3, 3.0
-        LepTaudR_Hypo = EFTauTopoHypo(
-            'EFTauTopo_{0}dR{1}_{2}'.format(
-                str(mindR).replace('.', ''), str(maxdR).replace('.', ''), tau_topo_chain_type),
-            theVars, theThresh)
-        log.info("Input TEs to dR algorithm: %s", inputTEsEF)
-
-        EFChainName = "EF_" + chainDicts[0]['chainName']
-
-        theChainDef.addSequence([EFFex,  LepTaudR_Hypo], inputTEsEF, EFChainName)
-        theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFChainName])
-
-
-
     # elif any("deta" in alg for alg in topoAlgs):
     #     ##Check that we only have a Jet and Muon chain
     #     inputChains=[]

@@ -23,6 +23,9 @@
 #include "GaudiKernel/IIncidentListener.h"
 #include "InDetByteStreamErrors/InDetBSErrContainer.h"
 
+#include "StoreGate/WriteHandleKey.h"
+#include "StoreGate/WriteHandle.h"
+
 class ISCT_CablingSvc;
 class ISCT_ByteStreamErrorsSvc;
 class SCT_ID;
@@ -115,8 +118,8 @@ class SCT_RodDecoder : virtual public ISCT_RodDecoder, virtual public IIncidentL
   unsigned int m_numMissingLinkHeader;
   unsigned int m_numUnknownOfflineId;
   
-  InDetBSErrContainer* m_bsErrCont;
-  std::string m_bsErrContainerName;
+  SG::WriteHandle<InDetBSErrContainer> m_bsErrCont;
+  SG::WriteHandleKey<InDetBSErrContainer> m_bsErrContainerName;
 
   bool m_triggerMode;
 

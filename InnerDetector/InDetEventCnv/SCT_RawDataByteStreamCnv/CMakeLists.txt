@@ -21,7 +21,8 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetConditions/SCT_ConditionsServices
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
-                          InnerDetector/InDetDetDescr/SCT_Cabling )
+                          InnerDetector/InDetDetDescr/SCT_Cabling
+                          Trigger/TrigEvent/TrigSteeringEvent )
 
 # External dependencies:
 find_package( tdaq-common COMPONENTS eformat_write DataWriter )
@@ -31,7 +32,7 @@ atlas_add_component( SCT_RawDataByteStreamCnv
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ByteStreamCnvSvcBaseLib ByteStreamData ByteStreamData_test GaudiKernel InDetRawData AthenaBaseComps StoreGateLib SGtests Identifier EventInfo xAODEventInfo InDetIdentifier InDetReadoutGeometry SCT_CablingLib )
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ByteStreamCnvSvcBaseLib ByteStreamData ByteStreamData_test GaudiKernel InDetRawData AthenaBaseComps StoreGateLib SGtests Identifier EventInfo xAODEventInfo InDetIdentifier InDetReadoutGeometry SCT_CablingLib TrigSteeringEvent)
 
 # Install files from the package:
 atlas_install_headers( SCT_RawDataByteStreamCnv )

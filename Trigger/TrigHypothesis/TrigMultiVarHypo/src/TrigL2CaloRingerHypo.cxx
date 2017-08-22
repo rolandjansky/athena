@@ -78,13 +78,6 @@ HLT::ErrorCode TrigL2CaloRingerHypo::hltExecute(const HLT::TriggerElement* outpu
     return HLT::OK;
   }
 
-  // TODO: Maybe this will expanded for future...
-  // This was define as [avgmu, rnnOtput, rnnOutputWithoutTansig]
-  if(rnnOutput->rnnDecision().size() != 3){
-    ATH_MSG_DEBUG( "Event reproved because we can not retrieve the completed information from RnnOutput to run this hypo!" );
-    return HLT::OK;
-  }
-
   // Start to retrieve all information that I need...
   const xAOD::TrigEMCluster *emCluster = 0;
   const xAOD::TrigRingerRings *ringerShape = rnnOutput->ringer();
@@ -101,8 +94,6 @@ HLT::ErrorCode TrigL2CaloRingerHypo::hltExecute(const HLT::TriggerElement* outpu
 
   float eta     = std::fabs(emCluster->eta());
   float et      = emCluster->et()*1e-3;//GeV
-  float avgmu   = rnnOutput->rnnDecision().at(0);
-
   if(eta>2.50) eta=2.50;///fix for events out of the ranger
 
   ///Et threshold
@@ -111,7 +102,17 @@ HLT::ErrorCode TrigL2CaloRingerHypo::hltExecute(const HLT::TriggerElement* outpu
     return HLT::OK;
   }
 
+ 
   if(m_cutDefs.size() > 0){
+    // TODO: Maybe this will expanded for future...
+    // This was define as [avgmu, rnnOtput, rnnOutputWithoutTansig]
+    if(rnnOutput->rnnDecision().size() != 3){
+      ATH_MSG_INFO( "Event reproved because we can not retrieve the completed information from RnnOutput to run this hypo!" );
+      return HLT::OK;
+    }
+
+    float avgmu   = rnnOutput->rnnDecision().at(0);
+    
     ///Select the correct threshold for each eta/Et region
     for(unsigned i=0; i<m_cutDefs.size();++i){
       if((et  > m_cutDefs[i]->etmin()) && (et  <= m_cutDefs[i]->etmax())){

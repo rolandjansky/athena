@@ -240,6 +240,11 @@ class TrigBtagFex: public HLT::FexAlgo {
   //jet variables - Nghia
   float m_mon_jet_pt;
   float m_mon_jet_eta;
+  float sv_check;
+  float sv_mass_check ;
+  float jf_check;
+  int   m_mon_sv_bool; 
+  int   m_mon_jf_bool; 
 
   // /** @brief to monitor track selection. */
   // std::vector<float> m_listCutApplied;
