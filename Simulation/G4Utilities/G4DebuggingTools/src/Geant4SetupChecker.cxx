@@ -22,7 +22,7 @@ namespace G4UA{
 Geant4SetupChecker::Geant4SetupChecker(const std::string& file_location, const bool test=true) : m_file_location(file_location) , m_test(test) {;
 }
 
-void Geant4SetupChecker::beginOfRun(const G4Run*){
+void Geant4SetupChecker::BeginOfRunAction(const G4Run*){
 
   // Print the sizes of several stores
   G4LogicalVolumeStore* g4_logical_volume_store = G4LogicalVolumeStore::GetInstance();

@@ -4,7 +4,7 @@
 
 #ifndef G4DEBUGGINGTOOLS_G4UA__CHECKACTIVATIONTOOL_H 
 #define G4DEBUGGINGTOOLS_G4UA__CHECKACTIVATIONTOOL_H 
-#include "G4AtlasInterfaces/IBeginEventActionTool.h"
+#include "G4AtlasInterfaces/IG4EventActionTool.h"
 #include "G4AtlasTools/ActionToolBase.h"
 #include "CheckActivation.h"
 
@@ -19,15 +19,15 @@ namespace G4UA{
 
   class CheckActivationTool: 
   public ActionToolBase<CheckActivation>,
-    public IBeginEventActionTool
+    public IG4EventActionTool
     {
       
     public:
       /// Standard constructor
       CheckActivationTool(const std::string& type, const std::string& name,const IInterface* parent);
       /// Retrieve the BoE action
-      virtual IBeginEventAction* getBeginEventAction() override final 
-      { return static_cast<IBeginEventAction*>( getAction() ); }
+      virtual G4UserEventAction* getEventAction() override final
+      { return static_cast<G4UserEventAction*>( getAction() ); }
       /// Gaudi interface management
       virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
     protected:

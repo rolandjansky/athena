@@ -20,20 +20,16 @@ namespace G4UA{
   
   StatusCode EnergyConservationTestTool::queryInterface(const InterfaceID& riid, void** ppvIf){
     
-    if(riid == IPreTrackingActionTool::interfaceID()) {
-      *ppvIf = (IPreTrackingActionTool*) this;
+    if(riid == IG4TrackingActionTool::interfaceID()) {
+      *ppvIf = (IG4TrackingActionTool*) this;
       addRef();
       return StatusCode::SUCCESS;
-    } if(riid == IPostTrackingActionTool::interfaceID()) {
-      *ppvIf = (IPostTrackingActionTool*) this;
+    } if(riid == IG4EventActionTool::interfaceID()) {
+      *ppvIf = (IG4EventActionTool*) this;
       addRef();
       return StatusCode::SUCCESS;
-    } if(riid == IEndEventActionTool::interfaceID()) {
-      *ppvIf = (IEndEventActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    } if(riid == ISteppingActionTool::interfaceID()) {
-      *ppvIf = (ISteppingActionTool*) this;
+    } if(riid == IG4SteppingActionTool::interfaceID()) {
+      *ppvIf = (IG4SteppingActionTool*) this;
       addRef();
       return StatusCode::SUCCESS;
     } return ActionToolBase<EnergyConservationTest>::queryInterface(riid, ppvIf);

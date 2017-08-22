@@ -12,14 +12,14 @@ class G4VSolid;
 class G4Track;
 
 
-#include "G4AtlasInterfaces/IBeginRunAction.h"
-#include "G4AtlasInterfaces/ISteppingAction.h"
+#include "G4UserRunAction.hh"
+#include "G4UserSteppingAction.hh"
 #include "AthenaBaseComps/AthMessaging.h"
 
 namespace G4UA{ 
   
   class HyperspaceCatcher: 
-  public AthMessaging, public IBeginRunAction,  public ISteppingAction
+  public AthMessaging, public G4UserRunAction, public G4UserSteppingAction
   {
   public:
     
@@ -30,8 +30,8 @@ namespace G4UA{
     };
     
     HyperspaceCatcher(const Config& config);
-    virtual void beginOfRun(const G4Run*) override;
-    virtual void processStep(const G4Step*) override;
+    virtual void BeginOfRunAction(const G4Run*) override;
+    virtual void UserSteppingAction(const G4Step*) override;
 
   private:
     Config m_config;

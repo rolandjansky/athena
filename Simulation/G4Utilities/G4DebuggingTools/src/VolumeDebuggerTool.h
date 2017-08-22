@@ -4,7 +4,7 @@
 
 #ifndef G4DEBUGGINGTOOLS_G4UA__VOLUMEDEBUGGERTOOL_H 
 #define G4DEBUGGINGTOOLS_G4UA__VOLUMEDEBUGGERTOOL_H 
-#include "G4AtlasInterfaces/IBeginRunActionTool.h"
+#include "G4AtlasInterfaces/IG4RunActionTool.h"
 #include "G4AtlasTools/ActionToolBase.h"
 #include "./VolumeDebugger.h"
 
@@ -20,15 +20,15 @@ namespace G4UA{
   
   class VolumeDebuggerTool: 
   public ActionToolBase<VolumeDebugger>,
-    public IBeginRunActionTool
+    public IG4RunActionTool
     {
       
     public:
       /// standard tool constructor
       VolumeDebuggerTool(const std::string& type, const std::string& name,const IInterface* parent);
       /// returns the BoR action 
-      virtual IBeginRunAction* getBeginRunAction() override final 
-      { return static_cast<IBeginRunAction*>( getAction() ); }
+      virtual G4UserRunAction* getRunAction() override final
+      { return static_cast<G4UserRunAction*>( getAction() ); }
       virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
     protected:
       /// builds the action for a thread

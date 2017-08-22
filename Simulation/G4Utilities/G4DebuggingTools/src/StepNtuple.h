@@ -12,17 +12,18 @@
 #include <vector>
 
 
-#include "G4AtlasInterfaces/IBeginEventAction.h"
-#include "G4AtlasInterfaces/IEndEventAction.h"
-#include "G4AtlasInterfaces/ISteppingAction.h"
-#include "G4AtlasInterfaces/IBeginRunAction.h"
+#include "G4UserEventAction.hh"
+#include "G4UserSteppingAction.hh"
+#include "G4UserRunAction.hh"
 #include "AthenaBaseComps/AthMessaging.h"
 
 namespace G4UA{
   
   
-  class StepNtuple:
-  public AthMessaging, public IBeginEventAction,  public IEndEventAction,  public ISteppingAction,  public IBeginRunAction
+  class StepNtuple : public AthMessaging,
+                     public G4UserEventAction,
+                     public G4UserSteppingAction,
+                     public G4UserRunAction
   {
     /// simple struct to hold step information
     struct stepdata{
@@ -34,10 +35,10 @@ namespace G4UA{
     StepNtuple();
 
     /// the hooks for G4 UA handling
-    virtual void beginOfEvent(const G4Event*) override;
-    virtual void endOfEvent(const G4Event*) override;
-    virtual void processStep(const G4Step*) override;
-    virtual void beginOfRun(const G4Run*) override;
+    virtual void BeginOfEventAction(const G4Event*) override;
+    virtual void EndOfEventAction(const G4Event*) override;
+    virtual void UserSteppingAction(const G4Step*) override;
+    virtual void BeginOfRunAction(const G4Run*) override;
 
   private:
 

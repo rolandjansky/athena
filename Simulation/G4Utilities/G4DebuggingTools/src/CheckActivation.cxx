@@ -13,7 +13,7 @@ namespace G4UA{
 CheckActivation::CheckActivation(){;
 }
 
-void CheckActivation::beginOfEvent(const G4Event*){
+void CheckActivation::BeginOfEventAction(const G4Event*){
 
   G4TransportationManager *tm = G4TransportationManager::GetTransportationManager();
   tm->GetNavigatorForTracking()->CheckMode(true);

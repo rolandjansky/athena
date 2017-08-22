@@ -20,8 +20,8 @@ namespace G4UA{
 
   StatusCode CheckActivationTool::queryInterface(const InterfaceID& riid, void** ppvIf){
     
-    if(riid == IBeginEventActionTool::interfaceID()) {
-      *ppvIf = (IBeginEventActionTool*) this;
+    if(riid == IG4EventActionTool::interfaceID()) {
+      *ppvIf = (IG4EventActionTool*) this;
       addRef();
       return StatusCode::SUCCESS;
     }
