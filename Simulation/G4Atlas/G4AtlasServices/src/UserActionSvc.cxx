@@ -24,11 +24,11 @@ namespace G4UA
   UserActionSvc::UserActionSvc(const std::string& name,
                                ISvcLocator* pSvcLocator)
     : AthService(name, pSvcLocator),
-      m_runActionTools(this),
-      m_eventActionTools(this),
-      m_stackingActionTools(this),
-      m_trackingActionTools(this),
-      m_steppingActionTools(this)
+      m_runActionTools(),
+      m_eventActionTools(),
+      m_stackingActionTools(),
+      m_trackingActionTools(),
+      m_steppingActionTools()
   {
     declareProperty("RunActionTools", m_runActionTools);
     declareProperty("EventActionTools", m_eventActionTools);
