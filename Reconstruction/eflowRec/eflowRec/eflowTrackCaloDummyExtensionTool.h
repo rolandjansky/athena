@@ -30,9 +30,9 @@ public:
 
   static const InterfaceID& interfaceID();
 
-  StatusCode initialize();
+  virtual StatusCode initialize() override;
   virtual  std::unique_ptr<eflowTrackCaloPoints> execute(const xAOD::TrackParticle* track) const override;
-  StatusCode finalize();
+  virtual StatusCode finalize() override;
 
 private:
   void  FillEstimationMap(const char * filename, const char * graphname, eflowCalo::LAYER layer);
