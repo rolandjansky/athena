@@ -139,12 +139,13 @@ MuonInputProvider::createMuonTOB(const MuCTPIL1TopoCandidate & roi) const {
     int etaTopo = roi.getieta();
     int phiTopo = roi.getiphi();
     if( phiTopo > 31 ) phiTopo -= 64;
-
-    TCS::MuonTOB muon( roi.getptValue(), 0, etaTopo, phiTopo, roi.getRoiID() );
+    unsigned int pt = topoMuonPtThreshold(roi);
+    const unsigned int iso = 0;
+    TCS::MuonTOB muon( pt, iso, etaTopo, phiTopo, roi.getRoiID() );
     muon.setEtaDouble( etaTopo );
     muon.setPhiDouble( phiTopo );
 
-   m_hPt->Fill(muon.Et());
+   m_hPt->Fill(pt);
    m_hEtaPhi->Fill(muon.eta(),muon.phi());
 
    return muon;
@@ -156,15 +157,16 @@ MuonInputProvider::createLateMuonTOB(const MuCTPIL1TopoCandidate & roi) const {
    float phi = roi.getphi();
    if(phi<-M_PI) phi+=2.0*M_PI;
    if(phi> M_PI) phi-=2.0*M_PI;
+   unsigned int pt = topoMuonPtThreshold(roi);
+   const unsigned int iso = 0;
+   ATH_MSG_DEBUG("Late Muon ROI (MuCTPiToTopo):bcid=1 thr pt = " << pt << " eta = " << roi.geteta() << " phi = " << phi << ", w   = " << MSG::hex << std::setw( 8 ) << roi.getRoiID() << MSG::dec);
 
-   ATH_MSG_DEBUG("Late Muon ROI (MuCTPiToTopo):bcid=1 thr pt = " << roi.getptThresholdID() << " eta = " << roi.geteta() << " phi = " << phi << ", w   = " << MSG::hex << std::setw( 8 ) << roi.getRoiID() << MSG::dec);
-
-   TCS::LateMuonTOB muon( roi.getptValue(), 0, int(10*roi.geteta()), int(10*phi), roi.getRoiID() );
+   TCS::LateMuonTOB muon( pt, iso, int(10*roi.geteta()), int(10*phi), roi.getRoiID() );
 
    muon.setEtaDouble( roi.geteta() );
    muon.setPhiDouble( phi );
 
-   m_hPt->Fill(muon.Et());
+   m_hPt->Fill(pt);
    m_hEtaPhi->Fill(muon.eta(),muon.phi());
 
    ATH_MSG_DEBUG("LateMuon created");
@@ -200,8 +202,7 @@ MuonInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
       for( const ROIB::MuCTPIRoI & muonRoI : rois ) {
 
 	if( !( muonRoI.roIWord() & LVL1::CandidateVetoMask  )  )
-        inputEvent.addMuon(MuonInputProvider::hackMuonTOB(
-                               MuonInputProvider::createMuonTOB( muonRoI.roIWord() )));
+        inputEvent.addMuon(MuonInputProvider::createMuonTOB( muonRoI.roIWord() ));
     // overflow implemented only for reduced granularity encoding (see below)
 	else
 	  ATH_MSG_DEBUG(" Ignore Vetoed L1 Mu RoI " <<  muonRoI.roIWord() );
@@ -224,8 +225,7 @@ MuonInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
 	  continue;
        
 	if( !( roiword & LVL1::CandidateVetoMask  )  )
-        inputEvent.addMuon(MuonInputProvider::hackMuonTOB(
-                               MuonInputProvider::createMuonTOB( roiword )));
+        inputEvent.addMuon(MuonInputProvider::createMuonTOB( roiword ));
 	else
 	  ATH_MSG_DEBUG(" Ignore Vetoed L1 Mu RoI " << roiword );
        
@@ -249,8 +249,7 @@ MuonInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
       for(  std::vector<MuCTPIL1TopoCandidate>::const_iterator iMuCand = candList.begin(); iMuCand != candList.end(); iMuCand++)
 	{
 	  //MuonInputProvider::createMuonTOB( *iMuCand );
-        inputEvent.addMuon(MuonInputProvider::hackMuonTOB(
-                               MuonInputProvider::createMuonTOB( *iMuCand )));
+        inputEvent.addMuon(MuonInputProvider::createMuonTOB( *iMuCand ));
       if(iMuCand->moreThan2CandidatesOverflow()){
           inputEvent.setOverflowFromMuonInput(true);
           ATH_MSG_DEBUG("setOverflowFromMuonInput : true (MuCTPIL1TopoCandidate from SG)");
@@ -267,8 +266,7 @@ MuonInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
       
             
       for( const MuCTPIL1TopoCandidate & cand : l1topo.getCandidates() ) {
-          inputEvent.addMuon(MuonInputProvider::hackMuonTOB(
-                                 MuonInputProvider::createMuonTOB( cand )));
+          inputEvent.addMuon(MuonInputProvider::createMuonTOB( cand ));
           if(cand.moreThan2CandidatesOverflow()){
               inputEvent.setOverflowFromMuonInput(true);
               ATH_MSG_DEBUG("setOverflowFromMuonInput : true (MuCTPIL1TopoCandidate from MuctpiSimTool)");
@@ -307,13 +305,16 @@ MuonInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
   return StatusCode::SUCCESS;
 }
 
-TCS::MuonTOB
-MuonInputProvider::hackMuonTOB(const TCS::MuonTOB &muon) const
+unsigned int MuonInputProvider::topoMuonPtThreshold(const MuCTPIL1TopoCandidate &mctpiCand) const
 {
-    TCS::MuonTOB mu = muon;
-    if(mu.Et()>10) {
-        mu.setEt(10);
-        mu.setEtDouble(10.0);
+    unsigned int threshold = 0;
+    for(const TrigConf::TriggerThreshold* thr : m_MuonThresholds) {
+        if(static_cast< unsigned int >(thr->thresholdNumber()) == mctpiCand.getptL1TopoCode()) {
+            const int ieta = 0;
+            const int iphi = 0;
+            threshold = thr->triggerThresholdValue(ieta, iphi)->ptcut();
+            break;
+        }
     }
-    return mu;
+    return threshold;
 }
