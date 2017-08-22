@@ -14,7 +14,7 @@
 #ifndef SUSYTOOLS_SUSYOBJDEF_XAOD_H
 #define SUSYTOOLS_SUSYOBJDEF_XAOD_H
 
-// Framework include(s):
+// Framework include(s) - base class
 #include "AsgTools/AsgMetadataTool.h"
 
 // Interface class
@@ -27,16 +27,16 @@
 #include "PATInterfaces/SystematicVariation.h"
 
 // Tool handles
-#include "AsgTools/ToolHandle.h"
 #include <AsgTools/AnaToolHandle.h>
 
 // Configuration
 #include "TEnv.h"
 
+// Map for config file names
 #include <map>
+// Set for properties
 #include <set>
-#include <iterator>
-#include <functional>
+// Various uses in function arguments and parameters
 #include <string>
 #include <vector>
 

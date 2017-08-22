@@ -2,11 +2,20 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+// Class header
 #include "SUSYTools/SUSYCrossSection.h"
+
+// Find the xsec files in datapath
 #include "PathResolver/PathResolver.h"
+
+// For directory commands
 #include <dirent.h>
-#include <math.h>
+
+// Error messages
 #include <iostream>
+
+// Text file i/o
+#include <fstream>
 
 using namespace std;
 
