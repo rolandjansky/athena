@@ -242,7 +242,7 @@ namespace JiveXML {
         if(tSum){
           int nPixelHits = tSum->get(Trk::numberOfPixelHits);
           int nSCTHits   = tSum->get(Trk::numberOfSCTHits);
-          int nBLayerHits = tSum->get(Trk::numberOfBLayerHits);
+          int nBLayerHits = tSum->get(Trk::numberOfInnermostPixelLayerHits);
           int nTRTHits   = tSum->get(Trk::numberOfTRTHits);
           labelStr = "_PixelHits"+DataType( nPixelHits ).toString() + "_SCTHits"+DataType( nSCTHits ).toString() + 
                      "_BLayerHits"+DataType( nBLayerHits ).toString() + "_TRTHits"+DataType( nTRTHits ).toString() ;

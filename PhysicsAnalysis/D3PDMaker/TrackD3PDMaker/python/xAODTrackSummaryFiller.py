@@ -78,7 +78,7 @@ sumvars = [
     [  InfoPlus,              'standardDeviationOfChi2OS =standardDeviationOfChi2OS'],
 
     # Expect BLayer hit
-    [  ExpectBLayer,          'expectBLayerHit = expectInnermostPixelLayerHit'],
+    [  ExpectBLayer,          'expectInnermostPixelLayerHit = expectInnermostPixelLayerHit'],
 
     # Muon hits
     [ [MuonHits, HitSum],     'nprecisionLayers  = numberOfPrecisionLayers'],

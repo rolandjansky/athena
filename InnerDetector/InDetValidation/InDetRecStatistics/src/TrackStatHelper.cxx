@@ -806,9 +806,9 @@ bool InDet::TrackStatHelper::printTrackSummaryRegion(enum track_types track_type
       else
 	std::cout << std::setw(6) << "n/a";
       
-      std::cout << std::setw(6)  << std::setprecision(2); printTrackSummaryAverage( track_type , eta_region, Trk::numberOfBLayerHits );
-      std::cout << std::setw(6)  << std::setprecision(2); printTrackSummaryAverage( track_type , eta_region, Trk::numberOfBLayerSharedHits );
-      std::cout << std::setw(6)  << std::setprecision(2); printTrackSummaryAverage( track_type , eta_region, Trk::numberOfBLayerOutliers);
+      std::cout << std::setw(6)  << std::setprecision(2); printTrackSummaryAverage( track_type , eta_region, Trk::numberOfInnermostPixelLayerHits );
+      std::cout << std::setw(6)  << std::setprecision(2); printTrackSummaryAverage( track_type , eta_region, Trk::numberOfInnermostPixelLayerSharedHits );
+      std::cout << std::setw(6)  << std::setprecision(2); printTrackSummaryAverage( track_type , eta_region, Trk::numberOfInnermostPixelLayerOutliers);
       std::cout << std::setw(6)  << std::setprecision(2); printTrackSummaryAverage( track_type , eta_region, Trk::numberOfPixelHits  );
       std::cout << std::setw(6)  << std::setprecision(2); printTrackSummaryAverage( track_type , eta_region, Trk::numberOfPixelSharedHits );
       std::cout << std::setw(6)  << std::setprecision(2); printTrackSummaryAverage( track_type , eta_region, Trk::numberOfPixelHoles   );

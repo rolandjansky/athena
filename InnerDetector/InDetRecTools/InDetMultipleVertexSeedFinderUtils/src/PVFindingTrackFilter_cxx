@@ -47,7 +47,7 @@ namespace Trk
   declareProperty("maxD0",                    m_maxD0);
   declareProperty("maxD0overSigmaD0",         m_maxD0overSigmaD0);
   declareProperty("numberOfPixelHits",        m_numberOfPixelHits);
-  declareProperty("numberOfBLayerHits",       m_numberOfBLayerHits);
+  declareProperty("numberOfInnermostPixelLayerHits",       m_numberOfBLayerHits);
   declareProperty("TrackSummaryTool",         m_trackSumTool);
  }//end of constructor
 
@@ -106,7 +106,7 @@ namespace Trk
   
 //  std::cout<<" Getting to the number of hits "<<std::endl;     
   int nPixelHits  =  summary->get(Trk::numberOfPixelHits);
-  int nBLayerHits =  summary->get(Trk::numberOfBLayerHits); 
+  int nBLayerHits =  summary->get(Trk::numberOfInnermostPixelLayerHits);
    
 //  std::cout<<"Number of pixel hits: "<<nPixelHits<<"Number of b-layer hits: "<<nBLayerHits<<std::endl;
    

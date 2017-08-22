@@ -55,7 +55,7 @@ struct Var {
 
 Var vars[] = {
   // ID hits
-  { IDHitsMask,                  "nBLHits",                   Trk::numberOfBLayerHits },
+  { IDHitsMask,                  "nBLHits",                   Trk::numberOfInnermostPixelLayerHits },
   { IDHitsMask   | HitSumMask,   "nPixHits",                  Trk::numberOfPixelHits },
   { IDHitsMask   | HitSumMask,   "nSCTHits",                  Trk::numberOfSCTHits },
   { IDHitsMask   | HitSumMask,   "nTRTHits",                  Trk::numberOfTRTHits },
@@ -68,13 +68,13 @@ Var vars[] = {
   { IDHolesMask,                 "nPixelDeadSensors",         Trk::numberOfPixelDeadSensors },
   { IDHolesMask,                 "nSCTDeadSensors",           Trk::numberOfSCTDeadSensors },
   // ID shared & Split hits
-  { IDSharedHitsMask,           "nBLSharedHits",              Trk::numberOfBLayerSharedHits},
+  { IDSharedHitsMask,           "nBLSharedHits",              Trk::numberOfInnermostPixelLayerSharedHits},
   { IDSharedHitsMask,           "nPixSharedHits",             Trk::numberOfPixelSharedHits},
   { IDSharedHitsMask,           "nSCTSharedHits",             Trk::numberOfSCTSharedHits },
-  { IDSharedHitsMask,           "nBLayerSplitHits",           Trk::numberOfBLayerSplitHits},
+  { IDSharedHitsMask,           "nBLayerSplitHits",           Trk::numberOfInnermostLayerSplitHits},
   { IDSharedHitsMask,           "nPixSplitHits",              Trk::numberOfPixelSplitHits},
   // ID outliers                                              
-  { IDOutliersMask,             "nBLayerOutliers",            Trk::numberOfBLayerOutliers },
+  { IDOutliersMask,             "nBLayerOutliers",            Trk::numberOfInnermostPixelLayerOutliers },
   { IDOutliersMask,             "nPixelOutliers",             Trk::numberOfPixelOutliers },
   { IDOutliersMask,             "nSCTOutliers",               Trk::numberOfSCTOutliers },
   { IDOutliersMask,             "nTRTOutliers",               Trk::numberOfTRTOutliers},
@@ -94,7 +94,7 @@ Var vars[] = {
   { InfoPlusMask,               "nOutliersOnTrack",           Trk::numberOfOutliersOnTrack },
   { InfoPlusMask,               "standardDeviationOfChi2OS",  Trk::standardDeviationOfChi2OS },
   // Expect BLayer hit                                        
-  { ExpectBLayerMask,           "expectBLayerHit",            Trk::expectBLayerHit },
+  { ExpectBLayerMask,           "expectInnermostPixelLayerHit",            Trk::expectInnermostPixelLayerHit },
   // Muon hits                                                
   { MuonHitsMask | HitSumMask,  "nMDTHits",                   Trk::numberOfMdtHits },
   { MuonHitsMask | HitSumMask,  "nCSCEtaHits",                Trk::numberOfCscEtaHits },

@@ -134,7 +134,7 @@ StatusCode SharedHitMapper::execute() {
     xAOD::TrackParticleContainer::const_iterator trkE(inputTracks->end());
     for (; trk1I!=trkE; ++trk1I) {
       int nbs, nps, nss;
-      (*trk1I)->summaryValue(nbs, xAOD::numberOfBLayerSharedHits);
+      (*trk1I)->summaryValue(nbs, xAOD::numberOfInnermostPixelLayerSharedHits);
       (*trk1I)->summaryValue(nps, xAOD::numberOfPixelSharedHits);
       (*trk1I)->summaryValue(nss, xAOD::numberOfSCTSharedHits);
       if (nbs < 0) nbs = 0;

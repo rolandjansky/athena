@@ -204,7 +204,7 @@ StatusCode D2PDTrackParticleSelector::processObject( const Rec::TrackParticle* t
           int nSctHits(0);
           int nSiliconHits(0);
           int nTrtHits(0);
-          nBLayHits    = trackSum->get(Trk::numberOfBLayerHits);
+          nBLayHits    = trackSum->get(Trk::numberOfInnermostPixelLayerHits);
           nPixelHits   = trackSum->get(Trk::numberOfPixelHits);
           nSctHits     = trackSum->get(Trk::numberOfSCTHits);
           nSiliconHits = nPixelHits + nSctHits + nBLayHits;

@@ -218,16 +218,16 @@ TrackSelectionTool::accept(const xAOD::TrackParticle* p) const {
   // uint8_t iSiHits(0);//unused?
   uint8_t iTRTHits(0), iTRTHTHits(0), iTRTOutliers(0), iTRTHTOutliers(0);
 
-  if (!p->summaryValue(iBLayerHits, xAOD::numberOfBLayerHits)) {
+  if (!p->summaryValue(iBLayerHits, xAOD::numberOfInnermostPixelLayerHits)) {
     return m_accept;
   }
-  if (!p->summaryValue(iBLayerOutliers, xAOD::numberOfBLayerOutliers)) {
+  if (!p->summaryValue(iBLayerOutliers, xAOD::numberOfInnermostPixelLayerOutliers)) {
     return m_accept;
   }
-  if (!p->summaryValue(iBLayerSharedHits, xAOD::numberOfBLayerSharedHits)) {
+  if (!p->summaryValue(iBLayerSharedHits, xAOD::numberOfInnermostPixelLayerSharedHits)) {
     return m_accept;
   }
-  if (!p->summaryValue(iBLayerSplitHits, xAOD::numberOfBLayerSplitHits)) {
+  if (!p->summaryValue(iBLayerSplitHits, xAOD::numberOfInnermostPixelLayerSplitHits)) {
     return m_accept;
   }
 

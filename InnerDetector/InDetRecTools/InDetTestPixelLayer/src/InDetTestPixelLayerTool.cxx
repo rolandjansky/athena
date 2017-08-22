@@ -214,12 +214,12 @@ namespace InDet {
     int ehbl = -1;
     const Trk::TrackSummary* ts =  track->trackSummary();
     if(ts){
-      ehbl = ts->get(Trk::expectBLayerHit);
+      ehbl = ts->get(Trk::expectInnermostPixelLayerHit);
     }
 
     if(!recompute && pixel_layer==0){
       if(ts){
-	ehbl = ts->get(Trk::expectBLayerHit); 
+	ehbl = ts->get(Trk::expectInnermostPixelLayerHit);
 	if(0==ehbl || 1==ehbl ){
 	  m_cachedTrkParam =  0;
 	  m_cachedFracGood=-1;
@@ -277,7 +277,7 @@ namespace InDet {
     int ehbl = -1;
     const Trk::TrackSummary* ts =  track->trackSummary();
     if(ts){
-      ehbl = ts->get(Trk::expectBLayerHit); 
+      ehbl = ts->get(Trk::expectInnermostPixelLayerHit);
     }
 
     if(!recompute && pixel_layer==0){

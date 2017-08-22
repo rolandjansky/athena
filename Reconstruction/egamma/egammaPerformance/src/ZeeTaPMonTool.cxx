@@ -412,15 +412,15 @@ void ZeeTaPMonTool::fillElectronProbe(const xAOD::Electron *el, bool isTight, bo
   // Associated track details
   const xAOD::TrackParticle *t = el->trackParticle();
   double trackp = 0; 
-  unsigned char numberOfBLayerHits=-1;
+  unsigned char numberOfInnermostPixelLayerHits=-1;
   unsigned char numberOfPixelHits=-1;
   unsigned char numberOfSCTHits=-1;
   unsigned char numberOfTRTHits=-1;
   if(t) {
     trackp = t->pt()*cosh(t->eta());
     // retrieve track summary information
-    if( t->summaryValue(numberOfBLayerHits,xAOD::numberOfBLayerHits) ) {
-      fillTH1FperRegion(m_hvNOfBLayerHits,ir,numberOfBLayerHits);
+    if( t->summaryValue(numberOfInnermostPixelLayerHits,xAOD::numberOfInnermostPixelLayerHits) ) {
+      fillTH1FperRegion(m_hvNOfBLayerHits,ir,numberOfInnermostPixelLayerHits);
     }
     if( t->summaryValue(numberOfPixelHits,xAOD::numberOfPixelHits) && t->summaryValue(numberOfSCTHits,xAOD::numberOfSCTHits) ) {
       fillTH1FperRegion(m_hvNOfSiHits,ir,numberOfPixelHits+numberOfSCTHits);

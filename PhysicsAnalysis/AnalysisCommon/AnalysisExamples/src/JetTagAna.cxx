@@ -505,8 +505,8 @@ StatusCode JetTagAna::execute() {
 	if(trackParticle->pt()<1000.) continue; 
         const Trk::TrackSummary* summary = trackParticle->trackSummary();
         if (summary) {
-	  m_h_global_BLayerHits->Fill((float) summary->get(Trk::numberOfBLayerHits));
-	  m_h_global_BLayerSharedHits->Fill((float) summary->get(Trk::numberOfBLayerSharedHits));
+	  m_h_global_BLayerHits->Fill((float) summary->get(Trk::numberOfInnermostPixelLayerHits));
+	  m_h_global_BLayerSharedHits->Fill((float) summary->get(Trk::numberOfInnermostPixelLayerSharedHits));
 	  m_h_global_PixelHits->Fill((float) summary->get(Trk::numberOfPixelHits));
 	  m_h_global_PixelLayers->Fill((float) summary->get(Trk::numberOfContribPixelLayers));
 	  m_h_global_TRTHits->Fill((float) summary->get(Trk::numberOfTRTHits));
@@ -642,7 +642,7 @@ StatusCode JetTagAna::execute() {
 
        const Trk::TrackSummary* summary = aTemp->trackSummary();
        if (summary) {
-         m_h_jet_tracks_BLayerHits->Fill((float) summary->get(Trk::numberOfBLayerHits));
+         m_h_jet_tracks_BLayerHits->Fill((float) summary->get(Trk::numberOfInnermostPixelLayerHits));
          m_h_jet_tracks_PixelHits->Fill((float) summary->get(Trk::numberOfPixelHits));
          m_h_jet_tracks_SCTHits->Fill((float) summary->get(Trk::numberOfSCTHits));
        }
@@ -1532,7 +1532,7 @@ StatusCode JetTagAna::checkTrackqualforSET(Rec::TrackParticleContainer::const_it
   const Trk::TrackSummary* summary = (*trackItr)->trackSummary();
   if (summary) {
     // number of b-layer hits
-    nBL = summary->get(Trk::numberOfBLayerHits);
+    nBL = summary->get(Trk::numberOfInnermostPixelLayerHits);
     // number of pixel hits
     nPix = summary->get(Trk::numberOfPixelHits);
     // number of Si hits

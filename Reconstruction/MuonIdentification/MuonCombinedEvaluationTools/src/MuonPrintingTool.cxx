@@ -230,17 +230,17 @@ std::string Rec::MuonPrintingTool::print( const xAOD::Muon& muon ) const {
 	sout << " No Track link";
 	ATH_MSG_DEBUG("ID track particle without Trk::Track");
       }else{
-	// uint8_t numberOfBLayerHits=0;
+	// uint8_t numberOfInnermostPixelLayerHits=0;
 	// uint8_t numberOfPixelHits=0;
 	// uint8_t numberOfSCTHits=0;
 	// uint8_t numberOfTRTHits=0;
 	
-	// if( !muon.summaryValue(numberOfBLayerHits,xAOD::numberOfBLayerHits) ) numberOfBLayerHits = 0;
+	// if( !muon.summaryValue(numberOfInnermostPixelLayerHits,xAOD::numberOfInnermostPixelLayerHits) ) numberOfInnermostPixelLayerHits = 0;
 	// if( !muon.summaryValue(numberOfPixelHits,xAOD::numberOfPixelHits) ) numberOfPixelHits = 0;
 	// if( !muon.summaryValue(numberOfSCTHits,xAOD::numberOfSCTHits) ) numberOfSCTHits = 0;
 	// if( !muon.summaryValue(numberOfTRTHits,xAOD::numberOfTRTHits) ) numberOfTRTHits = 0;
 	
-	// sout << " Hits in B Layer " << static_cast<int>(numberOfBLayerHits)
+	// sout << " Hits in B Layer " << static_cast<int>(numberOfInnermostPixelLayerHits)
 	//      << "   Pixels " << static_cast<int>(numberOfPixelHits)
 	//      << "   SCT " << static_cast<int>(numberOfSCTHits)
 	//      << "   TRT " << static_cast<int>(numberOfTRTHits);

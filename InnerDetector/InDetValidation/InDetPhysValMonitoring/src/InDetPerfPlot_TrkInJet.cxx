@@ -281,7 +281,7 @@ InDetPerfPlot_TrkInJet::fill(const xAOD::TrackParticle& trk, const xAOD::Jet& je
 
   fillHisto(m_recPt, trk.pt() / 1e3);
 
-  if (trk.summaryValue(iBLayerHits, xAOD::numberOfBLayerHits)) {
+  if (trk.summaryValue(iBLayerHits, xAOD::numberOfInnermostPixelLayerHits)) {
     fillHisto(n_vs_jetDR_BLayerHits, jetDR, iBLayerHits);
   }
   if (trk.summaryValue(iPixHits, xAOD::numberOfPixelHits)) {
@@ -309,13 +309,13 @@ InDetPerfPlot_TrkInJet::fill(const xAOD::TrackParticle& trk, const xAOD::Jet& je
     uint8_t iPixelOutliers(0), iPixelContribLayers(0), iPixelShared(0), iPixelSplit(0), iPixelGanged(0);
     uint8_t iSCTOutliers(0), iSCTDoubleHoles(0), iSCTShared(0);
     uint8_t iTRTOutliers(0), iTRTHTOutliers(0);
-    if (trk.summaryValue(iBLayerOutliers, xAOD::numberOfBLayerOutliers)) {
+    if (trk.summaryValue(iBLayerOutliers, xAOD::numberOfInnermostPixelLayerOutliers)) {
       fillHisto(n_vs_jetDR_BLayerOutliers, jetDR, iBLayerOutliers);
     }
-    if (trk.summaryValue(iBLayerShared, xAOD::numberOfBLayerSharedHits)) {
+    if (trk.summaryValue(iBLayerShared, xAOD::numberOfInnermostPixelLayerSharedHits)) {
       fillHisto(n_vs_jetDR_BLayerSharedHits, jetDR, iBLayerShared);
     }
-    if (trk.summaryValue(iBLayerSplit, xAOD::numberOfBLayerSplitHits)) {
+    if (trk.summaryValue(iBLayerSplit, xAOD::numberOfInnermostPixelLayerSplitHits)) {
       fillHisto(n_vs_jetDR_BLayerSplitHits, jetDR, iBLayerSplit);
     }
     if (trk.summaryValue(iPixelOutliers, xAOD::numberOfPixelOutliers)) {

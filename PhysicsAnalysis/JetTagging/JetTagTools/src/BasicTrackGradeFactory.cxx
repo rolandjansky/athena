@@ -72,7 +72,7 @@ const TrackGradesDefinition & BasicTrackGradeFactory::getTrackGradesDefinition()
   {
 
     uint8_t nbs=0, nps=0, nss=0;
-    if (!track.summaryValue(nbs, xAOD::numberOfBLayerSharedHits)){
+    if (!track.summaryValue(nbs, xAOD::numberOfInnermostPixelLayerSharedHits)){
       ATH_MSG_ERROR("#BTAG# Cannot retrieve numberOfBLayerSharedHists for TrackGrade!");
     }
 

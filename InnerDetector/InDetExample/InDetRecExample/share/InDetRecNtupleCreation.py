@@ -87,7 +87,7 @@ if InDetFlags.doNtupleCreation():
                                                             maxD0                 = 2000.,
                                                             maxD0overSigmaD0      = 500.,
                                                             numberOfPixelHits     = minNumberOfPixelHitsForTracksInNtuple,
-                                                            numberOfBLayerHits    = 0,
+                                                            numberOfInnermostPixelLayerHits    = 0,
                                                             TrackSummaryTool      = InDetTrackSummaryTool)
     #if (InDetFlags.doLowPt()):
     #  TrkValTrackSelectorTool.minPt = InDetNewTrackingCutsLowPt.minPT()
@@ -99,7 +99,7 @@ if InDetFlags.doNtupleCreation():
       TrkValTrackSelectorTool.maxD0                   = 9999999.0
       TrkValTrackSelectorTool.maxD0overSigmaD0        = 9999999.0
       TrkValTrackSelectorTool.numberOfPixelHits       =       1
-      TrkValTrackSelectorTool.numberOfBLayerHits      =       0
+      TrkValTrackSelectorTool.numberOfInnermostPixelLayerHits      =       0
       
     ToolSvc += TrkValTrackSelectorTool
     if (InDetFlags.doPrintConfigurables()):

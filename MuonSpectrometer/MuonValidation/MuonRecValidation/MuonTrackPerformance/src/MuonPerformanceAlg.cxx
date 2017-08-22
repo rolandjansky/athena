@@ -113,9 +113,9 @@ bool MuonPerformanceAlg::passID(const xAOD::TrackParticle* tp, bool debug) const
   if( tp  ){
       
     // check blayer 
-    tp->summaryValue(eblh,xAOD::expectBLayerHit);
-    tp->summaryValue(nblh,xAOD::numberOfBLayerHits);
-    tp->summaryValue(nblo,xAOD::numberOfBLayerOutliers);
+    tp->summaryValue(eblh,xAOD::expectInnermostPixelLayerHit);
+    tp->summaryValue(nblh,xAOD::numberOfInnermostPixelLayerHits);
+    tp->summaryValue(nblo,xAOD::numberOfInnermostPixelLayerOutliers);
     if( static_cast<int>(eblh) ==0 ||
 	static_cast<int>(nblh) + static_cast<int>(nblo) > 0 )   tightness += 1;
 

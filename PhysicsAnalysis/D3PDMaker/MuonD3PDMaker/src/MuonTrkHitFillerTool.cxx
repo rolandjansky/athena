@@ -28,12 +28,12 @@ const Var  vars[] =
 {
   {"nOutliersOnTrack", xAOD::numberOfOutliersOnTrack, ID+MS},
 
-  {"nBLHits",           xAOD::numberOfBLayerHits,               ID},
+  {"nBLHits",           xAOD::numberOfInnermostPixelLayerHits,               ID},
   {"nPixHits",          xAOD::numberOfPixelHits,                ID},
   {"nSCTHits",          xAOD::numberOfSCTHits,                  ID},
   {"nTRTHits",          xAOD::numberOfTRTHits,                  ID},
   {"nTRTHighTHits",     xAOD::numberOfTRTHighThresholdHits,     ID},
-  {"nBLSharedHits",     xAOD::numberOfBLayerSharedHits,         ID},
+  {"nBLSharedHits",     xAOD::numberOfInnermostPixelLayerSharedHits,         ID},
   {"nPixSharedHits",    xAOD::numberOfPixelSharedHits,          ID},
   {"nPixHoles",         xAOD::numberOfPixelHoles,               ID},
   {"nSCTSharedHits",    xAOD::numberOfSCTSharedHits,            ID},
@@ -44,7 +44,7 @@ const Var  vars[] =
   {"nPixelDeadSensors", xAOD::numberOfPixelDeadSensors,         ID},
   {"nSCTDeadSensors",   xAOD::numberOfSCTDeadSensors,           ID},
   {"nTRTDeadStraws",    xAOD::numberOfTRTDeadStraws,            ID},
-  {"expectBLayerHit",   xAOD::expectBLayerHit,                  ID},
+  {"expectInnermostPixelLayerHit",   xAOD::expectInnermostPixelLayerHit,                  ID},
 
   {"nprecisionLayers",      xAOD::numberOfPrecisionLayers,      MS},
   {"nprecisionHoleLayers",  xAOD::numberOfPrecisionHoleLayers,  MS},

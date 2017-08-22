@@ -218,7 +218,7 @@ namespace JiveXML {
 
               summary = (*elItr)->trackParticle()->trackSummary();
               hasTrack.push_back( DataType( 1 ) );
-	      hitsBLayer.push_back( DataType( summary->get(Trk::numberOfBLayerHits) ));
+	      hitsBLayer.push_back( DataType( summary->get(Trk::numberOfInnermostPixelLayerHits) ));
               hitsPixel.push_back( DataType(  summary->get(Trk::numberOfPixelHits) ));
               hitsSCT.push_back( DataType( summary->get(Trk::numberOfSCTHits) ));
               hitsTRT.push_back( DataType( summary->get(Trk::numberOfTRTHits) ));

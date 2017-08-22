@@ -311,7 +311,7 @@ namespace InDet {
       
       bool pass = true;
 
-      const bool expectedHitInBLayer = tSum->get(Trk::expectBLayerHit);
+      const bool expectedHitInBLayer = tSum->get(Trk::expectInnermostPixelLayerHit);
       if (expectedHitInBLayer) {
         // ME: cut on minInitR if blayer is ok
         if(trkPar->position().perp() < m_minInitR ) pass = false;
@@ -331,7 +331,7 @@ namespace InDet {
       }
 
       // do we reject tracks with blayer ?
-      int nBLHits = tSum->get(Trk::numberOfBLayerHits) + tSum->get(Trk::numberOfBLayerOutliers);
+      int nBLHits = tSum->get(Trk::numberOfInnermostPixelLayerHits) + tSum->get(Trk::numberOfInnermostPixelLayerOutliers);
       if(nBLHits > m_maxBLhits) pass = false;
 
       delete tSum;
@@ -481,7 +481,7 @@ namespace InDet {
     uint8_t dummy;
 
     uint8_t expectedHitInBLayer(0); 
-    if( track->summaryValue(dummy,xAOD::expectBLayerHit) )
+    if( track->summaryValue(dummy,xAOD::expectInnermostPixelLayerHit) )
        expectedHitInBLayer = dummy;
 
     float Rfirst = trk_meas.position().perp();    
@@ -539,9 +539,9 @@ namespace InDet {
     }
 
     uint8_t nBLHits(0);
-    if( track->summaryValue(dummy,xAOD::numberOfBLayerHits))
+    if( track->summaryValue(dummy,xAOD::numberOfInnermostPixelLayerHits))
       nBLHits += dummy;
-    if( track->summaryValue(dummy, xAOD::numberOfBLayerOutliers))
+    if( track->summaryValue(dummy, xAOD::numberOfInnermostPixelLayerOutliers))
       nBLHits += dummy;
     if(nBLHits > m_maxBLhits) 
     {
