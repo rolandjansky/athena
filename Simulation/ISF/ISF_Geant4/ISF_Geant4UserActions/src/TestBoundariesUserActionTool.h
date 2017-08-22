@@ -4,9 +4,8 @@
 
 #ifndef ISF_GEANT4USERACTIONS_G4UA_IGEANT4_TESTBOUNDARIESUSERACTIONTOOL_H 
 #define ISF_GEANT4USERACTIONS_G4UA_IGEANT4_TESTBOUNDARIESUSERACTIONTOOL_H 
-#include "G4AtlasInterfaces/IBeginRunActionTool.h"
-#include "G4AtlasInterfaces/IEndRunActionTool.h"
-#include "G4AtlasInterfaces/ISteppingActionTool.h"
+#include "G4AtlasInterfaces/IG4RunActionTool.h"
+#include "G4AtlasInterfaces/IG4SteppingActionTool.h"
 #include "G4AtlasTools/ActionToolBase.h"
 #include "TestBoundariesUserAction.h"
 
@@ -24,21 +23,18 @@ namespace G4UA{
 
     class TestBoundariesUserActionTool: 
     public ActionToolBase<TestBoundariesUserAction>,
-      public IBeginRunActionTool,  public IEndRunActionTool,  public ISteppingActionTool
+      public IG4RunActionTool, public IG4SteppingActionTool
     {
       
     public:
       /// standard tool ctor
       TestBoundariesUserActionTool(const std::string& type, const std::string& name,const IInterface* parent);
-      /// gets the BoR action
-      virtual IBeginRunAction* getBeginRunAction() override final 
-      { return static_cast<IBeginRunAction*>( getAction() ); }
-      /// gets the EoR action
-      virtual IEndRunAction* getEndRunAction() override final 
-      { return static_cast<IEndRunAction*>( getAction() ); }
+      /// gets the run action
+      virtual G4UserRunAction* getRunAction() override final 
+      { return static_cast<G4UserRunAction*>( getAction() ); }
       /// gets the stepping action
-      virtual ISteppingAction* getSteppingAction() override final 
-      { return static_cast<ISteppingAction*>( getAction() ); }
+      virtual G4UserSteppingAction* getSteppingAction() override final 
+      { return static_cast<G4UserSteppingAction*>( getAction() ); }
       /// Gaudi interface handling
       virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
     protected:
