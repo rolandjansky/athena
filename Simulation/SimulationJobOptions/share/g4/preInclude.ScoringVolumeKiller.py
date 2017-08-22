@@ -19,4 +19,4 @@ getService('DetectorGeometrySvc').RegionCreators += [getPublicTool('MuonPhysicsR
 #currently initializing the DetectorGeometrySvc too early causes
 #problems with the GeoModelSvc configuration.
 
-simFlags.OptionalUserActionList.addAction('G4UA::ScoringVolumeTrackKillerTool',['EndOfEvent', 'Step'])
+simFlags.OptionalUserActionList.addAction('G4UA::ScoringVolumeTrackKillerTool',['Event', 'Step'])
