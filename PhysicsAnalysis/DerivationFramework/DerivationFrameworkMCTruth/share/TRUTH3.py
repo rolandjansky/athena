@@ -32,27 +32,28 @@ jetFlags.truthFlavorTags = ["BHadronsInitial", "BHadronsFinal", "BQuarksFinal",
 
 if dfInputIsEVNT:
   # Standard truth jets
-  # To recover jet constituents remove the last modifier.
-  akt4 = jtm.addJetFinder("AntiKt4TruthJets", "AntiKt", 0.4, "truth", modifiersin=[jtm.truthpartondr, jtm.partontruthlabel, jtm.removeconstit, jtm.jetdrlabeler, jtm.trackjetdrlabeler], ptmin= 20000)
-  #akt4 = jtm.addJetFinder("AntiKt4TruthJets", "AntiKt", 0.4, "truth", modifiersin=[jtm.truthpartondr, jtm.partontruthlabel, jtm.removeconstit, jtm.jetdrlabeler, jtm.trackjetdrlabeler], ptmin= 20000)
+  # To recover jet constituents remove the modifier jtm.removeconstit
+  truth_modifiers = [jtm.truthpartondr, jtm.partontruthlabel, jtm.removeconstit, jtm.jetdrlabeler, jtm.trackjetdrlabeler]
+  akt4 = jtm.addJetFinder("AntiKt4TruthJets", "AntiKt", 0.4, "truth", ptmin=15000, modifiersin=truth_modifiers)
   akt4alg = JetAlgorithm("jetalgAntiKt4TruthJets", Tools = [akt4] )
   DerivationFrameworkJob += akt4alg
 
   # WZ Truth Jets
-  akt4wz = jtm.addJetFinder("AntiKt4TruthWZJets",  "AntiKt", 0.4,  "truthwz", ptmin= 20000, modifiersin=[jtm.truthpartondr, jtm.partontruthlabel, jtm.removeconstit])
+  akt4wz = jtm.addJetFinder("AntiKt4TruthWZJets",  "AntiKt", 0.4,  "truthwz", ptmin= 15000, modifiersin=truth_modifiers)
   akt4wzalg = JetAlgorithm("jetalgAntiKt4TruthWZJets", Tools = [akt4wz] )
   DerivationFrameworkJob += akt4wzalg
-  #jtm.addJetFinder("AntiKt6TruthWZJets",  "AntiKt", 0.6,  "truthwz", ptmin= 5000)
-  # Other jets
-  #akt6  = jtm.addJetFinder("AntiKt6TruthJets", "AntiKt", 0.6, "truth", ptmin= 5000)
-  #akt10 = jtm.addJetFinder("AntiKt10TruthJets", "AntiKt", 1.0, "truth", ptmin= 5000)
+
+  # Some examples of other truth jet collections
+  #akt6wz    = jtm.addJetFinder("AntiKt6TruthWZJets",  "AntiKt", 0.6,  "truthwz", ptmin= 5000)
+  #akt6      = jtm.addJetFinder("AntiKt6TruthJets", "AntiKt", 0.6, "truth", ptmin= 5000)
+  #akt10     = jtm.addJetFinder("AntiKt10TruthJets", "AntiKt", 1.0, "truth", ptmin= 5000)
   #akt10trim = jtm.addJetTrimmer("TrimmedAntiKt10TruthJets", rclus=0.3, ptfrac=0.05, input='AntiKt10TruthJets')
 
   #Large R jets
   akt10 = jtm.addJetFinder("AntiKt10TruthJets", "AntiKt", 1.0, "truth",ptmin= 100000)
   akt10alg = JetAlgorithm("jetalgAntiKt10TruthJets", Tools = [akt10] )
   DerivationFrameworkJob += akt10alg
-  akt10trim = jtm.addJetTrimmer("TrimmedAntiKt10TruthJets", rclus=0.2, ptfrac=0.05, input='AntiKt10TruthJets', modifiersin=[jtm.nsubjettiness, jtm.removeconstit])
+  akt10trim = jtm.addJetTrimmer("TrimmedAntiKt10TruthJets", rclus=0.2, ptfrac=0.05, input='AntiKt10TruthJets', modifiersin=[jtm.nsubjettiness, jtm.removeconstit], doArea=False)
   akt10trimalg = JetAlgorithm("jetalgTrimmedAntiKt10TruthJets", Tools = [akt10trim] )
   DerivationFrameworkJob += akt10trimalg
 
@@ -171,11 +172,11 @@ TRUTH3SlimmingHelper.AppendToDictionary = {'TruthEvents':'xAOD::TruthEventContai
                                            'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
                                            'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer',
                                            'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
-                                           'AntiKt4TruthJets':'xAOD::JetContainer','AntiKt4TruthJetsAux':'xAOD::JetAuxContainer',
+                                           'AntiKt4TruthWZJets':'xAOD::JetContainer','AntiKt4TruthWZJetsAux':'xAOD::JetAuxContainer',
                                            'TrimmedAntiKt10TruthJets':'xAOD::JetContainer','TrimmedAntiKt10TruthJetsAux':'xAOD::JetAuxContainer'     
                                           }
 TRUTH3SlimmingHelper.AllVariables = ["MET_Truth","MET_TruthRegions","TruthElectrons","TruthMuons","Truth3Photons","TruthTaus","TruthNeutrinos","TruthBSM","TruthTop","TruthBoson"]
-TRUTH3SlimmingHelper.ExtraVariables = ["AntiKt4TruthJets.GhostCHadronsFinalCount.GhostBHadronsFinalCount.pt.HadronConeExclTruthLabelID.ConeTruthLabelID.PartonTruthLabelID.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T",
+TRUTH3SlimmingHelper.ExtraVariables = ["AntiKt4TruthWZJets.GhostCHadronsFinalCount.GhostBHadronsFinalCount.pt.HadronConeExclTruthLabelID.ConeTruthLabelID.PartonTruthLabelID.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T",
                                        "TrimmedAntiKt10TruthJets.pt.Tau1_wta.Tau2_wta.Tau3_wta",
                                        "TruthEvents.Q.XF1.XF2.PDGID1.PDGID2.PDFID1.PDFID2.X1.X2.weights.crossSection"]
 TRUTH3SlimmingHelper.AppendContentToStream(TRUTH3Stream)
