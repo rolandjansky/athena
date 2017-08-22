@@ -8,7 +8,7 @@
 # Include this file in your simulation job options to apply the timer
 #
 from G4AtlasApps.SimFlags import simFlags
-simFlags.OptionalUserActionList.addAction('G4UA::TestActionTimerTool',['BeginOfRun','EndOfRun','BeginOfEvent','EndOfEvent','Step'])
+simFlags.OptionalUserActionList.addAction('G4UA::TestActionTimerTool',['Run','Event','Step'])
 
 from AthenaCommon.AppMgr import ServiceMgr
 from GaudiSvc.GaudiSvcConf import THistSvc
