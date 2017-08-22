@@ -4,10 +4,9 @@
 
 #ifndef G4ATLASTESTS_G4UA__STEPPINGVALIDATIONTOOL_H 
 #define G4ATLASTESTS_G4UA__STEPPINGVALIDATIONTOOL_H 
-#include "G4AtlasInterfaces/IBeginRunActionTool.h"
-#include "G4AtlasInterfaces/IEndEventActionTool.h"
-#include "G4AtlasInterfaces/IBeginEventActionTool.h"
-#include "G4AtlasInterfaces/ISteppingActionTool.h"
+#include "G4AtlasInterfaces/IG4RunActionTool.h"
+#include "G4AtlasInterfaces/IG4EventActionTool.h"
+#include "G4AtlasInterfaces/IG4SteppingActionTool.h"
 #include "G4AtlasTools/ActionToolBase.h"
 #include "SteppingValidation.h"
 namespace G4UA{ 
@@ -21,24 +20,21 @@ namespace G4UA{
 
   class SteppingValidationTool: 
   public ActionToolBase<SteppingValidation>,
-    public IBeginRunActionTool,  public IEndEventActionTool,  public IBeginEventActionTool,  public ISteppingActionTool
+    public IG4RunActionTool, public IG4EventActionTool, public IG4SteppingActionTool
   {
     
   public:
     /// standard tool ctor
     SteppingValidationTool(const std::string& type, const std::string& name,const IInterface* parent);
-    /// gets the BoR action
-    virtual IBeginRunAction* getBeginRunAction() override final
-    { return static_cast<IBeginRunAction*>( getAction() ); }
-    /// gets the EoE action
-    virtual IEndEventAction* getEndEventAction() override final 
-    { return static_cast<IEndEventAction*>( getAction() ); }
-    /// gets the BoE action
-    virtual IBeginEventAction* getBeginEventAction() override final 
-    { return static_cast<IBeginEventAction*>( getAction() ); }
+    /// gets the run action
+    virtual G4UserRunAction* getRunAction() override final
+    { return static_cast<G4UserRunAction*>( getAction() ); }
+    /// gets the event action
+    virtual G4UserEventAction* getEventAction() override final
+    { return static_cast<G4UserEventAction*>( getAction() ); }
     /// gets the stepping action
-    virtual ISteppingAction* getSteppingAction() override final 
-    { return static_cast<ISteppingAction*>( getAction() ); }
+    virtual G4UserSteppingAction* getSteppingAction() override final
+    { return static_cast<G4UserSteppingAction*>( getAction() ); }
     /// Gaudi interface handling
     virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
   protected:
