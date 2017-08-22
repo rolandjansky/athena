@@ -104,7 +104,7 @@ ServiceMgr += myAtRndmGenSvc
 
 ## Add an action
 from G4AtlasApps.SimFlags import simFlags
-simFlags.OptionalUserActionList.addAction('G4UA::MaterialStepRecorderTool'['BeginOfRun','EndOfRun','BeginOfEvent','EndOfEvent','Step'])
+simFlags.OptionalUserActionList.addAction('G4UA::MaterialStepRecorderTool'['Run','Event','Step'])
 
 ############### The Material hit collection ##################
 
