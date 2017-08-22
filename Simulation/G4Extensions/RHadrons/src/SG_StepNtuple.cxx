@@ -22,7 +22,7 @@ namespace G4UA{
 SG_StepNtuple::SG_StepNtuple():AthMessaging(Gaudi::svcLocator()->service< IMessageSvc >( "MessageSvc" ),"SG_StepNtuple"){;
 }
 
-  void SG_StepNtuple::beginOfRun(const G4Run*){
+  void SG_StepNtuple::BeginOfRunAction(const G4Run*){
     
     
     NTupleFilePtr file1(ntupleSvc(), "/NTUPLES/FILE1");
@@ -130,14 +130,14 @@ SG_StepNtuple::SG_StepNtuple():AthMessaging(Gaudi::svcLocator()->service< IMessa
     
   }
   
-  void SG_StepNtuple::beginOfEvent(const G4Event*){
+  void SG_StepNtuple::BeginOfEventAction(const G4Event*){
     m_nsteps=0;
     rhid=0;//the rhadron index (either the first or second rhadon, usually)
     nevents++; m_evtid=nevents;//since it gets cleared out after every fill...
     
   }
   
-  void SG_StepNtuple::endOfEvent(const G4Event*){
+  void SG_StepNtuple::EndOfEventAction(const G4Event*){
 
     if(! ntupleSvc()->writeRecord("/NTUPLES/FILE1/StepNtuple/10").isSuccess())
       ATH_MSG_ERROR( " failed to write record for this event" );
@@ -145,7 +145,7 @@ SG_StepNtuple::SG_StepNtuple():AthMessaging(Gaudi::svcLocator()->service< IMessa
     //this also seems to zero out all the arrays... so beware!
   }
   
-  void SG_StepNtuple::processStep(const G4Step* aStep){
+  void SG_StepNtuple::UserSteppingAction(const G4Step* aStep){
     if(m_nsteps<50000){
       int pdg = aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
       bool rhad=false;
