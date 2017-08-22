@@ -6,11 +6,9 @@
 #ifndef G4PROFILINGTOOLS_G4UA__TESTACTIONEHISTTOOL_H 
 #define G4PROFILINGTOOLS_G4UA__TESTACTIONEHISTTOOL_H 
 
-#include "G4AtlasInterfaces/IPreTrackingActionTool.h"
-#include "G4AtlasInterfaces/IPostTrackingActionTool.h"
-#include "G4AtlasInterfaces/IBeginRunActionTool.h"
-#include "G4AtlasInterfaces/IEndRunActionTool.h"
-#include "G4AtlasInterfaces/ISteppingActionTool.h"
+#include "G4AtlasInterfaces/IG4TrackingActionTool.h"
+#include "G4AtlasInterfaces/IG4RunActionTool.h"
+#include "G4AtlasInterfaces/IG4SteppingActionTool.h"
 #include "G4AtlasTools/ActionToolBase.h"
 #include "TestActionEHist.h"
 
@@ -26,27 +24,21 @@ namespace G4UA{
   
   class TestActionEHistTool: 
   public ActionToolBase<TestActionEHist>,
-    public IPreTrackingActionTool,  public IPostTrackingActionTool,  public IBeginRunActionTool,  public IEndRunActionTool,  public ISteppingActionTool
+    public IG4TrackingActionTool, public IG4RunActionTool,  public IG4SteppingActionTool
   {
     
   public:
     /// Standard constructor
     TestActionEHistTool(const std::string& type, const std::string& name,const IInterface* parent);
-    /// Retrieve the begin of tracking action interface
-    virtual IPreTrackingAction* getPreTrackingAction() override final 
-    { return static_cast<IPreTrackingAction*>( getAction() ); }
-    /// Retrieve the end of tracking action interface
-    virtual IPostTrackingAction* getPostTrackingAction() override final 
-    { return static_cast<IPostTrackingAction*>( getAction() ); }
-    /// Retrieve the BoR action interface
-    virtual IBeginRunAction* getBeginRunAction() override final 
-    { return static_cast<IBeginRunAction*>( getAction() ); }
-    /// Retrieve the EoR action interface
-    virtual IEndRunAction* getEndRunAction() override final 
-    { return static_cast<IEndRunAction*>( getAction() ); }
+    /// Retrieve the tracking action interface
+    virtual G4UserTrackingAction* getTrackingAction() override final 
+    { return static_cast<G4UserTrackingAction*>( getAction() ); }
+    /// Retrieve the run action interface
+    virtual G4UserRunAction* getRunAction() override final 
+    { return static_cast<G4UserRunAction*>( getAction() ); }
     /// Retrieve the stepping action interface
-    virtual ISteppingAction* getSteppingAction() override final 
-    { return static_cast<ISteppingAction*>( getAction() ); }
+    virtual G4UserSteppingAction* getSteppingAction() override final 
+    { return static_cast<G4UserSteppingAction*>( getAction() ); }
     /// Gaudis query interface
     virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
 

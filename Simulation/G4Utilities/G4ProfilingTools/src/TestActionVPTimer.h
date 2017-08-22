@@ -25,11 +25,9 @@ class G4Step;
 class Algorithm;
 
 
-#include "G4AtlasInterfaces/IBeginEventAction.h"
-#include "G4AtlasInterfaces/IEndEventAction.h"
-#include "G4AtlasInterfaces/IBeginRunAction.h"
-#include "G4AtlasInterfaces/IEndRunAction.h"
-#include "G4AtlasInterfaces/ISteppingAction.h"
+#include "G4UserEventAction.hh"
+#include "G4UserRunAction.hh"
+#include "G4UserSteppingAction.hh"
 namespace G4UA{
 
   /*! @class TestActionVPTimer
@@ -39,7 +37,7 @@ particles.
   */
 
   class TestActionVPTimer:
-  public IBeginEventAction,  public IEndEventAction,  public IBeginRunAction,  public IEndRunAction,  public ISteppingAction
+  public G4UserEventAction, public G4UserRunAction,  public G4UserSteppingAction
   {
     
   public:
@@ -129,11 +127,11 @@ particles.
     const Report& getReport() const
     { return m_report; }
     
-    virtual void beginOfEvent(const G4Event*) override;
-    virtual void endOfEvent(const G4Event*) override;
-    virtual void beginOfRun(const G4Run*) override;
-    virtual void endOfRun(const G4Run*) override;
-    virtual void processStep(const G4Step*) override;
+    virtual void BeginOfEventAction(const G4Event*) override;
+    virtual void EndOfEventAction(const G4Event*) override;
+    virtual void BeginOfRunAction(const G4Run*) override;
+    virtual void EndOfRunAction(const G4Run*) override;
+    virtual void UserSteppingAction(const G4Step*) override;
 
   private:
     Config m_config;
