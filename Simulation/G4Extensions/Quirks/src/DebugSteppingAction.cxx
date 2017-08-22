@@ -33,7 +33,7 @@ DebugSteppingAction::DebugSteppingAction(const Config& config):m_config(config)
  
  DebugSteppingAction::~DebugSteppingAction() {}
  
- void DebugSteppingAction::processStep(const G4Step* step) {
+ void DebugSteppingAction::UserSteppingAction(const G4Step* step) {
 #ifndef QUIRKS_STANDALONE
    G4double m_step=m_config.step;
    G4int m_numSteps=m_config.numSteps;
