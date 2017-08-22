@@ -4,11 +4,9 @@
 
 #ifndef TRKG4USERACTIONS_G4UA__ENERGYLOSSRECORDERTOOL_H 
 #define TRKG4USERACTIONS_G4UA__ENERGYLOSSRECORDERTOOL_H 
-#include "G4AtlasInterfaces/IBeginRunActionTool.h"
-#include "G4AtlasInterfaces/IEndRunActionTool.h"
-#include "G4AtlasInterfaces/IBeginEventActionTool.h"
-#include "G4AtlasInterfaces/IEndEventActionTool.h"
-#include "G4AtlasInterfaces/ISteppingActionTool.h"
+#include "G4AtlasInterfaces/IG4RunActionTool.h"
+#include "G4AtlasInterfaces/IG4EventActionTool.h"
+#include "G4AtlasInterfaces/IG4SteppingActionTool.h"
 #include "G4AtlasTools/ActionToolBase.h"
 #include "TrkG4UserActions/EnergyLossRecorder.h"
 namespace Trk {
@@ -28,7 +26,7 @@ namespace G4UA{
   class EnergyLossRecorderTool: 
 
   public ActionToolBase<EnergyLossRecorder>,
-    public IBeginRunActionTool,  public IEndRunActionTool,  public IBeginEventActionTool,  public IEndEventActionTool,  public ISteppingActionTool
+    public IG4RunActionTool, public IG4EventActionTool,  public IG4SteppingActionTool
   {
     
   public:
@@ -36,21 +34,15 @@ namespace G4UA{
     EnergyLossRecorderTool(const std::string& type, const std::string& name,const IInterface* parent);
     /// Athena initialize method
     virtual StatusCode initialize() override final;
-    /// gets the BoR action
-    virtual IBeginRunAction* getBeginRunAction() override final 
-    { return static_cast<IBeginRunAction*>( getAction() ); }
-    /// gets the EoR action
-    virtual IEndRunAction* getEndRunAction() override final 
-    { return static_cast<IEndRunAction*>( getAction() ); }
-    /// gets the BoE action
-    virtual IBeginEventAction* getBeginEventAction() override final 
-    { return static_cast<IBeginEventAction*>( getAction() ); }
-    /// gets the EoE action
-    virtual IEndEventAction* getEndEventAction() override final 
-    { return static_cast<IEndEventAction*>( getAction() ); }
+    /// gets the run action
+    virtual G4UserRunAction* getRunAction() override final 
+    { return static_cast<G4UserRunAction*>( getAction() ); }
+    /// gets the event action
+    virtual G4UserEventAction* getEventAction() override final 
+    { return static_cast<G4UserEventAction*>( getAction() ); }
     /// gets the stepping action
-    virtual ISteppingAction* getSteppingAction() override final 
-    { return static_cast<ISteppingAction*>( getAction() ); }
+    virtual G4UserSteppingAction* getSteppingAction() override final 
+    { return static_cast<G4UserSteppingAction*>( getAction() ); }
     /// Gaudi interface manipulation
     virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
   protected:
