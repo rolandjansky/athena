@@ -460,6 +460,16 @@ namespace InDet {
     std::shared_ptr<SummaryAccessor> m_sctDeadAccessor;
   };
 
+  class TrackPatternRecoInfoCut : public virtual TrackCut {
+  public:
+    TrackPatternRecoInfoCut(InDetTrackSelectionTool*, const std::vector<Int_t>& allowedTrackPatterns);
+    virtual StatusCode initialize();
+    virtual bool result() const;
+  private:
+    std::bitset<xAOD::NumberOfTrackRecoInfo> m_trackPatternMask;
+    std::shared_ptr< FuncAccessor< std::bitset<xAOD::NumberOfTrackRecoInfo>, &xAOD::TrackParticle::patternRecoInfo> > m_tpBitsetAccessor;
+  };
+
 #ifndef XAOD_ANALYSIS
   // ---------------- MinSiHitsModTopBottomCut ----------------
   class MinSiHitsModTopBottomCut : public virtual TrackCut {

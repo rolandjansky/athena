@@ -149,6 +149,7 @@ InDet::InDetTrackSelectionTool::InDetTrackSelectionTool(const std::string& name,
 		  "Minimum pt cutoffs for each SCT hits");
   declareProperty("vecMinNSctHitsAbovePt", m_vecMinNSctHitsAbovePt, "Minimum SCT hits above each pt cutoff");
   declareProperty("useExperimentalInnermostLayersCut", m_useExperimentalInnermostLayersCut, "Use the experimental cut on pixel holes");
+  declareProperty("allowedTrackPatterns", m_allowedTrackPattern, "At least one of these TrackPatternRecoInfo bits is required");
 #ifndef XAOD_ANALYSIS
   declareProperty("minNSiHitsMod", m_minNSiHitsMod);
   declareProperty("minNSiHitsModTop", m_minNSiHitsModTop);
@@ -642,6 +643,14 @@ StatusCode InDet::InDetTrackSelectionTool::initialize() {
     auto sctCut = make_unique<PtDependentSctHitsCut>
       (this, m_vecPtCutoffsForSctHitsCut, m_vecMinNSctHitsAbovePt);
     m_trackCuts["SctHits"].push_back(std::move(sctCut));
+  }
+  if ( ! m_allowedTrackPattern.empty() ) {
+    ATH_MSG_INFO( "Track pattern reco info must have at least one of:" );
+    for ( Int_t tp : m_allowedTrackPattern ) {
+      ATH_MSG_INFO( "  " << tp );
+    }
+    auto trkPatternCut = make_unique<TrackPatternRecoInfoCut>( this, m_allowedTrackPattern );
+    m_trackCuts["TrkPattern"].push_back(std::move(trkPatternCut));
   }
 
 
