@@ -776,7 +776,7 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
   }
 
   // Reset the timeout singleton
-  resetTimeout(Athena::Timeout::instance());
+  resetTimeout(Athena::Timeout::instance(m_eventContext));
   if(toolsPassed) {
   // Fire BeginEvent "Incident"
   //m_incidentSvc->fireIncident(EventIncident(*pEvent, name(),"BeginEvent"));
