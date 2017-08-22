@@ -28,7 +28,7 @@ namespace G4UA
 
   }
 
-  void LArGeoH62004SteppingAction::processStep(const G4Step * theStep)
+  void LArGeoH62004SteppingAction::UserSteppingAction(const G4Step * theStep)
   {
 
     // ADS: why are these static?
