@@ -18,6 +18,9 @@
 #include "AthAnalysisBaseComps/AthAnalysisHelper.h"
 #endif
 
+// For std::find in comesFrom()
+#include <algorithm>
+
 using namespace std;
 using namespace MCTruthPartClassifier;
 
@@ -47,6 +50,8 @@ CopyTruthJetParticles::CopyTruthJetParticles(const std::string& name)
   declareProperty("MCTruthClassifier", m_classif);
 
   declareProperty("FSRPhotonCone", m_photonCone);
+
+  declareProperty("VetoPDG_IDs", m_vetoPDG_IDs, "List of PDG IDs (python list) to veto.  Will ignore these and all children of these.");
 }
 
 bool CopyTruthJetParticles::classifyJetInput(const xAOD::TruthParticle* tp, int barcodeOffset,
@@ -118,6 +123,15 @@ bool CopyTruthJetParticles::classifyJetInput(const xAOD::TruthParticle* tp, int 
 
   // Pseudo-rapidity cut
   if(fabs(tp->eta())>m_maxAbsEta) return false;
+
+  // Vetoes of specific origins.  Not fast, but if no particles are specified should not execute
+  if (m_vetoPDG_IDs.size()>0){
+    std::vector<int> used_vertices;
+    for (int anID : m_vetoPDG_IDs){
+      used_vertices.clear();
+      if (comesFrom(tp,anID,used_vertices)) return false;
+    }
+  }
 
   // Made it! 
   return true;
@@ -252,5 +266,28 @@ int CopyTruthJetParticles::execute() const {
   ATH_MSG_DEBUG("Copied " << numCopied << " truth particles into " << m_outputname << " TruthParticle container");
 
   return 0;
+}
+
+
+bool CopyTruthJetParticles::comesFrom( const xAOD::TruthParticle* tp, const int pdgID, std::vector<int>& used_vertices ) const {
+  // If it's not a particle, then it doesn't come from something...
+  if (!tp) return false;
+  // If it doesn't have a production vertex or has no parents, it doesn't come from much of anything
+  if (!tp->prodVtx() || tp->nParents()==0) return false;
+  // If we have seen it before, then skip this production vertex
+  if (std::find(used_vertices.begin(),used_vertices.end(), tp->prodVtx()->barcode())!=used_vertices.end()) return false;
+  // Add the production vertex to our used list
+  used_vertices.push_back( tp->prodVtx()->barcode() );
+  // Loop over the parents
+  for (size_t par=0;par<tp->nParents();++par){
+    // Check for null pointers in case of skimming
+    if (!tp->parent(par)) continue;
+    // Check for a match
+    if (tp->parent(par)->absPdgId()==pdgID) return true;
+    // Recurse on this parent
+    if (comesFrom(tp->parent(par), pdgID, used_vertices)) return true;
+  }
+  // No hits -- all done with the checks!
+  return false;
 }
 
