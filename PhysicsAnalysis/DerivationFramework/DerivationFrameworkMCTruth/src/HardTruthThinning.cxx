@@ -423,7 +423,7 @@ int DerivationFramework::HardTruthThinning::getDescendants(
   if( ! (p->hasDecayVtx()) ) return 0;
   const xAOD::TruthVertex* dvtx = p->decayVtx();
   if( !dvtx ) return 0;
-  if( !dvtx->nOutgoingParticles() > 0 ) return 0;
+  if( dvtx->nOutgoingParticles() <= 0 ) return 0;
   if( dvtx->barcode() < -200000 ) return 0;
   const std::vector< ElementLink< xAOD::TruthParticleContainer > >& outPart =
   dvtx->outgoingParticleLinks();
@@ -442,7 +442,7 @@ int DerivationFramework::HardTruthThinning::getDescendants(
       if( ! (pp->hasDecayVtx()) ) continue;
       const xAOD::TruthVertex* vpp = pp->decayVtx();
       if( !vpp ) continue;
-      if( !vpp->nOutgoingParticles() > 0 ) continue;
+      if( vpp->nOutgoingParticles() <= 0 ) continue;
       if( vpp->barcode() < -200000 ) continue;
       const std::vector< ElementLink< xAOD::TruthParticleContainer > >&
       outPart2 = vpp->outgoingParticleLinks();
