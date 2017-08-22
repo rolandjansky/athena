@@ -22,6 +22,17 @@ namespace SG {
                    const std::string& dbKey,
                    Gaudi::DataHandle::Mode a );
 
+    template <class OWNER, class K,
+              typename = typename std::enable_if<std::is_base_of<IProperty, OWNER>::value>::type>
+    inline MetaHandleKey( OWNER* owner,
+                          std::string name,
+                          const K& key={},
+                          std::string doc="") :
+      MetaHandleKey<T>( key ) {
+      auto p = owner->declareProperty(std::move(name), *this, std::move(doc));
+      p->template setOwnerType<OWNER>();
+    }
+
 //    MetaHandleKey& operator= (const std::string& sgkey);
 
     StatusCode initialize();
