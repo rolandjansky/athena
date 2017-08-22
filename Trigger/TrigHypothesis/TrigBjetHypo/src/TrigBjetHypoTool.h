@@ -123,12 +123,6 @@ class TrigBjetHypoTool : virtual public ::AthAlgTool {
   ToolHandle<GenericMonitoringTool> m_monTool;
 
   // Monitored variables, may not be needed
-
-/** @brief DeclareProperty: to monitor method used to perform the cut. */
-  float m_monitorMethod;
-  /** @brief Cut counter. */
-  int m_cutCounter;
-
 };
 
 inline const InterfaceID& TrigBjetHypoTool::interfaceID()
