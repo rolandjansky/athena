@@ -506,7 +506,8 @@ namespace EL
           }
         }
         file << options()->castString(Job::optBatchSetupCommand, defaultSetupCommand.str()) << " || abortJob\n";
-        file << "source build/setup.sh || abortJob\n";
+        if(sharedFileSystem) file << "source " << WORKDIR_DIR << "/setup.sh || abortJob\n";
+        else                 file << "source build/setup.sh || abortJob\n";
         file << "\n";
 
         file << "eventloop_batch_worker $EL_JOBID '" << submitLocation << "/config.root' || abortJob\n";
