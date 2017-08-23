@@ -37,7 +37,7 @@
 #include "xAODTracking/TrackParticleContainer.h"
 
 // For the forcing of the tau truth container build
-#include "TauAnalysisTools/IBuildTruthTaus.h"
+#include "tauRecTools/IBuildTruthTaus.h"
 
 #include "xAODCore/ShallowCopy.h"
 #include "AthContainers/AuxElement.h"

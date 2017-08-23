@@ -163,7 +163,7 @@ private:
   // SUSYTools object -- need TooHandle for Athena!
   ToolHandle< ISUSYObjDef_xAODTool > m_objTool;
   ToolHandle< TauAnalysisTools::ITauTruthMatchingTool > m_tauTruthTool;
-  ToolHandle< TauAnalysisTools::IBuildTruthTaus > m_tauTruthBuilderTool;
+  ToolHandle< tauRecTools::IBuildTruthTaus > m_tauTruthBuilderTool;
 
   // SUSYTools systematics
   std::vector< SystInfo > m_systInfoList; //!

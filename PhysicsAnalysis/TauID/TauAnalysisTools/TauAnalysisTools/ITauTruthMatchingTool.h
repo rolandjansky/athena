@@ -23,8 +23,8 @@
 // EDM include(s):
 #include "xAODTau/TauJet.h"
 
-// // local include(s)
-#include "IBuildTruthTaus.h"
+// tauRecTools include(s)
+#include "tauRecTools/IBuildTruthTaus.h"
 
 // local include(s)
 #include "TauAnalysisTools/Enums.h"
@@ -34,7 +34,7 @@ namespace TauAnalysisTools
 
 class ITauTruthMatchingTool
   : public virtual asg::IAsgTool
-  , public virtual TauAnalysisTools::IBuildTruthTaus
+  , public virtual tauRecTools::IBuildTruthTaus
 {
 
   /// Declare the interface that the class provides

@@ -20,7 +20,7 @@
 
 // For the forcing of the tau truth container build 
 #include "TauAnalysisTools/ITauTruthMatchingTool.h"
-#include "TauAnalysisTools/IBuildTruthTaus.h"
+#include "tauRecTools/IBuildTruthTaus.h"
 
 #include "PATInterfaces/SystematicVariation.h"
 #include "PATInterfaces/SystematicRegistry.h"

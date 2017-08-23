@@ -4,17 +4,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef  TAUANALYSISTOOLS_BUILDTRUTHTAUS_H
-#define  TAUANALYSISTOOLS_BUILDTRUTHTAUS_H
+#ifndef  TAURECTOOLS_BUILDTRUTHTAUS_H
+#define  TAURECTOOLS_BUILDTRUTHTAUS_H
 
 /*
   author: Dirk Duschinger
   mail: dirk.duschinger@cern.ch
-  documentation in: ../README.rst
-                    or
-                    https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/tags/TauAnalysisTools-<tag>/README.rst
-		    or
-                    https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/README.rst
 */
 
 // Framework include(s):
@@ -28,18 +23,18 @@
 #include "xAODJet/JetContainer.h"
 
 // Local include(s):
-#include "TauAnalysisTools/IBuildTruthTaus.h"
+#include "tauRecTools/IBuildTruthTaus.h"
 
-namespace TauAnalysisTools
+namespace tauRecTools
 {
 
 class BuildTruthTaus
-  : public virtual TauAnalysisTools::IBuildTruthTaus
+  : public virtual tauRecTools::IBuildTruthTaus
   , public asg::AsgMetadataTool
 {
   /// Create a proper constructor for Athena
   ASG_TOOL_CLASS( BuildTruthTaus,
-                  TauAnalysisTools::IBuildTruthTaus )
+                  tauRecTools::IBuildTruthTaus )
 
 public:
 
@@ -128,4 +123,4 @@ private:
 }; // class BuildTruthTaus
 
 }
-#endif // TAUANALYSISTOOLS_BUILDTRUTHTAUS_H
+#endif // TAURECTOOLS_BUILDTRUTHTAUS_H

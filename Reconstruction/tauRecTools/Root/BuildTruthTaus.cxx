@@ -3,7 +3,7 @@
 */
 
 // Local include(s)
-#include "TauAnalysisTools/BuildTruthTaus.h"
+#include "tauRecTools/BuildTruthTaus.h"
 
 // Core include(s):
 #include "AthLinks/ElementLink.h"
@@ -18,7 +18,7 @@
 #define PRINTVAR(VAR)                                                   \
   std::cout<<__FILE__<<" "<<__LINE__<<":"<<#VAR<<" = "<<VAR<<"\n";
 
-using namespace TauAnalysisTools;
+using namespace tauRecTools;
 
 //=================================PUBLIC-PART==================================
 //______________________________________________________________________________

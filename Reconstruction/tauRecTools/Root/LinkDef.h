@@ -19,6 +19,7 @@
 #include "tauRecTools/TauJetBDTEvaluator.h"
 #include "tauRecTools/TauIDVarCalculator.h"
 #include "tauRecTools/TauEleOLRDecorator.h"
+#include "tauRecTools/BuildTruthTaus.h"
 
 #ifdef __CINT__
 
@@ -50,5 +51,6 @@
 #pragma link C++ class TauJetBDTEvaluator+;
 #pragma link C++ class TauIDVarCalculator+;
 #pragma link C++ class TauEleOLRDecorator+;
+#pragma link C++ class BuildTruthTaus+;
 
 #endif
