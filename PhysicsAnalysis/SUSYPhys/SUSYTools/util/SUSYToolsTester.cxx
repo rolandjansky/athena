@@ -73,6 +73,8 @@
 #include "xAODCutFlow/CutBookkeeper.h"
 #include "xAODCutFlow/CutBookkeeperContainer.h"
 
+#include "TrigDecisionTool/ChainGroup.h"
+
 const size_t Ncuts = 10;
 const char *cut_name[] =
 { "All",

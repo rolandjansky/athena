@@ -430,7 +430,7 @@ else:
 from AthenaCommon.GlobalFlags import globalflags
 print "HIGG2D5.py globalflags.DataSource()", globalflags.DataSource()
 
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkIsMonteCarlo:
     ToolSvc += HIGG2D5TruthThinningTool
     thinningTools.append(HIGG2D5TruthThinningTool)
 print "HIGG2D5.py thinningTools", thinningTools
@@ -441,15 +441,16 @@ print "HIGG2D5.py thinningTools", thinningTools
 
 from AthenaCommon.BeamFlags import jobproperties
 print "HIGG2D5.py jobproperties.Beam.energy()", jobproperties.Beam.energy()
-# SkipTriggerRequirement=((globalflags.DataSource()=='geant4') and (jobproperties.Beam.energy()==4000000.0))
-#8 TeV MC does not have trigger information
-#SkipTriggerRequirement=True # Temporally disabled (2015-05-28)
-SkipTriggerRequirement= (globalflags.DataSource()=='geant4') # or (jobproperties.Beam.energy()==4000000.0))
+SkipTriggerRequirement= DerivationFrameworkIsMonteCarlo
 # no need to apply trigger requirements on MC 
 print "HIGG2D5.py SkipTriggerRequirement", SkipTriggerRequirement
 TriggerJPSI= []
 TriggerPHI = [] 
 TriggerRHO = [] 
+TriggerKSHORT = []
+TriggerKSTAR = []
+TriggerD0 = []
+TriggerWPIGAMMA = []
 if not SkipTriggerRequirement:
     TriggerJPSI               = ["HLT_mu24_imedium", "HLT_mu26_imedium", "HLT_mu50", "HLT_2mu10", "HLT_2mu14", "HLT_mu24_mu8noL1"]
     if jobproperties.Beam.energy()==4000000.0:
@@ -576,7 +577,7 @@ HIGG2D5SlimmingHelper.SmartCollections = ["Electrons",
 
 HIGG2D5SlimmingHelper.ExtraVariables = HIGG2D5ExtraContent
 HIGG2D5SlimmingHelper.AllVariables = HIGG2D5ExtraContainers
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkIsMonteCarlo:
     HIGG2D5SlimmingHelper.ExtraVariables += HIGG2D5ExtraContentTruth
     HIGG2D5SlimmingHelper.AllVariables += HIGG2D5ExtraContainersTruth
 

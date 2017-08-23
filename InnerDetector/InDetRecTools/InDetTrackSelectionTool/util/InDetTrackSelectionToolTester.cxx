@@ -25,6 +25,7 @@
 using std::vector;
 using std::string;
 using std::unique_ptr;
+using std::make_unique;
 using TrkSelTool = InDet::InDetTrackSelectionTool;
 
 struct HistFamily
@@ -110,7 +111,7 @@ int main( int argc, char* argv[] ) {
    Info( APP_NAME, "Creating output file %s", outFile->GetName() );
 
    const vector<string> cutNames = {"NoCut", "Loose", "LoosePrimary", "TightPrimary", "LooseMuon", "LooseElectron", "MinBias", "HILoose", "HITight"}; // these are names of pre-defined selections
-   const vector<string> otherCutNames = {"IP", "IPSigma", "IPSignificance"}; // other configurations we will define manually
+   const vector<string> otherCutNames = {"IP", "IPSigma", "IPSignificance", "Author"}; // other configurations we will define manually
    std::map<string, unique_ptr<TrkSelTool> > selToolMap;
    std::map<string, unique_ptr<HistFamily> > histFamilyMap;
    for (const auto& cut : cutNames) {
@@ -133,6 +134,12 @@ int main( int argc, char* argv[] ) {
    CHECK( selToolMap["IPSignificance"]->setProperty( "maxZ0SinThetaoverSigmaZ0SinTheta", 3.0 ) );
    CHECK( selToolMap["IPSignificance"]->initialize() );
    histFamilyMap["IPSignificance"] = unique_ptr<HistFamily>(new HistFamily("IPSignificance"));
+   vector< Int_t > allowedTrackPatterns = { xAOD::TRTSeededTrackFinder, xAOD::TRTStandalone };
+   selToolMap["Author"] = make_unique<TrkSelTool>("TrackAuthor");
+   CHECK( selToolMap["Author"]->setProperty( "minPt", 400.0 ) );
+   CHECK( selToolMap["Author"]->setProperty( "allowedTrackPatterns", allowedTrackPatterns ) );
+   CHECK( selToolMap["Author"]->initialize() );
+   histFamilyMap["Author"] = make_unique<HistFamily>("TrackAuthor");
 
    // Loop over the events:
    for( Long64_t entry = 0; entry < entries; ++entry ) {

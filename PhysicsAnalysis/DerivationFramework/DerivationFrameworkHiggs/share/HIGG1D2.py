@@ -213,13 +213,26 @@ augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
 svcMgr += createThinningSvc( svcName="HIGG1D2ThinningSvc", outStreams=[evtStream] )
 
+# Before any custom jet reconstruction, it's good to set up the output list
+OutputJets["HIGG1D2Jets"] = []
+
+#=======================================
+# RESTORE AOD-REDUCED JET COLLECTIONS
+#=======================================
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
+reducedJetList = [
+                  "AntiKt4TruthJets",
+                  "AntiKt4TruthWZJets"]
+replaceAODReducedJets(reducedJetList,HIGG1D2Seq,"HIGG1D2Jets")
+
+
  #====================================================================
 # Add the containers to the output stream - slimming done here
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 HIGG1D2SlimmingHelper = SlimmingHelper("HIGG1D2SlimmingHelper")
-HIGG1D2Stream.AddItem("xAOD::EventShape_v1#*")
-HIGG1D2Stream.AddItem("xAOD::EventShapeAuxInfo_v1#*")
+HIGG1D2Stream.AddItem("xAOD::EventShape#*")
+HIGG1D2Stream.AddItem("xAOD::EventShapeAuxInfo#*")
 
 HIGG1D2SlimmingHelper.SmartCollections = ["Electrons",
                                           "Photons",

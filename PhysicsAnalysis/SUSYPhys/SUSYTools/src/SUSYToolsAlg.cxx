@@ -3,12 +3,6 @@
 */
 
 // SUSYToolsAlg.cxx
-//=================================================
-// June 24, 2017, @szambito d(^_^)b
-//-------------------------------------------------
-// N.B. turned off electron trigger matching + SF 
-// and signal jets / JVT + SF: broken in R21
-//=================================================
 
 #include "SUSYToolsAlg.h"
 #include "SUSYTools/ISUSYObjDef_xAODTool.h"
@@ -22,10 +16,11 @@
 #include "xAODTau/TauJetContainer.h"
 #include "xAODTau/TauJetAuxContainer.h"
 #include "xAODMissingET/MissingETAuxContainer.h"
+#include "xAODEventInfo/EventInfo.h"
 
 // For the forcing of the tau truth container build 
 #include "TauAnalysisTools/ITauTruthMatchingTool.h"
-#include "TauAnalysisTools/IBuildTruthTaus.h"
+#include "tauRecTools/IBuildTruthTaus.h"
 
 #include "PATInterfaces/SystematicVariation.h"
 #include "PATInterfaces/SystematicRegistry.h"

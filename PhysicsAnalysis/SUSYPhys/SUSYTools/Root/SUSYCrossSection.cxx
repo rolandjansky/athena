@@ -1,7 +1,7 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
- 
+
 #include "SUSYTools/SUSYCrossSection.h"
 #include "PathResolver/PathResolver.h"
 #include <dirent.h>
@@ -64,12 +64,9 @@ void SUSY::CrossSectionDB::loadFile(const std::string& txtfilename){
           float xsect, kfactor, efficiency, relunc;
           float sumweight = -1, stat = -1;
           is >> id >> name >> xsect >> kfactor >> efficiency >> relunc;
-          if (m_extended == true)
-            {
-              // cout << "m_extended was true!" << endl; 
+          if (m_extended == true){
               is >> sumweight >> stat;
-            }
-          //cout << " Process: " << name << "  " << id << " " << xsect << endl;
+          }
           m_xsectDB[Key(id, name)] = Process(id, name, xsect, kfactor, efficiency, relunc, sumweight, stat);
         }
     }
@@ -107,12 +104,9 @@ void SUSY::CrossSectionDB::extend(const std::string& txtfilename){
           auto my_it = my_find( id );
           if (my_it==m_xsectDB.end()){
             is >> name >> xsect >> kfactor >> efficiency >> relunc;
-            if (m_extended == true)
-              {
-                // cout << "m_extended was true!" << endl; 
-                is >> sumweight >> stat;
-              }
-            //cout << " Process: " << name << "  " << id << " " << xsect << endl;
+            if (m_extended == true){
+              is >> sumweight >> stat;
+            }
             m_xsectDB[Key(id, name)] = Process(id, name, xsect, kfactor, efficiency, relunc, sumweight, stat);
           } else {
             // Now we have extended records
@@ -135,7 +129,6 @@ SUSY::CrossSectionDB::Process SUSY::CrossSectionDB::process(int id, int proc) co
   } else {
     pos = m_xsectDB.find(k);
     if (pos != m_xsectDB.end()) {
-      //      m_cache[k] = pos->second; //this doesn't compile, please fix it!
       return pos->second;
     }
   }

@@ -51,7 +51,6 @@
 + PhysicsAnalysis/SUSYPhys/SUSYTools
 + PhysicsAnalysis/TauID/DiTauMassTools
 + PhysicsAnalysis/TauID/TauAnalysisTools
-+ PhysicsAnalysis/TauID/TauCorrUncert
 + PhysicsAnalysis/TopPhys/QuickAna
 + PhysicsAnalysis/TrackingID/.*
 + Reconstruction/EventShapes/EventShapeInterface
@@ -63,6 +62,7 @@
 - Reconstruction/Jet/JetSimTools
 - Reconstruction/Jet/JetValidation
 + Reconstruction/Jet/Jet.*
++ Reconstruction/Jet/BoostedJetTaggers
 + Reconstruction/MET/METInterface
 + Reconstruction/MET/METUtilities
 + Reconstruction/MVAUtils

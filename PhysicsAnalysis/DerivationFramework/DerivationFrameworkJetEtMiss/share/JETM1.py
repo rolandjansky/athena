@@ -146,24 +146,24 @@ if DerivationFrameworkIsMonteCarlo:
    jetm1Seq += lowptjetalg
    OutputJets["JETM1"].append("AntiKt4LCTopoLowPtJets")
    #EMPFlow
-   if "jetalgAntiKt4EMPFlowLowPtJets" in DFJetAlgs.keys():
-       lowptjetalg = DFJetAlgs["jetalgAntiKt4EMPFlowLowPtJets"]
-   else:
-       jtm.addJetFinder("AntiKt4EMPFlowLowPtJets", "AntiKt", 0.4, "empflow", "pflow_ungroomed", ghostArea=0.01, ptmin= 2000, ptminFilter= 2000, calibOpt="ar:pflow")
-       lowptjetalg = CfgMgr.JetAlgorithm("jetalgAntiKt4EMPFlowLowPtJets", Tools = [jtm.AntiKt4EMPFlowLowPtJets])
-       DFJetAlgs["jetalgAntiKt4EMPFlowLowPtJets"] = lowptjetalg;
-   jetm1Seq += lowptjetalg
-   OutputJets["JETM1"].append("AntiKt4EMPFlowLowPtJets")
+#   if "jetalgAntiKt4EMPFlowLowPtJets" in DFJetAlgs.keys():
+#       lowptjetalg = DFJetAlgs["jetalgAntiKt4EMPFlowLowPtJets"]
+#   else:
+#       jtm.addJetFinder("AntiKt4EMPFlowLowPtJets", "AntiKt", 0.4, "empflow", "pflow_ungroomed", ghostArea=0.01, ptmin= 2000, ptminFilter= 2000, calibOpt="ar:pflow")
+#       lowptjetalg = CfgMgr.JetAlgorithm("jetalgAntiKt4EMPFlowLowPtJets", Tools = [jtm.AntiKt4EMPFlowLowPtJets])
+#       DFJetAlgs["jetalgAntiKt4EMPFlowLowPtJets"] = lowptjetalg;
+#   jetm1Seq += lowptjetalg
+#   OutputJets["JETM1"].append("AntiKt4EMPFlowLowPtJets")
 
 if jetFlags.useTruth:
     # CamKt R=1.2 jets
-    addFilteredJets("CamKt", 1.2, "Truth", mumax=1.0, ymin=0.15, algseq=jetm1Seq, outputGroup="JETM1")
-    addFilteredJets("CamKt", 1.2, "Truth", mumax=1.0, ymin=0.04, algseq=jetm1Seq, outputGroup="JETM1")
+    #addFilteredJets("CamKt", 1.2, "Truth", mumax=1.0, ymin=0.15, algseq=jetm1Seq, outputGroup="JETM1")
+    #addFilteredJets("CamKt", 1.2, "Truth", mumax=1.0, ymin=0.04, algseq=jetm1Seq, outputGroup="JETM1")
     pass
 
 # CamKt R=1.2 jets
-addFilteredJets("CamKt", 1.2, "LCTopo", mumax=1.0, ymin=0.15, algseq=jetm1Seq, outputGroup="JETM1")
-addFilteredJets("CamKt", 1.2, "LCTopo", mumax=1.0, ymin=0.04, algseq=jetm1Seq, outputGroup="JETM1")
+#addFilteredJets("CamKt", 1.2, "LCTopo", mumax=1.0, ymin=0.15, algseq=jetm1Seq, outputGroup="JETM1")
+#addFilteredJets("CamKt", 1.2, "LCTopo", mumax=1.0, ymin=0.04, algseq=jetm1Seq, outputGroup="JETM1")
 
 #====================================================================
 # Add the containers to the output stream - slimming done here

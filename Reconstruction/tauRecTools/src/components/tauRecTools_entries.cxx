@@ -39,6 +39,7 @@
 #include "tauRecTools/TauJetBDTEvaluator.h"
 #include "tauRecTools/TauEleOLRDecorator.h"
 #include "tauRecTools/TauIDVarCalculator.h"
+#include "tauRecTools/BuildTruthTaus.h"
 
 #include "GaudiKernel/DeclareFactoryEntries.h"
 
@@ -85,3 +86,4 @@ DECLARE_NAMESPACE_TOOL_FACTORY( tauRecTools, DiTauIDVarCalculator )
 DECLARE_TOOL_FACTORY( TauJetBDTEvaluator )
 DECLARE_TOOL_FACTORY( TauEleOLRDecorator )
 DECLARE_TOOL_FACTORY( TauIDVarCalculator )
+DECLARE_NAMESPACE_TOOL_FACTORY( tauRecTools, BuildTruthTaus )

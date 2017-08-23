@@ -162,7 +162,7 @@ else:
 from AthenaCommon.GlobalFlags import globalflags
 print "HIGG2D4.py globalflags.DataSource()", globalflags.DataSource()
 
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkIsMonteCarlo:
     ToolSvc += HIGG2D4TruthThinningTool
     thinningTools.append(HIGG2D4TruthThinningTool)
 print "HIGG2D4.py thinningTools", thinningTools
@@ -189,7 +189,7 @@ if jobproperties.Beam.energy()==4000000.0:
     electronMuonTriggerRequirement=["EF_e12Tvh_medium1_mu8", "EF_e24vhi_loose1_mu8"]
 triggerRequirement=singleElectronTriggerRequirement+diElectronTriggerRequirement+singleMuonTriggerRequirement+diMuonTriggerRequirement+electronMuonTriggerRequirement
 # 8 TeV MC does not have trigger information
-SkipTriggerRequirement=((globalflags.DataSource()=='geant4') and (jobproperties.Beam.energy()==4000000.0))
+SkipTriggerRequirement=(DerivationFrameworkIsMonteCarlo and (jobproperties.Beam.energy()==4000000.0))
 print "HIGG2D4.py SkipTriggerRequirement", SkipTriggerRequirement
 if SkipTriggerRequirement:
     triggerRequirement=[]
@@ -268,6 +268,8 @@ if not "HIGG2D4Jets" in OutputJets:
     OutputJets["HIGG2D4Jets"] = []
 
     reducedJetList = ["AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets", "AntiKt10LCTopoJets"]
+    if jetFlags.useTruth:
+        reducedJetList += ["AntiKt4TruthJets", "AntiKt4TruthWZJets"]
     replaceAODReducedJets(reducedJetList, higg2d4Seq, "HIGG2D4Jets")
 
 #====================================================================
@@ -275,11 +277,9 @@ if not "HIGG2D4Jets" in OutputJets:
 #====================================================================
 
     if jetFlags.useTruth:
-        OutputJets["HIGG2D4Jets"].append("AntiKt4TruthJets")
-        OutputJets["HIGG2D4Jets"].append("AntiKt4TruthWZJets")
-        addTrimmedJets("AntiKt", 1.0, "TruthWZ", rclus=0.2, ptfrac=0.05, includePreTools=False, algseq=higg2d4Seq,outputGroup="HIGG2D4Jets")
+        addTrimmedJets("AntiKt", 1.0, "TruthWZ", rclus=0.2, ptfrac=0.05, mods="groomed", includePreTools=False, algseq=higg2d4Seq,outputGroup="HIGG2D4Jets")
 
-    addTrimmedJets("AntiKt", 1.0, "LCTopo", rclus=0.2, ptfrac=0.05, includePreTools=False, algseq=higg2d4Seq,outputGroup="HIGG2D4Jets")
+    addTrimmedJets("AntiKt", 1.0, "LCTopo", rclus=0.2, ptfrac=0.05, mods="lctopo_groomed", includePreTools=False, algseq=higg2d4Seq,outputGroup="HIGG2D4Jets")
 
 #====================================================================
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
@@ -381,7 +381,7 @@ HIGG2D4SlimmingHelper.SmartCollections = ["Electrons",
 
 HIGG2D4SlimmingHelper.ExtraVariables = HIGG2D4ExtraContent
 HIGG2D4SlimmingHelper.AllVariables = HIGG2D4ExtraContainers
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkIsMonteCarlo:
     HIGG2D4SlimmingHelper.ExtraVariables += HIGG2D4ExtraContentTruth
     HIGG2D4SlimmingHelper.AllVariables += HIGG2D4ExtraContainersTruth
 HIGG2D4SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()

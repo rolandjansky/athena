@@ -9,10 +9,10 @@ filelist = ["DAOD_JETM2.test.TruthAssoc.pool.root"]
 ServiceMgr.EventSelector.InputCollections = filelist
 
 from METUtilities.METMakerConfig import getMETMakerAlg
-metAlg = getMETMakerAlg('AntiKt4EMTopo',20e3)
+metAlg = getMETMakerAlg('AntiKt4EMTopo') #,20e3)
 metAlg.METName = 'MET_Reco_AntiKt4EMTopo'
 
-metAlg_truth = getMETMakerAlg('Truth_AntiKt4EMTopo',20e3)
+metAlg_truth = getMETMakerAlg('Truth_AntiKt4EMTopo')#,20e3)
 metAlg_truth.METSoftClName = 'SoftTruthAll'
 metAlg_truth.METSoftTrkName = 'SoftTruthCharged'
 metAlg_truth.METName = 'MET_Truth_AntiKt4EMTopo'

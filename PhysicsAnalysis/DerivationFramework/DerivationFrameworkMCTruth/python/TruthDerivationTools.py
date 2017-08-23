@@ -82,14 +82,14 @@ ToolSvc += DFCommonTruthClassificationTool
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthDressingTool
 DFCommonTruthElectronDressingTool = DerivationFramework__TruthDressingTool(name = "DFCommonTruthElectronDressingTool",
                                                                   dressParticlesKey = "TruthElectrons",
-                                                                  usePhotonsFromHadrons	 	= False,
+                                                                  usePhotonsFromHadrons = False,
                                                                   dressingConeSize = 0.1,
                                                                   particleIDsToDress = [11]
                                                                   )
 ToolSvc += DFCommonTruthElectronDressingTool
 DFCommonTruthMuonDressingTool = DerivationFramework__TruthDressingTool(name = "DFCommonTruthMuonDressingTool",
                                                                   dressParticlesKey = "TruthMuons",
-                                                                  usePhotonsFromHadrons	 	= False,
+                                                                  usePhotonsFromHadrons = False,
                                                                   dressingConeSize = 0.1,
                                                                   particleIDsToDress = [13]
                                                                   )

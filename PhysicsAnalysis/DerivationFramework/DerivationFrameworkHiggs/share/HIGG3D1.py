@@ -6,6 +6,7 @@
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
@@ -169,24 +170,13 @@ higg3d1Seq = CfgMgr.AthSequencer("HIGG3d1Sequence")
 #          variableRMinRadius = 0.02, variableRMassScale = 30000, calibOpt = "none")
 
 #====================================================================
-# Add AntiKt2PV0TrackJets and AntiKt4PV0TrackJets
-#====================================================================
-
-#if not "HIGG3D1Jets" in OutputJets:
-    #OutputJets["HIGG3D1Jets"] = []
-    #AntiKt4PV0TrackJets
-    #addStandardJets("AntiKt", 0.4, "PV0Track", 2000, mods="track_ungroomed", algseq=higg3d1Seq, outputGroup="HIGG3D1Jets")
-    #AntiKt2PV0TrackJets
-    #addStandardJets("AntiKt", 0.2, "PV0Track", 2000, mods="track_ungroomed", algseq=higg3d1Seq, outputGroup="HIGG3D1Jets")
-
-#====================================================================
 # RESTORE JET COLLECTIONS REMOVED BETWEEN r20 AND r21
 #====================================================================
 
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
 reducedJetList = ["AntiKt2PV0TrackJets","AntiKt4PV0TrackJets"]
+if jetFlags.useTruth:
+   reducedJetList += ["AntiKt4TruthJets", "AntiKt4TruthWZJets"]
 replaceAODReducedJets(reducedJetList, higg3d1Seq,"HIGG3D1Jets")
-
 
 #===================================================================
 # Run b-tagging

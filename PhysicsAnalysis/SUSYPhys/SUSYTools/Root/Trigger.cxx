@@ -331,8 +331,8 @@ const Trig::ChainGroup* SUSYObjDef_xAOD::GetTrigChainGroup(const std::string& tr
 
       pos = 0;
       while ((pos = trigExpr.find(del16)) != std::string::npos) {
-	token15 = trigExpr.substr(0, pos);
-	token16 = trigExpr.erase(0, pos + del16.length());
+        token15 = trigExpr.substr(0, pos);
+        token16 = trigExpr.erase(0, pos + del16.length());
       }
     }
 
@@ -346,15 +346,6 @@ const Trig::ChainGroup* SUSYObjDef_xAOD::GetTrigChainGroup(const std::string& tr
     //get trigger chains for matching in 2015 and 2016                                  
     v_trigs15_cache = GetTriggerOR(token15);
     v_trigs16_cache = GetTriggerOR(token16);
-
-    // std::cout << "\n2015 triggers" << std::endl;
-    // for(auto& chain : trigs15)
-    //   std::cout << "    " << chain << std::endl;
-
-    // std::cout << "\n2016 triggers" << std::endl;
-    // for(auto& chain : trigs16)
-    //   std::cout << "    " << chain << std::endl;
-
   }
 
   Trig::FeatureContainer SUSYObjDef_xAOD::GetTriggerFeatures(const std::string& chainName, unsigned int condition) const

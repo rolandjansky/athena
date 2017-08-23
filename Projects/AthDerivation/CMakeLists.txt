@@ -21,6 +21,7 @@ find_package( AtlasCMake QUIET )
 # Find the base project(s):
 find_package( AthDerivationExternals REQUIRED )
 find_package( Gaudi REQUIRED )
+find_package( pytools )
 
 # Load all the files from the externals/ subdirectory:
 file( GLOB _externals "${CMAKE_CURRENT_SOURCE_DIR}/externals/*.cmake" )

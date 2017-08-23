@@ -71,6 +71,7 @@ namespace met {
 
   static const SG::AuxElement::Decorator< std::vector<iplink_t> > dec_constitObjLinks("ConstitObjectLinks");
   static const SG::AuxElement::Decorator< std::vector<float> > dec_constitObjWeights("ConstitObjectWeights");
+
   // Implement dphi as well if we start correcting the jet phi.
   // static const SG::AuxElement::Decorator< std::vector<float> > dec_constitObjDphis("ConstitObjectDphis");
 
@@ -104,7 +105,7 @@ namespace met {
     declareProperty("DoSoftTruth",        m_doSoftTruth        = false               );
     declareProperty("DoJetTruth",         m_doConstJet         = false               );
 
-    declareProperty("JetSelection",       m_jetSelection       = "Default"           );//Default, Tight, PFlow or Expert
+    declareProperty("JetSelection",       m_jetSelection       = "Tight"             );//Loose, Tight, PFlow or Expert
     declareProperty("CustomCentralJetPt", m_customCenJetPtCut  = 20e3                );
     declareProperty("CustomForwardJetPt", m_customFwdJetPtCut  = 20e3                );
     declareProperty("CustomJetJvtCut",    m_customJvtCut       = 0.59                );
@@ -136,9 +137,9 @@ namespace met {
     
     //default jet selection i.e. pre-recommendation
     ATH_MSG_VERBOSE("Use jet selection criterion: " << m_jetSelection);
-    if (m_jetSelection == "Default")     { m_CenJetPtCut = 20e3; m_FwdJetPtCut = 20e3; m_JvtCut = 0.59; m_JvtPtMax = 60e3;}
+    if (m_jetSelection == "Loose")     { m_CenJetPtCut = 20e3; m_FwdJetPtCut = 20e3; if(m_doPFlow){ m_JvtCut = 0.2; } else {m_JvtCut = 0.59;} m_JvtPtMax = 60e3;}
     else if (m_jetSelection == "PFlow")  { m_CenJetPtCut = 20e3; m_FwdJetPtCut = 20e3; m_JvtCut = 0.2; m_JvtPtMax = 60e3;}
-    else if (m_jetSelection == "Tight")  { m_CenJetPtCut = 20e3; m_FwdJetPtCut = 30e3; m_JvtCut = 0.59; m_JvtPtMax = 60e3;}
+    else if (m_jetSelection == "Tight")  { m_CenJetPtCut = 20e3; m_FwdJetPtCut = 30e3; if(m_doPFlow){ m_JvtCut = 0.2; } else {m_JvtCut = 0.59;} m_JvtPtMax = 60e3;}
     else if (m_jetSelection == "Tier0")  { m_CenJetPtCut = 0;    m_FwdJetPtCut = 0;    m_JvtCut = -1;   m_JvtPtMax = 0;}
     else if (m_jetSelection == "Expert")  { 
       ATH_MSG_INFO("Custom jet selection configured. *** FOR EXPERT USE ONLY ***");
@@ -147,7 +148,11 @@ namespace met {
       m_JvtCut = m_customJvtCut;
       m_JvtPtMax = m_customJvtPtMax; 
     }
-    else { ATH_MSG_ERROR( "Error: No available jet selection found! Choose one: Default, Tight, PFlow, Expert" ); return StatusCode::FAILURE; }
+    else { 
+      if (m_jetSelection == "Default") ATH_MSG_WARNING( "WARNING:  Detault is now deprecated" ); 
+      ATH_MSG_ERROR( "Error: No available jet selection found! Please update JetSelection in METMaker. Choose one: Loose, Tight, PFlow, Expert" ); 
+      return StatusCode::FAILURE; 
+    }
 
     if (!m_jetRejectionDec.empty()) m_extraJetRejection = true;
 
@@ -1070,6 +1075,11 @@ namespace met {
       return StatusCode::FAILURE;
     }
     metCont->reserve(10);
+
+    if(metCont->find(metKey)!=metCont->end()){
+      ATH_MSG_VERBOSE("avoiding adding a duplicate term");
+      return StatusCode::SUCCESS;
+    }
 
     met = new xAOD::MissingET();
     metCont->push_back(met);

@@ -96,7 +96,7 @@ Btag.enable: true
 #
 Btag.Tagger: MV2c10
 Btag.WP: ${BTAG_WP}
-Btag.CalibPath: xAODBTaggingEfficiency/13TeV/2016-20_7-13TeV-MC15-CDI-2017-06-07_v2.root
+Btag.CalibPath: xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2017-07-02_v1.root
 #
 # set the -999. to positive number to override default
 OR.DoBoostedElectron: false
@@ -134,7 +134,7 @@ MET.TauTerm: RefTau
 MET.JetTerm: RefJet
 MET.MuonTerm: Muons
 MET.OutputTerm: Final
-MET.JetSelection: Default
+MET.JetSelection: Tight
 MET.RemoveOverlappingCaloTaggedMuons: 1
 MET.DoMuonJetOR: 1
 MET.DoTrkSyst: 1
@@ -176,12 +176,8 @@ class TestSUSYTools(unittest.TestCase):
 
     theTest = 'SUSYToolsTester %s 10 isData=0 isAtlfast=0 Debug=0 NoSyst=0 ConfigFile=%s ' % (theSample, theConfig)
 
-    #guess the MC campaign for the prw file
-    releaseSeries = int(os.environ['ROOTCORE_RELEASE_SERIES'])
-    if (releaseSeries > 23):
-        theTest += ' PRWFile=/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/SUSYTools/merged_prw_mc15c_July27_afterFix.root'
-    else:
-        theTest += ' PRWFile=/afs/cern.ch/work/t/tripiana/public/atlas/BGF/PRW/merged_prw_mc15_50ns.root'
+    #guess the MC campaign for the prw file if needed
+    theTest += ' PRWFile=/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/SUSYTools/merged_prw_mc15c_latest.root'
 
     #Working points
     EL_ID_WP  = ['MediumLLH','TightLLH'] ## 'LooseAndBLayerLLH', ## MT : where do we get this from ??

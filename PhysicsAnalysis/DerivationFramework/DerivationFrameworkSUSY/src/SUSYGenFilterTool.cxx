@@ -138,7 +138,7 @@ namespace DerivationFramework {
     }
 
     // Get HT
-    genFiltHT = -1;
+    genFiltHT = 0.;
     for (const auto& tj : *truthjets) {
       if ( tj->pt()>m_MinJetPt && fabs(tj->eta())<m_MaxJetEta ) {
 	ATH_MSG_VERBOSE("Adding truth jet with pt " << tj->pt()

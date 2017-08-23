@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TopToolStore.cxx 806390 2017-06-09 15:01:07Z iconnell $
+// $Id: TopToolStore.cxx 808118 2017-07-11 17:41:22Z tpelzer $
 #include "TopCPTools/TopToolStore.h"
 
 #include <vector>
@@ -36,7 +36,7 @@ StatusCode TopToolStore::initialize() {
   else if(m_release_series == 24)
     ATH_MSG_INFO( "Setting release series to 2.4" );
   else if(m_release_series == 25)
-    ATH_MSG_INFO( "Setting release series to 2.6" );  
+    ATH_MSG_INFO( "Setting release series to 2.6" );
   else
     {
       m_release_series = 24;
@@ -91,6 +91,14 @@ StatusCode TopToolStore::initialize() {
               "Failed to release_series series with flavour tagging CP tools");
   top::check(m_flavor_tagging_CP_tools->initialize(),
               "Failed to initialize flavor tagging tools");
+
+  m_boosted_tagging_CP_tools = std::make_unique<top::BoostedTaggingCPTools>("top::BoostedTaggingCPTools");
+  top::check(m_boosted_tagging_CP_tools->setProperty("config", m_config),
+              "Failed to share config with flavour tagging CP tools");
+  top::check(m_boosted_tagging_CP_tools->setProperty("release_series", m_release_series),
+              "Failed to release_series series with boosted tagging CP tools");
+  top::check(m_boosted_tagging_CP_tools->initialize(),
+              "Failed to initialize boosted tagging tools");
 
   m_jetMET_CP_tools = std::make_unique<top::JetMETCPTools>("top::JetMETCPTools");
   top::check(m_jetMET_CP_tools->setProperty("config", m_config),

@@ -212,6 +212,43 @@ def NTUPEntries(fileName, treeNames):
     return numberOfEntries
 
 
+## @brief Determines number of entries in PRW file
+#  @param fileName Path to the PRW file.
+#  @return 
+#  - Number of entries.
+#  - @c None if the determination failed.
+#  @note Use the PyCmt forking decorator to ensure that ROOT is run completely within 
+#  a child process and will not 'pollute' the parent python process with unthread-safe
+#  bits of code (otherwise strange hangs are observed on subsequent uses of ROOT)
+@_decos.forking
+def PRWEntries(fileName):
+
+    root = import_root()
+
+    fname = root.TFile.Open(fileName, 'READ')
+
+    if not (isinstance(fname, root.TFile) and fname.IsOpen()):
+        return None
+
+    rundir = None
+
+    for key in fname.GetListOfKeys():
+        if key.GetName()=='PileupReweighting':
+            rundir = fname.Get('PileupReweighting')
+            break
+        # Not PRW...
+
+    if rundir is None: return None
+
+    total = 0
+    for key in rundir.GetListOfKeys():
+        if 'pileup' in key.GetName():
+            msg.debug('Working on file '+fileName+' histo '+key.GetName())
+            total += rundir.Get(key.GetName()).GetEntries()
+        # Was not one of our histograms
+    return total
+
+
 ## @brief Get the size of a file via ROOT's TFile
 #  @details Use TFile.Open to retrieve a ROOT filehandle, which will
 #  deal with all non-posix filesystems. Return the GetSize() value.

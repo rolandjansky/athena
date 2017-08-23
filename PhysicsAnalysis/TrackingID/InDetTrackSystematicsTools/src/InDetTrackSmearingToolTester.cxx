@@ -17,7 +17,7 @@
 namespace InDet {
    InDetTrackSmearingToolTester::InDetTrackSmearingToolTester( const std::string& name, ISvcLocator* svcLoc )
       : AthHistogramAlgorithm( name, svcLoc ),
-        m_smearTool( "InDet::InDetTrackSystematicsTools/InDetTrackSmearingTool", this ){
+        m_smearTool( "InDet::InDetTrackSmearingTool/InDetTrackSmearingTool", this ){
           declareProperty( "TrackIP", Track_IP = "InDetTrackParticles" );
 	  declareProperty( "SystematicEffects", m_systematicsNames );
           declareProperty( "InDetTrackSmearingTool", m_smearTool );

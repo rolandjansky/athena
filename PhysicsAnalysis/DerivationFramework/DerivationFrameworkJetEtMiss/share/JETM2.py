@@ -6,7 +6,7 @@
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
-#from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 #
@@ -138,6 +138,20 @@ from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramew
 jetm2Seq += CfgMgr.DerivationFramework__DerivationKernel("JETM2Kernel",
                                                          SkimmingTools = [JETM2SkimmingTool],
                                                          ThinningTools = thinningTools)
+
+#=======================================
+# SCHEDULE SMALL-R JETS WITH LOW PT CUT
+#=======================================
+
+OutputJets["JETM2"] = []
+
+#=======================================
+# RESTORE AOD-REDUCED JET COLLECTIONS
+#=======================================
+reducedJetList = ["AntiKt2PV0TrackJets",
+                  "AntiKt4PV0TrackJets",
+                  "AntiKt4TruthJets"]
+replaceAODReducedJets(reducedJetList,jetm2Seq,"JETM2")
 
 #=======================================
 # SCHEDULE CUSTOM MET RECONSTRUCTION

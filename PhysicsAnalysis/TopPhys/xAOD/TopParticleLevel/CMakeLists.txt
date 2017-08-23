@@ -13,7 +13,8 @@ atlas_depends_on_subdirs( PUBLIC
                           TopEvent
                           TopConfiguration
 			  TruthUtils
-                          MCTruthClassifier )
+                          MCTruthClassifier
+                          JetReclustering )
 
 # This package uses ROOT:
 find_package( ROOT REQUIRED COMPONENTS Core Gpad Tree Hist RIO MathCore Graf )
@@ -35,6 +36,7 @@ atlas_add_library( TopParticleLevel Root/*.cxx Root/*.h Root/*.icc
                                   TopConfiguration
                                   MCTruthClassifierLib
 				  TruthUtils
+				  JetReclusteringLib
                                   ${ROOT_LIBRARIES}
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} )
 

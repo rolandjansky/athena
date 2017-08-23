@@ -49,7 +49,7 @@ namespace CP {
         declareProperty("MC", m_mc = "mc15c"); // mc15a or mc15c
 
         // these are for debugging / testing, *not* for general use!
-        declareProperty("filename", m_fileName = "muontrigger_sf_2016_mc15c_v02.root"); // default is data16 vs mc15c
+        declareProperty("filename", m_fileName = "");
         declareProperty("CustomInputFolder", m_custom_dir = "");
         declareProperty("Binning", m_binning = "fine"); // fine or coarse
 
@@ -80,14 +80,18 @@ namespace CP {
     // ==================================================================================
     StatusCode MuonTriggerScaleFactors::initialize() {
 
-        std::string SFfile_2015_mc15a = "muontrigger_sf_2015_mc15a.root";
-        std::string SFfile_2015_mc15c = "muontrigger_sf_2015_mc15c_v01.root";
+        if (m_fileName.empty()) {
+            std::string SFfile_2015_mc15a = "muontrigger_sf_2015_mc15a.root";
+            std::string SFfile_2015_mc15c = "muontrigger_sf_2015_mc15c_v01.root";
+            std::string SFfile_2016_mc15c = "muontrigger_sf_2016_mc15c_v02.root";
 
-        // Selecting the correct SF file if different from default
-        if (m_year == "2015" && m_mc == "mc15a") {
-            m_fileName = SFfile_2015_mc15a;
-        } else if (m_year == "2015" && m_mc == "mc15c") {
-            m_fileName = SFfile_2015_mc15c;
+            if (m_year == "2015" && m_mc == "mc15a") {
+                m_fileName = SFfile_2015_mc15a;
+            } else if (m_year == "2015" && m_mc == "mc15c") {
+                m_fileName = SFfile_2015_mc15c;
+            } else if (m_year == "2016" && m_mc == "mc15c") {
+                m_fileName = SFfile_2016_mc15c;
+            }
         }
 
         ATH_MSG_INFO("MuonQuality = '" << m_muonquality << "'");
@@ -391,7 +395,7 @@ namespace CP {
         const std::string region = ((fabs(mu_eta) < muon_barrel_endcap_boundary) ? "_barrel" : "_endcap");
         const std::string quality = m_muonquality;
 
-        const std::string histname = "_MuonTrigEff_Period" + m_dataPeriod + "_" + trigger + "_" + quality + "_" + "_EtaPhi_" + m_binning + region + type + "_" + systematic;
+        const std::string histname = "_MuonTrigEff_Period" + m_dataPeriod + "_" + trigger + "_" + quality + "_" + "_EtaPhi_" + m_binning + region + type + "_" + (configuration.isData?"nominal":systematic);
 
         TH2* eff_h2 = nullptr;
         if (configuration.replicaIndex >= 0) { //Only look into the replicas if asking for them

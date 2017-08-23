@@ -72,7 +72,12 @@ include( "RecExCommon/RecExCommon_topOptions.py" )
 
 if rec.doWriteAOD:
     if rec.readAOD(): 
+        # Don't consider this step in the backwards navigation:
         StreamAOD.ExtendProvenanceRecord = False
+        # Ignore the ItemList created by RecExCommon, and take everything
+        # directly from the input file:
+        StreamAOD.ItemList = []
+        StreamAOD.TakeItemsFromInput = True
     else:
         print "StreamAOD was not defined, cannot set ExtendProvenanceRecord = False. Check your flags."
 

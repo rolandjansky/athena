@@ -35,7 +35,11 @@ if hasattr(runArgs,"maxEvents"): athenaCommonFlags.EvtMax.set_Value_and_Lock( ru
 else: athenaCommonFlags.EvtMax=-1
 
 #RecExCommon configuration
-if hasattr(runArgs,"geometryVersion"): globalflags.DetDescrVersion.set_Value_and_Lock( runArgs.geometryVersion )
+if hasattr(runArgs,"geometryVersion"):
+    inputGeometryVersion = runArgs.geometryVersion
+    if type(inputGeometryVersion) == str and inputGeometryVersion.endswith("_VALIDATION"):
+        inputGeometryVersion = inputGeometryVersion.replace("_VALIDATION", "")
+    globalflags.DetDescrVersion.set_Value_and_Lock( inputGeometryVersion )
 if hasattr(runArgs,"conditionsTag"): globalflags.ConditionsTag.set_Value_and_Lock( runArgs.conditionsTag )
 if hasattr(runArgs,"beamType"): jobproperties.Beam.beamType.set_Value_and_Lock( runArgs.beamType )
 if hasattr(runArgs,"AMITag"): rec.AMITag=runArgs.AMITag

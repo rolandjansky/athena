@@ -10,13 +10,10 @@
 
 #include "xAODBase/IParticleHelpers.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
-//#include "xAODPrimitives/IsolationType.h"
 #include "FourMomUtils/xAODP4Helpers.h"
 #include "xAODTracking/TrackParticlexAODHelpers.h"
 #include "AthContainers/ConstDataVector.h"
-//#include "PATInterfaces/SystematicsUtil.h"
 
-//#include "PileupReweighting/IPileupReweightingTool.h"
 #include "AsgAnalysisInterfaces/IPileupReweightingTool.h"
 
 #include "MuonMomentumCorrections/IMuonCalibrationAndSmearingTool.h"
@@ -267,11 +264,6 @@ bool SUSYObjDef_xAOD::IsSignalMuon(const xAOD::Muon & input, float ptcut, float 
   //set HighPtMuon decoration
   IsHighPtMuon(input);
 
-  //deprecated
-  // if (m_muId == 4) { //corresponds to HighPt muons
-  //   if (!IsHighPtMuon(input)) return false; // sets dec_passedHighPtCuts decoration
-  // }
-
   dec_signal(input) = true;
 
   if (m_muId == 4) { //i.e. HighPt muons
@@ -317,7 +309,6 @@ bool SUSYObjDef_xAOD::IsBadMuon(const xAOD::Muon& input, float qopcut) const
   const static SG::AuxElement::Decorator<char> dec_bad_highPt("bad_highPt");
   dec_bad_highPt(input) = false;
 
-  //const xAOD::TrackParticle* track = input.primaryTrackParticle();   //no need for SAF muon special treatment anymore!
   const xAOD::TrackParticle* track;
   if (input.muonType() == xAOD::Muon::SiliconAssociatedForwardMuon) {
     track = input.trackParticle(xAOD::Muon::CombinedTrackParticle);
@@ -511,10 +502,9 @@ double SUSYObjDef_xAOD::GetTotalMuonTriggerSF(const xAOD::MuonContainer& sfmuons
       double mcFactor   = 1.;
       
       for (const auto& mu : sfmuons) {
-        //        if( IsTrigMatched(mu, mutrig) ){
+        // No need for additional trigger matching
         dataFactor *= (1 - GetMuonTriggerEfficiency(*mu, "HLT_"+mutrig, true));
         mcFactor   *= (1 - GetMuonTriggerEfficiency(*mu, "HLT_"+mutrig, false));
-        //        }
       }
       if( (1-mcFactor) > 0. )
         trig_sf *= (1-dataFactor)/(1-mcFactor);

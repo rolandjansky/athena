@@ -93,9 +93,9 @@ const HepMC::GenEvent xAODtoHepMCTool::createHepMCEvent(const xAOD::TruthEvent* 
   
   //Beam particles
   /* commenting out for now as the particle links are broken in TEvent 
-  //std::pair<const xAOD::TruthParticle*,const xAOD::TruthParticle*> beamParticles = xEvt->beamParticles();
+  std::pair<const xAOD::TruthParticle*,const xAOD::TruthParticle*> beamParticles = xEvt->beamParticles();
   if( beamParticles.first && beamParticles.second ) {
-    std::pair<HepMC::GenParticle*,HepMC::GenParticle*> HepMC_beamParticles;std::pair<HepMC::GenParticle*,HepMC::GenParticle*> HepMC_beamParticles;
+    std::pair<HepMC::GenParticle*,HepMC::GenParticle*> HepMC_beamParticles;
     HepMC_beamParticles.first =  new HepMC::GenParticle(
 							HepMC::FourVector(
 									  m_momFac * beamParticles.first->px(), 
@@ -121,34 +121,40 @@ const HepMC::GenEvent xAODtoHepMCTool::createHepMCEvent(const xAOD::TruthEvent* 
   // a similar hack... but protects against (counts) events where there are < 2 incoming protons ... 
   // not sure why this happens but it does happen various Higgs AODs from different decay channels.
   // JIRA ticket: 
+  /*
   const xAOD::TruthParticle* beam1 = xEvt->truthParticle(0);
   const xAOD::TruthParticle* beam2 = xEvt->truthParticle(1);
   std::pair<HepMC::GenParticle*,HepMC::GenParticle*> HepMC_beamParticles;
-  HepMC_beamParticles.first =  new HepMC::GenParticle(
-						      HepMC::FourVector(
-									m_momFac * beam1->px(),
-									m_momFac * beam1->py(),
-									m_momFac * beam1->pz(),
-									m_momFac * beam1->e() ),
-						      beam1->pdgId(),
-						      beam1->status()); 
-  HepMC_beamParticles.second = new HepMC::GenParticle(
-						      HepMC::FourVector(
-									m_momFac * beam2->px(),
-									m_momFac * beam2->py() ,
-									m_momFac * beam2->pz(),
-									m_momFac * beam2->e() ),
-						      beam2->pdgId(),
-						      beam2->status());
-  genEvt.set_beam_particles(HepMC_beamParticles);
-  
+  if (beam1) 
+    HepMC_beamParticles.first =  new HepMC::GenParticle(
+							HepMC::FourVector(
+									  m_momFac * beam1->px(),
+									  m_momFac * beam1->py(),
+									  m_momFac * beam1->pz(),
+									  m_momFac * beam1->e() ),
+							beam1->pdgId(),
+							beam1->status()); 
+  if (beam2)
+    HepMC_beamParticles.second = new HepMC::GenParticle(
+							HepMC::FourVector(
+									  m_momFac * beam2->px(),
+									  m_momFac * beam2->py() ,
+									  m_momFac * beam2->pz(),
+									  m_momFac * beam2->e() ),
+							beam2->pdgId(),
+							beam2->status());
+  genEvt.set_beam_particles(HepMC_beamParticles);a
+  */
+
+  /*
   std::pair< HepMC::GenParticle*, HepMC::GenParticle* >  beams = genEvt.beam_particles ();  
   if ( beams.first->pdg_id()!=2212 || beams.second->pdg_id()!=2212 ) { 
     genEvt.set_event_number(-evtNum); 
-    if( ++m_badBeams < m_maxCount ) ATH_MSG_WARNING("xAOD->HepMC :: inconsistent truth event record >> event does not have 2 beam protons!"); 
+    if ( ++m_badBeams < m_maxCount ) ATH_MSG_WARNING("xAOD->HepMC :: inconsistent truth event record >> event does not have 2 beam protons!"); 
+    ATH_MSG_WARNING("Beam one PDGID "<<beams.first->pdg_id());
   }
-
-
+  ATH_MSG_WARNING("Number of bad beams "<<m_badBeams);
+  */
 
   /*
     xAOD::TruthEvent::PdfInfo pdfInfo = xEvt->pdfInfo();
@@ -181,14 +187,19 @@ const HepMC::GenEvent xAODtoHepMCTool::createHepMCEvent(const xAOD::TruthEvent* 
   // PARTICLES AND VERTICES  
   // Map of existing vertices - needed for the tree linking
   std::map<const xAOD::TruthVertex*,HepMC::GenVertex*> vertexMap;
-  // Loop over all of the particles in the event, call particle builder
-  // Call suggest_barcode only after insertion!
-  int nTruthParticles = xEvt->nTruthParticles();
-  ATH_MSG_DEBUG("Number of particles " <<nTruthParticles);
-  
-  for (int i=0; i<nTruthParticles; ++i) {
 
-    const xAOD::TruthParticle* xPart = xEvt->truthParticle(i);
+  // Loop over all of the particles in the event, call particle builder
+  // Call suggest_barcode only after insertion!  
+  for (auto tlink:xEvt->truthParticleLinks()) {
+    if (!tlink.isValid()) continue;
+    const xAOD::TruthParticle* xPart = *tlink;
+    
+    // sanity check
+    if (xPart == nullptr) {
+      ATH_MSG_WARNING("xAOD TruthParticle is equal to NULL. This should not happen!");
+      continue;
+    }
+
     if( !xPart->hasProdVtx() && !xPart->hasDecayVtx() ){
       ATH_MSG_WARNING("xAOD particle with no vertices, bc = "<<xPart->barcode());
       continue;
@@ -208,7 +219,7 @@ const HepMC::GenEvent xAODtoHepMCTool::createHepMCEvent(const xAOD::TruthEvent* 
     if( xPart->hasProdVtx() ) {
       const xAOD::TruthVertex* xAODProdVtx = xPart->prodVtx();
       // skip production vertices with barcode > 200000 --> Geant4 secondaries 
-      if ( fabs(xAODProdVtx->barcode()) > 200000 ) continue; 
+      if ( std::abs(xAODProdVtx->barcode()) > 200000 ) continue; 
       bool prodVtxSeenBefore(false); // is this new?
       HepMC::GenVertex* hepmcProdVtx = vertexHelper(xAODProdVtx,vertexMap,prodVtxSeenBefore);
       // Set the decay/production links
@@ -324,9 +335,8 @@ void xAODtoHepMCTool::printxAODEvent(const xAOD::TruthEvent* event, const xAOD::
 
   int nPart = event->nTruthParticles();
   for(int i=0; i<nPart; ++i){
-    //for(int i=0; i<25; ++i){
-
     const xAOD::TruthParticle* part = event->truthParticle(i);
+    if (part==nullptr) continue;
     int bc = part->barcode();
     if( bc > 100000 ) continue;
     int id = part->pdgId();

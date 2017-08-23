@@ -19,18 +19,20 @@
 
 // Local include(s):
 #include "TauAnalysisTools/ITauTruthMatchingTool.h"
-#include "TauAnalysisTools/BuildTruthTaus.h"
+
+// tauRecTools include(s)
+#include "tauRecTools/BuildTruthTaus.h"
 
 namespace TauAnalysisTools
 {
 
 class TauTruthMatchingTool
-  : public virtual TauAnalysisTools::BuildTruthTaus
+  : public virtual tauRecTools::BuildTruthTaus
   , public virtual TauAnalysisTools::ITauTruthMatchingTool
 {
   /// Create a proper constructor for Athena
   ASG_TOOL_CLASS2( TauTruthMatchingTool,
-                   TauAnalysisTools::IBuildTruthTaus,
+                   tauRecTools::IBuildTruthTaus,
                    TauAnalysisTools::ITauTruthMatchingTool )
 
 public:                         // Interface functions

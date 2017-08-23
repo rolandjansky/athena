@@ -6,9 +6,12 @@
 
 #include <map>
 #include <string>
+#include <algorithm>
+#include <iterator>
 
 // Top includes
 #include "TopConfiguration/TopConfig.h"
+#include "TopConfiguration/Tokenize.h"
 #include "TopEvent/EventTools.h"
 
 // PathResolver include(s):
@@ -169,9 +172,12 @@ StatusCode FlavorTaggingCPTools::initialize() {
           top::check(btageff->setProperty("Efficiency"+jet_flav+"Calibrations", m_efficiency_maps),
                     "Failed to set "+jet_flav+"-calibrations efficiency maps");
         }
-        top::check(btageff->setProperty("ExcludeFromEigenVectorTreatment", excludedSysts),
-                    "Failed to set b-tagging systematics to exclude from EV treatment");
-        top::check(btageff->initialize(), "Failed to initialize "+btagWP);
+	top::check(btageff->setProperty("ExcludeFromEigenVectorTreatment", excludedSysts),
+		   "Failed to set b-tagging systematics to exclude from EV treatment");
+	top::check(btageff->initialize(), "Failed to initialize "+btagWP);
+	// Check the excludedSysts - Cannot check before the tool is initialised
+	top::check(this->checkExcludedSysts(btageff, excludedSysts),                                                                                                                                                                                                    
+                   "Incorrect excluded systematics have been provided."); 
         m_btagging_efficiency_tools.push_back(btageff);
         m_config->setBTagWP_calibrated(btagWP);
       }
@@ -255,9 +261,12 @@ StatusCode FlavorTaggingCPTools::initialize() {
             top::check(btageff->setProperty("Efficiency"+jet_flav+"Calibrations", m_efficiency_maps),
                       "Failed to set "+jet_flav+"-calibrations efficiency maps");
           }
-          top::check(btageff->setProperty("ExcludeFromEigenVectorTreatment", excludedSysts),
-                      "Failed to set b-tagging systematics to exclude from EV treatment");
-          top::check(btageff->initialize(), "Failed to initialize "+btagWP);
+	  top::check(btageff->setProperty("ExcludeFromEigenVectorTreatment", excludedSysts),
+		     "Failed to set b-tagging systematics to exclude from EV treatment");
+	  top::check(btageff->initialize(), "Failed to initialize "+btagWP);
+	  // Check the excludedSysts - Cannot check before the tool is initialised
+	  top::check(this->checkExcludedSysts(btageff, excludedSysts),
+		     "Incorrect excluded systematics have been provided.");
           m_btagging_efficiency_tools.push_back(btageff);
           m_config->setBTagWP_calibrated_trkJet(btagWP);
         }
@@ -266,6 +275,78 @@ StatusCode FlavorTaggingCPTools::initialize() {
     }
   }
   return StatusCode::SUCCESS;
+}
+
+StatusCode FlavorTaggingCPTools::checkExcludedSysts(BTaggingEfficiencyTool* btageff, std::string excludedSysts){
+  // We pass the pointer to the btagging efficiency tool which is being created and also the excludedSysts string which will be used
+  // If the string is empty, then nothing to check
+  if (excludedSysts == "") return StatusCode::SUCCESS;
+  // Split by a semi-colon delimiter and then check the individual syst strings against the list from the CDI
+  std::vector<std::string> listOfExcludedSysts;
+  top::tokenize(excludedSysts, listOfExcludedSysts, ";");
+  ATH_MSG_INFO(" ------------------------------------------------ ");
+  ATH_MSG_INFO(" ------------- EXPERIMENTAL FEATURE ------------- ");
+  ATH_MSG_INFO(" ------ Please provide feedback to TopReco ------ ");
+  ATH_MSG_INFO(" ------------- EXPERIMENTAL FEATURE ------------- ");
+  ATH_MSG_INFO(" ------------------------------------------------ ");
+  ATH_MSG_INFO(" AnalysisTop - Checking excludedSysts for flavour tagging EV");
+  ATH_MSG_INFO(" This has been split on the semi-colon delimiter to find...");
+  for (auto s : listOfExcludedSysts) ATH_MSG_INFO("... "+s);
+  // Get the map(string, vector<string>) from the CDI tool
+  // Don't care about the flavours (this will be handled in the CDI)
+  std::vector<std::string> listOfScaleFactorSystematics;
+  for (auto flavour : btageff->listScaleFactorSystematics(false) ){
+    for (auto sys : flavour.second){
+      listOfScaleFactorSystematics.push_back(sys);
+    }
+  }
+  // Make this a unique set and then we need to check that all systematics provided by the user are expected by the CDI
+  std::set<std::string> setOfExcludedSysts, setOfScaleFactorSystematics;
+
+  for (auto sys : listOfExcludedSysts){
+    if(setOfExcludedSysts.find(sys) == setOfExcludedSysts.end()) setOfExcludedSysts.insert(sys);
+  }
+
+  for (auto sys : listOfScaleFactorSystematics){
+    if(setOfScaleFactorSystematics.find(sys) == setOfScaleFactorSystematics.end()) setOfScaleFactorSystematics.insert(sys);
+  }
+
+  // 
+  std::vector<std::string> unionOfSystematics;
+  std::set_intersection(setOfExcludedSysts.begin(), setOfExcludedSysts.end(),
+			setOfScaleFactorSystematics.begin(), setOfScaleFactorSystematics.end(),
+			std::back_inserter(unionOfSystematics));
+  // Check we have the same systematics listed in unionOfSystematics
+  if (unionOfSystematics.size() != listOfExcludedSysts.size()){
+    ATH_MSG_WARNING("Have not found all systematics listed to be excluded from b-tagging eigenvector method");
+    ATH_MSG_INFO("Permitted values are...");
+    for(auto sys : setOfScaleFactorSystematics) {
+      ATH_MSG_INFO(" ... " + sys );
+    }
+    return StatusCode::FAILURE;
+  }
+  else{
+    ATH_MSG_INFO(" Summary of EV impact ");
+    for(auto sysRemove : listOfExcludedSysts) {
+      std::string flavourAffected = "";
+      for (auto flavour : btageff->listScaleFactorSystematics(false) ){
+        for (auto sysCDI : flavour.second){
+          if (sysRemove == sysCDI) flavourAffected += flavour.first;
+        }
+      }
+      ATH_MSG_INFO(" ... " + sysRemove + " -> Removed from calibration(s) : [" + flavourAffected + "]");
+    }
+    ATH_MSG_INFO(" These will be dynamically matched to systematic tree names (if available)");
+    ATH_MSG_INFO(" All systematics are accepted by CDI file ");
+  }
+  // We have passed all the tests so now we store the systematics removed from the EV method and use a mapping to ASG/AT naming and return
+  createExcludedSystMapping(unionOfSystematics);
+  ATH_MSG_INFO(" ------------------------------------------------ ");
+  return StatusCode::SUCCESS;
+}
+
+void FlavorTaggingCPTools::createExcludedSystMapping(std::vector<std::string> systematics){
+
 }
 
 }  // namespace top

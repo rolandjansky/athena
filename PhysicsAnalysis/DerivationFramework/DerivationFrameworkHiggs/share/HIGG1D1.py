@@ -240,6 +240,20 @@ augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
 svcMgr += createThinningSvc( svcName="HIGG1D1ThinningSvc", outStreams=[evtStream] )
 
+
+# Before any custom jet reconstruction, it's good to set up the output list
+OutputJets["HIGG1D1Jets"] = []
+
+#=======================================
+# RESTORE AOD-REDUCED JET COLLECTIONS
+#=======================================
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
+reducedJetList = [
+                  "AntiKt4TruthJets",
+                  "AntiKt4TruthWZJets"]
+replaceAODReducedJets(reducedJetList,HIGG1D1Seq,"HIGG1D1Jets")
+
+
  #====================================================================
 # Add the containers to the output stream - slimming done here
 #====================================================================
@@ -248,13 +262,14 @@ HIGG1D1SlimmingHelper = SlimmingHelper("HIGG1D1SlimmingHelper")
 
 HIGG1D1Stream.AddItem("xAOD::VertexContainer#HggPrimaryVertices")
 HIGG1D1Stream.AddItem("xAOD::VertexAuxContainer#HggPrimaryVerticesAux.")
-HIGG1D1Stream.AddItem("xAOD::EventShape_v1#*")
-HIGG1D1Stream.AddItem("xAOD::EventShapeAuxInfo_v1#*")
+HIGG1D1Stream.AddItem("xAOD::EventShape#*")
+HIGG1D1Stream.AddItem("xAOD::EventShapeAuxInfo#*")
 #HIGG1D1SlimmingHelper.AppendToDictionary = {'HggPrimaryVertices': 'xAOD::VertexContainer'}
 
 HIGG1D1SlimmingHelper.SmartCollections = ["Electrons",
                                           "Photons",
                                           "Muons",
+                                          "TauJets",
                                           "MET_Reference_AntiKt4EMTopo",
                                           "AntiKt4EMTopoJets",
                                           "AntiKt4EMPFlowJets",

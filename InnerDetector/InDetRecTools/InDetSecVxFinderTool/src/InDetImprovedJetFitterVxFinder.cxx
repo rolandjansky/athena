@@ -918,16 +918,20 @@ namespace InDet
           myCandidate=0;
           continue;
         }
-        
+	
+	Amg::Vector3D jetMomSpatial(jetMomentum.X(),jetMomentum.Y(),jetMomentum.Z());
+        Amg::Vector3D twoTrkVtxPos(myCandidate->x(),myCandidate->y(),myCandidate->z());
+	double sign=(twoTrkVtxPos-primaryVertexRecVertex.position()).dot(jetMomSpatial);
 
         if (TMath::Prob(myCandidate->chiSquared(),
-                        myCandidate->numberDoF())>m_twoVertexProbabilityCut) 
+                        myCandidate->numberDoF())>m_twoVertexProbabilityCut 
+	    && (sign<0 || !m_revertFromPositiveToNegativeTags)) 
         {
 #ifdef InDetImprovedJetFitterVxFinder_DEBUGAddOns
           if (msgLvl(MSG::DEBUG)) msg() << " passed probability vertex: " << TMath::Prob(myCandidate->chiSquared(),
                                                                                          myCandidate->numberDoF()) << endmsg;
 #endif
-          V0candidates.push_back(myCandidate);
+	  V0candidates.push_back(myCandidate);
           fromLinkInV0CandidateToOriginalLink[newLinkTrack1]=*secondaryTracksIter;
           fromLinkInV0CandidateToOriginalLink[newLinkTrack2]=*secondaryTracksIter2;
         }

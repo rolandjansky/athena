@@ -6,7 +6,7 @@
 #include "PathResolver/PathResolver.h"
 
 EtaJESCorrection::EtaJESCorrection()
-  : asg::AsgTool( "EtaJESCorrection::EtaJESCorrection" ), JetCalibrationToolBase::JetCalibrationToolBase(),
+  : JetCalibrationToolBase::JetCalibrationToolBase("EtaJESCorrection::EtaJESCorrection"),
     m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""), m_mass(false), m_dev(false),
     m_minPt_JES(10), m_minPt_EtaCorr(8), m_maxE_EtaCorr(2500),
     m_lowPtExtrap(0), m_lowPtMinR(0.25),
@@ -14,7 +14,7 @@ EtaJESCorrection::EtaJESCorrection()
 { }
 
 EtaJESCorrection::EtaJESCorrection(const std::string& name)
-  : asg::AsgTool( name ), JetCalibrationToolBase::JetCalibrationToolBase( name ),
+  : JetCalibrationToolBase::JetCalibrationToolBase( name ),
     m_config(NULL), m_jetAlgo(""), m_calibAreaTag(""), m_mass(false), m_dev(false),
     m_minPt_JES(10), m_minPt_EtaCorr(8), m_maxE_EtaCorr(2500),
     m_lowPtExtrap(0), m_lowPtMinR(0.25),
@@ -22,7 +22,7 @@ EtaJESCorrection::EtaJESCorrection(const std::string& name)
 { }
 
 EtaJESCorrection::EtaJESCorrection(const std::string& name, TEnv * config, TString jetAlgo, TString calibAreaTag, bool mass, bool dev)
-  : asg::AsgTool( name ), JetCalibrationToolBase::JetCalibrationToolBase( name ),
+  : JetCalibrationToolBase::JetCalibrationToolBase( name ),
     m_config(config), m_jetAlgo(jetAlgo), m_calibAreaTag(calibAreaTag), m_mass(mass), m_dev(dev),
     m_minPt_JES(10), m_minPt_EtaCorr(8), m_maxE_EtaCorr(2500),
     m_lowPtExtrap(0), m_lowPtMinR(0.25),
@@ -43,8 +43,8 @@ StatusCode EtaJESCorrection::initializeTool(const std::string&) {
   //TString calibFile = FindFile(m_config->GetValue("AbsoluteJES.CalibFile",""));
   TString absoluteJESCalibFile = m_config->GetValue("AbsoluteJES.CalibFile","");
   if(m_dev){
+    absoluteJESCalibFile.Remove(0,33);
     absoluteJESCalibFile.Insert(0,"JetCalibTools/");
-    absoluteJESCalibFile.Insert(28,m_calibAreaTag);
   }
   else{absoluteJESCalibFile.Insert(14,m_calibAreaTag);}
   TString calibFile = PathResolverFindCalibFile(absoluteJESCalibFile.Data());

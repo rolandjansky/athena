@@ -552,9 +552,15 @@ namespace top {
         for (const auto & particle : dressedParticles){
             auto truthProxy = particle->auxdata<ElementLink<xAOD::TruthParticleContainer> >("originalTruthParticle");
 
-            if ((* truthProxy)->p4().DeltaR(photon.p4()) <= dressingCone){
-                return true;
-            }
+	    if ( not truthProxy.isValid() ) {
+	        if (particle->p4().DeltaR(photon.p4()) <= dressingCone){
+	            return true;
+	        }
+	    } else {
+	        if ((* truthProxy)->p4().DeltaR(photon.p4()) <= dressingCone){
+	            return true;
+	        }
+	    }
 
         }
 

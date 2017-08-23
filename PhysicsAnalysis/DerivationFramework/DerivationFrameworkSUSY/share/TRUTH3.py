@@ -6,6 +6,14 @@ from DerivationFrameworkCore.DerivationFrameworkMaster import *
 # Add translator from EVGEN input to xAOD-like truth here
 from DerivationFrameworkMCTruth.MCTruthCommon import * 
 
+# Flag to distinguish EVNT/xAOD input
+# isEVNT = False
+# This is now set in the MCTruthCommon
+
+# Add translator from EVGEN input to xAOD-like truth here
+from RecExConfig.ObjKeyStore import objKeyStore
+from xAODTruthCnv.xAODTruthCnvConf import xAODMaker__xAODTruthCnvAlg
+
 #====================================================================
 # JET/MET
 #====================================================================
@@ -23,19 +31,22 @@ jetFlags.truthFlavorTags = ["BHadronsInitial", "BHadronsFinal", "BQuarksFinal",
                             "TausFinal",
                             "Partons",
                             ]
-# Standard truth jets
-# To recover jet constituents remove the last modifier.
-akt4 = jtm.addJetFinder("AntiKt4TruthJets", "AntiKt", 0.4, "truth", modifiersin=[jtm.truthpartondr, jtm.partontruthlabel, jtm.removeconstit], ptmin= 20000)
-akt4alg = JetAlgorithm("jetalgAntiKt4TruthJets", Tools = [akt4] )
-DerivationFrameworkJob += akt4alg
+if dfInputIsEVNT:
+  # Standard truth jets
+  # To recover jet constituents remove the last modifier.
+  akt4 = jtm.addJetFinder("AntiKt4TruthJets", "AntiKt", 0.4, "truth", modifiersin=[jtm.truthpartondr, jtm.partontruthlabel, jtm.removeconstit, jtm.jetdrlabeler, jtm.trackjetdrlabeler], ptmin= 5000)
+  akt4alg = JetAlgorithm("jetalgAntiKt4TruthJets", Tools = [akt4] )
+  DerivationFrameworkJob += akt4alg
 
-#Large R jets
-akt10 = jtm.addJetFinder("AntiKt10TruthJets", "AntiKt", 1.0, "truth", ptmin= 100000)
-akt10alg = JetAlgorithm("jetalgAntiKt10TruthJets", Tools = [akt10] )
-DerivationFrameworkJob += akt10alg
-akt10trim = jtm.addJetTrimmer("TrimmedAntiKt10TruthJets", rclus=0.3, ptfrac=0.05, input='AntiKt10TruthJets')
-akt10trimalg = JetAlgorithm("jetalgTrimmedAntiKt10TruthJets", Tools = [akt10trim] )
-DerivationFrameworkJob += akt10trimalg
+  # WZ Truth Jets
+  akt4wz = jtm.addJetFinder("AntiKt4TruthWZJets",  "AntiKt", 0.4,  "truthwz", ptmin= 5000, modifiersin=[jtm.truthpartondr, jtm.partontruthlabel, jtm.removeconstit])
+  akt4wzalg = JetAlgorithm("jetalgAntiKt4TruthWZJets", Tools = [akt4wz] )
+  DerivationFrameworkJob += akt4wzalg
+  #jtm.addJetFinder("AntiKt6TruthWZJets",  "AntiKt", 0.6,  "truthwz", ptmin= 5000)
+  # Other jets
+  #akt6  = jtm.addJetFinder("AntiKt6TruthJets", "AntiKt", 0.6, "truth", ptmin= 5000)
+  #akt10 = jtm.addJetFinder("AntiKt10TruthJets", "AntiKt", 1.0, "truth", ptmin= 5000)
+  #akt10trim = jtm.addJetTrimmer("TrimmedAntiKt10TruthJets", rclus=0.3, ptfrac=0.05, input='AntiKt10TruthJets')
 
 # Add truth-based MET algorithm here
 import METReconstruction.METConfig_Truth
@@ -52,106 +63,113 @@ from DerivationFrameworkMCTruth.TruthObjectTools import *
 from DerivationFrameworkMCTruth.TruthDecoratorTools import *
 
 #==============================================================================
-# Truth Collections
+# Thinning the master truth collection 
 #==============================================================================
+from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
+TRUTH1TruthThinning = DerivationFramework__MenuTruthThinning(name                      = "TRUTH1TruthThinning",
+                                                            ThinningService            = "TRUTH1ThinningSvc",
+                                                            WritePartons               = False,
+                                                            WriteHadrons               = False,
+                                                            WriteBHadrons              = False,
+                                                            WriteGeant                 = False,
+                                                            GeantPhotonPtThresh        = -1.0,
+                                                            WriteTauHad                = True,
+                                                            PartonPtThresh             = -1.0,
+                                                            WriteBSM                   = True,
+                                                            WriteBosons                = True,
+                                                            WriteBSMProducts           = True,
+                                                            WriteBosonProducts         = True,
+                                                            WriteTopAndDecays          = True,
+                                                            WriteEverything            = False,
+                                                            WriteAllLeptons            = False,
+                                                            WriteStatus3               = False,
+                                                            PreserveDescendants        = False, 
+                                                            PreserveGeneratorDescendants = False,
+                                                            PreserveAncestors          = True,
+                                                            WriteFirstN                = 10)
+ToolSvc += TRUTH1TruthThinning
 
-from DerivationFrameworkSUSY.DerivationFrameworkSUSYConf import DerivationFramework__Truth3CollectionMaker
-
-TRUTH3MuonTool = DerivationFramework__Truth3CollectionMaker(name                   = "TRUTH3MuonTool",
-                                                         NewCollectionName       = "TruthMuons",
-                                                         ParticleSelectionString = "abs(TruthParticles.pdgId) == 13 && TruthParticles.status==1")
-ToolSvc += TRUTH3MuonTool
-TRUTH3ElectronTool = DerivationFramework__Truth3CollectionMaker(name               = "TRUTH3ElectronTool",
-                                                         NewCollectionName       = "TruthElectrons",
-                                                         ParticleSelectionString = "abs(TruthParticles.pdgId) == 11 && TruthParticles.status==1")
-ToolSvc += TRUTH3ElectronTool
-
-TRUTH3PhotonTool = DerivationFramework__Truth3CollectionMaker(name                 = "TRUTH3PhotonTool",
-                                                         NewCollectionName       = "TruthPhotons",
-                                                         ParticleSelectionString = "abs(TruthParticles.pdgId) == 22 && TruthParticles.pt > 50.*GeV")
-ToolSvc += TRUTH3PhotonTool
-TRUTH3TauTool = DerivationFramework__Truth3CollectionMaker(name                    = "TRUTH3TauTool",
-                                                         NewCollectionName       = "TruthTaus",
-                                                         ParticleSelectionString = "abs(TruthParticles.pdgId) == 15")
-ToolSvc += TRUTH3TauTool
-
-TRUTH3BosonTool = DerivationFramework__Truth3CollectionMaker(name                    = "TRUTH3BosonTool",
-                                                         NewCollectionName       = "TruthBoson",
-                                                         ParticleSelectionString = "(abs(TruthParticles.pdgId) == 24 || abs(TruthParticles.pdgId) == 25 || abs(TruthParticles.pdgId) == 23) && TruthParticles.m > 20.*GeV")
-ToolSvc += TRUTH3BosonTool
-
-TRUTH3TopTool = DerivationFramework__Truth3CollectionMaker(name                    = "TRUTH3TopTool",
-                                                         NewCollectionName       = "TruthTop",
-                                                         ParticleSelectionString = "abs(TruthParticles.pdgId) == 6");
-ToolSvc += TRUTH3TopTool
-
-TRUTH3BSMTool = DerivationFramework__Truth3CollectionMaker(name                    = "TRUTH3BSMTool",
-                                                         NewCollectionName       = "TruthBSM",
-                                                         ParticleSelectionString = "((abs(TruthParticles.pdgId) >= 1000001) && (abs(TruthParticles.pdgId) <= 1000039))");
-ToolSvc += TRUTH3BSMTool
-
-#TRUTH3bhadronTool = DerivationFramework__Truth3CollectionMaker(name                    = "TRUTH3bhadronTool",
-#                                                                  NewCollectionName       = "Truthbhadron",
-#                                                                  ParticleSelectionString = "TruthParticles.isBottomHadron")
-#ToolSvc += TRUTH3bhadronTool
+#==============================================================================
+# Thinning the photon truth collection : no photons from pi0 (origin=42)
+#==============================================================================
+from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
+TRUTH1PhotonThinning = DerivationFramework__GenericTruthThinning(name                    = "TRUTH1PhotonThinning",
+                                                                 ThinningService         = "TRUTH1ThinningSvc",
+                                                                 ParticlesKey            = "TruthPhotons",  
+                                                                 ParticleSelectionString = "(TruthPhotons.classifierParticleOrigin != 42) || (TruthPhotons.pt > 20.0*GeV)")
+ToolSvc += TRUTH1PhotonThinning
 
 #==============================================================================
 # Create the derivation kernel algorithm
 #==============================================================================
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("TRUTH3Kernel",
-                                                                        AugmentationTools = [TRUTH3PhotonTool,TRUTH3ElectronTool,TRUTH3MuonTool,TRUTH3BSMTool,TRUTH3TopTool,TRUTH3BosonTool,TRUTH3TauTool],
-                                                                        ThinningTools = [])
+DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("TRUTH1Kernel",
+                                                                        AugmentationTools = [TRUTH1ClassificationTool,
+                                                                          TRUTH1MuonTool,TRUTH1ElectronTool,TRUTH1PhotonTool,TRUTH1TauTool,TRUTH1NeutrinoTool,
+                                                                          TRUTH1ElectronDressingTool, TRUTH1MuonDressingTool,
+                                                                          TRUTH1ElectronIsolationTool1, TRUTH1ElectronIsolationTool2,
+                                                                          TRUTH1MuonIsolationTool1, TRUTH1MuonIsolationTool2,
+                                                                          TRUTH1PhotonIsolationTool1, TRUTH1PhotonIsolationTool2],
+                                                                        ThinningTools = [TRUTH1TruthThinning,TRUTH1PhotonThinning])
 
 #==============================================================================
 # Set up stream
 #==============================================================================
-streamName = derivationFlags.WriteDAOD_TRUTH3Stream.StreamName
-fileName = buildFileName( derivationFlags.WriteDAOD_TRUTH3Stream )
-TRUTH3Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+streamName = derivationFlags.WriteDAOD_TRUTH1Stream.StreamName
+fileName = buildFileName( derivationFlags.WriteDAOD_TRUTH1Stream )
+TRUTH1Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 # Thinning
 from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="TRUTH3ThinningSvc", outStreams=[evtStream] )
+svcMgr += createThinningSvc( svcName="TRUTH1ThinningSvc", outStreams=[evtStream] )
 
 # Only events that pass the filters listed are written out
 # AcceptAlgs  = logical OR of filters
 # RequireAlgs = logical AND of filters
-TRUTH3Stream.AcceptAlgs(['TRUTH3Kernel'])
+TRUTH1Stream.AcceptAlgs(['TRUTH1Kernel'])
 
 #==============================================================================
 # Set up slimming content list here
 #==============================================================================
-
-from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
-
-TRUTH3SlimmingHelper = SlimmingHelper("TRUTH3SlimmingHelper")
-
-TRUTH3SlimmingHelper.ExtraVariables = ["AntiKt4TruthJets.pt,AntiKt4TruthJets.eta,AntiKt4TruthJets.phi,AntiKt4TruthJets.m,AntiKt4TruthJets.GhostBHadronsFinalCount"]
-TRUTH3SlimmingHelper.AppendContentToStream(TRUTH3Stream)
-
-TRUTH3Stream.AddItem("xAOD::EventInfo#*")
-TRUTH3Stream.AddItem("xAOD::EventAuxInfo#*")
-TRUTH3Stream.AddItem("xAOD::JetContainer#TrimmedAntiKt10TruthJets*")
-TRUTH3Stream.AddItem("xAOD::JetAuxContainer#TrimmedAntiKt10TruthJets*")
-TRUTH3Stream.AddItem("xAOD::MissingETContainer#*")
-TRUTH3Stream.AddItem("xAOD::MissingETAuxContainer#*")
-
-TRUTH3Stream.AddItem( "xAOD::TruthParticleContainer#TruthPhotons*")
-TRUTH3Stream.AddItem( "xAOD::TruthParticleContainer#TruthElectrons*")
-TRUTH3Stream.AddItem( "xAOD::TruthParticleContainer#TruthMuons*")
-TRUTH3Stream.AddItem( "xAOD::TruthParticleContainer#TruthTaus*")
-TRUTH3Stream.AddItem( "xAOD::TruthParticleContainer#TruthTop*")
-TRUTH3Stream.AddItem( "xAOD::TruthParticleContainer#TruthBoson*")
-TRUTH3Stream.AddItem( "xAOD::TruthParticleContainer#TruthBSM*")
-#TRUTH3Stream.AddItem( "xAOD::TruthParticleContainer#Truthbhadron*")
-
-TRUTH3Stream.AddItem( "xAOD::TruthParticleAuxContainer#TruthPhotons*")
-TRUTH3Stream.AddItem( "xAOD::TruthParticleAuxContainer#TruthElectrons*")
-TRUTH3Stream.AddItem( "xAOD::TruthParticleAuxContainer#TruthMuons*")
-TRUTH3Stream.AddItem( "xAOD::TruthParticleAuxContainer#TruthTaus*")
-TRUTH3Stream.AddItem( "xAOD::TruthParticleAuxContainer#TruthTop*")
-TRUTH3Stream.AddItem( "xAOD::TruthParticleAuxContainer#TruthBoson*")
-TRUTH3Stream.AddItem( "xAOD::TruthParticleAuxContainer#TruthBSM*")
-#TRUTH3Stream.AddItem( "xAOD::TruthParticleAuxContainer#Truthbhadron*")
+TRUTH1Stream.AddItem("xAOD::EventInfo#McEventInfo")
+TRUTH1Stream.AddItem("xAOD::EventInfo#EventInfo")
+TRUTH1Stream.AddItem("xAOD::EventAuxInfo#EventInfoAux.")
+TRUTH1Stream.AddItem("xAOD::JetContainer#AntiKt4TruthWZJets")
+TRUTH1Stream.AddItem("xAOD::JetContainer#AntiKt4TruthJets")
+TRUTH1Stream.AddItem("xAOD::JetAuxContainer#AntiKt4TruthJetsAux.")
+TRUTH1Stream.AddItem("xAOD::JetAuxContainer#AntiKt4TruthWZJetsAux.")
+TRUTH1Stream.AddItem("xAOD::MissingETContainer#MET_Truth")
+TRUTH1Stream.AddItem("xAOD::MissingETContainer#MET_TruthRegions")
+TRUTH1Stream.AddItem("xAOD::MissingETAuxContainer#MET_TruthAux.")
+TRUTH1Stream.AddItem("xAOD::MissingETAuxContainer#MET_TruthRegionsAux.")
+TRUTH1Stream.AddItem( "xAOD::TruthEventContainer#TruthEvents" )
+TRUTH1Stream.AddItem( "xAOD::TruthEventAuxContainer#TruthEventsAux." )
+TRUTH1Stream.AddItem( "xAOD::TruthVertexContainer#TruthVertices" )
+TRUTH1Stream.AddItem( "xAOD::TruthVertexAuxContainer#TruthVerticesAux." )
+TRUTH1Stream.AddItem( "xAOD::TruthParticleContainer#JetInputTruthParticles" )
+TRUTH1Stream.AddItem( "xAOD::TruthParticleContainer#JetInputTruthParticlesNoWZ" )
+TRUTH1Stream.AddItem( "xAOD::TruthParticleContainer#TruthElectrons" )
+TRUTH1Stream.AddItem( "xAOD::TruthParticleContainer#TruthLabelBHadronsFinal" )
+TRUTH1Stream.AddItem( "xAOD::TruthParticleContainer#TruthLabelBHadronsInitial" )
+TRUTH1Stream.AddItem( "xAOD::TruthParticleContainer#TruthLabelBQuarksFinal" )
+TRUTH1Stream.AddItem( "xAOD::TruthParticleContainer#TruthLabelCHadronsFinal" )
+TRUTH1Stream.AddItem( "xAOD::TruthParticleContainer#TruthLabelCHadronsInitial" )
+TRUTH1Stream.AddItem( "xAOD::TruthParticleContainer#TruthLabelCQuarksFinal" )
+TRUTH1Stream.AddItem( "xAOD::TruthParticleContainer#TruthLabelHBosons" )
+TRUTH1Stream.AddItem( "xAOD::TruthParticleContainer#TruthLabelPartons" )
+TRUTH1Stream.AddItem( "xAOD::TruthParticleContainer#TruthLabelTQuarksFinal" )
+TRUTH1Stream.AddItem( "xAOD::TruthParticleContainer#TruthLabelTausFinal" )
+TRUTH1Stream.AddItem( "xAOD::TruthParticleContainer#TruthLabelWBosons" )
+TRUTH1Stream.AddItem( "xAOD::TruthParticleContainer#TruthLabelZBosons" )
+TRUTH1Stream.AddItem( "xAOD::TruthParticleContainer#TruthMuons" )
+TRUTH1Stream.AddItem( "xAOD::TruthParticleContainer#TruthParticles" )
+TRUTH1Stream.AddItem( "xAOD::TruthParticleContainer#TruthPhotons" )
+TRUTH1Stream.AddItem( "xAOD::TruthParticleContainer#TruthTaus" )
+TRUTH1Stream.AddItem( "xAOD::TruthParticleContainer#TruthNeutrinos" )
+TRUTH1Stream.AddItem( "xAOD::TruthParticleAuxContainer#TruthElectronsAux." )
+TRUTH1Stream.AddItem( "xAOD::TruthParticleAuxContainer#TruthMuonsAux." )
+TRUTH1Stream.AddItem( "xAOD::TruthParticleAuxContainer#TruthParticlesAux." )
+TRUTH1Stream.AddItem( "xAOD::TruthParticleAuxContainer#TruthPhotonsAux." )
+TRUTH1Stream.AddItem( "xAOD::TruthParticleAuxContainer#TruthTausAux." )
+TRUTH1Stream.AddItem( "xAOD::TruthParticleAuxContainer#TruthNeutrinosAux." )

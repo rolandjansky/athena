@@ -16,6 +16,10 @@
 #include "AthAnalysisBaseComps/AthAnalysisHelper.h"
 #endif
 
+// Need path resolver for initialize()
+#include "PathResolver/PathResolver.h"
+
+// Including all the abstract interfaces - for systematics functions
 #include "xAODBTaggingEfficiency/IBTaggingEfficiencyTool.h"
 #include "xAODBTaggingEfficiency/IBTaggingSelectionTool.h"
 
@@ -25,8 +29,9 @@
 #include "JetCalibTools/IJetCalibrationTool.h"
 #include "JetCPInterfaces/ICPJetUncertaintiesTool.h"
 #include "JetInterface/IJetUpdateJvt.h"
-#include "JetMomentTools/JetForwardJvtTool.h"
 #include "JetInterface/IJetModifier.h"
+#include "JetInterface/ISingleJetModifier.h"
+#include "JetJvtEfficiency/IJetJvtEfficiency.h"
 
 #include "AsgAnalysisInterfaces/IEfficiencyScaleFactorTool.h"
 #include "ElectronPhotonFourMomentumCorrection/IEgammaCalibrationAndSmearingTool.h"
@@ -47,7 +52,7 @@
 #include "TauAnalysisTools/ITauTruthMatchingTool.h"  
 #include "TauAnalysisTools/ITauEfficiencyCorrectionsTool.h"
 #include "TauAnalysisTools/ITauOverlappingElectronLLHDecorator.h"
-#include "tauRecTools/TauWPDecorator.h"
+#include "tauRecTools/ITauToolBase.h"
 
 #include "PhotonEfficiencyCorrection/IAsgPhotonEfficiencyCorrectionTool.h"
 
@@ -59,24 +64,21 @@
 #include "METInterface/IMETSystematicsTool.h"
 
 #include "TrigConfInterfaces/ITrigConfigTool.h"
+#include "TriggerMatchingTool/IMatchingTool.h"
+// Required to use some functions (see header explanation)
 #include "TrigDecisionTool/TrigDecisionTool.h"
-#include "TriggerMatchingTool/MatchingTool.h"
 
-// Tool interfaces
 #include "PATInterfaces/IWeightTool.h"
-//
-//#include "PileupReweighting/IPileupReweightingTool.h"
 #include "AsgAnalysisInterfaces/IPileupReweightingTool.h"
-//
-#include "PathResolver/PathResolver.h"
-//
 #include "AssociationUtils/IOverlapRemovalTool.h"
 
 // Helpers
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include "THashList.h"
-//#include <boost/tokenizer.hpp>
+
+// system includes
+#include <fstream>
 
 namespace ST {
 
@@ -235,8 +237,8 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_jetFwdJvtTool(""),
     m_jetJvtEfficiencyTool(""),
     //
-    m_WTaggerTool(0),
-    m_ZTaggerTool(0),
+    m_WTaggerTool(""),
+    m_ZTaggerTool(""),
     //
     m_muonSelectionTool(""),
     m_muonSelectionHighPtTool(""),
@@ -952,7 +954,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_useBtagging, "Btag.enable", rEnv, true);
   configFromFile(m_BtagTagger, "Btag.Tagger", rEnv, "MV2c10");
   configFromFile(m_BtagWP, "Btag.WP", rEnv, "FixedCutBEff_77");
-  configFromFile(m_bTaggingCalibrationFilePath, "Btag.CalibPath", rEnv, "xAODBTaggingEfficiency/13TeV/2016-20_7-13TeV-MC15-CDI-2017-06-07_v2.root");
+  configFromFile(m_bTaggingCalibrationFilePath, "Btag.CalibPath", rEnv, "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2017-07-02_v1.root");
   configFromFile(m_BtagSystStrategy, "Btag.SystStrategy", rEnv, "Envelope");
   //
   configFromFile(m_orDoBoostedElectron, "OR.DoBoostedElectron", rEnv, false);
@@ -1001,7 +1003,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_trkMETsyst, "MET.DoTrkSyst", rEnv, true);
   configFromFile(m_caloMETsyst, "MET.DoCaloSyst", rEnv, false);
   configFromFile(m_metGreedyPhotons, "MET.GreedyPhotons", rEnv, false);
-  configFromFile(m_metJetSelection, "MET.JetSelection", rEnv, "Default"); // set to non-empty to override default
+  configFromFile(m_metJetSelection, "MET.JetSelection", rEnv, "Tight"); // set to non-empty to override default
   //
   configFromFile(m_muUncert, "PRW.MuUncertainty", rEnv, 0.2);
   //
@@ -2087,6 +2089,36 @@ StatusCode SUSYObjDef_xAOD::OverlapRemoval(const xAOD::ElectronContainer *electr
 }
 
 
+StatusCode SUSYObjDef_xAOD::NearbyLeptonCorrections(const xAOD::ElectronContainer *electrons, const xAOD::MuonContainer *muons) const
+{
+  //apply close-by corrections to isolation
+  // stores the electrons in a vector
+  std::vector<const xAOD::IParticle*> pVec;
+  for(auto pobj: *electrons) {
+    pVec.push_back((const xAOD::IParticle*) pobj);
+  }
+  // stores the muons in a vector
+  for(auto pobj: *muons) {
+    pVec.push_back((const xAOD::IParticle*) pobj);
+  }
+
+  //correct isolation and propagate to signal deco for electrons
+  for (const auto& electron : *electrons) {
+    dec_isol(*electron) = m_isoCloseByTool->acceptCorrected(*electron, pVec);
+    if(m_doElIsoSignal) dec_signal(*electron) &= acc_isol(*electron); //add isolation to signal deco if requested
+  }
+
+  //correct isolation and propagate to signal deco for electrons
+  for (const auto& muon : *muons) {
+    dec_isol(*muon) = m_isoCloseByTool->acceptCorrected(*muon, pVec);
+    if(m_doMuIsoSignal) dec_signal(*muon) &= acc_isol(*muon); //add isolation to signal deco if requested
+  }
+
+  // All done, all good :-)
+  return StatusCode::SUCCESS;
+}
+
+
 
 float SUSYObjDef_xAOD::GetPileupWeight() {
   
@@ -2162,12 +2194,15 @@ unsigned int SUSYObjDef_xAOD::GetRunNumber() const {
 
 }
 
-int SUSYObjDef_xAOD::treatAsYear() const {
-
-  if( GetRunNumber() < 290000 ) //split between 2015 and 2016 runNumbers
-        return 2015;
-  else return 2016; // to be expanded with 2017, etc.
-
+int SUSYObjDef_xAOD::treatAsYear(const int runNumber) const {
+  // Use the run number we are passed if we are passed one, otherwise
+  //  use the run number from the GetRunNumber function
+  int theRunNumber = runNumber>0?runNumber:GetRunNumber();
+  // Split between 2015 and 2016 run numbers: 290000
+  // Split between 2016 and 2017 run numbers: 320000
+  if (theRunNumber<290000) return 2015;
+  else if (theRunNumber<320000) return 2016;
+  return 2017;
 }
 
 StatusCode SUSYObjDef_xAOD::setRunNumber(const int run_number) {
@@ -2181,9 +2216,9 @@ StatusCode SUSYObjDef_xAOD::setRunNumber(const int run_number) {
     rn_2016 = run_number;
   }
 
-  CP::CorrectionCode res1 = m_muonTriggerSFTool2015->setRunNumber(rn_2015);
-  CP::CorrectionCode res2 = m_muonTriggerSFTool2016->setRunNumber(rn_2016);
-  if (res1 != CP::CorrectionCode::Ok || res2 != CP::CorrectionCode::Ok) return StatusCode::FAILURE;
+  // In release 21, we can only set the run number for the SF tool that is applicable
+  if (treatAsYear(run_number)==2015 && m_muonTriggerSFTool2015->setRunNumber(rn_2015)!=CP::CorrectionCode::Ok) return StatusCode::FAILURE;
+  if (treatAsYear(run_number)==2016 && m_muonTriggerSFTool2016->setRunNumber(rn_2016)!=CP::CorrectionCode::Ok) return StatusCode::FAILURE;
 
   return StatusCode::SUCCESS;
 }
@@ -2212,15 +2247,6 @@ SUSYObjDef_xAOD::~SUSYObjDef_xAOD() {
   // so that they don't get re-used if we set up another SUSYTools
   // instance, e.g. when processing two datasets in one EventLoop
   // job
-
-  if(m_WTaggerTool){
-    delete m_WTaggerTool;
-    m_WTaggerTool=0;
-  }
-  if(m_ZTaggerTool){
-    delete m_ZTaggerTool;
-    m_ZTaggerTool=0;
-  }
   if (!m_trigDecTool.empty()){
     if (asg::ToolStore::contains<Trig::TrigDecisionTool>("ToolSvc.TrigDecisionTool") ){
       // Ignore both of these so that we are safe if others have cleaned up
