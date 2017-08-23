@@ -4,23 +4,26 @@ from AthenaCommon.AppMgr import ServiceMgr
 from AthenaCommon import CfgMgr
 
 from glob import glob
-filelist = ["DAOD_JETM2.test.TruthAssoc.pool.root"]
+filelist = ["/r03/atlas/sarahw/Rel21AODs/mc16_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.merge.AOD.e3601_s2997_r8903_r8906/AOD.10226642._001388.pool.root.1"]
+#filelist = ["DAOD_JETM2.test.TruthAssoc.pool.root"]
 #filelist = ["/afs/cern.ch/work/r/rsmith/public/METUtilities_testfiles/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.AOD.e3099_s1982_s1964_r6006_tid04628718_00/AOD.04628718._000158.pool.root.1"]
 ServiceMgr.EventSelector.InputCollections = filelist
 
 from METUtilities.METMakerConfig import getMETMakerAlg
-metAlg = getMETMakerAlg('AntiKt4EMTopo',20e3)
+metAlg = getMETMakerAlg('AntiKt4EMTopo','Default')
 metAlg.METName = 'MET_Reco_AntiKt4EMTopo'
 
+"""
 metAlg_truth = getMETMakerAlg('Truth_AntiKt4EMTopo',20e3)
 metAlg_truth.METSoftClName = 'SoftTruthAll'
 metAlg_truth.METSoftTrkName = 'SoftTruthCharged'
 metAlg_truth.METName = 'MET_Truth_AntiKt4EMTopo'
+"""
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 topSequence += metAlg
-topSequence += metAlg_truth
+# topSequence += metAlg_truth
 
 write_xAOD = True
 if write_xAOD:
@@ -50,7 +53,7 @@ from PerfMonComps.PerfMonFlags import jobproperties as pmon_properties
 pmon_properties.PerfMonFlags.doSemiDetailedMonitoring=True
 
 ServiceMgr.MessageSvc.defaultLimit = 9999999
-theApp.EvtMax = -1
+theApp.EvtMax = 10
 ServiceMgr.EventSelector.SkipEvents = 0
 
 printint = max(theApp.EvtMax/250,1) if theApp.EvtMax>0 else 1000
