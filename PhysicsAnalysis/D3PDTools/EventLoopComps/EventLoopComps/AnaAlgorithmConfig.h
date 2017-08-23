@@ -74,6 +74,19 @@ namespace EL
     void setName (const std::string val_name) noexcept;
 
 
+    /// \brief whether we use XAODs
+    /// \par Guarantee
+    ///   no-fail
+  public:
+    bool useXAODs () const noexcept;
+
+    /// \brief set the value of \ref useXAODs
+    /// \par Guarantee
+    ///   no-fail
+  public:
+    void setUseXAODs (bool val_useXAODs) noexcept;
+
+
     /// \brief set the given property
     /// \par Guarantee
     ///   strong
@@ -107,6 +120,10 @@ namespace EL
     /// \brief the value of \ref name
   private:
     std::string m_name;
+
+    /// \brief the value of \ref useXAODs
+  private:
+    bool m_useXAODs = true;
 
     /// \brief the map of property values
   private:

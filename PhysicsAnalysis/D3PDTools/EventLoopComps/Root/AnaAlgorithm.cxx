@@ -38,7 +38,8 @@ namespace EL
 #endif
                 )
 #ifdef ROOTCORE
-    : AsgMessaging (name)
+    : AsgMessaging (name),
+      m_properties (new PropertyMgr)
 #else
     : AthHistogramAlgorithm (name, pSvcLocator, version)
 #endif
@@ -195,7 +196,7 @@ namespace EL
   void AnaAlgorithm ::
   setEvtStore (asg::SgTEvent *val_evtStore)
   {
-    if (!m_evtStore)
+    if (m_evtStore)
       throw std::logic_error ("set evtStore twice on algorithm " + name());
     m_evtStore = val_evtStore;
   }
@@ -205,7 +206,7 @@ namespace EL
   void AnaAlgorithm ::
   setHistogramWorker (IHistogramWorker *val_histogramWorker)
   {
-    if (!m_histogramWorker)
+    if (m_histogramWorker)
       throw std::logic_error ("set histogram worker twice on algorithm " + name());
     m_histogramWorker = val_histogramWorker;
   }
@@ -215,7 +216,7 @@ namespace EL
   void AnaAlgorithm ::
   setFilterWorker (IFilterWorker *val_filterWorker)
   {
-    if (!m_filterWorker)
+    if (m_filterWorker)
       throw std::logic_error ("set filter worker twice on algorithm " + name());
     m_filterWorker = val_filterWorker;
   }
@@ -225,7 +226,7 @@ namespace EL
   void AnaAlgorithm ::
   setWk (Worker *val_wk)
   {
-    if (!m_wk)
+    if (m_wk)
       throw std::logic_error ("set wk twice on algorithm " + name());
     m_wk = val_wk;
   }

@@ -37,6 +37,15 @@ namespace EL
     void testInvariant () const;
 
 
+    /// \brief standard default constructor for streaming
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   out of memory I
+  public:
+    AnaAlgorithmWrapper () = default;
+
+
     /// \brief standard constructor
     /// \par Guarantee
     ///   strong
@@ -56,6 +65,9 @@ namespace EL
 
   private:
     virtual StatusCode histInitialize ();
+
+  private:
+    virtual StatusCode initialize ();
 
   private:
     virtual StatusCode execute ();

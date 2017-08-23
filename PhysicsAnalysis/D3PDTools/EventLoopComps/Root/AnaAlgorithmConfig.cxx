@@ -77,6 +77,24 @@ namespace EL
 
 
 
+  bool AnaAlgorithmConfig ::
+  useXAODs () const noexcept
+  {
+    RCU_READ_INVARIANT (this);
+    return m_useXAODs;
+  }
+
+
+
+  void AnaAlgorithmConfig ::
+  setUseXAODs (bool val_useXAODs) noexcept
+  {
+    RCU_CHANGE_INVARIANT (this);
+    m_useXAODs = val_useXAODs;
+  }
+
+
+
   ::StatusCode AnaAlgorithmConfig ::
   makeAlgorithm (std::unique_ptr<AnaAlgorithm>& algorithm) const
   {
@@ -96,7 +114,7 @@ namespace EL
       return StatusCode::FAILURE;
     }
  
-    ANA_MSG_DEBUG("Creating tool of type " << m_type);
+    ANA_MSG_DEBUG ("Creating tool of type " << m_type);
     EL::AnaAlgorithm *alg = (EL::AnaAlgorithm*)
       (gInterpreter->Calc(("dynamic_cast<EL::AnaAlgorithm*>(new " + m_type + " (\"" + m_name + "\", nullptr))").c_str()));
       // (gInterpreter->Calc(("dynamic_cast<EL::AnaAlgorithm*>(new " + m_type + " (\"" + m_name + "\", (ISvcLocator*) nullptr))").c_str()));
@@ -112,11 +130,12 @@ namespace EL
     {
       if (!alg->setProperty (property.first, property.second).isSuccess())
       {
-        ANA_MSG_ERROR ("failed to set property " << property.first << " with value " << property.second);
+        ANA_MSG_ERROR ("failed to set property \"" << property.first << "\" with value \"" << property.second << "\"");
         return StatusCode::FAILURE;
       }
     }
 
+    ANA_MSG_DEBUG ("Created tool of type " << m_type);
     return StatusCode::SUCCESS;
   }
 }

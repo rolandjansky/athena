@@ -171,6 +171,7 @@ namespace EL
       EL::AnaAlgorithmConfig config;
       config.setType ("EL::UnitTestAlg2");
       config.setName ("newAlg");
+      config.setUseXAODs (false);
       ANA_CHECK_THROW (config.setProperty ("property", 42));
       job.algsAdd (config);
     }

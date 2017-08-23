@@ -32,5 +32,5 @@ foreach( source ${_tests} )
    atlas_add_test( ${test}
       SOURCES test/${test}.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} ${GTEST_LIBRARIES} EventLoopCompsLib )
+      LINK_LIBRARIES ${ROOT_LIBRARIES} ${GTEST_LIBRARIES} EventLoopCompsLib EventLoopTestLib )
 endforeach()

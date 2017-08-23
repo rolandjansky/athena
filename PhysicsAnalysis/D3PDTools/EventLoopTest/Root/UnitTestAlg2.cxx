@@ -51,12 +51,12 @@ namespace EL
     : AnaAlgorithm (name, pSvcLocator),
       makeOutput (true),
       m_name ("el_n"),
-      m_branch (0),
       m_value (0),// m_hist (0),
       m_tree (0),
       m_hasInitialize (false)
   {
     declareProperty ("property", m_property, "test property");
+    declareProperty ("string_property", m_string_property, "test string property");
 
     RCU_NEW_INVARIANT (this);
   }
@@ -72,14 +72,11 @@ namespace EL
 
     RCU_ASSERT_SOFT (!m_hasInitialize);
 
-    book (TH1F ((m_name + "2_2").c_str(), m_name.c_str(), 50, 0, 50));
-    book (TH1F ("file_executes_2", "file executes", 1, 0, 1));
+    ANA_CHECK (book (TH1F ((m_name + "2_2").c_str(), m_name.c_str(), 50, 0, 50)));
+    ANA_CHECK (book (TH1F ("file_executes_2", "file executes", 1, 0, 1)));
 
-    book (TH1F ("test_property", "test_property", 1, 0, 1));
+    ANA_CHECK (book (TH1F ("test_property", "test_property", 1, 0, 1)));
     hist("test_property")->Fill (0.5, m_property);
-
-    RCU_ASSERT_SOFT (wk()->tree()->GetEntries() > wk()->treeEntry());
-    RCU_ASSERT_SOFT (m_fileName == wk()->inputFile()->GetName());
 
     // if (wk()->metaData()->castDouble ("jobOpt") != 42)
     //   RCU_THROW_MSG ("failed to read meta-data from job options");
@@ -111,6 +108,17 @@ namespace EL
 
     RCU_ASSERT_SOFT (m_hasInitialize);
 
+    RCU_ASSERT_SOFT (wk()->tree()->GetEntries() > wk()->treeEntry());
+    // RCU_ASSERT_SOFT (m_fileName == wk()->inputFile()->GetName());
+
+    RCU_ASSERT (wk()->tree() != 0);
+    m_branch = wk()->tree()->GetBranch (m_name.c_str());
+    if (m_branch == 0)
+      RCU_THROW_MSG ("failed to find branch " + m_name);
+    m_branch->SetAddress (&m_value);
+
+    RCU_ASSERT (m_branch != nullptr);
+    RCU_ASSERT (wk() != nullptr);
     m_branch->GetEntry (wk()->treeEntry());
     hist(m_name)->Fill (m_value);
     if (makeOutput)

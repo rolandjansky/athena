@@ -87,8 +87,12 @@ namespace EL
     //
 
     /// \brief the float property our owner sets
-  private:
+  public:
     float m_property = 0;
+
+    /// \brief the string property our owner sets
+  public:
+    std::string m_string_property;
 
     /// description: the name of the variable we are using
   private:
@@ -96,7 +100,7 @@ namespace EL
 
     /// description: the branch we are using
   private:
-    TBranch *m_branch;
+    TBranch *m_branch = nullptr;
 
     /// description: the value we are reading from the branch
   private:
