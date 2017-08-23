@@ -58,7 +58,7 @@ STDM5JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name    
                                                                         JetKey                  = "AntiKt4EMTopoJets",
                                                                         SelectionString         = "AntiKt4EMTopoJets.pt > 15*GeV",
                                                                         InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                        ApplyAnd                = True)
+                                                                        ApplyAnd                = False)
 ToolSvc += STDM5JetTPThinningTool
 
 
@@ -207,16 +207,12 @@ STDM5Sequence += CfgMgr.DerivationFramework__DerivationKernel("STDM5Kernel",
                                                                  ThinningTools = thinningTools)
 
 # JET REBUILDING
-from DerivationFrameworkSM import STDMHelpers
-if not "STDM5Jets" in OutputJets.keys():
-    OutputJets["STDM5Jets"] = STDMHelpers.STDMRecalcJets(STDM5Sequence, "STDM5", isMC)
+reducedJetList = ["AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets", "AntiKt4TruthJets", "AntiKt4TruthWZJets"]
+replaceAODReducedJets(reducedJetList, STDM5Sequence, "STDM5Jets")
 
+# FAKE LEPTON TAGGER
 import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
 STDM5Sequence += JetTagConfig.GetDecoratePromptLeptonAlgs()
-
-# FIX TRUTH JETS
-if isMC:
-    replaceBuggyAntiKt4TruthWZJets(STDM5Sequence,"STDM5")
 
 # ADD SEQUENCE TO JOB  
 DerivationFrameworkJob += STDM5Sequence
@@ -261,11 +257,22 @@ STDM5SlimmingHelper.IncludeMuonTriggerContent = True
 STDM5SlimmingHelper.ExtraVariables = ExtraContentAll
 STDM5SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
 
+# # btagging variables
+from  DerivationFrameworkFlavourTag.BTaggingContent import *
+
+STDM5SlimmingHelper.ExtraVariables += BTaggingStandardContent("AntiKt4EMTopoJets")
+STDM5SlimmingHelper.ExtraVariables += BTaggingStandardContent("AntiKt2PV0TrackJets")
+
+ExtraDictionary["BTagging_AntiKt4EMTopo"]    = "xAOD::BTaggingContainer"
+ExtraDictionary["BTagging_AntiKt4EMTopoAux"] = "xAOD::BTaggingAuxContainer"
+ExtraDictionary["BTagging_AntiKt2Track"]     = "xAOD::BTaggingContainer"
+ExtraDictionary["BTagging_AntiKt2TrackAux"]  = "xAOD::BTaggingAuxContainer"
+
 STDM5SlimmingHelper.AllVariables = ExtraContainersAll
 if isMC:
     STDM5SlimmingHelper.ExtraVariables += ExtraContentAllTruth
     STDM5SlimmingHelper.AllVariables += ExtraContainersTruth
-    STDM5SlimmingHelper.AppendToDictionary = ExtraDictionary
+    STDM5SlimmingHelper.AppendToDictionary.update(ExtraDictionary)
 
 addJetOutputs(STDM5SlimmingHelper,["STDM5","STDM5Jets"])
 

@@ -60,9 +60,9 @@ from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFram
 STDM3JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          = "STDM3JetTPThinningTool",
                                                                         ThinningService         = STDM3ThinningHelper.ThinningSvc(),
                                                                         JetKey                  = "AntiKt4EMTopoJets",
-#                                                                        SelectionString         = "AntiKt4EMTopoJets.pt > 10*GeV",
+                                                                        SelectionString         = "AntiKt4EMTopoJets.pt > 10*GeV",
                                                                         InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                        ApplyAnd                = True)
+                                                                        ApplyAnd                = False)
 ToolSvc += STDM3JetTPThinningTool
 thinningTools.append(STDM3JetTPThinningTool)
 
@@ -217,13 +217,8 @@ STDM3Sequence += CfgMgr.DerivationFramework__DerivationKernel("STDM3Kernel",
                                                               ThinningTools = thinningTools)
 
 # JET REBUILDING
-from DerivationFrameworkSM import STDMHelpers
-if not "STDM3Jets" in OutputJets.keys():
-    OutputJets["STDM3Jets"] = STDMHelpers.STDMRecalcJets(STDM3Sequence, "STDM3", isMC)
-
-# FIX TRUTH JETS
-if isMC:
-    replaceBuggyAntiKt4TruthWZJets(STDM3Sequence,"STDM3")
+reducedJetList = ["AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets", "AntiKt4TruthJets", "AntiKt4TruthWZJets"]
+replaceAODReducedJets(reducedJetList, STDM3Sequence, "STDM3Jets")
 
 # FAKE LEPTON TAGGER
 import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
@@ -275,10 +270,21 @@ STDM3SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxA
 
 STDM3SlimmingHelper.AllVariables = ExtraContainersAll
 
+# # btagging variables
+from  DerivationFrameworkFlavourTag.BTaggingContent import *
+
+STDM3SlimmingHelper.ExtraVariables += BTaggingStandardContent("AntiKt4EMTopoJets")
+STDM3SlimmingHelper.ExtraVariables += BTaggingStandardContent("AntiKt2PV0TrackJets")
+
+ExtraDictionary["BTagging_AntiKt4EMTopo"]    = "xAOD::BTaggingContainer"
+ExtraDictionary["BTagging_AntiKt4EMTopoAux"] = "xAOD::BTaggingAuxContainer"
+ExtraDictionary["BTagging_AntiKt2Track"]     = "xAOD::BTaggingContainer"
+ExtraDictionary["BTagging_AntiKt2TrackAux"]  = "xAOD::BTaggingAuxContainer"
+
 if isMC:
     STDM3SlimmingHelper.ExtraVariables += ExtraContentAllTruth
     STDM3SlimmingHelper.AllVariables += ExtraContainersTruth
-    STDM3SlimmingHelper.AppendToDictionary = ExtraDictionary
+    STDM3SlimmingHelper.AppendToDictionary.update(ExtraDictionary)
 
 addJetOutputs(STDM3SlimmingHelper,["STDM3","STDM3Jets"])
 

@@ -243,17 +243,12 @@ STDM4Sequence += CfgMgr.DerivationFramework__DerivationKernel("STDM4Kernel",
 
 
 # JET REBUILDING
-from DerivationFrameworkSM import STDMHelpers
-if not "STDM4Jets" in OutputJets.keys():
-    OutputJets["STDM4Jets"] = STDMHelpers.STDMRecalcJets(STDM4Sequence, "STDM4", isMC)
+reducedJetList = ["AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets", "AntiKt4TruthJets", "AntiKt4TruthWZJets"]
+replaceAODReducedJets(reducedJetList, STDM4Sequence, "STDM4Jets")
 
+# FAKE LEPTON TAGGER
 import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
 STDM4Sequence += JetTagConfig.GetDecoratePromptLeptonAlgs()
-
-# FIX TRUTH JETS
-if globalflags.DataSource()=='geant4':
-    replaceBuggyAntiKt4TruthWZJets(STDM4Sequence,"STDM4")
-
 
 # ADD SEQUENCE TO JOB  
 DerivationFrameworkJob += STDM4Sequence
@@ -301,11 +296,21 @@ STDM4SlimmingHelper.ExtraVariables = ExtraContentAll +["JetETMissChargedParticle
 STDM4SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
 STDM4SlimmingHelper.AllVariables = ExtraContainersAll
 
+# # btagging variables
+from  DerivationFrameworkFlavourTag.BTaggingContent import *
+
+STDM4SlimmingHelper.ExtraVariables += BTaggingStandardContent("AntiKt4EMTopoJets")
+STDM4SlimmingHelper.ExtraVariables += BTaggingStandardContent("AntiKt2PV0TrackJets")
+
+ExtraDictionary["BTagging_AntiKt4EMTopo"]    = "xAOD::BTaggingContainer"
+ExtraDictionary["BTagging_AntiKt4EMTopoAux"] = "xAOD::BTaggingAuxContainer"
+ExtraDictionary["BTagging_AntiKt2Track"]     = "xAOD::BTaggingContainer"
+ExtraDictionary["BTagging_AntiKt2TrackAux"]  = "xAOD::BTaggingAuxContainer"
 
 if globalflags.DataSource()=='geant4':
     STDM4SlimmingHelper.ExtraVariables += ExtraContentAllTruth
     STDM4SlimmingHelper.AllVariables += ExtraContainersTruth
-    STDM4SlimmingHelper.AppendToDictionary = ExtraDictionary
+    STDM4SlimmingHelper.AppendToDictionary.update(ExtraDictionary)
 
 addJetOutputs(STDM4SlimmingHelper,["STDM4","STDM4Jets"])
 

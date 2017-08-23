@@ -55,7 +55,7 @@ STDM8JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name    
                                                                         JetKey                  = "AntiKt4EMTopoJets",
                                                                         SelectionString         = "AntiKt4EMTopoJets.pt > 10*GeV",
                                                                         InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                        ApplyAnd                = True) 
+                                                                        ApplyAnd                = False) 
 ToolSvc += STDM8JetTPThinningTool
 thinningTools.append(STDM8JetTPThinningTool)
 
@@ -169,9 +169,6 @@ STDM8Sequence = CfgMgr.AthSequencer("STDM8Sequence")
 STDM8Sequence += CfgMgr.DerivationFramework__DerivationKernel("STDM8Kernel",
                                                               SkimmingTools = [STDM8SkimmingTool],
                                                               ThinningTools = thinningTools)
-# FIX TRUTH JETS
-if globalflags.DataSource()=='geant4':
-    replaceBuggyAntiKt4TruthWZJets(STDM8Sequence,"STDM8")
 
 # ADD SEQUENCE TO JOB  
 DerivationFrameworkJob += STDM8Sequence
