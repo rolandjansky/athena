@@ -15,6 +15,7 @@
 #include "StoreGate/WriteHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
+#include "AthContainers/ConstDataVector.h"
 
 namespace AthViews {
 
@@ -61,7 +62,7 @@ class RoiCollectionToViews
   // vars
   SG::ReadHandleKey< TrigRoiDescriptorCollection > m_trigRoIs;
   SG::WriteHandleKey< std::vector< SG::View* > > m_w_views;
-  SG::WriteHandleKey< TrigRoiDescriptorCollection > m_viewRoIs;
+  SG::WriteHandleKey< ConstDataVector<TrigRoiDescriptorCollection> > m_viewRoIs;
   std::vector< std::string > m_algorithmNameSequence;
   std::string m_algPoolName;
   std::string m_viewBaseName;
