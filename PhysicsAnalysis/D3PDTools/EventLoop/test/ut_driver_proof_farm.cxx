@@ -21,7 +21,7 @@
 #include <memory>
 #include <TProof.h>
 #include <EventLoop/ProofDriver.h>
-#include <EventLoop/UnitTest.h>
+#include <EventLoopTest/UnitTest.h>
 #include <SampleHandler/MetaFields.h>
 #include <SampleHandler/SampleLocal.h>
 

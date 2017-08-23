@@ -16,11 +16,11 @@
 // includes
 //
 
-#include <EventLoop/UnitTestFixture.h>
+#include <EventLoopTest/UnitTestFixture.h>
 
 #include <EventLoop/Driver.h>
-#include <EventLoop/UnitTestAlg1.h>
-#include <EventLoop/UnitTestConfig.h>
+#include <EventLoopTest/UnitTestAlg1.h>
+#include <EventLoopTest/UnitTestConfig.h>
 #include <RootCoreUtils/Assert.h>
 #include <RootCoreUtils/ThrowMsg.h>
 #include <SampleHandler/DiskWriter.h>

@@ -19,7 +19,7 @@
 
 #include <cstdlib>
 #include <EventLoop/DirectDriver.h>
-#include <EventLoop/UnitTest.h>
+#include <EventLoopTest/UnitTest.h>
 
 #include <EventLoop/ProofDriver.h>
 

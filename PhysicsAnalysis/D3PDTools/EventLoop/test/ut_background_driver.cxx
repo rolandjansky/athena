@@ -18,7 +18,7 @@
 #include <EventLoop/Global.h>
 
 #include <EventLoop/BackgroundDriver.h>
-#include <EventLoop/UnitTest.h>
+#include <EventLoopTest/UnitTest.h>
 
 //
 // main program

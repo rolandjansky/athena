@@ -2,7 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-//          
+#ifndef EVENT_LOOP_TEST_GLOBAL_HH
+#define EVENT_LOOP_TEST_GLOBAL_HH
+
+//          Copyright Nils Krumnack 2011.
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE_1_0.txt or copy at
 //          http://www.boost.org/LICENSE_1_0.txt)
@@ -11,26 +14,12 @@
 // reports, feature suggestions, praise and complaints.
 
 
-//
-// includes
-//
-
-#include <EventLoop/Global.h>
-
-#include <EventLoop/DirectDriver.h>
-#include <EventLoopTest/UnitTest.h>
-
-//
-// main program
-//
-
-using namespace EL;
-
-int main ()
+namespace EL
 {
-  DirectDriver driver;
-  UnitTest ut ("direct");
-  // ut.cleanup = false;
-  // ut.location = "$HOME/unit-test.$$";
-  return ut.run (driver);
+  struct UnitTest;
+  class UnitTestAlg;
+  class UnitTestAlg1;
+  struct UnitTestConfig;
 }
+
+#endif

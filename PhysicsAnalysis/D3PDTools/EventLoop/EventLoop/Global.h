@@ -47,10 +47,6 @@ namespace EL
   class SlurmDriver;
   class StatusCode;
   class TorqueDriver;
-  struct UnitTest;
-  class UnitTestAlg;
-  class UnitTestAlg1;
-  struct UnitTestConfig;
   class Worker;
 }
 

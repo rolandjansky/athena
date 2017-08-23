@@ -18,8 +18,8 @@
 
 #include <AsgTools/MessageCheck.h>
 #include <EventLoop/DirectDriver.h>
-#include <EventLoop/UnitTestConfig.h>
-#include <EventLoop/UnitTestFixture.h>
+#include <EventLoopTest/UnitTestConfig.h>
+#include <EventLoopTest/UnitTestFixture.h>
 #include <gtest/gtest.h>
 
 #ifdef ROOTCORE

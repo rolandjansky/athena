@@ -19,7 +19,7 @@
 
 #include <cstdlib>
 #include <EventLoop/TorqueDriver.h>
-#include <EventLoop/UnitTest.h>
+#include <EventLoopTest/UnitTest.h>
 
 //
 // main program

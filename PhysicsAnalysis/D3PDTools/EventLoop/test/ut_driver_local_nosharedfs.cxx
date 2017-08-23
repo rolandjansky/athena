@@ -19,7 +19,7 @@
 
 #include <EventLoop/Job.h>
 #include <EventLoop/LocalDriver.h>
-#include <EventLoop/UnitTest.h>
+#include <EventLoopTest/UnitTest.h>
 
 //
 // main program

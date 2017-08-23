@@ -15,12 +15,12 @@
 // includes
 //
 
-#include <EventLoop/UnitTest.h>
+#include <EventLoopTest/UnitTest.h>
 
 #include <EventLoop/Driver.h>
 #include <EventLoop/Job.h>
 #include <EventLoop/OutputStream.h>
-#include <EventLoop/UnitTestAlg.h>
+#include <EventLoopTest/UnitTestAlg.h>
 #include <RootCoreUtils/Assert.h>
 #include <RootCoreUtils/ThrowMsg.h>
 #include <SampleHandler/MetaFields.h>

@@ -21,9 +21,10 @@
 
 
 
-#include <EventLoop/Global.h>
+#include <EventLoopTest/Global.h>
 
 #include <string>
+#include <EventLoop/Global.h>
 #include <SampleHandler/SampleHandler.h>
 
 namespace EL

@@ -19,8 +19,8 @@
 #include <AsgTools/MessageCheck.h>
 #include <EventLoop/Job.h>
 #include <EventLoop/LSFDriver.h>
-#include <EventLoop/UnitTestConfig.h>
-#include <EventLoop/UnitTestFixture.h>
+#include <EventLoopTest/UnitTestConfig.h>
+#include <EventLoopTest/UnitTestFixture.h>
 #include <EventLoop/VomsProxySvc.h>
 #include <RootCoreUtils/ShellExec.h>
 #include <SampleHandler/DiskWriterXRD.h>
