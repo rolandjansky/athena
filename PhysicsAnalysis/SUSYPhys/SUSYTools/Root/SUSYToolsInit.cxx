@@ -967,14 +967,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     m_tauSelTool.setTypeAndName("TauAnalysisTools::TauSelectionTool/"+toolName);
     ATH_CHECK( m_tauSelTool.setProperty("ConfigPath", inputfile) );
 
-    ATH_CHECK( m_tauSelTool.setProperty("IgnoreAODFixCheck", true) );
-    ATH_CHECK( m_tauSelTool.setProperty("RecalcEleOLR", false) );
-    if (m_tauRecalcOLR || !m_tauNoAODFixCheck){
-      ATH_MSG_WARNING("Release 21 requires IgnoreAODFixCheck=true and RecalcEleOLR=false (you set IgnoreAODFixCheck="
-                      << m_tauNoAODFixCheck << " and RecalcEleOLR=" << m_tauRecalcOLR << ")");
-      ATH_MSG_WARNING("Please update your settings");
-    }
-
     ATH_CHECK( m_tauSelTool.retrieve() );
   }
 
@@ -991,16 +983,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     toolName = "TauSelectionToolBaseline_" + m_tauIdBaseline;
     m_tauSelToolBaseline.setTypeAndName("TauAnalysisTools::TauSelectionTool/"+toolName);
     ATH_CHECK( m_tauSelToolBaseline.setProperty("ConfigPath", inputfile) );
-
-    if(m_tauRecalcOLR){
-      ATH_CHECK( m_tauSelToolBaseline.setProperty("RecalcEleOLR", true) );
-    }
-    if(m_tauNoAODFixCheck){
-      ATH_CHECK( m_tauSelToolBaseline.setProperty("IgnoreAODFixCheck", true) );
-    }
-
-    ATH_CHECK( m_tauSelToolBaseline.setProperty("IgnoreAODFixCheck", true) );
-    ATH_CHECK( m_tauSelToolBaseline.setProperty("RecalcEleOLR", false) );
 
     ATH_CHECK( m_tauSelToolBaseline.retrieve() );
   }
