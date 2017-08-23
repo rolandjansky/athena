@@ -391,6 +391,10 @@ int TProperty< float >::setFrom( const Property& rhs ) {
       return 1;
    }
 
+   const TProperty< std::string >* sprop = dynamic_cast< const TProperty< std::string >* >( &rhs );
+   if (sprop)
+     return this->setString (*sprop->pointer()).isFailure();
+
    // Try some compatible types:
    TRY_TYPE( float );
    TRY_TYPE( double );
