@@ -424,7 +424,7 @@ namespace EL
     const char* ATLASBUILDBRANCH    = getenv("AtlasBuildBranch");
     // 2017-08-16T2249 (only set if using a nightly release)
     const char* ATLASBUILDSTAMP     = getenv("AtlasBuildStamp");
-    //
+    // <path of build dir>/x86_64-slc6-gcc62-opt
     const char *WORKDIR_DIR         = getenv ("WorkDir_DIR");
 
     // name of tarball being made (this needs to match CondorDriver.cxx)
