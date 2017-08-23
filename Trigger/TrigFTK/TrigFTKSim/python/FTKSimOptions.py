@@ -3,8 +3,16 @@
 import PyJobTransforms.trfExceptions as trfExceptions
 import PyJobTransforms.trfArgClasses as trfArgClasses
 
+
+def addTrigFTKAthenaOptions(parser):
+    parser.defineArgGroup('Athena', 'General Athena Options')
+    parser.add_argument('--asetup', group='Athena', type=trfArgClasses.argFactory(trfArgClasses.argSubstep, runarg=False), nargs='+', metavar='substep:ASETUP',
+                        help='asetup command string to be run before this substep is executed')
+    return None
+
 def addTrigFTKSimOptions(parser,nsubregions=4):
     parser.defineArgGroup('TrigFTKSim', 'Fast tracker simulation generic options')
+
     parser.add_argument('--NBanks', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
                         help='Number of pattern banks', group='TrigFTKSim')
     # Here we set a default value as the merger wants this explicitly
