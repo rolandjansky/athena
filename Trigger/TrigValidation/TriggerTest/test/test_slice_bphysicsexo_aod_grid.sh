@@ -3,6 +3,7 @@
 # art-description: Bphysics and muon slice TriggerTest on MC using Wtaunu_3mu to AOD
 # art-type: grid
 
+export NAME="slice_bphysicsexo_aod_grid"
 export SLICE="mubphysics"
 export INPUT="mubphysics"
 export JOBOPTIONS="testCommonSliceAthenaTrigRDOtoAOD.py"
