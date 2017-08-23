@@ -16,8 +16,7 @@
 // includes
 //
 
-#include <EventLoop/UnitTestConfig.h>
-#include <EventLoop/Global.h>
+#include <EventLoopTest/UnitTestConfig.h>
 
 #include <RootCoreUtils/Assert.h>
 #include <SampleHandler/DiskWriterLocal.h>

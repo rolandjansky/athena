@@ -18,7 +18,7 @@
 #include <EventLoop/Global.h>
 
 #include <EventLoop/LocalDriver.h>
-#include <EventLoop/UnitTest.h>
+#include <EventLoopTest/UnitTest.h>
 #include <SampleHandler/ToolsSplit.h>
 
 //

@@ -15,7 +15,7 @@
 // includes
 //
 
-#include <EventLoop/UnitTestAlg.h>
+#include <EventLoopTest/UnitTestAlg1.h>
 
 #include <EventLoop/Job.h>
 #include <EventLoop/OutputStream.h>
@@ -33,11 +33,11 @@
 // method implementations
 //
 
-ClassImp (EL::UnitTestAlg)
+ClassImp (EL::UnitTestAlg1)
 
 namespace EL
 {
-  void UnitTestAlg ::
+  void UnitTestAlg1 ::
   testInvariant () const
   {
     RCU_INVARIANT (this != 0);
@@ -45,8 +45,8 @@ namespace EL
 
 
 
-  UnitTestAlg ::
-  UnitTestAlg (const std::string& branchName)
+  UnitTestAlg1 ::
+  UnitTestAlg1 (const std::string& branchName)
     : makeOutput (true),
       m_name (branchName),
       m_branch (0),
@@ -60,7 +60,7 @@ namespace EL
 
 
 
-  StatusCode UnitTestAlg ::
+  StatusCode UnitTestAlg1 ::
   setupJob (Job& job)
   {
     RCU_CHANGE_INVARIANT (this);
@@ -70,15 +70,24 @@ namespace EL
       OutputStream out ("out");
       job.outputAdd (out);
     }
+    {
+      OutputStream out ("out_empty");
+      job.outputAdd (out);
+    }
     return StatusCode::SUCCESS;
   }
 
 
 
-  StatusCode UnitTestAlg ::
+  StatusCode UnitTestAlg1 ::
   changeInput (bool firstFile)
   {
     RCU_CHANGE_INVARIANT (this);
+
+    if (firstFile)
+      getCallbacks()->Fill (CB_CHANGE_INPUT_FIRST);
+    else
+      getCallbacks()->Fill (CB_CHANGE_INPUT_OTHER);
 
     RCU_ASSERT (wk()->tree() != 0);
     m_branch = wk()->tree()->GetBranch (m_name.c_str());
@@ -92,10 +101,12 @@ namespace EL
 
 
 
-  StatusCode UnitTestAlg ::
+  StatusCode UnitTestAlg1 ::
   histInitialize ()
   {
     RCU_CHANGE_INVARIANT (this);
+
+    getCallbacks()->Fill (CB_HIST_INITIALIZE);
 
     RCU_ASSERT_SOFT (!m_hasHistInitialize);
 
@@ -107,10 +118,12 @@ namespace EL
 
 
 
-  StatusCode UnitTestAlg ::
+  StatusCode UnitTestAlg1 ::
   initialize ()
   {
     RCU_CHANGE_INVARIANT (this);
+
+    getCallbacks()->Fill (CB_INITIALIZE);
 
     RCU_ASSERT_SOFT (m_hasHistInitialize);
     RCU_ASSERT_SOFT (!m_hasInitialize);
@@ -118,11 +131,11 @@ namespace EL
     RCU_ASSERT_SOFT (wk()->tree()->GetEntries() > wk()->treeEntry());
     RCU_ASSERT_SOFT (m_fileName == wk()->inputFile()->GetName());
 
-    if (wk()->metaData()->castDouble ("jobOpt") != 42)
-      RCU_THROW_MSG ("failed to read meta-data from job options");
+    // if (wk()->metaData()->castDouble ("jobOpt") != 42)
+    //   RCU_THROW_MSG ("failed to read meta-data from job options");
 
-    if (wk()->metaData()->castString ("mymeta") != "test")
-      RCU_THROW_MSG ("failed to read meta-data from worker");
+    // if (wk()->metaData()->castString ("mymeta") != "test")
+    //   RCU_THROW_MSG ("failed to read meta-data from worker");
 
     wk()->addOutput (/*m_hist = */new TH1F (m_name.c_str(), m_name.c_str(),
 					50, 0, 50));
@@ -139,10 +152,12 @@ namespace EL
 
 
 
-  StatusCode UnitTestAlg ::
+  StatusCode UnitTestAlg1 ::
   fileExecute ()
   {
     RCU_CHANGE_INVARIANT (this);
+
+    getCallbacks()->Fill (CB_FILE_EXECUTE);
 
     RCU_ASSERT_SOFT (m_hasHistInitialize);
     hist ("file_executes")->Fill (0);
@@ -151,10 +166,12 @@ namespace EL
 
 
 
-  StatusCode UnitTestAlg ::
+  StatusCode UnitTestAlg1 ::
   execute ()
   {
     RCU_CHANGE_INVARIANT (this);
+
+    getCallbacks()->Fill (CB_EXECUTE);
 
     RCU_ASSERT_SOFT (m_hasInitialize);
 
@@ -172,10 +189,13 @@ namespace EL
 
 
 
-  StatusCode UnitTestAlg ::
+  StatusCode UnitTestAlg1 ::
   finalize ()
   {
     RCU_CHANGE_INVARIANT (this);
+
+    getCallbacks()->Fill (CB_FINALIZE);
+
     RCU_ASSERT_SOFT (m_hasInitialize);
     wk()->addOutput (new TH1F ("beta/dir/hist", "directory test", 10, 0, 10));
     wk()->addOutputList ("alpha", new TObjString ("alpha"));
@@ -184,13 +204,30 @@ namespace EL
 
 
 
-  StatusCode UnitTestAlg ::
+  StatusCode UnitTestAlg1 ::
   histFinalize ()
   {
     RCU_CHANGE_INVARIANT (this);
+
+    getCallbacks()->Fill (CB_HIST_FINALIZE);
+
     RCU_ASSERT_SOFT (m_hasHistInitialize);
     wk()->addOutput (new TH1F ("beta/dir/hist", "directory test", 10, 0, 10));
     wk()->addOutputList ("alpha", new TObjString ("alpha"));
     return StatusCode::SUCCESS;
+  }
+
+
+
+  TH1 *UnitTestAlg1 ::
+  getCallbacks ()
+  {
+    if (m_callbacks == nullptr)
+    {
+      m_callbacks = new TH1F ("callbacks", "callbacks", CB_HIST_FINALIZE + 1,
+			      0, CB_HIST_FINALIZE + 1);
+      wk()->addOutput (m_callbacks);
+    }
+    return m_callbacks;
   }
 }
