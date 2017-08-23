@@ -14,4 +14,6 @@
 #include "xAODTruth/TruthPileupEventContainer.h"
 #include "xAODTruth/TruthPileupEventAuxContainer.h"
 #include "xAODTruth/TruthEventBaseContainer.h"
+#include "xAODTruth/TruthMetaDataContainer.h"
+#include "xAODTruth/TruthMetaDataAuxContainer.h"
 
