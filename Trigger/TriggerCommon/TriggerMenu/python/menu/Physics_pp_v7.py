@@ -220,6 +220,7 @@ def setupMenu():
 
         # Jet data scouting stream chains
         # These record only the trigger jets, but for every event passing the L1 trigger
+        ['j0_perf_ds1_L1J50',      'L1_J50',  [], ['DataScouting_05_Jets'], ['RATE:Jets_DS', 'BW:Jet'], -1],
         ['j0_perf_ds1_L1J75',      'L1_J75',  [], ['DataScouting_05_Jets'], ['RATE:Jets_DS', 'BW:Jet'], -1],
         ['j0_perf_ds1_L1J100',     'L1_J100', [], ['DataScouting_05_Jets'], ['RATE:Jets_DS', 'BW:Jet'], -1],
 
