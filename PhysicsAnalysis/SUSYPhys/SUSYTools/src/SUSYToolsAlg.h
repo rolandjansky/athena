@@ -16,8 +16,10 @@
 #include "TStopwatch.h"
 
 // Need truth matching for TauJet CP tools 
-namespace TauAnalysisTools {
+namespace tauRecTools {
   class IBuildTruthTaus;
+}
+namespace TauAnalysisTools {
   class ITauTruthMatchingTool;
 }
 

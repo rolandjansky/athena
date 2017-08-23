@@ -39,6 +39,8 @@
 // Need truth matching for TauJet CP tools
 namespace TauAnalysisTools {
   class ITauTruthMatchingTool;
+}
+namespace tauRecTools {
   class IBuildTruthTaus;
 }
 
