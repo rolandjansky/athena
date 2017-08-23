@@ -55,6 +55,10 @@ class AODFix_r210(AODFix_base):
                 self.trklinks_postSystemRec(topSequence)
                 pass
 
+            if "btagging" not in oldMetadataList:
+                self.btagging_postSystemRec(topSequence)
+                pass
+
             # Reset all of the ElementLinks. To be safe.
             from AthenaCommon import CfgMgr
             topSequence += \
