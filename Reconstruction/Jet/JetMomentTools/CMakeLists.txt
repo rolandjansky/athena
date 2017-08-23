@@ -29,6 +29,8 @@ if( XAOD_STANDALONE OR XAOD_ANALYSIS )
       Event/xAOD/xAODEventInfo
       Event/xAOD/xAODPFlow
       Tools/PathResolver
+      Control/AthToolSupport/AsgTools
+      Control/xAODRootAccess
       ${extra_deps} )
 else()
    atlas_depends_on_subdirs(
@@ -89,6 +91,16 @@ atlas_add_dictionary( JetMomentToolsDict
 	Root/selection.xml
 	LINK_LIBRARIES JetMomentToolsLib )
 #endif()
+
+if( XAOD_ANALYSIS )
+    atlas_add_executable( JetJvtTools_Example
+			  util/JetJvtTools_Example.cxx
+	 		  INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+			  LINK_LIBRARIES ${ROOT_LIBRARIES}
+			  AsgTools xAODJet JetMomentToolsLib
+			  xAODRootAccess xAODCore
+			  )
+endif()
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

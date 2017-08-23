@@ -141,8 +141,6 @@ int main( int argc, char* argv[] )
   CHECK(TauSelTool->setProperty("ConfigPath", "" ));
   // CHECK(TauSelTool->setProperty("SelectionCuts", int(CutPt|CutMuonOLR|CutEleOLR|CutEleBDTWP|CutJetIDWP) ));
   CHECK(TauSelTool->setProperty("SelectionCuts", int(CutPt|CutMuonOLR|CutJetIDWP) ));
-  CHECK(TauSelTool->setProperty("IgnoreAODFixCheck", true));
-  CHECK(TauSelTool->setProperty("RecalcEleOLR", false));
   CHECK(TauSelTool->initialize());
 
   ToolHandle<TauAnalysisTools::ITauSelectionTool> TauSelToolHandle = TauSelTool;

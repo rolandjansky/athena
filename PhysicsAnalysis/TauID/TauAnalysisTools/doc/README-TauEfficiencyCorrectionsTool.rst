@@ -107,10 +107,10 @@ The tool can be used to retrieve scale factors for a specific
 
    * - ``RecommendationTag``
      - ``std::string``
-     - ``"2017-moriond"``
-     - ``"2016-fall"``, ``"2016-ichep"``, ``"mc15-moriond"``, ``"mc15-pre-recommendations"``, ``"mc12-final"``
+     - ``"mc16-prerec"``
+     - ``"2017-moriond"``, ``"2016-fall"``, ``"2016-ichep"``, ``"mc15-moriond"``, ``"mc15-pre-recommendations"``, ``"mc12-final"``
 
-For the default ``RecommendationTag`` "2017-moriond" the following properties
+For the default ``RecommendationTag`` "mc16-prerec" the following properties
 are available for tool steering:
 
 .. list-table::

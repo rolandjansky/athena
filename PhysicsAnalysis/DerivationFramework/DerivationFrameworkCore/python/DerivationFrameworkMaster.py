@@ -85,7 +85,11 @@ if globalflags.DataSource()=='geant4':
     jetFlags.useTruth = True
     DerivationFrameworkIsMonteCarlo = True
     try:
-        DerivationFrameworkSimBarcodeOffset = int(inputFileSummary['metadata']['/Simulation/Parameters']['SimBarcodeOffset'])
+        # Extra config: make sure if we are using EVNT that we don't try to check sim metadata 
+        from RecExConfig.ObjKeyStore import objKeyStore
+        # Make sure input file is not EVNT
+        if not objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ):
+            DerivationFrameworkSimBarcodeOffset = int(inputFileSummary['metadata']['/Simulation/Parameters']['SimBarcodeOffset'])
     except:
         print 'Could not retrieve SimBarcodeOffset from /Simulation/Parameters, leaving at 200k'
 

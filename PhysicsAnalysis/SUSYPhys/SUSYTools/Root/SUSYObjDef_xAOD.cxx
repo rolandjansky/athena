@@ -16,6 +16,10 @@
 #include "AthAnalysisBaseComps/AthAnalysisHelper.h"
 #endif
 
+// Need path resolver for initialize()
+#include "PathResolver/PathResolver.h"
+
+// Including all the abstract interfaces - for systematics functions
 #include "xAODBTaggingEfficiency/IBTaggingEfficiencyTool.h"
 #include "xAODBTaggingEfficiency/IBTaggingSelectionTool.h"
 
@@ -25,8 +29,9 @@
 #include "JetCalibTools/IJetCalibrationTool.h"
 #include "JetCPInterfaces/ICPJetUncertaintiesTool.h"
 #include "JetInterface/IJetUpdateJvt.h"
-#include "JetMomentTools/JetForwardJvtTool.h"
 #include "JetInterface/IJetModifier.h"
+#include "JetInterface/ISingleJetModifier.h"
+#include "JetJvtEfficiency/IJetJvtEfficiency.h"
 
 #include "AsgAnalysisInterfaces/IEfficiencyScaleFactorTool.h"
 #include "ElectronPhotonFourMomentumCorrection/IEgammaCalibrationAndSmearingTool.h"
@@ -47,7 +52,7 @@
 #include "TauAnalysisTools/ITauTruthMatchingTool.h"  
 #include "TauAnalysisTools/ITauEfficiencyCorrectionsTool.h"
 #include "TauAnalysisTools/ITauOverlappingElectronLLHDecorator.h"
-#include "tauRecTools/TauWPDecorator.h"
+#include "tauRecTools/ITauToolBase.h"
 
 #include "PhotonEfficiencyCorrection/IAsgPhotonEfficiencyCorrectionTool.h"
 
@@ -59,24 +64,21 @@
 #include "METInterface/IMETSystematicsTool.h"
 
 #include "TrigConfInterfaces/ITrigConfigTool.h"
+#include "TriggerMatchingTool/IMatchingTool.h"
+// Required to use some functions (see header explanation)
 #include "TrigDecisionTool/TrigDecisionTool.h"
-#include "TriggerMatchingTool/MatchingTool.h"
 
-// Tool interfaces
 #include "PATInterfaces/IWeightTool.h"
-//
-//#include "PileupReweighting/IPileupReweightingTool.h"
 #include "AsgAnalysisInterfaces/IPileupReweightingTool.h"
-//
-#include "PathResolver/PathResolver.h"
-//
 #include "AssociationUtils/IOverlapRemovalTool.h"
 
 // Helpers
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include "THashList.h"
-//#include <boost/tokenizer.hpp>
+
+// system includes
+#include <fstream>
 
 namespace ST {
 
@@ -235,8 +237,8 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_jetFwdJvtTool(""),
     m_jetJvtEfficiencyTool(""),
     //
-    m_WTaggerTool(0),
-    m_ZTaggerTool(0),
+    m_WTaggerTool(""),
+    m_ZTaggerTool(""),
     //
     m_muonSelectionTool(""),
     m_muonSelectionHighPtTool(""),
@@ -2245,15 +2247,6 @@ SUSYObjDef_xAOD::~SUSYObjDef_xAOD() {
   // so that they don't get re-used if we set up another SUSYTools
   // instance, e.g. when processing two datasets in one EventLoop
   // job
-
-  if(m_WTaggerTool){
-    delete m_WTaggerTool;
-    m_WTaggerTool=0;
-  }
-  if(m_ZTaggerTool){
-    delete m_ZTaggerTool;
-    m_ZTaggerTool=0;
-  }
   if (!m_trigDecTool.empty()){
     if (asg::ToolStore::contains<Trig::TrigDecisionTool>("ToolSvc.TrigDecisionTool") ){
       // Ignore both of these so that we are safe if others have cleaned up

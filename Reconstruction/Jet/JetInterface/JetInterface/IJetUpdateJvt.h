@@ -27,7 +27,7 @@ public:
   ///   scale - name of the jet scale holding the original pT
   /// The new value for JVT is returned.
   virtual float updateJvt(const xAOD::Jet& jet, std::string sjvt = "Jvt",
-                          std::string scale ="JetPileupScaleMomentum") const =0;
+                          std::string scale ="JetEtaJESScaleMomentum") const =0;
 
 };
 
