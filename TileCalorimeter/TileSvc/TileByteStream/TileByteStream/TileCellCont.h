@@ -97,7 +97,6 @@ private:
 	std::map<unsigned int, unsigned int> m_mapMBTS;
 	int m_MBTS_channel;
 	std::vector<int> m_masked;
-	unsigned int m_forceRun;
         /** map Hash ID to ROD */
         const TileHid2RESrcID* m_src;
   
