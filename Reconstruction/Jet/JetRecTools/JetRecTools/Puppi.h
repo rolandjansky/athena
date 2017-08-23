@@ -4,8 +4,6 @@
 #ifndef JETRECTOOLS_PUPPI_h
 #define JETRECTOOLS_PUPPI_h
 
-using namespace std;
-
 //This class can be used to pass in otherchi2 values for each PFO
 class PuppiUserInfo: public fastjet::PseudoJet::UserInfoBase{
  public:
