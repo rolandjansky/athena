@@ -1,6 +1,8 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-#file to parse log files for rate compilation. Instructions are in compileRPVLLRates.py
+# file to parse log files for rate compilation
+# instructions can be found in compileRPVLLRates.py
+# receives two arguments: output file + input directory containing log files to be parsed
 
 from os import listdir
 from os.path import isfile, join
@@ -9,6 +11,7 @@ import sys
 
 text_file = open(sys.argv[1], "w")
 mypath = sys.argv[2]
+# get list of log files w/in directory passed as argument
 onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
 
 print 'About to loop through files!'
@@ -24,8 +27,8 @@ for f in onlyfiles:
     openFile = open(mypath+f)
   print f
   for line in openFile:
-    #this line will need to be changed for "RAWtoALL"
-    if re.match('RAWtoESD.*RPVLL.*Events',line) or re.match('RAWtoESD.*BSESOutputSvcStreamDRAW_RPVLL.*events',line):
+    # changed from 'RAWtoESD' to 'RAWtoALL' in R21
+    if re.match('RAWtoALL.*RPVLL.*Events',line) or re.match('RAWtoALL.*BSESOutputSvcStreamDRAW_RPVLL.*events',line):
       if badName: 
 	text_file.write('.'.join(f.split('.')[3:16]) + ':' + line)
       else: 	

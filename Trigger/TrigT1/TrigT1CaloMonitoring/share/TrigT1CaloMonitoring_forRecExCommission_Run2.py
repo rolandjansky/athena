@@ -4,6 +4,7 @@
 #
 # @authors Johanna Fleckner, Andrea Neusiedl, Peter Faulkner
 #
+
 if not 'DQMonFlags' in dir():
     print "TrigT1CaloMonitoring_forRecExCommission.py: DQMonFlags not yet imported - I import them now"
     from AthenaMonitoring.DQMonFlags import DQMonFlags
@@ -159,11 +160,15 @@ if l1caloRawMon:
             PPMSimBSMonTool = LVL1__PPMSimBSMon("PPMSimBSMonTool")
             ToolSvc += PPMSimBSMonTool
             L1CaloMan.AthenaMonTools += [PPMSimBSMonTool]
-            #ToolSvc.PPMSimBSMonTool.OutputLevel = DEBUG
+            #ToolSvc.PPMSimBSMonTool.OutputLevel = VERBOSE
             from TrigT1CaloTools.TrigT1CaloToolsConf import LVL1__L1TriggerTowerTool
             L1TriggerTowerTool = LVL1__L1TriggerTowerTool("L1TriggerTowerTool")
             ToolSvc += L1TriggerTowerTool
-            #ToolSvc.L1TriggerTowerTool.OutputLevel = DEBUG
+            from TrigT1CaloCondSvc.TrigT1CaloCondSvcConf import L1CaloCondSvc
+            ServiceMgr += L1CaloCondSvc()
+            from IOVDbSvc.CondDB import conddb
+            conddb.addFolderWithTag("TRIGGER","/TRIGGER/L1Calo/V1/Conditions/RunParameters","HEAD")
+
 
             #--------------------------------- PPM Spare Channels--------------
             from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__PPrSpareMon

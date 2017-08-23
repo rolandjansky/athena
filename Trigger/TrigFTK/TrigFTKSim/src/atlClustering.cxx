@@ -53,6 +53,16 @@ const bool DEBUG_INPUT    = 0; // detail check input
 const bool DEBUG_DECODER  = 0; // check decoder output
 const bool DEBUG_CENTROID = 0; // check centroid calc.
 
+/*
+  Keisuke implemented 20170714
+  This is the test version for IBL 3D centroid calc.
+  Default value is "false".
+  If this boolean is "true", you can get the same IBL 3D centorid as the FTK_IM FW.
+
+  20170722 changed to the job option.
+*/
+//const bool IBL3D_REALISTIC = false;
+
 const unsigned int MOD_ID_PHI_VAL  = 1;
 const unsigned int MOD_ID_PHI_MASK = 100;
 const unsigned int MOD_ID_ETA_VAL  = MOD_ID_PHI_MASK;
@@ -70,6 +80,7 @@ bool SAVE_CLUSTER_CONTENT;
 bool DIAG_CLUSTERING;
 bool SCT_CLUSTERING;
 int PIXEL_CLUSTERING_MODE;
+bool IBL3D_REALISTIC;
 bool DUPLICATE_GANGED;
 bool GANGED_PATTERN_RECOGNITION;
 bool SPLIT_BLAYER_MODULES;
@@ -997,6 +1008,7 @@ void averageCluster(cluster &clu) {
     // always count IBL as layer0 and BLayer as layer1
     int layer = first->getLayer();
     bool isIBLmodule  = hitOnIBLmodule(*first);
+    bool isIBL_Planar = false; //Keisuke 20170712
     bool isPixelmodule = !isIBLmodule;
     if (FTKSetup::getFTKSetup().getIBLMode()==0)
         layer++; 
@@ -1023,9 +1035,12 @@ void averageCluster(cluster &clu) {
         pixYScaleFactor = ftk::clustering::yScaleFactorIbl; ///<multiply by 10 to count in unit of 25um
         pixXScaleFactor = ftk::clustering::xScaleFactorIbl;
         etaModule = first->getEtaModule()-8;
-        //float sensorThickness = 230*micrometer; // 3D sensors
-        //pixelModuleActiveLength = 80*0.25;  // 3D sesors ???
-        //numberOfEtaPixelsInModule = 80; // 3D sesors ???
+	isIBL_Planar = (first->getEtaModule() >= -6 && first->getEtaModule() <= 5 ? true : false); //Keisuke 20170712
+	if(!isIBL_Planar && IBL3D_REALISTIC){ //for 3D
+	  float sensorThickness = 230*ftk::micrometer; // 3D sensors
+	  moduleActiveLength = 80*250;  // 3D sesors
+	  numberOfEtaPixelsInModule = 80; // 3D sesors
+	}
     }
     bool hasGanged = false;
 
@@ -1182,17 +1197,19 @@ void averageCluster(cluster &clu) {
                     int orig_col = col;
                     col *= pixYScaleFactor; // use units of 25um
                     col += pixYScaleFactor/2; // add half a pixel to align to pixel center
-                    if (orig_col==0) col += pixYScaleFactor/2; // add half pixel (500um pixel in col0)
-                    if (orig_col>0) col += pixYScaleFactor; // add a pixel (500um pixel in col0)
+		    if((isIBL_Planar && IBL3D_REALISTIC) || !IBL3D_REALISTIC){
+		      if (orig_col==0) col += pixYScaleFactor/2; // add half pixel (500um pixel in col0)
+		      if (orig_col>0) col += pixYScaleFactor; // add a pixel (500um pixel in col0)
 
-                    // for 3D modules only
-                    // if (orig_col==79) col += pixYScaleFactor*5/10; // add 5/10 of pixel i.e. 100um (500um pixel in col79)
+		      // for 3D modules only
+		      // if (orig_col==79) col += pixYScaleFactor*5/10; // add 5/10 of pixel i.e. 100um (500um pixel in col79)
 
-                    // for planar modules only
-                    if (orig_col==79) col += pixYScaleFactor*4/10; // add 4/10 of pixel i.e. 100um (450um pixel in col79)
-                    if (orig_col==80) col += pixYScaleFactor*12/10; // add 12/10 of pixel i.e. 300um (450um pixel in col79 and col80)
-                    if (orig_col>80) col += pixYScaleFactor*16/10; // add 16/10 of pixel i.e. 400um (450um pixel in col79 and col80)
-                    if (orig_col==159) col += pixYScaleFactor/2; // add half pixel (500um pixel in col159)
+		      // for planar modules only
+		      if (orig_col==79) col += pixYScaleFactor*4/10; // add 4/10 of pixel i.e. 100um (450um pixel in col79)
+		      if (orig_col==80) col += pixYScaleFactor*12/10; // add 12/10 of pixel i.e. 300um (450um pixel in col79 and col80)
+		      if (orig_col>80) col += pixYScaleFactor*16/10; // add 16/10 of pixel i.e. 400um (450um pixel in col79 and col80)
+		      if (orig_col==159) col += pixYScaleFactor/2; // add half pixel (500um pixel in col159)
+		    }
                 }
                 row *= pixXScaleFactor;
 

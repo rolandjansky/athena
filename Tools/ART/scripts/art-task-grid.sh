@@ -49,9 +49,11 @@ if [ ${SKIP_SETUP} -eq 0 ]; then
 
     export RUCIO_ACCOUNT=artprod
 
-    lsetup panda
-
     voms-proxy-init --rfc -noregen -cert ./grid.proxy -voms atlas
+
+    lsetup "panda 0.5.85"
+
+    lsetup rucio
 
     asetup --platform=${PLATFORM} ${NIGHTLY_RELEASE_SHORT},${NIGHTLY_TAG},${PROJECT}
 
@@ -60,7 +62,7 @@ fi
 # NOTE: for art-internal.py the current dir can be used as it is copied there
 cd ${SUBMIT_DIRECTORY}/${PACKAGE}/run
 OUTFILE="user.${USER}.atlas.${NIGHTLY_RELEASE_SHORT}.${PROJECT}.${PLATFORM}.${NIGHTLY_TAG}.${SEQUENCE_TAG}.${PACKAGE}"
-CMD="pathena --noBuild --skipScout --trf \"./art-internal.py job grid ${SCRIPT_DIRECTORY} ${PACKAGE} ${TYPE} ${SEQUENCE_TAG} %RNDM:0 %OUT.tar ${NIGHTLY_RELEASE_SHORT} ${PROJECT} ${PLATFORM} ${NIGHTLY_TAG}\" --split ${NUMBER_OF_TESTS} --outDS ${OUTFILE}"
+CMD="pathena --excludedSite=ANALY_TECHNION-HEP-CREAM --disableAutoRetry --noBuild --skipScout --trf \"./art-internal.py job grid ${SCRIPT_DIRECTORY} ${PACKAGE} ${TYPE} ${SEQUENCE_TAG} %RNDM:0 %OUT.tar ${NIGHTLY_RELEASE_SHORT} ${PROJECT} ${PLATFORM} ${NIGHTLY_TAG}\" --split ${NUMBER_OF_TESTS} --outDS ${OUTFILE}"
 #--site=ANALY_NIKHEF-ELPROD_SHORT,ANALY_NIKHEF-ELPROD"
 #--site=ANALY_FZK,ANALY_BNL,ANALY_RAL"
 echo ${CMD}
