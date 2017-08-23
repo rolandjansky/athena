@@ -62,32 +62,15 @@ namespace EL
   {
     RCU_READ_INVARIANT (this);
 
-#ifdef USE_CMAKE
-    const char* AB_SETUP = getenv("AnalysisBase_SET_UP");
-    const char* AT_SETUP = getenv("AnalysisTop_SET_UP");
-    bool rel_AnalysisBase(false);
-    bool rel_AnalysisTop(false);
-    if(AB_SETUP) rel_AnalysisBase = strcmp(AB_SETUP, "1") == 0;
-    if(AT_SETUP) rel_AnalysisBase = strcmp(AT_SETUP, "1") == 0;
-    if(rel_AnalysisBase && rel_AnalysisTop) RCU_THROW_MSG("AnalysisBase_SET_UP and AnalysisTop_SET_UP both seem to be set to 1.");
-    if(!rel_AnalysisBase && !rel_AnalysisTop) RCU_THROW_MSG("AnalysisBase_SET_UP and AnalysisTop_SET_UP both seem to be set to 0.");
-
-    const char *ANALYSIS_PLATFORM = nullptr;
-    if(rel_AnalysisBase) ANALYSIS_PLATFORM = getenv ("AnalysisBase_PLATFORM");
-    if(rel_AnalysisTop)  ANALYSIS_PLATFORM = getenv ("AnalysisTop_PLATFORM");
-#endif
+    // name of tarball being made (this needs to match BatchDriver.cxx)
+    const std::string tarballName("AnalysisPackage.tar.gz");
 
     if(!options.castBool(Job::optBatchSharedFileSystem,true))
     {
-#ifndef USE_CMAKE
-      const std::string fileName_tarball = "RootCore.par";
-#else
-      const std::string fileName_tarball = ANALYSIS_PLATFORM + std::string(".tar.gz");
-#endif
-      const std::string newLocation = location + "/submit/" + fileName_tarball;
-      int status=gSystem->CopyFile(fileName_tarball.c_str(),newLocation.c_str());
+      const std::string newLocation = location + "/submit/" + tarballName;
+      int status=gSystem->CopyFile(tarballName.c_str(),newLocation.c_str());
       if(status != 0)
-      RCU_THROW_MSG( ("failed to copy " + fileName_tarball + " to " + newLocation).c_str() );
+      RCU_THROW_MSG( ("failed to copy " + tarballName + " to " + newLocation).c_str() );
     }
 
     {
@@ -102,11 +85,7 @@ namespace EL
 	{ // Transfer data with non-shared file-systems
 	  file << "should_transfer_files   = YES\n";
 	  file << "when_to_transfer_output = ON_EXIT\n";
-#ifndef USE_CMAKE
-	  file << "transfer_input_files    = submit/RootCore.par, submit/segments, submit/config.root\n";
-#else
-	  file << "transfer_input_files    = submit/" << ANALYSIS_PLATFORM << ".tar.gz, submit/segments, submit/config.root\n";
-#endif
+	  file << "transfer_input_files    = submit/" << tarballName << ", submit/segments, submit/config.root\n";
 	  file << "transfer_output_files   = fetch\n";
 	  file << "x509userproxy           = " << gSystem->Getenv("X509_USER_PROXY") <<"\n";
 	}
