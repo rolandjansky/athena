@@ -77,7 +77,7 @@ namespace EL
 
 
 
-  StatusCode AnaAlgorithmConfig ::
+  ::StatusCode AnaAlgorithmConfig ::
   makeAlgorithm (std::unique_ptr<AnaAlgorithm>& algorithm) const
   {
     RCU_READ_INVARIANT (this);

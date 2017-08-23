@@ -81,7 +81,7 @@ namespace EL
     ///   could not convert to string\n
     ///   out of memory II
   public:
-    template<typename T> StatusCode
+    template<typename T> ::StatusCode
     setProperty (const std::string& name, const T& value);
 
 
@@ -92,7 +92,7 @@ namespace EL
     ///   configuration errors\n
     ///   algorithm creation/initialization errors
   public:
-    StatusCode makeAlgorithm (std::unique_ptr<AnaAlgorithm>& algorithm) const;
+    ::StatusCode makeAlgorithm (std::unique_ptr<AnaAlgorithm>& algorithm) const;
 
 
 
