@@ -20,7 +20,6 @@
 
 #include "AthenaKernel/IIOVSvc.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/ReadHandleKey.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "PersistentDataModel/AthenaAttributeList.h"
 
@@ -87,7 +86,6 @@ class CondInputLoader
   ServiceHandle<IIOVSvc> m_IOVSvc;
   
   std::map<std::string,std::string> m_keyFolderMap;
-  SG::ReadHandleKey<AthenaAttributeList> m_inputKey;
 }; 
 
 

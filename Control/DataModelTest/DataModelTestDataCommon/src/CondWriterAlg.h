@@ -16,17 +16,21 @@
 
 
 #include "EventInfo/EventInfo.h"
-#include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "RegistrationServices/IIOVRegistrationSvc.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+
+
+class IAthenaOutputStreamTool;
 
 
 namespace DMTest {
 
 
 class CondWriterAlg
-  : public AthReentrantAlgorithm
+  : public AthAlgorithm
 {
 public:
   /**
@@ -46,13 +50,17 @@ public:
   /**
    * @brief Algorithm event processing.
    */
-  virtual StatusCode execute_r (const EventContext& ctx) const override;
+  virtual StatusCode execute() override;
 
 
 private:
+  StatusCode writeSCond (unsigned int count);
+
   ServiceHandle<IIOVRegistrationSvc> m_regSvc;
+  ToolHandle<IAthenaOutputStreamTool> m_streamer;
   SG::ReadHandleKey<EventInfo> m_eventInfoKey;
   std::string m_attrListKey;
+  std::string m_s2Key;
 };
 
 
