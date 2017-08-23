@@ -24,6 +24,11 @@
 + Event/xAOD/xAODTriggerCnv
 + Event/xAOD/xAODTrackingCnv
 + Event/xAOD/xAODEventFormatCnv
+
+# Just for AthAnalysis, also include xAODTruthCnv
+# This is for EVNT support (allows otf conversion to xAOD-format)
++ Event/xAOD/xAODTruthCnv
+
 - Event/xAOD/.*Cnv
 + Event/xAOD/.*
 
