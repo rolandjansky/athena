@@ -59,6 +59,7 @@
 + Database/PersistentDataModel.*
 + Database/RegistrationServices
 + Database/TPTools
++ Database/AthenaRoot/.*
 
 # DQ package(s):
 + DataQuality/GoodRunsLists
