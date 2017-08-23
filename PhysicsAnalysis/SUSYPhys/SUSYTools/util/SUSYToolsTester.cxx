@@ -51,7 +51,7 @@
 #include "xAODMissingET/MissingETAuxContainer.h"
 #include "xAODBase/IParticleHelpers.h"
 #include "xAODTruth/xAODTruthHelpers.h"
-#include "GoodRunsLists/GoodRunsListSelectionTool.h"
+#include "AsgAnalysisInterfaces/IGoodRunsListSelectionTool.h"
 
 // Local include(s):
 #include "SUSYTools/SUSYObjDef_xAOD.h"
@@ -62,6 +62,7 @@
 #include "PATInterfaces/SystematicCode.h"
 #include "PATInterfaces/CorrectionCode.h"
 #include "PathResolver/PathResolver.h"
+#include "AsgTools/AnaToolHandle.h"
 
 #include "xAODCutFlow/CutBookkeeper.h"
 #include "xAODCutFlow/CutBookkeeperContainer.h"
@@ -243,18 +244,19 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
 
 
   // GRL tool
-  GoodRunsListSelectionTool *m_grl(0);
+  asg::AnaToolHandle<IGoodRunsListSelectionTool> m_grl;
   if (isData) {
-    m_grl = new GoodRunsListSelectionTool("GoodRunsListSelectionTool");
+    m_grl.setTypeAndName("GoodRunsListSelectionTool/grl");
+    m_grl.isUserConfigured();
     std::vector<std::string> myGRLs;
     myGRLs.push_back(PathResolverFindCalibFile("GoodRunsLists/data15_13TeV/20160720/physics_25ns_20.7.xml"));
     myGRLs.push_back(PathResolverFindCalibFile("GoodRunsLists/data16_13TeV/20161101/physics_25ns_20.7.xml"));
 
-    ANA_CHECK( m_grl->setProperty("GoodRunsListVec", myGRLs) );
-    ANA_CHECK( m_grl->setProperty("PassThrough", false) );
-    ANA_CHECK( m_grl->initialize() );
+    ANA_CHECK( m_grl.setProperty("GoodRunsListVec", myGRLs) );
+    ANA_CHECK( m_grl.setProperty("PassThrough", false) );
+    ANA_CHECK( m_grl.retrieve() );
 
-    Info( APP_NAME, "GRL tool initialized... " );
+    Info( APP_NAME, "GRL tool retrieve & initialized... " );
   }
 
   //xsec DB
@@ -860,6 +862,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
       for (const auto& jet : *jets) {
         if (jet->auxdata<char>("baseline") == 1  &&
             jet->auxdata<char>("passOR") == 1  &&
+	    jet->auxdata<char>("signal") == 1  &&
             jet->pt() > 20000.  && ( fabs( jet->eta()) < 2.5) ) {
           goodJets->push_back(jet);
         }
