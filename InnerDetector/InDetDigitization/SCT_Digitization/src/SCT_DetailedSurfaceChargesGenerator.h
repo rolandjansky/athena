@@ -189,7 +189,7 @@ private:
   double m_stripCharge_dy;
   
   //ToolHandles
-  ToolHandle<ISCT_ModuleDistortionsTool> m_distortionsTool;
+  ToolHandle<ISCT_ModuleDistortionsTool> m_distortionsTool{this, "SCTDistortionsTool", "SCT_DistortionsTool", "Tool to retrieve SCT distortions"};
   //ServiceHandles
   ServiceHandle<ISiliconConditionsSvc> m_siConditionsSvc;
   ServiceHandle<ISiPropertiesSvc> m_siPropertiesSvc;

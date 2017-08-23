@@ -124,7 +124,7 @@ class  SCT_FrontEnd : public AthAlgTool, virtual public ISCT_FrontEnd {
   StatusCode                          m_sc;               //!< Help variable to take care of returned status codes
   const InDetDD::SCT_DetectorManager* m_SCTdetMgr;        //!< Handle to SCT detector manager
   const SCT_ID*                       m_sct_id;           //!< Handle to SCT ID helper
-  ToolHandle<ISCT_Amp> m_sct_amplifier;                   //!< Handle the Amplifier tool 
+  ToolHandle<ISCT_Amp> m_sct_amplifier{this, "SCT_Amp", "SCT_Amp", "Handle the Amplifier tool"}; //!< Handle the Amplifier tool
   ServiceHandle<ISCT_ReadCalibChipDataSvc> m_ReadCalibChipDataSvc; //!< Handle to the Calibration ConditionsService
 
   CLHEP::HepRandomEngine   *m_rndmEngine;        //!< Random number generation engine 
