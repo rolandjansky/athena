@@ -49,7 +49,8 @@ namespace EL
   setupJob (Job& job)
   {
     RCU_CHANGE_INVARIANT (this);
-    job.useXAOD ();
+    if (m_config.useXAODs())
+      job.useXAOD ();
     return StatusCode::SUCCESS;
   }
 
@@ -61,11 +62,22 @@ namespace EL
     ANA_CHECK_SET_TYPE (EL::StatusCode);
     RCU_READ_INVARIANT (this);
     ANA_CHECK (m_config.makeAlgorithm (m_algorithm));
-    m_algorithm->setEvtStore (evtStore ());
     m_algorithm->setHistogramWorker (wk ());
     m_algorithm->setFilterWorker (wk ());
     m_algorithm->setWk (wk ());
     ANA_CHECK (m_algorithm->sysInitialize());
+    return StatusCode::SUCCESS;
+  }
+
+
+
+  StatusCode AnaAlgorithmWrapper ::
+  initialize ()
+  {
+    ANA_CHECK_SET_TYPE (EL::StatusCode);
+    RCU_READ_INVARIANT (this);
+    if (m_config.useXAODs())
+      m_algorithm->setEvtStore (evtStore ());
     return StatusCode::SUCCESS;
   }
 

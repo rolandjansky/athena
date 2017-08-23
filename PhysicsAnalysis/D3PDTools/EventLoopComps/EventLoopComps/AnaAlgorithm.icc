@@ -13,6 +13,7 @@
 //
 
 #include <AsgTools/PropertyMgr.h>
+#include <AsgTools/StatusCode.h>
 #include <AsgTools/TProperty.h>
 #include <utility>
 
@@ -31,7 +32,7 @@ namespace EL
 
 
 
-  template<typename T> StatusCode AnaAlgorithm ::
+  template<typename T> ::StatusCode AnaAlgorithm ::
   setProperty (const std::string& name, T&& value)
   {
     return m_properties->setProperty (name, std::forward<T>(value));

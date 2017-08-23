@@ -198,7 +198,7 @@ namespace EL
     ///   out of memory II\n
     ///   invalid property type
   public:
-    template<typename T> StatusCode
+    template<typename T> ::StatusCode
     setProperty (const std::string& name, T&& value);
 
 
