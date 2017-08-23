@@ -22,7 +22,7 @@
 
 namespace EL
 {
-  template<typename T> StatusCode AnaAlgorithmConfig ::
+  template<typename T> ::StatusCode AnaAlgorithmConfig ::
   setProperty (const std::string& name, const T& value)
   {
     using namespace asg::msgProperty;
@@ -30,6 +30,6 @@ namespace EL
     std::string valueString;
     ANA_CHECK (asg::detail::GetStringHelper<T>::get (value, valueString));
     m_propertyValues[name] = std::move (valueString);
-    return StatusCode::SUCCESS;
+    return ::StatusCode::SUCCESS;
   }
 }

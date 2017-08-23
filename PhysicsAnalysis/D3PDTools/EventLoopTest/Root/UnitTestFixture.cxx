@@ -18,7 +18,9 @@
 
 #include <EventLoopTest/UnitTestFixture.h>
 
+#include <AsgTools/MessageCheck.h>
 #include <EventLoop/Driver.h>
+#include <EventLoopComps/AnaAlgorithmConfig.h>
 #include <EventLoopTest/UnitTestAlg1.h>
 #include <EventLoopTest/UnitTestConfig.h>
 #include <RootCoreUtils/Assert.h>
@@ -154,6 +156,9 @@ namespace EL
   std::string UnitTestFixture ::
   getJob ()
   {
+    using namespace asg::msgUserCode;
+    ANA_MSG_INFO ("in EventLoopTest");
+
     std::shared_ptr<Driver> driver = GetParam().m_driver;
     auto iter = m_jobs.find (driver);
     if (iter != m_jobs.end())
@@ -162,6 +167,13 @@ namespace EL
     Job job;
     job.sampleHandler (getSH());
     GetParam().setupJob (job);
+    {
+      EL::AnaAlgorithmConfig config;
+      config.setType ("EL::UnitTestAlg2");
+      config.setName ("newAlg");
+      ANA_CHECK_THROW (config.setProperty ("property", 42));
+      job.algsAdd (config);
+    }
     {
       std::unique_ptr<UnitTestAlg1> alg (new UnitTestAlg1);
       job.algsAdd (alg.release());
@@ -296,6 +308,13 @@ namespace EL
   TEST_P (UnitTestFixture, null_fileExecuted)
   {
     checkFileExecuted ("null");
+  }
+
+
+
+  TEST_P (UnitTestFixture, null_property)
+  {
+    ASSERT_EQ (getHist<TH1> ("null", "test_property", true)->GetBinContent(1), 42);
   }
 
 
