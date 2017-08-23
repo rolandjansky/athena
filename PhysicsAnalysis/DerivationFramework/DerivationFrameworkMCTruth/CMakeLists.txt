@@ -18,6 +18,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODBase
                           Event/xAOD/xAODJet
                           Generators/GeneratorObjects
+                          Generators/HepMCWeightSvc
                           PhysicsAnalysis/CommonTools/ExpressionEvaluation
                           PhysicsAnalysis/MCTruthClassifier )
 
@@ -34,12 +35,12 @@ atlas_add_library( DerivationFrameworkMCTruthLib
                    INCLUDE_DIRS ${HEPPDT_INCLUDE_DIRS} ${FASTJET_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES ${HEPPDT_LIBRARIES} ${FASTJET_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps xAODEventInfo xAODTruth GaudiKernel SGtests ExpressionEvaluationLib MCTruthClassifierLib
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel EventInfo xAODBase xAODJet GeneratorObjects )
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel EventInfo xAODBase xAODJet GeneratorObjects HepMCWeightSvc )
 
 atlas_add_component( DerivationFrameworkMCTruth
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${FASTJET_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPPDT_LIBRARIES} ${FASTJET_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps xAODEventInfo xAODTruth GaudiKernel AthenaKernel SGtests EventInfo xAODBase xAODJet GeneratorObjects ExpressionEvaluationLib MCTruthClassifierLib DerivationFrameworkMCTruthLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPPDT_LIBRARIES} ${FASTJET_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps xAODEventInfo xAODTruth GaudiKernel AthenaKernel SGtests EventInfo xAODBase xAODJet GeneratorObjects ExpressionEvaluationLib MCTruthClassifierLib DerivationFrameworkMCTruthLib HepMCWeightSvc )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
