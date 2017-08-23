@@ -24,6 +24,13 @@
 #include "TrigT1Interfaces/FrontPanelCTP.h"
 #include "TrigT1CaloEvent/EmTauROI_ClassDEF.h"
 
+#include "L1TopoRDO/BlockTypes.h"
+#include "L1TopoRDO/Header.h"
+#include "L1TopoRDO/Helpers.h"
+#include "L1TopoRDO/L1TopoTOB.h"
+#include "L1TopoRDO/L1TopoRDOCollection.h"
+
+
 // #include "TrigSteering/Scaler.h"
 #include "./PeriodicScaler.h"
 
@@ -78,12 +85,15 @@ L1TopoSimulation::L1TopoSimulation(const std::string &name, ISvcLocator *pSvcLoc
    declareProperty( "MonHistBaseDir", m_histBaseDir = "L1TopoAlgorithms", "Base directory for monitoring histograms will be /EXPERT/<MonHistBaseDir>" );
    declareProperty( "EnableInputDump", m_enableInputDump, "Boolean to enable writing of input data for standalone running");
    declareProperty( "UseBitwise", m_enableBitwise, "Boolean to enable the bitwise version of software algorithms");
+   declareProperty("FillHistoBasedOnHardware", m_fillHistogramsBasedOnHardwareDecision=true,
+                   "Boolean to fill accept/reject histograms based on hdw; default based on sim");
    declareProperty( "InputDumpFile", m_inputDumpFile, "File name for dumping input data");
    declareProperty( "TopoCTPLocation", m_topoCTPLocation = LVL1::DEFAULT_L1TopoCTPLocation, "StoreGate key of topo decision output for CTP" );
    declareProperty( "TopoOverflowCTPLocation", m_topoOverflowCTPLocation = LVL1::DEFAULT_L1TopoOverflowCTPLocation, "StoreGate key of topo overflow output for CTP" );
    declareProperty( "TopoOutputLevel", m_topoOutputLevel, "OutputLevel for L1Topo algorithms" );
    declareProperty( "TopoSteeringOutputLevel", m_topoSteeringOutputLevel, "OutputLevel for L1Topo steering" );
    declareProperty("Prescale", m_prescale = 1, "Internal prescale factor for this algorithm, implemented with a periodic scaler: so 1 means run every time, N means run every 1 in N times it is called; the other times it will exit without doing anything");
+   declareProperty("PrescaleDAQROBAccess", m_prescaleForDAQROBAccess = 4, "Prescale factor for requests for DAQ ROBs: can be used to avoid overloading ROS. Zero means disabled, 1 means always, N means sample only 1 in N events");
 
 
    const TCS::GlobalDecision & dec = m_topoSteering->simulationResult().globalDecision();
@@ -127,6 +137,16 @@ L1TopoSimulation::initialize() {
    CHECK( m_muonInputProvider.retrieve() );
 
    ATH_MSG_DEBUG("Prescale factor set to " << m_prescale);
+   ATH_MSG_DEBUG("PrescaleDAQROBAccess factor set to " << m_prescaleForDAQROBAccess);
+   ATH_MSG_DEBUG("FillHistoBasedOnHardware " << m_fillHistogramsBasedOnHardwareDecision);
+   if(m_fillHistogramsBasedOnHardwareDecision and
+      (m_prescaleForDAQROBAccess % m_prescale)) {
+      ATH_MSG_FATAL("PrescaleDAQROBAccess must be a multiple of Prescale"
+                    <<" : current values :"
+                    <<" "<<m_prescaleForDAQROBAccess
+                    <<", "<<m_prescale);
+      return StatusCode::FAILURE;
+   }
    ATH_MSG_DEBUG("Output trigger key property " << m_topoCTPLocation);
    ATH_MSG_DEBUG("Output overflow key property " << m_topoOverflowCTPLocation);
 
@@ -147,6 +167,8 @@ L1TopoSimulation::initialize() {
    }
 
    m_topoSteering->setAlgMsgLevel( TrigConf::MSGTC::Level(m_topoOutputLevel) );
+   m_topoSteering->setOutputAlgosFillBasedOnHardware(m_fillHistogramsBasedOnHardwareDecision);
+
 
    std::shared_ptr<IL1TopoHistSvc> topoHistSvc = std::shared_ptr<IL1TopoHistSvc>( new AthenaL1TopoHistSvc(m_histSvc) );
    topoHistSvc->setBaseDir("/EXPERT/" + m_histBaseDir.value());
@@ -215,7 +237,7 @@ StatusCode
 L1TopoSimulation::execute() {
   
 
-   if (m_prescale>1 && m_scaler->decision(m_prescale)){
+   if (m_prescale>1 && not m_scaler->decision(m_prescale)){
       ATH_MSG_DEBUG( "This event not processed due to prescale");
       return StatusCode::SUCCESS;
       // do not record dummy output: 
@@ -253,6 +275,16 @@ L1TopoSimulation::execute() {
    ATH_MSG_DEBUG("" << inputEvent);
 
    inputEvent.dump();
+   
+   if(m_fillHistogramsBasedOnHardwareDecision){
+       if(m_scaler->decision(m_prescaleForDAQROBAccess) and
+          retrieveHardwareDecision()){
+           m_topoSteering->propagateHardwareBitsToAlgos();
+           m_topoSteering->setOutputAlgosSkipHistograms(false);
+       } else {
+           m_topoSteering->setOutputAlgosSkipHistograms(true);
+       }
+   }
 
    // execute the toposteering
    m_topoSteering->executeEvent();
@@ -304,4 +336,60 @@ L1TopoSimulation::finalize() {
    m_scaler=0;
 
    return StatusCode::SUCCESS;
+}
+
+StatusCode L1TopoSimulation::retrieveHardwareDecision()
+{
+    // some duplication with L1TopoRDO::Helpers
+    // getDecisionAndOverflowBits() ?
+    StatusCode sc = StatusCode::SUCCESS;
+    std::bitset<TCS::TopoSteering::numberOfL1TopoBits> hardwareDaqRobTriggerBits;
+    std::bitset<TCS::TopoSteering::numberOfL1TopoBits> hardwareDaqRobOvrflowBits;
+    bool prescalForDAQROBAccess = true; // DG-2017-06-30 decide what to do when the hdw dec is not to be retrieved
+    if (prescalForDAQROBAccess){
+        std::vector<L1Topo::L1TopoTOB> daqTobsBC0;
+        std::vector<uint32_t> tobsbc0SourceIds; // to compute bit indices
+        const DataHandle<L1TopoRDOCollection> rdos = 0;
+        sc = evtStore()->retrieve(rdos);
+        if (sc.isFailure() or 0 == rdos) {
+            ATH_MSG_INFO ( "Could not retrieve L1Topo DAQ RDO collection from StoreGate" );
+        } else if (rdos->empty()) {
+            ATH_MSG_INFO ( "L1Topo DAQ RDO collection is empty" );
+        } else {
+            for (auto & rdo : *rdos){
+                const std::vector<uint32_t> cDataWords = rdo->getDataWords();
+                // initialise header: set version 15, BCN -7, which is unlikely
+                L1Topo::Header header(0xf,0,0,0,0,1,0x7);
+                for (auto word : cDataWords){
+                    switch (L1Topo::blockType(word)){
+                    case L1Topo::BlockTypes::HEADER: {
+                        header = L1Topo::Header(word);
+                        break;
+                    }
+                    case L1Topo::BlockTypes::L1TOPO_TOB: {
+                        auto tob = L1Topo::L1TopoTOB(word);
+                        if (header.bcn_offset()==0){
+                            daqTobsBC0.push_back(tob);
+                            tobsbc0SourceIds.push_back(rdo->getSourceID());
+                        }
+                        break;
+                    }
+                    default: break;
+                    }
+                } // for(word)
+            } // for(rdo)
+        }
+        for(uint32_t iTob=0; iTob<daqTobsBC0.size(); ++iTob){
+            const L1Topo::L1TopoTOB &tob = daqTobsBC0[iTob];
+            const uint32_t &sourceId = tobsbc0SourceIds[iTob];
+            for(unsigned int i=0; i<8; ++i){
+                unsigned int index = L1Topo::triggerBitIndexNew(sourceId, tob, i);
+                hardwareDaqRobTriggerBits[index] = (tob.trigger_bits()>>i)&1;
+                hardwareDaqRobOvrflowBits[index] = (tob.overflow_bits()>>i)&1;
+            }
+        }
+        m_topoSteering->setHardwareBits(hardwareDaqRobTriggerBits,
+                                        hardwareDaqRobOvrflowBits);
+    }
+    return sc;
 }
