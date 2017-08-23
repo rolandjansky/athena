@@ -63,31 +63,30 @@ parent)
     m_doHistoTrap(false),
     m_doRamo(false),
     m_doCTrap(false),
-    m_thistSvc(nullptr),
-    m_h_efieldz(nullptr),
-    m_h_efield(nullptr),
-    m_h_spess(nullptr),
-    m_h_depD(nullptr),
-    m_h_drift_electrode(nullptr),
-    m_h_ztrap(nullptr),
-    m_h_drift_time(nullptr),
-    m_h_t_electrode(nullptr),
-    m_h_zhit(nullptr),                               
-    m_h_ztrap_tot(nullptr),
-    m_h_no_ztrap(nullptr),
-    m_h_trap_drift_t(nullptr),
-    m_h_notrap_drift_t(nullptr),
-    m_h_mob_Char(nullptr),
-    m_h_vel(nullptr),
-    m_h_drift1(nullptr),
-    m_h_gen(nullptr),
-    m_h_gen1(nullptr),
-    m_h_gen2(nullptr),
-    m_h_velocity_trap(nullptr),
-    m_h_mobility_trap(nullptr),
-    m_h_trap_pos(nullptr),
+    m_thistSvc{nullptr},
+    m_h_efieldz{nullptr},
+    m_h_efield{nullptr},
+    m_h_spess{nullptr},
+    m_h_depD{nullptr},
+    m_h_drift_electrode{nullptr},
+    m_h_ztrap{nullptr},
+    m_h_drift_time{nullptr},
+    m_h_t_electrode{nullptr},
+    m_h_zhit{nullptr},                               
+    m_h_ztrap_tot{nullptr},
+    m_h_no_ztrap{nullptr},
+    m_h_trap_drift_t{nullptr},
+    m_h_notrap_drift_t{nullptr},
+    m_h_mob_Char{nullptr},
+    m_h_vel{nullptr},
+    m_h_drift1{nullptr},
+    m_h_gen{nullptr},
+    m_h_gen1{nullptr},
+    m_h_gen2{nullptr},
+    m_h_velocity_trap{nullptr},
+    m_h_mobility_trap{nullptr},
+    m_h_trap_pos{nullptr},
     m_hashId(0),
-    m_distortionsTool("SCT_DistortionsTool", this),
     m_siConditionsSvc("SCT_SiliconConditionsSvc", name),
     m_siPropertiesSvc("SCT_SiPropertiesSvc", name),
     m_radDamageSvc("SCT_RadDamageSummarySvc", name),
@@ -120,8 +119,6 @@ parent)
                     "Histogram the charge trapping effect"); //
     declareProperty("doRamo", m_doRamo,
                     "Ramo Potential for charge trapping effect"); //
-    declareProperty("SCTDistortionsTool", m_distortionsTool,
-                    "Tool to retrieve SCT distortions");
     declareProperty("SCT_RadDamageSummarySvc", m_radDamageSvc);
     declareProperty("isOverlay", m_isOverlay=false);
 }
@@ -148,9 +145,6 @@ StatusCode SCT_SurfaceChargesGenerator::initialize() {
 
     // Get ISiliconConditionsSvc
     ATH_CHECK(m_siConditionsSvc.retrieve());
-
-    // Get ISCT_ModuleDistortionsTool
-    ATH_CHECK(m_distortionsTool.retrieve());
 
     if (m_doTrapping) {
         ///////////////////////////////////////////////////
