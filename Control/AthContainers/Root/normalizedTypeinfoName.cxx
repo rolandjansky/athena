@@ -93,6 +93,12 @@ void initRules (CxxUtils::ClassName::Rules& rules)
   // Handle gcc's C++11 ABI.
   rules.add ("std::__cxx11", "std");
 
+  // This works around a bug in Gaudi's typeinfoName, which substitutes
+  // 'std::basic_string<...> ?' with `std::string' --- but including the
+  // optional trailing space in the pattern to replace means that we can
+  // end up with `std::stringconst'.
+  rules.add ("std::stringconst", "const std::string");
+
   // Needed for macos?
   rules.add ("std::__1", "std");
 }

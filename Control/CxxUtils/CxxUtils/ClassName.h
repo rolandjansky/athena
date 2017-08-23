@@ -248,6 +248,12 @@ public:
 
 
   /**
+   * @brief Get the const flag for this expression.
+   */
+  bool isConst() const;
+
+
+  /**
    * @brief Set the const flag for this expression.
    */
   void setConst();
@@ -432,6 +438,7 @@ private:
   /**
    * @brief Match this expression against a pattern.
    * @param pattern The pattern to match.
+   * @param topLevel True if this is the outermost level of matching.
    * @param[out] matches Dictionary of pattern substitutions.
    *
    * Return true if @c pattern matches the current expression.
@@ -439,7 +446,9 @@ private:
    * On a successful return, the map @c matches contains the
    * variable assignments needed for the match.
    */
-  bool match1 (const ClassName& pattern, match_t& matches) const;
+  bool match1 (const ClassName& pattern,
+               bool topLevel,
+               match_t& matches) const;
 
 
   /**
