@@ -400,7 +400,7 @@ void VP1Authenticator::finished()
   //   2. Look for 'Logon failure' string in the response body
   // We implement the option #1
   //
-  // If the authentication considered successfull ***REMOVED*** of the 
+  // If the authentication considered successfull then parse contents of the 
   // response, look for input tags and collect their attributes
   // and compose a new POST request
   if(d->stage==3) {
