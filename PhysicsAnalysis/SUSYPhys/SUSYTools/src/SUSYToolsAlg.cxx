@@ -21,7 +21,7 @@
 
 // For the forcing of the tau truth container build 
 #include "TauAnalysisTools/ITauTruthMatchingTool.h"
-#include "TauAnalysisTools/IBuildTruthTaus.h"
+//#include "TauAnalysisTools/IBuildTruthTaus.h"
 
 // For handling systematics
 #include "PATInterfaces/SystematicCode.h"
@@ -52,21 +52,23 @@ static const TString SCut[] = {"All","Baseline","passOR","Signal","TrigM"};
 
 SUSYToolsAlg::SUSYToolsAlg(const std::string& name,
                            ISvcLocator* pSvcLocator )
-  : ::AthAnalysisAlgorithm( name, pSvcLocator ),
-    m_Nevts(0),
-    m_configFile("SUSYTools/SUSYTools_Default.conf"),
-    m_tauTruthTool("TauTruthMatchingTool/dummy"),
-    m_CheckTruthJets(true)
+  : ::AthAnalysisAlgorithm( name, pSvcLocator )
+  , m_SUSYTools("")
+  , m_Nevts(0)
+  , m_configFile("SUSYTools/SUSYTools_Default.conf")
+  , m_tauTruthTool("")
+  , m_CheckTruthJets(true)
 {
-
-  declareProperty( "SUSYTools",   m_SUSYTools      );
   declareProperty( "DataSource",  m_dataSource = 1 ); //default is fullsim = 1
   declareProperty( "DoSyst",      m_doSyst = false );
 
   declareProperty( "RateMonitoringPath", m_rateMonitoringPath=".", "will try to add rate to file found in given path");
-  declareProperty( "TauTruthMatchingTool", m_tauTruthTool );
   declareProperty( "STConfigFile", m_configFile );
   declareProperty( "CheckTruthJets", m_CheckTruthJets );
+
+  // asg Tool Handles must be dealt with differently
+  m_tauTruthTool.declarePropertyFor( this, "TauTruthMatchingTool", "The TTMT" );
+  m_SUSYTools.declarePropertyFor( this, "SUSYTools", "The SUSYTools instance" );
 }
 
 //**********************************************************************
@@ -77,27 +79,16 @@ SUSYToolsAlg::~SUSYToolsAlg() { }
 StatusCode SUSYToolsAlg::initialize() {
   ATH_MSG_INFO("Initializing " << name() << "...");
 
-  if (m_SUSYTools.retrieve().isFailure())
-  {
-    ATH_MSG_ERROR("Failed to retrieve tool: " << m_SUSYTools->name());
-    return StatusCode::FAILURE;
-  }
-
+  m_SUSYTools.setTypeAndName("ST::SUSYObjDef_xAOD/SUSYTools");
+  ATH_CHECK(m_SUSYTools.retrieve());
   ATH_MSG_INFO("Retrieved tool: " << m_SUSYTools->name() );
 
   // Need truth matching for tau CP tools
-  if (m_tauTruthTool.retrieve().isFailure())
-  {
-    ATH_MSG_ERROR("Failed to retrieve tool: " << m_tauTruthTool->name());
-    return StatusCode::FAILURE;
-  }
-
-  ATH_MSG_INFO("Retrieved tool: " << m_tauTruthTool->name() );  
- 
-  //if( !m_isData ){
-    ATH_MSG_INFO("ApplySUSYTools::initialize(): retrieve m_tauTruthTool");
+  if( m_SUSYTools->isData() ){
+    m_tauTruthTool.setTypeAndName("TauAnalysisTools::TauTruthMatchingTool/TauTruthMatch");
     ATH_CHECK( m_tauTruthTool.retrieve() );
-    //}
+    ATH_MSG_INFO("Retrieved tool: " << m_tauTruthTool->name() );  
+  }
 
   sysInfoList.clear();
   // this is the nominal set
@@ -458,13 +449,13 @@ StatusCode SUSYToolsAlg::execute() {
       const xAOD::TruthParticle* trueTau = 0;
       trueTau = m_tauTruthTool->getTruth(*tau);
       if( trueTau ){
-	ATH_MSG_DEBUG("getTruth tau " <<tau->pt() <<" " <<tau->eta()
-		      <<" " <<tau->phi()
-		      <<" trueTau " <<trueTau->pt() <<" " <<trueTau->eta()
-		      <<" " <<trueTau->phi());
+        ATH_MSG_DEBUG("getTruth tau " <<tau->pt() <<" " <<tau->eta()
+                      <<" " <<tau->phi()
+                      <<" trueTau " <<trueTau->pt() <<" " <<trueTau->eta()
+                      <<" " <<trueTau->phi());
       } else {
-	ATH_MSG_DEBUG("getTruth tau " <<tau->pt() <<" " <<tau->eta()
-		      <<" " <<tau->phi() << "trueTau not found");
+        ATH_MSG_DEBUG("getTruth tau " <<tau->pt() <<" " <<tau->eta()
+                      <<" " <<tau->phi() << "trueTau not found");
       }
     }
   }
@@ -556,23 +547,23 @@ StatusCode SUSYToolsAlg::execute() {
     if ( el->auxdata<char>("baseline") == 1 ){ 
       el_n_flow_nominal->Fill(Cut::baseline);
       if ( el->auxdata<char>("passOR") == 1 ){ 
-	el_n_flow_nominal->Fill(Cut::passOR);
-	if ( el->auxdata<char>("signal") == 1 ){ 
-	  el_n_flow_nominal->Fill(Cut::signal);
+        el_n_flow_nominal->Fill(Cut::passOR);
+        if ( el->auxdata<char>("signal") == 1 ){ 
+          el_n_flow_nominal->Fill(Cut::signal);
 
-	  count_el_signal++;
+          count_el_signal++;
 
-	  bool passTM=false;
-	  unsigned int idx=1;
-	  for(const auto& t : el_triggers){
-	    ATH_MSG_DEBUG( "  Processing trigger " << t );
-	    bool passit = m_SUSYTools->IsTrigMatched(el, t);
-	    passTM |= passit;
-	    if(passit) el_trigmatch_eff_nominal->SetBinContent(idx, el_trigmatch_eff_nominal->GetBinContent(idx)+1);
-	    idx++;
-	  }	      
-	  if(passTM) el_n_flow_nominal->Fill(Cut::trigmatch);
-	}	  
+          bool passTM=false;
+          unsigned int idx=1;
+          for(const auto& t : el_triggers){
+            ATH_MSG_DEBUG( "  Processing trigger " << t );
+            bool passit = m_SUSYTools->IsTrigMatched(el, t);
+            passTM |= passit;
+            if(passit) el_trigmatch_eff_nominal->SetBinContent(idx, el_trigmatch_eff_nominal->GetBinContent(idx)+1);
+            idx++;
+          }              
+          if(passTM) el_n_flow_nominal->Fill(Cut::trigmatch);
+        }          
       }
     }
     el_pt_nominal->Fill(el->pt() * 1e-3);
@@ -589,22 +580,22 @@ StatusCode SUSYToolsAlg::execute() {
     if ( ph->auxdata<char>("baseline") == 1 ){ 
       ph_n_flow_nominal->Fill(Cut::baseline);
       if ( ph->auxdata<char>("passOR") == 1 ){ 
-	ph_n_flow_nominal->Fill(Cut::passOR);
-	if ( ph->auxdata<char>("signal") == 1 ){ 
-	  ph_n_flow_nominal->Fill(Cut::signal);
+        ph_n_flow_nominal->Fill(Cut::passOR);
+        if ( ph->auxdata<char>("signal") == 1 ){ 
+          ph_n_flow_nominal->Fill(Cut::signal);
 
-	  count_ph_signal++;
+          count_ph_signal++;
 
-	  bool passTM=false;
-	  unsigned int idx=1;
-	  for(const auto& t : ph_triggers){
-	    bool passit = m_SUSYTools->IsTrigMatched(ph, t);
-	    passTM |= passit;
-	    if(passit) ph_trigmatch_eff_nominal->SetBinContent(idx, ph_trigmatch_eff_nominal->GetBinContent(idx)+1);
-	    idx++;
-	  }	      
-	  if(passTM) ph_n_flow_nominal->Fill(Cut::trigmatch);
-	}	  
+          bool passTM=false;
+          unsigned int idx=1;
+          for(const auto& t : ph_triggers){
+            bool passit = m_SUSYTools->IsTrigMatched(ph, t);
+            passTM |= passit;
+            if(passit) ph_trigmatch_eff_nominal->SetBinContent(idx, ph_trigmatch_eff_nominal->GetBinContent(idx)+1);
+            idx++;
+          }              
+          if(passTM) ph_n_flow_nominal->Fill(Cut::trigmatch);
+        }          
       }
     }
     ph_pt_nominal->Fill(ph->pt() * 1e-3);
@@ -621,22 +612,22 @@ StatusCode SUSYToolsAlg::execute() {
     if ( mu->auxdata<char>("baseline") == 1 ){ 
       mu_n_flow_nominal->Fill(Cut::baseline);
       if ( mu->auxdata<char>("passOR") == 1 ){ 
-	mu_n_flow_nominal->Fill(Cut::passOR);
-	if ( mu->auxdata<char>("signal") == 1 ){ 
-	  mu_n_flow_nominal->Fill(Cut::signal);
+        mu_n_flow_nominal->Fill(Cut::passOR);
+        if ( mu->auxdata<char>("signal") == 1 ){ 
+          mu_n_flow_nominal->Fill(Cut::signal);
 
-	  count_mu_signal++;
+          count_mu_signal++;
 
-	  bool passTM=false;
-	  unsigned int idx=1;
-	  for(const auto& t : mu_triggers){
-	    bool passit = m_SUSYTools->IsTrigMatched(mu, t);
-	    passTM |= passit;
-	    if(passit) mu_trigmatch_eff_nominal->SetBinContent(idx, mu_trigmatch_eff_nominal->GetBinContent(idx)+1);
-	    idx++;
-	  }
-	  if(passTM) mu_n_flow_nominal->Fill(Cut::trigmatch);
-	}	  
+          bool passTM=false;
+          unsigned int idx=1;
+          for(const auto& t : mu_triggers){
+            bool passit = m_SUSYTools->IsTrigMatched(mu, t);
+            passTM |= passit;
+            if(passit) mu_trigmatch_eff_nominal->SetBinContent(idx, mu_trigmatch_eff_nominal->GetBinContent(idx)+1);
+            idx++;
+          }
+          if(passTM) mu_n_flow_nominal->Fill(Cut::trigmatch);
+        }          
       }
     }
     mu_pt_nominal->Fill(mu->pt() * 1e-3);
@@ -652,11 +643,11 @@ StatusCode SUSYToolsAlg::execute() {
     if ( jet->auxdata<char>("baseline") == 1 ){ 
       jet_n_flow_nominal->Fill(Cut::baseline);
       if ( jet->auxdata<char>("passOR") == 1 ){ 
-	jet_n_flow_nominal->Fill(Cut::passOR);
-	if ( jet->auxdata<char>("signal") == 1 ){ 
-	  jet_n_flow_nominal->Fill(Cut::signal);
-	  jet_n_flow_nominal->Fill(Cut::trigmatch); //no trig matching for jets
-	}	  
+        jet_n_flow_nominal->Fill(Cut::passOR);
+        if ( jet->auxdata<char>("signal") == 1 ){ 
+          jet_n_flow_nominal->Fill(Cut::signal);
+          jet_n_flow_nominal->Fill(Cut::trigmatch); //no trig matching for jets
+        }          
       }
     }
     jet_pt_nominal->Fill(jet->pt() * 1e-3);
@@ -671,14 +662,14 @@ StatusCode SUSYToolsAlg::execute() {
     for(auto fatjet : *fatjets_nominal) {
       fatjet_n_flow_nominal->Fill(Cut::all);
       if ( fatjet->auxdata<char>("baseline") == 1 ){
-	fatjet_n_flow_nominal->Fill(Cut::baseline);
-	if ( fatjet->auxdata<char>("passOR") == 1 ){
-	  fatjet_n_flow_nominal->Fill(Cut::passOR);
-	  if ( fatjet->auxdata<char>("signal") == 1 ){
-	    fatjet_n_flow_nominal->Fill(Cut::signal);
-	    fatjet_n_flow_nominal->Fill(Cut::trigmatch); //no trig matching for jets  
-	  }
-	}
+        fatjet_n_flow_nominal->Fill(Cut::baseline);
+        if ( fatjet->auxdata<char>("passOR") == 1 ){
+          fatjet_n_flow_nominal->Fill(Cut::passOR);
+          if ( fatjet->auxdata<char>("signal") == 1 ){
+            fatjet_n_flow_nominal->Fill(Cut::signal);
+            fatjet_n_flow_nominal->Fill(Cut::trigmatch); //no trig matching for jets  
+          }
+        }
       }
       fatjet_pt_nominal->Fill(fatjet->pt() * 1e-3);
     }
@@ -766,8 +757,8 @@ StatusCode SUSYToolsAlg::execute() {
     }
     else {
       if(isSim){
-	CHECK(m_SUSYTools->ApplyPRWTool());
-	prw_weight = m_SUSYTools->GetPileupWeight();
+        CHECK(m_SUSYTools->ApplyPRWTool());
+        prw_weight = m_SUSYTools->GetPileupWeight();
       }
       event_weight *= prw_weight;
       size_t iwbin = find(syst_event_weights.begin(), syst_event_weights.end(), sys.name()) - syst_event_weights.begin(); 
@@ -838,8 +829,8 @@ StatusCode SUSYToolsAlg::execute() {
 
       if (syst_affectsJets && doFatJets) {
         ATH_MSG_DEBUG("Get systematics-varied large radius jets");
-	xAOD::JetContainer* fatjets_syst(0);
-	xAOD::ShallowAuxContainer* fatjets_syst_aux(0);
+        xAOD::JetContainer* fatjets_syst(0);
+        xAOD::ShallowAuxContainer* fatjets_syst_aux(0);
         CHECK( m_SUSYTools->GetJetsSyst(*fatjets_nominal, fatjets_syst, fatjets_syst_aux, false, m_FatJetCollection) );
         fatjets = fatjets_syst;
         fatjets_aux = fatjets_syst_aux;
@@ -847,8 +838,8 @@ StatusCode SUSYToolsAlg::execute() {
 
       if (syst_affectsTaus) {
         ATH_MSG_DEBUG("Get systematics-varied taus");
-	xAOD::TauJetContainer* taus_syst(0);
-	xAOD::ShallowAuxContainer* taus_syst_aux(0);
+        xAOD::TauJetContainer* taus_syst(0);
+        xAOD::ShallowAuxContainer* taus_syst_aux(0);
         CHECK( m_SUSYTools->GetTaus(taus_syst, taus_syst_aux) );
         taus = taus_syst;
         taus_aux = taus_syst_aux;
@@ -890,13 +881,13 @@ StatusCode SUSYToolsAlg::execute() {
     float electrons_weight(1.);
     for ( const auto& el : *electrons ) {
       if( m_dataSource > 0 ){
-	if (isNominal || syst_affectsElectrons) {
-	  if ((el->auxdata< char >("signal") == 1) && (isNominal || sysInfo.affectsWeights)) {
-	    electrons_weight *= m_SUSYTools->GetSignalElecSF( *el );
-	    // the line below has trigger SF switched off
-	    //electrons_weight *= m_SUSYTools->GetSignalElecSF( *el, true, true, false, true );
-	  }
-	}
+        if (isNominal || syst_affectsElectrons) {
+          if ((el->auxdata< char >("signal") == 1) && (isNominal || sysInfo.affectsWeights)) {
+            electrons_weight *= m_SUSYTools->GetSignalElecSF( *el );
+            // the line below has trigger SF switched off
+            //electrons_weight *= m_SUSYTools->GetSignalElecSF( *el, true, true, false, true );
+          }
+        }
       }
       ATH_MSG_VERBOSE( "  Electron passing baseline selection?" << (int) el->auxdata<char>("baseline") );
       ATH_MSG_VERBOSE( "  Electron passing signal selection?" << (int) el->auxdata<char>("signal") );
@@ -924,11 +915,11 @@ StatusCode SUSYToolsAlg::execute() {
     float photons_weight(1.);
     for ( const auto& el : *photons ) {
       if( m_dataSource > 0 ){
-	if (isNominal || syst_affectsPhotons) {
-	  if ((el->auxdata< char >("signal") == 1) && (isNominal || sysInfo.affectsWeights)) {
-	    photons_weight *= m_SUSYTools->GetSignalPhotonSF( *el );
-	  }
-	}
+        if (isNominal || syst_affectsPhotons) {
+          if ((el->auxdata< char >("signal") == 1) && (isNominal || sysInfo.affectsWeights)) {
+            photons_weight *= m_SUSYTools->GetSignalPhotonSF( *el );
+          }
+        }
       }
       ATH_MSG_VERBOSE( "  Photon passing baseline selection?" << (int) el->auxdata<char>("baseline") );
       ATH_MSG_VERBOSE( "  Photon passing signal selection?" << (int) el->auxdata<char>("signal") );
@@ -956,11 +947,11 @@ StatusCode SUSYToolsAlg::execute() {
     float muons_weight(1.);
     for ( const auto& mu : *muons ) {
       if( m_dataSource > 0 ){
-	if (isNominal || syst_affectsMuons) {
-	  if ((mu->auxdata< char >("signal") == 1) && (isNominal || sysInfo.affectsWeights)) {
-	    muons_weight *= m_SUSYTools->GetSignalMuonSF(*mu);;
-	  }
-	}
+        if (isNominal || syst_affectsMuons) {
+          if ((mu->auxdata< char >("signal") == 1) && (isNominal || sysInfo.affectsWeights)) {
+            muons_weight *= m_SUSYTools->GetSignalMuonSF(*mu);;
+          }
+        }
       }
       ATH_MSG_VERBOSE( "  Muon passing baseline selection?" << (int) mu->auxdata<char>("baseline") );
       ATH_MSG_VERBOSE( "  Muon passing signal selection?" << (int) mu->auxdata<char>("signal") );
@@ -1002,29 +993,29 @@ StatusCode SUSYToolsAlg::execute() {
     if( m_dataSource > 0) { //isMC
       
       if (isNominal) { //btagging
-	btag_weight_nominal = btag_weight = m_SUSYTools->BtagSF(jets);
-	weight_btags->SetBinContent(1, weight_btags->GetBinContent(1)+btag_weight);    
+        btag_weight_nominal = btag_weight = m_SUSYTools->BtagSF(jets);
+        weight_btags->SetBinContent(1, weight_btags->GetBinContent(1)+btag_weight);    
       }
       else if (!syst_affectsBTag){
-	btag_weight = btag_weight_nominal;
+        btag_weight = btag_weight_nominal;
       }
       else{
-	btag_weight = m_SUSYTools->BtagSF(jets);
-	size_t iwbin = find(syst_btag_weights.begin(), syst_btag_weights.end(), sys.name()) - syst_btag_weights.begin(); 
-	if(iwbin < syst_btag_weights.size()) {  weight_btags->SetBinContent(iwbin+1, weight_jets->GetBinContent(iwbin+1)+btag_weight); }    
+        btag_weight = m_SUSYTools->BtagSF(jets);
+        size_t iwbin = find(syst_btag_weights.begin(), syst_btag_weights.end(), sys.name()) - syst_btag_weights.begin(); 
+        if(iwbin < syst_btag_weights.size()) {  weight_btags->SetBinContent(iwbin+1, weight_jets->GetBinContent(iwbin+1)+btag_weight); }    
       }
 
       if(isNominal){ //JVT
-	jets_weight_nominal = jet_weight = m_SUSYTools->JVT_SF(jets);
-	weight_jets->SetBinContent(1, weight_jets->GetBinContent(1)+jet_weight);
+        jets_weight_nominal = jet_weight = m_SUSYTools->JVT_SF(jets);
+        weight_jets->SetBinContent(1, weight_jets->GetBinContent(1)+jet_weight);
       }
       else if (!syst_affectsJets || (syst_affectsJets && !sysInfo.affectsWeights)){
-	jet_weight = jets_weight_nominal;
+        jet_weight = jets_weight_nominal;
       }
       else if ( syst_affectsJets && sysInfo.affectsWeights ){
-	jet_weight = m_SUSYTools->JVT_SF(jets);
-	size_t iwbin = find(syst_jet_weights.begin(), syst_jet_weights.end(), sys.name()) - syst_jet_weights.begin(); 
-	if(iwbin < syst_jet_weights.size()) {  weight_jets->SetBinContent(iwbin+1, weight_jets->GetBinContent(iwbin+1)+jet_weight); }    
+        jet_weight = m_SUSYTools->JVT_SF(jets);
+        size_t iwbin = find(syst_jet_weights.begin(), syst_jet_weights.end(), sys.name()) - syst_jet_weights.begin(); 
+        if(iwbin < syst_jet_weights.size()) {  weight_jets->SetBinContent(iwbin+1, weight_jets->GetBinContent(iwbin+1)+jet_weight); }    
       }
     }
 
@@ -1038,26 +1029,26 @@ StatusCode SUSYToolsAlg::execute() {
     if( doFatJets ) {
       ATH_MSG_DEBUG("Working on fat jets");
       for ( const auto& fatjet : *fatjets ) {
-	ATH_MSG_VERBOSE( " Jet is bad? " << (int) fatjet->auxdata<char>("bad") );
-	ATH_MSG_VERBOSE( " Jet is baseline ? " << (int) fatjet->auxdata<char>("baseline") );
-	ATH_MSG_VERBOSE( " Jet passes OR ? " << (int) fatjet->auxdata<char>("passOR") );
+        ATH_MSG_VERBOSE( " Jet is bad? " << (int) fatjet->auxdata<char>("bad") );
+        ATH_MSG_VERBOSE( " Jet is baseline ? " << (int) fatjet->auxdata<char>("baseline") );
+        ATH_MSG_VERBOSE( " Jet passes OR ? " << (int) fatjet->auxdata<char>("passOR") );
       }
       
       float fatjet_weight(1.);
       if( m_dataSource > 0) { //isMC 
 
-	if(isNominal){ //JVT - no JVT cuts for fat jets! 
-	  fatjets_weight_nominal = fatjet_weight = 1;//m_SUSYTools->JVT_SF(fatjets); 
-	  weight_fatjets->SetBinContent(1, weight_fatjets->GetBinContent(1)+fatjet_weight);
-	}
-	else if (!syst_affectsJets || (syst_affectsJets && !sysInfo.affectsWeights)){
-	  fatjet_weight = fatjets_weight_nominal;
+        if(isNominal){ //JVT - no JVT cuts for fat jets! 
+          fatjets_weight_nominal = fatjet_weight = 1;//m_SUSYTools->JVT_SF(fatjets); 
+          weight_fatjets->SetBinContent(1, weight_fatjets->GetBinContent(1)+fatjet_weight);
+        }
+        else if (!syst_affectsJets || (syst_affectsJets && !sysInfo.affectsWeights)){
+          fatjet_weight = fatjets_weight_nominal;
       }
-	else if ( syst_affectsJets && sysInfo.affectsWeights ){
-	  fatjet_weight = 1;//m_SUSYTools->JVT_SF(fatjets); 
-	  size_t iwbin = find(syst_fatjet_weights.begin(), syst_fatjet_weights.end(), sys.name()) - syst_fatjet_weights.begin();
-	  if(iwbin < syst_fatjet_weights.size()) {  weight_fatjets->SetBinContent(iwbin+1, weight_fatjets->GetBinContent(iwbin+1)+fatjet_weight); }
-	}
+        else if ( syst_affectsJets && sysInfo.affectsWeights ){
+          fatjet_weight = 1;//m_SUSYTools->JVT_SF(fatjets); 
+          size_t iwbin = find(syst_fatjet_weights.begin(), syst_fatjet_weights.end(), sys.name()) - syst_fatjet_weights.begin();
+          if(iwbin < syst_fatjet_weights.size()) {  weight_fatjets->SetBinContent(iwbin+1, weight_fatjets->GetBinContent(iwbin+1)+fatjet_weight); }
+        }
       }
       
       ATH_MSG_DEBUG("Combined large radius jet scale factor: " << fatjet_weight);

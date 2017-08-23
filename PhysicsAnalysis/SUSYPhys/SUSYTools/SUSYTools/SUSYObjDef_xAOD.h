@@ -128,8 +128,8 @@ namespace ST {
     //  An IAsgTool does not have a finalize method, so we can 
     //  only override finalize in athena.  To clean up, delete me.
 
-    bool isData() const {return m_dataSource == Data;}
-    bool isAtlfast() const {return m_dataSource == AtlfastII;}
+    bool isData() const override final {return m_dataSource == Data;}
+    bool isAtlfast() const override final {return m_dataSource == AtlfastII;}
 
     StatusCode setBoolProperty(const std::string& name, const bool& property) override final;
 

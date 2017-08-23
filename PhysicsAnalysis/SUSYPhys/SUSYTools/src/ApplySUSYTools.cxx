@@ -33,12 +33,6 @@
 #include "xAODJet/JetTypes.h"
 #include "xAODPrimitives/IsolationType.h"
 
-// For tau truth matching
-#include "TauAnalysisTools/ITauTruthMatchingTool.h"
-
-// For the forcing of the tau truth container build
-#include "TauAnalysisTools/IBuildTruthTaus.h"
-
 // Shallow copies for jet passing
 #include "xAODCore/ShallowCopy.h"
 
@@ -58,6 +52,12 @@
 
 // For environment setup
 #include "TEnv.h"
+
+// For the setOriginalObjectLink function
+#include "xAODBase/IParticleHelpers.h"
+
+// For tau truth matching
+#include "TauAnalysisTools/ITauTruthMatchingTool.h"
 
 namespace ST {
 
@@ -110,7 +110,7 @@ ApplySUSYTools::ApplySUSYTools( const std::string& name,
   m_PhotonsName("Photons"),
   m_configFile("SUSYTools/SUSYTools_Default.conf"),
   m_objTool("SUSYObjDef_xAOD/dummy"),
-  m_tauTruthTool("TauTruthMatchingTool/dummy"),
+  m_tauTruthTool(""),
   //m_tauTruthBuilderTool("BuildTruthTaus/dummy"),
   m_thinningSvc("ThinningSvc/ThinningSvc", name)
 {
@@ -140,11 +140,13 @@ ApplySUSYTools::ApplySUSYTools( const std::string& name,
 
   declareProperty("IsData", m_isData);
   declareProperty("MaxCount", m_maxCount);
-  declareProperty("SUSYObjTool",  m_objTool);
-  declareProperty("TauTruthMatchingTool", m_tauTruthTool);
-  //declareProperty("BuildTruthTaus", m_tauTruthBuilderTool);
   declareProperty("ThinningSvc",m_thinningSvc);
   //declareProperty("", );
+
+  // asg Tool Handles must be dealt with differently
+  m_tauTruthTool.declarePropertyFor( this, "TauTruthMatchingTool", "The TTMT" );
+  m_objTool.declarePropertyFor( this, "SUSYTools", "The SUSYTools instance" );
+  //m_tauTruthBuilderTool.declarePropertyFor( this, "TauTruthBuilder", "Tool for building truth tau collection" );
 }
 
 /////////////
@@ -186,7 +188,8 @@ StatusCode ApplySUSYTools::initialize()
   // Need truth matching for tau CP tools
   if( !m_isData ){
     ATH_MSG_INFO("ApplySUSYTools::initialize(): retrieve m_tauTruthTool");
-    CHECK( m_tauTruthTool.retrieve() );
+    m_tauTruthTool.setTypeAndName("TauAnalysisTools::TauTruthMatchingTool/TauTruthMatch");
+    ATH_CHECK( m_tauTruthTool.retrieve() );
     //ATH_MSG_INFO("ApplySUSYTools::initialize(): retrieve m_tauTruthBuilderTool");
     //CHECK( m_tauTruthBuilderTool.retrieve() );
   }

@@ -29,8 +29,6 @@
 // Handle on the thinning service
 #include "GaudiKernel/ServiceHandle.h"
 
-//#include "AthAnalysisBaseComps/AthAnalysisHelper.h"
-
 // SUSYTools interface
 // Include needed for SystInfo
 #include "SUSYTools/ISUSYObjDef_xAODTool.h"
@@ -45,7 +43,7 @@ class IThinningSvc;
 // Need truth matching for TauJet CP tools
 namespace TauAnalysisTools {
   class ITauTruthMatchingTool;
-  class IBuildTruthTaus;
+//  class IBuildTruthTaus;
 }
 
 namespace ST {
@@ -170,7 +168,7 @@ private:
   asg::AnaToolHandle< ISUSYObjDef_xAODTool > m_objTool;
   // Tau tools that we need direct handles on
   asg::AnaToolHandle< TauAnalysisTools::ITauTruthMatchingTool > m_tauTruthTool;
-  asg::AnaToolHandle< TauAnalysisTools::IBuildTruthTaus > m_tauTruthBuilderTool;
+  //asg::AnaToolHandle< TauAnalysisTools::IBuildTruthTaus > m_tauTruthBuilderTool;
 
   // SUSYTools systematics
   std::vector< SystInfo > m_systInfoList; //!
