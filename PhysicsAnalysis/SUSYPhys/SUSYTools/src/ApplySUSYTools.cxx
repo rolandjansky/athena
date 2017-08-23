@@ -36,9 +36,6 @@
 // For tau truth matching
 #include "TauAnalysisTools/ITauTruthMatchingTool.h"
 
-// For the forcing of the tau truth container build
-#include "tauRecTools/IBuildTruthTaus.h"
-
 // Shallow copies for jet passing
 #include "xAODCore/ShallowCopy.h"
 
@@ -58,6 +55,12 @@
 
 // For environment setup
 #include "TEnv.h"
+
+// For the setOriginalObjectLink function
+#include "xAODBase/IParticleHelpers.h"
+
+// For tau truth matching
+#include "TauAnalysisTools/ITauTruthMatchingTool.h"
 
 namespace ST {
 
@@ -110,8 +113,7 @@ ApplySUSYTools::ApplySUSYTools( const std::string& name,
   m_PhotonsName("Photons"),
   m_configFile("SUSYTools/SUSYTools_Default.conf"),
   m_objTool("SUSYObjDef_xAOD/dummy"),
-  m_tauTruthTool("TauTruthMatchingTool/dummy"),
-  //m_tauTruthBuilderTool("BuildTruthTaus/dummy"),
+  m_tauTruthTool(""),
   m_thinningSvc("ThinningSvc/ThinningSvc", name)
 {
 
@@ -140,11 +142,12 @@ ApplySUSYTools::ApplySUSYTools( const std::string& name,
 
   declareProperty("IsData", m_isData);
   declareProperty("MaxCount", m_maxCount);
-  declareProperty("SUSYObjTool",  m_objTool);
-  declareProperty("TauTruthMatchingTool", m_tauTruthTool);
-  //declareProperty("BuildTruthTaus", m_tauTruthBuilderTool);
   declareProperty("ThinningSvc",m_thinningSvc);
   //declareProperty("", );
+
+  // asg Tool Handles must be dealt with differently
+  m_tauTruthTool.declarePropertyFor( this, "TauTruthMatchingTool", "The TTMT" );
+  m_objTool.declarePropertyFor( this, "SUSYTools", "The SUSYTools instance" );
 }
 
 /////////////
@@ -186,9 +189,8 @@ StatusCode ApplySUSYTools::initialize()
   // Need truth matching for tau CP tools
   if( !m_isData ){
     ATH_MSG_INFO("ApplySUSYTools::initialize(): retrieve m_tauTruthTool");
-    CHECK( m_tauTruthTool.retrieve() );
-    //ATH_MSG_INFO("ApplySUSYTools::initialize(): retrieve m_tauTruthBuilderTool");
-    //CHECK( m_tauTruthBuilderTool.retrieve() );
+    m_tauTruthTool.setTypeAndName("TauAnalysisTools::TauTruthMatchingTool/TauTruthMatch");
+    ATH_CHECK( m_tauTruthTool.retrieve() );
   }
 
   // Systematics
@@ -760,7 +762,6 @@ StatusCode ApplySUSYTools::execute()
   if( !m_isData  && 
   !evtStore()->contains<xAOD::TruthParticleContainer>("TruthTaus") ){
     // If there are no taus, then we need to force the building of the container
-    //if (0==p_TauJets->size()) CHECK( m_tauTruthBuilderTool->retrieveTruthTaus() );
     if (0==p_TauJets->size()) CHECK( m_tauTruthTool->retrieveTruthTaus() );
 
     for(const auto& tau : *p_TauJets){

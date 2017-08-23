@@ -193,6 +193,10 @@ namespace ST {
 
     virtual int getMCShowerType(const std::string& sample_name) const = 0;
 
+    // For checking the origin of the input
+    virtual bool isData() const = 0;
+    virtual bool isAtlfast() const = 0;
+
     // override the AsgTool setProperty function for booleans
     virtual StatusCode setBoolProperty(const std::string& name, const bool& property) = 0;
 

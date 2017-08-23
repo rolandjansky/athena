@@ -27,8 +27,6 @@
 // Handle on the thinning service
 #include "GaudiKernel/ServiceHandle.h"
 
-//#include "AthAnalysisBaseComps/AthAnalysisHelper.h"
-
 // SUSYTools interface
 // Include needed for SystInfo
 #include "SUSYTools/ISUSYObjDef_xAODTool.h"
