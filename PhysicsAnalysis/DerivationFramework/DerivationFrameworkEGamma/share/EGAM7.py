@@ -112,10 +112,10 @@ expression = '(' + ' || '.join(triggers) + ') && '+objectSelection
 print expression
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-EGAM7SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "EGAM7SkimmingTool",
+EGAM7_SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "EGAM7_SkimmingTool",
                                                                    expression = expression)
-ToolSvc += EGAM7SkimmingTool
-print "EGAM7 skimming tool:", EGAM7SkimmingTool
+ToolSvc += EGAM7_SkimmingTool
+print "EGAM7 skimming tool:", EGAM7_SkimmingTool
 
 
 
@@ -195,14 +195,19 @@ DerivationFrameworkJob += egam7Seq
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 egam7Seq += CfgMgr.DerivationFramework__DerivationKernel("EGAM7Kernel",
                                                          AugmentationTools = [EGAM7_GainDecoratorTool, EGAM7_MaxCellDecoratorTool] + EGAM7_ClusterEnergyPerLayerDecorators,
-                                                         SkimmingTools = [EGAM7SkimmingTool],
+                                                         SkimmingTools = [EGAM7_SkimmingTool],
                                                          ThinningTools = thinningTools
                                                          )
 
 #====================================================================
 # RESTORE JET COLLECTIONS REMOVED BETWEEN r20 AND r21
 #====================================================================
-addStandardJets("AntiKt", 0.4, "PV0Track", 2000, mods="track_ungroomed", algseq=egam7Seq, outputGroup="EGAM7")
+# od syntax
+# addStandardJets("AntiKt", 0.4, "PV0Track", 2000, mods="track_ungroomed", algseq=egam7Seq, outputGroup="EGAM7")
+# new syntax
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
+reducedJetList = ["AntiKt4PV0TrackJets", "AntiKt4TruthJets"]
+replaceAODReducedJets(reducedJetList,egam7Seq,"EGAM7")
 
 
 #============ Create Derivation EGAM7 cell collection ==================

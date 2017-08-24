@@ -23,18 +23,13 @@ RecomputeElectronSelectors = True
 
 #====================================================================
 # J/psi->ee selection for e/gamma calibration
-# 2 tight or medium e (depends on Run2 triggers..), pT>4.5 GeV, author=1 or 3, OS, 1<Mee<5 GeV
+# 2 tight or medium e (depends on Run2 triggers..), pT>4.5 GeV, OS, 1<Mee<5 GeV
 #====================================================================
-# author requirement not needed in Run2: forward electrons are in separate collection
-# and no tracking-based (soft-e) electron reconstruction is run
-# electronAuthorRequirement = '(Electrons.author==1 || Electrons.author==3)'
 electronPtRequirement = '(Electrons.pt > 4.5*GeV)'
 if RecomputeElectronSelectors :
     electronQualityRequirement = '(Electrons.DFCommonElectronsIsEMMedium || Electrons.DFCommonElectronsLHMedium)'
 else :
     electronQualityRequirement = '(Electrons.Medium || Electrons.DFCommonElectronsLHMedium)'
-#electronQualityRequirement='(Electrons.Tight || DFCommonElectronsLHTight)'
-#requirement_el = '(' + electronQualityRequirement + '&&' + electronPtRequirement + '&&' + electronAuthorRequirement + ')'
 requirement_el = '(' + electronQualityRequirement + '&&' + electronPtRequirement + ')'
 
 
@@ -120,12 +115,17 @@ ToolSvc += EGAM2_TriggerSkimmingTool
 print "EGAM2 trigger skimming tool:", EGAM2_TriggerSkimmingTool
 
 
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationOR
+EGAM2_SkimmingTool = DerivationFramework__FilterCombinationOR(name="EGAM2SkimmingTool", FilterList=[EGAM2_OfflineSkimmingTool,EGAM2_TriggerSkimmingTool] )
+ToolSvc+=EGAM2_SkimmingTool
+print "EGAM2 skimming tool:", EGAM2_SkimmingTool
 
-#================
-# THINNING
-#================
-thinningTools=[]
-# TO BE ADDED
+
+
+#====================================================================
+# DECORATION TOOLS
+#====================================================================
+
 
 #====================================================================
 # Gain and cluster energies per layer decoration tool
@@ -138,19 +138,37 @@ cluster_sizes = (3,5), (5,7), (7,7), (7,11)
 EGAM2_ClusterEnergyPerLayerDecorators = [getClusterEnergyPerLayerDecorator(neta, nphi)() for neta, nphi in cluster_sizes]
 
 
+#================
+# THINNING TOOLS
+#================
+thinningTools=[]
+# TO BE ADDED
+
+
+#=======================================
+# CREATE PRIVATE SEQUENCE
+#=======================================
+egam2Seq = CfgMgr.AthSequencer("EGAM2Sequence")
+DerivationFrameworkJob += egam2Seq
+
+
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   
 #=======================================
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationOR
-EGAM2_SkimmingTool = DerivationFramework__FilterCombinationOR(name="EGAM2SkimmingTool", FilterList=[EGAM2_OfflineSkimmingTool,EGAM2_TriggerSkimmingTool] )
-ToolSvc+=EGAM2_SkimmingTool
-
-
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("EGAM2Kernel",
-                                                                       AugmentationTools = [EGAM2_JPSIEEMassTool,EGAM2_JPSIEEMassTool2,EGAM2_GainDecoratorTool] + EGAM2_ClusterEnergyPerLayerDecorators,
-                                                                       SkimmingTools = [EGAM2_SkimmingTool]
-                                                                       )
+egam2Seq += CfgMgr.DerivationFramework__DerivationKernel("EGAM2Kernel",
+                                                         AugmentationTools = [EGAM2_JPSIEEMassTool,EGAM2_JPSIEEMassTool2,EGAM2_GainDecoratorTool] + EGAM2_ClusterEnergyPerLayerDecorators,
+                                                         SkimmingTools = [EGAM2_SkimmingTool]
+                                                         )
+
+
+
+#====================================================================
+# RESTORE JET COLLECTIONS REMOVED BETWEEN r20 AND r21
+#====================================================================
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
+reducedJetList = ["AntiKt4TruthJets"]
+replaceAODReducedJets(reducedJetList,egam2Seq,"EGAM2")
 
 
 #====================================================================

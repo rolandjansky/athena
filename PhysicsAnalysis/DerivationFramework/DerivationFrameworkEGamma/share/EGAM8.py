@@ -78,10 +78,17 @@ print EGAM8_ZMuEMassTool
 # Skimming criteria
 expression = 'count(EGAM8_DiElectronMass > 50.0*GeV)>=1 || count(EGAM8_MuonElectronMass > 50.0*GeV)>=1'
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-EGAM8SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "EGAM8SkimmingTool",
+EGAM8_SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "EGAM8_SkimmingTool",
                                                                    expression = expression)
-ToolSvc += EGAM8SkimmingTool
-print "EGAM8 skimming tool:", EGAM8SkimmingTool
+ToolSvc += EGAM8_SkimmingTool
+print "EGAM8 skimming tool:", EGAM8_SkimmingTool
+
+
+
+#====================================================================
+# DECORATION TOOLS
+#====================================================================
+
 
 #====================================================================
 # Gain and cluster energies per layer decoration tool
@@ -107,7 +114,7 @@ ToolSvc += EGAM8_MaxCellDecoratorTool
 
 
 #================
-# THINNING
+# THINNING TOOLS
 #================
 thinningTools=[]
 
@@ -200,19 +207,30 @@ print "EGAM8 thinningTools: ", thinningTools
 
 
 #=======================================
+# CREATE PRIVATE SEQUENCE
+#=======================================
+egam8Seq = CfgMgr.AthSequencer("EGAM8Sequence")
+DerivationFrameworkJob += egam8Seq
+
+
+
+#=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM
 #=======================================
-
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("EGAM8Kernel",
+egam8Seq += CfgMgr.DerivationFramework__DerivationKernel("EGAM8Kernel",
                                                                        AugmentationTools = [EGAM8_ZEEMassTool, EGAM8_ZMuEMassTool, EGAM8_GainDecoratorTool, EGAM8_MaxCellDecoratorTool] + EGAM8_ClusterEnergyPerLayerDecorators,
-                                                                       SkimmingTools = [EGAM8SkimmingTool],
+                                                                       SkimmingTools = [EGAM8_SkimmingTool],
                                                                        ThinningTools = thinningTools
                                                                        )
 
 
-
-#========================================================================
+#====================================================================
+# RESTORE JET COLLECTIONS REMOVED BETWEEN r20 AND r21
+#====================================================================
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
+reducedJetList = ["AntiKt4TruthJets"]
+replaceAODReducedJets(reducedJetList,egam8Seq,"EGAM8")
 
 
 #====================================================================

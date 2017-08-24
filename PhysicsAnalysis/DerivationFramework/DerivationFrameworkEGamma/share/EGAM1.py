@@ -14,6 +14,15 @@ from DerivationFrameworkEGamma.EGammaCommon import *
 RecomputeElectronSelectors = True
 #RecomputeElectronSelectors = False
 
+DoCellReweighting = False
+#DoCellReweighting = True
+
+
+# check if we run on data or MC (DataSource = geant4)
+from AthenaCommon.GlobalFlags import globalflags
+print "EGAM1 globalflags.DataSource(): ", globalflags.DataSource()
+if globalflags.DataSource()!='geant4':
+    DoCellReweighting = False
 
 #====================================================================
 # SKIMMING TOOLS
@@ -143,9 +152,10 @@ print EGAM1_ZEGMassTool
 # Skimming criteria
 #expression = '( ( count(Photons.pt > 10*GeV) > 0 ) || ( count(Electrons.pt > 10*GeV) > 0 ) )'
 expression = 'count(EGAM1_DiElectronMass > 50.0*GeV)>=1 || count(EGAM1_DiElectronMass2 > 50.0*GeV)>=1 || count(EGAM1_DiElectronMass3 > 50.0*GeV)>=1 ||  count (EGAM1_ElectronPhotonMass > 50.0*GeV)>=1'
+#expression = 'count(NewSwElectrons.pt > 0*GeV)>0'
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 EGAM1SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "EGAM1SkimmingTool",
-                                                                   expression = expression)
+                                                                 expression = expression)
 ToolSvc += EGAM1SkimmingTool
 print "EGAM1 skimming tool:", EGAM1SkimmingTool
 
@@ -176,6 +186,45 @@ EGAM1_MaxCellDecoratorTool = DerivationFramework__MaxCellDecorator( name        
                                                                     SGKey_photons           = "Photons",
                                                                     )
 ToolSvc += EGAM1_MaxCellDecoratorTool
+
+
+#====================================================================
+# Cell reweighter
+#====================================================================
+if DoCellReweighting:
+    from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import NewCellTool, ClusterDecoratorWithNewCells, ElectronReweightTool
+
+    # first, create the container with the new cells (after reweighting)
+    EGAM1_NewCellTool = NewCellTool(ReweightCellContainerName="NewCellContainer",SGKey_electrons = "Electrons", SGKey_photons = "")
+    print EGAM1_NewCellTool
+    ToolSvc += EGAM1_NewCellTool
+
+    #EGAM1_egammaSwToolWithNewCells = egammaSwToolWithNewCell("EGAM1_egammaSwToolWithNewCells")
+    #print EGAM1_NewCellTool
+    #ToolSvc += EGAM1_NewCellTool
+
+    # second, run a tool that creates the clusters and objects from these new cells
+    EGAM1_ClusterDecoratorTool = ClusterDecoratorWithNewCells(SGKey_caloCells = "NewCellContainer", SGKey_electrons = "Electrons")
+    print EGAM1_ClusterDecoratorTool
+    ToolSvc += EGAM1_ClusterDecoratorTool
+
+    # third, run a tool that creates the shower shapes with the new cells
+    from egammaTools.egammaToolsFactories import EMShowerBuilder
+    EGAM1_EMShowerBuilderTool = EMShowerBuilder("EGAM1_EMShowerBuilderTool", CellsName="NewCellContainer")
+    print EGAM1_EMShowerBuilderTool
+    ToolSvc += EGAM1_ClusterDecoratorTool
+
+    # fourth, decorate the new objects with their shower shapes computed from the new clusters
+    EGAM1_ElectronReweightTool = ElectronReweightTool(SGKey_electrons = "Electrons",
+                                                      SGKey_photons="",
+                                                      NewCellContainerName="NewCellContainer",
+                                                      NewElectronContainer = "NewSwElectrons",
+                                                      NewPhotonContainer = "",
+                                                      EMShowerBuilderTool = EGAM1_EMShowerBuilderTool,
+                                                      ClusterCorrectionToolName = "DFEgammaSWToolWithNewCells",
+                                                      OutputLevel=DEBUG)
+    print EGAM1_ElectronReweightTool
+    ToolSvc += EGAM1_ElectronReweightTool
 
 
 #====================================================================
@@ -247,6 +296,17 @@ print EGAM1TPThinningTool
 #thinningTools.append(EGAM1TPThinningTool)
 
 
+# keep topoclusters around electrons
+from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
+EGAM1CCTCThinningTool = DerivationFramework__CaloClusterThinning(name                    = "EGAM1CCTCThinningTool",
+                                                                 ThinningService         = "EGAM1ThinningSvc",
+                                                                 SGKey                   = "Electrons",
+                                                                 SelectionString         = "Electrons.pt>4*GeV",
+                                                                 TopoClCollectionSGKey   = "CaloCalTopoClusters",
+                                                                 ConeSize                = 0.5)
+ToolSvc += EGAM1CCTCThinningTool
+print EGAM1CCTCThinningTool
+thinningTools.append(EGAM1CCTCThinningTool)
 
 # Truth thinning
 truth_cond_WZH = "((abs(TruthParticles.pdgId) >= 23) && (abs(TruthParticles.pdgId) <= 25))" # W, Z and Higgs
@@ -264,8 +324,6 @@ EGAM1TruthThinningTool = DerivationFramework__GenericTruthThinning(name         
                                                                    PreserveGeneratorDescendants     = True,
                                                                    PreserveAncestors      = True)
 
-from AthenaCommon.GlobalFlags import globalflags
-print "EGAM1 globalflags.DataSource(): ", globalflags.DataSource()
 if globalflags.DataSource()=='geant4':
     ToolSvc += EGAM1TruthThinningTool
     thinningTools.append(EGAM1TruthThinningTool)
@@ -285,8 +343,13 @@ DerivationFrameworkJob += egam1Seq
 #=======================================
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
+augmentationTools = [EGAM1_ZEEMassTool1, EGAM1_ZEEMassTool2, EGAM1_ZEEMassTool3, EGAM1_ZEGMassTool, EGAM1_GainDecoratorTool, EGAM1_MaxCellDecoratorTool]
+if DoCellReweighting:
+    augmentationTools += [EGAM1_NewCellTool, EGAM1_ClusterDecoratorTool, EGAM1_ElectronReweightTool]
+augmentationTools += EGAM1_ClusterEnergyPerLayerDecorators
+print "EGAM1 augmentationTools", augmentationTools
 egam1Seq += CfgMgr.DerivationFramework__DerivationKernel("EGAM1Kernel",
-                                                         AugmentationTools = [EGAM1_ZEEMassTool1, EGAM1_ZEEMassTool2, EGAM1_ZEEMassTool3, EGAM1_ZEGMassTool, EGAM1_GainDecoratorTool, EGAM1_MaxCellDecoratorTool] + EGAM1_ClusterEnergyPerLayerDecorators,
+                                                         AugmentationTools = augmentationTools,
                                                          SkimmingTools = [EGAM1SkimmingTool],
                                                          ThinningTools = thinningTools
                                                          )
@@ -294,7 +357,13 @@ egam1Seq += CfgMgr.DerivationFramework__DerivationKernel("EGAM1Kernel",
 #====================================================================
 # RESTORE JET COLLECTIONS REMOVED BETWEEN r20 AND r21
 #====================================================================
-addStandardJets("AntiKt", 0.4, "PV0Track", 2000, mods="track_ungroomed", algseq=egam1Seq, outputGroup="EGAM1")
+# old syntax
+# addStandardJets("AntiKt", 0.4, "PV0Track", 2000, mods="track_ungroomed", algseq=egam1Seq, outputGroup="EGAM1")
+# new syntax
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
+reducedJetList = ["AntiKt4PV0TrackJets", "AntiKt4TruthJets"]
+replaceAODReducedJets(reducedJetList,egam1Seq,"EGAM1")
+
 
 #=======================================
 # ADD NON-PROMPT LEPTON VETO ALGORITHMS 
@@ -354,6 +423,10 @@ EGAM1SlimmingHelper.ExtraVariables = ExtraContentAll
 # EGAM1SlimmingHelper.ExtraVariables += Config.GetExtraPromptVariablesForDxAOD()
 EGAM1SlimmingHelper.AllVariables = ExtraContainersElectrons
 EGAM1SlimmingHelper.AllVariables += ExtraContainersTrigger
+if DoCellReweighting:
+# Add NewSwElectrons
+    EGAM1SlimmingHelper.AppendToDictionary = {"NewSwElectrons": "xAOD::ElectronContainer", "NewSwElectronsAux": "xAOD::ElectronAuxContainer" }
+    EGAM1SlimmingHelper.AllVariables += ["NewSwElectrons"]
 
 if globalflags.DataSource()!='geant4':
     EGAM1SlimmingHelper.AllVariables += ExtraContainersTriggerDataOnly
@@ -377,5 +450,6 @@ EGAM1SlimmingHelper.AppendContentToStream(EGAM1Stream)
 # Add Derived Egamma CellContainer
 from DerivationFrameworkEGamma.EGammaCellCommon import CellCommonThinning
 CellCommonThinning(EGAM1Stream)
+
 
 

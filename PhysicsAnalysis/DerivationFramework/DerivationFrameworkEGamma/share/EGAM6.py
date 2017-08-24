@@ -144,10 +144,17 @@ print EGAM6_ZEGMassTool
 #expression = '( ( count(Photons.pt > 10*GeV) > 0 ) || ( count(Electrons.pt > 10*GeV) > 0 ) )'
 expression = 'count(EGAM6_DiElectronMass > 60.0*GeV)>=1 || count(EGAM6_DiElectronMass2 > 60.0*GeV)>=1 || count(EGAM6_DiElectronMass3 > 60.0*GeV)>=1 ||  count (EGAM6_ElectronPhotonMass > 60.0*GeV)>=1'
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-EGAM6SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "EGAM6SkimmingTool",
+EGAM6_SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "EGAM6_SkimmingTool",
                                                                  expression = expression)
-ToolSvc += EGAM6SkimmingTool
-print "EGAM6 skimming tool:", EGAM6SkimmingTool
+ToolSvc += EGAM6_SkimmingTool
+print "EGAM6 skimming tool:", EGAM6_SkimmingTool
+
+
+
+#====================================================================
+# DECORATION TOOLS
+#====================================================================
+
 
 #====================================================================
 # Gain and cluster energies per layer decoration tool
@@ -173,7 +180,7 @@ ToolSvc += EGAM6_MaxCellDecoratorTool
 
 
 #================
-# THINNING
+# THINNING TOOLS
 #================
 thinningTools=[]
 
@@ -266,18 +273,30 @@ print "EGAM6 thinningTools: ", thinningTools
 
 
 #=======================================
+# CREATE PRIVATE SEQUENCE
+#=======================================
+egam6Seq = CfgMgr.AthSequencer("EGAM6Sequence")
+DerivationFrameworkJob += egam6Seq
+
+
+#=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM
 #=======================================
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("EGAM6Kernel",
+egam6Seq += CfgMgr.DerivationFramework__DerivationKernel("EGAM6Kernel",
                                                                        AugmentationTools = [EGAM6_ZEEMassTool1, EGAM6_ZEEMassTool2, EGAM6_ZEEMassTool3, EGAM6_ZEGMassTool, EGAM6_GainDecoratorTool, EGAM6_MaxCellDecoratorTool] + EGAM6_ClusterEnergyPerLayerDecorators,
-                                                                       SkimmingTools = [EGAM6SkimmingTool],
+                                                                       SkimmingTools = [EGAM6_SkimmingTool],
                                                                        ThinningTools = thinningTools
                                                                        )
 
 
-#========================================================================
+#====================================================================
+# RESTORE JET COLLECTIONS REMOVED BETWEEN r20 AND r21
+#====================================================================
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
+reducedJetList = ["AntiKt4TruthJets"]
+replaceAODReducedJets(reducedJetList,egam6Seq,"EGAM6")
 
 
 #====================================================================

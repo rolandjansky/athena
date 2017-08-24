@@ -7,6 +7,7 @@
 #include "xAODCaloEvent/CaloCluster.h"
 #include "FourMomUtils/P4Helpers.h"
 #include "DerivationFrameworkCalo/ClustersInCone.h"
+#include "GaudiKernel/MsgStream.h"
 
 //Select for generic IParticle
 void DerivationFramework::ClustersInCone::select(const xAOD::IParticle* particle, 
@@ -69,11 +70,11 @@ bool DerivationFramework::ClustersInCone::GetExtrapEtaPhi(const xAOD::Muon* mu, 
 
 //Overload for Muons 
 void DerivationFramework::ClustersInCone::select(const xAOD::Muon* particle, const float coneSize, 
-						 const xAOD::CaloClusterContainer* clusters, std::vector<bool> &mask) {
+						 const xAOD::CaloClusterContainer* clusters, std::vector<bool> &mask, MsgStream& msg ) {
   float particleEta = particle->eta();
   float particlePhi = particle->phi();
   if(!GetExtrapEtaPhi(particle, particleEta, particlePhi)){
-    std::cerr << "Failed to get the eta-phi of the muon calo extention" << std::endl;
+    msg<<MSG::WARNING<<"Failed to get the eta-phi of the muon calo extention "<<endmsg;    
   }
   unsigned int i(0);
   float coneSize2 = coneSize*coneSize;

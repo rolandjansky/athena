@@ -116,10 +116,16 @@ else :
 
 expression = '(count(DFCommonPhotons_et>9.5*GeV)>=1 && count(EGAM3_DiElectronMass > 40.0*GeV)>=1) || (count(DFCommonPhotons_et>9.5*GeV && '+ photon_quality + ')>=1 && (count(EGAM3_DiElectronMass2 > 40.0*GeV)>=1 || count(EGAM3_DiElectronMass3 > 40.0*GeV)>=1))'
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-EGAM3SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "EGAM3SkimmingTool",
+EGAM3_SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "EGAM3_SkimmingTool",
                                                                  expression = expression)
-ToolSvc += EGAM3SkimmingTool
-print "EGAM3 skimming tool:", EGAM3SkimmingTool
+ToolSvc += EGAM3_SkimmingTool
+print "EGAM3 skimming tool:", EGAM3_SkimmingTool
+
+
+
+#====================================================================
+# DECORATION TOOLS
+#====================================================================
 
 #====================================================================
 # Gain and cluster energies per layer decoration tool
@@ -131,22 +137,38 @@ ToolSvc += EGAM3_GainDecoratorTool
 cluster_sizes = (3,5), (5,7), (7,7), (7,11)
 EGAM3_ClusterEnergyPerLayerDecorators = [getClusterEnergyPerLayerDecorator(neta, nphi)() for neta, nphi in cluster_sizes]
 
+
 #================
-# THINNING
+# THINNING TOOLS
 #================
 thinningTools=[]
 # TO BE ADDED
 
 
 #=======================================
+# CREATE PRIVATE SEQUENCE
+#=======================================
+egam3Seq = CfgMgr.AthSequencer("EGAM3Sequence")
+DerivationFrameworkJob += egam3Seq
+
+
+#=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   
 #=======================================
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("EGAM3Kernel",
-                                                                       AugmentationTools = [EGAM3_EEMassTool,EGAM3_EEMassTool2,EGAM3_EEMassTool3,EGAM3_GainDecoratorTool] + EGAM3_ClusterEnergyPerLayerDecorators,
-                                                                       SkimmingTools = [EGAM3SkimmingTool],
-                                                                       ThinningTools = thinningTools
-                                                                       )
+egam3Seq += CfgMgr.DerivationFramework__DerivationKernel("EGAM3Kernel",
+                                                         AugmentationTools = [EGAM3_EEMassTool,EGAM3_EEMassTool2,EGAM3_EEMassTool3,EGAM3_GainDecoratorTool] + EGAM3_ClusterEnergyPerLayerDecorators,
+                                                         SkimmingTools = [EGAM3_SkimmingTool],
+                                                         ThinningTools = thinningTools
+                                                         )
+
+#====================================================================
+# RESTORE JET COLLECTIONS REMOVED BETWEEN r20 AND r21
+#====================================================================
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
+reducedJetList = ["AntiKt4TruthJets"]
+replaceAODReducedJets(reducedJetList,egam3Seq,"EGAM3")
+
 
 #====================================================================
 # SET UP STREAM   

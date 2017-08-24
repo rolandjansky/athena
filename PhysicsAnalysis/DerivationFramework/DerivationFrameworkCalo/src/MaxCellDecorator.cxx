@@ -79,9 +79,7 @@ StatusCode DerivationFramework::MaxCellDecorator::addBranches() const{
       return StatusCode::FAILURE;
     }
     for (auto photon : *importedPhotons) {
-      if(photon->author() != 128) {
 	decorateObject(photon);
-      }
     }
   }
 
@@ -111,59 +109,60 @@ void DerivationFramework::MaxCellDecorator::decorateObject(const xAOD::Egamma*& 
   float    maxEcell_z      = -9999.9;
 
 
-  const xAOD::CaloCluster *cluster = egamma->caloCluster();
-        
-  if( cluster ){
-    if( !cluster->getCellLinks() ){
-      ATH_MSG_WARNING("CellLinks not found");
-    }
+  if(!egamma->author(xAOD::EgammaParameters::AuthorCaloTopo35)) {
+ 
+    const xAOD::CaloCluster *cluster = egamma->caloCluster();
+    if( cluster ){
+      if( !cluster->getCellLinks() ){
+	ATH_MSG_WARNING("CellLinks not found");
+      }
+      float emax = -9999.;
    
-    float emax = -9999.;
-
-    const CaloCell* cell_maxE = 0;
-    for( const CaloCell* cell : *cluster ){
-      int sampling = cell->caloDDE()->getSampling();
-      if( sampling== CaloCell_ID::EMB2 || sampling== CaloCell_ID::EME2 ){
-	if( (cell->provenance() & 0x2000) ){
-	  if( cell->energy() > emax ) {
-	    emax = cell->energy();
-	    cell_maxE = cell;
+      const CaloCell* cell_maxE = 0;
+      for( const CaloCell* cell : *cluster ){
+	int sampling = cell->caloDDE()->getSampling();
+	if( sampling== CaloCell_ID::EMB2 || sampling== CaloCell_ID::EME2 ){
+	  if( (cell->provenance() & 0x2000) ){
+	    if( cell->energy() > emax ) {
+	      emax = cell->energy();
+	      cell_maxE = cell;
+	    }
 	  }
 	}
+      }      
+      
+      if( cell_maxE ){
+	const CaloDetDescrElement* caloDDEl = cell_maxE->caloDDE();
+	maxEcell_time    = cell_maxE->time();
+	maxEcell_energy = cell_maxE->energy();
+	maxEcell_gain   = (int)cell_maxE->gain();
+	maxEcell_onlId  = (uint64_t)(m_larCablingSvc->createSignalChannelID(caloDDEl->identify())).get_compact();
+	maxEcell_x      = caloDDEl->x();
+	maxEcell_y      = caloDDEl->y();
+	maxEcell_z      = caloDDEl->z();
       }
     }
-                
-    if( cell_maxE ){
-      const CaloDetDescrElement* caloDDEl = cell_maxE->caloDDE();
-      maxEcell_time    = cell_maxE->time();
-      maxEcell_energy = cell_maxE->energy();
-      maxEcell_gain   = (int)cell_maxE->gain();
-      maxEcell_onlId  = (uint64_t)(m_larCablingSvc->createSignalChannelID(caloDDEl->identify())).get_compact();
-      maxEcell_x      = caloDDEl->x();
-      maxEcell_y      = caloDDEl->y();
-      maxEcell_z      = caloDDEl->z();
-    }
   }
-  
-  SG::AuxElement::Decorator< float > decoration0( "maxEcell_time" );
+
+  static const SG::AuxElement::Decorator< float > decoration0( "maxEcell_time" );
   decoration0(*egamma) =  maxEcell_time;
   
-  SG::AuxElement::Decorator< float > decoration1( "maxEcell_energy" );
+  static const SG::AuxElement::Decorator< float > decoration1( "maxEcell_energy" );
   decoration1(*egamma) =  maxEcell_energy;
 
-  SG::AuxElement::Decorator< int > decoration2( "maxEcell_gain" );
+  static const SG::AuxElement::Decorator< int > decoration2( "maxEcell_gain" );
   decoration2(*egamma) =  maxEcell_gain;
 
-  SG::AuxElement::Decorator< uint64_t > decoration3( "maxEcell_onlId" );
+  static const SG::AuxElement::Decorator< uint64_t > decoration3( "maxEcell_onlId" );
   decoration3(*egamma) =  maxEcell_onlId;
 
-  SG::AuxElement::Decorator< float > decoration4( "maxEcell_x" );
+  static const SG::AuxElement::Decorator< float > decoration4( "maxEcell_x" );
   decoration4(*egamma) =  maxEcell_x;
   
-  SG::AuxElement::Decorator< float > decoration5( "maxEcell_y" );
+  static const SG::AuxElement::Decorator< float > decoration5( "maxEcell_y" );
   decoration5(*egamma) =  maxEcell_y;
   
-  SG::AuxElement::Decorator< float > decoration6( "maxEcell_z" );
+  static const SG::AuxElement::Decorator< float > decoration6( "maxEcell_z" );
   decoration6(*egamma) =  maxEcell_z;
 
 }
