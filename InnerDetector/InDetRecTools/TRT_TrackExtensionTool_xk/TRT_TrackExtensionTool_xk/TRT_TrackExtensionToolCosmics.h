@@ -23,6 +23,8 @@
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
 #include "TrkEventPrimitives/PropDirection.h"
 
+#include "StoreGate/ReadHandle.h"
+
 class MsgStream;
 class TRT_ID;
 class AtlasDetectorID;
@@ -104,7 +106,8 @@ namespace InDet {
       std::string                      m_trtmanager     ; // Name of TRT det. manager 
       std::string                      m_trtname        ; // Name container with TRT clusters
 
-      const TRT_DriftCircleContainer*  m_trtcontainer   ; //        
+      SG::ReadHandle<TRT_DriftCircleContainer> m_trtcontainer;
+      //const TRT_DriftCircleContainer*  m_trtcontainer   ; //        
       std::vector<const Trk::MeasurementBase*>  m_measurement  ;
 
       AtlasDetectorID*                       m_idHelper; //<! Detector ID helper

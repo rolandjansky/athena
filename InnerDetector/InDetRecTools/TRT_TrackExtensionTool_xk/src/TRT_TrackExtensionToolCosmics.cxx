@@ -31,7 +31,8 @@ InDet::TRT_TrackExtensionToolCosmics::TRT_TrackExtensionToolCosmics
 (const std::string& t,const std::string& n,const IInterface* p)
   : AthAlgTool(t,n,p),
     m_riontrackD("InDet::TRT_DriftCircleOnTrackTool/TRT_DriftCircleOnTrackToolUniversal"                      ),
-    m_riontrackN("InDet::TRT_DriftCircleOnTrackNoDriftTimeTool/TRT_DriftCircleOnTrackNoDriftTimeTool")
+    m_riontrackN("InDet::TRT_DriftCircleOnTrackNoDriftTimeTool/TRT_DriftCircleOnTrackNoDriftTimeTool"),
+    m_trtcontainer("TRT_DriftCircles")
 {
   m_trtname         = "TRT_DriftCircles";
   m_trtmanager      = "TRT"             ;
@@ -51,8 +52,9 @@ InDet::TRT_TrackExtensionToolCosmics::TRT_TrackExtensionToolCosmics
   declareProperty("BoundaryLocZTolerance",m_roadwidth_locz );
   declareProperty("SearchNeighbour"      ,m_searchNeighbour=false);
   declareProperty("MinNumberDriftCircles",m_minNumberDCs   );
-  declareProperty("TRT_ClustersContainer",m_trtname        );
+  declareProperty("TRT_ClustersContainerName",m_trtname        );
   declareProperty("BoundaryCheck"        ,m_boundarycheck=false);
+  declareProperty("TRT_ClustersContainer",m_trtcontainer    );
 
   m_trtcylinder=0;
   m_trtdiscA=0;
@@ -113,6 +115,11 @@ StatusCode InDet::TRT_TrackExtensionToolCosmics::initialize()
   if(m_outputlevel<=0) {
     m_nprint=0; msg(MSG::DEBUG)<<(*this)<<endmsg;
   }
+
+
+  //Initialize container
+  ATH_CHECK(m_trtcontainer.initialize());
+
   return sc;
 
 
@@ -218,9 +225,10 @@ void InDet::TRT_TrackExtensionToolCosmics::newEvent()
     t = new Amg::Transform3D(r * Amg::Translation3D(Amg::Vector3D(0.,0.,-3000)));
     m_trtdiscC   = new Trk::DiscSurface    (t,1.,1200.);
   }
-  m_trtcontainer = 0;
-  StatusCode sc = evtStore()->retrieve(m_trtcontainer,m_trtname); 
-  if(sc.isFailure() && m_outputlevel<=0) {
+  //m_trtcontainer = 0;
+  //StatusCode sc = evtStore()->retrieve(m_trtcontainer,m_trtname); 
+  //if(sc.isFailure() && m_outputlevel<=0) {
+  if(not m_trtcontainer.isValid() && m_outputlevel<=0) {
     msg(MSG::DEBUG)<<"Could not get TRT_DriftCircleContainer"<<endmsg;
   }
 }
@@ -234,7 +242,8 @@ InDet::TRT_TrackExtensionToolCosmics::extendTrack(const Trk::Track& Tr)
 { 
   m_measurement.erase(m_measurement.begin(), m_measurement.end());
 
-  if(!m_trtcontainer) return m_measurement;
+  //if(!m_trtcontainer) return m_measurement;
+  if(not m_trtcontainer.isValid()) return m_measurement;
 
   const DataVector<const Trk::TrackStateOnSurface>* 
     tsos = Tr.trackStateOnSurfaces();
