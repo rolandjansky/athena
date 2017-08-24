@@ -220,7 +220,7 @@ def buildBjetChainsAllTE(theChainDef, bjetdict, numberOfSubChainDicts=1):
     #
     #  PV Tracking
     #
-    [trkvtx, trkftf, trkprec] = TrigInDetSequence("Bjet", "bjet", "IDTrig", "2step").getSequence() # new
+    [trkvtx, trkftf, trkprec] = TrigInDetSequence("Bjet", "bjet", "IDTrig", sequenceFlavour=["2step"]).getSequence() # new
     tracking        = "IDTrig"
     superTrackingTE = superTE+tracking
     theChainDef.addSequence(trkvtx,  superTE,      superTrackingTE) 
