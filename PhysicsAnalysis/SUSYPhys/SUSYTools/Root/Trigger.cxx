@@ -10,7 +10,7 @@
 
 #include "TrigConfInterfaces/ITrigConfigTool.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
-#include "TriggerMatchingTool/MatchingTool.h"
+#include "TriggerMatchingTool/IMatchingTool.h"
 #include "TrigDecisionTool/FeatureContainer.h"
 #include "TrigDecisionTool/Conditions.h"
 

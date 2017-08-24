@@ -5,13 +5,10 @@
 // Local include(s):
 #include "SUSYTools/SUSYObjDef_xAOD.h"
 
-#include "xAODBase/IParticleHelpers.h"
-#include "EventPrimitives/EventPrimitivesHelpers.h"
-#include "xAODPrimitives/IsolationType.h"
-#include "FourMomUtils/xAODP4Helpers.h"
-#include "xAODTracking/TrackParticlexAODHelpers.h"
-#include "AthContainers/ConstDataVector.h"
+// For making the systematics list and looping through it
 #include "PATInterfaces/SystematicsUtil.h"
+#include "PATInterfaces/SystematicRegistry.h"
+
 #ifndef XAOD_STANDALONE // For now metadata is Athena-only
 #include "AthAnalysisBaseComps/AthAnalysisHelper.h"
 #endif
@@ -71,9 +68,7 @@
 #include "AsgAnalysisInterfaces/IPileupReweightingTool.h"
 #include "AssociationUtils/IOverlapRemovalTool.h"
 
-// Helpers
-#include <boost/algorithm/string/replace.hpp>
-#include <boost/algorithm/string/split.hpp>
+// For configuration -- TEnv uses THashList
 #include "THashList.h"
 
 // system includes

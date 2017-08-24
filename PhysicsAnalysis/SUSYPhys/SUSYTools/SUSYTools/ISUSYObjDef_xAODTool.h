@@ -7,7 +7,7 @@
 #ifndef SUSYTOOLS_SUSYOBJDEF_XAODTOOL_H
 #define SUSYTOOLS_SUSYOBJDEF_XAODTOOL_H
 
-// Framework include(s):
+// Framework include(s) -- base class
 #include "AsgTools/IAsgTool.h"
 
 // EDM include(s):
@@ -28,6 +28,8 @@
 #include "xAODMissingET/MissingETContainer.h"
 #include "xAODTruth/TruthEvent.h"
 #include "xAODTruth/TruthParticleContainer.h"
+
+// Needed for jet functions (take a shallow copy)
 #include "xAODCore/ShallowCopy.h"
 
 // For the SystInfo struct
@@ -171,7 +173,7 @@ namespace ST {
       ishower++;
     }
 
-    std::cout << "WARNING: Unknown MC generator detected. Returning default 0=PowhegPythia6(410000) ShowerType for btagging MC/MC maps." << std::endl;
+    std::cout << "ST::getMCShowerType  WARNING: Unknown MC generator detected. Returning default 0=PowhegPythia6(410000) ShowerType for btagging MC/MC maps." << std::endl;
     return 0;
   }
 
@@ -190,6 +192,10 @@ namespace ST {
     virtual StatusCode readConfig() = 0;
 
     virtual int getMCShowerType(const std::string& sample_name) const = 0;
+
+    // For checking the origin of the input
+    virtual bool isData() const = 0;
+    virtual bool isAtlfast() const = 0;
 
     // override the AsgTool setProperty function for booleans
     virtual StatusCode setBoolProperty(const std::string& name, const bool& property) = 0;
