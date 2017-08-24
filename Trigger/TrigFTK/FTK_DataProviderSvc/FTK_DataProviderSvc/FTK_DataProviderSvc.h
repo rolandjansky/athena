@@ -87,9 +87,16 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
  virtual StatusCode initialize();
  virtual StatusCode finalize();
  virtual TrackCollection* getTracksInRoi(const IRoiDescriptor&, const bool withRefit);
+ virtual TrackCollection* getTracksInRoi(const IRoiDescriptor&, const bool withRefit, unsigned int& nErrors);
+
  virtual TrackCollection* getTracks(const bool withRefit);
+ virtual TrackCollection* getTracks(const bool withRefit,unsigned int& nErrors);
+
  virtual xAOD::TrackParticleContainer* getTrackParticles(const bool withRefit);
+ virtual xAOD::TrackParticleContainer* getTrackParticles(const bool withRefit, unsigned int& nErrors);
+
  virtual xAOD::TrackParticleContainer* getTrackParticlesInRoi(const IRoiDescriptor&, const bool withRefit);
+ virtual xAOD::TrackParticleContainer* getTrackParticlesInRoi(const IRoiDescriptor&, const bool withRefit, unsigned int& nErrors);
 
  virtual  xAOD::VertexContainer* getFastVertices(const ftk::FTK_TrackType trackType=ftk::RawTrack);
  
@@ -107,6 +114,20 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
 
  virtual void handle( const Incident &incident );
 
+ virtual unsigned int nRawTracks();
+ virtual unsigned int nTracks(const bool withRefit);
+ virtual unsigned int nTrackParticles(const bool withRefit);
+ virtual unsigned int nTrackErrors(const bool withRefit);
+ virtual unsigned int nTrackParticleErrors(const bool withRefit);
+ 
+ virtual std::vector<unsigned int> nMissingSCTClusters();
+ virtual std::vector<unsigned int> nMissingPixelClusters();
+ virtual std::vector<unsigned int> nFailedSCTClusters();
+ virtual std::vector<unsigned int> nFailedPixelClusters();
+ 
+
+ private:
+
  void getFTK_RawTracksFromSG();
  Trk::Track* ConvertTrack(const unsigned int track);
  Trk::Track* getCachedTrack(const unsigned int track, const bool do_refit);
@@ -115,12 +136,7 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
  StatusCode fillTrackCache(bool do_refit);
  StatusCode fillTrackParticleCache(const bool withRefit);
 
-
-
  bool fillVertexContainerCache(bool withRefit, xAOD::TrackParticleContainer*);
-
-
- protected:
 
  
  const Trk::RIO_OnTrack* createPixelCluster(const FTK_RawPixelCluster& raw_pixel_cluster,  const Trk::TrackParameters& trkPerigee);
@@ -243,6 +259,12 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
   std::vector<float>  m_pixelBarrelEtaOffsets;
   std::vector<float>  m_pixelEndCapPhiOffsets;
   std::vector<float> m_pixelEndCapEtaOffsets;
+
+  unsigned int  m_nErrors;
+  std::vector<unsigned int> m_nFailedSCTClusters;
+  std::vector<unsigned int> m_nFailedPixelClusters;
+  std::vector<unsigned int> m_nMissingSCTClusters;
+  std::vector<unsigned int> m_nMissingPixelClusters;
 
 };
 
