@@ -29,11 +29,12 @@ InDet::TRT_TrackSegmentsMaker_BarrelCosmics::TRT_TrackSegmentsMaker_BarrelCosmic
     m_magneticField(true),
     m_mergeSegments(false),
     m_useAthenaFieldService(true), 
-    m_driftCirclesName("TRT_DriftCircles"),
+    //m_driftCirclesName("TRT_DriftCircles"),
     m_TRTManagerName("TRT"),
 //    m_trtmanager(0),
     m_trtid(0),
-    m_trtcontainer(0),
+    //m_trtcontainer(0),
+    m_trtcontainer("TRT_DriftCircles"),
     m_assoTool("InDet::InDetPRD_AssociationToolGangedPixels"),
     m_useAssoTool(false),
     //Endcap Trigger Hack
@@ -53,7 +54,7 @@ InDet::TRT_TrackSegmentsMaker_BarrelCosmics::TRT_TrackSegmentsMaker_BarrelCosmic
 
   declareProperty("MinimalTOTForSeedSearch", m_minSeedTOT);
   declareProperty("IsMagneticFieldOn", m_magneticField);
-  declareProperty("TRT_ClustersContainer", m_driftCirclesName);
+  declareProperty("TRT_ClustersContainer", m_driftCirclesName = std::string("TRT_DriftCircles"));
   declareProperty("TrtManagerLocation", m_TRTManagerName);
   declareProperty("MergeSegments", m_mergeSegments);
 //  declareProperty("SearchRoadWidth", m_searchRoadWidth);
@@ -62,6 +63,7 @@ InDet::TRT_TrackSegmentsMaker_BarrelCosmics::TRT_TrackSegmentsMaker_BarrelCosmic
   declareProperty("UseAssosiationTool",m_useAssoTool);
 
   declareProperty( "UseAthenaFieldService",     m_useAthenaFieldService);
+  declareProperty("TRTDriftCircleCollection", m_trtcontainer);
 
 }
 
@@ -74,7 +76,10 @@ StatusCode InDet::TRT_TrackSegmentsMaker_BarrelCosmics::initialize() {
                  << " search bins: " << m_nBinsInX << ", " << m_nBinsInPhi << endmsg;
 
   StatusCode sc = StatusCode::SUCCESS;
-
+  
+  // Initialize ReadHandle
+  ATH_CHECK(m_trtcontainer.initialize());
+  ATH_CHECK(m_driftCirclesName.initialize());
   // TRT
   if (detStore()->retrieve(m_trtid, "TRT_ID").isFailure()) {
     msg(MSG::FATAL) << "Could not get TRT ID helper" << endmsg;
@@ -115,10 +120,12 @@ void InDet::TRT_TrackSegmentsMaker_BarrelCosmics::newEvent() {
 
   clear(); // private method that clears data members from the previous event
 
-  const InDet::TRT_DriftCircleContainer* TRTDriftCircleContainer;   // get TRT_DriftCircle list from StoreGate containers
-  StatusCode sc = evtStore()->retrieve( TRTDriftCircleContainer, m_driftCirclesName );
-  if (sc.isFailure()) { msg(MSG::ERROR) << "Could not find TRT_DriftCircles collection!" << endmsg; return; }
-  if (TRTDriftCircleContainer==0) { msg(MSG::ERROR) << "newEvent(): TRTDriftCircleContainer==0" << endmsg; return; }
+  //const InDet::TRT_DriftCircleContainer* TRTDriftCircleContainer;   // get TRT_DriftCircle list from StoreGate containers
+  SG::ReadHandle<InDet::TRT_DriftCircleContainer> TRTDriftCircleContainer(m_driftCirclesName);
+  //StatusCode sc = evtStore()->retrieve( TRTDriftCircleContainer, m_driftCirclesName );
+  //if (sc.isFailure()) { msg(MSG::ERROR) << "Could not find TRT_DriftCircles collection!" << endmsg; return; }
+  if (not TRTDriftCircleContainer.isValid()) { msg(MSG::ERROR) << "Could not find TRT_DriftCircles collection!" << endmsg; return; }
+  if (&*TRTDriftCircleContainer==0) { msg(MSG::ERROR) << "newEvent(): TRTDriftCircleContainer==0" << endmsg; return; }
 
   for(InDet::TRT_DriftCircleContainer::const_iterator it=TRTDriftCircleContainer->begin(); it!=TRTDriftCircleContainer->end(); it++) {
 
@@ -158,8 +165,9 @@ void InDet::TRT_TrackSegmentsMaker_BarrelCosmics::newRegion(const std::vector<Id
 
   clear();
 
-  StatusCode sc = evtStore()->retrieve(m_trtcontainer, m_driftCirclesName);
-  if (sc.isFailure() || !m_trtcontainer) {
+  //StatusCode sc = evtStore()->retrieve(m_trtcontainer, m_driftCirclesName);
+  //if (sc.isFailure() || !m_trtcontainer) {
+  if (not m_trtcontainer.isValid()) {
     msg(MSG::ERROR) << "m_trtcontainer is empty!!!" << endmsg;
     return;
   }   
