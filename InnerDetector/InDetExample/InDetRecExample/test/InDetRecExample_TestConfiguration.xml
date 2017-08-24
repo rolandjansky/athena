@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd">
+
+<unifiedTestConfiguration> 
+ <atn>
+   <TEST name="InDetRecExample" type="makecheck" suite="Examples">
+      <author> Atlas Developer </author>
+      <mailto> Markus.Elsing@cern.ch, Andreas.Salzburger@cern.ch, Attilio.Andreazza@cern.ch, lea.michaela.caminada@cern.ch </mailto>
+      <expectations>
+         <returnValue>0</returnValue>
+      </expectations>
+   </TEST>
+ </atn>
+</unifiedTestConfiguration>
