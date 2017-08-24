@@ -51,7 +51,6 @@ class ICPJetUncertaintiesTool;
 class IJetSelector;
 class IJetUpdateJvt;
 class IJetModifier;
-class ISingleJetModifier;
 
 class IAsgElectronLikelihoodTool;
 class IAsgElectronEfficiencyCorrectionTool;
@@ -603,10 +602,10 @@ namespace ST {
     asg::AnaToolHandle<IJetModifier> m_jetFwdJvtTool;
     asg::AnaToolHandle<CP::IJetJvtEfficiency> m_jetJvtEfficiencyTool;
     
-    std::string m_WtagWP;
-    std::string m_ZtagWP;
-    asg::AnaToolHandle<ISingleJetModifier> m_WTaggerTool;
-    asg::AnaToolHandle<ISingleJetModifier> m_ZTaggerTool;
+    std::string m_WtagConfig;
+    std::string m_ZtagConfig;
+    asg::AnaToolHandle<IJetSelector> m_WTaggerTool;
+    asg::AnaToolHandle<IJetSelector> m_ZTaggerTool;
 
     //
     asg::AnaToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;
