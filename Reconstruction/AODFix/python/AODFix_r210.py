@@ -55,10 +55,6 @@ class AODFix_r210(AODFix_base):
                 self.trklinks_postSystemRec(topSequence)
                 pass
 
-            if "egammaStrips" not in oldMetadataList:
-                self.egammaStrips_postSystemRec(topSequence)
-                pass
-
             if "btagging" not in oldMetadataList:
                 self.btagging_postSystemRec(topSequence)
                 pass
@@ -120,13 +116,3 @@ class AODFix_r210(AODFix_base):
                 print '#BTAG# --> ' + jet
                 print '#BTAG# --> ' + AuthorSubString[i]
 
-
-    def egammaStrips_postSystemRec(self, topSequence):
-        """This fixes the strips shower shapes for electrons and photons
-        JIRA: https://its.cern.ch/jira/browse/ATLASRECTS-4121
-        """
-        from egammaRec.egammaRecConf import egammaAODFixAlg
-        topSequence+=egammaAODFixAlg()
-        
-
-                
