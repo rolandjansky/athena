@@ -10,12 +10,16 @@ dfInputIsEVNT = False # Flag to distinguish EVNT from AOD input
 # Build truth collection if input is HepMC. Must be scheduled first to allow slimming.
 # Input file is EVNT
 if objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ):
-        DerivationFrameworkJob.insert(0,xAODMaker__xAODTruthCnvAlg("GEN_EVNT2xAOD",AODContainerName="GEN_EVENT"))
-        dfInputIsEVNT = True
+    DerivationFrameworkJob.insert(0,xAODMaker__xAODTruthCnvAlg("GEN_EVNT2xAOD",AODContainerName="GEN_EVENT"))
+    dfInputIsEVNT = True
 # Input file is HITS
 elif objKeyStore.isInInput( "McEventCollection", "TruthEvent"):
-        DerivationFrameworkJob.insert(0,xAODMaker__xAODTruthCnvAlg("GEN_EVNT2xAOD",AODContainerName="TruthEvent"))
-        dfInputIsEVNT = True
+    DerivationFrameworkJob.insert(0,xAODMaker__xAODTruthCnvAlg("GEN_EVNT2xAOD",AODContainerName="TruthEvent"))
+    dfInputIsEVNT = True
+# If it isn't available, make a truth meta data object (will hold MC Event Weights)
+if objKeyStore.isInInput( "xAOD::TruthMetaDataContainer", "TruthMetaData" ):
+    ToolSvc += CfgMgr.DerivationFramework__TruthMetaDataWriter(name='DFCommonTruthMetaDataWriter')
+    AugmentationTools.append(ToolSvc.DFCommonTruthMetaDataWriter)
 # If we are running on EVNTs, then we need some jets
 if dfInputIsEVNT:
     from JetRec.JetRecFlags import jetFlags
@@ -85,3 +89,6 @@ from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramew
 DerivationFrameworkJob += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthCommonKernel",
                                                                          AugmentationTools = augmentationToolsList
                                                                          )
+
+# Tau collections are built separately
+from DerivationFrameworkTau.TauTruthCommon import *
