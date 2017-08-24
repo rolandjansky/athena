@@ -509,17 +509,13 @@ from DerivationFrameworkExotics.JetDefinitions import *
 from JetRec.JetRecStandard import jtm
 from JetRec.JetRecConf import JetAlgorithm
 
-# run the SUSYGenFilterTool, which adds a decoration flag in the derivation
+# run the GenFilterTool, which adds a decoration flag in the derivation
 # to identify the MET and HT bins of this sample in some cases
 # https://twiki.cern.ch/twiki/bin/view/AtlasProtected/MergingHTMETSamplesttWt
 augTools = []
 if globalflags.DataSource() == 'geant4':
-  ToolSvc += CfgMgr.DerivationFramework__SUSYGenFilterTool(
-    "EXOT4GenFilt",
-    SimBarcodeOffset = DerivationFrameworkSimBarcodeOffset
-  )
-  augTools.append(ToolSvc.EXOT4GenFilt)
-
+   from DerivationFrameworkMCTruth.GenFilterToolSetup import *
+   augTools.append(ToolSvc.DFCommonTruthGenFilter)
 
 # this classifies leptons into background or signal leptons depending on
 # where they come from

@@ -1,39 +1,42 @@
-/** -*- C++ -*- */
-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
- * @file DerivationFrameworkSUSY/SUSYGenFilterTool.h
+ * @file GenFilterTool.h
  * @author TJ Khoo
  * @date July 2015
  * @brief tool to decorate EventInfo with quantities needed to disentangle generator filtered samples
 */
 
+#ifndef DerivationFrameworkMCTruth_GenFilterTool_H
+#define DerivationFrameworkMCTruth_GenFilterTool_H
 
-#ifndef DerivationFramework_SUSYGenFilterTool_H
-#define DerivationFramework_SUSYGenFilterTool_H
-
-#include <string>
-
+// Base classes
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 
+// Tool handle for the MC truth classifier
+#include "GaudiKernel/ToolHandle.h"
+
+// EDM include -- typedef, so has to be included
 #include "xAODTruth/TruthParticleContainer.h"
+
+// Defs for the particle origin
 #include "MCTruthClassifier/MCTruthClassifierDefs.h"
-#include "MCTruthClassifier/IMCTruthClassifier.h"
+
+// STL includes
+#include <string>
+
+class IMCTruthClassifier;
 
 namespace DerivationFramework {
 
-  class SUSYGenFilterTool : public AthAlgTool, public IAugmentationTool {
+  class GenFilterTool : public AthAlgTool, public IAugmentationTool {
 
   public:
-    SUSYGenFilterTool(const std::string& t, const std::string& n, const IInterface* p);
-    ~SUSYGenFilterTool();
-    StatusCode initialize();
-    StatusCode finalize();
+    GenFilterTool(const std::string& t, const std::string& n, const IInterface* p);
+    ~GenFilterTool();
     virtual StatusCode addBranches() const;
 
     StatusCode getGenFiltVars(const xAOD::TruthParticleContainer* tpc, float& genFiltHT, float& genFiltMET) const;
@@ -56,10 +59,8 @@ namespace DerivationFramework {
     mutable std::map<const xAOD::TruthParticle*,MCTruthPartClassifier::ParticleOrigin> m_originMap;
     ToolHandle<IMCTruthClassifier> m_classif;
 
-
   }; /// class
 
 } /// namespace
-
 
 #endif
