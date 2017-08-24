@@ -295,9 +295,9 @@ class ConfiguredNewTrackingCuts :
 
       elif self.__indetflags.useInDetDynamicCuts() and ( "BrlInclOptRing4.0_ref" == GeometryFlags.GeoType() or "Inclined_Quads" == GeometryFlags.GeoType() or "Inclined_Alternative" == GeometryFlags.GeoType() or "Inclined_LightBarrel" == GeometryFlags.GeoType() or "Inclined_Duals" == GeometryFlags.GeoType() ):
         self.__maxEta                  = 4.0
-        self.__etaBins                 = [-1.0, 2.4, 2.6]		# last bin goes from the last value in the list up to maxEta
+        self.__etaBins                 = [-1.0, 2.0, 2.6]		# last bin goes from the last value in the list up to maxEta
     
-        self.__minPT                   = [900.0, 900.0, 400.0]
+        self.__minPT                   = [900.0, 400.0, 400.0]
     
         # --- cluster cuts
         self.__minClusters             = [9, 8, 7]
@@ -305,7 +305,7 @@ class ConfiguredNewTrackingCuts :
         self.__maxShared               = [2, 2, 2]
         self.__minPixel                = [1, 1, 1]
         self.__maxHoles                = [2, 2, 2]
-        self.__maxPixelHoles           = [1, 1, 1]
+        self.__maxPixelHoles           = [2, 2, 2]
         self.__maxSctHoles             = [2, 2, 2]
         self.__maxDoubleHoles          = [1, 1, 1]
         self.__maxPrimaryImpact        = [2.0, 2.0, 10.0]
