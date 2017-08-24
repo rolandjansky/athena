@@ -41,6 +41,7 @@ InDet::TRT_TrackSegmentsMaker_ECcosmics::TRT_TrackSegmentsMaker_ECcosmics
   : AthAlgTool(t,n,p),
     m_multiTruthCollectionTRTName("PRD_MultiTruthTRT"),
     m_phaseMode(false),
+    m_trtcontainer("TRT_DriftCircles"),
     m_riomakerD ("InDet::TRT_DriftCircleOnTrackTool/TRT_DriftCircleOnTrackTool"                      ),
     m_riomakerN ("InDet::TRT_DriftCircleOnTrackNoDriftTimeTool/TRT_DriftCircleOnTrackNoDriftTimeTool"),
     m_assoTool     ("InDet::InDetPRD_AssociationToolGangedPixels"),
@@ -58,7 +59,7 @@ InDet::TRT_TrackSegmentsMaker_ECcosmics::TRT_TrackSegmentsMaker_ECcosmics
   declareInterface<ITRT_TrackSegmentsMaker>(this);
 
   declareProperty("TrtManagerLocation"   ,m_ntrtmanager);
-  declareProperty("TRT_ClustersContainer",m_trtname    ); 
+  //declareProperty("TRT_ClustersContainer",m_trtname    ); 
   
   declareProperty("RIOonTrackToolYesDr"  ,m_riomakerD  );
   declareProperty("RIOonTrackToolNoDr"   ,m_riomakerN  );
@@ -79,7 +80,8 @@ InDet::TRT_TrackSegmentsMaker_ECcosmics::TRT_TrackSegmentsMaker_ECcosmics
   declareProperty("MinDCperSeed",m_minDCSeed);
 
   declareProperty("HitLimit",m_hitLimit=2000);
-
+  declareProperty("TRT_ClustersContainer", m_trtcontainer);
+  
   m_counter=0;
   m_truthCollectionTRT = false;
   m_real_counter=0;
@@ -141,6 +143,9 @@ StatusCode InDet::TRT_TrackSegmentsMaker_ECcosmics::initialize()
   if (sc.isFailure()) {
     msg(MSG::FATAL)<<"Could not get TRT_DetectorManager"<<endmsg; return sc;
   }
+  
+  // Initialize ReadHandle
+  ATH_CHECK(m_trtcontainer.initialize());
 
   //m_trtid = m_trtmanager->getIdHelper();
   // TRT
@@ -1751,14 +1756,18 @@ void InDet::TRT_TrackSegmentsMaker_ECcosmics::retrieveHits(void)
   m_goodHits.clear();
 
 
-  StatusCode s = evtStore()->retrieve(m_trtcontainer,m_trtname);
+  //StatusCode s = evtStore()->retrieve(m_trtcontainer,m_trtname);
   
-  if(s.isFailure()) {
+  //if(s.isFailure()) {
+  if (not m_trtcontainer.isValid()) {
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"Could not get TRT_DriftCircleContainer"<<endmsg;
     return;
   }
-  if(!m_trtcontainer) return;
-
+  
+  const InDet::TRT_DriftCircleContainer*   mjo_trtcontainer = m_trtcontainer.get();
+  
+  //if(!m_trtcontainer) return;
+  if (!mjo_trtcontainer) return;
 
   // temporary for MC truth !!!
   /*
