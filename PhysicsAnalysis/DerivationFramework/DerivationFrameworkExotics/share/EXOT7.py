@@ -68,13 +68,10 @@ isMC = False
 if globalflags.DataSource()=='geant4':
   isMC = True
 
-#run SUSYGenFilterTool
+#run GenFilterTool
 if globalflags.DataSource() == 'geant4':
-  ToolSvc += CfgMgr.DerivationFramework__SUSYGenFilterTool(
-    "EXOT7GenFilt",
-    SimBarcodeOffset = DerivationFrameworkSimBarcodeOffset
-  )
-  augTools.append(ToolSvc.EXOT7GenFilt)
+  from DerivationFrameworkMCTruth.GenFilterToolSetup import *
+  augTools.append(ToolSvc.DFCommonTruthGenFilter)
 
 from DerivationFrameworkExotics.JetDefinitions import *
 

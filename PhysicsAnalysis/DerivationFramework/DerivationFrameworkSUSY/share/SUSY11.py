@@ -1,4 +1,4 @@
-#********************************************************************
+#*****************************************************************
 # SUSY11.py
 # reductionConf flag SUSY11 in Reco_tf.py (jet smearing)
 #********************************************************************
@@ -161,18 +161,6 @@ if DerivationFrameworkIsMonteCarlo:
 if DerivationFrameworkIsMonteCarlo:
   from DerivationFrameworkSUSY.SUSYTruthCommon import addTruthTaus
   addTruthTaus(AugmentationTools)
-
-
-#==============================================================================
-# SUSY background generator filters
-#==============================================================================
-if DerivationFrameworkIsMonteCarlo:
-
-  ToolSvc += CfgMgr.DerivationFramework__SUSYGenFilterTool(
-    "SUSY11GenFilt",
-    SimBarcodeOffset = DerivationFrameworkSimBarcodeOffset
-  )
-  AugmentationTools.append(ToolSvc.SUSY11GenFilt)
 
 
 #==============================================================================
