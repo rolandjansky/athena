@@ -27,6 +27,8 @@
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 #include "TRT_TrackSegmentsTool_xk/TRT_DriftCircleLink_xk.h"
 
+#include "StoreGate/ReadHandle.h"
+
 class MsgStream;
 
 namespace Trk {
@@ -93,7 +95,7 @@ namespace InDet{
       ///////////////////////////////////////////////////////////////////
       
       std::string                            m_fieldmode       ; // Mode of magnetic field
-      std::string                            m_trtname         ; // Name  TRT container
+
       std::string                            m_ntrtmanager     ; // Name of TRT det. manager 
       std::string                            m_callbackString  ;
       ToolHandle<Trk::IPropagator>           m_propTool        ; // Propagator            tool
@@ -103,8 +105,10 @@ namespace InDet{
       Trk::MagneticFieldProperties           m_fieldprop       ; // Magnetic field properties
       const InDetDD::TRT_DetectorManager   * m_trtmgr          ;
       const TRT_ID                         * m_trtid           ; 
-      const InDet::TRT_DriftCircleContainer* m_trtcontainer    ; // TRTs   container        
-
+      //const InDet::TRT_DriftCircleContainer* m_trtcontainer    ; // TRTs   container        
+      std::string                            m_trtname         ; // Name  TRT container
+      //SG::ReadHandleKey<InDet::TRT_DriftCircleContainer> m_trtname; // Name  TRT container
+      SG::ReadHandle<InDet::TRT_DriftCircleContainer> m_trtcontainer;
       bool                                   m_build           ;
       bool                                   m_gupdate         ;
       bool                                   m_useassoTool     ;
