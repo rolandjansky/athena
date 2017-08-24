@@ -141,11 +141,11 @@ class PixelConditionsServicesSetup:
     
     if self._print:  print SpecialPixelMapSvc
 
-
+    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
     from AthenaCommon.GlobalFlags import globalflags
     if self.useDCS or self.onlineMode:
       #sim
-      if globalflags.DataSource() == 'geant4':      
+      if globalflags.DataSource() == 'geant4' or (not athenaCommonFlags.isOnline()):      
         if not conddb.folderRequested('/PIXEL/DCS/TEMPERATURE'):
           conddb.addFolder("DCS_OFL","/PIXEL/DCS/TEMPERATURE")
         if not conddb.folderRequested('/PIXEL/DCS/HV'):
@@ -179,8 +179,12 @@ class PixelConditionsServicesSetup:
                                       )
 
       if globalflags.DataSource() == 'data':
-        InDetPixelDCSSvc.TemperatureFolder = "/PIXEL/HLT/DCS/TEMPERATURE"
-        InDetPixelDCSSvc.HVFolder = "/PIXEL/HLT/DCS/HV"
+        if (not athenaCommonFlags.isOnline()):
+          InDetPixelDCSSvc.TemperatureFolder = "/PIXEL/DCS/TEMPERATURE"
+          InDetPixelDCSSvc.HVFolder = "/PIXEL/DCS/HV"
+        else:
+          InDetPixelDCSSvc.TemperatureFolder = "/PIXEL/HLT/DCS/TEMPERATURE"
+          InDetPixelDCSSvc.HVFolder = "/PIXEL/HLT/DCS/HV"
         
       ServiceMgr += InDetPixelDCSSvc
 
@@ -369,7 +373,7 @@ class SCT_ConditionsServicesSetup:
     "Init DCS conditions service"
     dcs_folder="/SCT/DCS"
     db_loc = "DCS_OFL"
-    if not self.isMC:
+    if (not self.isMC): 
       dcs_folder="/SCT/HLT/DCS"
       db_loc = "SCT"
       
@@ -378,7 +382,7 @@ class SCT_ConditionsServicesSetup:
     else:        
       from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsSvc
       dcsSvc = SCT_DCSConditionsSvc(name = instanceName)
-      if not self.isMC:
+      if (not self.isMC):
         dcsSvc.FolderLocation="/SCT/HLT/DCS"
         dcsSvc.ReadAllDBFolders=False
         dcsSvc.ReturnHVTemp=True

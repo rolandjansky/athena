@@ -1840,7 +1840,6 @@ const Trk::RIO_OnTrack*  FTK_DataProviderSvc::createPixelCluster(const FTK_RawPi
   int phiWidth    = std::max(raw_pixel_cluster.getRowWidth(),1u);
   int etaWidth    = std::max(raw_pixel_cluster.getColWidth(),1u);
 
-
   int colMin = (int)(eta_index-0.5*etaWidth);
   int colMax = colMin+etaWidth;
 
