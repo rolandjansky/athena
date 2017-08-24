@@ -242,6 +242,7 @@
 + Reconstruction/egamma/egammaLayerRecalibTool
 + Reconstruction/egamma/egammaMVACalib
 + Reconstruction/egamma/egammaRec
++ Reconstruction/egamma/egammaCaloTools
 + Reconstruction/egamma/egammaRecEvent
 + Reconstruction/egamma/egammaUtils
 + Reconstruction/EventShapes/.*
