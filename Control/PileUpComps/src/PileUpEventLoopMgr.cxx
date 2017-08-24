@@ -777,7 +777,8 @@ StatusCode PileUpEventLoopMgr::executeEvent(void* par)
   m_eventContext->set(m_nevt,0);
 
   /// Is this correct, or should it be set to a pileup store?
-  m_eventContext->setExtension( Atlas::ExtendedEventContext(m_evtStore->hiveProxyDict()) );
+  m_eventContext->setExtension( Atlas::ExtendedEventContext(m_evtStore->hiveProxyDict(),
+                                                            pEvent->event_ID()->run_number()) );
   Gaudi::Hive::setCurrentContext( m_eventContext );
 
   m_aess->reset(*m_eventContext);

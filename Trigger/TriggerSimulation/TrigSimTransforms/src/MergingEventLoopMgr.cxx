@@ -493,7 +493,8 @@ namespace TrigSim {
 
             m_eventContext.setEventID( *((EventIDBase*) pPrimEvt->event_ID()) );
             m_eventContext.set(m_nEvt,0);
-            m_eventContext.setExtension( Atlas::ExtendedEventContext( m_primEvtStore->hiveProxyDict() ) );
+            m_eventContext.setExtension( Atlas::ExtendedEventContext( m_primEvtStore->hiveProxyDict(),
+                                                                      pPrimEvt->event_ID()->run_number() ) );
 
             Gaudi::Hive::setCurrentContext( m_eventContext );
 

@@ -53,11 +53,13 @@ StatusCode TestViewDriver::execute( ) {
   auto contexts = std::vector<EventContext>( );
   auto viewVector = std::make_unique<std::vector<SG::View*>>( );
   unsigned int viewCounter = 0;
+  unsigned int conditionsRun = getContext().getExtension<Atlas::ExtendedEventContext>()->conditionsRun();
   for ( const auto roi: *roisContainer.cptr( ) ) {
 
     contexts.push_back( getContext( ) );    
     viewVector->push_back( ViewHelper::makeView( name( )+"_view", viewCounter++ ) );
-    contexts.back( ).setExtension( Atlas::ExtendedEventContext( viewVector->back( ) ));
+    contexts.back( ).setExtension( Atlas::ExtendedEventContext( viewVector->back( ),
+                                                                conditionsRun));
 
     
     auto oneRoIColl = std::make_unique< ConstDataVector<TrigRoiDescriptorCollection> >( );    
