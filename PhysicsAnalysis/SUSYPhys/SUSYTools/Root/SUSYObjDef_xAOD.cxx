@@ -30,7 +30,6 @@
 #include "JetCPInterfaces/ICPJetUncertaintiesTool.h"
 #include "JetInterface/IJetUpdateJvt.h"
 #include "JetInterface/IJetModifier.h"
-#include "JetInterface/ISingleJetModifier.h"
 #include "JetJvtEfficiency/IJetJvtEfficiency.h"
 
 #include "AsgAnalysisInterfaces/IEfficiencyScaleFactorTool.h"
@@ -940,8 +939,8 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_fatJets, "Jet.LargeRcollection", rEnv, "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets");
   configFromFile(m_fatJetUncConfig, "Jet.LargeRuncConfig", rEnv, "UJ2016_CombinedMass_medium.config"); //MultiTagging_medium.config");
   configFromFile(m_fatJetUncVars, "Jet.LargeRuncVars", rEnv, "default"); //do all if not specified
-  configFromFile(m_WtagWP, "Jet.WtaggerWP", rEnv, "medium");
-  configFromFile(m_ZtagWP, "Jet.ZtaggerWP", rEnv, "medium");
+  configFromFile(m_WtagConfig, "Jet.WtaggerConfig", rEnv, "SmoothedWZTaggers/SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency80_MC15c_20161215.dat");
+  configFromFile(m_ZtagConfig, "Jet.ZtaggerConfig", rEnv, "SmoothedWZTaggers/SmoothedContainedZTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency80_MC15c_20161215.dat");
   //
   configFromFile(m_badJetCut, "BadJet.Cut", rEnv, "LooseBad");
   //
