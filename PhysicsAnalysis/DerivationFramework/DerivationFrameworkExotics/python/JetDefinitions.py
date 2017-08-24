@@ -8,7 +8,7 @@ jtm.modifiersMap["calib_notruth"] = jtm.modifiersMap["lctopo_ungroomed"]
 if globalflags.DataSource()=='geant4':
     jtm.modifiersMap["calib_notruth"].remove('truthassoc')
 
-jtm.modifiersMap["exotJetMods"] = jtm.modifiersMap["groomed"]
+jtm.modifiersMap["exotJetMods"] = jtm.modifiersMap["lctopo_groomed"]
 if globalflags.DataSource()=='geant4':
     jtm.modifiersMap["exotJetMods"] += [jtm.truthpartondr]
 
@@ -38,4 +38,3 @@ def scheduleMETCustomClustJet(jetcoll='AntiKt4EMTopo', clustColl='CaloCalTopoClu
 
     #from METReconstruction.METRecoFlags import metFlags
     #metFlags.METAssocConfigs()[cfg.suffix] = cfg
-
