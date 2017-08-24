@@ -545,15 +545,9 @@ StatusCode SUSYToolsAlg::execute() {
     el_n_flow_nominal->Fill(Cut::all);
     if ( el->auxdata<char>("baseline") == 1 ){
       el_n_flow_nominal->Fill(Cut::baseline);
-<<<<<<< HEAD
       if ( el->auxdata<char>("passOR") == 1 ){
         el_n_flow_nominal->Fill(Cut::passOR);
         if ( el->auxdata<char>("signal") == 1 ){
-=======
-      if ( el->auxdata<char>("passOR") == 1 ){ 
-        el_n_flow_nominal->Fill(Cut::passOR);
-        if ( el->auxdata<char>("signal") == 1 ){ 
->>>>>>> 88f3d4971eb2b568b5748ad39f397fa8e2edc345
           el_n_flow_nominal->Fill(Cut::signal);
 
           count_el_signal++;
@@ -568,11 +562,7 @@ StatusCode SUSYToolsAlg::execute() {
             idx++;
           }              
           if(passTM) el_n_flow_nominal->Fill(Cut::trigmatch);
-<<<<<<< HEAD
         }
-=======
-        }          
->>>>>>> 88f3d4971eb2b568b5748ad39f397fa8e2edc345
       }
     }
     el_pt_nominal->Fill(el->pt() * 1e-3);
@@ -588,15 +578,9 @@ StatusCode SUSYToolsAlg::execute() {
     ph_n_flow_nominal->Fill(Cut::all);
     if ( ph->auxdata<char>("baseline") == 1 ){
       ph_n_flow_nominal->Fill(Cut::baseline);
-<<<<<<< HEAD
       if ( ph->auxdata<char>("passOR") == 1 ){
         ph_n_flow_nominal->Fill(Cut::passOR);
         if ( ph->auxdata<char>("signal") == 1 ){
-=======
-      if ( ph->auxdata<char>("passOR") == 1 ){ 
-        ph_n_flow_nominal->Fill(Cut::passOR);
-        if ( ph->auxdata<char>("signal") == 1 ){ 
->>>>>>> 88f3d4971eb2b568b5748ad39f397fa8e2edc345
           ph_n_flow_nominal->Fill(Cut::signal);
 
           count_ph_signal++;
@@ -610,11 +594,7 @@ StatusCode SUSYToolsAlg::execute() {
             idx++;
           }              
           if(passTM) ph_n_flow_nominal->Fill(Cut::trigmatch);
-<<<<<<< HEAD
         }
-=======
-        }          
->>>>>>> 88f3d4971eb2b568b5748ad39f397fa8e2edc345
       }
     }
     ph_pt_nominal->Fill(ph->pt() * 1e-3);
