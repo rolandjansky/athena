@@ -8,8 +8,6 @@ from DerivationFrameworkCore.DerivationFrameworkMaster import *
 # Add all the particle derivation tools
 # This sets up its own common kernel and adds the common tools to it
 from DerivationFrameworkMCTruth.MCTruthCommon import *
-# Add the tau extras
-from DerivationFrameworkTau.TauTruthCommon import *
 # Extra classifiers for the Higgs group
 from DerivationFrameworkHiggs.TruthCategories import *
 

@@ -10,10 +10,10 @@ ToolSvc += DFCommonTruthClassifier
 
 #==============================================================================
 # Schedule the tools for adding new truth collection
+# Note that taus are handled separately (see MCTruthCommon.py)
 #==============================================================================
 
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthCollectionMaker
-#from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthCollectionMakerTau
 
 DFCommonTruthMuonTool = DerivationFramework__TruthCollectionMaker(name           = "DFCommonTruthMuonTool",
                                                          NewCollectionName       = "TruthMuons",
@@ -32,13 +32,6 @@ DFCommonTruthPhotonToolSim = DerivationFramework__TruthCollectionMaker(name     
                                                          NewCollectionName       = "TruthPhotons",
                                                          ParticleSelectionString = "(abs(TruthParticles.pdgId) == 22) && (TruthParticles.status == 1) && ((TruthParticles.classifierParticleOrigin != 42) || (TruthParticles.pt > 20.0*GeV)) && ( TruthParticles.barcode < "+str(DerivationFrameworkSimBarcodeOffset)+")")
 ToolSvc += DFCommonTruthPhotonToolSim
-
-
-# Tau truth handled in TauCommon
-#DFCommonTruthTauTool = DerivationFramework__TruthCollectionMakerTau(name             = "DFCommonTruthTauTool",
-#                                                             NewCollectionName       = "TruthTaus",
-#                                                             MCTruthClassifier       = DFCommonTruthClassifier)
-#ToolSvc += DFCommonTruthTauTool
 
 neutrinoexpression = "((abs(TruthParticles.pdgId) == 12 || abs(TruthParticles.pdgId) == 14 || abs(TruthParticles.pdgId) == 16) && (TruthParticles.status == 1)) && TruthParticles.barcode < "+str(DerivationFrameworkSimBarcodeOffset)
 DFCommonTruthNeutrinoTool = DerivationFramework__TruthCollectionMaker(name                 = "DFCommonTruthNeutrinoTool",
@@ -62,7 +55,7 @@ ToolSvc += DFCommonTruthBosonTool
 
 DFCommonTruthBSMTool = DerivationFramework__TruthCollectionMaker(name                   = "DFCommonTruthBSMTool",
                                                                 NewCollectionName       = "TruthBSM",
-                                                                ParticleSelectionString = "( (31<abs(TruthParticles.pdgId) && abs(TruthParticles.pdgId)<38) || abs(TruthParticles.pdgId)==39 || abs(TruthParticles.pdgId)==41 || abs(TruthParticles.pdgId)==42 || abs(TruthParticles.pdgId)== 7 || abs(TruthParticles.pdgId)== 8 || abs(TruthParticles.pdgId)==17 || abs(TruthParticles.pdgId)==18 || (1000000<abs(TruthParticles.pdgId) && abs(TruthParticles.pdgId)<1000040) || (2000000<abs(TruthParticles.pdgId) && abs(TruthParticles.pdgId)<2000040) )",
+                                                                ParticleSelectionString = "( (31<abs(TruthParticles.pdgId) && abs(TruthParticles.pdgId)<38) || abs(TruthParticles.pdgId)==39 || abs(TruthParticles.pdgId)==41 || abs(TruthParticles.pdgId)==42 || abs(TruthParticles.pdgId)== 7 || abs(TruthParticles.pdgId)== 8 || abs(TruthParticles.pdgId)==17 || abs(TruthParticles.pdgId)==18 || abs(TruthParticles.pdgId)==55 || (1000000<abs(TruthParticles.pdgId) && abs(TruthParticles.pdgId)<1000040) || (2000000<abs(TruthParticles.pdgId) && abs(TruthParticles.pdgId)<2000040) )",
                                                                 Do_Compress             = True)
 ToolSvc += DFCommonTruthBSMTool
 
