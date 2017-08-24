@@ -41,11 +41,16 @@ if DerivationFrameworkIsMonteCarlo:
         ToolSvc += DFCommonTauTruthMatchingWrapper
         print DFCommonTauTruthMatchingWrapper
         DFCommonTauTruthWrapperTools.append(DFCommonTauTruthMatchingWrapper)
+    else:
+        # No reco taus, so just build the truth tau container
+        from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthCollectionMakerTau
+        DFCommonTruthTauCollectionMaker = DerivationFramework__TruthCollectionMakerTau()
+        ToolSvc += DFCommonTruthTauCollectionMaker
+        DFCommonTauTruthWrapperTools.append(DFCommonTruthTauCollectionMaker)
 
     #=======================================
     # CREATE THE DERIVATION KERNEL ALGORITHM
     #=======================================
-
     from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
     DerivationFrameworkJob += CfgMgr.DerivationFramework__CommonAugmentation("TauTruthCommonKernel",
                                                                              AugmentationTools = DFCommonTauTruthWrapperTools)

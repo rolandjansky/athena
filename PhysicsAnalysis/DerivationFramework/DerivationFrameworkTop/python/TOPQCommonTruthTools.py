@@ -39,25 +39,6 @@ def setup(ToolSvc):
   augmentationTools.append(TOPQClassificationDecorator)
   print "TOPQClassificationDecorator: ", TOPQClassificationDecorator
 
-  #==============================================================================
-  # Schedule the tool for adding new truth collection
-  #==============================================================================
-  # PhysicsAnalysis/DerivationFramework/DerivationFrameworkMCTruth/trunk/src/TruthCollectionMaker.cxx
-  # PhysicsAnalysis/DerivationFramework/DerivationFrameworkMCTruth/trunk/src/TruthCollectionMakerTau.cxx
-  from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthCollectionMaker
-  from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthCollectionMakerTau
-
-  #==========
-  # TruthTaus
-  #==========
-  TOPQTauTool = DerivationFramework__TruthCollectionMakerTau(
-                  name                    = "TOPQTauTool",
-                  NewCollectionName       = "TruthTaus",
-                  MCTruthClassifier       = TOPQClassifier,
-                  RunClassifier           = True)
-  ToolSvc += TOPQTauTool
-  augmentationTools.append(TOPQTauTool)
-  print "TOPQTauTool: ", TOPQTauTool
 
   #==============================================================================
   # BACKGROUND ELECTRON DECORATION TYPE/ORIGIN
@@ -140,22 +121,8 @@ def setup(ToolSvc):
   #==============================================================================
   # TAU TRUTH MATCHING
   #==============================================================================
-  # PhysicsAnalysis/DerivationFramework/DerivationFrameworkTau/trunk/src/TauTruthMatchingWrapper.cxx
-  # PhysicsAnalysis/TauID/TauAnalysisTools/trunk/Root/TauTruthMatchingTool.cxx
-  from DerivationFrameworkTau.DerivationFrameworkTauConf import DerivationFramework__TauTruthMatchingWrapper
-  from TauAnalysisTools.TauAnalysisToolsConf import TauAnalysisTools__TauTruthMatchingTool
-
-  from RecExConfig.ObjKeyStore import objKeyStore
-  if objKeyStore.isInInput( "xAOD::TauJetContainer", "TauJets" ):
-    TOPQTauTruthMatchingTool = TauAnalysisTools__TauTruthMatchingTool(name="TOPQTauTruthMatchingTool")
-    ToolSvc += TOPQTauTruthMatchingTool
-    print "TOPQTauTruthMatchingTool: ", TOPQTauTruthMatchingTool
-    TOPQTauTruthMatchingWrapper = DerivationFramework__TauTruthMatchingWrapper( name                 = "TOPQTauTruthMatchingWrapper",
-                                                                                TauTruthMatchingTool = TOPQTauTruthMatchingTool,
-                                                                                TauContainerName     = "TauJets")
-    ToolSvc += TOPQTauTruthMatchingWrapper
-    augmentationTools.append(TOPQTauTruthMatchingWrapper)
-    print "TOPQTauTruthMatchingWrapperTool: ", TOPQTauTruthMatchingWrapper
+  # Does the tau truth matching, and also gives us a tau truth collection
+  from DerivationFrameworkTau.TauTruthCommon import *
 
   #=============
   # RETURN TOOLS
