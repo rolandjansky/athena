@@ -54,6 +54,7 @@ namespace top{
     m_systSgKeyMapKLFitter(),
     m_systSgKeyMapKLFitterLoose(),
     m_systSgKeyMapPseudoTop(),
+    m_systSgKeyMapPseudoTopLoose(),
     m_systPersistantAllTTreeNames(),
     m_systDecoKeyMapJetGhostTrack(),
 

@@ -23,6 +23,7 @@
 #include "JetResolution/JERTool.h"
 #include "JetResolution/JERSmearingTool.h"
 #include "JetJvtEfficiency/JetJvtEfficiency.h"
+#include "JetSelectorTools/EventCleaningTool.h"
 
 // MET include(s):
 #include "METUtilities/METMaker.h"
@@ -65,6 +66,9 @@ JetMETCPTools::JetMETCPTools(const std::string& name) :
 
   declareProperty( "JetCleaningToolLooseBad" , m_jetCleaningToolLooseBad );
   declareProperty( "JetCleaningToolTightBad" , m_jetCleaningToolTightBad );
+
+  declareProperty( "JetEventCleaningToolLooseBad" , m_jetEventCleaningToolLooseBad );
+  declareProperty( "JetEventCleaningToolTightBad" , m_jetEventCleaningToolTightBad );
 
   declareProperty( "JetJERTool" , m_jetJERTool );
   declareProperty( "JetJERSmearingTool" , m_jetJERSmearingTool );
@@ -223,6 +227,9 @@ StatusCode JetMETCPTools::setupJetsCalibration() {
   ///-- Jet Cleaning Tools --///
   m_jetCleaningToolLooseBad = setupJetCleaningTool("LooseBad");
   m_jetCleaningToolTightBad = setupJetCleaningTool("TightBad");
+
+  m_jetEventCleaningToolLooseBad = setupJetEventCleaningTool("LooseBad");
+  m_jetEventCleaningToolTightBad = setupJetEventCleaningTool("TightBad");
 
   // Uncertainties
   // Is our MC full or fast simulation?
@@ -512,5 +519,36 @@ IJetSelector* JetMETCPTools::setupJetCleaningTool(const std::string& WP) {
     }
   return tool;
 }
+
+ECUtils::IEventCleaningTool* JetMETCPTools::setupJetEventCleaningTool(const std::string& WP) {
+  ECUtils::IEventCleaningTool* tool = nullptr;
+  std::string name = "JetEventCleaningTool" + WP;
+  if (asg::ToolStore::contains<ECUtils::IEventCleaningTool>(name)){
+    tool = asg::ToolStore::get<ECUtils::IEventCleaningTool>(name);
+  }
+  else {
+    tool = new ECUtils::EventCleaningTool(name);
+    top::check(asg::setProperty(tool, "PtCut", std::to_string(m_config->jetPtcut())),
+	       "Failed to set jet pt cut in JetEventCleaningTool");
+    top::check(asg::setProperty(tool, "EtaCut", std::to_string(m_config->jetEtacut())),
+	       "Failed to set jet eta cut in JetEventCleaningTool");
+    top::check(asg::setProperty(tool, "JvtDecorator", "passJVT"),
+	       "Failed to set JVT property in JetEventCleaningTool");
+    std::string OrDecorator = "";
+    if (m_config->doLooseEvents()) 
+      OrDecorator = "ORToolDecorationLoose";
+    else 
+      OrDecorator = "ORToolDecoration";
+    top::check(asg::setProperty(tool, "OrDecorator", OrDecorator),
+	       "Failed to set jet OR decoration in JetEventCleaningTool");
+    top::check(asg::setProperty(tool, "CleaningLevel", WP),
+	       "Failed to set jet WP "+ WP + " in JetEventCleaningTool");
+    top::check(tool->initialize(), "Failed to initialize " + name);
+  }
+
+  return tool;
+
+}
+
 
 }  // namespace top

@@ -47,6 +47,13 @@ public:
      * cutValueMode = true only makes sense if multiplicityMode = true
      */
     SignValueSelector(const std::string& name, std::string params, bool multiplicityMode = false, bool cutValueMode = false);
+    /**
+     * @brief Overloaded constructor with additional options to do string splitting on delimiter and concatantion with a new string
+     * @param delim - delimiter to split with
+     * @param replace - string to replace the delimiter when concatanating
+     * @param default_prefix - if it was not possible to split, the code was probably expecting something to be prepended to the string so cover this
+     */
+    SignValueSelector(const std::string& name, std::string params, bool multiplicityMode, bool cutValueMode, std::string delim, std::string replace, std::string default_prefix);
 
     /**
      * @brief The name is generated in the constructor for this kind of tool.
@@ -91,6 +98,12 @@ protected:
      * This is for when the cut is a string
      */
     std::string valueString() const;
+
+
+    /**
+     * @brief valueString which is manipulated to replace delimiter with new string
+     */
+    std::string valueStringDelimReplace() const;
 
     /**
      * @brief Get the cut multiplicity assigned in the constructor.
@@ -164,6 +177,9 @@ private:
 
     ///The multiplicity for cuts that take both a value and a multiplicity e.g. EL_N 25000 >= 2
     double m_multiplicity;
+
+    ///The value of the cut when it is a string, with replacement of delimiter with a replacement substring
+    std::string m_cutvalueStringDelimReplace;
 };
 
 }

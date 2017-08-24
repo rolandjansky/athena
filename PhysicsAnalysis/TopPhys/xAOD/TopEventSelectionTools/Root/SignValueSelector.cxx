@@ -3,14 +3,16 @@
 */
 
 #include "TopEventSelectionTools/SignValueSelector.h"
+#include "TopConfiguration/Tokenize.h"
 
 namespace top {
 
 SignValueSelector::SignValueSelector(const std::string& name, std::string params, bool multiplicityMode, bool cutValueMode) :
                 m_sign(signNOIDEA),
                 m_cutvalue(0),
-                m_cutvalueString(""),
-                m_multiplicity(-1) {
+		m_cutvalueString(""),
+                m_multiplicity(-1){
+    m_cutvalueStringDelimReplace = "";
     //cutValueMode always set to false if multiplicityMode is false
     if (!multiplicityMode) cutValueMode=false;
     //get the sign and remove it from the params text
@@ -35,6 +37,30 @@ SignValueSelector::SignValueSelector(const std::string& name, std::string params
     }
 
     m_name = ss.str();
+}
+
+  SignValueSelector::SignValueSelector(const std::string& name, std::string params, bool multiplicityMode, bool cutValueMode, std::string delim, std::string replace, std::string default_prefix) :
+  SignValueSelector(name, params, multiplicityMode, cutValueMode){
+  // This function is only if we need a bit of additional string manipulation
+  // Required for the btagging selector when we start doing "alg:wp"
+  // If string is empty, do the split, otherwise just return the stored value
+  
+  std::vector<std::string> tokens;
+  tokenize(m_cutvalueString, tokens, delim);  
+  if(tokens.size() > 1){
+    for(auto cutString : tokens){
+      m_cutvalueStringDelimReplace += cutString;
+      m_cutvalueStringDelimReplace += replace;
+    }
+    // Tidy up the end of the string
+    m_cutvalueStringDelimReplace = m_cutvalueStringDelimReplace.substr(0,m_cutvalueStringDelimReplace.length()-replace.length());
+  }
+  // We are kind, and keep some backwards compatablity, so incase you did not know the syntax changed, hopefully we provided the most likely default
+  else{
+    std::cout << "SignValueSelector :: We are using a default_prefix as we could not split on a delimiter." << std::endl;
+    m_cutvalueStringDelimReplace = default_prefix+replace+m_cutvalueString;
+    std::cout << "SignValueSelector :: The final result is " << m_cutvalueStringDelimReplace << std::endl;
+  }
 }
 
 std::string SignValueSelector::name() const {
@@ -69,6 +95,10 @@ double SignValueSelector::value() const {
 
 std::string SignValueSelector::valueString() const {
     return m_cutvalueString;
+}
+
+std::string SignValueSelector::valueStringDelimReplace() const{
+  return m_cutvalueStringDelimReplace;
 }
 
 double SignValueSelector::multiplicity() const {

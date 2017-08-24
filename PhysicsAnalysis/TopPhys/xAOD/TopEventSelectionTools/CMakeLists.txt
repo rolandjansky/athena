@@ -11,7 +11,8 @@ atlas_depends_on_subdirs( PUBLIC
                           TopEvent
                           TopCorrections
                           TopParticleLevel
-                          MuonSelectorTools )
+                          MuonSelectorTools 
+			  JetSelectorTools )
 
 # This package uses ROOT:
 find_package( ROOT REQUIRED COMPONENTS Core Gpad Tree Hist RIO MathCore Graf )
@@ -36,6 +37,7 @@ atlas_add_library( TopEventSelectionTools Root/*.cxx Root/*.h Root/*.icc
                                   TopCorrections
                                   TopParticleLevel
                                   MuonSelectorToolsLib
+				  JetSelectorToolsLib
                                   ${ROOT_LIBRARIES}
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} )
 

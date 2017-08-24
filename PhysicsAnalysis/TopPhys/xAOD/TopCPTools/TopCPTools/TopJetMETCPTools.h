@@ -24,6 +24,7 @@
 #include "JetResolution/IJERTool.h"
 #include "JetResolution/IJERSmearingTool.h"
 #include "JetJvtEfficiency/IJetJvtEfficiency.h"
+#include "JetSelectorTools/IEventCleaningTool.h"
 
 // MET include(s):
 #include "METInterface/IMETMaker.h"
@@ -75,6 +76,10 @@ class JetMETCPTools final : public asg::AsgTool {
   ToolHandle<IJetSelector> m_jetCleaningToolLooseBad;
   ToolHandle<IJetSelector> m_jetCleaningToolTightBad;
 
+  // Implement event object cleaning tool 
+  ToolHandle<ECUtils::IEventCleaningTool> m_jetEventCleaningToolLooseBad;
+  ToolHandle<ECUtils::IEventCleaningTool> m_jetEventCleaningToolTightBad;
+
   ToolHandle<IJERTool> m_jetJERTool;
   ToolHandle<IJERSmearingTool> m_jetJERSmearingTool;
   ToolHandle<IJetUpdateJvt> m_jetUpdateJvtTool;
@@ -101,6 +106,8 @@ class JetMETCPTools final : public asg::AsgTool {
                               const std::string& analysis_file = "");
 
   IJetSelector* setupJetCleaningTool(const std::string& WP);
+  ECUtils::IEventCleaningTool* setupJetEventCleaningTool(const std::string& WP);
+
 };
 }  // namespace top
 

@@ -12,6 +12,8 @@ namespace top {
   JetCleaningSelector::JetCleaningSelector(const std::string& level, std::shared_ptr<top::TopConfig> config) :
     m_jetCleaningToolLooseBad("JetCleaningToolLooseBad"),
     m_jetCleaningToolTightBad("JetCleaningToolTightBad"),
+    m_jetEventCleaningToolLooseBad("JetEventCleaningToolLooseBad"),
+    m_jetEventCleaningToolTightBad("JetEventCleaningToolTightBad"),
     m_level(level),
     m_useLooseBad(true),
     m_config(config)
@@ -28,30 +30,45 @@ namespace top {
     
     // we can't yet use jet cleaning for particle-flow jets
     if (!m_config->useParticleFlowJets()) {
-      if (m_useLooseBad)
-          top::check( m_jetCleaningToolLooseBad.retrieve() , "Failed to retrieve JetCleaningToolLooseBad" );
-      if (!m_useLooseBad)
-          top::check( m_jetCleaningToolTightBad.retrieve() , "Failed to retrieve JetCleaningToolTightBad" );
+      if (m_useLooseBad){
+	top::check( m_jetCleaningToolLooseBad.retrieve()      , "Failed to retrieve JetCleaningToolLooseBad" );
+	top::check( m_jetEventCleaningToolLooseBad.retrieve() , "Failed to retrieve JetEventCleaningToolLooseBad" );
+      }
+      if (!m_useLooseBad){
+	top::check( m_jetCleaningToolTightBad.retrieve()      , "Failed to retrieve JetCleaningToolTightBad" );
+	top::check( m_jetEventCleaningToolTightBad.retrieve() , "Failed to retrieve JetEventCleaningToolTightBad" );
+      }
     }
   }
 
   bool JetCleaningSelector::apply(const top::Event& event) const {
-    for (const auto* const jetPtr : event.m_jets){
-      // we can't yet use jet cleaning for particle-flow jets, so do nothing in this case
-      if (m_config->useParticleFlowJets()) return true;
+    
+    // There are two jet cleaning tools and we have a request to test the event level one
+    // These should be very close/ equivalent as we already handle the OR and JVT elsewhere
+    if(m_config->useEventLevelJetCleaningTool()){
+      // If we are to use the event object, we can just do acceptEvent
+      if (m_useLooseBad)  return m_jetEventCleaningToolLooseBad->acceptEvent(&event.m_jets);
+      if (!m_useLooseBad) return m_jetEventCleaningToolTightBad->acceptEvent(&event.m_jets);
+    }
+    // This is the default/standard method for jet cleaning
+    else{
+      for (const auto* const jetPtr : event.m_jets){
+	// we can't yet use jet cleaning for particle-flow jets, so do nothing in this case
+	if (m_config->useParticleFlowJets()) return true;
+	
+	if (m_useLooseBad) {
+	  if (m_jetCleaningToolLooseBad->keep(*jetPtr) == 0) {
+	    return false;
+	  }
+	}
       
-      if (m_useLooseBad) {
-        if (m_jetCleaningToolLooseBad->keep(*jetPtr) == 0) {
-          return false;
-        }
+	if (!m_useLooseBad) {
+	  if (m_jetCleaningToolTightBad->keep(*jetPtr) == 0) {
+	    return false;
+	  }
+	}
+	
       }
-      
-      if (!m_useLooseBad) {
-        if (m_jetCleaningToolTightBad->keep(*jetPtr) == 0) {
-          return false;
-        }
-      }
-      
     }
 
     return true;

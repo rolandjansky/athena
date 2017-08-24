@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TopConfig.h 808115 2017-07-11 17:40:10Z tpelzer $
+// $Id: TopConfig.h 809568 2017-08-18 13:09:22Z iconnell $
 #ifndef ANALYSISTOP_TOPCONFIGURATION_TOPCONFIG_H
 #define ANALYSISTOP_TOPCONFIGURATION_TOPCONFIG_H
 
@@ -12,8 +12,8 @@
  * @brief TopConfig
  *   A simple configuration that is NOT a singleton
  *
- * $Revision: 808115 $
- * $Date: 2017-07-11 18:40:10 +0100 (Tue, 11 Jul 2017) $
+ * $Revision: 809568 $
+ * $Date: 2017-08-18 14:09:22 +0100 (Fri, 18 Aug 2017) $
  *
  *
  **/
@@ -27,6 +27,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <iostream>
+#include <utility>
 
 // Systematic include(s):
 #include "PATInterfaces/SystematicSet.h"
@@ -383,6 +384,8 @@ class TopConfig final {
   // PseudoTop
   const std::string& sgKeyPseudoTop( const std::size_t hash ) const;
   const std::string& sgKeyPseudoTop( const std::string ) const;
+  const std::string& sgKeyPseudoTopLoose( const std::size_t hash ) const;
+  const std::string& sgKeyPseudoTopLoose( const std::string ) const;
 
   // vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
   // Jet Ghost-Track Systematics
@@ -692,8 +695,8 @@ class TopConfig final {
   inline virtual unsigned int trkjet_btagging_num_C_eigenvars(std::string WP) const { return bTag_eigen_C_trkJet.at(WP); }
   inline virtual unsigned int trkjet_btagging_num_Light_eigenvars(std::string WP) const { return bTag_eigen_light_trkJet.at(WP); }
 
-  // B-tagging WPs requested by user
-  const std::vector<std::string> bTagWP() const { return m_chosen_btaggingWP;}
+  // B-tagging WPs requested by user (updated to pair of strings to hold algorithm and WP)
+  const std::vector<std::pair<std::string, std::string> > bTagWP() const { return m_chosen_btaggingWP;}  
   // B-tagging systematics requested by user to be excluded from EV treatment, separated by semi-colons
   const std::string bTagSystsExcludedFromEV() const { return m_bTagSystsExcludedFromEV;}
 
@@ -841,6 +844,11 @@ class TopConfig final {
   inline void setSaveBootstrapWeights(const bool value) { m_saveBootstrapWeights = value; }  
   inline int getNumberOfBootstrapReplicas() const { return m_BootstrapReplicas; }
   inline void setNumberOfBootstrapReplicas(const int value) { m_BootstrapReplicas = value; }
+
+  // Switch to use event-level jet cleaning tool for studies
+  inline bool useEventLevelJetCleaningTool() const { return m_useEventLevelJetCleaningTool; }
+  inline void setUseEventLevelJetCleaningTool(const bool value) { m_useEventLevelJetCleaningTool = value; }
+
 
  private:
   // Prevent any more configuration
@@ -1167,8 +1175,8 @@ class TopConfig final {
   // Options for upgrade studies
   bool m_HLLHC;
 
-  // B-tagging WPs requested by the user
-  std::vector< std::string > m_chosen_btaggingWP = { };
+  // B-tagging WPs requested by the user (updated to pair of string to hold algorithm and WP)
+  std::vector<std::pair<std::string, std::string> > m_chosen_btaggingWP; // = { };
   // B-tagging systematics requested by user to be excluded from EV treatment, separated by semi-colons
   std::string m_bTagSystsExcludedFromEV = "";
   
@@ -1367,6 +1375,7 @@ class TopConfig final {
   // PseudoTop
   std::string m_sgKeyPseudoTop;
   std::shared_ptr<std::unordered_map<std::size_t,std::string>> m_systSgKeyMapPseudoTop;
+  std::shared_ptr<std::unordered_map<std::size_t,std::string>> m_systSgKeyMapPseudoTopLoose;
 
   // Map from systematic hash to CP::SystematicSet
   std::shared_ptr<std::unordered_map<std::size_t, CP::SystematicSet> > m_systMapJetGhostTrack;
@@ -1389,6 +1398,10 @@ class TopConfig final {
   // Bool to hold whether we generate and store poisson bootstrap weights
   bool m_saveBootstrapWeights;
   int  m_BootstrapReplicas;
+  
+  // Switch to use event-level jet cleaning tool for testing
+  bool m_useEventLevelJetCleaningTool;
+
 
 };
 }  // namespace top
