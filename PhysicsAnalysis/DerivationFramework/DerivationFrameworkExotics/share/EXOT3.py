@@ -43,8 +43,6 @@ from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFram
 #                                                                InDetTrackParticlesKey  = "InDetTrackParticles")
 #ToolSvc += EXOT3JetTPThinningTool
 
-
-
 thinExpression = '(InDetTrackParticles.d0 < 1.5) && ((DFCommonInDetTrackZ0AtPV * sin(InDetTrackParticles.theta )) <= 1.5)'
 EXOT3TPThinningTool = DerivationFramework__TrackParticleThinning(name = "EXOT3TPThinningTool",
                                                                  ThinningService         = "EXOT3ThinningSvc",
@@ -104,7 +102,6 @@ thinningTools.append(EXOT3AKt10JetTPThinningTool)
 #                                                                        InDetTrackParticlesKey  = "InDetTrackParticles")
 #ToolSvc += EXOT3AKt10JetTPThinningTool
 #thinningTools.append(EXOT3AKt10JetTPThinningTool)
-
 
 # Calo-cluster thinning
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__JetCaloClusterThinning
@@ -191,7 +188,6 @@ triggers = [
             "HLT_ht1000_L1J100",
            ]
 
-
 topology_selection_1jet = "((count (abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_eta) < 2.8 && AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 100*GeV && AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_m > 30*GeV)  >= 1)"
 topology_selection_1jet += " )"#FIX #ATLJETMET-744
 #topology_selection_1jet += " || (count (abs(CamKt12LCTopoBDRSFilteredMU100Y4Jets.eta) < 2.8 && CamKt12LCTopoBDRSFilteredMU100Y4Jets.pt > 100*GeV && CamKt12LCTopoBDRSFilteredMU100Y4Jets.m > 30*GeV)  >= 1))"#FIX #ATLJETMET-744
@@ -272,11 +268,10 @@ addDefaultTrimmedJets(exot3Seq,"EXOT3")
 #addFilteredJets("CamKt", 1.2, "PV0Track", mumax=1.0, ymin=0.04, algseq=exot3Seq, outputGroup="EXOT3")#FIX #ATLJETMET-744
 
 #trimmed jets
-addTrimmedJets("AntiKt", 1.0, "PV0Track", rclus=0.2, ptfrac=0.05, algseq=exot3Seq, outputGroup="EXOT3")#AntiKt10PV0TrackTrimmedPtFrac5SmallR20Jets
+addTrimmedJets("AntiKt", 1.0, "PV0Track", rclus=0.2, ptfrac=0.05, mods="groomed", algseq=exot3Seq, outputGroup="EXOT3")#AntiKt10PV0TrackTrimmedPtFrac5SmallR20Jets
 
 #jet calibration
 applyJetCalibration_CustomColl("AntiKt10LCTopoTrimmedPtFrac5SmallR20", exot3Seq)
-
 
 #=======================================
 # SKIMMING, THINNING, AUGMENTATION
