@@ -514,7 +514,7 @@ bool SCT_ReadCalibDataSvc::isGood(const Identifier& elementId, InDetConditions::
 
 //----------------------------------------------------------------------
 // Returns a defect summary of a defect strip, scan, type and value
-SCT_ReadCalibDataSvc::calibDefectType SCT_ReadCalibDataSvc::defectType(const Identifier& stripId, InDetConditions::Hierarchy h) {
+SCT_ReadCalibDataSvc::CalibDefectType SCT_ReadCalibDataSvc::defectType(const Identifier& stripId, InDetConditions::Hierarchy h) {
   // Print where you are
   ATH_MSG_DEBUG("in defectType()");
 
@@ -527,7 +527,7 @@ SCT_ReadCalibDataSvc::calibDefectType SCT_ReadCalibDataSvc::defectType(const Ide
   SCT_CalibDefectData::CalibModuleDefects wantedNODefects;
 
   // Create the calibDefectSummary
-  calibDefectType theseSummaryDefects;
+  CalibDefectType theseSummaryDefects;
   // Retrieve defect data from map
   wantedNPGDefects = m_NPGDefects->findModule(moduleId);
   wantedNODefects = m_NODefects->findModule(moduleId);
