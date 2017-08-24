@@ -84,3 +84,14 @@ bool TCS::DecisionAlg::fillHistosBasedOnHardware() const
     return m_fillHistosBasedOnHardware;
 }
 //----------------------------------------------------------
+TCS::DecisionAlg& TCS::DecisionAlg::setSkipHistos(const bool &value)
+{
+    m_skipHistos = value;
+    return *this;
+}
+//----------------------------------------------------------
+bool TCS::DecisionAlg::skipHistos() const
+{
+    return m_skipHistos;
+}
+//----------------------------------------------------------

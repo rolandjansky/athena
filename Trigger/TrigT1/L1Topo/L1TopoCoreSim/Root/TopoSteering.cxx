@@ -464,3 +464,16 @@ void TopoSteering::setOutputAlgosFillBasedOnHardware(const bool &value)
    }
 }
 //----------------------------------------------------------
+void TopoSteering::setOutputAlgosSkipHistograms(const bool &value)
+{
+   for(auto connector : m_structure.outputConnectors()) {
+       const string &connectorName = connector.first;
+       TCS::DecisionConnector *outCon = connector.second;
+       if(outCon) {
+           outCon->decisionAlgorithm()->setSkipHistos(value);
+       } else {
+           TRG_MSG_DEBUG("skipping invalid DecisionConnector '"<<connectorName<<"'");
+       }
+   }
+}
+//----------------------------------------------------------
