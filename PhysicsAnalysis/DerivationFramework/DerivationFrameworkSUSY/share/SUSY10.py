@@ -229,18 +229,6 @@ if DerivationFrameworkIsMonteCarlo:
 
 
 #==============================================================================
-# SUSY background generator filters
-#==============================================================================
-if DerivationFrameworkIsMonteCarlo:
-
-  ToolSvc += CfgMgr.DerivationFramework__SUSYGenFilterTool(
-    "SUSY10GenFilt",
-    SimBarcodeOffset = DerivationFrameworkSimBarcodeOffset
-  )
-  AugmentationTools.append(ToolSvc.SUSY10GenFilt)
-
-
-#==============================================================================
 # Augment after skim
 #==============================================================================
 SeqSUSY10 += CfgMgr.DerivationFramework__DerivationKernel(

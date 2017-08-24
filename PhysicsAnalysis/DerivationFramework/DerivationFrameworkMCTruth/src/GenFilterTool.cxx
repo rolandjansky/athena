@@ -2,10 +2,15 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "DerivationFrameworkSUSY/SUSYGenFilterTool.h"
+// Class header file
+#include "GenFilterTool.h"
 
+// EDM includes
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODJet/JetContainer.h"
+
+// Tool handle interface
+#include "MCTruthClassifier/IMCTruthClassifier.h"
 
 namespace DerivationFramework {
 
@@ -23,9 +28,9 @@ namespace DerivationFramework {
   static SG::AuxElement::Decorator<float> dec_genFiltHT("GenFiltHT");
   static SG::AuxElement::Decorator<float> dec_genFiltMET("GenFiltMET");
 
-  SUSYGenFilterTool::SUSYGenFilterTool(const std::string& t, const std::string& n, const IInterface* p):
+  GenFilterTool::GenFilterTool(const std::string& t, const std::string& n, const IInterface* p):
     AthAlgTool(t,n,p),
-    m_classif("MCTruthClassifier/SUSYGenFilt_MCTruthClassifier")
+    m_classif("MCTruthClassifier/DFCommonTruthClassifier")
   {
     
     declareInterface<DerivationFramework::IAugmentationTool>(this);
@@ -39,28 +44,12 @@ namespace DerivationFramework {
     declareProperty("MaxLeptonEta",m_MaxLepEta = 2.5);
     declareProperty("SimBarcodeOffset", m_SimBarcodeOffset = 200000);
   }
-  
-  
-  
-  SUSYGenFilterTool::~SUSYGenFilterTool(){}
-  
-  
-  
-  StatusCode SUSYGenFilterTool::initialize(){
-    
-    ATH_MSG_INFO("Initialize " );
-    
-    return StatusCode::SUCCESS;
-    
-  }
-    
-  StatusCode SUSYGenFilterTool::finalize(){
-    
-    return StatusCode::SUCCESS;
-    
-  }
 
-  bool SUSYGenFilterTool::isPrompt( const xAOD::TruthParticle* tp ) const
+
+  GenFilterTool::~GenFilterTool(){}
+
+
+  bool GenFilterTool::isPrompt( const xAOD::TruthParticle* tp ) const
   {
     ParticleOrigin orig = getPartOrigin(tp);
     ATH_MSG_VERBOSE("Particle has origin " << orig);
@@ -91,7 +80,7 @@ namespace DerivationFramework {
     return true;
   }
 
-  MCTruthPartClassifier::ParticleOrigin SUSYGenFilterTool::getPartOrigin( const xAOD::TruthParticle* tp ) const
+  MCTruthPartClassifier::ParticleOrigin GenFilterTool::getPartOrigin( const xAOD::TruthParticle* tp ) const
   {
     if(m_originMap.find(tp)==m_originMap.end()) {
       std::pair<ParticleType, ParticleOrigin> classification = m_classif->particleTruthClassifier( tp );
@@ -101,8 +90,8 @@ namespace DerivationFramework {
   }
 
   
-  StatusCode SUSYGenFilterTool::addBranches() const{
-    ATH_MSG_VERBOSE("SUSYGenFilterTool::addBranches()");
+  StatusCode GenFilterTool::addBranches() const{
+    ATH_MSG_VERBOSE("GenFilterTool::addBranches()");
     
     const xAOD::EventInfo* eventInfo;
     if (evtStore()->retrieve(eventInfo,m_eventInfoName).isFailure()) {
@@ -129,7 +118,7 @@ namespace DerivationFramework {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode SUSYGenFilterTool::getGenFiltVars(const xAOD::TruthParticleContainer* tpc, float& genFiltHT, float& genFiltMET) const {
+  StatusCode GenFilterTool::getGenFiltVars(const xAOD::TruthParticleContainer* tpc, float& genFiltHT, float& genFiltMET) const {
     // Get jet container out
     const xAOD::JetContainer* truthjets = 0;
     if ( evtStore()->retrieve( truthjets, m_truthJetsName).isFailure() || !truthjets ){
@@ -141,11 +130,11 @@ namespace DerivationFramework {
     genFiltHT = 0.;
     for (const auto& tj : *truthjets) {
       if ( tj->pt()>m_MinJetPt && fabs(tj->eta())<m_MaxJetEta ) {
-	ATH_MSG_VERBOSE("Adding truth jet with pt " << tj->pt()
-			<< ", eta " << tj->eta()
-			<< ", phi " << tj->phi()
-			<< ", nconst = " << tj->numConstituents());
-	genFiltHT += tj->pt();
+        ATH_MSG_VERBOSE("Adding truth jet with pt " << tj->pt()
+                        << ", eta " << tj->eta()
+                        << ", phi " << tj->phi()
+                        << ", nconst = " << tj->numConstituents());
+        genFiltHT += tj->pt();
       }
     }
 
@@ -157,24 +146,24 @@ namespace DerivationFramework {
       if ( tp->status() %1000 !=1 ) continue; // Stable!
 
       if ((abs(pdgid)==11 || abs(pdgid)==13) && tp->pt()>m_MinLepPt && fabs(tp->eta())<m_MaxLepEta) {
-	if( isPrompt(tp) ) {
-	  ATH_MSG_VERBOSE("Adding prompt lepton with pt " << tp->pt()
-			  << ", eta " << tp->eta()
-			  << ", phi " << tp->phi()
-			  << ", status " << tp->status()
-			  << ", pdgId " << pdgid);
-	  genFiltHT += tp->pt();
-	}
+        if( isPrompt(tp) ) {
+          ATH_MSG_VERBOSE("Adding prompt lepton with pt " << tp->pt()
+                          << ", eta " << tp->eta()
+                          << ", phi " << tp->phi()
+                          << ", status " << tp->status()
+                          << ", pdgId " << pdgid);
+          genFiltHT += tp->pt();
+        }
       }
 
       if (isNonInteracting(pdgid) && isPrompt(tp) ) {
-	ATH_MSG_VERBOSE("Found prompt nonInteracting particle with pt " << tp->pt()
-			<< ", eta " << tp->eta()
-			<< ", phi " << tp->phi()
-			<< ", status " << tp->status()
-			  << ", pdgId " << pdgid);
-	MEx += tp->px();
-	MEy += tp->py();
+        ATH_MSG_VERBOSE("Found prompt nonInteracting particle with pt " << tp->pt()
+                        << ", eta " << tp->eta()
+                        << ", phi " << tp->phi()
+                        << ", status " << tp->status()
+                          << ", pdgId " << pdgid);
+        MEx += tp->px();
+        MEy += tp->py();
       }
     }
     genFiltMET = sqrt(MEx*MEx+MEy*MEy);

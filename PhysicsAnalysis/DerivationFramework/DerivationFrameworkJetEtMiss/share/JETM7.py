@@ -167,15 +167,12 @@ reducedJetList = ["AntiKt2PV0TrackJets",
 replaceAODReducedJets(reducedJetList,jetm7Seq,"JETM7")
 
 #==============================================================================
-# SUSY background generator filters
+# background generator filters
 #==============================================================================
 augmentationTools = []
 if globalflags.DataSource() == 'geant4':
-  ToolSvc += CfgMgr.DerivationFramework__SUSYGenFilterTool(
-    "JETM7GenFilt",
-    SimBarcodeOffset = DerivationFrameworkSimBarcodeOffset
-  )
-  augmentationTools.append(ToolSvc.JETM7GenFilt)
+    from DerivationFrameworkMCTruth.GenFilterToolSetup import *
+    augmentationTools.append(ToolSvc.DFCommonTruthGenFilter)
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 jetm7Seq += CfgMgr.DerivationFramework__DerivationKernel( name = "JETM7Kernel",
