@@ -23,6 +23,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "InDetRecToolInterfaces/ITRT_TrackExtensionTool.h"
 #include "TRT_TrackExtensionTool_xk/TRT_Trajectory_xk.h"
+#include "InDetPrepRawData/TRT_DriftCircleContainer.h"
 
 class MsgStream;
 
@@ -113,7 +114,8 @@ namespace InDet{
       std::string                      m_trtname        ; // Name container with TRT clusters
 
       Trk::MagneticFieldProperties     m_fieldprop      ; // Magnetic field properties
-      const TRT_DriftCircleContainer*  m_trtcontainer   ; //        
+      SG::ReadHandle<TRT_DriftCircleContainer> m_trtcontainer;
+      //const TRT_DriftCircleContainer*  m_trtcontainer   ; //        
       TRT_Trajectory_xk                         m_trajectory   ;
       std::vector<const Trk::MeasurementBase*>  m_measurement  ;
 

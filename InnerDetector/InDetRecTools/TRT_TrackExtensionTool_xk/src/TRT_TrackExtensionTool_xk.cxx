@@ -32,7 +32,8 @@ InDet::TRT_TrackExtensionTool_xk::TRT_TrackExtensionTool_xk
     m_updatortool ("Trk::KalmanUpdator_xk"                                                           ),
     m_selectortool("InDet::InDetTrtDriftCircleCutTool"                                               ),
     m_riontrackD("InDet::TRT_DriftCircleOnTrackTool/TRT_DriftCircleOnTrackTool"                      ),
-    m_riontrackN("InDet::TRT_DriftCircleOnTrackNoDriftTimeTool/TRT_DriftCircleOnTrackNoDriftTimeTool")
+    m_riontrackN("InDet::TRT_DriftCircleOnTrackNoDriftTimeTool/TRT_DriftCircleOnTrackNoDriftTimeTool"),
+    m_trtcontainer("TRT_DriftCircles"                                                                )
 {
   m_fieldmode       = "MapSolenoid"      ;
   m_trtname         = "TRT_DriftCircles" ;
@@ -68,7 +69,8 @@ InDet::TRT_TrackExtensionTool_xk::TRT_TrackExtensionTool_xk
   declareProperty("UseDriftRadius"         ,m_usedriftrad     );
   declareProperty("ScaleHitUncertainty"    ,m_scale_error     );
   declareProperty("SegmentFindMode"        ,m_segmentFindMode );
-  declareProperty("TRT_ClustersContainer"  ,m_trtname         ); 
+  declareProperty("TRT_ClustersContainerName"  ,m_trtname         );   
+  declareProperty("TRT_ClustersContainer"  ,m_trtcontainer    );   
   declareProperty("MagneticFieldMode"      ,m_fieldmode       );
   declareProperty("MinNumberSCTclusters"   ,m_minNumberSCT    );
   declareProperty("MinNumberPIXclusters"   ,m_minNumberPIX    );
@@ -203,6 +205,9 @@ StatusCode InDet::TRT_TrackExtensionTool_xk::initialize()
   }
 
 
+  //Initialize container
+  ATH_CHECK(m_trtcontainer.initialize());
+
   // Get output print level
   //
   m_outputlevel = msg().level()-MSG::DEBUG;
@@ -210,7 +215,7 @@ StatusCode InDet::TRT_TrackExtensionTool_xk::initialize()
 }
 
 ///////////////////////////////////////////////////////////////////
-// Finalize
+// Finalize-
 ///////////////////////////////////////////////////////////////////
 
 StatusCode InDet::TRT_TrackExtensionTool_xk::finalize()
@@ -340,9 +345,11 @@ std::ostream& InDet::operator <<
 
 void InDet::TRT_TrackExtensionTool_xk::newEvent()
 {
-  m_trtcontainer = 0;
-  StatusCode sc = evtStore()->retrieve(m_trtcontainer,m_trtname); 
-  if(sc.isFailure() && m_outputlevel<=0) {
+  //m_trtcontainer = 0;
+  //StatusCode sc = evtStore()->retrieve(m_trtcontainer,m_trtname); 
+  //if(sc.isFailure() && m_outputlevel<=0) {
+  std::cout << "I am called ringazzi new Event" << std::endl;
+  if((not m_trtcontainer.isValid()) && m_outputlevel<=0) {
     msg(MSG::DEBUG)<<"Could not get TRT_DriftCircleContainer"<<endmsg;
   }
 }
@@ -356,7 +363,8 @@ InDet::TRT_TrackExtensionTool_xk::extendTrack(const Trk::Track& Tr)
 { 
   m_measurement.clear();
 
-  if(!m_trtcontainer) return m_measurement;
+  //if(!(&*m_trtcontainer)) return m_measurement; // or not m_trtcontainer.isValid() ???
+  if (not m_trtcontainer.isValid()) return m_measurement;
 
   const DataVector<const Trk::TrackStateOnSurface>* 
     tsos = Tr.trackStateOnSurfaces();
@@ -422,7 +430,9 @@ InDet::TRT_TrackExtensionTool_xk::findSegment(const Trk::TrackParameters& par)
 
   // Initiate trajectory
   //
-  m_trajectory.initiateForTRTSeed(gpos,DE,m_trtcontainer,Tp);
+  std::cout << "I am called rignazzi findSegment " << std::endl;
+  const TRT_DriftCircleContainer* mjo_trtcontainer = m_trtcontainer.get();
+  m_trajectory.initiateForTRTSeed(gpos,DE,mjo_trtcontainer,Tp);
   
   if(m_trajectory.naElements() < nCut) return 0;
   double maxslope = m_maxslope;
@@ -535,7 +545,8 @@ bool InDet::TRT_TrackExtensionTool_xk::isGoodExtension(const Trk::TrackParameter
 
   // Initiate trajectory
   //
-  m_trajectory.initiateForPrecisionSeed(gpos,DE,m_trtcontainer,Tp);
+  const TRT_DriftCircleContainer* mjo_trtcontainer = m_trtcontainer.get();
+  m_trajectory.initiateForPrecisionSeed(gpos,DE,mjo_trtcontainer,Tp);
   if(m_trajectory.naElements() < m_minNumberDCs) return false;
 
   // Track finding
@@ -560,7 +571,8 @@ bool InDet::TRT_TrackExtensionTool_xk::isGoodExtension(const Trk::TrackParameter
 
 Trk::Track* InDet::TRT_TrackExtensionTool_xk::newTrack(const Trk::Track& Tr)
 { 
-  if(!m_trtcontainer) return 0;
+  //if(!(&*m_trtcontainer)) return 0; // or not m_trtcontainer.isValid() ?????
+  if (not m_trtcontainer.isValid()) return 0;
 
   const DataVector<const Trk::TrackStateOnSurface>* 
     tsos = Tr.trackStateOnSurfaces();
