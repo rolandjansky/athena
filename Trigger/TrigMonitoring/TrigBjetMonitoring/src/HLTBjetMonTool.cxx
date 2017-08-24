@@ -695,6 +695,8 @@ StatusCode HLTBjetMonTool::book(){
 
     // Get online combinations
 
+    bool SplitKey;
+
     //  unsigned int ichain = 0;
     // Loop on trigger items
     for (const auto & trigItem:FiredChainNames){        // Shaun Roe 21/9/16
@@ -713,12 +715,14 @@ StatusCode HLTBjetMonTool::book(){
       // Set container names (2016/03/03) see TrigBtagEmulation.cxx
       // Set keys
       // HLT non split input chaines
+      SplitKey = false;
       std::string m_jetKey = "";
       std::string m_priVtxKey = "EFHistoPrmVtx";
       std::string m_trackKey  = "";
       // HLT split input chaines
       std::size_t found = trigItem.find("split");
       if (found!=std::string::npos) {
+	SplitKey =true;
 	m_jetKey = "SplitJet";
 	m_priVtxKey = "xPrimVx";
 	m_trackKey  = "InDetTrigTrackingxAODCnv_Bjet_IDTrig";
@@ -742,7 +746,8 @@ StatusCode HLTBjetMonTool::book(){
       if (found4!=std::string::npos) {
 	m_jetKey = "GSCJet";
       } // if found4
-      ATH_MSG_DEBUG( " Trigger chain name: " << trigItem << " m_jetKey: " << m_jetKey << " m_priVtxKey: " << m_priVtxKey << " m_trackKey: " << m_trackKey );
+      ATH_MSG_DEBUG( " Trigger chain name: " << trigItem << " m_jetKey: " << m_jetKey << " m_priVtxKey: " << m_priVtxKey 
+		    << " m_trackKey: " << m_trackKey << " SplitKey: " << SplitKey );
       ATH_MSG_DEBUG("PROCESSING TRIGITEM  -  " << trigItem);
       // Set flag MuJet
       bool MuJet = false;
@@ -794,7 +799,7 @@ StatusCode HLTBjetMonTool::book(){
 	    if (!DummyVtx && HistPV) hist("nPV_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(onlinepv->size());
 	  }  // if onlinepv not empty
 	} // if onlinepvs not empty
-	if ( (m_jetKey == "SplitJet") && DummyVtx ) {
+	if ( SplitKey && DummyVtx ) {
 	  // for SplitJets and DummyVtx monitor Vtx with Histogram algorithm
 	  const std::vector< Trig::Feature<xAOD::VertexContainer> >onlinepvsd = comb.get<xAOD::VertexContainer>("EFHistoPrmVtx");
 	  ATH_MSG_DEBUG("RETRIEVED PV with Histo algo for Split chains when Dummy vtx found with xPrimVx algo-   size: " << onlinepvsd.size());
