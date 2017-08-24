@@ -532,8 +532,8 @@ namespace CP {
       double qOverPerr_CB = sqrt( cbtrack->definingParametersCovMatrix()(4,4) );
       // ::
       if( m_quality==4 ) { 
-	// recipe for high-pt selection (temporary for R21) 
-	IsBadMuon = ( fabs(qOverPerr_CB/qOverP_CB) > 1.0 );
+	// recipe for high-pt selection
+	IsBadMuon = !passedErrorCutCB(mu);
       } else {
 	// recipe for other WP
 	double IdCbRatio = fabs( (qOverPerr_ID/qOverP_ID) / (qOverPerr_CB/qOverP_CB) );
@@ -750,9 +750,6 @@ namespace CP {
 
     }
     else return false;
-
-    // kill tracks with large CB q/p errors 
-    if( !passedErrorCutCB(mu) ) return false;
 
     return true;
   }
