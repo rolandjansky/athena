@@ -220,6 +220,21 @@ from DerivationFrameworkJetEtMiss import METCommon
 METCommon.scheduleMETCustomVertex ( "Hgg", "AntiKt4EMTopo",outputlist = "HggMET" )
 scheduleMETAssocAlg(HIGG1D1Seq)
 
+
+
+# Before any custom jet reconstruction, it's good to set up the output list
+OutputJets["HIGG1D1Jets"] = []
+
+#=======================================
+# RESTORE AOD-REDUCED JET COLLECTIONS
+#=======================================
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
+reducedJetList = [
+                  "AntiKt4TruthJets",
+                  "AntiKt4TruthWZJets"]
+replaceAODReducedJets(reducedJetList,HIGG1D1Seq,"HIGG1D1Jets")
+
+
 DerivationFrameworkJob += HIGG1D1Seq
 #====================================================================
 # SET UP STREAM   
@@ -239,19 +254,6 @@ from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
 svcMgr += createThinningSvc( svcName="HIGG1D1ThinningSvc", outStreams=[evtStream] )
-
-
-# Before any custom jet reconstruction, it's good to set up the output list
-OutputJets["HIGG1D1Jets"] = []
-
-#=======================================
-# RESTORE AOD-REDUCED JET COLLECTIONS
-#=======================================
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
-reducedJetList = [
-                  "AntiKt4TruthJets",
-                  "AntiKt4TruthWZJets"]
-replaceAODReducedJets(reducedJetList,HIGG1D1Seq,"HIGG1D1Jets")
 
 
  #====================================================================
