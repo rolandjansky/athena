@@ -117,13 +117,13 @@ namespace InDet{
       
       std::vector< Amg::Vector3D >             m_listHitCenter ;
 	  
-      //std::string                              m_driftCirclesName ; //!< Container with TRT clusters
-      SG::ReadHandleKey<InDet::TRT_DriftCircleContainer>     m_driftCirclesName ;
+
+      SG::ReadHandleKey<InDet::TRT_DriftCircleContainer>     m_driftCirclesName ;  //!< Container with TRT clusters
       std::string                              m_TRTManagerName ; //!< Name of TRT det. manager 	  
 	  
       const TRT_ID*                            m_trtid       ; 
-      //const InDet::TRT_DriftCircleContainer*   m_trtcontainer; //!< TRTs   container
-      SG::ReadHandle<InDet::TRT_DriftCircleContainer> m_trtcontainer;
+
+      SG::ReadHandle<InDet::TRT_DriftCircleContainer> m_trtcontainer; //!< TRTs   container
       ToolHandle<Trk::IPRD_AssociationTool>    m_assoTool    ; // Track-PRD association tool
       bool                                     m_useAssoTool ;
 

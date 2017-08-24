@@ -37,7 +37,6 @@ InDet::TRT_TrackSegmentsMaker_ATLxk::TRT_TrackSegmentsMaker_ATLxk
     m_trtname("TRT_DriftCircles"),
     m_trtcontainer("TRT_DriftCircles")
 {
-  //m_trtname     =  "TRT_DriftCircles";
   m_fieldmode   =      "MapSolenoid" ;
   m_pTmin       =                500.;
   m_sharedfrac  =                0.3 ;
@@ -209,7 +208,6 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::newEvent ()
   m_clusters     = 0;
   m_nlocal       = 0;
   m_nsegments    = 0;
-  //m_trtcontainer = 0; 
   m_bincluster .erase(m_bincluster .begin(),m_bincluster .end());
   m_sizebin    .erase(m_sizebin    .begin(),m_sizebin    .end());
   m_segments   .erase(m_segments.begin()   ,m_segments.end()   );
@@ -219,9 +217,6 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::newEvent ()
 
   // Get drift circles collection
   //
-  //StatusCode s = evtStore()->retrieve(m_trtcontainer,m_trtname);
-  //if(s.isFailure() && m_outputlevel<=0) {
-  std::cout << "I am called rignazzi 2 " << std::endl;
   if(not m_trtcontainer.isValid() && m_outputlevel<=0) {
     msg(MSG::DEBUG)<<"Could not get TRT_DriftCircleContainer"<<endmsg;
     return;
@@ -291,7 +286,6 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::newRegion
   m_clusters     = 0;
   m_nlocal       = 0;
   m_nsegments    = 0;
-  //m_trtcontainer = 0; 
   m_bincluster .erase(m_bincluster .begin(),m_bincluster .end());
   m_sizebin    .erase(m_sizebin    .begin(),m_sizebin    .end());
   m_segments   .erase(m_segments.begin()   ,m_segments.end()   );
@@ -301,14 +295,12 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::newRegion
 
   // Get drift cilrcles collection
   //
-  //StatusCode s = evtStore()->retrieve(m_trtcontainer,m_trtname);
-  //if(s.isFailure() && m_outputlevel<=0) {
   std::cout << "I am called rignazzi" << std::endl;
   if(not m_trtcontainer.isValid() && m_outputlevel<=0) {
     msg(MSG::DEBUG)<<"Could not get TRT_DriftCircleContainer"<<endmsg;
     return;
   }
-  //if(!m_trtcontainer) return;
+
   if(not m_trtcontainer.isValid()) return;
   // Initiate extension tool
   //

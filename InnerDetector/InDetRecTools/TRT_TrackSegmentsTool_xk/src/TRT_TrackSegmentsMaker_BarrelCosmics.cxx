@@ -29,11 +29,9 @@ InDet::TRT_TrackSegmentsMaker_BarrelCosmics::TRT_TrackSegmentsMaker_BarrelCosmic
     m_magneticField(true),
     m_mergeSegments(false),
     m_useAthenaFieldService(true), 
-    //m_driftCirclesName("TRT_DriftCircles"),
     m_TRTManagerName("TRT"),
 //    m_trtmanager(0),
     m_trtid(0),
-    //m_trtcontainer(0),
     m_trtcontainer("TRT_DriftCircles"),
     m_assoTool("InDet::InDetPRD_AssociationToolGangedPixels"),
     m_useAssoTool(false),
@@ -120,10 +118,9 @@ void InDet::TRT_TrackSegmentsMaker_BarrelCosmics::newEvent() {
 
   clear(); // private method that clears data members from the previous event
 
-  //const InDet::TRT_DriftCircleContainer* TRTDriftCircleContainer;   // get TRT_DriftCircle list from StoreGate containers
-  SG::ReadHandle<InDet::TRT_DriftCircleContainer> TRTDriftCircleContainer(m_driftCirclesName);
-  //StatusCode sc = evtStore()->retrieve( TRTDriftCircleContainer, m_driftCirclesName );
-  //if (sc.isFailure()) { msg(MSG::ERROR) << "Could not find TRT_DriftCircles collection!" << endmsg; return; }
+
+  SG::ReadHandle<InDet::TRT_DriftCircleContainer> TRTDriftCircleContainer(m_driftCirclesName); // get TRT_DriftCircle list from StoreGate containers
+
   if (not TRTDriftCircleContainer.isValid()) { msg(MSG::ERROR) << "Could not find TRT_DriftCircles collection!" << endmsg; return; }
   if (&*TRTDriftCircleContainer==0) { msg(MSG::ERROR) << "newEvent(): TRTDriftCircleContainer==0" << endmsg; return; }
 
@@ -165,8 +162,6 @@ void InDet::TRT_TrackSegmentsMaker_BarrelCosmics::newRegion(const std::vector<Id
 
   clear();
 
-  //StatusCode sc = evtStore()->retrieve(m_trtcontainer, m_driftCirclesName);
-  //if (sc.isFailure() || !m_trtcontainer) {
   if (not m_trtcontainer.isValid()) {
     msg(MSG::ERROR) << "m_trtcontainer is empty!!!" << endmsg;
     return;
