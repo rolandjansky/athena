@@ -7,15 +7,13 @@
 
 #include "SCT_DCSConditionsSvc.h"
 #include "SCT_SlhcIdConverter.h"
-#include "SCT_ConditionsData/SCT_DCSStatCondData.h"
-#include "SCT_ConditionsData/SCT_DCSFloatCondData.h"
 #include "InDetIdentifier/SCT_ID.h"
 
 using SCT_ConditionsServices::castId;
 
 const Identifier SCT_DCSConditionsSvc::s_invalidId;
-const float SCT_DCSConditionsSvc::s_defaultHV = -30.; 
-const float SCT_DCSConditionsSvc::s_defaultTemperature = -40.;
+const float SCT_DCSConditionsSvc::s_defaultHV{-30.}; 
+const float SCT_DCSConditionsSvc::s_defaultTemperature{-40.};
 
 SCT_DCSConditionsSvc::SCT_DCSConditionsSvc(const std::string& name,
                                            ISvcLocator* pSvcLocator) :
@@ -129,26 +127,22 @@ StatusCode SCT_DCSConditionsSvc::initialize() {
       ATH_MSG_INFO("Cannot registered callback for key: " << *itr <<" Missing data handle.");
     }
   }
-  m_pBadModules = new SCT_DCSStatCondData;
-  m_pModulesHV = new SCT_DCSFloatCondData;
-  m_pModulesTemp0 = new SCT_DCSFloatCondData;
-  m_pModulesTemp1 = new SCT_DCSFloatCondData;
+  m_pBadModules = std::make_unique<SCT_DCSStatCondData>();
+  m_pModulesHV = std::make_unique<SCT_DCSFloatCondData>();
+  m_pModulesTemp0 = std::make_unique<SCT_DCSFloatCondData>();
+  m_pModulesTemp1 = std::make_unique<SCT_DCSFloatCondData>();
   return StatusCode::SUCCESS;
 }
 
 StatusCode SCT_DCSConditionsSvc::finalize() { 
-  delete m_pBadModules;   
   if (m_pModulesHV) {
     m_pModulesHV->clear();
-    delete m_pModulesHV;    
   }
   if (m_pModulesTemp0) {
     m_pModulesTemp0->clear();
-    delete m_pModulesTemp0; 
   }
   if (m_pModulesTemp1) {
     m_pModulesTemp1->clear();
-    delete m_pModulesTemp1; 
   }
   return StatusCode::SUCCESS;
 }
@@ -289,7 +283,7 @@ float SCT_DCSConditionsSvc::sensorTemperature(const IdentifierHash& hashId) {
 StatusCode SCT_DCSConditionsSvc::fillData(int& /* i */, std::list<std::string>& keys) {
  
   m_dataFilled=false;
-  if (not m_pBadModules) {
+  if (!m_pBadModules) {
     ATH_MSG_ERROR("Bad modules data object has NULL pointer");
     return StatusCode::FAILURE;
   }
