@@ -17,7 +17,7 @@
 #include "GaudiKernel/ToolHandle.h"
 
 // Forward declarations
-namespace TauAnalysisTools{
+namespace tauRecTools{
   class IBuildTruthTaus;
 }
 
@@ -32,7 +32,7 @@ namespace DerivationFramework {
 
   private:
 
-    ToolHandle<TauAnalysisTools::IBuildTruthTaus> m_buildTruthTaus;
+    ToolHandle<tauRecTools::IBuildTruthTaus> m_buildTruthTaus;
 
   }; 
 }

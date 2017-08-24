@@ -11,7 +11,7 @@
 #include "DerivationFrameworkMCTruth/TruthCollectionMakerTau.h"
 
 // Tool header file
-#include "TauAnalysisTools/IBuildTruthTaus.h"
+#include "tauRecTools/IBuildTruthTaus.h"
 
 // Constructor
 DerivationFramework::TruthCollectionMakerTau::TruthCollectionMakerTau(const std::string& t,
