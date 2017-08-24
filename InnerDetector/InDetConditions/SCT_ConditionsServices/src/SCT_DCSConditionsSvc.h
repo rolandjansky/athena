@@ -25,13 +25,13 @@
 #include "AthenaKernel/IIOVDbSvc.h" 
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
+#include "SCT_ConditionsData/SCT_DCSFloatCondData.h"
+#include "SCT_ConditionsData/SCT_DCSStatCondData.h"
 //STL
 #include <list>
 #include <string>
 #include <map>
 
-class SCT_DCSStatCondData;
-class SCT_DCSFloatCondData;
 class SCT_ID;
 
 /**
@@ -98,10 +98,10 @@ private:
   float m_ecOuter_correction;
   float m_hvLowLimit;
   float m_hvUpLimit;
-  SCT_DCSStatCondData* m_pBadModules;
-  SCT_DCSFloatCondData* m_pModulesHV;
-  SCT_DCSFloatCondData* m_pModulesTemp0;
-  SCT_DCSFloatCondData* m_pModulesTemp1;
+  std::unique_ptr<SCT_DCSStatCondData> m_pBadModules;
+  std::unique_ptr<SCT_DCSFloatCondData> m_pModulesHV;
+  std::unique_ptr<SCT_DCSFloatCondData> m_pModulesTemp0;
+  std::unique_ptr<SCT_DCSFloatCondData> m_pModulesTemp1;
   const SCT_ID* m_pHelper;
   Identifier m_moduleId;
   Identifier m_waferId;
