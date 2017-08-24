@@ -89,6 +89,3 @@ from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramew
 DerivationFrameworkJob += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthCommonKernel",
                                                                          AugmentationTools = augmentationToolsList
                                                                          )
-
-# Tau collections are built separately
-from DerivationFrameworkTau.TauTruthCommon import *
