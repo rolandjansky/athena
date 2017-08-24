@@ -44,18 +44,18 @@ def BTaggingExpertContent(jetcol):
 
 
 def BTaggingStandardContent(jetcol):
-    btagjetcoltmp = "BTagging_" + rchop(jetcol, "Jets")
+    btaggingtmp = "BTagging_" + rchop(jetcol, "Jets")
 
     # deal with name mismatch between PV0TrackJets and BTagging_Track
-    btagjetcol = btagjetcoltmp.replace("PV0Track", "Track")
+    btagging = btaggingtmp.replace("PV0Track", "Track")
 
 
     jetcontent = \
-        [ ".".join( [ jetcol ] + JetStandardAux )
-        ]
+        [ jetcol ] \
+        + [ ".".join( [ jetcol + "Aux" ] + JetStandardAux ) ]
 
     btagcontent = \
-        [ ".".join( [ btagjetcol ] + BTaggingStandardAux )
-        ]
+        [ btagging ] \
+        + [ ".".join( [ btagging + "Aux" ] + BTaggingStandardAux ) ]
 
     return jetcontent + btagcontent
