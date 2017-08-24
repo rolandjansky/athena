@@ -86,8 +86,9 @@ FwdJet.JvtUseTightOP: false
 #
 Jet.LargeRcollection: AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets
 Jet.LargeRuncConfig: None 
-Jet.WtaggerWP: medium
-Jet.ZtaggerWP: medium
+# 80% efficiency working points 
+Jet.WtaggerConfig: SmoothedWZTaggers/SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency80_MC15c_20161215.dat
+Jet.ZtaggerConfig: SmoothedWZTaggers/SmoothedContainedZTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency80_MC15c_20161215.dat
 #
 BadJet.Cut: LooseBad
 #
