@@ -73,3 +73,14 @@ bool TCS::DecisionAlg::getOverflowHardwareBit(const unsigned int &bitNumber) con
     return value;
 }
 //----------------------------------------------------------
+TCS::DecisionAlg& TCS::DecisionAlg::setFillHistosBasedOnHardware(const bool &value)
+{
+    m_fillHistosBasedOnHardware = value;
+    return *this;
+}
+//----------------------------------------------------------
+bool TCS::DecisionAlg::fillHistosBasedOnHardware() const
+{
+    return m_fillHistosBasedOnHardware;
+}
+//----------------------------------------------------------
