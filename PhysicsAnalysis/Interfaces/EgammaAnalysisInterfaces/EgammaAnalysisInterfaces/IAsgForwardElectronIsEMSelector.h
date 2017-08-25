@@ -20,8 +20,6 @@
 // Include the interfaces
 #include "PATCore/IAsgSelectionTool.h"
 #include "EgammaAnalysisInterfaces/IAsgEGammaIsEMSelector.h"
-// Include the return object and the underlying ROOT tool
-#include "EgammaAnalysisInterfaces/egammaPIDdefs.h"
 
 // Forward declarations
 namespace Root{

@@ -25,8 +25,10 @@
 
 // Include the interfaces
 #include "EgammaAnalysisInterfaces/IAsgElectronIsEMSelector.h"
-// Include the return object and the underlying ROOT tool
+
 #include "PATCore/TAccept.h"
+#include "ElectronPhotonSelectorTools/egammaPIDdefs.h" 
+
 #include <string>
 
 namespace Root{

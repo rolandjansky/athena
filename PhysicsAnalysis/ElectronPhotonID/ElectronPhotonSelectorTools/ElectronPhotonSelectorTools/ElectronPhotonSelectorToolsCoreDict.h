@@ -7,7 +7,7 @@
 #ifndef __ELECTRONPHOTONSELECTORTOOLSCOREDICT__
 #define __ELECTRONPHOTONSELECTORTOOLSCOREDICT__
 
-#include "EgammaAnalysisInterfaces/egammaPIDdefs.h" 
-#include "EgammaAnalysisInterfaces/LikelihoodEnums.h" 
+#include "ElectronPhotonSelectorTools/egammaPIDdefs.h" 
+#include "ElectronPhotonSelectorTools/LikelihoodEnums.h" 
 
 #endif

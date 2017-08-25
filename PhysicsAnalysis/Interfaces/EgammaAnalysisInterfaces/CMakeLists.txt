@@ -26,8 +26,4 @@ atlas_add_dictionary( EgammaAnalysisInterfacesDict
    EgammaAnalysisInterfaces/selection.xml
    LINK_LIBRARIES EgammaAnalysisInterfaces )
 
-atlas_add_dictionary( EgammaAnalysisInterfacesEnumDict
-   EgammaAnalysisInterfaces/EgammaAnalysisInterfacesEnumDict.h
-   EgammaAnalysisInterfaces/selectionEnum.xml
-   LINK_LIBRARIES EgammaAnalysisInterfaces )
 

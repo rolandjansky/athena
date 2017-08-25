@@ -19,7 +19,6 @@
 
 // Include the interfaces
 #include "PATCore/IAsgSelectionTool.h"
-#include "EgammaAnalysisInterfaces/egammaPIDdefs.h"
 
 // Forward declarations
 namespace Root{
