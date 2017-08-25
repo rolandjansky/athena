@@ -26,6 +26,21 @@ static const float  M_PIF = float(M_PI);
 
 
 
+namespace RoiUtil { 
+  
+class range_error : public std::exception { 
+public:
+  range_error( const char* s ) : std::exception(), m_str(s) { } 
+  virtual const char* what() const throw() { return m_str; } 
+private:
+  const char*  m_str;
+};
+  
+}
+
+
+
+
 /// test whether a stub is contained within the roi
 bool RoiUtil::contains( const IRoiDescriptor& roi, double z0, double dzdr ) {
   static const double maxR = 1100; // maximum radius of RoI - outer TRT radius ~1070 mm - should be configurable? 
@@ -145,7 +160,7 @@ double RoiUtil::phicheck(double phi) {
   while ( phi> M_PIF ) phi-=M_2PI;
   while ( phi<-M_PIF ) phi+=M_2PI;
   if ( !(phi >= -M_PIF && phi <= M_PIF) ) { // use ! of range rather than range to also catch nan etc
-    throw std::exception(); 
+    throw range_error( (std::string("phi out of range: ")+std::to_string(phi)).c_str() ); 
   } 
   return phi;
 }
@@ -153,7 +168,7 @@ double RoiUtil::phicheck(double phi) {
 
 double RoiUtil::etacheck(double eta) {
   if ( !(eta>-100  && eta<100) ) { // check also for nan
-    throw std::exception();
+    throw range_error( (std::string("eta out of range: ")+std::to_string(eta)).c_str() ); 
   } 
   return eta;
 }
@@ -161,7 +176,7 @@ double RoiUtil::etacheck(double eta) {
 
 double RoiUtil::zedcheck(double zed ) {
   if ( !(zed>-100000  && zed<100000 ) ) { // check also for nan
-    throw std::exception();
+    throw range_error( (std::string("zed out of range: ")+std::to_string(zed)).c_str() ); 
   } 
   return zed;
 }
