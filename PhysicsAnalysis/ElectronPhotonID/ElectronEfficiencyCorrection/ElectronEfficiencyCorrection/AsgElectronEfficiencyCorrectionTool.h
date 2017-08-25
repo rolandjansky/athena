@@ -28,12 +28,12 @@
 //xAOD includes
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/AsgMetadataTool.h"
+#include "EgammaAnalysisInterfaces/IAsgElectronEfficiencyCorrectionTool.h"
 
 #include "PATInterfaces/ISystematicsTool.h"
 #include "PATInterfaces/SystematicRegistry.h"
 #include "PATInterfaces/CorrectionCode.h"
 #include "ElectronEfficiencyCorrection/TElectronEfficiencyCorrectionTool.h"
-#include "ElectronEfficiencyCorrection/IAsgElectronEfficiencyCorrectionTool.h"
 #include "xAODEgamma/ElectronFwd.h"
 
 class AsgElectronEfficiencyCorrectionTool
