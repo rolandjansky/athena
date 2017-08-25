@@ -20,7 +20,6 @@
 // Include the interfaces
 #include "PATCore/IAsgSelectionTool.h"
 #include "EgammaAnalysisInterfaces/IAsgEGammaIsEMSelector.h"
-#include "EgammaAnalysisInterfaces/egammaPIDdefs.h"
 // Forward declarations
 namespace Root{
   class TAccept;
