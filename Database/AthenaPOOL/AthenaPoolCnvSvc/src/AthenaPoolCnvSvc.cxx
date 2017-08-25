@@ -480,7 +480,7 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
       } else if (sc.isRecoverable() || num == -1) {
          return(StatusCode::RECOVERABLE);
       } else {
-         ATH_MSG_ERROR("Failed to get first Data for client: " << num);
+         ATH_MSG_INFO("Failed to get Data for client: " << num);
          return(StatusCode::FAILURE);
       }
    }
