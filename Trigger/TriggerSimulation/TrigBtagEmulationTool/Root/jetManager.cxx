@@ -1,4 +1,6 @@
-/* Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration */
+/*
+Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration 
+*/
 
 #include "TrigBtagEmulationTool/jetManager.h"
 
@@ -13,41 +15,41 @@ ToolHandle< Analysis::IBTagSecVertexing > *jetManager::m_bTagSecVtxTool = nullpt
 //**********************************************************************
 
 jetManager::jetManager(ToolHandle<Trig::TrigDecisionTool>& trigDec,std::string chain, std::string jetContainer, std::string btagContainer) 
-  : _chain(chain), _jetContainer(jetContainer), _btagContainer(btagContainer),
-    _jet_key(""), _primaryVertex_key(""), _trackParticle_key(""),
+  : m_chain(chain), m_jetContainer(jetContainer), m_btagContainer(btagContainer),
+    m_jet_key(""), m_primaryVertex_key(""), m_trackParticle_key(""),
     m_trigDec(trigDec) {}
 jetManager::jetManager(const jetManager& other)
-  : _chain(other._chain), _jetContainer(other._jetContainer),_btagContainer(other._btagContainer),
-    _jet_key(other._jet_key), _primaryVertex_key(other._primaryVertex_key), _trackParticle_key(other._trackParticle_key),
-    _jet_Containers(other._jet_Containers.begin(),other._jet_Containers.end()),
-    _primaryVertex_Containers(other._primaryVertex_Containers.begin(),other._primaryVertex_Containers.end()),
-    _trackParticle_Containers(other._trackParticle_Containers.begin(),other._trackParticle_Containers.end()),
-    _btagging_Containers(other._btagging_Containers.begin(),other._btagging_Containers.end()),
-    _outputJets(other._outputJets.begin(),other._outputJets.end()),
+  : m_chain(other.m_chain), m_jetContainer(other.m_jetContainer),m_btagContainer(other.m_btagContainer),
+    m_jet_key(other.m_jet_key), m_primaryVertex_key(other.m_primaryVertex_key), m_trackParticle_key(other.m_trackParticle_key),
+    m_jet_Containers(other.m_jet_Containers.begin(),other.m_jet_Containers.end()),
+    m_primaryVertex_Containers(other.m_primaryVertex_Containers.begin(),other.m_primaryVertex_Containers.end()),
+    m_trackParticle_Containers(other.m_trackParticle_Containers.begin(),other.m_trackParticle_Containers.end()),
+    m_btagging_Containers(other.m_btagging_Containers.begin(),other.m_btagging_Containers.end()),
+    m_outputJets(other.m_outputJets.begin(),other.m_outputJets.end()),
     m_trigDec(other.m_trigDec) {}
 jetManager::~jetManager() {}
 
 void jetManager::setKeys(std::string jet_Key,std::string primaryVertex_key,std::string trackParticle_key)
 {
-  _jet_key = jet_Key;
-  _primaryVertex_key = primaryVertex_key;
-  _trackParticle_key = trackParticle_key;
+  m_jet_key = jet_Key;
+  m_primaryVertex_key = primaryVertex_key;
+  m_trackParticle_key = trackParticle_key;
 }
 
 StatusCode jetManager::retrieveByNavigation() 
 {
   clear();
 
-  Trig::FeatureContainer features = m_trigDec->features(_chain);
+  Trig::FeatureContainer features = m_trigDec->features(m_chain);
   const std::vector< Trig::Combination >& combinations = features.getCombinations();
 
   unsigned int nCombinations = combinations.size();
   for (unsigned int combination=0; combination<nCombinations; combination++) 
     {
-      getFromCombo( _jet_Containers          ,combinations.at(combination),_jet_key           );
-      getFromCombo( _primaryVertex_Containers,combinations.at(combination),_primaryVertex_key );
-      getFromCombo( _btagging_Containers     ,combinations.at(combination));
-      getTPfromCombo( _trackParticle_Containers,combinations.at(combination),_trackParticle_key );
+      getFromCombo( m_jet_Containers          ,combinations.at(combination),m_jet_key           );
+      getFromCombo( m_primaryVertex_Containers,combinations.at(combination),m_primaryVertex_key );
+      getFromCombo( m_btagging_Containers     ,combinations.at(combination));
+      getTPfromCombo( m_trackParticle_Containers,combinations.at(combination),m_trackParticle_key );
     }
 
   jetCopy();
@@ -60,25 +62,25 @@ StatusCode jetManager::retrieveByContainer(asg::SgTEvent* evtStore)
 StatusCode jetManager::retrieveByContainer(ServiceHandle<StoreGateSvc>& evtStore)
 #endif
 {
-  if (_jetContainer.find("GSC")!=std::string::npos) 
+  if (m_jetContainer.find("GSC")!=std::string::npos) 
     return retrieveByContainerWithMatching(evtStore);
 
-  if (!m_trigDec->isPassed(_chain)) 
+  if (!m_trigDec->isPassed(m_chain)) 
     return StatusCode::SUCCESS;
 
   const xAOD::JetContainer *sgJetContainer = nullptr;
-  if( evtStore->retrieve(sgJetContainer,_jetContainer).isFailure() || sgJetContainer == nullptr)
+  if( evtStore->retrieve(sgJetContainer,m_jetContainer).isFailure() || sgJetContainer == nullptr)
     return StatusCode::FAILURE;
 
   const xAOD::BTaggingContainer *sgBTaggingContainer = nullptr;
-  if ( evtStore->retrieve(sgBTaggingContainer,_btagContainer).isFailure() || sgBTaggingContainer == nullptr )
+  if ( evtStore->retrieve(sgBTaggingContainer,m_btagContainer).isFailure() || sgBTaggingContainer == nullptr )
     return StatusCode::FAILURE;
 
   // Loop on BTagging objects
   for (auto &bjet : *sgBTaggingContainer)
     {
       // Check if BTagging object is of the required type 
-      bool selectOffline = (_chain.find("off")!=std::string::npos);
+      bool selectOffline = (m_chain.find("off")!=std::string::npos);
       const double mv2c10=bjet->auxdataConst<double>("MV2c10_discriminant");
       const double mv2c20=bjet->auxdataConst<double>("MV2c20_discriminant");
       if ((selectOffline && mv2c20==0 && mv2c10==0) || (!selectOffline && (mv2c20!=0 || mv2c10!=0)) ) continue;
@@ -114,12 +116,12 @@ StatusCode jetManager::retrieveByContainer(ServiceHandle<StoreGateSvc>& evtStore
 	for (const auto &sgj : *sgJetContainer) if(jet==sgj) isJetPresent=true;
 	// Check if the linked Jet has already been found
 	bool isJetUnique=true;
-	for (const auto &j : _jet_Containers)
+	for (const auto &j : m_jet_Containers)
 	  if(jet==j) isJetUnique=false;
 	// Save Jet and BTagging objects if jet is found and unique
 	if (isJetPresent && isJetUnique) {
-	  _jet_Containers.push_back(jet);
-	  _btagging_Containers.push_back(bjet);
+	  m_jet_Containers.push_back(jet);
+	  m_btagging_Containers.push_back(bjet);
 	}
       }
     }
@@ -136,22 +138,22 @@ StatusCode jetManager::retrieveByContainerWithMatching(ServiceHandle<StoreGateSv
 #endif
 {
 
-  if (!m_trigDec->isPassed(_chain)) 
+  if (!m_trigDec->isPassed(m_chain)) 
     return StatusCode::SUCCESS;
 
   const xAOD::JetContainer *sgJetContainer = nullptr;
-  if ( (evtStore->retrieve(sgJetContainer,_jetContainer)).isFailure() || sgJetContainer == nullptr )
+  if ( (evtStore->retrieve(sgJetContainer,m_jetContainer)).isFailure() || sgJetContainer == nullptr )
     return StatusCode::FAILURE;
 
   const xAOD::BTaggingContainer *sgBTaggingContainer = nullptr;
-  if (evtStore->retrieve(sgBTaggingContainer,_btagContainer).isFailure() || sgBTaggingContainer == nullptr)
+  if (evtStore->retrieve(sgBTaggingContainer,m_btagContainer).isFailure() || sgBTaggingContainer == nullptr)
     return StatusCode::FAILURE;
 
   // Loop on BTagging objects
   for (auto &bjet : *sgBTaggingContainer)
     {
       // Check if BTagging object is of the required type 
-      bool selectOffline = (_chain.find("off")!=std::string::npos);
+      bool selectOffline = (m_chain.find("off")!=std::string::npos);
       const double mv2c10=bjet->auxdataConst<double>("MV2c10_discriminant");
       const double mv2c20=bjet->auxdataConst<double>("MV2c20_discriminant");
       if ((selectOffline && mv2c20==0 && mv2c10==0) || (!selectOffline && (mv2c20!=0 || mv2c10!=0)) ) continue;
@@ -195,12 +197,12 @@ StatusCode jetManager::retrieveByContainerWithMatching(ServiceHandle<StoreGateSv
 	    }
 	// Check if the linked Jet has already been found
 	bool isJetUnique=true;
-	for (const auto &j : _jet_Containers)
+	for (const auto &j : m_jet_Containers)
 	  if(matchedJet==j) isJetUnique=false;
 	// Save Jet and BTagging objects if jet is found and unique
 	if (isJetPresent && isJetUnique) {
-	  _jet_Containers.push_back(matchedJet);
-	  _btagging_Containers.push_back(bjet);
+	  m_jet_Containers.push_back(matchedJet);
+	  m_btagging_Containers.push_back(bjet);
 	}
       }
     }
@@ -217,11 +219,11 @@ bool jetManager::isMatched(const xAOD::Jet* splitJet,const xAOD::Jet* gscJet)
 
 bool jetManager::clear()
 {
-  _jet_Containers.clear();
-  _primaryVertex_Containers.clear();
-  _trackParticle_Containers.clear();
-  _btagging_Containers.clear();
-  _outputJets.clear();
+  m_jet_Containers.clear();
+  m_primaryVertex_Containers.clear();
+  m_trackParticle_Containers.clear();
+  m_btagging_Containers.clear();
+  m_outputJets.clear();
   return true;
 }
 
@@ -256,19 +258,19 @@ bool jetManager::getTPfromCombo(std::vector<const xAOD::TrackParticleContainer*>
 
 void jetManager::jetCopy()
 {
-  for (auto & jet : _jet_Containers) {
+  for (auto & jet : m_jet_Containers) {
     TrigBtagEmulationJet ing;
     ing.pt  = jet->p4().Et();
     ing.eta = jet->eta();
     ing.phi = jet->phi();
-    _outputJets.push_back( ing );
+    m_outputJets.push_back( ing );
   }
 }
 
 StatusCode jetManager::retagCopy(bool useNavigation,bool tagOffline,bool tagOnline)
 {
-  auto out = _outputJets.begin();
-  for (auto & btag : _btagging_Containers) 
+  auto out = m_outputJets.begin();
+  for (auto & btag : m_btagging_Containers) 
     {
       const double mv2c10=btag->auxdataConst<double>("MV2c10_discriminant");
       const double mv2c20=btag->auxdataConst<double>("MV2c20_discriminant");
@@ -296,11 +298,11 @@ StatusCode jetManager::retagCopy(bool useNavigation,bool tagOffline,bool tagOnli
 StatusCode jetManager::retagOffline()
 {
 #ifndef ROOTCORE 
-  auto pv  = _primaryVertex_Containers.begin();
-  auto tp  = _trackParticle_Containers.begin();
-  auto out = _outputJets.begin();
+  auto pv  = m_primaryVertex_Containers.begin();
+  auto tp  = m_trackParticle_Containers.begin();
+  auto out = m_outputJets.begin();
 
-  for (auto & jet : _jet_Containers) {
+  for (auto & jet : m_jet_Containers) {
 
     // Create container for copied jets
     xAOD::JetContainer* output_jets = new xAOD::JetContainer(SG::OWN_ELEMENTS);
@@ -396,9 +398,9 @@ StatusCode jetManager::retagOffline()
 }
 StatusCode jetManager::retagOnline() { return StatusCode::SUCCESS;}
 
-std::vector< struct TrigBtagEmulationJet >& jetManager::getJets() { return _outputJets; }
+std::vector< struct TrigBtagEmulationJet >& jetManager::getJets() { return m_outputJets; }
 
-jetManager& jetManager::operator+=(const jetManager& other) { return merge(other._jet_Containers); }
+jetManager& jetManager::operator+=(const jetManager& other) { return merge(other.m_jet_Containers); }
 jetManager& jetManager::merge(const std::vector<const xAOD::Jet*>& jets, double minPt, double maxPt)
 {
   for (auto & jet : jets)
@@ -413,15 +415,15 @@ jetManager& jetManager::merge(const std::vector<const xAOD::Jet*>& jets, double 
       backupJet.weights.insert( std::make_pair("COMB"   ,-1000) );
       
       bool isUnique = true;
-      for (unsigned int index(0); index < _outputJets.size(); index++)
-	if (_outputJets.at(index).pt==backupJet.pt &&
-	    _outputJets.at(index).eta==backupJet.eta &&
-	    _outputJets.at(index).phi==backupJet.phi) 
+      for (unsigned int index(0); index < m_outputJets.size(); index++)
+	if (m_outputJets.at(index).pt==backupJet.pt &&
+	    m_outputJets.at(index).eta==backupJet.eta &&
+	    m_outputJets.at(index).phi==backupJet.phi) 
 	  {isUnique = false; break;}
       if (isUnique && backupJet.pt >= minPt)
 	{
-	  if ( maxPt == 0 ) _outputJets.push_back( backupJet );
-	  else if ( backupJet.pt < maxPt ) _outputJets.push_back( backupJet );
+	  if ( maxPt == 0 ) m_outputJets.push_back( backupJet );
+	  else if ( backupJet.pt < maxPt ) m_outputJets.push_back( backupJet );
 	}
     }
 

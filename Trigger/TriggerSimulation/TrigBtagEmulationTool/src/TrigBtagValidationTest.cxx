@@ -1,5 +1,6 @@
-// TrigBtagValidationTest.cxx
-/* Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration */
+/*
+Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration 
+*/
 
 #include "TrigBtagValidationTest.h"
 #include "GaudiKernel/Property.h"
@@ -45,7 +46,6 @@ namespace Trig{
     }
 
     // EXAMPLE OF CONFIGURATION OF ADDITIONAL EMULATED CHAINS
-
     m_toBeEmulatedTriggers.push_back("L1_MJJ-400");
     {
       std::vector< std::string > test;

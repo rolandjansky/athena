@@ -1,4 +1,6 @@
-/* Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration */
+/*
+Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration 
+*/
 
 #ifndef TrigBtagEmulationTool_H
 #define TrigBtagEmulationTool_H
@@ -62,164 +64,46 @@ namespace Trig {
     TrigBtagEmulationChain(const std::vector<std::string>& chainDefinition, ToolHandle<Trig::TrigDecisionTool>& trigDec);    
 
     /// Trigger decision ingredient definition
-    void addDecisionIngredient(std::string decision) {
-      m_ingredientsDecision.push_back(decision);
-    }
+    void addDecisionIngredient(std::string decision);
     
     /// L1 Jet ingredient definition
-    void addL1JetIngredient(std::string triggerName,float min_pt, float min_eta, float max_eta, unsigned int min_mult, float min_ht, unsigned int topEt,float min_invm,bool isCF = false) {
-      TrigBtagEmulationChainJetIngredient_L1 *ing = new TrigBtagEmulationChainJetIngredient_L1(triggerName,min_pt,min_eta,max_eta,min_mult);
-
-      feature_ht *ht_feat;
-      if (topEt == 0) ht_feat = new feature_ht("L1","HT",min_ht);
-      else ht_feat = new feature_ht_top("L1","HT",min_ht,topEt);
-      ht_feat->setCuts(min_pt,min_eta,max_eta);
-
-      feature_invm *invm_feat;
-      if (!isCF) invm_feat = new feature_invm("L1","MJJ",min_invm);
-      else invm_feat = new feature_invm_CF("L1","MJJ",min_invm);
-      invm_feat->setCuts(min_pt,min_eta,max_eta);
-      if (min_invm != 0) ing->addFeature( "MJJ",invm_feat );
-
-      if (min_ht != 0) ing->addFeature( "HT", ht_feat );
-      m_ingredientsL1Jet.push_back(ing);
-    }
+    void addL1JetIngredient(std::string triggerName,float min_pt, float min_eta, float max_eta, unsigned int min_mult, float min_ht, unsigned int topEt,float min_invm,bool isCF = false) ;
 
     /// L1 Jet ingredient definition
-    void addL1JJJetIngredient(std::string triggerName,float min_pt, float min_eta, float max_eta, unsigned int min_mult, float min_ht, unsigned int topEt,float min_invm,bool isCF = false) {
-      TrigBtagEmulationChainJetIngredient_L1_JJ *ing = new TrigBtagEmulationChainJetIngredient_L1_JJ(triggerName,min_pt,min_eta,max_eta,min_mult);
-
-      feature_ht *ht_feat;
-      if (topEt == 0) ht_feat = new feature_ht("L1","HT",min_ht);
-      else ht_feat = new feature_ht_top("L1","HT",min_ht,topEt);
-      ht_feat->setCuts(min_pt,min_eta,max_eta);
-
-      feature_invm *invm_feat;
-      if (!isCF) invm_feat = new feature_invm("L1","MJJ",min_invm);
-      else invm_feat = new feature_invm_CF("L1","MJJ",min_invm);
-      invm_feat->setCuts(min_pt,min_eta,max_eta);
-      if (min_invm != 0) ing->addFeature( "MJJ",invm_feat );
-
-      if (min_ht != 0) ing->addFeature( "HT", ht_feat );
-      m_ingredientsL1Jet.push_back(ing);
-    }
+    void addL1JJJetIngredient(std::string triggerName,float min_pt, float min_eta, float max_eta, unsigned int min_mult, float min_ht, unsigned int topEt,float min_invm,bool isCF = false);
 
     /// HLT Jet ingredient definition
-    void addHLTJetIngredient(std::string triggerName,float min_pt, float min_eta, float max_eta, unsigned int min_mult, float min_ht, float min_gsc, float min_invm) {
-      TrigBtagEmulationChainJetIngredient_HLT *ing = nullptr;
-      if (min_gsc == 0) ing = new TrigBtagEmulationChainJetIngredient_HLT(triggerName,min_pt,min_eta,max_eta,min_mult);
-      else ing = new TrigBtagEmulationChainJetIngredient_GSC(triggerName,min_pt,min_gsc,min_eta,max_eta,min_mult);
-      
-      feature_ht *ht_feat = new feature_ht("HLT","HT",min_ht);
-      ht_feat->setCuts(min_pt,min_eta,max_eta);
-      if (min_ht != 0) ing->addFeature( "HT", ht_feat);
-
-      feature_invm *invm_feat = new feature_invm("HLT","INVM",min_invm);
-      invm_feat->setCuts(min_pt,min_eta,max_eta);
-      if (min_invm != 0) ing->addFeature( "INVM",invm_feat );
-
-      m_ingredientsHLTJet.push_back(ing);
-    }
+    void addHLTJetIngredient(std::string triggerName,float min_pt, float min_eta, float max_eta, unsigned int min_mult, float min_ht, float min_gsc, float min_invm);
 
     /// HLT Bjet ingredient definition
-    void addHLTBjetIngredient(std::string triggerName,float min_pt, float min_eta, float max_eta,std::string tagger, float min_weight, unsigned int min_mult, float min_ht, float min_gsc, float anti_weight, float min_invm) {
-      TrigBtagEmulationChainJetIngredient_HLT *ing = nullptr;
-      if (min_gsc == 0) ing = new TrigBtagEmulationChainJetIngredient_HLT(triggerName,min_pt,min_eta,max_eta,min_mult);
-      else ing = new TrigBtagEmulationChainJetIngredient_GSC(triggerName,min_pt,min_gsc,min_eta,max_eta,min_mult);
-
-      if (min_weight != -1000) ing->addFeature("BTAG",new feature_btag( tagger.c_str(),min_weight) );
-      if (anti_weight != 1000) ing->addFeature("ANTI-BTAG",new feature_antibtag( tagger.c_str(),anti_weight) );
-
-      feature_ht *ht_feat = new feature_ht("HLT","HT",min_ht);
-      ht_feat->setCuts(min_pt,min_eta,max_eta); 
-      if (min_ht != 0) ing->addFeature( "HT", ht_feat);
-
-      feature_invm *invm_feat = new feature_invm("HLT","INVM",min_invm);
-      invm_feat->setCuts(min_pt,min_eta,max_eta);
-      if (min_invm != 0) ing->addFeature( "INVM",invm_feat );
-
-      m_ingredientsHLTJet.push_back(ing);
-    }
+    void addHLTBjetIngredient(std::string triggerName,float min_pt, float min_eta, float max_eta,std::string tagger, float min_weight, unsigned int min_mult, float min_ht, float min_gsc, float anti_weight, float min_invm);
 
     /// Jet Evaluation
-    void evaluate()
-    {
-      for (unsigned int index(0); index<m_ingredientsL1Jet.size(); index++)
-	m_ingredientsL1Jet.at(index)->evaluate();
-
-      for (unsigned int index(0); index<m_ingredientsHLTJet.size(); index++)
-	m_ingredientsHLTJet.at(index)->evaluate();
-    }
+    void evaluate();
 
     /// Chain evaluation
-    bool isPassed() {
-      std::vector<std::string>::iterator dec, decEnd=m_ingredientsDecision.end(); 
-      for(dec=m_ingredientsDecision.begin(); dec!=decEnd; dec++) 
-	if(!m_trigDec->isPassed(*dec)) return false;   
-
-      for (unsigned int index(0); index<m_ingredientsL1Jet.size(); index++)
-        if ( !m_ingredientsL1Jet.at(index)->isPassed() ) return false;
-
-      for (unsigned int index(0); index<m_ingredientsHLTJet.size(); index++)
-        if ( !m_ingredientsHLTJet.at(index)->isPassed() ) return false;
-
-      return true;
-    }
+    bool isPassed();
 
     // Dump
-    void Print()
-    {
-      std::cout<<std::endl<<"### TRIGGER EMULATION ###"<<std::endl;
-      std::cout<<"###     L1"<<std::endl;
-      for (unsigned int i=0; i<m_ingredientsL1Jet.size();i++)
-        m_ingredientsL1Jet.at(i)->Print();
-      std::cout<<"###     HLT"<<std::endl;
-      for (unsigned int i=0; i<m_ingredientsHLTJet.size();i++)
-        m_ingredientsHLTJet.at(i)->Print();
-    }
+    void Print();
 
     // Utilities
-    bool hasFeature(std::string feature)
-    {
-      for (unsigned int index(0); index<m_ingredientsL1Jet.size(); index++)
-        if ( m_ingredientsL1Jet.at(index)->hasFeature(feature) ) return true;
-
-      for (unsigned int index(0); index<m_ingredientsHLTJet.size(); index++)
-        if ( m_ingredientsHLTJet.at(index)->hasFeature(feature) ) return true;
-
-      return false;
-    }
+    bool hasFeature(std::string feature);
 
     /// Event cleanup
-    void clear() {
-
-      for (unsigned int index(0); index<m_ingredientsL1Jet.size(); index++)
-        m_ingredientsL1Jet.at(index)->clear();
-
-      for (unsigned int index(0); index<m_ingredientsHLTJet.size(); index++)
-	m_ingredientsHLTJet.at(index)->clear();
-
-    }
+    void clear();
   
     /// Name
-    std::string name() {return m_name;}
+    std::string name();
 
     /// Configuration accessors
-    bool isSplit() {return (m_bjetConfig=="SPLIT");}
-    bool isIP3DSV1() {return (m_bjetTagger=="IP3DSV1");}
-    bool isCOMB() {return (m_bjetTagger=="COMB");}
-    bool isMV2c20() {return (m_bjetTagger=="MV2c20");}
-    std::string tagger() {return m_bjetTagger;}
+    bool isSplit();
+    bool isIP3DSV1();
+    bool isCOMB();
+    bool isMV2c20();
+    std::string tagger();
     
-    bool addJet(std::string item,std::vector< struct TrigBtagEmulationJet >& jets) {
-      for (unsigned int index(0); index<m_ingredientsL1Jet.size(); index++)
-	if (m_ingredientsL1Jet.at(index)->needsJet(item)) m_ingredientsL1Jet.at(index)->addJet(item,jets);
-      
-      for (unsigned int index(0); index<m_ingredientsHLTJet.size(); index++)
-	if (m_ingredientsHLTJet.at(index)->needsJet(item)) m_ingredientsHLTJet.at(index)->addJet(item,jets);
-
-      return true;
-    }
+    bool addJet(std::string item,std::vector< struct TrigBtagEmulationJet >& jets);
 
   private:
 
@@ -340,11 +224,11 @@ namespace Trig {
     int m_verbosity;
 
     // jet Managers
-    Trig::jetManager *manager_ef;
-    Trig::jetManager *manager_split;
-    Trig::jetManager *manager_gsc;
-    Trig::jetManager *manager_ef_gsc;
-    Trig::jetManager *manager_split_gsc;
+    Trig::jetManager *m_manager_ef;
+    Trig::jetManager *m_manager_split;
+    Trig::jetManager *m_manager_gsc;
+    Trig::jetManager *m_manager_ef_gsc;
+    Trig::jetManager *m_manager_split_gsc;
 
     // OUTPUT PROPERTIES
     std::vector< std::vector< std::string > > m_emulatedChainDefinitions;
@@ -360,10 +244,10 @@ namespace Trig {
     bool m_htTrigger;
     bool m_gscTrigger;
 
-    bool hasSplit() {return m_splitTrigger;}
-    bool hasBtag() {return m_btagTrigger;}
-    bool hasHT() {return m_htTrigger;}
-    bool hasGSC() {return m_gscTrigger;}
+    bool hasSplit();
+    bool hasBtag();
+    bool hasHT();
+    bool hasGSC();
 
   };
 

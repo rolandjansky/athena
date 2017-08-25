@@ -1,4 +1,6 @@
-/* Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration */
+/*
+Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 
 #ifndef baseTrigBtagEmulationChainJetIngredient_H
 #define baseTrigBtagEmulationChainJetIngredient_H
@@ -26,19 +28,19 @@ namespace Trig {
     bool addJet(std::string,std::vector< struct TrigBtagEmulationJet >&);
 
   public:
-    std::string _triggerName;
-    float _min_pt;
-    float _min_eta;
-    float _max_eta;
-    unsigned int _min_mult;
-    unsigned int _count;
+    std::string m_triggerName;
+    float m_min_pt;
+    float m_min_eta;
+    float m_max_eta;
+    unsigned int m_min_mult;
+    unsigned int m_count;
 
-    std::vector< std::pair<std::string,feature*> > type_THRESHOLD_features;
-    std::vector< std::pair<std::string,feature*> > type_SELECTION_features;
+    std::vector< std::pair<std::string,feature*> > m_type_THRESHOLD_features;
+    std::vector< std::pair<std::string,feature*> > m_type_SELECTION_features;
 
   public:
-    std::map< std::string,std::string > _neededJetCollection;
-    std::map< std::string,std::vector< struct TrigBtagEmulationJet >* > _jetCollection;
+    std::map< std::string,std::string > m_neededJetCollection;
+    std::map< std::string,std::vector< struct TrigBtagEmulationJet >* > m_jetCollection;
   };
 
   // *** L1
@@ -98,9 +100,9 @@ namespace Trig {
     unsigned int matchingJets(struct TrigBtagEmulationJet&);
 
   public:
-    float _min_gsc;
-    unsigned int _min_mult_gsc;
-    unsigned int _count_gsc;
+    float m_min_gsc;
+    unsigned int m_min_mult_gsc;
+    unsigned int m_count_gsc;
   };
   
 }//namespace

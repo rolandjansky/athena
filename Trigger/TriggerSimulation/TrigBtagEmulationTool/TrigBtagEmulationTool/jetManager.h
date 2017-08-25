@@ -1,4 +1,6 @@
-/* Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration */
+/*
+Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 
 #ifndef Jet_Manager_H
 #define Jet_Manager_H
@@ -76,20 +78,20 @@ namespace Trig {
     bool isMatched(const xAOD::Jet*,const xAOD::Jet*);
 
   public:
-    const std::string _chain;
-    const std::string _jetContainer;
-    const std::string _btagContainer;
+    const std::string m_chain;
+    const std::string m_jetContainer;
+    const std::string m_btagContainer;
 
-    std::string _jet_key;
-    std::string _primaryVertex_key;
-    std::string _trackParticle_key;
+    std::string m_jet_key;
+    std::string m_primaryVertex_key;
+    std::string m_trackParticle_key;
 
-    std::vector<const xAOD::Jet*> _jet_Containers;
-    std::vector<const xAOD::Vertex*> _primaryVertex_Containers;
-    std::vector<const xAOD::TrackParticleContainer*> _trackParticle_Containers;
-    std::vector<const xAOD::BTagging*> _btagging_Containers;
+    std::vector<const xAOD::Jet*> m_jet_Containers;
+    std::vector<const xAOD::Vertex*> m_primaryVertex_Containers;
+    std::vector<const xAOD::TrackParticleContainer*> m_trackParticle_Containers;
+    std::vector<const xAOD::BTagging*> m_btagging_Containers;
 
-    std::vector<TrigBtagEmulationJet> _outputJets;
+    std::vector<TrigBtagEmulationJet> m_outputJets;
 
   private:
     ToolHandle<Trig::TrigDecisionTool> m_trigDec;

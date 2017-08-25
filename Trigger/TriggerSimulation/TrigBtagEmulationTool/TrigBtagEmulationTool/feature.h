@@ -1,4 +1,6 @@
-/* Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration */
+/*
+Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 
 #ifndef FEATURE_H
 #define FEATURE_H
@@ -36,8 +38,8 @@ namespace Trig {
     virtual void Print() = 0;
 
   public:
-    int _type;
-    std::string _name;
+    int m_type;
+    std::string m_name;
 
     static const int UNKNOWN    = -1;
     static const int THRESHOLD  =  0;
@@ -59,7 +61,7 @@ namespace Trig {
     void clear();
 
   public:
-    float _weight;
+    float m_weight;
   };
 
   // *** ANTI-B-TAG
@@ -99,16 +101,16 @@ namespace Trig {
     bool evaluateJet_HLT(struct TrigBtagEmulationJet*);
 
   public:
-    std::string _trigLevel;
-    float _min_ht;
-    float _count_ht;
+    std::string m_trigLevel;
+    float m_min_ht;
+    float m_count_ht;
 
   protected:
-    float _cut_pt;
-    float _cut_min_eta;
-    float _cut_max_eta;
-    float _cut_btag;
-    std::string _btagName;
+    float m_cut_pt;
+    float m_cut_min_eta;
+    float m_cut_max_eta;
+    float m_cut_btag;
+    std::string m_btagName;
   };
 
   // *** HT-TOP
@@ -129,8 +131,8 @@ namespace Trig {
     void calculateHT_L1();
 
   private:
-    std::vector<struct TrigBtagEmulationJet> _piorityQueue;
-    unsigned int _topEt;
+    std::vector<struct TrigBtagEmulationJet> m_piorityQueue;
+    unsigned int m_topEt;
   };
 
   // *** INVM
@@ -161,21 +163,21 @@ namespace Trig {
     double calculateINVM(struct TrigBtagEmulationJet const&,struct TrigBtagEmulationJet const&) const;
 
   protected:
-    std::string _trigLevel;
-    double _min_invm;
-    double _count_invm;
-    double _cut_pt;
-    double _cut_min_eta;
-    double _cut_max_eta;
+    std::string m_trigLevel;
+    double m_min_invm;
+    double m_count_invm;
+    double m_cut_pt;
+    double m_cut_min_eta;
+    double m_cut_max_eta;
 
   protected:
-    std::vector<struct TrigBtagEmulationJet> _jetCollection_HLT;
-    std::vector<struct TrigBtagEmulationJet> _priorityQueue_20;
-    std::vector<struct TrigBtagEmulationJet> _priorityQueue_30;
+    std::vector<struct TrigBtagEmulationJet> m_jetCollection_HLT;
+    std::vector<struct TrigBtagEmulationJet> m_priorityQueue_20;
+    std::vector<struct TrigBtagEmulationJet> m_priorityQueue_30;
 
   protected:
-    std::map< int,double > _LUTcos;
-    std::map< int,double > _LUTcosh;
+    std::map< int,double > m_LUTcos;
+    std::map< int,double > m_LUTcosh;
   };
 
   // *** INVM CF
