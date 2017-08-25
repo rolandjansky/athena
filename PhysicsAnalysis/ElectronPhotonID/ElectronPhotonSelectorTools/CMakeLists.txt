@@ -21,6 +21,7 @@ atlas_depends_on_subdirs(
   Event/xAOD/xAODTracking
   Reconstruction/MVAUtils
   PhysicsAnalysis/AnalysisCommon/PATCore
+  PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces
   PRIVATE
   Control/CxxUtils
   Event/FourMomUtils
@@ -39,7 +40,7 @@ atlas_add_library( ElectronPhotonSelectorToolsLib
   ElectronPhotonSelectorTools/*.h Root/*.cxx
   PUBLIC_HEADERS ElectronPhotonSelectorTools
   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-  LINK_LIBRARIES AsgTools xAODEgamma xAODTracking xAODHIEvent PATCoreLib
+  LINK_LIBRARIES EgammaAnalysisInterfaces AsgTools xAODEgamma  xAODTracking xAODHIEvent PATCoreLib
   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} CxxUtils FourMomUtils
   xAODCaloEvent xAODCore xAODEventInfo PathResolver MVAUtils )
 
