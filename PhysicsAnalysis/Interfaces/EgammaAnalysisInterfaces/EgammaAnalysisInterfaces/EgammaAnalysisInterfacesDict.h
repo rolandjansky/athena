@@ -14,6 +14,8 @@
 
 #include "EgammaAnalysisInterfaces/IEgammaCalibrationAndSmearingTool.h"
 
+#include "EgammaAnalysisInterfaces/IAsgPhotonEfficiencyCorrectionTool.h"
+
 #include "EgammaAnalysisInterfaces/IElectronPhotonShowerShapeFudgeTool.h"
 
 #endif

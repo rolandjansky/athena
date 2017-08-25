@@ -17,6 +17,7 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODEgamma
    PhysicsAnalysis/AnalysisCommon/PATCore
    PhysicsAnalysis/AnalysisCommon/PATInterfaces
+   PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces	
    PhysicsAnalysis/ElectronPhotonID/ElectronEfficiencyCorrection
    PRIVATE
    Event/xAOD/xAODCore
@@ -33,7 +34,7 @@ atlas_add_library( PhotonEfficiencyCorrectionLib
    PhotonEfficiencyCorrection/*.h Root/*.cxx
    PUBLIC_HEADERS PhotonEfficiencyCorrection
    INCLUDE_DIRS ${BOOST_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${BOOST_LIBRARIES} ${ROOT_LIBRARIES} AsgTools xAODEgamma
+   LINK_LIBRARIES ${BOOST_LIBRARIES} ${ROOT_LIBRARIES} EgammaAnalysisInterfaces AsgTools xAODEgamma
    PATCoreLib PATInterfaces ElectronEfficiencyCorrectionLib
    PRIVATE_LINK_LIBRARIES xAODEventInfo PathResolver )
 
