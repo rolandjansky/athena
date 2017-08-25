@@ -42,6 +42,7 @@ InDet::TRT_DriftCircleTool::TRT_DriftCircleTool(const std::string& t,
 						const std::string& n,
 						const IInterface*  p ):
   AthAlgTool(t,n,p),
+  m_eventInfoKey(std::string("EventInfo")),
   m_driftFunctionTool("TRT_DriftFunctionTool"),
   m_ConditionsSummary("InDetTRTConditionsSummaryService",n),
   m_useConditionsStatus(false),
@@ -71,8 +72,7 @@ InDet::TRT_DriftCircleTool::TRT_DriftCircleTool(const std::string& t,
   m_mask_middle_HT_bit(false),
   m_mask_middle_HT_bit_argon(false),
   m_mask_last_HT_bit(false),
-  m_mask_last_HT_bit_argon(false),
-  m_eventInfoKey(std::string("EventInfo"))
+  m_mask_last_HT_bit_argon(false)
 {
   declareInterface<ITRT_DriftCircleTool>(this);
   declareProperty("TrtDescrManageLocation",m_trt_mgr_location);
@@ -212,8 +212,7 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleTool::convert(int Mode,c
   float mu = -10;
   SG::ReadHandle<xAOD::EventInfo> m_eventInfo(m_eventInfoKey);
   if (m_eventInfo.isValid()) {
-  //const xAOD::EventInfo* m_eventInfo = 0;
-  //    if ( StatusCode::SUCCESS ==  evtStore()->retrieve(m_eventInfo) ){
+
                 mu = (float)           m_eventInfo->averageInteractionsPerCrossing();
       }
 

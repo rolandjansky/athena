@@ -45,7 +45,6 @@ InDet::TRT_DriftCircleToolCosmics::TRT_DriftCircleToolCosmics(const std::string&
   m_ConditionsSummary("InDetTRTConditionsSummaryService",n),
   m_useConditionsStatus(false),
   m_trt_mgr_location("TRT"),
-  //m_comTimeName("ComTime"),
   m_trt_mgr(0),
   m_trtid(0),
   m_coll_pll(0),
@@ -210,11 +209,10 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleToolCosmics::convert(int
 
   SG::ReadHandle<ComTime> theComTime(m_comTimeName);
   
-    //const ComTime* theComTime;
+
   	 
   double timecor=0.;
   if (theComTime.isValid()) {
-    //if ( evtStore()->retrieve(theComTime,m_comTimeName)) {
     timecor = theComTime->getTime() + m_global_offset;
     ATH_MSG_VERBOSE("Retrieved ComTime object with name "
 		    << m_comTimeName<<" found! Time="<<timecor);
