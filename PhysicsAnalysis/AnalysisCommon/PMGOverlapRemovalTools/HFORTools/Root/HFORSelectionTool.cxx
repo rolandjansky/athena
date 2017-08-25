@@ -235,7 +235,7 @@ StatusCode HFORSelectionTool::setSampleType()  {
   //while  mcChannelNumber is 0 in Truth derivations
   m_sampleRunNumber = eventInfo->mcChannelNumber() ;
   if (m_sampleRunNumber == 0 ) {
-    ATH_MSG_WARNING(BOOST_CURRENT_FUNCTION << "mcChannelNumber is 0, falling back to runNumber" ) ;
+    ATH_MSG_WARNING(BOOST_CURRENT_FUNCTION << "mcChannelNumber is 0, falling back to runNumber: " << eventInfo->runNumber() ) ;
     m_sampleRunNumber = eventInfo->runNumber() ;
   }
 
@@ -246,9 +246,9 @@ StatusCode HFORSelectionTool::setSampleType()  {
   m_sampleName = m_hforTruth.getSampleName() ;
 
   if (m_sampleType == HFORType::noType) {
-    ATH_MSG_WARNING(BOOST_CURRENT_FUNCTION <<
+    ATH_MSG_INFO(BOOST_CURRENT_FUNCTION <<
                     ": This MC (Run " << m_sampleRunNumber <<
-                    " ) is not an mc15 Alpgen+Pythia6 sample - this tool is useless ") ;
+                    " ) is not an mc15 Alpgen+Pythia6 sample - this tool will not do anything") ;
   }
   else {
     ATH_MSG_INFO(BOOST_CURRENT_FUNCTION <<
