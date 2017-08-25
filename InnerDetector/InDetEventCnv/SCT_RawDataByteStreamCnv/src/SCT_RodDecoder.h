@@ -63,7 +63,7 @@ class SCT_RodDecoder : public AthAlgTool, public ISCT_RodDecoder
     override;
 
 
-private:
+ private:
   /// method that builds the RawData RDO and add it to the collection 
   int makeRDO(int strip, int groupSize, int tbin, 
 	      uint32_t onlineId, int ERRORS,
@@ -74,7 +74,7 @@ private:
 
   /// add an error for each wafer in a problematic ROD.
   void addRODError(uint32_t rodid, int errorType,
-                      InDetBSErrContainer* errs);
+		   InDetBSErrContainer* errs);
 
   bool addSingleError(const IdentifierHash idHash,
                       const int bsErrorType,
@@ -121,6 +121,5 @@ private:
 
   ServiceHandle<IIncidentSvc> m_incidentSvc;
 };
-
 
 #endif //SCT_RAWDATABYTESTREAM_SCT_RODDECODER_H
