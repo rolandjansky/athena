@@ -18,7 +18,7 @@ DerivationFramework::TruthCollectionMakerTau::TruthCollectionMakerTau(const std:
 								      const std::string& n,
 								      const IInterface* p )
   : AthAlgTool(t,n,p)
-  , m_buildTruthTaus("BuildTruthTaus/BuildTruthTaus")
+  , m_buildTruthTaus("tauRecTools::BuildTruthTaus/BuildTruthTaus")
 {
   declareInterface<DerivationFramework::IAugmentationTool>(this);
   declareProperty("BuildTruthTaus", m_buildTruthTaus);
