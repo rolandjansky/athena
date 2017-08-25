@@ -22,6 +22,7 @@ atlas_depends_on_subdirs(
    PhysicsAnalysis/AnalysisCommon/PATCore
    PhysicsAnalysis/AnalysisCommon/PATInterfaces
    PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
+   PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces	
    PRIVATE
    Control/AthAnalysisBaseComps
    Tools/PathResolver
@@ -44,7 +45,7 @@ atlas_add_library( ElectronEfficiencyCorrectionLib
    PUBLIC_HEADERS ElectronEfficiencyCorrection
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthContainers AsgTools
-   xAODEgamma PATInterfaces PATCoreLib AsgAnalysisInterfaces
+   xAODEgamma PATInterfaces PATCoreLib AsgAnalysisInterfaces EgammaAnalysisInterfaces
    PRIVATE_LINK_LIBRARIES xAODCaloEvent xAODCore xAODEventInfo xAODTracking
    xAODMetaData PathResolver )
 

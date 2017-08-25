@@ -24,7 +24,7 @@ PACKAGE:  offline/Reconstruction/egamma/egammaTools
 #include "xAODEgamma/EgammaxAODHelpers.h"
 #include "EventPrimitives/EventPrimitives.h"
 #include "FourMom/EigenP5Jacobiand0z0PhiThetaqOverP2d0z0PhiEtaP.h"
-#include "EgammaAnalysisInterfaces/eg_resolution.h"
+#include "ElectronPhotonFourMomentumCorrection/eg_resolution.h"
 #include "CxxUtils/make_unique.h"
 
 //  END OF HEADER FILES INCLUDE
