@@ -7,9 +7,9 @@
 
 #include "EMPIDBuilder.h"
 #include "xAODEgamma/Egamma.h"
-#include "ElectronPhotonSelectorTools/IAsgElectronIsEMSelector.h"
-#include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
-#include "ElectronPhotonSelectorTools/IAsgPhotonIsEMSelector.h"
+#include "EgammaAnalysisInterfaces/IAsgElectronIsEMSelector.h"
+#include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
+#include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
 #include "PATCore/IAsgSelectionTool.h"
 #include "LumiBlockComps/LumiBlockMuTool.h"
 #include "PATCore/TAccept.h"            // for TAccept
