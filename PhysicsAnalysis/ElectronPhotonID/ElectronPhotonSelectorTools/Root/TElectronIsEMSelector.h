@@ -22,7 +22,7 @@
 // Include the return object and the base class
 #include "PATCore/TAccept.h"
 #include "PATCore/TSelectorToolBase.h"
-#include "EgammaAnalysisInterfaces/egammaPIDdefs.h"
+#include "ElectronPhotonSelectorTools/egammaPIDdefs.h"
 #include "AsgTools/AsgMessaging.h"
 #include <vector>
 
