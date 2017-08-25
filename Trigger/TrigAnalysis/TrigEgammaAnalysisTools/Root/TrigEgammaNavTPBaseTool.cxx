@@ -341,20 +341,16 @@ bool TrigEgammaNavTPBaseTool::isTagElectron(const xAOD::Electron *el){
       
       if(tdt()->isPassed(tag)){ 
         tagPassed=true;
-        if(m_tp){
+        std::string p1trigger;
+        std::string p2trigger;
+        if(splitTriggerName(tag,p1trigger,p2trigger)){
           ATH_MSG_DEBUG("Is a double tag trigger "); 
-                
-          std::string p1trigger;
-          std::string p2trigger;
-          if(splitTriggerName(tag,p1trigger,p2trigger)){
-            if(fabs(p1trigger.find("tight"))<14) tag=p1trigger;
-            if(fabs(p2trigger.find("tight"))<14) tag=p2trigger;
-          }
+          if     (fabs(p1trigger.find("tight"))<14) tag=p1trigger;
+          else if(fabs(p2trigger.find("tight"))<14) tag=p2trigger;
         }
-
         if( match()->match(el,tag) )
           tagMatched=true;
-
+        
       }
     }
     
