@@ -14,8 +14,8 @@
   <variable pattern="EgammaCalibPeriodRunNumbersExample::*"/>
   <class name="EgammaCalibPeriodRunNumbersExample::ROOT6_NamespaceAutoloadHook" /> 
 
-  <class name="IElectronPhotonShowerShapeFudgeTool" /> 
-
   <class name="IAsgPhotonEfficiencyCorrectionTool" /> 
+
+  <class name="IElectronPhotonShowerShapeFudgeTool" /> 
 
 <lcgdict>

@@ -3,7 +3,7 @@
 */
 
 #include "AsgElectronPhotonIsEMSelectorConfigHelper.h"
-#include "EgammaAnalysisInterfaces/egammaPIDdefs.h"
+#include "ElectronPhotonSelectorTools/egammaPIDdefs.h"
 #include "AsgTools/AsgMessaging.h"
 #include "TEnv.h"
 #include <iostream>

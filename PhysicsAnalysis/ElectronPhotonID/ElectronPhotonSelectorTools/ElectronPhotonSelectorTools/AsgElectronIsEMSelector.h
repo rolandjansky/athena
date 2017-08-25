@@ -27,7 +27,6 @@
 #include "EgammaAnalysisInterfaces/IAsgElectronIsEMSelector.h"
 
 #include "PATCore/TAccept.h"
-#include "ElectronPhotonSelectorTools/egammaPIDdefs.h" 
 
 #include <string>
 

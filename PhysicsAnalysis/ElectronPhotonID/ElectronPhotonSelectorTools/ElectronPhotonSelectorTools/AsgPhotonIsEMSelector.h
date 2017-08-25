@@ -31,7 +31,6 @@
 
 // Include the return object and the underlying ROOT tool
 #include "PATCore/TAccept.h"
-#include "ElectronPhotonSelectorTools/egammaPIDdefs.h" 
 
 namespace Root{
   class TPhotonIsEMSelector;
