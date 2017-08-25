@@ -168,7 +168,8 @@ StatusCode CondProxyProvider::loadAddresses(StoreID::type /*storeID*/,
 }
 //________________________________________________________________________________
 StatusCode CondProxyProvider::updateAddress(StoreID::type /*storeID*/,
-	SG::TransientAddress* /*tad*/) {
+                                            SG::TransientAddress* /*tad*/,
+                                            const EventContext& /*ctx*/) {
    return(StatusCode::FAILURE);
 }
 //__________________________________________________________________________

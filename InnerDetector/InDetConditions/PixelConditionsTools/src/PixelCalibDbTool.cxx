@@ -82,7 +82,8 @@ PixelCalibDbTool::PixelCalibDbTool(const std::string& type, const std::string& n
 }
 //================ Address update =============================================
 
-StatusCode PixelCalibDbTool::updateAddress(StoreID::type /*storeID*/,SG::TransientAddress* tad)
+StatusCode PixelCalibDbTool::updateAddress(StoreID::type /*storeID*/,SG::TransientAddress* tad,
+                                           const EventContext& /*ctx*/)
 { 
   CLID clid = tad->clID(); 
   std::string key = tad->name(); 

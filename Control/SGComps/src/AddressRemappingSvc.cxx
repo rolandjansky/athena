@@ -285,7 +285,9 @@ StatusCode AddressRemappingSvc::loadAddresses(StoreID::type /*storeID*/,
 }
 //________________________________________________________________________________
 StatusCode AddressRemappingSvc::updateAddress(StoreID::type /*storeID*/,
-					      SG::TransientAddress* tad) {
+					      SG::TransientAddress* tad,
+                                              const EventContext& /*ctx*/)
+{
    for (std::vector<SG::TransientAddress>::const_iterator oldIter = m_oldTads.begin(),
 		   newIter = m_newTads.begin(), oldIterEnd = m_oldTads.end();
 		   oldIter != oldIterEnd; oldIter++, newIter++) {

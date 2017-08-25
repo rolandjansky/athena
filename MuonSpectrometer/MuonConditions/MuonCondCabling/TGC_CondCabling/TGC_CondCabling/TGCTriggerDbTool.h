@@ -23,7 +23,9 @@ class TGCTriggerDbTool: public AthAlgTool, public ITGCTriggerDbTool
   
   /** Required by the IAddressProvider interface */
   //  virtual StatusCode updateAddress(SG::TransientAddress* tad);
-  virtual StatusCode updateAddress(StoreID::type storeID, SG::TransientAddress* tad);
+  virtual StatusCode updateAddress(StoreID::type storeID,
+                                   SG::TransientAddress* tad,
+                                   const EventContext& ctx);
 
   /** Initilize */
   virtual StatusCode initialize();

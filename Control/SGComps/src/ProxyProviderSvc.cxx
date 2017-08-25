@@ -250,11 +250,11 @@ ProxyProviderSvc::retrieveProxy(const CLID& id, const std::string& key,
   if ( (dp=store.proxy(id,key)) != 0 ) return dp;
 
   if ( store.storeID() != StoreID::SIMPLE_STORE ) {
-    //const EventContext& ctx = contextFromStore (store);
+    const EventContext& ctx = contextFromStore (store);
     SG::TransientAddress* pTAd = new SG::TransientAddress(id, key);
     pAPiterator iProvider(m_providers.begin()), iEnd(m_providers.end());
     for (; iProvider != iEnd; iProvider++) {
-      if ( ((*iProvider)->updateAddress(store.storeID(),pTAd)).isSuccess() ) 
+      if ( ((*iProvider)->updateAddress(store.storeID(),pTAd,ctx)).isSuccess() ) 
 	{
 	  pTAd->setProvider(*iProvider, store.storeID());
 	  return this->addAddress(store,pTAd);

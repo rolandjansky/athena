@@ -57,7 +57,9 @@ RPCCablingDbTool::RPCCablingDbTool (const std::string& type,
 }
 
 //StatusCode RPCCablingDbTool::updateAddress(SG::TransientAddress* /*tad*/)
-StatusCode RPCCablingDbTool::updateAddress(StoreID::type /*storeID*/, SG::TransientAddress* /*tad*/)
+StatusCode RPCCablingDbTool::updateAddress(StoreID::type /*storeID*/,
+                                           SG::TransientAddress* /*tad*/,
+                                           const EventContext& /*ctx*/)
 {
     MsgStream log(msgSvc(), name());
     //CLID clid        = tad->clID();

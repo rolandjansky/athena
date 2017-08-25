@@ -125,7 +125,8 @@ public:
 					 tadList& tlist );
       
     ///  Create a TagInfo object and record in storegate
-    virtual StatusCode updateAddress(StoreID::type storeID, SG::TransientAddress* tad );
+    virtual StatusCode updateAddress(StoreID::type storeID, SG::TransientAddress* tad,
+                                     const EventContext& ctx);
 
 
     /// Implementation of IConverter: Create the transient representation of an object from persistent state.

@@ -289,7 +289,8 @@ MixingEventSelector::loadAddresses(StoreID::type  storeID,
 }
 
 StatusCode
-MixingEventSelector::updateAddress(StoreID::type,SG::TransientAddress*) {
+MixingEventSelector::updateAddress(StoreID::type,SG::TransientAddress*,
+                                   const EventContext&) {
   return StatusCode::FAILURE;
 }
 

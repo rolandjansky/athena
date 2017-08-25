@@ -83,7 +83,8 @@ public:
   }
 
   ///get a specific address, plus all others  the provider wants to load in SG maps
-  StatusCode updateAddress(StoreID::type /*sID*/, TransientAddress* tad) override
+  StatusCode updateAddress(StoreID::type /*sID*/, TransientAddress* tad,
+                           const EventContext& /*ctx*/) override
   { 
     StatusCode sc;
     if ((tad->clID() != m_ID) || (tad->name() != m_key)) {

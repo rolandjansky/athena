@@ -37,7 +37,8 @@ public:
 				   tadList& list) override;
 
   virtual StatusCode updateAddress(StoreID::type storeID,
-				   SG::TransientAddress* pTAd) override;
+				   SG::TransientAddress* pTAd,
+                                   const EventContext& ctx) override;
 
 
   void add (CLID clid, const std::string& name);
@@ -72,7 +73,8 @@ StatusCode TestProvider::loadAddresses(StoreID::type /*storeID*/,
 
 
 StatusCode TestProvider::updateAddress(StoreID::type /*storeID*/,
-                                       SG::TransientAddress* /*pTAd*/)
+                                       SG::TransientAddress* /*pTAd*/,
+                                       const EventContext& /*ctx*/)
 {
   std::abort();
 }

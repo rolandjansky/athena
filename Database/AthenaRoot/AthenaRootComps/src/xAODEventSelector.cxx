@@ -679,7 +679,8 @@ xAODEventSelector::loadAddresses(StoreID::type storeID, tadList& tads)
  
 /// update a transient Address
 StatusCode 
-xAODEventSelector::updateAddress(StoreID::type /*storeID*/, SG::TransientAddress* tad)
+xAODEventSelector::updateAddress(StoreID::type /*storeID*/, SG::TransientAddress* tad,
+                                 const EventContext& /*ctx*/)
 {
   // check if this tad is known to us.
   if (tad) {
