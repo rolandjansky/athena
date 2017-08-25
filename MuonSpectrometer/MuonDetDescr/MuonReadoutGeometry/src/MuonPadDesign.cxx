@@ -30,13 +30,13 @@ double MuonPadDesign::maxSensitiveY() const
 double MuonPadDesign::maxAbsSensitiveX(const double &y) const
 {
 	double globalY = radialDistance + y;
-	double cutout_H = 0.5*Length-ylFrame-yCutout;
+        double cutout_H = Size - yCutout;
 	double half_openingAngle = sectorOpeningAngle/2.0;
 	if (isLargeSector){
-		if (yCutout && y > cutout_H) //In cutout region
+		if (yCutout && y > 0) //In cutout region
 			return 0.5*lPadWidth;
 		else
-			return globalY*tan(M_PI*half_openingAngle/180.);
+			return 0.5*(y*(lPadWidth-sPadWidth)/cutout_H + lPadWidth); // use of angle is incorrect here
 	}
 	else
 		return globalY*tan(M_PI*half_openingAngle/180.);
