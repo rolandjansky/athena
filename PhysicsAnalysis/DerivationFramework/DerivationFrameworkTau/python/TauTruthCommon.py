@@ -19,19 +19,19 @@ if DerivationFrameworkIsMonteCarlo:
     DFCommonTauTruthWrapperTools = []
 
     # Tau Truth making and matching
-    # Set up the MCTruthClassifier
+    # Set up the MCTruthClassifier if we need to
+    # Would normally use the MCTC from DFCommon, but this goes to a private tool handle
     from MCTruthClassifier.MCTruthClassifierConf import MCTruthClassifier
     DFCommonTauTruthClassifier = MCTruthClassifier(name = "DFCommonTauTruthClassifier",
                                         ParticleCaloExtensionTool="")
-    ToolSvc += DFCommonTauTruthClassifier
-
-    # 28.03.2017 Removed the usage of DerivationFramework__TruthCollectionMakerTau; 
-    # using directly TauAnalysisTools to produce the true taus; implemented after TAT expert request
 
     # Matching
     # Only do if working with AOD
     from RecExConfig.ObjKeyStore import objKeyStore
     if objKeyStore.isInInput( "xAOD::TauJetContainer", "TauJets" ):    
+        # Make sure the MCTC is in the toolSvc in this case
+        ToolSvc += DFCommonTauTruthClassifier
+
         DFCommonTauTruthMatchingTool = TauAnalysisTools__TauTruthMatchingTool(name="DFCommonTauTruthMatchingTool")
         DFCommonTauTruthMatchingTool.WriteTruthTaus = True
         ToolSvc += DFCommonTauTruthMatchingTool
@@ -43,8 +43,14 @@ if DerivationFrameworkIsMonteCarlo:
         DFCommonTauTruthWrapperTools.append(DFCommonTauTruthMatchingWrapper)
     else:
         # No reco taus, so just build the truth tau container
+        from tauRecTools.tauRecToolsConf import tauRecTools__BuildTruthTaus
+        btt = tauRecTools__BuildTruthTaus()
+        # This guy wants a private tool handle, so *don't* put the MCTC into the toolSvc
+        btt.MCTruthClassifierTool = DFCommonTauTruthClassifier
+        ToolSvc += btt
         from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthCollectionMakerTau
         DFCommonTruthTauCollectionMaker = DerivationFramework__TruthCollectionMakerTau()
+        DFCommonTruthTauCollectionMaker.BuildTruthTaus = btt
         ToolSvc += DFCommonTruthTauCollectionMaker
         DFCommonTauTruthWrapperTools.append(DFCommonTruthTauCollectionMaker)
 
