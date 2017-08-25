@@ -92,7 +92,7 @@ StatusCode TrigL2ElectronHypoAlg::execute_r( const EventContext& context ) const
   }
   
 
-  for ( auto tool: m_hypoTools ) {
+  for ( auto & tool: m_hypoTools ) {
     ATH_CHECK( tool->decide( hypoToolInput ) );
     
   } 
