@@ -13,6 +13,8 @@ from AthenaCommon import Logging
 extjetlog = Logging.logging.getLogger('ExtendedJetCommon')
 
 ##################################################################
+# Jet helpers for large-radius groomed jets
+##################################################################              
 
 def addDefaultTrimmedJets(sequence,outputlist,dotruth=True,writeUngroomed=False):
     if DerivationFrameworkIsMonteCarlo and dotruth:
@@ -22,7 +24,7 @@ def addDefaultTrimmedJets(sequence,outputlist,dotruth=True,writeUngroomed=False)
                    algseq=sequence, outputGroup=outputlist, writeUngroomed=writeUngroomed)
 
 ##################################################################              
-# Add AntiKt jets                                                               
+# Jet helpers for ungroomed jets (removed in xAOD reduction)
 ##################################################################              
 
 from BTagging.BTaggingFlags import BTaggingFlags
