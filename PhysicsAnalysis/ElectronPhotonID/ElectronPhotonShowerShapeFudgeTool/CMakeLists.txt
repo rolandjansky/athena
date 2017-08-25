@@ -17,6 +17,7 @@ atlas_depends_on_subdirs(
    Control/AthToolSupport/AsgTools
    Event/xAOD/xAODEgamma
    PhysicsAnalysis/AnalysisCommon/PATInterfaces
+   PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces	
    PRIVATE
    Tools/PathResolver
    ${extra_dep} )
@@ -30,7 +31,7 @@ atlas_add_library( ElectronPhotonShowerShapeFudgeToolLib
    ElectronPhotonShowerShapeFudgeTool/*.icc Root/*.cxx
    PUBLIC_HEADERS ElectronPhotonShowerShapeFudgeTool
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEgamma PATInterfaces
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEgamma PATInterfaces EgammaAnalysisInterfaces
    PRIVATE_LINK_LIBRARIES PathResolver )
 
 if( NOT XAOD_STANDALONE )
