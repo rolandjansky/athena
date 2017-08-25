@@ -80,6 +80,11 @@ class MistimedStreamMon: public ManagedMonitorToolBase
   virtual StatusCode fillHistograms();
   
 private:
+    
+  StatusCode retrieveConditions();
+  void bookEventHistograms(std::string number);
+  bool pulseQuality(std::vector<uint16_t> ttPulse, int peakSlice);
+  
   /// Tool to retrieve bytestream errors
   ToolHandle<ITrigT1CaloMonErrorTool>     m_errorTool;
   /// Histogram helper tool
@@ -88,13 +93,8 @@ private:
   ToolHandle<LVL1::IL1TriggerTowerTool>   m_ttTool;
   /// Tool to retrieve the trigger decision
   ToolHandle<Trig::TrigDecisionTool> m_trigDec;
-
-    
-  StatusCode retrieveConditions();
-  void bookEventHistograms(std::string number);
-  bool pulseQuality(std::vector<uint16_t> ttPulse, int peakSlice);
   
-  int m_selectedEventCounter;
+  int m_selectedEventCounter; //count number of selected events globally; only fill detailed histos for first 10 events
 
   /// Histograms booked flag
   bool m_histBooked;

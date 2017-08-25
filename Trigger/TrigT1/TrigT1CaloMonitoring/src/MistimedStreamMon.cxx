@@ -52,13 +52,11 @@
 namespace LVL1 {
 // ============================================================================
 MistimedStreamMon::MistimedStreamMon(const std::string & type, const std::string & name, const IInterface* parent): ManagedMonitorToolBase ( type, name, parent ),
-      m_histBooked(false),
-      m_selectedEventCounter(0),
       m_errorTool("LVL1::TrigT1CaloMonErrorTool/TrigT1CaloMonErrorTool"),
-      m_histTool("LVL1::TrigT1CaloLWHistogramTool/TrigT1CaloLWHistogramTool"),
-      m_l1CondSvc("L1CaloCondSvc",name),      
-      m_ttTool("LVL1::L1TriggerTowerTool/L1TriggerTowerTool"), // can provide coolID, prob. not needed
+      m_histTool("LVL1::TrigT1CaloLWHistogramTool/TrigT1CaloLWHistogramTool"),            m_ttTool("LVL1::L1TriggerTowerTool/L1TriggerTowerTool"), // can provide coolID, prob. not needed
       m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
+      m_selectedEventCounter(0),
+      m_histBooked(false),
       m_h_1d_cutFlow_mistimedStreamAna(0),
       m_h_1d_selectedEvents_mistimedStreamAna(0),
       m_v_em_2d_etaPhi_tt_classification_mistimedStreamAna(0),
@@ -76,8 +74,8 @@ MistimedStreamMon::MistimedStreamMon(const std::string & type, const std::string
       m_v_em_2d_etaPhi_tt_lut_jep2_mistimedStreamAna(0),
       m_v_had_2d_etaPhi_tt_lut_jep0_mistimedStreamAna(0),
       m_v_had_2d_etaPhi_tt_lut_jep1_mistimedStreamAna(0),
-      m_v_had_2d_etaPhi_tt_lut_jep2_mistimedStreamAna(0) 
-      
+      m_v_had_2d_etaPhi_tt_lut_jep2_mistimedStreamAna(0),
+      m_l1CondSvc("L1CaloCondSvc",name)      
 {
      declareProperty("PathInRootFile", m_PathInRootFile = "L1Calo/MistimedStream");
      declareProperty("TrigDecisionTool", m_trigDec, "The tool to access TrigDecision" );
@@ -189,32 +187,32 @@ void MistimedStreamMon::bookEventHistograms(std::string number)
   TH2F_LW *hadPSE = m_histTool->bookPPMHadEtaVsPhi(name, title);
   m_v_had_2d_etaPhi_tt_pseBits_mistimedStreamAna.push_back(hadPSE);
   
-  // histos for the LUT values. Since we are combining CP and JEP output here, use PPMhad histos all the time (they only differ in binning in forward eta)
+  // histos for the LUT values. Since we are combining CP and JEP output here, use PPMEm histos all the time (they only differ in binning in forward eta)
   name = "em_2d_etaPhi_tt_lut0_mistimedStreamAna_event_" + number;
   title = "#eta - #phi Map of TT LUT in timeslice 0 = BCID-1 in the EM layer of selected event number " + number;
-  TH2F_LW *emLUTcp0 = m_histTool->bookPPMHadEtaVsPhi(name, title);
+  TH2F_LW *emLUTcp0 = m_histTool->bookPPMEmEtaVsPhi(name, title);
   m_v_em_2d_etaPhi_tt_lut0_mistimedStreamAna.push_back(emLUTcp0);
   name = "had_2d_etaPhi_tt_lut0_mistimedStreamAna_event_" + number;
   title = "#eta - #phi Map of TT LUT in timeslice 0 = BCID-1 in the HAD layer of selected event number " + number;
-  TH2F_LW *hadLUTcp0 = m_histTool->bookPPMHadEtaVsPhi(name, title);
+  TH2F_LW *hadLUTcp0 = m_histTool->bookPPMEmEtaVsPhi(name, title);
   m_v_had_2d_etaPhi_tt_lut0_mistimedStreamAna.push_back(hadLUTcp0);
   
   name = "em_2d_etaPhi_tt_lut1_mistimedStreamAna_event_" + number;
   title = "#eta - #phi Map of TT LUT in timeslice 1 = BCID in the EM layer of selected event number " + number;
-  TH2F_LW *emLUTcp1 = m_histTool->bookPPMHadEtaVsPhi(name, title);
+  TH2F_LW *emLUTcp1 = m_histTool->bookPPMEmEtaVsPhi(name, title);
   m_v_em_2d_etaPhi_tt_lut1_mistimedStreamAna.push_back(emLUTcp1);
   name = "had_2d_etaPhi_tt_lut1_mistimedStreamAna_event_" + number;
   title = "#eta - #phi Map of TT LUT in timeslice 1 = BCID in the HAD layer of selected event number " + number;
-  TH2F_LW *hadLUTcp1 = m_histTool->bookPPMHadEtaVsPhi(name, title);
+  TH2F_LW *hadLUTcp1 = m_histTool->bookPPMEmEtaVsPhi(name, title);
   m_v_had_2d_etaPhi_tt_lut1_mistimedStreamAna.push_back(hadLUTcp1);
 
   name = "em_2d_etaPhi_tt_lut2_mistimedStreamAna_event_" + number;
   title = "#eta - #phi Map of TT LUT in timeslice 2 = BCID+1 in the EM layer of selected event number " + number;
-  TH2F_LW *emLUTcp2 = m_histTool->bookPPMHadEtaVsPhi(name, title);
+  TH2F_LW *emLUTcp2 = m_histTool->bookPPMEmEtaVsPhi(name, title);
   m_v_em_2d_etaPhi_tt_lut2_mistimedStreamAna.push_back(emLUTcp2);
   name = "had_2d_etaPhi_tt_lut2_mistimedStreamAna_event_" + number;
   title = "#eta - #phi Map of TT LUT in timeslice 2 = BCID+1 in the HAD layer of selected event number " + number;
-  TH2F_LW *hadLUTcp2 = m_histTool->bookPPMHadEtaVsPhi(name, title);
+  TH2F_LW *hadLUTcp2 = m_histTool->bookPPMEmEtaVsPhi(name, title);
   m_v_had_2d_etaPhi_tt_lut2_mistimedStreamAna.push_back(hadLUTcp2);
 
   name = "em_2d_etaPhi_tt_lut_jep0_mistimedStreamAna_event_" + number;
@@ -256,7 +254,7 @@ StatusCode MistimedStreamMon::bookHistogramsRecurrent() // based on bookHistogra
   
   MgmtAttr_t attr = ATTRIB_UNMANAGED;
 
-  if (newRun) {
+  if (newRunFlag()) {
 
     // create MonGroup with the folder to store histos
     MonGroup TT_MistimedMon(this, m_PathInRootFile, run, attr);
@@ -306,7 +304,7 @@ StatusCode MistimedStreamMon::bookHistogramsRecurrent() // based on bookHistogra
     }
   
     m_histTool->unsetMonGroup();
-    if (newRun)
+    if (newRunFlag())
       m_histBooked = true;
   }
 
@@ -654,44 +652,44 @@ StatusCode MistimedStreamMon::fillHistograms()
 
       }
       if (eta < -2.5 || eta > 2.5) {// Use JEP info to fill the forward part of the lut plots, but since this has TT granularity we have to play some tricks
-         if(jepEMenergy.size() > 2){ //might need filling twice in phi
-           m_histTool->fillPPMHadEtaVsPhi(m_v_em_2d_etaPhi_tt_lut0_mistimedStreamAna[m_selectedEventCounter], eta, phi, (int)jepEMenergy.at(0));
-           m_histTool->fillPPMHadEtaVsPhi(m_v_em_2d_etaPhi_tt_lut1_mistimedStreamAna[m_selectedEventCounter], eta, phi, (int)jepEMenergy.at(1));
-           m_histTool->fillPPMHadEtaVsPhi(m_v_em_2d_etaPhi_tt_lut2_mistimedStreamAna[m_selectedEventCounter], eta, phi, (int)jepEMenergy.at(2));           
-           if (eta < -3.2 || eta > 3.2) {//for the FCal, the jep elements eta will be 4.05 -> to mimic this in the TH2TT histos fill 3 more bins in eta 
-              m_histTool->fillPPMHadEtaVsPhi(m_v_em_2d_etaPhi_tt_lut0_mistimedStreamAna[m_selectedEventCounter], signeta*4.7, phi, (int)jepEMenergy.at(0));
-              m_histTool->fillPPMHadEtaVsPhi(m_v_em_2d_etaPhi_tt_lut1_mistimedStreamAna[m_selectedEventCounter], signeta*4.7, phi, (int)jepEMenergy.at(1));
-              m_histTool->fillPPMHadEtaVsPhi(m_v_em_2d_etaPhi_tt_lut2_mistimedStreamAna[m_selectedEventCounter], signeta*4.7, phi, (int)jepEMenergy.at(2));
-              m_histTool->fillPPMHadEtaVsPhi(m_v_em_2d_etaPhi_tt_lut0_mistimedStreamAna[m_selectedEventCounter], signeta*3.7, phi, (int)jepEMenergy.at(0));
-              m_histTool->fillPPMHadEtaVsPhi(m_v_em_2d_etaPhi_tt_lut1_mistimedStreamAna[m_selectedEventCounter], signeta*3.7, phi, (int)jepEMenergy.at(1));
-              m_histTool->fillPPMHadEtaVsPhi(m_v_em_2d_etaPhi_tt_lut2_mistimedStreamAna[m_selectedEventCounter], signeta*3.7, phi, (int)jepEMenergy.at(2));
-              m_histTool->fillPPMHadEtaVsPhi(m_v_em_2d_etaPhi_tt_lut0_mistimedStreamAna[m_selectedEventCounter], signeta*3.5, phi, (int)jepEMenergy.at(0));
-              m_histTool->fillPPMHadEtaVsPhi(m_v_em_2d_etaPhi_tt_lut1_mistimedStreamAna[m_selectedEventCounter], signeta*3.5, phi, (int)jepEMenergy.at(1));
-              m_histTool->fillPPMHadEtaVsPhi(m_v_em_2d_etaPhi_tt_lut2_mistimedStreamAna[m_selectedEventCounter], signeta*3.5, phi, (int)jepEMenergy.at(2));    
-           }else if (eta < -2.9 || eta > 2.9) {//here the jep element eta will be 3.05 -> to mimic this in the TH2TT fill one more eta bin
-              m_histTool->fillPPMHadEtaVsPhi(m_v_em_2d_etaPhi_tt_lut0_mistimedStreamAna[m_selectedEventCounter], signeta*3.15, phi, (int)jepEMenergy.at(0));
-              m_histTool->fillPPMHadEtaVsPhi(m_v_em_2d_etaPhi_tt_lut1_mistimedStreamAna[m_selectedEventCounter], signeta*3.15, phi, (int)jepEMenergy.at(1));
-              m_histTool->fillPPMHadEtaVsPhi(m_v_em_2d_etaPhi_tt_lut2_mistimedStreamAna[m_selectedEventCounter], signeta*3.15, phi, (int)jepEMenergy.at(2));   
+         if(jepEMenergy.size() > 2){
+           m_histTool->fillPPMEmEtaVsPhi(m_v_em_2d_etaPhi_tt_lut0_mistimedStreamAna[m_selectedEventCounter], eta, phi, (int)jepEMenergy.at(0));
+           m_histTool->fillPPMEmEtaVsPhi(m_v_em_2d_etaPhi_tt_lut1_mistimedStreamAna[m_selectedEventCounter], eta, phi, (int)jepEMenergy.at(1));
+           m_histTool->fillPPMEmEtaVsPhi(m_v_em_2d_etaPhi_tt_lut2_mistimedStreamAna[m_selectedEventCounter], eta, phi, (int)jepEMenergy.at(2));           
+           if (eta < -3.2 || eta > 3.2) {//for the FCal, the jep elements eta will be 4.05 -> to mimic this in the PPM histo histos fill 3 more bins in eta 
+              m_histTool->fillPPMEmEtaVsPhi(m_v_em_2d_etaPhi_tt_lut0_mistimedStreamAna[m_selectedEventCounter], signeta*4.7, phi, (int)jepEMenergy.at(0));
+              m_histTool->fillPPMEmEtaVsPhi(m_v_em_2d_etaPhi_tt_lut1_mistimedStreamAna[m_selectedEventCounter], signeta*4.7, phi, (int)jepEMenergy.at(1));
+              m_histTool->fillPPMEmEtaVsPhi(m_v_em_2d_etaPhi_tt_lut2_mistimedStreamAna[m_selectedEventCounter], signeta*4.7, phi, (int)jepEMenergy.at(2));
+              m_histTool->fillPPMEmEtaVsPhi(m_v_em_2d_etaPhi_tt_lut0_mistimedStreamAna[m_selectedEventCounter], signeta*3.7, phi, (int)jepEMenergy.at(0));
+              m_histTool->fillPPMEmEtaVsPhi(m_v_em_2d_etaPhi_tt_lut1_mistimedStreamAna[m_selectedEventCounter], signeta*3.7, phi, (int)jepEMenergy.at(1));
+              m_histTool->fillPPMEmEtaVsPhi(m_v_em_2d_etaPhi_tt_lut2_mistimedStreamAna[m_selectedEventCounter], signeta*3.7, phi, (int)jepEMenergy.at(2));
+              m_histTool->fillPPMEmEtaVsPhi(m_v_em_2d_etaPhi_tt_lut0_mistimedStreamAna[m_selectedEventCounter], signeta*3.5, phi, (int)jepEMenergy.at(0));
+              m_histTool->fillPPMEmEtaVsPhi(m_v_em_2d_etaPhi_tt_lut1_mistimedStreamAna[m_selectedEventCounter], signeta*3.5, phi, (int)jepEMenergy.at(1));
+              m_histTool->fillPPMEmEtaVsPhi(m_v_em_2d_etaPhi_tt_lut2_mistimedStreamAna[m_selectedEventCounter], signeta*3.5, phi, (int)jepEMenergy.at(2));    
+           }else if (eta < -2.9 || eta > 2.9) {//here the jep element eta will be 3.05 -> to mimic this in the PPM histo fill one more eta bin
+              m_histTool->fillPPMEmEtaVsPhi(m_v_em_2d_etaPhi_tt_lut0_mistimedStreamAna[m_selectedEventCounter], signeta*3.15, phi, (int)jepEMenergy.at(0));
+              m_histTool->fillPPMEmEtaVsPhi(m_v_em_2d_etaPhi_tt_lut1_mistimedStreamAna[m_selectedEventCounter], signeta*3.15, phi, (int)jepEMenergy.at(1));
+              m_histTool->fillPPMEmEtaVsPhi(m_v_em_2d_etaPhi_tt_lut2_mistimedStreamAna[m_selectedEventCounter], signeta*3.15, phi, (int)jepEMenergy.at(2));   
             } 
          }
          if(jepHADenergy.size()> 2){
-           m_histTool->fillPPMHadEtaVsPhi(m_v_had_2d_etaPhi_tt_lut_jep0_mistimedStreamAna[m_selectedEventCounter], eta, phi, (int)jepHADenergy.at(0));
-           m_histTool->fillPPMHadEtaVsPhi(m_v_had_2d_etaPhi_tt_lut_jep1_mistimedStreamAna[m_selectedEventCounter], eta, phi, (int)jepHADenergy.at(1));
-           m_histTool->fillPPMHadEtaVsPhi(m_v_had_2d_etaPhi_tt_lut_jep2_mistimedStreamAna[m_selectedEventCounter], eta, phi, (int)jepHADenergy.at(2));   
+           m_histTool->fillPPMEmEtaVsPhi(m_v_had_2d_etaPhi_tt_lut0_mistimedStreamAna[m_selectedEventCounter], eta, phi, (int)jepHADenergy.at(0));
+           m_histTool->fillPPMEmEtaVsPhi(m_v_had_2d_etaPhi_tt_lut1_mistimedStreamAna[m_selectedEventCounter], eta, phi, (int)jepHADenergy.at(1));
+           m_histTool->fillPPMEmEtaVsPhi(m_v_had_2d_etaPhi_tt_lut2_mistimedStreamAna[m_selectedEventCounter], eta, phi, (int)jepHADenergy.at(2));   
            if (eta < -3.2 || eta > 3.2) {//for the FCal, the jep elements are summed horizontally, mimic this in the TH2TT histos -> fill 3 more bins in eta
-             m_histTool->fillPPMHadEtaVsPhi(m_v_had_2d_etaPhi_tt_lut0_mistimedStreamAna[m_selectedEventCounter], signeta*4.7, phi, (int)jepHADenergy.at(0));
-             m_histTool->fillPPMHadEtaVsPhi(m_v_had_2d_etaPhi_tt_lut1_mistimedStreamAna[m_selectedEventCounter], signeta*4.7, phi, (int)jepHADenergy.at(1));
-             m_histTool->fillPPMHadEtaVsPhi(m_v_had_2d_etaPhi_tt_lut2_mistimedStreamAna[m_selectedEventCounter], signeta*4.7, phi, (int)jepHADenergy.at(2));
-             m_histTool->fillPPMHadEtaVsPhi(m_v_had_2d_etaPhi_tt_lut0_mistimedStreamAna[m_selectedEventCounter], signeta*3.7, phi, (int)jepHADenergy.at(0));
-             m_histTool->fillPPMHadEtaVsPhi(m_v_had_2d_etaPhi_tt_lut1_mistimedStreamAna[m_selectedEventCounter], signeta*3.7, phi, (int)jepHADenergy.at(1));
-             m_histTool->fillPPMHadEtaVsPhi(m_v_had_2d_etaPhi_tt_lut2_mistimedStreamAna[m_selectedEventCounter], signeta*3.7, phi, (int)jepHADenergy.at(2));
-             m_histTool->fillPPMHadEtaVsPhi(m_v_had_2d_etaPhi_tt_lut0_mistimedStreamAna[m_selectedEventCounter], signeta*3.5, phi, (int)jepHADenergy.at(0));
-             m_histTool->fillPPMHadEtaVsPhi(m_v_had_2d_etaPhi_tt_lut1_mistimedStreamAna[m_selectedEventCounter], signeta*3.5, phi, (int)jepHADenergy.at(1));
-             m_histTool->fillPPMHadEtaVsPhi(m_v_had_2d_etaPhi_tt_lut2_mistimedStreamAna[m_selectedEventCounter], signeta*3.5, phi, (int)jepHADenergy.at(2));     
+             m_histTool->fillPPMEmEtaVsPhi(m_v_had_2d_etaPhi_tt_lut0_mistimedStreamAna[m_selectedEventCounter], signeta*4.7, phi, (int)jepHADenergy.at(0));
+             m_histTool->fillPPMEmEtaVsPhi(m_v_had_2d_etaPhi_tt_lut1_mistimedStreamAna[m_selectedEventCounter], signeta*4.7, phi, (int)jepHADenergy.at(1));
+             m_histTool->fillPPMEmEtaVsPhi(m_v_had_2d_etaPhi_tt_lut2_mistimedStreamAna[m_selectedEventCounter], signeta*4.7, phi, (int)jepHADenergy.at(2));
+             m_histTool->fillPPMEmEtaVsPhi(m_v_had_2d_etaPhi_tt_lut0_mistimedStreamAna[m_selectedEventCounter], signeta*3.7, phi, (int)jepHADenergy.at(0));
+             m_histTool->fillPPMEmEtaVsPhi(m_v_had_2d_etaPhi_tt_lut1_mistimedStreamAna[m_selectedEventCounter], signeta*3.7, phi, (int)jepHADenergy.at(1));
+             m_histTool->fillPPMEmEtaVsPhi(m_v_had_2d_etaPhi_tt_lut2_mistimedStreamAna[m_selectedEventCounter], signeta*3.7, phi, (int)jepHADenergy.at(2));
+             m_histTool->fillPPMEmEtaVsPhi(m_v_had_2d_etaPhi_tt_lut0_mistimedStreamAna[m_selectedEventCounter], signeta*3.5, phi, (int)jepHADenergy.at(0));
+             m_histTool->fillPPMEmEtaVsPhi(m_v_had_2d_etaPhi_tt_lut1_mistimedStreamAna[m_selectedEventCounter], signeta*3.5, phi, (int)jepHADenergy.at(1));
+             m_histTool->fillPPMEmEtaVsPhi(m_v_had_2d_etaPhi_tt_lut2_mistimedStreamAna[m_selectedEventCounter], signeta*3.5, phi, (int)jepHADenergy.at(2));     
            }else if (eta < -2.9 || eta > 2.9) {
-             m_histTool->fillPPMHadEtaVsPhi(m_v_had_2d_etaPhi_tt_lut0_mistimedStreamAna[m_selectedEventCounter], signeta*3.15, phi, (int)jepHADenergy.at(0));
-             m_histTool->fillPPMHadEtaVsPhi(m_v_had_2d_etaPhi_tt_lut1_mistimedStreamAna[m_selectedEventCounter], signeta*3.15, phi, (int)jepHADenergy.at(1));
-             m_histTool->fillPPMHadEtaVsPhi(m_v_had_2d_etaPhi_tt_lut2_mistimedStreamAna[m_selectedEventCounter], signeta*3.15, phi, (int)jepHADenergy.at(2));
+             m_histTool->fillPPMEmEtaVsPhi(m_v_had_2d_etaPhi_tt_lut0_mistimedStreamAna[m_selectedEventCounter], signeta*3.15, phi, (int)jepHADenergy.at(0));
+             m_histTool->fillPPMEmEtaVsPhi(m_v_had_2d_etaPhi_tt_lut1_mistimedStreamAna[m_selectedEventCounter], signeta*3.15, phi, (int)jepHADenergy.at(1));
+             m_histTool->fillPPMEmEtaVsPhi(m_v_had_2d_etaPhi_tt_lut2_mistimedStreamAna[m_selectedEventCounter], signeta*3.15, phi, (int)jepHADenergy.at(2));
           } 
        }
      }
@@ -721,6 +719,7 @@ StatusCode MistimedStreamMon::fillHistograms()
   delete ttAuxContainer;
 
   m_selectedEventCounter++;
+//   std::cout<<"Number of selected events "<<m_selectedEventCounter<<std::endl;
 
   return StatusCode::SUCCESS;
 }
