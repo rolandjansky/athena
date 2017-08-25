@@ -6,7 +6,7 @@
 #ifndef __ASGDEADHVCELLREMOVALTOOL__
 #define __ASGDEADHVCELLREMOVALTOOL__
 
-#include "ElectronPhotonSelectorTools/IAsgDeadHVCellRemovalTool.h"
+#include "EgammaAnalysisInterfaces/IAsgDeadHVCellRemovalTool.h"
 #include "AsgTools/AsgTool.h"
 #include "xAODEgamma/EgammaFwd.h"
 

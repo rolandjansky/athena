@@ -7,7 +7,7 @@
 ////////////////////////////////////////////////////////////////
 #include <map>
 #include <string>
-#include "ElectronPhotonSelectorTools/egammaPIDdefs.h"
+#include "EgammaAnalysisInterfaces/egammaPIDdefs.h"
 
 namespace EgammaSelectors {
   //----------------------------------------------------------

@@ -12,7 +12,7 @@
 #include "xAODTracking/TrackParticleFwd.h"
 #include <cstddef>
 
-#include "ElectronPhotonSelectorTools/IEGammaAmbiguityTool.h"
+#include "EgammaAnalysisInterfaces/IEGammaAmbiguityTool.h"
 
 namespace ElectronSelectorHelpers{
   ///@brief return the number of Pixel hits plus dead sensors in the track particle

@@ -17,7 +17,7 @@
 
 // Atlas includes
 #include "AsgTools/AsgTool.h"
-#include "ElectronPhotonSelectorTools/IEGammaAmbiguityTool.h"
+#include "EgammaAnalysisInterfaces/IEGammaAmbiguityTool.h"
 #include "xAODEgamma/EgammaContainerFwd.h"
 
 class EGammaAmbiguityTool : public asg::AsgTool,

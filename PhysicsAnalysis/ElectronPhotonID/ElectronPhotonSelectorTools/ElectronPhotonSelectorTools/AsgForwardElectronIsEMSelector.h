@@ -24,7 +24,7 @@
 #include "AsgTools/AsgTool.h"
 
 // Include the interfaces
-#include "ElectronPhotonSelectorTools/IAsgForwardElectronIsEMSelector.h"
+#include "EgammaAnalysisInterfaces/IAsgForwardElectronIsEMSelector.h"
 // Include the return object and the underlying ROOT tool
 #include "PATCore/TAccept.h"
 #include <string>

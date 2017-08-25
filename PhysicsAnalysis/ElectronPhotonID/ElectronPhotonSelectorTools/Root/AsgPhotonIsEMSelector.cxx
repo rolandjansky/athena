@@ -17,7 +17,7 @@
 #include "AsgElectronPhotonIsEMSelectorConfigHelper.h"
 #include "TPhotonIsEMSelector.h"
 #include "EGSelectorConfigurationMapping.h"
-#include "ElectronPhotonSelectorTools/egammaPIDdefs.h"
+#include "EgammaAnalysisInterfaces/egammaPIDdefs.h"
 #include "xAODEgamma/Photon.h"
 #include "xAODEgamma/Electron.h"
 #include "xAODCaloEvent/CaloCluster.h"
