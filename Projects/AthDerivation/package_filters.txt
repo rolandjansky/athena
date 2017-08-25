@@ -10,6 +10,7 @@
 + AtlasGeometryCommon/SubDetectorEnvelopes
 
 # Calorimeter package(s):
++ Calorimeter/CaloBadChannelTool
 + Calorimeter/CaloCalibHitRec
 + Calorimeter/CaloClusterCorrection
 + Calorimeter/CaloCnv/CaloAthenaPool
@@ -140,6 +141,7 @@
 + InnerDetector/InDetValidation/InDetPhysValMonitoring
 
 # LAr package(s):
++ LArCalorimeter/LArBadChannelTool
 + LArCalorimeter/LArCabling
 + LArCalorimeter/LArCnv/LArIdCnv
 + LArCalorimeter/LArCnv/LArCond.*
@@ -236,6 +238,7 @@
 + Reconstruction/AODFix
 + Reconstruction/DiTauRec
 + Reconstruction/eflowRec
++ Reconstruction/egamma/egammaCaloTools
 + Reconstruction/egamma/egammaConditions
 + Reconstruction/egamma/egammaEvent
 + Reconstruction/egamma/egammaInterfaces
@@ -243,6 +246,8 @@
 + Reconstruction/egamma/egammaMVACalib
 + Reconstruction/egamma/egammaRec
 + Reconstruction/egamma/egammaRecEvent
++ Reconstruction/egamma/egammaTools
++ Reconstruction/egamma/egammaTrackTools
 + Reconstruction/egamma/egammaUtils
 + Reconstruction/EventShapes/.*
 - Reconstruction/Jet/JetMonitoring
