@@ -208,7 +208,7 @@ elif (WhichInput == "BS"):
     ByteStreamInputSvc = ServiceMgr.ByteStreamInputSvc
     
     #if hasattr(ToolSvc,"PixelFillCablingData_Final"):
-    #  ToolSvc.PixelFillCablingData_Final.MappingFile='Pixels_Atlas_IdMapping.dat'
+    #  ToolSvc.PixelFillCablingData_Final.MappingFile='PixelCabling/Pixels_Atlas_IdMapping.dat'
 
     #if hasattr(ToolSvc,"TRT_FillCablingData_DC3"):
     #  ToolSvc.TRT_FillCablingData_DC3.RealData=False

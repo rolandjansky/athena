@@ -396,7 +396,7 @@ include("TriggerRelease/Trigger_topOptions_standalone.py")
 
 #MC files still have old mapping - don't put in topOptions, since that is inconsistent with cosmics
 if hasattr(ToolSvc,"PixelFillCablingData_Final"):
-    ToolSvc.PixelFillCablingData_Final.MappingFile='Pixels_Atlas_IdMapping.dat'
+    ToolSvc.PixelFillCablingData_Final.MappingFile='PixelCabling/Pixels_Atlas_IdMapping.dat'
 
 if hasattr(ToolSvc,"TRT_FillCablingData_DC3"):
     ToolSvc.TRT_FillCablingData_DC3.RealData=False
