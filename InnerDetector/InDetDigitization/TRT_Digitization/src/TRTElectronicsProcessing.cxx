@@ -309,7 +309,8 @@ void TRTElectronicsProcessing::ProcessDeposits( const std::vector<TRTElectronics
   //std::cout << std::endl;
 
   // Finally turn the fine discriminator response arrays into an output digit.
-  const unsigned int digit(EncodeDigit());
+  //const unsigned int digit(EncodeDigit());
+  const unsigned int digit = EncodeDigit() & 0x03FFFEF0; // RDO reduction: zero first 5 unused bits, first and third HT bits, last 4 LT bits
   if (digit) {
     outdigit = TRTDigit(hitID, digit);
   }
