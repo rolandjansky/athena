@@ -31,6 +31,14 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "EventPrimitives/EventPrimitives.h"
 
+#include "CLHEP/Random/RandomEngine.h"
+#include "AthenaKernel/IAtRndmGenSvc.h"
+
+// forward class declaration
+namespace CLHEP{
+  class HepRandomEngine;
+}
+
  class InDetSimDataCollection;
  
 namespace InDet {
@@ -67,6 +75,10 @@ namespace InDet {
 	
 	std::string                             m_simDataCollectionName;    //!< sim data collection name
 	mutable const InDetSimDataCollection*   m_simDataCollection;        //!< sim data collection - refreshed at BeginEvent incident
+    protected:
+ 		  ServiceHandle<IAtRndmGenSvc> m_rndmSvc;
+ 		  std::string                  m_rndmEngineName;
+ 		  CLHEP::HepRandomEngine*      m_rndmEngine;
    };
    
  }//end InDet namespace

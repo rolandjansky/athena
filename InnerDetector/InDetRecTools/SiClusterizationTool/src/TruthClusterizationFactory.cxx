@@ -25,10 +25,13 @@
 #include "InDetSimData/InDetSimDataCollection.h"
 #include "InDetSimData/InDetSimData.h"
 #include "HepMC/GenParticle.h"
+#include "EventInfo/EventInfo.h"
+#include "EventInfo/EventID.h"
 
 #include "TrkEventPrimitives/ParamDefs.h"
 
 #include "TRandom.h"
+#include "CLHEP/Random/RandFlat.h"
 
 namespace InDet {
 
@@ -36,11 +39,16 @@ namespace InDet {
                                                    const std::string& n, const IInterface* p):
           AthAlgTool(name, n,p),
 		  m_incidentSvc("IncidentSvc", n),
-	      m_simDataCollectionName("PixelSDO_Map"),
-		  m_simDataCollection(0)
+	    m_simDataCollectionName("PixelSDO_Map"),
+ 	    m_simDataCollection(0),
+  		m_rndmSvc("AtDSFMTGenSvc",name),
+  		m_rndmEngineName("PixelDigitization"),
+  	  m_rndmEngine(0)
   {
     // further properties
-	declareProperty("IncidentService"      , m_incidentSvc );
+	  declareProperty("IncidentService"      , m_incidentSvc );
+    declareProperty("RndmSvc", m_rndmSvc, "Random Number Service used in BichselSimTool");
+ 		declareProperty("RndmEngine", m_rndmEngineName, "Random engine name");
 
     declareInterface<TruthClusterizationFactory>(this);
   } 
@@ -52,6 +60,21 @@ namespace InDet {
   TruthClusterizationFactory::~TruthClusterizationFactory() {}
   
   StatusCode TruthClusterizationFactory::initialize() {
+    
+    // random svc
+ 		CHECK(m_rndmSvc.retrieve());
+ 		
+ 		// get the random stream
+/* 		ATH_MSG_DEBUG ( "Getting random number engine : <" << m_rndmEngineName << ">" );
+ 		m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
+ 		if (!m_rndmEngine) {
+ 		    ATH_MSG_ERROR("Could not find RndmEngine : " << m_rndmEngineName);
+ 		    return StatusCode::FAILURE;
+ 		}
+ 		else {
+ 		     ATH_MSG_DEBUG("Found RndmEngine : " << m_rndmEngineName);
+ 		}
+  */  
     if (m_incidentSvc.retrieve().isFailure()){
 		ATH_MSG_WARNING("Can not retrieve " << m_incidentSvc << ". Exiting.");
 		return StatusCode::FAILURE;
@@ -117,8 +140,6 @@ namespace InDet {
 	//barcodes in the cluster, each corresponding to a truth particle
 	nPartContributing = barcodes.size();
 	ATH_MSG_VERBOSE("n Part Contributing: " << nPartContributing);
-	//Set random seed for smearing NN efficiency
-	gRandom->SetSeed(0);
 	ATH_MSG_VERBOSE("Smearing TruthClusterizationFactory probability output for TIDE studies");
 	//If only 1 truth particles found
 	if (nPartContributing==1) {

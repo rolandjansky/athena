@@ -24,11 +24,11 @@ use InDetConditionsSummaryService 	InDetConditionsSummaryService-* InnerDetector
 use TrkParameters			TrkParameters-*			Tracking/TrkEvent
 use GeoPrimitives       		GeoPrimitives-*              	DetectorDescription
 use EventPrimitives       		EventPrimitives-*              	Event
+use AtlasCLHEP           		AtlasCLHEP-*            	External
 
 private
 use TrkEventPrimitives   		TrkEventPrimitives-*    	Tracking/TrkEvent
-use AtlasCLHEP           		AtlasCLHEP-*            	External
-
+use EventInfo                           EventInfo-*                     Event
 use AthenaPoolUtilities AthenaPoolUtilities-* Database/AthenaPOOL
 use AtlasDetDescr        		AtlasDetDescr-*          	DetectorDescription 
 #use SCT_ConditionsServices   		SCT_ConditionsServices-*      	InnerDetector/InDetConditions
