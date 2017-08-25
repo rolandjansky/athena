@@ -285,8 +285,9 @@ def addFilteredJets(jetalg, rsize, inputtype, mumax=1.0, ymin=0.15, mods="groome
 
 def addStandardJets(jetalg, rsize, inputtype, ptmin=0., ptminFilter=0.,
                     mods="default", calibOpt="none", ghostArea=0.01,
-                    algseq=None, outputGroup="CustomJets"):
-    jetnamebase = "{0}{1}{2}".format(jetalg,int(rsize*10),inputtype)
+                    algseq=None, namesuffix="",
+                    outputGroup="CustomJets"):
+    jetnamebase = "{0}{1}{2}{3}".format(jetalg,int(rsize*10),inputtype,namesuffix)
     jetname = jetnamebase+"Jets"
     algname = "jetalg"+jetnamebase
     OutputJets.setdefault(outputGroup , [] ).append(jetname)

@@ -125,35 +125,7 @@ addDefaultTrimmedJets(jetm1Seq,"JETM1")
 #=======================================
 
 if DerivationFrameworkIsMonteCarlo:
-   from JetRec.JetRecStandard import jtm
-   #EMTopo
-   lowptjetalg = None
-   if "jetalgAntiKt4EMTopoLowPtJets" in DFJetAlgs.keys():
-       lowptjetalg = DFJetAlgs["jetalgAntiKt4EMTopoLowPtJets"]
-   else:
-       jtm.addJetFinder("AntiKt4EMTopoLowPtJets", "AntiKt", 0.4, "emtopo", "emtopo_ungroomed", ghostArea=0.01, ptmin= 2000, ptminFilter= 2000, calibOpt="ar")
-       lowptjetalg = CfgMgr.JetAlgorithm("jetalgAntiKt4EMTopoLowPtJets", Tools = [jtm.AntiKt4EMTopoLowPtJets])
-       DFJetAlgs["jetalgAntiKt4EMTopoLowPtJets"] = lowptjetalg;
-   jetm1Seq += lowptjetalg
-   OutputJets["JETM1"].append("AntiKt4EMTopoLowPtJets")
-   #LCTopo
-   if "jetalgAntiKt4LCTopoLowPtJets" in DFJetAlgs.keys():
-       lowptjetalg = DFJetAlgs["jetalgAntiKt4LCTopoLowPtJets"]
-   else:
-       jtm.addJetFinder("AntiKt4LCTopoLowPtJets", "AntiKt", 0.4, "lctopo", "lctopo_ungroomed", ghostArea=0.01, ptmin= 2000, ptminFilter= 2000, calibOpt="ar")
-       lowptjetalg = CfgMgr.JetAlgorithm("jetalgAntiKt4LCTopoLowPtJets", Tools = [jtm.AntiKt4LCTopoLowPtJets])
-       DFJetAlgs["jetalgAntiKt4LCTopoLowPtJets"] = lowptjetalg;
-   jetm1Seq += lowptjetalg
-   OutputJets["JETM1"].append("AntiKt4LCTopoLowPtJets")
-   #EMPFlow
-#   if "jetalgAntiKt4EMPFlowLowPtJets" in DFJetAlgs.keys():
-#       lowptjetalg = DFJetAlgs["jetalgAntiKt4EMPFlowLowPtJets"]
-#   else:
-#       jtm.addJetFinder("AntiKt4EMPFlowLowPtJets", "AntiKt", 0.4, "empflow", "pflow_ungroomed", ghostArea=0.01, ptmin= 2000, ptminFilter= 2000, calibOpt="ar:pflow")
-#       lowptjetalg = CfgMgr.JetAlgorithm("jetalgAntiKt4EMPFlowLowPtJets", Tools = [jtm.AntiKt4EMPFlowLowPtJets])
-#       DFJetAlgs["jetalgAntiKt4EMPFlowLowPtJets"] = lowptjetalg;
-#   jetm1Seq += lowptjetalg
-#   OutputJets["JETM1"].append("AntiKt4EMPFlowLowPtJets")
+    addAntiKt4LowPtJets(jetm1Seq,"JETM1")
 
 if jetFlags.useTruth:
     # CamKt R=1.2 jets
