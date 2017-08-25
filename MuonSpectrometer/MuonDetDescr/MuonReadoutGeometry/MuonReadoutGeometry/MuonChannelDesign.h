@@ -43,7 +43,7 @@ namespace MuonGM {
     double minYSize;
     double maxYSize;
     double thickness;
-    double cutoutH; // H active - yCutout
+    double yCutout;
 
     /** channel transform */
     //HepGeom::Transform3D  channelTransform( int channel ) const;
