@@ -41,6 +41,7 @@ reducedJetList = [ "AntiKt10PV0TrackJets",
                    "AntiKt4TruthJets"]
 replaceAODReducedJets(reducedJetList,DerivationFrameworkJob,"PHYSVAL")
 updateJVT_xAODColl("AntiKt4EMTopo")
+addAntiKt4LowPtJets(DerivationFrameworkJob,"PHYSVAL")
 
 #====================================================================
 # FLAVOUR TAGGING   
@@ -81,6 +82,7 @@ PHYSVALSlimmingHelper.AllVariables = [ "Electrons", "Photons", "Muons", "Primary
                                        "AntiKt10PV0TrackJets", "AntiKt4TruthWZJets", "AntiKt10TruthJets",
                                        "AntiKt10TruthWZJets", "AntiKt10LCTopoJets", "AntiKt2PV0TrackJets",
                                        "AntiKt4PV0TrackJets", "AntiKt4TruthJets",
+                                       "AntiKt4EMTopoLowPtJets","AntiKt4LCTopoLowPtJets","AntiKt4EMPFlowLowPtJets",
                                        "Kt4EMPFlowEventShape","Kt4LCTopoOriginEventShape","Kt4EMTopoOriginEventShape",
                                        "LCOriginTopoClusters","EMOriginTopoClusters",
                                        "BTagging_AntiKt4EMTopoJFVtx",
@@ -134,6 +136,12 @@ PHYSVALSlimmingHelper.AppendToDictionary = {
   "AntiKt2PV0TrackJetsAux"                     :   "xAOD::JetAuxContainer"     ,
   "AntiKt4PV0TrackJets"                        :   "xAOD::JetContainer"        ,
   "AntiKt4PV0TrackJetsAux"                     :   "xAOD::JetAuxContainer"     ,
+  "AntiKt4EMTopoLowPtJets"                     :   "xAOD::JetContainer"        ,
+  "AntiKt4EMTopoLowPtJetsAux"                  :   "xAOD::JetAuxContainer"     ,
+  "AntiKt4LCTopoLowPtJets"                     :   "xAOD::JetContainer"        ,
+  "AntiKt4LCTopoLowPtJetsAux"                  :   "xAOD::JetAuxContainer"     ,
+  "AntiKt4EMPFlowLowPtJets"                    :   "xAOD::JetContainer"        ,
+  "AntiKt4EMPFlowLowPtJetsAux"                 :   "xAOD::JetAuxContainer"     ,
   "AntiKt4TruthJets"                           :   "xAOD::JetContainer"        ,
   "AntiKt4TruthJetsAux"                        :   "xAOD::JetAuxContainer"     ,
   "AntiKtVR30Rmax4Rmin02TrackJets"             :   "xAOD::JetContainer"        ,
