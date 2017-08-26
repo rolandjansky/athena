@@ -17,7 +17,6 @@
  * @class Implements egamma calo selection for the new HLT framework
  * @brief 
  **/
-using namespace TrigCompositeUtils;
 
 class TrigL2CaloHypoAlg
   : public ::AthReentrantAlgorithm
@@ -37,7 +36,7 @@ class TrigL2CaloHypoAlg
   ToolHandleArray< TrigL2CaloHypoTool > m_hypoTools;
   SG::ReadHandleKey< xAOD::TrigEMClusterContainer > m_clustersKey;
   SG::ReadHandleKey< TrigRoiDescriptorCollection > m_roisKey;
-  SG::WriteHandleKey< DecisionContainer > m_decisionsKey;
+  SG::WriteHandleKey< TrigCompositeUtils::DecisionContainer > m_decisionsKey;
  
 }; 
 
