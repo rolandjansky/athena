@@ -40,6 +40,7 @@
 
 // For string search
 #include "TString.h"
+#include "TRegexp.h"
 
 // System includes
 #include <iostream> // For warnings in static functions
@@ -175,7 +176,8 @@ namespace ST {
     }
 
     // See if they are doing something really unwise, just in case
-    if (tmp_name.Contains("data16_13TeV") || tmp_name.Contains("data17_13TeV") || tmp_name.Contains("data15_13TeV")){
+    TRegexp is_data("^data1[5-9]_13TeV");
+    if (tmp_name.Contains(is_data)){
       std::cout << "ST::getMCShowerType WARNING: Asking for the MC shower when running on a data file is not advised.  Just returning 0." << std::endl;
       return 0;
     }
