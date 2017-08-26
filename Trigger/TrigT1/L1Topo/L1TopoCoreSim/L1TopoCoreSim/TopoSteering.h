@@ -6,6 +6,7 @@
 #ifndef __L1TopoCoreSimulation__TopoSteering__
 #define __L1TopoCoreSimulation__TopoSteering__
 
+#include <bitset>
 #include <iostream>
 #include <memory>
 #include <vector>
@@ -90,6 +91,33 @@ namespace TCS {
 
       StatusCode saveHist();
 
+      static const unsigned int numberOfL1TopoBits = 128;
+      /**
+         @brief cache the decision/overflow bits from hardware
+         These bits are propagated to the algorithms with propagateHardwareBitsToAlgos.
+       */
+      void setHardwareBits(const std::bitset<numberOfL1TopoBits> &triggerBits,
+                           const std::bitset<numberOfL1TopoBits> &ovrflowBits);
+      /**
+         @brief propagate the bits from hardware to each simulated decision algo.
+         They will then be used to fill the accept/reject monitoring histograms.
+       */
+      void propagateHardwareBitsToAlgos();
+      /**
+         @brief tell output algos to fill accept/reject histos based on hdw decision.
+
+         In this case you will need to call setHardwareBits +
+         propagateHardwareBitsToAlgos at each event.
+       */
+      void setOutputAlgosFillBasedOnHardware(const bool &value);
+      /**
+         @brief skip filling the histos
+
+         When filling the histograms based on the hdw decision we want
+         to skip filling them if we didn't fetch the hdw bits from the
+         ROS. The flag is then toggled on/off depending on the prescaler.
+       */
+      void setOutputAlgosSkipHistograms(const bool &value);
    private:
 
       // execution
@@ -115,7 +143,7 @@ namespace TCS {
       TopoInputEvent         m_inputEvent;       // the input event
 
       TopoCoreSimResult      m_simulationResult; // the result of the execution
-
+      
       TopoSteeringStructure  m_structure;
 
       unsigned int m_evtCounter = {1};
@@ -124,8 +152,10 @@ namespace TCS {
 
       std::shared_ptr<IL1TopoHistSvc>  m_histSvc;
 
+      std::bitset<numberOfL1TopoBits> m_triggerHdwBits;
+      std::bitset<numberOfL1TopoBits> m_ovrflowHdwBits;
    };
-   
+
    
 } // end of namespace TCS
 
