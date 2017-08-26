@@ -72,14 +72,12 @@ StatusCode JetConstituentModifierBase::setEnergyPt(xAOD::IParticle* obj, float e
   case xAOD::Type::ParticleFlow:
     {
       xAOD::PFO* pfo = static_cast<xAOD::PFO*>(obj);
-      // Use accessors explicitly because PFO only has an interface for setting the full p4
-      const static SG::AuxElement::Accessor<float> accPt("pt");
-      const static SG::AuxElement::Accessor<float> accE("e");
       if( (m_applyToChargedPFO && fabs(pfo->charge())>=1e-9) || 
 	  (m_applyToNeutralPFO && fabs(pfo->charge())<1e-9) ) {
-	// if(weightAcc) (*weightAcc)(*pfo) = pfo->pt() > FLT_MIN ? pt / pfo->pt() : 0.;
-	accPt(*pfo) = pt;
-	accE(*pfo) = e;
+	// if(weightAcc) (*weightAcc)(*pfo) = pt / pfo->pt();
+	// KTJ: Temporary fix
+	// Defeats the purpose, but we need to use this to reset the 4-vec cache
+	pfo->setP4(pt, pfo->eta(), pfo->phi());
       }
     }
     break;
