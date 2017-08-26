@@ -142,7 +142,6 @@ namespace CP {
             float m_ConeSizeVariation; // Extend - shrink the cone size to account for extrapolation effects
 
             bool m_isInitialised;
-            bool m_isCoreSubtracted;
             std::string m_indetTrackParticleLocation;
             std::string m_VertexContainerName;
             std::string m_CaloClusterContainerName;
