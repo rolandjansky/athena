@@ -142,9 +142,9 @@ namespace ExpressionParsing {
 
 
 
-      template <typename CONTAINER> class VectorVariableLoader : public BaseVariableLoader {
+      class BaseVectorVariableLoader : public BaseVariableLoader {
         public:
-          VectorVariableLoader(StoreGateSvc_t &evtStore, 
+          BaseVectorVariableLoader(StoreGateSvc_t &evtStore,
               const std::string &containerName, 
               const std::string &propertyName)
             : BaseVariableLoader(evtStore), 
@@ -156,7 +156,7 @@ namespace ExpressionParsing {
           { 
           }
 
-          virtual ~VectorVariableLoader()
+          virtual ~BaseVectorVariableLoader()
           {
             if (m_vectorProxyLoader) {
               delete m_vectorProxyLoader;
@@ -172,12 +172,6 @@ namespace ExpressionParsing {
               m_variableType = m_vectorProxyLoader->variableTypeFromString(m_propertyName);
             }
             return m_variableType;
-          }
-
-          static BaseVariableLoader *tryCreation(StoreGateSvc_t &evtStore, const std::string &containerName, const std::string &propertyName)
-          {
-            if (!(evtStore->contains<CONTAINER>(containerName))) return NULL;
-            return new VectorVariableLoader<CONTAINER>(evtStore, containerName, propertyName);
           }
 
           virtual int getIntValue()
@@ -203,15 +197,7 @@ namespace ExpressionParsing {
           }
 
         private:
-          void updateProxyLoader()
-          {
-            if (!m_vectorProxyLoader) {
-              m_vectorProxyLoader = new xAODVectorProxyLoader();
-            }
-
-            const CONTAINER *container = m_evtStore->retrieve<const CONTAINER>(m_containerName);
-            m_vectorProxyLoader->setData(container);
-          }
+          virtual void updateProxyLoader() = 0;
 
         protected:
           std::string m_containerName;
@@ -222,10 +208,37 @@ namespace ExpressionParsing {
       };
 
 
+      template <typename CONTAINER> class VectorVariableLoader : public BaseVectorVariableLoader {
+        public:
+          VectorVariableLoader(StoreGateSvc_t &evtStore,
+              const std::string &containerName,
+              const std::string &propertyName)
+            : BaseVectorVariableLoader(evtStore,containerName,propertyName)
+          {
+          }
+
+          static BaseVariableLoader *tryCreation(StoreGateSvc_t &evtStore, const std::string &containerName, const std::string &propertyName)
+          {
+            if (!(evtStore->contains<CONTAINER>(containerName))) return NULL;
+            return new VectorVariableLoader<CONTAINER>(evtStore, containerName, propertyName);
+          }
+
+        private:
+          void updateProxyLoader()
+          {
+            if (!m_vectorProxyLoader) {
+              m_vectorProxyLoader = new xAODVectorProxyLoader();
+            }
+
+            const CONTAINER *container = m_evtStore->retrieve<const CONTAINER>(m_containerName);
+            m_vectorProxyLoader->setData(container);
+          }
+      };
+
 
       class MissingETContainerLoader : public BaseScalarVariableLoader {
         public:
-          MissingETContainerLoader(StoreGateSvc_t &evtStore, 
+          MissingETContainerLoader(StoreGateSvc_t &evtStore,
               const std::string &containerName, 
               const std::string &mapElement,
               const std::string &propertyName);
@@ -241,6 +254,40 @@ namespace ExpressionParsing {
           std::string m_mapElement;
       };
 
+
+      class BSMParticleVariableLoader : public BaseVectorVariableLoader {
+        public:
+          BSMParticleVariableLoader(StoreGateSvc_t &evtStore,
+              const std::string &containerName,
+              const std::string &propertyName)
+            : BaseVectorVariableLoader(evtStore,containerName,propertyName),
+            m_isBSM(propertyName=="isBSM")
+          {
+          }
+
+          static BaseVariableLoader *tryCreation(StoreGateSvc_t &evtStore,
+              const std::string &containerName,
+              const std::string &methodName);
+
+          virtual IProxyLoader::VariableType variableType()
+          {
+            if (!m_initialised) {
+              m_initialised = true;
+              updateProxyLoader();
+              if (m_isBSM) m_variableType=m_vectorProxyLoader->variableTypeFromString("pdgId");
+              else m_variableType=m_vectorProxyLoader->variableTypeFromString(m_propertyName);
+            }
+            return m_variableType;
+          }
+
+          virtual std::vector<int> getVectorIntValue();
+
+        private:
+          virtual void updateProxyLoader();
+
+        private:
+          bool m_isBSM;
+      };
 
 
     public:

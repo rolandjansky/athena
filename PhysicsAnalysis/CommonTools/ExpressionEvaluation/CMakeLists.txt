@@ -26,7 +26,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODParticleEvent
                           Event/xAOD/xAODTau
                           Event/xAOD/xAODTracking
-                          Event/xAOD/xAODTruth )
+                          Event/xAOD/xAODTruth
+                          Generators/TruthUtils )
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
@@ -40,10 +41,10 @@ atlas_add_library( ExpressionEvaluationLib
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
                    LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers SGTools GaudiKernel StoreGateLib SGtests TrigDecisionToolLib
-                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} xAODBTagging xAODBase xAODCaloEvent xAODEgamma xAODEventInfo xAODEventShape xAODJet xAODMissingET xAODMuon xAODPFlow xAODParticleEvent xAODTau xAODTracking xAODTruth )
+                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} xAODBTagging xAODBase xAODCaloEvent xAODEgamma xAODEventInfo xAODEventShape xAODJet xAODMissingET xAODMuon xAODPFlow xAODParticleEvent xAODTau xAODTracking xAODTruth TruthUtils )
 
 atlas_add_component( ExpressionEvaluation
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} AthContainers SGTools StoreGateLib SGtests GaudiKernel TrigDecisionToolLib xAODBTagging xAODBase xAODCaloEvent xAODEgamma xAODEventInfo xAODEventShape xAODJet xAODMissingET xAODMuon xAODPFlow xAODParticleEvent xAODTau xAODTracking xAODTruth ExpressionEvaluationLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} AthContainers SGTools StoreGateLib SGtests GaudiKernel TrigDecisionToolLib xAODBTagging xAODBase xAODCaloEvent xAODEgamma xAODEventInfo xAODEventShape xAODJet xAODMissingET xAODMuon xAODPFlow xAODParticleEvent xAODTau xAODTracking xAODTruth TruthUtils ExpressionEvaluationLib )
 
