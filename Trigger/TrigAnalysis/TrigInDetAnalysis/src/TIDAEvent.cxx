@@ -34,9 +34,9 @@ std::vector<std::string> TIDA::Event::chainnames() const {
 void TIDA::Event::erase( const std::string& name ) { 
     
   /// WHY DOES erase() NOT WORK ON THESE std::vector<TIDA::Chain> Almost certainly 
-  /// because we are using actual TObjects, ***REMOVED*** !!!
+  /// because we are using actual TObjects, and they are a pile of excrement!!!
   /// so instead we need to copy all the chains, and then copy them back *if* 
-  /// we don;t want to delete it ***REMOVED***!  
+  /// we don't want to delete it ***REMOVED***!  
 
   std::vector<TIDA::Chain> _chains = m_chains;
   m_chains.clear();
