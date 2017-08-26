@@ -64,7 +64,7 @@ namespace xAOD {
                                    TrackCorrection corrections, 
                                    const Vertex* vertex = 0, 
                                    const std::set<const TrackParticle*>* exclusionSet = 0, 
-                                   const TrackParticleContainer* indetTrackParticles = 0 ) = 0; 
+                                   const TrackParticleContainer* indetTrackParticles = 0 ) const = 0; 
 
   };
 

@@ -180,7 +180,7 @@ namespace xAOD {
                                              TrackCorrection corrections, 
                                              const Vertex* vertex, 
                                              const std::set<const TrackParticle*>* exclusionSet, 
-                                             const TrackParticleContainer* indetTrackParticles ) {
+                                             const TrackParticleContainer* indetTrackParticles ) const {
     
     // calculate the isolation
     TrackIsolation result;
