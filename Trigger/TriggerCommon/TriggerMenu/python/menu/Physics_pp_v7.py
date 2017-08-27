@@ -3523,11 +3523,11 @@ def setupMenu():
         ['lumipeb_vdm_L1MBTS_2_UNPAIRED_ISO', 'L1_MBTS_2_UNPAIRED_ISO', [], ['VdM'], ["RATE:Calibration", "BW:Detector"], -1],
         ['lumipeb_vdm_L1RD0_UNPAIRED_ISO',    'L1_RD0_UNPAIRED_ISO',    [], ['VdM'], ["RATE:Calibration", "BW:Detector"], -1],
         ['lumipeb_vdm_L1RD2_BGRP12',          'L1_RD2_BGRP12',          [], ['VdM'], ["RATE:Calibration", "BW:Detector"], -1],
+        ['lumipeb_vdm_L1RD0_BGRP10',          'L1_RD0_BGRP10',          [], ['VdM'], ["RATE:Calibration", "BW:Detector"], -1],
 
         ['lumipeb_vdm_L1MBTS_1', 'L1_MBTS_1', [], ['VdM'], ["RATE:Calibration", "BW:Detector"], -1],
         ['lumipeb_vdm_L1MBTS_2', 'L1_MBTS_2', [], ['VdM'], ["RATE:Calibration", "BW:Detector"], -1],
         ['lumipeb_vdm_L1RD0_FILLED',         'L1_RD0_FILLED', [], ['VdM'], ["RATE:Calibration", "BW:Detector"], -1],
-        ['lumipeb_vdm_L1RD0_FIRSTEMPTY',     'L1_RD0_FIRSTEMPTY', [], ['VdM'], ["RATE:Calibration", "BW:Detector"], -1],
  
 
         ['lumipeb_vdm_L1MBTS_2_LUCID',                 'L1_MBTS_2,L1_LUCID',    [], ['VdM'], ["RATE:Calibration", "BW:Detector"], -1], 

@@ -559,7 +559,7 @@ def defineMenu():
         "L1_RD2_FILLED","L1_RD2_EMPTY","L1_RD2_BGRP12",
         "L1_RD3_FILLED","L1_RD3_EMPTY",
         'L1_RD0_FIRSTEMPTY', 
-        'L1_RD0_BGRP9', 'L1_RD0_BGRP11', 'L1_RD0_ABORTGAPNOTCALIB',
+        'L1_RD0_BGRP9', 'L1_RD0_BGRP10', 'L1_RD0_BGRP11', 'L1_RD0_ABORTGAPNOTCALIB',
 
         #LUCID
         'L1_LUCID', 'L1_LUCID_EMPTY', 'L1_LUCID_UNPAIRED_ISO', 
@@ -916,7 +916,7 @@ def defineMenu():
     
 
 #CTP IDs are taken from this mapping. Every L1 item needs a unique ctpid.
-#Free CTP IDs (2017-08-18) are: 473-478, 
+#Free CTP IDs (2017-08-27) are: 474-478, 
 # 463-464 are reserved for L1_RD2_BGRP14 and L1_RD3_BGRP15 (in MC_Physics_pp_v7)
 # 509-511 are reserved for CALREQ
 
@@ -1256,6 +1256,7 @@ def defineMenu():
         'L1_RD3_EMPTY' : 208,
         'L1_RD0_FIRSTEMPTY' : 209,
         'L1_RD0_BGRP9' : 210,
+        'L1_RD0_BGRP10' : 473,
         'L1_RD0_BGRP11' : 211,
         'L1_LUCID' : 212,
         'L1_LUCID_EMPTY' : 213,
