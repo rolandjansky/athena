@@ -725,8 +725,6 @@ TH2D* Resplot::combine(const TH2* h, double inveps2) {
     TH1D* hx = (TH1D*)h->ProjectionX("r1dx", 1, h->GetNbinsY()); 
     hx->SetDirectory(0);
 
-    std::cout << "***REMOVED*** " << hx << std::endl;
-
 
     //    hy->SetDirectory(0);
     //    hx->SetDirectory(0);
