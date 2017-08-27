@@ -1014,6 +1014,7 @@ class ItemDef:
         LVL1MenuItem('L1_RD0_UNPAIRED_ISO'   ).setLogic( RNDM0 & unpaired_isocond   ).setTriggerType(TT.rand)    # noqa: F821
         LVL1MenuItem('L1_RD0_FIRSTEMPTY'     ).setLogic( RNDM0 & firstempty         ).setTriggerType(TT.rand)    # noqa: F821
         LVL1MenuItem('L1_RD0_BGRP9'          ).setLogic( RNDM0 & bgrp9cond          ).setTriggerType(TT.rand)    # noqa: F821
+        LVL1MenuItem('L1_RD0_BGRP10'         ).setLogic( RNDM0 & alfacalib          ).setTriggerType(TT.rand)    # noqa: F821
         LVL1MenuItem('L1_RD0_BGRP11'         ).setLogic( RNDM0 & bgrp11cond         ).setTriggerType(TT.rand)    # noqa: F821
         LVL1MenuItem('L1_RD0_ABORTGAPNOTCALIB').setLogic( RNDM0 & abortgap          ).setTriggerType(TT.rand)    # noqa: F821
 
