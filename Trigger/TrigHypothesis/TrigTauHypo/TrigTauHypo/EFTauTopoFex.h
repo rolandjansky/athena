@@ -7,7 +7,6 @@
 
 #include "xAODTrigger/TrigComposite.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
-#include "xAODBase/IParticleContainer.h"
 
 #include "TrigInterfaces/ComboAlgo.h"
 
@@ -30,13 +29,8 @@ class EFTauTopoFex : public HLT::ComboAlgo
 		HLT::ErrorCode hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerElement* outputTE);
 
 	private:
-         	std::string m_comb_type;
 		xAOD::TrigCompositeContainer *m_cont;
 		std::vector<float> m_dR;
-		void fill_delta_r(const xAOD::IParticleContainer* c1, const xAOD::IParticleContainer * c2);
-		HLT::ErrorCode accept_eltau_Inputs(HLT::TEConstVec& inputTE, bool& pass);
-		HLT::ErrorCode accept_mutau_Inputs(HLT::TEConstVec& inputTE, bool& pass);
-		HLT::ErrorCode accept_tautau_Inputs(HLT::TEConstVec& inputTE, bool& pass);
 
 };
 #endif
