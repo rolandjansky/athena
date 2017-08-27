@@ -422,7 +422,7 @@ int main(int argc, char** argv) {
   tdir->cd();
 
 
-#ifdef ROOT_IS_EXCREMENT
+#ifdef USE_SLOW_ROOT_FILE_DELETION
 
   std::cout << "deleting ftest" << std::endl;
 
