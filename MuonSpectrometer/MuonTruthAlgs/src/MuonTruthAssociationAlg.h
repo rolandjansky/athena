@@ -15,6 +15,7 @@
 #include "xAODTruth/TruthParticleContainer.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonIdHelpers/MuonStationIndex.h"
+#include "StoreGate/WriteDecorHandleKey.h"
 
 class MuonTruthAssociationAlg : public AthAlgorithm  {
 
@@ -28,11 +29,13 @@ public:
   virtual StatusCode finalize();
 
 private:
-  void addMuon( const xAOD::TruthParticleContainer& truthParticles, const xAOD::MuonContainer& muons );
-
-  void setDummyTruthInfo(const xAOD::Muon& muon);
-
-  std::string m_muonTruthParticleContainerName;
+  Gaudi::Property<SG::WriteDecorHandleKey<xAOD::TruthParticleContainer> >m_muonTruthParticleContainerName{this,"MuonTruthParticleContainerName","MuonTruthParticles","container name for muon truth particles"};
+  SG::WriteDecorHandleKey<xAOD::MuonContainer> m_muonTruthParticleLink;
+  SG::WriteDecorHandleKey<xAOD::MuonContainer> m_muonTruthParticleType;
+  SG::WriteDecorHandleKey<xAOD::MuonContainer> m_muonTruthParticleOrigin;
+  SG::WriteDecorHandleKey<xAOD::MuonContainer> m_muonTruthParticleNPrecMatched;
+  SG::WriteDecorHandleKey<xAOD::MuonContainer> m_muonTruthParticleNPhiMatched;
+  SG::WriteDecorHandleKey<xAOD::MuonContainer> m_muonTruthParticleNTrigEtaMatched;
   std::string m_muonName;
 
   bool m_associateWithInDetTP;
