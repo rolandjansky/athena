@@ -97,12 +97,6 @@ For each tool the message level can be adjusted like::
 Examples
 --------
 
-Athena
-------
-
-AnalysisBase
-------------
-
 An example implementation of all tools can be found for stand-alone mode in
 ``TauAnalysisTools/util/TauAnalysisToolsExample.cxx``. The binary file should be
 found after compilation in

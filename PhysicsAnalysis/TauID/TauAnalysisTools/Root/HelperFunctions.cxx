@@ -6,6 +6,7 @@
 
 // local include(s)
 #include "TauAnalysisTools/HelperFunctions.h"
+#include "TF1.h"
 
 #ifdef XAODTAU_VERSIONS_TAUJET_V3_H
 xAOD::TauJetParameters::PanTauDetails PANTAU_DECAYMODE=xAOD::TauJetParameters::PanTau_DecayMode;
@@ -230,7 +231,7 @@ void TauAnalysisTools::createPi0Vectors(const xAOD::TauJet* xTau, std::vector<TL
     vPi0s.push_back(xPfo->p4());
 
     // re-set the mass back to one pi0:
-    double dNewMomentum = std::sqrt(vPi0s[0].E() * vPi0s[0].E() - vPi0s[0].M() / 2. * vPi0s[0].M() / 2.);
+    double dNewMomentum = std::sqrt(vPi0s[0].E() / 2 * vPi0s[0].E() / 2 - vPi0s[0].M() / 2. * vPi0s[0].M() / 2.);
     vPi0s[0].SetVectM(vPi0s[0].Vect() * (dNewMomentum / vPi0s[0].P()), vPi0s[0].M() / 2.);
 
     // create another pi0 from the same vector:
@@ -244,5 +245,134 @@ void TauAnalysisTools::createPi0Vectors(const xAOD::TauJet* xTau, std::vector<TL
       vPi0s.push_back(xTau->pi0PFO(iPFO)->p4());
     }
   }
+}
+
+
+//______________________________________________________________________________
+void TauAnalysisTools::correctedPi0Vectors(const xAOD::TauJet* xTau, std::vector<TLorentzVector>& correctedPi0s, TLorentzVector& TauP4){
+  //reset the pi0s
+  correctedPi0s.clear();
+
+  int iDecayMode = -1;  
+  xTau->panTauDetail(PANTAU_DECAYMODE, iDecayMode);
+
+  if (!(xTau->panTauDetail(PANTAU_DECAYMODE, iDecayMode)))
+  {
+    std::cerr <<"Failed to retrieve panTauDetail decay mode\n";
+    return;
+  }
+
+  //Reading in the pi0 vector from createPi0Vectors
+  std::vector<TLorentzVector> vPi0s;
+  createPi0Vectors(xTau,vPi0s);
+
+  if(iDecayMode == xAOD::TauJetParameters::DecayMode::Mode_1p1n || iDecayMode == xAOD::TauJetParameters::DecayMode::Mode_1pXn || iDecayMode == xAOD::TauJetParameters::DecayMode::Mode_3pXn){  
+    //Adding up Pi0 P4s from createPi0Vectors
+    TLorentzVector Sum_vPi0s;
+    for(unsigned int i = 0; i < vPi0s.size() ; i++){
+      Sum_vPi0s += vPi0s[i];
+    }
+    
+    //Get sum of the chargedPFOP4s
+    TLorentzVector Sum_ChrgPFOP4;
+    std::vector< ElementLink< xAOD::PFOContainer > > finalChrgPFOLinks = xTau->chargedPFOLinks();
+    unsigned int NCharged    = finalChrgPFOLinks.size();
+    for(unsigned int iPFO=0; iPFO<NCharged; iPFO++) {
+      const xAOD::PFO* pfo = finalChrgPFOLinks.at(iPFO).cachedElement();
+      Sum_ChrgPFOP4 += pfo->p4();
+    }
+    
+    //Get tau FinalCalib P4
+    TLorentzVector FinalCalibP4;
+    FinalCalibP4.SetPtEtaPhiM( xTau->auxdata<float>("ptFinalCalib") ,xTau->auxdata<float>("etaFinalCalib") ,xTau->auxdata<float>("phiFinalCalib") ,xTau->auxdata<float>("mFinalCalib") );
+    
+    //Calculate the difference 3-vector between FinalCalib and Sum of chargedPFOP4
+    double px = FinalCalibP4.Px() - Sum_ChrgPFOP4.Px();
+    double py = FinalCalibP4.Py() - Sum_ChrgPFOP4.Py();
+    double pz = FinalCalibP4.Pz() - Sum_ChrgPFOP4.Pz();
+
+    double p_correctedPi0s = sqrt( pow(px,2.) + pow(py,2.) + pow(pz,2.) );
+    double p_vPi0s = Sum_vPi0s.P();
+
+    //Calucate scale factor for the pi0 3-vector momentum
+    double X;
+    X = p_correctedPi0s/p_vPi0s;
+
+    //Scale the pi0s with X and recalculate the new pi0 energy
+    double px_scaled, py_scaled, pz_scaled, e;
+    double mPi0 = 134.977;
+    for(unsigned int i = 0; i < vPi0s.size() ; i++){
+      px_scaled = vPi0s[i].Px() * X;
+      py_scaled = vPi0s[i].Py() * X;
+      pz_scaled = vPi0s[i].Pz() * X;
+      e = sqrt( pow(px_scaled,2.) + pow(py_scaled,2.) + pow(pz_scaled,2.) + pow(mPi0,2.) );
+
+      //Append the corrected pi0P4 to correctedPi0s
+      TLorentzVector P4_correctedPi0s;
+      P4_correctedPi0s.SetPxPyPzE(px_scaled,py_scaled,pz_scaled,e);
+      correctedPi0s.push_back(P4_correctedPi0s);
+    }
+  }else{
+    correctedPi0s = vPi0s;
+  }
+
+  //Correct angles between pi0s for 1pXn decays with 1 cluster
+  if(iDecayMode == xAOD::TauJetParameters::DecayMode::Mode_1pXn && xTau->nPi0PFOs() == 1){
+
+    //Get Function of Delta R between the two Pi0s
+    TF1 DeltaRdist;
+    DeltaRdist = TF1("DeltaRdist", "pol3", 0, 67500);
+    DeltaRdist.SetParameter(0, 0.07924);
+    DeltaRdist.SetParameter(1, -2.078/1000000.);
+    DeltaRdist.SetParameter(2,  2.619/100000000000.);
+    DeltaRdist.SetParameter(3, -1.238/10000000000000000.);
+  
+    //Get Sum of pi0 P4.Pt()
+    TLorentzVector SumPi0_P4;
+    for( unsigned int i = 0 ; i < correctedPi0s.size() ; i++){
+      SumPi0_P4 += correctedPi0s[i];
+    }
+
+    float SumPi0_pt = SumPi0_P4.Pt();
+
+    //Get delta R value (mean of true DeltaR distribution)
+    float deltaR;
+    if(SumPi0_pt >= 67500){
+      deltaR = 0.020; // = DeltaRdist.Eval(67500);
+    } else{
+      deltaR = DeltaRdist.Eval(SumPi0_pt);
+    }
+
+    TLorentzVector correctedPi0_0, correctedPi0_1;
+    correctedPi0_0.SetPtEtaPhiM( correctedPi0s[0].Pt()/cos(0.5*deltaR/sqrt(2.0)), correctedPi0s[0].Eta()+0.5*deltaR/sqrt(2.0), correctedPi0s[0].Phi()+0.5*deltaR/sqrt(2.0), correctedPi0s[0].M() );
+    correctedPi0_1.SetPtEtaPhiM( correctedPi0s[1].Pt()/cos(0.5*deltaR/sqrt(2.0)), correctedPi0s[1].Eta()-0.5*deltaR/sqrt(2.0), correctedPi0s[1].Phi()-0.5*deltaR/sqrt(2.0), correctedPi0s[1].M() );
+
+    std::vector<TLorentzVector> AngleCorrectedPi0s;
+    AngleCorrectedPi0s.push_back(correctedPi0_0);
+    AngleCorrectedPi0s.push_back(correctedPi0_1);
+
+    //Reparametrise: Delta R -> mass of pi0 Cluster
+    TLorentzVector PionCluster_angleCorrected = AngleCorrectedPi0s[0]+AngleCorrectedPi0s[1];
+    
+    double dNewMomentum = std::sqrt(PionCluster_angleCorrected.E()/2 * PionCluster_angleCorrected.E()/2 - PionCluster_angleCorrected.M() / 2. * PionCluster_angleCorrected.M() / 2.);
+    correctedPi0s[0].SetVectM(PionCluster_angleCorrected.Vect() * (dNewMomentum / PionCluster_angleCorrected.P()), PionCluster_angleCorrected.M() / 2.);
+    correctedPi0s[1] = correctedPi0s[0];
+  }
+
+
+
+  //Calculate the new tau P4
+  std::vector< ElementLink< xAOD::PFOContainer > > finalChrgPFOLinks = xTau->chargedPFOLinks();
+  TLorentzVector SumChargedPionP4;
+  for(unsigned int iPFO=0; iPFO < finalChrgPFOLinks.size(); iPFO++) {
+    const xAOD::PFO* pfo = finalChrgPFOLinks.at(iPFO).cachedElement();
+    TauP4 += pfo->p4();
+  }
+
+  for(unsigned int iPi0=0; iPi0 < correctedPi0s.size(); iPi0++) {
+    TauP4 += correctedPi0s[iPi0];
+  }
+
+
 }
 

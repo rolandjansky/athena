@@ -336,6 +336,7 @@ CP::SystematicSet CommonEfficiencyTool::recommendedSystematics() const
 //______________________________________________________________________________
 CP::SystematicCode CommonEfficiencyTool::applySystematicVariation ( const CP::SystematicSet& sSystematicSet)
 {
+
   // first check if we already know this systematic configuration
   auto itSystematicSet = m_mSystematicSets.find(sSystematicSet);
   if (itSystematicSet != m_mSystematicSets.end())
@@ -522,6 +523,7 @@ void CommonEfficiencyTool::addHistogramToSFMap(TKey* kKey, const std::string& sK
 //______________________________________________________________________________
 void CommonEfficiencyTool::generateSystematicSets()
 {
+
   // creation of basic string for all NPs, e.g. "TAUS_TRUEHADTAU_EFF_RECO_"
   std::vector<std::string> vSplitInputFilePath = {};
   split(m_sInputFileName,'_',vSplitInputFilePath);
@@ -536,6 +538,7 @@ void CommonEfficiencyTool::generateSystematicSets()
   if (sTruthType=="TRUEELECTRON") m_eCheckTruth = TauAnalysisTools::TruthElectron;
   if (sTruthType=="TRUEMUON") m_eCheckTruth = TauAnalysisTools::TruthMuon;
   if (sTruthType=="TRUEJET") m_eCheckTruth = TauAnalysisTools::TruthJet;
+  if (sTruthType=="TRUEHADDITAU") m_eCheckTruth = TauAnalysisTools::TruthHadronicDiTau;
   if (sEfficiencyType=="ELEOLR") m_bNoMultiprong = true;
 
   for (auto mSF : *m_mSF)
@@ -548,8 +551,8 @@ void CommonEfficiencyTool::generateSystematicSets()
 
     // skip nominal scale factors
     if (sNP == "sf") continue;
-    // skip if non 1p histogram to avoid duplications (TODO: come up with a better solution)
-    if (mSF.first.find("_1p") == std::string::npos) continue;
+    // skip if 3p histogram to avoid duplications (TODO: come up with a better solution)
+    if (mSF.first.find("_3p") != std::string::npos) continue;
 
     // test if NP starts with a capital letter indicating that this should be recommended
     bool bIsRecommended = false;

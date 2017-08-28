@@ -1,8 +1,9 @@
+// Dear emacs, this is -*- c++ -*-
+
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// Dear emacs, this is -*- c++ -*-
 #ifndef TAUANALYSISTOOLS_ITAUTRUTHMATCHINGTOOL_H
 #define TAUANALYSISTOOLS_ITAUTRUTHMATCHINGTOOL_H
 
@@ -21,17 +22,19 @@
 
 // EDM include(s):
 #include "xAODTau/TauJet.h"
-#include "xAODTruth/TruthParticleContainer.h"
-#include "xAODTruth/TruthParticleAuxContainer.h"
+
+// // local include(s)
+#include "IBuildTruthTaus.h"
 
 // local include(s)
-#include "Enums.h"
+#include "TauAnalysisTools/Enums.h"
 
 namespace TauAnalysisTools
 {
 
-class ITauTruthMatchingTool :
-  public virtual asg::IAsgTool
+class ITauTruthMatchingTool
+  : public virtual asg::IAsgTool
+  , public virtual TauAnalysisTools::IBuildTruthTaus
 {
 
   /// Declare the interface that the class provides
@@ -41,23 +44,11 @@ public:
   // initialize the tool
   virtual StatusCode initialize() = 0;
 
-  // get TruthTauContainer
-  virtual xAOD::TruthParticleContainer* getTruthTauContainer() = 0;
-
-  // get TruthTauAuxContainer
-  virtual xAOD::TruthParticleAuxContainer* getTruthTauAuxContainer() = 0;
-
   // apply match to a single tau
   virtual const xAOD::TruthParticle* applyTruthMatch(const xAOD::TauJet& xTau) = 0;
 
   // apply match to all taus in a vector
   virtual std::vector<const xAOD::TruthParticle*> applyTruthMatch(const std::vector<const xAOD::TauJet*>& vTaus) = 0;
-
-  // set pointer to truth particle container
-  virtual StatusCode setTruthParticleContainer(const xAOD::TruthParticleContainer* xTruthParticleContainer) __attribute__ ((deprecated("This function is deprecated. Please remove it from your code and use the configurable property \"TruthParticlesContainerName\" instead.\nFor further information please refer to the README:\nhttps://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/doc/README-TauTruthMatchingTool.rst"))) = 0;
-
-  // set pointer to event
-  virtual StatusCode initializeEvent() __attribute__ ((deprecated("This function is deprecated. Please remove it from your code.\nFor further information please refer to the README:\nhttps://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/doc/README-TauTruthMatchingTool.rst"))) = 0;
 
   // get pointer to truth tau, if no truth tau was found a null pointer is returned
   virtual const xAOD::TruthParticle* getTruth(const xAOD::TauJet& xTau) = 0;
@@ -84,10 +75,6 @@ public:
   // wrapper function to obtain truth verion of xAOD::TauJetParameters::DecayMode
   virtual xAOD::TauJetParameters::DecayMode getDecayMode(const xAOD::TauJet& xTau) = 0;
   virtual xAOD::TauJetParameters::DecayMode getDecayMode(const xAOD::TruthParticle& xTruthTau) = 0;
-
-  // build the truth tau collection
-  virtual StatusCode buildTruthTausFromTruthParticles() = 0;
-  virtual StatusCode retrieveTruthTaus() = 0;
 
 }; // class ITauTruthMatchingTool
 

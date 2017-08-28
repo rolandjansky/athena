@@ -1,8 +1,9 @@
+// Dear emacs, this is -*- c++ -*-
+
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// Dear emacs, this is -*- c++ -*-
 #ifndef  TAUANALYSISTOOLS_TAUTRUTHMATCHINGTOOL_H
 #define  TAUANALYSISTOOLS_TAUTRUTHMATCHINGTOOL_H
 
@@ -16,41 +17,23 @@
                     https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/README.rst
 */
 
-// Framework include(s):
-#include "AsgTools/AsgMetadataTool.h"
-#include "AsgTools/AnaToolHandle.h"
-
-// Core include(s):
-#include "TruthUtils/PIDHelpers.h"
-#include "MCTruthClassifier/IMCTruthClassifier.h"
-
-// EDM include(s):
-#include "xAODTau/TauxAODHelpers.h"
-#include "xAODJet/JetContainer.h"
-
 // Local include(s):
 #include "TauAnalysisTools/ITauTruthMatchingTool.h"
+#include "TauAnalysisTools/BuildTruthTaus.h"
 
 namespace TauAnalysisTools
 {
 
-enum eSampleType
-{
-  OTHER            = 0,
-  PYTHIA           = 1,
-  SHERPA           = 2,
-};
-
-
 class TauTruthMatchingTool
-  : public virtual TauAnalysisTools::ITauTruthMatchingTool
-  , public asg::AsgMetadataTool
+  : public virtual TauAnalysisTools::BuildTruthTaus
+  , public virtual TauAnalysisTools::ITauTruthMatchingTool
 {
   /// Create a proper constructor for Athena
-  ASG_TOOL_CLASS( TauTruthMatchingTool,
-                  TauAnalysisTools::ITauTruthMatchingTool )
+  ASG_TOOL_CLASS2( TauTruthMatchingTool,
+                   TauAnalysisTools::IBuildTruthTaus,
+                   TauAnalysisTools::ITauTruthMatchingTool )
 
-public:
+public:                         // Interface functions
 
   TauTruthMatchingTool( const std::string& name );
 
@@ -59,11 +42,8 @@ public:
   // initialize the tool
   virtual StatusCode initialize() override final;
 
-  // get TruthTauContainer
-  virtual xAOD::TruthParticleContainer* getTruthTauContainer() override final;
-
-  // get TruthTauAuxContainer
-  virtual xAOD::TruthParticleAuxContainer* getTruthTauAuxContainer() override final;
+  // get pointer to the truth matched particle, if no truth particle was found a null pointer is returned
+  virtual const xAOD::TruthParticle* getTruth(const xAOD::TauJet& xTau) override final;
 
   // apply match to a single tau
   virtual const xAOD::TruthParticle* applyTruthMatch(const xAOD::TauJet& xTau) override final;
@@ -71,18 +51,8 @@ public:
   // apply match to all taus in a vector
   virtual std::vector<const xAOD::TruthParticle*> applyTruthMatch(const std::vector<const xAOD::TauJet*>& vTaus) override final;
 
-  // set pointer to truth particle container
-  virtual StatusCode setTruthParticleContainer(const xAOD::TruthParticleContainer* xTruthParticleContainer)  override final __attribute__ ((deprecated("This function is deprecated. Please remove it from your code and use the configurable property \"TruthParticlesContainerName\" instead.\nFor further information please refer to the README:\nhttps://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/doc/README-TauTruthMatchingTool.rst")));
-
-  // set pointer to event
-  virtual StatusCode initializeEvent() override final __attribute__ ((deprecated("This function is deprecated. Please remove it from your code.\nFor further information please refer to the README:\nhttps://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/doc/README-TauTruthMatchingTool.rst")));
-
-  // get pointer to truth tau, if no truth tau was found a null pointer is returned
-  virtual const xAOD::TruthParticle* getTruth(const xAOD::TauJet& xTau) override final;
-
-  StatusCode buildTruthTausFromTruthParticles() override final;
-  StatusCode retrieveTruthTaus() override final;
-
+public:                         // Wrapper functions
+  
   // wrapper function to get truth tau visible TLorentzvector
   virtual TLorentzVector getTruthTauP4Vis(const xAOD::TauJet& xTau) override final;
   virtual TLorentzVector getTruthTauP4Vis(const xAOD::TruthParticle& xTruthTau) override final;
@@ -106,79 +76,21 @@ public:
   virtual xAOD::TauJetParameters::DecayMode getDecayMode(const xAOD::TauJet& xTau) override final;
   virtual xAOD::TauJetParameters::DecayMode getDecayMode(const xAOD::TruthParticle& xTruthTau) override final;
 
-private:
+private:                        // private helper functions
 
-  // Execute at each event
-  virtual StatusCode beginEvent() override final;
-
-  int getNumPdgId(const xAOD::TauJet& xTau, std::vector<int> vPdgIdMatch) const;
-  int getNumPdgId(const xAOD::TruthParticle& xTruthTau, std::vector<int> vPdgIdMatch) const;
-
-  StatusCode findTruthTau(const xAOD::TauJet& xTau) const;
-
-  StatusCode examineTruthTau(const xAOD::TruthParticle& xTruthParticle);
-  StatusCode examineTruthTauDecay(const xAOD::TruthParticle& xTruthParticle);
-  void printDecay(const xAOD::TruthParticle& xTruthParticle, int depth = 0) const;
-
+  StatusCode findTruthTau(const xAOD::TauJet& xTau);
   StatusCode checkTruthMatch (const xAOD::TauJet& xTau, const xAOD::TruthParticleContainer& xTauContainer) const;
 
-private:
-  bool m_bIsData;
-  bool m_bIsConfigured;
+private:                        // steering variables
 
-  const xAOD::TruthParticleContainer* m_xTruthParticleContainer;
-  const xAOD::TruthParticleContainer* m_xTruthTauContainerConst;
-  const xAOD::TruthParticleContainer* m_xTruthMuonContainerConst;
-  const xAOD::TruthParticleContainer* m_xTruthElectronContainerConst;
-  const xAOD::JetContainer* m_xTruthJetContainerConst;
-  xAOD::TruthParticleContainer* m_xTruthTauContainer;
-  xAOD::TruthParticleAuxContainer* m_xTruthTauAuxContainer;
-
-  // steering variables
   double m_dMaxDeltaR;
-  bool m_bWriteTruthTaus;
-  std::string m_sNewTruthTauContainerName;
-  std::string m_sNewTruthTauContainerNameAux;
-  std::string m_sTruthTauContainerName;
-  std::string m_sTruthMuonContainerName;
-  std::string m_sTruthElectronContainerName;
-  std::string m_sTruthJetContainerName;
-  std::string m_sTruthParticlesContainerName;
 
-  bool m_bTruthTauAvailable;
-  bool m_bTruthMuonAvailable;
-  bool m_bTruthElectronAvailable;
-  bool m_bTruthJetAvailable;
-
-  bool m_bWriteInvisibleFourMomentum;
-  bool m_bWriteVisibleChargedFourMomentum;
-  bool m_bWriteVisibleNeutralFourMomentum;
-  bool m_bWriteDecayModeVector;
-
-  size_t m_iNChargedPions;
-  size_t m_iNNeutralPions;
-  size_t m_iNChargedOthers;
-  size_t m_iNNeutralOthers;
-  size_t m_iNChargedDaughters;
-  std::vector<int> m_vDecayMode;
-
-  TLorentzVector m_vTruthVisTLV;
-  TLorentzVector m_vTruthVisTLVCharged;
-  TLorentzVector m_vTruthVisTLVNeutral;
-
-  bool m_bIsHadronicTau;
-
-private:
-  mutable bool m_bIsTruthMatchedAvailable;
-  mutable bool m_bIsTruthMatchedAvailableChecked;
-  mutable bool m_bNewEvent;
+private:                        // private helper variables
 
   SG::AuxElement::ConstAccessor<double> m_accPtVis;
   SG::AuxElement::ConstAccessor<double> m_accEtaVis;
   SG::AuxElement::ConstAccessor<double> m_accPhiVis;
   SG::AuxElement::ConstAccessor<double> m_accMVis;
-
-  asg::AnaToolHandle<IMCTruthClassifier> m_tMCTruthClassifier;
 
 }; // class TauTruthMatchingTool
 

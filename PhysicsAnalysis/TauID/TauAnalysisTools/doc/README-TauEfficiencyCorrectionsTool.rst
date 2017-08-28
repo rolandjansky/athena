@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 ============================
 TauEfficiencyCorrectionsTool
 ============================
@@ -22,15 +18,7 @@ accessible. I.e. if the linking is done in derivations to the TruthTau
 container, the ``TruthTaus`` and ``TruthElectrons`` container must be kept. For
 more information on how to achieve this, please refer to the `tau
 pre-recommendations TWiki
-<https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/TauPreRecommendations2015#Accessing_Tau_Truth_Information>`_
-
-**IMPORTANT: If you used TauTruthMatchingTool-00-01-06 or older, for example
-within the derivation, the variable** ``truthParticleLink`` **is bugged. This
-can be fixed by rerunning the truth matching with a newer tag, i.e. before
-accessing efficiency corrections you have to call for each tau**::
-
-  xAOD::TruthParticle* TauTruthMatchingTool::getTruth(const xAOD::TauJet& xTau)
-
+<https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/TauPreRecommendations2015#Accessing_Tau_Truth_Information>`_.
 For more information on truth matching please refer to `TauTruthMatchingTool
 <README-TauTruthMatchingTool.rst>`_.
 
@@ -44,7 +32,7 @@ trigger efficiency scale factors are provided by this tool, but there are some
 differences to the other scale factors. For more information on how to use the
 tool for trigger scale factors please refer to the `TauEfficiencyCorrectionsTool
 -- Trigger readme <README-TauEfficiencyCorrectionsTool_Trigger.rst>`_. Please
-note that this documentation lists is only valid for the latest recommendations.
+note that this documentation is only valid for the latest recommendations.
 More information for older recommendations can be found following the links
 listed in `Section Special Notes on older recommendations
 <README-TauEfficiencyCorrectionsTool.rst#special-notes-on-older-recommendations>`_.
@@ -195,6 +183,10 @@ In addition the following properties are available for further configurations:
      - ``std::string``
      - ``"2016"``
      
+   * - ``TriggerSFMeasurement``
+     - ``std::string``
+     - ``"combined"``
+     
    * - ``UseIDExclusiveSF``
      - ``bool``
      - ``false``
@@ -237,7 +229,7 @@ Details
 EfficiencyCorrectionTypes
 -------------------------
 
-the default value for ``RecommendationTag`` the following enums for the property
+The following enums for the property
 ``EfficiencyCorrectionTypes`` can be used to obtain the corresponding scale
 factors:
 
