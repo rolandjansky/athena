@@ -153,7 +153,7 @@ StatusCode FourMomCombiner::TrackClusterExecute(xAOD::Egamma *eg,
   
   int charge(0);
   if (isElectron(eg)) {
-    xAOD::Electron* el = dynamic_cast<xAOD::Electron*> (eg);
+    xAOD::Electron* el =static_cast<xAOD::Electron*> (eg);
     charge = el->trackParticle(index)->charge();
   }
   

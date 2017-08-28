@@ -42,15 +42,15 @@
 // Standard constructor
 //=============================================================================
 AsgElectronChargeIDSelectorTool::AsgElectronChargeIDSelectorTool(std::string myname) :
-  AsgTool(myname) //,m_cutOnBDT(0)//,m_configFile("")//,m_rootTool(0)
+  AsgTool(myname) ,
+  m_cutPosition_bdt(0),
+  m_resultPosition_bdt(0)
 {
   // Declare the needed properties
   declareProperty("WorkingPoint",m_WorkingPoint="","The Working Point");
-  //declareProperty("ConfigFile",m_configFile="","The config file to use");
   declareProperty("usePVContainer", m_usePVCont=true, "Whether to use the PV container");
   declareProperty("nPVdefault", m_nPVdefault = 0, "The default number of PVs if not counted");
   declareProperty("primaryVertexContainer", m_primVtxContName="PrimaryVertices", "The primary vertex container name" );
-
   declareProperty("TrainingFile",  m_trainingFile="", "The input ROOT file name holding training" );
   declareProperty("CutOnBDT",m_cutOnBDT=0,"Cut on BDT discriminant");
   m_pid_name=myname.data();

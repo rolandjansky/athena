@@ -233,7 +233,7 @@ xAOD::CaloCluster* egammaSuperClusterBuilder::CreateNewCluster(const std::vector
     return nullptr;
   }
 
-  xAOD::CaloCluster* newCluster = CaloClusterStoreHelper::makeCluster(clusters.at(0)->getCellLinks()->getCellContainer());
+  std::unique_ptr<xAOD::CaloCluster> newCluster(CaloClusterStoreHelper::makeCluster(clusters.at(0)->getCellLinks()->getCellContainer()));
   if (!newCluster) {
     ATH_MSG_ERROR("CaloClusterStoreHelper::makeCluster failed.");
     return nullptr;
@@ -246,9 +246,8 @@ xAOD::CaloCluster* egammaSuperClusterBuilder::CreateNewCluster(const std::vector
   //
   //Start with the seed 
   //Add the EM cells of the seed cluster
-  if (AddEMCellsToCluster(newCluster,clusters[0]).isFailure()) {
+  if (AddEMCellsToCluster(newCluster.get(),clusters[0]).isFailure()) {
     ATH_MSG_DEBUG("There was problem adding the cells to cluster");
-    delete newCluster;
     return nullptr;
   }  
   //Set the element Link to the relevant constitent
@@ -259,7 +258,7 @@ xAOD::CaloCluster* egammaSuperClusterBuilder::CreateNewCluster(const std::vector
   }
   
   // calculate the seed cluster kinematics.
-  CaloClusterKineHelper::calculateKine(newCluster, true, true);
+  CaloClusterKineHelper::calculateKine(newCluster.get(), true, true);
   //
   //Set the eta0/phi0 based on the eta/phi of the seed 
   newCluster->setEta0(newCluster->eta());
@@ -272,9 +271,8 @@ xAOD::CaloCluster* egammaSuperClusterBuilder::CreateNewCluster(const std::vector
   // Now continue with the remaining clusters
   for (size_t i = 1; i < acSize; i++) {
     //Add te EM cells of the accumulated to the cluster
-    if (AddEMCellsToCluster(newCluster,clusters[i]).isFailure()) {
+    if (AddEMCellsToCluster(newCluster.get(),clusters[i]).isFailure()) {
       ATH_MSG_WARNING("There was problem adding the topocluster cells to the the cluster");
-      delete newCluster;
       return nullptr;
     }
     //
@@ -288,43 +286,40 @@ xAOD::CaloCluster* egammaSuperClusterBuilder::CreateNewCluster(const std::vector
   //
   //Set the link from the super cluster to the constituents (accumulated) clusters used. 
   static const SG::AuxElement::Accessor < std::vector< ElementLink< xAOD::CaloClusterContainer > > > caloClusterLinks("constituentClusterLinks");
-  caloClusterLinks(*newCluster) = constituentLinks;
+  caloClusterLinks(*newCluster.get()) = constituentLinks;
   //
   ///Calculate the kinematics of the new cluster, after all cells are added
-  CaloClusterKineHelper::calculateKine(newCluster, true, true);
+  CaloClusterKineHelper::calculateKine(newCluster.get(), true, true);
   //
   //Check to see if cluster doesn't have EMB2 OR EME2. If not, kill it.
   if (!newCluster->hasSampling(CaloSampling::EMB2) && !newCluster->hasSampling(CaloSampling::EME2)) {
     ATH_MSG_WARNING("Supercluster doesn't have energy in layer 2. Skipping...");
-    delete newCluster;
     return nullptr;     
   }
   //
   //If adding all EM cells I am somehow below the seed threshold then remove 
   //this one
   if(newCluster->et()<m_EtThresholdCut ){
-    delete newCluster;
     return nullptr;
   }
 
   // Apply SW-style summation of TileGap3 cells (if necessary).
-  if (AddTileGap3CellsinWindow(newCluster).isFailure()) {
+  if (AddTileGap3CellsinWindow(newCluster.get()).isFailure()) {
     ATH_MSG_ERROR("Problem with the input cluster when running AddTileGap3CellsinWindow?");
     return nullptr;
   }
-  CaloClusterKineHelper::calculateKine(newCluster, true, true);
+  CaloClusterKineHelper::calculateKine(newCluster.get(), true, true);
 
   // Apply correction  calibration
-  if (CalibrateCluster(newCluster, egType).isFailure()) {
+  if (CalibrateCluster(newCluster.get(), egType).isFailure()) {
     ATH_MSG_WARNING("There was problem calibrating the object");
-    delete newCluster;
     return nullptr;
   }
   // return the new cluster
-  return newCluster;  
+  return newCluster.release();  
 }
 
-StatusCode egammaSuperClusterBuilder::AddEMCellsToCluster(xAOD::CaloCluster       *newCluster,
+StatusCode egammaSuperClusterBuilder::AddEMCellsToCluster(xAOD::CaloCluster *newCluster,
 							  const xAOD::CaloCluster *ref) const {
   if (!newCluster || !ref) {
     ATH_MSG_ERROR("Invalid input in AddEMCellsToCluster");

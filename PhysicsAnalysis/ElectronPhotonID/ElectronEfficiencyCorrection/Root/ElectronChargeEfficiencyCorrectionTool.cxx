@@ -10,7 +10,6 @@
    @date   September 2015
 */
 // Include this class's header
-// #include "ElectronChargeEfficiencyCorrectionTool/ElectronChargeEfficiencyCorrectionTool.h"
 #include "ElectronEfficiencyCorrection/ElectronChargeEfficiencyCorrectionTool.h"
 // xAOD includes
 #include "PathResolver/PathResolver.h"
@@ -51,6 +50,7 @@ CP::ElectronChargeEfficiencyCorrectionTool::ElectronChargeEfficiencyCorrectionTo
   m_filtered_sys_sets(),
   m_mySysConf(),
   m_affectingSys(),
+  m_appliedSystematics(0),
   m_sf_decoration_name("chargeIDEffiSF"),
   m_sfDec(0)
 {
@@ -129,14 +129,14 @@ StatusCode CP::ElectronChargeEfficiencyCorrectionTool::initialize()
   m_SF_SS.clear();
   m_SF_OS.clear();
   TList* keyListfolder = rootFile->GetListOfKeys();
-std::vector<std::string> names;
+  std::vector<std::string> names;
 
   for ( int j=0; j<keyListfolder->GetEntries(); j++ ){
-names.push_back(( keyListfolder->At(j)->GetName() ));
-}
-std::sort(names.begin(), names.end());
+    names.push_back(( keyListfolder->At(j)->GetName() ));
+  }
+  std::sort(names.begin(), names.end());
 
- for ( unsigned int j=0; j<names.size(); j++ ){
+  for ( unsigned int j=0; j<names.size(); j++ ){
 
     std::string name = names.at(j);
     ATH_MSG_DEBUG("Got ROOT object with name: " << name);
@@ -197,11 +197,11 @@ std::sort(names.begin(), names.end());
           std::string runlow = histid;
           runlow.erase(histid.find(Form("RunNumber") ),9);
           runlow.erase(runlow.find("_"),runlow.size() );
-//          m_RunNumbers.push_back( static_cast<unsigned int>(atoi(runlow.c_str())) );
+	  //          m_RunNumbers.push_back( static_cast<unsigned int>(atoi(runlow.c_str())) );
           std::string runhigh = histid;
           runhigh.erase(histid.find(Form("RunNumber") ),9);
           runhigh.erase(0,runhigh.find("_")+1);
-//          m_RunNumbers.push_back( static_cast<unsigned int>(atoi(runhigh.c_str())) );
+	  //          m_RunNumbers.push_back( static_cast<unsigned int>(atoi(runhigh.c_str())) );
         }
         ATH_MSG_VERBOSE("Using histid (OS hid): " << histid);
         m_SF_OS[histid].push_back( (TH2D*)rootFile->Get( names.at(j).c_str() ));
@@ -242,11 +242,11 @@ std::sort(names.begin(), names.end());
           std::string runlow = histid;
           runlow.erase(histid.find(Form("RunNumber") ),9);
           runlow.erase(runlow.find("_"),runlow.size() );
-  //        m_RunNumbers.push_back( static_cast<unsigned int>(atoi(runlow.c_str())) );
+	  //        m_RunNumbers.push_back( static_cast<unsigned int>(atoi(runlow.c_str())) );
           std::string runhigh = histid;
           runhigh.erase(histid.find(Form("RunNumber") ),9);
           runhigh.erase(0,runhigh.find("_")+1);
-    //      m_RunNumbers.push_back( static_cast<unsigned int>(atoi(runhigh.c_str())) );
+	  //      m_RunNumbers.push_back( static_cast<unsigned int>(atoi(runhigh.c_str())) );
         }
         ATH_MSG_VERBOSE("Using histid (OS hid): " << histid);
         m_SF_OS[histid].push_back( (TH2D*)rootFile->Get( names.at(j).c_str() ));
@@ -269,7 +269,7 @@ std::sort(names.begin(), names.end());
   if ( m_SF_OS.size() <1 || m_SF_SS.size() <1 || m_SF_SS.size()!=m_SF_OS.size() ) {
     ATH_MSG_ERROR("OS/SS SF vectors not filled or of different size. -- Problem with files. -- Report to <hn-atlas-EGammaWG@cern.ch>");
     return CP::CorrectionCode::Error;
-}
+  }
 
 
   std::sort(m_RunNumbers.begin(),m_RunNumbers.end());
@@ -359,7 +359,7 @@ CP::ElectronChargeEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD:
   const double ele_pt  = ele.pt()*m_gevmev;
   const double ele_eta = std::abs( ele.caloCluster()->etaBE(2)   );
 
-   // getting the truth charge
+  // getting the truth charge
   int truth_ele_charge = 9999;
   CP::CorrectionCode charge_result = this->getEleTruthCharge( ele, truth_ele_charge); //// ## Giulia: second function to change
   if ( charge_result != CP::CorrectionCode::Ok ) {
@@ -402,9 +402,9 @@ CP::ElectronChargeEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD:
     }
     ATH_MSG_DEBUG("Number of RunNumbers: " << m_RunNumbers.size() );
     for ( std::size_t r=0; r<m_RunNumbers.size(); r++ ){
-ATH_MSG_DEBUG(  m_RunNumbers.at(r) );
-	}
-ATH_MSG_VERBOSE("DONE");
+      ATH_MSG_DEBUG(  m_RunNumbers.at(r) );
+    }
+    ATH_MSG_VERBOSE("DONE");
 
     for ( std::size_t r=0; r<m_RunNumbers.size()-1; r++ ){
       ATH_MSG_VERBOSE(m_RunNumbers.size()-1 << "  " << m_RunNumbers.at(r) << "  " << m_RunNumbers.at(r+1) << "  " << runnumber);
@@ -416,14 +416,14 @@ ATH_MSG_VERBOSE("DONE");
     }
 
     if (runnumber<m_RunNumbers.at(0) || (runnumber>m_RunNumbers.at(m_RunNumbers.size()-1) )) {
-    ATH_MSG_DEBUG("RunNumber not in valid RunNumber Range ");
-    sf = -9999.0;
-    return CP::CorrectionCode::OutOfValidityRange;
-      }
+      ATH_MSG_DEBUG("RunNumber not in valid RunNumber Range ");
+      sf = -9999.0;
+      return CP::CorrectionCode::OutOfValidityRange;
+    }
 
   }
 
-   // Determine WHICH histograms to use here
+  // Determine WHICH histograms to use here
   const std::vector<TH2D*>& SShistograms = m_SF_SS.at(cutRunNumber.c_str());
   const std::vector<TH2D*>& OShistograms = m_SF_OS.at(cutRunNumber.c_str());
 
@@ -449,14 +449,14 @@ ATH_MSG_VERBOSE("DONE");
     }
   }
 
-   ATH_MSG_DEBUG("eta: " << ele_eta << "  pt: "<< ele_pt );
-   ATH_MSG_DEBUG("SF Rates---- . SF: " << sf );
+  ATH_MSG_DEBUG("eta: " << ele_eta << "  pt: "<< ele_pt );
+  ATH_MSG_DEBUG("SF Rates---- . SF: " << sf );
 
 
   // Systematics ------------------------------------------------------------------------------------------------------
   double val_stat;
 
-   /// STAT
+  /// STAT
   if (isOS) {
     retVal = this->getChargeFlipRate( ele_eta, ele_pt,OShistograms.at(1), val_stat);
     if ( retVal != 0 ) {
@@ -475,7 +475,7 @@ ATH_MSG_VERBOSE("DONE");
 
   std::vector<float> systs;
   double val_sys{0.0};
-   /// STAT
+  /// STAT
   for (unsigned int s=2;s<OShistograms.size();s++){
     if (isOS) {
       retVal = this->getChargeFlipRate( ele_eta, ele_pt,OShistograms.at(s), val_sys);
@@ -495,7 +495,7 @@ ATH_MSG_VERBOSE("DONE");
     systs.push_back(static_cast<float>(val_sys));
   }
 
-    ATH_MSG_DEBUG(" ... nominal SF: "   << sf);
+  ATH_MSG_DEBUG(" ... nominal SF: "   << sf);
 
 
   if ( m_mySysConf.size()==0 ) {
@@ -622,7 +622,7 @@ CP::CorrectionCode CP::ElectronChargeEfficiencyCorrectionTool::getEleTruthCharge
 CP::CorrectionCode CP::ElectronChargeEfficiencyCorrectionTool::isGoodEle( const xAOD::Electron& ele, bool& goodele) const
 {
 
-   // good ele => (firstEgMotherPdgId) == 11 ## valid for both iso and conversion ele
+  // good ele => (firstEgMotherPdgId) == 11 ## valid for both iso and conversion ele
 
   goodele = false;
   int firstEgPdgId = -9999;
@@ -702,7 +702,7 @@ CP::SystematicSet CP::ElectronChargeEfficiencyCorrectionTool::affectingSystemati
     result.insert (SystematicVariation (Form("EL_CHARGEID_SYS%s",m_systematics.at(i).c_str()), 1));
     result.insert (SystematicVariation (Form("EL_CHARGEID_SYS%s",m_systematics.at(i).c_str()), -1));
   }
-   return result;
+  return result;
 }
 
 
