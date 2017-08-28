@@ -118,12 +118,12 @@ StatusCode SCTRawDataProvider::execute()
      **/
     
     unsigned int lvl1id{(*rob_it)->rod_lvl1_id()};
-    std::pair<uint32_t, unsigned int>* lvl1Pair{new std::pair<uint32_t, unsigned int>(std::make_pair(robid,lvl1id))};
-    lvl1Collection->push_back(lvl1Pair) ;
+    std::unique_ptr<std::pair<uint32_t, unsigned int>> lvl1Pair{std::make_unique<std::pair<uint32_t, unsigned int>>(std::make_pair(robid, lvl1id))};
+    lvl1Collection->push_back(std::move(lvl1Pair));
     
     unsigned int bcid{(*rob_it)->rod_bc_id()};
-    std::pair<uint32_t, unsigned int>* bcidPair{new std::pair<uint32_t, unsigned int>(std::make_pair(robid,bcid))};
-    bcidCollection->push_back(bcidPair);
+    std::unique_ptr<std::pair<uint32_t, unsigned int>> bcidPair{std::make_unique<std::pair<uint32_t, unsigned int>>(std::make_pair(robid, bcid))};
+    bcidCollection->push_back(std::move(bcidPair));
     
     ATH_MSG_DEBUG("Stored LVL1ID " << lvl1id << " and BCID " << bcid << " in InDetTimeCollections");
     
