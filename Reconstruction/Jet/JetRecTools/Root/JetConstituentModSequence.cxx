@@ -9,14 +9,16 @@
 #include "JetRecTools/JetConstituentModSequence.h"
 #include "AthContainers/ConstDataVector.h"
 
-JetConstituentModSequence::JetConstituentModSequence(const std::string &name): asg::AsgTool(name) {
+JetConstituentModSequence::JetConstituentModSequence(const std::string &name):
+  asg::AsgTool(name),
+  m_trigInputConstits(NULL), m_trigOutputConstits(NULL) {
 
 #ifdef ASG_TOOL_ATHENA
   declareInterface<IJetConstituentModifier>(this);
 #endif
   declareProperty("InputContainer", m_inputContainer, "The input container for the sequence.");
   declareProperty("OutputContainer", m_outputContainer, "The output container for the sequence.");
-  declareProperty("InputType", m_inputTypeName, "The xAOD type name for the input container.");
+  declareProperty("InputType", m_inputType, "The xAOD type name for the input container.");
   declareProperty("Modifiers", m_modifiers, "List of IJet tools.");
 	declareProperty("Trigger", m_trigger=false);
   declareProperty("SaveAsShallow", m_saveAsShallow=true, "Save as shallow copy");
@@ -64,16 +66,13 @@ StatusCode JetConstituentModSequence::initialize() {
   ATH_CHECK(m_inPFOChargedCopyKey.initialize());
   ATH_CHECK(m_inPFONeutralCopyKey.initialize());
 
-  if(m_inputTypeName == "CaloCluster") {
-    m_inputType =  xAOD::Type::CaloCluster;
-  } else if(m_inputTypeName == "TruthParticle") {
-    m_inputType =  xAOD::Type::TruthParticle;
-  } else if(m_inputTypeName == "TrackParticle") {
-    m_inputType = xAOD::Type::TrackParticle;
-  } else if(m_inputTypeName == "ParticleFlow") {
-    m_inputType = xAOD::Type::ParticleFlow;
-  } else {
-    ATH_MSG_ERROR(" Unkonwn input type "<< m_inputType );
+  switch(m_inputType) {
+  case xAOD::Type::CaloCluster:
+    break;
+  case xAOD::Type::ParticleFlow:
+    break;
+  default:
+    ATH_MSG_ERROR(" Unsupported input type "<< m_inputType );
     return StatusCode::FAILURE;
   }
 
@@ -82,6 +81,7 @@ StatusCode JetConstituentModSequence::initialize() {
   
 int JetConstituentModSequence::execute() const {
   if (m_trigger){return 0;}
+  xAOD::IParticleContainer* modifiedCont = nullptr;
 
   // Create the shallow copy according to the input type
   switch(m_inputType){
@@ -121,10 +121,6 @@ int JetConstituentModSequence::execute() const {
   }
   
   return 0;
-}
-
-void JetConstituentModSequence::setInputClusterCollection(const xAOD::IParticleContainer *cont) {
-  m_trigInputClusters = cont;
 }
 
 StatusCode
@@ -171,4 +167,12 @@ JetConstituentModSequence::copyModRecordPFO() const {
                     chargedHandle->end());
   
   return StatusCode::SUCCESS;
+}
+
+void JetConstituentModSequence::setInputClusterCollection(const xAOD::IParticleContainer *cont) {
+  m_trigInputConstits = cont;
+}
+
+xAOD::IParticleContainer* JetConstituentModSequence::getOutputClusterCollection() {
+  return m_trigOutputConstits;
 }

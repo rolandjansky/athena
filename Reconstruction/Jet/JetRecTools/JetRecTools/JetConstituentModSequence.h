@@ -36,17 +36,14 @@ class JetConstituentModSequence: public asg::AsgTool, virtual public IJetExecute
   void setInputClusterCollection(const xAOD::IParticleContainer* cont);
   
 protected:
-  std::string m_inputContainer = "";
-  std::string m_outputContainer = "";
-
-  // used in trigger context only
-  const xAOD::IParticleContainer* m_trigInputClusters; 
+  const xAOD::IParticleContainer* m_trigInputConstits; // used in trigger context only
+  mutable xAOD::IParticleContainer* m_trigOutputConstits;
   bool m_trigger;
   
-  // P-A : a property defining the type name of the input constituent
-  std::string m_inputTypeName = "CaloCluster"; // MEN: Check this 
   // P-A : the actual type
-  xAOD::Type::ObjectType m_inputType; // 
+  // Define as a basic integer type because Gaudi
+  // doesn't support arbitrary property types
+  unsigned short m_inputType; // 
   
   
   ToolHandleArray<IJetConstituentModifier> m_modifiers;
@@ -58,11 +55,8 @@ protected:
   SG::WriteHandleKey<xAOD::TruthParticleContainer> m_truthParticleKey;
   SG::WriteHandleKey<xAOD::TrackParticleContainer> m_trackParticleKey;
 
-  SG::WriteHandleKey<xAOD::PFOContainer> m_outPFOChargedKey{
-    "ChargedParticleFlowObjects"};
-
-  SG::WriteHandleKey<xAOD::PFOContainer> m_outPFONeutralKey{
-    "NeutralParticleFlowObjects"};
+  SG::WriteHandleKey<xAOD::PFOContainer> m_outPFOChargedKey;
+  SG::WriteHandleKey<xAOD::PFOContainer> m_outPFONeutralKey;
 
   SG::WriteHandleKey<ConstDataVector<xAOD::PFOContainer>> m_outPFOAllKey{};
 
@@ -103,14 +97,15 @@ JetConstituentModSequence::copyModRecord(const SG::ReadHandleKey<T>& inKey,
   std::pair< T*, xAOD::ShallowAuxContainer* > newclust = 
     xAOD::shallowCopyContainer(*inHandle);    
   newclust.second->setShallowIO(m_saveAsShallow);
+  
+  for (auto t : m_modifiers) {ATH_CHECK(t->process(newclust.first));}
 
   auto handle = makeHandle(outKey);
   ATH_CHECK(handle.record(std::unique_ptr<T>(newclust.first),
                           std::unique_ptr<xAOD::ShallowAuxContainer>(newclust.second)));
   
-  for (auto t : m_modifiers) {ATH_CHECK(t->process(newclust.first));}
-  
   return StatusCode::SUCCESS;
 }
+
 
 #endif

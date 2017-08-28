@@ -60,8 +60,6 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
     "emtopo"   : ("EMTopoEventShape",   jtm.emget),
     "lctopo"   : ("LCTopoEventShape",   jtm.lcget),
     "empflow"  : ("EMPFlowEventShape",  jtm.empflowget),
-    "emcpflow" : ("EMCPFlowEventShape", jtm.emcpflowget),
-    "lcpflow"  : ("LCPFlowEventShape",  jtm.lcpflowget),
   }
 
   if jetFlags.useTracks():
@@ -134,6 +132,10 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
         postalgs.append (ThinNegativeEnergyCaloClustersAlg ('ThinNegEMOriginTopoClusters',
                                                             ThinNegativeEnergyCaloClusters = True,
                                                             CaloClustersKey = 'EMOriginTopoClusters'))
+    if not IsInInputFile("xAOD::PFOContainer","CHSParticleFlowObjects"):
+      if not hasattr(job,"jetalgCHSPFlow"):
+        ctools += [jtm.JetConstitSeq_PFlowCHS]
+  ctools += constitModTools
   from JetRec.JetRecConf import JetToolRunner
   runners = []
   if len(ctools)>0:

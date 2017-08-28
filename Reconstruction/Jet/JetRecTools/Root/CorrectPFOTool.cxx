@@ -9,15 +9,10 @@
 #include "xAODTracking/VertexContainer.h" 
 #include <cmath>
 
-CorrectPFOTool::CorrectPFOTool(const std::string &name): JetConstituentModifierBase(name), 
-                                                         m_weightPFOTool("WeightPFOTool")
-                                                         // m_weightPFOTool("WeightPFOTool"), 
-                                                         // m_trkVtxAssocName("JetTrackVtxAssoc") 
-{
-
-#ifdef ASG_TOOL_ATHENA
-  declareInterface<IJetConstituentModifier>(this);
-#endif
+CorrectPFOTool::CorrectPFOTool(const std::string &name):
+  JetConstituentModifierBase(name), 
+  m_weightPFOTool(""),
+  m_trkVtxAssocName("JetTrackVtxAssoc") {
 
   declareProperty("WeightPFOTool",   m_weightPFOTool,    "Name of tool that extracts the cPFO weights.");
   declareProperty("InputIsEM",       m_inputIsEM =false, "True if neutral PFOs are EM scale clusters.");
@@ -36,24 +31,25 @@ CorrectPFOTool::CorrectPFOTool(const std::string &name): JetConstituentModifierB
 }
 
 StatusCode CorrectPFOTool::initialize() {
-  ATH_MSG_INFO("Initializing tool " << name() << "...");
-  ATH_MSG_DEBUG("initializing version with data handles");
-
-  ATH_CHECK(m_vertexContainer_key.initialize());
-  ATH_CHECK(m_trkVtxAssoc_key.initialize());
+  if(m_inputType!=xAOD::Type::ParticleFlow) {
+    ATH_MSG_ERROR("CorrectPFOTool requires PFO inputs. It cannot operate on objects of type "
+		  << m_inputType);
+    return StatusCode::FAILURE;
+  }
+  if(m_useChargedWeights) {
+    ATH_CHECK( m_weightPFOTool.retrieve() );
+  }
   return StatusCode::SUCCESS;
 }
 
-StatusCode CorrectPFOTool::process(xAOD::IParticleContainer* cont) const {
-  xAOD::PFOContainer* pfoCont = dynamic_cast<xAOD::PFOContainer*> (cont);
-  if(pfoCont) return process(pfoCont);
-  else{
-    ATH_MSG_ERROR("Unable to dynamic cast IParticleContainer to PFOContainer");
-    return StatusCode::FAILURE;
-  }
+StatusCode CorrectPFOTool::process_impl(xAOD::IParticleContainer* cont) const {
+  // Type-checking happens in the JetConstituentModifierBase class
+  // so it is safe just to static_cast
+  xAOD::PFOContainer* pfoCont = static_cast<xAOD::PFOContainer*> (cont);
+  return correctPFO(*pfoCont);
 }
 
-StatusCode CorrectPFOTool::process(xAOD::PFOContainer* cont) const { 
+StatusCode CorrectPFOTool::correctPFO(xAOD::PFOContainer& cont) const { 
   // Get the vertex.
   const xAOD::VertexContainer* pvtxs = nullptr;
   const xAOD::Vertex* vtx = nullptr;
@@ -96,9 +92,9 @@ StatusCode CorrectPFOTool::process(xAOD::PFOContainer* cont) const {
     }
   }
 
-  SG::AuxElement::Accessor<bool> PVMatchedAcc("matchedToPV");
+  const static SG::AuxElement::Accessor<char> PVMatchedAcc("matchedToPV");
 
-  for ( xAOD::PFO* ppfo : *cont ) {
+  for ( xAOD::PFO* ppfo : cont ) {
     if ( ppfo == 0 ) {
       ATH_MSG_WARNING("Have NULL pointer to neutral PFO");
       continue;
@@ -129,12 +125,12 @@ StatusCode CorrectPFOTool::process(xAOD::PFOContainer* cont) const {
       if (true == m_useTrackToVertexTool && true == m_usevertices){
 
         auto handle = SG::makeHandle(m_trkVtxAssoc_key);
-    if(!handle.isValid()){
-      ATH_MSG_ERROR("Can't retrieve TrackVertexAssociation : "<< m_trkVtxAssoc_key.key()); 
-      return StatusCode::FAILURE;
-    }
+	if(!handle.isValid()){
+	  ATH_MSG_ERROR("Can't retrieve TrackVertexAssociation : "<< m_trkVtxAssoc_key.key()); 
+	  return StatusCode::FAILURE;
+	}
 
-    auto trkVtxAssoc = handle.cptr();
+	auto trkVtxAssoc = handle.cptr();
 	const xAOD::Vertex* thisTracksVertex = trkVtxAssoc->associatedVertex(ptrk);
 	
 	if (xAOD::VxType::PriVtx == thisTracksVertex->vertexType()) matchedToPrimaryVertex = true;
@@ -151,18 +147,16 @@ StatusCode CorrectPFOTool::process(xAOD::PFOContainer* cont) const {
 	}
       }
 
-      if ( true == matchedToPrimaryVertex || !m_applyCHS){
-	if (true == m_useChargedWeights) {
-	  float weight = 0.0;
-	  ATH_CHECK( m_weightPFOTool->fillWeight( *ppfo, weight ) );
-	  //if (weight>FLT_MIN){ // check against float precision
-	  ATH_MSG_VERBOSE("Fill pseudojet for CPFO with weighted pt: " << ppfo->pt()*weight);
-	  ppfo->setP4(ppfo->p4()*weight);
-	}//if should use charged PFO weighting scheme
-      }
-      if ( false == matchedToPrimaryVertex && m_applyCHS){
-        ppfo->setP4(0,0,0,0);
-      }
+      if (true == m_useChargedWeights) {
+	float weight = 0.0;
+	ATH_CHECK( m_weightPFOTool->fillWeight( *ppfo, weight ) );
+	//if (weight>FLT_MIN){ // check against float precision
+	ATH_MSG_VERBOSE("Fill pseudojet for CPFO with weighted pt: " << ppfo->pt()*weight);
+	ppfo->setP4(ppfo->p4()*weight);
+	//} else {
+	//  ATH_MSG_VERBOSE("CPFO had a weight of 0, do not fill.");
+	//} // received a weight
+      }//if should use charged PFO weighting scheme
     }
     PVMatchedAcc(*ppfo) = matchedToPrimaryVertex;
   }

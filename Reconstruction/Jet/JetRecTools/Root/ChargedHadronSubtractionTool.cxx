@@ -1,39 +1,33 @@
-#include <vector>
-
-#include "fastjet/ClusterSequenceArea.hh"
-#include "fastjet/PseudoJet.hh"
-#include "fastjet/Selector.hh"
-
 #include "JetRecTools/ChargedHadronSubtractionTool.h"
-#include "fastjet/contrib/SoftKiller.hh"
-#include "xAODCore/ShallowCopy.h"
-#include "xAODBase/IParticleHelpers.h"
-#include "xAODCore/ShallowAuxContainer.h"
 
 using namespace std;
 
 ChargedHadronSubtractionTool::ChargedHadronSubtractionTool(const std::string& name) : JetConstituentModifierBase(name)
 {
-#ifdef ASG_TOOL_ATHENA
-  declareInterface<IJetConstituentModifier>(this);
-#endif
 
 }
 
-StatusCode ChargedHadronSubtractionTool::process(xAOD::IParticleContainer* cont) const {
-  xAOD::PFOContainer* pfoCont = dynamic_cast<xAOD::PFOContainer*> (cont);
-  if(pfoCont) return process(pfoCont);
-  else{
-    ATH_MSG_ERROR("Unable to dynamic cast IParticleContainer to PFOContainer");
-    return StatusCode::FAILURE;
+StatusCode ChargedHadronSubtractionTool::initialize() {
+  if(m_inputType!=xAOD::Type::ParticleFlow) {
+    ATH_MSG_ERROR("ChargedHadronSubtractionTool requires PFO inputs. It cannot operate on objects of type "
+		  << m_inputType);
+  return StatusCode::FAILURE;
   }
+  return StatusCode::SUCCESS;
 }
 
-StatusCode ChargedHadronSubtractionTool::process(xAOD::PFOContainer* cont) const {
+StatusCode ChargedHadronSubtractionTool::process_impl(xAOD::IParticleContainer* cont) const {
+  // Type-checking happens in the JetConstituentModifierBase class
+  // so it is safe just to static_cast
+  xAOD::PFOContainer* pfoCont = static_cast<xAOD::PFOContainer*> (cont);
+  return removePileupChargedHadrons(*pfoCont);
+}
 
-  SG::AuxElement::Accessor<bool> PVMatchedAcc("matchedToPV");
-  for ( xAOD::PFO* ppfo : *cont ) {
-    if(ppfo->charge() == 0) continue;
+StatusCode ChargedHadronSubtractionTool::removePileupChargedHadrons(xAOD::PFOContainer& cont) const {
+
+  const static SG::AuxElement::ConstAccessor<char> PVMatchedAcc("matchedToPV");
+  for ( xAOD::PFO* ppfo : cont ) {
+    if(fabs(ppfo->charge()) < 1e-9) continue;
 
     if (!PVMatchedAcc.isAvailable(*ppfo)){
       ATH_MSG_ERROR("Not known if PFO is matched to primary vertex.  Run CorrectPFOTool before ChargedHadronSubtractionTool");
@@ -41,7 +35,9 @@ StatusCode ChargedHadronSubtractionTool::process(xAOD::PFOContainer* cont) const
     }
 	
     if(!PVMatchedAcc(*ppfo))
-      (ppfo)->setP4(0,0,0,0);
+      // Set a -ve energy, because we actually want to differentiate
+      // CHS-removed cPFOs from those with a 0 weight due to calo energy
+      (ppfo)->setP4(-1e-6,0,0,0);
   }
 
   return StatusCode::SUCCESS;

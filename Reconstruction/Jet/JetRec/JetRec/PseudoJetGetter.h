@@ -138,9 +138,9 @@ append(const TList& inputs, PseudoJetVector& psjs, const LabelIndex* pli) const 
   for ( auto iinp=inputs.begin(); iinp!=inputs.end(); ++iinp ) {
     auto ppar = *iinp; // IParticle pointer
 #endif
-    if ( ppar == 0 || (m_skipNegativeEnergy && ppar->e() <= 0.0) ) {
-      if ( ppar == 0 ) ATH_MSG_DEBUG("NUll object!");
-      else ATH_MSG_VERBOSE("Skipping cluster with E = " << ppar->e());
+    if ( ppar == nullptr || (m_skipNegativeEnergy && ppar->e()<FLT_MIN) ) {
+      if ( ppar == nullptr ) ATH_MSG_DEBUG("Null object!");
+      else ATH_MSG_VERBOSE("Skipping constituent with E = " << ppar->e());
       ++nskip;
       continue;
     }
