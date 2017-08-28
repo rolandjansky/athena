@@ -16,6 +16,7 @@
 #include "xAODTrigger/TrigCompositeContainer.h"
 #include "xAODTrigger/TrigCompositeAuxContainer.h"
 #include "AthViews/View.h"
+#include "AthContainers/ConstDataVector.h"
 
 class EventViewCreatorAlgorithm : public AthAlgorithm
 {
@@ -33,8 +34,7 @@ class EventViewCreatorAlgorithm : public AthAlgorithm
     SG::ReadHandleKey< xAOD::TrigCompositeAuxContainer > m_inputAuxKey;
 
     //Output the split composite collection into views
-    SG::WriteHandleKey< xAOD::TrigCompositeContainer > m_outputKey;
-    SG::WriteHandleKey< xAOD::TrigCompositeAuxContainer > m_outputAuxKey;
+    SG::WriteHandleKey< ConstDataVector<xAOD::TrigCompositeContainer> > m_outputKey;
 
     //Algorithms to run in views
     std::vector< std::string > m_viewAlgorithmNames;
