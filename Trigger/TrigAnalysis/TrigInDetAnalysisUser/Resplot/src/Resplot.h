@@ -65,7 +65,7 @@ public:
   //     try to clean up properly afterwards - LIKE WE SHOULD BE ABLE TO!
   // NB: NB!! Actually, now we explicitly *remove* them from root managerment
   //          so we can do *proper* garbage collection, not like the 
-  //          pathetic excuse for garbage collection in root
+  //          alleged garbage collection in root
 
   Resplot() : 
     mSet(false),  m_Nentries(NULL), 
