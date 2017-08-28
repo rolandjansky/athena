@@ -2,8 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ut_trigconf_bunch_tool_test.cxx 748399 2016-05-19 14:55:47Z krasznaa $
-
 // System include(s):
 #include <memory>
 
@@ -14,11 +12,9 @@
 #include <TSystem.h>
 
 // xAOD include(s):
-#ifdef ROOTCORE
-#   include "xAODRootAccess/Init.h"
-#   include "xAODRootAccess/TEvent.h"
-#   include "xAODRootAccess/tools/Message.h"
-#endif // ROOTCORE
+#include "xAODRootAccess/Init.h"
+#include "xAODRootAccess/TEvent.h"
+#include "xAODRootAccess/tools/Message.h"
 
 // Local include(s):
 #include "TrigBunchCrossingTool/TrigConfBunchCrossingTool.h"
