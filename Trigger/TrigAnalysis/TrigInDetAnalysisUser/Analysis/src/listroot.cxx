@@ -553,7 +553,7 @@ int main(int argc, char** argv) {
 
     std::cout << "closing" << std::endl;
 
-    //    std::cout << "root is garbage, why is it taking so long to close this file?" << std::endl;
+    //    std::cout << "root is extremely annoying, why is it taking so long to close this file?" << std::endl;
 
     //    f->Close();
 

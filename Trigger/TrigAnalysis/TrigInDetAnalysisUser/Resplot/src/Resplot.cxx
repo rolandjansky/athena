@@ -60,8 +60,8 @@ void binwidth(TH1D* h) {
 
 // set the errors on bins with zero entries to be one so they
 // are not ignored in the fit 
-// USE WITH CARE - root screws up th mean and rms error calculation 
-//                 if these are used***REMOVED***
+// USE WITH CARE - root screws up the mean and rms error calculation 
+//                 if these are used
 
 void ZeroErrors(TH1D* h) {
     for (int i=1 ; i<=h->GetNbinsX() ; i++ ) if (h->GetBinContent(i)==0) h->SetBinError(i,1);
