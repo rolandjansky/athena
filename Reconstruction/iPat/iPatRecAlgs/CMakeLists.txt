@@ -14,7 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           DetectorDescription/GeoPrimitives
                           Event/xAOD/xAODEventInfo
-                          Generators/GenAnalysisTools/TruthTools
+                          Generators/GenInterfaces
                           InnerDetector/InDetRecEvent/InDetPrepRawData
                           Reconstruction/iPat/iPatInterfaces
                           Reconstruction/iPat/iPatTrackParameters

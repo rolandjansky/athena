@@ -17,7 +17,7 @@
 #include "TrkSpacePoint/SpacePointCollection.h"
 #include "TrkSpacePoint/SpacePointContainer.h"
 #include "TrkSpacePoint/SpacePointOverlapCollection.h"
-#include "TruthTools/ITruthSelector.h"
+#include "GenInterfaces/ITruthSelector.h"
 #include "iPatInterfaces/IDetectorSelection.h"
 #include "iPatInterfaces/ILayerNumberAllocator.h"
 #include "iPatInterfaces/ITruthParameters.h"

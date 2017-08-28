@@ -14,7 +14,8 @@ atlas_depends_on_subdirs(
    Database/AthenaPOOL/AthenaPoolUtilities
    Database/IOVDbDataModel
    Database/IOVDbMetaDataTools
-   Event/EventInfo )
+   Event/EventInfo
+   Generators/GenInterfaces )
 
 find_package( Boost COMPONENTS algorithm )
 find_package( CORAL COMPONENTS CoralBase )

@@ -14,7 +14,7 @@
 
 #include "GaudiKernel/ToolHandle.h"
 #include "D3PDMakerUtils/BlockFillerTool.h"
-#include "HforTool/HforTool.h"
+#include "GenInterfaces/IHforTool.h"
 
 namespace D3PD {
 

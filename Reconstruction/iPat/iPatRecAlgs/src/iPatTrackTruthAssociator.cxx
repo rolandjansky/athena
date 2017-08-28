@@ -17,7 +17,7 @@
 #include "GaudiKernel/SystemOfUnits.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
-#include "TruthTools/ITruthSelector.h"
+#include "GenInterfaces/ITruthSelector.h"
 #include "iPatInterfaces/IDetectorSelection.h"
 #include "iPatRecAlgs/iPatTrackTruthAssociator.h"
 #include "iPatRecEvent/iPatTrackContainer.h"
