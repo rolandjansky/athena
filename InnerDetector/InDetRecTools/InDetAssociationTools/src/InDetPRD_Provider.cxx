@@ -78,7 +78,7 @@ StatusCode InDet::InDetPRD_Provider::retrieveCollection() {
        return StatusCode::FAILURE;
    }
    if (m_sctClusterContainerName!="" && evtStore()->retrieve(m_sctClusterContainer,m_sctClusterContainerName).isFailure() ){
-       ATH_MSG_ERROR("Could not retrieve " << m_pixClusterContainerName << ". Aborting." );
+       ATH_MSG_ERROR("Could not retrieve " << m_sctClusterContainerName << ". Aborting." );
        return StatusCode::FAILURE;
    }
    if (m_trtDriftCircleContainerName!="" && evtStore()->retrieve(m_trtDriftCircleContainer,m_trtDriftCircleContainerName).isFailure() ){
