@@ -11,6 +11,7 @@
 #include <TFile.h>
 #include <TClass.h>
 #include <TError.h>
+#include <TSystem.h>
 
 // xAOD include(s):
 #ifdef ROOTCORE
@@ -55,10 +56,10 @@ int main() {
                                                 "READ" ) );
    if( ! ifile.get() ) {
       Error( APP_NAME, XAOD_MESSAGE( "Couldn't open file: %s" ),
-             ASG_TEST_FILE_DATA );
+             gSystem->Getenv( "ASG_TEST_FILE_DATA" ) );
       return 1;
    }
-   Info( APP_NAME, "Opened file: %s", ASG_TEST_FILE_DATA );
+   Info( APP_NAME, "Opened file: %s", gSystem->Getenv( "ASG_TEST_FILE_DATA" ) );
 
    // Set up the reading of an example file:
    xAOD::TEvent event;
@@ -106,11 +107,11 @@ int main() {
       }
 
       // Now ask some questions about the loaded configuration:
-      SIMPLE_ASSERT( tool.isFilled( 1 ) );
-      SIMPLE_ASSERT( tool.isInTrain( 41 ) );
-      SIMPLE_ASSERT( tool.distanceFromFront( 183 ) == 0 );
-      SIMPLE_ASSERT( tool.distanceFromFront( 392 ) == 300 );
-      SIMPLE_ASSERT( tool.gapBeforeTrain( 250 ) == 250 );
+      SIMPLE_ASSERT( tool.isFilled( 60 ) );
+      SIMPLE_ASSERT( tool.isInTrain( 100 ) );
+      SIMPLE_ASSERT( tool.distanceFromFront( 199 ) == 0 );
+      SIMPLE_ASSERT( tool.distanceFromFront( 350 ) == 300 );
+      SIMPLE_ASSERT( tool.gapBeforeTrain( 260 ) == 225 );
       SIMPLE_ASSERT( tool.bunchTrainSpacing() == 25 );
    }
 
