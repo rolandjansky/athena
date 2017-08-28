@@ -27,8 +27,6 @@ This algorithm performs the following tasks:
     track fitter.</li>
 </ul>
 
-@section TRT_TrigSeededTrackFinder_used_packagesTRT_TrigSeededTrackFinder used packages
 
-@section TRT_TrigSeededTrackFinder_TRT_TrigSeededTrackFinder Req Requirements file
 
 */

@@ -722,11 +722,8 @@ algorithm in InnerDetector/InDetAlignment/InDetAlignAlgs.
 
 @include InDetAlignTrackSelTool_jobOptions.py
 
-@section InDetAlignGenTools_requirements requirements
 
 
-@section InDetAlignGenTools_uses Packages used
 
 
 */
-

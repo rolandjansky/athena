@@ -27,8 +27,6 @@ def checkPMTValid(ros, pmt):
 
 
 def checkChannelValid(ros, mod, chan):
-        #util = PyCintex.gbl.TileCalibUtils()
-
 	ros += 1
         
         # ROS Format:

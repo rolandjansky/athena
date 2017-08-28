@@ -24,9 +24,12 @@
 #include "AthContainersInterfaces/IConstAuxStore.h"
 #include "AthContainers/DataVector.h"
 #include "AthenaKernel/errorcheck.h"
+#include "AthenaKernel/ExtendedEventContext.h"
 #include "CxxUtils/unused.h"
 #include <cassert>
 #include <iostream>
+
+#define DEBUG_VHB 1
 
 
 class MyObjAux
@@ -44,6 +47,7 @@ public:
   virtual void lock() override { m_locked = true; }
   virtual void clearDecorations() override { }
   virtual size_t size() const override { return 0; }
+  virtual void lockDecoration (SG::auxid_t) override { std::abort(); }
 
   static std::vector<int> deleted;
 };
@@ -141,7 +145,7 @@ void test1()
 
   SGTest::TestStore dumstore;
   EventContext ctx5;
-  ctx5.setProxy (&dumstore);
+  ctx5.setExtension( Atlas::ExtendedEventContext(&dumstore) );
   SG::WriteHandle<MyObj> h5 (k3, ctx5);
   assert (h5.clid() == MyCLID);
   assert (h5.key() == "asd");
@@ -199,7 +203,6 @@ void test2()
   assert (h3.isInitialized());
   assert (h3.cptr() == fooptr);
   assert (foo_proxy->refCount() == 3);
-  assert (h2.key() == "foo");
   assert (h2.store() == "TestStore");
   assert (!h2.isInitialized());
   assert (h2.cptr() == nullptr);
@@ -236,7 +239,6 @@ void test2()
   assert (h2.store() == "TestStore");
   assert (h2.isInitialized());
   assert (h2.cptr() == barptr);
-  assert (h3.key() == "bar");
   assert (h3.store() == "TestStore");
   assert (!h3.isInitialized());
   assert (h3.cptr() == nullptr);
@@ -477,7 +479,7 @@ void test8()
 
   SGTest::TestStore dumstore;
   EventContext ctx;
-  ctx.setProxy (&dumstore);
+  ctx.setExtension( Atlas::ExtendedEventContext(&dumstore) );
   auto h2 = SG::makeHandle (k1, ctx);
   assert (h2.clid() == MyCLID);
   assert (h2.key() == "asd");
@@ -528,7 +530,7 @@ void test9()
   MyObj::deleted.clear();
   SGTest::TestStore testStore2;
   EventContext ctx2;
-  ctx2.setProxy (&testStore2);
+  ctx2.setExtension( Atlas::ExtendedEventContext(&testStore2) );
   o = h4.put (ctx2, std::make_unique<MyObj>(26));
   assert (o->x == 26);
   assert (MyObj::deleted.empty());
@@ -608,7 +610,8 @@ void test10()
   MyObjAux::deleted.clear();
   SGTest::TestStore testStore2;
   EventContext ctx2;
-  ctx2.setProxy (&testStore2);
+  ctx2.setExtension( Atlas::ExtendedEventContext(&testStore2) );
+
   auto ptrs9 = makeWithAux(40);
   o = h5.put (ctx2, std::move(ptrs9.first), std::move(ptrs9.second));
   assert (o->x == 40);
@@ -663,7 +666,8 @@ void test11()
   MyObj::deleted.clear();
   SGTest::TestStore testStore2;
   EventContext ctx2;
-  ctx2.setProxy (&testStore2);
+  ctx2.setExtension( Atlas::ExtendedEventContext(&testStore2) );
+
   assert (h5.put (ctx2, p1) == p1.get());
 }
 

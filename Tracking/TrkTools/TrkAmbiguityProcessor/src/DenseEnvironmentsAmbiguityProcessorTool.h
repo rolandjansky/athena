@@ -35,8 +35,15 @@
   // --------------- DEBUG CODE
   #include "HepMC/GenEvent.h"
   #include "TrkTruthData/PRD_MultiTruthCollection.h"
+  #include "GeneratorObjects/McEventCollection.h"
+  #include "TrkTruthData/TrackTruthCollection.h"
   typedef std::map<const Trk::Track*, const Trk::Track*> TrackCollectionConnection;
+
+#ifndef SIMPLEAMBIGPROCDEBUGCODE_CLASS_DEF
+#define SIMPLEAMBIGPROCDEBUGCODE_CLASS_DEF
   CLASS_DEF( TrackCollectionConnection , 148639440 , 1 )
+#endif
+
 #endif
 
 
@@ -240,14 +247,15 @@ namespace Trk {
 //==================================================================================================
 
 #ifdef SIMPLEAMBIGPROCDEBUGCODE
-    const PRD_MultiTruthCollection   * m_truthPIX;
-    const PRD_MultiTruthCollection   * m_truthSCT;  
-    std::string                        m_truth_locationPixel    ;
-    std::string                        m_truth_locationSCT      ;  
-#endif
+    SG::ReadHandleKey<PRD_MultiTruthCollection> m_truth_locationPixel;
+    SG::ReadHandle<PRD_MultiTruthCollection> m_truthPIX;
 
+    SG::ReadHandleKey<PRD_MultiTruthCollection> m_truth_locationSCT;
+    SG::ReadHandle<PRD_MultiTruthCollection> m_truthSCT;
 
-#ifdef SIMPLEAMBIGPROCDEBUGCODE
+    SG::ReadHandleKey<PRD_MultiTruthCollection>  m_truth_locationTRT;
+    SG::ReadHandle<PRD_MultiTruthCollection>  m_truthTRT;
+
 //==================================================================================================
 // PART 2 : Output statistics
 //==================================================================================================
@@ -260,9 +268,13 @@ namespace Trk {
       void findTrueTracks(const TrackCollection* recTracks);
       void keepTrackOfTracks(const Trk::Track* oldTrack, const Trk::Track* newTrack);
       void produceInputOutputConnection();
- 
-      std::string m_resolvedTrackConnection;
-      std::string m_truthCollection;
+
+      SG::ReadHandleKey<McEventCollection> m_generatedEventCollectionName;
+      SG::ReadHandleKey<TrackTruthCollection> m_truthCollection;
+      SG::ReadHandleKey<TrackCollectionConnection> m_resolvedTrackConnection;
+      bool m_has_resolvedTrackConnection;
+      SG::WriteHandleKey<TrackCollectionConnection> m_write_resolvedTrackConnection;
+
       int n_trueFitFails;
       int n_fitFails;
       int numOutliersDiff;
@@ -294,10 +306,7 @@ namespace Trk {
       const std::vector<Amg::Vector3D> positionsOfBremVertices( const HepMC::GenEvent* genEvent ) const;
       bool vertexAssociatedWithOriginalTrack( HepMC::GenVertex* genVertex) const;
 
-      std::string                        m_generatedEventCollectionName; 
       Trk::ITruthToTrack*                m_truthToTrack         ;
-      const PRD_MultiTruthCollection   * m_truthTRT               ;    
-      std::string                        m_truth_locationTRT      ;
 
 #endif // DebugCode
       bool m_rejectInvalidTracks;

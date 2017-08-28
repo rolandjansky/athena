@@ -21,16 +21,6 @@ This package contains the diverse TrigParticle classes
   - TrigEFBjet   : stores EF Bjet candidates      (Andrea.Coccaro@ge.infn.it)
   - TrigTau      : stores the Tau candidates      (casado@ifae.es)
 
-@ref used_TrigParticle
 
-@ref requirements_TrigParticle
 
-*/
-
-/**
-@page used_TrigParticle Used Packages
-*/
-
-/**
-@page requirements_TrigParticle Requirements
 */

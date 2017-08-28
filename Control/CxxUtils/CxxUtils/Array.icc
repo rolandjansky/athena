@@ -649,7 +649,8 @@ ArrayIterator<N>::operator- (const ArrayIterator& other) const
 template <unsigned int N>
 inline
 WritableArray<N>::WritableArray (Arrayrep& rep)
-  : Array<N> (rep)
+  : Array<N> (rep),
+    m_rep_nc (&rep)
 {
 }
 
@@ -666,9 +667,9 @@ template <unsigned int N>
 inline
 WritableArray<N-1> WritableArray<N>::operator[] (unsigned int i) const
 {
-  assert (i < this->m_rep->m_shape[this->m_rep->m_shape.size() - N]);
-  return WritableArray<N-1> (const_cast<Arrayrep&> (*this->m_rep),
-                             this->m_offs + i * this->m_rep->m_sizes[N-1]);
+  assert (i < this->m_rep_nc->m_shape[this->m_rep_nc->m_shape.size() - N]);
+  return WritableArray<N-1> (*this->m_rep_nc,
+                             this->m_offs + i * this->m_rep_nc->m_sizes[N-1]);
 }
 
 
@@ -682,7 +683,7 @@ template <unsigned int N>
 inline
 Arrayelt* WritableArray<N>::ptr ()
 {
-  return const_cast<Arrayelt*> (&this->m_rep->m_data[this->m_offs]);
+  return &this->m_rep_nc->m_data[this->m_offs];
 }
 
 
@@ -698,7 +699,8 @@ Arrayelt* WritableArray<N>::ptr ()
 template <unsigned int N>
 inline
 WritableArray<N>::WritableArray (Arrayrep& rep, unsigned int offs)
-  : Array<N> (rep, offs)
+  : Array<N> (rep, offs),
+    m_rep_nc (&rep)
 {
 }
 
@@ -713,7 +715,8 @@ WritableArray<N>::WritableArray (Arrayrep& rep, unsigned int offs)
  */
 inline
 WritableArray<0>::WritableArray (Arrayrep& rep)
-  : Array<0> (rep)
+  : Array<0> (rep),
+    m_elt_nc (&rep.m_data[0])
 {
 }
 
@@ -728,7 +731,7 @@ WritableArray<0>::WritableArray (Arrayrep& rep)
 inline
 WritableArray<0>& WritableArray<0>::operator= (Arrayelt elt)
 {
-  *const_cast<Arrayelt*> (m_elt) = elt;
+  *m_elt_nc = elt;
   return *this;
 }
 
@@ -744,7 +747,8 @@ WritableArray<0>& WritableArray<0>::operator= (Arrayelt elt)
  */
 inline
 WritableArray<0>::WritableArray (Arrayrep& rep, unsigned int offs)
-  : Array<0> (rep, offs)
+  : Array<0> (rep, offs),
+    m_elt_nc (&rep.m_data[offs])
 {
 }
 

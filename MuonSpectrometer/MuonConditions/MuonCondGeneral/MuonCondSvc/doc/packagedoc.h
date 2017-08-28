@@ -20,14 +20,5 @@ MuonDetectorStatusDbSvc
 - MuonCalib::MuonDetectorStatusDbTool provides access to the CLOBS in COOL for the teube status.
 
 
-@ref used_MuonCondSvc
 
-@ref requirements_MuonCondSvc
-*/
-
-/**
-@page used_MuonCondSvc Used Packages
-*/
-/**
-@page requirements_MuonCondSvc Requirements
 */

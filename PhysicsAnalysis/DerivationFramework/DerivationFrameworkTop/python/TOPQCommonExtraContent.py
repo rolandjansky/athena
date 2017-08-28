@@ -6,7 +6,7 @@
 #   from DerivationFrameworkTop.TOPQCommonExtraContent import *
 # Available variables (arrays):
 #   TOPQSmartSlimmingCollections
-#   TOPQExtraVariablesPhotons 
+#   TOPQExtraVariablesPhotons
 #   TOPQExtraVariablesElectrons
 #   TOPQExtraVariablesMuons
 #   TOPQExtraVariablesTaus
@@ -17,6 +17,9 @@
 #   TOPQExtraVariablesElectronsTruth
 #   TOPQExtraVariablesMuonsTruth
 #   TOPQExtraVariablesTausTruth
+#   TOPQExtraVarsBTag_HLT_Container
+#   TOPQExtraVarsJet_EF_Container
+#   TOPQExtraVarsJet_Split_Container
 #   TOPQExtraContainersTrigger
 #   TOPQExtraContainersStandard
 #   TOPQExtraContainersTruth
@@ -29,10 +32,12 @@
 #================================
 TOPQSmartSlimmingCollections = ["AntiKt4EMPFlowJets",
                                 "AntiKt4EMTopoJets",
+                                "BTagging_AntiKt2Track",
                                 "BTagging_AntiKt4EMTopo",
                                 "Electrons",
                                 "InDetTrackParticles",
                                 "MET_Reference_AntiKt4EMTopo",
+                                "MET_Reference_AntiKt4EMPFlow",
                                 "Muons",
                                 "Photons",
                                 "PrimaryVertices",
@@ -63,7 +68,11 @@ TOPQExtraVariablesElectrons  = ["Electrons."
                                + "DFCommonElectronsLHTight."
                                + "DFCommonElectronsML."
                                + "author."
-                               + "OQ"]
+                               + "OQ."
+                               + "firstEgMotherTruthType."
+                               + "firstEgMotherTruthOrigin."
+                               + "firstEgMotherPdgId."
+                               + "deltaPhi1"]
 
 TOPQExtraVariablesMuons      = ["Muons."
                                + "DFCommonGoodMuon."
@@ -77,83 +86,7 @@ TOPQExtraVariablesMuons      = ["Muons."
                                + "etcone30."
                                + "etcone40"]
 
-TOPQExtraVariablesTaus       = ["TauJets."
-                               + "BDTEleScore."
-                               + "BDTJetScore."
-                               + "caloIso."
-                               + "centFrac."
-                               + "centFracCorrected."
-                               + "charge."
-                               + "ChPiEMEOverCaloEME."
-                               + "ChPiEMEOverCaloEMECorrected."
-                               + "dRmax."
-                               + "dRmaxCorrected."
-                               + "EMPOverTrkSysP."
-                               + "EMPOverTrkSysPCorrected."
-                               + "eta."
-                               + "etaDetectorAxis."
-                               + "etaIntermediateAxis."
-                               + "etaPanTauCellBased."
-                               + "etaPanTauCellBasedProto."
-                               + "etOverPtLeadTrk."
-                               + "etOverPtLeadTrkCorrected."
-                               + "innerTrkAvgDist."
-                               + "innerTrkAvgDistCorrected."
-                               + "ipSigLeadTrk."
-                               + "ipSigLeadTrkCorrected."
-                               + "isolFrac."
-                               + "isTauFlags."
-                               + "jetLink."
-                               + "leadTrkPt."
-                               + "m."
-                               + "massTrkSys."
-                               + "massTrkSys."
-                               + "massTrkSysCorrected."
-                               + "mDetectorAxis."
-                               + "mEflowApprox."
-                               + "mEflowApproxCorrected."
-                               + "mIntermediateAxis."
-                               + "mPanTauCellBased."
-                               + "mPanTauCellBasedProto."
-                               + "pantau_CellBasedInput_BDTValue_1p0n_vs_1p1n."
-                               + "pantau_CellBasedInput_BDTValue_1p1n_vs_1pXn."
-                               + "pantau_CellBasedInput_BDTValue_3p0n_vs_3pXn."
-                               + "pantau_CellBasedInput_BDTVar_Basic_NNeutralConsts."
-                               + "pantau_CellBasedInput_BDTVar_Charged_HLV_SumM."
-                               + "pantau_CellBasedInput_BDTVar_Charged_JetMoment_EtDRxTotalEt."
-                               + "pantau_CellBasedInput_BDTVar_Charged_StdDev_Et_WrtEtAllConsts."
-                               + "pantau_CellBasedInput_BDTVar_Combined_DeltaR1stNeutralTo1stCharged."
-                               + "pantau_CellBasedInput_BDTVar_Neutral_HLV_SumM."
-                               + "pantau_CellBasedInput_BDTVar_Neutral_PID_BDTValues_BDTSort_1."
-                               + "pantau_CellBasedInput_BDTVar_Neutral_PID_BDTValues_BDTSort_2."
-                               + "pantau_CellBasedInput_BDTVar_Neutral_Ratio_1stBDTEtOverEtAllConsts."
-                               + "pantau_CellBasedInput_BDTVar_Neutral_Ratio_EtOverEtAllConsts."
-                               + "pantau_CellBasedInput_BDTVar_Neutral_Shots_NPhotonsInSeed."
-                               + "pantau_CellBasedInput_DecayMode."
-                               + "pantau_CellBasedInput_DecayModeProto."
-                               + "pantau_CellBasedInput_isPanTauCandidate."
-                               + "phi."
-                               + "phiDetectorAxis."
-                               + "phiIntermediateAxis."
-                               + "phiPanTauCellBased."
-                               + "phiPanTauCellBasedProto."
-                               + "pt."
-                               + "ptDetectorAxis."
-                               + "ptIntermediateAxis."
-                               + "ptPanTauCellBased."
-                               + "ptPanTauCellBasedProto."
-                               + "ptRatioEflowApprox."
-                               + "ptRatioEflowApproxCorrected."
-                               + "SumPtTrkFrac."
-                               + "SumPtTrkFracCorrected."
-                               + "trFlightPathSig."
-                               + "trFlightPathSig."
-                               + "trFlightPathSigCorrected",
-                                 "TauChargedParticleFlowObjects",
-                                 "TauNeutralParticleFlowObjects",
-                                 "TauHadronicParticleFlowObjects",
-                                 "TauShotParticleFlowObjects",
-                                 "TauPi0Clusters"]
+TOPQExtraVariablesTaus   = []
 
 TOPQExtraVariablesAntiKt4EMTopoJets =  ["AntiKt4EMTopoJets."
                                        + "DFCommonJets_Calib_pt."
@@ -212,7 +145,8 @@ TOPQExtraVariablesAntiKt4EMPFlowJets = ["AntiKt4EMPFlowJets."
                                        + "JetLCScaleMomentum_m."
                                        + "JetLCScaleMomentum_phi."
                                        + "JetLCScaleMomentum_pt."
-                                       + "Jvt.JvtJvfcorr."
+                                       + "Jvt."
+                                       + "JvtJvfcorr."
                                        + "JvtRpt."
                                        + "LArQuality."
                                        + "m."
@@ -252,10 +186,52 @@ TOPQExtraVariablesBTagging_AntiKt4EMPFlow = ["BTagging_AntiKt4EMPFlow."
                                             + "SV1_pb."
                                             + "SV1_pu."
                                             + "SV1_vertices"]
-                                            
+
 TOPQExtraVariablesBTagging_AntiKt4EMTopo = ["BTagging_AntiKt4EMTopo."
-                                           + "JetVertexCharge_discriminant"]
-                                            
+                                           + "SV1_TrackParticleLinks."
+                                           + "MV2cl100_discriminant."
+                                           + "JetVertexCharge_discriminant."
+                                           + "MultiSVbb1_discriminant."
+                                           + "MultiSVbb2_discriminant."
+                                           + "MSV_N2Tpair."
+                                           + "MSV_energyTrkInJet."
+                                           + "MSV_nvsec."
+                                           + "MSV_vtxmass."
+                                           + "MSV_vtxpt."
+                                           + "MSV_vtxeta."
+                                           + "MSV_vtxphi."
+                                           + "MSV_vtxefrac."
+                                           + "MSV_vtxx."
+                                           + "MSV_vtxy."
+                                           + "MSV_vtxz."
+                                           + "MSV_vtxdls."
+                                           + "MSV_vtxntrk"]
+
+TOPQExtraVariablesTrackJets = ["AntiKt2PV0TrackJets."
+                               +"pt."
+                               +"eta."
+                               +"phi."
+                               +"m.constituentLinks."
+                               +"btaggingLink."
+                               +"GhostBHadronsFinal."
+                               +"GhostBHadronsInitial."
+                               +"GhostBQuarksFinal."
+                               +"GhostCHadronsFinal."
+                               +"GhostCHadronsInitial."
+                               +"GhostCQuarksFinal."
+                               +"GhostHBosons."
+                               +"GhostPartons."
+                               +"GhostTQuarksFinal."
+                               +"GhostTausFinal."
+                               +"GhostWBosons."
+                               +"GhostZBosons."
+                               +"GhostTruth."
+                               +"OriginVertex."
+                               +"GhostAntiKt3TrackJet."
+                               +"GhostAntiKt4TrackJet."
+                               +"GhostTrack."
+                               +"GhostTruthAssociationLink"]
+
 
 #================================
 # EXTRA VARIABLES - MC Only
@@ -283,6 +259,24 @@ TOPQExtraVariablesTausTruth      = ["TauJets."
                                    + "truthJetLink."
                                    + "truthParticleLink"]
 
+TOPQExtraVarsBTag_HLT_Container = ["HLT_xAOD__BTaggingContainer_HLTBjetFex."
+                                  + "MV2c00_discriminant."
+                                  + "MV2c10_discriminant."
+                                  + "MV2c20_discriminant."
+                                  + "BTagBtagToJetAssociator"]
+
+TOPQExtraVarsJet_EF_Container = ["HLT_xAOD__JetContainer_EFJet."
+                                + "eta."
+                                + "m."
+                                + "pt."
+                                + "phi."]
+
+TOPQExtraVarsJet_Split_Container = ["HLT_xAOD__JetContainer_SplitJet."
+                                   + "eta."
+                                   + "m."
+                                   + "pt."
+                                   + "phi."]
+
 #===========================================
 # COLLECTIONS WITH All VARIABLES
 #===========================================
@@ -290,29 +284,12 @@ TOPQExtraContainersStandard = ["CombinedMuonTrackParticles",
                                "egammaClusters",
                                "ExtrapolatedMuonTrackParticles",
                                "ForwardElectrons",
-                               "GSFTrackParticles",
+                               # "GSFTrackParticles",
                                "InDetForwardTrackParticles",
-                               "MuonSpectrometerTrackParticles"]
+                               "MuonSpectrometerTrackParticles",
+                               "MET_Track"]
 
-TOPQExtraContainersTrigger  = ["LVL1EmTauRoIs",
-                               "HLT_TrigRoiDescriptorCollection_forID",
-                               "HLT_TrigRoiDescriptorCollection_forID1",
-                               "HLT_TrigRoiDescriptorCollection_forID2",
-                               "HLT_TrigRoiDescriptorCollection_forID3",
-                               "HLT_TrigRoiDescriptorCollection_forMS",
-                               "HLT_TrigRoiDescriptorCollection_initialRoI",
-                               "HLT_TrigRoiDescriptorCollection_secondaryRoI_EF",
-                               "HLT_TrigRoiDescriptorCollection_secondaryRoI_HLT",
-                               "HLT_TrigRoiDescriptorCollection_secondaryRoI_L2",
-                               "HLT_xAOD__EmTauRoIContainer_L1TopoEM",
-                               "HLT_xAOD__EmTauRoIContainer_L1TopoTau",
-                               "HLT_xAOD__JetContainer_TrigTauJet",
-                               "HLT_xAOD__TauJetContainer_TrigTauRecPreselection",
-                               "HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Tau_EFID",
-                               "HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Tau_FTF",
-                               "HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Tau_IDTrig",
-                               "HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_TauCore_FTF",
-                               "HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_TauIso_FTF"]
+TOPQExtraContainersTrigger = []
 
 TOPQExtraContainersTruth = ["AntiKt10TruthJets",
                             "AntiKt4TruthJets",

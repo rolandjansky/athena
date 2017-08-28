@@ -13,7 +13,6 @@
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTruth/TruthParticleAuxContainer.h"
 #include "MCTruthClassifier/IMCTruthClassifier.h"
-#include "GeneratorObjects/xAODTruthParticleLink.h"
 #include "GeneratorObjects/McEventCollection.h"
 #include "MuonSimData/MuonSimDataCollection.h"
 #include "MuonSimData/CscSimDataCollection.h"
@@ -23,6 +22,7 @@
 #include "TrkGeometry/TrackingVolume.h"
 #include "TrkParameters/TrackParameters.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
+#include "MuonReadoutGeometry/CscReadoutElement.h"
 
 namespace Muon {
 
@@ -32,36 +32,21 @@ namespace Muon {
     m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
     m_truthClassifier("MCTruthClassifier/MCTruthClassifier"),
-    m_extrapolator("Trk::Extrapolator/AtlasExtrapolator")
+    m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
+    m_muonMgr(0)
   {  
     
-    m_trackRecordCollectionNames.push_back("CaloEntryLayer");
-    m_trackRecordCollectionNames.push_back("MuonEntryLayer");
-    m_trackRecordCollectionNames.push_back("MuonExitLayer");
-
     // Get parameter values from jobOptions file
     declareProperty("TruthParticleContainerName"    , m_truthParticleContainerName = "TruthParticles");
     declareProperty("MuonTruthParticleContainerName", m_muonTruthParticleContainerName = "MuonTruthParticles");
-    declareProperty("TrackRecordCollectionNames"    , m_trackRecordCollectionNames);
+    declareProperty("MuonTruthSegmentName"          , m_muonTruthSegmentContainerName = "MuonTruthSegments" );
+    declareProperty("TrackRecordCollectionNames"    , m_trackRecordCollectionNames={"CaloEntryLayer","MuonEntryLayer","MuonExitLayer"});
 
-    m_PRD_TruthNames.push_back("CSC_TruthMap");
-    m_PRD_TruthNames.push_back("RPC_TruthMap");
-    m_PRD_TruthNames.push_back("TGC_TruthMap");
-    m_PRD_TruthNames.push_back("MDT_TruthMap");
-    m_PRD_TruthNames.push_back("MM_TruthMap");
-    m_PRD_TruthNames.push_back("STGC_TruthMap");
-
-    declareProperty("PRD_TruthMaps",      m_PRD_TruthNames);
+    declareProperty("PRD_TruthMaps",m_PRD_TruthNames={"CSC_TruthMap","RPC_TruthMap","TGC_TruthMap","MDT_TruthMap","MM_TruthMap","STGC_TruthMap"});
 
     m_CSC_SDO_TruthNames = "CSC_SDO";
-    m_SDO_TruthNames.push_back("RPC_SDO");
-    m_SDO_TruthNames.push_back("TGC_SDO");
-    m_SDO_TruthNames.push_back("MDT_SDO");
-    m_SDO_TruthNames.push_back("MM_SDO");
-    m_SDO_TruthNames.push_back("STGC_SDO");
     declareProperty("CSCSDOs",   m_CSC_SDO_TruthNames);
-    declareProperty("SDOs",      m_SDO_TruthNames);
-    std::stable_sort(m_SDO_TruthNames.begin(),m_SDO_TruthNames.end());
+    declareProperty("SDOs",      m_SDO_TruthNames={"RPC_SDO","TGC_SDO","MDT_SDO","MM_SDO","STGC_SDO"});
 
     declareProperty("xAODTruthLinkVector",m_truthLinkVecName="xAODTruthLinks");
 
@@ -70,17 +55,28 @@ namespace Muon {
     declareProperty("MuonEDMPrinterTool",  m_printer);
     declareProperty("Extrapolator",        m_extrapolator);
     declareProperty("CreateTruthSegments", m_createTruthSegment = true );
-    declareProperty("MuonTruthSegmentName",m_muonTruthSegmentContainerName = "MuonTruthSegments" );
     declareProperty("BarcodeOffset",       m_barcodeOffset = 1000000 );
   }
 
   // Initialize method:
   StatusCode MuonTruthDecorationAlg::initialize()
   {
+    ATH_CHECK(m_truthParticleContainerName.initialize());
+    ATH_CHECK(m_muonTruthParticleContainerName.initialize());
+    ATH_CHECK(m_muonTruthSegmentContainerName.initialize());
+    ATH_CHECK(m_trackRecordCollectionNames.initialize());
+    ATH_CHECK(m_PRD_TruthNames.initialize());
+    ATH_CHECK(m_SDO_TruthNames.initialize());
+    ATH_CHECK(m_CSC_SDO_TruthNames.initialize());
+    ATH_CHECK(m_truthLinkVecName.initialize());
     ATH_CHECK(m_idHelper.retrieve());
     ATH_CHECK(m_printer.retrieve());
     ATH_CHECK(m_truthClassifier.retrieve());
     ATH_CHECK(m_extrapolator.retrieve());
+    if (detStore()->retrieve( m_muonMgr ).isFailure()) {
+      ATH_MSG_ERROR(" Cannot retrieve MuonGeoModel ");
+      return StatusCode::FAILURE;
+    }
 
     return StatusCode::SUCCESS;
   }
@@ -90,96 +86,30 @@ namespace Muon {
   {
     
     // skip if no input data found
-    if ( !evtStore()->contains<xAOD::TruthParticleContainer>(m_truthParticleContainerName) ) return StatusCode::SUCCESS;
-
-    // retrieve Truth, exit if fails
-    const xAOD::TruthParticleContainer* truthContainer{0};
-    ATH_CHECK(evtStore()->retrieve(truthContainer,m_truthParticleContainerName ));
-    ATH_MSG_DEBUG("Retrieved TruthContainer " << m_truthParticleContainerName << " size " << truthContainer->size());
-    // retrieve TrackRecord info
-    std::vector< std::pair<const TrackRecordCollection*,std::string> > trackRecords;
-    for( const auto& name : m_trackRecordCollectionNames ){
-      if ( evtStore()->contains<TrackRecordCollection>(name) ) {
-	const TrackRecordCollection* col = 0;
-	if( evtStore()->retrieve(col,name ).isSuccess() ){
-	  if( col && !col->empty() ) {
-	    ATH_MSG_DEBUG("TrackRecordCollection retrieved at " << name);
-	    trackRecords.push_back( std::make_pair(col,name) );
-	  }
-	}
-      }
-    }
-
-    // retrieve PRD_MultiTruthCollection collections
-    std::vector<const PRD_MultiTruthCollection*> prdCollections;
-    for( const auto& name : m_PRD_TruthNames ){
-      if ( evtStore()->contains<PRD_MultiTruthCollection>(name) ) {
-	const PRD_MultiTruthCollection* col = 0;
-	if( evtStore()->retrieve(col, name).isSuccess()) {
-	  if( col && !col->empty() ) {
-	    ATH_MSG_DEBUG("PRD_MultiTruthCollection retrieved at " << name);
-	    prdCollections.push_back(col);
-	  }
-	}
-      }
+    SG::ReadHandle<xAOD::TruthParticleContainer> truthContainer(m_truthParticleContainerName);
+    if(!truthContainer.isPresent()) return StatusCode::SUCCESS;
+    if(!truthContainer.isValid()){
+      ATH_MSG_WARNING("truth container "<<truthContainer.name()<<" not valid");
+      return StatusCode::FAILURE;
     }
 
     // get truth links
-    const xAODTruthParticleLinkVector* truthParticleLinkVec = 0;
-    if(evtStore()->contains<xAODTruthParticleLinkVector>(m_truthLinkVecName)){
-      ATH_CHECK(evtStore()->retrieve(truthParticleLinkVec, m_truthLinkVecName));
+    SG::ReadHandle<xAODTruthParticleLinkVector> truthParticleLinkVec(m_truthLinkVecName);
+    if(!truthParticleLinkVec.isValid()){
+      ATH_MSG_WARNING("link vec container "<<truthParticleLinkVec.name()<<" not valid");
+      return StatusCode::FAILURE;
     }
 
 
     // create output container
-    xAOD::TruthParticleContainer* muonTruthContainer = new xAOD::TruthParticleContainer();
-    CHECK( evtStore()->record( muonTruthContainer, m_muonTruthParticleContainerName ) );
-    xAOD::TruthParticleAuxContainer* muonTruthAuxContainer = new xAOD::TruthParticleAuxContainer();
-    CHECK( evtStore()->record( muonTruthAuxContainer, m_muonTruthParticleContainerName + "Aux." ) );
-    muonTruthContainer->setStore( muonTruthAuxContainer );
+    SG::WriteHandle<xAOD::TruthParticleContainer> muonTruthContainer(m_muonTruthParticleContainerName);
+    ATH_CHECK(muonTruthContainer.record(std::make_unique<xAOD::TruthParticleContainer>(),std::make_unique<xAOD::TruthParticleAuxContainer>()));
     ATH_MSG_DEBUG( "Recorded TruthParticleContainer with key: " << m_muonTruthParticleContainerName );
 
-    // create segments
-    xAOD::MuonSegmentContainer* muonTruthSegments = 0;
-    std::vector<const MuonSimDataCollection*> sdoCollections(6);
-    const CscSimDataCollection* cscSdoCollection = 0;
-    if( m_createTruthSegment ){
-
-      muonTruthSegments = new xAOD::MuonSegmentContainer();
-      CHECK( evtStore()->record( muonTruthSegments, m_muonTruthSegmentContainerName ) );
-      xAOD::MuonSegmentAuxContainer* muonTruthSegmentAuxContainer = new xAOD::MuonSegmentAuxContainer();
-      CHECK( evtStore()->record( muonTruthSegmentAuxContainer, m_muonTruthSegmentContainerName + "Aux." ) );
-      muonTruthSegments->setStore( muonTruthSegmentAuxContainer );
-      ATH_MSG_DEBUG( "Recorded MuonSegmentContainer with key: " << m_muonTruthSegmentContainerName );
-      
-      // retrieve PRD_MultiTruthCollection collections
-      for( const auto& name : m_SDO_TruthNames ){
-	if ( evtStore()->contains<MuonSimDataCollection>(name) ) {
-	  const MuonSimDataCollection* col = 0;
-	  if( evtStore()->retrieve(col, name).isSuccess()) {
-	    if( col && !col->empty() ) {
-	      Identifier id = col->begin()->first;
-	      int index = m_idHelper->technologyIndex(id);
-              
-	      ATH_MSG_DEBUG("MuonSimDataCollection retrieved at " << name << " index " << index << " size " << col->size() << " tgcIndex " << m_idHelper->tgcIdHelper().technology(id));
-	      if( index >= (int)sdoCollections.size() ){
-		ATH_MSG_WARNING("SDO collection index out of range " << index << "  " << m_idHelper->toStringChamber(id) );
-	      }else{
-		sdoCollections[index] = col;
-	      }
-	    }
-	  }
-	}
-      }
-
-      std::string name = m_CSC_SDO_TruthNames;
-      if ( evtStore()->contains<CscSimDataCollection>(name) ) {
-	if( evtStore()->retrieve(cscSdoCollection, name).isSuccess()) {
-	  if( cscSdoCollection && !cscSdoCollection->empty() ) {
-	    ATH_MSG_DEBUG("CscSimDataCollection retrieved at " << name);
-	  }
-	}
-      }
+    SG::WriteHandle<xAOD::MuonSegmentContainer> segmentContainer(m_muonTruthSegmentContainerName);
+    if(m_createTruthSegment){
+      ATH_CHECK(segmentContainer.record(std::make_unique<xAOD::MuonSegmentContainer>(),std::make_unique<xAOD::MuonSegmentAuxContainer>()));
+      ATH_MSG_DEBUG( "Recorded MuonSegmentContainer with key: " << segmentContainer.name() );
     }
 
     // loop over truth coll
@@ -229,11 +159,11 @@ namespace Muon {
       }
 
       // add track records
-      addTrackRecords(*truthParticle,trackRecords,truth->prodVtx());
+      addTrackRecords(*truthParticle,truth->prodVtx());
       ChamberIdMap ids;
 
       // add hit counts
-      addHitCounts(*truthParticle,prdCollections,&ids);
+      addHitCounts(*truthParticle,&ids);
 
       //add hit ID vectors
       addHitIDVectors(*truthParticle,ids);
@@ -246,24 +176,40 @@ namespace Muon {
 
       // create segments
       if( m_createTruthSegment && goodMuon ){
-	createSegments(truthLink,ids,*muonTruthSegments,sdoCollections,cscSdoCollection);
+	createSegments(truthLink,segmentContainer,ids);
       }
     }
     
     ATH_MSG_DEBUG("Registered " << muonTruthContainer->size() << " truth muons ");
-    if( muonTruthSegments ) ATH_MSG_DEBUG("Registered " << muonTruthSegments->size() << " truth muon segments ");
-
+    if(m_createTruthSegment) ATH_MSG_DEBUG("Registered " << segmentContainer->size() << " truth muon segments ");
     
     return StatusCode::SUCCESS;
   }
   
-  void MuonTruthDecorationAlg::createSegments( const ElementLink< xAOD::TruthParticleContainer >& truthLink,
-                                               const MuonTruthDecorationAlg::ChamberIdMap& ids, 
-					       xAOD::MuonSegmentContainer& segmentContainer,
-					       const std::vector<const MuonSimDataCollection*>& sdoCollections,
-					       const CscSimDataCollection* /*cscCollection*/ ) const {
+  void MuonTruthDecorationAlg::createSegments( const ElementLink< xAOD::TruthParticleContainer >& truthLink, SG::WriteHandle<xAOD::MuonSegmentContainer> segmentContainer,
+                                               const MuonTruthDecorationAlg::ChamberIdMap& ids) const {
 
-    bool useSDO = !sdoCollections.empty(); // || cscCollection );
+    std::vector<SG::ReadHandle<MuonSimDataCollection> > sdoCollections(6);
+    for(const SG::ReadHandleKey<MuonSimDataCollection>& k : m_SDO_TruthNames){
+      SG::ReadHandle<MuonSimDataCollection> col(k);
+      if(!col.isPresent()){
+	ATH_MSG_DEBUG("MuonSimDataCollection "<<col.name()<<" not in StoreGate");
+	continue;
+      }
+      if(!col->empty()){
+	Identifier id = col->begin()->first;
+	int index = m_idHelper->technologyIndex(id);
+	if( index >= (int)sdoCollections.size() ){
+	  ATH_MSG_WARNING("SDO collection index out of range " << index << "  " << m_idHelper->toStringChamber(id) );
+	}
+	else{
+	  sdoCollections[index] = col;
+	}
+      }
+    }
+    SG::ReadHandle<CscSimDataCollection> cscCollection(m_CSC_SDO_TruthNames);
+    
+    bool useSDO =( !sdoCollections.empty() || cscCollection->size() );
     std::map<Muon::MuonStationIndex::ChIndex,int> matchMap;
     ATH_MSG_DEBUG(" Creating Truth segments " );
     // loop over chamber layers
@@ -306,37 +252,57 @@ namespace Muon {
 	    etaLayers.insert( m_idHelper->gasGap(id) );
 	  }
 	}
-	// use SDO to look-up truth position of the hit, only CSC for now
+	// use SDO to look-up truth position of the hit
 	if( useSDO ){
 	  Amg::Vector3D gpos(0.,0.,0.);
 	  bool ok = false;
 	  if( !isCsc ){
 	    int index = m_idHelper->technologyIndex(id);
-	    if( index < (int)sdoCollections.size() && sdoCollections[index] != 0 ) {
+	    if( index < (int)sdoCollections.size() && sdoCollections[index]->size() != 0 ) {
 	      auto pos = sdoCollections[index]->find(id);
 	      if( pos != sdoCollections[index]->end() ) {
 		gpos = pos->second.globalPosition();
 		if( gpos.perp() > 0.1 ) ok = true; // sanity check
 	      }
 	    }
-	  } 
-	  // look up successfull, calculate 
-	  if( ok ){
-	    // small comparison function
-	    auto isSmaller = [isEndcap]( const Amg::Vector3D& p1, const Amg::Vector3D& p2 ){ 
-	      if( isEndcap ) return fabs(p1.z()) < fabs(p2.z()); 
-	      else           return p1.perp() < p2.perp(); 
-	    };
-	    if( !firstPos ) firstPos  = new Amg::Vector3D(gpos);
-            else if( !secondPos ){
-	      secondPos = new Amg::Vector3D(gpos);
-	      if( isSmaller(*secondPos,*firstPos) ) std::swap(firstPos,secondPos);
-	    }else{
-	      // update position if we can increase the distance between the two positions
-	      if( isSmaller(gpos,*firstPos) )       *firstPos  = gpos;
- 	      else if( isSmaller(*secondPos,gpos) ) *secondPos = gpos;
+	    // look up successfull, calculate 
+	    if( ok ){
+	      // small comparison function
+	      auto isSmaller = [isEndcap]( const Amg::Vector3D& p1, const Amg::Vector3D& p2 ){ 
+		if( isEndcap ) return fabs(p1.z()) < fabs(p2.z()); 
+		else           return p1.perp() < p2.perp(); 
+	      };
+	      if( !firstPos ) firstPos  = new Amg::Vector3D(gpos);
+	      else if( !secondPos ){
+		secondPos = new Amg::Vector3D(gpos);
+		if( isSmaller(*secondPos,*firstPos) ) std::swap(firstPos,secondPos);
+	      }else{
+		// update position if we can increase the distance between the two positions
+		if( isSmaller(gpos,*firstPos) )       *firstPos  = gpos;
+		else if( isSmaller(*secondPos,gpos) ) *secondPos = gpos;
+	      }
 	    }
 	  }
+	  else{
+	    auto pos = cscCollection->find(id);
+	    if( pos != cscCollection->end() ) {
+	      const MuonGM::CscReadoutElement * descriptor = m_muonMgr->getCscReadoutElement(id);
+	      ATH_MSG_DEBUG("found csc sdo with "<<pos->second.getdeposits().size()<<" deposits");
+	      Amg::Vector3D locpos(0,pos->second.getdeposits()[0].second.ypos(),pos->second.getdeposits()[0].second.zpos());
+	      gpos=descriptor->localToGlobalCoords(locpos,m_idHelper->cscIdHelper().elementID(id));
+	      ATH_MSG_DEBUG("got CSC global position "<<gpos);
+	      if( !firstPos ) firstPos  = new Amg::Vector3D(gpos);
+              else if( !secondPos ){
+                secondPos = new Amg::Vector3D(gpos);
+		if(secondPos->perp()<firstPos->perp()) std::swap(firstPos,secondPos);
+	      }
+	      else{
+		if( gpos.perp()<firstPos->perp() )       *firstPos  = gpos;
+                else if( secondPos->perp()<gpos.perp() ) *secondPos = gpos;
+              }
+	    }
+	  }
+
 	}
       }
       if( precLayers.size() > 2 ){
@@ -349,7 +315,7 @@ namespace Muon {
 		      << " eta trig layers " << static_cast<int>(ntrigEtaLayers) << " associated reco muon " << index
                       << " barcode " << (*truthLink)->barcode() << " truthLink " << truthLink );
 	xAOD::MuonSegment* segment = new xAOD::MuonSegment();
-	segmentContainer.push_back(segment);
+	segmentContainer->push_back(segment);
 	segment->setNHits(nprecLayers,nphiLayers,ntrigEtaLayers);
 	segment->auxdata< ElementLink< xAOD::TruthParticleContainer > >("truthParticleLink") = truthLink;
 	if( chId.is_valid() ) {
@@ -374,7 +340,6 @@ namespace Muon {
   }
 
   void MuonTruthDecorationAlg::addTrackRecords( xAOD::TruthParticle& truthParticle, 
-                                                std::vector< std::pair<const TrackRecordCollection*,std::string> >& trackRecords,
                                                 const xAOD::TruthVertex* vertex ) const {
     
     // first loop over track records, store parameters at the different positions
@@ -383,8 +348,10 @@ namespace Muon {
     if( vertex ) parameters.push_back( std::make_pair(Amg::Vector3D(vertex->x(),vertex->y(),vertex->z()), 
                                                       Amg::Vector3D(truthParticle.px(),truthParticle.py(),truthParticle.pz())) );
 
-    for( const auto& col : trackRecords ){
-      const std::string name = col.second;
+    int icol=0;
+    for( SG::ReadHandle<TrackRecordCollection>& col : m_trackRecordCollectionNames.makeHandles() ){
+      if(!col.isPresent()) continue;
+      const std::string name = m_trackRecordCollectionNames.at(icol).key();
       float& x   = truthParticle.auxdata<float>(name+"_x");
       float& y   = truthParticle.auxdata<float>(name+"_y");
       float& z   = truthParticle.auxdata<float>(name+"_z");
@@ -414,7 +381,7 @@ namespace Muon {
       epz=-99999.;
       
       // loop over collection and find particle with the same bar code
-      for( const auto& particle : *col.first ){
+      for( const auto& particle : *col ){
       
         if( (particle.GetBarCode())%m_barcodeOffset != barcode ) continue;
         CLHEP::Hep3Vector pos = particle.GetPosition();
@@ -433,7 +400,7 @@ namespace Muon {
     
     // second loop, extrapolate between the points
     if( vertex &&  /// require vertex
-        parameters.size() == trackRecords.size()+1 && // logic assumes there is one more parameter than track records
+        parameters.size() == m_trackRecordCollectionNames.size()+1 && // logic assumes there is one more parameter than track records
         parameters.size() > 1 && // we need at least two parameters
         !m_extrapolator.empty() && m_extrapolator->trackingGeometry() // extrapolation needs to be setup correctly
         ){
@@ -449,7 +416,7 @@ namespace Muon {
         Trk::CurvilinearParameters pars(parameters[i].first,parameters[i].second,(truthParticle.pdgId() < 0) ? 1 : -1, new AmgSymMatrix(5)(cov) );
         // pick destination volume
         std::string vname;
-        std::string name = trackRecords[i].second;
+        std::string name = m_trackRecordCollectionNames.at(i).key();
         if( name == "CaloEntryLayer" )     vname = "InDet::Containers::InnerDetector";
         else if( name == "MuonEntryLayer") vname = "Calo::Container";
         else if( name == "MuonExitLayer")  vname = "Muon::Containers::MuonSystem";
@@ -504,7 +471,6 @@ namespace Muon {
 
 
   void MuonTruthDecorationAlg::addHitCounts( xAOD::TruthParticle& truthParticle, 
-					     const std::vector<const PRD_MultiTruthCollection*>& collections,
 					     MuonTruthDecorationAlg::ChamberIdMap* ids) const {
 
     int barcode = truthParticle.barcode();
@@ -515,10 +481,14 @@ namespace Muon {
     nphiHitsPerChamberLayer.resize(Muon::MuonStationIndex::PhiIndexMax);
     std::vector<unsigned int> ntrigEtaHitsPerChamberLayer;
     ntrigEtaHitsPerChamberLayer.resize(Muon::MuonStationIndex::PhiIndexMax);
-    ATH_MSG_DEBUG("addHitCounts: barcode " << barcode << " number of collections " << collections.size());
+    ATH_MSG_DEBUG("addHitCounts: barcode " << barcode);
     // loop over detector technologies
-    for( auto col : collections ){
-
+    for( SG::ReadHandle<PRD_MultiTruthCollection>& col : m_PRD_TruthNames.makeHandles() ){
+      if(!col.isPresent()){
+	ATH_MSG_DEBUG("PRD_MultiTruthCollection "<<col.name()<<" not in StoreGate");
+	continue;
+      }
+      else ATH_MSG_DEBUG("PRD_MultiTruthCollection "<<col.name()<<" in StoreGate");
       // loop over trajectories
       for( const auto& trajectory : *col ){
 

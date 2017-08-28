@@ -15,6 +15,21 @@
 #include <string>
 #include <type_traits>
 
+// Need to do this very early so parser for VarHandleKey picked up
+#include <string>
+#include "GaudiKernel/StatusCode.h"
+namespace SG {
+  class VarHandleKey;
+  class VarHandleKeyArray;
+}
+namespace Gaudi {
+  namespace Parsers {
+    StatusCode parse(SG::VarHandleKey& v, const std::string& s);
+    StatusCode parse(SG::VarHandleKeyArray& v, const std::string& s);
+  }
+}
+
+
 // Framework includes
 #include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/MsgStream.h"
@@ -106,6 +121,75 @@ private:
   // to keep track of VarHandleKeyArrays for data dep registration
   mutable std::vector<SG::VarHandleKeyArray*> m_vhka;
 
+
+public:
+  /////////////////////////////////////////////////////////////////
+  //
+  //// Enable use of Gaudi::Property<Foo> m_foo {this,"NAME",init,"doc"};
+  //   style properties in AthAlgorithms
+  //
+
+  template <class T>
+  Property& declareProperty(Gaudi::Property<T> &t) {
+    return AthAlgorithm::declareGaudiProperty(t, 
+                                              std::is_base_of<SG::VarHandleKey, T>(),
+                                              std::is_base_of<SG::VarHandleKeyArray, T>()
+                                              );
+  }
+
+private:
+  /**
+   * @brief specialization for handling Gaudi::Property<SG::VarHandleKey>
+   *
+   */
+  template <class T>
+  Property& declareGaudiProperty(Gaudi::Property<T> &hndl, 
+                                 std::true_type, std::false_type) {
+
+    return *AthAlgorithm::declareProperty(hndl.name(), hndl.value(), 
+                                          hndl.documentation());
+
+  }
+
+  /**
+   * @brief specialization for handling Gaudi::Property<SG::VarHandleKeyArray>
+   *
+   */
+  template <class T>
+  Property& declareGaudiProperty(Gaudi::Property<T> &hndl, 
+                                 std::false_type, std::true_type) {
+
+    return *AthAlgorithm::declareProperty(hndl.name(), hndl.value(), 
+                                          hndl.documentation());
+
+  }
+
+  /**
+   * @brief Error: can't be both a VarHandleKey and VarHandleKeyArray
+   *
+   */
+  template <class T>
+  Property& declareGaudiProperty(Gaudi::Property<T> &t, std::true_type, std::true_type) {
+      ATH_MSG_ERROR("AthAlgorith::declareGaudiProperty: " << t 
+                    << " cannot be both a VarHandleKey and VarHandleKeyArray. "
+                    << "This should not happen!");
+      throw std::runtime_error("AthAlgorith::declareGaudiProperty: cannot be both a VarHandleKey and VarHandleKeyArray (this should not happen)!");
+    return Algorithm::declareProperty(t);
+  }
+
+
+
+  /**
+   * @brief specialization for handling everything that's not a
+   * Gaudi::Property<SG::VarHandleKey> or a <SG::VarHandleKeyArray>
+   *
+   */
+  template <class T>
+  Property& declareGaudiProperty(Gaudi::Property<T> &t, std::false_type, std::false_type) {
+    return Algorithm::declareProperty(t);
+  }
+
+
   /////////////////////////////////////////////////////////////////
   //
   //// For automatic registration of Handle data products
@@ -134,34 +218,6 @@ public:
     return Algorithm::declareProperty(name,hndl,doc);
   }
 
-
-  /**
-   * @brief Declare a new Gaudi property.
-   * @param name Name of the property.
-   * @param property Object holding the property value.
-   * @param doc Documentation string for the property.
-   *
-   * This is the version for a @c WriteDecorHandleKey.
-   * This one is special, since it's actually two keys: a read handle key
-   * for the container and a write handle key for the decoration.
-   * We need to put both of these on the list.
-   */
-  template <class T>
-  Property* declareProperty(const std::string& name,
-                            SG::WriteDecorHandleKey<T>& hndl,
-                            const std::string& doc,
-                            std::true_type,
-                            std::false_type)
-  {
-    this->declare(hndl.contHandleKey_nc());
-    hndl.contHandleKey_nc().setOwner(this);
-
-    return this->declareProperty (name,
-                                  static_cast<SG::VarHandleKey&>(hndl),
-                                  doc,
-                                  std::true_type(),
-                                  std::false_type());
-  }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
@@ -197,10 +253,22 @@ public:
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-  // since the contents of the VarHandleKeyArrays have not been read 
+  // Since the contents of the VarHandleKeyArrays have not been read 
   // in from the configurables by the time that declareProperty is
   // executed, we must cache them and loop through them later to
-  // register the data dependencies
+  // register the data dependencies.
+  //
+  // However, we cannot actually call declare() on the key instances
+  // until we know that the vector cannot change size anymore --- otherwise,
+  // the pointers given to declare() may become invalid.  That basically means
+  // that we can't call declare() until the derived class's initialize()
+  // completes.  So instead of doing it here (which would be too early),
+  // we override sysInitialize() and do it at the end of that.  But,
+  // Algorithm::sysInitialize() wants to have the handle lists after initialize()
+  // completes in order to do dependency analysis.  It gets these lists
+  // solely by calling inputHandles() and outputHandles(), so we can get this
+  // to work by overriding those methods and adding in the current contents
+  // of the arrays.
 
   void updateVHKA(Property& /*p*/) {
     // debug() << "updateVHKA for property " << p.name() << " " << p.toString() 
@@ -208,7 +276,6 @@ public:
     for (auto &a : m_vhka) {
       std::vector<SG::VarHandleKey*> keys = a->keys();
       for (auto k : keys) {
-        this->declare(*k);
         k->setOwner(this);
       }
     }
@@ -262,6 +329,36 @@ public:
 
   }
 
+
+  /**
+   * @brief Perform system initialization for an algorithm.
+   *
+   * We override this to declare all the elements of handle key arrays
+   * at the end of initialization.
+   * See comments on updateVHKA.
+   */
+  virtual StatusCode sysInitialize() override;
+
+
+  /**
+   * @brief Return this algorithm's input handles.
+   *
+   * We override this to include handle instances from key arrays
+   * if they have not yet been declared.
+   * See comments on updateVHKA.
+   */
+  virtual std::vector<Gaudi::DataHandle*> inputHandles() const override;
+
+
+  /**
+   * @brief Return this algorithm's output handles.
+   *
+   * We override this to include handle instances from key arrays
+   * if they have not yet been declared.
+   * See comments on updateVHKA.
+   */
+  virtual std::vector<Gaudi::DataHandle*> outputHandles() const override;
+
   
   /**
    * @brief Return the list of extra output dependencies.
@@ -283,6 +380,8 @@ public:
 
   /// callback for output level property 
   void msg_update_handler(Property& outputLevel);
+  /// callback to add storeName to ExtraInputs/Outputs data deps
+  void extraDeps_update_handler(Property&);
 
   /////////////////////////////////////////////////////////////////// 
   // Private data: 
@@ -308,6 +407,8 @@ public:
   /// Extra output dependency collection, extended by AthAlgorithmDHUpdate
   /// to add symlinks.  Empty if no symlinks were found.
   DataObjIDColl m_extendedExtraObjects;
+
+  bool m_varHandleArraysDeclared;
 }; 
 
 /////////////////////////////////////////////////////////////////// 

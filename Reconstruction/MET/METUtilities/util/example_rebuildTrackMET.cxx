@@ -23,7 +23,6 @@ int main() {
 
 // FrameWork includes
 #include "AsgTools/MessageCheck.h"
-using namespace asg::msgUserCode;
 #include "AsgTools/AnaToolHandle.h"
 
 #include "xAODMissingET/MissingETAuxContainer.h"
@@ -55,6 +54,8 @@ using namespace asg::msgUserCode;
 
 #include "xAODCore/tools/IOStats.h"
 #include "xAODCore/tools/ReadStats.h"
+
+using namespace asg::msgUserCode;
 
 int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl;
 #ifdef XAOD_STANDALONE

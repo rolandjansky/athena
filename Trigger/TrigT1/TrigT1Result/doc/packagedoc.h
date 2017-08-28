@@ -46,15 +46,4 @@ Usually they are written to RDO or BS files.
 
 @section TrigT1Result_TrigT1Result Extra Pages
 
-- @ref used_TrigT1Result
-- @ref requirements_TrigT1Result
 */
-
-/**
-   @page used_TrigT1Result Used Packages
-*/
-
-/**
-   @page requirements_TrigT1Result Requirements
-*/
-

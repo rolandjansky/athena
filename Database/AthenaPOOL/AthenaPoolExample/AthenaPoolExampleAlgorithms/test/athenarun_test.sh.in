@@ -17,7 +17,7 @@ s/^.*Py:Athena /Athena    /g
 s/fffffffff/f/g
 s/000000000/0/g
 s/INFO CLID = 222376821, key = Stream[12]/INFO CLID = 222376821, key = StreamX/g
-s/0x[0-9a-f]\\\\{8\\\\}/0x????/g
+s/0x[0-9a-f]\\\\{7,12\\\\}/0x????/g
 EOF
 
 # Ordering sensitivities

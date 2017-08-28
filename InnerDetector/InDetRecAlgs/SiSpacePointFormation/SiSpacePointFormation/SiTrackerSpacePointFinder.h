@@ -106,17 +106,17 @@ namespace InDet {
 
     void addSCT_SpacePoints
       (const SCT_ClusterCollection* next, 
-       SpacePointCollection* spacepointCollection); 
+       SpacePointCollection* spacepointCollection, SpacePointOverlapCollection* spacepointOverlapCollection); 
 
     void checkForSCT_Points
       (const SCT_ClusterCollection* clusters1,
        const IdentifierHash& id2, double minDiff, double maxDiff,
-       SpacePointCollection* spacepointCollection, bool overlapColl); 
+       SpacePointCollection* spacepointCollection, bool overlapColl, SpacePointOverlapCollection* spacepointOverlapCollection); 
 
     void checkForSCT_Points
       (const SCT_ClusterCollection* clusters1, 
      const IdentifierHash& id2, double min1, double max1,
-     double min2, double max2);
+     double min2, double max2, SpacePointOverlapCollection* spacepointOverlapCollection);
     
 
     // data members
@@ -125,8 +125,8 @@ namespace InDet {
 //    std::string m_spacePointsSCTName;
 //    std::string m_spacePointsPixelName;
 //    std::string m_spacePointsOverlapName;
-    SG::ReadHandle<SCT_ClusterContainer>  m_Sct_clcontainer;
-    SG::ReadHandle<PixelClusterContainer> m_Pixel_clcontainer;
+    SG::ReadHandleKey<SCT_ClusterContainer>  m_Sct_clcontainerKey;
+    SG::ReadHandleKey<PixelClusterContainer> m_Pixel_clcontainerKey;
     bool m_selectPixels;
     bool m_selectSCTs;
     bool m_overlap;         // process all overlapping SCT pairs if true.
@@ -158,9 +158,9 @@ namespace InDet {
     const PixelID* m_idHelperPixel;
     SiElementPropertiesTable* m_properties;
     
-    SG::WriteHandle<SpacePointContainer> m_SpacePointContainer_SCT; 
-    SG::WriteHandle<SpacePointContainer> m_SpacePointContainerPixel; 
-    SG::WriteHandle<SpacePointOverlapCollection> m_spacepointoverlapCollection; 
+    SG::WriteHandleKey<SpacePointContainer> m_SpacePointContainer_SCTKey;
+    SG::WriteHandleKey<SpacePointContainer> m_SpacePointContainerPixelKey;
+    SG::WriteHandleKey<SpacePointOverlapCollection> m_spacepointoverlapCollectionKey;
 
     ToolHandle< SiSpacePointMakerTool > m_SiSpacePointMakerTool;
   };

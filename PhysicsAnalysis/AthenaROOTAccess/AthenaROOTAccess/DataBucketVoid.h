@@ -87,7 +87,7 @@ public:
    */
   virtual void* cast (CLID clid,
                       SG::IRegisterTransient* itr = 0,
-                      bool isConst =true) const override;
+                      bool isConst =true) override;
 
 
   /**
@@ -100,7 +100,7 @@ public:
    */
   virtual void* cast (const std::type_info& tinfo,
                       SG::IRegisterTransient* itr = 0,
-                      bool isConst = true) const override;
+                      bool isConst = true) override;
 
   /**
    * @brief Return a new @c DataBucket whose payload has been cloned from the

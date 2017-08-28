@@ -3,7 +3,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#pragma once
+#ifndef INDETTRACKSYSTEMATICSTOOLS_JETTRACKFILTERTOOL_H
+#define INDETTRACKSYSTEMATICSTOOLS_JETTRACKFILTERTOOL_H
 
 #include "InDetTrackSystematicsTools/IJetTrackFilterTool.h"
 #include "AsgTools/AsgTool.h"
@@ -77,3 +78,5 @@ namespace InDet {
 }; // class JetTrackFilterTool
 
 } // namespace InDet
+
+#endif

@@ -12,12 +12,14 @@
 //                                                         //
 /////////////////////////////////////////////////////////////
 
-#include "VP1Gui/VP1IncomingMessageDialog.h"
 #include "ui_vp1incomingmessagedialog.h"
+#include "VP1Gui/VP1IncomingMessageDialog.h"
 #include "VP1Gui/VP1TabManager.h"
 #include "VP1Gui/VP1ChannelManager.h"
-#include <QtCore/QList>
-#include <QtGui/QMessageBox>
+
+#include <QList>
+#include <QMessageBox>
+
 #include <cassert>
 
 //____________________________________________________________________

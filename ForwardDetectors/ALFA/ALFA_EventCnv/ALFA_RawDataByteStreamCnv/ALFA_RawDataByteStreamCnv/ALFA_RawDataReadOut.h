@@ -29,7 +29,6 @@
 // Decoding methods for raw data words 
 // S. Diglio Sept 2009
 
-using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
 class ALFA_RawDataReadOut : public ALFA_ReadOut {  
 
@@ -67,23 +66,23 @@ class ALFA_RawDataReadOut : public ALFA_ReadOut {
   bool     m_error_bit17;
   bool     m_bit18;
  
-  std::vector<uint32_t> MarocChan;
+  std::vector<uint32_t> m_MarocChan;
 
   // Define the data structure and the word header values
 
   // Word header Position and values
   // The word header occupies the 4 highest bits of each TDC data word 
-  static const uint16_t headerPos  = 28;  // from bit 28 to 31
-  static const uint16_t headerBits = 0xf;
+  static const uint16_t s_headerPos  = 28;  // from bit 28 to 31
+  static const uint16_t s_headerBits = 0xf;
 
   // Beginning of TDC 
-  static const uint16_t BOTvalue  = 0xa;
+  static const uint16_t s_BOTvalue  = 0xa;
     
   // End of TDC
-  static const uint16_t EOTvalue   = 0xc;
+  static const uint16_t s_EOTvalue   = 0xc;
   
   // TDC single measurement
-  static const uint16_t TSMvalue   = 0x3;  
+  static const uint16_t s_TSMvalue   = 0x3;  
   
  public:
   
@@ -98,11 +97,11 @@ class ALFA_RawDataReadOut : public ALFA_ReadOut {
 
   // Methods to identify the word type
   // Beginning of TDC
-  bool is_BOT() {return (m_wordHeader == BOTvalue);};
+  bool is_BOT() {return (m_wordHeader == s_BOTvalue);};
   // End of TDC
-  bool is_EOT() {return (m_wordHeader == EOTvalue);};
+  bool is_EOT() {return (m_wordHeader == s_EOTvalue);};
   // TDC single measurement
-  bool is_TDCt() {return (m_wordHeader == TSMvalue);};
+  bool is_TDCt() {return (m_wordHeader == s_TSMvalue);};
    
   // Methods to retrieve the decoded word content (Get)
   
@@ -126,7 +125,7 @@ class ALFA_RawDataReadOut : public ALFA_ReadOut {
   uint16_t     bit26_27()   {return m_bit26_27;}
   uint16_t     bit24_27()   {return m_bit24_27;}
 
-  std::vector<uint32_t> HitChan() const {return MarocChan;}
+  std::vector<uint32_t> HitChan() const {return m_MarocChan;}
 
  private:
 

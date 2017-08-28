@@ -17,7 +17,8 @@
 #ifndef VP1CUSTOMTOUREDITOR_H
 #define VP1CUSTOMTOUREDITOR_H
 
-#include <QtGui/QWidget>
+#include <QWidget>
+
 class VP1CustomTourFrameWidget;
 class VP1ExaminerViewer;
 class AnimationSequencer;

@@ -29,9 +29,7 @@ The algorithm is configured automaticly via genConf
       <li><b>'max_mom_frac' : 0.7 </b> </li>
     </ul>
 
-@section InDetConversionFinderTools_used_packagesInDetConversionFinderTool used packages
 
-@section InDetConversionFinderTools_requirements Requirements
 
 \namespace Vtx
 A namespace for all vertexing packages and related stuff.

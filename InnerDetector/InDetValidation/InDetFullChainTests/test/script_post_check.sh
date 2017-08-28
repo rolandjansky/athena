@@ -1,7 +1,5 @@
 echo "## Running 2 script_post_check.sh "
 echo "##"
-cd ${ATN_PACKAGE}/run
-echo in `pwd`
 echo "##"
 echo "##"
 echo "##"
@@ -12,11 +10,11 @@ echo "## Cleaning symlinks"
 echo "##"
 echo "##"
 echo "##"
-echo "## Copying log file in run/ "
+echo "## Copying log file"
 echo "##"
 echo "##"
 echo "##"
-cp ${ATN_JOB_LOGFILE} ${ATN_PACKAGE}/run/InDetFullChainTests.log
+cp ${ATN_JOB_LOGFILE} InDetFullChainTests.log
 echo in `pwd`
 #
 echo "##"
@@ -26,5 +24,5 @@ echo "## Comparing"
 echo "##"
 echo "##"
 echo "##"
-source ../test/CompareFiles.sh InDetFullChainTests.log
+source ${ATN_PACKAGE}/test/CompareFiles.sh InDetFullChainTests.log
 #

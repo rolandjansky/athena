@@ -31,7 +31,6 @@ using CLHEP::GeV;
 InDet::TRT_StandaloneTrackFinder::TRT_StandaloneTrackFinder
 (const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
-    m_nprint(0),
     m_segToTrackTool("InDet::TRT_SegmentToTrackTool"),
     m_Segments("TRTSegments"),
     m_finalTracks("TRTStandaloneTracks")
@@ -61,53 +60,38 @@ InDet::TRT_StandaloneTrackFinder::~TRT_StandaloneTrackFinder()
 
 StatusCode InDet::TRT_StandaloneTrackFinder::initialize()
 {
-  StatusCode  sc;
 
-  msg(MSG::DEBUG) << "Initializing TRT_StandaloneTrackFinder" << endmsg;
+  StatusCode  sc;
+  m_total = {};
+
+  ATH_MSG_DEBUG ("Initializing TRT_StandaloneTrackFinder");
 
   sc = m_segToTrackTool.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_segToTrackTool << endmsg;
+   ATH_MSG_FATAL ("Failed to retrieve tool " << m_segToTrackTool ); 
     return StatusCode::FAILURE;
   }else{
-    msg() << MSG::INFO << "Retrieved tool " << m_segToTrackTool << endmsg;
+    ATH_MSG_INFO ("Retrieved tool " << m_segToTrackTool );
   }
 
 
   // Get output print level
   //
-  if(msgLvl(MSG::DEBUG)) {
-    m_nprint=0; msg(MSG::DEBUG) << (*this) << endmsg;
-  }
-
-  //Global counters. See the include file for definitions
-  m_nTrtSegTotal       = 0;
-  m_nUsedSegTotal      = 0;
-  m_nRejectedSegTotal  = 0;
-  m_nTrtSegGoodTotal   = 0;
-  m_nSegFailedTotal    = 0;
-  m_nTrkScoreZeroTotal = 0; 
-  m_nTrkSegUsedTotal   = 0;
-  m_nTRTTrkTotal       = 0;
-
+  
+  ATH_MSG_DEBUG ( (*this) );
+  
   return sc;
 
 }
 
-///////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
 // Execute
 ///////////////////////////////////////////////////////////////////
 StatusCode InDet::TRT_StandaloneTrackFinder::execute()
 {
-  
 
-  //Counters. See the include file for definitions
-  m_nTrtSeg       = 0;
-  m_nUsedSeg      = 0;
-  m_nRejectedSeg  = 0;
-  m_nTrtSegGood   = 0;
-  m_nSegFailed    = 0;
-
+  Counter_t counter = {};
+ 
   //Clear all caches
   m_segToTrackTool->resetAll();
 
@@ -124,8 +108,8 @@ StatusCode InDet::TRT_StandaloneTrackFinder::execute()
   }
 
   // statistics...
-  m_nTrtSeg = int(m_Segments->size());
-  ATH_MSG_DEBUG ("TRT track container size " << m_nTrtSeg);
+  counter[kNTrtSeg] = int(m_Segments->size());
+  ATH_MSG_DEBUG ("TRT track container size " << counter[kNTrtSeg]);
 
   // loop over segments
   ATH_MSG_DEBUG ("Begin looping over all TRT segments in the event");
@@ -149,7 +133,7 @@ StatusCode InDet::TRT_StandaloneTrackFinder::execute()
       const Amg::VectorX& p = trackTRT->localParameters();
       if ( fabs(sin(p(3))/p(4)) < m_minPt*0.9 ) {
 	// Statistics...
-	m_nRejectedSeg++;
+	counter[kNRejectedSeg]++;
 	ATH_MSG_DEBUG ("Segment pt = " << fabs(sin(p(3))/p(4)) << " , fails pre-cut, drop it !");
 	continue;
       }
@@ -157,7 +141,7 @@ StatusCode InDet::TRT_StandaloneTrackFinder::execute()
       // Check if segment has already been assigned to a BackTrack
       if(m_segToTrackTool->segIsUsed(*trackTRT)) {
       	// Statistics...
-	m_nUsedSeg++;
+	counter[kNUsedSeg]++;
 	ATH_MSG_DEBUG ("Segment excluded by BackTrack, drop it !");
 	continue;
       }
@@ -183,19 +167,19 @@ StatusCode InDet::TRT_StandaloneTrackFinder::execute()
 
       if((nROTs < m_minNumDriftCircles) && !is_toLower) {
 	// statistics...
-	m_nRejectedSeg++;
+	counter[kNRejectedSeg]++;
 	ATH_MSG_DEBUG ("Segment fails number of DC requirements, reject it");
       }
       else {
 	// statistics
-        m_nTrtSegGood++;
+        counter[kNTrtSegGood]++;
 	ATH_MSG_DEBUG ("Segment considered for further processing, enter into list");
 
 	// Transform the original TRT segment into a track
 	Trk::Track* trtSeg = m_segToTrackTool->segToTrack(*trackTRT);
 	if(!trtSeg){
 	  // Statistics...
-	  m_nSegFailed++;
+	  counter[kNSegFailed]++;
 	  ATH_MSG_DEBUG ("Failed to make a track out of the TRT segment!");
 	  continue;
 	}
@@ -204,7 +188,7 @@ StatusCode InDet::TRT_StandaloneTrackFinder::execute()
 	const DataVector<const Trk::MeasurementBase>* ttsos = trtSeg->measurementsOnTrack();
 	if((int)ttsos->size()<10) {
 	  // Statistics...
-	  m_nSegFailed++;
+	  counter[kNSegFailed]++;
 	  ATH_MSG_DEBUG ("Too few ROTs on track, reject !");
           delete trtSeg;
           continue;
@@ -223,23 +207,22 @@ StatusCode InDet::TRT_StandaloneTrackFinder::execute()
       ATH_MSG_WARNING ("Could not save the reconstructed TRT seeded Si tracks!");
       return StatusCode::FAILURE;      
   }
-  // Update the total counters
-  m_nTrtSegTotal       += m_nTrtSeg;
-  m_nUsedSegTotal      += m_nUsedSeg;
-  m_nRejectedSegTotal  += m_nRejectedSeg;
-  m_nTrtSegGoodTotal   += m_nTrtSegGood;
-  m_nSegFailedTotal    += m_nSegFailed;
-  m_nTrkScoreZeroTotal += m_segToTrackTool->GetnTrkScoreZero();
-  m_nTrkSegUsedTotal   += m_segToTrackTool->GetnTrkSegUsed();
-  m_nTRTTrkTotal       += m_segToTrackTool->GetnTRTTrk();
-
+  
+ // Update the total counters
+ counter[kNTrkScoreZeroTotal] = m_segToTrackTool->GetnTrkScoreZero(); 
+ counter[kNTrkSegUsedTotal] = m_segToTrackTool->GetnTrkSegUsed(); 
+ counter[kNTRTTrkTotal] = m_segToTrackTool->GetnTRTTrk();
+ for (int idx=0; idx< kNCounter; ++idx) { 
+         m_total[idx]+=counter[idx]; 
+  }
 
   
   // Print common event information
-  if(msgLvl(MSG::DEBUG)) {
-    m_nprint=1; msg(MSG::DEBUG) << (*this) << endmsg;
-  }
+  
+ ATH_MSG_DEBUG( counter  << std::endl );
+  
 
+   
   return StatusCode::SUCCESS;
 }
 
@@ -247,9 +230,9 @@ StatusCode InDet::TRT_StandaloneTrackFinder::execute()
 // Finalize
 ///////////////////////////////////////////////////////////////////
 
-StatusCode InDet::TRT_StandaloneTrackFinder::finalize()
+StatusCode InDet::TRT_StandaloneTrackFinder::finalize() 
 {
-  m_nprint=2; msg(MSG::INFO)<<(*this)<<endmsg;
+  ATH_MSG_INFO( m_total  << std::endl );   
   return StatusCode::SUCCESS;
 }
 
@@ -260,26 +243,31 @@ StatusCode InDet::TRT_StandaloneTrackFinder::finalize()
 MsgStream&  InDet::TRT_StandaloneTrackFinder::dump( MsgStream& out ) const
 {
   // out<<std::endl;
-  if(m_nprint)  return dumpevent(out);
-  return dumptools(out);
+  
+  return dumpContainerNames(out);
 }
+
+
+MsgStream& InDet::TRT_StandaloneTrackFinder::dumpevent(MsgStream &out, const InDet::TRT_StandaloneTrackFinder::Counter_t& counter) {
+  out<<"| counters |" << counter << std::endl; 
+  return out;
+}
+
+
 
 ///////////////////////////////////////////////////////////////////
 // Dumps conditions information into the MsgStream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream& InDet::TRT_StandaloneTrackFinder::dumptools( MsgStream& out ) const
+MsgStream& InDet::TRT_StandaloneTrackFinder::dumpContainerNames( MsgStream& out ) const
 {
-  int n = 65-m_Segments.name().size();
-  std::string s3; for(int i=0; i<n; ++i) s3.append(" "); s3.append("|");
-  n     = 65-m_finalTracks.name().size();
-  std::string s4; for(int i=0; i<n; ++i) s4.append(" "); s4.append("|");
-
+  const std::string::size_type max_width =65;
+  
   out<<std::endl
      <<"|----------------------------------------------------------------------"
      <<"-------------------|"<<std::endl;
-  out<<"| Location of input tracks          | "<<m_Segments.name()       <<s3<<std::endl;
-  out<<"| Location of output tracks         | "<<m_finalTracks.name()    <<s4<<std::endl;
+  out<<"| Location of input tracks          | "<<m_Segments.name()       << std::setw( max_width-m_Segments.name().size())<<  " " << "|"    <<std::endl;
+  out<<"| Location of output tracks         | "<<m_finalTracks.name()    << std::setw( max_width-m_finalTracks.name().size()) << " " << "|" <<std::endl;
   out<<"|----------------------------------------------------------------------"
      <<"-------------------|";
   return out;
@@ -289,69 +277,32 @@ MsgStream& InDet::TRT_StandaloneTrackFinder::dumptools( MsgStream& out ) const
 // Dumps event information into the MsgStream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream& InDet::TRT_StandaloneTrackFinder::dumpevent( MsgStream& out ) const
-{
-  int nTrtSeg       = m_nTrtSeg;
-  int nUsedSeg      = m_nUsedSeg;
-  int nRejectedSeg  = m_nRejectedSeg;
-  int nTrtSegGood   = m_nTrtSegGood;
-  int nSegFailed    = m_nSegFailed;
-  int nTrkScoreZero = m_segToTrackTool->GetnTrkScoreZero();
-  int nTrkSegUsed   = m_segToTrackTool->GetnTrkSegUsed();
-  int nTRTTrk       = m_segToTrackTool->GetnTRTTrk();
-
-  if (m_nprint > 1) {
-    nTrtSeg       = m_nTrtSegTotal;
-    nUsedSeg      = m_nUsedSegTotal;
-    nRejectedSeg  = m_nRejectedSegTotal;
-    nTrtSegGood   = m_nTrtSegGoodTotal;
-    nSegFailed    = m_nSegFailedTotal;
-    nTrkScoreZero = m_nTrkScoreZeroTotal;
-    nTrkSegUsed   = m_nTrkSegUsedTotal;
-    nTRTTrk       = m_nTRTTrkTotal;
-  }
-
-  out<<std::endl 
-     <<"|-------------------------------------------------------------------|" <<std::endl
-     <<"|  Investigated : " <<std::endl
-     <<"| "<<std::setw(7)<<nTrtSeg       <<" input TRT segments to be investigated" <<std::endl
-     <<"| "<<std::setw(7)<<nUsedSeg      <<" TRT segments excluded at input (by BackTracking tracks)" <<std::endl
-     <<"| "<<std::setw(7)<<nRejectedSeg  <<" segments rejected in selection at input" <<std::endl
-     <<"|-------------------------------------------------------------------|" <<std::endl
-     <<"| "<<std::setw(7)<<nTrtSegGood   <<" input TRT segments after cuts" <<std::endl
-     <<"| "<<std::setw(7)<<nSegFailed    <<" segments failing to translate to a track (including refit)" <<std::endl
-     <<"| "<<std::setw(7)<<nTrkScoreZero <<" tracks rejected by score zero" <<std::endl
-     <<"| "<<std::setw(7)<<nTrkSegUsed   <<" excluded segments by other TRT segment" <<std::endl
-     <<"| "<<std::setw(7)<<nTRTTrk       <<" TRT-only tracks on output" <<std::endl
-     <<"|-------------------------------------------------------------------|";
+MsgStream& InDet::operator<<( MsgStream& out,  const InDet::TRT_StandaloneTrackFinder::Counter_t &counter) 
+{   
+out<<std::endl 
+     <<"|-------------------------------------------------------------------|" <<std::endl;
+     out<<"|  Investigated  |" <<std::endl;
+     out<<"| "<<std::setw(7)<<counter[InDet::TRT_StandaloneTrackFinder::kNTrtSeg]            <<" input TRT segments to be investigated" <<std::endl;
+     out<<"| "<<std::setw(7)<<counter[InDet::TRT_StandaloneTrackFinder::kNUsedSeg]           <<" TRT segments excluded at input (by BackTracking tracks)" <<std::endl;
+     out<<"| "<<std::setw(7)<<counter[InDet::TRT_StandaloneTrackFinder::kNRejectedSeg]       <<" segments rejected in selection at input" <<std::endl;
+     out<<"|-------------------------------------------------------------------|" <<std::endl;
+     out<<"| "<<std::setw(7)<<counter[InDet::TRT_StandaloneTrackFinder::kNTrtSegGood]        <<" input TRT segments after cuts" <<std::endl;
+     out<<"| "<<std::setw(7)<<counter[InDet::TRT_StandaloneTrackFinder::kNSegFailed]         <<" segments failing to translate to a track (including refit)" <<std::endl;
+     out<<"| "<<std::setw(7)<<counter[InDet::TRT_StandaloneTrackFinder::kNTrkScoreZeroTotal] <<" tracks rejected by score zero" <<std::endl;
+     out<<"| "<<std::setw(7)<<counter[InDet::TRT_StandaloneTrackFinder::kNTrkSegUsedTotal]   <<" excluded segments by other TRT segment" <<std::endl;
+     out<<"| "<<std::setw(7)<<counter[InDet::TRT_StandaloneTrackFinder::kNTRTTrkTotal]       <<" TRT-only tracks on output" <<std::endl;
+     out<<"|-------------------------------------------------------------------|";
   return out;
 }
 
-///////////////////////////////////////////////////////////////////
-// Dumps relevant information into the ostream
-///////////////////////////////////////////////////////////////////
-
-std::ostream& InDet::TRT_StandaloneTrackFinder::dump( std::ostream& out ) const
-{
-  return out;
-}
 
 ///////////////////////////////////////////////////////////////////
 // Overload of << operator MsgStream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream& InDet::operator    << 
-  (MsgStream& sl,const InDet::TRT_StandaloneTrackFinder& se)
+MsgStream& operator<<(MsgStream& sl, const InDet::TRT_StandaloneTrackFinder& se) 
 { 
   return se.dump(sl); 
 }
 
-///////////////////////////////////////////////////////////////////
-// Overload of << operator std::ostream
-///////////////////////////////////////////////////////////////////
-
-std::ostream& InDet::operator << 
-  (std::ostream& sl,const InDet::TRT_StandaloneTrackFinder& se)
-{
-  return se.dump(sl); 
-}   
+   

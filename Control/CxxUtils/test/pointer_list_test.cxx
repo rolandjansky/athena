@@ -22,7 +22,7 @@
 using namespace CxxUtils;
 
 
-size_t toerase[] = {
+const size_t toerase[] = {
   0, 1, 5, 14, 15, 16, 17, 20, 29, 30, 31, 500
 };
 const size_t n_toerase = sizeof (toerase) / sizeof (toerase[0]);

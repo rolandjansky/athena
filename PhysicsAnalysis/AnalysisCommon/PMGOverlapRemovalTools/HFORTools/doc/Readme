@@ -1,0 +1,14 @@
+Package HFORTools
+ 
+This package contains code for Heavy Flavour overlap removal in Alpgen+Pythi6 
+MC15 samples.
+
+For up-to-date information, please see the twiki :
+https://twiki.cern.ch/twiki/bin/view/Sandbox/HeavyFlavorOverlapRemovalinRun2
+
+Also, a companion package with usage examples (RC C++, RC python, Athena) 
+can be downloaded from 
+
+svn+ssh://svn.cern.ch/reps/atlasoff/PhysicsAnalysis/AnalysisCommon/PMGOverlapRemovalTools/Test_HFORTools
+
+Marco Leite (leite@cern.ch)

@@ -45,7 +45,7 @@
 #include "xAODTracking/VertexContainer.h"
 
 //Qt
-#include <QtGui/QComboBox>
+#include <QComboBox>
 #include <QTreeWidgetItem>
 #include <qdatetime.h>
 #include <vector>
@@ -84,6 +84,7 @@ VertexCollHandle::VertexCollHandle( AODSysCommonData * cd, const QString& name, 
   : AODCollHandleBase(cd, name, type),  
     d(new Imp), // Need to add back ObjectType once simple way to create string is added to xAODBase
     m_nshownhandles(0),
+    m_cut_allowedY(VP1Interval(-std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity())),
     m_cut_allowedR(VP1Interval(-std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity())),
     m_cut_allowedZ(VP1Interval(-std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity())),
     m_cut_r_allowall(true),
@@ -145,11 +146,17 @@ void VertexCollHandle::init(VP1MaterialButtonBase*)
 }
 
 void VertexCollHandle::setupSettingsFromControllerSpecific(AODSystemController*) {
-  //cuts  
+  //cuts
+  // R
   connect(d->collSettingsButton,SIGNAL(cutAllowedRChanged(const VP1Interval&)),this,SLOT(setCutAllowedR(const VP1Interval&)));
   setCutAllowedR(d->collSettingsButton->cutAllowedR());
+  // Y
+  connect(d->collSettingsButton,SIGNAL(cutAllowedYChanged(const VP1Interval&)),this,SLOT(setCutAllowedY(const VP1Interval&)));
+  setCutAllowedY(d->collSettingsButton->cutAllowedY());
+  // Z
   connect(d->collSettingsButton,SIGNAL(cutAllowedZChanged(const VP1Interval&)),this,SLOT(setCutAllowedZ(const VP1Interval&)));
   setCutAllowedZ(d->collSettingsButton->cutAllowedZ());
+  // size
   connect(d->collSettingsButton,SIGNAL(vertexSizeChanged(int)),this,SLOT(setVertexSize(int)));
   setVertexSize(d->collSettingsButton->vertexSize());
 }
@@ -160,6 +167,7 @@ void VertexCollHandle::resetCachedValuesCuts()
 
 	// kinetic cuts
 	setCutAllowedR(d->collSettingsButton->cutAllowedR());
+	setCutAllowedY(d->collSettingsButton->cutAllowedY());
 	setCutAllowedZ(d->collSettingsButton->cutAllowedZ());
 	// other settings
 	setVertexSize(d->collSettingsButton->vertexSize());
@@ -239,20 +247,36 @@ bool VertexCollHandle::cut(AODHandleBase* ah)
 
   // FIXME
   float vertexR = 0.0;
-  float vertexZ = 0.0;
+  //float vertexZ = 0.0;
 
-  if (!m_cut_r_allowall||!m_cut_z_allowall)
+  float vertexX = handle->getPositionX();
+  float vertexY = handle->getPositionY();
+  float vertexZ = handle->getPositionZ();
+  
+  messageVerbose("Vertex R: " + QString::number(vertexR));
+  messageVerbose("Vertex x, y, z: " + QString::number(vertexX) + ", " + QString::number(vertexY)+ ", " + QString::number(vertexZ));
+
+
+
+  if (!m_cut_r_allowall || !m_cut_y_allowall || !m_cut_z_allowall)
   {
-    messageVerbose("evaluating cut...");
-    messageVerbose("m_cut_allowedR: " + m_cut_allowedZ.toString() + " - excludeInterval: " + QString::number(m_cut_allowedR.excludeInterval()) );
-
-      // *** r CUT ***
+    messageVerbose("evaluating cuts...");
+    
+    // *** r CUT ***
+    messageVerbose("vertexR: " + QString::number(vertexR) + " - m_cut_allowedR: " + m_cut_allowedR.toString() + " - excludeInterval: " + QString::number(m_cut_allowedR.excludeInterval()) );
     if (!m_cut_r_allowall && !m_cut_allowedR.contains(vertexR)){ 
       messageVerbose("r cut not passed...");
       return false;
     }
 
-    // *** Eta CUT ***
+    // *** Y CUT ***
+    messageVerbose("m_cut_allowedY: " + m_cut_allowedY.toString() + " - excludeInterval: " + QString::number(m_cut_allowedY.excludeInterval()) );
+    if (!m_cut_y_allowall && !m_cut_allowedY.contains(vertexY)){ 
+      messageVerbose("Y cut not passed...");
+      return false;
+    }
+
+    // *** Z CUT ***
     messageVerbose("m_cut_allowedZ: " + m_cut_allowedZ.toString() + " - excludeInterval: " + QString::number(m_cut_allowedZ.excludeInterval()) );
     if (!m_cut_z_allowall && !m_cut_allowedZ.contains(vertexZ)){ 
       messageVerbose("Z cut not passed...");
@@ -326,6 +350,30 @@ void VertexCollHandle::setCutAllowedR(const VP1Interval& allowedR)
     recheckCutStatusOfAllVisibleHandles();
 }
 
+//____________________________________________________________________
+void VertexCollHandle::setCutAllowedY(const VP1Interval& allowedY)
+{
+  messageVerbose("signal received in setCutAllowedY ("+allowedY.toString()+")");
+  if (!allowedY.isSane())
+    return;
+
+  if (m_cut_allowedY==allowedY)
+    return;
+  m_cut_y_allowall = allowedY.isAllR();
+  m_cut_ry_allwillfail = allowedY.isEmpty() || m_cut_allowedY.isEmpty();
+
+  if (!m_cut_allowedY.contains(allowedY) && !allowedY.contains(m_cut_allowedY)) {
+    m_cut_allowedY = allowedY;
+    recheckCutStatusOfAllHandles();
+    return;
+  }
+  bool relaxcut = allowedY.contains(m_cut_allowedY);
+  m_cut_allowedY = allowedY;
+  if (relaxcut)
+    recheckCutStatusOfAllNotVisibleHandles();
+  else
+    recheckCutStatusOfAllVisibleHandles();
+}
 //____________________________________________________________________
 void VertexCollHandle::setCutAllowedZ(const VP1Interval& allowedZ)
 {

@@ -22,6 +22,58 @@ class MyObj {};
 CLASS_DEF (MyObj, 293847295, 1)
 
 
+class TestHolder
+  : public IDataHandleHolder
+{
+public:
+  virtual std::vector<Gaudi::DataHandle*> inputHandles() const override;
+  virtual std::vector<Gaudi::DataHandle*> outputHandles() const override;
+  virtual void addDependency(const DataObjID&, const Gaudi::DataHandle::Mode&) override;
+
+  virtual unsigned long addRef() override { std::abort(); }
+  virtual unsigned long release() override { std::abort(); }
+  virtual StatusCode queryInterface(const InterfaceID &, void**) override { std::abort(); }
+  virtual const std::string& name() const override { std::abort(); }
+  
+
+  virtual const DataObjIDColl& extraInputDeps() const override { std::abort(); }
+  virtual const DataObjIDColl& extraOutputDeps() const override { std::abort(); }
+
+  virtual void acceptDHVisitor(IDataHandleVisitor*) const override { std::abort(); }
+
+  virtual void commitHandles() override { std::abort(); }
+
+  virtual const DataObjIDColl& inputDataObjs() const override { std::abort(); }
+  virtual const DataObjIDColl& outputDataObjs() const override { std::abort(); }
+
+  virtual void declare(Gaudi::DataHandle&) override { std::abort(); }
+  virtual void renounce(Gaudi::DataHandle&) override { std::abort(); }
+
+  std::vector<Gaudi::DataHandle*> m_inputHandles;
+  std::vector<Gaudi::DataHandle*> m_outputHandles;
+  std::vector<DataObjID> m_deps;
+};
+
+
+std::vector<Gaudi::DataHandle*> TestHolder::inputHandles() const
+{
+  return m_inputHandles;
+}
+
+
+std::vector<Gaudi::DataHandle*> TestHolder::outputHandles() const
+{
+  return m_outputHandles;
+}
+
+
+void TestHolder::addDependency(const DataObjID& id, const Gaudi::DataHandle::Mode&)
+{
+  m_deps.push_back (id);
+}
+
+
+
 void test1()
 {
   std::cout << "test1\n";
@@ -51,11 +103,44 @@ void test1()
 }
 
 
+void test2()
+{
+  std::cout << "test2\n";
+
+  TestHolder h;
+  SG::WriteDecorHandleKey<MyObj> k1 ("aaa.dec");
+  k1.setOwner (&h);
+
+  SG::ReadHandleKey<MyObj> r1 ("rrr");
+  SG::WriteHandleKey<MyObj> w1 ("sss");
+  h.m_inputHandles.push_back (&r1);
+  h.m_outputHandles.push_back (&w1);
+  assert (k1.initialize().isSuccess());
+  assert (h.m_deps.size() == 1);
+  assert (h.m_deps[0].fullKey() == "MyObj/StoreGateSvc+aaa");
+
+  h.m_deps.clear();
+  SG::ReadHandleKey<MyObj> r2 ("aaa");
+  h.m_inputHandles.push_back (&r2);
+  assert (k1.initialize().isSuccess());
+  assert (h.m_deps.empty());
+  h.m_inputHandles.pop_back();
+
+  h.m_deps.clear();
+  SG::WriteHandleKey<MyObj> w2 ("aaa");
+  h.m_outputHandles.push_back (&w2);
+  assert (k1.initialize().isSuccess());
+  assert (h.m_deps.empty());
+  h.m_outputHandles.pop_back();
+}
+
+
 int main()
 {
   ISvcLocator* pDum;
   Athena_test::initGaudi(pDum); //need MessageSvc
 
   test1();
+  test2();
   return 0;
 }

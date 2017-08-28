@@ -46,25 +46,25 @@ eflowObjectBuilder::~eflowObjectBuilder() { }
 
 StatusCode eflowObjectBuilder::initialize() {
 
-  msg(MSG::DEBUG) << "Initialising eflowObjectBuilder " << endmsg;
+  ATH_MSG_DEBUG("Initialising eflowObjectBuilder ");
 
   if (service("StoreGateSvc", m_storeGate).isFailure()) {
-    msg(MSG::WARNING) << "Unable to retrieve pointer to StoreGateSvc" << endmsg;
+    ATH_MSG_WARNING("Unable to retrieve pointer to StoreGateSvc");
     return StatusCode::SUCCESS;
   }
 
   /* Tool service */
   IToolSvc* myToolSvc;
   if ( service("ToolSvc",myToolSvc).isFailure() ) {
-    msg(MSG::WARNING) << " Tool Service Not Found" << endmsg;
+    ATH_MSG_WARNING(" Tool Service Not Found");
     return StatusCode::SUCCESS;
   }
 
   if ( m_tools.retrieve().isFailure() ) {
-    msg(MSG::WARNING) << "Failed to retrieve " << m_tools << endmsg;
+    ATH_MSG_WARNING("Failed to retrieve " << m_tools);
     return StatusCode::SUCCESS;
   } else {
-    msg(MSG::INFO) << "Retrieved " << m_tools << endmsg;
+    ATH_MSG_VERBOSE("Retrieved " << m_tools);
   }
 
   // print the list of tools - taken from JetRec/JetAlgorithm.cxx
@@ -100,13 +100,6 @@ StatusCode eflowObjectBuilder::execute(){
     (*itAlgTool)->execute(const_cast<eflowCaloObjectContainer*>(caloObjectContainer));
   }
 
-  /* Sort clusters by pt TODO: should this be done somewhere else? */
-  //Do we need to sort the objects at all?
-  //newCaloClusterContainer->sort(P4Sorters::Descending::Pt());
-
-  /* Clear track-cluster links */
-  eflowTrackClusterLink::clearInstances();
-
   return StatusCode::SUCCESS;
 
 }
@@ -115,20 +108,20 @@ StatusCode eflowObjectBuilder::finalize() { return StatusCode::SUCCESS; }
 
 void eflowObjectBuilder::printTools() {
   // print the list of tools - taken from JetRec/JetAlgorithm.cxx
-  msg(MSG::INFO) << " " << endmsg;
-  msg(MSG::INFO) << "List of tools in execution sequence of eflowObjectBuilder:" << endmsg;
-  msg(MSG::INFO) << "------------------------------------" << endmsg;
-  msg(MSG::INFO) << " " << endmsg;
+  ATH_MSG_VERBOSE(" ");
+  ATH_MSG_VERBOSE("List of tools in execution sequence of eflowObjectBuilder:");
+  ATH_MSG_VERBOSE("------------------------------------");
+  ATH_MSG_VERBOSE(" ");
   ToolHandleArray<eflowBaseAlgTool>::iterator itTool = m_tools.begin();
   ToolHandleArray<eflowBaseAlgTool>::iterator lastTool = m_tools.end();
   unsigned int toolCtr = 0;
   for (; itTool != lastTool; itTool++) {
     toolCtr++;
-    msg(MSG::INFO) << std::setw(2) << std::setiosflags(std::ios_base::right) << toolCtr << ".) "
+    ATH_MSG_VERBOSE(std::setw(2) << std::setiosflags(std::ios_base::right) << toolCtr << ".) "
     << std::resetiosflags(std::ios_base::right) << std::setw(36) << std::setfill('.')
     << std::setiosflags(std::ios_base::left) << (*itTool)->type() << std::setfill('.')
-    << (*itTool)->name() << std::setfill(' ') << endmsg;
+		    << (*itTool)->name() << std::setfill(' '));
   }
-  msg(MSG::INFO) << " " << endmsg;
-  msg(MSG::INFO) << "------------------------------------" << endmsg;
+  ATH_MSG_VERBOSE(" ");
+  ATH_MSG_VERBOSE("------------------------------------");
 }

@@ -250,7 +250,7 @@ std::vector<float> BDT::GetMultiResponse(const std::vector<float>& values,
 
 /** special function when there are mutliple classes (for b-tagging) **/
 std::vector<float> BDT::GetMultiResponse(const std::vector<float*>& pointers, 
-					      unsigned int numClasses) const
+					 unsigned int numClasses) const
 {
   std::vector<float> sum;
   std::vector<float> v_out;
@@ -269,6 +269,14 @@ std::vector<float> BDT::GetMultiResponse(const std::vector<float*>& pointers,
     }
   }
   return v_out;
+}
+
+std::vector<float> BDT::GetMultiResponse(unsigned int numClasses) const {
+  if (m_pointers.size()) {
+    return GetMultiResponse(m_pointers, numClasses);
+  } else {
+    return std::vector<float> (numClasses, -9999.);
+  }
 }
 
 /** Return the response of the response of each at index "index"  **/

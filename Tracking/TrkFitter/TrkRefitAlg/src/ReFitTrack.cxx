@@ -48,7 +48,6 @@ Trk::ReFitTrack::ReFitTrack(const std::string &name, ISvcLocator *pSvcLocator) :
   m_trkSummaryTool(""),
   m_assoTool(""),
   m_trkSelectorTool(""),
-  m_newtracks(0),
   m_constrainFitMode(0),
   m_vxContainerName("VxPrimaryCandidate"),
   m_iBeamCondSvc("BeamCondSvc", name),
@@ -145,6 +144,10 @@ StatusCode Trk::ReFitTrack::initialize()
   Trk::ParticleSwitcher particleSwitch;
   m_ParticleHypothesis = particleSwitch.particle[m_matEffects];
 
+  ATH_CHECK( m_TrackName.initialize() );
+  ATH_CHECK( m_vxContainerName.initialize() );
+  ATH_CHECK( m_NewTrackName.initialize() );
+
   return StatusCode::SUCCESS;
 }
 
@@ -157,27 +160,22 @@ StatusCode Trk::ReFitTrack::execute()
   // clean up association tool
   m_assoTool->reset();
 
-  // get tracks from TDS
-  if (m_TrackName != "") {
-    sc = evtStore()->retrieve(m_tracks, m_TrackName);
-    if (sc.isFailure()){
-      msg(MSG::ERROR) <<"Track collection named " << m_TrackName 
-		      << " not found, exit ReFitTrack." << endmsg;
-      return StatusCode::SUCCESS;
-    }
-    else{ 
-      ATH_MSG_DEBUG ("Tracks collection '" << m_TrackName << "' retrieved from EventStore.");
-    }
+  SG::ReadHandle<TrackCollection> tracks (m_TrackName);
+
+  if (!tracks.isValid()){
+    msg(MSG::ERROR) <<"Track collection named " << m_TrackName.key() 
+		    << " not found, exit ReFitTrack." << endmsg;
+    return StatusCode::SUCCESS;
   }
-  else {
-    msg(MSG::ERROR) <<"m_TrackName not set" << endmsg;
+  else{ 
+    ATH_MSG_DEBUG ("Tracks collection '" << m_TrackName.key() << "' retrieved from EventStore.");
   }
   
   // constrainVx
   std::unique_ptr<const Trk::PerigeeSurface> constrainSf;
   std::unique_ptr<const Trk::RecVertex>      cleanup_constrainVx; 
   const Trk::RecVertex*      constrainVx = 0; 
-  const VxContainer* 	     vxContainer = 0;
+  //const VxContainer* 	     vxContainer = 0;
 
   ATH_MSG_DEBUG("Track fit configured with constrain option : " << m_constrainFitMode );
 
@@ -191,12 +189,13 @@ StatusCode Trk::ReFitTrack::execute()
             << constrainVx->position().x() << ", " 
             << constrainVx->position().y() << ", " 
             << constrainVx->position().z());
-      } else if (m_constrainFitMode ==1 && evtStore()->contains<VxContainer>(m_vxContainerName)){
-          ATH_MSG_DEBUG("Track fit with vertex from collection '" << m_vxContainerName << "'.");
-          if ( evtStore()->retrieve(vxContainer, m_vxContainerName).isFailure() )
-              ATH_MSG_WARNING("Track fit configured to use vertex constraint, but '" << m_vxContainerName << "' could not be retrieved.");
+      } else if (m_constrainFitMode ==1){
+	  SG::ReadHandle<VxContainer> vxContainer (m_vxContainerName);
+	  ATH_MSG_DEBUG("Track fit with vertex from collection '" << m_vxContainerName.key() << "'.");
+	  if (!vxContainer.isValid())
+	    ATH_MSG_WARNING("Track fit configured to use vertex constraint, but '" << m_vxContainerName.key() << "' could not be retrieved.");
           else if (vxContainer->size() == 1 ) {
-              ATH_MSG_WARNING("Track fit configured to use vertex constraint, but '" << m_vxContainerName << "' contains only dummy vertex.");
+	    ATH_MSG_WARNING("Track fit configured to use vertex constraint, but '" << m_vxContainerName.key() << "' contains only dummy vertex.");
           } else {
               // only refit to the 'signal' vertex
               constrainVx = &((*vxContainer)[0]->recVertex());
@@ -215,10 +214,11 @@ StatusCode Trk::ReFitTrack::execute()
   ParticleHypothesis hypo=m_ParticleHypothesis;
 
   // create new collection of tracks to write in storegate
-  m_newtracks = new TrackCollection;
+  auto newtracks = std::make_unique<TrackCollection>();
+  SG::WriteHandle<TrackCollection> outputtracks (m_NewTrackName);
 
   // loop over tracks
-  for (TrackCollection::const_iterator itr  = (*m_tracks).begin(); itr < (*m_tracks).end(); itr++){
+  for (TrackCollection::const_iterator itr  = (*tracks).begin(); itr < (*tracks).end(); itr++){
 
     ATH_MSG_VERBOSE ("input track:" << **itr);
 
@@ -283,7 +283,7 @@ StatusCode Trk::ReFitTrack::execute()
         newtrack = (trtonly ? m_ITrackFitterTRT : m_ITrackFitter)->fit(**itr,m_runOutlier,hypo);
     }
 
-    if (newtrack) m_newtracks->push_back(newtrack);
+    if (newtrack) newtracks->push_back(newtrack);
 
     if (msgLvl(MSG::DEBUG)) {
       if (newtrack==0) ATH_MSG_DEBUG ("Refit Failed");
@@ -307,29 +307,19 @@ StatusCode Trk::ReFitTrack::execute()
   }
 
   // recreate the summaries on the final track collection with correct PRD tool
-  TrackCollection::const_iterator t  = m_newtracks->begin();
-  TrackCollection::const_iterator te = m_newtracks->end  ();
+  TrackCollection::const_iterator t  = newtracks->begin();
+  TrackCollection::const_iterator te = newtracks->end  ();
   for ( ; t!=te; ++t) {
     if((m_assoTool->addPRDs(**t)).isFailure()) {ATH_MSG_WARNING("Failed to add PRDs to map");}
   }
   // now recalculate the summary ... the usual nasty const cast is needed here
-  t  = m_newtracks->begin();
+  t  = newtracks->begin();
   for ( ; t!=te; ++t) {
     Trk::Track& nonConstTrack = const_cast<Trk::Track&>(**t);
     m_trkSummaryTool->updateTrack(nonConstTrack);
   }
 
-  sc = evtStore()->record(m_newtracks,m_NewTrackName,false);
-  if (sc.isFailure()){
-    msg(MSG::ERROR) << "New Track Container could not be recorded in StoreGate !" << endmsg;
-    return StatusCode::FAILURE;
-  }
-  else {
-    ATH_MSG_DEBUG ("Container '" << m_NewTrackName << "' recorded in StoreGate");
-  }
-
-  // cleanup
-  
+  ATH_CHECK(outputtracks.record(std::move(newtracks)));
 
   return StatusCode::SUCCESS;
 }

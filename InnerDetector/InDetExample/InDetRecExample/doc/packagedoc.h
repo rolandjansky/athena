@@ -65,7 +65,6 @@ The following control what is written out. ESD includes AOD, so it's normally en
 @section InDetRecExample_Event Data Model Monitor
 In debug the EventDataModelMonitor will run and do instance counting of EDM objects to help flagging memory leaks.
 
-@section InDetRecExample_InDetRecExampleReq Requirements file
 
 
 */

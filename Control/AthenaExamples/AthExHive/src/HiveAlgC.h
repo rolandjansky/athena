@@ -30,9 +30,9 @@ public:
   
 private:
   
-  SG::ReadHandleKey<HiveDataObj> m_rdh1;
-  SG::WriteHandleKey<HiveDataObj> m_wrh1;
-  SG::WriteHandleKey<HiveDataObj> m_wrh2;
+  SG::ReadHandleKey<HiveDataObj>  m_rdh1 {this, "Key_R1", "a1", "read handle key 1"};
+  SG::WriteHandleKey<HiveDataObj> m_wrh1{ this, "Key_W1", "c1", "write handle key 1"};
+  SG::WriteHandleKey<HiveDataObj> m_wrh2{ this, "Key_W2", "c2", "write handle key 2"};
   
 };
 #endif

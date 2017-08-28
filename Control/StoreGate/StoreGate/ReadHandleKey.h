@@ -45,19 +45,40 @@ public:
    * @param storeName Name to use for the store, if it's not encoded in sgkey.
    *
    * The provided key may actually start with the name of the store,
-   * separated by a slash:  "MyStore/Obj".  If no slash is present
+   * separated by a "+":  "MyStore+Obj".  If no "+" is present
    * the store named by @c storeName is used.
    */
   ReadHandleKey (const std::string& key = "",
-                 const std::string& storeName = "StoreGateSvc");
+                 const std::string& storeName = StoreID::storeName(StoreID::EVENT_STORE));
 
-
+  /**
+   * @brief auto-declaring Property Constructor.
+   * @param name name of the Property
+   * @param key  default StoreGate key for the object.
+   *
+   * will associate the named Property with this RHK via declareProperty
+   *
+   * The provided key may actually start with the name of the store,
+   * separated by a "+":  "MyStore+Obj".  If no "+" is present
+   * the store named by @c storeName is used.
+   */
+  template <class OWNER, class K,
+            typename = typename std::enable_if<std::is_base_of<IProperty, OWNER>::value>::type>
+  inline ReadHandleKey( OWNER* owner,
+                        std::string name,
+                        const K& key={},
+                        std::string doc="") :
+    ReadHandleKey<T>( key ) {
+    auto p = owner->declareProperty(std::move(name), *this, std::move(doc));
+    p->template setOwnerType<OWNER>();
+  }
+      
   /**
    * @brief Change the key of the object to which we're referring.
    * @param sgkey The StoreGate key for the object.
    * 
    * The provided key may actually start with the name of the store,
-   * separated by a slash:  "MyStore/Obj".  If no slash is present,
+   * separated by a "+":  "MyStore+Obj".  If no "+" is present,
    * the store is not changed.
    */
   ReadHandleKey& operator= (const std::string& sgkey);

@@ -12,9 +12,13 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
-
 #include "InDetSimEvent/SiHitCollection.h"
+#include "InDetPrepRawData/PixelClusterContainer.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
+#include "TrkTruthData/PRD_MultiTruthCollection.h"
 #include "xAODTracking/TrackMeasurementValidation.h"
+#include "xAODTracking/TrackMeasurementValidationContainer.h"
 
 
 #include <string>
@@ -56,7 +60,7 @@ private:
 
   std::vector< std::vector< int > >  addSDOInformation( xAOD::TrackMeasurementValidation* xprd,
 							const InDet::PixelCluster* prd,
-							const InDetSimDataCollection* sdoCollection ) const;
+							const InDetSimDataCollection& sdoCollection ) const;
 
 
   void  addSiHitInformation( xAOD::TrackMeasurementValidation* xprd, 
@@ -64,7 +68,7 @@ private:
                              const std::vector<SiHit> & matchingHits ) const;
   
   std::vector<SiHit>  findAllHitsCompatibleWithCluster(const InDet::PixelCluster* prd,
-                                                       const SiHitCollection* collection,
+                                                       const SiHitCollection& collection,
 						       std::vector< std::vector< int > > & trkBCs) const;
 
 
@@ -90,10 +94,6 @@ private:
 
 
   const PixelID *m_PixelHelper;
-  std::string  m_clustercontainer;
-  std::string  m_SDOcontainer;
-  std::string  m_sihitContainer;
-  std::string  m_multiTruth;
 
   bool  m_useTruthInfo;
   bool  m_writeSDOs;
@@ -109,7 +109,15 @@ private:
 
   // -- Private members   
   bool m_firstEventWarnings;
+  bool m_need_sihits;
 
+  SG::ReadHandleKey<InDet::PixelClusterContainer> m_clustercontainer_key;
+  SG::ReadHandleKey<SiHitCollection> m_sihitContainer_key;
+  SG::ReadHandleKey<InDetSimDataCollection> m_SDOcontainer_key;
+  SG::ReadHandleKey<PRD_MultiTruthCollection> m_multiTruth_key;
+
+  SG::WriteHandleKey<xAOD::TrackMeasurementValidationContainer> m_write_xaod;
+  SG::WriteHandleKey<std::vector<unsigned int>> m_write_offsets;
 };
 
 

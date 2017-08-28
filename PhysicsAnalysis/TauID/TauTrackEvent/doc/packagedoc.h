@@ -20,14 +20,10 @@
  *
 @section TauTrackEvent_@section ExtrasTauTrackEvent Extra Pages
  *
- *      - @ref UsedTauTrackEvent
- *      - @ref requirementsTauTrackEvent
  *       */
 
 /**
- * @page UsedTauTrackEvent Used Packages
  * */
 
 /**
- * @page requirementsTauTrackEvent Requirements
  * */

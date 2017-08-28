@@ -67,7 +67,6 @@ static const   int timeminrange	      =	 -200;
 static const   int timemaxrange	      =	  200;
 static const   int timeNbin	      =	  128;
 static const   int nstripfiducial     =     2;
-static const   int nstripfiduceff     =    80;
 static const   int MergePointDistance =   100;
 static const   int EtaStationSpan     =     2;
 static const   int DoublePhiSpan      =     1;
@@ -1482,10 +1481,14 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		    if(maxeta<Rpc_Eta_3D.at(i_3D))maxeta=Rpc_Eta_3D.at(i_3D);
  
 		    if(SmallLarge.at( i_3D)==0){
-		      if(PlaneType.at( i_3D)==0)NplaneSmall0=1; if(PlaneType.at( i_3D)==1)NplaneSmall1=1; if(PlaneType.at( i_3D)==2)NplaneSmall2=1;
+		      if(PlaneType.at( i_3D)==0)NplaneSmall0=1;
+                      if(PlaneType.at( i_3D)==1)NplaneSmall1=1;
+                      if(PlaneType.at( i_3D)==2)NplaneSmall2=1;
 		    }
 		    else if(SmallLarge.at( i_3D)==1){
-		      if(PlaneType.at( i_3D)==0)NplaneLarge0=1; if(PlaneType.at( i_3D)==1)NplaneLarge1=1; if(PlaneType.at( i_3D)==2)NplaneLarge2=1;
+		      if(PlaneType.at( i_3D)==0)NplaneLarge0=1;
+                      if(PlaneType.at( i_3D)==1)NplaneLarge1=1;
+                      if(PlaneType.at( i_3D)==2)NplaneLarge2=1;
 		    }  
 			 
 		    xav += Rpc_x_3D.at( i_3D) ; yav += Rpc_y_3D.at( i_3D) ; zav += Rpc_z_3D.at( i_3D) ;

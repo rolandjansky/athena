@@ -83,6 +83,9 @@ namespace xAOD {
       /// Clear all decorations.
       virtual void clearDecorations();
 
+      /// Lock a decoration.
+      virtual void lockDecoration (SG::auxid_t auxid);
+
       /// Get the size of the container.
       virtual size_t size() const;
 

@@ -11,6 +11,7 @@
 #include "IRegionSelector/IRegSelSvc.h" 
 #include "PixelCabling/IPixelCablingSvc.h"
   
+using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
 // --------------------------------------------------------------------
 // Constructor

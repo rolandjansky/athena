@@ -63,16 +63,16 @@ InDetPerfPlot_ExtendedFakes::fill(const xAOD::TrackParticle& trk, const bool isF
   uint8_t iTRTHits(0), iTRTHighThresholdHits(0), iTRTOutliers(0), iTRTHighThresholdOutliers(0);
 
 
-  if (trk.summaryValue(iBLayerHits, xAOD::numberOfBLayerHits)) {
+  if (trk.summaryValue(iBLayerHits, xAOD::numberOfInnermostPixelLayerHits)) {
     fillHisto(m_HitInfoFakerates["nBLayerHits"      ], iBLayerHits, fakeNum);
   }
-  if (trk.summaryValue(iBLayerOutliers, xAOD::numberOfBLayerOutliers)) {
+  if (trk.summaryValue(iBLayerOutliers, xAOD::numberOfInnermostPixelLayerOutliers)) {
     fillHisto(m_HitInfoFakerates["nBLayerOutliers"  ], iBLayerOutliers, fakeNum);
   }
-  if (trk.summaryValue(iBLayerSharedHits, xAOD::numberOfBLayerSharedHits)) {
+  if (trk.summaryValue(iBLayerSharedHits, xAOD::numberOfInnermostPixelLayerSharedHits)) {
     fillHisto(m_HitInfoFakerates["nBLayerSharedHits"], iBLayerSharedHits, fakeNum);
   }
-  if (trk.summaryValue(iBLayerSplitHits, xAOD::numberOfBLayerSplitHits)) {
+  if (trk.summaryValue(iBLayerSplitHits, xAOD::numberOfInnermostPixelLayerSplitHits)) {
     fillHisto(m_HitInfoFakerates["nBLayerSplitHits" ], iBLayerSplitHits, fakeNum);
   }
 

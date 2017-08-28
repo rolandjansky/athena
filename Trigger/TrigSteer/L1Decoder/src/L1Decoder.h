@@ -25,10 +25,10 @@
 class L1Decoder : public AthReentrantAlgorithm {
 public:
   L1Decoder(const std::string& name, ISvcLocator* pSvcLocator);
-  StatusCode initialize();
-  StatusCode beginRun();
-  StatusCode execute_r (const EventContext& ctx) const override;
-  StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode beginRun() override;
+  virtual StatusCode execute_r (const EventContext& ctx) const override;
+  virtual StatusCode finalize() override;
 
 protected: // protected to support unit testing
   //  StatusCode flagPassingRoIs(TrigCompositeUtils::DecisionContainer* rois,

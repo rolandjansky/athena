@@ -63,7 +63,6 @@ Particular attention needs to be paid to the way the additional digits are
 created around the one actually crossed by the muon. The decision of which strip
 to turn on is made according to experimental distributions.
 
-@section RPC_Digitization_Req Requirements
 
 
 */

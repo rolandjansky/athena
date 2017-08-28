@@ -160,9 +160,6 @@ void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track,
 
       if (isOutlier && !ispatterntrack ) { // ME: outliers on pattern tracks may be reintegrated by fitter, so count them as hits
          information[Trk::numberOfPixelOutliers]++;
-         if (m_pixelId->is_blayer(id)){
-            information[Trk::numberOfBLayerOutliers]++;
-         }
 	 if (m_pixelId->layer_disk(id)==0 && m_pixelId->is_barrel(id)){
 	   information[Trk::numberOfInnermostPixelLayerOutliers]++;
 	 }
@@ -183,7 +180,6 @@ void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track,
 
 	 else {
 	   information[Trk::numberOfPixelHits]++;
-	   if ( (m_pixelId->is_blayer(id) ) ) information[Trk::numberOfBLayerHits]++; // found b layer hit
 	   if (m_pixelId->layer_disk(id)==0 && m_pixelId->is_barrel(id)) information[Trk::numberOfInnermostPixelLayerHits]++;
 	   if (m_pixelId->layer_disk(id)==1 && m_pixelId->is_barrel(id)) information[Trk::numberOfNextToInnermostPixelLayerHits]++;  
 	   // check to see if there's an ambiguity with the ganged cluster.
@@ -193,7 +189,6 @@ void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track,
 	   } else {
 	     const InDet::PixelCluster* pixPrd = pix->prepRawData();
 	     if ( pixPrd && pixPrd->isSplit() ){ information[Trk::numberOfPixelSplitHits]++; hitIsSplit=true; }
-	     if ( pixPrd && m_pixelId->is_blayer(id) && pixPrd->isSplit() ) information[Trk::numberOfBLayerSplitHits]++;
 	     if ( pixPrd && m_pixelId->is_barrel(id) && m_pixelId->layer_disk(id)==0 && pixPrd->isSplit() ) information[Trk::numberOfInnermostLayerSplitHits]++;
 	     if ( pixPrd && m_pixelId->is_barrel(id) && m_pixelId->layer_disk(id)==1 && pixPrd->isSplit() ) information[Trk::numberOfNextToInnermostLayerSplitHits]++;
 	     if ( pix->isBroadCluster() ) information[Trk::numberOfPixelSpoiltHits]++;
@@ -370,26 +365,10 @@ void InDet::InDetTrackSummaryHelperTool::searchForHoles(const Trk::Track& track,
 
       if ( information[Trk::numberOfContribPixelLayers] == 0 ) {
          ATH_MSG_DEBUG("No pxiels on track, so wo do not expect a B-Layer hit !");
-         information[Trk::expectBLayerHit] = 0;
 	 information[Trk::expectInnermostPixelLayerHit] = 0;
 	 information[Trk::expectNextToInnermostPixelLayerHit] = 0;
       } else{
 
-
-	///blayer block
-	if ( information[Trk::numberOfBLayerHits] > 0) {
-	  ATH_MSG_DEBUG("B-Layer hit on track, so we expect a B-Layer hit !");
-	  information[Trk::expectBLayerHit] = 1;
-	} else {
-	  ATH_MSG_DEBUG("Testing B-Layer using tool..");
-	  if (m_testBLayerTool->expectHitInBLayer(&track) ) {
-            ATH_MSG_DEBUG("expect B-Layer hit !");
-            information[Trk::expectBLayerHit] = 1;
-	  } else {
-            ATH_MSG_DEBUG("do not expect B-Layer hit !");
-            information[Trk::expectBLayerHit] = 0;
-	  }
-	}
 
 	//innermost layer block
 	if (information[Trk::numberOfInnermostPixelLayerHits] > 0){
@@ -432,14 +411,12 @@ void InDet::InDetTrackSummaryHelperTool::updateSharedHitCount(const Trk::Track &
     
     // loop over track states on surface and take pixel / sct to update the shared hit count
     summary.m_information[Trk::numberOfPixelSharedHits]  = 0;
-    summary.m_information[Trk::numberOfBLayerSharedHits] = 0;
     summary.m_information[Trk::numberOfInnermostPixelLayerSharedHits] = 0;
      summary.m_information[Trk::numberOfNextToInnermostPixelLayerSharedHits] = 0;
     summary.m_information[Trk::numberOfSCTSharedHits]    = 0;
      summary.m_information[Trk::numberOfTRTSharedHits]    = 0;
     if( m_runningTIDE_Ambi ) {
       summary.m_information[Trk::numberOfPixelSplitHits]   = 0;
-      summary.m_information[Trk::numberOfBLayerSplitHits]   = 0;
       summary.m_information[Trk::numberOfInnermostLayerSplitHits]   = 0;
       summary.m_information[Trk::numberOfNextToInnermostLayerSplitHits]   = 0;
     }
@@ -461,7 +438,6 @@ void InDet::InDetTrackSummaryHelperTool::updateSharedHitCount(const Trk::Track &
                          if ( pixPrd && pixPrd->isSplit() ){ 
                             summary.m_information[Trk::numberOfPixelSplitHits]++; 
                             hitIsSplit=true;
-			     if ( m_pixelId->is_blayer(id)) summary.m_information[Trk::numberOfBLayerSplitHits]++;
 			    if ( m_pixelId->is_barrel(id) && m_pixelId->layer_disk(id)==0) summary.m_information[Trk::numberOfInnermostLayerSplitHits]++;
 			    if ( m_pixelId->is_barrel(id) && m_pixelId->layer_disk(id)==1) summary.m_information[Trk::numberOfNextToInnermostLayerSplitHits]++;  
                          }
@@ -473,10 +449,6 @@ void InDet::InDetTrackSummaryHelperTool::updateSharedHitCount(const Trk::Track &
                       if ( m_assoTool->isShared(*(rot->prepRawData())) ) {
                           ATH_MSG_DEBUG("shared Pixel hit found");
                           summary.m_information[Trk::numberOfPixelSharedHits]++;
-			  if ( (m_pixelId->is_blayer(id) ) ) {
-			    ATH_MSG_DEBUG("--> shared Pixel hit is in b-layer");
-			    summary.m_information[Trk::numberOfBLayerSharedHits]++;       
-			  }
                           if ( (m_pixelId->is_barrel(id) && m_pixelId->layer_disk(id)==0) ) {
                              ATH_MSG_DEBUG("--> shared Pixel hit is in Innermost Pixel layer");
                              summary.m_information[Trk::numberOfInnermostPixelLayerSharedHits]++;       
@@ -516,48 +488,29 @@ void  InDet::InDetTrackSummaryHelperTool::updateExpectedHitInfo(const Trk::Track
     
     if ( summary.m_information[Trk::numberOfContribPixelLayers] == 0 ) {
       ATH_MSG_DEBUG("No pxiels on track, so wo do not expect a B-Layer hit !");
-      summary.m_information[Trk::expectBLayerHit] = 0;
       summary.m_information[Trk::expectInnermostPixelLayerHit] = 0;
       summary.m_information[Trk::expectNextToInnermostPixelLayerHit] = 0;
     } else{
-      
-      
-      ///blayer block
-      if ( summary.m_information[Trk::numberOfBLayerHits] > 0) {
-	ATH_MSG_DEBUG("B-Layer hit on track, so we expect a B-Layer hit !");
-	summary.m_information[Trk::expectBLayerHit] = 1;
-      } else {
-	ATH_MSG_DEBUG("Testing B-Layer using tool..");
-	if (m_testBLayerTool->expectHitInBLayer(&track) ) {
-	  ATH_MSG_DEBUG("expect B-Layer hit !");
-	  summary.m_information[Trk::expectBLayerHit] = 1;
-	} else {
-	  ATH_MSG_DEBUG("do not expect B-Layer hit !");
-	  summary.m_information[Trk::expectBLayerHit] = 0;
-	}
-      }
-      
       //innermost layer block
       if (summary.m_information[Trk::numberOfInnermostPixelLayerHits] > 0){
-	summary.m_information[Trk::expectInnermostPixelLayerHit] = 1;
+        ATH_MSG_DEBUG("Innermost pixel Layer hit on track, so we expect a innermost pixel layer hit !");
+        summary.m_information[Trk::expectInnermostPixelLayerHit] = 1;
       } else {
-	
 	if (m_testBLayerTool->expectHitInInnermostPixelLayer(&track) ) {
-	  ATH_MSG_DEBUG("expect Pixel Layer 0 hit !");
-	  summary.m_information[Trk::expectInnermostPixelLayerHit] = 1;
+          ATH_MSG_DEBUG("expect Pixel Layer 0 hit !");
+          summary.m_information[Trk::expectInnermostPixelLayerHit] = 1;
 	} else {
-	  ATH_MSG_DEBUG("do not expect Pixel Layer 0 hit !");
-	  summary.m_information[Trk::expectInnermostPixelLayerHit] = 0;
+          ATH_MSG_DEBUG("do not expect Pixel Layer 0 hit !");
+          summary.m_information[Trk::expectInnermostPixelLayerHit] = 0;
 	}  
 	
       }
       
       //next to innermost block
       if(summary.m_information[Trk::numberOfNextToInnermostPixelLayerHits] > 0){
-	summary.m_information[Trk::expectNextToInnermostPixelLayerHit] = 1;
+        summary.m_information[Trk::expectNextToInnermostPixelLayerHit] = 1;
       } else {
-	
-	if (m_testBLayerTool->expectHitInNextToInnermostPixelLayer(&track) ) {
+        if (m_testBLayerTool->expectHitInNextToInnermostPixelLayer(&track) ) {
 	  ATH_MSG_DEBUG("expect Pixel Layer 1 hit !");
 	  summary.m_information[Trk::expectNextToInnermostPixelLayerHit] = 1;
 	} else {

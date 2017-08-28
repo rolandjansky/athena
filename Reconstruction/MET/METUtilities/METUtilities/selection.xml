@@ -2,6 +2,7 @@
    <class name="met::METRebuilder" />
    <class name="met::METMaker" />
    <class name="met::METSystematicsTool" />
+   <class name="met::METSignificance" />
 
   <!-- Suppress the unwanted classes found by ROOT 6. -->
   <!-- Hopefully we can remove these extra lines at one point... -->

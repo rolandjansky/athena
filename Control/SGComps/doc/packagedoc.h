@@ -14,7 +14,6 @@ contains the Gaudi components implementing StoreGate.
  - ProxyProviderSvc_test.cxx
  - SGFolder_test.cxx
 
-@section SGComps_reqs CMT requirements file
 
 
 @section SGComps_refs More Documentation

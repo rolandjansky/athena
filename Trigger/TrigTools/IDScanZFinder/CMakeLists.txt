@@ -19,7 +19,6 @@ find_package( CLHEP )
 # Component(s) in the package:
 atlas_add_library( IDScanZFinderLib
                    src/*.cxx
-                   src/components/*.cxx
                    PUBLIC_HEADERS IDScanZFinder
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}

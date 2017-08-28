@@ -131,6 +131,7 @@ InDetFlags.doSpacePointFormation=doIDNewTracking
 InDetFlags.doParticleCreation=doIDNewTracking
 InDetFlags.doSecVertexFinder=False
 InDetFlags.doV0Finder=False
+InDetFlags.doSlimming=False
 InDetFlags.preProcessing=doIDNewTracking
 InDetFlags.postProcessing=doIDNewTracking
 

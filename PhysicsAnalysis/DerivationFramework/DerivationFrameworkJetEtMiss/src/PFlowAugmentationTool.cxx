@@ -14,20 +14,22 @@
 namespace DerivationFramework {
 
 const static SG::AuxElement::Decorator<char> dec_PVmatched("DFCommonPFlow_PVMatched");
+const static SG::AuxElement::Decorator<float> dec_corrP4_pt("DFCommonPFlow_CaloCorrectedPt");
 
   PFlowAugmentationTool::PFlowAugmentationTool(const std::string& t,
 					       const std::string& n,
 					       const IInterface* p) : 
-    AthAlgTool(t,n,p)
+    AthAlgTool(t,n,p),
+    m_weightPFOTool("CP::WeightPFOTool/WeightPFOTool")
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
     declareProperty("Z0SinThetaCut", m_z0sinthcut = 2.0);
+    declareProperty("UseChargedWeights",m_useChargedWeights = true, "True if we make use of weighting scheme for charged PFO");
+    declareProperty("WeightPFOTool", m_weightPFOTool );
   }
 
   StatusCode PFlowAugmentationTool::initialize()
   {
-		
-
 
     return StatusCode::SUCCESS;
   }
@@ -82,18 +84,28 @@ const static SG::AuxElement::Decorator<char> dec_PVmatched("DFCommonPFlow_PVMatc
 	continue;
       }
 
+      float weight = 1.0;
+
       bool matchedToPrimaryVertex = false;
       //vtz.z() provides z of that vertex w.r.t the center of the beamspot (z = 0). Thus we correct the track z0 to be w.r.t z = 0
       float z0 = ptrk->z0() + ptrk->vz();
-      if (pv) {z0 = z0 - pv->z();
+      if (pv) {
+	z0 = z0 - pv->z();
 	float theta = ptrk->theta();
 	if ( fabs(z0*sin(theta)) < m_z0sinthcut ) {
 	  matchedToPrimaryVertex = true;
 	}
+      }// if pv available
+
+      int isInDenseEnvironment = false;
+      bool gotVariable = cpfo->attribute(xAOD::PFODetails::PFOAttributes::eflowRec_isInDenseEnvironment,isInDenseEnvironment);
+      if(gotVariable && isInDenseEnvironment){
+	ATH_CHECK( m_weightPFOTool->fillWeight( *cpfo, weight ) );
       }
 
       // generate static decorators to avoid multiple lookups	
       dec_PVmatched(*cpfo) = matchedToPrimaryVertex;
+      dec_corrP4_pt(*cpfo) = weight*cpfo->pt();
     }
 
     return StatusCode::SUCCESS;

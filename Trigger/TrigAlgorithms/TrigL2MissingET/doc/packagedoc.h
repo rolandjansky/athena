@@ -48,20 +48,3 @@ property                [default]                 meaning
 As eta is not available from LVL1, the last two properties are not used.
 
 */
-
-/**
-@page used_TrigL2MissingET Used Packages
-*/
-
-/**
-@page requirements_TrigL2MissingET Requirements
-*/
-
-
-
-
-
-
-
-
-

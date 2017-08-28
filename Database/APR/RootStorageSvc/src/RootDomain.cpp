@@ -19,6 +19,7 @@
 #include "TError.h"
 #include "TFile.h"
 #include "TROOT.h"
+#include "TEnv.h"
 #include "TTree.h"
 #include "TVirtualStreamerInfo.h"
 
@@ -28,6 +29,7 @@ using namespace pool;
 RootDomain::RootDomain(IOODatabase* idb)
 : DbDomainImp(idb),
   m_defCompression(1),
+  m_defCompressionAlg(1),
   m_defSplitLevel(99),
   m_defAutoSave(16*1024*1024),
   m_defBufferSize(16*1024),
@@ -57,10 +59,18 @@ DbStatus RootDomain::setOption(const DbOption& opt)  {
         }
         return sc;
       }
+      else if ( !strcasecmp(n, "ASYNC_PREFETCHING") )  {
+        gEnv->SetValue("TFile.AsyncPrefetching", 1);
+        int asyncPrefetching = gEnv->GetValue("TFile.AsyncPrefetching", 0);
+        return opt._getValue(asyncPrefetching);
+      }
       break;
     case 'D':
       if ( !strcasecmp(n, "DEFAULT_COMPRESSION") )  {
         return opt._getValue(m_defCompression);
+      }
+      else if ( !strcasecmp(n, "DEFAULT_COMPRESSIONALG") )  {
+        return opt._getValue(m_defCompressionAlg);
       }
       else if ( !strcasecmp(n, "DEFAULT_SPLITLEVEL") )  {
         return opt._getValue(m_defSplitLevel);
@@ -138,6 +148,9 @@ DbStatus RootDomain::getOption(DbOption& opt) const   {
       if ( !strcasecmp(n, "ABORT_LEVEL") )  {
         return opt._setValue(int(gErrorAbortLevel));
       }
+      else if ( !strcasecmp(n, "ASYNC_PREFETCHING") )  {
+        return opt._setValue((int)gEnv->GetValue("TFile.AsyncPrefetching", 0));
+      }
       break;
     case 'C':
       if ( !strcasecmp(n, "CLASS") )  {
@@ -147,6 +160,9 @@ DbStatus RootDomain::getOption(DbOption& opt) const   {
     case 'D':
       if ( !strcasecmp(n, "DEFAULT_COMPRESSION") )  {
         return opt._setValue(int(m_defCompression));
+      }
+      else if ( !strcasecmp(n, "DEFAULT_COMPRESSIONALG") )  {
+        return opt._setValue(int(m_defCompressionAlg));
       }
       else if ( !strcasecmp(n, "DEFAULT_SPLITLEVEL") )  {
         return opt._setValue(int(m_defSplitLevel));

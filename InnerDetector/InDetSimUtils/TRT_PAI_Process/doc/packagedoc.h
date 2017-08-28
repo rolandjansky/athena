@@ -34,16 +34,6 @@ Other references to the PAI model are
                           to perform PAI
   - TRT_PAI_gasdata.h:    tabulated values of photon absorption cross section
 
-@ref used_Package
 
-@ref requirements_TRT_PAI_Process
 
-*/
-
-/**
-@page used_Package Used Packages
-*/
-
-/**
-@page requirements_TRT_PAI_Process Requirements
 */

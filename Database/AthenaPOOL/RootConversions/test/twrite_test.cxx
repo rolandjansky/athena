@@ -20,9 +20,6 @@
 #include "TROOT.h"
 #include "TSystem.h"
 #include "TFile.h"
-#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
-#include "Cintex/Cintex.h"
-#endif
 #include "tcls1.h"
 
 void test1(TFile& f)
@@ -888,9 +885,6 @@ void test41 (TFile& f)
 int main()
 {
   TROOT root ("root", "root");
-#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
-  ROOT::Cintex::Cintex::Enable();
-#endif
   gSystem->Load ("libSTLRflx");
   gSystem->Load ("libSTLAddRflx");
   gSystem->Load ("libAtlasSTLAddReflexDict");

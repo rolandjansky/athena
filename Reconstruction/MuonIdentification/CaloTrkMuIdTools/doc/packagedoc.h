@@ -30,7 +30,5 @@
   The tools can be steered through jobOptions. The default configuration that is being employed for standard reconstruction is 
   set up by the jobOptions found in share. 
 
-@section CaloTrkMuIdTools_requirements Requirements
 
 */
-

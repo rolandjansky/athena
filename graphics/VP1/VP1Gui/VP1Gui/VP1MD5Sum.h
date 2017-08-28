@@ -18,8 +18,8 @@
 #ifndef VP1MD5SUM_H
 #define VP1MD5SUM_H
 
-#include <QtCore/QString>
-#include <QtCore/QByteArray>
+#include <QString>
+#include <QByteArray>
 
 class VP1MD5Sum {
 public:

@@ -27,15 +27,5 @@ trees.
 
 @section CscSegmentPerformance_AdditionalCscSegmentPerformance Additional information
 
- - @ref UsedCscSegmentPerformance
- - @ref RequirementsCscSegmentPerformance
  - <a href=https://twiki.cern.ch/twiki/bin/view/Atlas/CscReconstruction>CSC reconstruction overview</a>
-*/
-
-/**
-@page UsedCscSegmentPerformance Used packages
-*/
-
-/**
-@page RequirementsCscSegmentPerformance Requirements
 */

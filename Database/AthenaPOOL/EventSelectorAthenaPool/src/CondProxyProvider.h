@@ -52,7 +52,8 @@ public: // Constructor and Destructor
    /// Update a transient address.
    /// @param storeID [IN] store ID, this function only preloads detector store addresses.
    /// @param tad [IN] transient address to be updated.
-   virtual StatusCode updateAddress(StoreID::type storeID, SG::TransientAddress* tad);
+   virtual StatusCode updateAddress(StoreID::type storeID, SG::TransientAddress* tad,
+                                    const EventContext& ctx);
 
 private: // data
    ServiceHandle<IAthenaPoolCnvSvc> m_athenaPoolCnvSvc;

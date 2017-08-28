@@ -111,7 +111,7 @@ StatusCode MuonIdCutTool::initialize() {
       ATH_MSG_DEBUG( "EEL eta/phi int: "<< eta << " " << sector  );
 
   
-      if(fabs(eta) > 0 && fabs(eta) < 3 && sector > 0 && sector < 17){
+      if(std::abs(eta) > 0 && std::abs(eta) < 3 && sector > 0 && sector < 17){
 	m_EELeta.push_back(eta);
 	m_EELsector.push_back(sector);
       

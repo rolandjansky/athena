@@ -1,4 +1,3 @@
-// -*- c++ -*-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -9,12 +8,15 @@
 #include "GaudiKernel/IAlgTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DecisionHandling/HLTIdentifier.h"
+#include "AthenaMonitoring/GenericMonitoringTool.h"
 
 #include "./ICTPUnpackingTool.h"
 
 namespace ROIB {
   class RoIBResult;
 }
+
+
 
 
 class CTPUnpackingTool:  public AthAlgTool, virtual public ::ICTPUnpackingTool{
@@ -35,12 +37,12 @@ public:
    */
   StatusCode decode(const ROIB::RoIBResult& roib, HLT::IDVec& enabledChains) const override;
 
-  StatusCode initialize() override { return decodeCTPToChainMapping(); }
+  StatusCode initialize() override;
   
   
 
 private:
- 
+  ToolHandle<GenericMonitoringTool> m_monTool;
 }; 
 
 

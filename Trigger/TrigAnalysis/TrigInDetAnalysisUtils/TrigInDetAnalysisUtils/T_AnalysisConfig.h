@@ -83,6 +83,9 @@ public:
     m_associator(associator),
     m_analysis(analysis),
     m_mcTruth(false),
+    m_beamX(0),
+    m_beamY(0),
+    m_beamZ(0),
     m_genericFlag(true),
     m_releaseData(""),
     m_keepAllEvents(false),
@@ -147,6 +150,8 @@ public:
     m_genericFlag(true),
     m_releaseData(""),
     m_keepAllEvents(false),
+    m_useHighestPT(false),
+    m_vtxIndex(-1),
     m_filterOnRoi(true),
     m_requireDecision(false)
   {

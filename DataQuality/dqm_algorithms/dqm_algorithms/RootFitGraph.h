@@ -25,8 +25,8 @@ namespace dqm_algorithms
     using dqm_core::Algorithm::printDescription;
     void  printDescription(std::ostream& out);             
     private:
-    std::string name_;
-    std::auto_ptr<TF1> func;	
+    std::string m_name;
+    std::auto_ptr<TF1> m_func;	
   };
 }
 

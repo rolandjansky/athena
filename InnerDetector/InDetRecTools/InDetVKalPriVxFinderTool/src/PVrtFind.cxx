@@ -94,9 +94,9 @@ namespace InDet {
          if(fabs(FitVertex.z()-IniVertex.z())>m_ZDistSelCut/2. && NTrkInVrt>4){ 
 	    ZStartFit=FitVertex.z(); 
 	    IniVertex<<FitVertex.x(),FitVertex.y(),FitVertex.z();
-            int lastVrt=savedTrkFittedPerigees.size()-1;
-            removeWorkArr2(savedTrkFittedPerigees[lastVrt],NTrkInVrt,3);     // Remove previous fit results
-            savedTrkFittedPerigees.pop_back();    m_fittedTrkCov.pop_back(); // Remove previous fit results!!!See above
+            int lastVrt=m_savedTrkFittedPerigees.size()-1;
+            removeWorkArr2(m_savedTrkFittedPerigees[lastVrt],NTrkInVrt,3);     // Remove previous fit results
+            m_savedTrkFittedPerigees.pop_back();    m_fittedTrkCov.pop_back(); // Remove previous fit results!!!See above
             inpSelector(ListParticles,ListTracks,IniVertex,SelectedParticles,SelectedTracks);
             Chi2 = FitCommonVrt(SelectedParticles,SelectedTracks,ZStartFit,FitVertex,VertexErrorMatrix,TrkWeights);
 	    if(Chi2 > 0){

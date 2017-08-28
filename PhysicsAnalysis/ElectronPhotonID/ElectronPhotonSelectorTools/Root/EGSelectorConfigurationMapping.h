@@ -14,14 +14,19 @@ namespace EgammaSelectors {
   //This is the internal part , We need to  map string to latest reccomendations
   const std::map<std::string,std::string> LHPointToConfFile={
     {"VeryLooseLHElectron","ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodVeryLooseOfflineConfig2016_Smooth.conf"},
+    {"VeryLooseLHNod0Electron", "ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodVeryLooseOfflineConfig2016_Smooth_NoD0.conf"},
     {"LooseLHElectron","ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodLooseOfflineConfig2016_Smooth.conf"},
+    {"LooseLHNod0Electron", "ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodLooseOfflineConfig2016_Smooth_NoD0.conf"},
     {"LooseBLLHElectron","ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodLooseOfflineConfig2016_CutBL_Smooth.conf"},
+    {"LooseBLLHNod0Electron", "ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodLooseOfflineConfig2016_CutBL_Smooth_NoD0.conf"},
     {"MediumLHElectron","ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodMediumOfflineConfig2016_Smooth.conf"},
-    {"TightLHElectron","ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodTightOfflineConfig2016_Smooth.conf"}
+    {"MediumLHNod0Electron", "ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodMediumOfflineConfig2016_Smooth_NoD0.conf"},
+    {"TightLHElectron","ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodTightOfflineConfig2016_Smooth.conf"},
+    {"TightLHNod0Electron", "ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodTightOfflineConfig2016_Smooth_NoD0.conf"}
   };
   const std::map<std::string,std::string> PhotonCutPointToConfFile={
     {"LoosePhoton","ElectronPhotonSelectorTools/offline/mc15_20150712/PhotonIsEMLooseSelectorCutDefs.conf"},
-    {"MediumPhoton","ElectronPhotonSelectorTools/offline/mc15_20150712/PhotonIsEMMediumSelectorCutDefs.conf"},
+    {"MediumPhoton","ElectronPhotonSelectorTools/offline/mc15_20160512/PhotonIsEMMediumSelectorCutDefs.conf"},
     {"TightPhoton","ElectronPhotonSelectorTools/offline/mc15_20150712/PhotonIsEMTightSelectorCutDefs.conf"},
   };
   const std::map<std::string,std::string> ForwardElectronCutPointToConfFile={
@@ -37,8 +42,8 @@ namespace EgammaSelectors {
   //----------------------------------------------------------
   //Map enums to masks , needed for photons
   const std::map<std::string,unsigned int> PhotonCutPointToMask={{"LoosePhoton",egammaPID::PhotonLoose},
-                                                                 {"MediumPhoton",egammaPID::PhotonMedium},
-                                                                 {"TightPhoton",egammaPID::PhotonTight},
+								   {"MediumPhoton",egammaPID::PhotonMedium},
+								   {"TightPhoton",egammaPID::PhotonTight},
   };
 }
 ////////////////////////////////////////////

@@ -43,8 +43,8 @@ namespace InDet {
     					 "TIDErejectProbv3.root",
     					 "h1") );
     ATH_CHECK( initObject<TH2>( m_trkNomEff,
-				"TrackingEfficiencyRecommendations_20.7rel.root", 
-				"EfficiencyVSEtaPt_AfterRebinningOld_Nominal_MC_Loose" ) );
+				"TrackingRecommendations_pre_rel21.root", 
+				"EfficiencyVSEtaPt_AfterRebinningNominal_Loose" ) );
     
     ATH_CHECK ( InDetTrackSystematicsTool::initialize() );
 

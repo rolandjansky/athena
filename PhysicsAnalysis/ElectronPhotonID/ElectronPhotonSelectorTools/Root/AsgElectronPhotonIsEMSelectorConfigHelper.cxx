@@ -3,6 +3,7 @@
 */
 
 #include "AsgElectronPhotonIsEMSelectorConfigHelper.h"
+#include "ElectronPhotonSelectorTools/egammaPIDdefs.h"
 #include "AsgTools/AsgMessaging.h"
 #include "TEnv.h"
 #include <iostream>
@@ -13,6 +14,8 @@ namespace AsgConfigHelper{
   std::string  findConfigFile (std::string input, const std::map<std::string,std::string>& configmap){
     auto confFile_itr=configmap.find(input);
     if(confFile_itr == configmap.end()){
+      static const asg::AsgMessaging msg("Egamma::AsgConfigHelper");
+      msg.msg(MSG::WARNING)<<"Key "<<input<<" not found in map, no config file returned"<<endmsg;
       return "";
     }
     return confFile_itr->second;
@@ -21,7 +24,9 @@ namespace AsgConfigHelper{
   unsigned int  findMask (std::string input, const std::map<std::string,unsigned int>& maskmap){
     auto mask_itr=maskmap.find(input);
     if(mask_itr==maskmap.end()){
-      return 0;
+      static const asg::AsgMessaging msg("Egamma::AsgConfigHelper");
+      msg.msg(MSG::WARNING)<<"Key "<<input<<" not found in map,  egammaPID::EgPidUndefined mask returned"<<endmsg;
+      return egammaPID::EgPidUndefined;
     }
     return static_cast < unsigned int> (mask_itr->second);  
   }
@@ -45,7 +50,7 @@ namespace AsgConfigHelper{
       last = (input.find("#",first+1) );
       //if nor error
       if (last == std::string::npos) {
-        asg::AsgMessaging msg("Egamma::AsgConfigHelper");
+        static const asg::AsgMessaging msg("Egamma::AsgConfigHelper");
 	msg.msg(MSG::WARNING)<<" Improper comment format , inline comment should be enclosed between two #  "<<endmsg;
 	return false;
       }

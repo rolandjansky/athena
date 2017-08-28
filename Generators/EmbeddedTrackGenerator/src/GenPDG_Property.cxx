@@ -17,7 +17,7 @@
 
 
 StatusCode GenPDG_Property::initialize(const HepPDT::ParticleDataTable* particleTable) {
-  MsgStream log(m_parent->messageService(), m_parent->name() );
+  MsgStream log(m_parent->msgSvc(), m_parent->name() );
   const HepPDT::ParticleData* particle_data = particleTable->particle(HepPDT::ParticleID(std::abs( m_pdg_id )));
   if (!particle_data) {
     log << MSG::FATAL << "GenPDG_Property::initialize(): can't get data for particle with pdg_id=" << std::abs(m_pdg_id) << endmsg;

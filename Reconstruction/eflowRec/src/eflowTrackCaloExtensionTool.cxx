@@ -25,50 +25,46 @@
 #include "CaloDetDescr/CaloDepthTool.h"
 
 #include "GaudiKernel/ListItem.h"
-//#include "GaudiKernel/ToolHandle.h"
 
 #include <map>
 #include <vector>
 #include <utility>
 
-//using std::pair;
-
 eflowTrackCaloExtensionTool::eflowTrackCaloExtensionTool(const std::string& type, const std::string& name, const IInterface* parent)  :
     AthAlgTool(type, name, parent),
-    m_theTrackExtrapolatorTool("Trk::ParticleCaloExtensionTool"),
-    m_trackParametersIdHelper(new Trk::TrackParametersIdHelper)
+    m_theTrackExtrapolatorTool("Trk::ParticleCaloExtensionTool",this),
+    m_trackParametersIdHelper(std::make_unique<Trk::TrackParametersIdHelper>())
 {
   declareInterface<eflowTrackExtrapolatorBaseAlgTool>(this);
   declareProperty("TrackCaloExtensionTool", m_theTrackExtrapolatorTool, "TrackCaloExtension Tool Handle");
 }
 
 eflowTrackCaloExtensionTool::~eflowTrackCaloExtensionTool() {
-  delete m_trackParametersIdHelper;
 }
 
 StatusCode eflowTrackCaloExtensionTool::initialize() {
   /* Tool service */
   IToolSvc* myToolSvc;
   if (service("ToolSvc", myToolSvc).isFailure()) {
-    msg(MSG::WARNING) << " Tool Service Not Found" << endmsg;
+    ATH_MSG_WARNING(" Tool Service Not Found");
     return StatusCode::SUCCESS;
   }
 
   if (m_theTrackExtrapolatorTool.retrieve().isFailure()) {
-    msg(MSG::WARNING) << "Cannot find Extrapolation tool "
-    << m_theTrackExtrapolatorTool.typeAndName() << endmsg;
+    ATH_MSG_WARNING("Cannot find Extrapolation tool "
+		    << m_theTrackExtrapolatorTool.typeAndName());
     return StatusCode::SUCCESS;
   } else {
-    msg(MSG::INFO) << "Successfully retrieved Extrapolation tool "
-    << m_theTrackExtrapolatorTool.typeAndName() << endmsg;
+    ATH_MSG_VERBOSE("Successfully retrieved Extrapolation tool "
+		    << m_theTrackExtrapolatorTool.typeAndName());
   }
 
   return StatusCode::SUCCESS;
 }
 
-eflowTrackCaloPoints* eflowTrackCaloExtensionTool::execute(const xAOD::TrackParticle* track) const {
-  //++m_tracksProcessed;
-  msg(MSG::VERBOSE) << " Now running eflowTrackCaloExtensionTool" << endmsg;
+std::unique_ptr<eflowTrackCaloPoints> eflowTrackCaloExtensionTool::execute(const xAOD::TrackParticle* track) const {
+
+  ATH_MSG_VERBOSE(" Now running eflowTrackCaloExtensionTool");
 
   /*make the map*/
   std::map<eflowCalo::LAYER, const Trk::TrackParameters*> parametersMap;
@@ -89,12 +85,12 @@ eflowTrackCaloPoints* eflowTrackCaloExtensionTool::execute(const xAOD::TrackPart
         parametersMap[getLayer(clParameter)] = clParameter->clone();
       }
     }
-    return new eflowTrackCaloPoints(parametersMap);
+    return std::make_unique<eflowTrackCaloPoints>(parametersMap);
   }
   else{
-    msg(MSG::WARNING) << "TrackExtension failed for track with pt and eta " << track->pt() << " and " << track->eta() << endmsg;
+    if (track->pt() > 3*Gaudi::Units::GeV) ATH_MSG_WARNING("TrackExtension failed for track with pt and eta " << track->pt() << " and " << track->eta());
     parametersMap[eflowCalo::LAYER::Unknown] = nullptr;
-    return new eflowTrackCaloPoints(parametersMap);
+    return std::make_unique<eflowTrackCaloPoints>(parametersMap);
   }
 
 
@@ -110,14 +106,14 @@ eflowCalo::LAYER eflowTrackCaloExtensionTool::getLayer(const Trk::CurvilinearPar
 
   /*Return unknown when the identifier is invalid */
   if (!m_trackParametersIdHelper->isValid(parametersIdentifier)) {
-    msg(MSG::ERROR) << "invalid Track Identifier"<<endmsg;
+    ATH_MSG_ERROR("invalid Track Identifier");
     return eflowCalo::LAYER::Unknown;
   };
 
   if(m_trackParametersIdHelper->isEntryToVolume(parametersIdentifier)) {
-    msg(MSG::VERBOSE) << "is Volume Entry" << endmsg;
+    ATH_MSG_VERBOSE("is Volume Entry");
  } else {
-    msg(MSG::VERBOSE) << "is Volume Exit" << endmsg;
+    ATH_MSG_VERBOSE("is Volume Exit");
     }
 
   return eflowCalo::translateSampl(m_trackParametersIdHelper->caloSample(parametersIdentifier));

@@ -49,7 +49,6 @@ class MmDigitContainer
 :public IdentifiableContainer<MmDigitCollection> 
 {
  public:  
-   MmDigitContainer(); 
    
   MmDigitContainer(unsigned int hash_max) ; 
   ~MmDigitContainer() ; 

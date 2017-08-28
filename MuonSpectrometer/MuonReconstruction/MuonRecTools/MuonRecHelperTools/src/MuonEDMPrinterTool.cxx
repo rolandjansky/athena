@@ -452,7 +452,7 @@ namespace Muon {
 
     std::vector< const Trk::MeasurementBase* >::const_iterator hit = measurements.begin();
     std::vector< const Trk::MeasurementBase* >::const_iterator hit_end = measurements.end();
-    std::vector< const Trk::MeasurementBase* >::const_iterator hit_last = hit_end;
+    //std::vector< const Trk::MeasurementBase* >::const_iterator hit_last = hit_end;
     for( ;hit!=hit_end;++hit ){
       if(!*hit) {
 	sout << " WARNING, zero pointer detected in MeasurementBase vector!!! " << std::endl;

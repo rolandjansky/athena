@@ -568,8 +568,8 @@ bool TrigEgammaNavNtuple::fillElectron( const xAOD::Electron *el ){
     m_el_charge               = el->charge();
     
     track->summaryValue( m_el_eprobht            , xAOD::SummaryType::eProbabilityHT );
-    track->summaryValue( m_el_nblayerhits        , xAOD::SummaryType::numberOfBLayerHits );
-    track->summaryValue( m_el_nblayerolhits      , xAOD::SummaryType::numberOfBLayerOutliers );
+    track->summaryValue( m_el_nblayerhits        , xAOD::SummaryType::numberOfInnermostPixelLayerHits );
+    track->summaryValue( m_el_nblayerolhits      , xAOD::SummaryType::numberOfInnermostPixelLayerOutliers );
     track->summaryValue( m_el_npixhits           , xAOD::SummaryType::numberOfPixelHits );
     track->summaryValue( m_el_npixolhits         , xAOD::SummaryType::numberOfPixelOutliers );
     track->summaryValue( m_el_nscthits           , xAOD::SummaryType::numberOfSCTHits );
@@ -579,7 +579,7 @@ bool TrigEgammaNavNtuple::fillElectron( const xAOD::Electron *el ){
     track->summaryValue( m_el_ntrthighthresolhits, xAOD::SummaryType::numberOfTRTHighThresholdOutliers );
     track->summaryValue( m_el_ntrtolhits         , xAOD::SummaryType::numberOfTRTOutliers );
     track->summaryValue( m_el_ntrtxenonhits      , xAOD::SummaryType::numberOfTRTXenonHits );
-    //track->summaryValue( m_el_expectblayerhit    , xAOD::SummaryType::expectBLayerHit );
+    //track->summaryValue( m_el_expectblayerhit    , xAOD::SummaryType::expectInnermostPixelLayerHit );
     track->summaryValue( m_el_npixdeadsensors    , xAOD::SummaryType::numberOfPixelDeadSensors);
     track->summaryValue( m_el_nsctdeadsensors    , xAOD::SummaryType::numberOfSCTDeadSensors);
 

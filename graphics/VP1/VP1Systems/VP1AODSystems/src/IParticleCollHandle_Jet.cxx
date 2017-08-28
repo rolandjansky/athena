@@ -27,7 +27,7 @@
 #include "VP1Utils/VP1SGContentsHelper.h"
 
 //Qt
-#include <QtCore/QStringList>
+#include <QStringList>
 
 //xAOD
 #include "xAODJet/JetContainer.h"
@@ -818,9 +818,7 @@ void IParticleCollHandle_Jet::dumpToJSON( std::ofstream& str) const {
   for (auto handle : getHandlesList() ) {
     if (handle->visible()) {
       if (num) str <<",\n";
-      str << "\"Jet "<<num++<< "\":{";
       handle->dumpToJSON(str);
-      str << "}";
     }
   }
   

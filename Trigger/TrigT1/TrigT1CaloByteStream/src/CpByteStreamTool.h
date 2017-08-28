@@ -85,26 +85,61 @@ class CpByteStreamTool : public AthAlgTool {
    typedef DataVector<LVL1::CPMHits>                     CpmHitsCollection;
    typedef DataVector<LVL1::CMMCPHits>                   CmmCpHitsCollection;
    typedef std::map<unsigned int, LVL1::CPMTower*>       CpmTowerMap;
+   typedef std::map<unsigned int, const LVL1::CPMTower*> ConstCpmTowerMap;
    typedef std::map<int, LVL1::CPMHits*>                 CpmHitsMap;
+   typedef std::map<int, const LVL1::CPMHits*>           ConstCpmHitsMap;
    typedef std::map<int, LVL1::CMMCPHits*>               CmmCpHitsMap;
+   typedef std::map<int, const LVL1::CMMCPHits*>         ConstCmmCpHitsMap;
    typedef IROBDataProviderSvc::VROBFRAG::const_iterator ROBIterator;
    typedef OFFLINE_FRAGMENTS_NAMESPACE::PointerType      ROBPointer;
    typedef OFFLINE_FRAGMENTS_NAMESPACE::PointerType      RODPointer;
 
+   struct CpByteStreamToolData
+   {
+     CpByteStreamToolData (const CollectionType collection)
+       : m_collection(collection){}
+     const CollectionType m_collection;
+   };
+   struct CpmTowerData : public CpByteStreamToolData
+   {
+     CpmTowerData (CpmTowerCollection* const ttCollection)
+       : CpByteStreamToolData (CPM_TOWERS), m_ttCollection (ttCollection) {}
+     CpmTowerCollection* const m_ttCollection;
+     CpmTowerMap  m_ttMap;
+   };
+   struct CpmHitsData : public CpByteStreamToolData
+   {
+     CpmHitsData (CpmHitsCollection* const hitCollection)
+       : CpByteStreamToolData (CPM_HITS), m_hitCollection (hitCollection) {}
+     CpmHitsCollection* const m_hitCollection;
+     CpmHitsMap   m_hitsMap;
+   };
+   struct CmmHitsData : public CpByteStreamToolData
+   {
+     CmmHitsData (CmmCpHitsCollection* const hitCollection)
+       : CpByteStreamToolData (CMM_CP_HITS), m_cmmHitCollection (hitCollection) {}
+     CmmCpHitsCollection* const m_cmmHitCollection;
+     CmmCpHitsMap m_cmmHitsMap;
+   };
+
    /// Convert bytestream to given container type
    StatusCode convertBs(const IROBDataProviderSvc::VROBFRAG& robFrags,
-                        CollectionType collection);
+                        CpByteStreamToolData& data);
    /// Unpack CMM-CP sub-block
-   void decodeCmmCp(CmmCpSubBlock* subBlock, int trigCmm);
+   void decodeCmmCp(CmmCpSubBlock* subBlock, int trigCmm, CmmHitsData& data);
    /// Unpack CPM sub-block
-   void decodeCpm(CpmSubBlock* subBlock, int trigCpm, CollectionType collection);
+   void decodeCpm(CpmSubBlock* subBlock, int trigCpm, CpByteStreamToolData& data);
 
    /// Find a CPM tower for given key
-   LVL1::CPMTower*  findCpmTower(unsigned int key);
+   const LVL1::CPMTower*  findCpmTower(unsigned int key) const;
+   LVL1::CPMTower*  findCpmTower(const CpmTowerData& data, unsigned int key) const;
    /// Find CPM hits for given crate, module
-   LVL1::CPMHits*   findCpmHits(int crate, int module);
+   const LVL1::CPMHits*   findCpmHits(int crate, int module) const;
+   LVL1::CPMHits*   findCpmHits(const CpmHitsData& data, int crate, int module) const;
    /// Find CMM-CP hits for given crate, data ID
-   LVL1::CMMCPHits* findCmmCpHits(int crate, int dataID);
+   const LVL1::CMMCPHits* findCmmCpHits(int crate, int dataID) const;
+   LVL1::CMMCPHits* findCmmCpHits(const CmmHitsData& data,
+                                  int crate, int dataID) const;
 
    /// Set up CPM tower map
    void setupCpmTowerMap(const CpmTowerCollection* ttCollection);
@@ -180,18 +215,12 @@ class CpByteStreamTool : public AthAlgTool {
    DataVector<CmmCpSubBlock> m_cmmHit0Blocks;
    /// Vector for current CMM-CP hit1 sub-blocks
    DataVector<CmmCpSubBlock> m_cmmHit1Blocks;
-   /// Current CPM tower collection
-   CpmTowerCollection*  m_ttCollection;
-   /// Current CPM hits collection
-   CpmHitsCollection*   m_hitCollection;
-   /// Current CMM-CP hits collection
-   CmmCpHitsCollection* m_cmmHitCollection;
    /// CPM tower map
-   CpmTowerMap  m_ttMap;
+   ConstCpmTowerMap  m_ttMap;
    /// CPM hits map
-   CpmHitsMap   m_hitsMap;
+   ConstCpmHitsMap   m_hitsMap;
    /// CMM-CP hits map
-   CmmCpHitsMap m_cmmHitsMap;
+   ConstCmmCpHitsMap m_cmmHitsMap;
    /// ROD Status words
    std::vector<uint32_t>* m_rodStatus;
    /// ROD status map

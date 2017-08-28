@@ -1,5 +1,5 @@
-test4.k1 = "FooSvc/aaa";
+test4.k1 = "FooSvc+aaa";
 test4.k2 = "bbb";
-test4.k3 = "BarSvc/ccc";
-test4.k4 = "BazSvc/ddd";
-test5.k1 = "FooSvc/xxx/aaa";
+test4.k3 = "BarSvc+ccc";
+test4.k4 = "BazSvc+ddd";
+test5.k1 = "FooSvc+xxx/aaa";

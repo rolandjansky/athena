@@ -5,8 +5,6 @@
 #ifndef G4UserActions_ScoringVolumeTrackKiller_H
 #define G4UserActions_ScoringVolumeTrackKiller_H
 
-
-
 #include "G4AtlasInterfaces/IEndEventAction.h"
 #include "G4AtlasInterfaces/ISteppingAction.h"
 #include "AthenaBaseComps/AthMessaging.h"

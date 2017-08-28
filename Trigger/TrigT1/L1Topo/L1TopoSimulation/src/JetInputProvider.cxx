@@ -12,7 +12,7 @@
 #include "TrigT1CaloEvent/JetROI_ClassDEF.h"
 #include "L1TopoEvent/ClusterTOB.h"
 #include "L1TopoEvent/TopoInputEvent.h"
-#include "TrigT1CaloEvent/JetCMXTopoDataCollection.h"
+
 
 using namespace std;
 using namespace LVL1;
@@ -39,6 +39,8 @@ JetInputProvider::initialize() {
    CHECK(incidentSvc.retrieve());
    incidentSvc->addListener(this,"BeginRun", 100);
    incidentSvc.release().ignore();
+
+   CHECK(m_jetLocation.initialize()); 
 
    return StatusCode::SUCCESS;
 }
@@ -75,12 +77,11 @@ JetInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
    // https://indico.cern.ch/conferenceDisplay.py?confId=284687
    
 
-   DataVector<JetCMXTopoData> * jettobdata = 0;
 
-   if( evtStore()->contains<DataVector<JetCMXTopoData>>(m_jetLocation) ) {
-      CHECK( evtStore()->retrieve(jettobdata, m_jetLocation));
-   } else {
-      ATH_MSG_WARNING("No DataVector<JetCMXTopoData> with SG key '" << m_jetLocation.toString() << "' found in the event. No JET input for the L1Topo simulation.");
+   SG::ReadHandle< DataVector<JetCMXTopoData> > jettobdata (m_jetLocation);
+
+   if(!jettobdata.isValid()){
+      ATH_MSG_WARNING("No DataVector<JetCMXTopoData> with SG key '" << m_jetLocation.key() << "' found in the event. No JET input for the L1Topo simulation.");
       return StatusCode::RECOVERABLE;
    }
 

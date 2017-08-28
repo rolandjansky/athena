@@ -23,6 +23,7 @@
 #include "RecoToolInterfaces/IsolationCommon.h"
 
 #include "IsolationCorrections/IIsolationCorrectionTool.h"
+#include "xAODMuon/MuonContainer.h"
 
 namespace xAOD {
   class INeutralEFlowIsolationTool;
@@ -74,7 +75,7 @@ class IsolationBuilder
   std::string m_ElectronContainerName;
   std::string m_FwdElectronContainerName;
   std::string m_PhotonContainerName;
-  std::string m_MuonContainerName;
+  SG::ReadHandleKey<xAOD::MuonContainer> m_MuonContainerName;
 
   /** @brief Tool for cell isolation calculation */
   ToolHandle<xAOD::ICaloCellIsolationTool> m_cellIsolationTool;

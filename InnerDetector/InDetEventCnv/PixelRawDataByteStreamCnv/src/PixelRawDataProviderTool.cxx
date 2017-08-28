@@ -7,6 +7,8 @@
 #include "PixelRawDataByteStreamCnv/IPixelRodDecoder.h"
 #include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
 
+using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
+
 //#define PIXEL_DEBUG
 //#define PLOTS
 
@@ -19,7 +21,6 @@ PixelRawDataProviderTool::PixelRawDataProviderTool
      m_decoder   ("PixelRodDecoder"),
      m_bsErrSvc  ("PixelByteStreamErrorsSvc",name),
      m_robIdSet(),
-     m_lastLvl1ID(0),
      m_LVL1Collection(nullptr),
      m_BCIDCollection(nullptr)
 {

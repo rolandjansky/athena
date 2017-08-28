@@ -34,7 +34,6 @@ The concrete implementations rely on very precise knowledge of the various sub-d
 to be found in the corresponding software repositories.
 
    
-@section TrkDetDescrInterfaces_TrkDetDescrInterfacesReq Requirements
 
 
 */

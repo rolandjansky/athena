@@ -7,7 +7,6 @@
 
 import user
 import ROOT
-import PyCintex
 import AthenaROOTAccess.transientTree
 
 print "args:",sys.argv

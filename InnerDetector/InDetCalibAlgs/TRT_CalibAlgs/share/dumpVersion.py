@@ -23,7 +23,6 @@ sys.argv = sys.argv[:1] + ['-b'] + sys.argv[1:]
 import ROOT
 # Turn off X11 requirement in ROOT
 sys.argv.remove('-b')
-import PyCintex
 import AthenaROOTAccess.transientTree
 
 from optparse import OptionParser

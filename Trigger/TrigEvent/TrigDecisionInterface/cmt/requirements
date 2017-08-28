@@ -1,5 +1,0 @@
-package TrigDecisionInterface
-# $Id: requirements 750298 2016-05-27 13:03:48Z krasznaa $
-
-use AtlasPolicy      AtlasPolicy-*
-use AsgTools         AsgTools-*         Control/AthToolSupport

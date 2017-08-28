@@ -20,6 +20,8 @@ authors : Niels van Eldik (CERN PH-ATC)
 
 #include "PathLengthUtils.h"
 
+
+
 namespace Trk {
   class IParticleCaloExtensionTool;
   class CaloExtension;
@@ -71,6 +73,7 @@ namespace Rec {
     mutable Trk::CaloCellSelectorLayerdR m_defaultSelector;
 
     mutable PathLengthUtils m_pathLenUtil;
+
 
   };
 

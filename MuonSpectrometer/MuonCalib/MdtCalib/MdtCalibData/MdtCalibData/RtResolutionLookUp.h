@@ -22,11 +22,11 @@ class RtResolutionLookUp : public IRtResolution {
     explicit RtResolutionLookUp( const ParVec& vec ) : IRtResolution(vec)  {
       if( vec.size() < 4 ){ 
 	std::cout << "RtResolutionLookUp ERROR <to few parameters> " << std::endl;
-	t_min=9e9;
-	bin_size=1.0; //will be always out of range	
+	m_t_min=9e9;
+	m_bin_size=1.0; //will be always out of range	
       }else{
-	t_min = par(0);
-	bin_size = par(1);
+	m_t_min = par(0);
+	m_bin_size = par(1);
       }
     }
     
@@ -38,16 +38,16 @@ class RtResolutionLookUp : public IRtResolution {
     double resolution( double t, double ) const;
 
   private:
-    int getBin( double t ) const { return (int)((t-t_min)/bin_size); }
+    int getBin( double t ) const { return (int)((t-m_t_min)/m_bin_size); }
     
-    // take offset due to t_min and binsize into account
+    // take offset due to m_t_min and binsize into account
     int rtBins() const { return nPar()-2; }
     double getRadius( int bin ) const { return par( bin + 2 ); }
     // returns best matching bin within rtRange
     int binInRtRange( double t) const;
 
-    double t_min;
-    double bin_size;
+    double m_t_min;
+    double m_bin_size;
   };
 
   inline
@@ -64,7 +64,7 @@ class RtResolutionLookUp : public IRtResolution {
     double dr = r2-r1;
 
     // scale factor for interpolation
-    double scale = (t-t_min)/bin_size - (double)bin;
+    double scale = (t-m_t_min)/m_bin_size - (double)bin;
 
     double reso = r1 + dr*scale;
     return reso >= 0 ? reso : 0;

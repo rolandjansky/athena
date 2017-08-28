@@ -13,14 +13,26 @@
 #include "eflowRec/eflowDepthCalculator.h"
 #include "eflowRec/eflowTrackExtrapolatorBaseAlgTool.h"
 
+#include "GaudiKernel/IMessageSvc.h"
+#include "GaudiKernel/ISvcLocator.h"
+#include "GaudiKernel/StatusCode.h"
+
 eflowRecTrack::eflowRecTrack(
     const ElementLink<xAOD::TrackParticleContainer>& trackElemLink,
     const ToolHandle<eflowTrackExtrapolatorBaseAlgTool>& theTrackExtrapolatorTool) :
     m_trackId(-1), m_trackElemLink(trackElemLink), m_track(*trackElemLink), m_type(5),
     m_pull15(0.0),
-    m_eExpect(1.0), m_varEExpect(0.0),  m_isInDenseEnvironment(false), m_isSubtracted(false), m_hasBin(true),
-    m_layerHED(-1), 
+    m_layerHED(-1),
+    m_eExpect(1.0),
+    m_varEExpect(0.0), 
+    m_isInDenseEnvironment(false),
+    m_isSubtracted(false),
+    m_hasBin(true),
     m_trackCaloPoints(theTrackExtrapolatorTool->execute(m_track)) {
+  m_svcLoc = Gaudi::svcLocator();
+  StatusCode status = m_svcLoc->service( "MessageSvc", m_msgSvc );  
+  if ( status.isSuccess( ) ) m_mlog = std::make_unique<MsgStream>(m_msgSvc,"eflowRecTrack");
+  else m_mlog = nullptr;
 }
 
 eflowRecTrack::eflowRecTrack(const eflowRecTrack& eflowRecTrack){
@@ -34,7 +46,11 @@ eflowRecTrack::eflowRecTrack(const eflowRecTrack& eflowRecTrack){
   m_isInDenseEnvironment = eflowRecTrack.m_isInDenseEnvironment;
   m_isSubtracted = eflowRecTrack.m_isSubtracted;
   m_hasBin = eflowRecTrack.m_hasBin;
-  m_trackCaloPoints = new eflowTrackCaloPoints(*eflowRecTrack.m_trackCaloPoints);
+  m_trackCaloPoints = std::make_unique<eflowTrackCaloPoints>(*eflowRecTrack.m_trackCaloPoints);
+  m_svcLoc = Gaudi::svcLocator();
+  StatusCode status = m_svcLoc->service( "MessageSvc", m_msgSvc );  
+  if ( status.isSuccess( ) ) m_mlog = std::make_unique<MsgStream>(m_msgSvc,"eflowRecTrack");
+  else m_mlog = nullptr;
 }
 
 eflowRecTrack& eflowRecTrack::operator = (const eflowRecTrack& originalEflowRecTrack){
@@ -51,13 +67,16 @@ eflowRecTrack& eflowRecTrack::operator = (const eflowRecTrack& originalEflowRecT
     m_isInDenseEnvironment = originalEflowRecTrack.m_isInDenseEnvironment;
     m_isSubtracted = originalEflowRecTrack.m_isSubtracted;
     m_hasBin = originalEflowRecTrack.m_hasBin;
-    if (m_trackCaloPoints) delete m_trackCaloPoints;
-    m_trackCaloPoints = new eflowTrackCaloPoints(*originalEflowRecTrack.m_trackCaloPoints);
+    m_trackCaloPoints = std::make_unique<eflowTrackCaloPoints>(*originalEflowRecTrack.m_trackCaloPoints);
+    m_svcLoc = Gaudi::svcLocator();
+    StatusCode status = m_svcLoc->service( "MessageSvc", m_msgSvc );  
+    if ( status.isSuccess( ) ) m_mlog = std::make_unique<MsgStream>(m_msgSvc,"eflowRecTrack");
+    else m_mlog = nullptr;
     return *this;
   }//if not assigning to self, then we have copied the data to the new object
 }
 
-eflowRecTrack::~eflowRecTrack() { delete m_trackCaloPoints; }
+eflowRecTrack::~eflowRecTrack() {}
 
 void eflowRecTrack::setCaloDepthArray(const double* depthArray) {
   m_caloDepthArray.assign(depthArray, depthArray + eflowDepthCalculator::NDepth() + 1);

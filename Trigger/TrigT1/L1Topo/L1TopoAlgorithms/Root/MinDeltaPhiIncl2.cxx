@@ -19,6 +19,7 @@
 #include "L1TopoAlgorithms/MinDeltaPhiIncl2.h"
 #include "L1TopoCommon/Exception.h"
 #include "L1TopoInterfaces/Decision.h"
+#include "L1TopoSimulationUtils/Kinematics.h"
 
 REGISTER_ALG_TCS(MinDeltaPhiIncl2)
 
@@ -26,32 +27,6 @@ using namespace std;
 
 // not the best solution but we will move to athena where this comes for free
 #define LOG cout << "TCS::MinDeltaPhiIncl2:     "
-
-
-
-
-namespace {
-   unsigned int
-   calcDeltaPhi(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
-      double dphi = fabs( tob1->phiDouble() - tob2->phiDouble() );
-      if(dphi>M_PI)
-         dphi = 2*M_PI - dphi;
-      
-      return round( 10 * dphi );
-   }
-
-   unsigned int
-   calcDeltaPhiBW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
-      int dphiB = abs( tob1->phi() - tob2->phi() );
-      if(dphiB>32)
-         dphiB = 64 - dphiB; 
-
-      return dphiB ;
-   }
-
-
-}
-
 
 TCS::MinDeltaPhiIncl2::MinDeltaPhiIncl2(const std::string & name) : DecisionAlg(name)
 {
@@ -117,7 +92,7 @@ TCS::MinDeltaPhiIncl2::initialize() {
 TCS::StatusCode
 TCS::MinDeltaPhiIncl2::processBitCorrect( const std::vector<TCS::TOBArray const *> & input,
                             const std::vector<TCS::TOBArray *> & output,
-                            Decision & decison )
+                            Decision & decision )
 {
 
    // mindphi 
@@ -143,7 +118,7 @@ TCS::MinDeltaPhiIncl2::processBitCorrect( const std::vector<TCS::TOBArray const 
                if( parType_t((*tob2)->Et()) <= p_MinET2) continue; // ET cut
 
                // test DeltaPhiMin, DeltaPhiMax
-               unsigned int deltaPhi = calcDeltaPhiBW( *tob1, *tob2 );
+               unsigned int deltaPhi = TSU::Kinematics::calcDeltaPhiBW( *tob1, *tob2 );
 
                if (firstphi) {
                   mindphi = deltaPhi;
@@ -165,13 +140,18 @@ TCS::MinDeltaPhiIncl2::processBitCorrect( const std::vector<TCS::TOBArray const 
 
       for(unsigned int i=0; i<numberOutputBits(); ++i) {
           bool accept = mindphi > p_DeltaPhiMin[i] ;
+          const bool fillAccept = fillHistos() and (fillHistosBasedOnHardware() ? getDecisionHardwareBit(i) : accept);
+          const bool fillReject = fillHistos() and not fillAccept;
+          const bool alreadyFilled = decision.bit(i);
           if( accept ) {
-              decison.setBit(i, true);
+              decision.setBit(i, true);
               output[i]->push_back(TCS::CompositeTOB(*tobmin1, *tobmin2));
-              m_histAcceptMinDPhi2[i]->Fill((float)mindphi/10.);
-              TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " mindphi = " << mindphi << "phi1= " << (*tobmin1)->phiDouble()<< "phi2= " <<(*tobmin2)->phiDouble() );
-          } else
-              m_histRejectMinDPhi2[i]->Fill((float)mindphi/10.);
+          }
+          if(fillAccept and not alreadyFilled){
+              m_histAcceptMinDPhi2[i]->Fill((float)mindphi*0.10);
+          } else if(fillReject){
+              m_histRejectMinDPhi2[i]->Fill((float)mindphi*0.10);
+          }
           TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail"));
       } // for(i)
    } else {
@@ -184,7 +164,7 @@ TCS::MinDeltaPhiIncl2::processBitCorrect( const std::vector<TCS::TOBArray const 
 TCS::StatusCode
 TCS::MinDeltaPhiIncl2::process( const std::vector<TCS::TOBArray const *> & input,
                             const std::vector<TCS::TOBArray *> & output,
-                            Decision & decison )
+                            Decision & decision )
 {
 
    // mindphi 
@@ -210,7 +190,7 @@ TCS::MinDeltaPhiIncl2::process( const std::vector<TCS::TOBArray const *> & input
                if( parType_t((*tob2)->Et()) <= p_MinET2) continue; // ET cut
 
                // test DeltaPhiMin, DeltaPhiMax
-               unsigned int deltaPhi = calcDeltaPhi( *tob1, *tob2 );
+               unsigned int deltaPhi = TSU::Kinematics::calcDeltaPhi( *tob1, *tob2 );
 
                if (firstphi) {
                   mindphi = deltaPhi;
@@ -230,27 +210,24 @@ TCS::MinDeltaPhiIncl2::process( const std::vector<TCS::TOBArray const *> & input
             }
          }
 
-      bool accept[3];
       for(unsigned int i=0; i<numberOutputBits(); ++i) {
-         accept[i] = mindphi > p_DeltaPhiMin[i] ;
-         if( accept[i] ) {
-            decison.setBit(i, true);
-            output[i]->push_back(TCS::CompositeTOB(*tobmin1, *tobmin2));
-	    m_histAcceptMinDPhi2[i]->Fill((float)mindphi/10.);
-
-            TRG_MSG_DEBUG("Decision " << i << ": " << (accept[i]?"pass":"fail") << " mindphi = " << mindphi << "phi1= " << (*tobmin1)->phiDouble()<< "phi2= " <<(*tobmin2)->phiDouble() );
-         }
-	 else
-	   m_histRejectMinDPhi2[i]->Fill((float)mindphi/10.);
-
-         TRG_MSG_DEBUG("Decision " << i << ": " << (accept[i]?"pass":"fail"));
+          bool accept = mindphi > p_DeltaPhiMin[i] ;
+          const bool fillAccept = fillHistos() and (fillHistosBasedOnHardware() ? getDecisionHardwareBit(i) : accept);
+          const bool fillReject = fillHistos() and not fillAccept;
+          const bool alreadyFilled = decision.bit(i);
+          if( accept) {
+              decision.setBit(i, true);
+              output[i]->push_back(TCS::CompositeTOB(*tobmin1, *tobmin2));
+          }
+          if(fillAccept and not alreadyFilled){
+              m_histAcceptMinDPhi2[i]->Fill((float)mindphi*0.10);
+          } else if(fillReject) {
+              m_histRejectMinDPhi2[i]->Fill((float)mindphi*0.10);
+          }
+          TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail"));
       }
-
-
    } else {
-
       TCS_EXCEPTION("MinDeltaPhiIncl2 alg must have 2 inputs, but got " << input.size());
-
    }
 
    return TCS::StatusCode::SUCCESS;

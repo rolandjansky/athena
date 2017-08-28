@@ -31,6 +31,7 @@ from AthenaCommon.AlgScheduler import AlgScheduler
 AlgScheduler.OutputLevel( INFO )
 AlgScheduler.ShowControlFlow( True )
 AlgScheduler.ShowDataDependencies( True )
+AlgScheduler.setDataLoaderAlg( "SGInputLoader" )
 
 # ThreadPoolService thread local initialization
 from GaudiHive.GaudiHiveConf import ThreadPoolSvc
@@ -58,19 +59,19 @@ topSequence = AlgSequence()
 
 from SGComps.SGCompsConf import SGInputLoader
 topSequence+=SGInputLoader(OutputLevel=INFO, ShowEventDump=False)
-topSequence.SGInputLoader.Load = [ ('EventInfo','McEventInfo') ]
 
 from AthExHive.AthExHiveConf import *
 topSequence+=HiveAlgA(OutputLevel=DEBUG,Time=20)
 topSequence+=HiveAlgB(OutputLevel=DEBUG,Time=10)
-topSequence+=HiveAlgC(OutputLevel=DEBUG,Time=190)
+topSequence+=HiveAlgC(OutputLevel=DEBUG,Time=190, Key_W1="C1")
 topSequence+=HiveAlgD(OutputLevel=DEBUG,Time=10)
-topSequence+=HiveAlgE(OutputLevel=DEBUG,Time=30)
+topSequence+=HiveAlgE(OutputLevel=DEBUG,Time=30, Key_R1="C1")
 topSequence+=HiveAlgG(OutputLevel=DEBUG,Time=10)
 topSequence+=HiveAlgF(OutputLevel=DEBUG,Time=30)
 
 topSequence+=HiveAlgV(OutputLevel=DEBUG,Time=30)
-topSequence.HiveAlgV.Key_RV = [ "a1", "a2", "d1", "e1", "c1" ]
+topSequence.HiveAlgV.Key_RV = [ "a1", "a2", "d1", "e1", "C1" ]
+topSequence.HiveAlgV.Key_WV = [ "V1", "V2", "V3" ]
 
 #--------------------------------------------------------------
 # Event related parameters

@@ -13,6 +13,8 @@
 // Athena
 #include "StoreGate/StoreGateSvc.h"
 #include "MuonDigitContainer/MmDigitContainer.h"
+#include "MuonEventAthenaPool/CreateTransientTemplates.h"
+
 
 MmDigitContainerCnv::MmDigitContainerCnv(ISvcLocator* svcloc) :
 MmDigitContainerCnvBase(svcloc)

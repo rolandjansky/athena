@@ -49,15 +49,27 @@ if nThreads >= 1:
 
 
 from DataModelTestDataCommon.DataModelTestDataCommonConf import \
-     DMTest__xAODTestReadSymlink
+     DMTest__xAODTestReadSymlink, \
+     DMTest__xAODTestReadSymlinkTool, \
+     DMTest__xAODTestAlg
 from DataModelTestDataWrite.DataModelTestDataWriteConf import \
      DMTest__xAODTestWriteCVec, \
      DMTest__xAODTestWriteCInfo, \
+     DMTest__xAODTestWriteCInfoTool, \
      DMTest__xAODTestWriteSymlinks
+
 topSequence += DMTest__xAODTestWriteCVec ("xAODTestWriteCVec")
 topSequence += DMTest__xAODTestWriteCInfo ("xAODTestWriteCInfo")
 topSequence += DMTest__xAODTestWriteSymlinks ("xAODTestWriteSymlinks")
 topSequence += DMTest__xAODTestReadSymlink ("xAODTestReadSymlink", Key='cinfo')
+
+writeCInfoTool = DMTest__xAODTestWriteCInfoTool ("xAODTestWriteCInfoTool",
+                                                 CInfoKey='cinfo2')
+readSymlinkTool = DMTest__xAODTestReadSymlinkTool ("xAODTestReadSymlinkTool",
+                                                   Key='cinfo2')
+topSequence += DMTest__xAODTestAlg ("xAODTestAlg",
+                                    Tools = [writeCInfoTool,
+                                             readSymlinkTool])
 
 
 #--------------------------------------------------------------

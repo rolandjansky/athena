@@ -20,16 +20,6 @@ This tool also makes use of the Muon::MuonHolesOnTrackTool to count the missing 
 @see Muon::MuonHolesOnTrackTool
 
 
-@ref used_MuonTrackSummaryHelperTool
 
-@ref requirements_MuonTrackSummaryHelperTool
 
-*/
-
-/**
-@page used_MuonTrackSummaryHelperTool Used Packages
-*/
-
-/**
-@page requirements_MuonTrackSummaryHelperTool Requirements
 */

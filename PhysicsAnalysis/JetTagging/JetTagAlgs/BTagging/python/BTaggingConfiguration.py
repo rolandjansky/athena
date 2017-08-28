@@ -56,7 +56,6 @@ from BTagging.BTaggingConfiguration_NewJetFitterCollection import * #I collected
 from BTagging.BTaggingConfiguration_NewJetFitterIP3DNegCollection import *
 
 # Lepton taggers
-#from BTagging.BTaggingConfiguration_SoftElectronTag import *
 #from BTagging.BTaggingConfiguration_SoftMuonTagChi2 import *
 from BTagging.BTaggingConfiguration_SoftMuonTag import *
 
@@ -1618,10 +1617,6 @@ def taggerIsPossible(tagger):
     if not DetFlags.detdescr.ID_on():
         print '#BTAG# - WARNING - Disabling '+tagger+' tagger because ID detdescr. was not found'
         return False
-    if tagger in ['SoftEl']:
-        if not DetFlags.detdescr.Calo_on():
-            print '#BTAG# - WARNING - Disabling '+tagger+' tagger because calo detdescr. was not found'
-            return False
     if tagger in ['SoftMu',
                   'SoftMuChi2',
                   'SecondSoftMu',

@@ -106,7 +106,7 @@ StatusCode GetDetectorLocalFrames::initialize(){
   }
   
   /** Output text File */
-  outputFile.open((m_outputFileName).c_str());
+  m_outputFile.open((m_outputFileName).c_str());
   
   return StatusCode::SUCCESS;
 }
@@ -144,7 +144,7 @@ StatusCode GetDetectorLocalFrames::finalize() {
   if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "finalize()" << endmsg;
   
   /** Close the file */
-  outputFile.close();
+  m_outputFile.close();
 
   return StatusCode::SUCCESS;
 }
@@ -206,13 +206,13 @@ void GetDetectorLocalFrames::writeTRTFrames(){
     m_trt_straw_layer = m_TRTHelper->straw_layer(trtId);
     m_trt_straw = m_TRTHelper->straw(trtId);
     
-    outputFile << 3 << " "
+    m_outputFile << 3 << " "
 	       << m_trt_barrel_ec << " "
 	       << m_trt_layer_or_wheel << " "
 	       << m_trt_phi_module << " "
 	       << m_trt_straw_layer << " "
 	       << m_trt_straw << " ";
-    outputFile << std::endl;
+    m_outputFile << std::endl;
 
     //const HepGeom::Transform3D& localTransform = m_TRTDetectorManager->getElement( trtId )->transform(trtId);
     Amg::Vector3D xaxis(1,0,0);
@@ -231,11 +231,11 @@ void GetDetectorLocalFrames::writeTRTFrames(){
     writeVector("straw x-axis",strawXAxis);
     writeVector("straw y-axis",strawYAxis);
     writeVector("straw z-axis",strawZAxis);
-    outputFile << std::endl;
+    m_outputFile << std::endl;
     writeVector("straw x-axis (No sign)",strawXAxis_NoSign);
     writeVector("straw y-axis (No sign)",strawYAxis_NoSign);
     writeVector("straw z-axis (No sign)",strawZAxis_NoSign);
-    outputFile << std::endl;
+    m_outputFile << std::endl;
   }
   
   if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Leaving writeTRTFrames()" << endmsg;
@@ -245,7 +245,7 @@ void GetDetectorLocalFrames::writeTRTFrames(){
 void GetDetectorLocalFrames::writeVector(std::string name, const Amg::Vector3D& vector){
   if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "In writeVector()" << endmsg;
   
-  outputFile << name << " " << vector.x() << " " << vector.y() << "  " << vector.z() << std::endl;
+  m_outputFile << name << " " << vector.x() << " " << vector.y() << "  " << vector.z() << std::endl;
   
   if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Leaving writeVector()" << endmsg;
   return;
@@ -254,11 +254,11 @@ void GetDetectorLocalFrames::writeVector(std::string name, const Amg::Vector3D& 
 void GetDetectorLocalFrames::writeTransForm(const HepGeom::Transform3D& transform){
   if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "In writeTransForm()" << endmsg;
   
-  outputFile << " Trans(x,y,z): " << transform.dx() << " " << transform.dy() << "  " << transform.dz() << std::endl;
-  outputFile << " Rotation Matrix " << std::endl;
-  outputFile << transform.xx() << " " << transform.xy() << "  " << transform.xz() << std::endl;
-  outputFile << transform.yx() << " " << transform.yy() << "  " << transform.yz() << std::endl;
-  outputFile << transform.zx() << " " << transform.zy() << "  " << transform.zz() << std::endl;
+  m_outputFile << " Trans(x,y,z): " << transform.dx() << " " << transform.dy() << "  " << transform.dz() << std::endl;
+  m_outputFile << " Rotation Matrix " << std::endl;
+  m_outputFile << transform.xx() << " " << transform.xy() << "  " << transform.xz() << std::endl;
+  m_outputFile << transform.yx() << " " << transform.yy() << "  " << transform.yz() << std::endl;
+  m_outputFile << transform.zx() << " " << transform.zy() << "  " << transform.zz() << std::endl;
 
   if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Leaving writeTransForm()" << endmsg;
   return;

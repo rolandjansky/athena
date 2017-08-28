@@ -302,8 +302,8 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
   //StatusCode sc_ztp = evtStore()->retrieve(VertexContainer,"VxPrimaryCandidate");
   StatusCode sc_ztp = evtStore()->retrieve(VertexContainer,"HLT_xAOD__VertexContainer_xPrimVx");
   if(sc_ztp.isFailure()) {
-    ATH_MSG_INFO("VxPrimaryCandidate" << " Container Unavailable");
-    return StatusCode::SUCCESS;
+    ATH_MSG_DEBUG("VxPrimaryCandidate" << " Container Unavailable");
+    //return StatusCode::SUCCESS;
   }
 
   //REQUIREMENTS FOR GOOD PRIMARY VERTEX   
@@ -314,7 +314,8 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
     ////if ((*vertexIter)->vxTrackAtVertex().size()>2 && fabs((*vertexIter)->z()) < 150) HasGoodPV = true;                                             
   }
   if (HasGoodPV == false){ 
-    return StatusCode::SUCCESS;
+  ATH_MSG_DEBUG(" ===== HLT Muon has no goodpv ===== "); 
+  //  return StatusCode::SUCCESS;
   }
 
   // ---------------------------------------------------------------
@@ -456,7 +457,8 @@ StatusCode HLTMuonMonTool::fillMuZTPDQA()
 	    if (
 		("L1_MU10"==m_ztp_l1map[itmap->first] && ((*it)->thrName() == "MU10" || (*it)->thrName() == "MU15" || (*it)->thrName() == "MU20")) || 
 		("L1_MU15"==m_ztp_l1map[itmap->first] && ((*it)->thrName() == "MU15" || (*it)->thrName() == "MU20")) || 
-		("L1_MU20"==m_ztp_l1map[itmap->first] && ((*it)->thrName() == "MU20"))
+		("L1_MU20,L1_MU21"==m_ztp_l1map[itmap->first] && ((*it)->thrName() == "MU21")) ||
+		("L1_MU21"==m_ztp_l1map[itmap->first] && ((*it)->thrName() == "MU21"))
 	       ) {
 	      L1pt.push_back((*it)->thrValue());
 	      L1eta.push_back((*it)->eta());

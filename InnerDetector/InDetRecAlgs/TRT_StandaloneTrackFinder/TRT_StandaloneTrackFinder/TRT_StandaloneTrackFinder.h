@@ -14,6 +14,7 @@
 #ifndef TRT_StandaloneTrackFinder_H
 #define TRT_StandaloneTrackFinder_H
 
+#include <array>
 #include <string>
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -59,55 +60,54 @@ namespace InDet {
       /** Print internal tool parameters and status                    */
       ///////////////////////////////////////////////////////////////////
 
-      MsgStream&    dump     (MsgStream&    out) const;
-      std::ostream& dump     (std::ostream& out) const;
-
+      MsgStream& dump(MsgStream& out) const;
+      
     private:
 
       ///////////////////////////////////////////////////////////////////
       /* Private data                                                */
       ///////////////////////////////////////////////////////////////////
      
-      int                                m_nprint             ;
-      int                                m_ntracks            ;  //!< Number of tracks found
 
-      int                                m_minNumDriftCircles ;  //!< Minimum number of drift circles for TRT segment tracks
-      double                             m_minPt              ;  //!< Minimum pt cut for TRT only (used in preselection * 0.9)
-      bool                               m_resetPRD           ;  //!< Reset PRD association tool during the sub-detector pattern
-      int                                m_matEffects         ;  //!< Particle hypothesis for track fitting
-      bool                               m_oldLogic           ;  //!< use old transition region hit logic 
+      int    m_minNumDriftCircles ;  //!< Minimum number of drift circles for TRT segment tracks
+      double m_minPt              ;  //!< Minimum pt cut for TRT only (used in preselection * 0.9)
+      bool   m_resetPRD           ;  //!< Reset PRD association tool during the sub-detector pattern
+      int    m_matEffects         ;  //!< Particle hypothesis for track fitting
+      bool   m_oldLogic           ;  //!< use old transition region hit logic 
 
       ToolHandle< ITRT_SegmentToTrackTool > m_segToTrackTool; //!< Segment to track tool
 
-      SG::ReadHandle< Trk::SegmentCollection >         m_Segments      ;  //!< TRT segments to use
+      SG::ReadHandle< Trk::SegmentCollection > m_Segments   ;  //!< TRT segments to use
 
       /**Tracks that will be passed out of AmbiProcessor. 
 	 Recreated anew each time process() is called*/ 
       SG::WriteHandle<TrackCollection> m_finalTracks;
 
       /** Global Counters for final algorithm statistics */
-      int m_nTrtSeg          ;  //!< Number of input TRT segments to be investigated per event
-      int m_nUsedSeg         ;  //!< Number of TRT segments excluded at input (by BackTracking tracks)
-      int m_nRejectedSeg     ;  //!< Number of segments rejected in selection at input 
-      int m_nTrtSegGood      ;  //!< Number of input TRT segments after cuts per event
-      int m_nSegFailed       ;  //!< Number of segments failing to translate to a track (inclusing refit)
 
-      /** Total in counters */
+      enum ECounter {kNTrtSeg,            //!< Number of input TRT segments to be investigated per event
+                     kNUsedSeg,           //!< Number of TRT segments excluded at input (by BackTracking tracks)
+                     kNRejectedSeg,       //!< Number of segments rejected in selection at input 
+                     kNTrtSegGood,        //!< Number of input TRT segments after cuts per event
+                     kNSegFailed,         //!< Number of segments failing to translate to a track (inclusing refit)
+                     kNTrkScoreZeroTotal, //!< Number of tracks rejected by score zero
+                     kNTrkSegUsedTotal,   //!< Number of excluded segments by other TRT segments
+                     kNTRTTrkTotal,       //!< Number of TRT-only tracks on output
+                     kNCounter};
 
-      int m_nTrtSegTotal          ;  //!< Number of input TRT segments to be investigated per event
-      int m_nUsedSegTotal         ;  //!< Number of TRT segments excluded at input (by BackTracking tracks)
-      int m_nRejectedSegTotal     ;  //!< Number of segments reduce in selection at input 
-      int m_nTrtSegGoodTotal      ;  //!< Number of input TRT segments after cuts per event
-      int m_nSegFailedTotal       ;  //!< Number of segments failing to translate to a track 
-      int m_nTrkScoreZeroTotal    ;  //!< Number of tracks rejected by score zero
-      int m_nTrkSegUsedTotal      ;  //!< Number of excluded segments by other TRT segments
-      int m_nTRTTrkTotal          ;  //!< Number of TRT-only tracks on output
+      typedef std::array<int,kNCounter> Counter_t;
 
-      MsgStream&    dumptools(MsgStream&    out) const;
-      MsgStream&    dumpevent(MsgStream&    out) const;
-
+      Counter_t m_total {};
+      MsgStream& dumpContainerNames(MsgStream& out) const;
+      MsgStream& dumpevent(MsgStream&, const InDet::TRT_StandaloneTrackFinder::Counter_t&);
+      friend MsgStream& operator<< (MsgStream&, const InDet::TRT_StandaloneTrackFinder::Counter_t&);      
     };
-  MsgStream&    operator << (MsgStream&   ,const TRT_StandaloneTrackFinder&);
-  std::ostream& operator << (std::ostream&,const TRT_StandaloneTrackFinder&); 
+   
+   MsgStream& operator<< (MsgStream&, const InDet::TRT_StandaloneTrackFinder::Counter_t&);
+         
 }
+
+
+MsgStream&  operator<< (MsgStream&, const InDet::TRT_StandaloneTrackFinder&);
+
 #endif // TRT_StandaloneTrackFinder_H

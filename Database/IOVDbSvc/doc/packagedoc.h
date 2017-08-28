@@ -326,11 +326,7 @@ Larger numbers indicate the schema was reaccessed later in the job to
 read more data.
 
  
-@section IOVDbSvc_Req The requirements file:
-
 @section IOVDbSvc_joFile The example jobOptions file:
 @include IOVDbSvc_jobOptions.py
-
-@section IOVDbSvc_Uses The packages used:
 
 */

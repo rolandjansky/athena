@@ -5,10 +5,10 @@
 #include "VP1LocalEvtRetriever.h"
 #include "VP1Gui/VP1AvailEvtsLocalDir.h"
 
-#include <QtCore/QFile>
-#include <QtCore/QFileInfo>
-#include <QtCore/QTimer>
-#include <QtCore/QMutexLocker>
+#include <QFile>
+#include <QFileInfo>
+#include <QTimer>
+#include <QMutexLocker>
 
 VP1LocalEvtRetriever::VP1LocalEvtRetriever(VP1AvailEvtsLocalDir* availEvts
 					   , QString sourcedir

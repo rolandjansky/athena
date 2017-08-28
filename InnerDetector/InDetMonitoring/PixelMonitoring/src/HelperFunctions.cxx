@@ -19,14 +19,13 @@
 #include <sstream>
 #include <algorithm>
 #include "InDetIdentifier/PixelID.h"
-#include "PixelMonitoring/PixelMon2DMaps.h"
+#include "PixelMonitoring/PixelMon2DMapsLW.h"
 
 
 std::string PixelMainMon :: makeHistname(std::string set, bool ontrk)
 {
    std::string name = set;
    if( ontrk && m_doOnTrack ) name += "_OnTrack";
-   if( ontrk && m_doOnPixelTrack ) name += "_OnPixelTrack";
    return name;
 }
 
@@ -34,7 +33,6 @@ std::string PixelMainMon :: makeHisttitle(std::string set, std::string axis, boo
 {
    std::string name = set;
    if( ontrk && m_doOnTrack ) name += "_OnTrack";
-   if( ontrk && m_doOnPixelTrack ) name += "_OnPixelTrack";
    name = name + m_histTitleExt + axis;
    return name;
 }
@@ -61,8 +59,8 @@ int PixelMainMon :: GetPixLayerID(int ec, int ld, bool ibl)
 int PixelMainMon :: GetPixLayerIDDBM(int ec, int ld, bool ibl)
 {
    int layer = 99;
-   if(ec==2) layer = PixLayerDBM::kECA0 + ld;
-   else if(ec==-2) layer = PixLayerDBM::kECC0 + ld;
+   if(ec==2) layer = PixLayerDBM::kECA;
+   else if(ec==-2) layer = PixLayerDBM::kECC;
    else if(ec==0) {
       if(ibl && ld==0) layer = PixLayerDBM::kIBL;
       if(ld==0+ibl) layer = PixLayerDBM::kB0;
@@ -315,7 +313,7 @@ void PixelMainMon::FillTimeHisto(double value, TProfile* one=0, TProfile* two=0,
    }
 }
 
-void PixelMainMon::FillSummaryHistos (PixelMon2DMaps* occupancy, TH1F_LW* A, TH1F_LW* C, TH1F_LW* IBL, TH1F_LW* B0, TH1F_LW* B1, TH1F_LW* B2)
+void PixelMainMon::FillSummaryHistos (PixelMon2DMapsLW* occupancy, TH1F_LW* A, TH1F_LW* C, TH1F_LW* IBL, TH1F_LW* B0, TH1F_LW* B1, TH1F_LW* B2)
 {
        
    if( !(A && C && B0 && B1 && B2 && occupancy) )return; //if the histos don't exist, dont' fill them

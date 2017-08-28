@@ -67,8 +67,6 @@ namespace InDet {
       StatusCode    resetStatistics();
       /** Print tracking statistics calculated with TrackStatHelper */
       void          printStatistics();
-      /** Retrieve collections from StoreGate*/
-      StatusCode    getCollections      (const McEventCollection * &);
       /** Select charged,stable particles which pass pt and eta cuts for analysis*/
       void          selectGenSignal     (const McEventCollection*,  
 					 std::vector <std::pair<HepMC::GenParticle *,int> > &,
@@ -102,9 +100,7 @@ namespace InDet {
       ToolHandle<Trk::IResidualPullCalculator>    m_residualPullCalculator;   //!< The residual and pull calculator tool handle
 
       // steering parameters of Algorithm
-      std::string   m_RecTrackCollection_key; //!< Reconstructed Track Collection StoreGate Key    
-      std::string   m_McTrackCollection_key;
-      std::string   m_RecPrimaryVertexContainer_key; 
+      SG::ReadHandleKey<McEventCollection>  m_McTrackCollection_key;
       ToolHandle<Trk::ITrackSelectorTool> m_trackSelectorTool;
      
       bool          m_doSharedHits;//!< 
@@ -131,8 +127,8 @@ namespace InDet {
       bool          m_doTruth;  //!< Use truth information
       float m_minEtaDBM;
       float m_maxEtaDBM;
-      std::vector <std::string>   m_RecTrackCollection_keys;
-      std::vector <std::string>   m_TrackTruthCollection_keys;      
+      SG::ReadHandleKeyArray<TrackCollection>        m_RecTrackCollection_keys;
+      SG::ReadHandleKeyArray<TrackTruthCollection>   m_TrackTruthCollection_keys;
 
       mutable bool      m_pullWarning;    //!< warn only once, if pull cannot be calculated
       mutable bool      m_UpdatorWarning; //!< warn only once, if unbiased track states can not be calculated

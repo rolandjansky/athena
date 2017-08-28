@@ -18,7 +18,6 @@ if hasattr(runArgs, "preExec") and runArgs.preExec != 'NONE':
 from AthenaCommon.AppMgr import ServiceMgr
 from AthenaCommon.GlobalFlags  import globalflags
 from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
-from AthenaCommon.DetFlags import DetFlags
 from OverlayCommonAlgs.OverlayFlags import overlayFlags
 
 from MuonRecExample.MuonRecFlags import muonRecFlags
@@ -149,24 +148,30 @@ if hasattr(runArgs, "triggerConfig") and runArgs.triggerConfig!="NONE":
     from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
     cfg = TriggerConfigGetter("HIT2RDO")
 
-DetFlags.ID_setOn()
-DetFlags.Muon_setOn()
-DetFlags.LAr_setOn()
-DetFlags.Tile_setOn()
-if not hasattr(runArgs, "triggerConfig") or runArgs.triggerConfig=="NONE":
-    DetFlags.LVL1_setOff()
-else:
-    DetFlags.LVL1_setOn()
-
-DetFlags.BCM_setOn()
-DetFlags.Lucid_on()
-DetFlags.simulateLVL1.Lucid_setOff()
-#DetFlags.simulateLVL1.LAr_setOn()
-#DetFlags.simulateLVL1.Tile_setOn()
-#DetFlags.overlay.LAr_setOff()
-DetFlags.overlay.Truth_setOn()
 
 print "================ DetFlags ================ "
+if 'DetFlags' in dir():
+    overlaylog.warning("DetFlags already defined! This means DetFlags should have been fully configured already..")
+else:
+    from AthenaCommon.DetFlags import DetFlags
+
+    DetFlags.ID_setOn()
+    DetFlags.Muon_setOn()
+    DetFlags.LAr_setOn()
+    DetFlags.Tile_setOn()
+    if not hasattr(runArgs, "triggerConfig") or runArgs.triggerConfig=="NONE":
+        DetFlags.LVL1_setOff()
+    else:
+        DetFlags.LVL1_setOn()
+
+    DetFlags.BCM_setOn()
+    DetFlags.Lucid_on()
+    DetFlags.simulateLVL1.Lucid_setOff()
+    #DetFlags.simulateLVL1.LAr_setOn()
+    #DetFlags.simulateLVL1.Tile_setOn()
+    #DetFlags.overlay.LAr_setOff()
+    DetFlags.overlay.Truth_setOn()
+
 DetFlags.Print()
 
 include ( "RecExCond/AllDet_detDescr.py" )

@@ -24,8 +24,6 @@
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "MuonDQAUtils/MuonDQAHistMap.h"
 
-#include "DataModel/DataLink.h"
-
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 #include "MuonReadoutGeometry/MuonReadoutElement.h"

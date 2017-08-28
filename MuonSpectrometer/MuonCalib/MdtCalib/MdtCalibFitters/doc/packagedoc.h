@@ -18,16 +18,5 @@ work on segment level.
 - MuonCalib::MuCCaFitter: interface to the straight line fitter for drift circles used by Calib
 - MuonCalib::MuCCaFitterImplementation: the straight line fitter for drift circles used by Calib
                                                                                 
-@ref used_MdtCalibFitters
                                                                                 
-@ref requirements_MdtCalibFitters
 */
-                                                                                
-/**
-@page used_MdtCalibFitters Used Packages
-*/
-                                                                                
-/**
-@page requirements_MdtCalibFitters Requirements
-*/
-

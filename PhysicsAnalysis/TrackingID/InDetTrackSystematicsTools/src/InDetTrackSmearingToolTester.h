@@ -3,7 +3,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#pragma once
+#ifndef INDETTRACKSYSTEMATICSTOOLS_INDETTRACKSMEARINGTOOLTESTER_H
+#define INDETTRACKSYSTEMATICSTOOLS_INDETTRACKSMEARINGTOOLTESTER_H
+
 // Gaudi/Athena include(s):
 #include "AthenaBaseComps/AthHistogramAlgorithm.h"
 #include "AsgTools/ToolHandle.h"
@@ -42,3 +44,4 @@ namespace InDet {
 
 } // namespace InDet
 
+#endif

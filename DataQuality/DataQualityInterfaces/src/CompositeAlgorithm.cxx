@@ -25,14 +25,14 @@ namespace dqi{
 CompositeAlgorithm::
 CompositeAlgorithm( const CompositeAlgorithm& other )
   : Algorithm(other)
-  , name(other.name)
+  , m_name(other.m_name)
 {
-  AlgVec_t::const_iterator subAlgsEnd = other.subAlgs.end();
-  AlgVec_t::const_iterator subAlgsIter = other.subAlgs.begin();
+  AlgVec_t::const_iterator subAlgsEnd = other.m_subAlgs.end();
+  AlgVec_t::const_iterator subAlgsIter = other.m_subAlgs.begin();
   for( ; subAlgsIter != subAlgsEnd; ++subAlgsIter ) {
     dqm_core::Algorithm* otherSubAlg = subAlgsIter->first;    
     dqm_core::Algorithm* alg = otherSubAlg->clone();
-    subAlgs.push_back( AlgVec_t::value_type(alg, subAlgsIter->second) );
+    m_subAlgs.push_back( AlgVec_t::value_type(alg, subAlgsIter->second) );
   }
 }
 
@@ -40,7 +40,7 @@ CompositeAlgorithm( const CompositeAlgorithm& other )
 CompositeAlgorithm::
 CompositeAlgorithm( HanConfigCompAlg& compAlgConfig )
 {
-  name = compAlgConfig.GetName();
+  m_name = compAlgConfig.GetName();
   
   TObjString* libStr;
   TIter libIter( compAlgConfig.GetAllLib() );
@@ -50,7 +50,7 @@ CompositeAlgorithm( HanConfigCompAlg& compAlgConfig )
     } 
     catch ( dqm_core::Exception& ex ) {
       std::cout << "Can't load library " << libStr->GetString()
-		<< " for composite algorithm " << name 
+		<< " for composite algorithm " << m_name 
 		<< ". Continuing regardless ..." << std::endl;
     }
   }
@@ -64,25 +64,25 @@ CompositeAlgorithm( HanConfigCompAlg& compAlgConfig )
     	alg = dqm_core::AlgorithmManager::instance().getAlgorithm( algName );
     }
     catch( dqm_core::Exception& ex ) {
-    	throw dqm_core::BadConfig( ERS_HERE, name, ex.what(), ex );
+    	throw dqm_core::BadConfig( ERS_HERE, m_name, ex.what(), ex );
     }
     //std::cout << "  --> using component algorithm: \"" << algStr->GetString().Data() << "\"\n";
-    subAlgs.push_back( AlgVec_t::value_type(alg, algName) );
+    m_subAlgs.push_back( AlgVec_t::value_type(alg, algName) );
   }
-  dqm_core::AlgorithmManager::instance().registerAlgorithm( name, this );
+  dqm_core::AlgorithmManager::instance().registerAlgorithm( m_name, this );
 }
 
 
 CompositeAlgorithm::
 ~CompositeAlgorithm()
 {
-  AlgVec_t::const_iterator subAlgsEnd = subAlgs.end();
-  AlgVec_t::const_iterator subAlgsIter = subAlgs.begin();
+  AlgVec_t::const_iterator subAlgsEnd = m_subAlgs.end();
+  AlgVec_t::const_iterator subAlgsIter = m_subAlgs.begin();
   for( ; subAlgsIter != subAlgsEnd; ++subAlgsIter ) {
     dqm_core::Algorithm* alg = subAlgsIter->first;
     delete alg;
   }
-  subAlgs.clear();
+  m_subAlgs.clear();
 }
 
 
@@ -101,7 +101,7 @@ printDescription()
 {
   std::string message;
   message += "\n";
-  message += "Algorithm: \"" + name + "\"\n";
+  message += "Algorithm: \"" + m_name + "\"\n";
   message += "Description: Builds a container for subalgorithms.\n";
   message += "Parameters: none\n";
   
@@ -116,8 +116,8 @@ execute( const std::string& name, const TObject& data, const dqm_core::Algorithm
   dqm_core::Result::Status status(dqm_core::Result::Undefined);
   std::map<std::string,double> tags;
   
-  AlgVec_t::const_iterator subAlgsEnd = subAlgs.end();
-  AlgVec_t::const_iterator subAlgsIter = subAlgs.begin();
+  AlgVec_t::const_iterator subAlgsEnd = m_subAlgs.end();
+  AlgVec_t::const_iterator subAlgsIter = m_subAlgs.begin();
   for( ; subAlgsIter != subAlgsEnd; ++subAlgsIter ) {
     boost::scoped_ptr<HanAlgorithmConfig> subConfig(ConfigureSubAlg(config, subAlgsIter->second));
 

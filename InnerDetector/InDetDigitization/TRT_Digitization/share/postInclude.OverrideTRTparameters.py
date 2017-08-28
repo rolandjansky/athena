@@ -91,8 +91,8 @@ trt.Override_trEfficiencyEndCapBKrypton = 0.68
 trt.Override_overallT0Shift            = 1.0
 trt.Override_overallT0ShiftShortBarrel = 0.0
 
-# Noise, defaults = 1, 0.02
-trt.Override_noiseInUnhitStraws = 1
+# Noise, defaults = 0(since July 2017), 0.02
+trt.Override_noiseInUnhitStraws = 0
 trt.Override_averageNoiseLevel  = 0.02
 
 # HL delta shift w.r.t m_overallT0Shift (steps of 0.78125 ns) (HT middle-bit fraction tune)

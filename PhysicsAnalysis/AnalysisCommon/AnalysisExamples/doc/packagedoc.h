@@ -212,10 +212,5 @@ method which does the copy and the filtering in one go.
  - For questions or comments: Ketevi A. Assamagan
    ketevi@bnl.gov
 
-@section AnalysisExamples_used_packagesTkPara Used Packages
-
-@section AnalysisExamples_requirements Requirements
-
 
 */
-

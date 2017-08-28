@@ -52,7 +52,9 @@ TGC_STATUSConditionsTool::TGC_STATUSConditionsTool (const std::string& type,
 
 
 //StatusCode TGC_STATUSConditionsTool::updateAddress(SG::TransientAddress* tad)
-StatusCode TGC_STATUSConditionsTool::updateAddress(StoreID::type /*storeID*/, SG::TransientAddress* tad)
+StatusCode TGC_STATUSConditionsTool::updateAddress(StoreID::type /*storeID*/,
+                                                   SG::TransientAddress* tad,
+                                                   const EventContext& /*ctx*/)
 {
   
   log.setLevel(msgLevel());

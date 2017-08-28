@@ -6,6 +6,7 @@
 #include "boost/program_options.hpp"
 #include "boost/filesystem.hpp"
 #include <iomanip>
+#include <cmath>
 #include <TFile.h>
 
 int SIGDIGITS=2;
@@ -55,7 +56,7 @@ int main(int argc, char **argv) {
           Process(ientry);
        }
     } else {
-       // loop over indifidual files (towers spread over files)
+       // loop over individual files (towers spread over files)
        vector<unsigned> processed(ntower);
        processedTower.resize(ntower);
        for (size_t ifile=0; ifile < files.size(); ++ifile) {
@@ -262,9 +263,14 @@ void Init() {
      }
      cout<<"nloop="<<nloop<<"\n"; 
   
+  } else {
+     cout<<"Merged file with "<<ntower<<" towers\n";
   }
   divide = 1./nloop;
-
+  for(int i=0;i<ntower;i++) {
+     nRoad_tow_evt[i].reserve(nloop);
+     nFitI_tow_evt[i].reserve(nloop);
+  }
 }
 
 void Process(unsigned int ientry) {
@@ -277,7 +283,10 @@ void Process(unsigned int ientry) {
      thisevt = stream[itower]->eventNumber();
      break;
   }
-  if (ientry % 50 == 0) cerr << "ientry = " << ientry << " and run = " << thisrun << " and event = " << thisevt << endl;
+  if (ientry % 50 == 0)
+     cerr << "ientry = " << ientry << " and run = " << thisrun
+          << " and event = " << thisevt
+          << endl;
 
   static int first=true;
 
@@ -290,9 +299,9 @@ void Process(unsigned int ientry) {
     outputHistMin->SetBinContent(itower+1,ibin,x);                      \
   if(first) { outputHistAvg->GetYaxis()->SetBinLabel(ibin,name);        \
               outputHistMin->GetYaxis()->SetBinLabel(ibin,name);        \
-              outputHistMax->GetYaxis()->SetBinLabel(ibin,name); }
-
-  vector<float> nRoad_pertow, nFitI_pertow;
+              outputHistMax->GetYaxis()->SetBinLabel(ibin,name);        \
+              cout<<"fill "<<name<<" at "<<ibin<<" val="<<x<<"\n";      \
+  }
 
   for (int itower = 0; itower < ntower; itower++) {
      if(!activeTower[itower]) continue;
@@ -300,26 +309,25 @@ void Process(unsigned int ientry) {
     if (stream[itower] == 0) { cerr << "ERROR: Road stream " << itower << " = 0 " << std::endl; return;}
 
     int ibin=0;
+    int nRoads=stream[itower]->naoGetNroadsAM();
+    if(!nRoads) nRoads=stream[itower]->getNRoads();
     ADD_TO_HIST(1,"nevent");
-    ADD_TO_HIST( stream[itower]->naoGetNroadsAM(),"nRoad");
+    ADD_TO_HIST( nRoads,"nRoad");
     ADD_TO_HIST( trackstream[itower]->getNFits(),"nFit");
     ADD_TO_HIST( trackstream[itower]->getNFitsI(),"nFitI");
     ADD_TO_HIST( trackstream[itower]->getNTracks(),"nTrack");
     ADD_TO_HIST( trackstream[itower]->getNTracks(),"nTrackI");
     
-      nRoad[itower] += stream[itower]->naoGetNroadsAM()*divide;
+      nRoad[itower] += nRoads*divide;
       nFit[itower] += trackstream[itower]->getNFits()*divide;
       nFitI[itower] += trackstream[itower]->getNFitsI()*divide;
       nTrack[itower] += trackstream[itower]->getNTracks()*divide;
       nTrackI[itower] += trackstream[itower]->getNTracksI()*divide;
 
-      nRoad_pertow.push_back(stream[itower]->naoGetNroadsAM());
-      nFitI_pertow.push_back(trackstream[itower]->getNFitsI());
-	    
+      nRoad_tow_evt[itower].push_back(nRoads);
+      nFitI_tow_evt[itower].push_back(trackstream[itower]->getNFitsI());
 
     // for each tower and each entry register the value to extract later the deciles
-    
-
 
       Int_t ntrackBeforeHW = trackstream[itower]->getNTracks() + trackstream[itower]->getNFitsHWRejected();
 
@@ -359,7 +367,7 @@ void Process(unsigned int ientry) {
       for (int il = 0; il < 8; il++) {
          nCluster[il][itower] += stream[itower]->naoGetNclus(il)*divide;
          nCluster_road[il][itower] += stream[itower]->naoGetNclus_road(il)*divide;
-         nSSID[il][itower] += stream[itower]->naoGetNss(il)*divide;
+         //SSID[il][itower] += stream[itower]->naoGetNss(il)*divide;
       }
    ADD_TO_HIST( stream[itower]->naoGetNclus(0),"nCluster0");
    ADD_TO_HIST( stream[itower]->naoGetNclus(1),"nCluster1");
@@ -381,19 +389,16 @@ void Process(unsigned int ientry) {
    ADD_TO_HIST( stream[itower]->naoGetNclus_road(7),"nCluster(road7)");
 
 
-   ADD_TO_HIST( stream[itower]->naoGetNss(0),"nSSID0");
+   /* ADD_TO_HIST( stream[itower]->naoGetNss(0),"nSSID0");
    ADD_TO_HIST( stream[itower]->naoGetNss(1),"nSSID1");
    ADD_TO_HIST( stream[itower]->naoGetNss(2),"nSSID2");
    ADD_TO_HIST( stream[itower]->naoGetNss(3),"nSSID3");
    ADD_TO_HIST( stream[itower]->naoGetNss(4),"nSSID4");
    ADD_TO_HIST( stream[itower]->naoGetNss(5),"nSSID5");
    ADD_TO_HIST( stream[itower]->naoGetNss(6),"nSSID6");
-   ADD_TO_HIST( stream[itower]->naoGetNss(7),"nSSID7");  
+   ADD_TO_HIST( stream[itower]->naoGetNss(7),"nSSID7");  */
 
   }
-
-  nRoadArr.push_back(nRoad_pertow);
-  nFitIArr.push_back(nFitI_pertow);
 
   first=false;
 }
@@ -434,52 +439,60 @@ void Terminate() {
   printinfo (nFitMajority, "NFitSSB Majority");
   printinfo (nFitMajoritySCT, "NFitSSB Majority missing SCT");
   printinfo (nFitMajorityPix, "NFitSSB Majority missing Pix");
- int size_nRoad, first_decile_pos_nRoad, last_decile_pos_nRoad, max_quickselect_nRoad, first_decile_nRoad, last_decile_nRoad ;
-  int size_nFitI, first_decile_pos_nFitI, last_decile_pos_nFitI, max_quickselect_nFitI, first_decile_nFitI, last_decile_nFitI ;
-  // definition of the quartiles
-  size_nRoad = nRoadArr.size();
-  first_decile_pos_nRoad = size_nRoad/10;
-  last_decile_pos_nRoad = 9*first_decile_pos_nRoad;
-  max_quickselect_nRoad = size_nRoad - 1;
-  size_nFitI = nFitIArr.size();
-  first_decile_pos_nFitI = size_nFitI/10;
-  last_decile_pos_nFitI = 9*first_decile_pos_nFitI;
-  max_quickselect_nFitI = size_nFitI - 1;
+
   for (int itower = 0; itower < ntower; itower++) {
-    //    if(!processedTower[itower]) continue;
-     
-    // to generalize in case we run on multiple towers
-     vector<int> nRoad_perevt; nRoad_perevt.resize(size_nRoad);
-     vector<int> nFitI_perevt; nRoad_perevt.resize(size_nFitI);
-     AddBreak();
-     for(int i = 0; i < size_nRoad; i++){     
-        nRoad_perevt[i]=nRoadArr[i][0];      
+     if(!processedTower[itower]) continue;
+     int first_decile_nRoad=0;
+     int last_decile_nRoad=0;
+     int first_decile_pos_nRoad=nRoad_tow_evt[itower].size()/10;
+     int last_decile_pos_nRoad=nRoad_tow_evt[itower].size()*9/10;
+     if(nRoad_tow_evt[itower].size()) {
+        vector<float>::iterator nth;
+        nth=nRoad_tow_evt[itower].begin()+first_decile_pos_nRoad;
+        nth_element(nRoad_tow_evt[itower].begin(),nth,
+                    nRoad_tow_evt[itower].end());
+        first_decile_nRoad=(*nth);
+        nth=nRoad_tow_evt[itower].begin()+last_decile_pos_nRoad;
+        nth_element(nRoad_tow_evt[itower].begin(),nth,
+                    nRoad_tow_evt[itower].end());
+        last_decile_nRoad=(*nth);
      }
-     for(int i = 0; i < size_nFitI; i++){     
-        nFitI_perevt[i]=nFitIArr[i][0];     
-     }    
-   
-    first_decile_nRoad = quick_select(nRoad_perevt, 0, max_quickselect_nRoad, first_decile_pos_nRoad);
-    last_decile_nRoad = quick_select(nRoad_perevt, 0, max_quickselect_nRoad, last_decile_pos_nRoad);
+     int first_decile_nFitI=0;
+     int last_decile_nFitI=0;
+     int first_decile_pos_nFitI=nFitI_tow_evt[itower].size()/10;
+     int last_decile_pos_nFitI=nFitI_tow_evt[itower].size()*9/10;
+     if(nFitI_tow_evt[itower].size()) {
+        vector<float>::iterator nth;
+        nth=nFitI_tow_evt[itower].begin()+
+           nFitI_tow_evt[itower].size()/10;
+        nth_element(nFitI_tow_evt[itower].begin(),nth,
+                    nFitI_tow_evt[itower].end());
+        first_decile_nFitI=(*nth);
+        nth=nFitI_tow_evt[itower].begin()+
+           nFitI_tow_evt[itower].size()*9/10;
+        nth_element(nFitI_tow_evt[itower].begin(),nth,
+                    nFitI_tow_evt[itower].end());
+        last_decile_nFitI=(*nth);
+     }
+     AddBreak();
+     AddBreak();
+     myfile << " nRoad first decile position is " << first_decile_pos_nRoad
+            << " for a value of " << first_decile_nRoad << endl;
 
-    AddBreak();
-  myfile << " nRoad first decile position is " << first_decile_pos_nRoad << " for a value of " << first_decile_nRoad << endl;
-
-  myfile << "nRoad  last decile position is " << last_decile_pos_nRoad << " for a value of " << last_decile_nRoad << endl;  
-
+     myfile << "nRoad  last decile position is " << last_decile_pos_nRoad
+            << " for a value of " << last_decile_nRoad << endl;  
     
-    first_decile_nFitI = quick_select(nFitI_perevt, 0, max_quickselect_nFitI, first_decile_pos_nFitI);
-    last_decile_nFitI = quick_select(nFitI_perevt, 0, max_quickselect_nFitI, last_decile_pos_nFitI);
+     myfile << " nFitI first decile position is " << first_decile_pos_nFitI
+            << " for a value of " << first_decile_nFitI << endl;
 
-    myfile << " nFitI first decile position is " << first_decile_pos_nFitI << " for a value of " << first_decile_nFitI << endl;
-
-  myfile << " nFitI last decile position is " << last_decile_pos_nFitI << " for a value of " << last_decile_nFitI << endl;  
+     myfile << " nFitI last decile position is " << last_decile_pos_nFitI
+            << " for a value of " << last_decile_nFitI << endl;  
  
-  //fill out histo with values
-    outputHistFirstDecile->SetBinContent(itower+1, 1, first_decile_nRoad);
-    outputHistLastDecile->SetBinContent(itower+1, 1, last_decile_nRoad);
-    outputHistFirstDecile->SetBinContent(itower+1, 2, first_decile_nFitI);
-    outputHistLastDecile->SetBinContent(itower+1, 2, last_decile_nFitI);
+     //fill out histo with values
+     outputHistFirstDecile->SetBinContent(itower+1, 1, first_decile_nRoad);
+     outputHistLastDecile->SetBinContent(itower+1, 1, last_decile_nRoad);
+     outputHistFirstDecile->SetBinContent(itower+1, 2, first_decile_nFitI);
+     outputHistLastDecile->SetBinContent(itower+1, 2, last_decile_nFitI);
   } 
 
    //myfile << " first decile position is cool " << endl;
@@ -507,38 +520,40 @@ void Terminate() {
   outputRootFile=0;
 }
 
+double roundTo(double x,int precision) {
+   int significantDigit=0;
+   if(x!=0) significantDigit=trunc(log10(fabs(x)));
+   if(precision>=1) {
+      double factor=pow(10.,precision-1-significantDigit);
+      return round(x*factor)/factor;
+   }
+   return x;
+}
 
 void printinfo(float towers[MAXTOWER], TString text) {
 
+   int barrelN=0,endcapN=0;
   float barrelmean(0), endcapmean(0), barrelmax(0), endcapmax(0);
   for (int i = 0; i<ntower; i++) {
+     if(!processedTower[i]) continue;
     if (i < (ntower/4) || i >= 3*(ntower/4.)) { // kludge not always (?) guaranteed to work
       if (towers[i] > endcapmax) endcapmax = towers[i];
-      endcapmean += towers[i]/(ntower/2.);
+      endcapmean += towers[i];
+      endcapN++;
     }
     else {
       if (towers[i] > barrelmax) barrelmax = towers[i];
-      barrelmean += towers[i]/(ntower/2.);
+      barrelmean += towers[i];
+      barrelN++;
     }
   }
+  if(barrelN) barrelmean/=  barrelN;
+  if(endcapN) endcapmean /=  endcapN;
 
-  barrelmean = ([barrelmean](int SIGDIGITS)->double{
-      std::stringstream lStream;
-      lStream << std::setprecision(SIGDIGITS) << barrelmean; return std::stod(lStream.str());
-    })(SIGDIGITS);
-  barrelmax = ([barrelmax](int SIGDIGITS)->double{
-      std::stringstream lStream;
-      lStream << std::setprecision(SIGDIGITS) << barrelmax; return std::stod(lStream.str());
-    })(SIGDIGITS);
-  endcapmean = ([endcapmean](int SIGDIGITS)->double{
-      std::stringstream lStream;
-      lStream << std::setprecision(SIGDIGITS) << endcapmean; return std::stod(lStream.str());
-    })(SIGDIGITS);
-  endcapmax = ([endcapmax](int SIGDIGITS)->double{
-      std::stringstream lStream;
-      lStream << std::setprecision(SIGDIGITS) << endcapmax; return std::stod(lStream.str());
-    })(SIGDIGITS);
-
+  barrelmean = roundTo(barrelmean,SIGDIGITS);
+  barrelmax = roundTo(barrelmax,SIGDIGITS);
+  endcapmean = roundTo(endcapmean,SIGDIGITS);
+  endcapmax = roundTo(endcapmax,SIGDIGITS);
 
   myfile << text << "\t\t" << barrelmean << "\t\t" << barrelmax << "\t\t" << endcapmean << "\t\t" << endcapmax << endl;
   myfileTeX << text << "&" << barrelmean << "&" << barrelmax << "&" << endcapmean << "&" << endcapmax << " \\\\" << endl;
@@ -551,39 +566,3 @@ void AddBreak(int n) {
   }
 }
 
-// some functions used for the calculation of the k^th value of an r+1 long array called input with the method called quick_select.
-//int partition(vector<float> input, int p, int r)
-//int partition(int* input, int p, int r)
-int partition(vector<int> input, int p, int r)
-{
-  int pivot = input[r];
-    
-  while ( p < r )
-    {
-      while ( input[p] < pivot )
-	p++;
-        
-      while ( input[r] > pivot )
-	r--;
-        
-      if ( input[p] == input[r] )
-	p++;
-      else if ( p < r ) {
-	int tmp = input[p];
-	input[p] = input[r];
-	input[r] = tmp;
-      }
-    }
-    
-  return r;
-}
-
-int quick_select(vector<int> input, int p, int r, int k)
-{
-  if ( p == r ) return input[p];
-  int j = partition(input, p, r);
-  int length = j - p + 1;
-  if ( length == k ) return input[j];
-  else if ( k < length ) return quick_select(input, p, j - 1, k);
-  else  return quick_select(input, j + 1, r, k - length);
-}

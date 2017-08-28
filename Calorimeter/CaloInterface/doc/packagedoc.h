@@ -29,8 +29,6 @@ reconstruction
   - IClusterCellWeightTool.h     : interface for tools weighting cells in cluster objects
   - IClusterClassificationTool.h  : interface for tools classifying cluster objects
   - IHadronicCalibrationTool.h    : extends ICellWeightTool for more refined hadronic calibration information
-  - ICaloParticleIDTool.h : interface for calo object -> primary particle navigation, for tools which can be used
-        on simulated samples where the detailed calibration hits per primary G4 particle is available
   - ICaloAffectedTool.h  : interface for tool providing affected region info for a given 4 momentum object
   - ICaloCellNormalizedQualityTool.h  : interface for tool computing a normalized pulse shape quality from the raw quality
   - ICaloLumiBCIDTool.h : interface for tool computing BCID dependent pileup offset corrections

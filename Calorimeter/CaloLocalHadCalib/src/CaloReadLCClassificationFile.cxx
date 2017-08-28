@@ -4,7 +4,6 @@
 
 #include "CaloLocalHadCalib/CaloReadLCClassificationFile.h"
 #include "CaloConditions/CaloLocalHadDefs.h"
-#include "GaudiKernel/MsgStream.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "StoreGate/StoreGateSvc.h"
 
@@ -21,21 +20,19 @@ CaloReadLCClassificationFile::CaloReadLCClassificationFile(const std::string & n
   AthAlgorithm(name,pSvcLocator) {
   declareProperty("LCClassificationFileName",m_LCClassificationFileName);
   declareProperty("ClassificationKey",m_key="EMFrac");
-
-  m_data = new CaloLocalHadCoeff();
 }
 
 
 CaloReadLCClassificationFile::~CaloReadLCClassificationFile() {}
 
 
-StatusCode CaloReadLCClassificationFile::initDataFromFile(std::string theLCClassificationFileName)
+StatusCode
+CaloReadLCClassificationFile::initDataFromFile(std::string theLCClassificationFileName,
+                                               CaloLocalHadCoeff& data)
 {
-  MsgStream log(msgSvc(), name());
-  
   // Find the full path to filename:
   std::string file = PathResolver::find_file (theLCClassificationFileName, "DATAPATH");
-  log << MSG::INFO << "Reading file  " << file << endmsg;
+  ATH_MSG_INFO ("Reading file  " << file);
   TFile* theLCClassificationFile = new TFile(file.c_str());
   if ( !theLCClassificationFile ) {
     return StatusCode::FAILURE;
@@ -81,7 +78,7 @@ StatusCode CaloReadLCClassificationFile::initDataFromFile(std::string theLCClass
     for (idim=0;idim<keys.size();idim++) {
       size_t found = sTitle.find(keys[idim]);
       if ( found == std::string::npos ) {
-	log << MSG::ERROR << "Could not find key " << keys[idim] << " in current histogram." << endmsg;
+	ATH_MSG_ERROR ("Could not find key " << keys[idim] << " in current histogram.");
 	allValid = false;
       }
       else {
@@ -89,7 +86,7 @@ StatusCode CaloReadLCClassificationFile::initDataFromFile(std::string theLCClass
 	std::istringstream tstr(sTitle.substr(found+keys[idim].length()));
 	tstr >> ibin[idim] >> c >> c >> rmin[idim] >> c >> rmax[idim] >> c >> nbin[idim];
 	if ( ibin[idim] < 0 || ibin[idim] >= nbin[idim] ) {
-	  log << MSG::ERROR << "Found invalid bin number " << ibin[idim] << " not in valid range [0," << nbin[idim] << " in current histogram." << endmsg;
+	  ATH_MSG_ERROR ("Found invalid bin number " << ibin[idim] << " not in valid range [0," << nbin[idim] << " in current histogram.");
 	  allValid = false;
 	}
       }
@@ -108,8 +105,8 @@ StatusCode CaloReadLCClassificationFile::initDataFromFile(std::string theLCClass
 	  CaloLocalHadCoeff::LocalHadDimension theDim(names[idim].c_str(),types[idim],nbin[idim],rmin[idim],rmax[idim]);
 	  theArea.addDimension(theDim);
 	}
-	log << MSG::INFO << "adding Area with nDim = " << theArea.getNdim() << endmsg;
-	m_data->addArea(theArea);
+	ATH_MSG_INFO ("adding Area with nDim = " << theArea.getNdim());
+	data.addArea(theArea);
       }
       // now fill all data for current histogram
       TAxis * xax = prof->GetXaxis();
@@ -125,11 +122,13 @@ StatusCode CaloReadLCClassificationFile::initDataFromFile(std::string theLCClass
 	  theData[CaloLocalHadDefs::BIN_ENTRIES] = prof->GetBinEntries(iBin);
 	  theData[CaloLocalHadDefs::BIN_ERROR]   = prof->GetBinError(iBin);
 		  
-	  log << MSG::INFO << "Now set data for bins: ";
+	  msg() << MSG::INFO << "Now set data for bins: ";
 	  for(unsigned int ii=0;ii<ibin.size();ii++)
-	    log << ibin[ii] << " ";
-	  log << endmsg;
-	  m_data->setCoeff(m_data->getBin(0,ibin),theData);
+	    msg() << ibin[ii] << " ";
+	  msg() << endmsg;
+          int dbin = data.getBin(0,ibin);
+          if (dbin >= 0)
+            data.setCoeff(dbin,theData);
 	}
       }
     }
@@ -140,30 +139,10 @@ StatusCode CaloReadLCClassificationFile::initDataFromFile(std::string theLCClass
 }
 
 StatusCode CaloReadLCClassificationFile::initialize() {
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << " Building CaloLocalHadCoeff object " << endmsg;
-  StatusCode sc;
-  StoreGateSvc* detStore;
-  sc=service("DetectorStore",detStore);
-  if (sc.isFailure()) {
-     log << MSG::ERROR << "Unable to get the DetectorStore" << endmsg;
-     return sc;
-  }
-  sc=initDataFromFile(m_LCClassificationFileName);
-  if (sc.isFailure()) {
-     log << MSG::ERROR << "Unable to read input Data File" << endmsg;
-     return sc;
-  }
-  sc=detStore->record(m_data,m_key);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Unable to record CaloLocalHadCoeff" << endmsg;
-    return sc;
-  }
-  sc=detStore->setConst(m_data);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Unable to lock CaloLocalHadCoeff" << endmsg;
-    return sc;
-  }
+  ATH_MSG_INFO (" Building CaloLocalHadCoeff object ");
+  auto data = std::make_unique<CaloLocalHadCoeff>();
+  ATH_CHECK( initDataFromFile(m_LCClassificationFileName, *data) );
+  ATH_CHECK( detStore()->record(std::move(data), m_key, false) );
   return StatusCode::SUCCESS;
 }
 

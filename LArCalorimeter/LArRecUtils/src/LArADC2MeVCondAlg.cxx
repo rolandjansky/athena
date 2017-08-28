@@ -265,6 +265,7 @@ StatusCode LArADC2MeVCondAlg::execute() {
       //Now we are done with this channel and gain. Add it to the output container
       const IdentifierHash hid=larOnlineID->channel_Hash(chid);
       bool stat=lArADC2MeVObj->set(hid,igain,ADC2MeV);
+      if (!stat) msg(MSG::ERROR) << "LArADC2MeV::set fails" << endmsg;
       assert(stat); //fails only if hash or gain are out-of-range
 
     }//end loop over gains

@@ -37,7 +37,7 @@ public:
   StatusCode initialize();
   StatusCode finalize();
 
-  StatusCode fillCollection  (const ROBFragment *robFrag, PixelRDO_Container* rdoIdc, 
+  StatusCode fillCollection  (const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment *robFrag, PixelRDO_Container* rdoIdc, 
 			std::vector<IdentifierHash>* vecHash = NULL);
 
   inline void setDet( const eformat::SubDetector det );
@@ -123,7 +123,7 @@ public:
   void addToFlaggedErrorCounter(const unsigned int & serviceCodeCounter);
 
  private:
-  int masked_errors;
+  int m_masked_errors;
 
   int m_numGenWarnings;
   int m_maxNumGenWarnings;     // Maximum number of general warnings to print

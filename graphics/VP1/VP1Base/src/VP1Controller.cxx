@@ -20,19 +20,21 @@
 #include "VP1Base/VP1ColorSelectButton.h"
 #include "VP1Base/VP1MaterialButton.h"
 #include "VP1Base/CloseEventEater.h"
-#include <QtGui/QPushButton>
-#include <QtGui/QCheckBox>
-#include <QtGui/QComboBox>
-#include <QtGui/QGroupBox>
-#include <QtGui/QSpinBox>
-#include <QtGui/QDoubleSpinBox>
-#include <QtGui/QRadioButton>
-#include <QtGui/QSlider>
-#include <QtGui/QScrollArea>
-#include <QtGui/QScrollBar>
-#include <QtGui/QShortcut>
-#include <QtGui/QButtonGroup>
-#include <QtCore/QTimer>
+
+#include <QPushButton>
+#include <QCheckBox>
+#include <QComboBox>
+#include <QGroupBox>
+#include <QSpinBox>
+#include <QDoubleSpinBox>
+#include <QRadioButton>
+#include <QSlider>
+#include <QScrollArea>
+#include <QScrollBar>
+#include <QShortcut>
+#include <QButtonGroup>
+#include <QTimer>
+
 #include <Inventor/C/errors/debugerror.h>
 #include <Inventor/SbColor4f.h>
 #include <Inventor/nodes/SoMaterial.h>
@@ -56,7 +58,7 @@ public:
     QPushButton * launchButton;
     bool neverShown;
   };
-      
+
   QList<DialogInfo *> dialogs;
 
   SoMaterial * fallBackMaterial;
@@ -127,7 +129,7 @@ void VP1Controller::initDialog(QWidget * dialog, QPushButton* launchButton, QPus
   launchButton->setMaximumHeight(static_cast<int>(0.5+QFontMetricsF(launchButton->font()).height()*1.05+2));
   launchButton->setMinimumHeight(launchButton->maximumHeight());
   launchButton->setCheckable(true);
-  
+
   QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
   sizePolicy.setHorizontalStretch(0);
   sizePolicy.setVerticalStretch(0);
@@ -146,7 +148,7 @@ void VP1Controller::initDialog(QWidget * dialog, QPushButton* launchButton, QPus
   connect(closebutton,SIGNAL(clicked()),dialog,SLOT(close()));
   CloseEventEater* closeEventEater = new CloseEventEater(this);
   dialog->installEventFilter(closeEventEater);
-  
+
   closebutton->setText("&Close");
   connect(new QShortcut(QKeySequence(Qt::Key_Escape), dialog),SIGNAL(activated()),dialog,SLOT(close()));
   closebutton->setToolTip("Close this dialog [Esc]");
@@ -202,9 +204,9 @@ void VP1Controller::toggleDialogState(QObject* widget)
 	    +QString(sender()?sender()->objectName():"NULL"));
     return;
   }
-  
+
   bool oldvis = di->dialogWidget->isVisible();
-  
+
   if (oldvis&&di->dialogWidget->windowState()==Qt::WindowMinimized) {
     di->dialogWidget->setWindowState(Qt::WindowNoState);
   } else {
@@ -217,7 +219,7 @@ void VP1Controller::toggleDialogState(QObject* widget)
       // di->dialogWidget->resize(di->dialogWidget->minimumSizeHint());
     }
   }
-  
+
   //synchronise toggle button state (for example if this was called by CloseEventEater)
   if (di->launchButton->isCheckable() && oldvis){
     di->launchButton->setChecked(false);

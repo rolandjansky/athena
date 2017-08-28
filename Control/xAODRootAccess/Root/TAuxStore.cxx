@@ -464,6 +464,15 @@ namespace xAOD {
       return;
    }
 
+   /// Lock a decoration.
+   void TAuxStore::lockDecoration (SG::auxid_t auxid)
+   { 
+     if( m_transientStore ) {
+       m_transientStore->lockDecoration (auxid);
+     }
+   }
+
+
    size_t TAuxStore::size() const {
 
       // First, try to find a managed vector in the store:
@@ -1006,10 +1015,14 @@ namespace xAOD {
       }
 
       // Create a new branch handle:
+      const std::type_info* objType = brType;
+      if (containerBranch) {
+        objType = m_vecs[ auxid ]->objType();
+        if (!objType)
+          objType = SG::AuxTypeRegistry::instance().getType( auxid );
+      }
       m_branches[ auxid ] = new TBranchHandle( staticBranch, primitiveBranch,
-                                               (containerBranch ?
-                                                m_vecs[ auxid ]->objType() :
-                                                brType),
+                                               objType,
                                                ( containerBranch ?
                                                  m_vecs[ auxid ]->toVector() :
                                                  m_vecs[ auxid ]->toPtr() ),

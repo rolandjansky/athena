@@ -56,6 +56,5 @@ vertex fit.
 <b><i>VxContainer</i></b>: A top level object of this package. This is
 a container of vertexes to be written to the StoreGate as a result of
 a vertex reconstruction.
-@section VxVertex_MyPackageReq Requirements
 
 */

@@ -30,11 +30,9 @@ def pool_insert(files, catalog_name="xmlcatalog_file:PoolFileCatalog.xml"):
         print exe
         return 1
 
-    import PyUtils.Helpers as H
-    with H.restricted_ldenviron(projects=('AtlasCore',)):
-        os.environ['POOL_CATALOG'] = catalog_name
-        cmd = "%s %s" % (exe, " ".join(files))
-        sc, out = commands.getstatusoutput (cmd)
+    os.environ['POOL_CATALOG'] = catalog_name
+    cmd = "%s %s" % (exe, " ".join(files))
+    sc, out = commands.getstatusoutput (cmd)
         
     out = os.linesep.join(
         [o for o in out.splitlines()

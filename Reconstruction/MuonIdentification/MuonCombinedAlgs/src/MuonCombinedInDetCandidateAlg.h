@@ -1,3 +1,4 @@
+
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -7,6 +8,10 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
+#include "xAODTracking/TrackParticleContainer.h"
+#include "MuonCombinedEvent/InDetCandidateCollection.h"
 #include <string>
 
 namespace MuonCombined {
@@ -27,9 +32,12 @@ class MuonCombinedInDetCandidateAlg : public AthAlgorithm
  private:
   ToolHandle<MuonCombined::IInDetCandidateTool> m_indetCandidateTool;
   ToolHandle<MuonCombined::IInDetCandidateTool> m_indetForwardCandidateTool;
-  std::string m_indetTrackParticleLocation;
-  std::string m_indetForwardTrackParticleLocation;
-  std::string m_candidateCollectionName;
+  
+  SG::ReadHandleKeyArray<xAOD::TrackParticleContainer> m_indetTrackParticleLocation;
+  SG::ReadHandleKey<xAOD::TrackParticleContainer>  m_indetForwardTrackParticleLocation;
+  // SG::ReadHandleKey<InDetCandidateCollection> m_indetCandidateCollectionName;
+  SG::WriteHandleKey<InDetCandidateCollection> m_candidateCollectionName;
+
   bool m_doSiliconForwardMuons;
 
 };

@@ -32,10 +32,10 @@
 using namespace Muon;
 
 namespace CscPrdBins {
-  void PrdBinLabels(TH1 *h, int m_side) {
+  void PrdBinLabels(TH1 *h, int side) {
     h->GetXaxis()->SetTitle("");
     h->GetXaxis()->SetLabelSize(0.03);
-    if(m_side == -1) {
+    if(side == -1) {
       for(size_t j=6; j<86; j++) {
         if( j%5 != 0 ) {
           float xmid = h->GetBinLowEdge(j) + h->GetBinWidth(j);
@@ -47,7 +47,7 @@ namespace CscPrdBins {
           h->GetXaxis()->SetBinLabel(j,Form("%c%02d:%d",(sec%2==0?'S':'L'),sec,lay));
         } // end for
       } // end if
-    } else if (m_side == 1) {
+    } else if (side == 1) {
       for(size_t j=6; j<86; j++) {
         if( j%5 != 0 ) {
           float xmid = h->GetBinLowEdge(j) + h->GetBinWidth(j);
@@ -71,8 +71,8 @@ CscPrdValAlg::CscPrdValAlg(const std::string & type, const std::string & name,
     const IInterface* parent) : 
   ManagedMonitorToolBase(type, name, parent),
   m_stripFitter(name),
-  cscprd_oviewEA(0),
-  cscprd_oviewEC(0)
+  m_cscprd_oviewEA(0),
+  m_cscprd_oviewEC(0)
 {
 
   declareProperty("CSCStripFitter", m_stripFitter);
@@ -92,13 +92,13 @@ CscPrdValAlg::CscPrdValAlg(const std::string & type, const std::string & name,
 // destructor ----------------------------------------------------------------
 //
 CscPrdValAlg::~CscPrdValAlg() {
-  if(cscprd_oviewEA) {
-    delete cscprd_oviewEA;
-    cscprd_oviewEA = 0;
+  if(m_cscprd_oviewEA) {
+    delete m_cscprd_oviewEA;
+    m_cscprd_oviewEA = 0;
   }
-  if(cscprd_oviewEC) {
-    delete cscprd_oviewEC;
-    cscprd_oviewEC = 0;
+  if(m_cscprd_oviewEC) {
+    delete m_cscprd_oviewEC;
+    m_cscprd_oviewEC = 0;
   }
   ATH_MSG_DEBUG( "CscPrdValAlg: in destructor" );
 }
@@ -443,30 +443,30 @@ StatusCode CscPrdValAlg::bookHistograms() {
   } // end for expert
 
   // register overview histograms for EA
-  std::vector<TH1 *>::iterator m_iT;
-  cscprd_oviewEA = new MonGroup( this, m_cscGenPath+"CSC/Overview/CSCEA/PRD", run, ATTRIB_MANAGED );
-  m_iT = m_regHOviewEA.begin();
+  std::vector<TH1 *>::iterator iT;
+  m_cscprd_oviewEA = new MonGroup( this, m_cscGenPath+"CSC/Overview/CSCEA/PRD", run, ATTRIB_MANAGED );
+  iT = m_regHOviewEA.begin();
   ATH_MSG_DEBUG (  "Found " << m_regHOviewEA.size() << " CSCEA Overview Histograms " );
-  for (; m_iT != m_regHOviewEA.end(); ++m_iT) {
-    ATH_MSG_DEBUG ( "Registering CSCEA Overview Histogram: " << (*m_iT)->GetName() );
-    sc = cscprd_oviewEA->regHist(*m_iT);
-    ATH_MSG_DEBUG ( "Successfully Registered CSCEA Overview Histogram: " << (*m_iT)->GetName() );
+  for (; iT != m_regHOviewEA.end(); ++iT) {
+    ATH_MSG_DEBUG ( "Registering CSCEA Overview Histogram: " << (*iT)->GetName() );
+    sc = m_cscprd_oviewEA->regHist(*iT);
+    ATH_MSG_DEBUG ( "Successfully Registered CSCEA Overview Histogram: " << (*iT)->GetName() );
     if ( sc.isFailure() ) {
-      ATH_MSG_ERROR (  "Cannot register overview histogram for Endcap A: " << (*m_iT)->GetName() );
+      ATH_MSG_ERROR (  "Cannot register overview histogram for Endcap A: " << (*iT)->GetName() );
       return sc;
     }
   }
 
   // register overview histograms for EC
-  cscprd_oviewEC = new MonGroup( this, m_cscGenPath+"CSC/Overview/CSCEC/PRD", run, ATTRIB_MANAGED );
-  m_iT = m_regHOviewEC.begin();
+  m_cscprd_oviewEC = new MonGroup( this, m_cscGenPath+"CSC/Overview/CSCEC/PRD", run, ATTRIB_MANAGED );
+  iT = m_regHOviewEC.begin();
   ATH_MSG_DEBUG (  "Found " << m_regHOviewEC.size() << " CSCEC Overview Histograms " );
-  for (; m_iT != m_regHOviewEC.end(); ++m_iT) {
-    ATH_MSG_DEBUG ( "Registering CSCEC Overview Histogram: " << (*m_iT)->GetName() );
-    sc = cscprd_oviewEC->regHist(*m_iT);
-    ATH_MSG_DEBUG ( "Successfully Registered CSCEC Overview Histogram: " << (*m_iT)->GetName() );
+  for (; iT != m_regHOviewEC.end(); ++iT) {
+    ATH_MSG_DEBUG ( "Registering CSCEC Overview Histogram: " << (*iT)->GetName() );
+    sc = m_cscprd_oviewEC->regHist(*iT);
+    ATH_MSG_DEBUG ( "Successfully Registered CSCEC Overview Histogram: " << (*iT)->GetName() );
     if ( sc.isFailure() ) {
-      ATH_MSG_ERROR (  "Cannot register overview histogram for Endcap C: " << (*m_iT)->GetName() );
+      ATH_MSG_ERROR (  "Cannot register overview histogram for Endcap C: " << (*iT)->GetName() );
       return sc;
     }
   }
@@ -487,14 +487,14 @@ StatusCode CscPrdValAlg::fillHistograms()  {
   // Part 1: Get the messaging service, print where you are
   ATH_MSG_DEBUG( "CscPrdValAlg: in fillHistograms" );
 
-  const DataHandle<CscStripPrepDataContainer> m_CscPRD(0);
+  const DataHandle<CscStripPrepDataContainer> CscPRD(0);
 
   sc = evtStore()->contains<CscStripPrepDataContainer>(m_cscPrdKey);
   if(sc.isFailure() || m_cscPrdKey == "") {
     ATH_MSG_WARNING (  "PRD container of type Muon::CscStripPrepDataContainer and key \"" << m_cscPrdKey << "\" NOT found in StoreGate" );
     return sc;
   } else {
-    sc = evtStore()->retrieve(m_CscPRD, m_cscPrdKey);
+    sc = evtStore()->retrieve(CscPRD, m_cscPrdKey);
     if( sc.isFailure() ) {
       ATH_MSG_WARNING ( "Could not retrieve PRD container of type Muon::CscStripPrepDataContainer and key \"" << m_cscPrdKey << "\"" );
       return sc;
@@ -526,22 +526,22 @@ StatusCode CscPrdValAlg::fillHistograms()  {
 
   // Begin Event ==================================================
   ATH_MSG_DEBUG ( " BEGIN  EVENT ========================================== "  );
-  ATH_MSG_DEBUG(" Size of PRD Container  : " << m_CscPRD->size());
+  ATH_MSG_DEBUG(" Size of PRD Container  : " << CscPRD->size());
 
-  for (CscStripPrepDataContainer::const_iterator it = m_CscPRD->begin(); it != m_CscPRD->end(); ++it) {
-    const CscStripPrepDataCollection *m_prd = *it;
-    ATH_MSG_DEBUG ( " Size of Collection     : " << m_prd->size()  );
-    size_t m_noStrips = m_prd->size();  // no. of strips in this cluster = m_stripIds.size()
-    size_t m_nEtaClusWidthCnt[5], m_nPhiClusWidthCnt[5];    // cluster position in each phi-layer
-    int m_clusCount[33][9], m_sigclusCount[33][9];
+  for (CscStripPrepDataContainer::const_iterator it = CscPRD->begin(); it != CscPRD->end(); ++it) {
+    const CscStripPrepDataCollection *prd = *it;
+    ATH_MSG_DEBUG ( " Size of Collection     : " << prd->size()  );
+    size_t noStrips = prd->size();  // no. of strips in this cluster = m_stripIds.size()
+    size_t nEtaClusWidthCnt[5], nPhiClusWidthCnt[5];    // cluster position in each phi-layer
+    int clusCount[33][9], sigclusCount[33][9];
     for(size_t kl = 0; kl < 33; kl++ ) {
       for(size_t km = 0; km < 9; km++ ) {
         if(kl == 0 && km < 5) {
-          m_nEtaClusWidthCnt[km] = 0;
-          m_nPhiClusWidthCnt[km] = 0;
+          nEtaClusWidthCnt[km] = 0;
+          nPhiClusWidthCnt[km] = 0;
         }
-        m_clusCount[kl][km] = 0;
-        m_sigclusCount[kl][km] = 0;
+        clusCount[kl][km] = 0;
+        sigclusCount[kl][km] = 0;
       } // end loop over km
     } // end loop over kl
 
@@ -549,31 +549,31 @@ StatusCode CscPrdValAlg::fillHistograms()  {
     // Loop over strip id's vector -- this is just one strip even though its a vector of ID's
     ATH_MSG_DEBUG ( " BEGIN Loop over Strips ========================================== "  );
     for (CscStripPrepDataCollection::const_iterator ic = (*it)->begin(); ic != (*it)->end(); ++ic) { // for-loop over PRD collection
-      const CscStripPrepData& m_praw = **ic;
+      const CscStripPrepData& praw = **ic;
 
       // Identify the PRD cluster
-      Identifier m_prawId = m_praw.identify();
-      int m_stationName = m_cscIdHelper->stationName(m_prawId);
-      std::string m_stationString = m_cscIdHelper->stationNameString(m_stationName);
-      int m_chamberType = m_stationString == "CSS" ? 0 : 1;
-      int m_stationEta  = m_cscIdHelper->stationEta(m_prawId);
-      int m_stationPhi  = m_cscIdHelper->stationPhi(m_prawId);
-      int m_wireLayer   = m_cscIdHelper->wireLayer(m_prawId);
-      int m_measuresPhi = m_cscIdHelper->measuresPhi(m_prawId);
-      int m_stripId     = m_cscIdHelper->strip(m_prawId);
+      Identifier prawId = praw.identify();
+      int stationName = m_cscIdHelper->stationName(prawId);
+      std::string stationString = m_cscIdHelper->stationNameString(stationName);
+      int chamberType = stationString == "CSS" ? 0 : 1;
+      int stationEta  = m_cscIdHelper->stationEta(prawId);
+      int stationPhi  = m_cscIdHelper->stationPhi(prawId);
+      int wireLayer   = m_cscIdHelper->wireLayer(prawId);
+      int measuresPhi = m_cscIdHelper->measuresPhi(prawId);
+      int stripId     = m_cscIdHelper->strip(prawId);
 
-      int m_sectorNo  = m_stationEta * (2 * m_stationPhi - m_chamberType);
+      int sectorNo  = stationEta * (2 * stationPhi - chamberType);
 
       // compute the indices to store cluster count
-      int m_ns = m_sectorNo < 0 ? m_sectorNo*(-1) : m_sectorNo+16; // [-16 -> -1] shifted to [1 -> 16] and [+1 -> +16] shifted to [+17 -> +32]
-      int m_nl = (m_measuresPhi ? m_wireLayer : m_wireLayer+4);  // [ 1 -> 4] (phi-layers) and [5 -> 8] (eta-layers)
+      int ns = sectorNo < 0 ? sectorNo*(-1) : sectorNo+16; // [-16 -> -1] shifted to [1 -> 16] and [+1 -> +16] shifted to [+17 -> +32]
+      int nl = (measuresPhi ? wireLayer : wireLayer+4);  // [ 1 -> 4] (phi-layers) and [5 -> 8] (eta-layers)
 
-      m_clusCount[m_ns][m_nl]++;
+      clusCount[ns][nl]++;
 
-      // indices for m_ns = [+1 -> +32]; 32 places (index '0' is not counted); allocated 33 places
-      // indices for m_nl = [+1 -> +8]; 8 places (index '0' is not counted); allocated 9 places
-      ATH_MSG_DEBUG(" m_ns = " << m_ns << "\tm_nl = " << m_nl << "\tm_sec = " << m_sectorNo << "\t m_lay= " 
-          << m_wireLayer << "\t strip = " << m_stripId << "\tmPhi = " << m_measuresPhi);
+      // indices for ns = [+1 -> +32]; 32 places (index '0' is not counted); allocated 33 places
+      // indices for nl = [+1 -> +8]; 8 places (index '0' is not counted); allocated 9 places
+      ATH_MSG_DEBUG(" ns = " << ns << "\tm_nl = " << nl << "\tm_sec = " << sectorNo << "\t m_lay= " 
+          << wireLayer << "\t strip = " << stripId << "\tmPhi = " << measuresPhi);
 
 
       // y-axis fill value
@@ -581,134 +581,134 @@ StatusCode CscPrdValAlg::fillHistograms()  {
       // sector# +2 layer 2 maps to +2 + 0.2*(2-1) + 0.1 = +2.3
       // sector# +2 layer 3 maps to +2 + 0.2*(3-1) + 0.1 = +2.5
       // sector# +2 layer 4 maps to +2 + 0.2*(4-1) + 0.1 = +2.7
-      float m_secLayer = m_sectorNo + 0.2 * (m_wireLayer - 1) + 0.1;
-      int xfac = m_measuresPhi ? -1 : 1;        // [-1 -> -48] / [+1 -> +192]
+      float secLayer = sectorNo + 0.2 * (wireLayer - 1) + 0.1;
+      int xfac = measuresPhi ? -1 : 1;        // [-1 -> -48] / [+1 -> +192]
 
       // x-axis fill value
-      float m_spid = m_stripId * xfac;  
-      m_h2csc_prd_hitmap->Fill(m_spid, m_secLayer);
-      m_measuresPhi ? m_h2csc_prd_phicluswidth->Fill(m_noStrips,m_secLayer) : m_h2csc_prd_etacluswidth->Fill(m_noStrips,m_secLayer);
+      float spid = stripId * xfac;  
+      m_h2csc_prd_hitmap->Fill(spid, secLayer);
+      measuresPhi ? m_h2csc_prd_phicluswidth->Fill(noStrips,secLayer) : m_h2csc_prd_etacluswidth->Fill(noStrips,secLayer);
 
       if(m_mapxyrz) {
-        float m_x = m_praw.globalPosition().x();
-        float m_y = m_praw.globalPosition().y();
-        float m_z = m_praw.globalPosition().z();
-        float m_r = sqrt(m_x*m_x + m_y*m_y);
-        ATH_MSG_DEBUG(" prd m_x = " << m_x << "\t m_y = " << m_y << "\t m_z = " << m_z );
-        m_h2csc_prd_r_vs_z_hitmap->Fill(m_z,m_r);
-        m_h2csc_prd_y_vs_x_hitmap->Fill(m_y,m_x);
+        float x = praw.globalPosition().x();
+        float y = praw.globalPosition().y();
+        float z = praw.globalPosition().z();
+        float r = sqrt(x*x + y*y);
+        ATH_MSG_DEBUG(" prd x = " << x << "\t y = " << y << "\t z = " << z );
+        m_h2csc_prd_r_vs_z_hitmap->Fill(z,r);
+        m_h2csc_prd_y_vs_x_hitmap->Fill(y,x);
       } // end if(m_mapxyrz)
 
       // Fit this strip and get Charge (in units of: # of electrons)
-      ICscStripFitter::Result m_res;
-      m_res = m_stripFitter->fit(m_praw);
+      ICscStripFitter::Result res;
+      res = m_stripFitter->fit(praw);
 
-      ATH_MSG_DEBUG ( "Strip q +- dq = " << m_res.charge  << " +- " << m_res.dcharge << "\t t +- dt = "
-          << m_res.time << " +- " <<  m_res.dtime << "\t w +- dw = " << m_res.width << " +- "
-          << m_res.dwidth << "\t status= " << m_res.status << "\t chisq= " << m_res.chsq);
+      ATH_MSG_DEBUG ( "Strip q +- dq = " << res.charge  << " +- " << res.dcharge << "\t t +- dt = "
+          << res.time << " +- " <<  res.dtime << "\t w +- dw = " << res.width << " +- "
+          << res.dwidth << "\t status= " << res.status << "\t chisq= " << res.chsq);
 
 
       // determine of the cluster is a noise/signal cluster Max_Delta_ADC > NoiseCut
-      float m_kiloele = 1.0e-3; // multiply # of electrons by this number to get kiloElectrons (1 ke = 1 ADC)
-      float m_qstripADC = m_res.charge * m_kiloele;
+      float kiloele = 1.0e-3; // multiply # of electrons by this number to get kiloElectrons (1 ke = 1 ADC)
+      float qstripADC = res.charge * kiloele;
 
-      // By default m_res.status = -1
-      // if strip fit is success m_res.status = 0
-      // If fit fails use the peak sample. In this case m_res.status = 1
+      // By default res.status = -1
+      // if strip fit is success res.status = 0
+      // If fit fails use the peak sample. In this case res.status = 1
 
-      bool m_signal = ((m_qstripADC > m_cscNoiseCut) && (m_res.status >= 0)) ? true : false;
+      bool signal = ((qstripADC > m_cscNoiseCut) && (res.status >= 0)) ? true : false;
 
       // increment the signal-cluster count
-      if(m_signal) {
-        m_sigclusCount[m_ns][m_nl]++;
-        m_measuresPhi ? m_nPhiClusWidthCnt[m_wireLayer]++ : m_nEtaClusWidthCnt[m_wireLayer]++ ;
-        m_h2csc_prd_hitmap_signal->Fill(m_spid,m_secLayer);
-        if(m_stationEta == -1) {
-          m_h2csc_prd_hitmap_signal_EC->Fill(m_spid,m_secLayer);
-          m_h1csc_prd_hitmap_signal_EC_count->Fill(m_spid);
-          m_h1csc_prd_hitmap_signal_EC_occupancy->Fill(m_secLayer);
-          m_h2csc_prd_occvslb_EC->Fill(m_lumiblock,m_secLayer);
-        } // end if(m_stationEta == -1)
+      if(signal) {
+        sigclusCount[ns][nl]++;
+        measuresPhi ? nPhiClusWidthCnt[wireLayer]++ : nEtaClusWidthCnt[wireLayer]++ ;
+        m_h2csc_prd_hitmap_signal->Fill(spid,secLayer);
+        if(stationEta == -1) {
+          m_h2csc_prd_hitmap_signal_EC->Fill(spid,secLayer);
+          m_h1csc_prd_hitmap_signal_EC_count->Fill(spid);
+          m_h1csc_prd_hitmap_signal_EC_occupancy->Fill(secLayer);
+          m_h2csc_prd_occvslb_EC->Fill(m_lumiblock,secLayer);
+        } // end if(stationEta == -1)
         else {
-          m_h2csc_prd_hitmap_signal_EA->Fill(m_spid,m_secLayer);
-          m_h1csc_prd_hitmap_signal_EA_count->Fill(m_spid);
-          m_h1csc_prd_hitmap_signal_EA_occupancy->Fill(m_secLayer);
-          m_h2csc_prd_occvslb_EA->Fill(m_lumiblock,m_secLayer);
-        } // end else if(m_stationEta == -1)
-        if(!m_measuresPhi) {
-          m_h2csc_prd_etacluswidth_signal->Fill(m_noStrips,m_secLayer);
-        } // end if(!m_measuresPhi)
+          m_h2csc_prd_hitmap_signal_EA->Fill(spid,secLayer);
+          m_h1csc_prd_hitmap_signal_EA_count->Fill(spid);
+          m_h1csc_prd_hitmap_signal_EA_occupancy->Fill(secLayer);
+          m_h2csc_prd_occvslb_EA->Fill(m_lumiblock,secLayer);
+        } // end else if(stationEta == -1)
+        if(!measuresPhi) {
+          m_h2csc_prd_etacluswidth_signal->Fill(noStrips,secLayer);
+        } // end if(!measuresPhi)
         else {
-          m_h2csc_prd_phicluswidth_signal->Fill(m_noStrips,m_secLayer);
-        } // end else if(!m_measuresPhi)
-      } // end if(m_signal)
+          m_h2csc_prd_phicluswidth_signal->Fill(noStrips,secLayer);
+        } // end else if(!measuresPhi)
+      } // end if(signal)
       else {
-        m_h2csc_prd_hitmap_noise->Fill(m_spid,m_secLayer);
-        if(!m_measuresPhi) {
-          m_h2csc_prd_etacluswidth_noise->Fill(m_noStrips,m_secLayer);
-        } // end if(!m_measuresPhi)
+        m_h2csc_prd_hitmap_noise->Fill(spid,secLayer);
+        if(!measuresPhi) {
+          m_h2csc_prd_etacluswidth_noise->Fill(noStrips,secLayer);
+        } // end if(!measuresPhi)
         else {
-          m_h2csc_prd_phicluswidth_noise->Fill(m_noStrips,m_secLayer);
-        } // end else if(!m_measuresPhi)
-      } // end else if(m_signal)
+          m_h2csc_prd_phicluswidth_noise->Fill(noStrips,secLayer);
+        } // end else if(!measuresPhi)
+      } // end else if(signal)
 
 
     } // end for-loop over PRD collection
     ATH_MSG_DEBUG ( " End loop over PRD collection======================" );
 
     for(size_t lcnt = 1; lcnt < 5; lcnt++ ) {
-      m_h2csc_prd_eta_vs_phi_cluswidth->Fill(m_nPhiClusWidthCnt[lcnt],m_nEtaClusWidthCnt[lcnt]);
+      m_h2csc_prd_eta_vs_phi_cluswidth->Fill(nPhiClusWidthCnt[lcnt],nEtaClusWidthCnt[lcnt]);
     } // end loop over lcnt
 
-    int m_numeta = 0, m_numphi = 0;
-    int m_numetasignal = 0, m_numphisignal = 0;
+    int numeta = 0, numphi = 0;
+    int numetasignal = 0, numphisignal = 0;
     for(int kl = 1; kl < 33; kl++ ) {
 
       //int m_sec = kl < 17 ? kl*(-1) : kl; // [1->16](-side)  [17-32] (+side)
       for(int km = 1; km < 9; km++ ) {
         int lay = (km > 4 && km < 9) ? km-4 : km;  // 1,2,3,4 (phi-layers)     5-4, 6-4, 7-4, 8-4 (eta-layers)
         bool mphi = (km > 0 && km < 5) ? true : false; // 1,2,3,4 (phi-layers) 5,6,7,8 (eta-layers)
-        std::string m_wlay = mphi ? "Phi-Layer " : "Eta-Layer: ";
+        std::string wlay = mphi ? "Phi-Layer " : "Eta-Layer: ";
 
-        int m_count = m_clusCount[kl][km];
-        int m_scount = m_sigclusCount[kl][km];
+        int count = clusCount[kl][km];
+        int scount = sigclusCount[kl][km];
 
 
-        if(m_count) {
-          float m_secLayer = kl-16 + 0.2 * (lay - 1) + 0.1;
+        if(count) {
+          float secLayer = kl-16 + 0.2 * (lay - 1) + 0.1;
           if(mphi) {
-            m_h2csc_prd_phicluscount->Fill(m_count,m_secLayer); // all phi-cluster counts
-            m_numphi += m_count;
-            if(m_scount) {
-              m_numphisignal += m_scount;
-              m_h2csc_prd_phicluscount_signal->Fill(m_scount,m_secLayer); // signal phi-cluster count
-              m_h2csc_prd_phicluscount_noise->Fill((m_count-m_scount),m_secLayer); // noise phi-cluster count
-            } // end if(m_scount) 
+            m_h2csc_prd_phicluscount->Fill(count,secLayer); // all phi-cluster counts
+            numphi += count;
+            if(scount) {
+              numphisignal += scount;
+              m_h2csc_prd_phicluscount_signal->Fill(scount,secLayer); // signal phi-cluster count
+              m_h2csc_prd_phicluscount_noise->Fill((count-scount),secLayer); // noise phi-cluster count
+            } // end if(scount) 
             else {
-              m_h2csc_prd_phicluscount_noise->Fill(m_count,m_secLayer); // noise phi-cluster count
-            } // end else if(m_scount)
+              m_h2csc_prd_phicluscount_noise->Fill(count,secLayer); // noise phi-cluster count
+            } // end else if(scount)
           } // end if(mphi)
           else {
-            m_h2csc_prd_etacluscount->Fill(m_count,m_secLayer);
-            m_numeta += m_count;
-            if(m_scount) {
-              m_numetasignal += m_scount;
-              m_h2csc_prd_etacluscount_signal->Fill(m_scount,m_secLayer); // signal eta-cluster count
-              m_h2csc_prd_etacluscount_noise->Fill((m_count-m_scount),m_secLayer); // noise eta-cluster count
-            } // end if(m_scount)
+            m_h2csc_prd_etacluscount->Fill(count,secLayer);
+            numeta += count;
+            if(scount) {
+              numetasignal += scount;
+              m_h2csc_prd_etacluscount_signal->Fill(scount,secLayer); // signal eta-cluster count
+              m_h2csc_prd_etacluscount_noise->Fill((count-scount),secLayer); // noise eta-cluster count
+            } // end if(scount)
             else {
-              m_h2csc_prd_etacluscount_noise->Fill(m_count,m_secLayer); // noise eta-cluster count
-            } // end else if(m_scount)
+              m_h2csc_prd_etacluscount_noise->Fill(count,secLayer); // noise eta-cluster count
+            } // end else if(scount)
           } // end else if(mphi)
-          ATH_MSG_DEBUG ( m_wlay << "Counts sec: [" << kl-16 << "]\tlayer: [" << km << "] = " <<
-              m_secLayer << "\t = " << m_count << "\t" << m_scount);
-        } // end if(m_count)
+          ATH_MSG_DEBUG ( wlay << "Counts sec: [" << kl-16 << "]\tlayer: [" << km << "] = " <<
+              secLayer << "\t = " << count << "\t" << scount);
+        } // end if(count)
       } // end for km
     } // end for kl
 
-    m_h2csc_prd_eta_vs_phi_cluscount->Fill(m_numphi,m_numeta);
-    m_h2csc_prd_eta_vs_phi_cluscount_signal->Fill(m_numphisignal,m_numetasignal);
-    m_h2csc_prd_eta_vs_phi_cluscount_noise->Fill(m_numphi-m_numphisignal, m_numeta-m_numetasignal);
+    m_h2csc_prd_eta_vs_phi_cluscount->Fill(numphi,numeta);
+    m_h2csc_prd_eta_vs_phi_cluscount_signal->Fill(numphisignal,numetasignal);
+    m_h2csc_prd_eta_vs_phi_cluscount_noise->Fill(numphi-numphisignal, numeta-numetasignal);
 
   } // end for-loop over container
   ATH_MSG_DEBUG ( " End EVENT======================" );
@@ -724,12 +724,10 @@ StatusCode CscPrdValAlg::fillHistograms()  {
 StatusCode CscPrdValAlg::procHistograms() {
   StatusCode sc = StatusCode::SUCCESS;
   ATH_MSG_DEBUG( "CscPrdValAlg: in procHistograms" );
-  if(endOfEventsBlock){}
-  if(endOfLumiBlock){}
-  if(endOfRun){
+  if(endOfRunFlag()){
     /*
        std::string m_cscGenPath = m_cscPRDPath.substr(0,m_cscPRDPath.find("CSC"));
-    //MonGroup cscprd_oviewEC( this, m_cscGenPath+"CSC/Overview/CSCEC", shift, run );
+    //MonGroup m_cscprd_oviewEC( this, m_cscGenPath+"CSC/Overview/CSCEC", shift, run );
     for(size_t j = 0; j < m_regHOviewEC.size(); j++ ) {
     TH1 *m_h(0);
     m_h = m_regHOviewEC[j];
@@ -742,14 +740,14 @@ StatusCode CscPrdValAlg::procHistograms() {
     // set bin labels
     CscPrdBins::PrdBinLabels(m_hY,-1);
     // register histogram with Overview/CSCEC
-    sc = cscprd_oviewEC->regHist(m_hY);
+    sc = m_cscprd_oviewEC->regHist(m_hY);
     if ( sc.isFailure() ) {
     ATH_MSG_ERROR (  "Cannot register histogram " << m_hY->GetName() );
     return sc;
     }
     // Get X-projection (counts)
     TH1D *m_hX = dynamic_cast<TH2F* >(m_h)->ProjectionX(Form("%s_hX",m_hname.c_str()),0,-1,"e");
-    sc = cscprd_oviewEC->regHist(m_hX);
+    sc = m_cscprd_oviewEC->regHist(m_hX);
     if ( sc.isFailure() ) {
     ATH_MSG_ERROR (  "Cannot register histogram " << m_hX->GetName() );
     return sc;
@@ -758,7 +756,7 @@ StatusCode CscPrdValAlg::procHistograms() {
     } // end if m_h
     } // end for
 
-    //MonGroup cscprd_oviewEA( this, m_cscGenPath+"CSC/Overview/CSCEA", shift, run );
+    //MonGroup m_cscprd_oviewEA( this, m_cscGenPath+"CSC/Overview/CSCEA", shift, run );
     for(size_t j = 0; j < m_regHOviewEA.size(); j++ ) {
     TH1 *m_h(0);
     m_h = m_regHOviewEA[j];

@@ -29,11 +29,5 @@ found in LD_LIBRARY_PATH - the rootmap files contain a list of classes
 that each dictionary holds and the corresponding name of the DLL
 (dynamically loadable library).
 
-@section AthenaSealSvc_requirements requirements
-
-
-@section AthenaSealSvc_Links Links to used packages
-
-
 
 */

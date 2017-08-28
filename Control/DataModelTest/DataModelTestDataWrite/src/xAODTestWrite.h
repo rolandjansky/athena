@@ -17,9 +17,11 @@
 #define DATAMODELTESTDATAWRITE_XAODTESTWRITE_H
 
 
-//#include "DataModelTestDataWrite/HVec.h"
+#include "EventInfo/EventInfo.h"
 #include "DataModelTestDataCommon/CVec.h"
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "DataModelTestDataCommon/CVecWithData.h"
+#include "DataModelTestDataWrite/GVec.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 
@@ -31,7 +33,7 @@ namespace DMTest {
  * @brief Algorithm for creating test aux data.
  */
 class xAODTestWrite
-  : public AthAlgorithm
+  : public AthReentrantAlgorithm
 {
 public:
   /**
@@ -45,33 +47,31 @@ public:
   /**
    * @brief Algorithm initialization; called at the beginning of the job.
    */
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
 
   /**
    * @brief Algorithm event processing.
    */
-  virtual StatusCode execute(); 
+  virtual StatusCode execute_r (const EventContext& ctx) const override;
 
 
   /**
    * @brief Algorithm finalization; called at the end of the job.
    */
-  virtual StatusCode finalize();
+  virtual StatusCode finalize() override;
 
 
 private:
   /// Test writing container with additional data.
-  StatusCode write_cvec_with_data();
+  StatusCode write_cvec_with_data (unsigned int count,
+                                   const EventContext& ctx) const;
 
-  /// Test schema evolution involving view container.
-  //StatusCode write_htest();
-
-  /// Event counter.
-  int m_count;
-
+  SG::ReadHandleKey<EventInfo> m_eventInfoKey;
   SG::ReadHandleKey<DMTest::CVec> m_cvecKey;
-  //SG::WriteHandleKey<DMTest::HVec> m_hvecKey;
+  SG::WriteHandleKey<DMTest::CVec> m_ctrigKey;
+  SG::WriteHandleKey<DMTest::GVec> m_gvecKey;
+  SG::WriteHandleKey<DMTest::CVecWithData> m_cvecWDKey;
 };
 
 

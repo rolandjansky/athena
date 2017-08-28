@@ -440,7 +440,9 @@ StatusCode IOVDbSvc::loadAddresses(StoreID::type /*storeID*/, tadList& /*list*/ 
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-StatusCode IOVDbSvc::updateAddress(StoreID::type storeID, SG::TransientAddress* tad) {
+StatusCode IOVDbSvc::updateAddress(StoreID::type storeID, SG::TransientAddress* tad,
+                                   const EventContext& /*ctx*/)
+{
   // Provide TAD and associated range, actually reading the conditions data
 
   // Read information for folders and setup TADs
@@ -642,7 +644,7 @@ StatusCode IOVDbSvc::getRange( const CLID&        clid,
     if (m_log->level()<=MSG::DEBUG) 
       *m_log << MSG::DEBUG << "Triggering cache load for folder " << 
         folder->folderName() << endmsg;
-    if (StatusCode::SUCCESS!=loadCaches(folder->conn())) {
+    if (StatusCode::SUCCESS!=loadCaches(folder->conn(),&time)) {
       *m_log << MSG::ERROR << "Cache load failed for folder " <<  folder->folderName() << endmsg;
       return StatusCode::FAILURE;
     }
@@ -1212,7 +1214,7 @@ StatusCode IOVDbSvc::fillTagInfo() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode IOVDbSvc::loadCaches(IOVDbConn* conn) {
+StatusCode IOVDbSvc::loadCaches(IOVDbConn* conn, const IOVTime* time) {
   // load the caches for all folders using the given connection
   // so connection use is optimised
 
@@ -1229,7 +1231,7 @@ StatusCode IOVDbSvc::loadCaches(IOVDbConn* conn) {
        ++fitr) {
     IOVDbFolder* folder=fitr->second;
     if (folder->conn()!=conn) continue;
-    cool::ValidityKey vkey=folder->iovTime(m_iovTime);
+    cool::ValidityKey vkey=folder->iovTime(time==nullptr ? m_iovTime : *time);
     // protect against out of range times (timestamp -1 happened in FDR2)
     if (vkey>cool::ValidityKeyMax) {
       *m_log << MSG::WARNING << "Requested validity key " << vkey << 

@@ -286,12 +286,11 @@ AthenaInternal::retrieveObjectFromStore( StoreGateSvc* store,
       const RootType& fromType = RootType::ByName(realName);
       
       if ( (bool)fromType ) {
-        RootObject realobj( fromType, dbb->object() );
-	
         const RootType& toType = RootType::ByName( PyString_AS_STRING( pyname ) );
-        const RootObject& finalobj = realobj.CastObject( toType );
+        res = dbb->object();
+        if (fromType.Class() && toType.Class())
+          res = fromType.Class()->DynamicCast (toType.Class(), res);
 	
-        res = (void*)finalobj.Address();
         if ( res ) {
           objProxy = proxyDict->newPyDataObject(realName.c_str(), res);
         }

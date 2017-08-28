@@ -71,7 +71,9 @@ RPCTriggerDbTool::RPCTriggerDbTool (const std::string& type,
 
 
 //StatusCode RPCTriggerDbTool::updateAddress(SG::TransientAddress* /*tad*/)
-StatusCode RPCTriggerDbTool::updateAddress(StoreID::type /*storeID*/, SG::TransientAddress* /*tad*/)
+StatusCode RPCTriggerDbTool::updateAddress(StoreID::type /*storeID*/,
+                                           SG::TransientAddress* /*tad*/,
+                                           const EventContext& /*ctx*/)
 {
     MsgStream log(msgSvc(), name());
 

@@ -16,15 +16,4 @@ intersected by a give trajectory.
  	
 @section MuonStationIntersectSvc_ExtrasMuonStationIntersectSvc Extra Pages
 
- - @ref UsedMuonStationIntersectSvc
- - @ref RequirementsMuonStationIntersectSvc
-*/
-
-/**
-@page UsedMuonStationIntersectSvc Used Packages
-*/
-
-/**
-@page RequirementsMuonStationIntersectSvc Requirements
-
 */

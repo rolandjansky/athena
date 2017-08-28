@@ -44,23 +44,7 @@ namespace D3PD{
         TileRawChannelCollection::const_iterator m_digItr,m_digEnd;
     };
 
-// Template specialization for rel 16.5.0
-//    template <>
-//    struct Deref<TileRawChannelCollection*>{
-//        typedef DataLinkVector<TileRawChannelCollection>::DataHolder DH;
-//        typedef TileRawChannelCollection type;
-//        static const type* deref (DH* p) { return p->getDataPtr(); }
-//    };
-//------------------------------------
 
-// Template specialization for rel 16.6.2
-    template <>
-    struct Deref<TileRawChannelContainer,TileRawChannelCollection*>{
-        typedef TileRawChannelContainer::const_iterator it;
-        typedef TileRawChannelCollection type;
-        static const type* deref (it& p) { return p->getDataPtr(); }
-    };
-//-------------------------------------
 
 }
 #endif	/* SGTILERAWCHANNELGETTERTOOL_H */

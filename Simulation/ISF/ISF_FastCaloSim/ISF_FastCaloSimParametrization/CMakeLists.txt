@@ -63,7 +63,7 @@ atlas_add_root_dictionary( ISF_FastCaloSimParametrizationLib
                            EXTERNAL_PACKAGES  ROOT HepPDT XercesC CLHEP HepMC Geant4 )
 
 atlas_add_library( ISF_FastCaloSimParametrizationLib
-                   Root/*.cxx src/CaloGeometry.cxx src/CaloGeometryFromFile.cxx
+                   Root/*.cxx src/CaloGeoGeometry.cxx src/CaloGeometryFromFile.cxx
                    ${ISF_FastCaloSimParametrizationLibDictSource}
                    PUBLIC_HEADERS ISF_FastCaloSimParametrization
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}

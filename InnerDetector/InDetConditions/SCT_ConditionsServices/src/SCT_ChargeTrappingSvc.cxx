@@ -16,8 +16,6 @@
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-
-#include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SiDetectorManager.h"
 
 #include "CLHEP/Geometry/Point3D.h"
@@ -31,7 +29,6 @@
 
 #include "InDetConditionsSummaryService/ISiliconConditionsSvc.h"
 
-#include "SCT_ElectricFieldTool.h"
 #include "SCT_ConfigurationConditionsSvc.h"
 
 #include <algorithm>
@@ -39,15 +36,14 @@
 
 SCT_ChargeTrappingSvc::SCT_ChargeTrappingSvc( const std::string& name,  ISvcLocator* pSvcLocator ) :
   AthService(name, pSvcLocator),
-  m_siConditionsSvc("SCT_SiliconConditionsSvc", name),
-  m_detStore("StoreGateSvc/DetectorStore", name),
-  m_conditionsSvcValid(false),
-  m_conditionsSvcWarning(false),
-  m_isSCT(true),
+  m_siConditionsSvc{"SCT_SiliconConditionsSvc", name},
+  m_detStore{"StoreGateSvc/DetectorStore", name},
+  m_conditionsSvcValid{false},
+  m_conditionsSvcWarning{false},
+  m_isSCT{true},
   m_detManager{nullptr},
-  m_getdoCTrap(false),
-  m_PotentialValue{{0.}},
-  m_electricFieldTool("SCT_ElectricFieldTool", this)
+  m_getdoCTrap{false},
+  m_PotentialValue{{0.}}
 {
   
   declareProperty("SiConditionsServices", m_siConditionsSvc);
@@ -62,7 +58,6 @@ SCT_ChargeTrappingSvc::SCT_ChargeTrappingSvc( const std::string& name,  ISvcLoca
   // declareProperty("IgnoreLocalPos", m_ignoreLocalPos = false,  "Treat methods that take a local position as if one "
 // 		  "called the methods without a local position" );
   declareProperty("DetStore", m_detStore);
-  declareProperty("SCT_ElectricFieldTool",m_electricFieldTool);
   
   // -- Radiation damage specific
   declareProperty("CalcHoles", m_calcHoles=false,"Default is to ignore holes in signal formation.");
@@ -92,14 +87,6 @@ SCT_ChargeTrappingSvc::initialize()
     msg(MSG::FATAL) << "DetectorStore service not found !" <<  endmsg;
     return StatusCode::FAILURE;
   }
-  
-  //ElectricFieldTool
-  if (m_electricFieldTool.retrieve().isFailure())
-  {
-    msg(MSG::FATAL) << "Could not initialize the electric field svc: " << m_electricFieldTool << endmsg;
-    return StatusCode::FAILURE;
-  }
-  
   
   if (m_detectorName != "SCT") {
     msg(MSG::FATAL) << "Invalid detector name: " << m_detectorName  << ". Must be SCT." << endmsg;

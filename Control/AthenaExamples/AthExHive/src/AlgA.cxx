@@ -17,18 +17,8 @@
 
 AlgA::AlgA( const std::string& name, 
 		    ISvcLocator* pSvcLocator ) : 
-  ::AthAlgorithm( name, pSvcLocator ),
-  m_wrh1("a1"),
-  m_wrh2("a2"),
-  m_evt("McEventInfo")
+  ::AthAlgorithm( name, pSvcLocator ), m_i(1)
 {
-  
-  declareProperty("Key_W1",m_wrh1);
-  declareProperty("Key_W2",m_wrh2);  
-  declareProperty("EvtInfo", m_evt);
-  
-  m_i = 1;
-
 }
 
 //---------------------------------------------------------------------------

@@ -11,15 +11,10 @@
 #ifndef SGTOOLS_STLVECTORCLIDS_H 
 #define SGTOOLS_STLVECTORCLIDS_H 
 
-// STL includes
+#include "AthenaKernel/CLASS_DEF.h"
 #include <vector>
 #include <string>
 #include <stdint.h>
-
-// Gaudi includes
-
-// SGTools includes
-#include "SGTools/CLASS_DEF.h"
 
 CLASS_DEF( std::vector<bool> ,            45822813 , 1 )
 CLASS_DEF( std::vector<short> ,           35706084 , 1 )

@@ -76,7 +76,8 @@ public: // Non-static members
 
    /// Update a transient address.
    /// @param tad [IN] transient address to be updated.
-   StatusCode updateAddress(StoreID::type storeID, SG::TransientAddress* tad);
+   StatusCode updateAddress(StoreID::type storeID, SG::TransientAddress* tad,
+                            const EventContext& ctx);
 
    /// Incident service handle listening for BeginInputFile and EndInputFile.
    void handle(const Incident& incident);

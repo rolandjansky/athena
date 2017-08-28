@@ -340,10 +340,10 @@ bool TrigEgammaNavTPBaseTool::isTagElectron(const xAOD::Electron *el){
           std::string p1trigger;
           std::string p2trigger;
           if(splitTriggerName(tag,p1trigger,p2trigger)){
-            if(fabs(p1trigger.find("tight"))<10) tag=p1trigger;
-            if(fabs(p2trigger.find("tight"))<10) tag=p2trigger;
+            if(fabs(p1trigger.find("tight"))<14) tag=p1trigger;
+            if(fabs(p2trigger.find("tight"))<14) tag=p2trigger;
           }
-          if( match()->match(el,"HLT_"+tag) )
+          if( match()->match(el,tag) )
             tagPassed=true;
         }
         else{

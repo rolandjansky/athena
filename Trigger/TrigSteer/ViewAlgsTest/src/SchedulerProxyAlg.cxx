@@ -5,6 +5,7 @@
 #include <iostream>
 #include "CxxUtils/make_unique.h"
 #include "AthViews/View.h"
+#include "AthenaKernel/ExtendedEventContext.h"
 #include "./SchedulerProxyAlg.h"
 
 SchedulerProxyAlg::SchedulerProxyAlg(const std::string& name, ISvcLocator* pSvcLocator) 
@@ -26,7 +27,7 @@ StatusCode SchedulerProxyAlg::initialize()
 
 StatusCode SchedulerProxyAlg::execute() {
   
-  auto proxyPtr = getContext().proxy();
+  auto proxyPtr = getContext().getExtension<Atlas::ExtendedEventContext>()->proxy();
   auto viewPtr = dynamic_cast<SG::View*>(proxyPtr);
   if ( viewPtr != nullptr ) {
     ATH_MSG_DEBUG( ".. The alg operates on the view " << viewPtr->impl()->name() );

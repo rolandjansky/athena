@@ -11,5 +11,5 @@ atlas_depends_on_subdirs( PRIVATE
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
-atlas_install_runtime( share/jobOptions_monitoring.py )
+atlas_install_runtime( share/jobOptions_monitoring.py test/InDetMonitoringATN_Subdetector.sh )
 

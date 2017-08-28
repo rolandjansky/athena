@@ -782,7 +782,12 @@ StatusCode FTKMergerAlgo::initStandaloneTracks()
               if(m_ftktrack_tomerge_tree[ireg][isub]->FindBranch(Form("FTKTracksStream%d.",regNum))){
                  log << MSG::VERBOSE << "Setting branch with region number: " << regNum << " ireg: " << ireg << " isub: " << isub << endmsg;
                  m_ftktrack_tomerge_tree[ireg][isub]->SetBranchAddress(Form("FTKTracksStream%d.",regNum),&m_ftktrack_tomerge_stream[ireg][isub],&m_ftktrack_tomerge_branch[ireg][isub]);
-                 
+                 if( m_MergeRoads) {
+                     m_ftktrack_tomerge_tree[ireg][isub]->SetBranchAddress
+                        (Form("FTKRoadsStream%d.",regNum),
+                         &m_srbanks[ireg][isub],
+                         &m_ftkroad_tomerge_branch[ireg][isub]);
+                 }
               //
               // If not, Try to find branches named after merging has been done
               //
@@ -790,9 +795,21 @@ StatusCode FTKMergerAlgo::initStandaloneTracks()
               } else if (m_ftktrack_tomerge_tree[ireg][isub]->FindBranch(Form("FTKMergedTracksStream%d",regNum))) {
                   log << MSG::VERBOSE << "Setting merged branch with region number: " << regNum << " ireg: " << ireg << " isub: " << isub << endmsg;
                  m_ftktrack_tomerge_tree[ireg][isub]->SetBranchAddress(Form("FTKMergedTracksStream%d",regNum),&m_ftktrack_tomerge_stream[ireg][isub],&m_ftktrack_tomerge_branch[ireg][isub]);
+                  if( m_srbanks[ireg][isub]) {
+                     m_ftktrack_tomerge_tree[ireg][isub]->SetBranchAddress
+                        (Form("FTKMergedRoadsStream%d.",regNum),
+                         &m_srbanks[ireg][isub],
+                         &m_ftkroad_tomerge_branch[ireg][isub]);
+                  }
               } else {
                  log << MSG::DEBUG << "Setting branch with name: FTKMergedTracksStream" << endmsg;
                  m_ftktrack_tomerge_tree[ireg][isub]->SetBranchAddress("FTKMergedTracksStream",&m_ftktrack_tomerge_stream[ireg][isub],&m_ftktrack_tomerge_branch[ireg][isub]);
+                 if( m_srbanks[ireg][isub]) {
+                     m_ftktrack_tomerge_tree[ireg][isub]->SetBranchAddress
+                        ("FTKMergedRoadsStream.",
+                         &m_srbanks[ireg][isub],
+                         &m_ftkroad_tomerge_branch[ireg][isub]);
+                 }
               }
 ///           } // from not used else
            
@@ -1916,16 +1933,16 @@ Rec::TrackParticle* FTKMergerAlgo::createTrackParticle(const Trk::Track* track,
     }
             
 
-    tracksum[Trk::numberOfBLayerHits]  = bitmask&(1<<0);
+    tracksum[Trk::numberOfInnermostPixelLayerHits]  = bitmask&(1<<0);
     tracksum[Trk::numberOfPixelHits]   = npixel;
     tracksum[Trk::numberOfPixelHoles]  = npixelholes;
     tracksum[Trk::numberOfSCTHits]     = nsct;
     tracksum[Trk::numberOfSCTHoles]    = nsctholes;
-    tracksum[Trk::expectBLayerHit]     =  1.0;
+    tracksum[Trk::expectInnermostPixelLayerHit]     =  1.0;
 
 
-    tracksum[Trk::numberOfBLayerOutliers          ] = 0;
-    tracksum[Trk::numberOfBLayerSharedHits        ] = 0;
+    tracksum[Trk::numberOfInnermostPixelLayerOutliers          ] = 0;
+    tracksum[Trk::numberOfInnermostPixelLayerSharedHits        ] = 0;
     tracksum[Trk::numberOfPixelOutliers           ] = 0;
     tracksum[Trk::numberOfPixelSharedHits         ] = 0;
     tracksum[Trk::numberOfGangedPixels            ] = 0;

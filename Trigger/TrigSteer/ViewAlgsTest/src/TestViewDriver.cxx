@@ -4,6 +4,7 @@
 
 #include <sstream>
 #include "CxxUtils/make_unique.h"
+#include "AthenaKernel/ExtendedEventContext.h"
 #include "AthContainers/ConstDataVector.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 #include "AthViews/ViewHelper.h"
@@ -52,11 +53,13 @@ StatusCode TestViewDriver::execute( ) {
   auto contexts = std::vector<EventContext>( );
   auto viewVector = std::make_unique<std::vector<SG::View*>>( );
   unsigned int viewCounter = 0;
+  unsigned int conditionsRun = getContext().getExtension<Atlas::ExtendedEventContext>()->conditionsRun();
   for ( const auto roi: *roisContainer.cptr( ) ) {
 
     contexts.push_back( getContext( ) );    
     viewVector->push_back( ViewHelper::makeView( name( )+"_view", viewCounter++ ) );
-    contexts.back( ).setProxy( viewVector->back( ) );
+    contexts.back( ).setExtension( Atlas::ExtendedEventContext( viewVector->back( ),
+                                                                conditionsRun));
 
     
     auto oneRoIColl = std::make_unique< ConstDataVector<TrigRoiDescriptorCollection> >( );    
@@ -91,8 +94,7 @@ StatusCode TestViewDriver::execute( ) {
     for ( auto cluster: *handle.get( ) ) {
       ATH_MSG_DEBUG( "Cluster of ET " << TestEDM::getClusterEt( cluster ) );
       //outputClusterContainer->push_back(cluster);  // FIXME this is not as simple, we need some trick to do copy
-    }
-    
+    }    
   }
 
   // for now we are not outputting
@@ -104,6 +106,7 @@ StatusCode TestViewDriver::execute( ) {
   {
     auto handle = SG::makeHandle( m_views );
     CHECK( handle.record( std::move( viewVector ) ) );
+    ATH_MSG_DEBUG( "Recorded views under the key: " << m_views.key() );
   }
 
   return StatusCode::SUCCESS;

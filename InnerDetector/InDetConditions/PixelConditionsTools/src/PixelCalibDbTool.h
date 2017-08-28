@@ -58,7 +58,8 @@ public:
   PixelCalibDbTool(const std::string& type, const std::string& name, const IInterface* parent); 
 
     /** required by the IAddressProvider interface **/
-  virtual StatusCode updateAddress(StoreID::type storeID, SG::TransientAddress* tad); 
+  virtual StatusCode updateAddress(StoreID::type storeID, SG::TransientAddress* tad,
+                                   const EventContext& ctx); 
 
      /** Default Destructor */
   virtual ~PixelCalibDbTool();

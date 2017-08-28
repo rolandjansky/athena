@@ -31,10 +31,6 @@ namespace G4UA
       virtual IPreTrackingAction* getPreTrackingAction() override final
       { return static_cast<IPreTrackingAction*>( getAction() ); }
 
-      /// Gaudi boilerplate
-      virtual StatusCode
-      queryInterface(const InterfaceID& riid, void** ppvInterface) override;
-
     protected:
 
       virtual std::unique_ptr<PhotonKiller> makeAction() override final;

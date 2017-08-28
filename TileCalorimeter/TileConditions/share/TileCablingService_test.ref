@@ -1,0 +1,51 @@
+
+
+Initializing Gaudi ApplicationMgr using job opts ./TileCablingService_test_generated.txt
+JobOptionsSvc        INFO Job options successfully read in from ./TileCablingService_test_generated.txt
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
+                                          running on karma on Tue May 30 22:32:12 2017
+====================================================================================================================================
+ApplicationMgr       INFO Successfully loaded modules : StoreGate
+ApplicationMgr       INFO Application Manager Configured successfully
+ClassIDSvc           INFO  getRegistryEntries: read 4060 CLIDRegistry entries for module ALL
+StoreGateSvc        DEBUG Property update for OutputLevel : new value = 2
+StoreGateSvc        DEBUG Service base class initialized successfully
+StoreGateSvc        DEBUG trying to create store SGImplSvc/StoreGateSvc_Impl
+StoreGateSvc_Impl   DEBUG Property update for OutputLevel : new value = 2
+StoreGateSvc_Impl   DEBUG Service base class initialized successfully
+EventLoopMgr      WARNING Unable to locate service "EventSelector" 
+EventLoopMgr      WARNING No events will be processed from external input.
+HistogramPersis...WARNING Histograms saving not required.
+ApplicationMgr       INFO Application Manager Initialized successfully
+ApplicationMgr Ready
+test1
+TileHWID             INFO initialize_from_dictionary 
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
+AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
+AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
+AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
+ AtlasDetectorID::initialize_from_dictionary - OK 
+TileTBID             INFO initialize_from_dictionary 
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
+AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
+AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
+AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
+ AtlasDetectorID::initialize_from_dictionary - OK 
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
+AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
+AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
+AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
+ AtlasDetectorID::initialize_from_dictionary - OK 
+ClassIDSvc           INFO  getRegistryEntries: read 364 CLIDRegistry entries for module ALL
+SW MAX CELLS: 5184
+SW MAX PMT: 9856
+SW MAX ADC: 19712
+HW MAX CHANNELS: 12608
+HW MAX ADC: 24896
+MAX CHANNELS (in a drawer): 48
+MAX GAINS: 2

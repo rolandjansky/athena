@@ -20,13 +20,12 @@ class CaloReadLCOutOfClusterFile : public AthAlgorithm
   StatusCode initialize(); 
   StatusCode execute();
   StatusCode finalize();
-  StatusCode initDataFromFile(std::string theLCOutOfClusterFileName);
+  StatusCode initDataFromFile(std::string theLCOutOfClusterFileName,
+                              CaloLocalHadCoeff& data);
 
  private:
   std::string m_key;
   std::string m_LCOutOfClusterFileName;
-
-  CaloLocalHadCoeff * m_data;
 };
 
 #endif

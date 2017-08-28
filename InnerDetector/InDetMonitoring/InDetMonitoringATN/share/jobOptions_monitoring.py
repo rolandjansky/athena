@@ -144,9 +144,7 @@ InDetFlags.doPerfMon        = True
 #InDetFlags.doPixelTrkNtuple = True
 #InDetFlags.doSctTrkNtuple   = True
 #InDetFlags.doTrtTrkNtuple   = True
-#InDetFlags.doPixelClusterNtuple = True
 #InDetFlags.doSctClusterNtuple   = True
-#InDetFlags.doTrtDriftCircleNtuple = True
 #InDetFlags.doVtxNtuple      = True
 #InDetFlags.doConvVtxNtuple  = True
 #InDetFlags.doV0VtxNtuple    = True
@@ -165,4 +163,8 @@ InDetFlags.doPrintConfigurables = True
 #--------------------------------------------------------------
 
 include("InDetRecExample/InDetRec_all.py")
+if not hasattr (svcMgr, 'TrigConfigSvc'):
+  from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
+  TriggerConfigGetter()
+ToolSvc.TrigDecisionTool.TrigConfigSvc = 'Trig::TrigConfigSvc/TrigConfigSvc'
 

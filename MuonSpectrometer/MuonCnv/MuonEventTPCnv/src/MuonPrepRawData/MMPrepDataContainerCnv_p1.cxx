@@ -21,7 +21,7 @@
 
 // Athena
 #include "StoreGate/StoreGateSvc.h"
-
+#include "MuonEventTPCnv/CreateTransientTemplates.h"
 
 StatusCode Muon::MMPrepDataContainerCnv_p1::initialize(MsgStream &log) {
    // Do not initialize again:

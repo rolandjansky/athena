@@ -33,15 +33,4 @@ The Trk::TrackValidationNtupleWriter needs a configured instance of the Trk::Bas
 
 @section TrkValAlgs_ExtrasTrkValAlgs Extra Pages
 
- - @ref UsedTrkValAlgs
- - @ref requirementsTrkValAlgs
 */
-
-/**
-@page UsedTrkValAlgs Used Packages
-*/
-
-/**
-@page requirementsTrkValAlgs Requirements
-*/
-

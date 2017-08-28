@@ -13,6 +13,7 @@ import sys
 import tarfile
 import time
 import uuid
+import socket
 
 import multiprocessing
 import base64
@@ -308,7 +309,7 @@ def lineByLine(filename, strip = True, removeTimestamp = True):
     for line in f:
         linecounter += 1
         if removeTimestamp:
-            line = line.lstrip('0123456789:')
+            line = line.lstrip('0123456789:-, ') # Remove timestamps in both serial and MP mode.
         if strip:
             line = line.strip()
         yield line, linecounter
@@ -1256,3 +1257,18 @@ def calcWallTime(start, stop):
         wallTime = stop[4] - start[4]
 
     return wallTime
+
+def bind_port(host, port):
+    ret = 0
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        s.bind((host, port))
+    except socket.error as e:
+        if e.errno == 98:
+            print("Port %s is already in use" %port)
+        else:
+            # something else raised the socket.error exception
+            print(e)
+        ret=1
+    s.close()
+    return ret

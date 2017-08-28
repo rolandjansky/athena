@@ -24,11 +24,9 @@ namespace dqm_algorithms
 	   void printDescription(std::ostream& out); 
 
 	  private:
-     std::string name_;
+     std::string m_name;
 
-     unsigned int counterSkip;
-     static const unsigned int counterSkipMax = 6;
-     dqm_core::Result LastResult;
+     unsigned int m_counterSkip;
 	};
 }
 

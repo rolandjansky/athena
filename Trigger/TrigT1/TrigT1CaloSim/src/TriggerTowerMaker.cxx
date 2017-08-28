@@ -1982,7 +1982,7 @@ void TriggerTowerMaker::initSatBCID(int cal, const std::vector<double>& Pulse)
   // If DecisionSource = FIR, need to convert ET ranges -> FIR values for tower type
   // Otherwise assume they have been set correctly in ADC counts
   
-  if (!m_DecisionSource&0x1) {    // Use ADC for decision 
+  if (!(m_DecisionSource&0x1)) {    // Use ADC for decision 
     m_EnergyLevelLow[cal] = int(m_EnergyLow*m_digitScale/m_adcStep + m_pedVal);
     m_EnergyLevelHigh[cal] = int(m_EnergyHigh*m_digitScale/m_adcStep + m_pedVal);
     ATH_MSG_DEBUG( "Decision ranges (ADC counts) = " << m_EnergyLevelLow[cal]
@@ -2940,7 +2940,7 @@ void LVL1::TriggerTowerMaker::preProcess()
     emBCID.push_back(BCIDOut[emPeak]);                    // BCID result
    
     int range;
-    if (!m_DecisionSource&0x1) {                         // select energy range
+    if (!(m_DecisionSource&0x1)) {                         // select energy range
       range = EtRange(emDigits[3], towerType);
     } 
     else {
@@ -3048,7 +3048,7 @@ void LVL1::TriggerTowerMaker::preProcess()
     hadEt.push_back(lutOut[hadPeak]);                       // calibration LUT
     hadBCID.push_back(BCIDOut[hadPeak]);
   
-    if (!m_DecisionSource&0x1) {                            // identify BCID range
+    if (!(m_DecisionSource&0x1)) {                            // identify BCID range
       range = EtRange(hadDigits[3],towerType);
     } 
     else {

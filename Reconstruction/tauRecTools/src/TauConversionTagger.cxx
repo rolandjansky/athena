@@ -98,7 +98,7 @@ StatusCode TauConversionTagger::execute(xAOD::TauJet& pTau) {
     // Note: all must be of type uint8_t for summaryValue filling to work in xAOD
     // TODO: check if these default values are sane
     uint8_t nBLHits             = 0;
-    uint8_t expectBLayerHit     = 0;
+    uint8_t expectInnermostPixelLayerHit     = 0;
     uint8_t nTRTHighTHits       = 0;
     uint8_t nTRTHighTOutliers   = 0;
     float   nTRTHighT_outl      = 0.;
@@ -107,8 +107,8 @@ StatusCode TauConversionTagger::execute(xAOD::TauJet& pTau) {
     uint8_t nTRTOutliers        = 0;
 
     // Fill TrackSummary info
-    TauJetTrack->summaryValue(nBLHits,xAOD::numberOfBLayerHits);
-    TauJetTrack->summaryValue(expectBLayerHit,xAOD::expectBLayerHit);
+    TauJetTrack->summaryValue(nBLHits,xAOD::numberOfInnermostPixelLayerHits);
+    TauJetTrack->summaryValue(expectInnermostPixelLayerHit,xAOD::expectInnermostPixelLayerHit);
     TauJetTrack->summaryValue(nTRTHighTHits,xAOD::numberOfTRTHighThresholdHits);
     TauJetTrack->summaryValue(nTRTHighTOutliers,xAOD::numberOfTRTHighThresholdOutliers);
     nTRTHighT_outl = nTRTHighTHits + nTRTHighTOutliers;
@@ -141,7 +141,7 @@ StatusCode TauConversionTagger::execute(xAOD::TauJet& pTau) {
       m_a_cut[0][0]=0.0003;  m_b_cut[0][0]=0.1725;
       m_a_cut[0][1]=0.0003;  m_b_cut[0][1]=0.2025;
 
-      if ( nBLHits==0 && expectBLayerHit ){
+      if ( nBLHits==0 && expectInnermostPixelLayerHit ){
 	if( m_TRTHighTOutliersRatio > -m_a_cut[0][0]*Rconv + m_b_cut[0][0] && (-rconvii) > 40 && pt < 20000 ) m_TrkIsConv=true;
       }
       else {

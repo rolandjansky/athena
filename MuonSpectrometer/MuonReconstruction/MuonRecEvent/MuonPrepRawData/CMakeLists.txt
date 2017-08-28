@@ -31,12 +31,12 @@ atlas_add_library( MuonPrepRawData
                    PUBLIC_HEADERS MuonPrepRawData
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthContainers AthLinks SGTools GeoPrimitives Identifier EventPrimitives MuonReadoutGeometry TrkSurfaces TrkPrepRawData
+                   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthContainers AthLinks SGTools GeoPrimitives Identifier EventPrimitives MuonReadoutGeometry TrkSurfaces TrkPrepRawData EventContainers
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel )
 
 atlas_add_dictionary( MuonPrepRawDataDict
                       MuonPrepRawData/MuonPrepDataDict.h
                       MuonPrepRawData/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthContainers AthLinks SGTools GeoPrimitives Identifier EventPrimitives MuonReadoutGeometry TrkSurfaces TrkPrepRawData GaudiKernel MuonPrepRawData )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthContainers AthLinks SGTools GeoPrimitives Identifier EventPrimitives MuonReadoutGeometry TrkSurfaces TrkPrepRawData GaudiKernel MuonPrepRawData EventContainers)
 

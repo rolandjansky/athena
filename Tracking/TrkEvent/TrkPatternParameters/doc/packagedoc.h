@@ -28,6 +28,5 @@ standard TrackParameters class and contains set converters which provide
 transformation information from TrackParameters to PatternParameteres and
 from PatternParameteres to TrackParameters.
 
-@section TrkPatternParameters_TrkPatternParametersReq Requirements file
 
 */

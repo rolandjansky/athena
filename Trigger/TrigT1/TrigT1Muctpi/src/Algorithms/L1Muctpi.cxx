@@ -42,9 +42,6 @@
 namespace LVL1MUCTPI {
 
   // Set the default StoreGate locations of input and output objects:
-  const std::string L1Muctpi::m_DEFAULT_locationMuCTPItoCTP      = "/Run/L1MuCTPItoCTPLocation";
-  const std::string L1Muctpi::m_DEFAULT_locationMuCTPItoL1Topo   = "/Run/L1MuCTPItoL1TopoLocation";
-  const std::string L1Muctpi::m_DEFAULT_locationMuCTPItoRoIB     = "/Run/L1MuCTPItoRoIBLocation";
   const std::string L1Muctpi::m_DEFAULT_L1MuctpiStoreLocationRPC = "/Event/L1MuctpiStoreRPC";
   const std::string L1Muctpi::m_DEFAULT_L1MuctpiStoreLocationTGC = "/Event/L1MuctpiStoreTGC";
   const std::string L1Muctpi::m_DEFAULT_AODLocID                 = "LVL1_ROI";
@@ -79,9 +76,9 @@ namespace LVL1MUCTPI {
     declareProperty( "AODLocID", m_aodLocId = m_DEFAULT_AODLocID );
     declareProperty( "RDOLocID", m_rdoLocId = m_DEFAULT_RDOLocID );
     declareProperty( "RDOOutputLocID", m_rdoOutputLocId = m_DEFAULT_RDOLocID );
-    declareProperty( "RoIOutputLocID", m_roiOutputLocId = m_DEFAULT_locationMuCTPItoRoIB );
-    declareProperty( "CTPOutputLocID", m_ctpOutputLocId = m_DEFAULT_locationMuCTPItoCTP );
-    declareProperty( "L1TopoOutputLocID", m_l1topoOutputLocId = m_DEFAULT_locationMuCTPItoL1Topo );
+    declareProperty( "RoIOutputLocID", m_roiOutputLocId = LVL1MUCTPI::DEFAULT_MuonRoIBLocation );
+    declareProperty( "CTPOutputLocID", m_ctpOutputLocId = LVL1MUCTPI::DEFAULT_MuonCTPLocation );
+    declareProperty( "L1TopoOutputLocID", m_l1topoOutputLocId = LVL1MUCTPI::DEFAULT_MuonL1TopoLocation);
     // These are just here for flexibility, normally they should not be changed:
     declareProperty( "TGCLocID", m_tgcLocId = m_DEFAULT_L1MuctpiStoreLocationTGC );
     declareProperty( "RPCLocID", m_rpcLocId = m_DEFAULT_L1MuctpiStoreLocationRPC );
@@ -570,17 +567,13 @@ namespace LVL1MUCTPI {
    */
   StatusCode L1Muctpi::saveOutput(int bcidOffset) {
      
-    ATH_MSG_DEBUG( "saveOutput called with bcidOffset = " << bcidOffset );
-    
     /// the standart processing is done for the central slice, with no Bcid offset
-    if (abs(bcidOffset) <= 1) {
+    if (bcidOffset == 0 ) {
       // store CTP result in interface object and put to StoreGate
       LVL1::MuCTPICTP* theCTPResult = new LVL1::MuCTPICTP( m_theMuctpi->getCTPData() );
-      std::string ctpOutputLocId = m_ctpOutputLocId;
-      if (bcidOffset) ctpOutputLocId = m_ctpOutputLocId+std::to_string(bcidOffset);
-      CHECK( evtStore()->record( theCTPResult, ctpOutputLocId ) );
+      CHECK( evtStore()->record( theCTPResult, m_ctpOutputLocId ) );
       ATH_MSG_DEBUG( "CTP word recorded to StoreGate with key: "
-                     << ctpOutputLocId );
+                     << m_ctpOutputLocId );
 
       // create MuCTPI RDO
       const std::list< unsigned int >& daqData = m_theMuctpi->getDAQData();
@@ -615,11 +608,9 @@ namespace LVL1MUCTPI {
 
       // create MuCTPI RDO
       MuCTPI_RDO * muCTPI_RDO = new MuCTPI_RDO( can, dataWord );
-      std::string rdoOutputLocId = m_rdoOutputLocId;
-      if (bcidOffset) rdoOutputLocId = m_rdoOutputLocId+std::to_string(bcidOffset);
-      CHECK( evtStore()->record( muCTPI_RDO, rdoOutputLocId ) );
+      CHECK( evtStore()->record( muCTPI_RDO, m_rdoOutputLocId ) );
       ATH_MSG_DEBUG( "MuCTPI_RDO object recorded to StoreGate with key: "
-                     << rdoOutputLocId );
+                     << m_rdoOutputLocId );
 
       // store RoIB result in interface object and put to StoreGate
       std::list< unsigned int > resultForRoIB = m_theMuctpi->getRoIBData();
@@ -634,15 +625,13 @@ namespace LVL1MUCTPI {
       L1MUINT::MuCTPIToRoIBSLink* theRoIBResult =
 	new L1MUINT::MuCTPIToRoIBSLink( roibResultVector );
 
-      std::string roiOutputLocId = m_roiOutputLocId;
-      if (bcidOffset) roiOutputLocId = m_roiOutputLocId+std::to_string(bcidOffset);
-      CHECK( evtStore()->record( theRoIBResult, roiOutputLocId ) );
+      CHECK( evtStore()->record( theRoIBResult, m_roiOutputLocId ) );
       ATH_MSG_DEBUG( "RoIB result recorded to StoreGate with key: "
-                     << roiOutputLocId );
+                     << m_roiOutputLocId );
 
       //construct muctpi nim words (for MUE and MUB items)
       unsigned int cw1=0;
-      if( m_doNimOutput && bcidOffset==0) {
+      if( m_doNimOutput ) {
 	if(m_theMuctpi->hasBarrelCandidate()){
 	  unsigned int nimBarrelBitMask = 1<<m_nimBarrelBit;
 	  cw1|=nimBarrelBitMask;
@@ -664,15 +653,13 @@ namespace LVL1MUCTPI {
       }
 
       // get outputs for L1Topo and store into Storegate
-      if(bcidOffset==0) {
-	ATH_MSG_DEBUG("Getting the output for L1Topo");
-	LVL1::MuCTPIL1Topo l1topoCandidates = m_theMuctpi->getL1TopoData();
-	LVL1::MuCTPIL1Topo* l1topo = new LVL1::MuCTPIL1Topo(l1topoCandidates.getCandidates());
-	CHECK( evtStore()->record( l1topo, m_l1topoOutputLocId ) );
-	//      std::cout << "TW: ALG central slice: offset: " <<  bcidOffset << "  location: " << m_l1topoOutputLocId << std::endl;
-	//      l1topo->print();
-      }
-    }
+      ATH_MSG_DEBUG("Getting the output for L1Topo");
+      LVL1::MuCTPIL1Topo l1topoCandidates = m_theMuctpi->getL1TopoData();
+      LVL1::MuCTPIL1Topo* l1topo = new LVL1::MuCTPIL1Topo(l1topoCandidates.getCandidates());
+      CHECK( evtStore()->record( l1topo, m_l1topoOutputLocId ) );
+      //      std::cout << "TW: ALG central slice: offset: " <<  bcidOffset << "  location: " << m_l1topoOutputLocId << std::endl;
+      //      l1topo->print();
+   }
 
     /// if we have a bcid offset, then just get the topo output and put it on storegate
     if (bcidOffset  != 0) {

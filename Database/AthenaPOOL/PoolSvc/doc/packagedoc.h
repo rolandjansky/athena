@@ -35,11 +35,9 @@ The package Database/AthenaPOOL/AthenaPoolExample contains running examples of a
 reading Data Objects using PoolSvc.
 
 
-@section PoolSvc_Requirements Requirements
 
 
 
-@section PoolSvc_PackagesUsed Packages Used
 
 
 

@@ -69,7 +69,9 @@ MDT_DCSConditionsRun2Tool::MDT_DCSConditionsRun2Tool (const std::string& type,
 
 
 //StatusCode MDT_DCSConditionsTool::updateAddress(SG::TransientAddress* /*tad*/)
-StatusCode MDT_DCSConditionsRun2Tool::updateAddress(StoreID::type /*storeID*/, SG::TransientAddress* /*tad*/)
+StatusCode MDT_DCSConditionsRun2Tool::updateAddress(StoreID::type /*storeID*/,
+                                                    SG::TransientAddress* /*tad*/,
+                                                    const EventContext& /*ctx*/)
 {
 //   MsgStream m_log(msgSvc(), name());
 //   CLID clid        = tad->clID();

@@ -19,7 +19,7 @@ using namespace std;
 TrackFitter::TrackFitter() :
   m_ncoords(0), m_nplanes(0), m_npars(5),
   m_Chi2Cut(0), m_Chi2Cut_maj(0), m_Chi2Cut_vetomaj(-1), m_Chi2DofCut(-1),
-  m_HitWarrior(2), m_HW_ndiff(3), m_HW_dev(0),
+  m_HitWarrior(2), m_HitWarrior_first(1), m_HW_ndiff(3), m_HW_dev(0),
   m_keep_rejected(0), m_fit_removed(0),
   m_max_ncomb(10000), m_max_nhitsperplane(-1), m_max_trkout(2000000), m_norecovery_nhits(-1),
   m_one_per_road(false), m_require_first(true), m_do_majority(1),
@@ -49,7 +49,8 @@ TrackFitter::TrackFitter() :
   m_position(0),
   m_endlist(0),
   m_hitcnt(0),
-  m_identify_badhit(false)
+  m_identify_badhit(false),
+  m_saveIncompleteTracks(false)
 {
   // nothing to do
 #ifdef DEBUG_HITEXTRAPOLATION
@@ -283,14 +284,70 @@ int TrackFitter::nextEvent()
     // m_trackoutput_pre_hw->setEventNumber( ibank , m_roadinput->eventNumber(ibank) );
 
     const FTKRoad *cur_road = m_roadinput->nextRoad(ibank);
-    while (cur_road) {
-      processor(*cur_road);
-#if 0 // debug just a limited fraction
-      if (m_nfits>=10000000)
-	break;
-#endif
-      cur_road = m_roadinput->nextRoad(ibank);
+
+    if (m_HitWarrior_first != 2) {
+
+      while (cur_road) {
+        processor(*cur_road);
+        #if 0 // debug just a limited fraction
+              if (m_nfits>=10000000)
+        	break;
+        #endif
+        cur_road = m_roadinput->nextRoad(ibank);
+      }
     }
+    else {
+
+      vector<int> vSectorID;
+
+      while (cur_road) {
+        if (std::find(vSectorID.begin(), vSectorID.end(), cur_road->getSectorID()) == vSectorID.end()) vSectorID.push_back(cur_road->getSectorID());
+        cur_road = m_roadinput->nextRoad(ibank);
+      }
+
+      for (unsigned int i = 0; i < vSectorID.size(); i++) {
+        cur_road = m_roadinput->firstRoad(ibank);
+
+        while (cur_road) {
+          if (cur_road->getSectorID() == vSectorID[i]) {
+            m_processor_stage = 1;
+            processor(*cur_road);
+          }
+          cur_road = m_roadinput->nextRoad(ibank);
+        }
+
+        cur_road = m_roadinput->firstRoad(ibank);
+
+        while (cur_road) {
+          if (cur_road->getSectorID() == vSectorID[i]) {
+            m_processor_stage = 2;
+            processor(*cur_road);
+          }
+          cur_road = m_roadinput->nextRoad(ibank);
+        }
+
+        m_tracks_first.splice(m_tracks_first.end(), m_sector_tracks);
+
+      }
+
+      vSectorID.clear();
+      m_sector_tracks.clear();
+
+    }
+
+    if (m_saveIncompleteTracks) {
+      for (list<FTKTrack>::iterator it = m_tracks_first.begin(); it != m_tracks_first.end(); it++) {
+        int region = it->getRegion();
+        m_trackoutput->addTrackI(region,*it);
+      }
+      // itrack = road_tracks_pre_hw.begin();
+      // for (;itrack!=road_tracks_pre_hw.end();++itrack) {
+      //   m_trackoutput_pre_hw->addTrackI(region,*itrack);
+      // }
+    }
+
+    m_tracks_first.clear();
+    
     // now that all roads in the bank are processed, associate geant
     // truth data with the resulting tracks.
 

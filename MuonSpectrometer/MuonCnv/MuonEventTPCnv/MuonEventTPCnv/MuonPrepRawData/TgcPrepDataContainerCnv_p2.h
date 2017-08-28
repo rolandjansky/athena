@@ -11,7 +11,7 @@
 
 #include "MuonEventTPCnv/MuonPrepRawData/MuonPRD_Container_p2.h"
 
-
+#include "MuonEventTPCnv/CreateTransientTemplates.h"
 #include <iostream>
 
 class StoreGateSvc;

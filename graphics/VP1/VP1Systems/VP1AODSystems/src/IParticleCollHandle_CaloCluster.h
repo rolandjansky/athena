@@ -20,7 +20,7 @@
 #include "IParticleCollHandleBase.h"
 
 // Qt
-#include <QtCore/QPair>
+#include <QPair>
 
 // xAOD
 #include "xAODBase/ObjectType.h"

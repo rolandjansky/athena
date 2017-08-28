@@ -368,7 +368,7 @@ class Muon : public ParticleImpl<
   const CaloCluster* cluster() const { return ((this->hasCluster()) ? *m_cluster : 0); }
 
   /** Get Inner detector Hits information from ID trackparticle */
-  int numberOfBLayerHits() const;
+  int numberOfInnermostPixelLayerHits() const;
   /** Get number of Pixel hits from ID trackparticle */
   int numberOfPixelHits() const;
   /** Get number of Silicon SCT hits from ID trackparticle */
@@ -378,7 +378,7 @@ class Muon : public ParticleImpl<
   /** Get number of TRT High Threshold hits from ID trackparticle */
   int numberOfTRTHighThresholdHits() const;
   /** Get number of shared hits or holes from ID trackparticle */
-  int numberOfBLayerSharedHits() const;
+  int numberOfInnermostPixelLayerSharedHits() const;
   /** Get number of Pixel shared hits from ID trackparticle */
   int numberOfPixelSharedHits() const;
   /** Get number of Pixel holes from ID trackparticle */

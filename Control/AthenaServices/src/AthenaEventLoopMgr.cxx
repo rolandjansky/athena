@@ -13,6 +13,8 @@
 #include "AthenaKernel/ITimeKeeper.h"
 #include "AthenaKernel/IEventSeek.h"
 #include "AthenaKernel/IAthenaEvtLoopPreSelectTool.h"
+#include "AthenaKernel/ExtendedEventContext.h"
+#include "AthenaKernel/EventContextClid.h"
 
 #include "GaudiKernel/IAlgorithm.h"
 #include "GaudiKernel/SmartIF.h"
@@ -654,6 +656,7 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
 {
   const EventInfo* pEvent(nullptr);
   std::unique_ptr<EventInfo> pEventPtr;
+  unsigned int conditionsRun = EventIDBase::UNDEFNUM;
   if ( m_evtContext )
   { // Deal with the case when an EventSelector is provided
     // Retrieve the Event object
@@ -669,6 +672,11 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
         pEventPtr = CxxUtils::make_unique<EventInfo>
           (new EventID(runNumber, eventNumber, eventTime, eventTimeNS, lumiBlock, bunchId), (EventType*)nullptr);
         pEvent = pEventPtr.get();
+
+        if (pAttrList->exists ("ConditionsRun"))
+          conditionsRun = (*pAttrList)["ConditionsRun"].data<unsigned int>();
+        else
+          conditionsRun = runNumber;
         
       } catch (...) {
       }
@@ -713,10 +721,18 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
   m_eventContext.setEventID( *((EventIDBase*) pEvent->event_ID()) );
   m_eventContext.set(m_nev,0);
 
-  m_eventContext.setProxy( eventStore()->hiveProxyDict() );
+  m_eventContext.setExtension( Atlas::ExtendedEventContext( eventStore()->hiveProxyDict(),
+                                                            conditionsRun) );
   Gaudi::Hive::setCurrentContext( m_eventContext );
 
   m_aess->reset(m_eventContext);
+  if (eventStore()->record(std::make_unique<EventContext> (m_eventContext),
+                           "EventContext").isFailure())
+  {
+    m_msg << MSG::ERROR 
+          << "Error recording event context object" << endmsg;
+    return (StatusCode::FAILURE);
+  }
 
 
   /// Fire begin-Run incident if new run:
@@ -767,7 +783,7 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
   }
 
   // Reset the timeout singleton
-  resetTimeout(Athena::Timeout::instance());
+  resetTimeout(Athena::Timeout::instance(m_eventContext));
   if(toolsPassed) {
   // Fire BeginEvent "Incident"
   //m_incidentSvc->fireIncident(EventIncident(*pEvent, name(),"BeginEvent"));

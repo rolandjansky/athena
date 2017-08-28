@@ -70,16 +70,6 @@ constants (e.g. ionization pulse, optimal filtering coefficients).
   - LArWFParams2DB
   - LArWFParamTool
 
-@ref used_LArCalibUtils
 
-@ref requirements_LArCalibUtils
 
-*/
-
-/**
-@page used_LArCalibUtils Used Packages
-*/
-
-/**
-@page requirements_LArCalibUtils Requirements
 */

@@ -588,5 +588,3 @@ Athena job - it therefore has less external dependencies and should be more
 robust.
 
 */
-
-

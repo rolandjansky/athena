@@ -32,10 +32,10 @@
 using namespace Muon;
 
 namespace CscBins {
-  void BinLabels(TH1 *h, int m_side) {
+  void BinLabels(TH1 *h, int side) {
     h->GetXaxis()->SetTitle("");
     h->GetXaxis()->SetLabelSize(0.03);
-    if(m_side == -1) {
+    if(side == -1) {
       for(unsigned int j=6; j<86; j++) {
         if( j%5 != 0 ) {
           float xmid = h->GetBinLowEdge(j) + h->GetBinWidth(j);
@@ -47,7 +47,7 @@ namespace CscBins {
           h->GetXaxis()->SetBinLabel(j,Form("%c%02d:%d",(sec%2==0?'S':'L'),sec,lay));
         } // end for
       } // end if
-    } else if (m_side == 1) {
+    } else if (side == 1) {
       for(unsigned int j=6; j<86; j++) {
         if( j%5 != 0 ) {
           float xmid = h->GetBinLowEdge(j) + h->GetBinWidth(j);
@@ -73,8 +73,8 @@ CscClusterValAlg::CscClusterValAlg(const std::string & type,
   m_stripFitter(name),
   m_cscCalibTool(name),
   m_trigDec( "Trig::TrigDecisionTool/TrigDecisionTool" ),
-  cscclus_oviewEA(0),
-  cscclus_oviewEC(0)
+  m_cscclus_oviewEA(0),
+  m_cscclus_oviewEC(0)
 {
 
   declareProperty("CSCClusterKey", m_cscClusterKey = "CSC_Clusters");
@@ -99,13 +99,13 @@ CscClusterValAlg::CscClusterValAlg(const std::string & type,
 // destructor ----------------------------------------------------------------
 //
 CscClusterValAlg::~CscClusterValAlg() {
-  if(cscclus_oviewEA) {
-    delete cscclus_oviewEA;
-    cscclus_oviewEA = 0;
+  if(m_cscclus_oviewEA) {
+    delete m_cscclus_oviewEA;
+    m_cscclus_oviewEA = 0;
   }
-  if(cscclus_oviewEC) {
-    delete cscclus_oviewEC;
-    cscclus_oviewEC = 0;
+  if(m_cscclus_oviewEC) {
+    delete m_cscclus_oviewEC;
+    m_cscclus_oviewEC = 0;
   }
 
   ATH_MSG_DEBUG( "CscClusterValAlg: in destructor" );
@@ -677,50 +677,50 @@ StatusCode CscClusterValAlg::bookHistograms(){
   bookClusterHistograms();
   // register shift histograms
   MonGroup cscclus_shift( this, m_cscClusterPath+"/Shift", run, ATTRIB_MANAGED );
-  std::vector<TH1 *>::iterator m_iT = m_cscClusShift.begin();
+  std::vector<TH1 *>::iterator iT = m_cscClusShift.begin();
   ATH_MSG_DEBUG (  "Found " << m_cscClusShift.size() << " shift Histograms " );
-  for (; m_iT != m_cscClusShift.end(); ++m_iT) {
-    sc = cscclus_shift.regHist(*m_iT);
+  for (; iT != m_cscClusShift.end(); ++iT) {
+    sc = cscclus_shift.regHist(*iT);
     if ( sc.isFailure() ) {
-      ATH_MSG_ERROR (  "Cannot register histogram " << (*m_iT)->GetName() );
+      ATH_MSG_ERROR (  "Cannot register histogram " << (*iT)->GetName() );
       return sc;
     }
   }
 
   // register expert histograms
   MonGroup cscclus_expert( this, m_cscClusterPath+"/Expert", run, ATTRIB_MANAGED );
-  m_iT = m_cscClusExpert.begin();
+  iT = m_cscClusExpert.begin();
   ATH_MSG_DEBUG (  "Found " << m_cscClusExpert.size() << " expert Histograms " );
-  for (; m_iT != m_cscClusExpert.end(); ++m_iT) {
-    sc = cscclus_expert.regHist(*m_iT);
+  for (; iT != m_cscClusExpert.end(); ++iT) {
+    sc = cscclus_expert.regHist(*iT);
     if ( sc.isFailure() ) {
-      ATH_MSG_ERROR (  "Cannot register histogram " << (*m_iT)->GetName() );
+      ATH_MSG_ERROR (  "Cannot register histogram " << (*iT)->GetName() );
       return sc;
     }
   }
 
   // register overview histograms for EA
-  //MonGroup cscclus_oviewEA( this, m_cscGenPath+"CSC/Overview/CSCEA", shift, run );
-  cscclus_oviewEA = new MonGroup( this, m_cscGenPath+"CSC/Overview/CSCEA/Cluster", run, ATTRIB_MANAGED );
-  m_iT = m_cscClusOviewEA.begin();
+  //MonGroup m_cscclus_oviewEA( this, m_cscGenPath+"CSC/Overview/CSCEA", shift, run );
+  m_cscclus_oviewEA = new MonGroup( this, m_cscGenPath+"CSC/Overview/CSCEA/Cluster", run, ATTRIB_MANAGED );
+  iT = m_cscClusOviewEA.begin();
   ATH_MSG_DEBUG (  "Found " << m_cscClusOviewEA.size() << " CSCEA Overview Histograms " );
-  for (; m_iT != m_cscClusOviewEA.end(); ++m_iT) {
-    sc = cscclus_oviewEA->regHist(*m_iT);
+  for (; iT != m_cscClusOviewEA.end(); ++iT) {
+    sc = m_cscclus_oviewEA->regHist(*iT);
     if ( sc.isFailure() ) {
-      ATH_MSG_ERROR (  "Cannot register overview histogram for Endcap A: " << (*m_iT)->GetName() );
+      ATH_MSG_ERROR (  "Cannot register overview histogram for Endcap A: " << (*iT)->GetName() );
       return sc;
     }
   }
 
   // register overview histograms for EC
-  //MonGroup cscclus_oviewEC( this, m_cscGenPath+"CSC/Overview/CSCEC", shift, run );
-  cscclus_oviewEC = new MonGroup( this, m_cscGenPath+"CSC/Overview/CSCEC/Cluster", run, ATTRIB_MANAGED );
-  m_iT = m_cscClusOviewEC.begin();
+  //MonGroup m_cscclus_oviewEC( this, m_cscGenPath+"CSC/Overview/CSCEC", shift, run );
+  m_cscclus_oviewEC = new MonGroup( this, m_cscGenPath+"CSC/Overview/CSCEC/Cluster", run, ATTRIB_MANAGED );
+  iT = m_cscClusOviewEC.begin();
   ATH_MSG_DEBUG (  "Found " << m_cscClusOviewEC.size() << " CSCEC Overview Histograms " );
-  for (; m_iT != m_cscClusOviewEC.end(); ++m_iT) {
-    sc = cscclus_oviewEC->regHist(*m_iT);
+  for (; iT != m_cscClusOviewEC.end(); ++iT) {
+    sc = m_cscclus_oviewEC->regHist(*iT);
     if ( sc.isFailure() ) {
-      ATH_MSG_ERROR (  "Cannot register overview histogram for Endcap C: " << (*m_iT)->GetName() );
+      ATH_MSG_ERROR (  "Cannot register overview histogram for Endcap C: " << (*iT)->GetName() );
       return sc;
     }
   }
@@ -744,15 +744,15 @@ StatusCode CscClusterValAlg::fillHistograms() {
   if(m_doEvtSel) { if(!evtSelTriggersPassed()) return sc; }
 
   // retrieve cluster / strip collection
-  const DataHandle<CscPrepDataContainer> m_cscCluster(0);
-  const DataHandle<CscStripPrepDataContainer> m_cscStrip(0);
+  const DataHandle<CscPrepDataContainer> cscCluster(0);
+  const DataHandle<CscStripPrepDataContainer> cscStrip(0);
 
   sc = evtStore()->contains<Muon::CscPrepDataContainer>(m_cscClusterKey);
   if(sc.isFailure() || m_cscClusterKey == "") {
     ATH_MSG_WARNING (  "Cluster container of type Muon::CscPrepDataContainer and key \"" << m_cscClusterKey << "\" NOT found in StoreGate" );
     return sc;
   } else {
-    sc = evtStore()->retrieve(m_cscCluster, m_cscClusterKey);
+    sc = evtStore()->retrieve(cscCluster, m_cscClusterKey);
     if( sc.isFailure() ) {
       ATH_MSG_WARNING ( "Could not retrieve cluster container of type Muon::CscPrepDataContainer and key \"" << m_cscClusterKey << "\"" );
       return sc;
@@ -764,7 +764,7 @@ StatusCode CscClusterValAlg::fillHistograms() {
     ATH_MSG_WARNING (  "PRD container of type Muon::CscStripPrepDataContainer and key \"" << m_cscPRDKey << "\" NOT found in StoreGate" );
     return sc;
   } else {
-    sc = evtStore()->retrieve(m_cscStrip, m_cscPRDKey);
+    sc = evtStore()->retrieve(cscStrip, m_cscPRDKey);
     if( sc.isFailure() ) {
       ATH_MSG_WARNING ( "Could not retrieve strip container of type Muon::CscStripPrepDataContainer and key \"" << m_cscPRDKey << "\"" );
       return sc;
@@ -774,7 +774,7 @@ StatusCode CscClusterValAlg::fillHistograms() {
   // we can do (some) monitoring plots with just the cluster
   // ideally we need both the cluster and the strips that make up that cluster  
   if( sc.isSuccess()) { 
-    FillCSCClusters(*m_cscCluster, *m_cscStrip);
+    FillCSCClusters(*cscCluster, *cscStrip);
   } else {
     ATH_MSG_WARNING ( name() << " : cannot fill monitoring histograms " );
     return StatusCode::SUCCESS;
@@ -786,26 +786,26 @@ StatusCode CscClusterValAlg::fillHistograms() {
 //
 // FillCSCClusters ----------------------------------------------------------------
 //
-void  CscClusterValAlg::FillCSCClusters( const CscPrepDataContainer& m_cols, const CscStripPrepDataContainer& m_strips ) {
+void  CscClusterValAlg::FillCSCClusters( const CscPrepDataContainer& cols, const CscStripPrepDataContainer& strips ) {
 
 
-  ATH_MSG_DEBUG ( " Size of Cluster Collection : " << m_cols.size() );
-  ATH_MSG_DEBUG ( " Size of Strip Collection : " << m_strips.size() );
+  ATH_MSG_DEBUG ( " Size of Cluster Collection : " << cols.size() );
+  ATH_MSG_DEBUG ( " Size of Strip Collection : " << strips.size() );
 
-  for ( CscPrepDataContainer::const_iterator m_Icol = m_cols.begin();
-      m_Icol != m_cols.end(); ++m_Icol ) {
-    const CscPrepDataCollection& m_clus = **m_Icol;
-    //Identifier coll_id = m_clus.identify();
+  for ( CscPrepDataContainer::const_iterator Icol = cols.begin();
+      Icol != cols.end(); ++Icol ) {
+    const CscPrepDataCollection& clus = **Icol;
+    //Identifier coll_id = clus.identify();
 
 
     // arrays to hold cluster-count  
     // 32 chambers and 8 layers (each has one extra - index '0' is not counted)
-    int m_clusCount[33][9], m_sigclusCount[33][9];
-    unsigned int m_nEtaClusWidthCnt = 0, m_nPhiClusWidthCnt = 0;
+    int clusCount[33][9], sigclusCount[33][9];
+    unsigned int nEtaClusWidthCnt = 0, nPhiClusWidthCnt = 0;
     for(unsigned int kl = 0; kl < 33; kl++ ) {
       for(unsigned int km = 0; km < 9; km++ ) {
-        m_clusCount[kl][km] = 0;
-        m_sigclusCount[kl][km] = 0;
+        clusCount[kl][km] = 0;
+        sigclusCount[kl][km] = 0;
       }
     }
 
@@ -832,55 +832,55 @@ void  CscClusterValAlg::FillCSCClusters( const CscPrepDataContainer& m_cols, con
 
 
     ATH_MSG_DEBUG ( " Begin loop over clusters ============================");
-    for ( CscPrepDataCollection::const_iterator m_Itclu = m_clus.begin();
-        m_Itclu != m_clus.end(); ++m_Itclu ) {
-      CscPrepData& m_iClus = **m_Itclu;
-      const std::vector<Identifier>& m_stripIds = m_iClus.rdoList();    
-      float m_clu_charge = m_iClus.charge();
-      float m_clu_time = m_iClus.time();
+    for ( CscPrepDataCollection::const_iterator Itclu = clus.begin();
+        Itclu != clus.end(); ++Itclu ) {
+      const CscPrepData& iClus = **Itclu;
+      const std::vector<Identifier>& stripIds = iClus.rdoList();    
+      float clu_charge = iClus.charge();
+      float clu_time = iClus.time();
 
-      ATH_MSG_DEBUG(" cluster charge = " << m_clu_charge << "\t cluster time = " << m_clu_time );
+      ATH_MSG_DEBUG(" cluster charge = " << clu_charge << "\t cluster time = " << clu_time );
 
-      unsigned int m_noStrips = m_stripIds.size();  // no. of strips in this cluster = m_stripIds.size()
-      Identifier m_clusId = m_iClus.identify();
+      unsigned int noStrips = stripIds.size();  // no. of strips in this cluster = stripIds.size()
+      Identifier clusId = iClus.identify();
 
       // get the cluster coordinates
-      int m_stationName = m_cscIdHelper->stationName(m_clusId);
-      std::string m_stationString = m_cscIdHelper->stationNameString(m_stationName);
-      int m_chamberType = m_stationString == "CSS" ? 0 : 1;
-      int m_stationEta  = m_cscIdHelper->stationEta(m_clusId);
-      int m_stationPhi  = m_cscIdHelper->stationPhi(m_clusId);
-      int m_wireLayer = m_cscIdHelper->wireLayer(m_clusId);
-      int m_measuresPhi = m_cscIdHelper->measuresPhi(m_clusId);
+      int stationName = m_cscIdHelper->stationName(clusId);
+      std::string stationString = m_cscIdHelper->stationNameString(stationName);
+      int chamberType = stationString == "CSS" ? 0 : 1;
+      int stationEta  = m_cscIdHelper->stationEta(clusId);
+      int stationPhi  = m_cscIdHelper->stationPhi(clusId);
+      int wireLayer = m_cscIdHelper->wireLayer(clusId);
+      int measuresPhi = m_cscIdHelper->measuresPhi(clusId);
 
 
-      float m_x = m_iClus.globalPosition().x();
-      float m_y = m_iClus.globalPosition().y();
-      float m_z = m_iClus.globalPosition().z();
-      float m_r = sqrt(m_x*m_x + m_y*m_y);
-      //TVector3 m_clu(m_x,m_y,m_z);
+      float x = iClus.globalPosition().x();
+      float y = iClus.globalPosition().y();
+      float z = iClus.globalPosition().z();
+      float r = sqrt(x*x + y*y);
+      //TVector3 m_clu(x,y,z);
       //ATH_MSG_DEBUG(" cluster eta = " << m_clu.Eta() << "\t pseudorapidity = " << m_clu.PseudoRapidity() << "\t phi = " << m_clu.Phi());
-      //ATH_MSG_DEBUG(" cluster m_x = " << m_x << "\t m_y = " << m_y << "\t m_z = " << m_z );
+      //ATH_MSG_DEBUG(" cluster x = " << x << "\t y = " << y << "\t z = " << z );
       //m_h2csc_clus_eta_vs_phi_hitmap->Fill(m_clu.Phi(),m_clu.Eta()); 
-      m_h2csc_clus_r_vs_z_hitmap->Fill(m_z,m_r);
-      m_h2csc_clus_y_vs_x_hitmap->Fill(m_y,m_x);
+      m_h2csc_clus_r_vs_z_hitmap->Fill(z,r);
+      m_h2csc_clus_y_vs_x_hitmap->Fill(y,x);
 
       // convert to my coordinates
-      int m_sectorNo  = m_stationEta * (2 * m_stationPhi - m_chamberType);   // [-16 -> -1] and [+1 -> +16]
-      float m_secLayer = m_sectorNo + 0.2 * (m_wireLayer - 1) + 0.1;
-      int xfac = m_measuresPhi ? -1 : 1;        // [-1 -> -48] / [+1 -> +192]
+      int sectorNo  = stationEta * (2 * stationPhi - chamberType);   // [-16 -> -1] and [+1 -> +16]
+      float secLayer = sectorNo + 0.2 * (wireLayer - 1) + 0.1;
+      int xfac = measuresPhi ? -1 : 1;        // [-1 -> -48] / [+1 -> +192]
 
 
       //total cluster width (EA and EC) calculation
-       if(m_secLayer > 0.) { 
-          stripsSum_EA = stripsSum_EA + m_noStrips;
+       if(secLayer > 0.) { 
+          stripsSum_EA = stripsSum_EA + noStrips;
      }
        if(stripsSum_EA > stripsSum_EAtest) {
           stripsSum_EAtest = stripsSum_EA;
      }
 
-       if(m_secLayer < 0. || m_secLayer == 0.) { 
-          stripsSum_EC = stripsSum_EC + m_noStrips;
+       if(secLayer < 0. || secLayer == 0.) { 
+          stripsSum_EC = stripsSum_EC + noStrips;
      }
        if(stripsSum_EC > stripsSum_ECtest) {
           stripsSum_ECtest = stripsSum_EC;
@@ -888,145 +888,145 @@ void  CscClusterValAlg::FillCSCClusters( const CscPrepDataContainer& m_cols, con
 
 
       // check boundaries of sector/layer - redundancy
-      //if(!(m_sectorNo+16) < 33) m_sectorNo = 0;
-      //if(!(m_wireLayer < 5)) m_wireLayer = 0;
+      //if(!(sectorNo+16) < 33) sectorNo = 0;
+      //if(!(wireLayer < 5)) wireLayer = 0;
 
       // compute the indices to store cluster count
-      int m_ns = m_sectorNo < 0 ? m_sectorNo*(-1) : m_sectorNo+16; // [-16 -> -1] shifted to [1 -> 16] and [+1 -> +16] shifted to [+17 -> +32]
-      int m_nl = (m_measuresPhi ? m_wireLayer : m_wireLayer+4);  // [ 1 -> 4] (phi-layers) and [5 -> 8] (eta-layers)
+      int ns = sectorNo < 0 ? sectorNo*(-1) : sectorNo+16; // [-16 -> -1] shifted to [1 -> 16] and [+1 -> +16] shifted to [+17 -> +32]
+      int nl = (measuresPhi ? wireLayer : wireLayer+4);  // [ 1 -> 4] (phi-layers) and [5 -> 8] (eta-layers)
 
       // increment the cluster-count for this layer
-      m_clusCount[m_ns][m_nl]++;
+      clusCount[ns][nl]++;
 
-      // indices for m_ns = [+1 -> +32]; 32 places (index '0' is not counted); allocated 33 places
-      // indices for m_nl = [+1 -> +8]; 8 places (index '0' is not counted); allocated 9 places
-      ATH_MSG_DEBUG(" m_ns = " << m_ns << "\tm_nl = " << m_nl << "\tm_sec = " << m_sectorNo << "\t m_lay= " << m_wireLayer << "\tmPhi = " << m_measuresPhi);
+      // indices for ns = [+1 -> +32]; 32 places (index '0' is not counted); allocated 33 places
+      // indices for nl = [+1 -> +8]; 8 places (index '0' is not counted); allocated 9 places
+      ATH_MSG_DEBUG(" ns = " << ns << "\tm_nl = " << nl << "\tm_sec = " << sectorNo << "\t m_lay= " << wireLayer << "\tmPhi = " << measuresPhi);
 
 
       // check the cluster status; probably need to read status info from jobOptions - not done for the moment
       // status = Muon::CscStatusUnspoiled (i.e 0) or Muon::CscStatusSplitUnspoiled (i.e 10) are considered good for precision clusters
       // status = Muon::CscStatusSimple (i.e 1) could be good for non-precision clusters (i.e for phi-layers)
-      std::string m_stat = Muon::toString(m_iClus.status());
-      bool m_cluster_status = ( (m_stat == "unspoiled")                 || 
-          (m_stat == "unspoiled with split")                            ||
-          (m_stat == "simple")
+      std::string stat = Muon::toString(iClus.status());
+      bool cluster_status = ( (stat == "unspoiled")                 || 
+          (stat == "unspoiled with split")                            ||
+          (stat == "simple")
           ) ? true : false;
 
       // Also need at least three strips in an eta-cluster to compute Q_max, Q_left and Q_right
-      bool m_eta_cluster_status = m_cluster_status && ( m_noStrips > 2 ) && (m_measuresPhi == 0); 
+      bool eta_cluster_status = cluster_status && ( noStrips > 2 ) && (measuresPhi == 0); 
 
       // Also need at least one strip in a phi-cluster to compute Q_max = Q_sum
-      bool m_phi_cluster_status = m_cluster_status && ( m_noStrips > 0 ) && (m_measuresPhi == 1);
+      bool phi_cluster_status = cluster_status && ( noStrips > 0 ) && (measuresPhi == 1);
 
-      ATH_MSG_DEBUG ( " ClusterStatus eta = " << m_eta_cluster_status << " ,phi = " << m_phi_cluster_status);
-      ATH_MSG_DEBUG ( " ClusterID (eta:" << m_stationEta << ",phi:" << m_stationPhi << ",type:" << m_chamberType << ", measPhi: " 
-          << m_measuresPhi << ",wire:" << m_wireLayer << ") = " << m_secLayer << " status = " 
-          << m_stat << " #of strips = " << m_noStrips );
+      ATH_MSG_DEBUG ( " ClusterStatus eta = " << eta_cluster_status << " ,phi = " << phi_cluster_status);
+      ATH_MSG_DEBUG ( " ClusterID (eta:" << stationEta << ",phi:" << stationPhi << ",type:" << chamberType << ", measPhi: " 
+          << measuresPhi << ",wire:" << wireLayer << ") = " << secLayer << " status = " 
+          << stat << " #of strips = " << noStrips );
 
       // if cluster is okay get Qmax, Qleft, Qright and Qsum = (Qmax + Qleft + Qright)
-      if(m_eta_cluster_status || m_phi_cluster_status ) {
-        const CscStripPrepDataCollection* m_pcol(0);
-        bool m_found_id = true;
-        std::vector <const CscStripPrepData*> m_stripVec;
-        std::vector <float> m_fStripIDs;
-        float m_maxStripCharge = 0., m_maxStipId = 0.;
-        int m_sIdx = 0, m_mxIdx = 0; // index-counter and index of max strip in the vector of Id's
+      if(eta_cluster_status || phi_cluster_status ) {
+        const CscStripPrepDataCollection* pcol(0);
+        bool found_id = true;
+        std::vector <const CscStripPrepData*> stripVec;
+        std::vector <float> fStripIDs;
+        float maxStripCharge = 0., maxStipId = 0.;
+        int sIdx = 0, mxIdx = 0; // index-counter and index of max strip in the vector of Id's
 
         // fill cluster width (no. of strips per cluster) 
-        if(m_measuresPhi) {
-          m_h2csc_clus_phicluswidth->Fill(m_noStrips,m_secLayer);  // fill phi-cluster width
-          m_nPhiClusWidthCnt++;
+        if(measuresPhi) {
+          m_h2csc_clus_phicluswidth->Fill(noStrips,secLayer);  // fill phi-cluster width
+          nPhiClusWidthCnt++;
         } else {
-          m_h2csc_clus_etacluswidth->Fill(m_noStrips,m_secLayer);  // fill eta-cluster width
-          m_nEtaClusWidthCnt++;
+          m_h2csc_clus_etacluswidth->Fill(noStrips,secLayer);  // fill eta-cluster width
+          nEtaClusWidthCnt++;
         }
 
         // Loop over strip id's vector / strip collection and match the id's from vector with strips in collection
-        for ( std::vector<Identifier>::const_iterator sId = m_stripIds.begin(); sId != m_stripIds.end(); ++sId, m_sIdx++ ) {
-          Identifier m_id = *sId; // for strip Id's
-          int m_thisStrip = m_cscIdHelper->strip(m_id);
-          float m_stripid = m_thisStrip * xfac;         // x-axis fill value
-          m_fStripIDs.push_back(m_stripid);
-          m_h2csc_clus_hitmap->Fill(m_stripid, m_secLayer);
+        for ( std::vector<Identifier>::const_iterator sId = stripIds.begin(); sId != stripIds.end(); ++sId, sIdx++ ) {
+          Identifier id = *sId; // for strip Id's
+          int thisStrip = m_cscIdHelper->strip(id);
+          float stripid = thisStrip * xfac;         // x-axis fill value
+          fStripIDs.push_back(stripid);
+          m_h2csc_clus_hitmap->Fill(stripid, secLayer);
 
-          if(!m_pcol) {
-            CscStripPrepDataContainer::const_iterator m_icol = m_strips.indexFind(m_clus.identifyHash());
-            if ( m_icol == m_strips.end() ) {
-              m_found_id = false;
+          if(!pcol) {
+            CscStripPrepDataContainer::const_iterator icol = strips.indexFind(clus.identifyHash());
+            if ( icol == strips.end() ) {
+              found_id = false;
               break;  // could not identify the strips
             } else {
-              m_pcol = *m_icol;
-              if(!m_pcol) m_found_id = false;
+              pcol = *icol;
+              if(!pcol) found_id = false;
             }
-          } // end if !m_pcol  
+          } // end if !pcol  
 
-          bool m_found_strip = false;
-          float m_maxsampChVal = 0.;
-          if(m_found_id) {
-            for ( CscStripPrepDataCollection::const_iterator m_istrip= m_pcol->begin(); m_istrip != m_pcol->end(); ++ m_istrip ) {
-              m_found_strip = ( *m_istrip )->identify() == m_id ; 
-              if(m_found_strip) {
-                m_stripVec.push_back(*m_istrip);
+          bool found_strip = false;
+          float maxsampChVal = 0.;
+          if(found_id) {
+            for ( CscStripPrepDataCollection::const_iterator istrip= pcol->begin(); istrip != pcol->end(); ++ istrip ) {
+              found_strip = ( *istrip )->identify() == id ; 
+              if(found_strip) {
+                stripVec.push_back(*istrip);
                 //std::ostringstream m_charges;
-                std::vector<float> m_samp_charges = ( *m_istrip )->sampleCharges();
-                for(unsigned int i = 0; i < m_samp_charges.size(); i++ ) {
-                  //std::string m_ch; sprintf((char *)m_ch.c_str(),"%6.2f , ",m_samp_charges[i]);
+                std::vector<float> samp_charges = ( *istrip )->sampleCharges();
+                for(unsigned int i = 0; i < samp_charges.size(); i++ ) {
+                  //std::string m_ch; sprintf((char *)m_ch.c_str(),"%6.2f , ",samp_charges[i]);
                   //m_charges << m_ch.c_str();
-                  if(m_samp_charges[i] > m_maxsampChVal) m_maxsampChVal = m_samp_charges[i];
+                  if(samp_charges[i] > maxsampChVal) maxsampChVal = samp_charges[i];
                 }
-                if(m_maxsampChVal > m_maxStripCharge ) {
-                  m_maxStripCharge = m_maxsampChVal; 
-                  m_maxStipId = m_stripid;
-                  m_mxIdx = m_sIdx;
+                if(maxsampChVal > maxStripCharge ) {
+                  maxStripCharge = maxsampChVal; 
+                  maxStipId = stripid;
+                  mxIdx = sIdx;
                 }
-                //ATH_MSG_DEBUG ( " " << m_charges.str() << "\t time= " << ( *m_istrip )->timeOfFirstSample());
+                //ATH_MSG_DEBUG ( " " << m_charges.str() << "\t time= " << ( *istrip )->timeOfFirstSample());
                 break; // break from inner loop
               }
             } // end for loop on strip collection
-            ATH_MSG_DEBUG ( " " << (m_found_strip? "FoundStrip " : "NoStripFound ") << " with max sampling = " << m_maxsampChVal);
+            ATH_MSG_DEBUG ( " " << (found_strip? "FoundStrip " : "NoStripFound ") << " with max sampling = " << maxsampChVal);
           } // end if found_id
         } // end for loop over strips
-        ATH_MSG_DEBUG ( " Max Strip charge = " << m_maxStripCharge  << " and strip Id = " << m_maxStipId << " and index = " << m_mxIdx);
-        float m_qmax = 0., m_qleft = 0., m_qright = 0., m_qsum = 0.;
+        ATH_MSG_DEBUG ( " Max Strip charge = " << maxStripCharge  << " and strip Id = " << maxStipId << " and index = " << mxIdx);
+        float qmax = 0., qleft = 0., qright = 0., qsum = 0.;
 
-        // if we are here and loop over strips is successful we should have m_found_id = true
+        // if we are here and loop over strips is successful we should have found_id = true
         // and the size of strip-ID-vector == size of strips-vector
-        bool m_size_ids_coll = (m_noStrips == m_stripVec.size() ? true : false) ;
+        bool size_ids_coll = (noStrips == stripVec.size() ? true : false) ;
 
-        if(m_found_id && m_size_ids_coll ) {
+        if(found_id && size_ids_coll ) {
           // store results of three strips (Qmax, Qleft, Qright)
-          std::vector<ICscStripFitter::Result> m_res;
-          m_res.reserve(3);
-          bool m_range_check = (m_mxIdx > -1) && (m_mxIdx < int(m_noStrips));
+          std::vector<ICscStripFitter::Result> res;
+          res.reserve(3);
+          bool range_check = (mxIdx > -1) && (mxIdx < int(noStrips));
 
-          ATH_MSG_DEBUG ( " Range check = (" << m_mxIdx  << " > -1 ) && (" << m_mxIdx << " < " << m_noStrips << " ) = " << m_range_check
-              << "\t size of vec check " << m_noStrips << " == " << m_stripVec.size());
+          ATH_MSG_DEBUG ( " Range check = (" << mxIdx  << " > -1 ) && (" << mxIdx << " < " << noStrips << " ) = " << range_check
+              << "\t size of vec check " << noStrips << " == " << stripVec.size());
 
-          if( m_range_check ) {
+          if( range_check ) {
             // fit Q_left fit
-            if(m_mxIdx-1 >= 0 ) {
-              m_res[0] = m_stripFitter->fit(*m_stripVec[m_mxIdx-1]);
-              m_qleft = m_res[0].charge;
-              m_qsum += m_qleft;
-              ATH_MSG_DEBUG ( " Left Strip q +- dq = " << m_res[0].charge  << " +- " << m_res[0].dcharge << "\t t +- dt = " 
-                  << m_res[0].time << " +- " <<  m_res[0].dtime << "\t w +- dw = " << m_res[0].width << " +- " 
-                  << m_res[0].dwidth << "\t status= " << m_res[0].status << "\t chisq= " << m_res[0].chsq);
+            if(mxIdx-1 >= 0 ) {
+              res[0] = m_stripFitter->fit(*stripVec[mxIdx-1]);
+              qleft = res[0].charge;
+              qsum += qleft;
+              ATH_MSG_DEBUG ( " Left Strip q +- dq = " << res[0].charge  << " +- " << res[0].dcharge << "\t t +- dt = " 
+                  << res[0].time << " +- " <<  res[0].dtime << "\t w +- dw = " << res[0].width << " +- " 
+                  << res[0].dwidth << "\t status= " << res[0].status << "\t chisq= " << res[0].chsq);
             } // end if q_left
             // fit Q_max strip
-            m_res[1] = m_stripFitter->fit(*m_stripVec[m_mxIdx]);
-            m_qmax = m_res[1].charge;
-            m_qsum += m_qmax; 
-            ATH_MSG_DEBUG ( " Peak Strip q +- dq = " << m_res[1].charge  << " +- " << m_res[1].dcharge << "\t t +- dt = " 
-                << m_res[1].time << " +- " <<  m_res[1].dtime << "\t w +- dw = " << m_res[1].width << " +- " 
-                << m_res[1].dwidth << "\t status= " << m_res[1].status << "\t chisq= " << m_res[1].chsq);
+            res[1] = m_stripFitter->fit(*stripVec[mxIdx]);
+            qmax = res[1].charge;
+            qsum += qmax; 
+            ATH_MSG_DEBUG ( " Peak Strip q +- dq = " << res[1].charge  << " +- " << res[1].dcharge << "\t t +- dt = " 
+                << res[1].time << " +- " <<  res[1].dtime << "\t w +- dw = " << res[1].width << " +- " 
+                << res[1].dwidth << "\t status= " << res[1].status << "\t chisq= " << res[1].chsq);
             // fit Q_right strip
-            if(m_mxIdx+1 < int(m_noStrips)) {
-              m_res[2] = m_stripFitter->fit(*m_stripVec[m_mxIdx+1]);
-              m_qright = m_res[2].charge;
-              m_qsum += m_qright;
-              ATH_MSG_DEBUG ( " Right Strip q +- dq = " << m_res[2].charge  << " +- " << m_res[2].dcharge << "\t t +- dt = " 
-                  << m_res[2].time << " +- " <<  m_res[2].dtime << "\t w +- dw = " << m_res[2].width << " +- " 
-                  << m_res[2].dwidth << "\t status= " << m_res[2].status << "\t chisq= " << m_res[2].chsq);
+            if(mxIdx+1 < int(noStrips)) {
+              res[2] = m_stripFitter->fit(*stripVec[mxIdx+1]);
+              qright = res[2].charge;
+              qsum += qright;
+              ATH_MSG_DEBUG ( " Right Strip q +- dq = " << res[2].charge  << " +- " << res[2].dcharge << "\t t +- dt = " 
+                  << res[2].time << " +- " <<  res[2].dtime << "\t w +- dw = " << res[2].width << " +- " 
+                  << res[2].dwidth << "\t status= " << res[2].status << "\t chisq= " << res[2].chsq);
             } // end if q_right
           } // end if range_check
 
@@ -1035,7 +1035,7 @@ void  CscClusterValAlg::FillCSCClusters( const CscPrepDataContainer& m_cols, con
           // float m_fCperElectron = 1.6022e-4; // multiply # of electrons by this number to get fC
 
 
-          float m_kiloele = 1.0e-3; // multiply # of electrons by this number to get kiloElectrons (1 ke = 1 ADC)
+          float kiloele = 1.0e-3; // multiply # of electrons by this number to get kiloElectrons (1 ke = 1 ADC)
 
           // Assume 1000 e = 1 ADC for now = 1000 x 1.6022 x 10^{-4} fC = 0.16022 fC
           //float m_fCperADC = 0.16022; // multiply ADC counts with with this to get fC
@@ -1043,96 +1043,96 @@ void  CscClusterValAlg::FillCSCClusters( const CscPrepDataContainer& m_cols, con
           //float m_kEperADC = 1000.; // multiply ADC counts with with this to get #of electrons
 
           // convert qmax, qleft, qright into ADC 
-          float m_QmaxADC = m_qmax * m_kiloele;
-          float m_QsumADC = m_qsum * m_kiloele;
+          float QmaxADC = qmax * kiloele;
+          float QsumADC = qsum * kiloele;
 
           // check if signal or noise
-          // m_QmaxADC > m_qmaxADCCut is signal
-          bool m_signal = m_QmaxADC > m_qmaxADCCut;
+          // QmaxADC > m_qmaxADCCut is signal
+          bool signal = QmaxADC > m_qmaxADCCut;
 
           // fill signal/noise histograms
-          if(m_signal) {
+          if(signal) {
 
             // increment signal-cluster counter
-            m_sigclusCount[m_ns][m_nl]++;
+            sigclusCount[ns][nl]++;
 
-            for(unsigned int j =0; j < m_fStripIDs.size(); j++)
-              m_h2csc_clus_hitmap_signal->Fill(m_fStripIDs[j], m_secLayer);
-            if(m_measuresPhi) {
-              m_h2csc_clus_phicluswidth_signal->Fill(m_noStrips,m_secLayer);  
+            for(unsigned int j =0; j < fStripIDs.size(); j++)
+              m_h2csc_clus_hitmap_signal->Fill(fStripIDs[j], secLayer);
+            if(measuresPhi) {
+              m_h2csc_clus_phicluswidth_signal->Fill(noStrips,secLayer);  
             } else {
-              m_h2csc_clus_etacluswidth_signal->Fill(m_noStrips,m_secLayer);  
+              m_h2csc_clus_etacluswidth_signal->Fill(noStrips,secLayer);  
             }
 
             // Fill layer occupancy
-            if(m_stationEta == 1) {
-              m_h1csc_clus_occupancy_signal_EA->Fill(m_secLayer);
+            if(stationEta == 1) {
+              m_h1csc_clus_occupancy_signal_EA->Fill(secLayer);
             } else {
-              m_h1csc_clus_occupancy_signal_EC->Fill(m_secLayer);
+              m_h1csc_clus_occupancy_signal_EC->Fill(secLayer);
             }
           } else {
-            for(unsigned int j =0; j < m_fStripIDs.size(); j++)
-              m_h2csc_clus_hitmap_noise->Fill(m_fStripIDs[j], m_secLayer);
-            if(m_measuresPhi) {
-              m_h2csc_clus_phicluswidth_noise->Fill(m_noStrips,m_secLayer);
+            for(unsigned int j =0; j < fStripIDs.size(); j++)
+              m_h2csc_clus_hitmap_noise->Fill(fStripIDs[j], secLayer);
+            if(measuresPhi) {
+              m_h2csc_clus_phicluswidth_noise->Fill(noStrips,secLayer);
             } else {
-              m_h2csc_clus_etacluswidth_noise->Fill(m_noStrips,m_secLayer);
+              m_h2csc_clus_etacluswidth_noise->Fill(noStrips,secLayer);
             }
           }
 
-          m_h2csc_clus_qmax->Fill(m_QmaxADC, m_secLayer);
-          if(m_signal) {
-            m_h2csc_clus_qmax_signal->Fill(m_QmaxADC, m_secLayer);
-            if(m_stationEta == 1) {
-              m_h2csc_clus_qmax_signal_EA->Fill(m_QmaxADC, m_secLayer);
-              m_h1csc_clus_qmax_signal_EA_count->Fill(m_QmaxADC);
-              //m_h1csc_clus_qmax_signal_EA_occupancy->Fill(m_secLayer);
+          m_h2csc_clus_qmax->Fill(QmaxADC, secLayer);
+          if(signal) {
+            m_h2csc_clus_qmax_signal->Fill(QmaxADC, secLayer);
+            if(stationEta == 1) {
+              m_h2csc_clus_qmax_signal_EA->Fill(QmaxADC, secLayer);
+              m_h1csc_clus_qmax_signal_EA_count->Fill(QmaxADC);
+              //m_h1csc_clus_qmax_signal_EA_occupancy->Fill(secLayer);
             } else {
-              m_h2csc_clus_qmax_signal_EC->Fill(m_QmaxADC, m_secLayer);
-              m_h1csc_clus_qmax_signal_EC_count->Fill(m_QmaxADC);
-              //m_h1csc_clus_qmax_signal_EC_occupancy->Fill(m_secLayer);
+              m_h2csc_clus_qmax_signal_EC->Fill(QmaxADC, secLayer);
+              m_h1csc_clus_qmax_signal_EC_count->Fill(QmaxADC);
+              //m_h1csc_clus_qmax_signal_EC_occupancy->Fill(secLayer);
             }
           } else {
-            m_h2csc_clus_qmax_noise->Fill(m_QmaxADC, m_secLayer);
+            m_h2csc_clus_qmax_noise->Fill(QmaxADC, secLayer);
           }
 
-          m_h2csc_clus_qsum->Fill(m_QsumADC, m_secLayer);
-          if(m_signal) {
-            m_h2csc_clus_qsum_signal->Fill(m_QsumADC, m_secLayer);
-            if(m_stationEta == 1) {
-              m_h2csc_clus_qsum_signal_EA->Fill(m_QsumADC, m_secLayer);
-              m_h1csc_clus_qsum_signal_EA_count->Fill(m_QsumADC);
-              //m_h1csc_clus_qsum_signal_EA_occupancy->Fill(m_secLayer);
+          m_h2csc_clus_qsum->Fill(QsumADC, secLayer);
+          if(signal) {
+            m_h2csc_clus_qsum_signal->Fill(QsumADC, secLayer);
+            if(stationEta == 1) {
+              m_h2csc_clus_qsum_signal_EA->Fill(QsumADC, secLayer);
+              m_h1csc_clus_qsum_signal_EA_count->Fill(QsumADC);
+              //m_h1csc_clus_qsum_signal_EA_occupancy->Fill(secLayer);
             } else {
-              m_h2csc_clus_qsum_signal_EC->Fill(m_QsumADC, m_secLayer);
-              m_h1csc_clus_qsum_signal_EC_count->Fill(m_QsumADC);
-              //m_h1csc_clus_qsum_signal_EC_occupancy->Fill(m_secLayer);
+              m_h2csc_clus_qsum_signal_EC->Fill(QsumADC, secLayer);
+              m_h1csc_clus_qsum_signal_EC_count->Fill(QsumADC);
+              //m_h1csc_clus_qsum_signal_EC_occupancy->Fill(secLayer);
             }
           } else {
-            m_h2csc_clus_qsum_noise->Fill(m_QsumADC, m_secLayer);
+            m_h2csc_clus_qsum_noise->Fill(QsumADC, secLayer);
           }
 
-          if(m_measuresPhi) {
-            m_h1csc_clus_transverse_time->Fill(m_clu_time);
-            m_h1csc_clus_transverse_charge->Fill(m_clu_charge*m_kiloele);
-            if(m_signal) {
-              m_h1csc_clus_transverse_time_signal->Fill(m_clu_time);
-              m_h1csc_clus_transverse_charge_signal->Fill(m_clu_charge*m_kiloele);
+          if(measuresPhi) {
+            m_h1csc_clus_transverse_time->Fill(clu_time);
+            m_h1csc_clus_transverse_charge->Fill(clu_charge*kiloele);
+            if(signal) {
+              m_h1csc_clus_transverse_time_signal->Fill(clu_time);
+              m_h1csc_clus_transverse_charge_signal->Fill(clu_charge*kiloele);
             } else {
-              m_h1csc_clus_transverse_time_noise->Fill(m_clu_time);
-              m_h1csc_clus_transverse_charge_noise->Fill(m_clu_charge*m_kiloele);
+              m_h1csc_clus_transverse_time_noise->Fill(clu_time);
+              m_h1csc_clus_transverse_charge_noise->Fill(clu_charge*kiloele);
             }
           } else {
-            m_h1csc_clus_precision_time->Fill(m_clu_time); 
-            m_h1csc_clus_precision_charge->Fill(m_clu_charge*m_kiloele);
-            if(m_signal) {
-              m_h1csc_clus_precision_time_signal->Fill(m_clu_time); 
-              if(m_stationEta == 1) m_h1csc_clus_precision_time_signal_EA->Fill(m_clu_time);
-              else m_h1csc_clus_precision_time_signal_EC->Fill(m_clu_time);
-              m_h1csc_clus_precision_charge_signal->Fill(m_clu_charge*m_kiloele);
+            m_h1csc_clus_precision_time->Fill(clu_time); 
+            m_h1csc_clus_precision_charge->Fill(clu_charge*kiloele);
+            if(signal) {
+              m_h1csc_clus_precision_time_signal->Fill(clu_time); 
+              if(stationEta == 1) m_h1csc_clus_precision_time_signal_EA->Fill(clu_time);
+              else m_h1csc_clus_precision_time_signal_EC->Fill(clu_time);
+              m_h1csc_clus_precision_charge_signal->Fill(clu_charge*kiloele);
             } else {
-              m_h1csc_clus_precision_time_noise->Fill(m_clu_time); 
-              m_h1csc_clus_precision_charge_noise->Fill(m_clu_charge*m_kiloele);
+              m_h1csc_clus_precision_time_noise->Fill(clu_time); 
+              m_h1csc_clus_precision_charge_noise->Fill(clu_charge*kiloele);
             }
           }
 
@@ -1149,88 +1149,88 @@ void  CscClusterValAlg::FillCSCClusters( const CscPrepDataContainer& m_cols, con
     } // end for loop over prep-data collection
     ATH_MSG_DEBUG ( " End loop over clusters ============================");
 
-    m_h2csc_clus_eta_vs_phi_cluswidth->Fill(m_nPhiClusWidthCnt,m_nEtaClusWidthCnt);
+    m_h2csc_clus_eta_vs_phi_cluswidth->Fill(nPhiClusWidthCnt,nEtaClusWidthCnt);
 
     // Fill cluster counts
-    int m_numeta = 0, m_numphi = 0;
-    int m_numetasignal = 0, m_numphisignal = 0;
+    int numeta = 0, numphi = 0;
+    int numetasignal = 0, numphisignal = 0;
     //loop over chambers
     for(int kl = 1; kl < 33; kl++ ) {
 
       // loop over layers
-      int m_eta_hits[4] = {0,0,0,0};
-      bool m_chamber_empty = true;  
-      int m_sec = kl < 17 ? kl*(-1) : kl; // [1->16](-side)  [17-32] (+side)
+      int eta_hits[4] = {0,0,0,0};
+      bool chamber_empty = true;  
+      int sec = kl < 17 ? kl*(-1) : kl; // [1->16](-side)  [17-32] (+side)
       for(int km = 1; km < 9; km++ ) {
         int lay = (km > 4 && km < 9) ? km-4 : km;  // 1,2,3,4 (phi-layers)     5-4, 6-4, 7-4, 8-4 (eta-layers)
         bool mphi = (km > 0 && km < 5) ? true : false; // 1,2,3,4 (phi-layers) 5,6,7,8 (eta-layers)
-        std::string m_wlay = mphi ? "Phi-Layer " : "Eta-Layer: ";
-        int m_count = m_clusCount[kl][km];
-        int m_scount = m_sigclusCount[kl][km];
+        std::string wlay = mphi ? "Phi-Layer " : "Eta-Layer: ";
+        int count = clusCount[kl][km];
+        int scount = sigclusCount[kl][km];
 
-        if(m_count) {
-          float m_secLayer = m_sec + 0.2 * (lay - 1) + 0.1;
+        if(count) {
+          float secLayer = sec + 0.2 * (lay - 1) + 0.1;
 
-          //for(int m_cnt = 0; m_cnt < m_scount; m_cnt++)  {
-          //  m_h1csc_clus_count_perlayer->Fill(m_secLayer);
+          //for(int m_cnt = 0; m_cnt < scount; m_cnt++)  {
+          //  m_h1csc_clus_count_perlayer->Fill(secLayer);
           //}
 
-          ATH_MSG_DEBUG ("sec[" << m_sec << "]\t" << m_wlay << "[" << lay << "] = " <<
-              m_secLayer << "= " << "\tNsig = " << m_scount << ", Ntot = " << m_count);
+          ATH_MSG_DEBUG ("sec[" << sec << "]\t" << wlay << "[" << lay << "] = " <<
+              secLayer << "= " << "\tNsig = " << scount << ", Ntot = " << count);
 
           if(mphi) {
-            m_h2csc_clus_phicluscount->Fill(m_count,m_secLayer); // all phi-cluster counts
-            m_numphi += m_count;
-            if(m_scount) {
-              m_chamber_empty = false;
-              m_numphisignal += m_scount;
-              m_h2csc_clus_phicluscount_signal->Fill(m_scount,m_secLayer); // signal phi-cluster count
+            m_h2csc_clus_phicluscount->Fill(count,secLayer); // all phi-cluster counts
+            numphi += count;
+            if(scount) {
+              chamber_empty = false;
+              numphisignal += scount;
+              m_h2csc_clus_phicluscount_signal->Fill(scount,secLayer); // signal phi-cluster count
             } else {
-              m_h2csc_clus_phicluscount_noise->Fill((m_count-m_scount),m_secLayer); // noise phi-cluster count
+              m_h2csc_clus_phicluscount_noise->Fill((count-scount),secLayer); // noise phi-cluster count
             }
           } else {
-            m_h2csc_clus_etacluscount->Fill(m_count,m_secLayer);
-            m_numeta += m_count;
-            if(m_scount) {
-              m_eta_hits[lay-1]++;
-              m_chamber_empty = false;
-              m_numetasignal += m_scount;
-              m_h2csc_clus_etacluscount_signal->Fill(m_scount,m_secLayer); // signal eta-cluster count
+            m_h2csc_clus_etacluscount->Fill(count,secLayer);
+            numeta += count;
+            if(scount) {
+              eta_hits[lay-1]++;
+              chamber_empty = false;
+              numetasignal += scount;
+              m_h2csc_clus_etacluscount_signal->Fill(scount,secLayer); // signal eta-cluster count
             } else {
-              m_h2csc_clus_etacluscount_noise->Fill((m_count-m_scount),m_secLayer); // noise eta-cluster count
+              m_h2csc_clus_etacluscount_noise->Fill((count-scount),secLayer); // noise eta-cluster count
             }
           }
-          ATH_MSG_DEBUG ( m_wlay << "Counts sec: [" << kl-16 << "]\tlayer: [" << km << "] = " <<
-              m_secLayer << "\t = " << m_count << "\t" << m_scount);
+          ATH_MSG_DEBUG ( wlay << "Counts sec: [" << kl-16 << "]\tlayer: [" << km << "] = " <<
+              secLayer << "\t = " << count << "\t" << scount);
         }
       } // end loop over layers
 
-      if(!m_chamber_empty) {
-        std::ostringstream m_nseglist;
-        std::bitset<4> m_segNum;
+      if(!chamber_empty) {
+        std::ostringstream nseglist;
+        std::bitset<4> segNum;
         for(unsigned int mm = 0; mm < 4; mm++) {
-          bool m_set = (m_eta_hits[mm] > 0 ? true : false);
-          if(m_set) m_segNum.set(mm);
-          m_nseglist << (m_set ? "1" : "0");
+          bool set = (eta_hits[mm] > 0 ? true : false);
+          if(set) segNum.set(mm);
+          nseglist << (set ? "1" : "0");
         }
-        m_h2csc_clus_segmap_signal->Fill(m_segNum.to_ulong(), float(m_sec+0.3));
-        ATH_MSG_DEBUG("segments= " << m_nseglist.str() << "\t = " << m_segNum.to_ulong());
+        m_h2csc_clus_segmap_signal->Fill(segNum.to_ulong(), float(sec+0.3));
+        ATH_MSG_DEBUG("segments= " << nseglist.str() << "\t = " << segNum.to_ulong());
       } else {
-        m_h2csc_clus_segmap_signal->Fill(-999., float(m_sec+0.3));
+        m_h2csc_clus_segmap_signal->Fill(-999., float(sec+0.3));
       }
 
     } // end loop over chambers
 
-    ATH_MSG_DEBUG(" m_numphi = " << m_numphi << "\t m_numeta = " << m_numeta << "\tm_sphi = " 
-        << m_numphisignal << "\t m_seta = " << m_numetasignal);
+    ATH_MSG_DEBUG(" numphi = " << numphi << "\t numeta = " << numeta << "\tm_sphi = " 
+        << numphisignal << "\t m_seta = " << numetasignal);
 
-    m_h1csc_clus_count->Fill(m_numphi+m_numeta);
-    m_h1csc_clus_count_signal->Fill(m_numphisignal+m_numetasignal);
-    m_h1csc_clus_count_noise->Fill((m_numphi-m_numphisignal)+(m_numeta-m_numetasignal));
+    m_h1csc_clus_count->Fill(numphi+numeta);
+    m_h1csc_clus_count_signal->Fill(numphisignal+numetasignal);
+    m_h1csc_clus_count_noise->Fill((numphi-numphisignal)+(numeta-numetasignal));
 
-    m_h2csc_clus_eta_vs_phi_cluscount->Fill(m_numphi,m_numeta);
-    m_h2csc_clus_eta_vs_phi_cluscount_signal->Fill(m_numphisignal,m_numetasignal);
-    m_h2csc_clus_eta_vs_phi_cluscount_noise->Fill(m_numphi-m_numphisignal, m_numeta-m_numetasignal);
+    m_h2csc_clus_eta_vs_phi_cluscount->Fill(numphi,numeta);
+    m_h2csc_clus_eta_vs_phi_cluscount_signal->Fill(numphisignal,numetasignal);
+    m_h2csc_clus_eta_vs_phi_cluscount_noise->Fill(numphi-numphisignal, numeta-numetasignal);
 
   } // end for loop over prep-data container
 
@@ -1260,14 +1260,11 @@ bool CscClusterValAlg::evtSelTriggersPassed() {
 StatusCode CscClusterValAlg::procHistograms() {
 
   StatusCode sc = StatusCode::SUCCESS;
-  if(endOfEventsBlock){}
-  if(endOfLumiBlock){}
-  if(endOfRun){}
 
   /* book these only at the end of run
   if(isEndOfRun){
 
-    //MonGroup cscclus_oviewEC( this, m_cscGenPath+"CSC/Overview/CSCEC", shift, run );
+    //MonGroup m_cscclus_oviewEC( this, m_cscGenPath+"CSC/Overview/CSCEC", shift, run );
     for(unsigned int j = 0; j < m_cscClusOviewEC.size(); j++ ) {
       TH1 *m_h(0); 
       m_h = m_cscClusOviewEC[j];
@@ -1280,14 +1277,14 @@ StatusCode CscClusterValAlg::procHistograms() {
           // set bin labels
           CscBins::BinLabels(m_hY,-1);
           // register histogram with Overview/CSCEC
-          sc = cscclus_oviewEC->regHist(m_hY);
+          sc = m_cscclus_oviewEC->regHist(m_hY);
           if ( sc.isFailure() ) {
             ATH_MSG_ERROR (  "Cannot register histogram " << m_hY->GetName() );
             return sc;
           }
           // Get X-projection (counts)
           TH1D *m_hX = dynamic_cast<TH2F* >(m_h)->ProjectionX(Form("%s_hX",m_hname.c_str()),0,-1,"e");
-          sc = cscclus_oviewEC->regHist(m_hX);
+          sc = m_cscclus_oviewEC->regHist(m_hX);
           if ( sc.isFailure() ) {
             ATH_MSG_ERROR (  "Cannot register histogram " << m_hX->GetName() );
             return sc;
@@ -1297,7 +1294,7 @@ StatusCode CscClusterValAlg::procHistograms() {
     } // end for
 
 
-    //MonGroup cscclus_oviewEA( this, m_cscGenPath+"CSC/Overview/CSCEA", shift, run );
+    //MonGroup m_cscclus_oviewEA( this, m_cscGenPath+"CSC/Overview/CSCEA", shift, run );
     for(unsigned int j = 0; j < m_cscClusOviewEA.size(); j++ ) {
       TH1 *m_h(0); 
       m_h = m_cscClusOviewEA[j];
@@ -1310,14 +1307,14 @@ StatusCode CscClusterValAlg::procHistograms() {
           // set bin labels
           CscBins::BinLabels(m_hY,1);
           // register histogram with Overview/CSCEA
-          sc = cscclus_oviewEA->regHist(m_hY);
+          sc = m_cscclus_oviewEA->regHist(m_hY);
           if ( sc.isFailure() ) {
             ATH_MSG_ERROR (  "Cannot register histogram " << m_hY->GetName() );
             return sc;
           }
           // Get X-projection (counts)
           TH1D *m_hX = dynamic_cast<TH2F* >(m_h)->ProjectionX(Form("%s_hX",m_hname.c_str()),0,-1,"e");
-          sc = cscclus_oviewEA->regHist(m_hX);
+          sc = m_cscclus_oviewEA->regHist(m_hX);
           if ( sc.isFailure() ) {
             ATH_MSG_ERROR (  "Cannot register histogram " << m_hX->GetName() );
             return sc;

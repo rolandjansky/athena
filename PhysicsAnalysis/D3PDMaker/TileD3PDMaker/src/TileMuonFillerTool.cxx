@@ -109,12 +109,12 @@ StatusCode TileMuonFillerTool::book(){
     // MUON HITS IN SUBDETECTORS
     if(m_LevelOfDetails > 1){
         // HIT NUMBERS IN SUBDETECTORS
-        CHECK( addVariable("numberOfBLayerHits",               m_numberOfBLayerHits,               "", m_defaultValue));
+        CHECK( addVariable("numberOfInnermostPixelLayerHits",               m_numberOfBLayerHits,               "", m_defaultValue));
         CHECK( addVariable("numberOfPixelHits",                m_numberOfPixelHits,                "", m_defaultValue));
         CHECK( addVariable("numberOfSCTHits",                  m_numberOfSCTHits,                  "", m_defaultValue));
         CHECK( addVariable("numberOfTRTHits",                  m_numberOfTRTHits,                  "", m_defaultValue));
         CHECK( addVariable("numberOfTRTHighThresholdHits",     m_numberOfTRTHighThresholdHits,     "", m_defaultValue));
-        CHECK( addVariable("numberOfBLayerSharedHits",         m_numberOfBLayerSharedHits,         "", m_defaultValue));
+        CHECK( addVariable("numberOfInnermostPixelLayerSharedHits",         m_numberOfBLayerSharedHits,         "", m_defaultValue));
         CHECK( addVariable("numberOfPixelSharedHits",          m_numberOfPixelSharedHits,          "", m_defaultValue));
         CHECK( addVariable("numberOfPixelHoles",               m_numberOfPixelHoles,               "", m_defaultValue));
         CHECK( addVariable("numberOfSCTSharedHits",            m_numberOfSCTSharedHits,            "", m_defaultValue));
@@ -313,7 +313,7 @@ StatusCode TileMuonFillerTool::fill(const xAOD::Muon& p){
 
     if(m_LevelOfDetails > 1){
 
-        muonPointer->summaryValue( *((uint8_t*)m_numberOfBLayerHits), xAOD::numberOfBLayerHits );
+        muonPointer->summaryValue( *((uint8_t*)m_numberOfBLayerHits), xAOD::numberOfInnermostPixelLayerHits );
         muonPointer->summaryValue( *((uint8_t*)m_numberOfPixelHits), xAOD::numberOfPixelHits );
         muonPointer->summaryValue( *((uint8_t*)m_numberOfSCTHits), xAOD::numberOfSCTHits );
         muonPointer->summaryValue( *((uint8_t*)m_numberOfTRTHits), xAOD::numberOfTRTHits );
@@ -321,7 +321,7 @@ StatusCode TileMuonFillerTool::fill(const xAOD::Muon& p){
         muonPointer->summaryValue( *((uint8_t*)m_numberOfSCTDeadSensors), xAOD::numberOfSCTDeadSensors );
         muonPointer->summaryValue( *((uint8_t*)m_numberOfSCTHoles), xAOD::numberOfSCTHoles );
         muonPointer->summaryValue( *((uint8_t*)m_numberOfTRTHighThresholdHits), xAOD::numberOfTRTHighThresholdHits );
-        muonPointer->summaryValue( *((uint8_t*)m_numberOfBLayerSharedHits), xAOD::numberOfBLayerSharedHits );
+        muonPointer->summaryValue( *((uint8_t*)m_numberOfBLayerSharedHits), xAOD::numberOfInnermostPixelLayerSharedHits );
         muonPointer->summaryValue( *((uint8_t*)m_numberOfPixelSharedHits), xAOD::numberOfPixelSharedHits );
         muonPointer->summaryValue( *((uint8_t*)m_numberOfPixelHoles), xAOD::numberOfPixelHoles );
         muonPointer->summaryValue( *((uint8_t*)m_numberOfSCTSharedHits), xAOD::numberOfSCTSharedHits );

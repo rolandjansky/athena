@@ -87,7 +87,7 @@ namespace Trk {
     uint8_t iBLayerHits(0), iPixHits(0), iSctHits(0), iTrtHits(0);
     uint8_t iPixHoles(0), iSCTHoles(0), iTrtHTHits(0);
 
-    if (trk.summaryValue(iBLayerHits, xAOD::numberOfBLayerHits)) {
+    if (trk.summaryValue(iBLayerHits, xAOD::numberOfInnermostPixelLayerHits)) {
       nBLayerHits->Fill(iBLayerHits);
     }
     if (trk.summaryValue(iPixHits, xAOD::numberOfPixelHits)) {
@@ -116,13 +116,13 @@ namespace Trk {
       iPixelGangedFakes(0);
       uint8_t iSCTOutliers(0), iSCTDoubleHoles(0), iSCTShared(0);
       uint8_t iTRTOutliers(0), iTRTHTOutliers(0);
-      if (trk.summaryValue(iBLayerOutliers, xAOD::numberOfBLayerOutliers)) {
+      if (trk.summaryValue(iBLayerOutliers, xAOD::numberOfInnermostPixelLayerOutliers)) {
         nBLayerOutliers->Fill(iBLayerOutliers);
       }
-      if (trk.summaryValue(iBLayerShared, xAOD::numberOfBLayerSharedHits)) {
+      if (trk.summaryValue(iBLayerShared, xAOD::numberOfInnermostPixelLayerSharedHits)) {
         nBLayerSharedHits->Fill(iBLayerShared);
       }
-      if (trk.summaryValue(iBLayerSplit, xAOD::numberOfBLayerSplitHits)) {
+      if (trk.summaryValue(iBLayerSplit, xAOD::numberOfInnermostPixelLayerSplitHits)) {
         nBLayerSplitHits->Fill(iBLayerSplit);
       }
       if (trk.summaryValue(iPixelOutliers, xAOD::numberOfPixelOutliers)) {

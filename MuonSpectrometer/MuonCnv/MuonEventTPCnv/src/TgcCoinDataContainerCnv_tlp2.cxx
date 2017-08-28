@@ -4,7 +4,7 @@
 
 /* Takashi Kubota - June 30, 2008 */
 #include "MuonEventTPCnv/TgcCoinDataContainerCnv_tlp2.h"
-
+#include "MuonEventTPCnv/CreateTransientTemplates.h"
 
 TgcCoinDataContainerCnv_tlp2::TgcCoinDataContainerCnv_tlp2()
 {

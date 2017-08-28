@@ -36,45 +36,6 @@
   #include "GeneratorObjects/McEventCollection.h"
 #endif
 
-namespace {
-	  std::ostream &operator<<(std::ostream &out, const AmgSymMatrix(5) &matrix) {
-	    out << std::endl;
-	    const unsigned int N=5;
-	     for (unsigned int i = 0; i < N; ++i) {
-	         for (unsigned int j = 0; j < N; ++j) {
-	           if (j==0) {
-	             if (i==0) {
-	               out << "/ ";
-	             }
-	             else if (i+1==N) {
-	               out << "\\ ";
-	             }
-	             else {
-	               out << "| ";
-	             }
-	
-	           }
-	           out << std::setw(14) << matrix(i,j) << " ";
-	           if (j+1==N) {
-	             if (i==0) {
-	               out << " \\ ";
-	             }
-	             else if (i+1==N) {
-	               out << " /";
-	             }
-	             else {
-	               out << " |";
-	             }
-	
-	           }
-	         }
-	         out << std::endl;
-	     }
-	     out << std::endl;
-	     return out;
-	  }
-}
-	
 bool Trk::DenseEnvironmentsAmbiguityProcessorTool::_checkTrack( const Trk::Track *track) const {
 	  if (!track )return true;
 	
@@ -156,21 +117,18 @@ Trk::DenseEnvironmentsAmbiguityProcessorTool::DenseEnvironmentsAmbiguityProcesso
   declareProperty("MonitorAmbiguitySolving"  , m_monitorTracks = false);
 
 #ifdef SIMPLEAMBIGPROCDEBUGCODE
-  declareProperty("TruthLocationTRT"       , m_truth_locationTRT     );  
-  declareProperty("ResolvedTrackConnection", m_resolvedTrackConnection = "SiSPS_ResolvedTrackConnection");
-  declareProperty("TruthCollection"        , m_truthCollection = "SiSPSeededTracksTruthCollection");
-  m_truth_locationTRT            = "PRD_MultiTruthTRT";
+  declareProperty("ResolvedTrackConnection", m_resolvedTrackConnection="SiSPS_ResolvedTrackConnection");
+  declareProperty("TruthCollection", m_truthCollection="SiSPSeededTracksTruthCollection");
   //to get brem truth
-  m_generatedEventCollectionName = "TruthEvent"       ;
-  
-  declareProperty("TruthLocationSCT"       ,m_truth_locationSCT     );
-  declareProperty("TruthLocationPixel"     ,m_truth_locationPixel   );
-  m_truth_locationPixel    = "PRD_MultiTruthPixel"    ;
-  m_truth_locationSCT      = "PRD_MultiTruthSCT"      ;
+  declareProperty("GeneratedEventCollection", m_generatedEventCollectionName="TruthEvent");
+
+  declareProperty("TruthLocationPixel", m_truth_locationPixel="PRD_MultiTruthPixel");
+  declareProperty("TruthLocationSCT", m_truth_locationSCT="PRD_MultiTruthSCT");
+  declareProperty("TruthLocationTRT", m_truth_locationTRT="PRD_MultiTruthTRT");
+
+  declare(m_write_resolvedTrackConnection);
 #endif
   declareProperty("RejectTracksWithInvalidCov"     ,m_rejectInvalidTracks   );
-
-  
 }
 //==================================================================================================
 
@@ -280,6 +238,17 @@ StatusCode Trk::DenseEnvironmentsAmbiguityProcessorTool::initialize()
   {
     ATH_MSG_FATAL( "Could not get PixelID helper !" );
     return StatusCode::FAILURE;
+  }
+
+  ATH_CHECK(m_truth_locationPixel.initialize());
+  ATH_CHECK(m_truth_locationSCT.initialize());
+  ATH_CHECK(m_truth_locationTRT.initialize());
+  ATH_CHECK(m_generatedEventCollectionName.initialize());
+  ATH_CHECK(m_truthCollection.initialize());
+  m_has_resolvedTrackConnection = m_resolvedTrackConnection.initialize().isSuccess();
+  if (!m_has_resolvedTrackConnection) {
+    m_write_resolvedTrackConnection = m_resolvedTrackConnection.key();
+    ATH_CHECK(m_write_resolvedTrackConnection.initialize());
   }
 #endif
 
@@ -452,29 +421,11 @@ TrackCollection*  Trk::DenseEnvironmentsAmbiguityProcessorTool::process(const Tr
   
   using namespace std;
 
-
 #ifdef SIMPLEAMBIGPROCDEBUGCODE
-  StatusCode sc1;
-  
-  m_truthPIX  = 0;
-  m_truthSCT  = 0;
-  m_truthTRT  = 0;
-  
-  sc1 = evtStore()->retrieve(m_truthPIX,m_truth_locationPixel);
-  if (sc1.isFailure()) 
-    ATH_MSG_WARNING("Could not find TruthPixel");  
-  
-  sc1 = evtStore()->retrieve(m_truthSCT,m_truth_locationSCT);
-  if (sc1.isFailure()) 
-    ATH_MSG_WARNING("Could not find TruthSCT");
-
-  sc1 = evtStore()->retrieve(m_truthTRT,m_truth_locationTRT);
-  if (sc1.isFailure()) 
-    ATH_MSG_FATAL("Could not find TruthTRT");
+  m_truthPIX = SG::makeHandle(m_truth_locationPixel);
+  m_truthSCT = SG::makeHandle(m_truth_locationSCT);
+  m_truthTRT = SG::makeHandle(m_truth_locationTRT);
 #endif
-  
-
-
  
   ++m_Nevents; // statistics
 
@@ -1562,26 +1513,6 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::storeTrkDistanceMapdR( const 
 //
 //==================================================================================================
 
-#ifdef SIMPLEAMBIGPROCNTUPLECODE
-void Trk::DenseEnvironmentsAmbiguityProcessorTool::fillValidationTree(const Trk::Track* track) const
-{     
-   // keep track of the track pointer
-    m_track = long(track);
-   // the good guess : we perigee 
-    const Trk::TrackParameters* tp = track->perigeeParameters();
-    m_perigeeInfo = tp ? 1 : 0;
-    if (!tp){
-      // take the first track parameter estimate for the validation
-      const DataVector<const Trk::TrackParameters>* tps = track->trackParameters();    
-      if (tps && tps->size()) tp = (*tps)[0];
-    }
-   // fill pt / eta / phi
-    m_pt  = tp ? float(tp->momentum().perp()) : m_pt;
-    m_eta = tp ? float(tp->momentum().eta())  : m_eta;
-    m_phi = tp ? float(tp->momentum().phi())  : m_phi;   
-}
-#endif
-
 //==================================================================================================
 // Part II : Truth association
 //==================================================================================================
@@ -1595,12 +1526,8 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::findTrueTracks(const TrackCol
   m_trackHistory.clear();
   m_tracksShared.clear();
 
-  ATH_MSG_DEBUG( "Accessing TrackTruthCollection " );
-  const TrackTruthCollection* truthMap  = 0;
-  if (evtStore()->retrieve(truthMap , m_truthCollection).isFailure()) 
-    ATH_MSG_WARNING( "No truth map present, abort TrueTrack search" );
-
-
+  ATH_MSG_DEBUG("Accessing TrackTruthCollection");
+  SG::ReadHandle<TrackTruthCollection> truthMap(m_truthCollection);
   
   std::map<int,std::pair<float,const Trk::Track*> > barcodeMap;
   float minProb =0.80;
@@ -1669,13 +1596,9 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::keepTrackOfTracks(const Trk::
 
 void Trk::DenseEnvironmentsAmbiguityProcessorTool::produceInputOutputConnection()
 {
-
-
-  const TrackCollectionConnection* dmp;
-  if (evtStore()->retrieve(dmp, m_resolvedTrackConnection).isFailure())
-  {
+  if (!m_has_resolvedTrackConnection) {
     // output map: SiSpSeededTrack, ResolvedTrack  
-    TrackCollectionConnection* siSP_ResolvedConnection = new TrackCollectionConnection();
+    TrackCollectionConnection siSP_ResolvedConnection;
     
     TrackCollection::const_iterator  itFinal = m_finalTracks->begin();
     TrackCollection::const_iterator endFinal = m_finalTracks->end();
@@ -1688,16 +1611,14 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::produceInputOutputConnection(
       if (pos == m_trackHistory.end())
         ATH_MSG_ERROR( "Track not found in history" );
       else
-        siSP_ResolvedConnection->insert(std::make_pair(pos->second,*itFinal));
+        siSP_ResolvedConnection.insert(std::make_pair(pos->second,*itFinal));
       
     }
       
-    StatusCode sc = evtStore()->record(siSP_ResolvedConnection, m_resolvedTrackConnection,false);
-      
-    if (sc.isFailure())
-      ATH_MSG_ERROR( "Could not record trackCollectionConnecton" );
-    else
-      ATH_MSG_VERBOSE( "Saved "<<siSP_ResolvedConnection->size()<<" track collection connections"); 
+    SG::WriteHandle<TrackCollectionConnection> h_write_resolvedTrackConnection(m_write_resolvedTrackConnection);
+    h_write_resolvedTrackConnection.record(std::make_unique<TrackCollectionConnection>(siSP_ResolvedConnection));
+
+    ATH_MSG_VERBOSE( "Saved "<<siSP_ResolvedConnection.size()<<" track collection connections"); 
   }
 }
 //============================================================================================
@@ -1842,18 +1763,10 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::tsosTruth(const Trk::Track* t
 }
 
 //=======================================================================================
-StatusCode Trk::DenseEnvironmentsAmbiguityProcessorTool::getBremTruth(){
-
-  StatusCode sc;
-  
+StatusCode Trk::DenseEnvironmentsAmbiguityProcessorTool::getBremTruth()
+{
   // Retrieve McEventCollection from StoreGate
-  const McEventCollection* mcEventCollection = 0;
-  
-  sc = evtStore()->retrieve( mcEventCollection, m_generatedEventCollectionName );
-  
-  if ( sc.isFailure() ){
-    return StatusCode::FAILURE;
-  }
+  SG::ReadHandle<McEventCollection> mcEventCollection(m_generatedEventCollectionName);
   
   // Loop over all events in StoreGate
   McEventCollection::const_iterator event = mcEventCollection->begin();

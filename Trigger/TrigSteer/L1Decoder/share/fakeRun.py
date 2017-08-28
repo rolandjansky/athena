@@ -26,15 +26,9 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
-
-
-
-from TrigConfigSvc.TrigConfigSvcConf import TrigConf__LVL1ConfigSvc
-l1svc = TrigConf__LVL1ConfigSvc("LVL1ConfigSvc")
-l1svc.XMLMenuFile = "LVL1config_Physics_pp_v5.xml"
-svcMgr += l1svc
-
-
+from TrigConfigSvc.TrigConfigSvcConfig import LVL1ConfigSvc, findFileInXMLPATH
+svcMgr += LVL1ConfigSvc()
+svcMgr.LVL1ConfigSvc.XMLMenuFile = findFileInXMLPATH("LVL1config_Physics_pp_v5.xml")
 
 
 #--------------------------------------------------------------
@@ -51,13 +45,6 @@ fakeRoI.InputFilename="testData.dat"
 topSequence += fakeRoI
 
 
-#Dumper
-from ViewAlgs.ViewAlgsConf import DumpDecisions
-dumper = DumpDecisions("L1CaloDecisions")
-dumper.OutputLevel=VERBOSE
-topSequence += dumper
-
-
 #--------------------------------------------------------------
 # Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL)
 #--------------------------------------------------------------
@@ -70,13 +57,14 @@ print svcMgr
 
 theApp.EvtMax = 10
 
-from TrigMonitorBase.TrigGenericMonitoringToolConfig import defineHistogram, TrigGenericMonitoringToolConfig
+from AthenaMonitoring.AthenaMonitoringConf import GenericMonitoringTool
+from AthenaMonitoring.DefineHistogram import defineHistogram
 
-mt = TrigGenericMonitoringToolConfig("CaloRoIsMonitor")
+mt = GenericMonitoringTool("CaloRoIsMonitor")
 mt.OutputLevel=VERBOSE
-mt.Histograms += [defineHistogram('roiCount', type='TH1F', title="RoIs count;#RoIs;events", xbins=30, xmin=0, xmax=30)]
-fakeRoI.monTools = [mt]
-
+mt.Histograms += [defineHistogram('roiCount', type='TH1F', title="RoIs count;#RoIs;events", 
+                                  xbins=30, xmin=0, xmax=30)]
+fakeRoI.MonTool = mt
 
 
 from GaudiSvc.GaudiSvcConf import THistSvc

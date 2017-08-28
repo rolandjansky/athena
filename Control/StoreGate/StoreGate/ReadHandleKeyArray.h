@@ -66,6 +66,26 @@ namespace SG {
       VarHandleKeyArrayCommon<ReadHandleKey<T>> {l} {};
 
     /**
+     * @brief auto-declaring Property Constructor from a ReadHandleKeyArray 
+     * that takes an initializer list of std::strings, and associates the RHKA
+     * with the specified Property name
+     * @param name name of Property
+     * @param l initializer list of std::strings used to create the
+     *          ReadHandleKeys
+     * @param doc documentation string
+     */
+    template <class OWNER, 
+              typename = typename std::enable_if<std::is_base_of<IProperty, OWNER>::value>::type>
+    inline ReadHandleKeyArray( OWNER* owner,
+                               std::string name,
+                               std::initializer_list<std::string> l,
+                               std::string doc="") :
+      VarHandleKeyArrayCommon<ReadHandleKey<T>> {l} {
+      auto p = owner->declareProperty(std::move(name), *this, std::move(doc));
+      p->template setOwnerType<OWNER>();
+    }
+
+    /**
      * @brief return the type (Read/Write/Update) of handle
      */
     Gaudi::DataHandle::Mode mode() const { return Gaudi::DataHandle::Reader; }

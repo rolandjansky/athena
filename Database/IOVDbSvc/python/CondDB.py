@@ -205,25 +205,25 @@ class CondDB:
         self.iovdbsvc.Folders+=[folderadd]
 
         if className:
-            condInputLoader.Load += [ (className, folder) ]
+            condInputLoader.Load += [ (className, self.extractFolder(folder)) ]
 
-    def addFolderWithTag(self,ident,folder,tag,force=False,forceMC=False,forceData=False):
+    def addFolderWithTag(self,ident,folder,tag,force=False,forceMC=False,forceData=False,className=None):
         "Add access to the given folder/schema, using a specified tag"
-        self.addFolder(ident,folder+" <tag>%s</tag>" % tag,force,forceMC,forceData)
+        self.addFolder(ident,folder+" <tag>%s</tag>" % tag,force,forceMC,forceData,className=className)
 
-    def addFolderSplitOnline(self,ident,folder1,folder2,force=False,forceMC=False,forceData=False):
+    def addFolderSplitOnline(self,ident,folder1,folder2,force=False,forceMC=False,forceData=False,className=None):
         "Add access to given folder, using folder1 online, folder2 offline"
         if self.isOnline and not self.isMC:
-            self.addFolder(ident,folder1,force=force,forceMC=forceMC,forceData=forceData)
+            self.addFolder(ident,folder1,force=force,forceMC=forceMC,forceData=forceData,className=className)
         else:
-            self.addFolder(ident+'_OFL',folder2,force=force,forceMC=forceMC,forceData=forceData)
+            self.addFolder(ident+'_OFL',folder2,force=force,forceMC=forceMC,forceData=forceData,className=className)
 
-    def addFolderSplitMC(self,ident,folder1,folder2,force=False,forceMC=False,forceData=False):
+    def addFolderSplitMC(self,ident,folder1,folder2,force=False,forceMC=False,forceData=False,className=None):
         "Add access to given folder, using folder1 (online) for real data, folde2 (offline) for MC"
         if self.isMC:
-            self.addFolder(ident+'_OFL',folder2,force=force,forceMC=forceMC,forceData=forceData)
+            self.addFolder(ident+'_OFL',folder2,force=force,forceMC=forceMC,forceData=forceData,className=className)
         else:
-            self.addFolder(ident,folder1,force=force,forceMC=forceMC,forceData=forceData)
+            self.addFolder(ident,folder1,force=force,forceMC=forceMC,forceData=forceData,className=className)
 
     def addOverride(self,folder,tag):
         "Add a tag override for the specified folder"

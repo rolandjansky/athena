@@ -181,7 +181,7 @@ void RecoMuonPlots::fill(const xAOD::Muon& mu, xAOD::Muon::Quality my_quality){
   if (!mu.summaryValue(hitval_etaLayer3Hits,      xAOD::MuonSummaryType::etaLayer3Hits)) return; 
   if (!mu.summaryValue(hitval_etaLayer4Hits,      xAOD::MuonSummaryType::etaLayer4Hits)) return; 
 
-  if (!mu.summaryValue(hitval_numberOfBLayerHits, xAOD::SummaryType::numberOfBLayerHits)) return;
+  if (!mu.summaryValue(hitval_numberOfBLayerHits, xAOD::SummaryType::numberOfInnermostPixelLayerHits)) return;
   if (!mu.summaryValue(hitval_numberOfPixelHits,  xAOD::SummaryType::numberOfPixelHits))  return;
   if (!mu.summaryValue(hitval_numberOfSCTHits,    xAOD::SummaryType::numberOfSCTHits))    return;
   if (!mu.summaryValue(hitval_numberOfTRTHits,    xAOD::SummaryType::numberOfTRTHits))    return;

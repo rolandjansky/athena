@@ -369,6 +369,12 @@ namespace MuonCombined {
 
     // create candidate from SA muon only
     addMuonCandidate(candidate,*muon,outputData);
+
+    if(!muon->extrapolatedMuonSpectrometerTrackParticleLink().isValid()){
+      ATH_MSG_DEBUG("Creation of track particle for SA muon failed, removing it");
+      outputData.muonContainer->pop_back();
+      return 0;
+    }
     
     if( !dressMuon(*muon) ){
       ATH_MSG_WARNING("Failed to dress muon");
@@ -1040,6 +1046,9 @@ namespace MuonCombined {
 	      muon.setTrackParticleLink(xAOD::Muon::MSOnlyExtrapolatedMuonSpectrometerTrackParticle, link );
 	    }
 	    else ATH_MSG_WARNING("failed to create MS-only extrapolated track particle");
+	  } else {
+	    //original extrapolatedTrack is not needed anymore:
+	    delete extrapolatedTrack;
 	  }
 	  //now add refitted track as ME track
 	  ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( std::unique_ptr<const Trk::Track>(updatedExtrapolatedTrack),
@@ -1383,7 +1392,7 @@ namespace MuonCombined {
       }
       */
     }else{
-      ATH_MSG_ERROR("No primary track particle set, deleting muon");
+      ATH_MSG_DEBUG("No primary track particle set, deleting muon");
       return false;
     }
 

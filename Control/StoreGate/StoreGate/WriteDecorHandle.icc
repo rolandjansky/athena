@@ -75,6 +75,22 @@ WriteDecorHandle<T, D>::WriteDecorHandle (WriteDecorHandle&& rhs)
 
 
 /**
+ * @brief Destructor.  This will lock the decoration.
+ */
+template <class T, class D>
+WriteDecorHandle<T, D>::~WriteDecorHandle()
+{
+  // Lock the decoration.  But don't do anything if we haven't touched it.
+  if (this->cachedPtr()) {
+    const IConstAuxStore* store = this->vectorData()->getConstStore();
+    if (store) {
+      const_cast<IConstAuxStore*>(store)->lockDecoration (auxid());
+    }
+  }
+}
+
+
+/**
  * @brief Assignment operator.
  */
 template <class T, class D>
@@ -101,6 +117,21 @@ WriteDecorHandle<T, D>& WriteDecorHandle<T, D>::operator= (WriteDecorHandle&& rh
     m_contHandle = std::move (rhs.m_contHandle);
   }
   return *this;
+}
+
+
+/**
+ * @brief Is the referenced container present in SG?
+ *
+ * Note that this tests for the presence of the _container_,
+ * not for the decoration.
+ *
+ * Const method; the handle does not change as a result of this.
+ */
+template <class T, class D>
+bool WriteDecorHandle<T, D>::isPresent() const
+{
+  return m_contHandle.isPresent();
 }
 
 
@@ -163,6 +194,27 @@ WriteDecorHandle<T, D>::getDecorationArray()
 
 
 /**
+ * @brief Test to see if this variable exists in the store,
+ *        for the referenced object.
+ */
+template <class T, class D>
+inline
+bool WriteDecorHandle<T, D>::isAvailable()
+{
+  const SG::AuxVectorData* obj = static_cast<SG::AuxVectorData*> (this->m_ptr);
+  if (!obj) {
+    obj = static_cast<SG::AuxVectorData*> (ReadHandle<T>::typeless_dataPointer_impl (true));
+  }
+
+  if (obj) {
+    return obj->isAvailable (m_acc.auxid());
+  }
+
+  return false;
+}
+
+
+/**
  * @brief Return the aux id for this variable.
  */
 template <class T, class D>
@@ -189,7 +241,8 @@ void* WriteDecorHandle<T, D>::typeless_dataPointer_impl (bool quiet)
   void* ptr = ReadHandle<T>::typeless_dataPointer_impl (quiet);
   // Important to call the base class method above before calling vectorData;
   // otherwise, we'll get an infinite recursion.
-  if (ptr) {
+  // Also don't call getDecorationArray if the container is empty.
+  if (ptr && this->vectorData()->size_v() > 0) {
     m_acc.getDecorationArray (*this->vectorData());
   }
   return ptr;

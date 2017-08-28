@@ -17,6 +17,7 @@
 #include "DataModelTestDataCommon/C.h"
 #include "DataModelTestDataCommon/CAuxContainer.h"
 #include "AthContainersInterfaces/AuxDataOption.h"
+#include "StoreGate/WriteDecorHandle.h"
 #include "AthLinks/ElementLink.h"
 #include "AthenaKernel/errorcheck.h"
 #include "CxxUtils/make_unique.h"
@@ -47,6 +48,7 @@ xAODTestWriteCVec::xAODTestWriteCVec (const std::string &name,
 {
   declareProperty ("EventInfoKey", m_eventInfoKey);
   declareProperty ("CVecKey", m_cvecKey);
+  declareProperty ("CVecDecorKey", m_cvecDecorKey);
 }
   
 
@@ -57,6 +59,11 @@ StatusCode xAODTestWriteCVec::initialize()
 {
   ATH_CHECK( m_eventInfoKey.initialize() );
   ATH_CHECK( m_cvecKey.initialize() );
+
+  if (m_cvecDecorKey.key().empty())
+    m_cvecDecorKey = m_cvecKey.key() + ".dtest";
+  ATH_CHECK( m_cvecDecorKey.initialize() );
+  
   return StatusCode::SUCCESS;
 }
 
@@ -83,7 +90,9 @@ StatusCode xAODTestWriteCVec::execute_r (const EventContext& ctx) const
   const static C::Decorator<unsigned int> dpInt1 ("dpInt1");
   const static C::Decorator<std::vector<float> > dpvFloat ("dpvFloat");
 
-  for (int i=0; i < 10; i++) {
+  int nent = 10;
+  if (count == 5) nent = 0;
+  for (int i=0; i < nent; i++) {
     coll->push_back (new DMTest::C);
     C& c = *coll->back();
     c.setAnInt (count * 100 + i+1);
@@ -115,6 +124,11 @@ StatusCode xAODTestWriteCVec::execute_r (const EventContext& ctx) const
 
   SG::WriteHandle<DMTest::CVec> cvec (m_cvecKey, ctx);
   CHECK( cvec.record (std::move(coll), std::move(store)) );
+
+  SG::WriteDecorHandle<DMTest::CVec, int> dtest (m_cvecDecorKey, ctx);
+  for (int i=0; i < nent; i++) {
+    dtest (*(*dtest)[i]) = i+123;
+  }
 
   CHECK_OPTION( cvec->setOption ("dpInt1", SG::AuxDataOption ("nbits", 13)) );
   CHECK_OPTION( cvec->setOption ("dpvFloat", SG::AuxDataOption ("nbits", 13)) );

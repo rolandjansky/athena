@@ -15,8 +15,9 @@
 #ifndef VP1MATERIALBUTTON_H
 #define VP1MATERIALBUTTON_H
 
-#include <QtGui/QPushButton>
 #include "VP1Base/VP1HelperClassBase.h"
+
+#include <QPushButton>
 
 class SoMaterial;
 class IVP1System;
@@ -26,16 +27,16 @@ class VP1MaterialButtonBase : public QPushButton, public VP1HelperClassBase{
   public:
     VP1MaterialButtonBase(QWidget* parent, IVP1System * sys = 0, QString helpername = "")
      : QPushButton(parent),VP1HelperClassBase(sys,helpername){};
-    
+
    virtual bool setMaterial(SoMaterial*)=0;
    virtual void copyValuesFromMaterial(SoMaterial*)=0;
-   virtual double lastAppliedTransparency() const=0; 
+   virtual double lastAppliedTransparency() const=0;
    virtual double lastAppliedShininess() const=0 ;
    virtual double lastAppliedBrightness() const=0;
-   
+
    virtual QByteArray saveState() const =0; //!< fill out with the state of the object (used for drag and drop etc)
    virtual void restoreFromState( const QByteArray& )=0 ;
-      
+
   virtual ~VP1MaterialButtonBase() {}
   signals:
     void lastAppliedChanged();
@@ -86,12 +87,12 @@ public:
   double lastAppliedTransparency() const;
   double lastAppliedShininess() const;
   double lastAppliedBrightness() const;//Redundant
-  
-  QWidget& editWindow() ; 
-  
+
+  QWidget& editWindow() ;
+
   QByteArray saveState() const; //!< fill out with the state of the object (used for drag and drop etc)
   void restoreFromState( const QByteArray& );
-    
+
 signals:
   void lastAppliedChanged(); // emitted when something changes
 

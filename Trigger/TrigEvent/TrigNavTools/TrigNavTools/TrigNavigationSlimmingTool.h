@@ -170,11 +170,6 @@ namespace HLT {
 	  **/	 
 	 StatusCode syncThinning(State& state) const;
 
-         /**
-          * @brief Removes TEs are terminals and have no features (very aggresive)
-          */
-	 StatusCode dropFeaturelessTerminals(State& state) const;
-
 	 /**
 	  * @brief remove info not related to the specified chains
 	  */

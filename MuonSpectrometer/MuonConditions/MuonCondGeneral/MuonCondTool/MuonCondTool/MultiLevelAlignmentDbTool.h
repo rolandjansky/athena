@@ -55,7 +55,9 @@ class MultiLevelAlignmentDbTool: virtual public IMultiLevelAlignmentDbTool, publ
 
   /** required by the IAddressProvider interface */
   //virtual StatusCode updateAddress(SG::TransientAddress* tad);
-  virtual StatusCode updateAddress(StoreID::type storeID, SG::TransientAddress* tad);
+  virtual StatusCode updateAddress(StoreID::type storeID,
+                                   SG::TransientAddress* tad,
+                                   const EventContext& ctx);
   
   std::string aLineDataLocation() {return m_abLineDbTool->aLineDataLocation();}
   std::string bLineDataLocation() {return m_abLineDbTool->bLineDataLocation();}

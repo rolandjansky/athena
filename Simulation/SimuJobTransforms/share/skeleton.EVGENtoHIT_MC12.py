@@ -220,6 +220,13 @@ if jobproperties.Beam.beamType.get_Value() != 'cosmics':
     else:
         simFlags.EventFilter.set_On()
 
+## Always enable the looper killer, unless it's been disabled
+if not hasattr(runArgs, "enableLooperKiller") or runArgs.enableLooperKiller:
+    simFlags.OptionalUserActionList.addAction('G4UA::LooperKillerTool', ['Step'])
+else:
+    atlasG4log.warning("The looper killer will NOT be run in this job.")
+
+
 from AthenaCommon.AlgSequence import AlgSequence
 topSeq = AlgSequence()
 
@@ -239,7 +246,8 @@ topSeq += getAlgorithm("BeamEffectsAlg", tryDefaultConfigurable=True)
 try:
     # the non-hive version of G4AtlasApps provides PyG4AtlasAlg
     from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
-    topSeq += PyG4AtlasAlg()
+    if not hasattr (topSeq, 'PyG4AtlasAlg'):
+        topSeq += PyG4AtlasAlg()
 except ImportError:
     try:
         # the hive version provides PyG4AtlasSvc
@@ -283,22 +291,3 @@ if hasattr(runArgs, "postExec"):
     for cmd in runArgs.postExec:
         atlasG4log.info(cmd)
         exec(cmd)
-
-
-## Always enable the looper killer, unless it's been disabled
-if not hasattr(runArgs, "enableLooperKiller") or runArgs.enableLooperKiller:
-    # this configures the MT LooperKiller
-    try:
-        from G4UserActions import G4UserActionsConfig
-        G4UserActionsConfig.addLooperKillerTool()
-    except AttributeError, ImportError:
-        atlasG4log.warning("Could not add the MT-version of the LooperKiller")
-        # this configures the non-MT looperKiller
-        try:
-            from G4AtlasServices.G4AtlasUserActionConfig import UAStore
-        except ImportError:
-            from G4AtlasServices.UserActionStore import UAStore
-        # add default configurable
-        UAStore.addAction('LooperKiller',['Step'])
-else:
-    atlasG4log.warning("The looper killer will NOT be run in this job.")

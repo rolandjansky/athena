@@ -4,7 +4,7 @@
 
 /* Takashi Kubota - June 30, 2008 */
 #include "MuonEventTPCnv/TgcCoinDataContainerCnv_tlp1.h"
-
+#include "MuonEventTPCnv/CreateTransientTemplates.h"
 TgcCoinDataContainerCnv_tlp1::TgcCoinDataContainerCnv_tlp1()
 {
    // Add all converters defined in this top level converter:

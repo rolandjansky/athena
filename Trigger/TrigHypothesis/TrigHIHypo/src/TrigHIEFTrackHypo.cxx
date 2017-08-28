@@ -184,7 +184,7 @@ HLT::ErrorCode TrigHIEFTrackHypo::hltExecute(const HLT::TriggerElement* outputTE
     bool ok=true;
     if (m_applyTrackCut) {
       //    int ncontrib_pixel = summary->get(Trk::numberOfContribPixelLayers);
-      int nblayer = summary->get(Trk::numberOfBLayerHits);
+      int nblayer = summary->get(Trk::numberOfInnermostPixelLayerHits);
       int npixel = summary->get(Trk::numberOfPixelHits);
       int nsct = summary->get(Trk::numberOfSCTHits);
       int ntrt = summary->get(Trk::numberOfTRTHits);
@@ -201,7 +201,7 @@ HLT::ErrorCode TrigHIEFTrackHypo::hltExecute(const HLT::TriggerElement* outputTE
       if (perigee) d0 = perigee->parameters()[Trk::d0];
       float pt = (*trkIt)->pt();
       
-//       if (summary->get(Trk::expectBLayerHit) && 
+//       if (summary->get(Trk::expectInnermostPixelLayerHit) &&
 // 	  nblayer < m_numBLayerHits) ok = false;
       if (nblayer < m_numBLayerHits) ok = false;
       if (npixel < m_numPixelHits) ok = false;

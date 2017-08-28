@@ -49,9 +49,6 @@ should return a const pointer, set to NULL (i.e. 0) whenever the object is void.
 
 @author Edward.Moyse@cern.ch, Andreas.Salzburger@cern.ch
 
-@section TrkParameters_used_packagesTkPara Used Packages
-
-@section TrkParameters_requirements Requirements
 */
 
 /**

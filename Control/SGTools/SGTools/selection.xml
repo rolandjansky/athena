@@ -6,7 +6,6 @@
   </exclusion>
   <class name="std::vector<SG::DataProxy*>" />
   <class name="std::vector<const SG::DataProxy*>" />
-  <class name="SG::BaseInfoBase" />
   <class name="SG::CurrentEventStore" />
   <class name="SG::CurrentEventStore::Push" />
 </lcgdict>

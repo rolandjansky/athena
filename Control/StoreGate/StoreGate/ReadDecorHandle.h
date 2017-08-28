@@ -156,6 +156,17 @@ public:
 
   
   /**
+   * @brief Is the referenced container present in SG?
+   *
+   * Note that this tests for the presence of the _container_,
+   * not for the decoration.
+   *
+   * Const method; the handle does not change as a result of this.
+   */
+  bool isPresent() const;
+
+
+  /**
    * @brief Fetch the variable for one element, as a const reference.
    * @param e The element for which to fetch the variable.
    */

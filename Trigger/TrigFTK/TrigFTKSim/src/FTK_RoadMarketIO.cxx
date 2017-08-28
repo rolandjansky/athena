@@ -85,6 +85,27 @@ const FTKRoad* FTK_RoadMarketInput::nextRoad(int ibank)
   return m_cur_road[ibank];
 }
 
+/** this function go to the first road and return the pointer to
+    the current road. return 0 if all the roads were used */
+const FTKRoad* FTK_RoadMarketInput::firstRoad(int ibank)
+{
+
+  // get the road
+  m_cur_road[ibank] = m_market->getStream(ibank)->fetchFirstRoad();
+  m_cur_iroad[ibank] = 0;
+
+  // check if the bank has enough roads
+  if (!m_cur_road[ibank]) {
+    m_cur_road[ibank] = 0;
+  }
+  else {
+    // increment road counter
+    m_cur_iroad[ibank] += 1; 
+  }
+
+  return m_cur_road[ibank];
+}
+
 
 const FTKSS& FTK_RoadMarketInput::getSS(const unsigned int &ibank, const unsigned int &iplane, const unsigned int &ssid) const
 {

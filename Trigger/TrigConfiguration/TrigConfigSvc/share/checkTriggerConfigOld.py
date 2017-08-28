@@ -94,7 +94,6 @@ if __name__ == '__main__':
 
     import cppyy
     import PyCool
-    sys.modules['PyCintex'] = PyCintex = cppyy
     import ROOT
 
     ROOT.IOVTime.__str__ = lambda x: "%i/%i" % (x.run(),x.event())

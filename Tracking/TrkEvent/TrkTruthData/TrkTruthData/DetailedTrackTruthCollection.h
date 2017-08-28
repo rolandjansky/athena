@@ -23,6 +23,7 @@ class DetailedTrackTruthCollection : public std::multimap<Trk::TrackTruthKey, De
  public:
   DetailedTrackTruthCollection(const DataLink<TrackCollection> tracks) : m_trackCollection(tracks) {}
   DataLink<TrackCollection> trackCollectionLink() const { return m_trackCollection; }
+  void setTrackCollection(const DataLink<TrackCollection> tracks){m_trackCollection=tracks;}
 
   // for POOL
   DetailedTrackTruthCollection() {}

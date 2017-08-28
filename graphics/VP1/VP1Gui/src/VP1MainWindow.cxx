@@ -21,39 +21,53 @@
 #include "VP1Gui/VP1DockWidget.h"
 #include "VP1Gui/VP1AvailEvents.h"
 #include "VP1Gui/VP1AvailEvtsLocalDir.h"
+#include "VP1StreamMenuUpdater.h"
+
 #include "VP1UtilsBase/VP1FileUtilities.h"
+
 #include "VP1Base/IVP1ChannelWidget.h"
 #include "VP1Base/IVP1System.h"
 #include "VP1Base/VP1Msg.h"
 #include "VP1Base/VP1Settings.h"
-#include "VP1StreamMenuUpdater.h"
-
 #include "VP1Base/VP1QtUtils.h"
-#include <QtGui/QMessageBox>
-#include <QtGui/QInputDialog>
-#include <QtGui/QLabel>
-#include <QtGui/QCloseEvent>
-#include <QtGui/QFileDialog>
-#include <QtCore/QDir>
-#include <QtCore/QTimer>
-#include <QtCore/QSettings>
-#include <QtGui/QComboBox>
-#include <QtGui/QPainter>
-#include <QtGui/QPrinter>
-#include <QtGui/QPrintDialog>
-#include <QtGui/QProgressBar>
-#include <QtGui/QStyleFactory>
-#include <QtCore/QDateTime>
-#include <QtCore/QMutex>
+
+
+#include <QMessageBox>
+#include <QInputDialog>
+#include <QLabel>
+#include <QCloseEvent>
+#include <QFileDialog>
+#include <QDir>
+#include <QTimer>
+#include <QSettings>
+#include <QComboBox>
+#include <QPainter>
+#include <QPrinter>
+#include <QPrintDialog>
+#include <QProgressBar>
+#include <QStyleFactory>
+#include <QDateTime>
+#include <QMutex>
 #include <QDesktopServices>
 #include <QUrl>
 #include <QProcess>
 #include <QGraphicsView>
 #include <QGraphicsScene>
-
 #include <QtGui>
-#include <QtWebKit>
 
+
+
+/* FIXME: LCG does not ship QWebEngine with Qt5 at the moment,
+ * but later you want to put it back again!
+ */
+/*
+#include <QtGlobal>
+#if QT_VERSION > QT_VERSION_CHECK(5, 5, 0)
+  #include <QWebEngineView> // Qt 5.6
+#else
+  #include <QtWebKit>
+#endif
+*/
 
 #include <cassert>
 #include <iostream>
@@ -73,7 +87,11 @@ VP1MainWindow::VP1MainWindow(VP1ExecutionScheduler*sched,VP1AvailEvents * ae,QWi
   m_userRequestedExit(false),
   m_streamMenuUpdater(0),
   m_mutex(new QMutex()),
-  m_view(new QWebView(0)),
+//  #if QT_VERSION > QT_VERSION_CHECK(5, 5, 0)
+//    m_view(new QWebEngineView(0)),
+//  #else
+//    m_view(new QWebView(0)),
+//  #endif
   edEditor(0)
 {
 	setupUi(this); // this sets up the GUI
@@ -365,13 +383,19 @@ void VP1MainWindow::help_openUserGuide() {
 	 * with the default system web browser
 	 */
 	VP1Msg::messageDebug("VP1MainWindow::help_openUserGuide()");
-
-	// we use the Qt Web Browser to show the VP1 documentation
-	QWebView *old = m_view;
-	m_view = new QWebView(0);
-	m_view->load(QUrl("http://atlas-vp1.web.cern.ch/atlas-vp1/doc/"));
-	m_view->show();
-	delete old; old = 0;
+//
+//	// we use the Qt Web Browser to show the VP1 documentation
+//  #if QT_VERSION > QT_VERSION_CHECK(5, 5, 0)
+//    QWebEngineView *old = m_view;
+//    m_view = new QWebEngineView(0);
+//  #else
+//    QWebView *old = m_view;
+//    m_view = new QWebView(0);
+//  #endif
+//
+//	m_view->load(QUrl("http://atlas-vp1.web.cern.ch/atlas-vp1/doc/"));
+//	m_view->show();
+//	delete old; old = 0;
 
 	return;
 }
@@ -390,8 +414,8 @@ void VP1MainWindow::help_openUserSupport() {
 	QDesktopServices::openUrl(QUrl("http://atlas-vp1.web.cern.ch/atlas-vp1/vp1_users_support/"));
 
 //	// we use the Qt Web Browser to show the VP1 user's support page
-//	QWebView *old = m_view;
-//	m_view = new QWebView(0);
+//	QWebEngineView *old = m_view;
+//	m_view = new QWebEngineView(0);
 //	m_view->load(QUrl("http://atlas-vp1.web.cern.ch/atlas-vp1/vp1_users_support_em/"));
 //	m_view->show();
 //	delete old; old = 0;
@@ -406,14 +430,20 @@ void VP1MainWindow::help_openVP1WebSite() {
 	 * with the default system web browser
 	 */
 	VP1Msg::messageDebug("VP1MainWindow::help_openVP1WebSite()");
-
-	// we use the Qt Web Browser to show the VP1 web site
-	QWebView *old = m_view;
-	m_view = new QWebView(0);
-	m_view->resize(1000, 800);
-	m_view->load(QUrl("http://atlas-vp1.web.cern.ch/atlas-vp1/"));
-	m_view->show();
-	delete old; old = 0;
+//
+//	// we use the Qt Web Browser to show the VP1 web site
+//  #if QT_VERSION > QT_VERSION_CHECK(5, 5, 0)
+//    QWebEngineView *old = m_view;
+//    m_view = new QWebEngineView(0);
+//  #else
+//    QWebView *old = m_view;
+//    m_view = new QWebView(0);
+//  #endif
+//
+//	m_view->resize(1000, 800);
+//	m_view->load(QUrl("http://atlas-vp1.web.cern.ch/atlas-vp1/"));
+//	m_view->show();
+//	delete old; old = 0;
 	return;
 }
 
@@ -424,13 +454,19 @@ void VP1MainWindow::help_openAbout() {
 	 * open the online help with the internal web browser
 	 */
 	VP1Msg::messageDebug("VP1MainWindow::help_openAbout()");
-
-	// we use the Qt Web Browser to show the VP1 "About" page
-	QWebView *old = m_view;
-	m_view = new QWebView(0);
-	m_view->load(QUrl("https://atlas-vp1.web.cern.ch/atlas-vp1/doc_new/about_vp1/CREDITS.html"));
-	m_view->show();
-	delete old; old = 0;
+//
+//	// we use the Qt Web Browser to show the VP1 "About" page
+//  #if QT_VERSION > QT_VERSION_CHECK(5, 5, 0)
+//    QWebEngineView *old = m_view;
+//    m_view = new QWebEngineView(0);
+//  #else
+//    QWebView *old = m_view;
+//    m_view = new QWebView(0);
+//  #endif
+//
+//	m_view->load(QUrl("https://atlas-vp1.web.cern.ch/atlas-vp1/doc_new/about_vp1/CREDITS.html"));
+//	m_view->show();
+//	delete old; old = 0;
 
 	return;
 }
@@ -489,8 +525,8 @@ void VP1MainWindow::setupStatusBar()  {
 }
 
 //_________________________________________________________________________________
-VP1MainWindow::~VP1MainWindow() 
-{ 
+VP1MainWindow::~VP1MainWindow()
+{
 	if (edEditor) {
 		VP1Msg::messageDebug("deleting the editor");
 		delete edEditor;
@@ -512,8 +548,8 @@ VP1MainWindow::~VP1MainWindow()
 	delete m_mutex;
 
 	VP1Msg::messageDebug("deleting the view");
-	delete m_view;
-	m_view = 0;
+//	delete m_view; // TODO: Qt5
+//	m_view = 0;// TODO: Qt5
 }
 
 //_________________________________________________________________________________
@@ -683,8 +719,13 @@ QMap<QString,QString> VP1MainWindow::availableFiles(const QString& extension,
 		bool currentdir ) const
 {
 
+    qDebug() << "VP1MainWindow::availableFiles()";
+ 	qDebug() << "extension:" << extension << "pathvar:" << pathvar << "instareasubdir:" << instareasubdir << "extradirenvvar:" << extradirenvvar << "currentdir:" << currentdir;
+
 	//Add directories from extradirenvvar (e.g. $VP1PlUGINPATH)
 	QStringList vp1pluginpath = extradirenvvar.isEmpty() ? QStringList() : QString(::getenv(extradirenvvar.toStdString().c_str())).split(":",QString::SkipEmptyParts);
+    qDebug() << "extradirenvvar:" << extradirenvvar << "vp1pluginpath:" << vp1pluginpath;
+
 
 	//Currentdir:
 	if (currentdir) {
@@ -697,7 +738,7 @@ QMap<QString,QString> VP1MainWindow::availableFiles(const QString& extension,
 
 	//Add directories from pathvar (looking in subdir instareasubdir):
 	QString varStr = QString(::getenv(pathvar.toStdString().c_str()));
-	VP1Msg::messageDebug("Add directories from pathvar... " + pathvar + " - " + varStr);
+	//VP1Msg::messageDebug("Add directories from pathvar... " + pathvar + " - " + varStr);
 	QString path = QString(::getenv(pathvar.toStdString().c_str()));
 	if (!path.isEmpty()) {
 		//!instareasubdir.isEmpty()&&
@@ -739,7 +780,7 @@ QMap<QString,QString> VP1MainWindow::availablePluginFiles() const
 	QString sharedlibsuffix = "so";
 #endif
 
-	return availableFiles( "."+sharedlibsuffix, "LD_LIBRARY_PATH", "vp1plugins", "VP1PlUGINPATH" );
+	return availableFiles( "."+sharedlibsuffix, "LD_LIBRARY_PATH", "vp1plugins", "VP1PLUGINPATH" );
 
 }
 

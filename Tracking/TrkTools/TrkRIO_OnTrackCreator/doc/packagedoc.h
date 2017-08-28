@@ -193,14 +193,4 @@ This tool is operation since ATLAS offline release 8.3.0.
 
 @section TrkRIO_OnTrackCreator_ExtrasTrkRotCreator Extra Pages
 
- - @ref UsedTrkRotCreator
- - @ref RequirementsTrkRotCreator
-*/
-
-/**
-@page UsedTrkRotCreator Used Packages
-*/
-
-/**
-@page RequirementsTrkRotCreator Requirements
 */

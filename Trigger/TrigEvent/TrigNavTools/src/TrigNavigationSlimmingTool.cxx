@@ -53,7 +53,6 @@ HLT::TrigNavigationSlimmingTool::TrigNavigationSlimmingTool( const std::string& 
   m_actionsMap["DropEmptyRoIs"] = &HLT::TrigNavigationSlimmingTool::dropEmptyRoIs;
   m_actionsMap["DropFeatureless"] = &HLT::TrigNavigationSlimmingTool::dropFeatureless;
   m_actionsMap["SyncThinning"]     = &HLT::TrigNavigationSlimmingTool::syncThinning;
-  m_actionsMap["DropFeaturelessTerminals"]     = &HLT::TrigNavigationSlimmingTool::dropFeaturelessTerminals;
   m_actionsMap["DropChains"]     = &HLT::TrigNavigationSlimmingTool::dropChains;
 
 
@@ -265,22 +264,6 @@ StatusCode HLT::TrigNavigationSlimmingTool::dropFeatureless(State& state) const 
       CHECK( removeTriggerElement(state, te) );
   }  
   return StatusCode::SUCCESS;  
-}
-
-
-
-StatusCode HLT::TrigNavigationSlimmingTool::dropFeaturelessTerminals(State& state) const {
-  auto& allTEs = state.navigation.getAllTEs();
-  // loop from back to front (rbegin, rend) and drop TEs if they have no features and are terminals
-  // inverted direction of the loop enables a recursion as we are guaranteed to see leafs first
-  for ( auto te = allTEs.rbegin(); te != allTEs.rend(); ++te ) {
-    if ( (*te)->getFeatureAccessHelpers().empty() 
-	 and state.navigation.isTerminalNode(*te) 
-	 and not state.navigation.isInitialNode(*te) ) {
-      CHECK( removeTriggerElement(state, *te) );
-    }
-  }
-  return StatusCode::SUCCESS;
 }
 
 

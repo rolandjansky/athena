@@ -83,8 +83,7 @@ Starlight_i::Starlight_i(const std::string& name, ISvcLocator* pSvcLocator):
 	     m_ptBinWidthInterference(0),
 	     m_xsecMethod(0),
 	     m_nThreads(1),
-	     m_pythFullRec(0),
-	     m_storeGate(0)
+	     m_pythFullRec(0)
 {
   declareProperty("Initialize",	m_InitializeVector);
   declareProperty("ConfigFileName", m_configFileName);
@@ -98,30 +97,12 @@ StatusCode Starlight_i::genInitialize()
 {
     // Initialisation of input parameters
     //
-  MsgStream log(messageService(), name());
-  log << MSG::INFO 
-      << "===> January 20 2011 STARLIGHT INTERFACE VERSION. \n"  << endmsg;
-  log << MSG::INFO 
-      << "===> STARLIGHT INITIALISING. \n"  << endmsg;
+    ATH_MSG_INFO( "===> January 20 2011 STARLIGHT INTERFACE VERSION. \n"   );
+    ATH_MSG_INFO( "===> STARLIGHT INITIALISING. \n"   );
 
-    StatusCode sc = service("StoreGateSvc", m_storeGate);
-    if (sc.isFailure())
-      {
-	log << MSG::WARNING 
-	    << "Unable to get pointer to StoreGate Service"  << endmsg;
-      	return sc;
-      }
-
-    
     // not working yet, postpone
     static const bool CREATEIFNOTTHERE(true);
-    StatusCode RndmStatus = 
-      service("AtRndmGenSvc", p_AtRndmGenSvc, CREATEIFNOTTHERE);
-    if (!RndmStatus.isSuccess() || 0 == p_AtRndmGenSvc) {
-      log << MSG::ERROR 
-	  << " Could not initialize Random Number Service" << endmsg;
-      return RndmStatus;
-    }   
+    ATH_CHECK( service("AtRndmGenSvc", p_AtRndmGenSvc, CREATEIFNOTTHERE) );
 
     // Save seeds
     CLHEP::HepRandomEngine* engine = 
@@ -147,9 +128,7 @@ StatusCode Starlight_i::genInitialize()
 
 StatusCode Starlight_i::callGenerator()
 {
-    MsgStream log(messageService(), name());
-    log << MSG::DEBUG
-	<< " STARLIGHT generating. \n"  << endmsg;
+    ATH_MSG_DEBUG( " STARLIGHT generating. \n"   );
 
     // Generate event
     m_event = new upcEvent; 
@@ -161,29 +140,25 @@ StatusCode Starlight_i::callGenerator()
     int numberofTracks = m_event->getParticles()->size();
     int numberOfVertices = 1; //m_event->getVertices()->size();
 
-    log << MSG::DEBUG
-        << "EVENT: " << m_events << " " 
-	<< " with " << numberOfVertices << " vertices "
-	<< " and " << numberofTracks << " tracks" << endmsg;
-    log << MSG::DEBUG
-	<< "VERTEX: "<< 0. << " " << 0. << " " << 0. 
-	<< " with " << numberofTracks << " tracks" << endmsg;
+    ATH_MSG_DEBUG( "EVENT: " << m_events << " " 
+                   << " with " << numberOfVertices << " vertices "
+                   << " and " << numberofTracks << " tracks"  );
+    ATH_MSG_DEBUG( "VERTEX: "<< 0. << " " << 0. << " " << 0. 
+                   << " with " << numberofTracks << " tracks"  );
       
     int ipart = 0;
     std::vector<starlightParticle>::const_iterator part = 
       (m_event->getParticles())->begin();
     for (part = m_event->getParticles()->begin(); 
 	 part != m_event->getParticles()->end(); part++, ipart++) {
-      log << MSG::DEBUG
-	  << "TRACK: " << " " 
-	  << starlightParticleCodes::jetsetToGeant((*part).getCharge() * (*part).getPdgCode()) << " "
-	  << (*part).GetPx() << " " << (*part).GetPy() << " "<< (*part).GetPz() 
-	  << " " << m_events << " " << ipart << " " << 0 << " "
-	  << (*part).getCharge() * (*part).getPdgCode() << endmsg;
+      ATH_MSG_DEBUG( "TRACK: " << " " 
+                     << starlightParticleCodes::jetsetToGeant((*part).getCharge() * (*part).getPdgCode()) << " "
+                     << (*part).GetPx() << " " << (*part).GetPy() << " "<< (*part).GetPz() 
+                     << " " << m_events << " " << ipart << " " << 0 << " "
+                     << (*part).getCharge() * (*part).getPdgCode()  );
     }
 
-    log << MSG::DEBUG
-        << " Starlight generating done.  \n"  << endmsg;
+    ATH_MSG_DEBUG( " Starlight generating done.  \n"   );
 
     return StatusCode::SUCCESS;  
 }
@@ -191,9 +166,7 @@ StatusCode Starlight_i::callGenerator()
 StatusCode
 Starlight_i::genFinalize()
 {
-    MsgStream log(messageService(), name());
-    log << MSG::DEBUG
-        << "  STARLIGHT Ending.  \n"  << endmsg;
+    ATH_MSG_DEBUG( "  STARLIGHT Ending.  \n"   );
 
     return StatusCode::SUCCESS;
 }
@@ -201,9 +174,7 @@ Starlight_i::genFinalize()
 StatusCode
 Starlight_i::fillEvt(HepMC::GenEvent* evt)
 {
-   MsgStream log(messageService(), name());
-   log << MSG::DEBUG
-       << "  STARLIGHT Filing.  \n"  << endmsg;
+    ATH_MSG_DEBUG( "  STARLIGHT Filing.  \n"   );
 
     // Set the event number
     evt->set_event_number( m_events );
@@ -239,14 +210,12 @@ Starlight_i::fillEvt(HepMC::GenEvent* evt)
           float mass = starlightConstants::muonMass;
 	  e  = sqrt(px*px + py*py + pz*pz + mass*mass);
 	}
-	log << MSG::DEBUG
-	    << "saving particle " << ipart << endmsg;
+	ATH_MSG_DEBUG( "saving particle " << ipart  );
 
 	v1->add_particle_out( 
 			     new HepMC::GenParticle(CLHEP::HepLorentzVector(px, py, pz, e), pid, 1) );
       }
-    log << MSG::DEBUG
-	<< "Saved " << ipart << " tracks " << endmsg;
+    ATH_MSG_DEBUG( "Saved " << ipart << " tracks "  );
 
     // Convert cm->mm and GeV->MeV
     // 
@@ -258,7 +227,6 @@ Starlight_i::fillEvt(HepMC::GenEvent* evt)
 bool Starlight_i::set_user_params()
 {
   // Set starlight user initialization parameters
-  MsgStream log(messageService(), name());
 
   // write python starlight config parameters to tmp file
   // if external config file not specified
@@ -273,8 +241,7 @@ bool Starlight_i::set_user_params()
   
   inputParametersInstance.configureFromFile(m_configFileName);
   if (!inputParametersInstance.init()) {
-    log << MSG::WARNING
-	<< "problems initializing input parameters. cannot initialize starlight. " << endmsg;
+    ATH_MSG_WARNING( "problems initializing input parameters. cannot initialize starlight. "  );
     return false;
   }
   
@@ -284,12 +251,10 @@ bool Starlight_i::set_user_params()
 bool Starlight_i::prepare_params_file()
 {
     // Write initialization parameters to tmp file
-    MsgStream log(messageService(), name());
 
     for(CommandVector::iterator i = m_InitializeVector.begin(); i != m_InitializeVector.end(); i++ )
     {
-	log << MSG::INFO
-	    << "  Command is: " << *i << endmsg;
+        ATH_MSG_INFO( "  Command is: " << *i  );
 
 	StringParse mystring(*i);
 	std::string myparam = mystring.piece(1);
@@ -423,9 +388,8 @@ bool Starlight_i::prepare_params_file()
 	}
 	else
 	{
-	    log << MSG::ERROR 
-		<< " ERROR in STARLIGHT INITIALIZATION PARAMETERS  " 
-		<< myparam << " is an invalid parameter !" << endmsg;
+          ATH_MSG_ERROR( " ERROR in STARLIGHT INITIALIZATION PARAMETERS  " 
+                         << myparam << " is an invalid parameter !"  );
 	    return false;
 	}
     }

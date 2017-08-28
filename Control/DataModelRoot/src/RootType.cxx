@@ -5,8 +5,6 @@
 
 #include "DataModelRoot/RootType.h"
 
-#ifdef ROOT_6
-
 // ROOT  
 #include "TBaseClass.h"
 #include "TClass.h"
@@ -917,9 +915,8 @@ Bool_t TScopeAdapter::IsClass() const
       return (fClass->Property() & kIsClass) || ! (fClass->Property() & kIsFundamental);
    }
 
-// no class can mean either is no class (i.e. builtin), or no dict but coming in
-// through PyCintex/Reflex ... as a workaround, use TDataTypes that has a full
-// enumeration of builtin types
+   // no class can mean either is no class (i.e. builtin), or no dict or interpreted(?)
+   // as a workaround, use TDataTypes that has a full enumeration of builtin types
    return TDataType( Name( Reflex::FINAL | Reflex::SCOPED ).c_str() ).GetType() == kOther_t;
 }
 
@@ -975,28 +972,3 @@ bool TScopeAdapter::operator<( const TScopeAdapter& rh ) const
 }
 
 
-//____________________________________________________________________________
-//____________________________________________________________________________
-RootObject::RootObject(const RootType& type, void* obj)
-      : m_type(type), m_object(obj)
-{
-}
-  
-//____________________________________________________________________________
-RootObject
-RootObject::CastObject(const RootType &toType) const
-{
-   return (m_type.Class() && toType.Class())?
-      RootObject( toType, m_type.Class()->DynamicCast(toType.Class(), m_object) )
-      : RootObject();
-}
-
-
-#else  // ROOT ver
-
-#include "Cintex/Cintex.h"
-void RootType::EnableCintex() {
-   ROOT::Cintex::Cintex::Enable();
-}
-
-#endif // ROOT ver

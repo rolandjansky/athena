@@ -27,8 +27,7 @@ namespace G4UA
 
     struct Config
     {
-      bool AllowMods=false;
-      float pMinPrimary=100*CLHEP::MeV;
+      float pMinPrimary = 100*CLHEP::MeV;
     };
 
     CosmicPerigeeAction(const Config& config);
@@ -40,10 +39,16 @@ namespace G4UA
 
   private:
 
+    /// Configuration options
     Config m_config;
+
+    /// Output track track record
     SG::WriteHandle<TrackRecordCollection> m_trackRecordCollection;
+
+    /// State members
     bool m_hasBeenSaved;
-    double m_idZ, m_idR;
+    double m_idZ;
+    double m_idR;
 
   }; // class CosmicPerigeeAction
 

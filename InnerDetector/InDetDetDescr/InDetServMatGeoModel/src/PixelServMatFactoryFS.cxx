@@ -92,29 +92,29 @@ void PixelServMatFactoryFS::create(GeoPhysVol *motherP, GeoPhysVol *motherM)
       // Divide PCON into two tubs and one cons and place them separately
       if(servicePcon->getNPlanes()!=4) continue;
 
-      GeoTubs* _tubs1 = new GeoTubs(servicePcon->getRMinPlane(0),
+      GeoTubs* tubs1 = new GeoTubs(servicePcon->getRMinPlane(0),
 				    servicePcon->getRMaxPlane(0),
 				    (servicePcon->getZPlane(1)-servicePcon->getZPlane(0))*0.5,
 				    servicePcon->getSPhi(),
 				    servicePcon->getDPhi());
 
-      GeoCons* _tubs2 = new GeoCons(servicePcon->getRMinPlane(1),servicePcon->getRMinPlane(2),
+      GeoCons* tubs2 = new GeoCons(servicePcon->getRMinPlane(1),servicePcon->getRMinPlane(2),
 				    servicePcon->getRMaxPlane(1),servicePcon->getRMaxPlane(2),
 				    (servicePcon->getZPlane(2)-servicePcon->getZPlane(1))*0.5,
 				    servicePcon->getSPhi(),
 				    servicePcon->getDPhi());
 
-      GeoCons* _cons = new GeoCons(servicePcon->getRMinPlane(2),servicePcon->getRMinPlane(3),
+      GeoCons* cons = new GeoCons(servicePcon->getRMinPlane(2),servicePcon->getRMinPlane(3),
 				   servicePcon->getRMaxPlane(2),servicePcon->getRMaxPlane(3)+1E-9*CLHEP::mm,
 				   (servicePcon->getZPlane(3)-servicePcon->getZPlane(2))*0.5,
 				   servicePcon->getSPhi(),
 				   servicePcon->getDPhi());
 
-      const GeoLogVol* servLog1 = new GeoLogVol(logName,_tubs1,material);
+      const GeoLogVol* servLog1 = new GeoLogVol(logName,tubs1,material);
       GeoVPhysVol* servPhys1 = new GeoPhysVol(servLog1);
-      const GeoLogVol* servLog2 = new GeoLogVol(logName,_tubs2,material);
+      const GeoLogVol* servLog2 = new GeoLogVol(logName,tubs2,material);
       GeoVPhysVol* servPhys2 = new GeoPhysVol(servLog2);
-      const GeoLogVol* servLog3 = new GeoLogVol(logName,_cons,material);
+      const GeoLogVol* servLog3 = new GeoLogVol(logName,cons,material);
       GeoVPhysVol* servPhys3 = new GeoPhysVol(servLog3);
 
       // Placement

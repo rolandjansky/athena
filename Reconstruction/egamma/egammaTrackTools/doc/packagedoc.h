@@ -23,4 +23,3 @@ EMExtrapolationTools : Tool which proagates a track the calorimeter/cluster.
 @author F. Derue <derue@lpnhe.in2p3.fr>
 
 */
-

@@ -30,7 +30,6 @@
 // Decoding methods for raw data words 
 // S. Diglio Sept 2009
 
-using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
 class ALFA_RawDataReadOut_charge : public ALFA_ReadOut {  
 
@@ -65,24 +64,24 @@ class ALFA_RawDataReadOut_charge : public ALFA_ReadOut {
   uint16_t     m_bit24_27;	
   uint16_t     m_bit27_24;	
 
-  std::vector<uint32_t> ChargeChan;
+  std::vector<uint32_t> m_ChargeChan;
 
 
   // Define the data structure and the word header values
 
   // PMF header Position and values
   // The word header occupies the 4 highest bits of each TDC data word 
-  static const uint16_t headerPos  = 28;  // from bit 28 to 31
-  static const uint16_t headerBits = 0xf;
+  static const uint16_t s_headerPos  = 28;  // from bit 28 to 31
+  static const uint16_t s_headerBits = 0xf;
 
   // Beginning of TDC 
-  static const uint16_t BOTvalue  = 0xa;
+  static const uint16_t s_BOTvalue  = 0xa;
     
   // End of TDC
-  static const uint16_t EOTvalue   = 0xc;
+  static const uint16_t s_EOTvalue   = 0xc;
   
   // TDC single measurement charge
-  static const uint16_t TSMvalue_charge   = 0x4;
+  static const uint16_t s_TSMvalue_charge   = 0x4;
   
   
  public:
@@ -98,11 +97,11 @@ class ALFA_RawDataReadOut_charge : public ALFA_ReadOut {
 
   // Methods to identify the word type
   // Beginning of TDC
-  bool is_BOT() {return (m_wordHeader == BOTvalue);};
+  bool is_BOT() {return (m_wordHeader == s_BOTvalue);};
   // End of TDC
-  bool is_EOT() {return (m_wordHeader == EOTvalue);};
+  bool is_EOT() {return (m_wordHeader == s_EOTvalue);};
   // TDC single measurement
-  bool is_TDCch() {return (m_wordHeader == TSMvalue_charge);};
+  bool is_TDCch() {return (m_wordHeader == s_TSMvalue_charge);};
    
   
   // Methods to retrieve the decoded word content (Get)

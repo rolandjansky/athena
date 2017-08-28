@@ -61,12 +61,13 @@ public:
 
 private:
 
-  std::string m_vertexContainer;
   std::string m_assocTracksName;
-  std::string m_tva;
   bool m_requireTrackPV;
   ToolHandle<IJetTrackSelector> m_htsel;
 
+
+  SG::ReadHandleKey< xAOD::VertexContainer> m_vertexContainer_key;
+  SG::ReadHandleKey<jet::TrackVertexAssociation> m_tva_key;
 };
 
 #endif

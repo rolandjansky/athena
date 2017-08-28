@@ -91,14 +91,14 @@ protected:
   typedef std::map<std::string,std::pair<std::string,bool> >      AttMap_t;
   typedef AttMap_t::const_iterator               AttIter_t;
   
-  const std::string  name;
-  mutable std::string  path;
-  MiniConfigTreeNode*    parent;
+  const std::string  m_name;
+  mutable std::string  m_path;
+  MiniConfigTreeNode*    m_parent;
   
-  NodeMap_t          daughters;
-  AttMap_t           attributes;
+  NodeMap_t          m_daughters;
+  AttMap_t           m_attributes;
 
-  bool propagateDown;
+  bool m_propagateDown;
 
 private:
 

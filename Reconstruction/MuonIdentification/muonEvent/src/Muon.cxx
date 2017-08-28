@@ -547,9 +547,9 @@ std::pair<double,double> Muon::energyLoss() const{
 }
 
 /** number of B-layer hits */
-int Muon::numberOfBLayerHits() const {   
+int Muon::numberOfInnermostPixelLayerHits() const {
   if ( this->hasCombinedMuonTrackParticle() || this->hasInDetTrackParticle() )
-    return (*m_inDetTrackParticle)->trackSummary()->get( Trk::numberOfBLayerHits );
+    return (*m_inDetTrackParticle)->trackSummary()->get( Trk::numberOfInnermostPixelLayerHits );
   else return -1;
   
 }
@@ -587,9 +587,9 @@ int Muon::numberOfTRTHighThresholdHits() const {
 }
 
 /** number of shared hits at pixel b-layer */
-int Muon::numberOfBLayerSharedHits() const {   
+int Muon::numberOfInnermostPixelLayerSharedHits() const {
   if ( this->hasCombinedMuonTrackParticle() || this->hasInDetTrackParticle() )
-      return (*m_inDetTrackParticle)->trackSummary()->get( Trk::numberOfBLayerSharedHits );
+      return (*m_inDetTrackParticle)->trackSummary()->get( Trk::numberOfInnermostPixelLayerSharedHits );
   else return -1;
 }
 int Muon::numberOfPixelSharedHits() const {   

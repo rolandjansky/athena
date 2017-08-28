@@ -17,9 +17,9 @@ public:
 
   typedef std::vector<ServiceVolume*>   VolumeContainer;
 
-  virtual ServiceVolume* entryVolume( double pos, bool ascending, const Athena::MsgStreamMember& msg) const ;
+  virtual ServiceVolume* entryVolume( double pos, bool ascending, Athena::MsgStreamMember& msg) const ;
 
-  virtual ServiceVolume* exitVolume( bool ascending, const Athena::MsgStreamMember& msg) const ;
+  virtual ServiceVolume* exitVolume( bool ascending, Athena::MsgStreamMember& msg) const ;
 
   
   Route(): m_exitVolume(0) {}

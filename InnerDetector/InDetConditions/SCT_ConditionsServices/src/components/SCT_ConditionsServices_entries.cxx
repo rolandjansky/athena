@@ -12,6 +12,7 @@
 #include "../SCT_ConfigurationConditionsTestAlg.h"
 
 #include "../SCT_MonitorConditionsSvc.h"
+#include "../SCT_MonitorConditionsCondAlg.h"
 #include "../SCT_MonitorConditionsTestAlg.h"
 
 #include "../SCT_FlaggedConditionSvc.h"
@@ -31,6 +32,7 @@
 #include "../SCT_LinkMaskingTestAlg.h"
 
 #include "../SCT_TdaqEnabledSvc.h"
+#include "../SCT_TdaqEnabledCondAlg.h"
 #include "../SCT_TdaqEnabledTestAlg.h"
 
 #include "../SCT_ConditionsParameterSvc.h"
@@ -62,6 +64,7 @@ DECLARE_ALGORITHM_FACTORY(SCT_ModuleVetoTestAlg)
 DECLARE_ALGORITHM_FACTORY(SCT_ConditionsSummaryTestAlg)
 DECLARE_ALGORITHM_FACTORY(SCT_CachedSummaryTestAlg)
 DECLARE_ALGORITHM_FACTORY(SCT_DCSConditionsTestAlg)
+DECLARE_ALGORITHM_FACTORY(SCT_MonitorConditionsCondAlg)
 DECLARE_ALGORITHM_FACTORY(SCT_MonitorConditionsTestAlg)
 DECLARE_ALGORITHM_FACTORY(SCT_ReadCalibDataTestAlg)
 DECLARE_ALGORITHM_FACTORY(SCT_ReadCalibChipDataTestAlg)
@@ -72,6 +75,7 @@ DECLARE_ALGORITHM_FACTORY(SCT_ConfigurationConditionsTestAlg)
 DECLARE_ALGORITHM_FACTORY(SCT_MajorityConditionsTestAlg)
 DECLARE_ALGORITHM_FACTORY(SCT_ConditionsParameterTestAlg)
 DECLARE_ALGORITHM_FACTORY(SCT_SensorsTestAlg)
+DECLARE_ALGORITHM_FACTORY(SCT_TdaqEnabledCondAlg)
 DECLARE_ALGORITHM_FACTORY(SCT_TdaqEnabledTestAlg)
 
 DECLARE_SERVICE_FACTORY(SCT_ConditionsSummarySvc)
@@ -127,6 +131,7 @@ DECLARE_ALGORITHM( SCT_RODVetoTestAlg )
   DECLARE_ALGORITHM( SCT_CachedSummaryTestAlg )
 
   DECLARE_ALGORITHM( SCT_DCSConditionsTestAlg )
+  DECLARE_ALGORITHM( SCT_MonitorConditionsCondAlg )
   DECLARE_ALGORITHM( SCT_MonitorConditionsTestAlg )
   DECLARE_ALGORITHM( SCT_ReadCalibDataTestAlg )
   DECLARE_ALGORITHM( SCT_ReadCalibChipDataTestAlg )
@@ -137,6 +142,7 @@ DECLARE_ALGORITHM( SCT_RODVetoTestAlg )
   DECLARE_ALGORITHM( SCT_MajorityConditionsTestAlg )
   DECLARE_ALGORITHM( SCT_ConditionsParameterTestAlg )
   DECLARE_ALGORITHM( SCT_SensorsTestAlg )
+  DECLARE_ALGORITHM(SCT_TdaqEnabledCondAlg)
   DECLARE_ALGORITHM(SCT_TdaqEnabledTestAlg)
   
   

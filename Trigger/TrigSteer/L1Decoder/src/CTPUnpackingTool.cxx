@@ -14,17 +14,24 @@ CTPUnpackingTool::CTPUnpackingTool( const std::string& type,
   : AthAlgTool(type, name, parent) {
   declareProperty("CTPToChainMapping", m_ctpToChainProperty, "Mapping of the form: '34:HLT_x', '35:HLT_y', ..., both CTP ID and chain may appear many times");
   declareProperty("ForceEnableAllChains", m_forceEnable=false, "Enables all chains in each event, testing mode");
+  declareProperty("MonTool", m_monTool=VoidMonitoringTool(this), "Basic Monitoring");
 }
-
 
 CTPUnpackingTool::~CTPUnpackingTool()
 {}
 
+StatusCode CTPUnpackingTool::initialize() {   
+  if ( !m_monTool.empty() ) CHECK( m_monTool.retrieve() );
+  return decodeCTPToChainMapping(); 
+}
+
 
 
 StatusCode CTPUnpackingTool::decode( const ROIB::RoIBResult& roib,  HLT::IDVec& enabledChains ) const {
-  size_t numberPfActivatedBits= 0;
-  
+  using namespace Monitored;
+  auto nTAVItems = MonitoredScalar::declare("TAVItems", 0);
+  auto nChains   = MonitoredScalar::declare("Chains", 0);
+  auto monitorit = MonitoredScope::declare(m_monTool, nTAVItems, nChains);
   auto tav = roib.cTPResult().TAV();
   const size_t tavSize = tav.size();
 
@@ -34,19 +41,24 @@ StatusCode CTPUnpackingTool::decode( const ROIB::RoIBResult& roib,  HLT::IDVec& 
       const bool decision = ( tav[wordCounter].roIWord() & (1 << bitCounter) ) > 0;
 
       if ( decision == true or m_forceEnable ) {
-	if ( decision ) 
+	if ( decision ) {
+	  nTAVItems = nTAVItems + 1;	  
 	  ATH_MSG_DEBUG( "L1 item " << ctpIndex << " active, enabling chains");
-	numberPfActivatedBits++;
+	}
+
 	auto itr = m_ctpToChain.find(ctpIndex);
-	if ( itr != m_ctpToChain.end() ) 
+	if ( itr != m_ctpToChain.end() ) {
 	  enabledChains.insert( enabledChains.end(), itr->second.begin(), itr->second.end() );
+
+	}
       }
     }    
   }
+  nChains = enabledChains.size();
   for ( auto chain: enabledChains ) {
     ATH_MSG_DEBUG( "Enabling chain: " << chain );
   }
-  if ( numberPfActivatedBits == 0 ) {
+  if ( nTAVItems == 0 ) {
     ATH_MSG_ERROR( "All CTP bits were disabled, this event shoudl not have shown here" );
     return StatusCode::FAILURE;
   }

@@ -232,7 +232,7 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
     if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Primary vertex with InDetVKalPriVxFinderTool starts" << endmsg;
 //
 //
-    savedTrkFittedPerigees.clear();
+    m_savedTrkFittedPerigees.clear();
     m_fittedTrkCov.clear();
 //------------------------------------------------------------------------------------------
 //  Creating the necessary vectors
@@ -252,7 +252,7 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
     SelectedTrkTracks.clear(); SelectedTrackParticles.clear(); NTrkPerVrt.clear();
     TrkPerVrt.clear(); PrtPerVrt.clear();
 
-    const Trk::Perigee* m_mPer=NULL;
+    const Trk::Perigee* mPer=NULL;
     AmgVector(5) VectPerig; VectPerig<<0.,0.,0.,0.,0.;
     const Trk::FitQuality*  TrkQual=0;
     std::vector<double> Impact,ImpactError;
@@ -288,14 +288,14 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
        DataVector<Trk::Track>::const_iterator    i_ntrk;
        for (i_ntrk = newTrkCol->begin(); i_ntrk < newTrkCol->end(); ++i_ntrk) {
           TrkQual   = (*i_ntrk)->fitQuality();
-          m_mPer=GetPerigee( (*i_ntrk) ) ;
- 	  if( m_mPer == NULL ){
+          mPer=GetPerigee( (*i_ntrk) ) ;
+ 	  if( mPer == NULL ){
             if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) <<" Error!!! No Perigee in TrackParameters"<< endmsg;
 	    continue;
 	  } 
-	  VectPerig = m_mPer->parameters(); 
-          double CovTrkMtx11 = (*(m_mPer->covariance()))(0,0);
-          double CovTrkMtx22 = (*(m_mPer->covariance()))(1,1);
+	  VectPerig = mPer->parameters(); 
+          double CovTrkMtx11 = (*(mPer->covariance()))(0,0);
+          double CovTrkMtx22 = (*(mPer->covariance()))(1,1);
 	  if ( CovTrkMtx11 > m_A0TrkErrorCut*m_A0TrkErrorCut )  continue;
 	  if ( CovTrkMtx22 > m_ZTrkErrorCut*m_ZTrkErrorCut )    continue;
           if( m_trkSelectorExist ) {
@@ -307,9 +307,11 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
               const Trk::TrackSummary* testSum = m_sumSvc->createSummary(*(*i_ntrk));
               PixelHits = (long int) testSum->get(Trk::numberOfPixelHits);
               SctHits   = (long int) testSum->get(Trk::numberOfSCTHits);
-              BLayHits  = (long int) testSum->get(Trk::numberOfBLayerHits);
+              BLayHits  = (long int) testSum->get(Trk::numberOfInnermostPixelLayerHits);
               SharedHits= (long int) testSum->get(Trk::numberOfPixelSharedHits);
-	      if(PixelHits<0)PixelHits=0; if(SctHits<0)SctHits=0; if(BLayHits<0)BLayHits=0; 
+	      if(PixelHits<0)PixelHits=0;
+              if(SctHits<0)SctHits=0;
+              if(BLayHits<0)BLayHits=0; 
               delete testSum;
             }
 //---------------------------------------------------------	
@@ -330,10 +332,10 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
 	 SelectedTrkTracks.clear();
          for (i_ntrk = newTrkCol->begin(); i_ntrk < newTrkCol->end(); ++i_ntrk) {
            TrkQual   = (*i_ntrk)->fitQuality();
-           m_mPer=GetPerigee( (*i_ntrk) ) ; if( m_mPer == NULL ) continue;
- 	   VectPerig = m_mPer->parameters(); 
-           double CovTrkMtx11 = (*(m_mPer->covariance()))(0,0);
-           double CovTrkMtx22 = (*(m_mPer->covariance()))(1,1);
+           mPer=GetPerigee( (*i_ntrk) ) ; if( mPer == NULL ) continue;
+ 	   VectPerig = mPer->parameters(); 
+           double CovTrkMtx11 = (*(mPer->covariance()))(0,0);
+           double CovTrkMtx22 = (*(mPer->covariance()))(1,1);
 	   if ( CovTrkMtx11 > 4.*m_A0TrkErrorCut*m_A0TrkErrorCut )  continue;
 	   if ( CovTrkMtx22 > 4.*m_ZTrkErrorCut*m_ZTrkErrorCut )    continue;
 //           if( m_trkSelectorExist ) {
@@ -345,13 +347,17 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
                const Trk::TrackSummary* testSum = m_sumSvc->createSummary(*(*i_ntrk));
                PixelHits = (long int) testSum->get(Trk::numberOfPixelHits);
                SctHits   = (long int) testSum->get(Trk::numberOfSCTHits);
-               BLayHits  = (long int) testSum->get(Trk::numberOfBLayerHits);
+               BLayHits  = (long int) testSum->get(Trk::numberOfInnermostPixelLayerHits);
                SharedHits= (long int) testSum->get(Trk::numberOfPixelSharedHits);
-	       if(PixelHits<0)PixelHits=0; if(SctHits<0)SctHits=0; if(BLayHits<0)BLayHits=0; 
+	       if(PixelHits<0)PixelHits=0;
+               if(SctHits<0)SctHits=0;
+               if(BLayHits<0)BLayHits=0; 
                delete testSum;
              }
 //---------------------------------------------------------	
-	     if(SharedHits>0) SharedHits--; BLayHits++; PixelHits++;
+	     if(SharedHits>0) SharedHits--;
+             BLayHits++;
+             PixelHits++;
              m_fitSvc->VKalGetImpact((*i_ntrk), m_BeamCnst, 1, Impact, ImpactError);
 	     double ImpactA0=Impact[0]; 
              StatusCode sc = CutTrk( VectPerig[4] , VectPerig[3] , ImpactA0 , 
@@ -414,7 +420,7 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
     if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Primary vertex with InDetVKalPriVxFinderTool starts" << endmsg;
 //
 //
-    savedTrkFittedPerigees.clear();
+    m_savedTrkFittedPerigees.clear();
     m_fittedTrkCov.clear();
 //------------------------------------------------------------------------------------------
 //  Creating the necessary vectors
@@ -434,7 +440,7 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
     SelectedTrkTracks.clear(); SelectedTrackParticles.clear(); NTrkPerVrt.clear();
     TrkPerVrt.clear(); PrtPerVrt.clear();
 
-    const Trk::Perigee* m_mPer=NULL;
+    const Trk::Perigee* mPer=NULL;
     AmgVector(5) VectPerig; VectPerig<<0.,0.,0.,0.,0.;
     const Trk::FitQuality*  TrkQual=0;
     std::vector<double> Impact,ImpactError;
@@ -462,11 +468,11 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
           if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Trk::TrackParticleBase number=" <<newPrtCol->size()<< endmsg;
           Trk::TrackParticleBaseCollection::const_iterator i_nprt  = newPrtCol->begin();
           for (i_nprt = newPrtCol->begin(); i_nprt < newPrtCol->end(); ++i_nprt) {
-              m_mPer=GetPerigee( (*i_nprt) ); if( m_mPer == NULL ){ continue; } 
-              VectPerig = m_mPer->parameters(); 
+              mPer=GetPerigee( (*i_nprt) ); if( mPer == NULL ){ continue; } 
+              VectPerig = mPer->parameters(); 
               TrkQual   = (*i_nprt)->fitQuality();
-              double CovTrkMtx11 = (*(m_mPer->covariance()))(0,0);
-              double CovTrkMtx22 = (*(m_mPer->covariance()))(2,2);
+              double CovTrkMtx11 = (*(mPer->covariance()))(0,0);
+              double CovTrkMtx22 = (*(mPer->covariance()))(2,2);
 //if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << " Error track matrix="<<CovTrkMtx11<<", "<<CovTrkMtx22<<endmsg;
 	      if ( CovTrkMtx11 > m_A0TrkErrorCut*m_A0TrkErrorCut )  continue;
 	      if ( CovTrkMtx22 > m_ZTrkErrorCut*m_ZTrkErrorCut )    continue;
@@ -478,9 +484,11 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
                  const Trk::TrackSummary* testSum = (*i_nprt)->trackSummary();
                  PixelHits = (long int) testSum->get(Trk::numberOfPixelHits);
                  SctHits   = (long int) testSum->get(Trk::numberOfSCTHits);
-                 BLayHits  = (long int) testSum->get(Trk::numberOfBLayerHits);
+                 BLayHits  = (long int) testSum->get(Trk::numberOfInnermostPixelLayerHits);
                  SharedHits= (long int) testSum->get(Trk::numberOfPixelSharedHits);
-	         if(PixelHits<0)PixelHits=0; if(SctHits<0)SctHits=0; if(BLayHits<0)BLayHits=0; 
+	         if(PixelHits<0)PixelHits=0;
+                 if(SctHits<0)SctHits=0;
+                 if(BLayHits<0)BLayHits=0; 
                  //double ImpactSignif = m_fitSvc->VKalGetImpact((*i_nprt), m_BeamCnst, 1, Impact, ImpactError); //VK ImpactSignif not needed
                  m_fitSvc->VKalGetImpact((*i_nprt), m_BeamCnst, 1, Impact, ImpactError);
 	         double ImpactA0=VectPerig[0]; //double ImpactZ=VectPerig[1];   // Temporary
@@ -500,10 +508,10 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
           if(SelectedTrackParticles.size()<2){
 	    SelectedTrackParticles.clear();
             for (i_nprt = newPrtCol->begin(); i_nprt < newPrtCol->end(); ++i_nprt) {
-              m_mPer=GetPerigee( (*i_nprt) ); if( m_mPer == NULL ){ continue; } 
-              VectPerig = m_mPer->parameters();  TrkQual   = (*i_nprt)->fitQuality();
-              double CovTrkMtx11 = (*(m_mPer->covariance()))(1,1);
-              double CovTrkMtx22 = (*(m_mPer->covariance()))(2,2);
+              mPer=GetPerigee( (*i_nprt) ); if( mPer == NULL ){ continue; } 
+              VectPerig = mPer->parameters();  TrkQual   = (*i_nprt)->fitQuality();
+              double CovTrkMtx11 = (*(mPer->covariance()))(1,1);
+              double CovTrkMtx22 = (*(mPer->covariance()))(2,2);
 	      if ( CovTrkMtx11 > 4.*m_A0TrkErrorCut*m_A0TrkErrorCut )  continue;
 	      if ( CovTrkMtx22 > 4.*m_ZTrkErrorCut*m_ZTrkErrorCut )    continue;
 //              if( m_trkSelectorExist ) {
@@ -513,10 +521,14 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
                  const Trk::TrackSummary* testSum = (*i_nprt)->trackSummary();
                  PixelHits = (long int) testSum->get(Trk::numberOfPixelHits);
                  SctHits   = (long int) testSum->get(Trk::numberOfSCTHits);
-                 BLayHits  = (long int) testSum->get(Trk::numberOfBLayerHits);
+                 BLayHits  = (long int) testSum->get(Trk::numberOfInnermostPixelLayerHits);
                  SharedHits= (long int) testSum->get(Trk::numberOfPixelSharedHits);
-	         if(PixelHits<0)PixelHits=0; if(SctHits<0)SctHits=0; if(BLayHits<0)BLayHits=0; 
-	         if(SharedHits>0) SharedHits--; BLayHits++; PixelHits++;
+	         if(PixelHits<0)PixelHits=0;
+                 if(SctHits<0)SctHits=0;
+                 if(BLayHits<0)BLayHits=0; 
+	         if(SharedHits>0) SharedHits--;
+                 BLayHits++;
+                 PixelHits++;
                  m_fitSvc->VKalGetImpact((*i_nprt), m_BeamCnst, 1, Impact, ImpactError);
 	         double ImpactA0=Impact[0];  
                  StatusCode sc = CutTrk( VectPerig[4] , VectPerig[3] , ImpactA0 ,
@@ -593,9 +605,9 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
        for(ii=0; ii<NTrkPerVrt[i]; ii++) {
          AmgSymMatrix(5) * tmpCovMatr=new AmgSymMatrix(5)(m_fittedTrkCov.at(i).at(ii));
          Trk::Perigee * tmpMeasPer = new Trk::Perigee( 0.,0.,
-		           savedTrkFittedPerigees[i][ii][0] ,        /* Phi   */
-		           savedTrkFittedPerigees[i][ii][1] ,        /* Theta */
-		           savedTrkFittedPerigees[i][ii][2] ,        /* 1/p   */
+		           m_savedTrkFittedPerigees[i][ii][0] ,        /* Phi   */
+		           m_savedTrkFittedPerigees[i][ii][1] ,        /* Theta */
+		           m_savedTrkFittedPerigees[i][ii][2] ,        /* 1/p   */
 	                   Trk::PerigeeSurface(PrimVrtList[i]),
 		           tmpCovMatr );
          Trk::VxTrackAtVertex * tmpPointer = new Trk::VxTrackAtVertex( 1., tmpMeasPer ) ;
@@ -630,10 +642,10 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
 //-Remove refitted track parameters from HEAP
 //
      for( i=0; i< NFoundVrt; i++){ 
-       double** pntTracks=savedTrkFittedPerigees[i];
+       double** pntTracks=m_savedTrkFittedPerigees[i];
        removeWorkArr2(pntTracks,(long int)NTrkPerVrt[i],3);
      }
-     savedTrkFittedPerigees.clear();
+     m_savedTrkFittedPerigees.clear();
      m_fittedTrkCov.clear();
      Trk::TrkVKalVrtFitter* vkalPnt = dynamic_cast<Trk::TrkVKalVrtFitter*>(&(*m_fitSvc));
      if(vkalPnt)vkalPnt->clearMemory();
@@ -672,9 +684,9 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
                Trk::Perigee * tmpMeasPer; 
                AmgSymMatrix(5) * tmpCovMatr=new AmgSymMatrix(5)(m_fittedTrkCov.at(i).at(ii));
 	       tmpMeasPer  =  new Trk::Perigee( 0.,0.,
-		     savedTrkFittedPerigees[i][ii][0] ,        // Phi   //
-		     savedTrkFittedPerigees[i][ii][1] ,        // Theta //
-		     savedTrkFittedPerigees[i][ii][2] ,        // 1/p   //
+		     m_savedTrkFittedPerigees[i][ii][0] ,        // Phi   //
+		     m_savedTrkFittedPerigees[i][ii][1] ,        // Theta //
+		     m_savedTrkFittedPerigees[i][ii][2] ,        // 1/p   //
 	             Trk::PerigeeSurface(PrimVrtList[i]),
 		     tmpCovMatr );
 
@@ -714,10 +726,10 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
 //  Remove refitted track parameters from HEAP
 //
     for( i=0; i< NFoundVrt; i++){ 
-      double** pntTracks=savedTrkFittedPerigees[i];
+      double** pntTracks=m_savedTrkFittedPerigees[i];
       removeWorkArr2(pntTracks,(long int)NTrkPerVrt[i],3);
     }
-    savedTrkFittedPerigees.clear();
+    m_savedTrkFittedPerigees.clear();
     m_fittedTrkCov.clear();
     Trk::TrkVKalVrtFitter* vkalPnt = dynamic_cast<Trk::TrkVKalVrtFitter*>(&(*m_fitSvc));
     if(vkalPnt)vkalPnt->clearMemory();

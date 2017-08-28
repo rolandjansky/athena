@@ -78,14 +78,14 @@ InDet::InDetAmbiScoringTool::InDetAmbiScoringTool(const std::string& t,
   declareProperty("minPtEM",           m_minPtEm      = 5000. ); // in MeV
   declareProperty("phiWidthEM",        m_phiWidthEm   = 0.075 );
   declareProperty("etaWidthEM",        m_etaWidthEm   = 0.05  );
-  declareProperty("InputEmClusterContainerName",m_inputEmClusterContainerName);  
+  declareProperty("InputEmClusterContainerName",m_inputEmClusterContainerName="InDetCaloClusterROIs");
 
   //set values for scores
   m_summaryTypeScore[Trk::numberOfPixelHits]            =  20;
   m_summaryTypeScore[Trk::numberOfPixelSharedHits]      = -10;  // NOT USED --- a shared hit is only half the weight
   m_summaryTypeScore[Trk::numberOfPixelHoles]           = -10;  // a hole is bad
-  m_summaryTypeScore[Trk::numberOfBLayerHits]           =  10;  // addition for being b-layer
-  m_summaryTypeScore[Trk::numberOfBLayerSharedHits]     =  -5;  // NOT USED --- a shared hit is only half the weight
+  m_summaryTypeScore[Trk::numberOfInnermostPixelLayerHits]           =  10;  // addition for being b-layer
+  m_summaryTypeScore[Trk::numberOfInnermostPixelLayerSharedHits]     =  -5;  // NOT USED --- a shared hit is only half the weight
   m_summaryTypeScore[Trk::numberOfGangedPixels]         =  -5;  // decrease for being ganged
   m_summaryTypeScore[Trk::numberOfGangedFlaggedFakes]   = -10;  // decrease for being ganged fake
   m_summaryTypeScore[Trk::numberOfSCTHits]              =  10;  // half of a pixel, since only 1dim
@@ -165,6 +165,8 @@ StatusCode InDet::InDetAmbiScoringTool::initialize()
   
   
   if (m_useAmbigFcn || m_useTRT_AmbigFcn) setupScoreModifiers();
+
+  ATH_CHECK( m_inputEmClusterContainerName.initialize(m_useEmClusSeed) );
   
   return StatusCode::SUCCESS;
 }
@@ -473,7 +475,7 @@ Trk::TrackScore InDet::InDetAmbiScoringTool::ambigScore( const Trk::Track& track
          << "  New score now: " << prob);
     }
     // --- Pixel blayer hits
-    int bLayerHits = trackSummary.get(Trk::numberOfBLayerHits);
+    int bLayerHits = trackSummary.get(Trk::numberOfInnermostPixelLayerHits);
     if (bLayerHits > -1 && m_maxB_LayerHits > 0) {
       if (bLayerHits > m_maxB_LayerHits) {
         prob *= (bLayerHits - m_maxB_LayerHits + 1); // hits are good !
@@ -901,10 +903,8 @@ InDet::InDetAmbiScoringTool::getInfo() const
   if (rh.isValid())
     return rh.cptr();
 
-  const CaloClusterROI_Collection* calo = nullptr;
-  StatusCode sc = evtStore()->retrieve(calo,m_inputEmClusterContainerName);
-
-  if(sc == StatusCode::SUCCESS && calo) {
+  if (m_useEmClusSeed) {
+    SG::ReadHandle<CaloClusterROI_Collection> calo(m_inputEmClusterContainerName);
     auto info = std::make_unique<ROIInfoVec>();
     for( const Trk::CaloClusterROI* ccROI : *calo) {
       if( ccROI->energy() * sin(ccROI->globalPosition().theta()) < m_minPtEm){ 

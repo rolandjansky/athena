@@ -29,7 +29,8 @@ class TestProvider
 {
 public:
   virtual StatusCode updateAddress(StoreID::type /*storeID*/,
-				   SG::TransientAddress* /*pTAd*/)
+				   SG::TransientAddress* /*pTAd*/,
+                                   const EventContext& /*ctx*/) override
   { return StatusCode::SUCCESS; }
 };
 

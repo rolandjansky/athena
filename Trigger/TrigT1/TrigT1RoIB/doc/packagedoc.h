@@ -42,15 +42,4 @@ algorithms to access the ROIB::RoIBResult and ROIB::RecRoIBResult objects.
 
 @section TrigT1RoIB_TrigT1RoIB Extra Pages
 
-- @ref used_TrigT1RoIB
-- @ref requirements_TrigT1RoIB
 */
-
-/**
-   @page used_TrigT1RoIB Used Packages
-*/
-
-/**
-   @page requirements_TrigT1RoIB Requirements
-*/
-

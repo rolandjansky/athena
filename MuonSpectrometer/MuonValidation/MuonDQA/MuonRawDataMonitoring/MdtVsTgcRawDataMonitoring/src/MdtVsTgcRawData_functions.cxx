@@ -30,7 +30,7 @@ using namespace std;
 
 
 void
-MdtVsTgcRawDataValAlg::roi2etaphi(Muon::TgcCoinData& cd, int& eta, int& phi){
+MdtVsTgcRawDataValAlg::roi2etaphi(const Muon::TgcCoinData& cd, int& eta, int& phi){
   
   int roiphi=cd.phi();//phi in 1/48(24) sector for endcap(forward)
   int roi=cd.roi();//0-147(0-63)
@@ -96,7 +96,7 @@ MdtVsTgcRawDataValAlg::numberOfSL(const Muon::TgcCoinDataContainer* tgctrgcontai
        ++it){
   
 
-    if (m_debuglevel) m_log<<MSG::DEBUG<< "size of tgc collection is " << (*it) -> size() << endmsg;
+    ATH_MSG_DEBUG( "size of tgc collection is " << (*it) -> size()  );
 
     //loop over TGC RoI collection
     Muon::TgcCoinDataCollection::const_iterator itc_end=(*it)->end();
@@ -104,12 +104,11 @@ MdtVsTgcRawDataValAlg::numberOfSL(const Muon::TgcCoinDataContainer* tgctrgcontai
          itc!= itc_end;
          ++itc){
 
-      Muon::TgcCoinData* tcd=*itc;
+      const Muon::TgcCoinData* tcd=*itc;
 
       if( tcd->type() != Muon::TgcCoinData::TYPE_SL )continue;
-      m_log<<MSG::DEBUG<<"pt"<<tcd->pt()<<endmsg;
+      ATH_MSG_DEBUG("pt"<<tcd->pt() );
       nSL++;
-      theSL=tcd;
     }
   }
 
@@ -127,15 +126,6 @@ MdtVsTgcRawDataValAlg::stationGasGap2layer(int station, int GasGap){
     layer = 5+GasGap;
   }
   return layer;
-}
-
-double
-MdtVsTgcRawDataValAlg::MDTz(int ac,
-                            int stationName,
-                            int multiLayer,
-                            int tubeLayer){
-  double z=( ac==0 ? MDTZpos[stationName-17][multiLayer-1][tubeLayer-1] : -MDTZpos[stationName-17][multiLayer-1][tubeLayer-1]);
-  return z;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -168,8 +158,8 @@ MdtVsTgcRawDataValAlg::BlankPhi24(TH2 *h, int binx){
 }
 void
 MdtVsTgcRawDataValAlg::BlankStationMap(TH2 *h, int ws){
-  bool m_rebin=true;
-  if(m_rebin){//use new bin
+  bool rebin=true;
+  if(rebin){//use new bin
       for(int i=33; i<44;i++)BlankPhi24(h,i);
       int x1=h->GetXaxis()->GetBinLowEdge(40);
       int x2=h->GetXaxis()->GetBinUpEdge(40);

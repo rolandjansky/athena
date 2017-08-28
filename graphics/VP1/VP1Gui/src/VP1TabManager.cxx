@@ -15,6 +15,7 @@
 #include "VP1Gui/VP1TabManager.h"
 #include "VP1Gui/VP1ChannelManager.h"
 #include "VP1Gui/VP1DockWidget.h"
+
 #include "VP1Base/VP1TabWidget.h"
 #include "VP1Base/VP1TabBar.h"
 #include "VP1Base/IVP1System.h"
@@ -25,21 +26,20 @@
 #include "VP1Base/VP1Deserialise.h"
 #include "VP1Base/VP1Msg.h"
 
-#include <QtCore/QEvent>
-#include <QtCore/QPoint>
-#include <QtCore/QSet>
-#include <QtCore/QFileInfo>
-#include <QtCore/QMap>
-#include <QtCore/QTimer>
-#include <QtCore/QBuffer>
-#include <QtCore/QByteArray>
-
-#include <QtGui/QMessageBox>
-#include <QtGui/QMenu>
-#include <QtGui/QKeyEvent>
-#include <QtGui/QMainWindow>
-#include <QtGui/QApplication>
-#include <QtGui/QInputDialog>
+#include <QEvent>
+#include <QPoint>
+#include <QSet>
+#include <QFileInfo>
+#include <QMap>
+#include <QTimer>
+#include <QBuffer>
+#include <QByteArray>
+#include <QMessageBox>
+#include <QMenu>
+#include <QKeyEvent>
+#include <QMainWindow>
+#include <QApplication>
+#include <QInputDialog>
 
 #include <map>
 #include <set>

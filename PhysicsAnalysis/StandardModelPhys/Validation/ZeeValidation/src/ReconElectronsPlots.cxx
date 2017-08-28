@@ -277,8 +277,8 @@ namespace ZeeValidation{
   void ReconElectronsPlots::fillHitInfo(const xAOD::Electron* electron){
 
     uint8_t blayerh(0), pixelh(0), scth(0), trth(0), trthighh(0), blayero(0), pixelo(0), scto(0), trto(0), trthigho(0);
-    if( electron -> trackParticleSummaryValue(blayerh, xAOD::numberOfBLayerHits ) && 
-	electron -> trackParticleSummaryValue(blayero, xAOD::numberOfBLayerOutliers) ){   
+    if( electron -> trackParticleSummaryValue(blayerh, xAOD::numberOfInnermostPixelLayerHits ) &&
+	electron -> trackParticleSummaryValue(blayero, xAOD::numberOfInnermostPixelLayerOutliers) ){
       h_n_blayer_hits -> Fill(blayerh);
       h_n_blayer_hits_outliers -> Fill(blayerh + blayero);
     }

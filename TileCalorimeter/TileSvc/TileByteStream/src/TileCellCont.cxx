@@ -34,7 +34,8 @@ TileCellCont::TileCellCont()
   : m_it(0)
   , m_event(0)
   , m_MBTS(0)
-  , m_MBTS_channel(0) {
+  , m_MBTS_channel(0)
+  , m_src(0) {
 }
 
 StatusCode TileCellCont::initialize() {
@@ -88,21 +89,26 @@ StatusCode TileCellCont::initialize() {
     std::cout << "TileCellCont:initialize ERROR: Can not initialize TileBadChanTool" << std::endl;
     return StatusCode::FAILURE;
   }
+  if ( !m_src ){ // if nothing set, use 2017
+       std::cout << "TileCellCont::initialize ERROR : TileHid2RESrc has to be initialized before this" << std::endl;
+  }
 
   // Get pointer to TileCablingService
   TileCablingService* cabling = TileCablingService::getInstance();
   int maxChannels = cabling->getMaxChannels();
 
-  m_hash.initialize(0);
+  //m_hash.initialize(0);
   m_mbts_rods.clear();
   m_mbts_IDs.clear();
   int mbts_count = 0;
   int ID_of_Col = 0;
-  TileHid2RESrcID src(tileHWID);
+  std::vector<int> rodids;
   m_MBTS = new TileCellCollection(ID_of_Col, SG::OWN_ELEMENTS);
   for (unsigned int ros = 1; ros < TileCalibUtils::MAX_ROS; ++ros) {
     for (unsigned int drawer = 0; drawer < TileCalibUtils::MAX_DRAWER; ++drawer) {
       int frag = tileHWID->frag(ros, drawer);
+      int rodid = m_src->getRodID(frag);
+      rodids.push_back(rodid);
       m_mapMBTS[frag] = 0xFFFF;
       // One event number per collection
       m_eventNumber.push_back(0xFFFFFFFF);
@@ -120,7 +126,7 @@ StatusCode TileCellCont::initialize() {
         HWIdentifier channelID = tileHWID->channel_id(ros, drawer, channel);
         Identifier cell_id = cabling->h2s_cell_id_index(channelID, index, pmt);
         if (index == -2) { // MBTS cell, only one per drawer
-          m_mbts_rods.push_back(src.getRodID(frag));
+          m_mbts_rods.push_back(m_src->getRodID(frag));
           m_mbts_IDs.push_back(((ros - 1) * TileCalibUtils::MAX_DRAWER + drawer));
           CaloDetDescrElement * caloDDE = (mbtsMgr) ? mbtsMgr->get_element(cell_id) : NULL;
           TileCell* myMBTSCell = new TileCell(caloDDE, cell_id, 0.0, 0.0, 0, 0, CaloGain::TILEONELOW);
@@ -137,6 +143,7 @@ StatusCode TileCellCont::initialize() {
           }
         }
       } // End of for over TileRawChannel
+
 
       // create new cell collection which will own all elements
       TileCellCollection* newColl = new TileCellCollection(frag, SG::OWN_ELEMENTS);
@@ -182,10 +189,13 @@ StatusCode TileCellCont::initialize() {
   for (unsigned int k = 0; k < m_mbts_rods.size(); k++)
     std::cout << " MBTS RODs : " << m_mbts_rods[k] << std::endl;
 #endif
+  m_hash.initialize(0,rodids);
 
 #ifndef NDEBUG
   for (int i = 0; i < m_hash.max(); ++i) {
-    std::cout << "TileCellCont\t\t DEBUG \t" << i << " " << std::hex << m_hash.identifier(i) << std::dec << std::endl;
+    TileCellCollection *aa = this->at(i);
+    TileCell* bb = aa->at(0);
+    std::cout << "TileCellCont\t\t DEBUG \t" << i << " " << std::hex << m_hash.identifier(i) << std::dec << " " << aa->identify() << " " << bb->eta() << " " <<  bb->phi() << std::endl;
     // A collection per ROD/ROB/HashId
   } // end of for id
 #endif

@@ -30,12 +30,12 @@ atlas_add_library( TileEvent
                    src/Tile*.cxx
                    PUBLIC_HEADERS TileEvent
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES CaloEvent DataModel Identifier GaudiKernel TileIdentifier TileSimEvent StoreGateLib SGtests TileConditionsLib CaloDetDescrLib
+                   LINK_LIBRARIES CaloEvent DataModel Identifier GaudiKernel TileIdentifier TileSimEvent StoreGateLib SGtests TileConditionsLib CaloDetDescrLib EventContainers
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} CaloIdentifier SGTools )
 
 atlas_add_dictionary( TileEventDict
                       TileEvent/TileEventDict.h
                       TileEvent/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} CaloEvent DataModel StoreGateLib SGtests Identifier GaudiKernel TileConditionsLib TileIdentifier TileSimEvent CaloDetDescrLib CaloIdentifier SGTools TileEvent )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} CaloEvent DataModel StoreGateLib SGtests Identifier GaudiKernel TileConditionsLib TileIdentifier TileSimEvent CaloDetDescrLib CaloIdentifier SGTools TileEvent EventContainers )
 

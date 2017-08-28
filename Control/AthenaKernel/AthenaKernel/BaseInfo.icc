@@ -1,0 +1,661 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id: BaseInfo.icc,v 1.9 2008-12-15 15:12:39 ssnyder Exp $
+/**
+ * @file  AthenaKernel/BaseInfo.icc
+ * @author scott snyder
+ * @date Nov 2005
+ * @brief Provide an interface for finding inheritance information
+ *        at run time.
+ *        Implementation file.
+ */
+
+
+#include <type_traits>
+
+
+namespace SG {
+
+
+//===========================================================================
+// Inheritance data representation classes.
+//
+
+
+/**
+ * @brief Marker to indicate a nonexistent base class.
+ */
+struct NoBase {};
+
+
+/**
+ * @brief Wrapper to indicate virtual derivation.
+ *        @a Virtual<T> will mean that derivation from @a T is virtual.
+ */
+template <class T> struct Virtual {};
+
+
+/**
+ * @brief Traits class to hold derivation information for up to three
+ *        base classes.
+ *
+ * @a Base1, etc., get typedef'd to the appropriate
+ * base classes.  Use @a NoBase if there is no base class; use
+ * @a Virtual<T> to indicate virtual derivation.  This class should
+ * be specialized for every class @a T for which we want to know
+ * inheritance information.
+ */
+template <class T>
+struct Bases
+{
+  typedef NoBase Base1;
+  typedef NoBase Base2;
+  typedef NoBase Base3;
+};
+
+
+// Helper metafunction to get base class types.
+// Generic case.
+template <class T>
+struct BaseType
+{
+  typedef T type;
+  typedef std::false_type is_virtual;
+};
+
+
+// Helper metafunction to get base class types.
+// Virtual derivation case.
+template <class T>
+struct BaseType<Virtual<T> >
+{
+  typedef T type;
+  typedef std::true_type is_virtual;
+};
+
+
+//===========================================================================
+// Internal implementation class for @a BaseInfo.
+// This is used as a singleton, and should be accessed using the @a BaseInfo
+// wrapper class.
+//
+
+/**
+ * @brief Internal implementation class for @a BaseInfo.
+ */
+template <class T>
+class BaseInfoImpl
+  : public BaseInfoBase
+{
+public:
+  /**
+   * @brief Constructor.
+   */
+  BaseInfoImpl();
+
+
+  /**
+   * @brief Add information about base class @a B (for @a T).
+   * @param is_virtual True if the derivation from @a B to @a T
+   *                   is via virtual derivation.
+   */
+#if defined(__REFLEX__) || defined(__COVERITY__)
+  template <class B>
+  void add_base (bool is_virtual);
+#else
+  template <class B>
+  void add_base (bool is_virtual)
+  {
+    // Make sure the bib for the base class exists.
+    if (!std::is_same<T, B>::value) {
+      // Don't call it if the types are the same.
+      // Otherwise, we can get recursive calls to instance(), triggering
+      // a deadlock.
+      BaseInfo<B>::maybeInit();
+    }
+
+    // Add the information for this base.
+    this->add_info (typeid(B),
+                    converter<B>, converterTo<B>, is_virtual);
+  }
+#endif
+
+private:
+  /**
+   * @brief Converter function.
+   * @param p Pointer to convert.  A @a T* converted to a @a void*.
+   *
+   * Converts a @a T* to a @a B* (where @a T derives from @a B).
+   * The pointers are given and returned as @a void*.
+   */
+  template <class B>
+  static void* converter (void* p)
+  {
+    typedef typename std::remove_const<B>::type B_nc;
+    typedef typename std::remove_const<T>::type T_nc;
+    B_nc* b = reinterpret_cast<T_nc*> (p);
+    return b;
+  }
+
+
+  /**
+   * @brief Converter function.
+   * @param p Pointer to convert.  A @a B* converted to a @a void*.
+   *
+   * Converts a @a B* to a @a T* (where @a T derives from @a B).
+   * The pointers are given and returned as @a void*.
+   * Returns 0 if the conversion fails.
+   *
+   * Implementation note: to @c dynamic_cast @a B to @a T, @a B needs to have
+   * a vtable.  If B doesn't have a vtable, then we don't attempt the
+   * conversion.  (In principle, we could use is_virtual_base_of, and fall
+   * back to a static_cast if it's false.  However, using is_virtual_base_of
+   * generates some nasty compilation warnings, so i'll avoid it for now.)
+   */
+  template <class B>
+  static void* converterTo (void* p)
+  {
+    return converterToHelper<B> (p, std::is_polymorphic<B>());
+  }
+
+
+  // B has a vtable.  Use dynamic_cast.
+  template <class B>
+  static void* converterToHelper (void* p, std::true_type)
+  {
+    typedef typename std::remove_const<B>::type B_nc;
+    typedef typename std::remove_const<T>::type T_nc;
+    T_nc* b = dynamic_cast<T_nc*> (reinterpret_cast<B_nc*> (p));
+    return b;
+  }
+
+
+  // B doesn't have a vtable.  Don't try to convert.
+  template <class B>
+  static void* converterToHelper (void* /*p*/, std::false_type)
+  {
+    return 0;
+  }
+};
+
+
+//===========================================================================
+// Initialization.
+// Here we walk the class hierarchy, calling @a add_base for each base.
+
+
+/**
+ * @brief Generic initializer for base @a B.
+ */
+template <class B>
+struct BaseInfo_init
+{
+  template <class T>
+  static void init (BaseInfoImpl<T>& c, bool is_virtual)
+  {
+    // Here, we initialize the @a BaseInfo for @a T for base class @a B.
+    // First, we add the information for this base to the instance.
+    c.template add_base<B>(is_virtual);
+
+    // Then we recurse on each possible base.
+    BaseInfo_init<typename Bases<B>::Base1>::init (c, is_virtual);
+    BaseInfo_init<typename Bases<B>::Base2>::init (c, is_virtual);
+    BaseInfo_init<typename Bases<B>::Base3>::init (c, is_virtual);
+  }
+};
+
+
+/**
+ * @brief Dummy initializer.
+ */
+template <>
+struct BaseInfo_init<NoBase>
+{
+  template <class T>
+  static void init (BaseInfoImpl<T>& /*c*/, bool /*is_virtual*/)
+  {
+    // This gets called when there is no base in a slot
+    // (signaled by the use of @a NoBase).
+    // This ends the recursion.
+  }
+};
+
+
+/**
+ * @brief Initializer for virtual base @a B.
+ */
+template <class B>
+struct BaseInfo_init<Virtual<B> >
+{
+  template <class T>
+  static void init (BaseInfoImpl<T>& c, bool /*is_virtual*/)
+  {
+    // Here, we initialize the @a BaseInfo for @a T for a virtual
+    // base class @a B.  We recurse to the generic initializer
+    // for this base, with the @a is_virtual flag forced on.
+    BaseInfo_init<B>::init (c, true);
+  }
+};
+
+
+/**
+ * @brief Constructor.
+ */
+template <class T>
+BaseInfoImpl<T>::BaseInfoImpl ()
+  : BaseInfoBase (typeid(T))
+{
+  // This starts the walk over the bases.
+  // We start with @a T itself.
+  // The virtual flag is initially false.
+  BaseInfo_init<T>::init (*this, false);
+}
+
+
+//===========================================================================
+// The @a BaseInfo wrapper class.
+// This will statically hold a singleton instance of @a BaseInfoImpl
+// (in the instance function).
+
+
+/**
+ * @brief Cast to a base pointer.
+ * @param p The pointer to cast.
+ * @param clid ID of the class to which to cast.
+ * @return The pointer cast to the requested type, returned
+ *         as a @a void*.  @a clid must be known to be a base
+ *         of @a T; otherwise, 0 will be returned.
+ */
+template <class T>
+void* BaseInfo<T>::cast (T* p, CLID clid)
+{
+  typedef typename std::remove_const<T>::type T_nc;
+  return instance().cast (const_cast<T_nc*>(p), clid);
+}
+
+
+/**
+ * @brief Cast to a base pointer.
+ * @param p The pointer to cast.
+ * @param clid @a type_info of the class to which to cast.
+ * @return The pointer cast to the requested type, returned
+ *         as a @a void*.  @a tinfo must be known to be a base
+ *         of @a T; otherwise, 0 will be returned.
+ */
+template <class T>
+void* BaseInfo<T>::cast (T* p, const std::type_info& tinfo)
+{
+  typedef typename std::remove_const<T>::type T_nc;
+  return instance().cast (const_cast<T_nc*>(p), tinfo);
+}
+
+
+/**
+ * @brief Cast to a derived pointer.
+ * @param p The pointer to cast.
+ * @param clid ID of the class @a B from which to cast.
+ * @return The pointer cast to a @a T*.
+ *         @a B must be known to be a base
+ *         of @a T; otherwise, 0 will be returned.
+ *         0 will also be returned if the @a dynamic_cast fails.
+ */
+template <class T>
+T* BaseInfo<T>::castTo (void* p, CLID clid)
+{
+  return reinterpret_cast<T*> (instance().castTo (p, clid));
+}
+
+
+/**
+ * @brief Cast to a derived pointer.
+ * @param p The pointer to cast.
+ * @param clid @a type_info of the class @a B from which to cast.
+ * @return The pointer cast to a @a T*.
+ *         @a B must be known to be a base
+ *         of @a T; otherwise, 0 will be returned.
+ *         0 will also be returned if the @a dynamic_cast fails.
+ */
+template <class T>
+T* BaseInfo<T>::castTo (void* p, const std::type_info& tinfo)
+{
+  return reinterpret_cast<T*> (instance().castTo (p, tinfo));
+}
+
+
+#if !defined(__REFLEX__) && !defined(__COVERITY__)
+/**
+ * @brief Return a function for casting to a base pointer.
+ * @param clid ID of the class to which to cast.
+ * @return A function to convert a pointer to a @c T to a pointer
+ *         to the type identified by @a clid.
+ *         @a clid must be known to be a base
+ *         of @a T; otherwise, 0 will be returned.
+ */
+template <class T>
+BaseInfoBase::castfn_t* BaseInfo<T>::castfn (CLID clid)
+{
+  return instance().castfn (clid);
+}
+
+
+/**
+ * @brief Return a function for casting to a base pointer.
+ * @param clid @a type_info of the class to which to cast.
+ * @return A function to convert a pointer to a @c T to a pointer
+ *         to the type identified by @a tinfo.
+ *         @a tinfo must be known to be a base
+ *         of @a T; otherwise, 0 will be returned.
+ */
+template <class T>
+BaseInfoBase::castfn_t*
+BaseInfo<T>::castfn (const std::type_info& tinfo)
+{
+  return instance().castfn (tinfo);
+}
+
+
+/**
+ * @brief Return a function for casting to a derived pointer.
+ * @param clid ID of the class @a B from which to cast.
+ * @return A function to convert a pointer to a @c T to a pointer
+ *         to a @a T.  @a clid must be known to be a base
+ *         of @a T; otherwise, 0 will be returned.
+ *         0 will also be returned if the @a dynamic_cast fails.
+ */
+template <class T>
+BaseInfoBase::castfn_t* BaseInfo<T>::castfnTo (CLID clid)
+{
+  return instance().castfnTo (clid);
+}
+
+
+/**
+ * @brief Return a function for casting to a derived pointer.
+ * @param clid @a type_info of the class @a B from which to cast.
+ * @return A function to convert a pointer to a @c B to a pointer
+ *         to a @T.  @a tinfo must be known to be a base
+ *         of @a T; otherwise, 0 will be returned.
+ *         0 will also be returned if the @a dynamic_cast fails.
+ */
+template <class T>
+BaseInfoBase::castfn_t*
+BaseInfo<T>::castfnTo (const std::type_info& tinfo)
+{
+  return instance().castfnTo (tinfo);
+}
+#endif
+
+
+/**
+ * @brief Return the class IDs of all known bases of @a T (that
+ *        have class IDs).  The list will include @a T itself.
+ */
+template <class T>
+std::vector<CLID> BaseInfo<T>::get_bases ()
+{
+  return instance().get_bases();
+}
+
+
+/**
+ * @brief Return the @c type_info's of all known bases of @a T.
+ *        The list will include @a T itself.
+ */
+template <class T>
+std::vector<const std::type_info*>
+BaseInfo<T>::get_ti_bases ()
+{
+  return instance().get_ti_bases();
+}
+
+
+/**
+ * @brief Return true if @a clid is the ID of a class that
+ *        is known to be a base of @a T.  @a T is considered
+ *        to be its own base for this purpose.
+ * @param clid The ID of the class to test.
+ */
+template <class T>
+bool BaseInfo<T>::is_base (CLID clid)
+{
+  return instance().is_base (clid);
+}
+
+
+/**
+ * @brief Return true if @a tinfo is the @a std::type_info of a class that
+ *        is known to be a base of @a T.  @a T is considered
+ *        to be its own base for this purpose.
+ * @param tinfo The @a std::type_info of the class to test.
+ */
+template <class T>
+bool BaseInfo<T>::is_base (const std::type_info& tinfo)
+{
+  return instance().is_base (tinfo);
+}
+
+
+/**
+ * @brief Return true if @a clid is the ID of a class that
+ *        is known to be a virtual base of @a T.  (This will always
+ *        be false for @a T itself.)
+ * @param clid The ID of the class to test.
+ */
+template <class T>
+bool BaseInfo<T>::is_virtual (CLID clid)
+{
+  return instance().is_virtual (clid);
+}
+
+
+/**
+ * @brief Return true if @a tinfo is the @a std::type_info of a class that
+ *        is known to be a virtual base of @a T.  (This will always
+ *        be false for @a T itself.)
+ * @param tinfo The @a std::type_info of the class to test.
+ */
+template <class T>
+bool BaseInfo<T>::is_virtual (const std::type_info& tinfo)
+{
+  return instance().is_virtual (tinfo);
+}
+
+
+/**
+ * @brief Return the non-templated @c BaseInfoBase object for this type.
+ */
+template <class T>
+const BaseInfoBase& BaseInfo<T>::baseinfo()
+{
+  return instance();
+}
+
+
+template <class T>
+void BaseInfo<T>::maybeInit()
+{
+  instance();
+}
+
+
+/**
+ * @brief Return a reference to the (singleton) implementation object
+ *        for this class.
+ */
+template <class T>
+BaseInfoImpl<T>& BaseInfo<T>::instance()
+{
+  s_instance.maybeInit();
+  return s_instance;
+}
+
+template <class T>
+BaseInfoImpl<T> BaseInfo<T>::s_instance;
+
+
+/**
+ * @brief Helper to get @c BaseInfo initialized.
+ */
+template <class T>
+struct RegisterBaseInit
+{
+  RegisterBaseInit()
+#ifdef __GNUC__
+    // Force this function to appear as a symbol in the output file,
+    // even in an optimized build where it's always inlined.
+    // Otherwise, we get complaints from cling that it can't find the symbol
+    // (as of root 6.04).
+    __attribute__ ((used))
+#endif
+  ;
+};
+
+
+#if !defined(__REFLEX__) && !defined(__COVERITY__)
+template <class T>
+RegisterBaseInit<T>::RegisterBaseInit()
+{
+  BaseInfoBase::addInit(&typeid(T), BaseInfo<T>::baseinfo);
+}
+#endif
+
+
+/**
+ * @brief Helper to get @c BaseInfo initialized.
+ */
+template <class T> struct BaseInit {
+  static const RegisterBaseInit<T> s_regbase;
+};
+#ifndef __APPLE__
+template <class T> const RegisterBaseInit<T> BaseInit<T>::s_regbase;
+#endif
+
+
+//**********************************************************
+// SG_ADD_BASE and SG_ADD_COPY_CONVERSION implementation.
+
+
+/**
+ * @brief Helper to get @c AddBaseInfo initialized.
+ */
+template <class D, class B>
+struct RegisterAddBaseInit
+{
+  /// Add ourself to the init list.
+  RegisterAddBaseInit();
+
+  /// Init callback: add the new base to the BIB.
+  static const BaseInfoBase& doinit();
+};
+
+
+#if !defined(__REFLEX__) && !defined(__COVERITY__)
+/**
+ * @brief Init callback: add the new base to the BIB.
+ */
+template <class D, class B>
+const BaseInfoBase& RegisterAddBaseInit<D, B>::doinit()
+{
+  // B may either be the actual base class we want,
+  // or Virtual<BB>. Unwrap a surrounding Virtual<> if needed.
+  typedef typename BaseType<B>::type base_type;
+  bool is_virtual = BaseType<B>::is_virtual::value;
+
+  // Look up the BIB.
+  SG::BaseInfoBase* bib = SG::BaseInfoBase::find_nc (typeid(D));
+  if (!bib)
+    bib = &BaseInfo<D>::instance();
+  if (bib) {
+    // Add the new base to it.
+    SG::BaseInfoImpl<D>& impl = *static_cast<SG::BaseInfoImpl<D>*> (bib);
+    impl.template add_base<base_type> (is_virtual);
+  }
+  return *bib;
+}
+
+
+/**
+ * @brief Add ourself to the init list.
+ */
+template <class D, class B>
+RegisterAddBaseInit<D, B>::RegisterAddBaseInit()
+{
+  BaseInfoBase::addInit(&typeid(D), doinit);
+}
+#endif
+
+
+/**
+ * @brief Helper to get @c AddBaseInfo initialized.
+ */
+template <class D, class B> struct AddBaseInit {
+  static const RegisterAddBaseInit<D, B> s_regbase;
+};
+#ifndef __APPLE__
+template <class D, class B>
+const RegisterAddBaseInit<D,B> AddBaseInit<D,B>::s_regbase;
+#endif
+
+
+
+/**
+ * @brief Helper to get the copy conversion initialized.
+ */
+template <class D, class B>
+struct RegisterAddCopyConversionInit
+{
+  /// Add ourself to the init list.
+  RegisterAddCopyConversionInit();
+
+  /// Init callback: xxx
+  static const BaseInfoBase& doinit();
+};
+
+
+#if !defined(__REFLEX__) && !defined(__COVERITY__)
+/**
+ * @brief Init callback: add the new conversion to the BIB.
+ */
+template <class T, class C>
+const BaseInfoBase& RegisterAddCopyConversionInit<T, C>::doinit()
+{
+  // Look up the BIB.
+  SG::BaseInfoBase* bib = SG::BaseInfoBase::find_nc (typeid(T));
+  if (!bib)
+    bib = &BaseInfo<T>::instance();
+  if (bib) {
+    typedef typename C::target_type target_type;
+    bib->add_copy_conversion (typeid(target_type),
+                              new C);
+  }
+  return *bib;
+}
+
+
+/**
+ * @brief Add ourself to the init list.
+ */
+template <class T, class C>
+RegisterAddCopyConversionInit<T, C>::RegisterAddCopyConversionInit()
+{
+  BaseInfoBase::addInit(&typeid(T), doinit);
+}
+#endif
+
+
+/**
+ * @brief Helper to get @c AddBaseInfo initialized.
+ */
+template <class T, class C> struct AddCopyConversionInit {
+  static const RegisterAddCopyConversionInit<T, C> s_regbase;
+};
+#ifndef __APPLE__
+template <class T, class C>
+const RegisterAddCopyConversionInit<T,C> AddCopyConversionInit<T,C>::s_regbase;
+#endif
+
+
+} // namespace SG
+

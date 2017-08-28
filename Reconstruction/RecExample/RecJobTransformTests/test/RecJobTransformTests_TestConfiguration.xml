@@ -227,35 +227,34 @@
                 <displayComponent>Athena-Core</displayComponent>
             </classification>
       
-            <!-- XS: Please update to MC15: Test runs on mc12 -->
-      
-            <jobTransform userJobId="mc12">
-                <doc>Reco_tf runs on mc12</doc>
-                <jobTransformJobName>RecoTf_mc12</jobTransformJobName>
+
+            <jobTransform userJobId="mc16">
+                <doc>Reco_tf runs on mc16, ased on recon tag r9364 MC16a</doc>
+                <jobTransformJobName>RecoTf_mc16</jobTransformJobName>
                 <jobTransformCmd>
-                    Reco_tf.py --inputRDOFile root://eosatlas//eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1 --maxEvents 300 --autoConfiguration everything --conditionsTag='OFLCOND-RUN12-SDR-31' --geometryVersion='ATLAS-R2-2015-03-01-00' --preExec 'rec.doTrigger=False;' --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --outputTAGFile myTAG.pool.root --outputHISTFile myHIST.root
+				Reco_tf.py --inputRDOFile=/eos/atlas/atlascerngroupdisk/phys-rig/MC16Samples/mc16_13TeV.410501.PowhegPythia8EvtGen_A14_ttbar_hdamp258p75_nonallhad.merge.RDO.e5458_s3126_d1437/RDO.11426804._000001.pool.root.1 --maxEvents=300 --autoConfiguration everything --conditionsTag=default:OFLCOND-MC16-SDR-16 --geometryVersion=default:ATLAS-R2-2016-01-00-01 --runNumber=410501 --preExec 'rec.doTrigger=False;' --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --outputTAGFile myTAG.pool.root --outputHISTFile myHIST.root
                 </jobTransformCmd>
                 <group>RecTrf</group>
                 <queue>long</queue>
             </jobTransform>
       
-            <jobTransform userJobId="mc12_trigsplit">
-                <doc>Reco_tf with split trigger runs on mc12</doc>
-                <jobTransformJobName>RecoTf_trigsplit_mc12</jobTransformJobName>
+            <jobTransform userJobId="mc16_trigsplit">
+                <doc>Reco_tf with split trigger runs on mc16</doc>
+                <jobTransformJobName>RecoTf_trigsplit_mc16</jobTransformJobName>
                 <jobTransformCmd>
-                    Reco_tf.py --inputRDOFile root://eosatlas//eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1 --maxEvents 300 --autoConfiguration everything --conditionsTag='OFLCOND-RUN12-SDR-31' --geometryVersion='ATLAS-R2-2015-03-01-00' --steering RAWtoESD:in-RDO RAWtoESD:in-BS RAWtoESD:in+RDO_TRIG --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --outputTAGFile myTAG.pool.root --outputHISTFile myHIST.root
+				Reco_tf.py --inputRDOFile /eos/atlas/atlascerngroupdisk/phys-rig/MC16Samples/mc16_13TeV.410501.PowhegPythia8EvtGen_A14_ttbar_hdamp258p75_nonallhad.merge.RDO.e5458_s3126_d1437/RDO.11426804._000001.pool.root.1 --maxEvents 300 --autoConfiguration everything --conditionsTag=default:OFLCOND-MC16-SDR-16 --geometryVersion=default:ATLAS-R2-2016-01-00-01 --runNumber=410501 --steering RAWtoESD:in-RDO RAWtoESD:in-BS RAWtoESD:in+RDO_TRIG --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --outputTAGFile myTAG.pool.root --outputHISTFile myHIST.root
                 </jobTransformCmd>
                 <group>RecTrf</group>
                 <queue>long</queue>
             </jobTransform>
       
-            <!-- Test runs on mc12 with Hephaestos-->
+            <!-- Test runs on mc16 with Hephaestos-->
       
-            <jobTransform userJobId="mc12_memleak">
-                <doc>Reco_tf runs on mc12 with Hephaestos for memory leak checking</doc>
-                <jobTransformJobName>RecoTf_mc12</jobTransformJobName>
+            <jobTransform userJobId="mc16_memleak">
+                <doc>Reco_tf runs on mc16 with Hephaestos for memory leak checking</doc>
+                <jobTransformJobName>RecoTf_memleak_mc16</jobTransformJobName>
                 <jobTransformCmd>
-                    export LD_PRELOAD=/afs/cern.ch/sw/lcg/external/libunwind/5c2cade/x86_64-slc6-gcc48-opt/lib/libunwind.so; Reco_tf.py --inputRDOFile root://eosatlas//eos/atlas/user/a/atlaspmb/mc/valid1.117050.PowhegPythia_P2011C_ttbar.recon.RDO.e2658_s1967_s1964_r5787_tid01572821_00/RDO.01572821._000019.pool.root.1 --conditionsTag='OFLCOND-RUN12-SDR-31' --geometryVersion='ATLAS-R2-2015-03-01-00' --maxEvents 10 --outputESDFile myESD.pool.root --athenaopts '--stdcmalloc --leak-check-execute'
+				export LD_PRELOAD=$LCG_RELEASE_BASE/libunwind/5c2cade-76996/$LCG_PLATFORM/lib/libunwind.so; Reco_tf.py --inputRDOFile /eos/atlas/atlascerngroupdisk/phys-rig/MC16Samples/mc16_13TeV.410501.PowhegPythia8EvtGen_A14_ttbar_hdamp258p75_nonallhad.merge.RDO.e5458_s3126_d1437/RDO.11426804._000001.pool.root.1 --conditionsTag=default:OFLCOND-MC16-SDR-16 --geometryVersion=default:ATLAS-R2-2016-01-00-01 --runNumber=410501 --maxEvents 10 --outputESDFile myESD.pool.root --athenaopts '--stdcmalloc --leak-check-execute'
                 </jobTransformCmd>
                 <group>RecTrf</group>
                 <queue>long</queue>
@@ -311,10 +310,12 @@
                     </chainElement>
                     <chainElement>
                         <jobTransform userJobId="PhysVal_MC15_13TeV_All">
+						<!-- add preExec and remove doTopoCluster ATLJETMET-774 -->
+						<!-- no plan yet to move to MC16 July 2017-->
                             <doc>Reco_tf runs physcs validation as defined by Carl G/Marie-Helene G, May 7 2014</doc>
                             <jobTransformJobName>PhysVal_MC15_trf</jobTransformJobName>
                             <jobTransformCmd>
-                                Reco_tf.py --inputAODFile AOD_13TeV_PhysVal.pool.root --outputNTUP_PHYSVALFile PhysVal_14TeV_All.pool.root --validationFlags doExample doPFlow doTopoCluster doJet doMET doMuon doTau doEgamma doBtag doInDet doZee
+                                Reco_tf.py --maxEvents=1 --inputAODFile AOD_13TeV_PhysVal.pool.root --outputNTUP_PHYSVALFile PhysVal_13TeV_All.pool.root --validationFlags doExample doPFlow doJet doMET doMuon doTau doEgamma doBtag doInDet doZee --preExec "all:from InDetPhysValMonitoring.addTruthJets import addTruthJetsIfNotExising; addTruthJetsIfNotExising(\"AntiKt4TruthJets\");"
                             </jobTransformCmd>
                             <group>RecTrf</group>
                             <chaindataset_info>
@@ -343,11 +344,11 @@
             </jobTransform>
 
 
-            <jobTransform userJobId="mc12_rdotobs">
-                <doc>RDO to BS on MC tt MC12 </doc>
+            <jobTransform userJobId="mc16_rdotobs">
+                <doc>RDO to BS on tt mc16 </doc>
                 <jobTransformJobName>RecoTf_RDOtoBS</jobTransformJobName>
                 <jobTransformCmd>
-                    Reco_tf.py --inputRDOFile root://eosatlas//eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700/RDO.01177879._000001.pool.root.1 --outputBSFile mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.data --autoConfiguration everything --maxEvents -1 --conditionsTag='OFLCOND-RUN12-SDR-31' --geometryVersion='ATLAS-R2-2015-03-01-00'
+				Reco_tf.py --inputRDOFile /eos/atlas/atlascerngroupdisk/phys-rig/MC16Samples/mc16_13TeV.410501.PowhegPythia8EvtGen_A14_ttbar_hdamp258p75_nonallhad.merge.RDO.e5458_s3126_d1437/RDO.11426804._000001.pool.root.1 --outputBSFile mc16_13TeV.410501.PowhegPythia8EvtGen_A14_ttbar_hdamp258p75_nonallhad.data --autoConfiguration everything --maxEvents -1 --conditionsTag=default:OFLCOND-MC16-SDR-16 --geometryVersion=default:ATLAS-R2-2016-01-00-01 --runNumber=410501
                 </jobTransformCmd>
                 <group>RecTrf</group>
                 <queue>medium</queue>
@@ -396,23 +397,55 @@
                 <queue>long</queue>
             </jobTransform>
 
-            <!-- Test runs on 8TeV collision data with Hephaestos -->
+            <!-- Test runs on 13TeV collision data -->
       
-            <jobTransform userJobId="data12_8TeV_memleak">
-                <doc>Reco_tf runs on 8TeV collision data with Hephaestos for checking for memory leaks</doc>
-                <jobTransformJobName>RecoTf_8TeV_data</jobTransformJobName>
+            <jobTransform userJobId="data15_13TeV">
+                <doc>Reco_tf runs on 13TeV collision data 2015</doc>
+                <jobTransformJobName>RecoTf_13TeV_data_2015</jobTransformJobName>
                 <jobTransformCmd>
-                    export LD_PRELOAD=/afs/cern.ch/sw/lcg/external/libunwind/5c2cade/x86_64-slc6-gcc48-opt/lib/libunwind.so; Reco_tf.py --inputBSFile /afs/cern.ch/atlas/project/rig/referencefiles/PerformanceTestDataFiles_data12/data12_8TeV.00213092.physics_JetTauEtmiss.merge.RAW._lb0285._SFO-1._0001.1 --maxEvents 5 --autoConfiguration everything --conditionsTag="COMCOND-BLKPA-RUN1-07" --preExec 'rec.doTrigger=False' --outputESDFile myESD.pool.root --athenaopts '--stdcmalloc --leak-check-execute' 
+				Reco_tf.py --inputBSFile /eos/atlas/atlascerngroupdisk/phys-rig/data15_13TeV.00283429.physics_Main.daq.RAW/data15_13TeV.00283429.physics_Main.daq.RAW._lb0154._SFO-1._0001.data --maxEvents 300 --autoConfiguration everything --conditionsTag="CONDBR2-BLKPA-2016-14" --preExec 'rec.doTrigger=False;' --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --outputTAGFile myTAG.pool.root --outputHISTFile myHist.root
+                </jobTransformCmd>
+                <group>RecTrf</group>
+                <queue>long</queue>
+            </jobTransform>
+
+            <jobTransform userJobId="data16_13TeV">
+                <doc>Reco_tf runs on 13TeV collision data 2016</doc>
+                <jobTransformJobName>RecoTf_13TeV_data_2016</jobTransformJobName>
+                <jobTransformCmd>
+				Reco_tf.py --inputBSFile /eos/atlas/atlascerngroupdisk/phys-rig/data16_13TeV.00310809.physics_Main.daq.RAW/data16_13TeV.00310809.physics_Main.daq.RAW._lb1219._SFO-2._0001.data --maxEvents 300 --autoConfiguration everything --conditionsTag="CONDBR2-BLKPA-2016-19" --preExec 'rec.doTrigger=False;' --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --outputTAGFile myTAG.pool.root --outputHISTFile myHist.root
+                </jobTransformCmd>
+                <group>RecTrf</group>
+                <queue>long</queue>
+            </jobTransform>
+
+            <jobTransform userJobId="data17_13TeV">
+                <doc>Reco_tf runs on 13TeV collision data 2017, early data, A3, Toroid and solenoid off</doc>
+                <jobTransformJobName>RecoTf_13TeV_data_2017</jobTransformJobName>
+                <jobTransformCmd>
+				Reco_tf.py --inputBSFile /eos/atlas/atlascerngroupdisk/phys-rig/data17_13TeV.00324910.physics_Main.daq.RAW/data17_13TeV.00324910.physics_Main.daq.RAW._lb0713._SFO-6._0001.data --maxEvents 300 --autoConfiguration everything --conditionsTag="CONDBR2-BLKPA-2017-08" --preExec 'rec.doTrigger=False;' --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --outputTAGFile myTAG.pool.root --outputHISTFile myHist.root
+                </jobTransformCmd>
+                <group>RecTrf</group>
+                <queue>long</queue>
+            </jobTransform>
+
+            <!-- Test runs on 13TeV collision data with Hephaestos -->
+      
+            <jobTransform userJobId="data17_13TeV_memleak">
+                <doc>Reco_tf runs on 13TeV collision data with Hephaestos for checking for memory leaks 2017</doc>
+                <jobTransformJobName>RecoTf_13TeV_data</jobTransformJobName>
+                <jobTransformCmd>
+				export LD_PRELOAD=$LCG_RELEASE_BASE/libunwind/5c2cade-76996/$LCG_PLATFORM/lib/libunwind.so; Reco_tf.py --inputBSFile /eos/atlas/atlascerngroupdisk/phys-rig/data17_13TeV.00324910.physics_Main.daq.RAW/data17_13TeV.00324910.physics_Main.daq.RAW._lb0713._SFO-6._0001.data --maxEvents 10 --autoConfiguration everything --conditionsTag="CONDBR2-BLKPA-2017-08" --preExec 'rec.doTrigger=False' --outputESDFile myESD.pool.root --athenaopts '--stdcmalloc --leak-check-execute'
                 </jobTransformCmd>
                 <group>RecTrf</group>
                 <queue>long</queue>
             </jobTransform>
       
-            <jobTransform userJobId="data12_8TeV_fpe">
-                <doc>Reco_tf runs on 8TeV collision data with floating point exception enabled</doc>
-                <jobTransformJobName>RecoTf_8TeV_data_fpe</jobTransformJobName>
+            <jobTransform userJobId="data17_13TeV_fpe">
+                <doc>Reco_tf runs on 13TeV collision data with floating point exception enabled 2017</doc>
+                <jobTransformJobName>RecoTf_13TeV_data_fpe</jobTransformJobName>
                 <jobTransformCmd>
-                    Reco_tf.py --inputBSFile /afs/cern.ch/atlas/project/rig/referencefiles/dataStreams_high_mu/data12_8TeV/data12_8TeV.00209109.physics_JetTauEtmiss.merge.RAW._lb0186._SFO-1._0001.1 --maxEvents 300 --autoConfiguration everything --conditionsTag="COMCOND-BLKPA-RUN1-07" --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --outputTAGFile myTAG.pool.root --outputHISTFile myHist.root --preExec 'rec.doFloatingPointException=True;rec.doTrigger=False;' --postExec 'FPEAuditor.NStacktracesOnFPE=5' 
+				Reco_tf.py --inputBSFile /eos/atlas/atlascerngroupdisk/phys-rig/data17_13TeV.00324910.physics_Main.daq.RAW/data17_13TeV.00324910.physics_Main.daq.RAW._lb0713._SFO-6._0001.data --maxEvents -1 --autoConfiguration everything --conditionsTag="CONDBR2-BLKPA-2017-08" --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --outputTAGFile myTAG.pool.root --outputHISTFile myHist.root --preExec 'rec.doFloatingPointException=True;rec.doTrigger=False;' --postExec 'FPEAuditor.NStacktracesOnFPE=5' 
                 </jobTransformCmd>
                 <group>RecTrf</group>
                 <queue>long</queue>
@@ -464,22 +497,12 @@
             </jobTransform>
       
             <!-- Test runs with pileup MC samples w/o trigger -->
-            <!-- Broken, reported here: https://its.cern.ch/jira/browse/ATLASRECTS-1695 /CO -->
-            <jobTransform userJobId="DigiMReco_tf_FCT">
+            <jobTransform userJobId="DigiMReco_tf_FCT_MC16a">
+			<!-- read mc16a hits s3126 and digi+merge+reco based on r9364 -->
                 <doc>Test of DigiMReco from HITS to AOD/TAG</doc>
-                <jobTransformJobName>DigiMReco_FCT</jobTransformJobName>
+                <jobTransformJobName>DigiMReco_FCT_MC16a_r9364</jobTransformJobName>
                 <jobTransformCmd>
-                    export TRF_ECHO=True; Reco_tf.py --inputHITSFile root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc11a/mc11_7TeV.105200.T1_McAtNlo_Jimmy.merge.HITS.e835_s1310_s1300/HITS.508808._000857.pool.root.1 --outputESDFile my.ESD.pool.root --outputHISTFile my.HIST.pool.root --outputAODFile my.ADO.pool.root --outputTAGFile my.TAG.pool.root --maxEvents 10 --triggerConfig MCRECO:MC_pp_v5 --preInclude 'h2r:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrains2011Config8_DigitConfig.py,RunDependentSimData/configLumi_mc11b_v1.py' --preExec 'h2r:from Digitization.DigitizationFlags import digitizationFlags;digitizationFlags.overrideMetadata+=["SimLayout","PhysicsList"];from AthenaMonitoring.DQMonFlags import DQMonFlags; DQMonFlags.doCaloMon.set_Value_and_Lock(False); DQMonFlags.doLArMon.set_Value_and_Lock(False);' --postExec 'h2r:ToolSvc.LArAutoCorrTotalToolDefault.NMinBias=0' 'e2a:TriggerFlags.AODEDMSet "AODSLIM";rec.Commissioning.set_Value_and_Lock(True);jobproperties.Beam.energy.set_Value_and_Lock(3500*Units.GeV);muonRecFlags.writeSDOs=True;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(8.0);jobproperties.Beam.bunchSpacing.set_Value_and_Lock(50)' 'r2e:RegSelSvc=topSequence.allConfigurables.get("RegSelSvcDefault");RegSelSvc.DeltaZ=225*Units.mm' 'r2e:rec.Commissioning.set_Value_and_Lock(True);jobproperties.Beam.energy.set_Value_and_Lock(3500*Units.GeV);muonRecFlags.writeSDOs=True;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(8.0);jobproperties.Beam.bunchSpacing.set_Value_and_Lock(50);from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import L2IDTrackingCuts;L2IDTrackingCuts.setRegSelZmax(225*Units.mm)'  --RunNumber 105200 --autoConfiguration everything --conditionsTag=OFLCOND-RUN12-SDR-22 --geometryVersion ATLAS-R2-2015-03-01-00 --numberOfLowPtMinBias 29.966 --numberOfHighPtMinBias 0.034 --LowPtMinbiasHitsFile root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc11a/mc11_7TeV.108118.Pythia8_minbias_Inelastic_low.merge.HITS.e816_s1299_s1303/HITS.500617._000382.pool.root.1 --HighPtMinbiasHitsFile root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc11a/mc11_7TeV.108119.Pythia8_minbias_Inelastic_high.merge.HITS.e848_s1299_s1303/HITS.500616._001496.pool.root.1 --DataRunNumber -1 --jobNumber 41 --digiSeedOffset1 41 --digiSeedOffset2 41 
-                </jobTransformCmd>
-                <group>RecTrf</group>
-                <queue>long</queue>
-            </jobTransform>
-
-            <jobTransform userJobId="DigiMReco_tf_FCT_MC15c">
-                <doc>Test of DigiMReco from HITS to AOD/TAG</doc>
-                <jobTransformJobName>DigiMReco_FCT_MC15c_r7725</jobTransformJobName>
-                <jobTransformCmd>
-				Reco_tf.py --maxEvents=10 --outputRDOFile=mc15c.RDO.pool.root --outputESDFile=mc15c.ESD.pool.root --outputAODFile=mc15c.AOD.pool.root --digiSeedOffset1=1 --digiSeedOffset2=2 --inputHitsFile=/afs/cern.ch/atlas/project/rig/referencefiles/mc15/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.simul.HITS.e4993_s2887_tid08170896_00/HITS.08170896._001944.pool.root.1 --numberOfHighPtMinBias=0.12268057 --numberOfLowPtMinBias=39.8773194 --jobNumber=1 --conditionsTag=default:OFLCOND-MC15c-SDR-09 --skipEvents=0 --preInclude "HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrainsMC15_2015_25ns_Config1.py,RunDependentSimData/configLumi_run284500_v2.py" "RDOtoRDOTrigger:RecExPers/RecoOutputMetadataList_jobOptions.py" --preExec "all:rec.Commissioning.set_Value_and_Lock(True);from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True)" "RAWtoESD:from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False" "ESDtoAOD:TriggerFlags.AODEDMSet=\"AODSLIM\"" --postExec "all:CfgMgr.MessageSvc().setError+=[\"HepMcParticleLink\"]" "ESDtoAOD:fixedAttrib=[s if \"CONTAINER_SPLITLEVEL = \'99\'\" not in s else \"\" for s in svcMgr.AthenaPoolCnvSvc.PoolAttributes];svcMgr.AthenaPoolCnvSvc.PoolAttributes=fixedAttrib"  --LowPtMinbiasHitsFile /afs/cern.ch/atlas/project/rig/referencefiles/mc15_minBias/mc15_13TeV.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2195/HITS.05608147._000125.pool.root.1 --HighPtMinbiasHitsFile /afs/cern.ch/atlas/project/rig/referencefiles/mc15_minBias/mc15_13TeV.361035.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_high.merge.HITS.e3581_s2578_s2195/HITS.05608152._002335.pool.root.1 --geometryVersion=ATLAS-R2-2015-03-01-00 --autoConfiguration=everything --triggerConfig=RDOtoRDOTrigger=MCRECO:DBF:TRIGGERDBMC:2046,20,48
+				Reco_tf.py --maxEvents=10 --outputRDOFile=mc16a.RDO.pool.root --outputESDFile=mc16a.ESD.pool.root --outputAODFile=mc16a.AOD.pool.root --digiSeedOffset1=1 --digiSeedOffset2=2 --inputHitsFile=/eos/atlas/atlascerngroupdisk/phys-rig/MC16Samples/mc16_13TeV.410501.PowhegPythia8EvtGen_A14_ttbar_hdamp258p75_nonallhad.simul.HITS.e5458_s3126/HITS.10730668._039360.pool.root.1 --jobNumber=1 --conditionsTag="default:OFLCOND-MC16-SDR-16" --geometryVersion="default:ATLAS-R2-2016-01-00-01" --skipEvents=0  --pileupFinalBunch=6 --autoConfiguration=everything --digiSteeringConf='StandardSignalOnlyTruth' --preInclude "HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrainsMC15_2015_25ns_Config1.py,RunDependentSimData/configLumi_run284500_mc16a.py" --preExec "all:rec.Commissioning.set_Value_and_Lock(True);from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True)" "all:from TriggerJobOpts.TriggerFlags import TriggerFlags as TF;TF.run2Config='2016'" "RAWtoESD:from InDetRecExample.InDetJobProperties import InDetFlags; InDetFlags.cutLevel.set_Value_and_Lock(14); from JetRec import JetRecUtils;f=lambda s:[\"xAOD::JetContainer#AntiKt4%sJets\"%(s,),\"xAOD::JetAuxContainer#AntiKt4%sJetsAux.\"%(s,),\"xAOD::EventShape#Kt4%sEventShape\"%(s,),\"xAOD::EventShapeAuxInfo#Kt4%sEventShapeAux.\"%(s,),\"xAOD::EventShape#Kt4%sOriginEventShape\"%(s,),\"xAOD::EventShapeAuxInfo#Kt4%sOriginEventShapeAux.\"%(s,)]; JetRecUtils.retrieveAODList = lambda : f(\"EMPFlow\")+f(\"LCTopo\")+f(\"EMTopo\")+[\"xAOD::EventShape#NeutralParticleFlowIsoCentralEventShape\",\"xAOD::EventShapeAuxInfo#NeutralParticleFlowIsoCentralEventShapeAux.\", \"xAOD::EventShape#NeutralParticleFlowIsoForwardEventShape\",\"xAOD::EventShapeAuxInfo#NeutralParticleFlowIsoForwardEventShapeAux.\", \"xAOD::EventShape#ParticleFlowIsoCentralEventShape\",\"xAOD::EventShapeAuxInfo#ParticleFlowIsoCentralEventShapeAux.\", \"xAOD::EventShape#ParticleFlowIsoForwardEventShape\",\"xAOD::EventShapeAuxInfo#ParticleFlowIsoForwardEventShapeAux.\", \"xAOD::EventShape#TopoClusterIsoCentralEventShape\",\"xAOD::EventShapeAuxInfo#TopoClusterIsoCentralEventShapeAux.\", \"xAOD::EventShape#TopoClusterIsoForwardEventShape\",\"xAOD::EventShapeAuxInfo#TopoClusterIsoForwardEventShapeAux.\",\"xAOD::CaloClusterContainer#EMOriginTopoClusters\",\"xAOD::ShallowAuxContainer#EMOriginTopoClustersAux.\",\"xAOD::CaloClusterContainer#LCOriginTopoClusters\",\"xAOD::ShallowAuxContainer#LCOriginTopoClustersAux.\"]; from eflowRec.eflowRecFlags import jobproperties; jobproperties.eflowRecFlags.useAODReductionClusterMomentList.set_Value_and_Lock(True); from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.AODEDMSet.set_Value_and_Lock(\"AODSLIM\");" "all:from BTagging.BTaggingFlags import BTaggingFlags;BTaggingFlags.btaggingAODList=[\"xAOD::BTaggingContainer#BTagging_AntiKt4EMTopo\",\"xAOD::BTaggingAuxContainer#BTagging_AntiKt4EMTopoAux.\",\"xAOD::BTagVertexContainer#BTagging_AntiKt4EMTopoJFVtx\",\"xAOD::BTagVertexAuxContainer#BTagging_AntiKt4EMTopoJFVtxAux.\",\"xAOD::VertexContainer#BTagging_AntiKt4EMTopoSecVtx\",\"xAOD::VertexAuxContainer#BTagging_AntiKt4EMTopoSecVtxAux.-vxTrackAtVertex\"];" "ESDtoAOD:from ParticleBuilderOptions.AODFlags import AODFlags; AODFlags.ThinGeantTruth.set_Value_and_Lock(True);  AODFlags.ThinNegativeEnergyCaloClusters.set_Value_and_Lock(True); AODFlags.ThinNegativeEnergyNeutralPFOs.set_Value_and_Lock(True); from JetRec import JetRecUtils; aodlist = JetRecUtils.retrieveAODList(); JetRecUtils.retrieveAODList = lambda : [item for item in aodlist if not \"OriginTopoClusters\" in item];" --postExec "all:CfgMgr.MessageSvc().setError+=[\"HepMcParticleLink\"]" "ESDtoAOD:fixedAttrib=[s if \"CONTAINER_SPLITLEVEL = '99'\" not in s else \"\" for s in svcMgr.AthenaPoolCnvSvc.PoolAttributes];svcMgr.AthenaPoolCnvSvc.PoolAttributes=fixedAttrib" "RDOtoRDOTrigger:conddb.addOverride(\"/CALO/Ofl/Noise/PileUpNoiseLumi\",\"CALOOflNoisePileUpNoiseLumi-mc15-mu30-dt25ns\")" "ESDtoAOD:CILMergeAOD.removeItem(\"xAOD::CaloClusterAuxContainer#CaloCalTopoClustersAux.LATERAL.LONGITUDINAL.SECOND_R.SECOND_LAMBDA.CENTER_MAG.CENTER_LAMBDA.FIRST_ENG_DENS.ENG_FRAC_MAX.ISOLATION.ENG_BAD_CELLS.N_BAD_CELLS.BADLARQ_FRAC.ENG_BAD_HV_CELLS.N_BAD_HV_CELLS.ENG_POS.SIGNIFICANCE.CELL_SIGNIFICANCE.CELL_SIG_SAMPLING.AVG_LAR_Q.AVG_TILE_Q.EM_PROBABILITY.PTD.BadChannelList\");CILMergeAOD.add(\"xAOD::CaloClusterAuxContainer#CaloCalTopoClustersAux.N_BAD_CELLS.ENG_BAD_CELLS.BADLARQ_FRAC.AVG_TILE_Q.AVG_LAR_Q.CENTER_MAG.ENG_POS.CENTER_LAMBDA.SECOND_LAMBDA.SECOND_R.ISOLATION.EM_PROBABILITY\");StreamAOD.ItemList=CILMergeAOD()" --postInclude "default:PyJobTransforms/UseFrontier.py"  --LowPtMinbiasHitsFile /eos/atlas/atlascerngroupdisk/phys-rig/MC16Samples/mc16_13TeV.361238.Pythia8EvtGen_A3NNPDF23LO_minbias_inelastic_low.merge.HITS.e4981_s3087_s3089/HITS.10501925._000027.pool.root.1 --HighPtMinbiasHitsFile /eos/atlas/atlascerngroupdisk/phys-rig/MC16Samples/mc16_13TeV.361239.Pythia8EvtGen_A3NNPDF23LO_minbias_inelastic_high.merge.HITS.e4981_s3087_s3089/HITS.10501933._000008.pool.root.1 --numberOfHighPtMinBias=0.116075313 --numberOfLowPtMinBias=44.3839246425 --numberOfCavernBkg=0 
                 </jobTransformCmd>
                 <group>RecTrf</group>
                 <queue>long</queue>

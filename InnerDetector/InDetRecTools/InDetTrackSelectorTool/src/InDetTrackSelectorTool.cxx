@@ -37,7 +37,7 @@ InDetTrackSelectorTool::InDetTrackSelectorTool(const std::string & t, const std:
   declareProperty("maxD0",                    m_maxD0);
   declareProperty("maxD0overSigmaD0",         m_maxD0overSigmaD0);
   declareProperty("numberOfPixelHits",        m_numberOfPixelHits);
-  declareProperty("numberOfBLayerHits",       m_numberOfBLayerHits);
+  declareProperty("numberOfInnermostPixelLayerHits",       m_numberOfBLayerHits);
   declareProperty("TrackSummaryTool",         m_trackSumTool);
   declareProperty("Extrapolator",             m_extrapolator);
 }
@@ -112,7 +112,7 @@ bool InDetTrackSelectorTool::decision(const Trk::Track & track, const Trk::Verte
   if (nPixelDead<0)
     nPixelDead=0;
 
-  int nBLayerHits = summary->get(Trk::numberOfBLayerHits);
+  int nBLayerHits = summary->get(Trk::numberOfInnermostPixelLayerHits);
 
   if(nPixelHits+nPixelDead<m_numberOfPixelHits || nBLayerHits<m_numberOfBLayerHits )
     return false;
@@ -137,7 +137,7 @@ bool InDetTrackSelectorTool::decision(const Trk::TrackParticleBase & track, cons
   if (nPixelDead<0)
     nPixelDead=0;
 
-  int nBLayerHits =  summary->get(Trk::numberOfBLayerHits);
+  int nBLayerHits =  summary->get(Trk::numberOfInnermostPixelLayerHits);
 
   if(nPixelHits+nPixelDead<m_numberOfPixelHits || nBLayerHits<m_numberOfBLayerHits )
     return false;

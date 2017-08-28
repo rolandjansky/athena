@@ -21,9 +21,11 @@
 #include "LWHists/TProfile_LW.h"
 #include "InDetIdentifier/PixelID.h"
 #include <sstream>
-#include "PixelMonitoring/PixelMon2DMaps.h"
+
+#include "PixelMonitoring/Components.h"
+#include "PixelMonitoring/PixelMon2DMapsLW.h"
+#include "PixelMonitoring/PixelMon2DProfilesLW.h"
 #include "PixelMonitoring/PixelMonModules.h"
-#include "PixelMonitoring/PixelMonProfiles.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 //////////////////////booking methods//////////////////////////////////////////
@@ -35,7 +37,6 @@ StatusCode PixelMainMon::BookStatusMon(void)
 
   std::string path = "Pixel/Status";
   if (m_doOnTrack) path.replace(path.begin(), path.end(), "Pixel/StatusOnTrack");
-  if (m_doOnPixelTrack) path.replace(path.begin(), path.end(), "Pixel/StatusOnPixelTrack");
   MonGroup statusHistos( this, path.c_str(), run, ATTRIB_MANAGED ); //declare a group of histograms
 
   // use the following definitions for modules states:
@@ -45,24 +46,24 @@ StatusCode PixelMainMon::BookStatusMon(void)
 
   StatusCode sc;
 
-  m_status = new PixelMonProfiles("Map_Of_Modules_Status", ("Modules Status (0=Active+Good, 1=Active+Bad, 2=Inactive)" + m_histTitleExt).c_str());
+  m_status = new PixelMon2DProfilesLW("Map_Of_Modules_Status", ("Modules Status (0=Active+Good, 1=Active+Bad, 2=Inactive)" + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL2D3D, true);
   sc = m_status->regHist(statusHistos);
   m_status->SetMaxValue( 2.0 );
 
-  m_status_mon = new PixelMonProfiles("Map_Of_Modules_Status_Mon", ("Modules Status (0=Active+Good, 1=Active+Bad, 2=Inactive) for monitoring" + m_histTitleExt).c_str());
+  m_status_mon = new PixelMon2DProfilesLW("Map_Of_Modules_Status_Mon", ("Modules Status (0=Active+Good, 1=Active+Bad, 2=Inactive) for monitoring" + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL2D3D, true);
   sc = m_status_mon->regHist(statusHistos);
   m_status_mon->SetMaxValue( 2.0 );
 
   if (m_doModules)
     {
-      m_Status_modules = new PixelMonModules1D("Status_of_Module", ("Module Status (0=Active+Good, 1=Active+Bad, 2=Inactive)" + m_histTitleExt + ";Status").c_str(),2,0,2,m_doIBL);
-      sc = m_Status_modules->regHist(this, (path+"/Modules_Status").c_str(),run,m_doIBL);
+      m_Status_modules = new PixelMonModules1D("Status_of_Module", ("Module Status (0=Active+Good, 1=Active+Bad, 2=Inactive)" + m_histTitleExt + ";Status").c_str(),2,0,2);
+      sc = m_Status_modules->regHist(this, (path+"/Modules_Status").c_str(),run);
       m_Status_modules->SetBinLabel( "Status",2 ); 
-      m_Status_modules->formatHist("status",m_doIBL);
+      m_Status_modules->formatHist("status");
     }
   if (m_doOffline)
     { 
-      m_dqStatus = new PixelMon2DMaps("Ok_modules", ("module problems, empty bin means dead module not listed in status database"+ m_histTitleExt).c_str());
+      m_dqStatus = new PixelMon2DMapsLW("Ok_modules", ("module problems, empty bin means dead module not listed in status database"+ m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D);
       sc = m_dqStatus->regHist(statusHistos);
     }
 
@@ -103,10 +104,9 @@ StatusCode PixelMainMon::BookStatusLumiBlockMon(void)
 
   std::string path = "Pixel/LumiBlock";
   if (m_doOnTrack)      path.replace(path.begin(), path.end(), "Pixel/LumiBlockOnTrack");
-  if (m_doOnPixelTrack) path.replace(path.begin(), path.end(), "Pixel/LumiBlockOnPixelTrack");
   MonGroup lumiBlockHist(this, path.c_str(), lowStat, ATTRIB_MANAGED);
 
-  m_status_LB = new PixelMonProfiles("Map_Of_Modules_Status_LB", ("Module Status (0=Active+Good, 1=Active+Bad, 2=Inactive)"+ m_histTitleExt).c_str());
+  m_status_LB = new PixelMon2DProfilesLW("Map_Of_Modules_Status_LB", ("Module Status (0=Active+Good, 1=Active+Bad, 2=Inactive)"+ m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL2D3D, true);
   StatusCode sc = m_status_LB->regHist(lumiBlockHist);
   m_status_LB->SetMaxValue( 2.0 );
      
@@ -145,11 +145,11 @@ StatusCode PixelMainMon::FillStatusMon(void)
       else if (m_pixelCondSummarySvc->isActive(id_hash) == false) {Index=2;}
       else {Index=1;}
 
-      if (m_status) m_status->Fill(WaferID,m_pixelid,Index,m_doIBL);
-      if (m_status_mon) m_status_mon->Fill(WaferID,m_pixelid,Index,m_doIBL);
+      if (m_status) m_status->Fill(WaferID,m_pixelid,Index);
+      if (m_status_mon) m_status_mon->Fill(WaferID,m_pixelid,Index);
 
       if (m_doLumiBlock){
-	if (m_status_LB) m_status_LB->Fill(WaferID,m_pixelid,Index,m_doIBL);
+	if (m_status_LB) m_status_LB->Fill(WaferID,m_pixelid,Index);
       }
 
       if (Index > 0) // bad but active modules  
@@ -186,7 +186,7 @@ StatusCode PixelMainMon::FillStatusMon(void)
 	      {
 		diffToFill=Index;
 	      }
-            for (int i=0; i<diffToFill; i++) m_Status_modules->Fill(1.5,WaferID,m_pixelid,m_doIBL);  //fill to the required value
+            for (int i=0; i<diffToFill; i++) m_Status_modules->Fill(1.5,WaferID,m_pixelid);  //fill to the required value
          }
       }
     } // of pixelid wafer loop 

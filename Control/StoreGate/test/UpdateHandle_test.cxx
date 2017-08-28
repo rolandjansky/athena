@@ -19,6 +19,7 @@
 #include "TestTools/initGaudi.h"
 #include "TestTools/expect_exception.h"
 #include "AthenaKernel/errorcheck.h"
+#include "AthenaKernel/ExtendedEventContext.h"
 #include "CxxUtils/unused.h"
 #include <cassert>
 #include <iostream>
@@ -68,7 +69,8 @@ void test1()
 
   SGTest::TestStore dumstore;
   EventContext ctx5;
-  ctx5.setProxy (&dumstore);
+  ctx5.setExtension( Atlas::ExtendedEventContext(&dumstore) );
+
   SG::UpdateHandle<MyObj> h5 (k3, ctx5);
   assert (h5.clid() == MyCLID);
   assert (h5.key() == "asd");
@@ -129,7 +131,6 @@ void test2()
   assert (h3.isInitialized());
   assert (h3.cptr() == fooptr);
   assert (foo_proxy->refCount() == 3);
-  assert (h2.key() == "foo");
   assert (h2.store() == "TestStore");
   assert (!h2.isInitialized());
   assert (h2.cachedPtr() == nullptr);
@@ -159,7 +160,6 @@ void test2()
   assert (h2.store() == "TestStore");
   assert (h2.isInitialized());
   assert (h2.cptr() == barptr);
-  assert (h3.key() == "bar");
   assert (h3.store() == "TestStore");
   assert (!h3.isInitialized());
   assert (h3.cachedPtr() == nullptr);
@@ -244,7 +244,7 @@ void test4()
 
   SGTest::TestStore dumstore;
   EventContext ctx;
-  ctx.setProxy (&dumstore);
+  ctx.setExtension( Atlas::ExtendedEventContext(&dumstore) );
   auto h2 = SG::makeHandle (k1, ctx);
   assert (h2.clid() == MyCLID);
   assert (h2.key() == "asd");

@@ -2,7 +2,7 @@ include.block ( "EventOverlayJobTransforms/InnerDetectorOverlay_jobOptions.py" )
 
 from Digitization.DigitizationFlags import jobproperties
 from AthenaCommon.DetFlags import DetFlags
-from AthenaCommon import CfgMgr, CfgGetter
+from AthenaCommon import CfgGetter
 from OverlayCommonAlgs.OverlayFlags import overlayFlags
 
 from AthenaCommon.Resilience import treatException,protectedInclude
@@ -16,9 +16,6 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
 
     include( "InDetEventAthenaPool/InDetEventAthenaPool_joboptions.py" ) # FIXME: is needed?
 
-    from InDetOverlay.InDetOverlayConf import InDetOverlay
-    indetovl = InDetOverlay()
-
     jobproperties.Digitization.doInDetNoise=False
 
     #if readBS and isRealData:
@@ -27,13 +24,13 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
     if DetFlags.overlay.pixel_on():
         job += CfgGetter.getAlgorithm("PixelOverlayDigitization")
 
-        indetovl.do_Pixel = True
         if readBS and isRealData:
-           job.InDetPixelRawDataProvider.RDOKey = "OriginalEvent_SG/PixelRDOs"
+           job.InDetPixelRawDataProvider.RDOKey = "OriginalEvent_SG+PixelRDOs"
            #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "PixelRDO_Container/PixelRDOs" ]
            #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "Trk::PixelClusterContainer/PixelOnlineClusters" ]
-    else:
-        indetovl.do_Pixel = False
+        else:
+            if not conddb.folderRequested('PIXEL/PixReco'):
+                conddb.addFolder('PIXEL_OFL','/PIXEL/PixReco')
 
     if DetFlags.overlay.SCT_on():
 
@@ -51,23 +48,15 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
            #if not conddb.folderRequested('/SCT/DAQ/Calibration/ChipNoise'):
            #   conddb.addFolderSplitOnline("SCT","/SCT/DAQ/Calibration/ChipNoise","/SCT/DAQ/Calibration/ChipNoise",forceMC=True)
 
-        # Dynamic configuration of SCT RDO type
-        # This algorithm must be executed before SCT_Digitization
-        from InDetOverlay.InDetOverlayConf import DynConfSCT
-        job += DynConfSCT()
-
         job += CfgGetter.getAlgorithm("SCT_OverlayDigitization")
         CfgGetter.getPublicTool("SCT_DigitizationTool").InputObjectName="SCT_Hits"
-        indetovl.do_SCT = True
         if readBS and isRealData:
            #job.InDetSCTRawDataProvider.EvtStore = "OriginalEvent_SG"
-           job.InDetSCTRawDataProvider.RDOKey = "OriginalEvent_SG/SCT_RDOs"
-           job.InDetSCTRawDataProvider.LVL1IDKey = "OriginalEvent_SG/SCT_LVL1ID"
-           job.InDetSCTRawDataProvider.BCIDKey = "OriginalEvent_SG/SCT_BCID"
+           job.InDetSCTRawDataProvider.RDOKey = "OriginalEvent_SG+SCT_RDOs"
+           job.InDetSCTRawDataProvider.LVL1IDKey = "OriginalEvent_SG+SCT_LVL1ID"
+           job.InDetSCTRawDataProvider.BCIDKey = "OriginalEvent_SG+SCT_BCID"
            #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "SCT_RDO_Container/SCT_RDOs" ]
            #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "Trk::SCT_ClusterContainer/SCT_OnlineClusters" ]
-    else:
-        indetovl.do_SCT = False
 
     if DetFlags.overlay.TRT_on():
         if isRealData:
@@ -76,11 +65,10 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
            conddb.addFolder("TRT_OFL","/TRT/Cond/DigVers",forceMC=True)
 
         job += CfgGetter.getAlgorithm("TRT_OverlayDigitization")
-  
-        indetovl.do_TRT = True
+
         if readBS and isRealData:
            job.InDetTRTRawDataProvider.EvtStore = "OriginalEvent_SG"
-           job.InDetTRTRawDataProvider.RDOKey = "OriginalEvent_SG/TRT_RDOs"
+           job.InDetTRTRawDataProvider.RDOKey = "OriginalEvent_SG+TRT_RDOs"
            #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "TRT_RDO_Container/TRT_RDOs" ]
   
            from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
@@ -92,10 +80,9 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
       #     conddb.addFolder("TRT","/TRT/Calib/T0","<tag>TrtCalibRt-HLT-UPD1-01</tag>")
        #    conddb.addFolder("TRT","/TRT/Calib/RT","<tag>TrtCalibT0-HLT-UPD1-01</tag>")
            conddb.addFolder("TRT_ONL","/TRT/Onl/ROD/Compress")
-    else:
-        indetovl.do_TRT = False
 
     if overlayFlags.doSignal==True:
        include ("EventOverlayJobTransforms/InDetMcSignal_jobOptions.py")
 
-    job += indetovl
+    job += CfgGetter.getAlgorithm("InDetOverlay")
+    job += CfgGetter.getAlgorithm("InDetSDOOverlay")

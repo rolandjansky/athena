@@ -24,7 +24,8 @@ namespace Trk {
   are missing one might not get the optimal resolution.
   @author Martin Woudstra, Niels van Eldik
 */
-struct MdtCalibrationSvcInput {
+class MdtCalibrationSvcInput {
+public:
   MdtCalibrationSvcInput() :
     tof(0.),triggerOffset(0.),pointOfClosestApproach(0),trackDirection(0),
     nominalWireSurface(0),wireSurface(0) {

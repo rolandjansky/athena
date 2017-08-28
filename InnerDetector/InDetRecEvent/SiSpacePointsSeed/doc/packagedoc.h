@@ -20,6 +20,5 @@ Maind data member are:
 This class contains information after first step of pattern recognition using space points
 information and is input for local track finding in the road.
 
-@section SiSpacePointsSeed_SiSpacePointsSeedReq Requirements file
 
 */

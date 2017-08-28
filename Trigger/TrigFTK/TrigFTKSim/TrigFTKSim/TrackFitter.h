@@ -35,6 +35,8 @@ protected:
 
   int m_HitWarrior; // 1 means in-road HW enabled, 2 mean global HW (default)
 
+  int m_HitWarrior_first; // 0 means no HW in the 1st stage, 1 means HW within the same raod (default), and 2 means HW within the same sector
+
   int m_HW_ndiff; // maximum number of different points
 
   float *m_HW_dev; //[m_ncoords] tolerances for the HW
@@ -82,6 +84,10 @@ protected:
 
   std::list<FTKTrack> m_tracks; // list of output tracks
   std::list<FTKTrack> m_tracks_pre_hw; // list of output tracks before HW filter
+  std::list<FTKTrack> m_sector_tracks; // list of first stage tracks in the same sector
+  std::list<FTKTrack> m_tracks_first; // list of first stage tracks
+
+  int m_processor_stage; // It tells processor() which part to work on for HW within the same sector
 
   int m_ncombs; // number of combinations
   int m_nfits; // number of fits tryied in a road
@@ -107,6 +113,8 @@ protected:
   int *m_hitcnt; // counter that enumerates current hit in FTKHit array
 
   bool m_identify_badhit; // the flag enables the identification of the bad hits for the recovery
+
+  bool m_saveIncompleteTracks; // true if you want to save incompelte tracks
 
   virtual void processor_init(int);
   virtual void processor(const FTKRoad &);
@@ -141,6 +149,9 @@ public:
 
   void setHitWarrior(int v) { m_HitWarrior = v; }
   int getHitWarrior() const { return m_HitWarrior; }
+
+  void setHitWarriorFirst(int v) { m_HitWarrior_first = v; }
+  int getHitWarriorFirst() const { return m_HitWarrior_first; }
 
   void setHWNDiff(int v) { m_HW_ndiff = v; }
   int getHWNDiff() const { return m_HW_ndiff; }
@@ -192,6 +203,10 @@ public:
     { m_trackoutput_pre_hw = module; }
   FTKTrackOutput* getTrackOutputModule() { return m_trackoutput; }
   FTKTrackOutput* getTrackOutputModulePreHW() { return m_trackoutput_pre_hw; }
+
+  void setSaveIncompleteTracks(bool flag) { m_saveIncompleteTracks = flag; }
+  bool getSaveIncompeteTracks() const { return m_saveIncompleteTracks; }
+
   // output for firmware tests
   //void setFirmwareOutputModule(FTKFirmwareOutput *module) { m_fwoutput = module; }
   //void setNSectorsFWO( int v ) { m_maxsectors_fwo = v; }

@@ -15,17 +15,16 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetTruth/InDetTruthInterfaces
                           Tracking/TrkEvent/TrkTruthData
                           Tracking/TrkTools/TrkToolInterfaces
+                          Event/EventContainers
                           PRIVATE
                           Control/DataModel
-                          Reconstruction/Particle
-                          Reconstruction/ParticleTruth
                           Tracking/TrkEvent/TrkTrack )
 
 # Component(s) in the package:
 atlas_add_component( InDetTruthAlgs
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps StoreGateLib SGtests GaudiKernel InDetSimData InDetPrepRawData TrkTruthData TrkToolInterfaces DataModel Particle ParticleTruth TrkTrack )
+                     LINK_LIBRARIES AthenaBaseComps StoreGateLib SGtests GaudiKernel InDetSimData InDetPrepRawData TrkTruthData TrkToolInterfaces DataModel TrkTrack EventContainers )
 
 # Install files from the package:
 atlas_install_headers( InDetTruthAlgs )

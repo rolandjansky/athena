@@ -18,6 +18,7 @@
 #include "AthenaKernel/ILockable.h"
 #include "AthenaKernel/errorcheck.h"
 #include "AthenaKernel/ICutFlowSvc.h"
+#include "AthenaKernel/BaseInfo.h"
 
 #include "AthenaKernel/DsoDb.h"
 #include "AthenaKernel/AthDsoUtils.h"

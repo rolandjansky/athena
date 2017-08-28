@@ -47,6 +47,7 @@ class TrigHLTJetHypo2 : public HLT::HypoAlgo {
   bool checkTLAStrategy();
   bool checkDijetMassDEtaStrategy();
   bool checkHTStrategy();
+  bool checksinglemassStrategy();
 
   void setCleaner();
 
@@ -55,8 +56,11 @@ class TrigHLTJetHypo2 : public HLT::HypoAlgo {
   bool setTLAConditions();
   bool setDijetMassDEtaConditions();
   bool setHTConditions();
+  bool setsinglemassConditions();
 
   bool setJetGrouper(HypoStrategy);
+
+  std::vector<double> getStringBoundaries (const std::vector<std::string>& stv);
 
   HLT::ErrorCode checkJets(const xAOD::JetContainer*);
   void publishResult(const TrigHLTJetHypoHelper&, bool,
@@ -79,6 +83,8 @@ class TrigHLTJetHypo2 : public HLT::HypoAlgo {
   // vectors with Et thresholds, eta nins and eta maxs
   // (thresh, eta min, eta max) triplets will bbe converted to Conditon objs.
   std::vector<double> m_EtThresholds;
+  std::vector<std::string> m_JetMassMin;
+  std::vector<std::string> m_JetMassMax;
   std::vector<double> m_etaMins;
   std::vector<double> m_etaMaxs;
   std::vector<int> m_asymmetricEtas;

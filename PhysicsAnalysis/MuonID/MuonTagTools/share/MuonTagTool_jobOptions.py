@@ -56,6 +56,7 @@ ToolSvc += FixedCutLooseIsoTool
 
 from RecExConfig.RecFlags import rec
 from MuonTagTools.MuonTagToolsConf import MuonTagTool as ConfiguredMuonTagTool
+from MuonRecExample.MuonRecFlags import muonRecFlags
 MuonTagTool = ConfiguredMuonTagTool(Container              = theMuonCollection,
                                     MuonMETContainerName   = MuonMETContainerName,
                                     PtCut                  = 6.0*GeV,
@@ -73,6 +74,7 @@ MuonTagTool = ConfiguredMuonTagTool(Container              = theMuonCollection,
                                     GradientIsolation      = GradientIsoTool   ,
                                     GradientLooseIsolation = GradientLooseIsoTool,
                                     FixedCutTightTrackOnlyIsolation= FixedCutTightTrackOnlyIsoTool,
-                                    FixedCutLooseIsolation         = FixedCutLooseIsoTool
+                                    FixedCutLooseIsolation         = FixedCutLooseIsoTool,
+                                    DoIsolation = muonRecFlags.doMuonIso()
                                     )
 ToolSvc += MuonTagTool

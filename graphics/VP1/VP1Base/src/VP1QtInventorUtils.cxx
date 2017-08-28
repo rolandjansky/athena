@@ -17,12 +17,6 @@
 #include "VP1Base/VP1ExaminerViewer.h"
 #include "VP1Base/VP1Msg.h"
 
-#include <QtCore/QDir>
-#include <QtCore/QTime>
-#include <QtCore/QBuffer>
-#include <QtCore/QByteArray>
-#include <QtCore/QTextStream>
-#include <QtGui/QSlider>
 
 //#include "Inventor/nodes/SoNode.h"
 #include "Inventor/nodes/SoMaterial.h"
@@ -38,11 +32,20 @@
 #include <Inventor/actions/SoSearchAction.h>
 #include <Inventor/SoDB.h>
 #include <Inventor/actions/SoWriteAction.h>
-#include <Inventor/actions/SoToVRML2Action.h>
-#include <Inventor/VRMLnodes/SoVRMLGroup.h>
 
 #include <Inventor/nodes/SoLineSet.h>
 #include <Inventor/nodes/SoVertexProperty.h>
+
+
+#include <Inventor/VRMLnodes/SoVRMLGroup.h>
+#include <Inventor/actions/SoToVRML2Action.h>
+
+#include <QDir>
+#include <QTime>
+#include <QBuffer>
+#include <QByteArray>
+#include <QTextStream>
+#include <QSlider>
 #include <QGLFormat>
 
 #include <iostream>
@@ -151,7 +154,6 @@ public:
 		} endianTest;
 		ImageRec *image;
 		int swapFlag;
-		//int x;
 
 		endianTest.testWord = 1;
 		if (endianTest.testByte[0] == 1) {
@@ -247,7 +249,7 @@ public:
 
 		if (image) {
 			if ((image->type & 0xFF00) == 0x0100) {
-				
+
                 int okseek = fseek(image->file, (long)image->rowStart[y+z*image->ysize], SEEK_SET);
 				int okread = fread(image->tmp, 1, (unsigned int)image->rowSize[y+z*image->ysize],
 						image->file);

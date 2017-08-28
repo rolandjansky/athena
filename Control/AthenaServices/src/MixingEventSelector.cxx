@@ -272,7 +272,7 @@ StatusCode
 MixingEventSelector::loadAddresses(StoreID::type  storeID,
                                    IAddressProvider::tadList& /*tads*/  )
 {
-  if (storeID != StoreID::EVENT_STORE)
+  if (storeID != StoreID::EVENT_STORE && storeID != StoreID::PILEUP_STORE)
     return StatusCode::SUCCESS;
 
   CLID mclid = ClassID_traits<MergedEventInfo>::ID();
@@ -289,7 +289,8 @@ MixingEventSelector::loadAddresses(StoreID::type  storeID,
 }
 
 StatusCode
-MixingEventSelector::updateAddress(StoreID::type,SG::TransientAddress*) {
+MixingEventSelector::updateAddress(StoreID::type,SG::TransientAddress*,
+                                   const EventContext&) {
   return StatusCode::FAILURE;
 }
 

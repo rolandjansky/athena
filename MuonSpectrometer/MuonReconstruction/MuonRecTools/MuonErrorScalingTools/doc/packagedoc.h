@@ -15,12 +15,3 @@ MuonErrorScalingTools is a package providing tools used to scale errors for muon
 - Muon::MuonRIO_OnTrackErrorScalingTool, used to scale errors for muon hits
 
 */
-
-
-/**
-@page UsedMuonErrorScalingTools Used Packages
-*/
-
-/**
-@page RequirementsMuonErrorScalingTools Requirements
-*/

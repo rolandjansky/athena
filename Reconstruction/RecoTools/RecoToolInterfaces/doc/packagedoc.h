@@ -26,15 +26,4 @@ This package is not built as any library, it is a simple include package.
 
 @section RecoToolInterfaces_ExtrasRecoToolInterfaces Extra Pages
 
- - @ref UsedRecoToolInterfaces
- - @ref requirementsRecoToolInterfaces
 */
-
-/**
-@page UsedRecoToolInterfaces Used Packages
-*/
-
-/**
-@page requirementsRecoToolInterfaces Requirements
-*/
-

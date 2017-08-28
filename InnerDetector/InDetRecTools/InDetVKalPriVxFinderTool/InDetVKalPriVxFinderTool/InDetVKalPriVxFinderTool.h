@@ -235,8 +235,7 @@ namespace InDet {
 //---------------------------------------------------------------------------
 //  Arrays for propagation of fit results to steering procedure
 //   
-     double ***trkFittedParam3;
-     std::vector<double **> savedTrkFittedPerigees;   
+     std::vector<double **> m_savedTrkFittedPerigees;   
      std::vector< std::vector< AmgSymMatrix(5) > > m_fittedTrkCov; 
 
 

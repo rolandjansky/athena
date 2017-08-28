@@ -14,6 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetRecEvent/InDetPrepRawData
                           Reconstruction/iPat/iPatInterfaces
                           Reconstruction/iPat/iPatTrack
+                          Event/EventContainers
                           PRIVATE
                           InnerDetector/InDetConditions/InDetBeamSpotService
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
@@ -39,7 +40,7 @@ atlas_add_component( iPatTrackFinder
                      src/TrackFinder.cxx
                      src/TrackManager.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps Identifier EventPrimitives GaudiKernel InDetPrepRawData iPatInterfaces iPatTrack InDetReadoutGeometry MagFieldInterfaces iPatGeometry iPatTrackParameters iPatUtility TrkPrepRawData TrkSpacePoint VxVertex )
+                     LINK_LIBRARIES AthenaBaseComps Identifier EventPrimitives GaudiKernel InDetPrepRawData iPatInterfaces iPatTrack InDetReadoutGeometry MagFieldInterfaces iPatGeometry iPatTrackParameters iPatUtility TrkPrepRawData TrkSpacePoint VxVertex EventContainers)
 
 # Install files from the package:
 atlas_install_headers( iPatTrackFinder )

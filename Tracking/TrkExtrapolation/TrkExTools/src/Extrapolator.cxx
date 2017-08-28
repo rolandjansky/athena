@@ -691,7 +691,7 @@ Trk::Extrapolator::extrapolate(const IPropagator &prop,
 								      particle,
 								      matupmode);
       }
-      if (resultParameters){   
+      if (resultParameters){
         // destination reached : indicated through result parameters
         // set the model action of the material effects updators
         for (unsigned int imueot = 0; imueot < m_subUpdators.size(); ++imueot) {
@@ -901,6 +901,8 @@ Trk::Extrapolator::extrapolate(const IPropagator &prop,
   }
 
   // ---------------- extrapolation inside the Volume ----------------------------------------------------------
+  Trk::TrackParameters* finalNextParameters=nextParameters->clone();
+  ATH_MSG_DEBUG("create finalNextParameters "<<*finalNextParameters);
   if (nextVolume) {
     // chose the propagator fromt he geometry signature
     currentPropagator = subPropagator(*nextVolume);
@@ -920,8 +922,13 @@ Trk::Extrapolator::extrapolate(const IPropagator &prop,
   // ------------------------------------------------------------------------------------------------------------
   // the final - desperate backup --- just try to hit the surface
   if (!resultParameters && !m_stopWithNavigationBreak && !m_stopWithUpdateZero) {
+    if(finalNextParameters) ATH_MSG_DEBUG("propagate using parameters "<<*finalNextParameters);
+    else{
+      ATH_MSG_DEBUG("no finalNextParameters, bailing out of extrapolateDirectly");
+      return returnResult(0,refParameters);
+    }
     ATH_MSG_DEBUG("  [-] Fallback to extrapolateDirectly triggered ! ");
-    resultParameters = prop.propagate(*nextParameters,
+    resultParameters = prop.propagate(*finalNextParameters,
                                       sf,
                                       dir,
                                       bcheck,
@@ -930,6 +937,7 @@ Trk::Extrapolator::extrapolate(const IPropagator &prop,
                                       particle, false, startVolume);
   }
   // return whatever you have
+  delete finalNextParameters;
   return returnResult(resultParameters, refParameters);
 }
 
@@ -3279,8 +3287,8 @@ Trk::Extrapolator::insideVolumeStaticLayers(
     ATH_MSG_VERBOSE("  [+] In starting volume: check for eventual necessary postUpdate and overlapSearch.");
 
     // check if the parameter is on the layer
-    const Trk::Layer *parsLayer = &nextParameters->associatedSurface() ?
-                                  (nextParameters->associatedSurface()).associatedLayer() : 0;
+    const Trk::Layer *parsLayer = 
+      nextParameters->associatedSurface().associatedLayer();
     if ((parsLayer && parsLayer == associatedLayer)
         || associatedLayer->surfaceRepresentation().isOnSurface(parm.position(),
                                                                 false,

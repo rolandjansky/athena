@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 788236 2016-12-06 14:03:54Z khoo $
+# $Id: CMakeLists.txt 801725 2017-03-28 19:23:28Z khoo $
 ################################################################################
 # Package: METUtilities
 ################################################################################
@@ -11,9 +11,14 @@ set( extra_deps )
 if( XAOD_STANDALONE )
    set( extra_deps Control/xAODRootAccess
       Reconstruction/Jet/JetCalibTools )
+elseif( XAOD_ANALYSIS )
+   set( extra_deps GaudiKernel
+        Control/AthenaBaseComps
+	PhysicsAnalysis/POOLRootAccess
+        Reconstruction/Jet/JetCalibTools )
 else()
    set( extra_deps GaudiKernel
-      Control/AthenaBaseComps )
+        Control/AthenaBaseComps )
 endif()
 
 # Declare the package's dependencies:
@@ -40,14 +45,14 @@ atlas_depends_on_subdirs(
    ${extra_deps} )
 
 # External dependencies:
-find_package( Boost COMPONENTS unit_test_framework )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO )
+find_package( GTest )
 
 # Libraries in the package:
 atlas_add_library( METUtilitiesLib
    METUtilities/*.h Root/*.cxx
    PUBLIC_HEADERS METUtilities
-   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}  ${GTEST_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEgamma xAODJet xAODMissingET
    xAODMuon xAODTau xAODTracking InDetTrackSelectionToolLib PATInterfaces
    METInterface
@@ -66,35 +71,39 @@ atlas_add_dictionary( METUtilitiesDict
    METUtilities/selection.xml
    LINK_LIBRARIES METUtilitiesLib )
 
+
+#set readLib, used below to compile apps/tests
+set( readLib )
+if( XAOD_STANDALONE ) 
+  set( readLib xAODRootAccess )
+else()
+  set( readLib POOLRootAccessLib )
+endif()
+
 # Executable(s) in the package:
-foreach( utility example_METMaker_METSystematicsTool
-         example_METMaker_advanced example_rebuildTrackMET )
-   if( XAOD_STANDALONE )
-      atlas_add_executable( ${utility}
-         util/${utility}.cxx
-         INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-         LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess AsgTools xAODBase
-         xAODMissingET xAODCore xAODJet xAODEgamma xAODMuon xAODTau
-         JetCalibToolsLib METInterface PATInterfaces METUtilitiesLib )
-   elseif( XAOD_ANALYSIS )
-      atlas_add_executable( ${utility}
-         util/${utility}.cxx
-         INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-         LINK_LIBRARIES ${ROOT_LIBRARIES} POOLRootAccess AsgTools xAODBase
-         xAODMissingET xAODCore xAODJet xAODEgamma xAODMuon xAODTau
-         JetCalibToolsLib METInterface PATInterfaces METUtilitiesLib )
-   endif()
-endforeach()
+# only compiled in analysis releases
+if( XAOD_ANALYSIS )
+  foreach( utility example_METMaker_METSystematicsTool
+          example_METMaker_advanced example_rebuildTrackMET )
+    atlas_add_executable( ${utility}
+          util/${utility}.cxx
+          INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+          LINK_LIBRARIES ${ROOT_LIBRARIES} ${readLib} AsgTools xAODBase
+          xAODMissingET xAODCore xAODJet xAODEgamma xAODMuon xAODTau
+          JetCalibToolsLib METInterface PATInterfaces METUtilitiesLib )
+  endforeach()
+endif()
+
 
 # Test(s) in the package:
-if( XAOD_STANDALONE )
-   foreach( test ut_metMaker ut_metSystematicsTool )
-      atlas_add_test( ${test}
-         SOURCES test/${test}.cxx
-         INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
-         LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} xAODRootAccess
-         AsgTools xAODBase xAODMissingET METUtilitiesLib )
-   endforeach()
+if( XAOD_ANALYSIS )
+  foreach( test gt_metMaker gt_metSystematicsTool )
+    atlas_add_test( ${test}
+          SOURCES test/${test}.cxx
+          INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
+          LINK_LIBRARIES ${ROOT_LIBRARIES} ${GTEST_LIBRARIES} ${readLib}
+                AsgTools xAODBase xAODMissingET METUtilitiesLib )
+  endforeach()
 endif()
 
 # Install files from the package:

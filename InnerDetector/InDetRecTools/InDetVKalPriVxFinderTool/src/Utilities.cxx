@@ -98,9 +98,9 @@ namespace InDet {
 //-- Perigee in TrackParticle
 //
 //     return i_ntrk->Perigee();
-     const Trk::Perigee* m_mPer;
-     m_mPer = dynamic_cast<const Trk::Perigee*>( &(i_ntrk->definingParameters()) );
-     return m_mPer;
+     const Trk::Perigee* mPer;
+     mPer = dynamic_cast<const Trk::Perigee*>( &(i_ntrk->definingParameters()) );
+     return mPer;
   }
 
   const Trk::Perigee* InDetVKalPriVxFinderTool::GetPerigee( const Trk::Track* i_ntrk) 
@@ -109,16 +109,16 @@ namespace InDet {
 //
 //-- Perigee in Trk::Track
 //
-//     const Trk::Perigee* m_mPer=NULL;
+//     const Trk::Perigee* mPer=NULL;
 //     const DataVector<const Trk::TrackParameters>* AllTrkPar;
 //     DataVector<const Trk::TrackParameters>::const_iterator i_apar;
 //     AllTrkPar = i_ntrk->trackParameters();
 //     i_apar=AllTrkPar->begin();
 //     while( i_apar < AllTrkPar->end() ){
-//       if( (m_mPer=dynamic_cast<const Trk::Perigee*>(*i_apar)) == 0 ){ i_apar++;}
+//       if( (mPer=dynamic_cast<const Trk::Perigee*>(*i_apar)) == 0 ){ i_apar++;}
 //       else { break;}
 //     }
-//     return m_mPer;
+//     return mPer;
   }
 //-----------------------------------------------------------------------------------------------
   void InDetVKalPriVxFinderTool::RemoveEntryInList(std::vector<const Trk::Track*>& ListTracks, int Outlier)
@@ -283,20 +283,20 @@ namespace InDet {
   {
     //.............................................
     AmgVector(5) VectPerig; VectPerig<<0.,0.,0.,0.,0.;
-    const Trk::Perigee* m_mPer=NULL;
+    const Trk::Perigee* mPer=NULL;
     std::map<double, const Trk::Track*>  mapTracks;
     std::map<double, const Trk::Track*>::reverse_iterator  map_i;
 //
     const DataVector<Trk::Track>*    newTrkCol = trackTES;
     DataVector<Trk::Track>::const_iterator    i_ntrk;
     for (i_ntrk = newTrkCol->begin(); i_ntrk < newTrkCol->end(); ++i_ntrk) {
-       m_mPer=GetPerigee( (*i_ntrk) ); if( m_mPer == NULL )continue; 
-       VectPerig = m_mPer->parameters(); 
+       mPer=GetPerigee( (*i_ntrk) ); if( mPer == NULL )continue; 
+       VectPerig = mPer->parameters(); 
        double pmom = sin(VectPerig[3])/fabs(VectPerig[4]);
 //----------------------------------- Summary tools
        if(m_SummaryToolExist) {
           const Trk::TrackSummary* testSum = m_sumSvc->createSummary(*(*i_ntrk));
-          if( testSum->get(Trk::numberOfBLayerHits) <= 0) continue;
+          if( testSum->get(Trk::numberOfInnermostPixelLayerHits) <= 0) continue;
        }
        mapTracks.insert( std::pair<double, const Trk::Track*>(pmom,(*i_ntrk)));
     }
@@ -322,18 +322,18 @@ namespace InDet {
   {
     //.............................................
     AmgVector(5) VectPerig; VectPerig<<0.,0.,0.,0.,0.;
-    const Trk::Perigee* m_mPer=NULL;
+    const Trk::Perigee* mPer=NULL;
     std::map<double, const Trk::TrackParticleBase*>  mapTracks;
     std::map<double, const Trk::TrackParticleBase*>::reverse_iterator  map_i;
 //
     Trk::TrackParticleBaseCollection::const_iterator i_nprt  = newPrtCol->begin();
     for (i_nprt = newPrtCol->begin(); i_nprt < newPrtCol->end(); ++i_nprt) {
-       m_mPer=GetPerigee( (*i_nprt) ); if( m_mPer == NULL )continue; 
-       VectPerig = m_mPer->parameters(); 
+       mPer=GetPerigee( (*i_nprt) ); if( mPer == NULL )continue; 
+       VectPerig = mPer->parameters(); 
        double pmom = sin(VectPerig[3])/fabs(VectPerig[4]);
 //----------------------------------- Summary tools
        const Trk::TrackSummary* testSum = (*i_nprt)->trackSummary();
-       if( testSum->get(Trk::numberOfBLayerHits) <=0 ) continue;
+       if( testSum->get(Trk::numberOfInnermostPixelLayerHits) <=0 ) continue;
        mapTracks.insert( std::pair<double, const Trk::TrackParticleBase*>(pmom,(*i_nprt)));
     }
 

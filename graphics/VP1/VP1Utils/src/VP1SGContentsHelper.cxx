@@ -14,16 +14,9 @@
 
 #include "VP1Utils/VP1SGContentsHelper.h"
 #include "VP1Base/IVP1System.h"
-#include <stdexcept>
-#include <QtCore/QStringList>
-
-
-/////////////////////////////////////////////////////////////////////////
-// In order to be able to provide list of possible CLID's, we need to  //
-// use the following hack when including the StoreGateSvc header:      //
-#define private public
 #include "StoreGate/StoreGateSvc.h"                                    //
-#undef private
+#include <stdexcept>
+#include <QStringList>
 //                                                                     //
 /////////////////////////////////////////////////////////////////////////
 
@@ -125,15 +118,7 @@ QList<CLID> VP1SGContentsHelper::getPossibleCLIDs() const
     return l;
   }
 
-  SG::DataStore *store = m_sg->store();//<-- This is where we use the private->public a hack.
-  if (!store) {
-    message("ERROR: Found null DataStore pointer - returning empty key list");
-    return l;
-  }
-
-  SG::DataStore::ConstStoreIterator s_iter, s_end;
-  if (!store->tRange(s_iter, s_end).isFailure())
-    for (; s_iter != s_end; s_iter++)
-      l << s_iter->first;
+  for (CLID id : m_sg->clids())
+    l << id;
   return l;
 }

@@ -99,7 +99,7 @@ msg(MSG::DEBUG) << " Bytestream summary:" << m_fragment_number << " fragments fo
 ////////////////////////
 // fillCollection() -
 ////////////////////////
-StatusCode ALFA_Decoder_charge::fillCollection(const ROBFragment *robFrag, ALFA_RawDataContainer_charge* rdoCont, std::vector<unsigned int>* ) {
+StatusCode ALFA_Decoder_charge::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment *robFrag, ALFA_RawDataContainer_charge* rdoCont, std::vector<unsigned int>* ) {
  msg(MSG::DEBUG) << " ALFA_RoDDecoder_charge::fillCollection" << endmsg;
 
 StatusCode sc = StatusCode::SUCCESS;
@@ -171,7 +171,7 @@ uint16_t CountPMF0=0;
   uint32_t size = robFrag->rod_ndata(); 
 
  // get source ID
-  uint32_t m_ROD_source_ID = robFrag->rod_source_id();
+  uint32_t ROD_source_ID = robFrag->rod_source_id();
 
 
   uint32_t ROD_LVL1_ID  = robFrag->rod_lvl1_id(); 
@@ -179,7 +179,7 @@ uint16_t CountPMF0=0;
 msg(MSG::DEBUG) << "============================" << std::endl;
 msg(MSG::DEBUG) <<"Frag Size  : " << robFrag->rod_fragment_size_word() << endmsg;
 msg(MSG::DEBUG) <<"Header Size: " << robFrag->rod_header_size_word() << endmsg;
-msg(MSG::DEBUG) <<"Source  ID : " << m_ROD_source_ID << endmsg;
+msg(MSG::DEBUG) <<"Source  ID : " << ROD_source_ID << endmsg;
 msg(MSG::DEBUG) <<"Run num    : " << robFrag->rod_run_no() << endmsg;
 msg(MSG::DEBUG) <<"Version    : " << robFrag->rod_version() << endmsg;
 msg(MSG::DEBUG) << " ROD_LVL1_ID " <<ROD_LVL1_ID<<  endmsg; 

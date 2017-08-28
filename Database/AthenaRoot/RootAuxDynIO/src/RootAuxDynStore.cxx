@@ -90,6 +90,14 @@ bool RootAuxDynStore::readData(SG::auxid_t auxid)
          throw string("Error reading branch ") + brInfo.branch->GetName();
       // read OK
       m_reader.addBytes(nbytes);
+      TTree::TClusterIterator clusterIterator = brInfo.branch->GetTree()->GetClusterIterator(m_entry);
+      clusterIterator.Next();
+      if (m_entry == clusterIterator.GetStartEntry() && brInfo.branch->GetTree()->GetMaxVirtualSize() != 0) {
+         for (int i = brInfo.branch->GetReadBasket(); i < brInfo.branch->GetMaxBaskets()
+	         && brInfo.branch->GetBasketEntry()[i] < clusterIterator.GetNextEntry(); i++) {
+            brInfo.branch->GetBasket(i);
+         }
+      }
    }
    catch(const string& e_str) {
       ATHCONTAINERS_ERROR("RootAuxDynStore::getData", e_str);

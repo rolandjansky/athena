@@ -48,10 +48,6 @@ namespace MAP_NS = std;
 #endif // C++
 
 // forward declarations
-class EventBookkeeperCollection;
-class EventBookkeeper;
-
-
 
 class CutFlowSvc :
   virtual public ICutFlowSvc,
@@ -69,15 +65,15 @@ public:
 
   /// Gaudi Service Implementation
   //@{
-  StatusCode initialize();
-  StatusCode stop();
-  StatusCode finalize();
-  StatusCode queryInterface( const InterfaceID& riid, void** ppvi );
+  virtual StatusCode initialize() override;
+  virtual StatusCode stop() override;
+  virtual StatusCode finalize() override;
+  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvi ) override;
   //@}
 
 
   /// Incident service handle listening for BeginFile and EndFile.
-  void handle(const Incident& incident);
+  virtual void handle(const Incident& incident) override;
 
   ///////////////////////////////////////////////////////////////////
   // Non-const methods:
@@ -139,9 +135,6 @@ private:
   /// input meta-data store
   StatusCode determineCycleNumberFromInput( const std::string& collName );
 
-  /// Determine the cycle number from the old-style EventBookkeeper
-  StatusCode determineCycleNumberFromOldInput( const std::string& collName );
-
   /// Helper function to record the collection (and its aux store) to the
   /// output MetaData store
   StatusCode recordCollection( xAOD::CutBookkeeperContainer* coll,
@@ -156,20 +149,6 @@ private:
   StatusCode updateContainer( xAOD::CutBookkeeperContainer* contToUpdate,
                               const xAOD::CutBookkeeperContainer* otherCont );
 
-  /// Helper class to update a container with information from another one from the old EDM
-  StatusCode updateContainerFromOldEDM( xAOD::CutBookkeeperContainer* contToUpdate,
-                                        const EventBookkeeperCollection* otherContOldEDM );
-
-  /// Helper class to update a container with information from another one from the old EDM
-  StatusCode updateContainerFromOldEDM( xAOD::CutBookkeeperContainer* contToUpdate,
-                                        xAOD::CutBookkeeper* newEBK,
-                                        const EventBookkeeper* oldEBK,
-                                        const xAOD::CutBookkeeper* parentEBK=0 );
-
-  // bool inputStoreHasFlatTTree() const;
-  // void fillIncompleteCollectionFromInputStore(xAOD::CutBookkeeperContainer *coll);
-  // void fillCompleteCollectionFromInputStore(xAOD::CutBookkeeperContainer *coll);
-  // void fillCollectionFromInputStore(xAOD::CutBookkeeperContainer *coll, int wantIsComplete);
 
 
 

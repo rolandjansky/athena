@@ -12,9 +12,8 @@
 
 // Default constructor.
 TgcRdoContainer::TgcRdoContainer()
-  : IdentifiableContainer<TgcRdo>() 
+  : IdentifiableContainer<TgcRdo>(hashFcn().max()) 
 {
-    DLV::init(hashFcn().max());	
 }
 
 // Default constructor.
@@ -41,10 +40,10 @@ const CLID& TgcRdoContainer::classID()
   return ClassID_traits<TgcRdoContainer>::ID();       
 }
 
-TgcRdoIdHash&
-TgcRdoContainer::hashFcn() const
+const TgcRdoIdHash&
+TgcRdoContainer::hashFcn()
 {
-    static TgcRdoIdHash hashFcn;
+    static const TgcRdoIdHash hashFcn;
     return(hashFcn);
 }
 

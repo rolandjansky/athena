@@ -55,9 +55,6 @@ class ALFA_RawDataProvider : public AthAlgorithm
 
  private:
 
-  int m_nRawDataCollection ;
-  int m_nRawData ;
-     
   /// Service for reading bytestream
   ServiceHandle<IROBDataProviderSvc>   m_robDataProvider;
   

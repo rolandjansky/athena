@@ -21,15 +21,4 @@ This package contains the interfaces for common tracking validation tools.
       
 @section TrkValInterfaces_ExtrasTrkValInterfaces Extra Pages
 
- - @ref UsedTrkValInterfaces
- - @ref requirementsTrkValInterfaces
 */
-
-/**
-@page UsedTrkValInterfaces Used Packages
-*/
-
-/**
-@page requirementsTrkValInterfaces Requirements
-*/
-

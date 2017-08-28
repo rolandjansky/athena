@@ -156,10 +156,10 @@ void test_helper()
   assert (helper.msgSvc() == 0);
 
 
-  IdDictParser* parser = new IdDictParser;
-  parser->register_external_entity ("LArCalorimeter",
-                                    "IdDictLArCalorimeter_DC3-05-Comm-01.xml");
-  IdDictMgr& idd = parser->parse ("IdDictParser/ATLAS_IDS.xml");
+  IdDictParser parser;
+  parser.register_external_entity ("LArCalorimeter",
+                                   "IdDictLArCalorimeter_DC3-05-Comm-01.xml");
+  IdDictMgr& idd = parser.parse ("IdDictParser/ATLAS_IDS.xml");
 
   assert (helper.initialize_base_from_dictionary(idd, "LArCalorimeterx") == 1);
   assert (helper.initialize_base_from_dictionary(idd, "LArCalorimeter") == 0);

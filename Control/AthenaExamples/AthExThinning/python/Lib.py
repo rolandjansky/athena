@@ -28,8 +28,8 @@ class PyWriteThinnedData( PyAthena.Alg ):
         # or: PyAthena.py_svc("StoreGateSvc",createIf=True)
         
         ## Datavector stuff
-        import PyCintex
-        PyCintex.loadDict("libAthExThinningEventDict")
+        import cppyy
+        cppyy.loadDict("libAthExThinningEventDict")
         from RootUtils import PyROOTFixes
         ## thinningsvc
         self.thinSvc = PyAthena.py_svc("ThinningSvc",
@@ -286,8 +286,8 @@ class PyReadNonThinnedData( PyAthena.Alg ):
         # or: PyAthena.py_svc("StoreGateSvc",createIf=True)
         
         ## Datavector stuff
-        import PyCintex
-        PyCintex.loadDict("libAthExThinningEventDict")
+        import cppyy
+        cppyy.loadDict("libAthExThinningEventDict")
         from RootUtils import PyROOTFixes
         return StatusCode.Success
 

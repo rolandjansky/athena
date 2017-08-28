@@ -18,6 +18,8 @@
 #include "MuonPrepRawData/RpcPrepDataContainer.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
+#include "MuonEventAthenaPool/CreateTransientTemplates.h"
+
 
 RpcPrepDataContainerCnv::RpcPrepDataContainerCnv(ISvcLocator* svcloc) :
 RpcPrepDataContainerCnvBase(svcloc)

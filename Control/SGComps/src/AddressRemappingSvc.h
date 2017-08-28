@@ -64,7 +64,8 @@ public: // Non-static members
    /// Update a transient address. Do mapping from one address to another
    /// @param tad [IN] transient address to be updated.
   virtual StatusCode updateAddress(StoreID::type /*storeID*/,
-				   SG::TransientAddress* pTad) override;
+				   SG::TransientAddress* pTad,
+                                   const EventContext& ctx) override;
 
 
   /**

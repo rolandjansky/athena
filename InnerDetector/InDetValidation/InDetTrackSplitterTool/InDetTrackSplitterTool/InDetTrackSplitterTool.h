@@ -98,11 +98,11 @@ namespace InDet{
     
    Using this method requires track to pass trackIsCandidate 
    (for the moment this is just a d0 cut requiring the track went through TRT cavity*/
-      virtual void splitTracks(TrackCollection const* inputTracks);
+      virtual void splitTracks(TrackCollection const* inputTracks) const;
       
       /** Splits a single input track into upper and lower parts (based on global y) 
     returns a pair of track the first being the upper*/
-      virtual std::pair<Trk::Track*, Trk::Track*> splitInUpperLowerTrack(Trk::Track const& input, bool siliconHitsOnly = false);
+      virtual std::pair<Trk::Track*, Trk::Track*> splitInUpperLowerTrack(Trk::Track const& input, bool siliconHitsOnly = false) const;
 
       /** Takes a combined ID track and either
     1) if removeSilicon = true
@@ -114,16 +114,16 @@ namespace InDet{
        Then refits the remaining Si hits using the original
        pT and phi as constratins on the fit
        */
-      virtual Trk::Track* stripTrack(Trk::Track const& input, bool removeSilicon = true, bool applyConstraint = true);
+      virtual Trk::Track* stripTrack(Trk::Track const& input, bool removeSilicon = true, bool applyConstraint = true) const;
       
       /** Splits a single input track into odd and even parts (with logic to aviod splitting SCT space points)
        */
-      virtual std::pair<Trk::Track*, Trk::Track*> splitInOddEvenHitsTrack(Trk::Track const& input);
+      virtual std::pair<Trk::Track*, Trk::Track*> splitInOddEvenHitsTrack(Trk::Track const& input) const;
 
       /** Return the names of the track collections stored in storeGate
        */
-      std::string const inline UpperTracksKey() const {return m_outputUpperTracksName;}
-      std::string const inline LowerTracksKey() const {return m_outputLowerTracksName;}
+      std::string const inline UpperTracksKey() const {return m_outputUpperTracksName.key();}
+      std::string const inline LowerTracksKey() const {return m_outputLowerTracksName.key();}
 
     private:
       
@@ -134,11 +134,11 @@ namespace InDet{
       
       /** Return a vector of the SCT hits on track
        */
-      std::vector<Trk::MeasurementBase const*> getSCTHits(Trk::Track const& input);
+      std::vector<Trk::MeasurementBase const*> getSCTHits(Trk::Track const& input) const;
 
       /** Logic to check if there is another SCT hit associated with the input hit, which forms a space point
        */
-      std::vector<Trk::MeasurementBase const*>::iterator findSCTHitsFromSameSpacePoint(Trk::MeasurementBase const* m_sctHit, std::vector<Trk::MeasurementBase const*>& m_listOfSCTHits);
+      std::vector<Trk::MeasurementBase const*>::iterator findSCTHitsFromSameSpacePoint(Trk::MeasurementBase const* sctHit, std::vector<Trk::MeasurementBase const*>& listOfSCTHits) const;
 
       /** Logic to check if the track is constrained given the number of various types of hits
        */
@@ -146,38 +146,34 @@ namespace InDet{
       
       /** Strip the Si hits, fit the remaining with a theta, z0 constraint.
        */
-      Trk::Track* stripSiFromTrack(Trk::Track const& input);
+      Trk::Track* stripSiFromTrack(Trk::Track const& input) const;
       
       /** Make the theta and z0 constraint 
        */
-      Trk::PseudoMeasurementOnTrack const* makeThetaZ0Constraint(Trk::Perigee const* originialPerigee);
+      Trk::PseudoMeasurementOnTrack const* makeThetaZ0Constraint(Trk::Perigee const* originialPerigee) const;
 
       /** Strip the TRT hits, fit the remaining with a qOverP constraint
        */
-      Trk::Track* stripTRTFromTrack(Trk::Track const& input, bool applyConstraint = true);
+      Trk::Track* stripTRTFromTrack(Trk::Track const& input, bool applyConstraint = true) const;
       
       /** Make the qOverP constraint
        */
       Trk::PseudoMeasurementOnTrack const* makePConstraint(Trk::Perigee const* originialPerigee
-                 ,Trk::StraightLineSurface const* trtSurf);
+                 ,Trk::StraightLineSurface const* trtSurf) const;
 
       /** Output track collection names recorded in storgate 
        */
-      std::string m_outputUpperTracksName;
-      std::string m_outputLowerTracksName;
-      
-      /** Do we use the material on the input track
-       */
-      bool m_keepmaterial;
-      
-      /** Upper(Lower) Track Collections */
-      TrackCollection* upperTracks;
-      TrackCollection* lowerTracks;
+      SG::WriteHandleKey<TrackCollection> m_outputUpperTracksName;
+      SG::WriteHandleKey<TrackCollection> m_outputLowerTracksName;
       
       /** Helper Functions */
       ToolHandle<Trk::ITrackFitter>  m_trkfitter;
       TRT_ID const* m_trtid ;
       SCT_ID const* m_sctid ;
+      
+      /** Do we use the material on the input track
+       */
+      bool m_keepmaterial;
       
     };
 }

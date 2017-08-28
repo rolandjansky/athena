@@ -28,17 +28,6 @@ The MCTruth package includes the following classes:
  - TruthStrategyManager : The manager that keeps track of the truth strategies and where they are to be applied.
  - TruthStrategyManagerMessenger : An obsolete messenger for the TruthStrategyManager
 
-@ref used_MCTruth
 
-@ref requirements_MCTruth
 
 */
-
-/**
-@page used_MCTruth Used Packages
-*/
-
-/**
-@page requirements_MCTruth Requirements
-*/
-

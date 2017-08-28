@@ -80,7 +80,7 @@ offlineObjectFilterNames=[]
 #=#cutString+= str(primRPVLLDESDM.SmpCaloId_trackParticleFilterFlags.cutPtMin)
 #=#cutString+= " && "
 #=#cutString+= primRPVLLDESDM.SmpCaloId_trackParticleFilterFlags.cutInputCollection
-#=#cutString+=".numberOfBLayerHits >="
+#=#cutString+=".numberOfInnermostPixelLayerHits >="
 #=#cutString+=str(primRPVLLDESDM.SmpCaloId_trackParticleFilterFlags.cutBLayerHitsMin)
 #=#cutString+=" ) >= 1 "
 #=#print "NICK SmpCaloId cutString is ",cutString

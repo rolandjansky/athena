@@ -12,6 +12,8 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
 #include "TrkEventPrimitives/TrackScore.h"
 #include "TrkToolInterfaces/ITrackScoringTool.h"
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
@@ -136,7 +138,7 @@ class InDetAmbiScoringTool : virtual public Trk::ITrackScoringTool,
   float m_phiWidthEm;
   float m_etaWidthEm;
 
-  std::string m_inputEmClusterContainerName;
+  SG::ReadHandleKey<CaloClusterROI_Collection> m_inputEmClusterContainerName;
 };
 
 

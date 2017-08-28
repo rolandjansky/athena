@@ -13,17 +13,5 @@ This package provied a way to create a Trk::TrackParameters object
 from a HepMC::GenParticle. This allows to use Trk::Extrapolator for
 extrapolation of "true" track parameters.
 
-@ref used_TrkTruthToTrack
-@ref requirements_TrkTruthToTrack
 
 */
-
-/**
-@page used_TrkTruthToTrack Used Packages
-*/
-
-/**
-@page requirements_TrkTruthToTrack Requirements
-*/
-
-

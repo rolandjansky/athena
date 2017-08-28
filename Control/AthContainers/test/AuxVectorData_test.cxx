@@ -375,6 +375,7 @@ public:
   virtual void* getDecoration (SG::auxid_t, size_t, size_t) { std::abort(); }
   virtual const SG::auxid_set_t& getAuxIDs() const { std::abort(); }
   virtual void lock() { std::abort(); }
+  virtual void lockDecoration (SG::auxid_t) { std::abort(); }
   virtual void clearDecorations() { std::abort(); }
   virtual size_t size() const { std::abort(); }
   virtual void* getData (SG::auxid_t, size_t, size_t) { std::abort(); }

@@ -33,11 +33,4 @@ analysis examples, look in CVS: PhysicsAnalysis/AnalysisCommon/AnalysisExamples/
  - For questions or comments: Ketevi A. Assamagan
    ketevi@bnl.gov
 
-@section UserAnalysis_used_packagesTkPara Used Packages
-
-@section UserAnalysis_requirements Requirements
-
 */
-
-
-

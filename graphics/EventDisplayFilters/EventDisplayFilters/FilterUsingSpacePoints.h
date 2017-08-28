@@ -5,10 +5,9 @@
 #ifndef FILTER_USING_SPACEPOINTS_H
 #define FILTER_USING_SPACEPOINTS_H
 
-#include "GaudiKernel/Algorithm.h"
-#include "StoreGate/StoreGateSvc.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
-class FilterUsingSpacePoints : public Algorithm
+class FilterUsingSpacePoints : public AthAlgorithm
 {
 	public:
 		FilterUsingSpacePoints(const std::string& name, ISvcLocator* pSvcLocator);
@@ -20,7 +19,5 @@ class FilterUsingSpacePoints : public Algorithm
 	private:
 		unsigned int m_SpacePoints_required; // Number of A side triggers required for pass
     std::string m_SpacePointContainerName;  //SpacePointContainer to use
-
-		StoreGateSvc* m_eventStore;
 };
 #endif

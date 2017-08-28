@@ -13,7 +13,7 @@
 ////////////////////////////////////////////////////////////////
 
 #include "VP1Gui/VP1EventFile.h"
-#include <QtCore/QStringList>
+#include <QStringList>
 
 //____________________________________________________________________
 class VP1EventFile::Imp {
@@ -103,7 +103,7 @@ bool VP1EventFile::operator<( const VP1EventFile & other ) const
   //newer (larger time, run and evt numbers) means "smaller".
   if (d->rawTime!=other.d->rawTime) return d->rawTime>other.d->rawTime;
   if (d->runNumber!=other.d->runNumber) return d->runNumber>other.d->runNumber;
-  if (d->eventNumber!=other.d->eventNumber) return d->runNumber>other.d->eventNumber;
+  if (d->eventNumber!=other.d->eventNumber) return d->eventNumber>other.d->eventNumber;
   if (d->fileName!=other.d->fileName) return d->fileName<other.d->fileName;
   if (d->valid!=other.d->valid) return d->valid;
   return d->md5Sum<other.d->md5Sum;

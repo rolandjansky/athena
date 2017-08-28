@@ -40,7 +40,7 @@ public:
   static const InterfaceID& interfaceID();
 
   virtual StatusCode initialize() override;
-  virtual eflowTrackCaloPoints* execute(const xAOD::TrackParticle* track) const override;
+  virtual std::unique_ptr<eflowTrackCaloPoints> execute(const xAOD::TrackParticle* track) const override;
   virtual StatusCode finalize() override;
 
 private:
@@ -48,10 +48,8 @@ private:
 
   ToolHandle<Trk::IParticleCaloExtensionTool> m_theTrackExtrapolatorTool;
 
-  Trk::TrackParametersIdHelper* m_trackParametersIdHelper;
+  std::unique_ptr<Trk::TrackParametersIdHelper> m_trackParametersIdHelper;
 
-  /* Count number of tracks seen for summary report in finalize */
-  //int m_tracksProcessed;
 };
 
 inline const InterfaceID& eflowTrackCaloExtensionTool::interfaceID() {

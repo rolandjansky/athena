@@ -11,6 +11,8 @@
 
 #include "TrkParameters/TrackParameters.h"
 #include <string>
+#include "StoreGate/ReadHandleKey.h" 
+#include "TrackRecord/TrackRecordCollection.h"
 
 namespace HepPDT { class ParticleDataTable; }
 namespace HepMC  { class GenParticle;       }
@@ -63,7 +65,7 @@ namespace Trk {
   private:
     const HepPDT::ParticleDataTable *m_particleDataTable;
     ToolHandle<Trk::IExtrapolator> m_extrapolator;
-    std::string   m_reccollkey;
+    SG::ReadHandleKey<TrackRecordCollection> m_reccollkey;
     
     /** Forbid copying of Truth...ToTrack to not mess with the
         internal pointers. */ 

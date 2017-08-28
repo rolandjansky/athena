@@ -30,5 +30,5 @@ atlas_add_component( TrigTRTHighTHitCounter
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} GaudiKernel GeoPrimitives Identifier xAODTrigRinger InDetIdentifier InDetPrepRawData TrigCaloEvent TrigSteeringEvent TrigInterfacesLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} GaudiKernel GeoPrimitives Identifier xAODTrigRinger InDetIdentifier InDetPrepRawData TrigCaloEvent TrigSteeringEvent TrigInterfacesLib EventContainers)
 

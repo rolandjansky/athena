@@ -59,8 +59,8 @@ class EgammaEntry:
 
     
 ### import the modules 
-print '... importing ROOT and PyCintex'
-import ROOT, PyCintex
+print '... importing ROOT'
+import ROOT
 
 ### define the list of input files
 print '... define list of files'

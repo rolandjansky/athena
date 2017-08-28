@@ -6,39 +6,39 @@
 
 AFP_SIDBasicKalman::AFP_SIDBasicKalman()
 {
-	MyFile = NULL;
-	histS1_PixMap = NULL;
-	histS2_PixMap = NULL;
-	histS3_PixMap = NULL;
-	histS4_PixMap = NULL;
+	m_MyFile = NULL;
+	m_histS1_PixMap = NULL;
+	m_histS2_PixMap = NULL;
+	m_histS3_PixMap = NULL;
+	m_histS4_PixMap = NULL;
 	
 	m_listResults.clear();
 
 	m_AmpThresh = 0;
 	m_iDataType = 0;
 	
-	pTrkSeeds.clear();
+	m_pTrkSeeds.clear();
 	
-	Fk.clear();
-	Ck.clear();
-	CkP.clear();
-	Rk.clear();
+	m_Fk.clear();
+	m_Ck.clear();
+	m_CkP.clear();
+	m_Rk.clear();
 
-	xk.clear();
-	xkP.clear();
-	rk.clear();
-	rkP.clear();
-	mk.clear();
-	chik.clear();
+	m_xk.clear();
+	m_xkP.clear();
+	m_rk.clear();
+	m_rkP.clear();
+	m_mk.clear();
+	m_chik.clear();
 	
-	zk.clear();
-	HID.clear();
+	m_zk.clear();
+	m_HID.clear();
 	
-	xkS.clear();
-	CkS.clear();
-	chikS.clear();
+	m_xkS.clear();
+	m_CkS.clear();
+	m_chikS.clear();
 	
-	z0 = 0;
+	m_z0 = 0;
 }
 
 AFP_SIDBasicKalman::~AFP_SIDBasicKalman()
@@ -83,16 +83,16 @@ StatusCode AFP_SIDBasicKalman::Initialize(float fAmpThresh, int iDataType, const
 			{	
 				for (Int_t nPixel_y = 0; nPixel_y < 80; nPixel_y++)
 				{	                                 		
-				fxMapSID[nStationID][nPlateID][nPixel_x][nPixel_y] = fxSID[nStationID][nPlateID]+(delta_pixel_x*(nPixel_x-168))*cos(fsSID[nStationID][nPlateID]);		//sign changed!	
-				fyMapSID[nStationID][nPlateID][nPixel_x][nPixel_y] = fySID[nStationID][nPlateID]+(delta_pixel_y*nPixel_y); //sign changed!
-				fzMapSID[nStationID][nPlateID][nPixel_x][nPixel_y] = fzSID[nStationID][nPlateID] - ((nStationID<2)?1.:-1.)*(delta_pixel_x*(nPixel_x-168))*sin(fsSID[nStationID][nPlateID]); //sign changed!
+				m_fxMapSID[nStationID][nPlateID][nPixel_x][nPixel_y] = fxSID[nStationID][nPlateID]+(delta_pixel_x*(nPixel_x-168))*cos(fsSID[nStationID][nPlateID]);		//sign changed!	
+				m_fyMapSID[nStationID][nPlateID][nPixel_x][nPixel_y] = fySID[nStationID][nPlateID]+(delta_pixel_y*nPixel_y); //sign changed!
+				m_fzMapSID[nStationID][nPlateID][nPixel_x][nPixel_y] = fzSID[nStationID][nPlateID] - ((nStationID<2)?1.:-1.)*(delta_pixel_x*(nPixel_x-168))*sin(fsSID[nStationID][nPlateID]); //sign changed!
 			        if( iDataType == 1) {
-                                fxMapSID[nStationID][nPlateID][nPixel_x][nPixel_y] += interPlaneX[nStationID][nPlateID] + 168*delta_pixel_x*cos(fsSID[nStationID][0]);
-                                fyMapSID[nStationID][nPlateID][nPixel_x][nPixel_y] += interPlaneY[nStationID][nPlateID];
-                                fzMapSID[nStationID][nPlateID][nPixel_x][nPixel_y] += -168*((nStationID<2)?1.:-1.)*delta_pixel_x*sin(fsSID[nStationID][0]); }
+                                m_fxMapSID[nStationID][nPlateID][nPixel_x][nPixel_y] += interPlaneX[nStationID][nPlateID] + 168*delta_pixel_x*cos(fsSID[nStationID][0]);
+                                m_fyMapSID[nStationID][nPlateID][nPixel_x][nPixel_y] += interPlaneY[nStationID][nPlateID];
+                                m_fzMapSID[nStationID][nPlateID][nPixel_x][nPixel_y] += -168*((nStationID<2)?1.:-1.)*delta_pixel_x*sin(fsSID[nStationID][0]); }
                                 else {
-                                fxMapSID[nStationID][nPlateID][nPixel_x][nPixel_y] += 168*delta_pixel_x*cos(fsSID[nStationID][0]);
-                                fzMapSID[nStationID][nPlateID][nPixel_x][nPixel_y] += -168*((nStationID<2)?1.:-1.)*delta_pixel_x*sin(fsSID[nStationID][0]); } 
+                                m_fxMapSID[nStationID][nPlateID][nPixel_x][nPixel_y] += 168*delta_pixel_x*cos(fsSID[nStationID][0]);
+                                m_fzMapSID[nStationID][nPlateID][nPixel_x][nPixel_y] += -168*((nStationID<2)?1.:-1.)*delta_pixel_x*sin(fsSID[nStationID][0]); } 
                                }
 			}
 		}
@@ -129,26 +129,26 @@ StatusCode AFP_SIDBasicKalman::Initialize(float fAmpThresh, int iDataType, const
 	}
 	
 	// Kalman matrices initialization
-	Hk = CLHEP::HepMatrix(2, 4, 0);
-	Hk[0][0] = 1.;
-	Hk[1][2] = 1.;
+	m_Hk = CLHEP::HepMatrix(2, 4, 0);
+	m_Hk[0][0] = 1.;
+	m_Hk[1][2] = 1.;
 	
-	Qk = CLHEP::HepMatrix(4, 4, 0);	
+	m_Qk = CLHEP::HepMatrix(4, 4, 0);	
 	
-	Vk = CLHEP::HepMatrix(2, 2, 0);
-	Vk[0][0] = delta_pixel_x*delta_pixel_x;
-	Vk[1][1] = delta_pixel_y*delta_pixel_y;
+	m_Vk = CLHEP::HepMatrix(2, 2, 0);
+	m_Vk[0][0] = delta_pixel_x*delta_pixel_x;
+	m_Vk[1][1] = delta_pixel_y*delta_pixel_y;
 	
-	C0 = CLHEP::HepMatrix(4, 4, 0);
-	C0[0][0] = delta_pixel_x*delta_pixel_x/3.;
-	C0[1][1] = delta_pixel_x*delta_pixel_x/SID_NOMINALSPACING/SID_NOMINALSPACING/3.;
-	//C0[1][0] = 0;
-	//C0[0][1] = 0;
+	m_C0 = CLHEP::HepMatrix(4, 4, 0);
+	m_C0[0][0] = delta_pixel_x*delta_pixel_x/3.;
+	m_C0[1][1] = delta_pixel_x*delta_pixel_x/SID_NOMINALSPACING/SID_NOMINALSPACING/3.;
+	//m_C0[1][0] = 0;
+	//m_C0[0][1] = 0;
 	
-	C0[2][2] = delta_pixel_y*delta_pixel_y/3.;
-	C0[3][3] = delta_pixel_y*delta_pixel_y/SID_NOMINALSPACING/SID_NOMINALSPACING/3.;
-	//C0[3][2] = 0;
-	//C0[2][3] = 0;
+	m_C0[2][2] = delta_pixel_y*delta_pixel_y/3.;
+	m_C0[3][3] = delta_pixel_y*delta_pixel_y/SID_NOMINALSPACING/SID_NOMINALSPACING/3.;
+	//m_C0[3][2] = 0;
+	//m_C0[2][3] = 0;
 		
 	//HistInitialize();
 	
@@ -166,13 +166,13 @@ StatusCode AFP_SIDBasicKalman::Execute()
                 /*
 		if( (*iter0).second.nStationID==1 )      
 		{	
-			histS1_PixMap->Fill((*iter0).second.fPixZ/CLHEP::mm, (*iter0).second.fPixX/CLHEP::mm);
-			histS3_PixMap->Fill((*iter0).second.fPixZ/CLHEP::mm, (*iter0).second.fPixY/CLHEP::mm);
+			m_histS1_PixMap->Fill((*iter0).second.fPixZ/CLHEP::mm, (*iter0).second.fPixX/CLHEP::mm);
+			m_histS3_PixMap->Fill((*iter0).second.fPixZ/CLHEP::mm, (*iter0).second.fPixY/CLHEP::mm);
 		}
 		else if( (*iter0).second.nStationID==0 )
 		{
-			histS2_PixMap->Fill((*iter0).second.fPixZ/CLHEP::mm, (*iter0).second.fPixX/CLHEP::mm);
-			histS4_PixMap->Fill((*iter0).second.fPixZ/CLHEP::mm, (*iter0).second.fPixY/CLHEP::mm);
+			m_histS2_PixMap->Fill((*iter0).second.fPixZ/CLHEP::mm, (*iter0).second.fPixX/CLHEP::mm);
+			m_histS4_PixMap->Fill((*iter0).second.fPixZ/CLHEP::mm, (*iter0).second.fPixY/CLHEP::mm);
 		}
                */
 	}
@@ -184,7 +184,7 @@ StatusCode AFP_SIDBasicKalman::Execute()
 	////////////////////////
 
 	vector<SIDHITSEED>::const_iterator iter1;
-	for (iter1= pTrkSeeds.begin(); iter1!= pTrkSeeds.end(); iter1++)
+	for (iter1= m_pTrkSeeds.begin(); iter1!= m_pTrkSeeds.end(); iter1++)
 	{
                  		
 		ClearMatrix();
@@ -241,14 +241,14 @@ StatusCode AFP_SIDBasicKalman::Execute()
 		LogStream << MSG::DEBUG << "Found new track candidate with parameters:" << endmsg;
 		LogStream << MSG::DEBUG << "Hit ID's : ";
 		vector<Int_t>::const_iterator iter2;
-		for (iter2= HID.begin(); iter2!= HID.end(); iter2++) LogStream << MSG::DEBUG << (*iter2) << "\t";
+		for (iter2= m_HID.begin(); iter2!= m_HID.end(); iter2++) LogStream << MSG::DEBUG << (*iter2) << "\t";
 		LogStream << endmsg;
 		
 		LogStream << MSG::DEBUG << "Filtered parameters : X, DX, Y, DY, chi2" << endmsg;
 		vector< CLHEP::HepVector >::const_iterator iter3;
-		vector< Float_t >::const_iterator iter4 = chik.begin();
+		vector< Float_t >::const_iterator iter4 = m_chik.begin();
 			LogStream << MSG::DEBUG << (*iter1).fSeedX << "\t" << (*iter1).fSeedDX << "\t" << (*iter1).fSeedY << "\t" << (*iter1).fSeedDY << "\t" << 0 << endmsg;
-		for (iter3=xk.begin(); iter3!= xk.end(); iter3++)
+		for (iter3=m_xk.begin(); iter3!= m_xk.end(); iter3++)
 		{
 			LogStream << MSG::DEBUG << (*iter3)[0] << "\t" << (*iter3)[1] << "\t" << (*iter3)[2] << "\t" << (*iter3)[3] << "\t" << (*iter4) << endmsg;
 			iter4++;
@@ -263,8 +263,8 @@ StatusCode AFP_SIDBasicKalman::Execute()
 		
 		LogStream << MSG::DEBUG << "Smoothed parameters : X, DX, Y, DY, chi2" << endmsg;
 		vector< CLHEP::HepVector >::const_reverse_iterator iter5;
-		vector< Float_t >::const_reverse_iterator iter6 = chikS.rbegin();
-		for (iter5=xkS.rbegin(); iter5!= xkS.rend(); ++iter5)
+		vector< Float_t >::const_reverse_iterator iter6 = m_chikS.rbegin();
+		for (iter5=m_xkS.rbegin(); iter5!= m_xkS.rend(); ++iter5)
 		{				
 			LogStream << MSG::DEBUG << (*iter5)[0] << "\t" << (*iter5)[1] << "\t" << (*iter5)[2] << "\t" << (*iter5)[3] << "\t" << (*iter6) << endmsg;
 			Chi2Sum += (*iter6);
@@ -277,16 +277,16 @@ StatusCode AFP_SIDBasicKalman::Execute()
 		// fill tracking collection
 		SIDRESULT Results;		
 		Results.nStationID  = (*iter1).nStationID;	
-		Results.x_pos = xkS.back()[0];
-		Results.y_pos = xkS.back()[2];
-		Results.z_pos = z0;
-		Results.x_slope = xkS.back()[1];
-		Results.y_slope = xkS.back()[3];
+		Results.x_pos = m_xkS.back()[0];
+		Results.y_pos = m_xkS.back()[2];
+		Results.z_pos = m_z0;
+		Results.x_slope = m_xkS.back()[1];
+		Results.y_slope = m_xkS.back()[3];
 		Results.z_slope = 1.;	
-		Results.nHits = xkS.size();
-		Results.nHoles = SIDCNT - xkS.size();
-		Results.fChi2 = xkS.size() + (MAXCHI2TRK - Chi2Sum/(Float_t)chikS.size())/(MAXCHI2TRK+1.);			
-		Results.ListHitID = HID;				
+		Results.nHits = m_xkS.size();
+		Results.nHoles = SIDCNT - m_xkS.size();
+		Results.fChi2 = m_xkS.size() + (MAXCHI2TRK - Chi2Sum/(Float_t)m_chikS.size())/(MAXCHI2TRK+1.);			
+		Results.ListHitID = m_HID;				
 		m_listResults.push_back(Results);
 		//////////////////////////////////////////
 	}
@@ -339,9 +339,9 @@ void AFP_SIDBasicKalman::FillSIDHITPOS(const SIDHIT &SIDHit, map<Int_t, SIDHITPO
 		
 	SIDHitPos.nStationID  = nStID;
 	SIDHitPos.nPlateID    = nPlID;
-	SIDHitPos.fPixX       = fxMapSID[nStID][nPlID][nPixCol][nPixRow];
-	SIDHitPos.fPixY       = fyMapSID[nStID][nPlID][nPixCol][nPixRow];
-	SIDHitPos.fPixZ       = fzMapSID[nStID][nPlID][nPixCol][nPixRow];	
+	SIDHitPos.fPixX       = m_fxMapSID[nStID][nPlID][nPixCol][nPixRow];
+	SIDHitPos.fPixY       = m_fyMapSID[nStID][nPlID][nPixCol][nPixRow];
+	SIDHitPos.fPixZ       = m_fzMapSID[nStID][nPlID][nPixCol][nPixRow];	
 	SIDHitPos.fAmp	      = SIDHit.fADC;
 		
 	Int_t HitID = nStID*1000000+nPlID*100000+nPixCol*100+nPixRow;
@@ -435,7 +435,7 @@ void AFP_SIDBasicKalman::GetTrkSeeds()
 			SIDHitSeed.fSeedDY = ((*iter1).second.fPixY-(*iter0).second.fPixY)/abs((*iter1).second.fPixZ-(*iter0).second.fPixZ);
 			SIDHitSeed.fSeedZ  = (*iter1).second.fPixZ;
 			
-			pTrkSeeds.push_back(SIDHitSeed);			
+			m_pTrkSeeds.push_back(SIDHitSeed);			
 			}
 		}
 	}
@@ -450,11 +450,11 @@ bool AFP_SIDBasicKalman::FillTrkPropagators(const SIDHITSEED &SIDHitSeed, Int_t 
 
         if( SIDHitSeed.nStationID == 2 && plateF==3) return 0;
 
-        HID.clear();
-	HID.push_back(SIDHitSeed.nHitID1);
-	HID.push_back(SIDHitSeed.nHitID2);
+        m_HID.clear();
+	m_HID.push_back(SIDHitSeed.nHitID1);
+	m_HID.push_back(SIDHitSeed.nHitID2);
 	
-	Float_t Zdist = (fzMapSID[SIDHitSeed.nStationID][plateF][1][0] - fzMapSID[SIDHitSeed.nStationID][plateF][0][0])/(fxMapSID[SIDHitSeed.nStationID][plateF][1][0] - fxMapSID[SIDHitSeed.nStationID][plateF][0][0])*(SIDHitSeed.fSeedX - fxMapSID[SIDHitSeed.nStationID][plateF][0][0]) + fzMapSID[SIDHitSeed.nStationID][plateF][0][0] - SIDHitSeed.fSeedZ;
+	Float_t Zdist = (m_fzMapSID[SIDHitSeed.nStationID][plateF][1][0] - m_fzMapSID[SIDHitSeed.nStationID][plateF][0][0])/(m_fxMapSID[SIDHitSeed.nStationID][plateF][1][0] - m_fxMapSID[SIDHitSeed.nStationID][plateF][0][0])*(SIDHitSeed.fSeedX - m_fxMapSID[SIDHitSeed.nStationID][plateF][0][0]) + m_fzMapSID[SIDHitSeed.nStationID][plateF][0][0] - SIDHitSeed.fSeedZ;
 	
 	CLHEP::HepMatrix Fi(4, 4, 1);
 	Fi[0][1] = Zdist;
@@ -471,9 +471,9 @@ bool AFP_SIDBasicKalman::FillTrkPropagators(const SIDHITSEED &SIDHitSeed, Int_t 
 
 	
 	CLHEP::HepVector xiP = Fi*x0i;
-	CLHEP::HepMatrix CiP = Fi*C0*Fi.T();//+Qk;
+	CLHEP::HepMatrix CiP = Fi*m_C0*Fi.T();//+m_Qk;
 	
-	//mk finder
+	//m_mk finder
 	CLHEP::HepVector mi(2);
 	Float_t XYdist=100.*CLHEP::mm;
 	Int_t HitID=-1;
@@ -495,16 +495,16 @@ bool AFP_SIDBasicKalman::FillTrkPropagators(const SIDHITSEED &SIDHitSeed, Int_t 
 	if (HitID == -1) return 0;  // no hits in layer
 	/////////////////////////
 	
-	CLHEP::HepVector riP = mi - Hk*xiP;
-	CLHEP::HepMatrix RiP = Vk + Hk*CiP*Hk.T();
+	CLHEP::HepVector riP = mi - m_Hk*xiP;
+	CLHEP::HepMatrix RiP = m_Vk + m_Hk*CiP*m_Hk.T();
 
-	CLHEP::HepMatrix Ki = CiP*Hk.T()*qr_inverse(RiP);
+	CLHEP::HepMatrix Ki = CiP*m_Hk.T()*qr_inverse(RiP);
 	CLHEP::HepVector xi = xiP + Ki*riP;
 	
-	CLHEP::HepMatrix Ci = CiP - Ki*Hk*CiP;
+	CLHEP::HepMatrix Ci = CiP - Ki*m_Hk*CiP;
 	
-	CLHEP::HepVector ri = mi - Hk*xi;
-	CLHEP::HepMatrix Ri = Vk - Hk*Ki*Vk;
+	CLHEP::HepVector ri = mi - m_Hk*xi;
+	CLHEP::HepMatrix Ri = m_Vk - m_Hk*Ki*m_Vk;
 	
 	//chi2 statistics to remove fakes
 	CLHEP::HepVector chii = ri.T()*qr_inverse(Ri)*ri;
@@ -513,19 +513,19 @@ bool AFP_SIDBasicKalman::FillTrkPropagators(const SIDHITSEED &SIDHitSeed, Int_t 
 	if (chii[0]>MAXCHI2HIT) return 0; // no good hit in layer
 	//////////////////////////////
 	
-	Fk.push_back(Fi);
-	CkP.push_back(CiP);
-	Ck.push_back(Ci);
-	mk.push_back(mi);
-	xk.push_back(xi);
-	xkP.push_back(xiP);
-	chik.push_back(chii[0]);
+	m_Fk.push_back(Fi);
+	m_CkP.push_back(CiP);
+	m_Ck.push_back(Ci);
+	m_mk.push_back(mi);
+	m_xk.push_back(xi);
+	m_xkP.push_back(xiP);
+	m_chik.push_back(chii[0]);
 	
-	m0 = m0i;
-	x0 = x0i;	
+	m_m0 = m0i;
+	m_x0 = x0i;	
 	
-	HID.push_back(HitID);
-	zk.push_back( (fzMapSID[SIDHitSeed.nStationID][plateF][1][0] - fzMapSID[SIDHitSeed.nStationID][plateF][0][0])/(fxMapSID[SIDHitSeed.nStationID][plateF][1][0] - fxMapSID[SIDHitSeed.nStationID][plateF][0][0])*(xi[0] - fxMapSID[SIDHitSeed.nStationID][plateF][0][0]) + fzMapSID[SIDHitSeed.nStationID][plateF][0][0] );
+	m_HID.push_back(HitID);
+	m_zk.push_back( (m_fzMapSID[SIDHitSeed.nStationID][plateF][1][0] - m_fzMapSID[SIDHitSeed.nStationID][plateF][0][0])/(m_fxMapSID[SIDHitSeed.nStationID][plateF][1][0] - m_fxMapSID[SIDHitSeed.nStationID][plateF][0][0])*(xi[0] - m_fxMapSID[SIDHitSeed.nStationID][plateF][0][0]) + m_fzMapSID[SIDHitSeed.nStationID][plateF][0][0] );
 
 	
 	return 1;
@@ -534,7 +534,7 @@ bool AFP_SIDBasicKalman::FillTrkPropagators(const SIDHITSEED &SIDHitSeed, Int_t 
 
 bool AFP_SIDBasicKalman::FillTrkPropagators(Int_t stID, Int_t plateF)
 {
-	Float_t Zdist = (fzMapSID[stID][plateF][1][0] - fzMapSID[stID][plateF][0][0])/(fxMapSID[stID][plateF][1][0] - fxMapSID[stID][plateF][0][0])*(xk.back()[0] - fxMapSID[stID][plateF][0][0]) + fzMapSID[stID][plateF][0][0] - zk.back();
+	Float_t Zdist = (m_fzMapSID[stID][plateF][1][0] - m_fzMapSID[stID][plateF][0][0])/(m_fxMapSID[stID][plateF][1][0] - m_fxMapSID[stID][plateF][0][0])*(m_xk.back()[0] - m_fxMapSID[stID][plateF][0][0]) + m_fzMapSID[stID][plateF][0][0] - m_zk.back();
 	
         // This sensor is not active
         if( stID == 2 && plateF == 3) return 0;
@@ -543,10 +543,10 @@ bool AFP_SIDBasicKalman::FillTrkPropagators(Int_t stID, Int_t plateF)
 	Fi[0][1] = Zdist;
 	Fi[2][3] = Zdist;
 	
-	CLHEP::HepVector xiP = Fi*xk.back();
-	CLHEP::HepMatrix CiP = Fi*Ck.back()*Fi.T();//+Qk;
+	CLHEP::HepVector xiP = Fi*m_xk.back();
+	CLHEP::HepMatrix CiP = Fi*m_Ck.back()*Fi.T();//+m_Qk;
 	
-	//mk finder
+	//m_mk finder
 	CLHEP::HepVector mi(2);
 	Float_t XYdist=100.*CLHEP::mm;
 	Int_t HitID=-1;
@@ -570,16 +570,16 @@ bool AFP_SIDBasicKalman::FillTrkPropagators(Int_t stID, Int_t plateF)
 	if (HitID == -1) return 0;  // no hits in layer
 	/////////////////////////
 	
-	CLHEP::HepVector riP = mi - Hk*xiP;
-	CLHEP::HepMatrix RiP = Vk + Hk*CiP*Hk.T();
+	CLHEP::HepVector riP = mi - m_Hk*xiP;
+	CLHEP::HepMatrix RiP = m_Vk + m_Hk*CiP*m_Hk.T();
 
-	CLHEP::HepMatrix Ki = CiP*Hk.T()*qr_inverse(RiP);
+	CLHEP::HepMatrix Ki = CiP*m_Hk.T()*qr_inverse(RiP);
 	CLHEP::HepVector xi = xiP + Ki*riP;
 	
-	CLHEP::HepMatrix Ci = CiP - Ki*Hk*CiP;
+	CLHEP::HepMatrix Ci = CiP - Ki*m_Hk*CiP;
 	
-	CLHEP::HepVector ri = mi - Hk*xi;
-	CLHEP::HepMatrix Ri = Vk - Hk*Ki*Vk;
+	CLHEP::HepVector ri = mi - m_Hk*xi;
+	CLHEP::HepMatrix Ri = m_Vk - m_Hk*Ki*m_Vk;
 	
 	//chi2 statistics to remove fakes
 	CLHEP::HepVector chii = ri.T()*qr_inverse(Ri)*ri;
@@ -590,16 +590,16 @@ bool AFP_SIDBasicKalman::FillTrkPropagators(Int_t stID, Int_t plateF)
 	//////////////////////////////
 	
 	
-	Fk.push_back(Fi);
-	CkP.push_back(CiP);
-	Ck.push_back(Ci);
-	mk.push_back(mi);
-	xk.push_back(xi);
-	xkP.push_back(xiP);
-	chik.push_back(chii[0]);
+	m_Fk.push_back(Fi);
+	m_CkP.push_back(CiP);
+	m_Ck.push_back(Ci);
+	m_mk.push_back(mi);
+	m_xk.push_back(xi);
+	m_xkP.push_back(xiP);
+	m_chik.push_back(chii[0]);
 	
-	HID.push_back(HitID);
-	zk.push_back( (fzMapSID[stID][plateF][1][0] - fzMapSID[stID][plateF][0][0])/(fxMapSID[stID][plateF][1][0] - fxMapSID[stID][plateF][0][0])*(xi[0] - fxMapSID[stID][plateF][0][0]) + fzMapSID[stID][plateF][0][0] );
+	m_HID.push_back(HitID);
+	m_zk.push_back( (m_fzMapSID[stID][plateF][1][0] - m_fzMapSID[stID][plateF][0][0])/(m_fxMapSID[stID][plateF][1][0] - m_fxMapSID[stID][plateF][0][0])*(xi[0] - m_fxMapSID[stID][plateF][0][0]) + m_fzMapSID[stID][plateF][0][0] );
 
 	return 1;
 }
@@ -611,51 +611,51 @@ void AFP_SIDBasicKalman::Smooth()
 	CLHEP::HepMatrix CiS;
 
 
-        if( xk.size() > 1) {
-	for (Int_t i=(xk.size()-2); i>=0; i--)
+        if( m_xk.size() > 1) {
+        for (Int_t i=(static_cast<int>(m_xk.size())-2); i>=0; i--)
 	{
-		if(i==(xk.size()-2))
+                if(i==(static_cast<int>(m_xk.size())-2))
 		{
-			xiS = xk[xk.size()-1];	// !!!!!!!!!
-			CiS = Ck[xk.size()-1];	// !!!!!!!!!
+			xiS = m_xk[m_xk.size()-1];	// !!!!!!!!!
+			CiS = m_Ck[m_xk.size()-1];	// !!!!!!!!!
 			
-			xkS.push_back(xiS);
-			CkS.push_back(CiS);
-			CLHEP::HepVector riiS = mk[xk.size()-1] - Hk*xiS;
-			CLHEP::HepMatrix RiiS = Vk - Hk*CiS*Hk.T();
+			m_xkS.push_back(xiS);
+			m_CkS.push_back(CiS);
+			CLHEP::HepVector riiS = m_mk[m_xk.size()-1] - m_Hk*xiS;
+			CLHEP::HepMatrix RiiS = m_Vk - m_Hk*CiS*m_Hk.T();
 			CLHEP::HepVector chiiS = riiS.T()*qr_inverse(RiiS)*riiS;
-			chikS.push_back(chiiS[0]);
+			m_chikS.push_back(chiiS[0]);
 		}
 		else
 		{
-			xiS = xkS.back();
-			CiS = CkS.back();
+			xiS = m_xkS.back();
+			CiS = m_CkS.back();
 		}
 		
-		//CLHEP::HepMatrix Ai = qr_inverse(Fk[i+1]); // when Qk == 0
-		CLHEP::HepMatrix Ai = Ck[i]*Fk[i+1].T()*qr_inverse(CkP[i+1]);		
-		CLHEP::HepVector xiiS = xk[i] + Ai*( xiS - xkP[i+1] );				
-		CLHEP::HepMatrix CiiS = Ck[i] + Ai*( CiS - CkP[i+1] )*Ai.T();		
+		//CLHEP::HepMatrix Ai = qr_inverse(m_Fk[i+1]); // when m_Qk == 0
+		CLHEP::HepMatrix Ai = m_Ck[i]*m_Fk[i+1].T()*qr_inverse(m_CkP[i+1]);		
+		CLHEP::HepVector xiiS = m_xk[i] + Ai*( xiS - m_xkP[i+1] );				
+		CLHEP::HepMatrix CiiS = m_Ck[i] + Ai*( CiS - m_CkP[i+1] )*Ai.T();		
 		
-		CLHEP::HepVector riiS = mk[i] - Hk*xiiS;
-		CLHEP::HepMatrix RiiS = Vk - Hk*CiiS*Hk.T();
+		CLHEP::HepVector riiS = m_mk[i] - m_Hk*xiiS;
+		CLHEP::HepMatrix RiiS = m_Vk - m_Hk*CiiS*m_Hk.T();
 		CLHEP::HepVector chiiS = riiS.T()*qr_inverse(RiiS)*riiS;
 		
-		xkS.push_back(xiiS);
-		CkS.push_back(CiiS);
-		chikS.push_back(chiiS[0]);
+		m_xkS.push_back(xiiS);
+		m_CkS.push_back(CiiS);
+		m_chikS.push_back(chiiS[0]);
 	}
         }
-        else if (xk.size() > 0) {
-                        xiS = xk[xk.size()-1];  // !!!!!!!!!
-                        CiS = Ck[xk.size()-1];  // !!!!!!!!!
+        else if (m_xk.size() > 0) {
+                        xiS = m_xk[m_xk.size()-1];  // !!!!!!!!!
+                        CiS = m_Ck[m_xk.size()-1];  // !!!!!!!!!
 
-                        xkS.push_back(xiS);
-                        CkS.push_back(CiS);
-                        CLHEP::HepVector riiS = mk[xk.size()-1] - Hk*xiS;
-                        CLHEP::HepMatrix RiiS = Vk - Hk*CiS*Hk.T();
+                        m_xkS.push_back(xiS);
+                        m_CkS.push_back(CiS);
+                        CLHEP::HepVector riiS = m_mk[m_xk.size()-1] - m_Hk*xiS;
+                        CLHEP::HepMatrix RiiS = m_Vk - m_Hk*CiS*m_Hk.T();
                         CLHEP::HepVector chiiS = riiS.T()*qr_inverse(RiiS)*riiS;
-                        chikS.push_back(chiiS[0]);
+                        m_chikS.push_back(chiiS[0]);
 
 
         }
@@ -663,47 +663,47 @@ void AFP_SIDBasicKalman::Smooth()
 
 
 
-	//CLHEP::HepMatrix Ai = qr_inverse(Fk[0]); // when Qk == 0
-	CLHEP::HepMatrix Ai = C0*Fk[0].T()*qr_inverse(CkP[0]);
+	//CLHEP::HepMatrix Ai = qr_inverse(m_Fk[0]); // when m_Qk == 0
+	CLHEP::HepMatrix Ai = m_C0*m_Fk[0].T()*qr_inverse(m_CkP[0]);
 
-	CLHEP::HepVector xiiS = x0 + Ai*( xkS.back() - xkP[0] );		
+	CLHEP::HepVector xiiS = m_x0 + Ai*( m_xkS.back() - m_xkP[0] );		
 
-	CLHEP::HepMatrix CiiS = C0 + Ai*( CkS.back() - CkP[0] )*Ai.T();
+	CLHEP::HepMatrix CiiS = m_C0 + Ai*( m_CkS.back() - m_CkP[0] )*Ai.T();
 		
-	CLHEP::HepVector riiS = m0 - Hk*xiiS;
-	CLHEP::HepMatrix RiiS = Vk - Hk*CiiS*Hk.T();
+	CLHEP::HepVector riiS = m_m0 - m_Hk*xiiS;
+	CLHEP::HepMatrix RiiS = m_Vk - m_Hk*CiiS*m_Hk.T();
 
 
 	CLHEP::HepVector chiiS = riiS.T()*qr_inverse(RiiS)*riiS;
 	
-	CkS.push_back(CiiS);
-	xkS.push_back(xiiS);
-	chikS.push_back(chiiS[0]);
+	m_CkS.push_back(CiiS);
+	m_xkS.push_back(xiiS);
+	m_chikS.push_back(chiiS[0]);
 
 	
 
 	// first hit !!!!!!!!!!
 	CLHEP::HepMatrix Fi(4, 4, 1);
-	Fi[0][1] = (*m_MapSIDHitPos.find(HID[1])).second.fPixZ - (*m_MapSIDHitPos.find(HID[0])).second.fPixZ;
-	Fi[2][3] = (*m_MapSIDHitPos.find(HID[1])).second.fPixZ - (*m_MapSIDHitPos.find(HID[0])).second.fPixZ;
+	Fi[0][1] = (*m_MapSIDHitPos.find(m_HID[1])).second.fPixZ - (*m_MapSIDHitPos.find(m_HID[0])).second.fPixZ;
+	Fi[2][3] = (*m_MapSIDHitPos.find(m_HID[1])).second.fPixZ - (*m_MapSIDHitPos.find(m_HID[0])).second.fPixZ;
 	
-	Ai = qr_inverse(Fi); // when Qk == 0
-	xiiS = Ai*( xkS.back() );			
-	CiiS = C0 + Ai*( CkS.back() - C0 )*Ai.T();
+	Ai = qr_inverse(Fi); // when m_Qk == 0
+	xiiS = Ai*( m_xkS.back() );			
+	CiiS = m_C0 + Ai*( m_CkS.back() - m_C0 )*Ai.T();
 		
-	riiS = Hk*Ai*(x0 - xkS.back());
-	RiiS = Vk - Hk*CiiS*Hk.T();
+	riiS = m_Hk*Ai*(m_x0 - m_xkS.back());
+	RiiS = m_Vk - m_Hk*CiiS*m_Hk.T();
 	chiiS = riiS.T()*qr_inverse(RiiS)*riiS;
 	
-	CkS.push_back(CiiS);
-	xkS.push_back(xiiS);
-	chikS.push_back(chiiS[0]);
+	m_CkS.push_back(CiiS);
+	m_xkS.push_back(xiiS);
+	m_chikS.push_back(chiiS[0]);
 	
 	// z position of the seed hit0
-	//Int_t StID = (*m_MapSIDHitPos.find(HID[0])).second.nStationID;
-	//Int_t PlID = (*m_MapSIDHitPos.find(HID[0])).second.nPlateID;	
-	//z0 = (fzMapSID[StID][PlID][1][0] - fzMapSID[StID][PlID][0][0])/(fxMapSID[StID][PlID][1][0] - fxMapSID[StID][PlID][0][0])*(xiiS[0] - fxMapSID[StID][PlID][0][0]) + fzMapSID[StID][PlID][0][0];
-	z0 = (*m_MapSIDHitPos.find(HID[0])).second.fPixZ;
+	//Int_t StID = (*m_MapSIDHitPos.find(m_HID[0])).second.nStationID;
+	//Int_t PlID = (*m_MapSIDHitPos.find(m_HID[0])).second.nPlateID;	
+	//m_z0 = (m_fzMapSID[StID][PlID][1][0] - m_fzMapSID[StID][PlID][0][0])/(m_fxMapSID[StID][PlID][1][0] - m_fxMapSID[StID][PlID][0][0])*(xiiS[0] - m_fxMapSID[StID][PlID][0][0]) + m_fzMapSID[StID][PlID][0][0];
+	m_z0 = (*m_MapSIDHitPos.find(m_HID[0])).second.fPixZ;
 }
 
 void AFP_SIDBasicKalman::FilterTrkCollection()
@@ -756,24 +756,24 @@ Int_t AFP_SIDBasicKalman::GetSharedHits(const vector<Int_t> &HID1, const vector<
 
 void AFP_SIDBasicKalman::ClearMatrix()
 {
-	Fk.clear();
-	Ck.clear();
-	CkP.clear();
-	Rk.clear();
+	m_Fk.clear();
+	m_Ck.clear();
+	m_CkP.clear();
+	m_Rk.clear();
 
-	xk.clear();
-	xkP.clear();
-	rk.clear();
-	rkP.clear();
-	mk.clear();
-	chik.clear();	
+	m_xk.clear();
+	m_xkP.clear();
+	m_rk.clear();
+	m_rkP.clear();
+	m_mk.clear();
+	m_chik.clear();	
 	
-	zk.clear();
-	HID.clear();	
+	m_zk.clear();
+	m_HID.clear();	
 	
-	xkS.clear();
-	CkS.clear();
-	chikS.clear();
+	m_xkS.clear();
+	m_CkS.clear();
+	m_chikS.clear();
 	
 
 }
@@ -781,23 +781,47 @@ void AFP_SIDBasicKalman::ClearMatrix()
 void AFP_SIDBasicKalman::HistInitialize()
 {
 	//supporting histograms with binning convention: z, x
-	MyFile = new TFile("PixMap.root","RECREATE");
-	histS1_PixMap = new TH2F("histS1x_PixMap", "", 600, fzMapSID[1][0][0][0]-5., fzMapSID[1][5][335][0]+5., 400, fxMapSID[1][5][335][0]-2., fxMapSID[1][0][0][0]+2.);
-	histS2_PixMap = new TH2F("histS2x_PixMap", "", 600, fzMapSID[0][0][0][0]-5., fzMapSID[0][5][335][0]+5., 400, fxMapSID[0][5][335][0]-2., fxMapSID[0][0][0][0]+2.);
-	histS3_PixMap = new TH2F("histS1y_PixMap", "", 600, fzMapSID[1][0][0][0]-5., fzMapSID[1][5][335][0]+5., 400, fyMapSID[1][0][0][79]-2., fyMapSID[1][0][0][0]+2.);
-	histS4_PixMap = new TH2F("histS2y_PixMap", "", 600, fzMapSID[0][0][0][0]-5., fzMapSID[0][5][335][0]+5., 400, fyMapSID[0][0][0][79]-2., fyMapSID[0][0][0][0]+2.);
+	m_MyFile = new TFile("PixMap.root","RECREATE");
+	m_histS1_PixMap = new TH2F("histS1x_PixMap", "",
+                                 600,
+                                 m_fzMapSID[1][0][0][0]-5.,
+                                 m_fzMapSID[1][SIDCNT-1][335][0]+5.,
+                                 400,
+                                 m_fxMapSID[1][SIDCNT-1][335][0]-2.,
+                                 m_fxMapSID[1][0][0][0]+2.);
+	m_histS2_PixMap = new TH2F("histS2x_PixMap", "",
+                                 600,
+                                 m_fzMapSID[0][0][0][0]-5.,
+                                 m_fzMapSID[0][SIDCNT-1][335][0]+5.,
+                                 400,
+                                 m_fxMapSID[0][SIDCNT-1][335][0]-2.,
+                                 m_fxMapSID[0][0][0][0]+2.);
+	m_histS3_PixMap = new TH2F("histS1y_PixMap", "",
+                                 600,
+                                 m_fzMapSID[1][0][0][0]-5.,
+                                 m_fzMapSID[1][SIDCNT-1][335][0]+5.,
+                                 400,
+                                 m_fyMapSID[1][0][0][79]-2.,
+                                 m_fyMapSID[1][0][0][0]+2.);
+	m_histS4_PixMap = new TH2F("histS2y_PixMap", "",
+                                 600,
+                                 m_fzMapSID[0][0][0][0]-5.,
+                                 m_fzMapSID[0][SIDCNT-1][335][0]+5.,
+                                 400,
+                                 m_fyMapSID[0][0][0][79]-2.,
+                                 m_fyMapSID[0][0][0][0]+2.);
 }
 
 void AFP_SIDBasicKalman::HistFinalize()
 {
 		
-	MyFile->Write();
-	//MyFile->Close();
-	delete histS1_PixMap;
-	delete histS2_PixMap;
-	delete histS3_PixMap;
-	delete histS4_PixMap;
-	delete MyFile;
+	m_MyFile->Write();
+	//m_MyFile->Close();
+	delete m_histS1_PixMap;
+	delete m_histS2_PixMap;
+	delete m_histS3_PixMap;
+	delete m_histS4_PixMap;
+	delete m_MyFile;
 }
 
 

@@ -42,16 +42,6 @@ The other classes are the usual boiler plate needed to implement the transient/p
 
 Note however that <b>only T/P separated</b> classes can make use of the thinning process as it relies on the T/P separation of the @c ElementLink to correct the persistent index (to the element in the persistent container) with the according offset, reflecting the removal of elements. (See @c IThinningSvc and @c ThinningSvc documentation in, respectively, packages AthenaKernel and AthenaServices.)
 
-@ref used_AthExThinning
 
-@ref requirements_AthExThinning
 
-*/
-
-/**
-@page used_AthExThinning Used Packages
-*/
-
-/**
-@page requirements_AthExThinning Requirements
 */

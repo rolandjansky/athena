@@ -35,8 +35,6 @@
 
 // ROOT includes
 #include "TClassEdit.h"
-#include "TVirtualMutex.h"  // for R__LOCKGUARD2
-#include "TInterpreter.h"   // for gCINTMutex
 
 // fwk includes
 #include "GaudiKernel/System.h"
@@ -104,77 +102,69 @@ namespace {
   const std::set<std::string>& 
   s_cxx_builtins()
   {
-    static std::set<std::string> s;
-    if (s.empty()) {
-#define _ADD(x) s.insert(x)
-
-      _ADD(         "char");
-      _ADD("unsigned char");
-      _ADD(  "signed char");
+    static const std::set<std::string> s = {
+      "char",
+      "unsigned char",
+      "signed char",
       
-      _ADD("signed");
+      "signed",
       
-      _ADD("short int");
-      _ADD("short signed");
-      _ADD("short signed int");
+      "short int",
+      "short signed",
+      "short signed int",
       
-      _ADD(         "short");
-      _ADD("unsigned short");
-      _ADD(  "signed short");
+      "short",
+      "unsigned short",
+      "signed short",
 
-      _ADD("int");
-      _ADD("unsigned int");
+      "int",
+      "unsigned int",
 
-      _ADD("long int");
-      _ADD("long signed int");
-      _ADD("signed long int");
+      "long int",
+      "long signed int",
+      "signed long int",
       
-      _ADD("long");
-      _ADD("long signed");
-      _ADD("signed long");
-      _ADD("unsigned long");
-      _ADD("unsigned long int");
+      "long",
+      "long signed",
+      "signed long",
+      "unsigned long",
+      "unsigned long int",
 
-      _ADD("long long");
-      _ADD("long long int");
-      _ADD("unsigned long long");
-      _ADD("longlong");
+      "long long",
+      "long long int",
+      "unsigned long long",
+      "longlong",
       
-      _ADD("ulonglong");
+      "ulonglong",
 
-      _ADD("float");
-      _ADD("double");
-      _ADD("long double");
-      _ADD("bool");
-
-#undef _ADD      
-    }
+      "float",
+      "double",
+      "long double",
+      "bool",
+    };
     return s;
   }
 
   const std::map<std::string, std::string>&
   s_cxx_aliases()
   {
-    static std::map<std::string, std::string> s;
-    if (s.empty()) {
-      s["ElementLinkInt_p1"] = "ElementLink_p1<unsigned int>";
-      s["basic_string<char>"] = "string";
-      s["std::basic_string<char>"] = "string";
-      s["vector<basic_string<char> >"] = "vector<string>";
-      s["INavigable4MomentumCollection"] = "DataVector<INavigable4Momentum>";
-      s["IParticleContainer"] = "DataVector<IParticle>";
-    }
+    static const std::map<std::string, std::string> s =
+      {{"ElementLinkInt_p1",             "ElementLink_p1<unsigned int>"},
+       {"basic_string<char>",            "string"},
+       {"vector<basic_string<char> >",   "vector<string>"},
+       {"INavigable4MomentumCollection", "DataVector<INavigable4Momentum>"},
+       {"IParticleContainer",            "DataVector<IParticle>"},
+      };
     return s;
   }
 
   const std::map<std::string, std::string>&
   s_cxx_typedefs()
   {
-    static std::map<std::string, std::string> s;
-    if (s.empty()) {
-      s["INavigable4MomentumCollection"] = "DataVector<INavigable4Momentum>";
-      s["IParticleContainer"] = "DataVector<IParticle>";
-    }
+    static const std::map<std::string, std::string> s =
+      {{"INavigable4MomentumCollection", "DataVector<INavigable4Momentum>"},
+       {"IParticleContainer",            "DataVector<IParticle>"},
+      };
     return s;
   }
 
@@ -242,10 +232,9 @@ namespace Ath {
 
 /** factory for the DsoDb
  */
-DsoDb* DsoDb::instance()
+const DsoDb* DsoDb::instance()
 {
-   RootType::EnableCintex();
-   static DsoDb db;
+   static const DsoDb db;
    return &db;
 }
 
@@ -273,7 +262,7 @@ DsoDb::~DsoDb()
 /////////////////////////////////////////////////////////////////// 
 
 bool
-DsoDb::has_type(const std::string& type_name)
+DsoDb::has_type(const std::string& type_name) const
 {
   if (s_cxx_builtins().find(type_name) != s_cxx_builtins().end()) {
     return true;
@@ -287,7 +276,7 @@ DsoDb::has_type(const std::string& type_name)
 }
 
 std::string
-DsoDb::load_type(const std::string& type_name)
+DsoDb::load_type(const std::string& type_name) const
 {
   RootType t = this->rflx_type(type_name);
   if (t.Id()) {
@@ -461,16 +450,16 @@ DsoDb::build_repository()
 }
 
 std::vector<std::string>
-DsoDb::capabilities(const std::string& libname_)
+DsoDb::capabilities(const std::string& libname_) const
 {
   fs::path p(libname_);
 
   const std::string libname = ::getlibname(to_string(p.filename()));
   std::set<std::string> caps;
-  DsoMap_t* dbs[] = { &m_pf, &m_db };
+  const DsoMap_t* dbs[] = { &m_pf, &m_db };
 
   for (std::size_t i = 0, imax = 2; i < imax; ++i) {
-    DsoMap_t* db = dbs[i];
+    const DsoMap_t* db = dbs[i];
     for (DsoMap_t::const_iterator idb = db->begin(), iend=db->end();
          idb != iend;
          ++idb) {
@@ -491,12 +480,12 @@ DsoDb::capabilities(const std::string& libname_)
 
 /// list of libraries hosting duplicate reflex-types
 DsoDb::DsoMap_t 
-DsoDb::duplicates(const std::string& libname, bool pedantic)
+DsoDb::duplicates(const std::string& libname, bool pedantic) const
 {
   DsoMap_t dups;
   const std::string basename_lib = to_string(fs::path(libname).filename());
   std::vector<std::string> caps = this->capabilities(libname);
-  DsoMap_t* dbs[] = { &m_pf, &m_db };
+  const DsoMap_t* dbs[] = { &m_pf, &m_db };
 
   for (std::size_t i = 0, imax = 2; i < imax; ++i) {
     DsoMap_t dup_db;
@@ -526,7 +515,7 @@ DsoDb::duplicates(const std::string& libname, bool pedantic)
 
 /// table of dict-duplicates: {type: [lib1, lib2, ...]}
 DsoDb::DsoMap_t 
-DsoDb::dict_duplicates(bool pedantic)
+DsoDb::dict_duplicates(bool pedantic) const
 {
   DsoMap_t dups;
   get_dups(dups, m_db, pedantic);
@@ -535,7 +524,7 @@ DsoDb::dict_duplicates(bool pedantic)
 
 /// table of plugin-factories-duplicates: {type: [lib1, lib2, ...]}
 DsoDb::DsoMap_t 
-DsoDb::pf_duplicates(bool pedantic)
+DsoDb::pf_duplicates(bool pedantic) const
 {
   DsoMap_t dups;
   get_dups(dups, m_pf, pedantic);
@@ -545,10 +534,10 @@ DsoDb::pf_duplicates(bool pedantic)
 /// list of all libraries we know about
 /// @param `detailed` if true, prints the full path to the library
 DsoDb::Libs_t 
-DsoDb::libs(bool detailed)
+DsoDb::libs(bool detailed) const
 {
   std::set<std::string> libs;
-  DsoMap_t* dbs[] = { &m_pf, &m_db };
+  const DsoMap_t* dbs[] = { &m_pf, &m_db };
 
   for (std::size_t i = 0, imax = 2; i < imax; ++i) {
     const DsoMap_t& db = *dbs[i];
@@ -575,11 +564,11 @@ DsoDb::libs(bool detailed)
 /// dict-entries and plugin-factories entries.
 /// @param `pedantic` if true, retrieves the library's full path
 DsoDb::DsoMap_t 
-DsoDb::content(bool pedantic)
+DsoDb::content(bool pedantic) const
 {
   DsoMap_t db;
 
-  DsoMap_t* dbs[] = { &m_pf, &m_db };
+  const DsoMap_t* dbs[] = { &m_pf, &m_db };
   for (std::size_t i = 0, imax = 2; i < imax; ++i) {
     const DsoMap_t& d = *dbs[i];
     for (DsoMap_t::const_iterator idb = d.begin(), idbend=d.end();
@@ -611,7 +600,7 @@ DsoDb::content(bool pedantic)
 
 /// get the duplicates for a given repository of components
 void 
-DsoDb::get_dups(DsoMap_t& dups, const DsoMap_t& db, bool pedantic)
+DsoDb::get_dups(DsoMap_t& dups, const DsoMap_t& db, bool pedantic) const
 {
   for (DsoMap_t::const_iterator idb = db.begin(), iend = db.end();
        idb != iend;
@@ -645,7 +634,7 @@ DsoDb::get_dups(DsoMap_t& dups, const DsoMap_t& db, bool pedantic)
 
 /// load the reflex type after having loaded the hosting library
 RootType 
-DsoDb::rflx_type(const std::string& type_name)
+DsoDb::rflx_type(const std::string& type_name) const
 {
   const std::string rootmap_name = ::to_rootmap_name(type_name);
   const std::string rflx_name = ::to_rflx_name(type_name);
@@ -693,12 +682,6 @@ DsoDb::rflx_type(const std::string& type_name)
     libname = libname.substr(0, libname.size()-SHLIB_SUFFIX.size());
   }
 
-  //MN  hmm, FIX that for ROOT6 ?
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,99,0)
-  // acquire lock: cint-dict loading isn't thread-safe...
-  R__LOCKGUARD2(gCINTMutex);
-#endif
-  
   unsigned long err = System::loadDynamicLib( libname, &handle );
   if ( err != 1 ) {
     std::cerr << "DsoDb **error**: could not load library [" 

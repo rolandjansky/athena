@@ -50,9 +50,11 @@ namespace JiveXML{
 
       std::string m_sgKey;
       std::string m_sgKeyFavourite;
+      std::string m_tracksName;
       std::vector<std::string> m_otherKeys;
       bool m_doWriteHLT;
       bool m_writeJetQuality;
+      
       };
 }
 #endif

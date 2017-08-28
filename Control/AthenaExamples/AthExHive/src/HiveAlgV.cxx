@@ -13,8 +13,6 @@ HiveAlgV::HiveAlgV( const std::string& name,
   ::HiveAlgBase( name, pSvcLocator )
 {
   
-  declareProperty("Key_RV",m_rhv);
-  declareProperty("Key_WV",m_whv);
   declareProperty("WriteBeforeRead",m_writeFirst=true);
 
 }
@@ -27,8 +25,8 @@ StatusCode HiveAlgV::initialize() {
   ATH_CHECK( m_rhv.initialize() );
   ATH_CHECK( m_whv.initialize() );
 
-  ATH_MSG_INFO("ReadHandleKeyArray of size " << m_rhv.size());
-  ATH_MSG_INFO("WriteHandleKeyArray of size " << m_whv.size());
+  ATH_MSG_INFO(m_rhv.keys() << " : " << m_rhv.size());
+  ATH_MSG_INFO(m_whv.keys() << " : " << m_whv.size());
 
   return HiveAlgBase::initialize ();
 }

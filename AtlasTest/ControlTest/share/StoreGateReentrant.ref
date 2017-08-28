@@ -1,20 +1,21 @@
-Mon Mar 20 10:19:28 CET 2017
-Preloading tcmalloc_minimal.so
+Thu Jul 27 15:51:23 EDT 2017
+WARNING: TCMALLOCDIR not defined, will use libc malloc
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [AthenaWorkDir-22.0.0] [x86_64-slc6-gcc62-opt] [private/private] -- built on [2017-03-20 09:21]
+Py:Athena            INFO using release [?-21.0.0] [i686-slc5-gcc43-dbg] [?/?] -- built on [?]
 Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
-[?1034hPy:Athena            INFO including file "AthenaCommon/Execution.py"
+Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "AthExStoreGateExample/StoreGateExample_Reentrant_jobOptions.py"
-Py:ConfigurableDb    INFO Read module info for 5250 configurables from 40 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 460 configurables from 2 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
+# setting LC_ALL to "C"
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v28r1)
-                                          running on lxplus090.cern.ch on Mon Mar 20 10:19:42 2017
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
+                                          running on karma on Thu Jul 27 15:51:26 2017
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -22,14 +23,12 @@ ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to leve
 StatusCodeSvc        INFO initialize[m
 AthDictLoaderSvc     INFO in initialize...[m
 AthDictLoaderSvc     INFO acquired Dso-registry[m
-ClassIDSvc           INFO  getRegistryEntries: read 2251 CLIDRegistry entries for module ALL[m
+ClassIDSvc           INFO  getRegistryEntries: read 2454 CLIDRegistry entries for module ALL[m
 ChronoStatSvc        INFO  Number of skipped events for MemStat-1[m
 CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)[m
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) [m
 AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00[m
-AthMasterSeq         INFO Member list: AthSequencer/AthAlgSeq, AthSequencer/AthOutSeq, AthSequencer/AthRegSeq[m
-ClassIDSvc           INFO  getRegistryEntries: read 768 CLIDRegistry entries for module ALL[m
-AthAlgSeq            INFO Member list: WriteDataReentrant, ReadDataReentrant[m
+ClassIDSvc           INFO  getRegistryEntries: read 1166 CLIDRegistry entries for module ALL[m
 WriteDataReentrant   INFO in initialize()[m
 StoreGateSvc        DEBUG Property update for OutputLevel : new value = 1[m
 StoreGateSvc        DEBUG Service base class initialized successfully[m
@@ -40,49 +39,59 @@ StoreGateSvc_Impl VERBOSE Initializing StoreGateSvc_Impl - package version Store
 StoreGateSvc_Impl   DEBUG Service base class initialized successfully[m
 StoreGateSvc_Impl VERBOSE ServiceLocatorHelper::service: found service EventPersistencySvc[m
 StoreGateSvc_Impl VERBOSE ServiceLocatorHelper::service: found service ClassIDSvc[m
-ClassIDSvc           INFO  getRegistryEntries: read 359 CLIDRegistry entries for module ALL[m
+ClassIDSvc           INFO  getRegistryEntries: read 374 CLIDRegistry entries for module ALL[m
 ReadDataReentrant    INFO in initialize()[m
-HistogramPersis...WARNING Histograms saving not required.[m
+[93;1mHistogramPersis...WARNING Histograms saving not required.[m
 ApplicationMgr       INFO Application Manager Initialized successfully[m
 ApplicationMgr       INFO Application Manager Started successfully[m
+StoreGateSvc_Impl   DEBUG Recorded object @0x55e8ba24dde0 with key  of type EventInfo(CLID 2101)
+ in DataObject @0x55e8ba2447d0
+ object modifiable when retrieved[m
+StoreGateSvc_Impl   DEBUG Recorded object @s: 0  e: 0 with key EventContext of type EventContext(CLID 55596997)
+ in DataObject @0x55e8ba24a6b0
+ object modifiable when retrieved[m
 AthenaEventLoopMgr   INFO   ===>>>  start of run 1    <<<===[m
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #1 0 events processed so far  <<<===[m
+StoreGateSvc_Impl   DEBUG retrieve(default): Retrieved const handle to default object 
+ of type EventInfo(CLID 2101)[m
 WriteDataReentrant   INFO in execute()[m
-WriteDataReentrantWARNING we expect  an error message here[m
-StoreGateSvc_Impl WARNING  setupProxy:: error setting up proxy for key dobj and clid 8000
- Pre-existing valid DataProxy @0x153ac310 found in Store for key dobj with clid 8000[m
-StoreGateSvc_Impl WARNING record_impl: Problem setting up the proxy for object @0x12446920
- recorded with key dobj of type MyDataObj (CLID 8000) in DataObject @0x15395860[m
+[93;1mWriteDataReentrantWARNING we expect  an error message here[m
+[93;1mStoreGateSvc_Impl WARNING  setupProxy:: error setting up proxy for key dobj and clid 8000
+ Pre-existing valid DataProxy @0x55e8ba26b330 found in Store for key dobj with clid 8000[m
+[93;1mStoreGateSvc_Impl WARNING record_impl: Problem setting up the proxy for object @0x55e8ba254170
+ recorded with key dobj of type MyDataObj (CLID 8000) in DataObject @0x55e8ba22b740[m
 [97;101;1mVarHandle(Store...  ERROR FILE:LINE (StatusCode SG::VarHandleBase::record_impl(std::unique_ptr<DataObject>, void*, bool, bool)): code 0: recordObject failed[m
-WriteDataReentrantWARNING end of error message[m
+[93;1mWriteDataReentrantWARNING end of error message[m
 WriteDataReentrant   INFO  registered all data objects[m
 WriteDataReentrant   INFO  StoreGate structure before returning from execute 
 <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
 SGImplSvc(StoreGateSvc_Impl)::dump():
 Found 2 proxies for ClassID 1434 (BaseClass): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x153956d0 --- key: WriteDataReentrant
- flags: (  valid, UNLOCKED,  reset) --- data: 0x153957c0 --- key: dobj
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x55e8b9fc0210 --- key: WriteDataReentrant
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x55e8ba2295f0 --- key: dobj
 Found 1 proxy for ClassID 2101 (EventInfo): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x153961c0 --- key: 
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x55e8ba2447d0 --- key: 
 Found 6 proxies for ClassID 8000 (MyDataObj): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x153956d0 --- key: WriteDataReentrant
- flags: (  valid, UNLOCKED,  reset) --- data: 0x153957c0 --- key: dobj
- flags: (  valid, UNLOCKED,  reset) --- data: 0x15394d70 --- key: dobj2
- flags: (  valid,   locked,  reset) --- data: 0x15395810 --- key: x1
- flags: (  valid,   locked,  reset) --- data: 0x15395680 --- key: x2
- flags: (  valid,   locked,  reset) --- data: 0x15395540 --- key: x3
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x55e8b9fc0210 --- key: WriteDataReentrant
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x55e8ba2295f0 --- key: dobj
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x55e8ba26bb90 --- key: dobj2
+ flags: (  valid,   locked,  reset) --- data: 0x55e8b9fc0be0 --- key: x1
+ flags: (  valid,   locked,  reset) --- data: 0x55e8ba23b050 --- key: x2
+ flags: (  valid,   locked,  reset) --- data: 0x55e8ba250920 --- key: x3
 Found 1 proxy for ClassID 9967 (DataVector<MyContObj>): 
- flags: (  valid,   locked,  reset) --- data: 0x153ac5b0 --- key: cobj
+ flags: (  valid,   locked,  reset) --- data: 0x55e8ba22b8d0 --- key: cobj
 Found 1 proxy for ClassID 9983 (std::vector< ElementLink<MapStringFloat> >): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x153960d0 --- key: linkvec
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x55e8ba2449a0 --- key: linkvec
 Found 1 proxy for ClassID 9984 (std::list< ElementLink< std::vector<float> > >): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x15396170 --- key: WriteDataReentrant
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x55e8ba25b540 --- key: WriteDataReentrant
+Found 1 proxy for ClassID 55596997 (EventContext): 
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x55e8ba24a6b0 --- key: EventContext
 Found 1 proxy for ClassID 193758082 (std::map<std::string,float>): 
- flags: (  valid,   locked,  reset) --- data: 0x153952c0 --- key: mkey
+ flags: (  valid,   locked,  reset) --- data: 0x55e8ba26b6f0 --- key: mkey
 Found 1 proxy for ClassID 202242136 (std::vector<float>): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x15395360 --- key: vFloat
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x55e8ba25d090 --- key: vFloat
 Found 1 proxy for ClassID 289238765 (TestDataObject): 
- flags: (  valid,   locked,  reset) --- data: 0x153959a0 --- key: testobj
+ flags: (  valid,   locked,  reset) --- data: 0x55e8ba2453d0 --- key: testobj
 <<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
 [m
 ReadDataReentrant    INFO in execute()[m
@@ -93,62 +102,75 @@ ReadDataReentrant    INFO pVec [1] = 2[m
 ReadDataReentrant    INFO pVec [2] = 3[m
 ReadDataReentrant    INFO ListVecLinks::linked element 1[m
 ReadDataReentrant    INFO ListVecLinks::linked element 3[m
-ReadDataReentrant    INFO VectorMapLinks::linked element: key uno - value 1 - stored as 0x153770bc[m
-ReadDataReentrant    INFO VectorMapLinks::linked element: key due - value 2 - stored as 0x153770fc[m
+ReadDataReentrant    INFO VectorMapLinks::linked element: key uno - value 1 - stored as 0x55e8ba244dcc[m
+ReadDataReentrant    INFO VectorMapLinks::linked element: key due - value 2 - stored as 0x55e8ba244e0c[m
+StoreGateSvc_Impl   DEBUG retrieve(default): Retrieved const handle to default object 
+ of type EventInfo(CLID 2101)[m
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #1 1 events processed so far  <<<===[m
 StoreGateSvc_Impl   DEBUG Clearing store with forceRemove=0[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ac380, recorded with key=WriteDataReentrant, CLID=8000, containing data object @0x153956d0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ac310, recorded with key=dobj, CLID=8000, containing data object @0x153957c0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ac0e0, recorded with key=, CLID=2101, containing data object @0x153961c0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ac380, recorded with key=WriteDataReentrant, CLID=8000, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ac310, recorded with key=dobj, CLID=8000, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ac770, recorded with key=dobj2, CLID=8000, containing data object @0x15394d70  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ac460, recorded with key=x1, CLID=8000, containing data object @0x15395810  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ac4d0, recorded with key=x2, CLID=8000, containing data object @0x15395680  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ac540, recorded with key=x3, CLID=8000, containing data object @0x15395540  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ac620, recorded with key=cobj, CLID=9967, containing data object @0x153ac5b0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ac850, recorded with key=linkvec, CLID=9983, containing data object @0x153960d0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ac7e0, recorded with key=WriteDataReentrant, CLID=9984, containing data object @0x15396170  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ac700, recorded with key=mkey, CLID=193758082, containing data object @0x153952c0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ac690, recorded with key=vFloat, CLID=202242136, containing data object @0x15395360  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ac3f0, recorded with key=testobj, CLID=289238765, containing data object @0x153959a0  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x55e8ba2452a0, recorded with key=WriteDataReentrant, CLID=8000, containing data object @0x55e8b9fc0210  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x55e8ba26b330, recorded with key=dobj, CLID=8000, containing data object @0x55e8ba2295f0  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x55e8ba268df0, recorded with key=, CLID=2101, containing data object @0x55e8ba2447d0  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x55e8ba2452a0, recorded with key=WriteDataReentrant, CLID=8000, containing data object @0  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x55e8ba26b330, recorded with key=dobj, CLID=8000, containing data object @0  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x55e8ba25b320, recorded with key=dobj2, CLID=8000, containing data object @0x55e8ba26bb90  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x55e8b9fc0d70, recorded with key=x1, CLID=8000, containing data object @0x55e8b9fc0be0  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x55e8ba23b270, recorded with key=x2, CLID=8000, containing data object @0x55e8ba23b050  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x55e8ba250ab0, recorded with key=x3, CLID=8000, containing data object @0x55e8ba250920  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x55e8ba2505d0, recorded with key=cobj, CLID=9967, containing data object @0x55e8ba22b8d0  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x55e8ba244b30, recorded with key=linkvec, CLID=9983, containing data object @0x55e8ba2449a0  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x55e8ba25b740, recorded with key=WriteDataReentrant, CLID=9984, containing data object @0x55e8ba25b540  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x55e8ba2340e0, recorded with key=EventContext, CLID=55596997, containing data object @0x55e8ba24a6b0  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x55e8ba26b880, recorded with key=mkey, CLID=193758082, containing data object @0x55e8ba26b6f0  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x55e8ba25d220, recorded with key=vFloat, CLID=202242136, containing data object @0x55e8ba25d090  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x55e8ba245470, recorded with key=testobj, CLID=289238765, containing data object @0x55e8ba2453d0  ... -> DONE[m
+StoreGateSvc_Impl   DEBUG Recorded object @0x55e8ba257870 with key  of type EventInfo(CLID 2101)
+ in DataObject @0x55e8ba2453d0
+ object modifiable when retrieved[m
+StoreGateSvc_Impl   DEBUG Recorded object @s: 0  e: 1 with key EventContext of type EventContext(CLID 55596997)
+ in DataObject @0x55e8ba26b6f0
+ object modifiable when retrieved[m
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #2, run #1 1 events processed so far  <<<===[m
+StoreGateSvc_Impl   DEBUG retrieve(default): Retrieved const handle to default object 
+ of type EventInfo(CLID 2101)[m
 WriteDataReentrant   INFO in execute()[m
-WriteDataReentrantWARNING we expect  an error message here[m
-StoreGateSvc_Impl WARNING  setupProxy:: error setting up proxy for key dobj and clid 8000
- Pre-existing valid DataProxy @0x153ac310 found in Store for key dobj with clid 8000[m
-StoreGateSvc_Impl WARNING record_impl: Problem setting up the proxy for object @0x12446360
- recorded with key dobj of type MyDataObj (CLID 8000) in DataObject @0x153952c0[m
+[93;1mWriteDataReentrantWARNING we expect  an error message here[m
+[93;1mStoreGateSvc_Impl WARNING  setupProxy:: error setting up proxy for key dobj and clid 8000
+ Pre-existing valid DataProxy @0x55e8ba26b330 found in Store for key dobj with clid 8000[m
+[93;1mStoreGateSvc_Impl WARNING record_impl: Problem setting up the proxy for object @0x55e8ba25b520
+ recorded with key dobj of type MyDataObj (CLID 8000) in DataObject @0x55e8ba26baf0[m
 [97;101;1mVarHandle(Store...  ERROR FILE:LINE (StatusCode SG::VarHandleBase::record_impl(std::unique_ptr<DataObject>, void*, bool, bool)): code 0: recordObject failed[m
-WriteDataReentrantWARNING end of error message[m
+[93;1mWriteDataReentrantWARNING end of error message[m
 WriteDataReentrant   INFO  registered all data objects[m
 WriteDataReentrant   INFO  StoreGate structure before returning from execute 
 <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
 SGImplSvc(StoreGateSvc_Impl)::dump():
 Found 2 proxies for ClassID 1434 (BaseClass): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x15395090 --- key: WriteDataReentrant
- flags: (  valid, UNLOCKED,  reset) --- data: 0x15395f40 --- key: dobj
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x55e8ba24a6b0 --- key: WriteDataReentrant
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x55e8ba26bb40 --- key: dobj
 Found 1 proxy for ClassID 2101 (EventInfo): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x153959a0 --- key: 
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x55e8ba2453d0 --- key: 
 Found 6 proxies for ClassID 8000 (MyDataObj): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x15395090 --- key: WriteDataReentrant
- flags: (  valid, UNLOCKED,  reset) --- data: 0x15395f40 --- key: dobj
- flags: (  valid, UNLOCKED,  reset) --- data: 0x153957c0 --- key: dobj2
- flags: (  valid,   locked,  reset) --- data: 0x15396170 --- key: x1
- flags: (  valid,   locked,  reset) --- data: 0x153960d0 --- key: x2
- flags: (  valid,   locked,  reset) --- data: 0x15395220 --- key: x3
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x55e8ba24a6b0 --- key: WriteDataReentrant
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x55e8ba26bb40 --- key: dobj
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x55e8ba2295f0 --- key: dobj2
+ flags: (  valid,   locked,  reset) --- data: 0x55e8ba25b540 --- key: x1
+ flags: (  valid,   locked,  reset) --- data: 0x55e8ba2449a0 --- key: x2
+ flags: (  valid,   locked,  reset) --- data: 0x55e8ba250920 --- key: x3
 Found 1 proxy for ClassID 9967 (DataVector<MyContObj>): 
- flags: (  valid,   locked,  reset) --- data: 0x153ac5b0 --- key: cobj
+ flags: (  valid,   locked,  reset) --- data: 0x55e8ba25c930 --- key: cobj
 Found 1 proxy for ClassID 9983 (std::vector< ElementLink<MapStringFloat> >): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x15395860 --- key: linkvec
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x55e8ba22b740 --- key: linkvec
 Found 1 proxy for ClassID 9984 (std::list< ElementLink< std::vector<float> > >): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x153956d0 --- key: WriteDataReentrant
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x55e8b9fc0210 --- key: WriteDataReentrant
+Found 1 proxy for ClassID 55596997 (EventContext): 
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x55e8ba26b6f0 --- key: EventContext
 Found 1 proxy for ClassID 193758082 (std::map<std::string,float>): 
- flags: (  valid,   locked,  reset) --- data: 0x15395810 --- key: mkey
+ flags: (  valid,   locked,  reset) --- data: 0x55e8b9fc0be0 --- key: mkey
 Found 1 proxy for ClassID 202242136 (std::vector<float>): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x15395680 --- key: vFloat
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x55e8ba23b050 --- key: vFloat
 Found 1 proxy for ClassID 289238765 (TestDataObject): 
- flags: (  valid,   locked,  reset) --- data: 0x153950e0 --- key: testobj
+ flags: (  valid,   locked,  reset) --- data: 0x55e8ba254b40 --- key: testobj
 <<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
 [m
 ReadDataReentrant    INFO in execute()[m
@@ -159,62 +181,75 @@ ReadDataReentrant    INFO pVec [1] = 2[m
 ReadDataReentrant    INFO pVec [2] = 3[m
 ReadDataReentrant    INFO ListVecLinks::linked element 1[m
 ReadDataReentrant    INFO ListVecLinks::linked element 3[m
-ReadDataReentrant    INFO VectorMapLinks::linked element: key uno - value 1 - stored as 0x15377ebc[m
-ReadDataReentrant    INFO VectorMapLinks::linked element: key due - value 2 - stored as 0x15377efc[m
+ReadDataReentrant    INFO VectorMapLinks::linked element: key uno - value 1 - stored as 0x55e8ba2408bc[m
+ReadDataReentrant    INFO VectorMapLinks::linked element: key due - value 2 - stored as 0x55e8ba2408fc[m
+StoreGateSvc_Impl   DEBUG retrieve(default): Retrieved const handle to default object 
+ of type EventInfo(CLID 2101)[m
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #2, run #1 2 events processed so far  <<<===[m
 StoreGateSvc_Impl   DEBUG Clearing store with forceRemove=0[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ac380, recorded with key=WriteDataReentrant, CLID=8000, containing data object @0x15395090  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ac310, recorded with key=dobj, CLID=8000, containing data object @0x15395f40  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ac0e0, recorded with key=, CLID=2101, containing data object @0x153959a0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ac380, recorded with key=WriteDataReentrant, CLID=8000, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ac310, recorded with key=dobj, CLID=8000, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ac770, recorded with key=dobj2, CLID=8000, containing data object @0x153957c0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ac460, recorded with key=x1, CLID=8000, containing data object @0x15396170  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ac4d0, recorded with key=x2, CLID=8000, containing data object @0x153960d0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ac540, recorded with key=x3, CLID=8000, containing data object @0x15395220  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ac620, recorded with key=cobj, CLID=9967, containing data object @0x153ac5b0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ac850, recorded with key=linkvec, CLID=9983, containing data object @0x15395860  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ac7e0, recorded with key=WriteDataReentrant, CLID=9984, containing data object @0x153956d0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ac700, recorded with key=mkey, CLID=193758082, containing data object @0x15395810  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ac690, recorded with key=vFloat, CLID=202242136, containing data object @0x15395680  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ac3f0, recorded with key=testobj, CLID=289238765, containing data object @0x153950e0  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x55e8ba2452a0, recorded with key=WriteDataReentrant, CLID=8000, containing data object @0x55e8ba24a6b0  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x55e8ba26b330, recorded with key=dobj, CLID=8000, containing data object @0x55e8ba26bb40  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x55e8ba268df0, recorded with key=, CLID=2101, containing data object @0x55e8ba2453d0  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x55e8ba2452a0, recorded with key=WriteDataReentrant, CLID=8000, containing data object @0  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x55e8ba26b330, recorded with key=dobj, CLID=8000, containing data object @0  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x55e8ba25b320, recorded with key=dobj2, CLID=8000, containing data object @0x55e8ba2295f0  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x55e8b9fc0d70, recorded with key=x1, CLID=8000, containing data object @0x55e8ba25b540  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x55e8ba23b270, recorded with key=x2, CLID=8000, containing data object @0x55e8ba2449a0  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x55e8ba250ab0, recorded with key=x3, CLID=8000, containing data object @0x55e8ba250920  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x55e8ba2505d0, recorded with key=cobj, CLID=9967, containing data object @0x55e8ba25c930  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x55e8ba244b30, recorded with key=linkvec, CLID=9983, containing data object @0x55e8ba22b740  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x55e8ba25b740, recorded with key=WriteDataReentrant, CLID=9984, containing data object @0x55e8b9fc0210  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x55e8ba2340e0, recorded with key=EventContext, CLID=55596997, containing data object @0x55e8ba26b6f0  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x55e8ba26b880, recorded with key=mkey, CLID=193758082, containing data object @0x55e8b9fc0be0  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x55e8ba25d220, recorded with key=vFloat, CLID=202242136, containing data object @0x55e8ba23b050  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x55e8ba245470, recorded with key=testobj, CLID=289238765, containing data object @0x55e8ba254b40  ... -> DONE[m
+StoreGateSvc_Impl   DEBUG Recorded object @0x55e8ba257870 with key  of type EventInfo(CLID 2101)
+ in DataObject @0x55e8ba254b40
+ object modifiable when retrieved[m
+StoreGateSvc_Impl   DEBUG Recorded object @s: 0  e: 2 with key EventContext of type EventContext(CLID 55596997)
+ in DataObject @0x55e8b9fc0be0
+ object modifiable when retrieved[m
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #3, run #1 2 events processed so far  <<<===[m
+StoreGateSvc_Impl   DEBUG retrieve(default): Retrieved const handle to default object 
+ of type EventInfo(CLID 2101)[m
 WriteDataReentrant   INFO in execute()[m
-WriteDataReentrantWARNING we expect  an error message here[m
-StoreGateSvc_Impl WARNING  setupProxy:: error setting up proxy for key dobj and clid 8000
- Pre-existing valid DataProxy @0x153ac310 found in Store for key dobj with clid 8000[m
-StoreGateSvc_Impl WARNING record_impl: Problem setting up the proxy for object @0x12446140
- recorded with key dobj of type MyDataObj (CLID 8000) in DataObject @0x15395810[m
+[93;1mWriteDataReentrantWARNING we expect  an error message here[m
+[93;1mStoreGateSvc_Impl WARNING  setupProxy:: error setting up proxy for key dobj and clid 8000
+ Pre-existing valid DataProxy @0x55e8ba26b330 found in Store for key dobj with clid 8000[m
+[93;1mStoreGateSvc_Impl WARNING record_impl: Problem setting up the proxy for object @0x55e8ba240c60
+ recorded with key dobj of type MyDataObj (CLID 8000) in DataObject @0x55e8ba26bb90[m
 [97;101;1mVarHandle(Store...  ERROR FILE:LINE (StatusCode SG::VarHandleBase::record_impl(std::unique_ptr<DataObject>, void*, bool, bool)): code 0: recordObject failed[m
-WriteDataReentrantWARNING end of error message[m
+[93;1mWriteDataReentrantWARNING end of error message[m
 WriteDataReentrant   INFO  registered all data objects[m
 WriteDataReentrant   INFO  StoreGate structure before returning from execute 
 <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
 SGImplSvc(StoreGateSvc_Impl)::dump():
 Found 2 proxies for ClassID 1434 (BaseClass): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x153961c0 --- key: WriteDataReentrant
- flags: (  valid, UNLOCKED,  reset) --- data: 0x15395450 --- key: dobj
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x55e8ba26b6f0 --- key: WriteDataReentrant
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x55e8ba2447d0 --- key: dobj
 Found 1 proxy for ClassID 2101 (EventInfo): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x153950e0 --- key: 
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x55e8ba254b40 --- key: 
 Found 6 proxies for ClassID 8000 (MyDataObj): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x153961c0 --- key: WriteDataReentrant
- flags: (  valid, UNLOCKED,  reset) --- data: 0x15395450 --- key: dobj
- flags: (  valid, UNLOCKED,  reset) --- data: 0x15395f40 --- key: dobj2
- flags: (  valid,   locked,  reset) --- data: 0x153956d0 --- key: x1
- flags: (  valid,   locked,  reset) --- data: 0x15395860 --- key: x2
- flags: (  valid,   locked,  reset) --- data: 0x15395540 --- key: x3
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x55e8ba26b6f0 --- key: WriteDataReentrant
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x55e8ba2447d0 --- key: dobj
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x55e8ba26bb40 --- key: dobj2
+ flags: (  valid,   locked,  reset) --- data: 0x55e8b9fc0210 --- key: x1
+ flags: (  valid,   locked,  reset) --- data: 0x55e8ba22b740 --- key: x2
+ flags: (  valid,   locked,  reset) --- data: 0x55e8ba250920 --- key: x3
 Found 1 proxy for ClassID 9967 (DataVector<MyContObj>): 
- flags: (  valid,   locked,  reset) --- data: 0x153ac5b0 --- key: cobj
+ flags: (  valid,   locked,  reset) --- data: 0x55e8ba22bca0 --- key: cobj
 Found 1 proxy for ClassID 9983 (std::vector< ElementLink<MapStringFloat> >): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x153952c0 --- key: linkvec
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x55e8ba20b670 --- key: linkvec
 Found 1 proxy for ClassID 9984 (std::list< ElementLink< std::vector<float> > >): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x15395090 --- key: WriteDataReentrant
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x55e8ba24a6b0 --- key: WriteDataReentrant
+Found 1 proxy for ClassID 55596997 (EventContext): 
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x55e8b9fc0be0 --- key: EventContext
 Found 1 proxy for ClassID 193758082 (std::map<std::string,float>): 
- flags: (  valid,   locked,  reset) --- data: 0x15396170 --- key: mkey
+ flags: (  valid,   locked,  reset) --- data: 0x55e8ba25b540 --- key: mkey
 Found 1 proxy for ClassID 202242136 (std::vector<float>): 
- flags: (  valid, UNLOCKED,  reset) --- data: 0x153960d0 --- key: vFloat
+ flags: (  valid, UNLOCKED,  reset) --- data: 0x55e8ba2449a0 --- key: vFloat
 Found 1 proxy for ClassID 289238765 (TestDataObject): 
- flags: (  valid,   locked,  reset) --- data: 0x15394d70 --- key: testobj
+ flags: (  valid,   locked,  reset) --- data: 0x55e8ba25d090 --- key: testobj
 <<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
 [m
 ReadDataReentrant    INFO in execute()[m
@@ -225,58 +260,60 @@ ReadDataReentrant    INFO pVec [1] = 2[m
 ReadDataReentrant    INFO pVec [2] = 3[m
 ReadDataReentrant    INFO ListVecLinks::linked element 1[m
 ReadDataReentrant    INFO ListVecLinks::linked element 3[m
-ReadDataReentrant    INFO VectorMapLinks::linked element: key uno - value 1 - stored as 0x153770bc[m
-ReadDataReentrant    INFO VectorMapLinks::linked element: key due - value 2 - stored as 0x153770fc[m
+ReadDataReentrant    INFO VectorMapLinks::linked element: key uno - value 1 - stored as 0x55e8ba20b81c[m
+ReadDataReentrant    INFO VectorMapLinks::linked element: key due - value 2 - stored as 0x55e8ba20b85c[m
+StoreGateSvc_Impl   DEBUG retrieve(default): Retrieved const handle to default object 
+ of type EventInfo(CLID 2101)[m
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #3, run #1 3 events processed so far  <<<===[m
 StoreGateSvc_Impl   DEBUG Clearing store with forceRemove=0[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ac380, recorded with key=WriteDataReentrant, CLID=8000, containing data object @0x153961c0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ac310, recorded with key=dobj, CLID=8000, containing data object @0x15395450  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ac0e0, recorded with key=, CLID=2101, containing data object @0x153950e0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ac380, recorded with key=WriteDataReentrant, CLID=8000, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ac310, recorded with key=dobj, CLID=8000, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ac770, recorded with key=dobj2, CLID=8000, containing data object @0x15395f40  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ac460, recorded with key=x1, CLID=8000, containing data object @0x153956d0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ac4d0, recorded with key=x2, CLID=8000, containing data object @0x15395860  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ac540, recorded with key=x3, CLID=8000, containing data object @0x15395540  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ac620, recorded with key=cobj, CLID=9967, containing data object @0x153ac5b0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ac850, recorded with key=linkvec, CLID=9983, containing data object @0x153952c0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ac7e0, recorded with key=WriteDataReentrant, CLID=9984, containing data object @0x15395090  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ac700, recorded with key=mkey, CLID=193758082, containing data object @0x15396170  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ac690, recorded with key=vFloat, CLID=202242136, containing data object @0x153960d0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x153ac3f0, recorded with key=testobj, CLID=289238765, containing data object @0x15394d70  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x55e8ba2452a0, recorded with key=WriteDataReentrant, CLID=8000, containing data object @0x55e8ba26b6f0  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x55e8ba26b330, recorded with key=dobj, CLID=8000, containing data object @0x55e8ba2447d0  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x55e8ba268df0, recorded with key=, CLID=2101, containing data object @0x55e8ba254b40  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x55e8ba2452a0, recorded with key=WriteDataReentrant, CLID=8000, containing data object @0  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x55e8ba26b330, recorded with key=dobj, CLID=8000, containing data object @0  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x55e8ba25b320, recorded with key=dobj2, CLID=8000, containing data object @0x55e8ba26bb40  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x55e8b9fc0d70, recorded with key=x1, CLID=8000, containing data object @0x55e8b9fc0210  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x55e8ba23b270, recorded with key=x2, CLID=8000, containing data object @0x55e8ba22b740  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x55e8ba250ab0, recorded with key=x3, CLID=8000, containing data object @0x55e8ba250920  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x55e8ba2505d0, recorded with key=cobj, CLID=9967, containing data object @0x55e8ba22bca0  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x55e8ba244b30, recorded with key=linkvec, CLID=9983, containing data object @0x55e8ba20b670  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x55e8ba25b740, recorded with key=WriteDataReentrant, CLID=9984, containing data object @0x55e8ba24a6b0  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x55e8ba2340e0, recorded with key=EventContext, CLID=55596997, containing data object @0x55e8b9fc0be0  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x55e8ba26b880, recorded with key=mkey, CLID=193758082, containing data object @0x55e8ba25b540  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x55e8ba25d220, recorded with key=vFloat, CLID=202242136, containing data object @0x55e8ba2449a0  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() requesting release of DataProxy @0x55e8ba245470, recorded with key=testobj, CLID=289238765, containing data object @0x55e8ba25d090  ... -> DONE[m
 StoreGateSvc      VERBOSE Stop StoreGateSvc[m
 StoreGateSvc      VERBOSE stop: setting service priority to 101 so that event stores get finalized and cleared before other stores[m
 ApplicationMgr       INFO Application Manager Stopped successfully[m
+IncidentProcAlg1     INFO Finalize[m
 WriteDataReentrant   INFO in finalize()[m
 ReadDataReentrant    INFO in finalize()[m
-AthAlgSeq            INFO Finalizing AthAlgSeq...[m
-AthOutSeq            INFO Finalizing AthOutSeq...[m
-AthRegSeq            INFO Finalizing AthRegSeq...[m
-AthMasterSeq         INFO Finalizing AthMasterSeq...[m
+IncidentProcAlg2     INFO Finalize[m
 StoreGateSvc      VERBOSE Finalizing StoreGateSvc - package version StoreGate-00-00-00[m
 StoreGateSvc_Impl VERBOSE Finalizing StoreGateSvc_Impl - package version StoreGate-00-00-00[m
 StoreGateSvc_Impl   DEBUG Clearing store with forceRemove=1[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x153ac380, recorded with key=WriteDataReentrant, CLID=8000, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x153ac310, recorded with key=dobj, CLID=8000, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x153ac0e0, recorded with key=, CLID=2101, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x153ac380, recorded with key=WriteDataReentrant, CLID=8000, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x153ac310, recorded with key=dobj, CLID=8000, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x153ac770, recorded with key=dobj2, CLID=8000, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x153ac460, recorded with key=x1, CLID=8000, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x153ac4d0, recorded with key=x2, CLID=8000, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x153ac540, recorded with key=x3, CLID=8000, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x153ac620, recorded with key=cobj, CLID=9967, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x153ac850, recorded with key=linkvec, CLID=9983, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x153ac7e0, recorded with key=WriteDataReentrant, CLID=9984, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x153ac700, recorded with key=mkey, CLID=193758082, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x153ac690, recorded with key=vFloat, CLID=202242136, containing data object @0  ... -> DONE[m
-StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x153ac3f0, recorded with key=testobj, CLID=289238765, containing data object @0  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x55e8ba2452a0, recorded with key=WriteDataReentrant, CLID=8000, containing data object @0  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x55e8ba26b330, recorded with key=dobj, CLID=8000, containing data object @0  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x55e8ba268df0, recorded with key=, CLID=2101, containing data object @0  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x55e8ba2452a0, recorded with key=WriteDataReentrant, CLID=8000, containing data object @0  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x55e8ba26b330, recorded with key=dobj, CLID=8000, containing data object @0  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x55e8ba25b320, recorded with key=dobj2, CLID=8000, containing data object @0  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x55e8b9fc0d70, recorded with key=x1, CLID=8000, containing data object @0  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x55e8ba23b270, recorded with key=x2, CLID=8000, containing data object @0  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x55e8ba250ab0, recorded with key=x3, CLID=8000, containing data object @0  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x55e8ba2505d0, recorded with key=cobj, CLID=9967, containing data object @0  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x55e8ba244b30, recorded with key=linkvec, CLID=9983, containing data object @0  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x55e8ba25b740, recorded with key=WriteDataReentrant, CLID=9984, containing data object @0  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x55e8ba2340e0, recorded with key=EventContext, CLID=55596997, containing data object @0  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x55e8ba26b880, recorded with key=mkey, CLID=193758082, containing data object @0  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x55e8ba25d220, recorded with key=vFloat, CLID=202242136, containing data object @0  ... -> DONE[m
+StoreGateSvc_Impl VERBOSE DataStore::clearStore() forcing release of DataProxy @0x55e8ba245470, recorded with key=testobj, CLID=289238765, containing data object @0  ... -> DONE[m
 AthDictLoaderSvc     INFO in finalize...[m
 ToolSvc              INFO Removing all tools created by ToolSvc[m
 *****Chrono*****     INFO ****************************************************************************************************[m
 *****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)[m
 *****Chrono*****     INFO ****************************************************************************************************[m
-ChronoStatSvc        INFO Time User   : Tot=  110 [ms]                                             #=  1[m
+ChronoStatSvc        INFO Time User   : Tot=  230 [ms]                                             #=  1[m
 *****Chrono*****     INFO ****************************************************************************************************[m
 ChronoStatSvc.f...   INFO  Service finalized successfully [m
 ApplicationMgr       INFO Application Manager Finalized successfully[m

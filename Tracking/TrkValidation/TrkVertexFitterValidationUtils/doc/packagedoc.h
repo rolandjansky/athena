@@ -26,6 +26,5 @@ number of correct tracks and their weights, number of
 pileup tracks and their weight etc.. The outlyer tracks are 
 defined as those coming from vertexes in the configurable region
 around  a primary collision in Monte Carlo.
-@section TrkVertexFitterValidationUtils_requirementsTrkVertexFitterValidationUtils Requirements
 
 */

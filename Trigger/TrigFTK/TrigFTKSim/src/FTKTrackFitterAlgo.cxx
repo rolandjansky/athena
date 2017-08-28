@@ -38,6 +38,7 @@ FTKTrackFitterAlgo::FTKTrackFitterAlgo(const std::string& name, ISvcLocator* pSv
   m_chi2dofcut(4),
   m_doAuxFW(false),
   m_HitWarrior(2),
+  m_HitWarrior_first(1),
   m_KeepRejected(0), 
   m_FitRemoved(0),
   m_DoMajority(1),
@@ -82,6 +83,7 @@ FTKTrackFitterAlgo::FTKTrackFitterAlgo(const std::string& name, ISvcLocator* pSv
   declareProperty("Chi2DofCut",m_chi2dofcut);
   declareProperty("doAuxFW", m_doAuxFW);
   declareProperty("HitWarrior", m_HitWarrior);
+  declareProperty("FirstStageHitWarrior", m_HitWarrior_first);
   declareProperty("KeepRejected", m_KeepRejected);
   declareProperty("FitRemoved", m_FitRemoved);
   declareProperty("DoMajority",m_DoMajority);
@@ -341,6 +343,7 @@ StatusCode FTKTrackFitterAlgo::initialize(){
   // set parameter object to TrackFitter
   m_tfpobj->setChi2Cut(m_chi2cut);
   m_tfpobj->setHitWarrior(m_HitWarrior);
+  m_tfpobj->setHitWarriorFirst(m_HitWarrior_first);
   m_tfpobj->setChi2Cut_maj(m_chi2cut_maj);
   m_tfpobj->setChi2Cut_vetomaj(m_chi2cut_vetmaj);
   m_tfpobj->setChi2DofCut(m_chi2dofcut);
@@ -393,9 +396,9 @@ StatusCode FTKTrackFitterAlgo::initialize(){
     else
       dynamic_cast<TrackFitter711*>(m_tfpobj)->setSuperExtrapolateMode(false);
     if (m_save_1stStageTrks)
-      dynamic_cast<TrackFitter711*>(m_tfpobj)->setSaveIncompleteTracks(true);
+      dynamic_cast<TrackFitter*>(m_tfpobj)->setSaveIncompleteTracks(true);
     else
-      dynamic_cast<TrackFitter711*>(m_tfpobj)->setSaveIncompleteTracks(false);
+      dynamic_cast<TrackFitter*>(m_tfpobj)->setSaveIncompleteTracks(false);
 
     dynamic_cast<TrackFitter711*>(m_tfpobj)->setUseSectorDB(true);
     dynamic_cast<TrackFitter711*>(m_tfpobj)->setUseMultipleConn(m_SSF_multiconn);
@@ -483,7 +486,10 @@ StatusCode FTKTrackFitterAlgo::initialize(){
 	vector<vector<int>> moduleIDvec;
 	moduleIDvec.clear();
 
-	for(Int_t isec=0;isec<bank8->getNSectors();isec++){
+	Int_t Max_1stStage_sectors = 16383;
+        for(Int_t isec=0;isec<Max_1stStage_sectors;isec++){
+	  
+	  if((int)sector->getNSimilarSectors(isec) == 0 )break;
 
 	  for(Int_t Nconn=0; Nconn< (int)sector->getNSimilarSectors(isec); Nconn++){
 	    if(Nconn >3 ) break;

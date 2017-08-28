@@ -90,5 +90,8 @@
     /// Default constructor:
     JetForwardJvtTool();
 
+    SG::ReadHandleKey<xAOD::VertexContainer> m_vertexContainer_key;
+    SG::ReadHandleKey<xAOD::MissingETContainer> m_trkMET_key;
+
   };
 #endif //> !FORWARDJVTTOOL_JVT_FORWARDJVTTOOL_H
