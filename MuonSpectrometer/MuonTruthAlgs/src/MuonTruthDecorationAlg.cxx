@@ -526,6 +526,13 @@ namespace Muon {
         }
       }
     }
+    std::vector<float> emptyVec;
+    for( const auto& col : trackRecords ){
+      const std::string name = col.second;
+      if(!truthParticle.isAvailable<std::vector<float> >(name+"_cov_extr")){
+	truthParticle.auxdata<std::vector<float> >(name+"_cov_extr")=emptyVec;
+      }
+    }
   }
 
 
