@@ -103,7 +103,7 @@ StatusCode InDet::TrackClusterAssValidation::initialize()
 
   // Erase statistic information
   //
-  m_pdg          = fabs(m_pdg)         ;
+  m_pdg          = std::abs(m_pdg)         ;
 
   m_trackCollectionStat.resize(m_tracklocation.size());
   m_eventStat = EventStat_t();
@@ -1202,21 +1202,21 @@ void InDet::TrackClusterAssValidation::newClustersEvent(const EventContext& ctx,
   std::unique_ptr<SG::ReadHandle<TRT_DriftCircleContainer> > trtcontainer;
 
   if(m_usePIX) {
-    pixelcontainer = std::move(std::make_unique<SG::ReadHandle<SiClusterContainer> >(m_clustersPixelname,ctx));
+    pixelcontainer = std::make_unique<SG::ReadHandle<SiClusterContainer> >(m_clustersPixelname,ctx);
     if (!pixelcontainer->isValid()) ATH_MSG_DEBUG("Failed to create Pixel clusters container read handle with key " << m_clustersPixelname.key());
   }
 
   // Get sct   clusters container
   //
   if(m_useSCT) {
-    sctcontainer = std::move(std::make_unique<SG::ReadHandle<SiClusterContainer> >(m_clustersSCTname,ctx));
+    sctcontainer = std::make_unique<SG::ReadHandle<SiClusterContainer> >(m_clustersSCTname,ctx);
     if (!sctcontainer->isValid()) ATH_MSG_DEBUG("Failed to create SCT clusters container read handle with key " << m_clustersSCTname.key());
   }
 
   // Get trt   cluster container
   //
   if(m_clcutTRT > 0) {
-    trtcontainer = std::move(std::make_unique<SG::ReadHandle<TRT_DriftCircleContainer> >(m_clustersTRTname,ctx));
+    trtcontainer = std::make_unique<SG::ReadHandle<TRT_DriftCircleContainer> >(m_clustersTRTname,ctx);
     if (!trtcontainer->isValid()) ATH_MSG_DEBUG("Failed to create TRT drift circle container read handle with key " << m_clustersTRTname.key());
   }
 
@@ -1364,7 +1364,7 @@ void InDet::TrackClusterAssValidation::newSpacePointsEvent(const EventContext& c
   // Get sct overlap space points containers from store gate
   //
   if(m_useSCT && !m_spacepointsOverlapname.key().empty()) {
-    event_data.m_spacepointsOverlap=std::move(std::make_unique< SG::ReadHandle<SpacePointOverlapCollection> >(m_spacepointsOverlapname,ctx));
+    event_data.m_spacepointsOverlap=std::make_unique< SG::ReadHandle<SpacePointOverlapCollection> >(m_spacepointsOverlapname,ctx);
     if (!event_data.m_spacepointsOverlap->isValid()) {
       ATH_MSG_DEBUG( "Invalid overlap space points container read handle for key " << m_spacepointsOverlapname.key() );
     }
