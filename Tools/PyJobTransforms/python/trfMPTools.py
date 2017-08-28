@@ -61,36 +61,43 @@ def detectAthenaMPProcs(argdict = {}):
 #  @param athenaMPworkers Number of AthenaMP workers
 #  @param skipFileChecks Switches off checks on output files
 #  @return @c None; side effect is the update of the @c dataDictionary
-def athenaMPOutputHandler(athenaMPFileReport, athenaMPWorkerTopDir, dataDictionary, athenaMPworkers, skipFileChecks):
+def athenaMPOutputHandler(athenaMPFileReport, athenaMPWorkerTopDir, dataDictionary, athenaMPworkers, skipFileChecks = False, argdict = {}):
     msg.debug("MP output handler called for report {0} and workers in {1}, data types {2}".format(athenaMPFileReport, athenaMPWorkerTopDir, dataDictionary.keys()))
     outputHasBeenHandled = dict([ (dataType, False) for dataType in dataDictionary.keys() if dataDictionary[dataType] ])
 
-    # First, see what AthenaMP told us
-    mpOutputs = ElementTree.ElementTree()
-    try:
-        mpOutputs.parse(athenaMPFileReport)
-    except IOError:
-        raise trfExceptions.TransformExecutionException(trfExit.nameToCode("TRF_OUTPUT_FILE_ERROR"), "Missing AthenaMP outputs file {0} (probably athena crashed)".format(athenaMPFileReport))
-    for filesElement in mpOutputs.getroot().getiterator(tag='Files'):
-        msg.debug('Examining element {0} with attributes {1}'.format(filesElement, filesElement.attrib))
-        originalArg = None 
-        startName = filesElement.attrib['OriginalName']
-        for dataType, fileArg in dataDictionary.iteritems():
-            if fileArg.value[0] == startName:
-                originalArg = fileArg
-                outputHasBeenHandled[dataType] = True
-                break
-        if originalArg is None:
-            msg.warning('Found AthenaMP output with name {0}, but no matching transform argument'.format(startName))
-            continue
-        
-        msg.debug('Found matching argument {0}'.format(originalArg))
-        fileNameList = []
-        for fileElement in filesElement.getiterator(tag='File'):
-            msg.debug('Examining element {0} with attributes {1}'.format(fileElement, fileElement.attrib))
-            fileNameList.append(path.relpath(fileElement.attrib['name']))
+    # if sharedWriter mode is active ignore athenaMPFileReport
+    sharedWriter=False
+    if 'sharedWriter' in argdict and argdict['sharedWriter'].value:
+        sharedWriter=True
+        skipFileChecks=True
 
-        athenaMPoutputsLinkAndUpdate(fileNameList, fileArg) 
+    if not sharedWriter:
+        # First, see what AthenaMP told us
+        mpOutputs = ElementTree.ElementTree()
+        try:
+            mpOutputs.parse(athenaMPFileReport)
+        except IOError:
+            raise trfExceptions.TransformExecutionException(trfExit.nameToCode("TRF_OUTPUT_FILE_ERROR"), "Missing AthenaMP outputs file {0} (probably athena crashed)".format(athenaMPFileReport))
+        for filesElement in mpOutputs.getroot().getiterator(tag='Files'):
+            msg.debug('Examining element {0} with attributes {1}'.format(filesElement, filesElement.attrib))
+            originalArg = None 
+            startName = filesElement.attrib['OriginalName']
+            for dataType, fileArg in dataDictionary.iteritems():
+                if fileArg.value[0] == startName:
+                    originalArg = fileArg
+                    outputHasBeenHandled[dataType] = True
+                    break
+            if originalArg is None:
+                msg.warning('Found AthenaMP output with name {0}, but no matching transform argument'.format(startName))
+                continue
+        
+            msg.debug('Found matching argument {0}'.format(originalArg))
+            fileNameList = []
+            for fileElement in filesElement.getiterator(tag='File'):
+                msg.debug('Examining element {0} with attributes {1}'.format(fileElement, fileElement.attrib))
+                fileNameList.append(path.relpath(fileElement.attrib['name']))
+
+            athenaMPoutputsLinkAndUpdate(fileNameList, fileArg)
 
     # Now look for additional outputs that have not yet been handled
     if len([ dataType for dataType in outputHasBeenHandled if outputHasBeenHandled[dataType] is False]):

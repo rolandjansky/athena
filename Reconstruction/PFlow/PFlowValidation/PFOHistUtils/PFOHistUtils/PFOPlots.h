@@ -14,23 +14,24 @@ namespace PFO {
 
   public:
 
-     PFOPlots(PlotBase *pParent, std::string sDir, std::string sPFOContainerName);
+    PFOPlots(PlotBase *pParent, std::string sDir, std::string sPFOContainerName);
 
-     void fill(const xAOD::PFO& PFO);
+    void fill(const xAOD::PFO& PFO);
 
   private:
-     TH1* m_PFO_pt;
-     TH1* m_PFO_eta;
-     TH1* m_PFO_phi;
-     TH1* m_PFO_m;
-
+    TH1* m_PFO_pt;
+    TH1* m_PFO_eta;
+    TH1* m_PFO_phi;
+    TH1* m_PFO_m;
+    TH1* m_PFO_charge;
+    
     /** Pt Histogram binned in eta */
     TH1* m_PFO_pt_etaBinA;
     TH1* m_PFO_pt_etaBinB;
     TH1* m_PFO_pt_etaBinC;
     
-     void initializePlots();
-     std::string m_sPFOContainerName;
+    void initializePlots();
+    std::string m_sPFOContainerName;
 
   };
 

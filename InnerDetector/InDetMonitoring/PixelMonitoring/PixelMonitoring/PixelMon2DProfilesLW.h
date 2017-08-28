@@ -13,6 +13,10 @@ class PixelID;
 class StatusCode;
 class PixelMon2DMapsLW;
 
+namespace PixMon {
+enum class HistConf;
+}
+
 // A helper class to facilitate definition of per-layer 2D profile maps.
 // It defines a collection of TProfile2D_LW histograms for each pixel layer, which then can be declared or
 // filled in a single call.
@@ -23,18 +27,18 @@ class PixelMon2DMapsLW;
 class PixelMon2DProfilesLW
 {
 public:
-  PixelMon2DProfilesLW(std::string name, std::string title, bool doIBL, bool errorHist = false, bool copy2DFEval = false);
+  PixelMon2DProfilesLW(std::string name, std::string title, const PixMon::HistConf& config, bool copy2DFEval = false);
   ~PixelMon2DProfilesLW();
-  TProfile2D_LW* IBL;
-  TProfile2D_LW* IBL2D;
   TProfile2D_LW* IBL3D;
+  TProfile2D_LW* IBL2D;
+  TProfile2D_LW* IBL;
   TProfile2D_LW* B0;
   TProfile2D_LW* B1;
   TProfile2D_LW* B2;
   TProfile2D_LW* A;
   TProfile2D_LW* C;
-  //TProfile2D_LW* DBMA;
-  //TProfile2D_LW* DBMC;
+  TProfile2D_LW* DBMA;
+  TProfile2D_LW* DBMC;
   void Fill(Identifier &id, const PixelID* pixID, float value);
   void Fill2DMon(PixelMon2DProfilesLW* oldmap);
   void FillFromMap(PixelMon2DMapsLW* inputmap, bool clear_inputmap);
@@ -43,8 +47,9 @@ public:
   StatusCode regHist(ManagedMonitorToolBase::MonGroup &group);
 private:
   void formatHist();
-  const bool m_doIBL;
-  const bool m_errorHist;
+  std::array<TProfile2D_LW*, 10> m_histograms;
+  const PixMon::HistConf m_config;
+  static const bool m_doIBL;
   const bool m_copy2DFEval;
 };
 

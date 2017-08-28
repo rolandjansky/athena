@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CxxUtils/make_unique.h"
 #include "MCTruthSteppingActionTool.h"
 #include "CxxUtils/make_unique.h"
 
@@ -40,10 +39,9 @@ namespace G4UA
   MCTruthSteppingActionTool::makeAction()
   {
     ATH_MSG_DEBUG("Constructing an MCTruthSteppingAction");
-    auto action =
-      CxxUtils::make_unique<MCTruthSteppingAction>
+    return
+      std::make_unique<MCTruthSteppingAction>
         ( m_volumeCollectionMap, msgSvc(), msg().level() );
-    return std::move(action);
   }
 
 } // namespace G4UA

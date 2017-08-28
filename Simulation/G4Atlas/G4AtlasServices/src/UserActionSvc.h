@@ -54,7 +54,7 @@ namespace G4UA
 
       /// Gaudi interface query
       virtual StatusCode queryInterface(const InterfaceID& riid,
-                                        void** ppvInterface);
+                                        void** ppvInterface) override;
 
     private:
 

@@ -424,6 +424,21 @@ namespace InDet {
     std::shared_ptr<SummaryAccessor> m_sctDeadAccessor;
     std::shared_ptr<SummaryAccessor> m_pixDeadAccessor;
   } ;
+  // ---------------- EtaDependentPtCut ----------------                                                                                                                                                 
+  class EtaDependentPtCut : public virtual TrackCut {
+  public:
+    EtaDependentPtCut(InDetTrackSelectionTool*, std::vector<Double_t> eta, std::vector<Double_t> pt);
+    void setEta(std::vector<Double_t> eta) {m_etaCutoffs = eta;}
+    void setPt(std::vector<Double_t> pt) {m_ptCuts = pt;}
+    virtual StatusCode initialize();
+    virtual bool result() const;
+  private:
+    std::vector<Double_t> m_etaCutoffs;
+    std::vector<Double_t> m_ptCuts;
+    std::shared_ptr< FuncAccessor< double, &xAOD::TrackParticle::eta> > m_etaAccessor;
+    std::shared_ptr< FuncAccessor< double, &xAOD::TrackParticle::pt> > m_ptAccessor;
+  } ;
+
 
 
   // ---------------- PtDependentSctHitsCut ----------------
