@@ -154,7 +154,7 @@ theApp.OutStream    = [];
 
 # bit 2
 Stream2.TakeItemsFromInput = True
-Stream2.MetadataItemList   += exampleMetadataList
+#Stream2.MetadataItemList   += exampleMetadataList
 Stream2.ForceRead=TRUE
 Stream2.AcceptAlgs  = ["Splitter2"]
 Stream2.VetoAlgs    = ["Splitter1"]
