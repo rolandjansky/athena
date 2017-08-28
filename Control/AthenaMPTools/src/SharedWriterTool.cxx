@@ -88,13 +88,13 @@ int SharedWriterTool::makePool(int /*maxevt*/, int nprocs, const std::string& to
       return -1;
     }
 
-  // Create the process group with only one process and map_async bootstrap
+  // Create the process group and map_async bootstrap
   m_processGroup = new AthenaInterprocess::ProcessGroup(m_writer);
-  ATH_MSG_INFO("Shared Writer process created");
+  ATH_MSG_INFO("Created Pool of " << m_writer << " shared writer processes");
   if(mapAsyncFlag(AthenaMPToolBase::FUNC_BOOTSTRAP))
     return -1;
-
-  return 1;  
+  ATH_MSG_INFO("Shared writer processes bootstraped");
+  return 1;
 }
 
 StatusCode SharedWriterTool::exec()
@@ -103,6 +103,7 @@ StatusCode SharedWriterTool::exec()
 
   if(mapAsyncFlag(AthenaMPToolBase::FUNC_EXEC))
     return StatusCode::FAILURE;
+  ATH_MSG_INFO("Shared writer started write events");
 
   // Set exit flag on writer
   if(m_processGroup->map_async(0,0)){
@@ -151,7 +152,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedWriterTool::bootstrap_f
   std::ostringstream workerIndex;
   workerIndex<<m_rankId;
 
-  // Writer dir: mkdir 
+  // Writer dir: mkdir
   boost::filesystem::path writer_rundir(m_subprocTopDir);
   writer_rundir /= boost::filesystem::path(m_subprocDirPrefix+workerIndex.str());
 
@@ -165,8 +166,8 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedWriterTool::bootstrap_f
     return outwork;
 
   ATH_MSG_INFO("Logs redirected in the AthenaMP Shared Writer PID=" << getpid());
-     
-  // Update Io Registry   
+
+  // Update Io Registry
   if(updateIoReg(writer_rundir.string()))
     return outwork;
 
@@ -201,7 +202,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedWriterTool::bootstrap_f
     ATH_MSG_DEBUG("Successfully reinitialized I/O");
   }
 
-  // Writer dir: chdir 
+  // Writer dir: chdir
   if(chdir(writer_rundir.string().c_str())==-1) {
     ATH_MSG_ERROR("Failed to chdir to " << writer_rundir.string());
     return outwork;
@@ -230,6 +231,17 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedWriterTool::exec_func()
     all_ok=false;
   }
 
+  if(m_appMgr->stop().isFailure()) {
+    ATH_MSG_ERROR("Unable to stop AppMgr");
+    all_ok=false;
+  }
+  else {
+    if(m_appMgr->finalize().isFailure()) {
+      ATH_MSG_ERROR("Unable to finalize AppMgr");
+      all_ok=false;
+    }
+  }
+
   std::unique_ptr<AthenaInterprocess::ScheduledWork> outwork(new AthenaInterprocess::ScheduledWork);
   outwork->data = malloc(sizeof(int));
   *(int*)(outwork->data) = (all_ok?0:1); // Error code: for now use 0 success, 1 failure
@@ -240,7 +252,6 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedWriterTool::exec_func()
   // reported in the master proces
   // ...
   return outwork;
-
 }
 
 std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedWriterTool::fin_func()

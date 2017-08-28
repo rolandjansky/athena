@@ -55,6 +55,7 @@ StatusCode DataHeaderCnv::updateRep(IOpaqueAddress* pAddress, DataObject* pObjec
    for (unsigned int i = 0; i < dataHeader->elements().size(); i++) {
       m_dhOutForm->next();
    }
+   m_dhOutForm = nullptr;
    std::size_t tagBeg = pAddress->par()[1].find("[KEY=") + 5;
    std::size_t tagSize = pAddress->par()[1].find("]", tagBeg) - tagBeg;
    m_tpOutConverter.insertDHRef(dataHeader, pAddress->par()[1].substr(tagBeg, tagSize), pAddress->par()[0]);
