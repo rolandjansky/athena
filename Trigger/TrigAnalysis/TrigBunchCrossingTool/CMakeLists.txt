@@ -87,6 +87,11 @@ if( XAOD_STANDALONE )
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess TrigBunchCrossingTool )
 
+   atlas_add_test( ut_web_xaod_bunch_tool_test
+      SOURCES test/ut_web_xaod_bunch_tool_test.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess TrigBunchCrossingTool )
+
 endif()
 
 # Install files from the package:

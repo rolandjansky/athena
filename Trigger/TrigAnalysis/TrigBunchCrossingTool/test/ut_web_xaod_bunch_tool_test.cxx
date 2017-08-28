@@ -11,11 +11,13 @@
 // ROOT include(s):
 #include <TFile.h>
 #include <TError.h>
+#include <TSystem.h>
 
 // xAOD include(s):
 #ifdef ROOTCORE
 #   include "xAODRootAccess/Init.h"
 #   include "xAODRootAccess/TEvent.h"
+#   include "xAODRootAccess/tools/Message.h"
 #endif // ROOTCORE
 
 // Local include(s):
@@ -50,16 +52,15 @@ int main() {
    SIMPLE_CHECK( xAOD::Init( APP_NAME ) );
 
    // Open the input file:
-   static const char* FNAME =
-      "/afs/cern.ch/atlas/project/PAT/xAODs/r5597/"
-      "data12_8TeV.00204158.physics_JetTauEtmiss.recon.AOD.r5597/"
-      "AOD.01495682._003054.pool.root.1";
-   std::unique_ptr< ::TFile > ifile( ::TFile::Open( FNAME, "READ" ) );
+   std::unique_ptr< ::TFile > ifile( ::TFile::Open( "$ASG_TEST_FILE_DATA",
+                                                    "READ" ) );
    if( ! ifile.get() ) {
-      ::Error( APP_NAME, "Couldn't open file: %s", FNAME );
+      ::Error( APP_NAME, XAOD_MESSAGE( "Couldn't open file: %s" ),
+               gSystem->Getenv( "ASG_TEST_FILE_DATA" ) );
       return 1;
    }
-   ::Info( APP_NAME, "Opened file: %s", FNAME );
+   ::Info( APP_NAME, "Opened file: %s",
+           gSystem->Getenv( "ASG_TEST_FILE_DATA" ) );
 
    // Set up the reading of an example file:
    xAOD::TEvent event;
@@ -90,12 +91,12 @@ int main() {
       }
 
       // Now ask some questions about the loaded configuration:
-      SIMPLE_ASSERT( tool.isFilled( 7 ) );
-      SIMPLE_ASSERT( tool.isInTrain( 13 ) );
-      SIMPLE_ASSERT( tool.distanceFromFront( 146 ) == 0 );
-      SIMPLE_ASSERT( tool.distanceFromFront( 238 ) == 300 );
-      SIMPLE_ASSERT( tool.gapBeforeTrain( 148 ) == 250 );
-      SIMPLE_ASSERT( tool.bunchTrainSpacing() == 50 );
+      SIMPLE_ASSERT( tool.isFilled( 60 ) );
+      SIMPLE_ASSERT( tool.isInTrain( 100 ) );
+      SIMPLE_ASSERT( tool.distanceFromFront( 199 ) == 0 );
+      SIMPLE_ASSERT( tool.distanceFromFront( 350 ) == 300 );
+      SIMPLE_ASSERT( tool.gapBeforeTrain( 260 ) == 225 );
+      SIMPLE_ASSERT( tool.bunchTrainSpacing() == 25 );
    }
 
    // Return gracefully:
