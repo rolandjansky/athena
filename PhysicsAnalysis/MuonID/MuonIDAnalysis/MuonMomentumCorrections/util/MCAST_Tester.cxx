@@ -117,12 +117,10 @@ int main( int argc, char* argv[] ) {
   corrTool.setProperty( "Year", "Data16" );
   //corrTool.setProperty("Release","Recs2016_08_07");
   corrTool.setProperty("StatComb",true);
-  //corrTool.setProperty("MinCombPt",300.00); 
   corrTool.setProperty("SagittaCorr",true); 
-  corrTool.setProperty("SagittaRelease","sagittaBiasDataAll_06_02_17"); 
+  corrTool.setProperty("SagittaRelease","sagittaBiasDataAll_02_08_17"); 
   corrTool.setProperty("doSagittaMCDistortion",false);
   corrTool.setProperty("noEigenDecor",false);
-  //corrTool.setProperty("FilesPath","/afs/cern.ch/work/g/gabarone/public/TestSingleMuon/Run/test_itk/");
   if(corrTool.initialize()!=StatusCode::SUCCESS) return 1;
 
   
