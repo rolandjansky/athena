@@ -24,3 +24,4 @@ WATCH_LIST['IsolationSelection'] = set(['maklein','jojungge','jpoveda','dzhang']
 WATCH_LIST['PhysicsAnalysis/SUSYPhys'] = set(['zmarshal','szambito'])
 WATCH_LIST['DerivationFrameworkDataPrep'] = set(['zmarshal','cohm'])
 WATCH_LIST['DerivationFrameworkSUSY'] = set(['zmarshal','martindl','whopkins'])
+WATCH_LIST['BoostedJetTaggers'] = set(['meehan','sschramm','cdelitzs'])
