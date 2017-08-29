@@ -123,9 +123,7 @@ namespace CP {
             if (not periodKey->IsFolder()) continue;
             TDirectory* periodDirectory = qualityDirectory->GetDirectory(periodKey->GetName());
             std::string periodName = std::string(periodKey->GetName());
-
             YearPeriod period = YearPeriod(year, periodName.substr( std::string("Period").size() , periodName.size() ) );
-            std::cout << periodName<<std::endl;
             TKey* triggerKey;
             TIter nextTrigger(periodDirectory->GetListOfKeys());
             while ((triggerKey = (TKey*) nextTrigger())) {
@@ -221,7 +219,7 @@ namespace CP {
     // == MuonTriggerScaleFactors::setRunNumber
     // ==================================================================================
     CorrectionCode MuonTriggerScaleFactors::setRunNumber(Int_t ) {
-        ATH_MSG_WARNING("This  tool knows now how to retrieve the runNumber. The method is deprecated. It will be removed soonish");
+        ATH_MSG_WARNING("MuonTriggerScaleFactors has now learned how to retrieve the runNumber. The method is deprecated. It will be removed soonish");
         return CorrectionCode::Ok;
     }
 
