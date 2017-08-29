@@ -1,5 +1,5 @@
-#ifndef EVENT_LOOP_COMPS_LINKDEF_H
-#define EVENT_LOOP_COMPS_LINKDEF_H
+#ifndef ANA_ALGORITHM_LINKDEF_H
+#define ANA_ALGORITHM_LINKDEF_H
 
 // Some common definitions:
 #pragma link off all globals;
@@ -9,6 +9,8 @@
 
 // Declare the class(es) to generate dictionaries for:
 #pragma link C++ class EL::AnaAlgorithm+;
+#ifdef ROOTCORE
 #pragma link C++ class EL::AnaAlgorithmConfig+;
+#endif
 
-#endif // EVENT_LOOP_COMPS_LINKDEF_H
+#endif // ANA_ALGORITHM_LINKDEF_H

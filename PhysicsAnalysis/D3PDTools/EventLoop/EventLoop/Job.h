@@ -24,7 +24,7 @@
 #include <EventLoop/Global.h>
 
 #include <vector>
-#include <EventLoopComps/Global.h>
+#include <AnaAlgorithm/Global.h>
 #include <SampleHandler/SampleHandler.h>
 #include <SampleHandler/MetaObject.h>
 

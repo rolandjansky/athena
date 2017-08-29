@@ -20,7 +20,7 @@
 
 #include <AsgTools/MessageCheck.h>
 #include <EventLoop/Driver.h>
-#include <EventLoopComps/AnaAlgorithmConfig.h>
+#include <AnaAlgorithm/AnaAlgorithmConfig.h>
 #include <EventLoopTest/UnitTestAlg1.h>
 #include <EventLoopTest/UnitTestConfig.h>
 #include <RootCoreUtils/Assert.h>

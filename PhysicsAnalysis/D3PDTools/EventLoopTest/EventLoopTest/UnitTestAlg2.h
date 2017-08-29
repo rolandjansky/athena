@@ -22,7 +22,7 @@
 
 #include <EventLoopTest/Global.h>
 
-#include <EventLoopComps/AnaAlgorithm.h>
+#include <AnaAlgorithm/AnaAlgorithm.h>
 
 class TBranch;
 class TH1;

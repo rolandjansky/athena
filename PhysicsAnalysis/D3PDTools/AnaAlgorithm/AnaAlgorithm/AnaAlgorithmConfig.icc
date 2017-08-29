@@ -13,7 +13,7 @@
 //
 
 #include <AsgTools/TProperty.h>
-#include <EventLoopComps/MessageCheck.h>
+#include <AnaAlgorithm/MessageCheck.h>
 #include <RootCoreUtils/Assert.h>
 
 //

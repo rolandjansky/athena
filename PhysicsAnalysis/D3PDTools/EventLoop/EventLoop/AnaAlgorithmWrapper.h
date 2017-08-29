@@ -14,8 +14,8 @@
 #include <EventLoop/Global.h>
 
 #include <EventLoop/Algorithm.h>
-#include <EventLoopComps/AnaAlgorithm.h>
-#include <EventLoopComps/AnaAlgorithmConfig.h>
+#include <AnaAlgorithm/AnaAlgorithm.h>
+#include <AnaAlgorithm/AnaAlgorithmConfig.h>
 
 namespace EL
 {

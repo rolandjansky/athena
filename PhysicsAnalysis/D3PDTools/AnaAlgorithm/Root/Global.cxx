@@ -1,6 +1,3 @@
-#ifndef EVENT_LOOP_COMPS__MESSAGE_CHECK_H
-#define EVENT_LOOP_COMPS__MESSAGE_CHECK_H
-
 //        Copyright Iowa State University 2017.
 //                  Author: Nils Krumnack
 // Distributed under the Boost Software License, Version 1.0.
@@ -11,13 +8,18 @@
 // reports, feature suggestions, praise and complaints.
 
 
-#include <EventLoopComps/Global.h>
+//
+// includes
+//
 
-#include <AsgTools/MessageCheck.h>
+#include <AnaAlgorithm/Global.h>
+
+#include <RootCoreUtils/Assert.h>
+
+//
+// method implementations
+//
 
 namespace EL
 {
-  ANA_MSG_HEADER (msgAlgorithmConfig)
 }
-
-#endif

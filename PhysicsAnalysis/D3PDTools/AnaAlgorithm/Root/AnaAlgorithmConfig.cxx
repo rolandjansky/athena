@@ -12,9 +12,9 @@
 // includes
 //
 
-#include <EventLoopComps/AnaAlgorithmConfig.h>
+#include <AnaAlgorithm/AnaAlgorithmConfig.h>
 
-#include <EventLoopComps/AnaAlgorithm.h>
+#include <AnaAlgorithm/AnaAlgorithm.h>
 #include <RootCoreUtils/Assert.h>
 #include <TInterpreter.h>
 #include <regex>
