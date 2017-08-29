@@ -14,9 +14,14 @@
 #include <EventLoopComps/Global.h>
 
 #include <map>
+#include <memory>
 #include <string>
 
 class StatusCode;
+
+#ifndef ROOTCORE
+#error only include this header in AnalysisBase
+#endif
 
 namespace EL
 {

@@ -13,6 +13,10 @@
 
 #include <EventLoopComps/Global.h>
 
+#ifndef ROOTCORE
+#error only include this header in AnalysisBase
+#endif
+
 namespace EL
 {
   /// \brief the interface to the filter functions in the algorithm

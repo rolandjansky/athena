@@ -87,8 +87,7 @@ namespace EL
     ///   out of memory II
   public:
     AnaAlgorithm (const std::string& name, 
-                  ISvcLocator* pSvcLocator,
-                  const std::string& version = PACKAGE_VERSION);
+                  ISvcLocator* pSvcLocator);
 
     /// \brief standard (virtual) destructor
     /// \par Guarantee
@@ -102,6 +101,7 @@ namespace EL
     // services interface
     //
 
+#ifdef ROOTCORE
     /// \brief get the (main) event store for this algorithm
     ///
     /// \par Guarantee
@@ -174,6 +174,7 @@ namespace EL
     /// \post result != nullptr
   public:
     Worker *wk () const;
+#endif
 
 
 
@@ -181,6 +182,7 @@ namespace EL
     // properties interface
     //
 
+#ifdef ROOTCORE
     /// \brief declare an algorithm property
     /// \par Guarantee
     ///   strong
@@ -200,6 +202,7 @@ namespace EL
   public:
     template<typename T> ::StatusCode
     setProperty (const std::string& name, T&& value);
+#endif
 
 
 
@@ -244,6 +247,7 @@ namespace EL
     // framework interface
     //
 
+#ifdef ROOTCORE
     /// \brief call \ref initialize
   public:
     ::StatusCode sysInitialize ();
@@ -292,15 +296,17 @@ namespace EL
     ///   service already configured
   public:
     void setWk (Worker *val_wk);
-
+#endif
 
 
     //
     // inherited interface
     //
 
+#ifdef ROOTCORE
   public:
     virtual const std::string& name () const final;
+#endif
 
 
 

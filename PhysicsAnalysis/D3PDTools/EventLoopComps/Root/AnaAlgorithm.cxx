@@ -15,10 +15,13 @@
 #include <EventLoopComps/AnaAlgorithm.h>
 
 #include <AsgTools/MessageCheck.h>
-#include <EventLoopComps/IFilterWorker.h>
-#include <EventLoopComps/IHistogramWorker.h>
 #include <RootCoreUtils/Assert.h>
 #include <TH1.h>
+
+#ifdef ROOTCORE
+#include <EventLoopComps/IFilterWorker.h>
+#include <EventLoopComps/IHistogramWorker.h>
+#endif
 
 //
 // method implementations
@@ -32,18 +35,14 @@ namespace EL
 #ifndef ROOTCORE
                 pSvcLocator
 #endif
-                , const std::string&
-#ifndef ROOTCORE
-                version
-#endif
                 )
 #ifdef ROOTCORE
-    : AsgMessaging (name),
-      m_properties (new PropertyMgr)
-#else
-    : AthHistogramAlgorithm (name, pSvcLocator, version)
-#endif
+    : AsgMessaging (name)
     , m_name (name)
+    , m_properties (new PropertyMgr)
+#else
+    : AthHistogramAlgorithm (name, pSvcLocator)
+#endif
   {
     ANA_MSG_INFO ("AnaAlgorithm: " << name);
   }
@@ -56,6 +55,7 @@ namespace EL
 
 
 
+#ifdef ROOTCORE
   asg::SgTEvent *AnaAlgorithm ::
   evtStore () const
   {
@@ -128,6 +128,7 @@ namespace EL
       throw std::logic_error ("no worker set on algorithm " + name());
     return m_wk;
   }
+#endif
 
 
 
@@ -161,6 +162,7 @@ namespace EL
 
 
 
+#ifdef ROOTCORE
   ::StatusCode AnaAlgorithm ::
   sysInitialize ()
   {
@@ -238,4 +240,5 @@ namespace EL
   {
     return m_name;
   }
+#endif
 }
