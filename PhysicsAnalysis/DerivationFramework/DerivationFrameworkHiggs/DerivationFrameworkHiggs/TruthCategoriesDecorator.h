@@ -19,8 +19,8 @@
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 #include "xAODTruth/TruthParticleContainer.h"
 
-#include "TruthRivetTools/IHiggsTruthCategoryTool.h" 
-#include "TruthConverters/IxAODtoHepMCTool.h" 
+class IHiggsTruthCategoryTool;
+class IxAODtoHepMCTool;
 
 class TLorentzVector;
 
