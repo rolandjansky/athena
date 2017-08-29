@@ -124,8 +124,8 @@ namespace CP {
             TDirectory* periodDirectory = qualityDirectory->GetDirectory(periodKey->GetName());
             std::string periodName = std::string(periodKey->GetName());
 
-            YearPeriod period = YearPeriod(year, periodName);
-
+            YearPeriod period = YearPeriod(year, periodName.substr( std::string("Period").size() , periodName.size() ) );
+            std::cout << periodName<<std::endl;
             TKey* triggerKey;
             TIter nextTrigger(periodDirectory->GetListOfKeys());
             while ((triggerKey = (TKey*) nextTrigger())) {
@@ -137,10 +137,9 @@ namespace CP {
                     bool isBarrel = iregion.find("barrel") != std::string::npos;
                     for (const auto& itype : type) {
                         bool isData = itype.find("data") != std::string::npos;
-
                         std::string histname = ("_MuonTrigEff_" + periodName + "_" + triggerName + "_" + quality + "_" + "_EtaPhi_" + m_binning + "_" + iregion + "_" + itype);
                         for (const auto& isys : systematic) {
-                            if (itype.find("data") != std::string::npos && isys.find("syst") != std::string::npos) continue;
+                            if (itype.find("data") != std::string::npos && isys.find("nominal") == std::string::npos) continue;
                             std::string path = "eff_etaphi_" + m_binning + "_" + iregion + "_" + itype + "_" + isys;
                             TH2* hist = dynamic_cast<TH2*>(triggerDirectory->Get(path.c_str()));
                             if (not hist) {
@@ -151,7 +150,7 @@ namespace CP {
 
                             EffiHistoIdent HistoId = EffiHistoIdent(period, encodeHistoName(periodName, triggerName, isData, isys, isBarrel));
                             if (m_efficiencyMap.find(HistoId) != m_efficiencyMap.end()) {
-                                ATH_MSG_FATAL("MuonTriggerScaleFactors::initialize(): histogram " << path << " is duplicated");
+                                ATH_MSG_FATAL("MuonTriggerScaleFactors::initialize(): histogram " << path << " is duplicated for year"<<year<<" in period "<<periodName);
                                 return StatusCode::FAILURE;
                             }
                             m_efficiencyMap.insert(std::pair<EffiHistoIdent, TH1_Ptr>(HistoId, std::shared_ptr < TH1 > (hist)));
