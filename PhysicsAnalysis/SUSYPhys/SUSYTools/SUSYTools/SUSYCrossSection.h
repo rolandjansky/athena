@@ -6,6 +6,7 @@
 #define __SUSYCROSSSECTION__
 
 // Member variables
+#include <cstdlib>
 #include <string>
 #include <map>
 
