@@ -3,9 +3,6 @@
 # The name of the package:
 atlas_subdir( EventLoop )
 
-find_package( GTest )
-find_package( GMock )
-
 # The package's dependencies:
 atlas_depends_on_subdirs(
    PUBLIC
@@ -46,39 +43,6 @@ atlas_add_library( EventLoop
    PRIVATE_LINK_LIBRARIES AsgTools xAODRootAccess )
 
 target_compile_definitions (EventLoop PUBLIC USE_CMAKE)
-
-# Test(s) in the package:
-function( _add_gtest cxx_name )
-   get_filename_component( test_name ${cxx_name} NAME_WE )
-   atlas_add_test( ${test_name}
-      SOURCES test/${test_name}.cxx
-      INCLUDE_DIRS ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
-      LINK_LIBRARIES ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} RootCoreUtils AsgTools
-      SampleHandler EventLoop EventLoopTestLib )
-endfunction( _add_gtest )
-
-function( _add_test cxx_name )
-   get_filename_component( test_name ${cxx_name} NAME_WE )
-   atlas_add_test( ${test_name}
-      SOURCES test/${test_name}.cxx
-      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} RootCoreUtils SampleHandler EventLoop EventLoopTestLib )
-endfunction( _add_test )
-
-set (MANUAL_TESTS test/gt_LSFDriver_EOS.cxx test/ut_background_driver.cxx test/ut_driver_condor.cxx test/ut_driver_ll.cxx test/ut_driver_lsf.cxx test/ut_driver_proof_farm.cxx test/ut_driver_torque.cxx test/ut_xrootd_output.cxx)
-
-file( GLOB _tests RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/test/[a-z]*.cxx" )
-foreach( source ${_tests} )
-  string (REGEX REPLACE "test/(.*).cxx" "\\1" util ${source})
-  list (FIND MANUAL_TESTS "${source}" _index)
-  if (${_index} GREATER -1)
-    message ("EventLoop_${util}" ${source} LINK_LIBRARIES EventLoop)
-    add_executable ("EventLoop_${util}" ${source})
-    target_link_libraries ("EventLoop_${util}" EventLoop EventLoopTestLib)
-  else (${_index} GREATER -1)
-    _add_gtest( test/${util}.cxx )
-  endif (${_index} GREATER -1)
-endforeach()
 
 file (GLOB util_sources RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/util/[a-zA-Z0-9]*.cxx")
 foreach (source ${util_sources})
