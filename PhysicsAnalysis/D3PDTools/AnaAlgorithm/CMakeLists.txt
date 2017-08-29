@@ -1,5 +1,5 @@
 # The name of the package:
-atlas_subdir( EventLoopComps )
+atlas_subdir( AnaAlgorithm )
 
 # Find the needed external(s):
 find_package( ROOT COMPONENTS Core RIO Hist Tree TreePlayer Proof ProofPlayer )
@@ -15,25 +15,25 @@ atlas_depends_on_subdirs(
    Control/xAODRootAccess )
 
 if (XAOD_STANDALONE)
-  set (headers EventLoopComps/*.h)
-  set (inline_headers EventLoopComps/*.ihh)
+  set (headers AnaAlgorithm/*.h)
+  set (inline_headers AnaAlgorithm/*.ihh)
   set (sources Root/*.cxx)
 else (XAOD_STANDALONE)
-  set (headers EventLoopComps/AnaAlgorithm.h EventLoopComps/Global.h  EventLoopComps/MessageCheck.h)
-  set (inline_headers EventLoopComps/AnaAlgorithm.ihh)
+  set (headers AnaAlgorithm/AnaAlgorithm.h AnaAlgorithm/Global.h  AnaAlgorithm/MessageCheck.h)
+  set (inline_headers AnaAlgorithm/AnaAlgorithm.ihh)
   set (sources Root/AnaAlgorithm.cxx Root/MessageCheck.h)
 endif (XAOD_STANDALONE)
 
 
 # Component(s) in the package:
-atlas_add_root_dictionary( EventLoopCompsLib
-   EventLoopCompsDictSource
+atlas_add_root_dictionary( AnaAlgorithmLib
+   AnaAlgorithmDictSource
    ROOT_HEADERS ${headers} Root/LinkDef.h
    EXTERNAL_PACKAGES ROOT )
 
-atlas_add_library( EventLoopCompsLib
-   ${headers} ${inline_headers} ${sources} ${EventLoopCompsDictSource}
-   PUBLIC_HEADERS EventLoopComps
+atlas_add_library( AnaAlgorithmLib
+   ${headers} ${inline_headers} ${sources} ${AnaAlgorithmDictSource}
+   PUBLIC_HEADERS AnaAlgorithm
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} RootCoreUtils AsgTools xAODRootAccess )
 
@@ -44,6 +44,6 @@ if (XAOD_STANDALONE)
     atlas_add_test( ${test}
       SOURCES test/${test}.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} ${GTEST_LIBRARIES} EventLoopCompsLib EventLoopTestLib )
+      LINK_LIBRARIES ${ROOT_LIBRARIES} ${GTEST_LIBRARIES} AnaAlgorithmLib EventLoopTestLib )
   endforeach()
 endif (XAOD_STANDALONE)

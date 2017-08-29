@@ -52,7 +52,7 @@
 + PhysicsAnalysis/BPhys/BPhysTools
 + PhysicsAnalysis/D3PDTools/RootCoreUtils
 + Physicsanalysis/D3PDTools/SampleHandler
-+ Physicsanalysis/D3PDTools/EventLoopComps
++ Physicsanalysis/D3PDTools/AnaAlgorithm
 - PhysicsAnalysis/D3PDTools/.*
 - PhysicsAnalysis/ElectronPhotonID/ElectronPhotonTagTools
 + PhysicsAnalysis/ElectronPhotonID/.*

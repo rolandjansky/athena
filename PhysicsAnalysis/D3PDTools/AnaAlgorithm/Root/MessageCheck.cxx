@@ -12,7 +12,7 @@
 // includes
 //
 
-#include <EventLoopComps/IFilterWorker.h>
+#include <AnaAlgorithm/MessageCheck.h>
 
 #include <RootCoreUtils/Assert.h>
 
@@ -22,4 +22,5 @@
 
 namespace EL
 {
+  ANA_MSG_SOURCE (msgAlgorithmConfig, "EventLoopComp_AlgorithmConfig")
 }

@@ -1,5 +1,5 @@
-#ifndef EVENT_LOOP_COMPS__ANA_ALGORITHM_H
-#define EVENT_LOOP_COMPS__ANA_ALGORITHM_H
+#ifndef ANA_ALGORITHM__ANA_ALGORITHM_H
+#define ANA_ALGORITHM__ANA_ALGORITHM_H
 
 //        Copyright Iowa State University 2017.
 //                  Author: Nils Krumnack
@@ -11,7 +11,7 @@
 // reports, feature suggestions, praise and complaints.
 
 
-#include <EventLoopComps/Global.h>
+#include <AnaAlgorithm/Global.h>
 
 #ifdef ROOTCORE
 #include <AsgTools/AsgMessaging.h>

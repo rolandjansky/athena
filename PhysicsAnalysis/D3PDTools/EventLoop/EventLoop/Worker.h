@@ -23,8 +23,8 @@
 #include <Rtypes.h>
 #include <TList.h>
 #include <SampleHandler/Global.h>
-#include <EventLoopComps/IFilterWorker.h>
-#include <EventLoopComps/IHistogramWorker.h>
+#include <AnaAlgorithm/IFilterWorker.h>
+#include <AnaAlgorithm/IHistogramWorker.h>
 
 class TFile;
 class TH1;

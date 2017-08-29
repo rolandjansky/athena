@@ -1,3 +1,6 @@
+#ifndef ANA_ALGORITHM__GLOBAL_H
+#define ANA_ALGORITHM__GLOBAL_H
+
 //        Copyright Iowa State University 2017.
 //                  Author: Nils Krumnack
 // Distributed under the Boost Software License, Version 1.0.
@@ -8,19 +11,15 @@
 // reports, feature suggestions, praise and complaints.
 
 
-//
-// includes
-//
-
-#include <EventLoopComps/MessageCheck.h>
-
-#include <RootCoreUtils/Assert.h>
-
-//
-// method implementations
-//
-
 namespace EL
 {
-  ANA_MSG_SOURCE (msgAlgorithmConfig, "EventLoopComp_AlgorithmConfig")
+  class AnaAlgorithm;
+
+#ifdef ROOTCORE
+  class AnaAlgorithmConfig;
+  class IFilterWorker;
+  class IHistogramWorker;
+#endif
 }
+
+#endif

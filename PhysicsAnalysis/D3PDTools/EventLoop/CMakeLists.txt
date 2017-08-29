@@ -42,7 +42,7 @@ atlas_add_library( EventLoop
    PUBLIC_HEADERS EventLoop
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} ${GTEST_LIBRARIES} RootCoreUtils
-   SampleHandler EventLoopCompsLib
+   SampleHandler AnaAlgorithmLib
    PRIVATE_LINK_LIBRARIES AsgTools xAODRootAccess )
 
 target_compile_definitions (EventLoop PUBLIC USE_CMAKE)

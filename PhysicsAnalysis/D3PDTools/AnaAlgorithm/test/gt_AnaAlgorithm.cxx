@@ -12,8 +12,8 @@
 // includes
 //
 
-#include <EventLoopComps/AnaAlgorithm.h>
-#include <EventLoopComps/AnaAlgorithmConfig.h>
+#include <AnaAlgorithm/AnaAlgorithm.h>
+#include <AnaAlgorithm/AnaAlgorithmConfig.h>
 
 #include <EventLoopTest/UnitTestAlg2.h>
 #include <AsgTools/ToolHandle.h>

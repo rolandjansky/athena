@@ -12,7 +12,7 @@
 // includes
 //
 
-#include <EventLoopComps/IHistogramWorker.h>
+#include <AnaAlgorithm/IFilterWorker.h>
 
 #include <RootCoreUtils/Assert.h>
 

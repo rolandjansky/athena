@@ -1,6 +1,3 @@
-#ifndef EVENT_LOOP_COMPS__GLOBAL_H
-#define EVENT_LOOP_COMPS__GLOBAL_H
-
 //        Copyright Iowa State University 2017.
 //                  Author: Nils Krumnack
 // Distributed under the Boost Software License, Version 1.0.
@@ -11,15 +8,18 @@
 // reports, feature suggestions, praise and complaints.
 
 
+//
+// includes
+//
+
+#include <AnaAlgorithm/IHistogramWorker.h>
+
+#include <RootCoreUtils/Assert.h>
+
+//
+// method implementations
+//
+
 namespace EL
 {
-  class AnaAlgorithm;
-
-#ifdef ROOTCORE
-  class AnaAlgorithmConfig;
-  class IFilterWorker;
-  class IHistogramWorker;
-#endif
 }
-
-#endif

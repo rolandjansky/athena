@@ -12,15 +12,15 @@
 // includes
 //
 
-#include <EventLoopComps/AnaAlgorithm.h>
+#include <AnaAlgorithm/AnaAlgorithm.h>
 
 #include <AsgTools/MessageCheck.h>
 #include <RootCoreUtils/Assert.h>
 #include <TH1.h>
 
 #ifdef ROOTCORE
-#include <EventLoopComps/IFilterWorker.h>
-#include <EventLoopComps/IHistogramWorker.h>
+#include <AnaAlgorithm/IFilterWorker.h>
+#include <AnaAlgorithm/IHistogramWorker.h>
 #endif
 
 //
