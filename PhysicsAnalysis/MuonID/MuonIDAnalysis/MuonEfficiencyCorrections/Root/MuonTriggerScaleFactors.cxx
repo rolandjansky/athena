@@ -99,7 +99,7 @@ namespace CP {
 
         TFile* file = TFile::Open(filePath.c_str());
 
-        if (file == nullptr || file->IsOpen()) {
+        if (file == nullptr || !file->IsOpen()) {
             ATH_MSG_FATAL("MuonTriggerScaleFactors::initialize Couldn't open file " << filePath);
             return StatusCode::FAILURE;
         }
