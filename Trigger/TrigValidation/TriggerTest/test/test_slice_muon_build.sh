@@ -3,6 +3,7 @@
 # art-description: Muon slice TriggerTest on MC
 # art-type: build
 
+export NAME="slice_muon_build"
 export SLICE="muon"
 export EVENTS="10"
 export COST_MONITORING="False"

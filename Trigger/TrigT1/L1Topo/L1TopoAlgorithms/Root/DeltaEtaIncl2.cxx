@@ -116,8 +116,6 @@ TCS::DeltaEtaIncl2::processBitCorrect( const std::vector<TCS::TOBArray const *> 
 
 {
     if( input.size() == 2) {
-        bool iaccept[numberOutputBits()];
-        std::fill_n(iaccept,numberOutputBits(),0);
         for( TOBArray::const_iterator tob1 = input[0]->begin(); 
              tob1 != input[0]->end() && distance(input[0]->begin(), tob1) < p_NumberLeading1;
              ++tob1)
@@ -132,16 +130,18 @@ TCS::DeltaEtaIncl2::processBitCorrect( const std::vector<TCS::TOBArray const *> 
                         if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
                         if( parType_t((*tob2)->Et()) <= p_MinET2[i]) continue; // ET cut
                         accept = deltaEta >= p_DeltaEtaMin[i] && deltaEta <= p_DeltaEtaMax[i];
+                        const bool fillAccept = fillHistos() and (fillHistosBasedOnHardware() ? getDecisionHardwareBit(i) : accept);
+                        const bool fillReject = fillHistos() and not fillAccept;
+                        const bool alreadyFilled = decision.bit(i);
                         if( accept ) {
                             decision.setBit(i, true);
-                            output[i]->push_back(TCS::CompositeTOB(*tob1, *tob2));
-                            if (!(iaccept[i])) {
-                                iaccept[i]=1;
-                                m_histAcceptDEta2[i]->Fill(deltaEta);
-                            }
+                            output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
                         }
-                        else 
-                            m_histRejectDEta2[i]->Fill(deltaEta);
+                        if(fillAccept and not alreadyFilled) {
+                            m_histAcceptDEta2[i]->Fill((float)deltaEta*0.10);
+                        } else if(fillReject) {
+                            m_histRejectDEta2[i]->Fill((float)deltaEta*0.10);
+                        }
                         TRG_MSG_DEBUG("DeltaEta = " << deltaEta << " -> accept bit  " << i << " -> "
                                       << (accept?"pass":"fail"));
                     }
@@ -159,8 +159,6 @@ TCS::DeltaEtaIncl2::process( const std::vector<TCS::TOBArray const *> & input,
                              Decision & decision )
 {
     if( input.size() == 2) {
-        bool iaccept[numberOutputBits()];
-        std::fill_n(iaccept,numberOutputBits(),0);
         for( TOBArray::const_iterator tob1 = input[0]->begin(); 
              tob1 != input[0]->end() && distance(input[0]->begin(), tob1) < p_NumberLeading1;
              ++tob1)
@@ -175,16 +173,18 @@ TCS::DeltaEtaIncl2::process( const std::vector<TCS::TOBArray const *> & input,
                         if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
                         if( parType_t((*tob2)->Et()) <= p_MinET2[i]) continue; // ET cut
                         accept = deltaEta >= p_DeltaEtaMin[i] && deltaEta <= p_DeltaEtaMax[i];
+                        const bool fillAccept = fillHistos() and (fillHistosBasedOnHardware() ? getDecisionHardwareBit(i) : accept);
+                        const bool fillReject = fillHistos() and not fillAccept;
+                        const bool alreadyFilled = decision.bit(i);
                         if( accept ) {
                             decision.setBit(i, true);
-                            output[i]->push_back(TCS::CompositeTOB(*tob1, *tob2));
-                            if (!(iaccept[i])) {
-                                iaccept[i]=1;
-                                m_histAcceptDEta2[i]->Fill(deltaEta);
-                            }
+                            output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
                         }
-                        else 
-                            m_histRejectDEta2[i]->Fill(deltaEta);
+                        if(fillAccept and not alreadyFilled) {
+                            m_histAcceptDEta2[i]->Fill((float)deltaEta*0.10);
+                        } else if(fillReject) {
+                            m_histRejectDEta2[i]->Fill((float)deltaEta*0.10);
+                        }
                         TRG_MSG_DEBUG("DeltaEta = " << deltaEta << " -> accept bit  " << i << " -> " 
                                       << (accept?"pass":"fail"));
                     } 

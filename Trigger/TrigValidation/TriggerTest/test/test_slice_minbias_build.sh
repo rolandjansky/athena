@@ -3,6 +3,7 @@
 # art-description: MinBias slice TriggerTest on MinBias MC
 # art-type: build
 
+export NAME="slice_minbias_build"
 export SLICE="minbias"
 export MENU="Physics_pp_v7"
 export EVENTS="10"
