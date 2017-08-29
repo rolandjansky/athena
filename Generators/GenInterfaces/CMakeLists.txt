@@ -4,7 +4,9 @@ atlas_subdir( GenInterfaces )
 # The dependencies of the package:
 atlas_depends_on_subdirs(
    PUBLIC
-   GaudiKernel )
+   GaudiKernel
+   xAODEventInfo
+   xAODTruth )
 
 # External dependencies:
 find_package( HepMC )
@@ -14,7 +16,7 @@ atlas_add_library( GenInterfacesLib
    GenInterfaces/*.h
    INTERFACE
    PUBLIC_HEADERS GenInterfaces
-   LINK_LIBRARIES ${HEPMC_LIBRARIES} GaudiKernel )
+   LINK_LIBRARIES ${HEPMC_LIBRARIES} GaudiKernel xAODEventInfo xAODTruth )
 
 atlas_add_dictionary( GenInterfacesDict
    GenInterfaces/GenInterfacesDict.h

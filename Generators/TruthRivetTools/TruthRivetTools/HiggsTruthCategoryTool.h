@@ -11,7 +11,6 @@
 #ifndef TRUTHRIVETTOOLS_HIGGSTRUTHCATEGORYTOOL_H
 #define TRUTHRIVETTOOLS_HIGGSTRUTHCATEGORYTOOL_H 1
 
-#include "TLorentzVector.h"
 #include "Rivet/AnalysisHandler.hh"
 #include "TruthRivetTools/HiggsTemplateCrossSections.h"
 
@@ -22,7 +21,7 @@
 #endif // UNUSED
 
 #include "AsgTools/AsgTool.h"
-#include "TruthRivetTools/IHiggsTruthCategoryTool.h"
+#include "GenInterfaces/IHiggsTruthCategoryTool.h"
 
 
 class HiggsTruthCategoryTool 

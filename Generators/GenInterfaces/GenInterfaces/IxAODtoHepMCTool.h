@@ -12,8 +12,8 @@
  * <dag.gillberg@cern.ch>
  */
 
-#ifndef TRUTHCONVERTERS_IXAODTOHEPMCTOOL_H
-#define TRUTHCONVERTERS_IXAODTOHEPMCTOOL_H 1
+#ifndef GENINTERFACES_IXAODTOHEPMCTOOL_H
+#define GENINTERFACES_IXAODTOHEPMCTOOL_H 1
 
 #include "AsgTools/IAsgTool.h"
 
@@ -24,16 +24,13 @@
 
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODTruth/TruthEventContainer.h"
-#include "xAODTruth/TruthParticleContainer.h"
-#include "xAODTruth/TruthVertexContainer.h"
 
-#include "HepMC/IO_GenEvent.h"
 #include "HepMC/GenEvent.h"
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
 
 namespace HepMC {
-  class GenEvent; class GenParticle; class GenVertex;
+  class GenEvent;
+  class GenParticle;
+  class GenVertex;
 }
 
 class IxAODtoHepMCTool : public virtual asg::IAsgTool {
@@ -46,4 +43,4 @@ class IxAODtoHepMCTool : public virtual asg::IAsgTool {
   virtual std::vector<HepMC::GenEvent> getHepMCEvents(const xAOD::TruthEventContainer* xTruthEventContainer, const xAOD::EventInfo* eventInfo) = 0;
 };
 
-#endif //> !XAODTOHEPMC_IXAODTOHEPMCTOOL_H
+#endif //> !GENINTERFACES_IXAODTOHEPMCTOOL_H

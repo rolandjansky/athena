@@ -16,7 +16,7 @@
 #define TRUTHCONVERTERS_XAODTOHEPMCTOOL_H 1
 
 #include "AsgTools/AsgTool.h"
-#include "TruthConverters/IxAODtoHepMCTool.h"
+#include "GenInterfaces/IxAODtoHepMCTool.h"
 
 
 class xAODtoHepMCTool: public asg::AsgTool, public virtual IxAODtoHepMCTool { 
