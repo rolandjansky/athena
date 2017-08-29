@@ -548,7 +548,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     m_muonTriggerSFTool2015.setTypeAndName("CP::MuonTriggerScaleFactors/"+toolName);
     ATH_CHECK( m_muonTriggerSFTool2015.setProperty("MuonQuality", muQual));
     //ATH_CHECK( m_muonTriggerSFTool2015.setProperty("Isolation", m_muIso_WP)); This property has been depreacted long time ago
-    ATH_CHECK( m_muonTriggerSFTool2015.setProperty("Year", "2015"));
+    //ATH_CHECK( m_muonTriggerSFTool2015.setProperty("Year", "2015")); This property will be depreceated too
     ATH_CHECK( m_muonTriggerSFTool2015.setProperty("AllowZeroSF", true));
     ATH_CHECK( m_muonTriggerSFTool2015.retrieve());
   }
