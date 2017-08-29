@@ -273,7 +273,7 @@ const std::vector<std::size_t> electronSuperClusterBuilder::SearchForSecondaryCl
       } else {
 	if (seedEgammaRec->trackParticle()) {
 	  float qoverp    = seedEgammaRec->trackParticle()->qOverP();
-	  float seedEOverP(seedEgammaRec->caloCluster()->e() / fabs(1./qoverp));
+	  float seedEOverP(seedEgammaRec->caloCluster()->e() * fabs(qoverp));
 	  
 	  static const SG::AuxElement::Accessor<float> pgExtrapEta ("perigeeExtrapEta");
 	  static const SG::AuxElement::Accessor<float> pgExtrapPhi ("perigeeExtrapPhi");
@@ -344,26 +344,6 @@ bool electronSuperClusterBuilder::PassesSimpleBremSearch(const xAOD::CaloCluster
 
   float perigeeExtrapSecClusDelEta = fabs(sec->eta() - perigeeExtrapEta);
   float perigeeExtrapSecClusDelPhi = fabs(P4Helpers::deltaPhi(sec->phi(), perigeeExtrapPhi));
-
-  // ATH_MSG_DEBUG("perigeeExtrapSecClusDelEta: " << perigeeExtrapSecClusDelEta);
-  // ATH_MSG_DEBUG("perigeeExtrapSecClusDelPhi: " << perigeeExtrapSecClusDelPhi);
-
-  // determine window size, barrel or EC
-  // auto searchWindowEta = m_searchWindowEtaEndcap;
-  // auto searchWindowPhi = m_searchWindowPhiEndcap;
-  // if (xAOD::EgammaHelpers::isBarrel(seed)) {
-  //   searchWindowEta = m_searchWindowEtaBarrel;
-  //   searchWindowPhi = m_searchWindowPhiBarrel;
-  // }
-
-  // ATH_MSG_INFO("searchWindowEta: " << searchWindowEta);
-  // ATH_MSG_INFO("searchWindowPhi: " << searchWindowPhi);
-  // ATH_MSG_DEBUG("m_bremExtrapMatchDelEta: " << m_bremExtrapMatchDelEta);
-  // ATH_MSG_DEBUG("m_bremExtrapMatchDelPhi: " << m_bremExtrapMatchDelPhi);
-
-  // if (perigeeExtrapClusDelEta > searchWindowEta && perigeeExtrapClusDelPhi > searchWindowPhi && 
-  //     perigeeExtrapSecClusDelEta < m_bremExtrapMatchDelEta && 
-  //     perigeeExtrapSecClusDelPhi < m_bremExtrapMatchDelPhi) {
 
   if (perigeeExtrapSecClusDelEta < m_bremExtrapMatchDelEta && 
       perigeeExtrapSecClusDelPhi < m_bremExtrapMatchDelPhi) {
