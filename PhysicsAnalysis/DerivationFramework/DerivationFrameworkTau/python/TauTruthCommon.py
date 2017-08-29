@@ -44,7 +44,9 @@ if DerivationFrameworkIsMonteCarlo:
     else:
         # No reco taus, so just build the truth tau container
         from tauRecTools.tauRecToolsConf import tauRecTools__BuildTruthTaus
-        btt = tauRecTools__BuildTruthTaus( WriteTruthTaus=True , MCTruthClassifierTool=DFCommonTauTruthClassifier )
+        btt = tauRecTools__BuildTruthTaus( WriteTruthTaus=True ,
+                                           WriteInvisibleFourMomentum=True,
+                                           MCTruthClassifierTool=DFCommonTauTruthClassifier )
         # This guy wants a private tool handle, so *don't* put the MCTC into the toolSvc
         ToolSvc += btt
         from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthCollectionMakerTau
