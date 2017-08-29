@@ -43,7 +43,7 @@ StatusCode HiggsTruthCategoryTool :: finalize () {
   return StatusCode::SUCCESS;  
 }
 
-HTXS::HiggsClassification HiggsTruthCategoryTool :: getHiggsTruthCategoryObject (const HepMC::GenEvent& HepMCEvent, const HTXS::HiggsProdMode prodMode){
+HTXS::HiggsClassification* HiggsTruthCategoryTool :: getHiggsTruthCategoryObject (const HepMC::GenEvent& HepMCEvent, const HTXS::HiggsProdMode prodMode){
   if ( !m_isInitialized ) {
     higgsTemplateCrossSections->setHiggsProdMode(prodMode); 
     rivetAnaHandler->init(HepMCEvent); 

@@ -15,6 +15,5 @@
 #include "GenInterfaces/IPDFReweightTool.h"
 #include "GenInterfaces/ITruthSelector.h"
 #include "GenInterfaces/IxAODtoHepMCTool.h"
-#include "GenInterfaces/IHiggsTruthCategoryTool.h"
 
 #endif // GENINTERFACES_GENINTERFACESDICT_H
