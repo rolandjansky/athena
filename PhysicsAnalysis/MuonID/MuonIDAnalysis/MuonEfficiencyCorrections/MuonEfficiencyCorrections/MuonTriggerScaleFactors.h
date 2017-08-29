@@ -44,6 +44,7 @@ class TDirectory;
 #include <boost/unordered_map.hpp>
 
 namespace CP {
+    typedef std::shared_ptr<TH1> TH1_Ptr;
 
     class MuonTriggerScaleFactors: virtual public CP::IMuonTriggerScaleFactors, public asg::AsgTool {
             ASG_TOOL_CLASS( MuonTriggerScaleFactors, CP::IMuonTriggerScaleFactors )
@@ -109,9 +110,8 @@ namespace CP {
             std::shared_ptr<TH1> getEfficiencyHistogram(unsigned int year, const std::string& period, const std::string& trigger, bool isData, const std::string& Systematic, bool isBarrel = true) const;
             std::shared_ptr<TH1> getEfficiencyHistogram(const std::string& trigger, bool isData, const std::string& Systematic, bool isBarrel = true) const;
 
-            std::pair<unsigned int, std::string> YearPeriod;
-            std::pair<YearPeriod, unsigned int> EffiHistoIdent;
-            typedef std::shared_ptr<TH1> TH1_Ptr;
+            typedef std::pair<unsigned int, std::string> YearPeriod;
+            typedef std::pair<YearPeriod, unsigned int> EffiHistoIdent;
             typedef std::map<EffiHistoIdent, TH1_Ptr> EfficiencyMap;
 
             EfficiencyMap m_efficiencyMap;
@@ -132,7 +132,6 @@ namespace CP {
 
             std::string m_muonquality;
 
-            unsigned int m_year;
 
             std::string m_year_str;
             std::string m_mc;
@@ -140,7 +139,6 @@ namespace CP {
             // subfolder to load from the calibration db
             std::string m_calibration_version;
             std::string m_custom_dir;
-//            std::string m_isolation;
             std::string m_binning;
 
             bool m_allowZeroSF;

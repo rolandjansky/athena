@@ -42,7 +42,6 @@ namespace CP {
     // ==================================================================================
     MuonTriggerScaleFactors::MuonTriggerScaleFactors(const std::string& name) :
                 asg::AsgTool(name),
-                m_periods(),
                 m_appliedSystematics(0),
                 m_dataPeriod(""),
                 m_classname(name.c_str()),
@@ -71,15 +70,6 @@ namespace CP {
     // == MuonTriggerScaleFactors::~MuonTriggerScaleFactors()
     // ==================================================================================
     MuonTriggerScaleFactors::~MuonTriggerScaleFactors() {
-        for (auto itMap : m_efficiencyMap)
-            delete itMap.second;
-        m_efficiencyMap.clear();
-
-        for (auto itMap : m_efficiencyMapReplicaArray) {
-            std::vector<TH2*> vec = itMap.second;
-            for (uint i = 0; i < vec.size(); ++i)
-                delete vec[i];
-        }
     }
     StatusCode MuonTriggerScaleFactors::LoadTriggerMap(unsigned int year) {
 
@@ -89,7 +79,7 @@ namespace CP {
             else if (year == 2016) fileName = "muontrigger_sf_2016_mc15c_v02.root";
             else {
                 ATH_MSG_WARNING("There is no SF file for year " << year << " yet");
-                return StatusCode::SUCCES;
+                return StatusCode::SUCCESS;
             }
         }
 
@@ -231,7 +221,7 @@ namespace CP {
     // ==================================================================================
     // == MuonTriggerScaleFactors::setRunNumber
     // ==================================================================================
-    CorrectionCode MuonTriggerScaleFactors::setRunNumber(Int_t runNumber) {
+    CorrectionCode MuonTriggerScaleFactors::setRunNumber(Int_t ) {
         ATH_MSG_WARNING("This  tool knows now how to retrieve the runNumber. The method is deprecated. It will be removed soonish");
         return CorrectionCode::Ok;
     }
@@ -373,7 +363,7 @@ namespace CP {
 
     }
     TH1_Ptr MuonTriggerScaleFactors::getEfficiencyHistogram(unsigned int year, const std::string& period, const std::string& trigger, bool isData, const std::string& Systematic, bool isBarrel) const {
-        EffiHistoIdent Ident = (YearPeriod(year, period), encodeHistoName(period, trigger, isData, Systematic, isBarrel));
+        EffiHistoIdent Ident = EffiHistoIdent(YearPeriod(year, period), encodeHistoName(period, trigger, isData, Systematic, isBarrel));
         EfficiencyMap::const_iterator Itr = m_efficiencyMap.find(Ident);
         if (Itr == m_efficiencyMap.end()) {
             return TH1_Ptr();
@@ -393,9 +383,8 @@ namespace CP {
         TH1_Ptr eff_h2 = nullptr;
         if (configuration.replicaIndex >= 0) { //Only look into the replicas if asking for them
             unsigned int run = getRunNumber();
-            EffiHistoIdent Ident = (YearPeriod(getYear(run), getDataPeriod(run)), encodeHistoName(getDataPeriod(run), trigger, configuration.isData, "repl", isBarrel));
-
-            std::map<std::string, std::vector<TH1_Ptr> >::const_iterator cit = m_efficiencyMapReplicaArray.find(Ident);
+            EffiHistoIdent Ident = EffiHistoIdent(YearPeriod(getYear(run), getDataPeriod(run)), encodeHistoName(getDataPeriod(run), trigger, configuration.isData, "repl", isBarrel));
+            std::map<EffiHistoIdent, std::vector<TH1_Ptr> >::const_iterator cit = m_efficiencyMapReplicaArray.find(Ident);
             if (cit == m_efficiencyMapReplicaArray.end()) {
                 if (m_allowZeroSF) {
                     eff = 0.;
@@ -415,7 +404,6 @@ namespace CP {
 
             eff_h2 = cit->second[configuration.replicaIndex];
         } else { //Standard case, look into the usual eff map
-            EfficiencyMap::const_iterator cit = m_efficiencyMap.find(histname);
             TH1_Ptr cit = getEfficiencyHistogram(trigger, configuration.isData, systematic, isBarrel);
             if (cit.get() == nullptr) {
                 if (m_allowZeroSF) {
@@ -433,31 +421,11 @@ namespace CP {
         if (mu_phi_corr < eff_h2->GetYaxis()->GetXmin()) mu_phi_corr += 2.0 * TMath::Pi();
         if (mu_phi_corr > eff_h2->GetYaxis()->GetXmax()) mu_phi_corr -= 2.0 * TMath::Pi();
 
-        /*
-         if( mu_phi_corr > eff_h2->GetYaxis()->GetXmax() ||
-         mu_phi_corr < eff_h2->GetYaxis()->GetXmin() ||
-         mu_eta > eff_h2->GetYaxis()->GetXmax() ||
-         mu_eta < eff_h2->GetYaxis()->GetXmin() ){
-         ATH_MSG_ERROR("MuonTriggerScaleFactors::getMuonEfficiency ; eta/phi is out of bound in the SF map. muon eta/phi="
-         << mu_eta << "/" << mu_phi_corr
-         << " map range eta/phi=["
-         << eff_h2->GetXaxis()->GetXmin()
-         << ","
-         << eff_h2->GetXaxis()->GetXmax()
-         << "]/["
-         << eff_h2->GetYaxis()->GetXmin()
-         << ","
-         << eff_h2->GetYaxis()->GetXmax()
-         << "]");
-         }
-         */
-
         const int bin = eff_h2->FindFixBin(mu_eta, mu_phi_corr);
         const double efficiency = eff_h2->GetBinContent(bin);
 
         eff = efficiency;
 
-        ATH_MSG_DEBUG("getMuonEfficiency histname=" << histname);
         ATH_MSG_DEBUG("getMuonEfficiency [eta,phi,phi_corr]=[" << mu_eta << "," << mu_phi << "," << mu_phi_corr << "], ibin=" << bin << " eff=" << eff);
 
         return CorrectionCode::Ok;
