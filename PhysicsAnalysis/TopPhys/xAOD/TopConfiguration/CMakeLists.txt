@@ -25,7 +25,7 @@ atlas_add_library( TopConfiguration Root/*.cxx Root/*.h Root/*.icc
                    TopConfiguration/*/*.icc ${_cintDictSource} 
                    PUBLIC_HEADERS TopConfiguration
                    LINK_LIBRARIES xAODCore
-		   		  PATInterfaces
+		   		   PATInterfaces  
                                   ${ROOT_LIBRARIES}
 				  ${Boost_LIBRARIES} 
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} 
