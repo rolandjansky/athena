@@ -64,6 +64,9 @@ namespace HLTEnums {
 						       "TIMEOUT",
 						       "BUSY",
 						       "BAD_JOB_SETUP",
+                               "MISSING_CALO_ROI",
+                               "MISSING_MUON_ROI",
+                               "MISSING_OTHER_ROI",
 						       "LAST_"};
 }
 
