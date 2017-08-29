@@ -105,8 +105,18 @@ DataProxy::DataProxy():
 // (typically called from Proxy Provider)
 DataProxy::DataProxy(TransientAddress* tAddr, 
 		     IConverter* svc,
+		     bool constFlag, bool resetOnly)
+  : DataProxy (std::unique_ptr<TransientAddress> (tAddr),
+               svc, constFlag, resetOnly)
+{
+}
+
+// DataProxy constructor with Transient Address
+// (typically called from Proxy Provider)
+DataProxy::DataProxy(std::unique_ptr<TransientAddress> tAddr, 
+		     IConverter* svc,
 		     bool constFlag, bool resetOnly):
-  m_tAddress(tAddr),
+  m_tAddress(std::move(tAddr)),
   m_refCount(0),
   m_dObject(0), 
   m_dataLoader(svc),
@@ -146,7 +156,6 @@ DataProxy::DataProxy(DataObject* dObject,
 DataProxy::~DataProxy()
 {  
   finalReset();
-  delete m_tAddress;
 }
 
 void DataProxy::setT2p(T2pMap* t2p)
@@ -439,6 +448,11 @@ bool DataProxy::isValid() const
   return (isValidObject() || isValidAddress());
 }
 
+
+bool DataProxy::updateAddress()
+{
+  return m_tAddress->isValid(m_store, true);
+}
 
 /**
  * @brief Try to get the pointer back from a @a DataProxy,
