@@ -547,7 +547,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     toolName = "MuonTriggerScaleFactors2015_" + muQual;
     m_muonTriggerSFTool2015.setTypeAndName("CP::MuonTriggerScaleFactors/"+toolName);
     ATH_CHECK( m_muonTriggerSFTool2015.setProperty("MuonQuality", muQual));
-    ATH_CHECK( m_muonTriggerSFTool2015.setProperty("Isolation", m_muIso_WP));
+    //ATH_CHECK( m_muonTriggerSFTool2015.setProperty("Isolation", m_muIso_WP)); This property has been depreacted long time ago
     ATH_CHECK( m_muonTriggerSFTool2015.setProperty("Year", "2015"));
     ATH_CHECK( m_muonTriggerSFTool2015.setProperty("AllowZeroSF", true));
     ATH_CHECK( m_muonTriggerSFTool2015.retrieve());
@@ -557,7 +557,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     toolName = "MuonTriggerScaleFactors2016_" + muQual;
     m_muonTriggerSFTool2016.setTypeAndName("CP::MuonTriggerScaleFactors/"+toolName);
     ATH_CHECK( m_muonTriggerSFTool2016.setProperty("MuonQuality", muQual));
-    ATH_CHECK( m_muonTriggerSFTool2016.setProperty("Isolation", m_muIso_WP));
+    //ATH_CHECK( m_muonTriggerSFTool2016.setProperty("Isolation", m_muIso_WP)); This property has been depreacted long time ago
     //      ATH_CHECK( m_muonTriggerSFTool2016.setProperty("Year", "2016")); // not needed, 2016 is the default
     ATH_CHECK( m_muonTriggerSFTool2016.setProperty("AllowZeroSF", true));
     ATH_CHECK( m_muonTriggerSFTool2016.retrieve());
