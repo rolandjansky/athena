@@ -87,12 +87,12 @@ int main( int argc, char* argv[] ) {
   // Check if we want to process Electron or Photon
    bool isElectron = true;   
    if( argc < 4 ) {
-     Info (APP_NAME, "By default lookign to Electron" );
+     Info (APP_NAME, "By default looking to Electron" );
    } else {  
     int  argv1 = atoi(argv[ 3 ]);
     if(argv1 == 0)   isElectron = false; 
-    if(isElectron)  Info( APP_NAME, "We are lookign to Electron-ID: %i", isElectron );
-    else  Info( APP_NAME, "We are lookign to Photon-ID" );
+    if(isElectron)  Info( APP_NAME, "We are looking to Electron-ID: %i", isElectron );
+    else  Info( APP_NAME, "We are looking to Photon-ID" );
    }
    // Create a TEvent object (persistent store)
 
