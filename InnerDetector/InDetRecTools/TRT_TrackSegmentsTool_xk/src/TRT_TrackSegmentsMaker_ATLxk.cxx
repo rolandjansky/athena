@@ -34,7 +34,7 @@ InDet::TRT_TrackSegmentsMaker_ATLxk::TRT_TrackSegmentsMaker_ATLxk
     m_propTool     ("Trk::RungeKuttaPropagator"                  ),
     m_extensionTool("InDet::TRT_TrackExtensionTool_xk"           ),
     m_assoTool     ("InDet::InDetPRD_AssociationToolGangedPixels"),
-    m_trtname("TRT_DriftCircles"),
+    //m_trtname("TRT_DriftCircles"),
     m_trtcontainer("TRT_DriftCircles")
 {
   m_fieldmode   =      "MapSolenoid" ;
@@ -59,7 +59,7 @@ InDet::TRT_TrackSegmentsMaker_ATLxk::TRT_TrackSegmentsMaker_ATLxk
   declareProperty("TrackExtensionTool"     ,m_extensionTool);
   declareProperty("MagneticFieldMode"      ,m_fieldmode    );
   declareProperty("TrtManagerLocation"     ,m_ntrtmanager  );
-  declareProperty("TRT_ClustersContainer"  ,m_trtname      ); 
+  //declareProperty("TRT_ClustersContainer"  ,m_trtname      ); 
   declareProperty("NumberAzimuthalChannel" ,m_nPhi         ); 
   declareProperty("NumberMomentumChannel"  ,m_nMom         ); 
   declareProperty("MinNumberDriftCircles"  ,m_clustersCut  );
@@ -67,7 +67,7 @@ InDet::TRT_TrackSegmentsMaker_ATLxk::TRT_TrackSegmentsMaker_ATLxk
   declareProperty("RemoveNoiseDriftCircles",m_removeNoise  );
   declareProperty("pTmin"                  ,m_pTmin        );
   declareProperty("sharedFrac"             ,m_sharedfrac   );
-  declareProperty("DriftCircleCollection"  ,m_trtcontainer );
+  declareProperty("TRT_ClustersContainer"  ,m_trtcontainer );
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -472,7 +472,7 @@ MsgStream& InDet::TRT_TrackSegmentsMaker_ATLxk::dumpConditions( MsgStream& out )
   int n  = 62-fieldmode[mode].size();
   std::string s3; for(int i=0; i<n; ++i) s3.append(" "); s3.append("|");
 
-  n     = 62-m_trtname.size();
+  n     = 62-m_trtcontainer.name().size();
   std::string s4; for(int i=0; i<n; ++i) s4.append(" "); s4.append("|");
 
   n     = 62-m_propTool.type().size();
@@ -492,7 +492,7 @@ MsgStream& InDet::TRT_TrackSegmentsMaker_ATLxk::dumpConditions( MsgStream& out )
   out<<"| Tool tracks extension   | "<<m_extensionTool.type()<<s7<<std::endl;    
   out<<"| Tool track-prd associa  | "<<m_assoTool     .type()<<s8<<std::endl;
   out<<"| Magnetic field mode     | "<<fieldmode[mode]       <<s3<<std::endl;
-  out<<"| TRT container           | "<<m_trtname             <<s4<<std::endl;
+  out<<"| TRT container           | "<<m_trtcontainer.name().size()             <<s4<<std::endl;
   out<<"| Min. number straws      | "
      <<std::setw(12)<<m_clustersCut
      <<"                                                  |"<<std::endl;
