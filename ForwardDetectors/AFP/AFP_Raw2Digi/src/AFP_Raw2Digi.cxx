@@ -10,12 +10,6 @@
 #include "xAODForward/AFPSiHitContainer.h"
 #include "xAODForward/AFPSiHitAuxContainer.h"
 
-#include "TBranch.h"
-
-//////////////////////////
-//// constructor
-//////////////////////////
-
 AFP_Raw2Digi::AFP_Raw2Digi(const std::string &name, ISvcLocator *pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
     m_DigiTool( "AFP_Raw2DigiTool")
@@ -23,15 +17,7 @@ AFP_Raw2Digi::AFP_Raw2Digi(const std::string &name, ISvcLocator *pSvcLocator)
   declareProperty("DigiTool", m_DigiTool , "Tool to translate RawData to xAOD");
 }
 
-//////////////////////////
-//// destructor
-//////////////////////////
-
 AFP_Raw2Digi::~AFP_Raw2Digi() {}
-
-//////////////////////////
-//// initialize
-//////////////////////////
 
 StatusCode AFP_Raw2Digi::initialize() {
   ATH_MSG_INFO("Initializing " << name() << "...");
@@ -41,25 +27,17 @@ StatusCode AFP_Raw2Digi::initialize() {
   return StatusCode::SUCCESS;
 }
 
-//////////////////////////
-//// finalize
-//////////////////////////
-
 StatusCode AFP_Raw2Digi::finalize() {
   ATH_MSG_INFO("Finalizing " << name() << "...");
 
   return StatusCode::SUCCESS;
 }
 
-//////////////////////////
-//// execute
-//////////////////////////
-
 StatusCode AFP_Raw2Digi::execute() {
 
   ATH_MSG_DEBUG("Executing " << name() << "...");
 
-  CHECK (m_DigiTool->recoSiHits() );
+  CHECK (m_DigiTool->recoAll() );
 
   return StatusCode::SUCCESS;
 }
