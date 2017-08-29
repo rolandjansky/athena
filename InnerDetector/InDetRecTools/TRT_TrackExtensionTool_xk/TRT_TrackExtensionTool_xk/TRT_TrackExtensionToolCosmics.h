@@ -107,7 +107,7 @@ namespace InDet {
       std::string                      m_trtname        ; // Name container with TRT clusters
 
       SG::ReadHandle<TRT_DriftCircleContainer> m_trtcontainer;
-      //const TRT_DriftCircleContainer*  m_trtcontainer   ; //        
+
       std::vector<const Trk::MeasurementBase*>  m_measurement  ;
 
       AtlasDetectorID*                       m_idHelper; //<! Detector ID helper

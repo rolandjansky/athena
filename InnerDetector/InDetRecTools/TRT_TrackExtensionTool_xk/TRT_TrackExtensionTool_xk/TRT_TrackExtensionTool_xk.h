@@ -115,7 +115,6 @@ namespace InDet{
 
       Trk::MagneticFieldProperties     m_fieldprop      ; // Magnetic field properties
       SG::ReadHandle<TRT_DriftCircleContainer> m_trtcontainer;
-      //const TRT_DriftCircleContainer*  m_trtcontainer   ; //        
       TRT_Trajectory_xk                         m_trajectory   ;
       std::vector<const Trk::MeasurementBase*>  m_measurement  ;
 
