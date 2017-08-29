@@ -52,6 +52,9 @@ class ArtHeader(object):
             if line_match:
                 key = line_match.group(1)
                 value = line_match.group(2)
+                if self.type[key] == StringType:
+                    value = value.strip()
+
                 if self.is_list(key):
                     self.value[key].append(value)
                 else:
