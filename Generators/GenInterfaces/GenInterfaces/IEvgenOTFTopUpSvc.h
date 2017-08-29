@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef EVGENPRODTOOLS_IEVGENOTFTOPUPSVC_H
-#define EVGENPRODTOOLS_IEVGENOTFTOPUPSVC_H
+#ifndef GENINTERFACES_IEVGENOTFTOPUPSVC_H
+#define GENINTERFACES_IEVGENOTFTOPUPSVC_H
 
 #include "GaudiKernel/IInterface.h"
 #include <string>

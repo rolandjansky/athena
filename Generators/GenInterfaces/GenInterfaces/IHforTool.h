@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef IHFORTOOL_H
-#define IHFORTOOL_H
+#ifndef GENINTERFACES_IHFORTOOL_H
+#define GENINTERFACES_IHFORTOOL_H
 
 #include "GaudiKernel/IAlgTool.h"
 #include <vector>

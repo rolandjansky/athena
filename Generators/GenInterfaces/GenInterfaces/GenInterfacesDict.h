@@ -15,6 +15,8 @@
 #include "GenInterfaces/IHforTool.h"
 #include "GenInterfaces/IPDFReweightTool.h"
 #include "GenInterfaces/ITruthSelector.h"
+#include "GenInterfaces/IxAODtoHepMCTool.h"
+#include "GenInterfaces/IHiggsTruthCategoryTool.h"
 
 #include "HepMC/SimpleVector.h"
 #include <vector>
