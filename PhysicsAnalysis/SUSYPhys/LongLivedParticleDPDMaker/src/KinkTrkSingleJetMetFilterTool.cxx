@@ -153,8 +153,8 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
   
   if(nJetRequired < m_jetNumCut) return acceptEvent;
 
-  if(met->met()/sqrt(valHt) < m_metHtCut) return acceptEvent;
-
+  if((met->met()/1000.0)/sqrt(valHt/1000.0) < m_metHtCut) return acceptEvent;
+  
   // dPhi > 1.0 cut
   float minDphi = 9999;
   for (unsigned int i=0; i<goodJets.size(); i++) {
