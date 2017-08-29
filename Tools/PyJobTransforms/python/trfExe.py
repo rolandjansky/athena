@@ -1871,11 +1871,9 @@ class tagMergeExecutor(scriptExecutor):
 ## @brief Archive transform - use tar
 class archiveExecutor(scriptExecutor):
 
-    def __init__(self, name = 'Archiver', exe = 'zip'):
-        super(archiveExecutor, self).__init__(name=name, exe=exe, memMonitor=False)
-
     def preExecute(self, input = set(), output = set()):
         self.setPreExeStart()
+        self._memMonitor = False
 
         if 'exe' in self.conf.argdict:
             self._exe = self.conf.argdict['exe']

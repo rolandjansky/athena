@@ -46,9 +46,9 @@ def addMyArgs(parser):
     # Use arggroup to get these arguments in their own sub-section (of --help)
     parser.defineArgGroup('Archive_tf', 'Archive transform options')
     parser.defineArgGroup('Tar archiver', 'Options')
-    # Do not add a default value to --exe, this is handled through the archiveExecutor
     parser.add_argument('--exe', group='Archive_tf',
-                        help='Archiving command. Default is zip', choices=['zip', 'tar'])
+                        help='Archiving command. Default is zip', choices=['zip', 'tar'],
+                        default='zip')
     parser.add_argument('--inputDataFile', '--inputFile', nargs='+', 
                         type=trfArgClasses.argFactory(trfArgClasses.argFile, io='input', type='misc'),
                         help='Input file(s)', group='Archive_tf')
