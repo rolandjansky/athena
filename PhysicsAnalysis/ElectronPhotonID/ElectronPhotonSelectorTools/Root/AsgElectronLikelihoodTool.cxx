@@ -296,27 +296,30 @@ StatusCode AsgElectronLikelihoodTool::finalize()
 //=============================================================================
 const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg, double mu ) const
 {
-  if ( !eg )
-    {
-      ATH_MSG_ERROR ("Failed, no egamma object.");
-      return m_acceptDummy;
-    }
+  if ( !eg ){
+    ATH_MSG_ERROR ("Failed, no egamma object.");
+    return m_acceptDummy;
+  }
+
+  if( eg->author() == xAOD::EgammaParameters::AuthorFwdElectron ){
+    ATH_MSG_WARNING("Failed, this is a forward electron! The AsgElectronLikelihoodTool is only suitable for central electrons!");
+    return m_acceptDummy;
+  }
   
   const xAOD::CaloCluster* cluster = eg->caloCluster();
-  if ( !cluster )
-    {
-      ATH_MSG_ERROR("exiting because cluster is NULL " << cluster);
-      return m_acceptDummy;
-    }  
+  if ( !cluster ){
+    ATH_MSG_ERROR("exiting because cluster is NULL " << cluster);
+    return m_acceptDummy;
+  }  
+
+  if( !cluster->hasSampling(CaloSampling::CaloSample::EMB2) && !cluster->hasSampling(CaloSampling::CaloSample::EME2) ){
+    ATH_MSG_ERROR("Failed, cluster is missing samplings EMB2 and EME2");
+    return m_acceptDummy;
+  }
 
   const double energy =  cluster->e();
   const float eta = (cluster->etaBE(2)); 
-  if ( fabs(eta) > 2.5 )
-    {
-      ATH_MSG_INFO("Failed, cluster->etaBE(2) range." << eta );
-      return m_acceptDummy;
-    }
-  
+
   // transverse energy of the electron (using the track eta) 
   //  const double et = eg->pt(); 
   double et = 0.;
@@ -382,16 +385,19 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg
   // for now don't cache. 
   double likelihood = calculate(eg, ip); 
 
-  ATH_MSG_VERBOSE ( Form("PassVars: LH=%8.5f, eta=%8.5f, et=%8.5f, nSiHitsPlusDeadSensors=%i, nHitsPlusPixDeadSensors=%i, passBLayerRequirement=%i, convBit=%i, ambiguityBit=%i, d0=%8.5f, deltaEta=%8.5f, deltaphires=%5.8f, wstot=%8.5f, EoverP=%8.5f, ip=%8.5f",
-                         likelihood, eta, et,
-                         nSiHitsPlusDeadSensors, nPixHitsPlusDeadSensors, 
-                         passBLayerRequirement,
-                         convBit, ambiguityBit, d0, deltaEta, deltaPhiRescaled2, 
-                         wstot, EoverP, ip ) );
+  std::string printVarStr = Form("PassVars: LH=%8.5f, eta=%8.5f, et=%8.5f, nSiHitsPlusDeadSensors=%i, nHitsPlusPixDeadSensors=%i, passBLayerRequirement=%i, convBit=%i, ambiguityBit=%i, d0=%8.5f, deltaEta=%8.5f, deltaphires=%5.8f, wstot=%8.5f, EoverP=%8.5f, ip=%8.5f",
+      likelihood, eta, et,
+      nSiHitsPlusDeadSensors, nPixHitsPlusDeadSensors,
+      passBLayerRequirement,
+      convBit, ambiguityBit, d0, deltaEta, deltaPhiRescaled2,
+      wstot, EoverP, ip );
 
 
   if (!allFound) {
-    ATH_MSG_WARNING("Have some variables missing.");
+    ATH_MSG_WARNING("Have some variables missing. " << printVarStr);
+  }
+  else{
+    ATH_MSG_VERBOSE(printVarStr);
   }
 
   // Get the answer from the underlying ROOT tool
@@ -417,32 +423,35 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg
 //=============================================================================
 const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Egamma* eg, double mu) const
 {
+  if ( !eg ){
+    ATH_MSG_ERROR ("Failed, no egamma object.");
+    return m_acceptDummy;
+  }
+
   // Call the main accept if this is not a calo-only LH
-  if( !m_caloOnly )
-    {
-      const xAOD::Electron* el = dynamic_cast<const xAOD::Electron*>(eg);
-      return accept(el, mu); 
-    }
-  if ( !eg )
-    {
-      ATH_MSG_ERROR ("Failed, no egamma object.");
-      return m_acceptDummy;
-    }
+  if( !m_caloOnly ){
+    const xAOD::Electron* el = dynamic_cast<const xAOD::Electron*>(eg);
+    return accept(el, mu); 
+  }
+
+  if( eg->author() == xAOD::EgammaParameters::AuthorFwdElectron ){
+    ATH_MSG_WARNING("Failed, this is a forward electron! The AsgElectronLikelihoodTool is only suitable for central electrons!");
+    return m_acceptDummy;
+  }
   
   const xAOD::CaloCluster* cluster = eg->caloCluster();
-  if ( !cluster )
-    {
-      ATH_MSG_ERROR ("Failed, no cluster.");
-      return m_acceptDummy;
-    }  
+  if ( !cluster ){
+    ATH_MSG_ERROR ("Failed, no cluster.");
+    return m_acceptDummy;
+  }  
+
+  if( !cluster->hasSampling(CaloSampling::CaloSample::EMB2) && !cluster->hasSampling(CaloSampling::CaloSample::EME2) ){
+    ATH_MSG_ERROR("Failed, cluster is missing samplings EMB2 and EME2");
+    return m_acceptDummy;
+  }
   
   const double energy =  cluster->e();
   const float eta = (cluster->etaBE(2)); 
-  if ( fabs(eta) > 300.0 )
-    {
-      ATH_MSG_ERROR ("Failed, eta range.");
-      return m_acceptDummy;
-    }
   
   const double et  = ( cosh(eta) != 0.) ? energy/cosh(eta) : 0.;
   
@@ -468,12 +477,6 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Egamma* eg, 
   // for now don't cache. 
   double likelihood = calculate(eg, ip); 
 
-  ATH_MSG_VERBOSE ( Form("PassVars: LH=%8.5f, eta=%8.5f, et=%8.5f, nSiHitsPlusDeadSensors=%i, nPixHitsPlusDeadSensors=%i, passBLayerRequirement=%i, convBit=%i, ambiguityBit=%i, ip=%8.5f",
-                         likelihood, eta, et,
-                         nSiHitsPlusDeadSensors, nPixHitsPlusDeadSensors, 
-                         passBLayerRequirement,
-                         convBit, ambiguityBit, ip ) );
-
   double deltaEta=0,deltaPhiRescaled2=0,d0=0;
   float wstot=0, EoverP=0;
 
@@ -482,8 +485,17 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Egamma* eg, 
   // Wstot for use when CutWstotAtHighET vector is filled
   allFound = allFound && eg->showerShapeValue(wstot, xAOD::EgammaParameters::wtots1);
 
+  std::string printVarStr = Form("PassVars: LH=%8.5f, eta=%8.5f, et=%8.5f, nSiHitsPlusDeadSensors=%i, nPixHitsPlusDeadSensors=%i, passBLayerRequirement=%i, convBit=%i, ambiguityBit=%i, ip=%8.5f, wstot=%8.5f",
+      likelihood, eta, et,
+      nSiHitsPlusDeadSensors, nPixHitsPlusDeadSensors, 
+      passBLayerRequirement,
+      convBit, ambiguityBit, ip, wstot ) ;
+
   if (!allFound) {
-    ATH_MSG_WARNING("Have some variables missing.");
+    ATH_MSG_WARNING("Have some variables missing. " << printVarStr);
+  }
+  else{
+    ATH_MSG_VERBOSE(printVarStr);
   }
 
   // Get the answer from the underlying ROOT tool
@@ -513,26 +525,29 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Egamma* eg, 
 //=============================================================================
 const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron* eg, double mu ) const
 {
-  if ( !eg )
-    {
-      ATH_MSG_ERROR ("Failed, no egamma object.");
-      return m_resultDummy;
-    }
+  if ( !eg ){
+    ATH_MSG_ERROR ("Failed, no egamma object.");
+    return m_resultDummy;
+  }
+
+  if( eg->author() == xAOD::EgammaParameters::AuthorFwdElectron ){
+    ATH_MSG_WARNING("Failed, this is a forward electron! The AsgElectronLikelihoodTool is only suitable for central electrons!");
+    return m_resultDummy;
+  }
   
   const xAOD::CaloCluster* cluster = eg->caloCluster();
-  if ( !cluster )
-    {
-      ATH_MSG_ERROR ("Failed, no cluster.");
-      return m_resultDummy;
-    }  
+  if ( !cluster ){
+    ATH_MSG_ERROR ("Failed, no cluster.");
+    return m_resultDummy;
+  }  
+
+  if( !cluster->hasSampling(CaloSampling::CaloSample::EMB2) && !cluster->hasSampling(CaloSampling::CaloSample::EME2) ){
+    ATH_MSG_ERROR("Failed, cluster is missing samplings EMB2 and EME2");
+    return m_resultDummy;
+  }
 
   const double energy =  cluster->e();
   const float eta = cluster->etaBE(2); 
-  if ( fabs(eta) > 300.0 )
-    {
-      ATH_MSG_ERROR ("Failed, eta range.");
-      return m_resultDummy;
-    }
   
   //double et = cluster->e()/cosh(eta); 
   // transverse energy of the electron (using the track eta) 
@@ -635,18 +650,21 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron*
     ip = mu;
   }
 
-  ATH_MSG_VERBOSE ( Form("Vars: eta=5%8.5f, et=%8.5f, f3=%8.5f, rHad==%8.5f, rHad1=%8.5f, Reta=%8.5f, w2=%8.5f, f1=%8.5f, Emaxs1=%8.5f, deltaEta=%8.5f, d0=%8.5f, d0sigma=%8.5f, Rphi=%8.5f, ws3=%8.5f, dpOverp=%8.5f, deltaPhiRescaled2=%8.5f, TRT_PID=%8.5f, trans_TRT_PID=%8.5f, ip=%8.5f",
-                         eta, et, f3, Rhad, Rhad1, Reta,
-                         w2, f1, Eratio,
-                         deltaEta, d0,
-                         d0sigma, 
-                         Rphi, ws3, dpOverp, deltaPhiRescaled2,
-                         TRT_PID, trans_TRT_PID,
-                         ip ) );
+  std::string printVarStr = Form("Vars: eta=5%8.5f, et=%8.5f, f3=%8.5f, rHad==%8.5f, rHad1=%8.5f, Reta=%8.5f, w2=%8.5f, f1=%8.5f, Emaxs1=%8.5f, deltaEta=%8.5f, d0=%8.5f, d0sigma=%8.5f, Rphi=%8.5f, ws3=%8.5f, dpOverp=%8.5f, deltaPhiRescaled2=%8.5f, TRT_PID=%8.5f, trans_TRT_PID=%8.5f, ip=%8.5f",
+      eta, et, f3, Rhad, Rhad1, Reta,
+      w2, f1, Eratio,
+      deltaEta, d0,
+      d0sigma, 
+      Rphi, ws3, dpOverp, deltaPhiRescaled2,
+      TRT_PID, trans_TRT_PID,
+      ip );
 
 
   if (!allFound) {
-    ATH_MSG_WARNING("Have some variables missing.");
+    ATH_MSG_WARNING("Have some variables missing. " << printVarStr);
+  }
+  else{
+    ATH_MSG_VERBOSE(printVarStr);
   }
 
   // Get the answer from the underlying ROOT tool
@@ -675,31 +693,34 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron*
 //=============================================================================
 const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Egamma* eg, double mu ) const
 {
-  if( !m_caloOnly )
-    {
-      const xAOD::Electron* el = dynamic_cast<const xAOD::Electron*>(eg);
-      return calculate(el, mu);
-    }
-  if ( !eg )
-    {
-      ATH_MSG_ERROR ("Failed, no egamma object.");
-      return m_resultDummy;
-    }
+  if ( !eg ){
+    ATH_MSG_ERROR ("Failed, no egamma object.");
+    return m_resultDummy;
+  }
+
+  if( !m_caloOnly ){
+    const xAOD::Electron* el = dynamic_cast<const xAOD::Electron*>(eg);
+    return calculate(el, mu);
+  }
+
+  if( eg->author() == xAOD::EgammaParameters::AuthorFwdElectron ){
+    ATH_MSG_WARNING("Failed, this is a forward electron! The AsgElectronLikelihoodTool is only suitable for central electrons!");
+    return m_resultDummy;
+  }
   
   const xAOD::CaloCluster* cluster = eg->caloCluster();
-  if ( !cluster )
-    {
-      ATH_MSG_ERROR ("Failed, no cluster.");
-      return m_resultDummy;
-    }  
+  if ( !cluster ){
+    ATH_MSG_ERROR ("Failed, no cluster.");
+    return m_resultDummy;
+  }  
+
+  if( !cluster->hasSampling(CaloSampling::CaloSample::EMB2) && !cluster->hasSampling(CaloSampling::CaloSample::EME2) ){
+    ATH_MSG_ERROR("Failed, cluster is missing samplings EMB2 and EME2");
+    return m_resultDummy;
+  }
   
   const double energy =  cluster->e();
   const float eta = cluster->etaBE(2); 
-  if ( fabs(eta) > 300.0 )
-    {
-      ATH_MSG_ERROR ("Failed, eta range.");
-      return m_resultDummy;
-    }
   
   const double et  = ( cosh(eta) != 0.) ? energy/cosh(eta) : 0.;
 
@@ -746,18 +767,22 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Egamma* e
   else {
     ip = mu;
   }
-  ATH_MSG_VERBOSE ( Form("Vars: eta=%8.5f, et=%8.5f, f3=%8.5f, rHad==%8.5f, rHad1=%8.5f, Reta=%8.5f, w2=%8.5f, f1=%8.5f, Emaxs1=%8.5f, deltaEta=%8.5f, d0=%8.5f, d0sigma=%8.5f, Rphi=%8.5f, ws3=%8.5f, dpOverp=%8.5f, deltaPhiRescaled2=%8.5f, TRT_PID=%8.5f, ip=%8.5f",
+
+  std::string printVarStr = Form("Vars: eta=%8.5f, et=%8.5f, f3=%8.5f, rHad==%8.5f, rHad1=%8.5f, Reta=%8.5f, w2=%8.5f, f1=%8.5f, Emaxs1=%8.5f, deltaEta=%8.5f, d0=%8.5f, d0sigma=%8.5f, Rphi=%8.5f, ws3=%8.5f, dpOverp=%8.5f, deltaPhiRescaled2=%8.5f, TRT_PID=%8.5f, ip=%8.5f",
                          eta, et, f3, Rhad, Rhad1, Reta,
                          w2, f1, Eratio,
                          deltaEta, d0,
                          d0sigma, 
                          Rphi, ws3, dpOverp, deltaPhiRescaled2,
 			 TRT_PID,
-                         ip ) );
+                         ip );
 
 
   if (!allFound) {
-    ATH_MSG_WARNING("Have some variables missing.");
+    ATH_MSG_WARNING("Have some variables missing. " << printVarStr);
+  }
+  else{
+    ATH_MSG_VERBOSE(printVarStr);
   }
 
   // Get the answer from the underlying ROOT tool
