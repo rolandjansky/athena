@@ -42,27 +42,35 @@ namespace CP {
     // ==================================================================================
     MuonTriggerScaleFactors::MuonTriggerScaleFactors(const std::string& name) :
                 asg::AsgTool(name),
-                m_appliedSystematics(0),
-                m_dataPeriod(""),
-                m_classname(name.c_str()),
-                m_allowZeroSF(false) {
-        declareProperty("MuonQuality", m_muonquality = "Medium"); // HighPt,Tight,Medium,Loose
-//        declareProperty("Isolation", m_isolation = ""); // "", "IsoGradient", "IsoLoose", "IsoTight"
-        declareProperty("CalibrationRelease", m_calibration_version = "170128_Moriond"); // 160624_ICHEP
 
-        declareProperty("Year", m_year_str = "2016"); // 2015 or 2016
-        //Property nowhere used anymore ?!?! Why keep it inside
-//        declareProperty("MC", m_mc = "mc15c"); // mc15a or mc15c
+                m_systFilter(),
 
+                m_appliedSystematics(nullptr),
+                m_fileName(),
+                m_efficiencyMap(),
+                m_efficiencyMapReplicaArray(),
+
+                m_muonquality("Medium"),
+
+                m_calibration_version("170128_Moriond"),
+                m_custom_dir(),
+                m_binning("fine"),
+                m_allowZeroSF(false),
+                m_replicaTriggerList(),
+                m_replicaSet(),
+                m_nReplicas(100),
+                m_ReplicaRandomSeed(12345) {
+        declareProperty("MuonQuality", m_muonquality); // HighPt,Tight,Medium,Loose
+        declareProperty("CalibrationRelease", m_calibration_version);
         // these are for debugging / testing, *not* for general use!
-        declareProperty("filename", m_fileName = "");
-        declareProperty("CustomInputFolder", m_custom_dir = "");
-        declareProperty("Binning", m_binning = "fine"); // fine or coarse
+        declareProperty("filename", m_fileName);
+        declareProperty("CustomInputFolder", m_custom_dir);
+        declareProperty("Binning", m_binning); // fine or coarse
 
         //Properties needed for TOY setup for a given trigger: No replicas if m_replicaTriggerList is empty
-        declareProperty("ReplicaTriggerList", m_replicaTriggerList = std::vector<std::string>(), "List of triggers on which we want to generate stat. uncertainty toy replicas.");
-        declareProperty("NReplicas", m_nReplicas = 100, "Number of generated toy replicas, if replicas are required.");
-        declareProperty("ReplicaRandomSeed", m_ReplicaRandomSeed = 1234, "Random seed for toy replica generation.");
+        declareProperty("ReplicaTriggerList", m_replicaTriggerList, "List of triggers on which we want to generate stat. uncertainty toy replicas.");
+        declareProperty("NReplicas", m_nReplicas, "Number of generated toy replicas, if replicas are required.");
+        declareProperty("ReplicaRandomSeed", m_ReplicaRandomSeed, "Random seed for toy replica generation.");
         declareProperty("AllowZeroSF", m_allowZeroSF, "If a trigger is not available will return 0 instead of throwing an error. More difficult to spot configuration issues. Use at own risk");
     }
 
@@ -123,7 +131,7 @@ namespace CP {
             if (not periodKey->IsFolder()) continue;
             TDirectory* periodDirectory = qualityDirectory->GetDirectory(periodKey->GetName());
             std::string periodName = std::string(periodKey->GetName());
-            YearPeriod period = YearPeriod(year, periodName.substr( std::string("Period").size() , periodName.size() ) );
+            YearPeriod period = YearPeriod(year, periodName.substr(std::string("Period").size(), periodName.size()));
             TKey* triggerKey;
             TIter nextTrigger(periodDirectory->GetListOfKeys());
             while ((triggerKey = (TKey*) nextTrigger())) {
@@ -148,7 +156,7 @@ namespace CP {
 
                             EffiHistoIdent HistoId = EffiHistoIdent(period, encodeHistoName(periodName, triggerName, isData, isys, isBarrel));
                             if (m_efficiencyMap.find(HistoId) != m_efficiencyMap.end()) {
-                                ATH_MSG_FATAL("MuonTriggerScaleFactors::initialize(): histogram " << path << " is duplicated for year"<<year<<" in period "<<periodName);
+                                ATH_MSG_FATAL("MuonTriggerScaleFactors::initialize(): histogram " << path << " is duplicated for year" << year << " in period " << periodName);
                                 return StatusCode::FAILURE;
                             }
                             m_efficiencyMap.insert(std::pair<EffiHistoIdent, TH1_Ptr>(HistoId, std::shared_ptr < TH1 > (hist)));
@@ -218,7 +226,7 @@ namespace CP {
     // ==================================================================================
     // == MuonTriggerScaleFactors::setRunNumber
     // ==================================================================================
-    CorrectionCode MuonTriggerScaleFactors::setRunNumber(Int_t ) {
+    CorrectionCode MuonTriggerScaleFactors::setRunNumber(Int_t) {
         ATH_MSG_WARNING("MuonTriggerScaleFactors has now learned how to retrieve the runNumber. The method is deprecated. It will be removed soonish");
         return CorrectionCode::Ok;
     }
@@ -606,7 +614,7 @@ namespace CP {
     // ==================================================================================
     // == MuonTriggerScaleFactors::getTriggerCorrespondingToDimuonTrigger
     // ==================================================================================
-    std::string MuonTriggerScaleFactors::getTriggerCorrespondingToDimuonTrigger(const std::string& trigger) {
+    std::string MuonTriggerScaleFactors::getTriggerCorrespondingToDimuonTrigger(const std::string& trigger) const {
         if (trigger.find("2mu10") != std::string::npos) return "HLT_mu10";
         if (trigger.find("2mu14") != std::string::npos) return "HLT_mu14";
         throw std::runtime_error("Unknown dimuon trigger");

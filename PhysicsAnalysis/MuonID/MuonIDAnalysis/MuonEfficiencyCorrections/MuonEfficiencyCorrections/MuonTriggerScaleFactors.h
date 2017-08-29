@@ -92,14 +92,6 @@ namespace CP {
 
             CP::SystematicCode registerSystematics();
 
-            boost::unordered_map<CP::SystematicSet, CP::SystematicSet> m_systFilter;
-
-            CP::SystematicSet* m_appliedSystematics;
-
-            std::string m_fileName;
-            std::string m_dataPeriod;
-            const char* m_classname;
-
             StatusCode LoadTriggerMap(unsigned int year);
 
             //This function is needed during initialization
@@ -114,12 +106,9 @@ namespace CP {
             typedef std::pair<YearPeriod, unsigned int> EffiHistoIdent;
             typedef std::map<EffiHistoIdent, TH1_Ptr> EfficiencyMap;
 
-            EfficiencyMap m_efficiencyMap;
-            std::map<EffiHistoIdent, std::vector<TH1_Ptr> > m_efficiencyMapReplicaArray;
-
             CorrectionCode getThreshold(Int_t& threshold, const std::string& trigger);
 
-            static std::string getTriggerCorrespondingToDimuonTrigger(const std::string& trigger);
+            std::string getTriggerCorrespondingToDimuonTrigger(const std::string& trigger) const;
 
             //Do not know may be these are useful at some point
             unsigned int getRunNumber() const;
@@ -130,11 +119,18 @@ namespace CP {
 
             TDirectory* getTemporaryDirectory(void) const;
 
+            //Generate replicas of h for Toys with each bin of h varied with Gaussian distribution
+            //with mean from bin content and sigma from bin error
+            std::vector<TH1_Ptr> generateReplicas(TH1_Ptr h, int nrep, int seed) const;
+
+            boost::unordered_map<CP::SystematicSet, CP::SystematicSet> m_systFilter;
+
+            CP::SystematicSet* m_appliedSystematics;
+            std::string m_fileName;
+            EfficiencyMap m_efficiencyMap;
+            std::map<EffiHistoIdent, std::vector<TH1_Ptr> > m_efficiencyMapReplicaArray;
+
             std::string m_muonquality;
-
-
-            std::string m_year_str;
-            std::string m_mc;
 
             // subfolder to load from the calibration db
             std::string m_calibration_version;
@@ -146,11 +142,7 @@ namespace CP {
             std::vector<std::string> m_replicaTriggerList;
             std::set<std::string> m_replicaSet; //set of triggers for replicas, for fast searching
             int m_nReplicas;
-            int m_ReplicaRandomSeed = 1234;
-
-            //Generate replicas of h for Toys with each bin of h varied with Gaussian distribution
-            //with mean from bin content and sigma from bin error
-            std::vector<TH1_Ptr> generateReplicas(TH1_Ptr h, int nrep, int seed)const;
+            int m_ReplicaRandomSeed ;
 
     };
 
