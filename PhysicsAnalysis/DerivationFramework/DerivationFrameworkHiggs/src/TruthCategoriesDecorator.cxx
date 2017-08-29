@@ -11,6 +11,9 @@
 #include "TruthUtils/PIDHelpers.h"
 #include "PathResolver/PathResolver.h"
 
+#include "GenInterfaces/IHiggsTruthCategoryTool.h"
+#include "GenInterfaces/IxAODtoHepMCTool.h"
+
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include <TObjString.h>
