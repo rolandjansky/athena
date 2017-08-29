@@ -6,7 +6,6 @@
   <class name="IPDFReweightTool" />
   <class name="ITruthSelector" />
   <class name="IxAODtoHepMCTool" />
-  <class name="IHiggsTruthCategoryTool" />
 
   <class name="std::vector<HepMC::FourVector>"/>
 </lcgdict>

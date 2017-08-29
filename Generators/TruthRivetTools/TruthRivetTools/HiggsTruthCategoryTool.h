@@ -20,9 +20,12 @@
 #undef UNUSED
 #endif // UNUSED
 
+// Base classes
 #include "AsgTools/AsgTool.h"
 #include "GenInterfaces/IHiggsTruthCategoryTool.h"
 
+// Return type (non-pointer)
+#include "TruthRivetTools/HiggsTemplateCrossSectionsDefs.h"
 
 class HiggsTruthCategoryTool 
 : public asg::AsgTool, 
@@ -37,7 +40,7 @@ class HiggsTruthCategoryTool
    Rivet::HiggsTemplateCrossSections *higgsTemplateCrossSections; //!
    virtual StatusCode  initialize() override;
    StatusCode finalize () override;
-   HTXS::HiggsClassification getHiggsTruthCategoryObject(const HepMC::GenEvent& HepMCEvent, const HTXS::HiggsProdMode prodMode) override;
+   HTXS::HiggsClassification* getHiggsTruthCategoryObject(const HepMC::GenEvent& HepMCEvent, const HTXS::HiggsProdMode prodMode) override;
  private:
    bool m_isInitialized;
    bool m_outHistos;

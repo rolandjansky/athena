@@ -11,7 +11,7 @@
 #include "Rivet/Projections/FastJets.hh"
 
 // Definition of the StatusCode and Category enums
-#include "HiggsTemplateCrossSectionsDefs.h"
+#include "TruthRivetTools/HiggsTemplateCrossSectionsDefs.h"
 
 namespace Rivet {
   

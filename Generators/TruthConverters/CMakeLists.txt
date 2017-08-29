@@ -13,7 +13,8 @@ atlas_depends_on_subdirs(
 	Event/xAOD/xAODTruth
 	Event/xAOD/xAODEventInfo 
 	PRIVATE 
-	GaudiKernel )
+	GaudiKernel
+    GenInterfaces )
 
 # External(s) needed by the package:
 find_package( HepMC )
