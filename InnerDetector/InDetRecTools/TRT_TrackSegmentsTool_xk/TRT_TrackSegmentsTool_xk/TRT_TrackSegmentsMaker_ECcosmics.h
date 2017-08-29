@@ -121,7 +121,7 @@ namespace InDet{
       std::string                              m_ntrtmanager ; //!< Name of TRT det. manager 
       const InDetDD::TRT_DetectorManager*      m_trtmanager  ; //!< TRT DetectorManager
       const TRT_ID*                            m_trtid       ; 
-      //const InDet::TRT_DriftCircleContainer*   m_trtcontainer; //!< TRTs   container
+
       SG::ReadHandle<InDet::TRT_DriftCircleContainer> m_trtcontainer; //!< TRTs   container 
       ToolHandle<Trk::IRIO_OnTrackCreator>     m_riomakerD   ; //!< RI0_onTrack creator with drift information
       ToolHandle<Trk::IRIO_OnTrackCreator>     m_riomakerN   ; //!< RI0_onTrack creator without drift information

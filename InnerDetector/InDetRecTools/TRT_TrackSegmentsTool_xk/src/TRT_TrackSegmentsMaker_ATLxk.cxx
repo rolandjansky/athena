@@ -34,7 +34,6 @@ InDet::TRT_TrackSegmentsMaker_ATLxk::TRT_TrackSegmentsMaker_ATLxk
     m_propTool     ("Trk::RungeKuttaPropagator"                  ),
     m_extensionTool("InDet::TRT_TrackExtensionTool_xk"           ),
     m_assoTool     ("InDet::InDetPRD_AssociationToolGangedPixels"),
-    //m_trtname("TRT_DriftCircles"),
     m_trtcontainer("TRT_DriftCircles")
 {
   m_fieldmode   =      "MapSolenoid" ;
@@ -59,7 +58,6 @@ InDet::TRT_TrackSegmentsMaker_ATLxk::TRT_TrackSegmentsMaker_ATLxk
   declareProperty("TrackExtensionTool"     ,m_extensionTool);
   declareProperty("MagneticFieldMode"      ,m_fieldmode    );
   declareProperty("TrtManagerLocation"     ,m_ntrtmanager  );
-  //declareProperty("TRT_ClustersContainer"  ,m_trtname      ); 
   declareProperty("NumberAzimuthalChannel" ,m_nPhi         ); 
   declareProperty("NumberMomentumChannel"  ,m_nMom         ); 
   declareProperty("MinNumberDriftCircles"  ,m_clustersCut  );
@@ -104,7 +102,7 @@ StatusCode InDet::TRT_TrackSegmentsMaker_ATLxk::initialize()
   // Initialize ReadHandle
   //
   ATH_CHECK(m_trtcontainer.initialize());
-  //ATH_CHECK(m_trtname.initialize());
+  
 
   // Get propagator tool
   //

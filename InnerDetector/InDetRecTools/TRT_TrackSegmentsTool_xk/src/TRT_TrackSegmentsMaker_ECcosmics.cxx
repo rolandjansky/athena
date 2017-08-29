@@ -59,7 +59,7 @@ InDet::TRT_TrackSegmentsMaker_ECcosmics::TRT_TrackSegmentsMaker_ECcosmics
   declareInterface<ITRT_TrackSegmentsMaker>(this);
 
   declareProperty("TrtManagerLocation"   ,m_ntrtmanager);
-  //declareProperty("TRT_ClustersContainer",m_trtname    ); 
+  
   
   declareProperty("RIOonTrackToolYesDr"  ,m_riomakerD  );
   declareProperty("RIOonTrackToolNoDr"   ,m_riomakerN  );
@@ -1756,9 +1756,9 @@ void InDet::TRT_TrackSegmentsMaker_ECcosmics::retrieveHits(void)
   m_goodHits.clear();
 
 
-  //StatusCode s = evtStore()->retrieve(m_trtcontainer,m_trtname);
+
   
-  //if(s.isFailure()) {
+
   if (not m_trtcontainer.isValid()) {
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"Could not get TRT_DriftCircleContainer"<<endmsg;
     return;
@@ -1766,7 +1766,7 @@ void InDet::TRT_TrackSegmentsMaker_ECcosmics::retrieveHits(void)
   
   const InDet::TRT_DriftCircleContainer*   mjo_trtcontainer = m_trtcontainer.get();
   
-  //if(!m_trtcontainer) return;
+ 
   if (!mjo_trtcontainer) return;
 
   // temporary for MC truth !!!
