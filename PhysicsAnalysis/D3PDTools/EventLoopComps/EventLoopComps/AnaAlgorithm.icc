@@ -12,10 +12,13 @@
 // includes
 //
 
-#include <AsgTools/PropertyMgr.h>
 #include <AsgTools/StatusCode.h>
-#include <AsgTools/TProperty.h>
 #include <utility>
+
+#ifdef ROOTCORE
+#include <AsgTools/PropertyMgr.h>
+#include <AsgTools/TProperty.h>
+#endif
 
 //
 // method implementations
@@ -23,6 +26,7 @@
 
 namespace EL
 {
+#ifdef ROOTCORE
   template<typename T> Property *AnaAlgorithm ::
   declareProperty (const std::string& name, T& loc,
                    const std::string& /*doc*/)
@@ -37,4 +41,5 @@ namespace EL
   {
     return m_properties->setProperty (name, std::forward<T>(value));
   }
+#endif
 }

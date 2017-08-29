@@ -14,9 +14,12 @@
 namespace EL
 {
   class AnaAlgorithm;
+
+#ifdef ROOTCORE
   class AnaAlgorithmConfig;
   class IFilterWorker;
   class IHistogramWorker;
+#endif
 }
 
 #endif

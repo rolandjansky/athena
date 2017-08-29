@@ -17,6 +17,10 @@
 class TH1;
 class TObject;
 
+#ifndef ROOTCORE
+#error only include this header in AnalysisBase
+#endif
+
 namespace EL
 {
   /// \brief the interface to histogram storage on the worker
