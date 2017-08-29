@@ -4,8 +4,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TAUANALYSISTOOLS_ITAUSMEARINGTOOL_H
-#define TAUANALYSISTOOLS_ITAUSMEARINGTOOL_H
+#ifndef TAUANALYSISTOOLS_IBUILDTRUTHTAUS_H
+#define TAUANALYSISTOOLS_IBUILDTRUTHTAUS_H
 
 /*
   author: Dirk Duschinger
@@ -21,31 +21,33 @@
 #include "AsgTools/IAsgTool.h"
 
 // EDM include(s):
-#include "xAODTau/TauJet.h"
-#include "PATInterfaces/CorrectionCode.h"
-#include "PATInterfaces/ISystematicsTool.h"
+#include "xAODTruth/TruthParticleContainer.h"
+#include "xAODTruth/TruthParticleAuxContainer.h"
 
 namespace TauAnalysisTools
 {
 
-class ITauSmearingTool
-  : public virtual asg::IAsgTool
-  , public virtual CP::ISystematicsTool
+class IBuildTruthTaus :
+  public virtual asg::IAsgTool
 {
 
   /// Declare the interface that the class provides
-  ASG_TOOL_INTERFACE( TauAnalysisTools::ITauSmearingTool )
+  ASG_TOOL_INTERFACE( TauAnalysisTools::IBuildTruthTaus )
 
 public:
+  // initialize the tool
+  virtual StatusCode initialize() = 0;
 
-  /// Apply the correction on a modifyable object
-  virtual CP::CorrectionCode applyCorrection( xAOD::TauJet& xTau ) = 0;
-  /// Create a corrected copy from a constant tau
-  virtual CP::CorrectionCode correctedCopy( const xAOD::TauJet& input,
-      xAOD::TauJet*& output ) = 0;
+  // get TruthTauContainer
+  virtual xAOD::TruthParticleContainer* getTruthTauContainer() = 0;
 
-}; // class ITauSmearingTool
+  // get TruthTauAuxContainer
+  virtual xAOD::TruthParticleAuxContainer* getTruthTauAuxContainer() = 0;
+
+  virtual StatusCode retrieveTruthTaus() = 0;
+
+}; // class IBuildTruthTaus
 
 } // namespace TauAnalysisTools
 
-#endif // TAUANALYSISTOOLS_ITAUSMEARINGTOOL_H
+#endif // TAUANALYSISTOOLS_IBUILDTRUTHTAUS_H

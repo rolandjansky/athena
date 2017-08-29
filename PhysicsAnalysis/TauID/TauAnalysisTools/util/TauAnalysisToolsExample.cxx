@@ -120,7 +120,7 @@ int main( int argc, char* argv[] )
   const xAOD::TauJetContainer* xTauJetContainer = 0;
 
   CP::PileupReweightingTool* m_tPRWTool = new CP::PileupReweightingTool("PileupReweightingTool");
-  std::vector<std::string> vLumiCalcFiles = {"ilumicalc_histograms_HLT_tau160_medium1_tracktwo_297730-311481_OflLumi-13TeV-005.root"};
+  std::vector<std::string> vLumiCalcFiles = {"/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/ilumicalc_histograms_HLT_e24_lhvloose_nod0_L1EM20VH_297730-304494_OflLumi-13TeV-005.root"};
   CHECK(m_tPRWTool->setProperty("LumiCalcFiles", vLumiCalcFiles));
   // CHECK(m_tPRWTool->setProperty("DefaultChannel", "" ));
   CHECK(m_tPRWTool->initialize());
@@ -133,12 +133,14 @@ int main( int argc, char* argv[] )
   TauSelTool->msg().setLevel( MSG::DEBUG );
   // preparation for control hisograms
   TauSelTool->setOutFile( fOutputFile.get() );
-  CHECK(TauSelTool->setProperty("CreateControlPlots", true ));
+  // CHECK(TauSelTool->setProperty("CreateControlPlots", true ));
   CHECK(TauSelTool->setProperty("MuonOLR", true ));
+  CHECK(TauSelTool->setProperty("JetIDWP", int(JETIDBDTMEDIUM) ));
   CHECK(TauSelTool->setProperty("PtMin", 20. ));
-  CHECK(TauSelTool->setProperty("EleBDTWP", int(ELEIDBDTLOOSE) ));
+  // CHECK(TauSelTool->setProperty("EleBDTWP", int(ELEIDBDTLOOSE) ));
   CHECK(TauSelTool->setProperty("ConfigPath", "" ));
-  CHECK(TauSelTool->setProperty("SelectionCuts", int(CutPt|CutMuonOLR|CutEleOLR|CutEleBDTWP) ));
+  // CHECK(TauSelTool->setProperty("SelectionCuts", int(CutPt|CutMuonOLR|CutEleOLR|CutEleBDTWP|CutJetIDWP) ));
+  CHECK(TauSelTool->setProperty("SelectionCuts", int(CutPt|CutMuonOLR|CutJetIDWP) ));
   CHECK(TauSelTool->setProperty("IgnoreAODFixCheck", true));
   CHECK(TauSelTool->setProperty("RecalcEleOLR", false));
   CHECK(TauSelTool->initialize());
@@ -195,6 +197,7 @@ int main( int argc, char* argv[] )
   CHECK(TauEffTrigTool.setProperty("TriggerName", "HLT_tau25_medium1_tracktwo" ));
   CHECK(TauEffTrigTool.setProperty("IDLevel", (int)JETIDBDTTIGHT ));
   CHECK(TauEffTrigTool.setProperty("PileupReweightingTool", m_tPRWToolHandle ));
+  CHECK(TauEffTrigTool.setProperty("TriggerSFMeasurement", "combined"));
   CHECK(TauEffTrigTool.initialize());
 
   // restructure all recommended systematic variations for efficiency tools
@@ -248,8 +251,9 @@ int main( int argc, char* argv[] )
     RETRIEVE(xAOD::TauJetContainer, xTauJetContainer, "TauJets");
     std::pair< xAOD::TauJetContainer*, xAOD::ShallowAuxContainer* >xTauShallowContainer = xAOD::shallowCopyContainer(*xTauJetContainer);
 
-    // copy truth particles to get truthparticle link for truth taus to work
-    CHECK( xEvent.copy("TruthParticles") );
+    // // copy truth particles to get truthparticle link for truth taus to work
+    if (xEvent.contains<xAOD::TruthParticleContainer>("TruthParticles"))
+      CHECK( xEvent.copy("TruthParticles") );
 
     // copy taus
     CHECK( xEvent.copy("TauJets") );
@@ -265,6 +269,7 @@ int main( int argc, char* argv[] )
 
       // perform truth matching
       auto xTruthTau = T2MT.getTruth(*xTau);
+      // if (xTau->pt() < 25*1000) continue;
 
       if ((bool)xTau->auxdata<char>("IsTruthMatched"))
       {
