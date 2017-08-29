@@ -425,8 +425,6 @@ class egammaMVACalib : public asg::AsgMessaging
     // the tree or chain
     TTree *m_tree, *m_input_tree;
 
-    // use internal TTree
-    bool m_useInternalTree;
 
     // Pattern of xml file names
     TPRegexp *m_fileNamePattern;
