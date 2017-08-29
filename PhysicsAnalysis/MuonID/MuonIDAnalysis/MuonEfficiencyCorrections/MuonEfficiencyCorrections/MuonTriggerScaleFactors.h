@@ -24,6 +24,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <memory>
 
 // ROOT classes we need
 #include "TTree.h"
@@ -58,14 +59,9 @@ namespace CP {
             virtual CorrectionCode setRunNumber(Int_t runNumber);
 
             // for single lepton triggers
-            virtual CorrectionCode getTriggerScaleFactor(const xAOD::MuonContainer& mucont,
-                            Double_t& triggersf,
-                            const std::string& trigger);
+            virtual CorrectionCode getTriggerScaleFactor(const xAOD::MuonContainer& mucont, Double_t& triggersf, const std::string& trigger);
 
-            virtual CorrectionCode getTriggerEfficiency(const xAOD::Muon& mu,
-                            Double_t& efficiency,
-                            const std::string& trigger,
-                            Bool_t dataType);
+            virtual CorrectionCode getTriggerEfficiency(const xAOD::Muon& mu, Double_t& efficiency, const std::string& trigger, Bool_t dataType);
 
             virtual bool isAffectedBySystematic(const CP::SystematicVariation& systematic) const;
 
@@ -75,33 +71,19 @@ namespace CP {
 
             virtual CP::SystematicCode applySystematicVariation(const CP::SystematicSet& systConfig);
 
-            virtual double dR(const double eta1, const double phi1, const double eta2, const double phi2);
+            virtual double dR(const double eta1, const double phi1, const double eta2, const double phi2) const;
 
             //
             virtual int getReplica_index(std::string sysBaseName, const std::string trigStr);
-            private:
+        private:
 
-            virtual CorrectionCode getMuonEfficiency(Double_t& eff,
-                            const TrigMuonEff::Configuration& configuration,
-                            const xAOD::Muon& muon,
-                            const std::string& trigger,
-                            const std::string& systematic);
+            virtual CorrectionCode getMuonEfficiency(Double_t& eff, const TrigMuonEff::Configuration& configuration, const xAOD::Muon& muon, const std::string& trigger, const std::string& systematic);
 
-            virtual CorrectionCode GetTriggerSF_dimu(Double_t& TriggerSF,
-                            TrigMuonEff::Configuration& configuration,
-                            const xAOD::MuonContainer& mucont,
-                            const std::string& trigger);
+            virtual CorrectionCode GetTriggerSF_dimu(Double_t& TriggerSF, TrigMuonEff::Configuration& configuration, const xAOD::MuonContainer& mucont, const std::string& trigger);
 
-            virtual CorrectionCode GetTriggerSF(Double_t& TriggerSF,
-                            TrigMuonEff::Configuration& configuration,
-                            const xAOD::MuonContainer& mucont,
-                            const std::string& trigger);
+            virtual CorrectionCode GetTriggerSF(Double_t& TriggerSF, TrigMuonEff::Configuration& configuration, const xAOD::MuonContainer& mucont, const std::string& trigger);
 
-            virtual CorrectionCode getDimuonEfficiency(Double_t& eff,
-                            const TrigMuonEff::Configuration& configuration,
-                            const xAOD::MuonContainer& mucont,
-                            const std::string& chain,
-                            const std::string& systematic);
+            virtual CorrectionCode getDimuonEfficiency(Double_t& eff, const TrigMuonEff::Configuration& configuration, const xAOD::MuonContainer& mucont, const std::string& chain, const std::string& systematic);
 
             const CP::SystematicSet& appliedSystematics() const {
                 return *m_appliedSystematics;
@@ -117,30 +99,48 @@ namespace CP {
             std::string m_dataPeriod;
             const char* m_classname;
 
-            typedef std::map<std::string, TH2*> EfficiencyMap;
-            EfficiencyMap m_efficiencyMap;
-            typedef std::pair<std::string, TH2*> EfficiencyPair;
-            mutable std::map<int, std::string> m_fileNameMap;
+            StatusCode LoadTriggerMap(unsigned int year);
 
-            std::map<std::string, std::vector<TH2*> > m_efficiencyMapReplicaArray;
+            //This function is needed during initialization
+            unsigned int encodeHistoName(const std::string &period, const std::string& Trigger, bool isData, const std::string& Systematic, bool isBarrel = true) const;
+            //This function  is the equivalent during run time
+            unsigned int encodeHistoName(const std::string& Trigger, const TrigMuonEff::Configuration& configuration, const std::string& Systematic, bool isBarrel = true) const;
+
+            std::shared_ptr<TH1> getEfficiencyHistogram(unsigned int year, const std::string& period, const std::string& trigger, bool isData, const std::string& Systematic, bool isBarrel = true) const;
+            std::shared_ptr<TH1> getEfficiencyHistogram(const std::string& trigger, bool isData, const std::string& Systematic, bool isBarrel = true) const;
+
+            std::pair<unsigned int, std::string> YearPeriod;
+            std::pair<YearPeriod, unsigned int> EffiHistoIdent;
+            typedef std::shared_ptr<TH1> TH1_Ptr;
+            typedef std::map<EffiHistoIdent, TH1_Ptr> EfficiencyMap;
+
+            EfficiencyMap m_efficiencyMap;
+            std::map<EffiHistoIdent, std::vector<TH1_Ptr> > m_efficiencyMapReplicaArray;
 
             CorrectionCode getThreshold(Int_t& threshold, const std::string& trigger);
 
             static std::string getTriggerCorrespondingToDimuonTrigger(const std::string& trigger);
 
-            static std::string getDataPeriod(int runNumber, const std::string& year);
+            //Do not know may be these are useful at some point
+            unsigned int getRunNumber() const;
+            unsigned int getYear(unsigned int run) const;
+            std::string getDataPeriod() const;
+            std::string getDataPeriod(unsigned int run) const;
+            std::string getDataPeriod(unsigned int runNumber, unsigned int year) const;
 
             TDirectory* getTemporaryDirectory(void) const;
 
             std::string m_muonquality;
 
-            std::string m_year;
+            unsigned int m_year;
+
+            std::string m_year_str;
             std::string m_mc;
 
             // subfolder to load from the calibration db
             std::string m_calibration_version;
             std::string m_custom_dir;
-            std::string m_isolation;
+//            std::string m_isolation;
             std::string m_binning;
 
             bool m_allowZeroSF;
@@ -152,7 +152,7 @@ namespace CP {
 
             //Generate replicas of h for Toys with each bin of h varied with Gaussian distribution
             //with mean from bin content and sigma from bin error
-            std::vector<TH2*> generateReplicas(TH2* h, int nrep, int seed);
+            std::vector<TH1_Ptr> generateReplicas(TH1_Ptr h, int nrep, int seed)const;
 
     };
 
