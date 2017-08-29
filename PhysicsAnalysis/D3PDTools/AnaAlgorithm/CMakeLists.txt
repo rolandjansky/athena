@@ -3,8 +3,6 @@ atlas_subdir( AnaAlgorithm )
 
 # Find the needed external(s):
 find_package( ROOT COMPONENTS Core RIO Hist Tree TreePlayer Proof ProofPlayer )
-find_package( GTest )
-find_package( GMock )
 
 # The package's dependencies:
 atlas_depends_on_subdirs(
@@ -36,14 +34,3 @@ atlas_add_library( AnaAlgorithmLib
    PUBLIC_HEADERS AnaAlgorithm
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} RootCoreUtils AsgTools xAODRootAccess )
-
-if (XAOD_STANDALONE)
-  file( GLOB _tests RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/test/gt_[a-z]*.cxx" )
-  foreach( source ${_tests} )
-    string (REGEX REPLACE "test/(.*).cxx" "\\1" test ${source})
-    atlas_add_test( ${test}
-      SOURCES test/${test}.cxx
-      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} ${GTEST_LIBRARIES} AnaAlgorithmLib EventLoopTestLib )
-  endforeach()
-endif (XAOD_STANDALONE)
