@@ -211,12 +211,12 @@ void top::fakes::GetTrigMatchVariable(const xAOD::Electron& el, int& trigmatch, 
       }
     }
     else {
-      std::cerr<<"Nothing is well-defined for runNumber "<<runNumber<<" - exiting..." << std::endl;
+      std::cerr<<"Nothing is well-defined for runNumber "<<runNumber<<" - exiting..."<<std::cerr;
       exit(1);
     }
   }
   else {
-    std::cerr<<"Unknown release series - exiting..."<< std::endl;;
+    std::cerr<<"Unknown release series - exiting..."<<std::cerr;
     exit(1);
   }
 
@@ -297,12 +297,12 @@ void top::fakes::GetTrigMatchVariable(const xAOD::Muon& mu, int& trigmatch, cons
       }
     }
     else {
-      std::cerr<<"Nothing is well-defined for runNumber "<<runNumber<<" - exiting..."<<std::endl;
+      std::cerr<<"Nothing is well-defined for runNumber "<<runNumber<<" - exiting..."<<std::cerr;
       exit(1);
     }
   }
   else {
-    std::cerr<<"Unknown release series - exiting..."<<std::endl;
+    std::cerr<<"Unknown release series - exiting..."<<std::cerr;
     exit(1);
   }
 

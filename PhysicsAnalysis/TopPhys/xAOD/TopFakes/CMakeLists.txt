@@ -27,5 +27,5 @@ atlas_add_library( TopFakes Root/*.cxx Root/*.h Root/*.icc
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} )
 
 # Install data files from the package:
-atlas_install_data( DIRECTORY data )
+atlas_install_data( data/* )
 
