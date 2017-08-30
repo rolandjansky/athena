@@ -25,6 +25,11 @@
 #include "GenInterfaces/IHiggsTruthCategoryTool.h"
 
 // Return type (non-pointer)
+// Note: the Template XSec Defs *depends* on having included
+//  the TLorentzVector header *before* it is included -- it 
+//  uses the include guard from TLorentzVector to decide 
+//  what is available
+#include "TLorentzVector.h"
 #include "TruthRivetTools/HiggsTemplateCrossSectionsDefs.h"
 
 class HiggsTruthCategoryTool 
