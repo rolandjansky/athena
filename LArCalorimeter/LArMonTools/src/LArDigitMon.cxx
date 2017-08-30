@@ -124,9 +124,9 @@ LArDigitMon::~LArDigitMon()
 }
 
 StatusCode 
-LArDigitMon::finalize()
+LArDigitMon::finalHists()
 {
-  ATH_MSG_INFO("Finalize LArDigitMon" );
+  ATH_MSG_INFO( "finalHists LArDigitMon" );
   DeleteHist(m_BarrelA);
   DeleteHist(m_BarrelC);
   DeleteHist(m_EmecA);
@@ -145,7 +145,7 @@ StatusCode
 LArDigitMon::initialize()
 {
   
-  ATH_MSG_INFO("Initialize LArDigitMon" );
+  ATH_MSG_INFO( "Initialize LArDigitMon" );
   
   StatusCode sc;
   
