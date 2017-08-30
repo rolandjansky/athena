@@ -59,6 +59,7 @@ JetMETCPTools::JetMETCPTools(const std::string& name) :
   declareProperty( "JetCalibrationToolLargeR" , m_jetCalibrationToolLargeR );
 
   declareProperty( "JetUncertaintiesTool" , m_jetUncertaintiesTool);
+  declareProperty( "JetUncertaintiesToolFrozenJMS" , m_jetUncertaintiesToolFrozenJMS);
   declareProperty( "JetUncertaintiesToolReducedNPScenario1" , m_jetUncertaintiesToolReducedNPScenario1 );
   declareProperty( "JetUncertaintiesToolReducedNPScenario2" , m_jetUncertaintiesToolReducedNPScenario2 );
   declareProperty( "JetUncertaintiesToolReducedNPScenario3" , m_jetUncertaintiesToolReducedNPScenario3 );
@@ -243,6 +244,10 @@ StatusCode JetMETCPTools::setupJetsCalibration() {
   else if (m_config->jetUncertainties_NPModel() == "CategoryReduction")
     m_config->jetUncertainties_NPModel("29NP_ByCategory");
 
+  std::string JMS_Uncertainty="";
+  if ( m_config->jetCalibSequence() == "JMS" )
+   JMS_Uncertainty = "_JMSExtrap";
+
   // Are we doing multiple JES for the reduced NP senarios?
   if (!m_config->doMultipleJES()) {
     m_jetUncertaintiesTool
@@ -252,7 +257,22 @@ StatusCode JetMETCPTools::setupJetsCalibration() {
                                   + conference
                                   +"/JES2016_"
                                   + m_config->jetUncertainties_NPModel()
+                                  + JMS_Uncertainty
                                   + ".config",nullptr,m_config->jetUncertainties_QGFracFile());
+
+    // Implement additional tool for frozen config when using JMS
+    if (JMS_Uncertainty == "_JMSExtrap"){
+      JMS_Uncertainty == "_JMSFrozen";
+      m_jetUncertaintiesToolFrozenJMS = setupJetUncertaintiesTool("JetUncertaintiesToolFrozenJMS",
+								  jetCalibrationName, MC_type,
+								  "JES_2016/"
+								  + conference
+								  +"/JES2016_"
+								  + m_config->jetUncertainties_NPModel()
+								  + JMS_Uncertainty
+								  + ".config",nullptr,m_config->jetUncertainties_QGFracFile());
+    }
+
   } else {
     m_jetUncertaintiesToolReducedNPScenario1
       = setupJetUncertaintiesTool("JetUncertaintiesToolReducedNPScenario1",
