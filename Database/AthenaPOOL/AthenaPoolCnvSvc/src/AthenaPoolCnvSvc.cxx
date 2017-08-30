@@ -324,6 +324,10 @@ StatusCode AthenaPoolCnvSvc::connectOutput(const std::string& outputConnectionSp
    if (!m_outputStreamingTool.empty() && m_outputStreamingTool[0]->isClient()) {
       return(StatusCode::SUCCESS);
    }
+   if (!m_outputStreamingTool.empty() && m_streamServer == m_outputStreamingTool.size()) {
+      ATH_MSG_DEBUG("connectOutput SKIPPED for expired server.");
+      return(StatusCode::SUCCESS);
+   }
    try {
       if (!m_poolSvc->connect(pool::ITransaction::UPDATE).isSuccess()) {
          ATH_MSG_ERROR("connectOutput FAILED to open an UPDATE transaction.");
@@ -368,8 +372,13 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
       }
       return(StatusCode::SUCCESS);
    }
+   if (!m_outputStreamingTool.empty() && m_streamServer == m_outputStreamingTool.size()) {
+      ATH_MSG_DEBUG("commitOutput SKIPPED for expired server.");
+      return(StatusCode::SUCCESS);
+   }
    std::map<void*, RootType> commitCache;
-   if (!m_outputStreamingTool.empty() && m_outputStreamingTool[m_streamServer]->isServer()) {
+   if (!m_outputStreamingTool.empty() && m_streamServer < m_outputStreamingTool.size()
+		   && m_outputStreamingTool[m_streamServer]->isServer()) {
       // Clear object to get Placements for all objects in a Stream
       char* placementStr = nullptr;
       int num = -1;
@@ -548,6 +557,13 @@ StatusCode AthenaPoolCnvSvc::disconnectOutput() {
    if (!m_outputStreamingTool.empty() && m_outputStreamingTool[0]->isClient()) {
       return(StatusCode::SUCCESS);
    }
+   if (!m_outputStreamingTool.empty() && m_streamServer == m_outputStreamingTool.size()) {
+      ATH_MSG_DEBUG("disconnectOutput SKIPPED for expired server.");
+      return(StatusCode::SUCCESS);
+   }
+   if (!m_outputStreamingTool.empty()) {
+      m_streamServer = m_outputStreamingTool.size();
+   }
    // Setting default 'TREE_MAX_SIZE' for ROOT to 1024 GB to avoid file chains.
    std::vector<std::string> maxFileSize;
    maxFileSize.push_back("TREE_MAX_SIZE");
@@ -704,6 +720,12 @@ const Token* AthenaPoolCnvSvc::registerForWrite(const Placement* placement,
       tempToken->fromString(tokenStr); tokenStr = nullptr;
       token = tempToken; tempToken = nullptr;
    } else {
+      if (!m_outputStreamingTool.empty() && m_streamServer == m_outputStreamingTool.size()) {
+         ATH_MSG_DEBUG("registerForWrite SKIPPED for expired server.");
+         Token* tempToken = new Token();
+         tempToken->setClassID(pool::DbReflex::guid(classDesc));
+         return(tempToken);
+      }
       token = m_poolSvc->registerForWrite(placement, obj, classDesc);
    }
    if (m_doChronoStat) {
