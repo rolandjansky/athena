@@ -136,7 +136,7 @@ void top::fakes::GetTrigMatchVariable(const xAOD::Electron& el, int& trigmatch, 
   if (rel_temp) {
     release_series = std::string(rel_temp);
   } else {
-    std::cerr<<"Can not access ROOTCORE_RELEASE_SERIES - exiting..."<<std::endl;
+    std::cerr << "Can not access ROOTCORE_RELEASE_SERIES - exiting..." << std::endl;
     exit(1);
   }
   
@@ -211,12 +211,12 @@ void top::fakes::GetTrigMatchVariable(const xAOD::Electron& el, int& trigmatch, 
       }
     }
     else {
-      std::cerr<<"Nothing is well-defined for runNumber "<<runNumber<<" - exiting..."<<std::cerr;
+      std::cerr<<"Nothing is well-defined for runNumber "<<runNumber<<" - exiting..." << std::endl;
       exit(1);
     }
   }
   else {
-    std::cerr<<"Unknown release series - exiting..."<<std::cerr;
+    std::cerr<<"Unknown release series - exiting..."<<std::endl;
     exit(1);
   }
 
@@ -297,12 +297,12 @@ void top::fakes::GetTrigMatchVariable(const xAOD::Muon& mu, int& trigmatch, cons
       }
     }
     else {
-      std::cerr<<"Nothing is well-defined for runNumber "<<runNumber<<" - exiting..."<<std::cerr;
+      std::cerr<<"Nothing is well-defined for runNumber "<<runNumber<<" - exiting..."<<std::endl;
       exit(1);
     }
   }
   else {
-    std::cerr<<"Unknown release series - exiting..."<<std::cerr;
+    std::cerr<<"Unknown release series - exiting..."<<std::endl;
     exit(1);
   }
 

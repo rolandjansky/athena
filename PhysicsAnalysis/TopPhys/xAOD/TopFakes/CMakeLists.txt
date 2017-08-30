@@ -21,7 +21,7 @@ atlas_add_library( TopFakes Root/*.cxx Root/*.h Root/*.icc
                    TopFakes/*.h TopFakes/*.icc TopFakes/*/*.h
                    TopFakes/*/*.icc ${_cintDictSource} 
                    PUBLIC_HEADERS TopFakes
-                   LINK_LIBRARIES TopEvent
+                   LINK_LIBRARIES TopEvent	  
                                   TopConfiguration
                                   ${ROOT_LIBRARIES}
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} )
