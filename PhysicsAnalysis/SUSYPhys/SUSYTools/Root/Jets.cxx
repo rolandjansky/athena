@@ -86,40 +86,32 @@ namespace ST {
     ATH_CHECK( evtStore()->retrieve(muons, "Muons") );
     met::addGhostMuonsToJets(*muons, *copy);
 
-    //central jets 
-    if(!m_doFwdJVT){
-      for (const auto& jet : *copy) {
-        ATH_CHECK( this->FillJet(*jet, true) );
-        this->IsBadJet(*jet);
-        this->IsSignalJet(*jet, m_jetPt, m_jetEta);
-        if (!isData())this->IsTruthBJet(*jet);
-      }
+    // Update the jets
+    for (const auto& jet : *copy) {
+      ATH_CHECK( this->FillJet(*jet, true) );
     }
-    else{
-      //central+fwd (for jvt)
-      for (const auto& jet : *copy) {
-        ATH_CHECK( this->FillJet(*jet, true) );
-      }
+    // Tool requires a loop over all jets
+    if (m_doFwdJVT){
       m_jetFwdJvtTool->modify(*copy); //compute FwdJVT for all jets
-      for (const auto& jet : *copy) {
-        if( fabs((*jet).eta()) > m_fwdjetEtaMin ){
-          dec_passJvt(*jet) = acc_passFJvt(*jet); 
-
-          //new state for OR   .  0=non-baseline objects, 1=for baseline jets not passing JVT, 2=for any other baseline object 
-          if ( acc_baseline(*jet) ){
-            if( acc_passJvt(*jet) )     dec_selected(*jet) = 2;
-            else                        dec_selected(*jet) = 1;
-          }
-          else{  
-            dec_selected(*jet) = 0;    
-          }
-        }
-        this->IsBadJet(*jet);
-        this->IsSignalJet(*jet, m_jetPt, m_jetEta);
-        if (!isData())this->IsTruthBJet(*jet);
-      }
     }
+    for (const auto& jet : *copy) {
+      // Update the JVT decorations if needed
+      if( m_doFwdJVT && fabs((*jet).eta()) > m_fwdjetEtaMin ){
+        dec_passJvt(*jet) = acc_passFJvt(*jet) && acc_passJvt(*jet);
 
+        //new state for OR   .  0=non-baseline objects, 1=for baseline jets not passing JVT, 2=for any other baseline object 
+        if ( acc_baseline(*jet) ){
+          if( acc_passJvt(*jet) )     dec_selected(*jet) = 2;
+          else                        dec_selected(*jet) = 1;
+        }
+        else{
+          dec_selected(*jet) = 0;
+        }
+      }
+      this->IsBadJet(*jet);
+      this->IsSignalJet(*jet, m_jetPt, m_jetEta);
+      if (!isData())this->IsTruthBJet(*jet);
+    }
     if (recordSG) {
       ATH_CHECK( evtStore()->record(copy, "STCalib" + jetkey_tmp + m_currentSyst.name()) );
       ATH_CHECK( evtStore()->record(copyaux, "STCalib" + jetkey_tmp + m_currentSyst.name() + "Aux.") );
@@ -211,8 +203,28 @@ namespace ST {
     ATH_CHECK( evtStore()->retrieve(muons, "Muons") );
     met::addGhostMuonsToJets(*muons, *copy);
 
+    // Update the jets
     for (const auto& jet : *copy) {
       ATH_CHECK( this->FillJet(*jet, false) );
+    }
+    // Tool requires a loop over all jets
+    if (m_doFwdJVT){
+      m_jetFwdJvtTool->modify(*copy); //compute FwdJVT for all jets
+    }
+    for (const auto& jet : *copy) {
+      // Update the JVT decorations if needed
+      if( m_doFwdJVT && fabs((*jet).eta()) > m_fwdjetEtaMin ){
+        dec_passJvt(*jet) = acc_passFJvt(*jet) && acc_passJvt(*jet);
+
+        //new state for OR   .  0=non-baseline objects, 1=for baseline jets not passing JVT, 2=for any other baseline object 
+        if ( acc_baseline(*jet) ){
+          if( acc_passJvt(*jet) )     dec_selected(*jet) = 2;
+          else                        dec_selected(*jet) = 1;
+        }
+        else{
+          dec_selected(*jet) = 0;
+        }
+      }
       this->IsBadJet(*jet);
       this->IsSignalJet(*jet, m_jetPt, m_jetEta);
       if (!isData())this->IsTruthBJet(*jet);
@@ -277,7 +289,6 @@ namespace ST {
 
     dec_passOR(input) = true;
     dec_bjet_jetunc(input) = false;
-    dec_passJvt(input) = !m_applyJVTCut || m_jetJvtEfficiencyTool->passesJvtCut(input);
 
     if (m_useBtagging) {
       if (m_BtagWP != "Continuous") this->IsBJet(input);
@@ -304,13 +315,13 @@ namespace ST {
 
     if ( m_jerSmearingTool->applyCorrection(input) != CP::CorrectionCode::Ok) ATH_MSG_ERROR("Failed to apply JER smearing ");
 
+    dec_passJvt(input) = !m_applyJVTCut || m_jetJvtEfficiencyTool->passesJvtCut(input);
     dec_baseline(input) = input.pt() > 20e3;
     dec_bad(input) = false;
     dec_signal_less_JVT(input) = false;
     dec_signal(input) = false;
     dec_bjet_loose(input) = false;
     dec_effscalefact(input) = 1.;
-
 
     //new state for OR   .  0=non-baseline objects, 1=for baseline jets not passing JVT, 2=for any other baseline object 
     if (acc_baseline(input) ){
