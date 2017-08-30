@@ -21,9 +21,6 @@
 #include <FCS_Cell.h>
 
 #include <iostream>
-// Fixed size dimensions of array or collections stored in the TTree if any.
-// const int CaloHitAna::MAX_LAYER =25; //number of calorimeter layers/samplings, use last (MAX_LAYER-1) for invalid cells/hits 
-
 
 class CaloHitAna {
 public :
@@ -113,14 +110,9 @@ public :
 
    std::vector<FCS_truth>* truthcollection = new std::vector<FCS_truth>;
 
-
    Float_t total_cell_e = 0;
    Float_t total_hit_e = 0;
    Float_t total_g4hit_e = 0;
-
-   // Float_t* p_total_cell_e = &total_cell_e;
-   // Float_t* p_total_hit_e = &total_hit_e;
-   // Float_t* p_total_g4hit_e = &total_g4hit_e;
 
    std::vector<Float_t>* cell_energy = new std::vector<Float_t>(MAX_LAYER+1); 
    std::vector<Float_t>* hit_energy = new std::vector<Float_t>(MAX_LAYER+1);
@@ -134,9 +126,6 @@ public :
    std::vector<int>* new_truthPDG = new std::vector<int>;
    std::vector<int>* new_truthVtxBarcode = new std::vector<int>;
    
-   //If this won't work, we will have to change it... (memory??)
-   // std::vector<FCS_matchedcellvector*> m_all_cells; //hm, make it a vector of (vector of FCS_matchedcell) and have it for all 1000 events at once in memory??
-
    // List of branches
    TBranch        *b_HitX;   //!
    TBranch        *b_HitY;   //!
@@ -209,7 +198,6 @@ public :
    virtual void     Init(TTree *tree);
    virtual void     InitOutTree();
    virtual void     Loop();
-   virtual void     Finish(std::vector<Int_t> settings, TString outputname="output_cells.root");
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
    
@@ -236,7 +224,6 @@ CaloHitAna::CaloHitAna(TString filename, TString outputname, std::vector<Int_t> 
      dir->GetObject("CaloHitAna",tree);
 
    }
-   //tree->Print();
    Init(tree);
    m_Settings = settings;
    m_Debug = debug;
@@ -247,7 +234,6 @@ CaloHitAna::CaloHitAna(TString filename, TString outputname, std::vector<Int_t> 
    m_Output = new TFile(m_OutputName, "RECREATE");
    m_OutputTree = new TTree("FCS_ParametrizationInput","Output_Matched_cell_Tree");
    InitOutTree();
-   //std::cout <<"Input: "<<fFilename<<" output: "<<m_OutputName<<" debug: "<<m_Debug<<" TC: "<<m_TimingCut<<std::endl;
 }
 
 CaloHitAna::~CaloHitAna()
