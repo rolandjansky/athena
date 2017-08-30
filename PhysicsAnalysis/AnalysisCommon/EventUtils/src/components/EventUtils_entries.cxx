@@ -11,7 +11,9 @@
 #include "../ParticleCombinerTool.h"
 #include "../ParticleCombinerAlg.h"
 #include "../EventQualityFilterAlg.h"
-//#include "../SkimDecisionRunPeriodAwareFilterAlg.h"
+#include "../ParticleRemoverAlg.h"
+#include "../TriggerSelectionAlg.h"
+#include "../EventDecisionAlg.h"
 
 DECLARE_TOOL_FACTORY( ParticleSortingTool )
 DECLARE_ALGORITHM_FACTORY( ParticleSortingAlg )
@@ -24,20 +26,6 @@ DECLARE_ALGORITHM_FACTORY( ParticleSelectionAlg )
 DECLARE_TOOL_FACTORY( ParticleCombinerTool )
 DECLARE_ALGORITHM_FACTORY( ParticleCombinerAlg )
 DECLARE_ALGORITHM_FACTORY( EventQualityFilterAlg )
-//DECLARE_ALGORITHM_FACTORY( SkimDecisionRunPeriodAwareFilterAlg )
-
-DECLARE_FACTORY_ENTRIES( EventUtils )
-{
-  DECLARE_TOOL( ParticleSortingTool );
-  DECLARE_ALGORITHM( ParticleSortingAlg );
-  DECLARE_TOOL( AddVarTool );
-  DECLARE_ALGORITHM( AddVarAlg );
-  DECLARE_TOOL( CutTool );
-  DECLARE_ALGORITHM( CutAlg );
-  DECLARE_TOOL( ParticleSelectionTool );
-  DECLARE_ALGORITHM( ParticleSelectionAlg );
-  DECLARE_TOOL( ParticleCombinerTool );
-  DECLARE_ALGORITHM( ParticleCombinerAlg );
-  DECLARE_ALGORITHM( EventQualityFilterAlg );
-  //DECLARE_ALGORITHM( SkimDecisionRunPeriodAwareFilterAlg );
-}
+DECLARE_ALGORITHM_FACTORY( ParticleRemoverAlg )
+DECLARE_ALGORITHM_FACTORY( TriggerSelectionAlg )
+DECLARE_ALGORITHM_FACTORY( EventDecisionAlg )
