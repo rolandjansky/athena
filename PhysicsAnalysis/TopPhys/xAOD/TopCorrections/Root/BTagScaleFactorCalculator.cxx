@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: BTagScaleFactorCalculator.cxx 807496 2017-06-28 14:52:29Z iconnell $
+// $Id: BTagScaleFactorCalculator.cxx 809570 2017-08-18 13:15:17Z iconnell $
 #include "TopCorrections/BTagScaleFactorCalculator.h"
 #include "TopCorrections/TopCorrectionsTools.h"
 #include "TopConfiguration/TopConfig.h"
@@ -48,7 +48,10 @@ namespace top{
       m_release_series = 23;
     } else if (release_series == "24") {
       m_release_series = 24;
-      ATH_MSG_INFO("Setting release series to 2.4");
+      ATH_MSG_INFO("Setting release series to 2.4");      
+    } else if (release_series == "25") {
+      m_release_series = 25;
+      ATH_MSG_INFO("Setting release series to 2.6");     
     } else {
       ATH_MSG_WARNING("Unknown release series, assuming 2.4");
     }

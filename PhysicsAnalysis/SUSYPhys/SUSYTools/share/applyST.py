@@ -85,9 +85,13 @@ auxList = ["PrimaryVerticesAux.", "AntiKt4EMTopoJetsAux.", "ElectronsAux.",
     "MuonSpectrometerTrackParticlesAux.", "MET_TrackAux.", "TauJetsAux.",
     "PhotonsAux.", "GSFConversionVerticesAux."]
 
+# Get the configuration manager
+from AthenaCommon import CfgMgr
+
 # Get a handle to the main athsequencer, for adding things to later!
 AST99Job = CfgMgr.AthSequencer("AthAlgSeq")
 
+# Add a tool for thinning derivations
 AST99Job += CfgMgr.xAODMaker__AuxStoreWrapper("AST99AuxStoreWrapperAlg", 
                                               SGKeys = auxList,
                                               OutputLevel = INFO)
@@ -194,7 +198,7 @@ applyST = CfgMgr.ST__ApplySUSYTools(
                              DoTST = True,
                             IsData = isData,
                           MaxCount = 10,
-                       SUSYObjTool = ToolSvc.AST99ObjDef,
+                         SUSYTools = ToolSvc.AST99ObjDef,
               TauTruthMatchingTool = AST99tauTruthTool,
                     #BuildTruthTaus = AST99tauBuildTruthTaus, 
                        ThinningSvc = "AST99ThinningSvc",

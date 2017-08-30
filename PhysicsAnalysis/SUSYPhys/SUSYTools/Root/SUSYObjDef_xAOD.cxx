@@ -5,13 +5,10 @@
 // Local include(s):
 #include "SUSYTools/SUSYObjDef_xAOD.h"
 
-#include "xAODBase/IParticleHelpers.h"
-#include "EventPrimitives/EventPrimitivesHelpers.h"
-#include "xAODPrimitives/IsolationType.h"
-#include "FourMomUtils/xAODP4Helpers.h"
-#include "xAODTracking/TrackParticlexAODHelpers.h"
-#include "AthContainers/ConstDataVector.h"
+// For making the systematics list and looping through it
 #include "PATInterfaces/SystematicsUtil.h"
+#include "PATInterfaces/SystematicRegistry.h"
+
 #ifndef XAOD_STANDALONE // For now metadata is Athena-only
 #include "AthAnalysisBaseComps/AthAnalysisHelper.h"
 #endif
@@ -30,7 +27,6 @@
 #include "JetCPInterfaces/ICPJetUncertaintiesTool.h"
 #include "JetInterface/IJetUpdateJvt.h"
 #include "JetInterface/IJetModifier.h"
-#include "JetInterface/ISingleJetModifier.h"
 #include "JetJvtEfficiency/IJetJvtEfficiency.h"
 
 #include "AsgAnalysisInterfaces/IEfficiencyScaleFactorTool.h"
@@ -72,9 +68,7 @@
 #include "AsgAnalysisInterfaces/IPileupReweightingTool.h"
 #include "AssociationUtils/IOverlapRemovalTool.h"
 
-// Helpers
-#include <boost/algorithm/string/replace.hpp>
-#include <boost/algorithm/string/split.hpp>
+// For configuration -- TEnv uses THashList
 #include "THashList.h"
 
 // system includes
@@ -940,8 +934,8 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_fatJets, "Jet.LargeRcollection", rEnv, "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets");
   configFromFile(m_fatJetUncConfig, "Jet.LargeRuncConfig", rEnv, "UJ2016_CombinedMass_medium.config"); //MultiTagging_medium.config");
   configFromFile(m_fatJetUncVars, "Jet.LargeRuncVars", rEnv, "default"); //do all if not specified
-  configFromFile(m_WtagWP, "Jet.WtaggerWP", rEnv, "medium");
-  configFromFile(m_ZtagWP, "Jet.ZtaggerWP", rEnv, "medium");
+  configFromFile(m_WtagConfig, "Jet.WtaggerConfig", rEnv, "SmoothedWZTaggers/SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency80_MC15c_20161215.dat");
+  configFromFile(m_ZtagConfig, "Jet.ZtaggerConfig", rEnv, "SmoothedWZTaggers/SmoothedContainedZTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency80_MC15c_20161215.dat");
   //
   configFromFile(m_badJetCut, "BadJet.Cut", rEnv, "LooseBad");
   //

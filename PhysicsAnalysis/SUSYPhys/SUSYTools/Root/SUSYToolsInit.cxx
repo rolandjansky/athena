@@ -238,14 +238,12 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
   ///////////////////////////////////////////////////////////////////////////////////////////
   // Initialise Boson taggers     
-  m_WTaggerTool.setTypeAndName("BosonTagTool/WTagger");
-  ATH_CHECK( m_WTaggerTool.setProperty("WorkingPoint",m_WtagWP) );
-  ATH_CHECK( m_WTaggerTool.setProperty("RecommendationsFile",PathResolverFindCalibFile("JetSubStructureUtils/config_13TeV_Wtagging_MC15_Prerecommendations_20150809.dat") ));
+  m_WTaggerTool.setTypeAndName("SmoothedWZTagger/WTagger");
+  ATH_CHECK( m_WTaggerTool.setProperty("ConfigFile",m_WtagConfig) );
   ATH_CHECK( m_WTaggerTool.retrieve() );
 
-  m_ZTaggerTool.setTypeAndName("BosonTagTool/ZTagger");
-  ATH_CHECK( m_ZTaggerTool.setProperty("WorkingPoint",m_ZtagWP) );
-  ATH_CHECK( m_ZTaggerTool.setProperty("RecommendationsFile",PathResolverFindCalibFile("JetSubStructureUtils/config_13TeV_Ztagging_MC15_Prerecommendations_20150809.dat") ));
+  m_ZTaggerTool.setTypeAndName("SmoothedWZTagger/ZTagger");
+  ATH_CHECK( m_ZTaggerTool.setProperty("ConfigFile",m_ZtagConfig) );
   ATH_CHECK( m_ZTaggerTool.retrieve() );
 
   ///////////////////////////////////////////////////////////////////////////////////////////
@@ -941,8 +939,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_MSG_DEBUG( "Initialising EgcalibTool " );
     ATH_CHECK( m_egammaCalibTool.setProperty("ESModel", "es2017_R21_PRE") ); //used for analysis using data processed with 21.0
     ATH_CHECK( m_egammaCalibTool.setProperty("decorrelationModel", "1NP_v1") );
-    if (isAtlfast()) ATH_CHECK( m_egammaCalibTool.setProperty("useAFII", 1) );
-    
+    ATH_CHECK( m_egammaCalibTool.setProperty("useAFII", isAtlfast()?1:0) );    
     ATH_CHECK( m_egammaCalibTool.retrieve() );
   }
 
@@ -967,14 +964,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     m_tauSelTool.setTypeAndName("TauAnalysisTools::TauSelectionTool/"+toolName);
     ATH_CHECK( m_tauSelTool.setProperty("ConfigPath", inputfile) );
 
-    ATH_CHECK( m_tauSelTool.setProperty("IgnoreAODFixCheck", true) );
-    ATH_CHECK( m_tauSelTool.setProperty("RecalcEleOLR", false) );
-    if (m_tauRecalcOLR || !m_tauNoAODFixCheck){
-      ATH_MSG_WARNING("Release 21 requires IgnoreAODFixCheck=true and RecalcEleOLR=false (you set IgnoreAODFixCheck="
-                      << m_tauNoAODFixCheck << " and RecalcEleOLR=" << m_tauRecalcOLR << ")");
-      ATH_MSG_WARNING("Please update your settings");
-    }
-
     ATH_CHECK( m_tauSelTool.retrieve() );
   }
 
@@ -991,16 +980,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     toolName = "TauSelectionToolBaseline_" + m_tauIdBaseline;
     m_tauSelToolBaseline.setTypeAndName("TauAnalysisTools::TauSelectionTool/"+toolName);
     ATH_CHECK( m_tauSelToolBaseline.setProperty("ConfigPath", inputfile) );
-
-    if(m_tauRecalcOLR){
-      ATH_CHECK( m_tauSelToolBaseline.setProperty("RecalcEleOLR", true) );
-    }
-    if(m_tauNoAODFixCheck){
-      ATH_CHECK( m_tauSelToolBaseline.setProperty("IgnoreAODFixCheck", true) );
-    }
-
-    ATH_CHECK( m_tauSelToolBaseline.setProperty("IgnoreAODFixCheck", true) );
-    ATH_CHECK( m_tauSelToolBaseline.setProperty("RecalcEleOLR", false) );
 
     ATH_CHECK( m_tauSelToolBaseline.retrieve() );
   }

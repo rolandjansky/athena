@@ -35,6 +35,6 @@ echo ${RESULT}
 # copy the test results to EOS area
 TARGETDIR=/eos/atlas/atlascerngroupdisk/art-build/${SUBDIR}
 if [[ ! -e ${TARGETDIR} ]]; then
-  eos mkdir -p ${TARGET}
+  eos mkdir -p ${TARGETDIR}
   xrdcp -vr $OUTDIR $TARGETDIR
 fi

@@ -60,6 +60,7 @@
 + Database/PersistentDataModel.*
 + Database/RegistrationServices
 + Database/TPTools
++ Database/AthenaRoot/.*
 
 # DQ package(s):
 + DataQuality/GoodRunsLists
@@ -259,6 +260,7 @@
 + Reconstruction/MET/METUtilities
 + Reconstruction/MuonIdentification/.*Interfaces
 + Reconstruction/MuonIdentification/ICaloTrkMuIdTools
++ Reconstruction/MuonIdentification/CaloTrkMuIdTools
 + Reconstruction/MuonIdentification/MuidEvent
 + Reconstruction/MuonIdentification/muonEvent
 + Reconstruction/MuonIdentification/MuonCombinedBaseTools

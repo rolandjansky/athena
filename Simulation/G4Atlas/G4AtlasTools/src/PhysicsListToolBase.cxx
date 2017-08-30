@@ -57,7 +57,7 @@ StatusCode PhysicsListToolBase::initialize( )
 
 void PhysicsListToolBase::CreatePhysicsList()
 {
-
+  ATH_MSG_DEBUG("PhysicsListToolBase::CreatePhysicsList()");
   if (m_physicsListName != ""){
     G4PhysListFactory factory;
     AtlasPhysListFactory Atlasfactory;
@@ -92,20 +92,22 @@ void PhysicsListToolBase::CreatePhysicsList()
     }
 
   //ConstructProcess();
+  ATH_MSG_DEBUG("end of PhysicsListToolBase::CreatePhysicsList()");
 }
 
 G4VUserPhysicsList* PhysicsListToolBase::GetPhysicsList()
 {
-  if (!m_physicsList)
-    {
-      CreatePhysicsList();
-    }
+  if (!m_physicsList) {
+    this->CreatePhysicsList();
+  }
   return m_physicsList;
 }
 
 void PhysicsListToolBase::SetPhysicsList()
 {
-  CreatePhysicsList();
+  if(!m_physicsList) {
+    this->CreatePhysicsList();
+  }
   G4RunManager::GetRunManager()->SetUserInitialization(m_physicsList);
 }
 

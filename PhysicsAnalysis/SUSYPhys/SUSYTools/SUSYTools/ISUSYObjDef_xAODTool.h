@@ -7,7 +7,7 @@
 #ifndef SUSYTOOLS_SUSYOBJDEF_XAODTOOL_H
 #define SUSYTOOLS_SUSYOBJDEF_XAODTOOL_H
 
-// Framework include(s):
+// Framework include(s) -- base class
 #include "AsgTools/IAsgTool.h"
 
 // EDM include(s):
@@ -28,6 +28,8 @@
 #include "xAODMissingET/MissingETContainer.h"
 #include "xAODTruth/TruthEvent.h"
 #include "xAODTruth/TruthParticleContainer.h"
+
+// Needed for jet functions (take a shallow copy)
 #include "xAODCore/ShallowCopy.h"
 
 // For the SystInfo struct
@@ -38,6 +40,7 @@
 
 // For string search
 #include "TString.h"
+#include "TRegexp.h"
 
 // System includes
 #include <iostream> // For warnings in static functions
@@ -152,8 +155,9 @@ namespace ST {
 
   static inline int getMCShowerType(const std::string& sample_name) {
     /** Get MC generator index for the b-tagging efficiency maps*/
-    //don't change this order! //MT
-    const static std::vector<TString> gen_mc_generator_keys = {"PYTHIAEVTGEN", "HERWIGPPEVTGEN", "PYTHIA8EVTGEN", "SHERPA_CT10", "SHERPA"};
+    // This needs VERY careful syncing with m_showerType in SUSYToolsInit!  Change with care!
+    const static std::vector<TString> gen_mc_generator_keys = {"PYTHIA8EVTGEN"};
+    //This was the 20.7 vector... {"PYTHIAEVTGEN", "HERWIGPPEVTGEN", "PYTHIA8EVTGEN", "SHERPA_CT10", "SHERPA"};
 
     //pre-process sample name
     TString tmp_name(sample_name);
@@ -171,7 +175,14 @@ namespace ST {
       ishower++;
     }
 
-    std::cout << "WARNING: Unknown MC generator detected. Returning default 0=PowhegPythia6(410000) ShowerType for btagging MC/MC maps." << std::endl;
+    // See if they are doing something really unwise, just in case
+    TRegexp is_data("^data1[5-9]_13TeV");
+    if (tmp_name.Contains(is_data)){
+      std::cout << "ST::getMCShowerType WARNING: Asking for the MC shower when running on a data file is not advised.  Just returning 0." << std::endl;
+      return 0;
+    }
+
+    std::cout << "ST::getMCShowerType WARNING: Unknown MC generator detected. Returning default 0=PowhegPythia8(410501) ShowerType for btagging MC/MC maps." << std::endl;
     return 0;
   }
 
@@ -190,6 +201,10 @@ namespace ST {
     virtual StatusCode readConfig() = 0;
 
     virtual int getMCShowerType(const std::string& sample_name) const = 0;
+
+    // For checking the origin of the input
+    virtual bool isData() const = 0;
+    virtual bool isAtlfast() const = 0;
 
     // override the AsgTool setProperty function for booleans
     virtual StatusCode setBoolProperty(const std::string& name, const bool& property) = 0;

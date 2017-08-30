@@ -18,7 +18,6 @@
 #include "JetCPInterfaces/ICPJetUncertaintiesTool.h"
 #include "JetInterface/IJetUpdateJvt.h"
 #include "JetInterface/IJetModifier.h"
-#include "JetInterface/ISingleJetModifier.h"
 #include "JetJvtEfficiency/IJetJvtEfficiency.h"
 
 #include "xAODBTaggingEfficiency/IBTaggingEfficiencyTool.h"
@@ -168,21 +167,8 @@ namespace ST {
       const static SG::AuxElement::Decorator<int> dec_wtagged("wtagged");
       const static SG::AuxElement::Decorator<int> dec_ztagged("ztagged");
       if ( doLargeRdecorations ){
-        int is_w_tagged=-1;
-        if (m_WTaggerTool->modifyJet(*jet)!=0){
-          ATH_MSG_WARNING("Failed to W-tag jet");
-        } else {
-          is_w_tagged = jet->getAttribute<int>("BosonTag");
-        }
-        dec_wtagged(*jet) = is_w_tagged;
-
-        int is_z_tagged=-1;
-        if (m_ZTaggerTool->modifyJet(*jet)!=0){
-          ATH_MSG_WARNING("Failed to Z-tag jet");
-        } else {
-          is_z_tagged = jet->getAttribute<int>("BosonTag");
-        }
-        dec_ztagged(*jet) = is_z_tagged;
+        dec_wtagged(*jet) = m_WTaggerTool->keep(*jet);
+        dec_ztagged(*jet) = m_ZTaggerTool->keep(*jet);
       }
       else{
         dec_wtagged(*jet) = -1;

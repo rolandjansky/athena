@@ -375,20 +375,20 @@ class SlimmingHelper:
                         #from DerivationFrameworkCore.AntiKt4EMPFlowJetsCPContent import AntiKt4EMPFlowJetsCPContent
                         items.extend(AntiKt4EMPFlowJetsCPContent)
                 elif collectionName=="BTagging_AntiKt4LCTopo":
-                        from DerivationFrameworkFlavourTag.BTagging_AntiKt4LCTopoCPContent import BTagging_AntiKt4LCTopoCPContent
-                        items.extend(BTagging_AntiKt4LCTopoCPContent)
+                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
+                        items.extend(BTaggingStandardContent("AntiKt4LCTopoJets"))
                 elif collectionName=="BTagging_AntiKt4EMTopo":
-                        from DerivationFrameworkFlavourTag.BTagging_AntiKt4EMTopoCPContent import BTagging_AntiKt4EMTopoCPContent
-                        items.extend(BTagging_AntiKt4EMTopoCPContent)
+                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
+                        items.extend(BTaggingStandardContent("AntiKt4EMTopoJets"))
                 elif collectionName=="BTagging_AntiKt2Track":
-                        from DerivationFrameworkFlavourTag.BTagging_AntiKt2TrackCPContent import BTagging_AntiKt2TrackCPContent
-                        items.extend(BTagging_AntiKt2TrackCPContent)
+                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
+                        items.extend(BTaggingStandardContent("AntiKt2TrackJets"))
                 elif collectionName=="BTagging_AntiKt3Track":
-                        from DerivationFrameworkFlavourTag.BTagging_AntiKt3TrackCPContent import BTagging_AntiKt3TrackCPContent
-                        items.extend(BTagging_AntiKt3TrackCPContent)
+                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
+                        items.extend(BTaggingStandardContent("AntiKt3TrackJets"))
                 elif collectionName=="BTagging_AntiKt4Track":
-                        from DerivationFrameworkFlavourTag.BTagging_AntiKt4TrackCPContent import BTagging_AntiKt4TrackCPContent
-                        items.extend(BTagging_AntiKt4TrackCPContent)
+                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
+                        items.extend(BTaggingStandardContent("AntiKt4TrackJets"))
                 elif collectionName=="InDetTrackParticles":
                         #from DerivationFrameworkInDet.InDetTrackParticlesCPContent import InDetTrackParticlesCPContent
                         from DerivationFrameworkCore.InDetTrackParticlesCPContent import InDetTrackParticlesCPContent

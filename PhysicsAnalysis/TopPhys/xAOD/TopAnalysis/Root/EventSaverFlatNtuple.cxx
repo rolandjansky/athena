@@ -2134,8 +2134,17 @@ namespace top {
 	  const xAOD::PseudoTopResultContainer* pseudoTopResultContainer(nullptr);
 	  const xAOD::PseudoTopResult* pseudoTopResult(nullptr);
 
-	  if (evtStore()->contains<xAOD::PseudoTopResultContainer>(m_config->sgKeyPseudoTop(event.m_hashValue))) {
-	    top::check(evtStore()->retrieve(pseudoTopResultContainer, m_config->sgKeyPseudoTop(event.m_hashValue)),"Failed to retrieve PseudoTop");
+          if ( (!event.m_isLoose && evtStore()->contains<xAOD::PseudoTopResultContainer>(topConfig()->sgKeyPseudoTop(event.m_hashValue))) || 
+               ( event.m_isLoose && evtStore()->contains<xAOD::PseudoTopResultContainer>(topConfig()->sgKeyPseudoTopLoose(event.m_hashValue))) ) 
+          {
+            if (!event.m_isLoose) 
+            {
+                top::check(evtStore()->retrieve(pseudoTopResultContainer, topConfig()->sgKeyPseudoTop(event.m_hashValue)),"Failed to retrieve PseudoTop");
+            }
+            else
+            {
+                top::check(evtStore()->retrieve(pseudoTopResultContainer, topConfig()->sgKeyPseudoTopLoose(event.m_hashValue)),"Failed to retrieve PseudoTop");
+            }
 
 	    pseudoTopResult = pseudoTopResultContainer->at(0);
 
@@ -2509,6 +2518,19 @@ namespace top {
                 } // end for-loop over subjets
                 ++i;
             } // end for-loop over re-clustered jets
+	    // we resized earlier to the size of rc_jets_particle container, but then only stored a sub-set, so have to resize again to shrink to correct size incase some jets were not stored
+            m_rcjet_pt.resize(i,-999);
+            m_rcjet_eta.resize(i,-999.);
+            m_rcjet_phi.resize(i,-999.);
+            m_rcjet_e.resize(i,-999.);
+            m_rcjet_d12.resize(i,-999.);
+            m_rcjet_d23.resize(i,-999.);
+            m_rcjetsub_pt.resize(i, std::vector<float>());
+            m_rcjetsub_eta.resize(i, std::vector<float>());
+            m_rcjetsub_phi.resize(i, std::vector<float>());
+            m_rcjetsub_e.resize(i, std::vector<float>());
+            m_rcjetsub_Ghosts_BHadron_Final_Count.resize(i, std::vector<int>());
+            m_rcjetsub_Ghosts_CHadron_Final_Count.resize(i, std::vector<int>());
         }
 
         //met

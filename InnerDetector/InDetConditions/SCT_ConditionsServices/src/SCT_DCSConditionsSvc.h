@@ -118,6 +118,7 @@ private:
   float m_useHVLowLimit;
   float  m_useHVUpLimit;
   std::string m_useHVChanCut;
+  std::vector<std::pair<bool, float> > m_cacheHV;
 };
 
 // inline const InterfaceID & SCT_DCSConditionsSvc::interfaceID(){

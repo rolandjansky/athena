@@ -457,6 +457,7 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
   }
 
 
+
   // Return if the kinematic requirements are not fulfilled
   m_accept.setCutResult( m_cutPosition_kinematic, passKine );
   if ( !passKine ){ return m_accept; }
@@ -484,7 +485,7 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
       passNBlayer = false;
     }
   }  
-  
+
   // pixel cut
   if (CutPi.size()){
     if (vars_struct.nPixHitsPlusDeadSensors < CutPi[etabin]){

@@ -51,7 +51,7 @@ def getG4AtlasAlg(name='G4AtlasAlg', **kwargs):
         is_hive = False
     kwargs.setdefault('MultiThreading', is_hive)
 
-    kwargs.setdefault('TruthRecordService', 'ISF_MC12TruthService')
+    kwargs.setdefault('TruthRecordService', simFlags.TruthService.get_Value())
     kwargs.setdefault('GeoIDSvc', 'ISF_GeoIDSvc')
 
     ## G4AtlasAlg verbosities (available domains = Navigator, Propagator, Tracking, Stepping, Stacking, Event)

@@ -14,7 +14,7 @@
 #ifndef SUSYTOOLS_SUSYOBJDEF_XAOD_H
 #define SUSYTOOLS_SUSYOBJDEF_XAOD_H
 
-// Framework include(s):
+// Framework include(s) - base class
 #include "AsgTools/AsgMetadataTool.h"
 
 // Interface class
@@ -27,16 +27,16 @@
 #include "PATInterfaces/SystematicVariation.h"
 
 // Tool handles
-#include "AsgTools/ToolHandle.h"
-#include <AsgTools/AnaToolHandle.h>
+#include "AsgTools/AnaToolHandle.h"
 
 // Configuration
 #include "TEnv.h"
 
+// Map for config file names
 #include <map>
+// Set for properties
 #include <set>
-#include <iterator>
-#include <functional>
+// Various uses in function arguments and parameters
 #include <string>
 #include <vector>
 
@@ -51,7 +51,6 @@ class ICPJetUncertaintiesTool;
 class IJetSelector;
 class IJetUpdateJvt;
 class IJetModifier;
-class ISingleJetModifier;
 
 class IAsgElectronLikelihoodTool;
 class IAsgElectronEfficiencyCorrectionTool;
@@ -128,8 +127,8 @@ namespace ST {
     //  An IAsgTool does not have a finalize method, so we can 
     //  only override finalize in athena.  To clean up, delete me.
 
-    bool isData() const {return m_dataSource == Data;}
-    bool isAtlfast() const {return m_dataSource == AtlfastII;}
+    bool isData() const override final {return m_dataSource == Data;}
+    bool isAtlfast() const override final {return m_dataSource == AtlfastII;}
 
     StatusCode setBoolProperty(const std::string& name, const bool& property) override final;
 
@@ -603,10 +602,10 @@ namespace ST {
     asg::AnaToolHandle<IJetModifier> m_jetFwdJvtTool;
     asg::AnaToolHandle<CP::IJetJvtEfficiency> m_jetJvtEfficiencyTool;
     
-    std::string m_WtagWP;
-    std::string m_ZtagWP;
-    asg::AnaToolHandle<ISingleJetModifier> m_WTaggerTool;
-    asg::AnaToolHandle<ISingleJetModifier> m_ZTaggerTool;
+    std::string m_WtagConfig;
+    std::string m_ZtagConfig;
+    asg::AnaToolHandle<IJetSelector> m_WTaggerTool;
+    asg::AnaToolHandle<IJetSelector> m_ZTaggerTool;
 
     //
     asg::AnaToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;

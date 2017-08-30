@@ -3721,8 +3721,27 @@ StatusCode TrigEDMChecker::dumpxAODTauJetContainer() {
     ATH_MSG_INFO( "REGTEST (*tauIt)->eta() returns  " << (*tauIt)->eta() );
     ATH_MSG_INFO( "REGTEST (*tauIt)->phi() returns  " << (*tauIt)->phi() );
     ATH_MSG_INFO( "REGTEST (*tauIt)->pt() returns   " << (*tauIt)->pt() );
-    ATH_MSG_INFO( "REGTEST (*tauIt)->nTracks() returns " << (*tauIt)->nTracks() );
-    ATH_MSG_INFO( "REGTEST (*tauIt)->nWideTracks() returns " << (*tauIt)->nTracksIsolation() );
+
+    // for numTracks()
+    int EFnTracks = -1;
+    #ifndef XAODTAU_VERSIONS_TAUJET_V3_H
+    EFnTracks = (*tauIt)->nTracks();
+    #else
+    (*tauIt)->detail(xAOD::TauJetParameters::nChargedTracks, EFnTracks);
+    #endif
+
+    ATH_MSG_INFO( "REGTEST (*tauIt)->nTracks() returns " << EFnTracks );
+
+    // for nTracksIsolation()
+    int EFWidenTrack = -1;
+    #ifndef XAODTAU_VERSIONS_TAUJET_V3_H
+    EFWidenTrack = (*tauIt)->nWideTracks();
+    #else
+    (*tauIt)->detail(xAOD::TauJetParameters::nIsolatedTracks, EFWidenTrack);
+    #endif
+
+    ATH_MSG_INFO( "REGTEST (*tauIt)->nWideTracks() returns " << EFWidenTrack );
+
     //bool test = false;
     float trkAvgDist=0;
     float etOvPtLead=0;

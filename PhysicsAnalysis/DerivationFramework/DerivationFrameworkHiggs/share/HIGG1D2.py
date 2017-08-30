@@ -186,6 +186,10 @@ if globalflags.DataSource()=='geant4':
     thinningTools.append(HIGG1D2TruthThinningTool)
 print "HIGG1D2.py thinningTools", thinningTools
 
+# Create private sequence
+# The name of the kernel  must be unique to this derivation
+HIGG1D2Seq = CfgMgr.AthSequencer("HIGG1D2Sequence")
+
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS  
 #====================================================================
@@ -197,6 +201,21 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("HIGG1D2K
                                                                        SkimmingTools = [HIGG1D2SkimmingTool],
                                                                        ThinningTools = thinningTools
                                                                       )
+
+
+# Before any custom jet reconstruction, it's good to set up the output list
+OutputJets["HIGG1D2Jets"] = []
+
+#=======================================
+# RESTORE AOD-REDUCED JET COLLECTIONS
+#=======================================
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
+reducedJetList = [
+                  "AntiKt4TruthJets",
+                  "AntiKt4TruthWZJets"]
+replaceAODReducedJets(reducedJetList,HIGG1D2Seq,"HIGG1D2Jets")
+
+DerivationFrameworkJob += HIGG1D2Seq
 
 #====================================================================
 # SET UP STREAM   
@@ -213,20 +232,8 @@ augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
 svcMgr += createThinningSvc( svcName="HIGG1D2ThinningSvc", outStreams=[evtStream] )
 
-# Before any custom jet reconstruction, it's good to set up the output list
-OutputJets["HIGG1D2Jets"] = []
 
-#=======================================
-# RESTORE AOD-REDUCED JET COLLECTIONS
-#=======================================
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
-reducedJetList = [
-                  "AntiKt4TruthJets",
-                  "AntiKt4TruthWZJets"]
-replaceAODReducedJets(reducedJetList,HIGG1D2Seq,"HIGG1D2Jets")
-
-
- #====================================================================
+#====================================================================
 # Add the containers to the output stream - slimming done here
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper

@@ -311,6 +311,8 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("NumberOfBootstrapReplicas", "Define integer number of replicas to be stored with bootstrapping, "
 		      "Default 100", "100");
 
+    registerParameter("UseEventLevelJetCleaningTool", "Switch to turn on event-level jet cleaning tool (for testing), True or False (default False)", "False");
+
 }
 
 ConfigurationSettings* ConfigurationSettings::get() {

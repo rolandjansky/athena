@@ -46,14 +46,11 @@ from optparse import OptionParser
 parser = OptionParser(usage=__usage__, version=__version__)
 parser.add_option('', '--bytestream', dest='bytestream', action='store_true', default=False, help='input files are bytestream instead of ROOT/POOL files')
 parser.add_option('-m', '--mc', dest='isMc', action='store_true', default=False, help='input data is from Monte-Carlo instead of data (automatically chooses between COMP200 and OFLP200 / CONDBR2 conditions DBs)')
-parser.add_option('-d', '--dpd', dest='runoverdpd', action='store_true', default=False, help='run over DPD (single job, INPUTDATA is DPD task name)')
 parser.add_option('-j', '--maxjobs', dest='maxjobs', type='int', default=0, help='max number of jobs (default: 0 ie no maximum)')
 parser.add_option('-n', '--nfiles', dest='nfiles', type='int', default=1, help='number of files per job (default: 1, set to 0 for single job over all files)') 
 parser.add_option('-e', '--maxevents', dest='evtmax', type='int', default=-1, help='max number of events per job')
 parser.add_option('', '--lbperjob', dest='lbperjob', type='int', default=0, help='number of luminosity blocks per job (default: 0 - no bunching)') 
 parser.add_option('-o', '--outputfilelist', dest='outputfilelist', default='', help='list of desired output files (default: "dpd.root,nt.root,monitoring.root,beamspot.db"; must be specified explicitly for grid)')
-parser.add_option('-c', '--castor', dest='fromcastor', action='store_true', default=False, help='INPUTDATA refers to CASTOR directory')
-parser.add_option('-f', '--filter', dest='filter', default='', help='use specified pattern to filter input files (default: *.root* for local files, .*ESD.* for castor)')
 parser.add_option('-k', '--taskdb', dest='taskdb', default='', help='TaskManager database (default: from TASKDB or sqlite_file:taskdata.db; set to string None to avoid using a task database)')
 parser.add_option('-l', '--logmail', dest='users', default='', help='send log mail to specified users (default: no mail)')
 parser.add_option('-q', '--queue', dest='batchqueue', default='atlasb1', help='batch queue (default: atlasb1)')
@@ -67,11 +64,18 @@ parser.add_option('-t', '--test', dest='testonly', action='store_true', default=
 parser.add_option('-v', '--verbosity', dest='outputlevel', type='int', default=4, help='output level (default:4, where 1=VERBOSE, 2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL)')
 parser.add_option('-p', '--params', dest='params', default='', help='job option parameters to pass to job option template')
 parser.add_option('', '--autoconfparams', dest='autoconfparams', default='DetDescrVersion', help='comma-separated list of automatically determined parameters (template must include AutoConfFragment.py, default: "DetDescrVersion")')
-parser.add_option('', '--prefix', dest='prefix', default='', help='Prefix for reading files from mass storage (Default: determine from filename (`\'\') ')
 # Additional optional files requiring special treatment (other parameters should be passed
 # to the job option template via "-p params")
 parser.add_option('-a', '--alignment-file', dest='alignmentfile', default='', help='alignment file (default: none)')
 parser.add_option('-b', '--beamspot-file', dest='beamspotfile', default='', help='beam spot SQLite file (default: none)')
+
+# TODO check if these flags can be removed:
+parser.add_option('-c', '--castor', dest='fromcastor', action='store_true', default=False, help='INPUTDATA refers to CASTOR directory')
+parser.add_option('', '--prefix', dest='prefix', default='', help='Prefix for reading files from mass storage (Default: determine from filename (`\'\') ')
+parser.add_option('-d', '--dpd', dest='runoverdpd', action='store_true', default=False, help='run over DPD (single job, INPUTDATA is DPD task name)')
+
+# TODO this takes regular expressions in some cases and globs in others which is inconsistent:
+parser.add_option('-f', '--filter', dest='filter', default='', help='use specified pattern to filter input files (default: *.root* for local files, .*ESD.* for castor)')
 
 (options,args) = parser.parse_args()
 if len(args) != 4:
@@ -106,45 +110,28 @@ if options.griduser:
 
 else:
     inputDS = ''
-    files = []
     if options.fromcastor:
-        # INPUTDATA specifies a CASTOR directory with files
-        # (the default filter is to use ESD files)
-        if not options.filter:
-            if options.bytestream:
-                filter = '.*'
-            else:
-                filter = '.*ESD.*'
-        castorFiles = DiskUtils.filelist(inputdata, prefix=options.prefix if options.prefix else True)
-        pattern = re.compile(filter)
-        for f in castorFiles:
-            if pattern.search(f):
-                files.append(f)
+        # INPUTDATA specifies a directory with files
+        pattern = options.filter or (None if options.bytestream else '.*ESD.*')
+        fs = DiskUtils.FileSet.from_directory(inputdata).matching(pattern)
     elif os.path.isfile(inputdata):
         # inputdata is a text file with filenames
-        for line in open(inputdata,'r'):
-            files.append('root://eosatlas/'+line.rstrip())
-
+        fs = DiskUtils.FileSet.from_file_containing_list(inputdata)
+    elif options.runoverdpd:
+        # INPUTDATA is filename
+        rundir = os.path.join(os.getcwd(), dsname)
+        if not os.path.exists(rundir):
+            fail('Run ' + dsname + ' (directory ' + rundir + ') not found')
+        dpddir = os.path.join(rundir, inputdata)
+        if not os.path.exists(dpddir):
+            fail('Dataset with name ' + inputdata + ' (directory ' + dpddir + ') not found')
+        fs = DiskUtils.FileSet.from_glob(os.path.join(dpddir, '*', '*-dpd.root*'))
     else:
-        if options.runoverdpd:
-            # INPUTDATA is DPD task name
-            rundir = os.getcwd()+'/'+dsname
-            if not os.path.exists(rundir):
-                sys.exit('ERROR: Run '+dsname+' (directory '+rundir+') not found')
-            dpddir = rundir+'/'+inputdata
-            if not os.path.exists(dpddir):
-                sys.exit('ERROR: DPD with name '+inputdata+' (directory '+dpddir+') not found')
-            files = sorted(glob.glob(dpddir+'/*/*-dpd.root*'))
+        # INPUTDATA is a directory with files
+        pattern = options.filter or '*.root*'
+        fs = DiskUtils.FileSet.from_glob(os.path.join(inputdata, pattern))
+    files = sorted(fs)
 
-        else:
-            # INPUTDATA is a directory with files
-            inputDS = ''
-            if not options.filter:
-                filter = '*.root*'
-            if inputdata[0]=='/':
-                files = sorted(glob.glob(inputdata+'/'+filter))
-            else:
-                files = sorted(glob.glob(os.getcwd()+'/'+inputdata+'/'+filter))
 
 if options.interactive:
     options.runner='JobRunner'
