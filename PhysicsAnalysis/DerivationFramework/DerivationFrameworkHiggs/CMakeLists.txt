@@ -26,6 +26,7 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODTrigger
    Control/AthContainers
    Generators/GenInterfaces
+   Generators/TruthRivetTools
    Generators/TruthUtils
    Tools/PathResolver
    PhysicsAnalysis/ElectronPhotonID/PhotonVertexSelection )

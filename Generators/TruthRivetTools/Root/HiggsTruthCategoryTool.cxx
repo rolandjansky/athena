@@ -57,6 +57,3 @@ HTXS::HiggsClassification* HiggsTruthCategoryTool :: getHiggsTruthCategoryObject
   return HTXS::Rivet2Root(htxs_cat_rivet);
 }
 
-
-
-

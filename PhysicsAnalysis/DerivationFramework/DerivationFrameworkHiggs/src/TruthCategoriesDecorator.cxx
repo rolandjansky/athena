@@ -16,6 +16,10 @@
 
 #include "CLHEP/Units/SystemOfUnits.h"
 
+// Note: must include TLorentzVector before the next one
+#include "TLorentzVector.h"
+#include "TruthRivetTools/HiggsTemplateCrossSectionsDefs.h"
+
 #include <TObjString.h>
 #include <TObjArray.h>
 
@@ -230,6 +234,8 @@ namespace DerivationFramework {
       decorateFourVec(eventInfo,"HTXS_Higgs_decay",htxs->p4decay_higgs);
       decorateFourVec(eventInfo,"HTXS_V_decay",htxs->p4decay_V);
     }
+
+    delete htxs;
 
     return StatusCode::SUCCESS;
 
