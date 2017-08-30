@@ -20,4 +20,4 @@ source exec_athena_art_trigger_validation.sh
 
 rootcomp.py expert-monitoring-ascend.root expert-monitoring.root
 
-return trigtest_checkcounts.sh expert-monitoring-ascend.root 0 BOTH
+trigtest_checkcounts.sh expert-monitoring-ascend.root 0 BOTH
