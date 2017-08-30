@@ -151,12 +151,7 @@ jetm3Seq += CfgMgr.DerivationFramework__DerivationKernel(	name = "JETM3Kernel",
 # PFlow augmentation
 applyPFOAugmentation(jetm3Seq)
 
-#=======================================
-# SCHEDULE SMALL-R JETS WITH LOW PT CUT
-#=======================================
-
 OutputJets["JETM3"] = []
-addAntiKt4LowPtJets(jetm3Seq,"JETM3")
 
 #=======================================
 # RESTORE AOD-REDUCED JET COLLECTIONS
@@ -165,6 +160,12 @@ reducedJetList = ["AntiKt2PV0TrackJets",
                   "AntiKt4PV0TrackJets",
                   "AntiKt4TruthJets"]
 replaceAODReducedJets(reducedJetList,jetm3Seq,"JETM3")
+
+#=======================================
+# SCHEDULE SMALL-R JETS WITH LOW PT CUT
+#=======================================
+
+addAntiKt4LowPtJets(jetm3Seq,"JETM3")
 
 #=======================================
 # SCHEDULE CUSTOM MET RECONSTRUCTION
