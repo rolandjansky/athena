@@ -114,13 +114,17 @@ StatusCode JetMETCPTools::setupJetsCalibration() {
 
   // Release 21 specific
   // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/ApplyJetCalibration2016#Calibrating_jets_in_Release_21
+  // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/ApplyJetCalibration2016#Instructions_for_r21_calibration
   if(m_release_series == 25){
     ATH_MSG_INFO("Updating configuration options for Rel21");
+    ATH_MSG_INFO("Applying MCJES+GSC calibration on data/MC");
+    ATH_MSG_INFO("Insitu corrections for data are not yet available and not neglible");
+
     // Data
-    m_jetAntiKt4_Data_ConfigFile          = "JES_data2016_data2015_Recommendation_Dec2016_rel21.config";
-    m_jetAntiKt4_Data_CalibSequence       = "JetArea_Residual_EtaJES_GSC_Insitu";
+    m_jetAntiKt4_Data_ConfigFile          = "JES_MC16Recommendation_Aug2017.config";
+    m_jetAntiKt4_Data_CalibSequence       = "JetArea_Residual_EtaJES_GSC";
     // FS EM/LC
-    m_jetAntiKt4_MCFS_ConfigFile          = "JES_data2016_data2015_Recommendation_Dec2016_rel21.config";
+    m_jetAntiKt4_MCFS_ConfigFile          = "JES_MC16Recommendation_Aug2017.config";
     m_jetAntiKt4_MCFS_CalibSequence       = "JetArea_Residual_EtaJES_GSC";
     // AFII EM/LC
     m_jetAntiKt4_MCAFII_ConfigFile        = ""; // No Rel21
