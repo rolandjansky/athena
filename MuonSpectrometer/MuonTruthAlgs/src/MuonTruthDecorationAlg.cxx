@@ -468,8 +468,8 @@ namespace Muon {
       }
     }
     std::vector<float> emptyVec;
-    for( const auto& col : trackRecords ){
-      const std::string name = col.second;
+    for( unsigned int i=0;i<m_trackRecordCollectionNames.size();i++){
+      const std::string name = m_trackRecordCollectionNames.at(i).key();
       if(!truthParticle.isAvailable<std::vector<float> >(name+"_cov_extr")){
 	truthParticle.auxdata<std::vector<float> >(name+"_cov_extr")=emptyVec;
       }
