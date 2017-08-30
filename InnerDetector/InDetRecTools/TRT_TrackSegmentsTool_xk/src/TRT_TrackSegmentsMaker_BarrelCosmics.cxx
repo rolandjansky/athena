@@ -122,7 +122,7 @@ void InDet::TRT_TrackSegmentsMaker_BarrelCosmics::newEvent() {
   SG::ReadHandle<InDet::TRT_DriftCircleContainer> TRTDriftCircleContainer(m_driftCirclesName); // get TRT_DriftCircle list from StoreGate containers
 
   if (not TRTDriftCircleContainer.isValid()) { msg(MSG::ERROR) << "Could not find TRT_DriftCircles collection!" << endmsg; return; }
-  if (&*TRTDriftCircleContainer==0) { msg(MSG::ERROR) << "newEvent(): TRTDriftCircleContainer==0" << endmsg; return; }
+  if (TRTDriftCircleContainer.cptr()==0) { msg(MSG::ERROR) << "newEvent(): TRTDriftCircleContainer==0" << endmsg; return; }
 
   for(InDet::TRT_DriftCircleContainer::const_iterator it=TRTDriftCircleContainer->begin(); it!=TRTDriftCircleContainer->end(); it++) {
 
