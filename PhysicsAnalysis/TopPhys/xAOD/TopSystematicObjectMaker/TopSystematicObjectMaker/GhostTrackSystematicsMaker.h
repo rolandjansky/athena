@@ -2,13 +2,14 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 // Filename: GhostTrackSystematicsMaker.h
 // Description:
 // Author: Fabian Wilk
 // Created: Mon Oct 24 16:54:17 2016
-//
-// by Fabian Wilk <mail@fabianwilk.de>
-//        The ATLAS Collaboration
+
 
 #ifndef _TOP_GHOSTTRACKSYSTEMATICSMAKER_H_
 #define _TOP_GHOSTTRACKSYSTEMATICSMAKER_H_
