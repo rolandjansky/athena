@@ -53,6 +53,7 @@
 #include "PixelConditionsServices/IPixelOfflineCalibSvc.h"
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include "TrkTrackSummary/TrackSummary.h"
+#include "FTK_RecToolInterfaces/IFTK_DuplicateTrackRemovalTool.h"
 #include "FTK_RecToolInterfaces/IFTK_VertexFinderTool.h"
 #include "FTK_DataProviderInterfaces/IFTK_UncertaintyTool.h"
 
@@ -102,11 +103,13 @@ FTK_DataProviderSvc::FTK_DataProviderSvc(const std::string& name, ISvcLocator* s
   m_VertexFinderTool("InDet::InDetIterativePriVxFinderTool"),
   m_RawVertexFinderTool("FTK_VertexFinderTool"),
   m_ROTcreator("Trk::IRIO_OnTrackCreator/FTK_ROTcreatorTool"),
+  m_DuplicateTrackRemovalTool("FTK_DuplicateTrackRemovalTool"),
   m_trainingBeamspotX(0.),
   m_trainingBeamspotY(0.),
   m_trainingBeamspotZ(0.),
   m_trainingBeamspotTiltX(0.),
   m_trainingBeamspotTiltY(0.),
+  m_remove_duplicates(false),
   m_ftk_tracks(nullptr),
   m_conv_tracks(nullptr),
   m_refit_tracks(nullptr),
@@ -181,6 +184,7 @@ FTK_DataProviderSvc::FTK_DataProviderSvc(const std::string& name, ISvcLocator* s
   declareProperty("TrackFitter", m_trackFitter);
   declareProperty("UncertaintyTool",m_uncertaintyTool);
   declareProperty("TrackSummaryTool", m_trackSumTool);
+  declareProperty("DuplicateTrackRemovalTool",m_DuplicateTrackRemovalTool);
   declareProperty("TrackParticleCreatorTool", m_particleCreatorTool);
   declareProperty("VertexFinderTool",m_VertexFinderTool);
   declareProperty("ROTcreatorTool",m_ROTcreator);
@@ -208,7 +212,7 @@ FTK_DataProviderSvc::FTK_DataProviderSvc(const std::string& name, ISvcLocator* s
   declareProperty("CorrectSCTClusters",m_correctSCTClusters);
   declareProperty("setBroadPixelClusterOnTrackErrors",m_broadPixelErrors);
   declareProperty("setBroadSCT_ClusterOnTrackErrors",m_broadSCT_Errors);
-
+  declareProperty("RemoveDuplicates",m_remove_duplicates);
 
 
 }
@@ -271,6 +275,8 @@ StatusCode FTK_DataProviderSvc::initialize() {
   ATH_CHECK(m_particleCreatorTool.retrieve());
   ATH_MSG_INFO( " getting vertexFinderTool tool with name " << m_VertexFinderTool.name());
   ATH_CHECK(m_VertexFinderTool.retrieve());
+  ATH_MSG_INFO( " getting DuplicateTrackRemovalTool tool with name " << m_DuplicateTrackRemovalTool.name());
+  ATH_CHECK(m_DuplicateTrackRemovalTool.retrieve());
   ATH_MSG_INFO( " getting FTK_RawTrackVertexFinderTool tool with name " << m_RawVertexFinderTool.name());
   ATH_CHECK(m_RawVertexFinderTool.retrieve());
   ATH_MSG_INFO( " getting ROTcreator tool with name " << m_ROTcreator.name());
@@ -1143,12 +1149,23 @@ void FTK_DataProviderSvc::getFTK_RawTracksFromSG(){
   }
 
   // new event - get the tracks from StoreGate
-
   if (!m_storeGate->contains<FTK_RawTrackContainer>(m_RDO_key)) {
     ATH_MSG_DEBUG( "getFTK_RawTracksFromSG: FTK tracks  "<< m_RDO_key <<" not found in StoreGate !");
-  } else {
-    ATH_MSG_VERBOSE( "getFTK_RawTracksFromSG:  Doing storegate retreive");
-    StatusCode sc = m_storeGate->retrieve(m_ftk_tracks, m_RDO_key);
+  } else {    
+
+    StatusCode sc = StatusCode::SUCCESS;
+    if (m_remove_duplicates){//get all tracks, and then call duplicate removal tool
+      const FTK_RawTrackContainer* temporaryTracks=nullptr;
+      sc = m_storeGate->retrieve(temporaryTracks, m_RDO_key);
+      if (!sc.isFailure()) {
+	ATH_MSG_DEBUG( "getFTK_RawTracksFromSG:  Got " << temporaryTracks->size() << " raw FTK tracks (RDO) from  StoreGate before removeDuplicates");
+	m_ftk_tracks = m_DuplicateTrackRemovalTool->removeDuplicates(temporaryTracks);
+      }
+    }
+    else{//the original way
+      sc = m_storeGate->retrieve(m_ftk_tracks, m_RDO_key);
+    }
+
     if (sc.isFailure()) {
       ATH_MSG_VERBOSE( "getFTK_RawTracksFromSG: Failed to get FTK Tracks Container");
     } else {
@@ -1158,10 +1175,10 @@ void FTK_DataProviderSvc::getFTK_RawTracksFromSG(){
       } else {
 	m_gotRawTracks = true;
       }
-    }
+    }      
   }
-  // Creating collection for pixel clusters
 
+  // Creating collection for pixel clusters
   m_PixelClusterContainer = new InDet::PixelClusterContainer(m_pixelId->wafer_hash_max());
   m_PixelClusterContainer->addRef();
   StatusCode sc = m_storeGate->record(m_PixelClusterContainer,m_PixelClusterContainerName);
@@ -1344,7 +1361,7 @@ Trk::Track* FTK_DataProviderSvc::ConvertTrack(const unsigned int iTrack){
   // Find if the track includes IBL - needed for the error calculaton 
   for( unsigned int cluster_number = 0; cluster_number < track.getPixelClusters().size(); ++cluster_number){
     if ( !track.isMissingPixelLayer(cluster_number)) {
-      Identifier wafer_id = m_pixelId->wafer_id(track.getPixelClusters()[cluster_number].getModuleID());
+      Identifier wafer_id = m_pixelId->wafer_id(Identifier(track.getPixelClusters()[cluster_number].getModuleID()));
       if (m_pixelId->barrel_ec(wafer_id)==0 && m_pixelId->layer_disk(wafer_id)==0) {
 	hasIBL=true;
 	break;
