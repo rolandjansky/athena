@@ -35,6 +35,7 @@ TopoclusterTopTagger::TopoclusterTopTagger( const std::string& name ) :
 
     declareProperty( "TaggerType",    m_tagType="XXX");
 
+    declareProperty( "CalibArea",      m_calibarea = "BoostedJetTaggers/TopoclusterTopTagger/Boost2017/");
     declareProperty( "KerasConfigFile", m_kerasConfigFileName="XXX");
     declareProperty( "KerasOutput",     m_kerasConfigOutputName="XXX");
 
@@ -82,6 +83,10 @@ StatusCode TopoclusterTopTagger::initialize(){
     // get tagger type
     m_tagType = configReader.GetValue("TaggerType" ,"");
 
+    // get the CVMFS calib area where stuff is stored
+    // if this is set to "Local" then it will look for the config file in the share space
+    m_calibarea = configReader.GetValue("CalibArea" ,"");
+
     // get the name/path of the JSON config
     m_kerasConfigFileName = configReader.GetValue("KerasConfigFile" ,"");
 
@@ -96,15 +101,16 @@ StatusCode TopoclusterTopTagger::initialize(){
     // get the decoration name
     m_decorationName = configReader.GetValue("DecorationName" ,"");
 
-
+    // print out the configuration parameters for viewing
     ATH_MSG_INFO( "Configurations Loaded  :");
     ATH_MSG_INFO( "tagType                : "<<m_tagType );
+    ATH_MSG_INFO( "calibarea              : "<<m_calibarea );
     ATH_MSG_INFO( "kerasConfigFileName    : "<<m_kerasConfigFileName );
     ATH_MSG_INFO( "kerasConfigOutputName  : "<<m_kerasConfigOutputName );
     ATH_MSG_INFO( "strMassCutLow          : "<<m_strMassCutLow  );
     ATH_MSG_INFO( "strMassCutHigh         : "<<m_strMassCutHigh );
-    ATH_MSG_INFO( "strScoreCut              : "<<m_strScoreCut );
-    ATH_MSG_INFO( "decorationName      : "<<m_decorationName );
+    ATH_MSG_INFO( "strScoreCut            : "<<m_strScoreCut );
+    ATH_MSG_INFO( "decorationName         : "<<m_decorationName );
 
   }
   else { // no config file
@@ -128,19 +134,31 @@ StatusCode TopoclusterTopTagger::initialize(){
   m_funcMassCutHigh  = new TF1("strMassCutHigh", m_strMassCutHigh.c_str(), 0, 14000);
   m_funcScoreCut     = new TF1("strDNNCut",      m_strScoreCut.c_str(),      0, 14000);
 
-  ATH_MSG_INFO( ": DNN Tagger tool initialized" );
+  ATH_MSG_INFO( "TopoclusterTopTagger tool initialized" );
   ATH_MSG_INFO( "  Mass cut low   : "<< m_strMassCutLow );
   ATH_MSG_INFO( "  Mass cut High  : "<< m_strMassCutHigh );
-  ATH_MSG_INFO( "  DNN cut low    : "<< m_strScoreCut );
+  ATH_MSG_INFO( "  Score cut low    : "<< m_strScoreCut );
 
-
-
-// convert the JSON config file name to the full path
-#ifdef ROOTCORE
-    m_kerasConfigFilePath = gSystem->ExpandPathName(("$ROOTCOREBIN/data/BoostedJetTaggers/TopoclusterTopTagger/"+m_kerasConfigFileName).c_str());
-#else
-    m_kerasConfigFilePath   = PathResolverFindDataFile("BoostedJetTaggers/data/"+m_kerasConfigFileName);
-#endif
+  // if the calibarea is specified to be "Local" then it looks in the same place as the top level configs
+  if( m_calibarea.empty() ){
+    ATH_MSG_INFO( (m_APP_NAME+": You need to specify where the calibarea is as either being Local or on CVMFS") );
+    return StatusCode::FAILURE;
+  }
+  else if(m_calibarea.compare("Local")==0){
+    ATH_MSG_INFO( (m_APP_NAME+": Using Local calibarea BoostedJetTaggers/share/TopoclusterTopTagger/" ));
+    // convert the JSON config file name to the full path
+    #ifdef ROOTCORE
+        m_kerasConfigFilePath = gSystem->ExpandPathName(("$ROOTCOREBIN/data/BoostedJetTaggers/TopoclusterTopTagger/"+m_kerasConfigFileName).c_str());
+    #else
+        m_kerasConfigFilePath   = PathResolverFindDataFile("BoostedJetTaggers/data/"+m_kerasConfigFileName);
+    #endif
+  }
+  else{
+    ATH_MSG_INFO( (m_APP_NAME+": Using CVMFS calibarea") );
+    // get the config file from CVMFS
+    // necessary because xml files are too large to house on the data space
+    m_kerasConfigFilePath = PathResolverFindCalibFile( (m_calibarea+m_kerasConfigFileName).c_str() );
+  }
 
   // read json file for DNN weights
   ATH_MSG_INFO( (m_APP_NAME+": DNN Tagger configured with: "+m_kerasConfigFilePath.c_str() ));
@@ -164,7 +182,7 @@ StatusCode TopoclusterTopTagger::initialize(){
   m_accept.addCut( "ValidPtRangeHigh"    , "True if the jet is not too high pT"  );
   m_accept.addCut( "ValidPtRangeLow"     , "True if the jet is not too low pT"   );
   m_accept.addCut( "ValidEtaRange"       , "True if the jet is not too forward"     );
-  m_accept.addCut( "ValidJetContent"     , "True if the jet is alright technicall (e.g. all attributes necessary for tag)"        );
+  m_accept.addCut( "ValidJetContent"     , "True if the jet is alright technically (e.g. all attributes necessary for tag)"        );
 
   m_accept.addCut( "PassMassLow"         , "mJet > mCut"       );
   m_accept.addCut( "PassScore"           , "ScoreJet > ScoreCut"         );
@@ -313,7 +331,7 @@ void TopoclusterTopTagger::decorateJet(const xAOD::Jet& jet, float mcutH, float 
 
     // decorators to be used throughout
     static SG::AuxElement::Decorator<float>    dec_mcutL ("TopoclusterTopTagCut_mlow");
-    static SG::AuxElement::Decorator<float>    dec_mcutH ("TopoclusterTopTagCut_mlow");
+    static SG::AuxElement::Decorator<float>    dec_mcutH ("TopoclusterTopTagCut_mhigh");
     static SG::AuxElement::Decorator<float>    dec_scoreCut("TopoclusterTopTagCut_score");
     static SG::AuxElement::Decorator<float>    dec_scoreValue(m_decorationName.c_str());
 

@@ -1,0 +1,31 @@
+####################################################################################
+# Title :
+# DNN W Boson Tagger Config
+#
+# Author :
+# Samuel Meehan <samuel.meeha@cern.ch>
+#
+# Description :
+# This configuration selects fully contained top quark jets using a selection on the DNN
+# score and a selection of mComb>40 GeV which is the same used in the training.  Note that no
+# additional tuned selection on jet mass is performed.  The selection on the DNN score is tuned
+# to give a flat signal efficiency as a function of jet pT of 50%
+#
+####################################################################################
+
+TaggerType: WBoson
+
+DecorationName: DNNTaggerScoreWBoson
+
+CalibArea: BoostedJetTaggers/JSSWTopTaggerDNN/Boost2017/
+#CalibArea: Local
+
+KerasConfigFile: 6JuneWTaggingContained.json
+
+KerasOutput: W_dnn_BN_june6
+
+MassCutLow: 40.0
+
+MassCutHigh: 999999999.0
+
+ScoreCut: (0.677972)*pow(x,0)+(0.000853447)*pow(x,1)+(-1.00153e-06)*pow(x,2)+(4.93063e-10)*pow(x,3)+(-8.56818e-14)*pow(x,4)

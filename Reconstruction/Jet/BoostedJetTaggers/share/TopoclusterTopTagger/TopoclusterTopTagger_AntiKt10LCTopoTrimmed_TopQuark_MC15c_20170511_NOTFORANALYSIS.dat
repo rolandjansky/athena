@@ -17,12 +17,15 @@ TaggerType: TopQuark
 
 DecorationName: TopoclusterTopTaggerScoreTopQuark
 
-KerasConfigFile:  TopoclusterTopTaggerDNN_Training_20170701.json
+CalibArea: BoostedJetTaggers/TopoclusterTopTagger/Boost2017/
+#CalibArea: Local
+
+KerasConfigFile:  TopoclusterTopTaggerDNN_Training_20170712.json
 
 KerasOutput: HFT_MVA
 
-MassCutLow: 60.0
+MassCutLow: 40.0
 
-MassCutHigh: 200.0
+MassCutHigh: 999999999.0
 
 ScoreCut: 0.0

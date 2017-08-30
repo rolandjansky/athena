@@ -1,0 +1,29 @@
+####################################################################################
+# Title :
+# BDT Top Tagger Config
+#
+# Author :
+# Samuel Meehan <samuel.meeha@cern.ch>
+#
+# Description :
+# This configuration selects fully contained top quark jets using a selection on the BDT
+# score and a selection of mComb>40 GeV which is the same used in the training.  Note that no
+# additional tuned selection on jet mass is performed.  The selection on the BDT score is tuned
+# to give a flat signal efficiency as a function of jet pT of 80%
+#
+####################################################################################
+
+TaggerType: TopQuarkContained
+
+DecorationName: BDTTaggerScoreTopQuark
+
+CalibArea: BoostedJetTaggers/JSSWTopTaggerBDT/Boost2017/
+#CalibArea: Local
+
+TMVAConfigFile: TMVAClassification_BDTG.TOP3q_NvarM_pT350to2000GeV.01062017.weights.xml
+
+MassCutLow: 40.0
+
+MassCutHigh: 999999999.0
+
+ScoreCut: (1.23301)*pow(x,0)+(-0.00248859)*pow(x,1)+(2.61177e-06)*pow(x,2)+(-1.22651e-09)*pow(x,3)+(2.10487e-13)*pow(x,4)
