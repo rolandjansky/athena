@@ -187,8 +187,8 @@ log.info("Initializing folder %s with tag %s" % (folderPath, folderTag))
 mgr = TileBchTools.TileBchMgr()
 mgr.setLogLvl(logLevel)
 mgr.initialize(db, folderPath, folderTag, (run,lumi), warn, -2)
-if comment or warn<0:
-    reader = TileCalibTools.TileBlobReader(db,folderPath,folderTag)
+if iov or comment or warn<0:
+    blobReader = TileCalibTools.TileBlobReader(db,folderPath,folderTag)
 
 #=== Dump the current isBad definition
 isBadDef = mgr.getAdcProblems(0, TileCalibUtils.definitions_draweridx(), TileCalibUtils.bad_definition_chan(), 0)
@@ -254,8 +254,7 @@ if iov:
         COOL_chan = 1000
 
     try:
-      br = TileCalibTools.TileBlobReader(db,folderPath, folderTag)
-      dbobjs = br.getDBobjsWithinRange(COOL_part,COOL_chan)
+      dbobjs = blobReader.getDBobjsWithinRange(COOL_part,COOL_chan)
       if (dbobjs == None): raise Exception("No DB objects retrieved when building IOV list!")
       while dbobjs.goToNext():
 	obj = dbobjs.currentRef()
@@ -335,7 +334,7 @@ for iovs in iovList:
     if iov:
         pref = "(%i,%i)  " % (iovs[0][0],iovs[0][1])
     if comment:
-        log.info( reader.getComment(iovs[0]) )
+        log.info( blobReader.getComment(iovs[0]) )
     modOk = False
     miss  = 0
     good  = 0
@@ -351,7 +350,7 @@ for iovs in iovList:
 	    else:
 		modName = TileCalibUtils.getDrawerString(ros,mod)
 	    if warn<0:
-		bch = reader.getDrawer(ros, mod, iovs[0], False, False)
+		bch = blobReader.getDrawer(ros, mod, iovs[0], False, False)
 		if bch is None:
 		    modOk = False
 		    miss+=1

@@ -255,8 +255,7 @@ if iov:
         COOL_chan = 1000
 
     try:
-      br = TileCalibTools.TileBlobReader(db,folderPath, folderTag)
-      dbobjs = br.getDBobjsWithinRange(COOL_part,COOL_chan)
+      dbobjs = blobReader.getDBobjsWithinRange(COOL_part,COOL_chan)
       if (dbobjs == None): raise Exception("No DB objects retrieved when building IOV list!")
       while dbobjs.goToNext():
 	obj = dbobjs.currentRef()
