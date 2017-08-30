@@ -342,13 +342,14 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg
   allFound = allFound && eg->showerShapeValue(wstot, xAOD::EgammaParameters::wtots1);
 
   // get the ambiguity type from the decoration
-  if ( eg->isAvailable<uint8_t>("ambiguityType") ) {
-    static const SG::AuxElement::Accessor<uint8_t> acc("ambiguityType");    
-    ambiguityBit = acc(*eg);
-  } else {
-    allFound = false;
+  if ( m_rootTool->CutAmbiguity.size() ) {
+    if ( eg->isAvailable<uint8_t>("ambiguityType") ) {
+      static const SG::AuxElement::Accessor<uint8_t> acc("ambiguityType");    
+      ambiguityBit = acc(*eg);
+    } else {
+      allFound = false;
+    }
   }
-
   
   if(!m_caloOnly) {
       // retrieve associated track
