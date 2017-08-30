@@ -580,7 +580,6 @@ private:
 private:
 
   // stop the root default histogram ownership nonsense  
-  // rene brun is an idiot. 
   void skip(TH1D* t)       { if ( t ) t->SetDirectory(0); }
   void delskip(TH1D* t)    { if ( t ) { t->SetDirectory(0); delete t; } }
   void deletehist(TH1D* t) { if ( t ) delete t; }
