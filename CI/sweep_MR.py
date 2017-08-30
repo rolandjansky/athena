@@ -118,12 +118,31 @@ def cherry_pick_mr(merge_commit,source_branch,target_branch_rules,project,dry_ru
 
     # handle sweep labels
     labels = set(mr_handle.labels)
+
     if "sweep:done" in labels:
         logging.info("merge commit '%s' was already swept -> skipping",merge_commit)
         return
     if "sweep:ignore" in labels:
         logging.info("merge commit '%s' is marked as ignore -> skipping",merge_commit)
         return
+
+    target_branches = set()
+    
+    logging.debug("\n ************** Looking through MR labels ********** \n")
+
+    for l in labels:
+        logging.debug("label: %s",l)
+        if re.match('^sweptFrom:',l):
+            logging.info("merge commit '%s' contains %s label -> skipping to prevent sweeping it twice",merge_commit,l)
+            return
+        if re.match('^alsoTargeting:',l):
+            _s_ = l.split(':')
+            if len(_s_) == 2:
+                    _add_branches_ = _s_[1]
+                    logging.info("merge commit '%s' also targets the following branches: %s -> add to target list",merge_commit,_add_branches_)
+                    #target_branches.update(_add_branches_)
+
+    logging.debug("\n *******************************************************\n")
 
     labels.add("sweep:done")
     mr_handle.labels = list(labels)
@@ -136,22 +155,21 @@ def cherry_pick_mr(merge_commit,source_branch,target_branch_rules,project,dry_ru
     logging.debug("MR %d affects the following packages: %r",MR_IID,affected_packages)
 
     # determine set of target branches from rules and affected packages
-    target_branches = set()
     for rule,branches in target_branch_rules.items():
         # get pattern expression for affected packages
         pkg_pattern = re.compile(rule)
         # only add target branches if ALL affected packages match the given pattern
         matches = [pkg_pattern.match(pkg_name) for pkg_name in affected_packages]
         if all(matches):
-            logging.debug("add branches for rule '%s'",rule)
+            logging.debug("add branches for rule '%s': %s",rule,branches)
             target_branches.update(branches)
         else:
-            logging.debug("skip branches for rule '%s'",rule)
+            logging.debug("skip branches for rule '%s': %s",rule,branches)
 
     logging.info("MR %d [%s] is swept to %d branches: %r",MR_IID,merge_commit,len(target_branches),list(target_branches))
 
-    # if this is a test run, we can stop here
     if dry_run:
+        logging.debug("\n\n----- This is a test run, stop with this MR here ----\n\n ")
         return
 
     # get initial MR commit title and description
