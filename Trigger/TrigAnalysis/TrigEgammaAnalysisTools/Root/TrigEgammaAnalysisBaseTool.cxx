@@ -471,10 +471,9 @@ bool TrigEgammaAnalysisBaseTool::splitTriggerName(const std::string trigger, std
       {
         (p1trigger+="_")+=strs.at(i); 
         
-        if((strs.at(i+1)[0]=='e' && strs.at(i+1)[1]!='t') || strs.at(i+1)[0]=='g') index=(i+1);
+        if(strs.at(i+1)[0]=='e' || strs.at(i+1)[0]=='g') index=(i+1);
       } 
     
-    if(index<0) return false;
     p2trigger+=("HLT_"+strs.at(index));
     
     for(unsigned int i=index+1; i< strs.size();i++){

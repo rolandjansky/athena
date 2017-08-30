@@ -334,36 +334,39 @@ bool TrigEgammaNavTPBaseTool::isTagElectron(const xAOD::Electron *el){
     // Check matching to a given trigger
     // The statement below is more general
     bool tagPassed=false;
-    bool tagMatched=false;
-    
     for(unsigned int ilist = 0; ilist != m_tagTrigList.size(); ilist++) {
       std::string tag = m_tagTrigList.at(ilist);
-      
       if(tdt()->isPassed(tag)){ 
-        tagPassed=true;
-        std::string p1trigger;
-        std::string p2trigger;
-        if(splitTriggerName(tag,p1trigger,p2trigger)){
-          ATH_MSG_DEBUG("Is a double tag trigger "); 
-          if     (fabs(p1trigger.find("tight"))<14) tag=p1trigger;
-          else if(fabs(p2trigger.find("tight"))<14) tag=p2trigger;
+        if(m_tp){
+          std::string p1trigger;
+          std::string p2trigger;
+          if(splitTriggerName(tag,p1trigger,p2trigger)){
+            if(fabs(p1trigger.find("tight"))<14) tag=p1trigger;
+            if(fabs(p2trigger.find("tight"))<14) tag=p2trigger;
+          }
+          if( match()->match(el,tag) )
+            tagPassed=true;
         }
-        if( match()->match(el,tag) )
-          tagMatched=true;
-        
+        else{
+          tagPassed=true; 
+        }
       }
     }
-    
     if(!tagPassed) {
-      ATH_MSG_DEBUG("Failed tag trigger "); 
-      return false;
+        ATH_MSG_DEBUG("Failed tag trigger "); 
+        return false;
     }
     hist1(m_anatype+"_TagCutCounter")->Fill("PassTrigger",1);
     ATH_MSG_DEBUG("Matching Tag Electron FC");
-    
+    bool tagMatched=false;
+    for(unsigned int ilist = 0; ilist != m_tagTrigList.size(); ilist++) {
+        std::string tag = m_tagTrigList.at(ilist);
+        if( match()->match(el,tag) )
+                tagMatched=true;
+    }
     if(!tagMatched){
-      ATH_MSG_DEBUG("Failed a match ");
-      return false; // otherwise, someone matched!
+        ATH_MSG_DEBUG("Failed a match ");
+        return false; // otherwise, someone matched!
     }
     hist1(m_anatype+"_TagCutCounter")->Fill("MatchTrigger",1);
     ATH_MSG_DEBUG("Found a tag electron");
