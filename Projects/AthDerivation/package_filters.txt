@@ -111,6 +111,7 @@
 
 # Generator package(s):
 + Generators/GenAnalysisTools/TruthHelper
++ Generators/GenInterfaces
 + Generators/GeneratorObjects.*
 + Generators/HepMCWeightSvc
 + Generators/TruthConverters
