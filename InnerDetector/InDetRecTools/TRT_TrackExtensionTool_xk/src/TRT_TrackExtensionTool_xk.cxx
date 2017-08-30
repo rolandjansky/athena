@@ -424,7 +424,7 @@ InDet::TRT_TrackExtensionTool_xk::findSegment(const Trk::TrackParameters& par)
 
   // Initiate trajectory
   //
-  std::cout << "I am called rignazzi findSegment " << std::endl;
+  
   const TRT_DriftCircleContainer* mjo_trtcontainer = m_trtcontainer.get();
   m_trajectory.initiateForTRTSeed(gpos,DE,mjo_trtcontainer,Tp);
   
