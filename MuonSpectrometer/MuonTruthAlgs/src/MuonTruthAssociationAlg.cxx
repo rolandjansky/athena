@@ -19,14 +19,7 @@
 MuonTruthAssociationAlg::MuonTruthAssociationAlg(const std::string &name, ISvcLocator *pSvcLocator) :
   AthAlgorithm(name,pSvcLocator),
   m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool")
-{  
-    
-    // Get parameter values from jobOptions file
-  //declareProperty("MuonTruthParticleContainerName", m_muonTruthParticleContainerName = "MuonTruthParticles","container name for muon truth particles");
-  declareProperty("MuonContainerName"             , m_muonName = "Muons","muon container name");
-  declareProperty("AssociateWithInDetTP"          , m_associateWithInDetTP = false,"force use of ID track particles for association");
-  declareProperty("BarcodeOffset"                 , m_barcodeOffset = 1000000 ,"barcode offset for truth particles");
-}
+{}
 
 // Initialize method:
 StatusCode MuonTruthAssociationAlg::initialize()

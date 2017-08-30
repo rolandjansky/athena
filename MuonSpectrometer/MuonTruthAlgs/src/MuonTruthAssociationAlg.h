@@ -36,10 +36,9 @@ private:
   SG::WriteDecorHandleKey<xAOD::MuonContainer> m_muonTruthParticleNPrecMatched;
   SG::WriteDecorHandleKey<xAOD::MuonContainer> m_muonTruthParticleNPhiMatched;
   SG::WriteDecorHandleKey<xAOD::MuonContainer> m_muonTruthParticleNTrigEtaMatched;
-  std::string m_muonName;
-
-  bool m_associateWithInDetTP;
-  int m_barcodeOffset;
+  Gaudi::Property<std::string>m_muonName{this,"MuonContainerName","Muons","muon container name"};
+  Gaudi::Property<bool>m_associateWithInDetTP{this,"AssociateWithInDetTP",false,"force use of ID track particles for association"};
+  Gaudi::Property<int>m_barcodeOffset{this,"BarcodeOffset",1000000 ,"barcode offset for truth particles"};
 
   ToolHandle<Muon::MuonIdHelperTool>    m_idHelper;
 };
