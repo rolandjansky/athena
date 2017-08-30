@@ -27,12 +27,6 @@ StatusCode MuonTruthAssociationAlg::initialize()
   ATH_CHECK(m_idHelper.retrieve());
   m_muonTruthParticleContainerName=m_muonTruthParticleContainerName.key()+".recoMuonLink";
   ATH_CHECK(m_muonTruthParticleContainerName.initialize());
-  m_muonTruthParticleLink=m_muonName+".truthParticleLink";
-  m_muonTruthParticleType=m_muonName+".truthType";
-  m_muonTruthParticleOrigin=m_muonName+".truthOrigin";
-  m_muonTruthParticleNPrecMatched=m_muonName+".nprecMatchedHitsPerChamberLayer";
-  m_muonTruthParticleNPhiMatched=m_muonName+".nphiMatchedHitsPerChamberLayer";
-  m_muonTruthParticleNTrigEtaMatched=m_muonName+".ntrigEtaMatchedHitsPerChamberLayer";
   ATH_CHECK(m_muonTruthParticleLink.initialize());
   ATH_CHECK(m_muonTruthParticleOrigin.initialize());
   ATH_CHECK(m_muonTruthParticleType.initialize());

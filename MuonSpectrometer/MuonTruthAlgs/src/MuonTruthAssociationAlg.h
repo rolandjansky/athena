@@ -30,13 +30,12 @@ public:
 
 private:
   Gaudi::Property<SG::WriteDecorHandleKey<xAOD::TruthParticleContainer> >m_muonTruthParticleContainerName{this,"MuonTruthParticleContainerName","MuonTruthParticles","container name for muon truth particles"};
-  SG::WriteDecorHandleKey<xAOD::MuonContainer> m_muonTruthParticleLink;
-  SG::WriteDecorHandleKey<xAOD::MuonContainer> m_muonTruthParticleType;
-  SG::WriteDecorHandleKey<xAOD::MuonContainer> m_muonTruthParticleOrigin;
-  SG::WriteDecorHandleKey<xAOD::MuonContainer> m_muonTruthParticleNPrecMatched;
-  SG::WriteDecorHandleKey<xAOD::MuonContainer> m_muonTruthParticleNPhiMatched;
-  SG::WriteDecorHandleKey<xAOD::MuonContainer> m_muonTruthParticleNTrigEtaMatched;
-  Gaudi::Property<std::string>m_muonName{this,"MuonContainerName","Muons","muon container name"};
+  Gaudi::Property<SG::WriteDecorHandleKey<xAOD::MuonContainer> >m_muonTruthParticleLink{this,"MuonTruthParticleLink","Muons.truthParticleLink","muon truth particle link auxdata name"};
+  Gaudi::Property<SG::WriteDecorHandleKey<xAOD::MuonContainer> >m_muonTruthParticleType{this,"MuonTruthParticleType","Muons.truthType","muon truth type auxdata name"};
+  Gaudi::Property<SG::WriteDecorHandleKey<xAOD::MuonContainer> >m_muonTruthParticleOrigin{this,"MuonTruthParticleOrigin","Muons.truthOrigin","muon truth origin auxdata name"};
+  Gaudi::Property<SG::WriteDecorHandleKey<xAOD::MuonContainer> >m_muonTruthParticleNPrecMatched{this,"MuonTruthParticleNPrecMatched","Muons.nprecMatchedHitsPerChamberLayer","muon vector of number of precision matched hits per chamber layer auxdata name"};
+  Gaudi::Property<SG::WriteDecorHandleKey<xAOD::MuonContainer> >m_muonTruthParticleNPhiMatched{this,"MuonTruthParticleNPhiMatched","Muons.nphiMatchedHitsPerChamberLayer","muon vector of number of phi matched hits per chamber layer auxdata name"};
+  Gaudi::Property<SG::WriteDecorHandleKey<xAOD::MuonContainer> >m_muonTruthParticleNTrigEtaMatched{this,"MuonTruthParticleNTrigEtaMatched","Muons.ntrigEtaMatchedHitsPerChamberLayer","muon vector of number of phi matched hits per chamber layer auxdata name"};
   Gaudi::Property<bool>m_associateWithInDetTP{this,"AssociateWithInDetTP",false,"force use of ID track particles for association"};
   Gaudi::Property<int>m_barcodeOffset{this,"BarcodeOffset",1000000 ,"barcode offset for truth particles"};
 
