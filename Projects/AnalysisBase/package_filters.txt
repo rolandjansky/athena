@@ -87,4 +87,6 @@
 + Trigger/TrigEvent/TrigRoiConversion
 + Trigger/TrigEvent/TrigSteeringEvent
 + Trigger/TrigValidation/TrigAnalysisTest
++ Reconstruction/RecoTools/IsolationTool
++ Reconstruction/RecoTools/RecoToolInterfaces
 - .*

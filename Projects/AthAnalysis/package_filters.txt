@@ -108,6 +108,8 @@
 + Trigger/TrigEvent/TrigRoiConversion
 + Trigger/TrigEvent/TrigSteeringEvent
 + Trigger/TrigValidation/TrigAnalysisTest
++ Reconstruction/RecoTools/IsolationTool
++ Reconstruction/RecoTools/RecoToolInterfaces
 
 ### Here follows the Athena-specific parts of the analysis release
 
