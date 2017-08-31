@@ -77,7 +77,7 @@ namespace ORUtils
       /// Toggle PT ratio criteria
       bool m_applyPtRatio;
       /// Minimum e/jet pt ratio to remove a jet
-      bool m_eleJetPtRatio;
+      double m_eleJetPtRatio;
 
       /// Inner dR cone within which jets get removed
       float m_innerDR;

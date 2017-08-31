@@ -19,7 +19,6 @@ MuonCalibrationAndSmearingTool::MuonCalibrationAndSmearingTool( const std::strin
   m_useExternalSeed(false),
   m_smearDeltaMS( 0. ), m_smearDeltaID( 0. ), m_smearDeltaCB( 0. ),
   m_Tsmear( 0 ),
-  //m_Tdet( 0 ),
   m_Tdata( 0 ), m_Trel( 0 ), m_Talgo( 0 ), m_detRegion( 0 ),
 
   m_useNsigmaForICombine( 0. ),
@@ -29,22 +28,19 @@ MuonCalibrationAndSmearingTool::MuonCalibrationAndSmearingTool( const std::strin
   m_g0( 0. ), m_g1( 0. ), m_g2( 0. ), m_g3( 0. ), m_g4( 0. ), m_charge( 0. ),
   
   m_loadNames( false ), m_nb_regions( 0. ), m_doMacroRegions( false ), 
-  m_StatCombPtThreshold(300.00),  m_useStatComb(true), m_doSagittaCorrection(false),m_SagittaRelease("sagittaBiasDataAll"),
-  m_doSagittaMCDistortion(false){
-  
+  m_StatCombPtThreshold(300.00), m_useStatComb(false), m_SagittaCorrPhaseSpace(false), m_doSagittaCorrection(false),m_doSagittaMCDistortion(false),m_SagittaRelease("sagittaBiasDataAll_02_08_17"){
   declareProperty( "Year", m_year = "Data16" );
   declareProperty( "Algo", m_algo = "muons" );
   declareProperty( "SmearingType", m_type = "q_pT" );
-  //declareProperty( "Release", m_release = "Recs2016_08_07" );
   declareProperty( "Release", m_release = "Recs2016_15_07" );
   declareProperty( "ToroidOff", m_toroidOff = false );
   declareProperty( "FilesPath", m_FilesPath = "" );
-  declareProperty( "StatComb", m_useStatComb = true);  
-  //declareProperty( "MinCombPt", m_StatCombPtThreshold=300.0); 
+  declareProperty( "StatComb", m_useStatComb = false);  
+  declareProperty( "MinCombPt", m_StatCombPtThreshold=300.0); 
   declareProperty( "SagittaCorr", m_doSagittaCorrection = false); 
-  declareProperty("SagittaRelease", m_SagittaRelease = "sagittaBiasDataAll_06_02_17");
+  declareProperty("SagittaRelease", m_SagittaRelease = "sagittaBiasDataAll_02_08_17");
   declareProperty("doSagittaMCDistortion",m_doSagittaMCDistortion=false);
-  
+  declareProperty("SagittaCorrPhaseSpace",m_SagittaCorrPhaseSpace=false);
   declareProperty("sgItersCB",m_sgItersCB=11);
   declareProperty("sgItersID",m_sgItersID=11);
   declareProperty("sgItersME",m_sgItersME=11);
@@ -52,6 +48,7 @@ MuonCalibrationAndSmearingTool::MuonCalibrationAndSmearingTool( const std::strin
   declareProperty("fixedRho",m_fixedRho=1.0);
   declareProperty("useFixedRho",m_useFixedRho=false);
   declareProperty("noEigenDecor" ,m_doNotUseAMGMATRIXDECOR=false);
+  
   
   m_scaleRegion = -1; 
   m_currentParameters = NULL; 
@@ -64,8 +61,10 @@ MuonCalibrationAndSmearingTool::MuonCalibrationAndSmearingTool( const std::strin
   m_sagittasCB=new std::vector <TProfile2D*>();
   m_sagittasID=new  std::vector <TProfile2D*>();
   m_sagittasME=new std::vector <TProfile2D*>();
-  
 
+  m_sagittaPhaseSpaceCB=NULL;
+  m_sagittaPhaseSpaceID=NULL;
+  m_sagittaPhaseSpaceME=NULL;
 }
 
 MuonCalibrationAndSmearingTool::MuonCalibrationAndSmearingTool( const MuonCalibrationAndSmearingTool& tool ) : 
@@ -76,7 +75,6 @@ MuonCalibrationAndSmearingTool::MuonCalibrationAndSmearingTool( const MuonCalibr
   m_smearDeltaID( tool.m_smearDeltaID ),
   m_smearDeltaCB( tool.m_smearDeltaCB ),
   m_Tsmear( tool.m_Tsmear ),
-  //m_Tdet( tool.m_Tdet ),
   m_Tdata( tool.m_Tdata ),
   m_Trel( tool.m_Trel ),
   m_Talgo( tool.m_Talgo ),
@@ -173,16 +171,15 @@ MuonCalibrationAndSmearingTool::MuonCalibrationAndSmearingTool( const MuonCalibr
   m_currentParameters( NULL),
   m_StatCombPtThreshold(tool.m_StatCombPtThreshold),
   m_useStatComb(tool.m_useStatComb),
+  m_SagittaCorrPhaseSpace(tool.m_SagittaCorrPhaseSpace), 
   m_doSagittaCorrection(tool.m_doSagittaCorrection),
-  m_GlobalZScales(tool.m_GlobalZScales),
+  m_doNotUseAMGMATRIXDECOR(tool.m_doNotUseAMGMATRIXDECOR),
   m_SagittaIterations(tool.m_SagittaIterations),
-  m_doNotUseAMGMATRIXDECOR(tool.m_doNotUseAMGMATRIXDECOR){
+  m_GlobalZScales(tool.m_GlobalZScales){
   declareProperty( "Year", m_year = "Data16" );
   declareProperty( "Algo", m_algo = "muons" );
   declareProperty( "SmearingType", m_type = "q_pT" );
   declareProperty( "Release", m_release = "Recs2016_15_07" );
-  //declareProperty( "Release", m_release = "Recs2016_08_07" );
-  //declareProperty( "Release", m_release = "PreRecs2016_05_23" );
   declareProperty( "ToroidOff", m_toroidOff = false );
   declareProperty( "FilesPath", m_FilesPath = "" );
   
@@ -204,8 +201,15 @@ MuonCalibrationAndSmearingTool::MuonCalibrationAndSmearingTool( const MuonCalibr
       for( auto t : *m_sagittasME) delete t;
       delete m_sagittasME;
     }
-    
 
+    if(m_sagittaPhaseSpaceCB!=NULL)
+      delete m_sagittaPhaseSpaceCB;
+    
+    if(m_sagittaPhaseSpaceID!=NULL)
+      delete m_sagittaPhaseSpaceID;
+
+    if(m_sagittaPhaseSpaceME!=NULL)
+      delete m_sagittaPhaseSpaceME;
   }
 
 
@@ -291,10 +295,6 @@ StatusCode MuonCalibrationAndSmearingTool::initialize() {
     m_GlobalZScales.clear();
     m_GlobalZScales.push_back(90.2893);  m_GlobalZScales.push_back(90.4996);    m_GlobalZScales.push_back(90.1407); 
     
-    //m_doSagittaCorrection=true;
-    //m_useStatComb=true; 
-    //m_StatCombPtThreshold=300.0;
-
     m_SagittaIterations.clear();
 
     //::: First batch of corrections 
@@ -320,11 +320,12 @@ StatusCode MuonCalibrationAndSmearingTool::initialize() {
     
     
     std::vector<std::string> trackNames; trackNames.push_back("CB"); trackNames.push_back("ID");  trackNames.push_back("ME"); 
+
+    
     for( unsigned int i=0; i<m_SagittaIterations.size(); i++){
       ATH_MSG_VERBOSE("Case "<<i<<" track Name "<<trackNames.at(i)<<" and iterations "<<m_SagittaIterations.at(i));
       for( unsigned int j=0; j< m_SagittaIterations.at(i) ;  j++){
         ATH_MSG_VERBOSE("Track "<<i<<" file "<< PathResolverFindCalibFile(Form("MuonMomentumCorrections/%s/outqDeltamPlots_iter%d/",m_SagittaRelease.c_str(),j) + trackNames.at(i) + "_data.root"));
-        
         MuonCalibrationAndSmearingTool::setSagittaHistogramsSingle(GetHist( PathResolverFindCalibFile(Form("MuonMomentumCorrections/%s/outqDeltamPlots_iter%d/",m_SagittaRelease.c_str(),j) + trackNames.at(i) + "_data.root"),"inclusive",m_GlobalZScales.at(i)),i);
       }
     }
@@ -382,19 +383,16 @@ StatusCode MuonCalibrationAndSmearingTool::initialize() {
     if( track == 0 ) {
       pCB->SetName((Form("pCB_%d",(int)m_sagittasCB->size())));
       m_sagittasCB->push_back(pCB);
-      //m_sagittasCB->push_back((TProfile2D*)pCB->Clone(Form("pCB_%d",(int)m_sagittasCB->size())));
       return m_sagittasCB->size(); 
     }
     else if( track == 1 ) {
       pCB->SetName(Form("pID_%d",(int)m_sagittasID->size()));
       m_sagittasID->push_back(pCB);
-      //m_sagittasID->push_back((TProfile2D*)pCB->Clone(Form("pID_%d",(int)m_sagittasID->size())));
       return m_sagittasID->size(); 
     }
     else if( track == 2 ) {
       pCB->SetName(Form("pME_%d",(int)m_sagittasME->size()));
       m_sagittasME->push_back(pCB);
-      //m_sagittasME->push_back((TProfile2D*)pCB->Clone(Form("pME_%d",(int)m_sagittasME->size())));
       return  m_sagittasME->size();
     }
     else 
@@ -542,11 +540,8 @@ StatusCode MuonCalibrationAndSmearingTool::initialize() {
       
       CalcCBWeights( mu );
       
-      //double m_f = ((1/m_ptcb  - 1/m_ptms) / ( 1/m_ptid - 1/m_ptms)) ; 
-      //double m_f2 = (( (1/m_ptcb)  - (1/m_ptms)*1/MEqOverPE ) / ( (1/m_ptid)*1/IDqOverPE - (1/m_ptms)*1/MEqOverPE));
+
       double ptTilde = (1/IDqOverPE*m_ptid + 1/MEqOverPE*m_ptms)/(1/IDqOverPE+1/MEqOverPE);
-      //double deltaTilde  =(m_ptcb-ptTilde)/m_ptcb;
-      
       double pTilde = ((1/IDqOverPE)*(1/m_ptid) + (1/MEqOverPE)*(1/m_ptms))/(1/IDqOverPE+1/MEqOverPE);
       double deltaPTilde  =(1/m_ptcb-pTilde)/(1/m_ptcb);
     
@@ -566,8 +561,7 @@ StatusCode MuonCalibrationAndSmearingTool::initialize() {
         ATH_MSG_DEBUG(" sigma(q/p) CB "<<CBqOverPE*100<<" "<<IDqOverPE*100<<" ME "<<MEqOverPE*100);
     }
       
-      //double rho= (1/m_ptid - 1/m_ptms) /  (1/m_ptid + 1/m_ptms) ;
-
+      
       if( iter ==  m_sagittasCB->size() ) { 
         if(dump)
           ATH_MSG_DEBUG("--> " << m_ptcb);
@@ -577,11 +571,9 @@ StatusCode MuonCalibrationAndSmearingTool::initialize() {
       
     float sagittaID=iter >= m_sagittasID->size() ? 0 : sagitta(m_sagittasID->at(iter),lvID);
     float sagittaME=iter >= m_sagittasME->size() ? 0 : sagitta(m_sagittasME->at(iter),lvME);
-    //float sagittaCB=iter >= m_sagittasCB->size() ? 0 : sagitta(m_sagittasCB->at(iter),lvCB);
     
     double tmpPtID = lvID.Pt();   //m_ptid;
     double tmpPtMS = lvME.Pt();   //m_ptms;
-    //double tmpPtCB = lvCB.Pt();   //m_ptcb;
     
     double tmpDeltaID=0; 
     double tmpDeltaMS=0;
@@ -655,16 +647,19 @@ StatusCode MuonCalibrationAndSmearingTool::initialize() {
       
       if( m_ptcb == 0) {
         ATH_MSG_VERBOSE("Combined pt = 0 correcting separtly ID and ME");
-        CorrectionCode idOk;
-        CorrectionCode msOk;
-        if(m_ptid !=0)
-          idOk=applySagittaBiasCorrectionAuto(MCAST::DetectorType::ID,mu,isMC,SytCase);
-        if( m_ptms !=0 )
-          msOk=applySagittaBiasCorrectionAuto(MCAST::DetectorType::MS,mu,isMC,SytCase);
-        if( idOk != CorrectionCode::Ok && msOk != CorrectionCode:: Ok ) return CorrectionCode::Error;
-        return CP::CorrectionCode::Ok;
+        if(m_ptid !=0 && m_ptms !=0){ 
+          if( applySagittaBiasCorrectionAuto(MCAST::DetectorType::ID,mu,isMC,SytCase) != CorrectionCode::Ok &&
+              applySagittaBiasCorrectionAuto(MCAST::DetectorType::MS,mu,isMC,SytCase) != CorrectionCode::Ok ) return CorrectionCode::Error;
+        } else if(m_ptid !=0 ){
+          if (applySagittaBiasCorrectionAuto(MCAST::DetectorType::ID,mu,isMC,SytCase) != CorrectionCode::Ok) return CorrectionCode::Error; 
+        } else if(m_ptms !=0 ){
+          if (applySagittaBiasCorrectionAuto(MCAST::DetectorType::MS,mu,isMC,SytCase) != CorrectionCode::Ok) return CorrectionCode::Error; 
+        } else {
+          return CP::CorrectionCode::Ok;
+        }
       }
-      
+
+
       double central= 45.2;
       double width=15.5;
       
@@ -1027,6 +1022,7 @@ CorrectionCode MuonCalibrationAndSmearingTool::applyCorrection( xAOD::Muon& mu )
   
   if( ( m_doSagittaCorrection ||  m_doSagittaMCDistortion ) &&  (m_currentParameters->SagittaRho != MCAST::SystVariation::Default ||  
                                                                  m_currentParameters->SagittaBias != MCAST::SystVariation::Default) ){
+    ATH_MSG_VERBOSE( "Systematic uncertainties for sagitta bias "<< m_ptcb << res_idPt);
     
     m_ptid = res_idPt/1000.; 
     m_ptms = res_msPt/1000.; 
@@ -1528,12 +1524,14 @@ double MuonCalibrationAndSmearingTool::CalculatePt( const int DetType, const dou
       if( m_Tsmear == MCAST::SmearingType::Pt )  outPtCB = outPtCB * tmpDelta;
       if( m_Tsmear == MCAST::SmearingType::QoverPt ) outPtCB = ( tmpDelta == 0 ) ? MCAST_MAX_PT : outPtCB / tmpDelta;
     }
+
     //outPtCB = ScaleApply( fabs( outPtCB ), s1_CB, s2_CB, scaleCB );
     outPtCB = ScaleApply( fabs( outPtCB ), scaleCB );
     if( m_Trel >= MCAST::Release::Rel17_2_Sum13 ) {
       if( m_Tsmear == MCAST::SmearingType::Pt )  outPtCB = outPtCB * tmpDelta;
       if( m_Tsmear == MCAST::SmearingType::QoverPt ) outPtCB = ( tmpDelta == 0 ) ? MCAST_MAX_PT : outPtCB / tmpDelta;
     }
+
     return outPtCB;
   }
   return 0.;
@@ -2519,8 +2517,8 @@ double MuonCalibrationAndSmearingTool::GetSystVariation( int DetType, double var
       m_cbCovMat.push_back(covCB(i,j));
   
   if(m_doNotUseAMGMATRIXDECOR){
-    mu.auxdata< std::vector <float> > ( "StatCombCBPars" ) =  m_cbParsA;
-    mu.auxdata< std::vector <float > > ( "StatCombCBCovariance" ) = m_cbCovMat;
+    mu.auxdata< std::vector <float> > ( "StatCombCBParsVector" ) =  m_cbParsA;
+    mu.auxdata< std::vector <float > > ( "StatCombCBCovarianceVector" ) = m_cbCovMat;
   }
   if(!m_doNotUseAMGMATRIXDECOR){
     mu.auxdata< AmgVector(5) >( "StatCombCBPars" ) = parsCB;
@@ -2620,6 +2618,8 @@ bool MuonCalibrationAndSmearingTool::isBadMuon( const xAOD::Muon& mu ) const {
     const xAOD::TrackParticle*       idtrack = mu.trackParticle( xAOD::Muon::InnerDetectorTrackParticle );
     const xAOD::TrackParticle*       metrack = mu.trackParticle( xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle );
     const xAOD::TrackParticle*       cbtrack = mu.trackParticle( xAOD::Muon::CombinedTrackParticle );
+    ATH_MSG_VERBOSE("ME ERROR "<<sqrt( metrack->definingParametersCovMatrix()(4,4) )<<" ID ERROR"<<sqrt( idtrack->definingParametersCovMatrix()(4,4) )<<" CB error "<<sqrt( cbtrack->definingParametersCovMatrix()(4,4) ));
+
     // ::
     bool IsBadMuon = false;
     if( idtrack && metrack && cbtrack ) {
@@ -2630,8 +2630,11 @@ bool MuonCalibrationAndSmearingTool::isBadMuon( const xAOD::Muon& mu ) const {
       // recipe for high-pt selection
       // From Peter ( qOverPerr_ME*1000. > sqrt( pow(0.07*fabs(qOverP_ME*1000),2) + pow(0.0005*sin(metrack->theta()),2) ) );
       // an other recipie.... 
+      ATH_MSG_VERBOSE("fabs("<<qOverPerr_ME<<"/"<<qOverP_ME<<") < sqrt( pow(8/"<<m_ptms<<",2) + pow(0.07,2) + pow(0.0005*"<<m_ptms<<",2))");
+
       IsBadMuon = fabs(qOverPerr_ME / qOverP_ME)<sqrt( pow(8/m_ptms,2) + pow(0.07,2) + pow(0.0005*m_ptms,2));
     }
+    ATH_MSG_VERBOSE( std::string(IsBadMuon ? " IS BAD MUON ": " IS GOOD MUON"));
     return IsBadMuon;
 }
 
