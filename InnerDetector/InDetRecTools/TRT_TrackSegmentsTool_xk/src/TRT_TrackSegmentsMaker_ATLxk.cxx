@@ -469,7 +469,7 @@ MsgStream& InDet::TRT_TrackSegmentsMaker_ATLxk::dumpConditions( MsgStream& out )
   int n  = 62-fieldmode[mode].size();
   std::string s3; for(int i=0; i<n; ++i) s3.append(" "); s3.append("|");
 
-  n     = 62-m_trtcontainer.name().size();
+  n     = 62-m_trtcontainer.key().size();
   std::string s4; for(int i=0; i<n; ++i) s4.append(" "); s4.append("|");
 
   n     = 62-m_propTool.type().size();
@@ -489,7 +489,7 @@ MsgStream& InDet::TRT_TrackSegmentsMaker_ATLxk::dumpConditions( MsgStream& out )
   out<<"| Tool tracks extension   | "<<m_extensionTool.type()<<s7<<std::endl;    
   out<<"| Tool track-prd associa  | "<<m_assoTool     .type()<<s8<<std::endl;
   out<<"| Magnetic field mode     | "<<fieldmode[mode]       <<s3<<std::endl;
-  out<<"| TRT container           | "<<m_trtcontainer.name().size()             <<s4<<std::endl;
+  out<<"| TRT container           | "<<m_trtcontainer.key().size()             <<s4<<std::endl;
   out<<"| Min. number straws      | "
      <<std::setw(12)<<m_clustersCut
      <<"                                                  |"<<std::endl;
