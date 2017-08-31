@@ -7,7 +7,6 @@
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "GaudiKernel/StatusCode.h"     
 #include "InDetIdentifier/PixelID.h"
-#include "LWHists/LWHist.h"
 
 class array;
 class string;
@@ -47,13 +46,6 @@ class HolderTemplate {
         m_config{config},
         m_copy2DFEval{copy2DFEval},
         m_doIBL{true} {}
-
-  //! Destructor to allow safe deletion of booked memory
-  inline ~HolderTemplate() {
-    for (auto& hist : m_histograms) {
-      LWHist::safeDelete(hist);
-    }
-  }
 
   //! Function for histogram formatting. To be reimplemented in derived classes.
   virtual void formatHist() = 0;
