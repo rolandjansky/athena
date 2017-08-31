@@ -27,15 +27,15 @@ def usage():
     print "-g, --gain=, -a, --adc=  specify adc(gain) to use, default is 2 (i.e. both low and high gains)"
     print "-C, --comment   print comment for every IOV"
     print "-d, --default   print also default values stored in AUX01-AUX20"
-    print "-b, --blob      print additional blob info"
+    print "-B, --blob      print additional blob info"
     print "-H, --hex       print frag id instead of module name"
     print "-P, --pmt       print pmt number in addition to channel number"
     print "-s, --schema=   specify schema to use, like 'COOLOFL_TILE/CONDBR2' or 'sqlite://;schema=tileSqlite.db;dbname=CONDBR2' or tileSqlite.db"
     print "-D, --dbname=   specify dbname part of schema if schema only contains file name, default is CONDBR2'"
     print "-w, --warning   suppress warning messages about missing drawers in DB"
     
-letters = "hr:l:s:t:f:D:dbHPwm:b:e:a:g:c:C"
-keywords = ["help","run=","lumi=","schema=","tag=","folder=","dbname=","default","blob","hex","pmt","warning","module=","begin=","end=","chmin=","chmax=","gain=","chan=","comment"]
+letters = "hr:l:s:t:f:D:dBHPwm:b:e:a:g:c:N:X:C"
+keywords = ["help","run=","lumi=","schema=","tag=","folder=","dbname=","default","blob","hex","pmt","warning","module=","begin=","end=","chmin=","chmax=","gain=","adc=","chan=","comment"]
 
 try:
     opts, extraparams = getopt.getopt(sys.argv[1:],letters,keywords)
@@ -112,7 +112,7 @@ for o, a in opts:
         comment = True
     elif o in ("-d","--default"):
         rosmin = 0
-    elif o in ("-b","--blob"):
+    elif o in ("-B","--blob"):
         blob = True
     elif o in ("-H","--hex"):
         hexid = True
@@ -187,8 +187,8 @@ log.info("Initializing folder %s with tag %s" % (folderPath, folderTag))
 mgr = TileBchTools.TileBchMgr()
 mgr.setLogLvl(logLevel)
 mgr.initialize(db, folderPath, folderTag, (run,lumi), warn, -2)
-if comment or warn<0:
-    reader = TileCalibTools.TileBlobReader(db,folderPath,folderTag)
+if iov or comment or warn<0:
+    blobReader = TileCalibTools.TileBlobReader(db,folderPath,folderTag)
 
 #=== Dump the current isBad definition
 isBadDef = mgr.getAdcProblems(0, TileCalibUtils.definitions_draweridx(), TileCalibUtils.bad_definition_chan(), 0)
@@ -254,8 +254,7 @@ if iov:
         COOL_chan = 1000
 
     try:
-      br = TileCalibTools.TileBlobReader(db,folderPath, folderTag)
-      dbobjs = br.getDBobjsWithinRange(COOL_part,COOL_chan)
+      dbobjs = blobReader.getDBobjsWithinRange(COOL_part,COOL_chan)
       if (dbobjs == None): raise Exception("No DB objects retrieved when building IOV list!")
       while dbobjs.goToNext():
 	obj = dbobjs.currentRef()
@@ -267,9 +266,7 @@ if iov:
 	untilRun = objuntil >> 32
 	untilLum = objuntil & 0xFFFFFFFF
 	until    = (untilRun, untilLum)
-
-	iov = (since, until)
-	iovList.append(iov)
+	iovList.append((since, until))
     except:
       log.warning( "Warning: can not read IOVs from input DB file" )
       sys.exit(2)
@@ -337,7 +334,7 @@ for iovs in iovList:
     if iov:
         pref = "(%i,%i)  " % (iovs[0][0],iovs[0][1])
     if comment:
-        log.info( reader.getComment(iovs[0]) )
+        log.info( blobReader.getComment(iovs[0]) )
     modOk = False
     miss  = 0
     good  = 0
@@ -353,7 +350,7 @@ for iovs in iovList:
 	    else:
 		modName = TileCalibUtils.getDrawerString(ros,mod)
 	    if warn<0:
-		bch = reader.getDrawer(ros, mod, (run,lumi), False, False)
+		bch = blobReader.getDrawer(ros, mod, iovs[0], False, False)
 		if bch is None:
 		    modOk = False
 		    miss+=1
