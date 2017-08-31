@@ -51,7 +51,9 @@ InDet::InDetTrackHoleSearchTool::InDetTrackHoleSearchTool(const std::string& t,
   m_usepix(true),
   m_usesct(true),
   m_checkBadSCTChip(true),
-  m_warning(0)
+  m_warning(0),
+ // Initialization of ID pixel helper
+  m_atlasId(nullptr) 
 {
   declareInterface<ITrackHoleSearchTool>(this);
   declareProperty("Extrapolator"         , m_extrapolator);
