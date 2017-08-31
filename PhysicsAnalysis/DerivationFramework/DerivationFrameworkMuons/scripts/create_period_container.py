@@ -111,9 +111,6 @@ def makeContainer(c1):
     ### write out script if asked
     if c1.outScript:
         with open(c1.outScript,'a') as f1:
-            f1.write("# INCLUDE "+str(len(ds))+' RUNS\n')
-            if len(runs) !=0:
-                f1.write('# MISSING '+' '.join(runs)+'\n')
             f1.write(cmd+'\n')
         return
 
@@ -197,78 +194,6 @@ def do2016LaterPeriods():
             c1.derivation = d
             makeContainer(c1)
 
-
-def doP2950():
-    grl15 = '/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data15_13TeV/20160720/physics_25ns_20.7.xml'
-    grl16 = '/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data16_13TeV/20170215/physics_25ns_20.7_ignoreToroidStatus.xml'
-    c1 = config1('data16_13TeV', 'MUON0', 'A', sTag='grp16_v01_', acceptTags=['p2769'], autoCreate=False, grl=grl16)
-    c1.outScript = 'createIt_p2950.sh'
-
-    ### 2016
-    periods = AtlasAPI.list_dataperiods(client, 2, 16)
-    c1.project = 'data16_13TeV'
-    c1.sTag='grp16_v01_'
-    c1.acceptTags=['p2950']
-    c1.grl = grl16
-
-    pds =[p['period'] for p in periods if p['status']=='frozen']
-    for p in pds:
-        for d in ['MUON0','MUON1','MUON2','MUON3']:
-            c1.period = p
-            c1.derivation = d
-            makeContainer(c1)
-
-    ### 2015
-    periods = AtlasAPI.list_dataperiods(client, 2, 15)
-    c1.project = 'data15_13TeV'
-    c1.sTag='grp15_v01_'
-    c1.acceptTags=['p2950']
-    c1.grl = grl15
-
-    pds =[p['period'] for p in periods if p['status']=='frozen']
-    for p in pds:
-        for d in ['MUON0','MUON1','MUON2','MUON3']:
-            c1.period = p
-            c1.derivation = d
-            makeContainer(c1)
-
-def doP3043():
-    grl15 = '/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data15_13TeV/20160720/physics_25ns_20.7.xml'
-    grl16 = '/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data16_13TeV/20170215/physics_25ns_20.7_ignoreToroidStatus.xml'
-    c1 = config1('data16_13TeV', 'MUON0', 'A', sTag='grp16_v01_', acceptTags=['p2769'], autoCreate=False, grl=grl16)
-    c1.outScript = 'createIt_p3043.sh'
-
-    ### 2016
-    periods = AtlasAPI.list_dataperiods(client, 2, 16)
-    c1.project = 'data16_13TeV'
-    c1.sTag='grp16_v01_'
-    c1.acceptTags=['p3043']
-    c1.grl = grl16
-
-    pds =[p['period'] for p in periods if p['status']=='frozen']
-    for p in pds:
-        for d in ['MUON1']:
-            c1.period = p
-            c1.derivation = d
-            makeContainer(c1)
-
-    ### 2015
-    periods = AtlasAPI.list_dataperiods(client, 2, 15)
-    c1.project = 'data15_13TeV'
-    c1.sTag='grp15_v01_'
-    c1.acceptTags=['p3043']
-    c1.grl = grl15
-
-    pds =[p['period'] for p in periods if p['status']=='frozen']
-    for p in pds:
-        for d in ['MUON1']:
-            c1.period = p
-            c1.derivation = d
-            makeContainer(c1)
-
-
 if __name__ == '__main__':
-#     doP2950()
-    doP3043()
-#     do2016LaterPeriods()
+    do2016LaterPeriods()
 #     doData15()

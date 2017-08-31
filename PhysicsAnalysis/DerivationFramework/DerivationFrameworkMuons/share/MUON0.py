@@ -9,6 +9,29 @@
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkMuons.MuonsCommon import *
 # from DerivationFrameworkJetEtMiss.METCommon import *
+
+#====================================================================
+# SET UP STREAM   
+#====================================================================
+streamName = derivationFlags.WriteDAOD_MUON0Stream.StreamName
+fileName   = buildFileName( derivationFlags.WriteDAOD_MUON0Stream )
+MUON0Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+MUON0Stream.AcceptAlgs(["MUON0Kernel"])
+
+# augStream = MSMgr.GetStream( streamName )
+# evtStream = augStream.GetEventStream()
+
+# triggerList = ['HLT_.*mu\d+.*', 'L1_.*MU\d+.*', 'HLT_noalg_L1.*MU\d+.*']
+triggerList1 = ['HLT_.*mu\d+.*', 'L1_.*MU.*', 'HLT_noalg_L1.*MU.*']
+triggerList = ['HLT_.*mu.*', 'L1_.*MU.*', 'HLT_noalg_L1.*MU.*']
+
+from DerivationFrameworkCore.ThinningHelper import ThinningHelper
+MUON0ThinningHelper = ThinningHelper( "MUON0ThinningHelper" )
+MUON0ThinningHelper.TriggerChains = '|'.join(triggerList1)
+print MUON0ThinningHelper.TriggerChains
+MUON0ThinningHelper.AppendToStream( MUON0Stream )
+
+
 #====================================================================
 # AUGMENTATION TOOLS 
 #====================================================================
@@ -19,7 +42,6 @@ from DerivationFrameworkMuons.MuonsCommon import *
 MUON0_skimming_tools = []
 
 ### trigger seleciton
-triggerList = ['HLT_.*mu.*', 'L1_.*MU.*', 'HLT_noalg_L1.*MU.*']
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
 MUON0SkimmingTool0a = DerivationFramework__TriggerSkimmingTool(name = "MUON0SkimmingTool0a",
                                                               TriggerListOR = triggerList,
@@ -41,6 +63,7 @@ ToolSvc += MUON0SkimmingTool0
 
 ### adding the combined tool
 MUON0_skimming_tools.append(MUON0SkimmingTool0)
+
 #====================================================================
 # THINNING TOOL 
 #====================================================================
@@ -51,25 +74,27 @@ MUON0_thinning_tools = []
 thinning_expression2 = "Muons.pt > 4*GeV"
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 MUON0ThinningTool2 = DerivationFramework__MuonTrackParticleThinning(name                    = "MUON0ThinningTool2",
-                                                                    ThinningService         = "MUON0ThinningSvc",
+                                                                    ThinningService         = MUON0ThinningHelper.ThinningSvc(),
                                                                     MuonKey                 = "Muons",
                                                                     SelectionString         = thinning_expression2,
                                                                     ConeSize                = 0.4,
-                                                                    ApplyAnd                = True,
+                                                                    ApplyAnd                = False,
                                                                     InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += MUON0ThinningTool2
 MUON0_thinning_tools.append(MUON0ThinningTool2)
 
-## keep tracks pt>2GeV
-# thinning_expression3 = "InDetTrackParticles.pt > 2*GeV"
-# from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-# MUON0ThinningTool3 = DerivationFramework__TrackParticleThinning(name                    = "MUON0ThinningTool3",
-#                                                                 ThinningService         = "MUON0ThinningSvc",
-#                                                                 SelectionString         = thinning_expression3,
-#                                                                 ApplyAnd                = False,
-#                                                                 InDetTrackParticlesKey  = "InDetTrackParticles")
-# ToolSvc += MUON0ThinningTool3
-# MUON0_thinning_tools.append(MUON0ThinningTool3)
+### also for forward tracks
+thinning_expression3 = "Muons.muonType==4"
+MUON0ThinningTool2f = DerivationFramework__MuonTrackParticleThinning(name                   = "MUON0ThinningTool2f",
+                                                                    ThinningService         = MUON0ThinningHelper.ThinningSvc(),
+                                                                    MuonKey                 = "Muons",
+                                                                    SelectionString         = thinning_expression3,
+                                                                    ConeSize                = 0.5,
+                                                                    ApplyAnd                = False,
+                                                                    InDetTrackParticlesKey  = "InDetForwardTrackParticles")
+ToolSvc += MUON0ThinningTool2f
+MUON0_thinning_tools.append(MUON0ThinningTool2f)
+
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS  
 #====================================================================
@@ -79,19 +104,7 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("MUON0Ker
                                                                         ThinningTools = MUON0_thinning_tools,
                                                                         SkimmingTools = MUON0_skimming_tools
                                                                       )
-#====================================================================
-# SET UP STREAM   
-#====================================================================
-streamName = derivationFlags.WriteDAOD_MUON0Stream.StreamName
-fileName   = buildFileName( derivationFlags.WriteDAOD_MUON0Stream )
-MUON0Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-# Only events that pass the filters listed below are written out.
-MUON0Stream.AcceptAlgs(["MUON0Kernel"])
 
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="MUON0ThinningSvc", outStreams=[evtStream] ) 
 #====================================================================
 # CONTENT LIST  
 #====================================================================

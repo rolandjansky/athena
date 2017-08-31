@@ -22,14 +22,12 @@ use TrkExInterfaces             TrkExInterfaces-*               Tracking/TrkExtr
 private
 use  AthenaKernel               AthenaKernel-*                  Control
 use  AtlasCLHEP                 AtlasCLHEP-*                    External
+#use  MuonRecToolInterfaces      MuonRecToolInterfaces-*         MuonSpectrometer/MuonReconstruction/MuonRecTools
 use  xAODEventInfo              xAODEventInfo-*                 Event/xAOD
 use  xAODTracking               xAODTracking-*                  Event/xAOD
 use  xAODTruth                  xAODTruth-*                     Event/xAOD
-<<<<<<< HEAD
-=======
 #use  TrkExInterfaces            TrkExInterfaces-*               Tracking/TrkExtrapolation/TrkExInterfaces
 use AthenaBaseComps             AthenaBaseComps-*               Control
->>>>>>> Moved muonTP files into derivation framework
 end_private
 ################################################################
 #

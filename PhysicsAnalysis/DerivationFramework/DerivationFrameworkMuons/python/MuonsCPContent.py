@@ -1,28 +1,10 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
 MuonsCPContent = [
 "CombinedMuonTrackParticles",
-<<<<<<< HEAD
-"CombinedMuonTrackParticlesAux.phi.theta.qOverP.numberOfPixelHits.numberOfPixelHoles.numberOfPixelDeadSensors.numberOfSCTHits.numberOfSCTHoles.numberOfSCTDeadSensors.numberOfTRTHits.numberOfTRTOutliers.numberOfPrecisionLayers.numberOfPrecisionHoleLayers",
-"ElectronCollection",
-"ElectronCollectionAux.trackParticleLinks.pt.eta.phi.m.f1.topoetcone40",
-=======
 "CombinedMuonTrackParticlesAux.phi.theta.qOverP.numberOfPixelHits.numberOfPixelHoles.numberOfPixelDeadSensors.numberOfSCTHits.numberOfSCTHoles.numberOfSCTDeadSensors.numberOfTRTHits.numberOfTRTOutliers.numberOfPrecisionLayers.numberOfPrecisionHoleLayers.d0.z0.vz.definingParametersCovMatrix.vertexLink.truthParticleLink.chiSquared.numberDoF.numberOfPhiLayers.numberOfPhiHoleLayers.numberOfInnermostPixelLayerHits.alignEffectChId.alignEffectDeltaTrans.alignEffectSigmaDeltaTrans.alignEffectDeltaAngle.alignEffectSigmaDeltaAngle",
->>>>>>> Moved muonTP files into derivation framework
 "ExtrapolatedMuonTrackParticles",
-"ExtrapolatedMuonTrackParticlesAux.phi.theta.qOverP",
 "GSFTrackParticles",
-"GSFTrackParticlesAux.phi.theta",
 "InDetTrackParticles",
-"InDetTrackParticlesAux.phi.theta.qOverP",
 "Muons",
-<<<<<<< HEAD
-"MuonsAux.pt.eta.phi.author.muonType.inDetTrackParticleLink.muonSpectrometerTrackParticleLink.combinedTrackParticleLink.momentumBalanceSignificance",
-"PhotonCollection",
-"PhotonCollectionAux.pt.eta.phi.m.caloClusterLinks.author.f1.topoetcone40.Tight",
-"egClusterCollection",
-"egClusterCollectionAux.calEta.calPhi"
-=======
 "Photons",
 "egammaClusters",
 "Electrons",
@@ -40,5 +22,4 @@ MuonsCPContent = [
 "InDetForwardTrackParticles",
 "InDetForwardTrackParticlesAux.theta.phi.qOverP.numberOfPrecisionLayers.numberOfPrecisionHoleLayers.numberOfPixelHits.numberOfPixelDeadSensors.numberOfSCTHits.numberOfSCTDeadSensors.d0.z0.vz.definingParametersCovMatrix.numberOfPixelHoles.numberOfSCTHoles.numberOfTRTHits.numberOfTRTOutliers",
 "ExtrapolatedMuonTrackParticlesAux.numberOfPrecisionHoleLayers.numberOfPixelHoles.numberOfSCTHits.numberOfSCTHoles.numberOfSCTDeadSensors.numberOfTRTHits.numberOfTRTOutliers.phi.qOverP.theta.definingParametersCovMatrix.numberOfPixelDeadSensors.numberOfPixelHits.numberOfPrecisionLayers.alignEffectChId.alignEffectDeltaTrans.alignEffectSigmaDeltaTrans.alignEffectDeltaAngle.alignEffectSigmaDeltaAngle",
->>>>>>> Moved muonTP files into derivation framework
 ]

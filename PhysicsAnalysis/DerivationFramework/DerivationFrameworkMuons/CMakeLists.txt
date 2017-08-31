@@ -23,6 +23,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkExtrapolation/TrkExInterfaces
                           PRIVATE
                           Control/AthenaKernel
+			  Control/AthenaBaseComps
                           Event/xAOD/xAODEventInfo
                           Event/xAOD/xAODTracking
                           Event/xAOD/xAODTruth )

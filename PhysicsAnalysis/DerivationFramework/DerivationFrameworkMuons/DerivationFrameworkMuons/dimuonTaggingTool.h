@@ -22,6 +22,9 @@
 // xAOD header files
 #include "xAODMuon/MuonContainer.h"
 
+class IMuonTPExtrapolationTool;
+class IIDTrackCaloDepositsDecoratorTool;
+
 namespace DerivationFramework {
   /** @class dimuonTaggingTool
       @author Dongliang.Zhang@cern.ch
@@ -50,6 +53,8 @@ namespace DerivationFramework {
     StatusCode fillInfo(int* keep, std::vector<int>& trackMask) const;
     void maskNearbyIDtracks(const xAOD::IParticle *mu, std::vector< int >& trackMask, const xAOD::TrackParticleContainer* tracks) const;
 
+    ToolHandle< IMuonTPExtrapolationTool > m_tpExpTool;
+    ToolHandle< IIDTrackCaloDepositsDecoratorTool > m_caloDepoTool;
     ToolHandle< Trig::ITrigMuonMatching > m_matchTool;
     float m_triggerMatchDeltaR;
     ToolHandle< Trig::TrigDecisionTool > m_trigDecisionTool;
@@ -71,6 +76,7 @@ namespace DerivationFramework {
     std::string m_trackSGKey;
     bool m_useTrackProbe;
     std::string m_br_prefix;
+//     SG::AuxElement::Decorator< int >* deco_trkFlag;
 
     bool m_requireOS;
     float m_dPhiMin;

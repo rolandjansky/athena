@@ -7,6 +7,7 @@
 # This should appear in ALL derivation job options
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkMuons.MuonsCommon import *
+# from DerivationFrameworkJetEtMiss.METCommon import *
 import AthenaCommon.SystemOfUnits as Units
 if not hasattr(ToolSvc,"IDTrackCaloDepositsDecoratorTool"):
   from DerivationFrameworkMuons.DerivationFrameworkMuonsConf import IDTrackCaloDepositsDecoratorTool
@@ -113,13 +114,11 @@ ToolSvc += MUON2ThinningTool2
 #====================================================================
 if not hasattr(DerivationFrameworkJob,"MUONSequence"):
     MUONSeq = CfgMgr.AthSequencer("MUONSequence")
+    DerivationFrameworkJob += MUONSeq
 
     if not hasattr(MUONSeq,"Muons_decoratePromptLepton"):
-        from DerivationFrameworkJetEtMiss.JetCommon import addStandardJets 
-        addStandardJets("AntiKt", 0.4, "PV0Track", 2000, mods="track_ungroomed", algseq=MUONSeq, outputGroup="MUON")
         import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as Config
         MUONSeq += Config.GetDecoratePromptLeptonAlgs()
-    DerivationFrameworkJob += MUONSeq
 
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS 
