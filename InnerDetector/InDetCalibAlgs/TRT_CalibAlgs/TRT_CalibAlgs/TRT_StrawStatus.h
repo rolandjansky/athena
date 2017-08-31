@@ -15,6 +15,13 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkToolInterfaces/IUpdator.h"
 
+#include "xAODEventInfo/EventInfo.h"
+#include "InDetRawData/TRT_RDO_Container.h"
+#include "DataModel/DataVector.h"
+#include "TrkTrack/Track.h"
+#include "VxVertex/VxContainer.h"
+#include "StoreGate/ReadHandleKey.h"
+
 #include <stdlib.h>
 #include <string.h>
 #include <string>
@@ -115,8 +122,11 @@ namespace InDet
       ToolHandle<Trk::IUpdator> m_updator;
       double m_locR_cut;
 
-
-      std::string m_tracksName;
+      SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey;
+      SG::ReadHandleKey<TRT_RDO_Container> m_rdoContainerKey;
+      SG::ReadHandleKey<DataVector<Trk::Track>> m_tracksName;
+      SG::ReadHandleKey<VxContainer> m_vxContainerKey;
+      //std::string m_tracksName;
       std::string m_fileName;         
       int m_skipBusyEvents;
 
