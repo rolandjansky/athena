@@ -1734,7 +1734,7 @@ TrigMuonEFStandaloneTrackTool::buildTracks(const MuonSegmentCombinationCollectio
 	else
 	  chi2prob = 0.;
       }
-      double eta =  -log(fabs(tan(theta*0.5)));
+      double eta =  -log(tan(theta*0.5));
       
       unsigned short int nRpcEtaHits = 0;
       unsigned short int nRpcPhiHits = 0;
@@ -1903,7 +1903,7 @@ TrigMuonEFStandaloneTrackTool::extrapolate(const xAOD::TrackParticleContainer* s
       else
 	chi2prob = 0.;
     }
-    double eta =  -log(fabs(tan(theta*0.5)));
+    double eta =  -log(tan(theta*0.5));
     
     unsigned short int nRpcEtaHits = 0;
     unsigned short int nRpcPhiHits = 0;

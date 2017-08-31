@@ -90,19 +90,14 @@ PixelMainMon::PixelMainMon(const std::string & type,
    declareProperty("TrackName",        m_TracksName            = "Pixel_Cosmic_Tracks");         
 
    declareProperty("onTrack",          m_doOnTrack         = false); //using inner detector tracks
-   declareProperty("onPixelTrack",     m_doOnPixelTrack    = false); //using pixel only tracks
    declareProperty("do2DMaps",         m_do2DMaps          = false);   
    declareProperty("doModules",        m_doModules         = false); 
-   declareProperty("doFEChipSummary",  m_doFEChipSummary   = false);
    declareProperty("doOffline",        m_doOffline         = false);
    declareProperty("doOnline",         m_doOnline          = false);
    declareProperty("doLowOccupancy",   m_doLowOccupancy    = false);
    declareProperty("doHighOccupancy",  m_doHighOccupancy   = false);
    declareProperty("doPixelOccupancy", m_doPixelOccupancy  = false); 
-   declareProperty("doRodSim",         m_doRodSim          = false);
    declareProperty("doDetails",        m_doDetails         = false);
-   declareProperty("doSpectrum",       m_doSpectrum        = false);
-   declareProperty("doNoiseMap",       m_doNoiseMap        = false);
    declareProperty("doTiming",         m_doTiming          = false);
    declareProperty("doLumiBlock",      m_doLumiBlock       = false);
    declareProperty("doOfflineAnalysis",m_doOfflineAnalysis = false); // !!! if true using a lot of memory to be absolutely avoided for monitoring
@@ -116,7 +111,6 @@ PixelMainMon::PixelMainMon(const std::string & type,
    declareProperty("doStatus",        m_doStatus     = false);
    declareProperty("doDCS",           m_doDCS        = false);
 
-   declareProperty("doDegFactorMap",  m_doDegFactorMap = true);
    declareProperty("doHeavyIonMon",   m_doHeavyIonMon = false);
 
    declareProperty("doIBL",           m_doIBL = false);
@@ -126,7 +120,7 @@ PixelMainMon::PixelMainMon(const std::string & type,
    declareProperty("DetailsMod2",     m_DetailsMod2 = "");
    declareProperty("DetailsMod3",     m_DetailsMod3 = "");
    declareProperty("DetailsMod4",     m_DetailsMod4 = "");
-   declareProperty("OccupancyCut",    m_occupancy_cut = 1e-5);
+
 
    m_lbRange = 3000;
    m_bcidRange = 3600;
@@ -227,9 +221,6 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_hiteff_mod = 0;
    m_FE_chip_hit_summary = 0;
    m_pixel_occupancy = 0;
-   /// ROD Sim
-   m_RodSim_BCID_minus_ToT = 0;
-   m_RodSim_FrontEnd_minus_Lvl1ID = 0;
    /// details
    m_Details_mod1_num_hits = 0;
    m_Details_mod2_num_hits = 0;
@@ -275,9 +266,6 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_LorentzAngle_B0 = 0;
    m_LorentzAngle_B1 = 0;
    m_LorentzAngle_B2 = 0;
-   /// degradation factor
-   m_degFactorMap = 0;
-   m_degFactorMap_per_lumi = 0;
    /// cluster size
    memset(m_clusize_ontrack_mod, 0, sizeof(m_clusize_ontrack_mod));
    memset(m_clusize_offtrack_mod, 0, sizeof(m_clusize_offtrack_mod));
@@ -714,15 +702,6 @@ StatusCode PixelMainMon::bookHistograms()
 
    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "bookHistograms()" << endmsg; 
 
-   if(m_environment==AthenaMonManager::tier0Raw&&!m_doOnline)
-   {
-     //m_doRDO        = false;
-     //m_doRODError   = false;
-     //m_doSpacePoint = false;
-     //m_doCluster    = false;
-     //m_doStatus     = false;
-     //m_doTrack      = false;
-   }
    if(m_environment==AthenaMonManager::tier0ESD&&!m_doOnline)
    {
      m_doRDO        = false;
@@ -782,7 +761,6 @@ StatusCode PixelMainMon::bookHistograms()
    ///
      std::string path_hits = "Pixel/Hits";
      if(m_doOnTrack)      path_hits.replace(path_hits.begin(), path_hits.end(), "Pixel/HitsOnTrack");
-     if(m_doOnPixelTrack) path_hits.replace(path_hits.begin(), path_hits.end(), "Pixel/HitsOnPixelTrack");
      MonGroup hitsHistos(   this, path_hits.c_str(),  run, ATTRIB_MANAGED ); //declare a group of histograms
      StatusCode sc;
      sc = hitsHistos.regHist(m_mu_vs_bcid = TProfile_LW::create("Interactions_vs_bcid", "<Interactions> vs BCID;BCID;<#Interactions/event>"    , m_bcidRange,-0.5,-0.5+(1.0*m_bcidRange)));
@@ -793,7 +771,6 @@ StatusCode PixelMainMon::bookHistograms()
    ///
    std::string path = "Pixel/Errors";
    if(m_doOnTrack) path.replace(path.begin(), path.end(), "Pixel/ErrorsOnTrack");
-   if(m_doOnPixelTrack) path.replace(path.begin(), path.end(), "Pixel/ErrorsOnPixelTrack");
    MonGroup errorHistos( this, path.c_str(), run, ATTRIB_MANAGED ); //declare a group of histograms
    sc = errorHistos.regHist(m_storegate_errors = TH2F_LW::create("storegate_errors",  ("Storegate Errors" + m_histTitleExt + ";Container Name;Error Type").c_str(), 6,0.5,6.5,5,0.5,5.5));
    if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book histograms" << endmsg; 
@@ -1037,8 +1014,6 @@ StatusCode PixelMainMon::procHistograms()
   if ( endOfLumiBlockFlag() )
     {
       m_LBendTime = m_currentTime;
-      //if (m_doTrack) { sc=ProcTrackMon(); }
-      //if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not proc histograms" << endmsg; 
     }
   
   if ( !m_doOnline && endOfRunFlag() )
@@ -1072,5 +1047,4 @@ StatusCode PixelMainMon::procHistograms()
   
   return StatusCode::SUCCESS;
 }
-
 
