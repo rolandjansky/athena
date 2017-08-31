@@ -65,6 +65,7 @@ TileRawChannelNoiseMonTool::TileRawChannelNoiseMonTool(const std::string & type,
   , m_map_rms{}
   , m_gain(1)
   , m_nEventsProcessed(0)
+  , m_nChannelsInDrawerThreshold(20)
 /*---------------------------------------------------------*/
 {
   declareInterface<IMonitorToolBase>(this);
@@ -84,6 +85,7 @@ TileRawChannelNoiseMonTool::TileRawChannelNoiseMonTool(const std::string & type,
   declareProperty("TileCondToolEmscale", m_tileToolEmscale);
   declareProperty("Gain", m_gainName = "HG"); // gain to be processed
   declareProperty("TriggerTypes", m_triggerTypes);
+  declareProperty("ChannelsNumberInDrawerThreshold", m_nChannelsInDrawerThreshold);
 
   m_path = "/Tile/RawChannelNoise";
 }
@@ -509,7 +511,7 @@ StatusCode TileRawChannelNoiseMonTool::fillHistoPerRawChannel() {
   // Loop over the containers
   for (const TileRawChannelCollection* rawChannelCollection : *rawChannelContainer) {
 
-    if (rawChannelCollection->empty()) continue;
+    if (rawChannelCollection->size() < m_nChannelsInDrawerThreshold) continue;
 
     int fragId = rawChannelCollection->identify();
     IdentifierHash fragHash = (rawChannelContainerDSP->hashFunc())(fragId);
