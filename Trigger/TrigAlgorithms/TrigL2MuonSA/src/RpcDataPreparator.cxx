@@ -26,6 +26,7 @@
 
 using namespace Muon;
 using namespace MuonGM;
+using namespace SG;
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -47,8 +48,12 @@ TrigL2MuonSA::RpcDataPreparator::RpcDataPreparator(const std::string& type,
    m_rpcPrepDataProvider("Muon::RpcRdoToPrepDataTool/RpcPrepDataProviderTool"),
    m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool")
 {
+
+   ATH_MSG_INFO("RpcDataPreparator!!!");
+
    declareInterface<TrigL2MuonSA::RpcDataPreparator>(this);
    declareProperty("RpcPrepDataProvider", m_rpcPrepDataProvider);
+
 }
 
 // --------------------------------------------------------------------------------
@@ -236,8 +241,8 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
      const RpcPrepDataContainer* rpcPrds = 0;
      std::string rpcKey = "RPC_Measurements";
      
-     if (m_activeStore) {
-       StatusCode sc = (*m_activeStore)->retrieve(rpcPrds, rpcKey);
+     if (m_activeStore) {		//m_activeStore->m_storeGateSvc
+       StatusCode sc = (*m_activeStore)->retrieve(rpcPrds, rpcKey);	//m_activeStore->m_storeGateSvc
        if ( sc.isFailure() ) {
          ATH_MSG_ERROR(" Cannot retrieve RPC PRD Container " << rpcKey);
          return StatusCode::FAILURE;;
