@@ -32,7 +32,13 @@ namespace FTK {
   */
 
 
-  FTKByteStreamDecoderEncoderTool::FTKByteStreamDecoderEncoderTool(const std::string& toolname, const std::string& type, const IInterface* parent) : AthAlgTool(toolname, type, parent) {
+  FTKByteStreamDecoderEncoderTool::FTKByteStreamDecoderEncoderTool(const std::string& toolname, 
+								   const std::string& type, 
+								   const IInterface* parent) 
+    : AthAlgTool(toolname, type, parent),
+      m_encodeHeader(false),
+      m_encodeTrailer(false)
+  {
     declareInterface< FTK::FTKByteStreamDecoderEncoderTool  >( this );
   }
 
@@ -51,13 +57,16 @@ namespace FTK {
     return StatusCode::SUCCESS;
   }
 
-  void FTKByteStreamDecoderEncoderTool::packNumberOfTracks(uint16_t nTracksLowPt, uint16_t nTracksHighPt, std::vector<uint32_t>& rod ){
+  //not used
+  void FTKByteStreamDecoderEncoderTool::packNumberOfTracks(uint16_t nTracksLowPt, uint16_t nTracksHighPt, 
+							   std::vector<uint32_t>& rod ){
     uint32_t size_data = nTracksHighPt;
     size_data <<= 16;
     size_data |= nTracksLowPt;
     rod.push_back( size_data );
   }
 
+  //not used
   void FTKByteStreamDecoderEncoderTool::unpackNumberOfTracks(OFFLINE_FRAGMENTS_NAMESPACE::PointerType rodData, 
 							     uint16_t& nTracksLowPt, uint16_t& nTracksHighPt, uint32_t& nTracks){
     nTracksLowPt  =  rodData[0] & 0xffff; 
@@ -67,26 +76,32 @@ namespace FTK {
     nTracksLowPt += nTracksHighPt; // adding to more capable type
   }
 
-  void FTKByteStreamDecoderEncoderTool::packPixelCluster(const FTK_RawPixelCluster& cluster, std::vector<uint32_t>& payload){
+  
+  void FTKByteStreamDecoderEncoderTool::packPixelCluster(const FTK_RawPixelCluster& cluster, 
+							 std::vector<uint32_t>& payload){
     payload.push_back( cluster.getWordA() );
     payload.push_back( cluster.getWordB() );
   }
 
 
-  void FTKByteStreamDecoderEncoderTool::unpackPixCluster(OFFLINE_FRAGMENTS_NAMESPACE::PointerType data, FTK_RawPixelCluster& cluster){
+  void FTKByteStreamDecoderEncoderTool::unpackPixCluster(OFFLINE_FRAGMENTS_NAMESPACE::PointerType data, 
+							 FTK_RawPixelCluster& cluster){
     cluster.setWordA(*data);
     cluster.setWordB(*(data+1));
   }
 
-  void FTKByteStreamDecoderEncoderTool::packSCTCluster(const FTK_RawSCT_Cluster& cluster, std::vector<uint32_t>& payload){
+  void FTKByteStreamDecoderEncoderTool::packSCTCluster(const FTK_RawSCT_Cluster& cluster, 
+						       std::vector<uint32_t>& payload){
     payload.push_back( cluster.getWord() );
   }
 
-  void FTKByteStreamDecoderEncoderTool::unpackSCTCluster(OFFLINE_FRAGMENTS_NAMESPACE::PointerType data, FTK_RawSCT_Cluster& cluster){
+  void FTKByteStreamDecoderEncoderTool::unpackSCTCluster(OFFLINE_FRAGMENTS_NAMESPACE::PointerType data, 
+							 FTK_RawSCT_Cluster& cluster){
     cluster.setWord(*data);
   }
 
-  void FTKByteStreamDecoderEncoderTool::packTrack(const FTK_RawTrack* track, std::vector<uint32_t>& payload){
+  void FTKByteStreamDecoderEncoderTool::packTrack(const FTK_RawTrack* track, 
+						  std::vector<uint32_t>& payload){
     payload.push_back( track->getTH1() );
     payload.push_back( track->getTH2() );
     payload.push_back( track->getTH3() );
@@ -107,7 +122,8 @@ namespace FTK {
 
   FTK_RawTrack* FTKByteStreamDecoderEncoderTool::unpackFTTrack( OFFLINE_FRAGMENTS_NAMESPACE::PointerType data){
     FTK_RawTrack* track = new FTK_RawTrack(data[0], data[1], data[2], data[3], data[4], data[5]); // first six words are track params
-    ATH_MSG_DEBUG("[Track: " << track->getInvPt() << " " << track->getPhi() << " " << track->getCotTh() << " " << track->getD0() << "]");
+    ATH_MSG_DEBUG("[Track: " << track->getInvPt() << " " << track->getPhi() << " " 
+		  << track->getCotTh() << " " << track->getD0() << "]");
     data += TrackParamsBlobSize;
   
     // get pixel hits  
@@ -124,11 +140,11 @@ namespace FTK {
       size_t offset = SCTHitParamsBlobSize*i;
       unpackSCTCluster(data+offset, track->getSCTCluster(i) );    
     }
-    // no more shifts needed
+    // data pointer  shifted in the unpackFTTrack loop
     return track;
   }
 
-
+  
   void FTKByteStreamDecoderEncoderTool::packHeader(std::vector<uint32_t> &payload){
     payload.push_back(FTKByteStreamDecoderEncoder::headerMarker);
     payload.push_back(FTKByteStreamDecoderEncoder::headerSize);
@@ -149,15 +165,25 @@ namespace FTK {
     //marker
     uint32_t marker = rodData[0];
     if (marker!=FTKByteStreamDecoderEncoder::headerMarker){
-      ATH_MSG_WARNING("Not dealing with an FTK fragment " << std::hex << marker << " vs the marker " << FTKByteStreamDecoderEncoder::headerMarker << std::dec );
+      ATH_MSG_DEBUG("Not dealing with an FTK fragment " << std::hex << marker << " vs the marker " << FTKByteStreamDecoderEncoder::headerMarker << std::dec );
       //rodData += FTKByteStreamDecoderEncoder::headerSize -1;
       return;
     }
-    //size
+    //skip to the end
     rodData += 9;
   }
 
-  void FTKByteStreamDecoderEncoderTool::packTrailer(){
+  void FTKByteStreamDecoderEncoderTool::packTrailer(std::vector<uint32_t> &payload){
+
+    //    packMonitoring()
+    payload.push_back(1);   //extL1id
+    payload.push_back(0);   //error_flag
+    payload.push_back(10);   //reserved word #1
+    payload.push_back(20);   //reserved word #2
+    payload.push_back(0);    //FLIC status
+    payload.push_back(0);    //numelements
+    payload.push_back(0);    //numdataelements
+    payload.push_back(0x1);  //statusBlock
     
   }
 
@@ -215,12 +241,17 @@ namespace FTK {
   
     payload.reserve(TrackParamsBlobSize * container->size() );
   
-    packHeader(payload);
+    if (m_encodeHeader){
+      packHeader(payload);
+    }
+    
     for ( FTK_RawTrackContainer::const_iterator track = container->begin(); 
 	  track != container->end(); ++track ) {
       packTrack(*track, payload);
     }
-    //packTrailer(payload);
+    
+    packTrailer(payload);
+    
     return StatusCode::SUCCESS;
   
   }  
