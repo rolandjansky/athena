@@ -406,7 +406,7 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg
 			wstot, EoverP, ip ));
   
   if (!allFound) {
-    ATH_MSG_ERROR("Skipping LH calculation! The following variables are missing: " << notFoundList );
+    ATH_MSG_ERROR("Skipping LH rectangular cuts! The following variables are missing: " << notFoundList);
     return m_acceptDummy;
   }
   
@@ -507,7 +507,7 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Egamma* eg, 
   
 
   if (!allFound) {
-    ATH_MSG_ERROR("Skipping LH calculation! The following variables are missing: " << notFoundList);
+    ATH_MSG_ERROR("Skipping LH rectangular cuts! The following variables are missing: " << notFoundList);
     return m_acceptDummy;
   }
 
@@ -847,7 +847,7 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Egamma* e
 				 d0sigma, 
 				 Rphi, dpOverp, deltaPhiRescaled2,
 				 TRT_PID,
-		       ip ));
+                                 ip ));
 
   if (!allFound) {
     ATH_MSG_ERROR("Skipping LH calculation! The following variables are missing: " << notFoundList);
