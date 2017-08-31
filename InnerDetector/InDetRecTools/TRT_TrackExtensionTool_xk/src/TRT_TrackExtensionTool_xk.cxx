@@ -255,7 +255,7 @@ MsgStream& InDet::TRT_TrackExtensionTool_xk::dumpConditions( MsgStream& out ) co
   std::string s3; for(int i=0; i<n; ++i) s3.append(" "); s3.append("|");
   n     = 64-m_roadtool.type().size();
   std::string s6; for(int i=0; i<n; ++i) s6.append(" "); s6.append("|");
-  n     = 64-m_trtcontainer.name().size();
+  n     = 64-m_trtcontainer.key().size();
   std::string s7; for(int i=0; i<n; ++i) s7.append(" "); s7.append("|");
   n     = 64-m_riontrackD.type().size();
   std::string s8; for(int i=0; i<n; ++i) s8.append(" "); s8.append("|");
@@ -265,7 +265,7 @@ MsgStream& InDet::TRT_TrackExtensionTool_xk::dumpConditions( MsgStream& out ) co
   out<<"|----------------------------------------------------------------------"
      <<"---------------------|"
      <<std::endl;
-  out<<"| TRT container           | "<<m_trtcontainer.name()           <<s7 <<std::endl;
+  out<<"| TRT container           | "<<m_trtcontainer.key()           <<s7 <<std::endl;
   out<<"| Tool for propagation    | "<<m_proptool    .type()<<s1 <<std::endl;
   out<<"| Tool for updator        | "<<m_updatortool .type()<<s10<<std::endl;
   out<<"| Tool for rio  on trackD | "<<m_riontrackD.type()<<s8 <<std::endl;
