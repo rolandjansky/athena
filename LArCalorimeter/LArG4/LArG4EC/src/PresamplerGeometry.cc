@@ -84,7 +84,6 @@ namespace LArG4 {
       const std::string detectorKey  = LArVersion.empty() ? AtlasVersion : LArVersion;
       const std::string detectorNode = LArVersion.empty() ? "ATLAS" : "LAr";
       
-      pAccessSvc->connect();
       // Note Presampler Lives In DB under "cryostats"..
       IRDBRecordset_ptr presamplerPosition = pAccessSvc->getRecordsetPtr("PresamplerPosition",AtlasVersion,"ATLAS");
       if (presamplerPosition->size()==0) {
@@ -93,8 +92,6 @@ namespace LArG4 {
 	  throw std::runtime_error("Cannot find the PresamplerPosition Table");
 	}
       }
-      pAccessSvc->disconnect();
-      
       
       m_c->rMinEndcap=(*presamplerPosition)[0]->getDouble("RMIN")*CLHEP::cm;
       m_c->rMaxEndcap=(*presamplerPosition)[0]->getDouble("RMAX")*CLHEP::cm;

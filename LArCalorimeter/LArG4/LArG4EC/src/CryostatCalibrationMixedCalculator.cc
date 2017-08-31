@@ -90,7 +90,6 @@ namespace LArG4 {
       std::string detectorKey  = LArVersion.empty() ? AtlasVersion : LArVersion;
       std::string detectorNode = LArVersion.empty() ? "ATLAS" : "LAr";
 
-      pAccessSvc->connect();
       // getting HEC table
       IRDBRecordset_ptr hecNominals = pAccessSvc->getRecordsetPtr("HecNominals",detectorKey,detectorNode);
       if (hecNominals->size()==0) {
@@ -124,24 +123,6 @@ namespace LArG4 {
       m_endZFCal3 = m_startZFCal3 + 2.0*m_hdepthFCal3;
       m_z1BeforeFCal = m_zEMECRefPoint + m_LArEMECLArThickness;
       m_z2BeforeFCal = m_endZHec0;
-
-      //       std::cout << "--- GGG CryostatCalibrationMixedCalculator.cc ---" << std::endl
-      //         << "  m_zShift: " << m_zShift << std::endl
-      //         << "  m_zEMECRefPoint: " << m_zEMECRefPoint << std::endl
-      //         << "  m_LArEMECLArThickness: " << m_LArEMECLArThickness  << std::endl
-      //         << "  m_startZFCal1: " << m_startZFCal1  << std::endl
-      //         << "  m_startZFCal2: " << m_startZFCal2  << std::endl
-      //         << "  m_startZFCal3: " << m_startZFCal3  << std::endl
-      //         << "  m_hdepthFCal1: " << m_hdepthFCal1  << std::endl
-      //         << "  m_hdepthFCal2: " << m_hdepthFCal2  << std::endl
-      //         << "  m_hdepthFCal3: " << m_hdepthFCal3  << std::endl
-      //         << "  m_endZFCal3: " << m_endZFCal3  << std::endl
-      //         << "  m_endZHec0: " << m_endZHec0  << std::endl
-      //         << "  m_z1BeforeFCal: " << m_z1BeforeFCal  << std::endl
-      //         << "  m_z2BeforeFCal: " << m_z2BeforeFCal  << std::endl
-      //         << std::endl;
-
-      pAccessSvc->disconnect();
     }
 
     CalibrationMixedCalculator::Parameters::~Parameters()

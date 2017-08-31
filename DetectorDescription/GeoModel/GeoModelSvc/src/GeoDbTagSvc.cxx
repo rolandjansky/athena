@@ -65,10 +65,6 @@ StatusCode GeoDbTagSvc::setupTags()
     ATH_MSG_FATAL("Failed to retrieve RDBAccessSvc");
     return StatusCode::FAILURE;
   }
-  if(!rdbAccessSvc->connect()) {
-    ATH_MSG_ERROR("Unable to connect to the Geometry DB");
-    return StatusCode::FAILURE;
-  }
 
   // Get subsystem tags
   m_InDetVersion = (m_InDetVersionOverride.empty() 
@@ -140,6 +136,5 @@ StatusCode GeoDbTagSvc::setupTags()
     }
   }
 
-  rdbAccessSvc->disconnect();
   return StatusCode::SUCCESS;
 }

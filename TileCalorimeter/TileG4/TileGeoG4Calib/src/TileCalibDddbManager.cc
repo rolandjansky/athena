@@ -36,8 +36,6 @@ TileCalibDddbManager::TileCalibDddbManager(ServiceHandle<IRDBAccessSvc> &access,
   m_verboseLevel(verboseLevel)
 {
 
-  access->connect();
-
   m_tile = access->getRecordsetPtr("TILE", m_tag, m_node);
   m_nTile = m_tile->size();
 
@@ -54,8 +52,6 @@ TileCalibDddbManager::TileCalibDddbManager(ServiceHandle<IRDBAccessSvc> &access,
   m_nTileGCell = m_tileGirderCell->size();
 
   m_switches = access->getRecordsetPtr("TileSwitches", m_tag, m_node);
-
-  access->disconnect();
 
 }
 

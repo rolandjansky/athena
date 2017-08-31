@@ -101,7 +101,6 @@ namespace LArG4 {
     const std::string detectorKey  = LArVersion.empty() ? AtlasVersion : LArVersion;
     const std::string detectorNode = LArVersion.empty() ? "ATLAS" : "LAr";
 
-    pAccessSvc->connect();
       // getting HEC table
     IRDBRecordset_ptr hecNominals = pAccessSvc->getRecordsetPtr("HecNominals",detectorKey,detectorNode);
     if (hecNominals->size()==0) {
@@ -138,24 +137,6 @@ namespace LArG4 {
     m_z2BeforeFCal = (*hecNominals)[0]->getDouble("OUTDEPTH")*CLHEP::mm + m_zShift;
     m_HECzEnd = (*hecNominals)[7]->getDouble("OUTDEPTH")*CLHEP::mm + m_zShift;
 
-//     std::cout << "--- GGG EMECSupportCalibrationCalculator.cc variables ---" << std::endl
-//         << " m_zShift: " << m_zShift << std::endl
-//         << " m_zEMECRefPoint: " << m_zEMECRefPoint << std::endl
-//         << " m_HECzStart: " << m_HECzStart << std::endl
-//         << " m_zAlignmentSafety: " << m_zAlignmentSafety << std::endl
-//         << " m_zInFrontOfSpanishFan: " << m_zInFrontOfSpanishFan << std::endl
-//         << " m_zBehindOfSpanishFan: " << m_zBehindOfSpanishFan << std::endl
-//         << " m_zInFrontOfHEC: " << m_zInFrontOfHEC << std::endl
-//         << " m_zzInFrontOfPresampler: " << m_zzInFrontOfPresampler << std::endl
-//         << " m_zzInFrontOfStrips: " << m_zzInFrontOfStrips << std::endl
-//         << " m_zzInFrontOfMiddle: " << m_zzInFrontOfMiddle << std::endl
-//         << " m_zzInFrontOfBack: " << m_zzInFrontOfBack << std::endl
-//         << " m_z1BeforeFCal: " << m_z1BeforeFCal << std::endl
-//         << " m_z2BeforeFCal: " << m_z2BeforeFCal << std::endl
-//         << " m_HECzEnd: " << m_HECzEnd << std::endl
-//         << std::endl;
-
-    pAccessSvc->disconnect();
   }
 
   EMECSupportCalibrationCalculator::Parameters::~Parameters()

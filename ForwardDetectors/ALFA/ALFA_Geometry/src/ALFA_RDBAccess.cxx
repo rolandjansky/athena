@@ -43,12 +43,8 @@ bool ALFA_RDBAccess::ReadGeometry(const eRPotName eRPName, eFiberType eFType, st
 		throw GaudiException(" Could not initalize GeoModelSvc ", "ALFA_RDBAccess::ReadGeometry", StatusCode::FAILURE);
 	}*/
 
-	iAccessSvc->connect();
-
 	bRes=ReadFiberGeometry(iAccessSvc, element, tag, node);
 //	bRes|=ReadFiberGeometry("ALFAFibreUp","ALFA-00","ALFA");
-
-	iAccessSvc->disconnect();
 
 	return bRes;
 }

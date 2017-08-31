@@ -61,6 +61,9 @@ class RDBMaterialManager: public StoredMaterialManager {
 
  private:
   static bool s_specialMaterials;
+
+  StatusCode readMaterialsFromDB(ISvcLocator* pSvcLocator);
+
   void buildSpecialMaterials();
   void buildSpecialMaterials() const;
 
