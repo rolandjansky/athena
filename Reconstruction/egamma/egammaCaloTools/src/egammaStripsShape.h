@@ -171,6 +171,9 @@ class egammaStripsShape : public AthAlgTool, virtual public IegammaStripsShape {
   bool m_ExecAllVariables;
   /** @brief boolean to calculate less important variables*/
   bool m_ExecOtherVariables;
+  /** @brief boolean to use cluster cells or all cells */
+  bool m_UseCellsFromCluster;
+
   // Calo variables
   const CaloDetDescrManager* m_calo_dd;
 
