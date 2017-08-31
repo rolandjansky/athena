@@ -54,9 +54,12 @@ namespace FTK {
     static const InterfaceID& interfaceID( ) ; 
     
   private:
+    //to be removed
     void packNumberOfTracks(uint16_t nTracksLowPt, uint16_t nTracksHighPt, std::vector<uint32_t>& rod );
     void unpackNumberOfTracks(OFFLINE_FRAGMENTS_NAMESPACE::PointerType rodData, 
 			      uint16_t& nTracksLowPt, uint16_t& nTracksHighPt, uint32_t& nTracks);
+
+    //
     void packPixelCluster(const FTK_RawPixelCluster& cluster, std::vector<uint32_t>& payload);
     void unpackPixCluster(OFFLINE_FRAGMENTS_NAMESPACE::PointerType data, FTK_RawPixelCluster& cluster);
     
@@ -69,10 +72,13 @@ namespace FTK {
     void packHeader(std::vector<uint32_t> &payload);
     void unpackHeader(OFFLINE_FRAGMENTS_NAMESPACE::PointerType &rodData);
     
-    void packTrailer();
+    void packTrailer(std::vector<uint32_t> &payload);
     void unpackTrailer(OFFLINE_FRAGMENTS_NAMESPACE::PointerType &rodData);
 
     void unpackMonitoring(OFFLINE_FRAGMENTS_NAMESPACE::PointerType &rodData);
+
+    bool m_encodeHeader;
+    bool m_encodeTrailer;
   };
 
 }
