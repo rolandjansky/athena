@@ -67,7 +67,7 @@ public:
     // track chare selection
     if ( m_chargeSelection!=0 && t->pT()*m_chargeSelection<=0 )  selected = false;
     /// require a blayer (ibl in run2) hit only if one is expected
-    if ( m_expectBL && ( t->expectBL() && t->bLayerHits()<1) )  selected = false;
+    if ( m_expectBL && ( ( t->expectBL() || t->hasTruth() ) && t->bLayerHits()<1) )  selected = false;
 
     return selected;
   } 
