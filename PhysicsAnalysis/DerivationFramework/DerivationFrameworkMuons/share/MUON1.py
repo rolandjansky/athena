@@ -9,8 +9,6 @@ from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkMuons.MuonsCommon import *
 import AthenaCommon.SystemOfUnits as Units
 
-<<<<<<< HEAD
-=======
 #from MuonPerformanceAlgs.CommonMuonTPConfig import GetIDTrackCaloDepositsDecorator
 if not hasattr(ToolSvc,"IDTrackCaloDepositsDecoratorTool"):
   from DerivationFrameworkMuons.DerivationFrameworkMuonsConf import IDTrackCaloDepositsDecoratorTool
@@ -41,7 +39,6 @@ MUON1ThinningHelper.TriggerChains = '|'.join(triggerList1)
 print MUON1ThinningHelper.TriggerChains
 MUON1ThinningHelper.AppendToStream( MUON1Stream )
 
->>>>>>> Moved muonTP files into derivation framework
 #====================================================================
 # AUGMENTATION TOOLS
 #====================================================================
@@ -52,12 +49,8 @@ MUON1ThinningHelper.AppendToStream( MUON1Stream )
 # isolation cuts: check xAODPrimitives/xAODPrimitives/IsolationType.h for definitions
 brPrefix = 'MUON1'
 from DerivationFrameworkMuons.DerivationFrameworkMuonsConf import DerivationFramework__dimuonTaggingTool
-<<<<<<< HEAD
-MUON1AugmentTool1 = DerivationFramework__dimuonTaggingTool(name = "MUON1AugmentTool1",
-=======
 MUON1AugmentTool1a = DerivationFramework__dimuonTaggingTool(name = "MUON1AugmentTool1a",
                                                            IDTrackCaloDepoDecoTool = ToolSvc.IDTrackCaloDepositsDecoratorTool,
->>>>>>> Moved muonTP files into derivation framework
                                                            Mu1PtMin = 24*Units.GeV,
                                                            Mu1AbsEtaMax = 2.5,
                                                            Mu1Types = [0],
@@ -80,14 +73,9 @@ MUON1AugmentTool1a = DerivationFramework__dimuonTaggingTool(name = "MUON1Augment
 ToolSvc += MUON1AugmentTool1
 print MUON1AugmentTool1
 
-<<<<<<< HEAD
-from DerivationFrameworkMuons.TrackIsolationDecorator import MUON1IDTrackDecorator as MUON1AugmentTool2
-ToolSvc += MUON1AugmentTool2
-print MUON1AugmentTool2
-=======
 ### Jpsi for tag-probe
 andTriggers1b = ['HLT_mu20_iloose_L1MU15', 'HLT_mu24', 'HLT_mu26', 'HLT_mu24_imedium', 'HLT_mu26_imedium']
-orTriggers1b = ['HLT_mu4','HLT_mu6','HLT_mu14','HLT_mu6_idperf','HLT_mu4_bJpsi_Trkloose','HLT_mu6_bJpsi_Trkloose ','HLT_mu10_bJpsi_Trkloose','HLT_mu18_bJpsi_Trkloose','HLT_mu20_2mu0noL1_JpsimumuFS','HLT_mu18_2mu0noL1_JpsimumuFS','HLT_mu20_2mu4_JpsimumuL2','HLT_mu18_2mu4_JpsimumuL2','HLT_mu4_mu4_idperf_bJpsimumu_noid']]
+orTriggers1b = ['HLT_mu4','HLT_mu6','HLT_mu14','HLT_mu6_idperf','HLT_mu4_bJpsi_Trkloose','HLT_mu6_bJpsi_Trkloose ','HLT_mu10_bJpsi_Trkloose','HLT_mu18_bJpsi_Trkloose','HLT_mu20_2mu0noL1_JpsimumuFS','HLT_mu18_2mu0noL1_JpsimumuFS','HLT_mu20_2mu4_JpsimumuL2','HLT_mu18_2mu4_JpsimumuL2','HLT_mu4_mu4_idperf_bJpsimumu_noid']
 
 brPrefix1b = 'MUON1b'
 MUON1AugmentTool1b = DerivationFramework__dimuonTaggingTool(name = "MUON1AugmentTool1b",
@@ -196,7 +184,6 @@ MUON1AugmentTool2a.SelectionFlagValue = 0
 ToolSvc += MUON1AugmentTool2a
 MUON1AugmentTools.append(MUON1AugmentTool2a)
 print MUON1AugmentTool2a
->>>>>>> Moved muonTP files into derivation framework
 
 from DerivationFrameworkMuons.TrackIsolationDecorator import MUON1MSTrackDecorator as MUON1AugmentTool3
 ToolSvc += MUON1AugmentTool3
@@ -263,8 +250,6 @@ ToolSvc += MUON1ThinningTool4
 print MUON1ThinningTool4
 MUON1ThinningTools.append(MUON1ThinningTool4)
 
-<<<<<<< HEAD
-=======
 ### also for forward tracks
 thinning_expression3 = "Muons.muonType==4"
 MUON1ThinningTool2f = DerivationFramework__MuonTrackParticleThinning(name                   = "MUON1ThinningTool2f",
@@ -309,7 +294,6 @@ MUON1Thin_vtxTrk = DerivationFramework__Thin_vtxTrk(
 ToolSvc += MUON1Thin_vtxTrk
 MUON1ThinningTools.append(MUON1Thin_vtxTrk)
 
->>>>>>> Moved muonTP files into derivation framework
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS 
 #====================================================================
