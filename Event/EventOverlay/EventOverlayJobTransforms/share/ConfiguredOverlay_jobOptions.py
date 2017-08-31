@@ -49,7 +49,8 @@ if readBS:
     include("RecExCommon/BSRead_config.py")
     ServiceMgr.ByteStreamInputSvc.FullFileName = DataInputCollections
     ServiceMgr.ByteStreamInputSvc.EventStore= "StoreGateSvc/OriginalEvent_SG"
-    ServiceMgr.ByteStreamAddressProviderSvc.StoreID=6
+    from AthenaKernel import StoreID
+    ServiceMgr.ByteStreamAddressProviderSvc.StoreID=StoreID.UNKNOWN
     from EventSelectorAthenaPool.EventSelectorAthenaPoolConf import AthenaPoolAddressProviderSvc
     ServiceMgr += AthenaPoolAddressProviderSvc("AthenaPoolAddressProviderSvc")
     ServiceMgr.ProxyProviderSvc.ProviderNames += [ "AthenaPoolAddressProviderSvc" ]

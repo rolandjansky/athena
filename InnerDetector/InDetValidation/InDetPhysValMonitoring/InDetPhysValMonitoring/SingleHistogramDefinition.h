@@ -21,20 +21,37 @@ struct SingleHistogramDefinition{
     SingleHistogramDefinition();
     
     ///C'tor for 1D histograms (no Y bins or limits)
-    SingleHistogramDefinition(Titles_t name, Titles_t histoType, Titles_t title, NBins_t nbinsX,Var_t xLo, Var_t xHi,Titles_t xName,Titles_t yName,Titles_t theFolder="");
+    SingleHistogramDefinition(Titles_t name, Titles_t histoType, Titles_t title, 
+			      NBins_t nbinsX, Var_t xLo, Var_t xHi, 
+			      Titles_t xName,Titles_t yName,Titles_t theFolder="");
     
     ///C'tor for 2D histograms (Y bins and limits)
-    SingleHistogramDefinition(Titles_t name, Titles_t histoType, Titles_t title, NBins_t nbinsX,  NBins_t nbinsY,Var_t xLo, Var_t xHi, Var_t yLo, Var_t yHi, Titles_t xName, Titles_t yName, Titles_t theFolder="");
+    SingleHistogramDefinition(Titles_t name, Titles_t histoType, Titles_t title, 
+			      NBins_t nbinsX,  NBins_t nbinsY, 
+			      Var_t xLo, Var_t xHi, 
+			      Var_t yLo, Var_t yHi, 
+			      Titles_t xName, Titles_t yName, Titles_t theFolder="");
+
+    ///C'tor for 3D histograms (Y,Z bins and limits)
+    SingleHistogramDefinition(Titles_t name, Titles_t histoType, Titles_t title, 
+			      NBins_t nbinsX,  NBins_t nbinsY, NBins_t nbinsZ, 
+			      Var_t xLo, Var_t xHi, 
+			      Var_t yLo, Var_t yHi, 
+			      Var_t zLo, Var_t zHi, 
+			      Titles_t xName, Titles_t yName, Titles_t zName, Titles_t theFolder="");
     
     std::string name;
     std::string histoType;
     std::string title;
     unsigned int nBinsX;
     unsigned int nBinsY;
+    unsigned int nBinsZ;
     IHistogramDefinitionSvc::axesLimits_t xAxis;
     IHistogramDefinitionSvc::axesLimits_t yAxis;
+    IHistogramDefinitionSvc::axesLimits_t zAxis;
     std::string xTitle;
     std::string yTitle;
+    std::string zTitle;
     std::string allTitles;
     std::string folder;
     bool empty() const;

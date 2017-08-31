@@ -9,6 +9,7 @@ atlas_subdir( EvgenProdTools )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Generators/GenAnalysisTools/TruthHelper
+                          Generators/GenInterfaces
                           Generators/GeneratorModules
                           PRIVATE
                           Control/AthenaKernel

@@ -5,6 +5,9 @@
 #ifndef TAUANALYSISTOOLS_TAUANALYSISTOOLSDICT_H
 #define TAUANALYSISTOOLS_TAUANALYSISTOOLSDICT_H
 
+
+
+
 /*
   author: Dirk Duschinger
   mail: dirk.duschinger@cern.ch
@@ -23,7 +26,12 @@
 #include "TauAnalysisTools/TauEfficiencyCorrectionsTool.h"
 #include "TauAnalysisTools/TauSelectionTool.h"
 #include "TauAnalysisTools/TauSmearingTool.h"
+#include "TauAnalysisTools/BuildTruthTaus.h"
 #include "TauAnalysisTools/TauTruthMatchingTool.h"
 #include "TauAnalysisTools/TauTruthTrackMatchingTool.h"
+#include "TauAnalysisTools/CommonDiTauEfficiencyTool.h"
+#include "TauAnalysisTools/DiTauEfficiencyCorrectionsTool.h"
+#include "TauAnalysisTools/DiTauTruthMatchingTool.h"
+#include "TauAnalysisTools/BuildTruthTaus.h"
 
 #endif // not TAUANALYSISTOOLS_TAUANALYSISTOOLSDICT_H

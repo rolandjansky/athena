@@ -11,6 +11,7 @@
 
 #include "AthenaKernel/IAddressProvider.h"
 #include "AthenaKernel/IProxyRegistry.h"
+#include "AthenaKernel/EventContextClid.h"
 
 #include "GaudiKernel/IConversionSvc.h"
 #include "GaudiKernel/ListItem.h"
@@ -249,10 +250,11 @@ ProxyProviderSvc::retrieveProxy(const CLID& id, const std::string& key,
   if ( (dp=store.proxy(id,key)) != 0 ) return dp;
 
   if ( store.storeID() != StoreID::SIMPLE_STORE ) {
+    const EventContext& ctx = contextFromStore (store);
     SG::TransientAddress* pTAd = new SG::TransientAddress(id, key);
     pAPiterator iProvider(m_providers.begin()), iEnd(m_providers.end());
     for (; iProvider != iEnd; iProvider++) {
-      if ( ((*iProvider)->updateAddress(store.storeID(),pTAd)).isSuccess() ) 
+      if ( ((*iProvider)->updateAddress(store.storeID(),pTAd,ctx)).isSuccess() ) 
 	{
 	  pTAd->setProvider(*iProvider, store.storeID());
 	  return this->addAddress(store,pTAd);
@@ -265,23 +267,25 @@ ProxyProviderSvc::retrieveProxy(const CLID& id, const std::string& key,
 
 }
 
-StatusCode
-ProxyProviderSvc::updateAddress(StoreID::type storeID,
-				SG::TransientAddress* pTAd)
+/**
+ * @brief Retrieve the EventContext saved in store DS.
+ * @param ds The store from which to retrieve the context.
+ *
+ * If there is no context recorded in the store, return a default-initialized
+ * context.
+ */
+const EventContext& ProxyProviderSvc::contextFromStore (IProxyRegistry& ds) const
 {
-
-  pAPiterator iProvider(m_providers.begin()), iEnd(m_providers.end());
-  for (; iProvider != iEnd; ++iProvider) {
-    if ( ((*iProvider)->updateAddress(storeID, pTAd)).isSuccess() ) 
-    {
-      pTAd->setProvider(*iProvider, storeID);
-      return StatusCode::SUCCESS;
-    }
-  }  
-
-  return StatusCode::SUCCESS;
-
+  SG::DataProxy* proxy = ds.proxy (ClassID_traits<EventContext>::ID(),
+                                   "EventContext");
+  if (proxy) {
+    EventContext* ctx = SG::DataProxy_cast<EventContext> (proxy);
+    if (ctx) return *ctx;
+  }
+  static const EventContext emptyContext;
+  return emptyContext;
 }
+
 
 /// Gaudi Service boilerplate
 /// Gaudi_cast...

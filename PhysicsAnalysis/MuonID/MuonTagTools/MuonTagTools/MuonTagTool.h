@@ -103,6 +103,8 @@ class MuonTagTool : public AthAlgTool {
 
   /** PV StoreGate key */
   std::string m_vxCandidate;
+
+  bool m_doIso;
 };
 
 #endif // MUONTAGTOOL_H

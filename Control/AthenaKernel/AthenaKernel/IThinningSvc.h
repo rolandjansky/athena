@@ -144,7 +144,7 @@ class IThinningSvc : virtual public IService,
    *         thinning service.
    *  @param activeSvc the new active thinning svc instance. 
    *         If null pointer, then returns old/current active thinning svc
-   *  @param override the current activeSvc with the given one, even if
+   *  @param overrideSvc the current activeSvc with the given one, even if
    *         the given one is NULL.
    *  FIXME: this is a horrible hack and bad things will happen in a 
    *         multithreaded mode. It is well possible the active thinning svc
@@ -155,11 +155,12 @@ class IThinningSvc : virtual public IService,
    *         as the converters which need that @c IThinningSvc instance to
    *         recompute the correct indices of thinned containers, are "framework
    *         blind", it would just be moving the problem elsewhere...
-   *  Note: would it be OK to put the holder of the active thinning svc in a
-   *        thread-local storage ?
+   *
+   *         The pointer is now in thread-local storage, which should alleviate
+   *         most of the problem.  Thinning still needs to be rethought for MT.
    */
   static IThinningSvc* instance( IThinningSvc* activeSvc = 0,
-				 bool override = false );
+				 bool overrideSvc = false );
 
   /// @brief A helper method to select elements from a DataVector container.
   /// the elements of the @a filter vector are 'true' for the elements to be

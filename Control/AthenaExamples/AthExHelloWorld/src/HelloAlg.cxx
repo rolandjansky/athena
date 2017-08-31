@@ -17,26 +17,11 @@ std::ostream& operator<<( std::ostream& s, std::pair<double, double > p )
 }
 
 HelloAlg::HelloAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator), m_myInt(0), m_myBool(0), m_myDouble(0),
-  m_myPrivateHelloTool("HelloTool",this), m_myPublicHelloTool("HelloTool"),
-  m_myDict(),
-  m_myTable(),
-  m_myMatrix()
+  AthAlgorithm(name, pSvcLocator), 
+  m_myTable()
 {
   
   // Part 2: Declare the properties
-  declareProperty("MyInt", m_myInt);
-  declareProperty("MyBool", m_myBool);
-  declareProperty("MyDouble", m_myDouble);
-
-  declareProperty("MyStringVec",m_myStringVec, "an entire vector of strings!");
-
-  declareProperty("MyPrivateHelloTool", m_myPrivateHelloTool, "private IHelloTool");
-  declareProperty("MyPublicHelloTool", m_myPublicHelloTool, "public, shared IHelloTool");
-
-  declareProperty("MyDict",
-		  m_myDict,
-		  "A little dictionary" );
   // some default values;
   m_myDict["Bonjour"]      = "Guten Tag";
   m_myDict["Good Morning"] = "Bonjour";
@@ -47,8 +32,6 @@ HelloAlg::HelloAlg(const std::string& name, ISvcLocator* pSvcLocator) :
   m_myTable.push_back( std::make_pair( 1., 1. ) );
   m_myTable.push_back( std::make_pair( 2., 2.*2. ) );
   m_myTable.push_back( std::make_pair( 3., 3.*3. ) );
-
-  declareProperty("MyMatrix", m_myMatrix, "A matrix of doubles" );
 
 }
 
@@ -61,9 +44,9 @@ StatusCode HelloAlg::initialize() {
 
   // Part 2: Print out the property values
   ATH_MSG_INFO
-    (   "  MyInt =    " << m_myInt << endmsg
-     << "  MyBool =   " << (int)m_myBool << endmsg
-     << "  MyDouble = " << m_myDouble);
+    (   "  MyInt =    "    << (int) m_myInt << endmsg
+        << "  MyBool =   " << (int) m_myBool << endmsg
+        << "  MyDouble = " << (double) m_myDouble);
 
   for (unsigned int i=0; i<m_myStringVec.size(); i++) {
     ATH_MSG_INFO ("  MyStringVec[" << i << "] = " << m_myStringVec[i]);

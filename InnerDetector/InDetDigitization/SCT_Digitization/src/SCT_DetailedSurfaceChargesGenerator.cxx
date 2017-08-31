@@ -74,7 +74,6 @@ SCT_DetailedSurfaceChargesGenerator::SCT_DetailedSurfaceChargesGenerator(const s
     m_ExValue150{{0.}},
     m_EyValue150{{0.}},
     m_stripCharge{{{{0.}}}},
-    m_distortionsTool("SCT_DistortionsTool", this),
     m_siConditionsSvc("SCT_SiliconConditionsSvc",name),
     m_siPropertiesSvc("SCT_SiPropertiesSvc",name),
     m_element(0),
@@ -100,7 +99,6 @@ SCT_DetailedSurfaceChargesGenerator::SCT_DetailedSurfaceChargesGenerator(const s
   declareProperty("SiPropertiesSvc", m_siPropertiesSvc);
   //  declareProperty("rndmEngineName",m_rndmEngineName="SCT_Digitization");
   declareProperty("doDistortions",   m_doDistortions, "Simulation of module distortions");
-  declareProperty("SCTDistortionsTool", m_distortionsTool, "Tool to retrieve SCT distortions");
   declareProperty("doHistoTrap", m_doHistoTrap, "Allow filling of histos for charge trapping effect"); 
   declareProperty("doTrapping", m_doTrapping, "Simulation of charge trapping effect"); 
   declareProperty("Fluence", m_Fluence, "Fluence for charge trapping effect");
@@ -146,13 +144,6 @@ StatusCode SCT_DetailedSurfaceChargesGenerator::initialize() {
   sc = m_siConditionsSvc.retrieve();
   if (sc.isFailure()) {
     ATH_MSG_FATAL ( "Could not retrieve silicon conditions service: " << m_siConditionsSvc.name() );
-    return sc ;
-  }
-  
-  //Get ISCT_ModuleDistortionsTool
-  sc = m_distortionsTool.retrieve();
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL ( "Could not retrieve distortions tool: " << m_distortionsTool.name() );
     return sc ;
   }
   

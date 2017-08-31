@@ -12,7 +12,7 @@
  *        Implementation file.
  */
 
-#include "SGTools/ClassID_traits.h"
+#include "AthenaKernel/ClassID_traits.h"
 #include "boost/type_traits/remove_const.hpp"
 #include <typeinfo>
 
@@ -27,7 +27,7 @@
  */
 template <class T>
 T* DataBucketBase::cast (SG::IRegisterTransient* irt /*= 0*/,
-                         bool isConst /*= true*/) const
+                         bool isConst /*= true*/)
 {
   return reinterpret_cast<T*>
     (cast (typeid (typename boost::remove_const<T>::type), irt, isConst));

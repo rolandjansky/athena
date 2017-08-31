@@ -37,14 +37,20 @@ public:
 	virtual unsigned int nBinsX(const std::string &name, const std::string &dirName="") const = 0;
 	///Return number of y bins by histogram identifier (and directory name, if supplied); default returns 0 for 1-D histos
 	virtual unsigned int nBinsY(const std::string &/*name*/, const std::string &/*dirName*/="") const { return 0; }
+	///Return number of z bins by histogram identifier (and directory name, if supplied); default returns 0 for 1-D histos
+	virtual unsigned int nBinsZ(const std::string &/*name*/, const std::string &/*dirName*/="") const { return 0; }
 	///Return x axes (lo,hi) by histogram identifier (and directory name, if supplied)
 	virtual axesLimits_t xLimits(const std::string &name, const std::string &dirName="") const = 0;
 	///Return y axes (lo,hi) by histogram identifier (and directory name, if supplied). Default returns (nan,nan).
 	virtual axesLimits_t yLimits(const std::string & /*name*/, const std::string &/*dirName*/="") const {return std::make_pair(std::numeric_limits<float>::quiet_NaN(),std::numeric_limits<float>::quiet_NaN());}
+	///Return z axes (lo,hi) by histogram identifier (and directory name, if supplied)
+	virtual axesLimits_t zLimits(const std::string &name, const std::string &dirName="") const = 0;
 	///Return x-axis title by histogram identifier (and directory name, if supplied)
 	virtual std::string xTitle(const std::string &name, const std::string &dirName="") const = 0;
 	///Return y-axis title by histogram identifier (and directory name, if supplied)
 	virtual std::string yTitle(const std::string &name, const std::string &dirName="") const = 0;
+	///Return z-axis title by histogram identifier (and directory name, if supplied)
+	virtual std::string zTitle(const std::string &name, const std::string &dirName="") const = 0;
 	//virtual bool initialise()=0;
 	
 };

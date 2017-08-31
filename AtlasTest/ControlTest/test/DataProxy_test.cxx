@@ -21,7 +21,6 @@
 #include <cassert>
 
 const bool CREATEIF(true);
-const bool SHOULD_NEVER_GET_HERE(true);
 
 struct Bla{
   Bla(): i(0) {}
@@ -74,7 +73,6 @@ int main() {
 	 << "----Warning Message Starts--->>" << endl; 
     const Bla& bRef(DataProxy_cast<Bla>(emptyProxy));
     bRef.doNothing(); //remove warning
-    assert(SHOULD_NEVER_GET_HERE);
   } catch (...) {
     cerr << "<<---Warning Message Ends-------" << endl;
   }
@@ -155,7 +153,6 @@ int main() {
 	 << "----Warning Message Starts--->>" << endl; 
     const Bla& bRef(DataProxy_cast<Bla>(identifiedProxy));
     bRef.doNothing(); //remove warning
-    assert(SHOULD_NEVER_GET_HERE);
   } catch (...) {
     cerr << "<<---Warning Message Ends-------" << endl;
   }

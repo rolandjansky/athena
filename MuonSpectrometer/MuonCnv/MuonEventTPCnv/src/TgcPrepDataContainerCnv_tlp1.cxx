@@ -3,7 +3,7 @@
 */
 
 #include "MuonEventTPCnv/TgcPrepDataContainerCnv_tlp1.h"
-
+#include "MuonEventTPCnv/CreateTransientTemplates.h"
 
 TgcPrepDataContainerCnv_tlp1::TgcPrepDataContainerCnv_tlp1()
 {

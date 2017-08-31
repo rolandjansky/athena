@@ -41,6 +41,7 @@ from ElectronPhotonSelectorTools.TrigEGammaPIDdefs import SelectionDefPhoton
 mlog = logging.getLogger ('TrigEgammaPidTools')
 # Path for versioned configuration
 from TriggerMenu.egamma.EgammaSliceFlags import EgammaSliceFlags
+EgammaSliceFlags.pidVersion.set_On()
 mlog.info("TrigEgammaPidTools version %s"%EgammaSliceFlags.pidVersion())
 ConfigFilePath = EgammaSliceFlags.pidVersion() 
 

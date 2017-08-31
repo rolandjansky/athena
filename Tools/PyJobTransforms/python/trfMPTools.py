@@ -89,14 +89,14 @@ def athenaMPOutputHandler(athenaMPFileReport, athenaMPWorkerTopDir, dataDictiona
         for fileElement in filesElement.getiterator(tag='File'):
             msg.debug('Examining element {0} with attributes {1}'.format(fileElement, fileElement.attrib))
             fileNameList.append(path.relpath(fileElement.attrib['name']))
-            
+
         athenaMPoutputsLinkAndUpdate(fileNameList, fileArg) 
-        
+
     # Now look for additional outputs that have not yet been handled
     if len([ dataType for dataType in outputHasBeenHandled if outputHasBeenHandled[dataType] is False]):
         # OK, we have something we need to search for; cache the dirwalk here
         MPdirWalk = [ dirEntry for dirEntry in os.walk(athenaMPWorkerTopDir) ]
-        
+
         for dataType, fileArg in dataDictionary.iteritems():
             if outputHasBeenHandled[dataType]:
                 continue
@@ -107,6 +107,8 @@ def athenaMPOutputHandler(athenaMPFileReport, athenaMPWorkerTopDir, dataDictiona
             fileNameList = []
             for entry in MPdirWalk:
                 if "evt_count" in entry[0]:
+                    continue
+                if "range_scatterer" in entry[0]:
                     continue
                 # N.B. AthenaMP may have made the output name unique for us, so 
                 # we need to treat the original name as a prefix
@@ -123,7 +125,7 @@ def athenaMPOutputHandler(athenaMPFileReport, athenaMPWorkerTopDir, dataDictiona
                 pass
             elif len(fileNameList) != athenaMPworkers:
                 raise trfExceptions.TransformExecutionException(trfExit.nameToCode("TRF_OUTPUT_FILE_ERROR"), "Found {0} output files for {1}, expected {2} (found: {3})".format(len(fileNameList), dataType, athenaMPworkers, fileNameList))
-            
+
             # Found expected number of files - good!
             athenaMPoutputsLinkAndUpdate(fileNameList, fileArg) 
 
@@ -147,12 +149,19 @@ def athenaMPoutputsLinkAndUpdate(newFullFilenames, fileArg):
             
     for linkname, fname in zip(linkedNameList, newFullFilenames):
         if linkname:
-            try:
-                if path.lexists(linkname):
-                    os.unlink(linkname)
-                os.symlink(fname, linkname)
-            except OSError, e:  
-                raise trfExceptions.TransformExecutionException(trfExit.nameToCode("TRF_OUTPUT_FILE_ERROR"), "Failed to link {0} to {1}: {2}".format(fname, linkname, e))
+            if len(newFullFilenames) == 1:
+                try:
+                    os.rename(fname,fileArg.originalName)
+                    newFilenameValue[0]=fileArg.originalName
+                except OSError, e:
+                    raise trfExceptions.TransformExecutionException(trfExit.nameToCode("TRF_OUTPUT_FILE_ERROR"), "Failed to move {0} to {1}: {2}".format(fname, linkname, e))
+            else:
+                 try:
+                     if path.lexists(linkname):
+                         os.unlink(linkname)
+                     os.symlink(fname, linkname)
+                 except OSError, e:  
+                     raise trfExceptions.TransformExecutionException(trfExit.nameToCode("TRF_OUTPUT_FILE_ERROR"), "Failed to link {0} to {1}: {2}".format(fname, linkname, e))
 
     fileArg.multipleOK = True
     fileArg.value = newFilenameValue

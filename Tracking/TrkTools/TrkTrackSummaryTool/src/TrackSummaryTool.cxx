@@ -212,8 +212,6 @@ Trk::TrackSummaryTool::createSummary( const Track& track,
     if (m_pixelExists)
     {
       information [numberOfContribPixelLayers]   = 0; 
-      information [numberOfBLayerHits]           = 0;
-      information [numberOfBLayerOutliers]       = 0;
       information [numberOfInnermostPixelLayerHits] = 0;
       information [numberOfInnermostPixelLayerOutliers] = 0;
       information [numberOfNextToInnermostPixelLayerHits] = 0;
@@ -225,7 +223,6 @@ Trk::TrackSummaryTool::createSummary( const Track& track,
       information [numberOfPixelSpoiltHits]      = 0;
       information [numberOfGangedFlaggedFakes]   = 0;
       information [numberOfPixelSplitHits]       = 0;
-      information [numberOfBLayerSplitHits]      = 0;
       information [numberOfInnermostLayerSplitHits] = 0;
       information [numberOfNextToInnermostLayerSplitHits] = 0;
       if (track.info().trackFitter() != TrackInfo::Unknown && !m_dedxtool.empty()) {
@@ -254,7 +251,6 @@ Trk::TrackSummaryTool::createSummary( const Track& track,
   if (m_doSharedHits) {
     information [numberOfSCTSharedHits]      = 0;
     if (m_pixelExists) {
-      information [numberOfBLayerSharedHits] = 0;
       information [numberOfInnermostPixelLayerSharedHits] = 0;
       information [numberOfNextToInnermostPixelLayerSharedHits] = 0;
       information [numberOfPixelSharedHits]  = 0;

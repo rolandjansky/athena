@@ -10,6 +10,7 @@ from egammaRec.Factories import ToolFactory, AlgFactory, getPropertyValue
 #---------------------------------------
 # egamma specifics          
 from egammaCaloTools.egammaCaloToolsFactories import CaloFillRectangularCluster
+from MuonRecExample.MuonRecFlags import muonRecFlags
 
 from AthenaCommon.GlobalFlags import globalflags
 isMC = not globalflags.DataSource()=='data'
@@ -226,6 +227,7 @@ if doPFlow:
   IsoCorEg.append([ isoPar.coreCone, isoPar.pileupCorrection ])
   IsoCorMu.append([ isoPar.coreCone, isoPar.pileupCorrection ])
 
+
 from IsolationAlgs.IsolationAlgsConf import IsolationBuilder
 isoBuilder = AlgFactory(IsolationBuilder,
                         name                  = "IsolationBuilder",
@@ -237,7 +239,7 @@ isoBuilder = AlgFactory(IsolationBuilder,
                         FeCorTypes            = IsoCorFe,
 			EgIsoTypes            = [[]] if not rec.doEgamma() else IsoTypes,
                         EgCorTypes            = IsoCorEg,
-			MuIsoTypes            = [[]] if not rec.doMuon() else IsoTypes,
+			MuIsoTypes            = IsoTypes if rec.doMuon() and muonRecFlags.doMuonIso() else [[]],
                         MuCorTypes            = IsoCorMu,
                         LeakageTool           = None,
                         OutputLevel           = 3)

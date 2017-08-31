@@ -1,0 +1,445 @@
+/*
+ * Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration.
+ */
+// $Id$
+/**
+ * @file AthenaKernel/CondCont.icc
+ * @author Vakho, Charles, Scott
+ * @date 2017
+ * @brief Hold mappings of ranges to condition objects.
+ */
+
+
+namespace SG {
+
+
+/**
+ * @brief Check if @c id is in range @c r.
+ */
+inline
+bool isInRange (const EventIDRange& r, const EventIDBase& id)
+{
+  return !EventIDBaseComp() (id, r.start()) && EventIDBaseComp() (id, r.stop());
+}
+
+
+} // namespace SG
+
+
+/**
+ * @brief Return the CLID of the most-derived @c CondCont.
+ */
+inline
+CLID CondContBase::clid() const
+{
+  return m_clid;
+}
+
+
+/**
+ * @brief Internal constructor.
+ * @param CLID of the most-derived @c CondCont.
+ * @param id CLID+key for this object.
+ * @param proxy @c DataProxy for this object.
+ */
+inline
+CondContBase::CondContBase (CLID clid,
+                            const DataObjID& /*id*/,
+                            SG::DataProxy* /*proxy*/)
+  : m_clid (clid)
+{
+}
+
+
+/**
+ * @brief Do pointer conversion for the payload type.
+ * @param clid CLID for the desired pointer type.
+ * @param ptr Pointer of type @c T*.
+ *
+ * For the base class, we just return null.
+ */
+inline
+const void* CondContBase::cast (CLID /*clid*/, const void* /*ptr*/) const
+{
+  return nullptr;
+}
+
+
+///////////////////////////////////////////////////////////////////////////
+
+
+/** 
+ * @brief Constructor.
+ * @param id CLID+key for this object.
+ * @param proxy @c DataProxy for this object.
+ */
+template <class T>
+inline
+CondCont<T>::CondCont (const DataObjID& id, SG::DataProxy* proxy /*=nullptr*/)
+  : Base (ClassID_traits<CondCont<T> >::ID(), id, proxy),
+    m_id (id),
+    m_proxy (proxy)
+{
+  CondCont<T>::registerBaseInit();
+}
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
+/**
+ * @brief Destructor.
+ */
+template <typename T>
+CondCont<T>::~CondCont<T>() {
+  for (const IOVEntryT<T>& ent : m_condSet_clock) {
+    delete ent.objPtr();
+  }
+  for (const IOVEntryT<T>& ent : m_condSet_RE) {
+    delete ent.objPtr();
+  }
+}    
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
+/**
+ * @brief Return CLID/key corresponding to this container.
+ */
+template <class T>
+inline
+const DataObjID& CondCont<T>::id() const
+{
+  return m_id;
+}
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
+/**
+ * @brief Return the associated @c DataProxy, if any.
+ */
+template <class T>
+inline
+SG::DataProxy* CondCont<T>::proxy()
+{
+  return m_proxy;
+}
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
+/**
+ * @brief Set the associated @c DataProxy.
+ * @param proxy The proxy to set.
+ */
+template <class T>
+inline
+void CondCont<T>::setProxy (SG::DataProxy* proxy)
+{
+  m_proxy = proxy;
+}
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
+/**
+ * @brief Dump the container contents for debugging.
+ * @param ost Stream to which to write the dump.
+ */
+template <typename T>
+void CondCont<T>::list (std::ostream& ost) const
+{
+  lock_t lock (m_mutex);
+
+  ost << "id: " << m_id << "  proxy: " << m_proxy << std::endl;
+
+  ost << "clock: [" << m_condSet_clock.size() << "]" << std::endl;
+  for (const IOVEntryT<T>& ent : m_condSet_clock) {
+    ost << ent << std::endl;
+  }
+  ost << "RE: [" << m_condSet_RE.size() << "]" << std::endl;
+  for (const IOVEntryT<T>& ent : m_condSet_RE) {
+    ost << ent << std::endl;
+  }
+}
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
+/**
+ * @brief Return the number of conditions objects in the container.
+ */
+template <typename T>
+int CondCont<T>::entries() const
+{
+  lock_t lock(m_mutex);
+  return m_condSet_RE.size() + m_condSet_clock.size();
+}
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
+/**
+ * @brief Return all IOV validity ranges defined in this container.
+ */
+template <typename T>
+std::vector<EventIDRange> 
+CondCont<T>::ranges() const
+{
+  lock_t lock(m_mutex);
+
+  std::vector<EventIDRange> r;
+  r.reserve (m_condSet_RE.size() + m_condSet_clock.size());
+  for (const IOVEntryT<T>& ent : m_condSet_RE) {
+    r.push_back( ent.range() );
+  }
+  for (const IOVEntryT<T>& ent : m_condSet_clock) {
+    r.push_back( ent.range() );
+  }
+
+  return r;
+}
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
+/** 
+ * @brief Insert a new conditions object.
+ * @param r Range of validity of this object.
+ * @param obj Pointer to the object being inserted.
+ *
+ * @c obj must point to an object of type @c T,
+ * except in the case of inheritance, where the type of @c obj must
+ * correspond to the most-derived @c CondCont type.
+ * The container will take ownership of this object.
+ *
+ * Returns true if the object was successfully inserted; false otherwise
+ * (ownership of the object will be taken in either case).
+ */
+template <typename T>
+bool CondCont<T>::typelessInsert (const EventIDRange& r, void* obj)
+{
+  return insert (r, std::unique_ptr<T> (static_cast<T*>(obj)));
+}
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
+/** 
+ * @brief Insert a new conditions object.
+ * @param r Range of validity of this object.
+ * @param obj Pointer to the object being inserted.
+ *
+ * @c obj must point to an object of type @c T.
+ * This will give an error if this is not called
+ * on the most-derived @c CondCont.
+ *
+ * Returns true if the object was successfully inserted; false otherwise.
+ */
+template <typename T>
+bool CondCont<T>::insert (const EventIDRange& r, std::unique_ptr<T> t)
+{
+  if (this->clid() != ClassID_traits<CondCont<T> >::ID()) {
+    std::cerr << "CondCont<T>::insert error: Not most-derived class."
+              << std::endl;
+    return false;
+  }
+
+  lock_t lock (m_mutex);
+
+  auto isRunLumi = [] (const EventIDBase& id)
+    { return id.run_number() != EventIDBase::UNDEFNUM &&
+             id.lumi_block() != EventIDBase::UNDEFNUM; };
+
+  if ((r.start().isRunEvent() && r.stop().isRunEvent()) ||
+      // LBN part of stop() will be UNDEFNUM for an open-ended range.
+      (isRunLumi(r.start()) && r.stop().run_number() != EventIDBase::UNDEFNUM))
+  {
+    m_condSet_RE.emplace( IOVEntryT<T>(t.release(), r) );
+  } else if (r.start().isTimeStamp() && r.stop().isTimeStamp()) {
+    m_condSet_clock.emplace( IOVEntryT<T>(t.release(), r) );
+  } else {
+    std::cerr << "CondCont<T>::insert error: EventIDRange " << r 
+              << " is neither fully RunEvent nor TimeStamp" 
+              << std::endl;
+    return false;
+  }
+
+  return true;
+}
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
+/** 
+ * @brief Look up a conditions object for a given time.
+ * @param t IOV time to find.
+ * @param obj[out] Object found.
+ * @param r If non-null, copy validity range of the object here.
+ *
+ * Returns true if the object was found; false otherwide.
+ */
+template <typename T>
+bool CondCont<T>::find (const EventIDBase& t,
+                        T const *& obj,
+                        EventIDRange* r) const
+{
+  const void* ptr = findByCLID (ClassID_traits<CondCont<T> >::ID(), t, r);
+  obj = reinterpret_cast<const T*> (ptr);
+  return obj != nullptr;
+}
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
+/**
+ * @brief Test to see if a given IOV time is mapped in the container.
+ * @param t IOV time to check.
+ */
+template <typename T>
+bool CondCont<T>::valid (const EventIDBase& t) const
+{
+  return findByCLID (this->clid(), t, nullptr) != nullptr;
+}
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
+/**
+ * @brief Return the mapped validity range for an IOV time.
+ * @param t IOV time to check.
+ * @param r[out] The range containing @c t.
+ *
+ * Returns true if @c t is mapped; false otherwise.
+ */
+template <typename T>
+bool
+CondCont<T>::range(const EventIDBase& t, EventIDRange& r) const
+{
+  return findByCLID (this->clid(), t, &r) != nullptr;
+}
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
+/**
+ * @brief Internal constructor.
+ * @param CLID of the most-derived @c CondCont.
+ * @param id CLID+key for this object.
+ * @param proxy @c DataProxy for this object.
+ */
+template <typename T>
+inline
+CondCont<T>::CondCont (CLID clid, const DataObjID& id, SG::DataProxy* proxy)
+  : Base (clid, id, proxy),
+    m_id(id),
+    m_proxy(proxy)
+{
+  CondCont<T>::registerBaseInit();
+}
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
+/**
+ * @brief Do pointer conversion for the payload type.
+ * @param clid CLID for the desired pointer type.
+ * @param ptr Pointer of type @c T*.
+ *
+ * Converts @c ptr from @c T* to a pointer to the type
+ * given by @c clid.  Returns nullptr if the conversion
+ * is not possible.
+ */
+template <typename T>
+const void* CondCont<T>::cast (CLID clid, const void* ptr) const
+{
+  if (clid == ClassID_traits<CondCont<T> >::ID())
+    return ptr;
+  return Base::cast (clid, static_cast<const typename Base::Payload*>
+                             (reinterpret_cast<const T*> (ptr)));
+}
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
+/** 
+ * @brief Internal lookup function.
+ * @param clid CLID for the desired pointer type.
+ * @param t IOV time to find.
+ * @param r If non-null, copy validity range of the object here.
+ *
+ * Looks up the conditions object corresponding to the IOV time @c t.
+ * If found, convert the pointer to a pointer to the type identified
+ * by CLID and return it.  Otherwise, return nullptr.
+ */
+template <typename T>
+const void* CondCont<T>::findByCLID (CLID clid,
+                                     const EventIDBase& t,
+                                     EventIDRange* r) const
+{
+  const void* ptr = nullptr;
+  {
+    lock_t lock (m_mutex);
+
+    if (t.isRunEvent()) {
+      for (const IOVEntryT<T>& ent : m_condSet_RE) {
+        if ( SG::isInRange (ent.range(), t) ) {
+          if (r) {
+            *r = ent.range();
+          }
+          ptr = ent.objPtr();
+          break;
+        }
+      }
+    } 
+
+    if (!ptr && t.isTimeStamp()) {
+      for (const IOVEntryT<T>& ent : m_condSet_clock) {
+        if ( SG::isInRange (ent.range(), t) ) {
+          if (r) {
+            *r = ent.range();
+          }
+          ptr = ent.objPtr();
+          break;
+        }
+      }
+    }
+  }
+
+  // Do pointer conversion if needed.
+  if (ptr && clid != ClassID_traits<CondCont<T> >::ID()) {
+    ptr = Base::cast (clid, static_cast<const typename Base::Payload*>
+                              (reinterpret_cast<const T*> (ptr)));
+  }
+
+  return ptr;
+}
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
+/**
+ * @brief Helper to ensure that the inheritance information for this class
+ *               gets initialized.
+ */
+template <class T>
+void CondCont<T>::registerBaseInit()
+{
+  static const SG::RegisterBaseInit<CondCont> rbi;
+}

@@ -62,6 +62,9 @@ public:
     m_removedStart(false), m_removedStop(false),
     m_startITR(0), m_stopITR(0) {}
 
+  IOVEntry (const IOVEntry&) = delete;
+  IOVEntry& operator= (const IOVEntry&) = delete;
+
   ~IOVEntry() { delete m_range; }
 
   IOVRange* range() const { return m_range; }

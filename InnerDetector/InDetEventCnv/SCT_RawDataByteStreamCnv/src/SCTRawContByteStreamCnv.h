@@ -34,19 +34,19 @@ extern long ByteStream_StorageType;
 class SCTRawContByteStreamCnv: public Converter {
   friend class CnvFactory<SCTRawContByteStreamCnv>;
   
-  ~SCTRawContByteStreamCnv( );
+  ~SCTRawContByteStreamCnv();
 
  protected:
 
   SCTRawContByteStreamCnv(ISvcLocator* svcloc);
   
  public:
-  typedef SCT_RDO_Container       SCTRawContainer; 
+  typedef SCT_RDO_Container SCTRawContainer; 
 
   /** Storage type and class ID */
   virtual long repSvcType() const { return ByteStream_StorageType;}
   static long storageType() { return ByteStream_StorageType; } 
-  static const CLID& classID()    { return ClassID_traits<SCTRawContainer>::ID(); }
+  static const CLID& classID() { return ClassID_traits<SCTRawContainer>::ID(); }
   
   /** initialize */
   virtual StatusCode initialize();
@@ -64,5 +64,4 @@ class SCTRawContByteStreamCnv: public Converter {
   ServiceHandle<IByteStreamEventAccess> m_byteStreamEventAccess; 
   MsgStream m_log;
 };
-#endif
-
+#endif // SCT_RAWDATABYTESTREAMCNV_SCTRAWCONTRAWEVENTCNV_H

@@ -284,9 +284,7 @@ InDetFlags.doTrkNtuple.set_Value_and_Lock( False )
 InDetFlags.doPixelTrkNtuple = loadInDetRec_Options["doTrkNtuple"]
 InDetFlags.doSctTrkNtuple   = loadInDetRec_Options["doTrkNtuple"]
 InDetFlags.doTrtTrkNtuple   = loadInDetRec_Options["doTrkNtuple"]
-#InDetFlags.doPixelClusterNtuple = True
 #InDetFlags.doSctClusterNtuple   = True
-#InDetFlags.doTrtDriftCircleNtuple = True
 #InDetFlags.doVtxNtuple      = True
 #InDetFlags.doConvVtxNtuple  = True
 #InDetFlags.doV0VtxNtuple    = True
@@ -304,9 +302,6 @@ InDetFlags.doTrackSegmentsTRT   = False
 #  InDetFlags.doPixelClusterSplitting=False
 #conddb.addOverride("/PIXEL/PixelClustering/PixelClusNNCalib","PixClusNNCalib-IBL3D25-00-00-02")
 InDetFlags.doPixelClusterSplitting.set_Value_and_Lock(False);
-InDetFlags.doPixelClusterNtuple = False
-
-
 
 
 # IMPORTANT NOTE: initialization of the flags and locking them is done in InDetRec_jobOptions.py!

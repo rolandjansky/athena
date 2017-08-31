@@ -81,6 +81,7 @@ public:
   virtual void lock() { std::abort(); }
   virtual void clearDecorations() { std::abort(); }
   virtual size_t size() const { std::abort(); }
+  virtual void lockDecoration (SG::auxid_t) { std::abort(); }
 
   void add (SG::auxid_t auxid, std::unique_ptr<std::vector<float> > vec);
 

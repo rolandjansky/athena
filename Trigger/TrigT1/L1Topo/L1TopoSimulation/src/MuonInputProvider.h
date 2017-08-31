@@ -11,6 +11,8 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "TrigT1Interfaces/MuCTPIL1Topo.h"
 #include <vector>
+#include "TrigT1Result/RoIBResult.h"
+#include "TrigT1Interfaces/MuCTPIToRoIBSLink.h"
 
 class TH1I;
 class TH2I;
@@ -54,8 +56,19 @@ namespace LVL1 {
       TCS::MuonTOB createMuonTOB(uint32_t roiword) const;
       TCS::MuonTOB createMuonTOB(const MuCTPIL1TopoCandidate & roi) const;
       TCS::LateMuonTOB createLateMuonTOB(const MuCTPIL1TopoCandidate & roi) const;
+      /**
+         @brief convert the 2-bit value from MuCTPIL1TopoCandidate::getptL1TopoCode() to an actual pt
 
-      StringProperty m_roibLocation;
+         The muon TOB encodes pt values in 2 bits.
+         A MuCTPIL1TopoCandidate provides the encoded 2-bit value with
+         the function getptL1TopoCode().
+         This function uses the information from the l1 trigger menu
+         configuration to convert the threshold to an actual pt value.
+         For more details, see ATR-16781.
+      */
+      unsigned int topoMuonPtThreshold(const MuCTPIL1TopoCandidate &mctpiCand) const;
+
+      SG::ReadHandleKey<ROIB::RoIBResult> m_roibLocation;
 
       ServiceHandle<ITHistSvc> m_histSvc;
 
@@ -68,13 +81,14 @@ namespace LVL1 {
 
       std::vector< TrigConf::TriggerThreshold* > m_MuonThresholds;
 
-      StringProperty m_muonROILocation;    //!<  Muon ROIs SG key
+      SG::ReadHandleKey<L1MUINT::MuCTPIToRoIBSLink> m_muonROILocation;    //!<  Muon ROIs SG key
 
       TH1I * m_hPt {nullptr};
       TH2I * m_hEtaPhi {nullptr};
 
-     int m_MuonEncoding; //!< Use 0 for full granularity; 1 for MuCTPiToTopo muon granularity
-     StringProperty m_MuCTPItoL1TopoLocation;
+      int m_MuonEncoding; //!< Use 0 for full granularity; 1 for MuCTPiToTopo muon granularity
+      SG::ReadHandleKey<LVL1::MuCTPIL1Topo> m_MuCTPItoL1TopoLocation;
+      SG::ReadHandleKey<LVL1::MuCTPIL1Topo> m_MuCTPItoL1TopoLocationPlusOne;
    };
 }
 

@@ -10,8 +10,8 @@
 #include "InDetIdentifier/PixelID.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SiReadoutCellId.h"
-#include <stdexcept>
-#include <ext/functional>
+//#include <stdexcept>
+//#include <ext/functional>
 
 
 namespace InDet {
@@ -83,14 +83,11 @@ void PRD_MultiTruthBuilder::addPrepRawDatum(PRD_MultiTruthCollection *prdTruth,
 	  // But may be not for the typically small RDO/PRD ratio.
 	  typedef PRD_MultiTruthCollection::iterator truthiter;
 	  std::pair<truthiter, truthiter> r = prdTruth->equal_range(prd->identify());
-	  // FIXME: Is it OK to use the gcc (SGI) extensions of the STL?
-	  if(r.second == std::find_if(r.first, r.second, 
-				      __gnu_cxx::compose1(std::bind2nd(std::equal_to<HepMcParticleLink>(), particleLink), 
-							  __gnu_cxx::select2nd<PRD_MultiTruthCollection::value_type>() 
-							  )
-				      )
-	     )
-	    {
+          if(r.second == std::find_if(r.first, r.second, 
+                          [ particleLink ](const PRD_MultiTruthCollection::value_type &prd_to_truth) {
+                             return prd_to_truth.second == particleLink;
+                          } ))
+            {
 	      prdTruth->insert(std::make_pair(prd->identify(), particleLink));
 	    }
 	}

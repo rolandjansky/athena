@@ -42,6 +42,8 @@ protected:
 private:
   SG::ReadHandleKey<xAOD::VertexContainer> m_readVertexContainer_key;
   
+  bool m_saveDetectorEta;
+  
 };
 
 #endif

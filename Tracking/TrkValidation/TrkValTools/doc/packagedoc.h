@@ -330,7 +330,7 @@ The TrackPlotter has a config file (<tt>trackplotter.conf</tt>) which allows to
 set the ntuple directories and trees. Depending on your runtime setup you may have
 to change the config file. In the config file you can also activate the plotting
 of PrepRawData, but in this case you also have to run the related algorithms from
-the package InDetTrackValidation (e.g. TRT_DriftCircleValidationNtupleWriter) to
+the package InDetTrackValidation to
 fill the RIO data into the ntuple.
 @image html TrackPlotterInDetXY.png
 @image html TrackPlotterInDetLarge.png

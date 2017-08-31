@@ -128,7 +128,10 @@ namespace xAOD {
       /// decorations.
       virtual void clearDecorations(); 
 
-      /// Return the number of elements in the store
+      /// Lock a decoration.
+      virtual void lockDecoration (SG::auxid_t auxid);
+
+     /// Return the number of elements in the store
       virtual size_t size() const;
 
       /// @}

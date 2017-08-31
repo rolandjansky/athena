@@ -44,36 +44,6 @@ svcMgr += l1svc
 from AthenaCommon.Logging import logging 
 log = logging.getLogger("BasicMTTrackingTrigger.py")
 
-#--------------------------------------------------------------
-# Private Application Configuration options
-#--------------------------------------------------------------
-# Load "user algorithm" top algorithms to be run, and the libraries that house them
-
-def setOutput(obj, prop, name):
-    setattr(obj, prop, name)
-    setattr(obj, prop+"Aux", name+"Aux.")
-
-def getOutput(obj, prop):
-    try:
-        return getattr(obj, prop)
-    except:
-        return obj.getDefaultProperty(prop)
-    raise "Error in reading property " + prop + " from " + obj
- 
-# def genMenuAlg(name, inputHypos, inputChains):
-#     assert inputHypos != None, 'Alg to take hypo putput from is missing'
-#     assert inputChains != None, 'Alg to take chain decisions from is missing'
-#     log.info(inputChains, inputHypos)
-#     from ViewAlgs.ViewAlgsConf import MenuAlg
-#     menuAlg = MenuAlg(name)
-#     menuAlg.HypoDecisions = getOutput(inputHypos, "OutputDecisions")
-#     menuAlg.InputChainDecisions = getOutput(inputChains,"OutputChainDecisions")
-#     setOutput(menuAlg, "OutputDecisions", name+"RoIs")
-#     setOutput(menuAlg, "OutputChainDecisions", name+"Chains")
-#     return menuAlg
-
-
-
 #minimal RecExCommon setup
 
 from RecExConfig.RecFlags import rec
@@ -106,8 +76,7 @@ rec.doDetailedPerfMon.set_Value_and_Lock( False )
 rec.doSemiDetailedPerfMon.set_Value_and_Lock( False )
 from PerfMonComps.PerfMonFlags import jobproperties
 jobproperties.PerfMonFlags.doMonitoring.set_Value_and_Lock( False )
-#jobproperties.AthenaCommonFlags.FilesInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7572_tid07644622_00/RDO.07644622._000001.pool.root.1"]
-jobproperties.AthenaCommonFlags.FilesInput=["/afs/cern.ch/work/t/tbold/public/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7572_tid07644622_00/RDO.07644622._000001.pool.root.1"]
+jobproperties.AthenaCommonFlags.FilesInput=["root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r7572_tid07644622_00/RDO.07644622._000001.pool.root.1"]
 
 
 from MuonRecExample.MuonRecFlags import muonRecFlags
@@ -131,16 +100,6 @@ for i in topSequence:
   log.info('removing ', i.getName())
   if i.getName()!="SGInputLoader":
     topSequence.remove(i)
-
-
-#Run Fake RoI
-# from L1Decoder.L1DecoderConf import FakeRoI
-# fakeRoI = FakeRoI("fakeRoI")
-# fakeRoI.InputFilename="caloRoIData.dat"
-# setOutput(fakeRoI, "OutputDecisions", "OutputRoIs")
-# fakeRoI.OutputLevel=DEBUG
-
-# topSequence += fakeRoI
 
 # once L1 re-simulation works this has to change from emulation to real unpacking
 include("TrigUpgradeTest/L1CF.py")

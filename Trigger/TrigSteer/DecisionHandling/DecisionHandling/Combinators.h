@@ -7,10 +7,14 @@
 #define DECISIONHANDLING_COMBINATORS_H
 
 #include <vector>
+#include <set>
+#include <functional>
+
 namespace HLT {
   /**
    * @class CombinationsGenerator helper to generate all possible combinations of objects
-   * Provided size of all collections from which the objects shoudl be combined it allws to get all 
+   * @warning The class is not making any assumption as if the this are combinations with objets repeated, i.e. it works on set of indices.
+   * For unique combinations there see utility functions below.
    **/
   class CombinationGenerator {
   public:
@@ -75,6 +79,34 @@ namespace HLT {
   private:
     CombinationGenerator m_generator;
   };  
+
+
+  /**
+   * Unique combinations for case when one can not repeat the index (i.e. for N same-object kind of triggers)
+   **/
+  /**
+   * @brief Function find all elements of the decisions which take part in succesfull unique combinations
+   * The combinations are formed from the content of each of the "indices" subvector. 
+   * The index never repeats in the combination.
+   *
+   * @arg decsions - stores indices of objects which succesfully pass selection
+   * @arg participants - set of indices which contribute to any valid combination found (useful tor marking passing RoIs)
+   * @arg filter - additional combinations filter (can be used to implement additional constraint on the objects)
+   * Another approach would be to make a generator object like above, we shall see which approach works better.
+   **/
+  typedef std::vector<size_t>  Index1DVec;
+  typedef std::vector< Index1DVec > Index2DVec;
+
+  void elementsInUniqueCombinations( const Index2DVec& indices,  std::set<size_t>& participants, std::function<bool(const Index1DVec&)> filter = [](const Index1DVec&){ return true; } );
+  
+  /**
+   * @brief Creates unique combinations of elements 
+   * @arg combinations - all calid combinations
+   * For desciption @see elementsInUnuqueCombinations, this method is different as it exposes all combinations formed    
+   **/
+  void findUniqueCombinations( const Index2DVec& indices,  std::vector<std::vector<size_t> >& combinations, std::function<bool(const Index1DVec&)> filter = [](const Index1DVec&){ return true; } );
+
+
   
 }
 

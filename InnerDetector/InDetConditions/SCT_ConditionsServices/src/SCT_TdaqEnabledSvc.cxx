@@ -11,13 +11,9 @@
 #include "SCT_TdaqEnabledSvc.h"
 
 //STL includes
-#include <vector>
-#include <list>
-#include <algorithm>
-#include <sstream>
 #include <iterator>
-#include "boost/array.hpp"
 #include <iostream>
+
 //Use Event info to determine whether folder is expetd to have valid data
 #include "EventInfo/EventID.h"
 #include "EventInfo/EventInfo.h"
@@ -37,19 +33,19 @@
 
 // Constructor
 SCT_TdaqEnabledSvc::SCT_TdaqEnabledSvc( const std::string& name, ISvcLocator* pSvcLocator ) : AthService(name, pSvcLocator), 
-m_data{nullptr},
+m_condData{nullptr},
 m_pHelper{nullptr},
-m_useDatabase(true), m_detStore("DetectorStore",name),
-m_condKey(std::string("SCT_TdaqEnabledCondData"))
+m_useDatabase{true},
+m_detStore{"DetectorStore", name},
+m_condKey{std::string{"SCT_TdaqEnabledCondData"}}
 {
-  //declareProperty("BadRodIdentifiers",m_badElements);
-  declareProperty("EventInfoKey", m_eventInfoKey=std::string("ByteStreamEventInfo"));
+  declareProperty("EventInfoKey", m_eventInfoKey=std::string{"ByteStreamEventInfo"});
 }
 
 //Initialize
 StatusCode 
 SCT_TdaqEnabledSvc::initialize(){
-  const std::string databaseUseString(m_useDatabase?"":"not ");
+  const std::string databaseUseString{m_useDatabase?"":"not "};
   ATH_MSG_INFO(" Database will "<<databaseUseString<<"be used.");
 
   ATH_CHECK(m_detStore->retrieve(m_pHelper,"SCT_ID"));
@@ -64,8 +60,7 @@ SCT_TdaqEnabledSvc::initialize(){
 //Finalize
 StatusCode
 SCT_TdaqEnabledSvc::finalize(){
-  StatusCode sc(StatusCode::SUCCESS);
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 // From s.binet
@@ -75,9 +70,8 @@ SCT_TdaqEnabledSvc::finalize(){
 //   Return: StatusCode indicating SUCCESS or FAILURE.
 // N.B. Don't forget to release the interface after use!!!
 StatusCode 
-SCT_TdaqEnabledSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) 
-{
-  if ( ISCT_ConditionsSvc::interfaceID().versionMatch(riid) ) {
+SCT_TdaqEnabledSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) {
+  if(ISCT_ConditionsSvc::interfaceID().versionMatch(riid)) {
     *ppvInterface = dynamic_cast<ISCT_ConditionsSvc*>(this);
   } else {
     // Interface is not directly available : try out a base class
@@ -88,44 +82,44 @@ SCT_TdaqEnabledSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
 }
 
 bool 
-SCT_TdaqEnabledSvc::canReportAbout(InDetConditions::Hierarchy h){
+SCT_TdaqEnabledSvc::canReportAbout(InDetConditions::Hierarchy h) {
   return (h==InDetConditions::DEFAULT or h==InDetConditions::SCT_SIDE or h==InDetConditions::SCT_MODULE); 
 }
 
 bool 
-SCT_TdaqEnabledSvc::isGood(const Identifier & elementId, InDetConditions::Hierarchy h){
-  if (not canReportAbout(h)) return true;
+SCT_TdaqEnabledSvc::isGood(const Identifier & elementId, InDetConditions::Hierarchy h) {
+  if(not canReportAbout(h)) return true;
   //turn to hash, given the identifier
-  const IdentifierHash hashId=m_pHelper->wafer_hash(elementId);
+  const IdentifierHash hashId{m_pHelper->wafer_hash(elementId)};
   return isGood(hashId);
 }
 
 bool 
-SCT_TdaqEnabledSvc::isGood(const IdentifierHash & hashId){
+SCT_TdaqEnabledSvc::isGood(const IdentifierHash & hashId) {
   if(not getCondData()) return false;
-  return m_data->isGood(hashId);
+  return m_condData->isGood(hashId);
 }
 
 bool 
-SCT_TdaqEnabledSvc::canFillDuringInitialize(){
+SCT_TdaqEnabledSvc::canFillDuringInitialize() {
   return (not m_useDatabase);// can only fill during intialize if we don't use the database
 }
 
 bool
-SCT_TdaqEnabledSvc::filled() const{
+SCT_TdaqEnabledSvc::filled() const {
   if(not getCondData()) return false;
-  return m_data->isFilled();
+  return m_condData->isFilled();
 }
 
 bool
 SCT_TdaqEnabledSvc::getCondData() const {
-  if(!m_data) {
-    SG::ReadCondHandle<SCT_TdaqEnabledCondData> data(m_condKey);
-    if((not data.isValid()) or !(*data)) {
+  if(!m_condData) {
+    SG::ReadCondHandle<SCT_TdaqEnabledCondData> condData{m_condKey};
+    if((not condData.isValid()) or !(*condData)) {
       ATH_MSG_ERROR("Failed to get " << m_condKey.key());
       return false;
     }
-    m_data = *data;
+    m_condData = *condData;
   }
   return true;
 }

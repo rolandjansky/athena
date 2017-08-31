@@ -121,6 +121,9 @@ StatusCode InDet::InDetTrackSplitterTool::initialize()
     return StatusCode::SUCCESS;
   } 
 
+  ATH_CHECK( m_outputUpperTracksName.initialize() );
+  ATH_CHECK( m_outputLowerTracksName.initialize() );
+
   msg(MSG::DEBUG) << "InDetTrackSplitterTool initialized" << endmsg;
   return StatusCode::SUCCESS;
 
@@ -376,7 +379,7 @@ Trk::Track* InDet::InDetTrackSplitterTool::stripSiFromTrack(Trk::Track const& in
   Trk::Track* outputTrack(0);
 
   /** The measurements */
-  Trk::MeasurementSet m_TRTHits;
+  Trk::MeasurementSet TRTHits;
 
   /** Get the initial perigee parameters */
   Trk::Perigee const* originalPerigee = input.perigeeParameters();
@@ -388,7 +391,7 @@ Trk::Track* InDet::InDetTrackSplitterTool::stripSiFromTrack(Trk::Track const& in
   Trk::PseudoMeasurementOnTrack const* constraint = makeThetaZ0Constraint(originalPerigee);
 
   /** Adding the constraint first */
-  m_TRTHits.push_back(constraint);
+  TRTHits.push_back(constraint);
   
   unsigned int totalNumberTRTHits = 0;
   
@@ -410,7 +413,7 @@ Trk::Track* InDet::InDetTrackSplitterTool::stripSiFromTrack(Trk::Track const& in
     }
     
     ++totalNumberTRTHits;
-    m_TRTHits.push_back(*meas);
+    TRTHits.push_back(*meas);
  
   }
 
@@ -419,7 +422,7 @@ Trk::Track* InDet::InDetTrackSplitterTool::stripSiFromTrack(Trk::Track const& in
   //if(isConstrained(numberUpperPixelHits,numberUpperSCTHits,numberUpperTRTHits,numberUpperPseudoMeas)){
     
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "before calling fit" << endmsg;
-  outputTrack = m_trkfitter->fit(m_TRTHits, *originalPerigee, true, hypo);
+  outputTrack = m_trkfitter->fit(TRTHits, *originalPerigee, true, hypo);
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "after calling fit" << endmsg;
     
   if(!outputTrack){
@@ -443,7 +446,7 @@ Trk::Track* InDet::InDetTrackSplitterTool::stripTRTFromTrack(Trk::Track const& i
   Trk::Track* outputTrack(0);
 
   /** The measurements */
-  Trk::MeasurementSet m_SiHits;
+  Trk::MeasurementSet SiHits;
 
   /** Get the initial perigee parameters */
   Trk::Perigee const* originalPerigee = input.perigeeParameters();
@@ -479,7 +482,7 @@ Trk::Track* InDet::InDetTrackSplitterTool::stripTRTFromTrack(Trk::Track const& i
       Trk::PseudoMeasurementOnTrack const* constraint = makePConstraint(originalPerigee,trtSurf);
       
       /** Adding the constraint first */
-      m_SiHits.push_back(constraint);
+      SiHits.push_back(constraint);
       
       /** Only add the constraint once */
       addedConstraint = true;
@@ -491,7 +494,7 @@ Trk::Track* InDet::InDetTrackSplitterTool::stripTRTFromTrack(Trk::Track const& i
     }
     
     ++totalNumberSiHits;
-    m_SiHits.push_back(*meas);
+    SiHits.push_back(*meas);
  
   }
 
@@ -500,7 +503,7 @@ Trk::Track* InDet::InDetTrackSplitterTool::stripTRTFromTrack(Trk::Track const& i
   //if(isConstrained(numberUpperPixelHits,numberUpperSCTHits,numberUpperTRTHits,numberUpperPseudoMeas)){
     
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "before calling fit" << endmsg;
-  outputTrack = m_trkfitter->fit(m_SiHits, *originalPerigee, false, hypo);
+  outputTrack = m_trkfitter->fit(SiHits, *originalPerigee, false, hypo);
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "after calling fit" << endmsg;
     
   if(!outputTrack){
@@ -589,8 +592,8 @@ std::pair<Trk::Track*, Trk::Track*> InDet::InDetTrackSplitterTool::splitInOddEve
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " In splitInOddEvenHitsTrack" <<endmsg;
 
   /** The returned tracks */
-  Trk::Track* m_oddTrack(0);
-  Trk::Track* m_evenTrack(0);
+  Trk::Track* oddTrack(0);
+  Trk::Track* evenTrack(0);
   
   /** Get the initial perigee parameters */
   Trk::Perigee const* originalPerigee = input.perigeeParameters();
@@ -599,8 +602,8 @@ std::pair<Trk::Track*, Trk::Track*> InDet::InDetTrackSplitterTool::splitInOddEve
   Trk::ParticleHypothesis hypo = input.info().particleHypothesis();
 
   /** Get the  measurements */
-  Trk::MeasurementSet m_oddHits;
-  Trk::MeasurementSet m_evenHits;
+  Trk::MeasurementSet oddHits;
+  Trk::MeasurementSet evenHits;
   
   unsigned int totalNumberPixelHits = 0;
   unsigned int totalNumberSCTHits = 0;
@@ -618,7 +621,7 @@ std::pair<Trk::Track*, Trk::Track*> InDet::InDetTrackSplitterTool::splitInOddEve
   unsigned int numberEvenPseudoMeas = 0; 
   
   /** Get SCT hits (ordered) */
-  std::vector<Trk::MeasurementBase const*> m_unusedSCTHits = getSCTHits(input);
+  std::vector<Trk::MeasurementBase const*> unusedSCTHits = getSCTHits(input);
   
   DataVector<Trk::MeasurementBase const>::const_iterator meas = input.measurementsOnTrack()->begin();
   DataVector<Trk::MeasurementBase const>::const_iterator measEnd = input.measurementsOnTrack()->end(); 
@@ -639,32 +642,32 @@ std::pair<Trk::Track*, Trk::Track*> InDet::InDetTrackSplitterTool::splitInOddEve
   
         if(!m_trtid->is_sct(surfaceid)){
           if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "adding odd hit" <<endmsg;
-          m_oddHits.push_back( *meas);
+          oddHits.push_back( *meas);
           ++totalNumberHits;
           }else{
     
             /** protect against breaking up space points
-                find the sct hit in m_unusedSCTHits */
-            std::vector<Trk::MeasurementBase const* >::iterator m_result = find(m_unusedSCTHits.begin(), m_unusedSCTHits.end(),  *meas);
+                find the sct hit in unusedSCTHits */
+            std::vector<Trk::MeasurementBase const* >::iterator result = find(unusedSCTHits.begin(), unusedSCTHits.end(),  *meas);
     
             /** if the SCT hits hasn't been assigned to a tracks */
-            if(m_result != m_unusedSCTHits.end()){
+            if(result != unusedSCTHits.end()){
       
               if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "add the (odd) SCT hit" <<endmsg;
-              m_oddHits.push_back( *meas);
+              oddHits.push_back( *meas);
               ++totalNumberHits;
 
               /** remove hit from unused list */
               if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "removing the SCT hit from unused list" <<endmsg;
-              m_unusedSCTHits.erase(m_result);
+              unusedSCTHits.erase(result);
       
               /** find any other hits with same r phi */
-              m_result = findSCTHitsFromSameSpacePoint( *meas, m_unusedSCTHits);
-              if(m_result != m_unusedSCTHits.end()){
+              result = findSCTHitsFromSameSpacePoint( *meas, unusedSCTHits);
+              if(result != unusedSCTHits.end()){
                 if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "adding the other (odd) SCT hit in the spacepoint" <<endmsg;
-                m_oddHits.push_back( *m_result);
+                oddHits.push_back( *result);
                 if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "removing the SCT hit from unused list" <<endmsg;
-                m_unusedSCTHits.erase(m_result);
+                unusedSCTHits.erase(result);
               }
             }
           }
@@ -678,31 +681,31 @@ std::pair<Trk::Track*, Trk::Track*> InDet::InDetTrackSplitterTool::splitInOddEve
   
         if(!m_trtid->is_sct(surfaceid)){
           if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "add the (even) hit" <<endmsg;
-          m_evenHits.push_back( *meas);
+          evenHits.push_back( *meas);
           ++totalNumberHits;
         }else{
           /** protect against breaking up space points
-              find the sct hit in m_unusedSCTHits */
-          std::vector<Trk::MeasurementBase const* >::iterator m_result = find(m_unusedSCTHits.begin(), m_unusedSCTHits.end(), *meas);
+              find the sct hit in unusedSCTHits */
+          std::vector<Trk::MeasurementBase const* >::iterator result = find(unusedSCTHits.begin(), unusedSCTHits.end(), *meas);
     
           /** if the SCT hits hasn't been assigned to a tracks */
-          if(m_result != m_unusedSCTHits.end()){
+          if(result != unusedSCTHits.end()){
       
             if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "add the (even) SCT hit" <<endmsg;
-            m_evenHits.push_back( *meas);
+            evenHits.push_back( *meas);
             ++totalNumberHits;
 
             /** remove hit from umused list */
             if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "removing the SCT hit from unused list" <<endmsg;
-            m_unusedSCTHits.erase(m_result);
+            unusedSCTHits.erase(result);
       
             /** find any other hits with same r phi */
-            m_result = findSCTHitsFromSameSpacePoint( *meas, m_unusedSCTHits);
-            if(m_result != m_unusedSCTHits.end()){
+            result = findSCTHitsFromSameSpacePoint( *meas, unusedSCTHits);
+            if(result != unusedSCTHits.end()){
               if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "adding the other (even) SCT hit in the spacepoint" <<endmsg;
-              m_evenHits.push_back( *m_result);
+              evenHits.push_back( *result);
               if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "removing the SCT hit from unused list" <<endmsg;
-              m_unusedSCTHits.erase(m_result);
+              unusedSCTHits.erase(result);
             }
           }
         }
@@ -713,28 +716,28 @@ std::pair<Trk::Track*, Trk::Track*> InDet::InDetTrackSplitterTool::splitInOddEve
       if(ps){
         if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Adding an odd pseudoMeasurement" <<endmsg; 
         ++numberOddPseudoMeas;
-        m_oddHits.push_back( ps);
+        oddHits.push_back( ps);
 
         if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Adding an even pseudoMeasurement" <<endmsg; 
         ++numberEvenPseudoMeas;
-        m_evenHits.push_back( ps);
+        evenHits.push_back( ps);
       }
     }
   }
 
   /** Sort the hits. */
-  //std::sort(m_oddHits.begin(), m_oddHits.end(), InDetTrackSplitterHelpers::CompareYPosition );
-  //std::sort(m_evenHits.begin(), m_evenHits.end(), InDetTrackSplitterHelpers::CompareYPosition );
+  //std::sort(oddHits.begin(), oddHits.end(), InDetTrackSplitterHelpers::CompareYPosition );
+  //std::sort(evenHits.begin(), evenHits.end(), InDetTrackSplitterHelpers::CompareYPosition );
   
   /** Upper track */
   /** track must be overconstrained */
   if(isConstrained(numberOddPixelHits,numberOddSCTHits,numberOddTRTHits,numberOddPseudoMeas)){  
     
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "before calling odd fit" << endmsg;
-    m_oddTrack = m_trkfitter->fit(m_oddHits, *originalPerigee, false, hypo);
+    oddTrack = m_trkfitter->fit(oddHits, *originalPerigee, false, hypo);
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "after calling odd fit" << endmsg;
     
-    if(!m_oddTrack){
+    if(!oddTrack){
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Odd Fit Failed!" << endmsg ;
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "There was: " 
                << numberOddPixelHits << " odd Pixel hits, " 
@@ -757,10 +760,10 @@ std::pair<Trk::Track*, Trk::Track*> InDet::InDetTrackSplitterTool::splitInOddEve
   if(isConstrained(numberEvenPixelHits,numberEvenSCTHits,numberEvenTRTHits,numberEvenPseudoMeas)){
     
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "before calling even fit" << endmsg;
-    m_evenTrack = m_trkfitter->fit(m_evenHits, *originalPerigee, false, hypo);
+    evenTrack = m_trkfitter->fit(evenHits, *originalPerigee, false, hypo);
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "after calling even fit" << endmsg;
     
-    if(!m_evenTrack){
+    if(!evenTrack){
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Even Fit Failed!" << endmsg ;
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "There was: " << numberEvenSCTHits << " even si hits and " 
                << numberEvenTRTHits << "even TRT hits"<< endmsg;
@@ -773,7 +776,7 @@ std::pair<Trk::Track*, Trk::Track*> InDet::InDetTrackSplitterTool::splitInOddEve
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Not enough measurements on even track. Fit fails." << endmsg ;
   
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Leaving splitInOddEvenHitsTrack" <<endmsg;
-  return std::make_pair(m_oddTrack, m_evenTrack);  
+  return std::make_pair(oddTrack, evenTrack);  
 }
   
 /** 
@@ -849,14 +852,14 @@ bool InDet::InDetTrackSplitterTool::trackIsCandidate(Trk::Track const& inputTrac
     }
     
   //Trk::Perigee const* measuredperigee = dynamic_cast<Trk::Perigee const*>( trackPerigee );
-  double const m_d0 = trackPerigee->parameters()[Trk::d0];
+  double const d0 = trackPerigee->parameters()[Trk::d0];
 
-  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "do is: "<<  m_d0 << endmsg;
+  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "do is: "<<  d0 << endmsg;
 
   /** This can be fleshed out, to have better track selection */
 
   //width of the cavity in the TRT 
-  if( fabs(m_d0) < 600){
+  if( fabs(d0) < 600){
     if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "is a candidate" << endmsg;
     return true;
   }
@@ -870,62 +873,62 @@ bool InDet::InDetTrackSplitterTool::trackIsCandidate(Trk::Track const& inputTrac
  */
 std::vector<Trk::MeasurementBase const*> InDet::InDetTrackSplitterTool::getSCTHits(Trk::Track const& input) const {
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In getSCTHits " << endmsg;
-  std::vector<Trk::MeasurementBase const*> m_SCTHits;
+  std::vector<Trk::MeasurementBase const*> SCTHits;
 
   DataVector<Trk::MeasurementBase const>::const_iterator meas = input.measurementsOnTrack()->begin();
   DataVector<Trk::MeasurementBase const>::const_iterator measEnd = input.measurementsOnTrack()->end(); 
   for(;meas != measEnd; ++meas){
         
-    Trk::RIO_OnTrack const* m_rio = dynamic_cast<Trk::RIO_OnTrack const*>(*meas);
+    Trk::RIO_OnTrack const* rio = dynamic_cast<Trk::RIO_OnTrack const*>(*meas);
     
-    if(m_rio){
-      Identifier const& surfaceid = (m_rio->identify());
+    if(rio){
+      Identifier const& surfaceid = (rio->identify());
       if(m_trtid->is_sct(surfaceid)){
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "we've found an SCT hit " << endmsg;
-  m_SCTHits.push_back(*meas);
+  SCTHits.push_back(*meas);
       }
     }
   }
 
   //if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "sorting the hits " << endmsg;
   /** order the hits in y */
-  //std::sort(m_SCTHits.begin(), m_SCTHits.end(), InDetTrackSplitterHelpers::CompareYPosition );
+  //std::sort(SCTHits.begin(), SCTHits.end(), InDetTrackSplitterHelpers::CompareYPosition );
   
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Leaving getSCTHits " << endmsg;
-  return m_SCTHits;
+  return SCTHits;
 }
 
 /** 
     Logic to check if there is another SCT hit associated with the input hit, which forms a space point
     (used for not breaking up SCT space points, when splitting Odd/Even)
 */
-std::vector<Trk::MeasurementBase const*>::iterator InDet::InDetTrackSplitterTool::findSCTHitsFromSameSpacePoint(Trk::MeasurementBase const* m_sctHit, std::vector<Trk::MeasurementBase const*>& m_listOfSCTHits) const {
+std::vector<Trk::MeasurementBase const*>::iterator InDet::InDetTrackSplitterTool::findSCTHitsFromSameSpacePoint(Trk::MeasurementBase const* sctHit, std::vector<Trk::MeasurementBase const*>& listOfSCTHits) const {
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in findSCTHitsFromSameSpacePoint " << endmsg;
-  std::vector<Trk::MeasurementBase const*>::iterator m_result = m_listOfSCTHits.end();
+  std::vector<Trk::MeasurementBase const*>::iterator result = listOfSCTHits.end();
   
-  Trk::RIO_OnTrack const* rio = dynamic_cast<Trk::RIO_OnTrack const*>(m_sctHit);
+  Trk::RIO_OnTrack const* rio = dynamic_cast<Trk::RIO_OnTrack const*>(sctHit);
   if(rio){
     Identifier const& surfaceid = (rio->identify());  
     
     int targetEta = m_sctid->eta_module(surfaceid);
     int targetPhi = m_sctid->phi_module(surfaceid);
     
-    std::vector<Trk::MeasurementBase const*>::const_iterator meas = m_listOfSCTHits.begin();
-    std::vector<Trk::MeasurementBase const*>::const_iterator measEnd = m_listOfSCTHits.end(); 
+    std::vector<Trk::MeasurementBase const*>::const_iterator meas = listOfSCTHits.begin();
+    std::vector<Trk::MeasurementBase const*>::const_iterator measEnd = listOfSCTHits.end(); 
     for(;meas != measEnd; ++meas){
-      Trk::RIO_OnTrack const* m_candidateRio = dynamic_cast<Trk::RIO_OnTrack const*>(*meas);
-      if(m_candidateRio){
-  Identifier const& candidateSurfaceid = (m_candidateRio->identify());
+      Trk::RIO_OnTrack const* candidateRio = dynamic_cast<Trk::RIO_OnTrack const*>(*meas);
+      if(candidateRio){
+  Identifier const& candidateSurfaceid = (candidateRio->identify());
   if(m_sctid->eta_module(candidateSurfaceid) == targetEta && m_sctid->phi_module(candidateSurfaceid) == targetPhi){
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Found another hit in the SpacePoint " << endmsg;
-    m_result = find(m_listOfSCTHits.begin(), m_listOfSCTHits.end(), *meas);
+    result = find(listOfSCTHits.begin(), listOfSCTHits.end(), *meas);
   }
       }
     }
   }
   
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Leaving findSCTHitsFromSameSpacePoint " << endmsg;
-  return m_result;
+  return result;
 }
 
 /** 

@@ -50,7 +50,7 @@ class SCT_RodEncoder : virtual public ISCT_RodEncoder, virtual public AthAlgTool
  public:
  
   typedef SCT_RDORawData RDO ;
-  typedef std::vector<const RDO*> vRDOs ;
+  typedef std::vector<const RDO*> vRDOs_t;
   typedef SCT_RDO_Container SCTRawContainer ;
   
   /** constructor  */
@@ -67,40 +67,40 @@ class SCT_RodEncoder : virtual public ISCT_RodEncoder, virtual public AthAlgTool
   virtual StatusCode finalize();
 
   /// convert all collections of RDO's in the current  list to vector of 32bit words   
-  virtual void fillROD(std::vector<uint32_t>& v, uint32_t robid, vRDOs& rdoVec) ;
+  virtual void fillROD(std::vector<uint32_t>& v, uint32_t robid, vRDOs_t& rdoVec);
 
   /// Encode rdo into the data: called by fillROD(..) 
   void encodeData(std::vector<int>& vtbin, std::vector<uint16_t>& v16, const RDO *rdo, int gSize, int strip);
   
   /// pack 32 bit word:  called by  encodeData(..) 
-  void packFragments(std::vector<uint16_t>& v16, std::vector<uint32_t>& v32) const ;
+  void packFragments(std::vector<uint16_t>& v16, std::vector<uint32_t>& v32) const;
 
   /// from 16 bits array to 32 bit array   
-  uint32_t set32bits(const unsigned short int * v16, const unsigned short int * pos, const unsigned short int n) const;
+  uint32_t set32bits(const unsigned short int* v16, const unsigned short int* pos, const unsigned short int n) const;
 
   /// Get the side info from the RDO 
-  int side(const RDO * rdo) ;
+  int side(const RDO* rdo);
   
-  /// Get the time bin info from the RDO 
-  int tbin(const RDO * rdo);
+  /// Get the time bin info from the RDO
+  int tbin(const RDO* rdo);
 
   /// Get the group size info from the RDO 
-  int groupSize(const RDO * rdo) {return rdo->getGroupSize(); }
+  int groupSize(const RDO* rdo) { return rdo->getGroupSize(); }
   
   /// Get the strip number info from the RDO  
-  int strip(const RDO * rdo) ;
+  int strip(const RDO* rdo);
  
   /// Get the offline Identifirer from the RDO  
-  Identifier offlineId(const RDO * rdo) ;
+  Identifier offlineId(const RDO* rdo);
 
   /// Get the online id from the RDO  
-  uint32_t onlineId(const RDO * rdo) ;
+  uint32_t onlineId(const RDO* rdo);
 
   /// Get the ROD link info from the RDO 
-  int rodLink(const RDO * rdo) ;
+  int rodLink(const RDO* rdo);
 
   /// fill vector with module with inverted phi readout direction between offline and online position 
-  void addSwapModuleId (Identifier IdColl) { m_swapModuleId.insert(IdColl) ;} 
+  void addSwapModuleId (Identifier IdColl) { m_swapModuleId.insert(IdColl); } 
 
   /// Get the 16-bit word for a header for a hit 
   uint16_t getHeaderUsingRDO(const RDO* rdo);
@@ -112,31 +112,36 @@ class SCT_RodEncoder : virtual public ISCT_RodEncoder, virtual public AthAlgTool
   uint16_t getTrailer(int);
 
  private:
-  enum ErrorWords{ TIMEOUT_ERR=(1<<11), L1_ERR=(1<<10), BCID_ERR=(1<<9), 
-		   PREAMBLE_ERR=(1<<12), FORMATTER_ERR=12,
-		   TRAILER_ERR=(1<<12), NULL_HEADER_ERR=0, 
-		   HEADER_TRAILER_ERR=(1<<11), TRAILER_OVFLW_ERR=(1<<10), 
-		   ABCD_ERR=0, RAWDATA_ERR=(3<<13),
-		   NULL_TRAILER_ERR=0  }; 
+  enum ErrorWords{TIMEOUT_ERR=(1<<11),
+		  L1_ERR=(1<<10),
+		  BCID_ERR=(1<<9),
+		  PREAMBLE_ERR=(1<<12),
+		  FORMATTER_ERR=12,
+		  TRAILER_ERR=(1<<12),
+		  NULL_HEADER_ERR=0,
+		  HEADER_TRAILER_ERR=(1<<11),
+		  TRAILER_OVFLW_ERR=(1<<10),
+		  ABCD_ERR=0,
+		  RAWDATA_ERR=(3<<13),
+		  NULL_TRAILER_ERR=0}; 
   void addHeadersWithErrors(const uint32_t robid, const std::set<IdentifierHash>* errors, 
-			    ErrorWords errType, std::vector<uint16_t> & v16data);
+			    ErrorWords errType, std::vector<uint16_t>& v16data);
   void addTrailersWithErrors(const uint32_t robid, const std::set<IdentifierHash>* errors, 
-			     ErrorWords errType, std::vector<uint16_t> & v16data);
+			     ErrorWords errType, std::vector<uint16_t>& v16data);
   void addSpecificErrors(const uint32_t robid, const std::set<IdentifierHash>* errors, 
-			 ErrorWords errType, std::vector<uint16_t> & v16data);
-  ServiceHandle<ISCT_CablingSvc> m_cabling ;
-  ServiceHandle<ISCT_ByteStreamErrorsSvc> m_bsErrs ;
-  const SCT_ID * m_sct_id ;
-  bool m_condensed ;
-  std::set<Identifier> m_swapModuleId ;
-  unsigned int  m_singleCondHitNumber ;
-  unsigned int  m_pairedCondHitNumber ;
-  unsigned int  m_firstExpHitNumber ;
-  unsigned int  m_evenExpHitNumber ;
-  unsigned int  m_lastExpHitNumber ;
-  unsigned int  m_headerNumber ;  
-  unsigned int  m_trailerNumber ;
-}; 
+			 ErrorWords errType, std::vector<uint16_t>& v16data);
+  ServiceHandle<ISCT_CablingSvc> m_cabling;
+  ServiceHandle<ISCT_ByteStreamErrorsSvc> m_bsErrs;
+  const SCT_ID* m_sct_id;
+  bool m_condensed;
+  std::set<Identifier> m_swapModuleId;
+  unsigned int m_singleCondHitNumber;
+  unsigned int m_pairedCondHitNumber;
+  unsigned int m_firstExpHitNumber;
+  unsigned int m_evenExpHitNumber;
+  unsigned int m_lastExpHitNumber;
+  unsigned int m_headerNumber;
+  unsigned int m_trailerNumber;
+};
 
-#endif
-
+#endif // SCT_RAWDATABYTESTREAM_SCT_RODENCODER_H

@@ -322,6 +322,15 @@ namespace xAOD {
       return;
    }
 
+   /// Lock a decoration.
+   void AuxInfoBase::lockDecoration (SG::auxid_t auxid)
+   { 
+     guard_t guard (m_mutex);
+     if (m_store) {
+       m_store->lockDecoration (auxid);
+     }
+   }
+
    size_t AuxInfoBase::size() const {
 
       // Should really always be 1, but do the general thing anyway...

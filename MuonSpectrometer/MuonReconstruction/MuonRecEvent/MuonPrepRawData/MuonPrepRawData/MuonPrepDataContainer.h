@@ -39,9 +39,6 @@ class MuonPrepDataContainer : public IdentifiableContainer<CollectionT> {
   // Public methods:
   ///////////////////////////////////////////////////////////////////
 public:
-
-    //default for POOL
-      MuonPrepDataContainer();
     
   // Constructor with parameters:
   MuonPrepDataContainer(unsigned int max);

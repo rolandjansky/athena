@@ -76,7 +76,7 @@ StatusCode eflowCaloObjectBuilder::initialize() {
     msg(MSG::WARNING) << "Failed to retrieve " << m_tools << endmsg;
     return StatusCode::SUCCESS;
   } else {
-    msg(MSG::INFO) << "Retrieved " << m_tools << endmsg;
+    msg(MSG::VERBOSE) << "Retrieved " << m_tools << endmsg;
   }
   
   // print the list of tools - taken from JetRec/JetAlgorithm.cxx
@@ -132,20 +132,20 @@ StatusCode eflowCaloObjectBuilder::finalize() { return StatusCode::SUCCESS; }
 
 void eflowCaloObjectBuilder::printTools() {
   // print the list of tools - taken from JetRec/JetAlgorithm.cxx
-  msg(MSG::INFO) << " " << endmsg;
-  msg(MSG::INFO) << "List of tools in execution sequence of eflowCaloObjectBuilder:" << endmsg;
-  msg(MSG::INFO) << "------------------------------------" << endmsg;
-  msg(MSG::INFO) << " " << endmsg;
+  ATH_MSG_VERBOSE(" ");
+  ATH_MSG_VERBOSE("List of tools in execution sequence of eflowCaloObjectBuilder:");
+  ATH_MSG_VERBOSE("------------------------------------");
+  ATH_MSG_VERBOSE(" ");
   ToolHandleArray<eflowISubtractionAlgTool>::iterator itTool = m_tools.begin();
   ToolHandleArray<eflowISubtractionAlgTool>::iterator lastTool = m_tools.end();
   unsigned int toolCtr = 0;
   for (; itTool != lastTool; itTool++) {
     toolCtr++;
-    msg(MSG::INFO) << std::setw(2) << std::setiosflags(std::ios_base::right) << toolCtr << ".) "
+    ATH_MSG_VERBOSE(std::setw(2) << std::setiosflags(std::ios_base::right) << toolCtr << ".) "
     << std::resetiosflags(std::ios_base::right) << std::setw(36) << std::setfill('.')
     << std::setiosflags(std::ios_base::left) << (*itTool)->type() << std::setfill('.')
-    << (*itTool)->name() << std::setfill(' ') << endmsg;
+		    << (*itTool)->name() << std::setfill(' '));
   }
-  msg(MSG::INFO) << " " << endmsg;
-  msg(MSG::INFO) << "------------------------------------" << endmsg;
+  ATH_MSG_VERBOSE(" ");
+  ATH_MSG_VERBOSE("------------------------------------");
 }

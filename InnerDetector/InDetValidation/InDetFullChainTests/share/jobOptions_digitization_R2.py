@@ -17,6 +17,7 @@ DetFlags.LVL1_setOff()
 
 from AthenaCommon.GlobalFlags import jobproperties
 jobproperties.Global.DetDescrVersion='ATLAS-R2-2015-03-01-00'
+jobproperties.Global.ConditionsTag.set_Value_and_Lock('OFLCOND-RUN12-SDR-31')
 
 ## Random Number Seed offsets
 ## should be altered between jobs in order to change noise etc.
@@ -27,6 +28,7 @@ jobproperties.Digitization.rndmSeedOffset2=22
 ## Main Digitization configuration
 include ( "Digitization/Digitization.py" )
 
+svcMgr.IOVDbSvc.GlobalTag=jobproperties.Global.ConditionsTag()
 
 ## Re-configure MessageSvc
 MessageSvc = Service( "MessageSvc" )

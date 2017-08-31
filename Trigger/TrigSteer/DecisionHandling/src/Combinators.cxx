@@ -3,6 +3,7 @@
 */
 #include <algorithm>
 #include <iostream>
+#include <iterator>
 #include "DecisionHandling/Combinators.h"
 
 
@@ -42,3 +43,47 @@ CombinationGenerator::operator bool() const {
     return false;
   return true;
 }
+
+
+
+namespace {
+  
+  void combMaker( const Index2DVec& indices, std::function<void (const Index1DVec&) > handle, std::function<bool (const Index1DVec&) > filter, size_t rank=0, Index1DVec combination={} ) {
+
+    for ( auto position: indices[rank] ) {
+      // found an element matching to this combination
+      if ( std::find( combination.begin(), combination.end(), position ) == combination.end() ) {
+	//	      std::cout << "rank " << rank << " adding or replacing " << position << " to a combination containing so far ";
+	      //	      std::copy( combination.begin(), combination.end(), std::ostream_iterator<size_t>(std::cout, " ") );
+	      //	      std::cout << "\n";
+	if ( combination.size() == rank ) 
+	  combination.push_back( position );
+	else
+	  combination[rank] = position;
+ 
+	if ( combination.size() == indices.size() ) { // end of recursion
+	  if ( filter( combination ) )
+	    handle( combination );	  
+	} else {
+	  combMaker( indices, handle, filter, rank+1, combination);
+	}
+      }      
+    }    
+  }  
+}
+
+namespace HLT {
+  void elementsInUniqueCombinations( const Index2DVec& indices,  std::set<size_t>& participants, std::function<bool(const Index1DVec&)> filter ) {
+    auto handle = [&](const Index1DVec& combination ) {  for ( auto el: combination ) participants.insert(participants.begin(), el); };
+    combMaker( indices, handle, filter );
+  }
+  
+  void findUniqueCombinations( const Index2DVec& indices,  std::vector<std::vector<size_t> >& combinations, std::function<bool(const Index1DVec&)> filter ) {
+    auto handle = [&](const Index1DVec& combination ) {  combinations.push_back( combination ); };
+    combMaker( indices, handle, filter );  
+  }
+}
+
+
+
+

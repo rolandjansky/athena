@@ -207,45 +207,13 @@ class shiftMBTSTiming(_modifier):
                 if child.getType()=='T2MbtsHypo':
                     child.GlobalTimeOffset=45
 
-class useL2MuonAlign(_modifier):
-    """
-    Apply muon alignment
-    """
-    def postSetup(self):
-        if TriggerFlags.doLVL2():
-            from MuonRecExample import MuonAlignConfig
-            #temporary hack to workaround DB problem - should not be needed any more
-            folders=svcMgr.IOVDbSvc.Folders
-            newFolders=[]
-            for f in folders:
-                if f.find('MDT/BARREL')!=-1:
-                    f+='<key>/MUONALIGN/MDT/BARREL</key>'
-                newFolders.append(f)
-            svcMgr.IOVDbSvc.Folders=newFolders
-            svcMgr.AmdcsimrecAthenaSvc.AlignmentSource=2
-
-class useEFMuonAlign(_modifier):
-    """
-    Apply muon alignment
-    """
-    def postSetup(self):
-        if TriggerFlags.doEF():
-            from MuonRecExample import MuonAlignConfig
-            #temporary hack to workaround DB problem
-            folders=svcMgr.IOVDbSvc.Folders
-            newFolders=[]
-            for f in folders:
-                if f.find('MDT/BARREL')!=-1:
-                    f+='<key>/MUONALIGN/MDT/BARREL</key>'
-                newFolders.append(f)
-            svcMgr.IOVDbSvc.Folders=newFolders
 
 class useHLTMuonAlign(_modifier):
     """
     Apply muon alignment
     """
     def postSetup(self):
-        if TriggerFlags.doHLT():
+        if TriggerFlags.doHLT() and TriggerFlags.doMuon():
             from MuonRecExample import MuonAlignConfig
             #temporary hack to workaround DB problem - should not be needed any more
             folders=svcMgr.IOVDbSvc.Folders
@@ -258,43 +226,12 @@ class useHLTMuonAlign(_modifier):
             svcMgr.AmdcsimrecAthenaSvc.AlignmentSource=2
 
 
-class useRecentL2MuonAlign(_modifier):
-    """
-    Apply muon alignment
-    """
-    def postSetup(self):
-        if TriggerFlags.doLVL2():
-            from MuonRecExample import MuonAlignConfig
-            folders=svcMgr.IOVDbSvc.Folders
-            newFolders=[]
-            for f in folders:
-                if f.find('MUONALIGN')!=-1 and f.find('TGC')==-1:
-                    f+='<forceTimestamp> 1384749388 </forceTimestamp>'
-                newFolders.append(f)
-            svcMgr.IOVDbSvc.Folders=newFolders
-
-class useRecentEFMuonAlign(_modifier):
-    """
-    Apply muon alignment
-    """
-    def postSetup(self):
-        if TriggerFlags.doEF():
-            from MuonRecExample import MuonAlignConfig
-            folders=svcMgr.IOVDbSvc.Folders
-            newFolders=[]
-            for f in folders:
-                if f.find('MUONALIGN')!=-1 and f.find('TGC')==-1:
-                    f+='<forceTimestamp> 1384749388 </forceTimestamp>'
-                newFolders.append(f)
-            svcMgr.IOVDbSvc.Folders=newFolders
-
 class useRecentHLTMuonAlign(_modifier):
     """
     Apply muon alignment
     """
     def postSetup(self):
-        if TriggerFlags.doHLT():
-            print "useHLTMuonAlign"
+        if TriggerFlags.doHLT() and TriggerFlags.doMuon():
             from MuonRecExample import MuonAlignConfig
             folders=svcMgr.IOVDbSvc.Folders
             newFolders=[]
@@ -365,6 +302,8 @@ class openThresholdRPCCabling(_modifier):
     and other entries at http://alxr.usatlas.bnl.gov/lxr/ident?i=cosmic
     """
     def postSetup(self):
+        if not TriggerFlags.doMuon(): return
+
         from MuonCnvExample.MuonCnvFlags import muonCnvFlags
         if muonCnvFlags.RpcCablingMode=='new':
             from MuonRPC_Cabling.MuonRPC_CablingConfig import MuonRPC_CablingSvc
@@ -495,11 +434,13 @@ class forceTileRODMap(_modifier):
     Configure Tile ROD map based on run-number (ATR-16290)
     """
     def postSetup(self):
-        from AthenaCommon.AppMgr import ToolSvc
+        if not hasattr(svcMgr.ToolSvc,"TileROD_Decoder"):
+           from TileByteStream.TileByteStreamConf import TileROD_Decoder
+           svcMgr.ToolSvc+=TileROD_Decoder()
         if _run_number<318000:  # use old readout scheme (default is new one)
             log.info('Reverting to pre-2017 Tile ROD map')
-            ToolSvc.TrigDataAccess.fullTileMode=False
-            ToolSvc.TileRegionSelectorTable.FullRODs=False
+            svcMgr.ToolSvc.TileROD_Decoder.fullTileMode=0
+
 
 
 class useOnlineLumi(_modifier):
@@ -558,15 +499,6 @@ class physicsPTmode(_modifier):
         TriggerFlags.physics_pass_through=True
 
 
-
-class enable7BitL1TTStreaming(_modifier):
-    """
-    select setup with 7 bit L1 TT streaming
-    """
-    def preSetup(self):
-        TriggerFlags.CosmicSlice.UseSingleBeam7BitL1Menu=True
-
-
 class enableHotIDMasking(_modifier):
     """
     Masking of hot pixel and SCT modules enabled in L2 spacepoint provider
@@ -618,8 +550,6 @@ class ignoreL1Vetos(_modifier):
     def postSetup(self):
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
-        if hasattr(topSequence,"TrigSteer_L2"):
-            topSequence.TrigSteer_L2.LvlConverterTool.ignorePrescales=True
         if hasattr(topSequence,"TrigSteer_HLT"):
             topSequence.TrigSteer_HLT.LvlConverterTool.ignorePrescales=True
             
@@ -721,11 +651,6 @@ class mufastDetMask(_modifier):
     def postSetup(self):
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
-        if hasattr(topSequence,'TrigSteer_L2'):
-            for instance in ['muFast_Muon','muFast_900GeV','muFast_HALO']:
-                muFast = topSequence.TrigSteer_L2.allConfigurables.get(instance)
-                if muFast:
-                    muFast.DetMaskCheck=True
         if hasattr(topSequence,'TrigSteer_HLT'):
             for instance in ['muFast_Muon','muFast_900GeV','muFast_HALO']:
                 muFast = topSequence.TrigSteer_HLT.allConfigurables.get(instance)
@@ -741,8 +666,6 @@ class muonCommissioningStep1(_modifier):
     def postSetup(self):
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
-        if hasattr(topSequence,"TrigSteer_L2"):
-            topSequence.TrigSteer_L2.LvlConverterTool.Lvl1ResultAccessTool.muonCommissioningStep=1
         if hasattr(topSequence,"TrigSteer_HLT"):
             topSequence.TrigSteer_HLT.LvlConverterTool.Lvl1ResultAccessTool.muonCommissioningStep=1
 
@@ -753,11 +676,6 @@ class muonEFTimeouts(_modifier):
     def postSetup(self):
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
-        if hasattr(topSequence,'TrigSteer_EF'):
-            for inst in topSequence.TrigSteer_EF.getAllChildren():
-                if inst.getType()=='TrigMuonEFSegmentFinder':
-                    inst.doTimeOutGuard=True
-                    inst.maxMdtHits=1000
         if hasattr(topSequence,'TrigSteer_HLT'):
             for inst in topSequence.TrigSteer_HLT.getAllChildren():
                 if inst.getType()=='TrigMuonEFSegmentFinder':
@@ -1041,14 +959,6 @@ class UseRPCTimeDelayFromDataForMufast(_modifier):
     def postSetup(self):
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
-        if hasattr(topSequence,"TrigSteer_L2"):
-            for inst in topSequence.TrigSteer_L2.getAllChildren():
-                if inst.getType()=='muFast':
-                    delay=-40
-                    if inst.name() == 'muFast_MuonEcut4Empty':
-                        delay=-15
-                    print 'UseRPCTimeDelayFromDataForMufast: modifying RpcTimeDelay to ',delay,' for ',inst.name()
-                    inst.RpcTimeDelay=delay
         if hasattr(topSequence,"TrigSteer_HLT"):
             for inst in topSequence.TrigSteer_HLT.getAllChildren():
                 if inst.getType()=='muFast':
@@ -1068,14 +978,6 @@ class UseLUTFromDataForMufast(_modifier):
         from TrigMuonBackExtrapolator.TrigMuonBackExtrapolatorConfig import MuonBackExtrapolatorForData
         ToolSvc += MuonBackExtrapolatorForData()
         topSequence = AlgSequence()
-        if hasattr(topSequence,"TrigSteer_L2"):
-            for inst in topSequence.TrigSteer_L2.getAllChildren():
-                if inst.getType()=='muFast':
-                    inst.UseLUTForMC=False
-                elif inst.getType()=='MuFastSteering':
-                    inst.UseLUTForMC=False
-                    print 'UseLUTFromDataForMufast: set backExtrapolator to MuonBackExtrapolatorForData()'
-                    inst.BackExtrapolator = MuonBackExtrapolatorForData()
 
         if hasattr(topSequence,"TrigSteer_HLT"):
             for inst in topSequence.TrigSteer_HLT.getAllChildren():
@@ -1091,8 +993,9 @@ class DisableMdtT0Fit(_modifier):
     Disable MDT T0 re-fit and use constants from COOL instead
     """
     def preSetup(self):
-        from MuonRecExample.MuonRecFlags import muonRecFlags
-        muonRecFlags.doSegmentT0Fit.set_Value_and_Lock(False)
+        if TriggerFlags.doMuon():
+            from MuonRecExample.MuonRecFlags import muonRecFlags
+            muonRecFlags.doSegmentT0Fit.set_Value_and_Lock(False)
 
 class UseBackExtrapolatorDataForMuIso(_modifier):
    """
@@ -1109,12 +1012,6 @@ class UseBackExtrapolatorDataForMuIso(_modifier):
                if inst.getType()=='muIso':
                    print 'UseBackExtrapolatorDataForMuComb: set backExtrapolatorLUT to MuonBackExtrapolatorForData()'
                    inst.BackExtrapolatorLUT = MuonBackExtrapolatorForData()
-       if hasattr(topSequence,"TrigSteer_L2"):
-           for inst in topSequence.TrigSteer_L2.getAllChildren():
-               if inst.getType()=='muIso':
-                   print 'UseBackExtrapolatorDataForMuComb: set backExtrapolatorLUT to MuonBackExtrapolatorForData()'
-                   inst.BackExtrapolatorLUT = MuonBackExtrapolatorForData()
-
 
 ###############################################################
 # Monitoring and misc.
@@ -1219,9 +1116,7 @@ class mufastDebug(_modifier):
     def postSetup(self):
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
-        if hasattr(topSequence,"TrigSteer_L2"):
-            TrigSteer=topSequence.TrigSteer_L2
-        elif hasattr(topSequence,"TrigSteer_HLT"):
+        if hasattr(topSequence,"TrigSteer_HLT"):
             TrigSteer=topSequence.TrigSteer_HLT
 
         muFast = TrigSteer.allConfigurables.get('muFast_Muon')
@@ -1328,11 +1223,6 @@ class detailedTiming(_modifier):
         svcMgr.TrigTimerSvc.IncludeName=".+"
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
-        if hasattr(topSequence,'TrigSteer_L2'):
-            for instance in ['muFast_Muon','muFast_900GeV']:
-                muFast = topSequence.TrigSteer_L2.allConfigurables.get(instance)
-                if muFast:
-                    muFast.Timing=True
         if hasattr(topSequence,'TrigSteer_HLT'):
             for instance in ['muFast_Muon','muFast_900GeV']:
                 muFast = topSequence.TrigSteer_HLT.allConfigurables.get(instance)
@@ -1458,11 +1348,6 @@ class TriggerRateTool(_modifier):
         svcMgr.THistSvc.Output += ["TriggerRateTools DATAFILE='TriggerRates.root' OPT='RECREATE'"]
         triggerRateTools.xSection = 0.070
         triggerRateTools.Luminosity = 10000000.0
-        if hasattr(topSequence,"TrigSteer_L2"):
-            topSequence.TrigSteer_L2.ignorePrescales=True
-            topSequence.TrigSteer_L2.LvlConverterTool.Lvl1ResultAccessTool.ignorePrescales=True
-        if hasattr(topSequence,"TrigSteer_EF"):
-            topSequence.TrigSteer_EF.ignorePrescales=True
         if hasattr(topSequence,"TrigSteer_HLT"):
             topSequence.TrigSteer_HLT.ignorePrescales=True
             topSequence.TrigSteer_HLT.LvlConverterTool.Lvl1ResultAccessTool.ignorePrescales=True
@@ -1477,8 +1362,6 @@ class doMufastNtuple(_modifier):
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
         topSequence = AlgSequence()
         for algo in ['muFast_900GeV','muFast_HALO','muFast_Muon']:
-            if hasattr(topSequence.TrigSteer_L2,algo):
-                getattr(topSequence.TrigSteer_L2,algo).MONntuple=True
             if hasattr(topSequence.TrigSteer_HLT,algo):
                 getattr(topSequence.TrigSteer_HLT,algo).MONntuple=True
         theApp.HistogramPersistency = "ROOT"

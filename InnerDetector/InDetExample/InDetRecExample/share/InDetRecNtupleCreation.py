@@ -49,28 +49,6 @@ if InDetFlags.doNtupleCreation():
 
     minNumberOfPixelHitsForTracksInNtuple = 1 # for now, crashes if set to zero, under investigation
 
-    if InDetFlags.doPixelTrkNtuple() or InDetFlags.doSctTrkNtuple():
-      # Pixel specific helper tool
-      from InDetTrackValidation.InDetTrackValidationConf import InDet__SiResidualValidationNtupleHelper
-      PixSiResidualNtupleHelper      = InDet__SiResidualValidationNtupleHelper( name = 'InDetPixelSiResidualValHelper' )
-      ToolSvc += PixSiResidualNtupleHelper
-      if (InDetFlags.doPrintConfigurables()):
-        print PixSiResidualNtupleHelper
-      # add to lists of tools to use
-      if InDetFlags.doPixelTrkNtuple():
-        PixelNtupleHelperToolsList  += [PixSiResidualNtupleHelper]
-      if InDetFlags.doSctTrkNtuple():
-        SCTNtupleHelperToolsList    += [PixSiResidualNtupleHelper]
-    
-    # helper tool to fill trt ntuple part with drift time info
-    if InDetFlags.doTrtTrkNtuple():
-      from InDetTrackValidation.InDetTrackValidationConf import InDet__TRT_DriftTimeNtupleHelper
-      TRT_DriftTimeNtupleHelper      = InDet__TRT_DriftTimeNtupleHelper ( name = 'InDetTRT_DriftTimeNtupleHelper' )
-      ToolSvc += TRT_DriftTimeNtupleHelper
-      if (InDetFlags.doPrintConfigurables()):
-        print TRT_DriftTimeNtupleHelper
-      TRTNtupleHelperToolsList  += [TRT_DriftTimeNtupleHelper]
-
     # --- set ntuple structore for track variables
     from TrkValTools.TrkValToolsConf import Trk__TrackInformationNtupleTool
     InDetTrackInfoNtupleTool = Trk__TrackInformationNtupleTool(name="InDetTrackInfoNtupleTool")
@@ -109,7 +87,7 @@ if InDetFlags.doNtupleCreation():
                                                             maxD0                 = 2000.,
                                                             maxD0overSigmaD0      = 500.,
                                                             numberOfPixelHits     = minNumberOfPixelHitsForTracksInNtuple,
-                                                            numberOfBLayerHits    = 0,
+                                                            numberOfInnermostPixelLayerHits    = 0,
                                                             TrackSummaryTool      = InDetTrackSummaryTool)
     #if (InDetFlags.doLowPt()):
     #  TrkValTrackSelectorTool.minPt = InDetNewTrackingCutsLowPt.minPT()
@@ -121,7 +99,7 @@ if InDetFlags.doNtupleCreation():
       TrkValTrackSelectorTool.maxD0                   = 9999999.0
       TrkValTrackSelectorTool.maxD0overSigmaD0        = 9999999.0
       TrkValTrackSelectorTool.numberOfPixelHits       =       1
-      TrkValTrackSelectorTool.numberOfBLayerHits      =       0
+      TrkValTrackSelectorTool.numberOfInnermostPixelLayerHits      =       0
       
     ToolSvc += TrkValTrackSelectorTool
     if (InDetFlags.doPrintConfigurables()):
@@ -178,20 +156,6 @@ if InDetFlags.doNtupleCreation():
       print TrkValNtupleWriter
 
   # configure sub detector tracking independent ntuple trees
-  if InDetFlags.doPixelClusterNtuple():
-    # include Pixel ntuple writer alg
-    # adds information about all PRDs in the Pixels
-    from InDetTrackValidation.InDetTrackValidationConf import InDet__PixelClusterValidationNtupleWriter
-    PixelNtupleWriter = InDet__PixelClusterValidationNtupleWriter(name                       = 'InDetPixelClusterValidationNtupleWriter',
-                                                                  NtupleFileName           = 'TRKVAL',
-                                                                  NtupleDirectoryName      = 'Validation',
-                                                                  NtupleTreeName           = 'PixelRIOs',
-                                                                  PixelClusterContainer    = InDetKeys.PixelClusters())
-    if rec.Production() and globalflags.DataSource == "data":
-      PixelNtupleWriter.WriteDetailedPixelInformation=True
-    topSequence += PixelNtupleWriter
-    if (InDetFlags.doPrintConfigurables()):
-      print PixelNtupleWriter  
 
   if InDetFlags.doSctClusterNtuple():
     from InDetTrackValidation.InDetTrackValidationConf import InDet__SCT_ClusterValidationNtupleWriter
@@ -204,20 +168,7 @@ if InDetFlags.doNtupleCreation():
     topSequence += SctNtupleWriter
     if (InDetFlags.doPrintConfigurables()):
       print SctNtupleWriter
-
-  if InDetFlags.doTrtDriftCircleNtuple():
-    # include TRT ntuple writer alg (large ntuple !!!)
-    # adds information about all PRDs in the TRT
-    from InDetTrackValidation.InDetTrackValidationConf import InDet__TRT_DriftCircleValidationNtupleWriter
-    TRT_NtupleWriter = InDet__TRT_DriftCircleValidationNtupleWriter(name                     = 'InDetTRT_DriftCircleNtupleWriter',
-                                                                    NtupleFileName           = 'TRKVAL',
-                                                                    NtupleDirectoryName      = 'Validation',
-                                                                    NtupleTreeName           = 'TRT_RIOs',
-                                                                    TRT_DriftCircleContainer = InDetKeys.TRT_DriftCircles())
-    topSequence += TRT_NtupleWriter
-    if (InDetFlags.doPrintConfigurables()):
-      print TRT_NtupleWriter
-  
+ 
   # --------------------------------------------      
 
   if InDetFlags.doVtxNtuple():  

@@ -29,10 +29,10 @@ public:
   
 private:
   
-  SG::ReadHandleKey<HiveDataObj> m_rdh1;
+  SG::ReadHandleKey<HiveDataObj> m_rdh1 {this, "Key_R1", "a1", "read key 1"};
   
-  SG::ReadCondHandleKey<CondDataObj> m_rch1;
-  SG::ReadCondHandleKey<CondDataObj> m_rch2;
+  SG::ReadCondHandleKey<CondDataObj> m_rch1 {this, "Key_CH1", "X1", "cond read key1"};
+  SG::ReadCondHandleKey<CondDataObj> m_rch2 {this, "Key_CH2", "X2", "cond read key2"};
 
 };
 #endif

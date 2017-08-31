@@ -4,8 +4,6 @@
 
 #include "MuonSegmentTagAlg.h"
 #include "MuonCombinedToolInterfaces/IMuonSegmentTagTool.h"
-
-#include "MuonCombinedEvent/InDetCandidateCollection.h"
 #include "xAODMuon/MuonSegmentContainer.h"
 
 MuonSegmentTagAlg::MuonSegmentTagAlg(const std::string& name, ISvcLocator* pSvcLocator):
@@ -17,33 +15,24 @@ MuonSegmentTagAlg::MuonSegmentTagAlg(const std::string& name, ISvcLocator* pSvcL
   declareProperty("MuonSegmentLocation", m_muonSegmenteCollectionName = "MuonSegments" );
 }
 
-MuonSegmentTagAlg::~MuonSegmentTagAlg()
-{
-
-}
+MuonSegmentTagAlg::~MuonSegmentTagAlg(){}
 
 StatusCode MuonSegmentTagAlg::initialize()
 {
   
   ATH_CHECK(m_muonSegmentTagTool.retrieve());
-
+  ATH_CHECK(m_indetCandidateCollectionName.initialize());
+  
   return StatusCode::SUCCESS; 
 }
 
 StatusCode MuonSegmentTagAlg::execute()
 {
 
-  InDetCandidateCollection* indetCandidateCollection = 0;
-  if(evtStore()->contains<InDetCandidateCollection>(m_indetCandidateCollectionName)) {
-    if(evtStore()->retrieve(indetCandidateCollection,m_indetCandidateCollectionName).isFailure()) {
-      ATH_MSG_FATAL( "Unable to retrieve " << m_indetCandidateCollectionName );
-      return StatusCode::FAILURE;
-    }
-  }
-  
-  if( !indetCandidateCollection ){
-    ATH_MSG_WARNING("InDetCandidates not found in StoreGate");
-    return StatusCode::SUCCESS;
+  SG::ReadHandle<InDetCandidateCollection> indetCandidateCollection(m_indetCandidateCollectionName);
+  if(!indetCandidateCollection.isValid()){
+    ATH_MSG_ERROR("Could not read "<< m_indetCandidateCollectionName);
+    return StatusCode::FAILURE;
   }
 
   const xAOD::MuonSegmentContainer* segments = 0;

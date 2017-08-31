@@ -43,7 +43,7 @@ public:
 
 private:
 
-    TgcRdoIdHash&  hashFcn() const;
+    static const TgcRdoIdHash&  hashFcn();
 
 };
 

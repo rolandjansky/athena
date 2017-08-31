@@ -55,7 +55,9 @@ RpcDetectorStatusDbTool::RpcDetectorStatusDbTool (const std::string& type,
 
 
 //StatusCode RpcDetectorStatusDbTool::updateAddress(SG::TransientAddress* tad)
-StatusCode RpcDetectorStatusDbTool::updateAddress(StoreID::type /*storeID*/, SG::TransientAddress* tad)
+StatusCode RpcDetectorStatusDbTool::updateAddress(StoreID::type /*storeID*/,
+                                                  SG::TransientAddress* tad,
+                                                  const EventContext& /*ctx*/)
 {
   //MsgStream log(msgSvc(), name());
     // CLID clid        = tad->clID();

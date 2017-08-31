@@ -920,7 +920,8 @@ TagInfoMgr::preLoadAddresses( StoreID::type storeID,
 
 
 StatusCode       
-TagInfoMgr::updateAddress(StoreID::type /*storeID*/, SG::TransientAddress* tad)
+TagInfoMgr::updateAddress(StoreID::type /*storeID*/, SG::TransientAddress* tad,
+                          const EventContext& /*ctx*/)
 {
     //
     // Here we do nothing, simply return success for TagInfo

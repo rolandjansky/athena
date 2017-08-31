@@ -46,6 +46,7 @@ double tauLeadTrackEta(const xAOD::TauJet& xTau);
 
 bool testFileForEOFContainsCharacters(std::string sFileName);
 void createPi0Vectors(const xAOD::TauJet* xTau, std::vector<TLorentzVector>& vPi0s);
+void correctedPi0Vectors(const xAOD::TauJet* xTau, std::vector<TLorentzVector>& correctedPi0s, TLorentzVector& TauP4);
 }
 
 #endif // not TAUANALYSISTOOLS_HELPERFUNCTIONS_H

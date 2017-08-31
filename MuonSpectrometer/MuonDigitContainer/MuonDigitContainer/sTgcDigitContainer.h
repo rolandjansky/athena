@@ -49,7 +49,7 @@ class sTgcDigitContainer
 :public IdentifiableContainer<sTgcDigitCollection> 
 {
  public:  
-   sTgcDigitContainer(); 
+   sTgcDigitContainer();
    
   sTgcDigitContainer(unsigned int hash_max) ; 
   ~sTgcDigitContainer() ; 

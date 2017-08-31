@@ -886,6 +886,28 @@ SGImplSvc::proxies() const
   return proxies;
 }
 
+
+std::vector<CLID>
+SGImplSvc::clids() const
+{
+  lock_t lock (m_mutex);
+
+  using std::distance;
+  DataStore::ConstStoreIterator s_iter, s_end;
+  store()->tRange(s_iter, s_end).ignore();
+
+  std::vector<CLID> clids;
+  clids.reserve( distance( s_iter, s_end ) );
+
+  for (; s_iter != s_end; ++s_iter ) {
+    const CLID id = s_iter->first;
+    clids.push_back (id);
+  }
+
+  return clids;
+}
+
+
 DataProxy*
 SGImplSvc::transientProxy(const CLID& id, const string& key) const
 { 

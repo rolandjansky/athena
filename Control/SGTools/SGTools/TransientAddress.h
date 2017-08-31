@@ -18,6 +18,8 @@
 ///< forward declarations:
 class IOpaqueAddress;
 class IAddressProvider;
+class IProxyDict;
+class EventContext;
 
 namespace SG {
 
@@ -100,7 +102,7 @@ namespace SG {
     void consultProvider(const bool& flag);
 
     ///< Check the validity of the Transient Address.
-    bool isValid();
+    bool isValid (IProxyDict* store);
 
     ///< cache the pointer to the Address provider which can update
     ///< this transient address
@@ -109,7 +111,16 @@ namespace SG {
     void setProvider(IAddressProvider* provider, StoreID::type storeID);
 
   private:
+    /**
+     * @brief Retrieve the EventContext saved in store STORE.
+     * @param store The store from which to retrieve the context, or nullptr.
+     *
+     * If there is no context recorded in the store, return a default-initialized
+     * context.
+     */
+    const EventContext& contextFromStore (IProxyDict* store) const;
 
+    
     ///< clid of the concrete class (persistent clid)
     CLID m_clid;
 

@@ -708,7 +708,7 @@ void AnalysisConfig_Jpsi::loop() {
        
         if(closestProbe) {
           const Trk::TrackSummary *summary = closestProbe->trackSummary();
-          int nBlayerHits = 2*summary->get(Trk::numberOfBLayerHits); 
+          int nBlayerHits = 2*summary->get(Trk::numberOfInnermostPixelLayerHits);
           int nPixelHits  = 2*summary->get(Trk::numberOfPixelHits);  
           int nSctHits    = summary->get(Trk::numberOfSCTHits); 
           //int nStrawHits  = summary->get(Trk::numberOfTRTHits);
@@ -725,7 +725,7 @@ void AnalysisConfig_Jpsi::loop() {
         }
         if(closestTag) {
           const Trk::TrackSummary *summary = closestTag->trackSummary();
-          int nBlayerHits = 2*summary->get(Trk::numberOfBLayerHits); 
+          int nBlayerHits = 2*summary->get(Trk::numberOfInnermostPixelLayerHits);
           int nPixelHits  = 2*summary->get(Trk::numberOfPixelHits);  
           int nSctHits    = summary->get(Trk::numberOfSCTHits); 
           //int nStrawHits  = summary->get(Trk::numberOfTRTHits);

@@ -723,7 +723,7 @@ bool TrigBjetFex::trackSel(const xAOD::TrackParticle*& track, unsigned int i, in
   uint8_t nPixHits    = 0;  
   uint8_t nSCTHits    = 0; 
 
-  //track->summaryValue(nBlayerHits,          xAOD::numberOfBLayerHits);
+  //track->summaryValue(nBlayerHits,          xAOD::numberOfInnermostPixelLayerHits);
   track->summaryValue(nInnermostHits,       xAOD::numberOfInnermostPixelLayerHits);
   track->summaryValue(nNextToInnermostHits, xAOD::numberOfNextToInnermostPixelLayerHits);
   track->summaryValue(nPixHits,             xAOD::numberOfPixelHits);

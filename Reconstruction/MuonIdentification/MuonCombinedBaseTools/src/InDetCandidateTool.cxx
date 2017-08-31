@@ -65,7 +65,7 @@ namespace MuonCombined {
         if( !m_trackSelector->decision(*tp) ) {
           if( msgLvl(MSG::VERBOSE) &&  tp->pt() > 5000. )
             ATH_MSG_DEBUG(" Discarding InDet TrackParticle: pt " << tp->pt() << " eta " << tp->eta() << " phi " << tp->phi() 
-              << " Pixel " << getCount(*tp,xAOD::numberOfBLayerHits ) + getCount(*tp,xAOD::numberOfPixelHits )
+              << " Pixel " << getCount(*tp,xAOD::numberOfInnermostPixelLayerHits ) + getCount(*tp,xAOD::numberOfPixelHits )
               << " SCT "  << getCount(*tp,xAOD::numberOfSCTHits ) << " TRT " << getCount(*tp, xAOD::numberOfTRTHits ) );
           continue;
         }
@@ -82,7 +82,7 @@ namespace MuonCombined {
         link.toPersistent();
  
         ATH_MSG_DEBUG(" Creating InDetCandidate: pt " << tp->pt() << " eta " << tp->eta() << " phi " << tp->phi() 
-          << " Pixel " << getCount(*tp,xAOD::numberOfBLayerHits ) + getCount(*tp,xAOD::numberOfPixelHits )
+          << " Pixel " << getCount(*tp,xAOD::numberOfInnermostPixelLayerHits ) + getCount(*tp,xAOD::numberOfPixelHits )
           << " SCT "  << getCount(*tp,xAOD::numberOfSCTHits ) << " TRT " << getCount(*tp, xAOD::numberOfTRTHits ) );
         if( msgLvl(MSG::VERBOSE) && tp->isAvailable<ElementLink< xAOD::TruthParticleContainer > >("truthParticleLink") ){
           ElementLink< xAOD::TruthParticleContainer > truthLink = tp->auxdata<ElementLink< xAOD::TruthParticleContainer > >("truthParticleLink");

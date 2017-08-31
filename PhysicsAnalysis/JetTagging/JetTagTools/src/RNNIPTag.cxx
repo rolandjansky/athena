@@ -104,7 +104,7 @@ namespace trkvar {
   const std::string N_SPLIT_PIX_HITS = "nsplitPixHits";
   const std::string N_SCT_HITS = "nSCTHits";
   const std::string N_SHARED_SCT_HITS = "nsharedSCTHits";
-  const std::string EXPECT_BL_HIT = "expectBLayerHit";
+  const std::string EXPECT_BL_HIT = "expectInnermostPixelLayerHit";
   const std::string EXPECT_INNERMOST_PIX_HIT =
     "expectInnermostPixelLayerHit";
   const std::string EXPECT_NEXT_TO_INNERMOST_PIX_HIT =
@@ -728,11 +728,11 @@ namespace {
       out.at(N_NEXT_TO_INN_HITS).push_back(
         val(tp, xAOD::numberOfNextToInnermostPixelLayerHits));
       out.at(N_BL_HITS).push_back(
-        val(tp, xAOD::numberOfBLayerHits));
+        val(tp, xAOD::numberOfInnermostPixelLayerHits));
       out.at(N_SHARED_BL_HITS).push_back(
-        val(tp, xAOD::numberOfBLayerSharedHits));
+        val(tp, xAOD::numberOfInnermostPixelLayerSharedHits));
       out.at(N_SPLIT_BL_HITS).push_back(
-        val(tp, xAOD::numberOfBLayerSplitHits));
+        val(tp, xAOD::numberOfInnermostPixelLayerSplitHits));
       out.at(N_PIX_HITS).push_back(
         val(tp, xAOD::numberOfPixelHits));
       out.at(N_SHARED_PIX_HITS).push_back(
@@ -744,7 +744,7 @@ namespace {
       out.at(N_SHARED_SCT_HITS).push_back(
         val(tp, xAOD::numberOfSCTSharedHits));
       out.at(EXPECT_BL_HIT).push_back(
-        val(tp, xAOD::expectBLayerHit));
+        val(tp, xAOD::expectInnermostPixelLayerHit));
       out.at(EXPECT_INNERMOST_PIX_HIT).push_back(
         val(tp, xAOD::expectInnermostPixelLayerHit));
       out.at(EXPECT_NEXT_TO_INNERMOST_PIX_HIT).push_back(

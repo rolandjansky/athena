@@ -41,19 +41,19 @@ StatusCode PFTrackClusterMatchingTool::initialize() {
 
   m_matcher = std::make_unique<PFMatch::TrackClusterMatcher>(DistanceFactory::Get(m_distanceType, TrackPositionFactory::Get(m_trackPositionType), ClusterPositionFactory::Get(m_clusterPositionType)),m_matchCut);
   
-  msg(MSG::INFO) << "In initialize:" << endmsg;
-  msg(MSG::INFO) << "Track position type is \"" << m_trackPositionType << "\"" << endmsg;
-  msg(MSG::INFO) << "Cluster position type is \"" << m_clusterPositionType << "\"" << endmsg;
-  msg(MSG::INFO) << "Distance type is \"" << m_distanceType << "\"" << endmsg;
-  msg(MSG::INFO) << "Match cut is " << m_matchCut << endmsg;
+  ATH_MSG_VERBOSE("In initialize:");
+  ATH_MSG_VERBOSE("Track position type is \"" << m_trackPositionType << "\"");
+  ATH_MSG_VERBOSE("Cluster position type is \"" << m_clusterPositionType << "\"");
+  ATH_MSG_VERBOSE("Distance type is \"" << m_distanceType << "\"");
+  ATH_MSG_VERBOSE("Match cut is " << m_matchCut);
 
   return StatusCode::SUCCESS;
 }
 
 StatusCode PFTrackClusterMatchingTool::finalize() {
-  msg(MSG::INFO) << "Final summary:" << endmsg;
-  msg(MSG::INFO) << "Processed " << m_tracksProcessed << " tracks." << endmsg;
-  msg(MSG::INFO) << "Produced  " << m_tracksMatched<< " matches." << endmsg;
+  ATH_MSG_INFO("Final summary:");
+  ATH_MSG_INFO("Processed " << m_tracksProcessed << " tracks.");
+  ATH_MSG_INFO("Produced  " << m_tracksMatched<< " matches.");
 
   return StatusCode::SUCCESS;
 }

@@ -8,11 +8,12 @@
 #define LArBadChannel2Ascii_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ToolHandle.h"
-
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LArRecConditions/LArBadChannelCont.h"
+#include "LArRecConditions/LArOnOffIdMapping.h"
 #include <string>
 
-class LArBadChanTool;
+//class LArBadChanTool;
 class StoreGateSvc;
 class LArCablingService;
 
@@ -29,9 +30,13 @@ public:
 
 private:
 
-  ToolHandle< LArBadChanTool > m_BadChanTool;
-  ToolHandle<LArCablingService> m_larCablingSvc;
-
+  //ToolHandle< LArBadChanTool > m_BadChanTool;
+  //ReadCondHandleKey<LArBadChannelCont> m_BCKey;
+  SG::ReadCondHandleKey<LArBadChannelCont> m_BCKey;
+  SG::ReadCondHandleKey<LArBadFebCont> m_BFKey;
+  //ToolHandle<LArCablingService> m_larCablingSvc;
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey;
+  
   std::string                  m_dbFolder;
   std::string                  m_fileName;
   std::string                  m_executiveSummaryFile;

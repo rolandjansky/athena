@@ -131,9 +131,7 @@ InDetFlags.doTruth = (globalflags.DataSource == 'geant4' and globalflags.InputFo
 #InDetFlags.doPixelTrkNtuple = True
 #InDetFlags.doSctTrkNtuple   = True
 #InDetFlags.doTrtTrkNtuple   = True
-#InDetFlags.doPixelClusterNtuple = True
 #InDetFlags.doSctClusterNtuple   = True
-#InDetFlags.doTrtDriftCircleNtuple = True
 #InDetFlags.doVtxNtuple      = True
 #InDetFlags.doConvVtxNtuple  = True
 #InDetFlags.doV0VtxNtuple    = True

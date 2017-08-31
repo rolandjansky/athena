@@ -77,8 +77,7 @@ public:
    virtual bool canFillDuringInitialize();
   
 private:
-   //   static const unsigned int NRODS; //!< This was 90 in run 1; changed to 128 on Oct 22, 2014
-   const mutable SCT_TdaqEnabledCondData *m_data;
+   mutable const SCT_TdaqEnabledCondData *m_condData;
   
    const SCT_ID * m_pHelper;
    bool m_useDatabase;

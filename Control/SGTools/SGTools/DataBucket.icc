@@ -10,9 +10,9 @@
 #include <boost/type_traits/is_abstract.hpp>
 #include <boost/type_traits/has_trivial_copy.hpp>
 
-#include "SGTools/ClassID_traits.h"
-#include "SGTools/BaseInfo.h"
 #include "SGTools/IRegisterTransient.h"
+#include "AthenaKernel/ClassID_traits.h"
+#include "AthenaKernel/BaseInfo.h"
 #include "AthenaKernel/ILockable.h"
 
 #include <type_traits>
@@ -119,7 +119,7 @@ template <typename T>
 void*
 SG::DataBucket<T>::cast (CLID clid,
                          IRegisterTransient* irt /*= 0*/,
-                         bool isConst /*=true*/) const
+                         bool isConst /*=true*/)
 {
   void* ret = SG::BaseInfo<T>::cast (m_ptr, clid);
   if (ret || !isConst)
@@ -160,7 +160,7 @@ SG::DataBucket<T>::cast (CLID clid,
 template <typename T> 
 void* SG::DataBucket<T>::cast (const std::type_info& tinfo,
                                IRegisterTransient* irt /*= 0*/,
-                               bool isConst /*= true*/) const
+                               bool isConst /*= true*/)
 {
   void* ret = SG::BaseInfo<T>::cast (m_ptr, tinfo);
   if (ret || !isConst)

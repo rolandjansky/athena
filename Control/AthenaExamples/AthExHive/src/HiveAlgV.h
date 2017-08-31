@@ -32,10 +32,10 @@ private:
   
   bool m_writeFirst { true };
 
-  Gaudi::Property<SG::ReadHandleKeyArray<HiveDataObj>> m_rhv {
-    this, "Key_RV", {"a1","a2","d1","e1","C1"},
+  SG::ReadHandleKeyArray<HiveDataObj> m_rhv {
+    this, "Key_RV", {"a1","a2","d1","e1","c1"},
     "Array of ReadHandleKey<HiveDataObj>" };
-  Gaudi::Property<SG::WriteHandleKeyArray<HiveDataObj>> m_whv {
+  SG::WriteHandleKeyArray<HiveDataObj> m_whv {
     this, "Key_WV", {}, "Array of WriteHandleKey<HiveDataObj>" };
 
   StatusCode read() const;

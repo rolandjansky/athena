@@ -263,12 +263,11 @@ namespace xAOD {
    }
 
 
-   /// Clear all decorations.
-   void ShallowAuxContainer::clearDecorations()
+   /// Lock a decoration.
+   void ShallowAuxContainer::lockDecoration (SG::auxid_t auxid)
    { 
      guard_t guard (m_mutex);
-     m_store->clearDecorations();
-     ++m_tick;
+     m_store->lockDecoration (auxid);
    }
 
    size_t ShallowAuxContainer::size() const {
@@ -283,6 +282,15 @@ namespace xAOD {
       }
       return 0;
    }
+
+   /// Clear all decorations.
+   void ShallowAuxContainer::clearDecorations()
+   { 
+     guard_t guard (m_mutex);
+     m_store->clearDecorations();
+     ++m_tick;
+   }
+
 
    //
    /////////////////////////////////////////////////////////////////////////////

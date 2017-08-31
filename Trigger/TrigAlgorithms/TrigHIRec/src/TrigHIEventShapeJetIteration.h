@@ -12,8 +12,8 @@ AUTHOR:  martin.spousta@cern.ch
 
 ********************************************************************/
 
-#ifndef __TrigHIEventShapeJetIteration_H__
-#define __TrigHIEventShapeJetIteration_H__
+#ifndef TRIGHIREC_TRIGHIEVENTSHAPEJETITERATION_H
+#define TRIGHIREC_TRIGHIEVENTSHAPEJETITERATION_H
 
 #include "AsgTools/AsgTool.h"
 #include <string>
@@ -65,8 +65,6 @@ private:
 
   mutable bool m_isInit;
 
-  bool m_do_remodulation;
-  unsigned int m_modulation_scheme;
   std::string m_modulation_key;
 };
 

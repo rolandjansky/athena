@@ -1132,7 +1132,7 @@ StatusCode MmDigitizationTool::doDigitization() {
 	}
       }
       else {
-	digitCollection = const_cast<MmDigitCollection*>( it_coll->cptr() );
+	digitCollection = const_cast<MmDigitCollection*>( *it_coll );
 	digitCollection->push_back(newDigit);
       }
 

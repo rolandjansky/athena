@@ -25,7 +25,6 @@ class CscCalibDataContainer : public IdentifiableContainer<CscCalibDataCollectio
  public:  
     
     /** constructor */
-    CscCalibDataContainer();
     CscCalibDataContainer(int maxHash) ;
 
     /** destructor */ 

@@ -13,8 +13,8 @@
  * $Header: /build/atlas/cvs/atlas/offline/Database/IOVDbSvc/src/IOVDbSvc.h,v 1.48 2009-02-10 14:09:58 hawkings Exp $
  */
 
-#ifndef __IOVDBSVC_H__
-#define __IOVDBSVC_H__
+#ifndef IOVDBSVC_IOVDBSVC_H
+#define IOVDBSVC_IOVDBSVC_H
 
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/IService.h"
@@ -120,7 +120,8 @@ public:
       
   /// Update a transient Address
   virtual StatusCode updateAddress( StoreID::type storeID,
-                                    SG::TransientAddress* tad );
+                                    SG::TransientAddress* tad,
+                                    const EventContext& ctx );
   //@}
   
 

@@ -54,7 +54,7 @@ namespace SG {
 
   void* PyDataBucket::cast( CLID clid,
                             IRegisterTransient* /*itr*/,
-                            bool /*isConst*/ ) const
+                            bool /*isConst*/ )
   {
     // if requested type is same than myself ==> no conversion needed
     if ( clid == m_clid ) {
@@ -101,7 +101,7 @@ namespace SG {
 
   void* PyDataBucket::cast( const std::type_info& tinfo,
                             IRegisterTransient* /*itr*/,
-                            bool /*isConst*/) const
+                            bool /*isConst*/)
   {
     // if regular PyObject, meaningless
     if ( m_clid == PyCLID ) {

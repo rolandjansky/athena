@@ -67,7 +67,10 @@ HelloWorld.MyStringVec += [ "!" ]
 
 # Set a map of strings to strings property ...
 HelloWorld.MyDict = { 'Bonjour'      : 'Guten Tag',
-                      'Good Morning' : 'Bonjour' , 'one' : 'uno' }
+                      'Good Morning' : 'Bonjour' , 
+                      'one' : 'ein',
+                      'two' : 'dos',
+                      'three' : 'trois' }
 
 # ... and add one more:
 HelloWorld.MyDict[ "Goeiedag" ] = "Ni Hao"

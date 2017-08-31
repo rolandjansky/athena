@@ -425,7 +425,7 @@ DataObject* DataProxy::accessData()
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 bool DataProxy::isValidAddress() const
 {
-  return (0 != m_tAddress && m_tAddress->isValid());
+  return (0 != m_tAddress && m_tAddress->isValid(m_store));
 }
 
 bool DataProxy::isValidObject() const

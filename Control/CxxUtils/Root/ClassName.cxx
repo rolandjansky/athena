@@ -108,7 +108,11 @@ bool ClassName::Rules::applyTo (ClassName& cn) const
   while (it != m_rules.end() && it->first == cn.name()) {
     ClassName::match_t matches;
     if (cn.match (it->second.first, matches)) {
+      bool const_save = cn.isConst();
       cn = it->second.second.substCopy (matches);
+      if (const_save) {
+        cn.setConst();
+      }
       ret = true;
     }
     ++it;
@@ -201,6 +205,15 @@ void ClassName::swap (ClassName& other)
   std::swap (m_namespace, other.m_namespace);
   std::swap (m_name, other.m_name);
   m_targs.swap (other.m_targs);
+}
+
+
+/**
+ * @brief Get the const flag for this expression.
+ */
+bool ClassName::isConst() const
+{
+  return m_const;
 }
 
 
@@ -312,7 +325,7 @@ bool ClassName::operator!= (const ClassName& other) const
 bool ClassName::match (const ClassName& pattern, match_t& matches) const
 {
   matches.clear();
-  return match1 (pattern, matches);
+  return match1 (pattern, true, matches);
 }
 
 
@@ -439,7 +452,7 @@ void ClassName::parse (const std::string& name, std::string::size_type& pos)
       break;
   }
   skipSpaces (name, pos);
-  if (name.substr (pos, pos+5) == "const") {
+  if (name.substr (pos, 5) == "const") {
     m_const = true;
     pos += 5;
   }
@@ -501,6 +514,10 @@ void ClassName::parseNamespace (const std::string& name,
 
   ClassName ns (name, pos);
   ns.swap (*this);
+  if (ns.isConst()) {
+    this->setConst();
+    ns.m_const = false;
+  }
   ClassName* p = this;
   while (p->m_namespace.size() > 0)
     p = &p->m_namespace[0];
@@ -570,6 +587,7 @@ void ClassName::skipSpaces (const std::string& name,
 /**
  * @brief Match this expression against a pattern.
  * @param pattern The pattern to match.
+ * @param topLevel True if this is the outermost level of matching.
  * @param[out] matches Dictionary of pattern substitutions.
  *
  * Return true if @c pattern matches the current expression.
@@ -577,7 +595,9 @@ void ClassName::skipSpaces (const std::string& name,
  * On a successful return, the map @c matches contains the
  * variable assignments needed for the match.
  */
-bool ClassName::match1 (const ClassName& pattern, match_t& matches) const
+bool ClassName::match1 (const ClassName& pattern,
+                        bool topLevel,
+                        match_t& matches) const
 {
   if (pattern.m_name[0] == '$') {
     std::string var = pattern.m_name.substr (1, std::string::npos);
@@ -601,8 +621,17 @@ bool ClassName::match1 (const ClassName& pattern, match_t& matches) const
     return true;
   }
 
-  if (m_const != pattern.m_const)
+  // Require that const qualifiers match.
+  // However, if this is the top level, we allow a pattern with no explicit
+  // const to match something that is const.  Otherwise, we'd need to repeat
+  // all patterns for the const case.
+  if (topLevel) {
+    if (pattern.m_const && !m_const)
+      return false;
+  }
+  else if (m_const != pattern.m_const) {
     return false;
+  }
 
   if (m_name != pattern.m_name)
     return false;
@@ -614,12 +643,12 @@ bool ClassName::match1 (const ClassName& pattern, match_t& matches) const
     return false;
 
   if (m_namespace.size() > 0) {
-    if (!m_namespace[0].match1 (pattern.m_namespace[0], matches))
+    if (!m_namespace[0].match1 (pattern.m_namespace[0], false, matches))
       return false;
   }
 
   for (size_t i = 0; i < m_targs.size(); i++) {
-    if (!m_targs[i].match1 (pattern.m_targs[i], matches))
+    if (!m_targs[i].match1 (pattern.m_targs[i], false, matches))
       return false;
   }
 

@@ -63,7 +63,9 @@ MDT_DeadTubeConditionsTool::MDT_DeadTubeConditionsTool (const std::string& type,
 
 
 //StatusCode MDT_DeadTubeConditionsTool::updateAddress(SG::TransientAddress* /*tad*/)
-StatusCode MDT_DeadTubeConditionsTool::updateAddress(StoreID::type /*storeID*/, SG::TransientAddress* /*tad*/)
+StatusCode MDT_DeadTubeConditionsTool::updateAddress(StoreID::type /*storeID*/,
+                                                     SG::TransientAddress* /*tad*/,
+                                                     const EventContext& /*ctx*/)
 {
   MsgStream log(msgSvc(), name());
   // CLID clid        = tad->clID();

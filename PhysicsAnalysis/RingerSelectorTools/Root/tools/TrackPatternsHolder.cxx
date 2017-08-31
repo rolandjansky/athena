@@ -97,9 +97,9 @@ void TrackPatternsHolder::extractPatternsFrom(
 
   bool allFound = true;
 
-  allFound = allFound   && track->summaryValue(m_nBL,               xAOD::numberOfBLayerHits);
+  allFound = allFound   && track->summaryValue(m_nBL,               xAOD::numberOfInnermostPixelLayerHits);
   if (m_useBLOutliers) {
-    allFound = allFound && track->summaryValue(m_nBLOutliers,       xAOD::numberOfBLayerOutliers);
+    allFound = allFound && track->summaryValue(m_nBLOutliers,       xAOD::numberOfInnermostPixelLayerOutliers);
   }
   allFound = allFound   && track->summaryValue(m_nPi,               xAOD::numberOfPixelHits);
   if (m_usePIXOutliers){
@@ -118,7 +118,7 @@ void TrackPatternsHolder::extractPatternsFrom(
   if (m_useTRTXenonHits){
     allFound = allFound && track->summaryValue(m_nTRTXenonHits,     xAOD::numberOfTRTXenonHits);
   }
-  allFound = allFound   && track->summaryValue(m_expectHitInBLayer, xAOD::expectBLayerHit);
+  allFound = allFound   && track->summaryValue(m_expectHitInBLayer, xAOD::expectInnermostPixelLayerHit);
 
   m_trackd0 = fabsf(track->d0());
 

@@ -14,6 +14,8 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           Reconstruction/RecoEvent/ParticleCaloExtension
                           Reconstruction/RecoTools/RecoToolInterfaces
+                          Reconstruction/TrackCaloClusterRec/TrackCaloClusterRecInterfaces
+                          Reconstruction/TrackCaloClusterRec/TrackCaloClusterRecTools
                           Tracking/TrkEvent/TrkCaloExtension
                           Tracking/TrkEvent/TrkParametersIdentificationHelpers
                           PRIVATE
@@ -28,6 +30,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTracking
                           Event/xAOD/xAODTruth
                           Reconstruction/RecoTools/ParticlesInConeTools
+                          InnerDetector/InDetRecTools/TrackVertexAssociationTool
                           Tracking/TrkDetDescr/TrkSurfaces
                           Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkEvent/TrkParameters
@@ -43,11 +46,11 @@ atlas_add_library( TrackToCaloLib
                    src/*.cxx
                    PUBLIC_HEADERS TrackToCalo
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${EIGEN_LIBRARIES} CaloEvent CaloGeoHelpers GeoPrimitives xAODCaloEvent GaudiKernel ParticleCaloExtension RecoToolInterfaces TrkCaloExtension TrkParametersIdentificationHelpers CaloDetDescrLib CaloUtilsLib
+                   LINK_LIBRARIES ${EIGEN_LIBRARIES} CaloEvent CaloGeoHelpers GeoPrimitives xAODCaloEvent GaudiKernel ParticleCaloExtension RecoToolInterfaces TrackCaloClusterRecTools TrkCaloExtension TrkParametersIdentificationHelpers CaloDetDescrLib CaloUtilsLib
                    PRIVATE_LINK_LIBRARIES CaloIdentifier AthenaBaseComps AtlasDetDescr FourMomUtils xAODMuon xAODTracking xAODTruth TrkSurfaces TrkEventPrimitives TrkParameters TrkTrack TrkExInterfaces TrkToolInterfaces )
 
 atlas_add_component( TrackToCalo
                      src/components/*.cxx
                      INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} CaloEvent CaloGeoHelpers GeoPrimitives xAODCaloEvent GaudiKernel ParticleCaloExtension RecoToolInterfaces TrkCaloExtension TrkParametersIdentificationHelpers CaloDetDescrLib CaloIdentifier CaloUtilsLib AthenaBaseComps AtlasDetDescr FourMomUtils xAODMuon xAODTracking xAODTruth TrkSurfaces TrkEventPrimitives TrkParameters TrkTrack TrkExInterfaces TrkToolInterfaces TrackToCaloLib )
+                     LINK_LIBRARIES ${EIGEN_LIBRARIES} CaloEvent CaloGeoHelpers GeoPrimitives xAODCaloEvent GaudiKernel ParticleCaloExtension RecoToolInterfaces TrackCaloClusterRecTools TrkCaloExtension TrkParametersIdentificationHelpers CaloDetDescrLib CaloIdentifier CaloUtilsLib AthenaBaseComps AtlasDetDescr FourMomUtils xAODMuon xAODTracking xAODTruth TrkSurfaces TrkEventPrimitives TrkParameters TrkTrack TrkExInterfaces TrkToolInterfaces TrackToCaloLib )
 

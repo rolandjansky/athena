@@ -288,20 +288,20 @@ const std::vector<std::size_t> electronSuperClusterBuilder::SearchForSecondaryCl
     if (!matchesInWindow 
 	&& seedSecdEta<m_maxDelEta 
 	&& seedSecdPhi<m_maxDelPhi) {      
-      matchSameTrack = MatchSameTrack(seedEgammaRec,egRec);
-      
+      matchSameTrack = MatchSameTrack(seedEgammaRec,egRec);      
+
       if(matchSameTrack) {
 	++m_nSameTrackClusters;
 	++m_nExtraClusters;
       } else {
-	if (egRec->trackParticle()) {
-	  float qoverp    = egRec->trackParticle()->qOverP();
-	  float seedEOverP(egRec->caloCluster()->e() / fabs(1./qoverp));
+	if (seedEgammaRec->trackParticle()) {
+	  float qoverp    = seedEgammaRec->trackParticle()->qOverP();
+	  float seedEOverP(seedEgammaRec->caloCluster()->e() * fabs(qoverp));
 	  
 	  static const SG::AuxElement::Accessor<float> pgExtrapEta ("perigeeExtrapEta");
 	  static const SG::AuxElement::Accessor<float> pgExtrapPhi ("perigeeExtrapPhi");
-	  float perigeeExtrapEta (pgExtrapEta(*egRec->trackParticle()));
-	  float perigeeExtrapPhi (pgExtrapPhi(*egRec->trackParticle()));
+	  float perigeeExtrapEta (pgExtrapEta(*seedEgammaRec->trackParticle()));
+	  float perigeeExtrapPhi (pgExtrapPhi(*seedEgammaRec->trackParticle()));
 	  if (perigeeExtrapEta>-999. && perigeeExtrapPhi>-999.)
 	    passesSimpleBremSearch = PassesSimpleBremSearch(seedCluster,
 							    clus,
@@ -355,25 +355,20 @@ bool electronSuperClusterBuilder::PassesSimpleBremSearch(const xAOD::CaloCluster
 							 float perigeeExtrapPhi,
 							 float seedEOverP) const
 {
+
+  if (!seed || !sec)
+    return false;
+
   if (seedEOverP > m_secEOverPCut){
     return false;
   }
 
-  float perigeeExtrapClusDelEta = fabs(seed->eta() - perigeeExtrapEta);
-  float perigeeExtrapClusDelPhi = fabs(P4Helpers::deltaPhi(seed->phi(), perigeeExtrapPhi));
+  ATH_MSG_DEBUG("Running PassesSimpleBremSearch");
+
   float perigeeExtrapSecClusDelEta = fabs(sec->eta() - perigeeExtrapEta);
   float perigeeExtrapSecClusDelPhi = fabs(P4Helpers::deltaPhi(sec->phi(), perigeeExtrapPhi));
 
-  // determine window size, barrel or EC
-  auto searchWindowEta = m_searchWindowEtaEndcap;
-  auto searchWindowPhi = m_searchWindowPhiEndcap;
-  if (xAOD::EgammaHelpers::isBarrel(seed)) {
-    searchWindowEta = m_searchWindowEtaBarrel;
-    searchWindowPhi = m_searchWindowPhiBarrel;
-  }
-
-  if (perigeeExtrapClusDelEta > searchWindowEta && perigeeExtrapClusDelPhi > searchWindowPhi && 
-      perigeeExtrapSecClusDelEta < m_bremExtrapMatchDelEta && 
+  if (perigeeExtrapSecClusDelEta < m_bremExtrapMatchDelEta && 
       perigeeExtrapSecClusDelPhi < m_bremExtrapMatchDelPhi) {
     return true;
   }

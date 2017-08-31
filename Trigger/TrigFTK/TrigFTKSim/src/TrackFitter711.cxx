@@ -32,7 +32,7 @@ TrackFitter711::TrackFitter711() :
   m_ext_parmask(1<<3), m_idpars(0),
   m_histores_hitcoord_PXL(0),
   m_histores_hitcoord_SCT(0),
-  m_use_SectorDB(false), m_use_multiple_conn(false), m_use_n_conn(999), m_saveIncompleteTracks(false),
+  m_use_SectorDB(false), m_use_multiple_conn(false), m_use_n_conn(999),
   m_resolution_mode(false), m_super_extrapolate(true),
   m_CImap(0), m_CIlayermap(0x0),
   m_resfile(0),
@@ -629,46 +629,59 @@ void TrackFitter711::processor_end(int ibank)
  * Comment:   Called once per road (aka pattern) from a loop in nextEvent()
 *******************************************/
 void TrackFitter711::processor(const FTKRoad &road) {
+
   if (m_resolution_mode) {
+    if (m_HitWarrior_first != 2) {
+      list<FTKTrack> road_tracks; // list 7L tracks for this road
+      // list<FTKTrack> road_tracks_pre_hw; // list 7L tracks before the HW filter
 
-    list<FTKTrack> road_tracks; // list 7L tracks for this road
-//    list<FTKTrack> road_tracks_pre_hw; // list 7L tracks before the HW filter
+      processor_Incomplete(road,road_tracks);
+      // processor_Incomplete(road,road_tracks, road_tracks_pre_hw);
 
-    processor_Incomplete(road,road_tracks);
-//    processor_Incomplete(road,road_tracks, road_tracks_pre_hw);
-
-    // JAAA not used anymore
-    //    processor_ResolutionMode(road,road_tracks);
-  }
-  else {     // performe the fits of the incomplete set of constants
-    list<FTKTrack> road_tracks; // list 7L tracks for this road
-//    list<FTKTrack> road_tracks_pre_hw; // list 7L tracks before the HW filter
-
-    // perfom the incomplete fit
-    processor_Incomplete(road,road_tracks);
-//    processor_Incomplete(road,road_tracks, road_tracks_pre_hw);
-
-    if (road_tracks.empty()) return;
-
-    if (m_saveIncompleteTracks) {
-      int region = road.getRegion();
-      list<FTKTrack>::iterator itrack = road_tracks.begin();
-      for (;itrack!=road_tracks.end();++itrack) {
-        m_trackoutput->addTrackI(region,*itrack);
-      }
-      // itrack = road_tracks_pre_hw.begin();
-      // for (;itrack!=road_tracks_pre_hw.end();++itrack) {
-      //   m_trackoutput_pre_hw->addTrackI(region,*itrack);
-      //      }
-    }
-    // extrapolate and complete the  fit
-    if (!m_super_extrapolate){
-      processor_Extrapolate(road,road_tracks);
+      // JAAA not used anymore
+      // processor_ResolutionMode(road,road_tracks);
     }
     else{
-      processor_SuperExtrapolate(road,road_tracks);
+      if (m_processor_stage == 1) {
+        processor_Incomplete(road,m_sector_tracks);
+        // JAAA not used anymore
+        // processor_ResolutionMode(road,m_sector_tracks);
+      }
+    }
   }
-}
+  else {     // performe the fits of the incomplete set of constants
+
+    if (m_HitWarrior_first != 2) {
+      list<FTKTrack> road_tracks; // list 7L tracks for this road
+      // list<FTKTrack> road_tracks_pre_hw; // list 7L tracks before the HW filter
+
+      // perfom the incomplete fit
+      processor_Incomplete(road,road_tracks);
+      // processor_Incomplete(road,road_tracks, road_tracks_pre_hw);
+
+      if (road_tracks.empty()) return;
+
+      // extrapolate and complete the fit
+      if (!m_super_extrapolate)
+        processor_Extrapolate(road,road_tracks);
+      else
+        processor_SuperExtrapolate(road,road_tracks);
+
+      m_tracks_first.splice(m_tracks_first.end(), road_tracks);
+
+    }
+    else {
+      if (m_processor_stage == 1) 
+        processor_Incomplete(road,m_sector_tracks);
+      else if (m_processor_stage == 2) {
+        if (m_sector_tracks.empty()) return;
+        if (!m_super_extrapolate)
+          processor_Extrapolate(road,m_sector_tracks);
+        else 
+          processor_SuperExtrapolate(road,m_sector_tracks);
+      }
+    }
+  }
 }
 
 
@@ -1035,7 +1048,7 @@ void TrackFitter711::processor_Incomplete(const FTKRoad &road,
 
        int accepted(0);
        // Disable hitwarrior, auto-accept every track
-       if (m_HitWarrior!=0)
+       if (m_HitWarrior!=0 && m_HitWarrior_first!=0)
          accepted = doHitWarriorFilter(m_newtrkI,road_tracks);
 
        if (accepted>=0) { // track accepted, no hits shared with already fitted tracks
@@ -3000,6 +3013,7 @@ void TrackFitter711::processor_SuperExtrapolate(const FTKRoad &road, list<FTKTra
   list<FTKTrack>::iterator itrack = road_tracks.begin();
 
   for (;itrack!=road_tracks.end();++itrack) {
+    if (itrack->getRoadID() != road.getRoadID()) continue;
     m_newtrkI = *itrack;
     m_passedExtrapolation = false; ///reset this
     extrapolateIncompleteTrack(road);

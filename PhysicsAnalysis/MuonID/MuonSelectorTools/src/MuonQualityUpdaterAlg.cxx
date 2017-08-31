@@ -44,6 +44,7 @@ namespace CP {
       m_tool->setQuality(*muon);
       m_tool->setPassesHighPtCuts(*muon);
       m_tool->setPassesIDCuts(*muon);
+      //m_tool->setPassesLowPtEfficiencyCuts(*muon);
     }
 
     return StatusCode::SUCCESS;

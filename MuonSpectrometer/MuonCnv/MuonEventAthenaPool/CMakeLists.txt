@@ -51,6 +51,7 @@ atlas_add_poolcnv_library( MuonEventAthenaPoolPoolCnv
 # against the PoolCnv library.
 atlas_add_library( MuonEventAthenaPoolTestLib
                    src/*Cnv_p*.cxx
+                   src/CreateTransientTemplates.cxx
                    NO_PUBLIC_HEADERS
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaPoolUtilities AtlasSealCLHEP MuonRDO MuonRIO_OnTrack MuonSegment AthAllocators AthContainers SGTools StoreGateLib SGtests AthenaPoolCnvSvcLib Identifier GaudiKernel RPCcablingInterfaceLib CscCalibEvent MuonEventTPCnv MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonChamberT0s MuonPrepRawData MuonTrigCoinData MuonSimData )

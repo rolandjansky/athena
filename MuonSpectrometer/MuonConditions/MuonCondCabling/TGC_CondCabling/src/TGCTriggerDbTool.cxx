@@ -22,7 +22,9 @@ TGCTriggerDbTool::TGCTriggerDbTool(const std::string& type,
 
 
 //StatusCode TGCCablingDbTool::updateAddress(SG::TransientAddress* tad) {
-StatusCode TGCTriggerDbTool::updateAddress(StoreID::type /*storeID*/, SG::TransientAddress* tad) {
+StatusCode TGCTriggerDbTool::updateAddress(StoreID::type /*storeID*/,
+                                           SG::TransientAddress* tad,
+                                           const EventContext& /*ctx*/) {
   CLID clid = tad->clID();
   std::string key = tad->name();
   // Need to add the CLID comparison 

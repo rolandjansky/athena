@@ -96,3 +96,10 @@ datamodel_run_test (xAODTestDecorHandle2
 datamodel_run_test (xAODTestDecorHandle2MT
                     COMMAND "athena.py --thread=1"
                     DEPENDS xAODTestWrite)
+
+datamodel_run_test (CondWriter)
+datamodel_run_test (CondReader
+                    DEPENDS CondWriter)
+datamodel_run_test (CondReaderMT
+                    COMMAND "athena.py --thread=1"
+                    DEPENDS CondWriter)

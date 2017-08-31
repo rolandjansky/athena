@@ -24,7 +24,7 @@
 
 // Forward declarations
 class Identifier;
-class StatusCode;
+class IdentifierHash;
 
 /*
  * @class SCT_FlaggedConditionSvc
@@ -33,38 +33,38 @@ class StatusCode;
 
 class ISCT_FlaggedConditionSvc: virtual public ISCT_ConditionsSvc {
 
-public:
+ public:
   //@name Service methods
   //@{
-  virtual ~ISCT_FlaggedConditionSvc(){}
-  static const InterfaceID & interfaceID();
+  virtual ~ISCT_FlaggedConditionSvc() {}
+  static const InterfaceID& interfaceID();
   //@}
 
   /**Flag a wafer as bad with a reason (by Identifier)*/
-  virtual bool flagAsBad(const Identifier& id, const std::string& source) = 0;
+  virtual bool flagAsBad(const Identifier& id, const std::string& source) =0;
   /**Flag a wafer ID as bad with a reason (by IdentifierHash)*/
-  virtual bool flagAsBad(const IdentifierHash& hashId, const std::string& source) = 0;
+  virtual bool flagAsBad(const IdentifierHash& hashId, const std::string& source) =0;
   
   /**Get the reason why the wafer is bad (by Identifier)*/ 
-  virtual const std::string& details(const Identifier& id) const = 0;
+  virtual const std::string& details(const Identifier& id) const =0;
   /**Get the reason why the wafer is bad (by IdentifierHash)*/ 
-  virtual const std::string& details(const IdentifierHash& id) const = 0;
+  virtual const std::string& details(const IdentifierHash& id) const =0;
 
   /**Get number flagged as bad (per event)*/
-  virtual int numBadIds() const = 0;
+  virtual int numBadIds() const =0;
 
   /**Get IdentifierHashs ofwafers flagged as bad + reason (per event)*/
-  virtual std::map <IdentifierHash, std::string>* getBadIds() const = 0;
+  virtual std::map<IdentifierHash, std::string>* getBadIds() const =0;
 
   /**Reset between events*/
-  virtual void resetBadIds() = 0;
+  virtual void resetBadIds()=0;
 
  private:
 };
 
-inline const InterfaceID & ISCT_FlaggedConditionSvc::interfaceID(){
-  static const InterfaceID IID_SCT_FlaggedConditionSvc("SCT_FlaggedConditionSvc",1,0);
+inline const InterfaceID& ISCT_FlaggedConditionSvc::interfaceID() {
+  static const InterfaceID IID_SCT_FlaggedConditionSvc{"SCT_FlaggedConditionSvc", 1, 0};
   return IID_SCT_FlaggedConditionSvc;
 }
 
-#endif
+#endif // ISCT_FlaggedConditionSvc_h

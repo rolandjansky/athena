@@ -1789,7 +1789,7 @@ StatusCode ThinContainers::findGoodTrackParticles(const Rec::TrackParticleContai
       const Trk::TrackSummary* trackSum = track->trackSummary();
       long int nPixelHits = (long int) trackSum->get(Trk::numberOfPixelHits);
       long int nSctHits   = (long int) trackSum->get(Trk::numberOfSCTHits);
-      long int nBLayHits  = (long int) trackSum->get(Trk::numberOfBLayerHits);
+      long int nBLayHits  = (long int) trackSum->get(Trk::numberOfInnermostPixelLayerHits);
       if ( nPixelHits < 0 ) nPixelHits = 0; 
       if ( nSctHits   < 0 ) nSctHits   = 0; 
       if ( nBLayHits  < 0 ) nBLayHits  = 0; 
@@ -1901,7 +1901,7 @@ StatusCode ThinContainers::findGoodTracks(const TrackCollection* trackCont,
 
           nPixelHits = (long int) trackSum->get(Trk::numberOfPixelHits);
           nSctHits   = (long int) trackSum->get(Trk::numberOfSCTHits);
-          nBLayHits  = (long int) trackSum->get(Trk::numberOfBLayerHits);
+          nBLayHits  = (long int) trackSum->get(Trk::numberOfInnermostPixelLayerHits);
         }
 
       if ( nPixelHits < 0 ) nPixelHits = 0; 

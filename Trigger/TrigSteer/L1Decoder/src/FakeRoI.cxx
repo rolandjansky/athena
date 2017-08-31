@@ -29,9 +29,7 @@ FakeRoI::FakeRoI(const std::string& name, ISvcLocator* pSvcLocator)
 	m_decisions("OutputDecisions"),
 	m_decisionsAux("OutputDecisionsAux."),
 	  //	m_view("View"),
-	  m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name),
-	  m_monTools(this)
-	  
+	  m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name)
 {
 	// outputs
 	declareProperty("OutputRoIs", m_trigRoIs, "Name of the RoIs object produced by the unpacker");
@@ -47,14 +45,12 @@ FakeRoI::FakeRoI(const std::string& name, ISvcLocator* pSvcLocator)
 
 	// services
 	declareProperty("LVL1ConfigSvc", m_configSvc, "LVL1 Config Service");
-	declareProperty("monTools", m_monTools, "Monitoring tools array");
+    declareProperty("MonTool", m_monTool=VoidMonitoringTool(this), "Monitoring");
 }
 
 StatusCode FakeRoI::initialize() {
   CHECK( m_configSvc.retrieve() );
-  CHECK( m_monTools.retrieve() );
-
-  for (auto m : m_monTools) ATH_CHECK(m->bookHists());
+  if (!m_monTool.empty()) CHECK( m_monTool.retrieve() );
 
   return StatusCode::SUCCESS;
 }
@@ -125,10 +121,14 @@ StatusCode FakeRoI::execute() {
 	m_decisionsAux = CxxUtils::make_unique< xAOD::TrigCompositeAuxContainer>();
 	m_decisions->setStore(m_decisionsAux.ptr());
 
-	size_t roiCount{};
-	declareMonitoredVariable("roiCount", roiCount, m_monTools);
+
+    using namespace Monitored;
+    auto roiCount = MonitoredScalar::declare<int>("roiCount",0);
+    auto monitorit = MonitoredScope::declare(m_monTool, roiCount);
+
 	for (auto& fakeRoI : m_inputData[m_currentRowNumber]) {
-	  roiCount++;
+        roiCount += 1;
+        ATH_MSG_INFO(roiCount);
 		auto recRoI = new LVL1::RecEmTauRoI(fakeRoI.word, &m_emtauThresholds);
 		m_recEMTauRoIs->push_back(recRoI);
 
@@ -158,8 +158,6 @@ StatusCode FakeRoI::execute() {
 	++m_currentRowNumber;
 	m_currentRowNumber %= m_inputData.size();
 
-	for ( auto t: m_monTools ) 
-	  CHECK(t->fillHists());
 	return StatusCode::SUCCESS;
 }
 

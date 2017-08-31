@@ -1,9 +1,0 @@
-package xAODRootAccessInterfaces
-# $Id: requirements 744380 2016-05-03 09:18:10Z krasznaa $
-
-use AtlasPolicy    AtlasPolicy-*
-use AtlasROOT      AtlasROOT-* External
-
-apply_pattern installed_library
-library xAODRootAccessInterfaces ../Root/*.cxx
-

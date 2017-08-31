@@ -26,7 +26,7 @@ namespace Trk {
 namespace Muon {
   
   class MuonSegment;
-  class MuonCandidate;
+  struct MuonCandidate;
 
   /** Interface ID*/  
   static const InterfaceID IID_IMuonRecoValidationTool("Muon::IMuonRecoValidationTool", 1, 0);

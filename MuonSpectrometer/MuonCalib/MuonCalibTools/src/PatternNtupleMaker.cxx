@@ -101,7 +101,7 @@ namespace MuonCalib {
 //	(*truth_it)->dump(std::cout) ;
 	
 	//Do not store the numerous photons/neutrons on ntuple.
-	if( ( (*truth_it)->PDGCode() == 22) || ( fabs( (*truth_it)->PDGCode()) == 2112) )  continue ;
+	if( ( (*truth_it)->PDGCode() == 22) || ( std::abs( (*truth_it)->PDGCode()) == 2112) )  continue ;
 	else m_ntMaker->fillTruthToTree( **truth_it );
       }
     }  

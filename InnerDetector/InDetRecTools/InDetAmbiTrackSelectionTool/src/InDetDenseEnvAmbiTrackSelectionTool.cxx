@@ -46,7 +46,9 @@ InDet::InDetDenseEnvAmbiTrackSelectionTool::InDetDenseEnvAmbiTrackSelectionTool(
   m_incidentSvc("IncidentSvc", n),
   m_observerTool("Trk::TrkObserverTool/TrkObserverTool"),
   m_mapFilled(false),
-  m_monitorTracks(false)
+  m_monitorTracks(false),
+  // Initialization of atlas id helper
+  m_detID(nullptr)
 {
   declareInterface<IAmbiTrackSelectionTool>(this);
 

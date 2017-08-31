@@ -10,10 +10,12 @@
 #include <fstream> /* ofstream */
 #include <iomanip>
 
+#include "PersistentDataModel/AthenaAttributeList.h"
 #include "AthenaKernel/ITimeKeeper.h"
 #include "AthenaKernel/IEventSeek.h"
 #include "AthenaKernel/IAthenaEvtLoopPreSelectTool.h"
 #include "AthenaKernel/ExtendedEventContext.h"
+#include "AthenaKernel/EventContextClid.h"
 
 #include "GaudiKernel/IAlgorithm.h"
 #include "GaudiKernel/SmartIF.h"
@@ -706,6 +708,17 @@ StatusCode AthenaHiveEventLoopMgr::executeEvent(void* createdEvts_IntPtr )
   //       			     pEvent->event_ID()->time_stamp_ns_offset()));
   evtContext->setEventID( *((EventIDBase*) pEvent->event_ID()) );
 
+  unsigned int conditionsRun = pEvent->event_ID()->run_number();
+  const AthenaAttributeList* attr = nullptr;
+  if (eventStore()->contains<AthenaAttributeList> ("Input") &&
+      eventStore()->retrieve(attr, "Input").isSuccess())
+  {
+    if (attr->exists ("ConditionsRun")) {
+      conditionsRun = (*attr)["ConditionsRun"].data<unsigned int>();
+    }
+  }
+  evtContext->template getExtension<Atlas::ExtendedEventContext>()->setConditionsRun (conditionsRun);
+
   m_doEvtHeartbeat = (m_eventPrintoutInterval.value() > 0 && 
 		 0 == (m_nev % m_eventPrintoutInterval.value()));
   if (m_doEvtHeartbeat)  {
@@ -723,7 +736,7 @@ StatusCode AthenaHiveEventLoopMgr::executeEvent(void* createdEvts_IntPtr )
   }
 
   // Reset the timeout singleton
-  resetTimeout(Athena::Timeout::instance());
+  resetTimeout(Athena::Timeout::instance(*evtContext));
   if(toolsPassed) {
     // Fire BeginEvent "Incident"
     //m_incidentSvc->fireIncident(EventIncident(*pEvent, name(),"BeginEvent",*evtContext));
@@ -1176,6 +1189,15 @@ StatusCode  AthenaHiveEventLoopMgr::createEventContext(EventContext*& evtContext
     debug() << "created EventContext, num: " << evtContext->evt()  << "  in slot: " 
 	    << evtContext->slot() << endmsg;
   }
+
+  if (eventStore()->record(std::make_unique<EventContext> (*evtContext),
+                           "EventContext").isFailure())
+  {
+    m_msg << MSG::ERROR 
+          << "Error recording event context object" << endmsg;
+    return (StatusCode::FAILURE);
+  }
+
   return sc;
 }
 
@@ -1230,8 +1252,8 @@ AthenaHiveEventLoopMgr::drainScheduler(int& finishedEvts){
     }
     
 
-    int n_run(0);
-    int n_evt(0);
+    EventID::number_type n_run(0);
+    EventID::number_type n_evt(0);
 
     const EventInfo* pEvent(0);
     if (m_whiteboard->selectStore(thisFinishedEvtContext->slot()).isSuccess()) {

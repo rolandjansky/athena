@@ -18,20 +18,20 @@ namespace MuonCalib {
   std::istream& RtDataFromFile::read( std::istream& is )
   {
     std::string version;
-    std::string m_rts_str;
+    std::string rts_str;
 
     // read number of rts in file
-    is >> version >> m_rts_str;
+    is >> version >> rts_str;
 
     unsigned long int pos = 0; 
-    std::string::size_type start = m_rts_str.find_first_not_of(" ",pos); 
+    std::string::size_type start = rts_str.find_first_not_of(" ",pos); 
     if(start == std::string::npos) { 
       std::cout << "RtDataFromFile::read -- problems extracting m_rts -- crashing." << std::endl; 
       throw;       
     } 
-    std::string::size_type stop = m_rts_str.find_first_of(" ",start+1); 
-    if (stop == std::string::npos) stop = m_rts_str.size(); 
-    m_rts = std::stoi(m_rts_str.substr(start,stop-start),nullptr); 
+    std::string::size_type stop = rts_str.find_first_of(" ",start+1); 
+    if (stop == std::string::npos) stop = rts_str.size(); 
+    m_rts = std::stoi(rts_str.substr(start,stop-start),nullptr); 
 
     m_rts = (m_rts>M_MAX_RTS) ? M_MAX_RTS : m_rts;
     for( unsigned int i=0;i<m_rts;++i){ 

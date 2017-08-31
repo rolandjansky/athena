@@ -204,7 +204,7 @@ TrigEgammaRec::TrigEgammaRec(const std::string& name,ISvcLocator* pSvcLocator):
     
     //Track-related monitoring accesible from xAOD::Electron
     declareMonitoredCollection("nBLayerHits",	         *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getTrackSummary_numberOfInnermostPixelLayerHits);
-    declareMonitoredCollection("expectBLayerHit",	         *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getTrackSummary_expectInnermostPixelLayerHit);
+    declareMonitoredCollection("expectInnermostPixelLayerHit",	         *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getTrackSummary_expectInnermostPixelLayerHit);
     declareMonitoredCollection("nPixelHits",	         *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getTrackSummary_numberOfPixelHits);
     declareMonitoredCollection("nSCTHits",	         *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getTrackSummary_numberOfSCTHits);
     declareMonitoredCollection("nBLayerOutliers",	         *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getTrackSummary_numberOfInnermostPixelLayerOutliers);

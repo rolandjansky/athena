@@ -10,10 +10,13 @@
 #define TRK_HOLESEARCHVALIDATION_H
 
 // Gaudi includes
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
+
+#include "TrkTrack/TrackCollection.h"
+#include <mutex>
 
 // forward declarations
 class AtlasDetectorID;
@@ -45,24 +48,24 @@ namespace Trk {
 
 namespace InDet {
 
-  class HoleSearchValidation : public AthAlgorithm {
+  class HoleSearchValidation : public AthReentrantAlgorithm {
   public:
     /** Standard Athena-Algorithm Constructor */
     HoleSearchValidation(const std::string& name, ISvcLocator* pSvcLocator);
     /** Default Destructor */
     ~HoleSearchValidation();
-    
+
     /** standard Athena-Algorithm method */
     StatusCode          initialize();
     /** standard Athena-Algorithm method */
-    StatusCode          execute();
+    StatusCode          execute_r(const EventContext& ctx) const;
     /** standard Athena-Algorithm method */
     StatusCode          finalize();
 
   private:
 
-    void printInfoTSoS( const Trk::TrackStateOnSurface* tsos);
-    unsigned int doHoleSearch( const Trk::Track* track);
+    void printInfoTSoS( const Trk::TrackStateOnSurface* tsos) const;
+    unsigned int doHoleSearch( const Trk::Track* track) const;
 
     const AtlasDetectorID*                m_idHelper;
     const PixelID*                        m_pixelID;
@@ -71,29 +74,35 @@ namespace InDet {
     const SiliconID*                      m_siliconID; 
 
     ToolHandle<Trk::ITrackHoleSearchTool>    m_holeSearchTool;
-    std::string         m_trackCollectionName;     //!< jobOption: name of the TrackCollection
+    SG::ReadHandleKey<TrackCollection> m_trackCollectionKey;     //!< jobOption: name of the TrackCollection
+    SG::WriteHandleKey<TrackCollection> m_trackCollectionOutputKey;     //!< jobOption: name of the TrackCollection
     //unsigned int   m_numberHitsToRemove;  //!< jobOption: number of hits to remove from tracks
     //unsigned int   m_numberHitsToKeep;    //!< jobOption: number of hits to remove 
     bool           m_saveNewTracksInSG;   //!< jobOption: save new tracks to SG ?
    
 
-    bool           m_removeSctSide0;
-    bool           m_removeSctSide1;
+    struct Parts {
+      enum EParts {
+        kPix0,
+        kPix1,
+        kPix2,
 
-    bool           m_removePix0;
-    bool           m_removePix1;
-    bool           m_removePix2;
+        kSct0,
+        kSct1,
+        kSct2,
+        kSct3,
+        kSct4,
+        kSct5,
+        kSct6,
+        kSct7,
+        kSct8,
+        kSctSide0,
+        kSctSide1,
+        kNParts
+      };
+    };
 
-    bool           m_removeSct0;
-    bool           m_removeSct1;
-    bool           m_removeSct2;
-    bool           m_removeSct3;
-    bool           m_removeSct4;
-    bool           m_removeSct5;
-    bool           m_removeSct6;
-    bool           m_removeSct7;
-    bool           m_removeSct8;
-
+    bool m_removeParts[Parts::kNParts];
     bool           m_removeOverlapHitsOnly;
     bool           m_ignoreTrackEnds;
 
@@ -105,7 +114,8 @@ namespace InDet {
     std::string                  m_randomEngineName; //!< Name of the random number stream
 
     // some information for statistics -> printout in finalize
-    std::vector< std::vector< unsigned int > >  m_trackStats; //!< # tracks as function of [#generated holes, #found holes]
+    mutable std::mutex                                  m_trackStatsMutex;
+    mutable std::vector< std::vector< unsigned int > >  m_trackStats; //!< # tracks as function of [#generated holes, #found holes]
 
   }; // end of class
 

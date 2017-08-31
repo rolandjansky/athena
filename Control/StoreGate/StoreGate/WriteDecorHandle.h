@@ -83,6 +83,9 @@ namespace SG {
  *      ...
  @endcode
  *
+ * When the decoration handle is destroyed, the decoration will be locked
+ * (i.e., converted to an ordinary variable).
+ *
  * Implementation note: we keep track of decorations using aliases.
  * For a container C with decoration d, the @c WriteDecorHandle will make
  * an alias C.d for C.  The @c ReadDecorHandle will then retrieve C.d from
@@ -144,6 +147,12 @@ public:
 
 
   /**
+   * @brief Destructor.  This will lock the decoration.
+   */
+  ~WriteDecorHandle();
+
+
+  /**
    * @brief Assignment operator.
    */
   WriteDecorHandle& operator= (const WriteDecorHandle& rhs);
@@ -201,6 +210,13 @@ public:
    */
   container_pointer_type
   getDecorationArray();
+
+
+  /**
+   * @brief Test to see if this variable exists in the store,
+   *        for the referenced object.
+   */
+  bool isAvailable();
 
 
   /**

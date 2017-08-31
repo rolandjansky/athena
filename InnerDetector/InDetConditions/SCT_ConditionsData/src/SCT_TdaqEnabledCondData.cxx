@@ -14,10 +14,10 @@
 //----------------------------------------------------------------------
 // Constructor
 SCT_TdaqEnabledCondData::SCT_TdaqEnabledCondData():
-  m_goodRods(),
-  m_goodIds(),
-  m_noneBad(false),
-  m_filled(false)
+  m_goodRods{},
+  m_goodIds{},
+  m_noneBad{false},
+  m_filled{false}
 {}
 
 //----------------------------------------------------------------------
@@ -90,4 +90,3 @@ void SCT_TdaqEnabledCondData::clear() {
   m_noneBad = false;
   m_filled = false;
 }
-

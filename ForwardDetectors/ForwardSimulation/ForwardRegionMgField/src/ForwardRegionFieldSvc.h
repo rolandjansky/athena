@@ -71,8 +71,6 @@ namespace MagField {
 
     int m_magnet;
 
-    int m_refCounter;
-
     void InitMagData();
 
     std::vector<std::vector<std::string> > m_magnets;
@@ -90,27 +88,27 @@ namespace MagField {
 
     //std::string m_twissFileB1, m_twissFileB2;
 
-     // file indexes - FIXME need to rename these to comply with naming conventions.
-    static const int Q1 = 0;
-    static const int Q2 = 1;
-    static const int Q3 = 2;
-    static const int D1 = 3;
-    static const int D2 = 4;
-    static const int Q4 = 5;
-    static const int Q5 = 6;
-    static const int Q6 = 7;
-    static const int Q7 = 8;
-    static const int Q1HKick = 9;
-    static const int Q1VKick = 10;
-    static const int Q2HKick = 11;
-    static const int Q2VKick = 12;
-    static const int Q3HKick = 13;
-    static const int Q3VKick = 14;
-    static const int Q4VKickA = 15;
-    static const int Q4HKick = 16;
-    static const int Q4VKickB = 17;
-    static const int Q5HKick = 18;
-    static const int Q6VKick = 19;
+     // file indexes
+    static const int s_Q1 = 0;
+    static const int s_Q2 = 1;
+    static const int s_Q3 = 2;
+    static const int s_D1 = 3;
+    static const int s_D2 = 4;
+    static const int s_Q4 = 5;
+    static const int s_Q5 = 6;
+    static const int s_Q6 = 7;
+    static const int s_Q7 = 8;
+    static const int s_Q1HKick = 9;
+    static const int s_Q1VKick = 10;
+    static const int s_Q2HKick = 11;
+    static const int s_Q2VKick = 12;
+    static const int s_Q3HKick = 13;
+    static const int s_Q3VKick = 14;
+    static const int s_Q4VKickA = 15;
+    static const int s_Q4HKick = 16;
+    static const int s_Q4VKickB = 17;
+    static const int s_Q5HKick = 18;
+    static const int s_Q6VKick = 19;
    //mapfile parameters
     static const int s_rowsMQXA = 97;
     static const int s_colsMQXA = 97;

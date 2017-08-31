@@ -141,9 +141,9 @@ StatusCode LArDigitOscillationCorrTool::calculateEventPhase(const LArDigitContai
       for(unsigned int j=0;j<nSamples;j++) {
 	// exclude all samples (and the previous and next sample) which 
 	//have more than nSigma worth of absolute signal 
-	if ( j == 0 || !(fabs(theSamples[i][j] - theSamples[i][0]) > m_nSigma*theRMSValues[i] 
-			 || ( j > 0 && fabs(theSamples[i][j-1] - theSamples[i][0]) > m_nSigma*theRMSValues[i])
-			 || ( j < nSamples-1 && fabs(theSamples[i][j+1] - theSamples[i][0]) > m_nSigma*theRMSValues[i])) ) {
+	if ( j == 0 || !(std::abs(theSamples[i][j] - theSamples[i][0]) > m_nSigma*theRMSValues[i] 
+			 || ( j > 0 && std::abs(theSamples[i][j-1] - theSamples[i][0]) > m_nSigma*theRMSValues[i])
+			 || ( j < nSamples-1 && std::abs(theSamples[i][j+1] - theSamples[i][0]) > m_nSigma*theRMSValues[i])) ) {
 	  
 	  if ( lchimin < 0 )
 	    nTotSamples ++;

@@ -42,9 +42,7 @@ IOVSvc::IOVSvc( const std::string& name, ISvcLocator* svc )
     p_CLIDSvc("ClassIDSvc",name),
     p_sgs("StoreGateSvc",name),
     p_detStore("StoreGateSvc/DetectorStore",name),
-    p_condSvc("CondSvc",name),
-    p_pps("ProxyProviderSvc",name)
-
+    p_condSvc("CondSvc",name)
 {
 
   declareProperty("preLoadRanges",m_preLoadRanges=false);
@@ -93,11 +91,6 @@ StatusCode IOVSvc::initialize() {
 
   if (!p_condSvc.isValid()) {
     ATH_MSG_ERROR("could not get the ConditionSvc");
-    status = StatusCode::FAILURE;
-  }
-
-  if (!p_pps.isValid()) {
-    ATH_MSG_ERROR("could not get the ProxyProviderSvc");
     status = StatusCode::FAILURE;
   }
 
@@ -853,7 +846,7 @@ IOVSvc::createCondObj(CondContBase* ccb, const DataObjID& id,
     return StatusCode::SUCCESS;
   }
 
-  IOVTime t(now.run_number(), now.event_number(), (long long)now.time_stamp()*1000000000+now.time_stamp_ns_offset());
+  IOVTime t(now.run_number(), now.lumi_block(), (long long)now.time_stamp()*1000000000+now.time_stamp_ns_offset());
   IOVRange range;
   IOpaqueAddress* ioa;
   std::string tag;
@@ -874,20 +867,9 @@ IOVSvc::createCondObj(CondContBase* ccb, const DataObjID& id,
                  << " IOA: " << ioa);
 
   if (ccb->proxy() == nullptr) { 
-    // SG::DataProxy *dp = p_condSvc->getProxy( id );
-
-    SG::DataProxy* dp(0);
-    SG::DataStore* ds = p_detStore->store();
-    dp = p_pps->retrieveProxy(id.clid(), sgKey, *ds);
-    if (dp == 0) {
-      ATH_MSG_ERROR ( "Could not get DataProxy from ProxyProviderSvc for "
-                      << id );
-      return StatusCode::FAILURE;
-    }
-
+    SG::DataProxy* dp = p_detStore->proxy (id.clid(), sgKey);
     ATH_MSG_DEBUG( " found DataProxy " << dp << " for " << id );
     ccb->setProxy(dp);
-    
   }
 
   // this will talk to the IOVDbSvc, get current run/event from EventInfo 
@@ -896,7 +878,7 @@ IOVSvc::createCondObj(CondContBase* ccb, const DataObjID& id,
   DataObject* dobj(0);
   void* v(0);
 
-  if (dp->loader()->createObj(ioa, dobj).isFailure()) {
+  if (dp->store()->createObj(dp->loader(), ioa, dobj).isFailure()) {
     ATH_MSG_ERROR(" could not create a new DataObject ");
     return StatusCode::FAILURE;
   } else {
@@ -911,7 +893,7 @@ IOVSvc::createCondObj(CondContBase* ccb, const DataObjID& id,
   
   EventIDRange r2 = range;
   
-  if (!ccb->insert( r2, v)) {
+  if (!ccb->typelessInsert (r2, v)) {
     ATH_MSG_ERROR("unable to insert Object at " << v << " into CondCont " 
                   << ccb->id() << " for range " << r2 );
     return StatusCode::FAILURE;

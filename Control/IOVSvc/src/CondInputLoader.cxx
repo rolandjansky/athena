@@ -49,7 +49,6 @@ CondInputLoader::CondInputLoader( const std::string& name,
   declareProperty( "Load", m_load); 
   //->declareUpdateHandler(&CondInputLoader::loader, this);
   declareProperty( "ShowEventDump", m_dump=false);
-  declareProperty( "InputKey", m_inputKey="Input" );
 }
 
 // Destructor
@@ -90,8 +89,6 @@ CondInputLoader::initialize()
     ATH_MSG_FATAL("unable to retrieve IOVDbSvc");
     return StatusCode::FAILURE;
   }
-
-  ATH_CHECK( m_inputKey.initialize() );
 
   std::vector<std::string> keys = idb->getKeyList();
   std::string folderName, tg;
@@ -226,6 +223,7 @@ CondInputLoader::execute()
     }
     now.set_run_number(thisEventInfo->runNumber());
     now.set_event_number(thisEventInfo->eventNumber());
+    now.set_lumi_block(thisEventInfo->lumiBlock());
     now.set_time_stamp(thisEventInfo->timeStamp());
     now.set_time_stamp_ns_offset(thisEventInfo->timeStampNSOffset());
   }
@@ -233,11 +231,13 @@ CondInputLoader::execute()
 #ifdef GAUDI_SYSEXECUTE_WITHCONTEXT
     now.set_run_number(getContext().eventID().run_number());
     now.set_event_number(getContext().eventID().event_number());
+    now.set_lumi_block(getContext().eventID().lumi_block());
     now.set_time_stamp(getContext().eventID().time_stamp());
     now.set_time_stamp_ns_offset(getContext().eventID().time_stamp_ns_offset());
 #else
     now.set_run_number(getContext()->eventID().run_number());
     now.set_event_number(getContext()->eventID().event_number());
+    now.set_lumi_block(getContext()->eventID().lumi_block());
     now.set_time_stamp(getContext()->eventID().time_stamp());
     now.set_time_stamp_ns_offset(getContext()->eventID().time_stamp_ns_offset());
 #endif
@@ -247,16 +247,17 @@ CondInputLoader::execute()
   // may be different from that of the event itself.  If we have
   // a ConditionsRun attribute defined, use that to override
   // the event number.
-  SG::ReadHandle<AthenaAttributeList> input (m_inputKey, getContext());
+  SG::ReadHandleKey<AthenaAttributeList> inputKey ("Input");
+  ATH_CHECK( inputKey.initialize() );
+  SG::ReadHandle<AthenaAttributeList> input (inputKey, getContext());
   if (input.isValid()) {
     if (input->exists ("ConditionsRun"))
       now.set_run_number ((*input)["ConditionsRun"].data<unsigned int>());
   }
 
-  IOVTime t(now.run_number(), now.event_number(), now.time_stamp());
+  IOVTime t(now.run_number(), now.lumi_block(), now.time_stamp());
 
   StatusCode sc(StatusCode::SUCCESS);
-  EventIDRange r;
   std::string tag;
   for (auto &vhk: m_vhk) {
     ATH_MSG_DEBUG( "handling id: " << vhk.fullKey() << " key: " << vhk.key() );

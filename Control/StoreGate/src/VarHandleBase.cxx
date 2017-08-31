@@ -72,8 +72,8 @@ namespace SG {
     virtual const CLID& clID() const override { return m_clid; }
     virtual void* object() override { return m_obj; }
     virtual const std::type_info& tinfo() const override { return typeid(void); }
-    virtual void* cast (CLID, SG::IRegisterTransient*, bool) const override { std::abort(); }
-    virtual void* cast (const std::type_info&, SG::IRegisterTransient*, bool) const override { std::abort(); }
+    virtual void* cast (CLID, SG::IRegisterTransient*, bool) override { std::abort(); }
+    virtual void* cast (const std::type_info&, SG::IRegisterTransient*, bool) override { std::abort(); }
     virtual DataBucketBase* clone() const override { std::abort(); }
     virtual void relinquish() override { std::abort(); }
     virtual void lock() override { }
@@ -445,6 +445,10 @@ namespace SG {
   VarHandleBase::setState()
   {
     CHECK( initialize() );
+    if (!m_storeWasSet) {
+      IProxyDict* store = storeFromHandle (nullptr);
+      if (store) m_store = store;
+    }
 
     StatusCode sc = this->setState(m_store->proxy(this->clid(), this->key()));
 

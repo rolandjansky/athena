@@ -19,9 +19,9 @@ HiveAlgC::~HiveAlgC() {}
 StatusCode HiveAlgC::initialize() {
   ATH_MSG_DEBUG("initialize " << name());
 
-  ATH_CHECK( m_rdh1.value().initialize() );
-  ATH_CHECK( m_wrh1.value().initialize() );
-  ATH_CHECK( m_wrh2.value().initialize() );
+  ATH_CHECK( m_rdh1.initialize() );
+  ATH_CHECK( m_wrh1.initialize() );
+  ATH_CHECK( m_wrh2.initialize() );
 
   return HiveAlgBase::initialize();
 }

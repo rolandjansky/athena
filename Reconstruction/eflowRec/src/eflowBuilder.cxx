@@ -118,10 +118,10 @@ StatusCode eflowBuilder::initialize()
 
 /////////////////////////////////////////////////////////////////
 
-  ATH_MSG_INFO( "Using the Algorithms:"  );
-  ATH_MSG_INFO(  m_eflowPreparationAlgName  );
-  ATH_MSG_INFO( m_eflowObjectBuilderAlgName  );
-  ATH_MSG_INFO( m_eflowQuantitiesAlgName  );
+  ATH_MSG_VERBOSE( "Using the Algorithms:"  );
+  ATH_MSG_VERBOSE(  m_eflowPreparationAlgName  );
+  ATH_MSG_VERBOSE( m_eflowObjectBuilderAlgName  );
+  ATH_MSG_VERBOSE( m_eflowQuantitiesAlgName  );
 
 
   return sc;

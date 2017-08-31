@@ -52,6 +52,7 @@ class EMConversionBuilder : public egammaBaseTool, virtual public IEMConversionB
   StatusCode initialize() override;
   /** @brief execute method*/
   virtual StatusCode executeRec(egammaRec* egRec) override;
+  virtual StatusCode contExecute(EgammaRecContainer& cont);
   /** @brief execute method*/
   virtual StatusCode hltExecute(egammaRec* egRec, const xAOD::VertexContainer* conversions) override;
   /** @brief execute method*/

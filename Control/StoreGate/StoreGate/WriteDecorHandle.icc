@@ -75,6 +75,22 @@ WriteDecorHandle<T, D>::WriteDecorHandle (WriteDecorHandle&& rhs)
 
 
 /**
+ * @brief Destructor.  This will lock the decoration.
+ */
+template <class T, class D>
+WriteDecorHandle<T, D>::~WriteDecorHandle()
+{
+  // Lock the decoration.  But don't do anything if we haven't touched it.
+  if (this->cachedPtr()) {
+    const IConstAuxStore* store = this->vectorData()->getConstStore();
+    if (store) {
+      const_cast<IConstAuxStore*>(store)->lockDecoration (auxid());
+    }
+  }
+}
+
+
+/**
  * @brief Assignment operator.
  */
 template <class T, class D>
@@ -174,6 +190,27 @@ WriteDecorHandle<T, D>::getDecorationArray()
 {
   return reinterpret_cast<container_pointer_type>
     (this->vectorData()->getDecorationArray (m_acc.auxid()));
+}
+
+
+/**
+ * @brief Test to see if this variable exists in the store,
+ *        for the referenced object.
+ */
+template <class T, class D>
+inline
+bool WriteDecorHandle<T, D>::isAvailable()
+{
+  const SG::AuxVectorData* obj = static_cast<SG::AuxVectorData*> (this->m_ptr);
+  if (!obj) {
+    obj = static_cast<SG::AuxVectorData*> (ReadHandle<T>::typeless_dataPointer_impl (true));
+  }
+
+  if (obj) {
+    return obj->isAvailable (m_acc.auxid());
+  }
+
+  return false;
 }
 
 

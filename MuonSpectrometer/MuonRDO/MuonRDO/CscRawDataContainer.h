@@ -41,7 +41,7 @@ public:
 
 private:
 
-    CscRawDataCollectionIdHash& hashFcn() const;
+    static const CscRawDataCollectionIdHash& hashFcn();
 
 };
 

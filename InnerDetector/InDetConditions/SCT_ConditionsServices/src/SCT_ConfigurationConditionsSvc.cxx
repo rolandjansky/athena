@@ -54,7 +54,6 @@ SCT_ConfigurationConditionsSvc::SCT_ConfigurationConditionsSvc( const std::strin
   m_IOVDbSvc("IOVDbSvc", name),
   m_pHelper{nullptr},
   m_cablingSvc("SCT_CablingSvc", name),
-  m_readoutTool("SCT_ReadoutTool", this),
   m_pManager{nullptr},
   m_checkStripsInsideModules(true) 
 { 
@@ -68,7 +67,6 @@ StatusCode SCT_ConfigurationConditionsSvc::initialize(){
   ATH_CHECK(m_detStore.retrieve());
   ATH_CHECK(m_detStore->retrieve(m_pManager,"SCT"));
   ATH_CHECK(m_detStore->retrieve(m_pHelper, "SCT_ID"));
-  ATH_CHECK(m_readoutTool.retrieve());
   ATH_CHECK(m_IOVSvc.retrieve());
   ATH_CHECK(m_IOVDbSvc.retrieve());
     // Assign memory for structres
@@ -191,13 +189,13 @@ StatusCode SCT_ConfigurationConditionsSvc::fillChannelData(){
   enum RUN2_CHIP_INDICES{CHIP_2, ACTIVE_2, ADDRESS_2, CONFIG_2, MASK0_2,MASK1_2,MASK2_2,
    MASK3_2, VTHR_2, VCAL_2, DELAY_2, PREAMP_2, SHAPER_2, RC_FUNCTION_2, RC_ARGS_2,
    C_FACTOR_2, TARGET_2, TRIM_2};
-  typedef unsigned int uint;
-  const uint chipIndex=run1?uint(CHIP_1):uint(CHIP_2);
-  const uint configIndex=run1?uint(CONFIG_1):uint(CONFIG_2);
-  const uint mask0Index=run1?uint(MASK0_1):uint(MASK0_2);
-  const uint mask1Index=run1?uint(MASK1_1):uint(MASK1_2);
-  const uint mask2Index=run1?uint(MASK2_1):uint(MASK2_2);
-  const uint mask3Index=run1?uint(MASK3_1):uint(MASK3_2);
+  typedef unsigned int uint_t;
+  const uint_t chipIndex=run1?uint_t(CHIP_1):uint_t(CHIP_2);
+  const uint_t configIndex=run1?uint_t(CONFIG_1):uint_t(CONFIG_2);
+  const uint_t mask0Index=run1?uint_t(MASK0_1):uint_t(MASK0_2);
+  const uint_t mask1Index=run1?uint_t(MASK1_1):uint_t(MASK1_2);
+  const uint_t mask2Index=run1?uint_t(MASK2_1):uint_t(MASK2_2);
+  const uint_t mask3Index=run1?uint_t(MASK3_1):uint_t(MASK3_2);
   //
   // Clear previous information at callback
   m_badChannelIds->clear();
@@ -254,10 +252,10 @@ StatusCode SCT_ConfigurationConditionsSvc::fillChannelData(){
       // Can get AttributeList from second (see http://lcgapp.cern.ch/doxygen/CORAL/CORAL_1_9_3/doxygen/html/classcoral_1_1_attribute_list.html)
       const short id      = run1?(channelItr->second[chipIndex].data<short>()):(channelItr->second[chipIndex].data<unsigned char>());
       const short config  = run1?(channelItr->second[configIndex].data<short>()):(channelItr->second[configIndex].data<unsigned short>());
-      const int mask0     = run1?(channelItr->second[mask0Index].data<int>()):(channelItr->second[mask0Index].data<uint>());
-      const int mask1     = run1?(channelItr->second[mask1Index].data<int>()):(channelItr->second[mask1Index].data<uint>());
-      const int mask2     = run1?(channelItr->second[mask2Index].data<int>()):(channelItr->second[mask2Index].data<uint>());  // (=noMask, declared as static int at top of this file)
-      const int mask3     = run1?(channelItr->second[mask3Index].data<int>()):(channelItr->second[mask3Index].data<uint>());
+      const int mask0     = run1?(channelItr->second[mask0Index].data<int>()):(channelItr->second[mask0Index].data<uint_t>());
+      const int mask1     = run1?(channelItr->second[mask1Index].data<int>()):(channelItr->second[mask1Index].data<uint_t>());
+      const int mask2     = run1?(channelItr->second[mask2Index].data<int>()):(channelItr->second[mask2Index].data<uint_t>());  // (=noMask, declared as static int at top of this file)
+      const int mask3     = run1?(channelItr->second[mask3Index].data<int>()):(channelItr->second[mask3Index].data<uint_t>());
       chipsInMod.push_back(new SCT_Chip(id, config, mask0, mask1, mask2, mask3));
 
       if(id>=0 and id< 6 and (mask0!=0 or mask1!=0 or mask2!=0 or mask3!=0)) isBadSide0 = false;
@@ -337,8 +335,8 @@ StatusCode SCT_ConfigurationConditionsSvc::fillModuleData(){
   CondAttrListVec::const_iterator pLastModule(m_dataModule->end());
   enum RUN1_INDICES{PK, FOREIGN_KEY, ID_1, GROUP_1, ACTIVE_1, SELECT_1};
   enum RUN2_INDICES{ID_2, SLAVEGROUP_2, ACTIVE_2, CLOCKSELECT_2, CHIPSTATUS_2};
-  typedef unsigned int uint;
-  const uint groupIndex=run1?uint(GROUP_1):uint(SLAVEGROUP_2);
+  typedef unsigned int uint_t;
+  const uint_t groupIndex=run1?uint_t(GROUP_1):uint_t(SLAVEGROUP_2);
   for (;pModule != pLastModule; ++pModule){
     // Get SN and identifiers (the channel number is serial number+1 for the CoraCool folders but =serial number 
     //  for Cool Vector Payload ; i.e. Run 1 and Run 2 resp.)
@@ -439,10 +437,10 @@ StatusCode SCT_ConfigurationConditionsSvc::fillLinkStatus() {
   // loop over MUR folder
   CondAttrListVec::const_iterator pMur(m_dataMur->begin());
   CondAttrListVec::const_iterator pLastMur(m_dataMur->end());
-  typedef unsigned int uint;
-  const uint snIndex=run1?uint(MODULEID_1):uint(MODULEID_2);
-  const uint link0Index=run1?uint(RX0FIBRE_1):uint(RX0FIBRE_2);
-  const uint link1Index=run1?uint(RX1FIBRE_1):uint(RX1FIBRE_2);
+  typedef unsigned int uint_t;
+  const uint_t snIndex=run1?uint_t(MODULEID_1):uint_t(MODULEID_2);
+  const uint_t link0Index=run1?uint_t(RX0FIBRE_1):uint_t(RX0FIBRE_2);
+  const uint_t link1Index=run1?uint_t(RX1FIBRE_1):uint_t(RX1FIBRE_2);
   //
   for (; pMur != pLastMur; ++pMur) {
     // Check for null values

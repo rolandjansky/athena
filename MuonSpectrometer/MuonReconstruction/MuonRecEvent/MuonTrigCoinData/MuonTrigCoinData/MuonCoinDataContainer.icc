@@ -9,11 +9,6 @@
 // (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-template< class CollectionT>
-MuonCoinDataContainer< CollectionT>::MuonCoinDataContainer() :
-  IdentifiableContainer<CollectionT>()
-{
-}
 
 template< class CollectionT>
 // Constructor with parameters:

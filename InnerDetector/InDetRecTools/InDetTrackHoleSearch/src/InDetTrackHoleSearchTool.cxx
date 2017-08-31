@@ -313,7 +313,6 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const Trk::Track& track ,
 	      hasID = true;
 	    }
 	  else if ( (*iterTSOS)->trackParameters() !=0 
-		    && &((*iterTSOS)->trackParameters()->associatedSurface()) !=0 
 		    && (*iterTSOS)->trackParameters()->associatedSurface().associatedDetectorElement() !=0
 		    && (*iterTSOS)->trackParameters()->associatedSurface().associatedDetectorElement()->identify() !=0 )
 	    { 
@@ -480,7 +479,6 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const Trk::Track& track ,
 	      hasID = true;
 	    }
 	  else if ( (*iterTSOS)->trackParameters() !=0 
-		    && &((*iterTSOS)->trackParameters()->associatedSurface()) !=0 
 		    && (*iterTSOS)->trackParameters()->associatedSurface().associatedDetectorElement() !=0
 		    && (*iterTSOS)->trackParameters()->associatedSurface().associatedDetectorElement()->identify() !=0 )
 	    { 
@@ -524,8 +522,7 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const Trk::Track& track ,
 		  
 		  // check if surface has identifer !
 		  Identifier id2;
-		  if (&thisParameters->associatedSurface() !=0 &&
-		      (thisParameters->associatedSurface()).associatedDetectorElement() !=0 &&
+		  if ((thisParameters->associatedSurface()).associatedDetectorElement() !=0 &&
 		      (thisParameters->associatedSurface()).associatedDetectorElement()->identify() !=0 )
 		    {
 		      id2 = (thisParameters->associatedSurface()).associatedDetectorElement()->identify();
@@ -642,7 +639,7 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const Trk::Track& track ,
       } else {    
 	ATH_MSG_VERBOSE ("Number of parameters in this step: " << paramList->size());
 	
-	// loop over the predictons and analyze them
+	// loop over the predictions and analyze them
 	for (std::vector<const Trk::TrackParameters*>::const_iterator it = paramList->begin();
 	     it != paramList->end(); ++it)
 	  {
@@ -651,8 +648,7 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const Trk::Track& track ,
 	    
 	    // check if surface has identifer !
 	    Identifier id2;
-	    if (&(thisParameter->associatedSurface()) !=0 &&
-		thisParameter->associatedSurface().associatedDetectorElement() !=0 &&
+	    if (thisParameter->associatedSurface().associatedDetectorElement() !=0 &&
 		thisParameter->associatedSurface().associatedDetectorElement()->identify() !=0 )
 	      {
 		id2 = thisParameter->associatedSurface().associatedDetectorElement()->identify();
@@ -877,7 +873,7 @@ bool InDet::InDetTrackHoleSearchTool::isSensitive(const Trk::TrackParameters* pa
 {
   // do strict boundary check for SCT and Pixels to make sure we are in active area
   
-  if (!parameters || !&parameters->associatedSurface() || 
+  if (!parameters ||
       !parameters->associatedSurface().associatedDetectorElement()) return false;
   
   const InDetDD::SiDetectorElement* siElement =

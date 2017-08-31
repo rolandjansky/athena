@@ -329,7 +329,7 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
     }
 //
     long int ntrk=0;
-    StatusCode sc;
+    StatusCode sc; sc.setChecked();
     std::vector<const TrackParameters*> baseInpTrk;
     if(m_firstMeasuredPoint){               //First measured point strategy
        std::vector<const xAOD::TrackParticle*>::const_iterator   i_ntrk;
@@ -721,11 +721,11 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
        if( m_makeExtendedVertex ) {
   	 Amg::MatrixX tmpCovMtx(NRealT*3+3,NRealT*3+3);                      // New Eigen based EDM
          tmpCovMtx=genCOV.similarity(*fullDeriv);
-         floatErrMtx.resize(NRealT*3+3);
+         floatErrMtx.resize((NRealT*3+3)*(NRealT*3+3+1)/2);
          int ivk=0;
          for(int i=0;i<NRealT*3+3;i++){
            for(int j=0;j<=i;j++){
-               floatErrMtx[ivk++]=tmpCovMtx(i,j);
+               floatErrMtx.at(ivk++)=tmpCovMtx(i,j);
            }
 	 }
        }else{
@@ -733,7 +733,7 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
          for(int i=0; i<6; i++) floatErrMtx[i]=covVertices[iv][i];
        }
        tmpXAODVertex->setCovariance(floatErrMtx);
-       std::vector<VxTrackAtVertex> xaodVTAV=tmpXAODVertex->vxTrackAtVertex();
+       std::vector<VxTrackAtVertex> & xaodVTAV=tmpXAODVertex->vxTrackAtVertex();
        xaodVTAV.swap(*tmpVTAV);
        for(int itvk=0; itvk<(int)xaodVTAV.size(); itvk++) {
           ElementLink<xAOD::TrackParticleContainer> TEL;  TEL.setElement( m_partListForCascade[itvk] );
@@ -787,7 +787,6 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
        }
     }    
 //
-    
 //
 //    VxCascadeInfo * recCascade= new VxCascadeInfo(vxVrtList,particleMoms,particleCovs, NDOF ,fullChi2);
     VxCascadeInfo * recCascade= new VxCascadeInfo(xaodVrtList,particleMoms,particleCovs, NDOF ,fullChi2);

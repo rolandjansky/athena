@@ -3,6 +3,7 @@
 */
 
 #include "MuonEventTPCnv/TgcCoinDataContainerCnv_tlp3.h"
+#include "MuonEventTPCnv/CreateTransientTemplates.h"
 
 
 TgcCoinDataContainerCnv_tlp3::TgcCoinDataContainerCnv_tlp3()

@@ -38,8 +38,8 @@ class JRoIsUnpackingTool
   virtual ~JRoIsUnpackingTool(); 
   StatusCode  updateConfiguration() override { return StatusCode::SUCCESS; }
   // Athena algtool's Hooks
-  virtual StatusCode  initialize();
-  virtual StatusCode  finalize();
+  virtual StatusCode  initialize() override;
+  virtual StatusCode  finalize() override;
 
  private: 
 

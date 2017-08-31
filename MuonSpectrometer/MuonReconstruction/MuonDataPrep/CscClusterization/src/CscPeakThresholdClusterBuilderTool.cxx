@@ -230,7 +230,7 @@ StatusCode CscPeakThresholdClusterBuilderTool::getClusters(IdentifierHash givenH
                       << coll_hash );
     return StatusCode::SUCCESS;
   }
-  const CscStripPrepDataCollection * col = it_coll->cptr();
+  const CscStripPrepDataCollection * col = *it_coll;
   
   ATH_MSG_DEBUG ( "Retrieved " << col->size() << " CSC Strip PrepDatas." );
   

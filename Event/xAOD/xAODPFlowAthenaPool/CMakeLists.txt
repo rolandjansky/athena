@@ -16,8 +16,8 @@ atlas_depends_on_subdirs( PRIVATE
 # Component(s) in the package:
 atlas_add_poolcnv_library( xAODPFlowAthenaPoolPoolCnv
                            src/*.cxx
-                           FILES xAODPFlow/PFOContainer.h xAODPFlow/PFOAuxContainer.h
-                           TYPES_WITH_NAMESPACE xAOD::PFOContainer xAOD::PFOAuxContainer
+                           FILES xAODPFlow/PFOContainer.h xAODPFlow/PFOAuxContainer.h xAODPFlow/TrackCaloClusterContainer.h xAODPFlow/TrackCaloClusterAuxContainer.h
+                           TYPES_WITH_NAMESPACE xAOD::PFOContainer xAOD::PFOAuxContainer xAOD::TrackCaloClusterContainer xAOD::TrackCaloClusterAuxContainer
                            CNV_PFX xAOD
                            LINK_LIBRARIES AthContainers AthenaKernel AthenaPoolCnvSvcLib AthenaPoolUtilities xAODPFlow )
 

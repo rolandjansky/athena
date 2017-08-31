@@ -19,8 +19,6 @@
 #include "AthenaKernel/errorcheck.h"
 #include "InDetIdentifier/PixelID.h"
 
-#include "xAODEventInfo/EventInfo.h"
-
 #include <cmath>
 #include <stdexcept>
 #include <sstream>
@@ -90,7 +88,8 @@ Trk::RIO_OnTrackErrorScalingTool::RIO_OnTrackErrorScalingTool(const std::string&
      m_override_mu_term_trt_ecs(0.0),
      m_IncidentSvc("IncidentSvc",n),
      m_idFolder("/Indet/TrkErrorScaling"),
-     m_muonFolder("/MUON/TrkErrorScaling")
+     m_muonFolder("/MUON/TrkErrorScaling"),
+     m_readKey("EventInfo")
  {
    declareInterface<IRIO_OnTrackErrorScalingTool>(this);
    declareProperty("overrideDatabaseID",m_override_database_id_errors,"inflate ID errors by multiplicative scale factor, overriding any database values");
@@ -117,6 +116,7 @@ Trk::RIO_OnTrackErrorScalingTool::RIO_OnTrackErrorScalingTool(const std::string&
    declareProperty("overrideMuTRTBar",m_override_mu_term_trt_bar,"factor to change the mu dependent term of TRT errors (barrel)");
    declareProperty("overrideMuTRTECs",m_override_mu_term_trt_ecs,"factor to change the mu dependent term of TRT errors (endcaps)");
    declareProperty("IncidentService",m_IncidentSvc);
+   declareProperty("EventInfoKey",m_readKey);
    m_scaling_pix.resize(kNPixParamTypes);
 
    m_mu = 0;
@@ -234,6 +234,8 @@ StatusCode Trk::RIO_OnTrackErrorScalingTool::initialize()
     m_do_rpc = false;
     m_do_csc = false;
   }
+  
+  ATH_CHECK( m_readKey.initialize() );
 
   msg(MSG::INFO) << "initialize successful in " << name() << endmsg;
   return StatusCode::SUCCESS;
@@ -440,8 +442,8 @@ Trk::RIO_OnTrackErrorScalingTool::createScaledTrtCovariance
   (const Amg::MatrixX& inputCov, bool is_endcap) const
 {
   if(!m_hasBeenCalledThisEvent){
-    const xAOD::EventInfo* eventInfo;
-    if( evtStore()->retrieve(eventInfo).isFailure() ){
+    SG::ReadHandle< xAOD::EventInfo>  eventInfo (m_readKey);
+    if (!eventInfo.isValid()) {
       ATH_MSG_ERROR("Cant retrieve EventInfo"); m_mu = 0;
     } else {
       m_mu = eventInfo->averageInteractionsPerCrossing();

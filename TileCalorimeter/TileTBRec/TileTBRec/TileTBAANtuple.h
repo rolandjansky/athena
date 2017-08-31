@@ -308,6 +308,7 @@ class TileTBAANtuple: public AthAlgorithm {
     int* m_tof;
     int* m_btdc1;
     int* m_btdc2;
+    int m_tjitter;
 
     float m_xChN2;
     float m_yChN2;

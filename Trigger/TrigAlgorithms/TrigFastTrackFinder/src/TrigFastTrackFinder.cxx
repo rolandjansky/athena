@@ -15,6 +15,7 @@
 #include <iostream>
 #include <algorithm>
 #include <array>
+#include <memory>
 
 #include <tbb/parallel_for.h>
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
@@ -70,9 +71,8 @@
 #include "TrigInDetToolInterfaces/ITrigZFinder.h"
 
 #include "SiSpacePointsSeed/SiSpacePointsSeed.h"
-#include "TrigFastTrackFinder/TrigFastTrackFinder.h"
+#include "src/TrigFastTrackFinder.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
-#include "CxxUtils/make_unique.h"
 
 TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* pSvcLocator) : 
 
@@ -440,7 +440,6 @@ StatusCode TrigFastTrackFinder::execute() {
   m_countTotalRoI++;
   m_tcs.roiDescriptor = &internalRoI;
 
-  m_outputTracksKey = m_attachedFeatureName;
   SG::WriteHandle<TrackCollection> outputTracks(m_outputTracksKey);
   outputTracks = std::make_unique<TrackCollection>();
 
@@ -518,7 +517,7 @@ StatusCode TrigFastTrackFinder::findTracks(const TrigRoiDescriptor& roi,
       m_countRoIwithEnoughHits++;
       m_countRoIwithTracks++;
       // fill vectors of quantities to be monitored
-      fillMon(outputTracks);
+      fillMon(outputTracks, roi);
     }
     m_nTracks=outputTracks.size();
 
@@ -545,7 +544,7 @@ StatusCode TrigFastTrackFinder::findTracks(const TrigRoiDescriptor& roi,
 
     m_currentStage = 2;
     
-    std::unique_ptr<TrigRoiDescriptor> superRoi = CxxUtils::make_unique<TrigRoiDescriptor>();
+    std::unique_ptr<TrigRoiDescriptor> superRoi = std::make_unique<TrigRoiDescriptor>();
 
     if (m_doZFinder) {
       if (m_doFTKZFinder ) {
@@ -846,7 +845,7 @@ StatusCode TrigFastTrackFinder::findTracks(const TrigRoiDescriptor& roi,
       m_countRoIwithTracks++;
 
     ///////////// fill vectors of quantities to be monitored
-    fillMon(outputTracks);
+    fillMon(outputTracks, roi);
 
     m_currentStage = 7;
 
@@ -1073,12 +1072,6 @@ HLT::ErrorCode TrigFastTrackFinder::getRoI(const HLT::TriggerElement* outputTE, 
   }
 
   roi = externalRoI;
-  m_roiEta = roi->eta();
-  m_roiEtaWidth = roi->etaPlus() - roi->etaMinus();
-  m_roiPhi = roi->phi();
-  m_roiPhiWidth = HLT::wrapPhi(roi->phiPlus() - roi->phiMinus());
-  m_roiZ = roi->zed();
-  m_roiZ_Width = roi->zedPlus() - roi->zedMinus();
   ATH_MSG_DEBUG("REGTEST / RoI" << *roi);
 
   return HLT::OK;
@@ -1168,7 +1161,7 @@ void TrigFastTrackFinder::calculateRecoEfficiency(const std::vector<TrigSiSpaceP
   } 
 }
 
-void TrigFastTrackFinder::fillMon(const TrackCollection& tracks) {
+void TrigFastTrackFinder::fillMon(const TrackCollection& tracks, const TrigRoiDescriptor& roi) {
   size_t size = tracks.size();
   m_trk_pt.reserve(size);
   m_trk_a0.reserve(size);
@@ -1182,6 +1175,15 @@ void TrigFastTrackFinder::fillMon(const TrackCollection& tracks) {
   m_trk_a0beam.reserve(size);
   m_trk_dPhi0.reserve(size);
   m_trk_dEta.reserve(size);
+
+  m_roiEta = roi.eta();
+  m_roiEtaWidth = roi.etaPlus() - roi.etaMinus();
+  m_roiPhi = roi.phi();
+  m_roiPhiWidth = HLT::wrapPhi(roi.phiPlus() - roi.phiMinus());
+  m_roiZ = roi.zed();
+  m_roiZ_Width = roi.zedPlus() - roi.zedMinus();
+
+
   for (auto track : tracks) {
     const Trk::TrackParameters* trackPars = track->perigeeParameters();
     if(trackPars==nullptr) {

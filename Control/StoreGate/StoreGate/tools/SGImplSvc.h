@@ -96,8 +96,6 @@ class IOVDbSvc;
 class IOVSvc;
 class IOVSvcTool;
 class PileUpMergeSvc;
-class EventDumperSvc;
-class MemoryMonitorSvc;
 class SGDeleteAlg;
 class ThinningSvc;
 class ActiveStoreSvc;
@@ -630,7 +628,10 @@ public:
   /// Find an exact match; no handling of aliases, etc.
   /// Returns 0 to flag failure.
   virtual SG::DataProxy* proxy_exact (SG::sgkey_t sgkey) const override final
-  { return m_pStore->proxy_exact (sgkey); }
+  {
+    lock_t lock (m_mutex);
+    return m_pStore->proxy_exact (sgkey);
+  }
     
 
   //@}
@@ -651,6 +652,9 @@ public:
 
   /// return the list of all current proxies in store
   virtual std::vector<const SG::DataProxy*> proxies() const override final;
+
+  /// Return all CLIDs in the store.
+  std::vector<CLID> clids() const;
 
   /// get proxy with given id and key. Does not query ProxyProviderSvc.
   ///  @returns 0 to flag failure
@@ -998,9 +1002,6 @@ private:
   ///access store()
   friend class IOVSvc;              // FIXME
   friend class PileUpMergeSvc;      // FIXME needs to call tRange
-  friend class EventDumperSvc;
-  friend class MemoryMonitorSvc;
-  friend void testHLTAutoKeyReset(SGImplSvc&, IProxyProviderSvc&);
   friend class StoreGateSvc;
   ///access typeless_record
   friend class ThinningSvc;

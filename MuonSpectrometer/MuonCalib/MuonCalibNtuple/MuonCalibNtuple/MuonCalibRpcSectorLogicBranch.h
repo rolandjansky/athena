@@ -46,9 +46,6 @@ namespace MuonCalib {
     // vector properties, if value is -99999 it should be ignored
     static const int m_blockSize2 = 100;     //!< quantities stored in the tree 
     int   index2;                            //!< counter keeping track on the number of entries
-    int   slIndex[m_blockSize2];             //!< index of corresponding SL
-    float triggerRates[m_blockSize2];
-    int   counters[m_blockSize2];
     
     // RpcSLTriggerHit properties
     static const int m_blockSize3 = 100;     //!< quantities stored in the tree 

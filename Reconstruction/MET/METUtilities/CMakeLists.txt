@@ -16,7 +16,7 @@ elseif( XAOD_ANALYSIS )
         Control/AthenaBaseComps
 	PhysicsAnalysis/POOLRootAccess
         Reconstruction/Jet/JetCalibTools )
-elseif()
+else()
    set( extra_deps GaudiKernel
         Control/AthenaBaseComps )
 endif()

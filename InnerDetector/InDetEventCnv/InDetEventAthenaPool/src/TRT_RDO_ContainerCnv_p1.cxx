@@ -13,6 +13,8 @@
 #include <string>
 #include <iostream>
 #include <sstream>
+#include "CreateTransientTemplate.h"
+
 
 //================================================================
 namespace {
@@ -66,8 +68,8 @@ void TRT_RDO_ContainerCnv_p1::transToPers(const TRT_RDO_Container* trans, TRT_RD
   if(trans->begin() != trans->end()) {
     MSG_DEBUG(log,"[p1] using container iterators");
     for(TRT_RDO_Container::const_iterator it=trans->begin(); it != trans->end(); it++) {
-      if(it->cptr()) {
-	pers->push_back(const_cast<TRT_RDO_Container::IDENTIFIABLE*>(it->cptr()) );
+      if(*it) {
+	pers->push_back(const_cast<TRT_RDO_Container::IDENTIFIABLE*>(*it) );
       }
       else {
 	null_count++;

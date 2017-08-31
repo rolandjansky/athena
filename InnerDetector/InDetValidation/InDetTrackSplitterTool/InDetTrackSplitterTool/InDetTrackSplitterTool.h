@@ -138,7 +138,7 @@ namespace InDet{
 
       /** Logic to check if there is another SCT hit associated with the input hit, which forms a space point
        */
-      std::vector<Trk::MeasurementBase const*>::iterator findSCTHitsFromSameSpacePoint(Trk::MeasurementBase const* m_sctHit, std::vector<Trk::MeasurementBase const*>& m_listOfSCTHits) const;
+      std::vector<Trk::MeasurementBase const*>::iterator findSCTHitsFromSameSpacePoint(Trk::MeasurementBase const* sctHit, std::vector<Trk::MeasurementBase const*>& listOfSCTHits) const;
 
       /** Logic to check if the track is constrained given the number of various types of hits
        */

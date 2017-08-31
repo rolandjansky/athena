@@ -375,7 +375,7 @@ bool Trk::KalmanOutlierLogic::reject(const Trk::FitQuality& fitQuality) const
     double prob = 1.0-Genfun::CumulativeChiSquare(fitQuality.numberDoF())(fitQuality.chiSquared());
     if ( prob < m_Trajectory_Chi2ProbCut) {
       ATH_MSG_DEBUG ("-O- trajectory with total chi2/ndf=" <<
-                     fitQuality.chiSquared()/fabs(fitQuality.numberDoF()) <<
+                     fitQuality.chiSquared()/std::abs(fitQuality.numberDoF()) <<
                      ", prob= " << prob << " fails quality cut" );
       return true;
     } else ATH_MSG_VERBOSE ("-O- trajectory passes quality cut, prob= " << prob);

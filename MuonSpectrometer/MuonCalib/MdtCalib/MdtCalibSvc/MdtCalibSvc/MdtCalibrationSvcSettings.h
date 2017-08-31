@@ -18,7 +18,8 @@
   This class is used to select which type of corrections should be applied by the calibration service.
   @author Martin Woudstra, Niels van Eldik
 */
-struct MdtCalibrationSvcSettings {
+class MdtCalibrationSvcSettings {
+public:
   
   static const int dummyTimeWindow = -1000000;
 

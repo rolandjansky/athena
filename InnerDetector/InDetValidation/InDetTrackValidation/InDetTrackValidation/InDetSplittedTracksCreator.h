@@ -10,7 +10,7 @@
 #define INDET_INDETSPLITTEDTRACKSCREATOR_H
 
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkTrack/TrackCollection.h"
 
@@ -25,7 +25,7 @@ namespace InDet {
 */
   class IInDetTrackSplitterTool;
 
-class InDetSplittedTracksCreator : public AthAlgorithm {
+class InDetSplittedTracksCreator : public AthReentrantAlgorithm {
 public:
     /** Standard Athena-Algorithm Constructor */
     InDetSplittedTracksCreator(const std::string& name, ISvcLocator* pSvcLocator);
@@ -35,15 +35,15 @@ public:
     /** standard Athena-Algorithm method */
     StatusCode          initialize();
     /** standard Athena-Algorithm method */
-    StatusCode          execute();
+    StatusCode execute_r(const EventContext& ctx) const;
     /** standard Athena-Algorithm method */
     StatusCode          finalize();
 
 private:
     /**  holds the name of the track coll to be used*/
-    std::string                            m_TrackCol;
+    SG::ReadHandleKey<TrackCollection>     m_TrackCol;
     /**  holds the names the output track collection written to store gate*/
-    std::string                            m_OutputTrackCol;
+    SG::WriteHandleKey<TrackCollection>    m_OutputTrackCol;
     /** flag for using TRT standalone tracks **/
     //bool                                   m_makeTRTStandaloneTracks;
     /** flag for using si only tracks **/
@@ -54,10 +54,6 @@ private:
     bool                                   m_takeLowerSegment;
     /** instances of IInDet */
     ToolHandle< InDet::IInDetTrackSplitterTool >  m_trackSplitterTool;
-
-    /** member function to copy track collections */
-    void copyTrackCollection(const TrackCollection* inputTrackCol,TrackCollection* outputTrackCol); 
-    void copyTrackCollection(const TrackCollection* inputTrackCol_upper,const TrackCollection* inputTrackCol_lower,TrackCollection* outputTrackCol); 
 
 };
 

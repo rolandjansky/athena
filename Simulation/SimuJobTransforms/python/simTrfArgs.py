@@ -69,6 +69,9 @@ def addBasicDigiArgs(parser):
     parser.add_argument('--AddCaloDigi',
                         type=argFactory(argBool),
                         help='Save Calo Digits too, not just RawChannels.', group='Digi')
+    parser.add_argument('--PileUpPremixing',
+                        type=argFactory(argBool),
+                        help='Run digitization with pile-up premixing configuration.', group='Digi')
 
 ## Add Pile-up related transform arguments to an argparse ArgumentParser
 def addPileUpTrfArgs(parser):

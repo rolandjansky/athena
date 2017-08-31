@@ -29,11 +29,9 @@ public:
   
 private:
   
-  SG::ReadHandleKey<HiveDataObj> m_rdh1;
-  SG::ReadHandleKey<HiveDataObj> m_rdh2;
-  SG::ReadHandleKey<HiveDataObj> m_rdh3;
-
-   
+  SG::ReadHandleKey<HiveDataObj> m_rdh1{this, "Key_R1", "c2", "Read key 1"};
+  SG::ReadHandleKey<HiveDataObj> m_rdh2{this, "Key_R2", "e1", "Read key 2"};
+  SG::ReadHandleKey<HiveDataObj> m_rdh3{this, "Key_R3", "d1", "Read key 3"};
   
 };
 #endif

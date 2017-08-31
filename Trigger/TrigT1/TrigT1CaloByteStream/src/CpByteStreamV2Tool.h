@@ -90,27 +90,60 @@ class CpByteStreamV2Tool : public AthAlgTool {
    typedef DataVector<LVL1::CMXCPTob>                    CmxCpTobCollection;
    typedef DataVector<LVL1::CMXCPHits>                   CmxCpHitsCollection;
    typedef std::map<unsigned int, LVL1::CPMTower*>       CpmTowerMap;
+   typedef std::map<unsigned int, const LVL1::CPMTower*> ConstCpmTowerMap;
    typedef std::map<int, LVL1::CMXCPTob*>                CmxCpTobMap;
+   typedef std::map<int, const LVL1::CMXCPTob*>          ConstCmxCpTobMap;
    typedef std::map<int, LVL1::CMXCPHits*>               CmxCpHitsMap;
+   typedef std::map<int, const LVL1::CMXCPHits*>         ConstCmxCpHitsMap;
    typedef IROBDataProviderSvc::VROBFRAG::const_iterator ROBIterator;
    typedef OFFLINE_FRAGMENTS_NAMESPACE::PointerType      ROBPointer;
    typedef OFFLINE_FRAGMENTS_NAMESPACE::PointerType      RODPointer;
 
+   struct CpByteStreamToolData
+   {
+     CpByteStreamToolData (const CollectionType collection)
+       : m_collection(collection){}
+     const CollectionType m_collection;
+   };
+   struct CpmTowerData : public CpByteStreamToolData
+   {
+     CpmTowerData (CpmTowerCollection* const ttCollection)
+       : CpByteStreamToolData (CPM_TOWERS), m_ttCollection (ttCollection) {}
+     CpmTowerCollection* const m_ttCollection;
+     CpmTowerMap  m_ttMap;
+   };
+   struct CmxCpTobData : public CpByteStreamToolData
+   {
+     CmxCpTobData (CmxCpTobCollection* const tobCollection)
+       : CpByteStreamToolData (CMX_CP_TOBS), m_tobCollection (tobCollection) {}
+     CmxCpTobCollection* const m_tobCollection;
+     CmxCpTobMap  m_tobMap;
+   };
+   struct CmxCpHitsData : public CpByteStreamToolData
+   {
+     CmxCpHitsData (CmxCpHitsCollection* const hitCollection)
+       : CpByteStreamToolData (CMX_CP_HITS), m_hitCollection (hitCollection) {}
+     CmxCpHitsCollection* const m_hitCollection;
+     CmxCpHitsMap m_hitsMap;
+   };
+
    /// Convert bytestream to given container type
    StatusCode convertBs(const IROBDataProviderSvc::VROBFRAG& robFrags,
-                        CollectionType collection);
+                        CpByteStreamToolData& data);
    /// Unpack CMX-CP sub-block
-   void decodeCmxCp(CmxCpSubBlock* subBlock, int trigCpm,
-                                             CollectionType collection);
+   void decodeCmxCp(CmxCpSubBlock* subBlock, int trigCpm, CpByteStreamToolData& data);
    /// Unpack CPM sub-block
-   void decodeCpm(CpmSubBlockV2* subBlock, int trigCpm);
+   void decodeCpm(CpmSubBlockV2* subBlock, int trigCpm, CpmTowerData& data);
 
    /// Find a CPM tower for given key
-   LVL1::CPMTower*  findCpmTower(unsigned int key);
+   const LVL1::CPMTower*  findCpmTower(unsigned int key) const;
+   LVL1::CPMTower*  findCpmTower(const CpmTowerData& data, unsigned int key) const;
    /// Find CMX-CP TOB for given key
-   LVL1::CMXCPTob*  findCmxCpTob(int key);
+   const LVL1::CMXCPTob*  findCmxCpTob(int key) const;
+   LVL1::CMXCPTob*  findCmxCpTob(const CmxCpTobData& data, int key) const;
    /// Find CMX-CP hits for given key
-   LVL1::CMXCPHits* findCmxCpHits(int key);
+   const LVL1::CMXCPHits* findCmxCpHits(int key) const;
+   LVL1::CMXCPHits* findCmxCpHits(const CmxCpHitsData& data, int key) const;
 
    /// Set up CPM tower map
    void setupCpmTowerMap(const CpmTowerCollection* ttCollection);
@@ -209,18 +242,12 @@ class CpByteStreamV2Tool : public AthAlgTool {
    DataVector<CpmSubBlockV2> m_cpmBlocks;
    /// Vector for current CMX-CP sub-blocks
    DataVector<CmxCpSubBlock> m_cmxBlocks;
-   /// Current CPM tower collection
-   CpmTowerCollection*  m_ttCollection;
-   /// Current CMX-CP TOB collection
-   CmxCpTobCollection*  m_tobCollection;
-   /// Current CMX-CP hits collection
-   CmxCpHitsCollection* m_hitCollection;
    /// CPM tower map
-   CpmTowerMap  m_ttMap;
+   ConstCpmTowerMap  m_ttMap;
    /// CMX-CP TOB map
-   CmxCpTobMap  m_tobMap;
+   ConstCmxCpTobMap  m_tobMap;
    /// CMX-CP hits map
-   CmxCpHitsMap m_hitsMap;
+   ConstCmxCpHitsMap m_hitsMap;
    /// ROD Status words
    std::vector<uint32_t>* m_rodStatus;
    /// ROD status map

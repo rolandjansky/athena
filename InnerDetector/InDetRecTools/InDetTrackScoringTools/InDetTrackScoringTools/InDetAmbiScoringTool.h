@@ -139,7 +139,6 @@ class InDetAmbiScoringTool : virtual public Trk::ITrackScoringTool,
   float m_etaWidthEm;
 
   SG::ReadHandleKey<CaloClusterROI_Collection> m_inputEmClusterContainerName;
-  bool m_has_EM_clusters;
 };
 
 

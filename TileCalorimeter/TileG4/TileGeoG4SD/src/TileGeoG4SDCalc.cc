@@ -17,11 +17,10 @@
 //************************************************************
 
 //class header
-#include "TileGeoG4SD/TileGeoG4SDCalc.hh"
+#include "TileGeoG4SDCalc.hh"
 //package headers
 #include "TileGeoG4SD/TileGeoG4LookupBuilder.hh"
 #include "TileGeoG4SD/TileGeoG4Lookup.hh"
-#include "TileGeoG4SD/TileGeoG4SD.hh"
 //Athena headers
 #include "CxxUtils/make_unique.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
@@ -49,72 +48,58 @@
 #include <iostream>
 #include <string>
 #include <stdexcept>
+#include <memory>
 
 static const double tanPi64 = 0.049126849769467254105343321271314; //FIXME!!!!!
 
-TileGeoG4SDCalc::TileGeoG4SDCalc(TileSDOptions opt)
-    : section(0),
-    cell(0),
-    nModule(0),
-    nDetector(0),
-    nTower(0),
-    nSample(0),
-    nSide(0),
-    pmtID_up(),
-    pmtID_down(),
-    edep_up(0),
-    edep_down(0),
-    scin_Time_up(0),
-    scin_Time_down(0),
-    m_options(opt),
-    m_nrOfPMT(0),
-    m_tileSize(0),
-    m_tilePeriod(0),
-    m_isNegative(0),
-    m_totalTimeUp(0),
-    m_totalTimeDown(0)
-
+TileGeoG4SDCalc::TileGeoG4SDCalc(const std::string& name, ISvcLocator *pSvcLocator)
+  : AthService(name, pSvcLocator)
+  , m_detStore("DetectorStore",name)
+  , m_geoModSvc("GeoModelSvc",name)
+  , m_lookup(nullptr)
 {
-  // Get MessageSvc pointers
-  ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap
+  declareProperty( "DetectorStore", m_detStore );
+  declareProperty( "GeoModelSvc", m_geoModSvc );
+  declareProperty( "DeltaTHit" , m_options.deltaTHit );
+  declareProperty( "TimeCut" , m_options.timeCut );
+  declareProperty( "TileTB" , m_options.tileTB );
+  declareProperty( "Ushape" , m_options.Ushape );
+  declareProperty( "DoBirk" , m_options.doBirk );
+  declareProperty( "DoTileRow" , m_options.doTileRow );
+  declareProperty( "DoTOFCorrection" , m_options.doTOFCorrection );
+}
 
-  // Get DetectorStore pointers
-  if (svcLocator->service("DetectorStore", detStore).isFailure())
-    G4cout << "Unable to get pointer to DetectorStore Service" << G4endl;
-  else if (m_options.verboseLevel > 5)
-    G4cout << "DetectorStore Svc initialized." << G4endl;
+TileGeoG4SDCalc::~TileGeoG4SDCalc() {
+  delete m_lookup;
+}
+
+StatusCode TileGeoG4SDCalc::initialize() {
+
+  ATH_CHECK(m_detStore.retrieve());
+  ATH_MSG_DEBUG("DetectorStore Svc initialized.");
 
   // Retrieve TileID helper from DetectorStore
-  if (detStore->retrieve(m_tileID).isFailure())
-    G4cout << "Unable to retrieve TileID helper from DetectorStore" << G4endl;
-  else if (m_options.verboseLevel > 5)
-    G4cout << "TileID helper retrieved" << G4endl;
+  ATH_CHECK(m_detStore->retrieve(m_tileID));
+  ATH_MSG_VERBOSE("TileID helper retrieved");
 
   // Retrieve TileTBID helper from DetectorStore
-  if (detStore->retrieve(m_tileTBID).isFailure())
-    G4cout << "Unable to retrieve TileTBID helper from DetectorStore" << G4endl;
-  else if (m_options.verboseLevel > 5)
-    G4cout << "TileTBID helper retrieved" << G4endl;
+  ATH_CHECK(m_detStore->retrieve(m_tileTBID));
+  ATH_MSG_VERBOSE("TileTBID helper retrieved");
 
-  IGeoModelSvc* geoModSvc;
-  if (svcLocator->service("GeoModelSvc", geoModSvc).isFailure())
-    G4cout << "GeoModelSvc not found!" << G4endl;
-  else if (m_options.verboseLevel > 5)
-    G4cout << "GeoModelSvc initialized." << G4endl;
+  ATH_CHECK(m_geoModSvc.retrieve());
+  ATH_MSG_VERBOSE("GeoModelSvc initialized.");
 
-  const TileDetectorTool* tileDetectorTool = dynamic_cast<const TileDetectorTool *>(geoModSvc->getTool(
-        "TileDetectorTool"));
-
-  int UshapeFromGM = (tileDetectorTool) ? tileDetectorTool->Ushape() : 0;
+  const int UshapeFromGM = this->getUshapeFromGM();
 
   // Unpack TileG4SimOptions from DetectorStore
 
-  // Detemine time window for hit to be recorded
+  // Determine time window for hit to be recorded
   m_deltaT = m_options.deltaTHit[m_options.deltaTHit.size() - 1] * CLHEP::ns;
 
-  // Detemine variable time window for hit to be recorded
-  for (int i = m_options.deltaTHit.size() - 1; i > -1; --i)
+  // Determine variable time window for hit to be recorded
+  for (int i = m_options.deltaTHit.size() - 1; i > -1; --i) {
     m_options.deltaTHit[i] *= CLHEP::ns;
+  }
   // protection agaist wrong vector size
   if (m_options.deltaTHit.size() % 3 != 1 || m_deltaT <= 0.0) {
     m_options.deltaTHit.resize(1);
@@ -127,37 +112,35 @@ TileGeoG4SDCalc::TileGeoG4SDCalc(TileSDOptions opt)
   // Include or not tilecal optical model
   if (m_options.Ushape == -1) {
     m_options.Ushape = UshapeFromGM; // U-shape not set, take value from GeoModel
-    G4cout << "Using U-shape flag from GeoModel = "
-           << UshapeFromGM
-           << ( (m_options.Ushape > 0) ? "  Scintillator width is equal to width of master plate "
-                                       : "  Scintillator width is smaller than width of master plate ")
-    << G4endl;
+    ATH_MSG_INFO("Using U-shape flag from GeoModel = " << UshapeFromGM <<
+                 ( (m_options.Ushape > 0) ? "  Scintillator width is equal to width of master plate "
+                   : "  Scintillator width is smaller than width of master plate "));
   } else if (m_options.Ushape == UshapeFromGM) {
-    G4cout << "Using U-shape = " << m_options.Ushape
-           << ((m_options.Ushape > 0) ? "  Scintillator width is equal to width of master plate "
-                                      : "  Scintillator width is smaller than width of master plate ") << G4endl;
+    ATH_MSG_INFO("Using U-shape = " << m_options.Ushape <<
+                 ((m_options.Ushape > 0) ? "  Scintillator width is equal to width of master plate "
+                  : "  Scintillator width is smaller than width of master plate "));
   } else {
     if (UshapeFromGM > 0 && m_options.Ushape > 0) { // both are > 0, so it's fine to use value from SimOptions
-      G4cout << "Using U-shape from Simulation flags = " << m_options.Ushape
-             << "  Scintillator width is equal to width of master plate " << G4endl;
+      ATH_MSG_INFO("Using U-shape from Simulation flags = " << m_options.Ushape <<
+                   "  Scintillator width is equal to width of master plate ");
     } else if (UshapeFromGM == 0 && m_options.Ushape < -1) { // special case - negative value below -1
-      G4cout << "Using U-shape from Simulation flags = " << m_options.Ushape
-             << "  Scintillator width is smaller than width of master plate " << G4endl;
+      ATH_MSG_INFO("Using U-shape from Simulation flags = " << m_options.Ushape <<
+                   "  Scintillator width is smaller than width of master plate ");
     } else {
-      G4cout << "ERROR U-shape flag in GeoModel = " << UshapeFromGM << G4endl;
-      G4cout << "ERROR U-shape flag in Simulation = " << m_options.Ushape << G4endl;
-      G4cout << "Please, use correct GeoModel tag or make sure that you set both "
-             << "tileSimInfoConfigurator.Ushape and GeoModelSvc.DetectorTools[ \"TileDetectorTool\" ].Ushape to the same value"
-             << G4endl;
-      throw std::runtime_error( "Inconsistent U-shape parameters for TileCal" );
+      ATH_MSG_ERROR("U-shape flag in GeoModel = " << UshapeFromGM);
+      ATH_MSG_ERROR("U-shape flag in Simulation = " << m_options.Ushape);
+      ATH_MSG_ERROR("Please, use correct GeoModel tag or make sure that you set both " <<
+                    "tileSimInfoConfigurator.Ushape and GeoModelSvc.DetectorTools[ \"TileDetectorTool\" ].Ushape to the same value");
+      ATH_MSG_FATAL( "Inconsistent U-shape parameters for TileCal" );
+      return StatusCode::FAILURE;
     }
   }
   if (m_options.Ushape < -2) {
-    G4cout << "WARNING: Changing U-shape from " << m_options.Ushape << " to -2" << G4endl;
+    ATH_MSG_WARNING("Changing U-shape from " << m_options.Ushape << " to -2");
     m_options.Ushape = -2;
   }
   if (m_options.Ushape > 1 && m_options.Ushape < 10) {
-    G4cout << "WARNING: Changing U-shape from " << m_options.Ushape << " to 1" << G4endl;
+    ATH_MSG_WARNING("Changing U-shape from " << m_options.Ushape << " to 1");
     m_options.Ushape = 1;
   }
 
@@ -175,63 +158,76 @@ TileGeoG4SDCalc::TileGeoG4SDCalc(TileSDOptions opt)
     }
     G4cout << "and " << delta / CLHEP::ns << " ns outside this window" << G4endl;
   } else {
-    G4cout << "Using deltaTHit = " << m_deltaT / CLHEP::ns << " ns. " << G4endl;
+    ATH_MSG_INFO("Using deltaTHit = " << m_deltaT / CLHEP::ns << " ns. ");
   }
-  G4cout << "Using timeCut = " << m_options.timeCut / CLHEP::ns << " ns. " << G4endl;
-  G4cout << "Using doBirk = " << (m_options.doBirk ? "true" : "false") << G4endl;
-  G4cout << "Using doTOFCorr = " << (m_options.doTOFCorrection ? "true" : "false") << G4endl;
-  G4cout << "Using doTileRow = " << (m_options.doTileRow ? "true" : "false") << G4endl;
-  G4cout << "Using doCalibHitParticleID = " << (m_options.doCalibHitParticleID ? "true" : "false") << G4endl;
+  ATH_MSG_INFO("Using timeCut = " << m_options.timeCut / CLHEP::ns << " ns. ");
+  ATH_MSG_INFO("Using doBirk = " << (m_options.doBirk ? "true" : "false"));
+  ATH_MSG_INFO("Using doTOFCorr = " << (m_options.doTOFCorrection ? "true" : "false"));
+  ATH_MSG_INFO("Using doTileRow = " << (m_options.doTileRow ? "true" : "false"));
+  ATH_MSG_INFO("Using doCalibHitParticleID = " << (m_options.doCalibHitParticleID ? "true" : "false"));
 
-  if (! (m_deltaT > 0.0))
-    G4cout << "WARNING: deltaT is not set, ignore hit time in ProcessHits()" << G4endl;
+  if (! (m_deltaT > 0.0)) {
+    ATH_MSG_WARNING("deltaT is not set, ignore hit time in ProcessHits()");
+  }
 
   m_tileSizeDeltaT = 100000 * CLHEP::ns; // used for doTileRow
 
   if (m_options.timeCut > m_tileSizeDeltaT - m_deltaT) {
     m_options.timeCut = m_tileSizeDeltaT - m_deltaT;
-    G4cout << "WARNING: Reducing timeCut to " << m_options.timeCut / CLHEP::ns << " ns. " << G4endl;
+    ATH_MSG_WARNING("Reducing timeCut to " << m_options.timeCut / CLHEP::ns << " ns. ");
   } else if ( ! m_options.doTOFCorrection && m_options.timeCut < 1000*CLHEP::ns ) {
     // assuming that if TOF correction is disabled, then we are running cosmic simulation
     // and should not use too restrictive time cut
     m_options.timeCut = m_tileSizeDeltaT - m_deltaT;
-    G4cout << "WARNING: TOF correction is disabled, settting time cut to "
-           << m_options.timeCut / CLHEP::ns << " ns. " << G4endl;
+    ATH_MSG_WARNING("TOF correction is disabled, settting time cut to "
+                    << m_options.timeCut / CLHEP::ns << " ns. ");
   }
 
   m_lateHitTime = m_tileSizeDeltaT - m_deltaT;
-  G4cout << "All hits with time above " << m_options.timeCut / CLHEP::ns << " ns will be stored with time = "
-         << m_lateHitTime / CLHEP::ns << " ns." << G4endl;
+  ATH_MSG_INFO("All hits with time above " << m_options.timeCut / CLHEP::ns << " ns will be stored with time = "
+               << m_lateHitTime / CLHEP::ns << " ns.");
 
   // Read attenuation lengths from file and store them in tilerow
   // Variables to divide deposited energy in scintillators for Up and Down PMTs
   if (m_options.Ushape == -2) {
-    std::string attFileName = "TileAttenuation.dat";
-    std::string ratioFileName = "TileOpticalRatio.dat";
+    static const std::string attFileName = "TileAttenuation.dat";
+    static const std::string ratioFileName = "TileOpticalRatio.dat";
     std::string attFile = PathResolver::find_file(attFileName, "DATAPATH");
     std::string ratioFile = PathResolver::find_file(ratioFileName, "DATAPATH");
     m_row = CxxUtils::make_unique<TileRow>(attFile, ratioFile); //holds attenuation lengths for tiles
-    G4cout << "Using Optical Ratio = " << m_row->OpticalRatio[0].at(0) << G4endl;
+    ATH_MSG_INFO("Using Optical Ratio = " << m_row->OpticalRatio[0].at(0));
   }
 
   //build tilecal ordinary look-up table
-  lookup = new TileGeoG4LookupBuilder(detStore, m_options.verboseLevel);
-  lookup->BuildLookup(opt.tileTB);
-
+  m_lookup = new TileGeoG4LookupBuilder(&*m_detStore, m_options.verboseLevel);
+  m_lookup->BuildLookup(m_options.tileTB);
+  return StatusCode::SUCCESS;
 }
 
-TileGeoG4SDCalc::~TileGeoG4SDCalc() {
-  delete lookup;
+StatusCode TileGeoG4SDCalc::queryInterface(const InterfaceID& riid, void** ppvInterface)
+{
+  if ( ITileCalculator::interfaceID().versionMatch(riid) ) {
+    *ppvInterface = dynamic_cast<ITileCalculator*>(this);
+    addRef();
+    return StatusCode::SUCCESS;
+  }
+  // Interface is not directly available : try out a base class
+  return AthService::queryInterface(riid, ppvInterface);
 }
 
-G4bool TileGeoG4SDCalc::FindTileScinSection(const G4Step* aStep) {
-  if (m_options.verboseLevel > 10)
-    G4cout << "Process Hits" << G4endl;
+int TileGeoG4SDCalc::getUshapeFromGM() const {
+  const TileDetectorTool* tileDetectorTool =
+    dynamic_cast<const TileDetectorTool *>(m_geoModSvc->getTool("TileDetectorTool"));
+  return (tileDetectorTool) ? tileDetectorTool->Ushape() : 0;
+}
 
-  G4double edep = aStep->GetTotalEnergyDeposit();
+G4bool TileGeoG4SDCalc::FindTileScinSection(const G4Step* aStep, TileHitData& hitData) const
+{
+  ATH_MSG_VERBOSE("Process Hits");
+
+  const G4double edep = aStep->GetTotalEnergyDeposit();
   if (edep == 0. && aStep->GetTrack()->GetDefinition() != G4Geantino::GeantinoDefinition()) {
-    if (m_options.verboseLevel > 10)
-      G4cout << "Edep=0" << G4endl;
+    ATH_MSG_VERBOSE("Edep=0");
     return false;
   }
 
@@ -245,94 +241,105 @@ G4bool TileGeoG4SDCalc::FindTileScinSection(const G4Step* aStep) {
   for (int i = 0; i < level; i++) {
     G4VPhysicalVolume* pv = theTouchable->GetVolume(i);
     G4LogicalVolume* lv = pv->GetLogicalVolume();
-    if (m_options.verboseLevel > 10)
-      G4cout << " Level--> " << i
-             << ", LogVol--> " << (lv->GetName()).c_str()
-             << ", PhysVol--> " << (pv->GetName()).c_str() << G4endl;
+    ATH_MSG_VERBOSE(" Level--> " << i <<
+                    ", LogVol--> " << (lv->GetName()).c_str() <<
+                    ", PhysVol--> " << (pv->GetName()).c_str());
   }
 
   // Find envelope of TileCal
   G4String nameLogiVol = theTouchable->GetVolume(level - 1)->GetLogicalVolume()->GetName();
-  while (nameLogiVol.find("Tile") == G4String::npos) {
+  static const G4String tileVolumeString("Tile");
+  while (nameLogiVol.find(tileVolumeString) == G4String::npos) {
     level--;
     nameLogiVol = theTouchable->GetVolume(level - 1)->GetLogicalVolume()->GetName();
   }
-  if (m_options.verboseLevel > 10)
-    G4cout << "Tile volume level --->" << level << G4endl;
+  ATH_MSG_VERBOSE("Tile volume level --->" << level);
 
   level--;  // Move to the level of sections Barrel, EBarrelPos, EBarrelNeg, Gap etc...
 
   // Check whether we have multiple tree tops in DD
   // If this is the case, move one level down
   nameLogiVol = theTouchable->GetVolume(level - 1)->GetLogicalVolume()->GetName();
-  if (nameLogiVol.find("CentralBarrel") != G4String::npos ||
-      nameLogiVol.find("EndcapPos") != G4String::npos ||
-      nameLogiVol.find("EndcapNeg") != G4String::npos )
+  static const G4String cenBarrelVolumeString("CentralBarrel");
+  static const G4String endcapPosVolumeString("EndcapPos");
+  static const G4String endcapNegVolumeString("EndcapNeg");
+  if (nameLogiVol.find(cenBarrelVolumeString) != G4String::npos ||
+      nameLogiVol.find(endcapPosVolumeString) != G4String::npos ||
+      nameLogiVol.find(endcapNegVolumeString) != G4String::npos ) {
     level--;
+  }
 
   // Determine physical volume for the step
-  G4VPhysicalVolume* physSection = theTouchable->GetVolume(level - 1);
-  G4String namePhysSection = physSection->GetName();
+  const G4VPhysicalVolume* physSection = theTouchable->GetVolume(level - 1);
+  const G4String namePhysSection = physSection->GetName();
 
   // Check current TileSectionDescription
+  static const G4String ebarrelVolumeString("EBarrel");
+  static const G4String barrelVolumeString("Barrel");
+  static const G4String itcVolumeString("ITC");
+  static const G4String gapVolumeString("Gap");
+  static const G4String crackVolumeString("Crack");
   int sect = 0;
-  if (namePhysSection.find("EBarrel") != G4String::npos) {
-    section = lookup->GetSection(TileDddbManager::TILE_EBARREL);
-    nDetector = 2;
+  if (namePhysSection.find(ebarrelVolumeString) != G4String::npos) {
+    hitData.section = m_lookup->GetSection(TileDddbManager::TILE_EBARREL);
+    hitData.nDetector = 2;
     sect = 2;
-  } else if (namePhysSection.find("Barrel") != G4String::npos) {
-    section = lookup->GetSection(TileDddbManager::TILE_BARREL);
-    nDetector = 1;
+  } else if (namePhysSection.find(barrelVolumeString) != G4String::npos) {
+    hitData.section = m_lookup->GetSection(TileDddbManager::TILE_BARREL);
+    hitData.nDetector = 1;
     sect = 1;
-  } else if (namePhysSection.find("ITC") != G4String::npos) {
-    nDetector = 3;
-    G4String namePlug = theTouchable->GetVolume(level - 3)->GetName();
-    if (namePlug.find("Plug1") != G4String::npos) {
-      section = lookup->GetSection(TileDddbManager::TILE_PLUG1);
+  } else if (namePhysSection.find(itcVolumeString) != G4String::npos) {
+    hitData.nDetector = 3;
+    static const G4String plug1VolumeString("Plug1");
+    const G4String namePlug = theTouchable->GetVolume(level - 3)->GetName();
+    if (namePlug.find(plug1VolumeString) != G4String::npos) {
+      hitData.section = m_lookup->GetSection(TileDddbManager::TILE_PLUG1);
       sect = 3;
     } else {
-      section = lookup->GetSection(TileDddbManager::TILE_PLUG2);
+      hitData.section = m_lookup->GetSection(TileDddbManager::TILE_PLUG2);
       sect = 4;
     }
-  } else if (namePhysSection.find("Gap") != G4String::npos) {
-    section = lookup->GetSection(TileDddbManager::TILE_PLUG3);
-    nDetector = 3;
+  } else if (namePhysSection.find(gapVolumeString) != G4String::npos) {
+    hitData.section = m_lookup->GetSection(TileDddbManager::TILE_PLUG3);
+    hitData.nDetector = 3;
     sect = 5;
-  } else if (namePhysSection.find("Crack") != G4String::npos) {
-    section = lookup->GetSection(TileDddbManager::TILE_PLUG4);
-    nDetector = 3;
+  } else if (namePhysSection.find(crackVolumeString) != G4String::npos) {
+    hitData.section = m_lookup->GetSection(TileDddbManager::TILE_PLUG4);
+    hitData.nDetector = 3;
     sect = 6;
   } else {
-    G4cout << "FATAL: Wrong name for tile scin section --> " << namePhysSection.c_str() << G4endl;
+    ATH_MSG_FATAL("Wrong name for tile scin section --> " << namePhysSection.c_str());
     return false;
   }
 
   // Check the copy number of the module (1-64)
-  // nModule = theTouchable->GetVolume(level-2)->GetCopyNo();
-  nModule = theTouchable->GetReplicaNumber(level - 2);
+  // hitData.nModule = theTouchable->GetVolume(level-2)->GetCopyNo();
+  hitData.nModule = theTouchable->GetReplicaNumber(level - 2);
   if (theTouchable->GetVolume(level - 2)->IsReplicated())
-    nModule++;
-  if (nModule > section->nrOfModules) {
-    G4cout << "FATAL: Wrong module index -->" << nModule << G4endl;
+    hitData.nModule++;
+  if (hitData.nModule > hitData.section->nrOfModules) {
+    ATH_MSG_FATAL("Wrong module index -->" << hitData.nModule);
     return false;
   }
 
   // Check the side
-  nSide = 1;
-  m_isNegative = false;
-  if ((namePhysSection.find("Barrel") != G4String::npos) &&
-    (namePhysSection.find("EBarrel") == G4String::npos) ) {}
+  hitData.nSide = 1;
+  hitData.isNegative = false;
+  static const G4String eBarrelVolumeString("EBarrel");
+  if ((namePhysSection.find(barrelVolumeString) != G4String::npos) &&
+      (namePhysSection.find(eBarrelVolumeString) == G4String::npos) ) {}
   else {
-    if (namePhysSection.find("Neg") != G4String::npos) {
-      nSide = -1;
-      m_isNegative = true;
+    static const G4String negVolumeString("Neg");
+    if (namePhysSection.find(negVolumeString) != G4String::npos) {
+      hitData.nSide = -1;
+      hitData.isNegative = true;
     }
   }
 
   // Get the number of scintillator inside module 0 - ...
-  G4VPhysicalVolume* physVol = theTouchable->GetVolume();
-  m_tileSize = physVol->GetCopyNo();
-  m_tilePeriod = theTouchable->GetReplicaNumber(2);
+  const G4VPhysicalVolume* physVol = theTouchable->GetVolume();
+  hitData.tileSize = physVol->GetCopyNo();
+  hitData.tilePeriod = theTouchable->GetReplicaNumber(2);
 
   // 1. Move to period volume check if it's replicated and take the replica number
   //    If the period is not replicated that means we are in the second Absorber Child
@@ -344,85 +351,89 @@ G4bool TileGeoG4SDCalc::FindTileScinSection(const G4Step* aStep) {
   // else
   // tileperiod = _section->nrOfPeriods - 1;
 
-  if (m_options.verboseLevel > 10) {
-    G4cout << "Section number: " << sect*nSide << G4endl;
-    G4cout << "Module number:  " << nModule << G4endl;
-    G4cout << "Period number:  " << m_tilePeriod << G4endl;
-    G4cout << "Scin Copy No:   " << m_tileSize << G4endl;
-  }
+  ATH_MSG_VERBOSE("Section number: " << sect*hitData.nSide);
+  ATH_MSG_VERBOSE("Module number:  " << hitData.nModule);
+  ATH_MSG_VERBOSE("Period number:  " << hitData.tilePeriod);
+  ATH_MSG_VERBOSE("Scin Copy No:   " << hitData.tileSize);
 
-  int nScin = m_tilePeriod * section->nrOfScintillators + m_tileSize;
-  cell = section->ScinToCell(nScin);
-  if (!cell) {
-    G4cout << "ERROR: Zero pointer to current cell, nScin=" << nScin << G4endl;
-    section->PrintScinToCell("ERROR in _cell");
+  int nScin = hitData.tilePeriod * hitData.section->nrOfScintillators + hitData.tileSize;
+  hitData.cell = hitData.section->ScinToCell(nScin);
+  if (!hitData.cell) {
+    ATH_MSG_ERROR("Zero pointer to current cell, nScin=" << nScin);
+    hitData.section->PrintScinToCell("ERROR in _cell");
     return false;
   }
 
-  m_nrOfPMT = cell->nrOfPMT;
-  if (m_options.verboseLevel > 10)
-    G4cout << "Number of PMTs: " << m_nrOfPMT << G4endl;
+  hitData.nrOfPMT = hitData.cell->nrOfPMT;
+  ATH_MSG_VERBOSE("Number of PMTs: " << hitData.nrOfPMT);
 
   // Attach special D4 cell to cell D5 in ext.barrel
   if (sect == 3) {
-    if ( lookup->TileGeoG4npmtD4(std::max(0, nSide), nModule - 1) == 0 ) {
-      section = lookup->GetSection(TileDddbManager::TILE_EBARREL);
-      nDetector = 2;  //ext.barrel
-      m_tileSize += 9;
-      nScin = m_tileSize; //last tile row in first period
-      cell = section->ScinToCell(nScin);
+    if ( m_lookup->TileGeoG4npmtD4(std::max(0, hitData.nSide), hitData.nModule - 1) == 0 ) {
+      hitData.section = m_lookup->GetSection(TileDddbManager::TILE_EBARREL);
+      hitData.nDetector = 2;  //ext.barrel
+      hitData.tileSize += 9;
+      nScin = hitData.tileSize; //last tile row in first period
+      hitData.cell = hitData.section->ScinToCell(nScin);
       if (m_options.verboseLevel > 10) {
         char nm[5] = {'X', 'A', 'B', 'D', 'E'};
         G4cout << "Disabling special D4, all energy goes to cell "
-        << nm[cell->sample] << cell->cellNum << G4endl;
+               << nm[hitData.cell->sample] << hitData.cell->cellNum << G4endl;
       }
     }
   } else if (sect == 4) {
     // Change number of PMTs in Special C10 Cells
-    m_nrOfPMT = lookup->TileGeoG4npmtC10(std::max(0, nSide), nModule - 1);
-    if (m_options.verboseLevel > 10 && m_nrOfPMT != 2) {
-      G4cout << "Changing number of PMTs in special C10 to " << m_nrOfPMT << G4endl;
+    hitData.nrOfPMT = m_lookup->TileGeoG4npmtC10(std::max(0, hitData.nSide), hitData.nModule - 1);
+    if (m_options.verboseLevel > 10 && hitData.nrOfPMT != 2) {
+      G4cout << "Changing number of PMTs in special C10 to " << hitData.nrOfPMT << G4endl;
     }
-  } else if (sect == 6 && cell->tower > 16) {
+  } else if (sect == 6 && hitData.cell->tower > 16) {
     // Check number of PMTs in Special E4' Cells (side C, modules 32,33)
-    m_nrOfPMT = lookup->TileGeoG4npmtE5(std::max(0, nSide), nModule - 1);
-    if (m_nrOfPMT != cell->nrOfPMT) {
-      G4cout << "WARNING: Changing number of PMTs in special E4' from " << cell->nrOfPMT << " to " << m_nrOfPMT << G4endl;
+    hitData.nrOfPMT = m_lookup->TileGeoG4npmtE5(std::max(0, hitData.nSide), hitData.nModule - 1);
+    if (hitData.nrOfPMT != hitData.cell->nrOfPMT) {
+      ATH_MSG_WARNING("Changing number of PMTs in special E4' from " << hitData.cell->nrOfPMT << " to " << hitData.nrOfPMT);
     }
   }
 
   // Determine tower and sample
-  nTower = cell->tower;
-  if (nTower < 0)
-    nTower *= -1;
-  nSample = cell->sample;
+  hitData.nTower = hitData.cell->tower;
+  if (hitData.nTower < 0) {
+    hitData.nTower *= -1;
+  }
+  hitData.nSample = hitData.cell->sample;
 
   // If that's central barrel then determine the side
-  if ((nDetector == 1) && (cell->cellNum < 0))
-    nSide = -1;
+  if ((hitData.nDetector == 1) && (hitData.cell->cellNum < 0)) {
+    hitData.nSide = -1;
+  }
 
   return true;
 }
 
-G4bool TileGeoG4SDCalc::MakePmtEdepTime(const G4Step* aStep) {
-  if (m_nrOfPMT == 0)
+G4bool TileGeoG4SDCalc::MakePmtEdepTime(const G4Step* aStep, TileHitData& hitData) const
+{
+  if (hitData.nrOfPMT == 0) {
     return false;
+  }
 
-  bool isE5 = (nTower > 16);  //special E5(E4') cells in EBC (should be in negative side only)
+  const bool isE5 = (hitData.nTower > 16);  //special E5(E4') cells in EBC (should be in negative side only)
 
   // Take into account Birk's saturation law in organic scintillators.
-  G4double edep;
-  if (m_options.doBirk)
-    edep = BirkLaw(aStep);
-  else
-    edep = aStep->GetTotalEnergyDeposit();
+  // G4double edep;
+  // if (m_options.doBirk)
+  //   edep = BirkLaw(aStep);
+  // else
+  //   edep = aStep->GetTotalEnergyDeposit();
+  const G4double edep = (m_options.doBirk) ? this->BirkLaw(aStep) : aStep->GetTotalEnergyDeposit();
 
-  double deltaT_up = 0, deltaT_down = 0;
-  double ref_ind_tile = 1.59, ref_ind_fiber = 1.59;  //refraction indexes of tiles and fibers
+  double deltaT_up = 0;
+  double deltaT_down = 0;
+  const double ref_ind_tile = 1.59;
+  const double ref_ind_fiber = 1.59;  //refraction indexes of tiles and fibers
 
-  G4TouchableHistory* theTouchable = (G4TouchableHistory*) (aStep->GetPreStepPoint()->GetTouchable());
-  G4VPhysicalVolume* physVol = theTouchable->GetVolume();
-  G4LogicalVolume* logiVol = physVol->GetLogicalVolume();
+  const G4TouchableHistory* theTouchable = (G4TouchableHistory*) (aStep->GetPreStepPoint()->GetTouchable());
+  const G4VPhysicalVolume* physVol = theTouchable->GetVolume();
+  const G4LogicalVolume* logiVol = physVol->GetLogicalVolume();
 
   G4Trd* scinSolid = dynamic_cast<G4Trd*>(logiVol->GetSolid());
   G4SubtractionSolid* booleanScin = dynamic_cast<G4SubtractionSolid*>(logiVol->GetSolid());
@@ -432,12 +443,12 @@ G4bool TileGeoG4SDCalc::MakePmtEdepTime(const G4Step* aStep) {
   G4ThreeVector localCoord = theTouchable->GetHistory()->GetTopTransform().TransformPoint(prestepPos);
   G4double yLocal = localCoord.y();
   G4double zLocal = localCoord.z();
-  if (nDetector == 1 || nSide > 0)
+  if (hitData.nDetector == 1 || hitData.nSide > 0)
     yLocal *= -1;  // LBA,LBC,EBA have yLocal inverse to the EBC one
 
-  if (scinSolid != 0 || booleanScin != 0) {
-    if (booleanScin != 0) {
-      scinSolid = 0;
+  if (scinSolid || booleanScin) {
+    if (booleanScin) {
+      scinSolid = nullptr;
       // The first step inside boolean solid
       G4VSolid* solid1 = booleanScin->GetConstituentSolid(0);
 
@@ -451,13 +462,13 @@ G4bool TileGeoG4SDCalc::MakePmtEdepTime(const G4Step* aStep) {
       scinSolid = dynamic_cast<G4Trd*>(solid1);
     }
 
-    if (scinSolid == 0) {  //----    error ----
-      G4cout << "FATAL !!! Scintillator solid is not G4TRD!" << G4endl;
+    if (!scinSolid) {  //----    error ----
+      ATH_MSG_FATAL("Scintillator solid is not G4TRD!");
       return false;
     }
 
     // Divide edep for Up and Down
-    if (m_nrOfPMT == 2) {
+    if (hitData.nrOfPMT == 2) {
       // Scintillator dimensions
       G4double dy1Scin = scinSolid->GetYHalfLength1();
       G4double dy2Scin = scinSolid->GetYHalfLength2();
@@ -472,105 +483,103 @@ G4bool TileGeoG4SDCalc::MakePmtEdepTime(const G4Step* aStep) {
 
       if (isE5) { //special E5(E4') cells in EBC (negative)
         if (yLocal >= 0.) {
-          edep_up = edep;
-          edep_down = 0.;
+          hitData.edep_up = edep;
+          hitData.edep_down = 0.;
         } else {
-          edep_up = 0.;
-          edep_down = edep;
+          hitData.edep_up = 0.;
+          hitData.edep_down = edep;
         }
       } else {
         switch (m_options.Ushape) {
 
-          case 1:  // using the best U-shape known up to now (see #define in header file)
-            edep_up = edep * Tile_1D_profile(m_tileSize, yLocal, zLocal, 1, nDetector, nSide);
-            edep_down = edep * Tile_1D_profile(m_tileSize, yLocal, zLocal, 0, nDetector, nSide);
-            break;
+        case 1:  // using the best U-shape known up to now (see #define in header file)
+          hitData.edep_up = edep * Tile_1D_profile(hitData.tileSize, yLocal, zLocal, 1, hitData.nDetector, hitData.nSide);
+          hitData.edep_down = edep * Tile_1D_profile(hitData.tileSize, yLocal, zLocal, 0, hitData.nDetector, hitData.nSide);
+          break;
 
-          case 0:  // the same as default case below (i.e. no ushape at all)
-            edep_up = edep * (0.3 + 0.2 * dy1Local / halfYLocal);
-            edep_down = edep - edep_up;
-            break;
+        case 0:  // the same as default case below (i.e. no ushape at all)
+          hitData.edep_up = edep * (0.3 + 0.2 * dy1Local / halfYLocal);
+          hitData.edep_down = edep - hitData.edep_up;
+          break;
 
-          case 14:
-            edep_up = edep * Tile_1D_profileRescaled(m_tileSize, yLocal, zLocal, 1, nDetector, nSide);
-            edep_down = edep * Tile_1D_profileRescaled(m_tileSize, yLocal, zLocal, 0, nDetector, nSide);
-            break;
+        case 14:
+          hitData.edep_up = edep * Tile_1D_profileRescaled(hitData.tileSize, yLocal, zLocal, 1, hitData.nDetector, hitData.nSide);
+          hitData.edep_down = edep * Tile_1D_profileRescaled(hitData.tileSize, yLocal, zLocal, 0, hitData.nDetector, hitData.nSide);
+          break;
 
-          case 20:
-          case 21:
-          case 22:
-          case 23:
-            edep_up = edep * Tile_1D_profileRescaled_zeroBins(m_tileSize, yLocal, zLocal, 1, nDetector, nSide,
-                                                         m_options.Ushape - 20);
-            edep_down = edep * Tile_1D_profileRescaled_zeroBins(m_tileSize, yLocal, zLocal, 0, nDetector, nSide,
-                                                           m_options.Ushape - 20);
-            break;
+        case 20:
+        case 21:
+        case 22:
+        case 23:
+          hitData.edep_up = edep * Tile_1D_profileRescaled_zeroBins(hitData.tileSize, yLocal, zLocal, 1, hitData.nDetector, hitData.nSide,
+                                                                    m_options.Ushape - 20);
+          hitData.edep_down = edep * Tile_1D_profileRescaled_zeroBins(hitData.tileSize, yLocal, zLocal, 0, hitData.nDetector, hitData.nSide,
+                                                                      m_options.Ushape - 20);
+          break;
 
-          case 13:
-            edep_up = edep * Tile_1D_profileFunc(m_tileSize, yLocal, zLocal, 1, nDetector, nSide);
-            edep_down = edep * Tile_1D_profileFunc(m_tileSize, yLocal, zLocal, 0, nDetector, nSide);
-            break;
+        case 13:
+          hitData.edep_up = edep * Tile_1D_profileFunc(hitData.tileSize, yLocal, zLocal, 1, hitData.nDetector, hitData.nSide);
+          hitData.edep_down = edep * Tile_1D_profileFunc(hitData.tileSize, yLocal, zLocal, 0, hitData.nDetector, hitData.nSide);
+          break;
 
-          case 12:
-            edep_up = edep * Tile_1D_profileSym(m_tileSize, yLocal, zLocal, 1, nDetector, nSide);
-            edep_down = edep * Tile_1D_profileSym(m_tileSize, yLocal, zLocal, 0, nDetector, nSide);
-            break;
+        case 12:
+          hitData.edep_up = edep * Tile_1D_profileSym(hitData.tileSize, yLocal, zLocal, 1, hitData.nDetector, hitData.nSide);
+          hitData.edep_down = edep * Tile_1D_profileSym(hitData.tileSize, yLocal, zLocal, 0, hitData.nDetector, hitData.nSide);
+          break;
 
-          case 11:
-            edep_up = edep * Tile_1D_profileAsym(m_tileSize, yLocal, zLocal, 1, nDetector, nSide);
-            edep_down = edep * Tile_1D_profileAsym(m_tileSize, yLocal, zLocal, 0, nDetector, nSide);
-            break;
+        case 11:
+          hitData.edep_up = edep * Tile_1D_profileAsym(hitData.tileSize, yLocal, zLocal, 1, hitData.nDetector, hitData.nSide);
+          hitData.edep_down = edep * Tile_1D_profileAsym(hitData.tileSize, yLocal, zLocal, 0, hitData.nDetector, hitData.nSide);
+          break;
 
-          case - 2: {
-              int ind = nDetector - 1;
-              if (1 == nDetector && 2 == nSample && 9 == nTower) { // read info about B-9 from ITC vector
-                ind = 2;                                          // because barrel vector contains info for
-              }                                                     // BC cells only (average over 6 rows)
-              double Izero = m_row->OpticalRatio[ind].at(m_tileSize);
-              double AttenuationLength = m_row->attLen[ind].at(m_tileSize);
-              if (m_options.verboseLevel > 10) {
-                G4cout << "Izero = " << Izero << G4endl;
-                G4cout << "Tile Row = " << m_tileSize << G4endl;
-                G4cout << "Attenuation Length = " << AttenuationLength << G4endl;
-              }
-              edep_up = edep * exp( -dy2Local / AttenuationLength) / Izero;
-              edep_down = edep * exp( -dy1Local / AttenuationLength) / Izero;
-              break;
-            }
+        case - 2: {
+          int ind = hitData.nDetector - 1;
+          if (1 == hitData.nDetector && 2 == hitData.nSample && 9 == hitData.nTower) { // read info about B-9 from ITC vector
+            ind = 2;                                          // because barrel vector contains info for
+          }                                                     // BC cells only (average over 6 rows)
+          const double Izero = m_row->OpticalRatio[ind].at(hitData.tileSize);
+          const double AttenuationLength = m_row->attLen[ind].at(hitData.tileSize);
+          ATH_MSG_VERBOSE("Izero = " << Izero);
+          ATH_MSG_VERBOSE("Tile Row = " << hitData.tileSize);
+          ATH_MSG_VERBOSE("Attenuation Length = " << AttenuationLength);
+          hitData.edep_up = edep * exp( -dy2Local / AttenuationLength) / Izero;
+          hitData.edep_down = edep * exp( -dy1Local / AttenuationLength) / Izero;
+          break;
+        }
 
-          default:
-            edep_up = edep * (0.3 + 0.2 * dy1Local / halfYLocal);
-            edep_down = edep - edep_up;
+        default:
+          hitData.edep_up = edep * (0.3 + 0.2 * dy1Local / halfYLocal);
+          hitData.edep_down = edep - hitData.edep_up;
         }
 
       }
 
-      deltaT_up = ref_ind_tile * (dy2Local - (cell->r * tanPi64)) / CLHEP::c_light;
-      deltaT_down = ref_ind_tile * (dy1Local - (cell->r * tanPi64)) / CLHEP::c_light;
+      deltaT_up = ref_ind_tile * (dy2Local - (hitData.cell->r * tanPi64)) / CLHEP::c_light;
+      deltaT_down = ref_ind_tile * (dy1Local - (hitData.cell->r * tanPi64)) / CLHEP::c_light;
 
     }
   } else {
-    G4cout << "FATAL !!! Scintillator solid is not G4TRD! or it is not Boolean Solid!" << G4endl;
+    ATH_MSG_FATAL("Scintillator solid is not G4TRD! or it is not Boolean Solid!");
     return false;
   }
 
   G4double totalTime = aStep->GetPostStepPoint()->GetGlobalTime();  //added by Mike
 
   if (m_deltaT > 0.0) {
-    G4ThreeVector position = aStep->GetPostStepPoint()->GetPosition();  //position of the hit
-    double cosTh_hit = position.cosTheta();
-    double magn_hit = position.mag();
-    double r_hit = position.perp();  //hit radius r = sqrt(x*x + y*y)
+    const G4ThreeVector position = aStep->GetPostStepPoint()->GetPosition();  //position of the hit
+    const double cosTh_hit = position.cosTheta();
+    const double magn_hit = position.mag();
+    const double r_hit = position.perp();  //hit radius r = sqrt(x*x + y*y)
     double correction(0.0);
 
     if (m_options.doTOFCorrection) {
-      correction = (cell->r * (1.0 * ref_ind_fiber - 2.0 / cell->sinTh)
+      correction = (hitData.cell->r * (1.0 * ref_ind_fiber - 2.0 / hitData.cell->sinTh)
                     + magn_hit * (1.0 - ref_ind_fiber * sqrt(1.0 - cosTh_hit * cosTh_hit)))
-                   / CLHEP::c_light;
+        / CLHEP::c_light;
       //now it is time with correction due to fiber length.
       //additional term "-1/_cell->sinTh" is distance to cell's center (TOF correction)
     } else {
-      correction = (cell->r - r_hit) * ref_ind_fiber / CLHEP::c_light;
+      correction = (hitData.cell->r - r_hit) * ref_ind_fiber / CLHEP::c_light;
     }
     totalTime += correction;
 
@@ -579,11 +588,11 @@ G4bool TileGeoG4SDCalc::MakePmtEdepTime(const G4Step* aStep) {
       G4cout << "Global time " << totalTime - correction << G4endl;
 
       if (m_options.doTOFCorrection) {
-        G4cout << " distance to ATLAS center " << cell->r / cell->sinTh / CLHEP::c_light << " ns" << G4endl;
+        G4cout << " distance to ATLAS center " << hitData.cell->r / hitData.cell->sinTh / CLHEP::c_light << " ns" << G4endl;
         G4cout << " correction " << correction << G4endl;
         G4cout << " after TOF correction " << totalTime << G4endl;
       } else {
-        G4cout << " distance to cell center " << (cell->r - r_hit) << G4endl;
+        G4cout << " distance to cell center " << (hitData.cell->r - r_hit) << G4endl;
         G4cout << " correction " << correction << G4endl;
         G4cout << " after cell time correction " << totalTime << G4endl;
       }
@@ -595,32 +604,32 @@ G4bool TileGeoG4SDCalc::MakePmtEdepTime(const G4Step* aStep) {
              << ", " << yLocal << G4endl;
 
       G4cout << " and cell:    magn, r, cosTh, Ycell/2 "
-             << cell->r / cell->sinTh
-             << ", " << cell->r << ", "
-             << sqrt(1 - cell->sinTh * cell->sinTh) << ", " << cell->r * tanPi64 << G4endl;
+             << hitData.cell->r / hitData.cell->sinTh
+             << ", " << hitData.cell->r << ", "
+             << sqrt(1 - hitData.cell->sinTh * hitData.cell->sinTh) << ", " << hitData.cell->r * tanPi64 << G4endl;
 
       if (totalTime != 0.0) {
         G4cout << "---- CELL INFO ----" << G4endl;
-        G4cout << "Detector >> " << cell->detector << G4endl;
-        G4cout << "CellNum  >> " << cell->cellNum << G4endl;
-        G4cout << "Tower    >> " << cell->tower << G4endl;
-        G4cout << "Sample   >> " << cell->sample << G4endl;
+        G4cout << "Detector >> " << hitData.cell->detector << G4endl;
+        G4cout << "CellNum  >> " << hitData.cell->cellNum << G4endl;
+        G4cout << "Tower    >> " << hitData.cell->tower << G4endl;
+        G4cout << "Sample   >> " << hitData.cell->sample << G4endl;
         G4cout << "---- CELL INFO ----" << G4endl;
 
         G4cout << "---- HIT INFO ----" << G4endl;
-        G4cout << "Detector >> " << nDetector << G4endl;
-        G4cout << "Side     >> " << nSide << G4endl;
+        G4cout << "Detector >> " << hitData.nDetector << G4endl;
+        G4cout << "Side     >> " << hitData.nSide << G4endl;
         if (isE5) {
-          G4cout << "Module-1 >> " << nModule - 1 << ((yLocal >= 0.0) ? " Up" : " Down") << G4endl;
-          G4cout << "Phi ind  >> " << (nModule - 32)*2 + ((yLocal >= 0.0) ? 1 : 0);
+          G4cout << "Module-1 >> " << hitData.nModule - 1 << ((yLocal >= 0.0) ? " Up" : " Down") << G4endl;
+          G4cout << "Phi ind  >> " << (hitData.nModule - 32)*2 + ((yLocal >= 0.0) ? 1 : 0);
           G4cout << "  E5 Y-coord global " << position.y() << " local " << yLocal << G4endl;
           G4cout << "Eta ind  >> 2" << G4endl;
         } else {
-          G4cout << "Module-1 >> " << nModule - 1 << G4endl;
-          G4cout << "Tower-1  >> " << nTower - 1 << G4endl;
-          G4cout << "Sample-1 >> " << nSample - 1 << G4endl;
+          G4cout << "Module-1 >> " << hitData.nModule - 1 << G4endl;
+          G4cout << "Tower-1  >> " << hitData.nTower - 1 << G4endl;
+          G4cout << "Sample-1 >> " << hitData.nSample - 1 << G4endl;
         }
-        G4cout << "Energy   >> " << edep << " (" << edep_up << "," << edep_down << ")" << G4endl;
+        G4cout << "Energy   >> " << edep << " (" << hitData.edep_up << "," << hitData.edep_down << ")" << G4endl;
         G4cout << "TotalTime>> " << totalTime << G4endl;
         G4cout << "---- HIT INFO ----" << G4endl;
       }
@@ -632,59 +641,58 @@ G4bool TileGeoG4SDCalc::MakePmtEdepTime(const G4Step* aStep) {
   if (totalTime + deltaT_up > m_options.timeCut || totalTime + deltaT_down > m_options.timeCut) {
     totalTime = m_lateHitTime;
     deltaT_up = deltaT_down = 0.0;
-    if (m_options.verboseLevel > 10)
-      G4cout << " hit time set to " << totalTime << G4endl;
+    ATH_MSG_VERBOSE(" hit time set to " << totalTime);
   }
   // calculate unique deltaT bin width for both up and down PMT, ignoring additional deltas
-  m_deltaT = deltaT(totalTime);
-  double scin_Time = totalTime + (m_tileSize + 1) * m_tileSizeDeltaT;
-  scin_Time_up = scin_Time_down = scin_Time;
-  m_totalTimeUp = m_totalTimeDown = totalTime;
+  m_deltaT = this->deltaT(totalTime);
+  const double scin_Time = totalTime + (hitData.tileSize + 1) * m_tileSizeDeltaT;
+  hitData.scin_Time_up = hitData.scin_Time_down = scin_Time;
+  hitData.totalTimeUp = hitData.totalTimeDown = totalTime;
 
   if (isE5) { //special E5(E4') cells in EBC (negative)
-    if (edep_up != 0.) {
-      pmtID_up = m_tileTBID->channel_id(nSide, (nModule - 32) * 2 + 1, 2);
-      pmtID_down = m_invalid_id;
-      scin_Time_down = 0.;
+    if (hitData.edep_up != 0.) {
+      hitData.pmtID_up = m_tileTBID->channel_id(hitData.nSide, (hitData.nModule - 32) * 2 + 1, 2);
+      hitData.pmtID_down = m_invalid_id;
+      hitData.scin_Time_down = 0.;
     } else {
-      pmtID_up = m_invalid_id;
-      pmtID_down = m_tileTBID->channel_id(nSide, (nModule - 32) * 2, 2);
-      scin_Time_up = 0.;
+      hitData.pmtID_up = m_invalid_id;
+      hitData.pmtID_down = m_tileTBID->channel_id(hitData.nSide, (hitData.nModule - 32) * 2, 2);
+      hitData.scin_Time_up = 0.;
     }
   } else {
-    pmtID_up = m_tileID->pmt_id(nDetector, nSide, nModule - 1, nTower - 1, nSample - 1, 1);
-    pmtID_down = m_tileID->pmt_id(nDetector, nSide, nModule - 1, nTower - 1, nSample - 1, 0);
-    if (m_nrOfPMT == 2) {
-      scin_Time_up += deltaT_up;
-      scin_Time_down += deltaT_down;
-      m_totalTimeUp += deltaT_up;
-      m_totalTimeDown += deltaT_down;
-    } else if (m_nrOfPMT == 1) {  //Gap/Crack has only one PMT. So, It's not needed to divide
-      pmtID_up = m_invalid_id;
-      scin_Time_up = 0.;
-      edep_up = 0.;
-      edep_down = edep;
+    hitData.pmtID_up = m_tileID->pmt_id(hitData.nDetector, hitData.nSide, hitData.nModule - 1, hitData.nTower - 1, hitData.nSample - 1, 1);
+    hitData.pmtID_down = m_tileID->pmt_id(hitData.nDetector, hitData.nSide, hitData.nModule - 1, hitData.nTower - 1, hitData.nSample - 1, 0);
+    if (hitData.nrOfPMT == 2) {
+      hitData.scin_Time_up += deltaT_up;
+      hitData.scin_Time_down += deltaT_down;
+      hitData.totalTimeUp += deltaT_up;
+      hitData.totalTimeDown += deltaT_down;
+    } else if (hitData.nrOfPMT == 1) {  //Gap/Crack has only one PMT. So, It's not needed to divide
+      hitData.pmtID_up = m_invalid_id;
+      hitData.scin_Time_up = 0.;
+      hitData.edep_up = 0.;
+      hitData.edep_down = edep;
     } else {
-      pmtID_down = m_invalid_id;
-      scin_Time_down = 0.;
-      edep_down = 0.;
-      edep_up = edep;
+      hitData.pmtID_down = m_invalid_id;
+      hitData.scin_Time_down = 0.;
+      hitData.edep_down = 0.;
+      hitData.edep_up = edep;
     }
   }
 
-  if (m_options.verboseLevel > 10)
-    G4cout << "MakePmtEdepTime: right pmtID_up,pmtID_down," << "edep_up,edep_down,scin_Time_up,scin_Time_down:\t"
-           << pmtID_up << "\t"
-           << pmtID_down << "\t"
-           << edep_up << "\t"
-           << edep_down << "\t"
-           << scin_Time_up << "\t"
-           << scin_Time_down << G4endl;
+  ATH_MSG_VERBOSE("MakePmtEdepTime: right pmtID_up,pmtID_down," << "edep_up,edep_down,scin_Time_up,scin_Time_down:\t"
+                  << hitData.pmtID_up << "\t"
+                  << hitData.pmtID_down << "\t"
+                  << hitData.edep_up << "\t"
+                  << hitData.edep_down << "\t"
+                  << hitData.scin_Time_up << "\t"
+                  << hitData.scin_Time_down);
 
   return true;
 }
 
-TileMicroHit TileGeoG4SDCalc::GetTileMicroHit(const G4Step* aStep) {
+TileMicroHit TileGeoG4SDCalc::GetTileMicroHit(const G4Step* aStep, TileHitData& hitData) const
+{
   TileMicroHit microHit;
   microHit.pmt_up = m_invalid_id;
   microHit.pmt_down = m_invalid_id;
@@ -694,151 +702,146 @@ TileMicroHit TileGeoG4SDCalc::GetTileMicroHit(const G4Step* aStep) {
   microHit.time_down = 0.0;
   //microHit.period  = 0;               microHit.tilerow   = 0; // prepared for future use
 
-  G4bool stat = FindTileScinSection(aStep);  //Search for the tilecal sub-section, its module and some identifiers
-  if (!stat) {
-    if (m_options.verboseLevel > 5)
-      G4cout << "GetTileMicroHit: FindTileScinSection(aStep) is false!" << G4endl;
+  //Search for the tilecal sub-section, its module and some identifiers
+  if (!this->FindTileScinSection(aStep, hitData)) {
+    ATH_MSG_DEBUG("GetTileMicroHit: FindTileScinSection(aStep) is false!");
     return microHit;
   }
 
-  stat = MakePmtEdepTime(aStep);  //calculation of pmtID, edep and scin_Time with aStep
-  if (!stat) {
-    if (m_options.verboseLevel > 5)
-      G4cout << "MakePmtEdepTime: wrong pmtID_up,pmtID_down,edep_up,"
-             << "edep_down,scin_Time_up,scin_Time_down:\t"
-             << pmtID_up << "\t"
-             << pmtID_down << "\t"
-             << edep_up << "\t"
-             << edep_down << "\t"
-             << scin_Time_up << "\t"
-             << scin_Time_down << G4endl;
+  //calculation of pmtID, edep and scin_Time with aStep
+  if (!this->MakePmtEdepTime(aStep, hitData)) {
+    ATH_MSG_DEBUG("MakePmtEdepTime: wrong pmtID_up,pmtID_down,edep_up,"
+                    << "edep_down,scin_Time_up,scin_Time_down:\t"
+                    << hitData.pmtID_up << "\t"
+                    << hitData.pmtID_down << "\t"
+                    << hitData.edep_up << "\t"
+                    << hitData.edep_down << "\t"
+                    << hitData.scin_Time_up << "\t"
+                    << hitData.scin_Time_down);
     return microHit;
   }
-  microHit.pmt_up = pmtID_up;
-  microHit.pmt_down = pmtID_down;
-  microHit.e_up = edep_up;
-  microHit.e_down = edep_down;
-  microHit.time_up = m_totalTimeUp;
-  microHit.time_down = m_totalTimeDown;
+  microHit.pmt_up = hitData.pmtID_up;
+  microHit.pmt_down = hitData.pmtID_down;
+  microHit.e_up = hitData.edep_up;
+  microHit.e_down = hitData.edep_down;
+  microHit.time_up = hitData.totalTimeUp;
+  microHit.time_down = hitData.totalTimeDown;
   //microHit.period  = tileperiod;      microHit.tilerow   = tilesize; // prepared for future use
   return microHit;
 }
 
-G4bool TileGeoG4SDCalc::ManageScintHit() {
-  //Having _cell and nModule (number of current module) we need to
+G4bool TileGeoG4SDCalc::ManageScintHit(TileHitData& hitData) const
+{
+  //Having hitData.cell and hitData.nModule (number of current module) we need to
   //determine if a Hit object already exists for this cell and module.
   //If YES: we just add energy to the existing hit object
   //If No: we create a new object, fill it and place in the collection
 
-  bool newTileHitUp = true, newTileHitDown = true;
+  bool newTileHitUp = true;
+  bool newTileHitDown = true;
 
   // Debugging of special E5(E4') cells
-  //if (nTower>16) G4cout <<" Cells E5: nModule="<<nModule
-  //                       <<"  edep_up="<<edep_up<<"  edep_down="<<edep_down
-  //                       <<"  pmtID_up="<<pmtID_up<<"  pmtID_down="<<pmtID_down<<G4endl;
+  //if (hitData.nTower>16) G4cout <<" Cells E5: hitData.nModule="<<hitData.nModule
+  //                       <<"  edep_up="<<hitData.edep_up<<"  edep_down="<<hitData.edep_down
+  //                       <<"  pmtID_up="<<hitData.pmtID_up<<"  pmtID_down="<<hitData.pmtID_down<<G4endl;
 
-  if (m_isNegative) {
-    if (m_nrOfPMT == 2) {
-      if (cell->moduleToHitUpNegative[nModule - 1])
-        newTileHitUp = false;
-      if (cell->moduleToHitDownNegative[nModule - 1])
-        newTileHitDown = false;
-    } else if (m_nrOfPMT == 1) {
-      if (cell->moduleToHitDownNegative[nModule - 1])
-        newTileHitDown = false;
-    } else if (m_nrOfPMT == -1) {
-      if (cell->moduleToHitUpNegative[nModule - 1])
-        newTileHitUp = false;
+  if (hitData.isNegative) {
+    if (hitData.nrOfPMT == 2) {
+      if (hitData.cell->moduleToHitUpNegative[hitData.nModule - 1]) { newTileHitUp = false; }
+      if (hitData.cell->moduleToHitDownNegative[hitData.nModule - 1]) { newTileHitDown = false; }
+    } else if (hitData.nrOfPMT == 1) {
+      if (hitData.cell->moduleToHitDownNegative[hitData.nModule - 1]) { newTileHitDown = false; }
+    } else if (hitData.nrOfPMT == -1) {
+      if (hitData.cell->moduleToHitUpNegative[hitData.nModule - 1]) { newTileHitUp = false; }
     } else {
-      G4cout << "FATAL ERROR: ManageScintHit: Unexpected number of PMTs in a Cell -->" << m_nrOfPMT << G4endl;
+      ATH_MSG_FATAL("ManageScintHit: Unexpected number of PMTs in a Cell -->" << hitData.nrOfPMT);
       return false;
     }
   } else { //positive
-    if (m_nrOfPMT == 2) {
-      if (cell->moduleToHitUp[nModule - 1])
-        newTileHitUp = false;
-      if (cell->moduleToHitDown[nModule - 1])
-        newTileHitDown = false;
-    } else if (m_nrOfPMT == 1) {
-      if (cell->moduleToHitDown[nModule - 1])
-        newTileHitDown = false;
-    } else if (m_nrOfPMT == -1) {
-      if (cell->moduleToHitUp[nModule - 1])
-        newTileHitUp = false;
+    if (hitData.nrOfPMT == 2) {
+      if (hitData.cell->moduleToHitUp[hitData.nModule - 1]) { newTileHitUp = false; }
+      if (hitData.cell->moduleToHitDown[hitData.nModule - 1]) { newTileHitDown = false; }
+    } else if (hitData.nrOfPMT == 1) {
+      if (hitData.cell->moduleToHitDown[hitData.nModule - 1]) { newTileHitDown = false; }
+    } else if (hitData.nrOfPMT == -1) {
+      if (hitData.cell->moduleToHitUp[hitData.nModule - 1]) { newTileHitUp = false; }
     } else {
-      G4cout << "FATAL ERROR: ManageScintHit: Unexpected number of PMTs in a Cell -->" << m_nrOfPMT << G4endl;
+      ATH_MSG_FATAL("ManageScintHit: Unexpected number of PMTs in a Cell -->" << hitData.nrOfPMT);
       return false;
     }
   }
 
-  if (edep_up != 0.) {
-    if (newTileHitUp)
-      CreateScintHit(1);
-    else
-      UpdateScintHit(1);
+  if (hitData.edep_up != 0.) {
+    if (newTileHitUp) { this->CreateScintHit(1, hitData); }
+    else { this->UpdateScintHit(1, hitData); }
   }
 
-  if (edep_down != 0.) {
-    if (newTileHitDown)
-      CreateScintHit(0);
-    else
-      UpdateScintHit(0);
+  if (hitData.edep_down != 0.) {
+    if (newTileHitDown) { this->CreateScintHit(0, hitData); }
+    else { this->UpdateScintHit(0, hitData); }
   }
 
   return true;
 }
 
-void TileGeoG4SDCalc::CreateScintHit(int pmt) {
-  TileSimHit* aHit;
-
-  if (pmt == 1) { //Uper PMT of Cell
-    aHit = new TileSimHit(pmtID_up, edep_up, m_totalTimeUp, m_deltaT);
-    if (m_options.doTileRow)
-      aHit->add(edep_up, scin_Time_up, m_deltaT);
-
-    if (m_isNegative)
-      cell->moduleToHitUpNegative[nModule - 1] = aHit;
-    else
-      cell->moduleToHitUp[nModule - 1] = aHit;
-
+void TileGeoG4SDCalc::CreateScintHit(int pmt, TileHitData& hitData) const
+{
+  if (pmt == 1) { //Upper PMT of Cell
+    std::unique_ptr<TileSimHit> aHit = std::make_unique<TileSimHit>(hitData.pmtID_up, hitData.edep_up, hitData.totalTimeUp, m_deltaT);
+    if (m_options.doTileRow) {
+      aHit->add(hitData.edep_up, hitData.scin_Time_up, m_deltaT);
+    }
+    if (hitData.isNegative) {
+      hitData.cell->moduleToHitUpNegative[hitData.nModule - 1] = aHit.release();
+    }
+    else {
+      hitData.cell->moduleToHitUp[hitData.nModule - 1] = aHit.release();
+    }
   } else { //Down PMT of Cell
-    aHit = new TileSimHit(pmtID_down, edep_down, m_totalTimeDown, m_deltaT);
-    if (m_options.doTileRow)
-      aHit->add(edep_down, scin_Time_down, m_deltaT);
-
-    if (m_isNegative)
-      cell->moduleToHitDownNegative[nModule - 1] = aHit;
-    else
-      cell->moduleToHitDown[nModule - 1] = aHit;
+    std::unique_ptr<TileSimHit> aHit = std::make_unique<TileSimHit>(hitData.pmtID_down, hitData.edep_down, hitData.totalTimeDown, m_deltaT);
+    if (m_options.doTileRow) {
+      aHit->add(hitData.edep_down, hitData.scin_Time_down, m_deltaT);
+    }
+    if (hitData.isNegative) {
+      hitData.cell->moduleToHitDownNegative[hitData.nModule - 1] = aHit.release();
+    }
+    else {
+      hitData.cell->moduleToHitDown[hitData.nModule - 1] = aHit.release();
+    }
   }
 }
 
-void TileGeoG4SDCalc::UpdateScintHit(int pmt) {
-  TileSimHit* aHit;
+void TileGeoG4SDCalc::UpdateScintHit(int pmt, TileHitData& hitData) const
+{
+  TileSimHit* aHit(nullptr);
 
-  if (pmt == 1) { //Uper PMT of Cell
-    if (m_isNegative)
-      aHit = cell->moduleToHitUpNegative[nModule - 1];
-    else
-      aHit = cell->moduleToHitUp[nModule - 1];
-
-    aHit->add(edep_up, m_totalTimeUp, m_deltaT);
-    if (m_options.doTileRow)
-      aHit->add(edep_up, scin_Time_up, m_deltaT);
-
+  if (pmt == 1) { //Upper PMT of Cell
+    if (hitData.isNegative) {
+      aHit = hitData.cell->moduleToHitUpNegative[hitData.nModule - 1];
+    }
+    else {
+      aHit = hitData.cell->moduleToHitUp[hitData.nModule - 1];
+    }
+    aHit->add(hitData.edep_up, hitData.totalTimeUp, m_deltaT);
+    if (m_options.doTileRow) {
+      aHit->add(hitData.edep_up, hitData.scin_Time_up, m_deltaT);
+    }
   } else { // Down PMT of Cell
-    if (m_isNegative)
-      aHit = cell->moduleToHitDownNegative[nModule - 1];
-    else
-      aHit = cell->moduleToHitDown[nModule - 1];
-
-    aHit->add(edep_down, m_totalTimeDown, m_deltaT);
-    if (m_options.doTileRow)
-      aHit->add(edep_down, scin_Time_down, m_deltaT);
+    if (hitData.isNegative) {
+      aHit = hitData.cell->moduleToHitDownNegative[hitData.nModule - 1];
+    }
+    else {
+      aHit = hitData.cell->moduleToHitDown[hitData.nModule - 1];
+    }
+    aHit->add(hitData.edep_down, hitData.totalTimeDown, m_deltaT);
+    if (m_options.doTileRow) {
+      aHit->add(hitData.edep_down, hitData.scin_Time_down, m_deltaT);
+    }
   }
 }
 
-G4double TileGeoG4SDCalc::BirkLaw(const G4Step* aStep) const {
+G4double TileGeoG4SDCalc::BirkLaw(const G4Step* aStep) const
+{
   // *** apply BIRK's saturation law to energy deposition ***
   // *** only organic scintillators implemented in this version MODEL=1
   //
@@ -859,12 +862,12 @@ G4double TileGeoG4SDCalc::BirkLaw(const G4Step* aStep) const {
   const G4double birk2 = 9.6e-6 * CLHEP::g / (CLHEP::MeV * CLHEP::cm2) * CLHEP::g / (CLHEP::MeV * CLHEP::cm2);
   G4double response = 0.;
 
-  G4double destep = aStep->GetTotalEnergyDeposit();
+  const G4double destep = aStep->GetTotalEnergyDeposit();
   //  doesn't work with shower parameterisation
   //  G4Material* material = aStep->GetTrack()->GetMaterial();
   //  G4double charge      = aStep->GetTrack()->GetDefinition()->GetPDGCharge();
-  G4Material* material = aStep->GetPreStepPoint()->GetMaterial();
-  G4double charge = aStep->GetPreStepPoint()->GetCharge();
+  const G4Material* material = aStep->GetPreStepPoint()->GetMaterial();
+  const G4double charge = aStep->GetPreStepPoint()->GetCharge();
 
   // --- no saturation law for neutral particles ---
   // ---  and materials other than scintillator  ---
@@ -878,10 +881,9 @@ G4double TileGeoG4SDCalc::BirkLaw(const G4Step* aStep) const {
     if (aStep->GetStepLength() != 0) {
       G4double dedx = destep / (aStep->GetStepLength()) / (material->GetDensity());
       response = destep / (1. + rkb * dedx + birk2 * dedx * dedx);
-    } else {
-      if (m_options.verboseLevel > 5)
-        G4cout << "BirkLaw() - Current Step in scintillator has zero length." << "Ignore Birk Law for this Step"
-               << G4endl;
+    }
+    else {
+      ATH_MSG_DEBUG("BirkLaw() - Current Step in scintillator has zero length." << "Ignore Birk Law for this Step");
       response = destep;
     }
 
@@ -890,9 +892,46 @@ G4double TileGeoG4SDCalc::BirkLaw(const G4Step* aStep) const {
     // << " response after Birk: "  << response/CLHEP::keV << " keV" << G4endl;
     // }
     return response;
-  } else {
+  }
+  else {
     return destep;
   }
+}
+
+void TileGeoG4SDCalc::pmtEdepFromFCS_StepInfo(TileHitData& hitData, double ene, double yLocal, double halfYLocal, double zLocal, int Ushape) const
+{
+  /// Code moved here from TileFastCaloSim/src/TileFCSmStepToTileHitVec.cxx
+  switch (Ushape) {
+  case 1:
+    hitData.edep_down = ene * this->Tile_1D_profile(hitData.tileSize, yLocal, zLocal, 0, hitData.nDetector, hitData.nSide);
+    hitData.edep_up = ene * this->Tile_1D_profile(hitData.tileSize, yLocal, zLocal, 1, hitData.nDetector, hitData.nSide);
+    break;
+
+  case 14:
+    hitData.edep_down = ene * this->Tile_1D_profileRescaled(hitData.tileSize, yLocal, zLocal, 0, hitData.nDetector, hitData.nSide);
+    hitData.edep_up = ene * this->Tile_1D_profileRescaled(hitData.tileSize, yLocal, zLocal, 1, hitData.nDetector, hitData.nSide);
+    break;
+
+  case 13:
+    hitData.edep_down = ene * this->Tile_1D_profileFunc(hitData.tileSize, yLocal, zLocal, 0, hitData.nDetector, hitData.nSide);
+    hitData.edep_up = ene * this->Tile_1D_profileFunc(hitData.tileSize, yLocal, zLocal, 1, hitData.nDetector, hitData.nSide);
+    break;
+
+  case 12:
+    hitData.edep_down = ene * this->Tile_1D_profileSym(hitData.tileSize, yLocal, zLocal, 0, hitData.nDetector, hitData.nSide);
+    hitData.edep_up = ene * this->Tile_1D_profileSym(hitData.tileSize, yLocal, zLocal, 1, hitData.nDetector, hitData.nSide);
+    break;
+
+  case 11:
+    hitData.edep_down = ene * this->Tile_1D_profileAsym(hitData.tileSize, yLocal, zLocal, 0, hitData.nDetector, hitData.nSide);
+    hitData.edep_up = ene * this->Tile_1D_profileAsym(hitData.tileSize, yLocal, zLocal, 1, hitData.nDetector, hitData.nSide);
+    break;
+
+  default:
+    hitData.edep_down = ene * ( 0.5 - 0.2 * yLocal/halfYLocal ); // should get 0.7 for yLocal = -halfYLocal
+    hitData.edep_up = ene - hitData.edep_down;
+  }
+  return;
 }
 
 G4double TileGeoG4SDCalc::Tile_1D_profileAsym(int row, G4double x, G4double y, int PMT, int nDetector, int) {
@@ -1079,8 +1118,8 @@ G4double TileGeoG4SDCalc::Tile_1D_profileAsym(int row, G4double x, G4double y, i
   const double size2 = (double) size / 2.;
 
   if (row < 0 || row >= 11) return 0.0;
-  double phi = atan(x / (y + R[row]));
-  int index = int(phi * sizerange + size2);
+  const double phi = atan(x / (y + R[row]));
+  const int index = int(phi * sizerange + size2);
   if (index < 0 || index >= size) return 0.0;
 
   G4double amplitude = 0.0;
@@ -1256,8 +1295,8 @@ G4double TileGeoG4SDCalc::Tile_1D_profileSym(int row, G4double x, G4double y, in
   const double size2 = (double) size / 2.;
 
   if (row < 0 || row >= 11) return 0.0;
-  double phi = atan(x / (y + R[row]));
-  int index = int(phi * sizerange + size2);
+  const double phi = atan(x / (y + R[row]));
+  const int index = int(phi * sizerange + size2);
   if (index < 0 || index >= size) return 0.0;
 
   G4double amplitude = 0.0;
@@ -1441,8 +1480,8 @@ G4double TileGeoG4SDCalc::Tile_1D_profileFunc(int row, G4double x, G4double y, i
   const double size2 = (double) size / 2.;
 
   if (row < 0 || row >= 11) return 0.0;
-  double phi = atan(x / (y + R[row]));
-  int index = int(phi * sizerange + size2);
+  const double phi = atan(x / (y + R[row]));
+  const int index = int(phi * sizerange + size2);
   if (index < 0 || index >= size) return 0.0;
 
   G4double amplitude = 0.0;
@@ -1625,8 +1664,8 @@ G4double TileGeoG4SDCalc::Tile_1D_profileRescaled(int row, G4double x, G4double 
   const double size2 = (double) size / 2.;
 
   if (row < 0 || row >= 11) return 0.0;
-  double phi = atan(x / (y + R[row]));
-  int index = int(phi * sizerange + size2);
+  const double phi = atan(x / (y + R[row]));
+  const int index = int(phi * sizerange + size2);
   if (index < 0 || index >= size) return 0.0;
 
   G4double amplitude = 0.0;
@@ -1810,8 +1849,8 @@ G4double TileGeoG4SDCalc::Tile_1D_profileRescaled_zeroBins(int row, G4double x, 
   const double size2 = (double) size / 2.;
 
   if (row < 0 || row >= 11) return 0.0;
-  double phi = atan(x / (y + R[row]));
-  int index = int(phi * sizerange + size2);
+  const double phi = atan(x / (y + R[row]));
+  const int index = int(phi * sizerange + size2);
   if (index < nZeroBins || index >= size - nZeroBins) return 0.0;
 
   G4double amplitude = 0.0;
@@ -1852,3 +1891,4 @@ G4double TileGeoG4SDCalc::Tile_1D_profileRescaled_zeroBins(int row, G4double x, 
 
   return amplitude;
 }
+

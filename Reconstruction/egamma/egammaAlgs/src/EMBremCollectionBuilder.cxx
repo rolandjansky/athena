@@ -356,7 +356,8 @@ StatusCode EMBremCollectionBuilder::refitTrack(const xAOD::TrackParticle* tmpTrk
     nSiliconHits_trk += dummy;
   }
   ATH_MSG_DEBUG("Number of Silicon hits "<<nSiliconHits_trk);    
-  //Get the original track that the track particle points to. Clone it in order to assume ownership
+
+  //Get the original track that the track particle points to. 
   const Trk::Track* tmpTrk(0);
   if ( tmpTrkPart->trackLink().isValid() ){
     tmpTrk =  tmpTrkPart->track();
@@ -365,8 +366,9 @@ StatusCode EMBremCollectionBuilder::refitTrack(const xAOD::TrackParticle* tmpTrk
     ATH_MSG_ERROR ("TrackParticle has not Track --  are you running on AOD?");
     return StatusCode::FAILURE;
   }
+
+  //Setup the Trk::Track Refit 
   std::unique_ptr<Trk::Track> trk_refit; 
-  //
   if( nSiliconHits_trk >= m_MinNoSiHits ) {
     StatusCode status = m_trkRefitTool->refitTrackParticle(tmpTrkPart);
     if (status == StatusCode::SUCCESS){
@@ -388,82 +390,89 @@ StatusCode EMBremCollectionBuilder::refitTrack(const xAOD::TrackParticle* tmpTrk
     m_FailedSiliconRequirFit++;
     trk_refit.reset(new Trk::Track(*tmpTrk));
   }
-  //
-  //Refit Trk::Track created
-  //
+  //Refit Trk::Track has been created
+
   //Get the vertex (may be pileup) that this track particle points to
   const xAOD::Vertex* trkVtx(0);
   if (tmpTrkPart->vertexLink().isValid()){ 
     trkVtx = tmpTrkPart->vertex();
   }
-  //
-  // Use the the refitted track and the original vertex to construct a new track particle
-  xAOD::TrackParticle* aParticle = m_particleCreatorTool->createParticle( *trk_refit, m_finalTrkPartContainer, trkVtx, xAOD::electron );
-  //
-  //finalize things
-  if(aParticle!=0) { //store in container
-    //Additional info using the full  Trk::Track
-    //Save extrapolated perigee to calo (eta,phi) for later usage in supercluster algorithm.
-    static const SG::AuxElement::Accessor<float> pgExtrapEta ("perigeeExtrapEta");
-    static const SG::AuxElement::Accessor<float> pgExtrapPhi ("perigeeExtrapPhi");  
-    float perigeeExtrapEta(-999.), perigeeExtrapPhi(-999.);
-    auto tsos = trk_refit->trackStateOnSurfaces()->begin();
-    for (;tsos != trk_refit->trackStateOnSurfaces()->end(); ++tsos) {
 
-      if ((*tsos)->type(Trk::TrackStateOnSurface::Perigee) && (*tsos)->trackParameters()!=0) {
-      
-	float extrapEta(-999.), extrapPhi(-999.);
-	const Trk::TrackParameters *perigeeTrackParams(0);
-	perigeeTrackParams = (*tsos)->trackParameters();
-      
-	const Trk::PerigeeSurface pSurface (perigeeTrackParams->position());
-	std::unique_ptr<const Trk::TrackParameters> pTrkPar(pSurface.createTrackParameters( perigeeTrackParams->position(), perigeeTrackParams->momentum().unit()*1.e9, +1, 0));
-	//Do the straight-line extrapolation.	  
-	bool hitEM2 = m_extrapolationTool->getEtaPhiAtCalo(pTrkPar.get(), &extrapEta, &extrapPhi);
-	if (hitEM2) {
-	  perigeeExtrapEta = extrapEta;
-	  perigeeExtrapPhi = extrapPhi;
-	} else {
-	  ATH_MSG_WARNING("Extrapolation to EM2 failed!");
-	}
-	break;
-      }
-    }
-    pgExtrapEta(*aParticle) = perigeeExtrapEta;    
-    pgExtrapPhi(*aParticle) = perigeeExtrapPhi;
-    //
-    //Add qoverP for the last measurement
-    static const SG::AuxElement::Accessor<float > QoverPLM  ("QoverPLM");
-    float QoverPLast(0);
-    auto rtsos = trk_refit->trackStateOnSurfaces()->rbegin();
-    for (;rtsos != trk_refit->trackStateOnSurfaces()->rend(); ++rtsos){
-      if ((*rtsos)->type(Trk::TrackStateOnSurface::Measurement) 
-	  && (*rtsos)->trackParameters()!=0 
-	  &&(*rtsos)->measurementOnTrack()!=0 
-	  && !dynamic_cast<const Trk::PseudoMeasurementOnTrack*>((*rtsos)->measurementOnTrack())) {
-	QoverPLast  = (*rtsos)->trackParameters()->parameters()[Trk::qOverP];
-	break;
-      }
-    }
-    QoverPLM(*aParticle) = QoverPLast;
-    //
-    //Now  Slim the track for writing to disk   
-    Trk::Track* slimmed = m_slimTool->slim(*trk_refit);
-    if(!slimmed){
-      ATH_MSG_ERROR ("TrackSlimming failed, this should never happen !");
-      return StatusCode::FAILURE;
-    }
-    m_finalTracks->push_back(slimmed);
-    //
-    ElementLink<TrackCollection> trackLink( slimmed, *m_finalTracks);
-    aParticle->setTrackLink( trackLink );     
-    aParticle->setVertexLink(tmpTrkPart->vertexLink());         
-    return StatusCode::SUCCESS;
-  }else {
-    ATH_MSG_WARNING("Could not create TrackParticle, this should never happen !");
+  // Use the the Refitted Trk::Track and the original vertex to construct a new TrackParticle
+  xAOD::TrackParticle* aParticle = m_particleCreatorTool->createParticle( *trk_refit, m_finalTrkPartContainer, trkVtx, xAOD::electron );
+
+
+  //If no TrackParticle , then ERROR
+  if (!aParticle){
+    ATH_MSG_ERROR("Could not create TrackParticle, this should never happen !");
     return StatusCode::FAILURE;
   }
+
+  //Set Vertex Link
+  aParticle->setVertexLink(tmpTrkPart->vertexLink());         
+
+   
+  //Additional info, e/gamma  using the full  Trk::Track
+
+  //Save extrapolated perigee to calo (eta,phi) for later usage in supercluster algorithm.
+  static const SG::AuxElement::Accessor<float> pgExtrapEta ("perigeeExtrapEta");
+  static const SG::AuxElement::Accessor<float> pgExtrapPhi ("perigeeExtrapPhi");  
+  float perigeeExtrapEta(-999.), perigeeExtrapPhi(-999.);
+
+  auto tsos = trk_refit->trackStateOnSurfaces()->begin();
+  for (;tsos != trk_refit->trackStateOnSurfaces()->end(); ++tsos) {
+    if ((*tsos)->type(Trk::TrackStateOnSurface::Perigee) && (*tsos)->trackParameters()!=0) {
+      float extrapEta(-999.), extrapPhi(-999.);
+      const Trk::TrackParameters *perigeeTrackParams(0);
+      perigeeTrackParams = (*tsos)->trackParameters();
+      
+      const Trk::PerigeeSurface pSurface (perigeeTrackParams->position());
+      std::unique_ptr<const Trk::TrackParameters> pTrkPar(pSurface.createTrackParameters( perigeeTrackParams->position(), perigeeTrackParams->momentum().unit()*1.e9, +1, 0));
+      //Do the straight-line extrapolation.	  
+      bool hitEM2 = m_extrapolationTool->getEtaPhiAtCalo(pTrkPar.get(), &extrapEta, &extrapPhi);
+      if (hitEM2) {
+	perigeeExtrapEta = extrapEta;
+	perigeeExtrapPhi = extrapPhi;
+      } else {
+	ATH_MSG_WARNING("Extrapolation to EM2 failed!");
+      }
+      break;
+    }
+  }
+  pgExtrapEta(*aParticle) = perigeeExtrapEta;    
+  pgExtrapPhi(*aParticle) = perigeeExtrapPhi;
+  
+  //Add qoverP for the last measurement
+  static const SG::AuxElement::Accessor<float > QoverPLM  ("QoverPLM");
+  float QoverPLast(0);
+  auto rtsos = trk_refit->trackStateOnSurfaces()->rbegin();
+  for (;rtsos != trk_refit->trackStateOnSurfaces()->rend(); ++rtsos){
+    if ((*rtsos)->type(Trk::TrackStateOnSurface::Measurement) 
+	&& (*rtsos)->trackParameters()!=0 
+	&&(*rtsos)->measurementOnTrack()!=0 
+	&& !dynamic_cast<const Trk::PseudoMeasurementOnTrack*>((*rtsos)->measurementOnTrack())) {
+      QoverPLast  = (*rtsos)->trackParameters()->parameters()[Trk::qOverP];
+      break;
+    }
+  }
+  QoverPLM(*aParticle) = QoverPLast;
+
+  //Now  Slim the TrK::Track for writing to disk   
+  Trk::Track* slimmed = m_slimTool->slim(*trk_refit);
+    
+  if(!slimmed){
+    ATH_MSG_WARNING ("TrackSlimming failed");
+    ElementLink<TrackCollection> dummy;
+    aParticle->setTrackLink(dummy);     
+  }else{
+    m_finalTracks->push_back(slimmed);
+    ElementLink<TrackCollection> trackLink( slimmed, *m_finalTracks);
+    aParticle->setTrackLink( trackLink );     
+  }
+
+  return StatusCode::SUCCESS;
 }
+
 // =================================================================
 bool EMBremCollectionBuilder::Select(const xAOD::CaloCluster*   cluster,
                                      bool                       trkTRT,

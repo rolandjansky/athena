@@ -14,6 +14,7 @@
 #include "SGTools/TestStore.h"
 #include "SGTools/DataBucketBase.h"
 #include <iostream>
+#include <algorithm>
 
 
 namespace SGTest {

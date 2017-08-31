@@ -1933,16 +1933,16 @@ Rec::TrackParticle* FTKMergerAlgo::createTrackParticle(const Trk::Track* track,
     }
             
 
-    tracksum[Trk::numberOfBLayerHits]  = bitmask&(1<<0);
+    tracksum[Trk::numberOfInnermostPixelLayerHits]  = bitmask&(1<<0);
     tracksum[Trk::numberOfPixelHits]   = npixel;
     tracksum[Trk::numberOfPixelHoles]  = npixelholes;
     tracksum[Trk::numberOfSCTHits]     = nsct;
     tracksum[Trk::numberOfSCTHoles]    = nsctholes;
-    tracksum[Trk::expectBLayerHit]     =  1.0;
+    tracksum[Trk::expectInnermostPixelLayerHit]     =  1.0;
 
 
-    tracksum[Trk::numberOfBLayerOutliers          ] = 0;
-    tracksum[Trk::numberOfBLayerSharedHits        ] = 0;
+    tracksum[Trk::numberOfInnermostPixelLayerOutliers          ] = 0;
+    tracksum[Trk::numberOfInnermostPixelLayerSharedHits        ] = 0;
     tracksum[Trk::numberOfPixelOutliers           ] = 0;
     tracksum[Trk::numberOfPixelSharedHits         ] = 0;
     tracksum[Trk::numberOfGangedPixels            ] = 0;

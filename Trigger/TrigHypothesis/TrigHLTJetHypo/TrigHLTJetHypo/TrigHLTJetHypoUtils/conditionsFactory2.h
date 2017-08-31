@@ -23,6 +23,13 @@ Conditions conditionsFactoryEtaEt(const std::vector<double>& etasMin,
                                   const std::vector<double>& thresholds,
                                   const std::vector<int>& asymmetricEtas);
 
+
+Conditions conditionsFactorysinglemass(const std::vector<double>& etasMin,
+                                  const std::vector<double>& etasMax,
+                                  const std::vector<double>& thresholds,
+                                  const std::vector<double>& jetMassMin,
+                                  const std::vector<double>& jetMassMax);
+
 // for conditionsFactory2
 Conditions conditionsFactoryDijetEtaMass(const std::vector<double>& etasMin,
                                          const std::vector<double>& etasMax,

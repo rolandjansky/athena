@@ -15,11 +15,6 @@ using std::ostream;
  Author: Ketevi A. Assamagan
 *********************************************/
 
-/* Default constructor */
-CscCalibDataContainer::CscCalibDataContainer() 
-	: IdentifiableContainer<CscCalibDataCollection>() 
-{}
-
 CscCalibDataContainer::CscCalibDataContainer(int maxhash) 
 	: IdentifiableContainer<CscCalibDataCollection>(maxhash) {
   //m_hashFunc.setHelper(helper);

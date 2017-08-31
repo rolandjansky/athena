@@ -48,11 +48,6 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
            #if not conddb.folderRequested('/SCT/DAQ/Calibration/ChipNoise'):
            #   conddb.addFolderSplitOnline("SCT","/SCT/DAQ/Calibration/ChipNoise","/SCT/DAQ/Calibration/ChipNoise",forceMC=True)
 
-        # Dynamic configuration of SCT RDO type
-        # This algorithm must be executed before SCT_Digitization
-        from InDetOverlay.InDetOverlayConf import DynConfSCT
-        job += DynConfSCT()
-
         job += CfgGetter.getAlgorithm("SCT_OverlayDigitization")
         CfgGetter.getPublicTool("SCT_DigitizationTool").InputObjectName="SCT_Hits"
         if readBS and isRealData:
@@ -90,3 +85,4 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
        include ("EventOverlayJobTransforms/InDetMcSignal_jobOptions.py")
 
     job += CfgGetter.getAlgorithm("InDetOverlay")
+    job += CfgGetter.getAlgorithm("InDetSDOOverlay")

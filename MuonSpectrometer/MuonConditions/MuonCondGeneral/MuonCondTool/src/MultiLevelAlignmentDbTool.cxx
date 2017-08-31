@@ -86,10 +86,12 @@ MultiLevelAlignmentDbTool::MultiLevelAlignmentDbTool (const std::string& type,
 
 //________________________________________________________________________
 //StatusCode MultiLevelAlignmentDbTool::updateAddress(SG::TransientAddress* tad)
-StatusCode MultiLevelAlignmentDbTool::updateAddress(StoreID::type storeID, SG::TransientAddress* tad)
+StatusCode MultiLevelAlignmentDbTool::updateAddress(StoreID::type storeID,
+                                                    SG::TransientAddress* tad,
+                                                    const EventContext& ctx)
 {
   //  StatusCode sc=m_abLineDbTool->updateAddress(tad);
-  StatusCode sc=m_abLineDbTool->updateAddress(storeID, tad);
+  StatusCode sc=m_abLineDbTool->updateAddress(storeID, tad, ctx);
   if (sc == StatusCode::FAILURE) return sc;
 
   return StatusCode::FAILURE;

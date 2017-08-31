@@ -89,9 +89,6 @@ from GaudiSvc.GaudiSvcConf import THistSvc
 ServiceMgr += THistSvc("THistSvc")
 ServiceMgr.THistSvc.Output  = ["intLen DATAFILE='intLength.root' OPT='NEW'"];
 
-from G4AtlasApps import PyG4Atlas
-IntLengthAction= PyG4Atlas.UserAction( 'G4UserActions','InteractionLengthIntegrator',['BeginOfEvent','EndOfEvent','Step'])
-
 from G4AtlasApps import SimKernel
 
 # enter interactive mode 

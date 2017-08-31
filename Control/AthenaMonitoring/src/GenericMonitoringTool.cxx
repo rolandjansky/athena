@@ -22,9 +22,10 @@ const InterfaceID& GenericMonitoringTool::interfaceID() {
 }
 
 GenericMonitoringTool::GenericMonitoringTool(const std::string & type, const std::string & name, const IInterface* parent)
-  : AthAlgTool(type, name, parent), m_histSvc("THistSvc", name) { 
+  : AthAlgTool(type, name, parent), 
+    m_histSvc("THistSvc", name) { 
   declareProperty("Histograms", m_histograms, "Definitions of histograms");
-  declareProperty("HistogramsGroupName", m_histogramsGroupName, "Name of group to which histograms would be generated");
+  declareProperty("HistPath", m_histoPath, "Histogram base path");
   declareInterface<GenericMonitoringTool>(this);
 }
 
@@ -32,29 +33,33 @@ GenericMonitoringTool::~GenericMonitoringTool() { }
 
 StatusCode GenericMonitoringTool::initialize() {
   ATH_CHECK(m_histSvc.retrieve());
-  ATH_CHECK(!m_histogramsGroupName.empty());
-  
-  HistogramFillerFactory factory(m_histSvc, m_histogramsGroupName);
 
+  // If no histogram path given use parent or our own name
+  if (m_histoPath.empty()) {
+    auto named = dynamic_cast<const INamedInterface*>(parent());
+    m_histoPath = named ? named->name() : name();
+  }
+  
+  HistogramFillerFactory factory(m_histSvc, m_histoPath);
+
+  m_fillers.reserve(m_histograms.size());
   for (const string& item : m_histograms) {
-    ATH_MSG_DEBUG( "Configuring monitoring from: " << item );
+    ATH_MSG_DEBUG( "Configuring monitoring for: " << item );
     HistogramDef def = HistogramDef::parse(item);
 
     if (def.ok) {
-        ATH_MSG_DEBUG( "Definition parsed correctly" );
         HistogramFiller* filler = factory.create(def);
         
         if (filler != nullptr) {
             m_fillers.push_back(filler);
-	    ATH_MSG_DEBUG( "Intermediate structures created" );
         } else {
-	  ATH_MSG_WARNING( "The histogram filler can not be instantiated for: " << def.name );
-	}
+          ATH_MSG_WARNING( "The histogram filler can not be instantiated for: " << def.name );
+        }
     } else {
       ATH_MSG_ERROR( "Unparsable histogram definition: " << item );
       return StatusCode::FAILURE;
     }
-    ATH_MSG_DEBUG( "Monitoring for varaible " << def.name << " prepared" );
+    ATH_MSG_DEBUG( "Monitoring for variable " << def.name << " prepared" );
   }
 
   if ( m_fillers.empty() ) {

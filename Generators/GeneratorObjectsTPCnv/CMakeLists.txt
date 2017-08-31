@@ -13,7 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Control/AthAllocators
                           Control/AthenaKernel
-                          Generators/HepMCWeightSvc )
+                          Generators/GenInterfaces )
 
 # External dependencies:
 find_package( HepMC )

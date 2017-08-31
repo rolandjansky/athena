@@ -109,10 +109,10 @@ StatusCode SCT_PrepDataToxAOD::execute()
 
       // get all the RIO_Collections in the container
       
-      for( auto& collection: *rdoContainer ){
+      for(const auto& collection: *rdoContainer ){
 
         //get all the RDOs in the collection
-        for (auto& rdo : *collection) {
+        for (const auto& rdo : *collection) {
 
           if ( !rdo) {
             ATH_MSG_WARNING( "Null SCT RDO. Skipping it");

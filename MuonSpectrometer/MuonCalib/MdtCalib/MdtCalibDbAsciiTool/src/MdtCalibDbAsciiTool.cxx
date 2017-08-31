@@ -104,7 +104,9 @@ MdtCalibDbAsciiTool::MdtCalibDbAsciiTool (const std::string& type,
 
 }
 
-StatusCode MdtCalibDbAsciiTool::updateAddress(StoreID::type /*storeID*/, SG::TransientAddress* tad) {
+StatusCode MdtCalibDbAsciiTool::updateAddress(StoreID::type /*storeID*/,
+                                              SG::TransientAddress* tad,
+                                              const EventContext& /*ctx*/) {
   CLID clid        = tad->clID();
   std::string key  = tad->name();
   if ( 1221928754== clid && m_tubeDataLocation == key) {

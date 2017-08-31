@@ -47,6 +47,7 @@ public:
   virtual void lock() override { m_locked = true; }
   virtual void clearDecorations() override { }
   virtual size_t size() const override { return 0; }
+  virtual void lockDecoration (SG::auxid_t) override { std::abort(); }
 
   static std::vector<int> deleted;
 };

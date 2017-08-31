@@ -92,7 +92,7 @@ namespace InDet{
           const Trk::TrackSummary* testSum = (*i_ntrk)->trackSummary();
           PixelHits = (long int) testSum->get(Trk::numberOfPixelHits);
           SctHits   = (long int) testSum->get(Trk::numberOfSCTHits);
-          BLayHits  = (long int) testSum->get(Trk::numberOfBLayerHits);
+          BLayHits  = (long int) testSum->get(Trk::numberOfInnermostPixelLayerHits);
 	  if(PixelHits < 0 ) PixelHits=0; 
 	  if(SctHits   < 0 ) SctHits=0; 
 	  if(BLayHits  < 0 ) BLayHits=0; 
@@ -213,9 +213,9 @@ namespace InDet{
           if( !((*i_ntrk)->summaryValue(splPixHits,xAOD::numberOfPixelSpoiltHits)))splPixHits=0;
           if( !((*i_ntrk)->summaryValue(outPixHits,xAOD::numberOfPixelOutliers)))  outPixHits=0;
           //uint8_t BLaySharedH,BLaySplitH,BLayOutlier;
-          //if( !((*i_ntrk)->summaryValue(BLaySharedH,xAOD::numberOfBLayerSharedHits)) )  BLaySharedH=-1;
-          //if( !((*i_ntrk)->summaryValue(BLaySplitH ,xAOD::numberOfBLayerSplitHits))  )  BLaySplitH=-1;
-          //if( !((*i_ntrk)->summaryValue(BLayOutlier,xAOD::numberOfBLayerOutliers))   )  BLayOutlier=-1;
+          //if( !((*i_ntrk)->summaryValue(BLaySharedH,xAOD::numberOfInnermostPixelLayerSharedHits)) )  BLaySharedH=-1;
+          //if( !((*i_ntrk)->summaryValue(BLaySplitH ,xAOD::numberOfInnermostPixelLayerSplitHits))  )  BLaySplitH=-1;
+          //if( !((*i_ntrk)->summaryValue(BLayOutlier,xAOD::numberOfInnermostPixelLayerOutliers))   )  BLayOutlier=-1;
 //std::cout<<"NwBlayer="<<(long int)BLaySharedH<<", "<<(long int)BLaySplitH<<", "<<(long int)BLayOutlier<<'\n';
           //uint8_t InmHits,InmSharedH,InmSplitH,InmOutlier;
           //if( !((*i_ntrk)->summaryValue(InmHits,   xAOD::numberOfInnermostHits)) )        InmHits=-1;

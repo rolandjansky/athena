@@ -34,7 +34,9 @@ InDet::InDetAmbiTrackSelectionTool::InDetAmbiTrackSelectionTool(const std::strin
   AthAlgTool(t,n,p),
   m_assoTool("Trk::PRD_AssociationTool/PRD_AssociationTool"),
   m_selectortool("InDet::InDetTrtDriftCircleCutTool"       ),
-  m_IBLParameterSvc("IBLParameterSvc",n)
+  m_IBLParameterSvc("IBLParameterSvc",n),
+  // Initialization of atlas id helper 
+  m_detID(nullptr)
 
 {
   declareInterface<IAmbiTrackSelectionTool>(this);
@@ -58,6 +60,7 @@ InDet::InDetAmbiTrackSelectionTool::InDetAmbiTrackSelectionTool(const std::strin
 
   // compute the number of shared hits from the number of max shared modules
   m_maxShared=2*m_maxSharedModules+1;
+    
 }
 
 //================ Destructor =================================================

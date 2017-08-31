@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CxxUtils/make_unique.h"
 #include "G4UserActions/StoppedParticleActionTool.h"
 
 namespace G4UA
@@ -13,25 +12,15 @@ namespace G4UA
                                                        const std::string& name,
                                                        const IInterface* parent)
     : ActionToolBase<StoppedParticleAction>(type, name, parent)
-  {}
+  {
+    declareInterface<ISteppingActionTool>(this);
+  }
 
   //---------------------------------------------------------------------------
   std::unique_ptr<StoppedParticleAction> StoppedParticleActionTool::makeAction()
   {
     ATH_MSG_DEBUG("makeAction");
-    auto action = CxxUtils::make_unique<StoppedParticleAction>();
-    return std::move(action);
-  }
-
-  //---------------------------------------------------------------------------
-  StatusCode StoppedParticleActionTool::queryInterface(const InterfaceID& riid,
-                                                       void** ppvIf)
-  {
-    if(riid == ISteppingActionTool::interfaceID()) {
-      *ppvIf = (ISteppingActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    } return ActionToolBase<StoppedParticleAction>::queryInterface(riid, ppvIf);
+    return std::make_unique<StoppedParticleAction>();
   }
 
 } // namespace G4UA

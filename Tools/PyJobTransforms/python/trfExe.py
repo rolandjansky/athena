@@ -461,7 +461,7 @@ class logscanExecutor(transformExecutor):
         self._logFileName = None
 
     def preExecute(self, input = set(), output = set()):
-        self.estPreExeStart()
+        self.setPreExeStart()
         msg.info('Preexecute for %s' % self._name)
         if 'logfile' in self.conf.argdict:
             self._logFileName = self.conf.argdict['logfile'].value

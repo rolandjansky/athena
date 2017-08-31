@@ -11,6 +11,7 @@
 #include "AthenaKernel/errorcheck.h"
 #include "AthenaKernel/ITimeKeeper.h"
 #include "AthenaKernel/ExtendedEventContext.h"
+#include "AthenaKernel/EventContextClid.h"
 
 #include "EventInfo/PileUpEventInfo.h" // OLD EDM
 #include "EventInfo/EventID.h"         // OLD EDM
@@ -776,10 +777,18 @@ StatusCode PileUpEventLoopMgr::executeEvent(void* par)
   m_eventContext->set(m_nevt,0);
 
   /// Is this correct, or should it be set to a pileup store?
-  m_eventContext->setExtension( Atlas::ExtendedEventContext(m_evtStore->hiveProxyDict()) );
+  m_eventContext->setExtension( Atlas::ExtendedEventContext(m_evtStore->hiveProxyDict(),
+                                                            pEvent->event_ID()->run_number()) );
   Gaudi::Hive::setCurrentContext( m_eventContext );
 
   m_aess->reset(*m_eventContext);
+  if (m_evtStore->record(std::make_unique<EventContext> (*m_eventContext),
+                         "EventContext").isFailure())
+  {
+    m_msg << MSG::ERROR 
+          << "Error recording event context object" << endmsg;
+    return (StatusCode::FAILURE);
+  }
 
   /// Fire begin-Run incident if new run:
   if (m_firstRun || (m_currentRun != pEvent->event_ID()->run_number()) )

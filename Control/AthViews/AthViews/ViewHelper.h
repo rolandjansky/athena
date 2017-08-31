@@ -115,7 +115,9 @@ namespace ViewHelper
 		{
 			//Make a context with the view attached
 			EventContext * viewContext = new EventContext( InputContext );
-                        viewContext->setExtension( Atlas::ExtendedEventContext( inputView) );
+                        unsigned int conditionsRun = InputContext.template getExtension<Atlas::ExtendedEventContext>()->conditionsRun();
+                        viewContext->setExtension( Atlas::ExtendedEventContext( inputView,
+                                                                                conditionsRun ) );
 
 			//Make the task
 			tbb::task * viewTask = new( tbb::task::allocate_root() )GraphExecutionTask( AlgorithmNames, viewContext, AlgPool );

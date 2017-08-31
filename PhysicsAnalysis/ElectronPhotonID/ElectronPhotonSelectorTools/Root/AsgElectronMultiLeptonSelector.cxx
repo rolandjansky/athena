@@ -163,7 +163,7 @@ const Root::TAccept& AsgElectronMultiLeptonSelector::accept( const xAOD::Electro
   if (t) {
     trackqoverp = t->qOverP();
     
-    allFound = allFound && t->summaryValue(nBlayerHits, xAOD::numberOfBLayerHits);
+    allFound = allFound && t->summaryValue(nBlayerHits, xAOD::numberOfInnermostPixelLayerHits);
     allFound = allFound && t->summaryValue(nPix, xAOD::numberOfPixelHits);
     allFound = allFound && t->summaryValue(nSCT, xAOD::numberOfSCTHits);
     allFound = allFound && t->summaryValue(nPixDeadSensors, xAOD::numberOfPixelDeadSensors);
@@ -174,7 +174,7 @@ const Root::TAccept& AsgElectronMultiLeptonSelector::accept( const xAOD::Electro
     allFound = allFound && t->summaryValue(nTRT, xAOD::numberOfTRTHits);
     allFound = allFound && t->summaryValue(nTRTOutliers, xAOD::numberOfTRTOutliers);
     
-    allFound = allFound && t->summaryValue(expectBlayer, xAOD::expectBLayerHit);
+    allFound = allFound && t->summaryValue(expectBlayer, xAOD::expectInnermostPixelLayerHit);
     
     
     nSi = nPix+nSCT;

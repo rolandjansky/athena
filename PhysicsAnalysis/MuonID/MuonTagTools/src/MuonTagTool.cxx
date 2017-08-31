@@ -98,6 +98,7 @@ MuonTagTool::MuonTagTool (const std::string& type, const std::string& name,
   declareProperty("GradientIsolation",       m_gradient_isolation);
   declareProperty("FixedCutTightTrackOnlyIsolation", m_fixedcut_tight_trackonly_isolation);
   declareProperty("FixedCutLooseIsolation",          m_fixedcut_loose_isolation);
+  declareProperty("DoIsolation", m_doIso=true);
 
   declareInterface<MuonTagTool>( this );
 }
@@ -111,31 +112,33 @@ StatusCode  MuonTagTool::initialize() {
   /** retrieve and check the muon selector tool*/
   ATH_CHECK ( m_muon_selection_tool.retrieve() );
   /** retrieve and check the muon isolation tool*/
-  CHECK(m_loose_trackonly_isolation.retrieve());
-  CHECK(m_loose_isolation.retrieve());
-  CHECK(m_tight_isolation.retrieve());
-  CHECK(m_gradient_loose_isolation.retrieve());
-  CHECK(m_gradient_isolation.retrieve());
-  CHECK(m_fixedcut_tight_trackonly_isolation.retrieve());
-  CHECK(m_fixedcut_loose_isolation.retrieve());
+  if(m_doIso){
+    CHECK(m_loose_trackonly_isolation.retrieve());
+    CHECK(m_loose_isolation.retrieve());
+    CHECK(m_tight_isolation.retrieve());
+    CHECK(m_gradient_loose_isolation.retrieve());
+    CHECK(m_gradient_isolation.retrieve());
+    CHECK(m_fixedcut_tight_trackonly_isolation.retrieve());
+    CHECK(m_fixedcut_loose_isolation.retrieve());
+    
+    if (m_etconeisorelcutvalues.size() > 2) {
+      ATH_MSG_FATAL ("More than to EtconeRel values are not permitted");
+      return StatusCode::FAILURE;
+    }
+    if (m_etconeisocutvalues.size() > 2) {
+      ATH_MSG_FATAL ("More than to Etcone values are not permitted");
+      return StatusCode::FAILURE;
+    }
+    if (m_ptconeisorelcutvalues.size() > 2) {
+      ATH_MSG_FATAL ("More than to PtconeRel values are not permitted");
+      return StatusCode::FAILURE;
+    }
+    if (m_ptconeisocutvalues.size() > 2) {
+      ATH_MSG_FATAL ("More than to Ptcone values are not permitted");
+      return StatusCode::FAILURE;
+    }
+  }
 
-  if (m_etconeisorelcutvalues.size() > 2) {
-    ATH_MSG_FATAL ("More than to EtconeRel values are not permitted");
-    return StatusCode::FAILURE;
-  }
-  if (m_etconeisocutvalues.size() > 2) {
-    ATH_MSG_FATAL ("More than to Etcone values are not permitted");
-    return StatusCode::FAILURE;
-  }
-  if (m_ptconeisorelcutvalues.size() > 2) {
-    ATH_MSG_FATAL ("More than to PtconeRel values are not permitted");
-    return StatusCode::FAILURE;
-  }
-  if (m_ptconeisocutvalues.size() > 2) {
-    ATH_MSG_FATAL ("More than to Ptcone values are not permitted");
-    return StatusCode::FAILURE;
-  }
-  
   return StatusCode::SUCCESS;
 }
 
@@ -243,7 +246,7 @@ StatusCode MuonTagTool::execute(TagFragmentCollection & muonTagCol, const int ma
       /** fix calibration using tool */
       ATH_MSG_DEBUG("Un-Calibrated pt = " << shallowCopyMuon->pt());
       if(m_muon_calibration_tool->applyCorrection(*shallowCopyMuon) != CP::CorrectionCode::Ok){
-          ATH_MSG_WARNING("Cannot calibrate muon");
+	ATH_MSG_WARNING("Cannot calibrate muon");
       }
       ATH_MSG_DEBUG("Calibrated pt = " << shallowCopyMuon->pt()); 
 
@@ -345,252 +348,252 @@ StatusCode MuonTagTool::execute(TagFragmentCollection & muonTagCol, const int ma
     muonTagCol.insert( m_phiStr[i], muon.phi() );
     
     unsigned int iso = 0x0;
-
-    /** now start filling the isolation information */
-
-    /** let's compute the etcone20 isolation of the muon */
-
-    float etcone     = 0.0;
-    if( ! muon.isolation(etcone,xAOD::Iso::etcone20) ){
-      ATH_MSG_ERROR("No etcone defined");
-    }
-    else{
-      
-      /** apply etcone/pt cuts first */
-      
-      float etcone_rel= etcone/muon.pt();
-      ATH_MSG_DEBUG("etcone20/pt = "<< etcone_rel);
-      
-      /* Etcone20/pt are bits 0 and 1 */
-      
-      for (unsigned int j=0; j<m_etconeisorelcutvalues.size(); j++) {
-        if( etcone_rel < m_etconeisorelcutvalues[j] ) {
-          ATH_MSG_DEBUG("Setting Etcone20/pt isolation: bit " << j );
-          iso |= 1 << j;
-        }
-      }
-      
-      /* Etcone20 are bits 8 and 9 */
-      
-      for (unsigned int j=0; j<m_etconeisocutvalues.size(); j++) {
-        if ( etcone < m_etconeisocutvalues[j] ) {
-          ATH_MSG_DEBUG("Setting Etcone20 isolation: bit " << j+8 );
-          iso |= 1 << (8+j);
-        }
-      } 
-    }
-    
-    /** let's compute the etcone20 isolation of the muon */
-    
-    if( ! muon.isolation(etcone,xAOD::Iso::topoetcone20) ){
-      ATH_MSG_ERROR("No topoetcone20 defined");
-    }
-    else{
-      
-      /** apply topoEtcone20/pt cuts first */
-      
-      float etcone_rel= etcone/muon.pt();
-      ATH_MSG_DEBUG("topoetcone20/pt = "<< etcone_rel);
-      
-      /* topoEtcone20/pt are bits 2 and 3 */
-      
-      for (unsigned int j=0; j<m_etconeisorelcutvalues.size(); j++) {
-        if( etcone_rel < m_etconeisorelcutvalues[j] ) {
-          ATH_MSG_DEBUG("Setting TopoEtcone20/pt isolation: bit " << j );
-          iso |= 1 << (2 + j);
-        }
-      }
-      
-      /* topo20Etcone/pt are bits 10 and 11 */
-      
-      for (unsigned int j=0; j<m_etconeisocutvalues.size(); j++) {
-        if ( etcone < m_etconeisocutvalues[j] ) {
-          ATH_MSG_DEBUG("Setting TopoEtcone20: bit " << j+10 );
-          iso |= 1 << (10+j);
-        }
-      } 
-    }
-    
-    /** let's compute the etcone30 isolation of the muon */
-    
-    if( ! muon.isolation(etcone,xAOD::Iso::topoetcone30) ){
-      ATH_MSG_ERROR("No topoetcone30 defined");
-    }
-    else{
-      
-      /** apply topoEtcone30/pt cuts first */
-      
-      float etcone_rel= etcone/muon.pt();
-      ATH_MSG_DEBUG("topoetcone30/pt = "<< etcone_rel);
-      
-      /* topoEtcone30/pt are bits 4 and 5 */
-      
-      for (unsigned int j=0; j<m_etconeisorelcutvalues.size(); j++) {
-        if( etcone_rel < m_etconeisorelcutvalues[j] ) {
-          ATH_MSG_DEBUG("Setting topoEtcone30/pt isolation: bit " << j+4 );
-          iso |= 1 << (4 + j);
-        }
-      }
-      
-      /* topo30Etcone are bits 12 and 13 */
-      
-      for (unsigned int j=0; j<m_etconeisocutvalues.size(); j++) {
-        if ( etcone < m_etconeisocutvalues[j] ) {
-          ATH_MSG_DEBUG("Setting topoEtcone30 isolation: bit " << j+12 );
-          iso |= 1 << (12+j);
-        }
-      } 
-    }
-    
-    /** let's compute the etcone40 isolation of the muon */
-    
-    if( ! muon.isolation(etcone,xAOD::Iso::topoetcone40) ){
-      ATH_MSG_ERROR("No topoetcone40 defined");
-    }
-    else{
-      
-      /** apply topoEtcone40/pt cuts first */
-      
-      float etcone_rel= etcone/muon.pt();
-      ATH_MSG_DEBUG("topoetcone40/pt = "<< etcone_rel);
-      
-      /* topo40Etcone/pt are bits 6 and 7 */
-      
-      for (unsigned int j=0; j<m_etconeisorelcutvalues.size(); j++) {
-        if( etcone_rel < m_etconeisorelcutvalues[j] ) {
-          ATH_MSG_DEBUG("Setting topoEtcone40/pt isolation: bit " << j+6 );
-          iso |= 1 << (6 + j);
-        }
-      }
-      
-      /* topo40Etcone are bits 14 and 15 */
-      
-      for (unsigned int j=0; j<m_etconeisocutvalues.size(); j++) {
-        if ( etcone < m_etconeisocutvalues[j] ) {
-          ATH_MSG_DEBUG("Setting topoEtcone40 isolation: bit " << j+14 );
-          iso |= 1 << (14+j);
-        }
-      } 
-    }
-    
-    /** let's compute the ptcone20 isolation of the muon */
-    
-    float ptcone = 0.0 ;
-    if( ! muon.isolation(ptcone,xAOD::Iso::ptcone20) ){
-      ATH_MSG_ERROR("No ptcone20 defined");
-    }
-    else{
-      
-      /** apply ptcone20/pt cuts first */
-      
-      float ptcone_rel= ptcone/muon.pt();
-      ATH_MSG_DEBUG("ptcone20/pt = "<< ptcone_rel);
-      
-      /* ptcone20/pt are bits 16 and 17 */
-      
-      for (unsigned int j=0; j<m_ptconeisorelcutvalues.size(); j++) {
-        if ( ptcone_rel < m_ptconeisorelcutvalues[j] ){
-          ATH_MSG_DEBUG("Setting ptcone20/pt isolation: bit " << j+16 );
-          iso |= 1 << (16+j);
-        }
-      } 
-      
-      /* ptcone20 are bits 24 and 25 */
-      
-      ATH_MSG_DEBUG("ptcone20 = "<< ptcone);
-      
-      for (unsigned int j=0; j<m_ptconeisocutvalues.size(); j++) {
-        if ( ptcone < m_ptconeisocutvalues[j] ) {
-          ATH_MSG_DEBUG("Setting ptcone20 isolation: bit " << j+24 );
-          iso |= 1 << (24+j);
-        }     
-      }
-    }
-    
-    /** let's compute the ptcone30 isolation of the muon */
-    
-    if( ! muon.isolation(ptcone,xAOD::Iso::ptcone30) ){
-      ATH_MSG_ERROR("No ptcone30 defined");
-    }
-    else{
-      
-      /** apply ptcone30/pt cuts first */
-      
-      float ptcone_rel= ptcone/muon.pt();
-      ATH_MSG_DEBUG("ptcone30/pt = "<< ptcone_rel);
-      
-      /* ptcone30 are bits 18 and 19 */
-      
-      for (unsigned int j=0; j<m_ptconeisorelcutvalues.size(); j++) {
-        if ( ptcone_rel < m_ptconeisorelcutvalues[j] ){
-          ATH_MSG_DEBUG("Setting ptcone30/pt isolation: bit " << j+18 );
-          iso |= 1 << (18+j);
-        }
-      } 
-      
-      /* ptcone30 are bits 26 and 27 */      
-      
-      ATH_MSG_DEBUG("ptcone30 = "<< ptcone);
-      
-      for (unsigned int j=0; j<m_ptconeisocutvalues.size(); j++) {
-        if ( ptcone < m_ptconeisocutvalues[j] ) {
-          ATH_MSG_DEBUG("Setting ptcone30 solation: bit " << j+26 );
-          iso |= 1 << (26+j);
-        }     
-      }
-    }
-    
-    /** let's compute the ptcone20 isolation of the muon */
-    
-    if( ! muon.isolation(ptcone,xAOD::Iso::ptcone40) ){
-      ATH_MSG_ERROR("No ptcone40 defined");
-    }
-    else{
-      
-      /** apply ptcone40/pt cuts first */
-      
-      float ptcone_rel= ptcone/muon.pt();
-      ATH_MSG_DEBUG("ptcone40/pt = "<< ptcone_rel);
-      
-      /* ptcone40/pt are bits 20 and 21 */
-      
-      for (unsigned int j=0; j<m_ptconeisorelcutvalues.size(); j++) {
-        if ( ptcone_rel < m_ptconeisorelcutvalues[j] ){
-          ATH_MSG_DEBUG("Setting ptcone40/pt isolation: bit " << j+20 );
-          iso |= 1 << (20+j);
-        }
-      } 
-      
-      /* ptcone40 are bits 28 and 29 */
-      
-      ATH_MSG_DEBUG("ptcone40 = "<< ptcone);
-      
-      for (unsigned int j=0; j<m_ptconeisocutvalues.size(); j++) {
-        if ( ptcone < m_ptconeisocutvalues[j] ) {
-          ATH_MSG_DEBUG("Setting ptcone40 isolation: bit " << j+28 );
-          iso |= 1 << (28+j);
-        }     
-      }
-    }
-
-    if( msgLvl(MSG::DEBUG) ){
-      std::bitset<32> bits(iso);
-      ATH_MSG_DEBUG("Isolation: " << iso << " bits: " << bits.to_string() );
-    }
-    
-    muonTagCol.insert( m_isoStr[i], iso );
-    
     unsigned int tightness = 0x0; 
 
-    /**  Using Isolation Tool to fill bit from 22,23,30,31  with loose_trackonly,loose,tight,gradientloose,gradient*/    
-    if(m_loose_trackonly_isolation->accept(**muonItr))tightness |= (1 << 24);
-    if(m_loose_isolation->accept(**muonItr))          tightness |= (1 << 25);
-    if(m_tight_isolation->accept(**muonItr))          tightness |= (1 << 26);
-    if(m_gradient_isolation->accept(**muonItr))       tightness |= (1 << 27);
-    if(m_gradient_loose_isolation->accept(**muonItr)) tightness |= (1 << 28);
-    if(m_fixedcut_tight_trackonly_isolation->accept(**muonItr))tightness |= (1 << 29);
-    if(m_fixedcut_loose_isolation->accept(**muonItr))          tightness |= (1 << 30);
+    /** now start filling the isolation information */
+    if(m_doIso){
+      /** let's compute the etcone20 isolation of the muon */
 
+      float etcone     = 0.0;
+      if( ! muon.isolation(etcone,xAOD::Iso::etcone20) ){
+	ATH_MSG_ERROR("No etcone defined");
+      }
+      else{
+      
+	/** apply etcone/pt cuts first */
+	
+	float etcone_rel= etcone/muon.pt();
+	ATH_MSG_DEBUG("etcone20/pt = "<< etcone_rel);
+      
+	/* Etcone20/pt are bits 0 and 1 */
+      
+	for (unsigned int j=0; j<m_etconeisorelcutvalues.size(); j++) {
+	  if( etcone_rel < m_etconeisorelcutvalues[j] ) {
+	    ATH_MSG_DEBUG("Setting Etcone20/pt isolation: bit " << j );
+	    iso |= 1 << j;
+	  }
+	}
+      
+	/* Etcone20 are bits 8 and 9 */
+      
+	for (unsigned int j=0; j<m_etconeisocutvalues.size(); j++) {
+	  if ( etcone < m_etconeisocutvalues[j] ) {
+	    ATH_MSG_DEBUG("Setting Etcone20 isolation: bit " << j+8 );
+	    iso |= 1 << (8+j);
+	  }
+	} 
+      }
+    
+      /** let's compute the etcone20 isolation of the muon */
+    
+      if( ! muon.isolation(etcone,xAOD::Iso::topoetcone20) ){
+	ATH_MSG_ERROR("No topoetcone20 defined");
+      }
+      else{
+      
+	/** apply topoEtcone20/pt cuts first */
+      
+	float etcone_rel= etcone/muon.pt();
+	ATH_MSG_DEBUG("topoetcone20/pt = "<< etcone_rel);
+      
+	/* topoEtcone20/pt are bits 2 and 3 */
+      
+	for (unsigned int j=0; j<m_etconeisorelcutvalues.size(); j++) {
+	  if( etcone_rel < m_etconeisorelcutvalues[j] ) {
+	    ATH_MSG_DEBUG("Setting TopoEtcone20/pt isolation: bit " << j );
+	    iso |= 1 << (2 + j);
+	  }
+	}
+      
+	/* topo20Etcone/pt are bits 10 and 11 */
+      
+	for (unsigned int j=0; j<m_etconeisocutvalues.size(); j++) {
+	  if ( etcone < m_etconeisocutvalues[j] ) {
+	    ATH_MSG_DEBUG("Setting TopoEtcone20: bit " << j+10 );
+	    iso |= 1 << (10+j);
+	  }
+	} 
+      }
+    
+      /** let's compute the etcone30 isolation of the muon */
+    
+      if( ! muon.isolation(etcone,xAOD::Iso::topoetcone30) ){
+	ATH_MSG_ERROR("No topoetcone30 defined");
+      }
+      else{
+      
+	/** apply topoEtcone30/pt cuts first */
+      
+	float etcone_rel= etcone/muon.pt();
+	ATH_MSG_DEBUG("topoetcone30/pt = "<< etcone_rel);
+      
+	/* topoEtcone30/pt are bits 4 and 5 */
+      
+	for (unsigned int j=0; j<m_etconeisorelcutvalues.size(); j++) {
+	  if( etcone_rel < m_etconeisorelcutvalues[j] ) {
+	    ATH_MSG_DEBUG("Setting topoEtcone30/pt isolation: bit " << j+4 );
+	    iso |= 1 << (4 + j);
+	  }
+	}
+      
+	/* topo30Etcone are bits 12 and 13 */
+      
+	for (unsigned int j=0; j<m_etconeisocutvalues.size(); j++) {
+	  if ( etcone < m_etconeisocutvalues[j] ) {
+	    ATH_MSG_DEBUG("Setting topoEtcone30 isolation: bit " << j+12 );
+	    iso |= 1 << (12+j);
+	  }
+	} 
+      }
+    
+      /** let's compute the etcone40 isolation of the muon */
+    
+      if( ! muon.isolation(etcone,xAOD::Iso::topoetcone40) ){
+	ATH_MSG_ERROR("No topoetcone40 defined");
+      }
+      else{
+      
+	/** apply topoEtcone40/pt cuts first */
+      
+	float etcone_rel= etcone/muon.pt();
+	ATH_MSG_DEBUG("topoetcone40/pt = "<< etcone_rel);
+      
+	/* topo40Etcone/pt are bits 6 and 7 */
+      
+	for (unsigned int j=0; j<m_etconeisorelcutvalues.size(); j++) {
+	  if( etcone_rel < m_etconeisorelcutvalues[j] ) {
+	    ATH_MSG_DEBUG("Setting topoEtcone40/pt isolation: bit " << j+6 );
+	    iso |= 1 << (6 + j);
+	  }
+	}
+      
+	/* topo40Etcone are bits 14 and 15 */
+      
+	for (unsigned int j=0; j<m_etconeisocutvalues.size(); j++) {
+	  if ( etcone < m_etconeisocutvalues[j] ) {
+	    ATH_MSG_DEBUG("Setting topoEtcone40 isolation: bit " << j+14 );
+	    iso |= 1 << (14+j);
+	  }
+	} 
+      }
+    
+      /** let's compute the ptcone20 isolation of the muon */
+    
+      float ptcone = 0.0 ;
+      if( ! muon.isolation(ptcone,xAOD::Iso::ptcone20) ){
+	ATH_MSG_ERROR("No ptcone20 defined");
+      }
+      else{
+      
+	/** apply ptcone20/pt cuts first */
+      
+	float ptcone_rel= ptcone/muon.pt();
+	ATH_MSG_DEBUG("ptcone20/pt = "<< ptcone_rel);
+      
+	/* ptcone20/pt are bits 16 and 17 */
+      
+	for (unsigned int j=0; j<m_ptconeisorelcutvalues.size(); j++) {
+	  if ( ptcone_rel < m_ptconeisorelcutvalues[j] ){
+	    ATH_MSG_DEBUG("Setting ptcone20/pt isolation: bit " << j+16 );
+	    iso |= 1 << (16+j);
+	  }
+	} 
+      
+	/* ptcone20 are bits 24 and 25 */
+      
+	ATH_MSG_DEBUG("ptcone20 = "<< ptcone);
+      
+	for (unsigned int j=0; j<m_ptconeisocutvalues.size(); j++) {
+	  if ( ptcone < m_ptconeisocutvalues[j] ) {
+	    ATH_MSG_DEBUG("Setting ptcone20 isolation: bit " << j+24 );
+	    iso |= 1 << (24+j);
+	  }     
+	}
+      }
+    
+      /** let's compute the ptcone30 isolation of the muon */
+    
+      if( ! muon.isolation(ptcone,xAOD::Iso::ptcone30) ){
+	ATH_MSG_ERROR("No ptcone30 defined");
+      }
+      else{
+      
+	/** apply ptcone30/pt cuts first */
+      
+	float ptcone_rel= ptcone/muon.pt();
+	ATH_MSG_DEBUG("ptcone30/pt = "<< ptcone_rel);
+      
+	/* ptcone30 are bits 18 and 19 */
+      
+	for (unsigned int j=0; j<m_ptconeisorelcutvalues.size(); j++) {
+	  if ( ptcone_rel < m_ptconeisorelcutvalues[j] ){
+	    ATH_MSG_DEBUG("Setting ptcone30/pt isolation: bit " << j+18 );
+	    iso |= 1 << (18+j);
+	  }
+	} 
+      
+	/* ptcone30 are bits 26 and 27 */      
+      
+	ATH_MSG_DEBUG("ptcone30 = "<< ptcone);
+      
+	for (unsigned int j=0; j<m_ptconeisocutvalues.size(); j++) {
+	  if ( ptcone < m_ptconeisocutvalues[j] ) {
+	    ATH_MSG_DEBUG("Setting ptcone30 solation: bit " << j+26 );
+	    iso |= 1 << (26+j);
+	  }     
+	}
+      }
+    
+      /** let's compute the ptcone20 isolation of the muon */
+    
+      if( ! muon.isolation(ptcone,xAOD::Iso::ptcone40) ){
+	ATH_MSG_ERROR("No ptcone40 defined");
+      }
+      else{
+      
+	/** apply ptcone40/pt cuts first */
+      
+	float ptcone_rel= ptcone/muon.pt();
+	ATH_MSG_DEBUG("ptcone40/pt = "<< ptcone_rel);
+      
+	/* ptcone40/pt are bits 20 and 21 */
+      
+	for (unsigned int j=0; j<m_ptconeisorelcutvalues.size(); j++) {
+	  if ( ptcone_rel < m_ptconeisorelcutvalues[j] ){
+	    ATH_MSG_DEBUG("Setting ptcone40/pt isolation: bit " << j+20 );
+	    iso |= 1 << (20+j);
+	  }
+	} 
+      
+	/* ptcone40 are bits 28 and 29 */
+      
+	ATH_MSG_DEBUG("ptcone40 = "<< ptcone);
+      
+	for (unsigned int j=0; j<m_ptconeisocutvalues.size(); j++) {
+	  if ( ptcone < m_ptconeisocutvalues[j] ) {
+	    ATH_MSG_DEBUG("Setting ptcone40 isolation: bit " << j+28 );
+	    iso |= 1 << (28+j);
+	  }     
+	}
+      }
+
+      if( msgLvl(MSG::DEBUG) ){
+	std::bitset<32> bits(iso);
+	ATH_MSG_DEBUG("Isolation: " << iso << " bits: " << bits.to_string() );
+      }
+    
+      muonTagCol.insert( m_isoStr[i], iso );
+    
+
+      /**  Using Isolation Tool to fill bit from 22,23,30,31  with loose_trackonly,loose,tight,gradientloose,gradient*/    
+      if(m_loose_trackonly_isolation->accept(**muonItr))tightness |= (1 << 24);
+      if(m_loose_isolation->accept(**muonItr))          tightness |= (1 << 25);
+      if(m_tight_isolation->accept(**muonItr))          tightness |= (1 << 26);
+      if(m_gradient_isolation->accept(**muonItr))       tightness |= (1 << 27);
+      if(m_gradient_loose_isolation->accept(**muonItr)) tightness |= (1 << 28);
+      if(m_fixedcut_tight_trackonly_isolation->accept(**muonItr))tightness |= (1 << 29);
+      if(m_fixedcut_loose_isolation->accept(**muonItr))          tightness |= (1 << 30);
+    }
     /** varying levels of tighness cuts - to be defined and implemented */
     
     if ( muon.muonType() == xAOD::Muon::MuonStandAlone )               tightness = tightness | bit2int(0);
@@ -631,13 +634,13 @@ StatusCode MuonTagTool::execute(TagFragmentCollection & muonTagCol, const int ma
         uint8_t nblh   = 0x0;
         uint8_t eblh   = 0x0;
         uint8_t nblo   = 0x0;
-        if( !tp->summaryValue(nblh,xAOD::numberOfBLayerHits)){
+        if( !tp->summaryValue(nblh,xAOD::numberOfInnermostPixelLayerHits)){
           ATH_MSG_WARNING("No nBLayerHits");
         }
-        if( !tp->summaryValue(nblo,xAOD::numberOfBLayerOutliers)){
+        if( !tp->summaryValue(nblo,xAOD::numberOfInnermostPixelLayerOutliers)){
           ATH_MSG_WARNING("No nofBLayerOutliers");
         }
-        if( !tp->summaryValue(eblh,xAOD::expectBLayerHit) ||
+        if( !tp->summaryValue(eblh,xAOD::expectInnermostPixelLayerHit) ||
             (nblh + nblo > 0) )        tightness = tightness | bit2int(11);
       
         // pixel hit counts
