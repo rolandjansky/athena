@@ -18,6 +18,11 @@
 #include "xAODTracking/TrackingPrimitives.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTruth/TruthParticleContainer.h"
+<<<<<<< HEAD
+=======
+#include "DerivationFrameworkMuons/IMuonTPExtrapolationTool.h"
+#include "DerivationFrameworkMuons/IIDTrackCaloDepositsDecoratorTool.h"
+>>>>>>> Moved muonTP files into derivation framework
 
 // Constructor
 DerivationFramework::dimuonTaggingTool::dimuonTaggingTool(const std::string& t,

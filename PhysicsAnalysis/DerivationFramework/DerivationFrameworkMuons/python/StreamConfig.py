@@ -47,7 +47,12 @@ class MuonsDxAODStreamConfigurer:
     smSlContainer = {'MUON0':[], 'MUON1':['AntiKt4LCTopoJets'], 'MUON2':['AntiKt4LCTopoJets'], 'MUON3':[]}
 
     ### all varaible containers
+<<<<<<< HEAD
     commonAllVarList = ["Muons", "PrimaryVertices", "InDetTrackParticles", "MuonSegments", "MuonTruthParticles", "CombinedMuonTrackParticles", "ExtrapolatedMuonTrackParticles", "MuonSpectrometerTrackParticles"]
+=======
+#     commonAllVarList = ["Muons", "PrimaryVertices", "InDetTrackParticles", "MuonSegments", "MuonTruthParticles", "CombinedMuonTrackParticles", "ExtrapolatedMuonTrackParticles", "MuonSpectrometerTrackParticles", "InDetForwardTrackParticles"]
+    commonAllVarList = ["Muons", "InDetTrackParticles", "MuonSegments", "MuonTruthParticles", "CombinedMuonTrackParticles", "ExtrapolatedMuonTrackParticles", "MuonSpectrometerTrackParticles", "InDetForwardTrackParticles","MSOnlyExtrapolatedMuonTrackParticles"]
+>>>>>>> Moved muonTP files into derivation framework
     MUON0OnlyAllVar = ['Staus','ExtrapolatedStauTrackParticles','CombinedStauTrackParticles','SlowMuons'] # slow muons
     MUON1OnlyAllVar = ['CaloCalTopoClusters', 'MuonClusterCollection']
 
@@ -66,6 +71,28 @@ class MuonsDxAODStreamConfigurer:
 
     checkContainers = {'MUON0':getMUON0TriggerContainers(), 'MUON1':getMUON0TriggerContainers(), 'MUON2':getMUON0TriggerContainers(), 'MUON3':getMUON0TriggerContainers()}
 
+<<<<<<< HEAD
+=======
+    ### Extra variables
+    ### Eventshape for pileup subtraction in isolation
+    eventShapeVars = ['TopoClusterIsoCentralEventShape.DensitySigma.Density.DensityArea',
+                      'TopoClusterIsoForwardEventShape.DensitySigma.Density.DensityArea',
+                      'NeutralParticleFlowIsoCentralEventShape.DensitySigma.Density.DensityArea',
+                      'NeutralParticleFlowIsoForwardEventShape.DensitySigma.Density.DensityArea']
+
+    extraVariables = {'MUON1':eventShapeVars, 'MUON2':eventShapeVars}
+
+    ### For FSR check
+    extraVariables['MUON1'].append('Photons.truthType.truthOrigin.topoetcone40')
+    extraVariables['MUON1'].append('Electrons.truthType.truthOrigin.topoetcone40')
+    extraVariables['MUON1'].append('InDetTrackParticles.deltaphi_0.deltatheta_0.sigmadeltaphi_0.sigmadeltatheta_0.deltaphi_1.deltatheta_1.sigmadeltaphi_1.sigmadeltatheta_1')
+
+    ### PV slimming for size reduction
+    pvExtra = 'PrimaryVertices.numberDoF.chiSquared.sumPt2.x.y.z'
+    extraVariables['MUON1'].append(pvExtra)
+    extraVariables['MUON0'] = [pvExtra]
+
+>>>>>>> Moved muonTP files into derivation framework
     ### get final lists
     for s in Items: Items[s]+=commonItems
     for s in allVarContainer: allVarContainer[s]+=commonAllVarList
