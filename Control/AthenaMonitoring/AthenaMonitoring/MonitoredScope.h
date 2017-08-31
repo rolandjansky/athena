@@ -16,8 +16,19 @@
 
 namespace Monitored {
   /**
-   * @brief Class used to collect local (scope) quantities and ship them to monitotoring output (histograms)
-   * For examples @see test/GenericMonFilling_test.cxx
+   * @brief Group local monitoring quantities and retain correlation when filling histograms 
+   *
+   * In order to maintain correlations when filling histograms (e.g. eta and phi of a track) the
+   * monitored quantities need to be grouped within a MonitoredScope. The filling of the histogram
+   * occurs when the MonitoredScope object goes out of scope or when save() is called explicitly.
+   *
+   * \code
+   * {
+   *   auto phi = MonitoredScalar::declare("phi");
+   *   auto eta = MonitoredScalar::declare("eta");
+   *   auto mon = MonitoredScope::declare(m_monTool, phi, eta);   
+   * }
+   * \endcode
    **/
   class MonitoredScope {
       public:
