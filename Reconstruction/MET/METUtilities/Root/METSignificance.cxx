@@ -1,4 +1,9 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 // METSignificance.cxx
 // Implementation file for class METSignificance
 // Author: P.Francavilla<francav@cern.ch>
@@ -109,6 +114,7 @@ namespace met {
       declareProperty("SoftTermReso",         m_softTermReso  = 10.0        );
       declareProperty("TreatPUJets",          m_treatPUJets   = true        );
       declareProperty("DoPhiReso",            m_doPhiReso     = false       );
+      declareProperty("ApplyBias",            m_applyBias     = false       );
       declareProperty("ConfigPrefix",         m_configPrefix  = "METUtilities/data17_13TeV/metsig_Aug15/");
       declareProperty("ConfigJetPhiResoFile", m_configJetPhiResoFile  = "jet_unc.root" );
       
@@ -197,6 +203,8 @@ namespace met {
 				   {0.0,0.0}};
       m_metphi = 0.0; //Angle for rotation of the cov matrix
       m_met = -1.0; // Numerator
+      m_metsoft = 0.0;
+      m_metsoftphi = 0.0;
       m_sumet=-1.0;
       m_ht=0.0;
       unsigned nIterSoft=0;
@@ -245,7 +253,8 @@ namespace met {
 	  softSumET=(met->sumet()/m_GeV);
 	  
 	  AddSoftTerm(met, met_vect, particle_sum); 
-	  
+	  m_metsoft = met->met()/m_GeV;
+	  m_metsoftphi = met->phi();
 	  // done with the soft term. go to the next term.
 	  continue;
 	}
@@ -324,6 +333,20 @@ namespace met {
       m_met_CvLT=m_CvLT;
       
       if( m_VarL != 0 ){
+
+	if(m_applyBias){
+	  // should be done to reset the phi as well...
+	  if(m_softTermParam==met::TSTParam){
+	    Double_t Bias_TST = BiasPtSoftdir(PtSoft.Mag());
+	    Double_t MEx = m_met * cos(m_metphi) -  Bias_TST * cos(m_metsoftphi); 
+	    Double_t MEy = m_met * sin(m_metphi) -  Bias_TST * sin(m_metsoftphi);
+	    m_met = sqrt(MEx*MEx+MEy*MEy);
+	    //m_metphi = ;
+	  }else if(m_softTermParam==met::PthardParam){
+	    
+	  }
+	}
+
 	m_significance = Significance_LT(m_met, m_VarL, m_VarT, m_CvLT);
 	
 	m_rho = m_CvLT / sqrt( m_VarL * m_VarT ) ;
@@ -485,6 +508,30 @@ namespace met {
 		      << " Var_L: " << particle_u_rot[0][0] << " Var_T: " << particle_u_rot[1][1] 
 		      << " " << particle_u_rot[0][1]);
       
+    }else if (m_softTermParam==met::PthardParam){
+      // 
+    }else if (m_softTermParam==met::TSTParam){
+
+      ATH_MSG_VERBOSE("Resolution Soft term parameterized in TST");
+
+      TVector3 m_soft_vect;
+      m_soft_vect.SetPtEtaPhi(soft->met()/m_GeV, 0.0, soft->phi());
+      
+      double varTST = VarparPtSoftdir(soft->met()/m_GeV, soft->sumet()/m_GeV);
+
+      double particle_u[2][2] = {{varTST*varTST,0.0},
+				 {0.0,varTST*varTST}};
+      double particle_u_rot[2][2] = {{varTST*varTST,0.0},
+				     {0.0,varTST*varTST}};
+      
+      RotateXY(particle_u, particle_u_rot,met_vect.DeltaPhi(m_soft_vect));
+      m_VarL+=particle_u_rot[0][0];
+      m_VarT+=particle_u_rot[1][1];
+      m_CvLT+=particle_u_rot[0][1];
+
+      RotateXY (particle_u,   particle_u_rot,-1.0*soft->phi()); // negative phi rotation
+      AddMatrix(particle_sum, particle_u_rot,     particle_sum);
+
     }else{
       ATH_MSG_ERROR("Soft term parameterization is NOT defined for:" << m_softTermParam);
     }
@@ -685,4 +732,26 @@ namespace met {
     mat_new[1][1]=V22;
   }
     
+  /// Parameterization with PtSoft Direction //
+  double METSignificance::BiasPtSoftdir(const double PtSoft) //DeltaMet_Parall-(0.14-0.45*TST_Soft
+  {
+    if (PtSoft<60.) return (0.145)+(-0.45)*PtSoft;
+    else return (0.145)+(-0.45)*(60.);
+  }
+
+  // variation in ptsoft direction
+  double METSignificance::VarparPtSoftdir(const double PtSoft, const double SoftSumet) //41.9+3.8*TST_Soft+0.1*pow(TST_Soft,2)+(-12.7+ 1.39*SoftSumet-0.03*pow(SoftSumet,2))*(SoftSumet<25)
+  {
+    if (SoftSumet<25){
+      if (PtSoft<50.) return 41.9+3.8*PtSoft+0.1*pow(PtSoft,2)-12.7+ 1.39*SoftSumet-0.03*pow(SoftSumet,2);
+      else return 41.9+3.8*50.+0.1*pow(50.,2)-12.7+ 1.39*SoftSumet-0.03*pow(SoftSumet,2);
+    }
+    else{
+      if (PtSoft<50.) return 41.9+3.8*PtSoft+0.1*pow(PtSoft,2);
+      else return (40.5614)+(4.10965)*50.+(0.0955044)*pow(50.,2);
+    }
+  }
+
+
+
 } //> end namespace met

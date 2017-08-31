@@ -1,7 +1,13 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 // METSignificance.h
 // Header file for class METSignificance
 // Author: P. Francavilla<francav@cern.ch>
+// Author: D. Schaefer <schae@cern.ch>
 ///////////////////////////////////////////////////////////////////
 #ifndef METUTILITIES_MET_METSIGNIFICANCE_H
 #define METUTILITIES_MET_METSIGNIFICANCE_H 1
@@ -119,12 +125,22 @@ namespace met {
     void AddMatrix(double (&X)[2][2],double (&Y)[2][2], double (&mat_new)[2][2]);
     void RotateXY(const double (&mat)[2][2], double (&mat_new)[2][2], double phi);
 
+    // soft term bias
+    double BiasPtSoftdir(const double PtSoft);
+    double VarparPtSoftdir(const double PtSoft, const double SoftSumet);
+
+    // pthard - parameterization
+    double BiasPtSoftdir(const double PtSoft);
+    double VarparPtSoftdir(const double PtSoft, const double SoftSumet);
+
+    // variables
     double m_GeV;
 
     int    m_softTermParam;
     double m_softTermReso;
     bool   m_treatPUJets;
     bool   m_doPhiReso;
+    bool   m_applyBias;
 
     bool m_isData;
     bool m_isAFII;
@@ -141,6 +157,8 @@ namespace met {
 
     double m_met;
     double m_metphi;
+    double m_metsoft;
+    double m_metsoftphi;
     double m_ht;
     double m_sumet;
 
