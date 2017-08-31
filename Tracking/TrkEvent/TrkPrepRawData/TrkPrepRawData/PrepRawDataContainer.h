@@ -33,9 +33,6 @@ class PrepRawDataContainer
     /** Constructor with parameters:*/
     PrepRawDataContainer(unsigned int max);
     
-    /** Constructor with External Cache*/
-    PrepRawDataContainer(EventContainers::IdentifiableCache<CollectionT>*);
-
     /**default ctor - for POOL only*/
     PrepRawDataContainer();
     

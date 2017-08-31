@@ -44,8 +44,7 @@ namespace InDet{
     m_flaggedConditionSvc("SCT_FlaggedConditionSvc",name),
     m_checkBadModules(true),
     m_flaggedModules(),
-    m_maxTotalOccupancyPercent(10),
-    m_clusterContainerCacheKey("")
+    m_maxTotalOccupancyPercent(10)
   {  
   // Get parameter values from jobOptions file    
     declareProperty("DataObjectName", m_rdoContainerKey, "SCT RDOs" );
@@ -60,7 +59,7 @@ namespace InDet{
     declareProperty("maxTotalOccupancyInPercent",m_maxTotalOccupancyPercent);
     declareProperty("ClustersName", m_clusterContainerKey, "SCT cluster container");    
     declareProperty("ClustersLinkName_", m_clusterContainerLinkKey, "SCT cluster container link name (don't set this)");
-    declareProperty("ClusterContainerCacheKey", m_clusterContainerCacheKey);
+    
   }
 
 
@@ -80,7 +79,7 @@ namespace InDet{
     ATH_CHECK(m_rdoContainerKey.initialize());
     ATH_CHECK(m_clusterContainerKey.initialize());
     ATH_CHECK(m_clusterContainerLinkKey.initialize());
-    ATH_CHECK(m_clusterContainerCacheKey.initialize(!m_clusterContainerCacheKey.key().empty()));
+
     // Get the flagged conditions service
     ATH_CHECK(m_flaggedConditionSvc.retrieve());
 
@@ -105,13 +104,8 @@ namespace InDet{
 // Execute method:
   StatusCode SCT_Clusterization::execute(){
   // Register the IdentifiableContainer into StoreGate
-   SG::WriteHandle<SCT_ClusterContainer> clusterContainer(m_clusterContainerKey);
-   if(m_clusterContainerCacheKey.key().empty()){
-    ATH_CHECK( clusterContainer.record (std::make_unique<SCT_ClusterContainer>(m_idHelper->wafer_hash_max())) );
-   }else{
-    SG::UpdateHandle<SCT_ClusterContainerCache> clusterContainercache(m_clusterContainerCacheKey);
-    ATH_CHECK( clusterContainer.record (std::make_unique<SCT_ClusterContainer>(clusterContainercache.ptr()) ));
-   }
+   SG::WriteHandle<SCT_ClusterContainer> clusterContainer(m_clusterContainerKey);   
+   ATH_CHECK( clusterContainer.record (std::make_unique<SCT_ClusterContainer>(m_idHelper->wafer_hash_max())) );
    ATH_MSG_DEBUG( "Container '" << clusterContainer.name() << "' initialised" );
 
    ATH_CHECK( clusterContainer.symLink (m_clusterContainerLinkKey) );
@@ -157,13 +151,6 @@ namespace InDet{
     #ifndef NDEBUG
           ATH_MSG_DEBUG("RDO collection size=" << rd->size() << ", Hash=" << rd->identifyHash());
     #endif
-          if( clusterContainer->tryFetch( rdoCollections.hashId() )){ 
-    #ifndef NDEBUG
-            ATH_MSG_DEBUG("Item already in cache , Hash=" << rd->identifyHash());
-    #endif
-            continue;
-          }
-
           bool goodModule = (m_checkBadModules and m_pSummarySvc) ? m_pSummarySvc->isGood(rd->identifyHash()) : true;
           // Check the RDO is not empty and that the wafer is good according to the conditions
           if ((not rd->empty()) and goodModule){
@@ -178,8 +165,9 @@ namespace InDet{
             if (clusterCollection) { 
               if (not clusterCollection->empty()) {
                 //Using get because I'm unsure of move semantec status
-                ATH_CHECK(clusterContainer->addOrDelete(std::move(clusterCollection), clusterCollection->identifyHash()));
+                ATH_CHECK(clusterContainer->addCollection(clusterCollection.get(), clusterCollection->identifyHash()));
 
+                clusterCollection.release();//Release ownership if sucessfully added to collection
     #ifndef NDEBUG
                  ATH_MSG_DEBUG("Clusters with key '" << clusterCollection->identifyHash() << "' added to Container\n");
     #endif                
@@ -209,15 +197,13 @@ namespace InDet{
 		     << listOfSCTIds.size() << " det. Elements" );
 #endif
           for (size_t i=0; i < listOfSCTIds.size(); i++) {
-
-            if( clusterContainer->tryFetch( listOfSCTIds[i] )){
-              #ifndef NDEBUG
-              ATH_MSG_DEBUG("Item already in cache , Hash=" << listOfSCTIds[i]);
-              #endif
-              continue;
-            }
             
-            const InDetRawDataCollection<SCT_RDORawData>* RDO_Collection (rdoContainer->indexFindPtr(listOfSCTIds[i]));
+            SCT_RDO_Container::const_iterator 
+            RDO_collection_iter = rdoContainer->indexFind(listOfSCTIds[i]); 
+
+            if (RDO_collection_iter == rdoCollectionsEnd) continue;
+
+            const InDetRawDataCollection<SCT_RDORawData>* RDO_Collection (*RDO_collection_iter);
 
             if (!RDO_Collection) continue;
 
@@ -228,15 +214,19 @@ namespace InDet{
               ATH_MSG_VERBOSE( "REGTEST: SCT : clusterCollection contains " 
                 << clusterCollection->size() << " clusters" );
 #endif
-              ATH_CHECK(clusterContainer->addOrDelete( std::move(clusterCollection), clusterCollection->identifyHash() ));
+              ATH_CHECK(clusterContainer->addCollection( clusterCollection.get(), clusterCollection->identifyHash() ));
+              clusterCollection.release();//Release ownership if sucessfully added to collection
+
           }else{
               ATH_MSG_DEBUG("No SCTClusterCollection to write");
           }
         }
-      }
+      }   
        
      }
     }
+    
+    
     
     // Set container to const
     ATH_CHECK(clusterContainer.setConst());

@@ -66,9 +66,9 @@ public:
 
   //@name Usual algorithm methods 
   //@{
-  virtual StatusCode initialize() override;
-  virtual StatusCode execute() override;
-  virtual StatusCode finalize() override;
+  virtual StatusCode initialize();
+  virtual StatusCode execute();
+  virtual StatusCode finalize();
   /**    @name Disallow default instantiation, copy, assignment */
   //@{
   //@}
@@ -90,7 +90,6 @@ private:
   SG::WriteHandleKey<PixelClusterContainer> m_clusterContainerKey;
   SG::WriteHandleKey<SiClusterContainer> m_clusterContainerLinkKey;
   SG::WriteHandleKey<PixelGangedClusterAmbiguities> m_ambiguitiesMapKey;
-  SG::UpdateHandleKey<InDet::PixelClusterContainerCache> m_clusterContainercacheKey;
   const SiDetectorManager* m_manager;
 };
 
