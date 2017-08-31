@@ -13,7 +13,9 @@
 
 #include "TRT_ElectronPidTools/ITRT_LocalOccupancy.h"
 
-//#include "xAODEventInfo/EventInfo.h"
+#include "StoreGate/ReadHandleKey.h"
+
+#include "xAODEventInfo/EventInfo.h"
 
 /**
 
@@ -47,6 +49,7 @@ private:
 
 
   ToolHandle<InDet::ITRT_LocalOccupancy> m_LocalOccTool;     //!< the track selector tool 
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey;
 };
 
 #endif // TRT_CALIBALGS_TRTOCCUPANCYINCLUDE_H 
