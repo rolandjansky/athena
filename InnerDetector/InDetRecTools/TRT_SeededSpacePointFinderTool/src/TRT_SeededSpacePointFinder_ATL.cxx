@@ -408,9 +408,9 @@ MsgStream& InDet::TRT_SeededSpacePointFinder_ATL::dumpConditions( MsgStream& out
 {
   int n = 42-m_fieldServiceHandle.type().size();
   std::string s1; for(int i=0; i<n; ++i) s1.append(" "); s1.append("|");
-  n     = 42-m_spacepointsSCT.name().size();
+  n     = 42-m_spacepointsSCT.key().size();
   std::string s3; for(int i=0; i<n; ++i) s3.append(" "); s3.append("|");
-  n     = 42-m_spacepointsOverlap.name().size();
+  n     = 42-m_spacepointsOverlap.key().size();
   std::string s4; for(int i=0; i<n; ++i) s4.append(" "); s4.append("|");
   n     = 42-m_assotool.type().size();
   std::string s2; for(int i=0; i<n; ++i) s2.append(" "); s2.append("|");
@@ -431,9 +431,9 @@ MsgStream& InDet::TRT_SeededSpacePointFinder_ATL::dumpConditions( MsgStream& out
      <<std::endl;
   out<<"| Association tool        | "<<m_assotool.type()<<s2
      <<std::endl;
-  out<<"| SCT      space points   | "<<m_spacepointsSCT.name()<<s3
+  out<<"| SCT      space points   | "<<m_spacepointsSCT.key()<<s3
      <<std::endl;
-  out<<"| Overlap  space points   | "<<m_spacepointsOverlap.name()<<s4
+  out<<"| Overlap  space points   | "<<m_spacepointsOverlap.key()<<s4
      <<std::endl;
   out<<"| Magnetic field mode     | "<<fieldmode[mode]<<s5
      <<std::endl;
