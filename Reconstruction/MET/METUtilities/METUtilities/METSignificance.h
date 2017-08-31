@@ -130,8 +130,8 @@ namespace met {
     double VarparPtSoftdir(const double PtSoft, const double SoftSumet);
 
     // pthard - parameterization
-    double BiasPtSoftdir(const double PtSoft);
-    double VarparPtSoftdir(const double PtSoft, const double SoftSumet);
+    //double BiasPtSoftdir(const double PtSoft);
+    //double VarparPtSoftdir(const double PtSoft, const double SoftSumet);
 
     // variables
     double m_GeV;

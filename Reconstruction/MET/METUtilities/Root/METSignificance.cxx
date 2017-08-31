@@ -337,7 +337,7 @@ namespace met {
 	if(m_applyBias){
 	  // should be done to reset the phi as well...
 	  if(m_softTermParam==met::TSTParam){
-	    Double_t Bias_TST = BiasPtSoftdir(PtSoft.Mag());
+	    Double_t Bias_TST = BiasPtSoftdir(m_metsoft);
 	    Double_t MEx = m_met * cos(m_metphi) -  Bias_TST * cos(m_metsoftphi); 
 	    Double_t MEy = m_met * sin(m_metphi) -  Bias_TST * sin(m_metsoftphi);
 	    m_met = sqrt(MEx*MEx+MEy*MEy);
