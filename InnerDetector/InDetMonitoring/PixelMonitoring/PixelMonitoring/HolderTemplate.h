@@ -33,25 +33,25 @@ class HolderTemplate {
    * @param copy2DFEval: boolean whether to copy IBL values to neighbouring FE
    */
   inline HolderTemplate(const HistConf& config, bool copy2DFEval = false)
-      : IBL{nullptr},
-        IBL2D{nullptr},
-        IBL3D{nullptr},
-        B0{nullptr},
-        B1{nullptr},
-        B2{nullptr},
-        A{nullptr},
-        C{nullptr},
-        DBMA{nullptr},
-        DBMC{nullptr},
+      : m_histograms{{nullptr}},
+        IBL{m_histograms.at(0)},
+        IBL2D{m_histograms.at(1)},
+        IBL3D{m_histograms.at(2)},
+        B0{m_histograms.at(3)},
+        B1{m_histograms.at(4)},
+        B2{m_histograms.at(5)},
+        A{m_histograms.at(6)},
+        C{m_histograms.at(7)},
+        DBMA{m_histograms.at(8)},
+        DBMC{m_histograms.at(9)},
         m_config{config},
         m_copy2DFEval{copy2DFEval},
-        m_doIBL{true},
-        m_histograms{{&IBL, &IBL2D, &IBL3D, &B0, &B1, &B2, &A, &C, &DBMA, &DBMC}} {}
+        m_doIBL{true} {}
 
   //! Destructor to allow safe deletion of booked memory
   inline ~HolderTemplate() {
     for (auto& hist : m_histograms) {
-      LWHist::safeDelete(*hist);
+      LWHist::safeDelete(hist);
     }
   }
 
@@ -62,42 +62,47 @@ class HolderTemplate {
   StatusCode regHist(ManagedMonitorToolBase::MonGroup& group) {
     StatusCode sc = StatusCode::SUCCESS;
     for (auto& hist : m_histograms) {
-      if (*hist && group.regHist(*hist).isFailure()) {
+      if (hist && group.regHist(hist).isFailure()) {
         sc = StatusCode::FAILURE;
       }
     }
     return sc;
   }
 
+ protected:
+  //! Array containing raw pointers to all histograms.
+  std::array<T*, 10> m_histograms;
+
+ public:
   //! Pointer to individal histogram: IBL (both 2D/3D modules).
-  T* IBL;
+  T*& IBL;
 
   //! Pointer to individal histogram: IBL 2D histogram (2D modules only).
-  T* IBL2D;
+  T*& IBL2D;
 
   //! Pointer to individal histogram: IBL 3D histogram (3D modules only).
-  T* IBL3D;
+  T*& IBL3D;
 
   //! Pointer to individal histogram: barrel layer 0.
-  T* B0;
+  T*& B0;
 
   //! Pointer to individal histogram: barrel layer 1.
-  T* B1;
+  T*& B1;
 
   //! Pointer to individal histogram: barrel layer 2.
-  T* B2;
+  T*& B2;
 
   //! Pointer to individal histogram: end-cap side A.
-  T* A;
+  T*& A;
 
   //! Pointer to individal histogram: end-cap side C.
-  T* C;
+  T*& C;
 
   //! Pointer to individal histogram: DBM side A.
-  T* DBMA;
+  T*& DBMA;
 
   //! Pointer to individal histogram: DBM side C.
-  T* DBMC;
+  T*& DBMC;
 
  protected:
   //! Configuration which histograms are to be initialised.
@@ -108,9 +113,6 @@ class HolderTemplate {
 
   //! Boolean for job option 'doIBL'. --> TO BE REMOVED
   const bool m_doIBL;
-
-  //! Array containing raw pointers to all histograms.
-  const std::array<T**, 10> m_histograms;
 };
 }
 
