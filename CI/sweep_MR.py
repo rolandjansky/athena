@@ -120,29 +120,29 @@ def cherry_pick_mr(merge_commit,source_branch,target_branch_rules,project,dry_ru
     labels = set(mr_handle.labels)
 
     if "sweep:done" in labels:
-        logging.info("merge commit '%s' was already swept -> skipping",merge_commit)
+        logging.info("merge commit '%s' was already swept -> skipping ......\n",merge_commit)
         return
     if "sweep:ignore" in labels:
-        logging.info("merge commit '%s' is marked as ignore -> skipping",merge_commit)
+        logging.info("merge commit '%s' is marked as ignore -> skipping .......\n",merge_commit)
         return
 
     target_branches = set()
     
-    logging.debug("\n ************** Looking through MR labels ********** \n")
+    logging.debug("Looking through MR labels .... \n")
 
     for l in labels:
         logging.debug("label: %s",l)
         if re.match('^sweptFrom:',l):
-            logging.info("merge commit '%s' contains %s label -> skipping to prevent sweeping it twice",merge_commit,l)
+            logging.info("merge commit '%s' contains %s label -> skipping to prevent sweeping it twice .......\n",merge_commit,l)
             return
         if re.match('^alsoTargeting:',l):
             _s_ = l.split(':')
-            if len(_s_) == 2:
-                    _add_branches_ = _s_[1]
-                    logging.info("merge commit '%s' also targets the following branches: %s -> add to target list",merge_commit,_add_branches_)
-                    #target_branches.update(_add_branches_)
-
-    logging.debug("\n *******************************************************\n")
+            if len(_s_) == 2: # convert from unicode to have the same ascii string type as in target_branch_rules below
+                    _ss_ = [ _s_[1].encode('ascii','replace') ] 
+                    logging.info("merge commit '%s' also targets the following branches: %s -> add to target list",merge_commit,_ss_)
+                    target_branches.update(_ss_)
+            else:
+                logging.warning("merge commit '%s' has empty 'alsoTargeting:' label -> ignore")
 
     labels.add("sweep:done")
     mr_handle.labels = list(labels)
@@ -335,6 +335,7 @@ def main():
 
     # do the actual cherry-picking
     for mr in MR_list:
+        logging.debug("\n\n ===== Next MR: %s ====== \n\n",mr)
         cherry_pick_mr(mr,args.branch,target_branch_rules,project,args.dry_run)
 
     # change back to initial directory
