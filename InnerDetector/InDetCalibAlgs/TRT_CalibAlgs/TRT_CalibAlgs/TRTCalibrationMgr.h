@@ -13,6 +13,10 @@
 
 #include "StoreGate/DataHandle.h"
 #include "xAODEventInfo/EventInfo.h"
+#include "xAODTracking/VertexContainer.h"
+#include "CommissionEvent/ComTime.h"
+#include "TrkTrack/TrackCollection.h"
+#include "StoreGate/ReadHandleKey.h"
 //#include "TrkTrack/Track.h"
 //#include "TRT_ConditionsTools/TRTCalDbTool.h"
 
@@ -80,11 +84,15 @@ private:
 
   bool m_writeConstants;
   int m_ntrk;
-
-  const DataHandle<xAOD::EventInfo> m_EventInfo;
+  
+  SG::ReadHandleKey<xAOD::VertexContainer> m_verticesKey;
+  SG::ReadHandleKey<ComTime> m_theComTimeKey;
+  //const DataHandle<xAOD::EventInfo> m_EventInfo;
+  SG::ReadHandle<xAOD::EventInfo> m_EventInfo;
   ToolHandle<Trk::ITrackSelectorTool>   m_trackSelector;   //!< Tool handle to the Trk::ITrackSelectorTool
 
-  std::vector<std::string> m_TrkCollections;
+  //std::vector<std::string> m_TrkCollections;
+  SG::ReadHandleKeyArray<TrackCollection> m_TrkCollections;
   unsigned int m_max_ntrk;
 };
 
