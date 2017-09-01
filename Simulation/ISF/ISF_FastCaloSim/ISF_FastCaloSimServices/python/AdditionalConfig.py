@@ -12,9 +12,11 @@ from AthenaCommon import CfgMgr
 from AthenaCommon.Constants import *  # FATAL,ERROR etc.
 from AthenaCommon.SystemOfUnits import *
 from AthenaCommon.DetFlags import DetFlags
+from ISF_Algorithms.collection_merger_helpers import generate_mergeable_collection_name
 
-from ISF_Config.ISF_jobProperties import ISF_Flags # IMPORTANT: Flags must be set before tools are retrieved
+
 from ISF_FastCaloSimServices.ISF_FastCaloSimJobProperties import ISF_FastCaloSimFlags
+
 
 def getAdditionalParticleParametrizationFileNames():
     return [
@@ -708,7 +710,6 @@ def getTimedExtrapolator(name="TimedExtrapolator", **kwargs):
 
     from TrkExTools.TrkExToolsConf import Trk__TimedExtrapolator as TimedExtrapolator
     return TimedExtrapolator(name, **kwargs )
-
 ## FastShowerCellBuilderTool
 
 def getDefaultFastShowerCellBuilderTool(name, **kwargs):
