@@ -42,7 +42,6 @@
 + PhysicsAnalysis/HiggsPhys/Run2/HZZ/Tools/ZMassConstraint
 + PhysicsAnalysis/Interfaces/.*
 + PhysicsAnalysis/JetMissingEtID/JetSelectorTools
-+ PhysicsAnalysis/JetPhys/SemileptonicCorr
 + PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/CalibrationDataInterface
 + PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/xAODBTaggingEfficiency
 + PhysicsAnalysis/MCTruthClassifier
