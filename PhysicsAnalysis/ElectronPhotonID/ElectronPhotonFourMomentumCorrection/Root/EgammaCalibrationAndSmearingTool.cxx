@@ -19,8 +19,9 @@
 #include "PathResolver/PathResolver.h"
 #include "CxxUtils/make_unique.h"
 #include "xAODMetaData/FileMetaData.h"
-#ifndef ROOTCORE
 #include <boost/algorithm/string.hpp>
+
+#ifndef ROOTCORE
 #include "AthAnalysisBaseComps/AthAnalysisHelper.h"
 #endif
 
@@ -505,7 +506,6 @@ StatusCode EgammaCalibrationAndSmearingTool::get_simflavour_from_metadata(PATCor
     result = PATCore::ParticleDataType::Data;
     return StatusCode::SUCCESS;
   }
-
   // Determine Fast/FullSim
   std::string simType("");
   ATH_CHECK(AthAnalysisHelper::retrieveMetadata("/Simulation/Parameters", "SimulationFlavour", simType, inputMetaStore()));
@@ -527,7 +527,8 @@ StatusCode EgammaCalibrationAndSmearingTool::get_simflavour_from_metadata(PATCor
     }
     else {
       ATH_MSG_DEBUG("sim type = " + simType);
-      result = simType == "FullSim" ? PATCore::ParticleDataType::Full : PATCore::ParticleDataType::Fast;
+      boost::to_upper(simType);
+      result = (simType.find("ATLFASTII")==std::string::npos) ?  PATCore::ParticleDataType::Full : PATCore::ParticleDataType::Fast;
       return StatusCode::SUCCESS;
     }
   }
