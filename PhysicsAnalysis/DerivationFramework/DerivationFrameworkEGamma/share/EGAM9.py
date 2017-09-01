@@ -71,10 +71,15 @@ print expression
 
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-EGAM9SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "EGAM9SkimmingTool",
+EGAM9_SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "EGAM9_SkimmingTool",
                                                                    expression = expression)
-ToolSvc += EGAM9SkimmingTool
-print "EGAM9 skimming tool:", EGAM9SkimmingTool
+ToolSvc += EGAM9_SkimmingTool
+print "EGAM9 skimming tool:", EGAM9_SkimmingTool
+
+
+#====================================================================
+# DECORATION TOOLS
+#====================================================================
 
 
 #====================================================================
@@ -134,15 +139,33 @@ print "EGAM9 thinningTools: ", thinningTools
 
 
 #=======================================
+# CREATE PRIVATE SEQUENCE
+#=======================================
+egam9Seq = CfgMgr.AthSequencer("EGAM9Sequence")
+DerivationFrameworkJob += egam9Seq
+
+
+
+#=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM
 #=======================================
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("EGAM9Kernel",
-                                                                       AugmentationTools = [EGAM9_GainDecoratorTool, EGAM9_MaxCellDecoratorTool] + EGAM9_ClusterEnergyPerLayerDecorators,
-                                                                       SkimmingTools = [EGAM9SkimmingTool],
-                                                                       ThinningTools = thinningTools
-                                                                       )
+egam9Seq += CfgMgr.DerivationFramework__DerivationKernel("EGAM9Kernel",
+                                                         AugmentationTools = [EGAM9_GainDecoratorTool, EGAM9_MaxCellDecoratorTool] + EGAM9_ClusterEnergyPerLayerDecorators,
+                                                         SkimmingTools = [EGAM9_SkimmingTool],
+                                                         ThinningTools = thinningTools
+                                                         )
+
+
+
+#====================================================================
+# RESTORE JET COLLECTIONS REMOVED BETWEEN r20 AND r21
+#====================================================================
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
+reducedJetList = ["AntiKt4TruthJets"]
+replaceAODReducedJets(reducedJetList,egam9Seq,"EGAM9")
+
 
 
 #============ Create Derivation EGAM9 cell collection ==================
