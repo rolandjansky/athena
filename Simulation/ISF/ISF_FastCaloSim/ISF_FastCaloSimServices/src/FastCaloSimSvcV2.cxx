@@ -464,6 +464,7 @@ StatusCode ISF::FastCaloSimSvcV2::simulate(const ISF::ISFParticle& isfp)
     //std::cout << "Bin: " << i << " mean: " << mean << "  err: " << err << std::endl;
     
     energyDensityInBin = CLHEP::RandGauss::shoot(m_randomEngine,mean,err);
+
     energyInBin = energyDensityInBin * layerE;
     
     double minR = proj->GetBinLowEdge(i);

@@ -21,4 +21,3 @@ stepInfoSDTool.maxrEM2=60
 stepInfoSDTool.maxEtaEM3=1
 stepInfoSDTool.maxPhiEM3=5
 stepInfoSDTool.maxrEM3=8
-

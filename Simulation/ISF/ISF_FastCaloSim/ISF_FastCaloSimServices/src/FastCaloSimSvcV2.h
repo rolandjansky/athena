@@ -22,6 +22,7 @@
 #include "ISF_FastCaloSimEvent/IntArray.h"
 
 #include "TH2D.h"
+#include "TRandom3.h"
 
 #include "AthenaKernel/IAtRndmGenSvc.h"
 
@@ -132,7 +133,6 @@ namespace ISF {
       std::string  m_caloCellsOutputName;
 
       std::vector<double> m_rlayer;
-
 
       /** enable/disable random fluctuations in calorimeter layers */
       bool m_doRandomFluctuations;

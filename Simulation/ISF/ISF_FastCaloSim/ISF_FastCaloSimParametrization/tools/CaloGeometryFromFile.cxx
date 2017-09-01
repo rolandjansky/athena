@@ -5,7 +5,7 @@
 #include "CaloGeometryFromFile.h"
 #include <TTree.h>
 #include <TFile.h>
-#include "CaloDetDescr/CaloDetDescrElement.h"
+#include "ISF_FastCaloSimParametrization/CaloGeoDetDescrElement.h"
 #include <fstream>
 #include <sstream>
 #include <TGraph.h>
@@ -106,6 +106,7 @@ bool CaloGeometryFromFile::LoadGeometryFromFile(TString filename,TString treenam
     if (g_cellId_vs_cellHashId_map.find(cell.m_identify)!=g_cellId_vs_cellHashId_map.end()) cell.m_hash_id=g_cellId_vs_cellHashId_map[cell.m_identify];
     else cout << endl << "ERROR: Cell id not found in the cellId_vs_cellHashId_map!!!" << endl << endl;
     
+
     const CaloDetDescrElement* pcell=new CaloDetDescrElement(cell);
     int sampling = pcell->getSampling();
     
@@ -146,6 +147,7 @@ bool CaloGeometryFromFile::LoadGeometryFromFile(TString filename,TString treenam
 	bool ok = PostProcessGeometry();
 	
 	cout << "Result of PostProcessGeometry(): " << ok << endl;
+
 	const CaloDetDescrElement* mcell=0;
 	unsigned long long cellid64(3179554531063103488);
 	Identifier cellid(cellid64);
@@ -326,7 +328,7 @@ void CaloGeometryFromFile::LoadFCalGeometryFromFiles(TString filename1,TString f
   
   for(int imodule=1;imodule<=3;imodule++) delete electrodes[imodule-1];
   electrodes.clear();
-  
+
 }
 
 void CaloGeometryFromFile::DrawFCalGraph(int isam,int color){
@@ -339,6 +341,7 @@ void CaloGeometryFromFile::DrawFCalGraph(int isam,int color){
 	double x[size];
 	double y[size];
 	//const CaloDetDescrElement* cell;
+
 	int i=0;
 	for(auto it=m_cells_in_sampling[isam].begin();it!=m_cells_in_sampling[isam].end();it++){
 		x[i]=it->second->x();

@@ -13,10 +13,8 @@ from AthenaCommon.Constants import *  # FATAL,ERROR etc.
 from AthenaCommon.SystemOfUnits import *
 from AthenaCommon.DetFlags import DetFlags
 
+from ISF_Config.ISF_jobProperties import ISF_Flags # IMPORTANT: Flags must be set before tools are retrieved
 from ISF_FastCaloSimServices.ISF_FastCaloSimJobProperties import ISF_FastCaloSimFlags
-
-from ISF_Algorithms.collection_merger_helpers import generate_mergeable_collection_name
-
 
 def getAdditionalParticleParametrizationFileNames():
     return [
