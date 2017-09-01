@@ -13,15 +13,25 @@ Introduction
 
 This package contains a set of tools to provide users with the recommended
 overlap removal prescriptions for analysis-level objects (electrons, muons,
-jets, photons, and fat-jets). This document covers a wide range of technical
-details about how the package is structured, but if you're just looking for
-the quick answers of how to set things up and use the tools, you can skip
-ahead to the `Configuration helpers`_ section.
+taus, jets, photons, and fat-jets). This document covers a wide range of
+technical details about how the package is structured, but if you're just
+looking for the quick answers of how to set things up and use the tools, you
+can skip ahead to the `Configuration helpers`_ section.
 
-The current features and recommendations (for ICHEP) are summarized in my
-ASG presentation on 2016-06-03 here: https://indico.cern.ch/event/539619/.
+The current recommendations were summarized by Will Buttinger in this Physics
+Coordination meeting: https://indico.cern.ch/event/587852/. The table on slide
+3 summarizes the recommendations and the proposal to drop the mu-jet pt ratio
+requirements on slide 5 was accepted as part of the recommendations.  Apologies
+for any confusion. I will try to clean up this documentation in the coming
+days.
+
+For some history you may also refer to the slides at these ASG meetings:
+
+* 2016-10-21: https://indico.cern.ch/event/576538/
+* 2016-06-03 (for ICHEP): https://indico.cern.ch/event/539619/
+
 The configuration is quite flexible and a lot of features are supported,
-but in summary it is recommended that analyses adopt one of ~four "working
+but in summary it is recommended that analyses adopt one of the "working
 points" depending on the type of analysis:
 
 * **Standard** - covers normal analyses not falling into the other categories.
@@ -35,21 +45,16 @@ code in RootCore, take a look at the tester executable:
 
 * `util/OverlapRemovalTester.cxx <../util/OverlapRemovalTester.cxx>`_
 
-For a corresponding example in Athena (or AthAnalysisBase), look at the
+For a corresponding example in Athena (e.g. in AthAnalysis), look at the
 tester algorithm and job options:
 
 * `src/OverlapRemovalTestAlg.h <../src/OverlapRemovalTestAlg.h>`_
 * `src/OverlapRemovalTestAlg.cxx <../src/OverlapRemovalTestAlg.cxx>`_
 * `share/OverlapRemovalTest_jobOptions.py <../share/OverlapRemovalTest_jobOptions.py>`_
 
-The design of this package has undergone some upgrades since its initial
-offering. See for example the following JIRA ticket describing the upgrade
-to the current modular tool design:
-https://its.cern.ch/jira/browse/ATLASG-182.
-For details on the deprecated legacy implementation (which provided OR
-prescriptions in a single monolithic tool), refer to
-`doc/README_legacy.rst <README_legacy.rst>`_.
-However, that code is no longer maintained.
+For documentation of legacy features, refer to the original package README
+in the SVN area:
+https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/AnalysisCommon/AssociationUtils/trunk/doc/README.rst
 
 ---------------------
 Overlap removal tools
