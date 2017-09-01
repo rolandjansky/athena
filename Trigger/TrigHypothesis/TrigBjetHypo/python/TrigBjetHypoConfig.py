@@ -457,7 +457,7 @@ class BjetHypoAllTE (TrigBjetHypoAllTE):
             for jetReq in jetReqAndComo:
                 thisEtThresholdsOR    .append(jetReq[0])
                 thisBTagMinOR         .append(self.getCutValue(AllowedCuts[jetReq[1]]))
-                if jetReq[2] in AllowedCuts:
+                if jetReq[2] < len(AllowedCuts):
                     thisBTagMaxOR         .append(self.getCutValue(AllowedCuts[jetReq[2]]))
                 else:
                     thisBTagMaxOR         .append(jetReq[2])
@@ -469,10 +469,20 @@ class BjetHypoAllTE (TrigBjetHypoAllTE):
             MultiplicitiesOR .append(thisMultiplicitiesOR)
 
 
-
+        mlog.debug("EtThresholdsOR:")
+        mlog.debug(EtThresholdsOR)
         self.EtThresholdsOR    = EtThresholdsOR   
+
+        mlog.debug("BTagMinOR:")
+        mlog.debug(BTagMinOR)
         self.BTagMinOR         = BTagMinOR        
+
+        mlog.debug("BTagMaxOR:")
+        mlog.debug(BTagMaxOR)
         self.BTagMaxOR         = BTagMaxOR        
+
+        mlog.debug("MultiplicitiesOR:")
+        mlog.debug(MultiplicitiesOR)
         self.MultiplicitiesOR  = MultiplicitiesOR 
 
 #        if instance=="EF" :
