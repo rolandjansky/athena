@@ -12,6 +12,7 @@
 
 #include "DerivationFrameworkMCTruth/HadronOriginDecorator.h"
 #include "DerivationFrameworkMCTruth/HadronOriginClassifier.h"
+#include "DerivationFrameworkMCTruth/TruthQGDecorationTool.h"
 
 using namespace DerivationFramework;
 
@@ -28,7 +29,7 @@ DECLARE_TOOL_FACTORY( HardTruthThinning )
 
 DECLARE_TOOL_FACTORY( HadronOriginDecorator )
 DECLARE_TOOL_FACTORY(  HadronOriginClassifier )
-
+DECLARE_TOOL_FACTORY( TruthQGDecorationTool )
 
 DECLARE_FACTORY_ENTRIES( DerivationFrameworkMCTruth) {
    DECLARE_TOOL( TruthDressingTool )
@@ -43,7 +44,7 @@ DECLARE_FACTORY_ENTRIES( DerivationFrameworkMCTruth) {
    DECLARE_TOOL( HardTruthThinning )
    DECLARE_TOOL( HadronOriginDecorator )
    DECLARE_TOOL(  HadronOriginClassifier )
-
+   DECLARE_TOOL( TruthQGDecorationTool )
 
 }
 
