@@ -321,8 +321,8 @@ private:
    /// the number of hits
    TProfile_LW*            m_hits_per_lumi;
    TH1I_LW*                m_num_hits;
-   PixelMon2DMapsLW*       m_hitmap_mon;
-   PixelMon2DMapsLW*       m_hitmap_tmp;
+   std::unique_ptr<PixelMon2DMapsLW> m_hitmap_mon;
+   std::unique_ptr<PixelMon2DMapsLW> m_hitmap_tmp;
    TH1F_LW*                m_nhits_mod[PixLayer::COUNT];
    TProfile_LW*            m_hits_per_lumi_mod[PixLayer::COUNT];
    TH1F_LW*                m_nlargeevt_per_lumi_mod[PixLayerIBL2D3D::COUNT];
@@ -337,10 +337,10 @@ private:
    TH2F_LW*                m_maxocc_per_lumi_mod[PixLayerIBL2D3D::COUNT];
    TH2F_LW*                m_modocc_per_lumi[PixLayer::COUNT];
    TH1F_LW*                m_maxocc_per_bcid_mod[PixLayerIBL2D3D::COUNT];
-   PixelMon2DMapsLW*       m_occupancy;
-   PixelMon2DMapsLW*       m_average_pixocc;
-   PixelMon2DProfilesLW*   m_occupancy_pix_evt;
-   PixelMon2DMapsLW*       m_occupancy_10min;
+   std::unique_ptr<PixelMon2DMapsLW> m_occupancy;
+   std::unique_ptr<PixelMon2DMapsLW> m_average_pixocc;
+   std::unique_ptr<PixelMon2DProfilesLW> m_occupancy_pix_evt;
+   std::unique_ptr<PixelMon2DMapsLW> m_occupancy_10min;
    TProfile*               m_occupancy_time1;
    TProfile*               m_occupancy_time2;
    TProfile*               m_occupancy_time3;
@@ -365,8 +365,8 @@ private:
    TH1F_LW*                m_Lvl1A_10min_mod[PixLayer::COUNT];
    TH1I_LW*                m_Lvl1ID_diff_mod_ATLAS_mod[PixLayer::COUNT];
    TH1I_LW*                m_diff_ROD_vs_Module_BCID_mod[PixLayer::COUNT];
-   PixelMon2DLumiProfiles* m_Lvl1ID_diff_mod_ATLAS_per_LB;
-   PixelMon2DLumiProfiles* m_Lvl1ID_absdiff_mod_ATLAS_per_LB;
+   std::unique_ptr<PixelMon2DLumiProfiles> m_Lvl1ID_diff_mod_ATLAS_per_LB;
+   std::unique_ptr<PixelMon2DLumiProfiles> m_Lvl1ID_absdiff_mod_ATLAS_per_LB;
    /// Quick status
    TH2F_LW*                m_nhits_L0_B11_S2_C6;
    TProfile2D_LW*          m_occupancy_L0_B11_S2_C6;
@@ -404,16 +404,16 @@ private:
    TProfile_LW*            m_tracksPerEvt_per_lumi;
    TProfile_LW*            m_tracksPerEvtPerMu_per_lumi;
    /// track state on surface
-   PixelMon2DMapsLW*       m_tsos_hitmap;
-   PixelMon2DMapsLW*       m_tsos_holemap;
-   PixelMon2DMapsLW*       m_tsos_outliermap;
-   //PixelMon2DProfilesLW*   m_tsos_measratio;
-   //PixelMon2DProfilesLW*   m_tsos_holeratio;
-   PixelMon2DProfilesLW*   m_misshits_ratio;
-   PixelMon2DProfilesLW*   m_tsos_holeratio_tmp;
-   PixelMon2DProfilesLW*   m_tsos_holeratio_mon;
-   PixelMon2DProfilesLW*   m_misshits_ratio_tmp;
-   PixelMon2DProfilesLW*   m_misshits_ratio_mon;
+   std::unique_ptr<PixelMon2DMapsLW> m_tsos_hitmap;
+   std::unique_ptr<PixelMon2DMapsLW> m_tsos_holemap;
+   std::unique_ptr<PixelMon2DMapsLW> m_tsos_outliermap;
+   //std::unique_ptr<PixelMon2DProfilesLW> m_tsos_measratio;
+   //std::unique_ptr<PixelMon2DProfilesLW> m_tsos_holeratio;
+   std::unique_ptr<PixelMon2DProfilesLW> m_misshits_ratio;
+   std::unique_ptr<PixelMon2DProfilesLW> m_tsos_holeratio_tmp;
+   std::unique_ptr<PixelMon2DProfilesLW> m_tsos_holeratio_mon;
+   std::unique_ptr<PixelMon2DProfilesLW> m_misshits_ratio_tmp;
+   std::unique_ptr<PixelMon2DProfilesLW> m_misshits_ratio_mon;
    /// hit efficiency
    TProfile_LW*            m_hiteff_incl_mod[PixLayerDisk::COUNT];
    /// Lorentz Angle
@@ -469,9 +469,9 @@ private:
    TH1F_LW*              m_2cluster_Q_mod[PixLayer::COUNT];
    TH1F_LW*              m_3cluster_Q_mod[PixLayer::COUNT];
    TH1F_LW*              m_bigcluster_Q_mod[PixLayer::COUNT];
-   PixelMon2DProfilesLW* m_clussize_map;
-   PixelMon2DProfilesLW* m_cluscharge_map;
-   PixelMon2DProfilesLW* m_clusToT_map;
+   std::unique_ptr<PixelMon2DProfilesLW> m_clussize_map;
+   std::unique_ptr<PixelMon2DProfilesLW> m_cluscharge_map;
+   std::unique_ptr<PixelMon2DProfilesLW> m_clusToT_map;
    TH1F_LW*              m_cluster_groupsize;
    TH1F_LW*              m_cluster_col_width;
    TH1F_LW*              m_cluster_row_width;
@@ -485,15 +485,15 @@ private:
    TH2F_LW*              m_ToT_vs_clussize_mod[PixLayer::COUNT];
    TProfile_LW*          m_clussize_vs_eta_mod[PixLayer::COUNT];
 
-   PixelMon2DMapsLW*     m_clustermap_mon;
-   PixelMon2DMapsLW*     m_clustermap_tmp;
-   PixelMon2DMapsLW*     m_cluster_occupancy;
+   std::unique_ptr<PixelMon2DMapsLW> m_clustermap_mon;
+   std::unique_ptr<PixelMon2DMapsLW> m_clustermap_tmp;
+   std::unique_ptr<PixelMon2DMapsLW> m_cluster_occupancy;
    TH2F_LW*              m_cluster_occupancy_FE_B0_mon;
    TProfile*             m_cluster_occupancy_time1;
    TProfile*             m_cluster_occupancy_time2;
    TProfile*             m_cluster_occupancy_time3;
 
-   PixelMon2DMapsLW*     m_clusocc_sizenot1;
+   std::unique_ptr<PixelMon2DMapsLW> m_clusocc_sizenot1;
    PixelMonModulesProf*  m_cluseff_mod;
    PixelMonModules1D*    m_cluster_ToT_mod;
    PixelMonModules1D*    m_cluster_size_mod;
@@ -502,8 +502,8 @@ private:
    TProfile_LW*          m_clusters_per_track_per_lumi_mod[PixLayer::COUNT];
    TH1I_LW*              m_num_clusters_mod[PixLayer::COUNT];
    TH1F_LW*              m_cluster_occupancy_summary_mod[PixLayer::COUNT];
-   PixelMon2DProfilesLW* m_cluster_LVL1A_mod;
-   PixelMon2DProfilesLW* m_clus_LVL1A_sizenot1;
+   std::unique_ptr<PixelMon2DProfilesLW> m_cluster_LVL1A_mod;
+   std::unique_ptr<PixelMon2DProfilesLW> m_clus_LVL1A_sizenot1;
    TProfile_LW*          m_clustersOnOffTrack_per_lumi;
    /// Quick status
    TH2F_LW*              m_clusters_onTrack_L0_B11_S2_C6;
@@ -514,10 +514,10 @@ private:
    ///Status histograms
    ///
    PixelMonModules1D*    m_Status_modules;
-   PixelMon2DProfilesLW* m_status;
-   PixelMon2DProfilesLW* m_status_mon;
-   PixelMon2DProfilesLW* m_status_LB;
-   PixelMon2DMapsLW*     m_dqStatus;
+   std::unique_ptr<PixelMon2DProfilesLW> m_status;
+   std::unique_ptr<PixelMon2DProfilesLW> m_status_mon;
+   std::unique_ptr<PixelMon2DProfilesLW> m_status_LB;
+   std::unique_ptr<PixelMon2DMapsLW> m_dqStatus;
    TProfile_LW*          m_disabledModules_per_lumi_PIX;
    TProfile_LW*          m_badModules_per_lumi_mod[PixLayerIBL2D3D::COUNT];
    TProfile_LW*          m_disabledModules_per_lumi_mod[PixLayerIBL2D3D::COUNT];
@@ -531,8 +531,8 @@ private:
    static const int      kNumErrorStatesIBL{27};
    TProfile_LW*          m_errhist_errcat_LB[PixLayerIBL2D3D::COUNT][ErrorCategory::COUNT];
    TProfile_LW*          m_errhist_errtype_LB[PixLayerIBL2D3D::COUNT][ErrorCategoryMODROD::COUNT - 3];
-   PixelMon2DMapsLW*     m_errhist_errcat_map[ErrorCategory::COUNT];
-   PixelMon2DMapsLW*     m_errhist_errtype_map[ErrorCategoryMODROD::COUNT];
+   std::unique_ptr<PixelMon2DMapsLW> m_errhist_errcat_map[ErrorCategory::COUNT];
+   std::unique_ptr<PixelMon2DMapsLW> m_errhist_errtype_map[ErrorCategoryMODROD::COUNT];
    TProfile_LW*          m_errhist_errcat_avg[ErrorCategory::COUNT][PixLayerIBL2D3D::COUNT];
    TProfile_LW*          m_errhist_errtype_avg[ErrorCategoryMODROD::COUNT - 3][PixLayerIBL2D3D::COUNT];
    TProfile_LW*          m_errhist_tot_LB[PixLayerIBL2D3D::COUNT];
@@ -543,11 +543,11 @@ private:
    TProfile*             m_error_time2;       
    TProfile*             m_error_time3;       
    PixelMonModules1D*    m_errors;
-   PixelMon2DProfilesLW* m_errhist_femcc_errwords_map;
+   std::unique_ptr<PixelMon2DProfilesLW> m_errhist_femcc_errwords_map;
 
    // Histograms in 'ErrorsExpert' folder
-   PixelMon2DLumiMaps*   m_errhist_expert_LB_maps[kNumErrorStates + kNumErrorStatesIBL];
-   PixelMon2DMapsLW*     m_errhist_expert_maps[kNumErrorStates + kNumErrorStatesIBL];
+   std::unique_ptr<PixelMon2DLumiMaps> m_errhist_expert_LB_maps[kNumErrorStates + kNumErrorStatesIBL];
+   std::unique_ptr<PixelMon2DMapsLW> m_errhist_expert_maps[kNumErrorStates + kNumErrorStatesIBL];
    TProfile_LW*          m_errhist_expert_LB[PixLayer::COUNT-1][kNumErrorStates];
    TProfile_LW*          m_errhist_expert_IBL_LB[kNumErrorStatesIBL];
    TH3F*                 m_errhist_expert_fe_trunc_err_3d[PixLayer::COUNT];
@@ -556,9 +556,9 @@ private:
    TH1F_LW*              m_errhist_expert_servrec_ibl_count;
 
    // Histograms in low-stat folder
-   PixelMon2DMapsLW*     m_errors_LB;
-   PixelMon2DMapsLW*     m_errors_RODSync_mod;
-   PixelMon2DMapsLW*     m_errors_ModSync_mod;
+   std::unique_ptr<PixelMon2DMapsLW> m_errors_LB;
+   std::unique_ptr<PixelMon2DMapsLW> m_errors_RODSync_mod;
+   std::unique_ptr<PixelMon2DMapsLW> m_errors_ModSync_mod;
 
    ///
    /// SP Histograms
@@ -574,7 +574,7 @@ private:
    TH2F_LW*  m_spHit_rz;
 
    //Histograms stored for certain number of LB at a time
-   PixelMon2DMapsLW*  m_cluster_occupancy_LB;  //cluster occupancy (shows module status)
+   std::unique_ptr<PixelMon2DMapsLW> m_cluster_occupancy_LB;  //cluster occupancy (shows module status)
    PixelMonModules1D* m_cluster_ToT_mod_LB;
    PixelMonModules1D* m_cluster_num_mod_LB;
    PixelMonModules1D* m_hit_num_mod_LB;

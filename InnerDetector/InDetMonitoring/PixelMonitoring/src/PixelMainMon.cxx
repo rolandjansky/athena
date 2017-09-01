@@ -53,6 +53,10 @@
 #include "EventInfo/EventID.h"
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
 #include "PathResolver/PathResolver.h"
+#include "PixelMonitoring/PixelMon2DMapsLW.h"
+#include "PixelMonitoring/PixelMon2DProfilesLW.h"
+#include "PixelMonitoring/PixelMon2DLumiMaps.h"
+#include "PixelMonitoring/PixelMon2DLumiProfiles.h"
 
 //////////////////////////////////////////////////////////////////////////////
 
