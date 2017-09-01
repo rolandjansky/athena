@@ -172,8 +172,6 @@ PixelMainMon::PixelMainMon(const std::string & type,
    /// number of hits
    m_hits_per_lumi = 0;
    m_num_hits = 0;
-   m_hitmap_tmp = 0;
-   m_hitmap_mon = 0;
    memset(m_nhits_mod, 0, sizeof(m_nhits_mod));
    memset(m_hits_per_lumi_mod, 0, sizeof(m_hits_per_lumi_mod));
    memset(m_nlargeevt_per_lumi_mod, 0, sizeof(m_nlargeevt_per_lumi_mod));
@@ -187,10 +185,6 @@ PixelMainMon::PixelMainMon(const std::string & type,
    memset(m_avgocc_active_per_lumi_mod, 0, sizeof(m_avgocc_active_per_lumi_mod));
    memset(m_maxocc_per_lumi_mod, 0, sizeof(m_maxocc_per_lumi_mod));
    memset(m_maxocc_per_bcid_mod, 0, sizeof(m_maxocc_per_bcid_mod));
-   m_occupancy = 0;
-   m_average_pixocc = 0;
-   m_occupancy_pix_evt = 0;
-   m_occupancy_10min = 0;
    m_occupancy_time1 = 0;
    m_occupancy_time2 = 0;
    m_occupancy_time3 = 0;
@@ -215,8 +209,6 @@ PixelMainMon::PixelMainMon(const std::string & type,
    memset(m_Lvl1A_10min_mod, 0, sizeof(m_Lvl1A_10min_mod));
    memset(m_Lvl1ID_diff_mod_ATLAS_mod, 0, sizeof(m_Lvl1ID_diff_mod_ATLAS_mod));
    memset(m_diff_ROD_vs_Module_BCID_mod, 0, sizeof(m_diff_ROD_vs_Module_BCID_mod));
-   m_Lvl1ID_diff_mod_ATLAS_per_LB = 0;
-   m_Lvl1ID_absdiff_mod_ATLAS_per_LB = 0;
    /// Quick status
    m_nhits_L0_B11_S2_C6 = 0;
    m_occupancy_L0_B11_S2_C6 = 0;
@@ -251,16 +243,6 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_tracksPerEvt_per_lumi = 0;
    m_tracksPerEvtPerMu_per_lumi = 0;
    /// track state on surface
-   m_tsos_hitmap = 0;
-   m_tsos_holemap = 0;
-   m_tsos_outliermap = 0;
-   //m_tsos_measratio = 0;
-   //m_tsos_holeratio = 0;
-   m_misshits_ratio = 0;
-   m_tsos_holeratio_tmp = 0;
-   m_tsos_holeratio_mon = 0;
-   m_misshits_ratio_tmp = 0;
-   m_misshits_ratio_mon = 0;
    /// hit efficiency
    memset(m_hiteff_incl_mod, 0, sizeof(m_hiteff_incl_mod));
    /// Lorentz Angle
@@ -313,29 +295,21 @@ PixelMainMon::PixelMainMon(const std::string & type,
    memset(m_2cluster_Q_mod, 0, sizeof(m_2cluster_Q_mod));
    memset(m_3cluster_Q_mod, 0, sizeof(m_3cluster_Q_mod));
    memset(m_bigcluster_Q_mod, 0, sizeof(m_bigcluster_Q_mod));
-   m_clussize_map = 0;
-   m_cluscharge_map = 0;
-   m_clusToT_map = 0;
    m_cluster_groupsize = 0;
    m_cluster_col_width = 0;
    m_cluster_row_width = 0;
    memset(m_cluster_col_width_mod, 0, sizeof(m_cluster_col_width_mod));
    memset(m_cluster_row_width_mod, 0, sizeof(m_cluster_row_width_mod));
    memset(m_cluster_groupsize_mod, 0, sizeof(m_cluster_groupsize_mod));
-   m_cluster_LVL1A = 0;
    memset(m_cluster_LVL1A1d_mod, 0, sizeof(m_cluster_LVL1A1d_mod));
    m_clusterSize_eta = 0;
    memset(m_clusToT_vs_eta_mod, 0, sizeof(m_clusToT_vs_eta_mod));
    memset(m_ToT_vs_clussize_mod, 0, sizeof(m_ToT_vs_clussize_mod));
    memset(m_clussize_vs_eta_mod, 0, sizeof(m_clussize_vs_eta_mod));
-   m_clustermap_mon = 0;
-   m_clustermap_tmp = 0;
-   m_cluster_occupancy = 0;
    m_cluster_occupancy_FE_B0_mon = 0;
    m_cluster_occupancy_time1 = 0;
    m_cluster_occupancy_time2 = 0;
    m_cluster_occupancy_time3 = 0;
-   m_clusocc_sizenot1 = 0; 
    m_cluseff_mod = 0;
    m_cluster_ToT_mod = 0;
    m_cluster_size_mod = 0;
@@ -345,7 +319,6 @@ PixelMainMon::PixelMainMon(const std::string & type,
    memset(m_num_clusters_mod, 0, sizeof(m_num_clusters_mod));
    memset(m_cluster_occupancy_summary_mod, 0, sizeof(m_cluster_occupancy_summary_mod));
    m_cluster_LVL1A_mod = 0;
-   m_clus_LVL1A_sizenot1 = 0; 
    m_clustersOnOffTrack_per_lumi = 0;
    /// Quick status
    m_clusters_onTrack_L0_B11_S2_C6 = 0;
@@ -354,10 +327,6 @@ PixelMainMon::PixelMainMon(const std::string & type,
    /// Status
    ///
    m_Status_modules = 0;
-   m_status = 0;
-   m_status_mon = 0;
-   m_status_LB = 0;           
-   m_dqStatus = 0;
    m_disabledModules_per_lumi_PIX = 0;
    memset(m_badModules_per_lumi_mod, 0, sizeof(m_badModules_per_lumi_mod));
    memset(m_disabledModules_per_lumi_mod, 0, sizeof(m_disabledModules_per_lumi_mod));
@@ -374,9 +343,6 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_error_time2 = 0;       
    m_error_time3 = 0;       
    m_errors = 0;
-   memset(m_errhist_errtype_map, 0, sizeof(m_errhist_errtype_map));
-   memset(m_errhist_errcat_map, 0, sizeof(m_errhist_errcat_map));
-   memset(m_errhist_expert_maps, 0, sizeof(m_errhist_expert_maps));
    memset(m_errhist_expert_LB, 0, sizeof(m_errhist_expert_LB));
    memset(m_errhist_per_bit_LB, 0, sizeof(m_errhist_per_bit_LB));
    memset(m_errhist_per_type_LB, 0, sizeof(m_errhist_per_type_LB));
@@ -384,10 +350,6 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_errhist_expert_servrec_ibl_unweighted = 0;
    m_errhist_expert_servrec_ibl_weighted = 0;
    m_errhist_expert_servrec_ibl_count = 0;
-   memset(m_errhist_expert_LB_maps, 0, sizeof(m_errhist_expert_LB_maps));
-   m_errors_LB = 0;           
-   m_errors_RODSync_mod = 0;
-   m_errors_ModSync_mod = 0;
    ///
    /// Space Point
    ///
@@ -403,7 +365,6 @@ PixelMainMon::PixelMainMon(const std::string & type,
    ///
    /// Per 20 LB
    ///
-   m_cluster_occupancy_LB = 0;
    m_cluster_ToT_mod_LB = 0;
    m_cluster_num_mod_LB = 0;
    m_hit_num_mod_LB = 0;
