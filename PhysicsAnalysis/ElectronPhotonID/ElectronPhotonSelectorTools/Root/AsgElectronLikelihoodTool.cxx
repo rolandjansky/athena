@@ -340,18 +340,24 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg
   double ip(0);
 
   bool allFound = true;
+  std::string notFoundList = "";
 
   // Wstot for use when CutWstotAtHighET vector is filled
-  allFound = allFound && eg->showerShapeValue(wstot, xAOD::EgammaParameters::wtots1);
-
-  // get the ambiguity type from the decoration
-  if ( eg->isAvailable<uint8_t>("ambiguityType") ) {
-    static const SG::AuxElement::Accessor<uint8_t> acc("ambiguityType");    
-    ambiguityBit = acc(*eg);
-  } else {
+  if( !eg->showerShapeValue(wstot, xAOD::EgammaParameters::wtots1) ){
     allFound = false;
+    notFoundList += "wtots1 ";
   }
 
+  // get the ambiguity type from the decoration
+  if ( m_rootTool->CutAmbiguity.size() ) {
+    if ( eg->isAvailable<uint8_t>("ambiguityType") ) {
+      static const SG::AuxElement::Accessor<uint8_t> acc("ambiguityType");    
+      ambiguityBit = acc(*eg);
+    } else {
+      allFound = false;
+      notFoundList += "ambiguityType ";
+    }
+  }
   
   if(!m_caloOnly) {
       // retrieve associated track
@@ -364,11 +370,18 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg
         EoverP = fabs(t->qOverP()) * energy;
       }
       else {
-        ATH_MSG_WARNING ( "Failed, no track particle: et= " << et << "eta= " << eta );
+        ATH_MSG_ERROR( "Failed, no track particle. et= " << et << "eta= " << eta );
+        return m_acceptDummy;
       }
 
-      allFound = allFound && eg->trackCaloMatchValue(deltaEta, xAOD::EgammaParameters::deltaEta1);
-      allFound = allFound && eg->trackCaloMatchValue(deltaPhiRescaled2, xAOD::EgammaParameters::deltaPhiRescaled2);
+      if( !eg->trackCaloMatchValue(deltaEta, xAOD::EgammaParameters::deltaEta1) ){
+        allFound = false;
+        notFoundList += "deltaEta1 ";
+      }
+      if( !eg->trackCaloMatchValue(deltaPhiRescaled2, xAOD::EgammaParameters::deltaPhiRescaled2) ){
+        allFound = false;
+        notFoundList += "deltaPhiRescaled2 ";
+      }
 
   } //if not calo ONly
 
@@ -385,21 +398,18 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg
   // for now don't cache. 
   double likelihood = calculate(eg, ip); 
 
-  std::string printVarStr = Form("PassVars: LH=%8.5f, eta=%8.5f, et=%8.5f, nSiHitsPlusDeadSensors=%i, nHitsPlusPixDeadSensors=%i, passBLayerRequirement=%i, convBit=%i, ambiguityBit=%i, d0=%8.5f, deltaEta=%8.5f, deltaphires=%5.8f, wstot=%8.5f, EoverP=%8.5f, ip=%8.5f",
-      likelihood, eta, et,
-      nSiHitsPlusDeadSensors, nPixHitsPlusDeadSensors,
-      passBLayerRequirement,
-      convBit, ambiguityBit, d0, deltaEta, deltaPhiRescaled2,
-      wstot, EoverP, ip );
-
-
+  ATH_MSG_VERBOSE( Form("PassVars: LH=%8.5f, eta=%8.5f, et=%8.5f, nSiHitsPlusDeadSensors=%i, nHitsPlusPixDeadSensors=%i, passBLayerRequirement=%i, convBit=%i, ambiguityBit=%i, d0=%8.5f, deltaEta=%8.5f, deltaphires=%5.8f, wstot=%8.5f, EoverP=%8.5f, ip=%8.5f",
+			likelihood, eta, et,
+			nSiHitsPlusDeadSensors, nPixHitsPlusDeadSensors,
+			passBLayerRequirement,
+			convBit, ambiguityBit, d0, deltaEta, deltaPhiRescaled2,
+			wstot, EoverP, ip ));
+  
   if (!allFound) {
-    ATH_MSG_WARNING("Have some variables missing. " << printVarStr);
+    ATH_MSG_ERROR("Skipping LH rectangular cuts! The following variables are missing: " << notFoundList);
+    return m_acceptDummy;
   }
-  else{
-    ATH_MSG_VERBOSE(printVarStr);
-  }
-
+  
   // Get the answer from the underlying ROOT tool
   return m_rootTool->accept( likelihood,
                              eta,
@@ -481,21 +491,24 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Egamma* eg, 
   float wstot=0, EoverP=0;
 
   bool allFound = true;
+  std::string notFoundList = "";
 
   // Wstot for use when CutWstotAtHighET vector is filled
-  allFound = allFound && eg->showerShapeValue(wstot, xAOD::EgammaParameters::wtots1);
+  if( !eg->showerShapeValue(wstot, xAOD::EgammaParameters::wtots1) ){
+    allFound = false; 
+    notFoundList += "wtots1 ";
+  }
 
-  std::string printVarStr = Form("PassVars: LH=%8.5f, eta=%8.5f, et=%8.5f, nSiHitsPlusDeadSensors=%i, nPixHitsPlusDeadSensors=%i, passBLayerRequirement=%i, convBit=%i, ambiguityBit=%i, ip=%8.5f, wstot=%8.5f",
-      likelihood, eta, et,
-      nSiHitsPlusDeadSensors, nPixHitsPlusDeadSensors, 
-      passBLayerRequirement,
-      convBit, ambiguityBit, ip, wstot ) ;
+  ATH_MSG_VERBOSE( Form("PassVars: LH=%8.5f, eta=%8.5f, et=%8.5f, nSiHitsPlusDeadSensors=%i, nPixHitsPlusDeadSensors=%i, passBLayerRequirement=%i, convBit=%i, ambiguityBit=%i, ip=%8.5f, wstot=%8.5f",
+			likelihood, eta, et,
+			nSiHitsPlusDeadSensors, nPixHitsPlusDeadSensors, 
+			passBLayerRequirement,
+			convBit, ambiguityBit, ip, wstot));
+  
 
   if (!allFound) {
-    ATH_MSG_WARNING("Have some variables missing. " << printVarStr);
-  }
-  else{
-    ATH_MSG_VERBOSE(printVarStr);
+    ATH_MSG_ERROR("Skipping LH rectangular cuts! The following variables are missing: " << notFoundList);
+    return m_acceptDummy;
   }
 
   // Get the answer from the underlying ROOT tool
@@ -569,6 +582,8 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron*
   float deltaEta=0, deltaPhiRescaled2=0;
 
   bool allFound = true;
+  std::string notFoundList = "";
+
   if (!m_caloOnly){
   // retrieve associated TrackParticle
     const xAOD::TrackParticle* t = eg->trackParticle();    
@@ -581,7 +596,10 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron*
 	  d0sigma=sqrtf(vard0);
         }
 
-        allFound = allFound && t->summaryValue(TRT_PID, xAOD::eProbabilityHT);
+        if( !t->summaryValue(TRT_PID, xAOD::eProbabilityHT) ){
+          allFound = false; 
+          notFoundList += "eProbabilityHT ";
+        }
 
         //Transform the TRT PID output for use in the LH tool.
         double tau = 15.0; 
@@ -601,40 +619,73 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron*
 	
 	  dpOverp = 1 - trackqoverp/(refittedTrack_LMqoverp);
         }
+        else{
+          allFound = false; 
+          notFoundList += "deltaPoverP ";
+        }
       
       }
     else
       {
-        ATH_MSG_WARNING ( "Failed, no track particle: et= " << et << "eta= " << eta );
+        ATH_MSG_ERROR( "Failed, no track particle. et= " << et << "eta= " << eta );
+        return m_resultDummy;
       }
   }  // if not calo Only
 
-  float Reta(0), Rphi(0),  Rhad1(0), Rhad(0), ws3(0), w2(0), f1(0), Eratio(0), f3(0);
+  float Reta(0), Rphi(0),  Rhad1(0), Rhad(0), w2(0), f1(0), Eratio(0), f3(0);
 
   // reta = e237/e277
-  allFound = allFound && eg->showerShapeValue(Reta, xAOD::EgammaParameters::Reta);
+  if( !eg->showerShapeValue(Reta, xAOD::EgammaParameters::Reta) ){
+    allFound = false; 
+    notFoundList += "Reta ";
+  }
   // rphi e233/e237
-  allFound = allFound && eg->showerShapeValue(Rphi, xAOD::EgammaParameters::Rphi);
+  if( !eg->showerShapeValue(Rphi, xAOD::EgammaParameters::Rphi) ){
+    allFound = false;
+    notFoundList += "Rphi ";
+  }
   // rhad1 = ethad1/et
-  allFound = allFound && eg->showerShapeValue(Rhad1, xAOD::EgammaParameters::Rhad1);
+  if( !eg->showerShapeValue(Rhad1, xAOD::EgammaParameters::Rhad1) ){
+    allFound = false;
+    notFoundList += "Rhad1 ";
+  }
   // rhad = ethad/et
-  allFound = allFound && eg->showerShapeValue(Rhad, xAOD::EgammaParameters::Rhad);
-  // shower width in 3 strips in 1st sampling
-  allFound = allFound && eg->showerShapeValue(ws3, xAOD::EgammaParameters::weta1);
+  if( !eg->showerShapeValue(Rhad, xAOD::EgammaParameters::Rhad) ){
+    allFound = false;
+    notFoundList += "Rhad ";
+  }
   // shower width in 2nd sampling
-  allFound = allFound && eg->showerShapeValue(w2, xAOD::EgammaParameters::weta2);
+  if( !eg->showerShapeValue(w2, xAOD::EgammaParameters::weta2) ){
+    allFound = false;
+    notFoundList += "weta2 ";
+  }
   // fraction of energy reconstructed in the 1st sampling
-  allFound = allFound && eg->showerShapeValue(f1, xAOD::EgammaParameters::f1);
+  if( !eg->showerShapeValue(f1, xAOD::EgammaParameters::f1) ){
+    allFound = false;
+    notFoundList += "f1 ";
+  }
   // E of 2nd max between max and min in strips
-  allFound = allFound && eg->showerShapeValue(Eratio, xAOD::EgammaParameters::Eratio);
+  if( !eg->showerShapeValue(Eratio, xAOD::EgammaParameters::Eratio) ){
+    allFound = false;
+    notFoundList += "Eratio ";
+  }
   // fraction of energy reconstructed in the 3rd sampling
-  allFound = allFound && eg->showerShapeValue(f3, xAOD::EgammaParameters::f3);
+  if( !eg->showerShapeValue(f3, xAOD::EgammaParameters::f3) ){
+    allFound = false;
+    notFoundList += "f3 ";
+  }
 
   if( !m_caloOnly){
-    allFound = allFound && eg->trackCaloMatchValue(deltaEta, xAOD::EgammaParameters::deltaEta1);
-
+    // deltaEta1
+    if( !eg->trackCaloMatchValue(deltaEta, xAOD::EgammaParameters::deltaEta1) ){
+      allFound = false;
+      notFoundList += "deltaEta1 ";
+    }
     // difference between the cluster phi (sampling 2) and the eta of the track extrapolated from the last measurement point.
-    allFound = allFound && eg->trackCaloMatchValue(deltaPhiRescaled2, xAOD::EgammaParameters::deltaPhiRescaled2);
+    if( !eg->trackCaloMatchValue(deltaPhiRescaled2, xAOD::EgammaParameters::deltaPhiRescaled2) ){
+      allFound = false;
+      notFoundList += "deltaPhiRescaled2 ";
+    }
 
   }
 
@@ -650,22 +701,20 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron*
     ip = mu;
   }
 
-  std::string printVarStr = Form("Vars: eta=5%8.5f, et=%8.5f, f3=%8.5f, rHad==%8.5f, rHad1=%8.5f, Reta=%8.5f, w2=%8.5f, f1=%8.5f, Emaxs1=%8.5f, deltaEta=%8.5f, d0=%8.5f, d0sigma=%8.5f, Rphi=%8.5f, ws3=%8.5f, dpOverp=%8.5f, deltaPhiRescaled2=%8.5f, TRT_PID=%8.5f, trans_TRT_PID=%8.5f, ip=%8.5f",
-      eta, et, f3, Rhad, Rhad1, Reta,
-      w2, f1, Eratio,
-      deltaEta, d0,
-      d0sigma, 
-      Rphi, ws3, dpOverp, deltaPhiRescaled2,
-      TRT_PID, trans_TRT_PID,
-      ip );
-
+  std::string printVarStr = Form("Vars: eta=5%8.5f, et=%8.5f, f3=%8.5f, rHad==%8.5f, rHad1=%8.5f, Reta=%8.5f, w2=%8.5f, f1=%8.5f, Emaxs1=%8.5f, deltaEta=%8.5f, d0=%8.5f, d0sigma=%8.5f, Rphi=%8.5f, dpOverp=%8.5f, deltaPhiRescaled2=%8.5f, TRT_PID=%8.5f, trans_TRT_PID=%8.5f, ip=%8.5f",
+				 eta, et, f3, Rhad, Rhad1, Reta,
+				 w2, f1, Eratio,
+				 deltaEta, d0,
+				 d0sigma, 
+				 Rphi, dpOverp, deltaPhiRescaled2,
+				 TRT_PID, trans_TRT_PID,
+				 ip );
 
   if (!allFound) {
-    ATH_MSG_WARNING("Have some variables missing. " << printVarStr);
+    ATH_MSG_ERROR("Skipping LH calculation! The following variables are missing: " << printVarStr);
+    return m_resultDummy;
   }
-  else{
-    ATH_MSG_VERBOSE(printVarStr);
-  }
+
 
   // Get the answer from the underlying ROOT tool
   return m_rootTool->calculate( eta,
@@ -733,28 +782,51 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Egamma* e
   float TRT_PID(0.0);
 
   // Calo Variables
-  float Reta(0), Rphi(0),  Rhad1(0), Rhad(0), ws3(0), w2(0), f1(0), Eratio(0), f3(0);
+  float Reta(0), Rphi(0),  Rhad1(0), Rhad(0), w2(0), f1(0), Eratio(0), f3(0);
 
   bool allFound = true;
+  std::string notFoundList = "";
 
   // reta = e237/e277
-  allFound = allFound && eg->showerShapeValue(Reta, xAOD::EgammaParameters::Reta);
+  if( !eg->showerShapeValue(Reta, xAOD::EgammaParameters::Reta) ){
+    allFound = false; 
+    notFoundList += "Reta ";
+  }
   // rphi e233/e237
-  allFound = allFound && eg->showerShapeValue(Rphi, xAOD::EgammaParameters::Rphi);
+  if( !eg->showerShapeValue(Rphi, xAOD::EgammaParameters::Rphi) ){
+    allFound = false; 
+    notFoundList += "Rphi ";
+  }
   // rhad1 = ethad1/et
-  allFound = allFound && eg->showerShapeValue(Rhad1, xAOD::EgammaParameters::Rhad1);
+  if( !eg->showerShapeValue(Rhad1, xAOD::EgammaParameters::Rhad1) ){
+    allFound = false; 
+    notFoundList += "Rhad1 ";
+  }
   // rhad = ethad/et
-  allFound = allFound && eg->showerShapeValue(Rhad, xAOD::EgammaParameters::Rhad);
-  // shower width in 3 strips in 1st sampling
-  allFound = allFound && eg->showerShapeValue(ws3, xAOD::EgammaParameters::weta1);
+  if( !eg->showerShapeValue(Rhad, xAOD::EgammaParameters::Rhad) ){
+    allFound = false; 
+    notFoundList += "Rhad ";
+  }
   // shower width in 2nd sampling
-  allFound = allFound && eg->showerShapeValue(w2, xAOD::EgammaParameters::weta2);
+  if( !eg->showerShapeValue(w2, xAOD::EgammaParameters::weta2) ){
+    allFound = false; 
+    notFoundList += "weta2 ";
+  }
   // fraction of energy reconstructed in the 1st sampling
-  allFound = allFound && eg->showerShapeValue(f1, xAOD::EgammaParameters::f1);
+  if( !eg->showerShapeValue(f1, xAOD::EgammaParameters::f1) ){
+    allFound = false; 
+    notFoundList += "f1 ";
+  }
   // E of 2nd max between max and min in strips
-  allFound = allFound && eg->showerShapeValue(Eratio, xAOD::EgammaParameters::Eratio);
+  if( !eg->showerShapeValue(Eratio, xAOD::EgammaParameters::Eratio) ){
+    allFound = false; 
+    notFoundList += "Eratio ";
+  }
   // fraction of energy reconstructed in the 3rd sampling
-  allFound = allFound && eg->showerShapeValue(f3, xAOD::EgammaParameters::f3);
+  if( !eg->showerShapeValue(f3, xAOD::EgammaParameters::f3) ){
+    allFound = false; 
+    notFoundList += "f3 ";
+  }
 
   // Get the pileup or centrality information
   double ip(0);
@@ -768,21 +840,18 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Egamma* e
     ip = mu;
   }
 
-  std::string printVarStr = Form("Vars: eta=%8.5f, et=%8.5f, f3=%8.5f, rHad==%8.5f, rHad1=%8.5f, Reta=%8.5f, w2=%8.5f, f1=%8.5f, Emaxs1=%8.5f, deltaEta=%8.5f, d0=%8.5f, d0sigma=%8.5f, Rphi=%8.5f, ws3=%8.5f, dpOverp=%8.5f, deltaPhiRescaled2=%8.5f, TRT_PID=%8.5f, ip=%8.5f",
-                         eta, et, f3, Rhad, Rhad1, Reta,
-                         w2, f1, Eratio,
-                         deltaEta, d0,
-                         d0sigma, 
-                         Rphi, ws3, dpOverp, deltaPhiRescaled2,
-			 TRT_PID,
-                         ip );
-
+  ATH_MSG_VERBOSE(Form("Vars: eta=%8.5f, et=%8.5f, f3=%8.5f, rHad==%8.5f, rHad1=%8.5f, Reta=%8.5f, w2=%8.5f, f1=%8.5f, Emaxs1=%8.5f, deltaEta=%8.5f, d0=%8.5f, d0sigma=%8.5f, Rphi=%8.5f, dpOverp=%8.5f, deltaPhiRescaled2=%8.5f, TRT_PID=%8.5f, ip=%8.5f",
+				 eta, et, f3, Rhad, Rhad1, Reta,
+				 w2, f1, Eratio,
+				 deltaEta, d0,
+				 d0sigma, 
+				 Rphi, dpOverp, deltaPhiRescaled2,
+				 TRT_PID,
+                                 ip ));
 
   if (!allFound) {
-    ATH_MSG_WARNING("Have some variables missing. " << printVarStr);
-  }
-  else{
-    ATH_MSG_VERBOSE(printVarStr);
+    ATH_MSG_ERROR("Skipping LH calculation! The following variables are missing: " << notFoundList);
+    return m_resultDummy;
   }
 
   // Get the answer from the underlying ROOT tool
