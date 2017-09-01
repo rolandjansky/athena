@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
 MuonsCPContent = [
 "CombinedMuonTrackParticles",
 "CombinedMuonTrackParticlesAux.phi.theta.qOverP.numberOfPixelHits.numberOfPixelHoles.numberOfPixelDeadSensors.numberOfSCTHits.numberOfSCTHoles.numberOfSCTDeadSensors.numberOfTRTHits.numberOfTRTOutliers.numberOfPrecisionLayers.numberOfPrecisionHoleLayers.d0.z0.vz.definingParametersCovMatrix.vertexLink.truthParticleLink.chiSquared.numberDoF.numberOfPhiLayers.numberOfPhiHoleLayers.numberOfInnermostPixelLayerHits.alignEffectChId.alignEffectDeltaTrans.alignEffectSigmaDeltaTrans.alignEffectDeltaAngle.alignEffectSigmaDeltaAngle",
