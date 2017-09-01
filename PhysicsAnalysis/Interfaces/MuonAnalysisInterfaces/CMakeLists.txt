@@ -4,8 +4,9 @@ atlas_subdir( MuonAnalysisInterfaces )
 # The dependencies of the package:
 atlas_depends_on_subdirs(
    PUBLIC
-   Control/AthToolSupport/AsgTools
+   Control/AthToolSupport/AsgTools   
    Event/xAOD/xAODMuon
+   PhysicsAnalysis/AnalysisCommon/PATInterfaces
    PhysicsAnalysis/AnalysisCommon/PATCore )
 
 # Component(s) in the package:

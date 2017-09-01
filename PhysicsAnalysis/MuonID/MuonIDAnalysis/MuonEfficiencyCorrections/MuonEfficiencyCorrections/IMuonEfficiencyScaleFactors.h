@@ -11,7 +11,7 @@
 
 #ifndef IMUONEFFICIENCYSCALEFACTORS_H_
 #define IMUONEFFICIENCYSCALEFACTORS_H_
-
+#warning "The IMuonEfficiencyScaleFactors has moved to MuonAnalysisInterfaces/IMuonEfficiencyScaleFactors.h . Please update your code."
 // Framework include(s):
 #include "AsgTools/IAsgTool.h"
 

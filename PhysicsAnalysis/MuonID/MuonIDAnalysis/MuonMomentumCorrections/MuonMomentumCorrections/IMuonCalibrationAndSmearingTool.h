@@ -5,6 +5,8 @@
 #ifndef MCAST_IMUONCALIBRATIONANDSMEARINGTOOL_H
 #define MCAST_IMUONCALIBRATIONANDSMEARINGTOOL_H
 
+#warning "The IMuonCalibrationAndSmearingTool has moved to MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h . Please update your code."
+
 // Framework include(s):
 #include "AsgTools/IAsgTool.h"
 

@@ -11,8 +11,8 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "MuonEfficiencyCorrections/IMuonEfficiencyScaleFactors.h"
-#include "MuonEfficiencyCorrections/IMuonTriggerScaleFactors.h"
+#include "MuonAnalysisInterfaces/IMuonEfficiencyScaleFactors.h"
+#include "MuonAnalysisInterfaces/IMuonTriggerScaleFactors.h"
 #include "AsgAnalysisInterfaces/IPileupReweightingTool.h"
 
 namespace CP {

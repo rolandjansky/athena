@@ -12,7 +12,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "MuonEfficiencyCorrections/IMuonEfficiencyScaleFactors.h"
+#include "MuonAnalysisInterfaces/IMuonEfficiencyScaleFactors.h"
 
 namespace CP {
 

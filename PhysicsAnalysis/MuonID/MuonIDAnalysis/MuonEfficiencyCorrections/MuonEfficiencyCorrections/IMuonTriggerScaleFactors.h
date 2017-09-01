@@ -14,6 +14,7 @@
 
 #ifndef IMUONTRIGGERSCALEFACTORS_H_
 #define IMUONTRIGGERSCALEFACTORS_H_
+#warning "The IMuonTriggerScaleFactors has moved to MuonAnalysisInterfaces/IMuonTriggerScaleFactors.h . Please update your code."
 
 #include "AsgTools/IAsgTool.h"
 #include "PATInterfaces/CorrectionCode.h"

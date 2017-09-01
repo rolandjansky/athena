@@ -12,7 +12,9 @@
 #ifndef MUONEFFICIENCYSCALEFACTORS_H_
 #define MUONEFFICIENCYSCALEFACTORS_H_
 
-#include "MuonEfficiencyCorrections/IMuonEfficiencyScaleFactors.h"
+
+
+#include "MuonAnalysisInterfaces/IMuonEfficiencyScaleFactors.h"
 #include "MuonEfficiencyCorrections/MuonEfficiencyType.h"
 #include "MuonEfficiencyCorrections/EfficiencyScaleFactor.h"
 #include "MuonEfficiencyCorrections/EffiCollection.h"

@@ -24,7 +24,7 @@
 #include <map>
 
 // Local include(s):
-#include "MuonMomentumCorrections/IMuonCalibrationAndSmearingTool.h"
+#include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
 
 #define EPSILON 1.0E-6
 #define DEFAULT_INIT_VAL -999

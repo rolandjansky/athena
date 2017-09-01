@@ -304,12 +304,7 @@ namespace CP {
 
         std::string singletrig = "HLT_mu20_iloose_L1MU15_OR_HLT_mu50";
         std::string multitrig = "HLT_mu20_iloose_L1MU15_OR_HLT_mu50_HLT_2mu14";
-        Int_t runNumber = 267639;
-        if (m_trigsf_Tool->setRunNumber(runNumber) != CP::CorrectionCode::Ok) {
-            ATH_MSG_FATAL("Could not set run number for MuonTriggerScaleFactors tool");
-            return StatusCode::FAILURE;
-        }
-
+        
         // Systematic up
         CP::SystematicSet trigsfsys_up;
         trigsfsys_up.insert(CP::SystematicVariation("MUON_EFF_TrigUncertainty", 1));

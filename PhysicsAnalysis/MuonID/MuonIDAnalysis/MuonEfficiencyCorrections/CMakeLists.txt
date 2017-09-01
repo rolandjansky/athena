@@ -24,6 +24,7 @@ atlas_depends_on_subdirs(
    PhysicsAnalysis/AnalysisCommon/PATInterfaces
    PhysicsAnalysis/AnalysisCommon/PileupReweighting
    PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
+    PhysicsAnalysis/Intefaces/MuonAnalysisInterfaces
    PRIVATE
    Control/AthContainers
    Event/xAOD/xAODTrigger
@@ -39,7 +40,7 @@ atlas_add_library( MuonEfficiencyCorrectionsLib
    MuonEfficiencyCorrections/*.h Root/*.cxx
    PUBLIC_HEADERS MuonEfficiencyCorrections
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AsgTools xAODEventInfo
+   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AsgTools xAODEventInfo MuonAnalysisInterfacesLib
    xAODMuon PATInterfaces
    PRIVATE_LINK_LIBRARIES xAODTrigger PathResolver )
 
@@ -47,7 +48,7 @@ if( NOT XAOD_STANDALONE )
    atlas_add_component( MuonEfficiencyCorrections
       src/*.h src/*.cxx src/components/*.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODMuon PATInterfaces AthContainers
+      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODMuon PATInterfaces AthContainers MuonAnalysisInterfacesLib
       AthenaBaseComps GaudiKernel MuonEfficiencyCorrectionsLib )
 endif()
 
@@ -61,7 +62,7 @@ macro( _add_exec name )
    atlas_add_executable( ${name}
       util/${name}.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODEventInfo xAODMuon
+      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODEventInfo xAODMuon MuonAnalysisInterfacesLib
       PATInterfaces xAODCore AsgAnalysisInterfaces PileupReweightingLib MuonEfficiencyCorrectionsLib )
 endmacro( _add_exec )
 
