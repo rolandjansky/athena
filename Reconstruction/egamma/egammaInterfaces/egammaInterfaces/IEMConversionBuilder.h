@@ -21,7 +21,6 @@ MODIFIED :
 // INCLUDE HEADER FILES:
 #include "egammaInterfaces/IegammaBaseTool.h"
 #include "xAODTracking/VertexContainerFwd.h"
-#include "egammaRecEvent/egammaRecContainer.h"
 // Forward declarations
 class egammaRec;
 
@@ -41,7 +40,6 @@ class IEMConversionBuilder : virtual public IegammaBaseTool
   /** @brief initialize method*/
   virtual StatusCode initialize() = 0;
   /** @brief execute method*/
-  virtual StatusCode contExecute(EgammaRecContainer& cont) = 0;
   virtual StatusCode executeRec(egammaRec* egRec)=0;
   /** @brief execute method*/
   virtual StatusCode hltExecute(egammaRec* egRec, const xAOD::VertexContainer* conversions)=0;

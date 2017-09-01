@@ -221,7 +221,7 @@ void egammaTruthAssociationAlg::getNewTruthParticle(xAOD::TruthParticleContainer
 xAOD::TruthParticle* 
 egammaTruthAssociationAlg::getEgammaTruthParticle(const xAOD::TruthParticle *truth,
 						  xAOD::TruthParticleContainer& egammaTruthContainer) const{
-  if (!truth) return 0;
+  if (!truth) return nullptr;
 
   // Find the original truth particle for electrons from conversions
   for (unsigned int i = 0; i < 100 && truth && truth->barcode() > 200e3; ++i){
@@ -231,14 +231,16 @@ egammaTruthAssociationAlg::getEgammaTruthParticle(const xAOD::TruthParticle *tru
     else{
       break;
     }
-  for (auto egammaTruth : egammaTruthContainer)
+  }
 
   //In case truth became null in the above loop
-  if (!truth) return 0;
-  
+  if (!truth) return nullptr;
+
+  for (auto egammaTruth : egammaTruthContainer) {    
     if (truth->barcode() == egammaTruth->barcode()) {
       return egammaTruth;
     }
+  }
   return 0;
 }
 // ==========================================================================   
