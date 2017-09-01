@@ -5,9 +5,6 @@
 /**
    @class AthElectronEfficiencyCorrectionTool
    @brief Calculate the egamma scale factors in Athena
-
-   @author Rob Roy Fletcher <rob.fletcher@cern.ch>, Karsten Koeneke
-   @date   May 2014
 */
 
 // Include this class's header
@@ -30,10 +27,13 @@
 // xAOD includes
 #include "xAODEgamma/Electron.h"
 #include "xAODEventInfo/EventInfo.h"
-#ifndef ROOTCORE
+
 #include <boost/algorithm/string.hpp>
+
+#ifndef ROOTCORE
 #include "AthAnalysisBaseComps/AthAnalysisHelper.h"
 #endif
+
 #include "xAODMetaData/FileMetaData.h"
 #include "PathResolver/PathResolver.h"
 #include "ElectronEfficiencyCorrection/TElectronEfficiencyCorrectionTool.h"
@@ -696,6 +696,7 @@ StatusCode
 AsgElectronEfficiencyCorrectionTool::get_simType_from_metadata(PATCore::ParticleDataType::DataType& result) const
 {
   // adapted from https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/AnalysisCommon/CPAnalysisExamples/trunk/Root/MetadataToolExample.cxx
+
 #ifndef ROOTCORE
   //Determine MC/Data
   std::string dataType("");
@@ -718,14 +719,13 @@ AsgElectronEfficiencyCorrectionTool::get_simType_from_metadata(PATCore::Particle
   }
 #endif
 
-  //here's how things will work dual use, when file metadata is available in files
+  //Here's how things will work dual use, when file metadata is available in files
   if (inputMetaStore()->contains<xAOD::FileMetaData>("FileMetaData")) {
     const xAOD::FileMetaData* fmd = 0;
     ATH_CHECK(inputMetaStore()->retrieve(fmd, "FileMetaData"));
 
     std::string simType("");
     const bool s = fmd->value(xAOD::FileMetaData::simFlavour, simType);
-
     if (!s) {
       ATH_MSG_DEBUG("no sim flavour from metadata: must be data");
       result = PATCore::ParticleDataType::Data;
@@ -733,7 +733,8 @@ AsgElectronEfficiencyCorrectionTool::get_simType_from_metadata(PATCore::Particle
     }
     else {
       ATH_MSG_DEBUG("sim type = " + simType);
-      result = simType == "FullSim" ? PATCore::ParticleDataType::Full : PATCore::ParticleDataType::Fast;
+      boost::to_upper(simType);
+      result = (simType.find("ATLFASTII")==std::string::npos) ?  PATCore::ParticleDataType::Full : PATCore::ParticleDataType::Fast;
       return StatusCode::SUCCESS;
     }
   }
@@ -741,6 +742,7 @@ AsgElectronEfficiencyCorrectionTool::get_simType_from_metadata(PATCore::Particle
     ATH_MSG_DEBUG("no metadata found in the file");
     return StatusCode::FAILURE;
   }
+
 }
 
 //===============================================================================
