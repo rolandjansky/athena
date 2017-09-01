@@ -48,9 +48,6 @@ TrigL2MuonSA::RpcDataPreparator::RpcDataPreparator(const std::string& type,
    m_rpcPrepDataProvider("Muon::RpcRdoToPrepDataTool/RpcPrepDataProviderTool"),
    m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool")
 {
-
-   ATH_MSG_INFO("RpcDataPreparator!!!");
-
    declareInterface<TrigL2MuonSA::RpcDataPreparator>(this);
    declareProperty("RpcPrepDataProvider", m_rpcPrepDataProvider);
 
