@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Execute post processing
+echo  "Execute TriggerTest post processing"
 
 timeout 1m check_log.pl --config checklogTriggerTest.conf --showexcludestats ${JOB_LOG}
 
@@ -9,18 +9,28 @@ timeout 1m check_log.pl --config checklogTriggerTest.conf --showexcludestats ${J
 
 timeout 1m chainDump.py -S --rootFile=expert-monitoring.root
 
-grep REGTEST athena.log > athena.regtest
-timeout 1m regtest.pl --inputfile athena.regtest --reffile athena.regtest
-#TODO put in actual references
+export REF_FOLDER="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/ref/${AtlasBuildBranch}/${NAME}"
 
-#timeout 1m rootcomp.py expert-monitoring.root
-#TODO needs reference
+if [ -f ${REF_FOLDER}/athena.regtest ]; then
+  echo "Running regtest"
+  grep REGTEST athena.log > athena.regtest
+  timeout 1m regtest.pl --inputfile athena.regtest --reffile ${REF_FOLDER}/athena.regtest
+else
+  echo "No reference athena.regtest found in ${REF_FOLDER}"
+fi
 
-timeout 1m trigtest_checkcounts.sh 0 expert-monitoring.root expert-monitoring.root HLT
-#TODO put in actual references
+if [ -f ${REF_FOLDER}/expert-monitoring.root ]; then
+  echo "Running rootcomp"
+  timeout 10m rootcomp.py ${REF_FOLDER}/expert-monitoring.root
+  echo "Running checkcounts"
+  timeout 10m trigtest_checkcounts.sh 0 expert-monitoring.root ${REF_FOLDER}/expert-monitoring.root HLT
+else
+  echo "No reference expert-monitoring.root found in ${REF_FOLDER}"
+fi
 
 if [ -f trig_cost.root ]; then 
-  timeout 2h RunTrigCostD3PD -f trig_cost.root --outputTagFromAthena --costMode --linkOutputDir
+  echo "Running CostMon"
+  timeout 2h RunTrigCostD3PD -f trig_cost.root --outputTagFromAthena --costMode --linkOutputDir > costMon.log 2>&1 
 else 
   echo "file trig_cost.root does not exist thus RunTrigCostD3PD will not be run"
 fi

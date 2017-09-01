@@ -334,7 +334,7 @@ StatusCode FTKRoadFinderAlgo::initialize(){
 
   // Set options related to the input: clustering or other features
   m_rfobj.getDataInputModule()->setPixelClusteringMode(m_PixelClusteringMode);
-  m_rfobj.getDataInputModule()->setIbl3DRealistic(m_Ibl3DRealistic); //Keisuke add
+  m_rfobj.getDataInputModule()->setIbl3DRealistic(m_Ibl3DRealistic);
   m_rfobj.getDataInputModule()->setSctClustering(m_SctClustering);
   m_rfobj.getDataInputModule()->setDuplicateGanged(m_DuplicateGanged);
   m_rfobj.getDataInputModule()->setGangedPatternRecognition(m_GangedPatternRecognition);

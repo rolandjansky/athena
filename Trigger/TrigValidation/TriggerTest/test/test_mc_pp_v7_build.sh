@@ -3,6 +3,7 @@
 # art-description: MC v7 TriggerTest on MC
 # art-type: build
 
+export NAME="mc_pp_v7_build"
 export MENU="MC_pp_v7"
 export EVENTS="5"
 export COST_MONITORING="False"

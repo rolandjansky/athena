@@ -3,6 +3,7 @@
 # art-description: Bphysics slice TriggerTest on MC using Jpsimu6mu6 to AOD
 # art-type: grid
 
+export NAME="slice_bphysics_aod_grid"
 export SLICE="bphysics"
 export INPUT="bphysics"
 export JOBOPTIONS="testCommonSliceAthenaTrigRDOtoAOD.py"

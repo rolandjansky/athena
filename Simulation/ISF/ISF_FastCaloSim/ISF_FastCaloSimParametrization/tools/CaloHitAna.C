@@ -510,4 +510,3 @@ void CaloHitAna::Loop()
   m_OutputTree->Write();
   m_Output->Close
 };
-

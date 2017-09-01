@@ -261,24 +261,18 @@ private:
    bool m_doESD;
    bool m_do2DMaps;
    bool m_doModules;
-   bool m_doFEChipSummary;
    bool m_doOffline;
    bool m_doOnline;
    bool m_doLowOccupancy;
    bool m_doHighOccupancy;
    bool m_doOnTrack;
-   bool m_doOnPixelTrack;
    bool m_doPixelOccupancy; 
-   bool m_doRodSim;
    bool m_doDetails;
-   bool m_doSpectrum;
-   bool m_doNoiseMap;
    bool m_doTiming;
    bool m_doLumiBlock;   //store module status, error etc for each lumiblock
    bool m_doRefresh;
    bool m_doRefresh5min;
    bool m_isFirstBook;
-   bool m_doDegFactorMap;
    bool m_doOfflineAnalysis;
 
    bool m_doHeavyIonMon;  //modifications for heavy ion monitoring
@@ -382,9 +376,6 @@ private:
    PixelMonModulesProf*    m_hiteff_mod;
    PixelMonModules1D*      m_FE_chip_hit_summary;
    PixelMonModules2D*      m_pixel_occupancy;
-   /// ROD Sim
-   TH1F_LW*                m_RodSim_BCID_minus_ToT;
-   TH1F_LW*                m_RodSim_FrontEnd_minus_Lvl1ID;
    /// details
    TH1F_LW*                m_Details_mod1_num_hits;
    TH1F_LW*                m_Details_mod2_num_hits;
@@ -432,9 +423,6 @@ private:
    TProfile2D_LW*          m_LorentzAngle_B0;
    TProfile2D_LW*          m_LorentzAngle_B1;
    TProfile2D_LW*          m_LorentzAngle_B2;
-   /// degradation factor
-   TProfile2D_LW*          m_degFactorMap;
-   TProfile_LW*            m_degFactorMap_per_lumi;
 
    /// cluster size
    TH1F_LW*                m_clusize_ontrack_mod[PixLayerIBL2D3D::COUNT];
@@ -540,6 +528,7 @@ private:
    ///
    static const int      kNumErrorBits{32};
    static const int      kNumErrorStates{16};
+   static const int      kNumErrorStatesIBL{27};
    TProfile_LW*          m_errhist_errcat_LB[PixLayerIBL2D3D::COUNT][ErrorCategory::COUNT];
    TProfile_LW*          m_errhist_errtype_LB[PixLayerIBL2D3D::COUNT][ErrorCategoryMODROD::COUNT - 3];
    PixelMon2DMapsLW*     m_errhist_errcat_map[ErrorCategory::COUNT];
@@ -557,9 +546,10 @@ private:
    PixelMon2DProfilesLW* m_errhist_femcc_errwords_map;
 
    // Histograms in 'ErrorsExpert' folder
-   PixelMon2DLumiMaps*   m_errhist_expert_LB_maps[kNumErrorStates];
-   PixelMon2DMapsLW*     m_errhist_expert_maps[kNumErrorStates];
+   PixelMon2DLumiMaps*   m_errhist_expert_LB_maps[kNumErrorStates + kNumErrorStatesIBL];
+   PixelMon2DMapsLW*     m_errhist_expert_maps[kNumErrorStates + kNumErrorStatesIBL];
    TProfile_LW*          m_errhist_expert_LB[PixLayer::COUNT-1][kNumErrorStates];
+   TProfile_LW*          m_errhist_expert_IBL_LB[kNumErrorStatesIBL];
    TH3F*                 m_errhist_expert_fe_trunc_err_3d[PixLayer::COUNT];
    TH1F_LW*              m_errhist_expert_servrec_ibl_unweighted;
    TH1F_LW*              m_errhist_expert_servrec_ibl_weighted;
