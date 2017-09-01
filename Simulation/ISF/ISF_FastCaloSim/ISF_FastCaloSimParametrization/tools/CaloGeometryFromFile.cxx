@@ -5,7 +5,7 @@
 #include "CaloGeometryFromFile.h"
 #include <TTree.h>
 #include <TFile.h>
-#include "CaloDetDescr/CaloDetDescrElement.h"
+#include "ISF_FastCaloSimParametrization/CaloGeoDetDescrElement.h"
 #include <fstream>
 #include <sstream>
 #include <TGraph.h>
@@ -13,8 +13,28 @@
 
 using namespace std;
 
-CaloGeometryFromFile::CaloGeometryFromFile() : CaloGeometry()
+map<unsigned long long, unsigned long long> g_cellId_vs_cellHashId_map;
+
+CaloGeometryFromFile::CaloGeometryFromFile() : CaloGeoGeometry()
 {
+	ifstream textfile("/afs/cern.ch/atlas/groups/Simulation/FastCaloSimV2/cellId_vs_cellHashId_map.txt");
+	unsigned long long id, hash_id; 
+	cout << "Loading cellId_vs_cellHashId_map" << endl;
+	int i=0;
+	string line;
+	stringstream s;
+	while(1){
+		//getline(textfile,line);
+		s.str(line);
+	  textfile >> id;
+		if(textfile.eof())break;
+		textfile >> hash_id;
+		g_cellId_vs_cellHashId_map[id]=hash_id;
+		if(i%10000==0)cout << "Line: " << i << " line " << line << " id " << hex << id << " hash_id " << dec << hash_id << endl;
+		i++;
+	}
+	cout << "Done." << endl;
+	
 }
 
 CaloGeometryFromFile::~CaloGeometryFromFile()
@@ -83,14 +103,20 @@ bool CaloGeometryFromFile::LoadGeometryFromFile(TString filename,TString treenam
     if (ientry < 0) break;
     fChain->GetEntry(jentry);
     
-    CaloGeoDetDescrElement* pcell=new CaloGeoDetDescrElement(cell);
+    if (g_cellId_vs_cellHashId_map.find(cell.m_identify)!=g_cellId_vs_cellHashId_map.end()) cell.m_hash_id=g_cellId_vs_cellHashId_map[cell.m_identify];
+    else cout << endl << "ERROR: Cell id not found in the cellId_vs_cellHashId_map!!!" << endl << endl;
+    
+    const CaloGeoDetDescrElement* pcell=new CaloGeoDetDescrElement(cell);
     int sampling = pcell->getSampling();
+    
+    
     if(sampling >20) continue;
-    addcell(pcell);
-
-    //if(jentry%25000==0) {
-    if(jentry==nentries-1) {
-      //cout<<jentry<<" : "<<cell.getSampling()<<", "<<cell.identify()<<endl;
+    this->addcell(pcell);
+		
+    if(jentry%25000==0) {
+    //if(jentry==nentries-1) {
+			cout << "Checking loading cells from file" << endl;
+      cout<<jentry<<" : "<<pcell->getSampling()<<", "<<pcell->identify()<<endl;
 
       
       
@@ -99,25 +125,41 @@ bool CaloGeometryFromFile::LoadGeometryFromFile(TString filename,TString treenam
     }
   }
 	//cout<<"all : "<<m_cells.size()<<endl;
-  Long64_t max(0);
-  Long64_t min_id=m_cells_in_sampling[0].begin()->first;
-  for(int i=0;i<21;++i) {
-		//cout<<"  cells sampling "<<i<<" : "<<m_cells_in_sampling[i].size()<<" cells";
-		//cout<<", "<<m_cells_in_regions[i].size()<<" lookup map(s)"<<endl;
-		for(auto it=m_cells_in_sampling[i].begin(); it!=m_cells_in_sampling[i].end();it++){
-			//cout << it->second->getSampling() << " " << it->first << endl;
-			if(min_id/10 >=  it->first){
-				//cout << "Warning: Identifiers are not in increasing order!!!!" << endl;
-				//cout << min_id << " " << it->first << endl;
+  //unsigned long long max(0);
+  //unsigned long long min_id=m_cells_in_sampling[0].begin()->first;
+  //for(int i=0;i<21;++i) {
+		////cout<<"  cells sampling "<<i<<" : "<<m_cells_in_sampling[i].size()<<" cells";
+		////cout<<", "<<m_cells_in_regions[i].size()<<" lookup map(s)"<<endl;
+		//for(auto it=m_cells_in_sampling[i].begin(); it!=m_cells_in_sampling[i].end();it++){
+			////cout << it->second->getSampling() << " " << it->first << endl;
+			//if(min_id/10 >=  it->first){
+				////cout << "Warning: Identifiers are not in increasing order!!!!" << endl;
+				////cout << min_id << " " << it->first << endl;
 				
-			}
-			if(min_id > it->first)min_id = it->first;
-		}
-	}
+			//}
+			//if(min_id > it->first)min_id = it->first;
+		//}
+	//}
 	//cout << "Min id for samplings < 21: " << min_id << endl;
   delete f;
 	//return true;
-  return PostProcessGeometry();
+	bool ok = PostProcessGeometry();
+	
+	cout << "Result of PostProcessGeometry(): " << ok << endl;
+	const CaloGeoDetDescrElement* mcell=0;
+	unsigned long long cellid64(3179554531063103488);
+	Identifier cellid(cellid64);
+	mcell=this->getDDE(cellid); //This is working also for the FCal
+	
+	std::cout << "\n \n";
+	std::cout << "Testing whether CaloGeoGeometry is loaded properly" << std::endl;
+	if(!mcell)std::cout << "Cell is not found" << std::endl;
+	std::cout << "Identifier " << mcell->identify() <<" sampling " << mcell->getSampling() << " eta: " << mcell->eta() << " phi: " << mcell->phi() << std::endl<< std::endl;
+	
+	const CaloGeoDetDescrElement* mcell2 = this->getDDE(mcell->getSampling(),mcell->eta(),mcell->phi());
+	std::cout << "Identifier " << mcell2->identify() <<" sampling " << mcell2->getSampling() << " eta: " << mcell2->eta() << " phi: " << mcell2->phi() << std::endl<< std::endl;
+	
+  return ok;
 }
 
 
@@ -134,12 +176,12 @@ bool CaloGeometryFromFile::LoadFCalGeometryFromFiles(TString filename1,TString f
   int    thisTubeI;
 	int    thisTubeJ;
 	//int    thisTubeID;
-	int    thisTubeMod;
+	//int    thisTubeMod;
 	double thisTubeX;
 	double thisTubeY;
 	TString tubeName;
 	
-	int second_column;
+	//int second_column;
 	string seventh_column;
 	string eight_column;
 	int ninth_column;
@@ -178,7 +220,7 @@ bool CaloGeometryFromFile::LoadFCalGeometryFromFiles(TString filename1,TString f
 		  if (tileStream2) tileStream2 >> a2;
 		  if (tileStream3) tileStream3 >> a3;
 			
-			unsigned int tileName= (a3 << 16) + a2;
+			//unsigned int tileName= (a3 << 16) + a2;
 			stringstream s;
 			
 			
@@ -192,14 +234,16 @@ bool CaloGeometryFromFile::LoadFCalGeometryFromFiles(TString filename1,TString f
 			i++;
 		}
 	}
+	
+	
 	m_FCal_ChannelMap.finish(); // Creates maps
 	
-	Long64_t phi_index,eta_index;
+	unsigned long long phi_index,eta_index;
 	float x,y,dx,dy;
 	long id;
 	//auto it =m_cells_in_sampling[20].rbegin();
 	//it--;
-	//Long64_t identify=it->first;
+	//unsigned long long identify=it->first;
 	//for(auto it=m_cells_in_sampling[i].begin(); it!=m_cells_in_sampling[i].end();it++){
 	//	
 	//}
@@ -240,28 +284,49 @@ bool CaloGeometryFromFile::LoadFCalGeometryFromFiles(TString filename1,TString f
 			DDE->m_identify=(id << 44);
 			//DDE->m_identify=(id << 12);
 			//cout << DDE->identify() << endl;
+			if (g_cellId_vs_cellHashId_map.find(DDE->m_identify)!=g_cellId_vs_cellHashId_map.end()) DDE->m_hash_id=g_cellId_vs_cellHashId_map[DDE->m_identify];
+			else cout << endl << "ERROR: Cell id not found in the cellId_vs_cellHashId_map!!!" << endl << endl;
+			
 			addcell(DDE);
 			id=(mask2[imap-1]<<12) + (eta_index << 5) +2*phi_index;
 			if(imap==2) id+= (8<<8);
 			DDE2->m_identify=(id << 44);
 						//DDE->m_identify=(id << 12);
+			if (g_cellId_vs_cellHashId_map.find(DDE2->m_identify)!=g_cellId_vs_cellHashId_map.end()) DDE2->m_hash_id=g_cellId_vs_cellHashId_map[DDE2->m_identify];
+			else cout << endl << "ERROR: Cell id not found in the cellId_vs_cellHashId_map!!!" << endl << endl;
 			addcell(DDE2);
+			delete DDE;
+			delete DDE2;
 		}
 	
 	}
-	auto it =m_cells_in_sampling[0].begin();
+	//auto it =m_cells_in_sampling[0].begin();
 	//it--;
-	Long64_t identify=it->first;
-	//cout << "min identifier from sampling < 21: " << identify << endl;
+	//unsigned long long identify=it->first;
+	////cout << "min identifier from sampling < 21: " << identify << endl;
 	
-	for(int i=21;i<MAX_SAMPLING;++i) {
+	//for(int i=0;i<21;++i) {
+	////for(int i=21;i<MAX_SAMPLING;++i) {
         //cout<<"  cells sampling "<<i<<" : "<<m_cells_in_sampling[i].size()<<" cells";
         //cout<<", "<<m_cells_in_regions[i].size()<<" lookup map(s)"<<endl;
-        for(auto it=m_cells_in_sampling[i].begin(); it!=m_cells_in_sampling[i].end();it++){
-					//cout << it->second->getSampling() << " " << it->first << endl;
-				}
+        //int k=0;
+        //for(auto it=m_cells_in_sampling[i].begin(); it!=m_cells_in_sampling[i].end();it++){
+					//if(k<10){
+						//cout << "  cells sampling "<< it->second->getSampling() << " : " << it->first << endl;
+						//const CaloGeoDetDescrElement *DDE = this->getDDE(it->second->getSampling(),it->second->eta(),it->second->phi());
+						//cout << "  cells sampling "<< DDE->getSampling()  << " : " << DDE->identify()  << endl;
+						//DDE = this->getDDE(it->first);
+						//cout << "  cells sampling "<< DDE->getSampling()  << " : " << DDE->identify() << endl << endl;
+					//}
+					//k++;
+				//}
         
-  }
+  //}
+  
+  
+  for(int imodule=1;imodule<=3;imodule++) delete electrodes[imodule-1];
+  electrodes.clear();
+  
 	return true;
 }
 
@@ -274,7 +339,7 @@ void CaloGeometryFromFile::DrawFCalGraph(int isam,int color){
 	const int size=m_cells_in_sampling[isam].size();
 	double x[size];
 	double y[size];
-	const CaloGeoDetDescrElement* cell;
+	//const CaloGeoDetDescrElement* cell;
 	int i=0;
 	for(auto it=m_cells_in_sampling[isam].begin();it!=m_cells_in_sampling[isam].end();it++){
 		x[i]=it->second->x();
@@ -291,12 +356,13 @@ void CaloGeometryFromFile::DrawFCalGraph(int isam,int color){
 	graph->SetMarkerStyle(21);
 	graph->SetMarkerColor(color);
 	graph->SetMarkerSize(0.5);
-	graph->GetXaxis()->SetTitle("x");
-	graph->GetYaxis()->SetTitle("y");
+	graph->GetXaxis()->SetTitle("x [mm]");
+	graph->GetYaxis()->SetTitle("y [mm]");
 	
 	graph->Draw("AP");
 
 	
 	
 }	
+	
 		

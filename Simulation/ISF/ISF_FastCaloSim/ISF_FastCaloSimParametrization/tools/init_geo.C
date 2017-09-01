@@ -8,7 +8,7 @@
 
 #include "../ISF_FastCaloSimParametrization/MeanAndRMS.h"
 #include "Identifier/Identifier.h"
-#include "CaloDetDescr/CaloDetDescrElement.h"
+//#include "CaloDetDescr/CaloDetDescrElement.h"
 
 
 void init_geo();
@@ -21,9 +21,9 @@ void init_geo()
  gInterpreter->AddIncludePath("..");
  gInterpreter->AddIncludePath("../../ISF_FastCaloSimEvent");
 
- gROOT->LoadMacro("CaloSampling.cxx+");
- gROOT->LoadMacro("../src/CaloGeometry.cxx+");
- gROOT->LoadMacro("CaloGeometryFromFile.cxx+");
+ //gROOT->LoadMacro("CaloSampling.cxx+");
+ gROOT->LoadMacro("../src/CaloGeoGeometry.cxx+");
+ gROOT->LoadMacro("../src/CaloGeometryFromFile.cxx+");
  gROOT->LoadMacro("../src/FCAL_ChannelMap.cxx+");
  cout<<"init geometry done"<<endl;
  cout << "running run_geo.C" << endl;

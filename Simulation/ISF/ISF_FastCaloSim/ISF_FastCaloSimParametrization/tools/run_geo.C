@@ -8,6 +8,10 @@
 
 void run_geo();
 
+void WriteGeneralInfo(TString /*cut_label*/, TString lumi, float size, float x, float y);
+void ATLASLabel(Double_t x,Double_t y,const char* text, float tsize, Color_t color=1);
+void WriteInfo(TString info, float size, float x, float y, int color=1);
+
 void run_geo()
 {
   
@@ -54,15 +58,27 @@ void run_geo()
   geo->DrawGeoForPhi0();
   canvas->SaveAs("Calorimeter.png");*/
   
-  TCanvas* canvas = new TCanvas("FCal1_xy","FCal1_xy");
+  float xInfo = 0.18;
+  float  yInfo = 0.9;
+  float sizeInfo=0.035;
+    
+	
+  
+  TCanvas* canvas = new TCanvas("FCal1_xy","FCal1_xy",600,600);
   geo->DrawFCalGraph(21,1);
-	canvas->SaveAs("FCal1Geometry.png");
-	TCanvas* canvas2 = new TCanvas("FCal2_xy","FCal2_xy");
+  WriteGeneralInfo("","",sizeInfo,xInfo,yInfo);
+  WriteInfo("FCal1", 0.05, 0.20, 0.21);
+  canvas->SaveAs("FCal1Geometry.png");
+  TCanvas* canvas2 = new TCanvas("FCal2_xy","FCal2_xy",600,600);
   geo->DrawFCalGraph(22,1);
-	canvas2->SaveAs("FCal2Geometry.png");
-	TCanvas* canvas3 = new TCanvas("FCal3_xy","FCal3_xy");
+  WriteGeneralInfo("","",sizeInfo,xInfo,yInfo);
+  WriteInfo("FCal2", 0.05, 0.20, 0.21);
+  canvas2->SaveAs("FCal2Geometry.png");
+  TCanvas* canvas3 = new TCanvas("FCal3_xy","FCal3_xy",600,600);
   geo->DrawFCalGraph(23,1);
-	canvas3->SaveAs("FCal3Geometry.png");
+  WriteGeneralInfo("","",sizeInfo,xInfo,yInfo);
+  WriteInfo("FCal3", 0.05, 0.20, 0.21);
+  canvas3->SaveAs("FCal3Geometry.png");
   
   
   
@@ -190,4 +206,58 @@ void run_geo()
  
 }
 
- 
+void ATLASLabel(Double_t x,Double_t y,const char* text, float tsize, Color_t color){
+  TLatex l; //l.SetTextAlign(12);
+  if (tsize>0) l.SetTextSize(tsize); 
+  l.SetNDC();
+  l.SetTextFont(72);
+  l.SetTextColor(color);
+
+  //double delx = 0.115*696*gPad->GetWh()/(472*gPad->GetWw());
+  double delx = 0.14;
+
+  l.DrawLatex(x,y,"ATLAS");
+  if (text) {
+    TLatex p; 
+    p.SetNDC();
+    if (tsize>0) p.SetTextSize(tsize); 
+    p.SetTextFont(42);
+    p.SetTextColor(color);
+    p.DrawLatex(x+delx,y,text);
+    //    p.DrawLatex(x,y,"#sqrt{s}=900GeV");
+  }
+}
+void WriteGeneralInfo(TString /*cut_label*/, TString lumi, float size, float x, float y){
+  TString label="";
+  if (lumi=="") label+="  Simulation";
+  //label+="  Internal";
+    label+=" Preliminary";
+  ATLASLabel(x,y,label.Data(),size*1.15);
+  TString ToWrite="";
+  TLatex l;
+  l.SetNDC();
+  l.SetTextFont(42);
+  l.SetTextSize(size*0.9); 
+  l.SetTextColor(1);
+  //l.DrawLatex(x-0.005,y-0.07,cut_label.Data());
+
+  double shift=0.55;
+  //ToWrite="#sqrt{s}=13 TeV";
+  //if (lumi!=""){
+    ////ToWrite="L_{int}=";
+    //ToWrite+=", ";
+    //ToWrite+=lumi;
+    //ToWrite+=" fb^{-1}";
+    //shift=0.43;
+  //}
+  l.DrawLatex(x+shift,y,ToWrite.Data());
+  
+}
+void WriteInfo(TString info, float size, float x, float y, int color){
+  TLatex l;
+  l.SetNDC();
+  l.SetTextFont(42);
+  l.SetTextSize(size); 
+  l.SetTextColor(color);
+  l.DrawLatex(x,y,info.Data());
+}
