@@ -15,6 +15,7 @@ log = logging.getLogger("TriggerMenu.met.MissingETDef")
 from TrigEFMissingET.TrigEFMissingETConfig import (EFMissingET_Fex_2sidednoiseSupp,
                                                    EFMissingET_Fex_Jets,
                                                    EFMissingET_Fex_TrackAndJets,
+                                                   EFMissingET_Fex_FTKTrackAndJets,
                                                    EFMissingET_Fex_topoClusters,
                                                    EFMissingET_Fex_topoClustersPS, 
                                                    EFMissingET_Fex_topoClustersPUC)
@@ -180,7 +181,8 @@ class L2EFChain_met(L2EFChainDef):
              ##MET based on trigger jets
             if EFrecoAlg=='trkmht':
                 #MET fex                                                                                                                                                    
-                theEFMETFex = EFMissingET_Fex_TrackAndJets()                                                                                                                
+                if "FTK" in addInfo: theEFMETFex = EFMissingET_Fex_FTKTrackAndJets()
+                else: theEFMETFex = EFMissingET_Fex_TrackAndJets()                                                                                                                
                 #Muon correction fex                                                                                                                                        
                 ## this will be added later                                                                                                                                 
                 theEFMETMuonFex = EFTrigMissingETMuon_Fex_Jets()                                                                                                            
