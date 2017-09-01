@@ -2,8 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// Dear emacs, this is -*-c++-*-
-
 #ifndef EGAMMAANALYSISINTERFACES__IASGPHOTONISEMSELECTOR__
 #define EGAMMAANALYSISINTERFACES__IASGPHOTONISEMSELECTOR__
 
