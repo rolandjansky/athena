@@ -5,8 +5,8 @@
 */
 
 // $Id: IMuonSelectionTool.h 299883 2014-03-28 17:34:16Z krasznaa $
-#ifndef MUONSELECTORTOOLS_IMUONSELECTIONTOOL_H
-#define MUONSELECTORTOOLS_IMUONSELECTIONTOOL_H
+#ifndef MUONANALYSISINTERFACES_IMUONSELECTIONTOOL_H
+#define MUONANALYSISINTERFACES_IMUONSELECTIONTOOL_H
 
 #warning “The IMuonSelectionTool has moved to MuonAnalysisInterfaces/IMuonSelectionTool.h . Please update your code."
 // Framework include(s):

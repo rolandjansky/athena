@@ -16,7 +16,7 @@
 #include "TSystem.h" // Replace with PathResolver   
 
 // Local include(s):
-#include "MuonSelectorTools/IMuonSelectionTool.h"
+#include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 
 namespace CP {
 

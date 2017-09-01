@@ -20,6 +20,7 @@ atlas_depends_on_subdirs(
    Control/AthToolSupport/AsgTools
    Event/xAOD/xAODMuon
    PhysicsAnalysis/AnalysisCommon/PATCore
+   PhysicsAnalysis/Intefaces/MuonAnalysisInterfaces
    PRIVATE
    Event/xAOD/xAODCore
    Event/xAOD/xAODEventInfo
@@ -35,13 +36,13 @@ atlas_add_library( MuonSelectorToolsLib
    MuonSelectorTools/*.h Root/*.cxx
    PUBLIC_HEADERS MuonSelectorTools
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODMuon PATCoreLib
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODMuon PATCoreLib MuonAnalysisInterfacesLib
    PRIVATE_LINK_LIBRARIES xAODTracking PathResolver )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( MuonSelectorTools
       src/*.h src/*.cxx src/components/*.cxx
-      LINK_LIBRARIES AthenaBaseComps GaudiKernel xAODCore xAODMuon
+      LINK_LIBRARIES AthenaBaseComps GaudiKernel xAODCore xAODMuon MuonAnalysisInterfacesLib
       MuonSelectorToolsLib )
 endif()
 
