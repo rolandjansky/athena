@@ -359,9 +359,7 @@
 + Trigger/TrigEvent/TrigNavigation
 + Trigger/TrigEvent/TrigParticle
 + Trigger/TrigEvent/TrigRoiConversion
-+ Trigger/TrigEvent/TrigSteeringEvent
 + Trigger/TrigEvent/TrigSteeringEventAthenaPool
-+ Trigger/TrigEvent/TrigSteeringEventTPCnv
 + Trigger/TrigEvent/TrigStorageDefinitions
 + Trigger/TrigFTK/FTK_RecExample
 + Trigger/TrigFTK/TrigFTK_RawData
