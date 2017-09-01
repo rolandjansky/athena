@@ -220,7 +220,7 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
    }
 
    if (m_doModules) {
-      m_errors = new PixelMonModules1D("errors", ("Errors in module:ErrorType" + m_histTitleExt + ";Number of Errors").c_str(), 7, 0.5, 7.5);
+      m_errors = std::make_unique<PixelMonModules1D>(PixelMonModules1D("errors", ("Errors in module:ErrorType" + m_histTitleExt + ";Number of Errors").c_str(), 7, 0.5, 7.5));
       sc = m_errors->regHist(this, (path+"/ModulesErrors").c_str(), run);
       for (int k = 0; k < 7; k++) m_errors->SetBinLabel(error_type_labels[k].second.c_str(), k+1);
    }

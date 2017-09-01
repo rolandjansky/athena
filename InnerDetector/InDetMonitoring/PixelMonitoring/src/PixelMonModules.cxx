@@ -14,10 +14,6 @@
 #include "GaudiKernel/StatusCode.h"       
 #include <string.h>
 
-PixelMonModules::~PixelMonModules()
-{
-}
-
 PixelMonModulesProf::PixelMonModulesProf(std::string name, std::string title, int nbins, double* arr)
 {
    m_nBins=nbins;
@@ -46,13 +42,6 @@ PixelMonModulesProf::PixelMonModulesProf(std::string name, std::string title, in
    }
    formatHist("");
    m_Dummy = 0;
-}
-
-PixelMonModulesProf::~PixelMonModulesProf()
-{
-   for (int i = 0; i < 2024; i++) {
-      if (getHist(i)) LWHist::safeDelete(getHist(i));
-   }
 }
 
 PixelMonModules1D::PixelMonModules1D(std::string name, std::string title, int nbins, double* arr)
@@ -85,13 +74,6 @@ PixelMonModules1D::PixelMonModules1D(std::string name, std::string title, int nb
    m_Dummy = 0;
 }
 
-PixelMonModules1D::~PixelMonModules1D()
-{
-   for (int i=0; i < 2024; i++) {
-      if (getHist(i)) delete getHist(i);
-   }
-}
-
 PixelMonModules2D::PixelMonModules2D(std::string name, std::string title, int nbins0, double low0, double high0, int nbins1, double low1, double high1)
 {
    m_nBins = nbins0 * nbins1;
@@ -105,13 +87,6 @@ PixelMonModules2D::PixelMonModules2D(std::string name, std::string title, int nb
    }
    formatHist("");
    m_Dummy = 0;
-}
-
-PixelMonModules2D::~PixelMonModules2D()
-{
-   for (int i = 0; i < 2024; i++) {
-      if (getHist(i)) delete getHist(i);
-   }
 }
 
 void PixelMonModulesProf::Reset()

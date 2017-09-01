@@ -315,16 +315,16 @@ StatusCode PixelMainMon::BookClustersMon(void)
 
   if (m_doModules && m_doOnTrack)
     {
-      m_cluseff_mod = new PixelMonModulesProf("Clus_track_eff", ("Proportion of clusters on track vs t in module" + m_histTitleExt).c_str(), 2500,-0.5,2499.5);
+      m_cluseff_mod = std::make_unique<PixelMonModulesProf>(PixelMonModulesProf("Clus_track_eff", ("Proportion of clusters on track vs t in module" + m_histTitleExt).c_str(), 2500,-0.5,2499.5));
       sc = m_cluseff_mod->regHist(this,(path+"/Modules_Cluseff").c_str(),run);
       
-      m_cluster_size_mod = new PixelMonModules1D("Cluster_size", ("Cluster size in Module" + m_histTitleExt).c_str(), 20,-0.5,19.5);
+      m_cluster_size_mod = std::make_unique<PixelMonModules1D>(PixelMonModules1D("Cluster_size", ("Cluster size in Module" + m_histTitleExt).c_str(), 20,-0.5,19.5));
       sc = m_cluster_size_mod->regHist(this,(path+"/Modules_ClusterSize").c_str(),run);
       
-      m_cluster_num_mod = new PixelMonModules1D("Cluster_num", ("Number of clusters per event in module" + m_histTitleExt).c_str(), 30,-0.5,29.5);
+      m_cluster_num_mod = std::make_unique<PixelMonModules1D>(PixelMonModules1D("Cluster_num", ("Number of clusters per event in module" + m_histTitleExt).c_str(), 30,-0.5,29.5));
       sc = m_cluster_num_mod->regHist(this,(path+"/Modules_NumberOfClusters").c_str(),run);
       
-      m_cluster_ToT_mod = new PixelMonModules1D("Cluster_ToT", ("Cluster ToT in Module" + m_histTitleExt).c_str(), 200,0.,200.);
+      m_cluster_ToT_mod = std::make_unique<PixelMonModules1D>(PixelMonModules1D("Cluster_ToT", ("Cluster ToT in Module" + m_histTitleExt).c_str(), 200,0.,200.));
       sc = m_cluster_ToT_mod->regHist(this,(path+"/Modules_ClusToT").c_str(),run);
     }
   if (m_doOnline)
@@ -417,9 +417,9 @@ StatusCode PixelMainMon::BookClustersLumiBlockMon(void)
   }
   
   if (m_doModules && m_doOnTrack) {  // normally not booked, as doModules is online, doLumiBlock is offline
-    m_cluster_num_mod_LB = new PixelMonModules1D("Cluster_num_LB", ("Number of clusters per event in module" + m_histTitleExt).c_str(), 20,-0.5,59.5);
+    m_cluster_num_mod_LB = std::make_unique<PixelMonModules1D>(PixelMonModules1D("Cluster_num_LB", ("Number of clusters per event in module" + m_histTitleExt).c_str(), 20,-0.5,59.5));
     sc = m_cluster_num_mod_LB->regHist(this,(path+"/Modules_NumberOfClusters").c_str(),lowStat);
-    m_cluster_ToT_mod_LB = new PixelMonModules1D("Cluster_ToT_mod_LB", ("Cluster ToT in Module" + m_histTitleExt).c_str(), 75,0.,300.);
+    m_cluster_ToT_mod_LB = std::make_unique<PixelMonModules1D>(PixelMonModules1D("Cluster_ToT_mod_LB", ("Cluster ToT in Module" + m_histTitleExt).c_str(), 75,0.,300.));
     sc = m_cluster_ToT_mod_LB->regHist(this,(path+"/Modules_ClusToT").c_str(),lowStat);
   }
   

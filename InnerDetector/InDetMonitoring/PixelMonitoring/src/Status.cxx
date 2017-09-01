@@ -56,7 +56,7 @@ StatusCode PixelMainMon::BookStatusMon(void)
 
   if (m_doModules)
     {
-      m_Status_modules = new PixelMonModules1D("Status_of_Module", ("Module Status (0=Active+Good, 1=Active+Bad, 2=Inactive)" + m_histTitleExt + ";Status").c_str(),2,0,2);
+      m_Status_modules = std::make_unique<PixelMonModules1D>(PixelMonModules1D("Status_of_Module", ("Module Status (0=Active+Good, 1=Active+Bad, 2=Inactive)" + m_histTitleExt + ";Status").c_str(),2,0,2));
       sc = m_Status_modules->regHist(this, (path+"/Modules_Status").c_str(),run);
       m_Status_modules->SetBinLabel( "Status",2 ); 
       m_Status_modules->formatHist("status");

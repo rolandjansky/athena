@@ -131,7 +131,7 @@ StatusCode PixelMainMon::BookTrackMon(void)
   }
   
   if (m_doModules && !m_doOnTrack) { // tbc essentially code weren't used since doModules was enabled only for AllHits; to keep it disabled also now !m_doOnTrack switch was added
-    m_tsos_hiteff_vs_lumi = new PixelMonModulesProf("TSOS_HitEfficiency",("TSOS-based hit efficiency in module" + m_histTitleExt).c_str(),2500,-0.5,2499.5);
+    m_tsos_hiteff_vs_lumi = std::make_unique<PixelMonModulesProf>(PixelMonModulesProf("TSOS_HitEfficiency",("TSOS-based hit efficiency in module" + m_histTitleExt).c_str(),2500,-0.5,2499.5));
     sc = m_tsos_hiteff_vs_lumi->regHist(this,(path+"/Modules_TSOSHitEff").c_str(),run);
     if (!m_doOnline) {
       sc=trackHistos.regHist(m_clustot_lowpt = TH1F_LW::create("m_clustot_lowpt",("Cluster ToT vs Track pT (pT<10GeV)" + m_histTitleExt + "; Track pT; Cluster ToT (on track)").c_str(),250,0,250));

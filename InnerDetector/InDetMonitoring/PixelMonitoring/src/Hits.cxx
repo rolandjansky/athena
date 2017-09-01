@@ -251,11 +251,11 @@ StatusCode PixelMainMon::BookHitsMon(void)
    
    if (m_doModules)
      {
-       m_hit_num_mod = new PixelMonModules1D("Hit_num", ("Number of hits in a module in an event" + m_histTitleExt).c_str(), 15,-0.5,149.5);
+       m_hit_num_mod = std::make_unique<PixelMonModules1D>(PixelMonModules1D("Hit_num", ("Number of hits in a module in an event" + m_histTitleExt).c_str(), 15,-0.5,149.5));
        sc = m_hit_num_mod->regHist(this,(path+"/Modules_NumberOfHits").c_str(),run);
-       m_hiteff_mod = new PixelMonModulesProf("Hit_track_eff", ("Proportion of hits on track" + m_histTitleExt).c_str(), 2500,-0.5,2499.5);
+       m_hiteff_mod = std::make_unique<PixelMonModulesProf>(PixelMonModulesProf("Hit_track_eff", ("Proportion of hits on track" + m_histTitleExt).c_str(), 2500,-0.5,2499.5));
        sc = m_hiteff_mod->regHist(this,(path+"/Modules_HitEff").c_str(),run);
-       m_FE_chip_hit_summary = new PixelMonModules1D("FE_Chip_Summary", ("FE Chip Summary" + m_histTitleExt).c_str(), 16,-0.5,15.5);
+       m_FE_chip_hit_summary = std::make_unique<PixelMonModules1D>(PixelMonModules1D("FE_Chip_Summary", ("FE Chip Summary" + m_histTitleExt).c_str(), 16,-0.5,15.5));
        sc = m_FE_chip_hit_summary->regHist(this,(path+"/Modules_FEChipSummary").c_str(),run);
      }
 
@@ -281,7 +281,7 @@ StatusCode PixelMainMon::BookHitsMon(void)
      }
    if (m_doPixelOccupancy)
      {
-       m_pixel_occupancy = new PixelMonModules2D("Pixel_Occupancy", ("Pixel Occupancy" + m_histTitleExt).c_str(), 160, -0.,160.,336,0.,336.);
+       m_pixel_occupancy = std::make_unique<PixelMonModules2D>(PixelMonModules2D("Pixel_Occupancy", ("Pixel Occupancy" + m_histTitleExt).c_str(), 160, -0.,160.,336,0.,336.));
        sc = m_pixel_occupancy->regHist(this,(path+"/PixelOccupancy").c_str(),run);
      }
 
@@ -364,7 +364,7 @@ StatusCode PixelMainMon::BookHitsLumiBlockMon(void)
    if(m_doModules) {
       hname = makeHistname("num_Hits_mod_LB", false);
       htitles = makeHisttitle("Number of pixel hits in a module in an event", (atext_hit+atext_nevt), false);
-      m_hit_num_mod_LB = new PixelMonModules1D(hname.c_str(), htitles.c_str(), 20, -0.5, 19.5);
+      m_hit_num_mod_LB = std::make_unique<PixelMonModules1D>(PixelMonModules1D(hname.c_str(), htitles.c_str(), 20, -0.5, 19.5));
       sc = m_hit_num_mod_LB->regHist(this, (path+"/Modules_NumberOfHits").c_str(), lowStat);
    }
    for( int i=0; i<PixLayer::COUNT; i++){

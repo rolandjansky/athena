@@ -57,6 +57,7 @@
 #include "PixelMonitoring/PixelMon2DProfilesLW.h"
 #include "PixelMonitoring/PixelMon2DLumiMaps.h"
 #include "PixelMonitoring/PixelMon2DLumiProfiles.h"
+#include "PixelMonitoring/PixelMonModules.h"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -212,11 +213,6 @@ PixelMainMon::PixelMainMon(const std::string & type,
    /// Quick status
    m_nhits_L0_B11_S2_C6 = 0;
    m_occupancy_L0_B11_S2_C6 = 0;
-   /// module histo
-   m_hit_num_mod = 0;
-   m_hiteff_mod = 0;
-   m_FE_chip_hit_summary = 0;
-   m_pixel_occupancy = 0;
    /// details
    m_Details_mod1_num_hits = 0;
    m_Details_mod2_num_hits = 0;
@@ -269,7 +265,6 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_clustot_highpt = 0;
    m_1hitclustot_highpt = 0;
    m_2hitclustot_highpt = 0;
-   m_tsos_hiteff_vs_lumi = 0;
    ///
    /// Cluster histograms
    /// 
@@ -310,10 +305,6 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_cluster_occupancy_time1 = 0;
    m_cluster_occupancy_time2 = 0;
    m_cluster_occupancy_time3 = 0;
-   m_cluseff_mod = 0;
-   m_cluster_ToT_mod = 0;
-   m_cluster_size_mod = 0;
-   m_cluster_num_mod = 0;
    m_num_clusters = 0;
    memset(m_clusters_per_track_per_lumi_mod, 0, sizeof(m_clusters_per_track_per_lumi_mod));
    memset(m_num_clusters_mod, 0, sizeof(m_num_clusters_mod));
@@ -326,7 +317,6 @@ PixelMainMon::PixelMainMon(const std::string & type,
    ///
    /// Status
    ///
-   m_Status_modules = 0;
    m_disabledModules_per_lumi_PIX = 0;
    memset(m_badModules_per_lumi_mod, 0, sizeof(m_badModules_per_lumi_mod));
    memset(m_disabledModules_per_lumi_mod, 0, sizeof(m_disabledModules_per_lumi_mod));
@@ -342,7 +332,6 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_error_time1 = 0;       
    m_error_time2 = 0;       
    m_error_time3 = 0;       
-   m_errors = 0;
    memset(m_errhist_expert_LB, 0, sizeof(m_errhist_expert_LB));
    memset(m_errhist_per_bit_LB, 0, sizeof(m_errhist_per_bit_LB));
    memset(m_errhist_per_type_LB, 0, sizeof(m_errhist_per_type_LB));
@@ -365,9 +354,6 @@ PixelMainMon::PixelMainMon(const std::string & type,
    ///
    /// Per 20 LB
    ///
-   m_cluster_ToT_mod_LB = 0;
-   m_cluster_num_mod_LB = 0;
-   m_hit_num_mod_LB = 0;
    m_num_hits_LB = 0;
    memset(m_hit_ToT_LB_mod, 0, sizeof(m_hit_ToT_LB_mod));
    m_cluster_ToT_LB = 0;      
