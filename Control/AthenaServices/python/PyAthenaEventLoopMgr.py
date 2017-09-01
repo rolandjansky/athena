@@ -117,14 +117,11 @@ class PyAthenaEventLoopMgr( PyGaudi.iService ):
     # let properties be tried last
       return super( PyAthenaEventLoopMgr, self ).__getattr__( attr )
 
-   def executeAlgorithms( self, cppcontext ):
+   def executeAlgorithms( self ):
       try:                   import GaudiPython.Bindings as PyGaudi
       except AttributeError: import GaudiPython          as PyGaudi
       except ImportError:    import gaudimodule          as PyGaudi
       from AthenaCommon.AppMgr import theApp
-
-      import cppyy
-      ctx = cppyy.bind_object(cppcontext, "EventContext")
 
       result = PyGaudi.SUCCESS
 
@@ -135,7 +132,7 @@ class PyAthenaEventLoopMgr( PyGaudi.iService ):
                alg.retrieveInterface()
             ialg = alg._ialg
             ialg.resetExecuted()
-            result = ialg.sysExecute(ctx)
+            result = ialg.sysExecute()
             if result.isFailure():
                from AthenaCommon.Logging import log as msg
                msg.error( "Execution of algorithm %s failed" % name )
