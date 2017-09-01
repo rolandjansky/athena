@@ -72,6 +72,7 @@ class TileDigiNoiseMonTool : public TileFatherMonTool {
     bool m_fillPedestalDifference;
     std::vector<uint32_t> m_triggerTypes;
     bool m_histogramsNotBooked;
+    unsigned int m_nChannelsInDrawerThreshold;
 };
 
 #endif
