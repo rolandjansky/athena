@@ -349,7 +349,7 @@ StatusCode MuFastSteering::execute() {
 	roiDescriptor = *roiIn;
 	float roieta = roiDescriptor->eta();
         float roiphi = roiDescriptor->phi();
-        ATH_MSG_INFO("L1MURoIs eta/phi = " << roieta << "/" << roiphi);
+        ATH_MSG_DEBUG("L1MURoIs eta/phi = " << roieta << "/" << roiphi);
   }
   ATH_MSG_DEBUG("ReadHandle for L1MURoIs success");
 
@@ -357,10 +357,10 @@ StatusCode MuFastSteering::execute() {
   SG::WriteHandle<MuonFeature> muFeContainerHandle(m_muFeContainerKey);
   muFeContainerHandle = std::make_unique<MuonFeature>();
   if(!muFeContainerHandle.isValid()){
-        ATH_MSG_DEBUG("ReadHandle for MuonFeature isn't Valid");
+        ATH_MSG_ERROR("ReadHandle for MuonFeature isn't Valid");
         return StatusCode::FAILURE;
   }
-//  ATH_MSG_INFO("muFeContainer Pt/Alpha/Beta= " << muFeContainerHandle->Pt() << "/" << muFeContainerHandle->Alpha() << "/" << muFeContainerHandle->Beta());
+//  ATH_MSG_DEBUG("muFeContainer Pt/Alpha/Beta= " << muFeContainerHandle->Pt() << "/" << muFeContainerHandle->Alpha() << "/" << muFeContainerHandle->Beta());
   ATH_MSG_DEBUG("WriteHandle for MuonFeature success");
 
   //Test Value defined
@@ -375,13 +375,13 @@ StatusCode MuFastSteering::execute() {
   SG::WriteHandle<MuonFeatureDetails> muFeDeContainerHandle(m_muFeDeContainerKey);
   muFeDeContainerHandle = std::make_unique<MuonFeatureDetails>(muFeDeTestValue);
   if(!muFeDeContainerHandle.isValid()){
-        ATH_MSG_DEBUG("ReadHandle for MuonFeatureDetails isn't Valid");
+        ATH_MSG_ERROR("ReadHandle for MuonFeatureDetails isn't Valid");
         return StatusCode::FAILURE;
   }
-  ATH_MSG_INFO("muFeDeContainer Pt/Alpha/Beta= " << muFeDeContainerHandle->Pt() << "/" << muFeDeContainerHandle->Alpha() << "/" << muFeDeContainerHandle->Beta());
+  ATH_MSG_DEBUG("muFeDeContainer Pt/Alpha/Beta= " << muFeDeContainerHandle->Pt() << "/" << muFeDeContainerHandle->Alpha() << "/" << muFeDeContainerHandle->Beta());
   ATH_MSG_DEBUG("WriteHandle for MuonFeatureDetails success");
 
-  ATH_MSG_INFO("StatusCode MuFastSteering::execute() success");
+  ATH_MSG_DEBUG("StatusCode MuFastSteering::execute() success");
   return StatusCode::SUCCESS;
 }
 
@@ -429,6 +429,9 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
  
   if (m_timerSvc) m_timers[ITIMER_TOTAL_PROCESSING]->resume();
   if (m_timerSvc) m_timers[ITIMER_DATA_PREPARATOR]->resume();
+  
+  ATH_MSG_DEBUG("hltExecute called");
+  
   std::vector<const TrigRoiDescriptor*> roids;
   std::vector<const TrigRoiDescriptor*>::const_iterator p_roids;
   HLT::ErrorCode hec2 = getFeatures(inputTE, roids);
@@ -451,7 +454,7 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
     double roiEta = (*p_roi)->eta();
     double roiPhi = (*p_roi)->phi();
 
-    ATH_MSG_INFO("RoI eta/phi=" << roiEta << "/" << roiPhi);
+    ATH_MSG_DEBUG("RoI eta/phi=" << roiEta << "/" << roiPhi);
     
     std::vector<TrigL2MuonSA::TrackPattern> trackPatterns;
     m_mdtHits_normal.clear();
@@ -465,7 +468,7 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
     
 
     if ( m_recMuonRoIUtils.isBarrel(*p_roi) ) { // Barrel
-      ATH_MSG_INFO("Barrel");
+      ATH_MSG_DEBUG("Barrel");
      
       m_muonRoad.setScales(m_scaleRoadBarrelInner,
                            m_scaleRoadBarrelMiddle,
