@@ -12,10 +12,10 @@ from AthenaCommon import CfgMgr
 from AthenaCommon.Constants import *  # FATAL,ERROR etc.
 from AthenaCommon.SystemOfUnits import *
 from AthenaCommon.DetFlags import DetFlags
-from ISF_Algorithms.collection_merger_helpers import generate_mergeable_collection_name
-
 
 from ISF_FastCaloSimServices.ISF_FastCaloSimJobProperties import ISF_FastCaloSimFlags
+
+from ISF_Algorithms.collection_merger_helpers import generate_mergeable_collection_name
 
 
 def getAdditionalParticleParametrizationFileNames():
