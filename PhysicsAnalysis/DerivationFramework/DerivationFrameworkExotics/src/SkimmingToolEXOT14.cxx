@@ -82,7 +82,7 @@ DerivationFramework::SkimmingToolEXOT14::SkimmingToolEXOT14(const std::string& t
 
   e_JetsDEta = 0;
   e_DiJetMass = 0;
-  e_JetsDPhi = 0;
+  e_JetsDPhi = 999;
 }
   
 // Destructor
@@ -185,8 +185,7 @@ bool DerivationFramework::SkimmingToolEXOT14::SubcutGoodRunList() const {
   return e_passGRL;
 
 }
-  
-  
+
 bool DerivationFramework::SkimmingToolEXOT14::SubcutLArError() const {
 
   // Retrieve EventInfo
@@ -199,7 +198,6 @@ bool DerivationFramework::SkimmingToolEXOT14::SubcutLArError() const {
   return e_passLArError;
 
 }
-
 
 bool DerivationFramework::SkimmingToolEXOT14::SubcutTrigger() const {
 
@@ -223,7 +221,6 @@ bool DerivationFramework::SkimmingToolEXOT14::SubcutTrigger() const {
 
 }
 
-
 bool DerivationFramework::SkimmingToolEXOT14::SubcutPreselect() const {
 
   // xAOD::TStore store;
@@ -235,6 +232,10 @@ bool DerivationFramework::SkimmingToolEXOT14::SubcutPreselect() const {
   xAOD::Jet* jetC = 0; // new xAOD::Jet();
   j1TLV.SetPtEtaPhiE(0, 0, 0, 0);
   j2TLV.SetPtEtaPhiE(0, 0, 0, 0);
+
+  TLorentzVector jFirst;
+  jFirst.SetPtEtaPhiE(0,0,0,0); //Just take the first jet that passes as a reference
+  bool filledFirstJet=false;
 
   for(int i = 0; jet_itr != jet_end; ++jet_itr, ++i) {
 
@@ -254,6 +255,26 @@ bool DerivationFramework::SkimmingToolEXOT14::SubcutPreselect() const {
       j2TLV.SetPtEtaPhiE(jetC->pt(), jetC->eta(), jetC->phi(), jetC->e());
     }
     
+    if(filledFirstJet){
+      //The first time through, this is always false so it won't be entered
+      TLorentzVector e_tmp; //setup a temporary 4-vector
+      e_tmp.SetPtEtaPhiE(jetC->pt(), jetC->eta(), jetC->phi(), jetC->e());
+      //compute variables
+      float tmpDEta = fabs(jFirst.Eta()-e_tmp.Eta());
+      float tmpJetMass = (jFirst+e_tmp).M();
+      float tmpJetDphi = fabs(jFirst.DeltaPhi(e_tmp));
+
+      if(tmpDEta > e_JetsDEta) e_JetsDEta = tmpDEta;
+      if(tmpJetMass > e_DiJetMass) e_DiJetMass = tmpJetMass;
+      if(tmpJetDphi < e_JetsDPhi) e_JetsDPhi = tmpJetDphi;
+
+    }
+
+    if(!filledFirstJet){
+      jFirst.SetPtEtaPhiE(jetC->pt(), jetC->eta(), jetC->phi(), jetC->e());
+      filledFirstJet=true;//Now we filled the jet, so say so
+    }
+
     delete jetC;
   }
 
@@ -269,9 +290,7 @@ bool DerivationFramework::SkimmingToolEXOT14::SubcutPreselect() const {
 
 }
 
-
 bool DerivationFramework::SkimmingToolEXOT14::SubcutJetPts() const {
-
 
   // ATH_MSG_INFO("j1_pt=" << j1TLV.Pt() << "  min=" << m_leadingJetPt);
   // ATH_MSG_INFO("j2_pt=" << j2TLV.Pt() << "  min=" << m_subleadingJetPt);
@@ -286,7 +305,7 @@ bool DerivationFramework::SkimmingToolEXOT14::SubcutJetPts() const {
 
 bool DerivationFramework::SkimmingToolEXOT14::SubcutJetDEta() const {
 
-  e_JetsDEta = fabs(j1TLV.Eta() - j2TLV.Eta());
+  //e_JetsDEta = fabs(j1TLV.Eta() - j2TLV.Eta());
   //ATH_MSG_INFO("deta=" << e_JetsDEta << "  min=" << m_etaSeparation);
 
   e_passJetsDEta = e_JetsDEta > m_etaSeparation;
@@ -296,10 +315,9 @@ bool DerivationFramework::SkimmingToolEXOT14::SubcutJetDEta() const {
 
 }
 
-
 bool DerivationFramework::SkimmingToolEXOT14::SubcutDijetMass() const {
 
-  e_DiJetMass = (j1TLV + j2TLV).M();
+  //e_DiJetMass = (j1TLV + j2TLV).M();
   // ATH_MSG_INFO("mass=" << e_DiJetMass << "  min=" << m_dijetMass);
 
   e_passDiJetMass = e_DiJetMass > m_dijetMass;
@@ -311,7 +329,7 @@ bool DerivationFramework::SkimmingToolEXOT14::SubcutDijetMass() const {
 
 bool DerivationFramework::SkimmingToolEXOT14::SubcutJetDPhi() const {
 
-  e_JetsDPhi = fabs(j1TLV.DeltaPhi(j2TLV));
+  //e_JetsDPhi = fabs(j1TLV.DeltaPhi(j2TLV));
   // ATH_MSG_INFO("dphi=" << e_JetsDPhi << "  max=" << m_jetDPhi);
 
   e_passJetsDPhi = e_JetsDPhi < m_jetDPhi;
@@ -324,6 +342,3 @@ bool DerivationFramework::SkimmingToolEXOT14::SubcutJetDPhi() const {
 std::string DerivationFramework::SkimmingToolEXOT14::TriggerVarName(std::string s) const {
   std::replace(s.begin(), s.end(), '-', '_'); return s;
 }
-
-
-
