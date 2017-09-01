@@ -19,6 +19,3 @@ print ToolSvc.TileHitVecToCntTool
 #ToolSvc.TileRawChannelBuilderOptATLAS.OutputLevel=1
 #ServiceMgr.MessageSvc.OutputLevel= VERBOSE
 ###########
-
-
-
