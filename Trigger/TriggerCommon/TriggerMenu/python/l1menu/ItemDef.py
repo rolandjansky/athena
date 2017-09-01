@@ -161,8 +161,9 @@ class ItemDef:
         LVL1MenuItem('L1_J20.0ETA49'  ).setLogic( J200ETA49 & physcond).setTriggerType(TT.calo)    # noqa: F821
         LVL1MenuItem('L1_J30.0ETA49'  ).setLogic( J300ETA49 & physcond).setTriggerType(TT.calo)    # noqa: F821
         LVL1MenuItem('L1_J25.0ETA23_2J15.31ETA49'  ).setLogic( J250ETA23 & J1531ETA49.x(2) & physcond).setTriggerType(TT.calo)    # noqa: F821
-        
-
+       
+        LVL1MenuItem('L1_2EM3_VTE70').setLogic( EM3.x(2) & Not(TE70) & physcond).setTriggerType(TT.calo) # noqa: F821        
+ 
         # HI
         LVL1MenuItem('L1_EM3_NZ'         ).setLogic( EM3      & Not(ZDC_AND) & physcond).setTriggerType( TT.calo )    # noqa: F821
         LVL1MenuItem('L1_2EM3_NZ'        ).setLogic( EM3.x(2) & Not(ZDC_AND) & physcond).setTriggerType( TT.calo )    # noqa: F821

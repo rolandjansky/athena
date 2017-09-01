@@ -381,7 +381,7 @@ def defineMenu():
         'L1_MU4_UNPAIRED_ISO','L1_MU4_UNPAIRED_NONISO',
          'L1_MU20_FIRSTEMPTY','L1_MU21_FIRSTEMPTY',
 
-        
+        'L1_2EM3_VTE70', 
         
         # multi lepton
         "L1_2EM3", "L1_2EM7", "L1_2EM10VH", "L1_2EM15", "L1_2EM15VH", "L1_2EM15VHI", "L1_EM7_2EM3", "L1_EM12_2EM3", "L1_EM15VH_3EM7", "L1_EM15VH_3EM8VH", "L1_EM15VH_2EM10VH_3EM7",
@@ -916,7 +916,7 @@ def defineMenu():
     
 
 #CTP IDs are taken from this mapping. Every L1 item needs a unique ctpid.
-#Free CTP IDs (2017-08-27) are: 474-478, 
+#Free CTP IDs (2017-09-01) are: 475-478, 
 # 463-464 are reserved for L1_RD2_BGRP14 and L1_RD3_BGRP15 (in MC_Physics_pp_v7)
 # 509-511 are reserved for CALREQ
 
@@ -1552,6 +1552,8 @@ def defineMenu():
         #'L1_TE60.0ETA24':416, 
         'L1_TE70.0ETA24':417, 
         'L1_TE40.0ETA24':418, 
+
+        'L1_2EM3_VTE70' : 474,
 
         # 3 x ZDC
         'L1_ZDC_A':419,
