@@ -151,16 +151,16 @@ int main(int argc, char* argv[]) {
             CP::MuonTriggerScaleFactors* tool = new CP::MuonTriggerScaleFactors("TrigSF_" + qualities[i] + "_" + binnings[j]);
             ASG_CHECK_SA(APP_NAME, tool->setProperty("MuonQuality", qualities[i]));
             ASG_CHECK_SA(APP_NAME, tool->setProperty("Binning", binnings[j]));
-            ASG_CHECK_SA(APP_NAME, tool->setProperty("Year", year)); 
-            ASG_CHECK_SA(APP_NAME, tool->setProperty("MC", mc)); 
+            //ASG_CHECK_SA(APP_NAME, tool->setProperty("Year", year)); 
+            //ASG_CHECK_SA(APP_NAME, tool->setProperty("MC", mc)); 
             ASG_CHECK_SA(APP_NAME, tool->setProperty("filename", customFileName));
             ASG_CHECK_SA(APP_NAME, tool->setProperty("CustomInputFolder", customInputFolder));
             ASG_CHECK_SA(APP_NAME, tool->initialize());
-            CP::CorrectionCode result = tool->setRunNumber(atoi(runNumber));
-            if (result != CP::CorrectionCode::Ok){
-                Error(APP_NAME, "Could not set run number");
-                return 1;
-            }
+            //CP::CorrectionCode result = tool->setRunNumber(atoi(runNumber));
+            //if (result != CP::CorrectionCode::Ok){
+            //    Error(APP_NAME, "Could not set run number");
+            //    return 1;
+            //}
             tools.push_back(tool);
         }
         triggerSFTools.push_back(tools);
