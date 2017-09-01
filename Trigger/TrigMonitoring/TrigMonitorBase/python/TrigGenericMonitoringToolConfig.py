@@ -19,7 +19,7 @@ else:
         as TrigGenericMonitoringTool
     log.info("Using thread-safe TrigGenericMonitoringTool")
 
-from AthenaMonitoring.DefineHistogram import defineHistogram as __defineHistogram
+from AthenaMonitoring.GenericMonitoringTool import defineHistogram as __defineHistogram
 defineHistogram = __defineHistogram
 
 
