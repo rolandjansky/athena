@@ -44,14 +44,14 @@ void test1()
   assert (h1.clid() == MyCLID);
   assert (h1.key() == "");
   assert (h1.storeHandle().name() == "StoreGateSvc");
-  assert (h1.mode() == Gaudi::DataHandle::Updater);
+  assert (h1.mode() == Gaudi::DataHandle::Reader);
 
   SG::UpdateHandle<MyObj> h2 ("foo", "FooSvc");
   assert (h2.clid() == MyCLID);
   assert (h2.key() == "foo");
   assert (h2.name() == "foo");
   assert (h2.storeHandle().name() == "FooSvc");
-  assert (h2.mode() == Gaudi::DataHandle::Updater);
+  assert (h2.mode() == Gaudi::DataHandle::Reader);
 
   SG::UpdateHandleKey<MyObj> k3 ("asd");
   assert (k3.initialize().isSuccess());
@@ -59,7 +59,7 @@ void test1()
   assert (h3.clid() == MyCLID);
   assert (h3.key() == "asd");
   assert (h3.storeHandle().name() == "StoreGateSvc");
-  assert (h3.mode() == Gaudi::DataHandle::Updater);
+  assert (h3.mode() == Gaudi::DataHandle::Reader);
 
   {
     SG::UpdateHandleKey<MyObj> k4 ("asd", "BazSvc");
@@ -75,7 +75,7 @@ void test1()
   assert (h5.clid() == MyCLID);
   assert (h5.key() == "asd");
   assert (h5.storeHandle().name() == "StoreGateSvc");
-  assert (h5.mode() == Gaudi::DataHandle::Updater);
+  assert (h5.mode() == Gaudi::DataHandle::Reader);
   assert (h5.store() == "TestStore");
 
   SG::UpdateHandleKey<MyObj> k6 ("asd", "OtherStore");
@@ -84,7 +84,7 @@ void test1()
   assert (h6.clid() == MyCLID);
   assert (h6.key() == "asd");
   assert (h6.storeHandle().name() == "OtherStore");
-  assert (h6.mode() == Gaudi::DataHandle::Updater);
+  assert (h6.mode() == Gaudi::DataHandle::Reader);
   assert (h6.store() == "OtherStore" || h6.store() == "OtherStore_Impl");
 
   {
@@ -236,7 +236,7 @@ void test4()
   assert (h1.clid() == MyCLID);
   assert (h1.key() == "asd");
   assert (h1.storeHandle().name() == "StoreGateSvc");
-  assert (h1.mode() == Gaudi::DataHandle::Updater);
+  assert (h1.mode() == Gaudi::DataHandle::Reader);
 
   SG::UpdateHandleKey<MyObj> k2 ("asd", "BazSvc");
   k2.initialize().ignore(); 
@@ -249,7 +249,7 @@ void test4()
   assert (h2.clid() == MyCLID);
   assert (h2.key() == "asd");
   assert (h2.storeHandle().name() == "StoreGateSvc");
-  assert (h2.mode() == Gaudi::DataHandle::Updater);
+  assert (h2.mode() == Gaudi::DataHandle::Reader);
   assert (h2.store() == "TestStore");
 
   SG::UpdateHandleKey<MyObj> k3 ("asd", "OtherStore");
@@ -258,7 +258,7 @@ void test4()
   assert (h3.clid() == MyCLID);
   assert (h3.key() == "asd");
   assert (h3.storeHandle().name() == "OtherStore");
-  assert (h3.mode() == Gaudi::DataHandle::Updater);
+  assert (h3.mode() == Gaudi::DataHandle::Reader);
   assert (h3.store() == "OtherStore" || h3.store() == "OtherStore_Impl");
 
   SG::UpdateHandleKey<MyObj> k4 ("asd", "BazSvc");

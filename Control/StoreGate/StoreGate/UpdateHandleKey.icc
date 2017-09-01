@@ -27,7 +27,7 @@ template <class T>
 UpdateHandleKey<T>::UpdateHandleKey (const std::string& key /*= ""*/,
                                      const std::string& storeName /*= "StoreGateSvc"*/)
   : VarHandleKey (ClassID_traits<T>::ID(), key,
-                  Gaudi::DataHandle::Updater,
+                  Gaudi::DataHandle::Reader,
                   storeName)
 {
 }
