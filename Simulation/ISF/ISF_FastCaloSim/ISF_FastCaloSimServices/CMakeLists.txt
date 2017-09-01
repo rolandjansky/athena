@@ -9,6 +9,8 @@ atlas_subdir( ISF_FastCaloSimServices )
 atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           PRIVATE
+                          Control/AthenaKernel
+                          DetectorDescription/IdDictParser
                           Control/AthenaBaseComps
                           Simulation/Barcode/BarcodeEvent
                           Simulation/ISF/ISF_Core/ISF_Interfaces
@@ -16,14 +18,16 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkExtrapolation/TrkExInterfaces
                           Calorimeter/CaloInterface
                           Calorimeter/CaloEvent
-			  Calorimeter/CaloDetDescr
+                          Calorimeter/CaloDetDescr
                           Control/StoreGate
                           Event/NavFourMom
                           Generators/GeneratorObjects
                           Simulation/FastShower/FastCaloSim
                           Simulation/ISF/ISF_Core/ISF_Event
                           Simulation/ISF/ISF_FastCaloSim/ISF_FastCaloSimEvent
-                          Simulation/ISF/ISF_FastCaloSim/ISF_FastCaloSimInterfaces )
+                          Simulation/ISF/ISF_FastCaloSim/ISF_FastCaloSimInterfaces
+                          Simulation/ISF/ISF_FastCaloSim/ISF_FastCaloSimParametrization )
+
 
 # External dependencies:
 find_package( CLHEP )
@@ -34,7 +38,7 @@ atlas_add_component( ISF_FastCaloSimServices
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps GaudiKernel ISF_Interfaces TrkEventPrimitives TrkExInterfaces CaloEvent StoreGateLib SGtests NavFourMom GeneratorObjects FastCaloSimLib ISF_Event ISF_FastCaloSimEvent ISF_FastCaloSimInterfaces )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel IdDictParser ISF_Interfaces TrkEventPrimitives TrkExInterfaces CaloEvent StoreGateLib SGtests NavFourMom GeneratorObjects FastCaloSimLib ISF_Event ISF_FastCaloSimEvent ISF_FastCaloSimInterfaces ISF_FastCaloSimParametrizationLib )
 
 # Install files from the package:
 atlas_install_headers( ISF_FastCaloSimServices )
