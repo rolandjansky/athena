@@ -9,6 +9,7 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
+from DerivationFrameworkFlavourTag.HbbCommon           import *
 from DerivationFrameworkCore.WeightMetadata import *
 
 from JetRec.JetRecStandard import jtm
@@ -42,6 +43,8 @@ from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFram
 #                                                                JetKey                  = "AntiKt4LCTopoJets",
 #                                                                InDetTrackParticlesKey  = "InDetTrackParticles")
 #ToolSvc += EXOT3JetTPThinningTool
+
+
 
 thinExpression = '(InDetTrackParticles.d0 < 1.5) && ((DFCommonInDetTrackZ0AtPV * sin(InDetTrackParticles.theta )) <= 1.5)'
 EXOT3TPThinningTool = DerivationFramework__TrackParticleThinning(name = "EXOT3TPThinningTool",
@@ -102,6 +105,7 @@ thinningTools.append(EXOT3AKt10JetTPThinningTool)
 #                                                                        InDetTrackParticlesKey  = "InDetTrackParticles")
 #ToolSvc += EXOT3AKt10JetTPThinningTool
 #thinningTools.append(EXOT3AKt10JetTPThinningTool)
+
 
 # Calo-cluster thinning
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__JetCaloClusterThinning
@@ -188,6 +192,7 @@ triggers = [
             "HLT_ht1000_L1J100",
            ]
 
+
 topology_selection_1jet = "((count (abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_eta) < 2.8 && AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 100*GeV && AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_m > 30*GeV)  >= 1)"
 topology_selection_1jet += " )"#FIX #ATLJETMET-744
 #topology_selection_1jet += " || (count (abs(CamKt12LCTopoBDRSFilteredMU100Y4Jets.eta) < 2.8 && CamKt12LCTopoBDRSFilteredMU100Y4Jets.pt > 100*GeV && CamKt12LCTopoBDRSFilteredMU100Y4Jets.m > 30*GeV)  >= 1))"#FIX #ATLJETMET-744
@@ -258,6 +263,22 @@ replaceAODReducedJets(reducedJetList,exot3Seq,"EXOT3")
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDefaultTrimmedJets
 addDefaultTrimmedJets(exot3Seq,"EXOT3")
 
+# Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet
+# A wrapper function which does all the necessary steps
+addVRJets(exot3Seq, "AntiKtVR30Rmax4Rmin02Track", "GhostVR30Rmax4Rmin02TrackJet",
+          VRJetAlg="AntiKt", VRJetRadius=0.4, VRJetInputs="pv0track",
+          ghostArea = 0 , ptmin = 2000, ptminFilter = 7000,
+          variableRMinRadius = 0.02, variableRMassScale = 30000, calibOpt = "none")
+
+
+#b-tagging
+
+# use alias for VR jets
+from BTagging.BTaggingFlags import BTaggingFlags
+BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
+from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
+FlavorTagInit(JetCollections = ["AntiKtVR30Rmax4Rmin02TrackJets"], Sequencer = exot3Seq)
+
 #some jets collections are not included in the new jet restoring mechanism and need to be added the old way
 
 #split-filtered jets
@@ -272,6 +293,7 @@ addTrimmedJets("AntiKt", 1.0, "PV0Track", rclus=0.2, ptfrac=0.05, mods="groomed"
 
 #jet calibration
 applyJetCalibration_CustomColl("AntiKt10LCTopoTrimmedPtFrac5SmallR20", exot3Seq)
+
 
 #=======================================
 # SKIMMING, THINNING, AUGMENTATION
@@ -317,6 +339,27 @@ addJetOutputs(EXOT3SlimmingHelper, ["EXOT3"])
 EXOT3SlimmingHelper.AppendToDictionary = {}
 #listJets = ['CamKt12LCTopoBDRSFilteredMU100Y4Jets', 'CamKt12PV0TrackBDRSFilteredMU100Y4Jets', 'CamKt12TruthBDRSFilteredMU100Y4Jets', 'AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets', 'AntiKt10PV0TrackTrimmedPtFrac5SmallR20Jets']#FIX #ATLJETMET-744
 listJets = ['AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets', 'AntiKt10PV0TrackTrimmedPtFrac5SmallR20Jets']#FIX #ATLJETMET-744
+
+# Add VR track-jet collection and its b-tagging container to output stream
+EXOT3SlimmingHelper.AppendToDictionary = {
+    "AntiKtVR30Rmax4Rmin02TrackJets"            :   "xAOD::JetContainer"        ,
+    "AntiKtVR30Rmax4Rmin02TrackJetsAux"         :   "xAOD::JetAuxContainer"     ,
+    "BTagging_AntiKtVR30Rmax4Rmin02Track"       :   "xAOD::BTaggingContainer"   ,
+    "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"    :   "xAOD::BTaggingAuxContainer",
+}
+
+# Add all variabless for VR track-jets
+EXOT3SlimmingHelper.AllVariables  += ["AntiKtVR30Rmax4Rmin02TrackJets"]
+
+# Save certain b-tagging variables for VR track-jet
+EXOT3SlimmingHelper.ExtraVariables += [
+    "BTagging_AntiKtVR30Rmax4Rmin02Track.SV1_pb.SV1_pu.IP3D_pb.IP3D_pu",
+    "BTagging_AntiKtVR30Rmax4Rmin02Track.MV2c10_discriminant.MV2c100_discriminant",
+    "BTagging_AntiKtVR30Rmax4Rmin02Track.SV1_badTracksIP.SV1_vertices.BTagTrackToJetAssociator.MSV_vertices",
+    "BTagging_AntiKtVR30Rmax4Rmin02Track.BTagTrackToJetAssociatorBB.JetFitter_JFvertices.JetFitter_tracksAtPVlinks.MSV_badTracksIP"
+]
+
+
 if globalflags.DataSource()=='geant4':
   listJets.extend(['AntiKt10TruthTrimmedPtFrac5SmallR20Jets'])
 for i in listJets:
