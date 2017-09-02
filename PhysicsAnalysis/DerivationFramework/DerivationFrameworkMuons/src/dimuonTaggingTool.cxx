@@ -18,12 +18,16 @@
 #include "xAODTracking/TrackingPrimitives.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTruth/TruthParticleContainer.h"
+#include "DerivationFrameworkMuons/IMuonTPExtrapolationTool.h"
+#include "DerivationFrameworkMuons/IIDTrackCaloDepositsDecoratorTool.h"
 
 // Constructor
 DerivationFramework::dimuonTaggingTool::dimuonTaggingTool(const std::string& t,
 							    const std::string& n,
 							    const IInterface* p):
   AthAlgTool(t, n, p),
+  m_tpExpTool("MuonTPExtrapolationTool/MuonTPExtrapolationTool"),
+  m_caloDepoTool("IDTrackCaloDepositsDecoratorTool/IDTrackCaloDepositsDecoratorTool"),
   m_matchTool( "Trig::TrigMuonMatching/TrigMuonMatching" ),
   m_trigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool")
 {
@@ -32,6 +36,8 @@ DerivationFramework::dimuonTaggingTool::dimuonTaggingTool(const std::string& t,
   declareProperty("OrTrigs", m_orTrigs=std::vector< std::string >());
   declareProperty("AndTrigs", m_andTrigs=std::vector< std::string >());
 
+  declareProperty("MuonTPExtrapoTool", m_tpExpTool, "Tool for MuonTPExtrapolation trigger matching");
+  declareProperty("IDTrackCaloDepoDecoTool", m_caloDepoTool, "Tool for ID track calo deposition decoration");
   declareProperty("TrigMatchTool", m_matchTool, "Tool for trigger matching");
   declareProperty("TriggerMatchDeltaR", m_triggerMatchDeltaR = 0.1);
 
@@ -58,10 +64,18 @@ DerivationFramework::dimuonTaggingTool::dimuonTaggingTool(const std::string& t,
 
   declareProperty("IDTrackThinningConeSize", m_thinningConeSize=0.4);
   declareProperty("BranchPrefix", m_br_prefix="");
+
+  /// for Coverity 109086 -- to be improved
+  m_invariantMassLow2 = m_invariantMassLow*fabs(m_invariantMassLow);
+  m_invariantMassHigh2 = m_invariantMassHigh*fabs(m_invariantMassHigh);
+  m_thinningConeSize2 = m_thinningConeSize*fabs(m_thinningConeSize);
+
+//   deco_trkFlag = new SG::AuxElement::Decorator< int >(m_br_prefix+"DIMU_Status"); 
 }
   
 // Destructor
 DerivationFramework::dimuonTaggingTool::~dimuonTaggingTool() {
+//   delete deco_trkFlag;
 }  
 
 // Athena initialize and finalize
@@ -87,6 +101,9 @@ StatusCode DerivationFramework::dimuonTaggingTool::initialize()
                                          << "was not specified!";
      return StatusCode::FAILURE;
   }
+
+  if( ! m_tpExpTool.empty() )  CHECK( m_tpExpTool.retrieve() );
+  if( ! m_caloDepoTool.empty() )  CHECK( m_caloDepoTool.retrieve() );
 
   m_invariantMassLow2 = m_invariantMassLow*fabs(m_invariantMassLow);
   m_invariantMassHigh2 = m_invariantMassHigh*fabs(m_invariantMassHigh);
@@ -135,6 +152,9 @@ StatusCode DerivationFramework::dimuonTaggingTool::fillInfo(int* keepEvent, std:
   ATH_CHECK(evtStore()->retrieve(tracks, m_trackSGKey));
   const unsigned int NTRACKS = tracks->size();
   trackMask.assign(NTRACKS,0);
+  SG::AuxElement::Decorator< int > deco_trkFlag1(m_br_prefix+"DIMU_Status");
+  for(auto mu: *tracks) deco_trkFlag1(*mu) = 0;
+//   for(auto mu: *tracks) (*deco_trkFlag)(*mu) = 0;
 
   //// check Or triggers
   for(unsigned int i=0; i<m_orTrigs.size(); i++){if(m_trigDecisionTool->isPassed(m_orTrigs[i])) *keepEvent = 100;}
@@ -156,6 +176,7 @@ StatusCode DerivationFramework::dimuonTaggingTool::fillInfo(int* keepEvent, std:
       if(mu_itr2==mu_itr1) continue;
       if(!passMuonCuts(mu_itr2, m_mu2PtMin, m_mu2AbsEtaMax, m_mu2Types, m_mu2Trigs, m_mu2IsoCuts)) continue;
       if(!muonPairCheck(mu_itr1, mu_itr2->charge(), mu_itr2->p4())) continue;
+      m_tpExpTool->dROnTriggerPivotPlane(*mu_itr1, mu_itr2);
       (*keepEvent)++;
     }
     if(m_useTrackProbe){
@@ -166,6 +187,8 @@ StatusCode DerivationFramework::dimuonTaggingTool::fillInfo(int* keepEvent, std:
         (*keepEvent)++;
         trackMask[mu_itr2->index()]+=100;
         maskNearbyIDtracks(mu_itr2, trackMask, tracks);
+        m_tpExpTool->dROnTriggerPivotPlane(*mu_itr1, mu_itr2);
+        ATH_CHECK(m_caloDepoTool->decorate(mu_itr2));
       }
     }
   }
@@ -177,11 +200,11 @@ StatusCode DerivationFramework::dimuonTaggingTool::fillInfo(int* keepEvent, std:
     for(auto mu_itr2: *truth) maskNearbyIDtracks(mu_itr2, trackMask, tracks);
   }
 
-  static SG::AuxElement::Decorator< int > deco_trkFlag(m_br_prefix+"DIMU_Status");
   int i(0);
-  for(auto mu_itr2: *tracks) {
+  for(auto mu: *tracks) {
     int code = trackMask[i++];
-    deco_trkFlag(*mu_itr2) = code>=100?1000:code;
+    deco_trkFlag1(*mu) = code>=100?1000:code;
+//     (*deco_trkFlag)(*mu) = code>=100?1000:code;
   }
 
   return StatusCode::SUCCESS;
