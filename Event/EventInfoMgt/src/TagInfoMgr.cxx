@@ -710,7 +710,9 @@ TagInfoMgr::handle(const Incident& inc) {
         nsTime         += evt->event_ID()->time_stamp_ns_offset();
         curTime.setTimestamp(nsTime);
 
-        if (StatusCode::SUCCESS != m_iovDbSvc->signalBeginRun(curTime)) {
+        if (StatusCode::SUCCESS != m_iovDbSvc->signalBeginRun(curTime,
+                                                              inc.context()))
+        {
             m_log << MSG::ERROR << "Unable to signal begin run to IOVDbSvc" << endmsg;
             throw GaudiException( "Unable to signal begin run to IOVDbSvc", "TagInfoMgr::handle", StatusCode::FAILURE );
         }
