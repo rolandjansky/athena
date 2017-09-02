@@ -24,6 +24,6 @@ WATCH_LIST['DerivationFrameworkDataPrep'] = set(['zmarshal','cohm'])
 WATCH_LIST['DerivationFrameworkSUSY'] = set(['zmarshal','martindl','whopkins'])
 WATCH_LIST['BoostedJetTaggers'] = set(['meehan','sschramm','cdelitzs','rnewhous'])
 WATCH_LIST['MuonAnalysisInterfaces'] = set(['jojungge','szambito','nkoehler','gabarone' ,'mbellomo' ,'rosati'])
-WATCH_LSIT["MuonMomentumCorrections"] = set(["gabarone"])
+WATCH_LSIT['MuonMomentumCorrections'] = set(['gabarone'])
 
 
