@@ -536,6 +536,41 @@ ErrorCode Lvl1Converter::hltExecute(std::vector<HLT::SteeringChain*>& chainsToRu
 
    if(m_doTiming) m_totalTime->stop();
 
+   // if this is calibration event we do not apply RoI count cuts (meansy any busy event is just OK)
+   if ( ! m_lvl1Tool->isCalibrationEvent(*result) ) {
+
+      // check the limits    
+      bool isAboveLimit = false;
+      if ( m_muonRoIsLimit && muonRoIsCount        > m_muonRoIsLimit) {
+         isAboveLimit = true;
+         ATH_MSG_DEBUG("Busy event, passes limits of the MUON rois counts per event: "
+                       << muonRoIsCount << " > " << m_muonRoIsLimit);
+      }
+    
+      if ( m_emtauRoIsLimit && emtauRoIsCount      > m_emtauRoIsLimit) {
+         isAboveLimit = true;
+         ATH_MSG_DEBUG("Busy event, passes limits of the EMTAU rois counts per event: "
+                       << emtauRoIsCount << " > " << m_emtauRoIsLimit);
+      }
+      if (m_jetRoIsLimit && jetRoIsCount          > m_jetRoIsLimit) {
+         isAboveLimit = true;
+         ATH_MSG_DEBUG("Busy event, passes limits of the JET rois counts per event: "
+                       << jetRoIsCount << " > " << m_jetRoIsLimit);
+      }
+
+      unsigned overallRoIsCount= muonRoIsCount + emtauRoIsCount + jetRoIsCount;
+      if ( m_overallRoIsLimit && overallRoIsCount > m_overallRoIsLimit ) {
+         isAboveLimit = true;
+         ATH_MSG_DEBUG("Busy event, passes limits of the all types rois counts per event: "
+                       << overallRoIsCount << " > " << m_overallRoIsLimit);
+      }
+    
+      if ( isAboveLimit ) {
+         chains.clear(); // we do not want chains returned because PT chains will bias streaming
+         return HLT::ErrorCode(HLT::Action::ABORT_EVENT, HLT::Reason::UNKNOWN, HLT::SteeringInternalReason::BUSY );
+      }
+   }
+
    // Check for L1Calo overflows
    std::bitset<3> overflow = m_lvl1Tool->lvl1EMTauJetOverflow(*result);
    std::vector<std::string> ignore;
@@ -550,43 +585,8 @@ ErrorCode Lvl1Converter::hltExecute(std::vector<HLT::SteeringChain*>& chainsToRu
    // Consistency check
    HLT::ErrorCode ecl1 = m_lvl1ConsistencyTool->check(items, m_config->getNavigation(), ignore);
    if ( ecl1  != HLT::OK ) {
-      ATH_MSG_WARNING("Lvl1 decision inconsistent: "); 
+      ATH_MSG_WARNING("Lvl1 decision inconsistent");
       return ecl1;
-   }
-
-   // if this is calibration event we do not apply RoI count cuts (meansy any busy event is just OK)
-   if ( ! m_lvl1Tool->isCalibrationEvent(*result) ) {
-
-      // check the limits    
-      bool isAboveLimit = false;
-      if ( m_muonRoIsLimit && muonRoIsCount        > m_muonRoIsLimit) {
-         isAboveLimit = isAboveLimit || true;
-         ATH_MSG_DEBUG("Busy event, passes limits of the MUON rois counts per event: "
-                       << muonRoIsCount << " > " << m_muonRoIsLimit);
-      }
-    
-      if ( m_emtauRoIsLimit && emtauRoIsCount      > m_emtauRoIsLimit) {
-         isAboveLimit = isAboveLimit || true;
-         ATH_MSG_DEBUG("Busy event, passes limits of the EMTAU rois counts per event: "
-                       << emtauRoIsCount << " > " << m_emtauRoIsLimit);
-      }
-      if (m_jetRoIsLimit && jetRoIsCount          > m_jetRoIsLimit) {
-         isAboveLimit = isAboveLimit || true;
-         ATH_MSG_DEBUG("Busy event, passes limits of the JET rois counts per event: "
-                       << jetRoIsCount << " > " << m_jetRoIsLimit);
-      }
-
-      unsigned overallRoIsCount= muonRoIsCount + emtauRoIsCount + jetRoIsCount;
-      if ( m_overallRoIsLimit && overallRoIsCount > m_overallRoIsLimit ) {
-         isAboveLimit = isAboveLimit || true;
-         ATH_MSG_DEBUG("Busy event, passes limits of the all types rois counts per event: "
-                       << overallRoIsCount << " > " << m_overallRoIsLimit);
-      }
-    
-      if ( isAboveLimit ) {
-         chains.clear(); // we do not want chains returned because PT chains will bias streaming
-         return HLT::ErrorCode(HLT::Action::ABORT_EVENT, HLT::Reason::UNKNOWN, HLT::SteeringInternalReason::BUSY );
-      }
    }
 
    return HLT::OK;
