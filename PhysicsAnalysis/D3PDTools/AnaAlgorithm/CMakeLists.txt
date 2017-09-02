@@ -14,13 +14,13 @@ atlas_depends_on_subdirs(
 
 if (XAOD_STANDALONE)
   set (headers AnaAlgorithm/*.h)
-  set (inline_headers AnaAlgorithm/*.ihh)
+  set (inline_headers AnaAlgorithm/*.icc)
   set (sources Root/*.cxx)
-else (XAOD_STANDALONE)
+else()
   set (headers AnaAlgorithm/AnaAlgorithm.h AnaAlgorithm/Global.h  AnaAlgorithm/MessageCheck.h)
-  set (inline_headers AnaAlgorithm/AnaAlgorithm.ihh)
+  set (inline_headers AnaAlgorithm/AnaAlgorithm.icc)
   set (sources Root/AnaAlgorithm.cxx Root/MessageCheck.h)
-endif (XAOD_STANDALONE)
+endif()
 
 
 # Component(s) in the package:

@@ -11,6 +11,7 @@ atlas_depends_on_subdirs(
    PUBLIC
    PhysicsAnalysis/D3PDTools/RootCoreUtils
    PhysicsAnalysis/D3PDTools/SampleHandler
+   PhysicsAnalysis/D3PDTools/EventLoop
    PRIVATE
    Control/AthToolSupport/AsgTools
    Control/xAODRootAccess )
