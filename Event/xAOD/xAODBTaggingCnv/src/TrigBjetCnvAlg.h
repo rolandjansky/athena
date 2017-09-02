@@ -4,9 +4,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigBjetCnvAlg.h 597597 2014-05-17 08:47:37Z lidiaz $
-#ifndef xAODBTaggingCNV_ITrigBjetCNVALG_H
-#define xAODBTaggingCNV_TrigBjetCNVALG_H
+// $Id: TrigBjetCnvAlg.h 785655 2016-11-22 06:15:01Z ssnyder $
+#ifndef XAODBTAGGINGCNV_TRIGBJETCNVALG_H
+#define XAODBTAGGINGCNV_TRIGBJETCNVALG_H
 
 
 // System include(s):
@@ -52,4 +52,4 @@ namespace xAODMaker {
 
 } // namespace xAODMaker
 
-#endif // xAODBTaggingCNV_ITrigBjetCNVALG_H
+#endif // XAODBTAGGINGCNV_TRIGBJETCNVALG_H
