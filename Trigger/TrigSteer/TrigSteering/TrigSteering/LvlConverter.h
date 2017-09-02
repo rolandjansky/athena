@@ -146,8 +146,8 @@ namespace HLT {
     
       ToolHandle< IHLTResultAccessTool > m_hltTool; //!< helper access tool for HLTResult
 
-      std::map< unsigned int, std::vector<HLT::SteeringChain*> > m_chainIdMap;      //!< search map of all chains, with lower_chain_counter as Key
-      std::map< unsigned int, std::vector<HLT::SteeringChain*> > m_chainCounterMap; //!< search map of all chains, with lower_chain_hash_id as Key
+      std::map< unsigned int, std::vector<HLT::SteeringChain*> > m_chainIdMap;      //!< search map of all chains, with lower_chain_hash_id as Key
+      std::map< unsigned int, std::vector<HLT::SteeringChain*> > m_chainCounterMap; //!< search map of all chains, with lower_chain_counter as Key
       const std::vector<HLT::SteeringChain*>* m_configuredChains;                   //!< local reference to all configured chains of this level
 
       std::vector< HLT::SteeringChain* > m_chainsAlwaysActive; //!< Remeber chains w/o a lower_chain_name => will always be activated !
