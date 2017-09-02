@@ -11,6 +11,7 @@
 
 // Tool handle interface
 #include "MCTruthClassifier/IMCTruthClassifier.h"
+#include "HFORTools/IHFORSelectionTool.h"
 
 namespace DerivationFramework {
 
@@ -27,10 +28,12 @@ namespace DerivationFramework {
 
   static SG::AuxElement::Decorator<float> dec_genFiltHT("GenFiltHT");
   static SG::AuxElement::Decorator<float> dec_genFiltMET("GenFiltMET");
+  static SG::AuxElement::Decorator<int> dec_HFOR("HFORDecision");
 
-  GenFilterTool::GenFilterTool(const std::string& t, const std::string& n, const IInterface* p):
-    AthAlgTool(t,n,p),
-    m_classif("MCTruthClassifier/DFCommonTruthClassifier")
+  GenFilterTool::GenFilterTool(const std::string& t, const std::string& n, const IInterface* p)
+    : AthAlgTool(t,n,p)
+    , m_classif("MCTruthClassifier/DFCommonTruthClassifier")
+    , m_hforTool("HFORSelectionTool/HFORSelectionTool")
   {
     
     declareInterface<DerivationFramework::IAugmentationTool>(this);
@@ -43,6 +46,7 @@ namespace DerivationFramework {
     declareProperty("MinLeptonPt",m_MinLepPt = 25e3);
     declareProperty("MaxLeptonEta",m_MaxLepEta = 2.5);
     declareProperty("SimBarcodeOffset", m_SimBarcodeOffset = 200000);
+    declareProperty("HFORSelectionTool",m_hforTool);
   }
 
 
@@ -114,6 +118,10 @@ namespace DerivationFramework {
 
     dec_genFiltHT(*eventInfo) = genFiltHT;
     dec_genFiltMET(*eventInfo) = genFiltMET;
+
+    if (m_hforTool->getSampleType()!=noType){
+      dec_HFOR(*eventInfo) = m_hforTool->getDecisionType();
+    }
 
     return StatusCode::SUCCESS;
   }
