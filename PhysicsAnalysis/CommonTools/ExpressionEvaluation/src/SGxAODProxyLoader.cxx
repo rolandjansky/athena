@@ -64,9 +64,6 @@
 #include "xAODParticleEvent/CompositeParticleContainer.h"
 #include "xAODTracking/TrackMeasurementValidationContainer.h"
 
-// For the MC PDG ID helpers
-#include "TruthUtils/PIDHelpers.h"
-
 #include <algorithm>
 #include <boost/algorithm/string.hpp>
 
