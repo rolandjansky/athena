@@ -269,9 +269,21 @@ class NavigationToken : public INavigationToken
  // copy operator
  NavigationToken& operator=(const NavigationToken & anotherToken)
  {
-   if ( anotherToken.m_data != 0 )
+   if ( this != &anotherToken && anotherToken.m_data != 0 )
      {
        m_data         = anotherToken.m_data;
+       m_navCondition = anotherToken.m_navCondition; 
+       m_navSelector  = anotherToken.m_navSelector;
+     }   
+   return *this;
+ }
+
+ // move operator
+ NavigationToken& operator=(NavigationToken&& anotherToken)
+ {
+   if ( this != &anotherToken && anotherToken.m_data != 0 )
+     {
+       m_data         = std::move (anotherToken.m_data);
        m_navCondition = anotherToken.m_navCondition; 
        m_navSelector  = anotherToken.m_navSelector;
      }   
