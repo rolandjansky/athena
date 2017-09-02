@@ -27,22 +27,8 @@ if globalflags.DataSource()=='geant4':
 
 thinningTools = []
 
+# Track thinning
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-
-# MET/Jet tracks
-#met_thinning_expression = "(InDetTrackParticles.pt > 0.5*GeV) && (InDetTrackParticles.numberOfPixelHits > 0) && (InDetTrackParticles.numberOfSCTHits > 5) && (abs(DFCommonInDetTrackZ0AtPV) < 1.5)"
-#EXOT3MetTPThinningTool = DerivationFramework__TrackParticleThinning( name                = "EXOT3MetTPThinningTool",
-#                                                                ThinningService         = "EXOT3ThinningSvc",
-#                                                                SelectionString         = met_thinning_expression,
-#                                                                InDetTrackParticlesKey  = "InDetTrackParticles")
-#ToolSvc += EXOT3MetTPThinningTool
-#
-#EXOT3JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          = "EXOT3JetTPThinningTool",
-#                                                                ThinningService         = "EXOT3ThinningSvc",
-#                                                                JetKey                  = "AntiKt4LCTopoJets",
-#                                                                InDetTrackParticlesKey  = "InDetTrackParticles")
-#ToolSvc += EXOT3JetTPThinningTool
-
 thinExpression = '(InDetTrackParticles.d0 < 1.5) && ((DFCommonInDetTrackZ0AtPV * sin(InDetTrackParticles.theta )) <= 1.5)'
 EXOT3TPThinningTool = DerivationFramework__TrackParticleThinning(name = "EXOT3TPThinningTool",
                                                                  ThinningService         = "EXOT3ThinningSvc",
@@ -69,6 +55,7 @@ EXOT3ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning( 
 ToolSvc += EXOT3ElectronTPThinningTool
 thinningTools.append(EXOT3ElectronTPThinningTool)
 
+# Tracks associated with Photons
 EXOT3PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(    	name                    = "EXOT3PhotonTPThinningTool",
                                                                                         ThinningService         = "EXOT3ThinningSvc",
                                                                                         SGKey             	= "Photons",
