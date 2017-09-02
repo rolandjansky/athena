@@ -1,3 +1,4 @@
+
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -404,7 +405,7 @@ StatusCode ParticleCombinerTool::addBranches() const
         for ( unsigned int ichoice = 0; ichoice < aUniqueChoice.size(); ichoice++ ) {
           msg(MSG::VERBOSE)  << aUniqueChoice.at(ichoice) << ",";
         }
-        msg(MSG::VERBOSE) << endreq;
+        msg(MSG::VERBOSE) << endmsg;
       }
 
       // Loop over all containers
@@ -424,7 +425,9 @@ StatusCode ParticleCombinerTool::addBranches() const
       } // end the loop over the available containers to build INav4MomLink objects
 
       // Now, actually build the CompositeParticle from the list of ElementLinks to INavigable4Momentum
+      ATH_MSG_DEBUG("building composite particle");
       ATH_CHECK( buildComposite( outContainer, m_anIPartLinkList, metObject ) );
+      ATH_MSG_DEBUG("done");
 
     } // End: while ( anOdometer.increment() )
 
@@ -492,22 +495,29 @@ StatusCode ParticleCombinerTool::buildComposite( xAOD::CompositeParticleContaine
 
   bool ParticlesAreValid = true;
 
+  ATH_MSG_VERBOSE("Now in buildComposite with outContainer size=" << outContainer->size()
+                  << ", anIPartLinkList size=" << anIPartLinkList.size() << ", and a met object with address=" << metObject );
+  
   //Loop over all ElementLinks to INavigable4Momenta and get the INavigable4Momenta
   for ( const xAOD::IParticleLink& aParticleLink  :  anIPartLinkList ) {
+    ATH_MSG_VERBOSE("buildComposite: Looping over a particle link");
     // Check if this ElementLink is valid
     if ( aParticleLink.isValid() ) {
       // Get the particle from the ElementLink
       const xAOD::IParticle* aParticle = *aParticleLink;
+      ATH_MSG_VERBOSE("buildComposite: Particle is valid");
 
       if (aParticle) {
+        ATH_MSG_VERBOSE("buildComposite: Have a particle");
         // determine if the particle has any daughter in common with
         // a previous particle in the composite:
         for ( const xAOD::IParticleLink* otherPartLink  :  theParticleLinks ) {
+          ATH_MSG_VERBOSE("Looking for shared daughters");
           // Now, make the check for having any constituent shared.
           // Note that we don't need to check if the otherPartLink is valid
           // since this happened already when we filled that vector
-          if ( shareSameConstituents( aParticle, **otherPartLink ) ) {
-            ATH_MSG_DEBUG ( "Found aParticle overlaps with another INavigable4Momentum in the composite!" );
+          if ( this->shareSameConstituents( aParticle, **otherPartLink ) ) {
+            ATH_MSG_DEBUG ( "buildComposite: Found aParticle overlaps with another INavigable4Momentum in the composite!" );
             ParticlesAreValid &= false;
             break;
           }
@@ -515,29 +525,34 @@ StatusCode ParticleCombinerTool::buildComposite( xAOD::CompositeParticleContaine
 
         // push the particle onto the candidate's input list
         if ( ParticlesAreValid ) {
+          ATH_MSG_VERBOSE("buildComposite: Particles are valid");
           theParticleLinks.push_back( &aParticleLink );
         }
       }
       else {
-        ATH_MSG_DEBUG ( "Found non-valid particle at an ElementLink location!" );
+        ATH_MSG_DEBUG ( "buildComposite: Found non-valid particle at an ElementLink location!" );
         ParticlesAreValid &= false;
       } // check if aParticle exists at all
     }
     else {
-      ATH_MSG_DEBUG ( "Found non-valid ElementLink for a particle!" );
+      ATH_MSG_DEBUG ( "buildComposite: Found non-valid ElementLink for a particle!" );
       ParticlesAreValid &= false;
     } // check the link to a particle
 
     if ( false == ParticlesAreValid ) {
+      ATH_MSG_VERBOSE("buildComposite: particles are not valid");
       break;
     }
   } // End: loop over vector of ElementLinks
 
 
+  ATH_MSG_VERBOSE("buildComposite: Done looping over vector of ElementLinks");
+  
   //-----------------------------------------
   // Do the combination
   //-----------------------------------------
   if ( ParticlesAreValid ) {
+    ATH_MSG_VERBOSE("buildComposite: Particles are valid");  
     // Sort the constituents in decending pt order, if requested
     if ( m_sortConstit.value() ) {
       std::sort( anIPartLinkList.begin(), anIPartLinkList.end(),
@@ -545,6 +560,7 @@ StatusCode ParticleCombinerTool::buildComposite( xAOD::CompositeParticleContaine
                    return CxxUtils::fpcompare::greater( (*a)->pt(), (*b)->pt() );
                  } );
     }
+    ATH_MSG_VERBOSE("buildComposite: Particles are sorted");
 
     // Actually create the composite particle
     //--------------------------------------------------------------
@@ -554,22 +570,24 @@ StatusCode ParticleCombinerTool::buildComposite( xAOD::CompositeParticleContaine
     xAOD::CompositeParticle* compPart = new xAOD::CompositeParticle();
     compPart->makePrivateStore();
     for ( const xAOD::IParticleLink& aParticleLink  :  anIPartLinkList ) {
+      ATH_MSG_VERBOSE("buildComposite: Adding constituet");
       chargeSum += this->getCharge( aParticleLink, hasCharge );
       compPart->addPart( aParticleLink );
     }
     // Add also the missing ET object to the composite particle, if we have one
     if (metObject) {
+      ATH_MSG_VERBOSE("buildComposite: Adding met object");
       compPart->setMissingET(metObject);
     }
     // Set the PDG ID for this composite particle
     compPart->setPdgId( m_pdgId.value() );
     // Set the charge (if we were able to calculate it) for this composite particle
     if ( hasCharge ) {
-      ATH_MSG_VERBOSE("Setting the charge of the current composite particle to " << chargeSum );
+      ATH_MSG_VERBOSE("buildComposite: Setting the charge of the current composite particle to " << chargeSum );
       compPart->setCharge(chargeSum);
     }
     else {
-      ATH_MSG_DEBUG("Couldn't set the charge of the composite particle");
+      ATH_MSG_DEBUG("buildComposite: Couldn't set the charge of the composite particle");
     }
 
     // Check if this composite particle has been found before
@@ -608,20 +626,19 @@ StatusCode ParticleCombinerTool::buildComposite( xAOD::CompositeParticleContaine
       // AK: Commented the conditional statements until "passAll" is actually
       //     used here. To silence a Coverity warning.
 //      if ( passAll ) {
-        outContainer->push_back( compPart );
-//      }
-//      else {
-//        delete compPart;
-//      }
+      ATH_MSG_VERBOSE("buildComposite: Adding composite particle to container");
+      outContainer->push_back( compPart );
     }
     else {
-      // Output message
-      ATH_MSG_DEBUG ( "Found this composite particle already before..." );
+      ATH_MSG_VERBOSE("buildComposite: deleting composite particle");
       delete compPart;
-    } // End: if compositeParticleAlreadyFound
-
+    }
+    
+    ATH_MSG_VERBOSE("buildComposite: End: if compositeParticleAlreadyFound");
+    
   } // End: Saveguard check if all particles are valide
 
+  ATH_MSG_VERBOSE("Returning from buildComposite");
   return StatusCode::SUCCESS;
 }
 
@@ -776,12 +793,13 @@ bool ParticleCombinerTool::isEqual( const xAOD::IParticle* part1,
 // composite particles, that they don't share the same constitutents
 //=============================================================================
 bool ParticleCombinerTool::shareSameConstituents( const xAOD::IParticle* part1,
-                                                  const xAOD::IParticle* part2 ) const
+                                                    const xAOD::IParticle* part2 ) const
 {
   const xAOD::CompositeParticle* compPart1 =
     dynamic_cast<const xAOD::CompositeParticle*> (part1) ;
   const xAOD::CompositeParticle* compPart2 =
     dynamic_cast<const xAOD::CompositeParticle*> (part2) ;
+  ATH_MSG_VERBOSE("in shareSameConstituents('IParticle','IParticle')");
 
   // Neither of the two is a composite particle
   if ( !compPart1 && !compPart2 ) {
@@ -789,17 +807,17 @@ bool ParticleCombinerTool::shareSameConstituents( const xAOD::IParticle* part1,
   }
   // One of them is a composite
   else if ( compPart1 && !compPart2 ) {
-    return shareSameConstituents( part2, compPart1 );
+    return this->shareSameConstituents( part2, compPart1 );
   }
   else if ( !compPart1 && compPart2 ) {
-    return shareSameConstituents( part1, compPart2 );
+    return this->shareSameConstituents( part1, compPart2 );
   }
   // Both are composite candidates
   // AK: By this time only one options remains: That both of them are composite
   //     particles. So it's not necessary to do any more checks. This silences
   //     a Covery warning.
   else {
-    return shareSameConstituents( compPart1, compPart2 );
+    return this->shareSameConstituents( compPart1, compPart2 );
   }
 }
 
@@ -815,7 +833,8 @@ bool ParticleCombinerTool::shareSameConstituents( const xAOD::IParticle* part1,
 {
   // Default return
   bool isConstituent = false;
-
+  ATH_MSG_VERBOSE("in shareSameConstituents('IParticle','CompositeParticle')");
+  
   // Loop over all constituents of the composite particle to be tested
   const std::size_t nConstit = compPart2->nParts();
   for( std::size_t i=0; i<nConstit; ++i ) {
@@ -851,18 +870,21 @@ bool ParticleCombinerTool::shareSameConstituents( const xAOD::CompositeParticle*
 {
   // Default return
   bool isConstituent = false;
+  ATH_MSG_VERBOSE("in shareSameConstituents('CompositeParticle','CompositeParticle')");
 
   // Loop over all constituents of the composite particle to be tested
   const std::size_t nConstit1 = compPart1->nParts();
   const std::size_t nConstit2 = compPart2->nParts();
   for( std::size_t i=0; i<nConstit1; ++i ) {
     const xAOD::IParticle* part1 = compPart1->part(i);
-
+    ATH_MSG_VERBOSE("looking at compositeParticle1 constituent " << i << "/" << nConstit1);
+    
     // Check if this constituent itself is a composite particle
     const xAOD::CompositeParticle* constitCP1 =
       dynamic_cast<const xAOD::CompositeParticle*> (part1) ;
 
-    for( std::size_t j=0; i<nConstit2; ++j ) {
+    for( std::size_t j=0; j<nConstit2; ++j ) {
+      ATH_MSG_VERBOSE("looking at compositeParticle2 constituent " << j << "/" << nConstit2);
       const xAOD::IParticle* part2 = compPart2->part(j);
 
       // Check if this constituent itself is a composite particle
@@ -873,13 +895,13 @@ bool ParticleCombinerTool::shareSameConstituents( const xAOD::CompositeParticle*
         isConstituent = this->isEqual( part1, part2 );
       }
       if ( !constitCP1 && constitCP2 ) {
-        isConstituent = shareSameConstituents( part1, constitCP2 );
+        isConstituent = this->shareSameConstituents( part1, constitCP2 );
       }
       if ( constitCP1 && !constitCP2 ) {
-        isConstituent = shareSameConstituents( part2, constitCP1 );
+        isConstituent = this->shareSameConstituents( part2, constitCP1 );
       }
       if ( constitCP1 && constitCP2 ) {
-        isConstituent = shareSameConstituents( constitCP1, constitCP2 );
+        isConstituent = this->shareSameConstituents( constitCP1, constitCP2 );
       }
       if ( isConstituent ) {
         return true;

@@ -46,6 +46,7 @@
 + MuonSpectrometer/MuonIdHelpers
 + PhysicsAnalysis/AnalysisCommon/AssociationUtils
 + PhysicsAnalysis/AnalysisCommon/CPAnalysisExamples
++ PhysicsAnalysis/AnalysisCommon/EventUtils
 + PhysicsAnalysis/AnalysisCommon/FsrUtils
 + PhysicsAnalysis/AnalysisCommon/IsolationSelection
 + PhysicsAnalysis/AnalysisCommon/PATCore

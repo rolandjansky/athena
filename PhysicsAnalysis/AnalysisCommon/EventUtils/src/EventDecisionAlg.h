@@ -4,30 +4,25 @@
 */
 
 ///////////////////////// -*- C++ -*- /////////////////////////////
-// CutAlg.h
-// Header file for class CutAlg
+// EventDecisionAlg.h
+// Header file for class EventDecisionAlg
 // Author: Karsten Koeneke <karsten.koeneke@cern.ch>
 ///////////////////////////////////////////////////////////////////
-#ifndef EVENTUTILS_CUTALG_H
-#define EVENTUTILS_CUTALG_H 1
+#ifndef EVENTUTILS_EVENTDECISIONALG_H
+#define EVENTUTILS_EVENTDECISIONALG_H 1
 
 // STL includes
 #include <string>
 
 // FrameWork includes
-#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthFilterAlgorithm.h"
-#include "TrigDecisionTool/TrigDecisionTool.h"
 
-// Forward declarations
-namespace ExpressionParsing {
-  class ExpressionParser;
-}
+// forward declarations
+class IDecisionSvc;
 
 
-
-
-class CutAlg
+class EventDecisionAlg
   : public ::AthFilterAlgorithm
 {
 
@@ -39,10 +34,10 @@ class CutAlg
   // Copy constructor:
 
   /// Constructor with parameters:
-  CutAlg( const std::string& name, ISvcLocator* pSvcLocator );
+  EventDecisionAlg( const std::string& name, ISvcLocator* pSvcLocator );
 
   /// Destructor:
-  virtual ~CutAlg();
+  virtual ~EventDecisionAlg();
 
   /// Athena algorithm's initalize hook
   virtual StatusCode  initialize();
@@ -59,21 +54,13 @@ class CutAlg
   // Private data:
   ///////////////////////////////////////////////////////////////////
  private:
-  /// The trigger decision tool
-  ToolHandle<Trig::TrigDecisionTool> m_trigDecisionTool;
+  // The handle to the IDecisionSvc;
+  ServiceHandle<IDecisionSvc> m_decSvc;
 
-  /// The expression parser
-  ExpressionParsing::ExpressionParser *m_parser;
-
-
-  /// The cut string
-  StringProperty m_cut;
-
-  /// Internal event counter
-  unsigned long m_nEventsProcessed;
-
+  /// The names of all output streams to check
+  StringArrayProperty m_streamNames;
 
 };
 
 
-#endif //> !EVENTUTILS_CUTALG_H
+#endif //> !EVENTUTILS_EVENTDECISIONALG_H

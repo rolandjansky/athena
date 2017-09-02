@@ -1,9 +1,9 @@
-///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+///////////////////////// -*- C++ -*- /////////////////////////////
 // CutTool.cxx
 // Implementation file for class CutTool
 // Author: Karsten Koeneke <karsten.koeneke@cern.ch>
@@ -43,7 +43,8 @@ CutTool::CutTool( const std::string& type,
 {
   declareInterface< DerivationFramework::ISkimmingTool >(this);
 
-  declareProperty("Cut", m_cut="", "The name of the output container" );
+  declareProperty("Cut", m_cut="", "The cut expression" );
+  declareProperty("TrigDecisionTool",m_trigDecisionTool,"If you do not use trigger decisions and want to ensure the TrigDecisionTool is not loaded, set this to a blank string");
 }
 
 // Destructor
@@ -61,7 +62,13 @@ StatusCode CutTool::initialize()
 
   // initialize proxy loaders for expression parsing
   ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
-  proxyLoaders->push_back(new ExpressionParsing::TriggerDecisionProxyLoader(m_trigDecisionTool));
+
+  // initialise TDT explicitly, needed for the tool to properly work with trigger decisions in AthAnalysisBase (until fixed)
+  if( !m_trigDecisionTool.empty() ) {
+    ATH_CHECK( m_trigDecisionTool.retrieve() );
+    proxyLoaders->push_back(new ExpressionParsing::TriggerDecisionProxyLoader(m_trigDecisionTool));
+  }
+
   proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore()));
   proxyLoaders->push_back(new ExpressionParsing::SGNTUPProxyLoader(evtStore()));
 

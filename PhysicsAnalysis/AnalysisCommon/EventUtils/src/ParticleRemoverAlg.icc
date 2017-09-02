@@ -1,0 +1,242 @@
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// Dear emacs, this is -*- c++ -*-
+
+#include "xAODBase/IParticle.h"
+#include "AthContainers/AuxTypeRegistry.h"
+#include "AthContainersInterfaces/IAuxTypeVectorFactory.h"
+#include "xAODCore/AuxContainerBase.h"
+#include "xAODCore/ShallowCopy.h"
+#include "AthContainers/ConstDataVector.h"
+
+// boost includes
+#include <boost/algorithm/string/predicate.hpp>
+
+
+
+template<class CONT>
+StatusCode ParticleRemoverAlg::removeParticles( const std::vector<bool>& keepParticleVec )
+{
+  ATH_MSG_DEBUG ("removeParticles(...) " << name() << "...");
+
+  // Get the type of particle that the current container CONT has
+  typedef typename CONT::base_value_type PART;
+
+  // First, get the size of the current input container
+  const std::size_t inContSize = m_inContList[0]->size();
+
+  // Create a new output container and its associated auxiliary container
+  CONT* outCont = new CONT(SG::OWN_ELEMENTS);
+  outCont->reserve(inContSize);
+  ATH_CHECK( evtStore()->record ( outCont, m_outContNameList.at(0) ) );
+  xAOD::AuxContainerBase* outAuxContainer = new xAOD::AuxContainerBase();
+  outAuxContainer->reserve(inContSize);
+  ATH_CHECK( evtStore()->record( outAuxContainer, m_outContNameList.at(0) + "Aux." ) );
+  outCont->setStore( outAuxContainer );
+  m_outContList.push_back(outCont);
+
+  // Create a vector for the original indices of the input particles in their container
+  std::vector< std::size_t > inPartIdxList;
+  inPartIdxList.reserve(inContSize);
+  // Also, create a map from the old index to the new one using a vector with
+  // the same size as the old input containers has.
+  std::vector<int> oldToNewIndex;
+  oldToNewIndex.reserve(inContSize);
+
+  // Now, copy the elements that we want to keep from the input container to the
+  // output container.
+  for ( std::size_t i=0; i<inContSize; ++i ){
+    if ( keepParticleVec[i] == false ){
+      oldToNewIndex.push_back(-1);
+      continue; // we don't want to keep this particle
+    }
+    const xAOD::IParticle* inPart = m_inContList[0]->at(i);
+    const std::size_t inPartIdx = inPart->index();
+    // Now, copy over the input particle to the output particle
+    // (use a pre-processor macro for this repeated task)
+    PART* outPart = new PART();
+    outCont->push_back(outPart);
+    *outPart = *(static_cast<const PART*>(inPart));
+    // Store also the orignial index for this particle
+    inPartIdxList.push_back(inPartIdx);
+    oldToNewIndex.push_back( inPartIdxList.size() - 1 );
+  }
+
+  // Get the size of the output container
+  const std::size_t outContSize = outCont->size();
+
+  // Get the global registry for all aux data:
+  SG::AuxTypeRegistry& reg = SG::AuxTypeRegistry::instance();
+
+
+  // Now, do also the selection for all shallow copy containers, i.e., create
+  // new ones for the outCont that we just created and copy the values
+  // from the original input shallow copy containers over to these new ones
+  for ( std::size_t contIdx=1; contIdx<m_outContNameList.size(); ++contIdx ) {
+    // Get the original electron shallow copy container
+    const auto* originalShallowCopyCont = m_inContList.at(contIdx);
+    ATH_MSG_VERBOSE("Got input ShallowCopyContainer with name: " << m_inContNameList.at(contIdx));
+
+    // Create the current shallow copy container and record it to StoreGate
+    auto outContShallowCopy = xAOD::shallowCopyContainer( *outCont );
+    ATH_CHECK( evtStore()->record( outContShallowCopy.first,  m_outContNameList.at(contIdx) ) );
+    ATH_CHECK( evtStore()->record( outContShallowCopy.second, m_outContNameList.at(contIdx) + "Aux." ) );
+    ATH_MSG_VERBOSE("Recorded new output ShallowCopyContainer with name: " << m_outContNameList.at(contIdx));
+
+    // Also add the output shallow copy to the list of output containers
+    m_outContList.push_back(outContShallowCopy.first);
+
+    // Copy the variables that are stored in the input ShallowCopyContainer
+    // locally (i.e., NOT only present in the master container, but where the
+    // variable lives in the ShallowCopyContainer) from there
+    // If the input had size zero, we are done
+    if ( originalShallowCopyCont->size() == 0 ) {
+      ATH_MSG_VERBOSE("Input ShallowCopy container has size zero... we are done");
+      continue;
+    }
+
+    // Get the auxIDs, i.e., the identifiers from the input ShallowCopyContainer
+    const xAOD::ShallowAuxContainer* originalShallowCopyAuxCont
+      = dynamic_cast<const xAOD::ShallowAuxContainer*>(originalShallowCopyCont->getStore());
+    if ( !originalShallowCopyAuxCont ) {
+      ATH_MSG_ERROR("We don't seem to have a ShallowAuxContainer");
+      return StatusCode::FAILURE;
+    }
+    const SG::IAuxStore* auxStore = originalShallowCopyAuxCont->getStore();
+    if (!auxStore) {
+      ATH_MSG_FATAL("Could not get the aux store of the original ShallowCopyContainer");
+      return StatusCode::FAILURE;
+    }
+    const SG::auxid_set_t& auxIDs = auxStore->getAuxIDs();
+    ATH_MSG_DEBUG("We have " << auxIDs.size() << " variables to copy over for this ShallowCopyContainer");
+
+    // Iterate over all auxIDs and copy each one over
+    for ( auto auxid : auxIDs ) {
+      ATH_MSG_VERBOSE("We are now at auxID=" << auxid );
+
+      // Get the type of this variable:
+      const std::type_info* type = reg.getType( auxid );
+      if ( ! type ) {
+        ATH_MSG_FATAL("Could not get the type of auxid: " << auxid );
+        return StatusCode::FAILURE;
+      }
+      ATH_MSG_VERBOSE("Got the type with name: " << type->name() );
+
+      // First let's get the vector factory of this variable:
+      const SG::IAuxTypeVectorFactory* factory =
+      SG::AuxTypeRegistry::instance().getFactory( *type );
+      if ( ! factory ) {
+        ATH_MSG_FATAL("Could not get the vector factory for type: " << type->name() );
+        return StatusCode::FAILURE;
+      }
+      ATH_MSG_VERBOSE("Got the vector factory for type: " << type->name() );
+
+
+      // If the parent doesn't have this variable, then we're done already:
+      const void* originalShallowAuxDataVector = auxStore->getData( auxid );
+      if ( ! originalShallowAuxDataVector ) {
+        ATH_MSG_WARNING("Could not get the aux data vector of the original ShallowCopyContainer for auxid=" << auxid
+                        << ". The input container had size " << originalShallowCopyCont->size()
+                        << ", and the output container had size " << outContSize );
+        continue;
+        //return StatusCode::FAILURE;
+      }
+      ATH_MSG_VERBOSE("This auxID=" << auxid << " is part of the ShallowCopyAuxStore...");
+
+      // Create the variable in the dynamic store of the new ShallowCopyContainer
+      void* outContAuxDataVec = outContShallowCopy.second->getData( auxid, outContSize, outContSize );
+
+
+      // Then, loop over these, get the index of the corresponding object in the
+      // input shallow copy container and copy the variables that are stored there
+      // locally (i.e., NOT only present in the master container, but where the
+      // variable lives in the ShallowCopyContainer) from there
+      for ( std::size_t i=0; i<outContSize; ++i ) {
+        // Get the original shallow copy particle
+        const std::size_t inIdx = inPartIdxList.at(i);
+        factory->copy( outContAuxDataVec, i, originalShallowAuxDataVector, inIdx );
+      }
+
+    } // End: Loop over all aux-ids
+
+  } // End: loop over output shallow copy containers
+
+
+  // Now, also create the new view containers that point to the objects in the
+  // new, reduced, containers that we just produced above (both the master
+  // container and all its shallow copy containers).
+  /// This will only be done if we have a valid prefix.
+  if ( !(m_outPrefix.value().empty()) ){
+    ATH_MSG_DEBUG("Will now also go and create new output view containers with the prefix " << m_outPrefix.value() );
+    for ( std::size_t i=0; i<m_inViewContNameListList.size(); ++i ){
+      const std::vector<std::string>& inViewNames  = m_inViewContNameListList[i];
+      const std::vector<std::string>& outViewNames = m_outViewContNameListList[i];
+      const xAOD::IParticleContainer* currentOutCont = m_outContList[i];
+      for ( std::size_t j=0; j<inViewNames.size(); ++j ){
+        const std::string& inViewName  = inViewNames[j];
+        const std::string& outViewName = outViewNames[j];
+        ATH_MSG_VERBOSE("Going to create a new view container with name '" << outViewName
+                        << "' from original view container with name '" << inViewName << "'" );
+        const xAOD::IParticleContainer* inViewCont = nullptr;
+        ATH_CHECK( evtStore()->retrieve( inViewCont, inViewName ) );
+        ConstDataVector<CONT>* outViewCont = new ConstDataVector<CONT>(SG::VIEW_ELEMENTS);
+        outViewCont->reserve(inViewCont->size());
+        ATH_CHECK( evtStore()->record ( outViewCont, outViewName ) );
+        for ( const xAOD::IParticle* inViewPart : *inViewCont ){
+          const std::size_t oldIdx = inViewPart->index();
+          const std::size_t newIdx = oldToNewIndex[oldIdx];
+          const xAOD::IParticle* outPart = (*currentOutCont)[newIdx];
+          outViewCont->push_back(static_cast<const PART*>(outPart));
+        }
+      }
+    }
+  }
+
+
+  // Now, also try to re-bend the existing view containers to point to the new
+  // containers.
+  if (m_resetViewConts.value()){
+    ATH_MSG_DEBUG("Will now also go and try to re-map the input view containers to the new containers");
+    for ( std::size_t i=0; i<m_inViewContNameListList.size(); ++i ){
+      const std::vector<std::string>& inViewNames  = m_inViewContNameListList[i];
+      const xAOD::IParticleContainer* currentOutCont = m_outContList[i];
+      for ( std::size_t j=0; j<inViewNames.size(); ++j ){
+        const std::string& inViewName  = inViewNames[j];
+        ATH_MSG_VERBOSE("Going to re-map existing view container with name '" << inViewName << "'" );
+        const CONT* inViewCont = nullptr;
+        ATH_CHECK( evtStore()->retrieve( inViewCont, inViewName ) );
+        ATH_MSG_DEBUG("Got the input view container with name: " << inViewName << " and size: " << inViewCont->size() );
+        ConstDataVector<CONT>* outViewCont = new ConstDataVector<CONT>(SG::VIEW_ELEMENTS);
+        outViewCont->reserve(inViewCont->size());
+        for ( std::size_t partIdx=0; partIdx<inViewCont->size(); ++partIdx ){
+          const PART* inViewPart = inViewCont->at(partIdx);
+          const SG::AuxVectorData* oldCont = inViewPart->container();
+          const std::size_t oldIdx = inViewPart->index();
+          const std::size_t newIdx = oldToNewIndex[oldIdx];
+          const xAOD::IParticle* outPart = (*currentOutCont)[newIdx];
+          outViewCont->push_back(static_cast<const PART*>(outPart));
+          ATH_MSG_VERBOSE("Did re-map particle from old index " << oldIdx
+                          << " to new index " << inViewCont->at(partIdx)->index()
+                          << " and old container " << oldCont
+                          << " to new container " << inViewCont->at(partIdx)->container() );
+        }
+        ATH_MSG_DEBUG("Going to overwrite view container with name: " << inViewName << " and size: " << outViewCont->size() );
+        for ( const PART* part : *outViewCont ){
+          ATH_MSG_VERBOSE("Have an old pointer adress of: " << part );
+          ATH_MSG_VERBOSE("Have an old particle with pt= " << 0.001*(part->pt()) );
+        }
+        ATH_CHECK( evtStore()->overwrite( outViewCont, inViewName ) );
+        ATH_MSG_DEBUG("Did overwrite view container with name:      " << inViewName << " and size: " << outViewCont->size() );
+        for ( const PART* part : *outViewCont ){
+          ATH_MSG_VERBOSE("Have a new pointer adress of: " << part );
+          ATH_MSG_VERBOSE("Have a new particle with pt= " << 0.001*(part->pt()) );
+        }
+      }
+    }
+  }
+
+  return StatusCode::SUCCESS;
+}
