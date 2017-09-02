@@ -1,19 +1,14 @@
+/*
+ * Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration.
+ */
 // $Id: crc64.cxx,v 1.2 2007-03-08 02:02:06 ssnyder Exp $
 /**
  * @file  SGTools/crc64.cxx
- * @author scott snyder, originally from David T. Jones
+ * @author scott snyder
  * @date Mar 2007
  * @brief A CRC-64 implementation.
- */
-/*
- * Original comments:
- * Improved calculation of CRC-64 values for protein sequences
- * By David T. Jones (dtj@cs.ucl.ac.uk)  - September 28th 2002
- * 
- * Modified from code at URL:
- * ftp://ftp.ebi.ac.uk/pub/software/swissprot/Swissknife/old/SPcrc.tar.gz
  *
- * Changed to C++ and moved into a namespace.
+ * A good reference for CRC calculations is <https://zlib.net/crc_v3.txt>.
  */
 
 
@@ -22,14 +17,10 @@
 using namespace std;
 
 
-// I don't have a citation for the source of this polynomial.
-// Maybe should replace it with the ECMA DLT poly?
+// Polynomial taken from code from David T. Jones (dtj@cs.ucl.ac.uk).
+// http://www0.cs.ucl.ac.uk/staff/D.Jones/crcnote.pdf
 #define POLY64REV     0x95AC9329AC4BC9B5ULL
 #define INITIALCRC    0xFFFFFFFFFFFFFFFFULL
-
-// Original SWISSPROT/TrEMBL poly.  Shown to be weak.
-//#define POLY64REV	0xd800000000000000ULL
-//#define INITIALCRC	0x0000000000000000ULL
 
 
 namespace {
@@ -37,21 +28,22 @@ namespace {
 bool crc_init = false;
 uint64_t CRCTable[256];
 
+
 // Initialize the CRC table.
 void init_table()
 {
   crc_init = true;
   for (int i = 0; i < 256; i++)
   {
-    uint64_t part = i;
+    uint64_t r = i;
     for (int j = 0; j < 8; j++)
     {
-      if (part & 1)
-        part = (part >> 1) ^ POLY64REV;
+      if (r & 1)
+        r = (r >> 1) ^ POLY64REV;
       else
-        part >>= 1;
+        r >>= 1;
     }
-    CRCTable[i] = part;
+    CRCTable[i] = r;
   }
 }
 

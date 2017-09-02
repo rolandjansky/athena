@@ -5,7 +5,7 @@
 // $Id: crc64_test.cxx,v 1.2 2007-03-08 02:02:06 ssnyder Exp $
 /**
  * @file  SGTools/crc64_test.cxx
- * @author scott snyder, originally from David T. Jones
+ * @author scott snyder
  * @date Mar 2007
  * @brief Regression tests for CRC-64 calculation.
  */
@@ -33,10 +33,10 @@ void testextend (const std::string& str, unsigned int x)
 
 int main()
 {
-  const char* testin1 = "MNIIQGNLVGTGLKIGIVVGRFNDFITSKLLSGAEDALLRHGVDTNDIDVAWVPGAFEIPFAAKKMAETKKYDAIITLGTVIRGATTSYDYVCNEAAKGIAQAANTTGVPVIFGIVTTENIEQAIERAGTKAGNKGVDCAVSAIEMANLNRSFE";
-  const char* testout1 = "C874767DA8254746";
-  const char* testin2 = "MNIIQGNLVGTGLKIGIVVGRFNDFITSKLLSGAEDALLRHGVDTNDIDVAWVPGAFEIPFAAKKMAETKKYDAIITLGDVIRGATTHYDYVCNEAAKGIAQAANTTGVPVIFGIVTTENIEQAIERAGTKAGNKGVDCAVSAIEMANLNRSFE"; /* Differs from 1st seq in two places */
-  const char* testout2 = "2DF1AA17420FCA3F";
+  const char* testin1 = "alkdkjasldjaldjalkdjaldjoqiwj;lknnfaoiuuhewfuasuhfaiuuhffiuuhaffoiuahfefiuauheofiuhapkjjjhdhfpiauw3hpkjajshhdfpkkuawheoiuahwefpiuawhfeiauehfpiauwehfpawieufhpaw";
+  const char* testout1 = "047BDD061CE68225";
+  const char* testin2 = "alkdkjasldjaldjalkdjalejoqiwj;lknnfaoiuuhewfuasuhfaiuuhffiuuhaffoiuahfefiuauheofiuhapkjjjhdhfpiauw2hpkjajshhdfpkkuawheoiuahwefpiuawhfeiauehfpiauwehfpawieufhpaw"; // DIffers from 1st in two bits.
+  const char* testout2 = "6051B184A58A80C6";
 
   assert (SG::crc64digest (testin1) == std::string (testout1));
   assert (SG::crc64digest (testin2) == std::string (testout2));
