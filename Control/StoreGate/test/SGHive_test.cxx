@@ -136,7 +136,9 @@ public:
 int main() {
   cout << "*** SGHiveTest BEGINS ***" << endl;
   ISvcLocator* pSvcLoc;
-  initGaudi("SGHive_test.txt", pSvcLoc);
+  if (!initGaudi("SGHive_test.txt", pSvcLoc)) {
+    return 1;
+  }
   IHiveWhiteBoard* pWB(0);
   assert( pSvcLoc->service("SG::HiveMgrSvc/HiveMgrSvc", pWB, true).isSuccess() );
 
