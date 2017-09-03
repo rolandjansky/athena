@@ -84,7 +84,8 @@ augmentationToolsList = [  DFCommonTruthClassificationTool,
                            DFCommonTruthElectronDressingTool, DFCommonTruthMuonDressingTool,
                            DFCommonTruthElectronIsolationTool1, DFCommonTruthElectronIsolationTool2,
                            DFCommonTruthMuonIsolationTool1, DFCommonTruthMuonIsolationTool2,
-                           DFCommonTruthPhotonIsolationTool1, DFCommonTruthPhotonIsolationTool2]
+                           DFCommonTruthPhotonIsolationTool1, DFCommonTruthPhotonIsolationTool2,
+                           DFCommonTruthQGLabelTool]
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
 DerivationFrameworkJob += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthCommonKernel",
                                                                          AugmentationTools = augmentationToolsList
