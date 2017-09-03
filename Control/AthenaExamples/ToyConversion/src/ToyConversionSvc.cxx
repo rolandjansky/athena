@@ -5,8 +5,7 @@
 #include "ToyConversion/ToyConversionSvc.h"
 long int
 ToyConversionSvc::storageType() {
-  static long type(0xFF);
-  return type;
+  return 0xff;
 }
 
 long int ToyConversionSvc::repSvcType() const {
