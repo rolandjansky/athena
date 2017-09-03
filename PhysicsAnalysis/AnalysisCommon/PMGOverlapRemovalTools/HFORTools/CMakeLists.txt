@@ -22,6 +22,7 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODJet
    Event/xAOD/xAODTruth
    Event/xAOD/xAODEventInfo
+   PhysicsAnalysis/Interfaces/PMGAnalysisInterfaces
    PRIVATE
    Event/xAOD/xAODBase
    Tools/PathResolver
