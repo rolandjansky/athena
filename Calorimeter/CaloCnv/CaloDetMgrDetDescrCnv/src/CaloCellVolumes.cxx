@@ -55,7 +55,6 @@ CaloCellVolumes::CaloCellVolumes(ISvcLocator* svcLocator):
     throw std::runtime_error("CaloCellVolumes error: cannot access RDBAccessSvc");
 
   DecodeVersionKey detectorKey = DecodeVersionKey(geoModelSvc,"LAr");
-  rdbAccessSvc->connect();
 
   IRDBRecordset_ptr cellVolRec = rdbAccessSvc->getRecordsetPtr("LArCellVolumes",detectorKey.tag(),detectorKey.node());
   if(cellVolRec->size()==0)
@@ -63,7 +62,6 @@ CaloCellVolumes::CaloCellVolumes(ISvcLocator* svcLocator):
     cellVolRec = rdbAccessSvc->getRecordsetPtr("LArCellVolumes","LArCellVolumes-00");
     if(cellVolRec->size()==0)
     {
-      rdbAccessSvc->disconnect();
       throw std::runtime_error("CaloCellVolumes error: 0 size of LArCellVolumes recordset");
     }
   }
@@ -88,8 +86,6 @@ CaloCellVolumes::CaloCellVolumes(ISvcLocator* svcLocator):
     m_geometryLayout = "H6";
   else if(LArTag.find("G3")!=std::string::npos)
     m_geometryLayout = "G3";
-
-  rdbAccessSvc->disconnect();
 
   // Initialize m_cellVolumes vector
   for(unsigned int ind = 0; ind < cellVolRec->size(); ind++)

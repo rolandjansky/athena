@@ -30,44 +30,44 @@ namespace coral
  *
  * @brief RDBRecord is one record in the RDBRecordset object
  */
-class RDBRecord : public IRDBRecord
+class RDBRecord final : public IRDBRecord
 {
   friend class RDBRecordset;
 
  public:
 
   /// Destructor
-  virtual ~RDBRecord();
+  ~RDBRecord() override;
 
   /// Check if the field value is NULL
   /// @param fieldName [IN] field name
   /// @retun TRUE if the field is NULL, FALSE otherwise
-  bool isFieldNull(const std::string& fieldName) const;
+  bool isFieldNull(const std::string& fieldName) const override;
 
   /// Get int field value
   /// @param fieldName [IN] field name
   /// @return field value
-  int getInt(const std::string& fieldName) const;
+  int getInt(const std::string& fieldName) const override;
 
   /// Get long field value
   /// @param fieldName [IN] field name
   /// @return field value
-  long getLong(const std::string& fieldName) const;
+  long getLong(const std::string& fieldName) const override;
 
   /// Get double field value
   /// @param fieldName [IN] field name
   /// @return field value
-  double getDouble(const std::string& fieldName) const;
+  double getDouble(const std::string& fieldName) const override;
 
   /// Get float field value
   /// @param fieldName [IN] field name
   /// @return field value
-  float getFloat(const std::string& fieldName) const;
+  float getFloat(const std::string& fieldName) const override;
 
   /// Get string field value
   /// @param fieldName [IN] field name
   /// @return field value
-  std::string getString(const std::string& fieldName) const;
+  std::string getString(const std::string& fieldName) const override;
 
   // Access array values by index
   // arrays are implemented using the field with names like NAME_0, NAME_1 etc.
@@ -76,31 +76,31 @@ class RDBRecord : public IRDBRecord
   /// @param fieldName [IN] field name
   /// @param index [IN] index in the array
   /// @return field value
-  int getInt(const std::string& fieldName, unsigned int index) const;
+  int getInt(const std::string& fieldName, unsigned int index) const override;
 
   /// Get array long field value
   /// @param fieldName [IN] field name
   /// @param index [IN] index in the array
   /// @return field value
-  long getLong(const std::string& fieldName, unsigned int index) const;
+  long getLong(const std::string& fieldName, unsigned int index) const override;
 
   /// Get array double field value
   /// @param fieldName [IN] field name
   /// @param index [IN] index in the array
   /// @return field value
-  double getDouble(const std::string& fieldName, unsigned int index) const;
+  double getDouble(const std::string& fieldName, unsigned int index) const override;
 
   /// Get array float field value
   /// @param fieldName [IN] field name
   /// @param index [IN] index in the array
   /// @return field value
-  float getFloat(const std::string& fieldName, unsigned int index) const;
+  float getFloat(const std::string& fieldName, unsigned int index) const override;
 
   /// Get array string field value
   /// @param fieldName [IN] field name
   /// @param index [IN] index in the array
   /// @return field value
-  std::string getString(const std::string& fieldName, unsigned int index) const;
+  std::string getString(const std::string& fieldName, unsigned int index) const override;
 
   // Comparison operator
   bool operator!=(const RDBRecord& rhs) const;

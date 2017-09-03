@@ -217,8 +217,6 @@ PixelSiliconConditionsSvc::setConditionsFromGeoModel()
     return false;
   }
 
-  m_rdbSvc->connect();
-
   DecodeVersionKey versionKey(&*m_geoModelSvc, "Pixel");
   msg(MSG::DEBUG) << "Checking GeoModel Version Tag: "<<  versionKey.tag() << " at Node: " << versionKey.node() << endmsg;
 
@@ -251,8 +249,6 @@ PixelSiliconConditionsSvc::setConditionsFromGeoModel()
     msg(MSG::INFO) << "Default conditions not provided by GeoModel."  << endmsg;
   }
  
-  m_rdbSvc->disconnect();
-
   return (!useCondDB && conditionsPresent);
 
 

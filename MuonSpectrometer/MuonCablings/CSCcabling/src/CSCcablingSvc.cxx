@@ -44,11 +44,6 @@ StatusCode CSCcablingSvc::initialize() {
   IRDBAccessSvc* rdbAccess = 0;
   ATH_CHECK( service("RDBAccessSvc",rdbAccess) );
 
-  if(!rdbAccess->connect()) {
-     ATH_MSG_ERROR("Unable to connect to the Geometry DB");
-     return StatusCode::FAILURE;
-  }
-
   const IGeoModelSvc* geoModel = 0;
   StatusCode sc = service("GeoModelSvc", geoModel);
   if (sc.isFailure()) {
@@ -74,11 +69,6 @@ StatusCode CSCcablingSvc::initialize() {
   }
   m_rod  = (m_run1 ? 8 : 16);
   m_max  = m_side * m_rod;
-
-  if(!rdbAccess->disconnect()) {
-     ATH_MSG_ERROR("Unable to disconnectfrom the Geometry DB");
-     return StatusCode::FAILURE;
-  } 
 
   return StatusCode::SUCCESS;
 }

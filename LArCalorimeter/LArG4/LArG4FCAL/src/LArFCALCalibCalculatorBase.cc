@@ -109,13 +109,11 @@ namespace LArG4 {
       std::string detectorKey  = LArVersion.empty() ? AtlasVersion : LArVersion;
       std::string detectorNode = LArVersion.empty() ? "ATLAS" : "LAr";
 
-      pAccessSvc->connect();
       IRDBRecordset_ptr emecGeoPtr = pAccessSvc->getRecordsetPtr("EmecGeometry",detectorKey,detectorNode);
       if (emecGeoPtr->size()==0)
         throw std::runtime_error ("LArFCALCalibCalculatorBase ERROR: Cannot find the EmecGeometry Table");
 
       m_zShift = (*emecGeoPtr)[0]->getDouble("ZSHIFT")*CLHEP::cm;
-      pAccessSvc->disconnect();
       return StatusCode::SUCCESS;
     }
 

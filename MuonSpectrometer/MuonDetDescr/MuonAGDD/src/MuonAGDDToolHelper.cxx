@@ -59,8 +59,6 @@ MuonAGDDToolHelper::MuonAGDDToolHelper()
     {
     	std::cout<<"unable to access RBDAccessSvc "<<std::endl;
     }
-	else
-		p_RDBAccessSvc->connect();
 	tagInfoKey="";
 	result=Gaudi::svcLocator()->service("TagInfoMgr",m_tagInfoMgr);
   	if (result.isFailure()) 
