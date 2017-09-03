@@ -18,10 +18,6 @@
 #include "../OverlapRemovalTestAlg.h"
 #include "../ORToolBoxTestAlg.h"
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-DECLARE_TOOL_FACTORY( OverlapRemovalTool )
-#pragma GCC diagnostic pop
 DECLARE_TOOL_FACTORY( ORUtils::OverlapRemovalTool )
 DECLARE_TOOL_FACTORY( ORUtils::DeltaROverlapTool )
 DECLARE_TOOL_FACTORY( ORUtils::EleEleOverlapTool )
@@ -40,10 +36,6 @@ DECLARE_ALGORITHM_FACTORY( ORToolBoxTestAlg )
 
 DECLARE_FACTORY_ENTRIES( AssociationUtils ) 
 {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-  DECLARE_TOOL( OverlapRemovalTool )
-#pragma GCC diagnostic pop
   DECLARE_TOOL( ORUtils::OverlapRemovalTool )
   DECLARE_TOOL( ORUtils::DeltaROverlapTool )
   DECLARE_TOOL( ORUtils::EleEleOverlapTool )

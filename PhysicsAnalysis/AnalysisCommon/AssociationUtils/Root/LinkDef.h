@@ -27,9 +27,6 @@
 #include "AssociationUtils/OverlapDecorationHelper.h"
 #include "AssociationUtils/OverlapLinkHelper.h"
 
-#include "AssociationUtils/IOverlapRemovalToolLegacy.h"
-#include "AssociationUtils/OverlapRemovalToolLegacy.h"
-
 #pragma link off all globals;
 #pragma link off all classes;
 #pragma link off all functions;
@@ -61,10 +58,6 @@
 #pragma link C++ class ORUtils::MuJetGhostDRMatcher+;
 #pragma link C++ class ORUtils::OverlapDecorationHelper+;
 #pragma link C++ class ORUtils::OverlapLinkHelper+;
-
-// Legacy tools
-#pragma link C++ class IOverlapRemovalTool+;
-#pragma link C++ class OverlapRemovalTool+;
 
 #endif // __CLING__
 

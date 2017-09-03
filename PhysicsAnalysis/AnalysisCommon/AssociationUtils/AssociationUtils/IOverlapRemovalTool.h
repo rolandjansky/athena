@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef ASSOCIATIONUTILS_IOVERLAPREMOVALTOOL2_H
-#define ASSOCIATIONUTILS_IOVERLAPREMOVALTOOL2_H
+#ifndef ASSOCIATIONUTILS_IOVERLAPREMOVALTOOL_H
+#define ASSOCIATIONUTILS_IOVERLAPREMOVALTOOL_H
 
 // Framework includes
 #include "AsgTools/IAsgTool.h"
@@ -14,9 +14,6 @@
 #include "xAODJet/JetContainer.h"
 #include "xAODMuon/MuonContainer.h"
 #include "xAODTau/TauJetContainer.h"
-
-// Backwards compatibility
-#include "AssociationUtils/IOverlapRemovalToolLegacy.h"
 
 
 namespace ORUtils
