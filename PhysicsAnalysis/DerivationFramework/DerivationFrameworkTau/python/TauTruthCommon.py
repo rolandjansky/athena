@@ -34,6 +34,7 @@ if DerivationFrameworkIsMonteCarlo:
 
         DFCommonTauTruthMatchingTool = TauAnalysisTools__TauTruthMatchingTool(name="DFCommonTauTruthMatchingTool")
         DFCommonTauTruthMatchingTool.WriteTruthTaus = True
+        DFCommonTauTruthMatchingTool.MCTruthClassifierTool = DFCommonTauTruthClassifier
         ToolSvc += DFCommonTauTruthMatchingTool
         DFCommonTauTruthMatchingWrapper = DerivationFramework__TauTruthMatchingWrapper( name = "DFCommonTauTruthMatchingWrapper",
                                                                                         TauTruthMatchingTool = DFCommonTauTruthMatchingTool,
