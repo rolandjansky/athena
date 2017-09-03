@@ -101,7 +101,8 @@ namespace xAOD {
       }
       if (qcd.size()) {
 	printf("\n    %lu Powheg QCD scale variations\n   ",qcd_nnlops.size());
-	for (auto q:qcd) printf(" %s",uncStr(q,n)); printf("\n");
+	for (auto q:qcd) printf(" %s",uncStr(q,n));
+	printf("\n");
       }
       printf("\n   PDF central values\n"); 
       printf("     PDF4LHC_nlo:  %s, PDF4LHC_nnlo: %s\n",uncStr(pdf4lhc_nlo,n),uncStr(pdf4lhc_nnlo,n));
