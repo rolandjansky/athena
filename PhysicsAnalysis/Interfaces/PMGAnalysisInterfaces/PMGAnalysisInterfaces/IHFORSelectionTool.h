@@ -7,7 +7,7 @@
 
 #include "AsgTools/IAsgTool.h"
 
-#include "HFORTools/HFOR_Truth.h"
+#include "PMGAnalysisInterfaces/HFORTypes.h"
 
 class IHFORSelectionTool : public virtual asg::IAsgTool {
    public:

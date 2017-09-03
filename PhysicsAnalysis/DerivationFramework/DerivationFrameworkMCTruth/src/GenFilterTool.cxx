@@ -11,7 +11,7 @@
 
 // Tool handle interface
 #include "MCTruthClassifier/IMCTruthClassifier.h"
-#include "HFORTools/IHFORSelectionTool.h"
+#include "PMGAnalysisInterfaces/IHFORSelectionTool.h"
 
 namespace DerivationFramework {
 
