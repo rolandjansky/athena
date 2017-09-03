@@ -152,7 +152,9 @@ void PyAthena::throw_py_exception (bool display)
 }
 
 StatusCode 
-PyAthena::callPyMethod( PyObject* self, const char* methodName )
+PyAthena::callPyMethod( PyObject* self,
+                        const char* methodName,
+                        PyObject* arg /*= nullptr*/)
 {
   // that's a bit ugly...
   char* method = const_cast<char*>(methodName);
@@ -162,7 +164,11 @@ PyAthena::callPyMethod( PyObject* self, const char* methodName )
   
   // call Python 
   PyGILStateEnsure ensure;
-  PyObject* r = PyObject_CallMethod( self, method, const_cast<char*>("") );
+  PyObject* r;
+  if (arg)
+    r = PyObject_CallMethod( self, method, const_cast<char*>("O"), arg );
+  else
+    r = PyObject_CallMethod( self, method, const_cast<char*>("") );
   
   if ( 0 == r ) { 
     throw_py_exception();
