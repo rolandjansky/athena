@@ -82,6 +82,10 @@ namespace pool    {
       m_swapEnabled(do_swap)      {      m_analyzer = 0;          }
     /// Standard destructor
     virtual ~DbBlob();
+
+    DbBlob (const DbBlob&) = delete;
+    DbBlob& operator= (const DbBlob&) = delete;
+
     /// Read access to data buffer
     const char* data()    const   {      return m_buffer;         }
     /// write access to data buffer
