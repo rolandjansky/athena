@@ -217,11 +217,11 @@ void TrigTrackSelector::selectTrack( const Rec::TrackParticle* track ) {
       // Create and save Track
       
       TIDA::Track* t = new TIDA::Track(eta, phi, z0, d0, pT, chi2, dof,
-								 deta, dphi, dz0, dd0, dpT,
-								 nBlayerHits, nPixelHits, nSctHits, nSiHits,
-								 nStrawHits, nTrHits, bitmap, 0,
-								 trackAuthor,
-								 expectBL, id) ;  
+                                       deta, dphi, dz0, dd0, dpT,
+                                       nBlayerHits, nPixelHits, nSctHits, nSiHits,
+                                       nStrawHits, nTrHits, bitmap, 0,
+                                       trackAuthor, false, -1, -1,  
+                                       expectBL, id) ;  
 
       //      std::cout << "SUTT TP track " << *t << "\t0x" << std::hex << bitmap << std::dec << std::endl; 
       
@@ -493,12 +493,12 @@ TIDA::Track* TrigTrackSelector::makeTrack( const TruthParticle* track, unsigned 
 
 
     TIDA::Track* t = new TIDA::Track(eta, phi, z0, d0, pT, 0, 0,
-							       0, 0, 0, 0, 0,
-							       0, 0, 0, 0,
-							       0, 0, 0, 0,
-							       author, false, barcode, -1,
-							       false, 
-							       id ) ;  
+                                     0, 0, 0, 0, 0,
+                                     0, 0, 0, 0,
+                                     0, 0, 0, 0,
+                                     author, false, barcode, -1,
+                                     false, 
+                                     id ) ;  
 
     return t;
 
@@ -667,11 +667,11 @@ void TrigTrackSelector::selectTrack( const Trk::Track* track ) {
   #endif	
 	// Create and save Track      
 	TIDA::Track* t = new TIDA::Track(eta, phi, z0, d0, pT, chi2, dof,
-								   deta, dphi, dz0, dd0, dpT,
-								   nBlayerHits, nPixelHits, nSctHits, nSiHits,
-								   nStrawHits, nTrHits, bitmap, 0,
-								   trackAuthor,
-								   expectBL, id) ;  
+                                         deta, dphi, dz0, dd0, dpT,
+                                         nBlayerHits, nPixelHits, nSctHits, nSiHits,
+                                         nStrawHits, nTrHits, bitmap, 0,
+                                         trackAuthor,  false, -1, -1,  
+                                         expectBL, id) ;  
 
 	 if ( !addTrack( t ) ) delete t;
 
@@ -752,9 +752,9 @@ void TrigTrackSelector::selectTrack( const xAOD::TrackParticle* track, void* ) {
       // stereo clusters making a spacepoint are two "hits"
       
       uint8_t sum_nBlayerHits = 0;
-      track->summaryValue( sum_nBlayerHits, xAOD::numberOfBLayerHits);
+      track->summaryValue( sum_nBlayerHits, xAOD::numberOfInnermostPixelLayerHits);
       int nBlayerHits = 2*sum_nBlayerHits;
-      
+
       uint8_t  sum_nPixelHits = 0;
       track->summaryValue( sum_nPixelHits, xAOD::numberOfPixelHits);
       int nPixelHits = 2*sum_nPixelHits;
@@ -773,10 +773,8 @@ void TrigTrackSelector::selectTrack( const xAOD::TrackParticle* track, void* ) {
       
 
       uint8_t sum_expectBL  = 0;
-      track->summaryValue( sum_expectBL, xAOD::expectBLayerHit);
-
+      track->summaryValue( sum_expectBL, xAOD::expectInnermostPixelLayerHit);
       bool expectBL = ( sum_expectBL ? true : false );
-
 
       /// holes 
 
@@ -901,7 +899,7 @@ void TrigTrackSelector::selectTrack( const xAOD::TrackParticle* track, void* ) {
 		 		        deta,  dphi, dz0, dd0, dpT,
 				        nBlayerHits, nPixelHits, nSctHits, nSiHits,
 				        nStrawHits,  nTrtHits,   bitmap, 0,
-				        trackAuthor,
+				        trackAuthor,  false, -1, -1,  
 				        expectBL, id) ;  
 
       //      std::cout << "SUTT TP track " << *t << "\t0x" << std::hex << bitmap << std::dec << std::endl; 
