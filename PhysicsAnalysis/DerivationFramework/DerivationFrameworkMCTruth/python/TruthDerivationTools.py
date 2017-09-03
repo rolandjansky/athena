@@ -144,3 +144,4 @@ DFCommonTruthPhotonIsolationTool2 = DerivationFramework__TruthIsolationTool(name
 ToolSvc += DFCommonTruthPhotonIsolationTool2
 DFCommonTruthQGLabelTool = DerivationFramework__TruthQGDecorationTool(name="DFCommonTruthQGLabelTool",
                                                                   JetCollection = "AntiKt4TruthWZJets")
+ToolSvc += DFCommonTruthQGLabelTool
