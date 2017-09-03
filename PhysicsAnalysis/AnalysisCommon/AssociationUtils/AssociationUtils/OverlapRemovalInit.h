@@ -18,7 +18,6 @@
 
 // Local includes
 #include "AssociationUtils/ToolBox.h"
-#include "AssociationUtils/ORToolBox.h"
 
 namespace ORUtils
 {
@@ -71,7 +70,7 @@ namespace ORUtils
   /// by Will Buttinger: https://indico.cern.ch/event/457238/
   ///
   /// The tools are returned uninitialized; the user can override properties
-  /// and initialize all the tools with a call to ORToolBox::initialize.
+  /// and initialize all the tools with a call to ToolBox::initialize.
   ///
   /// This function uses the ORFlags object to communicate common configuration
   /// options and the ToolBox design based on AnaToolHandle.

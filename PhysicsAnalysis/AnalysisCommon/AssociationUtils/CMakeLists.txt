@@ -50,8 +50,6 @@ atlas_add_root_dictionary( AssociationUtilsLib AssociationUtilsLibDict
    AssociationUtils/MuJetGhostDRMatcher.h
    AssociationUtils/OverlapDecorationHelper.h
    AssociationUtils/OverlapLinkHelper.h
-   AssociationUtils/IOverlapRemovalToolLegacy.h
-   AssociationUtils/OverlapRemovalToolLegacy.h
    Root/LinkDef.h
    EXTERNAL_PACKAGES ROOT )
 
@@ -77,12 +75,6 @@ if( XAOD_STANDALONE )
       LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} xAODRootAccess
       xAODEventInfo xAODEgamma xAODMuon xAODJet xAODTau xAODEgamma
       AssociationUtilsLib )
-
-   atlas_add_executable( OverlapRemovalTesterLegacy
-      util/OverlapRemovalTesterLegacy.cxx
-      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODEventInfo xAODEgamma
-      xAODMuon xAODJet xAODTau xAODEgamma AssociationUtilsLib )
 endif()
 
 # Tests in the package:
@@ -109,7 +101,6 @@ endforeach()
 if( XAOD_STANDALONE )
    atlas_add_test( ut_assocUtilsDict SCRIPT test/ut_assocUtilsDict.py )
    atlas_add_test( ut_ort_tester SCRIPT test/ut_ort_tester.sh )
-   atlas_add_test( ut_ort_tester_legacy SCRIPT test/ut_ort_tester_legacy.sh )
 endif()
 
 # Install files from the package:

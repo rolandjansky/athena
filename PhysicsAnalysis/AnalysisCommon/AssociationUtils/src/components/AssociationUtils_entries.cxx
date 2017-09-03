@@ -14,10 +14,6 @@
 #include "../OverlapRemovalTestAlg.h"
 #include "../ORToolBoxTestAlg.h"
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-DECLARE_COMPONENT( OverlapRemovalTool )
-#pragma GCC diagnostic pop
 DECLARE_COMPONENT( ORUtils::OverlapRemovalTool )
 DECLARE_COMPONENT( ORUtils::DeltaROverlapTool )
 DECLARE_COMPONENT( ORUtils::EleEleOverlapTool )
@@ -33,8 +29,3 @@ DECLARE_COMPONENT( ORUtils::TauAntiTauJetOverlapTool )
 
 DECLARE_COMPONENT( OverlapRemovalTestAlg )
 DECLARE_COMPONENT( ORToolBoxTestAlg )
-
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#pragma GCC diagnostic pop
-
