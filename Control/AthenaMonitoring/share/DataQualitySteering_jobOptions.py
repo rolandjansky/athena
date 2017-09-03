@@ -276,9 +276,14 @@ if DQMonFlags.doMonitoring():
          # unless prevented: configure a generic event cleaning tool
          if not any(re.match(_, tool.name()) for _ in DQMonFlags.excludeFromCleaning()):
             if tool.name() in DQMonFlags.specialCleaningConfiguration():
-               config_ = DQMonFlags.specialCleaningConfiguration(tool.name()).copy()
+               config_ = DQMonFlags.specialCleaningConfiguration()[tool.name()].copy()
+               for _ in config_:
+                  try:
+                     config_[_] = bool(config_[_])
+                  except:
+                     local_logger.error('Unable to enact special event cleaning configuration for tool %s; cannot cast %s=%s to bool', tool.name(), _, config_[_])
                config_['name'] = 'DQEventFlagFilterTool_%s' % tool.name()
-               tool.FilterTools += [GetEventFlagFilterTool(*config_)]
+               tool.FilterTools += [GetEventFlagFilterTool(**config_)]
                del config_
                local_logger.info('Configurating special event cleaning for tool %s', tool)
             else:
