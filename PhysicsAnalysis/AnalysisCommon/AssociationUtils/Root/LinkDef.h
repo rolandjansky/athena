@@ -20,7 +20,6 @@
 #include "AssociationUtils/TauJetOverlapTool.h"
 #include "AssociationUtils/TauAntiTauJetOverlapTool.h"
 #include "AssociationUtils/ObjLinkOverlapTool.h"
-//#include "AssociationUtils/ORToolBox.h"
 #include "AssociationUtils/ToolBox.h"
 #include "AssociationUtils/BJetHelper.h"
 #include "AssociationUtils/DeltaRMatcher.h"
@@ -56,8 +55,6 @@
 
 // Helpers
 #pragma link C++ class ORUtils::ToolBox+;
-//#pragma link C++ class ORUtils::ToolBoxBase+;
-//#pragma link C++ class ORUtils::ORToolBox+;
 #pragma link C++ class ORUtils::BJetHelper+;
 #pragma link C++ class ORUtils::DeltaRMatcher+;
 #pragma link C++ class ORUtils::SlidingDeltaRMatcher+;
