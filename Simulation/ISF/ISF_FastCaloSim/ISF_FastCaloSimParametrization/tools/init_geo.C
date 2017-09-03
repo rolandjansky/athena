@@ -23,8 +23,8 @@ void init_geo()
 
  //gROOT->LoadMacro("CaloSampling.cxx+");
  gROOT->LoadMacro("../src/CaloGeoGeometry.cxx+");
- gROOT->LoadMacro("../src/CaloGeometryFromFile.cxx+");
- gROOT->LoadMacro("../src/FCAL_ChannelMap.cxx+");
+ gROOT->LoadMacro("../CaloGeometryFromFile.cxx+");
+ gROOT->LoadMacro("../FCAL_ChannelMap.cxx+");
  cout<<"init geometry done"<<endl;
  cout << "running run_geo.C" << endl;
  
