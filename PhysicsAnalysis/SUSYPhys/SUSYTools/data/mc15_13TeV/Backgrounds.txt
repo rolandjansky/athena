@@ -123,7 +123,7 @@ id/I:name/C:xsec/F:kfac/F:eff/F:relunc/F
 410146  PowhegHerwigppEvtGen_UEEE5_Wt_dilepton_antitop  			4.0000	0.9437	1.      1.
 410164  aMcAtNloHerwigppEvtGen_UEEE5_CTEQ6L1_CT10ME_Wt_dilepton			7.8714	0.9437	1.	1.
 
-410165 	aMcAtNloHerwigppEvtGen_UEEE5_CTEQ6L1_CT10ME_Wt_inclusive  		73.588 	1.0 	1.0 	1.0
+410165 	aMcAtNloHerwigppEvtGen_UEEE5_CTEQ6L1_CT10ME_Wt_inclusive  		73.588 	0.974344 	1.0 	1.0
 
 # Filtered samples -- efficiencies from evgen preparation (AMI is wrong)
 407018	PowhegPythiaEvtGen_P2012CT10_Wt_inclusive_top_HT500			34.009	1.054	0.0884612	1.
@@ -534,7 +534,7 @@ id/I:name/C:xsec/F:kfac/F:eff/F:relunc/F
 363456  Sherpa_NNPDF30NNLO_Wmunu_Pt1000_2000_BFilter            0.0088975        0.9702             0.1488  1.0
 363457  Sherpa_NNPDF30NNLO_Wmunu_Pt2000_E_CMS_CVetoBVeto        2.6342e-05       0.9702             0.4832  1.0
 363458  Sherpa_NNPDF30NNLO_Wmunu_Pt2000_E_CMS_CFilterBVeto      3.2907e-05       0.9702             0.3073  1.0
-363459  Sherpa_NNPDF30NNLO_Wmunu_Pt2000_E_CMS_BFilter           2.7767e-05       0.9702             0.1973  1.0
+363459  Sherpa_NNPDF30NNLO_Wmunu_Pt2000_E_CMS_BFilter           2.7016e-05       0.9702             0.19726 1.0
 363460  Sherpa_NNPDF30NNLO_Wenu_Pt0_70_CVetoBVeto               20029.0          0.9702             0.8138  1.0
 363461  Sherpa_NNPDF30NNLO_Wenu_Pt0_70_CFilterBVeto             20015.0          0.9702             0.1383  1.0
 363462  Sherpa_NNPDF30NNLO_Wenu_Pt0_70_BFilter                  20004.0          0.9702             0.047   1.0
@@ -575,7 +575,7 @@ id/I:name/C:xsec/F:kfac/F:eff/F:relunc/F
 363111  Sherpa_NNPDF30NNLO_Ztautau_Pt500_700_CVetoBVeto         0.053095        0.9751          0.5811  1.0 
 363112  Sherpa_NNPDF30NNLO_Ztautau_Pt500_700_CFilterBVeto       0.053205        0.9751          0.2546  1.0
 363113  Sherpa_NNPDF30NNLO_Ztautau_Pt500_700_BFilter            0.052708        0.9751          0.1588  1.0
-363114  Sherpa_NNPDF30NNLO_Ztautau_Pt700_1000_CVetoBVeto        0.0097332       0.9751          0.5676  1.0
+363114  Sherpa_NNPDF30NNLO_Ztautau_Pt700_1000_CVetoBVeto        0.0096268       0.9751          0.56759 1.0
 363115  Sherpa_NNPDF30NNLO_Ztautau_Pt700_1000_CFilterBVeto      0.0095498       0.9751          0.2572  1.0
 363116	Sherpa_NNPDF30NNLO_Ztautau_Pt700_1000_BFilter		0.0095039	0.9751		0.15905	1.0
 363117  Sherpa_NNPDF30NNLO_Ztautau_Pt1000_2000_CVetoBVeto       0.0012574       0.9751          0.5673  1.0
@@ -583,7 +583,7 @@ id/I:name/C:xsec/F:kfac/F:eff/F:relunc/F
 363119  Sherpa_NNPDF30NNLO_Ztautau_Pt1000_2000_BFilter          0.0012661       0.9751          0.1173  1.0
 363120  Sherpa_NNPDF30NNLO_Ztautau_Pt2000_E_CMS_CVetoBVeto 	4.7536e-06      0.9751          0.5212  1.0
 363121  Sherpa_NNPDF30NNLO_Ztautau_Pt2000_E_CMS_CFilterBVeto    4.541e-06       0.9751          0.2902  1.0
-363122  Sherpa_NNPDF30NNLO_Ztautau_Pt2000_E_CMS_BFilter         4.5616e-06      0.9751          0.188  1.0
+363122  Sherpa_NNPDF30NNLO_Ztautau_Pt2000_E_CMS_BFilter         4.6862e-06      0.9751          0.188  1.0
 363361  Sherpa_NNPDF30NNLO_Ztautau_Pt0_70_CVetoBVeto            2076.5          0.9751          0.8119  1.0
 363362  Sherpa_NNPDF30NNLO_Ztautau_Pt0_70_CFilterBVeto          2076.7          0.9751          0.119   1.0
 363363  Sherpa_NNPDF30NNLO_Ztautau_Pt0_70_BFilter               2078.8          0.9751          0.0693  1.0
@@ -667,7 +667,7 @@ id/I:name/C:xsec/F:kfac/F:eff/F:relunc/F
 
 364102	 Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV0_70_BFilter			1982.2	  0.9751	0.064161  1.0 
 364105	 Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV70_140_BFilter    		108.91	  0.9751 	0.11375   1.0 
-364108	 Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV140_280_BFilter			39.908	  0.9751   	0.14618   1.0 
+364108	 Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV140_280_BFilter			39.901	  0.9751   	0.14772   1.0 
 364111	 Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV280_500_BFilter			8.4932	  0.9751   	0.17559   1.0 
 364112	 Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV500_1000				1.7881    0.9751        1.0       1.0 
 364113	 Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV1000_E_CMS			0.14769	  0.9751        1.0       1.0
@@ -1630,8 +1630,8 @@ id/I:name/C:xsec/F:kfac/F:eff/F:relunc/F
 363139	MGPy8EG_N30NLO_Zmumu_Ht700_1000_CFilterBVeto	0.44517		1.141	0.26337    1.0
 363140	MGPy8EG_N30NLO_Zmumu_Ht700_1000_BFilter			0.44567		1.141	0.15965    1.0
 363141	MGPy8EG_N30NLO_Zmumu_Ht1000_2000_CVetoBVeto		0.14899		1.141	0.54908    1.0
-363142	MGPy8EG_N30NLO_Zmumu_Ht1000_2000_CFilterBVeto	0.14625		1.141	0.27164    1.0
-363143	MGPy8EG_N30NLO_Zmumu_Ht1000_2000_BFilter		0.14705		1.141	0.17299    1.0
+363142	MGPy8EG_N30NLO_Zmumu_Ht1000_2000_CFilterBVeto	0.14480		1.141	0.26892    1.0
+363143	MGPy8EG_N30NLO_Zmumu_Ht1000_2000_BFilter		0.14728		1.141	0.17087    1.0
 363144	MGPy8EG_N30NLO_Zmumu_Ht2000_E_CMS_CVetoBVeto	0.0055138	1.141	0.55534    1.0
 363145	MGPy8EG_N30NLO_Zmumu_Ht2000_E_CMS_CFilterBVeto	0.0055277	1.141	0.28747    1.0
 363146	MGPy8EG_N30NLO_Zmumu_Ht2000_E_CMS_BFilter		0.0056967	1.141	0.17008    1.0
@@ -2373,6 +2373,7 @@ id/I:name/C:xsec/F:kfac/F:eff/F:relunc/F
 364288  Sherpa_222_NNPDF30NNLO_llll_lowMllPtComplement    1.4318    1.0  1.0  1.0
 364289  Sherpa_222_NNPDF30NNLO_lllv_lowMllPtComplement    2.9152    1.0  1.0  1.0	
 364290  Sherpa_222_NNPDF30NNLO_llvv_lowMllPtComplement    0.17046   1.0  1.0  1.0
+407315  Sherpa_221_NNPDF30NNLO_2l4v_EW6                   0.005837  1.0  1.0  1.0
 
 ################################################################################################################
 # Sherpa VVV
@@ -2464,7 +2465,7 @@ id/I:name/C:xsec/F:kfac/F:eff/F:relunc/F
 
 407022	Sherpa_CT10_enugammagammaPt50GeV	0.0055474	1.	1.	1.
 407023	Sherpa_CT10_munugammagammaPt50GeV	0.0056072	1.	1.	1.
-407024	Sherpa_CT10_taunugammagammaPt50GeV	0.0056491	1.	1.	1.
+407024	Sherpa_CT10_taunugammagammaPt50GeV	0.0055178	1.	1.	1.
 407025	Sherpa_CT10_ZeegammagammaPt50GeV	0.0018851	1.	1.	1.
 407026	Sherpa_CT10_ZmumugammagammaPt50GeV	0.0019001	1.	1.	1.
 407027	Sherpa_CT10_ZtautaugammagammaPt50GeV	0.0018949	1.	1.	1.
