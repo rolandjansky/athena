@@ -693,7 +693,7 @@ const Token* AthenaPoolCnvSvc::registerForWrite(const Placement* placement,
          m_chronoStatSvc->chronoStart("wAux_ALL");
       }
       AuxDiscoverySvc auxDiscover;
-      if (!auxDiscover.sendStore(const_cast<IAthenaSerializeSvc*>(m_serializeSvc.get()), dynamic_cast<const IAthenaIPCTool*>(m_outputStreamingTool[streamClient]).get(), obj, pool::DbReflex::guid(classDesc), contName).isSuccess()) {
+      if (!auxDiscover.sendStore(const_cast<IAthenaSerializeSvc*>(m_serializeSvc.get()), dynamic_cast<const IAthenaIPCTool*>(m_outputStreamingTool[streamClient].get()), obj, pool::DbReflex::guid(classDesc), contName).isSuccess()) {
          ATH_MSG_ERROR("Could not share dynamic aux store for: " << placementStr);
          return(nullptr);
       }
