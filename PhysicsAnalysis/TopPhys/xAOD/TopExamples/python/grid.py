@@ -251,9 +251,10 @@ def submit(config, allSamples):
      cmd += '--inDS=' + d + ' \\\n'
      cmd += '--outDS=' + output + ' \\\n'
      if config.CMake:
-        cmd += '--useAthenaPackages --cmtConfig=x86_64-slc6-gcc49-opt \\\n'
+         CMTCONFIG = os.getenv("CMTCONFIG")
+         cmd += '--useAthenaPackages --cmtConfig=%s \\\n'%(CMTCONFIG)
      else:
-        cmd += '--useRootCore \\\n'
+         cmd += '--useRootCore \\\n'
      cmd += '--writeInputToTxt=IN:in.txt \\\n'
      cmd += '--outputs=%s \\\n' % outputFilename
      cmd += '--exec="%s %s in.txt" \\\n' % (config.code, config.settingsFile)

@@ -3,60 +3,13 @@
 # This should appear in ALL derivation job options
 #==============================================================================
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
-# Add translator from EVGEN input to xAOD-like truth here
-from DerivationFrameworkMCTruth.MCTruthCommon import * 
-from DerivationFrameworkTau.TauTruthCommon import *
 
-#====================================================================
-# JET/MET
-#====================================================================
-# Set jet flags
-from JetRec.JetRecFlags import jetFlags
-jetFlags.useTruth = True
-jetFlags.useTracks = False
-# Add jet algorithms
-from JetRec.JetAlgorithm import addJetRecoToAlgSequence
-addJetRecoToAlgSequence(DerivationFrameworkJob,eventShapeTools=None)
-from JetRec.JetRecStandard import jtm
-from JetRec.JetRecConf import JetAlgorithm
-jetFlags.truthFlavorTags = ["BHadronsInitial", "BHadronsFinal", "BQuarksFinal",
-                            "CHadronsInitial", "CHadronsFinal", "CQuarksFinal",
-                            "TausFinal",
-                            "Partons",
-                            ]
-if dfInputIsEVNT:
-  # Standard truth jets
-  # To remove jet constituents add the modifier jtm.removeconstit
-  truth_modifiers = [jtm.truthpartondr, jtm.partontruthlabel, jtm.jetdrlabeler, jtm.trackjetdrlabeler]
-  akt4 = jtm.addJetFinder("AntiKt4TruthJets", "AntiKt", 0.4, "truth", ptmin=15000, modifiersin=truth_modifiers)
-  akt4alg = JetAlgorithm("jetalgAntiKt4TruthJets", Tools = [akt4] )
-  DerivationFrameworkJob += akt4alg
-
-  # WZ Truth Jets
-  akt4wz = jtm.addJetFinder("AntiKt4TruthWZJets",  "AntiKt", 0.4,  "truthwz", ptmin=15000, modifiersin=truth_modifiers)
-  akt4wzalg = JetAlgorithm("jetalgAntiKt4TruthWZJets", Tools = [akt4wz] )
-  DerivationFrameworkJob += akt4wzalg
-
-  # Some examples of other truth jet collections
-  #akt6wz    = jtm.addJetFinder("AntiKt6TruthWZJets",  "AntiKt", 0.6,  "truthwz", ptmin= 5000)
-  #akt6      = jtm.addJetFinder("AntiKt6TruthJets", "AntiKt", 0.6, "truth", ptmin= 5000)
-  #akt10     = jtm.addJetFinder("AntiKt10TruthJets", "AntiKt", 1.0, "truth", ptmin= 5000)
-  #akt10trim = jtm.addJetTrimmer("TrimmedAntiKt10TruthJets", rclus=0.3, ptfrac=0.05, input='AntiKt10TruthJets')
-
-  #Large R jets
-  akt10 = jtm.addJetFinder("AntiKt10TruthJets", "AntiKt", 1.0, "truth",ptmin= 100000)
-  akt10alg = JetAlgorithm("jetalgAntiKt10TruthJets", Tools = [akt10] )
-  DerivationFrameworkJob += akt10alg
-  akt10trim = jtm.addJetTrimmer("TrimmedAntiKt10TruthJets", rclus=0.2, ptfrac=0.05, input='AntiKt10TruthJets', modifiersin=[jtm.nsubjettiness, jtm.removeconstit], doArea=False)
-  akt10trimalg = JetAlgorithm("jetalgTrimmedAntiKt10TruthJets", Tools = [akt10trim] )
-  DerivationFrameworkJob += akt10trimalg
-
-# Add truth-based MET algorithm here
-import METReconstruction.METConfig_Truth
-from METReconstruction.METRecoFlags import metFlags # not sure if you even need this line
-from METReconstruction.METRecoConfig import getMETRecoAlg
-metAlg = getMETRecoAlg('METReconstruction')
-DerivationFrameworkJob += metAlg
+# Add translator from EVGEN input to xAOD-like truth
+# Add all the particle derivation tools
+# This sets up its own common kernel and adds the common tools to it
+from DerivationFrameworkMCTruth.MCTruthCommon import *
+# Extra classifiers for the Higgs group
+from DerivationFrameworkHiggs.TruthCategories import *
 
 #==============================================================================
 # HEAVY FLAVOR DECORATIONS (ttbar)
@@ -64,83 +17,6 @@ DerivationFrameworkJob += metAlg
 import DerivationFrameworkMCTruth.HFHadronsCommon
 # PhysicsAnalysis/DerivationFramework/DerivationFrameworkMCTruth/trunk/src/HadronOriginClassifier.cxx
 # PhysicsAnalysis/DerivationFramework/DerivationFrameworkMCTruth/trunk/src/HadronOriginDecorator.cxx
-
-#Photons with a pT cut
-TruthPhotonTool = DerivationFramework__TruthCollectionMaker(name                 = "TruthPhotonTool",
-                                                             NewCollectionName       = "TruthPhotons",
-                                                             ParticleSelectionString = "(abs(TruthParticles.pdgId) == 22) && (TruthParticles.status == 1) && (TruthParticles.pt > 20.0*GeV)")
-# ((TruthParticles.classifierParticleOrigin != 42) || (TruthParticles.pt > 20.0*GeV)))")
-ToolSvc += TruthPhotonTool
-
-'''
-#from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthIsolationTool
-TruthPhotonIsolationTool1 = DerivationFramework__TruthIsolationTool(name = "TruthPhotonIsolationTool1",
-                                                                  isoParticlesKey = "TruthPhotons",
-                                                                  allParticlesKey = "TruthParticles",
-                                                                  particleIDsToCalculate = [22],
-                                                                  IsolationConeSizes = [0.2],
-                                                                  IsolationVarNamePrefix = 'etcone',
-                                                                  ChargedParticlesOnly = False
-                                                                  )
-ToolSvc += TruthPhotonIsolationTool1
-TruthPhotonIsolationTool2 = DerivationFramework__TruthIsolationTool(name = "TruthPhotonIsolationTool2",
-                                                                  isoParticlesKey = "TruthPhotons",
-                                                                  allParticlesKey = "TruthParticles",
-                                                                  particleIDsToCalculate = [22],
-                                                                  IsolationConeSizes = [0.3],
-                                                                  IsolationVarNamePrefix = 'ptcone',
-                                                                  ChargedParticlesOnly = True
-                                                                  )
-ToolSvc += TruthPhotonIsolationTool2
-'''
-
-#Now, for partons.
-TruthTopTool = DerivationFramework__TruthCollectionMaker(name                   = "TruthTopTool",
-                                                          NewCollectionName       = "TruthTop",
-                                                          ParticleSelectionString = "(abs(TruthParticles.pdgId) == 6)",
-                                                          Do_Compress = True,
-                                                          )
-ToolSvc += TruthTopTool
-
-TruthBosonTool = DerivationFramework__TruthCollectionMaker(name                   = "TruthBosonTool",
-                                                            NewCollectionName       = "TruthBoson",
-                                                            ParticleSelectionString = "(abs(TruthParticles.pdgId) == 23 || abs(TruthParticles.pdgId) == 24 || abs(TruthParticles.pdgId) == 25)",
-                                                            Do_Compress = True,
-                                                            Do_Sherpa= True)
-ToolSvc += TruthBosonTool
-
-TruthBSMTool = DerivationFramework__TruthCollectionMaker(name                   = "TruthBSMTool",
-                                                          NewCollectionName       = "TruthBSM",
-                                                          ParticleSelectionString = "( (31<abs(TruthParticles.pdgId) && abs(TruthParticles.pdgId)<38) || abs(TruthParticles.pdgId)==39 || abs(TruthParticles.pdgId)==41 || abs(TruthParticles.pdgId)==42 || abs(TruthParticles.pdgId)== 7 || abs(TruthParticles.pdgId)== 8 || abs(TruthParticles.pdgId)==17 || abs(TruthParticles.pdgId)==18 || (1000000<abs(TruthParticles.pdgId) && abs(TruthParticles.pdgId)<1000040) || (2000000<abs(TruthParticles.pdgId) && abs(TruthParticles.pdgId)<2000040) )",
-                                                          Do_Compress = True)
-ToolSvc += TruthBSMTool
-#Taken from the code in DerivationFramework::MenuTruthThinning::isBSM
-
-#Let's save the post-shower HT and MET filter values that will make combining filtered samples easier (adds to the EventInfo)
-SUSYGenFilt_MCTruthClassifier = MCTruthClassifier(name = "SUSYGenFilt_MCTruthClassifier",
-                                                  ParticleCaloExtensionTool="")
-ToolSvc += SUSYGenFilt_MCTruthClassifier
-GenFilter = CfgMgr.DerivationFramework__SUSYGenFilterTool(
-  "MTandHTGenFilt",
-  )
-ToolSvc += GenFilter
-
-#==============================================================================
-# Create the derivation kernel algorithm
-#==============================================================================
-from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-augmentationTools = [DFCommonTruthClassificationTool,GenFilter,
-                     DFCommonTruthMuonTool,DFCommonTruthElectronTool,TruthPhotonTool,DFCommonTruthNeutrinoTool,
-                     TruthTopTool,TruthBosonTool,TruthBSMTool,
-                     DFCommonTruthElectronDressingTool, DFCommonTruthMuonDressingTool,
-                     DFCommonTruthElectronIsolationTool1, DFCommonTruthElectronIsolationTool2,
-                     DFCommonTruthMuonIsolationTool1, DFCommonTruthMuonIsolationTool2,
-                     DFCommonTruthPhotonIsolationTool1, DFCommonTruthPhotonIsolationTool2]
-DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("TRUTH1Kernel",
-                                                                       AugmentationTools = augmentationTools,
-                                                                       ThinningTools = [])
-# Note: to add thinning of photons according to isolation, use the DFCommonTruthPhotonTool and the following line:
-#                                                                       ThinningTools = [TruthPhotonIsolationTool1, TruthPhotonIsolationTool2])
 
 #==============================================================================
 # Set up stream
@@ -153,11 +29,6 @@ from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
 svcMgr += createThinningSvc( svcName="TRUTH1ThinningSvc", outStreams=[evtStream] )
-
-# Only events that pass the filters listed are written out
-# AcceptAlgs  = logical OR of filters
-# RequireAlgs = logical AND of filters
-TRUTH1Stream.AcceptAlgs(['TRUTH1Kernel'])
 
 #==============================================================================
 # Set up slimming content list here

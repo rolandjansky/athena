@@ -11,8 +11,11 @@
 #ifndef ELECTRONPHOTONFOURMOMENTUMCORRECTION_ELECTRONPHOTONFOURMOMENTUMCORRECTIONDICT_H
 #define ELECTRONPHOTONFOURMOMENTUMCORRECTION_ELECTRONPHOTONFOURMOMENTUMCORRECTIONDICT_H
 
+//This at some point we will need to remove
+#include "EgammaAnalysisInterfaces/IEgammaCalibrationAndSmearingTool.h"
+
+
 #include "ElectronPhotonFourMomentumCorrection/egammaEnergyCorrectionTool.h"
-#include "ElectronPhotonFourMomentumCorrection/IEgammaCalibrationAndSmearingTool.h"
 #include "ElectronPhotonFourMomentumCorrection/EgammaCalibrationAndSmearingTool.h"
 #include "ElectronPhotonFourMomentumCorrection/eg_resolution.h"
 #include "ElectronPhotonFourMomentumCorrection/EgammaFactory.h"

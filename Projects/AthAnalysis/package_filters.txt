@@ -46,6 +46,7 @@
 + MuonSpectrometer/MuonIdHelpers
 + PhysicsAnalysis/AnalysisCommon/AssociationUtils
 + PhysicsAnalysis/AnalysisCommon/CPAnalysisExamples
++ PhysicsAnalysis/AnalysisCommon/EventUtils
 + PhysicsAnalysis/AnalysisCommon/FsrUtils
 + PhysicsAnalysis/AnalysisCommon/IsolationSelection
 + PhysicsAnalysis/AnalysisCommon/PATCore
@@ -53,6 +54,7 @@
 + PhysicsAnalysis/AnalysisCommon/PMGTools
 + PhysicsAnalysis/AnalysisCommon/ParticleJetTools
 + PhysicsAnalysis/AnalysisCommon/PileupReweighting
++ PhysicsAnalysis/AnalysisCommon/PMGOverlapRemovalTools/HFORTools
 + PhysicsAnalysis/AnalysisCommon/ReweightUtils
 + PhysicsAnalysis/BPhys/BPhysTools
 + PhysicsAnalysis/D3PDTools/RootCoreUtils

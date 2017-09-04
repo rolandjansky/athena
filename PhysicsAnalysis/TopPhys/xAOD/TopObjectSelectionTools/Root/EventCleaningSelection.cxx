@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventCleaningSelection.cxx 806029 2017-06-06 19:10:49Z tpelzer $
+// $Id: EventCleaningSelection.cxx 809763 2017-08-25 11:04:10Z grancagn $
 #include "TopObjectSelectionTools/EventCleaningSelection.h"
 #include "TopEvent/EventTools.h"
 #include "TopConfiguration/TopConfig.h"
@@ -45,7 +45,7 @@ namespace top {
     declareProperty( "TrigMatchTauTool" , m_trigMatchTauTool );
   }
 
-  StatusCode EventCleaningSelection::initilize()
+  StatusCode EventCleaningSelection::initialize()
   {
     // If running on a Truth DxAOD we don't need anything so
     // just return successfully...
@@ -534,7 +534,6 @@ namespace top {
   {
     const xAOD::EventInfo* eventInfo(nullptr);
     top::check(evtStore()->retrieve(eventInfo,m_config->sgKeyEventInfo()),"Failed to retrieve EventInfo");
-
 
     bool orOfAllTriggers(false);
     for (const auto& trigger : m_allTriggers_Tight) {

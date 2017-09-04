@@ -9,7 +9,7 @@
 // Atlas includes
 #include "AsgTools/AsgTool.h"
 #include "MVAUtils/BDT.h"
-#include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
+#include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
 #include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
 #include <unordered_map>
 

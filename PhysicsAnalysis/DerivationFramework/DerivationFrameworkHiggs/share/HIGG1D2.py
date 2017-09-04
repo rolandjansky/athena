@@ -256,7 +256,7 @@ HIGG1D2SlimmingHelper.ExtraVariables = ["Muons.quality.EnergyLoss.energyLossType
                                         "MuonClusterCollection.eta_sampl.phi_sampl",
                                         "GSFTrackParticles.parameterY.parameterZ.vx.vy",
                                         "InDetTrackParticles.vx.vy",
-                                        "AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m.Jvt.JVFCorr.JvtRpt.ConstituentScale",
+                                        "AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m.PartonTruthLabelID.Jvt.JVFCorr.JvtRpt.ConstituentScale",
                                         "CombinedMuonTrackParticles.z0.vz.definingParametersCovMatrix",
                                         "BTagging_AntiKt4EMTopo.MV1_discriminant",                                        
                                         "ExtrapolatedMuonTrackParticles.z0.vz.definingParametersCovMatrix",

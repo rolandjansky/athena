@@ -2,11 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// Filename: JetNGhostSelector.cxx
-// Description:
-// Author: Fabian Wilk
-// Created: Fri May  8 15:39:38 2015
-
 #include "TopEventSelectionTools/JetNGhostSelector.h"
 
 namespace top {

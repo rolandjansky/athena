@@ -1,5 +1,3 @@
 <lcgdict>
-    <class name="Root::TPhotonEfficiencyCorrectionTool" />
     <class name="AsgPhotonEfficiencyCorrectionTool" />
-    <class name="IAsgPhotonEfficiencyCorrectionTool" />
 </lcgdict>

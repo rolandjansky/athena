@@ -21,7 +21,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/CxxUtils
                           Control/StoreGate
                           Event/xAOD/xAODTracking
-                          PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
+                          PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces
                           Reconstruction/egamma/egammaInterfaces
                           Reconstruction/egamma/egammaRecEvent
                           Reconstruction/egamma/egammaUtils
@@ -38,13 +38,14 @@ atlas_add_library( egammaRecLib
                    PUBLIC_HEADERS egammaRec
                    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES AthenaBaseComps EventKernel xAODCaloEvent xAODEgamma xAODTruth GaudiKernel MCTruthClassifierLib CaloUtilsLib StoreGateLib SGtests ElectronPhotonSelectorToolsLib
+                   LINK_LIBRARIES AthenaBaseComps EventKernel xAODCaloEvent xAODEgamma xAODTruth GaudiKernel MCTruthClassifierLib CaloUtilsLib StoreGateLib SGtests EgammaAnalysisInterfacesLib
                    PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloGeoHelpers AthenaKernel CxxUtils xAODTracking egammaRecEvent egammaUtils PathResolver )
 
 atlas_add_component( egammaRec
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps EventKernel xAODCaloEvent xAODEgamma xAODTruth GaudiKernel MCTruthClassifierLib CaloGeoHelpers CaloUtilsLib AthenaKernel CxxUtils StoreGateLib SGtests xAODTracking ElectronPhotonSelectorToolsLib egammaRecEvent egammaUtils PathResolver egammaRecLib )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps EventKernel xAODCaloEvent xAODEgamma xAODTruth GaudiKernel MCTruthClassifierLib CaloGeoHelpers CaloUtilsLib 
+		     AthenaKernel CxxUtils StoreGateLib SGtests xAODTracking EgammaAnalysisInterfacesLib egammaRecEvent egammaUtils PathResolver egammaRecLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
