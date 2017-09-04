@@ -165,11 +165,6 @@ StatusCode TileLaserDefaultCalibTool::initialize(){
       m_diode_Alpha_S_LASERII[diode][gain] = 0;// Sigma of Alpha values    
       m_diode_Led_LASERII[diode][gain] = 0;  // Corresponding LED values
       m_diode_Led_S_LASERII[diode][gain] = 0;// Sigma of LED values    
-      /*      m_diode_Lin_LASERII[diode][gain] = 0;  // Corresponding linearity values
-      m_diode_Lin_S_LASERII[diode][gain] = 0;// Sigma of linearity values    
-      m_diode_Las_LASERII[diode][gain] = 0;  // Corresponding Laser values
-      m_diode_Las_S_LASERII[diode][gain] = 0;// Sigma of Laser values    
-      */
 
     }
   }
@@ -341,7 +336,6 @@ StatusCode TileLaserDefaultCalibTool::execute(){
 	    continue;
 	  }
 	  for ( int gain=0; gain<NGAINS; ++gain ) {
-	    //	    std::cout << std::dec << "ros, drawer, drawerIdx = " << ros << ", " << drawer << ", " << drawerIdx << std::endl;
 	    short status = m_tileBadChanTool->encodeStatus(m_tileBadChanTool->getAdcStatus(drawerIdx, channel, gain)) ;
 	    /* --- Status of the channel in DB
 	       
@@ -557,7 +551,7 @@ StatusCode TileLaserDefaultCalibTool::execute(){
       float amp         = (*it)->amplitude();
       float ofctime     = (*it)->time();
       float ped = (*it)->pedestal();
-      int isbad = 0; 
+      bool is_good = true;
       
       if(ofctime!=0.0) ofctime -= avg_time[part][gain]->Mean();
       
@@ -570,7 +564,7 @@ StatusCode TileLaserDefaultCalibTool::execute(){
             
       if ( !theDQstatus->isAdcDQgood(ros,drawer,chan,gain) ) { // Masked on the fly
         m_status[part][drawer][chan][gain] |= 0x10;
-	isbad = 1; 
+	is_good = false;
       }
 
       int problem = int(ped + 500.)/10000;
@@ -578,27 +572,27 @@ StatusCode TileLaserDefaultCalibTool::execute(){
       switch (problem) {
       case 1: // Underflow
 	m_status[part][drawer][chan][gain] |= 0x100;
-	isbad = 1; 
+	is_good = false;
 	break;
       case 2: // Overflow
 	m_status[part][drawer][chan][gain] |= 0x200;
-	isbad = 1; 
+	is_good = false;
 	break;
       case 3: // Under and Overflow
 	m_status[part][drawer][chan][gain] |= 0x400;
-	isbad = 1; 
+	is_good = false;
 	break;
       case 4: // Constant signal
 	m_status[part][drawer][chan][gain] |= 0x800;
-	isbad = 1; 
+	is_good = false;
 	break;
       case 8: // Underflow in all channels
 	m_status[part][drawer][chan][gain] |= 0x1000;
-	isbad = 1; 
+	is_good = false;
 	break;
       case 9: // Overflow in all channels
 	m_status[part][drawer][chan][gain] |= 0x2000;
-	isbad = 1; 
+	is_good = false;
 	break;
       }
 
@@ -612,23 +606,23 @@ StatusCode TileLaserDefaultCalibTool::execute(){
         for(int diode=0; diode<NDIODES; ++diode){
 	  for ( int diode_gain=0; diode_gain<NGAINS; diode_gain++ ) {  // MONITORING DIODES	      
 	      if ( normalization[diode][diode_gain]!=0. ){
-		if (!isbad) m_rs_ratio_LASERII_good[diode][diode_gain][part][drawer][chan][gain]->Push( ampInPicoCoulombs/normalization[diode][diode_gain] );     
+		if (is_good) m_rs_ratio_LASERII_good[diode][diode_gain][part][drawer][chan][gain]->Push( ampInPicoCoulombs/normalization[diode][diode_gain] );
 		m_rs_ratio_LASERII[diode][diode_gain][part][drawer][chan][gain]->Push( ampInPicoCoulombs/normalization[diode][diode_gain] );
 	      }
           } // Diode Gains
 	} // Diodes
-	if (!isbad) m_entries[part][drawer][chan][gain]++;
+	if (is_good) m_entries[part][drawer][chan][gain]++;
       } else {
         for(int i=0; i<NDIODES_LASER1; ++i){
           if((laserObj->getDiodeADC(i,0)-laserObj->getDiodePedestal(i,0)) != 0) {
-	    if (!isbad) m_rs_ratio_good[i][part][drawer][chan][gain]->Push(ampInPicoCoulombs/(laserObj->getDiodeADC(i,0)-laserObj->getDiodePedestal(i,0)));
+	    if (is_good) m_rs_ratio_good[i][part][drawer][chan][gain]->Push(ampInPicoCoulombs/(laserObj->getDiodeADC(i,0)-laserObj->getDiodePedestal(i,0)));
 	    m_rs_ratio[i][part][drawer][chan][gain]->Push(ampInPicoCoulombs/(laserObj->getDiodeADC(i,0)-laserObj->getDiodePedestal(i,0)));
 	  }
         } // FOR
-	if (!isbad) m_entries[part][drawer][chan][gain]++;
+	if (is_good) m_entries[part][drawer][chan][gain]++;
       } // ELSE
       
-      if ((!isbad) && (!(m_status[part][drawer][chan][gain]&0x4)) )
+      if ((is_good) && (!(m_status[part][drawer][chan][gain]&0x4)) )
 	pmt_values[part][drawer][chan][gain]=ampInPicoCoulombs;
       else
 	pmt_values[part][drawer][chan][gain]=0.;
@@ -1014,9 +1008,6 @@ StatusCode TileLaserDefaultCalibTool::writeNtuple(int runNumber, int runType, TF
     t->Branch("Diode_Led",*m_diode_Led_LASERII,"diode_Led[11][2]/F");
     t->Branch("Diode_Sigma_Led",*m_diode_Led_S_LASERII,"diode_sLed[11][2]/F");
 
-    /*    t->Branch("Diode_Lin",*m_diode_Lin_LASERII,"diode_Lin[10][2]/F");
-    t->Branch("Diode_Sigma_Lin",*m_diode_Lin_S_LASERII,"diode_sLin[10][2]/F");
-    */
     t->Branch("Ratio",*m_ratio_LASERII,"signal_cor[10][2][4][64][48][2]/F");
     t->Branch("Sigma_Ratio",*m_ratio_S_LASERII,"signal_cor_s[10][2][4][64][48][2]/F");
     t->Branch("Ratio_good",*m_ratio_LASERII_good,"signal_cor_good[10][2][4][64][48][2]/F");
@@ -1071,28 +1062,6 @@ StatusCode TileLaserDefaultCalibTool::finalize(){
   return StatusCode::SUCCESS;
 } // FInalize
 
-/*
-
-std::pair<unsigned int, unsigned int> TileLaserDefaultCalibTool::getCoupleOfChan(int part, int couple){
-  // Get channel couples that are on the same clear fiber
-  std::pair<unsigned int, unsigned int> coupleOfChannels;
-  
-  int chan1LB[NCOUPLES]={0, 1, 4, 5, 8,  9,  12, 13, 16, 17, 20, 21, 26, 25, 28, 27, 38, 35, 40, 37, 42, 47};
-  int chan2LB[NCOUPLES]={2, 3, 6, 7, 10, 11, 14, 15, 18, 19, 22, 23, 24, 29, 34, 39, 36, 33, 44, 41, 46, 45};
-  
-  int chan1EB[NCOUPLES]={0, 1, 4, 5,  8, 9,  12, 13, 16, 17, 22, 23, 30, 35, 41, 40, -1, -1, -1, -1, -1, -1};
-  int chan2EB[NCOUPLES]={2, 3, 6, 7, 10, 11, 14, 15, 20, 21, 31, 32, 38, 37, 39, 36, -1, -1, -1, -1, -1, -1};
-  
-  if(part<2){  //--- LB,
-    coupleOfChannels.first  = chan1LB[couple];
-    coupleOfChannels.second = chan2LB[couple];
-  } else {   //--- EB
-    coupleOfChannels.first  = chan1EB[couple];
-    coupleOfChannels.second = chan2EB[couple];
-  } // IF
-  return coupleOfChannels;
-} // Coupleofchannels
-*/
 
 std::pair<unsigned int, unsigned int> TileLaserDefaultCalibTool::getCoupleOfPMT(int part, int couple){
   std::pair<unsigned int, unsigned int> coupleOfPMTs;

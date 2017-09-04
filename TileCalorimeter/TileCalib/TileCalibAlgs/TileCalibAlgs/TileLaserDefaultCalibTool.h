@@ -193,7 +193,6 @@ class TileLaserDefaultCalibTool : public AthAlgTool, virtual public ITileCalibTo
   RunningStat* m_rs_reducedKappa[NPARTITIONS][NDRAWERS][NCOUPLES-1][NCOUPLES][NGAINS][NFIBERS];
 
   // Functions
-  //  std::pair<unsigned int, unsigned int> getCoupleOfChan(int ros, int couple);
   std::pair<unsigned int, unsigned int> getCoupleOfPMT(int ros, int couple);
   short isCellBad(int ros, int drawer, int channel, int gain);
   
