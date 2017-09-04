@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TopEventMaker.cxx 808007 2017-07-10 00:12:04Z tpelzer $
+// $Id: TopEventMaker.cxx 809847 2017-08-29 15:18:19Z iconnell $
 #include "TopEvent/TopEventMaker.h"
 #include "TopEvent/EventTools.h"
 
@@ -65,10 +65,18 @@ namespace top {
     }
 
     //Poisson bootstrap weights
+    std::vector<int> weight_poisson;
     if(m_config->saveBootstrapWeights()){
+      if(m_config->isMC()){
       std::vector<int> weight_poisson = top::calculateBootstrapWeights(m_config->getNumberOfBootstrapReplicas(), 
 								       event.m_info->eventNumber(), 
 								       event.m_info->mcChannelNumber());
+      }
+      else{
+	weight_poisson = top::calculateBootstrapWeights(m_config->getNumberOfBootstrapReplicas(),
+							event.m_info->eventNumber(),
+							event.m_info->runNumber()); 
+      }
       //SG::AuxElement::Decorator< std::vector<int> > decoratePoissonWeights("weight_poisson");
       //decoratePoissonWeights(*event.m_info) = weight_poisson;
       event.m_info->auxdecor< std::vector<int> >("weight_poisson") = weight_poisson;

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TopConfig.cxx 809568 2017-08-18 13:09:22Z iconnell $
+// $Id: TopConfig.cxx 809845 2017-08-29 15:16:18Z iconnell $
 #include "TopConfiguration/TopConfig.h"
 #include "TopConfiguration/AodMetaDataAccess.h"
 #include "TopConfiguration/ConfigurationSettings.h"
@@ -106,6 +106,7 @@ namespace top{
     // KLFitter
     m_doKLFitter(false),
     m_KLFitterTransferFunctionsPath("SetMe"),
+    m_KLFitterOutput("SetMe"),
     m_KLFitterJetSelectionMode("SetMe"),
     m_KLFitterBTaggingMethod("SetMe"),
     m_KLFitterLH("SetMe"),
@@ -557,14 +558,14 @@ namespace top{
 	this->ReadIsAFII(settings);
       }
 
-      // Bootstrapping weights (only for MC)
-      if(settings->value("SaveBootstrapWeights") == "True") {
-	this->setSaveBootstrapWeights(true);
-	this->setNumberOfBootstrapReplicas(std::atoi(settings->value("NumberOfBootstrapReplicas").c_str()));
-      }
-     
-
     }
+
+    // Bootstrapping weights (permitted in MC and Data)
+    if(settings->value("SaveBootstrapWeights") == "True") {
+      this->setSaveBootstrapWeights(true);
+      this->setNumberOfBootstrapReplicas(std::atoi(settings->value("NumberOfBootstrapReplicas").c_str()));
+    }
+ 
 
     if (this->isMC()) {
       m_doLooseEvents = (settings->value("DoLoose") == "MC" || settings->value("DoLoose") == "Both");
@@ -931,6 +932,7 @@ namespace top{
 
     ///-- KLFitter settings --///
     m_KLFitterTransferFunctionsPath = settings->value( "KLFitterTransferFunctionsPath" );
+    m_KLFitterOutput                = settings->value( "KLFitterOutput" );
     m_KLFitterJetSelectionMode      = settings->value( "KLFitterJetSelectionMode" );
     m_KLFitterBTaggingMethod        = settings->value( "KLFitterBTaggingMethod" );
     m_KLFitterLH                    = settings->value( "KLFitterLH" );

@@ -178,7 +178,7 @@ StatusCode FlavorTaggingCPTools::initialize() {
       if(std::find( m_calo_WPs_calib.begin(),
                     m_calo_WPs_calib.end(), btagWP) == m_calo_WPs_calib.end()) {
         ATH_MSG_WARNING("top::FlavorTaggingCPTools::initialize" );
-        ATH_MSG_WARNING("     b-tagging WP: " + btagWP + " is not calibrated for jet collection " + m_config->sgKeyJets());
+	ATH_MSG_WARNING("     b-tagging WP: " + btagWP + " is not calibrated for jet collection " + m_config->sgKeyJets());
 	ATH_MSG_WARNING("     it will therefore be ignored for the scale-factors, although the tagging decisions will be saved");
       }
       else {
@@ -236,7 +236,7 @@ StatusCode FlavorTaggingCPTools::initialize() {
       
       if(std::find(track_WPs.begin(), track_WPs.end(), btagWP) == track_WPs.end()) {
         ATH_MSG_WARNING("top::FlavorTaggingCPTools::initialize" );
-        ATH_MSG_WARNING("     b-tagging WP: " + btagWP + " not supported for jet collection " + m_config->sgKeyTrackJets());
+	ATH_MSG_WARNING("     b-tagging WP: " + btagWP + " not supported for jet collection " + m_config->sgKeyTrackJets());
 	ATH_MSG_WARNING("     it will therefore be ignored" );
       }
       else {
@@ -267,7 +267,7 @@ StatusCode FlavorTaggingCPTools::initialize() {
         if(std::find( track_WPs_calib.begin(),
                       track_WPs_calib.end(), btagWP) == track_WPs_calib.end()) {
           ATH_MSG_WARNING("top::FlavorTaggingCPTools::initialize" );
-          ATH_MSG_WARNING("     b-tagging WP: " + btagWP + " is not calibrated for jet collection " + m_config->sgKeyTrackJets() );
+	  ATH_MSG_WARNING("     b-tagging WP: " + btagWP + " is not calibrated for jet collection " + m_config->sgKeyTrackJets() );
 	  ATH_MSG_WARNING("     it will therefore be ignored for the scale-factors, although the tagging decisions will be saved");
         }
         else {

@@ -2,20 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// Filename: Tokenize.h
-// Description:
-// Author: Fabian Wilk
-// Created: Tue Aug 11 10:12:30 2015
-//
-// (c) by The ATLAS Collaboration
-// (c) by Fabian Wilk <mail@fabianwilk.de>
-//
-// This file is licensed under a Creative Commons Attribution-ShareAlike 4.0
-// International License.
-//
-// You should have received a copy of the license along with this work.
-// If not, see <http://creativecommons.org/licenses/by-sa/4.0/>.
-
 #ifndef _UTILS_TOKENIZE_H_
 #define _UTILS_TOKENIZE_H_
 
