@@ -128,6 +128,7 @@ namespace MC {
              abs(pid)==6666 || // Pseudo Nambu-Goldstone ED model Higgs particle
              abs(pid)==9000006 || // New 'phi' particle from cosmo UFO model
              abs(pid)==5000001 || // UFO Z'
+             in_closed_range(abs(pid),991,996) || abs(pid)==1999 || abs(pid)==2001 || // Exotics qh / rho / so
              isBSM_MCUtils(pid);
     }
 
