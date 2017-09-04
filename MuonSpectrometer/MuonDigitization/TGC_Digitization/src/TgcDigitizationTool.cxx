@@ -103,10 +103,6 @@ StatusCode TgcDigitizationTool::initialize()
 
   IRDBAccessSvc* rdbAccess = nullptr;
   CHECK( service("RDBAccessSvc",rdbAccess) );
-  if(!rdbAccess->connect()) {
-    ATH_MSG_ERROR("Unable to connect to the Geometry DB");
-    return StatusCode::FAILURE;
-  }
 
   IRDBRecordset_ptr atlasCommonRec = rdbAccess->getRecordsetPtr("AtlasCommon",atlasVersion,"ATLAS");
   unsigned int runperiod = 1;

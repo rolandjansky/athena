@@ -17,7 +17,7 @@
 //
 #include "GaudiKernel/ISvcLocator.h"
 #include "StoreGate/DataHandle.h"
-
+#include "CxxUtils/make_unique.h"
 
 
 namespace InDet {
@@ -28,7 +28,7 @@ namespace InDet {
   TRT_RIO_Maker::TRT_RIO_Maker
   (const std::string& name,ISvcLocator* pSvcLocator) : 
   AthAlgorithm(name,pSvcLocator),
-  m_pTRTHelper(nullptr),
+  pTRTHelper(nullptr),
   m_rdoContainerKey("TRT_RDOs"),
   m_driftcircle_tool("InDet::TRT_DriftCircleTool", this), //made private
   m_rioContainerKey("TRT_DriftCircles"),
@@ -36,8 +36,7 @@ namespace InDet {
   m_trtBadChannels(0),
   m_roiSeeded(false),
   m_roiCollectionKey(""),
-  m_regionSelector("RegSelSvc", name),
-  m_rioContainerCacheKey("")
+  m_regionSelector("RegSelSvc", name)
   {
     // Read TRT_RIO_Maker steering parameters
     declareProperty("TRTRDOLocation"      ,m_rdoContainerKey  );
@@ -46,8 +45,7 @@ namespace InDet {
     //selection of the TRT bad channels(true/false)
     declareProperty("TRTBadChannels"    ,m_trtBadChannels = true );
     declareProperty("TRT_DriftCircleTool", m_driftcircle_tool);
-    declareProperty("TRTRIOLocation",  m_rioContainerKey);
-    declareProperty("TRTRIOCache",  m_rioContainerCacheKey);
+    declareProperty("TRTRIOLocation",  m_rioContainerKey);    
   }
   
   ///////////////////////////////////////////////////////////////////
@@ -56,11 +54,10 @@ namespace InDet {
   StatusCode TRT_RIO_Maker::initialize() {
     // Get TRT_DriftCircle tool
     ATH_CHECK(m_driftcircle_tool.retrieve());
-    ATH_CHECK(detStore()->retrieve(m_pTRTHelper,"TRT_ID"));
+    ATH_CHECK(detStore()->retrieve(pTRTHelper,"TRT_ID"));
 
     ATH_CHECK( m_rdoContainerKey.initialize() );
     ATH_CHECK( m_rioContainerKey.initialize() );
-    ATH_CHECK( m_rioContainerCacheKey.initialize(!m_rioContainerCacheKey.key().empty()) );
     msg(MSG::DEBUG) << "getTRTBadChannels on or off (1/0)" <<m_trtBadChannels<< endmsg;
     return StatusCode::SUCCESS;
   }
@@ -76,12 +73,7 @@ namespace InDet {
 
 
     SG::WriteHandle<InDet::TRT_DriftCircleContainer> rioContainer(m_rioContainerKey);
-    if(m_rioContainerCacheKey.key().empty()){
-      rioContainer = std::make_unique<InDet::TRT_DriftCircleContainer>(m_pTRTHelper->straw_layer_hash_max());
-    }else{
-      SG::UpdateHandle<TRT_DriftCircleContainerCache> clusterContainercache(m_rioContainerCacheKey);
-      ATH_CHECK( rioContainer.record (std::make_unique<TRT_DriftCircleContainer>(clusterContainercache.ptr()) ));
-    }
+    rioContainer = CxxUtils::make_unique<InDet::TRT_DriftCircleContainer>(pTRTHelper->straw_layer_hash_max());
 
     ATH_CHECK(rioContainer.isValid());
     ATH_MSG_DEBUG( "Container "<< rioContainer.name() << " initialised" );
@@ -93,11 +85,11 @@ namespace InDet {
 
       for(const auto& rdoCollections : *rdoContainer) {
         const InDetRawDataCollection<TRT_RDORawData>* currentCollection(rdoCollections);
-        if( rioContainer->tryFetch( currentCollection->identifyHash() )) continue;
         std::unique_ptr<TRT_DriftCircleCollection> p_rio(m_driftcircle_tool->convert(m_mode_rio_production,
           currentCollection , m_trtBadChannels));
         if(p_rio && !p_rio->empty()) {
-           ATH_CHECK(rioContainer->addOrDelete(std::move(p_rio), p_rio->identifyHash()));
+           ATH_CHECK(rioContainer->addCollection(p_rio.get(), p_rio->identifyHash()));
+           p_rio.release();//Release ownership if sucessfully added to collection
         }
      }
     }else{
@@ -114,8 +106,9 @@ namespace InDet {
 		     << listOfTRTIds.size() << " det. Elements" );
 #endif   
          for(auto &id : listOfTRTIds){
-            if( rioContainer->tryFetch( id )) continue;
-            const InDetRawDataCollection<TRT_RDORawData>* RDO_Collection (rdoContainer->indexFindPtr(id));
+            TRT_RDO_Container::const_iterator RDO_collection_iter = rdoContainer->indexFind(id);
+            if (RDO_collection_iter == rdoContainer->end()) continue;
+            const InDetRawDataCollection<TRT_RDORawData>* RDO_Collection (*RDO_collection_iter);
             if (!RDO_Collection) continue;
             // Use one of the specific clustering AlgTools to make clusters
             std::unique_ptr<TRT_DriftCircleCollection> p_rio(m_driftcircle_tool->convert(m_mode_rio_production,
@@ -125,8 +118,8 @@ namespace InDet {
                  ATH_MSG_VERBOSE( "REGTEST: TRT : DriftCircleCollection contains "
                  << p_rio->size() << " clusters" );
 #endif
-                 ATH_CHECK(rioContainer->addOrDelete(std::move(p_rio), p_rio->identifyHash()));
-
+                 ATH_CHECK(rioContainer->addCollection(p_rio.get(), p_rio->identifyHash()));
+                 p_rio.release();//Release ownership if sucessfully added to collection
             }
          }
       }

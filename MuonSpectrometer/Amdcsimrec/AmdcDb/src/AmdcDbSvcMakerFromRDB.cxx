@@ -1912,8 +1912,6 @@ void AmdcDbSvcMakerFromRDB::Set(
   m_detectorKey  = detectorKey  ;
   m_detectorNode = detectorNode ;
   
-  pIRDBAccessSvc->connect();
-
   AMDC(pIRDBAccessSvc,pAmdcDbSvc);
   AGDD(pIRDBAccessSvc,pAmdcDbSvc);
   

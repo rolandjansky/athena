@@ -20,9 +20,11 @@
 #include "GaudiKernel/IMessageSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthCheckMacros.h"
 
 #include <algorithm>
 #include <iostream>
+#include <stdexcept>
 
 bool RDBMaterialManager::s_specialMaterials = false;
 
@@ -130,221 +132,188 @@ int printFullMaterial ( GeoMaterial* &p_material)
 	
 	
 
-RDBMaterialManager::RDBMaterialManager(ISvcLocator* pSvcLocator )
+RDBMaterialManager::RDBMaterialManager(ISvcLocator* pSvcLocator)
+{
+  if(!readMaterialsFromDB(pSvcLocator).isSuccess()) {
+    throw std::runtime_error("RDBMaterialManager failed to read Geometry DB");
+  }
+}
+
+StatusCode RDBMaterialManager::readMaterialsFromDB(ISvcLocator* pSvcLocator)
 {
   IGeoModelSvc*  iGeoModel;		
   IRDBAccessSvc* iAccessSvc;
   MsgStream log(Athena::getMessageSvc(), "GeoModelSvc::RDBMaterialManager"); 		
 
-  StatusCode sc = pSvcLocator->service("GeoModelSvc",iGeoModel);
-  if(sc.isFailure())
-    log << MSG::ERROR << "Unable to access GeoModelSvc" << endmsg;
-  else
-  {
-    sc = pSvcLocator->service("RDBAccessSvc",iAccessSvc);
- 
-    if(sc.isSuccess())
-    {
-      if(iAccessSvc->connect())
-      {
-	// --- Standard materials, elements
-	DecodeVersionKey keyAtlas(iGeoModel, "ATLAS");
-	m_elements = iAccessSvc->getRecordsetPtr("Elements",keyAtlas.tag(),keyAtlas.node());
-	if(m_elements->size()==0)
-	{
-	  if(log.level()<=MSG::DEBUG)
-	    log << MSG::DEBUG << " Getting Elements with default tag" <<endmsg;
-	  m_elements = iAccessSvc->getRecordsetPtr("Elements","Materials-00","Materials");
-	}
-	m_stdmatcomponents = iAccessSvc->getRecordsetPtr("StdMatComponents",keyAtlas.tag(),keyAtlas.node());
-	if(m_stdmatcomponents->size()==0)
-	{
-	  if(log.level()<=MSG::DEBUG)
-	    log << MSG::DEBUG << " Getting StdMatComponents with default tag" <<endmsg;
-	  m_stdmatcomponents = iAccessSvc->getRecordsetPtr("StdMatComponents","Materials-00","Materials");
-	}
-	m_stdmaterials = iAccessSvc->getRecordsetPtr("StdMaterials",keyAtlas.tag(),keyAtlas.node());
-	if(m_stdmaterials->size()==0)
-	{
-	  if(log.level()<=MSG::DEBUG)
-	    log << MSG::DEBUG << " Getting StdMaterials with default tag" <<endmsg;
-	  m_stdmaterials = iAccessSvc->getRecordsetPtr("StdMaterials","Materials-00","Materials");
-	}
+  ATH_CHECK(pSvcLocator->service("GeoModelSvc",iGeoModel));
+  ATH_CHECK(pSvcLocator->service("RDBAccessSvc",iAccessSvc));
 
-	// --- Pixel materials
-	DecodeVersionKey keyPixel(iGeoModel, "Pixel");
-	m_pixmatcomponents = iAccessSvc->getRecordsetPtr("PixMatComponents",keyPixel.tag(),keyPixel.node());
-	if(m_pixmatcomponents->size()==0)
-	{
-	  if(log.level()<=MSG::DEBUG)
-	    log << MSG::DEBUG << " Getting PixMatComponents with default tag" <<endmsg;
-	  m_pixmatcomponents = iAccessSvc->getRecordsetPtr("PixMatComponents","PixMatComponents-00");
-	}
-	m_pixmaterials = iAccessSvc->getRecordsetPtr("PixMaterials",keyPixel.tag(),keyPixel.node());
-	if(m_pixmaterials->size()==0)
-	{
-	  if(log.level()<=MSG::DEBUG)
-	    log << MSG::DEBUG << " Getting PixMaterials with default tag" <<endmsg;
-	  m_pixmaterials = iAccessSvc->getRecordsetPtr("PixMaterials","PixMaterials-00");
-	}
-
-	// --- Pixel materials for TB
-        m_pixtbmatcomponents = iAccessSvc->getRecordsetPtr("PixelTBMatComponents",keyPixel.tag(),keyPixel.node());
-        if(m_pixtbmatcomponents->size()==0)
-        {
-	  if(log.level()<=MSG::DEBUG)
-	    log << MSG::DEBUG << " Getting PixTBMatComponents with default tag" <<endmsg;
-          m_pixtbmatcomponents = iAccessSvc->getRecordsetPtr("PixMatComponents","PixMatComponents-00");
-        }
-        m_pixtbmaterials = iAccessSvc->getRecordsetPtr("PixelTBMaterials",keyPixel.tag(),keyPixel.node());
-        if(m_pixtbmaterials->size()==0)
-        {
-	  if(log.level()<=MSG::DEBUG)
-	    log << MSG::DEBUG << " Getting PixTBMaterials with default tag" <<endmsg;
-          m_pixtbmaterials = iAccessSvc->getRecordsetPtr("PixMaterials","PixMaterials-00");
-        }
-
-	// --- SCT materials
-	DecodeVersionKey keySCT(iGeoModel, "SCT");
-	m_sctmatcomponents = iAccessSvc->getRecordsetPtr("SCTMatComponents",keySCT.tag(),keySCT.node());
-	if(m_sctmatcomponents->size()==0)
-	{
-	  if(log.level()<=MSG::DEBUG)
-	    log << MSG::DEBUG << " Getting SCTMatComponents with default tag" <<endmsg;
-	  m_sctmatcomponents = iAccessSvc->getRecordsetPtr("SCTMatComponents","SCTMatComponents-00");
-	}
-
-	m_sctmaterials = iAccessSvc->getRecordsetPtr("SCTMaterials",keySCT.tag(),keySCT.node());
-	if(m_sctmaterials->size()==0)
-	{
-	  if(log.level()<=MSG::DEBUG)
-	    log << MSG::DEBUG << " Getting SCTMaterials with default tag" <<endmsg;
-	  m_sctmaterials = iAccessSvc->getRecordsetPtr("SCTMaterials","SCTMaterials-00");
-	}
-
-	// --- TRT materials
-	DecodeVersionKey keyTRT(iGeoModel, "TRT");
-	m_trtmatcomponents = iAccessSvc->getRecordsetPtr("TrtMatComponents",keyTRT.tag(),keyTRT.node());
-	if(m_trtmatcomponents->size()==0)
-	{
-	  if(log.level()<=MSG::DEBUG)
-	    log << MSG::DEBUG << " Getting TrtMatComponents with default tag" <<endmsg;
-	  m_trtmatcomponents = iAccessSvc->getRecordsetPtr("TrtMatComponents","TrtMatComponents-00");
-	}
-	m_trtmaterials = iAccessSvc->getRecordsetPtr("TrtMaterials",keyTRT.tag(),keyTRT.node());
-	if(m_trtmaterials->size()==0)
-	{
-	  if(log.level()<=MSG::DEBUG)
-	    log << MSG::DEBUG << " Getting TrtMaterials with default tag" <<endmsg;
-	  m_trtmaterials = iAccessSvc->getRecordsetPtr("TrtMaterials","TrtMaterials-00");
-	}
-
-	// --- InDet common materials
-	DecodeVersionKey keyInDet(iGeoModel, "InnerDetector");
-	m_indetmatcomponents = iAccessSvc->getRecordsetPtr("InDetMatComponents",keyInDet.tag(),keyInDet.node());
-	if(m_indetmatcomponents->size()==0)
-	{
-	  if(log.level()<=MSG::DEBUG)
-	    log << MSG::DEBUG << " Getting InDetMatComponents with default tag" <<endmsg;
-	  m_indetmatcomponents = iAccessSvc->getRecordsetPtr("InDetMatComponents","InDetMatComponents-00");
-	}
-
-	m_indetmaterials = iAccessSvc->getRecordsetPtr("InDetMaterials",keyInDet.tag(),keyInDet.node());
-	if(m_indetmaterials->size()==0)
-	{
-	  if(log.level()<=MSG::DEBUG)
-	    log << MSG::DEBUG << " Getting InDetMaterials with default tag" <<endmsg;
-	  m_indetmaterials = iAccessSvc->getRecordsetPtr("InDetMaterials","InDetMaterials-00");
-	}
-
-	// --- LAr materials
-	DecodeVersionKey keyLAr(iGeoModel, "LAr");    
-	m_larmatcomponents = iAccessSvc->getRecordsetPtr("LArMatComponents",keyLAr.tag(),keyLAr.node());
-	if(m_larmatcomponents->size()==0)
-	{
-	  if(log.level()<=MSG::DEBUG)
-	    log << MSG::DEBUG << " Getting LArMatComponents with default tag" <<endmsg;
-	  m_larmatcomponents = iAccessSvc->getRecordsetPtr("LArMatComponents","LArMatComponents-00");
-	}
-	m_larmaterials = iAccessSvc->getRecordsetPtr("LArMaterials",keyLAr.tag(),keyLAr.node());
-	if(m_larmaterials->size()==0)
-	{
-	  if(log.level()<=MSG::DEBUG)
-	    log << MSG::DEBUG << " Getting LArMaterials with default tag" <<endmsg;
-	  m_larmaterials = iAccessSvc->getRecordsetPtr("LArMaterials","LArMaterials-00");
-	}
-
-	// --- Tile materials
-	DecodeVersionKey keyTile(iGeoModel, "TileCal");    
-	m_tilematcomponents = iAccessSvc->getRecordsetPtr("TileMatComponents",keyTile.tag(),keyTile.node());
-	if(m_tilematcomponents->size()==0)
-	{
-	  if(log.level()<=MSG::DEBUG)
-	    log << MSG::DEBUG << " Getting TileMatComponents with default tag" <<endmsg;
-	  m_tilematcomponents = iAccessSvc->getRecordsetPtr("TileMatComponents","TileMatComponents-00");
-	}
-	m_tilematerials = iAccessSvc->getRecordsetPtr("TileMaterials",keyTile.tag(),keyTile.node());
-	if(m_tilematerials->size()==0)
-	{
-	  if(log.level()<=MSG::DEBUG)
-	    log << MSG::DEBUG << " Getting TileMaterials with default tag" <<endmsg;
-	  m_tilematerials = iAccessSvc->getRecordsetPtr("TileMaterials","TileMaterials-00");
-	}
-
-	// --- Muon
-	DecodeVersionKey keyMuon(iGeoModel, "MuonSpectrometer");
-	m_muomatcomponents = iAccessSvc->getRecordsetPtr("MUOMatComponents",keyMuon.tag(),keyMuon.node());
-	if(m_muomatcomponents->size()==0)
-	{
-	  if(log.level()<=MSG::DEBUG)
-	    log << MSG::DEBUG << " Getting MUOMatComponents with default tag" <<endmsg;
-	  m_muomatcomponents = iAccessSvc->getRecordsetPtr("MUOMatComponents","MUOMatComponents-00");
-	}
-	m_muomaterials = iAccessSvc->getRecordsetPtr("MUOMaterials",keyMuon.tag(),keyMuon.node());
-	if(m_muomaterials->size()==0)
-	{
-	  if(log.level()<=MSG::DEBUG)
-	    log << MSG::DEBUG << " Getting MUOMaterials with default tag" <<endmsg;
-	  m_muomaterials = iAccessSvc->getRecordsetPtr("MUOMaterials","MUOMaterials-00");  
-	}
-	m_shieldmatcomponents = iAccessSvc->getRecordsetPtr("ShieldMatComponents",keyMuon.tag(),keyMuon.node());
-	if(m_shieldmatcomponents->size()==0)
-	{
-	  if(log.level()<=MSG::DEBUG)
-	    log << MSG::DEBUG << " Getting ShieldMatComponents with default tag" <<endmsg;
-	  m_shieldmatcomponents = iAccessSvc->getRecordsetPtr("ShieldMatComponents","ShieldMatComponents-00");
-	}
-	m_shieldmaterials = iAccessSvc->getRecordsetPtr("ShieldMaterials",keyMuon.tag(),keyMuon.node());
-	if(m_shieldmaterials->size()==0)
-	{
-	  if(log.level()<=MSG::DEBUG)
-	    log << MSG::DEBUG << " Getting ShieldMaterials with default tag" <<endmsg;
-	  m_shieldmaterials = iAccessSvc->getRecordsetPtr("ShieldMaterials","ShieldMaterials-00");
-	}
-	m_toromatcomponents = iAccessSvc->getRecordsetPtr("ToroMatComponents",keyMuon.tag(),keyMuon.node());
-	if(m_toromatcomponents->size()==0)
-	{
-	  if(log.level()<=MSG::DEBUG)
-	    log << MSG::DEBUG << " Getting ToroMatComponents with default tag" <<endmsg;
-	  m_toromatcomponents =	iAccessSvc->getRecordsetPtr("ToroMatComponents","ToroMatComponents-00");
-	}
-	m_toromaterials = iAccessSvc->getRecordsetPtr("ToroMaterials",keyMuon.tag(),keyMuon.node());
-	if(m_toromaterials->size()==0)
-	{
-	  if(log.level()<=MSG::DEBUG)
-	    log << MSG::DEBUG << " Getting ToroMaterials with default tag" <<endmsg; 
-	  m_toromaterials = iAccessSvc->getRecordsetPtr("ToroMaterials","ToroMaterials-00");
-	}
-    
-	iAccessSvc->disconnect();
-      }
-      else
-	log << MSG::ERROR << "Unable to fetch data from the Geometry DB" << endmsg;
-    }
-    else
-      log << MSG::ERROR << "Unable to get RDBAccessSvc" << endmsg;
+  // --- Standard materials, elements
+  DecodeVersionKey keyAtlas(iGeoModel, "ATLAS");
+  m_elements = iAccessSvc->getRecordsetPtr("Elements",keyAtlas.tag(),keyAtlas.node());
+  if(m_elements->size()==0) {
+    if(log.level()<=MSG::WARNING)
+      log << MSG::WARNING << " Getting Elements with default tag" <<endmsg;
+    m_elements = iAccessSvc->getRecordsetPtr("Elements","Materials-00","Materials");
   }
-
+  m_stdmatcomponents = iAccessSvc->getRecordsetPtr("StdMatComponents",keyAtlas.tag(),keyAtlas.node());
+  if(m_stdmatcomponents->size()==0)	{
+    if(log.level()<=MSG::WARNING)
+      log << MSG::WARNING << " Getting StdMatComponents with default tag" <<endmsg;
+    m_stdmatcomponents = iAccessSvc->getRecordsetPtr("StdMatComponents","Materials-00","Materials");
+  }
+  m_stdmaterials = iAccessSvc->getRecordsetPtr("StdMaterials",keyAtlas.tag(),keyAtlas.node());
+  if(m_stdmaterials->size()==0) {
+    if(log.level()<=MSG::WARNING)
+      log << MSG::WARNING << " Getting StdMaterials with default tag" <<endmsg;
+    m_stdmaterials = iAccessSvc->getRecordsetPtr("StdMaterials","Materials-00","Materials");
+  }
+  
+  // --- Pixel materials
+  DecodeVersionKey keyPixel(iGeoModel, "Pixel");
+  m_pixmatcomponents = iAccessSvc->getRecordsetPtr("PixMatComponents",keyPixel.tag(),keyPixel.node());
+  if(m_pixmatcomponents->size()==0) {
+    if(log.level()<=MSG::WARNING)
+      log << MSG::WARNING << " Getting PixMatComponents with default tag" <<endmsg;
+    m_pixmatcomponents = iAccessSvc->getRecordsetPtr("PixMatComponents","PixMatComponents-00");
+  }
+  m_pixmaterials = iAccessSvc->getRecordsetPtr("PixMaterials",keyPixel.tag(),keyPixel.node());
+  if(m_pixmaterials->size()==0) {
+    if(log.level()<=MSG::WARNING)
+      log << MSG::WARNING << " Getting PixMaterials with default tag" <<endmsg;
+    m_pixmaterials = iAccessSvc->getRecordsetPtr("PixMaterials","PixMaterials-00");
+  }
+  
+  // --- Pixel materials for TB
+  m_pixtbmatcomponents = iAccessSvc->getRecordsetPtr("PixelTBMatComponents",keyPixel.tag(),keyPixel.node());
+  if(m_pixtbmatcomponents->size()==0) {
+    if(log.level()<=MSG::WARNING)
+      log << MSG::WARNING << " Getting PixTBMatComponents with default tag" <<endmsg;
+    m_pixtbmatcomponents = iAccessSvc->getRecordsetPtr("PixMatComponents","PixMatComponents-00");
+  }
+  m_pixtbmaterials = iAccessSvc->getRecordsetPtr("PixelTBMaterials",keyPixel.tag(),keyPixel.node());
+  if(m_pixtbmaterials->size()==0) {
+    if(log.level()<=MSG::WARNING)
+      log << MSG::WARNING << " Getting PixTBMaterials with default tag" <<endmsg;
+    m_pixtbmaterials = iAccessSvc->getRecordsetPtr("PixMaterials","PixMaterials-00");
+  }
+  
+  // --- SCT materials
+  DecodeVersionKey keySCT(iGeoModel, "SCT");
+  m_sctmatcomponents = iAccessSvc->getRecordsetPtr("SCTMatComponents",keySCT.tag(),keySCT.node());
+  if(m_sctmatcomponents->size()==0)	{
+    if(log.level()<=MSG::WARNING)
+      log << MSG::WARNING << " Getting SCTMatComponents with default tag" <<endmsg;
+    m_sctmatcomponents = iAccessSvc->getRecordsetPtr("SCTMatComponents","SCTMatComponents-00");
+  }
+  
+  m_sctmaterials = iAccessSvc->getRecordsetPtr("SCTMaterials",keySCT.tag(),keySCT.node());
+  if(m_sctmaterials->size()==0) {
+    if(log.level()<=MSG::WARNING)
+      log << MSG::WARNING << " Getting SCTMaterials with default tag" <<endmsg;
+    m_sctmaterials = iAccessSvc->getRecordsetPtr("SCTMaterials","SCTMaterials-00");
+  }
+  
+  // --- TRT materials
+  DecodeVersionKey keyTRT(iGeoModel, "TRT");
+  m_trtmatcomponents = iAccessSvc->getRecordsetPtr("TrtMatComponents",keyTRT.tag(),keyTRT.node());
+  if(m_trtmatcomponents->size()==0)	{
+    if(log.level()<=MSG::WARNING)
+      log << MSG::WARNING << " Getting TrtMatComponents with default tag" <<endmsg;
+    m_trtmatcomponents = iAccessSvc->getRecordsetPtr("TrtMatComponents","TrtMatComponents-00");
+  }
+  m_trtmaterials = iAccessSvc->getRecordsetPtr("TrtMaterials",keyTRT.tag(),keyTRT.node());
+  if(m_trtmaterials->size()==0) {
+    if(log.level()<=MSG::WARNING)
+      log << MSG::WARNING << " Getting TrtMaterials with default tag" <<endmsg;
+    m_trtmaterials = iAccessSvc->getRecordsetPtr("TrtMaterials","TrtMaterials-00");
+  }
+  
+  // --- InDet common materials
+  DecodeVersionKey keyInDet(iGeoModel, "InnerDetector");
+  m_indetmatcomponents = iAccessSvc->getRecordsetPtr("InDetMatComponents",keyInDet.tag(),keyInDet.node());
+  if(m_indetmatcomponents->size()==0) {
+    if(log.level()<=MSG::WARNING)
+      log << MSG::WARNING << " Getting InDetMatComponents with default tag" <<endmsg;
+    m_indetmatcomponents = iAccessSvc->getRecordsetPtr("InDetMatComponents","InDetMatComponents-00");
+  }
+  
+  m_indetmaterials = iAccessSvc->getRecordsetPtr("InDetMaterials",keyInDet.tag(),keyInDet.node());
+  if(m_indetmaterials->size()==0) {
+    if(log.level()<=MSG::WARNING)
+      log << MSG::WARNING << " Getting InDetMaterials with default tag" <<endmsg;
+    m_indetmaterials = iAccessSvc->getRecordsetPtr("InDetMaterials","InDetMaterials-00");
+  }
+  
+  // --- LAr materials
+  DecodeVersionKey keyLAr(iGeoModel, "LAr");    
+  m_larmatcomponents = iAccessSvc->getRecordsetPtr("LArMatComponents",keyLAr.tag(),keyLAr.node());
+  if(m_larmatcomponents->size()==0) {
+    if(log.level()<=MSG::WARNING)
+      log << MSG::WARNING << " Getting LArMatComponents with default tag" <<endmsg;
+    m_larmatcomponents = iAccessSvc->getRecordsetPtr("LArMatComponents","LArMatComponents-00");
+  }
+  m_larmaterials = iAccessSvc->getRecordsetPtr("LArMaterials",keyLAr.tag(),keyLAr.node());
+  if(m_larmaterials->size()==0) {
+    if(log.level()<=MSG::WARNING)
+      log << MSG::WARNING << " Getting LArMaterials with default tag" <<endmsg;
+    m_larmaterials = iAccessSvc->getRecordsetPtr("LArMaterials","LArMaterials-00");
+  }
+  
+  // --- Tile materials
+  DecodeVersionKey keyTile(iGeoModel, "TileCal");    
+  m_tilematcomponents = iAccessSvc->getRecordsetPtr("TileMatComponents",keyTile.tag(),keyTile.node());
+  if(m_tilematcomponents->size()==0) {
+    if(log.level()<=MSG::WARNING)
+      log << MSG::WARNING << " Getting TileMatComponents with default tag" <<endmsg;
+    m_tilematcomponents = iAccessSvc->getRecordsetPtr("TileMatComponents","TileMatComponents-00");
+  }
+  m_tilematerials = iAccessSvc->getRecordsetPtr("TileMaterials",keyTile.tag(),keyTile.node());
+  if(m_tilematerials->size()==0) {
+    if(log.level()<=MSG::WARNING)
+      log << MSG::WARNING << " Getting TileMaterials with default tag" <<endmsg;
+    m_tilematerials = iAccessSvc->getRecordsetPtr("TileMaterials","TileMaterials-00");
+  }
+  
+  // --- Muon
+  DecodeVersionKey keyMuon(iGeoModel, "MuonSpectrometer");
+  m_muomatcomponents = iAccessSvc->getRecordsetPtr("MUOMatComponents",keyMuon.tag(),keyMuon.node());
+  if(m_muomatcomponents->size()==0)	{
+    if(log.level()<=MSG::WARNING)
+      log << MSG::WARNING << " Getting MUOMatComponents with default tag" <<endmsg;
+    m_muomatcomponents = iAccessSvc->getRecordsetPtr("MUOMatComponents","MUOMatComponents-00");
+  }
+  m_muomaterials = iAccessSvc->getRecordsetPtr("MUOMaterials",keyMuon.tag(),keyMuon.node());
+  if(m_muomaterials->size()==0) {
+    if(log.level()<=MSG::WARNING)
+      log << MSG::WARNING << " Getting MUOMaterials with default tag" <<endmsg;
+    m_muomaterials = iAccessSvc->getRecordsetPtr("MUOMaterials","MUOMaterials-00");  
+  }
+  m_shieldmatcomponents = iAccessSvc->getRecordsetPtr("ShieldMatComponents",keyMuon.tag(),keyMuon.node());
+  if(m_shieldmatcomponents->size()==0) {
+    if(log.level()<=MSG::WARNING)
+      log << MSG::WARNING << " Getting ShieldMatComponents with default tag" <<endmsg;
+    m_shieldmatcomponents = iAccessSvc->getRecordsetPtr("ShieldMatComponents","ShieldMatComponents-00");
+  }
+  m_shieldmaterials = iAccessSvc->getRecordsetPtr("ShieldMaterials",keyMuon.tag(),keyMuon.node());
+  if(m_shieldmaterials->size()==0) {
+    if(log.level()<=MSG::WARNING)
+      log << MSG::WARNING << " Getting ShieldMaterials with default tag" <<endmsg;
+    m_shieldmaterials = iAccessSvc->getRecordsetPtr("ShieldMaterials","ShieldMaterials-00");
+  }
+  m_toromatcomponents = iAccessSvc->getRecordsetPtr("ToroMatComponents",keyMuon.tag(),keyMuon.node());
+  if(m_toromatcomponents->size()==0) {
+    if(log.level()<=MSG::WARNING)
+      log << MSG::WARNING << " Getting ToroMatComponents with default tag" <<endmsg;
+    m_toromatcomponents =	iAccessSvc->getRecordsetPtr("ToroMatComponents","ToroMatComponents-00");
+  }
+  m_toromaterials = iAccessSvc->getRecordsetPtr("ToroMaterials",keyMuon.tag(),keyMuon.node());
+  if(m_toromaterials->size()==0) {
+    if(log.level()<=MSG::WARNING)
+      log << MSG::WARNING << " Getting ToroMaterials with default tag" <<endmsg; 
+    m_toromaterials = iAccessSvc->getRecordsetPtr("ToroMaterials","ToroMaterials-00");
+  }
+  return StatusCode::SUCCESS;
 }
 
 // Destructor:

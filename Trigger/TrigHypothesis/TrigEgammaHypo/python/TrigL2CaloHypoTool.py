@@ -31,8 +31,7 @@ def TrigL2CaloHypoToolFromName( name ):
 
 
     if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in  TriggerFlags.enableMonitoring():
-        from AthenaMonitoring.AthenaMonitoringConf import GenericMonitoringTool
-        from AthenaMonitoring.DefineHistogram import defineHistogram
+        from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
         monTool = GenericMonitoringTool("MonTool"+name)
         monTool.Histograms = [ defineHistogram('dEta', type='TH1F', title="L2Calo Hypo #Delta#eta_{L2 L1}; #Delta#eta_{L2 L1}", xbins=80, xmin=-0.01, xmax=0.01),
                                defineHistogram('dPhi', type='TH1F', title="L2Calo Hypo #Delta#phi_{L2 L1}; #Delta#phi_{L2 L1}", xbins=80, xmin=-0.01, xmax=0.01),

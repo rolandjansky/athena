@@ -440,8 +440,6 @@ StatusCode EnergyCalculator::initialize()
 
   DecodeVersionKey larVersionKey(geoModel, "LAr");
 
-  pAccessSvc->connect();
-
   IRDBRecordset_ptr emecSamplingSep = pAccessSvc->getRecordsetPtr("EmecSamplingSep", larVersionKey.tag(), larVersionKey.node());
   if (emecSamplingSep->size()==0) {
     throw std::runtime_error("Cannot find the EmecSamplingSep Table");
@@ -451,8 +449,6 @@ StatusCode EnergyCalculator::initialize()
   if (emecGeometry->size()==0) {
     throw std::runtime_error("Cannot find the EmecGeometry Table");
   }
-
-  pAccessSvc->disconnect();
 
   for(int i = 0; i < 7; i ++){
     std::ostringstream A0STR;

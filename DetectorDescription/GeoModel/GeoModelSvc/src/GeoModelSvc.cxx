@@ -274,7 +274,14 @@ StatusCode GeoModelSvc::geoInit()
   }
 
   // Create a material manager
-  StoredMaterialManager *theMaterialManager = new RDBMaterialManager(m_pSvcLocator);
+  StoredMaterialManager *theMaterialManager{nullptr};
+  try{
+    theMaterialManager = new RDBMaterialManager(m_pSvcLocator);
+  }
+  catch(std::runtime_error& e) {
+    ATH_MSG_FATAL(e.what());
+    return StatusCode::FAILURE;
+  }
   ATH_CHECK( m_detStore->record(theMaterialManager,"MATERIALS") );
   
   // Setup the GeoDbTagSvc

@@ -150,7 +150,8 @@ FTK_DataProviderSvc::FTK_DataProviderSvc(const std::string& name, ISvcLocator* s
   m_pTscaleFactor(1.),
   m_rejectBadTracks(false),
   m_dPhiCut(0.4),
-  m_dEtaCut(0.6)
+  m_dEtaCut(0.6),
+  m_nErrors(0)
 {
   m_pixelBarrelPhiOffsets.reserve(4);
   m_pixelBarrelEtaOffsets.reserve(4);
@@ -164,6 +165,19 @@ FTK_DataProviderSvc::FTK_DataProviderSvc(const std::string& name, ISvcLocator* s
     m_pixelEndCapPhiOffsets.push_back(0.); 
     m_pixelEndCapEtaOffsets.push_back(0.);
   }
+  m_nFailedSCTClusters.reserve(8);
+  m_nMissingSCTClusters.reserve(8);
+  m_nFailedPixelClusters.reserve(4);
+  m_nMissingPixelClusters.reserve(4);
+  for (int ie=0; ie<4; ie++){
+    m_nFailedPixelClusters.push_back(0);
+    m_nMissingPixelClusters.push_back(0);
+  }
+  for (int ie=0; ie<8; ie++){
+    m_nFailedSCTClusters.push_back(0);
+    m_nMissingSCTClusters.push_back(0);
+  }
+
   declareProperty("TrackCollectionName",m_trackCacheName);
   declareProperty("TrackParticleContainerName",m_trackParticleCacheName);
   declareProperty("VertexContainerName",m_vertexCacheName);
@@ -204,6 +218,23 @@ FTK_DataProviderSvc::FTK_DataProviderSvc(const std::string& name, ISvcLocator* s
 }
 
 FTK_DataProviderSvc::~FTK_DataProviderSvc(){
+}
+
+
+std::vector<unsigned int> FTK_DataProviderSvc::nMissingSCTClusters() {
+  return m_nMissingSCTClusters;
+}
+
+std::vector<unsigned int> FTK_DataProviderSvc::nMissingPixelClusters() {
+  return m_nMissingPixelClusters;
+}
+
+std::vector<unsigned int> FTK_DataProviderSvc::nFailedSCTClusters() {
+  return m_nFailedSCTClusters;
+}
+
+std::vector<unsigned int> FTK_DataProviderSvc::nFailedPixelClusters() {
+  return m_nFailedPixelClusters;
 }
 
 
@@ -295,6 +326,81 @@ StatusCode FTK_DataProviderSvc::finalize() {
 }
 
 
+unsigned int FTK_DataProviderSvc::nTrackParticleErrors(const bool withRefit) {
+
+  unsigned int nErrors=0;
+
+  if (withRefit) {
+    for (auto& it : m_refit_tp_map) 
+      if (it==-2) nErrors++;
+  } else {
+    for (auto& it : m_conv_tp_map) 
+      if (it==-2) nErrors++;
+  }    
+  return nErrors;
+
+}
+
+
+unsigned int FTK_DataProviderSvc::nRawTracks() {
+  if (!m_gotRawTracks) getFTK_RawTracksFromSG();
+  return m_ftk_tracks->size();
+}
+
+
+unsigned int FTK_DataProviderSvc::nTracks(const bool withRefit) {
+
+  unsigned int nTrk=0;
+
+  if (withRefit) {
+    for (auto& it : m_refit_track_map) 
+      if (it>=0) nTrk++;
+  } else {
+    for (auto& it : m_conv_track_map) 
+      if (it>=0) nTrk++;
+  }    
+  return nTrk;
+
+}
+
+unsigned int FTK_DataProviderSvc::nTrackParticles(const bool withRefit) {
+
+  unsigned int nTrk=0;
+
+  if (withRefit) {
+    for (auto& it : m_refit_tp_map) 
+      if (it>=0) nTrk++;
+  } else {
+    for (auto& it : m_conv_tp_map) 
+      if (it>=0) nTrk++;
+  }    
+  return nTrk;
+
+}
+
+unsigned int FTK_DataProviderSvc::nTrackErrors(const bool withRefit) {
+
+  unsigned int nErrors=0;
+
+  if (withRefit) {
+    for (auto& it : m_refit_track_map) 
+      if (it==-2) nErrors++;
+  } else {
+    for (auto& it : m_conv_track_map) 
+      if (it==-2) nErrors++;
+  }    
+  return nErrors;
+
+}
+
+
+xAOD::TrackParticleContainer* FTK_DataProviderSvc::getTrackParticlesInRoi(const IRoiDescriptor& roi, const bool withRefit, unsigned int& nErrors){
+  m_nErrors=0;
+  xAOD::TrackParticleContainer* tracks = this->getTrackParticlesInRoi(roi, withRefit);
+  nErrors = m_nErrors;
+  return tracks;
+}
+
 xAOD::TrackParticleContainer* FTK_DataProviderSvc::getTrackParticlesInRoi(const IRoiDescriptor& roi, const bool withRefit){
 
   ATH_MSG_DEBUG("FTK_DataProviderSvc::getTrackParticlesInRoi called with Refit " << withRefit);
@@ -342,10 +448,12 @@ xAOD::TrackParticleContainer* FTK_DataProviderSvc::getTrackParticlesInRoi(const 
             } else { //trackLink not valid
               ATH_MSG_ERROR ("invalid ElementLink to m_refit_track_map["<<ftk_track_index<<"] = " << m_refit_track_map[ftk_track_index]);
               m_refit_tp_map[ftk_track_index]=-2;
+	      m_nErrors++;
             }
           } else { // track==nullptr
             ATH_MSG_VERBOSE("Setting m_refit_tp_map["<<  ftk_track_index <<"]=-2");
             m_refit_tp_map[ftk_track_index]=-2;
+	    m_nErrors++;
           }
         }
       }
@@ -382,11 +490,13 @@ xAOD::TrackParticleContainer* FTK_DataProviderSvc::getTrackParticlesInRoi(const 
               } else {
                 ATH_MSG_ERROR ("invalid ElementLink to m_refit_conv_map["<<ftk_track_index<<"] = " <<m_conv_track_map[ftk_track_index]);
                 m_refit_tp_map[ftk_track_index]=-2;
+		m_nErrors++;
               }
             }
           } else { // track==nullptr
             ATH_MSG_VERBOSE("Setting m_conv_tp_map["<<  ftk_track_index <<"]=-2");
             m_conv_tp_map[ftk_track_index] = -2;
+	    m_nErrors++;
           }
         }
       }
@@ -479,6 +589,17 @@ StatusCode FTK_DataProviderSvc::fillTrackParticleCache(const bool withRefit){
   }
 
   return  StatusCode::SUCCESS;
+}
+
+
+xAOD::TrackParticleContainer* FTK_DataProviderSvc::getTrackParticles(const bool withRefit, unsigned int& nErrors){
+
+  // Return TrackParticleCollection plus number of missing tracks du to errors 
+
+  m_nErrors=0;
+  xAOD::TrackParticleContainer* tracks=this->getTrackParticles(withRefit);
+  nErrors=m_nErrors;
+  return tracks;
 }
 
 xAOD::TrackParticleContainer* FTK_DataProviderSvc::getTrackParticles(const bool withRefit){
@@ -720,6 +841,7 @@ xAOD::VertexContainer* FTK_DataProviderSvc::getVertexContainer(const bool withRe
 #endif
 
   if (fillTrackParticleCache(withRefit).isFailure()) {
+
     // must always create a VertexContainer in StroreGate
 
     std::string cacheName= m_vertexCacheName;
@@ -829,6 +951,14 @@ StatusCode FTK_DataProviderSvc::getVertexContainer(xAOD::VertexContainer* userVe
 }
 
 
+
+TrackCollection* FTK_DataProviderSvc::getTracks(const bool withRefit, unsigned int& nErrors){
+  m_nErrors=0;
+  TrackCollection* tracks = this->getTracks(withRefit);
+  nErrors=m_nErrors;
+  return tracks;
+}
+
 TrackCollection* FTK_DataProviderSvc::getTracks(const bool withRefit){
 
 #ifdef  FTK_useViewVector
@@ -848,7 +978,6 @@ TrackCollection* FTK_DataProviderSvc::getTracks(const bool withRefit){
   ATH_MSG_DEBUG( "getTracks: Raw FTK Container Size = " << m_ftk_tracks->size());
   ATH_MSG_VERBOSE( "getTracks: Converting Tracks");
   for (unsigned int ftk_track_index = 0; ftk_track_index != m_ftk_tracks->size(); ++ftk_track_index){
-
     Trk::Track* track = this->getCachedTrack(ftk_track_index, withRefit);
     if (track != nullptr) userTracks->push_back(track);
   }
@@ -860,6 +989,13 @@ TrackCollection* FTK_DataProviderSvc::getTracks(const bool withRefit){
 
   return userTracks;
 
+}
+
+TrackCollection* FTK_DataProviderSvc::getTracksInRoi(const IRoiDescriptor& roi, const bool withRefit, unsigned int& nErrors){
+  m_nErrors=0;
+  TrackCollection* tracks = this->getTracksInRoi(roi,withRefit);
+  nErrors=m_nErrors;
+  return tracks;
 }
 
 TrackCollection* FTK_DataProviderSvc::getTracksInRoi(const IRoiDescriptor& roi, const bool withRefit){
@@ -888,7 +1024,12 @@ TrackCollection* FTK_DataProviderSvc::getTracksInRoi(const IRoiDescriptor& roi, 
     if (roi.isFullscan() || (RoiUtil::containsPhi(roi,ftk_track->getPhi()) && RoiUtil::contains(roi,ftk_track->getZ0(), ftk_track->getCotTh()))) {
     //if (roi.isFullscan() || (roi.containsPhi(ftk_track->getPhi()) && roi.contains(ftk_track->getZ0(), ftk_track->getCotTh()))) {
       Trk::Track* track = this->getCachedTrack(ftk_track_index, withRefit);
-      if (track != nullptr) userTracks->push_back(track);
+      if (track != nullptr) {
+	userTracks->push_back(track);
+      } else {
+	m_nErrors++;
+      } 
+
     }
   }
   if (withRefit) {
@@ -1009,29 +1150,33 @@ void FTK_DataProviderSvc::getFTK_RawTracksFromSG(){
 
   // new event - get the tracks from StoreGate
   if (!m_storeGate->contains<FTK_RawTrackContainer>(m_RDO_key)) {
-	  ATH_MSG_DEBUG( "getFTK_RawTracksFromSG: FTK tracks  "<< m_RDO_key <<" not found in StoreGate !");
-	  return;
+    
+    ATH_MSG_DEBUG( "getFTK_RawTracksFromSG: FTK tracks  "<< m_RDO_key <<" not found in StoreGate !");
+    return;
   } else {    
-	  if (m_remove_duplicates){//get all tracks, and then call duplicate removal tool
-		  const FTK_RawTrackContainer* temporaryTracks=nullptr;
-		  StatusCode sc = m_storeGate->retrieve(temporaryTracks, m_RDO_key);
-		  ATH_MSG_DEBUG( "getFTK_RawTracksFromSG:  Got " << temporaryTracks->size() << " raw FTK tracks (RDO) from  StoreGate ");
-		  m_ftk_tracks = m_DuplicateTrackRemovalTool->removeDuplicates(temporaryTracks);
-		  if (sc.isFailure()) {
-			  ATH_MSG_WARNING( "getFTK_RawTracksFromSG: Failed to get FTK Tracks Container when using removeDumplicates ");
-			  return;
-		  }
-	  }
-	  else{//the original way
-		  ATH_MSG_VERBOSE( "getFTK_RawTracksFromSG:  Doing storegate retrieve");
-		  StatusCode sc = m_storeGate->retrieve(m_ftk_tracks, m_RDO_key);
-		  if (sc.isFailure()) {
-			  ATH_MSG_WARNING( "getFTK_RawTracksFromSG: Failed to get FTK Tracks Container");
-			  return;
-		  }
-	  }
-	  ATH_MSG_DEBUG( "getFTK_RawTracksFromSG:  Got " << m_ftk_tracks->size() << " raw FTK tracks");
-	  m_gotRawTracks = true;
+    if (m_remove_duplicates){//get all tracks, and then call duplicate removal tool
+      const FTK_RawTrackContainer* temporaryTracks=nullptr;
+      StatusCode sc = m_storeGate->retrieve(temporaryTracks, m_RDO_key);
+      ATH_MSG_DEBUG( "getFTK_RawTracksFromSG:  Got " << temporaryTracks->size() << " raw FTK tracks (RDO) from  StoreGate ");
+      m_ftk_tracks = m_DuplicateTrackRemovalTool->removeDuplicates(temporaryTracks);
+      if (sc.isFailure()) {
+	ATH_MSG_WARNING( "getFTK_RawTracksFromSG: Failed to get FTK Tracks Container when using removeDumplicates ");
+	return;
+      }
+    } else{//the original way
+      ATH_MSG_VERBOSE( "getFTK_RawTracksFromSG:  Doing storegate retrieve");
+      StatusCode sc = m_storeGate->retrieve(m_ftk_tracks, m_RDO_key);
+      if (sc.isFailure()) {
+	ATH_MSG_WARNING( "getFTK_RawTracksFromSG: Failed to get FTK Tracks Container");
+	return;
+      }
+    }
+  }
+  if (m_ftk_tracks->size()==0){
+    ATH_MSG_VERBOSE( "no FTK Tracks in the event");
+  } else {
+    ATH_MSG_DEBUG( "getFTK_RawTracksFromSG:  Got " << m_ftk_tracks->size() << " raw FTK tracks (RDO) from  StoreGate ");
+    m_gotRawTracks = true;
   }
   
   // Creating collection for pixel clusters
@@ -1120,7 +1265,9 @@ StatusCode FTK_DataProviderSvc::initTrackParticleCache(bool withRefit) {
   bool gotTracks=false;
   getFTK_RawTracksFromSG();
   if (m_gotRawTracks) {
-    if (!initTrackCache(withRefit).isFailure()) {  gotTracks=true; }
+    if (!initTrackCache(withRefit).isFailure()) {  
+      gotTracks=true; 
+    } 
   }
 
   if (withRefit) {
@@ -1287,6 +1434,7 @@ Trk::Track* FTK_DataProviderSvc::ConvertTrack(const unsigned int iTrack){
     if ( track.isMissingPixelLayer(cluster_number)) {
 
       ATH_MSG_VERBOSE( " No hit for layer " << cluster_number);
+      m_nMissingPixelClusters[cluster_number]++;
       continue;
     }
     if (raw_pixel_cluster.getModuleID()==0){
@@ -1296,6 +1444,7 @@ Trk::Track* FTK_DataProviderSvc::ConvertTrack(const unsigned int iTrack){
     const Trk::RIO_OnTrack* pixel_cluster_on_track = createPixelCluster(raw_pixel_cluster,*trkPerigee);
     if (pixel_cluster_on_track==nullptr){
       ATH_MSG_WARNING(" PixelClusterOnTrack failed to create cluster " << cluster_number);
+      m_nFailedPixelClusters[cluster_number]++;
     } else {
 
       clusters.push_back(pixel_cluster_on_track);
@@ -1322,6 +1471,7 @@ Trk::Track* FTK_DataProviderSvc::ConvertTrack(const unsigned int iTrack){
     FTK_RawSCT_Cluster raw_cluster = track.getSCTCluster(cluster_number);
     if ( track.isMissingSCTLayer(cluster_number)) {
       ATH_MSG_VERBOSE( "  No SCT Hit for layer "  << cluster_number);
+      m_nMissingSCTClusters[cluster_number]++;
       continue;
     }
     const Trk::RIO_OnTrack* sct_cluster_on_track = createSCT_Cluster(raw_cluster, *trkPerigee);
@@ -1329,6 +1479,7 @@ Trk::Track* FTK_DataProviderSvc::ConvertTrack(const unsigned int iTrack){
 	
     if (sct_cluster_on_track==nullptr){
       ATH_MSG_WARNING(" SCT_ClusterOnTrack failed to create cluster " <<  cluster_number);
+      m_nFailedSCTClusters[cluster_number]++;
     } else {
       
       ATH_MSG_VERBOSE( cluster_number << ": r= " << std::sqrt(std::pow(sct_cluster_on_track->globalPosition().x(),2)+std::pow(sct_cluster_on_track->globalPosition().y(),2))
@@ -1621,7 +1772,7 @@ const Trk::RIO_OnTrack*  FTK_DataProviderSvc::createPixelCluster(const FTK_RawPi
 
   ATH_MSG_VERBOSE( "FTK_DataProviderSvc::createPixelCluster: raw FTK cluster position: " <<
       " Row(phi): " <<  raw_pixel_cluster.getRowCoord() << " Col(eta): " << raw_pixel_cluster.getColCoord() <<
-      " RowWidth: " << raw_pixel_cluster.getRowWidth()+1 << " ColWidth: " << raw_pixel_cluster.getColWidth()+1);
+      " RowWidth: " << raw_pixel_cluster.getRowWidth() << " ColWidth: " << raw_pixel_cluster.getColWidth());
 
   unsigned int layer = m_pixelId->layer_disk(wafer_id);
   bool isBarrel = (m_pixelId->barrel_ec(wafer_id)==0);
@@ -1693,8 +1844,8 @@ const Trk::RIO_OnTrack*  FTK_DataProviderSvc::createPixelCluster(const FTK_RawPi
   Identifier pixel_id = m_pixelId->pixel_id(wafer_id, phi_index, eta_index);
 
 
-  int phiWidth    = raw_pixel_cluster.getRowWidth()+1;
-  int etaWidth    = raw_pixel_cluster.getColWidth()+1;
+  int phiWidth    = std::max(raw_pixel_cluster.getRowWidth(),1u);
+  int etaWidth    = std::max(raw_pixel_cluster.getColWidth(),1u);
 
   int colMin = (int)(eta_index-0.5*etaWidth);
   int colMax = colMin+etaWidth;
@@ -1962,5 +2113,11 @@ void FTK_DataProviderSvc::handle(const Incident& incident) {
     m_got_fast_vertex_refit = false;
     m_got_fast_vertex_conv = false;
     m_got_fast_vertex_raw = false;
+    m_nErrors=0;
+    for (auto& it :  m_nFailedSCTClusters) it=0;
+    for (auto& it :  m_nFailedPixelClusters) it=0;
+    for (auto& it :  m_nMissingSCTClusters) it=0;
+    for (auto& it :  m_nMissingPixelClusters) it=0;
+
   }
 }

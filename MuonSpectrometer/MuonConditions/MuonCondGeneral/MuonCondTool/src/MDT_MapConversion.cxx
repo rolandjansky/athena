@@ -104,7 +104,6 @@ StatusCode MDT_MapConversion::initialize()
  
   IRDBAccessSvc *accessSvc;
   service("RDBAccessSvc",accessSvc);
-  accessSvc->connect();
   
   
 
@@ -145,7 +144,6 @@ StatusCode MDT_MapConversion::initialize()
     
   }
 	
-    accessSvc->disconnect(); 
     log << MSG::INFO << "#### Chamber Map SIZE" << m_Chamber_Map.size()<< endmsg;
   return StatusCode::SUCCESS;
  

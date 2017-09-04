@@ -91,12 +91,9 @@ namespace LArG4 {
       std::string detectorKey  = LArVersion.empty() ? AtlasVersion : LArVersion;
       std::string detectorNode = LArVersion.empty() ? "ATLAS" : "LAr";
 
-      pAccessSvc->connect();
-
       std::string miniFcalVersion = pAccessSvc->getChildTag("MiniFcal",detectorKey,detectorNode);
       if(miniFcalVersion.empty()) {
         m_initialized = false;
-        pAccessSvc->disconnect();
         return;
       }
 
@@ -128,8 +125,6 @@ namespace LArG4 {
         m_ringRinner[(*recRings)[i]->getInt("RINGNUM")] = ((*recRings)[i]->getDouble("RINNER"))*CLHEP::mm;
         m_nWafers[(*recRings)[i]->getInt("RINGNUM")] =(*recRings)[i]->getInt("NWAFERS") ;
       }
-
-      pAccessSvc->disconnect();
 
       m_initialized = true;
     }

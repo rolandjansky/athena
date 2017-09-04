@@ -19,13 +19,11 @@ EventViewCreatorAlgorithm::EventViewCreatorAlgorithm( const std::string& name, I
     m_inputKey( "InputCollection" ),
     m_inputAuxKey( "InputCollectionAux" ),
     m_outputKey( "OutputCollection" ),
-    m_outputAuxKey( "OutputCollectionAux" ),
     m_viewAlgorithmPool( "ViewAlgPool" )
 {
   //VarHandleKeys
   declareProperty( "OutputViewCollection", m_viewsKey, "Name of output event view collection" );
   declareProperty( "WithinViewCollection", m_outputKey, "Name of the collection to make inside views" );
-  declareProperty( "WithinViewAuxCollection", m_outputAuxKey, "Name of the aux collection to make inside views" );
   declareProperty( "InputCollection", m_inputKey, "Name of the collection to split into views" );
   declareProperty( "InputAuxCollection", m_inputAuxKey, "Name of the aux collection to split into views" );
 
@@ -39,7 +37,6 @@ StatusCode EventViewCreatorAlgorithm::initialize()
   //Initialize VarHandleKeys
   CHECK( m_viewsKey.initialize() );
   CHECK( m_outputKey.initialize() );
-  CHECK( m_outputAuxKey.initialize() );
   CHECK( m_inputKey.initialize() );
   CHECK( m_inputAuxKey.initialize() );
 
@@ -66,31 +63,21 @@ StatusCode EventViewCreatorAlgorithm::execute()
   
   //Split into views
   std::vector< SG::View* > viewVector;
-  std::vector< xAOD::TrigCompositeContainer > viewCollections;
-  std::vector< xAOD::TrigCompositeAuxContainer > viewAuxCollections;
+  std::vector< ConstDataVector<xAOD::TrigCompositeContainer> > viewCollections;
   for ( const auto input: *inputHandle.cptr() )
   {
-    xAOD::TrigCompositeContainer oneInput;
-    xAOD::TrigCompositeAuxContainer oneAuxInput;
-    oneInput.setStore( oneAuxInput );
+    ConstDataVector<xAOD::TrigCompositeContainer> oneInput;
     oneInput.clear( SG::VIEW_ELEMENTS );
     oneInput.push_back( input );
     viewCollections.push_back( oneInput );
-    viewAuxCollections.push_back( oneAuxInput );
   }
 
   //Make the views
-  SG::WriteHandle< xAOD::TrigCompositeContainer > viewHandle( m_outputKey, ctx );
+  SG::WriteHandle< ConstDataVector<xAOD::TrigCompositeContainer> > viewHandle( m_outputKey, ctx );
   CHECK( ViewHelper::MakeAndPopulate( name() + "_view",		// Base name for all views to use
                                       viewVector,		// Vector to store views
                                       viewHandle,		// A writehandle to use to access the views (the handle itself, not the contents)
                                       viewCollections ) );	// Data to initialise each view - one view will be made per entry
-
-  //Add the aux collections
-  SG::WriteHandle< xAOD::TrigCompositeAuxContainer > viewAuxHandle( m_outputAuxKey, ctx );
-  CHECK( ViewHelper::Populate( viewVector,		// Vector containing views
-                               viewAuxHandle,		// A writehandle to use to access the views (the handle itself, not the contents)
-                               viewAuxCollections ) );	// Data to add to each view - vector must be same length as view vector
 
   // Run the views
   CHECK( ViewHelper::RunViews( viewVector,				// Vector containing views

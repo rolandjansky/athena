@@ -394,7 +394,7 @@ void egammaStripsShape::setArray(CaloSampling::CaloSample sam,
   // 1- From the list of cells attached to the cluster
   // 2 -Use a calo Cell List
   // temporary array of cell 
-  StripArrayHelper stripArray[DOUBLE_STRIP_ARRAY_SIZE];
+  StripArrayHelper stripArray[BIG_STRIP_ARRAY_SIZE];
 
   //Raw --> Calo Frame 
   //Other variables ATLAS Frame
@@ -415,14 +415,12 @@ void egammaStripsShape::setArray(CaloSampling::CaloSample sam,
     return;
   }
 
-
   //The selection will be done in Raw co-ordinates
   //defines the boundaries around which to select cells
   double etamin = etaraw - deta;
   double etamax = etaraw + deta;
   double phimin = phiraw - dphi;
   double phimax = phiraw + dphi;  
-
   // index of elements of the array
   int index_array = 0;
   double eta_cell  = 0.;
@@ -435,26 +433,30 @@ void egammaStripsShape::setArray(CaloSampling::CaloSample sam,
     xAOD::CaloCluster::const_cell_iterator last  = m_cluster->cell_end();
     for (; first != last; ++first) {        
       // ensure we are in 1st sampling
-      if( (*first)->caloDDE()->getSampling() == sam ) {
+      const CaloCell* theCell = *first;
+      if (!theCell){
+	continue;
+      }
+      if( theCell->caloDDE()->getSampling() == sam ) {
 	// retrieve the eta,phi of the cell
-	eta_cell = (*first)->caloDDE()->eta_raw();
+	eta_cell = theCell->caloDDE()->eta_raw();
 	// adjust for possible 2*pi offset. 
-	phi_cell0 = (*first)->caloDDE()->phi_raw();
+	phi_cell0 = theCell->caloDDE()->phi_raw();
 	phi_cell  = proxim(phi_cell0,phiraw) ;
 	// check if we are within boundaries
 	if (eta_cell >= etamin && eta_cell <= etamax) {
 	  if (phi_cell >= phimin && phi_cell <= phimax) {	    
 	    // a protection is put to avoid to have an array larger 
 	    // than 2*STRIP_ARRAY_SIZE
-	    if (index_array<DOUBLE_STRIP_ARRAY_SIZE) {
+	    if (index_array<BIG_STRIP_ARRAY_SIZE) {
 	      // energy
-	      stripArray[index_array].energy = (*first)->energy(); 
+	      stripArray[index_array].energy = theCell->energy()*(first.weight()); 
 	      // eta 
-	      stripArray[index_array].eta  = (*first)->eta();
+	      stripArray[index_array].eta  = theCell->eta();
 	      // eta raw
-	      stripArray[index_array].etaraw  = (*first)->caloDDE()->eta_raw();
+	      stripArray[index_array].etaraw = theCell->caloDDE()->eta_raw();
 	      // eta granularity
-	      stripArray[index_array].deta  = (*first)->caloDDE()->deta();
+	      stripArray[index_array].deta  = theCell->caloDDE()->deta();
 	      // index/number of cells in the array
 	      stripArray[index_array].ncell++;
 	      // increase index 
@@ -473,6 +475,8 @@ void egammaStripsShape::setArray(CaloSampling::CaloSample sam,
     CaloCellList::list_iterator first=ccl->begin();
     CaloCellList::list_iterator last =ccl->end();
     for (; first != last; ++first) {        
+      //Avoid EME1 being inner endcap
+      if(! ((*first)->caloDDE()->is_lar_em_endcap_inner()) )
       // ensure we are in 1st sampling
       if( (*first)->caloDDE()->getSampling() == sam ) {
 	// retrieve the eta,phi of the cell
@@ -485,7 +489,7 @@ void egammaStripsShape::setArray(CaloSampling::CaloSample sam,
 	  if (phi_cell >= phimin && phi_cell <= phimax) {	    
 	    // a protection is put to avoid to have an array larger 
 	    // than 2*STRIP_ARRAY_SIZE
-	    if (index_array<DOUBLE_STRIP_ARRAY_SIZE) {
+	    if (index_array<BIG_STRIP_ARRAY_SIZE) {
 	      // energy
 	      stripArray[index_array].energy = (*first)->energy(); 
 	      // eta 
@@ -510,7 +514,6 @@ void egammaStripsShape::setArray(CaloSampling::CaloSample sam,
   }
   // sort intermediate array with eta
   std::sort(stripArray,stripArray+index_array);
-  
 
   // loop on intermediate array and merge two cells in phi (when they exist)
   int ieta = 0;
@@ -532,6 +535,8 @@ void egammaStripsShape::setArray(CaloSampling::CaloSample sam,
       //if (fabs(stripArray[i].eta-stripArry[i+1]).eta>0.00001) next = true;
       if (fabs(stripArray[i].etaraw-stripArray[i+1].etaraw)>0.00001) next = true;
       if (next) {
+	//Increment the final array only if do not want to merge
+	//otherwise continue as to merge
 	ieta++;
 	next = false;
       }
@@ -549,7 +554,7 @@ void egammaStripsShape::setArray(CaloSampling::CaloSample sam,
   if (index != 0 &&
       fabs(stripArray[index].etaraw-stripArray[index-1].etaraw)<0.00001){
     // energy
-    if (enecell_arr) {enecell_arr[ieta] +=  stripArray[index].energy;}
+    if (enecell_arr) {enecell_arr[ieta] += stripArray[index].energy;}
   }
   // eta 
   if (etacell_arr) {etacell_arr[ieta] = stripArray[index].eta;}

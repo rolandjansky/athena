@@ -90,8 +90,6 @@ LArRecoSimpleGeomTool::initialize()
   else
     ATH_MSG_INFO (" did access RDBAccessSvc ");
 
-  m_iAccessSvc->connect();
-
   m_recCryoCyl = m_iAccessSvc->getRecordsetPtr("CryoCylinders",m_tag,m_node);
   if (m_recCryoCyl->size()==0)
     m_recCryoCyl = m_iAccessSvc->getRecordsetPtr("CryoCylinders","CryoCylinders-00");
@@ -117,8 +115,6 @@ LArRecoSimpleGeomTool::initialize()
   m_HEC = m_iAccessSvc->getRecordsetPtr("HadronicEndcap",m_tag,m_node);
   if (m_HEC->size()==0)
     m_HEC = m_iAccessSvc->getRecordsetPtr("HadronicEndcap","HadronicEndcap-00");
-
-  m_iAccessSvc->disconnect();
 
   ATH_MSG_INFO (" LArRecoSimpleGeomTool successfully initialized ");
   return StatusCode::SUCCESS;

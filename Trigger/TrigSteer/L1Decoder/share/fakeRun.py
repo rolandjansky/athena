@@ -57,8 +57,7 @@ print svcMgr
 
 theApp.EvtMax = 10
 
-from AthenaMonitoring.AthenaMonitoringConf import GenericMonitoringTool
-from AthenaMonitoring.DefineHistogram import defineHistogram
+from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
 
 mt = GenericMonitoringTool("CaloRoIsMonitor")
 mt.OutputLevel=VERBOSE

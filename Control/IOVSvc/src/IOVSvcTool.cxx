@@ -415,7 +415,9 @@ IOVSvcTool::handle(const Incident &inc) {
         m_log << MSG::DEBUG << "Unable to get the IOVDbSvc" << endmsg;
         return;
       }
-      if (StatusCode::SUCCESS != iovDB->signalBeginRun(m_curTime)) {
+      if (StatusCode::SUCCESS != iovDB->signalBeginRun(m_curTime,
+                                                       inc.context()))
+      {
         m_log << MSG::ERROR << "Unable to signal begin run to IOVDbSvc" << endmsg;
         return;
       }
