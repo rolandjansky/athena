@@ -41,3 +41,7 @@ atlas_add_test( ut_xaodtrigger_bytestreamauxcontainer_v1_test
 atlas_add_test( ut_xaodtrigger_trigcomposite_test
    SOURCES test/ut_xaodtrigger_trigcomposite_test.cxx
    LINK_LIBRARIES AthLinks xAODTrigger )
+
+atlas_add_test( ut_xaodtrigger_trigpassbits_test
+   SOURCES test/ut_xaodtrigger_trigpassbits_test.cxx
+   LINK_LIBRARIES xAODTrigger )
