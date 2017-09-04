@@ -60,17 +60,21 @@ private:
   /** @brief helper class to contain write docoration handle keys */
   template<class T> struct writeDecorHandleKeys {
     StatusCode initializeDecorKeys(const std::string &name); // note, not constructor
-    SG::ReadHandleKey<T> rhKey;
+
     std::array<SG::WriteDecorHandleKey<T>, 3> keys;
   };
     
   /** @brief helper class to contain write decoration handles */
   template<class T> struct writeDecorHandles {
     writeDecorHandles(const writeDecorHandleKeys<T>& keys); // constructor
-    SG::ReadHandle<T> readHandle;
+
     SG::WriteDecorHandle<T, ElementLink<xAOD::TruthParticleContainer> > el;
     SG::WriteDecorHandle<T, int > type;
     SG::WriteDecorHandle<T, int > origin;
+
+    // any of the handles should function as a read handle, choice is arbitrary
+    SG::ReadHandle<T>& readHandle() { return type; };
+
   };
   
     

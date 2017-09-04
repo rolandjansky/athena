@@ -252,8 +252,7 @@ StatusCode egammaTruthAssociationAlg::match(const xAOD::TruthParticleContainer& 
 
   writeDecorHandles<T> decoHandles(hkeys);
 
-  for (auto particle : *decoHandles.readHandle){
-    // can really iterate over any update handle to get the main particle
+  for (auto particle : *decoHandles.readHandle()){
     MCTruthInfo_t info = particleTruthClassifier(particle);
     const xAOD::TruthParticle* truthParticle = info.genPart;
     if (truthParticle) {
@@ -287,7 +286,7 @@ StatusCode egammaTruthAssociationAlg::match(const xAOD::TruthParticleContainer& 
 	  }
 
 	  if (annotateLink) {
-	    L link(particle, *decoHandles.readHandle); // again one can use any handle, not just the el
+	    L link(particle, *decoHandles.readHandle());
 	    linkAccess(*truthEgamma) = link;
 	    linkAccess(*truthEgamma).toPersistent(); 
 	  }
@@ -304,12 +303,10 @@ template<class T>
 StatusCode 
 egammaTruthAssociationAlg::writeDecorHandleKeys<T>::initializeDecorKeys(const std::string &name)
 {
-  rhKey = name;
   keys[0] = name + ".truthParticleLink";
   keys[1] = name + ".truthType";
   keys[2] = name + ".truthOrigin";
 
-  ATH_CHECK(rhKey.initialize());
   for (auto& key : keys) {
     ATH_CHECK(key.initialize());
   }
@@ -320,7 +317,6 @@ egammaTruthAssociationAlg::writeDecorHandleKeys<T>::initializeDecorKeys(const st
 // constructor
 template<class T> 
 egammaTruthAssociationAlg::writeDecorHandles<T>::writeDecorHandles(const egammaTruthAssociationAlg::writeDecorHandleKeys<T>& hkeys) :
-  readHandle(hkeys.rhKey),
   el(hkeys.keys[0]),
   type(hkeys.keys[1]),
   origin(hkeys.keys[2])
