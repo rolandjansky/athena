@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef HFORTOOLS_IHFORSELECTIONTOOL_H
-#define HFORTOOLS_IHFORSELECTIONTOOL_H 1
+#ifndef PMGANALYSISINTERFACES_IHFORSELECTIONTOOL_H
+#define PMGANALYSISINTERFACES_IHFORSELECTIONTOOL_H 1
 
 #include "AsgTools/IAsgTool.h"
 
@@ -30,4 +30,4 @@ class IHFORSelectionTool : public virtual asg::IAsgTool {
 
 };
 
-#endif //> !HFORTOOLS_IHFORSELECTIONTOOL_H
+#endif //> !PMGANALYSISINTERFACES_IHFORSELECTIONTOOL_H
