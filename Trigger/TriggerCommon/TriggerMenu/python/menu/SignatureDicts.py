@@ -430,7 +430,8 @@ PhotonChainParts = {
     'hypoInfo'       : '',
     'recoAlg'        : [],
     'FSinfo'         : ['ftkFS',],
-    'addInfo'        : ['etcut', 'jetcalibdelayed', 'cosmic', 'perf', 'hiptrt','ringer','conv','larpeb',],
+    'addInfo'        : ['etcut', 'jetcalibdelayed', 'cosmic', 'perf', 'hiptrt','ringer','conv','larpeb'],
+    'topo'           : ['dPhi15'],
     }
 
 # ---- Photon Dictinary of default Values ----
@@ -450,6 +451,7 @@ PhotonChainParts_Default = {
     'recoAlg'        : '',
     'FSinfo'         : '',
     'addInfo'        : [],
+    'topo'           : '',
     }
 
 #==========================================================
