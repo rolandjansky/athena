@@ -13,11 +13,11 @@ namespace EgammaSelectors {
   //----------------------------------------------------------
   //This is the internal part , We need to  map string to latest reccomendations
   const std::map<std::string,std::string> LHPointToConfFile={
-    {"VeryLooseLHElectron","ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodVeryLooseOfflineConfig2016_Smooth.conf"},
-    {"LooseLHElectron","ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodLooseOfflineConfig2016_Smooth.conf"},
-    {"LooseBLLHElectron","ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodLooseOfflineConfig2016_CutBL_Smooth.conf"},
-    {"MediumLHElectron","ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodMediumOfflineConfig2016_Smooth.conf"},
-    {"TightLHElectron","ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodTightOfflineConfig2016_Smooth.conf"}
+    {"VeryLooseLHElectron","ElectronPhotonSelectorTools/offline/mc16_20170828/ElectronLikelihoodVeryLooseOfflineConfig2017_Smooth.conf"},
+    {"LooseLHElectron"    ,"ElectronPhotonSelectorTools/offline/mc16_20170828/ElectronLikelihoodLooseOfflineConfig2017_Smooth.conf"},
+    {"LooseBLLHElectron"  ,"ElectronPhotonSelectorTools/offline/mc16_20170828/ElectronLikelihoodLooseOfflineConfig2017_CutBL_Smooth.conf"},
+    {"MediumLHElectron"   ,"ElectronPhotonSelectorTools/offline/mc16_20170828/ElectronLikelihoodMediumOfflineConfig2017_Smooth.conf"},
+    {"TightLHElectron"    ,"ElectronPhotonSelectorTools/offline/mc16_20170828/ElectronLikelihoodTightOfflineConfig2017_Smooth.conf"},
   };
   const std::map<std::string,std::string> PhotonCutPointToConfFile={
     {"LoosePhoton","ElectronPhotonSelectorTools/offline/mc15_20150712/PhotonIsEMLooseSelectorCutDefs.conf"},
