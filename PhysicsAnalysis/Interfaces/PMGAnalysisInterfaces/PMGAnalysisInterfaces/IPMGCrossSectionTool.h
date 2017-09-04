@@ -4,8 +4,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef PMGTOOLS_IPMGCROSSSECTIONTOOL_H
-#define PMGTOOLS_IPMGCROSSSECTIONTOOL_H
+#ifndef PMGANALYSISINTERFACES_IPMGCROSSSECTIONTOOL_H
+#define PMGANALYSISINTERFACES_IPMGCROSSSECTIONTOOL_H
 
 // Infrastructure include(s):
 #include "AsgTools/IAsgTool.h"
@@ -65,4 +65,4 @@ namespace PMGTools {
   
 } // namespace PMGTools
 
-#endif //> !PMGTOOLS_IPMGCROSSSECTIONTOOL_H
+#endif //> !PMGANALYSISINTERFACES_IPMGCROSSSECTIONTOOL_H
