@@ -273,7 +273,7 @@ StatusCode TileMonHadEnFex::execute(TrigEMCluster &/*rtrigEmCluster*/,double eta
 
   // If there was a problem in configuration, stop now
   if ( !m_configured ) return StatusCode::SUCCESS;
-        tiledecoded=false;
+        m_tiledecoded=false;
         // Time total AlgTool time
         if (!m_timersvc.empty()) m_timer[0]->start();
 
