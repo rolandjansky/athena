@@ -6,6 +6,8 @@
 atlas_subdir( xAODTrigger )
 
 # Extra dependencies, based on what environment we're in:
+set( extra_deps )
+set( extra_libs )
 if( NOT XAOD_STANDALONE )
    set( extra_deps Control/AthenaKernel )
    set( extra_libs AthenaKernel )
