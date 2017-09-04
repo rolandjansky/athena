@@ -2181,18 +2181,6 @@ int SUSYObjDef_xAOD::treatAsYear(const int runNumber) const {
   return 2017;
 }
 
-StatusCode SUSYObjDef_xAOD::setRunNumber(const int run_number) {
-
-  //as suggested by MCP
-  int rn_2015 = 282625; // period 2015 J
-  int rn_2016 = 300345; // period 2016 B
-  
-  // Set the run number for the muon trigger tool
-  if (m_muonTriggerSFTool->setRunNumber(run_number)!=CP::CorrectionCode::Ok) return StatusCode::FAILURE;
-
-  return StatusCode::SUCCESS;
-}
-
 SUSYObjDef_xAOD::~SUSYObjDef_xAOD() {
 
 #ifdef XAOD_STANDALONE

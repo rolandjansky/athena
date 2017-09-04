@@ -169,8 +169,6 @@ namespace ST {
 			   // const xAOD::TauJetContainer* taujet = 0,
 			   ) override final;
 
-    StatusCode setRunNumber(const int run_number) override final;
-
     bool IsSignalJet(const xAOD::Jet& input, const float ptcut, const float etacut) const override final;
 
     bool IsBadJet(const xAOD::Jet& input) const override final;
