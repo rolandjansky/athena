@@ -3,7 +3,7 @@
 # arguments: RELEASE_BASE, PROJECT, PLATFORM, DATESTAMP
 # author : Tulay Cuhadar Donszelmann <tcuhadar@cern.ch>, Emil Obreshkov <Emil.Obreshkov@cern.ch>
 
-echo "Script executed by $(whoami) on $(date)"
+echo "INFO: Script executed by $(whoami) on $(date)"
 
 RELEASE_BASE=$1
 PROJECT=$2
@@ -24,17 +24,27 @@ lsetup asetup
 asetup none,cmakesetup --platform ${PLATFORM}
 source ${RELEASE_BASE}/build/install/${PROJECT}/*/InstallArea/${PLATFORM}/setup.sh
 
+# setup as if asetup was run
+export AtlasBuildBranch=$BRANCH
+export AtlasProject=$PROJECT
+export ${AtlasProject}_PLATFORM=$PLATFORM
+export AtlasBuildStamp=$DATESTAMP
+
+ART_DIRECTORY=`which art.py`
+ART_VERSION=`art.py --version`
+echo "INFO: Using ART version ${ART_VERSION} in ${ART_DIRECTORY} directory"
+
 # run build tests
 SUBDIR=${BRANCH}/${PROJECT}/${PLATFORM}/${DATESTAMP}
-OUTDIR="art-build/${SUBDIR}"
-CMD="art.py run ${RELEASE_BASE} ${OUTDIR}"
+OUTDIR="${RELEASE_BASE}/art-build/${SUBDIR}"
+CMD="art.py run ${RELEASE_BASE}/athena ${OUTDIR}"
 echo ${CMD}
 RESULT=`eval "${CMD}"`
 echo ${RESULT}
 
 # copy the test results to EOS area
-TARGETDIR=/eos/atlas/atlascerngroupdisk/art-build/${SUBDIR}
-if [[ ! -e ${TARGETDIR} ]]; then
-  eos mkdir -p ${TARGETDIR}
-  xrdcp -vr $OUTDIR $TARGETDIR
-fi
+#TARGETDIR=/eos/atlas/atlascerngroupdisk/art-build/${SUBDIR}
+#if [[ ! -e ${TARGETDIR} ]]; then
+#  eos mkdir -p ${TARGETDIR}
+#  xrdcp -vr ${OUTDIR} ${TARGETDIR}
+#fi

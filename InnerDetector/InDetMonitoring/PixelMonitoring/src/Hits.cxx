@@ -411,12 +411,12 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
   static constexpr int nmod_eta[PixLayer::COUNT] = {3, 3, 13, 13, 13, 20};
   
   // Reset the centrally saved hit arrays back to zero.
-  memset(m_HitPerEventArray_disksA, 0, sizeof(m_HitPerEventArray_disksA[0][0] * nmod_phi[PixLayer::kECA] * nmod_eta[PixLayer::kECA]));
-  memset(m_HitPerEventArray_disksC, 0, sizeof(m_HitPerEventArray_disksC[0][0] * nmod_phi[PixLayer::kECC] * nmod_eta[PixLayer::kECC]));
-  memset(m_HitPerEventArray_l0,     0, sizeof(m_HitPerEventArray_l0[0][0]     * nmod_phi[PixLayer::kB0]  * nmod_eta[PixLayer::kB0]));
-  memset(m_HitPerEventArray_l1,     0, sizeof(m_HitPerEventArray_l1[0][0]     * nmod_phi[PixLayer::kB1]  * nmod_eta[PixLayer::kB1]));
-  memset(m_HitPerEventArray_l2,     0, sizeof(m_HitPerEventArray_l2[0][0]     * nmod_phi[PixLayer::kB2]  * nmod_eta[PixLayer::kB2]));
-  memset(m_HitPerEventArray_lI,     0, sizeof(m_HitPerEventArray_lI[0][0]     * nmod_phi[PixLayer::kIBL] * nmod_eta[PixLayer::kIBL]));
+  memset(m_HitPerEventArray_disksA, 0, sizeof(m_HitPerEventArray_disksA[0][0]) * nmod_phi[PixLayer::kECA] * nmod_eta[PixLayer::kECA]);
+  memset(m_HitPerEventArray_disksC, 0, sizeof(m_HitPerEventArray_disksC[0][0]) * nmod_phi[PixLayer::kECC] * nmod_eta[PixLayer::kECC]);
+  memset(m_HitPerEventArray_l0,     0, sizeof(m_HitPerEventArray_l0[0][0])     * nmod_phi[PixLayer::kB0]  * nmod_eta[PixLayer::kB0]);
+  memset(m_HitPerEventArray_l1,     0, sizeof(m_HitPerEventArray_l1[0][0])     * nmod_phi[PixLayer::kB1]  * nmod_eta[PixLayer::kB1]);
+  memset(m_HitPerEventArray_l2,     0, sizeof(m_HitPerEventArray_l2[0][0])     * nmod_phi[PixLayer::kB2]  * nmod_eta[PixLayer::kB2]);
+  memset(m_HitPerEventArray_lI,     0, sizeof(m_HitPerEventArray_lI[0][0])     * nmod_phi[PixLayer::kIBL] * nmod_eta[PixLayer::kIBL]);
 
   double nhits=0;
   double nhits_mod[PixLayerIBL2D3D::COUNT]={0};
