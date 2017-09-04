@@ -36,7 +36,7 @@ atlas_add_library( ElectronPhotonFourMomentumCorrectionLib
    PUBLIC_HEADERS ElectronPhotonFourMomentumCorrection
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODCaloEvent xAODEgamma
-   xAODEventInfo PATInterfaces EgammaAnalysisInterfaces PATCoreLib egammaMVACalibLib xAODTruth
+   xAODEventInfo PATInterfaces EgammaAnalysisInterfacesLib PATCoreLib egammaMVACalibLib xAODTruth
    PRIVATE_LINK_LIBRARIES xAODTracking xAODMetaData egammaLayerRecalibTool
    PathResolver )
 

@@ -45,7 +45,7 @@ atlas_add_library( ElectronEfficiencyCorrectionLib
    PUBLIC_HEADERS ElectronEfficiencyCorrection
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthContainers AsgTools
-   xAODEgamma PATInterfaces PATCoreLib AsgAnalysisInterfaces EgammaAnalysisInterfaces
+   xAODEgamma PATInterfaces PATCoreLib AsgAnalysisInterfaces EgammaAnalysisInterfacesLib
    PRIVATE_LINK_LIBRARIES xAODCaloEvent xAODCore xAODEventInfo xAODTracking
    xAODMetaData PathResolver )
 

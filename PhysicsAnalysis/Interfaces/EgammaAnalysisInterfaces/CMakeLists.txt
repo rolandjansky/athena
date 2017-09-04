@@ -14,7 +14,7 @@ atlas_depends_on_subdirs(
 find_package( ROOT COMPONENTS Core )
 
 # Component(s) in the package:
-atlas_add_library( EgammaAnalysisInterfaces
+atlas_add_library( EgammaAnalysisInterfacesLib
    EgammaAnalysisInterfaces/*.h
    INTERFACE
    PUBLIC_HEADERS EgammaAnalysisInterfaces
@@ -24,6 +24,6 @@ atlas_add_library( EgammaAnalysisInterfaces
 atlas_add_dictionary( EgammaAnalysisInterfacesDict
    EgammaAnalysisInterfaces/EgammaAnalysisInterfacesDict.h
    EgammaAnalysisInterfaces/selection.xml
-   LINK_LIBRARIES EgammaAnalysisInterfaces )
+   LINK_LIBRARIES EgammaAnalysisInterfacesLib )
 
 

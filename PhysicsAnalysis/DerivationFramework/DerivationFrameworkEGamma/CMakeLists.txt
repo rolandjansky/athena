@@ -31,13 +31,13 @@ atlas_add_library( DerivationFrameworkEGammaLib
                    src/*.cxx
                    PUBLIC_HEADERS DerivationFrameworkEGamma
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES AsgTools AthenaBaseComps PATCoreLib EgammaAnalysisInterfaces ExpressionEvaluationLib MCTruthClassifierLib CaloCalibHitRecLib
+                   LINK_LIBRARIES AsgTools AthenaBaseComps PATCoreLib EgammaAnalysisInterfacesLib ExpressionEvaluationLib MCTruthClassifierLib CaloCalibHitRecLib
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} xAODBase xAODCaloEvent xAODEgamma xAODMissingET xAODMuon xAODTruth )
 
 atlas_add_component( DerivationFrameworkEGamma
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES}  AsgTools AthenaBaseComps PATCoreLib  EgammaAnalysisInterfaces xAODBase 
+                     LINK_LIBRARIES ${ROOT_LIBRARIES}  AsgTools AthenaBaseComps PATCoreLib  EgammaAnalysisInterfacesLib xAODBase 
 		     xAODCaloEvent xAODEgamma xAODMissingET xAODMuon xAODTruth GaudiKernel ExpressionEvaluationLib MCTruthClassifierLib CaloCalibHitRecLib DerivationFrameworkEGammaLib )
 
 # Install files from the package:
