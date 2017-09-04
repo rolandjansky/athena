@@ -33,7 +33,7 @@ DFCommonTruthPhotonToolSim = DerivationFramework__TruthCollectionMaker(name     
                                                          ParticleSelectionString = "(abs(TruthParticles.pdgId) == 22) && (TruthParticles.status == 1) && ((TruthParticles.classifierParticleOrigin != 42) || (TruthParticles.pt > 20.0*GeV)) && ( TruthParticles.barcode < "+str(DerivationFrameworkSimBarcodeOffset)+")")
 ToolSvc += DFCommonTruthPhotonToolSim
 
-neutrinoexpression = "((abs(TruthParticles.pdgId) == 12 || abs(TruthParticles.pdgId) == 14 || abs(TruthParticles.pdgId) == 16) && (TruthParticles.status == 1)) && TruthParticles.barcode < "+str(DerivationFrameworkSimBarcodeOffset)
+neutrinoexpression = "(TruthParticles.isNeutrino && TruthParticles.status == 1) && TruthParticles.barcode < "+str(DerivationFrameworkSimBarcodeOffset)
 DFCommonTruthNeutrinoTool = DerivationFramework__TruthCollectionMaker(name                 = "DFCommonTruthNeutrinoTool",
                                                                    NewCollectionName       = "TruthNeutrinos",
                                                                    ParticleSelectionString = neutrinoexpression)
@@ -55,7 +55,7 @@ ToolSvc += DFCommonTruthBosonTool
 
 DFCommonTruthBSMTool = DerivationFramework__TruthCollectionMaker(name                   = "DFCommonTruthBSMTool",
                                                                 NewCollectionName       = "TruthBSM",
-                                                                ParticleSelectionString = "( (31<abs(TruthParticles.pdgId) && abs(TruthParticles.pdgId)<38) || abs(TruthParticles.pdgId)==39 || abs(TruthParticles.pdgId)==41 || abs(TruthParticles.pdgId)==42 || abs(TruthParticles.pdgId)== 7 || abs(TruthParticles.pdgId)== 8 || abs(TruthParticles.pdgId)==17 || abs(TruthParticles.pdgId)==18 || abs(TruthParticles.pdgId)==55 || (1000000<abs(TruthParticles.pdgId) && abs(TruthParticles.pdgId)<1000040) || (2000000<abs(TruthParticles.pdgId) && abs(TruthParticles.pdgId)<2000040) )",
+                                                                ParticleSelectionString = "(TruthParticles.isBSM)",
                                                                 Do_Compress             = True)
 ToolSvc += DFCommonTruthBSMTool
 
