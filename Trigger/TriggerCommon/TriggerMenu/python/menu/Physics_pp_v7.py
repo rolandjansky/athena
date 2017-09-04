@@ -1583,6 +1583,8 @@ def setupMenu():
     TriggerFlags.EgammaSlice.signatures = [
 
         ['2g3_loose_dPhi15_L12EM3_VTE70', 'L1_2EM3_VTE70', [], [PhysicsStream],['RATE:SinglePhoton','BW:Egamma'],-1],
+        ['2g3_loose_L12EM3_VTE70', 'L1_2EM3_VTE70', [], [PhysicsStream],['RATE:SinglePhoton','BW:Egamma'],-1],
+        ['2g3_medium_dPhi15_L12EM3_VTE70', 'L1_2EM3_VTE70', [], [PhysicsStream],['RATE:SinglePhoton','BW:Egamma'],-1],
 
         ['g0_perf_L1EM3_EMPTY',                  'L1_EM3_EMPTY', [], [PhysicsStream], ['RATE:SinglePhoton',   'BW:Egamma'], -1],        
         ['e0_perf_L1EM3_EMPTY',                  'L1_EM3_EMPTY', [], [PhysicsStream], ['RATE:SinglePhoton',   'BW:Egamma'], -1],        
