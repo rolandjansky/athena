@@ -22,7 +22,6 @@
 #include "ISF_FastCaloSimEvent/IntArray.h"
 
 #include "TH2D.h"
-#include "TRandom3.h"
 
 #include "AthenaKernel/IAtRndmGenSvc.h"
 
