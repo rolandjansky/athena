@@ -16,6 +16,8 @@
 
 #include "TileMonitoring/TileFatherMonTool.h"
 
+#include <array>
+
 class ITileBadChanTool;
 class TileDCSSvc;
 class TileBeamInfoProvider;
@@ -113,6 +115,7 @@ class TileDQFragMonTool: public TileFatherMonTool {
 
     TProfile* m_hist_error_lb[4][64];
 
+    std::array<TH2I*, 4> m_badPulseQuality;
 
     static const int NERROR = 17;
     static const int MASKEDERROR = NERROR - 3;
@@ -122,7 +125,7 @@ class TileDQFragMonTool: public TileFatherMonTool {
     static const int NDMU = 16;
 
     int m_nLumiblocks;
-
+    float m_qualityCut;
     /*---------------------------------------------------------*/
 
 };
