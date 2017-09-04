@@ -30,7 +30,7 @@ namespace SG {
 template <class T>
 inline
 UpdateHandle<T>::UpdateHandle() 
-  : VarHandleBase(ClassID_traits<T>::ID(), Gaudi::DataHandle::Updater),
+  : VarHandleBase(ClassID_traits<T>::ID(), Gaudi::DataHandle::Reader),
     m_updated(false)
 {
 }
@@ -46,7 +46,7 @@ inline
 UpdateHandle<T>::UpdateHandle(const std::string& sgkey,
                               const std::string& storename /*= "StoreGateSvc"*/)
   : VarHandleBase( ClassID_traits<T>::ID(),
-                   sgkey, Gaudi::DataHandle::Updater, storename ),
+                   sgkey, Gaudi::DataHandle::Reader, storename ),
     m_updated(false)
 {
 }
