@@ -33,6 +33,7 @@
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
+
 class StoreGateSvc;
 class ActiveStoreSvc;
 class RpcIdHelper;
@@ -77,7 +78,7 @@ class RpcDataPreparator: public AthAlgTool
       bool isFakeRoi() { return m_isFakeRoi; }
 
       void setRoIBasedDataAccess(bool use_RoIBasedDataAccess);
-      
+
  private:
 		       
       // Reference to StoreGateSvc;
@@ -97,9 +98,11 @@ class RpcDataPreparator: public AthAlgTool
 
       // handles to the RoI driven data access
       ToolHandle<Muon::IMuonRdoToPrepDataTool> m_rpcPrepDataProvider;
-
+      
       ToolHandle <Muon::MuonIdHelperTool>  m_idHelperTool;  //!< Pointer to concrete tool
 
+      // Declare the keys used to access the data: one for reading and one
+      // for writing.
       bool m_use_RoIBasedDataAccess;
       bool m_isFakeRoi;
 };
