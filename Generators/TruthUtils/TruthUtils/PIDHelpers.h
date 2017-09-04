@@ -93,11 +93,17 @@ namespace MC {
     return in_closed_range(abs(pid),32,39);
   }
 
+  /// @brief is this a fourth generation particle?
+  inline bool isFourthGen(int pid){
+    return abs(pid)==7 || abs(pid)==8 || // Quarks
+           abs(pid)==17 || abs(pid)==18; // Leptons
+
   /// @brief Is this a BSM particle?
   inline bool isBSM(int pid) {
     return isVLQ(pid) || isTypeIIISeeSaw(pid) || isVectorTriplet(pid) ||
            isDoublyChargedHiggs(pid) || isDarkSector(pid) || isHiddenValley(pid) ||
            isHeavyNeutrino(pid) || isExotic(pid) || isBSMBoson(pid) ||
+           isFourthGen(pid) ||
            abs(pid)==5100039 || // Special case: Gravitino in Pythia
            abs(pid)==43 || in_closed_range(apid, 601,606) || // Extra lepto-quark UFOs
            abs(pid)==1999 || // Coloron (rho)
