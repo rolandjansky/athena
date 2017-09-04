@@ -451,7 +451,7 @@ void L1TriggerTowerTool::bcid(const std::vector<int> &filter, const std::vector<
 
   /// evaluate BCID decisions
   std::vector<int> decisionRange;
-  if (!decisionSource&0x1) etRange(digits, energyLow, energyHigh, decisionRange);
+  if (!(decisionSource&0x1)) etRange(digits, energyLow, energyHigh, decisionRange);
   else                     etRange(lutInput, energyLow, energyHigh, decisionRange);
   bcidDecision(result, decisionRange, decisionConditions, decision);
   if (m_debug) {
@@ -682,7 +682,7 @@ void L1TriggerTowerTool::bcidDecisionRange(const std::vector<int>& lutInput, con
 
   } else ATH_MSG_WARNING( "::bcidDecisionRange: No Conditions Container retrieved" );
 
-  if (!decisionSource&0x1) etRange(digits, channelId, output);
+  if (!(decisionSource&0x1)) etRange(digits, channelId, output);
   else                     etRange(lutInput, channelId, output);
   if (m_debug) {
     ATH_MSG_VERBOSE( "::bcidDecisionRange: decisionSource: " << decisionSource);
