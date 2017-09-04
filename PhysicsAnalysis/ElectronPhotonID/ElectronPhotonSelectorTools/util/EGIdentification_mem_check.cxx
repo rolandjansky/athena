@@ -11,10 +11,10 @@ http://valgrind.org/docs/manual/faq.html#faq.deflost
 
 */
 
-#include "ElectronPhotonSelectorTools/IAsgPhotonIsEMSelector.h"
-#include "ElectronPhotonSelectorTools/IAsgForwardElectronIsEMSelector.h"
-#include "ElectronPhotonSelectorTools/IAsgElectronIsEMSelector.h"
-#include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
+#include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
+#include "EgammaAnalysisInterfaces/IAsgForwardElectronIsEMSelector.h"
+#include "EgammaAnalysisInterfaces/IAsgElectronIsEMSelector.h"
+#include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
 
 #include "ElectronPhotonSelectorTools/AsgPhotonIsEMSelector.h"
 #include "ElectronPhotonSelectorTools/AsgForwardElectronIsEMSelector.h"
