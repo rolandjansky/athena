@@ -31,6 +31,9 @@
 // ROOT include(s):
 #include "TFile.h"
 
+// Forward declaration
+class TH2F;
+
 namespace PMGTools {
 
   class PMGSherpaVjetsSysTool : public virtual IPMGSherpaVjetsSysTool,
