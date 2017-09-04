@@ -8,13 +8,18 @@
 ///
 /// PID-only functions with no HepMC dependence, both from MCUtils and ATLAS-specific.
 
-/* For any functions that we need to overload, we need to
-carefully #define them to a local function name.  Then in
-the namespace import below, we will still be able to re-define
-the 'global' name referring to the local update.  isBSM is
-our first case for this -- there are ATLAS-specific BSM models
-that do not follow the PDG recommendations, but which we want
-to having included in the definition of isBSM */
+/* For any functions that we need to overload, we need to carefully 
+#define them to a local function name.  Then in the namespace import
+below, we will still be able to re-define the 'global' name
+referring to the local update.  isBSM is our first case for this --
+there are ATLAS-specific BSM models that do not follow the PDG 
+recommendations, but which we want to having included in the 
+definition of isBSM.  Note that we both need to re-implement isBSM
+here and define it afterwards in the MCUtils namespace, so that the
+#pragma once above doesn't cause downstream classes to fail in
+compilation.  This implies a tricky order dependence -- if someone
+happens to not include this file, then they *might* get a different
+version of isBSM.  Something to watch out for! */
 #define isBSM isBSM_MCUtils
 #include "MCUtils/PIDUtils.h"
 #undef isBSM
@@ -128,4 +133,13 @@ namespace MC {
 
   } // End of PID namespace
 } // End of MC namespace
+
+// Addition for ensuring other classes compile
+namespace MCUtils {
+  namespace PID {
+    inline bool isBSM(int pid){
+      return MC::PID::isBSM(pid);
+    }
+  }
+}
 
