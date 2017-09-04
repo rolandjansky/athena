@@ -2371,11 +2371,11 @@ StatusCode HLTTauMonTool::TauEfficiency(const std::string & trigItem, const std:
 	    int ntracks = m_taus.at(t)->nTracks();
 
 	      //	      std::cout<<"HLT"<<trigItem<<std::endl;
-	      if(trigItem=="tau160_idperf_tracktwo"){
+	      if(trigItem=="tau160_idperf_tracktwo_L1TAU100"){
                 setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency");
-		if( HLTTauMatching("tau160_perf_tracktwo", TauTLV, 0.2)  ){
+		if( HLTTauMatching("tau160_perf_tracktwo_L1TAU100", TauTLV, 0.2)  ){
 		  profile("TProfRecoHLT160PtEfficiency")->Fill(pt/GeV,1);}
-		else if( HLTTauMatching("tau160_idperf_tracktwo", TauTLV, 0.2)  ){
+		else if( HLTTauMatching("tau160_idperf_tracktwo_L1TAU100", TauTLV, 0.2)  ){
 		  profile("TProfRecoHLT160PtEfficiency")->Fill(pt/GeV,0);}
 	      }
 
@@ -2426,11 +2426,11 @@ StatusCode HLTTauMonTool::TauEfficiency(const std::string & trigItem, const std:
 		}
 	      }
 	   
-	      if(trigItem=="tau160_perf_tracktwo"){
+	      if(trigItem=="tau160_perf_tracktwo_L1TAU100"){
 		setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency");
-		if( HLTTauMatching("tau160_medium1_tracktwo", TauTLV, 0.2)  ){
+		if( HLTTauMatching("tau160_medium1_tracktwo_L1TAU100", TauTLV, 0.2)  ){
 		  profile("TProfRecoHLT160PtEfficiency_2")->Fill(pt/GeV,1);}
-		else if( HLTTauMatching("tau160_perf_tracktwo", TauTLV, 0.2)  ){
+		else if( HLTTauMatching("tau160_perf_tracktwo_L1TAU100", TauTLV, 0.2)  ){
 		  profile("TProfRecoHLT160PtEfficiency_2")->Fill(pt/GeV,0);}
 	      }
 		

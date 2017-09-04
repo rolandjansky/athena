@@ -133,7 +133,7 @@ SCT_MonHoleSearch = InDet__InDetTrackHoleSearchTool(name ="SCT_MonHoleSearch",
                                                     Extrapolator = InDetExtrapolator,
                                                     ExtendedListOfHoles = True,
                                                     Cosmics =InDetFlags.doCosmics(),
-                                                    checkBadSCTChip=InDetFlags.checkDeadElementsOnTrack(),
+						    checkBadSCTChip=InDetFlags.checkDeadElementsOnTrack(),
                                                     SctSummarySvc=InDetSCT_ConditionsSummarySvc)
    
 ToolSvc += SCT_MonHoleSearch

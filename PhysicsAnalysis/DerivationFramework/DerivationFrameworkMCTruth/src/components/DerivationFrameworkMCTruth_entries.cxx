@@ -9,9 +9,10 @@
 #include "DerivationFrameworkMCTruth/TruthClassificationDecorator.h"
 #include "DerivationFrameworkMCTruth/CompactHardTruth.h"
 #include "DerivationFrameworkMCTruth/HardTruthThinning.h"
-
 #include "DerivationFrameworkMCTruth/HadronOriginDecorator.h"
 #include "DerivationFrameworkMCTruth/HadronOriginClassifier.h"
+#include "DerivationFrameworkMCTruth/TruthQGDecorationTool.h"
+#include "../GenFilterTool.h"
 
 using namespace DerivationFramework;
 
@@ -25,10 +26,10 @@ DECLARE_TOOL_FACTORY( TruthMetaDataWriter )
 DECLARE_TOOL_FACTORY( TruthClassificationDecorator )
 DECLARE_ALGORITHM_FACTORY( CompactHardTruth )
 DECLARE_TOOL_FACTORY( HardTruthThinning )
-
 DECLARE_TOOL_FACTORY( HadronOriginDecorator )
-DECLARE_TOOL_FACTORY(  HadronOriginClassifier )
-
+DECLARE_TOOL_FACTORY( HadronOriginClassifier )
+DECLARE_TOOL_FACTORY( TruthQGDecorationTool )
+DECLARE_TOOL_FACTORY( GenFilterTool )
 
 DECLARE_FACTORY_ENTRIES( DerivationFrameworkMCTruth) {
    DECLARE_TOOL( TruthDressingTool )
@@ -42,8 +43,8 @@ DECLARE_FACTORY_ENTRIES( DerivationFrameworkMCTruth) {
    DECLARE_ALGORITHM( CompactHardTruth )
    DECLARE_TOOL( HardTruthThinning )
    DECLARE_TOOL( HadronOriginDecorator )
-   DECLARE_TOOL(  HadronOriginClassifier )
-
-
+   DECLARE_TOOL( HadronOriginClassifier )
+   DECLARE_TOOL( TruthQGDecorationTool )
+   DECLARE_TOOL( GenFilterTool )
 }
 

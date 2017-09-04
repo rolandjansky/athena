@@ -23,7 +23,7 @@ enum SystApplied {
   FJVT_EFFICIENCY_UP
 };
 
-class JetJvtEfficiency: public CP::IJetJvtEfficiency, public asg::AsgTool, public CP::SystematicsTool{
+class JetJvtEfficiency: public asg::AsgTool, public CP::SystematicsTool, virtual public CP::IJetJvtEfficiency {
     ASG_TOOL_CLASS( JetJvtEfficiency, CP::IJetJvtEfficiency)
 
 public:

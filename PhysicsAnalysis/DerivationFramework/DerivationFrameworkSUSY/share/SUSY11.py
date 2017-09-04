@@ -1,4 +1,4 @@
-#********************************************************************
+#*****************************************************************
 # SUSY11.py
 # reductionConf flag SUSY11 in Reco_tf.py (jet smearing)
 #********************************************************************
@@ -8,7 +8,8 @@ from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
-from DerivationFrameworkTau.TauTruthCommon import *
+if DerivationFrameworkIsMonteCarlo:
+    from DerivationFrameworkMCTruth.MCTruthCommon import *
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 
@@ -116,27 +117,51 @@ ToolSvc += SUSY11SkimmingTool
 # CREATE THE DERIVATION KERNEL ALGORITHM
 #=======================================
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel(
+
+# Add sumOfWeights metadata for LHE3 multiweights =======
+from DerivationFrameworkCore.LHE3WeightMetadata import *
+
+#==============================================================================
+# SUSY signal augmentation (before skimming!)
+#==============================================================================
+from DerivationFrameworkSUSY.DecorateSUSYProcess import IsSUSYSignal
+if IsSUSYSignal():
+   
+   from DerivationFrameworkSUSY.DecorateSUSYProcess import DecorateSUSYProcess
+   SeqSUSY11 += CfgMgr.DerivationFramework__DerivationKernel("SUSY11KernelSigAug",
+                                                            AugmentationTools = DecorateSUSYProcess("SUSY11")
+                                                            )
+   
+   from DerivationFrameworkSUSY.SUSYWeightMetadata import *
+
+
+#==============================================================================
+# SUSY skimming selection
+#==============================================================================
+SeqSUSY11 += CfgMgr.DerivationFramework__DerivationKernel(
   "SUSY11KernelSkim",
   SkimmingTools = [SUSY11SkimmingTool],
 )
 
-#==============================================================================
-# SUSY signal augmentation
-#==============================================================================
-from DerivationFrameworkSUSY.DecorateSUSYProcess import DecorateSUSYProcess
-AugmentationTools += DecorateSUSYProcess("SUSY11")
 
 #==============================================================================
-# SUSY background generator filters
+# Jet building
 #==============================================================================
-if globalflags.DataSource() == 'geant4':
-  replaceBuggyAntiKt4TruthWZJets(SeqSUSY11)
-  ToolSvc += CfgMgr.DerivationFramework__SUSYGenFilterTool(
-    "SUSY11GenFilt",
-    SimBarcodeOffset = DerivationFrameworkSimBarcodeOffset
-  )
-  AugmentationTools.append(ToolSvc.SUSY11GenFilt)
+if DerivationFrameworkIsMonteCarlo:
+
+  OutputJets["SUSY11"] = []
+  reducedJetList = [ "AntiKt4TruthJets", "AntiKt4TruthWZJets" ]
+
+  replaceAODReducedJets(reducedJetList, SeqSUSY11, "SUSY11")
+
+
+#==============================================================================
+# Tau truth building/matching
+#==============================================================================
+if DerivationFrameworkIsMonteCarlo:
+  from DerivationFrameworkSUSY.SUSYTruthCommon import addTruthTaus
+  addTruthTaus(AugmentationTools)
+
 
 #==============================================================================
 # Augment after skim
@@ -154,25 +179,44 @@ SeqSUSY11 += CfgMgr.DerivationFramework__DerivationKernel(
 # This might be the kind of set-up one would have for a muon based analysis
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 SUSY11SlimmingHelper = SlimmingHelper("SUSY11SlimmingHelper")
-
-SUSY11SlimmingHelper.SmartCollections = ["Electrons", "MET_Reference_AntiKt4EMTopo", "Muons", "AntiKt4EMTopoJets", "BTagging_AntiKt4EMTopo", "PrimaryVertices", "TauJets"]
+SUSY11SlimmingHelper.SmartCollections = ["Electrons", "Photons", "MET_Reference_AntiKt4EMTopo", "Muons", "AntiKt4EMTopoJets", "BTagging_AntiKt4EMTopo", "PrimaryVertices", "TauJets"]
 SUSY11SlimmingHelper.AllVariables = [ "TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth", "MET_Track"]
 SUSY11SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.MV1c_discriminant",
-					"Muons.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag",
-					"AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500",
-					"GSFTrackParticles.z0.d0.vz.definingParametersCovMatrix",
-					"CombinedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
-          "ExtrapolatedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
-					"MuonTruthParticles.barcode.decayVtxLink.e.m.pdgId.prodVtxLink.px.py.pz.recoMuonLink.status.truthOrigin.truthType",
-					"AntiKt4TruthJets.eta.m.phi.pt.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.TruthLabelID.ConeTruthLabelID.PartonTruthLabelID",
-          "TauJets.TruthCharge.TruthProng.IsTruthMatched.TruthPtVis.truthOrigin.truthType.truthParticleLink.truthJetLink"]
+                                       "Muons.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag",
+                                       "AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.N90Constituents.Timing.Width",
+                                       "GSFTrackParticles.z0.d0.vz.definingParametersCovMatrix",
+                                       "CombinedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
+                                       "ExtrapolatedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
+                                       "MuonTruthParticles.barcode.decayVtxLink.e.m.pdgId.prodVtxLink.px.py.pz.recoMuonLink.status.truthOrigin.truthType",
+                                       "AntiKt4TruthJets.eta.m.phi.pt.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.TruthLabelID.ConeTruthLabelID.PartonTruthLabelID",
+       "TauJets.IsTruthMatched.truthOrigin.truthType.truthParticleLink.truthJetLink"
+       # Run2 tau reco - updated for R21 EDM
+       + ".PanTau_isPanTauCandidate.ptPanTauCellBased.etaPanTauCellBased.phiPanTauCellBased.mPanTauCellBased"
+       + ".PanTau_BDTValue_1p0n_vs_1p1n.PanTau_BDTValue_1p1n_vs_1pXn.PanTau_BDTValue_3p0n_vs_3pXn"
+       # TauID variables - check R21 EDM
+       + ".centFrac.etOverPtLeadTrk.innerTrkAvgDist.ipSigLeadTrk.SumPtTrkFrac.ptRatioEflowApprox.mEflowApprox.ChPiEMEOverCaloEME.EMPOverTrkSysP.dRmax.trFlightPathSig.massTrkSys"
+       + ".centFracCorrected.etOverPtLeadTrkCorrected.innerTrkAvgDistCorrected.ipSigLeadTrkCorrected.SumPtTrkFracCorrected.ptRatioEflowApproxCorrected"
+       + ".mEflowApproxCorrected.ChPiEMEOverCaloEMECorrected.EMPOverTrkSysPCorrected.dRmaxCorrected.trFlightPathSigCorrected.massTrkSysCorrected",
+       # Neutral tau decay products - check R21 EDM
+        "TauNeutralParticleFlowObjects.pt.eta.phi.m.e.rapidity.bdtPi0Score"]
 SUSY11SlimmingHelper.IncludeMuonTriggerContent = False
 SUSY11SlimmingHelper.IncludeEGammaTriggerContent = False
 SUSY11SlimmingHelper.IncludeJetTriggerContent = True
-SUSY11SlimmingHelper.IncludeTauTriggerContent = False
+SUSY11SlimmingHelper.IncludeTauTriggerContent = True
 SUSY11SlimmingHelper.IncludeEtMissTriggerContent = False
 SUSY11SlimmingHelper.IncludeBJetTriggerContent = True
 
-SUSY11SlimmingHelper.AppendContentToStream(SUSY11Stream)
+# All standard truth particle collections are provided by DerivationFrameworkMCTruth (TruthDerivationTools.py)
+# Most of the new containers are centrally added to SlimmingHelper via DerivationFrameworkCore ContainersOnTheFly.py
+if DerivationFrameworkIsMonteCarlo:
+
+  SUSY11SlimmingHelper.AppendToDictionary = {'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
+                                             'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
+                                             'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer'}
+  
+  SUSY11SlimmingHelper.AllVariables += ["TruthElectrons", "TruthMuons", "TruthTaus", "TruthPhotons", "TruthNeutrinos", "TruthTop", "TruthBSM", "TruthBoson"]
+
 SUSY11Stream.RemoveItem("xAOD::TrigNavigation#*")
 SUSY11Stream.RemoveItem("xAOD::TrigNavigationAuxInfo#*")
+
+SUSY11SlimmingHelper.AppendContentToStream(SUSY11Stream)

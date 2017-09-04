@@ -26,4 +26,5 @@ HIGG2D2ExtraContainersTruth=[
     "TruthParticles",
     "TruthVertices",
     "AntiKt4TruthJets",
+    "AntiKt4TruthWZJets",
     "MuonTruthParticles"]

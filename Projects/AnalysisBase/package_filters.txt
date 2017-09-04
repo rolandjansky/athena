@@ -34,6 +34,7 @@
 + PhysicsAnalysis/AnalysisCommon/PMGTools
 + PhysicsAnalysis/AnalysisCommon/ParticleJetTools
 + PhysicsAnalysis/AnalysisCommon/PileupReweighting
++ PhysicsAnalysis/AnalysisCommon/PMGOverlapRemovalTools/HFORTools
 + PhysicsAnalysis/AnalysisCommon/ReweightUtils
 + PhysicsAnalysis/BPhys/BPhysTools
 + PhysicsAnalysis/D3PDTools/.*
@@ -42,7 +43,6 @@
 + PhysicsAnalysis/HiggsPhys/Run2/HZZ/Tools/ZMassConstraint
 + PhysicsAnalysis/Interfaces/.*
 + PhysicsAnalysis/JetMissingEtID/JetSelectorTools
-+ PhysicsAnalysis/JetPhys/SemileptonicCorr
 + PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/CalibrationDataInterface
 + PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/xAODBTaggingEfficiency
 + PhysicsAnalysis/MCTruthClassifier
@@ -62,6 +62,7 @@
 - Reconstruction/Jet/JetSimTools
 - Reconstruction/Jet/JetValidation
 + Reconstruction/Jet/Jet.*
++ Reconstruction/Jet/BoostedJetTaggers
 + Reconstruction/MET/METInterface
 + Reconstruction/MET/METUtilities
 + Reconstruction/MVAUtils
@@ -86,4 +87,6 @@
 + Trigger/TrigEvent/TrigRoiConversion
 + Trigger/TrigEvent/TrigSteeringEvent
 + Trigger/TrigValidation/TrigAnalysisTest
++ Reconstruction/RecoTools/IsolationTool
++ Reconstruction/RecoTools/RecoToolInterfaces
 - .*

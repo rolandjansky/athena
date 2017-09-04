@@ -185,7 +185,7 @@ class Analysis_Tier0 : public TrackAnalysis {
 
   bool     m_debug;
 
-  unsigned m_eventid;
+  unsigned long long m_eventid;
 
   VtxAnalysis* m_vtxanal;
 

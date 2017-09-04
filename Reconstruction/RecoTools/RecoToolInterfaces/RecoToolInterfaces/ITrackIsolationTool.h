@@ -5,8 +5,8 @@
 ///////////////////////////////////////////////////////////////////
 // ITrackIsolationTool.h, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
-#ifndef TRKISOLATIONTOOLS_ITRACKISOALTIONTOOL_H
-#define TRKISOLATIONTOOLS_ITRACKISOALTIONTOOL_H
+#ifndef TRKISOLATIONTOOLS_ITRACKISOLATIONTOOL_H
+#define TRKISOLATIONTOOLS_ITRACKISOLATIONTOOL_H
 
 #include "AsgTools/AsgTool.h"
 #include "xAODTracking/TrackParticle.h"
@@ -45,7 +45,7 @@ namespace xAOD {
                                  TrackCorrection corrections,
 				 const Vertex* vertex = 0, 
                                  const std::set<const xAOD::TrackParticle*>* exclusionSet = 0,
-                                 const TrackParticleContainer* indetTrackParticles = 0) = 0; 
+                                 const TrackParticleContainer* indetTrackParticles = 0) const = 0; 
 
     /**ITrackIsolationTool interface: 
        Calculates the track isolation and decorates the particle 
@@ -64,7 +64,7 @@ namespace xAOD {
                                    TrackCorrection corrections, 
                                    const Vertex* vertex = 0, 
                                    const std::set<const TrackParticle*>* exclusionSet = 0, 
-                                   const TrackParticleContainer* indetTrackParticles = 0 ) = 0; 
+                                   const TrackParticleContainer* indetTrackParticles = 0 ) const = 0; 
 
   };
 

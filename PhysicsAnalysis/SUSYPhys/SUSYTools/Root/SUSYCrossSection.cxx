@@ -2,13 +2,20 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+// Class header
 #include "SUSYTools/SUSYCrossSection.h"
+
+// Find the xsec files in datapath
 #include "PathResolver/PathResolver.h"
+
+// For directory commands
 #include <dirent.h>
-#include <math.h>
+
+// Error messages
 #include <iostream>
 
-using namespace std;
+// Text file i/o
+#include <fstream>
 
 SUSY::CrossSectionDB::CrossSectionDB(const std::string& txtfilenameOrDir, bool usePathResolver, bool isExtended) {
   
@@ -44,35 +51,29 @@ SUSY::CrossSectionDB::CrossSectionDB(const std::string& txtfilenameOrDir, bool u
 
 void SUSY::CrossSectionDB::loadFile(const std::string& txtfilename){
 
-  string line;
+  std::string line;
   
-  ifstream in(txtfilename.c_str());
+  std::ifstream in(txtfilename.c_str());
   if (!in) return;
-  while ( getline(in, line) )
-    {
-      // skip leading blanks (in case there are some in front of a comment)
-      if ( !line.empty() )
-        {
-          while ( line[0] == ' ' ) line.erase(0, 1);
-        }
-      // skip lines that do not start with a number, they are comments
-      if ( !line.empty() && isdigit(line[0]) )
-        {
-          stringstream is(line);
-          int id;
-          string name;
-          float xsect, kfactor, efficiency, relunc;
-          float sumweight = -1, stat = -1;
-          is >> id >> name >> xsect >> kfactor >> efficiency >> relunc;
-          if (m_extended == true)
-            {
-              // cout << "m_extended was true!" << endl; 
-              is >> sumweight >> stat;
-            }
-          //cout << " Process: " << name << "  " << id << " " << xsect << endl;
-          m_xsectDB[Key(id, name)] = Process(id, name, xsect, kfactor, efficiency, relunc, sumweight, stat);
-        }
+  while ( getline(in, line) ){
+    // skip leading blanks (in case there are some in front of a comment)
+    if ( !line.empty() ){
+      while ( line[0] == ' ' ) line.erase(0, 1);
     }
+    // skip lines that do not start with a number, they are comments
+    if ( !line.empty() && isdigit(line[0]) ){
+      std::stringstream is(line);
+      int id;
+      std::string name;
+      float xsect, kfactor, efficiency, relunc;
+      float sumweight = -1, stat = -1;
+      is >> id >> name >> xsect >> kfactor >> efficiency >> relunc;
+      if (m_extended == true){
+          is >> sumweight >> stat;
+      }
+      m_xsectDB[Key(id, name)] = Process(id, name, xsect, kfactor, efficiency, relunc, sumweight, stat);
+    }
+  }
 }
 
 // Convenient accessor for finding based on *only* a process ID
@@ -86,9 +87,9 @@ SUSY::CrossSectionDB::xsDB_t::iterator SUSY::CrossSectionDB::my_find( const int 
 // Extend the record based on information from a second file
 void SUSY::CrossSectionDB::extend(const std::string& txtfilename){
   // Just like the above function, but with more functionality
-  string line;
+  std::string line;
 
-  ifstream in(txtfilename.c_str());
+  std::ifstream in(txtfilename.c_str());
   if (!in) return;
   while ( getline(in, line) )
     {
@@ -98,21 +99,18 @@ void SUSY::CrossSectionDB::extend(const std::string& txtfilename){
       }
       // skip lines that do not start with a number, they are comments
       if ( !line.empty() && isdigit(line[0]) ){
-          stringstream is(line);
+          std::stringstream is(line);
           int id;
-          string name;
+          std::string name;
           float xsect, kfactor, efficiency, relunc;
           float sumweight = -1, stat = -1;
           is >> id;
           auto my_it = my_find( id );
           if (my_it==m_xsectDB.end()){
             is >> name >> xsect >> kfactor >> efficiency >> relunc;
-            if (m_extended == true)
-              {
-                // cout << "m_extended was true!" << endl; 
-                is >> sumweight >> stat;
-              }
-            //cout << " Process: " << name << "  " << id << " " << xsect << endl;
+            if (m_extended == true){
+              is >> sumweight >> stat;
+            }
             m_xsectDB[Key(id, name)] = Process(id, name, xsect, kfactor, efficiency, relunc, sumweight, stat);
           } else {
             // Now we have extended records
@@ -135,7 +133,6 @@ SUSY::CrossSectionDB::Process SUSY::CrossSectionDB::process(int id, int proc) co
   } else {
     pos = m_xsectDB.find(k);
     if (pos != m_xsectDB.end()) {
-      //      m_cache[k] = pos->second; //this doesn't compile, please fix it!
       return pos->second;
     }
   }

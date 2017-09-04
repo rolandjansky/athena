@@ -26,6 +26,7 @@
 #include "PATInterfaces/SystematicVariation.h"
 #include "PATInterfaces/SystematicRegistry.h"
 #include "PATInterfaces/SystematicCode.h"
+#include "PATInterfaces/CorrectionCode.h"
 
 std::string getFW(std::string in, unsigned int width=30){
   for(unsigned int i=in.size() ; i < width; i++)

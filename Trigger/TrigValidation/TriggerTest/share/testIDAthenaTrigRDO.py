@@ -61,7 +61,7 @@ TriggerFlags.doHLT=True
 #TriggerFlags.doMuon=False
 
 #------------ This is for ATN/RTT tests only ---------
-TriggerFlags.triggerMenuSetup = 'Physics_pp_v6'
+TriggerFlags.triggerMenuSetup = 'Physics_pp_v7'
 #-------------end of flag for tests-------------------
 
 #------------ This is a temporary fix ---------------
@@ -80,21 +80,11 @@ def ElectronOnly():
   TriggerFlags.Lvl1.items = TriggerFlags.Lvl1.items() + [  ]
   
   TriggerFlags.EgammaSlice.signatures = [
-    ['e24_medium_idperf', 'L1_EM18VH', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'],1],
+    ['e28_lhtight_idperf',        'L1_EM24VHI',    [], ['express'], ['RATE:IDMonitoring', 'BW:Egamma', 'BW:ID'],-1],
     ]
     
-try:
-  from TriggerMenu import useNewTriggerMenu
-  useNewTM = useNewTriggerMenu()
-  log.info("Using new TriggerMenu: %r" % useNewTM)
-except:
-  useNewTM = False
-  log.info("Using old TriggerMenuPython since TriggerMenu.useNewTriggerMenu can't be imported")
   
-if useNewTM:
-  from TriggerMenu.menu.GenerateMenu import GenerateMenu
-else:
-  from TriggerMenuPython.GenerateMenu import GenerateMenu
+from TriggerMenu.menu.GenerateMenu import GenerateMenu
 
 GenerateMenu.overwriteSignaturesWith(ElectronOnly)
 
@@ -106,6 +96,5 @@ include("RecExCommon/RecExCommon_topOptions.py")
 #-----------------------------------------------------------
 include("TriggerTest/TriggerTestCommon.py")
 #-----------------------------------------------------------
-
 
 

@@ -1,5 +1,3 @@
-///////////////////////// -*- C++ -*- /////////////////////////////
-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -20,26 +18,29 @@
 #ifndef ST_APPLYSUSYTOOLS_H
 #define ST_APPLYSUSYTOOLS_H 1
 
-// FrameWork includes
+// Base class
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ToolHandle.h"
+
+// Handles on the tools
+#include "AsgTools/AnaToolHandle.h"
+
+// Handle on the thinning service
 #include "GaudiKernel/ServiceHandle.h"
-#include "AthenaKernel/IThinningSvc.h"
-#include "AthAnalysisBaseComps/AthAnalysisHelper.h"
-#include "TEnv.h"
 
 // SUSYTools interface
-// Also needed for SystInfo
+// Include needed for SystInfo
 #include "SUSYTools/ISUSYObjDef_xAODTool.h"
 
 // STL includes
 #include <vector>
 #include <string>
 
+// For the thinning service
+class IThinningSvc;
+
 // Need truth matching for TauJet CP tools
 namespace TauAnalysisTools {
   class ITauTruthMatchingTool;
-  class IBuildTruthTaus;
 }
 
 namespace ST {
@@ -159,11 +160,10 @@ private:
 
   std::string m_configFile;
 
-
-  // SUSYTools object -- need TooHandle for Athena!
-  ToolHandle< ISUSYObjDef_xAODTool > m_objTool;
-  ToolHandle< TauAnalysisTools::ITauTruthMatchingTool > m_tauTruthTool;
-  ToolHandle< TauAnalysisTools::IBuildTruthTaus > m_tauTruthBuilderTool;
+  // SUSYTools object
+  asg::AnaToolHandle< ISUSYObjDef_xAODTool > m_objTool;
+  // Tau tools that we need direct handles on
+  asg::AnaToolHandle< TauAnalysisTools::ITauTruthMatchingTool > m_tauTruthTool;
 
   // SUSYTools systematics
   std::vector< SystInfo > m_systInfoList; //!

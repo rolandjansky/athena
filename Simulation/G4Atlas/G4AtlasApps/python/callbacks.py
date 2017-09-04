@@ -43,8 +43,6 @@ def add_LLP_truth_strategies():
     mcTruthMenu.add_McTruthStrategy(astrategy)
 
 def add_EnergyConservationTest():
-    from G4AtlasApps import PyG4Atlas,AtlasG4Eng
+    from G4AtlasApps.SimFlags import simFlags
     # Enable the energy conservation test action
-    MyAction = PyG4Atlas.UserAction('G4UserActions','EnergyConservationTest', ['BeginOfEvent','EndOfEvent','Step'])
-    AtlasG4Eng.G4Eng.menu_UserActions.add_UserAction(MyAction)
-
+    simFlags.OptionalUserActionList.addAction('G4UA::EnergyConservationTestTool', ['BeginOfEvent','PreTracking','Step','PostTracking','EndOfEvent'])

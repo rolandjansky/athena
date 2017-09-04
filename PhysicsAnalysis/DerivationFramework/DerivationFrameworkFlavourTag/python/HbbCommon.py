@@ -131,6 +131,19 @@ def addVRJets(sequence, VRJetName, VRGhostLabel, VRJetAlg="AntiKt", VRJetRadius=
 
     VRJetAlgName = "jfind_%sJets" % (VRJetName)
     VRJetRecToolName = "%sJets" % (VRJetName)
+    VRJetBTagName = "BTagging_%s" % (VRJetName)
+
+    #make the btagging tool for VR jets
+    btag_vrjets = ConfInst.setupJetBTaggerTool(ToolSvc, JetCollection=VRJetRecToolName, AddToToolSvc=True, Verbose=True,
+                 options={"name"         : VRJetBTagName.lower(), 
+                          "BTagName"     : VRJetBTagName, 
+                          "BTagJFVtxName": "JFVtx",                  
+                          "BTagSVName"   : "SecVtx",                 
+                          },
+                 SetupScheme = "",
+                 TaggerList = ['IP2D', 'IP3D', 'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN', 'SoftMu', 
+                               'MV2c10', 'MV2c10mu', 'MV2c10rnn', 'JetVertexCharge', 'MV2cl100' , 'MVb', 'DL1', 'DL1rnn', 'DL1mu', 'RNNIP', 'MV2c10Flip']
+                 )
 
     if VRJetAlgName in DFJetAlgs:
         print "Algorithm", VRJetAlgName, "already built before"
@@ -147,9 +160,7 @@ def addVRJets(sequence, VRJetName, VRGhostLabel, VRJetAlg="AntiKt", VRJetRadius=
             print "   JetRecTool", VRJetRecToolName, "is alredy in jtm.tools in sequence ", sequence
         else:
             print "   Create JetRecTool", VRJetRecToolName
-            jtm.addJetFinder(VRJetRecToolName, VRJetAlg, VRJetRadius, VRJetInputs, **VRJetOptions) 
-                             # ghostArea = 0 , ptmin = 2000, ptminFilter = 7000,
-                             # variableRMinRadius = 0.02, variableRMassScale = 30000, calibOpt = "none")
+            jtm.addJetFinder(VRJetRecToolName, VRJetAlg, VRJetRadius, VRJetInputs, modifiersin=[btag_vrjets], **VRJetOptions) 
 
         from JetRec.JetRecConf import JetAlgorithm
         jetalg_smallvr30_track = JetAlgorithm(VRJetAlgName, Tools = [ jtm[VRJetRecToolName] ])

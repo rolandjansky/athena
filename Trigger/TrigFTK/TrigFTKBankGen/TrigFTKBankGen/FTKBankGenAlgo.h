@@ -117,6 +117,7 @@ private:
   unsigned int m_PixelClusteringMode; // 1 means ToT information is used
                                       //   && 400/600um pixels are accounted for
                                       // 0 is default used up to 2013
+  bool m_Ibl3DRealistic;
   bool m_DuplicateGanged;
   bool m_GangedPatternRecognition;
 

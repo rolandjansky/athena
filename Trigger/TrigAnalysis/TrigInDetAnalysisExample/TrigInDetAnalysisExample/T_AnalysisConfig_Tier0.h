@@ -373,12 +373,12 @@ protected:
 #else
     const xAOD::EventInfo* pEventInfo;
 #endif
-    unsigned run_number        = 0;
-    unsigned event_number      = 0;
-    unsigned lumi_block        = 0;
-    unsigned bunch_crossing_id = 0;
-    unsigned time_stamp = 0;
-    double mu_val = 0;
+    unsigned           run_number        = 0;
+    unsigned long long event_number      = 0;
+    unsigned           lumi_block        = 0;
+    unsigned           bunch_crossing_id = 0;
+    unsigned           time_stamp        = 0;
+    double             mu_val            = 0;
 
     if ( m_provider->evtStore()->retrieve(pEventInfo).isFailure() ) {
       m_provider->msg(MSG::WARNING) << "Failed to get EventInfo " << endmsg;

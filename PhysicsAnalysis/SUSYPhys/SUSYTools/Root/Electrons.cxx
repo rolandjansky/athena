@@ -26,6 +26,9 @@
 
 #include "PATCore/TResult.h"
 
+// For getting the beam spot information
+#include "xAODEventInfo/EventInfo.h"
+
 #ifndef XAOD_STANDALONE // For now metadata is Athena-only
 #include "AthAnalysisBaseComps/AthAnalysisHelper.h"
 #endif
@@ -118,7 +121,6 @@ StatusCode SUSYObjDef_xAOD::FillElectron(xAOD::Electron& input, float etcut, flo
   dec_selected(input) = 0;
   dec_signal(input) = false;
   dec_isol(input) = false;
-  //dec_passBaseID(input) = false;
   dec_passSignalID(input) = false;
   dec_passChID(input) = false;
   dec_ecisBDT(input) = -999.;
@@ -184,10 +186,9 @@ StatusCode SUSYObjDef_xAOD::FillElectron(xAOD::Electron& input, float etcut, flo
     }
   }
 
-#if ROOTCORE_RELEASE_SERIES==24
-  if ( m_egammaCalibTool->applyCorrection(input) != CP::CorrectionCode::Ok)
-    ATH_MSG_ERROR( "FillElectron: EgammaCalibTool applyCorrection failed ");
-#endif
+//  No correction for the time being -- this might come back?
+//  if ( m_egammaCalibTool->applyCorrection(input) != CP::CorrectionCode::Ok)
+//    ATH_MSG_ERROR( "FillElectron: EgammaCalibTool applyCorrection failed ");
 
   if (m_isoCorrTool->applyCorrection(input)  != CP::CorrectionCode::Ok)
     ATH_MSG_ERROR("FillElectron: IsolationCorrectionTool applyCorrection failed");
@@ -210,8 +211,10 @@ StatusCode SUSYObjDef_xAOD::FillElectron(xAOD::Electron& input, float etcut, flo
     dec_ecisBDT(input) = bdt;
 
     //get ElectronChargeEfficiencyCorrectionTool decorations in this case
-    if(m_elecChargeEffCorrTool->applyEfficiencyScaleFactor(input) != CP::CorrectionCode::Ok)
-      ATH_MSG_ERROR( "FillElectron: ElectronChargeEfficiencyCorrectionTool SF decoration failed ");
+    if( !isData() ) {
+      if(m_elecChargeEffCorrTool->applyEfficiencyScaleFactor(input) != CP::CorrectionCode::Ok)
+        ATH_MSG_ERROR( "FillElectron: ElectronChargeEfficiencyCorrectionTool SF decoration failed ");
+    }
   }
   else{ 
     dec_passChID(input) = true;
@@ -443,7 +446,7 @@ double SUSYObjDef_xAOD::GetEleTriggerEfficiencySF(const xAOD::Electron& el, cons
       break;
   }
 
-  return trig_sf; //CorrectionCode::Ok
+  return trig_sf;
 }
 
 
@@ -472,7 +475,7 @@ double SUSYObjDef_xAOD::GetEleTriggerEfficiency(const xAOD::Electron& el, const 
     break;
   }
 
-  return trig_eff; //CorrectionCode::Ok
+  return trig_eff;
 }
 
 

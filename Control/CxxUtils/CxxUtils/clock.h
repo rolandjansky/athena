@@ -4,7 +4,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id$
 /**
  * @file CxxUtils/clock.h
  * @author David Quarrie <David.Quarrie@cern.ch>
@@ -17,11 +16,21 @@
 #define CXXUTILS_CLOCK_H
 
 #ifdef __APPLE__
+
 #include <time.h>
-#define CLOCK_REALTIME           0
-#define CLOCK_MONOTONIC          1
-#define CLOCK_PROCESS_CPUTIME_ID 2
-#define CLOCK_THREAD_CPUTIME_ID	 3
+
+#ifndef CLOCK_REALTIME
+#   define CLOCK_REALTIME           0
+#endif // not CLOCK_REALTIME
+#ifndef CLOCK_MONOTONIC
+#   define CLOCK_MONOTONIC          1
+#endif // not CLOCK_MONOTONIC
+#ifndef CLOCK_PROCESS_CPUTIME_ID
+#   define CLOCK_PROCESS_CPUTIME_ID 2
+#endif // not CLOCK_PROCESS_CPUTIME_ID
+#ifndef CLOCK_THREAD_CPUTIME_ID
+#   define CLOCK_THREAD_CPUTIME_ID  3
+#endif // not CLOCK_THREAD_CPUTIME_ID
 
 long clock_gettime (unsigned int which_clock, struct timespec *tp);
 #endif

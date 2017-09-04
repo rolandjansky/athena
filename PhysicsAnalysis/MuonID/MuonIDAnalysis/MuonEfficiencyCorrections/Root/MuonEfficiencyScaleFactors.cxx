@@ -18,8 +18,7 @@
 #include "PathResolver/PathResolver.h"
 
 namespace CP {
-
-//    static std::string CURRENT_MEC_VERSION = "MuonEfficiencyCorrections-03-03-17";
+    static SG::AuxElement::ConstAccessor<unsigned int> acc_rnd("RandomRunNumber");
 
     MuonEfficiencyScaleFactors::MuonEfficiencyScaleFactors(const std::string& name) :
                 asg::AsgTool(name),
@@ -229,15 +228,14 @@ namespace CP {
             ATH_MSG_DEBUG("The current event is a data event. Return runNumber instead.");
             return info->runNumber();
         }
-        static SG::AuxElement::ConstAccessor<unsigned int> dec_rnd("RandomRunNumber");
-        if (!dec_rnd.isAvailable(*info)) {
+        if (!acc_rnd.isAvailable(*info)) {
             ATH_MSG_WARNING("Failed to find the RandomRunNumber decoration. Please call the apply() method from the PileupReweightingTool before hand in order to get period dependent SFs. You'll receive SFs from the most recent period.");
             return 999999;
-        } else if (dec_rnd(*info) == 0) {
+        } else if (acc_rnd(*info) == 0) {
             ATH_MSG_DEBUG("Pile up tool has given runNumber 0. Return SF from latest period.");
             return 999999;
         }
-        return dec_rnd(*info);
+        return acc_rnd(*info);
     }
     CorrectionCode MuonEfficiencyScaleFactors::getEfficiencyScaleFactor(const xAOD::Muon& mu, float& sf, const xAOD::EventInfo* info) const {
         if (!m_init) {

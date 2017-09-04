@@ -190,12 +190,19 @@ if jetFlags.useTruth:
                                        ParticleCaloExtensionTool="")
     jtm += truthClassifier
 
+    # Extra config: make sure if we are using EVNT that we don't try to check sim metadata 
+    from RecExConfig.ObjKeyStore import objKeyStore
+    barCodeFromMetadata=2
+    # Input file is EVNT
+    if objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ):
+        barCodeFromMetadata=0
+
     jtm += CopyTruthJetParticles("truthpartcopy", OutputName="JetInputTruthParticles",
-                                 MCTruthClassifier=truthClassifier)
+                                 MCTruthClassifier=truthClassifier,BarCodeFromMetadata=barCodeFromMetadata)
     jtm += CopyTruthJetParticles("truthpartcopywz", OutputName="JetInputTruthParticlesNoWZ",
                                  MCTruthClassifier=truthClassifier,
                                  IncludePromptLeptons=False,IncludePromptPhotons=False,
-                                 IncludeMuons=True,IncludeNeutrinos=True)
+                                 IncludeMuons=True,IncludeNeutrinos=True,BarCodeFromMetadata=barCodeFromMetadata)
 
 
 #--------------------------------------------------------------

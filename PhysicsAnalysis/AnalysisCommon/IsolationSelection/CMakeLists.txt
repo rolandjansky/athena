@@ -47,7 +47,7 @@ atlas_add_library( IsolationSelectionLib
   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
   LINK_LIBRARIES AthContainers AsgTools xAODBase xAODEgamma xAODMuon ${extra_libs}
   xAODPrimitives PATCoreLib PATInterfaces InDetTrackSelectionToolLib
-  PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} PathResolver )
+  PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} PathResolver FourMomUtils )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( IsolationSelection

@@ -6,14 +6,6 @@
 // Description:
 // Author: Fabian Wilk
 // Created: Tue Oct 27 13:26:19 2015
-//
-// (c) by Fabian Wilk
-//
-// This file is licensed under a Creative Commons Attribution-ShareAlike 4.0
-// International License.
-//
-// You should have received a copy of the license along with this work.
-// If not, see <http://creativecommons.org/licenses/by-sa/4.0/>.
 
 #ifndef _PARTICLELEVELSELECTOR_H_
 #define _PARTICLELEVELSELECTOR_H_

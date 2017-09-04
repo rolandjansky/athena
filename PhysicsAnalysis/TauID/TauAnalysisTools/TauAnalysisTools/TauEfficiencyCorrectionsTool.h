@@ -94,6 +94,7 @@ private:
 
   StatusCode initializeWithTauSelectionTool();
 
+  StatusCode initializeTools_mc16_prerec();
   StatusCode initializeTools_2017_moriond();
   StatusCode initializeTools_2016_fall();
   StatusCode initializeTools_2016_ichep();

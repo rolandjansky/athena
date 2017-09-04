@@ -215,16 +215,20 @@ protected:
   std::vector <TProfile2D*> *m_sagittasID;
   std::vector <TProfile2D*> *m_sagittasME;
 
+  bool m_SagittaCorrPhaseSpace;
   bool m_doSagittaCorrection;
-  std::vector <double> m_GlobalZScales;
-  std::vector <unsigned int > m_SagittaIterations;
-  std::string m_SagittaRelease;
   bool m_doSagittaMCDistortion;
-  
   bool m_doNotUseAMGMATRIXDECOR;
+
+  TProfile2D *m_sagittaPhaseSpaceCB;
+  TProfile2D *m_sagittaPhaseSpaceID;
+  TProfile2D *m_sagittaPhaseSpaceME;
+
+  std::string m_SagittaRelease;
+  std::vector <unsigned int > m_SagittaIterations;
   std::vector  <  float >  m_cbParsA;
   std::vector < float >  m_cbCovMat;
-
+  std::vector <double> m_GlobalZScales;
 }; //::: class MuonCalibrationAndSmearingTool
 
 } //::: namespace CP

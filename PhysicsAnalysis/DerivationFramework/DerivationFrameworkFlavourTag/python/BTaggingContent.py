@@ -21,11 +21,11 @@ JetStandardAux = \
     ]
 
 BTaggingStandardAux = \
-    [ "MV2c10"
-    , "MV2c10mu"
-    , "MV2c10rnn"
-    , "MV2c100"
-    , "MV2cl100"
+    [ "MV2c10_discriminant"
+    , "MV2c10mu_discriminant"
+    , "MV2c10rnn_discriminant"
+    , "MV2c100_discriminant"
+    , "MV2cl100_discriminant"
     , "DL1_pu"
     , "DL1_pc"
     , "DL1_pb"
@@ -44,20 +44,18 @@ def BTaggingExpertContent(jetcol):
 
 
 def BTaggingStandardContent(jetcol):
-    btagjetcoltmp = "BTagging_" + rchop(jetcol, "Jets")
+    btaggingtmp = "BTagging_" + rchop(jetcol, "Jets")
 
     # deal with name mismatch between PV0TrackJets and BTagging_Track
-    btagjetcol = btagjetcoltmp.replace("PV0Track", "Track")
+    btagging = btaggingtmp.replace("PV0Track", "Track")
 
 
     jetcontent = \
-        [ jetcol
-        , ".".join( [ jetcol + "Aux" ] + JetStandardAux )
-        ]
+        [ jetcol ] \
+        + [ ".".join( [ jetcol + "Aux" ] + JetStandardAux ) ]
 
     btagcontent = \
-        [ btagjetcol
-        , ".".join( [ btagjetcol + "Aux" ] + BTaggingStandardAux )
-        ]
+        [ btagging ] \
+        + [ ".".join( [ btagging + "Aux" ] + BTaggingStandardAux ) ]
 
     return jetcontent + btagcontent

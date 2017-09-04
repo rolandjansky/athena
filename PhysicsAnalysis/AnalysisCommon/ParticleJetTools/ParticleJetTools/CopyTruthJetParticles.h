@@ -66,6 +66,9 @@ private:
 
   float m_photonCone;
 
+  std::vector<int> m_vetoPDG_IDs; //! List of PDG IDs that should be ignored (and whose children should be ignored)
+  bool comesFrom( const xAOD::TruthParticle* tp, const int pdgID, std::vector<int>& used_vertices ) const;
+
   mutable ToolHandle<IMCTruthClassifier> m_classif;
 };
 

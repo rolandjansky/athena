@@ -27,7 +27,7 @@ JetVertexTaggerTool::JetVertexTaggerTool(const std::string& name)
     declareProperty("SumPtTrkName", m_sumPtTrkName="SumPtTrkPt500");
     declareProperty("VertexContainer", m_verticesName="PrimaryVertices");
 
-    declareProperty("JVTFileName",m_jvtfileName = "JVTlikelihood_20140805.root");
+    declareProperty("JVTFileName",m_jvtfileName = "JetMomentTools/JVTlikelihood_20140805.root");
     declareProperty("JVTLikelihoodHistName",m_jvtlikelihoodHistName = "JVTRootCore_kNN100trim_pt20to50_Likelihood");
     declareProperty("TrackSelector", m_htsel);
     declareProperty("JVTName", m_jvtName ="Jvt");

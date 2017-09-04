@@ -161,7 +161,7 @@ else:
 from AthenaCommon.GlobalFlags import globalflags
 print "HIGG2D2.py globalflags.DataSource()", globalflags.DataSource()
 
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkIsMonteCarlo:
     ToolSvc += HIGG2D2TruthThinningTool
     thinningTools.append(HIGG2D2TruthThinningTool)
 print "HIGG2D2.py thinningTools", thinningTools
@@ -188,7 +188,7 @@ if jobproperties.Beam.energy()==4000000.0:
     electronMuonTriggerRequirement=["EF_e12Tvh_medium1_mu8", "EF_e24vhi_loose1_mu8"]
 triggerRequirement=singleElectronTriggerRequirement+diElectronTriggerRequirement+singleMuonTriggerRequirement+diMuonTriggerRequirement+electronMuonTriggerRequirement
 # 8 TeV MC does not have trigger information
-SkipTriggerRequirement=((globalflags.DataSource()=='geant4') and (jobproperties.Beam.energy()==4000000.0))
+SkipTriggerRequirement=(DerivationFrameworkIsMonteCarlo and (jobproperties.Beam.energy()==4000000.0))
 print "HIGG2D2.py SkipTriggerRequirement", SkipTriggerRequirement
 if SkipTriggerRequirement:
     triggerRequirement=[]
@@ -228,16 +228,34 @@ if Do4LVertexing:
     ToolSvc += SkimmingToolHIGG2D2
     augmentationTools.append(SkimmingToolHIGG2D2)
 
+#=======================================
+# CREATE PRIVATE SEQUENCE
+#=======================================
+higg2d2Seq = CfgMgr.AthSequencer("HIGG2D2Sequence")
+
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS  
 #====================================================================
 
 # The name of the kernel (LooseSkimKernel in this case) must be unique to this derivation
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("HIGG2D2Kernel",
-                                                                       SkimmingTools = [SkimmingToolHIGG2D2],
-                                                                       ThinningTools = thinningTools,
-                                                                       AugmentationTools = augmentationTools)
+higg2d2Seq += CfgMgr.DerivationFramework__DerivationKernel("HIGG2D2Kernel",
+                                                           SkimmingTools = [SkimmingToolHIGG2D2],
+                                                           ThinningTools = thinningTools,
+                                                           AugmentationTools = augmentationTools)
+
+#====================================================================
+# Standard jets
+#====================================================================
+
+if not "HIGG2D2Jets" in OutputJets:
+    OutputJets["HIGG2D2Jets"] = []
+    reducedJetList = []
+    if jetFlags.useTruth:
+        reducedJetList += ["AntiKt4TruthJets", "AntiKt4TruthWZJets"]
+    replaceAODReducedJets(reducedJetList, higg2d2Seq, "HIGG2D2Jets")
+
+DerivationFrameworkJob += higg2d2Seq
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
@@ -262,7 +280,7 @@ HIGG2D2SlimmingHelper.SmartCollections = ["Electrons",
 
 HIGG2D2SlimmingHelper.ExtraVariables = HIGG2D2ExtraContent
 HIGG2D2SlimmingHelper.AllVariables = HIGG2D2ExtraContainers
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkIsMonteCarlo:
     HIGG2D2SlimmingHelper.ExtraVariables += HIGG2D2ExtraContentTruth
     HIGG2D2SlimmingHelper.AllVariables += HIGG2D2ExtraContainersTruth
 

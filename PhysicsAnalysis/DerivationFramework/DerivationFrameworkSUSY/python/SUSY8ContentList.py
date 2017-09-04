@@ -3,7 +3,7 @@
 SUSY8SmartContent = [
 	    "AntiKt4EMTopoJets",
 	    "Muons",
-      "Photons",
+            "Photons",
 	    "MET_Reference_AntiKt4EMTopo",
 	    "PrimaryVertices"
 	]
@@ -16,7 +16,7 @@ SUSY8ExtraVariables = [
 	#"AntiKt4EMTopoJets.m",
 	#"AntiKt4EMTopoJets.constituentLinks",
 	# taus
-  "TauJets.pt",
+        "TauJets.pt",
 	"TauJets.eta",
 	"TauJets.phi",
 	"TauJets.m"
@@ -44,7 +44,7 @@ SUSY8AllVariablesContent = [
         "MSonlyTracklets",                    
         "MuonSegments",                       
         "MuonSpectrometerTrackParticles",     
-        "Muons",                              
+        "Muons", # also added to smart collection?
         "SlowMuons",                          
         "Staus",
         "TruthEvents",

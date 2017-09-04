@@ -18,7 +18,7 @@
 #include "JetCPInterfaces/ICPJetUncertaintiesTool.h"
 #include "JetInterface/IJetUpdateJvt.h"
 #include "JetInterface/IJetModifier.h"
-#include "JetMomentTools/JetForwardJvtTool.h"
+#include "JetJvtEfficiency/IJetJvtEfficiency.h"
 
 #include "xAODBTaggingEfficiency/IBTaggingEfficiencyTool.h"
 #include "xAODBTaggingEfficiency/IBTaggingSelectionTool.h"
@@ -86,42 +86,32 @@ namespace ST {
     ATH_CHECK( evtStore()->retrieve(muons, "Muons") );
     met::addGhostMuonsToJets(*muons, *copy);
 
-    //central jets 
-    if(!m_doFwdJVT){
-      for (const auto& jet : *copy) {
-        ATH_CHECK( this->FillJet(*jet, true) );
-        this->IsBadJet(*jet);
-        this->IsSignalJet(*jet, m_jetPt, m_jetEta);
-        if (!isData())this->IsTruthBJet(*jet);
-      }
+    // Update the jets
+    for (const auto& jet : *copy) {
+      ATH_CHECK( this->FillJet(*jet, true) );
     }
-    else{
-      //central+fwd (for jvt)
-      for (const auto& jet : *copy) {
-        ATH_CHECK( this->FillJet(*jet, true) );
-      }
+    // Tool requires a loop over all jets
+    if (m_doFwdJVT){
       m_jetFwdJvtTool->modify(*copy); //compute FwdJVT for all jets
-      for (const auto& jet : *copy) {
-        //      if( m_jetFwdJvtTool->forwardJet(*jet) ){ //redefine Jvt for fwd jets
-        if( fabs((*jet).eta()) > m_fwdjetEtaMin ){
-          dec_passJvt(*jet) = acc_passFJvt(*jet); 
-          //dec_baseline(*jet) &= dec_passJvt(*jet); //redefine baseline after that
-	  
-	  //new state for OR   .  0=non-baseline objects, 1=for baseline jets not passing JVT, 2=for any other baseline object 
-	  if ( acc_baseline(*jet) ){
-	    if( acc_passJvt(*jet) )     dec_selected(*jet) = 2;
-	    else                        dec_selected(*jet) = 1;
-	  }
-	  else{  
-	    dec_selected(*jet) = 0;    
-	  }
-        }
-        this->IsBadJet(*jet);
-        this->IsSignalJet(*jet, m_jetPt, m_jetEta);
-        if (!isData())this->IsTruthBJet(*jet);
-      }
     }
+    for (const auto& jet : *copy) {
+      // Update the JVT decorations if needed
+      if( m_doFwdJVT && fabs((*jet).eta()) > m_fwdjetEtaMin ){
+        dec_passJvt(*jet) = acc_passFJvt(*jet) && acc_passJvt(*jet);
 
+        //new state for OR   .  0=non-baseline objects, 1=for baseline jets not passing JVT, 2=for any other baseline object 
+        if ( acc_baseline(*jet) ){
+          if( acc_passJvt(*jet) )     dec_selected(*jet) = 2;
+          else                        dec_selected(*jet) = 1;
+        }
+        else{
+          dec_selected(*jet) = 0;
+        }
+      }
+      this->IsBadJet(*jet);
+      this->IsSignalJet(*jet, m_jetPt, m_jetEta);
+      if (!isData())this->IsTruthBJet(*jet);
+    }
     if (recordSG) {
       ATH_CHECK( evtStore()->record(copy, "STCalib" + jetkey_tmp + m_currentSyst.name()) );
       ATH_CHECK( evtStore()->record(copyaux, "STCalib" + jetkey_tmp + m_currentSyst.name() + "Aux.") );
@@ -169,18 +159,19 @@ namespace ST {
       const static SG::AuxElement::Decorator<int> dec_wtagged("wtagged");
       const static SG::AuxElement::Decorator<int> dec_ztagged("ztagged");
       if ( doLargeRdecorations ){
-#ifdef XAOD_STANDALONE 
-        dec_wtagged(*jet) = m_WTaggerTool->result(*jet);
-        dec_ztagged(*jet) = m_ZTaggerTool->result(*jet);
-#else
-        ATH_MSG_DEBUG("Boson tagging only available in RootCore at the moment!");
-        dec_wtagged(*jet) = -1;
-        dec_ztagged(*jet) = -1;
-#endif
+        dec_wtagged(*jet) = m_WTaggerTool->keep(*jet);
+        dec_ztagged(*jet) = m_ZTaggerTool->keep(*jet);
       }
       else{
         dec_wtagged(*jet) = -1;
         dec_ztagged(*jet) = -1;
+      }
+      //  For OR, selected if it passed cuts
+      if ( acc_baseline(*jet) ){
+        dec_selected(*jet) = 1;
+      }
+      else{
+        dec_selected(*jet) = 0;
       }
     }
     if (recordSG) {
@@ -212,8 +203,28 @@ namespace ST {
     ATH_CHECK( evtStore()->retrieve(muons, "Muons") );
     met::addGhostMuonsToJets(*muons, *copy);
 
+    // Update the jets
     for (const auto& jet : *copy) {
       ATH_CHECK( this->FillJet(*jet, false) );
+    }
+    // Tool requires a loop over all jets
+    if (m_doFwdJVT){
+      m_jetFwdJvtTool->modify(*copy); //compute FwdJVT for all jets
+    }
+    for (const auto& jet : *copy) {
+      // Update the JVT decorations if needed
+      if( m_doFwdJVT && fabs((*jet).eta()) > m_fwdjetEtaMin ){
+        dec_passJvt(*jet) = acc_passFJvt(*jet) && acc_passJvt(*jet);
+
+        //new state for OR   .  0=non-baseline objects, 1=for baseline jets not passing JVT, 2=for any other baseline object 
+        if ( acc_baseline(*jet) ){
+          if( acc_passJvt(*jet) )     dec_selected(*jet) = 2;
+          else                        dec_selected(*jet) = 1;
+        }
+        else{
+          dec_selected(*jet) = 0;
+        }
+      }
       this->IsBadJet(*jet);
       this->IsSignalJet(*jet, m_jetPt, m_jetEta);
       if (!isData())this->IsTruthBJet(*jet);
@@ -270,15 +281,14 @@ namespace ST {
       //central jvt
       float jvt = m_jetJvtUpdateTool->updateJvt(input);
       ATH_MSG_VERBOSE("JVT recalculation: "
-		      << acc_jvt(input) << " (before)"
-		      << jvt << " (after)");
+                      << acc_jvt(input) << " (before)"
+                      << jvt << " (after)");
 
       dec_jvt(input) = jvt;
     }
 
     dec_passOR(input) = true;
     dec_bjet_jetunc(input) = false;
-    dec_passJvt(input) = !m_applyJVTCut || m_jetJvtEfficiencyTool->passesJvtCut(input);
 
     if (m_useBtagging) {
       if (m_BtagWP != "Continuous") this->IsBJet(input);
@@ -287,17 +297,17 @@ namespace ST {
 
     if (input.pt() > 15e3) {
       if(!isFat){
-	CP::CorrectionCode result = m_jetUncertaintiesTool->applyCorrection(input);
-	switch (result) {
-	case CP::CorrectionCode::Error:
-	  ATH_MSG_ERROR( "Failed to apply JES correction" );
-	  break;
-	case CP::CorrectionCode::OutOfValidityRange:
-	  ATH_MSG_WARNING( "JES correction OutOfValidity range (|eta|<2.0)."); // Jet (pt,eta,phi) = (" << input.pt() << ", " << input.eta() << ", " << input.phi() << ")");
-	  break;
-	default:
-	  break;
-	}	  
+        CP::CorrectionCode result = m_jetUncertaintiesTool->applyCorrection(input);
+        switch (result) {
+        case CP::CorrectionCode::Error:
+          ATH_MSG_ERROR( "Failed to apply JES correction" );
+          break;
+        case CP::CorrectionCode::OutOfValidityRange:
+          ATH_MSG_WARNING( "JES correction OutOfValidity range (|eta|<2.0)."); // Jet (pt,eta,phi) = (" << input.pt() << ", " << input.eta() << ", " << input.phi() << ")");
+          break;
+        default:
+          break;
+        }          
       }
     }
   
@@ -305,6 +315,7 @@ namespace ST {
 
     if ( m_jerSmearingTool->applyCorrection(input) != CP::CorrectionCode::Ok) ATH_MSG_ERROR("Failed to apply JER smearing ");
 
+    dec_passJvt(input) = !m_applyJVTCut || m_jetJvtEfficiencyTool->passesJvtCut(input);
     dec_baseline(input) = input.pt() > 20e3;
     dec_bad(input) = false;
     dec_signal_less_JVT(input) = false;
@@ -312,20 +323,14 @@ namespace ST {
     dec_bjet_loose(input) = false;
     dec_effscalefact(input) = 1.;
 
-
     //new state for OR   .  0=non-baseline objects, 1=for baseline jets not passing JVT, 2=for any other baseline object 
     if (acc_baseline(input) ){
-      if( acc_passJvt(input) ) 	dec_selected(input) = 2;
-      else                  	dec_selected(input) = 1;
+      if( acc_passJvt(input) ) dec_selected(input) = 2;
+      else                     dec_selected(input) = 1;
     }
     else{
-      	dec_selected(input) = 0;
+      dec_selected(input) = 0;
     }
-
-    // if (!acc_passJvt(input)) {
-    //   dec_baseline(input) = false;
-    //   return StatusCode::SUCCESS;
-    // }
 
     if (m_useBtagging && !m_orBtagWP.empty()) {
       bool isbjet_loose = m_btagSelTool_OR->accept(input); //note : b-tag applies only to jet with eta < 2.5

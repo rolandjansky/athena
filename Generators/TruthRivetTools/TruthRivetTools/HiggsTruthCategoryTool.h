@@ -1,85 +1,47 @@
-// Dear emacs, this is -*- c++ -*-
-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+/*
+ * Dual-use tool interface for Rivet routine for classifying MC events according to the Higgs template cross section categories
+ * Authors: Jim Lacey (Carleton University)
+ * <james.lacey@cern.ch,jlacey@physics.carleton.ca>
+ */
+
 #ifndef TRUTHRIVETTOOLS_HIGGSTRUTHCATEGORYTOOL_H
 #define TRUTHRIVETTOOLS_HIGGSTRUTHCATEGORYTOOL_H 1
 
-// ASG include(s):
-#include "AsgTools/AsgTool.h"
-
-// Rivet include(s):
+#include "TLorentzVector.h"
 #include "Rivet/AnalysisHandler.hh"
-
-// Local include(s):
-#include "TruthRivetTools/IHiggsTruthCategoryTool.h"
 #include "TruthRivetTools/HiggsTemplateCrossSections.h"
 
-/**
- * Dual-use tool for a Rivet routine for classifying MC events according to
- * the Higgs template cross section categories
- *
- * @author Jim Lacey (Carleton University) <james.lacey@cern.ch,jlacey@physics.carleton.ca>
- */
-class HiggsTruthCategoryTool : public asg::AsgTool, 
-                               public virtual IHiggsTruthCategoryTool {
+// To avoid coflict of UNUSED macro of
+// Control/CxxUtils/CxxUtils/unused.h and Rivet/Tools/Utils.hh
+#ifdef UNUSED
+#undef UNUSED
+#endif // UNUSED
 
-public:
-   /// Create an "Athena constructor" for the tool
-   ASG_TOOL_CLASS( HiggsTruthCategoryTool, IHiggsTruthCategoryTool )
+#include "AsgTools/AsgTool.h"
+#include "TruthRivetTools/IHiggsTruthCategoryTool.h"
 
-   /// AsgTool constructor
+
+class HiggsTruthCategoryTool 
+: public asg::AsgTool, 
+  public virtual IHiggsTruthCategoryTool 
+{ 
+ public: 
+   ASG_TOOL_CLASS( HiggsTruthCategoryTool , IHiggsTruthCategoryTool )
    HiggsTruthCategoryTool( const std::string& name );
-
-   /// @name Functions inherited from AsgTool
-   /// @{
-
-   /// Function initialising the tool
-   StatusCode initialize() override;
-   /// Function finalising the tool
-   StatusCode finalize() override;
-
-   /// @}
-
-   /// @name Function(s) inherited from IHiggsTruthCategoryTool
-   /// @{
-
-   HTXS::HiggsClassification
-   getHiggsTruthCategoryObject( const HepMC::GenEvent& HepMCEvent ) override;
-
-   /// @}
-
-private:
-   /// @name Tool properties
-   /// @{
-
-   /// Flag for writing out data during finalisation
-   bool m_outHistos;
-   /// Higgs production mode to use
-   int m_prodMode;
-
-   /// @}
-
-   /// @name Status flag(s)
-   /// @{
-
-   /// Flag showing whether the internal analysis handler was initialised
+   ~HiggsTruthCategoryTool() { };
+ public:
+   Rivet::AnalysisHandler *rivetAnaHandler; //!
+   Rivet::HiggsTemplateCrossSections *higgsTemplateCrossSections; //!
+   virtual StatusCode  initialize() override;
+   StatusCode finalize () override;
+   HTXS::HiggsClassification getHiggsTruthCategoryObject(const HepMC::GenEvent& HepMCEvent, const HTXS::HiggsProdMode prodMode) override;
+ private:
    bool m_isInitialized;
+   bool m_outHistos;
+};
 
-   /// @}
-
-   /// @name Helper tool(s)
-   /// @{
-
-   /// The analysis handler object
-   Rivet::AnalysisHandler m_anaHandler;
-   /// The analysis to run
-   Rivet::HiggsTemplateCrossSections m_higgsTCS;
-
-   /// @}
-
-}; // class HiggsTruthCategoryTool
-
-#endif // !HIGGSTRUTHCLASSIFIER_HIGGSTRUTHCATEGORYTOOL_H
+#endif //> !HIGGSTRUTHCLASSIFIER_HIGGSTRUTHCATEGORYTOOL_H

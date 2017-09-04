@@ -190,7 +190,7 @@ namespace DerivationFramework {
     }
 
     // classify event according to simplified template cross section
-    HTXS::HiggsClassification htxs =  m_higgsTruthCatTool->getHiggsTruthCategoryObject(hepmc_evts[0]);
+    HTXS::HiggsClassification htxs =  m_higgsTruthCatTool->getHiggsTruthCategoryObject(hepmc_evts[0],prodMode);
     
     // Decorate the enums
     eventInfo->auxdecor<int>("HTXS_prodMode")   = (int)htxs.prodMode;
@@ -200,9 +200,8 @@ namespace DerivationFramework {
     eventInfo->auxdecor<int>("HTXS_Stage1_Category_pTjet25") = (int)htxs.stage1_cat_pTjet25GeV;
     eventInfo->auxdecor<int>("HTXS_Stage1_Category_pTjet30") = (int)htxs.stage1_cat_pTjet30GeV;
 
-    // JRC - NEXT TWO LINES TEMPORARILY COMMENTED IN GIT TRANSITION
-    //eventInfo->auxdecor<int>("HTXS_Stage1_FineIndex_pTjet30") = HTXSstage1_to_HTXSstage1FineIndex(htxs,th_type);
-    //eventInfo->auxdecor<int>("HTXS_Stage1_FineIndex_pTjet25") = HTXSstage1_to_HTXSstage1FineIndex(htxs,th_type,true);
+    eventInfo->auxdecor<int>("HTXS_Stage1_FineIndex_pTjet30") = HTXSstage1_to_HTXSstage1FineIndex(htxs,th_type);
+    eventInfo->auxdecor<int>("HTXS_Stage1_FineIndex_pTjet25") = HTXSstage1_to_HTXSstage1FineIndex(htxs,th_type,true);
 
     eventInfo->auxdecor<int>("HTXS_Njets_pTjet25")  = (int)htxs.jets25.size();
     eventInfo->auxdecor<int>("HTXS_Njets_pTjet30")  = (int)htxs.jets30.size();

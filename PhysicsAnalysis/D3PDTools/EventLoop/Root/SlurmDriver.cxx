@@ -97,9 +97,11 @@ namespace EL
       file << "#SBATCH --mem=" << m_memory << "\n";
       file << "#SBATCH --constraint=" << m_constraint << "\n";
       file << "\n";
+      file << options.castString(Job::optBatchSlurmExtraConfigLines) << "\n";
       file << "\n";
-      file << "\n";
-      file << "source run ${SLURM_ARRAY_TASK_ID}\n";
+      //note: no "\n" at the of this string since this goes as pre-command to the execution of the next line
+      file << options.castString(Job::optBatchSlurmWrapperExec); 
+      file << "./run ${SLURM_ARRAY_TASK_ID}\n";
     }
 
     {

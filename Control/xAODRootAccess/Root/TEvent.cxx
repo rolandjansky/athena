@@ -3102,14 +3102,25 @@ namespace xAOD {
       // Select which container to add the variables to:
       Object_t& objects = ( metadata ? m_outputMetaObjects : m_outputObjects );
 
+      // This iteration will determine the ordering of branches within
+      // the tree, so sort auxids by name.
+      const SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
+      typedef std::pair< std::string, SG::auxid_t > AuxVarSort_t;
+      std::vector< AuxVarSort_t > varsort;
+      varsort.reserve( auxids.size() );
+      for( SG::auxid_t id : auxids ) {
+         varsort.emplace_back( r.getName( id ), id );
+      }
+      std::sort( varsort.begin(), varsort.end() );
+
       // Extract all the dynamic variables from the object:
-      SG::auxid_set_t::const_iterator itr = auxids.begin();
-      SG::auxid_set_t::const_iterator end = auxids.end();
-      for( ; itr != end; ++itr ) {
+      for( const auto& p : varsort ) {
+
+         // The auxiliary ID:
+         const SG::auxid_t id = p.second;
 
          // Construct a name for the branch that we will write:
-         const std::string brName =
-            dynNamePrefix + SG::AuxTypeRegistry::instance().getName( *itr );
+         const std::string brName = dynNamePrefix + p.first;
 
          // Try to find the branch:
          Object_t::iterator bmgr = objects.find( brName );
@@ -3118,7 +3129,7 @@ namespace xAOD {
          if( bmgr == objects.end() ) {
 
             // Construct the full type name of the variable:
-            const std::type_info* brType = aux->getIOType( *itr );
+            const std::type_info* brType = aux->getIOType( id );
             const std::string brTypeName =
                Utils::getTypeName( *brType );
             std::string brProperTypeName = "<unknown>";
@@ -3147,10 +3158,10 @@ namespace xAOD {
                leaflist << brName << "/" << rootType;
 
                // Let's create a holder for this property:
-               THolder* hldr = new THolder( ( void* ) aux->getIOData( *itr ),
+               THolder* hldr = new THolder( ( void* ) aux->getIOData( id ),
                                             0, kFALSE );
                TPrimitiveAuxBranchManager* auxmgr =
-                  new TPrimitiveAuxBranchManager( *itr, 0, hldr );
+                  new TPrimitiveAuxBranchManager( id, 0, hldr );
                objects[ brName ] = auxmgr;
 
                // ... and let's add it to the output TTree:
@@ -3193,10 +3204,10 @@ namespace xAOD {
                brProperTypeName = cl->GetName();
 
                // Let's create a holder for this property:
-               THolder* hldr = new THolder( ( void* ) aux->getIOData( *itr ),
+               THolder* hldr = new THolder( ( void* ) aux->getIOData( id ),
                                             cl, kFALSE );
                TAuxBranchManager* auxmgr =
-                  new TAuxBranchManager( *itr, 0, hldr );
+                  new TAuxBranchManager( id, 0, hldr );
                objects[ brName ] = auxmgr;
 
                // ... and let's add it to the output TTree:
@@ -3253,7 +3264,7 @@ namespace xAOD {
          }
 
          // Replace the managed object:
-         bmgr->second->setObject( ( void* ) aux->getIOData( *itr ) );
+         bmgr->second->setObject( ( void* ) aux->getIOData( id ) );
       }
 
       // Return gracefully:

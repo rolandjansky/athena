@@ -91,7 +91,8 @@ ExtraContainersTruth=["TruthEvents",
 
 ExtraContainersElectrons=["Electrons",
                           "GSFTrackParticles",
-                          "egammaClusters"]
+                          "egammaClusters",
+                          "CaloCalTopoClusters"]
 
 # for trigger studies
 ExtraContainersTrigger=[

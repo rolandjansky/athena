@@ -404,6 +404,13 @@ namespace EL
     /// rationale: these options are for configuring batch drivers
   public:
     static const std::string optBatchSharedFileSystem;
+    /// The content of this string will be executed in the job script on the worker node
+    /// before the main executable is run.
+    static const std::string optBatchSlurmExtraConfigLines;
+    /// Append a command before the main executable is called
+    /// This is useful is you want to execute the command e.g. within shifter.
+    static const std::string optBatchSlurmWrapperExec;
+
 
 
     //

@@ -4,7 +4,7 @@
 """
 beamspotman is a command line utility to do typical beam spot related tasks.
 """
-__author__  = 'Juerg Beringer'
+__authors__  = ['Juerg Beringer', 'Carl Suster']
 __version__ = 'beamspotman.py atlas/athena'
 __usage__   = '''%prog [options] command [args ...]
 
@@ -23,10 +23,10 @@ upload DBFILE                           Upload SQLite file into COOL (independen
 upload DSNAME TASKNAME                  Upload result of beam spot determination into COOL
 dq2get DSNAME TASKNAME                  Retrieve task data from grid job (must have set up grid env.)
 queryT0 DSNAME TASKNAME                 Query Tier-0 database about a task
-backup DIR                              Backup directory DIR (may contain wildcards) to castor
-archive DSNAME TASKNAME                 Archive task data (deletes files after copying to castor,
+backup DIR                              Backup directory DIR (may contain wildcards) to EOS
+archive DSNAME TASKNAME                 Archive task data (deletes files after copying to EOS,
                                         sets on-disk status to ARCHIVED)
-lsbackup                                List contents of backup directory on castor
+lsbackup                                List contents of backup directory on EOS
 reproc TEMPLATE DSNAME TASKNAME INPUTDIR Run reprocessing task consisting of several jobs split into 5 LBs
                                         over the files in INPUTDIR
 runaod TEMPLATE DSNAME TASKNAME INPUTDIR Run over AOD, splitting jobs into sets of N LBs (similar
@@ -54,22 +54,21 @@ prodcoolpasswdfile = '/private/coolinfo.dat'
 proddqcoolpasswdfile = '/private/cooldqinfo.dat'
 tier0dbinfofile = '/private/t0dbinfo.dat'
 beamspottag = ''
-#castorbackuppath = '/castor/cern.ch/atlas/atlascerngroupdisk/phys-beamspot/jobs/backup'
-#castorarchivepath = '/castor/cern.ch/atlas/atlascerngroupdisk/phys-beamspot/jobs/archive'
-castorbackuppath = '/eos/atlas/atlascerngroupdisk/phys-beamspot/jobs/backup'
-castorarchivepath = '/eos/atlas/atlascerngroupdisk/phys-beamspot/jobs/archive'
+backuppath = '/eos/atlas/atlascerngroupdisk/phys-beamspot/jobs/backup'
+archivepath = '/eos/atlas/atlascerngroupdisk/phys-beamspot/jobs/archive'
 
 import sys, os, stat,commands
 import re
 import time
+from copy import copy
+
 from InDetBeamSpotExample.TaskManager import *
 from InDetBeamSpotExample.PostProcessing import doPostProcessing
 from InDetBeamSpotExample import BeamSpotPostProcessing
 from InDetBeamSpotExample import COOLUtils
 from InDetBeamSpotExample import DiskUtils
 
-from copy import copy
-from optparse import Option,OptionParser
+from optparse import Option, OptionParser, OptionGroup
 def check_commsep(option, opt, value):
     return re.split('\s*,\s*|\s+', value)
 class BeamSpotOption(Option):
@@ -78,12 +77,29 @@ class BeamSpotOption(Option):
     TYPE_CHECKER['commsep'] = check_commsep
 
 parser = OptionParser(usage=__usage__, version=__version__, option_class=BeamSpotOption)
+
+g_input = OptionGroup(parser, 'Input file options')
+g_input.add_option('', '--eos', dest='eos', default=False, action='store_true', help='access files over EOS (not needed if /eos is mounted)')
+g_input.add_option('-e', '--eospath', dest='eospath', default='/eos/atlas/atlastier0/rucio', help='eos path (excluding project and stream name)')
+g_input.add_option('-p', '--project', dest='project', default='data17_13TeV', help='project name')
+g_input.add_option('-s', '--stream', dest='stream', default='calibration_BeamSpot', help='stream name')
+g_input.add_option('-f', '--filter', dest='filter', default='.*\.AOD\..*', help='regular expression to filter input files')
+g_input.add_option('', '--lbfilemap', dest='lbfilemap', default='', help='text file with mapping between filename and lumi blocks')
+g_input.add_option('', '--rucio', dest='rucio', action='store_true', default=False, help='rucio directory structure')
+g_input.add_option('', '--dpdinput', dest='dpdinput', action='store_true', default=False, help='Run over DPD for runaod')
+g_input.add_option('-l', '--filelist', dest='filelist', default=None, help='Explicit list of files for reproc command')
+g_input.add_option('', '--removedups', dest='removedups', action='store_true', default=False, help='Remove duplicate retry files of form root.N, keeping the latest')
+parser.add_option_group(g_input)
+
+g_mode = OptionGroup(parser, 'Mode flags')
+g_mode.add_option('-b', '--batch', dest='batch', action='store_true', default=False, help='batch mode - never ask for confirmation')
+g_mode.add_option('', '--test', dest='testonly', action='store_true', default=False, help='for runaod, show only options and input files')
+g_mode.add_option('', '--expertmode', dest='expertmode', action='store_true', default=False, help='expert mode (BE VERY CAREFUL)')
+g_mode.add_option('', '--ignoremode', dest='ignoremode', default='', help='ignore update protection mode (needs expert pwd)')
+parser.add_option_group(g_mode)
+
+# Other options:
 parser.add_option('-t', '--beamspottag', dest='beamspottag', default=beamspottag, help='beam spot tag')
-parser.add_option('-c', '--castorpath', dest='castorpath', default='/castor/cern.ch/grid/atlas/tzero/prod1/perm', help='castor path (excluding project and stream name)')
-parser.add_option('-e', '--eospath', dest='eospath', default='/eos/atlas/atlastier0/rucio', help='eos path (excluding project and stream name)')
-parser.add_option('-p', '--project', dest='project', default='data16_13TeV', help='project name')
-parser.add_option('-s', '--stream', dest='stream', default='calibration_BeamSpot', help='stream name')
-parser.add_option('-f', '--filter', dest='filter', default='.*\.AOD\..*', help='regular expression to filter input files')
 parser.add_option('-d', '--dbconn', dest='dbconn', default='', help='task manager database connection string (default: check TASKDB, otherwise use sqlite_file:taskdata.db)')
 parser.add_option('', '--proddir', dest='proddir', default=proddir, help='production directory (default: %s' % proddir)
 parser.add_option('', '--destdbname', dest='destdbname', default='CONDBR2', help='destination database instance name (default: CONDBR2)')
@@ -96,15 +112,11 @@ parser.add_option('', '--bcidjoboptions', dest='bcidjoboptions', default='InDetB
 parser.add_option('', '--montaskname', dest='montaskname', default='MON', help='task name')
 parser.add_option('', '--bcidtaskname', dest='bcidtaskname', default='BCID', help='BCID task name')
 parser.add_option('-g', '--griduser', dest='griduser', default='user10.JuergBeringer', help='grid user name prefix (e.g. user10.JuergBeringer)')
-parser.add_option('-b', '--batch', dest='batch', action='store_true', default=False, help='batch mode - never ask for confirmation')
 parser.add_option('-n', '--nowildcards', dest='nowildcards', action='store_true', default=False, help='do not add wildcards when looking up dataset and task names')
 parser.add_option('-x', '--excludeiftask', dest='excludeiftask', default='', help='Exclude running cmd with runCmd if such task exists already')
 parser.add_option('', '--excludeds', dest='excludeds', default='', help='Exclude running cmd with runCmd for dataset containing a certain string')
-parser.add_option('', '--expertmode', dest='expertmode', action='store_true', default=False, help='expert mode (BE VERY CAREFUL)')
-parser.add_option('', '--ignoremode', dest='ignoremode', default='', help='ignore update protection mode (needs expert pwd)')
 parser.add_option('', '--archive', dest='archive', action='store_true', default=False, help='archive, ie delete data after backup')
 parser.add_option('', '--incremental', dest='incremental', action='store_true', default=False, help='incremental backup')
-parser.add_option('', '--lbfilemap', dest='lbfilemap', default='', help='text file with mapping between filename and lumi blocks')
 parser.add_option('', '--lbperjob', dest='lbperjob', type='int', default=5, help='number of luminosity blocks per job (default: 5)')
 parser.add_option('', '--params', dest='params', default='', help='job option parameters to pass to job option template')
 parser.add_option('-z', '--postprocsteps', dest='postprocsteps', type='commsep', default=['JobPostProcessing'], help='Task-level postprocessing steps, comma-separated (Default: JobPostProcessing)')
@@ -114,16 +126,11 @@ parser.add_option('', '--destdqdbname', dest='destdqdbname', default='CONDBR2', 
 parser.add_option('', '--srcdqdbname', dest='srcdqdbname', default='IDBSDQ', help='DQ source database instance name (default: IDBSDQT)')
 parser.add_option('', '--dslist', dest='dslist', default='', help='Exclude running cmd with runCmd if the dataset is not in this file')
 parser.add_option('', '--nominbias', dest='nominbias', action='store_true', default=False, help='overwrite MinBias_physics in DSNAME with express_express')
-parser.add_option('', '--test', dest='testonly', action='store_true', default=False, help='for runaod, show only options and input files')
 parser.add_option('', '--resultsondisk', dest='resultsondisk', action='store_true', default=False, help='Leave the results on disk when archiving')
-parser.add_option('', '--removedups', dest='removedups', action='store_true', default=False, help='Remove duplicate rerty files of form root.N, keeping the last, for reporc command')
-parser.add_option('', '--dpdinput', dest='dpdinput', action='store_true', default=False, help='Run over DPD for runaod')
 parser.add_option('', '--pLbFile', dest='pseudoLbFile', default=None, help='File for pseudo LB info from scan')
-parser.add_option('-l', '--filelist', dest='filelist', default=None, help='Explicit list of files for reproc command')
 parser.add_option('', '--prefix', dest='prefix', default='', help='Prefix for reading files from mass storage (Default: determine from filename (`\'\') ')
 parser.add_option('', '--rl', dest='runMin', type='int', default=None, help='Minimum run number for mctag (inclusive)')
 parser.add_option('', '--ru', dest='runMax', type='int', default=None, help='Maximum run number for mctag (inclusive)')
-parser.add_option('', '--rucio', dest='rucio', action='store_true', default=False, help='rucio directory structure')
 parser.add_option('', '--noCheckAcqFlag', dest='noCheckAcqFlag', action='store_true', default=False, help='Don\'t check acqFlag when submitting VdM jobs')
 parser.add_option('', '--mon', dest='mon', action='store_true', default=False, help='mon directory structure')
 parser.add_option('', '--resubAll', dest='resubAll', action='store_true', default=False, help='Resubmit all jobs irrespective of status')
@@ -150,18 +157,6 @@ else:
 #
 # Utilities
 #
-def getFullEosPath(run):
-    eosPath = '/'.join([options.eospath,options.project,options.stream])
-    return os.path.normpath('/'.join([eosPath,'%08i' % int(run)])) + '/'
-
-def getFullCastorPath(run):
-    """Return full castor path given a run number."""
-    if run>240000:
-        return getFullEosPath(run)
-    castorPath = '/'.join([options.castorpath,options.project,options.stream])
-    return os.path.normpath('/'.join([castorPath,'%08i' % int(run)])) + '/'   # Run numbers are now 8 digits in castor paths
-    #return '/'.join([castorPath,'%07i' % int(run)])   # For now, run numbers are 7 digits in castor paths
-
 def getT0DbConnection():
     try:
         connstring = open(os.environ.get('HOME')+tier0dbinfofile,'r').read().strip()
@@ -195,7 +190,7 @@ def getTaskManager():
 
 def fail(message):
     print
-    print 'ERROR:' % message
+    print 'ERROR:', message
     sys.exit(1)
 
 
@@ -240,16 +235,14 @@ if cmd == 'upload' and len(cmdargs) == 1:
 if cmd=='run' and len(args)==3:
     run = args[1]
     tag = args[2]
-    c = getFullCastorPath(run)
-    datasets = []
-    pattern = re.compile(options.filter+tag+'.*')
-    for p in DiskUtils.filelist(c):
-        f = p.split('/')[-1]
-        if pattern.search(f):
-            datasets.append(f)
-    if len(datasets)!=1:
-        print 'ERROR: %i datasets found - use TAG to uniquely identify dataset' % len(datasets)
-        sys.exit(1)
+
+    fs = DiskUtils.FileSet.from_ds_info(run,
+            project=options.project,
+            stream=options.stream,
+            base=options.eospath)
+    datasets = list(fs.matching(options.filter + tag + '.*'))
+    if len(datasets) != 1:
+        fail('{:d} datasets found (use full TAG to uniquely identify dataset)'.format(len(datasets)))
 
     dsname = '.'.join(datasets[0].split('.')[:3])
     #os.system('runJobs.py -n0 -c %s %s %s.%s %s' % (options.runjoboptions,dsname,options.runtaskname,tag,'/'.join([c,datasets[0]])))
@@ -265,54 +258,44 @@ if cmd=='runMon' and len(args)==3:
     run = args[1]
     tag = args[2]
 
-    datasets = []
-    c=''
-    if options.filelist == None:
-        c = getFullCastorPath(run)
-
-        pattern = re.compile(options.filter+tag+'.*')
-        for p in DiskUtils.filelist(c):
-            f = p.split('/')[-1]
-            if pattern.search(f) and ('.TMP.log' not in f):
-                datasets.append(f)
-        if len(datasets)!=1:
-            print 'ERROR: %i datasets found (if ambiguous, use full TAG to uniquely identify dataset)' % len(datasets)
-            sys.exit(1)
-        dsname = '.'.join(datasets[0].split('.')[:3])
-    else:
-        if options.eospath=='':
-          datasets.append(options.filelist.rstrip())
-        else :
-          datasets.append('root://eosatlas/' + options.filelist.rstrip() )
-        dsname=options.project+'.'+run+'.'+options.stream
-
     if not options.beamspottag:
-        sys.exit('ERROR: No beam spot tag specified')
+        fail('No beam spot tag specified')
+
+    fs = DiskUtils.FileSet.from_ds_info(run,
+            project=options.project,
+            stream=options.stream,
+            base=options.eospath)
+    datasets = list(fs.use_files_from(options.filelist).matching(options.filter + tag + '.*').excluding(r'.*\.TMP\.log.*'))
+    if len(datasets) != 1:
+        fail('{:d} datasets found (use full TAG to uniquely identify dataset)'.format(len(datasets)))
+    dataset = datasets[0]
+    dsname = '.'.join(dataset.split('.')[:3])
+
     # NOTE: The command below may be executed via a cron job, so we need set STAGE_SVCCLASS
     #       explicitly in all cases, since it may not be inherited from the environment.
     if 'ESD' in options.filter:
         # NOTE: We pass along the filter setting, but currently we can do --lbperjob only for ESD since for
         #       other data sets we have only the merged files.
-        os.system('runJobs.py --lbperjob 10 -c -f \'%s\' -p "cmdjobpreprocessing=\'export STAGE_SVCCLASS=atlcal\', useBeamSpot=True, beamspottag=\'%s\'" %s %s %s.%s %s/' % (options.filter,options.beamspottag,options.monjoboptions,dsname,options.montaskname,tag,'/'.join([c,datasets[0]])))
+        os.system('runJobs.py --lbperjob 10 -c -f \'%s\' -p "cmdjobpreprocessing=\'export STAGE_SVCCLASS=atlcal\', useBeamSpot=True, beamspottag=\'%s\'" %s %s %s.%s %s/' % (options.filter,options.beamspottag,options.monjoboptions,dsname,options.montaskname,tag,'/'.join([c,dataset])))
     elif options.filelist != None:
         lbinfoinfiles=True
         for line in open(options.filelist,'r'):
-            if "lb" not in line: 
+            if "lb" not in line:
                 lbinfoinfiles=False
                 break
         lboptions='--lbperjob 10' if lbinfoinfiles else '-n 10'
-        cmd = 'runJobs.py %s -f \'%s\' -q atlasb1_long -p "useBeamSpot=True, beamspottag=\'%s\', tracksAlreadyOnBeamLine=True" %s %s %s.%s %s' % (lboptions,options.filter,options.beamspottag,options.monjoboptions,dsname,options.montaskname,tag,datasets[0])
+        cmd = 'runJobs.py %s -f \'%s\' -q atlasb1_long -p "useBeamSpot=True, beamspottag=\'%s\', tracksAlreadyOnBeamLine=True" %s %s %s.%s %s' % (lboptions,options.filter,options.beamspottag,options.monjoboptions,dsname,options.montaskname,tag,dataset)
         print cmd
         os.system(cmd)
     else:
-        cmd = 'runJobs.py --lbperjob 10 -c -f \'%s\' -p "cmdjobpreprocessing=\'export STAGE_SVCCLASS=atlcal\', useBeamSpot=True, beamspottag=\'%s\'" %s %s %s.%s %s/' % (options.filter,options.beamspottag,options.monjoboptions,dsname,options.montaskname,tag,'/'.join([c,datasets[0]]))
+        cmd = 'runJobs.py --lbperjob 10 -c -f \'%s\' -p "cmdjobpreprocessing=\'export STAGE_SVCCLASS=atlcal\', useBeamSpot=True, beamspottag=\'%s\'" %s %s %s.%s %s/' % (options.filter,options.beamspottag,options.monjoboptions,dsname,options.montaskname,tag,'/'.join([c,dataset]))
         os.system(cmd)
 
     sys.exit(0)
 
 
 #
-# Backup to castor
+# Backup to EOS
 #
 if cmd=='backup' and len(args)==2:
     if options.archive and options.incremental:
@@ -351,26 +334,26 @@ if cmd=='backup' and len(args)==2:
         tmpdir = '/tmp'
         if options.archive:
             outname = d.replace('/','-')+time.strftime('-%G_%m_%d.tar.gz')
-            backuppath = castorarchivepath
+            path = archivepath
         else:
             outname = d.replace('/','-')+'.tar.gz'
-            backuppath = castorbackuppath
+            path = backuppath
 
-        print '\nBacking up  %s  -->  %s/%s ...\n' % (d,backuppath,outname)
+        print '\nBacking up  %s  -->  %s/%s ...\n' % (d,path,outname)
 
         status = os.system('tar czf %s/%s %s' % (tmpdir,outname,d)) >> 8
         if status:
             sys.exit('\nERROR: Unable to create local tar file %s/%s' % (tmpdir,outname))
 
-        status = os.system('xrdcp -f %s/%s root://eosatlas/%s/%s' % (tmpdir,outname,backuppath,outname)) >> 8
+        status = os.system('xrdcp -f %s/%s root://eosatlas/%s/%s' % (tmpdir,outname,path,outname)) >> 8
 
         if status:
-            # Continue to try other files if one failed to upload to castor
-            print '\nERROR: Unable to copy file to CASTOR to %s/%s' % (backuppath,outname)            
+            # Continue to try other files if one failed to upload to EOS
+            print '\nERROR: Unable to copy file to EOS to %s/%s' % (path,outname)
             continue
 
         os.system('rm %s/%s' % (tmpdir,outname))
-        status = os.system('echo "`date`   %s/%s" >> %s/backup.log' % (backuppath,outname,d)) >> 8
+        status = os.system('echo "`date`   %s/%s" >> %s/backup.log' % (path,outname,d)) >> 8
         if status:
             sys.exit('\nERROR: Could not update backup log file')
 
@@ -380,16 +363,12 @@ if cmd=='backup' and len(args)==2:
 
 
 #
-# List backup directory on castor
+# List backup directory on EOS
 #
 if cmd == 'lsbackup' and not cmdargs:
-    backuppath = castorarchivepath if options.archive else castorbackuppath
-    backuppath = os.path.normpath(backuppath)+'/'
-    print '\nCASTOR directory %s:\n' % backuppath
-    #os.system('nsls -l %s' % backuppath)
-    #os.system('xrd castoratlas ls %s' % backuppath)
-    print DiskUtils.ls(backuppath, longls=True)
-    print
+    path = archivepath if options.archive else backuppath
+    print 'Backup directory:', path
+    for f in DiskUtils.from_directory(path): print f
     sys.exit(0)
 
 
@@ -399,21 +378,18 @@ if cmd == 'lsbackup' and not cmdargs:
 if cmd == 'show' and len(cmdargs)==1:
     run = cmdargs[0]
 
-    c = getFullCastorPath(run)
+    print 'Base path:     ', options.eospath
+    print 'Project tag:   ', options.project
+    print 'Stream:        ', options.stream
     print
-    print 'CASTOR base path:   ', options.castorpath
-    print 'Project tag:        ', options.project
-    print 'Stream:             ', options.stream
-    print 'Full path:          ', c
-    print
-    print 'Files in CASTOR (filtered by: %s):' % options.filter
+    print 'Files available (filtered by: {}):'.format(options.filter)
     print '---------------'
 
-    pattern = re.compile(options.filter)
-    for f in DiskUtils.ls(c, longls=True).split('\n'):
-        if pattern.search(f):
-            (access,nfiles,user,group,size,modmonth,modyear,modtime,name) = f.split()
-            print '%-80s   %s file(s), last modified %s %s %s' % (name,nfiles,modmonth,modyear,modtime)
+    fs = DiskUtils.FileSet.from_ds_info(run,
+            project=options.project,
+            stream=options.stream,
+            base=options.eospath)
+    for f in fs.matching(options.filter): print f
 
     print
     print 'Beam spot tasks:'
@@ -836,12 +812,12 @@ if cmd=='runMonJobs' and len(args)<3:
 
 
 #
-# Archive task to castor
+# Archive task to EOS
 #
 if cmd=='archive' and len(args)==3:
     if not options.batch:
         print '\nWARNING: If you confirm below, each of the following datasets will:'
-        print '         - be archived to CASTOR'
+        print '         - be archived to EOS'
         if options.resultsondisk:
             print '         - will be marked as RESULTSONDISK in the task database'
             print '         - all except the results files *** WILL BE DELETED ***'
@@ -858,7 +834,7 @@ if cmd=='archive' and len(args)==3:
             sys.exit(1)
 
         tmpdir = '/tmp'
-        backuppath = castorarchivepath
+        path = archivepath
         onDiskCode = TaskManager.OnDiskCodes.get('ALLONDISK',None)
         archivedCode = TaskManager.OnDiskCodes.get('RESULTSONDISK',None) if options.resultsondisk else TaskManager.OnDiskCodes.get('ARCHIVED',None)
         exceptList = ['*dqflags.txt', '*.gif', '*.pdf', '*.config.py*', '*.argdict.gpickle', '*.AveBeamSpot.log', '*.PlotBeamSpotCompareReproc.log', '*.sh', '*.BeamSpotNt.*', '*.BeamSpotGlobalNt.log', '*.status.*', '*.exit.*']
@@ -875,21 +851,21 @@ if cmd=='archive' and len(args)==3:
             dir = '%s/%s' % (dsname,taskname)
             outname = dir.replace('/','-')+time.strftime('-%G_%m_%d.tar.gz')
             print 'Archiving task %s / %s ...' % (dsname,taskname)
-            print '    --> %s/%s ...' % (backuppath,outname)
+            print '    --> %s/%s ...' % (path,outname)
 
             # Paranoia check against later catastrophic delete
             if dir=='.' or dir=='*':
                 print '\n**** FATAL ERROR: Very dangerous value of task directory found: %s - ABORTING' % dir
                 sys.exit(1)
 
-            # If expected directory exists, tar up files, write to CASTOR, mark as archived, and delete
+            # If expected directory exists, tar up files, write to EOS, mark as archived, and delete
             if os.path.exists(dir):
                 status = os.system('tar czf %s/%s %s' % (tmpdir,outname,dir)) >> 8
                 if status:
                     sys.exit('\n**** ERROR: Unable to create local tar file %s/%s' % (tmpdir,outname))
-                status = os.system('xrdcp %s/%s root://eosatlas/%s/%s' % (tmpdir,outname,backuppath,outname)) >> 8
+                status = os.system('xrdcp %s/%s root://eosatlas/%s/%s' % (tmpdir,outname,path,outname)) >> 8
                 if status:
-                    sys.exit('\n**** ERROR: Unable to copy file to CASTOR to %s/%s' % (backuppath,outname))
+                    sys.exit('\n**** ERROR: Unable to copy file to EOS to %s/%s' % (path,outname))
 
                 os.system('rm %s/%s' % (tmpdir,outname))
                 n = taskman.setValue(dsname,taskname,'ONDISK',archivedCode)
@@ -989,7 +965,7 @@ if cmd=='resubmit' and len(args) in [3,4]:
 # Run beam spot reprocessing jobs
 # Defines one task with several jobs where the splitting into groups of 5 LBs is done by hand
 #
-if cmd=='reproc' and len(args)==5: 
+if cmd=='reproc' and len(args)==5:
     from InDetBeamSpotExample import LSFJobRunner
 
     jobopts   = args[1]
@@ -1000,7 +976,6 @@ if cmd=='reproc' and len(args)==5:
     lbperjob  = options.lbperjob
     params    = {'LumiRange': lbperjob}
     cmd       = ' '.join(sys.argv)
-    pattern   = re.compile(options.filter)
     files     = []
 
     # Additional job parameters
@@ -1012,79 +987,22 @@ if cmd=='reproc' and len(args)==5:
             except:
                 print '\nERROR parsing user parameter',p,'- parameter will be ignored'
 
+    # TODO: Is this still needed?
+    # if options.rucio:
+    #     # Has extra subdirectories: find unique set of these from filepaths, ignoring final part (i.e. filename).
+    #     # Will also work for single directory but more time consuming.
+    #     #inputdirs = set(['/'+'/'.join(f.split('/')[4:-1])+'/' for f in files])
+    #     inputdirs = set(['/'.join(f.replace(protocol, '').split('/')[:-1])+'/' for f in files])
+
     # Make list of all files (either from explicit list or by 'globbing' dir)
-    if options.filelist:
-        inputdata = os.path.normpath(inputdata)
-
-        protocol=''
-        if options.prefix:
-            protocol = options.prefix
-        elif inputdata.split('/')[1]=='castor':
-            protocol = 'root://castoratlas/'
-        elif inputdata.split('/')[1]=='eos':
-            protocol = 'root://eosatlas/'
-
-        flist = open(options.filelist)
-        files = sorted(['%s%s/%s' % (protocol,inputdata,f.strip('\n')) for f in flist if pattern.search(f)])
-
-        if options.rucio:
-            # Has extra subdirectories: find unique set of these from filepaths, ignoring final part (i.e. filename).
-            # Will also work for single directory but more time consuming.
-            #inputdirs = set(['/'+'/'.join(f.split('/')[4:-1])+'/' for f in files])
-            inputdirs = set(['/'.join(f.replace(protocol, '').split('/')[:-1])+'/' for f in files])
-        else:
-            inputdirs = [inputdata]
-    else:
-        if os.path.isfile(inputdata):
-          # read in the file names from the text file
-          for line in open(inputdata,'r'):
-             files.append('root://eosatlas/'+line.rstrip())
-
-        elif inputdata.split('/')[1] in ('castor', 'eos'):
-            inputdata = os.path.normpath(inputdata)+'/'
-            castorfiles = DiskUtils.filelist(inputdata, prefix=options.prefix if options.prefix else True)
-            for f in castorfiles:
-                if pattern.search(f):
-                    files.append(f)
-        else:
-            files = sorted(glob.glob(inputdata+'/'+options.filter))
-
-    # Check if files, matching pattern, exist
-    if not files: sys.exit('No files existing in directory %s matching "%s"' % (inputdata, options.filter))
-
-    # Remove duplicate with different retry number, keeping latest    
-    if options.removedups:
-        nWithDup = len(files)
-        fileAndExt = {}
-        for f in files:
-            tokens = f.split('.')
-            fname  = '.'.join(tokens[:-1])
-            ext    = tokens[-1]
-            try:
-                fileAndExt[fname].append(ext)
-            except KeyError:
-                fileAndExt[fname] = [ext]
-
-        files = []
-        for fname,ext in fileAndExt.items():
-            files.append(fname+'.'+ext[-1])
-
-        print 'Removed ', (nWithDup - len(files)), 'duplicates'
-
-    # Get file-LB mapping
     lbMap = {}
-    if options.lbfilemap:
-        lbfilemap = open(options.lbfilemap, 'r')
-
-        for line in lbfilemap:
-            fname = line.split(' ')[0]
-            lbs   = [int(l) for l in line.split(' ')[1].split(',')]
-
-            lbMap[fname] = lbs
-    else:
-        from InDetBeamSpotExample.ExtractLBFileMap import extract,extractFromFiles
-        #lbMap = extract(inputdirs, options.filter, prefix=options.prefix if options.prefix else True)
-        lbMap = extractFromFiles( files )
+    backend = DiskUtils.EOS() if options.eos else None
+    fs = DiskUtils.FileSet.from_input(inputdata, backend=backend)
+    fs = fs.matching(options.filter).use_files_from(options.filelist).only_latest(options.removedups)
+    for f, lbs in file_set.with_lumi_blocks(options.lbfilemap):
+        lbMap[f] = lbs
+        files.append(f)
+    if not files: fail('No files were found.')
 
     # Form bunched jobs
     jobFileDict = {}
@@ -1167,190 +1085,9 @@ if cmd=='reproc' and len(args)==5:
 
 
 #
-# Run beam spot reprocessing jobs
-# Defines one task with several jobs where the splitting into groups of 5 LBs is done by hand
-#
-if cmd=='reproc' and len(args)==5:
-    from InDetBeamSpotExample import LSFJobRunner
-
-    jobopts   = args[1]
-    dsname    = args[2]
-    taskname  = args[3]
-    inputdata = args[4]
-
-    lbperjob  = options.lbperjob
-    params    = {'LumiRange': lbperjob}
-    cmd       = ' '.join(sys.argv)
-    pattern   = re.compile(options.filter)
-    files     = []
-
-    # Additional job parameters
-    for s in options.params.split(', '):
-        if s:
-            try:
-                p = s.split('=',1)
-                params[p[0].strip()] = eval(p[1].strip())
-            except:
-                print '\nERROR parsing user parameter',p,'- parameter will be ignored'
-
-    # Make list of all files (either from explicit list or by 'globbing' dir)
-    if options.filelist:
-        inputdata = os.path.normpath(inputdata)
-
-        protocol=''
-        if options.prefix:
-            protocol = options.prefix
-        elif inputdata.split('/')[1]=='castor':
-            protocol = 'root://castoratlas/'
-        elif inputdata.split('/')[1]=='eos':
-            protocol = 'root://eosatlas/'
-
-        flist = open(options.filelist)
-        files = sorted(['%s%s/%s' % (protocol,inputdata,f.strip('\n')) for f in flist if pattern.search(f)])
-
-        if options.rucio:
-            # Has extra subdirectories: find unique set of these from filepaths, ignoring final part (i.e. filename).
-            # Will also work for single directory but more time consuming.
-            #inputdirs = set(['/'+'/'.join(f.split('/')[4:-1])+'/' for f in files])
-            inputdirs = set(['/'.join(f.replace(protocol, '').split('/')[:-1])+'/' for f in files])
-        else:
-            inputdirs = [inputdata]
-    else:
-        if os.path.isfile(inputdata):
-          # read in the file names from the text file
-          for line in open(inputdata,'r'):
-             files.append('root://eosatlas/'+line.rstrip())
-
-        elif inputdata.split('/')[1] in ('castor', 'eos'):
-            inputdata = os.path.normpath(inputdata)+'/'
-            castorfiles = DiskUtils.filelist(inputdata, prefix=options.prefix if options.prefix else True)
-            for f in castorfiles:
-                if pattern.search(f):
-                    files.append(f)
-        else:
-            files = sorted(glob.glob(inputdata+'/'+options.filter))
-
-    # Check if files, matching pattern, exist
-    if not files: sys.exit('No files existing in directory %s matching "%s"' % (inputdata, options.filter))
-
-    # Remove duplicate with different retry number, keeping latest    
-    if options.removedups:
-        nWithDup = len(files)
-        fileAndExt = {}
-        for f in files:
-            tokens = f.split('.')
-            fname  = '.'.join(tokens[:-1])
-            ext    = tokens[-1]
-            try:
-                fileAndExt[fname].append(ext)
-            except KeyError:
-                fileAndExt[fname] = [ext]
-
-        files = []
-        for fname,ext in fileAndExt.items():
-            files.append(fname+'.'+ext[-1])
-
-        print 'Removed ', (nWithDup - len(files)), 'duplicates'
-
-    # Get file-LB mapping
-    lbMap = {}
-    if options.lbfilemap:
-        lbfilemap = open(options.lbfilemap, 'r')
-
-        for line in lbfilemap:
-            fname = line.split(' ')[0]
-            lbs   = [int(l) for l in line.split(' ')[1].split(',')]
-
-            lbMap[fname] = lbs
-    else:
-        from InDetBeamSpotExample.ExtractLBFileMap import extract,extractFromFiles
-        #lbMap = extract(inputdirs, options.filter, prefix=options.prefix if options.prefix else True)
-        lbMap = extractFromFiles( files )
-
-    # Form bunched jobs
-    jobFileDict = {}
-    jobLBDict   = {}
-
-    # Special case to submit a single job over all files
-    if lbperjob == -1:
-        jobId = 1
-        jobFileDict[jobId] = files
-        jobLBDict[jobId] = []
-
-        for f in files:
-            try:
-                lbs = sorted(lbMap[f.split('/')[-1]])
-            except KeyError:
-                sys.exit('No mapping for file %s' % f.split('/')[-1])
-
-            jobLBDict[jobId].extend(lbs)
-    else:
-        for f in files:
-            try:
-                lbs = sorted(lbMap[f.split('/')[-1]])
-            except KeyError:
-                sys.exit('No mapping for file %s' % f.split('/')[-1])
-
-            for lbnr in lbs:
-                jobId = int((lbnr-1)/lbperjob)
-
-                if not jobId in jobFileDict:
-                    jobFileDict[jobId] = [f]
-                    jobLBDict[jobId]   = [lbnr]
-                else:
-                    if not f in jobFileDict[jobId]:
-                        jobFileDict[jobId].append(f)
-                    jobLBDict[jobId].append(lbnr)
-
-    # Submit bunched jobs
-    with getTaskManager() as taskman:
-        for i in  sorted(jobFileDict.keys()):
-            jobnr = i*lbperjob+1  # use first LB number as job number
-            files=jobFileDict[i]
-            lbs = sorted(set(jobLBDict[i]))
-
-            #params['lbList'] = '[' + ','.join([str(l) for l in lbs]) + ']'
-            intlbs = []
-            for lbnr in lbs:
-                intlbs.append(int(lbnr))
-            params['lbList'] = intlbs
-            jobname=dsname+'-'+taskname+'-lb%03i' % jobnr
-
-            queue = options.batch_queue or '2nd'
-            runner = LSFJobRunner.LSFJobRunner(
-                    jobnr=jobnr,
-                    jobdir=os.getcwd()+'/'+dsname+'/'+taskname+'/'+jobname,
-                    jobname=jobname,
-                    inputds='',
-                    inputfiles=files,
-                    joboptionpath=jobopts,
-                    filesperjob=len(files),
-                    batchqueue=queue,
-                    addinputtopoolcatalog=True,
-                    taskpostprocsteps='ReprocVertexDefaultProcessing',
-                    #outputfilelist=['dpd.root', 'nt.root', 'monitoring,root', 'beamspot.db'],
-                    autoconfparams='DetDescrVersion',
-                    returnstatuscode=True,
-                    comment=cmd,
-                    **params)
-
-            #runner.showParams()
-            try:
-                runner.configure()
-            except Exception,e:
-                print "ERROR: Unable to configure JobRunner job - perhaps same job was already configured / run before?"
-                print "DEBUG: Exception =",e
-            else:
-                taskman.addTask(dsname, taskname, jobopts, runner.getParam('release'), runner.getNJobs(), runner.getParam('taskpostprocsteps'), comment=cmd)
-                runner.run()
-
-    sys.exit(0)
-
-#
 # Run task over AOD, bunching input files to jobs according to meta-data in input
 # AOD files.
 #
-
 
 if cmd=='runaod' and len(args)==5:
     from InDetBeamSpotExample import LSFJobRunner
@@ -1368,7 +1105,6 @@ if cmd=='runaod' and len(args)==5:
         params    = {'LumiRange': 1}
 
     cmd       = ' '.join(sys.argv)
-    pattern   = re.compile(options.filter)
     files     = []
 
     # Additional job parameters
@@ -1380,46 +1116,14 @@ if cmd=='runaod' and len(args)==5:
             except:
                 print '\nERROR parsing user parameter',p,'- parameter will be ignored'
 
-    # Make list of all files
-    # first, is this a directory?  probably.
-    if os.path.isdir(inputdata) or "castor" in inputdata or "eos" in inputdata:
-        if inputdata.split('/')[1] in ('castor', 'eos'):
-            inputdata = os.path.normpath(inputdata)+'/'
-            #files=[]
-            castorfiles = DiskUtils.filelist(inputdata, options.prefix if options.prefix else True)
-            for f in castorfiles:
-                if pattern.search(f):
-                    files.append(f)
-        elif options.dpdinput:
-            files = sorted(glob.glob(inputdata+'/*/*-dpd.root*'))
-        else:
-            files = sorted(glob.glob(inputdata+'/*'+options.filter+'*'))
-    elif os.path.isfile(inputdata):
-        # read in the file names from the text file
-        for line in open(inputdata,'r'):
-          if line.split('/')[1] == 'castor':
-            files.append('root://castoratlas/'+line.rstrip())
-          else:
-            files.append('root://eosatlas/'+line.rstrip())
-
-    # Check if files, matching pattern, exist
-    if not files: sys.exit('No files existing in directory %s matching "%s"' % (inputdata, options.filter))
-
-    # Get file-LB mapping
     lbMap = {}
-    if options.lbfilemap:
-        lbfilemap = open(options.lbfilemap, 'r')
-
-        for line in lbfilemap:
-            fname = line.split(' ')[0]
-            lbs   = [int(l) for l in line.split(' ')[1].split(',')]
-            lbMap[fname] = lbs
-    else:
-        from InDetBeamSpotExample.ExtractLBFileMap import extract
-        if options.dpdinput:
-            lbMap = extract([inputdata], 'dpd')
-        else:
-            lbMap = extract([inputdata], options.filter, prefix=options.prefix if options.prefix else True)
+    backend = DiskUtils.EOS() if options.eos else None
+    fs = DiskUtils.FileSet.from_input(inputdata, backend=backend)
+    fs = fs.matching(options.filter)
+    for f, lbs in fs.with_lumi_blocks(options.lbfilemap):
+        lbMap[f] = lbs
+        files.append(f)
+    if not files: fail('No files were found.')
 
     # Form bunched jobs
     jobFileDict = {}
@@ -1455,7 +1159,7 @@ if cmd=='runaod' and len(args)==5:
                 filenames = []
                 for f in files:
                     try:
-                        lbs = sorted(lbMap[f.split('/')[-1]])
+                        lbs = sorted(lbMap[f])
                     except KeyError:
                         sys.exit('No mapping for file %s' % f.split('/')[-1])
 
@@ -1474,7 +1178,7 @@ if cmd=='runaod' and len(args)==5:
     else:
         for f in files:
             try:
-                lbs = sorted(lbMap[f.split('/')[-1]])
+                lbs = sorted(lbMap[f])
             except KeyError:
                 print 'WARNING: No mapping for file %s.  Skipping' % f.split('/')[-1]
                 continue
@@ -1647,18 +1351,17 @@ if cmd=='dqflag' and len(args)==3:
 if cmd=='runBCID' and len(args)==3:
     run = args[1]
     tag = args[2]
-    c = getFullCastorPath(run)
-    datasets = []
-    pattern = re.compile(options.filter+tag+'.*')
-    for p in DiskUtils.filelist(c):
-        f = p.split('/')[-1]
-        if pattern.search(f):
-            datasets.append(f)
 
-    if len(datasets)!=1:
-        print 'ERROR: %i datasets found (if ambiguous, use full TAG to uniquely identify dataset)' % len(datasets)
-        sys.exit(1)
+    fs = DiskUtils.FileSet.from_ds_info(run,
+            project=options.project,
+            stream=options.stream,
+            base=options.eospath)
+    datasets = list(fs.matching(options.filter + tag + '.*'))
+
+    if len(datasets) != 1:
+        fail('{:d} datasets found (use full TAG to uniquely identify dataset)'.format(len(datasets)))
     dsname = '.'.join(datasets[0].split('.')[:3])
+
     # NOTE: The command below may be executed via a cron job, so we need set STAGE_SVCCLASS
     #       explicitly in all cases, since it may not be inherited from the environment.
     if 'ESD' in options.filter:

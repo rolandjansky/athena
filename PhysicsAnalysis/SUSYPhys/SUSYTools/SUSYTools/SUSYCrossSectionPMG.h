@@ -5,16 +5,11 @@
 #ifndef __SUSYCROSSSECTIONPMG__
 #define __SUSYCROSSSECTIONPMG__
 
-#include <iostream>
-#include <fstream>
-#include <sstream>
+// Function arguments
 #include <string>
-#include <map>
-#include <stdlib.h>
 
 //For PMG centralized tool's wrapper
 #include "PMGTools/PMGCrossSectionTool.h"
-#include <stdlib.h>
 
 namespace SUSY
 {
@@ -39,10 +34,6 @@ public:
 
   // invalid ID return "" string
   std::string name(int id) const { return pmgxs.getSampleName(id); }
-
-  // Allow iteration over all samples, denying modification of private data
-  //private:
-  //  bool m_extended;
 
 };
 

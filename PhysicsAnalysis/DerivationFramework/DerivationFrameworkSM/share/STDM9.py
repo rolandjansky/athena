@@ -212,9 +212,8 @@ ToolSvc += STDM9ANDSkimmingTool
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 
 # JET REBUILDING
-from DerivationFrameworkSM import STDMHelpers
-if not "STDM9Jets" in OutputJets.keys():
-    OutputJets["STDM9Jets"] = STDMHelpers.STDMRecalcJets(stdm9Seq, "STDM9", isMC)
+reducedJetList = ["AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets", "AntiKt10LCTopoJets", "AntiKt4TruthJets", "AntiKt4TruthWZJets"]
+replaceAODReducedJets(reducedJetList, stdm9Seq, "STDM9Jets")
 
 DerivationFrameworkJob += stdm9Seq
 

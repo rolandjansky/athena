@@ -10,6 +10,8 @@ from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
+if DerivationFrameworkIsMonteCarlo:
+    from DerivationFrameworkMCTruth.MCTruthCommon import *
 
 ### Set up stream
 streamName = derivationFlags.WriteDAOD_SUSY8Stream.StreamName
@@ -33,12 +35,13 @@ DerivationFrameworkJob += SeqSUSY8
 #====================================================================
 from DerivationFrameworkSUSY.SUSY8TriggerList import *
 
-jetMETTriggers  = SUSY8JetMETTriggers
-muonTriggers    = SUSY8MuonTriggers
-dimuonTriggers  = SUSY8DimuonTriggers
-xeTriggers      = SUSY8METTriggers
+jetMETTriggers   = SUSY8JetMETTriggers
+muonTriggers     = SUSY8MuonTriggers
+lateMuonTriggers = SUSY8LateMuonTriggers
+dimuonTriggers   = SUSY8DimuonTriggers
+xeTriggers       = SUSY8METTriggers
 
-trigNavThinningEx = '|'.join(jetMETTriggers+xeTriggers+muonTriggers+dimuonTriggers)
+trigNavThinningEx = '|'.join(jetMETTriggers+xeTriggers+muonTriggers+lateMuonTriggers+dimuonTriggers)
 SUSY8ThinningHelper.TriggerChains = trigNavThinningEx
 
 SUSY8ThinningHelper.AppendToStream( SUSY8Stream )
@@ -166,27 +169,50 @@ print SUSY8_TrackParticleCaloCellDecorator
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS  
 #====================================================================
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel(
+
+# Add sumOfWeights metadata for LHE3 multiweights =======
+from DerivationFrameworkCore.LHE3WeightMetadata import *
+
+#==============================================================================
+# SUSY signal augmentation (before skimming!)
+#==============================================================================
+from DerivationFrameworkSUSY.DecorateSUSYProcess import IsSUSYSignal
+if IsSUSYSignal():
+   
+   from DerivationFrameworkSUSY.DecorateSUSYProcess import DecorateSUSYProcess
+   SeqSUSY8 += CfgMgr.DerivationFramework__DerivationKernel("SUSY8KernelSigAug",
+                                                            AugmentationTools = DecorateSUSYProcess("SUSY8")
+                                                            )
+   
+   from DerivationFrameworkSUSY.SUSYWeightMetadata import *
+
+#==============================================================================
+# SUSY skimming selection
+#==============================================================================
+SeqSUSY8 += CfgMgr.DerivationFramework__DerivationKernel(
   "SUSY8KernelSkim",
   SkimmingTools = [SUSY8SkimmingTool]
 )
 
-#==============================================================================
-# SUSY signal augmentation
-#==============================================================================
-from DerivationFrameworkSUSY.DecorateSUSYProcess import DecorateSUSYProcess
-AugmentationTools += DecorateSUSYProcess("SUSY8")
 
 #==============================================================================
-# SUSY background generator filters
+# Jet building
 #==============================================================================
-if globalflags.DataSource() == 'geant4':
-  replaceBuggyAntiKt4TruthWZJets(SeqSUSY8)
-  ToolSvc += CfgMgr.DerivationFramework__SUSYGenFilterTool(
-    "SUSY8GenFilt",
-    SimBarcodeOffset = DerivationFrameworkSimBarcodeOffset
-  )
-  AugmentationTools.append(ToolSvc.SUSY8GenFilt)
+if DerivationFrameworkIsMonteCarlo:
+
+  OutputJets["SUSY8"] = []
+  reducedJetList = [ "AntiKt4TruthJets", "AntiKt4TruthWZJets" ]
+
+  replaceAODReducedJets(reducedJetList, SeqSUSY8, "SUSY8")
+
+
+#==============================================================================
+# Tau truth building/matching
+#==============================================================================
+if DerivationFrameworkIsMonteCarlo:
+  from DerivationFrameworkSUSY.SUSYTruthCommon import addTruthTaus
+  addTruthTaus(AugmentationTools)
+
 
 #==============================================================================
 # Augment after skim
@@ -214,5 +240,16 @@ SUSY8SlimmingHelper.AllVariables = SUSY8AllVariablesContent
 SUSY8SlimmingHelper.IncludeMuonTriggerContent = True
 SUSY8SlimmingHelper.IncludeJetTriggerContent = True
 SUSY8SlimmingHelper.IncludeEtMissTriggerContent = True
+
+# All standard truth particle collections are provided by DerivationFrameworkMCTruth (TruthDerivationTools.py)
+# Most of the new containers are centrally added to SlimmingHelper via DerivationFrameworkCore ContainersOnTheFly.py
+if DerivationFrameworkIsMonteCarlo:
+
+  SUSY8SlimmingHelper.AppendToDictionary = {'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
+                                            'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
+                                            'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer'}
+  
+  SUSY8SlimmingHelper.AllVariables += ["TruthElectrons", "TruthMuons", "TruthTaus", "TruthPhotons", "TruthNeutrinos", "TruthTop", "TruthBSM", "TruthBoson"]   
+
 
 SUSY8SlimmingHelper.AppendContentToStream(SUSY8Stream)

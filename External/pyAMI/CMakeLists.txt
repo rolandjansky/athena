@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 720369 2016-01-28 15:58:07Z krasznaa $
+# $Id: CMakeLists.txt 769198 2016-08-22 13:52:03Z ssnyder $
 
 # The name of the package:
 atlas_subdir( pyAMI )
@@ -10,7 +10,7 @@ endif()
 
 # Helper macro for building and installing the package(s). Documentation
 # to be written later...
-function( _setup_python_package name file )
+function( _setup_python_package name file md5 )
 
    # Parse the optional argument(s):
    cmake_parse_arguments( ARG "" "" "" ${ARGN} )
@@ -19,6 +19,7 @@ function( _setup_python_package name file )
    ExternalProject_Add( ${name}
       PREFIX ${CMAKE_BINARY_DIR}
       URL ${file}
+      URL_MD5 ${md5}
       BUILD_IN_SOURCE 1
       CONFIGURE_COMMAND ${CMAKE_COMMAND} -E echo
       "Configuring the build of ${name}"
@@ -58,7 +59,8 @@ endfunction( _setup_python_package )
 
 # Install pyAMI:
 _setup_python_package( pyAMI
-   ${CMAKE_CURRENT_SOURCE_DIR}/src/pyAMI-5.0.3.2.tar.gz )
+   ${CMAKE_CURRENT_SOURCE_DIR}/src/pyAMI-5.0.3.2.tar.gz
+   2fe796f738baeae72e5837ebc0d072c1 )
 
 # Clean up:
 unset( _setup_python_package )

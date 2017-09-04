@@ -450,7 +450,25 @@ StatusCode TopObjectSelection::applyOverlapRemoval(const bool isLoose,const std:
   xAOD::SystematicEventContainer* systEventCont = new xAOD::SystematicEventContainer{};
   systEventCont->setStore( systEventAuxCont );  
   
-  for (auto systematicNumber : *m_config->systHashAll()) {    
+  // We need to be able to have the nominal systematic processed first 
+  // but we cannot alter this inside TopConfig as we use unordered_set
+  // Using an ordered set will only order on hash and not on insertion 
+  // so we still cannot control it there
+  // Best place to handle it is when the systematic object container is being filled (before it is const)
+  // We read all hashes into a vector, and then custom sort to be nominal, then alphabetical
+  std::vector<size_t> sortedSystHashAll(m_config->systHashAll()->begin(), m_config->systHashAll()->end());
+  std::sort(sortedSystHashAll.begin(), sortedSystHashAll.end(),
+            [this](const size_t &lhs, const size_t &rhs){
+	      // if lhs is nominal, true - move
+	      if (this->m_config->isSystNominal(this->m_config->systematicName(lhs))) return true;
+	      // if rhs is nominal, false - fix
+	      else if (this->m_config->isSystNominal(this->m_config->systematicName(rhs))) return false;
+              // otherwise alphabetical - sort
+	      else return (this->m_config->systematicName(lhs) < this->m_config->systematicName(rhs));
+            });
+
+  //for (auto systematicNumber : *m_config->systHashAll()) {
+  for (auto systematicNumber : sortedSystHashAll) {
     xAOD::SystematicEvent* systEvent = new xAOD::SystematicEvent{};
     systEventCont->push_back( systEvent );
     systEvent->setHashValue( systematicNumber );

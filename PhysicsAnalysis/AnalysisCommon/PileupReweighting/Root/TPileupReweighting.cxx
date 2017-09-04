@@ -1522,6 +1522,11 @@ Float_t CP::TPileupReweighting::GetPrimaryWeight(Int_t periodNumber, Int_t chann
 
    double l = p->primaryHists[-1]->GetBinContent(bin);
 
+   if (l==0 && n==0){
+      Error("GetPrimaryWeight","No events expected with this mu.  Incorrect PRW profile?  Returning weight of zero.");
+      return 0.;
+   }
+
    return l/n;
 }
 
@@ -1618,7 +1623,8 @@ Double_t CP::TPileupReweighting::GetDataWeight(Int_t runNumber, const TString& t
    
    if(m_doGlobalDataWeight) return numerHist->Integral(0,numerHist->GetNbinsX()+1)/denomHist->Integral(0,denomHist->GetNbinsX()+1);
 
-   Int_t bin=numerHist->FindFixBin(x*m_dataScaleFactorX); //MUST SCALE BY THE DATA SCALE FACTOR!
+   Int_t bin=(m_doPrescaleWeight) ? numerHist->FindFixBin(x) : //DO NOT SHIFT IF GETTING A PRESCALE WEIGHT - applied to MC, we only shift incoming mu if we are data
+     numerHist->FindFixBin(x*m_dataScaleFactorX); //if getting a data weight (i.e. running on data) MUST SCALE BY THE DATA SCALE FACTOR! (assume incoming is raw unscaled)
    
    if(!denomHist->GetBinContent(bin)) {
      if(m_doPrescaleWeight) return -1; //happens if trigger was disabled/unavailable for that mu, even though that mu is in the dataset

@@ -59,6 +59,7 @@ int main(int argc, char* argv[]) {
    if(maxEvt != maxEvt2) {
     std::cout << "mismatch in getEntries: " << maxEvt << " vs " << maxEvt2 << std::endl; return -1;
    }
+   std::cout << "Found " << maxEvt << " events." <<std::endl;
 
 /*
     std::cout << "doing preloop..." << std::endl;
@@ -78,6 +79,8 @@ int main(int argc, char* argv[]) {
    st2.Start();
    long val2[4] = {0,0,0,0};
    for(int i=0; i< maxEvt2; i++) {
+     std::cout << int(100*i/maxEvt2) << "%...\r";
+     std::cout.flush();
       evt2.getEntry(i);
       evt2.retrieve( evtInfo , "EventInfo" ).ignore();
       val2[0] += evtInfo->eventNumber();
@@ -88,6 +91,7 @@ int main(int argc, char* argv[]) {
       evt2.retrieve( jets, "AntiKt4LCTopoJets" ).ignore();
       val2[3] += jets->size();
    }
+   std::cout << std::endl;
    st2.Stop();
    st2.Print();
 

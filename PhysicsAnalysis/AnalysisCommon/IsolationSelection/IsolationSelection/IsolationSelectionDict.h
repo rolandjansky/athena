@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef IsolationSelectionDict_H
 #define IsolationSelectionDict_H
@@ -13,5 +13,6 @@
 #include "IsolationSelection/IsolationConditionHist.h"
 #include "IsolationSelection/IsolationWP.h"
 #include "IsolationSelection/Interp3D.h"
-
+#include "IsolationSelection/IsolationCloseByCorrectionTool.h"
+#include "IsolationSelection/IIsolationCloseByCorrectionTool.h"
 #endif // IsolationSelectionDict_H

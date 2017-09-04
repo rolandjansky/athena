@@ -186,19 +186,10 @@ STDM2Sequence += CfgMgr.DerivationFramework__DerivationKernel("STDM2Kernel",
 
 isMC = globalflags.DataSource()=='geant4'
 # JET REBUILDING
-#from DerivationFrameworkSM import STDMHelpers
-#if not "STDM2Jets" in OutputJets.keys():
-#    OutputJets["STDM2Jets"] = STDMHelpers.STDMRecalcJets(STDM2Sequence, "STDM2", isMC)
-#New method to replace the jet collections removed in the AOD size reduction
+# New method to replace the jet collections removed in the AOD size reduction
 reducedJetList = ["AntiKt4TruthJets", "AntiKt4TruthWZJets", "AntiKt4PV0TrackJets"]
 replaceAODReducedJets(reducedJetList, STDM2Sequence, "STDM2");
 
-# FIX TRUTH JETS 
-#if DerivationFrameworkIsMonteCarlo:
-#    replaceBuggyAntiKt4TruthWZJets(STDM2Sequence,"STDM2")
-
-
-        
 # ADD SEQUENCE TO JOB
 DerivationFrameworkJob += STDM2Sequence
         
@@ -240,6 +231,13 @@ STDM2SlimmingHelper.ExtraVariables = ExtraContentElectrons+ExtraContentPhotons+E
 STDM2SlimmingHelper.ExtraVariables += ["AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m"]
 STDM2SlimmingHelper.AllVariables = ExtraContainersJets + ["CaloCalTopoClusters"] #+ExtraContainers6Jets #do not exist for now
 
+# # btagging variables
+from  DerivationFrameworkFlavourTag.BTaggingContent import *
+
+STDM2SlimmingHelper.ExtraVariables += BTaggingStandardContent("AntiKt4EMTopoJets")
+STDM2SlimmingHelper.AppendToDictionary.update({
+        "BTagging_AntiKt4EMTopo":    "xAOD::BTaggingContainer",
+        "BTagging_AntiKt4EMTopoAux": "xAOD::BTaggingAuxContainer"})
 
 if DerivationFrameworkIsMonteCarlo:
     STDM2SlimmingHelper.ExtraVariables += ExtraElectronsTruth+ExtraPhotonsTruth#+ExtraVariablesTruthEventShape
@@ -248,7 +246,7 @@ if DerivationFrameworkIsMonteCarlo:
    # STDM2SlimmingHelper.AppendToDictionary = ExtraDictionary
     #STDM2SlimmingHelper.AppendToDictionary = ExtraDictionaryTruthEventShape
 
-    STDM2SlimmingHelper.AppendToDictionary = {
+    STDM2SlimmingHelper.AppendToDictionary.update({
     "STDMTruthMuons":"xAOD::TruthParticleContainer" ,
     "STDMTruthMuonsAux":"xAOD::TruthParticleAuxContainer" ,
     "STDMTruthElectrons":"xAOD::TruthParticleContainer" ,
@@ -262,6 +260,6 @@ if DerivationFrameworkIsMonteCarlo:
     "TruthIsoCentralEventShape":"xAOD::EventShape",
     "TruthIsoCentralEventShapeAux":"xAOD::EventShapeAuxInfo",
     "TruthIsoForwardEventShape":"xAOD::EventShape",
-    "TruthIsoForwardEventShapeAux":"xAOD::EventShapeAuxInfo"}
+    "TruthIsoForwardEventShapeAux":"xAOD::EventShapeAuxInfo"})
 
 STDM2SlimmingHelper.AppendContentToStream(STDM2Stream)

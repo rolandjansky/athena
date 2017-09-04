@@ -8,27 +8,40 @@ use AthenaBaseComps             AthenaBaseComps-*       Control
 use DerivationFrameworkInterfaces   DerivationFrameworkInterfaces-*    PhysicsAnalysis/DerivationFramework
 use xAODEgamma                  xAODEgamma-*            Event/xAOD
 use xAODJet                     xAODJet-*               Event/xAOD
-use xAODBase                    xAODBase-*              Event/xAOD
 use xAODCaloEvent               xAODCaloEvent-*         Event/xAOD
-use xAODMuon                    xAODMuon-*              Event/xAOD
 use CaloEvent                   CaloEvent-*             Calorimeter
 use CaloIdentifier		CaloIdentifier-*	Calorimeter
+use AtlasROOT                   AtlasROOT-*           	External
+use CaloRec        CaloRec-*           Calorimeter
+use CaloUtils                   CaloUtils-*             Calorimeter
+use LArRecEvent    LArRecEvent-*       LArCalorimeter
+use egammaInterfaces            egammaInterfaces-*      Reconstruction/egamma	
 
 private
+use PathResolver                PathResolver-*           Tools
 use GaudiInterface              GaudiInterface-*        External
 use ExpressionEvaluation        ExpressionEvaluation-*  PhysicsAnalysis/CommonTools
-use CaloUtils                   CaloUtils-*             Calorimeter
 use CaloEvent                   CaloEvent-*             Calorimeter
+use CxxUtils                   	CxxUtils-*              Control
+use CaloCalibHitRec		CaloCalibHitRec-*	Calorimeter
+use AthenaKernel      		AthenaKernel-*       	Contro
 use xAODTau                     xAODTau-*               Event/xAOD
+use xAODBase                    xAODBase-*              Event/xAOD
+use xAODMuon                    xAODMuon-*              Event/xAOD
 use CaloClusterCorrection       CaloClusterCorrection-*	Calorimeter
 use CaloGeoHelpers		CaloGeoHelpers-*	Calorimeter
 use LArTools                    LArTools-*              LArCalorimeter
 use FourMomUtils                FourMomUtils-* 		Event
-use AtlasROOT                   AtlasROOT-*           	External
+use CaloClusterCorrection       CaloClusterCorrection-* Calorimeter
+use xAODCaloEvent               xAODCaloEvent-*         Event/xAOD
+use xAODCore   xAODCore-*   Event/xAOD
+use Identifier     Identifier-*        DetectorDescription
+
+
+
 ################################################################
 #
 public
-
 ## declare the directories CMT should know about
 branches python share src
 

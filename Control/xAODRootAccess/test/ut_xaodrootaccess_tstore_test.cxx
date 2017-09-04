@@ -19,11 +19,7 @@
 
 // Local include(s):
 #include "xAODRootAccess/Init.h"
-#define protected public
-#define private public
-#   include "xAODRootAccess/TStore.h"
-#undef private
-#undef protected
+#include "xAODRootAccess/TStore.h"
 #include "xAODRootAccess/tools/Message.h"
 #include "xAODRootAccess/tools/Utils.h"
 
@@ -68,6 +64,21 @@ public:
 
 }; // class ClassB
 
+/// Class making some of TStore's internal functions public
+class TStoreTester : public xAOD::TStore {
+
+public:
+   /// Inherit the TStore constructor(s)
+   using xAOD::TStore::TStore;
+
+   /// Make all implementations of the "contains" function public
+   using xAOD::TStore::contains;
+   /// Make all implementations of the "getName" function public
+   using xAOD::TStore::getName;
+
+}; // class TStoreTester
+
+
 int main() {
 
    // Get the name of the application:
@@ -77,7 +88,7 @@ int main() {
    RETURN_CHECK( APP_NAME, xAOD::Init( APP_NAME ) );
 
    // Create the TStore object that we'll be testing:
-   xAOD::TStore store;
+   TStoreTester store;
 
    // Record an EventFormat object:
    std::unique_ptr< xAOD::AuxContainerBase > c1( new xAOD::AuxContainerBase() );

@@ -65,29 +65,28 @@ namespace xAOD {
       TrackIsolationTool(const std::string& name);
       
       /** destructor */
-      ~TrackIsolationTool(void); 
+      virtual ~TrackIsolationTool(void); 
       
       /** initialize */
-      StatusCode initialize();
+      virtual StatusCode initialize() override;
       
-      /** finalize */
-      StatusCode finalize();
-      
-      /**ITrackIsolationTool interface: */    
+      /**ITrackIsolationTool interface: */  
+      virtual 
       bool trackIsolation( TrackIsolation& result, const IParticle& tp, 
 			   const std::vector<Iso::IsolationType>& cones, 
 			   TrackCorrection corrections, 
 			   const Vertex* vertex = 0, 
 			   const std::set<const TrackParticle*>* exclusionSet = 0, 
-			   const TrackParticleContainer* indetTrackParticles = 0 ); 
+			   const TrackParticleContainer* indetTrackParticles = 0 ) const override; 
 
       /**ITrackIsolationTool interface: */    
+      virtual
       bool decorateParticle( IParticle& tp, 
                              const std::vector<Iso::IsolationType>& cones, 
                              TrackCorrection corrections, 
                              const Vertex* vertex = 0, 
                              const std::set<const TrackParticle*>* exclusionSet = 0, 
-                             const TrackParticleContainer* indetTrackParticles = 0 ); 
+                             const TrackParticleContainer* indetTrackParticles = 0 ) const override;
 
   private:
       /// define 2*Pi
@@ -107,7 +106,7 @@ namespace xAOD {
     bool simpleIsolation( TrackIsolationInput& input, TrackIsolation& result, const TrackParticleContainer* indetTrackParticles = 0 ) const;
 
     /** using TracksInConeTool */
-    bool binnedIsolation( TrackIsolationInput& input, TrackIsolation& result );
+    bool binnedIsolation( TrackIsolationInput& input, TrackIsolation& result ) const;
 
     /** add track particle to isolation calculation */
     void add( TrackIsolationInput& input, const TrackParticle& tp2, TrackIsolation& result ) const;
@@ -116,10 +115,10 @@ namespace xAOD {
     const IParticle* getReferenceParticle(const IParticle& particle) const;
 
     /** init result struct */
-    void initresult(TrackIsolation& result, TrackCorrection corrlist, unsigned int typesize);
+    void initresult(TrackIsolation& result, TrackCorrection corrlist, unsigned int typesize) const;
 
 #ifdef XAOD_ANALYSIS // particlesInCone tool will not be avaible. Write our own...
-    bool getparticlesInCone( float eta, float phi, float dr, std::vector< const TrackParticle*>& output );
+    bool getparticlesInCone( float eta, float phi, float dr, std::vector< const TrackParticle*>& output ) const;
 #endif // XAOD_STANDALONE
 
     std::string m_indetTrackParticleLocation; /// track particle location

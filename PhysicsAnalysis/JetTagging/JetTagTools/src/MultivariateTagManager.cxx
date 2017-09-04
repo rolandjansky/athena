@@ -307,7 +307,7 @@ namespace Analysis {
 	BTag->variable<double>(m_ip2d_infosource, "pc", ip2d_pc);
 	BTag->variable<double>(m_ip2d_infosource, "pu", ip2d_pu);
       }
-     
+      
       ip2    = BTag->calcLLR(ip2d_pb,ip2d_pu);
       ip2_c  = BTag->calcLLR(ip2d_pb,ip2d_pc);
       ip2_cu = BTag->calcLLR(ip2d_pc,ip2d_pu);

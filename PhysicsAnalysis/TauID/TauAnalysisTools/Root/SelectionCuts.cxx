@@ -532,8 +532,12 @@ bool SelectionCutEleOLR::accept(const xAOD::TauJet& xTau)
     return true;
   }
 
+#ifndef XAODTAU_VERSIONS_TAUJET_V3_H
   SG::AuxElement::ConstAccessor<float> accEleMatchLhscore(m_sEleOlrLhScoreDecorationName.c_str());
   m_tTST->msg() << MSG::VERBOSE << "Tau failed EleOLR requirement, tau overlapping electron llh score: " << accEleMatchLhscore(xTau) << endmsg;
+#else
+  m_tTST->msg() << MSG::VERBOSE << "Tau failed EleOLR requirement"<< endmsg;
+#endif
   return false;
 }
 

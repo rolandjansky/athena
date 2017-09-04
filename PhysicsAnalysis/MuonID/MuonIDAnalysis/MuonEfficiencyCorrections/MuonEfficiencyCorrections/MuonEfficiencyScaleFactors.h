@@ -25,7 +25,7 @@
 #include <boost/unordered_map.hpp>
 
 namespace CP {
-    class MuonEfficiencyScaleFactors: public CP::IMuonEfficiencyScaleFactors, public asg::AsgTool {
+    class MuonEfficiencyScaleFactors: virtual public CP::IMuonEfficiencyScaleFactors, public asg::AsgTool {
 
         public:
             MuonEfficiencyScaleFactors(const std::string& name);

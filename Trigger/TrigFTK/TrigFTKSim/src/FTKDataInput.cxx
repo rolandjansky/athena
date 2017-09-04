@@ -19,7 +19,7 @@ FTKDataInput::FTKDataInput() :
   m_original_reghits(0), m_nplanes(0), m_nregions(0), m_nsubregions(0),
   m_ncoords(0), m_region(-1), m_subregion(-1), 
   m_Clustering(true), m_SaveClusterContent(false),
-  m_DiagClustering(true), m_SctClustering(false), m_PixelClusteringMode(0), m_DuplicateGanged(true), 
+  m_DiagClustering(true), m_SctClustering(false), m_PixelClusteringMode(0), m_Ibl3DRealistic(false), m_DuplicateGanged(true),
   m_GangedPatternRecognition(false),
   m_SplitBlayerModules(false),  
   m_init(false), m_save_unused(false), m_read_clusters(false),
@@ -36,7 +36,7 @@ FTKDataInput::FTKDataInput(const FTKPlaneMap *pmap, const FTKPlaneMap *pmap_unus
   m_nplanes(m_pmap->getNPlanes()), m_nregions(0), m_nsubregions(0),
   m_ncoords(0), m_region(-1), m_subregion(-1), 
   m_Clustering(true), m_SaveClusterContent(false),
-  m_DiagClustering(true), m_SctClustering(false), m_PixelClusteringMode(0), m_DuplicateGanged(true), 
+  m_DiagClustering(true), m_SctClustering(false), m_PixelClusteringMode(0), m_Ibl3DRealistic(false), m_DuplicateGanged(true),
   m_GangedPatternRecognition(false),
   m_SplitBlayerModules(false),  
   m_init(false), m_save_unused(false), m_read_clusters(false),
@@ -67,6 +67,7 @@ void FTKDataInput::initClustering()
   DIAG_CLUSTERING = m_DiagClustering;
   SCT_CLUSTERING = m_SctClustering;
   PIXEL_CLUSTERING_MODE = m_PixelClusteringMode;
+  IBL3D_REALISTIC = m_Ibl3DRealistic;
   DUPLICATE_GANGED = m_DuplicateGanged;
   GANGED_PATTERN_RECOGNITION = m_GangedPatternRecognition;
   SPLIT_BLAYER_MODULES = m_SplitBlayerModules;

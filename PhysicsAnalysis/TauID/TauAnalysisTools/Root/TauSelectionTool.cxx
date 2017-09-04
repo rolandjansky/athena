@@ -361,15 +361,12 @@ StatusCode TauSelectionTool::beginInputFile()
   Checks if electron OLR has to be re-calculated based on file's production release.
   It is possible but not recommended to ignore this check via m_bIgnoreAODFixCheck.
   */
+#ifndef XAODTAU_VERSIONS_TAUJET_V3_H
   if (m_iSelectionCuts & CutEleOLR or m_bCreateControlPlots)
   {
 
     std::string eleOlrPassName = "ele_olr_pass";
-  #ifndef XAODTAU_VERSIONS_TAUJET_V3_H
     std::string lhScoreName = "ele_match_lhscore";
-  #else 
-    std::string lhScoreName = "EleMatchLikelihoodScore";
-  #endif
 
     if (m_bIgnoreAODFixCheck)
     {
@@ -438,6 +435,7 @@ StatusCode TauSelectionTool::beginInputFile()
       }
     }
   }
+#endif
   return StatusCode::SUCCESS;
 }
 

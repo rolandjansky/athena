@@ -10,6 +10,7 @@
 + AtlasGeometryCommon/SubDetectorEnvelopes
 
 # Calorimeter package(s):
++ Calorimeter/CaloBadChannelTool
 + Calorimeter/CaloCalibHitRec
 + Calorimeter/CaloClusterCorrection
 + Calorimeter/CaloCnv/CaloAthenaPool
@@ -59,6 +60,7 @@
 + Database/PersistentDataModel.*
 + Database/RegistrationServices
 + Database/TPTools
++ Database/AthenaRoot/.*
 
 # DQ package(s):
 + DataQuality/GoodRunsLists
@@ -140,6 +142,7 @@
 + InnerDetector/InDetValidation/InDetPhysValMonitoring
 
 # LAr package(s):
++ LArCalorimeter/LArBadChannelTool
 + LArCalorimeter/LArCabling
 + LArCalorimeter/LArCnv/LArIdCnv
 + LArCalorimeter/LArCnv/LArCond.*
@@ -196,6 +199,8 @@
 + PhysicsAnalysis/AnalysisCommon/Particle.*
 + PhysicsAnalysis/AnalysisCommon/PAT.*
 + PhysicsAnalysis/AnalysisCommon/PileupReweighting
++ PhysicsAnalysis/AnalysisCommon/PMGOverlapRemovalTools/HFORTools
++ PhysicsAnalysis/AnalysisCommon/ReweightUtils
 + PhysicsAnalysis/AnalysisTrigger/AnalysisTriggerEvent
 + PhysicsAnalysis/AraTool
 + PhysicsAnalysis/BPhys/BPhysTools
@@ -235,6 +240,7 @@
 + Reconstruction/AODFix
 + Reconstruction/DiTauRec
 + Reconstruction/eflowRec
++ Reconstruction/egamma/egammaCaloTools
 + Reconstruction/egamma/egammaConditions
 + Reconstruction/egamma/egammaEvent
 + Reconstruction/egamma/egammaInterfaces
@@ -242,6 +248,8 @@
 + Reconstruction/egamma/egammaMVACalib
 + Reconstruction/egamma/egammaRec
 + Reconstruction/egamma/egammaRecEvent
++ Reconstruction/egamma/egammaTools
++ Reconstruction/egamma/egammaTrackTools
 + Reconstruction/egamma/egammaUtils
 + Reconstruction/EventShapes/.*
 - Reconstruction/Jet/JetMonitoring
@@ -253,6 +261,7 @@
 + Reconstruction/MET/METUtilities
 + Reconstruction/MuonIdentification/.*Interfaces
 + Reconstruction/MuonIdentification/ICaloTrkMuIdTools
++ Reconstruction/MuonIdentification/CaloTrkMuIdTools
 + Reconstruction/MuonIdentification/MuidEvent
 + Reconstruction/MuonIdentification/muonEvent
 + Reconstruction/MuonIdentification/MuonCombinedBaseTools
@@ -351,9 +360,7 @@
 + Trigger/TrigEvent/TrigNavigation
 + Trigger/TrigEvent/TrigParticle
 + Trigger/TrigEvent/TrigRoiConversion
-+ Trigger/TrigEvent/TrigSteeringEvent
 + Trigger/TrigEvent/TrigSteeringEventAthenaPool
-+ Trigger/TrigEvent/TrigSteeringEventTPCnv
 + Trigger/TrigEvent/TrigStorageDefinitions
 + Trigger/TrigFTK/FTK_RecExample
 + Trigger/TrigFTK/TrigFTK_RawData

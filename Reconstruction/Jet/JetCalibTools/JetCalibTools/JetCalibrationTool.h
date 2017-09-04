@@ -40,7 +40,7 @@ class InsituDataCorrection;
 class JMSCorrection;
 
 class JetCalibrationTool
-  : virtual public ::JetCalibrationToolBase {
+  : public ::JetCalibrationToolBase {
 
   ASG_TOOL_CLASS2(JetCalibrationTool, IJetCalibrationTool, IJetModifier)
 

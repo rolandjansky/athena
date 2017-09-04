@@ -86,8 +86,9 @@ FwdJet.JvtUseTightOP: false
 #
 Jet.LargeRcollection: AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets
 Jet.LargeRuncConfig: None 
-Jet.WtaggerWP: medium
-Jet.ZtaggerWP: medium
+# 80% efficiency working points 
+Jet.WtaggerConfig: SmoothedWZTaggers/SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency80_MC15c_20161215.dat
+Jet.ZtaggerConfig: SmoothedWZTaggers/SmoothedContainedZTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency80_MC15c_20161215.dat
 #
 BadJet.Cut: LooseBad
 #
@@ -96,7 +97,7 @@ Btag.enable: true
 #
 Btag.Tagger: MV2c10
 Btag.WP: ${BTAG_WP}
-Btag.CalibPath: xAODBTaggingEfficiency/13TeV/2016-20_7-13TeV-MC15-CDI-2017-06-07_v2.root
+Btag.CalibPath: xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2017-07-02_v1.root
 #
 # set the -999. to positive number to override default
 OR.DoBoostedElectron: false
@@ -134,7 +135,7 @@ MET.TauTerm: RefTau
 MET.JetTerm: RefJet
 MET.MuonTerm: Muons
 MET.OutputTerm: Final
-MET.JetSelection: Loose
+MET.JetSelection: Tight
 MET.RemoveOverlappingCaloTaggedMuons: 1
 MET.DoMuonJetOR: 1
 MET.DoTrkSyst: 1

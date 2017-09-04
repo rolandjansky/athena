@@ -5,17 +5,18 @@
 // Local include(s):
 #include "SUSYTools/SUSYObjDef_xAOD.h"
 
-#include "xAODBase/IParticleHelpers.h"
-#include "EventPrimitives/EventPrimitivesHelpers.h"
-#include "xAODPrimitives/IsolationType.h"
-#include "FourMomUtils/xAODP4Helpers.h"
-#include "xAODTracking/TrackParticlexAODHelpers.h"
-#include "AthContainers/ConstDataVector.h"
+// For making the systematics list and looping through it
 #include "PATInterfaces/SystematicsUtil.h"
+#include "PATInterfaces/SystematicRegistry.h"
+
 #ifndef XAOD_STANDALONE // For now metadata is Athena-only
 #include "AthAnalysisBaseComps/AthAnalysisHelper.h"
 #endif
 
+// Need path resolver for initialize()
+#include "PathResolver/PathResolver.h"
+
+// Including all the abstract interfaces - for systematics functions
 #include "xAODBTaggingEfficiency/IBTaggingEfficiencyTool.h"
 #include "xAODBTaggingEfficiency/IBTaggingSelectionTool.h"
 
@@ -25,8 +26,8 @@
 #include "JetCalibTools/IJetCalibrationTool.h"
 #include "JetCPInterfaces/ICPJetUncertaintiesTool.h"
 #include "JetInterface/IJetUpdateJvt.h"
-#include "JetMomentTools/JetForwardJvtTool.h"
 #include "JetInterface/IJetModifier.h"
+#include "JetJvtEfficiency/IJetJvtEfficiency.h"
 
 #include "AsgAnalysisInterfaces/IEfficiencyScaleFactorTool.h"
 #include "ElectronPhotonFourMomentumCorrection/IEgammaCalibrationAndSmearingTool.h"
@@ -47,7 +48,7 @@
 #include "TauAnalysisTools/ITauTruthMatchingTool.h"  
 #include "TauAnalysisTools/ITauEfficiencyCorrectionsTool.h"
 #include "TauAnalysisTools/ITauOverlappingElectronLLHDecorator.h"
-#include "tauRecTools/TauWPDecorator.h"
+#include "tauRecTools/ITauToolBase.h"
 
 #include "PhotonEfficiencyCorrection/IAsgPhotonEfficiencyCorrectionTool.h"
 
@@ -59,24 +60,19 @@
 #include "METInterface/IMETSystematicsTool.h"
 
 #include "TrigConfInterfaces/ITrigConfigTool.h"
+#include "TriggerMatchingTool/IMatchingTool.h"
+// Required to use some functions (see header explanation)
 #include "TrigDecisionTool/TrigDecisionTool.h"
-#include "TriggerMatchingTool/MatchingTool.h"
 
-// Tool interfaces
 #include "PATInterfaces/IWeightTool.h"
-//
-//#include "PileupReweighting/IPileupReweightingTool.h"
 #include "AsgAnalysisInterfaces/IPileupReweightingTool.h"
-//
-#include "PathResolver/PathResolver.h"
-//
 #include "AssociationUtils/IOverlapRemovalTool.h"
 
-// Helpers
-#include <boost/algorithm/string/replace.hpp>
-#include <boost/algorithm/string/split.hpp>
+// For configuration -- TEnv uses THashList
 #include "THashList.h"
-//#include <boost/tokenizer.hpp>
+
+// system includes
+#include <fstream>
 
 namespace ST {
 
@@ -235,8 +231,8 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_jetFwdJvtTool(""),
     m_jetJvtEfficiencyTool(""),
     //
-    m_WTaggerTool(0),
-    m_ZTaggerTool(0),
+    m_WTaggerTool(""),
+    m_ZTaggerTool(""),
     //
     m_muonSelectionTool(""),
     m_muonSelectionHighPtTool(""),
@@ -938,8 +934,8 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_fatJets, "Jet.LargeRcollection", rEnv, "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets");
   configFromFile(m_fatJetUncConfig, "Jet.LargeRuncConfig", rEnv, "UJ2016_CombinedMass_medium.config"); //MultiTagging_medium.config");
   configFromFile(m_fatJetUncVars, "Jet.LargeRuncVars", rEnv, "default"); //do all if not specified
-  configFromFile(m_WtagWP, "Jet.WtaggerWP", rEnv, "medium");
-  configFromFile(m_ZtagWP, "Jet.ZtaggerWP", rEnv, "medium");
+  configFromFile(m_WtagConfig, "Jet.WtaggerConfig", rEnv, "SmoothedWZTaggers/SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency80_MC15c_20161215.dat");
+  configFromFile(m_ZtagConfig, "Jet.ZtaggerConfig", rEnv, "SmoothedWZTaggers/SmoothedContainedZTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency80_MC15c_20161215.dat");
   //
   configFromFile(m_badJetCut, "BadJet.Cut", rEnv, "LooseBad");
   //
@@ -952,7 +948,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_useBtagging, "Btag.enable", rEnv, true);
   configFromFile(m_BtagTagger, "Btag.Tagger", rEnv, "MV2c10");
   configFromFile(m_BtagWP, "Btag.WP", rEnv, "FixedCutBEff_77");
-  configFromFile(m_bTaggingCalibrationFilePath, "Btag.CalibPath", rEnv, "xAODBTaggingEfficiency/13TeV/2016-20_7-13TeV-MC15-CDI-2017-06-07_v2.root");
+  configFromFile(m_bTaggingCalibrationFilePath, "Btag.CalibPath", rEnv, "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2017-07-02_v1.root");
   configFromFile(m_BtagSystStrategy, "Btag.SystStrategy", rEnv, "Envelope");
   //
   configFromFile(m_orDoBoostedElectron, "OR.DoBoostedElectron", rEnv, false);
@@ -1001,7 +997,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_trkMETsyst, "MET.DoTrkSyst", rEnv, true);
   configFromFile(m_caloMETsyst, "MET.DoCaloSyst", rEnv, false);
   configFromFile(m_metGreedyPhotons, "MET.GreedyPhotons", rEnv, false);
-  configFromFile(m_metJetSelection, "MET.JetSelection", rEnv, "Loose"); // set to non-empty to override default
+  configFromFile(m_metJetSelection, "MET.JetSelection", rEnv, "Tight"); // set to non-empty to override default
   //
   configFromFile(m_muUncert, "PRW.MuUncertainty", rEnv, 0.2);
   //
@@ -2245,15 +2241,6 @@ SUSYObjDef_xAOD::~SUSYObjDef_xAOD() {
   // so that they don't get re-used if we set up another SUSYTools
   // instance, e.g. when processing two datasets in one EventLoop
   // job
-
-  if(m_WTaggerTool){
-    delete m_WTaggerTool;
-    m_WTaggerTool=0;
-  }
-  if(m_ZTaggerTool){
-    delete m_ZTaggerTool;
-    m_ZTaggerTool=0;
-  }
   if (!m_trigDecTool.empty()){
     if (asg::ToolStore::contains<Trig::TrigDecisionTool>("ToolSvc.TrigDecisionTool") ){
       // Ignore both of these so that we are safe if others have cleaned up
