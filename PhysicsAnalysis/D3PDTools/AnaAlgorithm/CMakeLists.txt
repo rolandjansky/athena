@@ -19,18 +19,16 @@ if (XAOD_STANDALONE)
 else()
   set (headers AnaAlgorithm/AnaAlgorithm.h AnaAlgorithm/Global.h  AnaAlgorithm/MessageCheck.h)
   set (inline_headers AnaAlgorithm/AnaAlgorithm.icc)
-  set (sources Root/AnaAlgorithm.cxx Root/MessageCheck.h)
+  set (sources Root/AnaAlgorithm.cxx Root/MessageCheck.cxx)
 endif()
 
-
-# Component(s) in the package:
-atlas_add_root_dictionary( AnaAlgorithmLib
-   AnaAlgorithmDictSource
-   ROOT_HEADERS ${headers} Root/LinkDef.h
-   EXTERNAL_PACKAGES ROOT )
+atlas_add_dictionary( AnaAlgorithmDict
+   AnaAlgorithm/AnaAlgorithmDict.h
+   AnaAlgorithm/selection.xml
+   LINK_LIBRARIES AnaAlgorithmLib )
 
 atlas_add_library( AnaAlgorithmLib
-   ${headers} ${inline_headers} ${sources} ${AnaAlgorithmDictSource}
+   ${headers} ${inline_headers} ${sources}
    PUBLIC_HEADERS AnaAlgorithm
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} RootCoreUtils AsgTools xAODRootAccess )
