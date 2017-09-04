@@ -109,6 +109,7 @@ namespace MC {
            abs(pid)==1999 || // Coloron (rho)
            abs(pid)==6666 || // Pseudo Nambu-Goldstone ED model Higgs particle
            abs(pid)==9000006 || // New 'phi' particle from cosmo UFO model
+           abs(pid)==5000001 || // UFO Z'
            isBSM_MCUtils(pid);
   }
 

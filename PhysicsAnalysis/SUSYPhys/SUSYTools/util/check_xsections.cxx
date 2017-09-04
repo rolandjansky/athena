@@ -4,7 +4,10 @@
 
 #include "SUSYTools/SUSYCrossSection.h"
 #include "SUSYTools/SUSYCrossSectionPMG.h"
-#include "PMGTools/PMGCrossSectionTool.h"
+
+// For PMG centralized tool's wrapper tool handles
+#include "AsgTools/AnaToolHandle.h"
+#include "PMGAnalysisInterfaces/IPMGCrossSectionTool.h"
 
 #include <string>
 #include <iostream>
@@ -40,9 +43,11 @@ int main( int argc, char* argv[] ) {
   SUSY::CrossSectionDB *my_XsecDB(0);
   my_XsecDB = new SUSY::CrossSectionDB(gSystem->ExpandPathName("$ROOTCOREBIN/data/SUSYTools/mc15_13TeV/"));
   
-  //PMG
-  PMGTools::PMGCrossSectionTool pmgxs("MyPMGCrossSectionTool");
-  pmgxs.readInfosFromDir(gSystem->ExpandPathName("$ROOTCOREBIN/data/PMGTools/"));
+  //PMG tool
+  asg::AnaToolHandle<PMGTools::IPMGCrossSectionTool> pmgxs;
+  pmgxs.setTypeAndName("PMGTools::PMGCrossSectionTool/PMGCrossSectionTool");
+  pmgxs.retrieve().ignore(); // Ignore the status code
+  pmgxs->readInfosFromDir(gSystem->ExpandPathName("$ROOTCOREBIN/data/PMGTools/"));
 
   //STPMG wrapper
   SUSY::CrossSectionDBPMG *my_XsecDBPMG(0);
@@ -65,11 +70,11 @@ int main( int argc, char* argv[] ) {
     std::cout << "ST_CrossSection eff    : " << my_XsecDB->efficiency(dsid) << std::endl;
     
     //PMG
-    std::cout << "PMG_CrossSection name  : " << pmgxs.getSampleName(dsid) << std::endl;
-    std::cout << "PMG_CrossSection xs    : " << pmgxs.getSampleXsection(dsid) << std::endl;
-    std::cout << "PMG_CrossSection (AMI) : " << pmgxs.getAMIXsection(dsid) << std::endl;
-    std::cout << "PMG_CrossSection (k)   : " << pmgxs.getKfactor(dsid) << std::endl;
-    std::cout << "PMG_CrossSection (eff) : " << pmgxs.getFilterEff(dsid) << std::endl;
+    std::cout << "PMG_CrossSection name  : " << pmgxs->getSampleName(dsid) << std::endl;
+    std::cout << "PMG_CrossSection xs    : " << pmgxs->getSampleXsection(dsid) << std::endl;
+    std::cout << "PMG_CrossSection (AMI) : " << pmgxs->getAMIXsection(dsid) << std::endl;
+    std::cout << "PMG_CrossSection (k)   : " << pmgxs->getKfactor(dsid) << std::endl;
+    std::cout << "PMG_CrossSection (eff) : " << pmgxs->getFilterEff(dsid) << std::endl;
     
     //ST-PMG Wrapper
     std::cout << "STPMG_CrossSection name : " << my_XsecDBPMG->name(dsid) << std::endl;
@@ -81,7 +86,7 @@ int main( int argc, char* argv[] ) {
   }
 
   else if (genmode){
-    std::vector<int> ids = pmgxs.getLoadedDSIDs();
+    std::vector<int> ids = pmgxs->getLoadedDSIDs();
     for(auto id : ids){
       std::string genname="SHOWER";
       std::cout << id << "\t"
@@ -93,7 +98,7 @@ int main( int argc, char* argv[] ) {
     //--- Validation File Mode 
     //*** compare settings for all samples in provided file as from PMG vs SUSYTools
     
-    std::vector<int> ids = pmgxs.getLoadedDSIDs();
+    std::vector<int> ids = pmgxs->getLoadedDSIDs();
 
     for(auto id : ids){
 
@@ -103,19 +108,19 @@ int main( int argc, char* argv[] ) {
       TString cmd = Form("grep \"%d\" PMGTools/data/*.txt | cut -d: -f1 >> PMG_id_file.txt", id);
       gSystem->Exec(cmd);
 
-      std::string shortname = pmgxs.getSampleName(id).erase(0,18);
+      std::string shortname = pmgxs->getSampleName(id).erase(0,18);
       std::string delim="\t";
       //std::string delim=","; // csv format
       std::cout << id << delim
 		<< shortname << delim
 		<< my_XsecDB->xsectTimesEff(id) << delim
-		<< pmgxs.getSampleXsection(id) << delim
+		<< pmgxs->getSampleXsection(id) << delim
 		<< my_XsecDB->rawxsect(id) <<  delim
-		<< pmgxs.getAMIXsection(id) << delim
+		<< pmgxs->getAMIXsection(id) << delim
 		<< my_XsecDB->kfactor(id) <<  delim
-		<< pmgxs.getKfactor(id) <<  delim
+		<< pmgxs->getKfactor(id) <<  delim
 		<< my_XsecDB->efficiency(id) << delim
-		<< pmgxs.getFilterEff(id) * pmgxs.getBR(id) << std::endl;
+		<< pmgxs->getFilterEff(id) * pmgxs->getBR(id) << std::endl;
     }
   }
 
