@@ -81,7 +81,7 @@ def getCharginoPlusToEPlusNeutralino(name="CharginoPlusToEPlusNeutralino", **kwa
         C1ToEBR = C1ToEleBR
     kwargs.setdefault("ParticleName","s_chi_plus_1")
     kwargs.setdefault("BR",C1ToEBR) #Branching Ratio
-    kwargs.setdefault("Daughters","s_chi_0_1,e+")
+    kwargs.setdefault("Daughters","s_chi_0_1,nu_e,e+")
     return CfgMgr.AddPhysicsDecayTool(name, kwargs)
 
 
@@ -93,7 +93,7 @@ def getCharginoMinusToEMinusNeutralino(name="CharginoMinusToEMinusNeutralino", *
         C1ToEBR = C1ToEleBR
     kwargs.setdefault("ParticleName","s_chi_minus_1")
     kwargs.setdefault("BR",C1ToEBR) #Branching Ratio
-    kwargs.setdefault("Daughters","s_chi_0_1,e-")
+    kwargs.setdefault("Daughters","s_chi_0_1,anti_nu_e,e-")
     return CfgMgr.AddPhysicsDecayTool(name, kwargs)
 
 
@@ -105,7 +105,7 @@ def getCharginoPlusToMuPlusNeutralino(name="CharginoPlusToMuPlusNeutralino", **k
         C1ToMuonBR = C1ToMuBR
     kwargs.setdefault("ParticleName","s_chi_plus_1")
     kwargs.setdefault("BR",C1ToMuonBR) #Branching Ratio
-    kwargs.setdefault("Daughters","s_chi_0_1,mu+")
+    kwargs.setdefault("Daughters","s_chi_0_1,nu_mu,mu+")
     return CfgMgr.AddPhysicsDecayTool(name, kwargs)
 
 
@@ -117,5 +117,5 @@ def getCharginoMinusToMuMinusNeutralino(name="CharginoMinusToMuMinusNeutralino",
         C1ToMuonBR = C1ToMuBR
     kwargs.setdefault("ParticleName","s_chi_minus_1")
     kwargs.setdefault("BR",C1ToMuonBR) #Branching Ratio
-    kwargs.setdefault("Daughters","s_chi_0_1,mu-")
+    kwargs.setdefault("Daughters","s_chi_0_1,anti_nu_mu,mu-")
     return CfgMgr.AddPhysicsDecayTool(name, kwargs)

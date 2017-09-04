@@ -3,6 +3,7 @@
 # art-description: Physics v7 TriggerTest on MC
 # art-type: grid
 
+export NAME="physics_pp_v7_grid"
 export MENU="Physics_pp_v7"
 export EVENTS="500"
 
