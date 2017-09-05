@@ -1505,9 +1505,9 @@ void LArNoisyROMon::fillTriggerHisto(partitionHistos& partition, uint8_t trigger
 
 }
 
-StatusCode LArNoisyROMon::finalize()
+StatusCode LArNoisyROMon::finalHists()
 {
-  ATH_MSG_INFO( " in LArNoisyROMon::finalize() " );
+  ATH_MSG_INFO(  " in LArNoisyROMon::finalHists() " );
   // delete temposary histograms
 
   if ( m_h_LBN ) {
