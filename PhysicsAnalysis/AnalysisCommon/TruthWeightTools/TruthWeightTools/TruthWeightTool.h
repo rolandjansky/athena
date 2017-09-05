@@ -17,104 +17,107 @@
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODTruth/TruthEventContainer.h"
 
-namespace xAOD {
+namespace xAOD
+{
 
-   /// Implementation for the xAOD truth meta data weight tool
-   ///
-   /// @author Tobias Bisanz  <tobias.bisanz@cern.ch>
-   /// @author Dag Gillberg <dag.gillberg@cern.ch>, trivial modifications
-   ///
-   /// $Revision$
-   /// $Date$
-   ///
-   class TruthWeightTool 
-     : public virtual ITruthWeightTool,
-       public asg::AsgMetadataTool {
+  /// Implementation for the xAOD truth meta data weight tool
+  ///
+  /// @author Tobias Bisanz  <tobias.bisanz@cern.ch>
+  /// @author Dag Gillberg <dag.gillberg@cern.ch>, trivial modifications
+  ///
+  /// $Revision$
+  /// $Date$
+  ///
+  class TruthWeightTool
+    : public virtual ITruthWeightTool,
+      public asg::AsgMetadataTool
+  {
 
-      /// Create a proper constructor for Athena
-      ASG_TOOL_CLASS( TruthWeightTool, xAOD::ITruthWeightTool )
+    /// Create a proper constructor for Athena
+    ASG_TOOL_CLASS(TruthWeightTool, xAOD::ITruthWeightTool)
 
-   public:
-      /// Create a constructor for standalone usage
-      TruthWeightTool( const std::string& name = "xAOD::TruthWeightTool");
+  public:
+    /// Create a constructor for standalone usage
+    TruthWeightTool(const std::string &name = "xAOD::TruthWeightTool");
 
-      /// Default dtor
-      ~TruthWeightTool() = default;
+    /// Default dtor
+    ~TruthWeightTool() = default;
 
-      /// @name Function(s) implementing the asg::IAsgTool interface
-      /// @{
+    /// @name Function(s) implementing the asg::IAsgTool interface
+    /// @{
 
-      /// Function initialising the tool
-      virtual StatusCode initialize();
+    /// Function initialising the tool
+    virtual StatusCode initialize();
 
-      /// @}
+    /// @}
 
-      /// @name Function(s) implementing the ITruthWeightTool interface
-      /// @{
-      
-      /// Create an IndexRetriever 
-      virtual std::shared_ptr<IIndexRetriever> spawnIndexRetriever(std::string weightName);
+    /// @name Function(s) implementing the ITruthWeightTool interface
+    /// @{
 
-      /// Get a vector with all the currently weight names in meta data
-      std::vector<std::string> const & getWeightNames() const;
+    /// Create an IndexRetriever
+    virtual std::shared_ptr<IIndexRetriever> spawnIndexRetriever(std::string weightName);
 
-      /// Whether a weight with the current name exists
-      bool hasWeight(std::string weightName);
+    /// Get a vector with all the currently weight names in meta data
+    std::vector<std::string> const &getWeightNames() const;
 
-      /// Return weight index
-      size_t getWeightIndex(std::string weightName);
+    /// Whether a weight with the current name exists
+    bool hasWeight(std::string weightName);
 
-      /// Get vector with MC weights. Same as accessing it from TruthEvent or EventInfo
-      const std::vector<float> &getWeights() const;
+    /// Return weight index
+    size_t getWeightIndex(std::string weightName);
 
-      /// Returns the weight
-      float getWeight(std::string weightName) {
-	return getWeights().at(getWeightIndex(weightName));
-      }
+    /// Get vector with MC weights. Same as accessing it from TruthEvent or EventInfo
+    const std::vector<float> &getWeights() const;
 
-      /// @}
+    /// Returns the weight
+    float getWeight(std::string weightName)
+    {
+      return getWeights().at(getWeightIndex(weightName));
+    }
 
-   protected:
-      /// @name Callback function(s) from AsgMetadataTool
-      /// @{
+    /// @}
 
-      /// Function called when a new input file is opened
-      virtual StatusCode beginInputFile();
+  protected:
+    /// @name Callback function(s) from AsgMetadataTool
+    /// @{
 
-      /// Function called when a new event is loaded
-      virtual StatusCode beginEvent();
+    /// Function called when a new input file is opened
+    virtual StatusCode beginInputFile();
 
-      /// @}
-      
-      virtual void onNewMetaData();
+    /// Function called when a new event is loaded
+    virtual StatusCode beginEvent();
 
-      /// Stores the meta data record name
-      std::string m_metaName;
-      /// Ptr to the meta data container
-      xAOD::TruthMetaDataContainer const * m_metaDataContainer;
-      /// Ptr to the currently valid meta data object
-      xAOD::TruthMetaData const * m_metaData; 
+    /// @}
 
-      /// Vector of all spawned IndexRetrievers
-      std::map<std::string, std::weak_ptr<IIndexRetriever> > m_indexRetrievers;
-  
-      /// Previous MC channel number
-      uint32_t m_mcChanNo;
+    virtual void onNewMetaData();
 
-      /// Flag to check if we actaully processed 
-      /// a previous event
-      bool m_uninitialized;
+    /// Stores the meta data record name
+    std::string m_metaName;
+    /// Ptr to the meta data container
+    xAOD::TruthMetaDataContainer const *m_metaDataContainer;
+    /// Ptr to the currently valid meta data object
+    xAOD::TruthMetaData const *m_metaData;
 
-      /// Event info 
-      const xAOD::EventInfo *m_evtInfo;
+    /// Vector of all spawned IndexRetrievers
+    std::map<std::string, std::weak_ptr<IIndexRetriever> > m_indexRetrievers;
 
-      /// TruthEvent 
-      const xAOD::TruthEventContainer *m_truthEvents;
+    /// Previous MC channel number
+    uint32_t m_mcChanNo;
 
-      /// weight names from POOL metadata .. a fallback, available to athena only
-      std::vector<std::string> m_poolWeightNames;
+    /// Flag to check if we actaully processed
+    /// a previous event
+    bool m_uninitialized;
 
-   };
+    /// Event info
+    const xAOD::EventInfo *m_evtInfo;
+
+    /// TruthEvent
+    const xAOD::TruthEventContainer *m_truthEvents;
+
+    /// weight names from POOL metadata .. a fallback, available to athena only
+    std::vector<std::string> m_poolWeightNames;
+
+  };
 
 } // namespace xAOD
 

@@ -4,10 +4,11 @@
 
 using namespace xAOD;
 
-DECLARE_TOOL_FACTORY( TruthWeightTool )
+DECLARE_TOOL_FACTORY(TruthWeightTool)
 
-DECLARE_FACTORY_ENTRIES( TruthWeightTools ) {
+DECLARE_FACTORY_ENTRIES(TruthWeightTools)
+{
 
-  DECLARE_TOOL( TruthWeightTool )
+  DECLARE_TOOL(TruthWeightTool)
 
 }
