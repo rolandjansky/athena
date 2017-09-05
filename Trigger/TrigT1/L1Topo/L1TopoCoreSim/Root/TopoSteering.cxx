@@ -340,8 +340,8 @@ TopoSteering::executeDecisionAlgorithm(TCS::DecisionAlg *alg,
                                        const std::vector<TCS::TOBArray *> & output,
                                        TCS::Decision & decision) {
 
-    TRG_MSG_INFO("  ... executing decision alg '" << alg->fullname() << "'"
-                 <<(m_useBitwise?" (bitwise)":""));
+    TRG_MSG_DEBUG("  ... executing decision alg '" << alg->fullname() << "'"
+                  <<(m_useBitwise?" (bitwise)":""));
 
    if(inputConnectors.size()<1) {
       TCS_EXCEPTION("L1Topo Steering: Decision algorithm expects at least 1 input array but got 0");
