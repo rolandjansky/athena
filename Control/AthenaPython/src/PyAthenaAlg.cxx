@@ -93,7 +93,10 @@ StatusCode
 Alg::execute()
 {  
 //   ATH_MSG_DEBUG("Executing " << name() << "...");
-  return PyAthena::callPyMethod( m_self, "sysExecute" );
+  PyObject* pycontext = PyCObject_FromVoidPtr ( const_cast<EventContext*>(&getContext()), nullptr);
+  StatusCode sc = PyAthena::callPyMethod( m_self, "sysExecute", pycontext );
+  Py_DECREF (pycontext);
+  return sc;
 }
 
 void 
