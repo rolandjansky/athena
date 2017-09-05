@@ -12,9 +12,9 @@ set( extra_include_dirs )
 set( extra_link_libraries )
 set( extra_private_link_libraries )
 if( NOT XAOD_STANDALONE )
-    set( extra_deps Control/AthToolSupport/AsgTools Control/AthenaBaseComps GaudiKernel)
+    set( extra_deps Control/AthToolSupport/AsgTools Control/AthAnalysisBaseComps GaudiKernel)
     set( extra_include_dirs ${HEPPDT_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} )
-    set( extra_link_libraries ${HEPPDT_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps GaudiKernel )
+    set( extra_link_libraries ${HEPPDT_LIBRARIES} ${HEPMC_LIBRARIES} AthAnalysisBaseComps GaudiKernel )
     set( extra_private_link_libraries GeneratorObjects )
 endif()
 
@@ -33,16 +33,17 @@ if( NOT XAOD_STANDALONE )
     find_package( HepPDT )
 endif()
 
-# Component(s) in the package:
-atlas_add_library( xAODTruthMetaDataTool
+# Build a shared library
+atlas_add_library( TruthWeightToolsLib
                    TruthWeightTools/*.h Root/*.cxx
                    PUBLIC_HEADERS TruthWeightTools
                    INCLUDE_DIRS ${extra_include_dirs}
                    LINK_LIBRARIES AsgTools xAODTruth ${extra_link_libraries}
-                   PRIVATE_LINK_LIBRARIES xAODEventInfo TruthUtils ${extra_private_link_libraries} )
+                   PRIVATE_LINK_LIBRARIES TruthUtils xAODEventInfo ${extra_private_link_libraries} )
 
+# Component(s) in the package:
 if( NOT XAOD_STANDALONE )
     atlas_add_component( TruthWeightTools
-                         INCLUDE_DIRS ${HEPPDT_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                         LINK_LIBRARIES ${HEPPDT_LIBRARIES} ${HEPMC_LIBRARIES} AsgTools AthenaBaseComps xAODTruth GaudiKernel xAODEventInfo GeneratorObjects TruthUtils xAODTruthMetaDataTool )
+                         src/components/*.cxx
+                         LINK_LIBRARIES TruthWeightToolsLib )
 endif()
