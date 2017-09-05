@@ -30,6 +30,9 @@ SUSY::CrossSectionDB::CrossSectionDB(const std::string& txtfilenameOrDir, bool u
       while ((de = readdir(dp)) != NULL) {
         loadFile(fullPath + de->d_name);
       }
+      if (closedir(dp)!=0){
+        std::cerr << "CrossSectionDB::CrossSectionDB ERROR Problem closing directory" << std::endl;
+      }
     }
     else {
       std::string fullPathToFile = PathResolverFindCalibFile(txtfilenameOrDir);
@@ -42,6 +45,9 @@ SUSY::CrossSectionDB::CrossSectionDB(const std::string& txtfilenameOrDir, bool u
       struct dirent * de;
       while ((de = readdir(dp)) != NULL) {
         loadFile(txtfilenameOrDir + de->d_name);
+      }
+      if (closedir(dp)!=0){
+        std::cerr << "CrossSectionDB::CrossSectionDB ERROR Problem closing directory" << std::endl;
       }
     } else {
       loadFile(txtfilenameOrDir.c_str());
