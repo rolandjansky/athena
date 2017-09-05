@@ -25,7 +25,7 @@ atlas_add_library( EgammaAnalysisHelpersLib
   LINK_LIBRARIES xAODEgamma 
   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODCaloEvent)
 
-atlas_add_dictionary( EgammaAnalysisHelpersPythonDict
+atlas_add_dictionary( EgammaAnalysisHelpersDict
   EgammaAnalysisHelpers/EgammaAnalysisHelpersDict.h
   EgammaAnalysisHelpers/selection.xml
   LINK_LIBRARIES EgammaAnalysisHelpersLib )
