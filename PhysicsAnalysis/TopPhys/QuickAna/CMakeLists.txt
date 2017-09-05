@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 780993 2016-10-28 13:22:53Z krasznaa $
 
 # The name of the package:
 atlas_subdir( QuickAna )
@@ -161,8 +160,7 @@ foreach( test inc_AnaToolCorrect inc_AnaToolSelect inc_AnaToolWeight
 endforeach()
 
 if( XAOD_STANDALONE )
-   foreach( test ut_MessageCheck ut_OutputToolXAOD ut_event_data_filler
-         ut_xaod_truth )
+   foreach( test ut_MessageCheck ut_OutputToolXAOD ut_xaod_truth )
       atlas_add_test( ${test}
          SOURCES test/${test}.cxx
          INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
@@ -171,6 +169,7 @@ if( XAOD_STANDALONE )
          QuickAnaLib )
    endforeach()
 
+   atlas_add_test( ut_event_data_filler SCRIPT test/ut_event_data_filler.sh )
    atlas_add_test( ut_eventloop_example SCRIPT test/ut_eventloop_example.sh )
    atlas_add_test( ut_python SCRIPT test/ut_python.py )
    atlas_add_test( ut_python_no_qa SCRIPT test/ut_python_no_qa.py )
