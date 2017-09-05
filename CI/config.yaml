@@ -1,0 +1,4 @@
+sweep-targets:
+  '21.0-mc16a':
+    'NONE':
+      - 'master'
