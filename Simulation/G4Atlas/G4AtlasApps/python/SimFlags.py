@@ -681,7 +681,7 @@ class G4Commands(JobProperty):
     """
     statusOn = True
     allowedTypes = ['list']
-    StoredValue = []
+    StoredValue = ['/run/verbose 2'] # FIXME make configurable based on Athena message level?
 
 class UserActionConfig(JobProperty):
     """Configuration for UserActions
