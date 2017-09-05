@@ -33,7 +33,12 @@ atlas_add_component( TileTripReader
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps PATCoreLib AthenaKernel EventKernel xAODEventInfo GaudiKernel PathResolver TileTripReaderLib )
 
-# Install files from the package:
+atlas_add_dictionary( TileTripReaderDict
+   TileTripReader/TileTripReaderDict.h
+   TileTripReader/selection.xml
+   LINK_LIBRARIES ${ROOT_LIBRARIES} TileTripReaderLib )
+
+ # Install files from the package:
 atlas_install_joboptions( share/*.py )
 atlas_install_xmls( data/*.root )
 
