@@ -673,7 +673,7 @@ int ISF::FastCaloSimSvcV2::hitCalc(double energy, int calolayer,int pcabin, int 
   
   if(pdgid == 211)
   {
-   return hitVectorPions[calolayer][pcabin];
+   return hitVectorPions[calolayer][pcabin-1];
    
    /*
    if(calolayer >= 0 && calolayer<= 7)
