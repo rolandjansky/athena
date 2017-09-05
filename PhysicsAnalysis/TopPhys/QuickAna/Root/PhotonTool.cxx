@@ -10,6 +10,7 @@
 
 #include <ElectronPhotonFourMomentumCorrection/EgammaCalibrationAndSmearingTool.h>
 #include <ElectronPhotonSelectorTools/AsgPhotonIsEMSelector.h>
+#include <ElectronPhotonSelectorTools/egammaPIDdefs.h>
 #include <QuickAna/AnaToolRetrieve.h>
 #include <QuickAna/DefinitionArgs.h>
 #include <QuickAna/DefinitionMaker.h>
