@@ -22,7 +22,7 @@
 #include "IsolationSelection/IIsolationCloseByCorrectionTool.h"
 
 // Helper for object quality
-#include "ElectronPhotonSelectorTools/PhotonSelectorHelpers.h"
+#include "EgammaAnalysisHelpers/PhotonHelpers.h"
 
 #ifndef XAOD_STANDALONE // For now metadata is Athena-only
 #include "AthAnalysisBaseComps/AthAnalysisHelper.h"
@@ -134,8 +134,8 @@ StatusCode SUSYObjDef_xAOD::FillPhoton(xAOD::Photon& input, float ptcut, float e
     return StatusCode::SUCCESS;
 
   //Photon quality as in https://twiki.cern.ch/twiki/bin/view/AtlasProtected/EGammaIdentificationRun2#Photon_cleaning
-  if ( (!m_photonAllowLate && !PhotonSelectorHelpers::passOQquality(&input)) ||
-       ( m_photonAllowLate && !PhotonSelectorHelpers::passOQqualitydelayed(&input)) ){
+  if ( (!m_photonAllowLate && !PhotonHelpers::passOQquality(&input)) ||
+       ( m_photonAllowLate && !PhotonHelpers::passOQqualityDelayed(&input)) ){
     return StatusCode::SUCCESS;
   }
 

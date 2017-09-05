@@ -2,19 +2,16 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "ElectronPhotonSelectorTools/PhotonSelectorHelpers.h"
-#include "xAODEgamma/EgammaxAODHelpers.h"
-#include "xAODCaloEvent/CaloCluster.h"
+#include "EgammaAnalysisHelpers/PhotonHelpers.h"
 #include "xAODEgamma/Photon.h"
+#include "xAODCaloEvent/CaloCluster.h"
+#include "xAODEgamma/EgammaxAODHelpers.h"
 #include "AsgTools/AsgMessaging.h"
 
 // ==================================================================
+bool PhotonHelpers::passOQquality(const xAOD::Photon *ph){
 
-bool PhotonSelectorHelpers::passOQquality(const xAOD::Photon *ph){
-
- // Define an AsgMessaging instance
-  static const asg::AsgMessaging msg("PhotonSelectorHelpers");
-
+  static const asg::AsgMessaging msg("PhotonHelpers");
   if(!ph){
     msg.msg(MSG::WARNING) << "No photon found!" << endmsg;
     return 0;
@@ -28,16 +25,12 @@ bool PhotonSelectorHelpers::passOQquality(const xAOD::Photon *ph){
 	   ) ) ){
     return true;
   } 
-  
   return false;
 }
-
 // ==================================================================
-bool PhotonSelectorHelpers::passOQqualitydelayed(const xAOD::Photon *ph){
+bool PhotonHelpers::passOQqualityDelayed(const xAOD::Photon *ph){
 
-  // Define an AsgMessaging instance
-  static const asg::AsgMessaging msg("PhotonSelectorHelpers");
-
+  static const asg::AsgMessaging msg("PhotonHelpers");
   if(!ph){
     msg.msg(MSG::WARNING) << "No photon found!" << endmsg;
     return 0;
@@ -50,6 +43,5 @@ bool PhotonSelectorHelpers::passOQqualitydelayed(const xAOD::Photon *ph){
 	     ) ) ) ) {
     return true;
   }
-   
   return false;
 }

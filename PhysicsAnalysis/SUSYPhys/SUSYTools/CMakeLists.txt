@@ -58,6 +58,7 @@ atlas_depends_on_subdirs(
    PhysicsAnalysis/ElectronPhotonID/ElectronPhotonShowerShapeFudgeTool
    PhysicsAnalysis/ElectronPhotonID/IsolationCorrections
    PhysicsAnalysis/ElectronPhotonID/PhotonEfficiencyCorrection
+   PhysicsAnalysis/ElectronPhotonID/EgammaAnalysisHelpers
    PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
    PhysicsAnalysis/JetMissingEtID/JetSelectorTools
    PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/xAODBTaggingEfficiency
@@ -98,8 +99,8 @@ atlas_add_library( SUSYToolsLib
    AthContainers EventPrimitives FourMomUtils xAODBTagging xAODBase
    xAODPrimitives IsolationSelectionLib PileupReweightingLib
    ElectronEfficiencyCorrectionLib ElectronPhotonFourMomentumCorrectionLib
-   ElectronPhotonSelectorToolsLib ElectronPhotonShowerShapeFudgeToolLib
-   IsolationCorrectionsLib PhotonEfficiencyCorrectionLib JetSelectorToolsLib
+   ElectronPhotonSelectorToolsLib   ElectronPhotonShowerShapeFudgeToolLib
+   IsolationCorrectionsLib PhotonEfficiencyCorrectionLib EgammaAnalysisHelpersLib JetSelectorToolsLib
    xAODBTaggingEfficiencyLib MuonEfficiencyCorrectionsLib
    MuonMomentumCorrectionsLib MuonSelectorToolsLib TauAnalysisToolsLib
    JetCPInterfaces JetCalibToolsLib JetInterface JetResolutionLib
