@@ -131,7 +131,7 @@ namespace ISF {
       
       std::string  m_caloCellsOutputName;
 
-	  std::vector<double> m_rlayer;
+      std::vector<double> m_rlayer;
 
 
       /** enable/disable random fluctuations in calorimeter layers */
@@ -141,7 +141,6 @@ namespace ISF {
       // Settings for new shape parametrisation
       bool m_useOneDShapeParametrisation;
       int m_nHits;
-      TRandom *rnd;
       
       double eta;
       double phi;

@@ -29,6 +29,7 @@
 
 
 #include "CLHEP/Random/RandFlat.h"
+#include "CLHEP/Random/RandGauss.h"
 
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
@@ -188,8 +189,6 @@ StatusCode ISF::FastCaloSimSvcV2::initialize()
    ATH_MSG_ERROR("FastCaloSimCaloExtrapolation not found ");
    return StatusCode::FAILURE;
   }
-  
-  rnd = new TRandom();
   
   return StatusCode::SUCCESS;
 }
@@ -464,7 +463,7 @@ StatusCode ISF::FastCaloSimSvcV2::simulate(const ISF::ISFParticle& isfp)
     err = proj->GetBinError(i);
     //std::cout << "Bin: " << i << " mean: " << mean << "  err: " << err << std::endl;
     
-    energyDensityInBin = rnd->Gaus(mean, err);
+    energyDensityInBin = CLHEP::RandGauss::shoot(m_randomEngine,mean,err);
     energyInBin = energyDensityInBin * layerE;
     
     double minR = proj->GetBinLowEdge(i);
@@ -503,8 +502,8 @@ void ISF::FastCaloSimSvcV2::LoopOverHits(double totalEnergy, double minR, double
   {
    if(m_useOneDShapeParametrisation)
    {
-    r = rnd->Uniform(minR, maxR);
-    alpha = rnd->Uniform(2*TMath::Pi());
+    r = CLHEP::RandFlat::shoot(m_randomEngine,minR,maxR);
+    alpha = CLHEP::RandFlat::shoot(m_randomEngine,2*TMath::Pi());
    }
    if(!m_useOneDShapeParametrisation)
    {
