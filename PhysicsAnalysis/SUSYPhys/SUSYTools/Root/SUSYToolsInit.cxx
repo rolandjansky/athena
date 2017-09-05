@@ -543,25 +543,15 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   ///////////////////////////////////////////////////////////////////////////////////////////
   // Initialise muon trigger scale factor tools
 
-  if (!m_muonTriggerSFTool2015.isUserConfigured()) {
-    toolName = "MuonTriggerScaleFactors2015_" + muQual;
-    m_muonTriggerSFTool2015.setTypeAndName("CP::MuonTriggerScaleFactors/"+toolName);
-    ATH_CHECK( m_muonTriggerSFTool2015.setProperty("MuonQuality", muQual));
-    //ATH_CHECK( m_muonTriggerSFTool2015.setProperty("Isolation", m_muIso_WP)); This property has been depreacted long time ago
-    //ATH_CHECK( m_muonTriggerSFTool2015.setProperty("Year", "2015")); This property will be depreceated too
-    ATH_CHECK( m_muonTriggerSFTool2015.setProperty("AllowZeroSF", true));
-    ATH_CHECK( m_muonTriggerSFTool2015.retrieve());
+  if (!m_muonTriggerSFTool.isUserConfigured()) {
+    toolName = "MuonTriggerScaleFactors_" + muQual;
+    m_muonTriggerSFTool.setTypeAndName("CP::MuonTriggerScaleFactors/"+toolName);
+    ATH_CHECK( m_muonTriggerSFTool.setProperty("MuonQuality", muQual));
+    //ATH_CHECK( m_muonTriggerSFTool.setProperty("Isolation", m_muIso_WP)); This property has been depreacted long time ago
+    ATH_CHECK( m_muonTriggerSFTool.setProperty("AllowZeroSF", true));
+    ATH_CHECK( m_muonTriggerSFTool.retrieve());
   }
 
-  if (!m_muonTriggerSFTool2016.isUserConfigured()) {
-    toolName = "MuonTriggerScaleFactors2016_" + muQual;
-    m_muonTriggerSFTool2016.setTypeAndName("CP::MuonTriggerScaleFactors/"+toolName);
-    ATH_CHECK( m_muonTriggerSFTool2016.setProperty("MuonQuality", muQual));
-    //ATH_CHECK( m_muonTriggerSFTool2016.setProperty("Isolation", m_muIso_WP)); This property has been depreacted long time ago
-    //      ATH_CHECK( m_muonTriggerSFTool2016.setProperty("Year", "2016")); // not needed, 2016 is the default
-    ATH_CHECK( m_muonTriggerSFTool2016.setProperty("AllowZeroSF", true));
-    ATH_CHECK( m_muonTriggerSFTool2016.retrieve());
-  }
   // /////////////////////////////////////////////////////////////////////////////////////////
   // Initialise electron selector tools
   //std::set<std::string> eg_id_support = {"TightLLH", "MediumLLH", "LooseAndBLayerLLH", "LooseLLH", "VeryLooseLLH"};
