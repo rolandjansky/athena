@@ -582,8 +582,6 @@ StatusCode AmdcsimrecAthenaSvc::initializeFromOracle()
   }
   ATH_MSG_DEBUG( "      AGDD2GeoSwitches data collected " ) ;
 
-  pIRDBAccessSvc->shutdown();
-
   if (m_CtrlFileOracle==1){
     std::ofstream  GeneratedFile;
     GeneratedFile.open("Generated_amdb_simrec_Oracle");

@@ -66,7 +66,6 @@ public:
   virtual std::string getChildTag(const std::string& childNode,
 				  const std::string& parentTag,
 				  const std::string& parentNode,
-				  bool fetchData,
 				  const std::string& connName);
   virtual IRDBQuery* getQuery(const std::string& node,
 			      const std::string& tag,
