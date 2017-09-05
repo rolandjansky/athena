@@ -142,7 +142,7 @@ TMemberAdapter::operator TMethodArg*() const
 }
 
 //____________________________________________________________________________
-TTypeAdapter TMemberAdapter::TypeOf() const
+TTypeAdapter TMemberAdapter::TypeOf ATLAS_NOT_THREAD_SAFE () const
 {
    // get the type of the data member
    TDataMember* dataMember = (TDataMember*)*this;
@@ -330,7 +330,7 @@ TScopeAdapter TMemberAdapter::DeclaringScope() const
    return std::string( "" );
 }
 
-TTypeAdapter TMemberAdapter::DeclaringType() const
+TTypeAdapter TMemberAdapter::DeclaringType ATLAS_NOT_THREAD_SAFE () const
 {
 // no distinction between scope/type
    return DeclaringScope();
@@ -345,7 +345,7 @@ std::string TBaseAdapter::Name() const
 }
 
 //____________________________________________________________________________
-TScopeAdapter TBaseAdapter::ToType() const
+TScopeAdapter TBaseAdapter::ToType ATLAS_NOT_THREAD_SAFE () const
 {
 // wrap the actual class representing this base
    return TScopeAdapter( fBase->GetClassPointer() );
@@ -626,7 +626,7 @@ std::string TScopeAdapter::Name( unsigned int mod ) const
 }
 
 //____________________________________________________________________________
-TScopeAdapter TScopeAdapter::DeclaringScope() const
+TScopeAdapter TScopeAdapter::DeclaringScope  ATLAS_NOT_THREAD_SAFE () const
 {
    std::string name = Name( Reflex::FINAL | Reflex::SCOPED );
    std::string::size_type pos = name.rfind( "::" );
