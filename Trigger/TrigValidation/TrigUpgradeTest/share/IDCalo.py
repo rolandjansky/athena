@@ -10,6 +10,12 @@ topSequence = AlgSequence()
 allViewAlgorithms = None
 if viewTest:
   allViewAlgorithms = topSequence.allViewAlgorithms
+  #Create IdentifiableCaches
+  from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__CacheCreator
+  InDetCacheCreatorTrigViews = InDet__CacheCreator(name = "InDetCacheCreatorTrigViews",
+					Pixel_ClusterKey = "PixelTrigClustersCache",
+					SCT_ClusterKey   = "SCT_ClustersCache")
+  allViewAlgorithms += InDetCacheCreatorTrigViews
 
 if TriggerFlags.doID:
   #workaround to prevent online trigger folders to be enabled
@@ -177,6 +183,7 @@ if TriggerFlags.doID:
     allViewAlgorithms += InDetPixelClusterization
     allViewAlgorithms.InDetPixelClusterization.isRoI_Seeded = True
     allViewAlgorithms.InDetPixelClusterization.RoIs = "EMViewRoIs"
+    allViewAlgorithms.InDetPixelClusterization.clusterContainercacheKey = allViewAlgorithms.InDetCacheCreatorTrigViews.Pixel_ClusterKey
     svcMgr.ViewAlgPool.TopAlg += [ "InDetPixelClusterization" ]
     topSequence.viewMaker.AlgorithmNameSequence += [ "InDetPixelClusterization" ]
   else:
@@ -210,6 +217,7 @@ if TriggerFlags.doID:
     allViewAlgorithms += InDetSCT_Clusterization
     allViewAlgorithms.InDetSCT_Clusterization.isRoI_Seeded = True
     allViewAlgorithms.InDetSCT_Clusterization.RoIs = "EMViewRoIs"
+    allViewAlgorithms.InDetSCT_Clusterization.clusterContainercacheKey = allViewAlgorithms.InDetCacheCreatorTrigViews.SCT_ClusterKey
     svcMgr.ViewAlgPool.TopAlg += [ "InDetSCT_Clusterization" ]
     topSequence.viewMaker.AlgorithmNameSequence += [ "InDetSCT_Clusterization" ]
   else:
