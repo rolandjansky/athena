@@ -77,6 +77,9 @@ def setupMenu():
         ['mu10_nomucomb',                   'L1_MU10',           [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
         ['mu11_nomucomb',                   'L1_MU11',           [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
 
+        #ATR-16981
+        ['mu24_ivarmedium',	     'L1_MU20MU21',   ['L1_MU20'], [PhysicsStream, 'express'], ['RATE:SingleMuon', 'BW:Muon'], -1],
+
 				# Toroid-off run (ATR-9923)
         ['mu8_mucombTag_noEF_L1MU40',  'L1_MU20', [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
         ['mu10_mucombTag_noEF_L1MU40', 'L1_MU20', [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
@@ -1700,6 +1703,9 @@ def setupMenu():
         ['e28_lhvloose_nod0_L1EM20VH',                'L1_EM20VH',    [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],  
         ['e26_lhmedium_nod0_L1EM20VH',                'L1_EM20VH',    [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],  
         ['e28_lhmedium_nod0_L1EM20VH',                'L1_EM20VH',    [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],  
+
+        #ATR-16981
+        ['e24_lhtight_nod0_ivarloose',                'L1_EM20VHI',    [], [PhysicsStream, 'express'], ['RATE:SingleElectron', 'BW:Egamma'],-1],  
 
         ['e26_lhtight_nod0_e15_etcut_L1EM7_Zee',    	  'L1_EM22VHI', ['L1_EM22VHI','L1_EM7'], [PhysicsStream], ['Primary:17000','RATE:MultiElectron', 'BW:Egamma'],-1 ],
         ['e28_lhtight_nod0_e15_etcut_L1EM7_Zee',    	  'L1_EM24VHI', ['L1_EM24VHI','L1_EM7'], [PhysicsStream, 'express'], ['RATE:MultiElectron', 'BW:Egamma'],-1 ],
@@ -3698,6 +3704,8 @@ def setupMenu():
         ['noalg_mb_L1EM3',         'L1_EM3',            [], ['MinBias'], ['RATE:SeededStreamers', 'BW:Egamma'], -1],
         ['noalg_L12EM3',           'L1_2EM3',           [], [PhysicsStream], ['RATE:SeededStreamers', 'BW:Egamma'], -1],
 
+        ['noalg_L1EM3_EMPTY',            'L1_EM3_EMPTY',            [], [PhysicsStream], ['RATE:SeededStreamers', 'BW:Egamma'], -1],
+
         # Muon streamers
         ['noalg_L1MU20',           'L1_MU20',           [], [PhysicsStream, 'express'], ['RATE:SeededStreamers', 'BW:Muon'], -1],
         ['noalg_L1MU21',           'L1_MU21',           [], [PhysicsStream, 'express'], ['RATE:SeededStreamers', 'BW:Muon'], -1],
@@ -3712,6 +3720,7 @@ def setupMenu():
         ['noalg_L1MU4_FIRSTEMPTY', 'L1_MU4_FIRSTEMPTY', [], [PhysicsStream], ['RATE:SeededStreamers', 'BW:Muon'], -1],
         ['noalg_L1MU11_EMPTY',      'L1_MU11_EMPTY',      [], [PhysicsStream], ['RATE:SeededStreamers', 'BW:Muon'], -1],
         ['noalg_L1MU4_UNPAIRED_ISO', 'L1_MU4_UNPAIRED_ISO', [], [PhysicsStream], ['RATE:SeededStreamers', 'BW:Muon'], -1],
+        ['noalg_L1MU6_EMPTY',            'L1_MU6_EMPTY',            [], [PhysicsStream], ['RATE:SeededStreamers', 'BW:Muon'], -1],
 
         ['noalg_L1MU20_FIRSTEMPTY',     'L1_MU20_FIRSTEMPTY', [], [PhysicsStream], ['RATE:SeededStreamers', 'BW:Muon'], -1],
         ['noalg_L1MU21_FIRSTEMPTY',     'L1_MU21_FIRSTEMPTY', [], [PhysicsStream], ['RATE:SeededStreamers', 'BW:Muon'], -1],
@@ -3754,6 +3763,8 @@ def setupMenu():
         ['noalg_L1TAU12IM',            'L1_TAU12IM',            [], [PhysicsStream], ['RATE:SeededStreamers', 'BW:Tau'], -1],
         ['noalg_L1TAU20IM',            'L1_TAU20IM',            [], [PhysicsStream], ['RATE:SeededStreamers', 'BW:Tau'], -1],
 
+        ['noalg_L1TAU8_EMPTY',            'L1_TAU8_EMPTY',            [], [PhysicsStream], ['RATE:SeededStreamers', 'BW:Tau'], -1],
+
         # MET streamers
         ['noalg_L1XE35',             'L1_XE35',             [], [PhysicsStream, 'express'], ['RATE:SeededStreamers', 'BW:MET'], -1],
         ['noalg_L1XE10',             'L1_XE10',             [], [PhysicsStream], ['RATE:SeededStreamers', 'BW:MET'], -1],
@@ -3761,7 +3772,10 @@ def setupMenu():
         ['noalg_L1XE150',            'L1_XE150',             [], [PhysicsStream], ['RATE:SeededStreamers', 'BW:MET'], -1],
         ['noalg_L1XE300',            'L1_XE300',             [], [PhysicsStream], ['RATE:SeededStreamers', 'BW:MET'], -1],
 
+        # Jet streamers
         ['noalg_L1J20_J20.31ETA49',                'L1_J20_J20.31ETA49',                [], [PhysicsStream], ['RATE:SeededStreamers', 'BW:Jet'], -1],
+
+        ['noalg_L1J12_EMPTY',            'L1_J12_EMPTY',            [], [PhysicsStream], ['RATE:SeededStreamers', 'BW:Jet'], -1],
 
         # VBF triggers
         ['noalg_L1MJJ-100', 'L1_MJJ-100', [], [PhysicsStream], ["RATE:L1TopoStreamers", "BW:Other"], -1],  
