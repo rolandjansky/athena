@@ -515,7 +515,7 @@ from JetRec.JetRecConf import JetAlgorithm
 augTools = []
 if globalflags.DataSource() == 'geant4':
    from DerivationFrameworkMCTruth.GenFilterToolSetup import *
-   augTools.append(ToolSvc.DFCommonTruthGenFilter)
+   augTools.append(ToolSvc.DFCommonTruthGenFilt)
 
 # this classifies leptons into background or signal leptons depending on
 # where they come from

@@ -228,10 +228,10 @@ if DerivationFrameworkIsMonteCarlo:
 
 
 #==============================================================================
-# SUSY background generator filters
+# background generator filters
 #==============================================================================
 if DerivationFrameworkIsMonteCarlo:
-  ToolSvc += CfgMgr.DerivationFramework__SUSYGenFilterTool("EXOT0GenFilt",SimBarcodeOffset = DerivationFrameworkSimBarcodeOffset)
+  ToolSvc += CfgMgr.DerivationFramework__GenFilterTool("EXOT0GenFilt",SimBarcodeOffset = DerivationFrameworkSimBarcodeOffset)
   AugmentationTools.append(ToolSvc.EXOT0GenFilt)
 
   

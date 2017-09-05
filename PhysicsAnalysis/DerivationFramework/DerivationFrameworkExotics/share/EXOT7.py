@@ -71,7 +71,7 @@ if globalflags.DataSource()=='geant4':
 #run GenFilterTool
 if globalflags.DataSource() == 'geant4':
   from DerivationFrameworkMCTruth.GenFilterToolSetup import *
-  augTools.append(ToolSvc.DFCommonTruthGenFilter)
+  augTools.append(ToolSvc.DFCommonTruthGenFilt)
 
 from DerivationFrameworkExotics.JetDefinitions import *
 
