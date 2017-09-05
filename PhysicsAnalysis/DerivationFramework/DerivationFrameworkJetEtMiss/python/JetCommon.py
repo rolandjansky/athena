@@ -28,21 +28,27 @@ DFJetAlgs = {}
 # EMEC-IW Noise based on the presence of many bad quality clusters
 ##################################################################
 if hasattr(DerivationFrameworkJob,"BadBatmanAugmentation"):
-    print "BadBatmanAugmentation: BadBatmanAugmentation already scheduled on sequence", DerivationFrameworkJob.name
+    dfjetlog.warning( "BadBatmanAugmentation: BadBatmanAugmentation already scheduled on sequence "+DerivationFrameworkJob.name )
 else:
-    # otherwise schedule it
-    batmanaug = CfgMgr.DerivationFramework__CommonAugmentation("BadBatmanAugmentation")
-    DerivationFrameworkJob += batmanaug
-    batmanaugtool = None
-    from AthenaCommon.AppMgr import ToolSvc        
-    # create and add the tool to the alg if needed
-    if hasattr(ToolSvc,"BadBatmanAugmentationTool"):
-        batmanaugtool = getattr(ToolSvc,"BadBatmanAugmentationTool")
+    # Check if we have clusters.  If we don't then this cannot run
+    from RecExConfig.ObjKeyStore import objKeyStore
+    if objKeyStore.isInInput( "xAOD::CaloClusterContainer", "CaloCalTopoClusters" ):
+        # schedule it
+        batmanaug = CfgMgr.DerivationFramework__CommonAugmentation("BadBatmanAugmentation")
+        DerivationFrameworkJob += batmanaug
+        batmanaugtool = None
+        from AthenaCommon.AppMgr import ToolSvc        
+        # create and add the tool to the alg if needed
+        if hasattr(ToolSvc,"BadBatmanAugmentationTool"):
+            batmanaugtool = getattr(ToolSvc,"BadBatmanAugmentationTool")
+        else:
+            batmanaugtool = CfgMgr.DerivationFramework__BadBatmanAugmentationTool("BadBatmanAugmentationTool")
+            ToolSvc += batmanaugtool
+        if not batmanaugtool in batmanaug.AugmentationTools:
+            batmanaug.AugmentationTools.append(batmanaugtool)
     else:
-        batmanaugtool = CfgMgr.DerivationFramework__BadBatmanAugmentationTool("BadBatmanAugmentationTool")
-        ToolSvc += batmanaugtool
-    if not batmanaugtool in batmanaug.AugmentationTools:
-        batmanaug.AugmentationTools.append(batmanaugtool)
+        dfjetlog.warning('Could not schedule BadBatmanAugmentation (fine if running on EVNT)')
+
 ######################
 
 ##################################################################
