@@ -13,6 +13,6 @@ if not hasattr(ToolSvc,'DFCommonTruthClassifier'):
 #Save the post-shower HT and MET filter values that will make combining filtered samples easier (adds to the EventInfo)
 from AthenaCommon import CfgMgr
 DFCommonTruthGenFilter = CfgMgr.DerivationFramework__GenFilterTool(
-  "DFCommonTruthMTandHTGenFilt",
+  "DFCommonTruthGenFilt",
   )
 ToolSvc += DFCommonTruthGenFilter

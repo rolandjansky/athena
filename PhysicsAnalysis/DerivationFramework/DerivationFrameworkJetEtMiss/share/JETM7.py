@@ -15,7 +15,6 @@ from DerivationFrameworkJetEtMiss.METCommon import *
 #
 if DerivationFrameworkIsMonteCarlo:
     from DerivationFrameworkMCTruth.MCTruthCommon import *
-    from DerivationFrameworkTau.TauTruthCommon import *
 
 #====================================================================
 # SKIMMING TOOL 
