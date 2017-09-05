@@ -171,7 +171,7 @@ replaceAODReducedJets(reducedJetList,jetm7Seq,"JETM7")
 augmentationTools = []
 if globalflags.DataSource() == 'geant4':
     from DerivationFrameworkMCTruth.GenFilterToolSetup import *
-    augmentationTools.append(ToolSvc.DFCommonTruthGenFilter)
+    augmentationTools.append(ToolSvc.DFCommonTruthGenFilt)
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 jetm7Seq += CfgMgr.DerivationFramework__DerivationKernel( name = "JETM7Kernel",
