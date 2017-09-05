@@ -14,10 +14,14 @@ theApp.EvtMax = 400 #set to -1 to run on all events
 inputFile = os.environ['ASG_TEST_FILE_MC_AFII'] #test input file
 svcMgr.EventSelector.InputCollections = [ inputFile ] #specify input files here, takes a list
 
+from MCTruthClassifier.MCTruthClassifierConf import MCTruthClassifier
+AST99TruthClassifier = MCTruthClassifier(name = "AST99TruthClassifier")
+ToolSvc += AST99TruthClassifier
 AST99tauTruthTool = CfgMgr.TauAnalysisTools__TauTruthMatchingTool(
                                         name = "AST99TauTruthMatchingTool",
                               WriteTruthTaus = True,
-                                 OutputLevel = INFO)
+                                 OutputLevel = INFO,
+                       MCTruthClassifierTool = AST99TruthClassifier )
 ToolSvc += AST99tauTruthTool
 
 ToolSvc += CfgMgr.ST__SUSYObjDef_xAOD("SUSYTools")
