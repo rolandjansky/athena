@@ -134,6 +134,7 @@
 + Control/RootUtils
 + Control/PerformanceMonitoring/PerfMonKernel
 + Control/Navigation
++ Event/xAOD/xAODCoreCnv
 + Tools/PyUtils
 # Pycmt is pulled in by PyUtils, which is pulled in by athena.py
 + Tools/PyCmt
