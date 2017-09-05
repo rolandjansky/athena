@@ -113,7 +113,9 @@ void test1()
 int main()
 {
   ISvcLocator* pDum;
-  Athena_test::initGaudi("VarHandleProperty_test.txt", pDum);
+  if (!Athena_test::initGaudi("VarHandleProperty_test.txt", pDum)) {
+    return 1;
+  }
 
   test1();
 }
