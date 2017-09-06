@@ -20,7 +20,7 @@ namespace PSUtils{
   struct HitCacheCounter
   {
     
-    HitCacheCounter():m_count(0){}
+  HitCacheCounter():m_count(0){}
     void operator()(const HitCache::value_type& entry)
     {
       m_count += (entry.second).size();
@@ -31,7 +31,7 @@ namespace PSUtils{
   struct DiodeCacheCounter
   {
     
-    DiodeCacheCounter():m_count(0){}
+  DiodeCacheCounter():m_count(0){}
     void operator()(const DiodeCache::value_type&  entry)
     {
       m_count += ((entry.second)->chargedDiodes()).size();

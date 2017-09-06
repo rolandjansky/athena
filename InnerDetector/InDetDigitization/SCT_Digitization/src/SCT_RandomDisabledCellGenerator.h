@@ -33,16 +33,16 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-class SCT_RandomDisabledCellGenerator :  public AthAlgTool, virtual public ISCT_RandomDisabledCellGenerator {
+class SCT_RandomDisabledCellGenerator : public AthAlgTool, virtual public ISCT_RandomDisabledCellGenerator {
 
   ///////////////////////////////////////////////////////////////////
   // Public methods:
   ///////////////////////////////////////////////////////////////////
 
-public:
+ public:
 
   /**  constructor */
-  SCT_RandomDisabledCellGenerator( const std::string& type, const std::string& name, const IInterface* parent ) ;
+  SCT_RandomDisabledCellGenerator(const std::string& type, const std::string& name, const IInterface* parent) ;
 
   /** Destructor */
   virtual ~SCT_RandomDisabledCellGenerator();
@@ -54,15 +54,15 @@ public:
   /** AlgTool finalize */
   virtual StatusCode finalize();
 
-  virtual void process(SiChargedDiodeCollection &collection) const;
-  void setRandomEngine(CLHEP::HepRandomEngine *rndmEngine) {m_rndmEngine = rndmEngine;}
+  virtual void process(SiChargedDiodeCollection& collection) const;
+  void setRandomEngine(CLHEP::HepRandomEngine* rndmEngine) {m_rndmEngine = rndmEngine;}
 
-private:
+ private:
 
   ///////////////////////////////////////////////////////////////////
   // Private data:
   ///////////////////////////////////////////////////////////////////
-private:
+ private:
 
   float m_disableProbability;   // probability that a cell is disabled
   void (*m_myfunc)(SiChargedDiode& chDiode, bool flag1, bool flag2);
