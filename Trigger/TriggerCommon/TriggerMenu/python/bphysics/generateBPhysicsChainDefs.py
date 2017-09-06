@@ -20,7 +20,7 @@ def generateChainDefs(chainDict):
     
     from TriggerMenu.muon.generateMuonChainDefs import generateChainDefs as genMuonChainDefs
     theChainDef =     genMuonChainDefs(chainDict)
-
+    
     if not chainDict["topo"]:
         log.error( "No topo given -> not a bphysics chain...")
     else:
@@ -466,11 +466,11 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
         from TrigBphysHypo.TrigL2BMuMuFexConfig import L2BMuMuFex_noId
         from TrigBphysHypo.TrigL2BMuMuHypoConfig import L2BMuMuHypo_Jpsi_noId
         from TrigBphysHypo.TrigEFBMuMuFexConfig import EFBMuMuFex_noId
-        from TrigBphysHypo.TrigEFBMuMuHypoConfig import EFBMuMuHypo_Jpsi
+        from TrigBphysHypo.TrigEFBMuMuHypoConfig import EFBMuMuHypo_Jpsi_noId
         L2Fex  = L2BMuMuFex_noId()
         L2Hypo = L2BMuMuHypo_Jpsi_noId()
         EFFex  = EFBMuMuFex_noId()
-        EFHypo = EFBMuMuHypo_Jpsi()
+        EFHypo = EFBMuMuHypo_Jpsi_noId()
     elif ('bDimu' in topoAlgs) & ('noL2' in topoAlgs):
         from TrigBphysHypo.TrigL2BMuMuFexConfig  import L2BMuMuFex_DiMu_passL2
         from TrigBphysHypo.TrigL2BMuMuHypoConfig import L2BMuMuHypo_DiMu_passL2
