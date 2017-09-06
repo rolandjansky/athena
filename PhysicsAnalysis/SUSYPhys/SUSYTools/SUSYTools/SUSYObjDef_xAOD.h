@@ -288,7 +288,7 @@ namespace ST {
 
     float GetDataWeight(const std::string&) override final;
 
-    float GetCorrectedAverageInteractionsPerCrossing() override final;
+    float GetCorrectedAverageInteractionsPerCrossing(bool includeDataSF=false) override final;
 
     double GetSumOfWeights(int channel) override final;
 
