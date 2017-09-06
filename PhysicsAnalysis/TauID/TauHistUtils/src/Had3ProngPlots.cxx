@@ -27,18 +27,6 @@ Had3ProngPlots::Had3ProngPlots(PlotBase* pParent, std::string sDir, std::string 
 	
 Had3ProngPlots::~Had3ProngPlots()
 {
-    // delete m_tauCoreFrac;
-    // delete m_tauEoverPTrk;
-    // delete m_tauTrkAvgDist;
-    // delete m_tauDRMax;
-    // delete m_tauSflight;
-    // delete m_tauMtrks;
-    // delete m_tauIpSig;
-    // delete m_innerTrkAvgDist;
-    // delete m_ptRatioEflowApprox;
-    // delete m_mEflowApprox;
-    // delete m_ChPiEMEOverCaloEME;
-    // delete m_EMPOverTrkSysP;
 }
 
 void Had3ProngPlots::initializePlots(){

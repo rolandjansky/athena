@@ -26,16 +26,6 @@ GeneralTauPlots::GeneralTauPlots(PlotBase* pParent, std::string sDir, std::strin
 
 GeneralTauPlots::~GeneralTauPlots()
 {
-   // delete m_tauCharge;
-   // delete m_tauNCoreTracks;
-   // delete m_tauNWideTracks;
-   // delete m_id_BDTJetScore;
-   // delete m_pt_jetBDTloose;
-   // delete m_pt_jetBDTmed;
-   // delete m_pt_jetBDTtight;
-   // delete m_pt_jetBDTlooseHighPt;
-   // delete m_pt_jetBDTmedHighPt;
-   // delete m_pt_jetBDTtightHighPt;
 }
 
 void GeneralTauPlots::initializePlots(){
