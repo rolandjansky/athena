@@ -16,7 +16,7 @@ import os
 from glob import glob
 from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
 #athenaCommonFlags.FilesInput = glob( "/afs/cern.ch/work/a/ancuetog/HitsAreas/20.3.X.Y-VAL-r3/atlasG4_10ttbar_20.3.X.Y-VAL-r3-modtime.NoFrozenShower.DeadLAr.hits.pool.root" )
-athenaCommonFlags.FilesInput = glob( "/tmp/"+os.environ['USER']+"HITS*root*" )
+athenaCommonFlags.FilesInput = glob( "/tmp/"+os.environ['USER']+"/"+"HITS*root*" )
 ServiceMgr.EventSelector.InputCollections = athenaCommonFlags.FilesInput()
 
 from AthenaCommon.AlgSequence import AlgSequence

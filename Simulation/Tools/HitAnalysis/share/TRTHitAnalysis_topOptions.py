@@ -15,7 +15,7 @@ include("EventAthenaPool/EventAthenaPool_joboptions.py" )
 import os
 from glob import glob
 from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
-athenaCommonFlags.FilesInput = glob( "/tmp/"+os.environ['USER']+"HITS*root*" )
+athenaCommonFlags.FilesInput = glob( "/tmp/"+os.environ['USER']+"/"+"HITS*root*" )
 ServiceMgr.EventSelector.InputCollections = athenaCommonFlags.FilesInput() # This is stupid and redundant, but necessary
 
 from AthenaCommon.AlgSequence import AlgSequence
