@@ -40,8 +40,7 @@ int main( int argc, char* argv[] ) {
 
   //*** Tools
   //SUSYTools
-  SUSY::CrossSectionDB *my_XsecDB(0);
-  my_XsecDB = new SUSY::CrossSectionDB(gSystem->ExpandPathName("$ROOTCOREBIN/data/SUSYTools/mc15_13TeV/"));
+  SUSY::CrossSectionDB my_XsecDB(gSystem->ExpandPathName("$ROOTCOREBIN/data/SUSYTools/mc15_13TeV/"));
   
   //PMG tool
   asg::AnaToolHandle<PMGTools::IPMGCrossSectionTool> pmgxs;
@@ -50,10 +49,7 @@ int main( int argc, char* argv[] ) {
   pmgxs->readInfosFromDir(gSystem->ExpandPathName("$ROOTCOREBIN/data/PMGTools/"));
 
   //STPMG wrapper
-  SUSY::CrossSectionDBPMG *my_XsecDBPMG(0);
-  my_XsecDBPMG = new SUSY::CrossSectionDBPMG(gSystem->ExpandPathName("$ROOTCOREBIN/data/PMGTools/"));
-
-
+  SUSY::CrossSectionDBPMG my_XsecDBPMG(gSystem->ExpandPathName("$ROOTCOREBIN/data/PMGTools/"));
 
 
   //--- Validation Wrapper Mode 
@@ -63,11 +59,11 @@ int main( int argc, char* argv[] ) {
     int dsid = atoi( argv[1] );
 
     //ST
-    std::cout << "ST_CrossSection name   : " << my_XsecDB->name(dsid) << std::endl;
-    std::cout << "ST_CrossSection xs     : " << my_XsecDB->xsectTimesEff(dsid) << std::endl;
-    std::cout << "ST_CrossSection raw    : " << my_XsecDB->rawxsect(dsid) << std::endl;
-    std::cout << "ST_CrossSection k      : " << my_XsecDB->kfactor(dsid) << std::endl;
-    std::cout << "ST_CrossSection eff    : " << my_XsecDB->efficiency(dsid) << std::endl;
+    std::cout << "ST_CrossSection name   : " << my_XsecDB.name(dsid) << std::endl;
+    std::cout << "ST_CrossSection xs     : " << my_XsecDB.xsectTimesEff(dsid) << std::endl;
+    std::cout << "ST_CrossSection raw    : " << my_XsecDB.rawxsect(dsid) << std::endl;
+    std::cout << "ST_CrossSection k      : " << my_XsecDB.kfactor(dsid) << std::endl;
+    std::cout << "ST_CrossSection eff    : " << my_XsecDB.efficiency(dsid) << std::endl;
     
     //PMG
     std::cout << "PMG_CrossSection name  : " << pmgxs->getSampleName(dsid) << std::endl;
@@ -77,11 +73,11 @@ int main( int argc, char* argv[] ) {
     std::cout << "PMG_CrossSection (eff) : " << pmgxs->getFilterEff(dsid) << std::endl;
     
     //ST-PMG Wrapper
-    std::cout << "STPMG_CrossSection name : " << my_XsecDBPMG->name(dsid) << std::endl;
-    std::cout << "STPMG_CrossSection xs   : " << my_XsecDBPMG->xsectTimesEff(dsid) << std::endl;
-    std::cout << "STPMG_CrossSection raw  : " << my_XsecDBPMG->rawxsect(dsid) << std::endl;
-    std::cout << "STPMG_CrossSection k    : " << my_XsecDBPMG->kfactor(dsid) << std::endl;
-    std::cout << "STPMG_CrossSection eff  : " << my_XsecDBPMG->efficiency(dsid) << std::endl;
+    std::cout << "STPMG_CrossSection name : " << my_XsecDBPMG.name(dsid) << std::endl;
+    std::cout << "STPMG_CrossSection xs   : " << my_XsecDBPMG.xsectTimesEff(dsid) << std::endl;
+    std::cout << "STPMG_CrossSection raw  : " << my_XsecDBPMG.rawxsect(dsid) << std::endl;
+    std::cout << "STPMG_CrossSection k    : " << my_XsecDBPMG.kfactor(dsid) << std::endl;
+    std::cout << "STPMG_CrossSection eff  : " << my_XsecDBPMG.efficiency(dsid) << std::endl;
     
   }
 
@@ -103,7 +99,7 @@ int main( int argc, char* argv[] ) {
     for(auto id : ids){
 
       //check if in SUSYTools 
-      if(my_XsecDB->xsectTimesEff(id) < 0) continue;
+      if(my_XsecDB.xsectTimesEff(id) < 0) continue;
 
       TString cmd = Form("grep \"%d\" PMGTools/data/*.txt | cut -d: -f1 >> PMG_id_file.txt", id);
       gSystem->Exec(cmd);
@@ -113,13 +109,13 @@ int main( int argc, char* argv[] ) {
       //std::string delim=","; // csv format
       std::cout << id << delim
 		<< shortname << delim
-		<< my_XsecDB->xsectTimesEff(id) << delim
+		<< my_XsecDB.xsectTimesEff(id) << delim
 		<< pmgxs->getSampleXsection(id) << delim
-		<< my_XsecDB->rawxsect(id) <<  delim
+		<< my_XsecDB.rawxsect(id) <<  delim
 		<< pmgxs->getAMIXsection(id) << delim
-		<< my_XsecDB->kfactor(id) <<  delim
+		<< my_XsecDB.kfactor(id) <<  delim
 		<< pmgxs->getKfactor(id) <<  delim
-		<< my_XsecDB->efficiency(id) << delim
+		<< my_XsecDB.efficiency(id) << delim
 		<< pmgxs->getFilterEff(id) * pmgxs->getBR(id) << std::endl;
     }
   }
