@@ -27,6 +27,18 @@ Had3ProngPlots::Had3ProngPlots(PlotBase* pParent, std::string sDir, std::string 
 	
 Had3ProngPlots::~Had3ProngPlots()
 {
+    // delete m_tauCoreFrac;
+    // delete m_tauEoverPTrk;
+    // delete m_tauTrkAvgDist;
+    // delete m_tauDRMax;
+    // delete m_tauSflight;
+    // delete m_tauMtrks;
+    // delete m_tauIpSig;
+    // delete m_innerTrkAvgDist;
+    // delete m_ptRatioEflowApprox;
+    // delete m_mEflowApprox;
+    // delete m_ChPiEMEOverCaloEME;
+    // delete m_EMPOverTrkSysP;
 }
 
 void Had3ProngPlots::initializePlots(){
@@ -42,7 +54,7 @@ void Had3ProngPlots::initializePlots(){
 
   m_innerTrkAvgDist    = Book1D("innerTrkAvgDist",m_sTauJetContainerName + "Tau innerTrkAvgDist; innerTrkAvgDist; # of Taus", 10,-0.2,.8);
   m_ptRatioEflowApprox = Book1D("ptRatioEflowApprox",m_sTauJetContainerName + "Tau ptRatioEflowApprox; ptRatioEflowApprox; # of Taus", 10, 0, 10);
-  m_mEflowApprox       = Book1D("mEflowApprox",m_sTauJetContainerName + "Tau mEflowApprox; mEflowApprox; #Taus",30,0,300);
+  m_mEflowApprox       = Book1D("mEflowApprox",m_sTauJetContainerName + "Tau mEflowApprox; mEflowApprox; #Taus",30,0.0,3000.0);
   m_ChPiEMEOverCaloEME = Book1D("ChPiEMEOverCaloEME",m_sTauJetContainerName + "Tau ChPiEMEOverCaloEME; ChPiEMEOverCaloEME; # of Taus", 30, -15, 15);
   m_EMPOverTrkSysP     = Book1D("EMPOverTrkSysP",m_sTauJetContainerName + "Tau EMPOverTrkSysP; EMPOverTrkSysP; # of Taus", 21, -1, 20);
 
