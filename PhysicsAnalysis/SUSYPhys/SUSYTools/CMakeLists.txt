@@ -52,12 +52,9 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODPrimitives
    PhysicsAnalysis/AnalysisCommon/IsolationSelection
    PhysicsAnalysis/AnalysisCommon/PileupReweighting
-   PhysicsAnalysis/ElectronPhotonID/ElectronEfficiencyCorrection
-   PhysicsAnalysis/ElectronPhotonID/ElectronPhotonFourMomentumCorrection
    PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
-   PhysicsAnalysis/ElectronPhotonID/ElectronPhotonShowerShapeFudgeTool
    PhysicsAnalysis/ElectronPhotonID/IsolationCorrections
-   PhysicsAnalysis/ElectronPhotonID/PhotonEfficiencyCorrection
+   PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces
    PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
    PhysicsAnalysis/JetMissingEtID/JetSelectorTools
    PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/xAODBTaggingEfficiency
@@ -97,9 +94,7 @@ atlas_add_library( SUSYToolsLib
    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${BOOST_LIBRARIES}
    AthContainers EventPrimitives FourMomUtils xAODBTagging xAODBase
    xAODPrimitives IsolationSelectionLib PileupReweightingLib
-   ElectronEfficiencyCorrectionLib ElectronPhotonFourMomentumCorrectionLib
-   ElectronPhotonSelectorToolsLib ElectronPhotonShowerShapeFudgeToolLib
-   IsolationCorrectionsLib PhotonEfficiencyCorrectionLib JetSelectorToolsLib
+   ElectronPhotonSelectorToolsLib IsolationCorrectionsLib JetSelectorToolsLib
    xAODBTaggingEfficiencyLib MuonEfficiencyCorrectionsLib
    MuonMomentumCorrectionsLib MuonSelectorToolsLib TauAnalysisToolsLib
    JetCPInterfaces JetCalibToolsLib JetInterface JetResolutionLib
