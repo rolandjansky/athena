@@ -6,6 +6,7 @@ atlas_depends_on_subdirs(
    PUBLIC
    Control/AthToolSupport/AsgTools   
    Event/xAOD/xAODMuon
+   Event/xAOD/xAODEventInfo
    PhysicsAnalysis/AnalysisCommon/PATInterfaces
    PhysicsAnalysis/AnalysisCommon/PATCore )
 
@@ -14,7 +15,7 @@ atlas_add_library( MuonAnalysisInterfacesLib
    MuonAnalysisInterfaces/*.h
    INTERFACE
    PUBLIC_HEADERS MuonAnalysisInterfaces
-   LINK_LIBRARIES AsgTools xAODMuon PATCoreLib )
+   LINK_LIBRARIES AsgTools xAODEventInfo xAODMuon PATCoreLib )
 
 atlas_add_dictionary( MuonAnalysisInterfacesDict
    MuonAnalysisInterfaces/MuonAnalysisInterfacesDict.h
