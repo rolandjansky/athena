@@ -20,11 +20,7 @@ can skip ahead to the `Configuration helpers`_ section.
 
 The current recommendations were summarized by me in these slides from the
 flavour-tagging and Hbb workshop on Sep 6, 2017:
-https://indico.cern.ch/event/631313/contributions/2683959/.
-3 summarizes the recommendations and the proposal to drop the mu-jet pt ratio
-requirements on slide 5 was accepted as part of the recommendations.  Apologies
-for any confusion. I will try to clean up this documentation in the coming
-days.
+https://indico.cern.ch/event/631313/contributions/2683959/
 
 For some history you may also refer to the slides at these meetings:
 
