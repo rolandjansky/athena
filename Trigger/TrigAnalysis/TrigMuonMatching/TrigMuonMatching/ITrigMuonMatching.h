@@ -41,6 +41,15 @@ namespace Trig {
 			   const std::string &l1item,
 			   const double DelR = 0.2) = 0;
 
+    virtual Bool_t matchL2SA(const xAOD::Muon* mu,
+			     const std::string &l1item,
+			     const std::string & chain,
+			     const double DelR = 0.2) = 0;
+
+    virtual Bool_t matchL2CB(const xAOD::Muon* mu,
+			     const std::string & chain,
+			     const double DelR = 0.2) = 0;
+
     virtual Double_t minDelR(const xAOD::Muon* mu,
 			     const std::string &chain,
 			     const double mindelR = 0.1) = 0;
@@ -72,6 +81,8 @@ namespace Trig {
 			       std::pair<Bool_t, Bool_t>& result1,
 			       std::pair<Bool_t, Bool_t>& result2,
 			       const Double_t& mindelR = 0.1) = 0;
+
+    virtual Bool_t isPassedRerun(const std::string& trigger) = 0;
     
    }; 
 

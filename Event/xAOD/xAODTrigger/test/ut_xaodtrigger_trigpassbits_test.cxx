@@ -2,8 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ut_xaodtrigger_trigpassbits_test.cxx 704009 2015-10-28 08:32:05Z krasznaa $
-
 // System include(s):
 #include <iostream>
 #include <stdexcept>

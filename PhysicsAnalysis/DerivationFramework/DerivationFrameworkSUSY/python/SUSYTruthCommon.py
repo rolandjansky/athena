@@ -25,6 +25,7 @@ def addTruthTaus(augmentationTools=[]):
         SUSYTauTruthMatchingTool = TauAnalysisTools__TauTruthMatchingTool(name="SUSYTauTruthMatchingTool")
         SUSYTauTruthMatchingTool.WriteTruthTaus = True
         SUSYTauTruthMatchingTool.WriteInvisibleFourMomentum = True
+        SUSYTauTruthMatchingTool.MCTruthClassifierTool = ToolSvc.DFCommonTruthClassifier
         ToolSvc += SUSYTauTruthMatchingTool
         
         SUSYTauTruthMatchingWrapper = DerivationFramework__TauTruthMatchingWrapper( name = "SUSYTauTruthMatchingWrapper",

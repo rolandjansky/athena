@@ -11,6 +11,8 @@
 #include "POOLRootAccess/TEvent.h"
 #endif
 
+#include "TSystem.h"
+
 using namespace asg::msgUserCode;
 
 //==============================================================================
@@ -30,9 +32,13 @@ int main() {
 
 #ifndef XAOD_STANDALONE
 
-  //start just by loading the first event of the test MC file
   POOL::TEvent evt(POOL::TEvent::kAthenaAccess);
-  evt.readFrom("$ASG_TEST_FILE_MC");
+  if (gSystem->Getenv("ASG_TEST_FILE_MC")){
+    evt.readFrom("$ASG_TEST_FILE_MC");
+  } else {
+    evt.readFrom("/afs/cern.ch/atlas/project/PAT/xAODs/r9315/mc16_13TeV.410501.PowhegPythia8EvtGen_A14_ttbar_hdamp258p75_nonallhad.merge.AOD.e5458_s3126_r9364_r9315/AOD.11182705._000001.pool.root.1");
+    ANA_MSG_INFO("Did not have $ASG_TEST_FILE_MC defined -- normal if not running in an analysis release.  Falling back to another file.");
+  }
   evt.getEntry(0);
 
   //configuring the tool

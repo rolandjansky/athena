@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: JetObjectCollectionMaker.cxx 808050 2017-07-10 15:50:58Z tpelzer $
+// $Id: JetObjectCollectionMaker.cxx 809674 2017-08-23 14:10:24Z iconnell $
 #include "TopSystematicObjectMaker/JetObjectCollectionMaker.h"
 #include "TopConfiguration/TopConfig.h"
 #include "TopEvent/EventTools.h"
@@ -37,6 +37,7 @@ JetObjectCollectionMaker::JetObjectCollectionMaker( const std::string& name ) :
   m_jetCalibrationToolLargeR("JetCalibrationToolLargeR"),
 
   m_jetUncertaintiesTool("JetUncertaintiesTool"),
+  m_jetUncertaintiesToolFrozenJMS("JetUncertaintiesToolFrozenJMS"),
   m_jetUncertaintiesToolReducedNPScenario1("JetUncertaintiesToolReducedNPScenario1"),
   m_jetUncertaintiesToolReducedNPScenario2("JetUncertaintiesToolReducedNPScenario2"),
   m_jetUncertaintiesToolReducedNPScenario3("JetUncertaintiesToolReducedNPScenario3"),
@@ -53,6 +54,7 @@ JetObjectCollectionMaker::JetObjectCollectionMaker( const std::string& name ) :
   m_jetSubstructure(nullptr),
 
   m_systMap_AllNP(),
+  m_systMap_AllNP_FrozenJMS(),
   m_systMap_ReducedNPScenario1(),
   m_systMap_ReducedNPScenario2(),
   m_systMap_ReducedNPScenario3(),
@@ -67,6 +69,7 @@ JetObjectCollectionMaker::JetObjectCollectionMaker( const std::string& name ) :
 
   declareProperty( "JetUncertaintiesToolLargeR" , m_jetUncertaintiesToolLargeR_strong);
   declareProperty( "JetUncertaintiesTool" , m_jetUncertaintiesTool);
+  declareProperty( "JetUncertaintiesToolFrozenJMS" , m_jetUncertaintiesToolFrozenJMS);
   declareProperty( "JetUncertaintiesToolReducedNPScenario1" , m_jetUncertaintiesToolReducedNPScenario1 );
   declareProperty( "JetUncertaintiesToolReducedNPScenario2" , m_jetUncertaintiesToolReducedNPScenario2 );
   declareProperty( "JetUncertaintiesToolReducedNPScenario3" , m_jetUncertaintiesToolReducedNPScenario3 );
@@ -121,6 +124,9 @@ StatusCode JetObjectCollectionMaker::initialize() {
     if (m_config->isMC()) {
       if (!m_config->doMultipleJES()) {
         top::check( m_jetUncertaintiesTool.retrieve() , "Failed to retrieve JetUncertaintiesToolAllNP" );
+	if ( m_config->jetCalibSequence() == "JMS" ){
+	  top::check( m_jetUncertaintiesToolFrozenJMS.retrieve() , "Failed to retrieve JetUncertaintiesToolAllNP" );
+	}
       }
       if (m_config->doMultipleJES()) {
         top::check( m_jetUncertaintiesToolReducedNPScenario1.retrieve() , "Failed to retrieve JetUncertaintiesToolReducedNPScenario1" );
@@ -168,12 +174,16 @@ StatusCode JetObjectCollectionMaker::initialize() {
     ///-- JES systematics --///
     if (m_config->isMC()) {
       std::string allNP("JET_"+m_config->jetUncertainties_NPModel()+"_"),np1("JET_SR_Scenario1_"),np2("JET_SR_Scenario2_"),np3("JET_SR_Scenario3_"),np4("JET_SR_Scenario4_");
+      std::string allNP_FrozenJMS("JET_"+m_config->jetUncertainties_NPModel()+"_FrozenJMS_");
       std::string largeR_strong("LARGERJET_Strong_"),
         largeR_medium("LARGERJET_Medium_"),
         largeR_weak("LARGERJET_Weak_");
 
       if (!m_config->doMultipleJES()) {
         specifiedSystematics( syst , m_jetUncertaintiesTool , m_systMap_AllNP , allNP );
+	if ( m_config->jetCalibSequence() == "JMS" ){
+	  specifiedSystematics( syst , m_jetUncertaintiesToolFrozenJMS , m_systMap_AllNP_FrozenJMS , allNP_FrozenJMS );
+	}
       }
       if (m_config->doMultipleJES()) {
         specifiedSystematics( syst , m_jetUncertaintiesToolReducedNPScenario1 , m_systMap_ReducedNPScenario1 , np1 );
@@ -196,6 +206,7 @@ StatusCode JetObjectCollectionMaker::initialize() {
   // See http://cern.ch/go/nHF6 for more information
   if (m_config->doLargeRSmallRCorrelations()) {
     systMap* smallR_systs = &m_systMap_AllNP;
+    // Not sure what to do if the frozen JMS is used
     if (m_config->doMultipleJES()) {
       smallR_systs = &m_systMap_ReducedNPScenario1;
     }
@@ -260,6 +271,9 @@ StatusCode JetObjectCollectionMaker::execute( const bool isLargeR ) {
     if (m_config->isMC()) {
       if (!m_config->doMultipleJES()) {
         top::check( applySystematic( m_jetUncertaintiesTool , m_systMap_AllNP ) , "Failed to apply JES");
+	if ( m_config->jetCalibSequence() == "JMS" ){
+	  top::check( applySystematic( m_jetUncertaintiesToolFrozenJMS , m_systMap_AllNP_FrozenJMS ) , "Failed to apply JES Frozen JMS");
+	}
       }
       if (m_config->doMultipleJES()) {
         top::check( applySystematic( m_jetUncertaintiesToolReducedNPScenario1 , m_systMap_ReducedNPScenario1 ) , "Failed to apply JES");

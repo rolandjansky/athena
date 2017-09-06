@@ -136,7 +136,7 @@ void top::fakes::GetTrigMatchVariable(const xAOD::Electron& el, int& trigmatch, 
   if (rel_temp) {
     release_series = std::string(rel_temp);
   } else {
-    std::cerr<<"Can not access ROOTCORE_RELEASE_SERIES - exiting..."<<std::endl;
+    std::cerr << "Can not access ROOTCORE_RELEASE_SERIES - exiting..." << std::endl;
     exit(1);
   }
   
@@ -216,7 +216,7 @@ void top::fakes::GetTrigMatchVariable(const xAOD::Electron& el, int& trigmatch, 
     }
   }
   else {
-    std::cerr<<"Unknown release series - exiting..."<< std::endl;;
+    std::cerr<<"Unknown release series - exiting..."<<std::endl;
     exit(1);
   }
 

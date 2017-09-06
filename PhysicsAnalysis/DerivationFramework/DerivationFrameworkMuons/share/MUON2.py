@@ -9,6 +9,18 @@ from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkMuons.MuonsCommon import *
 # from DerivationFrameworkJetEtMiss.METCommon import *
 import AthenaCommon.SystemOfUnits as Units
+if not hasattr(ToolSvc,"IDTrackCaloDepositsDecoratorTool"):
+  from DerivationFrameworkMuons.DerivationFrameworkMuonsConf import IDTrackCaloDepositsDecoratorTool
+  DecoTool = IDTrackCaloDepositsDecoratorTool("IDTrackCaloDepositsDecoratorTool")
+  if hasattr(DecoTool, "TrackDepositInCaloTool"):
+    if not hasattr(ToolSvc,"TrkDepositInCaloTool"):
+        from CaloTrkMuIdTools.CaloTrkMuIdToolsConf import TrackDepositInCaloTool
+        TrkDepositInCaloTool = TrackDepositInCaloTool("TrkDepositInCaloTool")
+        TrkDepositInCaloTool.CaloCellContainerName = "AODCellContainer"
+        ToolSvc += TrkDepositInCaloTool
+    DecoTool.TrackDepositInCaloTool = ToolSvc.TrkDepositInCaloTool
+
+    ToolSvc += DecoTool
 
 #====================================================================
 # AUGMENTATION TOOLS
@@ -28,6 +40,7 @@ andTriggers = andTriggers_run2
 brPrefix = 'MUON2'
 from DerivationFrameworkMuons.DerivationFrameworkMuonsConf import DerivationFramework__dimuonTaggingTool
 MUON2AugmentTool1 = DerivationFramework__dimuonTaggingTool(name = "MUON2AugmentTool1",
+                                                           IDTrackCaloDepoDecoTool = ToolSvc.IDTrackCaloDepositsDecoratorTool,
                                                            OrTrigs = orTriggers,
                                                            AndTrigs = andTriggers,
                                                            Mu1PtMin = 4*Units.GeV,
@@ -95,6 +108,18 @@ MUON2ThinningTool2 = DerivationFramework__MuonTrackParticleThinning(name        
                                                                     ApplyAnd                = False,
                                                                     InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += MUON2ThinningTool2
+
+#====================================================================
+# JetTagNonPromptLepton decorations
+#====================================================================
+if not hasattr(DerivationFrameworkJob,"MUONSequence"):
+    MUONSeq = CfgMgr.AthSequencer("MUONSequence")
+    DerivationFrameworkJob += MUONSeq
+
+    if not hasattr(MUONSeq,"Muons_decoratePromptLepton"):
+        import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as Config
+        MUONSeq += Config.GetDecoratePromptLeptonAlgs()
+
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS 
 #====================================================================

@@ -47,6 +47,8 @@ class MuonCPTools final : public asg::AsgTool {
   ToolHandle<CP::IMuonTriggerScaleFactors> m_muonTriggerScaleFactorsLoose_2015;
   ToolHandle<CP::IMuonTriggerScaleFactors> m_muonTriggerScaleFactors_2016;
   ToolHandle<CP::IMuonTriggerScaleFactors> m_muonTriggerScaleFactorsLoose_2016;
+  ToolHandle<CP::IMuonTriggerScaleFactors> m_muonTriggerScaleFactors_R21;
+  ToolHandle<CP::IMuonTriggerScaleFactors> m_muonTriggerScaleFactorsLoose_R21;
 
   ToolHandle<CP::IMuonEfficiencyScaleFactors> m_muonEfficiencyCorrectionsTool;
   ToolHandle<CP::IMuonEfficiencyScaleFactors> m_muonEfficiencyCorrectionsToolLoose;

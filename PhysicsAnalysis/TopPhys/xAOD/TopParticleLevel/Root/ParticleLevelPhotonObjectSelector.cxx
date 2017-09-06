@@ -2,20 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// Filename: ParticleLevelPhotonObjectSelector.cxx
-// Description:
-// Author: Fabian Wilk
-// Created: Wed Oct 12 11:41:36 2016
-//
-// (c) by The ATLAS Collaboration
-//     by Fabian Wilk <mail@fabianwilk.de>
-//
-// This file is licensed under a Creative Commons Attribution-ShareAlike 4.0
-// International License.
-//
-// You should have received a copy of the license along with this work.
-// If not, see <http://creativecommons.org/licenses/by-sa/4.0/>.
-
 #include "TopParticleLevel/ParticleLevelPhotonObjectSelector.h"
 
 #include "TopConfiguration/Tokenize.h"

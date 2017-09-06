@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: JetObjectCollectionMaker.h 794215 2017-01-27 15:12:13Z tpelzer $
+// $Id: JetObjectCollectionMaker.h 809674 2017-08-23 14:10:24Z iconnell $
 #ifndef ANALYSISTOP_TOPSYSTEMATICOBJECTMAKER_JETOBJECTCOLLECTIONMAKER_H
 #define ANALYSISTOP_TOPSYSTEMATICOBJECTMAKER_JETOBJECTCOLLECTIONMAKER_H
 
@@ -19,8 +19,8 @@
   *   (3) Loop over the various NP JER scenarios, using the output of (1) as an input
   *   (2.a , 3.a) Re-calculate the JVT for each jet
   * 
-  * $Revision: 794215 $
-  * $Date: 2017-01-27 15:12:13 +0000 (Fri, 27 Jan 2017) $
+  * $Revision: 809674 $
+  * $Date: 2017-08-23 15:10:24 +0100 (Wed, 23 Aug 2017) $
   * 
   **/ 
 
@@ -125,6 +125,7 @@ namespace top{
       ToolHandle<IJetCalibrationTool> m_jetCalibrationToolLargeR;  
       
       ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesTool;
+      ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesToolFrozenJMS;
       ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesToolReducedNPScenario1;
       ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesToolReducedNPScenario2;
       ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesToolReducedNPScenario3;
@@ -143,6 +144,7 @@ namespace top{
       std::unique_ptr<top::TopJetSubstructure> m_jetSubstructure;
       
       systMap m_systMap_AllNP;
+      systMap m_systMap_AllNP_FrozenJMS;
       systMap m_systMap_ReducedNPScenario1;
       systMap m_systMap_ReducedNPScenario2;
       systMap m_systMap_ReducedNPScenario3;

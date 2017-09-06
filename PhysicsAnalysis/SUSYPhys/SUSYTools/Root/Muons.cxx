@@ -51,24 +51,6 @@ StatusCode SUSYObjDef_xAOD::GetMuons(xAOD::MuonContainer*& copy, xAOD::ShallowAu
     return StatusCode::FAILURE;
   }
   
-  // only call once per event -- don't expect people to use this multiple times
-  if (m_currentSyst.name().empty() && !isData()) {
-    unsigned int runNumber = 0; //suggested by MCP (Lidia)
-    if (m_prwTool.empty()) {
-      ATH_MSG_WARNING("No PRW tool provided -- setting random run number to " << runNumber);
-    } else {
-      runNumber = this->GetRandomRunNumber();
-      if (runNumber == 0)
-        ATH_MSG_DEBUG("RandomRunNumber == 0 found");
-      else
-        ATH_MSG_DEBUG("Setting random run number to " << runNumber);
-    }
-    if (this->setRunNumber(runNumber).isFailure()) {
-      ATH_MSG_FATAL("Failed to set run number (to " << runNumber << ")");
-      return StatusCode::FAILURE;
-    }
-  }
-
   const xAOD::MuonContainer* muons(0);
   if (copy==NULL) { // empty container provided
     if (containerToBeCopied != nullptr) {
@@ -421,25 +403,11 @@ bool SUSYObjDef_xAOD::IsCosmicMuon(const xAOD::Muon& input, float z0cut, float d
 double SUSYObjDef_xAOD::GetMuonTriggerEfficiency(const xAOD::Muon& mu, const std::string& trigExpr, const bool isdata) {
 
   double eff(1.);
-  int year = treatAsYear();
-  if (year == 2015) {
-    if (m_muonTriggerSFTool2015->getTriggerEfficiency(mu, eff, trigExpr, isdata) != CP::CorrectionCode::Ok) {
-      ATH_MSG_WARNING("Problem retrieving signal muon trigger efficiency for 2015 (" << trigExpr << ")");
-    }
-    else{
-      ATH_MSG_DEBUG("COOL GOT efficiency " << eff << " for 2015 (" << trigExpr << ")");
-    }
+  if (m_muonTriggerSFTool->getTriggerEfficiency(mu, eff, trigExpr, isdata) != CP::CorrectionCode::Ok) {
+    ATH_MSG_WARNING("Problem retrieving signal muon trigger efficiency for " << trigExpr );
   }
-  else if (year == 2016) {
-    if (m_muonTriggerSFTool2016->getTriggerEfficiency(mu, eff, trigExpr, isdata) != CP::CorrectionCode::Ok) {
-      ATH_MSG_WARNING("Problem retrieving signal muon trigger efficiency for 2016 (" << trigExpr << ")");
-   }
-    else{
-      ATH_MSG_DEBUG("COOL GOT efficiency " << eff << " for 2016 (" << trigExpr << ")");
-    }
-  }
-  else {
-    ATH_MSG_ERROR("Unknown year returned by treatAsYear() - only have muon trigger SF tools for 2015 and 2016");
+  else{
+    ATH_MSG_DEBUG("Got efficiency " << eff << " for " << trigExpr );
   }
   return eff;
 }
@@ -449,12 +417,6 @@ double SUSYObjDef_xAOD::GetTotalMuonTriggerSF(const xAOD::MuonContainer& sfmuons
 
   if (trigExpr.empty() || sfmuons.size()==0) return 1.;
 
-  if (GetRandomRunNumber() == 0){
-    ATH_MSG_VERBOSE("RRN = 0. Setting Muon Trigger Eff SF = 1 .");
-    return 1.;
-  }
-
-  int year = treatAsYear();
   double trig_sf = 1.;
 
   int mulegs = 0;
@@ -468,21 +430,11 @@ double SUSYObjDef_xAOD::GetTotalMuonTriggerSF(const xAOD::MuonContainer& sfmuons
   bool isOR = (trigExpr.find("OR") != std::string::npos);
   
   if((!isdimuon && mulegs<2) || (isdimuon && sfmuons.size()==2) || (mulegs>=2 && isOR)){   //Case 1: the tool takes easy care of the single, standard-dimuon and OR-of-single chains
-    if (year == 2015) {
-      if (m_muonTriggerSFTool2015->getTriggerScaleFactor( sfmuons, trig_sf, trigExpr ) == CP::CorrectionCode::Ok) {
-        ATH_MSG_DEBUG( " MuonTrig2015 ScaleFactor " << trig_sf );          
-      }
-      else{
-        ATH_MSG_DEBUG( " MuonTrig2015 FAILED SOMEHOW");
-      }
-    } 
-    else if (year == 2016) {
-      if (m_muonTriggerSFTool2016->getTriggerScaleFactor( sfmuons, trig_sf, trigExpr ) == CP::CorrectionCode::Ok) {
-        ATH_MSG_DEBUG( " MuonTrig2016 ScaleFactor " << trig_sf );          
-      }
-      else{
-        ATH_MSG_DEBUG( " MuonTrig2016 FAILED SOMEHOW");
-      }
+    if (m_muonTriggerSFTool->getTriggerScaleFactor( sfmuons, trig_sf, trigExpr ) == CP::CorrectionCode::Ok) {
+      ATH_MSG_DEBUG( " MuonTrig ScaleFactor " << trig_sf );
+    }
+    else{
+      ATH_MSG_DEBUG( " MuonTrig FAILED SOMEHOW");
     }
   }
   else if(mulegs!=2 && isOR){ //Case 2: not supported. Not efficiency defined for (at least) one leg. Sorry...
@@ -560,13 +512,9 @@ double SUSYObjDef_xAOD::GetTotalMuonTriggerSF(const xAOD::MuonContainer& sfmuons
     ATH_MSG_ERROR("Cannot configure MuonIsolationScaleFactors for systematic var. " << systConfig.name() );
   }
 
-  ret  = m_muonTriggerSFTool2015->applySystematicVariation(systConfig);
+  ret  = m_muonTriggerSFTool->applySystematicVariation(systConfig);
   if ( ret != CP::SystematicCode::Ok) {
-    ATH_MSG_ERROR("Cannot configure MuonTriggerScaleFactors (2015) for systematic var. " << systConfig.name() );
-  }
-  ret  = m_muonTriggerSFTool2016->applySystematicVariation(systConfig);
-  if ( ret != CP::SystematicCode::Ok) {
-    ATH_MSG_ERROR("Cannot configure MuonTriggerScaleFactors (2016) for systematic var. " << systConfig.name() );
+    ATH_MSG_ERROR("Cannot configure MuonTriggerScaleFactors for systematic var. " << systConfig.name() );
   }
 
   sf = GetTotalMuonSF(muons, recoSF, isoSF, trigExpr, bmhptSF);
@@ -592,13 +540,9 @@ double SUSYObjDef_xAOD::GetTotalMuonTriggerSF(const xAOD::MuonContainer& sfmuons
     ATH_MSG_ERROR("Cannot configure MuonIsolationScaleFactors back to default.");
   }
 
-  ret  = m_muonTriggerSFTool2015->applySystematicVariation(m_currentSyst);
+  ret  = m_muonTriggerSFTool->applySystematicVariation(m_currentSyst);
   if ( ret != CP::SystematicCode::Ok) {
-    ATH_MSG_ERROR("Cannot configure MuonTriggerScaleFactors (2015) back to default.");
-  }
-  ret  = m_muonTriggerSFTool2016->applySystematicVariation(m_currentSyst);
-  if ( ret != CP::SystematicCode::Ok) {
-    ATH_MSG_ERROR("Cannot configure MuonTriggerScaleFactors (2016) back to default.");
+    ATH_MSG_ERROR("Cannot configure MuonTriggerScaleFactors back to default.");
   }
 
   return sf;

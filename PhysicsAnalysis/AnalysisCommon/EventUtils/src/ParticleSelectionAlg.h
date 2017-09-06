@@ -1,9 +1,9 @@
-///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+///////////////////////// -*- C++ -*- /////////////////////////////
 // ParticleSelectionAlg.h
 // Header file for class ParticleSelectionAlg
 // Author: Karsten Koeneke <karsten.koeneke@cern.ch>
@@ -13,23 +13,30 @@
 
 // STL includes
 #include <string>
+#include <vector>
 
 // FrameWork includes
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "AthenaBaseComps/AthAlgorithm.h"
+// #include "GaudiKernel/ServiceHandle.h"
+// #include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthAnalysisBaseComps/AthAnalysisAlgorithm.h"
+#include "xAODBase/IParticleContainer.h"
+//#include "TrigDecisionTool/TrigDecisionTool.h"
+#include "PATCore/IAsgSelectionTool.h"
+#include "PATCore/IAsgSelectionWithVertexTool.h"
 
-
-// forward declarations
-class IJobOptionsSvc;
-namespace DerivationFramework {
-  class IAugmentationTool;
+// // Forward declarations
+// namespace Trig{
+//   class TrigDecisionTool;
+// }
+// Forward declarations
+namespace ExpressionParsing {
+  class ExpressionParser;
 }
 
 
-
 class ParticleSelectionAlg
-  : public ::AthAlgorithm
+  : public ::AthAnalysisAlgorithm
 {
 
   ///////////////////////////////////////////////////////////////////
@@ -49,6 +56,10 @@ class ParticleSelectionAlg
   /// Athena algorithm's initalize hook
   virtual StatusCode  initialize();
 
+  /// Athena algorithm's beginRun hook
+  /// (called once before running over the events, after initialize)
+  virtual StatusCode  beginRun();
+
   /// Athena algorithm's execute hook
   virtual StatusCode  execute();
 
@@ -56,150 +67,114 @@ class ParticleSelectionAlg
   virtual StatusCode  finalize();
 
 
-private:
-  // The update handlers
-
-  /// This internal method will realize if a user sets the 'InputContainer' property
-  void setupInputContainer( Property& /*prop*/ );
-
-  /// This internal method will realize if a user sets the 'OutputContainer' property
-  void setupOutputContainer( Property& /*prop*/ );
-
-  /// This internal method will realize if a user sets the 'OutputContainerType' property
-  void setupOutputContainerType( Property& /*prop*/ );
-
-  /// This internal method will realize if a user sets the 'WriteSplitOutputContainer' property
-  void setupWriteSplitOutputContainer( Property& /*prop*/ );
-
-  /// This internal method will realize if a user sets the 'OutputContainerOwnershipPolicy' property
-  void setupOutputContainerOwnPolicy( Property& /*prop*/ );
-
-  /// This internal method will realize if a user sets the 'OutputLinkContainer' property
-  void setupOutputLinkContainer( Property& /*prop*/ );
-
-  /// This internal method will realize if a user sets the 'Selection' property
-  void setupSelection( Property& /*prop*/ );
+ private:
+  /// Private function to perform the actualy work
+  template<class CONT, class AUXCONT>
+  StatusCode selectParticles(const xAOD::IParticleContainer* inContainer,
+                             const std::vector<int>& resultVec) const;
 
 
   ///////////////////////////////////////////////////////////////////
   // Private data:
   ///////////////////////////////////////////////////////////////////
  private:
-  /// The job options service (will be used to forward this algs properties to
-  /// the private tool)
-  ServiceHandle<IJobOptionsSvc> m_jos;
+  /// The list of IAsgSelectionTools
+  ToolHandleArray<IAsgSelectionTool> m_selTools;
 
-  /// The ToolHandle to the SkimmingTool
-  ToolHandle<DerivationFramework::IAugmentationTool> m_tool;
+  /// The list of IAsgSelectionWithVertexTools
+  ToolHandleArray<IAsgSelectionWithVertexTool> m_selWVtxTools;
+
+  /// Name of the EventInfo object
+  StringProperty m_evtInfoName;
+
+  /// Name of the PrimaryVertex container
+  StringProperty m_inPrimVtxCont;
 
   /// Input container name
   StringProperty m_inCollKey;
 
-  /// This boolean is true if the user sets the 'InputContainer' property
-  bool m_setInCollKey;
-
-
   /// Output collection name (deep copies of the original ones)
   StringProperty m_outCollKey;
-
-  /// This boolean is true if the user sets the 'OutputContainer' property
-  bool m_setOutCollKey;
-
-
-  /// The type of the output container, e.g., 'xAOD::JetContainer'
-  StringProperty m_outCollType;
-
-  /// This boolean is true if the user sets the 'OutputContainerType' property
-  bool m_setOutCollType;
-
 
   /// Decide if we want to write a fully-split AuxContainer such that we can remove any variables
   BooleanProperty m_writeSplitAux;
 
-  /// This boolean is true if the user sets the 'WriteSplitOutputContainer' property
-  bool m_setWriteSplitAux;
-
-
   /// Defines the ownership policy of the output container
-  /// (default: 'OWN_ELEMENTS'; also allowed: 'VIEW_ELEMENTS')"
+  /// (default: 'VIEW_ELEMENTS'; also allowed: 'OWN_ELEMENTS')".
+  /// TO see what this means, go here:
+  /// https://twiki.cern.ch/twiki/bin/view/AtlasComputing/SoftwareTutorialxAODAnalysisInAthena#Understanding_the_different_type
   StringProperty m_outOwnPolicyName;
-
-  /// This boolean is true if the user sets the 'OutputContainerOwnershipPolicy' property
-  bool m_setOwnPolicy;
-
-
-  /// Output link collection name (ElementLinks to selected IParticles)
-  StringProperty m_outLinkCollKey;
-
-  /// This boolean is true if the user sets the 'OutputLinkContainer' property
-  bool m_setOutLinkCollKey;
-
 
   /// The selection string that will select which xAOD::IParticles to keep from
   /// an xAOD::IParticleContainer
   StringProperty m_selection;
 
-  /// This boolean is true if the user sets the 'Selection' property
-  bool m_setSelection;
+  /// If true (deault: false), do the bookkeeping of how many particles passed
+  /// which selection cuts
+  bool m_doCutFlow;
+
+  /// The name of the resulting xAOD::CutBookkeeperContainer.
+  /// If an empty name is given (default), the name of the algorithm instance is used.
+  StringProperty m_cutBKCName;
 
 
+
+  /// @name Internal members
+  /// @{
+
+  /// The expression parser
+  ExpressionParsing::ExpressionParser *m_parser;
+
+  // /// The trigger decision tool
+  // ToolHandle<Trig::TrigDecisionTool> m_trigDecisionTool;
 
   /// Internal event counter
   unsigned long m_nEventsProcessed;
 
+  /// The internally used translation for the ownership policy
+  SG::OwnershipPolicy m_outOwnPolicy;
+
+  /// An enumaration for the actual container type
+  enum contType_t {
+    UNKNOWN,
+    PHOTON,
+    ELECTRON,
+    MUON,
+    TAU,
+    JET,
+    PARITCLEFLOW,
+    NEUTRALPARTICLE,
+    TRACKPARTICLE,
+    TRUTHPARTICLE,
+    COMPOSITEPARTICLE,
+    PARTICLE,
+    CALOCLUSTER
+  };
+
+  /// The variable that holds the value that we find for the input container
+  contType_t m_contType;
+
+  /// The starting index of where in the CutBookkeeperContainer our new CutBookkeepers start
+  std::size_t m_cutBKStartIdx;
+
+  /// The list of pairs of the tool index of the AsgSelectionTools and the
+  /// starting index of the corresponding CutBookKeeper inside the CutBookkeeperContainer.
+  std::vector<std::size_t> m_selToolIdxOffset;
+
+  /// The list of pairs of the tool index of the AsgSelectionWithVertexTools and the
+  /// starting index of the corresponding CutBookKeeper inside the CutBookkeeperContainer.
+  std::vector<std::size_t> m_selWPVToolIdxOffset;
+
+  /// Store the index of the CutBookKeeper in the CutBookkeeperContainer for the
+  /// selection using the ExpressionParser
+  std::size_t m_idxSelParster;
+
+  /// @}
 
 };
 
-// I/O operators
-//////////////////////
-
-///////////////////////////////////////////////////////////////////
-// Inline methods:
-///////////////////////////////////////////////////////////////////
-
-/// This internal method will realize if a user sets the 'InputContainer' property
-inline void ParticleSelectionAlg::setupInputContainer( Property& /*prop*/ ) {
-  m_setInCollKey = true;
-  return;
-}
-
-/// This internal method will realize if a user sets the 'OutputContainer' property
-inline void ParticleSelectionAlg::setupOutputContainer( Property& /*prop*/ ) {
-  m_setOutCollKey = true;
-  return;
-}
-
-/// This internal method will realize if a user sets the 'OutputContainerType' property
-inline void ParticleSelectionAlg::setupOutputContainerType( Property& /*prop*/ ) {
-  m_setOutCollType = true;
-  return;
-}
-
-/// This internal method will realize if a user sets the 'WriteSplitOutputContainer' property
-inline void ParticleSelectionAlg::setupWriteSplitOutputContainer( Property& /*prop*/ ) {
-  m_setWriteSplitAux = true;
-  return;
-}
-
-/// This internal method will realize if a user sets the 'OutputContainerOwnPolicy' property
-inline void ParticleSelectionAlg::setupOutputContainerOwnPolicy( Property& /*prop*/ ) {
-  m_setOwnPolicy = true;
-  return;
-}
-
-/// This internal method will realize if a user sets the 'OutputLinkContainer' property
-inline void ParticleSelectionAlg::setupOutputLinkContainer( Property& /*prop*/ ) {
-  m_setOutLinkCollKey = true;
-  return;
-}
-
-/// This internal method will realize if a user sets the 'Selection' property
-inline void ParticleSelectionAlg::setupSelection( Property& /*prop*/ ) {
-  m_setSelection = true;
-  return;
-}
-
-
+// Include the templated code here. This must be done from this header file.
+#include "ParticleSelectionAlg.icc"
 
 
 #endif //> !EVENTUTILS_PARTICLESELECTIONALG_H

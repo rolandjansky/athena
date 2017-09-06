@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TopConfig.h 809568 2017-08-18 13:09:22Z iconnell $
+// $Id: TopConfig.h 809688 2017-08-23 16:14:15Z iconnell $
 #ifndef ANALYSISTOP_TOPCONFIGURATION_TOPCONFIG_H
 #define ANALYSISTOP_TOPCONFIGURATION_TOPCONFIG_H
 
@@ -12,8 +12,8 @@
  * @brief TopConfig
  *   A simple configuration that is NOT a singleton
  *
- * $Revision: 809568 $
- * $Date: 2017-08-18 14:09:22 +0100 (Fri, 18 Aug 2017) $
+ * $Revision: 809688 $
+ * $Date: 2017-08-23 17:14:15 +0100 (Wed, 23 Aug 2017) $
  *
  *
  **/
@@ -250,6 +250,7 @@ class TopConfig final {
   inline bool doKLFitter() const {return m_doKLFitter;}
   inline void setKLFitter(){if(!m_configFixed){m_doKLFitter = true;}}
   inline const std::string& KLFitterTransferFunctionsPath() const {return m_KLFitterTransferFunctionsPath;}
+  inline const std::string& KLFitterOutput() const {return m_KLFitterOutput;}
   inline const std::string& KLFitterJetSelectionMode() const {return m_KLFitterJetSelectionMode;}
   inline const std::string& KLFitterBTaggingMethod() const {return m_KLFitterBTaggingMethod;}
   inline const std::string& KLFitterLH() const {return m_KLFitterLH;}
@@ -973,6 +974,7 @@ class TopConfig final {
   // KLFitter
   bool m_doKLFitter;
   std::string m_KLFitterTransferFunctionsPath;
+  std::string m_KLFitterOutput;
   std::string m_KLFitterJetSelectionMode;
   std::string m_KLFitterBTaggingMethod;
   std::string m_KLFitterLH;

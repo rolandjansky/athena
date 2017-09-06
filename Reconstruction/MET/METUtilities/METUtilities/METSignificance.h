@@ -1,7 +1,13 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 // METSignificance.h
 // Header file for class METSignificance
 // Author: P. Francavilla<francav@cern.ch>
+// Author: D. Schaefer <schae@cern.ch>
 ///////////////////////////////////////////////////////////////////
 #ifndef METUTILITIES_MET_METSIGNIFICANCE_H
 #define METUTILITIES_MET_METSIGNIFICANCE_H 1
@@ -9,6 +15,8 @@
 // STL includes
 #include <string>
 #include <tuple>
+#include "TH2F.h"
+#include "TFile.h"
 //#include <TMatrixD.h>
 
 // FrameWork includes
@@ -98,27 +106,41 @@ namespace met {
     asg::AnaToolHandle<CP::IEgammaCalibrationAndSmearingTool> m_egammaCalibTool;
     asg::AnaToolHandle<ITauToolBase>                          m_tCombinedP4FromRecoTaus;
 
-    StatusCode AddMuon    (const xAOD::IParticle* obj, float &pt_reso);
-    void AddElectron(const xAOD::IParticle* obj, float &pt_reso);
-    void AddPhoton  (const xAOD::IParticle* obj, float &pt_reso);
-    void AddJet     (const xAOD::IParticle* obj, float &pt_reso);
-    void AddTau     (const xAOD::IParticle* obj, float &pt_reso);
-    void AddSoftTerm(const xAOD::MissingET* met, double &Var_L_j, double &Var_T_j, double &Cv_LT_j);
+    StatusCode AddMuon    (const xAOD::IParticle* obj, float &pt_reso, float &phi_reso);
+    void AddElectron(const xAOD::IParticle* obj, float &pt_reso, float &phi_reso);
+    void AddPhoton  (const xAOD::IParticle* obj, float &pt_reso, float &phi_reso);
+    void AddJet     (const xAOD::IParticle* obj, float &pt_reso, float &phi_reso);
+    void AddTau     (const xAOD::IParticle* obj, float &pt_reso, float &phi_reso);
+    void AddSoftTerm(const xAOD::MissingET* soft,  const TVector3 &met_vect, double (&particle_sum)[2][2]);
 
     double GetPUProb(double jet_eta, double jet_phi,double jet_pt,  double jet_jvt);
     double GetPhiUnc(double jet_eta, double jet_phi,double jet_pt);
 
     std::tuple<double,double,double> CovMatrixRotation(double var_x, double var_y, double cv_xy, double Phi);
-    //TMatrixD MatrixRotation(TMatrixD CovM_xy , double Phi);
 
     double Significance_LT(double Numerator, double var_parall, double var_perpen, double cov);
 
+
+    void InvertMatrix(double (&mat)[2][2], double (&m)[2][2]);
+    void AddMatrix(double (&X)[2][2],double (&Y)[2][2], double (&mat_new)[2][2]);
+    void RotateXY(const double (&mat)[2][2], double (&mat_new)[2][2], double phi);
+
+    // soft term bias
+    double BiasPtSoftdir(const double PtSoft);
+    double VarparPtSoftdir(const double PtSoft, const double SoftSumet);
+
+    // pthard - parameterization
+    //double BiasPtSoftdir(const double PtSoft);
+    //double VarparPtSoftdir(const double PtSoft, const double SoftSumet);
+
+    // variables
     double m_GeV;
 
-    int  m_softTermParam;
-    int  m_softTermReso;
-    bool m_treatPUJets;
-    bool m_doPhiReso;
+    int    m_softTermParam;
+    double m_softTermReso;
+    bool   m_treatPUJets;
+    bool   m_doPhiReso;
+    bool   m_applyBias;
 
     bool m_isData;
     bool m_isAFII;
@@ -135,9 +157,19 @@ namespace met {
 
     double m_met;
     double m_metphi;
+    double m_metsoft;
+    double m_metsoftphi;
     double m_ht;
     double m_sumet;
 
+    // Jet Uncertainties
+    TFile *m_file;
+    TH2F *h_phi_reso_pt20;
+    TH2F *h_phi_reso_pt50;
+    TH2F *h_phi_reso_pt100;
+
+    std::string m_configPrefix;
+    std::string m_configJetPhiResoFile;
   };
 
 } //> end namespace met

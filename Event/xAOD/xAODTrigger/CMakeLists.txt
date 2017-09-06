@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 797235 2017-02-14 20:30:30Z ssnyder $
 ################################################################################
 # Package: xAODTrigger
 ################################################################################
@@ -7,6 +6,8 @@
 atlas_subdir( xAODTrigger )
 
 # Extra dependencies, based on what environment we're in:
+set( extra_deps )
+set( extra_libs )
 if( NOT XAOD_STANDALONE )
    set( extra_deps Control/AthenaKernel )
    set( extra_libs AthenaKernel )
@@ -34,6 +35,15 @@ atlas_add_dictionary( xAODTriggerDict
    LINK_LIBRARIES xAODTrigger
    EXTRA_FILES Root/dict/*.cxx )
 
+# Test(s) in the package:
 atlas_add_test( ut_xaodtrigger_bytestreamauxcontainer_v1_test
   SOURCES test/ut_xaodtrigger_bytestreamauxcontainer_v1_test.cxx
   LINK_LIBRARIES AthContainers xAODTrigger )
+
+atlas_add_test( ut_xaodtrigger_trigcomposite_test
+   SOURCES test/ut_xaodtrigger_trigcomposite_test.cxx
+   LINK_LIBRARIES AthLinks xAODTrigger )
+
+atlas_add_test( ut_xaodtrigger_trigpassbits_test
+   SOURCES test/ut_xaodtrigger_trigpassbits_test.cxx
+   LINK_LIBRARIES xAODTrigger )
