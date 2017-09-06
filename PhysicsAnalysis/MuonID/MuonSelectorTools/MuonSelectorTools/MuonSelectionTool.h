@@ -97,6 +97,9 @@ namespace CP {
       bool passedLowPtEfficiencyCuts(const xAOD::Muon&) const;
       bool passedLowPtEfficiencyCuts(const xAOD::Muon&, xAOD::Muon::Quality thisMu_quality) const;
 
+      /// Returns true if a CB muon fails a pt- and eta-dependent cut on the relative CB q/p error
+      bool passedErrorCutCB(const xAOD::Muon&) const;
+
       /// Returns true if a CB muon fails some loose quaility requirements designed to remove pathological tracks
       bool isBadMuon(const xAOD::Muon&) const;
 
