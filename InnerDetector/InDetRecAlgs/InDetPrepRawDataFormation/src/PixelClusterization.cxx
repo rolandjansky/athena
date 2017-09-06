@@ -62,7 +62,7 @@ namespace InDet{
                   "Ambiguity Map container");
     declareProperty("RoIs", m_roiCollectionKey = std::string(""), "RoIs to read in");
     declareProperty("isRoI_Seeded", m_roiSeeded = false, "Use RoI");
-    declareProperty("clusterContainercacheKey", m_clusterContainercacheKey, "Optional External Pixel cluster Cache");
+    declareProperty("ClusterContainerCacheKey", m_clusterContainercacheKey, "Optional External Pixel cluster Cache");
     // error strategy <-- this is now in the MergedPixelTool
     //
     // 0 : broad errors (cluster width/sqrt(12) )
