@@ -95,7 +95,6 @@ class TileRawChannelNoiseMonTool: public TileFatherMonTool {
     int m_nEventsProcessed;
     std::vector<uint32_t> m_triggerTypes;
     int m_nbins;
-    unsigned int m_nChannelsInDrawerThreshold;
 };
 
 #endif
