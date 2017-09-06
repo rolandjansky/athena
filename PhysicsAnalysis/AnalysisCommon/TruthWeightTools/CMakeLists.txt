@@ -12,10 +12,9 @@ set( extra_include_dirs )
 set( extra_link_libraries )
 set( extra_private_link_libraries )
 if( NOT XAOD_STANDALONE )
-    set( extra_deps Control/AthToolSupport/AsgTools Control/AthAnalysisBaseComps GaudiKernel)
+    set( extra_deps Control/AthToolSupport/AsgTools Control/AthAnalysisBaseComps)
     set( extra_include_dirs ${HEPPDT_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} )
-    set( extra_link_libraries ${HEPPDT_LIBRARIES} ${HEPMC_LIBRARIES} AthAnalysisBaseComps GaudiKernel )
-    set( extra_private_link_libraries GeneratorObjects )
+    set( extra_link_libraries ${HEPPDT_LIBRARIES} ${HEPMC_LIBRARIES} AthAnalysisBaseCompsLib )
 endif()
 
 # Declare the package's dependencies:
@@ -24,8 +23,7 @@ atlas_depends_on_subdirs( PUBLIC
                           ${extra_deps}
                           PRIVATE
                           Event/xAOD/xAODEventInfo
-                          Generators/GeneratorObjects
-                          Generators/TruthUtils )
+)
 
 # External dependencies:
 if( NOT XAOD_STANDALONE )
@@ -39,7 +37,7 @@ atlas_add_library( TruthWeightToolsLib
                    PUBLIC_HEADERS TruthWeightTools
                    INCLUDE_DIRS ${extra_include_dirs}
                    LINK_LIBRARIES AsgTools xAODTruth ${extra_link_libraries}
-                   PRIVATE_LINK_LIBRARIES TruthUtils xAODEventInfo ${extra_private_link_libraries} )
+                   PRIVATE_LINK_LIBRARIES xAODEventInfo ${extra_private_link_libraries} )
 
 # Component(s) in the package:
 if( NOT XAOD_STANDALONE )
