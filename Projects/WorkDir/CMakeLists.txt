@@ -15,7 +15,7 @@ find_package( AtlasCMake QUIET )
 # of possible project names. Basically the names of all the other
 # sub-directories inside the Projects/ directory in the repository.
 set( _parentProjectNames Athena AthenaP1 AnalysisBase AthAnalysis
-   AthSimulation AthDerivation )
+   AthSimulation AthDerivation AnalysisTop )
 set( _defaultParentProject Athena )
 set( _defaultUseFortran TRUE )
 foreach( _pp ${_parentProjectNames} )
@@ -23,6 +23,10 @@ foreach( _pp ${_parentProjectNames} )
       set( _defaultParentProject ${_pp} )
       # Only turn off Fortran support for the AnalysisBase project for now:
       if( "${_pp}" STREQUAL "AnalysisBase" )
+         set( _defaultUseFortran FALSE )	 
+      endif()
+      # Only turn off Fortran support for the AnalysisTop project for now (as per AnalysisBase)
+      if( "${_pp}" STREQUAL "AnalysisTop" )
          set( _defaultUseFortran FALSE )
       endif()
       break()
