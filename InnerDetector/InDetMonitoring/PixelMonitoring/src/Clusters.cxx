@@ -60,7 +60,7 @@ StatusCode PixelMainMon::BookClustersMon(void)
   int nbins_eta = 13;   double min_eta = -6.5;  double max_eta = min_eta + (1.0*nbins_eta);
   int nbins_tot = 300;  double min_tot = -0.5; double max_tot = min_tot + (1.0*nbins_tot);
   int nbins_ibl_tot = 150;  double min_ibl_tot = -0.5; double max_ibl_tot = min_tot + (1.0*nbins_tot);
-  int nbins_Q = 140;    double min_Q = -0.5; double max_Q = min_Q + (1500.0*nbins_Q);
+  int nbins_Q = 70;     double min_Q = -0.5; double max_Q = min_Q + (3000.0*nbins_Q);
   int nbins_lvl1 = 14;  double min_lvl1 = -1.5; double max_lvl1 = min_lvl1 + (1.0*nbins_lvl1);
   std::string atext_LB = ";lumi block"; 
   std::string atext_BCID = ";BCID"; 
