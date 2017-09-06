@@ -53,14 +53,14 @@ class L1DecoderTest(L1Decoder) :
             emUnpacker = EMRoIsUnpackingTool(OutputLevel = self.OutputLevel)
             emUnpacker.ThresholdToChainMapping = MenuTest.EMThresholdToChainMapping
             emUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="EM", maxCount=30 )
-            self.roiUnpackers.append(emUnpacker)
+            self.roiUnpackers += [emUnpacker]
 
         # MU unpacker
         if TriggerFlags.doMuon():
             muUnpacker = MURoIsUnpackingTool(OutputLevel = self.OutputLevel)
             muUnpacker.ThresholdToChainMapping = MenuTest.MUThresholdToChainMapping
             muUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="MU", maxCount=20 )
-            self.roiUnpackers.append(muUnpacker)
+            self.roiUnpackers += [muUnpacker]
 
         self.Chains = "HLTChainsResult"
 
@@ -97,17 +97,22 @@ class L1EmulationTest(L1Decoder) :
         # EM unpacker
         if TriggerFlags.doID() or TriggerFlags.doCalo():
             emUnpacker = RoIsUnpackingEmulationTool("EMRoIsUnpackingTool",
+                                                    Decisions = "EMRoIDecisions",
+                                                    OutputTrigRoIs = "EMRoIs",
                                                     OutputLevel = self.OutputLevel,
                                                     ThresholdToChainMapping = MenuTest.EMThresholdToChainMapping)
-            self.roiUnpackers.append(emUnpacker)
+            self.roiUnpackers += [emUnpacker]
+            print emUnpacker
 
         # MU unpacker
         if TriggerFlags.doMuon():
             muUnpacker = RoIsUnpackingEmulationTool("MURoIsUnpackingTool",
+                                                    Decisions = "MURoIDecisions",
+                                                    OutputTrigRoIs = "MURoIs",
                                                     OutputLevel=self.OutputLevel,
                                                     ThresholdToChainMapping = MenuTest.MUThresholdToChainMapping)
 
-            self.roiUnpackers.append(muUnpacker)
+            self.roiUnpackers += [muUnpacker]
 
         self.Chains="HLTChainsResult"
 
