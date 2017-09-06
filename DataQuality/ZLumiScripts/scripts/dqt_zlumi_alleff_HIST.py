@@ -5,7 +5,8 @@ import ROOT
 
 ROOT.gStyle.SetOptStat(0)
 
-ACCEPTANCE = 3.173927e-01
+#ACCEPTANCE = 3.173927e-01
+ACCEPTANCE = 3.323224e-01
 
 import argparse
 parser = argparse.ArgumentParser()
@@ -126,7 +127,7 @@ for lb in sorted(lbdirs):
     B = float(nomatchos-nomatchss)
     Berr = (nomatchoserr**2+nomatchsserr**2)**.5
     if B == 0: Berr = 1.
-    if A == 0: 
+    if A == 0 or B/A == -1: 
         eff = 1.
         inverrsq = 1.
     else:
@@ -152,10 +153,24 @@ print 'Done'
 c1 = ROOT.TCanvas()
 effcya.SetMarkerStyle(21)
 effcya.SetMarkerColor(ROOT.kBlue)
-effcya.GetYaxis().SetRangeUser(0.27,0.29)
+effcya.GetYaxis().SetRangeUser(0.25,0.31)
 effcya.Draw('PE')
 c1.Print('%s_combined_efficiency.eps' % rundir)
 fout.WriteTObject(effcya)
+c1.Clear()
+effcyt.SetMarkerStyle(21)
+effcyt.SetMarkerColor(ROOT.kBlue)
+effcyt.GetYaxis().SetRangeUser(0.66,0.86)
+effcyt.Draw('PE')
+c1.Print('%s_trigger_efficiency.eps' % rundir)
+fout.WriteTObject(effcyt)
+c1.Clear()
+effcyr.SetMarkerStyle(21)
+effcyr.SetMarkerColor(ROOT.kBlue)
+effcyr.GetYaxis().SetRangeUser(0.9,1.0)
+effcyr.Draw('PE')
+c1.Print('%s_reco_efficiency.eps' % rundir)
+fout.WriteTObject(effcyr)
 fout.Close()
 
 sumweights = infile.Get('%s/GLOBAL/DQTDataFlow/m_sumweights' % rundir)
