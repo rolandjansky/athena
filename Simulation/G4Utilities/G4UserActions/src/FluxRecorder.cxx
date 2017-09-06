@@ -28,7 +28,7 @@ namespace G4UA
   {
   }
 
-  void FluxRecorder::beginOfRun(const G4Run*)
+  void FluxRecorder::BeginOfRunAction(const G4Run*)
   {
     char nom[120];
     double timebins[101],ebins[101];
@@ -49,12 +49,12 @@ namespace G4UA
 
   }
 
-  void FluxRecorder::endOfEvent(const G4Event*)
+  void FluxRecorder::EndOfEventAction(const G4Event*)
   {
     m_nev+=1.;
   }
 
-  void FluxRecorder::endOfRun(const G4Run*){
+  void FluxRecorder::EndOfRunAction(const G4Run*){
     TFile * f = new TFile("flux.root","RECREATE");
     f->cd();
     char nom[80];
@@ -73,7 +73,7 @@ namespace G4UA
     f->Close();
   }
 
-  void FluxRecorder::processStep(const G4Step* aStep){
+  void FluxRecorder::UserSteppingAction(const G4Step* aStep){
     int pdgid = 8, energy=(aStep->GetTrack()->GetKineticEnergy()>10.)?1:0;
     if (aStep->GetTrack()->GetDefinition()==G4Gamma::Definition()){
       pdgid=0;

@@ -21,7 +21,7 @@
 namespace G4UA{
 
   
-  void SteppingValidation::beginOfRun(const G4Run*){
+  void SteppingValidation::BeginOfRunAction(const G4Run*){
     m_path += "Stepping/";
     
     // Set up all the histograms...
@@ -45,7 +45,7 @@ namespace G4UA{
     
   }
   
-  void SteppingValidation::endOfEvent(const G4Event*){
+  void SteppingValidation::EndOfEventAction(const G4Event*){
     // Fill lateral energy spread 
     if (m_nsec>0){
       m_latPhi->Fill( std::sqrt( m_dp2/m_nsec - std::pow(m_dp/m_nsec,2) ) );
@@ -53,14 +53,14 @@ namespace G4UA{
     }
   }
   
-  void SteppingValidation::beginOfEvent(const G4Event*){
+  void SteppingValidation::BeginOfEventAction(const G4Event*){
     m_prim=m_sec=0;
     m_primH=m_primF=0;
     m_dh=m_dh2=m_dp=m_dp2=0;
     m_nsec=0;
   }
   
-  void SteppingValidation::processStep(const G4Step* aStep){
+  void SteppingValidation::UserSteppingAction(const G4Step* aStep){
     // Fill process type
     m_stepProc->Fill(aStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessType());
     

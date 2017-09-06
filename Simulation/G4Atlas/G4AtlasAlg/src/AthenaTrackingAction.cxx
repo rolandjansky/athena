@@ -6,15 +6,11 @@
 
 #include <iostream>
 
-#include "G4DynamicParticle.hh"
-#include "G4PrimaryParticle.hh"
 #include "G4Event.hh"
 #include "G4EventManager.hh"
 
 #include "MCTruth/EventInformation.h"
-#include "MCTruth/PrimaryParticleInformation.h"
 #include "MCTruth/TrackHelper.h"
-#include "MCTruth/TrackInformation.h"
 #include "MCTruthBase/AtlasTrajectory.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
@@ -24,9 +20,10 @@ namespace G4UA
   //---------------------------------------------------------------------------
   // Constructor
   //---------------------------------------------------------------------------
-  AthenaTrackingAction::AthenaTrackingAction(MSG::Level lvl, int secondarySavingLevel)
-    : m_msg("AthenaTrackingAction")
-    , m_secondarySavingLevel(secondarySavingLevel)
+  AthenaTrackingAction::AthenaTrackingAction(MSG::Level lvl,
+                                             int secondarySavingLevel)
+    : m_msg("AthenaTrackingAction"),
+      m_secondarySavingLevel(secondarySavingLevel)
   {
     m_msg.get().setLevel(lvl);
   }
@@ -34,7 +31,7 @@ namespace G4UA
   //---------------------------------------------------------------------------
   // Pre-tracking action.
   //---------------------------------------------------------------------------
-  void AthenaTrackingAction::preTracking(const G4Track* track)
+  void AthenaTrackingAction::PreUserTrackingAction(const G4Track* track)
   {
     ATH_MSG_DEBUG("Starting to track a new particle");
 
@@ -79,7 +76,7 @@ namespace G4UA
   //---------------------------------------------------------------------------
   // Post-tracking action.
   //---------------------------------------------------------------------------
-  void AthenaTrackingAction::postTracking(const G4Track* /*track*/)
+  void AthenaTrackingAction::PostUserTrackingAction(const G4Track* /*track*/)
   {
     ATH_MSG_DEBUG("Finished tracking a particle");
 

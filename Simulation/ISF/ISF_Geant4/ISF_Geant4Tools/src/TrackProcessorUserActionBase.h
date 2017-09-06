@@ -9,11 +9,9 @@
 
 #include <string>
 
-#include "G4AtlasInterfaces/IPreTrackingAction.h"
-#include "G4AtlasInterfaces/ISteppingAction.h"
-#include "G4AtlasInterfaces/IBeginEventAction.h"
-#include "G4AtlasInterfaces/IEndEventAction.h"
-#include "G4AtlasInterfaces/IPostTrackingAction.h"
+#include "G4UserTrackingAction.hh"
+#include "G4UserSteppingAction.hh"
+#include "G4UserEventAction.hh"
 
 #include "MCTruth/VTrackInformation.h"
 
@@ -34,20 +32,20 @@ namespace G4UA{
 
 namespace iGeant4 {
 
-class TrackProcessorUserActionBase: public IPreTrackingAction, public ISteppingAction,
-                                    public IBeginEventAction, public IEndEventAction,
-                                    public IPostTrackingAction
+class TrackProcessorUserActionBase: public G4UserTrackingAction,
+                                    public G4UserSteppingAction,
+                                    public G4UserEventAction
 {
 
 public:
   TrackProcessorUserActionBase();
-  virtual void beginOfEvent(const G4Event*) override final;
-  virtual void endOfEvent(const G4Event*) override final;
+  virtual void BeginOfEventAction(const G4Event*) override final;
+  virtual void EndOfEventAction(const G4Event*) override final;
 
-  virtual void preTracking(const G4Track*) override;
-  virtual void postTracking(const G4Track*) override final;
+  virtual void PreUserTrackingAction(const G4Track*) override;
+  virtual void PostUserTrackingAction(const G4Track*) override final;
 
-  virtual void processStep(const G4Step*) override final;
+  virtual void UserSteppingAction(const G4Step*) override final;
 
 protected:
   EventInformation* m_eventInfo;   //!< event-global G4 UserInformation

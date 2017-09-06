@@ -100,7 +100,7 @@ namespace G4UA
   //---------------------------------------------------------------------------
   // Cache primary info at beginning of event
   //---------------------------------------------------------------------------
-  void LengthIntegrator::beginOfEvent(const G4Event* event)
+  void LengthIntegrator::BeginOfEventAction(const G4Event* event)
   {
     m_detThickMap.clear();
     G4PrimaryVertex* vert = event->GetPrimaryVertex(0);
@@ -113,7 +113,7 @@ namespace G4UA
   //---------------------------------------------------------------------------
   // Finalize event measurements
   //---------------------------------------------------------------------------
-  void LengthIntegrator::endOfEvent(const G4Event*)
+  void LengthIntegrator::EndOfEventAction(const G4Event*)
   {
     // Lazily protect this whole code from concurrent access
     std::lock_guard<std::mutex> lock(gHistSvcMutex);
@@ -223,7 +223,7 @@ namespace G4UA
   //---------------------------------------------------------------------------
   // Accumulate results from one step
   //---------------------------------------------------------------------------
-  void LengthIntegrator::processStep(const G4Step* aStep)
+  void LengthIntegrator::UserSteppingAction(const G4Step* aStep)
   {
     G4TouchableHistory* touchHist =
       (G4TouchableHistory*) aStep->GetPreStepPoint()->GetTouchable();

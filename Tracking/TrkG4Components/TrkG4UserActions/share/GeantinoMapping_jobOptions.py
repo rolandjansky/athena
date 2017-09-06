@@ -96,8 +96,7 @@ myAtRndmGenSvc.EventReseeding   = False
 ServiceMgr += myAtRndmGenSvc
 
 ## add the material step recording action
-SimFlags.UseV2UserActions = True
-SimFlags.OptionalUserActionList.addAction('G4UA::MaterialStepRecorderTool',['BeginOfRun','BeginOfEvent','EndOfEvent','Step'])
+SimFlags.OptionalUserActionList.addAction('G4UA::MaterialStepRecorderTool',['Run','Event','Step'])
 #SimFlags.UserActionConfig.addConfig('G4UA::MaterialStepRecorderTool','verboseLevel',1)
 #SimFlags.UserActionConfig.addConfig('G4UA::MaterialStepRecorderTool','recordELoss',1)
 #SimFlags.UserActionConfig.addConfig('G4UA::MaterialStepRecorderTool','recordMSc',1)
@@ -126,10 +125,8 @@ topSeq += PyG4AtlasAlg()
 topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 
 from AthenaCommon.CfgGetter import getPublicTool
-ServiceMgr.UserActionSvc.BeginOfRunActions += [getPublicTool("MaterialStepRecorder")]
-ServiceMgr.UserActionSvc.EndOfRunActions += [getPublicTool("MaterialStepRecorder")]
-ServiceMgr.UserActionSvc.BeginOfEventActions += [getPublicTool("MaterialStepRecorder")]
-ServiceMgr.UserActionSvc.EndOfEventActions += [getPublicTool("MaterialStepRecorder")]
+ServiceMgr.UserActionSvc.RunActions += [getPublicTool("MaterialStepRecorder")]
+ServiceMgr.UserActionSvc.EventActions += [getPublicTool("MaterialStepRecorder")]
 ServiceMgr.UserActionSvc.SteppingActions += [getPublicTool("MaterialStepRecorder")]
 
 #--- End jobOptions.GeantinoMapping.py file  ------------------------------

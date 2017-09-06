@@ -13,10 +13,9 @@ namespace G4UA
                                      const IInterface* parent)
     : ActionToolBase<FluxRecorder>(type, name, parent)
   {
-    declareInterface<IBeginRunActionTool>(this);
-    declareInterface<IEndRunActionTool>(this);
-    declareInterface<IEndEventActionTool>(this);
-    declareInterface<ISteppingActionTool>(this);
+    declareInterface<IG4RunActionTool>(this);
+    declareInterface<IG4EventActionTool>(this);
+    declareInterface<IG4SteppingActionTool>(this);
   }
 
   std::unique_ptr<FluxRecorder> FluxRecorderTool::makeAction()
