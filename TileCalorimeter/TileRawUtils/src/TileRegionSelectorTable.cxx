@@ -8,6 +8,8 @@
 #include "StoreGate/StoreGateSvc.h"
 
 #include <fstream>
+#include <iomanip>
+#include <cmath>
 
 #include "RegionSelector/RegionSelectorLUT.h" 
 #include "RegionSelector/StoreGateRS_ClassDEF.h" 
@@ -25,6 +27,9 @@
 
 //(const std::string& name, ISvcLocator* pSvcLocator): 
 //Service(name, pSvcLocator), 
+
+//#define USE_CELL_PHI 1
+//#define USE_MODULE_PHI 1
 
 TileRegionSelectorTable::TileRegionSelectorTable (const std::string& type,
 						  const std::string& name,
@@ -95,7 +100,6 @@ TileRegionSelectorTable::getLUT(std::string subSyst) const
 
 }
 
-
 void
 TileRegionSelectorTable::fillMaps()
 {
@@ -125,15 +129,14 @@ TileRegionSelectorTable::fillMaps()
   // Get pointer to TileDetDescrManager
   const TileDetDescrManager* tileMgr;
   if (detStore()->retrieve(tileMgr).isFailure()) {
-    std::cout << "Unable to retrieve TileDetDescrManager from DetectorStore" << std::endl;
+    ATH_MSG_ERROR( "Unable to retrieve TileDetDescrManager from DetectorStore" );
     return;
   }
 
-  TileCablingService* cabling = TileCablingService::getInstance();
-
   ToolHandle<TileROD_Decoder> dec("TileROD_Decoder/TileROD_Decoder");
   if((dec.retrieve()).isFailure()){
-       ATH_MSG_FATAL("Could not find TileRodDecoder");
+    ATH_MSG_FATAL("Could not find TileRodDecoder");
+    return;
   }
 
   const TileHid2RESrcID* src = dec->getHid2reHLT();
@@ -148,51 +151,86 @@ TileRegionSelectorTable::fillMaps()
       "# ROD_ID coll_id  hash_id   etamin       etamax       phimin       phimax" << std::endl;
   }
 
-  //double dphi=0.09817477;
+  enum Partition { Ancillary = 0, LBA = 1, LBC = 2, EBA = 3, EBC = 4 };
+  // hard-coded etamin/etamax - ignoring slightly different positions of EBA end ENC partitions
+  std::vector<double> etamin(TileCalibUtils::MAX_ROS);
+  etamin[LBA]=-0.1;
+  etamin[LBC]=-1.0;
+  etamin[EBA]=+0.708779;
+  etamin[EBC]=-1.60943;
+  std::vector<double> etamax(TileCalibUtils::MAX_ROS);
+  etamax[LBA]=+1.0;
+  etamax[LBC]=+0.1;
+  etamax[EBA]=+1.60943;
+  etamax[EBC]=-0.708779;
 
-  float etamin[ TileCalibUtils::MAX_ROS ];
-  etamin[1]=-1.0; etamin[0]=-0.1; etamin[3]=-1.60943;  etamin[2]=+0.708779;
-  float etamax[ TileCalibUtils::MAX_ROS ];
-  etamax[1]=+0.1; etamax[0]=+1.0; etamax[3]=-0.708779; etamax[2]=+1.60943;
-
+#if (defined USE_CELL_PHI)
+  TileCablingService* cabling = TileCablingService::getInstance();
+#elif (defined USE_MODULE_PHI)
+#else
+  double dphi = 2 * M_PI / TileCalibUtils::MAX_DRAWER; // 0.09817477;
+#endif
 
   int sam = 0; // ?
   int layer = 0; //?
-  int firstone = tileHWID->drawerIdx( tileHWID->drawer_id(1,0) );
-  for (unsigned int ros = 1; ros < TileCalibUtils::MAX_ROS; ++ros) {
+  int firstone = tileHWID->drawerIdx( tileHWID->drawer_id(LBA,0) ); // hash index of first real drawer (LBA01)
+  for (unsigned int ros = 0; ros < TileCalibUtils::MAX_ROS; ++ros) {
     for (unsigned int drawer = 0; drawer < TileCalibUtils::MAX_DRAWER; ++drawer) {
+
+      int hash = tileHWID->drawerIdx( tileHWID->drawer_id(ros,drawer) ) - firstone;
+      if (hash<0) continue;
+      
       int coll = tileHWID->frag(ros, drawer);
       int rod = src->getRodID(coll);
 
-      // magic number 20 coming from Sacha
-      int hash = tileHWID->drawerIdx( tileHWID->drawer_id(ros,drawer) ) - firstone;
+      double etami = etamin[ros];
+      double etama = etamax[ros];
 
-      double etami = etamin[ros-1];
-      double etama = etamax[ros-1];
-
+#if (defined USE_CELL_PHI)
       Identifier cell_id;
       int index, pmt;
-      for (int ch=0; ch<10; ch++){
+      for (int ch=0; ch<cabling->getMaxChannels(); ch++){
          HWIdentifier channelID = tileHWID->channel_id(ros,drawer,ch);
          cell_id = cabling->h2s_cell_id_index(channelID,index,pmt);
          if ( index >= 0 ) break; // found a normal cell
       }
+
       int cell_hash = tileID->cell_hash(cell_id);
       CaloDetDescrElement* DDE = tileMgr->get_cell_element((IdentifierHash) cell_hash);
-      float phimin = DDE->phi();
-      if ( phimin < 0 ) phimin+=2*M_PI;
-      float phimax = phimin;
-      phimin -= DDE->dphi()/2.0;
-      phimax += DDE->dphi()/2.0;
+      double phimin = DDE->phi() - DDE->dphi()/2.0;
+      if ( phimin < 0.0 ) phimin+=2*M_PI;
+      double phimax = phimin + DDE->dphi();
+#elif (defined USE_MODULE_PHI)
+      // alternative approach
+      int section = (ros==LBA || ros==LBC) ? TileID::BARREL : TileID::EXTBAR;
+      int side = (ros==LBA || ros==EBA) ? TileID::POSITIVE : TileID::NEGATIVE;
+      Identifier moduleID = tileID->module_id(section,side,drawer);
+      CaloDetDescriptor *moduleDDE = tileMgr->get_module_element(moduleID);
+      double phimin = moduleDDE->calo_phi_min();
+      double phimax = moduleDDE->calo_phi_max();
+      if ( phimin < 0.0 ) {
+        phimin+=2*M_PI;
+        if ( phimax < phimin ) phimax+=2*M_PI;
+      }
+#else
+      // OLD method - we can predict phi boundaries from module number
+      double phimin = drawer * dphi;
+      double phimax = (drawer+1) * dphi;
+#endif
 
       if (m_printTable){
-        *ttmap << std::setw(7)  << std::hex << rod  << " "
-               << std::setw(6)  << std::hex << coll << " "
-               << std::setw(7)  << std::hex << hash << " "
-               << std::ios::fixed << std::setw(12) << etami  << " "
-               << std::ios::fixed << std::setw(12) << etama  << " "
-               << std::ios::fixed << std::setw(12) << phimin << " "
-               << std::ios::fixed << std::setw(12) << phimax << std::endl;
+        ttmap->precision(7);
+        *ttmap << std::hex
+               << std::setw(7) << rod  << " "
+               << std::setw(6) << coll << " "
+               << std::setw(7) << hash << " "
+               << std::dec
+               << std::setw(12) << etami  << " "
+               << std::setw(12) << etama  << " ";
+        ttmap->precision(17);
+        *ttmap << std::setw(22) << phimin << " "
+               << std::setw(22) << phimax
+               << std::endl;
       }
 
       ttLut->additem(etami,etama,phimin,phimax,sam,layer,hash,rod);
@@ -210,89 +248,6 @@ TileRegionSelectorTable::fillMaps()
 
 }
 
-
-#ifdef DONTDO
-void
-TileRegionSelectorTable::fillMaps()
-{
-  // check on the map if job not already done by s.o. else
-  std::string tileKey = "TileRegionSelectorLUT";
-  StatusCode sc = detStore()->contains< RegionSelectorLUT >(tileKey);
-  if (sc == StatusCode::SUCCESS ) {
-    ATH_MSG_ERROR ( " RegionSelectorLUT " << tileKey 
-                    << " already exists => do nothing " );
-    return;
-  }
-
-  RegionSelectorLUT* ttLut= new RegionSelectorLUT (256);
-
-  std::ofstream* ttmap=0;
-
-  if(m_printTable) {
-    ttmap = new std::ofstream(m_roiFileNameTile.c_str()) ;
-    *ttmap << 
-      "# ROD_ID coll_id  hash_id   etamin       etamax       phimin       phimax" << std::endl;
-  }
-
-
-  double dphi=0.09817477;
-
-  float etamin[4];
-  etamin[1]=-1.0; etamin[0]=-0.1; etamin[3]=-1.60943;  etamin[2]=+0.708779;
-  float etamax[4];
-  etamax[1]=+0.1; etamax[0]=+1.0; etamax[3]=-0.708779; etamax[2]=+1.60943;
-
-  int ROD[4];
-  ROD[0]=0x510000; ROD[1]=0x520000; ROD[2]=0x530000; ROD[3]=0x540000;
-
-  int sam = 0; // ?
-  int layer = 0; //?
-
-  for (int i =0; i < 4; ++i ) {
-    for (int j =0; j < 64; ++j ) {
-      //unsigned int rod=ROD[i]+j/4;
-      //unsigned int coll=(i+1)*256+j;
-      //unsigned int hash=i*64+j;
-      int rod;
-      if ( m_2017RODs ) {
-      int new_j=0;
-      if ( (j%2)==1 ) new_j=1;
-      rod=ROD[i]+2*(j/4)+new_j;
-      } else {
-      rod=ROD[i]+j/4;
-      }
-
-      int coll=(i+1)*256+j;
-      int hash=i*64+j;
-
-      double phimin=j*dphi;
-      double phimax=(j+1)*dphi;
-      double etami = etamin[i];
-      double etama = etamax[i];
-
-      if (m_printTable) 
-	*ttmap << std::setw(7)  << std::hex << rod  << " "
-	       << std::setw(6)  << std::hex << coll << " "
-	       << std::setw(7)  << std::hex << hash << " "
-	       << std::ios::fixed << std::setw(12) << etami  << " "
-	       << std::ios::fixed << std::setw(12) << etama  << " "
-	       << std::ios::fixed << std::setw(12) << phimin << " "
-	       << std::ios::fixed << std::setw(12) << phimax << std::endl;
-      
-      ttLut->additem(etami,etama,phimin,phimax,sam,layer,hash,rod);
-
-    }
-  }
-
-  m_tileLUT = ttLut;
-
-  recordMap(ttLut,tileKey).ignore();
-
-  if (m_printTable) 
-    delete ttmap;
-}
-
-#endif
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 

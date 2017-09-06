@@ -8,7 +8,7 @@
 
 from os import system, popen
 
-def FindFile(path, runinput):
+def FindFile(path, runinput, filter):
 
     run = str(runinput)
 
@@ -19,15 +19,15 @@ def FindFile(path, runinput):
     fullname = []
 
     if path.startswith('/castor') :
-        for f in popen('ls %(path)s | grep %(run)s' % {'path': path, 'run':run }):
+        for f in popen('nsls %(path)s | grep %(run)s | grep %(filt)s' % {'path': path, 'run':run, 'filt':filter }):
             files.append(f)
 
     elif path.startswith('/eos') :
-        for f in popen('eos ls %(path)s | grep %(run)s' % {'path': path, 'run':run }):
+        for f in popen('eos ls %(path)s | grep %(run)s | grep %(filt)s' % {'path': path, 'run':run, 'filt':filter }):
             files.append(f)
 
     else:
-        for f in popen('nsls  %(path)s | grep %(run)s' % {'path': path, 'run':run }):
+        for f in popen('ls  %(path)s | grep %(run)s | grep %(filt)s' % {'path': path, 'run':run, 'filt':filter }):
             files.append(f)
             
 
@@ -114,10 +114,12 @@ if not athenaCommonFlags.isOnline():
        else:
            RunFromLocal = False
    
-    if not 'FileNameVec' in dir():
-        if not 'FileName' in dir():
+    if not 'FileNameVec' in dir() or len(FileNameVec) == 0 or len(FileNameVec[0]) == 0:
+        if not 'FileName' in dir() or len(FileName)==0:
 
-            tmp = FindFile(InputDirectory, RunNumber)
+            if not 'FileFilter' in dir():
+                FileFilter = "data"
+            tmp = FindFile(InputDirectory, RunNumber, FileFilter)
             FileNameVec = tmp[0]
             FormattedRunNumber = tmp[1]
             

@@ -35,6 +35,7 @@ TileRawChannelContByteStreamTool::TileRawChannelContByteStreamTool(const std::st
     const std::string& name, const IInterface* parent)
     : AthAlgTool(type, name, parent)
     , m_tileHWID(0)
+    , m_hid2re(0)
     , m_verbose(false)
     , m_tileToolEmscale("TileCondToolEmscale")
     , m_tileBadChanTool("TileBadChanTool")
@@ -57,22 +58,10 @@ StatusCode TileRawChannelContByteStreamTool::initialize() {
 
   CHECK( detStore()->retrieve(m_tileHWID, "TileHWID") );
 
-  // rodid 4 modules/rod
-  //m_hid2re->setTileHWID(m_tileHWID);
-  ToolHandle<TileROD_Decoder> dec("TileROD_Decoder/TileROD_Decoder");
-  if((dec.retrieve()).isFailure()){
-       ATH_MSG_FATAL("Could not find TileRodDecoder");
-  }
+  ToolHandle<TileROD_Decoder> dec("TileROD_Decoder");
+  CHECK( dec.retrieve() );
 
   m_hid2re = dec->getHid2reHLT();
-  if ( !m_hid2re ) {
-       ATH_MSG_FATAL("Could not find TileHid2Re");
-  }
-  m_fea.idMap().setTileHWID(m_tileHWID);
-
-  // rodid 8 modules/rod
-  m_TileMuRcv_hid2re.setTileMuRcvHWID(m_tileHWID);
-  m_TileMuRcv_fea.idMap().setTileMuRcvHWID(m_tileHWID);
 
   // get TileCondToolEmscale
   CHECK( m_tileToolEmscale.retrieve() );
@@ -80,7 +69,7 @@ StatusCode TileRawChannelContByteStreamTool::initialize() {
   // get TileBadChanTool
   CHECK( m_tileBadChanTool.retrieve() );
 
-  m_maxChannels = TileCalibUtils::MAX_CHAN; // TileCablingService::getInstance()->getMaxChannels();
+  m_maxChannels = TileCablingService::getInstance()->getMaxChannels();
 
   m_channels = new TileFastRawChannel[m_tileHWID->channel_hash_max()];
 
@@ -117,7 +106,7 @@ StatusCode TileRawChannelContByteStreamTool::convert(CONTAINER* rawChannelContai
 
     TileRawChannelCollection::ID frag_id = rawChannelCollection->identify();
 
-    if (isTMDB) reid = m_TileMuRcv_hid2re.getRodTileMuRcvID(frag_id);
+    if (isTMDB) reid = m_hid2re->getRodTileMuRcvID(frag_id);
     else reid = m_hid2re->getRodID(frag_id);
 
     mapEncoder[reid].setTileHWID(m_tileHWID, m_verbose, 4);
