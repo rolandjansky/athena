@@ -10,11 +10,11 @@
 #include "xAODMetaData/FileMetaData.h"
 #include "PATInterfaces/SystematicRegistry.h"
 #include "PathResolver/PathResolver.h"
+#include <boost/algorithm/string.hpp>
 
 #ifndef ROOTCORE
 #include "AthAnalysisBaseComps/AthAnalysisHelper.h"
 #include "AthAnalysisBaseComps/AthAnalysisAlgorithm.h"
-#include <boost/algorithm/string.hpp>
 #endif //ROOTCORE
 
 namespace CP {
@@ -157,11 +157,12 @@ namespace CP {
     //
     const bool s = fmd->value(xAOD::FileMetaData::simFlavour, simulationType);
     if (!s) { 
-      //no simFlavour metadata failure
+      ATH_MSG_DEBUG("no sim flavour from metadata: must be data");
       return StatusCode::FAILURE;    
     }
     else {
-      result = (simulationType == "FullSim" ? PATCore::ParticleDataType::Full : PATCore::ParticleDataType::Fast);
+      boost::to_upper(simType);
+      result = (simType.find("ATLFASTII")==std::string::npos) ?  PATCore::ParticleDataType::Full : PATCore::ParticleDataType::Fast;
       return StatusCode::SUCCESS;    
     }
     //

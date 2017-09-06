@@ -35,24 +35,18 @@ if dfInputIsEVNT:
                                 ]
 
 # Add jet algorithms if they aren't there
-if not hasattr(DerivationFrameworkJob,'jetalg'):
-    from JetRec.JetAlgorithm import addJetRecoToAlgSequence
-    addJetRecoToAlgSequence(DerivationFrameworkJob,eventShapeTools=None)
-# Set up jet collections that aren't in input
 from JetRec.JetRecStandard import jtm
 from JetRec.JetRecConf import JetAlgorithm
+truth_modifiers = [jtm.truthpartondr, jtm.partontruthlabel, jtm.jetdrlabeler, jtm.trackjetdrlabeler]
 if not objKeyStore.isInInput( "xAOD::JetContainer","AntiKt4TruthJets"):
     # Standard truth jets
     # To remove jet constituents add the modifier jtm.removeconstit
-    truth_modifiers = [jtm.truthpartondr, jtm.partontruthlabel, jtm.jetdrlabeler, jtm.trackjetdrlabeler]
-    akt4 = jtm.addJetFinder("AntiKt4TruthJets", "AntiKt", 0.4, "truth", ptmin=15000, modifiersin=truth_modifiers)
-    akt4alg = JetAlgorithm("jetalgAntiKt4TruthJets", Tools = [akt4] )
-    DerivationFrameworkJob += akt4alg
+    from DerivationFrameworkJetEtMiss.JetCommon import addStandardJets
+    addStandardJets("AntiKt", 0.4, "Truth", 15000, mods=truth_modifiers, algseq=DerivationFrameworkJob, outputGroup="DFCommonMCTruthJets")
 if not objKeyStore.isInInput( "xAOD::JetContainer","AntiKt4TruthWZJets"):
     # WZ Truth Jets
-    akt4wz = jtm.addJetFinder("AntiKt4TruthWZJets",  "AntiKt", 0.4,  "truthwz", ptmin=15000, modifiersin=truth_modifiers)
-    akt4wzalg = JetAlgorithm("jetalgAntiKt4TruthWZJets", Tools = [akt4wz] )
-    DerivationFrameworkJob += akt4wzalg
+    from DerivationFrameworkJetEtMiss.JetCommon import addStandardJets
+    addStandardJets("AntiKt", 0.4, "TruthWZ", 15000, mods=truth_modifiers, algseq=DerivationFrameworkJob, outputGroup="DFCommonMCTruthJets")
 
 # Some examples of other truth jet collections
 #akt6wz    = jtm.addJetFinder("AntiKt6TruthWZJets",  "AntiKt", 0.6,  "truthwz", ptmin= 5000)
@@ -60,12 +54,9 @@ if not objKeyStore.isInInput( "xAOD::JetContainer","AntiKt4TruthWZJets"):
 
 if not objKeyStore.isInInput( "xAOD::JetContainer","TrimmedAntiKt10TruthJets"):
     #Large R jets
-    akt10 = jtm.addJetFinder("AntiKt10TruthJets", "AntiKt", 1.0, "truth",ptmin= 100000)
-    akt10alg = JetAlgorithm("jetalgAntiKt10TruthJets", Tools = [akt10] )
-    DerivationFrameworkJob += akt10alg
-    akt10trim = jtm.addJetTrimmer("TrimmedAntiKt10TruthJets", rclus=0.2, ptfrac=0.05, input='AntiKt10TruthJets', modifiersin=[jtm.nsubjettiness, jtm.removeconstit], doArea=False)
-    akt10trimalg = JetAlgorithm("jetalgTrimmedAntiKt10TruthJets", Tools = [akt10trim] )
-    DerivationFrameworkJob += akt10trimalg
+    from DerivationFrameworkJetEtMiss.JetCommon import addTrimmedJets
+    addTrimmedJets('AntiKt', 1.0, 'Truth', rclus=0.2, ptfrac=0.05, mods="groomed",
+                   algseq=DerivationFrameworkJob, outputGroup="Trimmed", writeUngroomed=False)
 
 # If we are running on EVNT, we also need some MET
 if dfInputIsEVNT:

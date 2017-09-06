@@ -30,13 +30,13 @@
 #include "JetJvtEfficiency/IJetJvtEfficiency.h"
 
 #include "AsgAnalysisInterfaces/IEfficiencyScaleFactorTool.h"
-#include "ElectronPhotonFourMomentumCorrection/IEgammaCalibrationAndSmearingTool.h"
-#include "ElectronEfficiencyCorrection/IAsgElectronEfficiencyCorrectionTool.h"
-#include "ElectronPhotonSelectorTools/IAsgElectronIsEMSelector.h"
-#include "ElectronPhotonSelectorTools/IAsgPhotonIsEMSelector.h"
-#include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
-#include "ElectronPhotonShowerShapeFudgeTool/IElectronPhotonShowerShapeFudgeTool.h"
-#include "ElectronPhotonSelectorTools/IEGammaAmbiguityTool.h"
+#include "EgammaAnalysisInterfaces/IEgammaCalibrationAndSmearingTool.h"
+#include "EgammaAnalysisInterfaces/IAsgElectronEfficiencyCorrectionTool.h"
+#include "EgammaAnalysisInterfaces/IAsgElectronIsEMSelector.h"
+#include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
+#include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
+#include "EgammaAnalysisInterfaces/IElectronPhotonShowerShapeFudgeTool.h"
+#include "EgammaAnalysisInterfaces/IEGammaAmbiguityTool.h"
 
 #include "MuonSelectorTools/IMuonSelectionTool.h"
 #include "MuonMomentumCorrections/IMuonCalibrationAndSmearingTool.h"
@@ -50,7 +50,7 @@
 #include "TauAnalysisTools/ITauOverlappingElectronLLHDecorator.h"
 #include "tauRecTools/ITauToolBase.h"
 
-#include "PhotonEfficiencyCorrection/IAsgPhotonEfficiencyCorrectionTool.h"
+#include "EgammaAnalysisInterfaces/IAsgPhotonEfficiencyCorrectionTool.h"
 
 #include "IsolationSelection/IIsolationSelectionTool.h"
 #include "IsolationCorrections/IIsolationCorrectionTool.h"
@@ -242,8 +242,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_muonEfficiencyBMHighPtSFTool(""),
     m_muonTTVAEfficiencySFTool(""),
     m_muonIsolationSFTool(""),
-    m_muonTriggerSFTool2015(""),
-    m_muonTriggerSFTool2016(""),
+    m_muonTriggerSFTool(""),
     //
     m_elecEfficiencySFTool_reco(""),
     m_elecEfficiencySFTool_id(""),
@@ -473,8 +472,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   m_muonEfficiencyBMHighPtSFTool.declarePropertyFor( this, "MuonBadMuonHighPtScaleFactorsTool", "The MuonBadMuonHighPtSFTool" );
   m_muonTTVAEfficiencySFTool.declarePropertyFor( this, "MuonTTVAEfficiencyScaleFactorsTool", "The MuonTTVAEfficiencySFTool" );
   m_muonIsolationSFTool.declarePropertyFor( this, "MuonIsolationScaleFactorsTool", "The MuonIsolationSFTool" );
-  m_muonTriggerSFTool2015.declarePropertyFor( this, "MuonTriggerScaleFactorsTool2015", "The MuonTriggerSFTool for 2015" );
-  m_muonTriggerSFTool2016.declarePropertyFor( this, "MuonTriggerScaleFactorsTool2016", "The MuonTriggerSFTool for 2016");
+  m_muonTriggerSFTool.declarePropertyFor( this, "MuonTriggerScaleFactorsTool", "The MuonTriggerSFTool" );
   //
   m_elecEfficiencySFTool_reco.declarePropertyFor( this, "ElectronEfficiencyCorrectionTool_reco", "The ElectronEfficiencyCorrectionTool for reconstruction SFs" );
   m_elecEfficiencySFTool_trig_singleLep.declarePropertyFor( this, "ElectronEfficiencyCorrectionTool_trig_singleLep", "The ElectronEfficiencyCorrectionTool for single-e triggers" );
@@ -1422,22 +1420,13 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
       ATH_MSG_VERBOSE("MuonIsolationScaleFactors configured for systematic var. " << systConfig.name() );
     }
   }
-  if (!m_muonTriggerSFTool2015.empty()) {
-    CP::SystematicCode ret  = m_muonTriggerSFTool2015->applySystematicVariation(systConfig);
+  if (!m_muonTriggerSFTool.empty()) {
+    CP::SystematicCode ret  = m_muonTriggerSFTool->applySystematicVariation(systConfig);
     if ( ret != CP::SystematicCode::Ok) {
-      ATH_MSG_ERROR("Cannot configure MuonTriggerScaleFactors (2015) for systematic var. " << systConfig.name() );
+      ATH_MSG_ERROR("Cannot configure MuonTriggerScaleFactors for systematic var. " << systConfig.name() );
       return ret;
     } else {
-      ATH_MSG_VERBOSE("MuonTriggerScaleFactors (2015) configured for systematic var. " << systConfig.name() );
-    }
-  }
-  if (!m_muonTriggerSFTool2016.empty()) {
-    CP::SystematicCode ret  = m_muonTriggerSFTool2016->applySystematicVariation(systConfig);
-    if ( ret != CP::SystematicCode::Ok) {
-      ATH_MSG_ERROR("Cannot configure MuonTriggerScaleFactors (2016) for systematic var. " << systConfig.name() );
-      return ret;
-    } else {
-      ATH_MSG_VERBOSE("MuonTriggerScaleFactors (2016) configured for systematic var. " << systConfig.name() );
+      ATH_MSG_VERBOSE("MuonTriggerScaleFactors configured for systematic var. " << systConfig.name() );
     }
   }
   if (!m_elecEfficiencySFTool_reco.empty()) {
@@ -1772,15 +1761,8 @@ ST::SystInfo SUSYObjDef_xAOD::getSystInfo(const CP::SystematicVariation& sys) co
       sysInfo.affectedWeights.insert(ST::Weights::Muon::Isolation);
     }
   }
-  if (!m_muonTriggerSFTool2015.empty()) {
-    if ( m_muonTriggerSFTool2015->isAffectedBySystematic(sys) ) {
-      sysInfo.affectsWeights = true;
-      sysInfo.affectsType = SystObjType::Muon;
-      sysInfo.affectedWeights.insert(ST::Weights::Muon::Trigger);
-    }
-  }
-  if (!m_muonTriggerSFTool2016.empty()) {
-    if ( m_muonTriggerSFTool2016->isAffectedBySystematic(sys) ) {
+  if (!m_muonTriggerSFTool.empty()) {
+    if ( m_muonTriggerSFTool->isAffectedBySystematic(sys) ) {
       sysInfo.affectsWeights = true;
       sysInfo.affectsType = SystObjType::Muon;
       sysInfo.affectedWeights.insert(ST::Weights::Muon::Trigger);
@@ -2198,41 +2180,6 @@ int SUSYObjDef_xAOD::treatAsYear(const int runNumber) const {
   else if (theRunNumber<320000) return 2016;
   return 2017;
 }
-
-StatusCode SUSYObjDef_xAOD::setRunNumber(const int run_number) {
-
-  //as suggested by MCP
-  int rn_2015 = 282625; // period 2015 J
-  int rn_2016 = 300345; // period 2016 B
-  
-  if(run_number!=0){
-    rn_2015 = run_number;
-    rn_2016 = run_number;
-  }
-
-  // In release 21, we can only set the run number for the SF tool that is applicable
-  if (treatAsYear(run_number)==2015 && m_muonTriggerSFTool2015->setRunNumber(rn_2015)!=CP::CorrectionCode::Ok) return StatusCode::FAILURE;
-  if (treatAsYear(run_number)==2016 && m_muonTriggerSFTool2016->setRunNumber(rn_2016)!=CP::CorrectionCode::Ok) return StatusCode::FAILURE;
-
-  return StatusCode::SUCCESS;
-}
-
-/* Remove? Let's see if someone still use these... /CO
-bool SUSYObjDef_xAOD::passTSTCleaning(xAOD::MissingETContainer &met){
-
-  return passTSTCleaning(met[m_outMETTerm]->met(), met["PVSoftTrk"]->met(), met[m_outMETTerm]->phi(), met["PVSoftTrk"]->phi());
-}
-
-bool SUSYObjDef_xAOD::passTSTCleaning(float MET, float TST, float MET_phi, float TST_phi){
-  // Note: both MET and TST are assumed to be in MeV!
-  if( TST < 100e3) return true;
-  if( MET > 0.)
-    if( (TST/MET) < 0.4) return true;
-  if(fabs(TVector2::Phi_mpi_pi( TST_phi - MET_phi )) > 0.8) return true;
-  return false;
-}
-*/
-
 
 SUSYObjDef_xAOD::~SUSYObjDef_xAOD() {
 

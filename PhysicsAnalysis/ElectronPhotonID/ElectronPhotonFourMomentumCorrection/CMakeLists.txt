@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 794027 2017-01-26 15:03:20Z tguillem $
 ###################################################################################
 # Package: ElectronPhotonFourMomentumCorrection
 ###################################################################################
@@ -39,6 +38,7 @@ atlas_depends_on_subdirs(
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
+find_package( Boost )
 
 # Component(s) in the package:
 atlas_add_library( ElectronPhotonFourMomentumCorrectionLib

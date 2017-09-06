@@ -242,8 +242,6 @@ namespace ST {
 				   // const xAOD::TauJetContainer* taujet = 0,
 				   ) = 0;
 
-    virtual StatusCode setRunNumber(const int run_number) = 0;
-
     virtual bool IsSignalJet(const xAOD::Jet& input,  const float ptcut, const float etacut) const = 0;
 
     virtual bool IsBadJet(const xAOD::Jet& input) const = 0;

@@ -1,6 +1,14 @@
 <!-- $Id: selection.xml 670153 2015-05-27 11:42:29Z tbisanz $ -->
 <lcgdict>
 
+  <typedef name="xAOD::TruthParticle" />
+  <typedef name="xAOD::TruthVertex" />
+  <typedef name="xAOD::TruthEvent" />
+  <typedef name="xAOD::TruthParticleContainer" />
+  <typedef name="xAOD::TruthVertexContainer" />
+  <typedef name="xAOD::TruthEventContainer" />
+
+
   <!-- The TruthParticle_v1 class(es): -->
   <class name="xAOD::TruthParticle_v1" >
     <field name="m_p4" transient="true" />

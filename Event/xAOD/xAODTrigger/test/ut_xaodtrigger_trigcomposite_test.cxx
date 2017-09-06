@@ -2,8 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ut_xaodtrigger_trigcomposite_test.cxx 761887 2016-07-14 13:16:16Z tbold $
-
 // System include(s):
 #include <cmath>
 #include <iostream>
@@ -62,7 +60,7 @@ int main() {
    obj->setDetail( "IntVecValue", std::vector< int >( { 1, 2, 3 } ) );
    obj->setDetail( "UnsignedIntVecValue", std::vector< unsigned int >( { uintTestConst, 2, 3 } ) );
    obj->setDetail( "FloatVecValue", std::vector< float >( { 1.23, 2.34 } ) );
-   
+
    std::cout << "Set detail ok." << std::endl;
    SIMPLE_ASSERT( obj->hasDetail<int>("IntValue") );
    SIMPLE_ASSERT( obj->hasDetail<unsigned int>("UnsignedIntValue") );
@@ -83,7 +81,7 @@ int main() {
    float floatValue = 0;
    SIMPLE_ASSERT( obj->getDetail( "FloatValue", floatValue ) );
    SIMPLE_ASSERT( std::abs( floatValue - 3.14 ) < 0.001 );
-		  
+
    std::vector< int > intVector;
    SIMPLE_ASSERT( obj->getDetail( "IntVecValue", intVector ) );
    SIMPLE_ASSERT( intVector == std::vector< int >( { 1, 2, 3 } ) );
@@ -99,7 +97,7 @@ int main() {
    std::cout << "FloatVecValue = " << floatVector << std::endl;
 
    int intValue2 = obj->getDetail<int>("IntValue");
-   SIMPLE_ASSERT( intValue2 == 12 );		  
+   SIMPLE_ASSERT( intValue2 == 12 );
    unsigned int unsignedIntValue2 = obj->getDetail<unsigned int>("UnsignedIntValue");
    SIMPLE_ASSERT( unsignedIntValue2 == uintTestConst);
    float floatValue2 = obj->getDetail<float>("FloatValue");
@@ -108,8 +106,6 @@ int main() {
    SIMPLE_ASSERT( intVector2 == std::vector< int >( { 1, 2, 3 } ) );
    std::vector< float > floatVector2 = obj->getDetail<std::vector<float>>( "FloatVecValue");
    std::cout << "Simple getDetail API ok." << std::endl;
-
-
 
    std::vector<unsigned int> unsignedIntVector2 = obj->getDetail<std::vector<unsigned int>>("UnsignedIntVecValue");
    SIMPLE_ASSERT( unsignedIntVector2 == std::vector<unsigned int>( { uintTestConst, 2, 3 } ) );
@@ -129,11 +125,6 @@ int main() {
      SIMPLE_ASSERT(false);
    } catch (...) {}
    std::cout << "Missing details handled ok." << std::endl;
-
-
-   
-
-
 
    // Now test the ElementLink functionality in a basic way:
    obj->setObjectLink( "MuonRoI",

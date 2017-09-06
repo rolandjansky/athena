@@ -1,0 +1,5 @@
+Set detail ok.
+FloatVecValue = [1.23, 2.34]
+Simple getDetail API ok.
+Missing details handled ok.
+All tests successful.
