@@ -23,6 +23,232 @@
 
 class DataObject;
 
+
+/// Retrieve data object key == string
+inline
+const SG::DataProxy::name_type& SG::DataProxy::name() const
+{
+  return m_tAddress->name();
+}
+
+
+/// Retrieve data object key == string
+/// duplicated for Gaudi folks does same as name()
+inline
+const SG::DataProxy::id_type& SG::DataProxy::identifier() const
+{
+  return m_tAddress->name();
+}
+
+
+/// Retrieve DataObject
+inline
+DataObject* SG::DataProxy::object() const
+{
+  return m_dObject;
+}
+
+
+/// Retrieve IOpaqueAddress
+inline
+IOpaqueAddress* SG::DataProxy::address() const
+{
+  return m_tAddress->address();
+} 
+
+
+/// set DataSvc (Gaudi-specific); do nothing for us
+inline
+IDataProviderSvc* SG::DataProxy::dataSvc() const
+{
+  return nullptr;
+}
+
+/// Retrieve TransientAddress
+inline
+SG::TransientAddress* SG::DataProxy::transientAddress() const
+{
+  return m_tAddress.get();
+}
+
+///< Get the primary (hashed) SG key.
+inline
+SG::sgkey_t SG::DataProxy::sgkey() const
+{
+  return m_tAddress->sgkey();
+}
+
+
+/// Set the primary (hashed) SG key.
+inline
+void SG::DataProxy::setSGKey (sgkey_t sgkey)
+{
+  m_tAddress->setSGKey (sgkey);
+}
+
+
+///< Return the ID of the store containing this proxy.
+inline
+StoreID::type SG::DataProxy::storeID() const
+{
+  return m_tAddress->storeID();
+}
+
+
+///< check if it is a transient ID (primary or symLinked):
+inline
+bool SG::DataProxy::transientID (CLID id) const
+{
+  return m_tAddress->transientID (id);
+}
+
+
+///< return the list of transient IDs (primary or symLinked):
+inline
+SG::DataProxy::CLIDCont_t SG::DataProxy::transientID() const
+{
+  return m_tAddress->transientID();
+}
+
+
+/// Add a new transient ID
+inline
+void SG::DataProxy::setTransientID(CLID id)
+{
+  m_tAddress->setTransientID (id);
+}
+
+
+/// access set of proxy aliases
+/// Returns a COPY of the alias set.
+inline
+SG::DataProxy::AliasCont_t SG::DataProxy::alias() const
+{
+  return m_tAddress->alias();
+}
+
+
+/// Add a new proxy alias.
+inline
+void SG::DataProxy::setAlias(const std::string& key)
+{
+  m_tAddress->setAlias (key);
+}
+
+
+/// Test to see if a given string is in the alias set.
+inline
+bool SG::DataProxy::hasAlias(const std::string& key) const
+{
+  lock_t lock (m_mutex);
+  const AliasCont_t& alias = m_tAddress->alias();
+  return alias.find(key) != alias.end();
+}
+
+
+/// remove alias from proxy
+inline
+bool SG::DataProxy::removeAlias(const std::string& key)
+{
+  return m_tAddress->removeAlias (key);
+}
+
+
+/// Return the address provider.
+inline
+IAddressProvider* SG::DataProxy::provider()
+{
+  return m_tAddress->provider();
+}
+
+
+/// Set the address provider.
+inline
+void SG::DataProxy::setProvider(IAddressProvider* provider,
+                                StoreID::type storeID)
+{
+  m_tAddress->setProvider (provider, storeID);
+}
+
+
+/// Set the CLID / key.
+/// This will only succeed if the clid/key are currently clear.
+inline
+void SG::DataProxy::setID (CLID id, const std::string& key)
+{
+  m_tAddress->setID (id, key);
+}
+
+
+inline
+SG::DataProxy::ErrNo SG::DataProxy::errNo() const
+{
+  return m_errno;
+}
+
+
+/// Retrieve clid
+inline
+CLID SG::DataProxy::clID() const
+{
+  return m_tAddress->clID();
+}
+
+
+/// Retrieve storage type
+inline
+unsigned char SG::DataProxy::svcType() const
+{
+  return m_storageType;
+}
+
+
+/// Check if it is a const object
+inline
+bool SG::DataProxy::isConst() const
+{
+  return m_const;
+}
+
+
+/// set the reset only flag: Clear Store will reset and not delete.
+inline
+void SG::DataProxy::resetOnly(const bool& flag)
+{
+  m_resetFlag = flag;
+}
+
+
+/// Check reset only:
+inline
+bool SG::DataProxy::isResetOnly() const
+{
+  return m_resetFlag;
+}
+
+
+/// Set the store of which we're a part.
+inline
+void SG::DataProxy::setStore (IProxyDict* store)
+{
+  m_store = store;
+}
+
+/// Return the store of which we're a part.
+inline
+IProxyDict* SG::DataProxy::store() const
+{
+  return m_store;
+}
+
+
+inline
+IConverter* SG::DataProxy::loader() const
+{
+  return m_dataLoader;
+}
+
+
 template <typename DATA>
 DATA* SG::DataProxy_cast(SG::DataProxy* proxy) {
   DATA* result(0);
@@ -94,4 +320,21 @@ DATA* SG::DataProxy_cast(SG::DataProxy* proxy) {
   return result;
 }
 
+
+///const pointer version of the cast
+template<typename DATA>
+const DATA* SG::DataProxy_cast(const SG::DataProxy* proxy)
+{
+  return SG::DataProxy_cast<DATA>(const_cast<SG::DataProxy*>(proxy));
+}
+
+
+///const ref version of the cast. @throws SG::ExcBadDataProxyCast.
+template<typename DATA>
+DATA SG::DataProxy_cast(const SG::DataProxy& proxy)
+{
+  const DATA* result = SG::DataProxy_cast<DATA>(&proxy);
+  if (!result) SG::throwExcBadDataProxyCast(proxy.clID(), typeid(DATA));
+  return *result;
+}
 

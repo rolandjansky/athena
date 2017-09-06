@@ -116,9 +116,14 @@ void test1()
   tad2.setAlias ("key2");
   assert (tad2.alias().size() == 1);
   std::set<std::string> a;
-  a.insert ("key3");
-  a.insert ("key4");
-  tad2.setAlias (a);
+  a.insert ("key3a");
+  a.insert ("key4a");
+  tad2.setAlias (std::move(a));
+  assert (a.size() == 0);
+  assert (tad2.alias().size() == 2);
+  assert (tad2.alias().count ("key2") == 0);
+  assert (tad2.alias().count ("key3a") == 1);
+  tad2.setAlias (std::set<std::string> {"key3", "key4"});
   assert (tad2.alias().size() == 2);
   assert (tad2.alias().count ("key2") == 0);
   assert (tad2.alias().count ("key3") == 1);
