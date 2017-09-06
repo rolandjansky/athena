@@ -25,7 +25,7 @@
 #                        2D OCCUPANCY: TopoClusters,EMTopoClusters,
 #                                      EMTopoJets,TightFwdElectrons 
 #                        1D OCCUPANCY: EMTopoJets_eta 
-#                        INTEGRAL    : NumberTau,NumberTightElectrons
+#                        INTEGRAL    : NumberTau,NumberTightElectrons,NumberHLTJet
 #  -m ARG12, --min ARG12
 #                        Min number of occurences in a LB
 #  -g, --grl             Look for Calo/LAr/Tile defects set in suspicious LBs
@@ -240,6 +240,15 @@ if (objectType == "NumberTightFwdElectrons"):
   histoKeys = ["single"]
   histoType = "1d_integralAbove"
   histoName = "Number of tight forward electrons"
+# HLT Jet
+if (objectType == "NumberHLTJet"):
+  histoPath  = {"HLTJet":"run_%d/HLT/JetMon/HLT/10j40_L14J20/HLTJet_n"%(runNumber)}
+  histoLegend = {"HLTJet":"All candidates"}
+  histoColor = {"HLTJet":color1}
+  histoKeys = ["HLTJet"]
+  histoType = "1d_integralAbove"
+  histoName = "Number of HLT jets - 10J40_L14J20 trigger"
+
 
 # Depending of the histo/check type, define the summary title and
 # check that the position of the "hot spot" (or lower bound of the integral) is defined
