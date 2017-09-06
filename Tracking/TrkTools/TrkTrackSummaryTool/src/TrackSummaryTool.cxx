@@ -302,7 +302,7 @@ Trk::TrackSummaryTool::createSummary( const Track& track,
   if (!m_trt_dEdxTool.empty()) {
     if (information[Trk::numberOfTRTHits]+information[Trk::numberOfTRTOutliers]>=m_minTRThitsForTRTdEdx) {
       ITRT_ToT_dEdx::EGasType gasType;
-      int nhits = static_cast<int>( m_trt_dEdxTool->usedHits(&track, gasType, m_TRTdEdx_DivideByL, m_TRTdEdx_useHThits) );
+      int nhits = static_cast<int>( m_trt_dEdxTool->usedHits(&track, m_TRTdEdx_DivideByL, m_TRTdEdx_useHThits) );
       double fvalue = (nhits>0 ? m_trt_dEdxTool->dEdx(&track, m_TRTdEdx_DivideByL, m_TRTdEdx_useHThits, m_TRTdEdx_corrected) : 0.0);
       eProbability.push_back(fvalue);
       information[ numberOfTRTHitsUsedFordEdx] = static_cast<uint8_t>(std::max(nhits,0));
@@ -384,7 +384,7 @@ void Trk::TrackSummaryTool::updateAdditionalInfo(Track& track) const
   if (!m_trt_dEdxTool.empty()) {
     if (tSummary->get(Trk::numberOfTRTHits)+tSummary->get(Trk::numberOfTRTOutliers)>=m_minTRThitsForTRTdEdx) {
       ITRT_ToT_dEdx::EGasType gasType;
-      int nhits = static_cast<int>( m_trt_dEdxTool->usedHits(&track, gasType, m_TRTdEdx_DivideByL, m_TRTdEdx_useHThits) );
+      int nhits = static_cast<int>( m_trt_dEdxTool->usedHits(&track, m_TRTdEdx_DivideByL, m_TRTdEdx_useHThits) );
       double fvalue = (nhits>0 ? m_trt_dEdxTool->dEdx(&track, m_TRTdEdx_DivideByL, m_TRTdEdx_useHThits, m_TRTdEdx_corrected) : 0.0);
       eProbability.push_back(fvalue);
       if (!tSummary->update(Trk::numberOfTRTHitsUsedFordEdx, static_cast<uint8_t>(std::max(nhits,0)) )) {

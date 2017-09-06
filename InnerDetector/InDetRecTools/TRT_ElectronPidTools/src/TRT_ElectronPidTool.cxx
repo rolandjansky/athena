@@ -314,8 +314,8 @@ InDet::TRT_ElectronPidTool::electronProbability(const Trk::Track& track) const
       // correct for data/MC normalisation
       // unfortunately vertex container not yet available here so pileup correction not applied
       ITRT_ToT_dEdx::EGasType gasType;
-      sum_ToT_by_sum_L*= m_TRTdEdxTool->correctNormalization(true,m_DATA, gasType);
-      prob_El_ToT = m_TRTdEdxTool->getTest(gasType, sum_ToT_by_sum_L, pTrk,  Trk::electron,  Trk::pion, nHits);
+      sum_ToT_by_sum_L*= m_TRTdEdxTool->correctNormalization(true,m_DATA);
+      prob_El_ToT = m_TRTdEdxTool->getTest(sum_ToT_by_sum_L, pTrk,  Trk::electron,  Trk::pion, nHits);
     }
     //Calculate the probability based on Brem
     if(m_bremFitterEnabled)
