@@ -158,7 +158,7 @@ StatusCode PixelMainMon::BookHitsMon(void)
       }
    }
    
-   m_hitmap_tmp = new PixelMon2DMapsLW("HitMap_tmp", ("Hit map for monitoring" + m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D);
+   m_hitmap_tmp = std::make_unique<PixelMon2DMapsLW>(PixelMon2DMapsLW("HitMap_tmp", ("Hit map for monitoring" + m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D));
    sc = m_hitmap_tmp->regHist(rdoShift);
 
    for( int i=0; i<PixLayer::COUNT; i++){
@@ -173,7 +173,7 @@ StatusCode PixelMainMon::BookHitsMon(void)
        sc = rdoShift.regHist(m_occupancy_time2= new TProfile("occupancy_time_1hr",   ("Module hit occupancy as function of time over 1 hour.  36 sec/bin" + m_histTitleExt + ";time;module occupancy").c_str(), 99,0.,1.,"i"));
        sc = rdoShift.regHist(m_occupancy_time3= new TProfile("occupancy_time_6hr",   ("Module hit occupancy as function of time over 6 hours.  3.6 min/bin" + m_histTitleExt + ";time;module occupancy").c_str(), 99,0.,1.,"i"));
        
-       m_hitmap_mon = new PixelMon2DMapsLW("HitMap_Mon", ("Hit map for monitoring" + m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D);
+       m_hitmap_mon = std::make_unique<PixelMon2DMapsLW>(PixelMon2DMapsLW("HitMap_Mon", ("Hit map for monitoring" + m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D));
        sc = m_hitmap_mon->regHist(rdoShift);
        
        for (int i=0; i<PixLayer::COUNT-1+(int)(m_doIBL); i++){
@@ -233,29 +233,29 @@ StatusCode PixelMainMon::BookHitsMon(void)
 
    if (m_do2DMaps)
      {
-       m_occupancy = new PixelMon2DMapsLW("Occupancy", ("hit map"+ m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D);
+       m_occupancy = std::make_unique<PixelMon2DMapsLW>(PixelMon2DMapsLW("Occupancy", ("hit map"+ m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D));
        sc = m_occupancy->regHist(rdoShift);
        
-       m_average_pixocc = new PixelMon2DMapsLW("Occupancy_per_pixel", ("#hits / pixel" + m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D, true);
+       m_average_pixocc = std::make_unique<PixelMon2DMapsLW>(PixelMon2DMapsLW("Occupancy_per_pixel", ("#hits / pixel" + m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D, false));
        sc = m_average_pixocc->regHist(rdoShift);
        
-       m_occupancy_pix_evt = new PixelMon2DProfilesLW("Occupancy_per_pixel_event", ("#hits / pixel / event" + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL2D3D);
+       m_occupancy_pix_evt = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW("Occupancy_per_pixel_event", ("#hits / pixel / event" + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL2D3D));
        sc = m_occupancy_pix_evt->regHist(rdoShift);
              
-       m_Lvl1ID_diff_mod_ATLAS_per_LB = new PixelMon2DLumiProfiles("Lvl1ID_diff_ATLAS_mod_per_LB", ("ATLAS_{Level 1 ID} - Module_{Level 1 ID} per LB" + m_histTitleExt).c_str(),"#Delta Level 1 ID", PixMon::HistConf::kPixIBL);
+       m_Lvl1ID_diff_mod_ATLAS_per_LB = std::make_unique<PixelMon2DLumiProfiles>(PixelMon2DLumiProfiles("Lvl1ID_diff_ATLAS_mod_per_LB", ("ATLAS_{Level 1 ID} - Module_{Level 1 ID} per LB" + m_histTitleExt).c_str(),"#Delta Level 1 ID", PixMon::HistConf::kPixIBL));
        sc = m_Lvl1ID_diff_mod_ATLAS_per_LB->regHist(timeExpert);
        
-       m_Lvl1ID_absdiff_mod_ATLAS_per_LB = new PixelMon2DLumiProfiles("Lvl1ID_absdiff_ATLAS_mod_per_LB", ("ATLAS_{Level 1 ID} - Module_{Level 1 ID} per LB" + m_histTitleExt).c_str(),"#Delta Level 1 ID", PixMon::HistConf::kPixIBL);
+       m_Lvl1ID_absdiff_mod_ATLAS_per_LB = std::make_unique<PixelMon2DLumiProfiles>(PixelMon2DLumiProfiles("Lvl1ID_absdiff_ATLAS_mod_per_LB", ("ATLAS_{Level 1 ID} - Module_{Level 1 ID} per LB" + m_histTitleExt).c_str(),"#Delta Level 1 ID", PixMon::HistConf::kPixIBL));
        sc = m_Lvl1ID_absdiff_mod_ATLAS_per_LB->regHist(timeExpert);
      }
    
    if (m_doModules)
      {
-       m_hit_num_mod = new PixelMonModules1D("Hit_num", ("Number of hits in a module in an event" + m_histTitleExt).c_str(), 15,-0.5,149.5);
+       m_hit_num_mod = std::make_unique<PixelMonModules1D>(PixelMonModules1D("Hit_num", ("Number of hits in a module in an event" + m_histTitleExt).c_str(), 15,-0.5,149.5));
        sc = m_hit_num_mod->regHist(this,(path+"/Modules_NumberOfHits").c_str(),run);
-       m_hiteff_mod = new PixelMonModulesProf("Hit_track_eff", ("Proportion of hits on track" + m_histTitleExt).c_str(), 2500,-0.5,2499.5);
+       m_hiteff_mod = std::make_unique<PixelMonModulesProf>(PixelMonModulesProf("Hit_track_eff", ("Proportion of hits on track" + m_histTitleExt).c_str(), 2500,-0.5,2499.5));
        sc = m_hiteff_mod->regHist(this,(path+"/Modules_HitEff").c_str(),run);
-       m_FE_chip_hit_summary = new PixelMonModules1D("FE_Chip_Summary", ("FE Chip Summary" + m_histTitleExt).c_str(), 16,-0.5,15.5);
+       m_FE_chip_hit_summary = std::make_unique<PixelMonModules1D>(PixelMonModules1D("FE_Chip_Summary", ("FE Chip Summary" + m_histTitleExt).c_str(), 16,-0.5,15.5));
        sc = m_FE_chip_hit_summary->regHist(this,(path+"/Modules_FEChipSummary").c_str(),run);
      }
 
@@ -281,7 +281,7 @@ StatusCode PixelMainMon::BookHitsMon(void)
      }
    if (m_doPixelOccupancy)
      {
-       m_pixel_occupancy = new PixelMonModules2D("Pixel_Occupancy", ("Pixel Occupancy" + m_histTitleExt).c_str(), 160, -0.,160.,336,0.,336.);
+       m_pixel_occupancy = std::make_unique<PixelMonModules2D>(PixelMonModules2D("Pixel_Occupancy", ("Pixel Occupancy" + m_histTitleExt).c_str(), 160, -0.,160.,336,0.,336.));
        sc = m_pixel_occupancy->regHist(this,(path+"/PixelOccupancy").c_str(),run);
      }
 
@@ -364,7 +364,7 @@ StatusCode PixelMainMon::BookHitsLumiBlockMon(void)
    if(m_doModules) {
       hname = makeHistname("num_Hits_mod_LB", false);
       htitles = makeHisttitle("Number of pixel hits in a module in an event", (atext_hit+atext_nevt), false);
-      m_hit_num_mod_LB = new PixelMonModules1D(hname.c_str(), htitles.c_str(), 20, -0.5, 19.5);
+      m_hit_num_mod_LB = std::make_unique<PixelMonModules1D>(PixelMonModules1D(hname.c_str(), htitles.c_str(), 20, -0.5, 19.5));
       sc = m_hit_num_mod_LB->regHist(this, (path+"/Modules_NumberOfHits").c_str(), lowStat);
    }
    for( int i=0; i<PixLayer::COUNT; i++){
@@ -381,7 +381,7 @@ StatusCode PixelMainMon::BookHitsLumiBlockMon(void)
       sc = lumiBlockHist.regHist(m_Lvl1A_10min_mod[i] = TH1F_LW::create(hname.c_str(), htitles.c_str(), 14, -1.5, 12.5));
    }
 
-   m_occupancy_10min = new PixelMon2DMapsLW("Occupancy_10min", ("hit occupancy" + m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D);
+   m_occupancy_10min = std::make_unique<PixelMon2DMapsLW>(PixelMon2DMapsLW("Occupancy_10min", ("hit occupancy" + m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D));
    sc = m_occupancy_10min->regHist(lumiBlockHist);
    
    if (sc.isFailure()) ATH_MSG_WARNING("Problems with booking Hit histograms per LB (low stat)");
@@ -540,7 +540,7 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
              pixlayeribl2d3d < PixLayerIBL2D3D::COUNT &&
              nChannels_mod[pixlayeribl2d3d] > 0 )
         {
-          m_average_pixocc->WeightingFill(rdoID, m_pixelid, 1.0/( 1.0*nChannels_mod[pixlayeribl2d3d]) );
+          m_average_pixocc->Fill(rdoID, m_pixelid, 1.0/( 1.0*nChannels_mod[pixlayeribl2d3d]) );
         }
 
        
@@ -668,7 +668,7 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
   ////////////////////Fill after event block////////////////
   if (m_doOnline)//should we fill these mid run or only at the end?
     {
-      FillSummaryHistos(m_occupancy, m_occupancy_summary_mod[PixLayer::kECA], m_occupancy_summary_mod[PixLayer::kECC], 
+      FillSummaryHistos(m_occupancy.get(), m_occupancy_summary_mod[PixLayer::kECA], m_occupancy_summary_mod[PixLayer::kECC],
 			m_occupancy_summary_mod[PixLayer::kIBL], m_occupancy_summary_mod[PixLayer::kB0], 
 			m_occupancy_summary_mod[PixLayer::kB1],  m_occupancy_summary_mod[PixLayer::kB2]);
       if(m_occupancy_time1&&m_occupancy_time2&&m_occupancy_time3) FillTimeHisto(double(nhits/(1744.0+280*m_doIBL)),m_occupancy_time1, m_occupancy_time2, m_occupancy_time3,10.,60.,360. );
@@ -676,8 +676,8 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
 	for(int i=0; i<PixLayer::COUNT; i++)
 	  if( m_hit_ToT_Mon_mod[i] && m_hit_ToT_tmp_mod[i]) TH1FFillMonitoring(m_hit_ToT_Mon_mod[i], m_hit_ToT_tmp_mod[i]);
 	if ( m_hitmap_tmp && m_hitmap_mon) {
-	  if ( m_occupancy_pix_evt ) m_occupancy_pix_evt->FillFromMap(m_hitmap_tmp, false);
-	  m_hitmap_mon->Fill2DMon(m_hitmap_tmp);
+	  if ( m_occupancy_pix_evt ) m_occupancy_pix_evt->FillFromMap(m_hitmap_tmp.get(), false);
+	  m_hitmap_mon->Fill2DMon(m_hitmap_tmp.get());
 	}
       }
     } //end of doOnline loop processing                                  
@@ -688,7 +688,7 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
     if (m_hits_per_lumi_mod[i]) m_hits_per_lumi_mod[i]->Fill(m_manager->lumiBlockNumber(), nhits_mod[i]);
   
   /// Fill average occupancy
-  if ( !m_doOnline && m_occupancy_pix_evt && m_hitmap_tmp) m_occupancy_pix_evt->FillFromMap(m_hitmap_tmp, true);
+  if ( !m_doOnline && m_occupancy_pix_evt && m_hitmap_tmp) m_occupancy_pix_evt->FillFromMap(m_hitmap_tmp.get(), true);
   
   double avgocc = 0;
   double avgocc_mod[PixLayerIBL2D3D::COUNT] = {0};
@@ -853,7 +853,7 @@ StatusCode PixelMainMon::ProcHitsMon(void)
   
   if (m_doOffline)
     {
-      FillSummaryHistos(m_occupancy, m_occupancy_summary_mod[PixLayer::kECA], m_occupancy_summary_mod[PixLayer::kECC], 
+      FillSummaryHistos(m_occupancy.get(), m_occupancy_summary_mod[PixLayer::kECA], m_occupancy_summary_mod[PixLayer::kECC],
 			m_occupancy_summary_mod[PixLayer::kIBL], m_occupancy_summary_mod[PixLayer::kB0], 
 			m_occupancy_summary_mod[PixLayer::kB1],  m_occupancy_summary_mod[PixLayer::kB2]);
     }
