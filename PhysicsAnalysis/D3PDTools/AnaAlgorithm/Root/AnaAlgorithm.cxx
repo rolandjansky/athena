@@ -44,7 +44,7 @@ namespace EL
     : AthHistogramAlgorithm (name, pSvcLocator)
 #endif
   {
-    ANA_MSG_INFO ("AnaAlgorithm: " << name);
+    ANA_MSG_DEBUG ("AnaAlgorithm: " << name);
   }
 
 
