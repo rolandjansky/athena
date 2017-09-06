@@ -54,9 +54,7 @@ TileDQFragMonTool::TileDQFragMonTool(const std::string & type, const std::string
   , m_hist_BadChannelJump2D_nonmask{}
   , m_hist_BadChannelNeg2D_nonmask{}
   , m_hist_error_lb{}
-  , m_badPulseQuality{nullptr}
   , m_nLumiblocks(3000)
-  , m_qualityCut(254.0)
 /*---------------------------------------------------------*/
 {
   declareInterface<IMonitorToolBase>(this);
@@ -76,7 +74,6 @@ TileDQFragMonTool::TileDQFragMonTool(const std::string & type, const std::string
   declareProperty("CheckDCS",m_checkDCS = false);
   declareProperty("TileBadChanTool"        , m_tileBadChanTool);
   declareProperty("NumberOfLumiblocks", m_nLumiblocks = 3000);
-  declareProperty("QualityCut", m_qualityCut = 254.0);
 
   m_path = "/Tile/DMUErrors";
   // starting up the label variable....
@@ -307,14 +304,6 @@ void TileDQFragMonTool::bookFirstHist(  )
                                                "# Not Masked Negative Amp in " + m_PartNames[p], 64, 0.5, 64.5, 48, -0.5, 47.5);
       SetBinLabel(m_hist_BadChannelNeg2D_nonmask[p]->GetXaxis(), m_moduleLabel[p]);
       SetBinLabel(m_hist_BadChannelNeg2D_nonmask[p]->GetYaxis(), m_cellchLabel[p]);
-
-      m_badPulseQuality[p] = book2I(badDrawersDir, "TileBadPulseQuality" + m_PartNames[p],
-                                    "Run " + runNumStr + ": " + m_PartNames[p] +
-                                    " Bad pulse shape or #chi^{2} from Optimal filtering algorithm",
-                                    64, 0.5, 64.5, 48, -0.5, 47.5);
-      SetBinLabel(m_badPulseQuality[p]->GetXaxis(), m_moduleLabel[p]);
-      SetBinLabel(m_badPulseQuality[p]->GetYaxis(), m_cellchLabel[p]);
-
     }
   } else {
 
@@ -544,17 +533,6 @@ void TileDQFragMonTool::fillBadDrawer() {
             int channel = m_tileHWID->channel(adcId);
             int gain = m_tileHWID->adc(adcId);
 
-            float pedestal = rawChannel->pedestal(); // errors are saved in ped as 100000 + 10000*error
-            float quality = rawChannel->quality(); //
-
-            if ((pedestal > 80000. || quality > m_qualityCut)
-                && !(m_tileBadChanTool->getAdcStatus(adcId).isBad()
-                     || m_tileDCSSvc->statusIsBad(ROS, drawer, channel))) {
-
-              m_badPulseQuality[partition]->Fill(module, channel);
-
-            }
-
             if (findChannelErrors(rawChannel, gain) > 0) {
               ++nBadCh[gain];
 
@@ -563,7 +541,8 @@ void TileDQFragMonTool::fillBadDrawer() {
                 ++nBadChNM[gain];
                 m_hist_BadChannelNeg2D_nonmask[partition]->Fill(module, channel);
 
-                if (pedestal > 100000. && DigCnt) {
+                float ped = rawChannel->pedestal(); // errors are saved in ped as 100000 + 10000*error
+                if (ped > 100000. && DigCnt) {
                   while (((*DigCollItr)->identify() != fragId) && (DigCollItr != lastDigColl)) {
                     ++DigCollItr;
                   }
@@ -590,7 +569,7 @@ void TileDQFragMonTool::fillBadDrawer() {
                           msg(MSG::INFO) << vdigits[i] << " ";
                         }
 
-                        msg(MSG::INFO) << "  error = " << TileRawChannelBuilder::BadPatternName(pedestal) << endmsg;
+                        msg(MSG::INFO) << "  error = " << TileRawChannelBuilder::BadPatternName(ped) << endmsg;
                       }
                     }
                   }
