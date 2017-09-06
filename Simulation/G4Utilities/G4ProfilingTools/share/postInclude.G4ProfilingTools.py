@@ -9,6 +9,6 @@ print ServiceMgr.THistSvc
 
 from G4AtlasApps.SimFlags import simFlags
 # configuration for MT actions
-simFlags.OptionalUserActionList.addAction('G4UA::TestActionTimerTool',['BeginOfEvent','EndOfEvent','BeginOfRun','EndOfRun','Step'])
-simFlags.OptionalUserActionList.addAction('G4UA::TestActionVPTimerTool',['BeginOfEvent','EndOfEvent','EndOfRun','BeginOfRun','Step'])
-simFlags.OptionalUserActionList.addAction('G4UA::TestActionEHistTool',['BeginOfRun','EndOfRun','Step','BeginOfTracking','EndOfTracking'])
+simFlags.OptionalUserActionList.addAction('G4UA::TestActionTimerTool',['Event','Run','Step'])
+simFlags.OptionalUserActionList.addAction('G4UA::TestActionVPTimerTool',['Event','Run','Step'])
+simFlags.OptionalUserActionList.addAction('G4UA::TestActionEHistTool',['Run','Step','Tracking'])

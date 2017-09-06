@@ -14,9 +14,8 @@ namespace G4UA
                                                  const IInterface* parent)
     : ActionToolBaseReport<HIPLArVolumeAccept>(type, name, parent)
   {
-    declareInterface<ISteppingActionTool>(this);
-    declareInterface<IBeginEventActionTool>(this);
-    declareInterface<IEndEventActionTool>(this);
+    declareInterface<IG4SteppingActionTool>(this);
+    declareInterface<IG4EventActionTool>(this);
   }
 
   //---------------------------------------------------------------------------

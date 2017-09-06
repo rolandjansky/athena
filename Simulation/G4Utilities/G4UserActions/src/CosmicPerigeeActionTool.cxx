@@ -16,10 +16,9 @@ namespace G4UA
                                                    const IInterface* parent)
     : ActionToolBase<CosmicPerigeeAction>(type, name, parent)
   {
-    declareInterface<ISteppingActionTool>(this);
-    declareInterface<IBeginEventActionTool>(this);
-    declareInterface<IEndEventActionTool>(this);
-    declareInterface<IPreTrackingActionTool>(this);
+    declareInterface<IG4SteppingActionTool>(this);
+    declareInterface<IG4EventActionTool>(this);
+    declareInterface<IG4TrackingActionTool>(this);
     declareProperty("pMinPrimary", m_config.pMinPrimary);
   }
 

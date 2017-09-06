@@ -47,7 +47,7 @@ namespace G4UA{
   {
   }
 
-  void MaterialStepRecorder::beginOfEvent(const G4Event*){
+  void MaterialStepRecorder::BeginOfEventAction(const G4Event*){
 
 
     ATH_MSG_DEBUG(" BeginOfEventAction");
@@ -59,7 +59,7 @@ namespace G4UA{
 
   }
 
-  void MaterialStepRecorder::endOfEvent(const G4Event*){
+  void MaterialStepRecorder::EndOfEventAction(const G4Event*){
 
     ATH_MSG_DEBUG(" EndOfEventAction");
 
@@ -79,7 +79,7 @@ namespace G4UA{
 
   }
 
-  void MaterialStepRecorder::beginOfRun(const G4Run*){
+  void MaterialStepRecorder::BeginOfRunAction(const G4Run*){
 
     ATH_MSG_DEBUG(" BeginOfRunAction");
 
@@ -89,7 +89,7 @@ namespace G4UA{
 
   }
 
-  void MaterialStepRecorder::processStep(const G4Step* aStep)
+  void MaterialStepRecorder::UserSteppingAction(const G4Step* aStep)
   {
     // kill secondaries
     if (aStep->GetTrack()->GetParentID()) {

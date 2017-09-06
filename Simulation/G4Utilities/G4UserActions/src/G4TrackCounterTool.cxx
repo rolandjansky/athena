@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CxxUtils/make_unique.h"
 #include "G4UserActions/G4TrackCounterTool.h"
+#include "CxxUtils/make_unique.h"
 
 namespace G4UA
 {
@@ -16,16 +16,16 @@ namespace G4UA
                      const IInterface* parent)
     : ActionToolBaseReport<G4TrackCounter>(type, name, parent)
   {
-    declareInterface<IBeginEventActionTool>(this);
-    declareInterface<IPreTrackingActionTool>(this);
+    declareInterface<IG4EventActionTool>(this);
+    declareInterface<IG4TrackingActionTool>(this);
   }
 
   //---------------------------------------------------------------------------
-  // Initialize - temporarily here for debugging
+  // Initialize
   //---------------------------------------------------------------------------
   StatusCode G4TrackCounterTool::initialize()
   {
-    ATH_MSG_DEBUG("initialize");
+    ATH_MSG_DEBUG( "Initializing " << name() );
     return StatusCode::SUCCESS;
   }
 
@@ -34,7 +34,7 @@ namespace G4UA
   //---------------------------------------------------------------------------
   StatusCode G4TrackCounterTool::finalize()
   {
-    ATH_MSG_DEBUG("finalize");
+    ATH_MSG_DEBUG( "Finalizing " << name() );
 
     mergeReports();
 
@@ -53,9 +53,8 @@ namespace G4UA
   std::unique_ptr<G4TrackCounter>
   G4TrackCounterTool::makeAction()
   {
-    ATH_MSG_DEBUG("makeAction");
-    auto action = CxxUtils::make_unique<G4TrackCounter>();
-    return std::move(action);
+    ATH_MSG_DEBUG("Making a G4TrackCounter action");
+    return CxxUtils::make_unique<G4TrackCounter>();
   }
 
 }

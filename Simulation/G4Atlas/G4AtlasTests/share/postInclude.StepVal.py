@@ -6,5 +6,5 @@ if not hasattr(ServiceMgr, 'THistSvc'):
 ServiceMgr.THistSvc.Output  += ["truth DATAFILE='stepping.root' OPT='NEW'"];
 
 from G4AtlasApps.SimFlags import simFlags
-simFlags.OptionalUserActionList.addAction('G4UA::SteppingValidationTool',['BeginOfRun','EndOfEvent','BeginOfEvent','Step'])
+simFlags.OptionalUserActionList.addAction('G4UA::SteppingValidationTool',['Run','Event','Step'])
 

@@ -48,7 +48,7 @@ namespace G4UA
   {}
 
   //---------------------------------------------------------------------------
-  void StoppedParticleAction::processStep(const G4Step* aStep)
+  void StoppedParticleAction::UserSteppingAction(const G4Step* aStep)
   {
 
     // Trigger if the energy is below our threshold or if the time is over 150 ns

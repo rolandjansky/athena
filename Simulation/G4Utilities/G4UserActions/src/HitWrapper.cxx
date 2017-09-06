@@ -35,7 +35,7 @@ namespace G4UA
   {}
 
   //---------------------------------------------------------------------------
-  void HitWrapper::endOfEvent(const G4Event*)
+  void HitWrapper::EndOfEventAction(const G4Event*)
   {
     // @todo This syntax will not work at runtime in the master
     // branch. The HitWrapper should become a separate algorithm which
