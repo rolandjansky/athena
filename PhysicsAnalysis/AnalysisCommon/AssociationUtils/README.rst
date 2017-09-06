@@ -18,16 +18,18 @@ technical details about how the package is structured, but if you're just
 looking for the quick answers of how to set things up and use the tools, you
 can skip ahead to the `Configuration helpers`_ section.
 
-The current recommendations were summarized by Will Buttinger in this Physics
-Coordination meeting: https://indico.cern.ch/event/587852/. The table on slide
+The current recommendations were summarized by me in these slides from the
+flavour-tagging and Hbb workshop on Sep 6, 2017:
+https://indico.cern.ch/event/631313/contributions/2683959/.
 3 summarizes the recommendations and the proposal to drop the mu-jet pt ratio
 requirements on slide 5 was accepted as part of the recommendations.  Apologies
 for any confusion. I will try to clean up this documentation in the coming
 days.
 
-For some history you may also refer to the slides at these ASG meetings:
+For some history you may also refer to the slides at these meetings:
 
-* 2016-10-21: https://indico.cern.ch/event/576538/
+* 2016-11-14 in physics coordination: https://indico.cern.ch/event/587852/
+* 2016-10-21 in ASG: https://indico.cern.ch/event/576538/
 * 2016-06-03 (for ICHEP): https://indico.cern.ch/event/539619/
 
 The configuration is quite flexible and a lot of features are supported,
@@ -39,6 +41,10 @@ points" depending on the type of analysis:
 * **Boosted** - for analyses with boosted leptons and jets.
 * **Boosted+Heavy-flavor** - for analyses with both HF jets and boosted
   objects.
+
+See the above slides for a good summary of these working points.
+There are some variations on the above which favor leptons or photons more,
+but I won't cover those details here.
 
 For a quick example of how to use the tools with the configuration helper
 code in RootCore, take a look at the tester executable:
@@ -153,10 +159,15 @@ in Athena environments. There are three pieces:
 
 **How to setup the working points**
 
-*Important note*: in the following snippets, the ORFlags and ToolBox
-objects are declared as locals. In your actual setup you will likely make
-these private members of some EventLoop algorithm or a parent tool or
-something like that.
+*Important notes*:
+
+* In the following snippets, the ORFlags and ToolBox objects are declared as
+  locals. In your actual setup you will likely make these private members of
+  some EventLoop algorithm or a parent tool or something like that.
+
+* The working points calculate delta-R using _rapidity_ instead of
+  pseudo-rapidity, as recommended in the harmonization note. You can override
+  this with the UseRapdity property that all relevant tools support.
 
 *Standard working point* - you only need to set the tool and
 decoration names:
@@ -193,7 +204,7 @@ that you will apply to label bjets:
 settings and set both the bJetLabel and the boostedLeptons flag.
 
 *HSG2 overlap removal prescription* - HSG2 uses a modified overlap removal
-prescription including electron-electron overlap removal and the disabling
+prescription including electron-electron cluster matching and the disabling
 of the electron and muon rejections by jets. To configure this setup,
 do the following:
 
@@ -201,7 +212,6 @@ do the following:
 
     ORUtils::ORFlags orFlags(masterToolName, inputLabel, outputLabel);
     ORUtils::ToolBox toolBox;
-    orFlags.doEleEleOR = true;
     CHECK( ORUtils::recommendedTools(orFlags, toolBox) );
     CHECK( toolBox.eleEleORT.setProperty("UseClusterMatch", true) );
     CHECK( toolBox.eleJetORT.setProperty("OuterDR", 0.) );
@@ -265,8 +275,7 @@ in the RootCore examples above. Configure like thus:
     from AssociationUtils.config import recommended_tools
     orTool = recommended_tools(masterName=masterToolName,
                                inputLabel=inputLabel,
-                               outputLabel=outputLabel,
-                               doEleEleOR=True)
+                               outputLabel=outputLabel)
     orTool.EleEleORT.UseClusterMatch = True
     orTool.EleJetORT.OuterDR = 0.
     orTool.MuJetORT.OuterDR = 0.
