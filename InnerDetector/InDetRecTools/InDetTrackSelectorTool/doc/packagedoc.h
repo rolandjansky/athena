@@ -24,4 +24,3 @@ The cuts implemented in each version are shown below.
 @image html TrackSelectorVariables.png
 
 */
-

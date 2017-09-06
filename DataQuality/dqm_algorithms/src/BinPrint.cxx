@@ -35,7 +35,7 @@ namespace dqm_algorithms {
 	{
 		std::string message;
 		message += "\n";
-		message += "Algorithm: \"" + name + "\"\n";
+		message += "Algorithm: \"" + m_name + "\"\n";
 		message += "Description: Extracts bin contents from a TProfile, TH1, TH2 object without performing\n";
 		message += "             any assessment; the status is always \"Undefined\"\n";
 		message += "Optional Parameter:  UnMask_All    Default = -1\n";
@@ -99,18 +99,18 @@ namespace dqm_algorithms {
 	
 	BinPrint::
 	BinPrint()
-	: name("BinPrint")
-	, NbinsX(-1)
-	, NbinsY(-1)
-	, UnMask_All(-1)
-	, UseValue(0)
-	, TypeValue(0)
-	, Value(0.)
-	, UseMaskValue(0)
-	, MaskValue(0.)
+	: m_name("BinPrint")
+	, m_NbinsX(-1)
+	, m_NbinsY(-1)
+	, m_UnMask_All(-1)
+	, m_UseValue(0)
+	, m_TypeValue(0)
+	, m_Value(0.)
+	, m_UseMaskValue(0)
+	, m_MaskValue(0.)
 
 	{
-		dqm_core::AlgorithmManager::instance().registerAlgorithm( name, this );
+		dqm_core::AlgorithmManager::instance().registerAlgorithm( m_name, this );
 	}
 	
 	
@@ -136,8 +136,8 @@ namespace dqm_algorithms {
 		dqm_core::Result* result = new dqm_core::Result();
 		result->status_ = dqm_core::Result::Undefined;
 		//Histogram dimension default = no dimensions
-		NbinsX = -1;
-		NbinsY = -1;
+		m_NbinsX = -1;
+		m_NbinsY = -1;
 		
 		if (!data.IsA()->InheritsFrom("TH1")) {
 			throw dqm_core::BadConfig(ERS_HERE, name, "does not inherit from TH1");
@@ -149,51 +149,51 @@ namespace dqm_algorithms {
 		
 		//Get optional parameters
 		int Npublished = 0;
-		UseValue = UseValue_GetFromMap(config.getParameters());
-		TypeValue = TypeValue_GetFromMap(config.getParameters());
-		Value = Value_GetFromMap(config.getParameters());
-		UseMaskValue = UseMaskValue_GetFromMap(config.getParameters());
-		MaskValue = MaskValue_GetFromMap(config.getParameters());
+		m_UseValue = UseValue_GetFromMap(config.getParameters());
+		m_TypeValue = TypeValue_GetFromMap(config.getParameters());
+		m_Value = Value_GetFromMap(config.getParameters());
+		m_UseMaskValue = UseMaskValue_GetFromMap(config.getParameters());
+		m_MaskValue = MaskValue_GetFromMap(config.getParameters());
 		const int Error = (int) dqm_algorithms::tools::GetFirstFromMap( "PrintError", config.getParameters(), 0);
 	 	//out<<Error<<"Error"<<std::endl;	
 		//**********
 		// 1D Histogram case
 		//**********
 		if (h->GetDimension() == 1) {
-			NbinsX = h->GetNbinsX();
+			m_NbinsX = h->GetNbinsX();
 			
 			//Get bin mask
 			std::vector<bool> Mask;
 			Mask = Mask1D_GetFromMap(config.getParameters());
 			
-			//Rescale Value if fractional definition is used
+			//Rescale m_Value if fractional definition is used
 			double h_entries = h->GetEntries();
-			if ( TypeValue > 0.5 ) Value = Value * h_entries;
+			if ( m_TypeValue > 0.5 ) m_Value = m_Value * h_entries;
 			
 			//Check all bins
-			for (int bin = 0; bin < NbinsX; bin++) {
+			for (int bin = 0; bin < m_NbinsX; bin++) {
 				double bincon = h->GetBinContent(bin + 1);
 				double ebincon = h->GetBinError(bin + 1);
 				//out<<"here"<<Mask[bin]<<std::endl;
 				//if( !Mask[bin] ) {
 				if( Mask[bin] ) {
 					bool do_printbin = false;
-					if(UseValue == 0) do_printbin = true;
-					if( (UseValue == 1 && bincon >= Value) ||
-					   (UseValue > 1 && bincon > Value) ||
-					   (UseValue == -1 && bincon <= Value) ||
-					   (UseValue < -1 && bincon < Value)
+					if(m_UseValue == 0) do_printbin = true;
+					if( (m_UseValue == 1 && bincon >= m_Value) ||
+					   (m_UseValue > 1 && bincon > m_Value) ||
+					   (m_UseValue == -1 && bincon <= m_Value) ||
+					   (m_UseValue < -1 && bincon < m_Value)
 					   ) do_printbin = true;
-					if( (UseMaskValue == 1 && bincon >= MaskValue) ||
-					   (UseMaskValue > 1 && bincon > MaskValue) ||
-					   (UseMaskValue == -1 && bincon <= MaskValue) ||
-					   (UseMaskValue < -1 && bincon < MaskValue)
+					if( (m_UseMaskValue == 1 && bincon >= m_MaskValue) ||
+					   (m_UseMaskValue > 1 && bincon > m_MaskValue) ||
+					   (m_UseMaskValue == -1 && bincon <= m_MaskValue) ||
+					   (m_UseMaskValue < -1 && bincon < m_MaskValue)
 					   ) do_printbin = ! do_printbin;
 					if(do_printbin) {
 					  //out<<"bin with name " <<  bincon<<std::endl;
 						Npublished++;
-						if ( UnMask_All < 0 || 
-							Npublished <= UnMask_All ) {
+						if ( m_UnMask_All < 0 || 
+							Npublished <= m_UnMask_All ) {
 							double binvalX = h->GetXaxis()->GetBinCenter(bin + 1);
 							std::string binname = Form("%s_Bin(%u | %.*e)", name.c_str(), bin, 2, binvalX);
 							std::string sigbinname = Form("%s_EBin(%u | %.*e)", name.c_str(), bin, 2, binvalX);
@@ -201,7 +201,7 @@ namespace dqm_algorithms {
 							//out<<"bin with name " << binname <<" and value "<< bincon<<std::endl;
 							//out<<"bin with name " << sigbinname <<" and value "<< ebincon<<std::endl;
 							//From() ~ printf() (s ~ string, u ~ unsigned int, .*e ~ scientific)
-							if ( TypeValue > 0.5 ) {
+							if ( m_TypeValue > 0.5 ) {
 								result->tags_[binname.c_str()] = (bincon / h_entries);
 								if (Error ==1 ) result->tags_[sigbinname.c_str()] = ebincon ;
 							} else {
@@ -218,44 +218,44 @@ namespace dqm_algorithms {
 		// 2D Histogram case
 		//**********
 		if (h->GetDimension() == 2) {
-			NbinsX = h->GetNbinsX();
-			NbinsY = h->GetNbinsY();
+			m_NbinsX = h->GetNbinsX();
+			m_NbinsY = h->GetNbinsY();
 			
 			//Get bin mask
 			std::vector< std::vector<bool> > Mask;
 			Mask = Mask2D_GetFromMap(config.getParameters());
 			
-			//Rescale Value if fractional definition is used
+			//Rescale m_Value if fractional definition is used
 			double h_entries = h->GetEntries();
-			if ( TypeValue > 0.5 ) Value = Value * h_entries;
+			if ( m_TypeValue > 0.5 ) m_Value = m_Value * h_entries;
 			
 			//Check all bins
-			for (int binX = 0; binX < NbinsX; binX++) {
-				for (int binY = 0; binY < NbinsY; binY++) {
+			for (int binX = 0; binX < m_NbinsX; binX++) {
+				for (int binY = 0; binY < m_NbinsY; binY++) {
 					double bincon = h->GetBinContent(binX + 1, binY + 1);
 					double ebincon = h->GetBinError(binX + 1, binY + 1);
 					if( !Mask[binX][binY] ) {
 						bool do_printbin = false;
-						if(UseValue == 0) do_printbin = true;
-						if( (UseValue == 1 && bincon >= Value) ||
-						   (UseValue > 1 && bincon > Value) ||
-						   (UseValue == -1 && bincon <= Value) ||
-						   (UseValue < -1 && bincon < Value)
+						if(m_UseValue == 0) do_printbin = true;
+						if( (m_UseValue == 1 && bincon >= m_Value) ||
+						   (m_UseValue > 1 && bincon > m_Value) ||
+						   (m_UseValue == -1 && bincon <= m_Value) ||
+						   (m_UseValue < -1 && bincon < m_Value)
 						   ) do_printbin = true;
-						if( (UseMaskValue == 1 && bincon >= MaskValue) ||
-						   (UseMaskValue > 1 && bincon > MaskValue) ||
-						   (UseMaskValue == -1 && bincon <= MaskValue) ||
-						   (UseMaskValue < -1 && bincon < MaskValue)
+						if( (m_UseMaskValue == 1 && bincon >= m_MaskValue) ||
+						   (m_UseMaskValue > 1 && bincon > m_MaskValue) ||
+						   (m_UseMaskValue == -1 && bincon <= m_MaskValue) ||
+						   (m_UseMaskValue < -1 && bincon < m_MaskValue)
 						   ) do_printbin = ! do_printbin;
 						if(do_printbin) {
 							Npublished++;
-							if ( UnMask_All < 0 || 
-								Npublished <= UnMask_All ) {
+							if ( m_UnMask_All < 0 || 
+								Npublished <= m_UnMask_All ) {
 								double binvalX = h->GetXaxis()->GetBinCenter(binX + 1);
 								double binvalY = h->GetYaxis()->GetBinCenter(binY + 1);
 								std::string binname = Form("%s_Bin((%u,%u) | %.*e,%.*e)", name.c_str(), binX, binY, 2, binvalX, 2, binvalY);						
 								std::string sigbinname = Form("%s_EBin((%u,%u) | %.*e,%.*e)", name.c_str(), binX, binY, 2, binvalX, 2, binvalY);						
-								if ( TypeValue > 0.5 ) {
+								if ( m_TypeValue > 0.5 ) {
 									result->tags_[binname.c_str()] = (bincon / h_entries);
 									result->tags_[sigbinname.c_str()] = ebincon;
 								} else {
@@ -270,10 +270,10 @@ namespace dqm_algorithms {
 		}
 		
 		//Append statement if all warnings or errors were not printed
-		if ( UnMask_All >= 0 && 
-			Npublished > UnMask_All ) {
+		if ( m_UnMask_All >= 0 && 
+			Npublished > m_UnMask_All ) {
 			std::string pub_excess = Form("%s_PROBLEM_Publishable_UnPrinted",name.c_str());
-			result->tags_[pub_excess.c_str()] = Npublished - UnMask_All;
+			result->tags_[pub_excess.c_str()] = Npublished - m_UnMask_All;
 		}
 		
 		return result;
@@ -340,19 +340,19 @@ namespace dqm_algorithms {
 		
 		//Make default mask
 		bool default_Mask = true;
-		UnMask_All = -1;
-		//Get UnMask_All configuration
+		m_UnMask_All = -1;
+		//Get m_UnMask_All configuration
 		mask_map_bin = params.find("UnMask_All");
 		if ( mask_map_bin != params.end() ) {
 			if(mask_map_bin->second > 0.5) {
-				UnMask_All = (int) mask_map_bin->second;
+				m_UnMask_All = (int) mask_map_bin->second;
 				default_Mask = false;
 			}
 		}
-		std::vector<bool> Mask(NbinsX, default_Mask);
+		std::vector<bool> Mask(m_NbinsX, default_Mask);
 		
 		//Get specific mask settings
-		for ( int bin = 0; bin < NbinsX; bin++ ) {
+		for ( int bin = 0; bin < m_NbinsX; bin++ ) {
 			std::string mask_bin = Form("Mask_%d", bin + 1);
 			mask_map_bin = params.find(mask_bin.c_str());
 			if ( mask_map_bin != params.end()  ) {
@@ -370,20 +370,20 @@ namespace dqm_algorithms {
 		
 		//Make default mask
 		bool default_Mask = true;
-		UnMask_All = -1;
-		//Get UnMask_All configuration
+		m_UnMask_All = -1;
+		//Get m_UnMask_All configuration
 		mask_map_bin = params.find("UnMask_All");
 		if ( mask_map_bin != params.end() ) {
 			if(mask_map_bin->second > 0.5) {
-				UnMask_All = (int) mask_map_bin->second;
+				m_UnMask_All = (int) mask_map_bin->second;
 				default_Mask = false;
 			}
 		}
-		std::vector< std::vector<bool> > Mask(NbinsX, std::vector<bool>(NbinsY, default_Mask));
+		std::vector< std::vector<bool> > Mask(m_NbinsX, std::vector<bool>(m_NbinsY, default_Mask));
 		
 		//Get specific mask settings
-		for ( int binX = 0; binX < NbinsX; binX++ ) {
-			for ( int binY = 0; binY < NbinsY; binY++ ) {
+		for ( int binX = 0; binX < m_NbinsX; binX++ ) {
+			for ( int binY = 0; binY < m_NbinsY; binY++ ) {
 				std::string mask_bin = Form("Mask_%d_%d", binX + 1, binY + 1);
 				mask_map_bin = params.find(mask_bin.c_str());
 				if ( mask_map_bin != params.end() ) {

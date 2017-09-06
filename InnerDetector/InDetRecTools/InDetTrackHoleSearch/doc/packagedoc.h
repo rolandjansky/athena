@@ -23,7 +23,6 @@ In order to work smoothly, the Trk::TrackStateOnSurface objects of a track which
 
 >> Please enter a brief description of the package here.
 
-@section InDetTrackHoleSearch_InDetTrackHoleSearchReq Requirements
 
 
 */

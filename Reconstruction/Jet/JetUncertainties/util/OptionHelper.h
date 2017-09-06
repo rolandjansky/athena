@@ -63,6 +63,7 @@ class OptionHelper : public asg::AsgMessaging
         bool IsUnknownComposition() const { checkInit(); return m_isUnknownComp; }
         bool IsDijetComposition()   const { checkInit(); return m_isDijetComp;   }
         bool IsGinosComposition()   const { checkInit(); return m_isGinosComp;   }
+        bool IsReginasComposition() const { checkInit(); return m_isReginasComp; }
 
         // Comparison helpers
         bool                 CompareOnly()    const { checkInit(); return m_onlyCompare; }
@@ -72,6 +73,9 @@ class OptionHelper : public asg::AsgMessaging
         // Variable control
         std::vector<CompScaleVar::TypeEnum> GetScaleVars() const { checkInit(); return m_scaleVars; }
         const std::vector<std::string> VariablesToShift() const { checkInit(); return m_systFilters; }
+  
+        // Layout control
+        TString GetInputsDir() const {  checkInit(); return m_inputsDir; }
 
     private:
         bool    m_isInit;
@@ -108,6 +112,7 @@ class OptionHelper : public asg::AsgMessaging
         bool    m_isUnknownComp;
         bool    m_isDijetComp;
         bool    m_isGinosComp;
+        bool    m_isReginasComp;
 
         bool    m_onlyCompare;
         TString m_doCompare;
@@ -115,6 +120,10 @@ class OptionHelper : public asg::AsgMessaging
         
         std::vector<CompScaleVar::TypeEnum> m_scaleVars;
         std::vector<std::string> m_systFilters;
+  
+        // allowing MakeUncertaintyPlots to be run from outside
+        // of the testInputs/run/ directory
+        TString m_inputsDir;
 
         TString getOptionValue(const std::vector<TString>& options, const TString optionName) const;
         template <typename T>
@@ -162,6 +171,7 @@ OptionHelper::OptionHelper(const std::string& name)
     , m_isUnknownComp(true)
     , m_isDijetComp(false)
     , m_isGinosComp(false)
+    , m_isReginasComp(false)
 
     , m_onlyCompare(false)
     , m_doCompare("")
@@ -169,6 +179,8 @@ OptionHelper::OptionHelper(const std::string& name)
 
     , m_scaleVars()
     , m_systFilters()
+  
+    , m_inputsDir("./")
 { }
 
 bool OptionHelper::Initialize(const std::vector<TString>& options)
@@ -227,6 +239,7 @@ bool OptionHelper::Initialize(const std::vector<TString>& options)
     
     m_isDijetComp    = getOptionValueWithDefault(options,"isDijet",m_isDijetComp);
     m_isGinosComp    = getOptionValueWithDefault(options,"isGinos",m_isGinosComp);
+    m_isReginasComp  = getOptionValueWithDefault(options,"isReginas",m_isReginasComp);
     m_isUnknownComp  = !m_isDijetComp;
     if (m_isGinosComp) {
       m_isDijetComp = false;
@@ -237,6 +250,7 @@ bool OptionHelper::Initialize(const std::vector<TString>& options)
     m_doCompare      = getOptionValueWithDefault(options,"doCompare",m_doCompare);
     m_compareVals    = getCompareVals(options);
 
+    m_inputsDir      = getOptionValueWithDefault(options,"inputsDir",m_inputsDir);
 
     const TString localScaleVar = getOptionValue(options,"scaleVar");
     if (localScaleVar == "")

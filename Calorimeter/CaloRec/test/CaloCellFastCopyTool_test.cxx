@@ -67,6 +67,9 @@ class CaloHelper
 {
 public:
 
+  CaloHelper (const CaloHelper&) = delete;
+  CaloHelper& operator= (const CaloHelper&) = delete;
+
   static CaloHelper* GetInstance(void)
   {
     if (!s_instance) {

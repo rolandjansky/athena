@@ -209,7 +209,7 @@ HLT::ErrorCode TrigGSCFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::T
   // EXECUTE OFFLINE TOOLS
 
   // calJet is a pointer to the new, calibrated jet
-  xAOD::Jet* calJet = new xAOD::Jet;
+  xAOD::Jet* calJet = nullptr;
   m_jetGSCCalib_tool->calibratedCopy(jet,calJet);
   // Now we have a new fully calibrated jet!
 

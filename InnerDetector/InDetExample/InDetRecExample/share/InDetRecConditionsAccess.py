@@ -6,6 +6,11 @@ isData = (globalflags.DataSource == 'data')
 eventInfoKey = "ByteStreamEventInfo"
 if not isData:
   eventInfoKey = "McEventInfo"
+if globalflags.isOverlay():
+  if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.TRT_on():
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+    if isData:
+      eventInfoKey = (overlayFlags.dataStore() + '+' + eventInfoKey).replace("StoreGateSvc+","")
 
 if not ('conddb' in dir()):
   IOVDbSvc = Service("IOVDbSvc")
@@ -209,9 +214,14 @@ if DetFlags.haveRIO.SCT_on():
         conddb.addFolderSplitMC("SCT","/SCT/DAQ/Calibration/NoiseOccupancyDefects","/SCT/DAQ/Calibration/NoiseOccupancyDefects")
 
     if not athenaCommonFlags.isOnline():
-        if not conddb.folderRequested('/SCT/Derived/Monitoring'):
-            conddb.addFolder("SCT_OFL","/SCT/Derived/Monitoring")
-    
+        sctDerivedMonitoringFolder = '/SCT/Derived/Monitoring'
+        if not conddb.folderRequested(sctDerivedMonitoringFolder):
+            conddb.addFolder("SCT_OFL", sctDerivedMonitoringFolder, className="CondAttrListCollection")
+            from AthenaCommon.AlgSequence import AthSequencer
+            condSequence = AthSequencer("AthCondSeq")
+            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_MonitorConditionsCondAlg
+            condSequence += SCT_MonitorConditionsCondAlg(name = "SCT_MonitorConditionsCondAlg",
+                                                         ReadKey = sctDerivedMonitoringFolder)
     
     # Load conditions summary service
     from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConditionsSummarySvc
@@ -246,11 +256,7 @@ if DetFlags.haveRIO.SCT_on():
     if not athenaCommonFlags.isOnline():
         from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_MonitorConditionsSvc
         InDetSCT_MonitorConditionsSvc = SCT_MonitorConditionsSvc(name          = "InDetSCT_MonitorConditionsSvc",
-                                                                 OutputLevel   = INFO,
-                                                                 WriteCondObjs = False,
-                                                                 RegisterIOV   = False,
-                                                                 ReadWriteCool = True,
-                                                                 EventInfoKey  = eventInfoKey)
+                                                                 OutputLevel   = INFO)
         ServiceMgr += InDetSCT_MonitorConditionsSvc
         if (InDetFlags.doPrintConfigurables()):
             print InDetSCT_MonitorConditionsSvc
@@ -292,8 +298,13 @@ if DetFlags.haveRIO.SCT_on():
     if (globalflags.DataSource() == 'data'):       
         # Load TdaqEnabled service
         if not conddb.folderRequested(tdaqFolder):
-            conddb.addFolder("TDAQ",tdaqFolder)
-            #conddb.addFolder("","<db>COOLONL_TDAQ/COMP200</db> /TDAQ/EnabledResources/ATLAS/SCT/Robins")
+            conddb.addFolder("TDAQ",tdaqFolder,className="CondAttrListCollection")
+            from AthenaCommon.AlgSequence import AthSequencer
+            condSequence = AthSequencer("AthCondSeq")
+            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_TdaqEnabledCondAlg
+            condSequence += SCT_TdaqEnabledCondAlg(name = "SCT_TdaqEnabledCondAlg",
+                                                   ReadKey = tdaqFolder,
+                                                   EventInfoKey = eventInfoKey)
 
         from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_TdaqEnabledSvc
         InDetSCT_TdaqEnabledSvc = SCT_TdaqEnabledSvc(name = "InDetSCT_TdaqEnabledSvc",

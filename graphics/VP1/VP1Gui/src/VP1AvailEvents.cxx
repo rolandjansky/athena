@@ -14,9 +14,9 @@
 
 #include "VP1Gui/VP1AvailEvents.h"
 #include "VP1Base/VP1Msg.h"
-#include <QtCore/QFileInfo>
-#include <QtCore/QDirIterator>
-#include <QtCore/QTimer>
+#include <QFileInfo>
+#include <QDirIterator>
+#include <QTimer>
 
 #include <algorithm>
 #include <set>

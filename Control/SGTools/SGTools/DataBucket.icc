@@ -10,9 +10,9 @@
 #include <boost/type_traits/is_abstract.hpp>
 #include <boost/type_traits/has_trivial_copy.hpp>
 
-#include "SGTools/ClassID_traits.h"
-#include "SGTools/BaseInfo.h"
 #include "SGTools/IRegisterTransient.h"
+#include "AthenaKernel/ClassID_traits.h"
+#include "AthenaKernel/BaseInfo.h"
 #include "AthenaKernel/ILockable.h"
 
 #include <type_traits>
@@ -79,16 +79,11 @@ SG::DataBucket<T>::DataBucket(T* data)
     SG::db_maybe_ref (m_ptr, tag());
 }
 
-template <typename T> 
-SG::DataBucket<T>::DataBucket(std::unique_ptr<T> data)
-  : DataBucket (data.release())
-{
-}
-
-template <typename T> 
-SG::DataBucket<T>::DataBucket(std::unique_ptr<const T> data)
+template <typename T>
+template <typename U>
+SG::DataBucket<T>::DataBucket(std::unique_ptr<U> data)
     // Rely on our caller to retain constness.
-  : DataBucket (const_cast<T*> (data.release()))
+  : DataBucket (const_cast<typename std::remove_const<U>::type*> (data.release()))
 {
 }
 
@@ -124,7 +119,7 @@ template <typename T>
 void*
 SG::DataBucket<T>::cast (CLID clid,
                          IRegisterTransient* irt /*= 0*/,
-                         bool isConst /*=true*/) const
+                         bool isConst /*=true*/)
 {
   void* ret = SG::BaseInfo<T>::cast (m_ptr, clid);
   if (ret || !isConst)
@@ -165,7 +160,7 @@ SG::DataBucket<T>::cast (CLID clid,
 template <typename T> 
 void* SG::DataBucket<T>::cast (const std::type_info& tinfo,
                                IRegisterTransient* irt /*= 0*/,
-                               bool isConst /*= true*/) const
+                               bool isConst /*= true*/)
 {
   void* ret = SG::BaseInfo<T>::cast (m_ptr, tinfo);
   if (ret || !isConst)

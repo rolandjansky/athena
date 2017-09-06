@@ -17,7 +17,7 @@
 static dqm_algorithms::JarqueBeraTest jb("JB");
 static dqm_algorithms::JarqueBeraTest jb_prob("Prob");
 
-dqm_algorithms::JarqueBeraTest::JarqueBeraTest( const std::string & name ) : name_(name)
+dqm_algorithms::JarqueBeraTest::JarqueBeraTest( const std::string & name ) : m_name(name)
 {
   dqm_core::AlgorithmManager::instance().registerAlgorithm("JarqueBeraTest_"+ name, this );
 }
@@ -26,7 +26,7 @@ dqm_algorithms::JarqueBeraTest::JarqueBeraTest( const std::string & name ) : nam
 dqm_algorithms::JarqueBeraTest*
 dqm_algorithms::JarqueBeraTest::clone()
 {
-  return new JarqueBeraTest(name_);
+  return new JarqueBeraTest(m_name);
 }
 
 dqm_core::Result *
@@ -53,7 +53,7 @@ dqm_algorithms::JarqueBeraTest::execute(	const std::string & name ,
   }
   double gthresho,rthresho;
   std::string thresholdname="JB";
-  if ( name_ == "Prob") thresholdname = "P";
+  if ( m_name == "Prob") thresholdname = "P";
   try {
     gthresho = dqm_algorithms::tools::GetFromMap( thresholdname, config.getGreenThresholds() );
     rthresho = dqm_algorithms::tools::GetFromMap( thresholdname, config.getRedThresholds() );
@@ -76,7 +76,7 @@ dqm_algorithms::JarqueBeraTest::execute(	const std::string & name ,
 
   //Check against thresholds
   double testValue;
-  if ( name_ == "Prob" ) testValue = prob; //Use probability
+  if ( m_name == "Prob" ) testValue = prob; //Use probability
   else testValue = jb; // Use the JB value for comparison
 
   dqm_core::Result* result = new dqm_core::Result();
@@ -87,7 +87,7 @@ dqm_algorithms::JarqueBeraTest::execute(	const std::string & name ,
       result->status_=dqm_core::Result::Undefined;
       return result;
     }
-  if ( name_=="Prob" )
+  if ( m_name=="Prob" )
     {
       if ( testValue >= gthresho ) {
 	result->status_ = dqm_core::Result::Green;
@@ -113,11 +113,11 @@ dqm_algorithms::JarqueBeraTest::execute(	const std::string & name ,
 void
 dqm_algorithms::JarqueBeraTest::printDescription(std::ostream& out)
 {
-  out<<"JarqueBeraTest"+name_+" gives back the ";
-  if ( name_ == "Prob") out<<" probability that the input histogram follows the normal distribution\n"<<std::endl;
+  out<<"JarqueBeraTest"+m_name+" gives back the ";
+  if ( m_name == "Prob") out<<" probability that the input histogram follows the normal distribution\n"<<std::endl;
   else out<<" Jarque-Bera value of the input histogram\n"<<std::endl;
   out<<"Mandatory Green/Red Threshold: ";
-  if ( name_ == "Prob") out<<" P : Probability";
+  if ( m_name == "Prob") out<<" P : Probability";
   else out<<" JB : Jarque-Bera value";
   out<<" to give Green/Red result.\n"<<std::endl;
   out<<"Optional Parameter: MinStat: Minimum histogram statistics needed to perform Algorithm\n"<<std::endl;

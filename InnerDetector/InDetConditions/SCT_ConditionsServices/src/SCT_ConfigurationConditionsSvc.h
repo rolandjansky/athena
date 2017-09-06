@@ -124,7 +124,7 @@ private:
   const DataHandle<CondAttrListVec>     m_dataMur;                       //!< Handle for link info from DB
   const SCT_ID*                         m_pHelper;                       //!< ID helper for SCT
   ServiceHandle<ISCT_CablingSvc>        m_cablingSvc;                    //!< Handle on SCT cabling service
-  ToolHandle<ISCT_ReadoutTool>          m_readoutTool;                   //!< Handle on readout tool
+  ToolHandle<ISCT_ReadoutTool> m_readoutTool{this, "SCT_ReadoutTool", "SCT_ReadoutTool", "Handle on readout tool"}; //!< Handle on readout tool
   const InDetDD::SCT_DetectorManager*   m_pManager;                      //!< SCT detector manager
   bool                                  m_checkStripsInsideModules;      //!< Do we want to check if a strip is bad because it is inside a bad module
 

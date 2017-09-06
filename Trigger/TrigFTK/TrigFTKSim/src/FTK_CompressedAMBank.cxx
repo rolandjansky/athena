@@ -1419,7 +1419,34 @@ void FTK_CompressedAMBank::importDCpatterns
    for(int ilamb=0;ilamb<nlamb;ilamb++) {
       //
       // sector loop
-      for(unsigned sector=ilamb;sector<sectorPointer.size();sector+=nlamb) {
+      unsigned max_sectorByNlamb=(sectorPointer.size()-1)/nlamb;
+      unsigned top_sectorByNlamb=0;
+      while(top_sectorByNlamb+1 <= max_sectorByNlamb) top_sectorByNlamb=(top_sectorByNlamb+1)*2-1;
+      // here: top_sectorByLamb has all bits set to one and is larger or equal the largest sector/nlamb
+      unsigned leadingBitMask=(top_sectorByNlamb>>1)+1;
+      unsigned sectorByLamb=0;
+      while(true) {
+         //for(unsigned sector=ilamb;sector<sectorPointer.size();sector+=nlamb) {
+         unsigned sector=sectorByLamb*nlamb+ilamb;
+
+         // count sectorByLamb from zero to top_sectorByNlamb
+         // bits are counted in reverse order: MSB first, then next, etc:
+         //  e.g. if top_sectorByNlamb has 12 bit:
+         //   0x000, 0x800, 0x400, 0xc00, 0x200, 0xa00, 0x600, 0xe00, 0x100, ... 0xfff
+         // This randomizes the sector ordering, for better load-balancing of patterns
+         // in the hardware
+         for(unsigned mask=leadingBitMask;mask;mask>>=1) {
+            // count the bit indicated in "mask"
+            sectorByLamb^=mask;
+            // if the it is set, we are done
+            if(sectorByLamb & mask) break;
+            // if the bit is zero, have to count the next bit
+         }
+         if(!sectorByLamb) break; // all bits were counted, stop
+         // when counting in reverse bit order, sectors are not produced in sequence
+         // high (invalid) sector numbers are produced in random order and have
+         // to be skipped
+         if(sector>=sectorPointer.size()) continue; // skip sector numbers outside range
          int nPattern=(sectorPointer[sector].second-
                        sectorPointer[sector].first)/offsetSSID;
          if(!nPattern) continue;

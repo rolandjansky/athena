@@ -20,9 +20,10 @@ read_athena_statm()
     const char *filename = "/proc/self/statm";
     FILE* fd = fopen(filename, "r");
     if (0==fd) {
+      char errbuf[1024];
+      strerror_r (errno, errbuf, sizeof(errbuf));
       fprintf(stderr,
-	      "read_statm: problem opening file %s:\n%s\n",
-	      filename, strerror(errno));
+	      "read_statm: problem opening file %s:\n%s\n", filename, errbuf);
       return res;
     }
 

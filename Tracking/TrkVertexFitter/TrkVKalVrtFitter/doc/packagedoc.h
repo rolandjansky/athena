@@ -22,17 +22,6 @@ This package contains ATHENA interfaces to VKalVrt.
  Software related issues may be viewed in
  https://twiki.cern.ch/twiki/bin/view/Atlas/VKalVrt .
   
-@ref used_TrkVKalVrtFitter
 
-@ref requirements_TrkVKalVrtFitter
 
 */
-
-/**
-@page used_TrkVKalVrtFitter Used Packages
-*/
-
-/**
-@page requirements_TrkVKalVrtFitter Requirements
-*/
-

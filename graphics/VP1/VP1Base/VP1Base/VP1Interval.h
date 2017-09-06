@@ -17,7 +17,7 @@
 #ifndef VP1INTERVAL_H
 #define VP1INTERVAL_H
 
-#include <QtCore/QString>
+#include <QString>
 #include <limits>
 
 class VP1Interval {

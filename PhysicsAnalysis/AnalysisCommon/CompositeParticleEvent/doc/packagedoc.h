@@ -44,8 +44,6 @@ You may also be interested in:
 
    - AnalysisExamples : a set of example Algorithms. See the ttbar algorithm which exercises the composition of jets into a W as well as BJet and W into a top.
 
-@section CompositeParticleEvent_CompositeParticleEventReq Requirements
 
 
 */
-

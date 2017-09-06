@@ -31,6 +31,11 @@ class LArRampSC:
 };
 
 CLASS_DEF( LArRampSC , 43028438, 1 )
+//ConditionsContainer clid for athenaMT
+#include "AthenaKernel/CondCont.h"
+CLASS_DEF( CondCont<LArRampSC> , 147380444 , 1 )
+#include "SGTools/BaseInfo.h"
+SG_BASE( CondCont<LArRampSC>, CondContBase );
 
 
 #endif 

@@ -9,7 +9,7 @@
 
 #include "VP1GeometrySystems/VP1GeoFlags.h"
 #include "GeoModelKernel/GeoPVConstLink.h"
-#include <QtCore/QString>
+#include <QString>
 
 //Only initialises child classes on demand. And even then their SoNodes are not initialised until they must be shown.
 class VolumeHandleSharedData;

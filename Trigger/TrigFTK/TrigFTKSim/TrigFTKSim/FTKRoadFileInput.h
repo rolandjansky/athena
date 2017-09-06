@@ -36,6 +36,7 @@ class FTKRoadFileInput : public FTKRoadInput, public FTKObjectInput<FTKRoadStrea
 
   int nextEvent(); // read the next event
   const FTKRoad* nextRoad(int); // move to the next road and return the pointer
+  const FTKRoad* firstRoad(int); // move to the first road and return the pointer
   const FTKSS& getSS(const unsigned int&,const unsigned int&,const unsigned int&) const; // retrieve superstrip by (bank,plane,ssid)
   const FTKSS& getUnusedSS(const unsigned int&,const unsigned int&,const unsigned int&) const; // retrieve superstrip by (bank,plane,ssid)
   FTKRoad* getRoad(int region,int roadid,int bankid); // retrieve road by its indices

@@ -28,10 +28,6 @@ namespace InDet {
 
   InDetTrackTruthOriginTool::~InDetTrackTruthOriginTool() = default;
 
-  // const InterfaceID& InDetTrackTruthOriginTool::interfaceID() {
-  //   return IID_IInDetTrackTruthOriginTool;
-  // }
-
   StatusCode InDetTrackTruthOriginTool::initialize() {
     return StatusCode::SUCCESS;
   }
@@ -42,36 +38,27 @@ namespace InDet {
 
   int InDetTrackTruthOriginTool::getTrackOrigin(const xAOD::TrackParticle* track) const {
 
-    int parentID;
-    return getTrackOrigin(track, parentID);
-  }
-
-  int InDetTrackTruthOriginTool::getTrackOrigin(const xAOD::TrackParticle* track, int &parentID) const {
-
-    parentID = -1;
-
     const xAOD::TruthParticle* truth = nullptr;
     typedef ElementLink< xAOD::TruthParticleContainer > Link_t;
-    if( track->isAvailable< Link_t >( m_truthParticleLinkName.c_str() ) ) {
-      const Link_t& link = track->auxdata< Link_t >( m_truthParticleLinkName.c_str() );
+    if( track->isAvailable< Link_t >( m_truthParticleLinkName.data() ) ) {
+      static SG::AuxElement::ConstAccessor< Link_t > linkAcc( m_truthParticleLinkName.data() );
+      const Link_t& link = linkAcc( *track );
       if( link.isValid() ) {
 	truth = *link;
       }
     }
 
-    float truthProb=-1; 
-    truthProb = track->auxdata< float >( m_truthMatchProbabilityAuxName.c_str());
+    static SG::AuxElement::ConstAccessor< float > tmpAcc( m_truthMatchProbabilityAuxName.data() );
+    float truthProb = tmpAcc( *track );
 
     int origin = 0;
 
     // not matched to truth: call it fake
     if(truthProb < m_matchingProbabilityCut) {
-
       origin = origin | (0x1 << InDet::TrkOrigin::Fake);
     }
     // matched to truth: find truth origin
     else{
-
       // matched but truth link is broken: call it from pileup (not true for < 100 MeV!)
       if (!truth){
 	origin = origin | (0x1 << InDet::TrkOrigin::Pileup);
@@ -99,7 +86,7 @@ namespace InDet {
 	int truthBarcode = truth->barcode();
 	if (truthBarcode > m_barcodeG4) {
 	  // sub-categorize secondaries...
-	  parentID = getParentID(truth);
+	  int parentID = getParentID(truth);
 
 	  // photon conversions
 	  if(parentID == 22) {
@@ -154,7 +141,9 @@ namespace InDet {
 
   bool InDetTrackTruthOriginTool::isFrom(const xAOD::TruthParticle* part, int flav) const {
 
-    if(flav != 5 && flav != 4) return false;
+    if ( part == nullptr ) return false;
+
+    if( flav != 5 && flav != 4 ) return false;
 
     if( ! part->isHadron() ) return false;
 
@@ -178,6 +167,11 @@ namespace InDet {
     int pdgId = part->pdgId();
 
     const xAOD::TruthParticle *parent = part->parent(0);
+
+    // in some files, the particle has a parent but that parent's barcode is zero.
+    // treat this as "other" (anything less than -2)
+    if (parent == nullptr) return -4;
+
     int parentId = parent->pdgId();
 
     // photon conversions:

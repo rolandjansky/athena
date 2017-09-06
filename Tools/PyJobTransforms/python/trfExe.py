@@ -26,6 +26,7 @@ msg = logging.getLogger(__name__)
 from PyJobTransforms.trfJobOptions import JobOptionsTemplate
 from PyJobTransforms.trfUtils import asetupReport, unpackDBRelease, setupDBRelease, cvmfsDBReleaseCheck, forceToAlphaNum
 from PyJobTransforms.trfUtils import ValgrindCommand, isInteractiveEnv, calcCpuTime, calcWallTime
+from PyJobTransforms.trfUtils import bind_port
 from PyJobTransforms.trfExitCodes import trfExit
 from PyJobTransforms.trfLogger import stdLogLevels
 from PyJobTransforms.trfMPTools import detectAthenaMPProcs, athenaMPOutputHandler
@@ -460,7 +461,7 @@ class logscanExecutor(transformExecutor):
         self._logFileName = None
 
     def preExecute(self, input = set(), output = set()):
-        self.estPreExeStart()
+        self.setPreExeStart()
         msg.info('Preexecute for %s' % self._name)
         if 'logfile' in self.conf.argdict:
             self._logFileName = self.conf.argdict['logfile'].value
@@ -1039,7 +1040,7 @@ class athenaExecutor(scriptExecutor):
             skipFileChecks=False
             if 'eventService' in self.conf.argdict and self.conf.argdict['eventService'].value:
                 skipFileChecks=True
-            athenaMPOutputHandler(self._athenaMPFileReport, self._athenaMPWorkerTopDir, outputDataDictionary, self._athenaMP, skipFileChecks)
+            athenaMPOutputHandler(self._athenaMPFileReport, self._athenaMPWorkerTopDir, outputDataDictionary, self._athenaMP, skipFileChecks, self.conf.argdict)
             for dataType in self._output:
                 if self.conf.dataDictionary[dataType].io == "output" and len(self.conf.dataDictionary[dataType].value) > 1:
                     self._smartMerge(self.conf.dataDictionary[dataType])
@@ -1303,7 +1304,22 @@ class athenaExecutor(scriptExecutor):
                 else:
                     msg.info('Valgrind not engaged')
                     # run Athena command
-                    print >>wrapper, ' '.join(self._cmd)
+                    if 'checkpoint' in self.conf.argdict and self.conf._argdict['checkpoint'].value is True:
+                        for port in range(7770,7790):
+                            if bind_port("127.0.0.1",port)==0:
+                                break
+                        msg.info("Using port %s for dmtcp_launch."%port)
+                        print >>wrapper,'dmtcp_launch -p %s'%port, ' '.join(self._cmd)
+                    elif 'restart' in self.conf.argdict and self.conf._argdict['restart'].value is not None and 'MergeAthenaMP' not in self.name:
+                        restartTarball = self.conf._argdict['restart'].value
+                        print >>wrapper, 'tar -xf %s -C .' % restartTarball
+                        for port in range(7770,7790):
+                            if bind_port("127.0.0.1",port)==0:
+                                break
+                        msg.info("Using port %s for dmtcp_launch."%port)
+                        print >>wrapper, './dmtcp_restart_script.sh -p %s -h 127.0.0.1'%port
+                    else:
+                        print >>wrapper, ' '.join(self._cmd)
             os.chmod(self._wrapperFile, 0755)
         except (IOError, OSError) as e:
             errMsg = 'error writing athena wrapper {fileName}: {error}'.format(
@@ -1857,17 +1873,26 @@ class archiveExecutor(scriptExecutor):
 
     def preExecute(self, input = set(), output = set()):
         self.setPreExeStart()
-        # Set the correct command for execution
-        self._cmd = [self._exe, '-c', '-v',]
-        if 'compressionType' in self.conf.argdict.keys():
-            if self.conf.argdict['compressionType'] == 'gzip':
-                self._cmd.append('-z')
-            elif self.conf.argdict['compressionType'] == 'bzip2':
-                self._cmd.append('-j')
-            elif self.conf.argdict['compressionType'] == 'none':
-                pass
-        self._cmd.extend(['-f', self.conf.argdict['outputArchFile'].value[0]])
-        self._cmd.extend(self.conf.argdict['inputDataFile'].value)
-        
-        super(archiveExecutor, self).preExecute(input=input, output=output)
+        self._memMonitor = False
 
+        if 'exe' in self.conf.argdict:
+            self._exe = self.conf.argdict['exe']
+
+        if self._exe == 'tar':
+            self._cmd = [self._exe, '-c', '-v',]
+            self._cmd.extend(['-f', self.conf.argdict['outputArchFile'].value[0]])
+            if 'compressionType' in self.conf.argdict:
+                if self.conf.argdict['compressionType'] == 'gzip':
+                    self._cmd.append('-z')
+                elif self.conf.argdict['compressionType'] == 'bzip2':
+                    self._cmd.append('-j')
+                elif self.conf.argdict['compressionType'] == 'none':
+                    pass
+        elif self._exe == 'zip':
+            self._cmd = [self._exe]
+            self._cmd.extend([self.conf.argdict['outputArchFile'].value[0]])
+            if '.' not in self.conf.argdict['outputArchFile'].value[0]:
+                errmsg = 'Output filename must end in ".", ".zip" or ".anyname" '
+                raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_OUTPUT_FILE_ERROR'), errmsg)
+        self._cmd.extend(self.conf.argdict['inputDataFile'].value)
+        super(archiveExecutor, self).preExecute(input=input, output=output)

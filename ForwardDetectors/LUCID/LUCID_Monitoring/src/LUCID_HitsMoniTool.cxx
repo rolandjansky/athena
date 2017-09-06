@@ -221,7 +221,7 @@ StatusCode LUCID_HitsMoniTool::procHistograms() {
 
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " LUCID_HitsMoniTool::procHistograms " << endmsg;
 
-  if (endOfRun) {
+  if (endOfRunFlag()) {
     
     msg(MSG::DEBUG) << " m_nEvents: " << m_nEvents << endmsg;
     

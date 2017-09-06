@@ -58,10 +58,10 @@ public:
 
 protected:
 
-  TObjString pathName;
+  TObjString m_pathName;
   
-  TList assessors;
-  TList groups;
+  TList m_assessors;
+  TList m_groups;
 
 };
 

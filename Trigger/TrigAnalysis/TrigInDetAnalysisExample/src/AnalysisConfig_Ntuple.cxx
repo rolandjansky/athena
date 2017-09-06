@@ -71,11 +71,11 @@ bool tida_first = true;
 
 
 std::string date() { 
-  time_t _t;
-  time(&_t);
-  std::string _mtime = ctime(&_t);
-  _mtime.erase( std::remove(_mtime.begin(), _mtime.end(), '\n'), _mtime.end() );
-  return _mtime;
+  time_t t;
+  time(&t);
+  std::string mtime = ctime(&t);
+  mtime.erase( std::remove(mtime.begin(), mtime.end(), '\n'), mtime.end() );
+  return mtime;
 }
 
 
@@ -298,8 +298,8 @@ void AnalysisConfig_Ntuple::loop() {
 	const xAOD::EventInfo* pEventInfo = 0;
 #endif
 
-	unsigned run_number         = 0;
-	unsigned event_number       = 0;
+	unsigned run_number                   = 0;
+	unsigned long long event_number       = 0;
 
 	unsigned lumi_block         = 0;
 	unsigned bunch_crossing_id  = 0;
@@ -366,17 +366,17 @@ void AnalysisConfig_Ntuple::loop() {
 	
 	
 
-	std::vector<std::string> _conf = (*m_tdt)->getListOfTriggers("HLT_.*");
+	std::vector<std::string> conf = (*m_tdt)->getListOfTriggers("HLT_.*");
 	
 	m_provider->msg(MSG::INFO) << endmsg;
-	m_provider->msg(MSG::INFO) << "configured chains " << _conf.size() << endmsg;
+	m_provider->msg(MSG::INFO) << "configured chains " << conf.size() << endmsg;
 
 #if 0
-	for ( unsigned ic=0 ; ic<_conf.size() ; ic++ ) { 
-	  bool p = (*m_tdt)->isPassed( _conf[ic] );
+	for ( unsigned ic=0 ; ic<conf.size() ; ic++ ) { 
+	  bool p = (*m_tdt)->isPassed( conf[ic] );
 	  
-	  if ( p ) m_provider->msg(MSG::INFO) << "[91;1m" << " Configured Chain " << _conf[ic] << " " << p << "\tpassed <<<<" << "[m" << endmsg;
-	  else     m_provider->msg(MSG::INFO)               << " Configured Chain " << _conf[ic] << " " << p << "\t not passed" << endmsg;
+	  if ( p ) m_provider->msg(MSG::INFO) << "[91;1m" << " Configured Chain " << conf[ic] << " " << p << "\tpassed <<<<" << "[m" << endmsg;
+	  else     m_provider->msg(MSG::INFO)               << " Configured Chain " << conf[ic] << " " << p << "\t not passed" << endmsg;
 
 	}
 
@@ -393,9 +393,9 @@ void AnalysisConfig_Ntuple::loop() {
 	bool analyse = false;
 	// bool analyse = true;
 
-	unsigned _decisiontype = TrigDefs::Physics;
+	unsigned decisiontype = TrigDefs::Physics;
 	
-	if ( requireDecision() ) _decisiontype = TrigDefs::requireDecision;
+	if ( requireDecision() ) decisiontype = TrigDefs::requireDecision;
 
 
 #if 0
@@ -418,10 +418,10 @@ void AnalysisConfig_Ntuple::loop() {
 
 #if 0
 	    std::cout << "[91;1m" << "Chain " << configuredChains[i]
-		      << "\tpassed:     " <<   (*m_tdt)->isPassed(configuredChains[i], _decisiontype)  << " ( type " << _decisiontype << ") : "  
+		      << "\tpassed:     " <<   (*m_tdt)->isPassed(configuredChains[i], decisiontype)  << " ( type " << decisiontype << ") : "  
 		      << "\trequiredec: " <<   (*m_tdt)->isPassed(configuredChains[i], TrigDefs::requireDecision)  << "   (ACN)[m" << std::endl;
 #endif
-	    if ( (*m_tdt)->isPassed(configuredChains[i], _decisiontype) ) { 
+	    if ( (*m_tdt)->isPassed(configuredChains[i], decisiontype) ) { 
 	      npassed++;
 	      passed.push_back(configuredChains[i]);
 	    }	  
@@ -521,11 +521,11 @@ void AnalysisConfig_Ntuple::loop() {
 		m_provider->msg(MSG::INFO) << "Chain "  << chainName << "\troi " << roistring 
 					   << "\tpres " << (*m_tdt)->getPrescale(chainName)
 					   << ( passPhysics ? "[91;1m" : "" ) << "\tpass physics  " <<  passPhysics << ( passPhysics ? "[m" : "" ) 
-					   << "\t: ( pass " << (*m_tdt)->isPassed(chainName, _decisiontype ) << "\tdec type " << _decisiontype << " ) " << endmsg;
+					   << "\t: ( pass " << (*m_tdt)->isPassed(chainName, decisiontype ) << "\tdec type " << decisiontype << " ) " << endmsg;
 
 
 		//		if ( (*m_tdt)->isPassed(chainName) ) { 
-		if ( (*m_tdt)->isPassed(chainName, _decisiontype) ) { 
+		if ( (*m_tdt)->isPassed(chainName, decisiontype) ) { 
 		  analyse = true;
 		  passed_chains++;
 		}
@@ -671,7 +671,7 @@ void AnalysisConfig_Ntuple::loop() {
 
 		while ( evitr!=evend ) { 
 
-			int _ip = 0; /// count of particles in this interaction 
+			int ip = 0; /// count of particles in this interaction 
 
 			int pid = (*evitr)->signal_process_id();
 
@@ -696,7 +696,7 @@ void AnalysisConfig_Ntuple::loop() {
 				  }
 
 				  
-				  ++_ip;
+				  ++ip;
 				  
 				  ++pitr; 
 				  
@@ -708,11 +708,11 @@ void AnalysisConfig_Ntuple::loop() {
 			++ie;
 			++evitr;
 
-			if ( _ip>0 ) {
+			if ( ip>0 ) {
 				/// if there were some particles in this interaction ...
 				//	m_provider->msg(MSG::INFO) << "Found " << ie << "\tpid " << pid << "\t with " << ip << " TruthParticles (GenParticles)" << endmsg;
 				++ie_ip;  
-				ip += _ip;
+				ip += ip;
 			}
 		}
 
@@ -885,11 +885,11 @@ void AnalysisConfig_Ntuple::loop() {
 	  m_event->back().back().addTracks(selectorRef.tracks());
 	
 	  if ( selectorRef.getBeamX()!=0 || selectorRef.getBeamY()!=0 || selectorRef.getBeamZ()!=0 ) { 
-	    std::vector<double> _beamline;
-	    _beamline.push_back( selectorRef.getBeamX() );
-	    _beamline.push_back( selectorRef.getBeamY() );
-	    _beamline.push_back( selectorRef.getBeamZ() );
-	    m_event->back().back().addUserData(_beamline);
+	    std::vector<double> beamline;
+	    beamline.push_back( selectorRef.getBeamX() );
+	    beamline.push_back( selectorRef.getBeamY() );
+	    beamline.push_back( selectorRef.getBeamZ() );
+	    m_event->back().back().addUserData(beamline);
 	  }
 	  else { 
 	    m_event->back().back().addUserData(beamline);
@@ -953,11 +953,11 @@ void AnalysisConfig_Ntuple::loop() {
 	    m_event->back().back().addTracks(selectorTest.tracks());
 	    
 	    if ( selectorTest.getBeamX()!=0 || selectorTest.getBeamY()!=0 || selectorTest.getBeamZ()!=0 ) { 
-	      std::vector<double> _beamline;
-	      _beamline.push_back( selectorTest.getBeamX() );
-	      _beamline.push_back( selectorTest.getBeamY() );
-	      _beamline.push_back( selectorTest.getBeamZ() );
-	      m_event->back().back().addUserData(_beamline);
+	      std::vector<double> beamline;
+	      beamline.push_back( selectorTest.getBeamX() );
+	      beamline.push_back( selectorTest.getBeamY() );
+	      beamline.push_back( selectorTest.getBeamZ() );
+	      m_event->back().back().addUserData(beamline);
 	    }
 	    else { 
 	      m_event->back().back().addUserData(beamline);
@@ -1004,11 +1004,11 @@ void AnalysisConfig_Ntuple::loop() {
 	  m_event->back().addRoi(TIDARoiDescriptor(true));
 	  m_event->back().back().addTracks(selectorRef.tracks());
 	  if ( selectorRef.getBeamX()!=0 || selectorRef.getBeamY()!=0 || selectorRef.getBeamZ()!=0 ) { 
-	    std::vector<double> _beamline;
-	    _beamline.push_back( selectorRef.getBeamX() );
-	    _beamline.push_back( selectorRef.getBeamY() );
-	    _beamline.push_back( selectorRef.getBeamZ() );
-	    m_event->back().back().addUserData(_beamline);
+	    std::vector<double> beamline;
+	    beamline.push_back( selectorRef.getBeamX() );
+	    beamline.push_back( selectorRef.getBeamY() );
+	    beamline.push_back( selectorRef.getBeamZ() );
+	    m_event->back().back().addUserData(beamline);
 	  }
 	  else { 	  
 	    m_event->back().back().addUserData(beamline);
@@ -1031,11 +1031,11 @@ void AnalysisConfig_Ntuple::loop() {
 	  m_event->back().addRoi(TIDARoiDescriptor(true));
 	  m_event->back().back().addTracks(selectorRef.tracks());
 	  if ( selectorRef.getBeamX()!=0 || selectorRef.getBeamY()!=0 || selectorRef.getBeamZ()!=0 ) { 
-	      std::vector<double> _beamline;
-	      _beamline.push_back( selectorRef.getBeamX() );
-	      _beamline.push_back( selectorRef.getBeamY() );
-	      _beamline.push_back( selectorRef.getBeamZ() );
-	      m_event->back().back().addUserData(_beamline);
+	      std::vector<double> beamline;
+	      beamline.push_back( selectorRef.getBeamX() );
+	      beamline.push_back( selectorRef.getBeamY() );
+	      beamline.push_back( selectorRef.getBeamZ() );
+	      m_event->back().back().addUserData(beamline);
 	  }
 	  else { 	  
 	      m_event->back().back().addUserData(beamline);
@@ -1099,11 +1099,11 @@ void AnalysisConfig_Ntuple::loop() {
 	    m_event->back().back().addTracks(selectorRef.tracks());
 	    
 	    if ( selectorRef.getBeamX()!=0 || selectorRef.getBeamY()!=0 || selectorRef.getBeamZ()!=0 ) { 
-	      std::vector<double> _beamline;
-	      _beamline.push_back( selectorRef.getBeamX() );
-	      _beamline.push_back( selectorRef.getBeamY() );
-	      _beamline.push_back( selectorRef.getBeamZ() );
-	      m_event->back().back().addUserData(_beamline);
+	      std::vector<double> beamline;
+	      beamline.push_back( selectorRef.getBeamX() );
+	      beamline.push_back( selectorRef.getBeamY() );
+	      beamline.push_back( selectorRef.getBeamZ() );
+	      m_event->back().back().addUserData(beamline);
 	    }
 	    else { 	  
 	      m_event->back().back().addUserData(beamline);
@@ -1141,7 +1141,7 @@ void AnalysisConfig_Ntuple::loop() {
 		m_provider->msg(MSG::INFO) << "chain " << chainName 
 					   << "\tprescale " << (*m_tdt)->getPrescale(chainName)
 					   << "\tpass "     << (*m_tdt)->isPassed(chainName) << " physics " 
-					   << "  (req dec " << (*m_tdt)->isPassed(chainName, _decisiontype ) << " dec type " << _decisiontype << ")"
+					   << "  (req dec " << (*m_tdt)->isPassed(chainName, decisiontype ) << " dec type " << decisiontype << ")"
 					   << endmsg;
 		
 
@@ -1159,7 +1159,7 @@ void AnalysisConfig_Ntuple::loop() {
 		/// that are still active
 		unsigned decisiontype;
 		//                if ( m_chainNames[ichain].passed() ) decisiontype = TrigDefs::Physics;
-                if ( m_chainNames[ichain].passed() ) decisiontype = _decisiontype;
+                if ( m_chainNames[ichain].passed() ) decisiontype = decisiontype;
 		else                                 decisiontype = TrigDefs::alsoDeactivateTEs;
 
 #if 0
@@ -1197,19 +1197,19 @@ void AnalysisConfig_Ntuple::loop() {
 		  m_provider->msg(MSG::INFO) << "\tfetching features for chain " <<  decisiontype << "     " << chainName << "\t" << combEnd-comb << " combinations" << endmsg;
 		}
 
-		if ( (*m_tdt)->isPassed(chainName, _decisiontype ) ) { 
-		  m_provider->msg(MSG::INFO) << "\tfetching features for chain " << _decisiontype << "(RQ) " << chainName << "\t" << combEnd-comb << " combinations" << endmsg;
+		if ( (*m_tdt)->isPassed(chainName, decisiontype ) ) { 
+		  m_provider->msg(MSG::INFO) << "\tfetching features for chain " << decisiontype << "(RQ) " << chainName << "\t" << combEnd-comb << " combinations" << endmsg;
 		}
 
 
 		{
-		  Trig::FeatureContainer f = (*m_tdt)->features( chainName, _decisiontype );  //, TrigDefs::alsoDeactivateTEs);
+		  Trig::FeatureContainer f = (*m_tdt)->features( chainName, decisiontype );  //, TrigDefs::alsoDeactivateTEs);
 		  Trig::FeatureContainer::combination_const_iterator comb(f.getCombinations().begin()); 
 		  Trig::FeatureContainer::combination_const_iterator combEnd(f.getCombinations().end());
 		  
 		  m_provider->msg(MSG::INFO) << "[91;1m" << "\tpassed combinations   chain " << chainName << "\t" 
 					     << combEnd-comb << " combinations" 
-					     << "\tdecision " << (*m_tdt)->isPassed(chainName, _decisiontype )  << "[m"  
+					     << "\tdecision " << (*m_tdt)->isPassed(chainName, decisiontype )  << "[m"  
 					     << endmsg;
 		}		
 
@@ -1261,54 +1261,54 @@ void AnalysisConfig_Ntuple::loop() {
 			std::string roi_name = m_chainNames[ichain].roi();
 			std::string vtx_name = m_chainNames[ichain].vtx();
 
-			std::vector< Trig::Feature<TrigRoiDescriptor> > _rois;
+			std::vector< Trig::Feature<TrigRoiDescriptor> > rois;
 			
 			//			std::cout << "chain " << chainName << "\troi_name " << roi_name << std::endl;
 
 			if ( roi_name!="" ) { 
 
-			  _rois = comb->get<TrigRoiDescriptor>(roi_name);
+			  rois = comb->get<TrigRoiDescriptor>(roi_name);
 
 			  //			  std::cout << "roi_name " << roi_name << std::endl;
 
-			  if ( _rois.size()>0 ) { 
-			    for ( unsigned ir=0 ; ir<_rois.size() ; ir++ ) m_provider->msg(MSG::INFO) << "\t\tRetrieved roi  " << roi_name << "\t" << *_rois[ir].cptr() << endmsg; 
+			  if ( rois.size()>0 ) { 
+			    for ( unsigned ir=0 ; ir<rois.size() ; ir++ ) m_provider->msg(MSG::INFO) << "\t\tRetrieved roi  " << roi_name << "\t" << *rois[ir].cptr() << endmsg; 
 			  }
 			  else { 
 			    m_provider->msg(MSG::WARNING) << "\t\tRequested roi  " << roi_name << " not found" << endmsg; 
 			  }
 			}
 			else { 
-			  _rois = comb->get<TrigRoiDescriptor>("forID1"); 
-			  if ( _rois.empty() ) _rois = comb->get<TrigRoiDescriptor>("forID"); 
-			  if ( _rois.empty() ) _rois = comb->get<TrigRoiDescriptor>(""); 
-			  if ( _rois.empty() ) _rois = comb->get<TrigRoiDescriptor>("initialRoI"); 
+			  rois = comb->get<TrigRoiDescriptor>("forID1"); 
+			  if ( rois.empty() ) rois = comb->get<TrigRoiDescriptor>("forID"); 
+			  if ( rois.empty() ) rois = comb->get<TrigRoiDescriptor>(""); 
+			  if ( rois.empty() ) rois = comb->get<TrigRoiDescriptor>("initialRoI"); 
 			}			  
 
-			if ( _rois.empty() ) continue;
+			if ( rois.empty() ) continue;
 
 			if ( iroiptr==0 ) { 
-			  iroiptr = _rois[0].cptr();
+			  iroiptr = rois[0].cptr();
 			}
 			else { 
-			  if ( iroiptr == _rois[0].cptr() ) { 
-			    // std::cout << "found RoI before " << *_rois[0].cptr() << std::endl;
+			  if ( iroiptr == rois[0].cptr() ) { 
+			    // std::cout << "found RoI before " << *rois[0].cptr() << std::endl;
 			    continue;
 			  }
 			}
 			
 			// notify if have multiple RoIs (get this for FS chains)
-			if( _rois.size()>1) {
+			if( rois.size()>1) {
 			  m_provider->msg(MSG::INFO) << "\tMore than one RoI found for seeded chain " << chainName << ": not yet supported" << endmsg;
 			  //continue; 
 			}
 
 			TIDARoiDescriptor* roiInfo = 0;
-			if( !_rois.empty() ) {
+			if( !rois.empty() ) {
 		
-			  for (  unsigned itmp=0  ;  itmp<_rois.size()  ;  itmp++ ) {
+			  for (  unsigned itmp=0  ;  itmp<rois.size()  ;  itmp++ ) {
 			    
-			    const TrigRoiDescriptor* roid = _rois[itmp].cptr();
+			    const TrigRoiDescriptor* roid = rois[itmp].cptr();
    
 			    m_provider->msg(MSG::INFO) << "\tchain " << chainName << " RoI descriptor " << itmp << " " << *roid << endmsg;
 			    
@@ -1501,11 +1501,11 @@ void AnalysisConfig_Ntuple::loop() {
 			chain.back().addVertices(tidavertices);
 			chain.back().addUserData(beamline_online);
 			if ( selectorTest.getBeamX()!=0 || selectorTest.getBeamY()!=0 || selectorTest.getBeamZ()!=0 ) { 
-			  std::vector<double> _beamline;
-			  _beamline.push_back( selectorTest.getBeamX() );
-			  _beamline.push_back( selectorTest.getBeamY() );
-			  _beamline.push_back( selectorTest.getBeamZ() );
-			  chain.back().addUserData(_beamline);
+			  std::vector<double> beamline;
+			  beamline.push_back( selectorTest.getBeamX() );
+			  beamline.push_back( selectorTest.getBeamY() );
+			  beamline.push_back( selectorTest.getBeamZ() );
+			  chain.back().addUserData(beamline);
 			}
 			else { 	  
 			  if ( beamline_online.size()>3 ) chain.back().addUserData(beamline_online);
@@ -1521,7 +1521,7 @@ void AnalysisConfig_Ntuple::loop() {
 	}
 
 	if ( m_printInfo ) m_provider->msg(MSG::INFO) << "FILL TREE\n" << (*m_event) << endmsg;      
-	if ( mTree ) mTree->Fill();
+	if ( m_tree ) m_tree->Fill();
 
 }
 
@@ -1600,7 +1600,7 @@ void AnalysisConfig_Ntuple::book() {
 
 	if ( first_open || genericFlag() ) {
 		/// create a brand new ntple
-		mFile = new TFile( outputFileName.c_str(), "recreate"); 
+		m_file = new TFile( outputFileName.c_str(), "recreate"); 
 
 		TTree*  dataTree = new TTree("dataTree", "dataTree");
 		TString releaseData(m_releaseData.c_str());
@@ -1610,19 +1610,19 @@ void AnalysisConfig_Ntuple::book() {
 		delete dataTree;
 
 
-		mTree = new TTree("tree", "tree");
-		mTree->Branch( "TIDA::Event", "TIDA::Event", m_event, 6400, 1 );
+		m_tree = new TTree("tree", "tree");
+		m_tree->Branch( "TIDA::Event", "TIDA::Event", m_event, 6400, 1 );
 
 		
 	}
 	else { 
 		/// update the ntple from the file  
-		mFile = new TFile( outputFileName.c_str(), "update");
-		mTree = (TTree *)mFile->Get("tree");
-		mTree->SetBranchAddress( "TIDA::Event", &m_event );
+		m_file = new TFile( outputFileName.c_str(), "update");
+		m_tree = (TTree *)m_file->Get("tree");
+		m_tree->SetBranchAddress( "TIDA::Event", &m_event );
 	}
 
-	mDir = gDirectory;
+	m_dir = gDirectory;
 
 	first_open = false;
 
@@ -1655,38 +1655,38 @@ void AnalysisConfig_Ntuple::finalize() {
 
 	/// NB: flag this round the other way for multiple files
 	if ( m_finalised ) { 
-		m_provider->msg(MSG::INFO) << "AnalysisConfig_Ntuple::finalise() flagged, not finalising  " << m_provider->name() << "\t" << mTree->GetEntries() << " entries" << endmsg; 
+		m_provider->msg(MSG::INFO) << "AnalysisConfig_Ntuple::finalise() flagged, not finalising  " << m_provider->name() << "\t" << m_tree->GetEntries() << " entries" << endmsg; 
 		return;
 	}
 
-	m_provider->msg(MSG::INFO) << "AnalysisConfig_Ntuple::finalise() writing " << m_provider->name() << "\t" << mTree->GetEntries() << " entries" << endmsg; 
+	m_provider->msg(MSG::INFO) << "AnalysisConfig_Ntuple::finalise() writing " << m_provider->name() << "\t" << m_tree->GetEntries() << " entries" << endmsg; 
 
 	TDirectory* directory = gDirectory; 
 
-	//	std::cout << "change directory " << name() << "  " << mDir->GetName() << std::endl;
+	//	std::cout << "change directory " << name() << "  " << m_dir->GetName() << std::endl;
 
-	m_provider->msg(MSG::DEBUG) << "change directory " << name() << "  " << mDir->GetName() << endmsg;
+	m_provider->msg(MSG::DEBUG) << "change directory " << name() << "  " << m_dir->GetName() << endmsg;
 
 
-	mDir->cd();
+	m_dir->cd();
 
 	//  gDirectory->pwd();
 
-	if ( mTree ) mTree->Write("", TObject::kOverwrite);
+	if ( m_tree ) m_tree->Write("", TObject::kOverwrite);
 
-	//  mFile->Write();
-	if ( mFile ) mFile->Close();
+	//  m_file->Write();
+	if ( m_file ) m_file->Close();
 
 
 	m_finalised = true; /// flag that we have finalised and closed this file
 
-	// mTree "belongs" to the mFile so was (possibly) deleted on the mFile->Close();
+	// m_tree "belongs" to the m_file so was (possibly) deleted on the m_file->Close();
 	// so don't delete it ! 
-	// delete mTree; 
-	delete mFile;
+	// delete m_tree; 
+	delete m_file;
 
-	mTree = 0;
-	mFile = 0; 
+	m_tree = 0;
+	m_file = 0; 
 
 	//  f.Write();
 	//  f.Close();

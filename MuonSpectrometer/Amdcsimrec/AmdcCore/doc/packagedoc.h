@@ -23,15 +23,5 @@ The AmdcCore package contains:
  
 @section AmdcCore_ExtrasAmdcCore Extra Pages
 
-  - @ref used_AmdcCore
-  - @ref requirements_AmdcCore
 
-*/
-
-/**
-@page used_AmdcCore Used Packages
-*/
-
-/**
-@page requirements_AmdcCore Requirements
 */

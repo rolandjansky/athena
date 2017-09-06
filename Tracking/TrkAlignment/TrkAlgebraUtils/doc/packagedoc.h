@@ -31,17 +31,6 @@ alignment of detector modules.
   - AlVec:  handles vector of doubles
   - IntVec:  handles vector of integers
 
-@ref used_TrkAlgebraUtils
 
-@ref requirements_TrkAlgebraUtils
 
 */
-
-/**
-@page used_TrkAlgebraUtils Used Packages
-*/
-
-/**
-@page requirements_TrkAlgebraUtils Requirements
-*/
-

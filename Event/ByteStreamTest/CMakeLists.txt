@@ -37,7 +37,6 @@ function (bytestreamtest_run_test jo)
                   @ONLY )
   atlas_add_test( ${testName}
                   SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/bytestreamtest_${testName}.sh
-                  ENVIRONMENT PATH=${CMAKE_CURRENT_SOURCE_DIR}/test:$ENV{PATH}
                   POST_EXEC_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/test/post_check_bs.sh ${testName}"
                   PROPERTIES TIMEOUT 300
                    )

@@ -118,12 +118,31 @@ def cherry_pick_mr(merge_commit,source_branch,target_branch_rules,project,dry_ru
 
     # handle sweep labels
     labels = set(mr_handle.labels)
+
     if "sweep:done" in labels:
-        logging.info("merge commit '%s' was already swept -> skipping",merge_commit)
+        logging.info("merge commit '%s' was already swept -> skipping ......\n",merge_commit)
         return
     if "sweep:ignore" in labels:
-        logging.info("merge commit '%s' is marked as ignore -> skipping",merge_commit)
+        logging.info("merge commit '%s' is marked as ignore -> skipping .......\n",merge_commit)
         return
+
+    target_branches = set()
+    
+    logging.debug("Looking through MR labels .... \n")
+
+    for l in labels:
+        logging.debug("label: %s",l)
+        if re.match('^sweptFrom:',l):
+            logging.info("merge commit '%s' contains %s label -> skipping to prevent sweeping it twice .......\n",merge_commit,l)
+            return
+        if re.match('^alsoTargeting:',l):
+            _s_ = l.split(':')
+            if len(_s_) == 2: # convert from unicode to have the same ascii string type as in target_branch_rules below
+                    _ss_ = [ _s_[1].encode('ascii','replace') ] 
+                    logging.info("merge commit '%s' also targets the following branches: %s -> add to target list",merge_commit,_ss_)
+                    target_branches.update(_ss_)
+            else:
+                logging.warning("merge commit '%s' has empty 'alsoTargeting:' label -> ignore")
 
     labels.add("sweep:done")
     mr_handle.labels = list(labels)
@@ -136,27 +155,46 @@ def cherry_pick_mr(merge_commit,source_branch,target_branch_rules,project,dry_ru
     logging.debug("MR %d affects the following packages: %r",MR_IID,affected_packages)
 
     # determine set of target branches from rules and affected packages
-    target_branches = set()
     for rule,branches in target_branch_rules.items():
         # get pattern expression for affected packages
         pkg_pattern = re.compile(rule)
         # only add target branches if ALL affected packages match the given pattern
         matches = [pkg_pattern.match(pkg_name) for pkg_name in affected_packages]
         if all(matches):
-            logging.debug("add branches for rule '%s'",rule)
+            logging.debug("add branches for rule '%s': %s",rule,branches)
             target_branches.update(branches)
         else:
-            logging.debug("skip branches for rule '%s'",rule)
+            logging.debug("skip branches for rule '%s': %s",rule,branches)
 
     logging.info("MR %d [%s] is swept to %d branches: %r",MR_IID,merge_commit,len(target_branches),list(target_branches))
 
-    # if this is a test run, we can stop here
     if dry_run:
+        logging.debug("\n\n----- This is a test run, stop with this MR here ----\n\n ")
         return
 
     # get initial MR commit title and description
     _,mr_title,_ = execute_command_with_retry('git show {0} --pretty=format:"%s"'.format(merge_commit))
     _,mr_desc,_ = execute_command_with_retry('git show {0} --pretty=format:"%b"'.format(merge_commit))
+
+    _s_ = source_branch.split('/')
+    if len(_s_) == 2:
+        source_branch_strip = _s_[1]
+    elif len(_s_) == 1:
+        source_branch_strip = _s_[0]
+    else:
+        source_branch_strip = 'undefined branch'
+
+    _s_ = mr_desc.split('\n')
+    mr_desc_strip = ''
+    for _subs_ in _s_:
+        if not re.match('^See merge request ',_subs_):
+            mr_desc_strip += _subs_
+
+    _comment_1_ = 'Sweeping !' + str(MR_IID) + ' from ' + source_branch_strip + ' to '
+    _comment_2_ = '.\n' + mr_desc_strip
+
+    for _t_ in target_branches:
+        logging.debug("MR title for target branch %s: '%s'", _t_, _comment_1_ + _t_ + _comment_2_)
 
     # perform cherry-pick to all target branches
     for tbranch in target_branches:
@@ -184,14 +222,16 @@ def cherry_pick_mr(merge_commit,source_branch,target_branch_rules,project,dry_ru
         else:
             logging.info("cherry-picked '%s' into '%s'",merge_commit,tbranch)
 
+            _title_ = _comment_1_ + tbranch + _comment_2_
             # create merge request
             mr_data = {}
             mr_data['source_branch'] = cherry_pick_branch
             mr_data['target_branch'] = tbranch
-            mr_data['title'] = mr_title
+            mr_data['title'] = _title_
             mr_data['description'] = mr_desc
             mr_data['labels'] = "sweep:from {0}".format(os.path.basename(source_branch))
             mr_data['remove_source_branch'] = True
+            logging.debug("Sweeping MR %d to %s with a title: '%s'",MR_IID,tbranch,_title_)
             try:
                 new_mr = project.mergerequests.create(mr_data)
             except GitlabCreateError as e:
@@ -295,6 +335,7 @@ def main():
 
     # do the actual cherry-picking
     for mr in MR_list:
+        logging.debug("\n\n ===== Next MR: %s ====== \n\n",mr)
         cherry_pick_mr(mr,args.branch,target_branch_rules,project,args.dry_run)
 
     # change back to initial directory

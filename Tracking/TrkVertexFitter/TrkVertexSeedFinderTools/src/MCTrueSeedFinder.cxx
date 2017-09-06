@@ -250,10 +250,10 @@ namespace Trk
       if( evt == *iter ) break;
     }
 
-    if( ( gotzero == 1 ) && m_removeInTimePileUp ) return false;
-    if( ( gotzero == 2 ) ) return false; //remove2BCPileUp
-    if( ( gotzero == 3 ) ) return false; //remove800nsPileUp
-    if( ( gotzero == 4 ) ) return false; //removeCavernBkg
+    if( gotzero == 1 && m_removeInTimePileUp ) return false;
+    if( gotzero == 2 ) return false; //remove2BCPileUp
+    if( gotzero == 3 ) return false; //remove800nsPileUp
+    if( gotzero == 4 ) return false; //removeCavernBkg
 
     return true;
   }

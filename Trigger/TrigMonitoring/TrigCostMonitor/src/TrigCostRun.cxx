@@ -90,7 +90,7 @@ StatusCode TrigCostRun::initialize()
   ATH_MSG_DEBUG("Retrieved : " << m_tools);
 
   CHECK(m_toolsSave.retrieve());
-  ATH_MSG_DEBUG("Retrieved " << m_toolsSave << endmsg);
+  ATH_MSG_DEBUG("Retrieved " << m_toolsSave);
 
 
   //
@@ -104,21 +104,21 @@ StatusCode TrigCostRun::initialize()
   // Configure HLTResult extraction objects
   //
   m_readL2.hltLevel     = "L2";
-  m_readL2.outputLevel  = outputLevel();
+  m_readL2.outputLevel  = msgLevel();
   m_readL2.msgStream    = &msg();
   m_readL2.globalConfig = &m_config;
   m_readL2.timerNavig   = m_timerNavig;
   m_readL2.PrintInit();
 
   m_readEF.hltLevel     = "EF";  
-  m_readEF.outputLevel  = outputLevel();
+  m_readEF.outputLevel  = msgLevel();
   m_readEF.msgStream    = &msg();
   m_readEF.globalConfig = &m_config;
   m_readEF.timerNavig   = m_timerNavig;
   m_readEF.PrintInit();
   
   m_readHLT.hltLevel     = "HLT";  
-  m_readHLT.outputLevel  = outputLevel();
+  m_readHLT.outputLevel  = msgLevel();
   m_readHLT.msgStream    = &msg();
   m_readHLT.globalConfig = &m_config;
   m_readHLT.timerNavig   = m_timerNavig;
@@ -590,26 +590,26 @@ bool TrigCostRun::ReadHLTResult::ReadEvent(ServiceHandle<StoreGateSvc> &storeGat
     //
     // Save the lumi block length, if not already in file
     //
-    bool _haveLumiLength = false;
+    bool haveLumiLength = false;
     for (unsigned i=0; i < ptr->getVarKey().size(); ++i) {
       if (ptr->getVarKey().at(i) == Trig::kEventLumiBlockLength) {
-        _haveLumiLength = true;
+        haveLumiLength = true;
         if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << "Lumi length already stored in event" << endmsg;
         break;
       }
     }
 
-    if (_haveLumiLength == false) {
+    if (haveLumiLength == false) {
       if (m_readLumiBlock.getTriedSetup() == false) {
         log() << MSG::INFO << "Reading lumi length" << endmsg;
         m_readLumiBlock.updateLumiBlocks( ptr->getRun() );
       }
       ptr->addVar(Trig::kEventLumiBlockLength, m_readLumiBlock.getLumiBlockLength(ptr->getLumi())); // 43 is lumi block length
       if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << "Decorating Event:" << ptr->getEvent() << "  LB:"<< ptr->getLumi()<<" with LB Length " << m_readLumiBlock.getLumiBlockLength( ptr->getLumi()) << endmsg;
-      std::string _msg = m_readLumiBlock.infos();
-      if (_msg.size()) log() << MSG::INFO << _msg;
-      std::string _dbg = m_readLumiBlock.debug();
-      if (_dbg.size() && outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << _dbg;
+      std::string msg = m_readLumiBlock.infos();
+      if (msg.size()) log() << MSG::INFO << msg;
+      std::string dbg = m_readLumiBlock.debug();
+      if (dbg.size() && outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << dbg;
       m_readLumiBlock.clearMsg();
     }
 
@@ -618,9 +618,9 @@ bool TrigCostRun::ReadHLTResult::ReadEvent(ServiceHandle<StoreGateSvc> &storeGat
     //
     vecEvent.push_back(*ptr);
 
-    float _isCostEvent = 0.;
-    ptr->getVar(Trig::kIsCostEvent, _isCostEvent);
-    if (_isCostEvent > 0.5) ++countCostEvent;
+    float isCostEvent = 0.;
+    ptr->getVar(Trig::kIsCostEvent, isCostEvent);
+    if (isCostEvent > 0.5) ++countCostEvent;
   }
 
   //
@@ -638,10 +638,10 @@ void TrigCostRun::ReadHLTResult::PrintInit()
   // Print summary counters
   //
   log() << MSG::INFO
-	<< "  " << hltLevel << ": HLTResult key     = " << keyResult << endmsg
-	<< "  " << hltLevel << ": TrigMonConfig key = " << keyConfig << endmsg
-	<< "  " << hltLevel << ": TrigMonEvent  key = " << keyEvent  << endmsg
-	<< "  " << hltLevel << ": Enabled = "           << (doLevel ? "Yes" : "NO")  << endmsg;
+       << "  " << hltLevel << ": HLTResult key     = " << keyResult << endmsg
+       << "  " << hltLevel << ": TrigMonConfig key = " << keyConfig << endmsg
+       << "  " << hltLevel << ": TrigMonEvent  key = " << keyEvent  << endmsg
+       << "  " << hltLevel << ": Enabled = "           << (doLevel ? "Yes" : "NO")  << endmsg;
 }
 
 //---------------------------------------------------------------------------------------
@@ -654,13 +654,13 @@ void TrigCostRun::ReadHLTResult::PrintEvent()
   // Print current events in memory
   //
   log() << MSG::INFO << "Extracted TrigMonEventCollection: " << keyEvent 
-	<< " with: " << vecEvent.size() << " event(s)" << endmsg; 
+        << " with: " << vecEvent.size() << " event(s)" << endmsg; 
 
-  static unsigned _nPrinted = 0;
+  static unsigned nPrinted = 0;
   for(unsigned i = 0; i < vecEvent.size(); ++i) {
     const TrigMonEvent &event = vecEvent.at(i);
-    ++_nPrinted;
-    if (_nPrinted < 10 || _nPrinted % 10 == 0) {
+    ++nPrinted;
+    if (nPrinted < 10 || nPrinted % 10 == 0) {
      Trig::Print(event, *globalConfig, log(), MSG::INFO, /*verbosity=*/ 0);
     }
   }
@@ -676,10 +676,10 @@ void TrigCostRun::ReadHLTResult::PrintSummary()
   // Print summary counters
   //
   log() << MSG::INFO
-	<< "  " << hltLevel << ": POST_HLT: # of valid     HLT results = " << countValid   << endmsg
-	<< "  " << hltLevel << ": POST_HLT: # of invalid   HLT results = " << countInvalid << endmsg
-	<< "  " << hltLevel << ": POST_HLT: # of truncated HLT results = " << countTrunc   << endmsg
-	<< "  " << hltLevel << ": POST_HLT: # of read TrigMonEvent     = " << countEvent   << endmsg
+        << "  " << hltLevel << ": POST_HLT: # of valid     HLT results = " << countValid   << endmsg
+        << "  " << hltLevel << ": POST_HLT: # of invalid   HLT results = " << countInvalid << endmsg
+        << "  " << hltLevel << ": POST_HLT: # of truncated HLT results = " << countTrunc   << endmsg
+        << "  " << hltLevel << ": POST_HLT: # of read TrigMonEvent     = " << countEvent   << endmsg
         << "  " << hltLevel << ": POST_HLT: # of read TrigMonCostEvent = " << countCostEvent << "(In which scale tools were run)" << endmsg
-	<< "  " << hltLevel << ": POST_HLT: # of read TrigMonConfig    = " << countConfig  << endmsg;
+        << "  " << hltLevel << ": POST_HLT: # of read TrigMonConfig    = " << countConfig  << endmsg;
 }

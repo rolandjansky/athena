@@ -11,10 +11,4 @@
  * for the stored data. Dictionaries are then built using the lcgdict 
  * pattern.
  * 
-@section AthenaPoolTestData_@section requirements requirements
- * 
- * 
-@section AthenaPoolTestData_@section Links Links to used packages
- * 
- * 
  */

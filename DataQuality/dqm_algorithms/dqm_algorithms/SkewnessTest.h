@@ -24,7 +24,7 @@ namespace dqm_algorithms
 	  void  printDescription(std::ostream& out);
 	  bool CompareSkewnessTest( const std::string& type, double value , double threshold );
 	  private:
-	  std::string name_;
+	  std::string m_name;
 	};
 }
 

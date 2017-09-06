@@ -1429,7 +1429,7 @@ MaterialAllocator::indetMaterial (std::list<FitMeasurement*>&	measurements,
 	return;
     }
 
-    ATH_MSG_WARNING( " indetMaterial: ALARM no material found on track");
+    ATH_MSG_DEBUG( " indetMaterial: ALARM no material found on track");
     
     // allocate indet material from TrackingGeometry
     Amg::Vector3D endPosition	= endIndetMeasurement->intersection(FittedTrajectory).position();

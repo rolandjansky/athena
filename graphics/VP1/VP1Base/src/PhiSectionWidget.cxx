@@ -4,18 +4,20 @@
 
 #include "VP1Base/PhiSectionWidget.h"
 
-#include <QtGui/QMouseEvent>
-#include <QtGui/QGraphicsEllipseItem>
-#include <QtGui/QCursor>
-#include <QtGui/QMenu>
-#include <QtGui/QMouseEvent>
-#include <QtGui/QDragEnterEvent>
-#include <QtGui/QDropEvent>
-#include <QtGui/QApplication>
-#include <QtCore/QBuffer>
-#include <QtGui/QClipboard>
-#include <QtGui/QInputDialog>
-#include <QtCore/QVector>
+#include <QMouseEvent>
+#include <QGraphicsEllipseItem>
+#include <QCursor>
+#include <QDrag>
+#include <QMenu>
+#include <QMouseEvent>
+#include <QDragEnterEvent>
+#include <QDropEvent>
+#include <QApplication>
+#include <QBuffer>
+#include <QClipboard>
+#include <QInputDialog>
+#include <QVector>
+#include <QMimeData>
 #include <QDebug>
 
 #include <cmath>
@@ -344,7 +346,8 @@ void PhiSectionWidget::launchContextMenu(QPoint p)
   }
   if (selAct==d->popup_setCustomNPhi) {
     bool ok;
-    int nCustomSectors = QInputDialog::getInteger(this, "Set number of phi sectors",
+    // int nCustomSectors = QInputDialog::getInteger(this, "Set number of phi sectors",
+    int nCustomSectors = QInputDialog::getInt(this, "Set number of phi sectors",
 						  "Set number of phi sectors", d->sectorstatus.count(),4,99,1,&ok);
     if (ok && nCustomSectors >= 4 && nCustomSectors <= 99 )
       setNumberOfSectors(nCustomSectors);

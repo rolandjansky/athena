@@ -30,10 +30,10 @@ struct MatchDistance {
 
 class TrackClusterMatcher {
 public:
-  TrackClusterMatcher( IDistanceProvider* distanceProvider, double matchCut):
-  m_distanceProvider(distanceProvider), m_matchCut(matchCut) { setDRParameters(); }
+  TrackClusterMatcher( std::unique_ptr<IDistanceProvider> distanceProvider, double matchCut):
+    m_distanceProvider(std::move(distanceProvider)), m_matchCut(matchCut) { setDRParameters(); }
 
-  virtual ~TrackClusterMatcher();
+  virtual ~TrackClusterMatcher() {};
 
   MatchDistance match(const ITrack* track, const ICluster* cluster);
 
@@ -46,7 +46,7 @@ public:
 
 private:
 
-  IDistanceProvider* m_distanceProvider;
+  std::unique_ptr<IDistanceProvider> m_distanceProvider;
   double m_matchCut;
    /** This stores the parameters to vary DR cut with Pt */
   float m_drcut_par[8][3];

@@ -16,8 +16,8 @@
 #ifndef VERTEXCOMMONFLAGS_H
 #define VERTEXCOMMONFLAGS_H
 
-#include <QtCore/QFlags>
-#include <QtCore/QString>
+#include <QFlags>
+#include <QString>
 
 class VertexCommonFlags {
 public:

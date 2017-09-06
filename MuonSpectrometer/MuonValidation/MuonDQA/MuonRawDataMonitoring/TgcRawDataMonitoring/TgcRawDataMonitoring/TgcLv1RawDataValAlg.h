@@ -35,8 +35,6 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/NTuple.h"
 
-#include "DataModel/DataLink.h"
-
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 
 #include "MuonTrigCoinData/TgcCoinData.h"
@@ -72,9 +70,6 @@ class TgcLv1RawDataValAlg: public ManagedMonitorToolBase {
     StoreGateSvc*   m_detStore;
     ActiveStoreSvc* m_activeStore;
 
-    // Log and Debug Streams
-    mutable MsgStream m_log;       //!< Gaudi message stream - msgstream as private member (-> speed)
-    bool              m_debuglevel;//!< private member to control debug messages  
     // Muon Detector Manager
     const MuonGM::MuonDetectorManager* m_muonMgr;
     // TGC Id Helper

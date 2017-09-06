@@ -111,6 +111,7 @@ namespace met {
       
       static const SG::AuxElement::ConstAccessor<std::vector<ElementLink<CaloClusterContainer> > > tcLinkAcc("constituentClusterLinks");
       for(const auto& matchel : tcLinkAcc(*muclus)) {
+	if(!matchel.isValid()) {continue;} // In case of thinned cluster collection
 	ATH_MSG_VERBOSE("Tool found cluster " << (*matchel)->index() << " with pt " << (*matchel)->pt() );
 	if((*matchel)->e()>1e-9) { // +ve E
 	  tclist.push_back(*matchel);

@@ -1,3 +1,4 @@
+
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -16,7 +17,13 @@ L1Decoder::L1Decoder(const std::string& name, ISvcLocator* pSvcLocator)
 }
 
 StatusCode L1Decoder::initialize() {
-  CHECK( m_RoIBResultKey.initialize( not m_RoIBResultKey.key().empty() )  );
+  ATH_MSG_INFO( "Reading RoIB infromation from: "<< m_RoIBResultKey.objKey() << " : " << m_RoIBResultKey.fullKey() << " : " << m_RoIBResultKey.key() );
+
+  if (  m_RoIBResultKey.objKey().empty() )
+    renounce( m_RoIBResultKey );
+  else
+    CHECK( m_RoIBResultKey.initialize( ) );
+  
   CHECK( m_chainsKey.initialize() );
 
   CHECK( m_ctpUnpacker.retrieve() );

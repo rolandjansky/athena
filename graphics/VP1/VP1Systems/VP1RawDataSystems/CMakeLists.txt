@@ -24,7 +24,6 @@ atlas_depends_on_subdirs( PUBLIC
 # External dependencies:
 find_package( Coin3D )
 find_package( Eigen )
-find_package( Qt4 )
 
 
 # Generate UI files automatically:

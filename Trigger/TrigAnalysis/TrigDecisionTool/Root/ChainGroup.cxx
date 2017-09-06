@@ -344,6 +344,28 @@ float Trig::ChainGroup::HLTPrescale(const std::string& chain, unsigned int /*con
 }
 
 
+bool Trig::ChainGroup::isCorrelatedL1items(const std::string& item) const {
+  if( (item == "L1_MU20,L1_MU21") || (item == "L1_MU21,L1_MU20") ) return true;
+  return false;
+}
+
+float Trig::ChainGroup::correlatedL1Prescale(const std::string& item) const {
+  if( (item == "L1_MU20,L1_MU21") || (item == "L1_MU21,L1_MU20") ) {
+    //see discussion in ATR-16612
+    auto l1mu20   = cgm(true)->config_item("L1_MU20");
+    float l1mu20ps = cgm(true)->item_prescale(l1mu20->ctpId()); 
+    auto l1mu21   = cgm(true)->config_item("L1_MU21");
+    float l1mu21ps = cgm(true)->item_prescale(l1mu21->ctpId()); 
+    
+    if( (l1mu20ps  < 1.0) && (l1mu21ps < 1.0) ) return 0.0;
+    if( (l1mu20ps  < 1.0) ) return l1mu21ps;
+    if( (l1mu21ps  < 1.0) ) return l1mu20ps;
+    if(l1mu20ps == 1.0) return 1.0;
+    return 0.0;
+  }
+  return 0.0;
+}
+
 float Trig::ChainGroup::L1Prescale(const std::string& item, unsigned int /*condition*/) const {
   if (item=="") return 0;
 
@@ -360,11 +382,14 @@ float Trig::ChainGroup::L1Prescale(const std::string& item, unsigned int /*condi
     if ( itemprescale < 1)
       itemprescale = 0;
     return itemprescale;
+  } else if(isCorrelatedL1items(item)) {
+    return correlatedL1Prescale(item);
   } else {
     float minprescale=0;
     std::vector< std::string > items = convertStringToVector(item);
     std::vector< std::string >::iterator itit = items.begin();
     for(;itit != items.end(); ++itit) {
+
       const  TrigConf::TriggerItem* fitem=cgm(true)->config_item(*itit);
       if (fitem==0) {
         ATH_MSG_WARNING("Configuration for the item: " << *itit << " not known");
@@ -389,13 +414,13 @@ float Trig::ChainGroup::getPrescale(unsigned int condition) const {
 float Trig::ChainGroup::calculatePrescale(unsigned int condition)
 {
   bool singleTrigger = (m_confChains.size()+m_confItems.size()==1);
-
+  
   ChainGroup::const_conf_chain_iterator chIt;
   for ( chIt = conf_chain_begin(); chIt != conf_chain_end(); ++chIt) {
-
+    
     const std::string & hltChainName = (*chIt)->chain_name();
     float chainRESULT = HLTPrescale(hltChainName,condition);
-
+    
     if (condition & TrigDefs::enforceLogicalFlow) {
       // enforceLogicalFlow
       if ((*chIt)->level()=="EF") {
@@ -404,7 +429,7 @@ float Trig::ChainGroup::calculatePrescale(unsigned int condition)
         chainRESULT *= HLTPrescale(hltChainNameL2,condition);
         chainRESULT *= L1Prescale(l1ItemName,condition);
         if(l1ItemName.find(',')!=std::string::npos) singleTrigger=false;
-
+	
       } else if ((*chIt)->level()=="L2") {
         std::string l1ItemName       = getLowerName(hltChainName);
         chainRESULT *= L1Prescale(l1ItemName,condition);
@@ -414,8 +439,7 @@ float Trig::ChainGroup::calculatePrescale(unsigned int condition)
       } else if ((*chIt)->level()=="HLT") {
         std::string l1ItemName       = getLowerName(hltChainName);
         chainRESULT *= L1Prescale(l1ItemName,condition);
-        if(l1ItemName.find(',')!=std::string::npos) singleTrigger=false;
-
+        if(l1ItemName.find(',')!=std::string::npos and !isCorrelatedL1items(l1ItemName) ) singleTrigger=false;
       }
 
     }
@@ -430,7 +454,6 @@ float Trig::ChainGroup::calculatePrescale(unsigned int condition)
 
   ChainGroup::const_conf_item_iterator iIt;
   for ( iIt = conf_item_begin(); iIt != conf_item_end(); ++iIt) {
-
     const std::string & l1ItemName = (*iIt)->name();
     float itemRESULT = L1Prescale(l1ItemName,condition);
     if(l1ItemName.find(',')!=std::string::npos) singleTrigger=false;

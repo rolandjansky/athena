@@ -17,10 +17,6 @@ ElectronPhotonTagTools contains the following tools:
 
 - for questions and comments: ketevi@bnl.gov
 
-@section ElectronPhotonTagTools_used_packagesElectronPhotonTagTools Used packages
 
-@section ElectronPhotonTagTools_requirementsElectronPhotonTagTools Requirements
 
 */
-
-

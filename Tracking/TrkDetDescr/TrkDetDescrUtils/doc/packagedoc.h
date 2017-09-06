@@ -21,8 +21,6 @@ classes of different implementations.
 In addition it contains geometry statics and a reference counting class.
 
 
-@section TrkDetDescrUtils_TrkDetDescrReqReq Requirements
 
 
 */
-

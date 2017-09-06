@@ -22,15 +22,4 @@ PhD Thesis, Niels van Eldik
  	
 @section MDT_Response_ExtrasMDT_Response Extra Pages
 
- - @ref UsedMDT_Response
- - @ref RequirementsMDT_Response
-*/
-
-/**
-@page UsedMDT_Response Used Packages
-*/
-
-/**
-@page RequirementsMDT_Response Requirements
-
 */

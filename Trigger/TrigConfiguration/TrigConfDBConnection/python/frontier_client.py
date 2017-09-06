@@ -83,7 +83,10 @@ class Session:
             self.__fieldNames     += [self.__session.assignString()]
             self.__fieldTypeStr     += [self.__session.assignString()]
             if self.__fieldTypeStr[-1].startswith("NUMBER"):
-                self.__fieldType += [int]
+                if ",0" in .__fieldTypeStr[-1]:
+                    self.__fieldType += [int]
+                else:
+                    self.__fieldType += [float]
             elif self.__fieldTypeStr[-1].startswith("VARCHAR"):
                 self.__fieldType += [str]
             else:

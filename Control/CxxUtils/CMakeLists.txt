@@ -66,6 +66,10 @@ atlas_add_test( stacktrace_test
    SOURCES test/stacktrace_test.cxx
    LINK_LIBRARIES CxxUtils dl )
 
+atlas_add_test( MD5_test
+   SOURCES test/MD5_test.cxx
+   LINK_LIBRARIES CxxUtils )
+
 atlas_add_test( bitscan_test_portable
    SOURCES test/bitscan_test.cxx
    LINK_LIBRARIES CxxUtils )

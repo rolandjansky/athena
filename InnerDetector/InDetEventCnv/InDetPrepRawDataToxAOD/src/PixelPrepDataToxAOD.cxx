@@ -60,12 +60,14 @@ PixelPrepDataToxAOD::PixelPrepDataToxAOD(const std::string &name, ISvcLocator *p
   declareProperty("WriteRDOinformation", m_writeRDOinformation = true);
 
   // --- Configuration keys
-  declareProperty("SiClusterContainer",  m_clustercontainer = "PixelClusters");
-  declareProperty("MC_SDOs", m_SDOcontainer = "PixelSDO_Map");
-  declareProperty("MC_Hits", m_sihitContainer = "PixelHits");
-  declareProperty("PRD_MultiTruth", m_multiTruth = "PRD_MultiTruthPixel");
+  declareProperty("SiClusterContainer",  m_clustercontainer_key = "PixelClusters");
+  declareProperty("MC_SDOs", m_SDOcontainer_key = "PixelSDO_Map");
+  declareProperty("MC_Hits", m_sihitContainer_key = "PixelHits");
+  declareProperty("PRD_MultiTruth", m_multiTruth_key = "PRD_MultiTruthPixel");
 
   // --- Services and Tools
+  declare(m_write_xaod);
+  declare(m_write_offsets);
 
 }
 
@@ -92,6 +94,17 @@ StatusCode PixelPrepDataToxAOD::initialize()
 
   CHECK(m_lorentzAngleSvc.retrieve());
 
+  ATH_CHECK(m_clustercontainer_key.initialize());
+  m_need_sihits = (m_writeNNinformation || m_writeSiHits) && m_useTruthInfo;
+  ATH_CHECK(m_sihitContainer_key.initialize(m_need_sihits));
+  ATH_CHECK(m_SDOcontainer_key.initialize(m_writeSDOs));
+  ATH_CHECK(m_multiTruth_key.initialize(m_useTruthInfo));
+
+  m_write_xaod = m_clustercontainer_key.key();
+  ATH_CHECK(m_write_xaod.initialize());
+  m_write_offsets = m_clustercontainer_key.key() + "Offsets";
+  ATH_CHECK(m_write_offsets.initialize());
+
   return StatusCode::SUCCESS;
 }
 
@@ -103,60 +116,15 @@ StatusCode PixelPrepDataToxAOD::initialize()
 StatusCode PixelPrepDataToxAOD::execute() 
 {
   //Mandatory. Require if the algorithm is scheduled.
-  const InDet::PixelClusterContainer* PixelClusterContainer = 0;     
-  if( evtStore()->retrieve(PixelClusterContainer,m_clustercontainer).isFailure() ) {
-    ATH_MSG_ERROR("Cannot retrieve Pixel PrepDataContainer " << m_clustercontainer);
-    return StatusCode::FAILURE;
-  }
-
-  // Optional. Normally only available in Hits files -- samples need to digitised and Hits need to be copied for this to work
-  const SiHitCollection* sihitCollection = 0;
-  if((m_writeNNinformation||m_writeSiHits)&&m_useTruthInfo) {
-    if ( evtStore()->contains<SiHitCollection>(m_sihitContainer) ) {
-      ATH_CHECK(evtStore()->retrieve(sihitCollection, m_sihitContainer));
-    } else {
-      if (m_firstEventWarnings) {
-        ATH_MSG_WARNING("Si Hit cotainer no found (" << m_sihitContainer << "). Skipping it although requested.");
-        sihitCollection = 0;
-      }
-    }
-  }
-
-  // Optional. On RDO
-  const InDetSimDataCollection* sdoCollection = 0;
-  if(m_writeSDOs) {
-    if ( evtStore()->contains<InDetSimDataCollection>(m_SDOcontainer) ) {
-      ATH_CHECK(evtStore()->retrieve(sdoCollection, m_SDOcontainer));
-    } else {
-      if (m_firstEventWarnings) {
-        ATH_MSG_WARNING("SDO Collection not found (" << m_SDOcontainer << "). Skipping it although requested.");
-        sdoCollection = 0;
-      }
-    }
-  }
-
-  // Optional. On ESD and AOD
-  const PRD_MultiTruthCollection* prdmtColl = 0;
-  if (m_useTruthInfo) {
-    if ( evtStore()->contains<PRD_MultiTruthCollection>(m_multiTruth) ) {
-      ATH_CHECK(evtStore()->retrieve(prdmtColl, m_multiTruth));
-    } else {
-      ATH_MSG_WARNING("PRD Truth collection missing (" << m_multiTruth << "). Skipping it although requested.");
-      prdmtColl = 0;
-    }
-  }
-
+  SG::ReadHandle<InDet::PixelClusterContainer> PixelClusterContainer(m_clustercontainer_key);
 
   // Create the xAOD container and its auxiliary store:
-  xAOD::TrackMeasurementValidationContainer* xaod = new xAOD::TrackMeasurementValidationContainer();
-  CHECK( evtStore()->record( xaod, m_clustercontainer ) );
-  xAOD::TrackMeasurementValidationAuxContainer* aux = new xAOD::TrackMeasurementValidationAuxContainer();
-  CHECK( evtStore()->record( aux, m_clustercontainer + "Aux." ) );
-  xaod->setStore( aux );
+  SG::WriteHandle<xAOD::TrackMeasurementValidationContainer> xaod(m_write_xaod);
+  ATH_CHECK(xaod.record(std::make_unique<xAOD::TrackMeasurementValidationContainer>(),
+			std::make_unique<xAOD::TrackMeasurementValidationAuxContainer>()));
 
-  std::vector<unsigned int>* offsets = new std::vector<unsigned int>( m_PixelHelper->wafer_hash_max(), 0 );
-  CHECK( evtStore()->record( offsets, m_clustercontainer + "Offsets" ) );
-
+  SG::WriteHandle<std::vector<unsigned int>> offsets(m_write_offsets);
+  ATH_CHECK(offsets.record(std::make_unique<std::vector<unsigned int>>(m_PixelHelper->wafer_hash_max(), 0)));
   
   // Loop over the container
   unsigned int counter(0);
@@ -273,12 +241,12 @@ StatusCode PixelPrepDataToxAOD::execute()
       xprd->auxdata<uint64_t>("detectorElementID") = detElementId;
       
       // Use the MultiTruth Collection to get a list of all true particle contributing to the cluster
-      if(prdmtColl){
+      if (m_useTruthInfo) {
+	SG::ReadHandle<PRD_MultiTruthCollection> prdmtColl(m_multiTruth_key);
         std::vector<int> barcodes;
-        //std::pair<PRD_MultiTruthCollection::const_iterator,PRD_MultiTruthCollection::const_iterator>;
         auto range = prdmtColl->equal_range(clusterId);
         for (auto i = range.first; i != range.second; ++i) {
-           barcodes.push_back( i->second.barcode() );
+	  barcodes.push_back( i->second.barcode() );
         }
         xprd->auxdata< std::vector<int> >("truth_barcode") = barcodes;
       }
@@ -286,27 +254,28 @@ StatusCode PixelPrepDataToxAOD::execute()
       std::vector< std::vector< int > > sdo_tracks;
       // Use the SDO Collection to get a list of all true particle contributing to the cluster per readout element
       //  Also get the energy deposited by each true particle per readout element   
-      if( sdoCollection ){
-	  sdo_tracks = addSDOInformation( xprd, prd,sdoCollection);
+      if(m_writeSDOs) {
+	SG::ReadHandle<InDetSimDataCollection> sdoCollection(m_SDOcontainer_key);
+	sdo_tracks = addSDOInformation(xprd, prd, *sdoCollection);
       }
     
       // Now Get the most detailed truth from the SiHits
       // Note that this could get really slow if there are a lot of hits and clusters
-      if(  sihitCollection  ){
-	  const std::vector<SiHit> matched_hits = findAllHitsCompatibleWithCluster(  prd, sihitCollection, sdo_tracks );
+      if (m_need_sihits) {
+	SG::ReadHandle<SiHitCollection> sihitCollection(m_sihitContainer_key);
+	const std::vector<SiHit> matched_hits = findAllHitsCompatibleWithCluster(prd, *sihitCollection, sdo_tracks);
 	  
-	  if(m_writeSiHits)
-	  {
-	      if ( ! sdoCollection )
-		  ATH_MSG_WARNING("Si hit truth information requested, but SDO collection not available!" );
-	      addSiHitInformation( xprd, prd, matched_hits ); 
-	  }
-	  if(m_writeNNinformation)
-	  {
-	      if ( ! sdoCollection )
-		  ATH_MSG_WARNING("Si hit truth information requested, but SDO collection not available!" );
-	      addNNTruthInfo(  xprd, prd, matched_hits );
-	  }
+	if (m_writeSiHits) {
+	  if (!m_writeSDOs)
+	    ATH_MSG_WARNING("Si hit truth information requested, but SDO collection not available!");
+	  addSiHitInformation(xprd, prd, matched_hits); 
+	}
+
+	if (m_writeNNinformation) {
+	  if (!m_writeSDOs)
+	    ATH_MSG_WARNING("Si hit truth information requested, but SDO collection not available!");
+	  addNNTruthInfo(xprd, prd, matched_hits);
+	}
       }
     }
   }
@@ -361,15 +330,15 @@ StatusCode PixelPrepDataToxAOD::execute()
 
 std::vector< std::vector< int > > PixelPrepDataToxAOD::addSDOInformation( xAOD::TrackMeasurementValidation* xprd,
 									  const InDet::PixelCluster* prd,
-									  const InDetSimDataCollection* sdoCollection ) const
+									  const InDetSimDataCollection& sdoCollection ) const
 {
   std::vector<int> sdo_word;
   std::vector< std::vector< int > > sdo_depositsBarcode;
   std::vector< std::vector< float > > sdo_depositsEnergy;
   // find hit
   for( const auto &hitIdentifier : prd->rdoList() ){
-    auto pos = sdoCollection->find(hitIdentifier);
-    if( pos != sdoCollection->end() ) {
+    auto pos = sdoCollection.find(hitIdentifier);
+    if( pos != sdoCollection.end() ) {
       sdo_word.push_back( pos->second.word() ) ;
       
       std::vector< int > sdoDepBC;
@@ -467,10 +436,10 @@ void  PixelPrepDataToxAOD::addSiHitInformation( xAOD::TrackMeasurementValidation
 
 
 std::vector<SiHit> PixelPrepDataToxAOD::findAllHitsCompatibleWithCluster( const InDet::PixelCluster* prd, 
-                                                                          const SiHitCollection* collection,
+                                                                          const SiHitCollection& collection,
 									  std::vector< std::vector< int > > & trkBCs ) const
 {
-  ATH_MSG_VERBOSE( "Got " << collection->size() << " SiHits to look through" );
+  ATH_MSG_VERBOSE( "Got " << collection.size() << " SiHits to look through" );
   std::vector<SiHit>  matchingHits;
     
   // Check if we have detector element  --  needed to find the local position of the SiHits
@@ -480,7 +449,7 @@ std::vector<SiHit> PixelPrepDataToxAOD::findAllHitsCompatibleWithCluster( const 
 
   std::vector<const SiHit* >  multiMatchingHits;
   
-  for ( const auto&  siHit : *collection) {
+  for ( const auto&  siHit : collection) {
     // Check if it is a Pixel hit
     if( !siHit.isPixel() )
       continue;

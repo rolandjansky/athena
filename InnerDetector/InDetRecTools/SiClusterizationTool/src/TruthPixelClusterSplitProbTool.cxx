@@ -95,10 +95,8 @@ namespace InDet
     return compileSplitProbability(vectorOfProbs); 
   }
 
-  InDet::PixelClusterSplitProb TruthPixelClusterSplitProbTool::splitProbability(const InDet::PixelCluster& origCluster, const Trk::TrackParameters& trackParameters ) const
+InDet::PixelClusterSplitProb TruthPixelClusterSplitProbTool::splitProbability(const InDet::PixelCluster& origCluster, const Trk::TrackParameters& /*trackParameters*/ ) const
   {
-    //ugly thing to stop unused variable warning
-    if(&trackParameters) {};  
     std::vector<double> vectorOfProbs=m_truthClusterizationFactory->estimateNumberOfParticles(origCluster);
 
     ATH_MSG_VERBOSE(" Got splitProbability, size of vector: " << vectorOfProbs.size() );

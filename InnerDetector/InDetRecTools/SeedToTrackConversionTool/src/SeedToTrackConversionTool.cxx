@@ -98,7 +98,7 @@ void InDet::SeedToTrackConversionTool::endEvent()
 {
   // Print event information
   //
-  if (outputLevel()<=0) {
+  if (msgLevel()<=0) {
     m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;
   }
 
@@ -186,7 +186,8 @@ void  InDet::SeedToTrackConversionTool::executeSiSPSeedSegments(const Trk::Track
 MsgStream&  InDet::SeedToTrackConversionTool::dump( MsgStream& out ) const
 {
   out<<std::endl;
-  if(m_nprint)  return dumpevent(out); return dumpconditions(out);
+  if(m_nprint) dumpevent(out);
+  return dumpconditions(out);
 }
  
 ///////////////////////////////////////////////////////////////////

@@ -302,8 +302,8 @@ void Trig::TrigNtExecTool::ReadOPI(TrigMonEvent &event,
         if(chainIter == m_TrigConfChain.end() || chainIter->getName() != myname) {
           ATH_MSG_WARNING("No TrigConfChain for: " << key << "/" << myname);
           ATH_MSG_WARNING("Options Are:");
-          for (vector<TrigConfChain>::const_iterator _it = m_TrigConfChain.begin(); _it != m_TrigConfChain.end(); ++_it) {
-            ATH_MSG_WARNING(" --- " << _it->getName());
+          for (vector<TrigConfChain>::const_iterator it = m_TrigConfChain.begin(); it != m_TrigConfChain.end(); ++it) {
+            ATH_MSG_WARNING(" --- " << it->getName());
           }
           return;
         }

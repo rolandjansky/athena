@@ -75,7 +75,7 @@ std::string excHandleInitError_format (CLID clid,
   std::ostringstream os;
   os << "SG::ExcHandleInitError: "
      << "Error initializing VarHandle from VarHandleKey: "
-     << storename << "/" << sgkey << "[" << clid << "]";
+     << storename << "+" << sgkey << "[" << clid << "]";
   return os.str();
 }
 
@@ -106,7 +106,7 @@ std::string excUninitKey_format (CLID clid,
   std::ostringstream os;
   os << "SG::ExcUninitKey: "
      << "Error initializing VarHandle from uninitialized VarHandleKey: "
-     << storename << "/" << sgkey << "[" << clid << "]; "
+     << storename << "+" << sgkey << "[" << clid << "]; "
      << "keys should be initialized in your initialize().";
   return os.str();
 }
@@ -138,7 +138,7 @@ std::string excConstObject_format (CLID clid,
   std::ostringstream os;
   os << "SG::ExcConstObject: "
      << "Tried to retrieve non-const pointer to const object via VarHandleKey: "
-     << storename << "/" << sgkey << "[" << clid << "]";
+     << storename << "+" << sgkey << "[" << clid << "]";
   return os.str();
 }
 
@@ -169,7 +169,7 @@ std::string excNullWriteHandle_format (CLID clid,
   std::ostringstream os;
   os << "SG::ExcNullWriteHandle: "
      << "Attempt to dereference write handle before record: "
-     << storename << "/" << sgkey << "[" << clid << "]";
+     << storename << "+" << sgkey << "[" << clid << "]";
   return os.str();
 }
 
@@ -214,7 +214,7 @@ std::string excNullReadHandle_format (CLID clid,
   std::ostringstream os;
   os << "SG::ExcNullReadHandle: "
      << "Dereference of read handle failed: "
-     << storename << "/" << sgkey << "[" << clid << "]";
+     << storename << "+" << sgkey << "[" << clid << "]";
   return os.str();
 }
 
@@ -259,7 +259,7 @@ std::string excNullUpdateHandle_format (CLID clid,
   std::ostringstream os;
   os << "SG::ExcNullUpdateHandle: "
      << "Dereference of update handle failed: "
-     << storename << "/" << sgkey << "[" << clid << "]";
+     << storename << "+" << sgkey << "[" << clid << "]";
   return os.str();
 }
 
@@ -304,7 +304,7 @@ std::string excUpdatedObjectFailure_format (CLID clid,
   std::ostringstream os;
   os << "SG::ExcUpdatedObjectFailure: "
      << "updatedObject failed: "
-     << storename << "/" << sgkey << "[" << clid << "]";
+     << storename << "+" << sgkey << "[" << clid << "]";
   return os.str();
 }
 

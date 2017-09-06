@@ -71,6 +71,9 @@ namespace pool {
 
       /// Default destructor.
       ~RelationalCollection();
+
+      RelationalCollection (const RelationalCollection&) = delete;
+      RelationalCollection& operator= (const RelationalCollection&) = delete;
     
       /// Returns the open mode of the collection for the present transaction.
       virtual ICollection::OpenMode openMode() const;

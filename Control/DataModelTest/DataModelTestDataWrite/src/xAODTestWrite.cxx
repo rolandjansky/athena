@@ -13,6 +13,7 @@
 
 #include "xAODTestWrite.h"
 #include "xAODTestWriteHelper.h"
+#include "EventInfo/EventID.h"
 #include "DataModelTestDataCommon/CVec.h"
 #include "DataModelTestDataCommon/CVecWithData.h"
 #include "DataModelTestDataCommon/C.h"
@@ -49,11 +50,13 @@ namespace DMTest {
  */
 xAODTestWrite::xAODTestWrite (const std::string &name,
                               ISvcLocator *pSvcLocator)
-  : AthAlgorithm (name, pSvcLocator),
-    m_count(0),
-    m_cvecKey ("cvec")
-    //m_hvecKey ("hvec")
+  : AthReentrantAlgorithm (name, pSvcLocator)
 {
+  declareProperty ("EventInfoKey", m_eventInfoKey = "McEventInfo");
+  declareProperty ("CVecKey", m_cvecKey = "cvec");
+  declareProperty ("CTrigKey", m_ctrigKey = "ctrig");
+  declareProperty ("GVecKey", m_gvecKey = "gvec");
+  declareProperty ("CVecWDKey", m_cvecWDKey = "cvecWD");
 }
   
 
@@ -62,8 +65,11 @@ xAODTestWrite::xAODTestWrite (const std::string &name,
  */
 StatusCode xAODTestWrite::initialize()
 {
+  ATH_CHECK( m_eventInfoKey.initialize() );
   ATH_CHECK( m_cvecKey.initialize() );
-  //ATH_CHECK( m_hvecKey.initialize() );
+  ATH_CHECK( m_ctrigKey.initialize() );
+  ATH_CHECK( m_gvecKey.initialize() );
+  ATH_CHECK( m_cvecWDKey.initialize() );
   return StatusCode::SUCCESS;
 }
 
@@ -71,15 +77,16 @@ StatusCode xAODTestWrite::initialize()
 /**
  * @brief Algorithm event processing.
  */
-StatusCode xAODTestWrite::execute()
+StatusCode xAODTestWrite::execute_r (const EventContext& ctx) const
 {
-  ++m_count;
+  SG::ReadHandle<EventInfo> eventInfo (m_eventInfoKey, ctx);
+  unsigned int count = eventInfo->event_ID()->event_number() + 1;
 
   SG::ReadHandle<DMTest::CVec> cvec (m_cvecKey);
 
-  DMTest::CVec* trig_coll = new DMTest::CVec;
-  DMTest::CTrigAuxContainer* trig_store = new DMTest::CTrigAuxContainer;
-  trig_coll->setStore (trig_store);
+  auto trig_coll = std::make_unique<DMTest::CVec>();
+  auto trig_store = std::make_unique<DMTest::CTrigAuxContainer>();
+  trig_coll->setStore (trig_store.get());
 
   static C::Accessor<int> anInt2 ("anInt2");
   static C::Accessor<ElementLink<DMTest::CVec> > cEL ("cEL");
@@ -92,34 +99,29 @@ StatusCode xAODTestWrite::execute()
   for (int i=0; i < 8; i++) {
     trig_coll->push_back (new DMTest::C);
     C& c = *trig_coll->back();
-    c.setAnInt (m_count * 500 + i+1);
-    c.setAFloat (m_count * 600 + (float)i*0.1);
+    c.setAnInt (count * 500 + i+1);
+    c.setAFloat (count * 600 + (float)i*0.1);
 
-    anInt2(c) = m_count*700 + i+1;
+    anInt2(c) = count*700 + i+1;
   }
 
-  CHECK( evtStore()->record (trig_coll, "ctrig") );
-  CHECK( evtStore()->record (trig_store, "ctrigAux.") );
-  CHECK( evtStore()->setConst (trig_coll) );
-  CHECK( evtStore()->setConst (trig_store) );
+  SG::WriteHandle<DMTest::CVec> ctrig (m_ctrigKey, ctx);
+  CHECK( ctrig.record (std::move (trig_coll), std::move (trig_store)) );
 
-  DMTest::GVec* gvec = new DMTest::GVec;
-  DMTest::GAuxContainer* gstore = new DMTest::GAuxContainer;
-  gvec->setStore (gstore);
+  auto gcont = std::make_unique<DMTest::GVec>();
+  auto gstore = std::make_unique<DMTest::GAuxContainer>();
+  gcont->setStore (gstore.get());
 
   for (int i=0; i < 10; i++) {
-    gvec->push_back (new DMTest::G);
-    G& g = *gvec->back();
-    g.setAnInt (m_count * 700 + i+1);
+    gcont->push_back (new DMTest::G);
+    G& g = *gcont->back();
+    g.setAnInt (count * 700 + i+1);
   }
 
-  CHECK( evtStore()->record (gvec, "gvec") );
-  CHECK( evtStore()->record (gstore, "gvecAux.") );
-  CHECK( evtStore()->setConst (gvec) );
-  CHECK( evtStore()->setConst (gstore) );
+  SG::WriteHandle<DMTest::GVec> gvec (m_gvecKey, ctx);
+  CHECK( gvec.record (std::move (gcont), std::move (gstore)) );
 
-  CHECK( write_cvec_with_data() );
-  //CHECK( write_htest() );
+  CHECK( write_cvec_with_data (count, ctx) );
 
   return StatusCode::SUCCESS;
 }
@@ -128,23 +130,22 @@ StatusCode xAODTestWrite::execute()
 /**
  * @brief Test writing container with additional data.
  */
-StatusCode xAODTestWrite::write_cvec_with_data()
+StatusCode xAODTestWrite::write_cvec_with_data (unsigned int count,
+                                                const EventContext& ctx) const
 {
-  DMTest::CVecWithData* coll = new DMTest::CVecWithData;
-  DMTest::CAuxContainer* store = new DMTest::CAuxContainer;
-  coll->setStore (store);
+  auto coll = std::make_unique<DMTest::CVecWithData>();
+  auto store = std::make_unique<DMTest::CAuxContainer>();
+  coll->setStore (store.get());
 
-  coll->meta1 = m_count + 1000;
+  coll->meta1 = count + 1000;
   for (int i=0; i < 10; i++) {
     coll->push_back (new DMTest::C);
     C& c = *coll->back();
-    c.setAnInt (m_count * 200 + i+1);
+    c.setAnInt (count * 200 + i+1);
   }
 
-  CHECK( evtStore()->record (coll, "cvecWD") );
-  CHECK( evtStore()->record (store, "cvecWDAux.") );
-  CHECK( evtStore()->setConst (coll) );
-  CHECK( evtStore()->setConst (store) );
+  SG::WriteHandle<DMTest::CVecWithData> cvecWD (m_cvecWDKey, ctx);
+  CHECK( cvecWD.record (std::move (coll), std::move (store)) );
 
   return StatusCode::SUCCESS;
 }
@@ -163,7 +164,7 @@ StatusCode xAODTestWrite::write_htest()
 
   for (int i = 0; i < 20; i++) {
     hvec->push_back (new DMTest::H);
-    hvec->back()->setAnInt (i+1 + m_count * 400);
+    hvec->back()->setAnInt (i+1 + count * 400);
   }
 
   for (int i = 0; i < 20; i++) {

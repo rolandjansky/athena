@@ -2090,7 +2090,7 @@ void SbPolyhedronPolygonXSect::Internals::addExtraVertices() {
 	break;
       }
     }
-    assert(iedge<3);//If we cannot add a vertex to a triangle with 3 internal edges, ***REMOVED***...
+    assert(iedge<3);//If we cannot add a vertex to a triangle with 3 internal edges, then we have a problem...
   }
 
   /////////// And now, the rest of the triangles will get extra vertices added to their external edges /////////

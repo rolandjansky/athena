@@ -173,7 +173,7 @@ def process(infname, confname, options, refs=None):
 def super_process(fname, options):
     import shutil, os, sys, contextlib
     import ROOT
-    han_is_found = (ROOT.gSystem.Load('libDataQualityInterfaces') == 0)
+    han_is_found = (ROOT.gSystem.Load('libDataQualityInterfaces') != 1)
     if not han_is_found:
         print 'ERROR: unable to load offline DQMF; unable to proceed'
         sys.exit(1)

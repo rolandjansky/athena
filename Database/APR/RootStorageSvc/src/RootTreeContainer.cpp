@@ -131,8 +131,8 @@ static IntDbArray   s_int_Blob;
 
 
 RootTreeContainer::RootTreeContainer(IOODatabase* idb)
-: DbContainerImp(idb), m_tree(0), m_type(0), m_dbH(POOL_StorageType), 
-  m_rootDb(0), m_branchName(), m_ioBytes(0), m_treeFillMode(false),
+: DbContainerImp(idb), m_tree(nullptr), m_type(0), m_dbH(POOL_StorageType), 
+  m_rootDb(nullptr), m_branchName(), m_ioBytes(0), m_treeFillMode(false),
   m_isDirty(false)
 {
   DbInstanceCount::increment(this);
@@ -150,11 +150,11 @@ DbStatus RootTreeContainer::isShapeSupported(const DbTypeInfo* typ) const  {
 }
 
 long long int RootTreeContainer::size()    {
-  if (m_tree == 0) return 0;
+  if (m_tree == nullptr) return 0;
   long long int s = DbContainerImp::size();
   if( isBranchContainer() ) {
      TBranch * pBranch = m_tree->GetBranch(m_branchName.c_str());
-     if (pBranch == 0) return 0;
+     if (pBranch == nullptr) return 0;
      s += pBranch->GetEntries();
   } else {     
      s += m_tree->GetEntries();
@@ -170,12 +170,12 @@ TBranch* RootTreeContainer::branch(const std::string& nam)  const  {
       return (*k).branch;
     }
   }
-  return 0;
+  return nullptr;
 }
 
 
 DbStatus RootTreeContainer::writeObject(TransactionStack::value_type& ent) {
-   RootDataPtr p(0);
+   RootDataPtr p(nullptr);
    RootDataPtr user(&ent.objH);
    const void* ptr = ent.objH ? ent.objH : ent.call->object();
    RootDataPtr context(ptr);
@@ -220,13 +220,13 @@ DbStatus RootTreeContainer::writeObject(TransactionStack::value_type& ent) {
                              << store->getIOType(id)->name() << ", " << reg.getName(id) << DbPrint::endmsg;
                          sc = addAuxBranch(reg.getName(id), store->getIOType(id), newBrDsc);
                          if( !sc.isSuccess() )  {
-                            p.ptr = 0;  // trigger an Error
+                            p.ptr = nullptr;  // trigger an Error
                             break;
                          }
                          if( dsc.rows_written ) {
                             // catch up with the rows written by other branches
-                            newBrDsc.object = 0;
-                            newBrDsc.branch->SetAddress( 0 );
+                            newBrDsc.object = nullptr;
+                            newBrDsc.branch->SetAddress( nullptr );
                             for( size_t r=0; r<dsc.rows_written; ++r ) {
                                num_bytes += newBrDsc.branch->Fill();
                             }
@@ -262,7 +262,7 @@ DbStatus RootTreeContainer::writeObject(TransactionStack::value_type& ent) {
              default:
                 break;
             }
-            if ( 0 == p.ptr )   {
+            if ( nullptr == p.ptr )   {
                DbPrint err( m_name);
                err << DbPrintLvl::Error 
                    << "[RootTreeContainer] Could not write an object" 
@@ -282,8 +282,8 @@ DbStatus RootTreeContainer::writeObject(TransactionStack::value_type& ent) {
       for( auto &descMapElem: m_auxBranchMap ) {
          BranchDesc& dsc = descMapElem.second;
          if( !dsc.written ) {
-            dsc.object = 0;
-            dsc.branch->SetAddress( 0 );
+            dsc.object = nullptr;
+            dsc.branch->SetAddress( nullptr );
             // cout << "   Branch " <<  SG::AuxTypeRegistry::instance().getName(descMapElem.first) << " filled out with NULL" << endl;
             if( isBranchContainer() && !m_treeFillMode ) {
                size_t bytes_out = dsc.branch->Fill();
@@ -360,7 +360,7 @@ DbStatus RootTreeContainer::fetch(DbSelect& sel)  {
   if ( stmt ) {
     TTreeFormula* selStmt = stmt->m_ptr;
     if ( selStmt )  {
-      std::lock_guard<std::mutex>( m_rootDb->ioMutex() );
+      std::lock_guard<std::mutex>   lock( m_rootDb->ioMutex() );
       Branches::iterator k;
       long long cur  = sel.link().second;
       Long64_t last = m_tree->GetEntries();
@@ -393,8 +393,8 @@ DbStatus RootTreeContainer::fetch(DbSelect& sel)  {
 DbStatus 
 RootTreeContainer::loadObject(DataCallBack* call, Token::OID_t& oid, DbAccessMode /* mode */)
 {
-  RootDataPtr user(0);
-  RootDataPtr context(0);
+  RootDataPtr user(nullptr);
+  RootDataPtr context(nullptr);
   DbStatus status = Error;
   long long evt_id = oid.second;
   // Read data; disable branch after reading the information
@@ -408,7 +408,7 @@ RootTreeContainer::loadObject(DataCallBack* call, Token::OID_t& oid, DbAccessMod
         Branches::iterator k;
         for(k=m_branches.begin(); k != m_branches.end(); ++k,++icol)  {
            BranchDesc& dsc = (*k);
-           RootDataPtr p(0), q(0);
+           RootDataPtr p(nullptr), q(nullptr);
            DbStatus sc = call->bind(DataCallBack::GET,dsc.column,icol,user.ptr,&p.ptr);
            q.ptr = p.ptr;
            if ( sc.isSuccess() && sc != DataCallBack::SKIP ) {
@@ -434,11 +434,22 @@ RootTreeContainer::loadObject(DataCallBack* call, Token::OID_t& oid, DbAccessMod
                   dsc.branch->SetAddress(dsc.object);
                   break;
               }
+              // Must move tree entry to correct value
+              if (m_tree) {
+                 if (m_tree->GetReadEntry() < evt_id) m_tree->LoadTree(evt_id);
+              } else if (dsc.branch->GetTree()->GetReadEntry() < evt_id) {
+                 dsc.branch->GetTree()->LoadTree(evt_id);
+              }
               // read the object
               numBytesBranch = dsc.branch->GetEntry(evt_id);
-              // Must move tree entry to correct value
-              if(m_tree) m_tree->LoadTree(evt_id);
-              else dsc.branch->GetTree()->LoadTree(evt_id);
+              TTree::TClusterIterator clusterIterator = dsc.branch->GetTree()->GetClusterIterator(evt_id);
+              clusterIterator.Next();
+              if (evt_id == clusterIterator.GetStartEntry() && dsc.branch->GetTree()->GetMaxVirtualSize() != 0) {
+                 for (int i = dsc.branch->GetReadBasket(); i < dsc.branch->GetMaxBaskets()
+	                 && dsc.branch->GetBasketEntry()[i] < clusterIterator.GetNextEntry(); i++) {
+                    dsc.branch->GetBasket(i);
+                 }
+              }
               numBytes += numBytesBranch;
               if ( numBytesBranch >= 0 )     {
 		 hasRead=true;
@@ -527,8 +538,8 @@ DbStatus RootTreeContainer::close()   {
   }      
   m_branches.clear();
   m_auxBranchMap.clear();
-  m_rootDb = 0;
-  m_tree = 0;
+  m_rootDb = nullptr;
+  m_tree = nullptr;
   return DbContainerImp::close();
 }
 
@@ -572,8 +583,8 @@ DbStatus RootTreeContainer::open( const DbDatabase& dbH,
          m_tree = (TTree*)m_rootDb->file()->Get(treeName.c_str());
 
       bool hasBeenCreated = (m_branchName.empty() 
-                             ? m_tree != 0 
-                             : (m_tree && m_tree->GetBranch(m_branchName.c_str()) != 0));
+                             ? m_tree != nullptr 
+                             : (m_tree && m_tree->GetBranch(m_branchName.c_str()) != nullptr));
       if ( hasBeenCreated && (mode&pool::READ || mode&pool::UPDATE) )   {
          int count;
          if ( !m_tree->InheritsFrom(TTree::Class()) )   {
@@ -598,14 +609,14 @@ DbStatus RootTreeContainer::open( const DbDatabase& dbH,
 
                const DbColumn* c = *i;
                BranchDesc& dsc = m_branches[count];
-               TClass* cl = 0;
+               TClass* cl = nullptr;
                TLeaf* leaf = pBranch->GetLeaf(colnam.c_str());
                switch ( (*i)->typeID() )    {
                 case DbColumn::ANY:
                 case DbColumn::BLOB:
                 case DbColumn::POINTER:
                    cl = TClass::GetClass(pBranch->GetClassName());
-                   if ( 0 == cl )  {
+                   if ( nullptr == cl )  {
                       log << DbPrintLvl::Debug << "Cannot open the container " << m_name << " of type "
                           << ROOTTREE_StorageType.storageName()
                           << " Class " << pBranch->GetClassName() << " is unknown."
@@ -633,11 +644,11 @@ DbStatus RootTreeContainer::open( const DbDatabase& dbH,
                 case DbColumn::NTCHAR:
                 case DbColumn::LONG_NTCHAR:
                 case DbColumn::TOKEN:
-                   dsc.clazz = 0;
+                   dsc.clazz = nullptr;
                    dsc.leaf = leaf;
                    dsc.branch = pBranch;
-                   dsc.buffer = 0;
-                   dsc.object = 0;
+                   dsc.buffer = nullptr;
+                   dsc.object = nullptr;
                    dsc.column = *i;
                    break;
                 default:
@@ -662,32 +673,29 @@ DbStatus RootTreeContainer::open( const DbDatabase& dbH,
          return Success;
       }
       else if ( !hasBeenCreated && mode&pool::CREATE )    {
-         int count, defCompression=1, defSplitLevel=99, 
+         int count, defSplitLevel=99, 
             defAutoSave=16*1024*1024, defBufferSize=16*1024,
             branchOffsetTabLen=0, containerSplitLevel=defSplitLevel, auxSplitLevel=defSplitLevel;
          DbStatus res = Success;
          try   {
-            DbOption opt1("DEFAULT_COMPRESSION","");
-            DbOption opt2("DEFAULT_SPLITLEVEL","");
-            DbOption opt3("DEFAULT_AUTOSAVE","");
-            DbOption opt4("DEFAULT_BUFFERSIZE","");
-            DbOption opt5("TREE_BRANCH_OFFSETTAB_LEN","");
-            DbOption opt6("CONTAINER_SPLITLEVEL", m_name);
-            DbOption opt7("CONTAINER_SPLITLEVEL", RootAuxDynIO::AUX_POSTFIX);
+            DbOption opt1("DEFAULT_SPLITLEVEL","");
+            DbOption opt2("DEFAULT_AUTOSAVE","");
+            DbOption opt3("DEFAULT_BUFFERSIZE","");
+            DbOption opt4("TREE_BRANCH_OFFSETTAB_LEN","");
+            DbOption opt5("CONTAINER_SPLITLEVEL", m_name);
+            DbOption opt6("CONTAINER_SPLITLEVEL", RootAuxDynIO::AUX_POSTFIX);
             dbH.getOption(opt1);
             dbH.getOption(opt2);
             dbH.getOption(opt3);
             dbH.getOption(opt4);
             dbH.getOption(opt5);
             dbH.getOption(opt6);
-            dbH.getOption(opt7);
-            opt1._getValue(defCompression);
-            opt2._getValue(defSplitLevel);
-            opt3._getValue(defAutoSave);
-            opt4._getValue(defBufferSize);
-            opt5._getValue(branchOffsetTabLen);
-            opt6._getValue(containerSplitLevel);
-            opt7._getValue(auxSplitLevel);
+            opt1._getValue(defSplitLevel);
+            opt2._getValue(defAutoSave);
+            opt3._getValue(defBufferSize);
+            opt4._getValue(branchOffsetTabLen);
+            opt5._getValue(containerSplitLevel);
+            opt6._getValue(auxSplitLevel);
             if (containerSplitLevel == defSplitLevel) {
                if ( (m_name.size() >= 5 && m_name.substr(m_name.size()-5, 4) == RootAuxDynIO::AUX_POSTFIX)
                     || info->clazz().Properties().HasProperty("IAuxStore") ) containerSplitLevel = auxSplitLevel;
@@ -780,7 +788,7 @@ DbStatus RootTreeContainer::open( const DbDatabase& dbH,
 
 // Define selection criteria
 DbStatus  RootTreeContainer::select(DbSelect& sel)    {
-  if ( 0 != m_tree )  {
+  if ( nullptr != m_tree )  {
     if( sel.criteria().length() == 0 || sel.criteria() == "*" )  {
       sel.link().second = -1;
       return Success;
@@ -806,11 +814,11 @@ DbStatus  RootTreeContainer::addObject(const DbColumn* col,
                                        int branchOffsetTabLen)
 {
    try {
-      dsc.buffer  = 0;
-      dsc.object  = 0;
+      dsc.buffer  = nullptr;
+      dsc.object  = nullptr;
       dsc.column  = col;
       dsc.clazz = TClass::GetClass(typ.c_str());
-      if ( 0 != dsc.clazz )  {
+      if ( nullptr != dsc.clazz )  {
          if ( dsc.clazz->GetStreamerInfo() )  {
             std::string nam  = (m_branchName.empty() ? col->name() : m_branchName);
             if (m_branchName.empty()) {
@@ -882,7 +890,7 @@ DbStatus  RootTreeContainer::addAuxBranch(const std::string& attribute,
 {
    string typenam = SG::normalizedTypeinfoName(*typeinfo);
    string branch_name = RootAuxDynIO::auxBranchName(attribute, m_branchName);
-   dsc.branch = 0;
+   dsc.branch = nullptr;
    try {
       if( *typeinfo == typeid(UInt_t) ) 
          createBasicAuxBranch(branch_name, attribute + "/i", dsc);
@@ -963,10 +971,10 @@ RootTreeContainer::addBranch(const DbColumn* col,BranchDesc& dsc,const std::stri
   dsc.branch = m_tree->Branch(nam, buff, coldesc.c_str(), 4096);
   if ( dsc.branch )  {
     dsc.leaf = dsc.branch->GetLeaf(nam);
-    dsc.clazz = 0;
+    dsc.clazz = nullptr;
     dsc.column = col;
-    dsc.buffer = 0;
-    dsc.object = 0;
+    dsc.buffer = nullptr;
+    dsc.object = nullptr;
     return Success;
   }
   return Error;
@@ -980,7 +988,7 @@ void RootTreeContainer::setBranchOffsetTabLen(TBranch* b, int offsettab_len)
       if( b->GetEntryOffsetLen() > 0 )
          b->SetEntryOffsetLen( offsettab_len ); 
       TIter biter( b->GetListOfBranches() );
-      TBranch* subbranch(0);
+      TBranch* subbranch(nullptr);
       while( (subbranch = (TBranch*)biter.Next()) ) {
          setBranchOffsetTabLen( subbranch, offsettab_len ); 
       }
@@ -1017,6 +1025,8 @@ DbStatus RootTreeContainer::getOption(DbOption& opt)  const  {
         case 'C':
           if ( !strcasecmp(n+7,"COMPRESSION_LEVEL") )
             return opt._setValue(int(b->GetCompressionLevel()));
+          if ( !strcasecmp(n+7,"COMPRESSION_ALGORITHM") )
+            return opt._setValue(int(b->GetCompressionAlgorithm()));
           break;
         case 'E':
           if ( !strcasecmp(n+7,"ENTRIES") )
@@ -1066,12 +1076,12 @@ DbStatus RootTreeContainer::getOption(DbOption& opt)  const  {
           return opt._setValue((void*)arr->At(idx));
         }
         if ( !strcasecmp(n+5,"BRANCH_NAME") )  {
-          const char* br_nam = 0;
+          const char* br_nam = nullptr;
           opt._getValue(br_nam);
           if ( br_nam )  {
             return opt._setValue((void*)m_tree->GetBranch(br_nam));
           }
-          opt._setValue((void*)0);
+          opt._setValue((void*)nullptr);
         }
         if ( !strcasecmp(n+5,"BRANCH_IDX_NAME") )  {
           int idx = 0;
@@ -1081,7 +1091,7 @@ DbStatus RootTreeContainer::getOption(DbOption& opt)  const  {
           if ( br )  {
             return opt._setValue((char*)br->GetName());
           }
-          opt._setValue((char*)0);
+          opt._setValue((char*)nullptr);
         }
         break;
       case 'E':
@@ -1137,6 +1147,12 @@ DbStatus RootTreeContainer::setOption(const DbOption& opt)  {
             int val=1;
             opt._getValue(val);
             b->SetCompressionLevel(val);
+            return Success;
+          }
+          if ( !strcasecmp(n+7,"COMPRESSION_ALGORITHM") )  {
+            int val=1;
+            opt._getValue(val);
+            b->SetCompressionAlgorithm(val);
             return Success;
           }
           break;
@@ -1238,7 +1254,7 @@ DbStatus RootTreeContainer::finishTransAct()    {
       // cout << "  +++  End Transaction. Tree rows=" << treeEntries << " , Branch " << k->branch->GetName() << " " << branchEntries << endl;
       if (branchEntries > treeEntries) {
          TIter next(m_tree->GetListOfBranches());
-         TBranch * b = 0;
+         TBranch * b = nullptr;
          while((b = (TBranch*)next())){
             if (b->GetEntries() != branchEntries) {
                DbPrint log(m_name);

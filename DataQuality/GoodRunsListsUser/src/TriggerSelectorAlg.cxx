@@ -14,8 +14,8 @@
 
 TriggerSelectorAlg::TriggerSelectorAlg(const std::string& name, ISvcLocator* pSvcLocator) 
  : AthAlgorithm(name, pSvcLocator)
- , m_TriggerRegistryTool("TriggerRegistryTool")
  , m_tdTool("Trig::TrigDecisionTool/TrigDecisionTool")
+ , m_TriggerRegistryTool("TriggerRegistryTool")
  , m_trigpar(0)
  , m_counter(0)
  , m_accept(0)
@@ -38,7 +38,7 @@ StatusCode TriggerSelectorAlg::initialize()
 {
   ATH_MSG_DEBUG ("initialize()");
 
-  Root::TMsgLogger::SetMinLevel(static_cast<Root::TMsgLevel>(outputLevel()));
+  Root::TMsgLogger::SetMinLevel(static_cast<Root::TMsgLevel>(msgLevel()));
 
   /// determine correct trigger selection expression
   if (!m_regexprRegistrationOnly.empty() && m_regexpr.empty()) {

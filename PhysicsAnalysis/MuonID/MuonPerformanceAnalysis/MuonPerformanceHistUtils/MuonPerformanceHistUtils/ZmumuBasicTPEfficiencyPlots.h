@@ -21,10 +21,10 @@ class ZmumuBasicTPEfficiencyPlots: public MuonTPEfficiencyPlotBase {
  private:
 
   bool m_isMatched;
-  TH1* pt;
-  TH1* eta;
-  TH1* phi;
-  TH1* integrated;
+  TH1* m_pt;
+  TH1* m_eta;
+  TH1* m_phi;
+  TH1* m_integrated;
 
 };
 

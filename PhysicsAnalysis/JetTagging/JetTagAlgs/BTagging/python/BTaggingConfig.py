@@ -40,11 +40,6 @@ def getJetBTaggerTool(finder, mainParam, input, **options):
     if ( BTaggingFlags.SoftMu | BTaggingFlags.SoftMuChi2 ):
         btagger.MuonToJetAssociator     = ToolSvc.BTagMuonToJetAssociator
 
-    if BTaggingFlags.SoftEl:
-        btagger.ElectronContainerName   = BTaggingFlags.ElectronCollectionName
-        btagger.PhotonContainerName     = BTaggingFlags.PhotonCollectionName #Yes ! Sometimes Photons are good Electrons
-        btagger.ElectronToJetAssociator = ToolSvc.BTagElectronToJetAssociator
-
     if BTaggingFlags.MultiSV:
         btagger.AdditionalTrackToJetAssocName = [ "TracksBB" ]
         btagger.AdditionalTrackToJetAssociator = [ ToolSvc.BTagTrackToJetAssociatorBB ]

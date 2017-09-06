@@ -25,9 +25,6 @@ All local/global transformations are outsourced to the surfaces.
 
 Note that CurvilinearParameters make best sense on planar surfaces.
 
-@section TrkParametersBase_TrkParametersBaseReq Requirements file
 
 
 */
-
-

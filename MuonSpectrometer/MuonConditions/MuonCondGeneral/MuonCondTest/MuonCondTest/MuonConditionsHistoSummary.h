@@ -41,14 +41,14 @@ class MuonConditionsHistoSummary : public AthAlgorithm {
   
   ITHistSvc* m_thistSvc;
 //MDT stuff 
-std::string deadmultilayer;
-std::string deadtube;
-std::string deadstat;
+std::string m_deadmultilayer;
+std::string m_deadtube;
+std::string m_deadstat;
 
 
- std::string deadstat_id;
- std::string deadmultilayer_id;
- std::string deadtube_id;
+ std::string m_deadstat_id;
+ std::string m_deadmultilayer_id;
+ std::string m_deadtube_id;
  
   
  TTree * m_t_deadstations;
@@ -56,8 +56,8 @@ std::string deadstat;
   TTree * m_t_deadtube;
 
  //RPC stuff 
- std::string panelid ;
- std::string stripid ;
+ std::string m_panelid ;
+ std::string m_stripid ;
  
   TTree * m_t_panelid;
   TTree * m_t_stripid;

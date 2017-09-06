@@ -436,12 +436,12 @@ StatusCode TRTDigitizationTool::processStraws(std::set<int>& sim_hitids, std::se
   m_cosmicEventPhase = 0.0;
   if (m_settings->doCosmicTimingPit()) {
     m_cosmicEventPhase = getCosmicEventPhase();
-     //std::cout << "AJB " << m_cosmicEventPhase << std::endl;
+    //std::cout << "AJB " << m_cosmicEventPhase << std::endl;
   };
 
-  // Create  a vector of deposits 
-  std::vector<InDetSimData::Deposit> depositVector(100); 
-  
+  // Create  a vector of deposits
+  std::vector<InDetSimData::Deposit> depositVector(100);
+
   // loop over all straws
   TimedHitCollection<TRTUncompressedHit>::const_iterator i, e;
   while (m_thpctrt->nextDetectorElement(i, e)) {
@@ -532,14 +532,15 @@ StatusCode TRTDigitizationTool::processStraws(std::set<int>& sim_hitids, std::se
 				       emulateKrFlag,
                                        m_particleFlag);
 
-
-// Sorry, a lot of test code here before the output digit is saved.
+    // Sorry, a lot of test code here before the output digit is saved.
 
     // query m_particleFlag bits 0 to 15 (left-to-right)
     //std::cout << "AJB "; for (unsigned i=0;i<16;i++) std::cout << particleFlagQueryBit(i,m_particleFlag); std::cout << std::endl;
 
     //AJB, Print out the digits etc (for debugging)
+    //int          mstrw = digit_straw.GetStrawID();
     //unsigned int mword = digit_straw.GetDigit();
+    //std::cout << "AJB " << mstrw << ":" << mword << std::endl;
     //print_mword_properties(mword); // AJB
     //std::cout << "AJB "; bits24(mword);
     //std::cout << "AJB "; bits27(mword);
@@ -570,6 +571,9 @@ StatusCode TRTDigitizationTool::processStraws(std::set<int>& sim_hitids, std::se
     // finally push back the output digit.
     if ( digit_straw.GetDigit() ) {
       m_vDigits.push_back(digit_straw);
+      //int          mstrw = digit_straw.GetStrawID();
+      //unsigned int mword = digit_straw.GetDigit();
+      //std::cout << "AJB "; bits32(mword);
     }
 
   } // end of straw loop

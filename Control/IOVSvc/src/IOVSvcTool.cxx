@@ -415,7 +415,9 @@ IOVSvcTool::handle(const Incident &inc) {
         m_log << MSG::DEBUG << "Unable to get the IOVDbSvc" << endmsg;
         return;
       }
-      if (StatusCode::SUCCESS != iovDB->signalBeginRun(m_curTime)) {
+      if (StatusCode::SUCCESS != iovDB->signalBeginRun(m_curTime,
+                                                       inc.context()))
+      {
         m_log << MSG::ERROR << "Unable to signal begin run to IOVDbSvc" << endmsg;
         return;
       }
@@ -631,7 +633,8 @@ IOVSvcTool::handle(const Incident &inc) {
           m_log << MSG::DEBUG << "calling provider()->udpateAddress(TAD) for " 
                 << m_names[prx]    << endmsg;
         }
-        StatusCode sc = prx->transientAddress()->provider()->updateAddress(prx->transientAddress()->storeID(), prx->transientAddress());
+        static const EventContext ctx;
+        StatusCode sc = prx->transientAddress()->provider()->updateAddress(prx->transientAddress()->storeID(), prx->transientAddress(), ctx);
         if (StatusCode::SUCCESS != sc) {
           m_log << MSG::ERROR << "handle: Could not update address" << endmsg;
           if (perr != 0) throw (*perr);
@@ -1160,7 +1163,8 @@ IOVSvcTool::preLoadProxies() {
       if (m_log.level() <= MSG::VERBOSE) {
         m_log << MSG::VERBOSE << "updating Range" << endmsg;
       }
-      sc = dp->transientAddress()->provider()->updateAddress(dp->transientAddress()->storeID(), dp->transientAddress());
+      static const EventContext ctx;
+      sc = dp->transientAddress()->provider()->updateAddress(dp->transientAddress()->storeID(), dp->transientAddress(), ctx);
     }
 
     if ( ( m_partialPreLoadData && 

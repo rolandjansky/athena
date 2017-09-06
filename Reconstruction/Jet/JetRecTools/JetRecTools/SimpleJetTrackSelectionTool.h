@@ -41,8 +41,11 @@ protected:
   template<class T>
   void selectionLoop(const xAOD::TrackParticleContainer& inCont, T& outCont) const;
   float m_ptmin;
-  std::string m_inputContainer;
-  std::string m_outputContainer;
+
+  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_inputContainer_key;
+  SG::WriteHandleKey<ConstDataVector< xAOD::TrackParticleContainer>> 
+    m_outputContainer_key;
+
 
 };
 

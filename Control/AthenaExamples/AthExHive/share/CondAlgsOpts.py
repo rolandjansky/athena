@@ -40,6 +40,7 @@ AlgScheduler.OutputLevel( INFO )
 AlgScheduler.ShowControlFlow( True )
 AlgScheduler.ShowDataDependencies( True )
 AlgScheduler.EnableConditions( True )
+AlgScheduler.setDataLoaderAlg( "SGInputLoader" )
 
 from IOVSvc.IOVSvcConf import CondSvc
 svcMgr += CondSvc( OutputLevel=DEBUG )
@@ -68,7 +69,6 @@ topSequence = AlgSequence()
 
 from SGComps.SGCompsConf import SGInputLoader
 topSequence+=SGInputLoader(OutputLevel=DEBUG, ShowEventDump=False)
-topSequence.SGInputLoader.Load = [ ('EventInfo','McEventInfo') ]
 
 from AthExHive.AthExHiveConf import *
 topSequence+=AlgA(OutputLevel=DEBUG)
@@ -83,7 +83,15 @@ topSequence+=CondAlgX("CondAlgX2", OutputLevel=DEBUG, Key_CH="X2", Key_DB="X2")
 
 topSequence+=CondAlgY("CondAlgY1", OutputLevel=DEBUG, Key_CH1="Y1", Key_CH2="Y2", Key_DB1="Y1", Key_DB2="Y2")
 
-svcMgr += ASCIICondDbSvc( OutputLevel=DEBUG, CondFile = "condDb.txt" )
+
+condDbFile = "condDb.txt"
+import os.path
+if (not os.path.isfile(condDbFile)):
+   msg.fatal('ASCII condDb file \"' + condDbFile + '\" not found')
+   sys.exit(AthenaCommon.ExitCodes.CONFIGURATION_ERROR)
+
+
+svcMgr += ASCIICondDbSvc( OutputLevel=DEBUG, CondFile = condDbFile )
 
 
 #--------------------------------------------------------------

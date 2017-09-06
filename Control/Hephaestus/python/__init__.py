@@ -26,13 +26,6 @@ def setup():
   # ignore muon common blocks in report
     MemoryTracker.ignore( '__m_mb_' )
 
-  # ignore CINT dictionary builtup in report
-    MemoryTracker.ignore( 'G__' )
-    MemoryTracker.ignore( 'TCint::' )
-
-  # ignore Reflex dictionary builtup in report
-    MemoryTracker.ignore( 'Reflex::' )
-
   # ignore streamers and collections from ROOT I/O in report
     MemoryTracker.ignore( 'TStreamerInfo' )
     MemoryTracker.ignore( 'TGenCollectionProxy' )
@@ -60,8 +53,6 @@ def setup():
     MemoryTracker.ignore ('PyType_GenericAlloc')
     MemoryTracker.ignore ('PyDict_MergeFromSeq2')
     MemoryTracker.ignore ('PyEval_EvalFrameEx')
-    MemoryTracker.ignore ('Cintex::CINTClassBuilder')
-    MemoryTracker.ignore ('Cintex::CintTag')
     MemoryTracker.ignore ('PyROOT::')
     MemoryTracker.ignore ('ROOT::TSchemaRule::ProcessVersion')
     MemoryTracker.ignore ('CLHEP::HepMatrix::invert')

@@ -82,9 +82,7 @@ This tool contains the following implementations:
 
 - SimpleTRT_SeededSpacePointFinder_ATL.cxx... Form SP seeds based mainly on geometrical arguments.
 
-@section TRT_SeededSpacePointFinderTool_TRT_SeededSpacePointFinderToolPackages Used Packages
 
 
-@section TRT_SeededSpacePointFinderTool_TRT_SeededSpacePointFinderToolReq Requirements file
 
 */

@@ -140,16 +140,16 @@ InDetServMatFactorySLHC::fetchTables()
   msg(MSG::INFO) << " InDetServices Version " 
 		 << rdbAccessSvc()->getChildTag("InDetServices", indetVersionKey.tag(), indetVersionKey.node(), false) << endmsg;
  
-  InDetServGenEnvelope = rdbAccessSvc()->getRecordsetPtr("InDetServGenEnvelope", indetVersionKey.tag(), indetVersionKey.node());
+  m_InDetServGenEnvelope = rdbAccessSvc()->getRecordsetPtr("InDetServGenEnvelope", indetVersionKey.tag(), indetVersionKey.node());
   msg(MSG::DEBUG) << "Table InDetServGenEnvelope Fetched" << endmsg;
 }
 
 double 
 InDetServMatFactorySLHC::envelopeLength() const
 {
-  if (geomDB()->getTableSize(InDetServGenEnvelope)) {
+  if (geomDB()->getTableSize(m_InDetServGenEnvelope)) {
     // The table should contain only +ve z values.
-    return 2*envelopeZ(geomDB()->getTableSize(InDetServGenEnvelope) - 1);
+    return 2*envelopeZ(geomDB()->getTableSize(m_InDetServGenEnvelope) - 1);
   } else {
     msg(MSG::ERROR) << "Unexpected error. InDetServGenEnvelope has zero size" << endmsg;
     return 0;
@@ -162,7 +162,7 @@ InDetServMatFactorySLHC::simpleEnvelope() const
   // Return true if the envelope can be built as a simple tube.
   // otherwise it will be built as a PCON.
   // True if size is 1.
-  return (geomDB()->getTableSize(InDetServGenEnvelope) == 1);
+  return (geomDB()->getTableSize(m_InDetServGenEnvelope) == 1);
 }
 
 bool 
@@ -170,20 +170,20 @@ InDetServMatFactorySLHC::oldEnvelope() const
 {
   // Return true if the envelope is not provided. 
   // True if size is 0.
-  return (geomDB()->getTableSize(InDetServGenEnvelope) == 0);
+  return (geomDB()->getTableSize(m_InDetServGenEnvelope) == 0);
 }
 
 
 unsigned int 
 InDetServMatFactorySLHC::envelopeNumPlanes() const
 {
-  return geomDB()->getTableSize(InDetServGenEnvelope);
+  return geomDB()->getTableSize(m_InDetServGenEnvelope);
 }
 
 double 
 InDetServMatFactorySLHC::envelopeZ(int i) const 
 {
-  double zmin =  geomDB()->getDouble(InDetServGenEnvelope,"Z",i) * CLHEP::mm;
+  double zmin =  geomDB()->getDouble(m_InDetServGenEnvelope,"Z",i) * CLHEP::mm;
   if (zmin < 0) msg(MSG::ERROR) << "InDetServGenEnvelope table should only contain +ve z values" << endmsg;
   return std::abs(zmin);
 }
@@ -191,11 +191,11 @@ InDetServMatFactorySLHC::envelopeZ(int i) const
 double 
 InDetServMatFactorySLHC::envelopeRMin(int i) const 
 {
-  return geomDB()->getDouble(InDetServGenEnvelope,"RMIN",i) * CLHEP::mm;
+  return geomDB()->getDouble(m_InDetServGenEnvelope,"RMIN",i) * CLHEP::mm;
 }
 
 double 
 InDetServMatFactorySLHC::envelopeRMax(int i) const
 {
-  return geomDB()->getDouble(InDetServGenEnvelope,"RMAX",i) * CLHEP::mm;
+  return geomDB()->getDouble(m_InDetServGenEnvelope,"RMAX",i) * CLHEP::mm;
 }

@@ -37,7 +37,6 @@ MagField::ForwardRegionFieldSvc::ForwardRegionFieldSvc(const std::string& name,I
   AthService(name,svc),
   IMagFieldSvc(),
   m_magnet(-1),
-  m_refCounter(0),
   m_magDataType(0),
   m_MQXA_DataFile(""), //"MQXA_NOMINAL.dat" if name = Q1 or Q3
   m_MQXB_DataFile(""), //"MQXB_NOMINAL.dat" if name = Q2
@@ -180,7 +179,7 @@ G4ThreeVector MagField::ForwardRegionFieldSvc::FieldValue(G4ThreeVector Point) c
     double xShift = pointsNotDefined ? getMagXOff(m_magnet) : (pointMagStart[0]+pointMagEnd[0])*0.5;
     double yShift = pointsNotDefined ? getMagYOff(m_magnet) : (pointMagStart[1]+pointMagEnd[1])*0.5;
 
-    if(m_magnet <= Q3){ // inner triplet
+    if(m_magnet <= s_Q3){ // inner triplet
         if(m_Config.bUseFLUKAMapsForInnerTriplet)
             field = getMagInd(Point,m_magnet, beam);
         else {
@@ -188,9 +187,9 @@ G4ThreeVector MagField::ForwardRegionFieldSvc::FieldValue(G4ThreeVector Point) c
             field = G4ThreeVector(gradB*(Point[1]-yShift),gradB*(Point[0]-xShift),0);
         }
     }
-    else if(m_magnet <= D2) // dipoles
+    else if(m_magnet <= s_D2) // dipoles
         field = G4ThreeVector(0,getMag(m_magnet,beam)*CLHEP::tesla,0);
-    else if(m_magnet <= Q7) // other quadrupoles
+    else if(m_magnet <= s_Q7) // other quadrupoles
     {
         double gradB = getMag(m_magnet,beam)*CLHEP::tesla/CLHEP::m*pow(-1.0,beam);
         field = G4ThreeVector(gradB*(Point[1]-yShift),gradB*(Point[0]-xShift),0);
@@ -284,8 +283,8 @@ void MagField::ForwardRegionFieldSvc::InitMagDataFromTwiss(std::vector<std::vect
     double length;
 
     // init offsets (Q4--Q7 have dx=-97 mm, others 0), do not apply to kickers
-    if(m_magnet <= Q7) {
-        if(m_magnet >= Q4)
+    if(m_magnet <= s_Q7) {
+        if(m_magnet >= s_Q4)
             m_magData[2] = -97*CLHEP::mm;
         else
             m_magData[2] = 0;
@@ -296,41 +295,41 @@ void MagField::ForwardRegionFieldSvc::InitMagDataFromTwiss(std::vector<std::vect
     for(int i=0; i < 150; i++)
     {
         // dipoles
-        dipole =    (m_magnet == D1 && (loadedTwissFile[i][textIndex] == "\"MBXW.A4R1\"" || loadedTwissFile[i][textIndex] == "\"MBXW.A4L1\""))
-                 || (m_magnet == D2 && (loadedTwissFile[i][textIndex] == "\"MBRC.4R1.B1\"" || loadedTwissFile[i][textIndex] == "\"MBRC.4L1.B2\""));
+        dipole =    (m_magnet == s_D1 && (loadedTwissFile[i][textIndex] == "\"MBXW.A4R1\"" || loadedTwissFile[i][textIndex] == "\"MBXW.A4L1\""))
+                 || (m_magnet == s_D2 && (loadedTwissFile[i][textIndex] == "\"MBRC.4R1.B1\"" || loadedTwissFile[i][textIndex] == "\"MBRC.4L1.B2\""));
         if(dipole){
             m_magData[beam-1] = kLToB(atof(loadedTwissFile[i][k0LIndex].c_str()), atof(loadedTwissFile[i][lengthIndex].c_str()), momentum);
             return;
         }
 
         //quadrupoles
-        quadrupole =    (m_magnet == Q1 && (loadedTwissFile[i][textIndex] == "\"MQXA.1R1\"" || loadedTwissFile[i][textIndex] == "\"MQXA.1L1\""))
-                 || (m_magnet == Q2 && (loadedTwissFile[i][textIndex] == "\"MQXB.A2R1\"" || loadedTwissFile[i][textIndex] == "\"MQXB.A2L1\""))
-                 || (m_magnet == Q3 && (loadedTwissFile[i][textIndex] == "\"MQXA.3R1\"" || loadedTwissFile[i][textIndex] == "\"MQXA.3L1\""))
-                 || (m_magnet == Q4 && (loadedTwissFile[i][textIndex] == "\"MQY.4R1.B1\"" || loadedTwissFile[i][textIndex] == "\"MQY.4L1.B2\""))
-                 || (m_magnet == Q5 && (loadedTwissFile[i][textIndex] == "\"MQML.5R1.B1\"" || loadedTwissFile[i][textIndex] == "\"MQML.5L1.B2\""))
-                 || (m_magnet == Q6 && (loadedTwissFile[i][textIndex] == "\"MQML.6R1.B1\"" || loadedTwissFile[i][textIndex] == "\"MQML.6L1.B2\""))
-                 || (m_magnet == Q7 && (loadedTwissFile[i][textIndex] == "\"MQM.A7R1.B1\"" || loadedTwissFile[i][textIndex] == "\"MQM.A7L1.B2\""));
+        quadrupole =    (m_magnet == s_Q1 && (loadedTwissFile[i][textIndex] == "\"MQXA.1R1\"" || loadedTwissFile[i][textIndex] == "\"MQXA.1L1\""))
+                 || (m_magnet == s_Q2 && (loadedTwissFile[i][textIndex] == "\"MQXB.A2R1\"" || loadedTwissFile[i][textIndex] == "\"MQXB.A2L1\""))
+                 || (m_magnet == s_Q3 && (loadedTwissFile[i][textIndex] == "\"MQXA.3R1\"" || loadedTwissFile[i][textIndex] == "\"MQXA.3L1\""))
+                 || (m_magnet == s_Q4 && (loadedTwissFile[i][textIndex] == "\"MQY.4R1.B1\"" || loadedTwissFile[i][textIndex] == "\"MQY.4L1.B2\""))
+                 || (m_magnet == s_Q5 && (loadedTwissFile[i][textIndex] == "\"MQML.5R1.B1\"" || loadedTwissFile[i][textIndex] == "\"MQML.5L1.B2\""))
+                 || (m_magnet == s_Q6 && (loadedTwissFile[i][textIndex] == "\"MQML.6R1.B1\"" || loadedTwissFile[i][textIndex] == "\"MQML.6L1.B2\""))
+                 || (m_magnet == s_Q7 && (loadedTwissFile[i][textIndex] == "\"MQM.A7R1.B1\"" || loadedTwissFile[i][textIndex] == "\"MQM.A7L1.B2\""));
         if(quadrupole){
             m_magData[beam-1] = kLToB(atof(loadedTwissFile[i][k1LIndex].c_str()), atof(loadedTwissFile[i][lengthIndex].c_str()), momentum);
             return;
         }
 
         // kickers
-        kicker =    (m_magnet == Q1HKick && (loadedTwissFile[i][textIndex] == "\"MCBXH.1R1\"" || loadedTwissFile[i][textIndex] == "\"MCBXH.1L1\""))
-                 || (m_magnet == Q1VKick && (loadedTwissFile[i][textIndex] == "\"MCBXV.1R1\"" || loadedTwissFile[i][textIndex] == "\"MCBXV.1L1\""))
-                 || (m_magnet == Q2HKick && (loadedTwissFile[i][textIndex] == "\"MCBXH.2R1\"" || loadedTwissFile[i][textIndex] == "\"MCBXH.2L1\""))
-                 || (m_magnet == Q2VKick && (loadedTwissFile[i][textIndex] == "\"MCBXV.2R1\"" || loadedTwissFile[i][textIndex] == "\"MCBXV.2L1\""))
-                 || (m_magnet == Q3HKick && (loadedTwissFile[i][textIndex] == "\"MCBXH.3R1\"" || loadedTwissFile[i][textIndex] == "\"MCBXH.3L1\""))
-                 || (m_magnet == Q3VKick && (loadedTwissFile[i][textIndex] == "\"MCBXV.3R1\"" || loadedTwissFile[i][textIndex] == "\"MCBXV.3L1\""))
-                 || (m_magnet == Q4VKickA && (loadedTwissFile[i][textIndex] == "\"MCBYV.A4R1.B1\"" || loadedTwissFile[i][textIndex] == "\"MCBYV.A4L1.B2\""))
-                 || (m_magnet == Q4HKick && (loadedTwissFile[i][textIndex] == "\"MCBYH.4R1.B1\"" || loadedTwissFile[i][textIndex] == "\"MCBYH.4L1.B2\""))
-                 || (m_magnet == Q4VKickB && (loadedTwissFile[i][textIndex] == "\"MCBYV.B4R1.B1\"" || loadedTwissFile[i][textIndex] == "\"MCBYV.B4L1.B2\""))
-                 || (m_magnet == Q5HKick && (loadedTwissFile[i][textIndex] == "\"MCBCH.5R1.B1\"" || loadedTwissFile[i][textIndex] == "\"MCBCH.5L1.B2\""))
-                 || (m_magnet == Q6VKick && (loadedTwissFile[i][textIndex] == "\"MCBCV.6R1.B1\"" || loadedTwissFile[i][textIndex] == "\"MCBCV.6L1.B2\""));
+        kicker =    (m_magnet == s_Q1HKick && (loadedTwissFile[i][textIndex] == "\"MCBXH.1R1\"" || loadedTwissFile[i][textIndex] == "\"MCBXH.1L1\""))
+                 || (m_magnet == s_Q1VKick && (loadedTwissFile[i][textIndex] == "\"MCBXV.1R1\"" || loadedTwissFile[i][textIndex] == "\"MCBXV.1L1\""))
+                 || (m_magnet == s_Q2HKick && (loadedTwissFile[i][textIndex] == "\"MCBXH.2R1\"" || loadedTwissFile[i][textIndex] == "\"MCBXH.2L1\""))
+                 || (m_magnet == s_Q2VKick && (loadedTwissFile[i][textIndex] == "\"MCBXV.2R1\"" || loadedTwissFile[i][textIndex] == "\"MCBXV.2L1\""))
+                 || (m_magnet == s_Q3HKick && (loadedTwissFile[i][textIndex] == "\"MCBXH.3R1\"" || loadedTwissFile[i][textIndex] == "\"MCBXH.3L1\""))
+                 || (m_magnet == s_Q3VKick && (loadedTwissFile[i][textIndex] == "\"MCBXV.3R1\"" || loadedTwissFile[i][textIndex] == "\"MCBXV.3L1\""))
+                 || (m_magnet == s_Q4VKickA && (loadedTwissFile[i][textIndex] == "\"MCBYV.A4R1.B1\"" || loadedTwissFile[i][textIndex] == "\"MCBYV.A4L1.B2\""))
+                 || (m_magnet == s_Q4HKick && (loadedTwissFile[i][textIndex] == "\"MCBYH.4R1.B1\"" || loadedTwissFile[i][textIndex] == "\"MCBYH.4L1.B2\""))
+                 || (m_magnet == s_Q4VKickB && (loadedTwissFile[i][textIndex] == "\"MCBYV.B4R1.B1\"" || loadedTwissFile[i][textIndex] == "\"MCBYV.B4L1.B2\""))
+                 || (m_magnet == s_Q5HKick && (loadedTwissFile[i][textIndex] == "\"MCBCH.5R1.B1\"" || loadedTwissFile[i][textIndex] == "\"MCBCH.5L1.B2\""))
+                 || (m_magnet == s_Q6VKick && (loadedTwissFile[i][textIndex] == "\"MCBCV.6R1.B1\"" || loadedTwissFile[i][textIndex] == "\"MCBCV.6L1.B2\""));
 
         if(kicker){
-            // length of Q1--Q3 kickers in twiss files is zero -> it is set to 0.001 m (also the length of corresponding GeoModel volumes)
+            // length of s_Q1--s_Q3 kickers in twiss files is zero -> it is set to 0.001 m (also the length of corresponding GeoModel volumes)
             length = atof(loadedTwissFile[i][lengthIndex].c_str()) ? atof(loadedTwissFile[i][lengthIndex].c_str()) : 0.001;
             // calculation of the B from deflection angle --- beam going down at the IP
             m_magData[beam-1] = pow(-1.0, beam+1)*kLToB(atof(loadedTwissFile[i][vkick].c_str()), length, momentum);
@@ -342,7 +341,7 @@ void MagField::ForwardRegionFieldSvc::InitMagDataFromTwiss(std::vector<std::vect
 
 
 /** Non-inherited public methods FIXME - add new interface? */
-// get magnetic induction vector in certain point inside MQXA (MQXAB = 0) or MQXB (MQXAB = 1) (uses bilinear interpolation), q=0 - Q1, q=1 - Q2a, q=2 - Q2b, q=3 - Q3
+// get magnetic induction vector in certain point inside MQXA (MQXAB = 0) or MQXB (MQXAB = 1) (uses bilinear interpolation), q=0 - s_Q1, q=1 - Q2a, q=2 - Q2b, q=3 - s_Q3
 G4ThreeVector MagField::ForwardRegionFieldSvc::getMagInd(G4ThreeVector Point, int q, int beam) const
 {
   int MQXAB = 0;
@@ -602,37 +601,37 @@ void MagField::ForwardRegionFieldSvc::writeOutTwiss(std::vector<std::vector<std:
 int MagField::ForwardRegionFieldSvc::getMagNumFromName(std::string name) const
 {
     // dipoles
-    if (name == "\"MBXW.A4R1\"" || name == "\"MBXW.A4L1\"") return D1;
-    if (name == "\"MBXW.B4R1\"" || name == "\"MBXW.B4L1\"") return D1;
-    if (name == "\"MBXW.C4R1\"" || name == "\"MBXW.C4L1\"") return D1;
-    if (name == "\"MBXW.D4R1\"" || name == "\"MBXW.D4L1\"") return D1;
-    if (name == "\"MBXW.E4R1\"" || name == "\"MBXW.E4L1\"") return D1;
-    if (name == "\"MBXW.F4R1\"" || name == "\"MBXW.F4L1\"") return D1;
-    if (name == "\"MBRC.4R1.B1\"" || name == "\"MBRC.4L1.B2\"") return D2;
+    if (name == "\"MBXW.A4R1\"" || name == "\"MBXW.A4L1\"") return s_D1;
+    if (name == "\"MBXW.B4R1\"" || name == "\"MBXW.B4L1\"") return s_D1;
+    if (name == "\"MBXW.C4R1\"" || name == "\"MBXW.C4L1\"") return s_D1;
+    if (name == "\"MBXW.D4R1\"" || name == "\"MBXW.D4L1\"") return s_D1;
+    if (name == "\"MBXW.E4R1\"" || name == "\"MBXW.E4L1\"") return s_D1;
+    if (name == "\"MBXW.F4R1\"" || name == "\"MBXW.F4L1\"") return s_D1;
+    if (name == "\"MBRC.4R1.B1\"" || name == "\"MBRC.4L1.B2\"") return s_D2;
 
     //quadrupoles
-    if(name == "\"MQXA.1R1\"" || name == "\"MQXA.1L1\"") return Q1;
-    if(name == "\"MQXB.A2R1\"" || name == "\"MQXB.A2L1\"") return Q2;
-    if(name == "\"MQXB.B2R1\"" || name == "\"MQXB.B2L1\"") return Q2;
-    if(name == "\"MQXA.3R1\"" || name == "\"MQXA.3L1\"") return Q3;
-    if(name == "\"MQY.4R1.B1\"" || name == "\"MQY.4L1.B2\"") return Q4;
-    if(name == "\"MQML.5R1.B1\"" || name == "\"MQML.5L1.B2\"") return Q5;
-    if(name == "\"MQML.6R1.B1\"" || name == "\"MQML.6L1.B2\"") return Q6;
-    if(name == "\"MQM.A7R1.B1\"" || name == "\"MQM.A7L1.B2\"") return Q7;
-    if(name == "\"MQM.B7R1.B1\"" || name == "\"MQM.B7L1.B2\"") return Q7;
+    if(name == "\"MQXA.1R1\"" || name == "\"MQXA.1L1\"") return s_Q1;
+    if(name == "\"MQXB.A2R1\"" || name == "\"MQXB.A2L1\"") return s_Q2;
+    if(name == "\"MQXB.B2R1\"" || name == "\"MQXB.B2L1\"") return s_Q2;
+    if(name == "\"MQXA.3R1\"" || name == "\"MQXA.3L1\"") return s_Q3;
+    if(name == "\"MQY.4R1.B1\"" || name == "\"MQY.4L1.B2\"") return s_Q4;
+    if(name == "\"MQML.5R1.B1\"" || name == "\"MQML.5L1.B2\"") return s_Q5;
+    if(name == "\"MQML.6R1.B1\"" || name == "\"MQML.6L1.B2\"") return s_Q6;
+    if(name == "\"MQM.A7R1.B1\"" || name == "\"MQM.A7L1.B2\"") return s_Q7;
+    if(name == "\"MQM.B7R1.B1\"" || name == "\"MQM.B7L1.B2\"") return s_Q7;
 
     // kickers
-    if(name == "\"MCBXH.1R1\"" || name == "\"MCBXH.1L1\"") return Q1HKick;
-    if(name == "\"MCBXV.1R1\"" || name == "\"MCBXV.1L1\"") return Q1VKick;
-    if(name == "\"MCBXH.2R1\"" || name == "\"MCBXH.2L1\"") return Q2HKick;
-    if(name == "\"MCBXV.2R1\"" || name == "\"MCBXV.2L1\"") return Q2VKick;
-    if(name == "\"MCBXH.3R1\"" || name == "\"MCBXH.3L1\"") return Q3HKick;
-    if(name == "\"MCBXV.3R1\"" || name == "\"MCBXV.3L1\"") return Q3VKick;
-    if(name == "\"MCBYV.A4R1.B1\"" || name == "\"MCBYV.A4L1.B2\"") return Q4VKickA;
-    if(name == "\"MCBYH.4R1.B1\"" || name == "\"MCBYH.4L1.B2\"") return Q4HKick;
-    if(name == "\"MCBYV.B4R1.B1\"" || name == "\"MCBYV.B4L1.B2\"") return Q4VKickB;
-    if(name == "\"MCBCH.5R1.B1\"" || name == "\"MCBCH.5L1.B2\"") return Q5HKick;
-    if(name == "\"MCBCV.6R1.B1\"" || name == "\"MCBCV.6L1.B2\"") return Q6VKick;
+    if(name == "\"MCBXH.1R1\"" || name == "\"MCBXH.1L1\"") return s_Q1HKick;
+    if(name == "\"MCBXV.1R1\"" || name == "\"MCBXV.1L1\"") return s_Q1VKick;
+    if(name == "\"MCBXH.2R1\"" || name == "\"MCBXH.2L1\"") return s_Q2HKick;
+    if(name == "\"MCBXV.2R1\"" || name == "\"MCBXV.2L1\"") return s_Q2VKick;
+    if(name == "\"MCBXH.3R1\"" || name == "\"MCBXH.3L1\"") return s_Q3HKick;
+    if(name == "\"MCBXV.3R1\"" || name == "\"MCBXV.3L1\"") return s_Q3VKick;
+    if(name == "\"MCBYV.A4R1.B1\"" || name == "\"MCBYV.A4L1.B2\"") return s_Q4VKickA;
+    if(name == "\"MCBYH.4R1.B1\"" || name == "\"MCBYH.4L1.B2\"") return s_Q4HKick;
+    if(name == "\"MCBYV.B4R1.B1\"" || name == "\"MCBYV.B4L1.B2\"") return s_Q4VKickB;
+    if(name == "\"MCBCH.5R1.B1\"" || name == "\"MCBCH.5L1.B2\"") return s_Q5HKick;
+    if(name == "\"MCBCV.6R1.B1\"" || name == "\"MCBCV.6L1.B2\"") return s_Q6VKick;
     return -1;
 }
 
@@ -640,12 +639,12 @@ void MagField::ForwardRegionFieldSvc::getMagnetTransformParams(int beam, int mag
 {
     // find out which magnet we are in and get corresponding displacements
     switch(magnet){
-    case Q1:
+    case s_Q1:
         pointMagStart = HepGeom::Point3D<double>(m_Config.pointQ1Start[(beam-1)*3],m_Config.pointQ1Start[(beam-1)*3+1],m_Config.pointQ1Start[(beam-1)*3+2]);
         pointMagEnd = HepGeom::Point3D<double>(m_Config.pointQ1End[(beam-1)*3],m_Config.pointQ1End[(beam-1)*3+1],m_Config.pointQ1End[(beam-1)*3+2]);
         rotZ = m_Config.fQ1RotZ[beam-1];
         break;
-    case Q2:
+    case s_Q2:
       if(std::abs(Point[2]) < 38*CLHEP::m){
             pointMagStart = HepGeom::Point3D<double>(m_Config.pointQ2aStart[(beam-1)*3],m_Config.pointQ2aStart[(beam-1)*3+1],m_Config.pointQ2aStart[(beam-1)*3+2]);
             pointMagEnd = HepGeom::Point3D<double>(m_Config.pointQ2aEnd[(beam-1)*3],m_Config.pointQ2aEnd[(beam-1)*3+1],m_Config.pointQ2aEnd[(beam-1)*3+2]);
@@ -658,27 +657,27 @@ void MagField::ForwardRegionFieldSvc::getMagnetTransformParams(int beam, int mag
             rotZ = m_Config.fQ2bRotZ[beam-1];
         }
         break;
-    case Q3:
+    case s_Q3:
         pointMagStart = HepGeom::Point3D<double>(m_Config.pointQ3Start[(beam-1)*3],m_Config.pointQ3Start[(beam-1)*3+1],m_Config.pointQ3Start[(beam-1)*3+2]);
         pointMagEnd = HepGeom::Point3D<double>(m_Config.pointQ3End[(beam-1)*3],m_Config.pointQ3End[(beam-1)*3+1],m_Config.pointQ3End[(beam-1)*3+2]);
         rotZ = m_Config.fQ3RotZ[beam-1];
         break;
-    case Q4:
+    case s_Q4:
         pointMagStart = HepGeom::Point3D<double>(m_Config.pointQ4Start[(beam-1)*3],m_Config.pointQ4Start[(beam-1)*3+1],m_Config.pointQ4Start[(beam-1)*3+2]);
         pointMagEnd = HepGeom::Point3D<double>(m_Config.pointQ4End[(beam-1)*3],m_Config.pointQ4End[(beam-1)*3+1],m_Config.pointQ4End[(beam-1)*3+2]);
         rotZ = m_Config.fQ4RotZ[beam-1];
         break;
-    case Q5:
+    case s_Q5:
         pointMagStart = HepGeom::Point3D<double>(m_Config.pointQ5Start[(beam-1)*3],m_Config.pointQ5Start[(beam-1)*3+1],m_Config.pointQ5Start[(beam-1)*3+2]);
         pointMagEnd = HepGeom::Point3D<double>(m_Config.pointQ5End[(beam-1)*3],m_Config.pointQ5End[(beam-1)*3+1],m_Config.pointQ5End[(beam-1)*3+2]);
         rotZ = m_Config.fQ5RotZ[beam-1];
         break;
-    case Q6:
+    case s_Q6:
         pointMagStart = HepGeom::Point3D<double>(m_Config.pointQ6Start[(beam-1)*3],m_Config.pointQ6Start[(beam-1)*3+1],m_Config.pointQ6Start[(beam-1)*3+2]);
         pointMagEnd = HepGeom::Point3D<double>(m_Config.pointQ6End[(beam-1)*3],m_Config.pointQ6End[(beam-1)*3+1],m_Config.pointQ6End[(beam-1)*3+2]);
         rotZ = m_Config.fQ6RotZ[beam-1];
         break;
-    case Q7:
+    case s_Q7:
         if(std::abs(Point[2]) < 263.5*CLHEP::m){
             pointMagStart = HepGeom::Point3D<double>(m_Config.pointQ7aStart[(beam-1)*3],m_Config.pointQ7aStart[(beam-1)*3+1],m_Config.pointQ7aStart[(beam-1)*3+2]);
             pointMagEnd = HepGeom::Point3D<double>(m_Config.pointQ7aEnd[(beam-1)*3],m_Config.pointQ7aEnd[(beam-1)*3+1],m_Config.pointQ7aEnd[(beam-1)*3+2]);
@@ -691,7 +690,7 @@ void MagField::ForwardRegionFieldSvc::getMagnetTransformParams(int beam, int mag
             rotZ = m_Config.fQ7bRotZ[beam-1];
         }
         break;
-    case D1:
+    case s_D1:
         if(std::abs(Point[2]) < 63.5*CLHEP::m){
             pointMagStart = HepGeom::Point3D<double>(m_Config.pointD1aStart[(beam-1)*3],m_Config.pointD1aStart[(beam-1)*3+1],m_Config.pointD1aStart[(beam-1)*3+2]);
             pointMagEnd = HepGeom::Point3D<double>(m_Config.pointD1aEnd[(beam-1)*3],m_Config.pointD1aEnd[(beam-1)*3+1],m_Config.pointD1aEnd[(beam-1)*3+2]);
@@ -727,7 +726,7 @@ void MagField::ForwardRegionFieldSvc::getMagnetTransformParams(int beam, int mag
             rotZ = m_Config.fD1fRotZ[beam-1];
         }
         break;
-    case D2:
+    case s_D2:
         pointMagStart = HepGeom::Point3D<double>(m_Config.pointD2Start[(beam-1)*3],m_Config.pointD2Start[(beam-1)*3+1],m_Config.pointD2Start[(beam-1)*3+2]);
         pointMagEnd = HepGeom::Point3D<double>(m_Config.pointD2End[(beam-1)*3],m_Config.pointD2End[(beam-1)*3+1],m_Config.pointD2End[(beam-1)*3+2]);
         rotZ = m_Config.fD2RotZ[beam-1];

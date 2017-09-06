@@ -7,12 +7,9 @@ import sys
 import os
 from PyCool import cool,coral
 
-import PyCintex as PyLCGDict
-
 import LArBadChannelBrowserTools
 
-import PyCintex
-#PyCintex.loadDictionary("libBadChanDict")
+import cppyy
 
 STATUS_INIT="INIT"
 STATUS_NEW="NEW"
@@ -305,7 +302,7 @@ class LArDBFolderBrowser_MissingFEBs():
         bStoreNewCoolChannels=False
         bNewDBCreated=False
 
-        vect_MissingFebHWid=PyCintex.gbl.std.vector('HWIdentifier')()
+        vect_MissingFebHWid=cppyy.gbl.std.vector('HWIdentifier')()
 
         coolChan=0
         listHWidKeys=[x for x in self.dict_vectMissingFebHWid[coolChan].keys()]
@@ -336,8 +333,8 @@ class LArDBFolderBrowser_MissingFEBs():
             return
 
         # Create object based on new LArBadChannelState (via LArBadChannelDBTools python interface) 
-        attrListSpec=PyCintex.gbl.coral.AttributeListSpecification()
-        athenaAttrList=PyCintex.gbl.AthenaAttributeList()
+        attrListSpec=cppyy.gbl.coral.AttributeListSpecification()
+        athenaAttrList=cppyy.gbl.AthenaAttributeList()
 
         attrListSpec=self.nspace_LArBadChannelDBTools.createCoolSpec()
         athenaAttrList=self.nspace_LArBadChannelDBTools.createFebPayload(vect_MissingFebHWid)

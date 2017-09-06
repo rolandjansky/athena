@@ -5,14 +5,14 @@
 #include "VP1Gui/VP1Authenticator.h"
 #include "VP1Base/VP1QtUtils.h"
 
-#include <QtNetwork/QNetworkAccessManager>
-#include <QtNetwork/QSslError>
-#include <QtNetwork/QNetworkCookie>
-#include <QtCore/QFile>
-#include <QtCore/QFileInfo>
-#include <QtCore/QUrl>
-#include <QtCore/QBuffer>
-#include <QtCore/QStringMatcher>
+#include <QNetworkAccessManager>
+#include <QSslError>
+#include <QNetworkCookie>
+#include <QFile>
+#include <QFileInfo>
+#include <QUrl>
+#include <QBuffer>
+#include <QStringMatcher>
 
 #include <iostream>
 #include <QMetaType>
@@ -400,7 +400,7 @@ void VP1Authenticator::finished()
   //   2. Look for 'Logon failure' string in the response body
   // We implement the option #1
   //
-  // If the authentication considered successfull ***REMOVED*** of the 
+  // If the authentication considered successfull then parse contents of the 
   // response, look for input tags and collect their attributes
   // and compose a new POST request
   if(d->stage==3) {

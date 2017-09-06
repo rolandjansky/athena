@@ -8,6 +8,7 @@
 #include "GaudiKernel/IAlgTool.h"
 #include "MSVertexUtils/Tracklet.h"
 #include "MSVertexUtils/MSVertex.h"
+#include "GaudiKernel/EventContext.h"
 #include <vector>
 //                           
 static const InterfaceID IID_IMSVertexRecoTool("Muon::IMSVertexRecoTool",1,0);
@@ -22,7 +23,7 @@ namespace Muon {
     /** access to tool interface */
     static const InterfaceID& interfaceID();
 
-    virtual StatusCode findMSvertices(std::vector<Tracklet>& tracklets, std::vector<MSVertex*>& vertices) = 0;
+    virtual StatusCode findMSvertices(std::vector<Tracklet>& tracklets, std::vector<MSVertex*>& vertices, const EventContext &ctx) const = 0;
 
   };
   

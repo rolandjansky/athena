@@ -19,10 +19,6 @@
 #include <TROOT.h>
 #include <TChain.h>
 
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,99,0)
-#include "Cintex/Cintex.h"
-#endif
-
 class PixelNtupleTracks {
 	
 	public :
@@ -341,10 +337,6 @@ class PixelNtupleTracks {
 
 #ifdef PixelNtupleTracks_cxx
 PixelNtupleTracks::PixelNtupleTracks(std::string input,std::string collection){
-
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,99,0)
-	ROOT::Cintex::Cintex::Enable();
-#endif
 	TChain *mychain = 0;
 	if(input != "" ){
 		mychain = new TChain(collection.c_str());

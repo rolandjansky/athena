@@ -22,6 +22,7 @@
 #include "DataModelTestDataCommon/CVec.h"
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/WriteHandleKey.h"
+#include "StoreGate/WriteDecorHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
 
 
@@ -65,6 +66,7 @@ private:
   //SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey;
   SG::ReadHandleKey<EventInfo> m_eventInfoKey;
   SG::WriteHandleKey<DMTest::CVec> m_cvecKey;
+  SG::WriteDecorHandleKey<DMTest::CVec> m_cvecDecorKey;
 };
 
 

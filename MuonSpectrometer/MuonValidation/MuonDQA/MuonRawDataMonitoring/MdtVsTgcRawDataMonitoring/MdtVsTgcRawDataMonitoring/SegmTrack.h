@@ -23,47 +23,47 @@ class SegmTrack{
  public:
   // Constructor, sets all pointers to zero and side to -1
   SegmTrack(){
-    dSegments[0] = 0;
-    dSegments[1] = 0;
-    dSegments[2] = 0;
-    dSegments[3] = 0;
-    dAC=-1;
+    m_Segments[0] = 0;
+    m_Segments[1] = 0;
+    m_Segments[2] = 0;
+    m_Segments[3] = 0;
+    m_AC=-1;
   }
   
   // Constructor, sets all pointers individually and gets side from them
   SegmTrack(const Muon::MuonSegment *pSegm0, const Muon::MuonSegment *pSegm1, const Muon::MuonSegment *pSegm2, const Muon::MuonSegment *pSegm3){
-    dSegments[0] = pSegm0;
-    dSegments[1] = pSegm1;
-    dSegments[2] = pSegm2;
-    dSegments[3] = pSegm3;
+    m_Segments[0] = pSegm0;
+    m_Segments[1] = pSegm1;
+    m_Segments[2] = pSegm2;
+    m_Segments[3] = pSegm3;
     SetSide();
   }
   
   // Constructor, sets all pointers from array and gets side from them
   SegmTrack(const Muon::MuonSegment *p[4]){
-    dSegments[0] = p[0];
-    dSegments[1] = p[1];
-    dSegments[2] = p[2];
-    dSegments[3] = p[3];
+    m_Segments[0] = p[0];
+    m_Segments[1] = p[1];
+    m_Segments[2] = p[2];
+    m_Segments[3] = p[3];
     SetSide();
   }
   
   // Constructor, effectively copies the pointers from a different SegmTrack
   // Pointers in new SegmTrack still point to the same actual Segments as the original
   SegmTrack(const SegmTrack &p){
-    dSegments[0] = p.at(0);
-    dSegments[1] = p.at(1);
-    dSegments[2] = p.at(2);
-    dSegments[3] = p.at(3);
-    dAC = p.Side();
+    m_Segments[0] = p.at(0);
+    m_Segments[1] = p.at(1);
+    m_Segments[2] = p.at(2);
+    m_Segments[3] = p.at(3);
+    m_AC = p.Side();
   }
   
   SegmTrack & operator=( const SegmTrack& p ) {
-    dSegments[0] = p.at(0);
-    dSegments[1] = p.at(1);
-    dSegments[2] = p.at(2);
-    dSegments[3] = p.at(3);
-    dAC = p.Side();
+    m_Segments[0] = p.at(0);
+    m_Segments[1] = p.at(1);
+    m_Segments[2] = p.at(2);
+    m_Segments[3] = p.at(3);
+    m_AC = p.Side();
     return *this;
   }
 
@@ -74,19 +74,19 @@ class SegmTrack{
   // At function, gets element from pointer array
   const Muon::MuonSegment* at(int j) const{
     if(j>3||j<0)return 0;
-    return dSegments[j];
+    return m_Segments[j];
   }
   // Gets side, variable determined using the SetSide function
   int Side() const{
-    return dAC;
+    return m_AC;
   }
   
  private:
-  // SetSide function, sets dAC variable using dSegments array
+  // SetSide function, sets m_AC variable using m_Segments array
   void SetSide();
   // Variables containing the side index and the Segments in this track
-  int dAC;
-  const Muon::MuonSegment *dSegments[4];
+  int m_AC;
+  const Muon::MuonSegment *m_Segments[4];
 };
 
 // is equal operator, returns true if the pointers point to the same segments
@@ -101,9 +101,9 @@ inline void SegmTrack::SetSide(){
   int AC=-1;
   // Loop over segments/stations, ignore empty pointers
   for(int jMDT=0;jMDT<4;jMDT++){
-    if(dSegments[jMDT]==0)continue;
+    if(m_Segments[jMDT]==0)continue;
     // Get Side from segment
-    int tempAC = (dSegments[jMDT]->globalPosition().eta()<0);
+    int tempAC = (m_Segments[jMDT]->globalPosition().eta()<0);
     if(AC==-1){// If first segment
       AC = tempAC;
     }
@@ -114,7 +114,7 @@ inline void SegmTrack::SetSide(){
       break;
     }
   }
-  dAC=AC;
+  m_AC=AC;
 }
 
 #endif

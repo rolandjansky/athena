@@ -84,7 +84,7 @@ void ReadMeta::handle(const Incident& inc) {
             const ExampleHitContainer* ep = iter->dataObject;
             if (!m_pMetaDataStore->contains<ExampleHitContainer>("PedestalWriteData")) {
                ep_out = new ExampleHitContainer();
-               ExampleHit* entry = *ep->begin();
+               const ExampleHit* entry = *ep->begin();
                ExampleHit* entry_out = new ExampleHit();
                entry_out->setX(entry->getX());
                entry_out->setY(entry->getY());
@@ -100,7 +100,7 @@ void ReadMeta::handle(const Incident& inc) {
                   ATH_MSG_ERROR("Could not find DataObject in output: PedestalWriteData");
                   return;
                }
-               ExampleHit* entry = *ep->begin();
+               const ExampleHit* entry = *ep->begin();
                ExampleHit* entry_out = *ep_out->begin();
                int weight = entry->getDetector().size() - 2;
                int weight_out = entry_out->getDetector().size() - 2;

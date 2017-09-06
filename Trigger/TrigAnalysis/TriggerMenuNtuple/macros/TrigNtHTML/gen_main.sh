@@ -4,9 +4,6 @@ fi
 
 cat <<EOF >> main.C
 {
-gSystem->Load("libCintex.so");
-Cintex::Enable();
-
 std::string incpath = gSystem->GetIncludePath();
 incpath += "-I${TestArea}/InstallArea/include/TriggerMenuNtuple";
 gSystem->SetIncludePath(incpath.c_str());

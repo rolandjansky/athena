@@ -14,10 +14,11 @@
 
 #include "VP1Base/VP1ColorSelectButton.h"
 #include "VP1Base/VP1Msg.h"
-#include <QtGui/QColor>
-#include <QtGui/QColorDialog>
-#include <QtCore/QTimer>
-#include <QtGui/QShortcut>
+
+#include <QColor>
+#include <QColorDialog>
+#include <QTimer>
+#include <QShortcut>
 
 //____________________________________________________________________
 class VP1ColorSelectButton::Imp {

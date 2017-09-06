@@ -44,7 +44,7 @@ TileTBMonTool::TileTBMonTool(const std::string & type, const std::string & name,
   , m_tileTBHitMapLBC01(0)
   , m_tileTBHitMapEBC02(0)
   , m_isFirstEvent(true)
-  , m_maskedChannels{0}
+  , m_maskedChannels{{0}}
 
 /*---------------------------------------------------------*/
 {

@@ -46,15 +46,5 @@ takes as input the energy deposited in the TileCal cells.
   - TileMuToNtuple: dumps TileLookForMuAlg info into TileMuTag directory in
 the ntuple for analysis.
 
-@ref used_TileMuId
 
-@ref requirements_TileMuId
 */
-
-/**
-@page used_TileMuId Used Packages
-*/
-
-/**
-@page requirements_TileMuId Requirements
-*/ 

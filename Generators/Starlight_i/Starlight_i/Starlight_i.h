@@ -94,8 +94,6 @@ protected:
 
     bool set_user_params();
     bool prepare_params_file();
-
-    StoreGateSvc* m_storeGate;  
 };
 
 #endif

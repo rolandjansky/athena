@@ -29,18 +29,7 @@ You may also be interested in:
    - AnalysisUtils : IFilterCuts, IFilter<T>, MomentumFilter<T>, IParticleFilter and McVtxFilter
 
 
-@section AnalysisAssociation_AnalysisAssociationReq Requirements
 
-@ref used_AnalysisUtils
 
-@ref requirements_AnalysisAssociation
 
-*/
-
-/**
-@page used_AnalysisAssociation Used Packages
-*/
-
-/**
-@page requirements_AnalysisAssociation Requirements
 */

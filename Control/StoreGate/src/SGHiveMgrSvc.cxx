@@ -5,6 +5,7 @@
 #include "GaudiKernel/IIncidentSvc.h"
 #include "AthenaKernel/CloneService.h"
 #include "AthenaKernel/errorcheck.h"
+#include "AthenaKernel/StoreID.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/tools/SGImplSvc.h"
 #include "SGHiveMgrSvc.h"
@@ -15,7 +16,7 @@ __thread HiveEventSlot* s_current(0);
 
 HiveMgrSvc::HiveMgrSvc(const std::string& name, 
                        ISvcLocator* svc) : Service(name, svc),
-                                           m_hiveStore("StoreGateSvc", name),
+                                           m_hiveStore(StoreID::storeName(StoreID::EVENT_STORE), name),
                                            m_nSlots(1)
 {
   declareProperty("HiveStoreSvc", m_hiveStore);

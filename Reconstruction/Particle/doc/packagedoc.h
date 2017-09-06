@@ -52,15 +52,5 @@ Particle contains the following files/classes:
  - TrackParticleContainer.cxx ... container to store TrackParticle(s) in StoreGate.
 
 @section Particle_ExtraPages Extra Pages
- - @ref UsedParticle
- - @ref RequirementsParticle
 
-*/
-
-/**
-@page UsedParticle Used Packages
-*/
-
-/**
-@page RequirementsParticle Requirements
 */

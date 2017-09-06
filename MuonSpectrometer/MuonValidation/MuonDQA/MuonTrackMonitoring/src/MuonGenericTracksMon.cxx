@@ -105,9 +105,7 @@ StatusCode MuonGenericTracksMon::bookHistograms()
   //set the path with trigger chain name
   std::string rootpath = "MuonPhysics/";
   
-  if(newEventsBlock){}
-  if(newLumiBlock){}
-  if(newRun) {
+  if(newRunFlag()) {
 
     //example of how to register a new histogram
     m_hNEvent = new TH1F("Overview_nEvent", "Number of Events;LumiBlock;Nevents", 2000, -0.5, 1999.5);
@@ -623,9 +621,7 @@ StatusCode MuonGenericTracksMon::procHistograms()
   
     ATH_MSG_DEBUG("MuonTrackMonitoring procHistograms()");
     
-    if(endOfEventsBlock){}
-    if(endOfLumiBlock){}
-    if(endOfRun) {
+    if(endOfRunFlag()) {
 
       //finish the post processing
       //for (auto plots : m_oRecoPhysPlots)            plots->finalizeRecoPlots();

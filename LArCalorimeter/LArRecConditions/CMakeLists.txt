@@ -8,6 +8,7 @@ atlas_subdir( LArRecConditions )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloIdentifier
+			  LArCalorimeter/LArIdentifier
                           Control/AthenaKernel
                           DetectorDescription/Identifier
                           GaudiKernel )
@@ -20,12 +21,17 @@ atlas_add_library( LArRecConditions
                    src/*.cxx
                    PUBLIC_HEADERS LArRecConditions
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES CaloIdentifier AthenaKernel Identifier GaudiKernel
+                   LINK_LIBRARIES CaloIdentifier LArIdentifier AthenaKernel Identifier GaudiKernel
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
 atlas_add_dictionary( LArRecConditionsDict
                       LArRecConditions/LArRecConditionsDict.h
                       LArRecConditions/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} CaloIdentifier AthenaKernel Identifier GaudiKernel LArRecConditions )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} CaloIdentifier AthenaKernel Identifier GaudiKernel LArRecConditions)
 
+atlas_add_test (test_LArBadChannelCont
+	        SOURCES
+	        test/test_LArBadChannelCont.cxx
+                LINK_LIBRARIES Identifier CxxUtils StoreGateLib LArRecConditions 
+               )

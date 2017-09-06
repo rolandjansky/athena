@@ -26,12 +26,11 @@
 
 //Forward declarations
 class ISvcLocator;
-class StatusCode;
 
 ///Example algorithm to show calling the SCT_ModuleVeto to exclude bad components
 class SCT_TdaqEnabledTestAlg : public AthAlgorithm {
  public:
-  SCT_TdaqEnabledTestAlg(const std::string &name,ISvcLocator *pSvcLocator) ;
+  SCT_TdaqEnabledTestAlg(const std::string& name, ISvcLocator *pSvcLocator);
  ~SCT_TdaqEnabledTestAlg();
 
   StatusCode initialize();
@@ -42,4 +41,4 @@ class SCT_TdaqEnabledTestAlg : public AthAlgorithm {
    ServiceHandle<ISCT_ConditionsSvc> m_pTdaqEnabledSvc;
 }; //end of class
 
-#endif
+#endif // SCT_TdaqEnabledTestAlg_H

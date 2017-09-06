@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd">
+
+<unifiedTestConfiguration>
+
+<atn>
+   <TEST name="HFORTools_makeCheck" type="makecheck">
+      <timelimit>5</timelimit>
+      <author> Marco Leite </author>
+      <mailto> leite@cern.ch </mailto>
+      <expectations>
+         <errorMessage> Athena exited abnormally </errorMessage>
+         <errorMessage>differ</errorMessage>
+         <returnValue>0</returnValue>
+      </expectations>
+   </TEST>
+</atn>
+
+</unifiedTestConfiguration>

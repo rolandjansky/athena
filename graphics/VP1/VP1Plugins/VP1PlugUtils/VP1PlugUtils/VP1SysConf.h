@@ -19,7 +19,7 @@
 #ifndef VP1SYSCONF_H
 #define VP1SYSCONF_H
 
-#include <QtCore/QStringList>
+#include <QStringList>
 
 class VP1GuideLineSystem;
 class VP1GeometrySystem;

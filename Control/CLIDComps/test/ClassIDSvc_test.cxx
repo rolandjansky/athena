@@ -64,13 +64,13 @@ void basic_test(ISvcLocator* pSvcLoc) {
   assert((pSvcLoc->service("ClassIDSvc", pClassIDSvc, true)).isSuccess());
   assert(pClassIDSvc);
 
-  assert(pClassIDSvc->nextAvailableID() == CLIDRegistry::MINCLID);
+  assert(pClassIDSvc->nextAvailableID() == CLIDdetail::MINCLID);
   Athena::PackageInfo info(PACKAGE_VERSION);
   Athena::PackageInfo info2("APack-00-39-98");
   assert(pClassIDSvc->setTypePackageForID(7890, "Bla", info2).isSuccess());
-  ASSERTERROR(pClassIDSvc->setTypePackageForID(CLIDRegistry::MINCLID/2, "No", 
+  ASSERTERROR(pClassIDSvc->setTypePackageForID(CLIDdetail::MINCLID/2, "No", 
 					       info).isSuccess());
-  ASSERTERROR(pClassIDSvc->setTypePackageForID(CLIDRegistry::MAXCLID*2, "Nah", 
+  ASSERTERROR(pClassIDSvc->setTypePackageForID(CLIDdetail::MAXCLID*2, "Nah", 
 					       info).isSuccess());
   //FIXME is this an issue? Should we do the reverse check type -> id?
   assert(pClassIDSvc->setTypePackageForID(9942, "Bli", info).isSuccess());

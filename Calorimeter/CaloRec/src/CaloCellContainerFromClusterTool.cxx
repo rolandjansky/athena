@@ -147,10 +147,7 @@ StatusCode CaloCellContainerFromClusterTool::process(CaloConstCellContainer* the
   // if add additional cells, retrieve full cell container "AllCalo"
   const CaloCellContainer* cellContainer = NULL;
   if (m_addSamplingCells) {
-    if (evtStore()->retrieve(cellContainer, m_cellName).isFailure()
-        || !cellContainer) {
-      ATH_MSG_WARNING( "Can't find CaloCellContainer with key " << m_cellName );
-    }
+    ATH_CHECK( evtStore()->retrieve(cellContainer, m_cellName) );
   }
 
   //On first event check if all containers exist. Remove missing ones

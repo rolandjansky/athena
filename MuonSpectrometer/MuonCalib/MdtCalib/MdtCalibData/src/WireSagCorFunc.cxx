@@ -40,8 +40,8 @@ std::string WireSagCorFunc::name() const {
 double WireSagCorFunc::correction(double signedDriftRadius, double effectiveSag) const {
   /// polynomial coefficients
 
-  double m_coeff[6] = {-4.47741E-3, 1.75541E-2, -1.32913E-2,
-		       2.57938E-3, -4.55015E-5, -1.70821E-7};
+  double coeff[6] = {-4.47741E-3, 1.75541E-2, -1.32913E-2,
+                     2.57938E-3, -4.55015E-5, -1.70821E-7};
 
   /// scale factor needed, as correction function was normalized to 100um wire sag
   double scaleFactor = effectiveSag/100.;
@@ -49,7 +49,7 @@ double WireSagCorFunc::correction(double signedDriftRadius, double effectiveSag)
   /// Calculate dT using polynomial coefficients
   double dT = 0;
   for (int i = 0; i < 5; i++) {
-    dT = dT + m_coeff[i]*std::pow(signedDriftRadius,i);
+    dT = dT + coeff[i]*std::pow(signedDriftRadius,i);
   }
 
   return scaleFactor*dT;

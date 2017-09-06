@@ -29,10 +29,10 @@ theApp.AuditAlgorithms=False
 # Load Geometry
 #--------------------------------------------------------------
 from AthenaCommon.GlobalFlags import globalflags
-globalflags.DetDescrVersion="ATLAS-GEO-16-00-00"
+globalflags.DetDescrVersion="ATLAS-R2-2016-01-00-01"
 globalflags.DetGeo="atlas"
 globalflags.InputFormat="pool"
-globalflags.DataSource="geant4"
+globalflags.DataSource="data"
 print 'globalTags.DatabaseInstance', globalflags.DatabaseInstance
 
 
@@ -65,6 +65,26 @@ DetFlags.writeRIOPool.all_setOff()
 import AtlasGeoModel.SetGeometryVersion
 import AtlasGeoModel.GeoModelInit
 
+# Disable SiLorentzAngleSvc to remove
+# ERROR ServiceLocatorHelper::createService: wrong interface id IID_665279653 for service
+ServiceMgr.GeoModelSvc.DetectorTools['PixelDetectorTool'].LorentzAngleSvc=""
+ServiceMgr.GeoModelSvc.DetectorTools['SCT_DetectorTool'].LorentzAngleSvc=""
+
+from IOVSvc.IOVSvcConf import CondSvc 
+ServiceMgr += CondSvc()
+from AthenaCommon.AlgSequence import AthSequencer 
+condSeq = AthSequencer("AthCondSeq")
+
+from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
+condSeq+=xAODMaker__EventInfoCnvAlg(OutputLevel=2)
+
+from IOVSvc.IOVSvcConf import CondInputLoader 
+condSeq += CondInputLoader( "CondInputLoader",OutputLevel=2)
+import StoreGate.StoreGateConf as StoreGateConf 
+ServiceMgr += StoreGateConf.StoreGateSvc("ConditionStore")
+from  SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_TdaqEnabledCondAlg
+condSeq += SCT_TdaqEnabledCondAlg( "SCT_TdaqEnabledCondAlg" ) 
+
 #--------------------------------------------------------------
 # Load DCSConditions Alg and Service
 #--------------------------------------------------------------
@@ -77,24 +97,18 @@ topSequence+= SCT_TdaqEnabledTestAlg()
 from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_TdaqEnabledSvc
 ServiceMgr += SCT_TdaqEnabledSvc()
 
-SCT_TdaqEnabledSvc.AttrListCollFolders=["/TDAQ/EnabledResources/ATLAS/SCT/Robins"]
+SCT_TdaqEnabledSvc.AttrListCollFolders=["/TDAQ/Resources/ATLAS/SCT/Robins"]
 
 
 #--------------------------------------------------------------
 # Event selector settings. Use McEventSelector
 #--------------------------------------------------------------
 import AthenaCommon.AtlasUnixGeneratorJob
-#ServiceMgr+= EventSelector()
-#ServiceMgr.EventSelector.FirstEvent = 1
-#ServiceMgr.EventSelector.EventsPerRun = 5
-#ServiceMgr.EventSelector.RunNumber = 140975
-ServiceMgr.EventSelector.RunNumber = 90975
+ServiceMgr.EventSelector.RunNumber = 310809
 
 # initial time stamp - this is number of seconds since 1st Jan 1970 GMT
-# the value given here corresponds to 10-09-2009 17:01 geneva local time
-#ServiceMgr.EventSelector.InitialTimeStamp  = 1252594860
-#run 140975 started on 2009-Nov-27 03:16:37 CET and lasted 4:32:40:
-ServiceMgr.EventSelector.InitialTimeStamp  = 1259289060
+# run 310809 Recording start/end 2016-Oct-17 21:39:18 / 2016-Oct-18 16:45:23 UTC
+ServiceMgr.EventSelector.InitialTimeStamp  = 1476741326 # LB 18 of run 310809, 10/17/2016 @ 9:55pm (UTC)
 # increment of 3 minutes
 ServiceMgr.EventSelector.TimeStampInterval = 180
 
@@ -111,12 +125,10 @@ ServiceMgr.MessageSvc.OutputLevel = 3
 IOVDbSvc = Service("IOVDbSvc")
 from IOVDbSvc.CondDB import conddb
 #IOVDbSvc.GlobalTag="HEAD"
-IOVDbSvc.GlobalTag="OFLCOND-FDR-01-02-00"
+IOVDbSvc.GlobalTag="CONDBR2-BLKPA-2017-06"
 IOVDbSvc.OutputLevel = 3
-conddb.addFolder('',"<db>COOLONL_TDAQ/COMP200</db> /TDAQ/EnabledResources/ATLAS/SCT/Robins")
-conddb.addFolder("","<db>COOLONL_SCT/COMP200</db> /SCT/DAQ/Configuration/ROD")
-conddb.addFolder("","<db>COOLONL_SCT/COMP200</db> /SCT/DAQ/Configuration/Geog")
-conddb.addFolder("","<db>COOLONL_SCT/COMP200</db> /SCT/DAQ/Configuration/RODMUR")
-conddb.addFolder("","<db>COOLONL_SCT/COMP200</db> /SCT/DAQ/Configuration/MUR")
-
-
+conddb.addFolder("TDAQ", "/TDAQ/Resources/ATLAS/SCT/Robins", className="CondAttrListCollection")
+conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/ROD", "/SCT/DAQ/Config/ROD")
+conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/Geog", "/SCT/DAQ/Config/Geog")
+conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/RODMUR", "/SCT/DAQ/Config/RODMUR")
+conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/MUR", "/SCT/DAQ/Config/MUR")

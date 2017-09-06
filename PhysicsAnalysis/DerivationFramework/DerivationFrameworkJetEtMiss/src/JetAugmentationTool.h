@@ -39,22 +39,22 @@ namespace DerivationFramework {
     // implement augmentations explicitly to avoid need to parse lists of moments to copy
     //
     // calibration
-    SG::AuxElement::Decorator<float>* dec_calibpt;
-    SG::AuxElement::Decorator<float>* dec_calibeta;
-    SG::AuxElement::Decorator<float>* dec_calibphi;
-    SG::AuxElement::Decorator<float>* dec_calibm;
+    SG::AuxElement::Decorator<float>* m_dec_calibpt;
+    SG::AuxElement::Decorator<float>* m_dec_calibeta;
+    SG::AuxElement::Decorator<float>* m_dec_calibphi;
+    SG::AuxElement::Decorator<float>* m_dec_calibm;
     ToolHandle<IJetModifier> m_jetCalibTool;
     std::string m_calibMomentKey;
     bool m_docalib;
 
     // JVT
-    SG::AuxElement::Decorator<float>* dec_jvt;
+    SG::AuxElement::Decorator<float>* m_dec_jvt;
     ToolHandle<IJetUpdateJvt> m_jvtTool;
     std::string m_jvtMomentKey;
     bool m_dojvt;
 
     // b-tagging       @author tripiana@cern.ch
-    std::vector<SG::AuxElement::Decorator<float>*> dec_btag;
+    std::vector<SG::AuxElement::Decorator<float>*> m_dec_btag;
     std::vector<std::string> m_btagWP;
     bool m_dobtag;
     /// Athena configured tools
@@ -64,8 +64,8 @@ namespace DerivationFramework {
     //@author: nurfikri.bin.norjoharuddeen@cern.ch
     ToolHandle<IJetModifier> m_jetTrackSumMomentsTool;
     bool m_decoratetracksum;
-    SG::AuxElement::Decorator<float>* dec_tracksummass;
-    SG::AuxElement::Decorator<float>* dec_tracksumpt;
+    SG::AuxElement::Decorator<float>* m_dec_tracksummass;
+    SG::AuxElement::Decorator<float>* m_dec_tracksumpt;
   }; 
 }
 

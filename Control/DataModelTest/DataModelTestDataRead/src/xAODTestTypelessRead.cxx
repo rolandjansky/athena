@@ -267,13 +267,13 @@ xAODTestTypelessRead::testit_view (const char* key)
   const OBJ* obj = nullptr;
   CHECK( evtStore()->retrieve (obj, key) );
 
-  if (obj->empty())
-    return StatusCode::SUCCESS;
-  std::map<std::string, SG::auxid_t> auxid_map = get_map (obj->front());
-  std::cout << key << "\n";
-  std::ostringstream ost;
-  dumpobj (ost, obj, auxid_map);
-  std::cout << ost.str();
+  if (!obj->empty()) {
+    std::map<std::string, SG::auxid_t> auxid_map = get_map (obj->front());
+    std::cout << key << "\n";
+    std::ostringstream ost;
+    dumpobj (ost, obj, auxid_map);
+    std::cout << ost.str();
+  }
 
   if (!m_writePrefix.empty()) {
     CHECK (evtStore()->record (CxxUtils::make_unique<OBJ>(*obj),

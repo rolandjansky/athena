@@ -247,7 +247,6 @@ based on muonRecFlags.doTGC_rawdataROD flag defined in MuonSpectrometer/MuonReco
 
 TGC has 24 (12 sectors x 2 sides) Readout Buffers (ROBs). 
 
-@section MuonTGC_CnvTools_MuonTGC_CnvToolsReq Requirements
 
 
 */

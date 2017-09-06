@@ -35,16 +35,6 @@ The MdtCalibData package contains the following classes:
 - MuonCalib::RtResolution0: Implementatin of a resolution function
 - MuonCalib::RtResolutionLookUp: Equidistant look up table for resolution tables with the time as key
                                                                                 
-@ref used_MdtCalibData
                                                                                 
-@ref requirements_MdtCalibData
                                                                                 
-*/
-                                                                                
-/**
-@page used_MdtCalibData Used Packages
-*/
-                                                                                
-/**
-@page requirements_MdtCalibData Requirements
 */

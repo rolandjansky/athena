@@ -9,13 +9,7 @@
 */
 
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ISvcLocator.h"
-
-#include "StoreGate/StoreGate.h"
 #include "StoreGate/StoreGateSvc.h"
-
-#include "GaudiKernel/PropertyMgr.h"
-#include "GaudiKernel/IToolSvc.h"
 
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 #include "MuonIdHelpers/RpcIdHelper.h"

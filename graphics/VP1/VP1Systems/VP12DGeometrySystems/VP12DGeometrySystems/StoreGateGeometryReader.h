@@ -8,7 +8,7 @@
 #include "StoreGate/StoreGate.h"
 #include <string>
 #include <vector>
-#include <QtGui/QColor>
+#include <QColor>
 
 //#include "CLHEP/Geometry/Point3D.h"
 #include "GeoPrimitives/GeoPrimitives.h"

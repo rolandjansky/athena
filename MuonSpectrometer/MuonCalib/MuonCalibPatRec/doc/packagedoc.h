@@ -18,17 +18,6 @@ The MuonCalibPatRec package contains the following classes:
  
 - MuonCalib::MooreFillPatterns: fills calibration EDM from Moore
 
-@ref used_MuonCalibPatRec
                                                                                 
-@ref requirements_MuonCalibPatRec
                                                                                 
 */
-                                                                                
-/**
-@page used_MuonCalibPatRec Used Packages
-*/
-                                                                                
-/**
-@page requirements_MuonCalibPatRec Requirements
-*/
-

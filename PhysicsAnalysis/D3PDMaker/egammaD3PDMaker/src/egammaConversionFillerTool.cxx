@@ -112,7 +112,7 @@ StatusCode egammaConversionFillerTool::fill (const xAOD::Photon& p)
     if (tp1) {
       psum += tp1->p4();
       *m_pt1conv = tp1->pt();
-      tp1->summaryValue (*m_convtrk1nBLHits,  xAOD::numberOfBLayerHits);
+      tp1->summaryValue (*m_convtrk1nBLHits,  xAOD::numberOfInnermostPixelLayerHits);
       tp1->summaryValue (*m_convtrk1nPixHits, xAOD::numberOfPixelHits);
       tp1->summaryValue (*m_convtrk1nSCTHits, xAOD::numberOfSCTHits);
       tp1->summaryValue (*m_convtrk1nTRTHits, xAOD::numberOfTRTHits);
@@ -122,7 +122,7 @@ StatusCode egammaConversionFillerTool::fill (const xAOD::Photon& p)
     if (tp2) {
       psum += tp2->p4();
       *m_pt2conv = tp2->pt();
-      tp2->summaryValue (*m_convtrk2nBLHits,  xAOD::numberOfBLayerHits);
+      tp2->summaryValue (*m_convtrk2nBLHits,  xAOD::numberOfInnermostPixelLayerHits);
       tp2->summaryValue (*m_convtrk2nPixHits, xAOD::numberOfPixelHits);
       tp2->summaryValue (*m_convtrk2nSCTHits, xAOD::numberOfSCTHits);
       tp2->summaryValue (*m_convtrk2nTRTHits, xAOD::numberOfTRTHits);

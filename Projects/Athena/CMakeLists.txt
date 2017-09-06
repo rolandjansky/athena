@@ -1,4 +1,3 @@
-
 # The minimum required CMake version:
 cmake_minimum_required( VERSION 3.2 FATAL_ERROR )
 
@@ -11,16 +10,30 @@ set( ATHENA_PROJECT_VERSION ${_version}
 unset( _version )
 
 # Set the versions of the TDAQ externals to pick up for the build:
-set( TDAQ-COMMON_VERSION "02-02-00" )
+if( NOT LCG_NIGHTLY )
+   if( NOT "$ENV{LCG_NIGHTLY}" STREQUAL "" )
+       set( LCG_NIGHTLY $ENV{LCG_NIGHTLY} CACHE STRING "LCG nightly build flavor" )
+       message( STATUS "Using LCG_NIGHTLY: ${LCG_NIGHTLY}" )
+   endif()
+endif()
+ 
+# Set the versions of the TDAQ externals to pick up for the build:
+if( LCG_NIGHTLY )
+    # TDAQ_RELEASE_BASE should be set to a NIGHTLY TDAQ build!
+    set( TDAQ-COMMON_VERSION "99-00-00" )
+    set( DQM-COMMON_VERSION "99-00-00" )
+    set( TDAQ_VERSION "99-00-00" )
+else()
+    set( TDAQ-COMMON_VERSION "02-02-00" )
+    set( DQM-COMMON_VERSION "01-02-00" )
+    set( TDAQ_VERSION "07-01-00" )
+endif()
+
 set( TDAQ-COMMON_ROOT
    "$ENV{TDAQ_RELEASE_BASE}/tdaq-common/tdaq-common-${TDAQ-COMMON_VERSION}" )
-
-set( DQM-COMMON_VERSION "01-02-00" )
 set( DQM-COMMON_ROOT
    "$ENV{TDAQ_RELEASE_BASE}/dqm-common/dqm-common-${DQM-COMMON_VERSION}" )
-
 set( TDAQ_PROJECT_NAME "tdaq")
-set( TDAQ_VERSION "07-01-00" )
 set( TDAQ_ROOT "$ENV{TDAQ_RELEASE_BASE}/${TDAQ_PROJECT_NAME}/${TDAQ_PROJECT_NAME}-${TDAQ_VERSION}" )
 
 # Find the ATLAS CMake code:
@@ -29,6 +42,9 @@ find_package( AtlasCMake QUIET )
 # Find the base project(s):
 find_package( AthenaExternals REQUIRED )
 find_package( Gaudi REQUIRED )
+
+# Find some auxiliary packages:
+find_package( Doxygen )
 
 # Load all the files from the externals/ subdirectory:
 file( GLOB _externals "${CMAKE_CURRENT_SOURCE_DIR}/externals/*.cmake" )

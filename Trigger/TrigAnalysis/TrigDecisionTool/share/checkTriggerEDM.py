@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 ### import the modules 
-#print '... importing ROOT and PyCintex'
-
 
 import sys
 
@@ -27,7 +25,7 @@ for arg in sys.argv[1:]:
 print PoolAODInput
 
 
-import ROOT#, PyCintex
+import ROOT
 ### build the transient event and metadata trees
 #print '... build collection and metadata trees'
 from TrigDecisionTool.BuildTransientTrees import BuildTransientTrees, filtEDMAccess

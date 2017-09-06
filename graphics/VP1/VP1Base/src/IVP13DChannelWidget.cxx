@@ -18,10 +18,10 @@
 #include "VP1Base/VP1ExaminerViewer.h"
 #include "VP1Base/VP1Msg.h"
 
-#include <QtGui/QPixmap>
-#include <QtGui/QPainter>
-#include <QtCore/QBuffer>
-#include <QtCore/QByteArray>
+#include <QPixmap>
+#include <QPainter>
+#include <QBuffer>
+#include <QByteArray>
 
 #include <Inventor/C/errors/debugerror.h>
 #include "Inventor/Qt/SoQtRenderArea.h"

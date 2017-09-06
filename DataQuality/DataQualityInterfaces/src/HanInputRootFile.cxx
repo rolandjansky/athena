@@ -23,8 +23,8 @@ HanInputRootFile::
 HanInputRootFile( std::string& rootFileName, std::string path )
   : dqm_core::InputRootFile::InputRootFile(rootFileName)
   , m_rootFile( TFile::Open(rootFileName.c_str()) )
-  , basedir(0)
-  , histNamesBuilt(false)
+  , m_basedir(0)
+  , m_histNamesBuilt(false)
 {
 	if( m_rootFile.get() == 0 ) {
     // FIXME: Should throw a dqm_core::Exception
@@ -36,14 +36,14 @@ HanInputRootFile( std::string& rootFileName, std::string path )
     std::cout << "Using path \"" << path << "\" in input file\n";
     std::string pathForSearch = path;
     pathForSearch += "/dummyName";
-    basedir = changeInputDir( m_rootFile.get(), pathForSearch );
-    if( basedir == 0 ) {
+    m_basedir = changeInputDir( m_rootFile.get(), pathForSearch );
+    if( m_basedir == 0 ) {
       std::cerr << "Cannot find \"" << path << "\" in input file\n";
     }
   }
   
-  if( basedir == 0 )
-    basedir = m_rootFile.get();
+  if( m_basedir == 0 )
+    m_basedir = m_rootFile.get();
 }
 
 
@@ -96,18 +96,18 @@ HanInputRootFile::
 addListener( const boost::regex& regex, dqm_core::InputListener* listener ) throw (dqm_core::Exception)
 {
   // avoid building directory until actually demanded
-  if (! histNamesBuilt) {
-    dolsr(basedir, histNames);
-    histNamesBuilt = true;
+  if (! m_histNamesBuilt) {
+    dolsr(m_basedir, m_histNames);
+    m_histNamesBuilt = true;
   }
 
-  for (std::vector<std::string>::const_iterator str = histNames.begin();
-       str != histNames.end();
+  for (std::vector<std::string>::const_iterator str = m_histNames.begin();
+       str != m_histNames.end();
        ++str) {
     try {
       if (boost::regex_match(*str, regex)) {
         // is this actually a histogram/graph?
-        TObject* temp = basedir->Get(str->c_str());
+        TObject* temp = m_basedir->Get(str->c_str());
         if (dynamic_cast<TH1*>(temp) || dynamic_cast<TGraph*>(temp)) {
           std::cout << "Regular expression " << regex << " matches " << *str << std::endl;
           addListener(*str, listener);
@@ -135,9 +135,10 @@ HanInputRootFile::
 addListener(const std::string& name, dqm_core::InputListener *listener) throw (dqm_core::Exception)
 {
   // TKeys are owned by the TFile
-  TKey* key = getObjKeyFromTDir( basedir, name );
+  TKey* key = getObjKeyFromTDir( m_basedir, name );
   if( key == 0 ) {
-    std::cerr << "Warning: Histogram \"" << name << "\" was not found.  Ignoring...\n";
+    // reduce verbosity
+    //std::cerr << "Warning: Histogram \"" << name << "\" was not found.  Ignoring...\n";
     return;
   }
   m_monObjects.push_back( MonBundle(name,key,listener) );
@@ -155,7 +156,7 @@ const TDirectory*
 HanInputRootFile::
 getBasedir() const
 {
-	return basedir;
+	return m_basedir;
 }
 
 } // end namespace dqi

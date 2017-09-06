@@ -30,7 +30,7 @@ public:
 
 protected:
 
-  std::shared_ptr<dqm_core::Algorithm> subalg_;
+  std::shared_ptr<dqm_core::Algorithm> m_subalg;
 
 };
 

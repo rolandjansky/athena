@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODTauJetAuxContainerCnv.cxx 749546 2016-05-25 01:31:32Z griffith $
+// $Id: xAODTauJetAuxContainerCnv.cxx 800296 2017-03-10 18:16:40Z griffith $
 
 // System include(s):
 #include <exception>
@@ -32,6 +32,17 @@ createPersistent( xAOD::TauJetAuxContainer* trans ) {
    return SG::copyThinned (*trans, IThinningSvc::instance());
 }
 
+StatusCode xAODTauJetAuxContainerCnv::
+createObj( IOpaqueAddress* pAddr, DataObject*& pObj ){
+
+   // Get the key of the container that we'll be creating:
+   m_key = *( pAddr->par() + 1 );
+   ATH_MSG_VERBOSE( "Key of xAOD::TauJetAuxContainer: " << m_key );
+
+  // Let the base class do its thing now:
+  return AthenaPoolConverter::createObj( pAddr, pObj );  
+}
+
 xAOD::TauJetAuxContainer* xAODTauJetAuxContainerCnv::createTransient() {
 
    // The known ID(s) for this container:
@@ -48,7 +59,7 @@ xAOD::TauJetAuxContainer* xAODTauJetAuxContainerCnv::createTransient() {
    } else if(compareClassGuid( v2_guid )) {
       // The v2 converter:
      static xAODTauJetAuxContainerCnv_v2 converter;
-
+     converter.setKey(m_key);
      //      std::cout << "Converting TauJet_v2 --> v3 not fully supported" << std::endl;
 
       // Read in the v2 object:

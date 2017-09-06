@@ -23,9 +23,8 @@ atlas_depends_on_subdirs( PUBLIC
 find_package( Coin3D )
 find_package( Eigen )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread Table MathMore Minuit Minuit2 Matrix Physics HistPainter Rint Graf Graf3d Gpad Html Postscript Gui GX11TTF GX11 )
-find_package( Qt4 COMPONENTS QtCore QtOpenGL QtGui )
 
-include_directories( /usr/X11R6/include )
+
 
 # Generate UI files automatically:
 set( CMAKE_AUTOUIC TRUE )

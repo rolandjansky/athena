@@ -14,9 +14,9 @@ atlas_depends_on_subdirs( PUBLIC
                           Reconstruction/MuonIdentification/muonEvent
                           Reconstruction/egamma/egammaEvent
                           Reconstruction/tauEvent
-			  xAOD/xAODMuon
-			  xAOD/xAODEgamma
-			  xAOD/xAODTau
+			  Event/xAOD/xAODMuon
+			  Event/xAOD/xAODEgamma
+			  Event/xAOD/xAODTau
                           Tracking/TrkEvent/TrkParameters
                           Tracking/TrkEvent/TrkTrack
                           Tracking/TrkEvent/TrkTrackSummary

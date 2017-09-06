@@ -10,7 +10,6 @@
 #include <vector>
 #include "SGTools/DataBucket.h"
 #include "SGTools/DataProxy.h"
-#include "SGTools/BaseInfo.h"
 #include "SGTools/CurrentEventStore.h"
 
 // Need to instantiate iterators

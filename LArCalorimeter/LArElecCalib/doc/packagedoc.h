@@ -10,7 +10,7 @@
 
 This package containes the interfaces to retrieve the electronics calibration
 constants for the LAr calorimeters. The classes are normally recorded in the
-ConditionsStore, and to be used by Algorithms. These classes should not have
+ConditionStore, and to be used by Algorithms. These classes should not have
 explicit dependency on the backend, which is normally a database for the
 stored constants. The concrete implementation of the interfaces contained in
 this package is found in <a
@@ -59,16 +59,6 @@ href="http://isscvs.cern.ch/cgi-bin/viewcvs-all.cgi/offline/LArCalorimeter/LArRa
   - ILAruA2MeV
   - LArPedestalAll
 
-@ref used_LArElecCalib
 
-@ref requirements_LArElecCalib
 
-*/
-
-/**
-@page used_LArElecCalib Used Packages
-*/
-
-/**
-@page requirements_LArElecCalib Requirements
 */

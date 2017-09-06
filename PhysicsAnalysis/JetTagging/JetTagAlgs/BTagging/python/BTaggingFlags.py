@@ -22,7 +22,6 @@ class _BTaggingFlags:
               'SV2', 'SV2Flip',
               'JetProb', 'JetProbFlip',
               'IPFordG', 'IPFordGNeg',
-              'SoftEl',
               'SoftMu', 'SoftMuChi2',
               'BasicJetFitter', 'JetFitterTag', 'JetFitterTagFlip','JetFitterNN', 'JetFitterCOMBNN', 'JetFitterNNFlip',
               'TrackCounting', 'TrackCountingFlip',
@@ -238,8 +237,6 @@ class _BTaggingFlags:
           setattr(self, attr, False)
         if attr == 'JetProbFlip':
           setattr(self, attr, False)
-        if attr == 'SoftEl':
-          setattr(self, attr, False)
         if attr == 'SoftMu':
           setattr(self, attr, True)
         if attr == 'SoftMuChi2':
@@ -324,7 +321,7 @@ class _BTaggingFlags:
       for attr in self._HighPriorityTaggers:
         setattr(self, attr, ['IP3D','SV1','BasicJetFitter','JetFitterTag','JetFitterNN','MV2c10','MV2c10mu','MV2c100','MV2c10rnn','MV2cl100', 'IP3DFlip','IP3DPos','IP3DNeg','IP3DSpc','IP3DSpcPos','IP3DSpcNeg','SV1Flip','JetFitterTagFlip','JetFitterNNFlip','MV1Flip','MV1cFlip','MV2c10Flip','MV2c10muFlip','MV2c10rnnFlip','MV2c100Flip','MV2cl100Flip','JetVertexCharge', 'DL1', 'DL1Flip','DL1mu', 'DL1muFlip','DL1rnn', 'DL1rnnFlip', 'SoftMu'])
       for attr in self._MediumPriorityTaggers:
-        setattr(self, attr, ['SV0','IP2D','IP2DFlip','IP2DPos','IP2DNeg','IP2DSpc','IP2DSpcPos','IP2DSpcNeg','SoftEl','SoftMuChi2','MV2','MV2Flip'])
+        setattr(self, attr, ['SV0','IP2D','IP2DFlip','IP2DPos','IP2DNeg','IP2DSpc','IP2DSpcPos','IP2DSpcNeg','SoftMuChi2','MV2','MV2Flip'])
       for attr in self._LowPriorityTaggers:
         setattr(self, attr, ['IP1D','SV2','SV2Flip','TrackCounting','TrackCountingFlip','JetProb','JetProbFlip'])
 
@@ -385,7 +382,7 @@ class _BTaggingFlags:
 
 
       #defaultJetCollections = ['AntiKt4LCTopo','AntiKt6LCTopo','AntiKt4TopoEM','AntiKt6TopoEM']
-      defaultJetCollections = ['AntiKt4LCTopo','AntiKt4EMTopo']
+      defaultJetCollections = ['AntiKt4EMTopo']
 
       for attr in self._Jets:
         setattr(self, attr, defaultJetCollections[:])

@@ -14,14 +14,12 @@
 #ifndef PFMATCHINGTOOL_H_
 #define PFMATCHINGTOOL_H_
 
+#include "eflowRec/PFMatcher.h"
+
 class eflowRecCluster;
 class eflowRecTrack;
 class eflowRecClusterContainer;
 class eflowMatchCluster;
-
-namespace PFMatch{
-class TrackClusterMatcher;
-}
 
 static const InterfaceID IID_PFTrackClusterMatchingTool("PFTrackClusterMatchingTool", 1, 0);
 
@@ -52,8 +50,8 @@ private:
   double m_matchCut;
 
   /** The track cluster matcher to perform the actual matching */
-  PFMatch::TrackClusterMatcher* m_matcher;
-
+  std::unique_ptr<PFMatch::TrackClusterMatcher> m_matcher;
+  
   /** Count the number of tracks processed -- for the summary in finalize() */
   unsigned int m_tracksProcessed;
   /** Count the number of matches created -- for the summary in finalize() */

@@ -25,7 +25,6 @@ if hasattr(runArgs, 'preInclude'):
 from AthenaCommon.AppMgr import ServiceMgr
 from AthenaCommon.GlobalFlags  import globalflags
 from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
-from AthenaCommon.DetFlags import DetFlags
 from OverlayCommonAlgs.OverlayFlags import overlayFlags
 
 globalflags.isOverlay.set_Value_and_Lock(True)
@@ -75,6 +74,7 @@ else:
    DataInputCollections=runArgs.inputRDO_BKGFile
    athenaCommonFlags.PoolRDOInput=runArgs.inputRDO_BKGFile
 
+import MagFieldServices.SetupField
 
 from IOVDbSvc.CondDB import conddb
 
@@ -82,8 +82,6 @@ if hasattr(runArgs, 'conditionsTag') and runArgs.conditionsTag!='NONE' and runAr
    globalflags.ConditionsTag=runArgs.conditionsTag
    if len(globalflags.ConditionsTag())!=0:
       conddb.setGlobalTag(globalflags.ConditionsTag())
-
-DetFlags.Print()
 
 # LVL1 Trigger Menu
 if hasattr(runArgs, "triggerConfig") and runArgs.triggerConfig!="NONE":
@@ -101,26 +99,32 @@ if hasattr(runArgs, "triggerConfig") and runArgs.triggerConfig!="NONE":
     from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
     cfg = TriggerConfigGetter("HIT2RDO")
 
-DetFlags.ID_setOn()
-DetFlags.Muon_setOn()
-DetFlags.LAr_setOn()
-DetFlags.Tile_setOn()
-
-if not hasattr(runArgs, "triggerConfig") or runArgs.triggerConfig=="NONE":
-    DetFlags.LVL1_setOff()
-else:
-    DetFlags.LVL1_setOn()
-
-DetFlags.digitize.LVL1_setOff()
-
-DetFlags.BCM_setOn()
-DetFlags.Lucid_setOn()
-DetFlags.Truth_setOn()
-DetFlags.simulateLVL1.Lucid_setOn()
-DetFlags.simulateLVL1.LAr_setOn()
-DetFlags.simulateLVL1.Tile_setOn()
 
 print "================ DetFlags ================ "
+if 'DetFlags' in dir():
+    overlaylog.warning("DetFlags already defined! This means DetFlags should have been fully configured already..")
+else:
+    from AthenaCommon.DetFlags import DetFlags
+
+    DetFlags.ID_setOn()
+    DetFlags.Muon_setOn()
+    DetFlags.LAr_setOn()
+    DetFlags.Tile_setOn()
+
+    if not hasattr(runArgs, "triggerConfig") or runArgs.triggerConfig=="NONE":
+        DetFlags.LVL1_setOff()
+    else:
+        DetFlags.LVL1_setOn()
+
+    DetFlags.digitize.LVL1_setOff()
+
+    DetFlags.BCM_setOn()
+    DetFlags.Lucid_setOn()
+    DetFlags.Truth_setOn()
+    DetFlags.simulateLVL1.Lucid_setOn()
+    DetFlags.simulateLVL1.LAr_setOn()
+    DetFlags.simulateLVL1.Tile_setOn()
+
 DetFlags.Print()
 
 globalflags.DataSource.set_Value_and_Lock('geant4')

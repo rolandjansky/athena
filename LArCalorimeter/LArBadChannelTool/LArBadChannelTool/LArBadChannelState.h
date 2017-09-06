@@ -20,7 +20,7 @@ class LArBadChannelState {
   enum {NCoolChannels=8};
   enum CaloPartEnum {EMB, EMEC, HEC, FCAL};
   enum PosNegEnum { NEG, POS};
-  enum CoolChannelEnum { EMBA, EMBC, EMECA, EMECC, HECA, HECC, FCALA, FCALC};
+  enum CoolChannelEnum { EMBA, EMBC, EMECA, EMECC, HECA, HECC, FCALA, FCALC, MAXCOOLCHAN};
 
   class CoolChannelData {
   public:

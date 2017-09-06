@@ -19,6 +19,7 @@
 #include "AthenaKernel/StoreID.h"
 
 //<<<<<< FORWARD DECLARATIONS                                           >>>>>>
+class EventContext;
 namespace SG {
   class TransientAddress;
 }
@@ -42,8 +43,12 @@ public:
   }
 
   /// update a transient Address
+  /// The ctx argument will give the current event information.
+  /// If we're not dealing with an event store (conditions, etc), then
+  /// the context will be empty (default-initialized).
   virtual StatusCode updateAddress(StoreID::type storeID,
-				   SG::TransientAddress* pTAd) = 0;
+				   SG::TransientAddress* pTAd,
+                                   const EventContext& ctx) = 0;
 
   virtual ~IAddressProvider() {}
 };

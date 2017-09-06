@@ -104,9 +104,9 @@ protected:
 
 
 
-inline std::ostream& operator<<( std::ostream& s, const EtaPhiBase& _e ) { 
-  s << "[ eta=" << _e.etamin() << " - " << _e.etamax();
-  s << "\tphi=" << 180*_e.phimin()/M_PI << " - " << 180*_e.phimax()/M_PI;
+inline std::ostream& operator<<( std::ostream& s, const EtaPhiBase& e ) { 
+  s << "[ eta=" << e.etamin() << " - " << e.etamax();
+  s << "\tphi=" << 180*e.phimin()/M_PI << " - " << 180*e.phimax()/M_PI;
   s<< " ]";
   return s;
 }
@@ -150,10 +150,10 @@ private:
 /// the payload class needs to have an << streamer defined or
 /// we cannot stream it
 template<class T>
-inline std::ostream& operator<<( std::ostream& s, const TRegSelEtaPhiModule<T>& _e ) { 
-  s << "[ eta= " << _e.etamin() << " - " << _e.etamax();
-  s << "\tphi= " << 180*_e.phimin()/M_PI << " - " << 180*_e.phimax()/M_PI;
-  s << "\tpay= " << _e.payload();
+inline std::ostream& operator<<( std::ostream& s, const TRegSelEtaPhiModule<T>& e ) { 
+  s << "[ eta= " << e.etamin() << " - " << e.etamax();
+  s << "\tphi= " << 180*e.phimin()/M_PI << " - " << 180*e.phimax()/M_PI;
+  s << "\tpay= " << e.payload();
   s << " ]";
   return s;
 }

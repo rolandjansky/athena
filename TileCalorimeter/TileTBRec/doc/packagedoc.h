@@ -31,17 +31,5 @@ TileTBStat produce statistics from the Byte Stream data fragment. This algorithm
 @section TileTBRec_TileTBAna 
 Obsolete algorithm to produce a testbeam summary ntuple.
 
-@ref used_TileTBRec
-@ref requirements_TileTBRec
 
 */
-
-/**
-@page used_TileTBRec Used Packages
-*/
-
-/**
-@page requirements_TileTBrec Requirements
-*/
-
-

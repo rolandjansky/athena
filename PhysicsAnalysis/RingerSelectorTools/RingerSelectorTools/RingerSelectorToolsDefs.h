@@ -158,12 +158,6 @@ EtDependency getType(const char* cStr);
 template<>
 Requirement getType(const char* cStr);
 
-// Explicit instantiate the templates functions to avoid multiple definition
-template SegmentationType getType(const char *);
-template EtaDependency getType(const char *);
-template EtDependency getType(const char *);
-template Requirement getType(const char *);
-
 /**
  * Transform enumeration types to string
  **/

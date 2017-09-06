@@ -176,11 +176,6 @@ def Initiate(ConfInstance=None):
     if BTaggingFlags.Runmodus == 'reference':
 
       svcMgr.THistSvc.Output += ["RefFile DATAFILE='BTagCalibALL.root' OPT='RECREATE'"]
-      #for key in BTaggingFlags.Jets:
-      #  for tagger in ['JetProb','IP1D','IP2D','IP2DSpc','IP3D','IP3DSpc','SV1','SV2','SoftMu','SoftEl','JetFitterTagNN','JetFitterCOMBNN']:
-      #    if BTaggingFlags.IsEnabled(tagger):
-      #      RefileName = "BTaggingRef"+tagger+key+".root"
-      #      svcMgr.THistSvc.Output += ["RefFile"+tagger+key+" DATAFILE='"+RefileName+"' OPT='RECREATE'"]
 
     ConfInstance._Initialized = True
     return True
@@ -302,12 +297,6 @@ def SetupJetCollectionDefault(JetCollection, TaggerList, ConfInstance = None):
     BTagMuonToJetAssociator = ConfInstance.setupMuonAssociator('Muons', JetCollection, ToolSvc, Verbose = BTaggingFlags.OutputLevel < 3)
   else:
     BTagMuonToJetAssociator = None
-  if 'SoftEl' in TaggerList:
-    BTagElectronToJetAssociator = ConfInstance.setupElectronAssociator('Electrons', JetCollection, ToolSvc,
-                                                                     Verbose = BTaggingFlags.OutputLevel < 3,
-                                                                     PhotonCollectionName = 'Photons')
-  else:
-    BTagElectronToJetAssociator = None
   if 'MultiSVbb1' in TaggerList or 'MultiSVbb2' in TaggerList:
     ConfInstance.setupTrackAssociator('BTagTrackToJetAssociatorBB', JetCollection, ToolSvc,
                                     Verbose = BTaggingFlags.OutputLevel < 3,
@@ -387,8 +376,6 @@ def SetupJetCollectionDefault(JetCollection, TaggerList, ConfInstance = None):
 #            if BTaggingFlags.JetProbFlip:
 #              addTool('JetProbFlipTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
 
-#          if BTaggingFlags.SoftEl:
-#            addTool('SoftElectronTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
   if 'SoftMu' in TaggerList:
     ConfInstance.addTool('SoftMuonTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
 #          if BTaggingFlags.SoftMuChi2:
@@ -771,12 +758,6 @@ def SetupJetCollectionTrig(JetCollection, TaggerList, ConfInstance = None):
     BTagMuonToJetAssociator = ConfInstance.setupMuonAssociator('Muons', JetCollection, ToolSvc, Verbose = BTaggingFlags.OutputLevel < 3)
   else:
     BTagMuonToJetAssociator = None
-  if 'SoftEl' in TaggerList:
-    BTagElectronToJetAssociator = ConfInstance.setupElectronAssociator('Electrons', JetCollection, ToolSvc,
-                                                                     Verbose = BTaggingFlags.OutputLevel < 3,
-                                                                     PhotonCollectionName = 'Photons')
-  else:
-    BTagElectronToJetAssociator = None
   if 'MultiSVbb1' in TaggerList or 'MultiSVbb2' in TaggerList:
     ConfInstance.setupTrackAssociator('BTagTrackToJetAssociatorBB', JetCollection, ToolSvc,
                                     Verbose = BTaggingFlags.OutputLevel < 3,

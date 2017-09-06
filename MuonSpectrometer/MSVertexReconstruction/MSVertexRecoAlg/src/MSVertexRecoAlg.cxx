@@ -13,9 +13,9 @@
 
 
 MSVertexRecoAlg::MSVertexRecoAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator),
-  m_vertexTrackletTool("Muon::MSVertexTrackletTool/MSVertexTrackletTool"),
-  m_vertexRecoTool("Muon::MSVertexRecoTool/MSVertexRecoTool")
+  AthReentrantAlgorithm(name, pSvcLocator),
+  m_vertexTrackletTool("Muon::MSVertexTrackletTool/MSVertexTrackletTool", this),
+  m_vertexRecoTool("Muon::MSVertexRecoTool/MSVertexRecoTool", this)
 {
   declareProperty("MSVertexTrackletTool", m_vertexTrackletTool);
   declareProperty("MSVertexRecoTool", m_vertexRecoTool);
@@ -56,19 +56,19 @@ StatusCode MSVertexRecoAlg::initialize(){
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
-StatusCode MSVertexRecoAlg::execute() {
+StatusCode MSVertexRecoAlg::execute_r (const EventContext& ctx) const {
 
   std::vector<Tracklet> tracklets;
   std::vector<MSVertex*> vertices;
 
-  StatusCode sc = m_vertexTrackletTool->findTracklets(tracklets);
+  StatusCode sc = m_vertexTrackletTool->findTracklets(tracklets, ctx);
   if(sc.isFailure()) {
     ATH_MSG_FATAL( "Failed vertex tracklet " );
     return StatusCode::FAILURE;
   } else 
     ATH_MSG_DEBUG ("Tracklet reconstruction tool called");
 
-  sc = m_vertexRecoTool->findMSvertices(tracklets, vertices);
+  sc = m_vertexRecoTool->findMSvertices(tracklets, vertices, ctx);
   if(sc.isFailure()) {
     ATH_MSG_FATAL( "Failed vertex reco " );
     return StatusCode::FAILURE;

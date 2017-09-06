@@ -40,13 +40,122 @@
 namespace ana
 {
 
-  TriggerTool ::
-  TriggerTool (const std::string& name)
+  TriggerBasicTool ::
+  TriggerBasicTool (const std::string& name)
     : AsgTool (name), AnaTool (name),
-      m_isEleToolSetup (false),
       m_trigDecTool ("TrigDecisionTool", nullptr),
       m_trigconfigTool ("xAODConfigTool", nullptr),
-      m_triggerMatching ("ana_TriggerMatching", nullptr),
+      m_triggerMatching ("ana_TriggerMatching", nullptr)
+  {
+    declareProperty("TriggerList", m_trigList="");
+    declareProperty("GroupName", m_groupName="");
+    declareProperty("MatchEl", m_matchEl=true);
+    declareProperty("MatchMu", m_matchMu=true);
+  }
+
+  StatusCode TriggerBasicTool ::
+  initialize()
+  {
+    ATH_CHECK (ASG_MAKE_ANA_TOOL (m_trigconfigTool, TrigConf::xAODConfigTool));
+    ATH_CHECK (m_trigconfigTool.initialize());
+
+    ATH_CHECK (ASG_MAKE_ANA_TOOL (m_trigDecTool, Trig::TrigDecisionTool));
+    ATH_CHECK (m_trigDecTool.setProperty ("ConfigTool", m_trigconfigTool));
+    ATH_CHECK (m_trigDecTool.setProperty ("TrigDecisionKey", "xTrigDecision"));
+    ATH_CHECK (m_trigDecTool.initialize ());
+
+    ATH_CHECK (ASG_MAKE_ANA_TOOL (m_triggerMatching, Trig::MatchingTool));
+    ATH_CHECK( m_triggerMatching.setProperty ("TrigDecisionTool", m_trigDecTool) );
+    ATH_CHECK( m_triggerMatching.initialize() );
+
+    // Split into the names
+    boost::algorithm::split(m_trig_names, m_trigList, boost::is_any_of("\t "));
+
+    return StatusCode::SUCCESS;
+  }
+
+
+  // Why is this method defined at all?
+  StatusCode TriggerBasicTool ::
+  setObjectType (ObjectType /*type*/, const std::string& /*workingPoint*/)
+  {
+    return StatusCode::SUCCESS;
+  }
+
+
+  AnalysisStep TriggerBasicTool ::
+  step () const
+  {
+    return STEP_TRIG_DECISION;
+  }
+
+
+  unsigned TriggerBasicTool ::
+  inputTypes () const
+  {
+    return (1 << OBJECT_ELECTRON) | (1 << OBJECT_MUON) | (1 << OBJECT_EVENTINFO);
+  }
+
+
+  unsigned TriggerBasicTool ::
+  outputTypes () const
+  {
+    return (1 << OBJECT_ELECTRON) | (1 << OBJECT_MUON) | (1 << OBJECT_EVENTINFO);
+  }
+
+
+  StatusCode TriggerBasicTool ::
+  execute (IEventObjects& objects)
+  {
+    std::vector<const xAOD::IParticle*> trig_part;
+    bool these_passed = false;
+
+    for (auto trig : m_trig_names)
+    {
+      if (!trig.empty()){
+        bool trig_dec = m_trigDecTool->isPassed(trig);
+        these_passed = these_passed || trig_dec;
+      }
+      else continue;
+  
+      if (m_matchMu) {
+        if (objects.muons()) {
+          for (auto m : *objects.muons()){
+            // TODO: comment
+            trig_part.push_back(m);
+            m->auxdata<bool>(m_groupName+"_trigMatch")
+                = m->auxdata<bool>(m_groupName+"_trigMatch") || m_triggerMatching->match(trig_part, trig);
+            trig_part.clear();
+          }
+        } 
+      }
+      if(m_matchEl) {
+        if (objects.electrons()) {
+          for (auto e : *objects.electrons()){
+            trig_part.push_back(e);
+  
+            e->auxdata<bool>(m_groupName+"_trigMatch")
+                = e->auxdata<bool>(m_groupName+"_trigMatch") || m_triggerMatching->match(trig_part,trig);
+            trig_part.clear(); 
+          }
+        }
+      }
+    }
+    // Update the group decisions
+    // OR of all triggers in group
+    objects.eventinfo()->auxdata<bool>(m_groupName+"_passTrig") = these_passed;
+    // OR of all triggers
+    objects.eventinfo()->auxdata<bool>("passAllTrig")
+        = objects.eventinfo()->auxdata<bool>("passAllTrig") || these_passed;
+
+    return StatusCode::SUCCESS;
+  }
+
+
+  TriggerSFTool ::
+  TriggerSFTool (const std::string& name)
+    : AsgTool (name), AnaTool (name),
+      m_isEleToolSetup (false),
       m_mu_trig_sf2015 ("ana_MuonTriggerScaleFactors2015", nullptr),
       m_mu_trig_sf2016 ("ana_MuonTriggerScaleFactors2016", nullptr),
       m_el_trig_sf ("ana_AsgElectronEfficiencyCorrectionTool", this),
@@ -54,8 +163,6 @@ namespace ana
   {
     declareProperty("TriggerList", m_trigList="");
     declareProperty("GroupName", m_groupName="");
-    declareProperty("MatchEl", m_matchEl=true);
-    declareProperty("MatchMu", m_matchMu=true);
     declareProperty("MuonSFstring", m_muon_trig_str="");
     declareProperty("IsData", m_isData=false);
     declareProperty("IsAF2", m_isAF2=false);
@@ -64,7 +171,7 @@ namespace ana
   }
 
 
-  StatusCode TriggerTool ::
+  StatusCode TriggerSFTool ::
   useInitialConfiguration (const InternalConfiguration& conf)
   {
     ATH_CHECK (AnaTool::useInitialConfiguration (conf));
@@ -82,27 +189,12 @@ namespace ana
 
 
 
-  StatusCode TriggerTool ::
+  StatusCode TriggerSFTool ::
   initialize()
   {
-    ATH_CHECK (ASG_MAKE_ANA_TOOL (m_trigconfigTool, TrigConf::xAODConfigTool));
-    ATH_CHECK (m_trigconfigTool.initialize());
-
-    ATH_CHECK (ASG_MAKE_ANA_TOOL (m_trigDecTool, Trig::TrigDecisionTool));
-//    ATH_CHECK (m_trigDecTool.make ("Trig::TrigDecisionTool"));
-    ATH_CHECK (m_trigDecTool.setProperty ("ConfigTool", m_trigconfigTool));
-    ATH_CHECK (m_trigDecTool.setProperty ("TrigDecisionKey", "xTrigDecision"));
-    ATH_CHECK (m_trigDecTool.initialize ());
-
-    ATH_CHECK (ASG_MAKE_ANA_TOOL (m_triggerMatching, Trig::MatchingTool));
-//    ATH_CHECK( m_triggerMatching.make("Trig::MatchingTool"));
-    ATH_CHECK( m_triggerMatching.setProperty ("TrigDecisionTool", m_trigDecTool) );
-    ATH_CHECK( m_triggerMatching.initialize() );
-
     // Set up the muon trigger scale factor tools - separate tools for each year
     ATH_CHECK (ASG_MAKE_ANA_TOOL (m_mu_trig_sf2015, CP::MuonTriggerScaleFactors));
     ATH_CHECK (m_mu_trig_sf2015.setProperty("MuonQuality", m_muon_wp));
-    ATH_CHECK (m_mu_trig_sf2015.setProperty("Isolation", m_muon_iso_wp));
     ATH_CHECK (m_mu_trig_sf2015.setProperty("Year", "2015"));
     ATH_CHECK (m_mu_trig_sf2015.setProperty("AllowZeroSF", true));
     ATH_CHECK (m_mu_trig_sf2015.initialize());
@@ -110,60 +202,30 @@ namespace ana
 
     ATH_CHECK (ASG_MAKE_ANA_TOOL (m_mu_trig_sf2016, CP::MuonTriggerScaleFactors));
     ATH_CHECK (m_mu_trig_sf2016.setProperty("MuonQuality", m_muon_wp));
-    ATH_CHECK (m_mu_trig_sf2016.setProperty("Isolation", m_muon_iso_wp));
     ATH_CHECK (m_mu_trig_sf2016.setProperty("AllowZeroSF", true));
     ATH_CHECK (m_mu_trig_sf2016.initialize());
     registerTool(&*m_mu_trig_sf2016);
 
-    std::vector<std::string> elFiles,elEffFiles;
-    std::string effNonIsoSuffix = "OOPS_STRING_NOT_SET";
-    std::string effIsoSuffix = "OOPS_STRING_NOT_SET";
-
     // Thanks to Moritz (SUSY trigger contact): using same SFs for AF2 and full sim for the time being
-    // Trying to clean up the code below by defining some filename stubs here
-    const std::string effPrefix = "ElectronEfficiencyCorrection/2015_2016/rel20.7/ICHEP_June2016_v3/trigger/efficiencySF.";
-    //                             01234567890123456789012345678901234567890123456789012345678901234567890123456789012345
-    //                             0         1         2         3         4         5         6         7         8  
-    // We use an updated TightLLH (v05) for improved high-ET electron efficiency
-    effNonIsoSuffix = m_ele_wp + "_d0z0_v11.root";
-    effIsoSuffix = m_ele_wp + "_d0z0_v11_isol" + m_ele_iso_wp + ".root";
-
-    // Decide whether we use the isolation-based SFs or the non-iso SFs.
-    std::string effSuffix = effNonIsoSuffix;
-    if ( (m_ele_wp == "TightLLH" &&
-          (m_ele_iso_wp == "Tight" ||
-           m_ele_iso_wp == "Gradient" ||
-           m_ele_iso_wp == "Loose" ||
-           m_ele_iso_wp == "LooseTrackOnly")) ||
-         (m_ele_wp == "MediumLLH" &&
-          (m_ele_iso_wp == "Gradient" ||
-           m_ele_iso_wp == "Loose" ||
-           m_ele_iso_wp == "LooseTrackOnly")) ||
-         (m_ele_wp == "LooseAndBLayerLLH" &&
-          (m_ele_iso_wp == "FixedCutLoose" ||
-           m_ele_iso_wp == "LooseTrackOnly")) )
-    {
-      effSuffix = effIsoSuffix;
-    }
+    // Pre-built keys for the trigger tool -- will come in handy later
+    const std::string egMapFile = "ElectronEfficiencyCorrection/2015_2016/rel20.7/Moriond_February2017_v1/map0.txt";
+    const std::string id_key = TString(m_ele_wp).ReplaceAll("AndBLayer", "BLayer").ReplaceAll("LLH", "").Data();
+    std::string trig_key = "";
 
     // Finally, fill the SF file list
     if (m_trigList.find("e24_lhmedium_L1EM20VH") != std::string::npos ||
         m_trigList.find("e60_lhmedium") != std::string::npos || // already matches e60_lhmedium_nod0; for post-ICHEP this should only be nod0
         m_trigList.find("e120_lhloose") != std::string::npos ||
-        m_trigList.find("e24_lhtight_nod0_ivarloose") != std::string::npos ||
+        m_trigList.find("e26_lhtight_nod0_ivarloose") != std::string::npos ||
         m_trigList.find("e140_lhloose_nod0") != std::string::npos )
-    {
-      elFiles.push_back( effPrefix + 
-                         "SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_e24_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0." + 
-                         effSuffix );
-    }
+      trig_key = "SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0";
     else if (m_trigList.find("e12_lhloose_L1EM10VH") != std::string::npos ||
              m_trigList.find("e17_lhvloose_nod0") != std::string::npos)
-      elFiles.push_back( effPrefix + "DI_E_2015_e12_lhloose_L1EM10VH_2016_e17_lhvloose_nod0." + effSuffix );
+      trig_key = "DI_E_2015_e12_lhloose_L1EM10VH_2016_e17_lhvloose_nod0";
     else if (m_trigList.find("e15_lhvloose_nod0_L1EM13VH") != std::string::npos)
-      elFiles.push_back( effPrefix + "DI_E_2015_e12_lhloose_L1EM10VH_2016_e15_lhvloose_nod0_L1EM13VH." + effSuffix );
+      trig_key = "DI_E_2015_e12_lhloose_L1EM10VH_2016_e15_lhvloose_nod0_L1EM13VH";
     else if (m_trigList.find("e17_lhloose"))
-      elFiles.push_back( effPrefix + "DI_E_2015_e17_lhloose_2016_e17_lhloose." + effSuffix );
+      trig_key = "DI_E_2015_e17_lhloose_2016_e17_lhloose";
     // QA only has single- and di-electron trigger tools, so only supporting those for the time being
     /* For the very brave, these are also available:
       * TRI_E_2015_e17_lhloose_2016_e17_lhloose_nod0
@@ -173,21 +235,29 @@ namespace ana
       * MULTI_L_2015_e17_lhloose_2016_e17_lhloose_nod0
       * MULTI_L_2015_e7_lhmedium_2016_e7_lhmedium_nod0
     */
-    elEffFiles.push_back( elFiles[0].replace(83,2,"") ); // efficiencySF -> efficiency
 
-
-    if (elFiles.size())
+    if (!trig_key.empty())
     {
       ATH_CHECK (ASG_MAKE_ANA_TOOL (m_el_trig_sf, AsgElectronEfficiencyCorrectionTool));
-      ATH_CHECK (m_el_trig_sf.setProperty("CorrectionFileNameList", elFiles) );
-      ATH_CHECK (m_el_trig_sf.setProperty("ForceDataType",1+(m_isAF2?2:0)) );
+      ATH_CHECK (m_el_trig_sf.setProperty ("MapFilePath", egMapFile) );
+      ATH_CHECK (m_el_trig_sf.setProperty ("IdKey", id_key) );
+      // For triggers with isolation, include isolation
+      if (m_trigList.find("_i")!=std::string::npos)
+        ATH_CHECK (m_el_trig_sf.setProperty ("IsoKey", m_ele_iso_wp) );
+      ATH_CHECK (m_el_trig_sf.setProperty ("TriggerKey", trig_key) );
+      ATH_CHECK (m_el_trig_sf.setProperty ("ForceDataType",1+(m_isAF2?2:0)) );
       ATH_CHECK (m_el_trig_sf.setProperty ("CorrelationModel", "TOTAL") );
       ATH_CHECK (m_el_trig_sf.initialize() );
       registerTool(&*m_el_trig_sf);
 
       ATH_CHECK (ASG_MAKE_ANA_TOOL (m_el_trig_eff, AsgElectronEfficiencyCorrectionTool));
-      ATH_CHECK (m_el_trig_eff.setProperty("CorrectionFileNameList", elEffFiles) );
-      ATH_CHECK (m_el_trig_eff.setProperty("ForceDataType",1+(m_isAF2?2:0)) );
+      ATH_CHECK (m_el_trig_eff.setProperty("MapFilePath", egMapFile) );
+      ATH_CHECK (m_el_trig_eff.setProperty("IdKey", id_key) );
+      if (m_trigList.find("_i")!=std::string::npos)
+        ATH_CHECK( m_el_trig_eff.setProperty ("IsoKey", m_ele_iso_wp) );
+      ATH_CHECK (m_el_trig_eff.setProperty ("TriggerKey", "Eff_"+trig_key) );
+      ATH_CHECK (m_el_trig_eff.setProperty ("ForceDataType",1+(m_isAF2?2:0)) );
+      ATH_CHECK (m_el_trig_eff.setProperty ("CorrelationModel", "TOTAL") );
       ATH_CHECK (m_el_trig_eff.initialize() );
 
       m_isEleToolSetup=true;
@@ -198,7 +268,7 @@ namespace ana
 
 
   // Why is this method defined at all?
-  StatusCode TriggerTool ::
+  StatusCode TriggerSFTool ::
   setObjectType (ObjectType /*type*/, const std::string& /*workingPoint*/)
   {
     //    m_type=OBJECT_ELECTRON;
@@ -207,79 +277,33 @@ namespace ana
   }
 
 
-  AnalysisStep TriggerTool ::
+  AnalysisStep TriggerSFTool ::
   step () const
   {
     return STEP_TRIGGER;
   }
 
-  unsigned TriggerTool ::
+  unsigned TriggerSFTool ::
   inputTypes () const
   {
-    return (1 << OBJECT_ELECTRON) | (1 << OBJECT_MUON) | (1 << OBJECT_JET) |
-           (1 << OBJECT_TAU) | (1 << OBJECT_PHOTON) | (1 << OBJECT_EVENTINFO);
+    return (1 << OBJECT_ELECTRON) | (1 << OBJECT_MUON) | (1 << OBJECT_EVENTINFO);
   }
 
 
 
-  unsigned TriggerTool ::
+  unsigned TriggerSFTool ::
   outputTypes () const
   {
-    return (1 << OBJECT_ELECTRON) | (1 << OBJECT_MUON) | (1 << OBJECT_JET) |
-           (1 << OBJECT_TAU) | (1 << OBJECT_PHOTON) | (1 << OBJECT_EVENTINFO);
+    return (1 << OBJECT_ELECTRON) | (1 << OBJECT_MUON) | (1 << OBJECT_EVENTINFO);
   }
 
 
 
 
-  StatusCode TriggerTool ::
+  StatusCode TriggerSFTool ::
   execute (IEventObjects& objects)
   {
-    std::vector<const xAOD::IParticle*> trig_part;
-    std::vector<std::string> trig_names;
-    boost::algorithm::split(trig_names, m_trigList, boost::is_any_of("\t "));
-    std::map<std::string, std::string> names;
-    const std::string group_pass = m_groupName+"_passTrig";
-    objects.eventinfo()->auxdata< bool >(group_pass)=false;
-    bool any_passed = false;
-
-    for (auto trig : trig_names)
-    {
-      if (!trig.empty()){
-        bool trig_dec = m_trigDecTool->isPassed(trig);
-        any_passed = any_passed || trig_dec;
-        // OR of all triggers in group
-        objects.eventinfo()->auxdata<bool>(group_pass)
-            = objects.eventinfo()->auxdata<bool>(group_pass) || trig_dec;
-        // OR of all triggers
-        objects.eventinfo()->auxdata<bool>("passAllTrig")
-            = objects.eventinfo()->auxdata<bool>("passAllTrig") || trig_dec;
-      }
-      else continue;
-
-      if (m_matchMu) {
-        if (objects.muons()) {
-          for (auto m : *objects.muons()){
-            // TODO: comment
-            trig_part.push_back(m);
-            m->auxdata<bool>(m_groupName+"_trigMatch")
-                = m->auxdata<bool>(m_groupName+"_trigMatch") || isTrigMatched(trig_part, trig);
-            trig_part.clear();
-          }
-        }
-      }
-      if(m_matchEl) {
-        if (objects.electrons()) {
-          for (auto e : *objects.electrons()){
-            trig_part.push_back(e);
-
-            e->auxdata<bool>(m_groupName+"_trigMatch")
-                = e->auxdata<bool>(m_groupName+"_trigMatch") || isTrigMatched(trig_part,trig);
-            trig_part.clear();
-          }
-        }
-      }
-    }
+    bool any_passed = objects.eventinfo()->auxdata<bool>("passAllTrig");
 
     // Remainder all applies to scale factors - not applicable if this is data
     if (m_isData || !any_passed) return StatusCode::SUCCESS;
@@ -289,8 +313,7 @@ namespace ana
     if (!m_muon_trig_str.empty()){
 
       // Configure the tools.
-      // @TODO Need this to be the run number determined by the mu reweighting tool!
-      //  Returns a CP correction code
+      // This is the run number determined by the mu reweighting tool
       int my_runNumber = objects.eventinfo()->auxdata<unsigned int>( "RandomRunNumber" );
 
       // In the case of small amounts of data, the pileup reweighting tool may
@@ -383,12 +406,7 @@ namespace ana
 
 
  
-  bool TriggerTool::isTrigMatched (std::vector<const xAOD::IParticle*> myParticles, std::string trigger)
-  {
-    return m_triggerMatching->match(myParticles,trigger);
-  }
-
-  asg::AnaToolHandle<CP::IMuonTriggerScaleFactors>& TriggerTool::muonSFToolForThisYear(const int runNumber)
+  asg::AnaToolHandle<CP::IMuonTriggerScaleFactors>& TriggerSFTool::muonSFToolForThisYear(const int runNumber)
   {
     // Was it 2016?
     if (runNumber>290000) return m_mu_trig_sf2016;
@@ -404,24 +422,35 @@ namespace ana
                               bool matchEl,
                               bool matchMu,
                               double trigPtThresh=0,
-                              TriggerTool::TrigYear year = TriggerTool::Only2015_2016)
+                              TriggerSFTool::TrigYear year = TriggerSFTool::Only2015_2016,
+                              bool decision_only = false)
   {
     using namespace msgObjectDefinition;
 
-    std::unique_ptr<TriggerTool> TrigTool
-      ( new TriggerTool(args.prefix()) );
+    std::unique_ptr<TriggerBasicTool> TrigBasicTool
+      ( new TriggerBasicTool(args.prefix()+"_Basic") );
 
-    ANA_CHECK( TrigTool->setProperty("TriggerList", trigList) );
-    ANA_CHECK( TrigTool->setProperty("GroupName", groupName) );
-    ANA_CHECK( TrigTool->setProperty("MatchMu", matchMu) );
-    ANA_CHECK( TrigTool->setProperty("MatchEl", matchEl) );
-    ANA_CHECK( TrigTool->setProperty("MuonSFstring", MuonSFstring) );
-    ANA_CHECK( TrigTool->setProperty("IsData",args.configuration()->isData()) );
-    ANA_CHECK( TrigTool->setProperty("IsAF2",args.configuration()->isAFII()) );
+    ANA_CHECK( TrigBasicTool->setProperty("TriggerList", trigList) );
+    ANA_CHECK( TrigBasicTool->setProperty("GroupName", groupName) );
+    ANA_CHECK( TrigBasicTool->setProperty("MatchMu", matchMu) );
+    ANA_CHECK( TrigBasicTool->setProperty("MatchEl", matchEl) );
+    args.add( std::move(TrigBasicTool) );
+
+    if (decision_only) return StatusCode::SUCCESS;
+
+    std::unique_ptr<TriggerSFTool> TrigSFTool
+      ( new TriggerSFTool(args.prefix()+"_SF") );
+
+    ANA_CHECK( TrigSFTool->setProperty("TriggerList", trigList) );
+    ANA_CHECK( TrigSFTool->setProperty("GroupName", groupName) );
+    ANA_CHECK( TrigSFTool->setProperty("MuonSFstring", MuonSFstring) );
+    ANA_CHECK( TrigSFTool->setProperty("IsData",args.configuration()->isData()) );
+    ANA_CHECK( TrigSFTool->setProperty("IsAF2",args.configuration()->isAFII()) );
     trigPtThresh *= 1.05;//Muon trigger tool requires offline pt = 1.05 * online
-    ANA_CHECK( TrigTool->setProperty("TriggerPtThreshold", trigPtThresh) );
-    ANA_CHECK( TrigTool->setProperty("TriggerYear", static_cast<int>(year)) );
-    args.add( std::move(TrigTool) );
+    ANA_CHECK( TrigSFTool->setProperty("TriggerPtThreshold", trigPtThresh) );
+    ANA_CHECK( TrigSFTool->setProperty("TriggerYear", static_cast<int>(year)) );
+    args.add( std::move(TrigSFTool) );
+
     return StatusCode::SUCCESS;
   }
 
@@ -430,13 +459,13 @@ namespace ana
 
   // Some Combined Trigger groups
   QUICK_ANA_TRIGGER_DEFINITION_MAKER ("SingleMu",
-    makeTriggerTool (args, "HLT_mu20_iloose_L1MU15", "SingleMu", "HLT_mu20_iloose_L1MU15", false, true,20,TriggerTool::Only2015))
+    makeTriggerTool (args, "HLT_mu20_iloose_L1MU15", "SingleMu", "HLT_mu20_iloose_L1MU15", false, true,20,TriggerSFTool::Only2015))
   QUICK_ANA_TRIGGER_DEFINITION_MAKER ("SingleE",
     makeTriggerTool (args, "HLT_e24_lhmedium_iloose_L1EM20VH HLT_e24_tight_iloose", "SingleE", "", true, false))
 
   // Some individual Trigger groups
   QUICK_ANA_TRIGGER_DEFINITION_MAKER ("HLT_mu20_iloose_L1MU15",
-    makeTriggerTool (args, "HLT_mu20_iloose_L1MU15", "HLT_mu20_iloose_L1MU15", "HLT_mu20_iloose_L1MU15", false, true,20,TriggerTool::Only2015))
+    makeTriggerTool (args, "HLT_mu20_iloose_L1MU15", "HLT_mu20_iloose_L1MU15", "HLT_mu20_iloose_L1MU15", false, true,20,TriggerSFTool::Only2015))
   QUICK_ANA_TRIGGER_DEFINITION_MAKER ("HLT_e24_lhmedium_iloose_L1EM20VH",
     makeTriggerTool (args, "HLT_e24_lhmedium_iloose_L1EM20VH", "HLT_e24_lhmedium_iloose_L1EM20VH", "", true, false))
   QUICK_ANA_TRIGGER_DEFINITION_MAKER ("HLT_e24_tight_iloose",
@@ -461,76 +490,76 @@ namespace ana
 
   //Combined Single Mu --> due to combined scale factors
   QUICK_ANA_TRIGGER_DEFINITION_MAKER ("HLT_mu26_imedium",
-    makeTriggerTool (args, "HLT_mu26_imedium", "HLT_mu26_imedium", "HLT_mu26_imedium_OR_HLT_mu50", false, true, 26, TriggerTool::Only2015_2016))
+    makeTriggerTool (args, "HLT_mu26_imedium", "HLT_mu26_imedium", "HLT_mu26_imedium_OR_HLT_mu50", false, true, 26, TriggerSFTool::Only2015_2016))
   QUICK_ANA_TRIGGER_DEFINITION_MAKER ("HLT_mu26_ivarmedium",
-    makeTriggerTool (args, "HLT_mu26_ivarmedium", "HLT_mu26_ivarmedium", "HLT_mu26_imedium_OR_HLT_mu50", false, true, 26, TriggerTool::Only2016))
+    makeTriggerTool (args, "HLT_mu26_ivarmedium", "HLT_mu26_ivarmedium", "HLT_mu26_imedium_OR_HLT_mu50", false, true, 26, TriggerSFTool::Only2016))
   QUICK_ANA_TRIGGER_DEFINITION_MAKER ("HLT_mu50",
-    makeTriggerTool (args, "HLT_mu50", "HLT_mu50", "HLT_mu50", false, true, 50, TriggerTool::Only2015_2016))
+    makeTriggerTool (args, "HLT_mu50", "HLT_mu50", "HLT_mu50", false, true, 50, TriggerSFTool::Only2015_2016))
 
   // single muon 2016 --> disable the sf for the moment
   QUICK_ANA_TRIGGER_DEFINITION_MAKER ("HLT_mu24_ivarloose",
-    makeTriggerTool (args, "HLT_mu24_ivarloose", "HLT_mu24_ivarloose", "", false, true, 24, TriggerTool::Only2016))
+    makeTriggerTool (args, "HLT_mu24_ivarloose", "HLT_mu24_ivarloose", "", false, true, 24, TriggerSFTool::Only2016))
   QUICK_ANA_TRIGGER_DEFINITION_MAKER ("HLT_mu24_iloose",
-    makeTriggerTool (args, "HLT_mu24_iloose", "HLT_mu24_iloose", "", false, true, 24, TriggerTool::Only2015_2016))
+    makeTriggerTool (args, "HLT_mu24_iloose", "HLT_mu24_iloose", "", false, true, 24, TriggerSFTool::Only2015_2016))
   QUICK_ANA_TRIGGER_DEFINITION_MAKER ("HLT_mu24_ivarloose_L1MU15",
-    makeTriggerTool (args, "HLT_mu24_ivarloose_L1MU15", "HLT_mu24_ivarloose_L1MU15", "", false, true, 24, TriggerTool::Only2016))
+    makeTriggerTool (args, "HLT_mu24_ivarloose_L1MU15", "HLT_mu24_ivarloose_L1MU15", "", false, true, 24, TriggerSFTool::Only2016))
   QUICK_ANA_TRIGGER_DEFINITION_MAKER ("HLT_mu24_iloose_L1MU15",
-    makeTriggerTool (args, "HLT_mu24_iloose_L1MU15", "HLT_mu24_iloose_L1MU15", "", false, true, 24, TriggerTool::Only2015_2016))
+    makeTriggerTool (args, "HLT_mu24_iloose_L1MU15", "HLT_mu24_iloose_L1MU15", "", false, true, 24, TriggerSFTool::Only2015_2016))
   QUICK_ANA_TRIGGER_DEFINITION_MAKER ("HLT_mu24_ivarmedium",
-    makeTriggerTool (args, "HLT_mu24_ivarmedium", "HLT_mu24_ivarmedium", "", false, true, 24, TriggerTool::Only2016))
+    makeTriggerTool (args, "HLT_mu24_ivarmedium", "HLT_mu24_ivarmedium", "", false, true, 24, TriggerSFTool::Only2016))
 
 
   QUICK_ANA_TRIGGER_DEFINITION_MAKER ("HLT_mu20_iloose_L1MU15_OR_HLT_mu50",
-    makeTriggerTool (args, "HLT_mu20_iloose_L1MU15 HLT_mu50", "HLT_mu20_iloose_L1MU15_OR_HLT_mu50", "HLT_mu20_iloose_L1MU15_OR_HLT_mu50", false, true, 20, TriggerTool::Only2015))
+    makeTriggerTool (args, "HLT_mu20_iloose_L1MU15 HLT_mu50", "HLT_mu20_iloose_L1MU15_OR_HLT_mu50", "HLT_mu20_iloose_L1MU15_OR_HLT_mu50", false, true, 20, TriggerSFTool::Only2015))
   QUICK_ANA_TRIGGER_DEFINITION_MAKER ("HLT_mu24_iloose_L1MU15_OR_HLT_mu50",
-    makeTriggerTool (args, "HLT_mu24_iloose_L1MU15 HLT_mu50", "HLT_mu24_iloose_L1MU15_OR_HLT_mu50", "HLT_mu24_iloose_L1MU15_OR_HLT_mu50", false, true, 24, TriggerTool::Only2015))
+    makeTriggerTool (args, "HLT_mu24_iloose_L1MU15 HLT_mu50", "HLT_mu24_iloose_L1MU15_OR_HLT_mu50", "HLT_mu24_iloose_L1MU15_OR_HLT_mu50", false, true, 24, TriggerSFTool::Only2015))
   QUICK_ANA_TRIGGER_DEFINITION_MAKER ("HLT_mu24_imedium_OR_HLT_mu50",
-    makeTriggerTool (args, "HLT_mu24_imedium HLT_mu50", "HLT_mu24_imedium_OR_HLT_mu50", "HLT_mu24_imedium_OR_HLT_mu50", false, true, 24, TriggerTool::Only2015_2016))
+    makeTriggerTool (args, "HLT_mu24_imedium HLT_mu50", "HLT_mu24_imedium_OR_HLT_mu50", "HLT_mu24_imedium_OR_HLT_mu50", false, true, 24, TriggerSFTool::Only2015_2016))
   QUICK_ANA_TRIGGER_DEFINITION_MAKER ("HLT_mu26_imedium_OR_HLT_mu50",
-    makeTriggerTool (args, "HLT_mu26_imedium HLT_mu50", "HLT_mu26_imedium_OR_HLT_mu50", "HLT_mu26_imedium_OR_HLT_mu50", false, true, 26, TriggerTool::Only2015_2016))
+    makeTriggerTool (args, "HLT_mu26_imedium HLT_mu50", "HLT_mu26_imedium_OR_HLT_mu50", "HLT_mu26_imedium_OR_HLT_mu50", false, true, 26, TriggerSFTool::Only2015_2016))
   QUICK_ANA_TRIGGER_DEFINITION_MAKER ("HLT_mu24_ivarmedium_OR_HLT_mu50",
-    makeTriggerTool (args, "HLT_mu24_ivarmedium HLT_mu50", "HLT_mu24_ivarmedium_OR_HLT_mu50", "HLT_mu24_ivarmedium_OR_HLT_mu50", false, true, 24, TriggerTool::Only2016))
+    makeTriggerTool (args, "HLT_mu24_ivarmedium HLT_mu50", "HLT_mu24_ivarmedium_OR_HLT_mu50", "HLT_mu24_ivarmedium_OR_HLT_mu50", false, true, 24, TriggerSFTool::Only2016))
   QUICK_ANA_TRIGGER_DEFINITION_MAKER ("HLT_mu26_ivarmedium_OR_HLT_mu50",
-    makeTriggerTool (args, "HLT_mu26_ivarmedium HLT_mu50", "HLT_mu26_ivarmedium_OR_HLT_mu50", "HLT_mu26_ivarmedium_OR_HLT_mu50", false, true, 26, TriggerTool::Only2016))
+    makeTriggerTool (args, "HLT_mu26_ivarmedium HLT_mu50", "HLT_mu26_ivarmedium_OR_HLT_mu50", "HLT_mu26_ivarmedium_OR_HLT_mu50", false, true, 26, TriggerSFTool::Only2016))
 
   // Stand alone muon triggers
   QUICK_ANA_TRIGGER_DEFINITION_MAKER ("HLT_2mu14",
-    makeTriggerTool (args, "HLT_2mu14", "HLT_2mu14", "HLT_2mu14", false, true,14, TriggerTool::Only2015_2016))
+    makeTriggerTool (args, "HLT_2mu14", "HLT_2mu14", "HLT_2mu14", false, true,14, TriggerSFTool::Only2015_2016))
   QUICK_ANA_TRIGGER_DEFINITION_MAKER ("HLT_mu14",
-    makeTriggerTool (args, "HLT_mu14", "HLT_mu14", "HLT_mu14", false, true,14, TriggerTool::Only2015_2016))
+    makeTriggerTool (args, "HLT_mu14", "HLT_mu14", "HLT_mu14", false, true,14, TriggerSFTool::Only2015_2016))
 
   QUICK_ANA_TRIGGER_DEFINITION_MAKER ("HLT_2mu10",
-    makeTriggerTool (args, "HLT_2mu10", "HLT_2mu10", "", false, true,10, TriggerTool::Only2015_2016))
+    makeTriggerTool (args, "HLT_2mu10", "HLT_2mu10", "", false, true,11./1.05, TriggerSFTool::Only2015_2016))
   QUICK_ANA_TRIGGER_DEFINITION_MAKER ("HLT_mu10",
-    makeTriggerTool (args, "HLT_mu10", "HLT_mu10", "", false, true,10, TriggerTool::Only2015_2016))
+    makeTriggerTool (args, "HLT_mu10", "HLT_mu10", "", false, true,11./1.05, TriggerSFTool::Only2015_2016))
 
   QUICK_ANA_TRIGGER_DEFINITION_MAKER ("HLT_mu24_mu8noL1",
-    makeTriggerTool (args, "HLT_mu24_mu8noL1", "HLT_mu24_mu8noL1", "", false, true,8, TriggerTool::Only2015_2016))
+    makeTriggerTool (args, "HLT_mu24_mu8noL1", "HLT_mu24_mu8noL1", "", false, true,10./1.05, TriggerSFTool::Only2015_2016))
   QUICK_ANA_TRIGGER_DEFINITION_MAKER ("HLT_mu24",
     makeTriggerTool (args, "HLT_mu24", "HLT_mu24", "", false, true,24))
 
   QUICK_ANA_TRIGGER_DEFINITION_MAKER ("HLT_mu22_mu8noL1",
-    makeTriggerTool (args, "HLT_mu22_mu8noL1", "HLT_mu22_mu8noL1", "", false, true,8, TriggerTool::Only2015_2016))
+    makeTriggerTool (args, "HLT_mu22_mu8noL1", "HLT_mu22_mu8noL1", "", false, true,10./1.05, TriggerSFTool::Only2015_2016))
   QUICK_ANA_TRIGGER_DEFINITION_MAKER ("HLT_mu22",
     makeTriggerTool (args, "HLT_mu22", "HLT_mu22", "", false, true,22))
 
   QUICK_ANA_TRIGGER_DEFINITION_MAKER ("HLT_mu20_mu8noL1",
-    makeTriggerTool (args, "HLT_mu20_mu8noL1", "HLT_mu20_mu8noL1", "", false, true,8, TriggerTool::Only2016))
+    makeTriggerTool (args, "HLT_mu20_mu8noL1", "HLT_mu20_mu8noL1", "", false, true,10./1.05, TriggerSFTool::Only2016))
   QUICK_ANA_TRIGGER_DEFINITION_MAKER ("HLT_mu20",
     makeTriggerTool (args, "HLT_mu20", "HLT_mu20", "", false, true,20))
 
   QUICK_ANA_TRIGGER_DEFINITION_MAKER ("HLT_mu18_mu8noL1",
-    makeTriggerTool (args, "HLT_mu18_mu8noL1", "HLT_mu18_mu8noL1", "", false, true,8, TriggerTool::Only2015))
+    makeTriggerTool (args, "HLT_mu18_mu8noL1", "HLT_mu18_mu8noL1", "", false, true,10./1.05, TriggerSFTool::Only2015))
   QUICK_ANA_TRIGGER_DEFINITION_MAKER ("HLT_mu18",
     makeTriggerTool (args, "HLT_mu18", "HLT_mu18", "", false, true,18))
 
   // 2016 additions
   QUICK_ANA_TRIGGER_DEFINITION_MAKER ("HLT_2mu14_nomucomb",
-    makeTriggerTool (args, "HLT_2mu14_nomucomb", "HLT_2mu14_nomucomb", "", false, true,14))
+    makeTriggerTool (args, "HLT_2mu14_nomucomb", "HLT_2mu14_nomucomb", "", false, true,15./1.05))
   QUICK_ANA_TRIGGER_DEFINITION_MAKER ("HLT_mu40",
     makeTriggerTool (args, "HLT_mu40", "HLT_mu40", "", false, true,40))
   QUICK_ANA_TRIGGER_DEFINITION_MAKER ("HLT_2mu10_nomucomb",
-    makeTriggerTool (args, "HLT_2mu10_nomucomb", "HLT_2mu10_nomucomb", "", false, true, 10))
+    makeTriggerTool (args, "HLT_2mu10_nomucomb", "HLT_2mu10_nomucomb", "", false, true, 11./1.05))
 
   // electrons
   QUICK_ANA_TRIGGER_DEFINITION_MAKER ("HLT_e24_lhmedium_iloose_L1EM18VH",
@@ -606,23 +635,23 @@ namespace ana
 
   // MET Triggers
   QUICK_ANA_TRIGGER_DEFINITION_MAKER ("L1_XE50",
-    makeTriggerTool (args, "L1_XE50", "L1_XE50", "", false, false))
+    makeTriggerTool (args, "L1_XE50", "L1_XE50", "", false, false, 0., TriggerSFTool::Only2015_2016, true))
   QUICK_ANA_TRIGGER_DEFINITION_MAKER ("HLT_xe70",
-    makeTriggerTool (args, "HLT_xe70", "HLT_xe70", "", false, false))
+    makeTriggerTool (args, "HLT_xe70", "HLT_xe70", "", false, false, 0., TriggerSFTool::Only2015_2016, true))
   QUICK_ANA_TRIGGER_DEFINITION_MAKER ("HLT_xe80",
-    makeTriggerTool (args, "HLT_xe80", "HLT_xe80", "", false, false))
+    makeTriggerTool (args, "HLT_xe80", "HLT_xe80", "", false, false, 0., TriggerSFTool::Only2015_2016, true))
   QUICK_ANA_TRIGGER_DEFINITION_MAKER ("HLT_xe80_wEFMu",
-    makeTriggerTool (args, "HLT_xe80_wEFMu", "HLT_xe80_wEFMu", "", false, false))
+    makeTriggerTool (args, "HLT_xe80_wEFMu", "HLT_xe80_wEFMu", "", false, false, 0., TriggerSFTool::Only2015_2016, true))
   QUICK_ANA_TRIGGER_DEFINITION_MAKER ("HLT_xe100",
-    makeTriggerTool (args, "HLT_xe100", "HLT_xe100", "", false, false))
+    makeTriggerTool (args, "HLT_xe100", "HLT_xe100", "", false, false, 0., TriggerSFTool::Only2015_2016, true))
   QUICK_ANA_TRIGGER_DEFINITION_MAKER ("HLT_xe100_mht_L1XE50",
-    makeTriggerTool (args, "HLT_xe100_mht_L1XE50", "HLT_xe100_mht_L1XE50", "", false, false))
+    makeTriggerTool (args, "HLT_xe100_mht_L1XE50", "HLT_xe100_mht_L1XE50", "", false, false, 0., TriggerSFTool::Only2015_2016, true))
   QUICK_ANA_TRIGGER_DEFINITION_MAKER ("HLT_xe110_mht_L1XE50",
-    makeTriggerTool (args, "HLT_xe110_mht_L1XE50", "HLT_xe110_mht_L1XE50", "", false, false))
+    makeTriggerTool (args, "HLT_xe110_mht_L1XE50", "HLT_xe110_mht_L1XE50", "", false, false, 0., TriggerSFTool::Only2015_2016, true))
   QUICK_ANA_TRIGGER_DEFINITION_MAKER ("HLT_xe110_mht_L1XE60",
-    makeTriggerTool (args, "HLT_xe110_mht_L1XE60", "HLT_xe110_mht_L1XE60", "", false, false))
+    makeTriggerTool (args, "HLT_xe110_mht_L1XE60", "HLT_xe110_mht_L1XE60", "", false, false, 0., TriggerSFTool::Only2015_2016, true))
   QUICK_ANA_TRIGGER_DEFINITION_MAKER ("HLT_xe110_mht_L1XE50_AND_xe70_L1XE50",
-    makeTriggerTool (args, "HLT_xe110_mht_L1XE50_AND_xe70_L1XE50", "HLT_xe110_mht_L1XE50_AND_xe70_L1XE50", "", false, false))
+    makeTriggerTool (args, "HLT_xe110_mht_L1XE50_AND_xe70_L1XE50", "HLT_xe110_mht_L1XE50_AND_xe70_L1XE50", "", false, false, 0., TriggerSFTool::Only2015_2016, true))
 
 
 

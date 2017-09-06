@@ -21,8 +21,8 @@ class ZmumuTagProbeDileptonPlots: public MuonTPEfficiencyPlotBase {
 
   bool m_isMatched;
   TH1* m_ll;
-  TH1* opening_angle;
-  TH1* z_pt;
+  TH1* m_opening_angle;
+  TH1* m_z_pt;
 
 };
 

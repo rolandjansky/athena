@@ -716,14 +716,20 @@ double IParticleHandle_Jet::getBTaggingWeight(std::string tagger)
 	// TODO: add the other taggers
 	if (tagger == "MV1")
 		weight = myBTag->MV1_discriminant();
+	/* these methods have been removed in xAODBTagging-00-00-35 (cfr. SVN changesets 797165 + 801102)
 	else if (tagger == "JetFitterCombNN_pb")
 		weight = myBTag->JetFitterCombNN_pb();
 	else if (tagger == "JetFitterCombNN_pc")
 		weight = myBTag->JetFitterCombNN_pc();
 	else if (tagger == "JetFitterCombNN_pu")
 		weight = myBTag->JetFitterCombNN_pu();
+	*/
 	else if (tagger=="MV2c20")
 		/*const bool hasMv2c20 =*/ myBTag->MVx_discriminant("MV2c20", weight);
+	else if ("MV2c10")
+		/*const bool hasMv2c10 =*/ myBTag->MVx_discriminant("MV2c10", weight);
+	else if ("MV2c00")
+	    /*const bool hasMv2c00 =*/ myBTag->MVx_discriminant("MV2c00", weight);
 	else
 		VP1Msg::message("Tagger '" + QString::fromStdString(tagger) + "' not found! Returning weight=0.0 ...");
 

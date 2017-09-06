@@ -74,7 +74,7 @@ AsgElectronEfficiencyCorrectionTool::AsgElectronEfficiencyCorrectionTool(std::st
   // Declare the needed properties
   declareProperty("CorrectionFileNameList", m_corrFileNameList,
                   "List of file names that store the correction factors for simulation.");
-  declareProperty("MapFilePath", m_mapFile = "ElectronEfficiencyCorrection/2015_2016/rel20.7/Moriond_February2017_v1/map0.txt" ,
+  declareProperty("MapFilePath", m_mapFile = "ElectronEfficiencyCorrection/2015_2016/rel20.7/Moriond_February2017_v2/map0.txt" ,
                   "Full path to the map file");
   declareProperty("RecoKey", m_recoKey = "" ,
                   "Key associated with reconstruction");
@@ -379,21 +379,7 @@ AsgElectronEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD::Electr
   };
   //
   //
-  //If there are not correlated systematic
-  if (m_nCorrSyst == 0) {
-    if (appliedSystematics().matchSystematic(CP::SystematicVariation("EL_EFF_" + m_sysSubstring + "CorrUncertainty",1))) {
-
-      sys = sqrt(result.getTotalUncertainty() * result.getTotalUncertainty()
-       - result.getResult(4) * result.getResult(4)); // total -stat
-      func(efficiencyScaleFactor, sys);
-    }
-    if (appliedSystematics().matchSystematic(CP::SystematicVariation("EL_EFF_" + m_sysSubstring + "CorrUncertainty" ,-1))) {
-
-      sys = -1* sqrt(result.getTotalUncertainty() * result.getTotalUncertainty()
-         - result.getResult(4) * result.getResult(4)); // total -stat
-      func(efficiencyScaleFactor, sys);
-    }
-  }else if (m_correlation_model == correlationModel::TOTAL) { // one "TOTAL" uncertainty
+  if (m_correlation_model == correlationModel::TOTAL) { // one "TOTAL" uncertainty
     if (appliedSystematics().matchSystematic(CP::SystematicVariation("EL_EFF_" + m_sysSubstring +
                                                                      m_correlation_model_name + "_" +
                                                                      "1NPCOR_PLUS_UNCOR" ,1))) {
@@ -407,6 +393,23 @@ AsgElectronEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD::Electr
       func(efficiencyScaleFactor, sys);
     }
   }
+  //If there are not correlated systematic
+  else if (m_nCorrSyst == 0) {
+    if (appliedSystematics().matchSystematic(CP::SystematicVariation("EL_EFF_" + m_sysSubstring + "CorrUncertainty",1))) {
+      
+      sys = sqrt(result.getTotalUncertainty() * result.getTotalUncertainty()
+       - result.getResult(4) * result.getResult(4)); // total -stat
+      func(efficiencyScaleFactor, sys);
+    }
+    if (appliedSystematics().matchSystematic(CP::SystematicVariation("EL_EFF_" + m_sysSubstring + "CorrUncertainty" ,-1))) {
+
+      sys = -1* sqrt(result.getTotalUncertainty() * result.getTotalUncertainty()
+         - result.getResult(4) * result.getResult(4)); // total -stat
+      func(efficiencyScaleFactor, sys);
+    }
+  }
+
+
   // =======================================================================
   // Then the uncorrelated, we just need to see if the applied matches the current electron pt and eta
   if (m_correlation_model == correlationModel::FULL) {// The Full Model
@@ -597,8 +600,8 @@ const Root::TResult& AsgElectronEfficiencyCorrectionTool::calculate(const xAOD::
       itr_ptBEGINplusOne++;
 
       if ((et > itr_ptBEGIN->first && itr_ptBEGINplusOne == itr_ptEND) ||
-          (et > itr_ptBEGIN->first && et < itr_ptBEGINplusOne->first)) {// find the pt bin
-        etabin++;
+          (et > itr_ptBEGIN->first && et <= itr_ptBEGINplusOne->first)) {// find the pt bin
+        etabin=0;
         // if it is ordered in eta from smaller to larger ascending order
         // consider using std::lower_bound(begin,end) to find the position?
         if ((itr_ptBEGIN->second).at(0) >= 0) {
@@ -608,8 +611,9 @@ const Root::TResult& AsgElectronEfficiencyCorrectionTool::calculate(const xAOD::
         };
 
         for (unsigned int etab = 0; etab < ((itr_ptBEGIN->second).size() - 1); ++etab) {// find the eta bin
+	etabin++;	
           if ((cluster_eta_electron) > (itr_ptBEGIN->second).at(etab) &&
-              (cluster_eta_electron) < (itr_ptBEGIN->second).at(etab + 1)) {
+              (cluster_eta_electron) <= (itr_ptBEGIN->second).at(etab + 1)) {
             found = true;
             break;
           } // if ( (cluster_eta_electron)
@@ -642,12 +646,11 @@ AsgElectronEfficiencyCorrectionTool::InitSystematics() {
   }else if (m_correlation_model == correlationModel::MCTOYS) {
     m_affectedSys.insert((CP::SystematicVariation::makeToyEnsemble("EL_EFF_" + m_sysSubstring + "MCTOY")));
 
-  }else if (m_nCorrSyst == 0) {
-    m_affectedSys.insert(CP::SystematicVariation("EL_EFF_" + m_sysSubstring + "CorrUncertainty", 1));
-    m_affectedSys.insert(CP::SystematicVariation("EL_EFF_" + m_sysSubstring + "CorrUncertainty", -1));
-
   }else if (m_correlation_model != correlationModel::TOTAL) {
-    for (int i = 0; i < m_nCorrSyst; ++i) {
+    if ( m_nCorrSyst == 0 ) {
+      m_affectedSys.insert(CP::SystematicVariation("EL_EFF_" + m_sysSubstring + "CorrUncertainty", 1));
+      m_affectedSys.insert(CP::SystematicVariation("EL_EFF_" + m_sysSubstring + "CorrUncertainty", -1));
+    } else for (int i = 0; i < m_nCorrSyst; ++i) {
       m_affectedSys.insert(CP::SystematicVariation("EL_EFF_" + m_sysSubstring + Form("CorrUncertaintyNP%d", i), 1));
       m_affectedSys.insert(CP::SystematicVariation("EL_EFF_" + m_sysSubstring + Form("CorrUncertaintyNP%d", i), -1));
     }

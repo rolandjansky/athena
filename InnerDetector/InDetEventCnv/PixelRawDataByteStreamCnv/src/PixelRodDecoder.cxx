@@ -38,6 +38,8 @@
     else {++this->m_numBCIDWarnings; /* No warning */}
 
 
+using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
+
 
 //--------------------------------------------------------------------------- constructor
 PixelRodDecoder::PixelRodDecoder
@@ -46,7 +48,7 @@ PixelRodDecoder::PixelRodDecoder
       m_is_ibl_present(false),
       m_is_ibl_module(false),
       m_is_dbm_module(false),
-      masked_errors(0),
+      m_masked_errors(0),
       m_numGenWarnings(0),
       m_maxNumGenWarnings(200),
       m_numBCIDWarnings(0),
@@ -116,7 +118,7 @@ StatusCode PixelRodDecoder::initialize() {
     } else
         msg(MSG::INFO) << "Retrieved ByteStream Errors tool " << m_errors << endmsg;
 
-    masked_errors = 0;
+    m_masked_errors = 0;
 
     m_numGenWarnings = 0;
     m_maxNumGenWarnings = 200;
@@ -132,7 +134,7 @@ StatusCode PixelRodDecoder::finalize() {
 
 #ifdef PIXEL_DEBUG
     msg(MSG::VERBOSE) << "in PixelRodDecoder::finalize" << endmsg;
-    msg(MSG::DEBUG) << masked_errors << " times BCID and LVL1ID error masked" << endmsg;
+    msg(MSG::DEBUG) << m_masked_errors << " times BCID and LVL1ID error masked" << endmsg;
 #endif
 
     ATH_MSG_INFO("Total number of warnings (output limit)");
@@ -250,8 +252,8 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
 
     IdentifierHash skipHash = 0xffffffff, lastHash = 0xffffffff; // used for decoding to not have to search the vector all the time
 
-    PixelRawCollection* m_coll = NULL;
-    PixelRDO_Container::const_iterator m_cont_it;
+    PixelRawCollection* coll = NULL;
+    PixelRDO_Container::const_iterator cont_it;
 
     // get the data from the word
     OFFLINE_FRAGMENTS_NAMESPACE::PointerType vint;
@@ -267,7 +269,9 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
         generalwarning("In ROB 0x" << std::hex << robId <<  ": IBL/DBM SLink number not in correct range (0-3): SLink = "
                        << std::dec << sLinkSourceId);
     }
-
+    
+    // Store length of module fragments, for monitoring
+    uint32_t nwords_in_module_fragment = 0;
 
 
 
@@ -297,6 +301,8 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
 
         unsigned int serviceCode;
         unsigned int serviceCodeCounter;
+        
+        ++nwords_in_module_fragment;
 
 
         switch (word_type) { // depending on type of word call the right decoding method
@@ -321,6 +327,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
             m_is_ibl_module = false;
             m_is_dbm_module = false;
             countHitCondensedWords = 0;
+            nwords_in_module_fragment = 1;
 
             if (m_is_ibl_present) {
                 m_is_ibl_module = m_pixelCabling->isIBL(robId);
@@ -669,19 +676,19 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                         else { // the Hash is to be filled, the cont iterator has to be set
 
                             // search for the collection (if it's not the old one)
-                            m_cont_it = rdoIdc->indexFind(offlineIdHash);
+                            cont_it = rdoIdc->indexFind(offlineIdHash);
                             // check if collection already exists and do a nasty trick
-                            if (m_cont_it != rdoIdc->end()) {
-                                m_coll = const_cast<PixelRawCollection*>(&**m_cont_it);
+                            if (cont_it != rdoIdc->end()) {
+                                coll = const_cast<PixelRawCollection*>(&**cont_it);
                             }
                             else { 	   //if the Collection does not exist, create it
-                                m_coll = new PixelRawCollection (offlineIdHash);
+                                coll = new PixelRawCollection (offlineIdHash);
                                 // get identifier from the hash, this is not nice
                                 Identifier ident = m_pixel_id->wafer_id(offlineIdHash);
                                 // set the Identifier to be nice to downstream clients
-                                m_coll->setIdentifier(ident);
+                                coll->setIdentifier(ident);
                                 // add collection into IDC
-                                StatusCode sc = rdoIdc->addCollection(m_coll, offlineIdHash);
+                                StatusCode sc = rdoIdc->addCollection(coll, offlineIdHash);
                                 if (sc.isFailure()){
                                     msg(MSG::ERROR) << "failed to add Pixel RDO collection to container" << endmsg;
                                 return sc;
@@ -704,11 +711,11 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                     if (offlineIdHash != lastHash) { // vecHash == NULL: offline case; is the hash new?
                         lastHash = offlineIdHash;
                         // search for the collection (if it's not the old one)
-                        m_cont_it = rdoIdc->indexFind(offlineIdHash);
+                        cont_it = rdoIdc->indexFind(offlineIdHash);
                         // check if collection already exists and do a nasty trick
 
-                        if (m_cont_it != rdoIdc->end()) {
-                            m_coll = const_cast<PixelRawCollection*>(&**m_cont_it);
+                        if (cont_it != rdoIdc->end()) {
+                            coll = const_cast<PixelRawCollection*>(&**cont_it);
                             if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Collection ID = " << offlineIdHash << " already exists" << endmsg;
 
                         }
@@ -716,13 +723,13 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
 
                             if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Collection ID = " << offlineIdHash << " does not exist, create it " << endmsg;
 
-                            m_coll = new PixelRawCollection (offlineIdHash);
+                            coll = new PixelRawCollection (offlineIdHash);
                             // get identifier from the hash, this is not nice
                             Identifier ident = m_pixel_id->wafer_id(offlineIdHash);
                             // set the Identifier to be nice to downstream clients
-                            m_coll->setIdentifier(ident);
+                            coll->setIdentifier(ident);
                             // add collection into IDC
-                            StatusCode sc = rdoIdc->addCollection(m_coll, offlineIdHash);
+                            StatusCode sc = rdoIdc->addCollection(coll, offlineIdHash);
                             if (sc.isFailure()) {
                                 msg(MSG::ERROR) << "failed to add Pixel RDO collection to container" << endmsg;
                                 return sc;
@@ -795,7 +802,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                                 if (hitDiscCnfg == 2 && IBLtot[1] == 2) IBLtot[1] = 16;
 
                                 // Insert the first part of the ToT info in the collection
-                                m_coll->push_back(new RDO(pixelId, IBLtot[0], mBCID,mLVL1ID,mLVL1A));
+                                coll->push_back(new RDO(pixelId, IBLtot[0], mBCID,mLVL1ID,mLVL1A));
 
 
 #ifdef PIXEL_DEBUG
@@ -841,7 +848,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                                             continue;
                                         }
 
-                                        m_coll->push_back(new RDO(pixelId, IBLtot[1], mBCID, mLVL1ID, mLVL1A));
+                                        coll->push_back(new RDO(pixelId, IBLtot[1], mBCID, mLVL1ID, mLVL1A));
 
 #ifdef PIXEL_DEBUG
                                         msg(MSG::VERBOSE) << "Collection filled with pixelId: " << pixelId << " TOT = 0x" << std::hex << IBLtot[1] << std::dec << " mBCID = " << mBCID << " mLVL1ID = " << mLVL1ID << "  mLVL1A = " << mLVL1A << endmsg;
@@ -873,7 +880,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                     }
                     // Now the Collection is there for sure. Create RDO and push it into Collection.
 
-                    m_coll->push_back(new RDO(pixelId, mToT, mBCID,mLVL1ID,mLVL1A));
+                    coll->push_back(new RDO(pixelId, mToT, mBCID,mLVL1ID,mLVL1A));
 #ifdef PIXEL_DEBUG
                     msg(MSG::VERBOSE) << "Collection filled with pixelId: " << pixelId << " TOT = 0x" << std::hex << mToT << std::dec << " mBCID = " << mBCID << " mLVL1ID = " << mLVL1ID << "  mLVL1A = " << mLVL1A << endmsg;
 #endif
@@ -904,6 +911,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
             previous_offlineIdHash = offlineIdHash;  // save offlineId for next header;
             link_start = false;   // resetting link (module) header found flag
             are_4condensed_words = false;
+            m_errors->setModuleFragmentSize(offlineIdHash, nwords_in_module_fragment);
 
             // Trailer decoding and error handling
             if (m_is_ibl_module || m_is_dbm_module) { // decode IBL/DBM Trailer word: 010nnnnnECPplbzhvMMMMMMMMMMxxxxx
@@ -946,7 +954,16 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                     m_errors->addInvalidIdentifier();
 
                 // Write the error word to the service
-                if (offlineIdHash != 0xffffffff) m_errors->setModuleErrors(offlineIdHash, errorcode);
+                if (offlineIdHash != 0xffffffff && errorcode) {
+                   m_errors->setFeErrorCode(offlineIdHash, (mLink & 0x1), errorcode);
+
+                   // Check if error code is already set for this wafer
+                   uint32_t existing_code = m_errors->getModuleErrors(offlineIdHash);
+                   if (existing_code) {
+                       errorcode = existing_code | errorcode;
+                   }
+                   m_errors->setModuleErrors(offlineIdHash, errorcode);
+               }
 
 
                 //At least temporarily removed because the data format is not clear (Franconi, 17.06.2014)
@@ -1050,6 +1067,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
 
                 FEFlags = decodeFEFlags2(rawDataWord);   // get FE flags
                 MCCFlags = decodeMCCFlags(rawDataWord);   // get MCC flags
+                uint32_t fe_number = (rawDataWord & 0x0F000000) >> 24;
 
                 FEFlags = FEFlags & 0xF3; // mask out the parity bits, they don't work
                 if ((MCCFlags | FEFlags) != 0) {
@@ -1088,6 +1106,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                         m_errors->addFlaggedError();
                     if (FEFlags & (1 << 0))
                         m_errors->addFlaggedError();
+                    m_errors->setFeErrorCode(offlineIdHash, fe_number, errorcode);
 
                 } else {
                     m_errors->addDisabledFEError();
@@ -1159,7 +1178,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
     if (sc == StatusCode::RECOVERABLE) {
 
         if (errorcode == (3 << 20) ){  // Fix for M8, this error always occurs, masked out REMOVE FIXME !!
-            masked_errors++;
+            m_masked_errors++;
             return StatusCode::SUCCESS;
         }
 

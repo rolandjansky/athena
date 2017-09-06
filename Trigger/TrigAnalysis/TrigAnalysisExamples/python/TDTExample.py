@@ -5,7 +5,6 @@ from array import array
 from math import (pi,hypot)
 from AthenaPython.PyAthena import StatusCode
 import AthenaPython.PyAthena as PyAthena
-import ROOT,PyCintex
 from ROOT import (TTree,)
 from AthenaCommon.SystemOfUnits import (GeV,cm)
 from operator import (attrgetter,itemgetter,setitem,getitem)

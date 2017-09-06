@@ -22,9 +22,6 @@ namespace dqm_algorithms
 	  dqm_core::Result * execute( const std::string & , const TObject & , const dqm_core::AlgorithmConfig & );
           using dqm_core::Algorithm::printDescription;
 	  void  printDescription(std::ostream& out);
- 
-	  private:
-	  std::string name_;
 	};
 }
 

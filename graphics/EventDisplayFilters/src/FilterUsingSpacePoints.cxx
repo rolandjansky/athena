@@ -3,7 +3,6 @@
 */
 
 #include "EventDisplayFilters/FilterUsingSpacePoints.h"
-#include "GaudiKernel/MsgStream.h"
 #include "TrkSpacePoint/SpacePointContainer.h"
 
 #include <sstream>
@@ -13,7 +12,7 @@
  * @author: Brian Thomas Martin
  ****/
 
-	FilterUsingSpacePoints::FilterUsingSpacePoints(const std::string& name, ISvcLocator* pSvcLocator)  :  Algorithm(name, pSvcLocator)
+	FilterUsingSpacePoints::FilterUsingSpacePoints(const std::string& name, ISvcLocator* pSvcLocator)  :  AthAlgorithm(name, pSvcLocator)
 {
 	declareProperty("NumberOfSpacePoints", m_SpacePoints_required=4);
 	declareProperty("SpacePointContainer", m_SpacePointContainerName="SCT_SpacePoints");
@@ -21,30 +20,16 @@
 
 StatusCode FilterUsingSpacePoints::initialize()
 {
-	MsgStream log(msgSvc(), name());
-	StatusCode sc;
-	log << MSG::INFO << "Initializing " << name() << endmsg;
-	  sc = service( "StoreGateSvc", m_eventStore);
-	  if( sc.isFailure() ) {
-		  log << MSG::FATAL << name() << ": Unable to locate Service StoreGateSvc" << endmsg;
-		  return sc;
-	  }
-	
-	return StatusCode::SUCCESS;
+  ATH_MSG_INFO( "Initializing " << name()  );
+  return StatusCode::SUCCESS;
 }
 
 StatusCode FilterUsingSpacePoints::execute()
 {
-	MsgStream log(msgSvc(), name());
-
   //Get the space point container
   const SpacePointContainer* m_SpacePointContainer;
 
-  if ( m_eventStore->retrieve(m_SpacePointContainer,  m_SpacePointContainerName).isFailure() ){
-     log << MSG::INFO << "Unable to retrieve SpacePoint container with name " << m_SpacePointContainerName << endmsg;
-     return StatusCode::FAILURE;
-  }
-  
+  ATH_CHECK( evtStore()->retrieve(m_SpacePointContainer,  m_SpacePointContainerName) );
 
   unsigned long NSpacePoints = 0;
 
@@ -55,18 +40,18 @@ StatusCode FilterUsingSpacePoints::execute()
 
 
   //be verbose
-  log << MSG::DEBUG << "Number of SpacePoints is " << NSpacePoints << endmsg;
+  ATH_MSG_DEBUG( "Number of SpacePoints is " << NSpacePoints  );
 
   //And cut
   if (NSpacePoints >= m_SpacePoints_required) {
     setFilterPassed(true);
-    log << MSG::INFO << "Event is accepted" << endmsg;
+    ATH_MSG_INFO( "Event is accepted"  );
   } else {
     setFilterPassed(false);
-    log << MSG::INFO << "Event is rejected" << endmsg;
+    ATH_MSG_INFO( "Event is rejected"  );
   }
 
-	return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }
 
 StatusCode FilterUsingSpacePoints::finalize()

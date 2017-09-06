@@ -278,6 +278,7 @@
 + Simulation/G4Sim/FADS/FadsPackageLoader
 + Simulation/G4Sim/FADS/FadsUtilities
 + Simulation/G4Sim/FADS/FadsXMLParser
++ Simulation/G4Sim/G4HiveEx
 + Simulation/G4Sim/MCTruth
 + Simulation/G4Sim/MCTruthBase
 + Simulation/G4Sim/SimHelpers
@@ -326,6 +327,7 @@
 + TileCalorimeter/TileG4/TileAncillary/DeadMaterial
 + TileCalorimeter/TileG4/TileAncillary/MinBiasScintillator
 + TileCalorimeter/TileG4/TileAncillary/TileG4DetDescr
++ TileCalorimeter/TileG4/TileG4Interfaces
 + TileCalorimeter/TileG4/TileGeoG4Calib
 + TileCalorimeter/TileG4/TileGeoG4SD
 + TileCalorimeter/TileGeoModel

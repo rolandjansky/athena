@@ -7,7 +7,7 @@
 
 #include "VP1Base/VP1Controller.h"
 #include "VP1CaloSystems/VP1CaloCells.h"
-#include <QtCore/QByteArray>
+#include <QByteArray>
 #include <QString>
 #include <map>
 

@@ -58,14 +58,14 @@
 #include "MuonReadoutGeometry/MuonReadoutElement.h"
 #include "MuonReadoutGeometry/MuonStation.h"
 
-#include <QtCore/QRegExp>
-#include <QtCore/QByteArray>
-#include <QtCore/QTimer>
-#include <QtGui/QHeaderView>
-#include <QtGui/QApplication>
-#include <QtGui/QCheckBox>
-#include <QtGui/QMessageBox>
-#include <QtCore/QFileInfo>
+#include <QRegExp>
+#include <QByteArray>
+#include <QTimer>
+#include <QHeaderView>
+#include <QApplication>
+#include <QCheckBox>
+#include <QMessageBox>
+#include <QFileInfo>
 
 #include <map>
 

@@ -118,7 +118,7 @@ class AthDictLoaderSvc
   
   /** dictionary of all known (reflex) types
    */
-  Ath::DsoDb* m_dsodb;
+  const Ath::DsoDb* m_dsodb;
 
   /** switch to recursively load (or not) all dictionaries for all types
    *  composing a given one. (ie: load dict of Bar in struct Foo {Bar*b;};)

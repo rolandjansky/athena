@@ -149,6 +149,7 @@ public:
   virtual void lock() { m_locked = true; }
   virtual void clearDecorations() { std::abort(); }
   virtual size_t size() const { std::abort(); }
+  virtual void lockDecoration (SG::auxid_t) { std::abort(); }
 
   bool m_locked;
 
@@ -166,8 +167,8 @@ public:
   virtual const CLID& clID() const override { return m_clid; }
   virtual void* object() override { return m_obj; }
   virtual const std::type_info& tinfo() const override { return typeid(Foo); }
-  virtual void* cast (CLID, SG::IRegisterTransient*, bool) const override { std::abort(); }
-  virtual void* cast (const std::type_info&, SG::IRegisterTransient*, bool) const override { std::abort(); }
+  virtual void* cast (CLID, SG::IRegisterTransient*, bool) override { std::abort(); }
+  virtual void* cast (const std::type_info&, SG::IRegisterTransient*, bool) override { std::abort(); }
   virtual DataBucketBase* clone() const override { std::abort(); }
   virtual void relinquish() override { std::abort(); }
   virtual void lock() override { std::abort(); }
@@ -187,12 +188,31 @@ namespace Athena_test
   static const bool LOCKED(false);
   static const bool RESET(true), DELETE(false);
 
+  void checkCLIDs (::StoreGateSvc& rSG, const std::set<CLID>& expCLIDs)
+  {
+    std::vector<CLID> clids = rSG.clids();
+    std::set<CLID> clid_set (clids.begin(), clids.end());
+    if (expCLIDs != clid_set) {
+      cout << "ERROR: CLID set mismatch\n";
+      cout << "  Expected ";
+      for (CLID id : expCLIDs) cout << id << " ";
+      cout << "\n  Got: ";
+      for (CLID id : clid_set) cout << id << " ";
+      cout << "\n";
+      std::abort();
+    }
+  }
+
   void testRecord(::StoreGateSvc& rSG) 
   {  
     cout << "*** StoreGateSvcClient_test record BEGINS ***" << endl;
+    std::vector<CLID> initCLIDs = rSG.clids();
+    std::set<CLID> expCLIDs (initCLIDs.begin(), initCLIDs.end());
     Foo* pFoo = new Foo(1);    
     //    cout << "pFoo=" << hex << pFoo << dec << endl;
     assert(rSG.record(pFoo, "pFoo1").isSuccess());
+    expCLIDs.insert (ClassID_traits<Foo>::ID());
+    checkCLIDs (rSG, expCLIDs);
     //can't record with same key
     SGASSERTERROR(rSG.record(new Foo(3), "pFoo1", LOCKED).isSuccess());
     //can't record same object twice
@@ -272,6 +292,7 @@ namespace Athena_test
     /// 14 Foo objects recorded above : check it
     assert(rSG.typeCount<Foo>() == 14);
 
+    checkCLIDs (rSG, expCLIDs);
 
     cout << "*** StoreGateSvcClient_test records OK ***\n\n" <<endl;
   }
@@ -389,6 +410,9 @@ namespace Athena_test
 
   void test_symlink2 (::StoreGateSvc& sg)
   {
+    std::vector<CLID> initCLIDs = sg.clids();
+    std::set<CLID> expCLIDs (initCLIDs.begin(), initCLIDs.end());
+
     // More symlink tests.
     // Check that we can put an object in and get the properly converted
     // base type out via the symlink.  Also tests auto symlink making.
@@ -407,6 +431,10 @@ namespace Athena_test
     std::cout << dp->store() << std::endl;
     std::cout << &sg << sg.name()  << std::endl;
     //    assert (dp->store() == &sg);
+
+    expCLIDs.insert (ClassID_traits<B1>::ID());
+    expCLIDs.insert (ClassID_traits<D1>::ID());
+    checkCLIDs (sg, expCLIDs);
 
     // create alias with type, key
     assert (sg.setAlias(d1, "d1Alias").isSuccess());
@@ -551,15 +579,6 @@ namespace Athena_test
 
 
 
-// Hack to get store from sg svc --- this is declared as a friend.
-class EventDumperSvc
-{
-public:
-  static SG::DataStore* get_store (::StoreGateSvc& sg)
-  { return sg.store(); }
-};
-
-
 namespace Athena_test {
   void test_symlink3 (::StoreGateSvc& sg)
   {
@@ -573,15 +592,14 @@ namespace Athena_test {
       new SG::TransientAddress (ClassID_traits<D1>::ID(), "dd",
                                 pIOA, false);
     DataProxy* dp = new SG::DataProxy (taddr, &cnv);
-    SG::DataStore* store = EventDumperSvc::get_store (sg);
-    assert (store->addToStore (ClassID_traits<D1>::ID(), dp).isSuccess());
+    assert (sg.addToStore (ClassID_traits<D1>::ID(), dp).isSuccess());
     IOpaqueAddress *pIOAB(new TestIOA);
     taddr =
       new SG::TransientAddress (ClassID_traits<D1>::ID(), "dd",
                                 pIOAB, false);
     taddr->setTransientID (ClassID_traits<B1>::ID());
     DataProxy* dpB = new SG::DataProxy (taddr, &cnv);
-    assert (store->addToStore (ClassID_traits<B1>::ID(), dpB).isSuccess());
+    assert (sg.addToStore (ClassID_traits<B1>::ID(), dpB).isSuccess());
 
     D1* d1 = 0;
     B1* b1 = 0;

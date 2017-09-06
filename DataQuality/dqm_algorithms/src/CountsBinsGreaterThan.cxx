@@ -31,9 +31,9 @@ namespace dqm_algorithms {
 
   CountsBinsGreaterThan::
   CountsBinsGreaterThan()
-    : name("AlgCountsBinsGreaterThan")
+    : m_name("AlgCountsBinsGreaterThan")
   {
-    dqm_core::AlgorithmManager::instance().registerAlgorithm( name, this );
+    dqm_core::AlgorithmManager::instance().registerAlgorithm( m_name, this );
   }
 
 
@@ -131,7 +131,7 @@ namespace dqm_algorithms {
   {
     std::string message;
     message += "\n";
-    message += "Algorithm: \"" + name + "\"\n";
+    message += "Algorithm: \"" + m_name + "\"\n";
     message += "Description: Counts the number of listed bins with entries above CountsTh\n";
     message += "Parameters:  BinStart first bin to be checked (1=first bin)\n";
     message += "             BinEnd   last bin to be checked (nbin=last bin)\n";

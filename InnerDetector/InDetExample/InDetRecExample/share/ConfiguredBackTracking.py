@@ -225,7 +225,11 @@ class ConfiguredBackTracking:
                                                                      usePixel                = NewTrackingCuts.usePixel(),
                                                                      useSCT                  = NewTrackingCuts.useSCT(),
                                                                      minTRTonTrk             = NewTrackingCuts.minSecondaryTRTonTrk(),
-                                                                     minTRTPrecisionFraction = NewTrackingCuts.minSecondaryTRTPrecFrac())
+                                                                     minTRTPrecisionFraction = NewTrackingCuts.minSecondaryTRTPrecFrac(),
+                                                                     doEmCaloSeed = DetFlags.detdescr.Calo_allOn())
+            if not InDetTRT_SeededScoringTool.doEmCaloSeed:
+               InDetTRT_SeededScoringTool.InputEmClusterContainerName = ''
+                                                                     
          # InDetTRT_SeededScoringTool.OutputLevel = DEBUG
          ToolSvc += InDetTRT_SeededScoringTool
          if (InDetFlags.doPrintConfigurables()):

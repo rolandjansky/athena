@@ -33,7 +33,7 @@ private:
   
   void dump();
 
-  SG::WriteHandleKey<HiveDataObj> m_wrh1;
+  SG::WriteHandleKey<HiveDataObj> m_wrh1 {this, "Key_W1", "b1", "WHK 1"};
 
   Gaudi::Hive::ContextSpecificData<int> m_di;
 

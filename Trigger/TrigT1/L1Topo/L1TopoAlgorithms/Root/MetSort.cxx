@@ -14,6 +14,7 @@
 #include "L1TopoSimulationUtils/L1TopoDataTypes.h"
 #include "L1TopoSimulationUtils/Trigo.h"
 #include "L1TopoSimulationUtils/Hyperbolic.h"
+#include "L1TopoSimulationUtils/Kinematics.h"
 
 using std::sqrt;
 using std::round;
@@ -36,6 +37,23 @@ TCS::MetSort::~MetSort() {}
 
 TCS::StatusCode
 TCS::MetSort::initialize() {
+   return TCS::StatusCode::SUCCESS;
+}
+
+TCS::StatusCode
+TCS::MetSort::sortBitCorrect(const InputTOBArray & input, TOBArray & output) {
+
+   if(input.size()!=1) {
+      TCS_EXCEPTION("MET sort alg expects exactly single MET TOB, got " << input.size());
+   }
+
+   const MetTOBArray & mets = dynamic_cast<const MetTOBArray&>(input);
+   int missingET = TSU::Kinematics::quadraticSumBW(mets[0].Ex(), mets[0].Ey());
+   int metphi = TSU::Trigo::atan2(mets[0].Ex(),mets[0].Ey());
+
+   TRG_MSG_DEBUG("MET phi values " << metphi << " " );
+   output.push_back( GenericTOB( missingET, 0, metphi ) );
+
    return TCS::StatusCode::SUCCESS;
 }
 

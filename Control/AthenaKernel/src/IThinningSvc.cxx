@@ -90,10 +90,10 @@ IThinningSvc::generateRemovedIdx<std::string>()
 }
 
 IThinningSvc* 
-IThinningSvc::instance( IThinningSvc* activeSvc, bool override )
+IThinningSvc::instance( IThinningSvc* activeSvc, bool overrideSvc )
 {
-  static IThinningSvc* svc = 0;
-  if ( override ) {
+  static thread_local IThinningSvc* svc = 0;
+  if ( overrideSvc ) {
     svc = activeSvc;
   }
   return svc;

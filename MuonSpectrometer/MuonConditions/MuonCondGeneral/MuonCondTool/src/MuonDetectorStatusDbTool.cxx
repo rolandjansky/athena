@@ -42,7 +42,9 @@ MuonDetectorStatusDbTool::MuonDetectorStatusDbTool (const std::string& type,
 }
 
 //StatusCode MuonDetectorStatusDbTool::updateAddress(SG::TransientAddress* tad)
-StatusCode MuonDetectorStatusDbTool::updateAddress(StoreID::type /*storeID*/, SG::TransientAddress* tad)
+StatusCode MuonDetectorStatusDbTool::updateAddress(StoreID::type /*storeID*/,
+                                                   SG::TransientAddress* tad,
+                                                   const EventContext& /*ctx*/)
 {
     CLID clid        = tad->clID();
     std::string key  = tad->name();

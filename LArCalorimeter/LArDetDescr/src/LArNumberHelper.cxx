@@ -107,8 +107,6 @@ LArNumberHelper::LArNumberHelper(const std::string geometry) :
       {
 	log <<MSG::INFO <<" did access RDBAccessSvc " <<endmsg;
 
-	m_iAccessSvc->connect();
-
 	prepare_arrays();
 	
 	db_nb_em();
@@ -131,8 +129,6 @@ LArNumberHelper::LArNumberHelper(const std::string geometry) :
 	else 
 	  log << MSG::ERROR << "Unable to get LArCellVolumes" << endmsg;
 
-	m_iAccessSvc->disconnect();
-	
       }
 
     // now use all the info to finish up :
@@ -1124,8 +1120,6 @@ LArNumberHelper::sagging_param( std::vector<double>& Rhocen, std::vector<double>
   Rhocen.clear();
   Sag.clear();
 
-  m_iAccessSvc->connect();
-
   m_lar = m_iAccessSvc->getRecordsetPtr("BarrelGeometry",m_tag,m_node);
   
   if (m_lar->size()) {
@@ -1170,8 +1164,6 @@ LArNumberHelper::sagging_param( std::vector<double>& Rhocen, std::vector<double>
     Sag.push_back(m_rec->getDouble("SAG_14")*CLHEP::cm);
 
   }
-
-  m_iAccessSvc->disconnect();  
 
 }
 

@@ -20,21 +20,20 @@ class TTree;
 
 namespace MVAUtils 
 {
-  /** Simplified Boosted Regression Tree, based on TMVA::DecisionTree.
+  /** Simplified Boosted Decision Tree, based on TMVA::DecisionTree.
    * Holds a forest (vector of top nodes of each decision tree) and a
    * constant offset (not always used).  The response is given by in
-   * one of two ways: offset + the sum of the response of each tree,
-   * or 2.0/(1.0+exp(-2.0*sum))-1, with no offset. Additionally,
-   * there's a special return when the BDTs are trained with multiple
-   * classes.
+   * various ways, e.g. offset + the sum of the response of each tree,
+   * or 2.0/(1.0+exp(-2.0*sum))-1, with no offset. Also, there's a special
+   * return when the BDTs are trained with multiple classes.
    *
-   * Can be constructed from TMVA::MethodBDT or a TTree.  Each entry
+   * Can be constructed from TMVA::MethodBDT or a TTree. Each entry
    * of the TTree represents a binary tree and each element of the
-   * vectors stored in the TTree represent a node
+   * vectors stored in the TTree represent a node.
    *
    * The response can be evaluated from a vector of floats or a vector
    * of pointers (to avoid creating vectors at each call) which can be
-   * stored internally (m_pointers)
+   * stored internally (m_pointers).
    **/
   class BDT
   {
@@ -48,30 +47,30 @@ namespace MVAUtils
     /** return the offset that is added to the response */
     float GetOffset() const { return m_offset; }
 
-    // these return offset + sum
+    /** these return offset + sum */
     float GetResponse(const std::vector<float>& values) const;
     float GetResponse(const std::vector<float*>& pointers) const;
-
-    /** Return offset + the sum of the response of each tree, using saved pointers  **/
-    float GetResponse() const { 
-      return (m_pointers.size() ? GetResponse(m_pointers) : -9999.); 
+    float GetResponse() const {
+      return (m_pointers.size() ? GetResponse(m_pointers) : -9999.);
     }
 
     /** these return Sum( purity_i*weight_i )/Sum weight_i */
+    float GetClassification(const std::vector<float*>& pointers) const;
     float GetClassification() const {
       return (m_pointers.size() ? GetClassification(m_pointers) : -9999.);
     }
-    
-    /** these return Sum( purity_i*weight_i )/Sum weight_i */
-    float GetClassification(const std::vector<float*>& pointers) const;
-    
-    // these return 2.0/(1.0+exp(-2.0*sum))-1, with no offset.
+
+    /** these return 2.0/(1.0+exp(-2.0*sum))-1, with no offset */
     float GetGradBoostMVA(const std::vector<float>& values) const;
     float GetGradBoostMVA(const std::vector<float*>& pointers) const;
+    float GetGradBoostMVA() const {
+      return (m_pointers.size() ? GetGradBoostMVA(m_pointers) : -9999.);
+    }
 
-    // special function when there are mutliple classes (for b-tagging)
+    /** these return a vector of normalised responses */
     std::vector<float> GetMultiResponse(const std::vector<float>& values, unsigned int numClasses) const;
     std::vector<float> GetMultiResponse(const std::vector<float*>& pointers, unsigned int numClasses) const;
+    std::vector<float> GetMultiResponse(unsigned int numClasses) const;
 	
     /** Return the values corresponding to m_pointers (or an empty vector) **/
     std::vector<float> GetValues() const;

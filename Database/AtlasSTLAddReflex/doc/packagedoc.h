@@ -17,12 +17,3 @@ external package. This package defines other STL containers used in
 ATLAS, e.g. std::vector<std::vector<float> >.
 
 */
-
-/**
-@page UsedAtlasSTLAddReflex Used Packages
-*/
-
-/**
-@page RequirementsAtlasSTLAddReflex Requirements
-*/
-

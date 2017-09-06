@@ -153,24 +153,24 @@ StatusCode ISF::CollectionMerger::initialize()
 /** Athena Algorithm execute */
 StatusCode ISF::CollectionMerger::execute()
 {
-  mergeCollections( m_inputBCMHits,             m_outputBCMHits             );
-  mergeCollections( m_inputBLMHits,             m_outputBLMHits             );
-  mergeCollections( m_inputPixelHits,           m_outputPixelHits           );
-  mergeCollections( m_inputSCTHits,             m_outputSCTHits             );
-  mergeCollections( m_inputTRTUncompressedHits, m_outputTRTUncompressedHits );
+  ATH_CHECK(mergeCollections( m_inputBCMHits,             m_outputBCMHits             ));
+  ATH_CHECK(mergeCollections( m_inputBLMHits,             m_outputBLMHits             ));
+  ATH_CHECK(mergeCollections( m_inputPixelHits,           m_outputPixelHits           ));
+  ATH_CHECK(mergeCollections( m_inputSCTHits,             m_outputSCTHits             ));
+  ATH_CHECK(mergeCollections( m_inputTRTUncompressedHits, m_outputTRTUncompressedHits ));
 
-  mergeCollections( m_inputLArEMBHits,          m_outputLArEMBHits          );
-  mergeCollections( m_inputLArEMECHits,         m_outputLArEMECHits         );
-  mergeCollections( m_inputLArFCALHits,         m_outputLArFCALHits         );
-  mergeCollections( m_inputLArHECHits,          m_outputLArHECHits          );
+  ATH_CHECK(mergeCollections( m_inputLArEMBHits,          m_outputLArEMBHits          ));
+  ATH_CHECK(mergeCollections( m_inputLArEMECHits,         m_outputLArEMECHits         ));
+  ATH_CHECK(mergeCollections( m_inputLArFCALHits,         m_outputLArFCALHits         ));
+  ATH_CHECK(mergeCollections( m_inputLArHECHits,          m_outputLArHECHits          ));
 
-  mergeCollections( m_inputTileHits,            m_outputTileHits            );
-  mergeCollections( m_inputMBTSHits,            m_outputMBTSHits            );
+  ATH_CHECK(mergeCollections( m_inputTileHits,            m_outputTileHits            ));
+  ATH_CHECK(mergeCollections( m_inputMBTSHits,            m_outputMBTSHits            ));
 
-  mergeCollections( m_inputCSCHits,             m_outputCSCHits             );
-  mergeCollections( m_inputMDTHits,             m_outputMDTHits             );
-  mergeCollections( m_inputRPCHits,             m_outputRPCHits             );
-  mergeCollections( m_inputTGCHits,             m_outputTGCHits             );
+  ATH_CHECK(mergeCollections( m_inputCSCHits,             m_outputCSCHits             ));
+  ATH_CHECK(mergeCollections( m_inputMDTHits,             m_outputMDTHits             ));
+  ATH_CHECK(mergeCollections( m_inputRPCHits,             m_outputRPCHits             ));
+  ATH_CHECK(mergeCollections( m_inputTGCHits,             m_outputTGCHits             ));
 
   return StatusCode::SUCCESS;
 }
@@ -186,6 +186,6 @@ StatusCode ISF::CollectionMerger::finalize()
 StatusCode ISF::CollectionMerger::initializeVarHandleKey( SG::VarHandleKey& varHandleKey ) const {
   if ( varHandleKey.key().empty() )
     return StatusCode::SUCCESS;
-  
+
   return varHandleKey.initialize();
 }

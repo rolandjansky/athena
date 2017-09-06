@@ -11,7 +11,8 @@
 // Joe Boudreau May 2008
 //____________________________________________________________
 #include "VP1Base/AnimationSequence.h"
-#include <QtCore/QObject>
+
+#include <QObject>
 
 class VP1ExaminerViewer;
 

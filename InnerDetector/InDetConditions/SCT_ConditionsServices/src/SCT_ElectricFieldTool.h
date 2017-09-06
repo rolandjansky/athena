@@ -14,7 +14,6 @@
 
 //Gaudi Includes
 //#include "GaudiKernel/IInterface.h"
-//#include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "SCT_ConditionsServices/ISCT_ElectricFieldTool.h"
 

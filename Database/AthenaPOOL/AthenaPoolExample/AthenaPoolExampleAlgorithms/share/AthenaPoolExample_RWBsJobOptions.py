@@ -44,7 +44,11 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
-svcMgr.ByteStreamInputSvc.FullFileName = [ "/afs/cern.ch/atlas/offline/test/daq.m4_combined.0020720.extract.L1TT-b00000010._0001.data" ]
+import os
+fname = "/afs/cern.ch/atlas/offline/test/daq.m4_combined.0020720.extract.L1TT-b00000010._0001.data"
+if not os.path.exists (fname) and os.environ.has_key('ATLAS_REFERENCE_DATA'):
+    fname = os.environ['ATLAS_REFERENCE_DATA'] + "/bstest/daq.m4_combined.0020720.extract.L1TT-b00000010._0001.data"
+svcMgr.ByteStreamInputSvc.FullFileName = [ fname ]
 #svcMgr.ByteStreamInputSvc.FullFileName = [ "test_defl.data" ]
 
 svcMgr.ByteStreamInputSvc.ValidateEvent = True

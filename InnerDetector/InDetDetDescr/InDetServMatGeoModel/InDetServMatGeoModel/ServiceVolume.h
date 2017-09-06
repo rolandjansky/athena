@@ -22,7 +22,7 @@ public:
 
   ServiceVolume( Shape sh, double rmin, double rmax, double zmin, double zmax, const std::string& name) :
 		 m_shape(sh), m_rMin( rmin), m_rMax(rmax), m_zMin(zmin), m_zMax(zmax), m_name(name),
-		 m_layers(), m_endingLayer(0), m_previous(0), m_next(0) {}
+		 m_layers(), m_previous(0), m_next(0) {}
 
   /// Add a layer the services of which are routed through this volume
   void addLayer( const ServicesLayer* l) {
@@ -108,7 +108,6 @@ private:
 
   LayerContainer m_layers;  // All layers the services of which are routed through this volume
 
-  const ServicesLayer* m_endingLayer;
   std::vector<ServiceVolume*> m_previous;
   ServiceVolume* m_next;
 

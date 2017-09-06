@@ -6,7 +6,7 @@
 #include "VP1Base/IVP13DSystem.h"
 #include "VP1PRDSystems/PRDHandle_TRT.h"
 #include "VP1PRDSystems/PRDSystemController.h"
-#include <QtGui/QColor>
+#include <QColor>
 
 #include "InDetPrepRawData/TRT_DriftCircle.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"

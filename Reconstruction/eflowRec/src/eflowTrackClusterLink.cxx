@@ -11,13 +11,4 @@
 
 #include "eflowRec/eflowTrackClusterLink.h"
 
-std::map<std::pair<eflowRecTrack*, eflowRecCluster*>, eflowTrackClusterLink*> eflowTrackClusterLink::m_instances;
-
-void eflowTrackClusterLink::clearInstances() {
-  InstanceMap::iterator itInstance = m_instances.begin();
-  InstanceMap::iterator endInstance = m_instances.end();
-  for (; itInstance != endInstance; ++itInstance) {
-    delete itInstance->second;
-  }
-  m_instances.clear();
-}
+std::map<std::pair<eflowRecTrack*, eflowRecCluster*>, std::unique_ptr<eflowTrackClusterLink> > eflowTrackClusterLink::m_instances;

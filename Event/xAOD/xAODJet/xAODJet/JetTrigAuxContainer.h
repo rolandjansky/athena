@@ -6,7 +6,7 @@
 
 #ifndef XAODJET_JETTRIGAUXCONTAINER_H
 #define XAODJET_JETTRIGAUXCONTAINER_H
-#ifndef SIMUATIONBASE
+#ifndef SIMULATIONBASE
 // Local include(s):
 #include "xAODJet/versions/JetTrigAuxContainer_v1.h"
 

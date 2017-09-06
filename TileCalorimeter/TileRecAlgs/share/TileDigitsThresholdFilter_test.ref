@@ -1,0 +1,64 @@
+
+
+Initializing Gaudi ApplicationMgr using job opts ./TileDigitsThresholdFilter_test_generated.txt
+JobOptionsSvc        INFO Job options successfully read in from ./TileDigitsThresholdFilter_test_generated.txt
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v28r2)
+                                          running on lxplus000.cern.ch on Mon Jul 10 16:48:20 2017
+====================================================================================================================================
+ApplicationMgr       INFO Successfully loaded modules : StoreGate
+ApplicationMgr       INFO Application Manager Configured successfully
+ClassIDSvc           INFO  getRegistryEntries: read 4130 CLIDRegistry entries for module ALL
+StoreGateSvc        DEBUG Property update for OutputLevel : new value = 2
+StoreGateSvc        DEBUG Service base class initialized successfully
+StoreGateSvc        DEBUG trying to create store SGImplSvc/StoreGateSvc_Impl
+StoreGateSvc_Impl   DEBUG Property update for OutputLevel : new value = 2
+StoreGateSvc_Impl   DEBUG Service base class initialized successfully
+EventLoopMgr      WARNING Unable to locate service "EventSelector" 
+EventLoopMgr      WARNING No events will be processed from external input.
+HistogramPersis...WARNING Histograms saving not required.
+ApplicationMgr       INFO Application Manager Initialized successfully
+ApplicationMgr Ready
+test1
+TileHWID             INFO initialize_from_dictionary 
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
+AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
+AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
+AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
+ AtlasDetectorID::initialize_from_dictionary - OK 
+TileTBID             INFO initialize_from_dictionary 
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
+AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
+AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
+AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
+ AtlasDetectorID::initialize_from_dictionary - OK 
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
+AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
+AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
+AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
+ AtlasDetectorID::initialize_from_dictionary - OK 
+ClassIDSvc           INFO  getRegistryEntries: read 371 CLIDRegistry entries for module ALL
+TileDigitsThres...   INFO Input digits container: 'TileDigitsCnt'  output container: 'TileDigitsFiltered'
+TileDigitsThres...   INFO initialization completed
+TILE => 5/0/1/1/0/0
+TILE => 5/0/1/1/1/0
+TILE => 5/0/1/1/2/0
+TILE => 5/0/1/1/3/0
+TILE => 5/0/1/1/4/0
+TILE => 5/0/1/2/0/1
+TILE => 5/0/1/2/1/1
+TILE => 5/0/1/2/2/1
+TILE => 5/0/1/2/3/1
+TILE => 5/0/1/2/4/1
+StoreGateSvc_Impl   DEBUG Recorded object @0x238c9f0 with key TileDigitsCnt of type TileDigitsContainer(CLID 2925)
+ in DataObject @0x2371410
+ object not modifiable when retrieved
+StoreGateSvc_Impl   DEBUG Retrieved const handle to object TileDigitsCnt  of type TileDigitsContainer(CLID 2925)
+StoreGateSvc_Impl   DEBUG Recorded object @0x23ba0b0 with key TileDigitsFiltered of type TileDigitsContainer(CLID 2925)
+ in DataObject @0x22ec880
+ object not modifiable when retrieved
+StoreGateSvc_Impl   DEBUG Retrieved const handle to object TileDigitsFiltered  of type TileDigitsContainer(CLID 2925)

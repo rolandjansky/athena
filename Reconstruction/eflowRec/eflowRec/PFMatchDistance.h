@@ -42,12 +42,12 @@ public:
 
 class DistanceFactory {
 public:
-  static IDistanceProvider* Get(std::string distanceType, IPositionProvider* trackPosition,
-                                IPositionProvider* clusterPosition) {
+  static std::unique_ptr<IDistanceProvider> Get(std::string distanceType, std::unique_ptr<IPositionProvider> trackPosition,
+						std::unique_ptr<IPositionProvider> clusterPosition) {
     if (distanceType == "EtaPhiSquareDistance") {
-      return new DistanceProvider<EtaPhi, EtaPhi>(trackPosition, clusterPosition, new EtaPhiSqDistanceCalculator());
+      return std::make_unique<DistanceProvider<EtaPhi, EtaPhi> >(std::move(trackPosition), std::move(clusterPosition), std::make_unique<EtaPhiSqDistanceCalculator>());
     } else if (distanceType == "EtaPhiSquareSignificance") {
-      return new DistanceProvider<EtaPhi, EtaPhiWithVariance>(trackPosition, clusterPosition, new EtaPhiSqSignificanceCalculator());
+      return std::make_unique<DistanceProvider<EtaPhi, EtaPhiWithVariance> >(std::move(trackPosition), std::move(clusterPosition), std::make_unique<EtaPhiSqSignificanceCalculator>());
     } else {
       std::cerr << "DistanceFactory\tERROR\tInvalid distance type: \"" << distanceType << "\"" << std::endl;
       assert(false);

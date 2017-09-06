@@ -94,7 +94,7 @@ public:
    * @param storename Name of the referenced event store.
    */
   explicit ReadHandle(const std::string& sgkey, 
-                      const std::string& storename = "StoreGateSvc");
+                      const std::string& storename = StoreID::storeName(StoreID::EVENT_STORE));
 
 
   /**

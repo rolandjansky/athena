@@ -2,9 +2,9 @@ from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.AlgSequence import AlgSequence
 from RecExConfig.RecFlags import rec
 
-import ROOT, PyCintex
-PyCintex.loadDictionary('xAODCoreRflxDict')
-PyCintex.loadDictionary('xAODPrimitivesDict')
+import ROOT, cppyy
+cppyy.loadDictionary('xAODCoreRflxDict')
+cppyy.loadDictionary('xAODPrimitivesDict')
 isoPar = ROOT.xAOD.Iso
 ptconeList = [[isoPar.ptcone40,isoPar.ptcone30,isoPar.ptcone20]]
 

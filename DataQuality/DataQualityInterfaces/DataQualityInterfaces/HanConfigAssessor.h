@@ -96,18 +96,18 @@ public:
   
 protected:
 
-  TObjString name;
+  TObjString m_name;
   
-  TObjString algName;
-  TObjString algLibName;
-  TObjString algRefName;
+  TObjString m_algName;
+  TObjString m_algLibName;
+  TObjString m_algRefName;
   
-  TSeqCollection* algPars;
-  TSeqCollection* algLimits;
-  TSeqCollection* annotations;
+  TSeqCollection* m_algPars;
+  TSeqCollection* m_algLimits;
+  TSeqCollection* m_annotations;
 
-  float weight;
-  bool isRegex;
+  float m_weight;
+  bool m_isRegex;
 
 //Get rid of Root macros that confuse Doxygen
 ///\cond CLASSDEF

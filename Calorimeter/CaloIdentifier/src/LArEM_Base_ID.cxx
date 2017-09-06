@@ -142,7 +142,7 @@ int LArEM_Base_ID::phi_max(const Identifier regId) const
   return (-999);  // default
 }
 
-void LArEM_Base_ID::region_id_checks   ( int barrel_ec, int sampling, int region ) const throw(LArID_Exception)
+void LArEM_Base_ID::region_id_checks   ( int barrel_ec, int sampling, int region ) const
 {
   // Check that id is within allowed range
 
@@ -167,7 +167,7 @@ void LArEM_Base_ID::region_id_checks   ( int barrel_ec, int sampling, int region
 
 
 void LArEM_Base_ID::channel_id_checks   ( int barrel_ec, int sampling, int region,
-				     int eta,       int phi ) const throw(LArID_Exception)
+				     int eta,       int phi ) const
 {  
     // Check that id is within allowed range
 
@@ -191,7 +191,7 @@ void LArEM_Base_ID::channel_id_checks   ( int barrel_ec, int sampling, int regio
 }
 
 void LArEM_Base_ID::channel_id_checks   ( const Identifier regionId,
-                                          int eta,       int phi ) const throw(LArID_Exception) 
+                                          int eta,       int phi ) const
 {
   // Check that id is within allowed range
 

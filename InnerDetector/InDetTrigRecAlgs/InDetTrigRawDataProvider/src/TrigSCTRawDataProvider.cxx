@@ -16,6 +16,7 @@
 #include "IRegionSelector/IRegSelSvc.h" 
 
 
+using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
 
 namespace InDet {

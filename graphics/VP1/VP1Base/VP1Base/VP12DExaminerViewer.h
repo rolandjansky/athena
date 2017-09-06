@@ -16,10 +16,10 @@
 #ifndef VP12DEXAMINERVIEWER_H
 #define VP12DEXAMINERVIEWER_H
 
-#include <QtCore/QList>
-#include <QtCore/QPair>
-#include <QtCore/QStringList>
-#include <QtGui/QWidget>
+#include <QList>
+#include <QPair>
+#include <QStringList>
+#include <QWidget>
 
 class VP1GraphicsView;
 

@@ -12,9 +12,9 @@
 #include "VP1Base/VP1Deserialise.h"
 #include "VP1HEPVis/nodes/SoGenericBox.h"
 
-#include <QtCore/QBuffer>
-#include <QtCore/QByteArray>
-#include <QtCore/QString>
+#include <QBuffer>
+#include <QByteArray>
+#include <QString>
 #include <QMessageBox>
 
 #include <Inventor/SoPath.h>

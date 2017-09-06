@@ -326,7 +326,7 @@ void Trig::TrigNtRobsTool::CheckROB(const TrigMonROB &data,
   //
   // Check consistency between between two input structures
   //
-  if(outputLevel() > MSG::DEBUG || !m_printDebug) return;
+  if(msgLvl(MSG::DEBUG) || !m_printDebug) return;
   
   ATH_MSG_DEBUG("TrigNtRobsTool::CheckROB() - start function: number of requested robs: " << rob.requested_ROBs.size() );
 

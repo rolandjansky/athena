@@ -8,10 +8,10 @@
 Python helper module for managing COOL DB connections and CaloCondBlobs. 
 """
 
-import PyCintex
+import cppyy
 from PyCool import cool
 import time, types, re
-g = PyCintex.gbl
+g = cppyy.gbl
 
 
 #=== get a logger

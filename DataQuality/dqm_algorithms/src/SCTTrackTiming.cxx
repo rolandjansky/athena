@@ -30,7 +30,7 @@ namespace dqm_algorithms {
 	{
 		std::string message;
 		message += "\n";
-		message += "Algorithm: \"" + name + "\"\n";
+		message += "Algorithm: \"" + m_name + "\"\n";
 		message += "Description: For use with SCT Track Time Bins ONLY!\n";
 		message += "             Prints the ratio of 010 : 01X hits.\n";
 		message += "             Prints the mean hit time, with 100 as -1 BunchCrossing (early) and 001 as +1 BunchCrossing (late)\n";
@@ -43,10 +43,10 @@ namespace dqm_algorithms {
 	
 	SCTTrackTiming::
 	SCTTrackTiming()
-    : name("SCTTrackTiming")
-    , NbinsX(8)
+    : m_name("SCTTrackTiming")
+    , m_NbinsX(8)
 	{
-		dqm_core::AlgorithmManager::instance().registerAlgorithm( name, this );
+		dqm_core::AlgorithmManager::instance().registerAlgorithm( m_name, this );
 	}
 	
 	
@@ -86,7 +86,7 @@ namespace dqm_algorithms {
 		}
 		
 		//Histogram is assumed to be SCT Time Bins.
-		NbinsX = 8;
+		m_NbinsX = 8;
 		
 		//Get the ratio & average for hit times
 		double Hits010 = 0.;

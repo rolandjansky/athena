@@ -51,37 +51,10 @@ class GetDetectorPositions:public AthAlgorithm {
 
     /** Name of the Output file */
     unsigned int m_detailLevel;
+    bool         m_doTRT;
     std::string m_outputFileName;
-    std::ofstream outputFile;
+    std::ofstream m_outputFile;
     
-    /** Pixel Data */
-    int m_pix_barrel_ec;
-    int m_pix_layer_disk;
-    int m_pix_phi_module;
-    int m_pix_eta_module;
-    float m_pix_x;
-    float m_pix_y;
-    float m_pix_z;
-
-    /** SCT Data */
-    int m_sct_barrel_ec;
-    int m_sct_layer_disk;
-    int m_sct_phi_module;
-    int m_sct_eta_module;
-    float m_sct_x;
-    float m_sct_y;
-    float m_sct_z;
-
-    /** TRT Data */
-    int m_trt_barrel_ec;
-    int m_trt_layer_or_wheel;
-    int m_trt_phi_module;
-    int m_trt_straw_layer;
-    int m_trt_straw;
-    float m_trt_x;
-    float m_trt_y;
-    float m_trt_z;
-
     /** Tools */
     const PixelID *m_PixelHelper;
     const InDetDD::PixelDetectorManager *m_pixelDetectorManager;

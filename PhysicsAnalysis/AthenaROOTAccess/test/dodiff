@@ -1,12 +1,16 @@
 #!/bin/sh
 
+# Exclude some differences from taujet v2->v3 migration which are not
+# practical to implement in ARA.
+excludes="-InChargedTracks: -InIsolatedTracks: -ItauTrackLinks:"
+
 echo "*** diff 1"
-bzdiff -u dump.out.bz2 dump1.out.bz2
-bzdiff -u dump-rand.out.bz2 dump1-rand.out.bz2
+bzdiff -u $excludes dump.out.bz2 dump1.out.bz2
+bzdiff -u $excludes dump-rand.out.bz2 dump1-rand.out.bz2
 
 echo "*** diff 2"
-bzdiff -u dump2.out.bz2 dump3.out.bz2
-bzdiff -u dump2-rand.out.bz2 dump3-rand.out.bz2
+bzdiff -u $excludes dump2.out.bz2 dump3.out.bz2
+bzdiff -u $excludes dump2-rand.out.bz2 dump3-rand.out.bz2
 
 echo "*** diff 3"
-bzdiff -u dump1.out.bz2 dump2.out.bz2
+bzdiff -u $excludes dump1.out.bz2 dump2.out.bz2

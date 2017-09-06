@@ -37,7 +37,6 @@ SCT_FrontEnd::SCT_FrontEnd(const std::string &type, const std::string &name,
     m_sc(0),
     m_SCTdetMgr(0),
     m_sct_id(0),
-    m_sct_amplifier("SCT_Amp", this),
     m_ReadCalibChipDataSvc("SCT_ReadCalibChipDataSvc", name),
     m_rndmEngine(nullptr) {
     declareInterface< ISCT_FrontEnd >(this);
@@ -79,7 +78,6 @@ SCT_FrontEnd::SCT_FrontEnd(const std::string &type, const std::string &name,
                     "Flag to use Calib Data");
     declareProperty("MaxStripsPerSide", m_strip_max = 768, "For SLHC studies");
     declareProperty("SCT_ReadCalibChipDataSvc", m_ReadCalibChipDataSvc);
-    declareProperty("SCT_Amp", m_sct_amplifier);
 }
 
 // Destructor:
@@ -102,7 +100,6 @@ StatusCode SCT_FrontEnd::initialize() {
     // Get SCT detector manager
     ATH_CHECK(detStore()->retrieve(m_SCTdetMgr, "SCT"));
     // Get the amplifier tool
-    ATH_CHECK(m_sct_amplifier.retrieve());
     ATH_MSG_DEBUG("SCT Amplifier tool located ");
 
 

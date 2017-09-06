@@ -80,9 +80,6 @@ You may also be interested in:
 
    - The rest of the AOD EDM classes
 
-@section MuonIDEvent_MuonIDEventReq Requirements
 
 
 */
-
-

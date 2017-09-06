@@ -104,3 +104,9 @@ if hasattr(svcMgr,'THistSvc'):
 #from AthenaCommon.AlgSequence import AlgSequence
 print AlgSequence
 print ServiceMgr
+
+# Tempory - 24/05/17 # this can be later removed
+if not hasattr(svcMgr.ToolSvc,"TileROD_Decoder"):
+   from TileByteStream.TileByteStreamConf import TileROD_Decoder
+   svcMgr.ToolSvc+=TileROD_Decoder()
+svcMgr.ToolSvc.TileROD_Decoder.fullTileMode=0

@@ -25,7 +25,6 @@
 static const unsigned int OBJVERSIONV100(100);
 static const unsigned int OBJVERSIONV200(200);
 static const int NCHANNELS(2);
-static const int NGAINS(1);
 
 
 const std::vector<std::vector<float> > channel0data = {

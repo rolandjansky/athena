@@ -39,8 +39,4 @@ class TFCSSimulationState:public TObject
   ClassDef(TFCSSimulationState,1)  //TFCSSimulationState
 };
 
-#if defined(__MAKECINT__)
-#pragma link C++ class TFCSSimulationState+;
-#endif
-
 #endif

@@ -110,11 +110,11 @@ class JpsiTrackSelector : public TrigTrackSelector {
   virtual void clear() { 
     //std::cout << "clearing now..." << std::endl;
     //std::cout << "JpsiTrackSelector clear -- mtracks size = " << mtracks.size() << std::endl;
-    for ( unsigned i=mtracks.size() ; i-- ; ) { 
-      //std::cout << "mtracks[" << i << "] = " << mtracks[i] << std::endl;
-      delete mtracks[i];
+    for ( unsigned i=m_tracks.size() ; i-- ; ) { 
+      //std::cout << "m_tracks[" << i << "] = " << m_tracks[i] << std::endl;
+      delete m_tracks[i];
     }
-    mtracks.clear();
+    m_tracks.clear();
     //TrigTrackSelector::clear();
   }
 };

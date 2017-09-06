@@ -59,7 +59,7 @@ CSCSegmValAlg::CSCSegmValAlg( const std::string & type, const std::string & name
     m_tgcIdHelper(0),
     m_segms(0),
     m_debuglevel(false),
-    bookedhistos(false) {
+    m_bookedhistos(false) {
   m_helperTool     = ToolHandle<Muon::MuonEDMHelperTool>("Muon::MuonEDMHelperTool/MuonEDMHelperTool");
   m_idHelperTool   = ToolHandle<Muon::MuonIdHelperTool>("Muon::MuonIdHelperTool/MuonIdHelperTool");
 
@@ -105,7 +105,7 @@ CSCSegmValAlg::~CSCSegmValAlg() {
 //________________________________________________________________________________________________________
 StatusCode CSCSegmValAlg::initialize() {
 
-  bookedhistos=false;
+  m_bookedhistos=false;
 
   StatusCode sc = ManagedMonitorToolBase::initialize();
   if(!sc.isSuccess()) return sc;
@@ -286,215 +286,215 @@ void CSCSegmValAlg::bookSegmentHistograms() {
     m_segmOview_EC.push_back(new MonGroup(this, segm_oviewC+theKey+"/CSC", run, attr ));
  
     // segment hists
-    h2CSC_Segm_NumOfSegs_EA.push_back( new TH2F(Form("%s_Segm_NumSegments_EA",pfx.c_str()),
+    m_h2CSC_Segm_NumOfSegs_EA.push_back( new TH2F(Form("%s_Segm_NumSegments_EA",pfx.c_str()),
 						Form("EndCap A: No. of segments; #segments;[sector] + [0.2 #times layer]"),
 						nsegbins,nsegmin,nsegmax,nybinsEA,nyminEA,nymaxEA));
-    h2CSC_Segm_NumOfSegs_EC.push_back( new TH2F(Form("%s_Segm_NumSegments_EC",pfx.c_str()),
+    m_h2CSC_Segm_NumOfSegs_EC.push_back( new TH2F(Form("%s_Segm_NumSegments_EC",pfx.c_str()),
 						Form("EndCap C: No. of segments; #segments;[sector] + [0.2 #times layer]"),
 						nsegbins,nsegmin,nsegmax,nybinsEC,nyminEC,nymaxEC));
-    regCSCHist(h2CSC_Segm_NumOfSegs_EA[ic], m_segmOview_EA[ic]);
-    regCSCHist(h2CSC_Segm_NumOfSegs_EC[ic], m_segmOview_EC[ic]);
+    regCSCHist(m_h2CSC_Segm_NumOfSegs_EA[ic], m_segmOview_EA[ic]);
+    regCSCHist(m_h2CSC_Segm_NumOfSegs_EC[ic], m_segmOview_EC[ic]);
 
     // precision clusters on segment
 
-    h2CSC_Segm_NumOfNClusSegs_Eta_EA.push_back(new TH2F(Form("%s_Segm_NumNClusSegments_EA",pfx.c_str()),
+    m_h2CSC_Segm_NumOfNClusSegs_Eta_EA.push_back(new TH2F(Form("%s_Segm_NumNClusSegments_EA",pfx.c_str()),
 							Form("EndCap A: #eta-number of 3 and 4 cluster segments with each layer;counts;[sector] + [0.2 #times layer]"),
 							nclustbins,nclustmin,nclustmax,nybinsEA,nyminEA,nymaxEA));
-    setCSCLayerLabels(h2CSC_Segm_NumOfNClusSegs_Eta_EA[ic], 1);
-    h2CSC_Segm_NumOfNClusSegs_Eta_EC.push_back(new TH2F(Form("%s_Segm_NumNClusSegments_EC",pfx.c_str()),
+    setCSCLayerLabels(m_h2CSC_Segm_NumOfNClusSegs_Eta_EA[ic], 1);
+    m_h2CSC_Segm_NumOfNClusSegs_Eta_EC.push_back(new TH2F(Form("%s_Segm_NumNClusSegments_EC",pfx.c_str()),
 							Form("EndCap C: #eta-number of 3 and 4 cluster segments with each layer;counts;[sector] + [0.2 #times layer]"),
 							nclustbins,nclustmin,nclustmax,nybinsEC,nyminEC,nymaxEC));
-    setCSCLayerLabels(h2CSC_Segm_NumOfNClusSegs_Eta_EC[ic], -1);
-    regCSCHist(h2CSC_Segm_NumOfNClusSegs_Eta_EA[ic], m_segmDetail_EA[ic]);
-    regCSCHist(h2CSC_Segm_NumOfNClusSegs_Eta_EC[ic], m_segmDetail_EC[ic]);
+    setCSCLayerLabels(m_h2CSC_Segm_NumOfNClusSegs_Eta_EC[ic], -1);
+    regCSCHist(m_h2CSC_Segm_NumOfNClusSegs_Eta_EA[ic], m_segmDetail_EA[ic]);
+    regCSCHist(m_h2CSC_Segm_NumOfNClusSegs_Eta_EC[ic], m_segmDetail_EC[ic]);
    
     for (size_t j = 0; j < m_NClusWord.size(); j++) {
-      h2CSC_Segm_NumOfNClusSegs_Eta_EA[ic]->GetXaxis()->SetBinLabel(j*10+5, m_NClusWord[j].c_str());
-      h2CSC_Segm_NumOfNClusSegs_Eta_EC[ic]->GetXaxis()->SetBinLabel(j*10+5, m_NClusWord[j].c_str());
+      m_h2CSC_Segm_NumOfNClusSegs_Eta_EA[ic]->GetXaxis()->SetBinLabel(j*10+5, m_NClusWord[j].c_str());
+      m_h2CSC_Segm_NumOfNClusSegs_Eta_EC[ic]->GetXaxis()->SetBinLabel(j*10+5, m_NClusWord[j].c_str());
     }
 
-    h1CSC_Segm_Efficiency_Eta_EA.push_back(new TH1F(Form("%s_Segm_Efficiency_EA",pfx.c_str()),
+    m_h1CSC_Segm_Efficiency_Eta_EA.push_back(new TH1F(Form("%s_Segm_Efficiency_EA",pfx.c_str()),
 						    Form("EndCap A: #eta-segment efficiency per sector;[sector] + [0.2 #times layer];efficiency"),
 						    nybinsEA,nyminEA,nymaxEA));
-    setCSCLayerLabels(h1CSC_Segm_Efficiency_Eta_EA[ic], 1);
-    h1CSC_Segm_Efficiency_Eta_EC.push_back(new TH1F(Form("%s_Segm_Efficiency_EC",pfx.c_str()),
+    setCSCLayerLabels(m_h1CSC_Segm_Efficiency_Eta_EA[ic], 1);
+    m_h1CSC_Segm_Efficiency_Eta_EC.push_back(new TH1F(Form("%s_Segm_Efficiency_EC",pfx.c_str()),
 						    Form("EndCap C: #eta-segment efficiency per sector;[sector] + [0.2 #times layer];efficiency"),
 						    nybinsEC,nyminEC,nymaxEC));
-    setCSCLayerLabels(h1CSC_Segm_Efficiency_Eta_EC[ic], -1);
+    setCSCLayerLabels(m_h1CSC_Segm_Efficiency_Eta_EC[ic], -1);
 
-    regCSCHist(h1CSC_Segm_Efficiency_Eta_EA[ic], m_segmOview_EA[ic]);
-    regCSCHist(h1CSC_Segm_Efficiency_Eta_EC[ic], m_segmOview_EC[ic]);
+    regCSCHist(m_h1CSC_Segm_Efficiency_Eta_EA[ic], m_segmOview_EA[ic]);
+    regCSCHist(m_h1CSC_Segm_Efficiency_Eta_EC[ic], m_segmOview_EC[ic]);
     
-    h2CSC_Segm_QsumOfGoodClusMap_Eta_EA.push_back(new TH2F(Form("%s_Segm_QSumEtaGoodClusPerLayer_EA",pfx.c_str()),
+    m_h2CSC_Segm_QsumOfGoodClusMap_Eta_EA.push_back(new TH2F(Form("%s_Segm_QSumEtaGoodClusPerLayer_EA",pfx.c_str()),
 							   Form("EndCap A: #eta-cluster charge per layer;counts;[sector] + [0.2 #times layer]"),
 							   nqbins,nqmin,nqmax,nybinsEA,nyminEA,nymaxEA));
     
-    h2CSC_Segm_QsumOfGoodClusMap_Eta_EC.push_back(new TH2F(Form("%s_Segm_QSumEtaGoodClusPerLayer_EC",pfx.c_str()),
+    m_h2CSC_Segm_QsumOfGoodClusMap_Eta_EC.push_back(new TH2F(Form("%s_Segm_QSumEtaGoodClusPerLayer_EC",pfx.c_str()),
 							   Form("EndCap C: #eta-cluster charge per layer;counts;[sector] + [0.2 #times layer]"),
 							   nqbins,nqmin,nqmax,nybinsEC,nyminEC,nymaxEC));
 
-    regCSCHist(h2CSC_Segm_QsumOfGoodClusMap_Eta_EA[ic], m_segmOview_EA[ic]);
-    regCSCHist(h2CSC_Segm_QsumOfGoodClusMap_Eta_EC[ic], m_segmOview_EC[ic]);
+    regCSCHist(m_h2CSC_Segm_QsumOfGoodClusMap_Eta_EA[ic], m_segmOview_EA[ic]);
+    regCSCHist(m_h2CSC_Segm_QsumOfGoodClusMap_Eta_EC[ic], m_segmOview_EC[ic]);
 
-    h2CSC_Segm_TimeOfGoodClusMap_Eta_EA.push_back(new TH2F(Form("%s_Segm_TimeEtaGoodClusPerLayer_EA",pfx.c_str()),
+    m_h2CSC_Segm_TimeOfGoodClusMap_Eta_EA.push_back(new TH2F(Form("%s_Segm_TimeEtaGoodClusPerLayer_EA",pfx.c_str()),
 							   Form("EndCap A: #eta-cluster time per layer;time [ns];[sector] + [0.2 #times layer]"),
 							   ntbins,ntmin,ntmax,nybinsEA,nyminEA,nymaxEA));
     
-    h2CSC_Segm_TimeOfGoodClusMap_Eta_EC.push_back(new TH2F(Form("%s_Segm_TimeEtaGoodClusPerLayer_EC",pfx.c_str()),
+    m_h2CSC_Segm_TimeOfGoodClusMap_Eta_EC.push_back(new TH2F(Form("%s_Segm_TimeEtaGoodClusPerLayer_EC",pfx.c_str()),
 							   Form("EndCap C: #eta-cluster time per layer;time [ns];[sector] + [0.2 #times layer]"),
 							   ntbins,ntmin,ntmax,nybinsEC,nyminEC,nymaxEC));
 
-    regCSCHist(h2CSC_Segm_TimeOfGoodClusMap_Eta_EA[ic], m_segmOview_EA[ic]);
-    regCSCHist(h2CSC_Segm_TimeOfGoodClusMap_Eta_EC[ic], m_segmOview_EC[ic]);
+    regCSCHist(m_h2CSC_Segm_TimeOfGoodClusMap_Eta_EA[ic], m_segmOview_EA[ic]);
+    regCSCHist(m_h2CSC_Segm_TimeOfGoodClusMap_Eta_EC[ic], m_segmOview_EC[ic]);
 
 
-    h1CSC_Segm_StatOfClus_Eta_EA.push_back( new TH1F(Form("%s_Segm_EtaClusterStatus_EA",pfx.c_str()), 
+    m_h1CSC_Segm_StatOfClus_Eta_EA.push_back( new TH1F(Form("%s_Segm_EtaClusterStatus_EA",pfx.c_str()), 
 						     "Endcap A: #eta-cluster status;;entries",nbins,binmin,binmax));
 
-    h1CSC_Segm_StatOfClus_Eta_EC.push_back( new TH1F(Form("%s_Segm_EtaClusterStatus_EC",pfx.c_str()), 
+    m_h1CSC_Segm_StatOfClus_Eta_EC.push_back( new TH1F(Form("%s_Segm_EtaClusterStatus_EC",pfx.c_str()), 
 						     "Endcap C: #eta-cluster status;;entries",nbins,binmin,binmax));
     for (size_t j = 0; j < m_clusStatWord.size(); j++) {
-      h1CSC_Segm_StatOfClus_Eta_EA[ic]->GetXaxis()->SetBinLabel(j+1, m_clusStatWord[j].c_str());
-      h1CSC_Segm_StatOfClus_Eta_EC[ic]->GetXaxis()->SetBinLabel(j+1, m_clusStatWord[j].c_str());
+      m_h1CSC_Segm_StatOfClus_Eta_EA[ic]->GetXaxis()->SetBinLabel(j+1, m_clusStatWord[j].c_str());
+      m_h1CSC_Segm_StatOfClus_Eta_EC[ic]->GetXaxis()->SetBinLabel(j+1, m_clusStatWord[j].c_str());
     }
-    regCSCHist(h1CSC_Segm_StatOfClus_Eta_EA[ic], m_segmDetail_EA[ic]);
-    regCSCHist(h1CSC_Segm_StatOfClus_Eta_EC[ic], m_segmDetail_EC[ic]);
+    regCSCHist(m_h1CSC_Segm_StatOfClus_Eta_EA[ic], m_segmDetail_EA[ic]);
+    regCSCHist(m_h1CSC_Segm_StatOfClus_Eta_EC[ic], m_segmDetail_EC[ic]);
     
-    h1CSC_Segm_NumOfClus_Eta_EA.push_back( new TH1F(Form("%s_Segm_NumEtaCluster_EA",pfx.c_str()), 
+    m_h1CSC_Segm_NumOfClus_Eta_EA.push_back( new TH1F(Form("%s_Segm_NumEtaCluster_EA",pfx.c_str()), 
 						    "Endcap A: No. of #eta-clusters on segment;#clusters;entries", nsbins,nsmin,nsmax));
-    h1CSC_Segm_NumOfClus_Eta_EC.push_back( new TH1F(Form("%s_Segm_NumEtaCluster_EC",pfx.c_str()), 
+    m_h1CSC_Segm_NumOfClus_Eta_EC.push_back( new TH1F(Form("%s_Segm_NumEtaCluster_EC",pfx.c_str()), 
 						    "Endcap C: No. of #eta-clusters on segment;#clusters;entries", nsbins,nsmin,nsmax));
-    regCSCHist(h1CSC_Segm_NumOfClus_Eta_EA[ic], m_segmDetail_EA[ic]);
-    regCSCHist(h1CSC_Segm_NumOfClus_Eta_EC[ic], m_segmDetail_EC[ic]);
+    regCSCHist(m_h1CSC_Segm_NumOfClus_Eta_EA[ic], m_segmDetail_EA[ic]);
+    regCSCHist(m_h1CSC_Segm_NumOfClus_Eta_EC[ic], m_segmDetail_EC[ic]);
 
-    h1CSC_Segm_NumOfGoodClus_Eta_EA.push_back( new TH1F(Form("%s_Segm_NumGoodEtaCluster_EA",pfx.c_str()),
+    m_h1CSC_Segm_NumOfGoodClus_Eta_EA.push_back( new TH1F(Form("%s_Segm_NumGoodEtaCluster_EA",pfx.c_str()),
 							"Endcap A: No. of good #eta-clusters on segment;#good-clusters;entries", nsbins,nsmin,nsmax));
-    h1CSC_Segm_NumOfGoodClus_Eta_EC.push_back( new TH1F(Form("%s_Segm_NumGoodEtaCluster_EC",pfx.c_str()),
+    m_h1CSC_Segm_NumOfGoodClus_Eta_EC.push_back( new TH1F(Form("%s_Segm_NumGoodEtaCluster_EC",pfx.c_str()),
 							"Endcap C: No. of good #eta-clusters on segment;#good-clusters;entries", nsbins,nsmin,nsmax));
-    regCSCHist(h1CSC_Segm_NumOfGoodClus_Eta_EA[ic], m_segmDetail_EA[ic]);
-    regCSCHist(h1CSC_Segm_NumOfGoodClus_Eta_EC[ic], m_segmDetail_EC[ic]);
+    regCSCHist(m_h1CSC_Segm_NumOfGoodClus_Eta_EA[ic], m_segmDetail_EA[ic]);
+    regCSCHist(m_h1CSC_Segm_NumOfGoodClus_Eta_EC[ic], m_segmDetail_EC[ic]);
 
-    h1CSC_Segm_QsumOfClus_Eta_EA.push_back( new TH1F(Form("%s_Segm_QSumEtaCluster_EA",pfx.c_str()), 
+    m_h1CSC_Segm_QsumOfClus_Eta_EA.push_back( new TH1F(Form("%s_Segm_QSumEtaCluster_EA",pfx.c_str()), 
 						     "Endcap A: #eta-cluster Qsum;counts;entries", nqbins,nqmin,nqmax ));
-    h1CSC_Segm_QsumOfClus_Eta_EC.push_back( new TH1F(Form("%s_Segm_QSumEtaCluster_EC",pfx.c_str()), 
+    m_h1CSC_Segm_QsumOfClus_Eta_EC.push_back( new TH1F(Form("%s_Segm_QSumEtaCluster_EC",pfx.c_str()), 
 						     "Endcap C: #eta-cluster Qsum;counts;entries", nqbins,nqmin,nqmax ));
-    regCSCHist(h1CSC_Segm_QsumOfClus_Eta_EA[ic], m_segmDetail_EA[ic]);
-    regCSCHist(h1CSC_Segm_QsumOfClus_Eta_EC[ic], m_segmDetail_EC[ic]);
+    regCSCHist(m_h1CSC_Segm_QsumOfClus_Eta_EA[ic], m_segmDetail_EA[ic]);
+    regCSCHist(m_h1CSC_Segm_QsumOfClus_Eta_EC[ic], m_segmDetail_EC[ic]);
     
-    h1CSC_Segm_TimeOfClus_Eta_EA.push_back( new TH1F(Form("%s_Segm_TimeEtaCluster_EA",pfx.c_str()), 
+    m_h1CSC_Segm_TimeOfClus_Eta_EA.push_back( new TH1F(Form("%s_Segm_TimeEtaCluster_EA",pfx.c_str()), 
 						     "Endcap A: #eta-cluster Time;time [ns];entries", ntbins,ntmin,ntmax ));
-    h1CSC_Segm_TimeOfClus_Eta_EC.push_back( new TH1F(Form("%s_Segm_TimeEtaCluster_EC",pfx.c_str()), 
+    m_h1CSC_Segm_TimeOfClus_Eta_EC.push_back( new TH1F(Form("%s_Segm_TimeEtaCluster_EC",pfx.c_str()), 
 						     "Endcap C: #eta-cluster Time;time [ns];entries", ntbins,ntmin,ntmax ));
-    regCSCHist(h1CSC_Segm_TimeOfClus_Eta_EA[ic], m_segmDetail_EA[ic]);
-    regCSCHist(h1CSC_Segm_TimeOfClus_Eta_EC[ic], m_segmDetail_EC[ic]);
+    regCSCHist(m_h1CSC_Segm_TimeOfClus_Eta_EA[ic], m_segmDetail_EA[ic]);
+    regCSCHist(m_h1CSC_Segm_TimeOfClus_Eta_EC[ic], m_segmDetail_EC[ic]);
     
-    h1CSC_Segm_QsumOfGoodClus_Eta_EA.push_back( new TH1F(Form("%s_Segm_QSumGoodEtaCluster_EA",pfx.c_str()), 
+    m_h1CSC_Segm_QsumOfGoodClus_Eta_EA.push_back( new TH1F(Form("%s_Segm_QSumGoodEtaCluster_EA",pfx.c_str()), 
 							 "Endcap A: Good #eta-cluster Qsum;counts;entries", nqbins,nqmin,nqmax ));
-    h1CSC_Segm_QsumOfGoodClus_Eta_EC.push_back( new TH1F(Form("%s_Segm_QSumGoodEtaCluster_EC",pfx.c_str()), 
+    m_h1CSC_Segm_QsumOfGoodClus_Eta_EC.push_back( new TH1F(Form("%s_Segm_QSumGoodEtaCluster_EC",pfx.c_str()), 
 							 "Endcap C: Good #eta-cluster Qsum;counts;entries", nqbins,nqmin,nqmax ));
-    regCSCHist(h1CSC_Segm_QsumOfGoodClus_Eta_EA[ic], m_segmDetail_EA[ic]);
-    regCSCHist(h1CSC_Segm_QsumOfGoodClus_Eta_EC[ic], m_segmDetail_EC[ic]);
+    regCSCHist(m_h1CSC_Segm_QsumOfGoodClus_Eta_EA[ic], m_segmDetail_EA[ic]);
+    regCSCHist(m_h1CSC_Segm_QsumOfGoodClus_Eta_EC[ic], m_segmDetail_EC[ic]);
 
-    h1CSC_Segm_TimeOfGoodClus_Eta_EA.push_back( new TH1F(Form("%s_Segm_TimeGoodEtaCluster_EA",pfx.c_str()), 
+    m_h1CSC_Segm_TimeOfGoodClus_Eta_EA.push_back( new TH1F(Form("%s_Segm_TimeGoodEtaCluster_EA",pfx.c_str()), 
 							 "Endcap A: Good #eta-cluster Time;time [ns];entries", ntbins,ntmin,ntmax ));
-    h1CSC_Segm_TimeOfGoodClus_Eta_EC.push_back( new TH1F(Form("%s_Segm_TimeGoodEtaCluster_EC",pfx.c_str()), 
+    m_h1CSC_Segm_TimeOfGoodClus_Eta_EC.push_back( new TH1F(Form("%s_Segm_TimeGoodEtaCluster_EC",pfx.c_str()), 
 							 "Endcap C: Good #eta-cluster Time;time [ns];entries", ntbins,ntmin,ntmax ));
-    regCSCHist(h1CSC_Segm_TimeOfGoodClus_Eta_EA[ic], m_segmDetail_EA[ic]);
-    regCSCHist(h1CSC_Segm_TimeOfGoodClus_Eta_EC[ic], m_segmDetail_EC[ic]);
+    regCSCHist(m_h1CSC_Segm_TimeOfGoodClus_Eta_EA[ic], m_segmDetail_EA[ic]);
+    regCSCHist(m_h1CSC_Segm_TimeOfGoodClus_Eta_EC[ic], m_segmDetail_EC[ic]);
 
 
     // transverse clusters on segment
-    h2CSC_Segm_QsumOfGoodClusMap_Phi_EA.push_back(new TH2F(Form("%s_Segm_QSumPhiGoodClusPerLayer_EA",pfx.c_str()),
+    m_h2CSC_Segm_QsumOfGoodClusMap_Phi_EA.push_back(new TH2F(Form("%s_Segm_QSumPhiGoodClusPerLayer_EA",pfx.c_str()),
 							   Form("EndCap A: #phi-cluster charge per layer;counts;[sector] + [0.2 #times layer]"),
 							   nqbins,nqmin,nqmax,nybinsEA,nyminEA,nymaxEA));
     
-    h2CSC_Segm_QsumOfGoodClusMap_Phi_EC.push_back(new TH2F(Form("%s_Segm_QSumPhiGoodClusPerLayer_EC",pfx.c_str()),
+    m_h2CSC_Segm_QsumOfGoodClusMap_Phi_EC.push_back(new TH2F(Form("%s_Segm_QSumPhiGoodClusPerLayer_EC",pfx.c_str()),
 							   Form("EndCap C: #phi-cluster charge per layer;counts;[sector] + [0.2 #times layer]"),
 							   nqbins,nqmin,nqmax,nybinsEC,nyminEC,nymaxEC));
 
-    regCSCHist(h2CSC_Segm_QsumOfGoodClusMap_Phi_EA[ic], m_segmOview_EA[ic]);
-    regCSCHist(h2CSC_Segm_QsumOfGoodClusMap_Phi_EC[ic], m_segmOview_EC[ic]);
+    regCSCHist(m_h2CSC_Segm_QsumOfGoodClusMap_Phi_EA[ic], m_segmOview_EA[ic]);
+    regCSCHist(m_h2CSC_Segm_QsumOfGoodClusMap_Phi_EC[ic], m_segmOview_EC[ic]);
 
-    h2CSC_Segm_TimeOfGoodClusMap_Phi_EA.push_back(new TH2F(Form("%s_Segm_TimePhiGoodClusPerLayer_EA",pfx.c_str()),
+    m_h2CSC_Segm_TimeOfGoodClusMap_Phi_EA.push_back(new TH2F(Form("%s_Segm_TimePhiGoodClusPerLayer_EA",pfx.c_str()),
 							   Form("EndCap A: #phi-cluster time per layer;time [ns];[sector] + [0.2 #times layer]"),
 							   ntbins,ntmin,ntmax,nybinsEA,nyminEA,nymaxEA));
     
-    h2CSC_Segm_TimeOfGoodClusMap_Phi_EC.push_back(new TH2F(Form("%s_Segm_TimePhiGoodClusPerLayer_EC",pfx.c_str()),
+    m_h2CSC_Segm_TimeOfGoodClusMap_Phi_EC.push_back(new TH2F(Form("%s_Segm_TimePhiGoodClusPerLayer_EC",pfx.c_str()),
 							   Form("EndCap C: #phi-cluster time per layer;time [ns];[sector] + [0.2 #times layer]"),
 							   ntbins,ntmin,ntmax,nybinsEC,nyminEC,nymaxEC));
 
-    regCSCHist(h2CSC_Segm_TimeOfGoodClusMap_Phi_EA[ic], m_segmOview_EA[ic]);
-    regCSCHist(h2CSC_Segm_TimeOfGoodClusMap_Phi_EC[ic], m_segmOview_EC[ic]);
+    regCSCHist(m_h2CSC_Segm_TimeOfGoodClusMap_Phi_EA[ic], m_segmOview_EA[ic]);
+    regCSCHist(m_h2CSC_Segm_TimeOfGoodClusMap_Phi_EC[ic], m_segmOview_EC[ic]);
 
-    h1CSC_Segm_StatOfClus_Phi_EA.push_back( new TH1F(Form("%s_Segm_PhiClusterStatus_EA",pfx.c_str()), 
+    m_h1CSC_Segm_StatOfClus_Phi_EA.push_back( new TH1F(Form("%s_Segm_PhiClusterStatus_EA",pfx.c_str()), 
 						     "Endcap A: #phi-cluster status;;entries",nbins,binmin,binmax));
 
-    h1CSC_Segm_StatOfClus_Phi_EC.push_back( new TH1F(Form("%s_Segm_PhiClusterStatus_EC",pfx.c_str()), 
+    m_h1CSC_Segm_StatOfClus_Phi_EC.push_back( new TH1F(Form("%s_Segm_PhiClusterStatus_EC",pfx.c_str()), 
 						     "Endcap C: #phi-cluster status;;entries",nbins,binmin,binmax));
 
     for (size_t j = 0; j < m_clusStatWord.size(); j++) {
-      h1CSC_Segm_StatOfClus_Phi_EA[ic]->GetXaxis()->SetBinLabel(j+1, m_clusStatWord[j].c_str());
-      h1CSC_Segm_StatOfClus_Phi_EC[ic]->GetXaxis()->SetBinLabel(j+1, m_clusStatWord[j].c_str());
+      m_h1CSC_Segm_StatOfClus_Phi_EA[ic]->GetXaxis()->SetBinLabel(j+1, m_clusStatWord[j].c_str());
+      m_h1CSC_Segm_StatOfClus_Phi_EC[ic]->GetXaxis()->SetBinLabel(j+1, m_clusStatWord[j].c_str());
     }
-    regCSCHist(h1CSC_Segm_StatOfClus_Phi_EA[ic], m_segmDetail_EA[ic]);
-    regCSCHist(h1CSC_Segm_StatOfClus_Phi_EC[ic], m_segmDetail_EC[ic]);
+    regCSCHist(m_h1CSC_Segm_StatOfClus_Phi_EA[ic], m_segmDetail_EA[ic]);
+    regCSCHist(m_h1CSC_Segm_StatOfClus_Phi_EC[ic], m_segmDetail_EC[ic]);
     
-    h1CSC_Segm_NumOfClus_Phi_EA.push_back( new TH1F(Form("%s_Segm_NumPhiCluster_EA",pfx.c_str()), 
+    m_h1CSC_Segm_NumOfClus_Phi_EA.push_back( new TH1F(Form("%s_Segm_NumPhiCluster_EA",pfx.c_str()), 
 						    "Endcap A: No. of #phi-clusters on segment;#clusters;entries", nsbins,nsmin,nsmax));
-    h1CSC_Segm_NumOfClus_Phi_EC.push_back( new TH1F(Form("%s_Segm_NumPhiCluster_EC",pfx.c_str()), 
+    m_h1CSC_Segm_NumOfClus_Phi_EC.push_back( new TH1F(Form("%s_Segm_NumPhiCluster_EC",pfx.c_str()), 
 						    "Endcap C: No. of #phi-clusters on segment;#clusters;entries", nsbins,nsmin,nsmax));
-    regCSCHist(h1CSC_Segm_NumOfClus_Phi_EA[ic], m_segmDetail_EA[ic]);
-    regCSCHist(h1CSC_Segm_NumOfClus_Phi_EC[ic], m_segmDetail_EC[ic]);
+    regCSCHist(m_h1CSC_Segm_NumOfClus_Phi_EA[ic], m_segmDetail_EA[ic]);
+    regCSCHist(m_h1CSC_Segm_NumOfClus_Phi_EC[ic], m_segmDetail_EC[ic]);
 
-    h1CSC_Segm_NumOfGoodClus_Phi_EA.push_back( new TH1F(Form("%s_Segm_NumGoodPhiCluster_EA",pfx.c_str()),
+    m_h1CSC_Segm_NumOfGoodClus_Phi_EA.push_back( new TH1F(Form("%s_Segm_NumGoodPhiCluster_EA",pfx.c_str()),
 							"Endcap A: No. of good #phi-clusters on segment;#good-clusters;entries", nsbins,nsmin,nsmax));
-    h1CSC_Segm_NumOfGoodClus_Phi_EC.push_back( new TH1F(Form("%s_Segm_NumGoodPhiCluster_EC",pfx.c_str()),
+    m_h1CSC_Segm_NumOfGoodClus_Phi_EC.push_back( new TH1F(Form("%s_Segm_NumGoodPhiCluster_EC",pfx.c_str()),
 							"Endcap C: No. of good #phi-clusters on segment;#good-clusters;entries", nsbins,nsmin,nsmax));
-    regCSCHist(h1CSC_Segm_NumOfGoodClus_Phi_EA[ic], m_segmDetail_EA[ic]);
-    regCSCHist(h1CSC_Segm_NumOfGoodClus_Phi_EC[ic], m_segmDetail_EC[ic]);
+    regCSCHist(m_h1CSC_Segm_NumOfGoodClus_Phi_EA[ic], m_segmDetail_EA[ic]);
+    regCSCHist(m_h1CSC_Segm_NumOfGoodClus_Phi_EC[ic], m_segmDetail_EC[ic]);
 
-    h1CSC_Segm_QsumOfClus_Phi_EA.push_back( new TH1F(Form("%s_Segm_QSumPhiCluster_EA",pfx.c_str()), 
+    m_h1CSC_Segm_QsumOfClus_Phi_EA.push_back( new TH1F(Form("%s_Segm_QSumPhiCluster_EA",pfx.c_str()), 
 						     "Endcap A: #phi-cluster Qsum;counts;entries", nqbins,nqmin,nqmax ));
-    h1CSC_Segm_QsumOfClus_Phi_EC.push_back( new TH1F(Form("%s_Segm_QSumPhiCluster_EC",pfx.c_str()), 
+    m_h1CSC_Segm_QsumOfClus_Phi_EC.push_back( new TH1F(Form("%s_Segm_QSumPhiCluster_EC",pfx.c_str()), 
 						     "Endcap C: #phi-cluster Qsum;counts;entries", nqbins,nqmin,nqmax ));
-    regCSCHist(h1CSC_Segm_QsumOfClus_Phi_EA[ic], m_segmDetail_EA[ic]);
-    regCSCHist(h1CSC_Segm_QsumOfClus_Phi_EC[ic], m_segmDetail_EC[ic]);
+    regCSCHist(m_h1CSC_Segm_QsumOfClus_Phi_EA[ic], m_segmDetail_EA[ic]);
+    regCSCHist(m_h1CSC_Segm_QsumOfClus_Phi_EC[ic], m_segmDetail_EC[ic]);
     
-    h1CSC_Segm_TimeOfClus_Phi_EA.push_back( new TH1F(Form("%s_Segm_TimePhiCluster_EA",pfx.c_str()), 
+    m_h1CSC_Segm_TimeOfClus_Phi_EA.push_back( new TH1F(Form("%s_Segm_TimePhiCluster_EA",pfx.c_str()), 
 						     "Endcap A: #phi-cluster Time;time [ns];entries", ntbins,ntmin,ntmax ));
-    h1CSC_Segm_TimeOfClus_Phi_EC.push_back( new TH1F(Form("%s_Segm_TimePhiCluster_EC",pfx.c_str()), 
+    m_h1CSC_Segm_TimeOfClus_Phi_EC.push_back( new TH1F(Form("%s_Segm_TimePhiCluster_EC",pfx.c_str()), 
 						     "Endcap C: #phi-cluster Time;time [ns];entries", ntbins,ntmin,ntmax ));
-    regCSCHist(h1CSC_Segm_TimeOfClus_Phi_EA[ic], m_segmDetail_EA[ic]);
-    regCSCHist(h1CSC_Segm_TimeOfClus_Phi_EC[ic], m_segmDetail_EC[ic]);
+    regCSCHist(m_h1CSC_Segm_TimeOfClus_Phi_EA[ic], m_segmDetail_EA[ic]);
+    regCSCHist(m_h1CSC_Segm_TimeOfClus_Phi_EC[ic], m_segmDetail_EC[ic]);
     
-    h1CSC_Segm_QsumOfGoodClus_Phi_EA.push_back( new TH1F(Form("%s_Segm_QSumGoodPhiCluster_EA",pfx.c_str()), 
+    m_h1CSC_Segm_QsumOfGoodClus_Phi_EA.push_back( new TH1F(Form("%s_Segm_QSumGoodPhiCluster_EA",pfx.c_str()), 
 							 "Endcap A: Good #phi-cluster Qsum;counts;entries", nqbins,nqmin,nqmax ));
-    h1CSC_Segm_QsumOfGoodClus_Phi_EC.push_back( new TH1F(Form("%s_Segm_QSumGoodPhiCluster_EC",pfx.c_str()), 
+    m_h1CSC_Segm_QsumOfGoodClus_Phi_EC.push_back( new TH1F(Form("%s_Segm_QSumGoodPhiCluster_EC",pfx.c_str()), 
 							 "Endcap C: Good #phi-cluster Qsum;counts;entries", nqbins,nqmin,nqmax ));
-    regCSCHist(h1CSC_Segm_QsumOfGoodClus_Phi_EA[ic], m_segmDetail_EA[ic]);
-    regCSCHist(h1CSC_Segm_QsumOfGoodClus_Phi_EC[ic], m_segmDetail_EC[ic]);
+    regCSCHist(m_h1CSC_Segm_QsumOfGoodClus_Phi_EA[ic], m_segmDetail_EA[ic]);
+    regCSCHist(m_h1CSC_Segm_QsumOfGoodClus_Phi_EC[ic], m_segmDetail_EC[ic]);
     
-    h1CSC_Segm_TimeOfGoodClus_Phi_EA.push_back( new TH1F(Form("%s_Segm_TimeGoodPhiCluster_EA",pfx.c_str()), 
+    m_h1CSC_Segm_TimeOfGoodClus_Phi_EA.push_back( new TH1F(Form("%s_Segm_TimeGoodPhiCluster_EA",pfx.c_str()), 
 							 "Endcap A: Good #phi-cluster Time;time [ns];entries", ntbins,ntmin,ntmax ));
-    h1CSC_Segm_TimeOfGoodClus_Phi_EC.push_back( new TH1F(Form("%s_Segm_TimeGoodPhiCluster_EC",pfx.c_str()), 
+    m_h1CSC_Segm_TimeOfGoodClus_Phi_EC.push_back( new TH1F(Form("%s_Segm_TimeGoodPhiCluster_EC",pfx.c_str()), 
 							 "Endcap C: Good #phi-cluster Time;time [ns];entries", ntbins,ntmin,ntmax ));
-    regCSCHist(h1CSC_Segm_TimeOfGoodClus_Phi_EA[ic], m_segmDetail_EA[ic]);
-    regCSCHist(h1CSC_Segm_TimeOfGoodClus_Phi_EC[ic], m_segmDetail_EC[ic]);
+    regCSCHist(m_h1CSC_Segm_TimeOfGoodClus_Phi_EA[ic], m_segmDetail_EA[ic]);
+    regCSCHist(m_h1CSC_Segm_TimeOfGoodClus_Phi_EC[ic], m_segmDetail_EC[ic]);
     
     // eta vs. phi correlation 
-    h2CSC_Segm_QsumOfGoodClus_PhiVsEta_EA.push_back( new TH2F(Form("%s_Segm_QSumGoodClusCorrelation_EA",pfx.c_str()), 
+    m_h2CSC_Segm_QsumOfGoodClus_PhiVsEta_EA.push_back( new TH2F(Form("%s_Segm_QSumGoodClusCorrelation_EA",pfx.c_str()), 
 							      "Endcap A: #phi-cluster vs. good #eta-cluster;good #eta-cluster counts;good #phi-cluster counts", nqbins,nqmin,nqmax, nqbins,nqmin,nqmax));
-    h2CSC_Segm_QsumOfGoodClus_PhiVsEta_EC.push_back( new TH2F(Form("%s_Segm_QSumGoodClusCorrelation_EC",pfx.c_str()), 
+    m_h2CSC_Segm_QsumOfGoodClus_PhiVsEta_EC.push_back( new TH2F(Form("%s_Segm_QSumGoodClusCorrelation_EC",pfx.c_str()), 
 							      "Endcap A: #phi-cluster vs. good #eta-cluster;good #eta-cluster counts;good #phi-cluster counts", nqbins,nqmin,nqmax, nqbins,nqmin,nqmax));
-    regCSCHist(h2CSC_Segm_QsumOfGoodClus_PhiVsEta_EA[ic], m_segmDetail_EA[ic]);
-    regCSCHist(h2CSC_Segm_QsumOfGoodClus_PhiVsEta_EC[ic], m_segmDetail_EC[ic]);
+    regCSCHist(m_h2CSC_Segm_QsumOfGoodClus_PhiVsEta_EA[ic], m_segmDetail_EA[ic]);
+    regCSCHist(m_h2CSC_Segm_QsumOfGoodClus_PhiVsEta_EC[ic], m_segmDetail_EC[ic]);
 
     //m_h2csc_clus_r_vs_z_hitmap = new TH2F("h2csc_clus_r_vs_z_hitmap", "R vs. Z Cluster hitmap;z(CLHEP::mm);R(CLHEP::mm)",200, -10000., 10000., 40, 0., 4000);
     //m_h2csc_clus_y_vs_x_hitmap = new TH2F("h2csc_clus_y_vs_x_hitmap", "Y vs. X Cluster hitmap;x(CLHEP::mm);y(CLHEP::mm)",100, -5000., 5000., 100, -5000., 5000);
     
   }
  
-  bookedhistos=true;
+  m_bookedhistos=true;
 }
 
 
@@ -509,7 +509,7 @@ StatusCode CSCSegmValAlg::bookHistograms() {
     //if(newEventsBlock){}
     //if(newLumiBlock){}
     //if(newRun) {
-      if(!bookedhistos) bookSegmentHistograms();
+    if(!m_bookedhistos) bookSegmentHistograms();
     //} // if NewRun
 
   } // environment if  
@@ -530,16 +530,16 @@ StatusCode CSCSegmValAlg::fillHistograms() {
     if(m_doEvtSel) { if(!evtSelTriggersPassed()) return sc; }
 
     // Segment Cluster counter
-    int m_segmClustCount[33];
+    int segmClustCount[33];
 
     // arrays to hold cluster-count  
     // 32 chambers and 8 layers (each has one extra - index '0' is not counted)
-    int m_clusCount[33][9];
+    int clusCount[33][9];
     //, m_sigclusCount[33][9];
     //unsigned int m_nEtaClusWidthCnt = 0, m_nPhiClusWidthCnt = 0;
     for(unsigned int kl = 0; kl < 33; kl++ ) {
       for(unsigned int cm3 = 0; cm3 < 9; cm3++ ) {
-        m_clusCount[kl][cm3] = 0;
+        clusCount[kl][cm3] = 0;
       }
     }
 
@@ -596,7 +596,7 @@ StatusCode CSCSegmValAlg::fillHistograms() {
       for (Trk::SegmentCollection::const_iterator s = m_segms->begin();s != m_segms->end(); ++s) {
 
         // Get segm
-        Muon::MuonSegment *segm=dynamic_cast<Muon::MuonSegment*>(*s);
+        const Muon::MuonSegment *segm=dynamic_cast<const Muon::MuonSegment*>(*s);
 
         if (segm == 0) {
           ATH_MSG_ERROR( "no pointer to segm!!!" );
@@ -625,9 +625,9 @@ StatusCode CSCSegmValAlg::fillHistograms() {
 
 	  // Initialize cluster counter
 	  for(int sect = 0; sect < 33; sect++) {
-	    m_segmClustCount[sect] = 0;
+	    segmClustCount[sect] = 0;
 	    for(unsigned int ilay = 0; ilay < 9; ilay++ ) {
-	      m_clusCount[sect][ilay] = 0;
+	      clusCount[sect][ilay] = 0;
 	    }
 
 	  }
@@ -689,8 +689,8 @@ StatusCode CSCSegmValAlg::fillHistograms() {
 	  int segm_sectorNo  = segm_stationEta * (2 * segm_stationPhi - segm_chamberType); // [-16 -> -1] and [+1 -> +16]
 	  int segm_isec = segm_sectorNo < 0 ? segm_sectorNo*(-1) : segm_sectorNo+16; // [-16 -> -1] shifted to [1 -> 16] and [+1 -> +16] shifted to [+17 -> +32]
 	  ATH_MSG_DEBUG(" sgsec = " << segm_isec << "\tsec = " << segm_sectorNo);
-	  if(segm_stationEta == 1) h2CSC_Segm_NumOfSegs_EA[ic]->Fill(n_clust, segm_sectorNo);
-	  else h2CSC_Segm_NumOfSegs_EC[ic]->Fill(n_clust, segm_sectorNo);
+	  if(segm_stationEta == 1) m_h2CSC_Segm_NumOfSegs_EA[ic]->Fill(n_clust, segm_sectorNo);
+	  else m_h2CSC_Segm_NumOfSegs_EC[ic]->Fill(n_clust, segm_sectorNo);
 
 	  // Loop over clusters
 	  // [i][j] {i == 0(EA), 1(EC) }
@@ -730,11 +730,11 @@ StatusCode CSCSegmValAlg::fillHistograms() {
 	      // status = Muon::CscStatusSimple (i.e 1) could be good for non-precision clusters (i.e for phi-layers)
 	      Muon::CscClusterStatus status = clust_rot->status();
 	      if(segm_stationEta == 1) {
-		if(clus_measuresPhi == 0) h1CSC_Segm_StatOfClus_Eta_EA[ic]->Fill(status);
-		else h1CSC_Segm_StatOfClus_Phi_EA[ic]->Fill(status);
+		if(clus_measuresPhi == 0) m_h1CSC_Segm_StatOfClus_Eta_EA[ic]->Fill(status);
+		else m_h1CSC_Segm_StatOfClus_Phi_EA[ic]->Fill(status);
 	      } else {
-		if(clus_measuresPhi == 0) h1CSC_Segm_StatOfClus_Eta_EC[ic]->Fill(status);
-		else h1CSC_Segm_StatOfClus_Phi_EC[ic]->Fill(status);
+		if(clus_measuresPhi == 0) m_h1CSC_Segm_StatOfClus_Eta_EC[ic]->Fill(status);
+		else m_h1CSC_Segm_StatOfClus_Phi_EC[ic]->Fill(status);
 	      }
 
 	      //if(clus_measuresPhi == 0) eta_clus_status[clus_wireLayer] = status;
@@ -788,14 +788,14 @@ StatusCode CSCSegmValAlg::fillHistograms() {
 		  eta_clus_qsum[0][clus_wireLayer] = clus_qsum;
 		  eta_clus_time[0][clus_wireLayer] = clus_time;
 		  eta_clus_use[0][clus_wireLayer] = 1;
-		  h2CSC_Segm_QsumOfGoodClusMap_Eta_EA[ic]->Fill(clus_qsum, clus_secLayer);
-		  if(fabs(clus_time) <= 200) h2CSC_Segm_TimeOfGoodClusMap_Eta_EA[ic]->Fill(clus_time, clus_secLayer);
+		  m_h2CSC_Segm_QsumOfGoodClusMap_Eta_EA[ic]->Fill(clus_qsum, clus_secLayer);
+		  if(fabs(clus_time) <= 200) m_h2CSC_Segm_TimeOfGoodClusMap_Eta_EA[ic]->Fill(clus_time, clus_secLayer);
 		} else {
 		  eta_clus_qsum[1][clus_wireLayer] = clus_qsum;
 		  eta_clus_time[1][clus_wireLayer] = clus_time;
 		  eta_clus_use[1][clus_wireLayer] = 1;
-		  h2CSC_Segm_QsumOfGoodClusMap_Eta_EC[ic]->Fill(clus_qsum, clus_secLayer);
-		  if(fabs(clus_time) <= 200) h2CSC_Segm_TimeOfGoodClusMap_Eta_EC[ic]->Fill(clus_time, clus_secLayer);
+		  m_h2CSC_Segm_QsumOfGoodClusMap_Eta_EC[ic]->Fill(clus_qsum, clus_secLayer);
+		  if(fabs(clus_time) <= 200) m_h2CSC_Segm_TimeOfGoodClusMap_Eta_EC[ic]->Fill(clus_time, clus_secLayer);
 		}
 	      }
 
@@ -807,23 +807,23 @@ StatusCode CSCSegmValAlg::fillHistograms() {
 		  phi_clus_time[0][clus_wireLayer] = clus_time;
 		  phi_clus_use[0][clus_wireLayer] = 1;
 		  phi_clus_count[0][1]++;
-		  h2CSC_Segm_QsumOfGoodClusMap_Phi_EA[ic]->Fill(clus_qsum, clus_secLayer);
-		  if(fabs(clus_time) <= 200) h2CSC_Segm_TimeOfGoodClusMap_Phi_EA[ic]->Fill(clus_time, clus_secLayer);
+		  m_h2CSC_Segm_QsumOfGoodClusMap_Phi_EA[ic]->Fill(clus_qsum, clus_secLayer);
+		  if(fabs(clus_time) <= 200) m_h2CSC_Segm_TimeOfGoodClusMap_Phi_EA[ic]->Fill(clus_time, clus_secLayer);
 		} else {
 		  phi_clus_qsum[1][clus_wireLayer] = clus_qsum;
 		  phi_clus_time[1][clus_wireLayer] = clus_time;
 		  phi_clus_use[1][clus_wireLayer] = 1;
 		  phi_clus_count[1][1]++;
-		  h2CSC_Segm_QsumOfGoodClusMap_Phi_EC[ic]->Fill(clus_qsum, clus_secLayer);
-		  if(fabs(clus_time) <= 200) h2CSC_Segm_TimeOfGoodClusMap_Phi_EC[ic]->Fill(clus_time, clus_secLayer);
+		  m_h2CSC_Segm_QsumOfGoodClusMap_Phi_EC[ic]->Fill(clus_qsum, clus_secLayer);
+		  if(fabs(clus_time) <= 200) m_h2CSC_Segm_TimeOfGoodClusMap_Phi_EC[ic]->Fill(clus_time, clus_secLayer);
 		}
 	      }
 
 	      // increment the cluster-count for this layer
-	      if(clus_eta_status || clus_phi_status) m_clusCount[clus_isec][clus_ilay]++;
+	      if(clus_eta_status || clus_phi_status) clusCount[clus_isec][clus_ilay]++;
 
 	      // increment segment cluster count
-	      if(clus_eta_status) m_segmClustCount[clus_isec]++;
+	      if(clus_eta_status) segmClustCount[clus_isec]++;
                 
 	      if(clus_eta_status) layerindex+=clus_wireLayer;
 
@@ -835,7 +835,7 @@ StatusCode CSCSegmValAlg::fillHistograms() {
                 
             // Print out segment number and cluster count
             //for (int isect = 1; isect < 33; isect++){
-            //  if(m_segmClustCount[isect] < 3) continue;
+            //  if(segmClustCount[isect] < 3) continue;
             //}
 
             //ATH_MSG_VERBOSE("eta_count(EA) = " << eta_clus_count[0][0] << "\tphi_count(EA) = " << phi_clus_count[0][0]);
@@ -843,34 +843,34 @@ StatusCode CSCSegmValAlg::fillHistograms() {
             //ATH_MSG_VERBOSE("eta_good_count(EA) = " << eta_clus_count[0][1] << "\tphi_good_count(EA) = " << phi_clus_count[0][1]);
             //ATH_MSG_VERBOSE("eta_good_count(EC) = " << eta_clus_count[1][1] << "\tphi_good_count(EC) = " << phi_clus_count[1][1]);
             // fill (good- )cluster counts on each eta-station (EA, EC) for eta/phi clusters
-	  if(eta_clus_count[0][0] > 0) h1CSC_Segm_NumOfClus_Eta_EA[ic]->Fill(eta_clus_count[0][0]);
-	  if(phi_clus_count[0][0] > 0) h1CSC_Segm_NumOfClus_Phi_EA[ic]->Fill(phi_clus_count[0][0]);
-	  if(eta_clus_count[0][1] > 0) h1CSC_Segm_NumOfGoodClus_Eta_EA[ic]->Fill(eta_clus_count[0][1]);
-	  if(phi_clus_count[0][1] > 0) h1CSC_Segm_NumOfGoodClus_Phi_EA[ic]->Fill(phi_clus_count[0][1]);
-	  if(eta_clus_count[1][0] > 0) h1CSC_Segm_NumOfClus_Eta_EC[ic]->Fill(eta_clus_count[1][0]);
-	  if(phi_clus_count[1][0] > 0) h1CSC_Segm_NumOfClus_Phi_EC[ic]->Fill(phi_clus_count[1][0]);
-	  if(eta_clus_count[1][1] > 0) h1CSC_Segm_NumOfGoodClus_Eta_EC[ic]->Fill(eta_clus_count[1][1]);
-	  if(phi_clus_count[1][1] > 0) h1CSC_Segm_NumOfGoodClus_Phi_EC[ic]->Fill(phi_clus_count[1][1]);
+	  if(eta_clus_count[0][0] > 0) m_h1CSC_Segm_NumOfClus_Eta_EA[ic]->Fill(eta_clus_count[0][0]);
+	  if(phi_clus_count[0][0] > 0) m_h1CSC_Segm_NumOfClus_Phi_EA[ic]->Fill(phi_clus_count[0][0]);
+	  if(eta_clus_count[0][1] > 0) m_h1CSC_Segm_NumOfGoodClus_Eta_EA[ic]->Fill(eta_clus_count[0][1]);
+	  if(phi_clus_count[0][1] > 0) m_h1CSC_Segm_NumOfGoodClus_Phi_EA[ic]->Fill(phi_clus_count[0][1]);
+	  if(eta_clus_count[1][0] > 0) m_h1CSC_Segm_NumOfClus_Eta_EC[ic]->Fill(eta_clus_count[1][0]);
+	  if(phi_clus_count[1][0] > 0) m_h1CSC_Segm_NumOfClus_Phi_EC[ic]->Fill(phi_clus_count[1][0]);
+	  if(eta_clus_count[1][1] > 0) m_h1CSC_Segm_NumOfGoodClus_Eta_EC[ic]->Fill(eta_clus_count[1][1]);
+	  if(phi_clus_count[1][1] > 0) m_h1CSC_Segm_NumOfGoodClus_Phi_EC[ic]->Fill(phi_clus_count[1][1]);
 
 	  // Fill number of 3 and 4 cluster segment histogram
 	  for (int isect = 1; isect < 17; isect++) {
-	    if(m_segmClustCount[isect+16] > 2){
-	      h2CSC_Segm_NumOfNClusSegs_Eta_EA[ic]->Fill(layerindex-5, isect);
+	    if(segmClustCount[isect+16] > 2){
+	      m_h2CSC_Segm_NumOfNClusSegs_Eta_EA[ic]->Fill(layerindex-5, isect);
 	    }
-	    if(m_segmClustCount[isect] > 2){
-	      h2CSC_Segm_NumOfNClusSegs_Eta_EC[ic]->Fill(layerindex-5, (-1.)*isect);
+	    if(segmClustCount[isect] > 2){
+	      m_h2CSC_Segm_NumOfNClusSegs_Eta_EC[ic]->Fill(layerindex-5, (-1.)*isect);
 	    }
-	    if(m_segmClustCount[isect+16] > 3){
-	      h2CSC_Segm_NumOfNClusSegs_Eta_EA[ic]->Fill(1, isect);
-	      h2CSC_Segm_NumOfNClusSegs_Eta_EA[ic]->Fill(2, isect);
-	      h2CSC_Segm_NumOfNClusSegs_Eta_EA[ic]->Fill(3, isect);
-	      h2CSC_Segm_NumOfNClusSegs_Eta_EA[ic]->Fill(4, isect);
+	    if(segmClustCount[isect+16] > 3){
+	      m_h2CSC_Segm_NumOfNClusSegs_Eta_EA[ic]->Fill(1, isect);
+	      m_h2CSC_Segm_NumOfNClusSegs_Eta_EA[ic]->Fill(2, isect);
+	      m_h2CSC_Segm_NumOfNClusSegs_Eta_EA[ic]->Fill(3, isect);
+	      m_h2CSC_Segm_NumOfNClusSegs_Eta_EA[ic]->Fill(4, isect);
 	    }
-	    if(m_segmClustCount[isect] > 3){
-	      h2CSC_Segm_NumOfNClusSegs_Eta_EC[ic]->Fill(1, -1.*isect);
-	      h2CSC_Segm_NumOfNClusSegs_Eta_EC[ic]->Fill(2, -1.*isect);
-	      h2CSC_Segm_NumOfNClusSegs_Eta_EC[ic]->Fill(3, -1.*isect);
-	      h2CSC_Segm_NumOfNClusSegs_Eta_EC[ic]->Fill(4, -1.*isect);
+	    if(segmClustCount[isect] > 3){
+	      m_h2CSC_Segm_NumOfNClusSegs_Eta_EC[ic]->Fill(1, -1.*isect);
+	      m_h2CSC_Segm_NumOfNClusSegs_Eta_EC[ic]->Fill(2, -1.*isect);
+	      m_h2CSC_Segm_NumOfNClusSegs_Eta_EC[ic]->Fill(3, -1.*isect);
+	      m_h2CSC_Segm_NumOfNClusSegs_Eta_EC[ic]->Fill(4, -1.*isect);
 	    }
 	  }
 
@@ -878,31 +878,31 @@ StatusCode CSCSegmValAlg::fillHistograms() {
 	  for(unsigned int i = 0; i < 2; i++) {
 	    eta_clus_qsum_tot = 0; phi_clus_qsum_tot = 0.;
 	    for(unsigned int j = 1; j < 5; j++) {
-	      if(i==0) h1CSC_Segm_QsumOfClus_Eta_EA[ic]->Fill(eta_clus_qsum[i][j]);
-	      if(i==1) h1CSC_Segm_QsumOfClus_Eta_EC[ic]->Fill(eta_clus_qsum[i][j]);
-	      if(i==0) h1CSC_Segm_QsumOfClus_Phi_EA[ic]->Fill(phi_clus_qsum[i][j]);
-	      if(i==1) h1CSC_Segm_QsumOfClus_Phi_EC[ic]->Fill(phi_clus_qsum[i][j]);
-	      if(i==0 && fabs(eta_clus_time[i][j]) <= 200) h1CSC_Segm_TimeOfClus_Eta_EA[ic]->Fill(eta_clus_time[i][j]);
-	      if(i==1 && fabs(eta_clus_time[i][j]) <= 200) h1CSC_Segm_TimeOfClus_Eta_EC[ic]->Fill(eta_clus_time[i][j]);
-	      if(i==0 && fabs(phi_clus_time[i][j]) <= 200) h1CSC_Segm_TimeOfClus_Phi_EA[ic]->Fill(phi_clus_time[i][j]);
-	      if(i==1 && fabs(phi_clus_time[i][j]) <= 200) h1CSC_Segm_TimeOfClus_Phi_EC[ic]->Fill(phi_clus_time[i][j]);
+	      if(i==0) m_h1CSC_Segm_QsumOfClus_Eta_EA[ic]->Fill(eta_clus_qsum[i][j]);
+	      if(i==1) m_h1CSC_Segm_QsumOfClus_Eta_EC[ic]->Fill(eta_clus_qsum[i][j]);
+	      if(i==0) m_h1CSC_Segm_QsumOfClus_Phi_EA[ic]->Fill(phi_clus_qsum[i][j]);
+	      if(i==1) m_h1CSC_Segm_QsumOfClus_Phi_EC[ic]->Fill(phi_clus_qsum[i][j]);
+	      if(i==0 && fabs(eta_clus_time[i][j]) <= 200) m_h1CSC_Segm_TimeOfClus_Eta_EA[ic]->Fill(eta_clus_time[i][j]);
+	      if(i==1 && fabs(eta_clus_time[i][j]) <= 200) m_h1CSC_Segm_TimeOfClus_Eta_EC[ic]->Fill(eta_clus_time[i][j]);
+	      if(i==0 && fabs(phi_clus_time[i][j]) <= 200) m_h1CSC_Segm_TimeOfClus_Phi_EA[ic]->Fill(phi_clus_time[i][j]);
+	      if(i==1 && fabs(phi_clus_time[i][j]) <= 200) m_h1CSC_Segm_TimeOfClus_Phi_EC[ic]->Fill(phi_clus_time[i][j]);
 	      if(phi_clus_use[i][j] && eta_clus_use[i][j]) {
 		eta_clus_qsum_tot += eta_clus_qsum[i][j];
-		if(i==0) h1CSC_Segm_QsumOfGoodClus_Eta_EA[ic]->Fill(eta_clus_qsum[i][j]);
-		if(i==1) h1CSC_Segm_QsumOfGoodClus_Eta_EC[ic]->Fill(eta_clus_qsum[i][j]);
-		if(i==0 && fabs(eta_clus_time[i][j]) <= 200) h1CSC_Segm_TimeOfGoodClus_Eta_EA[ic]->Fill(eta_clus_time[i][j]);
-		if(i==1 && fabs(eta_clus_time[i][j]) <= 200) h1CSC_Segm_TimeOfGoodClus_Eta_EC[ic]->Fill(eta_clus_time[i][j]);
+		if(i==0) m_h1CSC_Segm_QsumOfGoodClus_Eta_EA[ic]->Fill(eta_clus_qsum[i][j]);
+		if(i==1) m_h1CSC_Segm_QsumOfGoodClus_Eta_EC[ic]->Fill(eta_clus_qsum[i][j]);
+		if(i==0 && fabs(eta_clus_time[i][j]) <= 200) m_h1CSC_Segm_TimeOfGoodClus_Eta_EA[ic]->Fill(eta_clus_time[i][j]);
+		if(i==1 && fabs(eta_clus_time[i][j]) <= 200) m_h1CSC_Segm_TimeOfGoodClus_Eta_EC[ic]->Fill(eta_clus_time[i][j]);
 		phi_clus_qsum_tot += phi_clus_qsum[i][j];
-		if(i==0) h1CSC_Segm_QsumOfGoodClus_Phi_EA[ic]->Fill(phi_clus_qsum[i][j]);
-		if(i==1) h1CSC_Segm_QsumOfGoodClus_Phi_EC[ic]->Fill(phi_clus_qsum[i][j]);
-		if(i==0 && fabs(phi_clus_time[i][j]) <= 200) h1CSC_Segm_TimeOfGoodClus_Phi_EA[ic]->Fill(phi_clus_time[i][j]);
-		if(i==1 && fabs(phi_clus_time[i][j]) <= 200) h1CSC_Segm_TimeOfGoodClus_Phi_EC[ic]->Fill(phi_clus_time[i][j]);
+		if(i==0) m_h1CSC_Segm_QsumOfGoodClus_Phi_EA[ic]->Fill(phi_clus_qsum[i][j]);
+		if(i==1) m_h1CSC_Segm_QsumOfGoodClus_Phi_EC[ic]->Fill(phi_clus_qsum[i][j]);
+		if(i==0 && fabs(phi_clus_time[i][j]) <= 200) m_h1CSC_Segm_TimeOfGoodClus_Phi_EA[ic]->Fill(phi_clus_time[i][j]);
+		if(i==1 && fabs(phi_clus_time[i][j]) <= 200) m_h1CSC_Segm_TimeOfGoodClus_Phi_EC[ic]->Fill(phi_clus_time[i][j]);
 	      }
 	      //ATH_MSG_VERBOSE("phi charge = " << phi_clus_qsum[i][j] << "\tphi time = " << phi_clus_time[i][j]);
 	      //ATH_MSG_VERBOSE("eta charge = " << eta_clus_qsum[i][j] << "\teta time = " << eta_clus_time[i][j]);
 	    }
-	    if(i==0) h2CSC_Segm_QsumOfGoodClus_PhiVsEta_EA[ic]->Fill(eta_clus_qsum_tot,phi_clus_qsum_tot);
-	    if(i==1) h2CSC_Segm_QsumOfGoodClus_PhiVsEta_EC[ic]->Fill(eta_clus_qsum_tot,phi_clus_qsum_tot);
+	    if(i==0) m_h2CSC_Segm_QsumOfGoodClus_PhiVsEta_EA[ic]->Fill(eta_clus_qsum_tot,phi_clus_qsum_tot);
+	    if(i==1) m_h2CSC_Segm_QsumOfGoodClus_PhiVsEta_EC[ic]->Fill(eta_clus_qsum_tot,phi_clus_qsum_tot);
 	    //ATH_MSG_VERBOSE("eta_qsum_tot = " << eta_clus_qsum_tot << "\tphi_qsum = " << phi_clus_qsum_tot);
 	  }
 
@@ -927,11 +927,6 @@ StatusCode CSCSegmValAlg::procHistograms() {
   if( m_environment == AthenaMonManager::tier0 || m_environment == AthenaMonManager::tier0ESD ) {
 
     if (m_debuglevel)  ATH_MSG_DEBUG(  "in CSCSegmValAlg::procHistograms()" );
-    if(endOfEventsBlock){}
-    if(endOfLumiBlock){}
-    if(endOfRun){
-
-    } // endOfRun
   } // environment if
 
   return StatusCode::SUCCESS;   
@@ -1006,15 +1001,15 @@ unsigned int CSCSegmValAlg::cscHits( const Muon::MuonSegment* seg ) const {
 }
 
 //________________________________________________________________________________________________________
-void CSCSegmValAlg::setCSCLayerLabels(TH1 *h, int m_side) {
+void CSCSegmValAlg::setCSCLayerLabels(TH1 *h, int side) {
 
   if(!h) return;
-  if(!(m_side == 1 || m_side == -1)) return;
+  if(!(side == 1 || side == -1)) return;
   if(h->GetNbinsX() < 85) return;
 
   h->GetXaxis()->SetTitle("");
   h->GetXaxis()->SetLabelSize(0.03);
-  if(m_side == -1) {
+  if(side == -1) {
     for(unsigned int j=6; j<86; j++) {
       if( j%5 != 0 ) {
         float xmid = h->GetBinLowEdge(j) + h->GetBinWidth(j);
@@ -1026,7 +1021,7 @@ void CSCSegmValAlg::setCSCLayerLabels(TH1 *h, int m_side) {
         h->GetXaxis()->SetBinLabel(j,Form("%c%02d:%d",(sec%2==0?'S':'L'),sec,lay));
       } // end for
     } // end if
-  } else if (m_side == 1) {
+  } else if (side == 1) {
     for(unsigned int j=6; j<86; j++) {
       if( j%5 != 0 ) {
         float xmid = h->GetBinLowEdge(j) + h->GetBinWidth(j);
@@ -1057,58 +1052,58 @@ void CSCSegmValAlg::regCSCHist(TH1 *h, MonGroup *cm3 ) {
 //________________________________________________________________________________________________________
 void CSCSegmValAlg::clearHistogramVectors( ) {
   
-  h2CSC_Segm_NumOfNClusSegs_Eta_EA.clear();
-  h2CSC_Segm_NumOfNClusSegs_Eta_EC.clear();
+  m_h2CSC_Segm_NumOfNClusSegs_Eta_EA.clear();
+  m_h2CSC_Segm_NumOfNClusSegs_Eta_EC.clear();
 
-  h1CSC_Segm_Efficiency_Eta_EA.clear();
-  h1CSC_Segm_Efficiency_Eta_EC.clear();
+  m_h1CSC_Segm_Efficiency_Eta_EA.clear();
+  m_h1CSC_Segm_Efficiency_Eta_EC.clear();
 
-  h2CSC_Segm_QsumOfGoodClusMap_Eta_EA.clear();
-  h2CSC_Segm_QsumOfGoodClusMap_Eta_EC.clear();
+  m_h2CSC_Segm_QsumOfGoodClusMap_Eta_EA.clear();
+  m_h2CSC_Segm_QsumOfGoodClusMap_Eta_EC.clear();
 
-  h2CSC_Segm_TimeOfGoodClusMap_Eta_EA.clear();
-  h2CSC_Segm_TimeOfGoodClusMap_Eta_EC.clear();
+  m_h2CSC_Segm_TimeOfGoodClusMap_Eta_EA.clear();
+  m_h2CSC_Segm_TimeOfGoodClusMap_Eta_EC.clear();
 
-  h1CSC_Segm_StatOfClus_Eta_EA.clear();
-  h1CSC_Segm_NumOfClus_Eta_EA.clear();
-  h1CSC_Segm_NumOfGoodClus_Eta_EA.clear();
-  h1CSC_Segm_QsumOfClus_Eta_EA.clear();
-  h1CSC_Segm_QsumOfGoodClus_Eta_EA.clear();
-  h1CSC_Segm_TimeOfClus_Eta_EA.clear();
-  h1CSC_Segm_TimeOfGoodClus_Eta_EA.clear();
+  m_h1CSC_Segm_StatOfClus_Eta_EA.clear();
+  m_h1CSC_Segm_NumOfClus_Eta_EA.clear();
+  m_h1CSC_Segm_NumOfGoodClus_Eta_EA.clear();
+  m_h1CSC_Segm_QsumOfClus_Eta_EA.clear();
+  m_h1CSC_Segm_QsumOfGoodClus_Eta_EA.clear();
+  m_h1CSC_Segm_TimeOfClus_Eta_EA.clear();
+  m_h1CSC_Segm_TimeOfGoodClus_Eta_EA.clear();
 
-  h1CSC_Segm_StatOfClus_Eta_EC.clear();
-  h1CSC_Segm_NumOfClus_Eta_EC.clear();
-  h1CSC_Segm_NumOfGoodClus_Eta_EC.clear();
-  h1CSC_Segm_QsumOfClus_Eta_EC.clear();
-  h1CSC_Segm_QsumOfGoodClus_Eta_EC.clear();
-  h1CSC_Segm_TimeOfClus_Eta_EC.clear();
-  h1CSC_Segm_TimeOfGoodClus_Eta_EC.clear();
+  m_h1CSC_Segm_StatOfClus_Eta_EC.clear();
+  m_h1CSC_Segm_NumOfClus_Eta_EC.clear();
+  m_h1CSC_Segm_NumOfGoodClus_Eta_EC.clear();
+  m_h1CSC_Segm_QsumOfClus_Eta_EC.clear();
+  m_h1CSC_Segm_QsumOfGoodClus_Eta_EC.clear();
+  m_h1CSC_Segm_TimeOfClus_Eta_EC.clear();
+  m_h1CSC_Segm_TimeOfGoodClus_Eta_EC.clear();
 
-  h2CSC_Segm_QsumOfGoodClusMap_Phi_EA.clear();
-  h2CSC_Segm_QsumOfGoodClusMap_Phi_EC.clear();
+  m_h2CSC_Segm_QsumOfGoodClusMap_Phi_EA.clear();
+  m_h2CSC_Segm_QsumOfGoodClusMap_Phi_EC.clear();
 
-  h2CSC_Segm_TimeOfGoodClusMap_Phi_EA.clear();
-  h2CSC_Segm_TimeOfGoodClusMap_Phi_EC.clear();
+  m_h2CSC_Segm_TimeOfGoodClusMap_Phi_EA.clear();
+  m_h2CSC_Segm_TimeOfGoodClusMap_Phi_EC.clear();
 
-  h1CSC_Segm_StatOfClus_Phi_EA.clear();
-  h1CSC_Segm_NumOfClus_Phi_EA.clear();
-  h1CSC_Segm_NumOfGoodClus_Phi_EA.clear();
-  h1CSC_Segm_QsumOfClus_Phi_EA.clear();
-  h1CSC_Segm_QsumOfGoodClus_Phi_EA.clear();
-  h1CSC_Segm_TimeOfClus_Phi_EA.clear();
-  h1CSC_Segm_TimeOfGoodClus_Phi_EA.clear();
+  m_h1CSC_Segm_StatOfClus_Phi_EA.clear();
+  m_h1CSC_Segm_NumOfClus_Phi_EA.clear();
+  m_h1CSC_Segm_NumOfGoodClus_Phi_EA.clear();
+  m_h1CSC_Segm_QsumOfClus_Phi_EA.clear();
+  m_h1CSC_Segm_QsumOfGoodClus_Phi_EA.clear();
+  m_h1CSC_Segm_TimeOfClus_Phi_EA.clear();
+  m_h1CSC_Segm_TimeOfGoodClus_Phi_EA.clear();
 
-  h1CSC_Segm_StatOfClus_Phi_EC.clear();
-  h1CSC_Segm_NumOfClus_Phi_EC.clear();
-  h1CSC_Segm_NumOfGoodClus_Phi_EC.clear();
-  h1CSC_Segm_QsumOfClus_Phi_EC.clear();
-  h1CSC_Segm_QsumOfGoodClus_Phi_EC.clear();
-  h1CSC_Segm_TimeOfClus_Phi_EC.clear();
-  h1CSC_Segm_TimeOfGoodClus_Phi_EC.clear();
+  m_h1CSC_Segm_StatOfClus_Phi_EC.clear();
+  m_h1CSC_Segm_NumOfClus_Phi_EC.clear();
+  m_h1CSC_Segm_NumOfGoodClus_Phi_EC.clear();
+  m_h1CSC_Segm_QsumOfClus_Phi_EC.clear();
+  m_h1CSC_Segm_QsumOfGoodClus_Phi_EC.clear();
+  m_h1CSC_Segm_TimeOfClus_Phi_EC.clear();
+  m_h1CSC_Segm_TimeOfGoodClus_Phi_EC.clear();
 
-  h2CSC_Segm_QsumOfGoodClus_PhiVsEta_EA.clear();
-  h2CSC_Segm_QsumOfGoodClus_PhiVsEta_EC.clear();
+  m_h2CSC_Segm_QsumOfGoodClus_PhiVsEta_EA.clear();
+  m_h2CSC_Segm_QsumOfGoodClus_PhiVsEta_EC.clear();
 
   m_segmDetail_EA.clear();
   m_segmDetail_EC.clear();

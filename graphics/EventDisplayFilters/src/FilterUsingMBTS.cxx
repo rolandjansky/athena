@@ -3,7 +3,6 @@
 */
 
 #include "EventDisplayFilters/FilterUsingMBTS.h"
-#include "GaudiKernel/MsgStream.h"
 #include "TrigT1Result/CTP_RDO.h"
 #include "TrigT1Result/CTP_Decoder.h"
 
@@ -14,7 +13,7 @@
  * @author: Brian Thomas Martin
  ****/
 
-	FilterUsingMBTS::FilterUsingMBTS(const std::string& name, ISvcLocator* pSvcLocator)  :  Algorithm(name, pSvcLocator)
+	FilterUsingMBTS::FilterUsingMBTS(const std::string& name, ISvcLocator* pSvcLocator)  :  AthAlgorithm(name, pSvcLocator)
 {
 	declareProperty("NumberOfAsideHits", m_nA_required=4);
 	declareProperty("NumberOfCsideHits", m_nC_required=4);
@@ -23,14 +22,7 @@
 
 StatusCode FilterUsingMBTS::initialize()
 {
-	MsgStream log(msgSvc(), name());
-	StatusCode sc;
-	log << MSG::INFO << "Initializing " << name() << endmsg;
-	  sc = service( "StoreGateSvc", m_eventStore);
-	  if( sc.isFailure() ) {
-		  log << MSG::FATAL << name() << ": Unable to locate Service StoreGateSvc" << endmsg;
-		  return sc;
-	  }
+        ATH_MSG_INFO( "Initializing " << name()  );
 	
 	// Set trigger mapping and build labels
 	for(int c=0;c<32;c++)
@@ -46,16 +38,9 @@ StatusCode FilterUsingMBTS::initialize()
 
 StatusCode FilterUsingMBTS::execute()
 {
-	MsgStream log(msgSvc(), name());
-	StatusCode sc;
 	// Decode CTP RDO
 	const DataHandle < CTP_RDO > theCTP_RDO = 0;
-	sc = m_eventStore->retrieve(theCTP_RDO, "CTP_RDO");
-	if (sc.isFailure()) {
-		log << MSG::WARNING
-			<< "Could not find \"CTP_RDO\" in StoreGate" << endmsg;
-		return sc;
-	}
+	ATH_CHECK( evtStore()->retrieve(theCTP_RDO, "CTP_RDO") );
 	CTP_Decoder ctp;
 	ctp.setRDO(theCTP_RDO);
 	uint32_t numberBC = theCTP_RDO->getNumberOfBunches();
@@ -69,16 +54,16 @@ StatusCode FilterUsingMBTS::execute()
 		const std::vector < CTP_BC > &BCs = ctp.getBunchCrossings();
 		const CTP_BC & bunch = BCs[l1aBC];
 		unsigned int l1aBCID = bunch.getBCID();
-		log <<  MSG::DEBUG << "Number of Bunches in CTP window: " << numberBC << endmsg;
-		log <<  MSG::DEBUG << "Level 1 Accept Bunch: " << l1aBC   << endmsg;
-		log <<  MSG::DEBUG << "Level 1 Accept BCID: "  << l1aBCID << endmsg;
+		ATH_MSG_DEBUG( "Number of Bunches in CTP window: " << numberBC  );
+		ATH_MSG_DEBUG( "Level 1 Accept Bunch: " << l1aBC    );
+		ATH_MSG_DEBUG( "Level 1 Accept BCID: "  << l1aBCID  );
 		const std::bitset < 512 > TBP(bunch.getTBP());
 		for(int c=0;c<32;c++)  // Loop over MBTS counters
 		{
 			// Check the L1 result for each MBTS counter
 			if (TBP.test(m_ctpID[c]))
 			{
-				log << MSG::INFO << "Trigger fired for : " << m_counterLabel[c] << endmsg;
+                                ATH_MSG_INFO( "Trigger fired for : " << m_counterLabel[c]  );
 				if(c<16) m_nA++;
 				else     m_nC++;
 			}
@@ -88,16 +73,16 @@ StatusCode FilterUsingMBTS::execute()
 	// Check if filter is passed
 	if( (m_nA >= m_nA_required) && (m_nC >= m_nC_required) )
 	{
-		log << MSG::INFO << "MBTS filter passed" << endmsg;
+                ATH_MSG_INFO( "MBTS filter passed"  );
 		this->setFilterPassed(true);
 	}
 	else
 	{
-		log << MSG::INFO << "MBTS filter failed" << endmsg;
+                ATH_MSG_INFO( "MBTS filter failed"  );
 		this->setFilterPassed(false);
 	}	
 	
-	return sc;
+	return StatusCode::SUCCESS;
 }
 
 StatusCode FilterUsingMBTS::finalize()

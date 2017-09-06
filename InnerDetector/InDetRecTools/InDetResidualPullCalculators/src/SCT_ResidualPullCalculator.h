@@ -34,6 +34,7 @@ namespace InDet {
 
 class SCT_ResidualPullCalculator : virtual public Trk::IResidualPullCalculator, public AthAlgTool {
 public:
+    using Trk::IResidualPullCalculator::residualPull;
 
     SCT_ResidualPullCalculator(const std::string& type, const std::string& name, const IInterface* parent);
     ~SCT_ResidualPullCalculator() {}

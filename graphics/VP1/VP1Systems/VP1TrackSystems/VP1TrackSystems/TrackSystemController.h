@@ -23,7 +23,7 @@
 #include "VP1Base/VP1Controller.h"
 #include "VP1TrackSystems/TrackCommonFlags.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
-#include <QtCore/QFlags>
+#include <QFlags>
 #include "GaudiKernel/ServiceHandle.h"
 #include "TrkDetDescrInterfaces/ITrackingVolumesSvc.h"
 

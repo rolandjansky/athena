@@ -71,21 +71,21 @@ class ThinGeantTruth(JobProperty):
     """
     statusOn=True
     allowedTypes=['bool']
-    StoredValue=False
+    StoredValue=True
 
 class ThinNegativeEnergyCaloClusters(JobProperty):
     """ If True, add ThinNegativeEnergyCaloClusters
     """
     statusOn=True
     allowedTypes=['bool']
-    StoredValue=False
+    StoredValue=True
 
 class ThinNegativeEnergyNeutralPFOs(JobProperty):
     """ If True, add ThinNegativeEnergyNeutralPFOs
     """
     statusOn=True
     allowedTypes=['bool']
-    StoredValue=False
+    StoredValue=True
     
 class Muon(JobProperty):
     """ If True, add Muon

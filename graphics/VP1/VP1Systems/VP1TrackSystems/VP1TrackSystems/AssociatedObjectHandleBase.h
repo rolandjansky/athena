@@ -28,7 +28,7 @@ class SoNode;
 class SoSeparator;
 class TrackSysCommonData;
 class AssocObjAttachmentHandle;
-#include <QtCore/QStringList>
+#include <QStringList>
 
 class AssociatedObjectHandleBase {
 public:

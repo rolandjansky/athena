@@ -150,23 +150,23 @@ InDetAlignCog::InDetAlignCog(const std::string& name, ISvcLocator* pSvcLocator)
 
   declareProperty("UseChi2",m_useChi2=true);
   declareProperty("SXpixBarrel",m_sigXpixB=0.1);
-  declareProperty("SXpixBarrel",m_sigYpixB=0.1);
-  declareProperty("SXpixBarrel",m_sigZpixB=0.1);
+  declareProperty("SYpixBarrel",m_sigYpixB=0.1);
+  declareProperty("SZpixBarrel",m_sigZpixB=0.1);
   declareProperty("SXpixEndcap",m_sigXpixE=0.1);
-  declareProperty("SXpixEndcap",m_sigYpixE=0.1);
-  declareProperty("SXpixEndcap",m_sigZpixE=0.1);
+  declareProperty("SYpixEndcap",m_sigYpixE=0.1);
+  declareProperty("SZpixEndcap",m_sigZpixE=0.1);
   declareProperty("SXsctBarrel",m_sigXsctB=0.1);
-  declareProperty("SXsctBarrel",m_sigYsctB=0.1);
-  declareProperty("SXsctBarrel",m_sigZsctB=0.1);
+  declareProperty("SYsctBarrel",m_sigYsctB=0.1);
+  declareProperty("SZsctBarrel",m_sigZsctB=0.1);
   declareProperty("SXsctEndcap",m_sigXsctE=0.1);
-  declareProperty("SXsctEndcap",m_sigYsctE=0.1);
-  declareProperty("SXsctEndcap",m_sigZsctE=0.1);
+  declareProperty("SYsctEndcap",m_sigYsctE=0.1);
+  declareProperty("SZsctEndcap",m_sigZsctE=0.1);
   declareProperty("SXtrtBarrel",m_sigXtrtB=0.1);
-  declareProperty("SXtrtBarrel",m_sigYtrtB=0.1);
-  declareProperty("SXtrtBarrel",m_sigZtrtB=0.1);
+  declareProperty("SYtrtBarrel",m_sigYtrtB=0.1);
+  declareProperty("SZtrtBarrel",m_sigZtrtB=0.1);
   declareProperty("SXtrtEndcap",m_sigXtrtE=0.1);
-  declareProperty("SXtrtEndcap",m_sigYtrtE=0.1);
-  declareProperty("SXtrtEndcap",m_sigZtrtE=0.1);
+  declareProperty("SYtrtEndcap",m_sigYtrtE=0.1);
+  declareProperty("SZtrtEndcap",m_sigZtrtE=0.1);
 
   declareProperty("DoTX",m_doTX=true);
   declareProperty("DoTY",m_doTY=true);

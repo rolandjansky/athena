@@ -216,9 +216,6 @@ namespace InDet {
     
     typedef InDetRawDataCollection<PixelRDORawData> RDO_Collection;
     
-    RDO_Collection::const_iterator firstRDO(collection.begin());
-    RDO_Collection::const_iterator lastRDO(collection.end());
-    
     // Get detector info.
     // Find detector element for these RDOs
     

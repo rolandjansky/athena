@@ -1,7 +1,0 @@
-mailwrapper() {
-addresses=$(cat /afs/cern.ch/user/a/atlidbs/private/email_addresses | grep -Ev '^#' | tr '\n' ' ')
-
-mail -s "$1" $(echo $addresses) <<EOF
-$2
-EOF
-}

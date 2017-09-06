@@ -8,8 +8,11 @@
 #define INDETTRACKSELECTIONTOOL_TOOLTESTER_H
 
 // Gaudi/Athena include(s):
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
+
+#include "xAODTracking/TrackParticleContainer.h"
+
 
 namespace InDet {
 
@@ -21,7 +24,7 @@ namespace InDet {
    /// This is meant to be the "Athena equivalent" of the code put into
    /// util/InDetTrackSelectionToolTester.cxx.
    ///
-   class ToolTester : public AthAlgorithm {
+   class ToolTester : public AthReentrantAlgorithm {
 
    public:
       /// Regular Algorithm constructor
@@ -30,11 +33,11 @@ namespace InDet {
       /// Function initialising the algorithm
       virtual StatusCode initialize();
       /// Function executing the algorithm
-      virtual StatusCode execute();
+      virtual StatusCode execute_r(const EventContext &ctx) const;
 
    private:
       /// StoreGate key for the track container to investigate
-      std::string m_sgKey;
+      SG::ReadHandleKey<xAOD::TrackParticleContainer> m_sgKey;
 
       /// Connection to the selection tool
       ToolHandle< IInDetTrackSelectionTool > m_selTool;

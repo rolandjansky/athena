@@ -405,7 +405,7 @@ StatusCode AFP_SIDLocReco::ExecuteRecoMethod(const string strAlgo, const list<SI
 	      const int pixelCol = (( (*hitIter)/100) % 1000);
 	      const int pixelLayer = ( (*hitIter)/100000) % 10;
 	      const int pixelStation = ( (*hitIter)/1000000) % 10;
-	      int result = 0;
+	      unsigned int result = 0;
 	      auto endHits = siHitContainer->end();
 	      for (auto origHitIter = siHitContainer->begin(); origHitIter != endHits; ++origHitIter) {
 		if (
@@ -420,7 +420,7 @@ StatusCode AFP_SIDLocReco::ExecuteRecoMethod(const string strAlgo, const list<SI
 	      }
 
 	      // check if the hit was found
-	      if (result < siHitContainer->size()) {
+              if (result < siHitContainer->size()) {
 		ATH_MSG_DEBUG("To the list of hits in a track adding hit "<<result<<"/"<<siHitContainer->size()<<".");
 
 		ElementLink< xAOD::AFPSiHitContainer >* hitLink = new ElementLink< xAOD::AFPSiHitContainer >;

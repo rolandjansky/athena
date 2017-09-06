@@ -26,7 +26,7 @@ static dqm_algorithms::KolmogorovTest kolmo_NormMaxDist( "MaxDistPlusNorm" );
 
 
 dqm_algorithms::KolmogorovTest::KolmogorovTest( const std::string & name )
-  : name_ ( name )
+  : m_name ( name )
 {
   dqm_core::AlgorithmManager::instance().registerAlgorithm( "KolmogorovTest_"+ name, this );
 }
@@ -34,7 +34,7 @@ dqm_algorithms::KolmogorovTest::KolmogorovTest( const std::string & name )
 dqm_algorithms::KolmogorovTest * 
 dqm_algorithms::KolmogorovTest::clone()
 {
-  return new KolmogorovTest( name_ );
+  return new KolmogorovTest( m_name );
 }
 
 
@@ -84,27 +84,27 @@ dqm_algorithms::KolmogorovTest::execute(	const std::string & name,
     throw dqm_core::BadRefHist( ERS_HERE, name, "number of bins" );
   }
   
-  if (histogram->GetDimension()==2 && (name_=="MaxDist" || name_=="MaxDistPlustNorm")){
+  if (histogram->GetDimension()==2 && (m_name=="MaxDist" || m_name=="MaxDistPlustNorm")){
     throw dqm_core::BadConfig( ERS_HERE, name, "MaxDist option cannot be used on 2D histograms" );
   }
   
   
   std::string option;
   std::string thresh;
-  if (name_ == "Prob") {
+  if (m_name == "Prob") {
     option="";
     thresh="P";
-  }else if (name_ == "MaxDist") {
+  }else if (m_name == "MaxDist") {
     option="M";
     thresh="MaxDist";
-  }else if (name_ == "Norm") {
+  }else if (m_name == "Norm") {
     option="N";
     thresh="P";
-  }else if (name_ == "MaxDistPlusNorm") {
+  }else if (m_name == "MaxDistPlusNorm") {
     option="NM";
     thresh="MaxDist";
   }else {
-    throw dqm_core::BadConfig( ERS_HERE, "None", name_ );
+    throw dqm_core::BadConfig( ERS_HERE, "None", m_name );
   }
   
   try {
@@ -118,11 +118,11 @@ dqm_algorithms::KolmogorovTest::execute(	const std::string & name,
   
   double value = histogram->KolmogorovTest( refhist, option.c_str());
   
-  ERS_DEBUG(1, "Kolmogorov Test with Option " << name_ <<  " is " << value );
+  ERS_DEBUG(1, "Kolmogorov Test with Option " << m_name <<  " is " << value );
   ERS_DEBUG(1, "Green threshold: "<< gthresho << ";  Red threshold: " << rthresho );
   
   dqm_core::Result* result = new dqm_core::Result();
-  result->tags_[name_] = value;
+  result->tags_[m_name] = value;
   if (thresh =="P"){ 
     if ( value >= gthresho ) {
       result->status_ = dqm_core::Result::Green;
@@ -147,24 +147,24 @@ void
 dqm_algorithms::KolmogorovTest::printDescription(std::ostream& out)
 {
   std::string thresh;
-  if (name_ == "Prob") {
-    option="";
+  if (m_name == "Prob") {
+    m_option="";
     thresh="P";
-  }else if (name_ == "MaxDist") {
-    option="M";
+  }else if (m_name == "MaxDist") {
+    m_option="M";
     thresh="MaxDist";
-  }else if (name_ == "Norm") {
-    option="N";
+  }else if (m_name == "Norm") {
+    m_option="N";
     thresh="P";
-  }else if (name_ == "MaxDistPlusNorm") {
-    option="NM";
+  }else if (m_name == "MaxDistPlusNorm") {
+    m_option="NM";
     thresh="MaxDist";
   }
   
-  if (name_ == "Norm" || name_ == "Prob") { 
-    out<<"KolmogorovTest_"+ name_+": Give back probability after performing KolmogorovTest on histogram against referece histogram with "+option+" option\n"<<std::endl;
+  if (m_name == "Norm" || m_name == "Prob") { 
+    out<<"KolmogorovTest_"+ m_name+": Give back probability after performing KolmogorovTest on histogram against referece histogram with "+m_option+" option\n"<<std::endl;
   } else {
-    out<<"KolmogorovTest_"+ name_+": Give back MaxDist(for 1D histograms only) after performing KolmogorovTest on histogram against referece histogram with "+option+" option\n"<<std::endl;
+    out<<"KolmogorovTest_"+ m_name+": Give back MaxDist(for 1D histograms only) after performing KolmogorovTest on histogram against referece histogram with "+m_option+" option\n"<<std::endl;
   }
   out<<"Mandatory Green/Red Threshold: "+thresh+" : Probability to give Green/Red result\n"<<std::endl;
   

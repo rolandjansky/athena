@@ -24,6 +24,7 @@ decription           : Class for fitting according to the Gaussian Sum Filter
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h" 
 #include "GaudiKernel/IChronoStatSvc.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include "TTree.h"
 
@@ -213,6 +214,9 @@ class GaussianSumFitter : virtual public ITrackFitter, public AthAlgTool {
   mutable float                   m_surfaceErrPhiS[TRKFGSF_VALSURFACES][TRKGSF_VALSTATES];    //!< Track phi error on Surface
   mutable float                   m_surfaceErrQoverPS[TRKFGSF_VALSURFACES][TRKGSF_VALSTATES]; //!< Track q over p error on Surface
   mutable int                     m_event_ID;
+
+  SG::ReadHandleKey<xAOD::EventInfo> m_readKey;
+
 };
 
 } // end Trk namespace

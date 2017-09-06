@@ -17,7 +17,7 @@ from D3PDMakerCoreComps.D3PDObject          import DeferArg
 from D3PDMakerCoreComps.SimpleAssociation   import SimpleAssociation, IdentityAssociation
 from D3PDMakerCoreComps.IndexAssociation    import IndexAssociation
 from D3PDMakerCoreComps.IndexMultiAssociation import IndexMultiAssociation
-from D3PDMakerCoreComps.resolveSGKey        import resolveSGKey
+from D3PDMakerCoreComps.resolveSGKey        import resolveSGKey, testSGKey
 from D3PDMakerConfig.D3PDMakerFlags         import D3PDMakerFlags
 # from TriggerD3PDMaker.defineTriggerBits     import defineTriggerBits
 from RecExConfig.RecFlags                   import rec
@@ -439,7 +439,7 @@ EleJetD3PDAssoc.defineBlock (2, 'JetKinematics',
                              WriteE = True)
 
 
-if rec.doTruth():
+if rec.doTruth() and testSGKey ('DataVector<xAOD::Jet_v1>', D3PDMakerFlags.TruthJetSGKey()):
     JetTruthJetD3PDAssoc = DRAssociation (EleJetD3PDAssoc,
                                           'DataVector<xAOD::Jet_v1>',
                                           D3PDMakerFlags.TruthJetSGKey(),

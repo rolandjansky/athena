@@ -68,7 +68,7 @@ class CaloClusterBuilderSW : public AthAlgTool, virtual public CaloClusterCollec
   //virtual xAOD::CaloCluster* makeCluster(double eta, double phi); 
 
   struct ClusterWithCenter{ 
-    xAOD::CaloCluster* cluster; 
+    std::unique_ptr<xAOD::CaloCluster> cluster; 
     int eta; 
     int phi;
     float et;

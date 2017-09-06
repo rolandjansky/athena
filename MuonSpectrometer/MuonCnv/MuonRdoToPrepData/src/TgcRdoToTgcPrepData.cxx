@@ -16,12 +16,21 @@ TgcRdoToTgcPrepData::TgcRdoToTgcPrepData(const std::string& name, ISvcLocator* p
   m_tool( "Muon::TgcRdoToPrepDataTool/TgcPrepDataProviderTool"), // 'this' as 2nd arg would make it private tool
   m_print_inputRdo(false),
   m_print_prepData(false),
-  m_setting(0)
+  m_setting(0),
+  m_seededDecoding(false),
+  m_roiCollectionKey("OutputRoIs"),
+  m_regionSelector("RegSelSvc",name),
+  m_tgcCollection("TGC_Measurements")
 {
   declareProperty("DecodingTool",       m_tool,       "tgc rdo to prep data conversion tool" );
   declareProperty("PrintInputRdo",      m_print_inputRdo, "If true, will dump information about the input RDOs");
   declareProperty("PrintPrepData",      m_print_prepData, "If true, will dump information about the resulting PRDs");
   declareProperty("Setting",            m_setting,        "0 is default unseeded decoding"); 
+  declareProperty("DoSeededDecoding",   m_seededDecoding, "If true decode only in RoIs");
+  declareProperty("RoIs",               m_roiCollectionKey, "RoIs to read in");
+  declareProperty("RegionSelectorSvc",  m_regionSelector, "Region Selector");
+  declareProperty("OutputCollection",   m_tgcCollection);
+
   // m_setting=314321 means 
   // Execution #0 is mode=1 unseeded mode
   // Execution #1 is mode=2 seeded mode (1578 hash vectors with just one hash looping over 0 to 1577)
@@ -72,7 +81,21 @@ StatusCode TgcRdoToTgcPrepData::initialize(){
       }
     }
   }
-    
+  //Nullify key from scheduler if not needed
+  if(!m_seededDecoding){
+    m_roiCollectionKey = "";
+    m_tgcCollection="";
+  }
+  if(m_seededDecoding){
+    ATH_CHECK(m_roiCollectionKey.initialize());
+    ATH_CHECK(m_tgcCollection.initialize());
+    if (m_regionSelector.retrieve().isFailure()) {
+      ATH_MSG_FATAL("Unable to retrieve RegionSelector Svc");
+      return StatusCode::FAILURE;
+    }
+  }
+
+
   return StatusCode::SUCCESS;
 }
 
@@ -81,7 +104,36 @@ StatusCode TgcRdoToTgcPrepData::execute() {
   ATH_MSG_DEBUG( "**************** in TgcRdoToTgcPrepData::execute() ***********************************************"  );
   ATH_MSG_DEBUG( "in execute()"  );
     
-  if(m_settingVector.empty()) { // Default
+
+  if(m_seededDecoding){ //decoding from trigger RoI
+    bool decoded = false;
+    SG::ReadHandle<TrigRoiDescriptorCollection> muonRoI(m_roiCollectionKey);
+    if(!muonRoI.isValid()){
+      ATH_MSG_WARNING("Cannot retrieve muonRoI "<<m_roiCollectionKey.key());
+      return StatusCode::SUCCESS;
+    }
+    else{
+      std::vector<IdentifierHash> tgchashids;
+      std::vector<IdentifierHash> hash_ids_withData;
+      for(auto roi : *muonRoI){
+	m_regionSelector->DetHashIDList(TGC,*roi,tgchashids);
+	if(tgchashids.size()!=0){
+	  ATH_CHECK(m_tool->decode(tgchashids, hash_ids_withData));
+	  tgchashids.clear();
+	  decoded=true;
+	}
+      }
+      if(!decoded){
+	//Need to store an empty prd container if we didn't decode anything
+	//as the container is expected to exist downstream
+	SG::WriteHandle<Muon::TgcPrepDataContainer> h_output (m_tgcCollection);
+	ATH_CHECK(h_output.record(std::make_unique<Muon::TgcPrepDataContainer>(0)));
+      }
+    }
+
+    return StatusCode::SUCCESS;
+  }
+  else if(m_settingVector.empty()) { // Default
     // for the test of "unseeded mode" in MuonTGC_CnvTools/src/TgcRdoToTgcPrepDataTool
     std::vector<IdentifierHash> myVector(0); // empty vector
     std::vector<IdentifierHash> myVectorWithData;

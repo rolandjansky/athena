@@ -142,11 +142,11 @@ private:
 
 
 
-inline std::ostream& operator<<( std::ostream& s, const RegSelEtaPhiLUT& _f ) { 
+inline std::ostream& operator<<( std::ostream& s, const RegSelEtaPhiLUT& f ) { 
 
-  for ( unsigned i=0 ; i<_f.map().size() ; i++ ) { 
+  for ( unsigned i=0 ; i<f.map().size() ; i++ ) { 
 
-    const std::vector< RegSelEtaPhiLUT::map_element >& row = _f.map()[i];
+    const std::vector< RegSelEtaPhiLUT::map_element >& row = f.map()[i];
 
     s << "row " << i << std::endl;
     

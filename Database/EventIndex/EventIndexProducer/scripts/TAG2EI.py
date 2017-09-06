@@ -9,7 +9,6 @@ import PyUtils.dbsqlite as dbsqlite
 import re
 import argparse
 import PyUtils.RootUtils as ru
-import PyCintex
 #import pdb
 from EventIndexProducer.compressB64 import compressB64
 from EventIndexProducer.EI_Lib import EIrecord, IOV
@@ -38,7 +37,6 @@ def Tagfile(fname):
 
     #ROOT = ru.import_root()
     ROOT = _import_ROOT()
-    PyCintex.Cintex.Enable()
     
     f = ROOT.TFile.Open (fname, "read")
     assert not f.IsZombie() and f.IsOpen(), \

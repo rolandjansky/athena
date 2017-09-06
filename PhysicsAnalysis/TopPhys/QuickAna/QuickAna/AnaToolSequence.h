@@ -106,21 +106,21 @@ namespace ana
 
     /// \brief STL-iterator
   public:
-    typedef std::list<std::pair<IAnaTool*,std::string>>::const_iterator iterator;
+    typedef std::list<std::pair<std::unique_ptr<IAnaTool>,std::string>>::iterator iterator;
 
 
     /// \brief STL-begin function
     /// \par Guarantee
     ///   no-fail
   public:
-    iterator begin () const;
+    iterator begin ();
 
 
     /// \brief STL-end function
     /// \par Guarantee
     ///   no-fail
   public:
-    iterator end () const;
+    iterator end ();
 
 
 
@@ -130,7 +130,7 @@ namespace ana
 
     /// \brief the list of tools/slots in the sequence
   private:
-    std::list<std::pair<IAnaTool*,std::string>> m_tools;
+    std::list<std::pair<std::unique_ptr<IAnaTool>,std::string>> m_tools;
   };
 
 

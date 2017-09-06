@@ -29,8 +29,6 @@ EventTagAlgs contains the following algs/files:
 
 - for questions and comments: ketevi@bnl.gov or tmaeno@bnl.gov
 
-@section EventTagAlgs_used_packagesEventTagAlgs Used packages
 
-@section EventTagAlgs_requirementsEventTagAlgs Requirements
 
 */

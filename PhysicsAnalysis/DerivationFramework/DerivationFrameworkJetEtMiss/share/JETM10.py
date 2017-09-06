@@ -10,20 +10,23 @@ from DerivationFrameworkJetEtMiss.METCommon import *
 #======================================================================================================================
 # SKIMMING TOOL
 #======================================================================================================================
-# pre scale
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__PrescaleTool
-JETM10PrescaleSkimmingTool = DerivationFramework__PrescaleTool( name = "JETM10PrescaleSkimmingTool",
-                                                                Prescale = 5)
-ToolSvc += JETM10PrescaleSkimmingTool
-
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
+JETM10SkimmingTool = DerivationFramework__TriggerSkimmingTool(  name                   = "JETM10SkimmingTool",
+                                                                TriggerListOR          = ["HLT_noalg_L1XE30", "HLT_noalg_L1XE40", "HLT_noalg_L1XE45"] )
+ToolSvc += JETM10SkimmingTool
 
 #======================================================================================================================
 # AUGMENTATION  TOOL
 #======================================================================================================================
-# from DerivationFrameworkJetEtMiss.DerivationFrameworkJetEtMissConf import DerivationFramework__METTriggerAugmentationTool
-# JETM10LVL1AugmentationTool = DerivationFramework__METTriggerAugmentationTool(name = "JETM10LVL1AugmentationTool",
-#                                                                              SGPrefix = "JETM10")
-# ToolSvc += JETM10LVL1AugmentationTool
+from DerivationFrameworkJetEtMiss.DerivationFrameworkJetEtMissConf import DerivationFramework__METTriggerAugmentationTool
+JETM10KFData15AugmentationTool = DerivationFramework__METTriggerAugmentationTool(name = "JETM10KFData15AugmentationTool", #NB: data15 refers to the dataset used to form the look up table, not the intended target
+                                                                                 OutputName = "LVL1EnergySumRoI_KFMETData15",
+                                                                                 LUTFile = "LUT_data15.root")
+ToolSvc += JETM10KFData15AugmentationTool
+JETM10KFmc12AugmentationTool = DerivationFramework__METTriggerAugmentationTool(name = "JETM10KFmc12AugmentationTool", #NB: mc12 refers to the dataset used to form the look up table, not the intended target
+                                                                                 OutputName = "LVL1EnergySumRoI_KFMETmc12",
+                                                                                 LUTFile = "LUT_mc12.root")
+ToolSvc += JETM10KFmc12AugmentationTool
 
 #======================================================================================================================
 # SET UP STREAM
@@ -38,10 +41,10 @@ JETM10Stream.AcceptAlgs(['JETM10Kernel'])
 #=======================================
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 JETM10ThinningHelper = ThinningHelper( "JETM10ThinningHelper" )
-JETM10ThinningHelper.TriggerChains = ('L1_XE.*|L1_XS.*|L1_TE.*|HLT_xe.*|HLT_xs.*|HLT_te.*|'
-                                      'HLT_e26_lhvloose_L1EM20VH.*|HLT_e\\d\\d_(lhvloose|vloose)|'
-                                      'HLT_mu20_iloose.*|HLT_mu50|HLT_e24_lhmedium_iloose_L1_EM20VH|'
-                                      'HLT_e60_lhmedium|L1_J.*XE.*|HLT_j.*xe.*')
+# JETM10ThinningHelper.TriggerChains = ('L1_XE.*|L1_XS.*|L1_TE.*|HLT_xe.*|HLT_xs.*|HLT_te.*|'
+#                                       'HLT_e26_lhvloose_L1EM20VH.*|HLT_e\\d\\d_(lhvloose|vloose)|'
+#                                       'HLT_mu20_iloose.*|HLT_mu50|HLT_e24_lhmedium_iloose_L1_EM20VH|'
+#                                       'HLT_e60_lhmedium|L1_J.*XE.*|HLT_j.*xe.*')
 JETM10ThinningHelper.AppendToStream( JETM10Stream )
 
 #======================================================================================================================
@@ -105,8 +108,8 @@ DerivationFrameworkJob += jetm10Seq
 #=======================================
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 jetm10Seq += CfgMgr.DerivationFramework__DerivationKernel('JETM10Kernel',
-                                                          SkimmingTools = [JETM10PrescaleSkimmingTool],
-#                                                          AugmentationTools = [JETM10LVL1AugmentationTool],
+                                                          SkimmingTools = [JETM10SkimmingTool],
+                                                          AugmentationTools = [JETM10KFData15AugmentationTool, JETM10KFmc12AugmentationTool],
                                                           ThinningTools = thinningTools)
 
 #======================================================================================================================
@@ -116,18 +119,16 @@ from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 JETM10SlimmingHelper = SlimmingHelper('JETM10SlimmingHelper')
 JETM10SlimmingHelper.SmartCollections = ["Electrons", "Muons", "Photons", "TauJets",
                                          "AntiKt4EMTopoJets", "PrimaryVertices", "BTagging_AntiKt4EMTopo"]
-JETM10SlimmingHelper.AllVariables =     ["HLT_xAOD__TrigMissingETContainer_EFJetEtSum",
-                                         "HLT_xAOD__TrigMissingETContainer_TrigMissingET_FEB",
-                                         "HLT_xAOD__TrigMissingETContainer_EFMissingET_Fex_2sidednoiseSupp_PUC",
-                                         "HLT_xAOD__TrigMissingETContainer_T2MissingET",
-                                         "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl_PS",
+JETM10SlimmingHelper.AllVariables =     ["HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl_PS",
                                          "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_mht",
                                          "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl_PUC",
                                          "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl",
-                                         "HLT_xAOD__TrigMissingETContainer_TrigL2MissingET_FEB",
                                          "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET",
+                                         "HLT_xAOD__JetContainer_a4tclcwsubjesFS",
                                          "LVL1JetRoIs",
                                          "LVL1JetEtRoI",
+                                         "LVL1EnergySumRoI_KFMETData15", 
+                                         "LVL1EnergySumRoI_KFMETmc12",
                                          "MET_Core_AntiKt4EMTopo",
                                          "METAssoc_AntiKt4EMTopo"]
 JETM10SlimmingHelper.IncludeJetTriggerContent = True

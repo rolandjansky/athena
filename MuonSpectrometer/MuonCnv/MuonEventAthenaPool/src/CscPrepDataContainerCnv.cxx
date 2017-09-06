@@ -17,6 +17,7 @@
 // #include "MuonIdHelpers/CscIdHelper.h"
 #include "MuonPrepRawData/CscPrepDataContainer.h"
 #include "MuonEventTPCnv/CscPrepDataContainerCnv_tlp1.h"
+#include "MuonEventAthenaPool/CreateTransientTemplates.h"
 
 // #include "MuonReadoutGeometry/MuonDetectorManager.h"
 // #include "MuonReadoutGeometry/CscReadoutElement.h"

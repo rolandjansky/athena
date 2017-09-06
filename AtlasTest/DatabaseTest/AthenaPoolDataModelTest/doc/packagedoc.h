@@ -7,10 +7,6 @@
  *
 @section AthenaPoolDataModelTest_@section purpose Purpose: Test ESD / AOD readability
  *
-@section AthenaPoolDataModelTest_@section requirements requirements
- * 
- * 
-@section AthenaPoolDataModelTest_@section Links Links to used packages
  * 
  * 
  */

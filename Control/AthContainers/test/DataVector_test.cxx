@@ -761,6 +761,7 @@ public:
   virtual void* getDecoration (SG::auxid_t, size_t, size_t) { return 0; }
   virtual const SG::auxid_set_t& getAuxIDs() const { return m_auxids; }
   virtual void lock() { }
+  virtual void lockDecoration (SG::auxid_t) { }
   virtual void clearDecorations() { }
   virtual size_t size() const { return 0; }
   virtual void* getData (SG::auxid_t, size_t, size_t) { return 0; }

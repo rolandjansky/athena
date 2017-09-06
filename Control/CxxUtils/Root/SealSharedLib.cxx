@@ -78,39 +78,32 @@ namespace Athena {                             // wlav
 	throw SharedLibraryError ("", "unsupported operation")
 #endif
 
-//<<<<<< PRIVATE CONSTANTS                                              >>>>>>
-//<<<<<< PRIVATE TYPES                                                  >>>>>>
-//<<<<<< PRIVATE VARIABLE DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC VARIABLE DEFINITIONS                                    >>>>>>
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
-//<<<<<< PRIVATE FUNCTION DEFINITIONS                                   >>>>>>
 
 // wlav modified from SealBase/src/SharedLibraryError.cpp
-SharedLibraryError::SharedLibraryError (const char *context,
-					const std::string &cause)
-    : m_context (context ? context : ""),
-      m_cause (cause)
-{}
+SharedLibraryError::SharedLibraryError (const std::string& context,
+					const std::string& cause)
+{
+  m_message = "Shared library operation";
+
+  if (! context.empty ())
+  {
+    m_message += " ";
+    m_message += context;
+  }
+
+  m_message += " failed";
+
+  if (! cause.empty ())
+  {
+    m_message += " because: ";
+    m_message += cause;
+  }
+}
 
 const char*
 SharedLibraryError::what() const throw()
 {
-    static std::string message = "Shared library operation";
-    if (! m_context.empty ())
-    {
-	message += " ";
-	message += m_context;
-    }
-
-    message += " failed";
-
-    if (! m_cause.empty ())
-    {
-	message += " because: ";
-	message += m_cause;
-    }
-
-    return message.c_str();
+  return m_message.c_str();
 }
 
 
@@ -169,7 +162,7 @@ SharedLibrary::path (void)
 }
 
 void
-SharedLibrary::path (const std::string &path)
+SharedLibrary::path ATLAS_NOT_THREAD_SAFE (const std::string &path)
 {
     /* Do not free `var'; most implementations of `putenv' use the
        string without copying it.  On systems where `putenv' copies,

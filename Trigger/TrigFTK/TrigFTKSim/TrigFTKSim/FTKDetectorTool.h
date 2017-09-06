@@ -136,6 +136,8 @@ public:
   virtual void dumpGlobalToLocalModuleMap();
 
   virtual void dumpIDMap();
+
+  virtual void dumpModulePositions();
 };
 
 #endif // FTKDetectorTool_h

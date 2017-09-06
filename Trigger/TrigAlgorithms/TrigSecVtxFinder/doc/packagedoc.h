@@ -7,6 +7,5 @@
 
 @author Xinlu Huang
 
-@section TrigSecVtxFinder_TrigSecVtxFinderReq Requirements
 
 */

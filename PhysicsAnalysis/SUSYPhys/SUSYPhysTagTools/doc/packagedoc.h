@@ -15,12 +15,6 @@ SUSYPhysTagTools contains the following tools:
 
 - for questions and comments: ketevi@bnl.gov
 
-@section SUSYPhysTagTools_used_packagesSUSYPhysTagTools Used packages
 
-@section SUSYPhysTagTools_requirementsSUSYPhysTagTools Requirements
 
 */
-
-
-
-

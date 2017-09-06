@@ -34,7 +34,7 @@ namespace
 
 
 dqm_algorithms::BinThreshold::BinThreshold( const std::string & name )
-  : name_( name )
+  : m_name( name )
 {
   dqm_core::AlgorithmManager::instance().registerAlgorithm("Bins_"+name+"_Threshold", this);
 }
@@ -43,7 +43,7 @@ dqm_algorithms::BinThreshold *
 dqm_algorithms::BinThreshold::clone()
 {
   
-  return new BinThreshold( name_ );
+  return new BinThreshold( m_name );
 }
 
 
@@ -99,7 +99,7 @@ dqm_algorithms::BinThreshold::execute(	const std::string &  name,
   }
  
   resulthisto->Reset();
-  if(name_.find("Median")!=std::string::npos){
+  if(m_name.find("Median")!=std::string::npos){
     std::vector<double> bin_vals;
     for ( int i = range[0]; i <= range[1]; ++i ) {
       for ( int j = range[2]; j <= range[3]; ++j ) {
@@ -126,7 +126,7 @@ dqm_algorithms::BinThreshold::execute(	const std::string &  name,
   for ( int i = range[0]; i <= range[1]; ++i ) {
     for ( int j = range[2]; j <= range[3]; ++j ) {
       double content= histogram -> GetBinContent(i,j);
-      if ( CompareBinThreshold(name_, content, bin_threshold )) {
+      if ( CompareBinThreshold(m_name, content, bin_threshold )) {
 	++count;
           resulthisto->SetBinContent(i,j,content);
 	  if (publish && count< maxpublish){
@@ -136,14 +136,14 @@ dqm_algorithms::BinThreshold::execute(	const std::string &  name,
     }
   }
 
-  ERS_DEBUG(1,"Number of bins " << name_ << " treshold of " << bin_threshold << " is " << count );
+  ERS_DEBUG(1,"Number of bins " << m_name << " treshold of " << bin_threshold << " is " << count );
   ERS_DEBUG(1,"Green threshold: "<< gthreshold << " bin(s);   Red threshold : " << rthreshold << " bin(s) ");    
   
   int TotalBins = (int) dqm_algorithms::tools::GetFirstFromMap( "TotalBins", config.getParameters() , -99999);
   if(TotalBins > -10){
     if(TotalBins < 0) TotalBins = histogram->GetNbinsX()*histogram->GetNbinsY()*histogram->GetNbinsZ();
     int effectiveCount = count - (histogram->GetNbinsX()*histogram->GetNbinsY()*histogram->GetNbinsZ() - TotalBins);
-    if(name_.find("LessThan")!=std::string::npos) result->tags_["NBins_%"] = 100.*effectiveCount/TotalBins;
+    if(m_name.find("LessThan")!=std::string::npos) result->tags_["NBins_%"] = 100.*effectiveCount/TotalBins;
     else result->tags_["NBins_%"] = 100.*count/TotalBins;
   }
 
@@ -193,11 +193,11 @@ void
 dqm_algorithms::BinThreshold::printDescription(std::ostream& out)
 {
   
-  out<<"Bins_"+name_+"_Threshold: Checks for number of bins "+name_+" threshold value\n"<<std::endl;
+  out<<"Bins_"+m_name+"_Threshold: Checks for number of bins "+m_name+" threshold value\n"<<std::endl;
   
-  out<<"Mandatory Parameter: BinThreshold: Look for bins "+name_+" BinTreshold; Count number of bins satifying requirement \n"<<std::endl;
+  out<<"Mandatory Parameter: BinThreshold: Look for bins "+m_name+" BinTreshold; Count number of bins satifying requirement \n"<<std::endl;
   
-  out<<"Mandatory Green/Red Threshold: NBins: Number of bins satifying "+name_+" BinThreshold constraint to give Green/Red result\n"<<std::endl;
+  out<<"Mandatory Green/Red Threshold: NBins: Number of bins satifying "+m_name+" BinThreshold constraint to give Green/Red result\n"<<std::endl;
   
   out<<"Optional Parameter: PublishBins: Save bins which are different from average in Result (set to 1)\n"<<std::endl; 
   out<<"Optional Parameter: MaxPublish: Max number of bins to save (default 20)"<<std::endl; 

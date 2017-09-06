@@ -45,7 +45,7 @@
 //
 // Any change of selection or occurrence of picks/events makes the GV ask the appropriate IC to emit a signal.
 
-#include <QtCore/QObject>
+#include <QObject>
 
 class VP1GraphicsView;
 class QGraphicsItem;

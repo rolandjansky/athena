@@ -31,8 +31,8 @@ class State:
     """
 
     # for reference, the numbers below can also be obtained through a dict:
-    #    import PyCintex
-    #    melm = PyCintex.makeClass( 'MinimalEventLoopMgr' )
+    #    import cppyy
+    #    melm = cppyy.makeClass( 'MinimalEventLoopMgr' )
     #    print melm.OFFLINE, melm.CONFIGURED, melm.FINALIZED, melm.INITIALIZED
 
     OFFLINE     = 0
@@ -178,10 +178,6 @@ class AthApp(object):
         self.cfg._jobo.close()
         os.remove(self.cfg._jobo.name)
 
-        import PyCintex
-        PyCintex.Cintex.Enable()
-        gbl = PyCintex.makeNamespace('')
-        
         import GaudiPython.Bindings as gaudi
         # remove the gaudimodule exit handler as to prevent them from clobering
         import atexit

@@ -8,7 +8,7 @@
 class eflowRingThicknesses { 
 
 public:
-   double ringThickness(const eflowCaloENUM& layer) const;   
+   static double ringThickness(const eflowCaloENUM& layer);
 
 };
 

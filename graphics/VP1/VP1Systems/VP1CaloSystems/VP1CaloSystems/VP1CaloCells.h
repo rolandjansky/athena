@@ -16,9 +16,9 @@
 #include <set>
 #include <vector>
 #include <string>
-#include <QtCore/QMap>
-#include <QtCore/QPair>
-#include <QtCore/QList>
+#include <QMap>
+#include <QPair>
+#include <QList>
 
 class VP1ExtraSepLayerHelper;
 class SoSeparator;

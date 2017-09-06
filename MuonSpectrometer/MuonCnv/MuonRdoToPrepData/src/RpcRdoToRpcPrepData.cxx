@@ -13,16 +13,25 @@
 #include "MuonRdoToPrepData/RpcRdoToRpcPrepData.h"
 #include "Identifier/IdentifierHash.h"
 
+
 RpcRdoToRpcPrepData::RpcRdoToRpcPrepData(const std::string& name, ISvcLocator* pSvcLocator) 
     :
     AthAlgorithm(name, pSvcLocator),
     m_tool( "Muon::RpcRdoToPrepDataTool/RpcPrepDataProviderTool"), // 'this' as 2nd arg would make it private tool
     m_print_inputRdo(false),
-    m_print_prepData(false)
+    m_print_prepData(false),
+    m_seededDecoding(false),
+    m_roiCollectionKey("OutputRoIs"),
+    m_regionSelector("RegSelSvc",name),
+    m_rpcCollection("RPC_Measurements")
 {
     declareProperty("DecodingTool",       m_tool,       "rpc rdo to prep data conversion tool" );
     declareProperty("PrintInputRdo",      m_print_inputRdo, "If true, will dump information about the input RDOs");
     declareProperty("PrintPrepData",      m_print_prepData, "If true, will dump information about the resulting PRDs");
+    declareProperty("DoSeededDecoding",   m_seededDecoding, "If true decode only in RoIs");
+    declareProperty("RoIs",               m_roiCollectionKey, "RoIs to read in");
+    declareProperty("RegionSelectionSvc", m_regionSelector, "Region Selector");
+    declareProperty("OutputCollection", m_rpcCollection);
 }  
 
 StatusCode RpcRdoToRpcPrepData::finalize() {
@@ -41,18 +50,32 @@ StatusCode RpcRdoToRpcPrepData::initialize(){
   } else {
     msg(MSG::INFO) << "Retrieved " << m_tool << endmsg;
   }
-    
-    return StatusCode::SUCCESS;
+
+  //Nullify key from scheduler if not needed  
+  if(!m_seededDecoding){
+    m_roiCollectionKey = "";
+    m_rpcCollection = "";
+  }
+  if(m_seededDecoding){
+    ATH_CHECK(m_roiCollectionKey.initialize());
+    ATH_CHECK(m_rpcCollection.initialize());
+    if (m_regionSelector.retrieve().isFailure()) {
+      ATH_MSG_FATAL("Unable to retrieve RegionSelector Svc");
+      return StatusCode::FAILURE;
+    }
+  }
+
+
+  return StatusCode::SUCCESS;
 }
 
 StatusCode RpcRdoToRpcPrepData::execute() {
 
-    StatusCode status;
+    StatusCode status= StatusCode::SUCCESS;;
 
     
     ATH_MSG_DEBUG("**************** in RpcRdoToRpcPrepData::execute() ***********************************************");
     ATH_MSG_DEBUG("in execute()");
-    status = StatusCode::SUCCESS;
     
     std::vector<IdentifierHash> myVector;
     std::vector<IdentifierHash> myVectorWithData;
@@ -65,7 +88,34 @@ StatusCode RpcRdoToRpcPrepData::execute() {
 //         myVector.push_back(bmlHash);
 //     }
     myVector.reserve(0); // empty vector 
-    status = m_tool->decode(myVector, myVectorWithData);
+
+    if(m_seededDecoding){
+      bool decoded=false;
+      SG::ReadHandle<TrigRoiDescriptorCollection> muonRoI(m_roiCollectionKey);
+      if(!muonRoI.isValid()){
+	ATH_MSG_WARNING("Cannot retrieve muonRoI "<<m_roiCollectionKey.key());
+	return StatusCode::SUCCESS;
+      }
+      else{
+	std::vector<uint32_t> rpcrobs;
+	for(auto roi : *muonRoI){
+	  m_regionSelector->DetROBIDListUint(RPC,*roi,rpcrobs);
+	  if(rpcrobs.size()!=0){
+	    decoded=true;
+	    status=m_tool->decode(rpcrobs);
+	    rpcrobs.clear();
+	  }
+	}
+      }
+      if(!decoded){
+	//Need to store an empty prd container if we didn't decode anything
+	//as the container is expected to exist downstream
+	SG::WriteHandle<Muon::RpcPrepDataContainer> h_output (m_rpcCollection);
+	ATH_CHECK(h_output.record(std::make_unique<Muon::RpcPrepDataContainer>(0)));
+      }
+    }
+    else status = m_tool->decode(myVector, myVectorWithData);
+
     if (status.isFailure()) {
       msg(MSG::ERROR) << "Unable to decode RPC RDO into RPC PrepRawData" 
 		      << endmsg;

@@ -15,6 +15,7 @@
 #include <iostream>
 #include <algorithm>
 #include <array>
+#include <memory>
 
 #include <tbb/parallel_for.h>
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
@@ -70,9 +71,8 @@
 #include "TrigInDetToolInterfaces/ITrigZFinder.h"
 
 #include "SiSpacePointsSeed/SiSpacePointsSeed.h"
-#include "TrigFastTrackFinder/TrigFastTrackFinder.h"
+#include "src/TrigFastTrackFinder.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
-#include "CxxUtils/make_unique.h"
 
 TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* pSvcLocator) : 
 
@@ -92,7 +92,6 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   m_ftkMode(false),
   m_ftkRefit(false),
   m_useBeamSpot(true),
-  m_doTrigInDetTrack(false),
   m_nfreeCut(5), 
   m_iBeamCondSvc(nullptr),
   m_nTracks(0),
@@ -106,7 +105,6 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   m_CombTrackingTimer(nullptr), 
   m_TrackFitterTimer(nullptr), 
   m_attachedFeatureName(""),
-  m_attachedFeatureName_TIDT(""),
   m_outputCollectionSuffix(""),
   m_countTotalRoI(0),
   m_countRoIwithEnoughHits(0),
@@ -154,8 +152,13 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
 
   declareProperty( "MinHits",               m_minHits = 5 );
 
-  declareProperty("doTrigInDetTrack",            m_doTrigInDetTrack  = false);
   declareProperty( "OutputCollectionSuffix",m_outputCollectionSuffix = "");
+
+  declareProperty("TracksName", 
+                  m_outputTracksKey = std::string("TrigFastTrackFinder_Tracks"),
+                  "TrackCollection name");
+
+  declareProperty("RoIs", m_roiCollectionKey = std::string("OutputRoIs"), "RoIs to read in");
  
   declareProperty( "UseBeamSpot",           m_useBeamSpot = true);
   declareProperty( "FreeClustersCut"   ,m_nfreeCut      );
@@ -265,6 +268,13 @@ HLT::ErrorCode TrigFastTrackFinder::hltInitialize() {
 
   ATH_MSG_DEBUG("TrigFastTrackFinder::initialize() "  << PACKAGE_VERSION);
 
+  if (m_roiCollectionKey.initialize().isFailure() ) {
+    return HLT::BAD_JOB_SETUP;
+  }
+  if (m_outputTracksKey.initialize().isFailure() ) {
+    return HLT::BAD_JOB_SETUP;
+  }
+
   if ( timerSvc() ) {
     m_SpacePointConversionTimer = addTimer("SpacePointConversion"); 
     m_ZFinderTimer              = addTimer("ZFinder"); 
@@ -369,11 +379,9 @@ HLT::ErrorCode TrigFastTrackFinder::hltInitialize() {
   
   if ( m_outputCollectionSuffix != "" ) {
     m_attachedFeatureName = std::string("TrigFastTrackFinder_") + m_outputCollectionSuffix;
-    m_attachedFeatureName_TIDT = std::string("TrigFastTrackFinder_TrigInDetTrack") + m_outputCollectionSuffix;
   }
   else {
     m_attachedFeatureName      = std::string("TrigFastTrackFinder_");
-    m_attachedFeatureName_TIDT = std::string("TrigFastTrackFinder_TrigInDetTrack");
   }
 
   if (m_retrieveBarCodes) {
@@ -389,7 +397,6 @@ HLT::ErrorCode TrigFastTrackFinder::hltInitialize() {
   }
   
   ATH_MSG_DEBUG(" Feature set recorded with Key " << m_attachedFeatureName);
-  ATH_MSG_DEBUG(" Feature set recorded with Key " << m_attachedFeatureName_TIDT);
   ATH_MSG_DEBUG(" doResMon " << m_doResMonitoring);
   ATH_MSG_DEBUG(" Initialized successfully"); 
   return HLT::OK;
@@ -418,17 +425,63 @@ HLT::ErrorCode TrigFastTrackFinder::hltBeginRun()
   return HLT::OK;
 }
 
-//-------------------------------------------------------------------------
+StatusCode TrigFastTrackFinder::execute() {
+  //RoI preparation/update 
+  SG::ReadHandle<TrigRoiDescriptorCollection> roiCollection(m_roiCollectionKey);
+  ATH_CHECK(roiCollection.isValid());
+  TrigRoiDescriptorCollection::const_iterator roi = roiCollection->begin();
+  TrigRoiDescriptorCollection::const_iterator roiE = roiCollection->end();
+  TrigRoiDescriptor internalRoI;
+  for (; roi != roiE; ++roi) {
+    internalRoI.push_back(*roi);
+  }
+  internalRoI.manageConstituents(false);//Don't try to delete RoIs at the end
+  m_currentStage = 1;
+  m_countTotalRoI++;
+  m_tcs.roiDescriptor = &internalRoI;
 
+  SG::WriteHandle<TrackCollection> outputTracks(m_outputTracksKey);
+  outputTracks = std::make_unique<TrackCollection>();
+
+  ATH_CHECK(findTracks(internalRoI, *outputTracks));
+  
+  return StatusCode::SUCCESS;
+}
+
+//-------------------------------------------------------------------------
 HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* /*inputTE*/,
     HLT::TriggerElement* outputTE) {
+  const IRoiDescriptor* internalRoI;
+  HLT::ErrorCode ec = getRoI(outputTE, internalRoI);
+  if(ec != HLT::OK) {
+    return ec;
+  }
+  TrackCollection* outputTracks = new TrackCollection(SG::OWN_ELEMENTS);
+  StatusCode sc = findTracks(*internalRoI, *outputTracks);
+  HLT::ErrorCode code = HLT::OK;
+  if (sc != StatusCode::SUCCESS) {
+    delete outputTracks;
+    code = attachFeature(outputTE, new TrackCollection(SG::VIEW_ELEMENTS), m_attachedFeatureName);
+    if (code != HLT::OK) {
+      return code;
+    }
+    return HLT::ERROR;
+  }
+  if (outputTracks->empty()) {
+    delete outputTracks;
+    code = attachFeature(outputTE, new TrackCollection(SG::VIEW_ELEMENTS), m_attachedFeatureName);
+  }
+  else {
+    code = attachFeature(outputTE, outputTracks, m_attachedFeatureName);
+  }
+  
+  return code;
+}
 
-  ATH_MSG_VERBOSE("TrigFastTrackFinder::execHLTAlgorithm()");
 
+StatusCode TrigFastTrackFinder::findTracks(const TrigRoiDescriptor& roi,
+                                      TrackCollection& outputTracks) {
   clearMembers();
-
-  // 2. Retrieve beam spot and magnetic field information 
-  //
 
   m_shift_x=0.0;
   m_shift_y=0.0;
@@ -441,106 +494,42 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* /*inpu
   }
   
 
+  ATH_MSG_INFO("Debug: " << roi);
   
   if ( timerSvc() ) m_SpacePointConversionTimer->start();
   
-  // 4. RoI preparation/update 
-  const IRoiDescriptor* internalRoI;
-  HLT::ErrorCode ec = getRoI(outputTE, internalRoI);
-  if (ec!=HLT::OK) {
-    return ec;
-  }
   
   m_currentStage = 1;
-  m_countTotalRoI++;
 
   if(m_ftkMode) {
     if ( timerSvc() ) m_TrackFitterTimer->start();
-    TrackCollection* ftkTracks = m_ftkDataProviderSvc->getTracksInRoi(*internalRoI, m_ftkRefit);//This is a view container
+    outputTracks = *(m_ftkDataProviderSvc->getTracksInRoi(roi, m_ftkRefit));//This is a view container
     if ( timerSvc() ) { 
-      m_TrackFitterTimer->propVal(ftkTracks->size() );
+      m_TrackFitterTimer->propVal(outputTracks.size() );
       m_TrackFitterTimer->stop();
     }
-    HLT::ErrorCode code = attachFeature(outputTE, ftkTracks, m_attachedFeatureName);
-
-    if ( code != HLT::OK ) {
-      ATH_MSG_ERROR("REGTEST/ Write into outputTE failed");
-      delete ftkTracks;
-      return code;
-    }
     if ( m_ftkRefit ) { 
-      ATH_MSG_DEBUG("FTK_DataProviderSvc returned " << ftkTracks->size() << " refitted tracks");
+      ATH_MSG_DEBUG("FTK_DataProviderSvc returned " << outputTracks.size() << " refitted tracks");
     } else {
-      ATH_MSG_DEBUG("FTK_DataProviderSvc returned " << ftkTracks->size() << " raw tracks");
+      ATH_MSG_DEBUG("FTK_DataProviderSvc returned " << outputTracks.size() << " raw tracks");
     }
-    if (ftkTracks->size()> 0) {
+    if (outputTracks.size()> 0) {
       m_countRoIwithEnoughHits++;
       m_countRoIwithTracks++;
       // fill vectors of quantities to be monitored
-      fillMon(*ftkTracks);
+      fillMon(outputTracks, roi);
     }
-    m_nTracks=ftkTracks->size();
+    m_nTracks=outputTracks.size();
 
-    if (m_doTrigInDetTrack) {
-      TrigInDetTrackCollection* ftkTracks_TIDT = new TrigInDetTrackCollection;
-      ftkTracks_TIDT->reserve(ftkTracks->size());
-      convertToTrigInDetTrack(*ftkTracks, *ftkTracks_TIDT);
-
-      code = attachFeature(outputTE, ftkTracks_TIDT, m_attachedFeatureName_TIDT);
-      if ( code != HLT::OK ) {
-        ATH_MSG_ERROR("REGTEST/ Write into outputTE failed");
-        delete ftkTracks;
-        delete ftkTracks_TIDT;
-        return code;
-      }
-    }
-
-    return HLT::OK;
+    return StatusCode::SUCCESS;
   }
   else {
-    StatusCode sc(StatusCode::SUCCESS);
-    m_tcs.roiDescriptor = internalRoI;
+    m_tcs.roiDescriptor = &roi;
   
     std::vector<TrigSiSpacePointBase> convertedSpacePoints;
     convertedSpacePoints.reserve(5000);
-    sc = m_spacePointTool->getSpacePoints( *internalRoI, convertedSpacePoints, m_nPixSPsInRoI, m_nSCTSPsInRoI);
-    
-    ////Record spacepoint x and y
-    //for(std::vector<TrigSiSpacePointBase>::const_iterator spIt = convertedSpacePoints.begin(); spIt != convertedSpacePoints.end(); ++spIt) {
-    //  m_sp_x.push_back((*spIt).original_x());
-    //  m_sp_y.push_back((*spIt).original_y());
-    //  m_sp_z.push_back((*spIt).z());
-    //  m_sp_r.push_back((*spIt).r());
-    //}
-    /*    
-    std::vector<int> lCounter;
-    for(int l=0;l<50;l++) lCounter.push_back(0);
-    for(std::vector<TrigSiSpacePointBase>::const_iterator spIt = convertedSpacePoints.begin(); spIt != convertedSpacePoints.end(); ++spIt) {
-      if((*spIt).layer()>31 || (*spIt).layer()<0) {
-	std::cout<<"Wrong layer "<<(*spIt).layer()<<" z="<<(*spIt).z()<<" r="<<(*spIt).r()<<std::endl;
-      }
-      else lCounter[(*spIt).layer()]++;
-    }
-    int nTotal=0;
-    for(int l=0;l<50;l++) {
-      nTotal+=lCounter[l];
-      std::cout<<"L="<<l<<" nSP="<<lCounter[l]<<std::endl;
-    }
-    std::cout<<"Total "<<nTotal<<" spacepoints out of "<<convertedSpacePoints.size()<<std::endl;
+    ATH_CHECK(m_spacePointTool->getSpacePoints( roi, convertedSpacePoints, m_nPixSPsInRoI, m_nSCTSPsInRoI));
 
-    //  m_sp_x.push_back((*spIt).original_x());
-    //  m_sp_y.push_back((*spIt).original_y());
-    //  m_sp_z.push_back((*spIt).z());
-    //  m_sp_r.push_back((*spIt).r());
-    //}
-    */
-
-    if(sc.isFailure()) { 
-      ATH_MSG_WARNING("REGTEST / Failed to retrieve offline spacepoints ");
-      return HLT::TOOL_FAILURE;
-    }
-    
-    
     m_roi_nSPs = convertedSpacePoints.size();    
     if ( timerSvc() ) m_SpacePointConversionTimer->stop();
     
@@ -550,39 +539,31 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* /*inpu
     }
     else {
       ATH_MSG_DEBUG("No tracks found - too few hits in ROI to run " << m_roi_nSPs);
-      HLT::ErrorCode code = attachFeature(outputTE, new TrackCollection, m_attachedFeatureName);
-      if (code != HLT::OK) {
-        return code;
-      }
-      if (m_doTrigInDetTrack) {
-        code = attachFeature(outputTE, new TrigInDetTrackCollection, m_attachedFeatureName_TIDT);
-        return code;
-      }
-      return code;
+      return StatusCode::SUCCESS;
     }
 
     m_currentStage = 2;
     
-    std::unique_ptr<TrigRoiDescriptor> superRoi = CxxUtils::make_unique<TrigRoiDescriptor>();
-    
-    if (m_doZFinder) {
-     if (m_doFTKZFinder ) {
-      if ( timerSvc() ) m_ZFinderTimer->start();
-      m_tcs.m_vZv.clear();
-      superRoi->setComposite(true);
+    std::unique_ptr<TrigRoiDescriptor> superRoi = std::make_unique<TrigRoiDescriptor>();
 
-	xAOD::VertexContainer* vertexCollection = new xAOD::VertexContainer();
-	xAOD::VertexAuxContainer    theVertexAux;
-	vertexCollection->setStore(&theVertexAux);
-	bool useRefittedTracks=false;
-	if (m_doFTKFastVtxFinder) {
-	  vertexCollection = m_ftkDataProviderSvc->getFastVertices(ftk::RawTrack);
-	} else {
-	  StatusCode sc = m_ftkDataProviderSvc->getVertexContainer( vertexCollection, useRefittedTracks);
-	  if (sc != StatusCode::SUCCESS) {
-	    ATH_MSG_DEBUG (" Error getting VertexContainer StatusCode is " << sc );
-	  }
-	}
+    if (m_doZFinder) {
+      if (m_doFTKZFinder ) {
+        if ( timerSvc() ) m_ZFinderTimer->start();
+        m_tcs.m_vZv.clear();
+        superRoi->setComposite(true);
+
+        xAOD::VertexContainer* vertexCollection = new xAOD::VertexContainer();
+        xAOD::VertexAuxContainer    theVertexAux;
+        vertexCollection->setStore(&theVertexAux);
+        bool useRefittedTracks=false;
+        if (m_doFTKFastVtxFinder) {
+          vertexCollection = m_ftkDataProviderSvc->getFastVertices(ftk::RawTrack);
+        } else {
+          StatusCode sc = m_ftkDataProviderSvc->getVertexContainer( vertexCollection, useRefittedTracks);
+          if (sc != StatusCode::SUCCESS) {
+            ATH_MSG_DEBUG (" Error getting VertexContainer StatusCode is " << sc );
+          }
+        }
 
       ATH_MSG_DEBUG("vertexCollection->size(): " << vertexCollection->size());
 
@@ -596,67 +577,67 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* /*inpu
       for (auto vertex : *vertexCollection) {
         if (m_zVertices.size() == MaxNumVertex) continue;
         ATH_MSG_DEBUG("REGTEST / FTK ZFinder vertex: x,y,z, nTrack  type"   << vertex->x()  << " " <<  vertex->y() << " "  << vertex->z() << "  " << vertex->vxTrackAtVertex().size() << "  " << vertex->vertexType() );
-	// test to compare with Tyler's numbers
-	if (vertex->vxTrackAtVertex().size() < 3 ) continue;
+        // test to compare with Tyler's numbers
+        if (vertex->vxTrackAtVertex().size() < 3 ) continue;
 
         float z      = vertex->z();
         float zMinus = z - 7.0;
         float zPlus  = z + 7.0;
         ATH_MSG_DEBUG("REGTEST / FTK ZFinder vertex: z,zplus,zminus  " << z << " "  << zPlus  << " "  << zMinus );
-        TrigRoiDescriptor* roi =  new TrigRoiDescriptor(internalRoI->eta(), internalRoI->etaMinus(), internalRoI->etaPlus(), 
-            internalRoI->phi(), internalRoI->phiMinus(), internalRoI->phiPlus(), z, zMinus, zPlus);
-        superRoi->push_back(roi);
+        TrigRoiDescriptor* newRoi =  new TrigRoiDescriptor(roi.eta(), roi.etaMinus(), roi.etaPlus(), 
+            roi.phi(), roi.phiMinus(), roi.phiPlus(), z, zMinus, zPlus);
+        superRoi->push_back(newRoi);
         m_zVertices.push_back(z);
         m_nTrk_zVtx.push_back( vertex->vxTrackAtVertex().size());
-	m_tcs.m_vZv.push_back(z);
+        m_tcs.m_vZv.push_back(z);
 
       } // end loop over vertices
       m_tcs.roiDescriptor = superRoi.get();
       ATH_MSG_DEBUG("REGTEST / superRoi: " << *superRoi);
       delete vertexCollection;
       if ( timerSvc() ) m_ZFinderTimer->stop();
-     } else {
-      if ( timerSvc() ) m_ZFinderTimer->start();
-      m_tcs.m_vZv.clear();
-      superRoi->setComposite(true);
+      } else {
+        if ( timerSvc() ) m_ZFinderTimer->start();
+        m_tcs.m_vZv.clear();
+        superRoi->setComposite(true);
 
-      TrigVertexCollection* vertexCollection = m_trigZFinder->findZ( convertedSpacePoints, *internalRoI);
+        TrigVertexCollection* vertexCollection = m_trigZFinder->findZ( convertedSpacePoints, roi);
 
-      ATH_MSG_DEBUG("vertexCollection->size(): " << vertexCollection->size());
+        ATH_MSG_DEBUG("vertexCollection->size(): " << vertexCollection->size());
 
-      for (auto vertex : *vertexCollection) {
-        ATH_MSG_DEBUG("REGTEST / ZFinder vertex: " << *vertex);
-        float z      = vertex->z();
-        float zMinus = z - 7.0;
-        float zPlus  = z + 7.0;
-        TrigRoiDescriptor* roi =  new TrigRoiDescriptor(internalRoI->eta(), internalRoI->etaMinus(), internalRoI->etaPlus(), 
-            internalRoI->phi(), internalRoI->phiMinus(), internalRoI->phiPlus(), z, zMinus, zPlus);
-        superRoi->push_back(roi);
-        m_zVertices.push_back(z);
-	m_tcs.m_vZv.push_back(z);
+        for (auto vertex : *vertexCollection) {
+          ATH_MSG_DEBUG("REGTEST / ZFinder vertex: " << *vertex);
+          float z      = vertex->z();
+          float zMinus = z - 7.0;
+          float zPlus  = z + 7.0;
+          TrigRoiDescriptor* newRoi =  new TrigRoiDescriptor(roi.eta(), roi.etaMinus(), roi.etaPlus(), 
+              roi.phi(), roi.phiMinus(), roi.phiPlus(), z, zMinus, zPlus);
+          superRoi->push_back(newRoi);
+          m_zVertices.push_back(z);
+          m_tcs.m_vZv.push_back(z);
+        }
+        m_tcs.roiDescriptor = superRoi.get();
+        ATH_MSG_DEBUG("REGTEST / superRoi: " << *superRoi);
+        delete vertexCollection;
+        if ( timerSvc() ) m_ZFinderTimer->stop();
       }
-      m_tcs.roiDescriptor = superRoi.get();
-      ATH_MSG_DEBUG("REGTEST / superRoi: " << *superRoi);
-      delete vertexCollection;
-      if ( timerSvc() ) m_ZFinderTimer->stop();
-     }
     }
-    
+
     m_currentStage = 3;
-        
+
     if (m_retrieveBarCodes) {
       std::vector<int> vBar;
       m_TrigL2SpacePointTruthTool->getBarCodes(convertedSpacePoints,vBar);
-      
+
       //for(auto barCode : vBar) std::cout<<"SP bar code = "<<barCode<<std::endl;
     } 
-    
+
     m_tcs.m_tripletPtMin = m_tripletMinPtFrac*m_pTmin;
     ATH_MSG_VERBOSE("m_tcs.m_tripletPtMin: " << m_tcs.m_tripletPtMin);
     ATH_MSG_VERBOSE("m_pTmin: " << m_pTmin);
-    
+
     if ( timerSvc() ) m_PatternRecoTimer->start();
-    
+
     std::map<int, int> nGoodRejected;
     std::map<int, int> nGoodAccepted;
     std::map<int, int> nGoodTotal;
@@ -667,65 +648,65 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* /*inpu
         nGoodTotal.insert(std::pair<int,int>(barCode,0));
       }
     }
-    
+
     int iSeed=0;
 
-    
+
     if ( timerSvc() ) m_TripletMakingTimer->start();
-    
+
     TRIG_TRACK_SEED_GENERATOR seedGen(m_tcs);
 
     seedGen.loadSpacePoints(convertedSpacePoints);
 
     if (m_doZFinder && m_doFastZVseeding) seedGen.createSeedsZv();
     else seedGen.createSeeds();
-    
+
     std::vector<TrigInDetTriplet*> triplets;
     seedGen.getSeeds(triplets);
-    
+
     ATH_MSG_DEBUG("number of triplets: " << triplets.size());
-    
+
     if ( timerSvc() ) {
       m_TripletMakingTimer->stop();
       m_TripletMakingTimer->propVal(m_roi_nSPs);
     }
     m_currentStage = 4;
-    
+
     if ( timerSvc() ) m_CombTrackingTimer->start();
-    
+
     // 8. Combinatorial tracking
-    
+
     std::vector<int> vTBarCodes(triplets.size(),-1);
-    
+
     if(m_retrieveBarCodes) {
       assignTripletBarCodes(triplets, vTBarCodes);
     }
-    
+
     std::vector<std::tuple<bool, double,Trk::Track*>> qualityTracks; //bool used for later filtering
     qualityTracks.reserve(triplets.size());
-    
+
     m_nSeeds  = 0;
     iSeed=0;
-    
+
     long int trackIndex=0;
-    
+
     if(m_checkSeedRedundancy) m_siClusterMap.clear();
-    
+
     bool PIX = true;
     bool SCT = true;
-    
+
     m_trackMaker->newTrigEvent(PIX,SCT);
-    
+
     for(unsigned int tripletIdx=0;tripletIdx!=triplets.size();tripletIdx++) {
-      
+
       TrigInDetTriplet* seed = triplets[tripletIdx];
-      
+
       const Trk::SpacePoint* osp1 = seed->s1().offlineSpacePoint();
       const Trk::SpacePoint* osp2 = seed->s2().offlineSpacePoint();
       const Trk::SpacePoint* osp3 = seed->s3().offlineSpacePoint();
-      
+
       if(m_checkSeedRedundancy) {
-      //check if clusters do not belong to any track
+        //check if clusters do not belong to any track
         std::vector<Identifier> clusterIds;
         extractClusterIds(osp1, clusterIds);
         extractClusterIds(osp2, clusterIds);
@@ -734,15 +715,15 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* /*inpu
           continue;
         }
       }
-      
+
       std::list<const Trk::SpacePoint*> spList = {osp1, osp2, osp3};
-      
+
       bool trackFound=false;
-      
+
       ++m_nSeeds;
-      
+
       const std::list<Trk::Track*>& tracks = m_trackMaker->getTracks(spList);
-      
+
       for(std::list<Trk::Track*>::const_iterator t=tracks.begin(); t!=tracks.end(); ++t) {
         if((*t)) {
           float d0 = (*t)->perigeeParameters()==0 ? 10000.0 : (*t)->perigeeParameters()->parameters()[Trk::d0]; 
@@ -829,26 +810,26 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* /*inpu
 
     if ( timerSvc() ) m_TrackFitterTimer->start();
 
-    TrackCollection* fittedTracks = m_trigInDetTrackFitter->fit(*initialTracks, m_particleHypothesis);
+    outputTracks = *(m_trigInDetTrackFitter->fit(*initialTracks, m_particleHypothesis));
     delete initialTracks;
 
-    if( fittedTracks->empty() ) {
+    if( outputTracks.empty() ) {
       ATH_MSG_DEBUG("REGTEST / No tracks fitted");
     }
 
-    for (auto fittedTrack = fittedTracks->begin(); fittedTrack!=fittedTracks->end(); ++fittedTrack) {
+    for (auto fittedTrack = outputTracks.begin(); fittedTrack!=outputTracks.end(); ++fittedTrack) {
       (*fittedTrack)->info().setPatternRecognitionInfo(Trk::TrackInfo::FastTrackFinderSeed);
-      ATH_MSG_VERBOSE("Updating fitted track: " << **fittedTrack);
+      ATH_MSG_VERBOSE("Updating fitted track: " << *fittedTrack);
       m_trackSummaryTool->updateTrack(**fittedTrack);
       ATH_MSG_VERBOSE("Updated track: " << **fittedTrack);
     }
 
     if ( timerSvc() ) { 
-      m_TrackFitterTimer->propVal(fittedTracks->size() );
+      m_TrackFitterTimer->propVal(outputTracks.size() );
       m_TrackFitterTimer->stop();
     }
 
-    if( fittedTracks->empty() ) {
+    if( outputTracks.empty() ) {
       ATH_MSG_DEBUG("REGTEST / No tracks reconstructed");
     }
     m_currentStage = 6;
@@ -858,40 +839,19 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* /*inpu
     m_nZvertices=m_zVertices.size();
 
     //monitor number of tracks
-    m_nTracks=fittedTracks->size();
+    m_nTracks=outputTracks.size();
     ATH_MSG_DEBUG("REGTEST / Found " << m_nTracks << " tracks");
-    if( !fittedTracks->empty() )
+    if( !outputTracks.empty() )
       m_countRoIwithTracks++;
 
     ///////////// fill vectors of quantities to be monitored
-    fillMon(*fittedTracks);
+    fillMon(outputTracks, roi);
 
-
-    HLT::ErrorCode code = attachFeature(outputTE, fittedTracks, m_attachedFeatureName);
-    if ( code != HLT::OK ) {
-      ATH_MSG_ERROR("REGTEST/ Write into outputTE failed");
-      delete fittedTracks;
-      return code;
-    }
-
-    //TrigInDetTrack output
-    if (m_doTrigInDetTrack) {
-      TrigInDetTrackCollection* fittedTracks_TIDT = new TrigInDetTrackCollection;
-      fittedTracks_TIDT->reserve(fittedTracks->size());
-      convertToTrigInDetTrack(*fittedTracks, *fittedTracks_TIDT);
-      code = attachFeature(outputTE, fittedTracks_TIDT, m_attachedFeatureName_TIDT);
-      if ( code != HLT::OK ) {
-        ATH_MSG_ERROR("REGTEST/ Write into outputTE failed");
-        delete fittedTracks;
-        delete fittedTracks_TIDT;
-        return code;
-      }
-    }
     m_currentStage = 7;
 
-    return HLT::OK;
+    return StatusCode::SUCCESS;
   }
-  }
+}
 
 double TrigFastTrackFinder::trackQuality(const Trk::Track* Tr) {
 
@@ -1112,12 +1072,6 @@ HLT::ErrorCode TrigFastTrackFinder::getRoI(const HLT::TriggerElement* outputTE, 
   }
 
   roi = externalRoI;
-  m_roiEta = roi->eta();
-  m_roiEtaWidth = roi->etaPlus() - roi->etaMinus();
-  m_roiPhi = roi->phi();
-  m_roiPhiWidth = HLT::wrapPhi(roi->phiPlus() - roi->phiMinus());
-  m_roiZ = roi->zed();
-  m_roiZ_Width = roi->zedPlus() - roi->zedMinus();
   ATH_MSG_DEBUG("REGTEST / RoI" << *roi);
 
   return HLT::OK;
@@ -1207,7 +1161,7 @@ void TrigFastTrackFinder::calculateRecoEfficiency(const std::vector<TrigSiSpaceP
   } 
 }
 
-void TrigFastTrackFinder::fillMon(const TrackCollection& tracks) {
+void TrigFastTrackFinder::fillMon(const TrackCollection& tracks, const TrigRoiDescriptor& roi) {
   size_t size = tracks.size();
   m_trk_pt.reserve(size);
   m_trk_a0.reserve(size);
@@ -1221,6 +1175,15 @@ void TrigFastTrackFinder::fillMon(const TrackCollection& tracks) {
   m_trk_a0beam.reserve(size);
   m_trk_dPhi0.reserve(size);
   m_trk_dEta.reserve(size);
+
+  m_roiEta = roi.eta();
+  m_roiEtaWidth = roi.etaPlus() - roi.etaMinus();
+  m_roiPhi = roi.phi();
+  m_roiPhiWidth = HLT::wrapPhi(roi.phiPlus() - roi.phiMinus());
+  m_roiZ = roi.zed();
+  m_roiZ_Width = roi.zedPlus() - roi.zedMinus();
+
+
   for (auto track : tracks) {
     const Trk::TrackParameters* trackPars = track->perigeeParameters();
     if(trackPars==nullptr) {
@@ -1389,142 +1352,3 @@ void TrigFastTrackFinder::runResidualMonitoring(const Trk::Track& track) {
   }
 }
 
-void TrigFastTrackFinder::convertToTrigInDetTrack(const TrackCollection& initialTracks, TrigInDetTrackCollection& trigInDetTracks) {
-
-  trigInDetTracks.reserve(initialTracks.size());
-  for (auto initialTrack : initialTracks) {
-    const Trk::TrackParameters* trackPars = initialTrack->perigeeParameters();
-    if(trackPars==nullptr) {
-      continue;
-    }
-
-    if(trackPars->covariance()==nullptr) {
-      continue;
-    }
-
-    float d0 = trackPars->parameters()[Trk::d0]; 
-    float z0 = trackPars->parameters()[Trk::z0]; 
-    float phi0 = trackPars->parameters()[Trk::phi0]; 
-    float theta = trackPars->parameters()[Trk::theta]; 
-    float tan_05_theta = tan(0.5*theta);
-    float eta = -log(tan_05_theta); 
-
-    float qOverP = trackPars->parameters()[Trk::qOverP]; 
-    if (qOverP==0) {
-      ATH_MSG_DEBUG("REGTEST / q/p == 0, adjusting to 1e-12");
-      qOverP = 1e-12;
-    }
-    float pT=sin(theta)/qOverP;
-
-    //Calculate covariance matrix in TID track parameter convention
-    const AmgSymMatrix(5) cov_off = *(trackPars->covariance());
-    float A = -0.5*(1.0+tan_05_theta*tan_05_theta)/(tan_05_theta); //deta_by_dtheta
-    float B = cos(theta)/qOverP; //dpT_by_dtheta
-    float C = -sin(theta)/(qOverP*qOverP); //dpT_by_dqOverP
-    ATH_MSG_VERBOSE("A: " << A);
-    ATH_MSG_VERBOSE("B: " << B);
-    ATH_MSG_VERBOSE("C: " << C);
-
-    //std::vector<double>* cov = new std::vector<double>(15, 0);
-    std::vector<double>* cov = new std::vector<double>
-    {cov_off(0,0), cov_off(2,0), cov_off(1,0), A*cov_off(3,0), B*cov_off(3,0) + C*cov_off(4,0),
-      cov_off(2,2), cov_off(2,1), A*cov_off(3,2), B*cov_off(3,2) + C*cov_off(4,2),
-      cov_off(1,1), A*cov_off(3,1), B*cov_off(3,1) + C*cov_off(4,1),
-      A*A*cov_off(3,3), A*(B*cov_off(3,3) + C*cov_off(4,3)),
-      B*(B*cov_off(3,3) + 2*C*cov_off(4,3)) + C*(C*cov_off(4,4))};
-
-    if(msgLvl() <= MSG::VERBOSE) {
-      ATH_MSG_DEBUG(cov_off);
-      for (unsigned int i = 0; i < cov->size(); ++i) {
-        msg() << MSG::DEBUG << std::fixed << std::setprecision(10) << "cov_TrigInDetTrack[" << i << "]: " << cov->at(i) << endmsg; 
-      }
-    }
-
-    float ed0   = sqrt(cov->at(0));
-    float ephi0 = sqrt(cov->at(5));
-    float ez0   = sqrt(cov->at(9));
-    float eeta  = sqrt(cov->at(12));
-    float epT   = sqrt(cov->at(14));
-
-    //const TrigInDetTrackFitPar* tidtfp = new TrigInDetTrackFitPar(d0,phi0,z0,eta,pT,nullptr); 
-    const TrigInDetTrackFitPar* tidtfp = new TrigInDetTrackFitPar(d0, phi0, z0, eta, pT, ed0, ephi0, ez0, eeta, epT,cov);
-    std::vector<const TrigSiSpacePoint*>* pvsp = new std::vector<const TrigSiSpacePoint*>;
-    TrigInDetTrack* pTrack = new TrigInDetTrack(pvsp,tidtfp);
-
-    //calculate chi2 and ndofs
-
-    const Trk::FitQuality* fq = initialTrack->fitQuality();
-    if (fq) {
-      ATH_MSG_VERBOSE("Fitted chi2: " << fq->chiSquared());
-      ATH_MSG_VERBOSE("Fitted ndof: " << fq->numberDoF());
-      if(fq->numberDoF()!=0) {
-        pTrack->chi2(fq->chiSquared()/fq->numberDoF());
-      }
-      else pTrack->chi2(1e8);
-    }
-    else {
-      pTrack->chi2(1e8);
-    }
-    ATH_MSG_VERBOSE("TrigInDetTrack chi2/ndof " << pTrack->chi2() );
-
-    int nPix=0, nSct=0;
-    const Trk::TrackSummary* summary = initialTrack->trackSummary();
-    if( summary != nullptr){
-      nPix = summary->get(Trk::numberOfPixelHits);
-      nSct = summary->get(Trk::numberOfSCTHits);
-    } else {
-      for(auto tSOS = initialTrack->trackStateOnSurfaces()->begin();  
-	  tSOS!=initialTrack->trackStateOnSurfaces()->end(); ++tSOS) { 
-	if ((*tSOS)->type(Trk::TrackStateOnSurface::Perigee) == false) {
-	  const Trk::FitQualityOnSurface* fq =  (*tSOS)->fitQualityOnSurface(); 
-	  if(!fq) continue; 
-	  int nd = fq->numberDoF(); 
-	  if(nd==2) nPix++;
-	  if(nd==1) nSct++;
-	}
-      }
-    }
-    pTrack->NPixelSpacePoints(nPix); 
-    pTrack->NSCT_SpacePoints(nSct/2); 
-    ATH_MSG_VERBOSE(" TrigInDetTrack nPix " << nPix << " nSCT " <<nSct/2 ); 
-
-    long hitPattern=0x0;
-    for (auto tMOT = initialTrack->measurementsOnTrack()->begin();
-        tMOT != initialTrack->measurementsOnTrack()->end(); ++tMOT) {
-      Identifier id = (*tMOT)->associatedSurface().associatedDetectorElement()->identify();
-      IdentifierHash hash = (*tMOT)->associatedSurface().associatedDetectorElement()->identifyHash();
-
-      if(m_idHelper->is_sct(id)) {
-        Identifier wafer_id = m_sctId->wafer_id(hash);
-        int layId = m_sctId->layer_disk(wafer_id);
-        long layer=0;
-        if (m_sctId->is_barrel(wafer_id)){
-          layer = layId+m_tcs.m_maxBarrelPix;
-        } else {
-          layer = layId+m_tcs.m_maxEndcapPix;
-        }
-        long mask = 1 << layer;
-        hitPattern |= mask;
-      }
-      else if(m_idHelper->is_pixel(id)) {
-        Identifier wafer_id = m_pixelId->wafer_id(hash);
-        int layId = m_pixelId->layer_disk(wafer_id);
-        long layer=0;
-        if (m_pixelId->is_barrel(wafer_id)){
-          layer = layId;
-        } else {
-          layer = layId+m_tcs.m_minEndcapPix;
-        }
-        long mask = 1 << layer;
-        hitPattern |= mask;
-      }
-      else {
-        ATH_MSG_WARNING("cannot determine detector type, hash="<<hash);
-      }
-    }
-    pTrack->HitPattern(hitPattern);
-
-    pTrack->algorithmId(TrigInDetTrack::FTF);
-    trigInDetTracks.push_back(pTrack);
-  }
-}

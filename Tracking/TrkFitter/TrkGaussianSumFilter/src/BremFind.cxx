@@ -40,8 +40,6 @@ description : Class for finding brem points in the inner detector using the GSF
 
 #include "TTree.h"
 
-#include "xAODEventInfo/EventInfo.h"
-
 
 
 Trk::BremFind::BremFind(const std::string& type, const std::string& name, const IInterface* parent):
@@ -116,6 +114,7 @@ Trk::BremFind::BremFind(const std::string& type, const std::string& name, const 
   declareProperty("UseSurfacePropagation", m_usePropagate=false);
   declareProperty("TreeFolderName", m_validationTreeFolder);
   declareProperty("TreeFolderName2", m_validationTreeFolder2);
+  declareProperty("EventInfoKey", m_readKey = "EventInfo");
 }
 
 
@@ -247,6 +246,9 @@ StatusCode Trk::BremFind::initialize()
   }
 
   //---------------------------- end of validation mode ------------------------------------
+
+ 
+  ATH_CHECK( m_readKey.initialize() );
 
   ATH_MSG_DEBUG( "Initialisation of " << name() << " was successful" );
   
@@ -414,11 +416,11 @@ void Trk::BremFind::BremFinder(const Trk::ForwardTrajectory& forwardTrajectory, 
     
   
   //* Retrieve the event info for later syncrinization
-  const xAOD::EventInfo*   eventInfo;
-  if ((evtStore()->retrieve(eventInfo)).isFailure()) {
+  SG::ReadHandle< xAOD::EventInfo>  eventInfo (m_readKey);
+  if (!eventInfo.isValid()) {
     msg(MSG::ERROR) << "Could not retrieve event info" << endmsg;
   }
-       
+  
   m_event_ID            =  eventInfo->eventNumber();
 
   //Fill the TanH coefficients and graph values

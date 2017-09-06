@@ -27,7 +27,7 @@ namespace dqm_algorithms {
 		
 	protected:
 		
-		std::string  name;
+		std::string  m_name;
 	};
 	
 } //namespace dqm_algorithms

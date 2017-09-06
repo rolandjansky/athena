@@ -18,7 +18,6 @@ TCS::MuonSort_1BC::MuonSort_1BC(const std::string & name) : SortingAlg(name) {
    defineParameter( "InputWidth", 32 ); // for FW
    defineParameter( "InputWidth1stStage", 16 ); // for FW
    defineParameter( "OutputWidth", 6 );
-   //defineParameter( "MinET", 0 );
    defineParameter( "MinEta", 0 );
    defineParameter( "MaxEta", 7); 
    defineParameter( "nDelayedMuons", 1 );  
@@ -34,7 +33,6 @@ TCS::MuonSort_1BC::initialize() {
    m_numberOfMuons = parameter("nDelayedMuons").value();
    m_minEta = parameter("MinEta").value();
    m_maxEta = parameter("MaxEta").value();
-   //m_et = parameter("MinET").value();
 
    return TCS::StatusCode::SUCCESS;
 }
@@ -53,8 +51,7 @@ TCS::MuonSort_1BC::sort(const InputTOBArray & input, TOBArray & output) {
 
     const GenericTOB gtob(**lm);
     ++ii;
-    //if( parType_t((*lm)->Et()) <= m_et ) continue; // ET cut
-    
+
     // eta cut
     if (parType_t(std::abs((*lm)-> eta())) < m_minEta) continue; 
     if (parType_t(std::abs((*lm)-> eta())) > m_maxEta) continue;  
@@ -62,13 +59,16 @@ TCS::MuonSort_1BC::sort(const InputTOBArray & input, TOBArray & output) {
     output.push_back( gtob );
   }
   
+  // sort
+  output.sort( [] (auto tob1, auto tob2) {return tob1->Et() > tob2->Et();} );
+
   // keep only max number of muons
   if( m_numberOfMuons > 0) {
     while( output.size()> m_numberOfMuons ) {
       output.pop_back();
     }
   }
-  
-   return TCS::StatusCode::SUCCESS;
+
+  return TCS::StatusCode::SUCCESS;
 }
 

@@ -18,7 +18,7 @@ theApp.AuditAlgorithms=True
 # Load Geometry
 #--------------------------------------------------------------
 from AthenaCommon.GlobalFlags import globalflags
-globalflags.DetDescrVersion="ATLAS-GEO-16-00-00"
+globalflags.DetDescrVersion="ATLAS-R2-2015-03-01-00"
 globalflags.DetGeo="atlas"
 globalflags.InputFormat="pool"
 globalflags.DataSource="geant4"
@@ -53,6 +53,10 @@ DetFlags.writeRIOPool.all_setOff()
 import AtlasGeoModel.SetGeometryVersion
 import AtlasGeoModel.GeoModelInit
 
+# Disable SiLorentzAngleSvc to remove
+# ERROR ServiceLocatorHelper::createService: wrong interface id IID_665279653 for service
+ServiceMgr.GeoModelSvc.DetectorTools['PixelDetectorTool'].LorentzAngleSvc=""
+ServiceMgr.GeoModelSvc.DetectorTools['SCT_DetectorTool'].LorentzAngleSvc=""
 
 from AthenaCommon.AlgSequence import AlgSequence
 
@@ -69,20 +73,17 @@ ServiceMgr+=SCT_CablingSvc()
 
 IOVDbSvc = Service("IOVDbSvc")
 from IOVDbSvc.CondDB import conddb
-IOVDbSvc.GlobalTag="OFLCOND-FDR-01-02-00"
+IOVDbSvc.GlobalTag="OFLCOND-MC16-SDR-18"
 
-conddb.addFolder("SCT","/SCT/DAQ/Configuration/ROD")
-conddb.addFolder("SCT","/SCT/DAQ/Configuration/MUR")
-conddb.addFolder("SCT","/SCT/DAQ/Configuration/RODMUR")
-conddb.addFolder("SCT","/SCT/DAQ/Configuration/Geog")
-
-
-
+conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/ROD", "/SCT/DAQ/Config/ROD")
+conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/Geog", "/SCT/DAQ/Config/Geog")
+conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/RODMUR", "/SCT/DAQ/Config/RODMUR")
+conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/MUR", "/SCT/DAQ/Config/MUR")
 
 from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_RODVetoSvc
 ServiceMgr += SCT_RODVetoSvc()
 SCT_RODVeto=ServiceMgr.SCT_RODVetoSvc
-SCT_RODVeto.BadRODIdentifiers=[0x240100,0x240030]
+SCT_RODVeto.BadRODIdentifiers=[0x240100,0x240030] # Need to update the method to specify ROD identifiers
 
 from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_RODVetoTestAlg
 job+= SCT_RODVetoTestAlg()
@@ -91,6 +92,6 @@ job+= SCT_RODVetoTestAlg()
 import AthenaCommon.AtlasUnixGeneratorJob
 ServiceMgr.SCT_CablingSvc.OutputLevel = INFO
 ServiceMgr.SCT_RODVetoSvc.OutputLevel=VERBOSE
-ServiceMgr.EventSelector.InitialTimeStamp = 1409756400
-ServiceMgr.EventSelector.RunNumber  = 0
+ServiceMgr.EventSelector.InitialTimeStamp = 1500000000
+ServiceMgr.EventSelector.RunNumber  = 300000 # MC16c 2017 run number
 theApp.EvtMax                   = 1

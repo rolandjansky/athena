@@ -32,49 +32,49 @@ namespace dqi {
 HanConfigAssessor::
 HanConfigAssessor()
 {
-  algPars = newTObjArray("algPars");
-  algLimits = newTObjArray("algLimits");
-  annotations = newTObjArray("annotations");
-  //algPars = 0;
-  //algLimits = 0;
-  //annotations = 0;
-  weight = 1;
-  isRegex = false;
+  m_algPars = newTObjArray("algPars");
+  m_algLimits = newTObjArray("algLimits");
+  m_annotations = newTObjArray("annotations");
+  //m_algPars = 0;
+  //m_algLimits = 0;
+  //m_annotations = 0;
+  m_weight = 1;
+  m_isRegex = false;
 }
 
 
 HanConfigAssessor::
 HanConfigAssessor( const HanConfigAssessor& other )
   : TObject(other)
-  , name(other.name)
-  , algName(other.algName)
-  , algLibName(other.algLibName)
-  , algRefName(other.algRefName)
-  , weight(other.weight)
-  , isRegex(other.isRegex)
+  , m_name(other.m_name)
+  , m_algName(other.m_algName)
+  , m_algLibName(other.m_algLibName)
+  , m_algRefName(other.m_algRefName)
+  , m_weight(other.m_weight)
+  , m_isRegex(other.m_isRegex)
 {
-  algPars = newTObjArray("algPars", 0, other.algPars->GetEntries());
-  algLimits = newTObjArray("algLimits", 0, other.algLimits->GetEntries());
-  annotations = newTObjArray("annotations", 0, other.annotations->GetEntries());
-  TIter nextPar( other.algPars );
+  m_algPars = newTObjArray("algPars", 0, other.m_algPars->GetEntries());
+  m_algLimits = newTObjArray("algLimits", 0, other.m_algLimits->GetEntries());
+  m_annotations = newTObjArray("annotations", 0, other.m_annotations->GetEntries());
+  TIter nextPar( other.m_algPars );
   HanConfigAlgPar* otherPar;
   while( (otherPar = dynamic_cast<HanConfigAlgPar*>( nextPar() )) != 0 ) {
     HanConfigAlgPar* par = new HanConfigAlgPar( *otherPar );
-    algPars->Add( par );
+    m_algPars->Add( par );
   }
   
-  TIter nextLim( other.algLimits );
+  TIter nextLim( other.m_algLimits );
   HanConfigAlgLimit* otherLim;
   while( (otherLim = dynamic_cast<HanConfigAlgLimit*>( nextLim() )) != 0 ) {
     HanConfigAlgLimit* lim = new HanConfigAlgLimit( *otherLim );
-    algLimits->Add( lim );
+    m_algLimits->Add( lim );
   }
   
-  TIter nextParMap( other.annotations );
+  TIter nextParMap( other.m_annotations );
   HanConfigParMap* otherParMap;
   while( (otherParMap = dynamic_cast<HanConfigParMap*>( nextParMap() )) != 0 ) {
     HanConfigParMap* parMap = new HanConfigParMap( *otherParMap );
-    annotations->Add( parMap );
+    m_annotations->Add( parMap );
   }
 }
 
@@ -85,35 +85,35 @@ operator=( const HanConfigAssessor& other )
 {
   if (this == &other) return *this;
 
-  name       = other.name;
-  algName    = other.algName;
-  algLibName = other.algLibName;
-  algRefName = other.algRefName;
-  weight     = other.weight;
-  isRegex    = other.isRegex;
+  m_name       = other.m_name;
+  m_algName    = other.m_algName;
+  m_algLibName = other.m_algLibName;
+  m_algRefName = other.m_algRefName;
+  m_weight     = other.m_weight;
+  m_isRegex    = other.m_isRegex;
   
-  algPars->Delete();
-  TIter nextPar( other.algPars );
+  m_algPars->Delete();
+  TIter nextPar( other.m_algPars );
   HanConfigAlgPar* otherPar;
   while( (otherPar = dynamic_cast<HanConfigAlgPar*>( nextPar() )) != 0 ) {
     HanConfigAlgPar* par = new HanConfigAlgPar( *otherPar );
-    algPars->Add( par );
+    m_algPars->Add( par );
   }
   
-  algLimits->Delete();
-  TIter nextLim( other.algLimits );
+  m_algLimits->Delete();
+  TIter nextLim( other.m_algLimits );
   HanConfigAlgLimit* otherLim;
   while( (otherLim = dynamic_cast<HanConfigAlgLimit*>( nextLim() )) != 0 ) {
     HanConfigAlgLimit* lim = new HanConfigAlgLimit( *otherLim );
-    algLimits->Add( lim );
+    m_algLimits->Add( lim );
   }
   
-  annotations->Delete();
-  TIter nextParMap( other.annotations );
+  m_annotations->Delete();
+  TIter nextParMap( other.m_annotations );
   HanConfigParMap* otherParMap;
   while( (otherParMap = dynamic_cast<HanConfigParMap*>( nextParMap() )) != 0 ) {
     HanConfigParMap* parMap = new HanConfigParMap( *otherParMap );
-    annotations->Add( parMap );
+    m_annotations->Add( parMap );
   }
 
   return *this;
@@ -123,12 +123,12 @@ operator=( const HanConfigAssessor& other )
 HanConfigAssessor::
 ~HanConfigAssessor()
 {
-  algPars->Delete();
-  algLimits->Delete();
-  annotations->Delete();
-  delete algPars;
-  delete algLimits;
-  delete annotations;
+  m_algPars->Delete();
+  m_algLimits->Delete();
+  m_annotations->Delete();
+  delete m_algPars;
+  delete m_algLimits;
+  delete m_annotations;
 }
 
 
@@ -144,7 +144,7 @@ void
 HanConfigAssessor::
 SetName( std::string name_ )
 {
-  name.SetString( name_.c_str() );
+  m_name.SetString( name_.c_str() );
 }
 
 
@@ -152,7 +152,7 @@ const char*
 HanConfigAssessor::
 GetName() const
 {
-  return name.GetName();
+  return m_name.GetName();
 }
 
 const char*
@@ -171,7 +171,7 @@ void
 HanConfigAssessor::
 SetAlgName( std::string name_ )
 {
-  algName.SetString( name_.c_str() );
+  m_algName.SetString( name_.c_str() );
 }
 
 
@@ -179,7 +179,7 @@ const char*
 HanConfigAssessor::
 GetAlgName() const
 {
-  return algName.GetName();
+  return m_algName.GetName();
 }
 
 
@@ -187,7 +187,7 @@ void
 HanConfigAssessor::
 SetAlgLibName( std::string name_ )
 {
-  algLibName.SetString( name_.c_str() );
+  m_algLibName.SetString( name_.c_str() );
 }
 
 
@@ -195,7 +195,7 @@ const char*
 HanConfigAssessor::
 GetAlgLibName() const
 {
-  return algLibName.GetName();
+  return m_algLibName.GetName();
 }
 
 
@@ -203,7 +203,7 @@ void
 HanConfigAssessor::
 SetAlgRefName( std::string name_ )
 {
-  algRefName.SetString( name_.c_str() );
+  m_algRefName.SetString( name_.c_str() );
 }
 
 
@@ -212,7 +212,7 @@ HanConfigAssessor::
 GetAlgRefName() const
 {
   dqi::ConditionsSingleton& condSingleton=dqi::ConditionsSingleton::getInstance();
-  return condSingleton.conditionalSelect(std::string(algRefName.GetName()),std::string(condSingleton.getCondition()));
+  return condSingleton.conditionalSelect(std::string(m_algRefName.GetName()),std::string(condSingleton.getCondition()));
 }
 
 
@@ -220,7 +220,7 @@ const char*
 HanConfigAssessor::
 GetAlgRefString() const
 {
-  return algRefName.GetName();
+  return m_algRefName.GetName();
 }
 
 
@@ -229,7 +229,7 @@ HanConfigAssessor::
 AddAlgPar( const HanConfigAlgPar& algPar_ )
 {
   HanConfigAlgPar* par = new HanConfigAlgPar( algPar_ );
-  algPars->Add( par );
+  m_algPars->Add( par );
 }
 
 
@@ -237,7 +237,7 @@ HanConfigAlgPar
 HanConfigAssessor::
 GetAlgPar( std::string name_ ) const
 {
-  HanConfigAlgPar* par = dynamic_cast<HanConfigAlgPar*>( algPars->FindObject(name_.c_str()) );
+  HanConfigAlgPar* par = dynamic_cast<HanConfigAlgPar*>( m_algPars->FindObject(name_.c_str()) );
   if( par == 0 ) {
     return HanConfigAlgPar();
   }
@@ -250,7 +250,7 @@ TIter
 HanConfigAssessor::
 GetAllAlgPars() const
 {
-  return TIter( algPars );
+  return TIter( m_algPars );
 }
 
 
@@ -259,7 +259,7 @@ HanConfigAssessor::
 AddAlgLimit( const HanConfigAlgLimit& algLim_ )
 {
   HanConfigAlgLimit* lim = new HanConfigAlgLimit( algLim_ );
-  algLimits->Add( lim );
+  m_algLimits->Add( lim );
 }
 
 
@@ -267,7 +267,7 @@ HanConfigAlgLimit
 HanConfigAssessor::
 GetAlgLimit( std::string name_ ) const
 {
-  HanConfigAlgLimit* lim = dynamic_cast<HanConfigAlgLimit*>( algLimits->FindObject(name_.c_str()) );
+  HanConfigAlgLimit* lim = dynamic_cast<HanConfigAlgLimit*>( m_algLimits->FindObject(name_.c_str()) );
   if( lim == 0 ) {
     return HanConfigAlgLimit();
   }
@@ -280,7 +280,7 @@ TIter
 HanConfigAssessor::
 GetAllAlgLimits() const
 {
-  return TIter( algLimits );
+  return TIter( m_algLimits );
 }
 
 void
@@ -288,7 +288,7 @@ HanConfigAssessor::
 AddAnnotation( const HanConfigParMap& annotation_ )
 {
   HanConfigParMap* parMap = new HanConfigParMap( annotation_ );
-  annotations->Add( parMap );
+  m_annotations->Add( parMap );
 }
 
 
@@ -296,7 +296,7 @@ const HanConfigParMap*
 HanConfigAssessor::
 GetAnnotation( std::string name_ ) const
 {
-  HanConfigParMap* parMap = dynamic_cast<HanConfigParMap*>( annotations->FindObject(name_.c_str()) );
+  HanConfigParMap* parMap = dynamic_cast<HanConfigParMap*>( m_annotations->FindObject(name_.c_str()) );
   if( parMap == 0 ) {
     //std::cerr << "WARNING: attempt to access non-existent annotation " << name_ << " on assessor " << GetName() << std::endl;
     return 0;
@@ -309,45 +309,45 @@ TIter
 HanConfigAssessor::
 GetAllAnnotations() const
 {
-  return TIter( annotations );
+  return TIter( m_annotations );
 }
 
 void
 HanConfigAssessor::
 SetWeight( float weight_ )
 {
-  weight = weight_;
+  m_weight = weight_;
 }
 
 float
 HanConfigAssessor::
 GetWeight() const
 {
-  return weight;
+  return m_weight;
 }
 
 void
 HanConfigAssessor::
 SetIsRegex( bool isRegex_ )
 {
-  isRegex = isRegex_;
+  m_isRegex = isRegex_;
 }
 
 bool
 HanConfigAssessor::
 GetIsRegex() const
 {
-  return isRegex;
+  return m_isRegex;
 }
 
 TSeqCollection *
 HanConfigAssessor::
 GetList( TDirectory* basedir, std::map<std::string,TSeqCollection*>& mp )
 {
-  TSeqCollection *ret = newTList( (std::string(this->name.GetName())+std::string("_")).c_str());
+  TSeqCollection *ret = newTList( (std::string(this->m_name.GetName())+std::string("_")).c_str());
   TSeqCollection *configList = newTList("Config");
   TSeqCollection *resultsList = newTList("Results");
-  TSeqCollection *nameList = newTObjArray("name", new TObjString(algName), 1);
+  TSeqCollection *nameList = newTObjArray("name", new TObjString(m_algName), 1);
 	
   std::string nameString = GetUniqueName();
   
@@ -355,12 +355,12 @@ GetList( TDirectory* basedir, std::map<std::string,TSeqCollection*>& mp )
 
   // fill the configList
   configList->Add(nameList); 
-  if (algPars == 0)
-    std::cerr << "HanConfigAssessor::GetList(): Warning: algPars == 0\n";
+  if (m_algPars == 0)
+    std::cerr << "HanConfigAssessor::GetList(): Warning: m_algPars == 0\n";
   else {
-    TIter nextAlgPar( algPars );
+    TIter nextAlgPar( m_algPars );
     HanConfigAlgPar *par;
-    TSeqCollection *algParList = newTObjArray("algPars", 0, algPars->GetEntries());
+    TSeqCollection *algParList = newTObjArray("algPars", 0, m_algPars->GetEntries());
     while( (par = dynamic_cast<HanConfigAlgPar*>( nextAlgPar() )) != 0 )
       algParList->Add(par->GetList());
     
@@ -370,12 +370,12 @@ GetList( TDirectory* basedir, std::map<std::string,TSeqCollection*>& mp )
       configList->Add(algParList);
   }
 
-  if (algLimits == 0)
-    std::cerr << "HanConfigAssessor::GetList(): Warning: algLimits == 0\n";
+  if (m_algLimits == 0)
+    std::cerr << "HanConfigAssessor::GetList(): Warning: m_algLimits == 0\n";
   else {
-    TIter nextAlgLim( algLimits );
+    TIter nextAlgLim( m_algLimits );
     HanConfigAlgLimit *lim;
-    TSeqCollection *algLimitList = newTObjArray("algLimits", 0, algLimits->GetEntries());
+    TSeqCollection *algLimitList = newTObjArray("algLimits", 0, m_algLimits->GetEntries());
     while( (lim = dynamic_cast<HanConfigAlgLimit*>( nextAlgLim() )) != 0 )
       algLimitList->Add(lim->GetList());
     if(algLimitList->IsEmpty())
@@ -385,12 +385,12 @@ GetList( TDirectory* basedir, std::map<std::string,TSeqCollection*>& mp )
   }
 
   TSeqCollection *parMapList(0);
-  if (annotations == 0)
+  if (m_annotations == 0)
     std::cerr << "HanConfigAssessor::GetList(): Warning: annotations == 0\n";
   else {
-    TIter nextParMap( annotations );
+    TIter nextParMap( m_annotations );
     HanConfigParMap *parMap;
-    parMapList = newTObjArray("annotations", 0, annotations->GetEntries()+2);
+    parMapList = newTObjArray("annotations", 0, m_annotations->GetEntries()+2);
     while( (parMap = dynamic_cast<HanConfigParMap*>( nextParMap() )) != 0 )
       parMapList->Add(parMap->GetList());
   }
@@ -471,13 +471,13 @@ PrintIOStream( std::ostream& o ) const
     << "  Algorithm Reference = \"" << GetAlgRefString() << "\"\n"
     << "  Weight = " << GetWeight() << "\n";
 
-  if (isRegex) {
+  if (m_isRegex) {
     o << "  Is a regular expression" << std::endl;
   }
   
-  if( !algPars->IsEmpty() ) {
+  if( !m_algPars->IsEmpty() ) {
     o << "  Algorithm Parameters = {\n";
-    TIter nextPar( algPars );
+    TIter nextPar( m_algPars );
     HanConfigAlgPar* par;
     while( (par = dynamic_cast<HanConfigAlgPar*>( nextPar() )) != 0 ) {
       o << "    " << par;
@@ -485,9 +485,9 @@ PrintIOStream( std::ostream& o ) const
     o << "  }\n";
   }
   
-  if( !algLimits->IsEmpty() ) {
+  if( !m_algLimits->IsEmpty() ) {
     o << "  Algorithm Limits = {\n";
-    TIter nextLim( algLimits );
+    TIter nextLim( m_algLimits );
     HanConfigAlgLimit* lim;
     while( (lim = dynamic_cast<HanConfigAlgLimit*>( nextLim() )) != 0 ) {
       o << "    " << lim;
@@ -495,9 +495,9 @@ PrintIOStream( std::ostream& o ) const
     o << "  }\n";
   }
  
-  if( !annotations->IsEmpty() ) {
+  if( !m_annotations->IsEmpty() ) {
     o << "  Annotations = {\n";
-    TIter nextParMap( annotations );
+    TIter nextParMap( m_annotations );
     HanConfigParMap* parMap;
     while( (parMap = dynamic_cast<HanConfigParMap*>( nextParMap() )) != 0 ) {
       o << "    " << parMap;
@@ -517,22 +517,22 @@ void HanConfigAssessor::Streamer(TBuffer &R__b)
      Version_t R__v = R__b.ReadVersion(&R__s, &R__c);
      // Automatic schema evolution is kind of broken
      TObject::Streamer(R__b);
-     name.Streamer(R__b);
-     algName.Streamer(R__b);
-     algLibName.Streamer(R__b);
-     algRefName.Streamer(R__b);
-     delete algPars; delete algLimits;
-     R__b >> algPars;
-     R__b >> algLimits;
+     m_name.Streamer(R__b);
+     m_algName.Streamer(R__b);
+     m_algLibName.Streamer(R__b);
+     m_algRefName.Streamer(R__b);
+     delete m_algPars; delete m_algLimits;
+     R__b >> m_algPars;
+     R__b >> m_algLimits;
      if (R__v >= 2) {
-       delete annotations;
-       R__b >> annotations;
+       delete m_annotations;
+       R__b >> m_annotations;
      }
      if (R__v >= 3) {
-       R__b >> weight;
+       R__b >> m_weight;
      }
      if (R__v >= 4) {
-       R__b >> isRegex;
+       R__b >> m_isRegex;
      }
 
      R__b.CheckByteCount(R__s, R__c, HanConfigAssessor::IsA());

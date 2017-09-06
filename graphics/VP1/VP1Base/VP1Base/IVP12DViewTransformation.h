@@ -15,7 +15,8 @@
 #ifndef IVP12DVIEWTRANSFORMATION_H
 #define IVP12DVIEWTRANSFORMATION_H
 
-#include <QtGui/QPainterPath>
+#include <QtGlobal>
+#include <QPainterPath>
 
 class QPainter;
 class QGraphicsItem;

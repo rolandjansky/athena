@@ -191,9 +191,7 @@ The AlgTool is automatically configured (see genConf). Following properties can 
    </li>
 </ul>
 
-@section InDetPriVxFinderTool_used_packagesInDetPriVxFinder used packages
 
-@section InDetPriVxFinderTool_requirements Requirements
 
 \namespace Vtx
 A namespace for all vertexing packages and related stuff.

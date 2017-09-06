@@ -572,7 +572,7 @@ namespace JiveXML {
 					nSCTHits.push_back(DataType(0));
 					nTRTHits.push_back(DataType(0));
 				}else{
-					nBLayerHits.push_back(DataType(summary->get(Trk::numberOfBLayerHits)));
+					nBLayerHits.push_back(DataType(summary->get(Trk::numberOfInnermostPixelLayerHits)));
 					nPixHits.push_back(DataType(summary->get(Trk::numberOfPixelHits)));
 					nSCTHits.push_back(DataType(summary->get(Trk::numberOfSCTHits)));
 					nTRTHits.push_back(DataType(summary->get(Trk::numberOfTRTHits)));

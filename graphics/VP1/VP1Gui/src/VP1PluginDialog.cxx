@@ -17,7 +17,7 @@
 #include "VP1Gui/VP1ChannelManager.h"
 #include "VP1Gui/VP1ExecutionScheduler.h"
 #include "VP1Base/IVP1ChannelWidget.h"
-#include <QtCore/QFileInfo>
+#include <QFileInfo>
 #include <cassert>
 
 //____________________________________________________________________

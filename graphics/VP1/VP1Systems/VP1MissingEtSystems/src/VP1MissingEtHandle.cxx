@@ -31,7 +31,7 @@
 #include <Inventor/nodes/SoCone.h>
 #include <Inventor/SoPath.h>
 
-#include <QtGui/QColor>
+#include <QColor>
 
 
 double VP1MissingEtHandle::thickness = 1.0;

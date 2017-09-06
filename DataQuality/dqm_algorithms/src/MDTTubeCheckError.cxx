@@ -36,9 +36,9 @@ namespace dqm_algorithms {
 // *********************************************************************
 
 MDTTubeCheckError::MDTTubeCheckError()
-  : name("MDTTubeCheckError")
+  : m_name("MDTTubeCheckError")
 {
-  dqm_core::AlgorithmManager::instance().registerAlgorithm( name, this );
+  dqm_core::AlgorithmManager::instance().registerAlgorithm( m_name, this );
 }
 
 
@@ -195,7 +195,7 @@ MDTTubeCheckError::printDescription(std::ostream& out)
 {
   std::string message;
   message += "\n";
-  message += "Algorithm: \"" + name + "\"\n";
+  message += "Algorithm: \"" + m_name + "\"\n";
   message += "Description: Check if the number of entries in bins is less than BinThreshold and compare with Reference Histo \n";
   message += "Mandatory Parameter: BinThreshold: Look for bins less than BinTreshold; Count number of bins satifying requirement \n";
   message += "Mandatory Parameter: nErrBin: n-sigma of acceptance for check with the BinTreshold \n";

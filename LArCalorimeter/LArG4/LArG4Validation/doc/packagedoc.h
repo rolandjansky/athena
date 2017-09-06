@@ -37,9 +37,4 @@
  - For questions or comments: Joe Boudreau 
    boudreau@pitt.edu
 
-@section LArG4Validation_used_packagesTkPara Used Packages
-
-@section LArG4Validation_requirements Requirements
-
 */
-

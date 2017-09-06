@@ -72,12 +72,12 @@ m_t_deadmultilayer= new TTree("t_deadmultilayer"," dead multilayers");
  m_t_deadtube= new TTree("t_deadtube"," dead tubes ");
 m_t_deadstations= new TTree("t_deadstations"," Dead Stations ");
 
-m_t_deadstations->Branch("deadstat",&deadstat);
-m_t_deadstations->Branch("deadstat_id",&deadstat_id);
-m_t_deadmultilayer->Branch("deadmultilayer",&deadmultilayer);
-m_t_deadmultilayer->Branch("deadmultilayer_id",&deadmultilayer_id);
-m_t_deadtube->Branch("deadtube",&deadtube);
-m_t_deadtube->Branch("deadtube_id",&deadtube_id);
+m_t_deadstations->Branch("deadstat",&m_deadstat);
+m_t_deadstations->Branch("deadstat_id",&m_deadstat_id);
+m_t_deadmultilayer->Branch("deadmultilayer",&m_deadmultilayer);
+m_t_deadmultilayer->Branch("deadmultilayer_id",&m_deadmultilayer_id);
+m_t_deadtube->Branch("deadtube",&m_deadtube);
+m_t_deadtube->Branch("deadtube_id",&m_deadtube_id);
 
  
 
@@ -118,24 +118,24 @@ MuonConditionsHistoSummary::execute(){
  
   for(unsigned int k=0;k<m_pSummarySvc->deadStations().size();k++){
      
-    deadstat = (m_pSummarySvc->deadStations()[k]);
-    deadstat_id = (m_pSummarySvc->deadStationsId()[k]).get_compact();           
+    m_deadstat = (m_pSummarySvc->deadStations()[k]);
+    m_deadstat_id = (m_pSummarySvc->deadStationsId()[k]).get_compact();           
     m_t_deadstations->Fill();
   
   } 
   }
     if(m_pSummarySvc->deadMultiLayers().size()==m_pSummarySvc->deadMultiLayersId().size()){msg(MSG::INFO) << "id normalcomparionssuccessful"  <<endmsg;
   for(unsigned int k=0;k<m_pSummarySvc->deadMultiLayers().size();k++){
-     deadmultilayer= (m_pSummarySvc->deadMultiLayers()[k]);
-    deadmultilayer_id=(m_pSummarySvc->deadMultiLayersId()[k]).get_compact();           
+     m_deadmultilayer= (m_pSummarySvc->deadMultiLayers()[k]);
+    m_deadmultilayer_id=(m_pSummarySvc->deadMultiLayersId()[k]).get_compact();           
     m_t_deadmultilayer->Fill();
   } 
   }
      if(m_pSummarySvc->deadTubes().size()==m_pSummarySvc->deadTubesId().size()){msg(MSG::INFO) << "id normalcomparionssuccessful"  <<endmsg;
   for(unsigned int k=0;k<m_pSummarySvc->deadTubes().size();k++){
      
-     deadtube= (m_pSummarySvc->deadTubes()[k]);
-    deadtube_id=(m_pSummarySvc->deadTubesId()[k]).get_compact();           
+     m_deadtube= (m_pSummarySvc->deadTubes()[k]);
+    m_deadtube_id=(m_pSummarySvc->deadTubesId()[k]).get_compact();           
     m_t_deadtube->Fill();
   } 
   }
@@ -151,11 +151,11 @@ MuonConditionsHistoSummary::execute(){
  
  
   for(unsigned int k=0;k<m_rSummarySvc->EffPanelId().size();k++){
-    panelid= (m_rSummarySvc->EffPanelId()[k]).get_compact();
+    m_panelid= (m_rSummarySvc->EffPanelId()[k]).get_compact();
     m_t_panelid->Fill();
   }
    for(unsigned int k=0;k<m_rSummarySvc->EffStripId().size();k++){
-    stripid= (m_rSummarySvc->EffStripId()[k]).get_compact(); 
+    m_stripid= (m_rSummarySvc->EffStripId()[k]).get_compact(); 
       m_t_stripid->Fill();
   }
   

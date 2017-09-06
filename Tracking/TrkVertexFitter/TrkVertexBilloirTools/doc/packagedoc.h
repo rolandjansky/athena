@@ -32,9 +32,7 @@ VxBilloirTools contains the following files/classes:
 - FastVertexFitter.cxx ... the fast version. Calculates only the vertex position. Track parameters are untouched.
 - FullVertexFitter.cxx ... the slower version. Calculates both: vertex position and track parameters.
 
-@section TrkVertexBilloirTools_used_packagesInDetPriVxFinder used packages
 
-@section TrkVertexBilloirTools_requirements Requirements
 
 \namespace Trk
 A namespace for all vertexing packages and related stuff.

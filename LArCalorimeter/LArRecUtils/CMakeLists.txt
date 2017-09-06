@@ -31,6 +31,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/SGTools
                           Event/xAOD/xAODEventInfo
                           LArCalorimeter/LArCOOLConditions
+			  LArCalorimeter/LArRecConditions
                           LArCalorimeter/LArRawUtils
                           Tools/PathResolver )
 
@@ -46,13 +47,13 @@ atlas_add_library( LArRecUtilsLib
                    INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CORAL_LIBRARIES} CaloEvent CaloIdentifier AthenaBaseComps AthenaKernel AthAllocators AthenaPoolUtilities Identifier GaudiKernel LArIdentifier LArRawConditions LArRawEvent LArRecEvent CaloDetDescrLib CaloUtilsLib StoreGateLib SGtests LArCablingLib LArRawUtilsLib
+                   LINK_LIBRARIES ${CORAL_LIBRARIES} CaloEvent CaloIdentifier AthenaBaseComps AthenaKernel AthAllocators AthenaPoolUtilities Identifier GaudiKernel LArIdentifier LArRawConditions LArRawEvent LArRecEvent CaloDetDescrLib CaloUtilsLib StoreGateLib SGtests LArCablingLib LArRawUtilsLib LArRecConditions
                    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} TestTools CaloGeoHelpers SGTools xAODEventInfo LArCOOLConditions PathResolver )
 
 atlas_add_component( LArRecUtils
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} CaloDetDescrLib CaloEvent CaloIdentifier CaloUtilsLib AthenaBaseComps AthenaKernel AthAllocators StoreGateLib SGtests AthenaPoolUtilities Identifier GaudiKernel LArCablingLib LArIdentifier LArRawConditions LArRawEvent LArRecEvent TestTools CaloGeoHelpers SGTools xAODEventInfo LArCOOLConditions LArRawUtilsLib PathResolver LArRecUtilsLib )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} CaloDetDescrLib CaloEvent CaloIdentifier CaloUtilsLib AthenaBaseComps AthenaKernel AthAllocators StoreGateLib SGtests AthenaPoolUtilities Identifier GaudiKernel LArCablingLib LArIdentifier LArRawConditions LArRawEvent LArRecEvent TestTools CaloGeoHelpers SGTools xAODEventInfo LArCOOLConditions LArRawUtilsLib PathResolver LArRecUtilsLib LArRecConditions)
 
 atlas_add_test( dummy_test
                 SOURCES

@@ -12,9 +12,9 @@ N_CHANNELS_PER_MODULE = 90
 from itertools import product
 
 # Magic, needed for functioning coral Blob
-import PyCintex as C
+import cppyy
 import PyCool 
-Blob = C.gbl.coral.Blob
+Blob = cppyy.gbl.coral.Blob
 
 from TileCalibBlobObjs.Classes import (
     TileCalibDrawerBch, TileBchDecoder, TileBchStatus, TileCalibUtils, TileBchPrbs)

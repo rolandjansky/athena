@@ -101,16 +101,6 @@ This package provides an interface to all the Geant4 physics lists to be include
 
 This package is only an interface, so it has no classes!
 
-@ref used_G4PhysicsLists
 
-@ref requirements_G4PhysicsLists
 
-*/
-
-/**
-@page used_G4PhysicsLists Used Packages
-*/
-
-/**
-@page requirements_G4PhysicsLists Requirements
 */

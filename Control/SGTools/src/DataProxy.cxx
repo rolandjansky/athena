@@ -105,8 +105,18 @@ DataProxy::DataProxy():
 // (typically called from Proxy Provider)
 DataProxy::DataProxy(TransientAddress* tAddr, 
 		     IConverter* svc,
+		     bool constFlag, bool resetOnly)
+  : DataProxy (std::unique_ptr<TransientAddress> (tAddr),
+               svc, constFlag, resetOnly)
+{
+}
+
+// DataProxy constructor with Transient Address
+// (typically called from Proxy Provider)
+DataProxy::DataProxy(std::unique_ptr<TransientAddress> tAddr, 
+		     IConverter* svc,
 		     bool constFlag, bool resetOnly):
-  m_tAddress(tAddr),
+  m_tAddress(std::move(tAddr)),
   m_refCount(0),
   m_dObject(0), 
   m_dataLoader(svc),
@@ -146,7 +156,6 @@ DataProxy::DataProxy(DataObject* dObject,
 DataProxy::~DataProxy()
 {  
   finalReset();
-  delete m_tAddress;
 }
 
 void DataProxy::setT2p(T2pMap* t2p)
@@ -169,6 +178,7 @@ void DataProxy::setConst()
 
 bool DataProxy::bindHandle(IResetable* ir) {
   assert(ir);
+  lock_t lock (m_mutex);
   if (ir->isSet()) {
     return false;
   } else {
@@ -206,20 +216,31 @@ void DataProxy::finalReset()
 
 /// don't need no comment
 void DataProxy::resetBoundHandles (bool hard) {
-  auto i = m_handles.begin();
-  auto iEnd = m_handles.end();
-  while (i != iEnd) {
-    //    std::cout << "resetBoundHandles loop " << *i << std::endl;
-    if (0 == *i) {
-      i = m_handles.erase(i); //NULL IResetable* means handle was unbound
-    } else {
-      (*(i++))->reset(hard);
-    }
+  handleList_t handles;
+  {
+    lock_t lock (m_mutex);
+    // Early exit if the list is empty.
+    if (m_handles.empty()) return;
+
+    // Remove empty entries.
+    handleList_t::iterator it =
+      std::remove (m_handles.begin(), m_handles.end(), nullptr);
+    m_handles.erase (it, m_handles.end());
+    if (m_handles.empty()) return;
+
+    // Make a copy and drop the lock, so we're not holding the lock
+    // during the callback.
+    handles = m_handles;
+  }
+
+  for (IResetable* h : handles) {
+    h->reset(hard);
   }
 }
 
 void DataProxy::unbindHandle(IResetable *ir) {
   assert(ir);
+  lock_t lock (m_mutex);
   //  std::cout << "unbindHandle " << ir << std::endl;
   auto ifr = find(m_handles.begin(), m_handles.end(), ir );
   //reset the entry for ir instead of deleting it, so this can be called
@@ -234,19 +255,25 @@ void DataProxy::unbindHandle(IResetable *ir) {
 /// return refCount
 unsigned long DataProxy::refCount() const
 {
+  lock_t lock (m_mutex);
   return m_refCount;
 }
 
 /// Add reference to object
 unsigned long DataProxy::addRef()
 { 
+  lock_t lock (m_mutex);
   return ++m_refCount;
 }
 
 /// release reference to object
 unsigned long DataProxy::release()
-{ 
-  unsigned long count(--m_refCount);
+{
+  unsigned long count;
+  {
+    lock_t lock (m_mutex);
+    count = --m_refCount;
+  }
   if ( 0 == count ) delete this;
   return count;
 }
@@ -407,7 +434,7 @@ DataObject* DataProxy::accessData()
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 bool DataProxy::isValidAddress() const
 {
-  return (0 != m_tAddress && m_tAddress->isValid());
+  return (0 != m_tAddress && m_tAddress->isValid(m_store));
 }
 
 bool DataProxy::isValidObject() const
@@ -421,6 +448,11 @@ bool DataProxy::isValid() const
   return (isValidObject() || isValidAddress());
 }
 
+
+bool DataProxy::updateAddress()
+{
+  return m_tAddress->isValid(m_store, true);
+}
 
 /**
  * @brief Try to get the pointer back from a @a DataProxy,

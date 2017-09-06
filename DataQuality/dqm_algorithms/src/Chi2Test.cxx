@@ -25,7 +25,7 @@ static dqm_algorithms::Chi2Test chi2_ww("ProbWW" );
 static dqm_algorithms::Chi2Test chi2_chi2("Chi2");
 
 dqm_algorithms::Chi2Test::Chi2Test( const std::string & name )
-  : name_ ( name )
+  : m_name ( name )
 {
   dqm_core::AlgorithmManager::instance().registerAlgorithm("Chi2Test_"+ name, this );
 }
@@ -33,7 +33,7 @@ dqm_algorithms::Chi2Test::Chi2Test( const std::string & name )
 dqm_algorithms::Chi2Test * 
 dqm_algorithms::Chi2Test::clone()
 {
-  return new Chi2Test( name_ );
+  return new Chi2Test( m_name );
 }
 
 
@@ -66,20 +66,20 @@ dqm_algorithms::Chi2Test::execute(	const std::string & name ,
   double rthresho;
   std::string option;
   std::string thresholdname="P";
-  if (name_ == "Chi2_per_NDF") {
+  if (m_name == "Chi2_per_NDF") {
     option="Chi2/ndfUU";
     thresholdname="Chi2_per_NDF";
-  }else if (name_ == "Prob" ) {
+  }else if (m_name == "Prob" ) {
     option="UU";
-  }else if (name_ == "ProbUW") {
+  }else if (m_name == "ProbUW") {
     option="UW";
-  }else if (name_ == "ProbWW") {
+  }else if (m_name == "ProbWW") {
     option="WW";
-  } else if (name_ == "Chi2") {
+  } else if (m_name == "Chi2") {
     option="CHI2UU";
     thresholdname="Chi2";
   } else {
-    throw dqm_core::BadConfig( ERS_HERE, "None", name_ );
+    throw dqm_core::BadConfig( ERS_HERE, "None", m_name );
   }
   try {
     gthresho = dqm_algorithms::tools::GetFromMap( thresholdname, config.getGreenThresholds() );
@@ -138,23 +138,23 @@ dqm_algorithms::Chi2Test::execute(	const std::string & name ,
 void
 dqm_algorithms::Chi2Test::printDescription(std::ostream& out)
 {
-  option="UU";
+  m_option="UU";
   std::string thresholdname = "P";
-  if (name_ == "Chi2_per_NDF") {
-    option="Chi2/ndf";
+  if (m_name == "Chi2_per_NDF") {
+    m_option="Chi2/ndf";
     thresholdname="Chi2_per_NDF";
-  }else if (name_ == "Prob") {
-    option="UU";
-  }else if (name_ == "ProbUW") {
-    option="UW";
-  }else if (name_ == "ProbWW") {
-    option="WW";
-  }else if (name_ == "Chi2") {
-    option="CHI2";
+  }else if (m_name == "Prob") {
+    m_option="UU";
+  }else if (m_name == "ProbUW") {
+    m_option="UW";
+  }else if (m_name == "ProbWW") {
+    m_option="WW";
+  }else if (m_name == "Chi2") {
+    m_option="CHI2";
     thresholdname="Chi2";
   }
 
-  out<<"Chi2Test_"+ name_+": Gives back "+thresholdname+" after performing Chi2 test on histogram against referece histogram with option: "<<option<<" (see TH1::GetChi2Test)"<<std::endl;
+  out<<"Chi2Test_"+ m_name+": Gives back "+thresholdname+" after performing Chi2 test on histogram against referece histogram with option: "<<m_option<<" (see TH1::GetChi2Test)"<<std::endl;
 
   
   out<<"Mandatory Green/Red Threshold: "+ thresholdname+" : "+thresholdname+" to give Green/Red result\n"<<std::endl;

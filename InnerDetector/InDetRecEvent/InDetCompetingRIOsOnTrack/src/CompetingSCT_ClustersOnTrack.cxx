@@ -209,8 +209,9 @@ void InDet::CompetingSCT_ClustersOnTrack::setLocalParametersAndErrorMatrix() {
             const double cosTheta = cos(meanTheta);
             const double sinTheta = sin(meanTheta);
 //             std::cout << "[mean]: l1= " << meanEigen1 << " l2="<< meanEigen2 << " theta="<< meanTheta << std::endl;
-            
             //CLHEP::HepSymMatrix meanWeightMatrix = CLHEP::HepSymMatrix(2, 0);
+            meanWeightMatrix = Amg::MatrixX(2,2);
+            meanWeightMatrix.setZero(); 
             meanWeightMatrix(0,0) = cosTheta*cosTheta*meanEigen1 + sinTheta*sinTheta*meanEigen2;
             meanWeightMatrix(1,1) = cosTheta*cosTheta*meanEigen2 + sinTheta*sinTheta*meanEigen1;
             meanWeightMatrix(0,1) = cosTheta*sinTheta*meanEigen1 - cosTheta*sinTheta*meanEigen2;

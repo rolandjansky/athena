@@ -508,7 +508,7 @@ StatusCode MuonRdoToMuonDigitTool::decodeMdt( const MdtCsm * rdoColl, MdtDigitCo
 		  ATH_MSG_WARNING( "Couldn't record MdtDigitCollection with key=" << coll_hash 
                                    << " in StoreGate!"  );
 	      } else {  
-		MdtDigitCollection * oldCollection = const_cast<MdtDigitCollection*>( it_coll->cptr() );
+		MdtDigitCollection * oldCollection = const_cast<MdtDigitCollection*>( *it_coll );
 		oldCollection->push_back(newDigit);
 		collection = oldCollection;
 	      }
@@ -600,7 +600,7 @@ StatusCode MuonRdoToMuonDigitTool::decodeCsc( const CscRawDataCollection * rdoCo
 		  ATH_MSG_WARNING( "Couldn't record CscDigitCollection with key=" << coll_hash 
                                    << " in StoreGate!"  );
 	    } else {  
-	      CscDigitCollection * oldCollection = const_cast<CscDigitCollection*>( it_coll->cptr() );
+	      CscDigitCollection * oldCollection = const_cast<CscDigitCollection*>( *it_coll );
 	      oldCollection->push_back(newDigit);
 	      collection = oldCollection;
 	    }
@@ -690,7 +690,7 @@ StatusCode MuonRdoToMuonDigitTool::decodeRpc( const RpcPad * rdoColl, RpcDigitCo
                         }
                         else
                         {
-	                   RpcDigitCollection * oldCollection = const_cast<RpcDigitCollection*>( it_coll->cptr() );
+	                   RpcDigitCollection * oldCollection = const_cast<RpcDigitCollection*>( *it_coll );
 	                   oldCollection->push_back(newDigit);
                            collection = oldCollection;
                         }
@@ -884,7 +884,7 @@ StatusCode MuonRdoToMuonDigitTool::decodeTgc( const TgcRdo *rdoColl,
                   m_acSvc->setStore( &*evtStore() );
                   TgcDigitContainer::const_iterator it_coll = m_tgcContainer->indexFind(coll_hash);
                   if (m_tgcContainer->end() !=  it_coll) {
-                       collection = const_cast<TgcDigitCollection*>( it_coll->cptr() );
+                       collection = const_cast<TgcDigitCollection*>( *it_coll );
 		    }
 		  else
 		    {

@@ -108,17 +108,6 @@ RegionSelector has the following properties:
 
 Note that RegionSelector has a run-time dependency on InnerDetector and Calo tools which produce the lookup tables it needs. These tools will automatically be configured and invoked by the RegSelSvc if the relevant @c enable flags are on.
 
-@ref used_MyPackage
 
-@ref requirements_MyPackage
 
 */
-
-/**
-@page used_MyPackage Used Packages
-*/
-
-/**
-@page requirements_MyPackage Requirements
-*/
-

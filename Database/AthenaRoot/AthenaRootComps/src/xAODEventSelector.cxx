@@ -525,6 +525,7 @@ xAODEventSelector::createAddress( const Context& /*refCtx*/,
 StatusCode
 xAODEventSelector::releaseContext( Context*& refCtxt ) const
 {
+  if(refCtxt==0) return StatusCode::SUCCESS; //added to avoid warning from MetaDataSvc, which passes an empty context
   xAODEventContext *ctx  = dynamic_cast<xAODEventContext*>(refCtxt);
   if ( ctx )   {
     delete ctx; ctx = 0;
@@ -678,7 +679,8 @@ xAODEventSelector::loadAddresses(StoreID::type storeID, tadList& tads)
  
 /// update a transient Address
 StatusCode 
-xAODEventSelector::updateAddress(StoreID::type /*storeID*/, SG::TransientAddress* tad)
+xAODEventSelector::updateAddress(StoreID::type /*storeID*/, SG::TransientAddress* tad,
+                                 const EventContext& /*ctx*/)
 {
   // check if this tad is known to us.
   if (tad) {

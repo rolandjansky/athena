@@ -12,6 +12,7 @@
 
 
 #include "AthLinks/exceptions.h"
+#include "AthenaKernel/ExtendedEventContext.h"
 
 
 /**
@@ -62,7 +63,7 @@ template <class STORABLE>
 inline
 ElementLink<STORABLE>::ElementLink(const ID_type& dataID, index_type elemID, 
                                    const EventContext& ctx)
-  : Base (dataID, classID(), elemID, ctx.proxy())
+  : Base (dataID, classID(), elemID, ctx.getExtension<Atlas::ExtendedEventContext>()->proxy())
 {
 }
 
@@ -94,7 +95,7 @@ template <class STORABLE>
 inline
 ElementLink<STORABLE>::ElementLink(sgkey_t key, index_type elemID, 
                                    const EventContext& ctx)
-  : Base (key, classID(), elemID, ctx.proxy())
+  : Base (key, classID(), elemID, ctx.getExtension<Atlas::ExtendedEventContext>()->proxy())
 {
 }
 
@@ -136,7 +137,7 @@ ElementLink<STORABLE>::ElementLink(const ID_type& dataID,
                                    index_type elemID,
                                    ElementType pEl,
                                    const EventContext& ctx)
-  : Base (dataID, classID(), elemID, pEl, ctx.proxy())
+  : Base (dataID, classID(), elemID, pEl, ctx.getExtension<Atlas::ExtendedEventContext>()->proxy())
 {
 }
 
@@ -178,7 +179,7 @@ ElementLink<STORABLE>::ElementLink (sgkey_t key,
                                     index_type elemID,
                                     ElementType pEl,
                                     const EventContext& ctx)
-  : Base (key, classID(), elemID, pEl, ctx.proxy())
+  : Base (key, classID(), elemID, pEl, ctx.getExtension<Atlas::ExtendedEventContext>()->proxy())
 {
 }
 
@@ -212,7 +213,7 @@ inline
 ElementLink<STORABLE>::ElementLink (BaseConstReference data,
                                     index_type elemID, 
                                     const EventContext& ctx)
-  : Base (&data, classID(), elemID, ctx.proxy())
+  : Base (&data, classID(), elemID, ctx.getExtension<Atlas::ExtendedEventContext>()->proxy())
 {
 }
 
@@ -515,7 +516,7 @@ ElementLink<STORABLE>::toIndexedElement(BaseConstReference data,
                                         index_type elemID,
                                         const EventContext& ctx)
 {
-  return Base::toIndexedElement (&data, classID(), elemID, ctx.proxy());
+  return Base::toIndexedElement (&data, classID(), elemID, ctx.getExtension<Atlas::ExtendedEventContext>()->proxy());
 }
 
 
@@ -570,7 +571,7 @@ bool ElementLink<STORABLE>::toContainedElement(BaseConstReference data,
 {
   index_type index = this->index();
   IndexingPolicy::reverseLookup (data, element, index);
-  bool ret = Base::toIndexedElement (&data, classID(), index, ctx.proxy());
+  bool ret = Base::toIndexedElement (&data, classID(), index, ctx.getExtension<Atlas::ExtendedEventContext>()->proxy());
   if (ret)
     this->setCachedElement (element);
   return ret;
@@ -659,7 +660,7 @@ bool ElementLink<STORABLE>::setStorableObject(BaseConstReference data,
                                               bool replace,
                                               const EventContext& ctx)
 {
-  bool ret = Base::setStorableObject (&data, classID(), replace, ctx.proxy());
+  bool ret = Base::setStorableObject (&data, classID(), replace, ctx.getExtension<Atlas::ExtendedEventContext>()->proxy());
   if (ret) {
     ElementConstPointer elt = 0;
     if (this->isDefaultIndex() && this->getCachedElement (elt)) {
@@ -705,7 +706,7 @@ void ElementLink<STORABLE>::resetWithKeyAndIndex(const ID_type& dataID,
                                                  index_type elemID,
                                                  const EventContext& ctx)
 {
-  Base::resetWithKeyAndIndex (dataID, classID(), elemID, ctx.proxy());
+  Base::resetWithKeyAndIndex (dataID, classID(), elemID, ctx.getExtension<Atlas::ExtendedEventContext>()->proxy());
 }
 
 
@@ -741,7 +742,7 @@ void ElementLink<STORABLE>::resetWithKeyAndIndex(sgkey_t key,
                                                  index_type elemID, 
                                                  const EventContext& ctx)
 {
-  Base::resetWithKeyAndIndex (key, classID(), elemID, ctx.proxy());
+  Base::resetWithKeyAndIndex (key, classID(), elemID, ctx.getExtension<Atlas::ExtendedEventContext>()->proxy());
 }
 
 

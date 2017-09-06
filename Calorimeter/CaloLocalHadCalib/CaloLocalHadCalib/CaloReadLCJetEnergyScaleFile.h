@@ -21,14 +21,12 @@ class CaloReadLCJetEnergyScaleFile : public AthAlgorithm
   StatusCode initialize(); 
   StatusCode execute();
   StatusCode finalize();
-  StatusCode initDataFromFile(std::vector<std::string> &theLCJetEnergyScaleFileNames, std::vector<std::string> &theLCJetEnergyScaleJetCollectionNames);
+  StatusCode initDataFromFile(std::vector<std::string> &theLCJetEnergyScaleFileNames, std::vector<std::string> &theLCJetEnergyScaleJetCollectionNames, CaloLocalHadCoeff& data);
 
  private:
   std::string m_key;
   std::vector<std::string> m_LCJetEnergyScaleFileNames;
   std::vector<std::string> m_LCJetEnergyScaleJetCollectionNames;
-
-  CaloLocalHadCoeff * m_data;
 };
 
 #endif

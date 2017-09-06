@@ -19,8 +19,8 @@
 #include "VP1Utils/VP1SGAccessHelper.h"
 
 #include "MissingETEvent/MissingEtCalo.h"
-#include <QtCore/QStringList>
-#include <QtGui/QColor>
+#include <QStringList>
+#include <QColor>
 
 #include "CLHEP/Units/SystemOfUnits.h"
 

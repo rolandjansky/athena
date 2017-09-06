@@ -26,17 +26,17 @@ void JPsiBasicTPEfficiencyPlots::initializePlots()
   
   int nptbins = sizeof (ptbins) / sizeof (double) - 1;
   TH1D ptdummy ("ptdummy","dummy",nptbins,ptbins) ;
-  pt  = Book1D("pt" ,&ptdummy, " pt; Transverse Momentum [GeV];Entries / 1 GeV");
+  m_pt  = Book1D("pt" ,&ptdummy, " pt; Transverse Momentum [GeV];Entries / 1 GeV");
   
   // 25 fixed-size bins in eta
-  eta  = Book1D("eta" ," eta; #eta; Entries ",25,-2.5,2.5);
+  m_eta  = Book1D("eta" ," eta; #eta; Entries ",25,-2.5,2.5);
   
   // 25 fixed-size bins in phi
-  phi  = Book1D("phi" ," phi; #phi; Entries ",25,-TMath::Pi(),TMath::Pi());
+  m_phi  = Book1D("phi" ," phi; #phi; Entries ",25,-TMath::Pi(),TMath::Pi());
   
-  d0  = Book1D("d0" ," d0; d_{0} [mm]; Entries ",200,-10,10);
-  integrated  = Book1D("integrated" ," integrated;  ; Entries ",1,0.5,1.5);
-  fineEtaPhi  = Book1D("fineEtaPhi" ," fineEtaPhi; fine (#eta, #phi) bin; Entries ",m_fepb.nbins(),m_fepb.firstbin()-0.5, m_fepb.lastbin()+0.5);  
+  m_d0  = Book1D("d0" ," d0; d_{0} [mm]; Entries ",200,-10,10);
+  m_integrated  = Book1D("integrated" ," integrated;  ; Entries ",1,0.5,1.5);
+  m_fineEtaPhi  = Book1D("fineEtaPhi" ," fineEtaPhi; fine (#eta, #phi) bin; Entries ",m_fepb.nbins(),m_fepb.firstbin()-0.5, m_fepb.lastbin()+0.5);  
 }
 
 
@@ -44,10 +44,10 @@ void JPsiBasicTPEfficiencyPlots::fill(Probe& probe)
 {
   if(m_isMatched && !probe.isMatched()) return;
   float sfweight = (m_isMatched && m_apply_SF ? probe.sfweight() : 1.);
-  pt->Fill(probe.pt() / 1000.,sfweight);
-  eta->Fill(probe.eta() ,sfweight);
-  phi->Fill(probe.phi() ,sfweight);
-  integrated->Fill(1,sfweight);
+  m_pt->Fill(probe.pt() / 1000.,sfweight);
+  m_eta->Fill(probe.eta() ,sfweight);
+  m_phi->Fill(probe.phi() ,sfweight);
+  m_integrated->Fill(1,sfweight);
 
   //  case 1: ID track
   const xAOD::TrackParticle* trk = dynamic_cast<const xAOD::TrackParticle*>(&(probe.probeTrack()));
@@ -58,9 +58,9 @@ void JPsiBasicTPEfficiencyPlots::fill(Probe& probe)
     if (mu && mu->primaryTrackParticle()) trk = mu->primaryTrackParticle();
     if (!trk && mu && *(mu->inDetTrackParticleLink())) trk = *(mu->inDetTrackParticleLink());
   }
-  if (trk) d0->Fill(trk->d0(),sfweight);
+  if (trk) m_d0->Fill(trk->d0(),sfweight);
     
 
-  fineEtaPhi->Fill(m_fepb.bin(probe.probeTrack().p4()),sfweight);
+  m_fineEtaPhi->Fill(m_fepb.bin(probe.probeTrack().p4()),sfweight);
 
 }

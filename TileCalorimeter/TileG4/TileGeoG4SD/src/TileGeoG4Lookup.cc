@@ -42,35 +42,35 @@ TileRow::TileRow(std::string& datafile, std::string& ratiofile) {
 }
 
 TileGeoG4Cell::TileGeoG4Cell()
-    : detector(0),
-      cellNum(0),
-      tower(0),
-      sample(0),
-      sinTh(0.),
-      r(0.),
-      firstRow(0),
-      lastRow(0),
-      nrOfPMT(0),
-      zMin(0.),
-      zMax(0.),
-      zMin2(0.),
-      zMax2(0.)    //added by Sergey
+  : detector(0),
+    cellNum(0),
+    tower(0),
+    sample(0),
+    sinTh(0.),
+    r(0.),
+    firstRow(0),
+    lastRow(0),
+    nrOfPMT(0),
+    zMin(0.),
+    zMax(0.),
+    zMin2(0.),
+    zMax2(0.)    //added by Sergey
 {
 }
 
 TileGeoG4Sample::TileGeoG4Sample()
-    : firstRow(0),
-      lastRow(0)
+  : firstRow(0),
+    lastRow(0)
 {
 }
 
 TileGeoG4Section::TileGeoG4Section(const int verboseLevel)
-    : nrOfModules(0),
-      nrOfPeriods(0),
-      nrOfScintillators(0),
-      nrOfPhysicalSections(0),
-      nrOfPhysicalSections_negative(0),
-      m_verboseLevel(verboseLevel)
+  : nrOfModules(0),
+    nrOfPeriods(0),
+    nrOfScintillators(0),
+    nrOfPhysicalSections(0),
+    nrOfPhysicalSections_negative(0),
+    m_verboseLevel(verboseLevel)
 {
 }
 
@@ -95,11 +95,11 @@ void TileGeoG4Section::ScinToCell(bool gap_crack, int rowShift) {
   l_indCurrentSample = 0;
 
   if (!gap_crack) for (row = 1; row <= l_nRow; row++) {
-    if (row > (samples[l_indCurrentSample])->lastRow - rowShift) l_indCurrentSample++;
-    l_rowShiftInSample = row - ( (samples[l_indCurrentSample])->firstRow - rowShift);
-    l_indCurrentCell[row - 1] = 0;
-    l_currentBoundary[row - 1] = ( (samples[l_indCurrentSample])->cells[0])->nrOfTilesInRow[l_rowShiftInSample];
-  }
+      if (row > (samples[l_indCurrentSample])->lastRow - rowShift) l_indCurrentSample++;
+      l_rowShiftInSample = row - ( (samples[l_indCurrentSample])->firstRow - rowShift);
+      l_indCurrentCell[row - 1] = 0;
+      l_currentBoundary[row - 1] = ( (samples[l_indCurrentSample])->cells[0])->nrOfTilesInRow[l_rowShiftInSample];
+    }
 
   //Loop through all periods and scintillators - fill m_ScinToCell
   //with the pointers to cells the current scintillator belongs to
@@ -141,7 +141,7 @@ TileGeoG4Cell* TileGeoG4Section::ScinToCell(int nScin) {
     return 0;
   }
   else
-  return m_ScinToCell[nScin];
+    return m_ScinToCell[nScin];
 }
 
 void TileGeoG4Section::AddModuleToCell(bool negative) {
@@ -158,36 +158,36 @@ void TileGeoG4Section::AddModuleToCell(bool negative) {
       current_cell = current_sample->cells[l_nCell];
 
       switch (current_cell->nrOfPMT) {
-        case 1: {
-          // We are in GAP/CRACK Cell - use Up vectors only
-          if (negative) {
-            current_cell->moduleToHitDownNegative.push_back(0);
-            current_cell->nCellHitNegative.push_back(0);
-          } else {
-            current_cell->moduleToHitDown.push_back(0);
-            current_cell->nCellHit.push_back(0);
-          }
-          break;
+      case 1: {
+        // We are in GAP/CRACK Cell - use Up vectors only
+        if (negative) {
+          current_cell->moduleToHitDownNegative.push_back(0);
+          current_cell->nCellHitNegative.push_back(0);
+        } else {
+          current_cell->moduleToHitDown.push_back(0);
+          current_cell->nCellHit.push_back(0);
         }
-        case 2: {
-          // Standart cell and E5(E4')
-          if (negative) {
-            current_cell->moduleToHitUpNegative.push_back(0);
-            current_cell->moduleToHitDownNegative.push_back(0);
-            current_cell->nCellHitNegative.push_back(0);
-          } else {
-            current_cell->moduleToHitUp.push_back(0);
-            current_cell->moduleToHitDown.push_back(0);
-            current_cell->nCellHit.push_back(0);
-          }
-          break;
+        break;
+      }
+      case 2: {
+        // Standart cell and E5(E4')
+        if (negative) {
+          current_cell->moduleToHitUpNegative.push_back(0);
+          current_cell->moduleToHitDownNegative.push_back(0);
+          current_cell->nCellHitNegative.push_back(0);
+        } else {
+          current_cell->moduleToHitUp.push_back(0);
+          current_cell->moduleToHitDown.push_back(0);
+          current_cell->nCellHit.push_back(0);
         }
-        default: {
-          // Unknown cell type
-          G4cout << "ERROR: AddModuleToCell(): Unexpected number of PMTs in cell --> " << current_cell->nrOfPMT
-                 << G4endl;
-          return;
-        }
+        break;
+      }
+      default: {
+        // Unknown cell type
+        G4cout << "ERROR: AddModuleToCell(): Unexpected number of PMTs in cell --> " << current_cell->nrOfPMT
+               << G4endl;
+        return;
+      }
       }
     }
   }

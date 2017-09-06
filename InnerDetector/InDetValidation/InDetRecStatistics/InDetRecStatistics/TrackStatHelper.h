@@ -180,10 +180,10 @@ namespace InDet {
 
 
     /** Returns TrackCollection Key */
-    std::string key();
+    const std::string &key() const { return m_TrackCollectionKey; }
     /** Returns Truth TrackCollection Key */
-    std::string Truthkey();
-    
+    const std::string &Truthkey() const { return m_TrackTruthCollectionKey; }
+
   private:
 
     std::string  m_TrackCollectionKey;//!< StoreGate Track Collection Key

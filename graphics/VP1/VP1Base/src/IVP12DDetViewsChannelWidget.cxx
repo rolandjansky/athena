@@ -26,14 +26,15 @@
 #include "VP1Base/VP1ControllerHelper.h"
 #include "VP1Base/VP1ColorSelectButton.h"
 
-#include <QtGui/QCheckBox>
-#include <QtGui/QGraphicsScene>
-#include <QtCore/QBuffer>
-#include <QtCore/QByteArray>
-#include <QtCore/QMap>
+#include <QCheckBox>
+#include <QGraphicsScene>
+#include <QVBoxLayout>
+#include <QByteArray>
+#include <QBuffer>
+#include <QMap>
+
 #include <cassert>
 
-#include <QtGui/QVBoxLayout>
 
 class IVP12DDetViewsChannelWidget::Imp {
 public:

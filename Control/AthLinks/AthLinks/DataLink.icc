@@ -14,6 +14,7 @@
 #include "AthLinks/exceptions.h"
 #include "SGTools/StorableConversions.h"
 #include "SGTools/DataProxy.h"
+#include "AthenaKernel/ExtendedEventContext.h"
 
 
 /**
@@ -58,7 +59,7 @@ DataLink<STORABLE>::DataLink(const_reference data, IProxyDict* sg/*=0*/)
 template <typename STORABLE>
 inline
 DataLink<STORABLE>::DataLink(const_reference data, const EventContext& ctx)
-  : DataLinkBase (&data, classID(), ctx.proxy())
+  : DataLinkBase (&data, classID(), ctx.getExtension<Atlas::ExtendedEventContext>()->proxy())
 {
 }
 
@@ -84,7 +85,7 @@ DataLink<STORABLE>::DataLink(const_pointer pdata, IProxyDict* sg/*=0*/)
 template <typename STORABLE>
 inline
 DataLink<STORABLE>::DataLink(const_pointer pdata, const EventContext& ctx)
-  : DataLinkBase (pdata, classID(), ctx.proxy())
+  : DataLinkBase (pdata, classID(), ctx.getExtension<Atlas::ExtendedEventContext>()->proxy())
 {
 }
 
@@ -112,7 +113,7 @@ template <typename STORABLE>
 inline
 DataLink<STORABLE>::DataLink(const ID_type& dataID,
                              const EventContext& ctx)
-  : DataLinkBase (dataID, classID(), ctx.proxy())
+  : DataLinkBase (dataID, classID(), ctx.getExtension<Atlas::ExtendedEventContext>()->proxy())
 {
 }
 
@@ -142,7 +143,7 @@ DataLink<STORABLE>::DataLink(sgkey_t key, IProxyDict* sg /*=0*/)
 template <typename STORABLE>
 inline
 DataLink<STORABLE>::DataLink(sgkey_t key, const EventContext& ctx)
-  : DataLinkBase (key, classID(), ctx.proxy())
+  : DataLinkBase (key, classID(), ctx.getExtension<Atlas::ExtendedEventContext>()->proxy())
 {
 }
 
@@ -189,7 +190,7 @@ inline
 void DataLink<STORABLE>::toStorableObject(const_reference data,
                                           const EventContext& ctx)
 {
-  DataLinkBase::toStorableObject (&data, classID(), ctx.proxy());
+  DataLinkBase::toStorableObject (&data, classID(), ctx.getExtension<Atlas::ExtendedEventContext>()->proxy());
 }
 
 
@@ -221,7 +222,7 @@ inline
 void DataLink<STORABLE>::toIdentifiedObject(const ID_type& dataID,
                                             const EventContext& ctx)
 {
-  DataLinkBase::toIdentifiedObject (dataID, classID(), ctx.proxy());
+  DataLinkBase::toIdentifiedObject (dataID, classID(), ctx.getExtension<Atlas::ExtendedEventContext>()->proxy());
 }
 
 
@@ -257,7 +258,7 @@ inline
 void DataLink<STORABLE>::toIdentifiedObject(sgkey_t key,
                                             const EventContext& ctx)
 {
-  DataLinkBase::toIdentifiedObject (key, classID(), ctx.proxy());
+  DataLinkBase::toIdentifiedObject (key, classID(), ctx.getExtension<Atlas::ExtendedEventContext>()->proxy());
 }
 
 
@@ -297,7 +298,7 @@ template <typename STORABLE>
 inline
 void DataLink<STORABLE>::toDefaultObject (const EventContext& ctx)
 {
-  DataLinkBase::toIdentifiedObject (SG::DEFAULTKEY, classID(), ctx.proxy());
+  DataLinkBase::toIdentifiedObject (SG::DEFAULTKEY, classID(), ctx.getExtension<Atlas::ExtendedEventContext>()->proxy());
 }
 
 
@@ -331,7 +332,7 @@ template <typename STORABLE>
 inline
 bool DataLink<STORABLE>::toTransient (const EventContext& ctx)
 {
-  return DataLinkBase::toTransient (ctx.proxy());
+  return DataLinkBase::toTransient (ctx.getExtension<Atlas::ExtendedEventContext>()->proxy());
 }
 
 
@@ -369,7 +370,7 @@ inline
 bool DataLink<STORABLE>::toTransient (const ID_type& dataID,
                                       const EventContext& ctx)
 {
-  return DataLinkBase::toTransient (dataID, classID(), ctx.proxy());
+  return DataLinkBase::toTransient (dataID, classID(), ctx.getExtension<Atlas::ExtendedEventContext>()->proxy());
 }
 
 

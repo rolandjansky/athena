@@ -20,3 +20,5 @@ atlas_add_executable( CoraCoolExample
                       INCLUDE_DIRS ${COOL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
                       LINK_LIBRARIES ${COOL_LIBRARIES} ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} CoraCool )
 
+
+atlas_install_scripts( share/CoraCoolExample_SQLite.sh )

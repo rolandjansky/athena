@@ -5,6 +5,9 @@
 #include "CxxUtils/page_access.h"
 namespace athena{
 
+  const void* page_address(const void* addr) { 
+    return (const void*)((long)addr & ~(PAGESIZE-1)); 
+  }
   void* page_address(void* addr) { 
     return (void*)((long)addr & ~(PAGESIZE-1)); 
   }

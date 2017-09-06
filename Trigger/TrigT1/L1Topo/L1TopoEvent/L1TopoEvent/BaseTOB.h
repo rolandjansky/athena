@@ -14,6 +14,7 @@ namespace TCS {
    class BaseTOB {
    public:
       BaseTOB(int roiWord);
+      virtual ~BaseTOB() {}
 
       virtual void print(std::ostream&) const = 0;
 

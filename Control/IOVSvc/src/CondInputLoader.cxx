@@ -38,10 +38,17 @@ CondInputLoader::CondInputLoader( const std::string& name,
   //
   // Property declaration
   // 
+  auto props = getProperties();
+  for( Property* prop : props ) {
+    if (prop->name() == "ExtraOutputs" || prop->name() == "ExtraInputs") {
+      prop->declareUpdateHandler
+        (&CondInputLoader::extraDeps_update_handler, this);
+    }
+  }
+
   declareProperty( "Load", m_load); 
   //->declareUpdateHandler(&CondInputLoader::loader, this);
   declareProperty( "ShowEventDump", m_dump=false);
-  declareProperty( "InputKey", m_inputKey="Input" );
 }
 
 // Destructor
@@ -83,8 +90,6 @@ CondInputLoader::initialize()
     return StatusCode::FAILURE;
   }
 
-  ATH_CHECK( m_inputKey.initialize() );
-
   std::vector<std::string> keys = idb->getKeyList();
   std::string folderName, tg;
   IOVRange range;
@@ -113,7 +118,9 @@ CondInputLoader::initialize()
     // } else {
     //   ATH_MSG_DEBUG(" not remapping folder " << id.key());
     }
-    loadCopy.insert(id);
+    SG::VarHandleKey vhk(id.clid(),id.key(),Gaudi::DataHandle::Writer, 
+                         StoreID::storeName(StoreID::CONDITION_STORE));
+    loadCopy.emplace(vhk.fullKey());
   }
 
   // for (auto key : keys) {
@@ -153,12 +160,14 @@ CondInputLoader::initialize()
       sc = StatusCode::FAILURE;
       str << "   ERROR: empty key is not allowed!";
     } else {
-      Gaudi::DataHandle dh(e, Gaudi::DataHandle::Writer, this);
-      if (m_condSvc->regHandle(this, dh, e.key()).isFailure()) {
-        ATH_MSG_ERROR("Unable to register WriteCondHandle " << dh.fullKey());
+      SG::VarHandleKey vhk(e.clid(),e.key(),Gaudi::DataHandle::Writer,
+                           StoreID::storeName(StoreID::CONDITION_STORE));
+      if (m_condSvc->regHandle(this, vhk, e.key()).isFailure()) {
+        ATH_MSG_ERROR("Unable to register WriteCondHandle " << vhk.fullKey());
         sc = StatusCode::FAILURE;
       }
-      m_IOVSvc->ignoreProxy(dh.fullKey().clid(), e.key());
+      ATH_MSG_DEBUG("Ignoring proxy: " << vhk.key());
+      m_IOVSvc->ignoreProxy(vhk.fullKey().clid(), vhk.key());
     }
   }
 
@@ -186,16 +195,15 @@ CondInputLoader::execute()
 
   if (m_first) {
     DataObjIDColl::iterator itr;
-    for (itr = m_load.begin(); itr != m_load.end(); ) {
-      //      if ( ! m_condStore->contains(itr->clid(), itr->key() ) ){
-      if ( ! m_condStore->contains<CondContBase>( itr->key() ) ){
+    for (itr = m_load.begin(); itr != m_load.end(); ++itr) {
+      SG::VarHandleKey vhk(itr->clid(),itr->key(),Gaudi::DataHandle::Reader);
+      if ( ! m_condStore->contains<CondContBase>( vhk.key() ) ){
         ATH_MSG_INFO("ConditionStore does not contain a CondCont<> of "
-                     << *itr
+                     << *itr << "  (key: " << vhk.key() << ") "
                      << ". Either a ReadCondHandle was not initialized or "
                      << "no other Algorithm is using this Handle");
-        itr = m_load.erase(itr);
       } else {
-        ++itr;
+        m_vhk.push_back(vhk);
       }
     }
     m_first = false;
@@ -215,6 +223,7 @@ CondInputLoader::execute()
     }
     now.set_run_number(thisEventInfo->runNumber());
     now.set_event_number(thisEventInfo->eventNumber());
+    now.set_lumi_block(thisEventInfo->lumiBlock());
     now.set_time_stamp(thisEventInfo->timeStamp());
     now.set_time_stamp_ns_offset(thisEventInfo->timeStampNSOffset());
   }
@@ -222,68 +231,74 @@ CondInputLoader::execute()
 #ifdef GAUDI_SYSEXECUTE_WITHCONTEXT
     now.set_run_number(getContext().eventID().run_number());
     now.set_event_number(getContext().eventID().event_number());
+    now.set_lumi_block(getContext().eventID().lumi_block());
     now.set_time_stamp(getContext().eventID().time_stamp());
     now.set_time_stamp_ns_offset(getContext().eventID().time_stamp_ns_offset());
 #else
     now.set_run_number(getContext()->eventID().run_number());
     now.set_event_number(getContext()->eventID().event_number());
+    now.set_lumi_block(getContext()->eventID().lumi_block());
     now.set_time_stamp(getContext()->eventID().time_stamp());
     now.set_time_stamp_ns_offset(getContext()->eventID().time_stamp_ns_offset());
 #endif
   }
 
   // For a MC event, the run number we need to use to look up the conditions
-  // may be different from that of the event itself.  If we have
-  // a ConditionsRun attribute defined, use that to override
-  // the event number.
-  SG::ReadHandle<AthenaAttributeList> input (m_inputKey, getContext());
-  if (input.isValid()) {
-    if (input->exists ("ConditionsRun"))
-      now.set_run_number ((*input)["ConditionsRun"].data<unsigned int>());
+  // may be different from that of the event itself.  Override the run
+  // number with the conditions run number from the event context,
+  // if it is defined.
+  EventIDBase::number_type conditionsRun =
+    getContext().template getExtension<Atlas::ExtendedEventContext>()->conditionsRun();
+  if (conditionsRun != EventIDBase::UNDEFNUM) {
+    now.set_run_number (conditionsRun);
   }
 
-  IOVTime t(now.run_number(), now.event_number(), now.time_stamp());
+  IOVTime t(now.run_number(), now.lumi_block(), now.time_stamp());
 
-  EventIDRange r;
+  StatusCode sc(StatusCode::SUCCESS);
   std::string tag;
-  //  for (auto &obj: extraOutputDeps()) {
-  for (auto &obj: m_load) {
-
-    ATH_MSG_DEBUG( "handling id: " << obj );
+  for (auto &vhk: m_vhk) {
+    ATH_MSG_DEBUG( "handling id: " << vhk.fullKey() << " key: " << vhk.key() );
 
     CondContBase* ccb(0);
-    if (! m_condStore->retrieve(ccb, obj.key()).isSuccess()) {
-      ATH_MSG_ERROR( "unable to get CondContBase* for " << obj 
+    if (! m_condStore->retrieve(ccb, vhk.key()).isSuccess()) {
+      ATH_MSG_ERROR( "unable to get CondContBase* for " << vhk.fullKey() 
                      << " from ConditionStore" );
+      sc = StatusCode::FAILURE;
       continue;
     }
    
-
     if (ccb->valid(now)) {
-      ATH_MSG_INFO( "  CondObj " << obj << " is still valid at " << now );
-      evtStore()->addedNewTransObject(obj.clid(), obj.key());
+      ATH_MSG_INFO( "  CondObj " << vhk.fullKey() << " is still valid at " << now );
+      evtStore()->addedNewTransObject(vhk.fullKey().clid(), vhk.key());
       continue;
     }
 
-
-    std::string dbKey = m_keyFolderMap[obj.key()];
-    if (m_IOVSvc->createCondObj( ccb, obj, now ).isFailure()) {
-      ATH_MSG_ERROR("unable to create Cond object for " << obj << " dbKey: " 
+    std::string dbKey = m_keyFolderMap[vhk.key()];
+    if (m_IOVSvc->createCondObj( ccb, vhk.fullKey(), now ).isFailure()) {
+      ATH_MSG_ERROR("unable to create Cond object for " << vhk.fullKey() << " dbKey: " 
                     << dbKey);
-      return StatusCode::FAILURE;
+      sc = StatusCode::FAILURE;
+      continue;
     } else {
-      evtStore()->addedNewTransObject(obj.clid(), obj.key());
+      evtStore()->addedNewTransObject(vhk.fullKey().clid(), vhk.key());
     }
 
   }
 
   if (m_dump) {
-    ATH_MSG_DEBUG(evtStore()->dump()); 
+    ATH_MSG_DEBUG(m_condStore->dump()); 
   }
   
-
-  return StatusCode::SUCCESS;
+  return sc;
 }
 
 //-----------------------------------------------------------------------------
 
+// need to override the handling of the DataObjIDs that's done by
+// AthAlgorithm, so we don't inject the name of the Default Store
+void 
+CondInputLoader::extraDeps_update_handler( Property& /*ExtraDeps*/ ) 
+{  
+  // do nothing
+}

@@ -9,15 +9,17 @@
 #include <string>
 #include <map>
 
-#include "AthenaBaseComps/AthAlgorithm.h"
-#include "TrkSpacePoint/SpacePointContainer.h" 
-#include "TrkSpacePoint/SpacePointOverlapCollection.h" 
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "TrkSpacePoint/SpacePointContainer.h"
+#include "TrkSpacePoint/SpacePointOverlapCollection.h"
 #include "InDetPrepRawData/SiClusterContainer.h"
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
 #include "HepMC/GenParticle.h"
 #include "HepPDT/ParticleDataTable.hh"
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 #include "StoreGate/ReadHandleKey.h"
+
+#include "TrkTrack/TrackCollection.h"
 
 namespace InDet {
 
@@ -29,7 +31,7 @@ namespace InDet {
     {
       ///////////////////////////////////////////////////////////////////
       // Public methods:
-      ///////////////////////////////////////////////////////////////////    
+      ///////////////////////////////////////////////////////////////////
     public:
 
       Barcode()  {};
@@ -46,17 +48,17 @@ namespace InDet {
       int m_barcharge;
       int m_rapidity;
     };
-  
+
   /////////////////////////////////////////////////////////////////////////////////
   // Inline methods
   /////////////////////////////////////////////////////////////////////////////////
-  
+
   inline Barcode::Barcode(const Barcode& BC)
     {
       *this = BC;
     }
-  
-  inline Barcode& Barcode::operator = (const Barcode& BC) 
+
+  inline Barcode& Barcode::operator = (const Barcode& BC)
     {
       if(&BC!=this) {
 	m_barcharge = BC.m_barcharge;
@@ -72,15 +74,15 @@ namespace InDet {
 
   // Class-algorithm for track cluster association validation
   //
-  class TrackClusterAssValidation : public AthAlgorithm 
+  class TrackClusterAssValidation : public AthReentrantAlgorithm
     {
-    
+
       ///////////////////////////////////////////////////////////////////
       // Public methods:
       ///////////////////////////////////////////////////////////////////
-      
+
     public:
-      
+
       ///////////////////////////////////////////////////////////////////
       // Standard Algotithm methods
       ///////////////////////////////////////////////////////////////////
@@ -88,20 +90,13 @@ namespace InDet {
       TrackClusterAssValidation(const std::string &name, ISvcLocator *pSvcLocator);
       virtual ~TrackClusterAssValidation() {}
       StatusCode initialize();
-      StatusCode execute();
+      StatusCode execute_r(const EventContext& ctx) const;
       StatusCode finalize();
-
-      ///////////////////////////////////////////////////////////////////
-      // Print internal tool parameters and status
-      ///////////////////////////////////////////////////////////////////
-
-      MsgStream&    dump     (MsgStream&    out) const;
-      std::ostream& dump     (std::ostream& out) const;
 
     protected:
 
       ///////////////////////////////////////////////////////////////////
-      // Protected data 
+      // Protected data
       ///////////////////////////////////////////////////////////////////
 
       bool                               m_usePIX                 ;
@@ -109,44 +104,134 @@ namespace InDet {
       bool                               m_useTRT                 ;
       bool                               m_useOutliers            ;
       int                                m_pdg                    ;
-      int                                m_outputlevel            ;
-      int                                m_nprint                 ;
-      int                                m_ncolection             ; 
-      int                                m_nspacepoints           ;
-      int                                m_nclusters              ;
-      int                                m_nclustersTRT           ;
-      int                                m_nqtracks               ;
-      int                                m_efficiency   [100][6]  ;
-      int                                m_efficiencyN  [100][6][5];
-      int                                m_efficiencyBTE[100][6][5][4];
-      int                                m_efficiencyPOS[100][6]  ;
-      int                                m_efficiencyNEG[100][6]  ;
-      int                                m_ntracksPOSB  [100]     ;
-      int                                m_ntracksPOSE  [100]     ;
-      int                                m_ntracksPOSDBM[100];
-      int                                m_ntracksNEGB  [100]     ;
-      int                                m_ntracksNEGE  [100]     ;
-      int                                m_ntracksNEGDBM[100];
-      int                                m_total        [100][50] ;
-      int                                m_fake         [100][50] ;
-      int                                m_events                 ;
-      int                                m_eventsPOS              ;
-      int                                m_eventsNEG              ;
-      int                                m_eventsBTE[4]           ;
-      int                                m_particleClusters   [50];
-      int                                m_particleSpacePoints[50];
-      int                                m_particleClustersBTE   [50][4];
-      int                                m_particleSpacePointsBTE[50][4];
-      int                                m_nclustersPosBP         ;
-      int                                m_nclustersPosBS         ;
-      int                                m_nclustersPosEP         ;
-      int                                m_nclustersPosES         ;
-      int                                m_nclustersPosDBM;
-      int                                m_nclustersNegBP         ;
-      int                                m_nclustersNegBS         ;
-      int                                m_nclustersNegEP         ;
-      int                                m_nclustersNegES         ;
-      int                                m_nclustersNegDBM;
+      struct TrackCollectionStat_t {
+      public:
+        int                                m_efficiency   [6]  ;
+        int                                m_efficiencyN  [6][5];
+        int                                m_efficiencyBTE[6][5][4];
+        int                                m_efficiencyPOS[6]  ;
+        int                                m_efficiencyNEG[6]  ;
+        int                                m_ntracksPOSB       ;
+        int                                m_ntracksPOSE       ;
+        int                                m_ntracksPOSDBM;
+        int                                m_ntracksNEGB       ;
+        int                                m_ntracksNEGE       ;
+        int                                m_ntracksNEGDBM;
+        int                                m_total        [50] ;
+        int                                m_fake         [50] ;
+        int                                m_events                 ;
+        int                                m_eventsPOS              ;
+        int                                m_eventsNEG              ;
+        int                                m_eventsBTE[4]           ;
+
+        TrackCollectionStat_t()
+        : m_efficiency    {},
+          m_efficiencyN   {},
+          m_efficiencyBTE {},
+          m_efficiencyPOS {},
+          m_efficiencyNEG {},
+          m_ntracksPOSB   {},
+          m_ntracksPOSE   {},
+          m_ntracksPOSDBM {},
+          m_ntracksNEGB   {},
+          m_ntracksNEGE   {},
+          m_ntracksNEGDBM {},
+          m_total         {},
+          m_fake          {}
+        {}
+
+        TrackCollectionStat_t &operator+=(const TrackCollectionStat_t &a_stat) {
+            for (int i=0; i<6; ++i) { m_efficiency[i]+=a_stat.m_efficiency[i];}
+            for (int i=0; i<6; ++i) { for (int j=0; j<5; ++j) { m_efficiencyN[i][j]+=a_stat.m_efficiencyN[i][j];}}
+            for (int i=0; i<6; ++i) { for (int j=0; j<5; ++j) { for (int k=0; k<4; ++k) { m_efficiencyBTE[i][j][k]+=a_stat.m_efficiencyBTE[i][j][k];} } }
+            for (int i=0; i<6; ++i) { m_efficiencyPOS[i]+=a_stat.m_efficiencyPOS[i];}
+            for (int i=0; i<6; ++i) { m_efficiencyNEG[i]+=a_stat.m_efficiencyNEG[i];}
+            m_ntracksPOSB+=a_stat.m_ntracksPOSB       ;
+            m_ntracksPOSE+=a_stat.m_ntracksPOSE       ;
+            m_ntracksPOSDBM+=a_stat.m_ntracksPOSDBM;
+            m_ntracksNEGB+=a_stat.m_ntracksNEGB       ;
+            m_ntracksNEGE+=a_stat.m_ntracksNEGE       ;
+            m_ntracksNEGDBM+=a_stat.m_ntracksNEGDBM;
+            for (int i=0; i<50; ++i) { m_total[i]+=a_stat.m_total[i];}
+            for (int i=0; i<50; ++i) { m_fake[i]+=a_stat.m_fake[i];}
+
+            return *this;
+        }
+
+      };
+
+      struct EventStat_t {
+      public:
+        int                                m_events      ;
+        int                                m_eventsPOS   ;
+        int                                m_eventsNEG   ;
+        int                                m_eventsBTE[4];
+
+        int                                m_particleClusters   [50];
+        int                                m_particleSpacePoints[50];
+        int                                m_particleClustersBTE   [50][4];
+        int                                m_particleSpacePointsBTE[50][4];
+
+        int                                m_nclustersPosBP         ;
+        int                                m_nclustersPosBS         ;
+        int                                m_nclustersPosEP         ;
+        int                                m_nclustersPosES         ;
+        int                                m_nclustersPosDBM;
+        int                                m_nclustersNegBP         ;
+        int                                m_nclustersNegBS         ;
+        int                                m_nclustersNegEP         ;
+        int                                m_nclustersNegES         ;
+        int                                m_nclustersNegDBM;
+
+        EventStat_t()
+        : m_events                 {},
+          m_eventsPOS              {},
+          m_eventsNEG              {},
+          m_eventsBTE              {},
+          m_particleClusters       {},
+          m_particleSpacePoints    {},
+          m_particleClustersBTE    {},
+          m_particleSpacePointsBTE {},
+          m_nclustersPosBP         {},
+          m_nclustersPosBS         {},
+          m_nclustersPosEP         {},
+          m_nclustersPosES         {},
+          m_nclustersPosDBM        {},
+          m_nclustersNegBP         {},
+          m_nclustersNegBS         {},
+          m_nclustersNegEP         {},
+          m_nclustersNegES         {},
+          m_nclustersNegDBM        {}
+        {}
+
+        EventStat_t &operator+=(const EventStat_t &a_stat) {
+          m_events += a_stat.m_events;
+          m_eventsPOS += a_stat.m_eventsPOS;
+          m_eventsNEG += a_stat.m_eventsNEG;
+          for (int i=0; i<4; ++i)  { m_eventsBTE[i] += a_stat.m_eventsBTE[i]; }
+          for (int i=0; i<50; ++i) {m_particleClusters[i] += a_stat.m_particleClusters[i]; };
+          for (int i=0; i<50; ++i) {m_particleSpacePoints[i] += a_stat.m_particleSpacePoints[i]; };
+          for (int i=0; i<50; ++i) {for (int j=0; j<4; ++j) { m_particleClustersBTE[i][j] += a_stat.m_particleClustersBTE[i][j]; } }
+          for (int i=0; i<50; ++i) {for (int j=0; j<4; ++j) { m_particleSpacePointsBTE[i][j] += a_stat.m_particleSpacePointsBTE[i][j];} }
+          m_nclustersPosBP  += m_nclustersPosBP;
+          m_nclustersPosBS  += m_nclustersPosBS;
+          m_nclustersPosEP  += m_nclustersPosEP;
+          m_nclustersPosES  += m_nclustersPosES;
+          m_nclustersPosDBM += m_nclustersPosDBM;
+          m_nclustersNegBP  += m_nclustersNegBP;
+          m_nclustersNegBS  += m_nclustersNegBS;
+          m_nclustersNegEP  += m_nclustersNegEP;
+          m_nclustersNegES  += m_nclustersNegES;
+          m_nclustersNegDBM += m_nclustersNegDBM;
+
+          return *this;
+        }
+      };
+
+      mutable std::mutex                           m_statMutex;
+      mutable std::vector<TrackCollectionStat_t>   m_trackCollectionStat;
+      mutable EventStat_t                          m_eventStat;
+
       unsigned int                       m_clcut                  ;
       unsigned int                       m_clcutTRT               ;
       unsigned int                       m_spcut                  ;
@@ -156,62 +241,95 @@ namespace InDet {
       double                             m_tcut                   ;
       double                             m_rmin                   ;
       double                             m_rmax                   ;
-      std::vector<std::string>           m_tracklocation          ; 
-      SG::ReadHandleKey<SpacePointContainer> m_spacepointsSCTname ;
-      std::string                        m_spacepointsPixelname   ;
-      std::string                        m_spacepointsOverlapname ; 
-      SG::ReadHandleKey<SiClusterContainer> m_clustersSCTname     ;
-      std::string                        m_clustersPixelname      ;
-      std::string                        m_clustersTRTname        ;
-      std::string                        m_truth_locationPixel    ;
-      SG::ReadHandleKey<PRD_MultiTruthCollection> m_truth_locationSCT;
-      std::string                        m_truth_locationTRT      ;
-      const SpacePointContainer        * m_spacepointsSCT         ;
-      const SpacePointContainer        * m_spacepointsPixel       ;
-      const SpacePointOverlapCollection* m_spacepointsOverlap     ;
-      const SiClusterContainer         * m_pixcontainer           ;
-      const SiClusterContainer         * m_sctcontainer           ;
-      const TRT_DriftCircleContainer   * m_trtcontainer           ;
-      const PRD_MultiTruthCollection   * m_truthPIX               ;
-      const PRD_MultiTruthCollection   * m_truthSCT               ;
-      const PRD_MultiTruthCollection   * m_truthTRT               ;
-      std::multimap<int,const Trk::PrepRawData*> m_kinecluster    ;
-      std::multimap<int,const Trk::PrepRawData*> m_kineclusterTRT ;
-      std::multimap<int,const Trk::SpacePoint*>  m_kinespacepoint ;
-      std::list<Barcode>                         m_particles[100] ;
-      std::list<int>                             m_difference[100];
-      std::multimap<int,int>                     m_tracks[100]    ;
+      SG::ReadHandleKeyArray<TrackCollection>        m_tracklocation;
+      SG::ReadHandleKey<SpacePointContainer>         m_spacepointsSCTname;
+      SG::ReadHandleKey<SpacePointContainer>         m_spacepointsPixelname;
+      SG::ReadHandleKey<SpacePointOverlapCollection> m_spacepointsOverlapname;
+      SG::ReadHandleKey<SiClusterContainer>          m_clustersSCTname;
+      SG::ReadHandleKey<SiClusterContainer>          m_clustersPixelname;
+      SG::ReadHandleKey<TRT_DriftCircleContainer>    m_clustersTRTname;
+      SG::ReadHandleKey<PRD_MultiTruthCollection>    m_truth_locationPixel;
+      SG::ReadHandleKey<PRD_MultiTruthCollection>    m_truth_locationSCT;
+      SG::ReadHandleKey<PRD_MultiTruthCollection>    m_truth_locationTRT;
+
+      struct EventData_t {
+      public:
+        EventData_t()
+        : m_nspacepoints(0),
+          m_nclusters(0),
+          m_nqtracks(0),
+          m_nclustersTRT(0),
+          m_truthPIX{},
+          m_truthSCT{},
+          m_truthTRT{}
+        {}
+
+        EventData_t(unsigned int n_collections)
+        : m_nspacepoints(0),
+          m_nclusters(0),
+          m_nqtracks(0),
+          m_nclustersTRT(0),
+          m_truthPIX{},
+          m_truthSCT{},
+          m_truthTRT{}
+        {
+          m_particles.resize(n_collections);
+          m_difference.resize(n_collections);
+          m_tracks.resize(n_collections);
+          m_trackCollectionStat.resize(n_collections);
+	}
+
+        int                                m_nspacepoints           ;
+        int                                m_nclusters              ;
+        int                                m_nqtracks               ;
+        int                                m_nclustersTRT           ;
+
+        std::vector<std::unique_ptr<SG::VarHandleBase> >  m_clusterHandles;
+        std::vector<SG::ReadHandle<TrackCollection> >     m_trackcontainer;
+        std::vector<SG::ReadHandle<SpacePointContainer> > m_spacePointContainer;
+        std::unique_ptr<SG::ReadHandle<SpacePointOverlapCollection> > m_spacepointsOverlap;
+        const PRD_MultiTruthCollection           * m_truthPIX       ;
+        const PRD_MultiTruthCollection           * m_truthSCT       ;
+        const PRD_MultiTruthCollection           * m_truthTRT       ;
+        std::multimap<int,const Trk::PrepRawData*> m_kinecluster    ;
+        std::multimap<int,const Trk::PrepRawData*> m_kineclusterTRT ;
+        std::multimap<int,const Trk::SpacePoint*>  m_kinespacepoint ;
+        std::vector<std::list<Barcode> >           m_particles      ;
+        std::vector<std::list<int> >               m_difference     ;
+        std::vector<std::multimap<int,int> >       m_tracks         ;
+        std::vector<TrackCollectionStat_t>         m_trackCollectionStat;
+        EventStat_t                                m_eventStat;
+      };
+
       const HepPDT::ParticleDataTable*        m_particleDataTable ;
 
       ///////////////////////////////////////////////////////////////////
       // Protected methods
       ///////////////////////////////////////////////////////////////////
 
-      void newSpacePointsEvent     ();
-      void newClustersEvent        ();
-      void tracksComparison        ();
-      void efficiencyReconstruction();
-      bool noReconstructedParticles();
+      void newSpacePointsEvent     (const EventContext& ctx, InDet::TrackClusterAssValidation::EventData_t &event_data) const;
+      void newClustersEvent        (const EventContext& ctx, InDet::TrackClusterAssValidation::EventData_t &event_data) const;
+      void tracksComparison        (const EventContext& ctx, InDet::TrackClusterAssValidation::EventData_t &event_data) const;
+      void efficiencyReconstruction(InDet::TrackClusterAssValidation::EventData_t &event_data) const;
+      bool noReconstructedParticles(const InDet::TrackClusterAssValidation::EventData_t &event_data) const;
 
-      int  QualityTracksSelection();
-      int kine(const Trk::PrepRawData*,const Trk::PrepRawData*,int*,int);
-      int kine (const Trk::PrepRawData*,int*,int);	
-      int kine0(const Trk::PrepRawData*,int*,int);
-      
-      bool isTheSameDetElement(int,const Trk::PrepRawData*);
-      bool isTheSameDetElement(int,const Trk::SpacePoint* );
+      int QualityTracksSelection(InDet::TrackClusterAssValidation::EventData_t &event_data) const;
+      int kine(const InDet::TrackClusterAssValidation::EventData_t &event_data,const Trk::PrepRawData*,const Trk::PrepRawData*,int*,int) const;
+      int kine (const InDet::TrackClusterAssValidation::EventData_t &event_data,const Trk::PrepRawData*,int*,int) const;
+      int kine0(const InDet::TrackClusterAssValidation::EventData_t &event_data,const Trk::PrepRawData*,int*,int) const;
+
+      bool isTheSameDetElement(const InDet::TrackClusterAssValidation::EventData_t &event_data, int,const Trk::PrepRawData*) const;
+      bool isTheSameDetElement(const InDet::TrackClusterAssValidation::EventData_t &event_data,int,const Trk::SpacePoint* ) const;
 
       PRD_MultiTruthCollection::const_iterator findTruth
-	(const Trk::PrepRawData*,PRD_MultiTruthCollection::const_iterator&);
-      
-      int charge(std::pair<int,const Trk::PrepRawData*>,int&);
+      (const InDet::TrackClusterAssValidation::EventData_t &event_data,const Trk::PrepRawData*,PRD_MultiTruthCollection::const_iterator&) const;
 
-      MsgStream&    dumptools(MsgStream&    out) const;
-      MsgStream&    dumpevent(MsgStream&    out) const;
+      int charge(const InDet::TrackClusterAssValidation::EventData_t &event_data,std::pair<int,const Trk::PrepRawData*>,int&) const;
+
+      MsgStream&    dumptools(MsgStream&    out, MSG::Level level) const;
+      MsgStream&    dumpevent(MsgStream&    out, const InDet::TrackClusterAssValidation::EventData_t &event_data) const;
 
     };
-  MsgStream&    operator << (MsgStream&   ,const TrackClusterAssValidation&);
-  std::ostream& operator << (std::ostream&,const TrackClusterAssValidation&); 
 
 }
 #endif // TrackClusterAssValidation_H

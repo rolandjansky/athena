@@ -4,7 +4,6 @@
 
 #include "CaloLocalHadCalib/CaloReadLCOutOfClusterFile.h"
 #include "CaloConditions/CaloLocalHadDefs.h"
-#include "GaudiKernel/MsgStream.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "StoreGate/StoreGateSvc.h"
 
@@ -21,21 +20,18 @@ CaloReadLCOutOfClusterFile::CaloReadLCOutOfClusterFile(const std::string & name,
   AthAlgorithm(name,pSvcLocator) {
   declareProperty("LCOutOfClusterFileName",m_LCOutOfClusterFileName);
   declareProperty("CorrectionKey",m_key="OOC");
-
-  m_data = new CaloLocalHadCoeff();
 }
 
 
 CaloReadLCOutOfClusterFile::~CaloReadLCOutOfClusterFile() {}
 
 
-StatusCode CaloReadLCOutOfClusterFile::initDataFromFile(std::string theLCOutOfClusterFileName)
+StatusCode CaloReadLCOutOfClusterFile::initDataFromFile(std::string theLCOutOfClusterFileName,
+                                                        CaloLocalHadCoeff& data)
 {
-  MsgStream log(msgSvc(), name());
-  
   // Find the full path to filename:
   std::string file = PathResolver::find_file (theLCOutOfClusterFileName, "DATAPATH");
-  log << MSG::INFO << "Reading file  " << file << endmsg;
+  ATH_MSG_INFO( "Reading file  " << file  );
   TFile* theLCOutOfClusterFile = new TFile(file.c_str());
   if ( !theLCOutOfClusterFile ) {
     return StatusCode::FAILURE;
@@ -78,7 +74,7 @@ StatusCode CaloReadLCOutOfClusterFile::initDataFromFile(std::string theLCOutOfCl
     for (idim=0;idim<keys.size();idim++) {
       size_t found = sTitle.find(keys[idim]);
       if ( found == std::string::npos ) {
-	log << MSG::ERROR << "Could not find key " << keys[idim] << " in current histogram." << endmsg;
+	ATH_MSG_ERROR( "Could not find key " << keys[idim] << " in current histogram."  );
 	allValid = false;
       }
       else {
@@ -86,7 +82,7 @@ StatusCode CaloReadLCOutOfClusterFile::initDataFromFile(std::string theLCOutOfCl
 	std::istringstream tstr(sTitle.substr(found+keys[idim].length()));
 	tstr >> ibin[idim] >> c >> c >> rmin[idim] >> c >> rmax[idim] >> c >> nbin[idim];
 	if ( ibin[idim] < 0 || ibin[idim] >= nbin[idim] ) {
-	  log << MSG::ERROR << "Found invalid bin number " << ibin[idim] << " not in valid range [0," << nbin[idim] << " in current histogram." << endmsg;
+	  ATH_MSG_ERROR( "Found invalid bin number " << ibin[idim] << " not in valid range [0," << nbin[idim] << " in current histogram."  );
 	  allValid = false;
 	}
       }
@@ -103,11 +99,11 @@ StatusCode CaloReadLCOutOfClusterFile::initDataFromFile(std::string theLCOutOfCl
       if ( theArea.getNdim() == 0 ) {
 	for (idim = 0;idim<names.size();idim++) {
 	  CaloLocalHadCoeff::LocalHadDimension theDim(names[idim].c_str(),types[idim],nbin[idim],rmin[idim],rmax[idim]);
-          log << MSG::INFO << "adding dimension " << names[idim].c_str() << " " << types[idim]<< " " << nbin[idim]<< " " << rmin[idim]<< " " << rmax[idim] << endmsg;
+          ATH_MSG_INFO( "adding dimension " << names[idim].c_str() << " " << types[idim]<< " " << nbin[idim]<< " " << rmin[idim]<< " " << rmax[idim]  );
 	  theArea.addDimension(theDim);
 	}
-	log << MSG::INFO << "adding Area with nDim = " << theArea.getNdim() << endmsg;
-	m_data->addArea(theArea);
+	ATH_MSG_INFO( "adding Area with nDim = " << theArea.getNdim()  );
+	data.addArea(theArea);
       }
       // now fill all data for current histogram
       TAxis * xax = prof->GetXaxis();
@@ -123,11 +119,13 @@ StatusCode CaloReadLCOutOfClusterFile::initDataFromFile(std::string theLCOutOfCl
 	  theData[CaloLocalHadDefs::BIN_ENTRIES] = prof->GetBinEntries(iBin);
 	  theData[CaloLocalHadDefs::BIN_ERROR]   = prof->GetBinError(iBin);
 		  
-	  log << MSG::INFO << "Now set data for bins: ";
+	  msg() << MSG::INFO << "Now set data for bins: ";
 	  for(unsigned int ii=0;ii<ibin.size();ii++)
-	    log << ibin[ii] << " ";
-	  log << endmsg;
-	  m_data->setCoeff(m_data->getBin(0,ibin),theData);
+	    msg() << ibin[ii] << " ";
+	  msg() << endmsg;
+          int dbin = data.getBin(0,ibin);
+          if (dbin >= 0)
+            data.setCoeff(dbin,theData);
 	}
       }
     }
@@ -138,30 +136,10 @@ StatusCode CaloReadLCOutOfClusterFile::initDataFromFile(std::string theLCOutOfCl
 }
 
 StatusCode CaloReadLCOutOfClusterFile::initialize() {
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << " Building CaloLocalHadCoeff object " << endmsg;
-  StatusCode sc;
-  StoreGateSvc* detStore;
-  sc=service("DetectorStore",detStore);
-  if (sc.isFailure()) {
-     log << MSG::ERROR << "Unable to get the DetectorStore" << endmsg;
-     return sc;
-  }
-  sc=initDataFromFile(m_LCOutOfClusterFileName);
-  if (sc.isFailure()) {
-     log << MSG::ERROR << "Unable to read input Data File" << endmsg;
-     return sc;
-  }
-  sc=detStore->record(m_data,m_key);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Unable to record CaloLocalHadCoeff" << endmsg;
-    return sc;
-  }
-  sc=detStore->setConst(m_data);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Unable to lock CaloLocalHadCoeff" << endmsg;
-    return sc;
-  }
+  ATH_MSG_INFO( " Building CaloLocalHadCoeff object "  );
+  auto data = std::make_unique<CaloLocalHadCoeff>();
+  ATH_CHECK( initDataFromFile(m_LCOutOfClusterFileName, *data) );
+  ATH_CHECK( detStore()->record(std::move(data), m_key, false) );
   return StatusCode::SUCCESS;
 }
 

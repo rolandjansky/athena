@@ -62,10 +62,13 @@ toPersistent_impl( const TRANS *trans, MsgStream &log )
 
 template< class TRANS_BASE, class TRANS, class PERS >
 TRANS* TPPolyCnvBase<TRANS_BASE, TRANS, PERS>::
-createTransient(const PERS* persObj, MsgStream &log) {
-   std::unique_ptr<TRANS>	trans(new TRANS());
+createTransient(const PERS* persObj, MsgStream &log)
+{
+   // this is by default equivalent to 'new TRANS()'
+   std::unique_ptr<TRANS> trans = TPCnv::CreateTransient<TRANS>::create();
+   
    this->persToTrans(persObj, trans.get(), log);
-   return(trans.release());
+   return( trans.release() );
 }
 
    

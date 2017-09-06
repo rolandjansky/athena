@@ -23,7 +23,6 @@
 #define IDSCAN_TIDSCANSPPOINT_H
 
 #include <iostream>
-using std::ostream;
 
 
 template<class SpacePointClass> class tIdScanSpPoint
@@ -71,8 +70,8 @@ template<class SpacePointClass> class tIdScanSpPoint
 
 
 template<class SpacePointClass>
-inline ostream& operator<<(ostream& s, 
-			   const tIdScanSpPoint<SpacePointClass>& sp) 
+inline std::ostream& operator<<(std::ostream& s, 
+                                const tIdScanSpPoint<SpacePointClass>& sp) 
 { 
   return   s << "[ i="     << sp.index() 
 	     << "\tlyr="   << sp.layer() 

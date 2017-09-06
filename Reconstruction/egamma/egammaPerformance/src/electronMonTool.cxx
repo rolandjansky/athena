@@ -374,7 +374,7 @@ StatusCode electronMonTool::fillHistogramsForOneElectron(xAOD::ElectronContainer
 
     ATH_MSG_DEBUG("electrons et, eta and phi" << et << " " << eta << " " << phi);
 
-    if (et>2500) return StatusCode::SUCCESS; 
+    if (et<2500) return StatusCode::SUCCESS; 
     
     ++myHist.m_nElectronsPerRegion[ir];  
     ++myHist.m_nElectrons;  
@@ -462,7 +462,7 @@ StatusCode electronMonTool::fillHistogramsForOneElectron(xAOD::ElectronContainer
     // Associated track details
     const xAOD::TrackParticle *t = (*e_iter)->trackParticle();
     double trackp = 0; 
-    unsigned char numberOfBLayerHits=-1;
+    unsigned char numberOfInnermostPixelLayerHits=-1;
     unsigned char numberOfPixelHits=-1;
     unsigned char numberOfSCTHits=-1;
     unsigned char numberOfTRTHits=-1;
@@ -471,8 +471,8 @@ StatusCode electronMonTool::fillHistogramsForOneElectron(xAOD::ElectronContainer
       if(t) {
 	trackp = t->pt()*cosh(t->eta());
 	// retrieve track summary information
-	if( t->summaryValue(numberOfBLayerHits,xAOD::numberOfBLayerHits) ) {
-	  fillTH1FperRegion(myHist.m_hvNOfBLayerHits,ir,numberOfBLayerHits);
+	if( t->summaryValue(numberOfInnermostPixelLayerHits,xAOD::numberOfInnermostPixelLayerHits) ) {
+	  fillTH1FperRegion(myHist.m_hvNOfBLayerHits,ir,numberOfInnermostPixelLayerHits);
 	}
 	if( t->summaryValue(numberOfPixelHits,xAOD::numberOfPixelHits) && t->summaryValue(numberOfSCTHits,xAOD::numberOfSCTHits) ) {
 	  fillTH1FperRegion(myHist.m_hvNOfSiHits,ir,numberOfPixelHits+numberOfSCTHits);

@@ -34,7 +34,6 @@ int main(void) {
 //make valgrind happy
   delete pi;
   free(pv);
-  boost::singleton_pool<boost::pool_allocator_tag, sizeof(procmaps::Entry)>::release_memory();
 
   cout << "*** PageAccessControl_test OK ***" <<endl;
   return 0;

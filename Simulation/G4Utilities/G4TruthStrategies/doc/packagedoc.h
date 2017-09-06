@@ -23,16 +23,6 @@ The truth strategies included in this package are:
  - IonizationStrategy : For saving hard ionizations (in the ID)
  - MuonCatchAllStrategy : For saving hard brems from muons (in the calorimetry)
 
-@ref used_G4TruthStrategies
 
-@ref requirements_G4TruthStrategies
 
-*/
-
-/**
-@page used_G4TruthStrategies Used Packages
-*/
-
-/**
-@page requirements_G4TruthStrategies Requirements
 */

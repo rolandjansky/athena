@@ -22,10 +22,14 @@
 #include "TestTools/initGaudi.h"
 #include "TestTools/expect_exception.h"
 #include "AthContainersInterfaces/IConstAuxStore.h"
+#include "AthContainers/DataVector.h"
 #include "AthenaKernel/errorcheck.h"
+#include "AthenaKernel/ExtendedEventContext.h"
 #include "CxxUtils/unused.h"
 #include <cassert>
 #include <iostream>
+
+#define DEBUG_VHB 1
 
 
 class MyObjAux
@@ -43,6 +47,7 @@ public:
   virtual void lock() override { m_locked = true; }
   virtual void clearDecorations() override { }
   virtual size_t size() const override { return 0; }
+  virtual void lockDecoration (SG::auxid_t) override { std::abort(); }
 
   static std::vector<int> deleted;
 };
@@ -64,6 +69,8 @@ public:
 std::vector<int> MyObj::deleted;
 CLASS_DEF (MyObj, 293847295, 1)
 static const CLID MyCLID = 293847295;
+
+CLASS_DEF (DataVector<MyObj>, 293847495, 1)
 
 
 class MyObj2 {};
@@ -138,7 +145,7 @@ void test1()
 
   SGTest::TestStore dumstore;
   EventContext ctx5;
-  ctx5.setProxy (&dumstore);
+  ctx5.setExtension( Atlas::ExtendedEventContext(&dumstore) );
   SG::WriteHandle<MyObj> h5 (k3, ctx5);
   assert (h5.clid() == MyCLID);
   assert (h5.key() == "asd");
@@ -196,7 +203,6 @@ void test2()
   assert (h3.isInitialized());
   assert (h3.cptr() == fooptr);
   assert (foo_proxy->refCount() == 3);
-  assert (h2.key() == "foo");
   assert (h2.store() == "TestStore");
   assert (!h2.isInitialized());
   assert (h2.cptr() == nullptr);
@@ -233,7 +239,6 @@ void test2()
   assert (h2.store() == "TestStore");
   assert (h2.isInitialized());
   assert (h2.cptr() == barptr);
-  assert (h3.key() == "bar");
   assert (h3.store() == "TestStore");
   assert (!h3.isInitialized());
   assert (h3.cptr() == nullptr);
@@ -474,7 +479,7 @@ void test8()
 
   SGTest::TestStore dumstore;
   EventContext ctx;
-  ctx.setProxy (&dumstore);
+  ctx.setExtension( Atlas::ExtendedEventContext(&dumstore) );
   auto h2 = SG::makeHandle (k1, ctx);
   assert (h2.clid() == MyCLID);
   assert (h2.key() == "asd");
@@ -525,7 +530,7 @@ void test9()
   MyObj::deleted.clear();
   SGTest::TestStore testStore2;
   EventContext ctx2;
-  ctx2.setProxy (&testStore2);
+  ctx2.setExtension( Atlas::ExtendedEventContext(&testStore2) );
   o = h4.put (ctx2, std::make_unique<MyObj>(26));
   assert (o->x == 26);
   assert (MyObj::deleted.empty());
@@ -537,6 +542,12 @@ void test9()
   o = h6.put (ctx2, std::make_unique<const MyObj>(34));
   assert (o->x == 34);
   assert (MyObj::deleted.empty());
+
+  SG::WriteHandle<DataVector<MyObj> > h7 ("foo7");
+  assert (h7.setProxyDict (&testStore).isSuccess());
+  const DataVector<MyObj>* vo =
+    h7.put (std::make_unique<const DataVector<MyObj> >());
+  assert (vo->empty());
 }
 
 
@@ -599,7 +610,8 @@ void test10()
   MyObjAux::deleted.clear();
   SGTest::TestStore testStore2;
   EventContext ctx2;
-  ctx2.setProxy (&testStore2);
+  ctx2.setExtension( Atlas::ExtendedEventContext(&testStore2) );
+
   auto ptrs9 = makeWithAux(40);
   o = h5.put (ctx2, std::move(ptrs9.first), std::move(ptrs9.second));
   assert (o->x == 40);
@@ -654,7 +666,8 @@ void test11()
   MyObj::deleted.clear();
   SGTest::TestStore testStore2;
   EventContext ctx2;
-  ctx2.setProxy (&testStore2);
+  ctx2.setExtension( Atlas::ExtendedEventContext(&testStore2) );
+
   assert (h5.put (ctx2, p1) == p1.get());
 }
 
@@ -697,7 +710,10 @@ int main()
   errorcheck::ReportMessage::hideErrorLocus();
   errorcheck::ReportMessage::hideFunctionNames();
   ISvcLocator* svcloc;
-  Athena_test::initGaudi("VarHandleBase_test.txt", svcloc); //need MessageSvc
+  //need MessageSvc
+  if (!Athena_test::initGaudi("VarHandleBase_test.txt", svcloc)) {
+    return 1;
+  }
 
   test1();
   test2();

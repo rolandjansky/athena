@@ -23,8 +23,8 @@ msg = logging.getLogger( "HSG2DAODFilters" )
 # AthElectronLikelihoodTool with PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools/data/ElectronLikelihoodPdfs.root
 # and LikeEnum::Loose by following https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/HiggsZZllllSummer2013#More_information
 import ROOT
-import PyCintex
-PyCintex.loadDict('libElectronPhotonSelectorToolsDict')
+import cppyy
+cppyy.loadDict('libElectronPhotonSelectorToolsDict')
 from AthenaCommon.AppMgr import ToolSvc
 if not hasattr(ToolSvc, "AthElectronLikelihoodTool_Loose"):
     from ElectronPhotonSelectorTools.ElectronPhotonSelectorToolsConf import AthElectronLikelihoodTool

@@ -470,6 +470,25 @@ protected:
 
 // --------------------------------------------------------------
 
+namespace TPCnv {
+
+/** @class  TPCnv::CreateTransient
+    Helper class to make specializing the creation of transient objects
+    in the TPConverterBase::createTransient() easier.
+
+    Provide specialization before definition of your T/P converter for transient typeTRANS
+    The final T/P converter can still overwrite its whole createTransient() method 
+*/
+   template<class TRANS>
+   class CreateTransient  {
+      public:
+      static std::unique_ptr<TRANS>  create() { return std::make_unique<TRANS>(); }
+   };
+
+} // namespace TPCnv
+
+
+
 // Base converter template for polymorphic types
 
 // Converters for objects in the same inheritance tree must share the same

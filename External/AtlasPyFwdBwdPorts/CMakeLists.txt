@@ -185,5 +185,16 @@ _setup_python_package( simplejson
    2f8351f6e6fe7ef25744805dfa56c0d5
    DEPENDS distribute )
 
+
+# Install gcovr:
+_setup_python_package( gcovr
+   ${CMAKE_CURRENT_SOURCE_DIR}/src/gcovr-3.3.tar.gz
+   85af705ca6e1187d2bae967d26810c55
+   DEPENDS distribute 
+   SINGLE_VERSION )
+
+
+
+
 # Clean up:
 unset( _setup_python_package )

@@ -6,8 +6,8 @@
 from RecExConfig.RecFlags import rec
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf
 
-print '... importing ROOT and PyCintex'
-import ROOT, PyCintex
+print '... importing ROOT'
+import ROOT
 import AthenaROOTAccess.transientTree
 
 ### define the list of input files

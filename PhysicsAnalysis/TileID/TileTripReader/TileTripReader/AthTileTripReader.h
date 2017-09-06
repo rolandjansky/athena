@@ -77,9 +77,6 @@ private:
     Root::TAccept m_acceptDummy;
     Root::TResult m_resultDummy;
     double m_dR;
-    int m_verbosity;
-    
-
 };
 
 #endif	/* ATHTILETRIPREADER_H */

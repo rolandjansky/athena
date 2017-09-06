@@ -17,7 +17,6 @@ number of electron hole pairs per deposited energy.  Some of these
 are dependent on temperature and voltages which are obtained via the
 appropriate service and updated via a call back.
 
-@section SiPropertiesSvc_SiPropertiesReq Requirements
 
 
 */

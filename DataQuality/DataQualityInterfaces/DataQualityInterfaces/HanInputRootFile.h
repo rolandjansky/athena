@@ -38,10 +38,10 @@ public:
 protected:
 
   std::auto_ptr<TFile>  m_rootFile;
-  TDirectory*           basedir;
+  TDirectory*           m_basedir;
 
-  std::vector<std::string> histNames;
-  bool                     histNamesBuilt;
+  std::vector<std::string> m_histNames;
+  bool                     m_histNamesBuilt;
 
   static void dolsr(const TDirectory* dir, std::vector<std::string>& hists, const TDirectory* topdir = NULL);
 

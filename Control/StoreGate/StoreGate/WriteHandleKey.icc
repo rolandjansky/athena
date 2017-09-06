@@ -20,7 +20,7 @@ namespace SG {
  * @param storeName Name to use for the store, if it's not encoded in sgkey.
  *
  * The provided key may actually start with the name of the store,
- * separated by a slash:  "MyStore/Obj".  If no slash is present
+ * separated by a "+":  "MyStore+Obj".  If no "+" is present
  * the store named by @c storeName is used.
  */
 template <class T>
@@ -38,7 +38,7 @@ WriteHandleKey<T>::WriteHandleKey (const std::string& key /*= ""*/,
  * @param sgkey The StoreGate key for the object.
  * 
  * The provided key may actually start with the name of the store,
- * separated by a slash:  "MyStore/Obj".  If no slash is present,
+ * separated by a "+":  "MyStore+Obj".  If no "+" is present,
  * the store is not changed.
  */
 template <class T>

@@ -27,12 +27,12 @@ atlas_add_library( MuonRDO
                    src/*.cxx
                    PUBLIC_HEADERS MuonRDO
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} DataModel SGTools Identifier CSCcablingLib MuonIdHelpersLib StoreGateLib SGtests TGCcablingInterfaceLib
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} DataModel SGTools Identifier CSCcablingLib MuonIdHelpersLib StoreGateLib SGtests TGCcablingInterfaceLib EventContainers
                    PRIVATE_LINK_LIBRARIES GaudiKernel )
 
 atlas_add_dictionary( MuonRDODict
                       MuonRDO/MuonRDODict.h
                       MuonRDO/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} DataModel SGTools Identifier CSCcablingLib MuonIdHelpersLib StoreGateLib SGtests GaudiKernel TGCcablingInterfaceLib MuonRDO )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} DataModel SGTools Identifier CSCcablingLib MuonIdHelpersLib StoreGateLib SGtests GaudiKernel TGCcablingInterfaceLib MuonRDO EventContainers)
 

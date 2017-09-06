@@ -41,8 +41,8 @@ bool InDet::DiscOverlapDescriptor::reachableSurfaces(std::vector<Trk::SurfaceInt
     return 0;
   }
 
-  const SCT_ID* m_sctIdHelper = 0;
-  if (detStore->retrieve(m_sctIdHelper, "SCT_ID").isFailure()) {
+  const SCT_ID* sctIdHelper = 0;
+  if (detStore->retrieve(sctIdHelper, "SCT_ID").isFailure()) {
     return 0;
   }
   
@@ -51,7 +51,7 @@ bool InDet::DiscOverlapDescriptor::reachableSurfaces(std::vector<Trk::SurfaceInt
   
   // first add the target surface
   surfaces.push_back(Trk::SurfaceIntersection(Trk::Intersection(pos, 0., true),&tsf));
-  int etaModule = m_sctIdHelper->eta_module(tsf.associatedDetectorElementIdentifier());
+  int etaModule = sctIdHelper->eta_module(tsf.associatedDetectorElementIdentifier());
   
   // return empty cell vector
   if (pElement) {

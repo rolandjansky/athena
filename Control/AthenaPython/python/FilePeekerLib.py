@@ -178,16 +178,6 @@ class FilePeeker(PyAthena.Alg):
         return StatusCode.Success
 
     def process_metadata(self, store, metadata_name):
-#        import PyCintex
-#        if hasattr(PyCintex.gbl, 'Reflex'):
-#            print "hasattr(PyCintex.gbl, 'Reflex')!"
-#            print type(PyCintex.gbl.Reflex)
-#            print dir(PyCintex.gbl.Reflex)
-#            del PyCintex.gbl.Reflex
-#            print "hasattr(PyCintex.gbl, 'Reflex')!",  hasattr(PyCintex.gbl, 'Reflex')
-            #import pdb
-            #pdb.set_trace()
-        #from PyCool import coral
         msg = self.msg
         try:
             obj = store[metadata_name]

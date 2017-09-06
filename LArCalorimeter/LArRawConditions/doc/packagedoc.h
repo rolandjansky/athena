@@ -10,7 +10,7 @@
 
 This package containes the concrete implementation classes of the electronics
 calibration constants for the LAr calorimeters. The classes are normally recorded
-in the ConditionsStore, and to be used by Algorithms. The interfaces to retrieve
+in the ConditionStore, and to be used by Algorithms. The interfaces to retrieve
 the data classes contained in this this package are found in <a
 href="http://isscvs.cern.ch/cgi-bin/viewcvs-all.cgi/offline/LArCalorimeter/LArElecCalib/?cvsroot=atlas">LArCalorimeter/LArElecCalib</a>.
 
@@ -140,16 +140,6 @@ href="http://isscvs.cern.ch/cgi-bin/viewcvs-all.cgi/offline/LArCalorimeter/LArEl
   - LArWFParamsDB
   - LArWFParams
 
-@ref used_LArRawConditions
 
-@ref requirements_LArRawConditions
 
-*/
-
-/**
-@page used_LArRawConditions Used Packages
-*/
-
-/**
-@page requirements_LArRawConditions Requirements
 */

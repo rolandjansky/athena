@@ -44,7 +44,6 @@ instance:
 from MuonClusterOnTrackCreator.DefaultMuonClusterOnTrackCreator import theMuonClusterOnTrackCreator
 </pre>
 
-@section MuonClusterOnTrackCreator_MuonClusterOnTrackToolDocReq The requirements file
 
 @section MuonClusterOnTrackCreator_MuonClusterOnTrackToolDocMgr Package Managers
 The MuonClusterOnTrackTool package is currently maintained by

@@ -62,7 +62,6 @@ The package contains the two tools:
  - InDetRegionSelectorTable_jobOptions.py: Job option fragment for initializing all tools using genConf. 
    Makes use of DetFlags to control which tables will be created.
 
-@section InDetRegionSelector_InDetRegionSelectorReq Requirements
 
 
 */

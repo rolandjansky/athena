@@ -18,7 +18,7 @@
 #include "VP1Base/IVP1System.h"
 #include "VP1Utils/VP1SGAccessHelper.h"
 #include "VP1Utils/VP1SGContentsHelper.h"
-#include <QtCore/QStringList>
+#include <QStringList>
 
 //____________________________________________________________________
 QStringList TrackCollHandle_TrackParticle::availableCollections( IVP1System*sys )

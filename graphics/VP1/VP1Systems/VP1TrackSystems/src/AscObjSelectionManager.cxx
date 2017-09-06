@@ -20,7 +20,7 @@
 #include "VP1Base/VP1QtInventorUtils.h"
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/SoPath.h>
-#include <QtGui/QApplication>
+#include <QApplication>
 #include<map>
 
 //____________________________________________________________________

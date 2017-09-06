@@ -16,17 +16,6 @@ This package contains only one class:
 
  - CharginosProcessDefinition : Responsible for assigning physics processes to the Charginos, such as transportation.
 
-@ref used_Charginos
 
-@ref requirements_Charginos
 
 */
-
-/**
-@page used_Charginos Used Packages
-*/
-
-/**
-@page requirements_Charginos Requirements
-*/
-

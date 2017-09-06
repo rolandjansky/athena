@@ -23,12 +23,12 @@ namespace
   dqm_algorithms::SideBand Relative( "SideBand_Relative" );
 }
 
-dqm_algorithms::SideBand::SideBand(const std::string & name) : name_(name) {
+dqm_algorithms::SideBand::SideBand(const std::string & name) : m_name(name) {
   dqm_core::AlgorithmManager::instance().registerAlgorithm(name,this);
 }
 
 dqm_algorithms::SideBand* dqm_algorithms::SideBand::clone() {
-  return new SideBand( name_ );
+  return new SideBand( m_name );
 }
 
 dqm_core::Result* dqm_algorithms::SideBand::execute(const std::string & name ,
@@ -70,10 +70,10 @@ dqm_core::Result* dqm_algorithms::SideBand::execute(const std::string & name ,
       throw dqm_core::BadConfig(ERS_HERE,name,"Paramter: 'Threshold' is mandatory, cannot continue");
     }
 
-  if ( name_== "SideBand_Relative" && (grThr>1.0 || reThr>1.0) ) 
+  if ( m_name== "SideBand_Relative" && (grThr>1.0 || reThr>1.0) ) 
     //non sense case: compare fraction and threshold >100%
     {
-      throw dqm_core::BadConfig(ERS_HERE,name_,"Configuration Error: Threshold>100%");
+      throw dqm_core::BadConfig(ERS_HERE,m_name,"Configuration Error: Threshold>100%");
     }
 #if DEBUG_LEVEL > 1
   std::stringstream configuration;
@@ -84,7 +84,7 @@ dqm_core::Result* dqm_algorithms::SideBand::execute(const std::string & name ,
   ERS_DEBUG(2,"Configuration:"<<configuration.str());
 #endif
   // Just a translation in something more readable...
-  const bool AbsoluteValue = ( name_ == "SideBand_Absolute" );
+  const bool AbsoluteValue = ( m_name == "SideBand_Absolute" );
   Double_t tot = histo->Integral( 1, histo->GetNbinsX() );
   Double_t inside = histo->Integral( minbin , maxbin );
   if ( UseUnderFlow ) tot+=histo->GetBinContent(0);
@@ -131,8 +131,8 @@ dqm_core::Result* dqm_algorithms::SideBand::execute(const std::string & name ,
 
 void dqm_algorithms::SideBand::printDescription(std::ostream& out){
   std::stringstream msg;
-  msg<<name_<<": Checks the integral of a histogram outside a specified range ";
-  if ( name_=="SideBand_Absolute" )
+  msg<<m_name<<": Checks the integral of a histogram outside a specified range ";
+  if ( m_name=="SideBand_Absolute" )
     msg<<" using an absolute threshold.";
   else
     msg<<" using a relative threshold.";

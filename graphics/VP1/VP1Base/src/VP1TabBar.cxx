@@ -33,9 +33,9 @@
     Boston, MA 02110-1301, USA.
 */
 
-#include <QtCore/QTimer>
-#include <QtGui/QApplication>
-#include <QtGui/QMouseEvent>
+#include <QTimer>
+#include <QApplication>
+#include <QMouseEvent>
 
 #include "VP1Base/VP1TabBar.h"
 

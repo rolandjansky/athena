@@ -567,13 +567,19 @@ TriggerHLTList = [
     ('xAOD::JetTrigAuxContainer#HLT_a4tclcwsubjesISFSAux.',              'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
     
     # Large R trimmed jets
-    ('xAOD::JetContainer#HLT_a10t_tclcwjesFS',                           'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
-    ('xAOD::JetTrigAuxContainer#HLT_a10t_tclcwjesFSAux.',                'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
+    ('xAOD::JetContainer#HLT_a10t_tclcwjesFS',                           '', 'Jet'),
+    ('xAOD::JetTrigAuxContainer#HLT_a10t_tclcwjesFSAux.',                '', 'Jet'),
+    ('xAOD::JetContainer#HLT_a10ttclcwjesFS',                           'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
+    ('xAOD::JetTrigAuxContainer#HLT_a10ttclcwjesFSAux.',                'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
     # Additional large R trimmed jets
-    ('xAOD::JetContainer#HLT_a10t_tcemnojcalibFS',                       'BS ESD AODFULL', 'Jet'),
-    ('xAOD::JetTrigAuxContainer#HLT_a10t_tcemnojcalibFSAux.',            'BS ESD AODFULL', 'Jet'),
-    ('xAOD::JetContainer#HLT_a10t_tclcwnojcalibFS',                      'BS ESD AODFULL', 'Jet'),
-    ('xAOD::JetTrigAuxContainer#HLT_a10t_tclcwnojcalibFSAux.',           'BS ESD AODFULL', 'Jet'),
+    ('xAOD::JetContainer#HLT_a10t_tcemnojcalibFS',                       '', 'Jet'),
+    ('xAOD::JetTrigAuxContainer#HLT_a10t_tcemnojcalibFSAux.',            '', 'Jet'),
+    ('xAOD::JetContainer#HLT_a10t_tclcwnojcalibFS',                      '', 'Jet'),
+    ('xAOD::JetTrigAuxContainer#HLT_a10t_tclcwnojcalibFSAux.',           '', 'Jet'),
+    ('xAOD::JetContainer#HLT_a10ttcemnojcalibFS',                       'BS ESD AODFULL', 'Jet'),
+    ('xAOD::JetTrigAuxContainer#HLT_a10ttcemnojcalibFSAux.',            'BS ESD AODFULL', 'Jet'),
+    ('xAOD::JetContainer#HLT_a10ttclcwnojcalibFS',                      'BS ESD AODFULL', 'Jet'),
+    ('xAOD::JetTrigAuxContainer#HLT_a10ttclcwnojcalibFSAux.',           'BS ESD AODFULL', 'Jet'),
 
     # SoftKiller
     ('xAOD::JetContainer#HLT_a4sktclcwnojcalibFS',                       'BS ESD AODFULL', 'Jet'),

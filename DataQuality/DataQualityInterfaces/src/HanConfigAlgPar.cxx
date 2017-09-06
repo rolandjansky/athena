@@ -28,8 +28,8 @@ namespace dqi {
 
 HanConfigAlgPar::
 HanConfigAlgPar()
-  : name("")
-  , value(0.0)
+  : m_name("")
+  , m_value(0.0)
 {
 }
 
@@ -44,7 +44,7 @@ void
 HanConfigAlgPar::
 SetName( std::string name_ )
 {
-  name.SetString( name_.c_str() );
+  m_name.SetString( name_.c_str() );
 }
 
 
@@ -52,7 +52,7 @@ const char*
 HanConfigAlgPar::
 GetName() const
 {
-  return name.GetName();
+  return m_name.GetName();
 }
 
 
@@ -60,7 +60,7 @@ void
 HanConfigAlgPar::
 SetValue( float value_ )
 {
-  value = value_;
+  m_value = value_;
 }
 
 
@@ -68,7 +68,7 @@ float
 HanConfigAlgPar::
 GetValue() const
 {
-  return value;
+  return m_value;
 }
 
 
@@ -86,7 +86,7 @@ GetList()
 	TList *ret = new TList();
 	
   std::ostringstream parValStr;
-  parValStr << std::setprecision(4) << this->value;
+  parValStr << std::setprecision(4) << this->m_value;
 	ret->SetName( this->GetName() );
 	ret->Add( new TObjString(parValStr.str().c_str()) );
 	

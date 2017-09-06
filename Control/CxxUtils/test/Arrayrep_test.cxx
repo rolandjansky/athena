@@ -20,11 +20,9 @@
 using namespace CxxUtils;
 
 
-unsigned int shape[] = {2, 4, 3};
-Arrayelt data[] = { 1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12,
-                   13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24};
-
-#define ARSZ(x) (sizeof(x)/sizeof(x[0]))
+const unsigned int shape[] = {2, 4, 3};
+const Arrayelt data[] = { 1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12,
+                          13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24};
 
 
 void test1()
@@ -70,8 +68,8 @@ void test2()
 {
   Arrayrep rep;
   rep.init_sizes();
-  rep.m_shape.assign (&shape[0], shape + ARSZ(shape));
-  rep.m_data.assign (data, data + ARSZ(data));
+  rep.m_shape.assign (std::begin(shape), std::end(shape));
+  rep.m_data.assign (std::begin(data), std::end(data));
   rep.init_sizes();
   assert (rep.m_sizes.size() == 3);
   assert (rep.m_sizes[0] == 1);
@@ -82,7 +80,7 @@ void test2()
 
 void test3()
 {
-  Arrayrep rep1 (shape, ARSZ(shape));
+  Arrayrep rep1 (shape, std::end(shape)-std::begin(shape));
   assert (rep1.m_shape.size() == 3);
   assert (rep1.m_shape[0] == 2);
   assert (rep1.m_shape[1] == 4);

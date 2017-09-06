@@ -29,7 +29,6 @@ class MsgStream;
 #include "DataModelRoot/RootType.h"
 typedef RootType        Type;
 typedef RootDataMember  Member;
-typedef RootObject      Object;
 
 
 class TrigTSerializer : virtual public ITrigSerializerToolBase, public AthAlgTool {
@@ -66,7 +65,6 @@ public:
 private:
   void do_persistify(const std::string nameOfClass, void* instance);
   void do_persistify_obj(const std::string nameOfClass, void* instance);
-  void do_stl_workaround(const Type *mytype, const Object *myobject);
   void do_follow_ptr(const std::string nameOfClass, void* instance);
   void add_previous_streamerinfos();
   

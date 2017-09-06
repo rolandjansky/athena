@@ -31,7 +31,6 @@ ToolSvc += MuonBackExtrapolatorForData()
 ToolSvc += TrigL2MuonSA__CscSegmentMaker()
 ToolSvc += TrigL2MuonSA__CscRegDict()
 
-
 class PtBarrelLUTSvc(TrigL2MuonSA__PtBarrelLUTSvc):
     def __init__(self,name = 'PtBarrelLUTSvc'):
         super(PtBarrelLUTSvc ,self).__init__(name)

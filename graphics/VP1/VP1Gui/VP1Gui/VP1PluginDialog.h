@@ -15,7 +15,8 @@
 #ifndef VP1PLUGINDIALOG_H
 #define VP1PLUGINDIALOG_H
 
-#include <QtGui/QDialog>
+#include <QDialog>
+
 class VP1ChannelManager;
 class VP1ExecutionScheduler;
 

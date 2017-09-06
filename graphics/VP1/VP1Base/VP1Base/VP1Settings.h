@@ -18,7 +18,7 @@
 #ifndef VP1SETTINGS_H
 #define VP1SETTINGS_H
 
-#include <QtCore/QString>
+#include <QString>
 
 class VP1Settings {
 public:

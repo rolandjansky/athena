@@ -886,9 +886,9 @@ public:
    * @param trackIndices The index tracking policy.
    * @param store An associated auxiliary data store.
    *
-   * By default, a @c DataVector will own its elements (and take ownership
-   * of the pointers passed to this constructor).
-   * To avoid this, pass @c SG::VIEW_ELEMENTS for @a ownPolicy.
+   * By default, a view container is made, which does not own its elements.
+   * To have the container take ownership of the pointers passed
+   * to this constructor, pass @c SG::OWN_ELEMENTS for @a ownPolicy.
    */
   template <class InputIterator>
   DataVector(InputIterator first,
@@ -2111,9 +2111,9 @@ public:
    * @param trackIndices The index tracking policy.
    * @param store An associated auxiliary data store.
    *
-   * By default, a @c DataVector will own its elements (and take ownership
-   * of the pointers passed to this constructor).
-   * To avoid this, pass @c SG::VIEW_ELEMENTS for @a ownPolicy.
+   * By default, a view container is made, which does not own its elements.
+   * To have the container take ownership of the pointers passed
+   * to this constructor, pass @c SG::OWN_ELEMENTS for @a ownPolicy.
    */
   template <class InputIterator>
   DataVector(InputIterator first, InputIterator last,

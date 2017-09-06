@@ -12,9 +12,9 @@ namespace MuonCalib {
 
   SimplePatternSelector::SimplePatternSelector(double chi2_max, 
 					       unsigned int mdtSeg_min,
-					       unsigned int phiSeg_min)
+					       unsigned int /*phiSeg_min*/)
   
-    : m_chi2_max(chi2_max),m_mdtSeg_min(mdtSeg_min),m_phiSeg_min(phiSeg_min)
+    : m_chi2_max(chi2_max),m_mdtSeg_min(mdtSeg_min)
   {
     m_printLevel = 0;
     if( m_printLevel >= 1 ){

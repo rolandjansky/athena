@@ -27,6 +27,7 @@ FTKDumpCondAlgo::FTKDumpCondAlgo(const std::string& name, ISvcLocator* pSvcLocat
   m_DumpModuleIDMap(false),
   m_DumpGlobalToLocalMap(false),
   m_DumpIDMap(false),
+  m_DumpModulePositions(false),
   m_IBLMode(0),
   m_ITkMode(false),
   m_fixEndcapL0(false)
@@ -35,6 +36,7 @@ FTKDumpCondAlgo::FTKDumpCondAlgo(const std::string& name, ISvcLocator* pSvcLocat
   declareProperty("DumpModuleIDMap", m_DumpModuleIDMap, "If true dumps the map of the modules in each tower");
   declareProperty("DumpGlobalToLocalMap",m_DumpGlobalToLocalMap, "True if you want to produce the Global-to-Local map");
   declareProperty("DumpIDMap",m_DumpIDMap);
+  declareProperty("DumpModulePositions",m_DumpModulePositions,"To dump the corner positions of the modules");
   declareProperty("IBLMode",m_IBLMode);
   declareProperty("ITkMode",m_ITkMode,"True if you want to assume ITk geometry for FTK plane/tower maps");
   declareProperty("FixEndCapL0",m_fixEndcapL0, "Fix endcap L0 clustering");
@@ -94,11 +96,17 @@ StatusCode FTKDumpCondAlgo::execute() {
 
   if (m_DumpGlobalToLocalMap) {
     m_detectorTool->dumpGlobalToLocalModuleMap(); // Dump the map of the module of each tower
+    m_DumpGlobalToLocalMap=false;
   }
 
   if (m_DumpIDMap) {
     m_detectorTool->dumpIDMap();
     m_DumpIDMap = false; // in case you run on more than 1 event, only dump once
+  }
+
+  if(m_DumpModulePositions) {
+     m_detectorTool->dumpModulePositions();
+     m_DumpModulePositions=false;
   }
 
   return StatusCode::SUCCESS;

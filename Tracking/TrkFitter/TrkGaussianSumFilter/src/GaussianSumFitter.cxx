@@ -42,7 +42,6 @@ decription           : Implementation code for Gaussian Sum Fitter class
 #include "GaudiKernel/ToolFactory.h"
 
 #include <vector>
-#include "xAODEventInfo/EventInfo.h"
 
 // Validation mode - TTree includes
 #include "GaudiKernel/ITHistSvc.h" 
@@ -139,6 +138,7 @@ Trk::GaussianSumFitter::GaussianSumFitter(const std::string& type, const std::st
   declareProperty("runBremFinder",            m_runBremFinder             );
   declareProperty("GsfSmoother",m_gsfSmoother);  
   declareProperty("ForwardGsfFitter",m_forwardGsfFitter);
+  declareProperty("EventInfoKey", m_readKey="EventInfo");
 
   // Estrablish reference point as origin
   m_sortingReferencePoint.push_back(0.);
@@ -285,6 +285,8 @@ StatusCode Trk::GaussianSumFitter::initialize()
   } // ------------- end of validation mode -----------------------------------------------------------------
   
   m_inputPreparator = new TrackFitInputPreparator();
+
+  ATH_CHECK( m_readKey.initialize() ); 
 
   msg(MSG::INFO) << "Initialisation of " << name() << " was successful" << endmsg;
 
@@ -1023,8 +1025,8 @@ void Trk::GaussianSumFitter::SaveMCSOSF(const Trk::ForwardTrajectory& forwardTra
   m_surfaceCounterF = 0;
 
   //* Retrieve the event info for later syncrinization
-  const xAOD::EventInfo*   eventInfo;
-  if ((evtStore()->retrieve(eventInfo)).isFailure()) {
+  SG::ReadHandle<xAOD::EventInfo>  eventInfo (m_readKey);
+  if (!eventInfo.isValid()) {
     msg(MSG::ERROR) << "Could not retrieve event info" << endmsg;
   }
        

@@ -537,8 +537,6 @@ StatusCode AmdcsimrecAthenaSvc::initializeFromOracle()
     return StatusCode::FAILURE;
   }
 
-  pIRDBAccessSvc->connect();
-
   ATH_MSG_DEBUG( "      Keys are  (key) "  << m_detectorKey  
       << " (node) " << m_detectorNode 
       ) ;

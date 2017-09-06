@@ -41,7 +41,7 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 
 //Qt
-#include <QtGui/QComboBox>
+#include <QComboBox>
 #include <QTreeWidgetItem>
 #include <qdatetime.h>
 #include <vector>
@@ -528,6 +528,22 @@ void AODCollHandleBase::setExtraWidgetsState(const QByteArray& ba)
   // state.restore(d->comboBox_colourby);
   // state.disableUnrestoredChecks();
   // colourByComboBoxItemChanged();
+}
+
+
+//____________________________________________________________________
+void AODCollHandleBase::colourByComboBoxItemChanged()
+{
+  messageVerbose("AODCollHandleBase::colourByComboBoxItemChanged()");
+  messageVerbose("Collection detail level combo box changed index");
+
+  messageVerbose("TO BE IMPLEMENTED!!!");
+  /*
+    if (d->comboBox_colourby->currentText()==Imp::comboBoxEntry_ColourByRandom())
+      setColourBy(COLOUR_RANDOM);
+    else
+      setColourBy(COLOUR_PERCOLLECTION);
+  */
 }
 
 //____________________________________________________________________

@@ -325,7 +325,14 @@ void test14()
   std::cout << c << std::endl;
   assert (c.module()==1 && c.link()==0 && c.isDAQ());
 
+#ifdef __GNUC__
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Woverflow"
+#endif
   L1Topo::ModuleID d(0x00910091); // expect build warning due to implicit truncation to 16 bits
+#ifdef __GNUC__
+# pragma GCC diagnostic pop
+#endif
   std::cout << d << std::endl;
   assert (d.module()==1 && d.link()==1 && d.isROI());
 

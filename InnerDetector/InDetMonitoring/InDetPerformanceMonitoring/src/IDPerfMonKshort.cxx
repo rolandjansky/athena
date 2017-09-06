@@ -121,11 +121,7 @@ StatusCode IDPerfMonKshort::bookHistograms()
 
 
 
-  if ( newLowStat || newLumiBlock ) {
-
-  }
-
-  if( newRun ) {
+  if( newRunFlag() ) {
 
     //if user environment specified we don't want to book new histograms at every run boundary
     //we instead want one histogram per job
@@ -758,12 +754,7 @@ StatusCode IDPerfMonKshort::procHistograms()
 
   Double_t myPi = TMath::Pi();
 
-  if( endOfLowStat || endOfLumiBlock ) {
-
-
-  }
-
-  if( endOfRun ) {
+  if( endOfRunFlag() ) {
 
     MonGroup al_kshort_mon ( this, "IDPerfMon/Kshort/" + m_triggerChainName, run);
     //CHECK ATTRIB MANAGED

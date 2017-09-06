@@ -17,6 +17,7 @@
 
 #include "DataModelTestDataCommon/S1.h"
 #include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/BaseInfo.h"
 
 
 namespace DMTest {
@@ -34,6 +35,7 @@ public:
 
 
 CLASS_DEF (DMTest::S2, 243020042, 0)
+SG_ADD_BASE (DMTest::S2, DMTest::S1);
 
 
 #endif // not DATAMODELTESTDATACOMMON_S2_H

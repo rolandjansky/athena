@@ -101,6 +101,3 @@ TPCnvTokenList_p1 is used in case a top-level persistent object needs to be exte
     Full description of the TP separation used in Athena can be found on the Wiki page:
     https://twiki.cern.ch/twiki/bin/view/Atlas/TransientPersistentSeparation
 */
-
-
-

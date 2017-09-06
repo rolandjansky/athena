@@ -20,7 +20,7 @@
 VP1GeometryChannel::VP1GeometryChannel()
   : IVP13DStandardChannelWidget(VP1CHANNELNAMEINPLUGIN(VP1GeometryChannel,"Geometry"),
 				"This channel shows the geometry as defined in GeoModel.",
-				"Thomas.Kittelmann@cern.ch")
+				"Thomas.Kittelmann@cern.ch;Riccardo.Maria.Bianchi@cern.ch")
 {
 }
 

@@ -24,14 +24,4 @@ This package contains a single interface IAlgTool:
 
 @section IEnergyDepositionTool_ExtrasIEnergyDepositionTool Extra Pages
 
- - @ref UsedIEnergyDepositionTool
- - @ref RequirementsIEnergyDepositionTool
-*/
-
-/**
-@page UsedIEnergyDepositionTool Used Packages
-*/
-
-/**
-@page RequirementsIEnergyDepositionTool Requirements
 */

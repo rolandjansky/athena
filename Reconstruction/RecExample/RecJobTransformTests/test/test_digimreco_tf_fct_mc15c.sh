@@ -1,7 +1,7 @@
 #!/bin/sh
 #
-#art-description: Test of DigiMReco from HITS to AOD/TAG
-#art-queue: long
-#
+# art-description: Test of DigiMReco from HITS to AOD/TAG
+# art-type: grid
+
 Reco_tf.py --maxEvents=10 --outputRDOFile=mc15c.RDO.pool.root --outputESDFile=mc15c.ESD.pool.root --outputAODFile=mc15c.AOD.pool.root --digiSeedOffset1=1 --digiSeedOffset2=2 --inputHitsFile=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecJobTransformTests/HITS.08170896._001944.pool.root.1 --numberOfHighPtMinBias=0.12268057 --numberOfLowPtMinBias=39.8773194 --jobNumber=1 --conditionsTag=default:OFLCOND-MC15c-SDR-09 --skipEvents=0 --preInclude "HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrainsMC15_2015_25ns_Config1.py,RunDependentSimData/configLumi_run284500_v2.py" "RDOtoRDOTrigger:RecExPers/RecoOutputMetadataList_jobOptions.py" --preExec "all:rec.Commissioning.set_Value_and_Lock(True);from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True)" "RAWtoESD:from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False" "ESDtoAOD:TriggerFlags.AODEDMSet=\"AODSLIM\"" --postExec "all:CfgMgr.MessageSvc().setError+=[\"HepMcParticleLink\"]" "ESDtoAOD:fixedAttrib=[s if \"CONTAINER_SPLITLEVEL = \'99\'\" not in s else \"\" for s in svcMgr.AthenaPoolCnvSvc.PoolAttributes];svcMgr.AthenaPoolCnvSvc.PoolAttributes=fixedAttrib"  --LowPtMinbiasHitsFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecJobTransformTests/HITS.05608147._000125.pool.root.1 --HighPtMinbiasHitsFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecJobTransformTests/HITS.05608152._002335.pool.root.1 --geometryVersion=ATLAS-R2-2015-03-01-00 --autoConfiguration=everything --triggerConfig=RDOtoRDOTrigger=MCRECO:DBF:TRIGGERDBMC:2046,20,48
 

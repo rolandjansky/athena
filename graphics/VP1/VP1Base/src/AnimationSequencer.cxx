@@ -8,11 +8,14 @@
 #include "VP1Base/VP1ExaminerViewer.h"
 #include "VP1Base/VP1QtUtils.h"
 #include "VP1Base/VP1QtInventorUtils.h"
-#include <QtCore/QTimer>
+
+#include <QTimer>
+
 #include <Inventor/nodes/SoNode.h>
 #include <Inventor/nodes/SoSphere.h>
 #include <Inventor/nodes/SoPerspectiveCamera.h>
 #include <Inventor/nodes/SoGroup.h>
+
 #include <iostream>
 
 class AnimationSequencer::Clockwork {

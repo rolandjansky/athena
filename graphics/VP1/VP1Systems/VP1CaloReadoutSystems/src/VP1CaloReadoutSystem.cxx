@@ -10,8 +10,8 @@
 #include "VP1Utils/VP1DetInfo.h"
 #include "VP1Utils/VP1SGAccessHelper.h"
 
-#include <QtCore/QMap>
-#include <QtCore/QVector>
+#include <QMap>
+#include <QVector>
 
 #include <Inventor/nodes/SoSwitch.h>
 #include <Inventor/nodes/SoSeparator.h>

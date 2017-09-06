@@ -37,6 +37,7 @@
 #include "TrkSurfaces/DiscBounds.h"
 #include "TrkSurfaces/RectangleBounds.h"
 #include "TrkSurfaces/TrapezoidBounds.h"
+#include "TrkSurfaces/AnnulusBounds.h"
 #include "TrkSurfaces/RotatedTrapezoidBounds.h"
 #include "TrkSurfaces/DiamondBounds.h"
 #include "TrkSurfaces/NoBounds.h"
@@ -79,14 +80,25 @@ SoNode*    SurfaceToSoNode::translateSurface(const Trk::Surface& sf, const bool&
 
     // place and transform them
     SoSeparator* sosep = new SoSeparator();
-    SoTransform* sotra = VP1LinAlgUtils::toSoTransform(sf.transform());
+    
+    // Horrible hack for ITK annulus bounds. What should really happen is we draw the surface where the bounds are. But this was never done before.
+    Amg::Transform3D transform = sf.transform();
+    if (cpsf) {
+      const Trk::AnnulusBounds* cannulus = dynamic_cast<const Trk::AnnulusBounds*>(&(cpsf->bounds()));
+      if (cannulus){
+        Amg::Vector3D vec(0.0,0.5*(cannulus->maxR()+cannulus->minR()),0.0);
+        transform.translate(vec);
+      }
+    }
+  
+    SoTransform* sotra = VP1LinAlgUtils::toSoTransform(transform);
     sosep->addChild(sotra);
     sosep->addChild(sono);
 
     return sosep;
 }
 
-SoNode*    SurfaceToSoNode::translatePlaneSurface(const Trk::PlaneSurface& psf ) const
+SoNode*     SurfaceToSoNode::translatePlaneSurface(const Trk::PlaneSurface& psf ) const
 {
    const Trk::RectangleBounds* crecbo = dynamic_cast<const Trk::RectangleBounds*>(&(psf.bounds()));
    if (crecbo){
@@ -137,6 +149,18 @@ SoNode*    SurfaceToSoNode::translatePlaneSurface(const Trk::PlaneSurface& psf )
      return new SoPolyhedron(_sbPoly);;
    }
    
+   const Trk::AnnulusBounds* cannulus = dynamic_cast<const Trk::AnnulusBounds*>(&(psf.bounds()));
+   if (cannulus){
+     SoGenericBox * gb = new SoGenericBox;
+     const double hminphi = 0.5*cannulus->minR()*cannulus->phi();
+     const double hmaxphi = 0.5*cannulus->maxR()*cannulus->phi();
+     const double heta    = 0.5 * (cannulus->maxR() - cannulus->minR());
+     gb->setParametersForTrapezoid( 0.5*surfaceThickness/*dz*/, 0/*theta*/, 0/*phi*/, heta/*dy1*/,
+				    hminphi/*dx1*/, hmaxphi/*dx2*/, heta/*dy2*/, hminphi/*dx3*/,
+				    hmaxphi/*dx4*/, 0/*alp1*/, 0/*alp2*/ );
+     gb->drawEdgeLines.setValue(true);
+     return gb;
+   }   
    const Trk::NoBounds* nobo = dynamic_cast<const Trk::NoBounds*>(&(psf.bounds()));
    if (nobo){
     SoGenericBox * gb = new SoGenericBox;

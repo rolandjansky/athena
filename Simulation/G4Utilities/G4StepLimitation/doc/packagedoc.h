@@ -14,16 +14,6 @@ This class provides an interface for the Geant4 physics process called step limi
 
 The only class included in this package is G4StepLimitProcess , a UserPhysicsProcess.  It defines the step limitation.
 
-@ref used_G4StepLimitation
 
-@ref requirements_G4StepLimitation
 
-*/
-
-/**
-@page used_G4StepLimitation Used Packages
-*/
-
-/**
-@page requirements_G4StepLimitation Requirements
 */

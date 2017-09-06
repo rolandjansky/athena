@@ -50,21 +50,21 @@ private:
   };
 
   //Histograms, used if m_produceHistogram is true = 1
-  TH1D *hist_Psi_n_true    [6];
-  TH1D *hist_Psi_n_reco    [6];
-  TH1D *hist_psi_corr_true [36];
-  TH1D *hist_psi_corr_reco [36];
+  TH1D *m_hist_Psi_n_true    [6];
+  TH1D *m_hist_Psi_n_reco    [6];
+  TH1D *m_hist_psi_corr_true [36];
+  TH1D *m_hist_psi_corr_reco [36];
 
-  TH1D *hist_Psi_n_ebe     [6];
-  TH1D *hist_Psi_n_ebe_pt  [6];
-  TH1D *hist_vn_ebe        [6];
+  TH1D *m_hist_Psi_n_ebe     [6];
+  TH1D *m_hist_Psi_n_ebe_pt  [6];
+  TH1D *m_hist_vn_ebe        [6];
 
-  TProfile *profile_pt_dep      [6][n_etabin]; 
-  TProfile *profile_eta_dep     [6][n_ptbin ]; 
-  TProfile *profile_pt_dep_reco [6][n_etabin]; 
-  TProfile *profile_eta_dep_reco[6][n_ptbin ]; 
+  TProfile *m_profile_pt_dep      [6][n_etabin]; 
+  TProfile *m_profile_eta_dep     [6][n_ptbin ]; 
+  TProfile *m_profile_pt_dep_reco [6][n_etabin]; 
+  TProfile *m_profile_eta_dep_reco[6][n_ptbin ]; 
 
-  TProfile *profile_resolution;
+  TProfile *m_profile_resolution;
 
   StoreGateSvc*   m_sgSvc;
   ITHistSvc*      m_thistSvc;

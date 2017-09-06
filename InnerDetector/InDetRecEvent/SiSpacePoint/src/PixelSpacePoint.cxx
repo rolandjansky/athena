@@ -29,7 +29,7 @@ namespace InDet
   {
     assert (clus!=0);
     Trk::MeasurementBase::m_localParams = Trk::LocalParameters(clus->localPosition());
-    if( &clus->localCovariance() != 0 ) Trk::MeasurementBase::m_localCovariance = clus->localCovariance();
+    Trk::MeasurementBase::m_localCovariance = clus->localCovariance();
 
     const  Amg::Vector3D* tmpPos = clus->detectorElement()->surface().localToGlobal(clus->localPosition()) ;
     assert (tmpPos!=0) ;
@@ -39,7 +39,7 @@ namespace InDet
     m_clusList = new std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>(clus,0);
     m_elemIdList.first = elementId ;
     m_elemIdList.second = 0 ;
-    if( &clus->localCovariance() != 0 ) setupGlobalFromLocalCovariance();
+    setupGlobalFromLocalCovariance();
   }
   
   //------------ -------------------------------------------------
@@ -54,7 +54,7 @@ namespace InDet
     assert (clus!=0);
     m_globalCovariance = *globcov;
     Trk::MeasurementBase::m_localParams = Trk::LocalParameters(clus->localPosition());
-    if( &clus->localCovariance() != 0 ) Trk::MeasurementBase::m_localCovariance = clus->localCovariance();
+    Trk::MeasurementBase::m_localCovariance = clus->localCovariance();
     delete globcov;
 
     const Amg::Vector3D* tmpPos = clus->detectorElement()->surface().localToGlobal(clus->localPosition()) ;
@@ -77,7 +77,7 @@ namespace InDet
     assert (clus!=0);
     m_globalCovariance = globcov;
     Trk::MeasurementBase::m_localParams = Trk::LocalParameters(clus->localPosition());
-    if( &clus->localCovariance() != 0 ) Trk::MeasurementBase::m_localCovariance = clus->localCovariance();
+    Trk::MeasurementBase::m_localCovariance = clus->localCovariance();
 
     const Amg::Vector3D* tmpPos = clus->detectorElement()->surface().localToGlobal(clus->localPosition()) ;
     assert (tmpPos!=0) ;

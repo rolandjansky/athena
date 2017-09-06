@@ -100,7 +100,9 @@ def getGenericTruthService(name="ISF_TruthService", **kwargs):
     kwargs.setdefault('SkipIfNoChildren', True)
     kwargs.setdefault('SkipIfNoParentBarcode', True)
     kwargs.setdefault('ForceEndVtxInRegions', [])
-    if 'longLived' in ISF_Flags.Simulator(): #FIXME this should be configured in a nicer way. ATLASSIM-526
+    long_lived_simulators = ['LongLived', 'longLived']
+    is_long_lived_simulation = any(x in ISF_Flags.Simulator() for x in long_lived_simulators) #FIXME this should be set in a nicer way.
+    if is_long_lived_simulation:
         kwargs.setdefault('QuasiStableParticlesIncluded', True)
     return CfgMgr.ISF__TruthSvc(name, **kwargs)
 

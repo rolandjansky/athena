@@ -18,11 +18,6 @@ the alignment procedures.
 
 
 
-@section TrkVertexOnTrack_used_packagesTrkVertexOnTrack Used Packages
-
-@section TrkVertexOnTrack_requirements Requirements
-
 @namespace Trk
 A namespace to enclose the Tracking classes.
 */
-

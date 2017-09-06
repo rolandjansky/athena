@@ -12,9 +12,9 @@
 //                                                            //
 ////////////////////////////////////////////////////////////////
 
-#include "VP1Base/VP1CustomStereoEditor.h"
 #include "ui_vp1customstereoeditor.h"
 
+#include "VP1Base/VP1CustomStereoEditor.h"
 #include "VP1Base/VP1ExaminerViewer.h"
 #include "VP1Base/VP1CameraHelper.h"
 #include "VP1Base/VP1QtInventorUtils.h"
@@ -22,12 +22,14 @@
 #include "VP1Base/VP1Serialise.h"
 #include "VP1Base/VP1Deserialise.h"
 #include "VP1Base/VP1Msg.h"
+
 #include <Inventor/nodes/SoGroup.h>
 #include <Inventor/nodes/SoCamera.h>
 #include <Inventor/SbBox.h>
-#include <QtGui/QShortcut>
-#include <QtGui/QCloseEvent>
-#include <QtGui/QScrollBar>
+
+#include <QShortcut>
+#include <QCloseEvent>
+#include <QScrollBar>
 
 //____________________________________________________________________
 class VP1CustomStereoEditor::Imp {

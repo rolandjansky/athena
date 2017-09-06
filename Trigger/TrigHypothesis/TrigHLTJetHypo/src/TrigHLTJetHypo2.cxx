@@ -15,6 +15,7 @@
 #include <algorithm>
 #include <sstream>
 #include <stdexcept>
+#include <stdlib.h>
 #include <memory>
 #include <limits>
 //
@@ -28,6 +29,8 @@
 #include "xAODTrigger/TrigPassBits.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/TrigHLTJetHypoHelper.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CleanerFactory.h"
+
+#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/getEtThresholds.h"
 
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/conditionsFactory2.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/ConditionsDefs.h"
@@ -47,7 +50,9 @@
 #include <map>
 #include <fstream> // debugging
 
-enum class HypoStrategy{EtaEt, HT, TLA, DijetMassDEta};
+float GeV = 1000.;
+
+enum class HypoStrategy{EtaEt, HT, TLA, DijetMassDEta, singlemass};
 
 HypoStrategy getStrategy(const std::string& s){
 
@@ -55,7 +60,8 @@ HypoStrategy getStrategy(const std::string& s){
     {"EtaEt", HypoStrategy::EtaEt},
     {"HT", HypoStrategy::HT},
     {"TLA", HypoStrategy::TLA},
-    {"DijetMassDEta", HypoStrategy::DijetMassDEta}
+    {"DijetMassDEta", HypoStrategy::DijetMassDEta},
+    {"singlemass", HypoStrategy::singlemass}
   };
 
  return m.at(s);  // throws if not found
@@ -96,6 +102,9 @@ TrigHLTJetHypo2::TrigHLTJetHypo2(const std::string& name,
   // HT parameter
   declareProperty("htMin", m_htMin = 0);
 
+  // singlemass parameter
+  declareProperty("smc_mins", m_JetMassMin);
+  declareProperty("smc_maxs", m_JetMassMax);
 
   // Dimass, Deta parameters
   //declareProperty("invm", m_invm);
@@ -353,9 +362,9 @@ HLT::ErrorCode TrigHLTJetHypo2::checkJets(const xAOD::JetContainer* outJets){
      monitorLeadingJet(*leading_jet);
    }
 
-   if(m_dumpJets){
+   //if(m_dumpJets){ //FIXME
      writeDebug(pass, helper.passedJets(), helper.failedJets());
-   }
+   //}
 
    bumpCounters(pass, helper.passedJets().size());
  }
@@ -397,16 +406,19 @@ void
     std::cout<<"\nHYPODUMP passed TrigHLTJetHypo2 Et: " 
              << p4.Et() 
              << " eta " 
-             << j->eta() 
-             << " px "
-             << p4.Px()
-             << " py "
-             << p4.Py()
-             << " pz "
-             << p4.Pz()
-             << " E "
-             << p4.E()
+             << j->eta()
+             << " mass "
+             << j->m()
              << '\n';
+        //     << " px "
+        //     << p4.Px()
+        //     << " py "
+        //     << p4.Py()
+        //     << " pz "
+        //     << p4.Pz()
+        //     << " E "
+        //     << p4.E()
+        //     << '\n';
   }
   
   for (auto j :  failedJets) {
@@ -414,16 +426,20 @@ void
     std::cout<<"\nHYPODUMP failed TrigHLTJetHypo2 Et: " 
              << p4.Et() 
              << " eta " 
-             << j->eta() 
-             << " px "
-             << p4.Px()
-             << " py "
-             << p4.Py()
-             << " pz "
-             << p4.Pz()
-             << " E "
-             << p4.E()
-               << '\n';
+             << j->eta()
+             << " mass "
+             << j->m()
+             << '\n';
+
+   //          << " px "
+   //          << p4.Px()
+   //          << " py "
+   //          << p4.Py()
+   //          << " pz "
+   //          << p4.Pz()
+   //          << " E "
+   //          << p4.E()
+   //            << '\n';
   }
   
 }
@@ -469,6 +485,7 @@ bool TrigHLTJetHypo2::checkStrategy(HypoStrategy s){
   if (s == HypoStrategy::TLA) {return checkTLAStrategy();}
   if (s == HypoStrategy::DijetMassDEta) { return checkDijetMassDEtaStrategy();}
   if (s == HypoStrategy::HT){return checkHTStrategy();}
+  if (s == HypoStrategy::singlemass){return checksinglemassStrategy();}
 
   ATH_MSG_ERROR(name() << ": no strategy checking for " << m_hypoStrategy);
   return false;
@@ -487,6 +504,27 @@ bool TrigHLTJetHypo2::checkEtaEtStrategy(){
                   << m_etaMins.size() << " "
                   << m_etaMaxs.size() << " "
                   << m_asymmetricEtas.size() << " "
+                  );
+    
+    return false;
+  }
+  return true;
+}
+
+bool TrigHLTJetHypo2::checksinglemassStrategy(){
+  if (m_EtThresholds.size() != m_etaMins.size() or
+      m_EtThresholds.size() != m_etaMaxs.size() or
+      m_JetMassMin.size() != m_EtThresholds.size() or
+      m_JetMassMax.size() != m_EtThresholds.size()) {
+      
+    ATH_MSG_ERROR(name()
+                  << ": mismatch between number of thresholds, "
+                  << " eta_min, eta_max, JetMassMin, JetMassMax boundaries: "
+                  << m_EtThresholds.size() << " "
+                  << m_etaMins.size() << " "
+                  << m_etaMaxs.size() << " "
+                  << m_JetMassMin.size() << " "
+                  << m_JetMassMin.size() << " "
                   );
     
     return false;
@@ -611,6 +649,7 @@ bool TrigHLTJetHypo2::setConditions(HypoStrategy s){
   if (s == HypoStrategy::TLA){return setTLAConditions();}
   if (s == HypoStrategy::DijetMassDEta){return setDijetMassDEtaConditions();}
   if (s == HypoStrategy::HT) {return setHTConditions();}
+  if (s == HypoStrategy::singlemass) {return setsinglemassConditions();}
 
   ATH_MSG_ERROR(name()
                 << ": no specification to set up conditions for hypo strategy: "
@@ -631,6 +670,20 @@ bool TrigHLTJetHypo2::setEtaEtConditions(){
 }
 
 
+bool TrigHLTJetHypo2::setsinglemassConditions(){
+
+  std::vector<double> m_JetMassMin_d = getStringBoundaries(m_JetMassMin);
+  std::vector<double> m_JetMassMax_d = getStringBoundaries(m_JetMassMax);
+
+  m_conditions = conditionsFactorysinglemass(m_etaMins,
+                                        m_etaMaxs,
+                                        m_EtThresholds,
+                                        m_JetMassMin_d,
+                                        m_JetMassMax_d);
+  std::sort(m_conditions.begin(), m_conditions.end(), ConditionsSorter());
+  return true;
+}
+
 bool TrigHLTJetHypo2::setTLAConditions(){
 
   m_conditions = conditionsFactoryTLA(m_etaMins, m_etaMaxs,
@@ -641,28 +694,50 @@ bool TrigHLTJetHypo2::setTLAConditions(){
   return true;
 }
 
-std::vector<double> getEtThresholds(const std::vector<double>& dEtas,
-                                    const std::vector<double>& etThresholds){
-  // Emulate the python code setup by TM
-  for (auto dEta : dEtas){
-    if (dEta > 0.) {
-      auto etThreshold = 
-        std::min(40000., 
-                 *std::min_element(etThresholds.cbegin(), 
-                                   etThresholds.cend()));
+//std::vector<double> getEtThresholds(const std::vector<double>& dEtas,
+//                                    const std::vector<double>& etThresholds){
+//  // Emulate the python code setup by TM
+//  for (auto dEta : dEtas){
+//    if (dEta > 0.) {
+//      auto etThreshold = 
+//        std::min(40000., 
+//                 *std::min_element(etThresholds.cbegin(), 
+//                                   etThresholds.cend()));
+//
+//      // The TM python code chooses the Alg class corresponding
+//      // to the etThreshold. This class sets the threshold.
+//      // It is not clear what happened if the class did not exist - 
+//      // probably a crash. Here we let any threshold be  used (ie
+//      // no crash on an unknown threshold)
+//      return std::vector<double> {etThreshold, etThreshold};
+//    }
+//  }
+//
+//  // For invariant mass hypos without dEta cuts
+//  return std::vector<double> {0., 0.};
+//}
 
-      // The TM python code chooses the Alg class corresponding
-      // to the etThreshold. This class sets the threshold.
-      // It is not clear what happened if the class did not exist - 
-      // probably a crash. Here we let any threshold be  used (ie
-      // no crash on an unknown threshold)
-      return std::vector<double> {etThreshold, etThreshold};
+std::vector<double> TrigHLTJetHypo2::getStringBoundaries (const std::vector<std::string>& stv) {
+
+    std::vector<double> JetMassLimit;
+
+    for (auto st : stv){
+
+      //  if (st.find("inf") != std::string::npos) {JetMassLimit.push_back(std::numeric_limits<double>::max());} 
+      //  else {JetMassLimit.push_back(std::stod(st)*GeV);}
+    
+        if (st.find("-INF") != std::string::npos) {JetMassLimit.push_back(std::numeric_limits<double>::lowest());}
+
+        else if (st.find("INF") != std::string::npos) {JetMassLimit.push_back(std::numeric_limits<double>::max());}
+
+        else {JetMassLimit.push_back(std::stod(st)*GeV);}
+    
     }
-  }
 
-  // For invariant mass hypos without dEta cuts
-  return std::vector<double> {0., 0.};
+    return JetMassLimit;
+
 }
+
 
 bool TrigHLTJetHypo2::setDijetMassDEtaConditions(){
   // emulate old behaviour of TriggerMenu to set the min Et for the jets.
@@ -713,6 +788,11 @@ bool TrigHLTJetHypo2::setJetGrouper(HypoStrategy s){
   if (s == HypoStrategy::EtaEt){
     m_grouper = std::make_shared<SingleJetGrouper>();
     return true;
+  }
+
+  if (s == HypoStrategy::singlemass){
+      m_grouper = std::make_shared<SingleJetGrouper>();
+      return true;
   }
 
   if (s == HypoStrategy::HT){

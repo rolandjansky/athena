@@ -9,13 +9,6 @@
 #include "AssociationUtils/TauJetOverlapTool.h"
 #include "AssociationUtils/DeltaRMatcher.h"
 
-namespace
-{
-  /// Unit conversion constants
-  const double GeV = 1e3;
-  const double invGeV = 1e-3;
-}
-
 namespace ORUtils
 {
 

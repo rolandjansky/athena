@@ -21,8 +21,8 @@
 class IVP1ChannelWidget;
 class VP1ExecutionScheduler;
 class VP1MainWindow;
-#include <QtCore/QObject>
-#include <QtCore/QStringList>
+#include <QObject>
+#include <QStringList>
 
 class VP1ChannelManager : public QObject {
 

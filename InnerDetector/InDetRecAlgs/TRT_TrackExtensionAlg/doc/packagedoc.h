@@ -14,6 +14,5 @@ Input is tracks found in SCT and Pixels and output is TrackExtensionMap.
 This algorithm uses standard ITRT_TrackExtensionTool and shoud know 
 input tracks location and extended track location.
 
-@section TRT_TrackExtensionAlg_TRT_TrackExtensionAlgReq Requirements file
 
 */

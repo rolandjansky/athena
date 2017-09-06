@@ -28,9 +28,6 @@
 #include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 #include "TH2S.h"
 #include "TProfile2D.h"
-#include "PixelMonitoring/DBMMon2DMaps.h"
-#include "PixelMonitoring/PixelMon2DMaps.h"
-#include "PixelMonitoring/PixelMonProfiles.h"
 #include "LWHists/TH2F_LW.h"
 #include "LWHists/TH1F_LW.h"
 #include "LWHists/TH1I_LW.h"
@@ -55,29 +52,9 @@
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
+#include "PathResolver/PathResolver.h"
 
 //////////////////////////////////////////////////////////////////////////////
-
-std::vector<std::string> &splitter(const std::string &s, char delim, std::vector<std::string> &elems) {
-  std::stringstream ss(s);
-  std::string item;
-  while (std::getline(ss, item, delim)) {
-    elems.push_back(item);
-  }
-  return elems;
-}
-
-std::vector<std::string> splitter(const std::string &s, char delim) {
-  std::vector<std::string> elems;
-  splitter(s, delim, elems);
-  return elems;
-}
-
-bool is_file_exist(const char *fileName)
-{
-  std::ifstream infile(fileName);
-  return infile.good();
-}
 
 PixelMainMon::PixelMainMon(const std::string & type, 
    const std::string & name,
@@ -99,15 +76,12 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_FSM_state(new dcsDataHolder()),
    m_FSM_status(new dcsDataHolder()),
    m_moduleDCSDataHolder(new moduleDcsDataHolder())
-   //m_trkSummaryTool("Trk::TrackSummaryTool/InDetTrackSummaryTool")
 {                                                                        //all job options flags go here
    declareProperty("PixelConditionsSummarySvc", m_pixelCondSummarySvc);
    declareProperty("PixelByteStreamErrorsSvc",  m_ErrorSvc);
    declareProperty("PixelCablingSvc",           m_pixelCableSvc);
    declareProperty("HoleSearchTool",            m_holeSearchTool);
    declareProperty("LuminosityTool",            m_lumiTool);
-
-   //declareProperty("TrkSummaryTool",            m_trkSummaryTool);
 
    declareProperty("RDOName",          m_Pixel_RDOName         = "PixelRDOs");  //storegate container names
    declareProperty("RODErrorName",     m_detector_error_name   = "pixel_error_summary");   
@@ -116,19 +90,14 @@ PixelMainMon::PixelMainMon(const std::string & type,
    declareProperty("TrackName",        m_TracksName            = "Pixel_Cosmic_Tracks");         
 
    declareProperty("onTrack",          m_doOnTrack         = false); //using inner detector tracks
-   declareProperty("onPixelTrack",     m_doOnPixelTrack    = false); //using pixel only tracks
    declareProperty("do2DMaps",         m_do2DMaps          = false);   
    declareProperty("doModules",        m_doModules         = false); 
-   declareProperty("doFEChipSummary",  m_doFEChipSummary   = false);
    declareProperty("doOffline",        m_doOffline         = false);
    declareProperty("doOnline",         m_doOnline          = false);
    declareProperty("doLowOccupancy",   m_doLowOccupancy    = false);
    declareProperty("doHighOccupancy",  m_doHighOccupancy   = false);
    declareProperty("doPixelOccupancy", m_doPixelOccupancy  = false); 
-   declareProperty("doRodSim",         m_doRodSim          = false);
    declareProperty("doDetails",        m_doDetails         = false);
-   declareProperty("doSpectrum",       m_doSpectrum        = false);
-   declareProperty("doNoiseMap",       m_doNoiseMap        = false);
    declareProperty("doTiming",         m_doTiming          = false);
    declareProperty("doLumiBlock",      m_doLumiBlock       = false);
    declareProperty("doOfflineAnalysis",m_doOfflineAnalysis = false); // !!! if true using a lot of memory to be absolutely avoided for monitoring
@@ -142,7 +111,6 @@ PixelMainMon::PixelMainMon(const std::string & type,
    declareProperty("doStatus",        m_doStatus     = false);
    declareProperty("doDCS",           m_doDCS        = false);
 
-   declareProperty("doDegFactorMap",  m_doDegFactorMap = true);
    declareProperty("doHeavyIonMon",   m_doHeavyIonMon = false);
 
    declareProperty("doIBL",           m_doIBL = false);
@@ -152,7 +120,7 @@ PixelMainMon::PixelMainMon(const std::string & type,
    declareProperty("DetailsMod2",     m_DetailsMod2 = "");
    declareProperty("DetailsMod3",     m_DetailsMod3 = "");
    declareProperty("DetailsMod4",     m_DetailsMod4 = "");
-   declareProperty("OccupancyCut",    m_occupancy_cut = 1e-5);
+
 
    m_lbRange = 3000;
    m_bcidRange = 3600;
@@ -253,9 +221,6 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_hiteff_mod = 0;
    m_FE_chip_hit_summary = 0;
    m_pixel_occupancy = 0;
-   /// ROD Sim
-   m_RodSim_BCID_minus_ToT = 0;
-   m_RodSim_FrontEnd_minus_Lvl1ID = 0;
    /// details
    m_Details_mod1_num_hits = 0;
    m_Details_mod2_num_hits = 0;
@@ -301,9 +266,6 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_LorentzAngle_B0 = 0;
    m_LorentzAngle_B1 = 0;
    m_LorentzAngle_B2 = 0;
-   /// degradation factor
-   m_degFactorMap = 0;
-   m_degFactorMap_per_lumi = 0;
    /// cluster size
    memset(m_clusize_ontrack_mod, 0, sizeof(m_clusize_ontrack_mod));
    memset(m_clusize_offtrack_mod, 0, sizeof(m_clusize_offtrack_mod));
@@ -391,7 +353,6 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_status = 0;
    m_status_mon = 0;
    m_status_LB = 0;           
-   m_disabled = 0;
    m_dqStatus = 0;
    m_disabledModules_per_lumi_PIX = 0;
    memset(m_badModules_per_lumi_mod, 0, sizeof(m_badModules_per_lumi_mod));
@@ -609,24 +570,6 @@ StatusCode PixelMainMon::initialize()
       msg(MSG::INFO) << "Retrieved tool " << m_lumiTool << endmsg;
    }
 
-   //if ( m_trkSummaryTool.retrieve().isFailure() ) {
-   //  if ( msgLvl(MSG::ERROR) ) msg(MSG::ERROR) << "Failed to retrieve tool " << m_trkSummaryTool << endmsg;
-   //} else {
-   //  if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Retrieved tool " << m_trkSummaryTool << endmsg;
-   //}
-
-  //m_elementsMap[std::string("/PIXEL/DCS/FSMSTATE")].push_back(std::string("FSM_state"));                    // type: String4k
-  //m_elementsMap[std::string("/PIXEL/DCS/FSMSTATUS")].push_back(std::string("FSM_status"));                  // type: String4k
-  //m_elementsMap[std::string("/PIXEL/DCS/HV")].push_back(std::string("HV"));                                 // type: Float
-  //m_elementsMap[std::string("/PIXEL/DCS/HVCURRENT")].push_back(std::string("hv_current"));                  // type: Float
-  //m_elementsMap[std::string("/PIXEL/DCS/LV")].push_back(std::string("lv_voltage"));                         // type: Float
-  //m_elementsMap[std::string("/PIXEL/DCS/LV")].push_back(std::string("lv_current"));                         // type: Float
-  //m_elementsMap[std::string("/PIXEL/DCS/PIPES")].push_back(std::string("temp_inlet"));                      // type: Float
-  //m_elementsMap[std::string("/PIXEL/DCS/PIPES")].push_back(std::string("temp_outlet"));                     // type: Float
-  //m_elementsMap[std::string("/PIXEL/DCS/PLANTS")].push_back(std::string("modbus_ack_user_setpoint_temp"));  // type: Float
-  //m_elementsMap[std::string("/PIXEL/DCS/PLANTS")].push_back(std::string("modbus_cooling_ready"));           // type: Bool
-  //m_elementsMap[std::string("/PIXEL/DCS/TEMPERATURE")].push_back("temperature");                            // type: Float
-
   if (!m_doDCS) return StatusCode::SUCCESS;
 
   m_atrcollist.push_back(std::string("/PIXEL/DCS/TEMPERATURE")); // module
@@ -639,52 +582,40 @@ StatusCode PixelMainMon::initialize()
   m_atrcollist.push_back(std::string("/PIXEL/DCS/LV"));          // IBL readout unit
   m_currentLumiBlockNumber = 0;
 
-  //std::string testarea = std::getenv("TestArea");
-  //ifstream moduleMapfile((testarea + "/InstallArea/share/wincc2cool.csv").c_str());
-  //ifstream coolingPipeMapfile((testarea + "/InstallArea/share/coolingPipeMap.csv").c_str());
-  //ifstream lvMapfile((testarea + "/InstallArea/share/lvMap.csv").c_str());
+  std::string modMapFileName   = PathResolver::find_file ("PixelDQMonitoring/wincc2cool.csv", "CALIBPATH");
+  std::string coolPipeFileName = PathResolver::find_file ("PixelDQMonitoring/coolingPipeMap.csv", "CALIBPATH");
+  std::string lvMapFileName    = PathResolver::find_file ("PixelDQMonitoring/lvMap.csv", "CALIBPATH");
 
-  //std::string cmtpath = std::getenv("CMTPATH");
-  std::string cmtpath = std::getenv("DATAPATH");
-  std::vector<std::string> paths = splitter(cmtpath, ':');
-  for (const auto& x : paths){
-    if(is_file_exist((x + "/wincc2cool.csv").c_str())){
-      ATH_MSG_INFO("initialising DCS channel maps using files in " << x);
-      std::ifstream moduleMapfile((x + "/wincc2cool.csv").c_str());
-      std::ifstream coolingPipeMapfile((x + "/coolingPipeMap.csv").c_str());
-      std::ifstream lvMapfile((x + "/lvMap.csv").c_str());
-      if( moduleMapfile.fail() || coolingPipeMapfile.fail() || lvMapfile.fail() ) {
-        ATH_MSG_WARNING("initialize(): Map File do not exist. m_doDCS has been changed to False.");
-        m_doDCS = false;
-      }
-      std::string line;
-      // make a dictionary to convert module name to channel number
+  if (modMapFileName == "" || coolPipeFileName == "" || lvMapFileName == "") {
+    ATH_MSG_WARNING("initialize(): can't find DCS mapping files - m_doDCS flag has been changed to False.");
+    m_doDCS = false;
+  } else  {
+    std::ifstream moduleMapfile(modMapFileName.c_str());
+    std::ifstream coolingPipeMapfile(coolPipeFileName.c_str());
+    std::ifstream lvMapfile(lvMapFileName.c_str());
+    
+    if ( moduleMapfile.fail() || coolingPipeMapfile.fail() || lvMapfile.fail() ) {
+      ATH_MSG_WARNING("initialize(): can't read DCS mapping files - m_doDCS flag has been changed to False.");
+      m_doDCS = false;
+    } else {
+      ATH_MSG_INFO("initialize(): found all DCS channel mapping files accessible, start reading them.");
       int channel; std::string moduleName; std::string rest;
       std::string inletName; std::string outletName;
       std::string lvVoltageName; std::string lvCurrentName;
-      //while(getline(moduleMapfile, line))
       while(moduleMapfile >> channel >> moduleName >> rest) {
-        // get channel number from wincc2cool.csv
-        //int channel; std::string moduleName; std::string rest;
-        //channel = atoi( ( line.substr(0, line.find(",")) ).c_str() );
-        //std::string tmp_line = line.substr(line.find(","), std::string::npos);
-        //// get the module name from wincc2cool.csv
-        //moduleName = tmp_line.substr(0, tmp_line.find(","));
-        m_moduleTemperature->m_maps->insert(std::make_pair(moduleName, channel));
-        m_HV->m_maps->insert(std::make_pair(moduleName, channel));
-        m_moduleDCSDataHolder->m_moduleMap->insert(std::make_pair(moduleName, channel));
-        ATH_MSG_DEBUG( "initialize(): channel " << channel << ", moduleName " << moduleName );
+	m_moduleTemperature->m_maps->insert(std::make_pair(moduleName, channel));
+	m_HV->m_maps->insert(std::make_pair(moduleName, channel));
+	m_moduleDCSDataHolder->m_moduleMap->insert(std::make_pair(moduleName, channel));
+	ATH_MSG_DEBUG( "initialize(): channel " << channel << ", moduleName " << moduleName );
       }
-      // for cooling pipe
       while(coolingPipeMapfile >> channel >> inletName >> outletName) {
-        m_coolingPipeTemperatureInlet->m_maps->insert(std::make_pair(inletName, channel));
-        m_coolingPipeTemperatureOutlet->m_maps->insert(std::make_pair(outletName, channel));
+	m_coolingPipeTemperatureInlet->m_maps->insert(std::make_pair(inletName, channel));
+	m_coolingPipeTemperatureOutlet->m_maps->insert(std::make_pair(outletName, channel));
       }
       while(lvMapfile >> channel >> lvVoltageName >> lvCurrentName) {
-        m_LV_voltage->m_maps->insert(std::make_pair(lvVoltageName, channel));
-        m_LV_current->m_maps->insert(std::make_pair(lvCurrentName, channel));
+	m_LV_voltage->m_maps->insert(std::make_pair(lvVoltageName, channel));
+	m_LV_current->m_maps->insert(std::make_pair(lvCurrentName, channel));
       }
-      break;
     }
   }
 
@@ -735,7 +666,7 @@ StatusCode PixelMainMon::initialize()
   m_fsmStatus2enum["UNINITIALIZED"] = 3.;
   m_fsmStatus2enum["DEAD"] = 4.;
 
-   return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }
 
 
@@ -771,15 +702,6 @@ StatusCode PixelMainMon::bookHistograms()
 
    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "bookHistograms()" << endmsg; 
 
-   if(m_environment==AthenaMonManager::tier0Raw&&!m_doOnline)
-   {
-     //m_doRDO        = false;
-     //m_doRODError   = false;
-     //m_doSpacePoint = false;
-     //m_doCluster    = false;
-     //m_doStatus     = false;
-     //m_doTrack      = false;
-   }
    if(m_environment==AthenaMonManager::tier0ESD&&!m_doOnline)
    {
      m_doRDO        = false;
@@ -839,7 +761,6 @@ StatusCode PixelMainMon::bookHistograms()
    ///
      std::string path_hits = "Pixel/Hits";
      if(m_doOnTrack)      path_hits.replace(path_hits.begin(), path_hits.end(), "Pixel/HitsOnTrack");
-     if(m_doOnPixelTrack) path_hits.replace(path_hits.begin(), path_hits.end(), "Pixel/HitsOnPixelTrack");
      MonGroup hitsHistos(   this, path_hits.c_str(),  run, ATTRIB_MANAGED ); //declare a group of histograms
      StatusCode sc;
      sc = hitsHistos.regHist(m_mu_vs_bcid = TProfile_LW::create("Interactions_vs_bcid", "<Interactions> vs BCID;BCID;<#Interactions/event>"    , m_bcidRange,-0.5,-0.5+(1.0*m_bcidRange)));
@@ -850,7 +771,6 @@ StatusCode PixelMainMon::bookHistograms()
    ///
    std::string path = "Pixel/Errors";
    if(m_doOnTrack) path.replace(path.begin(), path.end(), "Pixel/ErrorsOnTrack");
-   if(m_doOnPixelTrack) path.replace(path.begin(), path.end(), "Pixel/ErrorsOnPixelTrack");
    MonGroup errorHistos( this, path.c_str(), run, ATTRIB_MANAGED ); //declare a group of histograms
    sc = errorHistos.regHist(m_storegate_errors = TH2F_LW::create("storegate_errors",  ("Storegate Errors" + m_histTitleExt + ";Container Name;Error Type").c_str(), 6,0.5,6.5,5,0.5,5.5));
    if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book histograms" << endmsg; 
@@ -1014,6 +934,18 @@ StatusCode PixelMainMon::fillHistograms() //get called twice per event
      }
    }
 
+   /// Hits
+   if(m_doRDO){
+     if(evtStore()->contains<PixelRDO_Container>(m_Pixel_RDOName) ) {
+       if (FillHitsMon().isFailure()) {
+	 if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not fill histograms" << endmsg;
+       }
+     }
+     else if(m_storegate_errors) m_storegate_errors->Fill(1.,2.);
+   }else{
+      if(m_storegate_errors) m_storegate_errors->Fill(1.,1.);
+   }
+
    //if(m_doRODError&&evtStore()->contains<PixelRODErrorCollection>(m_detector_error_name))
    if(m_doRODError)
    {
@@ -1033,18 +965,6 @@ StatusCode PixelMainMon::fillHistograms() //get called twice per event
       }else if(m_storegate_errors) m_storegate_errors->Fill(4.,2.);
    }else{
       if(m_storegate_errors) m_storegate_errors->Fill(4.,1.);
-   }
-
-   /// Hits
-   if(m_doRDO){
-     if(evtStore()->contains<PixelRDO_Container>(m_Pixel_RDOName) ) {
-       if (FillHitsMon().isFailure()) {
-	 if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not fill histograms" << endmsg; 
-       }
-     }
-     else if(m_storegate_errors) m_storegate_errors->Fill(1.,2.); 
-   }else{
-      if(m_storegate_errors) m_storegate_errors->Fill(1.,1.); 
    }
 
    /// Cluster
@@ -1094,8 +1014,6 @@ StatusCode PixelMainMon::procHistograms()
   if ( endOfLumiBlockFlag() )
     {
       m_LBendTime = m_currentTime;
-      //if (m_doTrack) { sc=ProcTrackMon(); }
-      //if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not proc histograms" << endmsg; 
     }
   
   if ( !m_doOnline && endOfRunFlag() )
@@ -1129,5 +1047,4 @@ StatusCode PixelMainMon::procHistograms()
   
   return StatusCode::SUCCESS;
 }
-
 

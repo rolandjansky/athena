@@ -6,7 +6,6 @@
 
 #ifndef PROCMAPS_H 
 #define PROCMAPS_H 1
-#include <boost/pool/pool_alloc.hpp>
 #include <vector>
 /** @class procmaps 
  * @brief A simple API to access /proc/self/maps info
@@ -33,7 +32,7 @@ public:
   procmaps(size_t entries=1024);
   //not yet  procmaps(int pid);
 
-  typedef std::vector<Entry, boost::pool_allocator<Entry> > procmaps_t;
+  typedef std::vector<Entry> procmaps_t;
   typedef procmaps_t::const_iterator const_iterator;
   
   ///main entry point: get info for the page range containing address
@@ -41,7 +40,7 @@ public:
   const Entry* getEntry(const void* address, bool tryReloadMaps=true);
 
   ///access underlying entries
-  static const procmaps_t& pmaps() { return s_pmaps; }
+  const procmaps_t& pmaps() const { return m_pmaps; }
   const_iterator begin() const { return pmaps().begin(); }
   const_iterator end() const { return pmaps().end(); }
 
@@ -49,8 +48,7 @@ public:
   void loadMaps(bool dump=false); 
 
 private:
-  static bool s_pmapsLoaded;
-  static procmaps_t s_pmaps;
+  procmaps_t m_pmaps;
 };
 
 inline

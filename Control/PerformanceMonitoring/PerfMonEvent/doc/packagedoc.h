@@ -21,16 +21,6 @@ Each class holds information(s) about a very specialized monitoring aspect (CPU,
   - PerfMon::CfgHdr : meta data class holding information about the configuration of the job. It right now only holds the list of all top-level (ie: not the deeply nested) algorithms part of the TopSequence.
   - PerfMon::HephaestusHdr and PerfMon::HephaestusData : <i>dummies for now</i>
 
-@ref used_PerfMonEvent
 
-@ref requirements_PerfMonEvent
 
-*/
-
-/**
-@page used_PerfMonEvent Used Packages
-*/
-
-/**
-@page requirements_PerfMonEvent Requirements
 */

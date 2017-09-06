@@ -16,15 +16,5 @@ To obtain ps file from dot file you may use:'dot -Tps graph1.dot -o graph1.ps'. 
 Please keep in mind that data are not collected for the first three events.
 
     
-@ref used_MyPackage
    
-@ref requirements_MyPackage
-*/
- 
-/**
-@page used_MyPackage Used Packages
-*/
-
-/**
-@page requirements_MyPackage Requirements
 */

@@ -33,8 +33,8 @@ find_package( ROOT COMPONENTS Core Hist RIO MathCore )
 atlas_add_library( PhotonEfficiencyCorrectionLib
    PhotonEfficiencyCorrection/*.h Root/*.cxx
    PUBLIC_HEADERS PhotonEfficiencyCorrection
-   INCLUDE_DIRS ${BOOST_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${BOOST_LIBRARIES} ${ROOT_LIBRARIES} AsgTools xAODEgamma
+   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AsgTools xAODEgamma
    PATCoreLib PATInterfaces ElectronEfficiencyCorrectionLib
    PRIVATE_LINK_LIBRARIES xAODEventInfo PathResolver )
 
@@ -53,8 +53,8 @@ atlas_add_dictionary( PhotonEfficiencyCorrectionDict
 # Executable(s) in the package:
 atlas_add_executable( PrintPhotonSF
    util/PrintPhotonSF.cxx
-   INCLUDE_DIRS ${BOOST_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${BOOST_LIBRARIES} ${ROOT_LIBRARIES}
+   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES}
    PhotonEfficiencyCorrectionLib )
 
 if( XAOD_STANDALONE )

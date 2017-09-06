@@ -18,8 +18,7 @@ from D3PDMakerCoreComps.D3PDObject           import DeferArg
 from D3PDMakerCoreComps.SimpleAssociation    import SimpleAssociation
 # from D3PDMakerCoreComps.IndexAssociation     import IndexAssociation
 from D3PDMakerConfig.D3PDMakerFlags          import D3PDMakerFlags
-from D3PDMakerCoreComps.resolveSGKey         import resolveSGKey
-# from D3PDMakerCoreComps.resolveSGKey         import testSGKey
+from D3PDMakerCoreComps.resolveSGKey         import resolveSGKey, testSGKey
 from TrackD3PDMaker.xAODTrackSummaryFiller   import xAODTrackSummaryFiller
 from D3PDMakerCoreComps.ContainedVectorMultiAssociation import ContainedVectorMultiAssociation
 # from TriggerD3PDMaker.defineTriggerBits      import defineTriggerBits
@@ -410,7 +409,7 @@ PhotonJetD3PDAssoc.defineBlock (2, 'JetKinematics',
                                 WriteE = True)
 
 
-if rec.doTruth():
+if rec.doTruth() and testSGKey ('DataVector<xAOD::Jet_v1>', D3PDMakerFlags.TruthJetSGKey()):
     JetTruthJetD3PDAssoc = DRAssociation (PhotonJetD3PDAssoc,
                                           'DataVector<xAOD::Jet_v1>',
                                           D3PDMakerFlags.TruthJetSGKey(),

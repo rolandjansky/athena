@@ -29,12 +29,12 @@ class NtupleStationId
 	{
 	public:
 	/** Default constructor */
-		inline NtupleStationId(): m_station(-1), m_eta(-99), m_phi(-1), m_ml(0), m_author(0), region_hash(0), n_ml(-1), geom_ok(false), m_region_id_valid(false)
+		inline NtupleStationId(): m_station(-1), m_eta(-99), m_phi(-1), m_ml(0), m_author(0), m_region_hash(0), m_n_ml(-1), m_geom_ok(false), m_region_id_valid(false)
 		 { ResetVectors(); }
 	/** Initializing Constructor
 		@param id MuonFixedId identifier
 	*/
-		inline NtupleStationId(const MuonFixedId &id): region_hash(0), n_ml(-1)
+		inline NtupleStationId(const MuonFixedId &id): m_region_hash(0), m_n_ml(-1)
 			{
 			ResetVectors();
 			Initialize(id);
@@ -44,7 +44,7 @@ class NtupleStationId
 		@param eta station eta
 		@param phi station phi
 	*/
-		inline NtupleStationId(const std::string & station, const int & eta, const int & phi, const int & ml=0, const int &author=0): region_hash(0), n_ml(-1)
+		inline NtupleStationId(const std::string & station, const int & eta, const int & phi, const int & ml=0, const int &author=0): m_region_hash(0), m_n_ml(-1)
 			{
 			Initialize(station, eta, phi, ml, author);
 			}
@@ -59,7 +59,7 @@ class NtupleStationId
 			m_ml=id.mdtMultilayer();
 			m_author=0;
 			m_region_id_valid = false;
-			geom_ok=false;
+			m_geom_ok=false;
 			}
 		inline void Initialize(const int & station, const int & eta, const int & phi, const int & ml=0, const int &author=0)
 			{
@@ -69,17 +69,17 @@ class NtupleStationId
 			m_ml = ml;
 			m_author=author;
 			m_region_id_valid = false;
-			geom_ok=false;
+			m_geom_ok=false;
 			}
 		inline void ResetVectors()
 			{
 			for(unsigned int ii=0; ii<2; ii++){
-			  n_layer[ii] = -1;
-			  n_tubes[ii] = -1;
-			  layer_min[ii] = -1;
-			  layer_max[ii] = -1;
-			  tube_min[ii] = -1;
-			  tube_max[ii] = -1;
+			  m_n_layer[ii] = -1;
+			  m_n_tubes[ii] = -1;
+			  m_layer_min[ii] = -1;
+			  m_layer_max[ii] = -1;
+			  m_tube_min[ii] = -1;
+			  m_tube_max[ii] = -1;
 			}
 			}
 	/** initialize function
@@ -191,43 +191,43 @@ class NtupleStationId
 	/** return geometry information */
 		inline int NMultilayers() const
 			{
-			if(!geom_ok) return -1;
-			return n_ml;
+			if(!m_geom_ok) return -1;
+			return m_n_ml;
 			}
 		inline int NLayers(int ml) const
 			{
-			if(!geom_ok || ml >= n_ml) return -1;
-			return n_layer[ml];
+			if(!m_geom_ok || ml >= m_n_ml) return -1;
+			return m_n_layer[ml];
 			}
 		inline int NTubes(int ml) const
 			{
-			if(!geom_ok || ml >= n_ml) return -1;
-			return  n_tubes[ml];
+			if(!m_geom_ok || ml >= m_n_ml) return -1;
+			return  m_n_tubes[ml];
 			}
 		inline int LayerMin(int ml) const
 			{
-			if(!geom_ok || ml >= n_ml) return -1;
-			return layer_min[ml];
+			if(!m_geom_ok || ml >= m_n_ml) return -1;
+			return m_layer_min[ml];
 			}
 		inline int LayerMax(int ml) const
 			{
-			if(!geom_ok || ml >= n_ml) return -1;
-			return layer_max[ml];
+			if(!m_geom_ok || ml >= m_n_ml) return -1;
+			return m_layer_max[ml];
 			}
 		inline int TubeMin(int ml) const
 			{
-			if(!geom_ok || ml >= n_ml) return -1;
-			return tube_min[ml];
+			if(!m_geom_ok || ml >= m_n_ml) return -1;
+			return m_tube_min[ml];
 			}
 		inline int TubeMax(int ml) const
 			{
-			if(!geom_ok || ml >= n_ml) return -1;
-			return tube_max[ml];
+			if(!m_geom_ok || ml >= m_n_ml) return -1;
+			return m_tube_max[ml];
 			}
 		inline int RegionHash() const
 			{
-			if(!geom_ok) return -1;
-			return region_hash;
+			if(!m_geom_ok) return -1;
+			return m_region_hash;
 			}
 		int FixedId() const;
 //=============================================================================
@@ -236,10 +236,10 @@ class NtupleStationId
 		int m_station, m_eta, m_phi, m_ml;
 		int m_author;
 	//! geo model information
-		int region_hash, n_ml, n_layer[2], n_tubes[2];
-		int layer_min[2], layer_max[2];
-		int tube_min[2], tube_max[2];
-		bool geom_ok;
+		int m_region_hash, m_n_ml, m_n_layer[2], m_n_tubes[2];
+		int m_layer_min[2], m_layer_max[2];
+		int m_tube_min[2], m_tube_max[2];
+		bool m_geom_ok;
 	//! region id
 		mutable std::string m_region_id;
 		mutable bool m_region_id_valid;

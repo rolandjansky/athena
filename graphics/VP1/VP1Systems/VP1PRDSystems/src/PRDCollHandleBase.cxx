@@ -33,7 +33,7 @@
 #include <Inventor/nodes/SoLevelOfDetail.h>
 #include <Inventor/nodes/SoMaterial.h>
 
-#include <QtGui/QComboBox>
+#include <QComboBox>
 
 //____________________________________________________________________
 class PRDCollHandleBase::Imp {

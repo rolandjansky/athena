@@ -6,7 +6,7 @@
 #define VP1StreamMenuUpdater_h
 
 #include "VP1Gui/VP1MainWindow.h"
-#include <QtCore/QThread>
+#include <QThread>
 
 class QMutex;
 class QTimer;

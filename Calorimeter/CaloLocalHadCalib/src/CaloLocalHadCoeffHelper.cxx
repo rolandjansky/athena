@@ -241,7 +241,7 @@ CaloLocalHadCoeff::LocalHadDimension *CaloLocalHadCoeffHelper::parse_dim(std::st
   float dim_xmax(0), dim_xmin(0);
 
   if( !(ist >> dim_title >> dim_nbins >> dim_xmin >> dim_xmax >> stype) ||
-      dim_nbins < 0 ||
+      dim_nbins <= 0 ||
       dim_nbins > 1000)
   {
     std::cout << "CaloHadDMCoeffHelper::parse_dim() -> Error! Could not parse line '" << sLine << "' at p1." << std::endl;

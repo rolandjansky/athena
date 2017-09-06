@@ -96,7 +96,6 @@ Please let me know of any errors, or if anything is unclear.
 @author Andreas.Salzburger@cern.ch
 
 
-@section TrkExTools_requirements Requirements
 The libaray type is a pure component library.
 */
 

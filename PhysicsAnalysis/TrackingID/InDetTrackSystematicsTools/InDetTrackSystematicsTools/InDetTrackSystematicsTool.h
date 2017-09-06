@@ -1,10 +1,11 @@
 // -*- c++ -*-
-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#pragma once
+#ifndef INDETTRACKSYSTEMATICSTOOLS_INDETTRACKSYSTEMATICSTOOL_H
+#define INDETTRACKSYSTEMATICSTOOLS_INDETTRACKSYSTEMATICSTOOL_H
+
 #include <string>
 #include <map>
 #include <memory>
@@ -50,7 +51,7 @@ namespace InDet {
     // note that SystematicSet caches its hashes so this is probably not as slow as it might seem
     std::unordered_map< CP::SystematicSet, CP::SystematicSet > m_sysFilterMap;
 
-    const CP::SystematicSet* m_activeSysts;
+    const CP::SystematicSet* m_activeSysts = nullptr;
 
     bool isActive( TrackSystematic ) const;    
   };
@@ -81,3 +82,5 @@ StatusCode InDet::InDetTrackSystematicsTool::initObject(T*& obj, std::string roo
   F->Close();
   return StatusCode::SUCCESS;
 }
+
+#endif

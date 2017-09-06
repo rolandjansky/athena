@@ -44,6 +44,10 @@ public:
                              xAOD::TauJetAuxContainer_v2*,
                              MsgStream& log );
 
+  inline void setKey(const std::string& k){ m_key=k;}
+
+private:
+  std::string m_key;
 }; // class xAODTauJetAuxContainer_v2
 
 #endif // XAODTAUATHENAPOOL_XAODTAUJETAUXCONTAINERCNV_V2_H

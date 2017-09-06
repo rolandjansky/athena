@@ -114,9 +114,12 @@ PhotonTruthTool::getMCConv (const xAOD::TruthParticle* truePart,
 
   if ( pdgId == 22 ) { // photon
     if ( v->nOutgoingParticles() == 2 ) {
-      int pdgChild[2];
-      for ( unsigned u=0; u<2 ; ++u)
-        pdgChild[u] = v->outgoingParticle(u)->pdgId();
+      int pdgChild[2] = {0};
+      for ( unsigned u=0; u<2 ; ++u) {
+        const xAOD::TruthParticle* p = v->outgoingParticle(u);
+        if (p)
+          pdgChild[u] = p->pdgId();
+      }
       if ( pdgChild[0]+pdgChild[1]==0 && pdgChild[0]*pdgChild[1]==-121 ) {
         // gamma -> e+e-
 	return OKint ;
@@ -126,9 +129,12 @@ PhotonTruthTool::getMCConv (const xAOD::TruthParticle* truePart,
   else if ( std::abs(pdgId) == 11 ) { // e+/e-
     v = truePart->prodVtx();
     if ( v->nIncomingParticles()==1 && v->nOutgoingParticles()==2 ) {
-      int pdgBrother[2] ;
-      for ( unsigned u=0 ; u<2 ; ++u )
-        pdgBrother[u] = v->outgoingParticle(u)->pdgId();
+      int pdgBrother[2] = {0};
+      for ( unsigned u=0 ; u<2 ; ++u ) {
+        const xAOD::TruthParticle* p = v->outgoingParticle(u);
+        if (p)
+          pdgBrother[u] = p->pdgId();
+      }
       if ( pdgBrother[0]+pdgBrother[1]==(22+pdgId) &&
            pdgBrother[0]*pdgBrother[1]==(22*pdgId) )
       {

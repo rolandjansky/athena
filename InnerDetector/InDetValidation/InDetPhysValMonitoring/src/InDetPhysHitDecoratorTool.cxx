@@ -390,7 +390,7 @@ InDetPhysHitDecoratorTool::getUnbiasedTrackParameters(const Trk::TrackParameters
                                                                measurement->localParameters(),
                                                                measurement->localCovariance());
       if (!unbiasedTrkParameters) {
-        msg(MSG::WARNING) << "Could not get unbiased track parameters, use normal parameters" << endmsg;
+        msg(MSG::INFO) << "Could not get unbiased track parameters, use normal parameters" << endmsg;
         m_isUnbiased = false;
       }
     } else if (not alreadyWarned) {

@@ -799,15 +799,19 @@ void SurveyConstraint::setup_SurveyConstraintModules()
   nPixModEC2 = 0;nPixModPixModEC = 0;nPixModECPixModEC = 0;nSameLayer = 0;nNotIdentical = 0;
   for (iter = m_pixelManager->getDetectorElementBegin(); iter != m_pixelManager->getDetectorElementEnd(); ++iter) {
     const Identifier Pixel_ModuleID = (*iter)->identify(); 
-    if(m_pixid->barrel_ec(Pixel_ModuleID) != 0) continue;++nPixModEC2;
+    if(m_pixid->barrel_ec(Pixel_ModuleID) != 0) continue;
+    ++nPixModEC2;
     for (iter2 = m_pixelManager->getDetectorElementBegin(); iter2 != m_pixelManager->getDetectorElementEnd(); ++iter2) {
       ++nPixModPixModEC;
       const Identifier Pixel_ModuleID2 = (*iter2)->identify(); 
-      if(m_pixid->barrel_ec(Pixel_ModuleID2) != m_pixid->barrel_ec(Pixel_ModuleID))continue;++nPixModECPixModEC;
-      if(m_pixid->layer_disk(Pixel_ModuleID2) != m_pixid->layer_disk(Pixel_ModuleID))continue;++nSameLayer;
+      if(m_pixid->barrel_ec(Pixel_ModuleID2) != m_pixid->barrel_ec(Pixel_ModuleID))continue;
+      ++nPixModECPixModEC;
+      if(m_pixid->layer_disk(Pixel_ModuleID2) != m_pixid->layer_disk(Pixel_ModuleID))continue;
+      ++nSameLayer;
       // require Pixel_ModuleID2 and Pixel_ModuleID from same stave:
       if(m_pixid->phi_module(Pixel_ModuleID2) != m_pixid->phi_module(Pixel_ModuleID))continue;
-      if(Pixel_ModuleID == Pixel_ModuleID2)continue;++nNotIdentical;
+      if(Pixel_ModuleID == Pixel_ModuleID2)continue;
+      ++nNotIdentical;
       (m_ModuleMap[Pixel_ModuleID2])->getPoints(Stavepoints,SurveyConstraintModule::Module);
       (m_ModuleMap[Pixel_ModuleID])->addStaveConstraintPoint(Stavepoints); 
     }  
@@ -824,16 +828,20 @@ void SurveyConstraint::setup_SurveyConstraintModules()
   for (iter = m_SCT_Manager->getDetectorElementBegin(); iter != m_SCT_Manager->getDetectorElementEnd(); ++iter) {
     const Identifier SCT_ModuleID = (*iter)->identify(); 
     if(m_sctid->side(SCT_ModuleID) != 0) continue;
-    if(abs(m_sctid->barrel_ec(SCT_ModuleID)) != 2) continue;++nPixModEC2;
+    if(abs(m_sctid->barrel_ec(SCT_ModuleID)) != 2) continue;
+    ++nPixModEC2;
     for (iter2 = m_SCT_Manager->getDetectorElementBegin(); iter2 != m_SCT_Manager->getDetectorElementEnd(); ++iter2) {
       ++nPixModPixModEC;
       const Identifier SCT_ModuleID2 = (*iter2)->identify(); 
       if(m_sctid->side(SCT_ModuleID2) != 0)continue;
-      if(m_sctid->barrel_ec(SCT_ModuleID2) != m_sctid->barrel_ec(SCT_ModuleID))continue;++nPixModECPixModEC;
-      if(m_sctid->layer_disk(SCT_ModuleID2) != m_sctid->layer_disk(SCT_ModuleID))continue;++nSameLayer;
+      if(m_sctid->barrel_ec(SCT_ModuleID2) != m_sctid->barrel_ec(SCT_ModuleID))continue;
+      ++nPixModECPixModEC;
+      if(m_sctid->layer_disk(SCT_ModuleID2) != m_sctid->layer_disk(SCT_ModuleID))continue;
+      ++nSameLayer;
       //if(m_sctid->eta_module(SCT_ModuleID2) != m_sctid->eta_module(SCT_ModuleID))continue;
       //if(SectorNumber(m_sctid->phi_module(SCT_ModuleID2)) != SectorNumber(m_sctid->phi_module(SCT_ModuleID)))continue;
-      if(SCT_ModuleID == SCT_ModuleID2)continue;++nNotIdentical;
+      if(SCT_ModuleID == SCT_ModuleID2)continue;
+      ++nNotIdentical;
       (m_ModuleMap[SCT_ModuleID2])->getPoints(Stavepoints,SurveyConstraintModule::Module);
       (m_ModuleMap[SCT_ModuleID])->addStaveConstraintPoint(Stavepoints); 
     }  
@@ -866,16 +874,20 @@ void SurveyConstraint::setup_SurveyConstraintModules()
   for (iter = m_SCT_Manager->getDetectorElementBegin(); iter != m_SCT_Manager->getDetectorElementEnd(); ++iter) {
     const Identifier SCT_ModuleID = (*iter)->identify(); 
     if(m_sctid->side(SCT_ModuleID) != 0) continue;
-    if(m_sctid->barrel_ec(SCT_ModuleID) != 0) continue;++nPixModEC2;
+    if(m_sctid->barrel_ec(SCT_ModuleID) != 0) continue;
+    ++nPixModEC2;
     for (iter2 = m_SCT_Manager->getDetectorElementBegin(); iter2 != m_SCT_Manager->getDetectorElementEnd(); ++iter2) {
       ++nPixModPixModEC;
       const Identifier SCT_ModuleID2 = (*iter2)->identify(); 
       if(m_sctid->side(SCT_ModuleID2) != 0)continue;
-      if(m_sctid->barrel_ec(SCT_ModuleID2) != m_sctid->barrel_ec(SCT_ModuleID))continue;++nPixModECPixModEC;
-      if(m_sctid->layer_disk(SCT_ModuleID2) != m_sctid->layer_disk(SCT_ModuleID))continue;++nSameLayer;
+      if(m_sctid->barrel_ec(SCT_ModuleID2) != m_sctid->barrel_ec(SCT_ModuleID))continue;
+      ++nPixModECPixModEC;
+      if(m_sctid->layer_disk(SCT_ModuleID2) != m_sctid->layer_disk(SCT_ModuleID))continue;
+      ++nSameLayer;
       // require SCT_ModuleID2 and SCT_ModuleID from same stave:
       if(m_sctid->phi_module(SCT_ModuleID2) != m_sctid->phi_module(SCT_ModuleID))continue;
-      if(SCT_ModuleID == SCT_ModuleID2)continue;++nNotIdentical;
+      if(SCT_ModuleID == SCT_ModuleID2)continue;
+      ++nNotIdentical;
       (m_ModuleMap[SCT_ModuleID2])->getPoints(Stavepoints,SurveyConstraintModule::Module);
       (m_ModuleMap[SCT_ModuleID])->addStaveConstraintPoint(Stavepoints); 
     }  

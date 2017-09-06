@@ -276,10 +276,8 @@ from the conditions database, and write it to file-level meta-data.
 
 @include DetStatusSvc_ToFileMetaData.py
 
-@section DetectorStatus_requirements Package Requirements
 
 
-@section DetectorStatus_uses Packages used
 
 
 */

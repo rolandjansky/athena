@@ -16,13 +16,8 @@
 #include "DataModelAthenaPool/ElementLinkCnv_p3.h"
 #include "DataModelAthenaPool/ElementLinkVectorCnv_p1.h"
 #include "DataModelAthenaPool/NavigableCnv_p2.h"
-
-#define private public
-#define protected public
 #include "AthenaPoolExampleData/ExampleTrack.h"
 #include "AthenaPoolExampleConverter/ExampleTrack_p1.h"
-#undef private
-#undef protected
 
 class ExampleTrackCnv_p1 : public T_AthenaPoolTPCnvBase<ExampleTrack, ExampleTrack_p1> { 
 
@@ -33,30 +28,30 @@ public:
     *  from its persistent representation @c ExampleTrack_p1
     */
    virtual void persToTrans(const ExampleTrack_p1* persObj, ExampleTrack* transObj, MsgStream& msg) {
-      transObj->m_detector = persObj->m_detector;
-      elCnv.persToTrans(&persObj->m_elementlink1, &transObj->m_elementlink1, msg);
-      elCnv.persToTrans(&persObj->m_elementlink2, &transObj->m_elementlink2, msg);
-      elvCnv.persToTrans(&persObj->m_elementlinkvector, &transObj->m_elementlinkvector, msg);
-      navCnv.persToTrans(persObj->m_navigable, transObj->m_navigable, msg);
-      wNavCnv.persToTrans(persObj->m_weightednavigable, transObj->m_weightednavigable, msg);
-      transObj->m_pt = persObj->m_pt;
-      transObj->m_eta = persObj->m_eta;
-      transObj->m_phi = persObj->m_phi;
+      transObj->setDetector (persObj->m_detector);
+      elCnv.persToTrans(&persObj->m_elementlink1, transObj->getElementLink1(), msg);
+      elCnv.persToTrans(&persObj->m_elementlink2, transObj->getElementLink2(), msg);
+      elvCnv.persToTrans(&persObj->m_elementlinkvector, transObj->getElementLinkVector(), msg);
+      navCnv.persToTrans(persObj->m_navigable, *transObj->getNavigable(), msg);
+      wNavCnv.persToTrans(persObj->m_weightednavigable, *transObj->getWeightedNavigable(), msg);
+      transObj->setPT (persObj->m_pt);
+      transObj->setEta (persObj->m_eta);
+      transObj->setPhi (persObj->m_phi);
    }
 
    /** Method creating the persistent representation @c ExampleTrack_p1
     *  from its transient representation @c ExampleTrack
     */
    virtual void transToPers(const ExampleTrack* transObj, ExampleTrack_p1* persObj, MsgStream& msg) {
-      persObj->m_detector = transObj->m_detector;
-      elCnv.transToPers(&transObj->m_elementlink1, &persObj->m_elementlink1, msg);
-      elCnv.transToPers(&transObj->m_elementlink2, &persObj->m_elementlink2, msg);
-      elvCnv.transToPers(&transObj->m_elementlinkvector, &persObj->m_elementlinkvector, msg);
-      navCnv.transToPers(transObj->m_navigable, persObj->m_navigable, msg);
-      wNavCnv.transToPers(transObj->m_weightednavigable, persObj->m_weightednavigable, msg);
-      persObj->m_pt = transObj->m_pt;
-      persObj->m_eta = transObj->m_eta;
-      persObj->m_phi = transObj->m_phi;
+      persObj->m_detector = transObj->getDetector();
+      elCnv.transToPers(transObj->getElementLink1(), &persObj->m_elementlink1, msg);
+      elCnv.transToPers(transObj->getElementLink2(), &persObj->m_elementlink2, msg);
+      elvCnv.transToPers(transObj->getElementLinkVector(), &persObj->m_elementlinkvector, msg);
+      navCnv.transToPers(*transObj->getNavigable(), persObj->m_navigable, msg);
+      wNavCnv.transToPers(*transObj->getWeightedNavigable(), persObj->m_weightednavigable, msg);
+      persObj->m_pt = transObj->getPT();
+      persObj->m_eta = transObj->getEta();
+      persObj->m_phi = transObj->getPhi();
    }
 
 private:

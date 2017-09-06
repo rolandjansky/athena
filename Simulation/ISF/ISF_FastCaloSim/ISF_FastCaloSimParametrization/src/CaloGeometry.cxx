@@ -12,8 +12,8 @@
 #include <TVector3.h>
 #include <TLegend.h>
 
-//#include "CaloDetDescr/CaloDetDescrElement.h"
-#include "ISF_FastCaloSimParametrization/CaloDetDescrElement.h"
+#include "CaloDetDescr/CaloDetDescrElement.h"
+//#include "ISF_FastCaloSimParametrization/CaloDetDescrElement.h"
 #include "CaloGeoHelpers/CaloSampling.h"
 #include "ISF_FastCaloSimEvent/FastCaloSim_CaloCell_ID.h"
 //#include "TMVA/Tools.h"
@@ -60,7 +60,7 @@ bool CaloGeometryLookup::has_overlap(CaloGeometryLookup* ref)
 {
   if(m_cells.size()==0) return false;
   for(t_cellmap::iterator ic=m_cells.begin();ic!=m_cells.end();++ic) {
-    const CaloGeoDetDescrElement* cell=ic->second;
+    const CaloDetDescrElement* cell=ic->second;
     if(ref->IsCompatible(cell)) return true;
   }
   return false;
@@ -69,17 +69,17 @@ bool CaloGeometryLookup::has_overlap(CaloGeometryLookup* ref)
 void CaloGeometryLookup::merge_into_ref(CaloGeometryLookup* ref)
 {
   for(t_cellmap::iterator ic=m_cells.begin();ic!=m_cells.end();++ic) {
-    const CaloGeoDetDescrElement* cell=ic->second;
+    const CaloDetDescrElement* cell=ic->second;
     ref->add(cell);
   }
 }
 
 
-bool CaloGeometryLookup::IsCompatible(const CaloGeoDetDescrElement* cell)
+bool CaloGeometryLookup::IsCompatible(const CaloDetDescrElement* cell)
 {
   if(m_cells.size()==0) return true;
   t_cellmap::iterator ic=m_cells.begin();
-  const CaloGeoDetDescrElement* refcell=ic->second;
+  const CaloDetDescrElement* refcell=ic->second;
   int sampling=refcell->getSampling();
   if(cell->getSampling()!=sampling) return false;
   if(cell->eta_raw()*refcell->eta_raw()<0) return false;
@@ -125,7 +125,7 @@ bool CaloGeometryLookup::IsCompatible(const CaloGeoDetDescrElement* cell)
   return true;  
 }
 
-void CaloGeometryLookup::add(const CaloGeoDetDescrElement* cell)
+void CaloGeometryLookup::add(const CaloDetDescrElement* cell)
 {
   if(cell->getSampling()<21) {
     m_deta.add(cell->deta());
@@ -194,7 +194,7 @@ void CaloGeometryLookup::post_process()
 {
   if(size()==0) return;
   t_cellmap::iterator ic=m_cells.begin();
-  const CaloGeoDetDescrElement* refcell=ic->second;
+  const CaloDetDescrElement* refcell=ic->second;
   int sampling=refcell->getSampling();
   if(sampling<21) {
     double rneta=neta_double()-neta();
@@ -266,7 +266,7 @@ void CaloGeometryLookup::post_process()
   //  cout<<"Grid: Sampling "<<sampling<<"_"<<index()<<": "<<ncells<<"/"<<size()<<" cells filled, "<<nempty<<" empty grid positions deta="<<m_deta_double<<" dphi="<<m_dphi_double<<endl;
 }
 
-float CaloGeometryLookup::calculate_distance_eta_phi(const CaloGeoDetDescrElement* DDE,float eta,float phi,float& dist_eta0,float& dist_phi0)
+float CaloGeometryLookup::calculate_distance_eta_phi(const CaloDetDescrElement* DDE,float eta,float phi,float& dist_eta0,float& dist_phi0)
 {
   dist_eta0=(eta - DDE->eta())/m_deta_double;
   dist_phi0=(TVector2::Phi_mpi_pi(phi - DDE->phi()))/m_dphi_double;
@@ -275,10 +275,10 @@ float CaloGeometryLookup::calculate_distance_eta_phi(const CaloGeoDetDescrElemen
   return TMath::Max(abs_dist_eta0,abs_dist_phi0)-0.5;
 }
 
-const CaloGeoDetDescrElement* CaloGeometryLookup::getDDE(float eta,float phi,float* distance,int* steps) 
+const CaloDetDescrElement* CaloGeometryLookup::getDDE(float eta,float phi,float* distance,int* steps) 
 {
   float dist;
-  const CaloGeoDetDescrElement* bestDDE=0;
+  const CaloDetDescrElement* bestDDE=0;
   if(!distance) distance=&dist;
   *distance=+10000000;
   int intsteps=0;
@@ -294,7 +294,7 @@ const CaloGeoDetDescrElement* CaloGeometryLookup::getDDE(float eta,float phi,flo
   int iphi=raw_phi_position_to_index(raw_phi);
   index_range_adjust(ieta,iphi);
   
-  const CaloGeoDetDescrElement* newDDE=m_cell_grid[ieta][iphi];
+  const CaloDetDescrElement* newDDE=m_cell_grid[ieta][iphi];
   float bestdist=+10000000;
   ++(*steps);
   int nsearch=0;
@@ -317,7 +317,7 @@ const CaloGeoDetDescrElement* CaloGeometryLookup::getDDE(float eta,float phi,flo
     ieta+=TMath::Nint(dist_eta0);
     iphi+=TMath::Nint(dist_phi0);
     index_range_adjust(ieta,iphi);
-    const CaloGeoDetDescrElement* oldDDE=newDDE;
+    const CaloDetDescrElement* oldDDE=newDDE;
     newDDE=m_cell_grid[ieta][iphi];
     ++(*steps);
     ++nsearch;
@@ -454,7 +454,8 @@ CaloGeometry::CaloGeometry() : m_cells_in_sampling(MAX_SAMPLING),m_cells_in_samp
     m_zext_map[i].resize(MAX_SAMPLING); //[side][calosample]
   }
   m_graph_layers.resize(MAX_SAMPLING);
-  for(int i=CaloCell_ID_FCS::FirstSample;i<CaloCell_ID_FCS::MaxSample;++i) {
+//  for(unsigned int i=CaloCell_ID_FCS::FirstSample;i<CaloCell_ID_FCS::MaxSample;++i) {
+  for(unsigned int i=CaloSampling::PreSamplerB;i<=CaloSampling::FCAL2;++i) {
     m_graph_layers[i]=0;
     CaloSampling::CaloSample s=static_cast<CaloSampling::CaloSample>(i);
     m_isCaloBarrel[i]=(CaloSampling::barrelPattern() & CaloSampling::getSamplingPattern(s))!=0;
@@ -466,7 +467,7 @@ CaloGeometry::~CaloGeometry()
 {
 }
 
-void CaloGeometry::addcell(const CaloGeoDetDescrElement* cell) 
+void CaloGeometry::addcell(const CaloDetDescrElement* cell) 
 {
   int sampling=cell->getSampling();
   Identifier identify=cell->identify();
@@ -474,8 +475,8 @@ void CaloGeometry::addcell(const CaloGeoDetDescrElement* cell)
   //m_cells[identify]=cell;
   //m_cells_in_sampling[sampling][identify]=cell;
   
-  m_cells[identify]= new CaloGeoDetDescrElement(*cell);
-  m_cells_in_sampling[sampling][identify]= new CaloGeoDetDescrElement(*cell);
+  m_cells[identify]= new CaloDetDescrElement(*cell);
+  m_cells_in_sampling[sampling][identify]= new CaloDetDescrElement(*cell);
   
   CaloGeometryLookup* lookup=0;
   for(unsigned int i=0;i<m_cells_in_regions[sampling].size();++i) {
@@ -598,8 +599,9 @@ void CaloGeometry::post_process(int sampling)
 
 void CaloGeometry::InitRZmaps()
 {
-  int nok=0;
 
+  int nok=0;
+  
   FSmap< double , double > rz_map_eta [2][MAX_SAMPLING];
   FSmap< double , double > rz_map_rmid[2][MAX_SAMPLING];
   FSmap< double , double > rz_map_zmid[2][MAX_SAMPLING];
@@ -610,16 +612,20 @@ void CaloGeometry::InitRZmaps()
   FSmap< double , int    > rz_map_n   [2][MAX_SAMPLING];
 
 
-  for(int side=0;side<=1;++side) for(int sample=0;sample<MAX_SAMPLING;++sample) {
+  for(unsigned int side=0;side<=1;++side) for(unsigned int sample=0;sample<MAX_SAMPLING;++sample)
+  {
     m_min_eta_sample[side][sample]=+1000;
     m_max_eta_sample[side][sample]=-1000;
   }  
-
-  for(t_cellmap::iterator calo_iter=m_cells.begin();calo_iter!=m_cells.end();++calo_iter) {
-    const CaloGeoDetDescrElement* theDDE=(*calo_iter).second;
-    if(theDDE) {
+  
+  
+  for(t_cellmap::iterator calo_iter=m_cells.begin();calo_iter!=m_cells.end();++calo_iter)
+  {
+    const CaloDetDescrElement* theDDE=(*calo_iter).second;
+    if(theDDE)
+    {
       ++nok;
-      int sample=theDDE->getSampling();
+      unsigned int sample=theDDE->getSampling();
 
       int side=0;
       int sign_side=-1;
@@ -657,9 +663,12 @@ void CaloGeometry::InitRZmaps()
       rz_map_zmid[side][sample][eta_raw]+=theDDE->z();
       double drh=theDDE->dr()/2;
       double dzh=theDDE->dz();
-      if(sample>=CaloSampling::PreSamplerB && sample<=CaloSampling::EMB3) {
+      if(sample<=CaloSampling::EMB3) { // ensure we have a valid sampling
         drh=theDDE->dr();
-      }
+      } 
+      // An `else` would be good here since we can't continue with a *bad* sampling...
+      // Should most likely handle the situation nicely rather than with a crash.
+
       rz_map_rent[side][sample][eta_raw]+=theDDE->r()-drh;
       rz_map_zent[side][sample][eta_raw]+=theDDE->z()-dzh*sign_side;
       rz_map_rext[side][sample][eta_raw]+=theDDE->r()+drh;
@@ -668,13 +677,23 @@ void CaloGeometry::InitRZmaps()
       
     }
   }
-  for(int side=0;side<=1;++side) for(int sample=0;sample<MAX_SAMPLING;++sample) {
-    if(rz_map_n[side][sample].size()>0) {
-      for(FSmap< double , int >::iterator iter=rz_map_n[side][sample].begin();iter!=rz_map_n[side][sample].end();++iter) {
+  
+  for(int side=0;side<=1;++side)
+  {
+   for(int sample=0;sample<MAX_SAMPLING;++sample)
+   {
+
+    if(rz_map_n[side][sample].size()>0)
+    {
+      for(FSmap< double , int >::iterator iter=rz_map_n[side][sample].begin();iter!=rz_map_n[side][sample].end();++iter)
+      {
         double eta_raw=iter->first;
-        if(iter->second<1) {
+        if(iter->second<1)
+        {
           //ATH_MSG_WARNING("rz-map for side="<<side<<" sample="<<sample<<" eta_raw="<<eta_raw<<" : #cells="<<iter->second<<" !!!");
-        } else {
+        }
+        else
+        {
           double eta =rz_map_eta[side][sample][eta_raw]/iter->second;
           double rmid=rz_map_rmid[side][sample][eta_raw]/iter->second;
           double zmid=rz_map_zmid[side][sample][eta_raw]/iter->second;
@@ -692,10 +711,14 @@ void CaloGeometry::InitRZmaps()
         }
       }
       //ATH_MSG_DEBUG("rz-map for side="<<side<<" sample="<<sample<<" #etas="<<m_rmid_map[side][sample].size());
-    } else {
-      //ATH_MSG_WARNING("rz-map for side="<<side<<" sample="<<sample<<" is empty!!!");
+     }
+    else
+    {
+     std::cout<<"rz-map for side="<<side<<" sample="<<sample<<" is empty!!!"<<std::endl;
     }
-  }
+   } //sample
+  } //side
+  
   if(DoGraphs()) {
     int calocol[24]={1,2,3,4, // LAr barrel
                      1,2,3,4, // LAr EM endcap
@@ -767,7 +790,7 @@ TCanvas* CaloGeometry::DrawGeoForPhi0()
     cout<<"Start sample "<<sample<<" ("<<SamplingName(sample)<<")"<<endl;
     int ngr=0;
     for(t_eta_cellmap::iterator calo_iter=m_cells_in_sampling_for_phi0[sample].begin();calo_iter!=m_cells_in_sampling_for_phi0[sample].end();++calo_iter) {
-      const CaloGeoDetDescrElement* theDDE=(*calo_iter).second;
+      const CaloDetDescrElement* theDDE=(*calo_iter).second;
       if(theDDE) {
         TVector3 cv;
         TGraph* gr=new TGraph(5);
@@ -852,23 +875,23 @@ TCanvas* CaloGeometry::DrawGeoForPhi0()
   return c;
 }
 
-const CaloGeoDetDescrElement* CaloGeometry::getDDE(Identifier identify) 
+const CaloDetDescrElement* CaloGeometry::getDDE(Identifier identify) 
 {
   return m_cells[identify];
 }
-const CaloGeoDetDescrElement* CaloGeometry::getDDE(int sampling,Identifier identify) 
+const CaloDetDescrElement* CaloGeometry::getDDE(int sampling,Identifier identify) 
 {
   return m_cells_in_sampling[sampling][identify];
 }
 
-const CaloGeoDetDescrElement* CaloGeometry::getDDE(int sampling,float eta,float phi,float* distance,int* steps) 
+const CaloDetDescrElement* CaloGeometry::getDDE(int sampling,float eta,float phi,float* distance,int* steps) 
 {
   if(sampling<0) return 0;
   if(sampling>=MAX_SAMPLING) return 0;
   if(m_cells_in_regions[sampling].size()==0) return 0;
   
   float dist;
-  const CaloGeoDetDescrElement* bestDDE=0;
+  const CaloDetDescrElement* bestDDE=0;
   if(!distance) distance=&dist;
   *distance=+10000000;
   int intsteps;
@@ -889,7 +912,7 @@ const CaloGeoDetDescrElement* CaloGeometry::getDDE(int sampling,float eta,float 
           cout<<"CaloGeometry::getDDE : check map"<<j<<" skip_range_check="<<skip_range_check<<endl;
         }
         float newdist;
-        const CaloGeoDetDescrElement* newDDE=m_cells_in_regions[sampling][j]->getDDE(eta,phi,&newdist,&intsteps);
+        const CaloDetDescrElement* newDDE=m_cells_in_regions[sampling][j]->getDDE(eta,phi,&newdist,&intsteps);
         if(m_debug) {
           cout<<"CaloGeometry::getDDE : map"<<j<<" dist="<<newdist<<" best dist="<<*distance<<" steps="<<intsteps<<endl;
         }
@@ -936,7 +959,7 @@ const CaloGeoDetDescrElement* CaloGeometry::getDDE(int sampling,float eta,float 
   return bestDDE;
 }
 
-const CaloGeoDetDescrElement* CaloGeometry::getFCalDDE(int sampling,float x,float y,float z){
+const CaloDetDescrElement* CaloGeometry::getFCalDDE(int sampling,float x,float y,float z){
 		int isam = sampling - 20;
 		int iphi,ieta;
 		Long64_t mask1[]{0x34,0x34,0x35};
@@ -989,7 +1012,7 @@ void CaloGeometry::Validate()
   int ntest=0;
   cout<<"start CaloGeometry::Validate()"<<endl;
   for(t_cellmap::iterator ic=m_cells.begin();ic!=m_cells.end();++ic) {
-    const CaloGeoDetDescrElement* cell=ic->second;
+    const CaloDetDescrElement* cell=ic->second;
     int sampling=cell->getSampling();
     if(sampling>=21) continue;
 
@@ -1004,7 +1027,7 @@ void CaloGeometry::Validate()
       float eta=cell->eta()+1.5*(gRandom->Rndm()-0.5)*cell->deta();
       float phi=cell->phi()+1.5*(gRandom->Rndm()-0.5)*cell->dphi();
       float distance;
-      const CaloGeoDetDescrElement* foundcell=getDDE(sampling,eta,phi,&distance,&steps);
+      const CaloDetDescrElement* foundcell=getDDE(sampling,eta,phi,&distance,&steps);
       if(m_debug && foundcell) {
         cout<<"CaloGeometry::Validate(), irnd="<<irnd<<", foundcell id="<<foundcell->identify()<<", "<<steps<<" steps"<<endl; 
       }  
@@ -1150,11 +1173,13 @@ double CaloGeometry::rzext(int sample,double eta) const
 
 double CaloGeometry::rpos(int sample,double eta,int subpos) const
 {
+	
   int side=0;
   if(eta>0) side=1;
-
+   
   if(subpos==CaloSubPos::SUBPOS_ENT) return m_rent_map[side][sample].find_closest(eta)->second;
   if(subpos==CaloSubPos::SUBPOS_EXT) return m_rext_map[side][sample].find_closest(eta)->second;
+    
   return m_rmid_map[side][sample].find_closest(eta)->second;
 }
 

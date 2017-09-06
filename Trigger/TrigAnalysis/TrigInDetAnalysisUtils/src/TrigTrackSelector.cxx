@@ -162,14 +162,14 @@ void TrigTrackSelector::selectTrack( const Rec::TrackParticle* track ) {
       // 2 "hits" and an offline SCT "hit" is really a 1D cluster, so two intersetcting
       // stereo clusters making a spacepoint are two "hits"
       const Trk::TrackSummary *summary = track->trackSummary();
-      int nBlayerHits = 2*summary->get(Trk::numberOfBLayerHits); 
+      int nBlayerHits = 2*summary->get(Trk::numberOfInnermostPixelLayerHits);
       int nPixelHits  = 2*summary->get(Trk::numberOfPixelHits);  
       int nSctHits    = summary->get(Trk::numberOfSCTHits); 
       int nStrawHits  = summary->get(Trk::numberOfTRTHits);
       int nTrHits     = summary->get(Trk::numberOfTRTHighThresholdHits);
 
       int nSiHits     = nPixelHits + nSctHits;
-      bool expectBL   = summary->get(Trk:: expectBLayerHit);
+      bool expectBL   = summary->get(Trk:: expectInnermostPixelLayerHit);
 
       const Trk::FitQuality *quality   = track->fitQuality();
       double chi2 = quality->chiSquared();
@@ -612,13 +612,13 @@ void TrigTrackSelector::selectTrack( const Trk::Track* track ) {
             std::cerr << "Could not create TrackSummary  - Track will likely fail hits requirements" << std::endl;
 	}    
 	else{      
-            nBlayerHits = 2*summary->get(Trk::numberOfBLayerHits); 
+            nBlayerHits = 2*summary->get(Trk::numberOfInnermostPixelLayerHits);
             nPixelHits  = 2*summary->get(Trk::numberOfPixelHits);  
 	    nSctHits    = summary->get(Trk::numberOfSCTHits); 
             nStrawHits  = summary->get(Trk::numberOfTRTHits);
             nTrHits     = summary->get(Trk::numberOfTRTHighThresholdHits);
 	    nSiHits     = nPixelHits + nSctHits;
-	    expectBL    = summary->get(Trk::expectBLayerHit);
+	    expectBL    = summary->get(Trk::expectInnermostPixelLayerHit);
 	    for ( int ih=0 ; ih<20 ; ih++ ) {
 	      if ( summary->isHit(Trk::DetectorType(ih)) ) bitmap |= ( 1<<hpmap[ih] ); 	
 	    }
@@ -752,7 +752,7 @@ void TrigTrackSelector::selectTrack( const xAOD::TrackParticle* track, void* ) {
       // stereo clusters making a spacepoint are two "hits"
       
       uint8_t sum_nBlayerHits = 0;
-      track->summaryValue( sum_nBlayerHits, xAOD::numberOfBLayerHits);
+      track->summaryValue( sum_nBlayerHits, xAOD::numberOfInnermostPixelLayerHits);
       int nBlayerHits = 2*sum_nBlayerHits;
       
       uint8_t  sum_nPixelHits = 0;
@@ -773,7 +773,7 @@ void TrigTrackSelector::selectTrack( const xAOD::TrackParticle* track, void* ) {
       
 
       uint8_t sum_expectBL  = 0;
-      track->summaryValue( sum_expectBL, xAOD::expectBLayerHit);
+      track->summaryValue( sum_expectBL, xAOD::expectInnermostPixelLayerHit);
 
       bool expectBL = ( sum_expectBL ? true : false );
 

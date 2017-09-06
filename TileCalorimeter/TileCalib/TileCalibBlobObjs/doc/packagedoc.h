@@ -25,16 +25,6 @@ TileCalibDrawer class in case a const coral::Blob reference is passed
 as argurment. This prevents TileCalibDrawer classes from modifying
 const coral::Blobs.
 
-@ref used_TileCalibBlobObjs
-@ref requirements_TileCalibBlobObjs
  
 
-*/
-
-/**
-@page used_TileCalibBlobObjs Used Packages
-*/
-
-/**
-@page requirements_TileCalibBlobObjs Requirements
 */

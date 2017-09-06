@@ -20,15 +20,15 @@ namespace dqi{
     public:
       ~ConditionsCleanup();
     };
-    static ConditionsSingleton *_instance;
+    static ConditionsSingleton *s_instance;
     
-  ConditionsSingleton():numRefHisto(0),m_refsourcedata(0){}
+  ConditionsSingleton():m_numRefHisto(0),m_refsourcedata(0){}
     ~ConditionsSingleton() {} 
     ConditionsSingleton(const ConditionsSingleton &);
     ConditionsSingleton & operator=(const ConditionsSingleton &);
-    int numRefHisto;
-    std::string currentConditions;
-    std::map<std::string,std::string> referenceMap;
+    int m_numRefHisto;
+    std::string m_currentConditions;
+    std::map<std::string,std::string> m_referenceMap;
     const TMap* m_refsourcedata;
   public:
     static ConditionsSingleton &getInstance();

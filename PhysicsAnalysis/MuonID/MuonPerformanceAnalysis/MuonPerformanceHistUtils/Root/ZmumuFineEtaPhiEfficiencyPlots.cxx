@@ -20,9 +20,9 @@ ZmumuFineEtaPhiEfficiencyPlots::ZmumuFineEtaPhiEfficiencyPlots(PlotBase* pParent
 
 void ZmumuFineEtaPhiEfficiencyPlots::initializePlots()
 {
-  fineEtaPhi  = Book1D("fineEtaPhi" ," fineEtaPhi; fine (#eta, #phi) bin; Entries ",m_fepb.nbins(),m_fepb.firstbin()-0.5, m_fepb.lastbin()+0.5);
-  fineEtaPhi_posq  = Book1D("fineEtaPhi_posq" ," fineEtaPhi_posq; fine (#eta, #phi) bin; Entries ",m_fepb.nbins(),m_fepb.firstbin()-0.5, m_fepb.lastbin()+0.5);
-  fineEtaPhi_negq  = Book1D("fineEtaPhi_negq" ," fineEtaPhi_negq; fine (#eta, #phi) bin; Entries ",m_fepb.nbins(),m_fepb.firstbin()-0.5, m_fepb.lastbin()+0.5);
+  m_fineEtaPhi  = Book1D("fineEtaPhi" ," fineEtaPhi; fine (#eta, #phi) bin; Entries ",m_fepb.nbins(),m_fepb.firstbin()-0.5, m_fepb.lastbin()+0.5);
+  m_fineEtaPhi_posq  = Book1D("fineEtaPhi_posq" ," fineEtaPhi_posq; fine (#eta, #phi) bin; Entries ",m_fepb.nbins(),m_fepb.firstbin()-0.5, m_fepb.lastbin()+0.5);
+  m_fineEtaPhi_negq  = Book1D("fineEtaPhi_negq" ," fineEtaPhi_negq; fine (#eta, #phi) bin; Entries ",m_fepb.nbins(),m_fepb.firstbin()-0.5, m_fepb.lastbin()+0.5);
 }
 
 void ZmumuFineEtaPhiEfficiencyPlots::fill(Probe& probe)
@@ -39,19 +39,19 @@ void ZmumuFineEtaPhiEfficiencyPlots::fill(Probe& probe)
     if (!trk && mu && *(mu->inDetTrackParticleLink())) trk = *(mu->inDetTrackParticleLink());
   }
   if (trk) {
-    if(trk->charge() > 0) fineEtaPhi_posq->Fill(m_fepb.bin(probe.probeTrack().p4()),sfweight);
-    if(trk->charge() < 0) fineEtaPhi_negq->Fill(m_fepb.bin(probe.probeTrack().p4()),sfweight);
+    if(trk->charge() > 0) m_fineEtaPhi_posq->Fill(m_fepb.bin(probe.probeTrack().p4()),sfweight);
+    if(trk->charge() < 0) m_fineEtaPhi_negq->Fill(m_fepb.bin(probe.probeTrack().p4()),sfweight);
   }
   else {
     // truth probes: rely on the sign of the pdg ID
     const xAOD::TruthParticle* truthtrk = dynamic_cast<const xAOD::TruthParticle*>(&(probe.probeTrack()));
     if (truthtrk){
-      if (truthtrk->charge() > 0) fineEtaPhi_posq->Fill(m_fepb.bin(probe.probeTrack().p4()),sfweight);
-      if (truthtrk->charge() < 0) fineEtaPhi_negq->Fill(m_fepb.bin(probe.probeTrack().p4()),sfweight);
+      if (truthtrk->charge() > 0) m_fineEtaPhi_posq->Fill(m_fepb.bin(probe.probeTrack().p4()),sfweight);
+      if (truthtrk->charge() < 0) m_fineEtaPhi_negq->Fill(m_fepb.bin(probe.probeTrack().p4()),sfweight);
     }
   }
 
-  fineEtaPhi->Fill(m_fepb.bin(probe.probeTrack().p4()),sfweight);
+  m_fineEtaPhi->Fill(m_fepb.bin(probe.probeTrack().p4()),sfweight);
     
 
 }

@@ -44,12 +44,12 @@ protected:
 
   void CopyAlgConfig( const HanConfigAssessor& hca );
 
-  TFile* file;
+  TFile* m_file;
   
-  TObject*  ref;
-  std::map< std::string, double >  pars;
-  std::map<std::string,double>  grthr;
-  std::map<std::string,double>  rdthr;
+  TObject*  m_ref;
+  std::map< std::string, double >  m_pars;
+  std::map<std::string,double>  m_grthr;
+  std::map<std::string,double>  m_rdthr;
   const HanConfigAssessor* m_hca;
 
 private:

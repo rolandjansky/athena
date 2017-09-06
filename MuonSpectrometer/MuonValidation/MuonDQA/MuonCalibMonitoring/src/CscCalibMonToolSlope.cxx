@@ -19,10 +19,6 @@
 #include <iomanip>
 #include <fstream>
 
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/PropertyMgr.h"
-#include "GaudiKernel/ToolHandle.h"
-
 #include "CscCalibData/CscCalibReportContainer.h"
 #include "CscCalibData/CscCalibReportSlope.h"
 
@@ -98,14 +94,13 @@ CscCalibMonToolSlope::CscCalibMonToolSlope(const std::string & type, const std::
 
 CscCalibMonToolSlope::~CscCalibMonToolSlope()
 {
-  m_log << MSG::INFO << "CscCalibMonToolSlope :  deleting CscCalibMonToolSlope " << endmsg;
-  cerr << "Deleting CscCalibMonToolSlope" << endl;
+  ATH_MSG_INFO( "CscCalibMonToolSlope :  deleting CscCalibMonToolSlope "  );
 }
 
 
 StatusCode CscCalibMonToolSlope::finalize()
 {
-  m_log << MSG::DEBUG << "Slope Finalizing "<< endmsg;
+  ATH_MSG_DEBUG( "Slope Finalizing " );
   delete m_slopeNewColl;
   delete m_slopeOldColl;
   delete m_slopeDiffColl;
@@ -128,7 +123,7 @@ StatusCode CscCalibMonToolSlope::initialize()
 
   IdContext channelContext = m_cscIdHelper->channel_context();
 
-  m_log << MSG::DEBUG << "Expected chamber layer is " << m_expectedChamberLayer<< endmsg;
+  ATH_MSG_DEBUG( "Expected chamber layer is " << m_expectedChamberLayer );
 
   for(unsigned int hash = 0 ; hash <= m_maxHashId; hash++)
   {
@@ -148,12 +143,9 @@ StatusCode CscCalibMonToolSlope::initialize()
 StatusCode CscCalibMonToolSlope::bookHistograms()
 {
   CscCalibMonToolBase::bookHistograms();
-  if (m_debuglevel) m_log << MSG::DEBUG << "CscCalibMonToolSlope : in bookHistograms()" << endmsg;
+  ATH_MSG_DEBUG( "CscCalibMonToolSlope : in bookHistograms()"  );
 
-  StatusCode sc = StatusCode::SUCCESS;
-
-  if (newLumiBlock){}
-  if (newRun)
+  if (newRunFlag())
   {
     string name,title,xaxis,yaxis;
     int highbound,lowbound,nbins;
@@ -180,7 +172,7 @@ StatusCode CscCalibMonToolSlope::bookHistograms()
     m_h_numBad->GetXaxis()->SetBinLabel(m_deadBadBin,"New (or fixed) Dead Channel");
     m_h_numBad->GetXaxis()->SetBinLabel(m_missingBadBin,"Num chans w/ no data");
     m_h_numBad->SetFillColor(m_histCol);
-    sc = monGroup.regHist(m_h_numBad);
+    monGroup.regHist(m_h_numBad).ignore();
 
     //--overview histograms-----------------------------------------------------------------
     /*
@@ -249,7 +241,7 @@ StatusCode CscCalibMonToolSlope::bookHistograms()
     m_h_deadOverview->GetXaxis()->SetBinLabel(m_newLiveBin,"New Live Channels");
     m_h_deadOverview->GetXaxis()->SetBinLabel(m_newDeadBin,"New Dead Channels");
     m_h_deadOverview->SetFillColor(m_histColAlert);
-    sc = monGroup.regHist(m_h_deadOverview);
+    monGroup.regHist(m_h_deadOverview).ignore();
 
     name = "h_csc_calib_slopeMissingChans";
     title = "Number of dead channels";
@@ -262,7 +254,7 @@ StatusCode CscCalibMonToolSlope::bookHistograms()
     m_h_slopeMissingChans->GetXaxis()->SetTitle(xaxis.c_str());
     m_h_slopeMissingChans->GetYaxis()->SetTitle(yaxis.c_str());     
     m_h_slopeMissingChans->SetFillColor(m_histColAlert);
-    sc = monGroup.regHist(m_h_slopeMissingChans);
+    monGroup.regHist(m_h_slopeMissingChans).ignore();
 
 
     string peaktDataName        = "peakt";
@@ -382,104 +374,49 @@ StatusCode CscCalibMonToolSlope::bookHistograms()
     //initialize, name, and book histograms in histogram collections using the bookHistCollection()
     //function
 
-    sc = bookHistCollection(m_peaktNewColl, peaktDataName, peaktDataTitle, newCatName, 
-        newCatTitle, peaktAxisLabel, peaktNumBins, peaktLowBound, peaktHighBound, peaktSubDir);
-    if(!sc.isSuccess())
-    {
-      m_log << MSG::FATAL << "Failed to book hist"<< endmsg;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK(  bookHistCollection(m_peaktNewColl, peaktDataName, peaktDataTitle, newCatName, 
+                                   newCatTitle, peaktAxisLabel, peaktNumBins, peaktLowBound, peaktHighBound, peaktSubDir) );
 
-    if(m_debuglevel) m_log << MSG::DEBUG << "Registering peaktOldColl" << endmsg;
-    sc = bookHistCollection(m_peaktOldColl, peaktDataName, peaktDataTitle, oldCatName, oldCatTitle,
-        peaktAxisLabel, peaktNumBins, peaktLowBound, peaktHighBound, peaktSubDir);
-    if(!sc.isSuccess())
-    {
-      m_log << MSG::FATAL << "Failed to book hist"<< endmsg;
-      return StatusCode::FAILURE;
-    }
+    ATH_MSG_DEBUG( "Registering peaktOldColl"  );
+    ATH_CHECK( bookHistCollection(m_peaktOldColl, peaktDataName, peaktDataTitle, oldCatName, oldCatTitle,
+                                  peaktAxisLabel, peaktNumBins, peaktLowBound, peaktHighBound, peaktSubDir) );
 
-    if(m_debuglevel) m_log << MSG::DEBUG << "Registering peaktDiffColl" << endmsg;
-    sc = bookHistCollection(m_peaktDiffColl, peaktDataName, peaktDataTitle, diffCatName, diffCatTitle,
-        peaktDiffAxisLabel, peaktNumBins, peaktLowBound, peaktHighBound, peaktSubDir);
-    if(!sc.isSuccess())
-    {
-      m_log << MSG::FATAL << "Failed to book hist"<< endmsg;
-      return StatusCode::FAILURE;
-    }
+    ATH_MSG_DEBUG( "Registering peaktDiffColl"  );
+    ATH_CHECK( bookHistCollection(m_peaktDiffColl, peaktDataName, peaktDataTitle, diffCatName, diffCatTitle,
+                                  peaktDiffAxisLabel, peaktNumBins, peaktLowBound, peaktHighBound, peaktSubDir) );
 
-    if(m_debuglevel) m_log << MSG::DEBUG << "Registering slopeRatioColl" << endmsg;
-    sc = bookHistCollection(m_slopeNewColl, slopeDataName, slopeDataTitle, newCatName, 
-        newCatTitle, slopeAxisLabel, slopeNumBins, slopeLowBound, slopeHighBound, slopeSubDir);
-    if(!sc.isSuccess())
-    {
-      m_log << MSG::FATAL << "Failed to book hist"<< endmsg;
-      return StatusCode::FAILURE;
-    }
+    ATH_MSG_DEBUG( "Registering slopeRatioColl"  );
+    ATH_CHECK( bookHistCollection(m_slopeNewColl, slopeDataName, slopeDataTitle, newCatName, 
+                                  newCatTitle, slopeAxisLabel, slopeNumBins, slopeLowBound, slopeHighBound, slopeSubDir) );
 
-    if(m_debuglevel) m_log << MSG::DEBUG << "Registering slopeNewColl" << endmsg;
-    sc = bookHistCollection(m_slopeRatioColl, slopeRatioDataName, slopeRatioDataTitle, "", 
-        "", slopeRatioAxisLabel, slopeRatioNumBins, slopeRatioLowBound, slopeRatioHighBound, slopeRatioSubDir);
-    if(!sc.isSuccess())
-    {
-      m_log << MSG::FATAL << "Failed to book hist"<< endmsg;
-      return StatusCode::FAILURE;
-    }
+    ATH_MSG_DEBUG( "Registering slopeNewColl"  );
+    ATH_CHECK( bookHistCollection(m_slopeRatioColl, slopeRatioDataName, slopeRatioDataTitle, "", 
+                                  "", slopeRatioAxisLabel, slopeRatioNumBins, slopeRatioLowBound, slopeRatioHighBound, slopeRatioSubDir) );
 
-    if(m_debuglevel) m_log << MSG::DEBUG << "Registering slopeOldColl" << endmsg;
-    sc = bookHistCollection(m_slopeOldColl, slopeDataName, slopeDataTitle, oldCatName, oldCatTitle,
-        slopeAxisLabel, slopeNumBins, slopeLowBound, slopeHighBound, slopeSubDir);
-    if(!sc.isSuccess())
-    {
-      m_log << MSG::FATAL << "Failed to book hist"<< endmsg;
-      return StatusCode::FAILURE;
-    }
+    ATH_MSG_DEBUG( "Registering slopeOldColl"  );
+    ATH_CHECK( bookHistCollection(m_slopeOldColl, slopeDataName, slopeDataTitle, oldCatName, oldCatTitle,
+                                  slopeAxisLabel, slopeNumBins, slopeLowBound, slopeHighBound, slopeSubDir) );
 
-    if(m_debuglevel) m_log << MSG::DEBUG << "Registering slopeDiffColl" << endmsg;
-    sc = bookHistCollection(m_slopeDiffColl, slopeDataName, slopeDataTitle, diffCatName, diffCatTitle,
-        slopeDiffAxisLabel, slopeNumBins, slopeLowBound, slopeHighBound, slopeSubDir);
-    if(!sc.isSuccess())
-    {
-      m_log << MSG::FATAL << "Failed to book hist"<< endmsg;
-      return StatusCode::FAILURE;
-    }
+    ATH_MSG_DEBUG( "Registering slopeDiffColl"  );
+    ATH_CHECK( bookHistCollection(m_slopeDiffColl, slopeDataName, slopeDataTitle, diffCatName, diffCatTitle,
+                                  slopeDiffAxisLabel, slopeNumBins, slopeLowBound, slopeHighBound, slopeSubDir) );
 
-    if(m_debuglevel) m_log << MSG::DEBUG << "Registering " << interceptDataTitle << endmsg;
-    sc = bookHistCollection(m_interceptColl, interceptDataName, interceptDataTitle, "",
-        "", interceptAxisLabel, interceptNumBins, interceptLowBound, interceptHighBound, 
-        interceptSubDir);
-    if(!sc.isSuccess())
-    {
-      m_log << MSG::FATAL << "Failed to book hist"<< endmsg;
-      return StatusCode::FAILURE;
-    }
+    ATH_MSG_DEBUG( "Registering " << interceptDataTitle  );
+    ATH_CHECK( bookHistCollection(m_interceptColl, interceptDataName, interceptDataTitle, "",
+                                  "", interceptAxisLabel, interceptNumBins, interceptLowBound, interceptHighBound, 
+                                  interceptSubDir) );
 
-    sc = bookHistCollection(m_chi2Coll, chi2DataName, chi2DataTitle, "", "",
-        chi2AxisLabel, chi2NumBins, chi2LowBound, chi2HighBound, chi2SubDir);
-    if(!sc.isSuccess())
-    {
-      m_log << MSG::FATAL << "Failed to book hist"<< endmsg;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( bookHistCollection(m_chi2Coll, chi2DataName, chi2DataTitle, "", "",
+                                  chi2AxisLabel, chi2NumBins, chi2LowBound, chi2HighBound, chi2SubDir) );
 
-    sc = bookHistCollection(m_deadNewColl, deadDataName, deadDataTitle, newCatName, newCatTitle,
-        deadAxisLabel, deadNumBins, deadLowBound, deadHighBound, deadSubDir);
-    if(!sc.isSuccess())
-    {
-      m_log << MSG::FATAL << "Failed to book hist"<< endmsg;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK(  bookHistCollection(m_deadNewColl, deadDataName, deadDataTitle, newCatName, newCatTitle,
+                                   deadAxisLabel, deadNumBins, deadLowBound, deadHighBound, deadSubDir) );
     
-    sc = bookHistCollection(m_fitResColl, fitResDataName, fitResDataTitle, "", "",
-        fitResAxisLabel, fitResNumBins, fitResLowBound, fitResHighBound, fitResSubDir);
-    if(!sc.isSuccess())
-    {
-      m_log << MSG::FATAL << "Failed to book hist"<< endmsg;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( bookHistCollection(m_fitResColl, fitResDataName, fitResDataTitle, "", "",
+                                  fitResAxisLabel, fitResNumBins, fitResLowBound, fitResHighBound, fitResSubDir) );
 
   }
-  return sc;
+  return StatusCode::SUCCESS;
 
 }
 
@@ -496,7 +433,7 @@ StatusCode CscCalibMonToolSlope::bookHistograms()
 //--handleParameter: Processes a vector of parameter values by filling the appropriate histograms
 StatusCode CscCalibMonToolSlope::handleParameter(const CscCalibResultCollection* parVals)
 {
-  if (m_debuglevel) m_log << MSG::DEBUG << "CscCalibMonToolSlope : in handleParameter()" << endmsg;
+  ATH_MSG_DEBUG( "CscCalibMonToolSlope : in handleParameter()"  );
 
   //The whole point of this funciton is to pass the correct histograms and setup info 
   //to CsccalibMonToolBase::procParameter. To organize this, we store the setup info into
@@ -527,7 +464,7 @@ StatusCode CscCalibMonToolSlope::handleParameter(const CscCalibResultCollection*
    */
   if(parName == "pslope")
   {
-    m_log << MSG::INFO << "Evaluating slopes" << endmsg;
+    ATH_MSG_INFO( "Evaluating slopes"  );
     simpleSet.dbName = parVals->parName();
     simpleSet.badHist = m_h_numBad;
     simpleSet.badBin = m_slopeBadBin;
@@ -548,7 +485,7 @@ StatusCode CscCalibMonToolSlope::handleParameter(const CscCalibResultCollection*
   }
   else if (parName == "pinter")
   {
-    m_log << MSG::INFO << "Evaluating intercepts" << endmsg;
+    ATH_MSG_INFO( "Evaluating intercepts"  );
     simpleSet.expectedVal = 0;
     simpleSet.badHist = m_h_numBad;
     simpleSet.badBin = m_interceptBadBin;
@@ -566,24 +503,18 @@ StatusCode CscCalibMonToolSlope::handleParameter(const CscCalibResultCollection*
   }
   else
   {
-    m_log << MSG::INFO << "CscCalibMonToolSlope : Did not recognize parameter name " 
-      << parName << ". This is usually ok." << endmsg;
+    ATH_MSG_INFO( "CscCalibMonToolSlope : Did not recognize parameter name " 
+                  << parName << ". This is usually ok."  );
     return StatusCode::FAILURE;
   }
 
   //Process parameter by filling histograms in simpleSet and allIdsSet structures
-  StatusCode sc = procParameter(parVals,&simpleSet);
-  if(!sc.isSuccess())
-  {
-    m_log << MSG::FATAL << "CscCalibMonToolSlope : Failed to process parameter " << parName 
-      << endmsg;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( procParameter(parVals,&simpleSet) );
 
 
   if(parName == "peakt")
   {
-    m_log << MSG::INFO << "Generating peaking time histograms" << endmsg;
+    ATH_MSG_INFO( "Generating peaking time histograms"  );
 
     copyDataToHists(m_peaktNewColl);
     copyDataToHists(m_peaktOldColl);
@@ -592,7 +523,7 @@ StatusCode CscCalibMonToolSlope::handleParameter(const CscCalibResultCollection*
   if(parName == "pslope") 
   {
 
-    m_log << MSG::INFO << "Generating slope histograms" << endmsg;
+    ATH_MSG_INFO( "Generating slope histograms"  );
     
     if(m_doNeighborRatios){
       genNeighborRatios(m_slopeNewColl->data, m_slopeRatioColl->data);
@@ -608,7 +539,7 @@ StatusCode CscCalibMonToolSlope::handleParameter(const CscCalibResultCollection*
   }
   if(parName == "pinter")
   {
-    m_log << MSG::INFO << "Generating intercept histograms" << endmsg;
+    ATH_MSG_INFO( "Generating intercept histograms"  );
     copyDataToHists(m_interceptColl);
   }
   return StatusCode::SUCCESS;
@@ -618,10 +549,9 @@ StatusCode CscCalibMonToolSlope::handleParameter(const CscCalibResultCollection*
 //requested by the user in m_detailedHashIds. 
 StatusCode CscCalibMonToolSlope::postProc()
 {
-  if (m_debuglevel) m_log << MSG::DEBUG << "CscCalibMonToolSlope : in retrieveHistos()" << endmsg;
+  ATH_MSG_DEBUG( "CscCalibMonToolSlope : in retrieveHistos()"  );
 
-  if (m_debuglevel) m_log << MSG::DEBUG << "Do all detailed is: " << m_doAllDetailed << endmsg;
-  StatusCode sc = StatusCode::SUCCESS;
+  ATH_MSG_DEBUG( "Do all detailed is: " << m_doAllDetailed  );
 
 
 
@@ -629,18 +559,17 @@ StatusCode CscCalibMonToolSlope::postProc()
 
   //Get the slopeReport, checking for pointer errors along the way
   const DataHandle<CscCalibReportContainer> repCont;
-  sc = m_storeGate->retrieve(repCont, m_histKey);
-  if( !sc.isSuccess())
+  if (!evtStore()->retrieve(repCont, m_histKey).isSuccess())
   {
-    m_log << MSG::ERROR << " Cannot retrieve object from storegate with key "
-      << m_histKey <<  " aborting retrieving hists " << endmsg;
+    ATH_MSG_ERROR( " Cannot retrieve object from storegate with key "
+                   << m_histKey <<  " aborting retrieving hists "  );
     return StatusCode::RECOVERABLE;
   }
   if(repCont->size() != 1)
   {
-    m_log << MSG::ERROR << "Container with key " << m_histKey
-      << " does not have a size of one. Do not know how to proceed, so aborting"
-      << " retrieving calibration histograms." << endmsg;
+    ATH_MSG_ERROR( "Container with key " << m_histKey
+                   << " does not have a size of one. Do not know how to proceed, so aborting"
+                   << " retrieving calibration histograms."  );
     return StatusCode::RECOVERABLE;
   }
 
@@ -648,14 +577,14 @@ StatusCode CscCalibMonToolSlope::postProc()
     dynamic_cast<const CscCalibReportSlope *>(repCont->front());
   if(!slopeReport)
   {
-    m_log << MSG::ERROR << "No report stored in the container with key " << m_histKey
-      << ". Aborting retrieving histograms." << endmsg;
+    ATH_MSG_ERROR( "No report stored in the container with key " << m_histKey
+                   << ". Aborting retrieving histograms."  );
     return StatusCode::RECOVERABLE;
   }
   if(slopeReport->getLabel() != "calGraphs")
   {
-    m_log << MSG::ERROR << "Incorect object retrieved from container with key " << m_histKey
-      << ". Aborting hist retrieval" << endmsg;
+    ATH_MSG_ERROR( "Incorect object retrieved from container with key " << m_histKey
+                   << ". Aborting hist retrieval"  );
     return StatusCode::RECOVERABLE;
   }
   
@@ -663,8 +592,7 @@ StatusCode CscCalibMonToolSlope::postProc()
   const map<int,TProfile*> * ampProfs = slopeReport->getAmpProfs();
   if(!ampProfs)
   {
-    m_log <<MSG::ERROR << "There are no amplitude profiles in the slope report! Can't find dead chans."
-      <<endmsg;
+    ATH_MSG_ERROR( "There are no amplitude profiles in the slope report! Can't find dead chans." );
     return StatusCode::RECOVERABLE;
   }
 
@@ -692,7 +620,7 @@ StatusCode CscCalibMonToolSlope::postProc()
       float highBound = 3000;
       string subDir = "AmpAtten" + attenStr;
 
-      sc = bookHistCollection(ampColl, dataName, dataTitle, "", "", axisLabel, numBins, lowBound, highBound, subDir);
+      bookHistCollection(ampColl, dataName, dataTitle, "", "", axisLabel, numBins, lowBound, highBound, subDir).ignore();
       for(unsigned int stripHash = 0; stripHash < m_maxHashId; stripHash++){
         ampColl->data[stripHash] =  profItr->second->GetBinContent(stripHash +1);
       }
@@ -707,15 +635,12 @@ StatusCode CscCalibMonToolSlope::postProc()
   copyDataToHists(m_fitResColl);
 
   //Generate fractional deviation histograms
-  if(m_debuglevel) m_log << MSG::DEBUG << "About to generate fractional deviation graphs" 
-    << endmsg;
+  ATH_MSG_DEBUG( "About to generate fractional deviation graphs" );
   if(!makeFracGraphs(*slopeReport).isSuccess())
-    m_log << MSG::WARNING << "Failed to generate fractional deviation graphs. Continuing anyway.." 
-      << endmsg;
+    ATH_MSG_WARNING( "Failed to generate fractional deviation graphs. Continuing anyway.." );
 
 
-  if(m_debuglevel) m_log << MSG::DEBUG << "About to find dead channels" 
-    << endmsg;
+  ATH_MSG_DEBUG( "About to find dead channels"  );
   //Determine dead channels
   //sc = findDeadChannels(*slopeReport);
   //if(!sc.isSuccess())
@@ -723,27 +648,26 @@ StatusCode CscCalibMonToolSlope::postProc()
 
 
   //Put extra info for those channels indicated in m_detailedHashIds
-  if(m_debuglevel) m_log << MSG::DEBUG << "Picking detailed graphs to output to root file" 
-    << endmsg;
+  ATH_MSG_DEBUG( "Picking detailed graphs to output to root file" );
   if(m_numBad >0 || m_maxDetailedChannels < 0 || m_doAllDetailed)
   { 
     const DataVector<TGraphErrors> * calGraphs 
       = slopeReport->getCalGraphs();
     if(!calGraphs)
     {
-      m_log << MSG::ERROR << "No calGraph stored inside object with key " << m_histKey
-        << ". Aborting hist retrieval." << endmsg;
+      ATH_MSG_ERROR( "No calGraph stored inside object with key " << m_histKey
+                     << ". Aborting hist retrieval."  );
       return StatusCode::RECOVERABLE;
     }
     else
-      m_log <<MSG::INFO << "Got calGraphs" << endmsg;
+      ATH_MSG_INFO( "Got calGraphs"  );
 
     const DataVector<TH1I> * bitHists = slopeReport->getBitHists();
     if(!bitHists)
-      m_log << MSG::INFO << "No bit histogram vector found from calibration. "
-        << " Won't be in monitoring output file. " << endmsg;
+      ATH_MSG_INFO( "No bit histogram vector found from calibration. "
+                    << " Won't be in monitoring output file. "  );
     else
-      m_log <<MSG::INFO << "Got bitHists" << endmsg;
+      ATH_MSG_INFO( "Got bitHists"  );
 
 
     //These are the channels we will get detailed forr.
@@ -774,8 +698,8 @@ StatusCode CscCalibMonToolSlope::postProc()
           const_cast<TGraphErrors*>((*calGraphs)[idItr]);
         if(!sourceGraph)
         {
-          m_log << MSG::ERROR << "The requested calgraph for hash "
-            << idItr << " doesn't exist in CscCalibReport object!" << endmsg;
+          ATH_MSG_ERROR( "The requested calgraph for hash "
+                         << idItr << " doesn't exist in CscCalibReport object!"  );
         }
         else {
           stringstream name;
@@ -789,7 +713,7 @@ StatusCode CscCalibMonToolSlope::postProc()
             << strip;
 
           sourceGraph->SetName(name.str().c_str());
-          m_log << MSG::DEBUG << "CalGraph axis title: " << sourceGraph->GetXaxis()->GetTitle() << endmsg;
+          ATH_MSG_DEBUG( "CalGraph axis title: " << sourceGraph->GetXaxis()->GetTitle()  );
 
           regGraph(sourceGraph, calGraphPath, run, ATTRIB_MANAGED);
         }
@@ -798,8 +722,8 @@ StatusCode CscCalibMonToolSlope::postProc()
         TProfile * sourceProf = m_fracProfs[idItr];
         if(!sourceProf)
         {
-          m_log << MSG::ERROR << "There is no fractional profile available for hash " 
-            << idItr << ". Quitting retrieveHistos()." << endmsg;
+          ATH_MSG_ERROR( "There is no fractional profile available for hash " 
+                         << idItr << ". Quitting retrieveHistos()."  );
         }
         else{
           stringstream fracName;
@@ -824,8 +748,8 @@ StatusCode CscCalibMonToolSlope::postProc()
           TH1I *  bitHist = const_cast<TH1I*>((*bitHists)[idItr]);
           if(!bitHist)
           {
-            m_log << MSG::ERROR << "There is no bit histogram with hashId "
-              << idItr << " Quiting out of detailed histogram loop." <<  endmsg;
+            ATH_MSG_ERROR( "There is no bit histogram with hashId "
+                           << idItr << " Quiting out of detailed histogram loop."  );
           }
           else {
 
@@ -858,12 +782,12 @@ StatusCode CscCalibMonToolSlope::postProc()
 //Generate fractional Deviation graphs
 StatusCode CscCalibMonToolSlope::makeFracGraphs(const CscCalibReportSlope & slopeReport)
 {
-  if (m_debuglevel) m_log << MSG::DEBUG << "CscCalibMonToolSlope : in makeFracGraphs()" << endmsg;
+  ATH_MSG_DEBUG( "CscCalibMonToolSlope : in makeFracGraphs()"  );
   const DataVector<TGraphErrors> * calGraphs = slopeReport.getCalGraphs();
   if(!calGraphs)
   {
-    m_log << MSG::ERROR << "No calGraphs in slopeReport. Not going to make fractional deviation"
-      << " plots." << endmsg;
+    ATH_MSG_ERROR( "No calGraphs in slopeReport. Not going to make fractional deviation"
+                   << " plots."  );
     return StatusCode::RECOVERABLE;
   }
 
@@ -873,7 +797,7 @@ StatusCode CscCalibMonToolSlope::makeFracGraphs(const CscCalibReportSlope & slop
   vector<Identifier>::const_iterator chamEnd = ids.end();
   for(; chamItr != chamEnd; chamItr++)
   {
-    if(m_verboselevel) m_log << MSG::VERBOSE << "in Chamber loop " << endmsg;
+    ATH_MSG_VERBOSE( "in Chamber loop "  );
     unsigned int stationSize = m_cscIdHelper->stationName(*chamItr); //51 = large, 50 = small
     unsigned int stationPhi = m_cscIdHelper->stationPhi(*chamItr);
     int stationEta = m_cscIdHelper->stationEta(*chamItr);
@@ -885,47 +809,43 @@ StatusCode CscCalibMonToolSlope::makeFracGraphs(const CscCalibReportSlope & slop
     vector<Identifier>::const_iterator stripEnd = stripVect.end();
     for(;stripItr != stripEnd; stripItr++)
     {
-      if(m_verboselevel) m_log << MSG::VERBOSE << "in strip loop " << endmsg;
+      ATH_MSG_VERBOSE( "in strip loop "  );
       IdentifierHash stripHash;
       m_cscIdHelper->get_channel_hash(*stripItr,stripHash);
       if(!m_expectedHashIdsPrec.count((int)stripHash)){
-        m_log << MSG::VERBOSE << "Skipping hash"  << (int)stripHash << endmsg;
+        ATH_MSG_VERBOSE( "Skipping hash"  << (int)stripHash  );
         continue;
       }
-      if(m_verboselevel) m_log << MSG::VERBOSE << "strip hash " << stripHash <<  endmsg;
+      ATH_MSG_VERBOSE( "strip hash " << stripHash  );
 
       const TGraphErrors * graph = (*calGraphs)[stripHash];
       if(!graph)
       {
-        if(m_verboselevel) m_log << MSG::VERBOSE << "SKipping graph" << endmsg;
+        ATH_MSG_VERBOSE( "SKipping graph"  );
         continue;
       }
       
       TF1 * func = graph->GetFunction("simpleFunc");
       if(!func){
-        m_log << MSG::DEBUG << "Could not retrieve function, skipping this graph" << endmsg;
+        ATH_MSG_DEBUG( "Could not retrieve function, skipping this graph"  );
         continue;
       }
 
-      if(m_verboselevel)
-      {
+      ATH_MSG_VERBOSE( "Address is " << graph );
+      ATH_MSG_VERBOSE( "name is "<< graph->GetName()  );
+      ATH_MSG_VERBOSE( "Getting n "  );
 
-        m_log << MSG::VERBOSE << "Address is " << graph<< endmsg;
-
-        m_log << MSG::VERBOSE << "name is "<< graph->GetName() << endl;
-        m_log << MSG::VERBOSE << "Getting n " << endl;
-      }
       int nPoints = graph->GetN();
-      if(m_verboselevel)m_log << MSG::VERBOSE << "Got n " << endl;
+      ATH_MSG_VERBOSE( "Got n "  );
       //Get identification information
       //Note, we don't ask for measuresPhi because there should be no
       //TGraphs with Y anyways.
-      if(m_verboselevel) m_log << MSG::VERBOSE << "getting id info " << endmsg;
+      ATH_MSG_VERBOSE( "getting id info " );
       unsigned int layer = m_cscIdHelper->wireLayer(*stripItr);
       unsigned int strip = m_cscIdHelper->strip(*stripItr);
-      if(m_verboselevel) m_log << "Got strip and layer" << endl;
+      ATH_MSG_VERBOSE( "Got strip and layer"  );
       //initialize fractional deviation profile
-      if(m_verboselevel) m_log << MSG::VERBOSE << "initializing profile " << endmsg;
+      ATH_MSG_VERBOSE( "initializing profile "  );
 
       stringstream nameStream;
       nameStream.setf(ios::right,ios::adjustfield);
@@ -947,10 +867,10 @@ StatusCode CscCalibMonToolSlope::makeFracGraphs(const CscCalibReportSlope & slop
       fracProf->GetXaxis()->SetTitle("Pulser Attenuator Settings in dB (not auscaled axis) ");
       fracProf->GetYaxis()->SetTitle("ADC response"); 
 
-      if(m_verboselevel) m_log << MSG::VERBOSE << "getting parameters " << endmsg;
+      ATH_MSG_VERBOSE( "getting parameters "  );
       float intercept = func->GetParameter(0);
       float slope = func->GetParameter(1);
-      if(m_verboselevel) m_log << MSG::VERBOSE << "got them " << endmsg;
+      ATH_MSG_VERBOSE( "got them "  );
 
       //Loop through points in graph, and compare the adc value and charge
       //to that expected from the fit parameters from the TF1 object
@@ -958,8 +878,7 @@ StatusCode CscCalibMonToolSlope::makeFracGraphs(const CscCalibReportSlope & slop
       bool isBad = false;
       for(int itr = 0; itr < nPoints; itr++)
       {
-        if(m_verboselevel) m_log << MSG::VERBOSE << "in point loop on point " << itr 
-          << endmsg;
+        ATH_MSG_VERBOSE( "in point loop on point " << itr );
 
         //Find Fractional Deviation
         graph->GetPoint(itr,db,adc);
@@ -967,7 +886,7 @@ StatusCode CscCalibMonToolSlope::makeFracGraphs(const CscCalibReportSlope & slop
         double frac = (adc - calcAdc)/( calcAdc - intercept);
 
         //Test to see if this is a bad result
-        if(m_verboselevel) m_log << MSG::VERBOSE << "bad result test " << endmsg;
+        ATH_MSG_VERBOSE( "bad result test "  );
         if(frac > m_fracDevMax)
         {
           m_h_numBad->Fill(m_fracBadBin);
@@ -977,22 +896,22 @@ StatusCode CscCalibMonToolSlope::makeFracGraphs(const CscCalibReportSlope & slop
         //test for nan, and put into fracProf 
         if (frac==frac)
         {
-          if(m_verboselevel) m_log << MSG::VERBOSE << "filling fracProf " << endmsg;
+          ATH_MSG_VERBOSE( "filling fracProf "  );
           fracProf->Fill(itr +1, frac);     
         }
 
         //Label bin with db amount
-        if(m_verboselevel) m_log << MSG::VERBOSE << "labeling bin " << endmsg;
+        ATH_MSG_VERBOSE( "labeling bin "  );
         stringstream binLabel;
         binLabel << db;    
         fracProf->GetXaxis()->SetBinLabel(itr+1, binLabel.str().c_str());
       }
-      if(m_verboselevel) m_log << MSG::VERBOSE << "storing fracProf " << endmsg;
+      ATH_MSG_VERBOSE( "storing fracProf "  );
       //Store fraction graph for later
       if(stripHash > m_maxHashId)
       {
-        m_log << MSG::ERROR << "Tried to assign fracProf with stripHash " << stripHash
-          << " when max stripHash is " << m_maxHashId << endmsg;
+        ATH_MSG_ERROR( "Tried to assign fracProf with stripHash " << stripHash
+                       << " when max stripHash is " << m_maxHashId  );
         return StatusCode::RECOVERABLE;
       }
 
@@ -1009,7 +928,7 @@ StatusCode CscCalibMonToolSlope::makeFracGraphs(const CscCalibReportSlope & slop
 
     }//end loop over strips
   }//end loop over chambers
-  m_log << MSG::DEBUG << "Finished generating frac graphs" << endmsg;
+  ATH_MSG_DEBUG( "Finished generating frac graphs"  );
 
   return StatusCode::SUCCESS;
 }//end makeFracGraphs
@@ -1025,24 +944,23 @@ StatusCode CscCalibMonToolSlope::findDeadChannels(const CscCalibReportSlope & sl
   const set<int> * pulsedChambers = slopeReport.getPulsedChambers();
   if(!pulsedChambers)
   {
-    m_log <<MSG::ERROR << "No pulsed chambers stored in slopeReport! Skipping dead channel collecting!" << endmsg;
+    ATH_MSG_ERROR( "No pulsed chambers stored in slopeReport! Skipping dead channel collecting!"  );
     return StatusCode::RECOVERABLE;
   }
 
   const map<int,TProfile*> * ampProfs = slopeReport.getAmpProfs();
   if(!ampProfs)
   {
-    m_log <<MSG::ERROR << "There are no amplitude profiles in the slope report! Can't find dead chans."
-      <<endmsg;
+    ATH_MSG_ERROR( "There are no amplitude profiles in the slope report! Can't find dead chans." );
     return StatusCode::RECOVERABLE;
   }
 
   map<int,TProfile*>::const_iterator profItr = ampProfs->begin();
 
   int pulserLevel = profItr->first;
-  m_log << MSG::INFO << "Looking for dead channels. Lowest attenuation level is " 
-    << pulserLevel << endmsg;
-  m_log << MSG::INFO << "Dead channel cutoff is: "<< m_deadADCCutoff; 
+  ATH_MSG_INFO( "Looking for dead channels. Lowest attenuation level is " 
+                << pulserLevel  );
+  ATH_MSG_INFO( "Dead channel cutoff is: "<< m_deadADCCutoff   );
 
   if(pulserLevel < m_deadPulserLevelCutoff)
   {//Pulser level is low enough (pulse voltage is high enough) to test for dead channels
@@ -1050,13 +968,12 @@ StatusCode CscCalibMonToolSlope::findDeadChannels(const CscCalibReportSlope & sl
     const TProfile * ampProf = profItr->second;
     if(!ampProf)
     {
-      m_log << MSG::ERROR << "There is no profile for this attenuation level! Skipping dead channel finding!"
-        << endmsg;
+      ATH_MSG_ERROR( "There is no profile for this attenuation level! Skipping dead channel finding!" );
       return StatusCode::RECOVERABLE;
     }
 
-    if(m_debuglevel) m_log << MSG::DEBUG << "There were " << pulsedChambers->size()
-      << " chambers pulsed." << endmsg;
+    ATH_MSG_DEBUG( "There were " << pulsedChambers->size()
+                   << " chambers pulsed."  );
 
     //Prepare dead channel content
     std::vector<float> & currentDeadVals = m_deadNewColl->data;
@@ -1090,7 +1007,7 @@ StatusCode CscCalibMonToolSlope::findDeadChannels(const CscCalibReportSlope & sl
 
         if(isDead && !wasDead)
         {
-          m_log << MSG::INFO << "NEW DEAD CHANNEL! Hash: " << hashItr << " ped: " << ped << " adc " << adc << " diff: " << adc-ped <<  endmsg;
+          ATH_MSG_INFO( "NEW DEAD CHANNEL! Hash: " << hashItr << " ped: " << ped << " adc " << adc << " diff: " << adc-ped  );
           newDead.insert(hashItr);
           m_h_deadOverview->Fill(m_newDeadBin);
           diffDeadVals[hashItr] = 1;
@@ -1098,7 +1015,7 @@ StatusCode CscCalibMonToolSlope::findDeadChannels(const CscCalibReportSlope & sl
         }
         if(!isDead && wasDead)
         {
-          m_log << MSG::INFO << "PREVIOUSLY DEAD CHANNEL NOW LIVE! Hash: " << hashItr << endmsg;
+          ATH_MSG_INFO( "PREVIOUSLY DEAD CHANNEL NOW LIVE! Hash: " << hashItr  );
           newUndead.insert(hashItr);
           m_h_deadOverview->Fill(m_newLiveBin);
           diffDeadVals[hashItr] = -1;
@@ -1118,19 +1035,18 @@ StatusCode CscCalibMonToolSlope::findDeadChannels(const CscCalibReportSlope & sl
     }//End for(hashItr)
 
     //***Generate histograms
-    m_log << MSG::INFO << "Generating dead histograms" << endmsg;
+    ATH_MSG_INFO( "Generating dead histograms"  );
     copyDataToHists(m_deadNewColl);
 
     //copyDataToHists(m_deadDiffColl); 
-    m_log << MSG::INFO << "Finished generating dead histograms" << endmsg;
+    ATH_MSG_INFO( "Finished generating dead histograms"  );
 
     //***Fill COOL input file if there are new dead channels******
     if(newDead.size() || newUndead.size())
     {
-      m_log << MSG::INFO << "There are " << newDead.size() 
-        << " newly dead channels and " << newUndead.size() 
-        << " newly live channels" 
-        << endmsg;
+      ATH_MSG_INFO( "There are " << newDead.size() 
+                    << " newly dead channels and " << newUndead.size() 
+                    << " newly live channels" );
       ofstream out("deadInfo.cal");
       out <<"00-00 " << newDead.size() + newUndead.size() << " dead_stat END_HEADER\n";
 
@@ -1164,9 +1080,7 @@ StatusCode CscCalibMonToolSlope::findDeadChannels(const CscCalibReportSlope & sl
   }//end if(pulserLevel < cutoff)
   else 
   {
-    m_log << MSG::ERROR
-      << "Lowest pulser level isn't low enough to count as a dead channel test. Skipping." 
-      << endmsg;
+    ATH_MSG_ERROR( "Lowest pulser level isn't low enough to count as a dead channel test. Skipping." );
     return StatusCode::RECOVERABLE;
   }
 
@@ -1185,8 +1099,8 @@ std::vector<float> & CscCalibMonToolSlope::setArray(std::vector<float>  & array,
 void CscCalibMonToolSlope::genNeighborRatios(const std::vector<float> & source, std::vector<float> & ratios) const{
   size_t nEntries = source.size();
   if(nEntries != ratios.size()){
-    m_log << MSG::ERROR << " in genNeighborRatios, source (" << nEntries << ") and ratio (" << ratios.size() 
-      << ") vectors have different numbers of entries!" << endmsg;
+    ATH_MSG_ERROR( " in genNeighborRatios, source (" << nEntries << ") and ratio (" << ratios.size() 
+                   << ") vectors have different numbers of entries!"  );
     return;
   }
 

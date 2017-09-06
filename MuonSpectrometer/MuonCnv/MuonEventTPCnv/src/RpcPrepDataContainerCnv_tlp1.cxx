@@ -3,7 +3,7 @@
 */
 
 #include "MuonEventTPCnv/RpcPrepDataContainerCnv_tlp1.h"
-
+#include "MuonEventTPCnv/CreateTransientTemplates.h"
 
 RpcPrepDataContainerCnv_tlp1::RpcPrepDataContainerCnv_tlp1()
 {

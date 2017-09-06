@@ -113,6 +113,5 @@ reference histograms <i>Bkg_ref.root</i> and <i>Sig_ref.root</i>. The originals
 are located in PhysicsAnalysis/BTagging/BTaggingUtils/share and are copied
 to the release InstallArea on compiling.<br>
 
-@section BTagging_requirementsBTagging Requirements
 
 */

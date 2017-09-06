@@ -2,10 +2,10 @@ test1
 SG::ExcNullHandleKey: Attempt to dereference a Read/Write/UpdateHandle with a null key.
 SG::ExcBadHandleKey: Bad key format for VarHandleKey: `xkey'
 SG::ExcForbiddenMethod: Forbidden method called: `meth'
-SG::ExcHandleInitError: Error initializing VarHandle from VarHandleKey: FooSvc/foo[123]
-SG::ExcUninitKey: Error initializing VarHandle from uninitialized VarHandleKey: FooSvc/foo[123]; keys should be initialized in your initialize().
-SG::ExcConstObject: Tried to retrieve non-const pointer to const object via VarHandleKey: FooSvc/foo[123]
-SG::ExcNullWriteHandle: Attempt to dereference write handle before record: FooSvc/foo[123]
-SG::ExcNullReadHandle: Dereference of read handle failed: FooSvc/foo[123]
-SG::ExcNullUpdateHandle: Dereference of update handle failed: FooSvc/foo[123]
-SG::ExcUpdatedObjectFailure: updatedObject failed: FooSvc/foo[123]
+SG::ExcHandleInitError: Error initializing VarHandle from VarHandleKey: FooSvc+foo[123]
+SG::ExcUninitKey: Error initializing VarHandle from uninitialized VarHandleKey: FooSvc+foo[123]; keys should be initialized in your initialize().
+SG::ExcConstObject: Tried to retrieve non-const pointer to const object via VarHandleKey: FooSvc+foo[123]
+SG::ExcNullWriteHandle: Attempt to dereference write handle before record: FooSvc+foo[123]
+SG::ExcNullReadHandle: Dereference of read handle failed: FooSvc+foo[123]
+SG::ExcNullUpdateHandle: Dereference of update handle failed: FooSvc+foo[123]
+SG::ExcUpdatedObjectFailure: updatedObject failed: FooSvc+foo[123]

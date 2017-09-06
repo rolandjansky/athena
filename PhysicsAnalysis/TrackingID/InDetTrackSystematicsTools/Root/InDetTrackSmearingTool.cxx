@@ -33,6 +33,8 @@ namespace InDet {
       InDet::TrackSystematicMap[TRK_RES_Z0_MEAS_UP],
       InDet::TrackSystematicMap[TRK_RES_D0_MEAS_DOWN],
       InDet::TrackSystematicMap[TRK_RES_Z0_MEAS_DOWN],
+      InDet::TrackSystematicMap[TRK_RES_D0Z0Corl_MEAS],
+      InDet::TrackSystematicMap[TRK_RES_D0Z0_MEAS],
       InDet::TrackSystematicMap[TRK_RES_D0_DEAD],
       InDet::TrackSystematicMap[TRK_RES_Z0_DEAD]
     };
@@ -66,12 +68,13 @@ namespace InDet {
     ATH_CHECK( initObject<TH1>(m_smearD0Dead, "res_diff_d0_vs_pt.hist.root", "res_pt_d0_0") );
     ATH_CHECK( initObject<TH1>(m_smearZ0Dead, "res_diff_z0_vs_pt.hist.root", "res_pt_z0_0") );
    
-    ATH_CHECK( initObject<TH2>(m_smearD0, "trackIPAlign_MB2016_final.root", "quad_diff/d0quaddiff_comb_Pt_Eta" ) );
-    ATH_CHECK( initObject<TH2>(m_smearZ0, "trackIPAlign_MB2016_final.root", "quad_diff/z0quaddiff_comb_Pt_Eta" ) );
-    ATH_CHECK( initObject<TH2>(m_smearD0_sys_up, "trackIPAlign_MB2016_final.root", "quad_diff/d0quaddiff_comb_Pt_Eta_sys_up" ) );
-    ATH_CHECK( initObject<TH2>(m_smearZ0_sys_up, "trackIPAlign_MB2016_final.root", "quad_diff/z0quaddiff_comb_Pt_Eta_sys_up" ) );
-    ATH_CHECK( initObject<TH2>(m_smearD0_sys_dw, "trackIPAlign_MB2016_final.root", "quad_diff/d0quaddiff_comb_Pt_Eta_sys_dw" ) );
-    ATH_CHECK( initObject<TH2>(m_smearZ0_sys_dw, "trackIPAlign_MB2016_final.root", "quad_diff/z0quaddiff_comb_Pt_Eta_sys_dw" ) );
+    string rootfile = "trackIPAlign_r21.root";
+    ATH_CHECK( initObject<TH2>(m_smearD0, rootfile, "quad_diff/d0quaddiff_comb_Pt_Eta" ) );
+    ATH_CHECK( initObject<TH2>(m_smearZ0, rootfile, "quad_diff/z0quaddiff_comb_Pt_Eta" ) );
+    ATH_CHECK( initObject<TH2>(m_smearD0_sys_up, rootfile, "quad_diff/d0quaddiff_comb_Pt_Eta_sys_up" ) );
+    ATH_CHECK( initObject<TH2>(m_smearZ0_sys_up, rootfile, "quad_diff/z0quaddiff_comb_Pt_Eta_sys_up" ) );
+    ATH_CHECK( initObject<TH2>(m_smearD0_sys_dw, rootfile, "quad_diff/d0quaddiff_comb_Pt_Eta_sys_dw" ) );
+    ATH_CHECK( initObject<TH2>(m_smearZ0_sys_dw, rootfile, "quad_diff/z0quaddiff_comb_Pt_Eta_sys_dw" ) );
 
     ATH_MSG_INFO( "Using seed of " << m_seed << " to initialize RNG" );
     m_rnd = make_unique<TRandom3>(m_seed);
@@ -116,7 +119,8 @@ namespace InDet {
       throw std::runtime_error( "Multiple incompatible D0 systematics are activated." );
     }
 
-    if ( isActiveD0Meas || isActiveD0MeasUp || isActiveD0MeasDown ) {
+    if ( isActiveD0Meas || isActiveD0MeasUp || isActiveD0MeasDown 
+         || isActive(TRK_RES_D0Z0Corl_MEAS) || isActive(TRK_RES_D0Z0_MEAS) ) {
       TH2* d0hist = m_smearD0;
       if(isActiveD0MeasUp) d0hist = m_smearD0_sys_up;
       if(isActiveD0MeasDown) d0hist = m_smearD0_sys_dw;
@@ -151,7 +155,8 @@ namespace InDet {
       throw std::runtime_error( "Multiple incompatible Z0 systematics are activated." );
     }
 
-    if ( isActiveZ0Meas || isActiveZ0MeasUp || isActiveZ0MeasDown ) {
+    if ( isActiveZ0Meas || isActiveZ0MeasUp || isActiveZ0MeasDown 
+         || isActive(TRK_RES_D0Z0Corl_MEAS) || isActive(TRK_RES_D0Z0_MEAS) ) {
       TH2* z0hist = m_smearZ0;
       if(isActiveZ0MeasUp) z0hist = m_smearZ0_sys_up;
       if(isActiveZ0MeasDown) z0hist = m_smearZ0_sys_dw;
@@ -164,18 +169,24 @@ namespace InDet {
   }
  
   CP::CorrectionCode InDetTrackSmearingTool::applyCorrection( xAOD::TrackParticle& track ) {
-    // this process could likely be optimized by simply looking through all possible systematics here and dealing with them one-by-one, instead of looking up whether each systematic is in the set.
     float sigmaD0 = GetSmearD0Sigma( track );
     float sigmaZ0 = GetSmearZ0Sigma( track );
 
-    //    ATH_MSG_INFO( "pt, eta = " << trkPt << "\t" << trkEta << "\t\tsigmaD, sigmaZ = " << sigmaD0 << "\t" << sigmaZ0 );
+    static SG::AuxElement::Accessor< float > accD0( "d0" );
+    static SG::AuxElement::Accessor< float > accZ0( "z0" );
 
-    // only call the RNG if the widths are greater than 0
-    float smeared_d0 = sigmaD0 > 0. ? m_rnd->Gaus(track.d0(), sigmaD0) : track.d0();
-    float smeared_z0 = sigmaZ0 > 0. ? m_rnd->Gaus(track.z0(), sigmaZ0) : track.z0();
+    //NB: only call the RNG if the widths are greater than 0
 
-    track.setDefiningParameters( smeared_d0, smeared_z0, track.phi0(), track.theta(), track.qOverP() );
-     
+    if(isActive(TRK_RES_D0Z0Corl_MEAS)){ 
+      //for correlation studies: use same random number to smear both d0 and z0
+      double rnd1 = m_rnd->Gaus();
+      if(sigmaD0 > 0. ) accD0( track ) = track.d0() + (rnd1*sigmaD0);
+      if(sigmaZ0 > 0. ) accZ0( track ) = track.z0() + (rnd1*sigmaZ0);
+    } else {
+      if ( sigmaD0 > 0. ) accD0( track ) = m_rnd->Gaus( track.d0(), sigmaD0 );
+      if ( sigmaZ0 > 0. ) accZ0( track ) = m_rnd->Gaus( track.z0(), sigmaZ0 );
+    }
+
     return CP::CorrectionCode::Ok;
   }
 
@@ -224,19 +235,6 @@ namespace InDet {
     float val = histogram->GetBinContent(bin);
     return val;
   }
-
-  // float InDetTrackSmearingTool::readHistogramErr(TH2* histogram, float pt, float eta) const {
-  //   // safety measure:
-  //   if( eta>2.499 )  eta= 2.499;
-  //   if( eta<-2.499 ) eta=-2.499;
-  //   if ( pt >= histogram->GetXaxis()->GetXmax() ) {
-  //     pt = histogram->GetXaxis()->GetXmax() - 0.01;
-  //   }
-
-  //   int bin = histogram->FindFixBin(pt, eta);
-  //   float err = histogram->GetBinError(bin);
-  //   return err;
-  // }
 
 } // namespace InDet
 

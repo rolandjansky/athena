@@ -7,9 +7,9 @@ import struct
 
 from PyCool import cool
 
-import PyCintex
-PyCintex.gbl.cool.IDatabase # force the load of the dictionary (to stay on the safe side)
-from PyCintex import gbl, getAllClasses
+import cppyy
+cppyy.gbl.cool.IDatabase # force the load of the dictionary (to stay on the safe side)
+from cppyy import gbl, getAllClasses
 def blob_read(self, size = -1):
     if size < 0:
         endpos = self.size()

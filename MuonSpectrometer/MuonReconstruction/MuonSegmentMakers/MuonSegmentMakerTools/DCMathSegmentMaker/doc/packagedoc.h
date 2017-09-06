@@ -81,14 +81,4 @@ m_mdtSegmentMaker->find( );
 
 @section DCMathSegmentMaker_ExtrasDCMathSegmentMaker Extra Pages
 
- - @ref UsedDCMathSegmentMaker
- - @ref RequirementsDCMathSegmentMaker
-*/
-
-/**
-@page UsedDCMathSegmentMaker Used Packages
-*/
-
-/**
-@page RequirementsDCMathSegmentMaker Requirements
 */

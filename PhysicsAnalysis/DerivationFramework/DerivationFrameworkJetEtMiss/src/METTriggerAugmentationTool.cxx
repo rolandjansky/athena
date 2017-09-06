@@ -4,6 +4,7 @@
 
 #include "METTriggerAugmentationTool.h"
 #include <xAODTrigger/EnergySumRoI.h>
+#include <xAODTrigger/EnergySumRoIAuxInfo.h>
 #include <xAODTrigger/JetRoIContainer.h>
 #include <xAODTrigger/JetRoI.h>
 #include <PathResolver/PathResolver.h>
@@ -11,34 +12,48 @@
 #include <string>
 
 #include <TFile.h>
-#include <TH2.h>
 
 namespace DerivationFramework {
 
   METTriggerAugmentationTool::METTriggerAugmentationTool(const std::string& t,
       const std::string& n,
       const IInterface* p) : 
-    AthAlgTool(t,n,p), m_SGPrefix(""), m_LUTFileName("LUT_ZHnub_mu80_BCID0_sigHT500_int.root")
+    AthAlgTool(t,n,p)
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
-    declareProperty("SGPrefix", m_SGPrefix);
-    declareProperty("LUTFileName", m_LUTFileName);
+    declareProperty("OutputName", m_outputName = "LVL1EnergySumRoI_KF");
+    declareProperty("LUTFile", m_LUTFileName = "LUT_data15.root");
+    declareProperty("L1METName", m_L1METName = "LVL1EnergySumRoI");
+    declareProperty("L1JetName", m_L1JetName = "LVL1JetRoIs");
   }
 
   StatusCode METTriggerAugmentationTool::initialize() 
   {
-    std::string LUTFileLoc = PathResolver::find_file("LUT_ZHnub_mu80_BCID0_sigHT500_int.root", "DATAPATH");
-    ATH_MSG_INFO ("Opening LUT file at " << LUTFileLoc);
-    m_LUTFile = new TFile(LUTFileLoc.c_str(), "READ");
-    if (m_LUTFile->IsZombie()) return StatusCode::FAILURE;
-    m_LUT = (TH2F*)m_LUTFile->Get("LUT");
-    if (!m_LUT) return StatusCode::FAILURE;
+    std::string fullLUTFileName = PathResolver::find_file(m_LUTFileName, "DATAPATH");
+
+    if (fullLUTFileName.empty() ) {
+      ATH_MSG_ERROR( "File " << m_LUTFileName << " not found!" );
+      return StatusCode::FAILURE;
+    }
+
+    TFile* lutFile = TFile::Open(fullLUTFileName.c_str() );
+    if (lutFile->IsZombie() ) return StatusCode::FAILURE;
+
+    TH2* lutFromFile(0);
+    lutFile->GetObject("LUT", lutFromFile);
+    if (!lutFromFile) {
+      ATH_MSG_ERROR( "LUT file doesn't contain a 'LUT' object!" );
+      return StatusCode::FAILURE;
+    }
+
+    m_LUT.reset(dynamic_cast<TH2*>(lutFromFile->Clone() ) );
+    m_LUT->SetDirectory(0);
+    lutFile->Close();
     return StatusCode::SUCCESS;
   }
 
   StatusCode METTriggerAugmentationTool::finalize()
   {
-    m_LUTFile->Close();
     return StatusCode::SUCCESS;
   }
 
@@ -46,51 +61,51 @@ namespace DerivationFramework {
 
   StatusCode METTriggerAugmentationTool::addBranches() const
   {
-    // Set up the outputs
-    std::unique_ptr<std::vector<float>> KFEx(new std::vector<float>());
-    std::unique_ptr<std::vector<float>> KFEy(new std::vector<float>());
+    ATH_MSG_DEBUG(" In L1KF_METMaker::makeKFMET()" );
 
-    // Retrieve the containers
-    const xAOD::EnergySumRoI* L1XE_c = evtStore()->retrieve<const xAOD::EnergySumRoI>("LVL1EnergySumRoI");
-    if (!L1XE_c) {
-      ATH_MSG_ERROR ("Couldn't retrieve EnergySumRoI with key LVL1EnergySumRoI");
-      return StatusCode::FAILURE;
+    // if the output has already been written we don't need to do anything
+    if (evtStore()->contains<xAOD::EnergySumRoI>(m_outputName) ) return StatusCode::SUCCESS;
+
+    const xAOD::EnergySumRoI* originalL1(0);
+    ATH_CHECK( evtStore()->retrieve(originalL1, m_L1METName) );
+
+    const xAOD::JetRoIContainer* l1Jets(0);
+    ATH_CHECK( evtStore()->retrieve(l1Jets, m_L1JetName) );
+
+    xAOD::EnergySumRoI* l1_kf = new xAOD::EnergySumRoI();
+    xAOD::EnergySumRoIAuxInfo* l1_kfAux = new xAOD::EnergySumRoIAuxInfo();
+
+    ATH_MSG_DEBUG( "Setting the store" );
+    // set the store
+    l1_kf->setStore(l1_kfAux);
+
+    ATH_MSG_DEBUG( "Making deep copy" );
+    // copy across the info
+    *l1_kf = *originalL1; 
+
+    ATH_MSG_DEBUG( "Building KF MET" );
+    float KFMETx = l1_kf->exMiss();
+    float KFMETy = l1_kf->eyMiss();
+    float KFSumEt = l1_kf->energyT();
+
+    for (const auto jet : *l1Jets) {
+      int etaBin = m_LUT->GetXaxis()->FindBin( fabs( jet->eta() ) );
+      int ptBin = m_LUT->GetYaxis()->FindBin( log2( jet->et8x8() / 1000.) );
+      if (ptBin==0) ptBin=1;
+      float KFweight = m_LUT->GetBinContent(etaBin, ptBin);
+      float jetContribution = jet->et8x8() * KFweight;
+
+      KFMETx -= jetContribution * cos( jet->phi() );
+      KFMETy -= jetContribution * sin( jet->phi() );
+      KFSumEt += jetContribution;
     }
+    l1_kf->setEnergyX(-KFMETx);
+    l1_kf->setEnergyY(-KFMETy);
+    l1_kf->setEnergyT(KFSumEt);
 
-    const xAOD::JetRoIContainer* L1Jet_c = evtStore()->retrieve<const xAOD::JetRoIContainer>("LVL1JetRoIs");
-    if (!L1Jet_c) {
-      ATH_MSG_ERROR ("Couldn't retrieve JetRoIContainer with key LVL1JetRoIs");
-      return StatusCode::FAILURE;
-    }
-
-
-    float KF_XE_x = L1XE_c->energyX();
-    float KF_XE_y = L1XE_c->energyY();
-
-    for (const xAOD::JetRoI* L1Jet : *L1Jet_c){
-      Int_t etaBin = m_LUT->GetXaxis()->FindBin(abs(L1Jet->eta()));
-      Int_t ptBin  = m_LUT->GetYaxis()->FindBin(log2(L1Jet->et8x8() * 0.001));
-      if(ptBin==0) ptBin++;
-      Double_t weight = m_LUT->GetBinContent(etaBin,ptBin);
-
-      KF_XE_x -= L1Jet->et8x8() * cos(L1Jet->phi()) * weight;
-      KF_XE_y -= L1Jet->et8x8() * sin(L1Jet->phi()) * weight;
-    }
-
-
-    KFEx->push_back(KF_XE_x);
-    KFEy->push_back(KF_XE_y);
-
-    // Write output to SG for access by downstream algs
-    if (evtStore()->contains<std::vector<float>> ((m_SGPrefix+"KFEx").c_str()) ||
-        evtStore()->contains<std::vector<float>> ((m_SGPrefix+"KFEy").c_str())){
-      ATH_MSG_ERROR("Tool is attempting to write StoreGate keys which already exist. Please use different keys");
-      return StatusCode::FAILURE;
-    } else {
-      CHECK(evtStore()->record(std::move(KFEx), (m_SGPrefix+"KFEx").c_str()));
-      CHECK(evtStore()->record(std::move(KFEy), (m_SGPrefix+"KFEy").c_str()));
-    }
-
+    ATH_MSG_DEBUG( "Built KF MET" );
+    ATH_CHECK( evtStore()->record(l1_kf, m_outputName) );
+    ATH_CHECK( evtStore()->record(l1_kfAux, m_outputName+"Aux.") );
     return StatusCode::SUCCESS;
   }
 }

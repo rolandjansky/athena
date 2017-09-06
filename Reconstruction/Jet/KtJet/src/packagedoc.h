@@ -83,9 +83,6 @@
 @section KtJet_@section jobOptions jobOptions
  * None
  *
- * <hr>
-@section KtJet_@section requirements CMT requirements
- * @verbinclude  requirements
  */
 
 /**

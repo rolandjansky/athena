@@ -532,9 +532,9 @@ void iHitFilter::groupCleaner( GroupList::iterator& inputItr, GroupList& cleanGr
 	  gItr2=cleanGroups.rbegin();
 	  for ( unsigned long i=0; i<newGroups;++i,++gItr2)
 	    {
-	      pTF->m_addNewTrackCandidate(&(*gItr2));
+	      pTF->addNewTrackCandidate(&(*gItr2));
 	    }
-	  pTF->m_removeClones(m_cloneRemovalCut);
+	  pTF->removeClones(m_cloneRemovalCut);
 	  delete pTF;
 	}
 #ifdef IDSCAN_DEBUG
@@ -869,7 +869,7 @@ TrackFilterClass::~TrackFilterClass()
   m_vpTCC.clear();
 }
 
-void TrackFilterClass::m_addNewTrackCandidate(Group* pGrp)
+void TrackFilterClass::addNewTrackCandidate(Group* pGrp)
 {
   TrackCandidateClass* pTCC;
   pTCC=new TrackCandidateClass(pGrp);
@@ -883,7 +883,7 @@ bool compareTrackCandidates(const TrackCandidateClass* pTCC1, const TrackCandida
   return (pTCC1->m_fom > pTCC2->m_fom );
 }
 
-void TrackFilterClass::m_removeClones(int cut)
+void TrackFilterClass::removeClones(int cut)
 {
   int nTrackCounter=1;
   int nSign,nBinNum;

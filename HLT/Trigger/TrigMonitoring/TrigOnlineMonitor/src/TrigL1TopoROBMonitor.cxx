@@ -93,6 +93,8 @@ TrigL1TopoROBMonitor::TrigL1TopoROBMonitor(const std::string& name, ISvcLocator*
   m_histTopoSimHdwEventOverflowComparison(0),
   m_histTopoCtpSimHdwEventComparison(0),
   m_histTopoCtpHdwEventComparison(0),
+  m_histTopoDaqRobEventComparison(0),
+  m_histDaqRobCtpEventComparison(0),
   m_histTopoSimResult(0),
   m_histTopoHdwResult(0),
   m_histTopoSimNotHdwResult(0),
@@ -103,6 +105,10 @@ TrigL1TopoROBMonitor::TrigL1TopoROBMonitor(const std::string& name, ISvcLocator*
   m_histTopoHdwNotSimOverflow(0),
   m_histTopoProblems(0),
   m_histInputLinkCRCfromROIConv(0),
+  m_histTopoDaqRobSimResult(0),
+  m_histTopoDaqRobHdwResult(0),
+  m_histTopoDaqRobSimNotHdwResult(0),
+  m_histTopoDaqRobHdwNotSimResult(0),
   m_setTopoSimResult(false),
   m_firstEvent(true)
 {
@@ -113,6 +119,7 @@ TrigL1TopoROBMonitor::TrigL1TopoROBMonitor(const std::string& name, ISvcLocator*
   declareProperty("doRawMon", m_doRawMon = true, "enable L1Topo monitoring direct from ROB fragments");
   declareProperty("doCnvMon", m_doCnvMon = true, "enable L1Topo monitoring via converters");
   declareProperty("doSimMon", m_doSimMon = true, "enable L1Topo hardware vs simulation comparison");
+  declareProperty("doSimDaq", m_doSimDaq = true, "enable L1Topo DAQ hardware vs simulation comparison");
   declareProperty("doWriteValData", m_doWriteValData = true, "write L1Topo simulation/validation data into HLTResult"); 
   declareProperty("useDetMask", m_useDetMask = true, "only monitor if L1Topo is included in the event according to the detector mask; this can disable monitoring automatically in spite of other options");
   declareProperty("SimTopoCTPLocation", m_simTopoCTPLocation = LVL1::DEFAULT_L1TopoCTPLocation, "StoreGate key of simulated topo decision output for CTP, defaults to default output key of L1TopoSimulation" );
@@ -128,6 +135,7 @@ StatusCode TrigL1TopoROBMonitor::initialize(){
   ATH_MSG_DEBUG ( m_doRawMon );
   ATH_MSG_DEBUG ( m_doCnvMon );
   ATH_MSG_DEBUG ( m_doSimMon );
+  ATH_MSG_DEBUG ( m_doSimDaq );
   ATH_MSG_DEBUG ( m_doWriteValData );
   ATH_MSG_DEBUG ( m_useDetMask );
   ATH_MSG_DEBUG ( m_vDAQROBIDs );
@@ -205,6 +213,9 @@ StatusCode TrigL1TopoROBMonitor::execute() {
   if (m_doSimMon){
     CHECK( doSimMon(prescaleForDAQROBAccess) );
     CHECK( doOverflowSimMon() );
+  }
+  if(m_doSimDaq){
+      CHECK(doSimDaq(prescaleForDAQROBAccess));
   }
  
   if (m_doWriteValData){
@@ -287,6 +298,8 @@ StatusCode TrigL1TopoROBMonitor::beginRun() {
   CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoSimHdwEventOverflowComparison, "Hdw_vs_Sim_EventOverflow", "L1Topo overflow hardware XOR simulation event-by-event differences", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) ) ;
   CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoCtpSimHdwEventComparison, "CTP_Hdw_vs_Sim_Events", "L1Topo decisions CTP hardware XOR simulation event-by-event differences, events with no overflows", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) ) ;
   CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoCtpHdwEventComparison, "CTP_Hdw_vs_L1Topo_Hdw_Events", "L1Topo decisions hardware (trigger|overflow) XOR CTP TIP hardware event-by-event differences, events with no overflows", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) ) ;
+  CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoDaqRobEventComparison, "DAQ_ROB_Hdw_vs_L1Topo_Hdw_Events", "L1Topo decisions hardware XOR DAQ ROB hardware event-by-event differences", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) ) ;
+  CHECK( bookAndRegisterHist(rootHistSvc, m_histDaqRobCtpEventComparison, "DAQ_ROB_Hdw_vs_CTP_Hdw_Events", "L1Topo DAQ ROB hardware XOR CTP TIP hardware event-by-event differences", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) ) ;
   CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoSimResult, "SimResults", "L1Topo simulation accepts, events with no overflows", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) );
   CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoHdwResult, "HdwResults", "L1Topo hardware accepts, events with no overflows", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) ) ;
   CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoSimNotHdwResult, "SimNotHdwResult", "L1Topo events with simulation accept and hardware fail, events with no overflows", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) );
@@ -298,6 +311,10 @@ StatusCode TrigL1TopoROBMonitor::beginRun() {
   unsigned int nProblems=m_problems.size();
   CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoProblems, "Problems", "Counts of various problems", nProblems, 0, nProblems) ) ;
   CHECK( bookAndRegisterHist(rootHistSvc, m_histInputLinkCRCfromROIConv, "InputLinkCRCs","CRC flags for input links, from ROI via converter", 5, 0, 5) );
+  CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoDaqRobSimResult, "SimDaqRobResults", "L1Topo simulation accepts, events with no overflows (DAQ ROB)", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) );
+  CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoDaqRobHdwResult, "HdwDaqRobResults", "L1Topo hardware accepts, events with no overflows (DAQ ROB)", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) ) ;
+  CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoDaqRobSimNotHdwResult, "SimNotHdwDaqRobResult", "L1Topo events with simulation accept and hardware fail, events with no overflows (DAQ ROB)", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) );
+  CHECK( bookAndRegisterHist(rootHistSvc, m_histTopoDaqRobHdwNotSimResult, "HdwNotSimDaqRobResult", "L1Topo events with hardware accept and simulation fail, events with no overflows (DAQ ROB)", m_nTopoCTPOutputs, 0, m_nTopoCTPOutputs) );
 
   // Next, apply x-bin labels to some histograms
 
@@ -363,6 +380,12 @@ StatusCode TrigL1TopoROBMonitor::beginRun() {
       m_histTopoSimHdwEventOverflowComparison->GetXaxis()->SetBinLabel(binIndex+1,label.c_str());
       m_histTopoCtpSimHdwEventComparison->GetXaxis()->SetBinLabel(binIndex+1,label.c_str());
       m_histTopoCtpHdwEventComparison->GetXaxis()->SetBinLabel(binIndex+1,label.c_str());
+      m_histTopoDaqRobEventComparison->GetXaxis()->SetBinLabel(binIndex+1,label.c_str());
+      m_histDaqRobCtpEventComparison->GetXaxis()->SetBinLabel(binIndex+1,label.c_str());
+      m_histTopoDaqRobSimResult->GetXaxis()->SetBinLabel(binIndex+1,label.c_str());
+      m_histTopoDaqRobHdwResult->GetXaxis()->SetBinLabel(binIndex+1,label.c_str());
+      m_histTopoDaqRobSimNotHdwResult->GetXaxis()->SetBinLabel(binIndex+1,label.c_str());
+      m_histTopoDaqRobHdwNotSimResult->GetXaxis()->SetBinLabel(binIndex+1,label.c_str());
     }
   }
 
@@ -449,6 +472,8 @@ StatusCode TrigL1TopoROBMonitor::doCnvMon(bool prescalForDAQROBAccess) {
   m_overflowBits.reset();
   m_topoSimResult.reset();
   m_topoCtpResult.reset();
+  m_triggerBitsDaqRob.reset();
+  m_overflowBitsDaqRob.reset();
   m_setTopoSimResult=false;
 
   // Retrieve and print the L1Topo RDOs from the ROI RODs
@@ -533,7 +558,8 @@ StatusCode TrigL1TopoROBMonitor::doCnvMon(bool prescalForDAQROBAccess) {
   // Only check DAQ ROBs if prescaler said yes
   if (prescalForDAQROBAccess){
 
-    std::vector<L1Topo::L1TopoTOB> daqTobsBC0;
+    std::vector<L1Topo::L1TopoTOB> daqTobsBC0; // to compute m_triggerBitsDaqRob, m_overflowBitsDaqRob
+    std::vector<uint32_t> tobsbc0SourceIds; // to compute bit indices
     
     // Retrieve the L1Topo RDOs from the DAQ RODs
     const DataHandle<L1TopoRDOCollection> rdos = 0;
@@ -618,7 +644,8 @@ StatusCode TrigL1TopoROBMonitor::doCnvMon(bool prescalForDAQROBAccess) {
               daqTobs.push_back(tob);
               if (header.bcn_offset()==0){
                 daqTobsBC0.push_back(tob);
-	    }
+                tobsbc0SourceIds.push_back(rdo->getSourceID());
+              }
               break;
             }
           default:
@@ -636,14 +663,9 @@ StatusCode TrigL1TopoROBMonitor::doCnvMon(bool prescalForDAQROBAccess) {
     }
     
   // Compare ROI and DAQ L1Topo TOBS
-
-  // need to sort them first? Note zero supression possible
-
       if (roiTobs.empty() and daqTobsBC0.empty()){
 	ATH_MSG_DEBUG( "L1Topo TOBs from both ROI and DAQ via converters are empty: zero supression or problem?" );
       } 
-
-    
     /*
       if (daqTobsBC0==roiTobs){
       ATH_MSG_DEBUG( "DAQ L1Topo TOBs from BC0 are the same as ROI L1Topo TOBs" );
@@ -654,7 +676,26 @@ StatusCode TrigL1TopoROBMonitor::doCnvMon(bool prescalForDAQROBAccess) {
       //compareL1TopoTOBs(daqTobsBC0,roiTobs);
     */
 
-  }
+      // the comparison of all words is non-trivial, because of
+      // different ordering and zero suppression (some TOBs could be
+      // missing from the DAQ output).
+      // So we just compare the decision bits.
+      ATH_MSG_DEBUG("Assigning trigger and overflow bitsets from "<<daqTobsBC0.size()<<" words from the DAQ ROB");
+      for(uint32_t iTob=0; iTob<daqTobsBC0.size(); ++iTob){
+          const L1Topo::L1TopoTOB &tob = daqTobsBC0[iTob];
+          const uint32_t &sourceId = tobsbc0SourceIds[iTob];
+          for(unsigned int i=0; i<8; ++i){
+              unsigned int index = L1Topo::triggerBitIndexNew(sourceId, tob, i);
+              m_triggerBitsDaqRob[index]  = (tob.trigger_bits()>>i)&1;
+              m_overflowBitsDaqRob[index] = (tob.overflow_bits()>>i)&1;
+          }
+      } // for(tob)
+      ATH_MSG_VERBOSE("trigger  bits from DAQ ROB Cnv: "<<m_triggerBitsDaqRob);
+      ATH_MSG_VERBOSE("overflow bits from DAQ ROB Cnv: "<<m_overflowBitsDaqRob);
+      compBitSets("L1Topo hardware", "L1Topo DAQ ROB",
+                  m_triggerBits, m_triggerBitsDaqRob,
+                  m_histTopoDaqRobEventComparison);
+  } // if(prescalForDAQROBAccess)
   else {
     ATH_MSG_DEBUG( "L1Topo DAQ ROB access via converter skipped due to prescale" );
   }
@@ -699,13 +740,6 @@ StatusCode TrigL1TopoROBMonitor::doSimMon(bool prescalForDAQROBAccess){
       ATH_MSG_INFO( "Retrieve of LVL1::FrontPanelCTP failed. Skipping simulation comparison." );
     }
     else {
-
-
-      // New code to fill histograms of simulated L1Topo decisions bits and comparison
-      
-      // Do the comparison and fill histograms only if the L1Topo items did not overflow
-      if (m_overflowBits.none()){
-
         m_setTopoSimResult=true;
         // From L1CaloL1TopoMon code (simulated result)
         for(unsigned int i=0; i<32; ++i) {
@@ -720,6 +754,9 @@ StatusCode TrigL1TopoROBMonitor::doSimMon(bool prescalForDAQROBAccess){
             m_topoSimResult[96 + i] = 1; // cable 2, clock 1
         }
 
+      // New code to fill histograms of simulated L1Topo decisions bits and comparison
+      // Do the comparison and fill histograms only if the L1Topo items did not overflow
+      if (m_overflowBits.none()){
         // fill histograms
         for (unsigned int i=0; i< m_nTopoCTPOutputs; ++i){
           m_histTopoHdwResult->Fill(i,m_triggerBits.test(i)); 
@@ -795,7 +832,9 @@ StatusCode TrigL1TopoROBMonitor::doSimMon(bool prescalForDAQROBAccess){
         compBitSets("L1Topo hardware trigger|overflow", "CTP TIP hardware",
                     m_triggerBits|m_overflowBits, m_topoCtpResult,
                     m_histTopoCtpHdwEventComparison);
-
+        compBitSets("L1Topo DAQ ROB trigger|overflow", "CTP TIP hardware",
+                    m_triggerBitsDaqRob|m_overflowBitsDaqRob, m_topoCtpResult,
+                    m_histDaqRobCtpEventComparison);
 	if (m_overflowBits.none() && m_setTopoSimResult){
 	  // Compare L1Topo outputs from simulation with those at the CTP
 	  compBitSets("L1Topo CTP TIP hardware", "L1Topo CTP simulation",
@@ -812,7 +851,28 @@ StatusCode TrigL1TopoROBMonitor::doSimMon(bool prescalForDAQROBAccess){
   return StatusCode::SUCCESS;
 
 }
-
+//----------------------------------------------------------
+StatusCode TrigL1TopoROBMonitor::doSimDaq(bool prescalForDAQROBAccess){
+    ATH_MSG_DEBUG( "doSimDaq" );
+    if(prescalForDAQROBAccess and m_setTopoSimResult and m_overflowBitsDaqRob.none()){
+        for (unsigned int i=0; i< m_nTopoCTPOutputs; ++i){
+            m_histTopoDaqRobHdwResult->Fill(i,m_triggerBitsDaqRob.test(i));
+        }
+        for (unsigned int i=0; i< m_nTopoCTPOutputs; ++i){
+            m_histTopoDaqRobSimResult->Fill(i,m_topoSimResult.test(i));
+        }
+        for (unsigned int i=0; i< m_nTopoCTPOutputs; ++i){
+            m_histTopoDaqRobSimNotHdwResult->Fill(i,
+                                                  m_topoSimResult.test(i) and not
+                                                  m_triggerBitsDaqRob.test(i));
+            m_histTopoDaqRobHdwNotSimResult->Fill(i,
+                                                  m_triggerBitsDaqRob.test(i)
+                                                  and not m_topoSimResult.test(i));
+        }
+    } // if(overflow.none)
+    return StatusCode::SUCCESS;
+}
+//----------------------------------------------------------
 StatusCode TrigL1TopoROBMonitor::doWriteValData(){
   ATH_MSG_DEBUG( "doWriteValData" );
 

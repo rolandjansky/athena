@@ -13,7 +13,7 @@
 ////////////////////////////////////////////////////////////////
 
 #include "VP1GeometrySystems/VP1GeoTreeView.h"
-#include <QtCore/QTimer>
+#include <QTimer>
 
 //____________________________________________________________________
 class VP1GeoTreeView::Imp {

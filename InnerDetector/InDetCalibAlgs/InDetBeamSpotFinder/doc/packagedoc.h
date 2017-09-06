@@ -12,8 +12,6 @@ Package for the offline determination of the beamspot position, width, slope, fo
 @introduction
 See TWiki page InDetBeamSpot for general information.
 
-@page UsedInDetBeamSpotFinder Used Packages
 
-@page RequirementsInDetBeamSpotFinder Requirements
 
 */

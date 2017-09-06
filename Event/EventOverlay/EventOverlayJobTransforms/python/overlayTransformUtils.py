@@ -193,10 +193,16 @@ def addOverlayHITARMakerSubstep(executorSet):
     executorSet.add(BSJobSplitterExecutor(name = 'HITARMaker', skeletonFile = 'EventOverlayJobTransforms/skeleton.HITARMaker_tf.py', substep='HITARMaker',
                                           inData = ['TXT_EVENTID'], outData = ['TAR_CONFIG']))
 
-def addOverlay_PoolSubstep(executorSet):
-    executorSet.add(athenaExecutor(name = 'OverlayPool', skeletonFile = 'EventOverlayJobTransforms/skeleton.OverlayPool_tf.py',
-                                   substep = 'overlayPOOL', tryDropAndReload = False, perfMonFile = 'ntuple.pmon.gz',
-                                   inData = ['HITS', 'RDO_BKG'], outData = ['RDO', 'RDO_SGNL']))
+def addOverlay_PoolSubstep(executorSet, inRecoChain = False):
+    executor = athenaExecutor(name = 'OverlayPool', skeletonFile = 'EventOverlayJobTransforms/skeleton.OverlayPool_tf.py',
+                              substep = 'overlayPOOL', tryDropAndReload = False, perfMonFile = 'ntuple.pmon.gz',
+                              inData = [('HITS', 'RDO_BKG')], outData = ['RDO', 'RDO_SGNL'])
+
+    if inRecoChain:
+        executor.inData = []
+        executor.outData = []
+ 
+    executorSet.add(executor)
 
 def addOverlay_BSSubstep(executorSet):
     executorSet.add(athenaExecutor(name = 'OverlayBS', skeletonFile = 'EventOverlayJobTransforms/skeleton.OverlayBS_tf.py',
@@ -213,9 +219,9 @@ def appendOverlayBSFilterSubstep(trf):
     addOverlayBSFilterSubstep(executor)
     trf.appendToExecutorSet(executor)
 
-def appendOverlay_PoolSubstep(trf):
+def appendOverlay_PoolSubstep(trf, inRecoChain = False):
     executor = set()
-    addOverlay_PoolSubstep(executor)
+    addOverlay_PoolSubstep(executor, inRecoChain)
     trf.appendToExecutorSet(executor)
 
 def appendOverlay_BSSubstep(trf):

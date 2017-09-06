@@ -33,7 +33,7 @@ SimpleView::~SimpleView()
  */
 SG::DataProxy * SimpleView::proxy_exact( SG::sgkey_t sgkey ) const
 {
-	cout << "BEN SimpleView::proxy_exact" << endl;
+	cout << "Not implemented: SimpleView::proxy_exact" << endl;
 	//TODO - view rename
 	return m_store->proxy_exact( sgkey );
 }
@@ -67,7 +67,7 @@ SG::DataProxy * SimpleView::proxy( const CLID& id, const std::string& key ) cons
  */
 SG::DataProxy * SimpleView::proxy( const void* const pTransient ) const
 {
-	cout << "BEN SimpleView::proxy" << endl;
+	cout << "Not implemented: SimpleView::proxy" << endl;
 	//TODO - view rename
 	return m_store->proxy( pTransient );
 }
@@ -94,9 +94,7 @@ std::vector< const SG::DataProxy* > SimpleView::proxies() const
  */
 StatusCode SimpleView::addToStore( CLID id, SG::DataProxy * proxy )
 {
-	//TODO - view rename
 	const std::string viewKey = m_name + "_" + proxy->name();
-	m_store->addedNewTransObject( id, viewKey );
 	return m_store->addToStore( id, proxy );
 }
 
@@ -113,9 +111,8 @@ StatusCode SimpleView::addToStore( CLID id, SG::DataProxy * proxy )
  */
 bool SimpleView::tryELRemap( sgkey_t sgkey_in, size_t index_in, sgkey_t & sgkey_out, size_t & index_out )
 {
-	cout << "BEN SimpleView::tryELRemap" << endl;
-	//TODO - view rename
-	return m_store->tryELRemap( sgkey_in, index_in, sgkey_out, index_out );
+	cout << "Not implemented: SimpleView::tryELRemap" << endl;
+	return m_store->tryELRemap( sgkey_in, index_in, sgkey_out, index_out ); //TODO
 }
 
 /**
@@ -129,13 +126,9 @@ bool SimpleView::tryELRemap( sgkey_t sgkey_in, size_t index_in, sgkey_t & sgkey_
  *
  * Returns the proxy for the recorded object; nullptr on failure.
  */
-/// TEMPORARY: This method is being added.  It eventually should be pure.
-//SG::DataProxy * SimpleView::recordObject( std::unique_ptr< DataObject > obj, const std::string& key, bool allowMods )
 SG::DataProxy * SimpleView::recordObject( SG::DataObjectSharedPtr<DataObject> obj, const std::string& key, bool allowMods, bool returnExisting )
 {
 	const std::string viewKey = m_name + "_" + key;
-	m_store->addedNewTransObject( obj->clID(), key ); //TODO remove this hack
-	//return m_store->recordObject( std::move( obj ), viewKey, allowMods );
 	return m_store->recordObject( obj, viewKey, allowMods, returnExisting );
 }
 
@@ -144,7 +137,6 @@ SG::DataProxy * SimpleView::recordObject( SG::DataObjectSharedPtr<DataObject> ob
  * @param id The CLID of the object.
  * @param key The key of the object.
  */
-/// TEMPORARY: This method is being added.  It eventually should be pure.
 StatusCode SimpleView::updatedObject( CLID id, const std::string& key )
 {
 	const std::string viewKey = m_name + "_" + key;
@@ -173,18 +165,18 @@ void SimpleView::unboundHandle( IResetable * handle )
 
 unsigned long SimpleView::addRef()
 {
-	cout << "BEN SimpleView::addRef" << endl;
-	return 0; //FIX
+	cout << "Not implemented: SimpleView::addRef" << endl;
+	return 0; //TODO
 }
 unsigned long SimpleView::release()
 {
-	cout << "BEN SimpleView::release" << endl;
-	return 0; //FIX
+	cout << "Not implemented: SimpleView::release" << endl;
+	return 0; //TODO
 }
 StatusCode SimpleView::queryInterface( const InterfaceID &/*ti*/, void** /*pp*/ )
 {
-	cout << "BEN SimpleView::queryInterface" << endl;
-	return StatusCode::FAILURE; //FIX
+	cout << "Not implemented: SimpleView::queryInterface" << endl;
+	return StatusCode::FAILURE; //TODO
 }
 const std::string& SimpleView::name() const
 {
@@ -199,13 +191,13 @@ IStringPool::sgkey_t SimpleView::stringToKey( const std::string& str, CLID clid 
 }
 const std::string* SimpleView::keyToString( IStringPool::sgkey_t key ) const
 {
-	cout << "BEN SimpleView::keyToString" << endl;
+	cout << "Not implemented: SimpleView::keyToString" << endl;
 	//TODO - view rename maybe?
 	return m_store->keyToString( key );
 }
 const std::string* SimpleView::keyToString( IStringPool::sgkey_t key, CLID& clid ) const
 {
-	cout << "BEN SimpleView::keyToString" << endl;
+	cout << "Not implemented: SimpleView::keyToString" << endl;
 	//TODO - view rename maybe?
 	return m_store->keyToString( key, clid ); 
 }

@@ -78,21 +78,31 @@ HLTConfigSvc::~HLTConfigSvc()
 {}
 
 
+// Suppress warnings for two functions of this class marked as deprecated.
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
 const HLTChainList*
 HLTConfigSvc::chainList() const {
    return &m_HLTFrame.getHLTChainList();
 }
 
 
-const HLTChainList&
-HLTConfigSvc::chains() const {
-   return m_HLTFrame.getHLTChainList();
-}
-
-
 const HLTSequenceList*
 HLTConfigSvc::sequenceList() const {
    return &m_HLTFrame.getHLTSequenceList();
+}
+
+
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
+
+
+const HLTChainList&
+HLTConfigSvc::chains() const {
+   return m_HLTFrame.getHLTChainList();
 }
 
 
@@ -467,5 +477,3 @@ TrigConf::HLTConfigSvc::assignPrescalesToChains(uint lumiblock) {
    
    return StatusCode::SUCCESS;
 }
-
-

@@ -71,7 +71,7 @@ void AFPTechnicalLayerMonitor::eventEnd()
   m_lvl1Seed->Fill(m_seed.Get_lvl1());
 }
 
-void AFPTechnicalLayerMonitor::endOfLumiBlock(ManagedMonitorToolBase* toolToStoreHistograms)
+void AFPTechnicalLayerMonitor::endOfLumiBlock(ManagedMonitorToolBase* /*toolToStoreHistograms*/)
 {
 
 }

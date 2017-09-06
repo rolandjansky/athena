@@ -80,8 +80,9 @@ namespace MuonCombined {
 
 
     /**IMuonCreatorTool interface: build muons from ID and MS candidates */    
+
     virtual void create( const MuonCandidateCollection* muonCandidates, const InDetCandidateCollection* inDetCandidates,
-			 OutputData& outputData ) const = 0;
+    			 OutputData& outputData ) const = 0;
 
     /** create a muon from a muon candidate */
     virtual xAOD::Muon* create( const MuonCandidate& candidate, OutputData& outputData ) const = 0;

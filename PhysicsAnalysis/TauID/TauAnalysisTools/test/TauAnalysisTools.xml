@@ -1,9 +1,8 @@
 <?xml version="1.0"?>
 <atn>
 
-  <TEST name="TauAnalysisToolsTest" type="script" suite="ASG">
+  <TEST name="TauAnalysisToolsTest" type="makecheck" suite="ASG">
     <package>PhysicsAnalysis/TauID/TauAnalysisTools</package>
-    <options_atn>ut_TauAnalysisTools_test.exe</options_atn>
     <timelimit>5</timelimit>
     <author>Dirk Uwe Duschinger</author>
     <mailto>dirk.duschinger@cern.ch</mailto>

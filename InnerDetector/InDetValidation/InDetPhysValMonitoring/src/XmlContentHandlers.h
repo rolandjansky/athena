@@ -137,6 +137,47 @@ yAxisFromAttributes(SingleHistogramDefinition& s, const xercesc::Attributes& att
 }
 
 unsigned int
+zAxisFromAttributes(SingleHistogramDefinition& s, const xercesc::Attributes& attrs) {
+  unsigned int nFilled(0);
+  // title, n, lo and hi are currently *necessary* attributes
+  XercesString histoStrings[] = {
+    fromNative("title"), fromNative("n"), fromNative("lo"), fromNative("hi")
+  };
+  const XMLCh* val(nullptr);
+  unsigned int idx {
+    0
+  };
+
+  IHistogramDefinitionSvc::axesLimits_t zaxis(std::nanf(""), std::nanf(""));
+
+  for (auto& h:histoStrings) {
+    if ((val = attrs.getValue(h.c_str())) != 0) {
+      switch (idx) {
+      case 0:
+        s.zTitle = toNative(val);
+        break;
+
+      case 1:
+        s.nBinsZ = std::stof(toNative(val));
+        break;
+
+      case 2:
+        zaxis.first = std::stof(toNative(val));
+        break;
+
+      case 3:
+        zaxis.second = std::stof(toNative(val));
+        break;
+      }
+      nFilled++;
+    }
+    idx++;
+  }
+  s.zAxis = zaxis;
+  return nFilled;
+}
+
+unsigned int
 partialHdefFromText(SingleHistogramDefinition& s, const std::string& line) {
   unsigned int nFilled(0);
   enum RegXHistoGroups {
@@ -195,7 +236,7 @@ partialHdefFromTProfText(SingleHistogramDefinition& s, const std::string& line) 
 class HDefContentHandler: public xercesc::DefaultHandler {
 public:
   enum HistoTypes {
-    UNKNOWN, TH1, TPROFILE, TH2, TEFFICIENCY, NTYPES
+    UNKNOWN, TH1, TPROFILE, TH2, TH3, TEFFICIENCY, NTYPES
   };
   HDefContentHandler(std::vector<SingleHistogramDefinition>& defs) : m_histoType(UNKNOWN), m_numberFilled(0),
     m_currentDefinition{}, m_definitions(defs), m_currentText() {
@@ -209,6 +250,7 @@ public:
     const static XercesString hStr = fromNative("h");
     const static XercesString xStr = fromNative("x");
     const static XercesString yStr = fromNative("y");
+    const static XercesString zStr = fromNative("z");
     unsigned int nFilled(0);
 
     if (localName == hStr) {
@@ -221,6 +263,9 @@ public:
     }
     if (localName == yStr) {
       nFilled = yAxisFromAttributes(m_currentDefinition, attrs);
+    }
+    if (localName == zStr) {
+      nFilled = zAxisFromAttributes(m_currentDefinition, attrs);
     }
     m_currentText.clear();
     m_numberFilled += nFilled;
@@ -268,6 +313,7 @@ private:
     const static XercesString TH1Str = fromNative("TH1F");
     const static XercesString TProfileStr = fromNative("TProfile");
     const static XercesString TH2Str = fromNative("TH2F");
+    const static XercesString TH3Str = fromNative("TH3F");
     const static XercesString TEffStr = fromNative("TEfficiency");
     XercesString t = fromNative("type");
     val = attrs.getValue(t.c_str());
@@ -282,6 +328,9 @@ private:
     }
     if (val == TH2Str) {
       m_histoType = TH2;
+    }
+    if (val == TH3Str) {
+      m_histoType = TH3;
     }
     if (val == TEffStr) {
       m_histoType = TEFFICIENCY;

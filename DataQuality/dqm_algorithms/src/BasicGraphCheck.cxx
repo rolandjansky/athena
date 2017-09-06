@@ -24,7 +24,7 @@ namespace
 
 
 dqm_algorithms::BasicGraphCheck::BasicGraphCheck( const std::string & name )
-  : name_( name )
+  : m_name( name )
 {
   dqm_core::AlgorithmManager::instance().registerAlgorithm(name, this);
 }
@@ -33,7 +33,7 @@ dqm_algorithms::BasicGraphCheck *
 dqm_algorithms::BasicGraphCheck::clone()
 {
   
-  return new BasicGraphCheck( name_ );
+  return new BasicGraphCheck( m_name );
 }
 
 
@@ -58,7 +58,7 @@ dqm_algorithms::BasicGraphCheck::execute(	const std::string & name ,
     return result;
   }
   
-  if (name_ == "Graph_Not_Empty") {
+  if (m_name == "Graph_Not_Empty") {
     if (graph->GetN() != 0) {
       ERS_DEBUG(1, "Graph " <<graph->GetName()<<" is Not Empty");
       return new dqm_core::Result(dqm_core::Result::Green);
@@ -66,7 +66,7 @@ dqm_algorithms::BasicGraphCheck::execute(	const std::string & name ,
       ERS_DEBUG(1, "Graph " <<graph->GetName()<<" is Empty");
       return new dqm_core::Result(dqm_core::Result::Red);
     }
-  } else if (name_ == "Graph_Empty") {
+  } else if (m_name == "Graph_Empty") {
     if (graph->GetN() == 0) {
       ERS_DEBUG(1, "Graph " <<graph->GetName()<<" is Empty");
       return new dqm_core::Result(dqm_core::Result::Green);
@@ -84,9 +84,9 @@ dqm_algorithms::BasicGraphCheck::execute(	const std::string & name ,
 void
 dqm_algorithms::BasicGraphCheck::printDescription(std::ostream& out)
 {
-  if ( name_ == "Graph_Not_Empty"){
+  if ( m_name == "Graph_Not_Empty"){
     out<<"Graph_Not_Empty: Checks that graph is not empty\n"<<std::endl;
-  } else if ( name_ == "Graph_Empty"){
+  } else if ( m_name == "Graph_Empty"){
     out<<"Graph_Empty: Checks that graph is empty\n"<<std::endl;
   }
   

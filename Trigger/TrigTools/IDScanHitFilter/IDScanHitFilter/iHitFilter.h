@@ -165,8 +165,8 @@ class TrackCandidateClass
 class TrackFilterClass   
 {
  public:
-  void m_addNewTrackCandidate(class Group*);
-  void m_removeClones(int);
+  void addNewTrackCandidate(class Group*);
+  void removeClones(int);
   TrackFilterClass(bool);
   ~TrackFilterClass();
  private:

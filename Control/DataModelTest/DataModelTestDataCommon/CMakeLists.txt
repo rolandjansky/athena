@@ -18,6 +18,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthLinks
                           Control/StoreGate
                           Control/AthenaBaseComps
+                          Database/AthenaPOOL/AthenaPoolUtilities
+                          Database/RegistrationServices
                           Trigger/TrigDataAccess/TrigSerializeCnvSvc )
 
 # External dependencies:
@@ -29,7 +31,7 @@ atlas_add_library( DataModelTestDataCommonLib
                    PUBLIC_HEADERS DataModelTestDataCommon
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES AthContainers SGTools xAODCore xAODTrigger EventInfo GaudiKernel
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthLinks StoreGateLib AthenaBaseComps )
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthLinks StoreGateLib AthenaBaseComps AthenaPoolUtilities )
 
 atlas_add_component( DataModelTestDataCommon
                      src/components/*.cxx

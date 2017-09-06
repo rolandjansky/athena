@@ -23,16 +23,6 @@ AnalysisTest contains the following algs/files:
 - EventTagTest_topOptions.py : test for TAG collection
 - NavTest_topOptions.py : test for the back-navigation
 
-@ref used_AnalysisTest
 
-@ref requirements_AnalysisTest
 
-*/
-
-/**
-@page used_AnalysisTest Used Packages
-*/
-
-/**
-@page requirements_AnalysisTest Requirements
 */

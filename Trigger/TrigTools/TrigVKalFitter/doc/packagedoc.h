@@ -22,17 +22,6 @@ This package contains  interfaces to VKalVrt.
  Software related issues may be viewed in
  https://twiki.cern.ch/twiki/bin/view/Atlas/VKalVrt .
   
-@ref used_TrigVKalFitter
 
-@ref requirements_TrigVKalFitter
 
 */
-
-/**
-@page used_TrigVKalFitter Used Packages
-*/
-
-/**
-@page requirements_TrigVKalFitter Requirements
-*/
-

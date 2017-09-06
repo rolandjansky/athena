@@ -17,7 +17,7 @@
 #     conditions
 #
 
-import PyCintex as PyLCGDict
+import cppyy
 
 def conditionsIter(self, gain) :
   sequential = self.begin(gain)
@@ -57,7 +57,7 @@ class LArConditionsContainer(object) :
     # t is either the class name or the class itself
     if type(t) is str :
       self.typeName = t
-      t = PyLCGDict.makeClass(t)
+      t = cppyy.makeClass(t)
     else :
       self.typeName = t.type.__name__
 

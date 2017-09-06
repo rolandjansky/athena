@@ -20,12 +20,12 @@ using std::endl;
 //**********************************************************************
 // Member functions.
 //**********************************************************************
-
-// Default constructor.
 sTgcDigitContainer::sTgcDigitContainer()
-  : IdentifiableContainer<sTgcDigitCollection>()
+  : IdentifiableContainer<sTgcDigitCollection>(1578) //Hard coded max size for dictionary generators
 {
+
 }
+
 
 sTgcDigitContainer::sTgcDigitContainer(unsigned int hash_max)
   : IdentifiableContainer<sTgcDigitCollection>(hash_max) 

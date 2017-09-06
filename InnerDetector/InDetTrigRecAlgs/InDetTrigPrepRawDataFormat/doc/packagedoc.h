@@ -78,10 +78,4 @@ They can be changed via jobOptions.
 </li>
 </ul>
 
-
-@section InDetTrigPrepRawDataFormat_used_InDetTrigPrepRawDataFormat Used Packages
-
-@section InDetTrigPrepRawDataFormat_requirements_InDetTrigPrepRawDataFormat requirements
-
-
 */

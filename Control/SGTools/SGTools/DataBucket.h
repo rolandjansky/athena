@@ -34,9 +34,9 @@ namespace SG {
     // CONSTRUCTORS:
   
     DataBucket(): m_ptr(0) {}  //needed by the generic converters
-    DataBucket(T* data);                 
-    DataBucket(std::unique_ptr<T> data);
-    DataBucket(std::unique_ptr<const T> data);
+    DataBucket(T* data);
+    template <class U>
+    DataBucket(std::unique_ptr<U> data);
     DataBucket(SG::DataObjectSharedPtr<T> data);
   
     // DESTRUCTOR:
@@ -83,7 +83,7 @@ namespace SG {
      */
     virtual void* cast (CLID clid,
                         IRegisterTransient* irt = 0,
-                        bool isConst = true) const override;
+                        bool isConst = true) override;
     
 
     /**
@@ -96,7 +96,7 @@ namespace SG {
      */
     virtual void* cast (const std::type_info& tinfo,
                         IRegisterTransient* irt = 0,
-                        bool isConst = true) const override;
+                        bool isConst = true) override;
 
     /**
      * @brief Return a new @c DataBucket whose payload has been cloned from the
@@ -126,7 +126,7 @@ namespace SG {
     /// Objects made by copy conversion.
     typedef std::pair<const CopyConversionBase*, void*> ent_t;
     typedef std::vector<ent_t> vec_t;
-    mutable vec_t m_cnvcopies;
+    vec_t m_cnvcopies;
 
     DataBucket (const DataBucket&);
     DataBucket& operator= (const DataBucket&);

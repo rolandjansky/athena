@@ -72,18 +72,18 @@ namespace pool  {
       // extra variables used by Aux dynamic
       size_t            rows_written = 0;
       // AuxDyn reader if used by this branch
-      IRootAuxDynReader*aux_reader = 0;
+      IRootAuxDynReader*aux_reader = nullptr;
       int               aux_iostore_IFoffset = -1;
       bool              is_basic_type = false;
       bool              written = false;
       
       BranchDesc()
-            : clazz(0), 
-              branch(0),
-              leaf(0),
-              object(0),
-              buffer(0),
-              column(0)
+            : clazz(nullptr), 
+              branch(nullptr),
+              leaf(nullptr),
+              object(nullptr),
+              buffer(nullptr),
+              column(nullptr)
       {}
       
       BranchDesc( TClass* cl, 
@@ -94,7 +94,7 @@ namespace pool  {
             : clazz(cl), 
               branch(b),
               leaf(l),
-              object(0),
+              object(nullptr),
               buffer(o),
               column(c)
       {}

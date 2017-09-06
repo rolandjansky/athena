@@ -13,6 +13,8 @@
 /// Tool to attach the LC constituent level 4-vector to EM Jets
 
 #include "JetRec/JetModifierBase.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
+
 #include <vector>
 
 class JetConstitFourMomTool : public JetModifierBase {
@@ -38,6 +40,8 @@ class JetConstitFourMomTool : public JetModifierBase {
   std::vector<std::string> m_altJetScales;
 
   std::vector<bool> m_isDetectorEtaPhi;
+
+  SG::ReadHandleKeyArray<xAOD::CaloClusterContainer> m_altColls_keys;
 
 };
 

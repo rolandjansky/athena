@@ -30,5 +30,5 @@ atlas_add_executable( AtlCoolCopy
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/coolDumpFolderTags.py )
-atlas_install_scripts( share/AtlCoolConsole.py share/coolIOVToTimeStamp.py share/coolTimeStampLocalToIOV.py share/coolTimeStampUTCToIOV.py share/RunList.py share/AtlCoolCheckFiles.py share/AtlCoolTopTag.py share/AtlCoolMakeReplica.py share/coolMagneticField.py )
+atlas_install_scripts( share/AtlCoolConsole.py share/coolIOVToTimeStamp.py share/coolTimeStampLocalToIOV.py share/coolTimeStampUTCToIOV.py share/RunList.py share/AtlCoolCheckFiles.py share/AtlCoolTopTag.py share/AtlCoolMakeReplica.py share/coolMagneticField.py share/AtlCoolCopy_test.sh )
 

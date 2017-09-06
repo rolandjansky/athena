@@ -73,7 +73,7 @@ public:
   /** factory for the DsoDb
    */
   static
-  DsoDb* instance();
+  const DsoDb* instance();
 
   /// Destructor: 
   ~DsoDb(); 
@@ -96,30 +96,30 @@ public:
   // Non-const methods: 
   /////////////////////////////////////////////////////////////////// 
 
-  bool has_type(const std::string& type_name);
+  bool has_type(const std::string& type_name) const;
 
-  std::string load_type(const std::string& type_name);
+  std::string load_type(const std::string& type_name) const;
 
   /// list of reflex-types associated with a library name
-  std::vector<std::string> capabilities(const std::string& libname);
+  std::vector<std::string> capabilities(const std::string& libname) const;
 
   /// list of libraries hosting duplicate reflex-types
-  DsoMap_t duplicates(const std::string& libname, bool pedantic=false);
+  DsoMap_t duplicates(const std::string& libname, bool pedantic=false) const;
 
   /// table of dict-duplicates: {type: [lib1, lib2, ...]}
-  DsoMap_t dict_duplicates(bool pedantic=false);
+  DsoMap_t dict_duplicates(bool pedantic=false) const;
 
   /// table of plugin-factories-duplicates: {type: [lib1, lib2, ...]}
-  DsoMap_t pf_duplicates(bool pedantic=false);
+  DsoMap_t pf_duplicates(bool pedantic=false) const;
 
   /// list of all libraries we know about
   /// @param `detailed` if true, prints the full path to the library
-  Libs_t libs(bool detailed=false);
+  Libs_t libs(bool detailed=false) const;
 
   /// return the table {type: [lib1, ...]} - concatenation of all
   /// dict-entries and plugin-factories entries.
   /// @param `pedantic` if true, retrieves the library's full path
-  DsoMap_t content(bool pedantic);
+  DsoMap_t content(bool pedantic) const;
 
   /////////////////////////////////////////////////////////////////// 
   // Private data: 
@@ -131,10 +131,10 @@ public:
 
   /// get the duplicates for a given repository of components
   void
-  get_dups(DsoMap_t& dups, const DsoMap_t& db, bool pedantic);
+  get_dups(DsoMap_t& dups, const DsoMap_t& db, bool pedantic) const;
 
   /// load the reflex type after having loaded the hosting library
-  RootType rflx_type(const std::string& type_name);
+  RootType rflx_type(const std::string& type_name) const;
 
   /// Default constructor: 
   DsoDb();

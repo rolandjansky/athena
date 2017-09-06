@@ -51,7 +51,6 @@ using namespace std;
 ///////////////////////////////////////////////////////////////////////////
 StatusCode
 TgcLv1RawDataValAlg::bookHistogramsNumberOfTriggersAndProfile(){
-  StatusCode sc = StatusCode::SUCCESS; 
 
   ///////////////////////////////////////////////////////////////////////////
   // Make MonGroups for histogram booking paths
@@ -85,56 +84,35 @@ TgcLv1RawDataValAlg::bookHistogramsNumberOfTriggersAndProfile(){
     // LpT wire triggers per sector, per lumi block
     ss.str(""); ss << "LB_VS_LPT_Wire_Trigger_Sector_" << side[ac] ;
     m_tgclv1lptwireinlbvssect[ac] = new TH2F( ss.str().c_str(), (ss.str() + "; LB;").c_str(), 1250, 1, 2501, 72, 1, 73 );
-    if( ( tgclv1_expert_ac[ac]->regHist( m_tgclv1lptwireinlbvssect[ac] ) ).isFailure() ){
-      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-      return sc;
-    }
+    ATH_CHECK( tgclv1_expert_ac[ac]->regHist( m_tgclv1lptwireinlbvssect[ac] ) );
     // Lpt strip triggers per sector, per lumi block
     ss.str(""); ss << "LB_VS_LPT_Strip_Trigger_Sector_" << side[ac] ;
     m_tgclv1lptstripinlbvssect[ac] = new TH2F( ss.str().c_str(), (ss.str() + "; LB;").c_str(), 1250, 1, 2501, 72, 1, 73 );
-    if( ( tgclv1_expert_ac[ac]->regHist( m_tgclv1lptstripinlbvssect[ac] ) ).isFailure() ){
-      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-      return sc;
-    }
+    ATH_CHECK( tgclv1_expert_ac[ac]->regHist( m_tgclv1lptstripinlbvssect[ac] ) );
 
     //EIFI Coin
 
     ss.str(""); ss << "EIFI_Sector_VS_Bit_" << side[ac] ;
     m_tgclv1hptstripinlbvssecteifisect[ac] = new TH2F( ss.str().c_str(), (ss.str() + "; Trigger_Sector;Bit").c_str(), 48, 1, 49, 8, 0, 8 );
-    if( ( tgclv1_expert_ac[ac]->regHist( m_tgclv1hptstripinlbvssecteifisect[ac] ) ).isFailure() ){
-      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;
-      return sc;
-    }
+    ATH_CHECK( tgclv1_expert_ac[ac]->regHist( m_tgclv1hptstripinlbvssecteifisect[ac] ) );
     ss.str(""); ss << "EIFI_Lumi_VS_Bit_" << side[ac] ;
     m_tgclv1hptstripinlbvssecteifilumi[ac] = new TH2F( ss.str().c_str(), (ss.str() + "; LB;Bit").c_str(), 1250, 1, 2501, 8, 0, 8 );
-    if( ( tgclv1_expert_ac[ac]->regHist( m_tgclv1hptstripinlbvssecteifilumi[ac] ) ).isFailure() ){
-      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;
-      return sc;
-    }
+    ATH_CHECK( tgclv1_expert_ac[ac]->regHist( m_tgclv1hptstripinlbvssecteifilumi[ac] ) );
 
     // HpT wire triggers per sector, per lumi block
     ss.str(""); ss << "LB_VS_HPT_Wire_Trigger_Sector_" << side[ac] ;
     m_tgclv1hptwireinlbvssect[ac] = new TH2F( ss.str().c_str(), (ss.str() + "; LB;").c_str(), 1250, 1, 2501, 72, 1, 73 );
-    if( ( tgclv1_expert_ac[ac]->regHist( m_tgclv1hptwireinlbvssect[ac] ) ).isFailure() ){
-      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-      return sc;
-    }
+    ATH_CHECK( tgclv1_expert_ac[ac]->regHist( m_tgclv1hptwireinlbvssect[ac] ) );
 
     // Hpt strip triggers per sector, per lumi block
     ss.str(""); ss << "LB_VS_HPT_Strip_Trigger_Sector_" << side[ac] ;
     m_tgclv1hptstripinlbvssect[ac] = new TH2F( ss.str().c_str(), (ss.str() + "; LB;").c_str(), 1250, 1, 2501, 72, 1, 73 );
-    if( ( tgclv1_expert_ac[ac]->regHist( m_tgclv1hptstripinlbvssect[ac] ) ).isFailure() ){
-      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-      return sc;
-    }
+    ATH_CHECK( tgclv1_expert_ac[ac]->regHist( m_tgclv1hptstripinlbvssect[ac] ) );
 
     // SL triggers per sector, per lumi block
     ss.str(""); ss << "LB_VS_SL_Trigger_Sector_" << side[ac] ;
     m_tgclv1slinlbvssect[ac] = new TH2F( ss.str().c_str(), (ss.str() + "; LB;").c_str(), 1250, 1, 2501, 72, 1, 73 );
-    if( ( tgclv1_shift_ac[ac]->regHist( m_tgclv1slinlbvssect[ac] ) ).isFailure() ){
-      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-      return sc;
-    }
+    ATH_CHECK( tgclv1_shift_ac[ac]->regHist( m_tgclv1slinlbvssect[ac] ) );
 
     int k=1;
     // Set bin labels for Y axis on per sector-lumiblock histograms
@@ -178,60 +156,40 @@ TgcLv1RawDataValAlg::bookHistogramsNumberOfTriggersAndProfile(){
       // Number of low pt wire hits
       std::string tgclv1_nlpt_wire = "Number_Of_Low_Pt_Wire_Triggers" + s_pcn[pcnt];
       m_tgclv1numberoflptwire[pcnt] = new TH1F(tgclv1_nlpt_wire.c_str(),tgclv1_nlpt_wire.c_str(), 20, 0, 20);
-      if(pcnt>2) sc=tgclv1_shift.regHist(m_tgclv1numberoflptwire[pcnt]) ;  
-      else    sc=tgclv1_expert.regHist(m_tgclv1numberoflptwire[pcnt]) ;  
-      if(sc.isFailure()){
-	m_log << MSG::FATAL << "m_tgclv1numberoflptwire Failed to register histogram " << endmsg;       
-	return sc;
-      }
+      if(pcnt>2) ATH_CHECK( tgclv1_shift.regHist(m_tgclv1numberoflptwire[pcnt]) );
+      else    ATH_CHECK( tgclv1_expert.regHist(m_tgclv1numberoflptwire[pcnt]) );
       m_tgclv1numberoflptwire[pcnt]->GetXaxis()->SetTitle("Low Pt Wire Triggers");
       m_tgclv1numberoflptwire[pcnt]->GetYaxis()->SetTitle("Counts");
 
       // Number of low pt strip hits
       std::string tgclv1_nlpt_strip = "Number_Of_Low_Pt_Strip_Triggers" + s_pcn[pcnt];
       m_tgclv1numberoflptstrip[pcnt] = new TH1F(tgclv1_nlpt_strip.c_str(),tgclv1_nlpt_strip.c_str(), 20, 0, 20);
-      if(pcnt>2) sc=tgclv1_shift.regHist(m_tgclv1numberoflptstrip[pcnt]) ;  
-      else    sc=tgclv1_expert.regHist(m_tgclv1numberoflptstrip[pcnt]) ;  
-      if(sc.isFailure()){
-	m_log << MSG::FATAL << "m_tgclv1numberoflptstrip Failed to register histogram " << endmsg;       
-	return sc;
-      }
+      if(pcnt>2) ATH_CHECK( tgclv1_shift.regHist(m_tgclv1numberoflptstrip[pcnt]) );
+      else    ATH_CHECK( tgclv1_expert.regHist(m_tgclv1numberoflptstrip[pcnt]) );
       m_tgclv1numberoflptstrip[pcnt]->GetXaxis()->SetTitle("Low Pt Strip Triggers");
       m_tgclv1numberoflptstrip[pcnt]->GetYaxis()->SetTitle("Counts");
 
       // Number of high pt hits
       std::string tgclv1_nhpt_wire = "Number_Of_High_Pt_Wire_Triggers" + s_pcn[pcnt];
       m_tgclv1numberofhptwire[pcnt] = new TH1F(tgclv1_nhpt_wire.c_str(),tgclv1_nhpt_wire.c_str(), 20, 0, 20);
-      if(pcnt>2) sc=tgclv1_shift.regHist(m_tgclv1numberofhptwire[pcnt]) ;  
-      else    sc=tgclv1_expert.regHist(m_tgclv1numberofhptwire[pcnt]) ;  
-      if(sc.isFailure()){
-	m_log << MSG::FATAL << "m_tgclv1numberofhptwire Failed to register histogram " << endmsg;       
-	return sc;
-      }
+      if(pcnt>2) ATH_CHECK( tgclv1_shift.regHist(m_tgclv1numberofhptwire[pcnt]) );
+      else    ATH_CHECK( tgclv1_expert.regHist(m_tgclv1numberofhptwire[pcnt]) );
       m_tgclv1numberofhptwire[pcnt]->GetXaxis()->SetTitle("High Pt Wire Triggers");
       m_tgclv1numberofhptwire[pcnt]->GetYaxis()->SetTitle("Counts");
 
       // Number of high pt hits
       std::string tgclv1_nhpt_strip = "Number_Of_High_Pt_Strip_Triggers" + s_pcn[pcnt];
       m_tgclv1numberofhptstrip[pcnt] = new TH1F(tgclv1_nhpt_strip.c_str(),tgclv1_nhpt_strip.c_str(), 20, 0, 20);
-      if(pcnt>2) sc=tgclv1_shift.regHist(m_tgclv1numberofhptstrip[pcnt]) ;  
-      else    sc=tgclv1_expert.regHist(m_tgclv1numberofhptstrip[pcnt]) ;  
-      if(sc.isFailure()){
-	m_log << MSG::FATAL << "m_tgclv1numberofhptstrip Failed to register histogram " << endmsg;       
-	return sc;
-      }
+      if(pcnt>2) ATH_CHECK( tgclv1_shift.regHist(m_tgclv1numberofhptstrip[pcnt]) );
+      else    ATH_CHECK( tgclv1_expert.regHist(m_tgclv1numberofhptstrip[pcnt]) );
       m_tgclv1numberofhptstrip[pcnt]->GetXaxis()->SetTitle("High Pt Strip Triggers");
       m_tgclv1numberofhptstrip[pcnt]->GetYaxis()->SetTitle("Counts");
 
       // Number of sector logic hits
       std::string tgclv1_nsl = "Number_Of_SL_Triggers" + s_pcn[pcnt];
       m_tgclv1numberofsl[pcnt] = new TH1F(tgclv1_nsl.c_str(),tgclv1_nsl.c_str(), 20, 0, 20);
-      if(pcnt>2) sc=tgclv1_shift.regHist(m_tgclv1numberofsl[pcnt]) ;  
-      else    sc=tgclv1_expert.regHist(m_tgclv1numberofsl[pcnt]) ;  
-      if(sc.isFailure()){
-	m_log << MSG::FATAL << "m_tgclv1numberofsl Failed to register histogram " << endmsg;       
-	return sc;
-      }
+      if(pcnt>2) ATH_CHECK( tgclv1_shift.regHist(m_tgclv1numberofsl[pcnt]) );
+      else    ATH_CHECK( tgclv1_expert.regHist(m_tgclv1numberofsl[pcnt]) );
       m_tgclv1numberofsl[pcnt]->GetXaxis()->SetTitle("Sector Logic Triggers");
       m_tgclv1numberofsl[pcnt]->GetYaxis()->SetTitle("Counts");
     }// pcnt
@@ -249,22 +207,16 @@ TgcLv1RawDataValAlg::bookHistogramsNumberOfTriggersAndProfile(){
   // RoI Maps and pT Threshold histograms
   // RoI trigger map with both sides
   ss.str(""); ss << "RoI_Eta_Vs_Phi_All";
-  m_log << MSG::DEBUG << ss.str().c_str() << std::endl;
+  ATH_MSG_DEBUG( ss.str().c_str()  );
   m_tgclv1roietavsphiAll =new TH2F(ss.str().c_str(), (ss.str() + ";C-side: Eta < 0, A-side: Eta > 0").c_str(), 55, -55, 55, 48, 0, 48); 
-  if( (tgclv1_shift.regHist(m_tgclv1roietavsphiAll)).isFailure()){ 
-    m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( tgclv1_shift.regHist(m_tgclv1roietavsphiAll) );
 
   // RoI trigger maps for each pT threshold
   for(int ipt=0;ipt<6;ipt++){// pt
     ss.str(""); ss << "RoI_Eta_Vs_Phi_PT" << ipt+1 <<"_All";
-    m_log << MSG::DEBUG << ss.str().c_str() << std::endl;
+    ATH_MSG_DEBUG( ss.str().c_str()  );
     m_tgclv1roietavsphiptAll[ipt] =new TH2F(ss.str().c_str(), (ss.str() + ";C-side: Eta < 0, A-side: Eta > 0").c_str(), 55, -55, 55, 48, 0, 48); 
-    if( (tgclv1_shift.regHist(m_tgclv1roietavsphiptAll[ipt])).isFailure()){ 
-      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( tgclv1_shift.regHist(m_tgclv1roietavsphiptAll[ipt]) );
   }// pt
 
   int ka;
@@ -289,12 +241,8 @@ TgcLv1RawDataValAlg::bookHistogramsNumberOfTriggersAndProfile(){
     ss.str(""); ss << "Pt_Threshold_";
     ss << side[ac];
     m_tgclv1pt[ac] =new TH1F(ss.str().c_str(),ss.str().c_str(), 6, 1, 7);
-    if(ac==0) sc=tgclv1_shift_a.regHist(m_tgclv1pt[ac]);
-    else      sc=tgclv1_shift_c.regHist(m_tgclv1pt[ac]);
-    if(sc.isFailure()){
-      m_log << MSG::FATAL << "m_tgclv1pt Failed to register histogram " << endmsg;       
-      return sc;
-    }
+    if(ac==0) ATH_CHECK( tgclv1_shift_a.regHist(m_tgclv1pt[ac]) );
+    else      ATH_CHECK( tgclv1_shift_c.regHist(m_tgclv1pt[ac]) );
     m_tgclv1pt[ac]->GetXaxis()->SetTitle("Pt Threshold");
     m_tgclv1pt[ac]->GetYaxis()->SetTitle("Counts");
     //m_tgclv1pt[ac]->GetXaxis()->SetBinLabel(1,"4"); //pt1=4GeV
@@ -306,22 +254,16 @@ TgcLv1RawDataValAlg::bookHistogramsNumberOfTriggersAndProfile(){
 
     // RoI trigger map
     ss.str(""); ss << "RoI_Eta_Vs_Phi_" << side[ac];
-    m_log << MSG::DEBUG << ss.str().c_str() << std::endl;
+    ATH_MSG_DEBUG( ss.str().c_str()  );
     m_tgclv1roietavsphi[ac] =new TH2F(ss.str().c_str(), (ss.str() + ";Eta").c_str(), 53, 0, 53, 192, 0, 48); 
-    if( (tgclv1_shift_ac[ac]->regHist(m_tgclv1roietavsphi[ac])).isFailure()){ 
-      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( tgclv1_shift_ac[ac]->regHist(m_tgclv1roietavsphi[ac]) );
 
     // RoI trigger maps for each pT threshold
     for(int ipt=0;ipt<6;ipt++){// pt
       ss.str(""); ss << "RoI_Eta_Vs_Phi_PT" << ipt+1 <<"_" << side[ac];
-      m_log << MSG::DEBUG << ss.str().c_str() << std::endl;
+      ATH_MSG_DEBUG( ss.str().c_str()  );
       m_tgclv1roietavsphipt[ac][ipt] =new TH2F(ss.str().c_str(), (ss.str() + ";Eta").c_str(), 53, 0, 53, 192, 0, 48); 
-      if( (tgclv1_shift_ac[ac]->regHist(m_tgclv1roietavsphipt[ac][ipt])).isFailure()){ 
-	m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-	return StatusCode::FAILURE;
-      }
+      ATH_CHECK( tgclv1_shift_ac[ac]->regHist(m_tgclv1roietavsphipt[ac][ipt]) );
     }// pt
 
     int k;
@@ -346,10 +288,7 @@ TgcLv1RawDataValAlg::bookHistogramsNumberOfTriggersAndProfile(){
   // SL trigger chamber map for both sides
   ss.str(""); ss << "SL_Chamber_All";
   m_tgclv1slchamberAll =new TH2F(ss.str().c_str(),ss.str().c_str(), 14, -7, 7, 48, 1, 49); 
-  if( ( tgclv1_shift.regHist(m_tgclv1slchamberAll) ).isFailure() ){
-    m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
-    return sc;
-  }
+  ATH_CHECK( tgclv1_shift.regHist(m_tgclv1slchamberAll) );
   for(int ieta=0;ieta<6;ieta++){// X bins
     m_tgclv1slchamberAll      ->GetXaxis()->SetBinLabel(ieta+9, ("A-" + schamberT3[ieta]).c_str()); 
     m_tgclv1slchamberAll      ->GetXaxis()->SetBinLabel(6-ieta, ("C-" + schamberT3[ieta]).c_str()); 
@@ -375,12 +314,8 @@ TgcLv1RawDataValAlg::bookHistogramsNumberOfTriggersAndProfile(){
     ss.str(""); ss << "Low_Pt_Wire_Sector_";
     ss << side[ac];
     m_tgclv1lptsectwire[ac] = new TH1F(ss.str().c_str(),ss.str().c_str(), 72, 1, 73);
-    if(ac==0) sc=tgclv1_expert_a.regHist(m_tgclv1lptsectwire[ac]);
-    else      sc=tgclv1_expert_c.regHist(m_tgclv1lptsectwire[ac]);
-    if(sc.isFailure()){
-      m_log << MSG::FATAL << "m_tgclv1lptsectwire["<<ac<<"] Failed to register histogram " << endmsg;       
-      return sc;
-    }
+    if(ac==0) ATH_CHECK( tgclv1_expert_a.regHist(m_tgclv1lptsectwire[ac]) );
+    else      ATH_CHECK( tgclv1_expert_c.regHist(m_tgclv1lptsectwire[ac]) );
     //m_tgclv1lptsectwire->GetXaxis()->SetTitle("Side*12+Sector");
     //m_tgclv1lptsectwire[ac]->GetXaxis()->LabelsOption("v");
     m_tgclv1lptsectwire[ac]->GetYaxis()->SetTitle("Counts");
@@ -389,12 +324,8 @@ TgcLv1RawDataValAlg::bookHistogramsNumberOfTriggersAndProfile(){
     ss.str(""); ss << "Low_Pt_Strip_Sector_";
     ss << side[ac];
     m_tgclv1lptsectstrip[ac] = new TH1F(ss.str().c_str(),ss.str().c_str(), 72, 1, 73);
-    if(ac==0) sc=tgclv1_expert_a.regHist(m_tgclv1lptsectstrip[ac]);
-    else      sc=tgclv1_expert_c.regHist(m_tgclv1lptsectstrip[ac]);
-    if(sc.isFailure()){
-      m_log << MSG::FATAL << "m_tgclv1lptsectstrip["<<ac<<"] Failed to register histogram " << endmsg;       
-      return sc;
-    }
+    if(ac==0) ATH_CHECK( tgclv1_expert_a.regHist(m_tgclv1lptsectstrip[ac]) );
+    else      ATH_CHECK( tgclv1_expert_c.regHist(m_tgclv1lptsectstrip[ac]) );
     //m_tgclv1lptsectstrip->GetXaxis()->SetTitle("Side*12+Sector");
     //m_tgclv1lptsectstrip[ac]->GetXaxis()->LabelsOption("v");
     m_tgclv1lptsectstrip[ac]->GetYaxis()->SetTitle("Counts");
@@ -403,12 +334,8 @@ TgcLv1RawDataValAlg::bookHistogramsNumberOfTriggersAndProfile(){
     ss.str(""); ss << "High_Pt_Wire_Sector_";
     ss << side[ac];
     m_tgclv1hptsectwire[ac] = new TH1F(ss.str().c_str(),ss.str().c_str(), 72, 1, 73);
-    if(ac==0) sc=tgclv1_expert_a.regHist(m_tgclv1hptsectwire[ac]);
-    else      sc=tgclv1_expert_c.regHist(m_tgclv1hptsectwire[ac]);
-    if(sc.isFailure()){
-      m_log << MSG::FATAL << "m_tgclv1hptsectwire["<<ac<<"] Failed to register histogram " << endmsg;       
-      return sc;
-    }
+    if(ac==0) ATH_CHECK( tgclv1_expert_a.regHist(m_tgclv1hptsectwire[ac]) );
+    else      ATH_CHECK( tgclv1_expert_c.regHist(m_tgclv1hptsectwire[ac]) );
     //m_tgclv1hptsectwire->GetXaxis()->SetTitle("Side*12+Sector");
     //m_tgclv1hptsectwire[ac]->GetXaxis()->LabelsOption("v");
     m_tgclv1hptsectwire[ac]->GetYaxis()->SetTitle("Counts");
@@ -417,12 +344,8 @@ TgcLv1RawDataValAlg::bookHistogramsNumberOfTriggersAndProfile(){
     ss.str(""); ss << "High_Pt_Strip_Sector_";
     ss << side[ac];
     m_tgclv1hptsectstrip[ac] = new TH1F(ss.str().c_str(),ss.str().c_str(), 72, 1, 73);
-    if(ac==0) sc=tgclv1_expert_a.regHist(m_tgclv1hptsectstrip[ac]);
-    else      sc=tgclv1_expert_c.regHist(m_tgclv1hptsectstrip[ac]);
-    if(sc.isFailure()){
-      m_log << MSG::FATAL << "m_tgclv1hptsectstrip[" << ac << "] Failed to register histogram " << endmsg;       
-      return sc;
-    }
+    if(ac==0) ATH_CHECK( tgclv1_expert_a.regHist(m_tgclv1hptsectstrip[ac]) );
+    else      ATH_CHECK( tgclv1_expert_c.regHist(m_tgclv1hptsectstrip[ac]) );
     //m_tgclv1hptsectstrip[ac]->GetXaxis()->SetTitle("Sector");
     //m_tgclv1hptsectstrip[ac]->GetXaxis()->LabelsOption("v");
     m_tgclv1hptsectstrip[ac]->GetYaxis()->SetTitle("Counts");
@@ -431,12 +354,8 @@ TgcLv1RawDataValAlg::bookHistogramsNumberOfTriggersAndProfile(){
     ss.str(""); ss << "SL_Sector_";
     ss << side[ac];
     m_tgclv1slsect[ac] = new TH1F(ss.str().c_str(),ss.str().c_str(), 72, 1, 73);
-    if(ac==0)sc=tgclv1_shift_a.regHist(m_tgclv1slsect[ac]);
-    else     sc=tgclv1_shift_c.regHist(m_tgclv1slsect[ac]);
-    if(sc.isFailure()){
-      m_log << MSG::FATAL << "m_tgclv1slsect[" << ac << "] Failed to register histogram " << endmsg;       
-      return sc;
-    }
+    if(ac==0)ATH_CHECK( tgclv1_shift_a.regHist(m_tgclv1slsect[ac]) );
+    else     ATH_CHECK( tgclv1_shift_c.regHist(m_tgclv1slsect[ac]) );
     //m_tgclv1slsect->GetXaxis()->SetTitle("Side*12+Sector");
     //m_tgclv1slsect[ac]->GetXaxis()->LabelsOption("v");
     m_tgclv1slsect[ac]->GetYaxis()->SetTitle("Counts");
@@ -482,42 +401,27 @@ TgcLv1RawDataValAlg::bookHistogramsNumberOfTriggersAndProfile(){
     // LpT wire trigger chamber map
     ss.str(""); ss << "Low_Pt_Wire_Chamber_" << side[ac];
     m_tgclv1lptwirechamber[ac] =new TH2F(ss.str().c_str(),ss.str().c_str(), 12, 0, 12, 48, 1, 49); 
-    if( ( tgclv1_expert_ac[ac]->regHist(m_tgclv1lptwirechamber[ac]) ).isFailure() ){
-      m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
-      return sc;
-    }
+    ATH_CHECK( tgclv1_expert_ac[ac]->regHist(m_tgclv1lptwirechamber[ac]) );
 
     // LpT strip trigger chamber map
     ss.str(""); ss << "Low_Pt_Strip_Chamber_" << side[ac];
     m_tgclv1lptstripchamber[ac] =new TH2F(ss.str().c_str(),ss.str().c_str(), 12, 0, 12, 48, 1, 49); 
-    if( ( tgclv1_expert_ac[ac]->regHist(m_tgclv1lptstripchamber[ac]) ).isFailure() ){
-      m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
-      return sc;
-    }
+    ATH_CHECK( tgclv1_expert_ac[ac]->regHist(m_tgclv1lptstripchamber[ac]) );
 
     // HpT wire trigger chamber map
     ss.str(""); ss << "High_Pt_Wire_Chamber_" << side[ac];
     m_tgclv1hptwirechamber[ac] =new TH2F(ss.str().c_str(),ss.str().c_str(), 11, 0, 11, 48, 1, 49); 
-    if( ( tgclv1_expert_ac[ac]->regHist(m_tgclv1hptwirechamber[ac]) ).isFailure() ){
-      m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
-      return sc;
-    }
+    ATH_CHECK( tgclv1_expert_ac[ac]->regHist(m_tgclv1hptwirechamber[ac]) );
 
     // HpT strip trigger chamber map
     ss.str(""); ss << "High_Pt_Strip_Chamber_" << side[ac];
     m_tgclv1hptstripchamber[ac] =new TH2F(ss.str().c_str(),ss.str().c_str(), 11, 0, 11, 48, 1, 49); 
-    if( ( tgclv1_expert_ac[ac]->regHist(m_tgclv1hptstripchamber[ac]) ).isFailure() ){
-      m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
-      return sc;
-    }
+    ATH_CHECK( tgclv1_expert_ac[ac]->regHist(m_tgclv1hptstripchamber[ac]) );
 
     // SL trigger chamber map
     ss.str(""); ss << "SL_Chamber_" << side[ac];
     m_tgclv1slchamber[ac] =new TH2F(ss.str().c_str(),ss.str().c_str(), 6, 0, 6, 48, 1, 49); 
-    if( ( tgclv1_shift_ac[ac]->regHist(m_tgclv1slchamber[ac]) ).isFailure() ){
-      m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
-      return sc;
-    }
+    ATH_CHECK( tgclv1_shift_ac[ac]->regHist(m_tgclv1slchamber[ac]) );
 
     // Blank out chambers that don't exist
     BlankPhi24(m_tgclv1hptwirechamber[ac], 5);
@@ -567,17 +471,14 @@ TgcLv1RawDataValAlg::bookHistogramsNumberOfTriggersAndProfile(){
   // Express Stream
   ss.str(""); ss << "ES_SL_vs_Muon_Chain_";
   m_tgclv1_SL_vs_muonchain_ES = new TH2F( ss.str().c_str(), ( ss.str() + ";SL;No Muon Chain" ).c_str(), 2, 0, 2, 2, 0, 2 );
-  if( ( tgclv1_expert_ES.regHist( m_tgclv1_SL_vs_muonchain_ES ) ).isFailure() ){
-    m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
-    return sc;
-  }
+  ATH_CHECK( tgclv1_expert_ES.regHist( m_tgclv1_SL_vs_muonchain_ES ) );
   m_tgclv1_SL_vs_muonchain_ES->GetXaxis()->SetBinLabel(1,"false");
   m_tgclv1_SL_vs_muonchain_ES->GetXaxis()->SetBinLabel(2,"true");
   m_tgclv1_SL_vs_muonchain_ES->GetYaxis()->SetBinLabel(1,"false");
   m_tgclv1_SL_vs_muonchain_ES->GetYaxis()->SetBinLabel(2,"true");
 
 
-  return sc;
+  return StatusCode::SUCCESS;
 }// EOF
 
 
@@ -586,7 +487,6 @@ TgcLv1RawDataValAlg::bookHistogramsNumberOfTriggersAndProfile(){
 ///////////////////////////////////////////////////////////////////////////
 StatusCode
 TgcLv1RawDataValAlg::bookHistogramsTriggerRate(){
-  StatusCode sc = StatusCode::SUCCESS; 
 
   ///////////////////////////////////////////////////////////////////////////
   // Make MonGroups for histogram booking paths
@@ -608,18 +508,12 @@ TgcLv1RawDataValAlg::bookHistogramsTriggerRate(){
   // Events per 2LB
   ss.str(""); ss << "Number_Of_Events_In_2LB";
   m_tgclv1eventsinlb = new TH1F( ss.str().c_str(), ( ss.str() + ";LB;Events / 2LB" ).c_str(), 1250, 1,2501 );
-  if( ( tgclv1_rate.regHist( m_tgclv1eventsinlb ) ).isFailure() ){
-    m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
-    return sc;
-  }
+  ATH_CHECK( tgclv1_rate.regHist( m_tgclv1eventsinlb ) );
 
   // Events per 10BCID
   ss.str(""); ss << "Number_Of_Events_In_10BCID";
   m_tgclv1eventsinbcid = new TH1F( ss.str().c_str(), ( ss.str() + ";BCID;Events / 10BCID" ).c_str(), 357, 0, 3570 );//BCID 0-3564
-  if( ( tgclv1_rate.regHist( m_tgclv1eventsinbcid ) ).isFailure() ){
-    m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
-    return sc;
-  }
+  ATH_CHECK( tgclv1_rate.regHist( m_tgclv1eventsinbcid ) );
 
   ///////////////////////////////////////////////////////////////////////////
   // SL Trigger Rate histograms
@@ -628,72 +522,48 @@ TgcLv1RawDataValAlg::bookHistogramsTriggerRate(){
     // SL Trigger 2LB profile
     ss.str(""); ss << "Number_Of_SL_Triggers_In_2LB_" << side[ac];
     m_tgclv1slinlb[ac] = new TH1F( ss.str().c_str(), ( ss.str() + ";LB;SL / 2LB" ).c_str(), 1250, 1,2501 );
-    if( ( tgclv1_rate_ac[ac]->regHist( m_tgclv1slinlb[ac] ) ).isFailure() ){
-      m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
-      return sc;
-    }
+    ATH_CHECK( tgclv1_rate_ac[ac]->regHist( m_tgclv1slinlb[ac] ) );
 
     // SL Trigger 10BCID profile
     ss.str(""); ss << "Number_Of_SL_Triggers_In_10BCID_" << side[ac];
     m_tgclv1slinbcid[ac] = new TH1F( ss.str().c_str(), ( ss.str() + ";BCID;SL / 10BCID" ).c_str(), 357, 0, 3570 );//BCID 0-3564
-    if( ( tgclv1_rate_ac[ac]->regHist( m_tgclv1slinbcid[ac] ) ).isFailure() ){
-      m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
-      return sc;
-    }
+    ATH_CHECK( tgclv1_rate_ac[ac]->regHist( m_tgclv1slinbcid[ac] ) );
 
     // SL Trigger per Event 2LB profile
     ss.str(""); ss << "Number_Of_SL_Triggers_Per_Event_Vs_2LB_" << side[ac];
     m_tgclv1slpereventlb[ac] = new TH1F( ss.str().c_str(), ( ss.str() + ";LB;SL / Events" ).c_str(), 1250, 1,2501 );
-    if( ( tgclv1_ratio_ac[ac]->regHist( m_tgclv1slpereventlb[ac] ) ).isFailure() ){
-      m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
-      return sc;
-    }
+    ATH_CHECK( tgclv1_ratio_ac[ac]->regHist( m_tgclv1slpereventlb[ac] ) );
 
     // SL Trigger per Event 10BCID profile
     ss.str(""); ss << "Number_Of_SL_Triggers_Per_Event_Vs_10BCID_" << side[ac];
     m_tgclv1slpereventbcid[ac] = new TH1F( ss.str().c_str(), ( ss.str() + ";BCID;SL / Events" ).c_str(), 357, 0, 3570 );//BCID 0-3564
-    if( ( tgclv1_ratio_ac[ac]->regHist( m_tgclv1slpereventbcid[ac] ) ).isFailure() ){
-      m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
-      return sc;
-    }
+    ATH_CHECK( tgclv1_ratio_ac[ac]->regHist( m_tgclv1slpereventbcid[ac] ) );
 
     // SL Trigger LB profiles for each pT threshold
     for(int pt=0;pt<6;pt++){
       // SL Trigger 2LB profile for current pT threshold
       ss.str(""); ss << "Number_Of_PT" << pt + 1 << "_Triggers_In_2LB_" << side[ac];
       m_tgclv1slinlbpt[ac][pt] = new TH1F( ss.str().c_str(), ( ss.str() + ";LB;SL / 2LB" ).c_str(), 1250, 1,2501 );
-      if( ( tgclv1_rate_ac[ac]->regHist( m_tgclv1slinlbpt[ac][pt] ) ).isFailure() ){
-	m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
-	return sc;
-      }
+      ATH_CHECK( tgclv1_rate_ac[ac]->regHist( m_tgclv1slinlbpt[ac][pt] ) );
 
       // SL Trigger 10BCID profile for current pT threshold
       ss.str(""); ss << "Number_Of_PT" << pt + 1 << "_Triggers_In_10BCID_" << side[ac];
       m_tgclv1slinbcidpt[ac][pt] = new TH1F( ss.str().c_str(), ( ss.str() + ";BCID;SL / 10BCID" ).c_str(), 357, 0, 3570 );//BCID 0-3564
-      if( ( tgclv1_rate_ac[ac]->regHist( m_tgclv1slinbcidpt[ac][pt] ) ).isFailure() ){
-	m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
-	return sc;
-      }
+      ATH_CHECK( tgclv1_rate_ac[ac]->regHist( m_tgclv1slinbcidpt[ac][pt] ) );
 
       // SL Trigger per Event 2LB profile for current pT threshold
       ss.str(""); ss << "Number_Of_PT" << pt + 1 << "_Triggers_Per_Event_Vs_2LB_" << side[ac];
       m_tgclv1slpereventlbpt[ac][pt] = new TH1F( ss.str().c_str(), ( ss.str() + ";LB;SL / Events" ).c_str(), 1250, 1,2501 );
-      if( ( tgclv1_ratio_ac[ac]->regHist( m_tgclv1slpereventlbpt[ac][pt] ) ).isFailure() ){
-	m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
-	return sc;
-      }
+      ATH_CHECK( tgclv1_ratio_ac[ac]->regHist( m_tgclv1slpereventlbpt[ac][pt] ) );
 
       // SL Trigger per Event 10BCID profile for current pT threshold
       ss.str(""); ss << "Number_Of_PT" << pt + 1 << "_Triggers_Per_Event_Vs_10BCID_" << side[ac];
       m_tgclv1slpereventbcidpt[ac][pt] = new TH1F( ss.str().c_str(), ( ss.str() + ";BCID;SL / Events" ).c_str(), 357, 0, 3570 );//BCID 0-3564
-      if( ( tgclv1_ratio_ac[ac]->regHist( m_tgclv1slpereventbcidpt[ac][pt] ) ).isFailure() ){
-	m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
-	return sc;
-      }
+      ATH_CHECK( tgclv1_ratio_ac[ac]->regHist( m_tgclv1slpereventbcidpt[ac][pt] ) );
     }// pT
   }// side
 
-  return sc;
+  return StatusCode::SUCCESS;
 }// EOF
 
 

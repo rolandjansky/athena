@@ -8,8 +8,6 @@
 @section AnalysisTriggerEventAthenaPool_introductionAnalysisTriggerEventAthenaPool Introduction
 AnalysisTriggerEventAthenaPool contains POOL converters for Trigger ESD/AOD.
 
-@section AnalysisTriggerEventAthenaPool_used_packagesAnalysisTriggerEventAthenaPool Used packages
 
-@section AnalysisTriggerEventAthenaPool_requirementsAnalysisTriggerEventAthenaPool Requirements
 
 */

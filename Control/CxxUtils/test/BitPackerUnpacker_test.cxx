@@ -12,12 +12,15 @@
 
 #undef NDEBUG
 
+#include "CxxUtils/checker_macros.h"
+
 #include "CxxUtils/BitPacker.h"
 #include "CxxUtils/BitUnpacker.h"
 #include "TestTools/random.h"
 #include <vector>
 #include <cassert>
 #include <iostream>
+
 
 
 template <class T>
@@ -32,7 +35,7 @@ public:
 };
 
 
-void test1()
+void test1 ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "test1\n";
 
@@ -139,7 +142,7 @@ void test1()
 
 
 template <template<class> class PACKER, template<class> class UNPACKER, class STREAM>
-void testit2(int nbits)
+void testit2 ATLAS_NOT_THREAD_SAFE (int nbits)
 {
   const int n = 1000;
   STREAM stream;
@@ -169,7 +172,7 @@ void testit2(int nbits)
 }
 
 
-void test2()
+void test2 ATLAS_NOT_THREAD_SAFE ()
 {
   using CxxUtils::BitPacker;
   using CxxUtils::BitPacker8;
@@ -187,7 +190,7 @@ void test2()
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
   test1();
   test2();

@@ -2087,8 +2087,7 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
       MonGroup rpcprd_dq_BC_TrigTower( this, generic_path_rpcmonitoring + "/RPCBC", run, ATTRIB_UNMANAGED )    ;
       MonGroup rpcTrigRoad ( this, generic_path_rpcmonitoring + "/TriggerRoad", run, ATTRIB_UNMANAGED )  ;
     
-      if(newEventsBlock){}
-      if(newLumiBlock && m_doLumiPlot){
+      if(newLumiBlockFlag() && m_doLumiPlot){
 	
 	MonGroup rpcTrig_lumi_block ( this, generic_path_rpcmonitoring + "/lumiblock", lumiBlock, ATTRIB_UNMANAGED )  ;
  	
@@ -2119,7 +2118,7 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  	  
 	  
       }
-      if(newRun)
+      if(newRunFlag())
 	{      
 	  ATH_MSG_INFO (  "RPC RawData Monitoring : begin of run" );
 	  	  
@@ -3524,7 +3523,7 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 		  }
     
 		   
-			char BinLabel[10];
+			char BinLabel[20];
 			sprintf(BinLabel,"Sec%d%s",(iphi-1)*2+ismall,NAME);
 			if(PlaneTipo==0){
 			  if(ieta>=0){
@@ -4933,7 +4932,8 @@ void RpcRawDataValAlg::bookRPCCoolHistograms( std::vector<std::string>::const_it
  	    //std::cout << istripPhi << " PHI FOUND!!! and panel_Id= " << panel_id  << " " <<panel_id.get_identifier32().get_compact() << " " << strip_id<<std::endl;
  	    //}
 	    
-    	    if( strip_id == 0 ) continue;    	    coolStripIndex = (RpcGM::RpcStripShift(m_muonMgr,m_rpcIdHelper, strip_id, 0)).at(16);
+    	    if( strip_id == 0 ) continue;
+    	    coolStripIndex = (RpcGM::RpcStripShift(m_muonMgr,m_rpcIdHelper, strip_id, 0)).at(16);
 	    //std::cout << " coolStripIndex "<<coolStripIndex << " kNameF, eta, irc, iz+1, idblPhi+1, ig+1, istripPhi+1 "<<kNameF << " " <<ieta-8 <<" " <<irc << " "<< iz+1<< " "<< idblPhi+1<< " "<< ig+1 << " "<< " "<< istripPhi+1<< " "<< std::endl;
 
 	    //if(panel_id.get_identifier32().get_compact()<1000)std::cout<< "Less than 1000: "  << panel_id.get_identifier32().get_compact()<<std::endl;
@@ -4961,9 +4961,7 @@ StatusCode RpcRawDataValAlg::procHistograms()
    
   if( m_doRpcESD==true ) {if( m_environment == AthenaMonManager::tier0 || m_environment == AthenaMonManager::tier0ESD || m_environment == AthenaMonManager::online ) {    
     
-      if(endOfEventsBlock){}
-      if(endOfLumiBlock){}
-      if(endOfRun){        
+      if(endOfRunFlag()){        
 	if ( m_doTrigEvol && (m_rpc_eventstotal > m_minStatTrEvol) ) {    
  
 	  int rpc2DEtaStatBinX_BA 	= int ( m_rpc2DEtaStationTriggerHits_Side_Pt[enumBA_LowPt]->GetNbinsX() );

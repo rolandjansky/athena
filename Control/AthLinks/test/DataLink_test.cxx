@@ -154,7 +154,8 @@ void test1()
   store2.record (foo3, "foo2");
 
   EventContext ctx;
-  ctx.setProxy (&store2);
+  ctx.setExtension( Atlas::ExtendedEventContext(&store2) );
+
   DataLink<Foo> dl8 (foo3, &store2);
   assert (dl8.cptr() == foo3);
   DataLink<Foo> dl8a (foo3, ctx);

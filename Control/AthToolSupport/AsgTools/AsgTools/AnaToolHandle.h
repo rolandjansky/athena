@@ -25,7 +25,7 @@
 namespace asg
 {
 #ifdef ROOTCORE
-   typedef asg::AsgTool parentType_t;
+   typedef INamedInterface parentType_t;
    typedef IAsgTool interfaceType_t;
 #else
    typedef INamedInterface parentType_t;
@@ -850,10 +850,10 @@ namespace asg
 	  setType (val_type); }
       return StatusCode::SUCCESS; };
 
-  public:
-    ASG_DEPRECATED ("please use either getHandle() or declarePropertyFor() instead")
-    ToolHandle<T>& handle () {
-      return *m_handleUser;};
+  // public:
+  //   ASG_DEPRECATED ("please use either getHandle() or declarePropertyFor() instead")
+  //   ToolHandle<T>& handle () {
+  //     return *m_handleUser;};
 
 #ifdef ROOTCORE
   public:

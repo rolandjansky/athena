@@ -21,25 +21,22 @@
 #include "VP1Base/VP1EtaPhiCutWidget.h"
 #include "VP1Base/VP1DrawOptionsWidget.h"
 #include "VP1Base/VP1CollectionSettingsButtonBase.h"
-//#include "VP1AODSystems/JetCollectionSettingsButton.h"
-
 
 #include <Inventor/nodes/SoMaterial.h>
 
-#include <QtCore/QBuffer>
-#include <QtCore/QByteArray>
-#include <QtCore/QDataStream>
-#include <QtCore/QSet>
-
-#include <QtGui/QCheckBox>
-#include <QtGui/QGroupBox>
-#include <QtGui/QComboBox>
-#include <QtGui/QLineEdit>
-#include <QtGui/QDoubleSpinBox>
-#include <QtGui/QSpinBox>
-#include <QtGui/QSlider>
-#include <QtGui/QToolBox>
-#include <QtGui/QRadioButton>
+#include <QBuffer>
+#include <QByteArray>
+#include <QDataStream>
+#include <QSet>
+#include <QCheckBox>
+#include <QGroupBox>
+#include <QComboBox>
+#include <QLineEdit>
+#include <QDoubleSpinBox>
+#include <QSpinBox>
+#include <QSlider>
+#include <QToolBox>
+#include <QRadioButton>
 
 //____________________________________________________________________
 class VP1Serialise::Imp {

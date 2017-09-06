@@ -12,10 +12,10 @@ ProcessSubTypeMap::~ProcessSubTypeMap()
 
 G4int ProcessSubTypeMap::GetProcessSubType(const G4VProcess* pProc)
 {
-  std::map<const G4VProcess*,G4int>::iterator itr = fMap.find(pProc);
+  std::map<const G4VProcess*,G4int>::iterator itr = m_map.find(pProc);
 
   G4int subType = -1;
-  if(itr!=fMap.end())
+  if(itr!=m_map.end())
   { subType = itr->second; }
   else
   {
@@ -33,7 +33,7 @@ G4int ProcessSubTypeMap::GetProcessSubType(const G4VProcess* pProc)
     else if(procName=="Cerenkov") // in LUCID_SensitiveDetector
     { subType = fCerenkov; }
 
-    fMap[pProc] = subType;
+    m_map[pProc] = subType;
   }
 
   return subType;

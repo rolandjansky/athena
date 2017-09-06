@@ -1,4 +1,4 @@
-import ROOT, PyCintex
+import ROOT
 if not ('PoolAODInput' in dir()):
     PoolAODInput=['/afs/cern.ch/user/t/tbold/public/TDTtest/menu1/AOD.pool.root']
     PoolAODInput=['AOD.pool.root']

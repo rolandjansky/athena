@@ -580,12 +580,12 @@ void Trig::TrigNtElemTool::ReadRoiId(TrigMonTE UNUSED(&elem), const HLT::Trigger
 //   elem.addRoiId(rit->second.roiMon.getRoiId());
 }
 
-void Trig::TrigNtElemTool::FillAllRoI(const HLT::TriggerElement* _initialNode) {
+void Trig::TrigNtElemTool::FillAllRoI(const HLT::TriggerElement* initialNode) {
 
-  const std::vector<HLT::TriggerElement*> _firstLevel = m_navig->getDirectSuccessors( _initialNode );
-  for (unsigned _te = 0; _te < _firstLevel.size(); ++_te) {
+  const std::vector<HLT::TriggerElement*> firstLevel = m_navig->getDirectSuccessors( initialNode );
+  for (unsigned te = 0; te < firstLevel.size(); ++te) {
 
-    const HLT::TriggerElement* hlt_te = _firstLevel.at(_te);
+    const HLT::TriggerElement* hlt_te = firstLevel.at(te);
     if (m_navig -> isRoINode(hlt_te) == false) {
       continue;
     }
@@ -605,9 +605,9 @@ void Trig::TrigNtElemTool::FillAllRoI(const HLT::TriggerElement* _initialNode) {
       data.roiMon.setRoiId(data.roiHlt->roiId());
       data.roiMon.setNL1th(hlt_te->getRelated(HLT::TriggerElement::seedsRelation).size());
       data.roiMon.setEtaPhi(data.roiHlt->eta(), data.roiHlt->phi());
-      float _etaWidth = std::fabs( data.roiHlt->etaPlus() - data.roiHlt->etaMinus() );
-      float _phiWidth = std::fabs( data.roiHlt->phiPlus() - data.roiHlt->phiMinus() ); // Wrap phi not needed here it seems
-      data.roiMon.setRoIArea( _etaWidth, _phiWidth );
+      float etaWidth = std::fabs( data.roiHlt->etaPlus() - data.roiHlt->etaMinus() );
+      float phiWidth = std::fabs( data.roiHlt->phiPlus() - data.roiHlt->phiMinus() ); // Wrap phi not needed here it seems
+      data.roiMon.setRoIArea( etaWidth, phiWidth );
 
       ATH_MSG_DEBUG("--- > New HLT RoI eta:" << data.roiHlt->etaPlus() << " id:" << data.roiHlt->roiId());
 
@@ -618,9 +618,9 @@ void Trig::TrigNtElemTool::FillAllRoI(const HLT::TriggerElement* _initialNode) {
         data.roiMon.addVar( TrigMonVar(kRoIIsolationBits, (float) data.roiEm->isolation()) );
         // Check this bit pattern can be saved in a float
         if ( data.roiEm->isolation() != (unsigned int) data.roiMon.getVarVal().back()) {
-          std::bitset<32> _a( data.roiEm->isolation() );
-          std::bitset<32> _b( (unsigned int) data.roiMon.getVarVal().back() );
-          ATH_MSG_WARNING("Encoding of EMTAU RoI isolation bits in a float failed, " << _a << " != " << _b );
+          std::bitset<32> a( data.roiEm->isolation() );
+          std::bitset<32> b( (unsigned int) data.roiMon.getVarVal().back() );
+          ATH_MSG_WARNING("Encoding of EMTAU RoI isolation bits in a float failed, " << a << " != " << b );
         }
         ATH_MSG_DEBUG("----- > RoI is EMTAU ET:" << data.roiEm->et() << " isTau:" << (int)(data.roiEm->roiType() == LVL1::TrigT1CaloDefs::TauRoIWordType) << " eta:" << data.roiHlt->etaPlus() << " id:" << data.roiHlt->roiId());
       } else if(data.roiJet) {
@@ -667,7 +667,7 @@ void Trig::TrigNtElemTool::FillAllRoI(const HLT::TriggerElement* _initialNode) {
     }
 
     if (data.roiValid == true) {
-      m_Roi.insert(RoiMap::value_type(hlt_te, data)).first;
+      m_Roi.insert(RoiMap::value_type(hlt_te, data));//.first;
     }
   }
 

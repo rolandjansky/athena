@@ -271,9 +271,7 @@ InDetFlags.doTrkNtuple.set_Value_and_Lock( False )
 InDetFlags.doPixelTrkNtuple = loadInDetRec_Options["doTrkNtuple"]
 InDetFlags.doSctTrkNtuple   = loadInDetRec_Options["doTrkNtuple"]
 InDetFlags.doTrtTrkNtuple   = loadInDetRec_Options["doTrkNtuple"]
-#InDetFlags.doPixelClusterNtuple = True
 #InDetFlags.doSctClusterNtuple   = True
-#InDetFlags.doTrtDriftCircleNtuple = True
 #InDetFlags.doVtxNtuple      = True
 #InDetFlags.doConvVtxNtuple  = True
 #InDetFlags.doV0VtxNtuple    = True
@@ -294,8 +292,6 @@ if (hasattr(InDetFlags,"doPixelClusterSplitting")) :
 
 from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
 TrkDetFlags.MaterialDatabaseLocal =False
-
-InDetFlags.doPixelClusterNtuple = False
 
 # For Rel17 we need pre and post include
 #--------------------------------------------------------------

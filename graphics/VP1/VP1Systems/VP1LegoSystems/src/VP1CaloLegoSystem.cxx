@@ -5,7 +5,7 @@
 #include "VP1LegoSystems/VP1CaloLegoSystem.h"
 #include "ui_calolegocontrollerform.h"
 
-#include <QtCore/QMap>
+#include <QMap>
 
 #include <Inventor/nodes/SoSwitch.h>
 #include <Inventor/nodes/SoSeparator.h>

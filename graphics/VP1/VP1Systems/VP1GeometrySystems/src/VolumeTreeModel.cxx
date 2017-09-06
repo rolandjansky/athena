@@ -5,7 +5,7 @@
 #include "VP1GeometrySystems/VolumeTreeModel.h"
 #include <cassert>
 #include <iostream>
-#include <QtGui/QColor>
+#include <QColor>
 
 //////////////////////////////////////////////////////////////////////
 //NB: Since the QModelIndices uses void pointers, the VolumeHandle,
@@ -234,6 +234,8 @@ void VolumeTreeModel::addSubSystem( VP1GeoFlags::SubSystemFlag flag,
 //____________________________________________________________________
 void VolumeTreeModel::enableSubSystem(VP1GeoFlags::SubSystemFlag flag)
 {
+  beginResetModel(); // see: http://doc.qt.io/qt-5/qabstractitemmodel-obsolete.html
+
   //Check the subsystem was added previously:
   if (d->flag2subsystems.find(flag)==d->flag2subsystems.end()) {
     std::cout<<"VolumeTreeModel::enableSubSystem Error: System never added!"<<std::endl;
@@ -272,13 +274,15 @@ void VolumeTreeModel::enableSubSystem(VP1GeoFlags::SubSystemFlag flag)
     d->volhandle2subsystem[volhandle] = subsys;
   }
 
-  reset();//Fixme: use proper insert rows/colums/etc. instead!
+  endResetModel();
 
 }
 
 //____________________________________________________________________
 void VolumeTreeModel::disableSubSystem(VP1GeoFlags::SubSystemFlag flag)
 {
+	beginResetModel(); // see: http://doc.qt.io/qt-5/qabstractitemmodel-obsolete.html
+
   //If it was not even added previously we can just return:
   if (d->flag2subsystems.find(flag)==d->flag2subsystems.end())
     return;
@@ -319,7 +323,8 @@ void VolumeTreeModel::disableSubSystem(VP1GeoFlags::SubSystemFlag flag)
     d->volhandle2subsystem.erase(d->volhandle2subsystem.find(volhandle));
   }
 
-  reset();//Fixme: use proper insert rows/colums/etc. instead!
+  endResetModel();
+//  reset();//Fixme: use proper insert rows/colums/etc. instead!
 }
 
 //____________________________________________________________________

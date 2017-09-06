@@ -51,6 +51,8 @@ namespace pool  {
     long long int m_counters[3];
     /// Default compression level
     int           m_defCompression;
+    /// Default compressionalgorithm 
+    int           m_defCompressionAlg;
     /// Default split level
     int           m_defSplitLevel;
     /// Default Autosave parameter for trees

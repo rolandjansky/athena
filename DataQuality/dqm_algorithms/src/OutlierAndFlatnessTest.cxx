@@ -26,14 +26,14 @@ namespace
 dqm_algorithms::OutlierAndFlatnessTest OutlierAndFlatnessTest("OutlierAndFlatnessTest");
 }
 
-dqm_algorithms::OutlierAndFlatnessTest::OutlierAndFlatnessTest(const std::string &name) : name_(name)
+dqm_algorithms::OutlierAndFlatnessTest::OutlierAndFlatnessTest(const std::string &name) : m_name(name)
 {
     dqm_core::AlgorithmManager::instance().registerAlgorithm(name, this);
 }
 
 dqm_algorithms::OutlierAndFlatnessTest *dqm_algorithms::OutlierAndFlatnessTest::clone()
 {
-    return new OutlierAndFlatnessTest(name_);
+    return new OutlierAndFlatnessTest(m_name);
 }
 
 dqm_core::Result *dqm_algorithms::OutlierAndFlatnessTest::execute(const std::string &name, const TObject &object, const dqm_core::AlgorithmConfig &config)
@@ -321,7 +321,7 @@ dqm_core::Result *dqm_algorithms::OutlierAndFlatnessTest::execute(const std::str
 
 void dqm_algorithms::OutlierAndFlatnessTest::printDescription(std::ostream& out)
 {
-    out << name_ << ": Checks TH1-inherited histograms for bins which lie either Nsigma or AbsDev away from the mean (by default excludes bins with zero entries) or which exceed a given limit and removes them from the distribution.\n"
+    out << m_name << ": Checks TH1-inherited histograms for bins which lie either Nsigma or AbsDev away from the mean (by default excludes bins with zero entries) or which exceed a given limit and removes them from the distribution.\n"
         "Remaining (corrected for outliers) distribution is fitted with either a quadratic or a sinusoidal function (option FitCircular) and symmetric and asymmetric deviations from a flat distribution are computed by evaluating the quadratic and linear fit contributions respectively.\n"
         "Parameters:\n"
         "\tFitCircular:\tFit sinoidal function instead of quadratic. This is usefull for distributions expected to show circular behaviour (e.g. phi distributions) (default 0).\n"

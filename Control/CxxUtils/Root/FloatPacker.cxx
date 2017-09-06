@@ -16,6 +16,7 @@
 #include <string>
 #include <sstream>
 #include <iomanip>
+#include <stdexcept>
 #ifndef __APPLE__
 #include <ieee754.h>  // ??? Is this standardized?
 #else
@@ -252,34 +253,21 @@ FloatPacker::FloatPacker (int nbits,
   m_max_exp = max_int (m_nexp);
 
   if (m_npack < 1 || m_npack > nbits)
-    m_lasterr = "Bad number of mantissa bits.";
-}
-
-
-/**
- * @brief Check to see if an error occurred.
- * @param err[out] If an error occurred, a description of it.
- * @return True if an error occurred since the last call to @c errcheck.
- */
-bool FloatPacker::errcheck (std::string& err) const
-{
-  if (!m_lasterr.empty()) {
-    err.swap (m_lasterr);
-    m_lasterr.clear();
-    return true;
-  }
-  return false;
+    throw std::runtime_error ("Bad number of mantissa bits.");
 }
 
 
 /**
  * @brief Pack a value.
  * @param src Value to pack.
+ * @param err If non-null, then this string will be set to a description
+ *            of any error that occurs.
  * @return The packed value.
  *
  * For now, we convert floats to doubles before packing.
  */
-FloatPacker::Packdest FloatPacker::pack (double src) const
+FloatPacker::Packdest
+FloatPacker::pack (double src, std::string* err /*= nullptr*/) const
 {
   double_or_int d;
   d.d.d = src;
@@ -292,10 +280,12 @@ FloatPacker::Packdest FloatPacker::pack (double src) const
 
   // Check for NaN and infinity.
   if (d.d.ieee.exponent == ieee754_double_exponent_mask) {
-    std::ostringstream os;
-    os << "Bad float number: " << src << " (" << std::setbase(16) << d.i[0]
-       << " " << d.i[1] << ")";
-    m_lasterr = os.str();
+    if (err) {
+      std::ostringstream os;
+      os << "Bad float number: " << src << " (" << std::setbase(16) << d.i[0]
+         << " " << d.i[1] << ")";
+      *err = os.str();
+    }
     d.d.d = 0;
   }
 
@@ -310,10 +300,10 @@ FloatPacker::Packdest FloatPacker::pack (double src) const
     }
     else {
       // Don't complain on -0.
-      if (d.d.d < 0) {
+      if (d.d.d < 0 && err) {
         std::ostringstream os;
         os << "Float overflow during packing: " << src;
-        m_lasterr = os.str();
+        *err = os.str();
       }
       d.d.d = 0;
     }
@@ -373,9 +363,11 @@ FloatPacker::Packdest FloatPacker::pack (double src) const
 
   // If the number is too large, bitch, and reset to the largest number.
   if (exponent > m_max_exp) {
-    std::ostringstream os;
-    os << "Float overflow during packing: " << src;
-    m_lasterr = os.str();
+    if (err) {
+      std::ostringstream os;
+      os << "Float overflow during packing: " << src;
+      *err = os.str();
+    }
     exponent = m_max_exp;
     mantissa = static_cast<Packdest> (~0);
   }
@@ -406,8 +398,10 @@ FloatPacker::Packdest FloatPacker::pack (double src) const
  * @brief Unpack the value @c VAL.
  * @param val The packed data.  It should start with the low bit,
  *            and any extraneous bits should have been masked off.
+ * @param err If non-null, then this string will be set to a description
+ *            of any error that occurs.
  */
-double FloatPacker::unpack (Packdest val) const
+double FloatPacker::unpack (Packdest val, std::string* err /*= nullptr*/) const
 {
   // Fast-path for 0.
   if (val == 0)
@@ -453,9 +447,11 @@ double FloatPacker::unpack (Packdest val) const
 
     // Complain about overflow.
     if (exponent >= max_int (ieee754_double_exponent_bits)) {
-      std::ostringstream os;
-      os << "Overflow while unpacking float; exponent: " << exponent;
-      m_lasterr = os.str();
+      if (err) {
+        std::ostringstream os;
+        os << "Overflow while unpacking float; exponent: " << exponent;
+        *err = os.str();
+      }
       exponent = max_int (ieee754_double_exponent_bits) + 1;
       mantissa = 0; // Infinity.
     }

@@ -15,10 +15,9 @@ atlas_depends_on_subdirs( PUBLIC
 # External dependencies:
 find_package( CLHEP )
 find_package( Coin3D )
-find_package( Qt4 )
 
 
-include_directories( /usr/X11R6/include )
+
 
 # Generate UI files automatically:
 set( CMAKE_AUTOUIC TRUE )

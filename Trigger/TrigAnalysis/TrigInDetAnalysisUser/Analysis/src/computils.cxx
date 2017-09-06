@@ -171,6 +171,12 @@ double integral( TH1* h ) {
 }
 
 
+bool empty( TH1* h ) { 
+  for ( int i=h->GetNbinsX() ; i>0 ; i-- ) if ( h->GetBinContent(i)!=0 ) return false;
+  return true;
+}
+
+
 std::string tail( std::string s, const std::string& pattern ) { 
   size_t pos = s.find(pattern);
   while ( pos != std::string::npos ) { 
@@ -230,9 +236,7 @@ double realmax( TH1* h, bool include_error, double lo, double hi ) {
   double rm = 0;
   if ( h->GetNbinsX()==0 )  return 0; 
 
-  bool first = 0;
-  if ( include_error ) rm += h->GetBinError(1);
-
+  bool first = true;
   for ( int i=1 ; i<=h->GetNbinsX() ; i++ ) { 
 
     if ( lo!=hi ) { 
@@ -242,9 +246,11 @@ double realmax( TH1* h, bool include_error, double lo, double hi ) {
 
     double re = h->GetBinContent(i);
     if ( include_error ) re += h->GetBinError(i);
-    if ( first || rm<re ) { 
-      rm = re;
-      first = false;
+    if ( re!=0 ) {
+      if ( first || rm<re ) { 
+	rm = re;
+	first = false;
+      }
     }
   }
 
@@ -304,16 +310,13 @@ std::vector<int>  findxrange(TH1* h, bool symmetric ) {
   limits[0] = ilo;
   limits[1] = ihi;
 
-
-  double content = integral(h);
-
-  if ( content == 0 ) return limits;
+  if ( empty(h) ) return limits;
 
 #if 1
 
   /// zoom on non-empty bins
-  for ( ; ilo<=ihi ; ilo++ ) if ( h->GetBinContent(ilo)>0 ) break; 
-  for ( ; ihi>=ilo ; ihi-- ) if ( h->GetBinContent(ihi)>0 ) break;
+  for ( ; ilo<=ihi ; ilo++ ) if ( h->GetBinContent(ilo)!=0 ) break; 
+  for ( ; ihi>=ilo ; ihi-- ) if ( h->GetBinContent(ihi)!=0 ) break;
 
 #else
 

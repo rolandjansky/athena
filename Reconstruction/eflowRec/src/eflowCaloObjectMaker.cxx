@@ -47,9 +47,9 @@ int eflowCaloObjectMaker::makeTrkCluCaloObjects(std::vector<eflowRecTrack*> trac
   for (unsigned int iTrack=0; iTrack<nTrack; ++iTrack) {
     eflowRecTrack *thisEflowRecTrack = static_cast<eflowRecTrack*>(tracksToRecover.at(iTrack));
     if(thisEflowRecTrack->getClusterMatches().empty()) {
-      eflowCaloObject* calob = new eflowCaloObject();
+      std::unique_ptr<eflowCaloObject> calob = std::make_unique<eflowCaloObject>();
       calob->addTrack(thisEflowRecTrack);
-      caloObjectContainer->push_back(calob);
+      caloObjectContainer->push_back(std::move(calob));
       result++;
     } else {
       tracksToConsider.push_back(thisEflowRecTrack);
@@ -61,9 +61,9 @@ int eflowCaloObjectMaker::makeTrkCluCaloObjects(std::vector<eflowRecTrack*> trac
   for (unsigned int iCluster = 0; iCluster < nClusters; ++iCluster) {
     eflowRecCluster* thisEFRecCluster = clustersToConsider.at(iCluster);
     if(thisEFRecCluster->getTrackMatches().empty()) {
-      eflowCaloObject* thisEflowCaloObject = new eflowCaloObject();
+      std::unique_ptr<eflowCaloObject> thisEflowCaloObject = std::make_unique<eflowCaloObject>();
       thisEflowCaloObject->addCluster(thisEFRecCluster);
-      caloObjectContainer->push_back(thisEflowCaloObject);
+      caloObjectContainer->push_back(std::move(thisEflowCaloObject));
       result++;
     }
   }
@@ -97,14 +97,14 @@ int eflowCaloObjectMaker::makeTrkCluCaloObjects(std::vector<eflowRecTrack*> trac
       } while (++time);
       
       /* store this eflowCaloObject */
-      eflowCaloObject* thisEflowCaloObject = new eflowCaloObject();
+      std::unique_ptr<eflowCaloObject> thisEflowCaloObject = std::make_unique<eflowCaloObject>();
       thisEflowCaloObject->addTracks(trackList);
       
       thisEflowCaloObject->addClusters(clusterList);
       for(std::vector<eflowRecCluster*>::const_iterator itr_cluster = clusterList.begin(); itr_cluster != clusterList.end(); ++itr_cluster) {
 	thisEflowCaloObject->addTrackClusterLinks((*itr_cluster)->getTrackMatches());
       }
-      caloObjectContainer->push_back(thisEflowCaloObject);
+      caloObjectContainer->push_back(std::move(thisEflowCaloObject));
       
       /* update tracksToConsider */
       updateTracksToConsider(tracksToConsider, trackList);

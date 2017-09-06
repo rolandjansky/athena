@@ -30,8 +30,8 @@
 #include "VP1Base/VP1QtInventorUtils.h"
 #include "VP1Base/VP1CameraHelper.h"
 
-#include <QtCore/QBuffer>
-#include <QtCore/QByteArray>
+#include <QBuffer>
+#include <QByteArray>
 
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoComplexity.h>

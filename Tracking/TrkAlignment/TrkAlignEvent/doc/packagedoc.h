@@ -20,16 +20,6 @@ This package contains classes to be used for track-based alignment.
   - AlignTrack: collection of AlignTSOS and the original track from which the alignTSOS hits come from
   - AlignTrackCollection: collection of AlignTracks
 
-@ref used_TrkAlignEvent
 
-@ref requirements_TrkAlignEvent
 
-*/
-
-/**
-@page used_TrkAlignEvent Used Packages
-*/
-
-/**
-@page requirements_TrkAlignEvent Requirements
 */

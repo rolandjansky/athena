@@ -34,14 +34,15 @@
   Boston, MA 02110-1301, USA.
 */
 
-#include <QtGui/QApplication>
-#include <QtGui/QDragMoveEvent>
-#include <QtGui/QStyle>
-#include <QtGui/QTextDocument>
-
 #include "VP1Base/VP1TabBar.h"
-
 #include "VP1Base/VP1TabWidget.h"
+
+#include <QApplication>
+#include <QDragMoveEvent>
+#include <QStyle>
+#include <QTextDocument>
+
+
 
 class VP1TabWidget::Private
 {
@@ -142,7 +143,8 @@ void VP1TabWidget::Private::updateTab( int index )
 
   if ( title.length() > m_currentMaxLength ) {
     if ( Qt::mightBeRichText( title ) )
-      m_parent->setTabToolTip( index, Qt::escape( title ) );
+      // m_parent->setTabToolTip( index, Qt::escape( title ) ); // old Qt code
+      m_parent->setTabToolTip( index, QString(title).toHtmlEscaped() );
     else
       m_parent->setTabToolTip( index, title );
   }
@@ -155,7 +157,8 @@ void VP1TabWidget::Private::updateTab( int index )
     m_parent->QTabWidget::setTabText( index, title );
 }
 
-VP1TabWidget::VP1TabWidget( QWidget *parent, Qt::WFlags flags )
+// VP1TabWidget::VP1TabWidget( QWidget *parent, Qt::WFlags flags ) // old Qt code
+VP1TabWidget::VP1TabWidget( QWidget *parent,  Qt::WindowFlags flags )
   : QTabWidget( parent ),
     d( new Private( this ) )
 {

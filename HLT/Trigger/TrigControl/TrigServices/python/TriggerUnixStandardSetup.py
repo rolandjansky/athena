@@ -10,17 +10,6 @@ class _Conf:
     useOnlineTHistSvc = True    # set via TrigServices/OfflineTHistSvc.py
     athenaXT = False            # set below in _setupCommonServices
 
-
-def _setupRoot6IfNeeded():
-    import cppyy
-    try:
-        # try to touch ROOT5-only attribute (success means we have ROOT5)
-        cppyy.Cintex.Debug
-    except AttributeError:
-        # ROOT 6
-        from PyUtils.Helpers import ROOT6Setup
-        ROOT6Setup()
-
 def _eventLoopMgr(svcMgr):
     if hasattr(svcMgr, 'HltEventLoopMgr'): return svcMgr.HltEventLoopMgr
     return None
@@ -54,8 +43,9 @@ def _setupCommonServices():
         _Conf.athenaXT = False
         log.debug("Configuration for online running")
         
-    # setup ROOT6 if needed
-    _setupRoot6IfNeeded()
+    # setup ROOT6
+    from PyUtils.Helpers import ROOT6Setup
+    ROOT6Setup()
 
     # StoreGateSvc
     svcMgr.StoreGateSvc.ActivateHistory = False

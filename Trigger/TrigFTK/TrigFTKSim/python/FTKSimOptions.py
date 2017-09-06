@@ -3,8 +3,16 @@
 import PyJobTransforms.trfExceptions as trfExceptions
 import PyJobTransforms.trfArgClasses as trfArgClasses
 
+
+def addTrigFTKAthenaOptions(parser):
+    parser.defineArgGroup('Athena', 'General Athena Options')
+    parser.add_argument('--asetup', group='Athena', type=trfArgClasses.argFactory(trfArgClasses.argSubstep, runarg=False), nargs='+', metavar='substep:ASETUP',
+                        help='asetup command string to be run before this substep is executed')
+    return None
+
 def addTrigFTKSimOptions(parser,nsubregions=4):
     parser.defineArgGroup('TrigFTKSim', 'Fast tracker simulation generic options')
+
     parser.add_argument('--NBanks', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
                         help='Number of pattern banks', group='TrigFTKSim')
     # Here we set a default value as the merger wants this explicitly
@@ -152,6 +160,8 @@ def addTrigFTKSimRFOptions(parser):
 
     parser.add_argument("--PixelClusteringMode",type=trfArgClasses.argFactory(trfArgClasses.argInt,runarg=True),
                         help="Set the pixel clustering mode: 0 default, 1 ToT+pixel center",group="TrigFTKRoadFinder")
+    parser.add_argument("--Ibl3DRealistic",type=trfArgClasses.argFactory(trfArgClasses.argBool,runarg=True),
+                        help="Do the IBL 3D realistic(HWlike) clustering? Default is false",group="TrigFTKRoadFinder")
     parser.add_argument('--SctClustering',type=trfArgClasses.argFactory(trfArgClasses.argInt,runarg=True),
                         help="Set the SCT clustering [def: False]", group="TrigFTKRoadFinder")
 
@@ -205,6 +215,8 @@ def addTrigFTKSimTFOptions(parser):
                         help="Hit Warrior threshold", group='TrigFTKTrackFitter')
     parser.add_argument('--HitWarrior', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
                         help="Hit Warrior type: 0 none, 1 local, 2 global (def)", group='TrigFTKTrackFitter')
+    parser.add_argument('--FirstStageHitWarrior', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
+                        help="First Stage Hit Warrior type: 0 No First Stage Overlap Removal, 1 Overlap Removal within the Same Road (def), 2 Overlap Removal within the Same Sector", group='TrigFTKTrackFitter')
     parser.add_argument('--HitWarriorMerger', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
                         help="Hit Warrior Merger (merge) type", group='TrigFTKTrackFitter')
 

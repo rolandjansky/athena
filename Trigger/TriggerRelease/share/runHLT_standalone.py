@@ -123,7 +123,7 @@ menuMap={
 }
 
 # Useful in job options beyond our control to always run the latest menu via 'testCurrentMenu=True'
-menuMap['CurrentMenu'] = menuMap['PhysicsV6']
+menuMap['CurrentMenu'] = menuMap['PhysicsV7']
 
 newMenuSetup=0
 for name in menuMap:

@@ -57,6 +57,8 @@ namespace xAOD {
          Photon   = 7, ///< The object is a photon
          Muon     = 8, ///< The object is a muon
          Tau      = 9, ///< The object is a tau (jet)
+         
+         TrackCaloCluster = 10, ///< The object is a track-calo-cluster
 
          // }
 

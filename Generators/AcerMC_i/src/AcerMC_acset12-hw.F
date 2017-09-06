@@ -67,13 +67,13 @@ C 'SEMI-LEPTONIC' DECAYS FOR TOP PAIRS - BR
             ENDIF
             VLBRAT=VLBRAT_T*VLBRAT_W
             ACBRAT=2.D0*VLBRAT  ! SEMI-LEPTONICS ALLOW 2 OPTIONS 1-2+2-1
-            WRITE(*,*),' '
+            WRITE(*,*) ' '
             WRITE(*,*)
      #'        ----<          ACERMC  1.3  & HERWIG 6.5           >----'
-            WRITE(*,*),' '
+            WRITE(*,*) ' '
             WRITE(*,*)
      #'             --<  BRANCHING MODE FOR TOP -> W -> ACTIVE >--'
-            WRITE(*,*),' '
+            WRITE(*,*) ' '
             WRITE(*,24) ISEM,ACBRAT
  24         FORMAT (
      #'               THE ACERMC ACSET12 SWITCH IS SET TO ',I2/
@@ -83,10 +83,10 @@ C 'SEMI-LEPTONIC' DECAYS FOR TOP PAIRS - BR
 
             WRITE(*,*)
      #'             -->  BRANCHING MODE FOR TOP -> W -> ACTIVE <--'
-            WRITE(*,*),' '
+            WRITE(*,*) ' '
             WRITE(*,*)
      #'        ---->          ACERMC  1.3  & HERWIG 6.5           <----'
-            WRITE(*,*),' '
+            WRITE(*,*) ' '
          
          ENDIF
       

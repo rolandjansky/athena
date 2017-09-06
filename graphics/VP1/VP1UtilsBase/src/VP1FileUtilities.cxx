@@ -14,12 +14,12 @@
 
 #include "VP1UtilsBase/VP1FileUtilities.h"
 
-#include <QtCore/QDir>
-#include <QtCore/QFile>
-#include <QtCore/QFileInfo>
-#include <QtCore/QStringList>
-#include <QtCore/QFileInfoList>
-#include <QtCore/QThread>
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
+#include <QStringList>
+#include <QFileInfoList>
+#include <QThread>
 
 #include <sstream>
 #include <iomanip>

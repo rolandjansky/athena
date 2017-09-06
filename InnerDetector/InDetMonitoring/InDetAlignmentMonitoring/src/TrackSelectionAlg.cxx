@@ -186,7 +186,7 @@ bool TrackSelectionAlg::makeTrackCuts(Trk::Track* track, float zVtx)
   else{
 
     nhpix = summary->get(Trk::numberOfPixelHits);
-    nhblay = summary->get(Trk::numberOfBLayerHits);
+    nhblay = summary->get(Trk::numberOfInnermostPixelLayerHits);
     nhsct = summary->get(Trk::numberOfSCTHits);
     nhtrt = summary->get(Trk::numberOfTRTHits);
     nhtrtHT = summary->get(Trk::numberOfTRTHighThresholdHits);

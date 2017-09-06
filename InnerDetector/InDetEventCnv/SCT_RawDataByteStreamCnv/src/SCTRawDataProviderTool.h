@@ -21,7 +21,6 @@
 #include <set>
 #include <string>
 
-using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
 class ISCT_ByteStreamErrorsSvc;
 class ISCT_RodDecoder;
@@ -31,14 +30,14 @@ class SCTRawDataProviderTool : virtual public ISCTRawDataProviderTool,
   virtual public IIncidentListener
 {
 
-public:
+ public:
    
   //! AlgTool InterfaceID
   //  static const InterfaceID& interfaceID( ) ;
   
   //! constructor
-  SCTRawDataProviderTool( const std::string& type, const std::string& name,
-			    const IInterface* parent ) ;
+  SCTRawDataProviderTool(const std::string& type, const std::string& name,
+			 const IInterface* parent ) ;
 
   //! destructor 
   virtual ~SCTRawDataProviderTool();
@@ -47,29 +46,26 @@ public:
   virtual StatusCode initialize() override;
 
   //! finalize
-  virtual StatusCode finalize()  override;
+  virtual StatusCode finalize() override;
   
   //! this is the main decoding method
-  virtual StatusCode convert( std::vector<const ROBFragment*>& vecRobs,
-			      SCT_RDO_Container&               rdoIdc,
-                              InDetBSErrContainer*             errs) override;
+  virtual StatusCode convert(std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs,
+			     SCT_RDO_Container& rdoIdc,
+                             InDetBSErrContainer* errs) override;
 
   /** function to be executed at BeginEvent incident */
   virtual void handle(const Incident& inc) override;
 
-private: 
+ private: 
   
-  ToolHandle<ISCT_RodDecoder>  m_decoder; 
+  ToolHandle<ISCT_RodDecoder> m_decoder{this, "Decoder", "SCT_RodDecoder", "Decoder"};
   ServiceHandle<ISCT_ByteStreamErrorsSvc> m_bsErrSvc;
   
   // bookkeeping if we have decoded a ROB already
   std::set<uint32_t> m_robIdSet;
 
-  SG::ReadHandleKey<xAOD::EventInfo> xevtInfoKey;
-  SG::ReadHandleKey<EventInfo> evtInfoKey;
+  SG::ReadHandleKey<xAOD::EventInfo> m_xevtInfoKey;
+  SG::ReadHandleKey<EventInfo> m_evtInfoKey;
 };
 
-#endif
-
-
-
+#endif // SCT_RAWDATABYTESTREAMCNV_SCTRAWDATAPROVIDERTOOL_H

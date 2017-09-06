@@ -16,17 +16,6 @@ It uses as beam transport library the FPTracker library.
 
   - ALFA_BeamTransport : main class which handels initialization(), execution() and finalize()
   - ALFA_BeamTrack : calling functions of FPTracekr to calculate beamtransport
-@ref used_ALFA_BeamTransport
 
-@ref requirements_ALFA_BeamTransport
 
 */
-
-/**
-@page used_ALFA_BeamTransport Used Packages
-*/
-
-/**
-@page requirements_ALFA_BeamTransport Requirements
-*/
- 

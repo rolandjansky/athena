@@ -15,6 +15,8 @@ met_triggers_hlt = [
         ##      "HLT_mu30",
         "HLT_xe100_pufit_L1XE50",
         "HLT_xe110_mht_L1XE50",
+        "HLT_xe110_pufit_L1XE60",
+        "HLT_xe120_mht_xe80_L1XE60",
         #"HLT_xs30",    
         #"HLT_xe70_tc_lcw",    
         #"HLT_xe80_tc_lcw_L1XE50",    

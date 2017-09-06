@@ -20,8 +20,8 @@
 #define VP1AVAILABLETOOLSHELPER_H
 
 #include "VP1Base/VP1HelperClassBase.h"
-#include <QtCore/QObject>
-#include <QtCore/QStringList>
+#include <QObject>
+#include <QStringList>
 class IToolSvc;
 class IVP1System;
 class QComboBox;

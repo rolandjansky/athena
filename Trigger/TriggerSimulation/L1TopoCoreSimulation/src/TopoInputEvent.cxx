@@ -15,9 +15,9 @@ using namespace std;
 TCS::TopoInputEvent::TopoInputEvent() :
    m_clusters("InputClusters")
    , m_jets("InputJets")
-{};
+{}
 
-TCS::TopoInputEvent::~TopoInputEvent(){};
+TCS::TopoInputEvent::~TopoInputEvent(){}
 
 TCS::StatusCode
 TCS::TopoInputEvent::add(const TCS::ClusterTOB & cluster) {

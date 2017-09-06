@@ -90,9 +90,7 @@ The TRT_SeededTrackFinderTool contains the following classes/files:
 
 - SiNoise_bt.cxx... Noise adding routine due to detector material
 
-@section TRT_SeededTrackFinderTool_TRT_SeededTrackFinderToolPackagess Used Packages
 
 
-@section TRT_SeededTrackFinderTool_TRT_SeededTrackFinderToolReq Requirements file
 
 */

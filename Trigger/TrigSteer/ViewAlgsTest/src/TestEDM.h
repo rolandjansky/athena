@@ -24,6 +24,9 @@ namespace TestEDM {
   
   void setClusterPhi(TestCluster*, float et);
   float getClusterPhi(const TestCluster*);
+
+  void copyCluster(const TestCluster* from , TestCluster* to);
+
 }
 
 
@@ -39,6 +42,8 @@ namespace TestEDM {
   
   void setTrackPhi(TestTrack*, float phi);
   float getTrackPhi(const TestTrack*);
+
+  void copyTrack(const TestTrack* from , TestTrack* to);
 }
 
 

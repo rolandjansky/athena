@@ -39,8 +39,8 @@ public:
 
 protected:
 
-  TObjString name;
-  TObjString value;
+  TObjString m_name;
+  TObjString m_value;
 
 };
 

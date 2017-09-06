@@ -7,8 +7,6 @@
 #include <cstring>
 #include <fstream>
 #include "CxxUtils/procmaps.h"
-bool procmaps::s_pmapsLoaded(false);
-procmaps::procmaps_t procmaps::s_pmaps;
 procmaps::Entry::Entry(const char* procMapsLine) :
   begAddress(0),endAddress(0),
   readable(false), writable(false), executable(false), isPrivate(false),
@@ -37,22 +35,19 @@ procmaps::Entry::Entry(const char* procMapsLine) :
 }
 
 procmaps::procmaps(size_t entries) {
-  if (!s_pmapsLoaded) {
-     procmaps::s_pmaps.reserve(entries);
-     loadMaps(false);
-     s_pmapsLoaded=true;
-   }
+  m_pmaps.reserve(entries);
+  loadMaps(false);
 }
 
 void 
 procmaps::loadMaps(bool dump) {
-  procmaps::s_pmaps.clear();
+  m_pmaps.clear();
   std::ifstream f("/proc/self/maps");
   const int LMAX=256;
   char line[LMAX];
   while ( f.getline(line,LMAX) ) {
     if (dump) printf("%s",line);
-    procmaps::s_pmaps.push_back(Entry(line));
+   m_pmaps.emplace_back(line);
   }
 }
 

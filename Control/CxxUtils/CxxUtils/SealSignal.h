@@ -17,8 +17,7 @@
 #ifndef CXXUTILS_SEAL_SIGNAL_H // wlav SEAL_BASE_SIGNAL_H
 #define CXXUTILS_SEAL_SIGNAL_H // wlav SEAL_BASE_SIGNAL_H
 
-//<<<<<< INCLUDES                                                       >>>>>>
-
+#include "CxxUtils/checker_macros.h"
 //# include "SealBase/sysapi/IOTypes.h"           wlav
 
 // These should be hidden, but we can't do that for now: the clients
@@ -28,7 +27,6 @@
 # include <sys/types.h>
 # include <climits>
 
-//<<<<<< PUBLIC DEFINES                                                 >>>>>>
 
 // Hacks for fields we might not have in siginfo_t.  Just print zero.
 #ifdef si_utime // sss
@@ -51,11 +49,6 @@
 #  endif
 # endif
 
-//<<<<<< PUBLIC CONSTANTS                                               >>>>>>
-//<<<<<< PUBLIC TYPES                                                   >>>>>>
-//<<<<<< PUBLIC VARIABLES                                               >>>>>>
-//<<<<<< PUBLIC FUNCTIONS                                               >>>>>>
-//<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
 # if !HAVE_POSIX_SIGNALS
 // Forward declare POSIX signal handling stuff for platforms that
@@ -255,26 +248,26 @@ public:
 				      long		msecs = -1);
 
     // Assisted handling of program termination signals
-    static void			handleQuit (QuitHook hook = 0);
-    static QuitHook		handleQuitHook (void);
+    static void			handleQuit ATLAS_NOT_THREAD_SAFE (QuitHook hook = 0);
+    static QuitHook		handleQuitHook ATLAS_NOT_THREAD_SAFE (void);
 
-    static void			quit (int sig, siginfo_t *info, void *x);
+    static void			quit ATLAS_NOT_THREAD_SAFE (int sig, siginfo_t *info, void *x);
 
     // Assisted handling of fatal signals
-    static void			handleFatal (const char *applicationName = 0,
-					     IOFD fd = IOFD_INVALID,
-					     FatalHook hook = 0,
-					     FatalReturn mainreturn = 0,
-					     unsigned options = FATAL_DEFAULT);
-    static IOFD			handleFatalFd (void);
-    static FatalHook		handleFatalHook (void);
-    static FatalReturn		handleFatalReturn (void);
-    static unsigned		handleFatalOptions (void);
+    static void			handleFatal ATLAS_NOT_THREAD_SAFE (const char *applicationName = 0,
+                                                                   IOFD fd = IOFD_INVALID,
+                                                                   FatalHook hook = 0,
+                                                                   FatalReturn mainreturn = 0,
+                                                                   unsigned options = FATAL_DEFAULT);
+    static IOFD			handleFatalFd ATLAS_NOT_THREAD_SAFE (void);
+    static FatalHook		handleFatalHook ATLAS_NOT_THREAD_SAFE (void);
+    static FatalReturn		handleFatalReturn ATLAS_NOT_THREAD_SAFE (void);
+    static unsigned		handleFatalOptions ATLAS_NOT_THREAD_SAFE (void);
 
-    static void			fatal (int sig, siginfo_t *info, void *x);
-    static bool			fatalDump (int sig, siginfo_t *info, void *x);
-    static int			fatalLevel (void);
-    static bool			crashed (void);
+    static void			fatal ATLAS_NOT_THREAD_SAFE (int sig, siginfo_t *info, void *x);
+    static bool			fatalDump ATLAS_NOT_THREAD_SAFE (int sig, siginfo_t *info, void *x);
+    static int			fatalLevel ATLAS_NOT_THREAD_SAFE (void);
+    static bool			crashed ATLAS_NOT_THREAD_SAFE (void);
 
     static void			dumpInfo    (IOFD fd, char *buf, int sig,
 					     const siginfo_t *info);
@@ -302,8 +295,6 @@ private:
 #endif
 };
 
-//<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>
-//<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
 
 //} // namespace seal                             wlav
 } // namespace Athena                             wlav
@@ -312,7 +303,7 @@ private:
 extern "C" {
   /// Install fatal handler with default options.
   /// This is meant to be easy to call from pyton via ctypes.
-  void CxxUtils_installFatalHandler();
+  void CxxUtils_installFatalHandler ATLAS_NOT_THREAD_SAFE ();
 }
 
 

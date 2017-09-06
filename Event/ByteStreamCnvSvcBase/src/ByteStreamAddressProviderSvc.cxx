@@ -130,7 +130,9 @@ StatusCode ByteStreamAddressProviderSvc::preLoadAddresses(StoreID::type id, tadL
    return(StatusCode::SUCCESS);
 }
 //________________________________________________________________________________
-StatusCode ByteStreamAddressProviderSvc::updateAddress(StoreID::type id, SG::TransientAddress* tad) {
+StatusCode ByteStreamAddressProviderSvc::updateAddress(StoreID::type id,
+                                                       SG::TransientAddress* tad,
+                                                       const EventContext& /*ctx*/) {
    if (id != m_storeID) {
       return(StatusCode::FAILURE);
    }

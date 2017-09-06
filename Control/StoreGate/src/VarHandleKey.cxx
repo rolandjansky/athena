@@ -15,8 +15,12 @@
 #include "StoreGate/exceptions.h"
 #include "AthenaKernel/getMessageSvc.h"
 #include "AthenaKernel/errorcheck.h"
+#include "AthenaKernel/StoreID.h"
 #include <boost/tokenizer.hpp>
 
+#include "StoreGate/StoreGateSvc.h"
+
+static const char* storeSeparator = "+";
 
 namespace SG {
 
@@ -28,7 +32,7 @@ namespace SG {
  * @param a Mode: read/write/update.
  *
  * The provided key may actually start with the name of the store,
- * separated by a slash:  "MyStore/Obj".  If no slash is present,
+ * separated by a "+":  "MyStore+Obj".  If no "+" is present,
  * the store named by @c storeName is used.  However, if the key name
  * starts with a slash, it is interpreted as a hierarchical key name,
  * not an empty store name.
@@ -43,8 +47,7 @@ VarHandleKey::VarHandleKey (CLID clid,
   : Gaudi::DataHandle (DataObjID (clid, sgkey), a),
     m_storeHandle (storeName, "VarHandleKey")
 {
-  if (parseKey (sgkey, storeName).isFailure())
-    throw SG::ExcBadHandleKey (sgkey);
+  parseKey (sgkey, storeName);
 }
 
 
@@ -53,7 +56,7 @@ VarHandleKey::VarHandleKey (CLID clid,
  * @param sgkey The StoreGate key for the object.
  * 
  * The provided key may actually start with the name of the store,
- * separated by a slash:  "MyStore/Obj".  If no slash is present
+ * separated by a "+":  "MyStore+Obj".  If no "+" is present
  * the store is not changed.  A key name that starts with a slash
  * is interpreted as a hierarchical key name, not an empty store name.
  *
@@ -62,8 +65,7 @@ VarHandleKey::VarHandleKey (CLID clid,
  */
 VarHandleKey& VarHandleKey::operator= (const std::string& sgkey)
 {
-  if (parseKey (sgkey, m_storeHandle.name()).isFailure())
-    throw SG::ExcBadHandleKey (sgkey);
+  parseKey (sgkey, m_storeHandle.name());
   return *this;
 }
 
@@ -73,7 +75,7 @@ VarHandleKey& VarHandleKey::operator= (const std::string& sgkey)
  * @param sgkey The StoreGate key for the object.
  * 
  * The provided key may actually start with the name of the store,
- * separated by a slash:  "MyStore/Obj".  If no slash is present
+ * separated by a "+":  "MyStore+Obj".  If no "+" is present
  * the store is not changed.  A key name that starts with a slash
  * is interpreted as a hierarchical key name, not an empty store name.
  *
@@ -81,7 +83,15 @@ VarHandleKey& VarHandleKey::operator= (const std::string& sgkey)
  */
 StatusCode VarHandleKey::assign (const std::string& sgkey)
 {
-  return parseKey (sgkey, m_storeHandle.name());
+  try {
+    parseKey (sgkey, m_storeHandle.name());
+  } catch (SG::ExcBadHandleKey &e) {
+    std::cerr << "VarHandleKey::assign failure: " << e.what() << std::endl;
+    return StatusCode::FAILURE;
+  } catch (...) {
+    return StatusCode::FAILURE;
+  }
+  return StatusCode::SUCCESS;
 }
 
 
@@ -96,11 +106,13 @@ StatusCode VarHandleKey::assign (const std::string& sgkey)
 StatusCode VarHandleKey::initialize (bool used /*= true*/)
 {
   if (!used) {
-    Gaudi::DataHandle::updateKey ("");
+    Gaudi::DataHandle::updateKey (m_storeHandle.name() + ":");
+    m_sgKey = "";
     return StatusCode::SUCCESS;
   }
 
-  if (Gaudi::DataHandle::objKey() == "") {
+  //  if (Gaudi::DataHandle::objKey() == "") {
+  if (key() == "") {
     REPORT_ERROR (StatusCode::FAILURE)
       << "Cannot initialize a Read/Write/Update handle with a null key.";
     return StatusCode::FAILURE;
@@ -124,9 +136,8 @@ CLID VarHandleKey::clid() const
  */
 const std::string& VarHandleKey::key() const
 {
-  return Gaudi::DataHandle::objKey();
+  return m_sgKey;
 }
-
 
 /**
  * @brief Return handle to the referenced store.
@@ -160,39 +171,88 @@ void VarHandleKey::updateKey(const std::string& /*key*/) const
  * @param sgkey The StoreGate key for the referenced object.
  *
  * The provided key may actually start with the name of the store,
- * separated by a slash:  "MyStore/Obj".  If no slash is present
+ * separated by a "+":  "MyStore+Obj".  If no "+" is present
  * the store named by @c storeName is used.  A key name that starts
  * with a slash is interpreted as a hierarchical key name,
  * not an empty store name.
+ *
+ * we also have to check that if the key contains the store name, 
+ * it matches the store name that they Handle was constructed with
+ *
+ * blank keys result in blank DataObjIDs
+ *
  */
-StatusCode VarHandleKey::parseKey (const std::string& sgkey,
-                                   const std::string& storeName)
+void VarHandleKey::parseKey (const std::string& key,
+                             const std::string& storeName)
 {
-  typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
-  boost::char_separator<char> sep("/");
-  tokenizer tokens(sgkey, sep);
-  int nToks = distance(tokens.begin(), tokens.end());
-  if (nToks == 0) {
-    this->updateHandle (storeName);
-    Gaudi::DataHandle::updateKey ("");
+  std::string sn;
+  // test if storeName has classname
+  std::string::size_type sp = storeName.find("/");
+  if (sp == std::string::npos) {
+    sn = storeName;
   } else {
-    if (sgkey.find("/") == 0) {
-      this->updateHandle( storeName );
-      Gaudi::DataHandle::updateKey( sgkey );
-    } else {
-      if (nToks == 1) {
-        this->updateHandle (storeName);
-        Gaudi::DataHandle::updateKey (*(tokens.begin()));
-      } else if (nToks == 2) {
-        auto tok = tokens.begin();
-        this->updateHandle (*tok);
-        Gaudi::DataHandle::updateKey (*(++tok));
-      } else {
-        return StatusCode::FAILURE;
+    sn = storeName.substr(sp+1,storeName.length()-sp+1);
+  }
+
+  if (key.length() == 0) {
+    this->updateHandle(sn);
+    Gaudi::DataHandle::updateKey("");
+    m_sgKey = "";
+    return;
+  }
+
+  // StoreName separator is ":"
+  sp = key.find(storeSeparator);
+  if(sp == std::string::npos) {
+    m_sgKey = key;
+  } else {
+    sn = key.substr(0,sp);
+    m_sgKey = key.substr(sp+1,key.length()-sp-1);
+  }
+
+
+  this->updateHandle(sn);
+
+  StoreID::type st;
+  // would be nice if we could get the storeID from the storeHandle, but
+  // we can't be sure that the store has been created when the VHK is
+  // constructed.
+  //
+  // StoreGateSvc *sgs = dynamic_cast<StoreGateSvc*>( &(*m_storeHandle) );
+  // if (sgs != 0) {
+  //   st = sgs->storeID();
+  // } else {
+    st = StoreID::findStoreID(sn);
+  // }
+
+  if (st != StoreID::CONDITION_STORE) {
+    if (m_sgKey.find("/") != std::string::npos) {
+      throw SG::ExcBadHandleKey("key \"" + key 
+                                + "\": keys with \"/\" only allowed for "
+                                + StoreID::storeName(StoreID::CONDITION_STORE) 
+                                + " - store is \""
+                                + sn + "\"");
+    }
+  } else {
+    sp = m_sgKey.rfind("/");
+    if (sp != std::string::npos) {
+      if (sp == 0) {
+        // blank key
+        m_sgKey = "";
+      } else if ( sp == m_sgKey.length()-1) {
+        throw SG::ExcBadHandleKey("key \"" + key 
+                                  + "\": must not end with a \"/\"");
       }
     }
   }
-  return StatusCode::SUCCESS;
+  
+  if (m_sgKey.length() == 0) {
+    Gaudi::DataHandle::updateKey("");
+  } else {
+    Gaudi::DataHandle::updateKey(sn + storeSeparator + m_sgKey);
+  }
+
+
 }
 
 
@@ -208,5 +268,11 @@ void VarHandleKey::updateHandle (const std::string& name)
     m_storeHandle = ServiceHandle<IProxyDict>(name, "VarHandleKey");
 }
 
-
 } // namespace SG
+
+namespace std {
+  ostream& operator<<(ostream& s, const SG::VarHandleKey& m) {
+    s << "'" << m.objKey() << "'";
+    return s;
+  }
+}

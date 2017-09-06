@@ -257,7 +257,7 @@ namespace Analysis {
     var_map cleaned_inputs = replace_nan_with_defaults(complete_inputs, m_map_defaults.at(jetauthor));
 
     for (const auto& var: m_map_variables.at(jetauthor)) {
-      if (std::isnan(cleaned_inputs.at(var.name)) && cleaned_inputs.count(var.name)) {
+      if (cleaned_inputs.count(var.name) && std::isnan(cleaned_inputs.at(var.name))) {
       ATH_MSG_WARNING( "#BTAG# 'nan' input for variable " + var.name + " --> will result in 'nan' classification output. Check NN configuration file for default settings.");
       }
     }

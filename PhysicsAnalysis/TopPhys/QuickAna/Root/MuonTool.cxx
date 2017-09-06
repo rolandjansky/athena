@@ -97,6 +97,8 @@ namespace ana
     declareProperty( "InclusiveMET", m_inclusiveMET = false );
     declareProperty( "LooseImpactCut", m_looseImpactCut = false );
     declareProperty( "HighPt", m_high_pT = -1. );
+    declareProperty( "NoTRT" , m_noTRT=false , "Apply the TRT cut in selection?");
+    declareProperty( "BadMuVeto", m_doBadMuVeto=false , "Apply the bad muon veto?");
   }
 
 
@@ -107,7 +109,23 @@ namespace ana
     ATH_MSG_DEBUG("initialize");
     ATH_CHECK (ASG_MAKE_ANA_TOOL (m_selection, CP::MuonSelectionTool));
     ATH_CHECK (m_selection.setProperty ("MuQuality", int (m_quality)));
+    // In case we do not require TRT cuts in the derivation, this helps with PU stability
+    if (m_noTRT){
+      ATH_CHECK (m_selection.setProperty ("TrtCutOff", true) );
+    }
     ATH_CHECK (m_selection.initialize());
+    registerTool(&*m_selection);
+
+    // high-pT working point
+    ATH_CHECK (ASG_MAKE_ANA_TOOL (m_selectionHPT, CP::MuonSelectionTool));
+    ATH_CHECK (m_selectionHPT.setProperty( "MaxEta", 2.5 ) );
+    ATH_CHECK (m_selectionHPT.setProperty(  "MuQuality", 4 ) );
+    if (m_noTRT){
+      ATH_CHECK (m_selectionHPT.setProperty ("TrtCutOff", true) );
+    }
+    ATH_CHECK (m_selectionHPT.initialize() );
+    // Only add systematics if we are using this thing to pick muons
+    if (m_high_pT>0.) registerTool(&*m_selectionHPT);
 
     // Initialize the isolation selection tool
     if (m_isolationOn)
@@ -149,7 +167,17 @@ namespace ana
     ATH_MSG_DEBUG("selectObject");
     cut_selection.setPassedIf (m_selection->accept (muon));
     if (m_high_pT>0. && muon.pt()>m_high_pT){
-      cut_selection.setPassedIf (muon.passesHighPtCuts());
+      cut_selection.setPassedIf (m_selectionHPT->accept (muon));
+    } else {
+      // Decorate for analyses to play
+      muon.auxdata<char>("high_pT") = m_selectionHPT->accept(muon);
+    }
+
+    if (m_doBadMuVeto){
+      cut_selection.setPassedIf (m_selection->accept (muon) && !m_selection->isBadMuon (muon));
+      if (m_high_pT>0. && muon.pt()>m_high_pT){
+        cut_selection.setPassedIf (m_selectionHPT->accept (muon) && !m_selectionHPT->isBadMuon (muon) && !m_selection->isBadMuon (muon));
+      }
     }
 
     if (muon.muonType() != xAOD::Muon::MuonStandAlone)
@@ -218,6 +246,9 @@ namespace ana
 
     // MCP recommendation to check bad muons
     muon.auxdecor<char>("badMuon") = m_selection->isBadMuon(muon);
+    if (m_high_pT>0. && muon.pt()>m_high_pT){
+      muon.auxdecor<char>("badMuon") = m_selectionHPT->isBadMuon(muon);
+    }
 
     return StatusCode::SUCCESS;
   }
@@ -228,10 +259,15 @@ namespace ana
   MuonToolWeight (const std::string& name)
     : AsgTool (name), AnaToolWeight<xAOD::MuonContainer> (name),
       m_efficiency_scale("MuonEfficiencyScaleFactors", this),
+      m_efficiency_scaleHPT("MuonEfficiencyScaleFactorsHPT", this),
       m_ttva_efficiency_scale("MuonTTVAEfficiencyScaleFactors", this),
-      m_isolation_scale("MuonIsolationScaleFactors", this)
+      m_isolation_scale("MuonIsolationScaleFactors", this),
+      m_badmuonveto_scale("BadMuonVetoScaleFactors", this)
   {
     declareProperty("IsolationWP", m_isolationWP = "", "Working point to use");
+    declareProperty("HighPt", m_high_pT = -1. );
+    declareProperty("NoTRT" , m_noTRT=false , "Apply the TRT cut in selection?");
+    declareProperty("BadMuVeto", m_doBadMuVeto=false , "Apply the bad muon veto?");
   }
 
 
@@ -249,11 +285,29 @@ namespace ana
     else if (m_quality==xAOD::Muon::Medium) wpString = "Medium";
     else if (m_quality==xAOD::Muon::Tight)  wpString = "Tight";
     ATH_CHECK( m_efficiency_scale.setProperty("WorkingPoint", wpString) );
+    // For the case of no TRT cut, we need a different calibration release
+    if (m_noTRT){
+      ATH_CHECK( m_efficiency_scale.setProperty("CalibrationRelease", "170209_Moriond_noTRT") );
+    }
     ATH_CHECK( m_efficiency_scale.initialize() );
     registerTool( &*m_efficiency_scale );
 
+    // Set working point for the HPT tool
+    if (m_high_pT>0.){
+      ATH_CHECK( ASG_MAKE_ANA_TOOL(m_efficiency_scaleHPT, CP::MuonEfficiencyScaleFactors) );
+      ATH_CHECK( m_efficiency_scaleHPT.setProperty("WorkingPoint", "HighPt") );
+      // For the case of no TRT cut, we need a different calibration release
+      if (m_noTRT){
+        ATH_CHECK( m_efficiency_scaleHPT.setProperty("CalibrationRelease", "170209_Moriond_noTRT") );
+      }
+      ATH_CHECK( m_efficiency_scaleHPT.initialize() );
+      registerTool( &*m_efficiency_scaleHPT );
+    }
+
     ATH_CHECK( ASG_MAKE_ANA_TOOL(m_ttva_efficiency_scale, CP::MuonEfficiencyScaleFactors) );
     ATH_CHECK( m_ttva_efficiency_scale.setProperty("WorkingPoint", "TTVA") );
+    if (m_noTRT)
+      ATH_CHECK( m_ttva_efficiency_scale.setProperty("CalibrationRelease", "170303_Moriond_noTRT") );
     ATH_CHECK( m_ttva_efficiency_scale.initialize() );
     registerTool( &*m_ttva_efficiency_scale );
 
@@ -263,6 +317,13 @@ namespace ana
       ATH_CHECK( m_isolation_scale.setProperty("WorkingPoint", m_isolationWP+"Iso") );
       ATH_CHECK( m_isolation_scale.initialize() );
       registerTool( &*m_isolation_scale );
+    }
+
+    if (m_doBadMuVeto){
+      ATH_CHECK( ASG_MAKE_ANA_TOOL(m_badmuonveto_scale, CP::MuonEfficiencyScaleFactors) );
+      ATH_CHECK( m_badmuonveto_scale.setProperty("WorkingPoint", "BadMuonVeto_HighPt") );
+      ATH_CHECK( m_badmuonveto_scale.initialize() );
+      registerTool( &*m_badmuonveto_scale );
     }
 
     return StatusCode::SUCCESS;
@@ -278,10 +339,17 @@ namespace ana
     float reco_weight=1., ttva_weight=1., iso_weight = 1.;
 
     // Reconstruction efficiency scale factor
-    if (m_efficiency_scale->getEfficiencyScaleFactor(muon, reco_weight) ==
-        CP::CorrectionCode::Ok)
-      weight *= reco_weight;
+    if (m_high_pT<0. || muon.pt()<=m_high_pT){
+      if (m_efficiency_scale->getEfficiencyScaleFactor(muon, reco_weight) ==
+          CP::CorrectionCode::Ok)
+        weight *= reco_weight;
+    } else {
+      if (m_efficiency_scaleHPT->getEfficiencyScaleFactor(muon, reco_weight) ==
+          CP::CorrectionCode::Ok)
+        weight *= reco_weight;
+    }
 
+    // These next two do not depend on any high-pT working point issues
     // Track to vertex association efficiency scale factor
     if (m_ttva_efficiency_scale->getEfficiencyScaleFactor(muon, ttva_weight) ==
         CP::CorrectionCode::Ok)
@@ -292,6 +360,17 @@ namespace ana
         m_isolation_scale->getEfficiencyScaleFactor(muon, iso_weight) ==
         CP::CorrectionCode::Ok)
       weight *= iso_weight;
+
+    // Bad muon veto scale factor
+    // Buyer beware -- this only applies to the high pT working point
+    // Right now we can't select the high pT working point on its own
+    if (m_doBadMuVeto &&
+        (m_high_pT>0. && muon.pt()>m_high_pT) ){
+      float badMu_weight = 1.;
+      if (m_badmuonveto_scale->getEfficiencyScaleFactor(muon, badMu_weight) ==
+          CP::CorrectionCode::Ok)
+        weight *= badMu_weight;
+    }
 
     return StatusCode::SUCCESS;
   }
@@ -304,7 +383,9 @@ namespace ana
                            const std::string& isolationWP,
                            const bool& inclusiveMET,
                            const bool& looseImpactCut,
-                           const float& high_pT)
+                           const float& high_pT,
+                           const bool noTRT,
+                           const bool badMuVeto)
   {
     using namespace msgObjectDefinition;
 
@@ -351,6 +432,8 @@ namespace ana
     ANA_CHECK( selectTool->setProperty("InclusiveMET", inclusiveMET) );
     ANA_CHECK( selectTool->setProperty("LooseImpactCut", looseImpactCut) );
     ANA_CHECK( selectTool->setProperty("HighPt", high_pT) );
+    ANA_CHECK( selectTool->setProperty("NoTRT", noTRT) );
+    ANA_CHECK( selectTool->setProperty("BadMuVeto", badMuVeto) );
     args.add( std::move(selectTool) );
 
     if (args.configuration()->isData() == false)
@@ -362,6 +445,9 @@ namespace ana
       weightTool->m_quality = quality;
 
       ANA_CHECK( weightTool->setProperty("IsolationWP", isolationWP) );
+      ANA_CHECK( weightTool->setProperty("HighPt", high_pT) );
+      ANA_CHECK( weightTool->setProperty("NoTRT", noTRT) );
+      ANA_CHECK( weightTool->setProperty("BadMuVeto", badMuVeto) );
       args.add( std::move(weightTool) );
     }
 
@@ -395,11 +481,11 @@ namespace ana
     ("Zprime", makeMuonTool (args, xAOD::Muon::Medium, true, "LooseTrackOnly"))
 
   QUICK_ANA_MUON_DEFINITION_MAKER
-    ("SUSYIso", makeMuonTool (args, xAOD::Muon::Medium, true, "GradientLoose", true))
+    ("SUSYIso", makeMuonTool (args, xAOD::Muon::Medium, true, "GradientLoose", true, false, -1., true))
   QUICK_ANA_MUON_DEFINITION_MAKER
-    ("SUSYloose", makeMuonTool (args, xAOD::Muon::Medium, false,"",true, true))
+    ("SUSYloose", makeMuonTool (args, xAOD::Muon::Medium, false,"",true, true, -1., true))
   QUICK_ANA_MUON_DEFINITION_MAKER
-    ("SUSYIsoHighPt", makeMuonTool (args, xAOD::Muon::Medium, true, "GradientLoose", true, false, 300.*GeV))
+    ("MediumGLIso500BMV", makeMuonTool (args, xAOD::Muon::Medium, true, "GradientLoose", true, false, 500.*GeV, true, true))
 
 
 }

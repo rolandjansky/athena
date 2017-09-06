@@ -108,9 +108,9 @@ std::set<std::string> egammaMVATool::guess_variables(const std::string& filename
   const std::vector<std::string> all_possible_variables = {
     "el_cl_E", "el_cl_eta", "el_cl_phi", "el_charge", "el_author",
     "el_rawcl_Es0", "el_rawcl_Es1", "el_rawcl_Es2", "el_rawcl_Es3", "el_cl_E_TileGap3",
-    "el_cl_etaCalo", "el_cl_phiCalo", "el_rawcl_calibHitsShowerDepth",
+    "el_cl_etaCalo", "el_cl_phiCalo", "el_rawcl_calibHitsShowerDepth", "el_wtots1",
     "ph_cl_E", "ph_cl_eta", "ph_cl_phi", "ph_author",
-    "ph_rawcl_Es0", "ph_rawcl_Es1", "ph_rawcl_Es2", "ph_rawcl_Es3", "ph_cl_E_TileGap3",
+    "ph_rawcl_Es0", "ph_rawcl_Es1", "ph_rawcl_Es2", "ph_rawcl_Es3", "ph_cl_E_TileGap3", "ph_wtots1",
     "ph_cl_etaCalo", "ph_cl_phiCalo", "ph_rawcl_calibHitsShowerDepth",
     "el_charge", "el_tracketa", "el_trackpt", "el_trackz0", "el_refittedTrack_qoverp", "el_author",
     "ph_Rconv", "ph_zconv", "ph_pt1conv", "ph_pt2conv", "ph_ptconv", "ph_convtrk1nPixHits", "ph_convtrk2nPixHits", "ph_convtrk1nSCTHits", "ph_convtrk2nSCTHits",

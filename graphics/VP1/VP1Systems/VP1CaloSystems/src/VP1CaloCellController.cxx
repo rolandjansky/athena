@@ -33,7 +33,7 @@
 #include <qwt_symbol.h>
 #include <qwt_text.h>
 
-#include <QtCore/QVector>
+#include <QVector>
 
 #include "CLHEP/Units/SystemOfUnits.h"
 

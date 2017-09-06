@@ -101,16 +101,6 @@ namespace xAOD {
       /// A flag for whether the object owns what it points to
       ::Bool_t m_owner;
 
-      /// Type for the internal cache
-      typedef std::map< const std::type_info*, TClass* > TypeCache_t;
-      /// Cache for the requested class types
-      static TypeCache_t s_typeMap;
-
-      /// Type implementing the instance counting
-      typedef std::map< void*, int > SharedCount_t;
-      /// Variable counting the different object instances
-      static SharedCount_t s_sharedCount;
-
    }; // class THolder
 
 } // namespace xAOD

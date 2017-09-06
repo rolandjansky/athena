@@ -11,6 +11,7 @@
 
 // AthenaBaseComps includes
 #include "AthViews/AthViewAlgorithm.h"
+#include "AthenaKernel/ExtendedEventContext.h"
 
 #include "GaudiKernel/IJobOptionsSvc.h"
 
@@ -106,7 +107,8 @@ SG::View * AthViewAlgorithm::eventView(const EventContext& ctx)
 {
   //Try to get the view from context
   if ( ! ctx.valid() ) return 0; //but why no context?
-  SG::View * myView = dynamic_cast< SG::View * >( ctx.proxy() );
+  SG::View * myView = dynamic_cast< SG::View * >
+    ( ctx.getExtension<Atlas::ExtendedEventContext>()->proxy() );
   if ( myView )
   {
     ATH_MSG_DEBUG( "Algorithm " << name() << " is in view " << myView );

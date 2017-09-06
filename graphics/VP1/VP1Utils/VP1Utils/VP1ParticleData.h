@@ -18,7 +18,7 @@
 #ifndef VP1PARTICLEDATA_H
 #define VP1PARTICLEDATA_H
 
-#include <QtCore/QString>
+#include <QString>
 namespace HepPDT { class ParticleData; }
 
 class VP1ParticleData {

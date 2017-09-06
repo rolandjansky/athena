@@ -76,7 +76,9 @@ MDT_DCSConditionsTool::MDT_DCSConditionsTool (const std::string& type,
 
 
 //StatusCode MDT_DCSConditionsTool::updateAddress(SG::TransientAddress* /*tad*/)
-StatusCode MDT_DCSConditionsTool::updateAddress(StoreID::type /*storeID*/, SG::TransientAddress* /*tad*/)
+StatusCode MDT_DCSConditionsTool::updateAddress(StoreID::type /*storeID*/,
+                                                SG::TransientAddress* /*tad*/,
+                                                const EventContext& /*ctx*/)
 {
 //   MsgStream m_log(msgSvc(), name());
 //   CLID clid        = tad->clID();
@@ -412,7 +414,8 @@ StatusCode MDT_DCSConditionsTool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
 	Identifier MultiLayerId = m_mdtIdHelper->channelID(ChamberId,multilayer,1,1);
 	m_cachedDeadMultiLayersId_standby.push_back(MultiLayerId);
 	
-	m_Chamber_Naming_standby.insert(std::make_pair(int(chanNum),MultiLayerId));
+	//m_Chamber_Naming_standby.insert(std::make_pair(int(chanNum),MultiLayerId));
+	m_Chamber_Naming_standby[int(chanNum)]=MultiLayerId;
       }
 
 
@@ -447,7 +450,8 @@ StatusCode MDT_DCSConditionsTool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
       std::string delimiter2 = "_";
       std::vector<std::string> tokens2;
       MuonCalib::MdtStringUtils::tokenize(setPointsV0_payload,tokens2,delimiter2);
-      m_ChamberML_V0_chanum.insert(std::make_pair(int(chanNum),float(setPointsV0_name)));
+      //m_ChamberML_V0_chanum.insert(std::make_pair(int(chanNum),float(setPointsV0_name)));
+      m_ChamberML_V0_chanum[int(chanNum)]=float(setPointsV0_name);
 
       //m_log << MSG::DEBUG << "Sequence for name string load is inside V0\n" << setPointsV0_payload<< endmsg; 
 
@@ -464,7 +468,8 @@ StatusCode MDT_DCSConditionsTool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
       
       Identifier ChamberId= m_condMapTool->ConvertToOffline(chamber_name);
       Identifier MultiLayerId = m_mdtIdHelper->channelID(ChamberId,multilayer,1,1);
-      m_ChamberML_V0.insert(std::make_pair(MultiLayerId,setPointsV0_name));
+      //m_ChamberML_V0.insert(std::make_pair(MultiLayerId,setPointsV0_name));
+      m_ChamberML_V0[MultiLayerId]=setPointsV0_name;
     
     }
     chan_index_v0++;
@@ -495,7 +500,8 @@ StatusCode MDT_DCSConditionsTool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
       std::string delimiter2 = "_";
       std::vector<std::string> tokens2;
       MuonCalib::MdtStringUtils::tokenize(setPointsV1_payload,tokens2,delimiter2);
-      m_ChamberML_V1_chanum.insert(std::make_pair(int(chanNum),float(setPointsV1_name)));
+      //m_ChamberML_V1_chanum.insert(std::make_pair(int(chanNum),float(setPointsV1_name)));
+      m_ChamberML_V1_chanum[int(chanNum)]=float(setPointsV1_name);
       
       for (unsigned int i=0; i<tokens2.size(); i++) {
 	if(tokens2[i]!="0"){
@@ -508,7 +514,8 @@ StatusCode MDT_DCSConditionsTool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
       std::string chamber_name = tokens2[2];
       Identifier ChamberId= m_condMapTool->ConvertToOffline(chamber_name);
       Identifier MultiLayerId = m_mdtIdHelper->channelID(ChamberId,multilayer,1,1);
-      m_ChamberML_V1.insert(std::make_pair(MultiLayerId,setPointsV1_name));
+      //m_ChamberML_V1.insert(std::make_pair(MultiLayerId,setPointsV1_name));
+      m_ChamberML_V1[MultiLayerId]=setPointsV1_name;
       
     }
     chan_index_v1++;

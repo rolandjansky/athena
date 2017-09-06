@@ -25,7 +25,7 @@ class VP1RawDataCommonData;
 #include "VP1RawDataSystems/VP1RawDataCollBase.h"
 #include "VP1RawDataSystems/VP1RawDataFlags.h"
 
-#include <QtCore/QStringList>
+#include <QStringList>
 
 #include "GeoPrimitives/GeoPrimitives.h"
 

@@ -14,7 +14,6 @@
 #include <set>
 #include <string>
 
-using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
 class InterfaceID;
 
@@ -31,7 +30,7 @@ class ISCTRawDataProviderTool : virtual public IAlgTool
   virtual ~ISCTRawDataProviderTool() {};
 
   //! this is the main decoding method
-  virtual StatusCode convert( std::vector<const ROBFragment*>&,
+  virtual StatusCode convert( std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>&,
 			      SCT_RDO_Container&,
                               InDetBSErrContainer* errs) = 0;
 

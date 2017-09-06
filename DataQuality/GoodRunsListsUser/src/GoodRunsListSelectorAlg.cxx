@@ -29,7 +29,7 @@ StatusCode GoodRunsListSelectorAlg::initialize()
 {
   ATH_MSG_DEBUG ("initialize()");
 
-  Root::TMsgLogger::SetMinLevel(static_cast<Root::TMsgLevel>(outputLevel()));
+  Root::TMsgLogger::SetMinLevel(static_cast<Root::TMsgLevel>(msgLevel()));
 
   /// Retrieve the GoodRunsListSelector tool using the ToolHandles
   if ( m_GoodRunsListSelectorTool.retrieve().isFailure() ) {

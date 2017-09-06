@@ -15,12 +15,6 @@
 #include "GaudiKernel/IJobOptionsSvc.h"
 #include "AthenaMonitoring/ManagedMonitorToolTest.h" //x
 
-#include "GaudiKernel/MsgStream.h"//x
-#include "GaudiKernel/StatusCode.h"//x
-#include "GaudiKernel/ITHistSvc.h"//x
-#include "GaudiKernel/PropertyMgr.h"//x
-#include "GaudiKernel/IToolSvc.h"//x
-
 #include "GaudiKernel/GaudiException.h"
 
 #include "StoreGate/StoreGateSvc.h"
@@ -401,18 +395,18 @@ StatusCode HLTMonTool::fillResultAndConsistencyHistograms(const std::string& key
     sc_trigDec = evtStore()->retrieve(trigDec,sgKey);
     if (sc_trigDec.isFailure()) 
     {
-        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "No xAOD::xTrigDecision found in SG " << endmsg;
+      ATH_MSG_DEBUG(  "No xAOD::xTrigDecision found in SG "  );
     }
     else   
-        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "Found xAOD::xTrigDecision in SG ! " << endmsg;
+      ATH_MSG_DEBUG(  "Found xAOD::xTrigDecision in SG ! "  );
 
     // check whether HLTResult present (ESD)
-    if(m_storeGate->transientContains<HLT::HLTResult>(key)){
-        sc_hltResult = m_storeGate->retrieve(HLTResult,key);
+    if(evtStore()->transientContains<HLT::HLTResult>(key)){
+        sc_hltResult = evtStore()->retrieve(HLTResult,key);
         if (sc_hltResult.isFailure()) 
             ATH_MSG_DEBUG(" Failed to retrieve HLT Result " << key);
         else
-            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "Found HLT Result in SG ! " << endmsg;
+            ATH_MSG_DEBUG(  "Found HLT Result in SG ! "  );
     }
     
     if(sc_hltResult.isFailure() && sc_trigDec.isFailure())
@@ -554,6 +548,10 @@ StatusCode HLTMonTool::fillForChain(const std::string& chain){
 	  // ------------ Fill RoI Histograms ---------------
 	  if (rsIt->first=="RAW" && isHLTChain) {
 	    std::vector<Trig::Feature<TrigRoiDescriptor> >::const_iterator roiIt;
+      //Hack to avoid combinatorics from GSC chains ATR-16670
+      if (chain.find("gsc") != std::string::npos) {
+        continue;
+      }
 	    const std::vector<Trig::Feature<TrigRoiDescriptor> > rois = (getTDT()->features(chain)).get<TrigRoiDescriptor>("initialRoI"); 
 	    for (roiIt=rois.begin(); roiIt!=rois.end(); ++roiIt) {
 	      const TrigRoiDescriptor* roi = roiIt->cptr();

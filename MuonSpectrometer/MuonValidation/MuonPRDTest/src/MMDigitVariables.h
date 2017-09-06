@@ -64,7 +64,7 @@ class MMDigitVariables : public ValAlgVariables
   {
     if( (this->deleteVariables()).isFailure() ){
       ATH_MSG_ERROR("Failing to delete MMDigitVariables.");
-      throw;
+      std::terminate();
     }
   }
 

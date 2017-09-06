@@ -575,7 +575,8 @@ void EgammaCalibrationAndSmearingTool::setRandomSeed(unsigned seed) {
 PATCore::ParticleType::Type EgammaCalibrationAndSmearingTool::xAOD2ptype(const xAOD::Egamma& particle) const
 {
   auto ptype = PATCore::ParticleType::Electron;
-  if (xAOD::EgammaHelpers::isElectron(&particle)) { ptype = PATCore::ParticleType::Electron; }
+  //no ForwardElectron ptype: consider them as Electron
+  if (xAOD::EgammaHelpers::isElectron(&particle) || particle.author() == xAOD::EgammaParameters::AuthorFwdElectron) { ptype = PATCore::ParticleType::Electron; }
   else if (xAOD::EgammaHelpers::isPhoton(&particle)) {
     if (xAOD::EgammaHelpers::isConvertedPhoton(&particle)) { ptype = PATCore::ParticleType::ConvertedPhoton; }
     else { ptype = PATCore::ParticleType::UnconvertedPhoton; }
@@ -590,7 +591,7 @@ PATCore::ParticleType::Type EgammaCalibrationAndSmearingTool::xAOD2ptype(const x
 double EgammaCalibrationAndSmearingTool::getResolution(const xAOD::Egamma& particle, bool withCT) const
 {
   const auto ptype = xAOD2ptype(particle);
-  const auto cl_etaCalo = xAOD::get_eta_calo(*particle.caloCluster());
+  const auto cl_etaCalo = xAOD::get_eta_calo(*particle.caloCluster(), particle.author());
 
   return m_rootTool->resolution(particle.e(), particle.caloCluster()->eta(),
                                 cl_etaCalo, ptype,
@@ -715,8 +716,8 @@ CP::CorrectionCode EgammaCalibrationAndSmearingTool::applyCorrection(xAOD::Egamm
   }
 
   if (dataType == PATCore::ParticleDataType::Data and m_usePhiUniformCorrection) {
-    energy *= correction_phi_unif(xAOD::get_eta_calo(*input.caloCluster(), false),
-                                  xAOD::get_phi_calo(*input.caloCluster(), false));
+    energy *= correction_phi_unif(xAOD::get_eta_calo(*input.caloCluster(), input.author(), false),
+                                  xAOD::get_phi_calo(*input.caloCluster(), input.author(), false));
     ATH_MSG_DEBUG("energy after uniformity correction = " << boost::format("%.2f") % energy);
   }
 
@@ -765,7 +766,7 @@ CP::CorrectionCode EgammaCalibrationAndSmearingTool::applyCorrection(xAOD::Egamm
              dataType,
              xAOD2ptype(input),
              input.caloCluster()->eta(),
-             xAOD::get_eta_calo(*input.caloCluster(), false),
+             xAOD::get_eta_calo(*input.caloCluster(), input.author(), false),
              energy,
              input.caloCluster()->isAvailable<double>("correctedcl_Es2") ? input.caloCluster()->auxdataConst<double>("correctedcl_Es2") : input.caloCluster()->energyBE(2),
              eraw,

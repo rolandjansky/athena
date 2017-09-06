@@ -36,9 +36,9 @@ namespace dqm_algorithms {
 
 BinDump::
 BinDump()
-  : name("BinDump")
+  : m_name("BinDump")
 {
-  dqm_core::AlgorithmManager::instance().registerAlgorithm( name, this );
+  dqm_core::AlgorithmManager::instance().registerAlgorithm( m_name, this );
 }
 
 
@@ -205,7 +205,7 @@ printDescription(std::ostream& out)
 {
   std::string message;
   message += "\n";
-  message += "Algorithm: \"" + name + "\"\n";
+  message += "Algorithm: \"" + m_name + "\"\n";
   message += "Description: Check the number of entries in listed bins\n";
   message += "Parameters:  BinStart first bin to be checked (0=underflows)\n";
   message += "             BinEnd   last bin to be checked (nbin+1=overflows)\n";

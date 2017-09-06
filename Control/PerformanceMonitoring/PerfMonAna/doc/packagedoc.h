@@ -40,17 +40,6 @@ Informations about various switches, options and usage are available via:
 @endcode
 
 
-@ref used_PerfMonAna
 
-@ref requirements_PerfMonAna
 
 */
-
-/**
-@page used_PerfMonAna Used Packages
-*/
-
-/**
-@page requirements_PerfMonAna Requirements
-*/
-

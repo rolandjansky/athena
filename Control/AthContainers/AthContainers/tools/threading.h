@@ -21,7 +21,7 @@
 #define ATHCONTAINERS_THREADING_H
 
 
-#if defined(XAOD_STANDALONE) || defined(__GCCXML__)
+#if defined(__GCCXML__)
 # ifndef ATHCONTAINERS_NO_THREADS
 #  define ATHCONTAINERS_NO_THREADS
 # endif
@@ -81,6 +81,8 @@ class thread_specific_ptr
 public:
   thread_specific_ptr() : m_ptr(0) {}
   ~thread_specific_ptr() { delete m_ptr; }
+  thread_specific_ptr (const thread_specific_ptr&) = delete;
+  thread_specific_ptr& operator= (const thread_specific_ptr&) = delete;
   T* get() const { return m_ptr; }
   T* operator->() const { return m_ptr; }
   T& operator*() const { return *m_ptr; }

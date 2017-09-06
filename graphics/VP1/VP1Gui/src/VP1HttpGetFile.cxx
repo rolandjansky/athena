@@ -13,7 +13,7 @@
 ////////////////////////////////////////////////////////////////
 
 #include "VP1Gui/VP1HttpGetFile.h"
-#include <QtCore/QTimer>
+#include <QTimer>
 
 #define VP1HttpGetFile_cxx
 #include "VP1HttpGetFile_Private.h"

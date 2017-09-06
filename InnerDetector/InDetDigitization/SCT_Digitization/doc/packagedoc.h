@@ -37,18 +37,10 @@ The SCT_Digitization package contains the following classes:
  - SCT_SurfaceChargesGenerator: Drifts charge from hits to SCT wafer surface.
 
 @section SCT_Digitization_SCT_DigitizationRefs Reference pages
- - @ref used_SCT_Digitization
- - @ref requirements_SCT_Digitization
  - @ref notes_SCT_Digitization
 */
 
-/**
-@page used_SCT_Digitization Used packages
-*/
 
-/**
-@page requirements_SCT_Digitization Requirements
-*/
 
 /**
 @page notes_SCT_Digitization Change notes

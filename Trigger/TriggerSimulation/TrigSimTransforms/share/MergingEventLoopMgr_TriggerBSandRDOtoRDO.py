@@ -98,7 +98,8 @@ svcMgr.EventPersistencySvc.CnvServices += [ "ByteStreamCnvSvc" ]
 
 svcMgr += ByteStreamAddressProviderSvc()
 
-svcMgr.ByteStreamAddressProviderSvc.StoreID = 6
+from AthenaKernel import StoreID
+svcMgr.ByteStreamAddressProviderSvc.StoreID = StoreID.UNKNOWN
 
 """
 # LVL1

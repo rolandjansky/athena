@@ -127,8 +127,8 @@ MdtVsTgcRawDataValAlg::DQCheckMDTSegments(vector<const Muon::MuonSegment*> (&sor
         if(dPhi_Pos_Dir> M_PI)dPhi_Pos_Dir-=2*M_PI;
         
         if(!segmDisqual){
-          if(mdt_segmposdirsag[i][jMDT][2]) mdt_segmposdirsag[i][jMDT][2]->Fill(dPhi_Pos_Dir);
-          if(mdt_segmposdirsag[i][jMDT][3]) mdt_segmposdirsag[i][jMDT][3]->Fill(dThe_Pos_Dir);
+          if(m_mdt_segmposdirsag[i][jMDT][2]) m_mdt_segmposdirsag[i][jMDT][2]->Fill(dPhi_Pos_Dir);
+          if(m_mdt_segmposdirsag[i][jMDT][3]) m_mdt_segmposdirsag[i][jMDT][3]->Fill(dThe_Pos_Dir);
         }
 
         // Cut Segments with too great a difference between position and direction vectors

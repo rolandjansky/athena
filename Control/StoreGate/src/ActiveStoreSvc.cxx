@@ -5,6 +5,7 @@
 #include "StoreGate/ActiveStoreSvc.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "AthenaKernel/errorcheck.h"
+#include "AthenaKernel/StoreID.h"
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ISvcLocator.h"
@@ -18,7 +19,7 @@ ActiveStoreSvc::ActiveStoreSvc(const std::string& name,ISvcLocator* svc) :
   p_activeStore(0),
   m_storeName()
 {
-  declareProperty("StoreName", m_storeName="StoreGateSvc");
+  declareProperty("StoreName", m_storeName=StoreID::storeName(StoreID::EVENT_STORE));
 }
 
 

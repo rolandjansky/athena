@@ -22,7 +22,7 @@ LWPool * LWPool::getMotherPool()
   if (!s_motherPool) {
     //The mother pool parameters determine the growth
     //dynamics of all pools:
-    const unsigned extra = sizeof(LWPool)+sizeof(LWPoolAreaBookKeeper)+1;
+    const unsigned extra = sizeof(LWPool)+sizeof(LWPoolAreaBookKeeper)+8;
     const unsigned poolgrow = 16384+extra;
     //    const unsigned motherpoolgrow = poolgrow*128+extra;
     const unsigned motherpoolgrow = poolgrow*32+extra;

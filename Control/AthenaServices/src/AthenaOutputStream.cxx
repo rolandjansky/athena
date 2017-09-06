@@ -15,6 +15,7 @@
 #include "GaudiKernel/ClassID.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
+#include "GaudiKernel/FileIncident.h"
 
 #include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IAthenaOutputTool.h"
@@ -86,11 +87,11 @@ namespace {
     virtual const std::type_info& tinfo() const override { return m_tinfo; }
     virtual void* cast (CLID /*clid*/,
                         SG::IRegisterTransient* /*irt*/ = nullptr,
-                        bool /*isConst*/ = true) const override
+                        bool /*isConst*/ = true) override
     { std::abort(); }
     virtual void* cast (const std::type_info& tinfo,
                         SG::IRegisterTransient* /*irt*/ = nullptr,
-                        bool /*isConst*/ = true) const override
+                        bool /*isConst*/ = true) override
     { if (tinfo == m_tinfo)
         return m_ptr;
       return nullptr;
@@ -115,11 +116,10 @@ namespace {
   std::unique_ptr<SG::TransientAddress>
   AltDataBucket::makeTransientAddress (CLID clid, const SG::DataProxy& oldProxy)
   {
-    const SG::TransientAddress& oldTad = *oldProxy.transientAddress();
     auto newTad = std::make_unique<SG::TransientAddress>
-      (clid, oldTad.name());
-    newTad->setAlias (oldTad.alias());
-    for (CLID tclid : oldTad.transientID()) {
+      (clid, oldProxy.name());
+    newTad->setAlias (oldProxy.alias());
+    for (CLID tclid : oldProxy.transientID()) {
       // Note: this will include derived CLIDs.
       // Strictly speaking, that's not right; however, filtering them
       // out can break ElementLinks (for example those used by
@@ -162,8 +162,10 @@ AthenaOutputStream::AthenaOutputStream(const string& name, ISvcLocator* pSvcLoca
    declareProperty("MetadataStore",          m_metadataStore);
    declareProperty("ProcessingTag",          m_processTag=name);
    declareProperty("ForceRead",              m_forceRead=false);
-   declareProperty("PersToPers",             m_persToPers=false);
-   declareProperty("ExemptPersToPers",       m_exemptPersToPers);
+   // pers-to-pers option not used, and not currently working.
+   //declareProperty("PersToPers",             m_persToPers=false);
+   //declareProperty("ExemptPersToPers",       m_exemptPersToPers);
+   m_persToPers = false;
    declareProperty("ProvideDef",             m_provideDef=false);
    declareProperty("ExtendProvenanceRecord", m_extendProvenanceRecord=true);
    declareProperty("WriteOnExecute",         m_writeOnExecute=true);
@@ -368,6 +370,30 @@ void AthenaOutputStream::handle(const Incident& inc) {
          }
       }
    }
+   else if (inc.type() == "UpdateOutputFile") {
+     const FileIncident* fileInc  = dynamic_cast<const FileIncident*>(&inc);
+     if(fileInc!=nullptr) {
+       if(m_outputName != fileInc->fileName()) {
+	 m_outputName = fileInc->fileName();
+	 ServiceHandle<IIoComponentMgr> iomgr("IoComponentMgr", name());
+	 if(iomgr.retrieve().isFailure()) {
+	   ATH_MSG_FATAL("Cannot retrieve IoComponentMgr from within the incident handler");
+	   return;
+	 }
+	 if(iomgr->io_register(this, IIoComponentMgr::IoMode::WRITE, m_outputName).isFailure()) {
+	   ATH_MSG_FATAL("Cannot register new output name with IoComponentMgr");
+	   return;
+	 }
+       }
+       else {
+	 ATH_MSG_DEBUG("New output file name received through the UpdateOutputFile incident is the same as the already defined output name. Nothing to do");
+       }
+     }
+     else {
+       ATH_MSG_FATAL("Cannot dyn-cast the UpdateOutputFile incident to FileIncident");
+       return;
+     }
+   }
    ATH_MSG_DEBUG("Leaving handle");
 }
 
@@ -459,7 +485,7 @@ StatusCode AthenaOutputStream::write() {
          }
          if (checkCountError) {
             ATH_MSG_FATAL("Check number of writes failed. See messages above "
-                    "to identify which continer is not always written");
+                    "to identify which container is not always written");
             return(StatusCode::FAILURE);
          }
       }
@@ -552,13 +578,13 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
       this->tokenizeAtSep( keyTokens, item_key, wildCard );
       ATH_MSG_VERBOSE("Done calling tokenizeAtStep( " << keyTokens << ", " << item_key << ", " << wildCard << ")" );
       //std::pair<std::string, std::string> key = breakAtSep(item_key, wildCard);
-      SG::TransientAddress* tAddr = nullptr;
       // Now loop over any found proxies
       for (; iter != end; ++iter) {
          SG::DataProxy* itemProxy(iter->second);
          // Does this key match the proxy key name - allow for wildcarding and aliases
-         bool keyMatch = (item_key == "*" || item_key == itemProxy->name()
-                 || itemProxy->alias().find(item_key) != itemProxy->alias().end());
+         bool keyMatch = ( item_key == "*" ||
+                           item_key == itemProxy->name() ||
+                           itemProxy->hasAlias(item_key) );
          if (!keyMatch) {
             ATH_MSG_VERBOSE("Calling matchKey( " << keyTokens << ", " << itemProxy->name() << ")" );
             keyMatch = matchKey(keyTokens, itemProxy);
@@ -703,24 +729,30 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
                      ATH_MSG_WARNING("Unable to record item " << tns.str() << " in Svc");
                   }
                }
-            } else if (!m_forceRead && m_persToPers && itemProxy->isValid()) {
+            }
+#if 0            
+            else if (!m_forceRead && m_persToPers && itemProxy->isValid()) {
                tAddr = itemProxy->transientAddress();
             } //if data object there
+#endif
          } else if (keyMatch && xkeyMatch) {
             removed = true;
          }
       } // proxy loop
       if (!added && !removed) {
+#if 0
          if (m_persToPers && tAddr != nullptr) {
             ATH_MSG_DEBUG(" Going to attempt direct persistent copy for "
                     << item.id() << ",\"" << item_key  << "\"");
             DataObject* ics = new DataObject();
             SG::DataProxy* proxy = new SG::DataProxy(ics, tAddr);
             m_objects.push_back(proxy->object());
-         } else if (m_provideDef) {
+         } else
+#endif
+           if (m_provideDef) {
             ATH_MSG_DEBUG(" Going to attempt providing persistent default for "
                     << item.id() << ",\"" << item_key  << "\"");
-            tAddr = new SG::TransientAddress(item.id(), item_key);
+            SG::TransientAddress* tAddr = new SG::TransientAddress(item.id(), item_key);
             DataObject* ics = new DataObject();
             SG::DataProxy* proxy = new SG::DataProxy(ics, tAddr);
             m_objects.push_back(proxy->object());
@@ -843,6 +875,7 @@ StatusCode AthenaOutputStream::io_reinit() {
       return StatusCode::FAILURE;
    }
    incSvc->addListener(this, "MetaDataStop", 50);
+   incSvc->addListener(this, "UpdateOutputFile", 50);
    for (std::vector<ToolHandle<IAthenaOutputTool> >::iterator iter = m_helperTools.begin();
        iter != m_helperTools.end(); iter++) {
       if (!(*iter)->postInitialize().isSuccess()) {

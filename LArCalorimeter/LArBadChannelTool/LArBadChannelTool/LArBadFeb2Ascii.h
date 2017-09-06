@@ -6,11 +6,11 @@
 #define LArBadFeb2Ascii_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LArRecConditions/LArBadChannelCont.h"
 
 #include <string>
 
-class LArBadChanTool;
 
 class LArBadFeb2Ascii : public AthAlgorithm 
 {
@@ -23,10 +23,9 @@ public:
   StatusCode finalize();
 
 private:
+  SG::ReadCondHandleKey<LArBadFebCont> m_BFKey;
+  std::string m_fileName;
 
-  ToolHandle< LArBadChanTool > m_BadChanTool;
-  std::string                  m_dbFolder;
-  std::string                  m_fileName;
 };
 
 #endif

@@ -214,9 +214,7 @@ void test2()
 
   s.lock();
 
-  SG::auxid_set_t idset;
-  idset.insert (ityp1);
-  idset.insert (ityp2);
+  SG::auxid_set_t idset {ityp1, ityp2};
   assert (s.getAuxIDs() == idset);
 
   assert (i1 == s.getData(ityp1));
@@ -244,6 +242,13 @@ void test2()
   assert (s.getData(ityp3) == 0);
   assert (s.getData(ityp1) == i1);
   assert (s.getData(ityp2) == i2);
+
+  i3 = reinterpret_cast<int*> (s.getDecoration(ityp3, 10, 20));
+  assert (i3 != 0);
+  assert (i3 == s.getDecoration (ityp3, 10, 20));
+  s.lockDecoration (ityp3);
+  EXPECT_EXCEPTION (SG::ExcStoreLocked, s.getDecoration (ityp3, 10, 20));
+  assert (i3 == s.getData (ityp3));
 
   EXPECT_EXCEPTION (SG::ExcStoreLocked, s.resize(100));
   EXPECT_EXCEPTION (SG::ExcStoreLocked, s.reserve(100));

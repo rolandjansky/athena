@@ -5,10 +5,17 @@
 // Header include
 #include "InDetVKalVxInJetTool/InDetVKalVxInJetTool.h"
 #include  "AnalysisUtils/AnalysisMisc.h"
-#include "TrkVertexFitterInterfaces/ITrackToVertexIPEstimator.h"
-#include <iostream>
+//#include <iostream>
 //-------------------------------------------------
 namespace InDet{
+
+//double getConeSize(double pt){   //Variable cone size from b-tagging for reference
+//  double  m_coneSizeFitPar1 = +0.239;
+//  double  m_coneSizeFitPar2 = -1.220;
+//  double  m_coneSizeFitPar3 = -1.64e-5;
+//  return (m_coneSizeFitPar1 + exp(m_coneSizeFitPar2 + m_coneSizeFitPar3*pt));
+//}
+
 
   StatusCode InDetVKalVxInJetTool::CutTrk(double PInvVert,double ThetaVert, 
          double A0Vert, double ZVert, double Chi2, 
@@ -85,7 +92,7 @@ namespace InDet{
           const Trk::TrackSummary* testSum = (*i_ntrk)->trackSummary();
           PixelHits = (long int) testSum->get(Trk::numberOfPixelHits);
           SctHits   = (long int) testSum->get(Trk::numberOfSCTHits);
-          BLayHits  = (long int) testSum->get(Trk::numberOfBLayerHits);
+          BLayHits  = (long int) testSum->get(Trk::numberOfInnermostPixelLayerHits);
 	  if(PixelHits < 0 ) PixelHits=0; 
 	  if(SctHits   < 0 ) SctHits=0; 
 	  if(BLayHits  < 0 ) BLayHits=0; 
@@ -206,9 +213,9 @@ namespace InDet{
           if( !((*i_ntrk)->summaryValue(splPixHits,xAOD::numberOfPixelSpoiltHits)))splPixHits=0;
           if( !((*i_ntrk)->summaryValue(outPixHits,xAOD::numberOfPixelOutliers)))  outPixHits=0;
           //uint8_t BLaySharedH,BLaySplitH,BLayOutlier;
-          //if( !((*i_ntrk)->summaryValue(BLaySharedH,xAOD::numberOfBLayerSharedHits)) )  BLaySharedH=-1;
-          //if( !((*i_ntrk)->summaryValue(BLaySplitH ,xAOD::numberOfBLayerSplitHits))  )  BLaySplitH=-1;
-          //if( !((*i_ntrk)->summaryValue(BLayOutlier,xAOD::numberOfBLayerOutliers))   )  BLayOutlier=-1;
+          //if( !((*i_ntrk)->summaryValue(BLaySharedH,xAOD::numberOfInnermostPixelLayerSharedHits)) )  BLaySharedH=-1;
+          //if( !((*i_ntrk)->summaryValue(BLaySplitH ,xAOD::numberOfInnermostPixelLayerSplitHits))  )  BLaySplitH=-1;
+          //if( !((*i_ntrk)->summaryValue(BLayOutlier,xAOD::numberOfInnermostPixelLayerOutliers))   )  BLayOutlier=-1;
 //std::cout<<"NwBlayer="<<(long int)BLaySharedH<<", "<<(long int)BLaySplitH<<", "<<(long int)BLayOutlier<<'\n';
           //uint8_t InmHits,InmSharedH,InmSplitH,InmOutlier;
           //if( !((*i_ntrk)->summaryValue(InmHits,   xAOD::numberOfInnermostHits)) )        InmHits=-1;
@@ -227,10 +234,10 @@ namespace InDet{
 /////          if(PixelHits<=2 && ( outPixHits || splPixHits )) continue;  //VK Bad idea at high Pt!
           if(fabs((*i_ntrk)->eta())>2.  ) {
             if( PixelHits<=3 && ( splSCTHits || outSCTHits || outPixHits || splPixHits ))continue;
-            if(m_existIBL){PixelHits -=1; SctHits   -=1;}             // 4-layer pixel detector
-            else          {PixelHits -=1;}                            // 3-layer pixel detector
+            if(m_existIBL){if(PixelHits)PixelHits -=1; if(SctHits)SctHits  -=1;}             // 4-layer pixel detector
+            else          {if(PixelHits)PixelHits -=1;}                                      // 3-layer pixel detector
           }
-          if(fabs((*i_ntrk)->eta())>1.65)  SctHits   -=1;
+          if(fabs((*i_ntrk)->eta())>1.65)   if(SctHits)SctHits   -=1;
 //----
           StatusCode sc = CutTrk( VectPerig[4] , VectPerig[3],
                           ImpactA0 , ImpactZ, trkChi2,

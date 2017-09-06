@@ -20,16 +20,5 @@ segments and perform calibration (derived from MuonCalib::IMdtCalibration).
 In ATHENA framework it is used by MdtCalibTool but it could
 also be used in a standalone environment.
                                                                                 
-@ref used_MdtCalibEventLoop
                                                                                 
-@ref requirements_MdtCalibEventLoop
 */
-                                                                                
-/**
-@page used_MdtCalibEventLoop Used Packages
-*/
-                                                                                
-/**
-@page requirements_MdtCalibEventLoop Requirements
-*/
-

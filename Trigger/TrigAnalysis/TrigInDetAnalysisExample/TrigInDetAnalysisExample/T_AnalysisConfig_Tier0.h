@@ -366,7 +366,7 @@ protected:
     const xAOD::EventInfo* pEventInfo;
 #endif
     unsigned run_number        = 0;
-    unsigned event_number      = 0;
+    unsigned long long event_number      = 0;
     unsigned lumi_block        = 0;
     unsigned bunch_crossing_id = 0;
     unsigned time_stamp = 0;
@@ -618,14 +618,12 @@ protected:
 
       //      std::cout << "\tchain " << m_chainNames[ichain] << "\tchainname " << chainname << "\tvtx " << vtx_name << "\troi " << roi_name << std::endl;
 
-      unsigned _decisiontype = TrigDefs::Physics;
-      unsigned  decisiontype;
+      unsigned  decisiontype = TrigDefs::Physics;
      
-      if ( this->requireDecision() ) _decisiontype =  TrigDefs::requireDecision;
+      if ( this->requireDecision() ) decisiontype =  TrigDefs::requireDecision;
       
       
-      if ( m_chainNames[ichain].passed() ) decisiontype = _decisiontype;
-      else                                 decisiontype = TrigDefs::alsoDeactivateTEs;
+      if ( ! m_chainNames[ichain].passed() ) decisiontype = TrigDefs::alsoDeactivateTEs;
 
       //      if ( decisiontype==TrigDefs::requireDecision ) std::cout << "\tSUTT TrigDefs::requireDecision " << decisiontype << std::endl;;
       //      if ( decisiontype==TrigDefs::Physics )         std::cout << "\tSUTT TrigDefs::Physics "         << decisiontype << std::endl;;
@@ -1017,7 +1015,7 @@ protected:
 
           while ( evitr!=evend ) {
 
-            int _ip = 0; /// count of particles in this interaction
+            int this_ip = 0; /// count of particles in this interaction
 
             int pid = (*evitr)->signal_process_id();
 
@@ -1031,7 +1029,7 @@ protected:
 
                 selectorTruth.selectTrack( *pitr );
 
-                ++_ip;
+                ++this_ip;
 
                 ++pitr;
               }
@@ -1040,11 +1038,11 @@ protected:
             ++ie;
             ++evitr;
 
-            if ( _ip>0 ) {
+            if ( this_ip>0 ) {
               /// if there were some particles in this interaction ...
               //      m_provider->msg(MSG::VERBOSE) << "Found " << ie << "\tpid " << pid << "\t with " << ip << " TruthParticles (GenParticles)" << endmsg;
               ++ie_ip;
-              ip += _ip;
+              ip += this_ip;
             }
           }
 
@@ -1466,8 +1464,8 @@ protected:
 
   TIDA::Event*  m_event;
 
-  TFile*    mFile;
-  TTree*    mTree;
+  TFile*    m_file;
+  TTree*    m_tree;
 
   std::vector<ChainString>     m_chainNames;
   std::vector<Analysis_Tier0*> m_analyses;

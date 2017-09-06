@@ -13,11 +13,11 @@
 /////////////////////////////////////////////////////////////
 
 #include "VP1Gui/VP1TcpServer.h"
-#include <QtNetwork/QTcpServer>
-#include <QtNetwork/QTcpSocket>
-#include <QtCore/QDataStream>
-#include <QtCore/QTimer>
-#include <QtCore/QMap>
+#include <QTcpServer>
+#include <QTcpSocket>
+#include <QDataStream>
+#include <QTimer>
+#include <QMap>
 #include <cassert>
 
 //____________________________________________________________________

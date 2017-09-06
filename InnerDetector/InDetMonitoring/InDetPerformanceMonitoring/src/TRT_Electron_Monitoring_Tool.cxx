@@ -169,12 +169,6 @@ bookHistograms()
     return StatusCode::FAILURE;
   }
 
-  if( newLumiBlock ) { }
-
-  if( newLowStat ) { }
-
-  if( newRun ) { }
-
   return StatusCode::SUCCESS;
 }
 
@@ -201,11 +195,7 @@ bookGeoHistograms( lw_geo_hists_t &hists, const std::string& name)
   MonGroup hl_monGroup_shift	( this, "TRT//HTMonitoring/"+name,  run,ATTRIB_MANAGED,"", "");
   //MonGroup hl_monGroup_expert	( this, "TRT//HTMonitoring/"+name, expert, run, "",""); //not yet used but will be
 
-  if( newLumiBlock ) { }
-
-  if( newLowStat ) { }
-
-  if( newRun )
+  if( newRunFlag() )
   {
 
     hists.hNTracks		= trtBookHistoLW(hl_monGroup_shift, "hNTracks"		,"Number of Tracks per Event in "+name	, 150 , 0, 150 , profile_x_label_size, profile_y_label_size, "Number of Tracks", "Frequency");
@@ -253,11 +243,7 @@ TRT_Electron_Monitoring_Tool::
 bookPCandHistograms( MonGroup& monGroup, lw_partcand_hists_t &hists, const std::string& name )
 {
 
-  if( newLumiBlock ) { }
-
-  if( newLowStat ) { }
-
-  if( newRun )
+  if( newRunFlag() )
   {
     hists.hNCand		= trtBookHistoLW(monGroup, "hNCand"+name	,"Number of "+name+" Candidates per Event"		, 150 , 0, 150 , profile_x_label_size, profile_y_label_size, "Number of "+name+" Candidates", "Frequency");
     hists.hPIDProb		= trtBookHistoLW(monGroup, "hPIDProb"+name	,"PID Likelihood per "+name+" Candidate"		, 50 , 0, 1 , profile_x_label_size, profile_y_label_size, "PID Likelihood", "Frequency");
@@ -567,7 +553,7 @@ pionQualityCuts(xAOD::TrackParticle *trkP,std::vector<Trk::Track*> &v_usedTrks)
   uint8_t dummy(-1);
   int nPix = trkP->summaryValue(dummy,xAOD::numberOfPixelHits)?dummy:-1;
   int nSCT = trkP->summaryValue(dummy,xAOD::numberOfSCTHits)?dummy:-1;
-  int nBLa = trkP->summaryValue(dummy,xAOD::numberOfBLayerHits)?dummy:-1;
+  int nBLa = trkP->summaryValue(dummy,xAOD::numberOfInnermostPixelLayerHits)?dummy:-1;
   int nTRT = trkP->summaryValue(dummy,xAOD::numberOfTRTHits)?dummy:-1;
   int nTRTOut = trkP->summaryValue(dummy,xAOD::numberOfTRTOutliers)?dummy:-1;
   float dEdX = trkP->summaryValue(dummy,xAOD::pixeldEdx)?dummy:-1;
@@ -841,9 +827,6 @@ StatusCode
 TRT_Electron_Monitoring_Tool::
 procHistograms()
 {
-  if( endOfRun ) { }
-  if( endOfLowStat ) { }
-  if( endOfLumiBlock ) { }
   return StatusCode::SUCCESS;
 }//procHistograms
 

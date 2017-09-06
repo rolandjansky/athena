@@ -59,7 +59,6 @@ function (athenapoolmultitest_run_test testName jo postScript)
                   @ONLY )
   atlas_add_test( ${testName}
                   SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/athenapoolmultitest_${testName}.sh
-                  ENVIRONMENT PATH=${CMAKE_CURRENT_SOURCE_DIR}/test:$ENV{PATH}
                   POST_EXEC_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/test/${postScript}.sh ${testName} "
                   PROPERTIES TIMEOUT 600
                    )

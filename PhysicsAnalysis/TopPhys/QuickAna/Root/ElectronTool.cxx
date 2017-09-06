@@ -61,10 +61,6 @@ namespace ana
   {
     ATH_MSG_DEBUG("initialize");
 
-    // MC15 recommendations from:
-    //  https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/EGammaIdentificationRun2
-    const std::string config = "ElectronPhotonSelectorTools/offline/mc15_20160512/";
-
     // Likelihood tool
     ATH_CHECK (ASG_MAKE_ANA_TOOL (m_likelihoodTool_loose, AsgElectronLikelihoodTool));
     ATH_CHECK (ASG_MAKE_ANA_TOOL (m_likelihoodTool_medium, AsgElectronLikelihoodTool));
@@ -74,13 +70,9 @@ namespace ana
     ATH_CHECK (m_likelihoodTool_medium.setProperty("primaryVertexContainer", "PrimaryVertices"));
     ATH_CHECK (m_likelihoodTool_tight.setProperty("primaryVertexContainer", "PrimaryVertices"));
 
-    // Smoothed object ID
-    ATH_CHECK (m_likelihoodTool_loose.setProperty
-      ("ConfigFile", config + "ElectronLikelihoodLooseOfflineConfig2016_CutBL_Smooth.conf"));
-    ATH_CHECK (m_likelihoodTool_medium.setProperty
-      ("ConfigFile", config + "ElectronLikelihoodMediumOfflineConfig2016_Smooth.conf"));
-    ATH_CHECK (m_likelihoodTool_tight.setProperty
-      ("ConfigFile", config + "ElectronLikelihoodTightOfflineConfig2016_Smooth.conf"));
+    ATH_CHECK (m_likelihoodTool_loose.setProperty("WorkingPoint", "LooseLHElectron"));
+    ATH_CHECK (m_likelihoodTool_medium.setProperty("WorkingPoint", "MediumLHElectron"));
+    ATH_CHECK (m_likelihoodTool_tight.setProperty("WorkingPoint", "TightLHElectron"));
 
     ATH_CHECK( m_likelihoodTool_loose.initialize() );
     ATH_CHECK( m_likelihoodTool_medium.initialize() );
@@ -189,7 +181,7 @@ namespace ana
       m_isolationTool ("IsolationSelectionTool", this)
   {
     declareProperty("IDString", m_idStr);
-    declareProperty("PtMin", m_ptMin = 7.*GeV);
+    declareProperty("PtMin", m_ptMin = 4.5*GeV);
     declareProperty("EtaMax", m_etaMax = 2.47);
 
     declareProperty( "IsolationOn", m_isolationOn = true );
@@ -339,15 +331,15 @@ namespace ana
 
       // Try our custom ID decoration first.
       if (electron.isAvailable<SelectType>("QuickAna_" + m_idAna)) {
-        cut_id.setPassedIf (electron.auxdataConst<SelectType>("QuickAna_" + m_idAna));
+        cut_idAna.setPassedIf (electron.auxdataConst<SelectType>("QuickAna_" + m_idAna));
       }
       // Next, try the derivation framework ID result.
       else if (electron.isAvailable<int>(idAna_DFCommon)) {
-        cut_id.setPassedIf (electron.auxdataConst<int>(idAna_DFCommon));
+        cut_idAna.setPassedIf (electron.auxdataConst<int>(idAna_DFCommon));
       }
       // Last resort: use the xAOD value. Should we allow this at all?
       else {
-        cut_id.setPassedIf (electron.passSelection(m_idAna));
+        cut_idAna.setPassedIf (electron.passSelection(m_idAna));
       }
     }
 
@@ -389,35 +381,28 @@ namespace ana
     const int effDataType = m_isAF2? 3 : 1;
 
     // Calib file directory
-    const std::string directory = 
-      "ElectronEfficiencyCorrection/2015_2016/rel20.7/ICHEP_June2016_v2/";
+    const std::string egMapFile = "ElectronEfficiencyCorrection/2015_2016/rel20.7/Moriond_February2017_v1/map0.txt";
 
     // Initialize the AsgElectronEfficiencyCorrectionTool for reco
     ATH_CHECK( ASG_MAKE_ANA_TOOL(m_efficiencyTool_reco, AsgElectronEfficiencyCorrectionTool) );
-
     // Reco scale factors - currently need to set this file by hand
-    std::string effFile_reco = directory + "offline/efficiencySF.offline.RecoTrk.root";
-    const std::vector<std::string> effFiles_reco {effFile_reco}; // tool expects a list
-
-    ATH_CHECK( m_efficiencyTool_reco.setProperty("CorrectionFileNameList", effFiles_reco) );
+    ATH_CHECK( m_efficiencyTool_reco.setProperty ("MapFilePath", egMapFile) );
+    ATH_CHECK( m_efficiencyTool_reco.setProperty ("RecoKey", "Reconstruction") );
     ATH_CHECK( m_efficiencyTool_reco.setProperty ("CorrelationModel", "TOTAL") );
-    ATH_CHECK( m_efficiencyTool_reco.setProperty("ForceDataType", effDataType) );
+    ATH_CHECK( m_efficiencyTool_reco.setProperty ("ForceDataType", effDataType) );
     ATH_CHECK( m_efficiencyTool_reco.initialize() );
     registerTool(&*m_efficiencyTool_reco);
 
     // Well, this is irritating
-    std::string id_ana = (m_idAna!="") ? m_idAna : m_idStr;
+    std::string id_ana = TString( (m_idAna!="") ? m_idAna : m_idStr ).ReplaceAll("AndBLayer", "BLayer").ReplaceAll("LLH", "").Data();
 
     // Initialize the AsgElectronEfficiencyCorrectionTool.
     ATH_CHECK( ASG_MAKE_ANA_TOOL(m_efficiencyTool_id, AsgElectronEfficiencyCorrectionTool) );
-
     // ID scale factors - currently need to set this file by hand.
-    std::string effFile_id = directory + "offline/efficiencySF.offline." + id_ana + "_d0z0_v11.root";
-    const std::vector<std::string> effFiles_id {effFile_id}; // tool expects a list.
-
-    ATH_CHECK( m_efficiencyTool_id.setProperty("CorrectionFileNameList", effFiles_id) );
+    ATH_CHECK( m_efficiencyTool_id.setProperty ("MapFilePath", egMapFile) );
+    ATH_CHECK( m_efficiencyTool_id.setProperty ("IdKey", id_ana) );
     ATH_CHECK( m_efficiencyTool_id.setProperty ("CorrelationModel", "TOTAL") );
-    ATH_CHECK( m_efficiencyTool_id.setProperty("ForceDataType", effDataType) );
+    ATH_CHECK( m_efficiencyTool_id.setProperty ("ForceDataType", effDataType) );
     ATH_CHECK( m_efficiencyTool_id.initialize() );
     registerTool(&*m_efficiencyTool_id);
 
@@ -425,13 +410,10 @@ namespace ana
     if (m_isoStr != "")
     {
       ATH_CHECK( ASG_MAKE_ANA_TOOL(m_efficiencyTool_iso, AsgElectronEfficiencyCorrectionTool) );
-
-      // Iso scale factor file. As with ID file above, now using updated TightLLH
-      std::string effFile_iso = directory + "isolation/efficiencySF.Isolation." + id_ana;
-      effFile_iso += "_d0z0_v11_isol" + m_isoStr + ".root";
-      const std::vector<std::string> effFiles_iso {effFile_iso}; // tool expects a list.
-
-      ATH_CHECK( m_efficiencyTool_iso.setProperty("CorrectionFileNameList", effFiles_iso) );
+      // Iso scale factor file. As with ID file above
+      ATH_CHECK( m_efficiencyTool_iso.setProperty ("MapFilePath", egMapFile) );
+      ATH_CHECK( m_efficiencyTool_iso.setProperty ("IdKey", id_ana) );
+      ATH_CHECK( m_efficiencyTool_iso.setProperty ("IsoKey", m_isoStr) );
       ATH_CHECK( m_efficiencyTool_iso.setProperty ("CorrelationModel", "TOTAL") );
       ATH_CHECK( m_efficiencyTool_iso.setProperty("ForceDataType", effDataType) );
       ATH_CHECK( m_efficiencyTool_iso.initialize() );

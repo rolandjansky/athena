@@ -24,7 +24,7 @@
 //____________________________________________________________________
 unsigned LWPoolAreaBookKeeper::nBytesNeededForCreate(unsigned nEntries)
 {
-  return nFields(nEntries)*sizeof(BitField)+sizeof(LWPoolAreaBookKeeper);
+  return (nFields(nEntries)*sizeof(BitField)+sizeof(LWPoolAreaBookKeeper) + 7) & ~7;
 }
 
 //____________________________________________________________________

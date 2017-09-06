@@ -9,8 +9,8 @@
 //   $Id: TrackAnalysis.h, v0.0   Sun 18 Jan 2009 19:53:18 GMT sutt $
 
 
-#ifndef __TRACKANALYSIS_H
-#define __TRACKANALYSIS_H
+#ifndef TRIGINDETANALYSIS_TRACKANALYSIS_H
+#define TRIGINDETANALYSIS_TRACKANALYSIS_H
 
 #include <iostream>
 #include <vector>
@@ -32,7 +32,7 @@ class TrackAnalysis {
 public:
 
   TrackAnalysis( const std::string& name ) : 
-    mname(name), 
+    m_name(name), 
     m_xBeamReference(0), m_yBeamReference(0), m_zBeamReference(0),
     m_xBeamTest(0),      m_yBeamTest(0),      m_zBeamTest(0),
     m_event(0)
@@ -41,7 +41,7 @@ public:
   virtual ~TrackAnalysis() { } 
 
   /// return identifier
-  std::string name() const { return mname; }  
+  std::string name() const { return m_name; }  
     
   /// standard operation interface 
   virtual void initialise() = 0;
@@ -103,7 +103,7 @@ protected:
  
   /// identifier of the of the analysis - also used for the root
   ///  directory into which the histograms are put
-  std::string   mname;
+  std::string   m_name;
 
   /// lookup table for the histograms by name - does this 
   /// need to be in the base class?  
@@ -132,14 +132,4 @@ inline std::ostream& operator<<(std::ostream& s, const TrackAnalysis& ta) {
 }
 
 
-#endif  // __TRACKANALYSIS_H 
-
-
-
-
-
-
-
-
-
-
+#endif  // TRIGINDETANALYSIS_TRACKANALYSIS_H

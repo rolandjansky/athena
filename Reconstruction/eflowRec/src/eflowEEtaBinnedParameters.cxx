@@ -31,13 +31,6 @@ using namespace std;
 ///////////////////////////////////
 
 eflowEEtaBinnedParameters::~eflowEEtaBinnedParameters() {
-  int nEBins = m_bins.size();
-  for (int i = 0; i < nEBins; i++) {
-    int nEtaBins = m_bins[i].size();
-    for (int j = 0; j < nEtaBins; j++) {
-      delete m_bins[i][j];
-    }
-  }
 }
 
 void eflowEEtaBinnedParameters::initialise(const std::vector<double>& eBinBounds, const std::vector<double>& etaBinBounds, bool useAbsEta) {
@@ -48,12 +41,14 @@ void eflowEEtaBinnedParameters::initialise(const std::vector<double>& eBinBounds
   /* Create all the bins */
   int nEBins = getNumEBins();
   int nEtaBins = getNumEtaBins()-1;
-  eflowParameters* dummy = nullptr;
-  m_bins.assign(nEBins, std::vector<eflowParameters*>(nEtaBins, dummy));
+  m_bins.reserve(nEBins);
   for (int iEBin = 0; iEBin < nEBins; iEBin++) {
+    std::vector<std::unique_ptr<eflowParameters> > tempVector;
+    tempVector.reserve(nEtaBins);
     for (int iEtaBin = 0; iEtaBin < nEtaBins; iEtaBin++) {
-      m_bins[iEBin][iEtaBin] = new eflowParameters();
+      tempVector.push_back(std::make_unique<eflowParameters>());
     }
+    m_bins.push_back(std::move(tempVector));
   }
 }
 
@@ -75,8 +70,8 @@ void eflowEEtaBinnedParameters::initialise(const std::vector<double>& eBinBounds
   if ((0 == eBin && e <= m_eBinBounds[eBin]) ||
       (eBin == getNumEBins() - 1 && e >= m_eBinBounds[getNumEBins() - 1])) {
     /* If e is below the lowest (above the highest) pinpoint, just return the lowest (highest) bin; no interpolation in this case. */
-    *bin1 = m_bins[eBin][etaBin];
-    *bin2 = m_bins[eBin][etaBin];
+    *bin1 = m_bins[eBin][etaBin].get();
+    *bin2 = m_bins[eBin][etaBin].get();
     weight = 1.0;
   } else {
     /* The "normal" case: interpolate between two energies */
@@ -89,8 +84,8 @@ void eflowEEtaBinnedParameters::initialise(const std::vector<double>& eBinBounds
       lowEBin = eBin - 1;
     }
 
-    *bin1 = m_bins[lowEBin][etaBin];
-    *bin2 = m_bins[highEBin][etaBin];
+    *bin1 = m_bins[lowEBin][etaBin].get();
+    *bin2 = m_bins[highEBin][etaBin].get();
 
     if (LIN == m_mode) {
       weight = (m_eBinBounds[highEBin] - e) / (m_eBinBounds[highEBin] - m_eBinBounds[lowEBin]);

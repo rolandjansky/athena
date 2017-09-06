@@ -1,25 +1,21 @@
-Tue Apr 18 23:47:47 CEST 2017
-Preloading tcmalloc_minimal.so
+Wed Jun 21 16:19:12 EDT 2017
+WARNING: TCMALLOCDIR not defined, will use libc malloc
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [AthenaWorkDir-22.0.0] [x86_64-slc6-gcc62-dbg] [mt-sss/f56767d765] -- built on [2017-04-18T2153]
+Py:Athena            INFO using release [?-21.0.0] [i686-slc5-gcc43-dbg] [?/?] -- built on [?]
 Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
-[?1034hPy:Athena            INFO including file "AthenaCommon/Execution.py"
+Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "DataModelRunTests/xAODTestDecorHandle1_jo.py"
-Py:ConfigurableDb    INFO Read module info for 5299 configurables from 28 genConfDb files
-Py:ConfigurableDb WARNING Found 1 duplicates among the 28 genConfDb files :
-Py:ConfigurableDb WARNING --------------------------------------------------
-Py:ConfigurableDb WARNING   -<component name>: <module> - [ <duplicates> ]
-Py:ConfigurableDb WARNING --------------------------------------------------
-Py:ConfigurableDb WARNING   -DMTest__xAODTestDecor: DataModelTestDataCommon.DataModelTestDataCommonConf - ['DataModelTestDataRead.DataModelTestDataReadConf']
-Py:ConfigurableDb WARNING Fix your cmt/requirements file !!
+Py:ConfigurableDb    INFO Read module info for 442 configurables from 2 genConfDb files
+Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
+# setting LC_ALL to "C"
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v28r1)
-                                          running on lxplus064.cern.ch on Tue Apr 18 23:48:11 2017
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
+                                          running on karma on Wed Jun 21 16:19:25 2017
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -27,14 +23,14 @@ ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to leve
 StatusCodeSvc        INFO initialize
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
-ClassIDSvc           INFO  getRegistryEntries: read 2307 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 2409 CLIDRegistry entries for module ALL
 ChronoStatSvc        INFO  Number of skipped events for MemStat-1
 CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
 AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
-ClassIDSvc           INFO  getRegistryEntries: read 5965 CLIDRegistry entries for module ALL
-ClassIDSvc           INFO  getRegistryEntries: read 56 CLIDRegistry entries for module ALL
-ClassIDSvc           INFO  getRegistryEntries: read 359 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 7129 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 58 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 366 CLIDRegistry entries for module ALL
 HistogramPersis...WARNING Histograms saving not required.
 EventSelector        INFO  Enter McEventSelector Initialization 
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
@@ -43,7 +39,7 @@ ApplicationMgr       INFO Application Manager Started successfully
 EventPersistenc...   INFO Added successfully Conversion service:McCnvSvc
 AthenaEventLoopMgr   INFO   ===>>>  start of run 0    <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #0, run #0 0 events processed so far  <<<===
-ClassIDSvc           INFO  getRegistryEntries: read 104 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 106 CLIDRegistry entries for module ALL
 xAODTestReadDecor    INFO cvec.dInt1: 401 402 403 404 405 406 407 408 409 410
 xAODTestReadDecor    INFO cinfo.dInt1: 3000
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #0, run #0 1 events processed so far  <<<===
@@ -60,7 +56,7 @@ xAODTestReadDecor    INFO cvec.dInt1: 1601 1602 1603 1604 1605 1606 1607 1608 16
 xAODTestReadDecor    INFO cinfo.dInt1: 12000
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #3, run #0 4 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #4, run #0 4 events processed so far  <<<===
-xAODTestReadDecor    INFO cvec.dInt1: 2001 2002 2003 2004 2005 2006 2007 2008 2009 2010
+xAODTestReadDecor    INFO cvec.dInt1:
 xAODTestReadDecor    INFO cinfo.dInt1: 15000
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #4, run #0 5 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #5, run #0 5 events processed so far  <<<===

@@ -299,8 +299,8 @@ GetLogicalAddress (PVOID addr, PTSTR name, DWORD length,
  * IP is the instruction pointer.
  * (sss)
  */
-void DebugAids::stacktraceLine (IOFD fd,
-                                unsigned long addr)
+void DebugAids::stacktraceLine ATLAS_NOT_THREAD_SAFE (IOFD fd,
+                                                      unsigned long addr)
 {
   iovec		bufs [7];
   int		nbufs = 0;
@@ -445,7 +445,7 @@ void DebugAids::stacktraceLine (IOFD fd,
 }
 
 
-#if __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 4) // FIXME: Check
+#if !(HAVE_BACKTRACE_SYMBOLS_FD && HAVE_DLADDR) && __GNUC__ >=4 
 extern "C" {
     typedef unsigned _Unwind_Ptr __attribute__((__mode__(__pointer__)));
     struct _Unwind_Context;
@@ -540,7 +540,7 @@ unwindWalkStack (_Unwind_Context *ctx, void *data)
 //<<<<<< PUBLIC FUNCTION DEFINITIONS                                    >>>>>>
 
 // Change the path of the binary used for symbolization.
-void DebugAids::setStackTraceAddr2Line (const char* path)
+void DebugAids::setStackTraceAddr2Line ATLAS_NOT_THREAD_SAFE (const char* path)
 {
   addr2LinePath = path;
 }
@@ -565,7 +565,7 @@ extern "C" void xl__trbk (void);
     effective for #stacktrace(), but can be overridden by the
     argument given to that function.  */
 IOFD
-DebugAids::stacktraceFd (IOFD fd /* = IOFD_INVALID */)
+DebugAids::stacktraceFd ATLAS_NOT_THREAD_SAFE (IOFD fd /* = IOFD_INVALID */)
 {
     if (s_stackTraceFd == IOFD_INVALID)
 	s_stackTraceFd = STDERR_HANDLE;
@@ -591,7 +591,7 @@ DebugAids::stacktraceFd (IOFD fd /* = IOFD_INVALID */)
     the system has no stack tracing support, no stack trace is
     produced.  */
 void
-DebugAids::stacktrace (IOFD fd /* = IOFD_INVALID */)
+DebugAids::stacktrace ATLAS_NOT_THREAD_SAFE (IOFD fd /* = IOFD_INVALID */)
 {
     if (s_stackTraceFd == IOFD_INVALID)
 	s_stackTraceFd = STDERR_HANDLE;

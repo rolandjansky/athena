@@ -5,5 +5,8 @@
 # an "origin/" prefix before it. For tags however this is explicitly
 # forbidden.
 
-AthSimulationExternalsVersion = 6cbde55c
-GaudiVersion = v28r2.004
+# The version of atlas/atlasexternals to use:
+AthSimulationExternalsVersion = aa2d4807
+
+# The version of atlas/Gaudi to use:
+GaudiVersion = v28r2.010

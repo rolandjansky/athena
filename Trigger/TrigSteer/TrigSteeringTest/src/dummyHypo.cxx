@@ -30,11 +30,21 @@ HLT::ErrorCode dummyHypo::hltExecute(const HLT::TriggerElement* outputTE, bool& 
     pass = false;
     msg() << MSG::DEBUG << "Rejecting" << endmsg;
   }
-  
+
   TrigPassBits* old = new TrigPassBits(10);
   old->markPassing(7);
   ATH_MSG_DEBUG("Attaching old bits");
-  HLT::ErrorCode ec = attachBits(outputTE, old, "oldbits");
+
+  // Deliberately using a deprecated interface here for testing purposes,
+  // so suppress deprecation warnings.
+#ifdef __GNUC__
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+   HLT::ErrorCode ec = attachBits(outputTE, old, "oldbits");
+#ifdef __GNUC__
+# pragma GCC diagnostic pop
+#endif
 
   ATH_MSG_DEBUG("Making new pass bits");
   xAOD::TrigPassBits* newbits = new xAOD::TrigPassBits();

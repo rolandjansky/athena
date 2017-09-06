@@ -47,16 +47,5 @@ This package contains the algorithms and tools used for TileCal reconstruction
 
   - TileTowerBuilderTool: creates Tower-type cell clusters to be used in jet reconstruction
 
-@ref used_MyPackage
-
-@ref requirements_MyPackage
-*/
-
-/**
-@page used_MyPackage Used Packages
-*/
-
-/**
-@page requirements_MyPackage Requirements
 
 */

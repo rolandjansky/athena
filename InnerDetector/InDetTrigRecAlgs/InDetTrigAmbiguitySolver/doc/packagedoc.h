@@ -23,8 +23,4 @@ More information on processing ambiguities is given in the
 TrkAmbiguityProcessor documentation.
 
  
-@section InDetTrigAmbiguitySolver_used_packagesInDetTrigAmbiguitySolver Used packages
-
-@section InDetTrigAmbiguitySolver_ReqInDetTrigAmbiguitySolver Requirements
-
 */

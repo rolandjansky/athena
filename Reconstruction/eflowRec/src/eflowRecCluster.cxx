@@ -16,7 +16,7 @@
 
 eflowRecCluster::eflowRecCluster(const ElementLink<xAOD::CaloClusterContainer>& clusElementLink) :
   m_clusterId(-1), m_cluster(*clusElementLink), m_clusElementLink(clusElementLink), m_isTouchable(false), m_type(0), m_matchCluster(nullptr) {
-  m_matchCluster = new eflowMatchCluster(this);
+  m_matchCluster = std::make_unique<eflowMatchCluster>(this);
 }
 
 eflowRecCluster::eflowRecCluster(const eflowRecCluster& originalEflowRecCluster) {
@@ -25,7 +25,7 @@ eflowRecCluster::eflowRecCluster(const eflowRecCluster& originalEflowRecCluster)
   m_clusElementLink = originalEflowRecCluster.m_clusElementLink;
   m_isTouchable = originalEflowRecCluster.m_isTouchable;
   m_type = originalEflowRecCluster.m_type;
-  m_matchCluster = new eflowMatchCluster(this);
+  m_matchCluster = std::make_unique<eflowMatchCluster>(this);
 }
 
 eflowRecCluster& eflowRecCluster::operator=(const eflowRecCluster& originalEflowRecCluster) {
@@ -35,20 +35,21 @@ eflowRecCluster& eflowRecCluster::operator=(const eflowRecCluster& originalEflow
     m_cluster = originalEflowRecCluster.m_cluster;
     m_clusElementLink = originalEflowRecCluster.m_clusElementLink;
     m_isTouchable = originalEflowRecCluster.m_isTouchable;
-    if (m_matchCluster) delete m_matchCluster;
-    m_matchCluster = new eflowMatchCluster(this);
+    m_matchCluster = std::make_unique<eflowMatchCluster>(this);
     return *this;
   }//if not assigning to self, then we have copied the data to the new object
 }
 
-eflowRecCluster::~eflowRecCluster() { delete m_matchCluster; }
+eflowRecCluster::~eflowRecCluster() { }
 
 void eflowRecCluster::replaceClusterByCopyInContainer(xAOD::CaloClusterContainer* container) {
-  xAOD::CaloCluster* copiedCluster = new xAOD::CaloCluster(*m_cluster);
-  container->push_back(copiedCluster);
-  m_cluster = copiedCluster;
+  std::unique_ptr<xAOD::CaloCluster> copiedCluster = std::make_unique<xAOD::CaloCluster>(*m_cluster);
+  container->push_back(std::move(copiedCluster));
+  //Cannot set m_cluster to copiedCluster - std::move makes copiedCluster a nullptr. Hence must access from
+  //back of container, we have just pushed into.
+  m_cluster = container->back();
   m_clusElementLink = ElementLink<xAOD::CaloClusterContainer>();
-  m_clusElementLink.toContainedElement(*container, copiedCluster);
+  m_clusElementLink.toContainedElement(*container,container->back());
 }
 
 xAOD::CaloCluster* eflowRecCluster::getClusterForModification(xAOD::CaloClusterContainer* container) {

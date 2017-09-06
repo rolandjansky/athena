@@ -63,8 +63,18 @@ int TTbarPlusHeavyFlavorFilterTool::filterFlag() const{
   for ( const auto* truthevent : *xTruthEventContainer ) {
 
     for(unsigned int i = 0; i < truthevent->nTruthParticles(); i++){
-	     
-      const xAOD::TruthParticle* part = truthevent->truthParticle(i);	
+
+      const xAOD::TruthParticle* part = truthevent->truthParticle(i);
+      // In release 21 we'll have a thinned truth record in the AODs.
+      // Specifically, geant particle are removed in most cases. The subsequent
+      // nullptr check is supposed to catch these truth particles,
+      // unfortunately however, there's no way to check whether this truth
+      // particle would have had an impact on what we do further down.
+      if (not part){
+          // We could possibly also use break since the thinned truth particles
+          // in principle should have barcode >= 200000.
+          continue;
+      }
 
       if(part->barcode() >= 200000) break;
 
@@ -93,7 +103,7 @@ int TTbarPlusHeavyFlavorFilterTool::filterFlag() const{
 	continue;
       }
 
- 
+
       if( (isbquark || isbhadron) && !passBSelection(part) ) continue;
       if( (iscquark || ischadron) && !passCSelection(part) ) continue;
 
@@ -114,10 +124,10 @@ int TTbarPlusHeavyFlavorFilterTool::filterFlag() const{
       }
 
       bool ischadronfromb = isCHadronFromB(part);
-      
+
       if(isbhadron) ++nB;
       if(ischadron && !ischadronfromb) ++nC;
-      
+
 
     } /// loop on particles
 
@@ -126,7 +136,7 @@ int TTbarPlusHeavyFlavorFilterTool::filterFlag() const{
     }
 
   } /// loop on events (only one at evgen - no PU)
-  
+
 
   int nAddB=nB;
   if(m_excludeBFromTop){
@@ -163,7 +173,7 @@ bool TTbarPlusHeavyFlavorFilterTool::passBSelection(const xAOD::TruthParticle* p
   if(eta>m_bEtaMaxCut) return false;
 
   return true;
-  
+
 }
 
 bool TTbarPlusHeavyFlavorFilterTool::passCSelection(const xAOD::TruthParticle* part) const{
@@ -230,7 +240,7 @@ bool TTbarPlusHeavyFlavorFilterTool::isInitialHadron(const xAOD::TruthParticle* 
       }
     }
 
- 
+
 
   return true;
 }
@@ -319,7 +329,7 @@ const xAOD::TruthParticle*  TTbarPlusHeavyFlavorFilterTool::findInitial(const xA
       return findInitial(parent, looping);
     }
   }
-   
+
   return part;
 
 }
@@ -328,7 +338,7 @@ bool TTbarPlusHeavyFlavorFilterTool::isFromTop(const xAOD::TruthParticle* part, 
 
   const xAOD::TruthParticle* initpart = findInitial(part, looping);
   return isDirectlyFromTop(initpart, looping);
- 
+
 }
 
 bool TTbarPlusHeavyFlavorFilterTool::isDirectlyFromTop(const xAOD::TruthParticle* part, bool looping) const{
@@ -342,7 +352,7 @@ bool TTbarPlusHeavyFlavorFilterTool::isDirectlyFromTop(const xAOD::TruthParticle
     if( part->barcode() < parent->barcode() &&  looping ) continue; /// protection for sherpa
     if( abs( parent->pdgId() ) == 6 ) return true;
   }
-   
+
   return false;
 }
 
@@ -360,7 +370,7 @@ bool TTbarPlusHeavyFlavorFilterTool::isDirectlyFromWTop(const xAOD::TruthParticl
       if( isFromTop(parent, looping) ) return true;
     }
   }
-   
+
   return false;
 
 

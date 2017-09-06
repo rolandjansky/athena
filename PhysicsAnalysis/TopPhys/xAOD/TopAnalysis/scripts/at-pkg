@@ -1,0 +1,88 @@
+#!/bin/bash
+echo "Creating a new cmake folder for use with AnalysisTop"
+pkgname=$1
+classname=$2
+echo "Creating $pkgname with $classname"
+
+mkdir -p $pkgname/Root $pkgname/$pkgname $pkgname/util $pkgname/scripts $pkgname/share
+touch $pkgname/Root/LinkDef.h
+
+echo "
+# Declare the name of this package:
+atlas_subdir( $pkgname None )
+
+# This package depends on other packages:
+atlas_depends_on_subdirs( PUBLIC
+			  TopAnalysis                          
+                          TopCPTools
+                          TopEventSelectionTools
+                          TopConfiguration
+                          TopCorrections
+                          TopEvent
+                          TopParticleLevel
+                          TopPartons
+                          TopObjectSelectionTools
+                          TopSystematicObjectMaker
+                          TopFakes
+			  TopDataPreparation
+			  TopHLUpgrade )
+
+# This package uses ROOT:
+find_package( ROOT REQUIRED COMPONENTS Core Gpad Tree Hist RIO MathCore Graf )
+
+# Custom definitions needed for this package:
+add_definitions( -g )
+
+# Generate a CINT dictionary source file:
+atlas_add_root_dictionary( $pkgname _cintDictSource
+                           ROOT_HEADERS Root/LinkDef.h
+                           EXTERNAL_PACKAGES ROOT )
+
+# Build a library that other components can link against:
+atlas_add_library( $pkgname Root/*.cxx Root/*.h Root/*.icc
+                   $pkgname/*.h $pkgname/*.icc $pkgname/*/*.h
+                   $pkgname/*/*.icc \${_cintDictSource} 
+                   PUBLIC_HEADERS $pkgname
+                   LINK_LIBRARIES TopAnalysis
+				  TopCPTools
+                                  TopEventSelectionTools
+                                  TopConfiguration
+                                  TopCorrections
+                                  TopEvent
+                                  TopParticleLevel
+                                  TopPartons
+                                  TopObjectSelectionTools
+                                  TopSystematicObjectMaker
+                                  TopFakes
+				  TopDataPreparation
+				  TopHLUpgrade
+                                  \${ROOT_LIBRARIES}
+                   INCLUDE_DIRS \${ROOT_INCLUDE_DIRS} )
+
+# Install data files from the package:
+atlas_install_data( share/* )
+
+# Install user scripts
+atlas_install_scripts( scripts/*.py )
+
+# Build the executables of the package:
+#atlas_add_executable( myexec_$pkgname
+#                      util/myexec_$pkgname.cxx
+#                      LINK_LIBRARIES TopCPTools
+#                                     TopEventSelectionTools
+#                                     TopConfiguration
+#                                     TopCorrections
+#                                     TopEvent
+#                                     TopParticleLevel
+#                                     TopPartons
+#                                     TopObjectSelectionTools
+#                                     TopSystematicObjectMaker
+#                                     TopFakes
+#				     TopDataPreparation
+#                                     TopHLUpgrade
+#                                     ${ROOT_LIBRARIES}
+#                                     TopAnalysis )
+" > $pkgname/CMakeLists.txt
+
+touch $pkgname/$pkgname/$classname.h
+touch $pkgname/Root/$classname.cxx

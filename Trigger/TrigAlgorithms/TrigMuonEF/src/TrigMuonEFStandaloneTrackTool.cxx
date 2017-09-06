@@ -52,6 +52,7 @@
 #include "TrigInterfaces/Algo.h"
 #include "TrigInterfaces/FexAlgo.h"
 #include "TrigInterfaces/IMonitoredAlgo.h"  // for AutoClear
+#include "AthContainers/ConstDataVector.h"
 
 // xAOD related includes
 #include "MuonCombinedEvent/MuonCandidate.h"
@@ -72,6 +73,7 @@
 
 #define testRoiDrivenMode false
 
+using namespace std;
 using namespace Muon;
 using CLHEP::GeV;
 
@@ -1605,9 +1607,24 @@ if (m_useMdtData>0) {
 
   ATH_MSG_DEBUG("Starting dataOutputTime");
   if (dataOutputTime) dataOutputTime->start();
-  if(m_segmentCombiCollInternal) m_segmentCombiColl = new MuonSegmentCombinationCollection(m_segmentCombiCollInternal->begin(), m_segmentCombiCollInternal->end());
-  if(m_patternCombiCollInternal) m_patternCombiColl = new MuonPatternCombinationCollection(m_patternCombiCollInternal->begin(), m_patternCombiCollInternal->end());
-  if(m_segmentsInternal) m_segments = new Trk::SegmentCollection(m_segmentsInternal->begin(), m_segmentsInternal->end());
+  if(m_segmentCombiCollInternal) {
+    typedef ConstDataVector<MuonSegmentCombinationCollection> constvec_t;
+    constvec_t* tmpvec = new constvec_t (m_segmentCombiCollInternal->begin(),
+                                         m_segmentCombiCollInternal->end());
+    m_segmentCombiColl = tmpvec->asDataVector();
+  }
+  if(m_patternCombiCollInternal) {
+    typedef ConstDataVector<MuonPatternCombinationCollection> constvec_t;
+    constvec_t* tmpvec = new constvec_t (m_patternCombiCollInternal->begin(),
+                                         m_patternCombiCollInternal->end());
+    m_patternCombiColl = tmpvec->asDataVector();
+  }
+  if(m_segmentsInternal) {
+    typedef ConstDataVector<Trk::SegmentCollection> constvec_t;
+    constvec_t* tmpvec = new constvec_t (m_segmentsInternal->begin(),
+                                         m_segmentsInternal->end());
+    m_segments = tmpvec->asDataVector();
+   }
  
 
   // for deletion at end of event
@@ -1685,7 +1702,7 @@ TrigMuonEFStandaloneTrackTool::buildTracks(const MuonSegmentCombinationCollectio
     if ( segment_collection and segment_collection->size() ) {
       ATH_MSG_VERBOSE("Converting Trk::SegmentCollection into std::vector<const Muon::MuonSegment*>");
       for(Trk::SegmentCollection::const_iterator itSeg = segment_collection->begin(); itSeg!= segment_collection->end(); ++itSeg){
-        muonSegCollection.push_back(dynamic_cast<Muon::MuonSegment*>(*itSeg));
+        muonSegCollection.push_back(dynamic_cast<const Muon::MuonSegment*>(*itSeg));
       }
     } else if ( segments and segments->size() ) {
       ATH_MSG_VERBOSE("Converting MuonSegmentCombinationCollection into std::vector<const Muon::MuonSegment*>");
@@ -1723,7 +1740,7 @@ TrigMuonEFStandaloneTrackTool::buildTracks(const MuonSegmentCombinationCollectio
 
   if(trackFinderTime) trackFinderTime->stop();
   if(dataOutputTime) dataOutputTime->start();
-   m_spectrometerTracks = new TrackCollection(m_spectrometerTracksInternal->begin(), m_spectrometerTracksInternal->end());
+  m_spectrometerTracks = (new ConstDataVector<TrackCollection>(m_spectrometerTracksInternal->begin(), m_spectrometerTracksInternal->end()))->asDataVector();
   // store for deletion at the end of event
   addElement( m_spectrometerTracksCache, m_spectrometerTracks );
   addElement( m_spectrometerTracksCache, m_spectrometerTracksInternal );
@@ -1749,11 +1766,9 @@ TrigMuonEFStandaloneTrackTool::buildTracks(const MuonSegmentCombinationCollectio
     for (TrackCollection::const_iterator itTrk = m_spectrometerTracks->begin(); itTrk!= m_spectrometerTracks->end(); ++itTrk) {
 
 
-      Trk::Track* trk = *itTrk;
+      const Trk::Track* trk = *itTrk;
       // create track particle
       const ElementLink<TrackCollection> trackLink(*m_spectrometerTracks, nTrack);
-      xAOD::TrackParticle* trackparticle = m_TrackToTrackParticleConvTool->createParticle( trackLink, m_spectrometerTrackParticles, 0, xAOD::muon);
-      if(trackparticle) ATH_MSG_VERBOSE("Trackparticle successfully created");
       ATH_MSG_DEBUG("REGTEST MuonEF - track " << nTrack
 		    << " has Author " << trk->info().dumpInfo());
       ++nTrack;
@@ -2154,7 +2169,7 @@ void TrigMuonEFStandaloneTrackTool::recordSegments()
   
   if (segmentCombColl && m_segmentCombiColl) {
     for (MuonSegmentCombinationCollection::const_iterator itSegm = m_segmentCombiColl->begin(); itSegm!= m_segmentCombiColl->end(); ++itSegm) {
-      Muon::MuonSegmentCombination* segm  = *itSegm;
+      const Muon::MuonSegmentCombination* segm  = *itSegm;
       segmentCombColl->push_back( new Muon::MuonSegmentCombination(*segm) );
     }
   }
@@ -2186,7 +2201,7 @@ void TrigMuonEFStandaloneTrackTool::recordPatterns()
   }
   if (patternCombColl && m_patternCombiColl) {
     for (MuonPatternCombinationCollection::const_iterator itPatt = m_patternCombiColl->begin(); itPatt!= m_patternCombiColl->end(); ++itPatt) {
-      MuonPatternCombination* patt  = *itPatt;
+      const MuonPatternCombination* patt  = *itPatt;
       patternCombColl->push_back( new Muon::MuonPatternCombination(*patt) );
     }
   }
@@ -2216,7 +2231,7 @@ void TrigMuonEFStandaloneTrackTool::recordSpectrometerTracks()
   }
   if (trackCollection && m_spectrometerTracks) { // make sure TrackCollection is valid (could be 0 if SG record / retrieve failed)
     for (TrackCollection::const_iterator itTrk = m_spectrometerTracks->begin(); itTrk!= m_spectrometerTracks->end(); ++itTrk) {
-      Trk::Track* trk = *itTrk;
+      const Trk::Track* trk = *itTrk;
       trackCollection->push_back( new Trk::Track(*trk) );
     }
            

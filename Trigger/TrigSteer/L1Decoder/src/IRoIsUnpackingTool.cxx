@@ -7,7 +7,6 @@
 #include "IRoIsUnpackingTool.h"
 
 
-
 IRoIsUnpackingTool::~IRoIsUnpackingTool()
 {}
 

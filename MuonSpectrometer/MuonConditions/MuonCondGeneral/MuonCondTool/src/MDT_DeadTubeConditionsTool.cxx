@@ -63,7 +63,9 @@ MDT_DeadTubeConditionsTool::MDT_DeadTubeConditionsTool (const std::string& type,
 
 
 //StatusCode MDT_DeadTubeConditionsTool::updateAddress(SG::TransientAddress* /*tad*/)
-StatusCode MDT_DeadTubeConditionsTool::updateAddress(StoreID::type /*storeID*/, SG::TransientAddress* /*tad*/)
+StatusCode MDT_DeadTubeConditionsTool::updateAddress(StoreID::type /*storeID*/,
+                                                     SG::TransientAddress* /*tad*/,
+                                                     const EventContext& /*ctx*/)
 {
   MsgStream log(msgSvc(), name());
   // CLID clid        = tad->clID();
@@ -230,7 +232,8 @@ StatusCode MDT_DeadTubeConditionsTool::loadDeadTube(IOVSVC_CALLBACK_ARGS_P(I,key
       m_cachedDeadTubesId.push_back(ChannelId);
     }
     
-    m_Tube_Map.insert(std::make_pair(ChamberId,tube_list));
+    //m_Tube_Map.insert(std::make_pair(ChamberId,tube_list));
+    m_Tube_Map[ChamberId]=tube_list;
     if( m_verbose ) m_log << MSG::VERBOSE << "Sequence load is \n" << mylist<< endmsg;
     m_Chamber_with_deadTube.push_back(ChamberId);
     m_cachedDeadTubes.push_back(mylist);

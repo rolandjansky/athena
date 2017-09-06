@@ -12,10 +12,4 @@
  - For questions or comments: Ketevi A. Assamagan
    ketevi@bnl.gov
 
-@section CscOverlay_used_packagesTkPara Used Packages
-
-@section CscOverlay_requirements Requirements
-
-
 */
-

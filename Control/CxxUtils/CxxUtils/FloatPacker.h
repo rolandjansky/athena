@@ -79,29 +79,25 @@ public:
 
 
   /**
-   * @brief Check to see if an error occurred.
-   * @param err[out] If an error occurred, a description of it.
-   * @return True if an error occurred since the last call to @c errcheck.
-   */
-  bool errcheck (std::string& err) const;
-
-
-  /**
    * @brief Pack a value.
    * @param src Value to pack.
+   * @param err If non-null, then this string will be set to a description
+   *            of any error that occurs.
    * @return The packed value.
    *
    * For now, we convert floats to doubles before packing.
    */
-  Packdest pack (double src) const;
+  Packdest pack (double src, std::string* err = nullptr) const;
 
 
   /**
    * @brief Unpack the value @c VAL.
    * @param val The packed data.  It should start with the low bit,
    *            and any extraneous bits should have been masked off.
+   * @param err If non-null, then this string will be set to a description
+   *            of any error that occurs.
    */
-  double unpack (Packdest val) const;
+  double unpack (Packdest val, std::string* err = nullptr) const;
 
 
 private:
@@ -140,9 +136,6 @@ private:
 
   /// Maximum exponent value.
   int m_max_exp;
-
-  /// Description of the last error.
-  mutable std::string m_lasterr;
 };
 
 

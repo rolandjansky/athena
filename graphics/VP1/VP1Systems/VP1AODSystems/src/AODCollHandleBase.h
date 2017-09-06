@@ -28,7 +28,7 @@
 #include "xAODBase/ObjectType.h" // for xAOD::Type::ObjectType
 
 // Qt
-#include <QtGui/QColor>
+#include <QColor>
 #include <QList>
 
 //Misc
@@ -106,7 +106,7 @@ protected:
   virtual QList<AODHandleBase*> getHandlesList() const =0;
 
   //Override if special cuts. Remember to call base class implementation also for common cuts.
-  virtual bool cut(AODHandleBase*) =0 ;//Return true if should be shown (based on various cuts), false otherwise.
+  virtual bool cut(AODHandleBase*) = 0 ;//Return true if should be shown (based on various cuts), false otherwise.
 
   //Utility (fixme: put in utility class elsewhere).
   template <class T> void cleanupPtrContainer(T&) const;//Delete pointers and calls .clear()

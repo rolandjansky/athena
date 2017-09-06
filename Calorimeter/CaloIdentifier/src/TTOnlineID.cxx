@@ -229,7 +229,7 @@ int TTOnlineID::get_expanded_id  (const HWIdentifier& id, ExpandedIdentifier& ex
 
 
 //=====================================================================================
-void TTOnlineID::channel_Id_checks   ( int crate, int module, int submodule, int channel  ) const throw(CaloID_Exception)
+void TTOnlineID::channel_Id_checks   ( int crate, int module, int submodule, int channel  ) const
 //=====================================================================================
 {
   // Fill expanded id
@@ -250,7 +250,7 @@ void TTOnlineID::channel_Id_checks   ( int crate, int module, int submodule, int
 }
 
 /* ================================================================*/
-void TTOnlineID::channel_Id_checks   ( const HWIdentifier submoduleId, int channel ) const throw(CaloID_Exception)
+void TTOnlineID::channel_Id_checks   ( const HWIdentifier submoduleId, int channel ) const
 /* ================================================================*/
 {
   // Check that id is within allowed range
@@ -272,7 +272,7 @@ void TTOnlineID::channel_Id_checks   ( const HWIdentifier submoduleId, int chann
 }
 
 /* ================================================================*/
-void TTOnlineID::channel_Id_checks   ( const HWIdentifier moduleId, int submodule, int channel ) const throw(CaloID_Exception)
+void TTOnlineID::channel_Id_checks   ( const HWIdentifier moduleId, int submodule, int channel ) const
 /* ================================================================*/
 {
   // Check that id is within allowed range
@@ -294,7 +294,7 @@ void TTOnlineID::channel_Id_checks   ( const HWIdentifier moduleId, int submodul
 }
 
 /* ================================================================*/
-void TTOnlineID::channel_Id_checks   ( const HWIdentifier crateId, int module, int submodule, int channel ) const throw(CaloID_Exception)
+void TTOnlineID::channel_Id_checks   ( const HWIdentifier crateId, int module, int submodule, int channel ) const
 /* ================================================================*/
 {
   // Check that id is within allowed range
@@ -316,7 +316,7 @@ void TTOnlineID::channel_Id_checks   ( const HWIdentifier crateId, int module, i
 }
 
 /* ================================================================*/
-void TTOnlineID::submodule_Id_checks( int crate, int module, int submodule ) const throw(CaloID_Exception)
+void TTOnlineID::submodule_Id_checks( int crate, int module, int submodule ) const
 /* ================================================================*/
 {
   // Check that id is within allowed range
@@ -338,7 +338,7 @@ void TTOnlineID::submodule_Id_checks( int crate, int module, int submodule ) con
 }
 
 /* ================================================================*/
-void TTOnlineID::module_Id_checks( int crate, int module ) const throw(CaloID_Exception)
+void TTOnlineID::module_Id_checks( int crate, int module ) const
 /* ================================================================*/
 {
   // Check that id is within allowed range
@@ -359,7 +359,7 @@ void TTOnlineID::module_Id_checks( int crate, int module ) const throw(CaloID_Ex
 }
 
 /* ================================================================*/
-void TTOnlineID::crate_Id_checks( int crate ) const throw(CaloID_Exception)
+void TTOnlineID::crate_Id_checks( int crate ) const
 /* ================================================================*/
 {
   // Check that id is within allowed range

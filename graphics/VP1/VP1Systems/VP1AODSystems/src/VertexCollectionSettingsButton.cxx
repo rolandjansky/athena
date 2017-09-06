@@ -21,14 +21,16 @@
 #include "Inventor/nodes/SoMaterial.h"
 
 // Qt
-#include <QtCore/QTimer>
-#include <QtCore/QByteArray>
-#include <QtCore/QBuffer>
-#include <QtCore/QDataStream>
-#include <QtGui/QMouseEvent>
-#include <QtGui/QDragEnterEvent>
-#include <QtGui/QDropEvent>
-#include <QtGui/QShortcut>
+#include <QTimer>
+#include <QByteArray>
+#include <QBuffer>
+#include <QDataStream>
+#include <QMouseEvent>
+#include <QDragEnterEvent>
+#include <QDropEvent>
+#include <QShortcut>
+#include <QMimeData>
+#include <QDrag>
 
 // Misc
 #include <iostream>
@@ -54,6 +56,7 @@ public:
   //GUI - last values
   double last_vertexRadius;
   VP1Interval last_cutAllowedR;
+  VP1Interval last_cutAllowedY;
   VP1Interval last_cutAllowedZ;
   
   QPoint dragStartPosition;
@@ -111,12 +114,19 @@ VertexCollectionSettingsButton::VertexCollectionSettingsButton(QWidget * parent,
   connect(d->editwindow_ui.doubleSpinBox_cut_r_lower,SIGNAL(valueChanged(double)),this,SLOT(possibleChange_cutAllowedR()));
   connect(d->editwindow_ui.doubleSpinBox_cut_r_upper,SIGNAL(valueChanged(double)),this,SLOT(possibleChange_cutAllowedR()));
 
+  // Y
+  connect(d->editwindow_ui.checkBox_cut_y,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutAllowedY()));
+  connect(d->editwindow_ui.checkBox_cut_y_range_forcesymmetric,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutAllowedY()));
+  connect(d->editwindow_ui.checkBox_cut_y_excludeRange,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutAllowedY()));
+  connect(d->editwindow_ui.doubleSpinBox_cut_y_lower,SIGNAL(valueChanged(double)),this,SLOT(possibleChange_cutAllowedY()));
+  connect(d->editwindow_ui.doubleSpinBox_cut_y_upper,SIGNAL(valueChanged(double)),this,SLOT(possibleChange_cutAllowedY()));
   // Z
   connect(d->editwindow_ui.checkBox_cut_z,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutAllowedZ()));
   connect(d->editwindow_ui.checkBox_cut_z_range_forcesymmetric,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutAllowedZ()));
   connect(d->editwindow_ui.checkBox_cut_z_excludeRange,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutAllowedZ()));
   connect(d->editwindow_ui.doubleSpinBox_cut_z_lower,SIGNAL(valueChanged(double)),this,SLOT(possibleChange_cutAllowedZ()));
   connect(d->editwindow_ui.doubleSpinBox_cut_z_upper,SIGNAL(valueChanged(double)),this,SLOT(possibleChange_cutAllowedZ()));
+
 
   
   connect(this,SIGNAL(clicked()),this,SLOT(showEditMaterialDialog()));
@@ -330,7 +340,13 @@ QByteArray VertexCollectionSettingsButton::saveState() const{
   serialise.save(d->editwindow_ui.doubleSpinBox_cut_r_lower);    
   serialise.save(d->editwindow_ui.doubleSpinBox_cut_r_upper);    
     
-// Z
+  // Y
+  serialise.save(d->editwindow_ui.checkBox_cut_y);  
+  serialise.save(d->editwindow_ui.checkBox_cut_y_range_forcesymmetric);  
+  serialise.save(d->editwindow_ui.checkBox_cut_y_excludeRange);  
+  serialise.save(d->editwindow_ui.doubleSpinBox_cut_y_lower);    
+  serialise.save(d->editwindow_ui.doubleSpinBox_cut_y_upper);
+  // Z
   serialise.save(d->editwindow_ui.checkBox_cut_z);  
   serialise.save(d->editwindow_ui.checkBox_cut_z_range_forcesymmetric);  
   serialise.save(d->editwindow_ui.checkBox_cut_z_excludeRange);  
@@ -362,6 +378,12 @@ void VertexCollectionSettingsButton::restoreFromState( const QByteArray& ba){
   state.restore(d->editwindow_ui.doubleSpinBox_cut_r_lower);    
   state.restore(d->editwindow_ui.doubleSpinBox_cut_r_upper);    
 
+  // Y
+  state.restore(d->editwindow_ui.checkBox_cut_y);  
+  state.restore(d->editwindow_ui.checkBox_cut_y_range_forcesymmetric);  
+  state.restore(d->editwindow_ui.checkBox_cut_y_excludeRange);  
+  state.restore(d->editwindow_ui.doubleSpinBox_cut_y_lower);    
+  state.restore(d->editwindow_ui.doubleSpinBox_cut_y_upper);
   // Z
   state.restore(d->editwindow_ui.checkBox_cut_z);  
   state.restore(d->editwindow_ui.checkBox_cut_z_range_forcesymmetric);  
@@ -405,6 +427,31 @@ VP1Interval VertexCollectionSettingsButton::cutAllowedR() const
 }
 
 //____________________________________________________________________
+VP1Interval VertexCollectionSettingsButton::cutAllowedY() const
+{
+  if (!d->editwindow)
+    d->initEditWindow();
+  if (!d->editwindow_ui.checkBox_cut_y)
+    return VP1Interval();
+  
+  const double minFromInterface = d->editwindow_ui.doubleSpinBox_cut_y_lower->value();//*1000;
+  const double maxFromInterface = d->editwindow_ui.doubleSpinBox_cut_y_upper->value();//*1000;
+  
+  double min=0.0,max=0.0;
+
+  min = (d->editwindow_ui.checkBox_cut_y->isChecked() ? minFromInterface : -std::numeric_limits<double>::infinity());
+  max = (d->editwindow_ui.checkBox_cut_y->isChecked() ? maxFromInterface : std::numeric_limits<double>::infinity());
+  
+  // FIXME - add symmetry logic
+  
+  //message("cutAllowedPt: min,max="+QString::number(min)+","+QString::number(max));
+  
+  if (max < min)
+    return VP1Interval();
+    
+  return VP1Interval( min, max );//fixme: closed interval??
+}
+//____________________________________________________________________
 VP1Interval VertexCollectionSettingsButton::cutAllowedZ() const
 {
   if (!d->editwindow)
@@ -412,8 +459,8 @@ VP1Interval VertexCollectionSettingsButton::cutAllowedZ() const
   if (!d->editwindow_ui.checkBox_cut_z)
     return VP1Interval();
   
-  const double minFromInterface=d->editwindow_ui.doubleSpinBox_cut_z_lower->value()*1000;
-  const double maxFromInterface=d->editwindow_ui.doubleSpinBox_cut_z_upper->value()*1000;
+  const double minFromInterface=d->editwindow_ui.doubleSpinBox_cut_z_lower->value();//*1000;
+  const double maxFromInterface=d->editwindow_ui.doubleSpinBox_cut_z_upper->value();//*1000;
   
   double min=0.0,max=0.0;
 
@@ -429,7 +476,7 @@ VP1Interval VertexCollectionSettingsButton::cutAllowedZ() const
     
   return VP1Interval( min, max );//fixme: closed interval??
 }
-
+//____________________________________________________________________
 void VertexCollectionSettingsButton::possibleChange_cutAllowedR()
 {
   messageVerbose("possibleChange_cutAllowedR() ");
@@ -439,7 +486,17 @@ void VertexCollectionSettingsButton::possibleChange_cutAllowedR()
   d->last_cutAllowedR= cutAllowedR();
   emit cutAllowedRChanged(d->last_cutAllowedR);
 }
-
+//____________________________________________________________________
+void VertexCollectionSettingsButton::possibleChange_cutAllowedY()
+{
+  messageVerbose("possibleChange_cutAllowedY() ");
+  
+  if (d->last_cutAllowedY == cutAllowedY()) return;
+  messageVerbose("cutAllowedY() changed");
+  d->last_cutAllowedY = cutAllowedY();
+  emit cutAllowedYChanged(d->last_cutAllowedY);
+}
+//____________________________________________________________________
 void VertexCollectionSettingsButton::possibleChange_cutAllowedZ()
 {
   messageVerbose("possibleChange_cutAllowedZ() ");

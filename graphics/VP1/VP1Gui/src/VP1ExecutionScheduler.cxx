@@ -56,15 +56,15 @@
 #include "VP1Base/VP1AthenaPtrs.h"
 #include "VP1Base/VP1Settings.h"
 
-#include <QtGui/QApplication>
-#include <QtGui/QProgressBar>
-#include <QtGui/QDesktopWidget>
-#include <QtGui/QMouseEvent>
-#include <QtGui/QWheelEvent>
-#include <QtGui/QCursor>
-#include <QtCore/QTimer>
-#include <QtCore/QSet>
-#include <QtGui/QMessageBox>
+#include <QApplication>
+#include <QProgressBar>
+#include <QDesktopWidget>
+#include <QMouseEvent>
+#include <QWheelEvent>
+#include <QCursor>
+#include <QTimer>
+#include <QSet>
+#include <QMessageBox>
 
 #include <Inventor/C/errors/debugerror.h>
 #include <Inventor/Qt/SoQt.h>
@@ -409,7 +409,9 @@ void VP1ExecutionScheduler::cleanup(VP1ExecutionScheduler*scheduler)
 
 	if (scheduler) {
 		delete scheduler;
-		qApp->processEvents(QEventLoop::DeferredDeletion);
+//		qApp->processEvents(QEventLoop::DeferredDeletion); // Qt 4
+		qApp->processEvents(); // Qt 5
+		qApp->deleteLater(); // Qt 5
 
 		Imp::warnIfWidgetsAlive();
 		VP1HelperClassBase::warnUndeletedInstances();

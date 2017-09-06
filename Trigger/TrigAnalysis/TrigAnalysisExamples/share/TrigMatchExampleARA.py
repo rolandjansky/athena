@@ -6,7 +6,6 @@ def printObject(obj):
 
 print 'Importing needed libraries...'
 import ROOT
-import PyCintex
 
 PoolAODInput=['/afs/cern.ch/user/b/bensmith/public/zmumu.AOD.pool.root']
 print 'Building transient trees...'

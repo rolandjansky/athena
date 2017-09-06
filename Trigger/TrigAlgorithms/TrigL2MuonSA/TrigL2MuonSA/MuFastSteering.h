@@ -25,6 +25,13 @@
 #include "TrigL2MuonSA/CscSegmentMaker.h"
 #include "TrigL2MuonSA/CscRegUtils.h"
 
+//adding a part of DataHandle for AthenaMT
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "StoreGate/ReadHandleKey.h"    
+#include "StoreGate/WriteHandleKey.h"   
+#include "TrigMuonEvent/MuonFeature.h"
+#include "TrigMuonEvent/MuonFeatureDetails.h"
+
 #include "xAODTrigMuon/L2StandAloneMuonContainer.h"
 #include "xAODTrigger/TrigCompositeAuxContainer.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
@@ -69,7 +76,11 @@ class MuFastSteering : public HLT::FexAlgo,
   /** hltExecute(), main code of the algorithm */
   HLT::ErrorCode hltExecute(const HLT::TriggerElement* inputTE, 
 			    HLT::TriggerElement* outputTE);
-  
+
+  //adding a part of DataHandle for AthenaMT
+  /** execute(), main code of the algorithm for AthenaMT*/
+  StatusCode execute();
+
   int L2MuonAlgoMap(const std::string& name);
   
   /** A function which clears internal data for a new event */
@@ -178,7 +189,23 @@ class MuFastSteering : public HLT::FexAlgo,
   DoubleProperty m_rWidth_TGC_Failed;
 
   DoubleProperty m_winPt;
-  
+
+  //adding a part of DataHandle for AthenaMT
+  //ReadHandle L1MURoIs
+  SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;    
+  SG::ReadHandle<TrigRoiDescriptorCollection> m_roiCollection;		
+
+  //WriteHandle MuonFeature 
+  SG::WriteHandleKey<MuonFeature> m_muFeContainerKey;			
+  SG::WriteHandle<MuonFeature> m_muFeContainer;  			
+
+  //WriteHandle MuonFeatureDetails
+  SG::WriteHandleKey<MuonFeatureDetails> m_muFeDeContainerKey;		
+  SG::WriteHandle<MuonFeatureDetails> m_muFeDeContainer;  		
+
+  //Test Value to confirm to record with WriteHandle
+  MuonFeatureDetails muFeDeTestValue;					
+
   //Monitored variables
   float m_inner_mdt_hits;
   float m_middle_mdt_hits;

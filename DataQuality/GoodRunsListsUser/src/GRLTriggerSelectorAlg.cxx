@@ -42,7 +42,7 @@ StatusCode GRLTriggerSelectorAlg::initialize()
 {
   ATH_MSG_DEBUG ("initialize()");
 
-  Root::TMsgLogger::SetMinLevel(static_cast<Root::TMsgLevel>(outputLevel()));
+  Root::TMsgLogger::SetMinLevel(static_cast<Root::TMsgLevel>(msgLevel()));
 
   /// construct registration name
   {

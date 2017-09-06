@@ -234,15 +234,4 @@ for example the PixelMonitoring package.
 
 @section PixelDigitization_PixelDigitizationExtras Extra Pages
 
- - @ref PixelDigitizationUsedPackages
- - @ref PixelDigitizationRequirements
 */
-
-/**
-@page PixelDigitizationUsedPackages Used Packages
-*/
-
-/**
-@page PixelDigitizationRequirements Requirements
-*/
-

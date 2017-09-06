@@ -15,6 +15,9 @@
 #include "CxxUtils/PageAccessControl.h"
 #include "CxxUtils/PtrAccessSEGVHandler.h"
 #include "CxxUtils/cPtrAccessSEGVHandler.h"
+#include "CxxUtils/checker_macros.h"
+
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 
 using namespace std;
 

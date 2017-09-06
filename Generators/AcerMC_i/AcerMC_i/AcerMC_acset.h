@@ -25,7 +25,7 @@ class AcerMC_acset {
   struct ACERMC_ACSET {
     int acset12;
   };
-  static ACERMC_ACSET* _acermc_acset;
+  static ACERMC_ACSET* s_acermc_acset;
 };
 #include "AcerMC_i/AcerMC_acset.icc"
 #endif

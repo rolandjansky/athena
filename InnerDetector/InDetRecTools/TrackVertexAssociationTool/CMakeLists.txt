@@ -31,7 +31,7 @@ find_package( ROOT COMPONENTS Core Hist RIO )
 
 # Libraries in the package:
 atlas_add_library( TrackVertexAssociationToolLib
-   TrackVertexAssociationTool.j Root/*.cxx
+   Root/*.cxx
    PUBLIC_HEADERS TrackVertexAssociationTool
    LINK_LIBRARIES AthContainers AthLinks AsgTools xAODCore xAODTracking
    PRIVATE_LINK_LIBRARIES xAODEventInfo )

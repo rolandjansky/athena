@@ -125,17 +125,6 @@ class ALFA_BeamTransport : public ::AthAlgorithm
 	  std::ofstream m_FileBeam2;
 	  
 	  bool m_WriteDebugOutput;
-	 
-      
-      /** class member version of retrieving MsgStream */
-      mutable MsgStream                 m_log;
-
-      /** class member version of retrieving StoreGate */
-      StoreGateSvc*  m_sgSvc;
-
-      /** member variables for algorithm properties: */
-      // int/double/bool  m_propertyName;
-      
     }; 
 
 

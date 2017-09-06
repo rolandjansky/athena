@@ -26,7 +26,7 @@ namespace G4UA
   //---------------------------------------------------------------------------
   StatusCode AthenaTrackingActionTool::initialize()
   {
-    ATH_MSG_INFO("initialize");
+    ATH_MSG_DEBUG("initialize");
     return StatusCode::SUCCESS;
   }
 

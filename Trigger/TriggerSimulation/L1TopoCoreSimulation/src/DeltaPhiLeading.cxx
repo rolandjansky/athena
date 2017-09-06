@@ -24,7 +24,7 @@ TCS::DeltaPhiLeading::DeltaPhiLeading(const std::string & name) : DecisionAlg(na
    defineParameter("NumberLeading1", 2);
    defineParameter("NumberLeading2", 2);
    defineParameter("DeltaPhiMin", 13);
-};
+}
 
 
 

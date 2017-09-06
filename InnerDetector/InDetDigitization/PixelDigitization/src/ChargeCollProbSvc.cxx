@@ -76,10 +76,10 @@ StatusCode ChargeCollProbSvc::readProbMap(std::string fileE)
               double prob;
               sline>>xpos>>ypos>>prob;
               if (fileName.find("FEI4")!=std::string::npos){
-                probMapFEI4.insert( std::make_pair( std::make_pair( xpos , ypos ) , prob ) );
+                m_probMapFEI4.insert( std::make_pair( std::make_pair( xpos , ypos ) , prob ) );
                 ATH_MSG_DEBUG ("FEI4 inside xpos  "<<xpos<<"   ypos  "<<ypos<<"    prob  "<<prob);
               }else if(fileName.find("FEI3")!=std::string::npos){
-                probMapFEI3.insert( std::make_pair( std::make_pair( xpos , ypos ) , prob ) );
+                m_probMapFEI3.insert( std::make_pair( std::make_pair( xpos , ypos ) , prob ) );
                 ATH_MSG_DEBUG ("FEI3 inside xpos  "<<xpos<<"   ypos  "<<ypos<<"    prob  "<<prob);
               }else{
                 ATH_MSG_ERROR ("Please check name of Charge Coll Prob Maps! (should contain FEI3 or FEI4) ");
@@ -98,11 +98,11 @@ StatusCode ChargeCollProbSvc::printProbMap(std::string readout)
 {
  
   if(readout == "FEI4"){
-    for ( std::multimap<std::pair<int,int>, double >::iterator it = probMapFEI4.begin(); it != probMapFEI4.end(); ++it ) {
+    for ( std::multimap<std::pair<int,int>, double >::iterator it = m_probMapFEI4.begin(); it != m_probMapFEI4.end(); ++it ) {
       ATH_MSG_DEBUG ("read full probMap  FEI4 --- bin x "<<it->first.first<<"   bin y  "<<it->first.second<<"    prob  "<<it->second);
     }
   }else if(readout == "FEI3"){
-    for ( std::multimap<std::pair<int,int>, double >::iterator it = probMapFEI3.begin(); it != probMapFEI3.end(); ++it ) {
+    for ( std::multimap<std::pair<int,int>, double >::iterator it = m_probMapFEI3.begin(); it != m_probMapFEI3.end(); ++it ) {
       ATH_MSG_DEBUG ("read full probMap  FEI3 --- bin x "<<it->first.first<<"   bin y  "<<it->first.second<<"    prob  "<<it->second);
     }
   }else{
@@ -120,10 +120,10 @@ double ChargeCollProbSvc::getProbMapEntry( std::string readout, int binx, int bi
   double echarge;
  
   if (readout == "FEI4"){
-    std::multimap<  std::pair< int,int >, double >::const_iterator iter = probMapFEI4.find(doublekey);
+    std::multimap<  std::pair< int,int >, double >::const_iterator iter = m_probMapFEI4.find(doublekey);
     echarge = iter->second;
   }else if(readout == "FEI3"){
-    std::multimap<  std::pair< int,int >, double >::const_iterator iter = probMapFEI3.find(doublekey);
+    std::multimap<  std::pair< int,int >, double >::const_iterator iter = m_probMapFEI3.find(doublekey);
     echarge = iter->second;
   }else{
     ATH_MSG_ERROR ("No Map Entry available for the requested readout");

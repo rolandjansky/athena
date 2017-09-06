@@ -18,26 +18,27 @@ def setup(ToolSvc):
 
   #==============================================================================
   # Set up the MCTruthClassifier
-  #============================================================================== 
+  #==============================================================================
   from MCTruthClassifier.MCTruthClassifierConf import MCTruthClassifier
   TOPQClassifier = MCTruthClassifier( name                      = "TOPQClassifier",
-                                       ParticleCaloExtensionTool = "" ) 
+                                       ParticleCaloExtensionTool = "" )
   ToolSvc += TOPQClassifier
   print "TOPQClassifier: ", TOPQClassifier
+
 
   #===============================================================================
   # Add Decoration Tool to Dress the Main Truth Collection with the Classification
   #===============================================================================
-  # PhysicsAnalysis/DerivationFramework/DerivationFrameworkMCTruth/trunk/src/TruthClassificationDecorator.cxx 
+  # PhysicsAnalysis/DerivationFramework/DerivationFrameworkMCTruth/trunk/src/TruthClassificationDecorator.cxx
   from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthClassificationDecorator
   TOPQClassificationDecorator = DerivationFramework__TruthClassificationDecorator(
                                  name              = "TOPQClassificationDecorator",
                                  ParticlesKey      = "TruthParticles",
-                                 MCTruthClassifier = TOPQClassifier)  
+                                 MCTruthClassifier = TOPQClassifier)
   ToolSvc += TOPQClassificationDecorator
   augmentationTools.append(TOPQClassificationDecorator)
   print "TOPQClassificationDecorator: ", TOPQClassificationDecorator
-   
+
   #==============================================================================
   # Schedule the tool for adding new truth collection
   #==============================================================================
@@ -45,51 +46,6 @@ def setup(ToolSvc):
   # PhysicsAnalysis/DerivationFramework/DerivationFrameworkMCTruth/trunk/src/TruthCollectionMakerTau.cxx
   from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthCollectionMaker
   from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthCollectionMakerTau
-
-  #===========
-  # TruthMuons
-  #===========
-  TOPQMuonTool = DerivationFramework__TruthCollectionMaker(
-                   name                    = "TOPQMuonTool",
-                   NewCollectionName       = "TruthMuons",
-                   ParticleSelectionString = "(abs(TruthParticles.pdgId) == 13) && (TruthParticles.status == 1) && (TruthParticles.barcode < 200000) " )
-  ToolSvc += TOPQMuonTool
-  print "TOPQMuonTool: ", TOPQMuonTool 
-  augmentationTools.append(TOPQMuonTool)
-
-  #===============
-  # TruthElectrons
-  #===============
-  TOPQElectronTool = DerivationFramework__TruthCollectionMaker(
-                       name                    = "TOPQElectronTool",
-                       NewCollectionName       = "TruthElectrons",
-                       ParticleSelectionString = "(abs(TruthParticles.pdgId) == 11) && (TruthParticles.status == 1) && (TruthParticles.barcode < 200000)" )
-  ToolSvc += TOPQElectronTool
-  augmentationTools.append(TOPQElectronTool)
-  print "TOPQElectronTool: ",TOPQElectronTool 
-
-  #=============
-  # TruthPhotons
-  #=============   
-  TOPQPhotonTool = DerivationFramework__TruthCollectionMaker(
-                     name                    = "TOPQPhotonTool",
-                     NewCollectionName       = "TruthPhotons",
-                     ParticleSelectionString = "(abs(TruthParticles.pdgId) == 22) && (TruthParticles.status == 1) && (TruthParticles.barcode < 200000)" )
-  ToolSvc += TOPQPhotonTool
-  augmentationTools.append(TOPQPhotonTool)
-  print "TOPQPhotonTool: ", TOPQPhotonTool
-
-  #===============
-  # TruthNeutrinos
-  #===============
-  TOPQneutrinoexpression = "(abs(TruthParticles.pdgId) == 12 || abs(TruthParticles.pdgId) == 14 || abs(TruthParticles.pdgId) == 16) && (TruthParticles.status == 1) && (TruthParticles.barcode < 200000)"
-  TOPQNeutrinoTool = DerivationFramework__TruthCollectionMaker(
-                       name                    = "TOPQNeutrinoTool",
-                       NewCollectionName       = "TruthNeutrinos",
-                       ParticleSelectionString = TOPQneutrinoexpression )
-  ToolSvc += TOPQNeutrinoTool
-  augmentationTools.append(TOPQNeutrinoTool)
-  print "TOPQNeutrinoTool: ", TOPQNeutrinoTool
 
   #==========
   # TruthTaus
@@ -99,120 +55,16 @@ def setup(ToolSvc):
                   NewCollectionName       = "TruthTaus",
                   MCTruthClassifier       = TOPQClassifier,
                   RunClassifier           = True)
-  ToolSvc += TOPQTauTool 
+  ToolSvc += TOPQTauTool
   augmentationTools.append(TOPQTauTool)
   print "TOPQTauTool: ", TOPQTauTool
-
-  #==============================================================================
-  # TRUTH DRESSING
-  #==============================================================================
-  # PhysicsAnalysis/DerivationFramework/DerivationFrameworkMCTruth/trunk/src/TruthDressingTool.cxx
-  from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthDressingTool
-  TOPQMuonDressingTool = DerivationFramework__TruthDressingTool(
-                           name                  = "TOPQMuonDressingTool",
-                           dressParticlesKey     = "TruthMuons",
-                           usePhotonsFromHadrons = False,
-                           dressingConeSize      = 0.1,
-                           particleIDsToDress    = [13],
-                           useAntiKt = True )
-  ToolSvc += TOPQMuonDressingTool
-  augmentationTools.append(TOPQMuonDressingTool)
-  print "TOPQMuonDressingTool: ", TOPQMuonDressingTool
-
-  TOPQElectronDressingTool = DerivationFramework__TruthDressingTool(
-                               name                  = "TOPQElectronDressingTool",
-                               dressParticlesKey     = "TruthElectrons",
-                               usePhotonsFromHadrons = False,
-                               dressingConeSize      = 0.1,
-                               particleIDsToDress    = [11],
-                               useAntiKt             = True )
-  ToolSvc += TOPQElectronDressingTool
-  augmentationTools.append(TOPQElectronDressingTool)
-  print "TOPQElectronDressingTool: ", TOPQElectronDressingTool
-
-  #==============================================================================
-  # TRUTH ISOLATION
-  #==============================================================================
-  # PhysicsAnalysis/DerivationFramework/DerivationFrameworkMCTruth/trunk/src/TruthIsolationTool.cxx
-  from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthIsolationTool
-  TOPQElectronIsolationTool1 = DerivationFramework__TruthIsolationTool(
-                                 name                   = "TOPQElectronIsolationTool1",
-                                 isoParticlesKey        = "TruthElectrons",
-                                 allParticlesKey        = "TruthParticles",
-                                 particleIDsToCalculate = [11],
-                                 IsolationConeSizes     = [0.2],
-                                 IsolationVarNamePrefix = 'etcone',
-                                 ChargedParticlesOnly   = False )
-  ToolSvc += TOPQElectronIsolationTool1
-  augmentationTools.append(TOPQElectronIsolationTool1)
-  print "TOPQElectronIsolationTool1: ", TOPQElectronIsolationTool1
-   
-  TOPQElectronIsolationTool2 = DerivationFramework__TruthIsolationTool(
-                                 name                   = "TOPQElectronIsolationTool2",
-                                 isoParticlesKey        = "TruthElectrons",
-                                 allParticlesKey        = "TruthParticles",
-                                 particleIDsToCalculate = [11],
-                                 IsolationConeSizes     = [0.3],
-                                 IsolationVarNamePrefix = 'ptcone',
-                                 ChargedParticlesOnly   = True )
-  ToolSvc += TOPQElectronIsolationTool2
-  augmentationTools.append(TOPQElectronIsolationTool2)
-  print "TOPQElectronIsolationTool2: ", TOPQElectronIsolationTool2
-   
-  TOPQMuonIsolationTool1 = DerivationFramework__TruthIsolationTool(
-                             name                   = "TOPQMuonIsolationTool1",
-                             isoParticlesKey        = "TruthMuons",
-                             allParticlesKey        = "TruthParticles",
-                             particleIDsToCalculate = [13],
-                             IsolationConeSizes     = [0.2],
-                             IsolationVarNamePrefix = 'etcone',
-                             ChargedParticlesOnly   = False )
-  ToolSvc += TOPQMuonIsolationTool1
-  augmentationTools.append(TOPQMuonIsolationTool1)
-  print "TOPQMuonIsolationTool1: ", TOPQMuonIsolationTool1
-   
-  TOPQMuonIsolationTool2 = DerivationFramework__TruthIsolationTool(
-                            name                   = "TOPQMuonIsolationTool2",
-                            isoParticlesKey        = "TruthMuons",
-                            allParticlesKey        = "TruthParticles",
-                            particleIDsToCalculate = [13],
-                            IsolationConeSizes     = [0.3],
-                            IsolationVarNamePrefix = 'ptcone',
-                            ChargedParticlesOnly   = True )
-  ToolSvc += TOPQMuonIsolationTool2
-  augmentationTools.append(TOPQMuonIsolationTool2)
-  print "TOPQMuonIsolationTool2: ", TOPQMuonIsolationTool2
-
-  TOPQPhotonIsolationTool1 = DerivationFramework__TruthIsolationTool(
-                               name                   = "TOPQPhotonIsolationTool1",
-                               isoParticlesKey        = "TruthPhotons",
-                               allParticlesKey        = "TruthParticles",
-                               particleIDsToCalculate = [22],
-                               IsolationConeSizes     = [0.2],
-                               IsolationVarNamePrefix = 'etcone',
-                               ChargedParticlesOnly   = False )
-  ToolSvc += TOPQPhotonIsolationTool1
-  augmentationTools.append(TOPQPhotonIsolationTool1)
-  print "TOPQPhotonIsolationTool1: ", TOPQPhotonIsolationTool1
-   
-  TOPQPhotonIsolationTool2 = DerivationFramework__TruthIsolationTool(
-                               name                   = "TOPQPhotonIsolationTool2",
-                               isoParticlesKey        = "TruthPhotons",
-                               allParticlesKey        = "TruthParticles",
-                               particleIDsToCalculate = [22],
-                               IsolationConeSizes     = [0.3],
-                               IsolationVarNamePrefix = 'ptcone',
-                               ChargedParticlesOnly   = True )
-  ToolSvc += TOPQPhotonIsolationTool2
-  augmentationTools.append(TOPQPhotonIsolationTool2)
-  print "TOPQPhotonIsolationTool2: ", TOPQPhotonIsolationTool2
 
   #==============================================================================
   # BACKGROUND ELECTRON DECORATION TYPE/ORIGIN
   #==============================================================================
   # PhysicsAnalysis/DerivationFramework/DerivationFrameworkEGamma/trunk/src/BkgElectronClassification.cxx
-  from MCTruthClassifier.MCTruthClassifierBase import MCTruthClassifier as BkgElectronMCTruthClassifier   
-  from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__BkgElectronClassification 
+  from MCTruthClassifier.MCTruthClassifierBase import MCTruthClassifier as BkgElectronMCTruthClassifier
+  from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__BkgElectronClassification
   BkgElectronClassificationTool = DerivationFramework__BkgElectronClassification (
                                     name = "BkgElectronClassificationTool",
                                     MCTruthClassifierTool = BkgElectronMCTruthClassifier)
@@ -224,32 +76,33 @@ def setup(ToolSvc):
   #==============================================================================
   # BOOSTED TOP PAIR DECORATION
   #==============================================================================
-  # /PhysicsAnalysis/DerivationFramework/DerivationFrameworkTop/trunk/src/BoostedHadTopAndTopPairFilterTool.cxx
+  # PhysicsAnalysis/DerivationFramework/DerivationFrameworkTop/trunk/src/BoostedHadTopAndTopPairFilterTool.cxx
   # PhysicsAnalysis/DerivationFramework/DerivationFrameworkTop/trunk/src/BoostedHadTopAndTopPairAugmentation.cxx
-  #from DerivationFrameworkTop.DerivationFrameworkTopConf import DerivationFramework__BoostedHadTopAndTopPairFilterTool
-  #TOPQboostedtopfiltertool = DerivationFramework__BoostedHadTopAndTopPairFilterTool(
-  #                             name = "TOPQBoostedHadTopAndTopPairFilterTool",
-  #                             tHadPtCut  = 2000000.0, #cut on hadronic tops in MeV
-  #                             tPairPtCut = 3500000.0) #cut on ttbar system in MeV
-  #ToolSvc += TOPQboostedtopfiltertool
+  from DerivationFrameworkTop.DerivationFrameworkTopConf import DerivationFramework__BoostedHadTopAndTopPairFilterTool
+  TOPQboostedtopfiltertool = DerivationFramework__BoostedHadTopAndTopPairFilterTool(
+                               name = "TOPQBoostedHadTopAndTopPairFilterTool")
+                               #tHadPtCut  = 500000.0, #cut on hadronic tops in MeV
+                               #tPairPtCut = 350000.0) #cut on ttbar system in MeV
+  ToolSvc += TOPQboostedtopfiltertool
 
-  #from DerivationFrameworkTop.DerivationFrameworkTopConf import DerivationFramework__BoostedHadTopAndTopPairFilterAugmentation
-  #TOPQBoostedHadTopAndTopPairFilterAugmentation = DerivationFramework__BoostedHadTopAndTopPairFilterAugmentation(name = "TOPQBoostedHadTopAndTopPairFilterAugmentation")
-  #TOPQBoostedHadTopAndTopPairFilterAugmentation.FilterTool = TOPQboostedtopfiltertool
-  #ToolSvc += TOPQBoostedHadTopAndTopPairFilterAugmentation
-  #augmentationTools.append(TOPQBoostedHadTopAndTopPairFilterAugmentation)
-  #print "TOPQBoostedHadTopAndTopPairFilterAugmentationTool: ", TOPQBoostedHadTopAndTopPairFilterAugmentation
+  from DerivationFrameworkTop.DerivationFrameworkTopConf import DerivationFramework__BoostedHadTopAndTopPairFilterAugmentation
+  TOPQBoostedHadTopAndTopPairFilterAugmentation = DerivationFramework__BoostedHadTopAndTopPairFilterAugmentation(name = "TOPQBoostedHadTopAndTopPairFilterAugmentation")
+  TOPQBoostedHadTopAndTopPairFilterAugmentation.FilterTool_Low  = TOPQboostedtopfiltertool
+  TOPQBoostedHadTopAndTopPairFilterAugmentation.FilterTool_High = TOPQboostedtopfiltertool
+  ToolSvc += TOPQBoostedHadTopAndTopPairFilterAugmentation
+  augmentationTools.append(TOPQBoostedHadTopAndTopPairFilterAugmentation)
+  print "TOPQBoostedHadTopAndTopPairFilterAugmentationTool: ", TOPQBoostedHadTopAndTopPairFilterAugmentation
 
 
   #==============================================================================
   # HEAVY FLAVOR DECORATION
   #==============================================================================
-  # /PhysicsAnalysis/DerivationFramework/DerivationFrameworkTop/trunk/src/TTbarPlusHeavyFlavorFilterTool.cxx
+  # PhysicsAnalysis/DerivationFramework/DerivationFrameworkTop/trunk/src/TTbarPlusHeavyFlavorFilterTool.cxx
   # PhysicsAnalysis/DerivationFramework/DerivationFrameworkTop/trunk/src/TopHeavyFlavorFilterAugmentation.cxx
   from DerivationFrameworkTop.DerivationFrameworkTopConf import DerivationFramework__TTbarPlusHeavyFlavorFilterTool
   TOPQtthffiltertool = DerivationFramework__TTbarPlusHeavyFlavorFilterTool("TOPQTTbarPlusHeavyFlavorFilterTool")
   ToolSvc += TOPQtthffiltertool
-   
+
   from DerivationFrameworkTop.DerivationFrameworkTopConf import DerivationFramework__TopHeavyFlavorFilterAugmentation
   TOPQTopHFFilterAugmentation = DerivationFramework__TopHeavyFlavorFilterAugmentation(name = "TOPQTopHFFilterAugmentation")
   TOPQTopHFFilterAugmentation.FilterTool = TOPQtthffiltertool
@@ -263,41 +116,10 @@ def setup(ToolSvc):
   # PhysicsAnalysis/DerivationFramework/DerivationFrameworkMCTruth/trunk/src/HadronOriginClassifier.cxx
   # PhysicsAnalysis/DerivationFramework/DerivationFrameworkMCTruth/trunk/src/HadronOriginDecorator.cxx
   # list of ttbar samples by mc_channel_number
-  TOPQDSIDList=[
-    410000,
-    410001,
-    410002,
-    410003,
-    410004,
-    410007,
-    410008,
-    410009,
-    301528,
-    301529,
-    301530,
-    301531,
-    301532,
-    303722,
-    303723,
-    303724,
-    303725,
-    303726,
-    407009,
-    407010,
-    407011,
-    407012,
-    410120,
-    410121,
-    426090,
-    426091,
-    426092,
-    426093,
-    426094,
-    426095,
-    426096,
-    426097,
-    429007,
-  ]
+
+  from DerivationFrameworkMCTruth.HFHadronsCommon import *
+  TOPQDSIDList=list(DSIDList)
+
 
   import PyUtils.AthFile as af
   from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
@@ -322,9 +144,9 @@ def setup(ToolSvc):
   # PhysicsAnalysis/TauID/TauAnalysisTools/trunk/Root/TauTruthMatchingTool.cxx
   from DerivationFrameworkTau.DerivationFrameworkTauConf import DerivationFramework__TauTruthMatchingWrapper
   from TauAnalysisTools.TauAnalysisToolsConf import TauAnalysisTools__TauTruthMatchingTool
-   
+
   from RecExConfig.ObjKeyStore import objKeyStore
-  if objKeyStore.isInInput( "xAOD::TauJetContainer", "TauJets" ):   
+  if objKeyStore.isInInput( "xAOD::TauJetContainer", "TauJets" ):
     TOPQTauTruthMatchingTool = TauAnalysisTools__TauTruthMatchingTool(name="TOPQTauTruthMatchingTool")
     ToolSvc += TOPQTauTruthMatchingTool
     print "TOPQTauTruthMatchingTool: ", TOPQTauTruthMatchingTool
@@ -337,7 +159,7 @@ def setup(ToolSvc):
 
   #=============
   # RETURN TOOLS
-  #=============   
+  #=============
   return augmentationTools
 #end setup(ToolSvc)
 
@@ -346,3 +168,35 @@ def setup(ToolSvc):
 #==============================================================================
 augmentationTools = setup(ToolSvc)
 TOPQCommonTruthKernel = CfgMgr.DerivationFramework__CommonAugmentation("TOPQCommonTruthKernel", AugmentationTools = augmentationTools)
+
+#==============================================================================
+# Add SumOfWeights metadata for LHE3 multiweights: TOPQDERIV-21
+#==============================================================================
+import DerivationFrameworkCore.LHE3WeightMetadata
+
+#     #==============================================================================
+#     # HIGGS TEMPLATE XSECTION augmentation
+#     #==============================================================================
+#     # https://its.cern.ch/jira/browse/TOPQDERIV-6
+#     # first find config file
+#     from PathResolver import PathResolver as pr
+#     infile = pr.FindCalibFile('DerivationFrameworkHiggs/HiggsMCsamples.cfg')
+#     # can't yet use the PathResolver right now - doing it with environment variables
+#     #Prefix = os.getenv("AtlasArea")
+#     #infile = Prefix+'/PhysicsAnalysis/DerivationFramework/DerivationFrameworkHiggs/share/HiggsMCsamples.cfg'
+#     print 'Found path to HiggsMCsamples.cfg configuration file (using PathResolver): '+infile
+#     ## use the config file with ROOT TEnv class
+#     import ROOT
+#     higgs_env = ROOT.TEnv()
+#     higgs_env.ReadFile(infile, ROOT.kEnvLocal)
+#     ## Convert the TEnv into a python dict
+#     tenv_dict = {i.GetName(): set(i.GetValue().split()) for i in higgs_env.GetTable()}
+#     ## Now combine the DSIDs from each category into a single set
+#     final_set = {i for dsid_list in tenv_dict.values() for i in dsid_list}
+#     ## finaly import the Higgs stuff only if the DSID is in the list
+#     import PyUtils.AthFile as af
+#     from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+#     f = af.fopen(athenaCommonFlags.PoolAODInput()[0])
+#     if len(f.mc_channel_number) > 0:
+#       if str(f.mc_channel_number[0]) in final_set:
+#         import DerivationFrameworkHiggs.TruthCategories

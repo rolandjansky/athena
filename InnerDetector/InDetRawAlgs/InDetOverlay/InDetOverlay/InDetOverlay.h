@@ -21,6 +21,10 @@
 
 #include "IDC_OverlayBase/IDC_OverlayBase.h"
 
+#include "InDetRawData/TRT_RDO_Container.h"
+#include "InDetRawData/SCT_RDO_Container.h"
+#include "InDetRawData/PixelRDO_Container.h"
+
 class StoreGateSvc;
 class SCT_ID;
 
@@ -48,17 +52,19 @@ private:
   //! "Main" containers are read, have data from "overlay" containers added,
   //! and written out with the original SG keys.
   bool m_do_TRT, m_do_TRT_background;
-  std::string m_mainInputTRT_Name;
-  std::string m_overlayInputTRT_Name;
+  SG::ReadHandleKey<TRT_RDO_Container> m_mainInputTRTKey;
+  SG::ReadHandleKey<TRT_RDO_Container> m_overlayInputTRTKey;
+  SG::WriteHandleKey<TRT_RDO_Container> m_mainOutputTRTKey;
 
   bool m_do_SCT, m_do_SCT_background;
-  std::string m_mainInputSCT_Name;
-  std::string m_overlayInputSCT_Name;
+  SG::ReadHandleKey<SCT_RDO_Container> m_mainInputSCTKey;
+  SG::ReadHandleKey<SCT_RDO_Container> m_overlayInputSCTKey;
+  SG::WriteHandleKey<SCT_RDO_Container> m_mainOutputSCTKey;
 
   bool m_do_Pixel, m_do_Pixel_background;
-  std::string m_mainInputPixel_Name;
-  std::string m_overlayInputPixel_Name;
-
+  SG::ReadHandleKey<PixelRDO_Container> m_mainInputPixelKey;
+  SG::ReadHandleKey<PixelRDO_Container> m_overlayInputPixelKey;
+  SG::WriteHandleKey<PixelRDO_Container> m_mainOutputPixelKey;
 };
 
 #endif/*INDETOVERLAY_H*/

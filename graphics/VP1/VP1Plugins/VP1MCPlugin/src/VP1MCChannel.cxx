@@ -15,7 +15,7 @@
 #include "VP1MCPlugin/VP1MCChannel.h"
 #include "ui_mcchannelwidgetform.h"
 #include "VP1MCSystems/VP1MCSystem.h"
-#include <QtGui/QLabel>
+#include <QLabel>
 
 //_________________________________________________________
 VP1MCChannel::VP1MCChannel()

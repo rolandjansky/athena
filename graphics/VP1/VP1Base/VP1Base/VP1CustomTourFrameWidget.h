@@ -17,8 +17,8 @@
 #ifndef VP1CUSTOMTOURFRAMEWIDGET_H
 #define VP1CUSTOMTOURFRAMEWIDGET_H
 
-#include <QtGui/QFrame>
-#include <QtCore/QByteArray>
+#include <QFrame>
+#include <QByteArray>
 
 class VP1CustomTourFrameWidget : public QFrame {
 

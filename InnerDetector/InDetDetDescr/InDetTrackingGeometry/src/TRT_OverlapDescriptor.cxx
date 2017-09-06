@@ -21,10 +21,6 @@ bool InDet::TRT_OverlapDescriptor::reachableSurfaces(std::vector<Trk::SurfaceInt
                                                        const Amg::Vector3D& momentum) const
                                                             
 {
-
-    // there are empty straw bins in the TRT surface array 
-   if (!(&tsf)) return 0;
-
    const Amg::Vector3D dir = momentum.unit();        
    // first add the target surface - if it fits
    int nextInt = checkAndFill(cSurfaces, tsf, position, dir);

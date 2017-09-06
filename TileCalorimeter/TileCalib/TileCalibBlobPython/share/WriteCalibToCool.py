@@ -1,4 +1,7 @@
 #!/bin/env python
+
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
 # WriteCalibToCool.py
 # Sanya Solodkov 2014-08-29
 # change Yuri Smirnov 2014-12-24
@@ -42,7 +45,7 @@ keywords = ["help","run=","lumi=","run2=","lumi2=","schema=","inschema=","outsch
 
 try:
     opts, extraparams = getopt.getopt(sys.argv[1:],letters,keywords)
-except getopt.GetOptError, err:
+except getopt.GetoptError, err:
     print str(err)
     usage()
     sys.exit(2)
@@ -146,14 +149,7 @@ elif tag=='UPD5' and outfolderPath!=folderPath:
 if outtag is None:
     outtag = tag
 
-#import PyCintex
-try:
-   # ROOT5
-   import PyCintex
-except:
-   # ROOT6
-   import cppyy as PyCintex
-   sys.modules['PyCintex'] = PyCintex
+import cppyy
 
 from TileCalibBlobPython import TileCalibTools
 from TileCalibBlobObjs.Classes import *
@@ -235,11 +231,11 @@ else:
 
 if len(txtFile)>0:
     #=== create default: one number per ADC
-    default = PyCintex.gbl.std.vector('float')()
+    default = cppyy.gbl.std.vector('float')()
     for n in xrange(nval):
         default.push_back(0.)
 
-    defConst = PyCintex.gbl.std.vector('std::vector<float>')()
+    defConst = cppyy.gbl.std.vector('std::vector<float>')()
     for ng in xrange(ngain):
         defConst.push_back(default) # low/high gain
 

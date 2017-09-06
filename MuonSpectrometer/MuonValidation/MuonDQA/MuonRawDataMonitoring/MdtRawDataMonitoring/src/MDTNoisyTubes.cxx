@@ -20,9 +20,9 @@ MDTNoisyTubes::~MDTNoisyTubes(){}
 bool MDTNoisyTubes::isNoisy(const Muon::MdtPrepData* mdtCollection){
 
   set<Identifier> noisyTubes;
-  map<IdentifierHash, set<Identifier> >::const_iterator m_itr = m_noise_map.find(mdtCollection->collectionHash());
-  if(m_itr == m_noise_map.end()) return false;
-  else noisyTubes = m_itr->second;
+  map<IdentifierHash, set<Identifier> >::const_iterator itr = m_noise_map.find(mdtCollection->collectionHash());
+  if(itr == m_noise_map.end()) return false;
+  else noisyTubes = itr->second;
 
   if( noisyTubes.find(mdtCollection->identify()) != noisyTubes.end() ) return true;
   else return false;
@@ -31,10 +31,10 @@ bool MDTNoisyTubes::isNoisy(const Muon::MdtPrepData* mdtCollection){
 set<Identifier> MDTNoisyTubes::getNoiseList(IdentifierHash idHash){
 
   set<Identifier> noisyTubes;
-  map<IdentifierHash, set<Identifier> >::const_iterator m_itr = m_noise_map.find(idHash);
-  if(m_itr == m_noise_map.end()) return noisyTubes;
+  map<IdentifierHash, set<Identifier> >::const_iterator itr = m_noise_map.find(idHash);
+  if(itr == m_noise_map.end()) return noisyTubes;
   
-  return m_itr->second;
+  return itr->second;
 
 }
 

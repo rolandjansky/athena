@@ -108,10 +108,6 @@ IOVDbSvc::IOVDbSvc( const std::string& name, ISvcLocator* svc )
 
 IOVDbSvc::~IOVDbSvc() {}
 
-const InterfaceID& IOVDbSvc::type() const { 
-  return IIOVDbSvc::interfaceID();
-}
-
 /// Identify interfaces to which this service is responsive
 StatusCode
 IOVDbSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) {
@@ -440,7 +436,9 @@ StatusCode IOVDbSvc::loadAddresses(StoreID::type /*storeID*/, tadList& /*list*/ 
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-StatusCode IOVDbSvc::updateAddress(StoreID::type storeID, SG::TransientAddress* tad) {
+StatusCode IOVDbSvc::updateAddress(StoreID::type storeID, SG::TransientAddress* tad,
+                                   const EventContext& /*ctx*/)
+{
   // Provide TAD and associated range, actually reading the conditions data
 
   // Read information for folders and setup TADs
@@ -642,7 +640,7 @@ StatusCode IOVDbSvc::getRange( const CLID&        clid,
     if (m_log->level()<=MSG::DEBUG) 
       *m_log << MSG::DEBUG << "Triggering cache load for folder " << 
         folder->folderName() << endmsg;
-    if (StatusCode::SUCCESS!=loadCaches(folder->conn())) {
+    if (StatusCode::SUCCESS!=loadCaches(folder->conn(),&time)) {
       *m_log << MSG::ERROR << "Cache load failed for folder " <<  folder->folderName() << endmsg;
       return StatusCode::FAILURE;
     }
@@ -687,23 +685,21 @@ StatusCode IOVDbSvc::setRange( const CLID&        /*clid*/,
   return StatusCode::SUCCESS;
 }
 
-StatusCode IOVDbSvc::signalBeginRun(const IOVTime& beginRunTime) {
+StatusCode IOVDbSvc::signalBeginRun(const IOVTime& beginRunTime,
+                                    const EventContext& ctx)
+{
   // Begin run - set state and save time for later use
   m_state=IOVDbSvc::BEGIN_RUN;
   m_iovTime=beginRunTime;
 
   // For a MC event, the run number we need to use to look up the conditions
-  // may be different from that of the event itself.  If we have
-  // a ConditionsRun attribute defined, use that to override
-  // the event number.
-  const AthenaAttributeList* attr = nullptr;
-  if (m_h_sgSvc->contains<AthenaAttributeList> ("Input") &&
-      m_h_sgSvc->retrieve(attr, "Input").isSuccess())
-  {
-    if (attr->exists ("ConditionsRun"))
-      m_iovTime.setRunEvent
-        ((*attr)["ConditionsRun"].data<unsigned int>(),
-         m_iovTime.event());
+  // may be different from that of the event itself.  Override the run
+  // number with the conditions run number from the event context,
+  // if it is defined.
+  EventIDBase::number_type conditionsRun =
+    ctx.template getExtension<Atlas::ExtendedEventContext>()->conditionsRun();
+  if (conditionsRun != EventIDBase::UNDEFNUM) {
+    m_iovTime.setRunEvent (conditionsRun, m_iovTime.event());
   }
 
   if (m_log->level()<MSG::DEBUG) 
@@ -1212,7 +1208,7 @@ StatusCode IOVDbSvc::fillTagInfo() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode IOVDbSvc::loadCaches(IOVDbConn* conn) {
+StatusCode IOVDbSvc::loadCaches(IOVDbConn* conn, const IOVTime* time) {
   // load the caches for all folders using the given connection
   // so connection use is optimised
 
@@ -1229,7 +1225,7 @@ StatusCode IOVDbSvc::loadCaches(IOVDbConn* conn) {
        ++fitr) {
     IOVDbFolder* folder=fitr->second;
     if (folder->conn()!=conn) continue;
-    cool::ValidityKey vkey=folder->iovTime(m_iovTime);
+    cool::ValidityKey vkey=folder->iovTime(time==nullptr ? m_iovTime : *time);
     // protect against out of range times (timestamp -1 happened in FDR2)
     if (vkey>cool::ValidityKeyMax) {
       *m_log << MSG::WARNING << "Requested validity key " << vkey << 

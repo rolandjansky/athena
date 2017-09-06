@@ -523,6 +523,9 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
             self.trigZFinder = theTrigZFinder
             self.doFastZVertexSeeding = True
             self.zVertexResolution = 7.5
+
+          TrackMaker_FTF.InputClusterContainerName = ""
+          TrackMaker_FTF.InputHadClusterContainerName = ""
           
           from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigFastTrackSummaryTool
           self.TrackSummaryTool = InDetTrigFastTrackSummaryTool

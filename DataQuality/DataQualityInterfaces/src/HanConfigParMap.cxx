@@ -28,16 +28,16 @@ namespace dqi {
 
 HanConfigParMap::
 HanConfigParMap()
-  : name("")
-  , value("")
+  : m_name("")
+  , m_value("")
 {
 }
 
 HanConfigParMap::
 HanConfigParMap(const HanConfigParMap& other)
   : TObject()
-  , name(other.name)
-  , value(other.value)
+  , m_name(other.m_name)
+  , m_value(other.m_value)
 {
 }
 
@@ -52,7 +52,7 @@ void
 HanConfigParMap::
 SetName( const std::string name_ )
 {
-  name.SetString( name_.c_str() );
+  m_name.SetString( name_.c_str() );
 }
 
 
@@ -60,7 +60,7 @@ const char*
 HanConfigParMap::
 GetName() const
 {
-  return name.GetName();
+  return m_name.GetName();
 }
 
 
@@ -68,7 +68,7 @@ void
 HanConfigParMap::
 SetValue( const std::string value_ )
 {
-  value.SetString( value_.c_str() );
+  m_value.SetString( value_.c_str() );
 }
 
 
@@ -76,7 +76,7 @@ const char*
 HanConfigParMap::
 GetValue() const
 {
-  return value.GetName();
+  return m_value.GetName();
 }
 
 
@@ -94,7 +94,7 @@ GetList()
 	TList *ret = new TList();
 	
 	ret->SetName( this->GetName() );
-	ret->Add( new TObjString(value.GetName()) );
+	ret->Add( new TObjString(m_value.GetName()) );
 	
 	return ret;
 }

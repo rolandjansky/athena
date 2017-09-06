@@ -22,7 +22,6 @@ polymorphic Trk::RIO_OnTrack objects stored through base class pointers.
 Please let me know of any errors, or if anything is unclear.
 @author Andreas.Salzburger@cern.ch
 
-@section TrkSegment_requirementsTrkSegment Requirements
 
 @namespace Trk
 A namespace to enclose the Tracking classes.

@@ -270,6 +270,9 @@ StatusCode IsolationBuilder::initialize()
     ATH_CHECK(m_leakTool.retrieve());
   }
 
+  //initialise data handles
+  ATH_CHECK(m_MuonContainerName.initialize());
+
   return StatusCode::SUCCESS;
 }
 
@@ -346,12 +349,11 @@ StatusCode IsolationBuilder::execute()
 	}
       }
     }
-    if (m_MuonContainerName.size()) {
-      if (!evtStore()->tryRetrieve<xAOD::MuonContainer>(m_MuonContainerName)) {
-	if( deepCopy<xAOD::MuonContainer,xAOD::MuonAuxContainer>(m_MuonContainerName).isFailure()) {
-	  ATH_MSG_FATAL( "Couldn't deep copy muons" );
-	  return StatusCode::FAILURE;
-	}
+    SG::ReadHandle <xAOD::MuonContainer>h_muon(m_MuonContainerName);
+    if (h_muon.isValid()) {
+      if( deepCopy<xAOD::MuonContainer,xAOD::MuonAuxContainer>(m_MuonContainerName.key()).isFailure()) {
+	ATH_MSG_FATAL( "Couldn't deep copy muons" );
+	return StatusCode::FAILURE;
       }
     }
   }
@@ -402,7 +404,7 @@ StatusCode IsolationBuilder::execute()
     else
       CHECK(DecorateEgamma("fwdelectron"));
   }
-  if ( (m_muCaloIso.size() != 0 || m_muTrackIso.size() != 0) && m_MuonContainerName.size()) {
+  if ( (m_muCaloIso.size() != 0 || m_muTrackIso.size() != 0) ) {
     if (m_customConfigMu == "")
       CHECK(IsolateMuon());
     else
@@ -536,18 +538,17 @@ StatusCode IsolationBuilder::IsolateEgamma(std::string egType) {
 } 
 StatusCode IsolationBuilder::IsolateMuon() {
 
-  xAOD::MuonContainer *muonC(0);
-  if (evtStore()->contains<xAOD::MuonContainer>(m_MuonContainerName)) {
-    if (evtStore()->retrieve(muonC,m_MuonContainerName).isFailure()) {
-      ATH_MSG_FATAL("Cannot retrieve muons container " << m_MuonContainerName);
-      return StatusCode::FAILURE;
-    }
-  } else {
-    ATH_MSG_DEBUG("MuonContainer " << m_MuonContainerName << " not available");
-    return StatusCode::SUCCESS;
+  xAOD::MuonContainer muonC;
+  SG::ReadHandle<xAOD::MuonContainer> h_muon(m_MuonContainerName);      
+  if (h_muon.isValid()) {
+    muonC = *h_muon;
+  }
+  else{
+    ATH_MSG_FATAL("Cannot retrieve muons container " << m_MuonContainerName.key());
+    return StatusCode::FAILURE;
   }
 
-  xAOD::MuonContainer::iterator it = muonC->begin(), itE = muonC->end();
+  xAOD::MuonContainer::iterator it = muonC.begin(), itE = muonC.end();
   for (; it != itE; it++) {
     xAOD::Muon *mu = *it;
 
@@ -708,18 +709,17 @@ StatusCode IsolationBuilder::DecorateEgamma(std::string egType) {
 } 
 StatusCode IsolationBuilder::DecorateMuon() {
 
-  xAOD::MuonContainer *muonC(0);
-  if (evtStore()->contains<xAOD::MuonContainer>(m_MuonContainerName)) {
-    if (evtStore()->retrieve(muonC,m_MuonContainerName).isFailure()) {
-      ATH_MSG_FATAL("Cannot retrieve muons container " << m_MuonContainerName);
-      return StatusCode::FAILURE;
-    }
-  } else {
-    ATH_MSG_DEBUG("MuonContainer " << m_MuonContainerName << " not available");
-    return StatusCode::SUCCESS;
+  xAOD::MuonContainer muonC;
+  SG::ReadHandle<xAOD::MuonContainer> h_muons(m_MuonContainerName);
+  if (h_muons.isValid()) {
+    muonC = *h_muons;
+  }
+  else{
+    ATH_MSG_FATAL("Cannot retrieve muons container " << m_MuonContainerName.key());
+    return StatusCode::FAILURE;
   }
 
-  xAOD::MuonContainer::iterator it = muonC->begin(), itE = muonC->end();
+  xAOD::MuonContainer::iterator it = muonC.begin(), itE = muonC.end();
   for (; it != itE; it++) {
     xAOD::Muon *mu = *it;
     //

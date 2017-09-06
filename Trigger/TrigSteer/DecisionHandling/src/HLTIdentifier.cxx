@@ -7,12 +7,12 @@
 using namespace HLT;
 bool Identifier::s_reportStringIDs = true; // default for now
 
-Identifier::Identifier(const std::string& stringID)
-  : m_id( TrigConf::HLTUtils::string2hash(stringID, "Identifier") ) {}
+Identifier::Identifier( const std::string& stringID )
+  : m_id( TrigConf::HLTUtils::string2hash( stringID, "Identifier" ) ) {}
 
 std::string  Identifier::name() const {
   if ( Identifier::reportStringIDs() ) {
-    return TrigConf::HLTUtils::hash2string(numeric(), "Identifier");
+    return TrigConf::HLTUtils::hash2string( numeric(), "Identifier" );
   }
   return "";
 }

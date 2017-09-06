@@ -28,6 +28,8 @@
 #include "TrigSteeringEvent/HLTResult.h"
 
 #include "AthenaKernel/IAthenaEvtLoopPreSelectTool.h"
+#include "AthenaKernel/ExtendedEventContext.h"
+#include "AthenaKernel/EventContextClid.h"
 
 #include "GaudiKernel/ThreadLocalContext.h"
 #include "GaudiKernel/Algorithm.h"
@@ -491,11 +493,19 @@ namespace TrigSim {
 
             m_eventContext.setEventID( *((EventIDBase*) pPrimEvt->event_ID()) );
             m_eventContext.set(m_nEvt,0);
+            m_eventContext.setExtension( Atlas::ExtendedEventContext( m_primEvtStore->hiveProxyDict(),
+                                                                      pPrimEvt->event_ID()->run_number() ) );
 
-            m_eventContext.setProxy( m_primEvtStore->hiveProxyDict() );
             Gaudi::Hive::setCurrentContext( m_eventContext );
 
             m_aess->reset(m_eventContext);
+            if (m_primEvtStore->record(std::make_unique<EventContext> (m_eventContext),
+                                       "EventContext").isFailure())
+            {
+              m_log << MSG::ERROR 
+                    << "Error recording event context object" << endmsg;
+              return (StatusCode::FAILURE);
+            }
 
 
             /*
@@ -890,8 +900,7 @@ namespace TrigSim {
         return sc;
     }
 //------------------------------------------------------------------------------
-    StatusCode MergingEventLoopMgr::executeEvent(void *par) {
-        par = par;
+    StatusCode MergingEventLoopMgr::executeEvent(void */*par*/) {
         m_log << MSG::ERROR
               << "executeEvent(...) is not implemented for MergingEventLoopMgr"
               << endmsg;
@@ -916,8 +925,7 @@ namespace TrigSim {
         return sc;
     }
 //------------------------------------------------------------------------------
-    StatusCode MergingEventLoopMgr::seek(int evt) {
-        evt = evt;
+    StatusCode MergingEventLoopMgr::seek(int /*evt*/) {
         m_log << MSG::ERROR
               << "seek() is not implemented for MergingEventLoopMgr"
               << endmsg;

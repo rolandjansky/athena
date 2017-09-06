@@ -233,7 +233,6 @@ namespace CP
   {
     ATH_MSG_DEBUG("<###### Enter: doTightMatch() function ######>");
 
-    if(&vx!=NULL)
     {
       if(vx.vertexType()!=xAOD::VxType::NoVtx )
       {
@@ -276,11 +275,6 @@ namespace CP
         ATH_MSG_DEBUG("The vertex is a fake one");
         return UnMatch;
       }
-    }
-    else
-    {
-      ATH_MSG_DEBUG("Invalid Vertex pointer, return false");
-      return UnMatch;
     }
 
     return Matched;

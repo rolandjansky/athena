@@ -30,6 +30,9 @@ description : Class for finding brem points in the inner detector using the GSF
 
 #include "GeoPrimitives/GeoPrimitives.h"
 
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
+
 #include <vector>
 
 //class ITrackingGeometrySvc;
@@ -216,6 +219,8 @@ class BremFind : public AthAlgTool, virtual public IBremsstrahlungFinder{
 
     QoverPBremFit *m_forwardBremFit;
     QoverPBremFit *m_smoothedBremFit;
+
+    SG::ReadHandleKey<xAOD::EventInfo> m_readKey;
 
   };
 

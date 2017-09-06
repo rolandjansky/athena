@@ -123,7 +123,8 @@ class xAODEventSelector :
  
   /// update a transient Address
   virtual 
-  StatusCode updateAddress(StoreID::type storeID, SG::TransientAddress* tad);
+  StatusCode updateAddress(StoreID::type storeID, SG::TransientAddress* tad,
+                           const EventContext& ctx);
   ///@}
 
   ///@c ICollectionSize  interface

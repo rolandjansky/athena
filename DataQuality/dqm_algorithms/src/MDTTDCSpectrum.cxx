@@ -36,9 +36,9 @@ namespace dqm_algorithms {
 // *********************************************************************
 
 MDTTDCSpectrum::MDTTDCSpectrum()
-  : name("MDTTDCspectrum")
+  : m_name("MDTTDCspectrum")
 {
-  dqm_core::AlgorithmManager::instance().registerAlgorithm( name, this );
+  dqm_core::AlgorithmManager::instance().registerAlgorithm( m_name, this );
 }
 
 
@@ -255,7 +255,7 @@ MDTTDCSpectrum::printDescription(std::ostream& out)
 {
   std::string message;
   message += "\n";
-  message += "Algorithm: \"" + name + "\"\n";
+  message += "Algorithm: \"" + m_name + "\"\n";
   message += "Description: Check if the histogram t0 tmax and t_drift are compatible with the reference\n";
   message += "Mandatory Parameters: Green/Red Threshold: Limits:  warning: number of standard deviation from mean\n"; 
   message += "                                                    error\n";

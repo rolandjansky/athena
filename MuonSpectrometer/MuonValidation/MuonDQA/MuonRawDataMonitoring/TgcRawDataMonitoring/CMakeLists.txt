@@ -8,7 +8,6 @@ atlas_subdir( TgcRawDataMonitoring )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaMonitoring
-                          Control/DataModel
                           Control/StoreGate
                           GaudiKernel
                           MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
@@ -35,7 +34,7 @@ atlas_add_component( TgcRawDataMonitoring
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaMonitoringLib DataModel StoreGateLib SGtests GaudiKernel MuonReadoutGeometry MuonIdHelpersLib MuonPrepRawData MuonTrigCoinData MuonDQAUtilsLib Identifier xAODEventInfo xAODMuon xAODTrigger MuonDigitContainer MuonRDO AnalysisTriggerEvent muonEvent TrigSteeringEvent )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaMonitoringLib StoreGateLib SGtests GaudiKernel MuonReadoutGeometry MuonIdHelpersLib MuonPrepRawData MuonTrigCoinData MuonDQAUtilsLib Identifier xAODEventInfo xAODMuon xAODTrigger MuonDigitContainer MuonRDO AnalysisTriggerEvent muonEvent TrigSteeringEvent )
 
 # Install files from the package:
 atlas_install_headers( TgcRawDataMonitoring )

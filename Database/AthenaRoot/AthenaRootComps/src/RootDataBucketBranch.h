@@ -55,12 +55,12 @@ public:
 
   virtual
   void* cast(CLID clid, SG::IRegisterTransient* itr,
-             bool isConst = true) const override;
+             bool isConst = true) override;
 
   virtual
   void* cast(const std::type_info& tinfo,
              SG::IRegisterTransient* itr,
-             bool isConst = true) const override;
+             bool isConst = true) override;
 
   virtual
   DataBucketBranch* clone() const override;

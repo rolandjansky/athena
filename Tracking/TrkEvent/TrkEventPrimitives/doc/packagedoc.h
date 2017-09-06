@@ -65,23 +65,4 @@ Please send any comments to
 
 @section TrkEventPrimitives_TrkEventPrimPages Extra Pages
 
- - @ref TrkEventPrimUsedPkg
- - @ref TrkEventPrimRequirements
-*/
-
-/**
-@page TrkEventPrimUsedPkg Used Packages
-*/
-
-/**
-@page TrkEventPrimRequirements Requirements
-*/
-
-@section TrkEventPrimitives_used_packages Used Packages
-
-@section TrkEventPrimitives_requirements Requirements
-
-
-
-
 */

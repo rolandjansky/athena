@@ -25,13 +25,6 @@
 #include <TH1D.h>
 #include <TProfile.h>
 
-#include "GaudiKernel/PropertyMgr.h"
-#include "GaudiKernel/INTupleSvc.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/IDataProviderSvc.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ObjectList.h"
-
 #include "TruthHelper/IsGenStable.h"
 #include "TruthHelper/GenAll.h"
 
@@ -89,13 +82,13 @@ StatusCode CheckFlow_New_Minbias::initialize(){
 //----------------------------------------The reconstructed and truth Psi and the correlations between them-----------------------------
       sprintf(name,"hist_Psi_%d_true_b%d",ihar+1,ib_imp);
       sprintf(name1,"Truth Psi_{%d} distribution;%dPsi_{%d} Truth;events",ihar+1,ihar+1,ihar+1);
-      hist_Psi_n_true  [ihar][ib_imp]=new TH1D (name,name1,1000,-M_PI,M_PI);
-      hist_vec.push_back(hist_Psi_n_true  [ihar][ib_imp]);
+      m_hist_Psi_n_true  [ihar][ib_imp]=new TH1D (name,name1,1000,-M_PI,M_PI);
+      hist_vec.push_back(m_hist_Psi_n_true  [ihar][ib_imp]);
 
       sprintf(name,"hist_Psi_%d_reco_b%d",ihar+1,ib_imp);
       sprintf(name1,"Reconstructed Psi_{%d} distribution;%dPsi_{%d} Reco;events",ihar+1,ihar+1,ihar+1);
-      hist_Psi_n_reco  [ihar][ib_imp]=new TH1D (name,name1,1000,-M_PI,M_PI);
-      hist_vec.push_back(hist_Psi_n_reco  [ihar][ib_imp]);
+      m_hist_Psi_n_reco  [ihar][ib_imp]=new TH1D (name,name1,1000,-M_PI,M_PI);
+      hist_vec.push_back(m_hist_Psi_n_reco  [ihar][ib_imp]);
 
 
       for (int ihar2=0;ihar2<6;ihar2++){
@@ -103,13 +96,13 @@ StatusCode CheckFlow_New_Minbias::initialize(){
 
         sprintf(name,"hist_Psi_corr_true_b%d_%d_%d",ib_imp,ihar+1,ihar2+1);
         sprintf(name1,"true Psi_{%d} -Psi_{%d};%dPsi_{%d} -%dPsi_{%d} ;events",ihar+1,ihar2+1,ihar+1,ihar+1,ihar2+1,ihar2+1);
-        hist_psi_corr_true  [ihar_i][ib_imp]=new TH1D (name,name1,1000,-2*M_PI,2*M_PI);
-        hist_vec.push_back(hist_psi_corr_true  [ihar_i][ib_imp]);
+        m_hist_psi_corr_true  [ihar_i][ib_imp]=new TH1D (name,name1,1000,-2*M_PI,2*M_PI);
+        hist_vec.push_back(m_hist_psi_corr_true  [ihar_i][ib_imp]);
 
         sprintf(name,"hist_Psi_corr_reco_%d_%d_%d",ib_imp,ihar+1,ihar2+1);
         sprintf(name1,"reco Psi_{%d} -Psi_{%d};%dPsi_{%d} -%dPsi_{%d} ;events",ihar+1,ihar2+1,ihar+1,ihar+1,ihar2+1,ihar2+1);
-        hist_psi_corr_reco  [ihar_i][ib_imp]=new TH1D (name,name1,1000,-2*M_PI,2*M_PI);
-        hist_vec.push_back(hist_psi_corr_reco  [ihar_i][ib_imp]);
+        m_hist_psi_corr_reco  [ihar_i][ib_imp]=new TH1D (name,name1,1000,-2*M_PI,2*M_PI);
+        hist_vec.push_back(m_hist_psi_corr_reco  [ihar_i][ib_imp]);
       }
 //------------------------------------------------------------------------------------------
 
@@ -119,26 +112,26 @@ StatusCode CheckFlow_New_Minbias::initialize(){
       //integrated vn event by event
       sprintf(name,"hist_v%d_b%d_ebe",ihar+1,ib_imp);
       sprintf(name1,"v%d;v%d;events",ihar+1,ihar+1);
-      hist_vn_ebe   [ihar][ib_imp]=new TH1D (name,name1,1000,-0.5,0.5);
-      hist_vec.push_back(hist_vn_ebe   [ihar][ib_imp]);
+      m_hist_vn_ebe   [ihar][ib_imp]=new TH1D (name,name1,1000,-0.5,0.5);
+      hist_vec.push_back(m_hist_vn_ebe   [ihar][ib_imp]);
 
       sprintf(name,"hist_v%d_b%d_ebe_ID1",ihar+1,ib_imp);
       sprintf(name1,"v%d;v%d;events",ihar+1,ihar+1);
-      hist_vn_ebe_ID1   [ihar][ib_imp]=new TH1D (name,name1,800,0.0,0.4);
+      m_hist_vn_ebe_ID1   [ihar][ib_imp]=new TH1D (name,name1,800,0.0,0.4);
       sprintf(name,"hist_v%d_b%d_ebe_ID2",ihar+1,ib_imp);
-      hist_vn_ebe_ID2   [ihar][ib_imp]=new TH1D (name,name1,800,0.0,0.4);
-      hist_vec.push_back(hist_vn_ebe_ID1  [ihar][ib_imp]);
-      hist_vec.push_back(hist_vn_ebe_ID2  [ihar][ib_imp]);
+      m_hist_vn_ebe_ID2   [ihar][ib_imp]=new TH1D (name,name1,800,0.0,0.4);
+      hist_vec.push_back(m_hist_vn_ebe_ID1  [ihar][ib_imp]);
+      hist_vec.push_back(m_hist_vn_ebe_ID2  [ihar][ib_imp]);
 
       sprintf(name ,"hist_Psi%d_b%d_ebe",ihar+1,ib_imp);
       sprintf(name1,"%d#Delta#Psi;%d(#Psi_{reco}-#Psi_{Truth});events",ihar+1,ihar+1);
-      hist_Psi_n_ebe [ihar][ib_imp]=new TH1D (name,name1,1000,-M_PI,M_PI);
-      hist_vec.push_back(hist_Psi_n_ebe [ihar][ib_imp]);
+      m_hist_Psi_n_ebe [ihar][ib_imp]=new TH1D (name,name1,1000,-M_PI,M_PI);
+      hist_vec.push_back(m_hist_Psi_n_ebe [ihar][ib_imp]);
 
       sprintf(name ,"hist_Psi%d_b%d_ebe_pt",ihar+1,ib_imp);
       sprintf(name1,"%d#Delta#Psi (pT weighted);%d(#Psi_{reco}-#Psi_{Truth});events",ihar+1,ihar+1);
-      hist_Psi_n_ebe_pt [ihar][ib_imp]=new TH1D (name,name1,1000,-M_PI,M_PI);
-      hist_vec.push_back(hist_Psi_n_ebe_pt [ihar][ib_imp]);
+      m_hist_Psi_n_ebe_pt [ihar][ib_imp]=new TH1D (name,name1,1000,-M_PI,M_PI);
+      hist_vec.push_back(m_hist_Psi_n_ebe_pt [ihar][ib_imp]);
 //-----------------------------------------------------------------------------------------
 
 
@@ -149,31 +142,31 @@ StatusCode CheckFlow_New_Minbias::initialize(){
       for(int ieta=0;ieta<n_etabin;ieta++){
         sprintf(name ,"profile_pt_dep_%d_eta%d_b%d" ,ihar+1,ieta,ib_imp);
         sprintf(name1,"v%d vs pT (eta%d);pT;v%d",ihar+1,ieta,ihar+1);
-        profile_pt_dep [ihar][ib_imp][ieta]=new TProfile (name,name1,n_ptbin,pt_binvals);
-        hist_vec.push_back(profile_pt_dep [ihar][ib_imp][ieta]);
+        m_profile_pt_dep [ihar][ib_imp][ieta]=new TProfile (name,name1,n_ptbin,pt_binvals);
+        hist_vec.push_back(m_profile_pt_dep [ihar][ib_imp][ieta]);
       }
 
       for(int ipt=0;ipt<n_ptbin;ipt++){
         sprintf(name ,"profile_eta_dep_%d_pt%d_b%d",ihar+1,ipt,ib_imp);
         sprintf(name1,"v%d vs #eta; (ipt%d)#eta;v%d",ihar+1,ipt,ihar+1);
-        profile_eta_dep [ihar][ib_imp][ipt]=new TProfile (name,name1,2*n_etabin, -eta_bin_max,eta_bin_max);
-        hist_vec.push_back(profile_eta_dep [ihar][ib_imp][ipt]);
+        m_profile_eta_dep [ihar][ib_imp][ipt]=new TProfile (name,name1,2*n_etabin, -eta_bin_max,eta_bin_max);
+        hist_vec.push_back(m_profile_eta_dep [ihar][ib_imp][ipt]);
       }
 
 
       for(int ieta=0;ieta<n_etabin;ieta++){
         sprintf(name ,"profile_pt_dep_reco_%d_eta%d_b%d",ihar+1,ieta,ib_imp);
         sprintf(name1,"v%d vs pT (eta%d);pT;v%d",ihar+1,ieta,ihar+1);
-        profile_pt_dep_reco [ihar][ib_imp][ieta]=new TProfile (name,name1,n_ptbin,pt_binvals);
-        hist_vec.push_back(profile_pt_dep_reco [ihar][ib_imp][ieta]);
+        m_profile_pt_dep_reco [ihar][ib_imp][ieta]=new TProfile (name,name1,n_ptbin,pt_binvals);
+        hist_vec.push_back(m_profile_pt_dep_reco [ihar][ib_imp][ieta]);
       }
 
 
       for(int ipt=0;ipt<n_ptbin;ipt++){
         sprintf(name ,"profile_eta_dep_reco_%d_pt%d_b%d",ihar+1,ipt,ib_imp);
         sprintf(name1,"v%d vs #eta (pt%d);#eta;v%d",ihar+1,ipt,ihar+1);
-        profile_eta_dep_reco [ihar][ib_imp][ipt]=new TProfile (name,name1,2*n_etabin, -eta_bin_max,eta_bin_max);
-        hist_vec.push_back(profile_eta_dep_reco [ihar][ib_imp][ipt]);
+        m_profile_eta_dep_reco [ihar][ib_imp][ipt]=new TProfile (name,name1,2*n_etabin, -eta_bin_max,eta_bin_max);
+        hist_vec.push_back(m_profile_eta_dep_reco [ihar][ib_imp][ipt]);
       }
     }
 
@@ -183,19 +176,19 @@ StatusCode CheckFlow_New_Minbias::initialize(){
       for(int ieta=0;ieta<n_etabin;ieta++){
         sprintf(name ,"profile_b_dep_%d_pt%d_eta%d",ihar+1,ipt,ieta);
         sprintf(name1,"v%d vs cent ;cent;v%d",ihar+1,ihar+1);
-        profile_b_dep [ihar][ipt][ieta]=new TProfile (name,name1,n_b_bins,-0.5,n_b_bins-0.5);
-        hist_vec.push_back(profile_b_dep [ihar][ipt][ieta]);
+        m_profile_b_dep [ihar][ipt][ieta]=new TProfile (name,name1,n_b_bins,-0.5,n_b_bins-0.5);
+        hist_vec.push_back(m_profile_b_dep [ihar][ipt][ieta]);
 
         sprintf(name ,"profile_b_dep_reco_%d_pt%d_eta%d",ihar+1,ipt,ieta);
         sprintf(name1,"v%d vs cent ;cent;v%d",ihar+1,ihar+1);
-        profile_b_dep_reco [ihar][ipt][ieta]=new TProfile (name,name1,n_b_bins,-0.5,n_b_bins-0.5);
-        hist_vec.push_back(profile_b_dep_reco [ihar][ipt][ieta]);
+        m_profile_b_dep_reco [ihar][ipt][ieta]=new TProfile (name,name1,n_b_bins,-0.5,n_b_bins-0.5);
+        hist_vec.push_back(m_profile_b_dep_reco [ihar][ipt][ieta]);
       }
     }
 
     sprintf(name,"profile_resolution_%d",ihar+1);
-    profile_resolution[ihar]=new TProfile(name,"vn resolution;n;resolution",n_b_bins,-0.5,n_b_bins-0.5);
-    hist_vec.push_back(profile_resolution[ihar]);
+    m_profile_resolution[ihar]=new TProfile(name,"vn resolution;n;resolution",n_b_bins,-0.5,n_b_bins-0.5);
+    hist_vec.push_back(m_profile_resolution[ihar]);
   }
 //-----------------------------------------------------------------------------------------
 
@@ -286,14 +279,14 @@ StatusCode CheckFlow_New_Minbias::execute() {
         float temp=(ihar+1)*(phi-Psi_n[ihar]);
 
         int ieta= (int)(fabs(rapid)*n_etabin/eta_bin_max);
-        if(ieta>=0 && ieta<n_etabin) profile_pt_dep [ihar][ib_imp][ieta]->Fill(pt/1000,cos(temp));
+        if(ieta>=0 && ieta<n_etabin) m_profile_pt_dep [ihar][ib_imp][ieta]->Fill(pt/1000,cos(temp));
         
 
         float temp_pt=pt/1000;
         for(int ipt=0;ipt<n_ptbin;ipt++){
           if(temp_pt<pt_binvals[ipt+1]){
-            profile_eta_dep[ihar][ib_imp][ipt]->Fill(rapid  ,cos(temp));
-            if(ieta>=0 && ieta<n_etabin) profile_b_dep [ihar][ipt][ieta]->Fill(ib_imp,cos(temp));
+            m_profile_eta_dep[ihar][ib_imp][ipt]->Fill(rapid  ,cos(temp));
+            if(ieta>=0 && ieta<n_etabin) m_profile_b_dep [ihar][ipt][ieta]->Fill(ib_imp,cos(temp));
             break;
           }
         } 
@@ -342,11 +335,11 @@ StatusCode CheckFlow_New_Minbias::execute() {
   for(int ihar=0;ihar<6;ihar++){
     if(tot_ID1>0.01){
       double temp1= sqrt(cos_ID1[ihar]*cos_ID1[ihar] + sin_ID1[ihar]*sin_ID1[ihar])/tot_ID1;
-      hist_vn_ebe_ID1[ihar][ib_imp]->Fill(temp1);
+      m_hist_vn_ebe_ID1[ihar][ib_imp]->Fill(temp1);
     }
     if(tot_ID2>0.01){
       double temp2= sqrt(cos_ID2[ihar]*cos_ID2[ihar] + sin_ID2[ihar]*sin_ID2[ihar])/tot_ID2;
-      hist_vn_ebe_ID2[ihar][ib_imp]->Fill(temp2);
+      m_hist_vn_ebe_ID2[ihar][ib_imp]->Fill(temp2);
     }
   } 
 
@@ -360,8 +353,8 @@ StatusCode CheckFlow_New_Minbias::execute() {
     sin_n[ihar] = ( sin_n_pos[ihar]+ sin_n_neg[ihar] )  /  (ngenerated_pos+ngenerated_neg);
 
     float psi_reco=atan2(sin_n[ihar],cos_n[ihar])/(ihar+1);
-    hist_Psi_n_ebe[ihar][ib_imp]->Fill( (ihar+1)*(psi_reco-Psi_n[ihar])  );
-    hist_vn_ebe   [ihar][ib_imp]->Fill(sqrt(cos_n[ihar]*cos_n[ihar] +sin_n[ihar]*sin_n[ihar] ));
+    m_hist_Psi_n_ebe[ihar][ib_imp]->Fill( (ihar+1)*(psi_reco-Psi_n[ihar])  );
+    m_hist_vn_ebe   [ihar][ib_imp]->Fill(sqrt(cos_n[ihar]*cos_n[ihar] +sin_n[ihar]*sin_n[ihar] ));
 
     Psi_n_reco_pos[ihar]=atan2(sin_n_pos[ihar],cos_n_pos[ihar])/ (ihar+1);
     Psi_n_reco_neg[ihar]=atan2(sin_n_neg[ihar],cos_n_neg[ihar])/ (ihar+1);
@@ -372,22 +365,22 @@ StatusCode CheckFlow_New_Minbias::execute() {
     sin_n_pt[ihar] = ( sin_n_pt_pos[ihar]+ sin_n_pt_neg[ihar] )  /  (ngenerated_pt_pos+ngenerated_pt_neg);
 
     psi_reco=atan2(sin_n_pt[ihar],cos_n_pt[ihar])/(ihar+1);
-    hist_Psi_n_ebe_pt[ihar][ib_imp]->Fill( (ihar+1)*(psi_reco-Psi_n[ihar])  );
+    m_hist_Psi_n_ebe_pt[ihar][ib_imp]->Fill( (ihar+1)*(psi_reco-Psi_n[ihar])  );
   }
 
 
 // Make the plots for the correlation between Psi_n truth (for different n)  (same for Psi_n reco)
   for(int ihar=0;ihar<6;ihar++){
-    hist_Psi_n_true[ihar][ib_imp]->Fill((ihar+1)*Psi_n[ihar]);
-    hist_Psi_n_reco[ihar][ib_imp]->Fill((ihar+1)*Psi_n_reco[ihar]);
+    m_hist_Psi_n_true[ihar][ib_imp]->Fill((ihar+1)*Psi_n[ihar]);
+    m_hist_Psi_n_reco[ihar][ib_imp]->Fill((ihar+1)*Psi_n_reco[ihar]);
     
     float psi1,psi2;
     for(int ihar2=0;ihar2<6;ihar2++){
       psi1=(ihar+1)*Psi_n[ihar];psi2=(ihar2+1)*Psi_n[ihar2]; 
-      hist_psi_corr_true[ihar*6+ihar2][ib_imp]->Fill(  atan2(  sin(psi1-psi2),cos(psi1-psi2) )  );
+      m_hist_psi_corr_true[ihar*6+ihar2][ib_imp]->Fill(  atan2(  sin(psi1-psi2),cos(psi1-psi2) )  );
 
       psi1=(ihar+1)*Psi_n_reco[ihar];psi2=(ihar2+1)*Psi_n_reco[ihar2]; 
-      hist_psi_corr_reco[ihar*6+ihar2][ib_imp]->Fill( atan2(  sin(psi1-psi2),cos(psi1-psi2) )  );
+      m_hist_psi_corr_reco[ihar*6+ihar2][ib_imp]->Fill( atan2(  sin(psi1-psi2),cos(psi1-psi2) )  );
     }
   }
 
@@ -397,7 +390,7 @@ StatusCode CheckFlow_New_Minbias::execute() {
 
 // calculate the pt and eta dependence using the Psi_reco angles also fill the resolution TProfile
   for(int ihar=0;ihar<6;ihar++){
-    profile_resolution[ihar]->Fill( ib_imp,  cos(  (ihar+1) * (Psi_n_reco_pos[ihar] - Psi_n_reco_neg[ihar]) ) );
+    m_profile_resolution[ihar]->Fill( ib_imp,  cos(  (ihar+1) * (Psi_n_reco_pos[ihar] - Psi_n_reco_neg[ihar]) ) );
     if(ib_imp==0) {std::cout<<"i11111111111111111111  "<<b<<std::endl;}
   }
   for (std::vector<const HepMC::GenParticle*>::iterator pitr = particles.begin();pitr != particles.end(); pitr++) {
@@ -413,13 +406,13 @@ StatusCode CheckFlow_New_Minbias::execute() {
 
 
         int ieta= (int)(fabs(rapid)*n_etabin/eta_bin_max);
-        if(ieta>=0 && ieta<n_etabin) profile_pt_dep_reco [ihar][ib_imp][ieta]->Fill(pt/1000,cos(temp));
+        if(ieta>=0 && ieta<n_etabin) m_profile_pt_dep_reco [ihar][ib_imp][ieta]->Fill(pt/1000,cos(temp));
 
         float temp_pt=pt/1000;
         for(int ipt=0;ipt<n_ptbin;ipt++){
           if(temp_pt<pt_binvals[ipt+1]){
-            profile_eta_dep_reco[ihar][ib_imp][ipt]->Fill(rapid  ,cos(temp));
-            if(ieta>=0 && ieta<n_etabin) profile_b_dep_reco [ihar][ipt][ieta]->Fill(ib_imp,cos(temp));
+            m_profile_eta_dep_reco[ihar][ib_imp][ipt]->Fill(rapid  ,cos(temp));
+            if(ieta>=0 && ieta<n_etabin) m_profile_b_dep_reco [ihar][ipt][ieta]->Fill(ib_imp,cos(temp));
             break;
           }
         } 
@@ -436,23 +429,23 @@ StatusCode CheckFlow_New_Minbias::finalize() {
 /*
   for(int ihar=0;ihar<6;ihar++){
     for(int ib_imp=0;ib_imp<n_b_bins;ib_imp++){
-      double reso=profile_resolution[ihar]->GetBinContent(ib_imp+1);
+      double reso=m_profile_resolution[ihar]->GetBinContent(ib_imp+1);
       if (reso >=0) reso= sqrt( reso);
       else          reso=-sqrt(-reso);
 
       for(int ieta=0;ieta<n_etabin;ieta++){
-        profile_pt_dep_reco [ihar][ib_imp][ieta]->Scale(1.0/reso);
+        m_profile_pt_dep_reco [ihar][ib_imp][ieta]->Scale(1.0/reso);
       }
       for(int ipt=0;ipt<n_ptbin;ipt++){
-       profile_eta_dep_reco[ihar][ib_imp][ipt]->Scale(1.0/reso);
+       m_profile_eta_dep_reco[ihar][ib_imp][ipt]->Scale(1.0/reso);
       }
 
       for(int ipt=0;ipt<n_ptbin;ipt++){
         for(int ieta=0;ieta<n_etabin;ieta++){
-          float val=profile_eta_dep_reco[ihar][ipt][ieta]->GetBinContent(ib_imp+1)*reso;
-          float err=profile_eta_dep_reco[ihar][ipt][ieta]->GetBinError  (ib_imp+1)*reso;
-          profile_eta_dep_reco[ihar][ipt][ieta]->SetBinContent(ib_imp+1,val);
-          profile_eta_dep_reco[ihar][ipt][ieta]->GetBinError  (ib_imp+1,err);
+          float val=m_profile_eta_dep_reco[ihar][ipt][ieta]->GetBinContent(ib_imp+1)*reso;
+          float err=m_profile_eta_dep_reco[ihar][ipt][ieta]->GetBinError  (ib_imp+1)*reso;
+          m_profile_eta_dep_reco[ihar][ipt][ieta]->SetBinContent(ib_imp+1,val);
+          m_profile_eta_dep_reco[ihar][ipt][ieta]->GetBinError  (ib_imp+1,err);
         }
       }
     }

@@ -25,6 +25,8 @@ class TH1D;
 #include "xAODMissingET/MissingETContainer.h"
 #include "xAODMissingET/MissingETAssociationMap.h"
 
+#include <gtest/gtest_prod.h>
+
 namespace met {
 
   typedef ElementLink<xAOD::IParticleContainer> obj_link_t;
@@ -79,13 +81,20 @@ namespace met {
     // This macro defines the constructor with the interface declaration
     ASG_TOOL_CLASS(METSystematicsTool, IMETSystematicsTool)
 
+    // FRIEND_TEST( METSystTest, TestGetEventInfo );
+    FRIEND_TEST( METSystTest, TestDefaultHistosFilled );
+    FRIEND_TEST( METSystTest, TestJetTrkHistosFilled );
+    FRIEND_TEST( METSystTest, TestAddAffectingSystematic );
+    FRIEND_TEST( METSystTest, TestProjectST );
+    FRIEND_TEST( METSystTest, TestProjectST2 );
+
     public:
 
     //Constructor
     METSystematicsTool(const std::string& name);
 
     //Destructor
-    // virtual ~METSystematicsTool(){}
+    // virtual ~METSystematicsTool();
 
     StatusCode softTrkSystInitialize(); //initialize softTrk scale/reo histos from config file
     StatusCode softCaloSystInitialize();//initialize softCalo scale/reso histos from config file
@@ -140,6 +149,7 @@ namespace met {
     std::string m_truthObj;
     std::string m_vertexCont;
     std::string m_eventInfo;
+    int         m_randSeed ;
     bool        m_useDevArea;
 
     TH3D* m_shiftpara_pthard_njet_mu;

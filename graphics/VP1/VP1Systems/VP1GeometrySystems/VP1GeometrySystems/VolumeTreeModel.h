@@ -5,7 +5,7 @@
 #ifndef VOLUMETREEMODEL_H
 #define VOLUMETREEMODEL_H
 
-#include <QtCore/QAbstractItemModel>
+#include <QAbstractItemModel>
 
 #include "VP1GeometrySystems/VolumeHandle.h"
 #include "VP1GeometrySystems/VP1GeoFlags.h"

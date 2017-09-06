@@ -183,7 +183,6 @@ HLT::ErrorCode muIso::hltExecute(const HLT::TriggerElement* inputTE, HLT::Trigge
    }
 
    xAOD::L2CombinedMuonContainer::iterator muonCB_it(muonColl->begin());
-   xAOD::L2CombinedMuonContainer::iterator muonCB_end(muonColl->end());
    muonCB = *muonCB_it;
 
    // Create Iso muon

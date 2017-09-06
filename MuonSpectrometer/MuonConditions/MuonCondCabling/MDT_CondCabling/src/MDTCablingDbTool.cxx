@@ -57,7 +57,9 @@ MDTCablingDbTool::MDTCablingDbTool (const std::string& type,
 }
 
 //StatusCode MDTCablingDbTool::updateAddress(SG::TransientAddress* tad)
-StatusCode MDTCablingDbTool::updateAddress(StoreID::type /*storeID*/, SG::TransientAddress* tad)
+StatusCode MDTCablingDbTool::updateAddress(StoreID::type /*storeID*/,
+                                           SG::TransientAddress* tad,
+                                           const EventContext& /*ctx*/)
 {
   CLID clid        = tad->clID();
   std::string key  = tad->name();

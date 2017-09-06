@@ -8,6 +8,7 @@
 #include "AthenaKernel/getMessageSvc.h"
 #include "AthenaKernel/CondCont.h"
 #include "AthenaKernel/IOVEntryT.h"
+#include "AthenaKernel/ExtendedEventContext.h"
 
 #include "StoreGate/VarHandleBase.h"
 #include "StoreGate/ReadHandle.h"
@@ -61,7 +62,8 @@ namespace SG {
         
     EventIDBase m_eid;
     CondCont<T>*  m_cc {nullptr};
-    const IOVEntryT<T> * m_ent {nullptr};
+    const T* m_obj { nullptr };
+    EventIDRange m_range;
     
     const SG::ReadCondHandleKey<T>& m_hkey;
   };
@@ -85,13 +87,10 @@ namespace SG {
     m_cc( key.getCC() ),
     m_hkey(key)
   {
-    // FIXME: propagate input dependency?
-    SG::ReadHandleKey<AthenaAttributeList> inputKey ("Input");
-    inputKey.initialize().ignore();
-    SG::ReadHandle<AthenaAttributeList> input (inputKey, ctx);
-    if (input.isValid()) {
-      if (input->exists ("ConditionsRun"))
-        m_eid.set_run_number ((*input)["ConditionsRun"].data<unsigned int>());
+    EventIDBase::number_type conditionsRun =
+      ctx.template getExtension<Atlas::ExtendedEventContext>()->conditionsRun();
+    if (conditionsRun != EventIDBase::UNDEFNUM) {
+      m_eid.set_run_number (conditionsRun);
     }
 
     if (! m_hkey.isInit()) {
@@ -118,9 +117,9 @@ namespace SG {
   bool
   ReadCondHandle<T>::initCondHandle() {
 
-    if (m_ent != 0) return true;
+    if (m_obj != 0) return true;
 
-    if ( ! m_cc->findEntry(m_eid, m_ent) ) {
+    if ( ! m_cc->find(m_eid, m_obj, &m_range) ) {
       std::ostringstream ost;
       m_cc->list(ost);
       MsgStream msg(Athena::getMessageSvc(), "ReadCondHandle");
@@ -129,7 +128,7 @@ namespace SG {
           << m_eid  << " for key " << objKey() << "\n"
           << ost.str()
           << endmsg;
-      m_ent = nullptr;
+      m_obj = nullptr;
       return false;
     }
 
@@ -142,7 +141,7 @@ namespace SG {
   const T*
   ReadCondHandle<T>::retrieve() {
     
-    if (m_ent == 0) {
+    if (m_obj == 0) {
       if (!initCondHandle()) {
       // std::ostringstream ost;
       // m_cc->list(ost);
@@ -156,9 +155,7 @@ namespace SG {
       }
     }
 
-    const_pointer_type cobj = 
-      const_cast<const_pointer_type>( m_ent->objPtr() );      
-    return cobj;
+    return m_obj;
   }
 
   //---------------------------------------------------------------------------
@@ -212,13 +209,13 @@ namespace SG {
   bool 
   ReadCondHandle<T>::range(EventIDRange& r) {
 
-    if (m_ent == 0) {
+    if (m_obj == 0) {
       if (!initCondHandle()) {
         return false;
       }
     }
 
-    r = m_ent->range();
+    r = m_range;
     return true;
   }
 

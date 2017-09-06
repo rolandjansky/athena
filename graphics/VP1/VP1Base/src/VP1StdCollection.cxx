@@ -13,15 +13,18 @@
 ////////////////////////////////////////////////////////////////
 
 #include "VP1Base/VP1StdCollection.h"
-#include <QtGui/QCheckBox>
-#include <Inventor/C/errors/debugerror.h>
-#include <Inventor/nodes/SoSwitch.h>
-#include <Inventor/nodes/SoMaterial.h>
-#include <Inventor/nodes/SoSeparator.h>
 #include "VP1Base/VP1MaterialButton.h"
 #include "VP1Base/VP1Serialise.h"
 #include "VP1Base/VP1Deserialise.h"
 #include "VP1Base/VP1QtInventorUtils.h"
+
+#include <Inventor/C/errors/debugerror.h>
+#include <Inventor/nodes/SoSwitch.h>
+#include <Inventor/nodes/SoMaterial.h>
+#include <Inventor/nodes/SoSeparator.h>
+
+#include <QCheckBox>
+
 #include <iostream>
 //____________________________________________________________________
 class VP1StdCollection::Imp {
@@ -295,7 +298,7 @@ void VP1StdCollection::setState(const QByteArray&state)
     return;
   }
   bool vis = des.restoreBool();
-    
+
   QByteArray matState = des.restoreByteArray();
   QByteArray extraWidgetState = des.version()>=1 ? des.restoreByteArray() : QByteArray();
 

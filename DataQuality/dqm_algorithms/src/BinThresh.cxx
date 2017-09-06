@@ -31,7 +31,7 @@ namespace dqm_algorithms {
 	{
 		std::string message;
 		message += "\n";
-		message += "Algorithm: \"" + name + "\"\n";
+		message += "Algorithm: \"" + m_name + "\"\n";
 		message += "Description: Defines a warning and an error threshold for individual bins.\n";
 		message += "             The status is the worst case summary of individual bin comparisons.\n";
 		message += "             Some of the parameter names depend on whether the histogram is 1D or 2D.\n";
@@ -110,11 +110,11 @@ namespace dqm_algorithms {
 	
 	BinThresh::
 	BinThresh()
-	: name("BinThresh")
-	, NbinsX(-1)
-	, NbinsY(-1)
+	: m_name("BinThresh")
+	, m_NbinsX(-1)
+	, m_NbinsY(-1)
 	{
-		dqm_core::AlgorithmManager::instance().registerAlgorithm( name, this );
+		dqm_core::AlgorithmManager::instance().registerAlgorithm( m_name, this );
 		
 		//NOTE: name will yield the entire directory structure
 		//leading up to the algorithm instance.
@@ -147,8 +147,8 @@ namespace dqm_algorithms {
 		int NErrors = 0;
 		int NGoodPrint = 0;
 		//Histogram dimension default = no dimensions
-		NbinsX = -1;
-		NbinsY = -1;
+		m_NbinsX = -1;
+		m_NbinsY = -1;
 		
 		//Get data
 		if (!data.IsA()->InheritsFrom("TH1")) {
@@ -182,7 +182,7 @@ namespace dqm_algorithms {
 		if ( data.IsA()->InheritsFrom("TProfile") ) {
 			TProfile* hp = (TProfile*)&data;
 			//ASSUME: dimension = 1
-			NbinsX = hp->GetNbinsX();
+			m_NbinsX = hp->GetNbinsX();
 			
 			//Get threshold limits & masks
 			std::vector<BinThresh::mask_limits> Limits;
@@ -194,7 +194,7 @@ namespace dqm_algorithms {
 			}
 			//CHECK
 			//Verify threshold limit consistencies
-			for(int bin = 0; bin < NbinsX; bin++) {
+			for(int bin = 0; bin < m_NbinsX; bin++) {
 				if ((UseValue > 0 && Limits[bin].WarningValue > Limits[bin].ErrorValue) || 
 					(UseValue < 0 && Limits[bin].WarningValue < Limits[bin].ErrorValue)) {
 					//Masked thresholds might be used for a different algorithm configuration
@@ -208,14 +208,14 @@ namespace dqm_algorithms {
 			//Rescale Thresholds to test fractional distribution
 			double h_entries = hp->GetEntries();
 			if ( TypeValue ) {
-				for (int bin = 0; bin < NbinsX; bin++) {
+				for (int bin = 0; bin < m_NbinsX; bin++) {
 					Limits[bin].WarningValue = Limits[bin].WarningValue * h_entries;
 					Limits[bin].ErrorValue = Limits[bin].ErrorValue * h_entries;
 				}
 			}
 			
 			//Check all bins
-			for (int bin = 0; bin < NbinsX; bin++) {
+			for (int bin = 0; bin < m_NbinsX; bin++) {
 				double bincon = hp->GetBinContent(bin + 1);
 				if ( !Limits[bin].Mask && hp->GetBinEntries(bin + 1) >= BinMinEntries ) {
 					//Check for and Print errors
@@ -282,7 +282,7 @@ namespace dqm_algorithms {
 		// 1D Histogram case
 		//**********
 		if ( (! data.IsA()->InheritsFrom("TProfile")) && h->GetDimension() == 1 ) {
-			NbinsX = h->GetNbinsX();
+			m_NbinsX = h->GetNbinsX();
 			
 			//Get threshold limits & masks
 			std::vector<BinThresh::mask_limits> Limits;
@@ -294,7 +294,7 @@ namespace dqm_algorithms {
 			}
 			//CHECK
 			//Verify threshold limit consistencies
-			for(int bin = 0; bin < NbinsX; bin++) {
+			for(int bin = 0; bin < m_NbinsX; bin++) {
 				if ((UseValue > 0 && Limits[bin].WarningValue > Limits[bin].ErrorValue) || 
 					(UseValue < 0 && Limits[bin].WarningValue < Limits[bin].ErrorValue)) {
 					//Masked thresholds might be used for a different algorithm configuration
@@ -308,14 +308,14 @@ namespace dqm_algorithms {
 			//Rescale Thresholds to test fractional distribution
 			double h_entries = h->GetEntries();
 			if ( TypeValue ) {
-				for (int bin = 0; bin < NbinsX; bin++) {
+				for (int bin = 0; bin < m_NbinsX; bin++) {
 					Limits[bin].WarningValue = Limits[bin].WarningValue * h_entries;
 					Limits[bin].ErrorValue = Limits[bin].ErrorValue * h_entries;
 				}
 			}
 			
 			//Check all bins
-			for (int bin = 0; bin < NbinsX; bin++) {
+			for (int bin = 0; bin < m_NbinsX; bin++) {
 				double bincon = h->GetBinContent(bin + 1);
 				if ( !Limits[bin].Mask ) {
 					//Check for and Print errors
@@ -382,8 +382,8 @@ namespace dqm_algorithms {
 		// 2D Histogram case
 		//**********
 		if ( (! data.IsA()->InheritsFrom("TProfile")) && h->GetDimension() == 2 ) {
-			NbinsX = h->GetNbinsX();
-			NbinsY = h->GetNbinsY();
+			m_NbinsX = h->GetNbinsX();
+			m_NbinsY = h->GetNbinsY();
 			
 			//Get threshold limits & masks
 			std::vector< std::vector<BinThresh::mask_limits> > Limits;
@@ -395,8 +395,8 @@ namespace dqm_algorithms {
 			}
 			//CHECK
 			//Verify threshold limit consistencies
-			for(int binX = 0; binX < NbinsX; binX++) {
-				for(int binY = 0; binY < NbinsY; binY++) {
+			for(int binX = 0; binX < m_NbinsX; binX++) {
+				for(int binY = 0; binY < m_NbinsY; binY++) {
 					if ( (UseValue > 0 && Limits[binX][binY].WarningValue > Limits[binX][binY].ErrorValue) || 
 						(UseValue < 0 && Limits[binX][binY].WarningValue < Limits[binX][binY].ErrorValue)) {
 						//Masked thresholds might be used for a different algorithm configuration
@@ -410,16 +410,16 @@ namespace dqm_algorithms {
 			//Rescale Thresholds to test fractional distribution
 			double h_entries = h->GetEntries();
 			if ( TypeValue ) {
-				for (int binX = 0; binX < NbinsX; binX++) {
-					for (int binY = 0; binY < NbinsY; binY++) {
+				for (int binX = 0; binX < m_NbinsX; binX++) {
+					for (int binY = 0; binY < m_NbinsY; binY++) {
 						Limits[binX][binY].WarningValue = Limits[binX][binY].WarningValue * h_entries;
 						Limits[binX][binY].ErrorValue = Limits[binX][binY].ErrorValue * h_entries;
 					}}
 			}
 			
 			//Check all bins
-			for (int binX = 0; binX < NbinsX; binX++) {
-				for (int binY = 0; binY < NbinsY; binY++) {
+			for (int binX = 0; binX < m_NbinsX; binX++) {
+				for (int binY = 0; binY < m_NbinsY; binY++) {
 					double bincon = h->GetBinContent(binX + 1, binY + 1);
 					if ( !Limits[binX][binY].Mask ) {
 						//Check for and Print errors
@@ -575,10 +575,10 @@ namespace dqm_algorithms {
 		}
 		
 		//Make default threshold & mask
-		std::vector<BinThresh::mask_limits> Limits(NbinsX, default_Limits);
+		std::vector<BinThresh::mask_limits> Limits(m_NbinsX, default_Limits);
 		
 		//Get specific bin limits and unmasked bins
-		for ( int bin = 0; bin < NbinsX; bin++ ) {
+		for ( int bin = 0; bin < m_NbinsX; bin++ ) {
 			std::string value_bin = Form("Value_%d", bin + 1);
 			//Get thresholds for bin
 			warning_map_bin = warning_params.find(value_bin.c_str());
@@ -628,11 +628,11 @@ namespace dqm_algorithms {
 		}
 		
 		//Make default threshold & mask
-		std::vector< std::vector<BinThresh::mask_limits> > Limits(NbinsX, std::vector<BinThresh::mask_limits>(NbinsY, default_Limits));
+		std::vector< std::vector<BinThresh::mask_limits> > Limits(m_NbinsX, std::vector<BinThresh::mask_limits>(m_NbinsY, default_Limits));
 		
 		//Get specific bin limits and unmasked bins
-		for ( int binX = 0; binX < NbinsX; binX++ ) {
-			for ( int binY = 0; binY < NbinsY; binY++ ) {
+		for ( int binX = 0; binX < m_NbinsX; binX++ ) {
+			for ( int binY = 0; binY < m_NbinsY; binY++ ) {
 				std::string value_bin = Form("Value_%d_%d", binX + 1, binY + 1);
 				//Get thresholds for bin
 				warning_map_bin = warning_params.find(value_bin.c_str());

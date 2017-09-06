@@ -104,7 +104,6 @@ StatusCode MDT_MapConversion::initialize()
  
   IRDBAccessSvc *accessSvc;
   service("RDBAccessSvc",accessSvc);
-  accessSvc->connect();
   
   
 
@@ -140,11 +139,11 @@ StatusCode MDT_MapConversion::initialize()
     Identifier ChamberId = m_mdtIdHelper->elementID(stName,stEta,stPhi);
     //log << MSG::INFO << "#### Chamber Name Offline" << ChamberId<< endmsg;
     
-    m_Chamber_Map.insert(std::make_pair(hardwareName,ChamberId));
+    //m_Chamber_Map.insert(std::make_pair(hardwareName,ChamberId));
+    m_Chamber_Map[hardwareName]=ChamberId;
     
   }
 	
-    accessSvc->disconnect(); 
     log << MSG::INFO << "#### Chamber Map SIZE" << m_Chamber_Map.size()<< endmsg;
   return StatusCode::SUCCESS;
  

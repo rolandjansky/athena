@@ -16,8 +16,8 @@
 #define IVP1SYSTEM_H
 
 #include "VP1Base/VP1String.h"
-#include <QtCore/QObject>
-#include <QtCore/QByteArray>
+#include <QObject>
+#include <QByteArray>
 
 class IVP1ChannelWidget;
 class StoreGateSvc;

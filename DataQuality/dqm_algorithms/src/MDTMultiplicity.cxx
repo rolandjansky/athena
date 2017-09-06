@@ -36,9 +36,9 @@ namespace dqm_algorithms {
 // *********************************************************************
 
 MDTMultiplicity::MDTMultiplicity()
-  : name("MDTmultiplicity")
+  : m_name("MDTmultiplicity")
 {
-  dqm_core::AlgorithmManager::instance().registerAlgorithm( name, this );
+  dqm_core::AlgorithmManager::instance().registerAlgorithm( m_name, this );
 }
 
 
@@ -339,7 +339,7 @@ void
 MDTMultiplicity::printDescription(std::ostream& out){
   std::string message;
   message += "\n";
-  message += "Algorithm: \"" + name + "\"\n";
+  message += "Algorithm: \"" + m_name + "\"\n";
   message += "Description: it look for peaks in the histogram and it compare their position with user defined position or with reference histogram peak position. The algorithm define a peak first looking for the higher statistic bin then it look for other bins with at last a user defined percent of the entrance of the maximum bin  \n";
   message += "Green/Red Thresh: PeakShift: the number of bins tollerated for the shift of a peak\n";
   message += "Mandatory Params: MinStat: minimum statistical requirement\n";

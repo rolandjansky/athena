@@ -21,6 +21,10 @@
 #ifndef TESTTOOLS_LEAKCHECK_H
 #define TESTTOOLS_LEAKCHECK_H
 
+// Can't use CxxUtils/checker_macros.h here, since that would be circular dependency.
+#ifdef ATLAS_GCC_CHECKERS
+#pragma ATLAS no_check_thread_safety
+#endif
 
 #include <malloc.h>
 #include <unordered_set>

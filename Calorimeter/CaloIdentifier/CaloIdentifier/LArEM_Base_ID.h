@@ -345,11 +345,11 @@ private:
   enum {NOT_VALID_HASH = 256000};
 
   // Check methods
-  void  region_id_checks   	(int barrel_ec, int sampling, int region ) const throw(LArID_Exception);
+  void  region_id_checks   	(int barrel_ec, int sampling, int region ) const;
   void  channel_id_checks   	(int barrel_ec, int sampling, int region,
-				 int eta,       int phi ) const throw(LArID_Exception);
+				 int eta,       int phi ) const;
   void  channel_id_checks   	(const Identifier regionId,
-				 int eta,       int phi ) const throw(LArID_Exception);
+				 int eta,       int phi ) const;
 
   /** create expanded Identifier from Identifier (return == 0 for OK) */
   virtual int  get_expanded_id  (const Identifier& id, ExpandedIdentifier& exp_id, const IdContext* context) const;

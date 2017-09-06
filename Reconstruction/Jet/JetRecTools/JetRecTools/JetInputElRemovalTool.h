@@ -91,25 +91,29 @@ private:
   std::vector<const xAOD::Electron*> selectElectron() const;
   
   
-  std::string m_elInputContainer = "Electrons" ;  // input name for electrons
+  // std::string m_elInputContainer = "Electrons" ;  // input name for electrons
   std::string m_elIDname = "DFCommonElectronsLHTight" ; // remove electrons passing this ID. Ex :DFCommonElectronsLHTight
   float m_elPt = 25000 ;
-  
-  std::string m_clInputContainer = "CaloCalTopoClusters" ;  // input name for clusters
-  std::string m_clOutputContainer = "CaloCalTopoClustersNoEl" ; // output name for clusters 
-  
   bool m_useOnlyclInJets=false; //Use only clusters from jets
-  std::string m_jetINputContainer = "AntiKt4EMTopoJets" ; // Name of the jet container to be used
   
   float m_clRemovRadius =0.15; // remove clusters within this radius around electron  
   float m_clEMFrac = 0.8;      // remove clusters having EM frac lower than this
   
-  std::string m_trkInputContainer="InDetTrackParticles" ;  // input name for  tracks
-  std::string m_trkOutputContainer="InDetTrackParticlesNoEl" ; // output name for tracks
-  
-  
-  
-  
+  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trkInputContainer_key;
+  SG::ReadHandleKey<xAOD::JetContainer> m_jetInputContainer_key;
+  SG::ReadHandleKey<xAOD::CaloClusterContainer> m_clInputContainer_key;
+  SG::ReadHandleKey<xAOD::EgammaContainer> m_elInputContainer_key;
+
+  using ClOutHandleKey = 
+    SG::WriteHandleKey<ConstDataVector<xAOD::CaloClusterContainer>>;
+
+  ClOutHandleKey m_clOutputContainer_key;
+
+  using TrkOutHandleKey = 
+    SG::WriteHandleKey<ConstDataVector<xAOD::TrackParticleContainer>>;
+
+  TrkOutHandleKey m_trkOutputContainer_key;
+
 };
 
 #endif

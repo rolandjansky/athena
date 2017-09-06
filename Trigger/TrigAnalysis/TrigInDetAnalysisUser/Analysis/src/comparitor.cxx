@@ -92,6 +92,7 @@ int usage(const std::string& name, int status) {
   s << "         --deleteref          \t delete unused reference histograms\n";
   s << "    -xo, --xoffset            \t relative x offset for the key\n"; 
   s << "    -yp, --ypos               \t relative yposition for the key\n"; 
+  s << "    -ac, --addchains          \t if possible, add chain names histogram labels \n";   
   s << "    -xe, --xerror value       \t size of the x error tick marks\n"; 
   //  s << "         --fe,            \t relative x offset for the key\n"; 
   s << "    -h,  --help              \t this help\n";
@@ -220,7 +221,9 @@ int main(int argc, char** argv) {
   bool normref     = false;
   bool scalepix    = true;
   bool oldrms      = false;
-  
+  bool addchains   = false;
+
+
   double xerror    = 0;
 
   std::string atlaslabel = "Internal";
@@ -291,6 +294,9 @@ int main(int argc, char** argv) {
     }
     else if ( arg=="--unscalepix" ) { 
       scalepix = false;
+    }
+    else if ( arg=="-ac" || arg=="--addchains" ) { 
+      addchains = true;
     }
     else if ( arg=="-yrange" ) { 
       effset = true;
@@ -1098,6 +1104,22 @@ int main(int argc, char** argv) {
 
     for ( unsigned int j=0; j<chains.size(); j++)  {
 
+      /// get the actual chain name and track collection from 
+      /// the Chain histogram if present
+      
+      std::string chain_name = "";
+
+      if ( addchains && ( contains(chains[j],"Shifter") || !contains(chains[j],"HLT_") ) ) { 
+	TH1F* hchain = (TH1F*)ftest.Get((chains[j]+"/Chain").c_str()) ;
+	if ( hchain ) { 
+	  std::string name = hchain->GetTitle();
+	  while ( contains( name, "HLT_" ) ) name = name.erase( name.find("HLT_"), 4 );
+	  if ( contains( name, ":" ) )  chain_name = name.substr( 0, name.find(":") ) + " : ";
+	  else                          chain_name = name;
+	}
+      }
+      
+
       noreftmp = noref;
       Plotter::setplotref(!noreftmp);
 
@@ -1496,8 +1518,8 @@ int main(int argc, char** argv) {
       //      std::cout << "adding plot " << histos[i] << " " << htest->GetName() << std::endl;
 
       if ( fulldbg ) std::cout << __LINE__ << std::endl;
-
-      if ( uselabels )  plots.push_back( Plotter( htest, href, usrlabels[j], tgtest ) );
+      
+      if ( uselabels )  plots.push_back( Plotter( htest, href, chain_name+usrlabels[j], tgtest ) );
       else              plots.push_back( Plotter( htest, href, c, tgtest ) );
 
       if ( fulldbg ) std::cout << __LINE__ << std::endl;

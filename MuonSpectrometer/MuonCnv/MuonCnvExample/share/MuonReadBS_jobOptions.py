@@ -13,19 +13,20 @@ include.block("MuonCnvExample/MuonReadBS_jobOptions.py")
 
 from AthenaCommon.DetFlags import DetFlags
 from AthenaCommon.CfgGetter import getAlgorithm
+from MuonRecExample.MuonRecFlags import muonRecFlags
 
 # ================= MDT ===========================
-if DetFlags.readRDOBS.MDT_on():
+if DetFlags.readRDOBS.MDT_on() and muonRecFlags.makePRDs():
     topSequence += getAlgorithm("MuonMdtRawDataProvider")
     
 # ================= RPC ===========================
-if DetFlags.readRDOBS.RPC_on():
+if DetFlags.readRDOBS.RPC_on() and muonRecFlags.makePRDs():
     topSequence += getAlgorithm("MuonRpcRawDataProvider")
 
 # ================= TGC ===========================
-if DetFlags.readRDOBS.TGC_on():
+if DetFlags.readRDOBS.TGC_on() and muonRecFlags.makePRDs():
     topSequence += getAlgorithm("MuonTgcRawDataProvider")
 
 # ================= CSC ===========================
-if DetFlags.readRDOBS.CSC_on():
+if DetFlags.readRDOBS.CSC_on() and muonRecFlags.makePRDs():
     topSequence += getAlgorithm("MuonCscRawDataProvider")

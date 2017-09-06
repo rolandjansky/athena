@@ -113,7 +113,9 @@ MdtCalibDbCoolStrTool::~MdtCalibDbCoolStrTool() {
 
 // Check StoreGate ClassID (clid) and key for tube and RT calib data (required by the IAddressProvider interface)
 // (poor name choice, not related to updating address)
-StatusCode MdtCalibDbCoolStrTool::updateAddress(StoreID::type /*storeID*/, SG::TransientAddress *tad) {
+StatusCode MdtCalibDbCoolStrTool::updateAddress(StoreID::type /*storeID*/,
+                                                SG::TransientAddress *tad,
+                                                const EventContext& /*ctx*/) {
   CLID clid        = tad->clID();
   std::string key  = tad->name();
   if( 1221928754 == clid && m_tubeDataLocation == key) {

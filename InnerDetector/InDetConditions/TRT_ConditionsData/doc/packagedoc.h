@@ -40,17 +40,13 @@ This package provides TDS objects for storing TRT Conditions data.
   -  TRTWeifloat : DEPRECIATED
   -  TRTStrawStatusData :  A class holding dead/noisy status (to be relaced by TRTCond::StrawStatus)
  
-@ref used_TRT_ConditionsData
-
-@ref requirements_TRT_ConditionsData
-
-*/
-/**
-@page used_TRT_ConditionsData Used Packages
 
 
 */
 /**
-@page requirements_TRT_ConditionsData requirements
+
+
+*/
+/**
 
 */

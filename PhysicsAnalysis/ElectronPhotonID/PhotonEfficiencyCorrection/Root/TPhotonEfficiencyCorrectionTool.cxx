@@ -51,6 +51,7 @@ switch (isolationcut){
 	  else if(fabs(eta)<1.81) return 0.00095;
 	  else if(fabs(eta)<2.37) return 0.0023;
 	}
+        return 0;
   case 4: return 0;	
   case 5:
 	if(isConv){
@@ -67,6 +68,7 @@ switch (isolationcut){
 	  else if(fabs(eta)<1.81) return 0.002;
 	  else if(fabs(eta)<2.37) return 0.0023;
 	}
+        return 0;
   case 6:
 	if(isConv){
 		if(fabs(eta)<0.6) return 0.0045;
@@ -82,7 +84,8 @@ switch (isolationcut){
 	  else if(fabs(eta)<1.81) return 0.0012;
 	  else if(fabs(eta)<2.37) return 0.0048;
 	}
-	case 7:
+        return 0;
+  case 7:
 	if(isConv){
 		if(fabs(eta)<0.6) return 0.011;
 		else if(fabs(eta)<1.37) return 0.0074;
@@ -97,7 +100,8 @@ switch (isolationcut){
 	  else if(fabs(eta)<1.81) return 0.00041;
 	  else if(fabs(eta)<2.37) return 0.0037;
 	}
-	case 8:
+        return 0;
+  case 8:
 	if(isConv){
 		if(fabs(eta)<0.6) return 0.0033;
 		else if(fabs(eta)<1.37) return 0.00051;
@@ -112,6 +116,7 @@ switch (isolationcut){
 	  else if(fabs(eta)<1.81) return 0.0012;
 	  else if(fabs(eta)<2.37) return 0.0032;
 	}
+        return 0;
 	default: std::cout<<"Wrong isolation input!!!!!"<<std::endl; return 0.;
 }	
 return 0.;

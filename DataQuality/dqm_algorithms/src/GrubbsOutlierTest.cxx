@@ -36,14 +36,14 @@
 dqm_algorithms::GrubbsOutlierTest GrubbsTest( "Grubbs" );
 
 dqm_algorithms::GrubbsOutlierTest::GrubbsOutlierTest( const std::string & name )
-  : name_ ( name ) {
+  : m_name ( name ) {
   dqm_core::AlgorithmManager::instance().registerAlgorithm("OutlierTest_"+ name, this );
 }
 
 dqm_algorithms::GrubbsOutlierTest * 
 dqm_algorithms::GrubbsOutlierTest::clone()
 {
-  return new GrubbsOutlierTest( name_ );
+  return new GrubbsOutlierTest( m_name );
 }
 
 
@@ -123,7 +123,7 @@ dqm_algorithms::GrubbsOutlierTest::execute(	const std::string & name ,
   }
 
   if ( grThr > 1.0 || reThr > 1.0) {
-    throw dqm_core::BadConfig(ERS_HERE,name_,"Configuration Error: Threshold>100%");
+    throw dqm_core::BadConfig(ERS_HERE,m_name,"Configuration Error: Threshold>100%");
   }
   
     //loop over bins and store values

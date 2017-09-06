@@ -16,9 +16,6 @@
 #include <TApplication.h>
 #include <TError.h>
 #include <TSystem.h>
-#if ROOT_VERSION_CODE < ROOT_VERSION( 5, 99, 0 )
-#   include <Cintex/Cintex.h>
-#endif // ROOT_VERSION
 
 // Local include(s):
 #include "xAODRootAccess/Init.h"
@@ -77,11 +74,6 @@ namespace xAOD {
             ::TApplication::CreateApplication();
          }
       }
-
-#if ROOT_VERSION_CODE < ROOT_VERSION( 5, 99, 0 )
-      // Enable Cintex:
-      ROOT::Cintex::Cintex::Enable();
-#endif // ROOT_VERSION
 
       // Let the user know what happened:
       ::Info( appname, "Environment initialised for data access" );

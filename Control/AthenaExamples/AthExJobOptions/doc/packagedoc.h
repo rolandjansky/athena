@@ -45,16 +45,6 @@ As well as the following helpers:
 
   - SomeData : a custom data class, instances of which can be put in, and read from, @c StoreGate
 
-@ref used_AthExJobOptions
 
-@ref requirements_AthExJobOptions
 
-*/
-
-/**
-@page used_AthExJobOptions Used Packages
-*/
-
-/**
-@page requirements_AthExJobOptions Requirements
 */

@@ -76,15 +76,5 @@ List of settable properties:
 - for MdtCalibrationDbSvc:
    - DBTool (a PublicToolHandle, default is 'MuonCalib::MdtCalibDbAsciiTool')
 
-@ref used_MdtCalibSvc
 
-@ref requirements_MdtCalibSvc
 */
-
-/**
-@page used_MdtCalibSvc Used Packages
-*/
-                                                                                 /**
-@page requirements_MdtCalibSvc Requirements
-*/
-

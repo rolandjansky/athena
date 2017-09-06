@@ -140,7 +140,6 @@ InDetFlags.doPhysValMon  = True
 # --- produce various ntuples (all in one root file)
 InDetFlags.doTrkNtuple      = False
 InDetFlags.doPixelTrkNtuple = False
-InDetFlags.doPixelClusterNtuple = False
 
 #InDetFlags.doMinBias   = True
 

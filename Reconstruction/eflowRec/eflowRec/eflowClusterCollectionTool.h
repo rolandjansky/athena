@@ -33,8 +33,8 @@ class eflowClusterCollectionTool : virtual public IEFlowClusterCollectionTool, p
   static const InterfaceID& interfaceID();
 
   StatusCode initialize();
-  xAOD::CaloClusterContainer* execute(eflowCaloObjectContainer* theEflowCaloObjectContainer, bool useNonModifiedClusters);
-  eflowRecClusterContainer* retrieve(eflowCaloObjectContainer* theEflowCaloObjectContainer, bool useNonModifiedClusters);
+  std::unique_ptr<xAOD::CaloClusterContainer> execute(eflowCaloObjectContainer* theEflowCaloObjectContainer, bool useNonModifiedClusters);
+  std::unique_ptr<eflowRecClusterContainer> retrieve(eflowCaloObjectContainer* theEflowCaloObjectContainer, bool useNonModifiedClusters);
   StatusCode finalize();
 
 };

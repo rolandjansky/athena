@@ -22,8 +22,8 @@ namespace dqm_algorithms
             using dqm_core::Algorithm::printDescription;
             void  printDescription(std::ostream& out);           
           private:
-            std::string name_;
-	    std::string option;
+            std::string m_name;
+	    std::string m_option;
 	};
 }
 

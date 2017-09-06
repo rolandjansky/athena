@@ -28,7 +28,7 @@ public:
   
 protected:
 
-  std::string  outputName;
+  std::string  m_outputName;
   
   
 //Get rid of Root macros that confuse Doxygen

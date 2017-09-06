@@ -581,7 +581,7 @@ namespace InDet
       }
       
     
-      int nb = getCount(tp,xAOD::numberOfBLayerHits );
+      int nb = getCount(tp,xAOD::numberOfInnermostPixelLayerHits );
       int np = getCount(tp,xAOD::numberOfPixelHits );
       int npd = getCount(tp,xAOD::numberOfPixelDeadSensors );
       int ns  = getCount(tp,xAOD::numberOfSCTHits );
@@ -724,7 +724,7 @@ namespace InDet
 
       if (m_useSharedHitInfo) {
 
-	int nbs = getCount(tp,xAOD::numberOfBLayerSharedHits); 
+	int nbs = getCount(tp,xAOD::numberOfInnermostPixelLayerSharedHits);
 	if (nbs>1) nbs=1;
 	if(nbs>m_nSharedBLayer) {
 	  ATH_MSG_DEBUG("Track rejected because of nSharedBLayer "<<nbs<<" < "<<m_nSharedBLayer);
@@ -958,7 +958,7 @@ namespace InDet
       return false;
     }
     
-    int nb = summary->get(Trk::numberOfBLayerHits); 
+    int nb = summary->get(Trk::numberOfInnermostPixelLayerHits);
     
     if(nb<0) nb=0; 
     
@@ -1136,7 +1136,7 @@ namespace InDet
 
     if (useSharedHitInfo) {
 
-      int nbs = summary->get(Trk::numberOfBLayerSharedHits); 
+      int nbs = summary->get(Trk::numberOfInnermostPixelLayerSharedHits);
       if(nbs < 0) nbs = 0;
       if (nbs>1) nbs=1;
       if(nbs>m_nSharedBLayer) {

@@ -15,12 +15,14 @@
 #include "VP1Gui/VP1DockWidget.h"
 #include "VP1Gui/VP1TabManager.h"
 #include "VP1Base/IVP1ChannelWidget.h"
-#include <QtGui/QFrame>
-#include <QtCore/QEvent>
-#include <QtCore/QSet>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QContextMenuEvent>
-#include <QtGui/QMenu>
+
+#include <QFrame>
+#include <QEvent>
+#include <QSet>
+#include <QVBoxLayout>
+#include <QContextMenuEvent>
+#include <QMenu>
+
 #include <cassert>
 #include <iostream>
 

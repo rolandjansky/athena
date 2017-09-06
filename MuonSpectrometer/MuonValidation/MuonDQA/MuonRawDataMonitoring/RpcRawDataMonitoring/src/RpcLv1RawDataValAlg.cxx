@@ -814,9 +814,7 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
     MonGroup rpclv1_shift_dqmf( this, generic_path_rpclv1monitoring + "/GLOBAL", run, ATTRIB_UNMANAGED )  ;
     MonGroup rpcCoolDb( this, generic_path_rpclv1monitoring+"/CoolDB", run, ATTRIB_UNMANAGED )         ;
      
-    if(newEventsBlock){}
-    if(newLumiBlock){}
-    if(newRun)
+    if(newRunFlag())
       {         
 
 	ATH_MSG_DEBUG ( "RPCLV1 RawData Monitoring : isNewRun" );
@@ -1918,9 +1916,6 @@ StatusCode RpcLv1RawDataValAlg::procHistograms()
 {
  
   ATH_MSG_DEBUG ( "RpcLv1RawDataValAlg finalize()" );
-  if(endOfEventsBlock){}
-  if(endOfLumiBlock){}
-  if(endOfRun){} 
   return StatusCode::SUCCESS;
 }
 

@@ -10,29 +10,36 @@
 
 JetTrackMomentsTool::JetTrackMomentsTool(const std::string& name)
     : JetModifierBase(name)
-    , m_vertexContainer("")
+      // , m_vertexContainer("")
     , m_assocTracksName("")
-    , m_tva("")
+      // , m_tva("")
     , m_minTrackPt()
     , m_htsel("")
 {
-    declareProperty("VertexContainer",m_vertexContainer);
-    declareProperty("AssociatedTracks",m_assocTracksName);
-    declareProperty("TrackVertexAssociation",m_tva);
-    declareProperty("TrackMinPtCuts",m_minTrackPt);
-    declareProperty("TrackSelector", m_htsel);
+  declareProperty("AssociatedTracks",m_assocTracksName);
+  declareProperty("TrackMinPtCuts",m_minTrackPt);
+  declareProperty("TrackSelector", m_htsel);
+  
+  declareProperty("VertexContainer",m_vertexContainer_key);
+  declareProperty("TrackVertexAssociation",m_tva_key);
 }
 
 
 //**********************************************************************
 
 StatusCode JetTrackMomentsTool::initialize() {
+  ATH_MSG_DEBUG("initializing version with data handles");
   ATH_MSG_INFO("Initializing JetTrackMomentsTool " << name());
   if ( m_htsel.empty() ) {
     ATH_MSG_INFO("  No track selector.");
   } else {
     ATH_MSG_INFO("  Track selector: " << m_htsel->name());
   }
+
+
+  ATH_CHECK(m_vertexContainer_key.initialize());
+  ATH_CHECK(m_tva_key.initialize());
+
   return StatusCode::SUCCESS;
 }
 
@@ -42,21 +49,24 @@ StatusCode JetTrackMomentsTool::initialize() {
 int JetTrackMomentsTool::modifyJet(xAOD::Jet& jet) const {
 
   // Get input vertex collection
-  const xAOD::VertexContainer* vertexContainer = nullptr;
-  if ( evtStore()->retrieve(vertexContainer,m_vertexContainer).isFailure()
-       || vertexContainer == nullptr ) {
-    ATH_MSG_ERROR("Could not retrieve the VertexContainer from evtStore: "
-                  << m_vertexContainer);
+  auto handle_v = SG::makeHandle (m_vertexContainer_key);
+  if (!handle_v.isValid()){
+    ATH_MSG_ERROR("Could not retrieve the VertexContainer: "
+                  << m_vertexContainer_key.key());
     return 1;
   }
 
+  auto vertexContainer = handle_v.cptr();
+
   // Get the track-vertex association
-  const jet::TrackVertexAssociation* tva = nullptr;
-  if ( evtStore()->retrieve(tva,m_tva).isFailure() || tva==nullptr ) {
-    ATH_MSG_ERROR("Could not retrieve the TrackVertexAssociation from evtStore: "
-                  << m_tva);
+  auto handle_tva = SG::makeHandle (m_tva_key);
+  if (!handle_tva.isValid()){
+    ATH_MSG_ERROR("Could not retrieve the TrackVertexAssociation: "
+                  << m_tva_key.key());
     return 2;
   }
+
+  auto tva = handle_tva.cptr();
 
 #if 0
     // Get the tracks associated to the jet
@@ -89,7 +99,8 @@ int JetTrackMomentsTool::modifyJet(xAOD::Jet& jet) const {
   if ( ! havetracks ) ATH_MSG_WARNING("Associated tracks not found");
   ATH_MSG_DEBUG("Successfully retrieved track particles");
   
-  //For PFlow jets we will also calculate the same moments, using charged PFO                                                                                                                                                                                                        
+  //For PFlow jets we will also calculate the same moments, using charged PFO
+
   xAOD::Type::ObjectType ctype = jet.rawConstituent( 0 )->type();
   std::vector<const xAOD::TrackParticle*> pflowTracks;
   bool isPFlowJet = false;

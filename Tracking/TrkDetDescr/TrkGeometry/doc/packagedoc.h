@@ -30,7 +30,6 @@ The TrkGeometry package contains following classes:
   - Trk::TrackingVolume: extends the Volume class from the TrkVolume package with pysical properties
   - Trk::TrackingGeometry: holder class of the highest TrackingVolume
    
-@section TrkGeometry_TrkGeometryReq Requirements
 
 
 */

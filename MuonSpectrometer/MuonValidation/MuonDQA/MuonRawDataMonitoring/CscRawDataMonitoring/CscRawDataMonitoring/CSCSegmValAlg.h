@@ -46,8 +46,6 @@
 #include <string>
 #include <map>
 
-using CLHEP::mg;
-
 class TH1;
 class TH1F;
 class TH2F;
@@ -129,69 +127,69 @@ class CSCSegmValAlg : public ManagedMonitorToolBase {
   const Trk::SegmentCollection* m_segms;           //container for segms
 
   bool m_debuglevel;           //!< private member to control debug messages
-  bool bookedhistos;
+  bool m_bookedhistos;
 
   std::vector<std::string> m_ecap, m_segcoll; 
 
-  std::vector<TH2F*> h2CSC_Segm_NumOfSegs_EA;
-  std::vector<TH2F*> h2CSC_Segm_NumOfSegs_EC;
+  std::vector<TH2F*> m_h2CSC_Segm_NumOfSegs_EA;
+  std::vector<TH2F*> m_h2CSC_Segm_NumOfSegs_EC;
 
   //unsigned int m_ncoll;
   std::vector<std::string> m_clusStatWord;
   std::vector<std::string> m_NClusWord;
 
-  std::vector<TH2F*> h2CSC_Segm_NumOfNClusSegs_Eta_EA;
-  std::vector<TH2F*> h2CSC_Segm_NumOfNClusSegs_Eta_EC;
+  std::vector<TH2F*> m_h2CSC_Segm_NumOfNClusSegs_Eta_EA;
+  std::vector<TH2F*> m_h2CSC_Segm_NumOfNClusSegs_Eta_EC;
 
-  std::vector<TH1F*> h1CSC_Segm_Efficiency_Eta_EA;
-  std::vector<TH1F*> h1CSC_Segm_Efficiency_Eta_EC;
+  std::vector<TH1F*> m_h1CSC_Segm_Efficiency_Eta_EA;
+  std::vector<TH1F*> m_h1CSC_Segm_Efficiency_Eta_EC;
 
-  std::vector<TH2F*> h2CSC_Segm_QsumOfGoodClusMap_Eta_EA;
-  std::vector<TH2F*> h2CSC_Segm_QsumOfGoodClusMap_Eta_EC;
+  std::vector<TH2F*> m_h2CSC_Segm_QsumOfGoodClusMap_Eta_EA;
+  std::vector<TH2F*> m_h2CSC_Segm_QsumOfGoodClusMap_Eta_EC;
     
-  std::vector<TH2F*> h2CSC_Segm_TimeOfGoodClusMap_Eta_EA;
-  std::vector<TH2F*> h2CSC_Segm_TimeOfGoodClusMap_Eta_EC;
+  std::vector<TH2F*> m_h2CSC_Segm_TimeOfGoodClusMap_Eta_EA;
+  std::vector<TH2F*> m_h2CSC_Segm_TimeOfGoodClusMap_Eta_EC;
     
-  std::vector<TH1F*> h1CSC_Segm_StatOfClus_Eta_EA;
-  std::vector<TH1F*> h1CSC_Segm_NumOfClus_Eta_EA;
-  std::vector<TH1F*> h1CSC_Segm_NumOfGoodClus_Eta_EA;
-  std::vector<TH1F*> h1CSC_Segm_QsumOfClus_Eta_EA;
-  std::vector<TH1F*> h1CSC_Segm_QsumOfGoodClus_Eta_EA;
-  std::vector<TH1F*> h1CSC_Segm_TimeOfClus_Eta_EA;
-  std::vector<TH1F*> h1CSC_Segm_TimeOfGoodClus_Eta_EA;
+  std::vector<TH1F*> m_h1CSC_Segm_StatOfClus_Eta_EA;
+  std::vector<TH1F*> m_h1CSC_Segm_NumOfClus_Eta_EA;
+  std::vector<TH1F*> m_h1CSC_Segm_NumOfGoodClus_Eta_EA;
+  std::vector<TH1F*> m_h1CSC_Segm_QsumOfClus_Eta_EA;
+  std::vector<TH1F*> m_h1CSC_Segm_QsumOfGoodClus_Eta_EA;
+  std::vector<TH1F*> m_h1CSC_Segm_TimeOfClus_Eta_EA;
+  std::vector<TH1F*> m_h1CSC_Segm_TimeOfGoodClus_Eta_EA;
 
-  std::vector<TH1F*> h1CSC_Segm_StatOfClus_Eta_EC;
-  std::vector<TH1F*> h1CSC_Segm_NumOfClus_Eta_EC;
-  std::vector<TH1F*> h1CSC_Segm_NumOfGoodClus_Eta_EC;
-  std::vector<TH1F*> h1CSC_Segm_QsumOfClus_Eta_EC;
-  std::vector<TH1F*> h1CSC_Segm_QsumOfGoodClus_Eta_EC;
-  std::vector<TH1F*> h1CSC_Segm_TimeOfClus_Eta_EC;
-  std::vector<TH1F*> h1CSC_Segm_TimeOfGoodClus_Eta_EC;
+  std::vector<TH1F*> m_h1CSC_Segm_StatOfClus_Eta_EC;
+  std::vector<TH1F*> m_h1CSC_Segm_NumOfClus_Eta_EC;
+  std::vector<TH1F*> m_h1CSC_Segm_NumOfGoodClus_Eta_EC;
+  std::vector<TH1F*> m_h1CSC_Segm_QsumOfClus_Eta_EC;
+  std::vector<TH1F*> m_h1CSC_Segm_QsumOfGoodClus_Eta_EC;
+  std::vector<TH1F*> m_h1CSC_Segm_TimeOfClus_Eta_EC;
+  std::vector<TH1F*> m_h1CSC_Segm_TimeOfGoodClus_Eta_EC;
     
-  std::vector<TH2F*> h2CSC_Segm_QsumOfGoodClusMap_Phi_EA;
-  std::vector<TH2F*> h2CSC_Segm_QsumOfGoodClusMap_Phi_EC;
+  std::vector<TH2F*> m_h2CSC_Segm_QsumOfGoodClusMap_Phi_EA;
+  std::vector<TH2F*> m_h2CSC_Segm_QsumOfGoodClusMap_Phi_EC;
     
-  std::vector<TH2F*> h2CSC_Segm_TimeOfGoodClusMap_Phi_EA;
-  std::vector<TH2F*> h2CSC_Segm_TimeOfGoodClusMap_Phi_EC;
+  std::vector<TH2F*> m_h2CSC_Segm_TimeOfGoodClusMap_Phi_EA;
+  std::vector<TH2F*> m_h2CSC_Segm_TimeOfGoodClusMap_Phi_EC;
     
-  std::vector<TH1F*> h1CSC_Segm_StatOfClus_Phi_EA;
-  std::vector<TH1F*> h1CSC_Segm_NumOfClus_Phi_EA;
-  std::vector<TH1F*> h1CSC_Segm_NumOfGoodClus_Phi_EA;
-  std::vector<TH1F*> h1CSC_Segm_QsumOfClus_Phi_EA;
-  std::vector<TH1F*> h1CSC_Segm_QsumOfGoodClus_Phi_EA;
-  std::vector<TH1F*> h1CSC_Segm_TimeOfClus_Phi_EA;
-  std::vector<TH1F*> h1CSC_Segm_TimeOfGoodClus_Phi_EA;
+  std::vector<TH1F*> m_h1CSC_Segm_StatOfClus_Phi_EA;
+  std::vector<TH1F*> m_h1CSC_Segm_NumOfClus_Phi_EA;
+  std::vector<TH1F*> m_h1CSC_Segm_NumOfGoodClus_Phi_EA;
+  std::vector<TH1F*> m_h1CSC_Segm_QsumOfClus_Phi_EA;
+  std::vector<TH1F*> m_h1CSC_Segm_QsumOfGoodClus_Phi_EA;
+  std::vector<TH1F*> m_h1CSC_Segm_TimeOfClus_Phi_EA;
+  std::vector<TH1F*> m_h1CSC_Segm_TimeOfGoodClus_Phi_EA;
 
-  std::vector<TH1F*> h1CSC_Segm_StatOfClus_Phi_EC;
-  std::vector<TH1F*> h1CSC_Segm_NumOfClus_Phi_EC;
-  std::vector<TH1F*> h1CSC_Segm_NumOfGoodClus_Phi_EC;
-  std::vector<TH1F*> h1CSC_Segm_QsumOfClus_Phi_EC;
-  std::vector<TH1F*> h1CSC_Segm_QsumOfGoodClus_Phi_EC;
-  std::vector<TH1F*> h1CSC_Segm_TimeOfClus_Phi_EC;
-  std::vector<TH1F*> h1CSC_Segm_TimeOfGoodClus_Phi_EC;
+  std::vector<TH1F*> m_h1CSC_Segm_StatOfClus_Phi_EC;
+  std::vector<TH1F*> m_h1CSC_Segm_NumOfClus_Phi_EC;
+  std::vector<TH1F*> m_h1CSC_Segm_NumOfGoodClus_Phi_EC;
+  std::vector<TH1F*> m_h1CSC_Segm_QsumOfClus_Phi_EC;
+  std::vector<TH1F*> m_h1CSC_Segm_QsumOfGoodClus_Phi_EC;
+  std::vector<TH1F*> m_h1CSC_Segm_TimeOfClus_Phi_EC;
+  std::vector<TH1F*> m_h1CSC_Segm_TimeOfGoodClus_Phi_EC;
     
-  std::vector<TH2F*> h2CSC_Segm_QsumOfGoodClus_PhiVsEta_EA;
-  std::vector<TH2F*> h2CSC_Segm_QsumOfGoodClus_PhiVsEta_EC;
+  std::vector<TH2F*> m_h2CSC_Segm_QsumOfGoodClus_PhiVsEta_EA;
+  std::vector<TH2F*> m_h2CSC_Segm_QsumOfGoodClus_PhiVsEta_EC;
 
   std::vector< SegmHistType* > m_cscSegmDetailEA, m_cscSegmDetailEC;
 

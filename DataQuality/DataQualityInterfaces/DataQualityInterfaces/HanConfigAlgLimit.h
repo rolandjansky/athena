@@ -41,9 +41,9 @@ public:
 
 protected:
 
-  TObjString name;
-  Float_t    greenValue;
-  Float_t    redValue;
+  TObjString m_name;
+  Float_t    m_greenValue;
+  Float_t    m_redValue;
 
 };
 

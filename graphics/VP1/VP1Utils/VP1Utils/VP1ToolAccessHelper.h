@@ -20,7 +20,7 @@
 #include "VP1Base/VP1HelperClassBase.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/ToolHandle.h"
-#include <QtCore/QString>
+#include <QString>
 #include <map>
 #include <stdexcept>
 

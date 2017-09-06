@@ -28,10 +28,12 @@
 #include <iostream>
 
 /****************************************************/
-/* TileLaserDefaultCalibTool.cxx     July 2014      */
+/* TileLaserDefaultCalibTool.cxx     June 2017      */
 /*                                                  */
 /* Henric Wilkens, following work from Seb Viret and 
-   Vincent Giangiobbe             
+   Vincent Giangiobbe    
+
+  Giulia Di Gregorio, following work from Henric 
                                                     */
 /****************************************************/
 
@@ -203,16 +205,18 @@ StatusCode TileLaserDefaultCalibTool::initialize(){
       m_rs_meantime[part][gain] = new RunningStat(); 
       m_meantime[part][gain] = 0.;
     } 
+    
 
     for ( int drawer=0; drawer<NDRAWERS; ++drawer ) {
       for ( int gain=0; gain<NGAINS; ++gain ) {
-        
-        for(int couple=0; couple<NCOUPLES; ++couple){
-	  // K factor for each couple of odd and event pmts
-          m_rs_reducedKappa[part][drawer][couple][gain] = new RunningStat();
-        } // FOR
         for (int fiber=0; fiber<NFIBERS; ++fiber){
 	   m_kappa[part][drawer][fiber][gain]   = 0;
+	   for (int pmt1=0; pmt1<NPMT1; ++pmt1){
+	     for (int pmt2=pmt1+1; pmt2<NPMT2; ++pmt2){
+	       m_rs_reducedKappa[part][drawer][pmt1][pmt2][gain][fiber] = new RunningStat();
+	     }
+	   }
+	      
 	}
 	
         for ( int channel=0; channel<NCHANNELS; ++channel ) {
@@ -324,7 +328,7 @@ StatusCode TileLaserDefaultCalibTool::execute(){
       }
     }
   }
-	
+
  
   if ( m_LASERII ) {  // LASERII
     // We need to have pedestals
@@ -485,13 +489,20 @@ StatusCode TileLaserDefaultCalibTool::execute(){
   TileRawChannelContainer::const_iterator itColl;
   TileRawChannelContainer::const_iterator itCollEnd = rawCnt->end();
   
-  double Q1Q2[NCOUPLES];
-  for (int couple=0; couple<NCOUPLES; ++couple) Q1Q2[couple]=1;
-  int currentDrawer=0;
+ 
+  double Q1Q2[NPMT1][NPMT2];
+  for (int pmt1=0; pmt1<NPMT1; ++pmt1){
+    for (int pmt2=0; pmt2<NPMT2; ++pmt2){
+      Q1Q2[pmt1][pmt2]=0.;
+    }
+  }
+  //int currentDrawer=0;
   
-  RunningStat* avg_time[NCHANNELS][NGAINS];
-  for (int ros=0; ros<NCHANNELS; ros++) {
-    for (int gain=0; gain<NGAINS; gain++) avg_time[ros][gain] = new RunningStat();
+  RunningStat* avg_time[NPARTITIONS][NGAINS];
+  for(int ros=0; ros<NPARTITIONS; ros++){
+    for(int gain=0;gain<NGAINS;++gain){
+      avg_time[ros][gain] = new RunningStat();
+    }
   }
   
   // Loop over tilerawchannelcollections to get avg time per partition
@@ -612,70 +623,64 @@ StatusCode TileLaserDefaultCalibTool::execute(){
         } // FOR
       } // ELSE
 
-      /* 
-	 V.Giangiobbe. Compute the average <q1.q2> for each couple of even and odd PMTs.
-      */
-
-      if (m_status[ros][drawer][chan][gain]&0x4) //We don't want to use bad channels for the calculation of kappa
-	continue;
-
-      if(currentDrawer != drawer){
-        for(int couple=0; couple<NCOUPLES; ++couple) Q1Q2[couple]=1;
-      } 
       
-      //-- Store the data in m_rs_reducedKappa[ros][drawer][couple][gain]
-      for(int couple=0; couple<NCOUPLES; ++couple){
-        if(chan==int(getCoupleOfChan(ros, couple).first) || chan==int(getCoupleOfChan(ros, couple).second)){
-          Q1Q2[couple]*=ampInPicoCoulombs;
-          currentDrawer = drawer;
-          
-          if(Q1Q2[couple]!=1 && Q1Q2[couple]!=ampInPicoCoulombs) m_rs_reducedKappa[ros][drawer][couple][gain]->Push( Q1Q2[couple] );
-        } // IF
-      } // FOR
     } // End of the loop over the TileRawChannelCollection
   } // End of the loop over the TileRawChannelContainer
-   
-  for ( itColl=rawCnt->begin(); itColl != itCollEnd; ++itColl ) {
-    HWIdentifier drawer_id = m_tileHWID->drawer_id((*itColl)->identify());
-    int ros = m_tileHWID->ros(drawer_id)-1;     // LBA=0 LBC=1 EBA=2 EBC=3
-    int drawer = m_tileHWID->drawer(drawer_id); // 0 to 63
-    unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros+1,drawer);
-    
-    // Loop over tilerawchannels in collection
-    for ( TileRawChannelCollection::const_iterator it = (*itColl)->begin(); it != (*itColl)->end(); ++it ) {
-          // Get adchash
-      HWIdentifier hwid = (*it)->adc_HWID();
-      int chan          = m_tileHWID->channel(hwid);  // 0 to 47 channel
-      int gain          = m_tileHWID->adc(hwid);      // low=0 high=1
-      float amp         = (*it)->amplitude();
-      float ofctime     = (*it)->time();
-      // float ped = (*it)->pedestal();
-      if(ofctime!=0.0) ofctime -= avg_time[ros][gain]->Mean();
-      //      const TileDQstatus *theDQstatus = m_beamInfo->getDQstatus();
-      
-      float ampInPicoCoulombs = m_tileToolEmscale->channelCalib(drawerIdx, chan, gain, amp, RChUnit, TileRawChannelUnit::PicoCoulombs);
-      
-      if(currentDrawer != drawer){
-        for(int couple=0; couple<NCOUPLES; ++couple) Q1Q2[couple]=1;
-      } 
-      
-      if (fabs( m_rs_signal[ros][drawer][chan][gain]->Mean()-ampInPicoCoulombs)>4*m_rs_signal[ros][drawer][chan][gain]->StandardDeviation()){
-	continue;
-      }
+  
 
-      //-- Store the data in m_rs_reducedKappa[ros][drawer][couple][gain]
-      for(int couple=0; couple<NCOUPLES; ++couple){
-        if(chan==int(getCoupleOfChan(ros, couple).first) || chan==int(getCoupleOfChan(ros, couple).second)){
-          Q1Q2[couple]*=ampInPicoCoulombs;
-          currentDrawer = drawer;
-          
-          if(Q1Q2[couple]!=1 && Q1Q2[couple]!=ampInPicoCoulombs)
-	    m_rs_reducedKappa[ros][drawer][couple][gain]->Push( Q1Q2[couple] );
-	} // IF
-      } // FOR
-    }
-  }
-
+  
+  
+  int chan1;
+  int chan2;
+  for (int ros=0; ros<NPARTITIONS; ros++){
+    for (int drawer=0; drawer<NDRAWERS; ++drawer){
+      for(int pmt1=0; pmt1<NPMT1; ++pmt1){
+	  for (int pmt2=0; pmt2<NPMT2; ++pmt2){
+	    Q1Q2[pmt1][pmt2]=0.;
+	  }
+	}
+      //We compute <q1.q2> for odd PMTs
+      for (int gain=0; gain<NGAINS; ++gain){
+	for (int pmt1=0; pmt1<NPMT1; ++pmt1){
+	  chan1 = int(getCoupleOfPMT(ros, pmt1).second);
+	  if (m_status[ros][drawer][chan1][gain]!=0){
+	    continue;
+	  }
+	  for (int pmt2=pmt1+1; pmt2<NPMT2; ++pmt2){
+	    chan2 = int(getCoupleOfPMT(ros, pmt2).second);
+	    if (m_status[ros][drawer][chan2][gain]!=0){
+	      continue;
+	    }
+	    Q1Q2[pmt1][pmt2]= pmt_values[ros][drawer][chan1][gain]*pmt_values[ros][drawer][chan2][gain];
+	    if (Q1Q2[pmt1][pmt2]>0.){
+	      m_rs_reducedKappa[ros][drawer][pmt1][pmt2][gain][1]->Push(Q1Q2[pmt1][pmt2]);
+	    }//IF
+	  }//pmt2
+	}//pmt1
+	
+        //We compute <q1.q2> for even PMTs
+	for (int pmt1=0; pmt1<NPMT1; ++pmt1){
+	  chan1 = int(getCoupleOfPMT(ros, pmt1).first);
+	  if (m_status[ros][drawer][chan1][gain]&0x4){
+	    continue;
+	  }
+	  for (int pmt2=pmt1+1; pmt2<NPMT2; ++pmt2){
+	    chan2=int(getCoupleOfPMT(ros, pmt2).first);
+	    if (m_status[ros][drawer][chan2][gain]&0x4){
+	      continue;
+	    }
+	    Q1Q2[pmt1][pmt2]= pmt_values[ros][drawer][chan1][gain]*pmt_values[ros][drawer][chan2][gain];
+	    if (Q1Q2[pmt1][pmt2]>0.){
+	      m_rs_reducedKappa[ros][drawer][pmt1][pmt2][gain][0]->Push(Q1Q2[pmt1][pmt2]);
+	    }//IF
+	  }//pmt2
+	}//pmt1
+	
+	
+      }//gain
+    }//drawer
+  }//ros
+	    
 
   for(int ros=0; ros<NPARTITIONS; ros++){
     for(int drawer=0; drawer<NDRAWERS; ++drawer){
@@ -718,7 +723,7 @@ StatusCode TileLaserDefaultCalibTool::execute(){
       delete(avg_time[ros][gain]);
     } // FOR
   } // FOR
-  
+
   return StatusCode::SUCCESS;
 } // EXECUTE
 
@@ -767,26 +772,73 @@ StatusCode TileLaserDefaultCalibTool::finalizeCalculations(){
     kappa for each module)    */
         int nCouplesEven=0, nCouplesOdd=0;
 
-        for(int couple=0; couple<NCOUPLES; ++couple){
-          int chan0 = getCoupleOfChan(partition, couple).first;
-          int chan1 = getCoupleOfChan(partition, couple).second;
-          double q0 = m_rs_signal[partition][drawer][chan0][gain]->Mean();
-          double q1 = m_rs_signal[partition][drawer][chan1][gain]->Mean();
-          
-          if(q0*q1==0) continue;
-          
-          //-- Average of all couples on the same even fiber
-	  int fibre = couple%2;
-	  m_kappa[partition][drawer][fibre][gain] += (m_rs_reducedKappa[partition][drawer][couple][gain]->Mean()/(q0*q1) - 1);
-	  
-          if ( fibre ) nCouplesOdd ++; 
-	  else nCouplesEven++;
+	int chan1;
+	int chan2;
+	double q1;
+	double q2;
 
-        } // FOR
+	//We evaluate kappa value for odd PMTs
+	for (int pmt1=0; pmt1<NPMT1; ++pmt1){
+	  for (int pmt2=pmt1+1; pmt2<NPMT2; ++pmt2){
+	    chan1 = getCoupleOfPMT(partition, pmt1).second;
+	    chan2 = getCoupleOfPMT(partition, pmt2).second;
+	    q1 = m_rs_signal[partition][drawer][chan1][gain]->Mean();
+	    q2 = m_rs_signal[partition][drawer][chan2][gain]->Mean();
 
-        if ( nCouplesEven!=0 ) m_kappa[partition][drawer][0][gain] = m_kappa[partition][drawer][0][gain]/nCouplesEven;
-        if ( nCouplesOdd!=0 )  m_kappa[partition][drawer][1][gain] = m_kappa[partition][drawer][1][gain]/nCouplesOdd;
-        
+	    if (q1*q2<=0){
+	      continue;
+	    }
+	    if (m_rs_reducedKappa[partition][drawer][pmt1][pmt2][gain][1]->Mean() < q1*q2){
+	      continue;
+	    }
+	    if ((m_rs_reducedKappa[partition][drawer][pmt1][pmt2][gain][1]->Mean()/(q1*q2)-1) > 0.01 ){
+	      continue;
+	    }
+	    m_kappa[partition][drawer][1][gain] += (m_rs_reducedKappa[partition][drawer][pmt1][pmt2][gain][1]->Mean()/(q1*q2)-1);
+	    if ( m_kappa[partition][drawer][1][gain]<0.){
+	      ATH_MSG_DEBUG ( "Negative kappa value: " <<  m_kappa[partition][drawer][1][gain] );
+	    }
+	    nCouplesOdd++;
+	  }// pmt2
+	}// pmt1
+
+	//We evaluate kappa value for even PMTs
+	for (int pmt1=0; pmt1<NPMT1; ++pmt1){
+	  for (int pmt2=pmt1+1; pmt2<NPMT2; ++pmt2){
+	    chan1 = getCoupleOfPMT(partition, pmt2).first;
+	    chan2 = getCoupleOfPMT(partition, pmt1).first;
+	    q1 = m_rs_signal[partition][drawer][chan1][gain]->Mean();
+	    q2 = m_rs_signal[partition][drawer][chan2][gain]->Mean();
+
+	    if (q1*q2<=0){
+	      continue;
+	    }
+	    if (m_rs_reducedKappa[partition][drawer][pmt1][pmt2][gain][0]->Mean()<q1*q2){
+	      continue;
+	    }
+	    if ((m_rs_reducedKappa[partition][drawer][pmt1][pmt2][gain][0]->Mean()/(q1*q2)-1) >0.01){
+	      continue;
+	    }
+	    m_kappa[partition][drawer][0][gain] += (m_rs_reducedKappa[partition][drawer][pmt1][pmt2][gain][0]->Mean()/(q1*q2)-1);
+	    nCouplesEven++;
+	    if (m_kappa[partition][drawer][0][gain]<0.){
+	      ATH_MSG_DEBUG ( "Negative kappa value: " <<  m_kappa[partition][drawer][0][gain] );
+	    }// if
+	  }// pmt2
+	}// pmt1
+	
+        if ( nCouplesEven!=0 ){
+	  m_kappa[partition][drawer][0][gain] = m_kappa[partition][drawer][0][gain]/nCouplesEven;
+	  if (m_kappa[partition][drawer][0][gain]>0.01){
+	    ATH_MSG_DEBUG ( "Too big kappa value: " << m_kappa[partition][drawer][0][gain] << "  " << nCouplesEven);
+	  }
+	}
+        if ( nCouplesOdd!=0 ){
+	  m_kappa[partition][drawer][1][gain] = m_kappa[partition][drawer][1][gain]/nCouplesOdd;
+	  if ( m_kappa[partition][drawer][1][gain]>0.01){
+	    ATH_MSG_DEBUG ( "Too big kappa value: " <<  m_kappa[partition][drawer][1][gain] << "  " << nCouplesOdd );
+	  }
+	}
        
         // This line looks like a bug to me (Henric), commenting it,
 	// m_kappa[partition][drawer][32][gain] = m_kappa[partition][drawer][0][gain];
@@ -802,8 +854,8 @@ StatusCode TileLaserDefaultCalibTool::finalizeCalculations(){
           
           //-- V.Giangiobbe : save the average charge and variance in slices of m_eventsPerSlice=1000
           if(m_pisaMethod2){
-            for(int iSlice=0; iSlice<m_rs_signal[partition][drawer][channel][gain]->GetNSlices(); ++iSlice){
-              if(iSlice>=100) continue;
+            int nSlices = std::min(NSLICES,m_rs_signal[partition][drawer][channel][gain]->GetNSlices());
+            for(int iSlice=0; iSlice<nSlices; ++iSlice){
               m_mean_slice[partition][drawer][channel][iSlice][gain]     = m_rs_signal[partition][drawer][channel][gain]->Mean(iSlice);
               m_variance_slice[partition][drawer][channel][iSlice][gain] = m_rs_signal[partition][drawer][channel][gain]->Variance(iSlice);
             } // FOR
@@ -818,11 +870,7 @@ StatusCode TileLaserDefaultCalibTool::finalizeCalculations(){
 	    }
 	    m_pmt_ratios[partition][drawer][channel][gain] = m_rs_pmt_ratios[partition][drawer][channel][gain]->Mean();
 	    if (std::abs(m_rs_pmt_ratios[partition][drawer][channel][gain]->Mean())>100000.) {
-	      std::cout << "too big value for " << partition 
-			<< " " << drawer
- 			<< " " << channel
- 			<< " " << gain << " " << m_rs_pmt_ratios[partition][drawer][channel][gain]->NumDataValues() << "status" << m_status[partition][drawer][channel][gain] << std::endl;
-
+	      ATH_MSG_DEBUG( "too big value for " << partition << " " << drawer	<< " " << channel << " " << gain << " " << m_rs_pmt_ratios[partition][drawer][channel][gain]->NumDataValues() << "status" << m_status[partition][drawer][channel][gain] );
 		}
 	    m_pmt_S_ratios[partition][drawer][channel][gain] = m_rs_pmt_ratios[partition][drawer][channel][gain]->StandardDeviation();	    
 	  } else {
@@ -838,6 +886,79 @@ StatusCode TileLaserDefaultCalibTool::finalizeCalculations(){
     } // Drawer
   } // Partition
   
+
+  // remove all RunningStat objects from memory
+
+  for ( int diode=0; diode<NDIODES; ++diode ) {
+    for ( int gain=0; gain<NGAINS; gain++ ) {
+      delete m_rs_diode_signal_LASERII[diode][gain];
+    }
+  }
+
+  for(int pmt=0;pmt<NPMTS;++pmt){
+    for ( int gain=0; gain<NGAINS; gain++ ) {
+      delete m_rs_PMT_signal_LASERII[pmt][gain];
+    }
+    delete m_rs_PMT_signal[pmt];
+  }
+
+  for(int d=0; d<NDIODES_LASER1; ++d){
+    delete m_rs_diode_signal[d];
+  }
+
+  for ( int part=0; part<NPARTITIONS; ++part ) {
+    for ( int gain=0; gain<NGAINS; ++gain ) {
+      delete m_rs_meantime[part][gain];
+    }
+
+    for ( int drawer=0; drawer<NDRAWERS; ++drawer ) {
+      for ( int gain=0; gain<NGAINS; ++gain ) {
+        for (int fiber=0; fiber<NFIBERS; ++fiber){
+	   for (int pmt1=0; pmt1<NPMT1; ++pmt1){
+	     for (int pmt2=pmt1+1; pmt2<NPMT2; ++pmt2){
+	       delete m_rs_reducedKappa[part][drawer][pmt1][pmt2][gain][fiber];
+	     }
+	   }
+	}
+
+        for ( int channel=0; channel<NCHANNELS; ++channel ) {
+          delete m_rs_time[part][drawer][channel][gain];
+          delete m_rs_signal[part][drawer][channel][gain];
+          delete m_rs_raw_signal[part][drawer][channel][gain];
+
+          for(int diode=0; diode<NDIODES; ++diode){
+	    for (int diode_gain=0; diode_gain<NGAINS; diode_gain++) {
+	      delete m_rs_ratio_LASERII[diode][diode_gain][part][drawer][channel][gain];
+	    }
+          }
+
+	  delete m_rs_pmt_ratios[part][drawer][channel][gain];
+
+          for(int d=0; d<NDIODES_LASER1; ++d){
+            delete m_rs_ratio[d][part][drawer][channel][gain];
+          }
+
+        } // channel loop
+      } // gain loop
+    } // drawer loop
+  } // partition loop
+
+
+  // STORE HIGH VOLTAGE
+
+  for(int part=0; part<NPARTITIONS; ++part){
+    int ros = part+1;
+    for(int drawer=0; drawer<NDRAWERS; ++drawer){
+      int module = drawer+1;
+      for(int channel=0; channel<NCHANNELS; ++channel){
+        int pmt = abs(m_cabling->channel2hole(ros,channel));
+        m_HV[part][drawer][channel] = m_tileDCSSvc->getDCSHV(ros, module, pmt);
+        m_HVSet[part][drawer][channel] = m_tileDCSSvc->getDCSHVSET(ros, module, pmt);
+      } // FOR
+    } // FOR
+  } // FOR
+
+
   return StatusCode::SUCCESS;
 } // FINALIZECALCULATIONS
 
@@ -938,28 +1059,7 @@ StatusCode TileLaserDefaultCalibTool::writeNtuple(int runNumber, int runType, TF
 } // WRITENTUPLE
 
 StatusCode TileLaserDefaultCalibTool::finalize(){
-  // STORE HIGH VOLTAGE (HV) AND FINALIZE CALCULATIONS
   ATH_MSG_INFO ( "finalize()" );
-  
-  StatusCode sc = TileLaserDefaultCalibTool::finalizeCalculations(); // Perform the analysis
-  
-  for(int part=0; part<NPARTITIONS; ++part){
-    int ros = part+1;
-    for(int drawer=0; drawer<NDRAWERS; ++drawer){
-      int module = drawer+1;
-      for(int channel=0; channel<NCHANNELS; ++channel){
-        int pmt = abs(m_cabling->channel2hole(ros,channel));        
-        m_HV[part][drawer][channel] = m_tileDCSSvc->getDCSHV(ros, module, pmt);
-        m_HVSet[part][drawer][channel] = m_tileDCSSvc->getDCSHVSET(ros, module, pmt);
-      } // FOR
-    } // FOR
-  } // FOR
-  
-  if(sc.isFailure()){
-    ATH_MSG_ERROR( "Failure in DefaultLaserTool finalization!" );
-    return StatusCode::FAILURE;
-  } // IF
-  
   return StatusCode::SUCCESS;
 } // FINALIZE
 
@@ -986,3 +1086,28 @@ std::pair<unsigned int, unsigned int> TileLaserDefaultCalibTool::getCoupleOfChan
   } // IF
   return coupleOfChannels;
 } // COUPLEOFCHANNELS
+
+
+std::pair<unsigned int, unsigned int> TileLaserDefaultCalibTool::getCoupleOfPMT(int ros, int couple){
+  std::pair<unsigned int, unsigned int> coupleOfPMTs;
+
+  int chanLBOdd[NCOUPLES] = {1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 33, 35, 37, 39, 41, 45, 47};
+  int chanLBEven[NCOUPLES] = {0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 34, 36, 38, 40, 42, 44, 46};
+
+  int chanEBOdd[NCOUPLES] = {1, 3, 5, 7, 9, 11, 13, 15, 17, 21, 23, 32, 35, 36, 37, 40, -1, -1, -1, -1, -1, -1};
+  int chanEBEven[NCOUPLES] = {0, 2, 4, 6, 8, 10, 12, 14, 16, 20, 22, 30, 31, 38, 39, 41, -1, -1, -1, -1, -1, -1};
+
+  //----LB
+  if (ros<2){
+    coupleOfPMTs.first = chanLBEven[couple];
+    coupleOfPMTs.second = chanLBOdd[couple];
+  }
+  
+  //----EB
+  if (ros>=2){
+    coupleOfPMTs.first = chanEBEven[couple];
+    coupleOfPMTs.second = chanEBOdd[couple];
+  }
+
+  return coupleOfPMTs;
+}

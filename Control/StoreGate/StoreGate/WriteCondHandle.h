@@ -41,6 +41,7 @@ namespace SG {
     bool isValid(const EventIDBase& t) const;
 
     StatusCode record(const EventIDRange& range, T* t);
+    StatusCode record(const EventIDRange& range, std::unique_ptr<T> t);
     void updateStore();
     
     const std::string& dbKey() const { return m_hkey.dbKey(); }
@@ -96,25 +97,31 @@ namespace SG {
 
   template <typename T>
   StatusCode
-  WriteCondHandle<T>::record(const EventIDRange& r, T* t) {
+  WriteCondHandle<T>::record(const EventIDRange& r, std::unique_ptr<T> t)
+  {
+    MsgStream msg(Athena::getMessageSvc(), "WriteCondHandle");
+    msg << MSG::DEBUG
+        << "WriteCondHandle::record() : obj at: " << t.get() << "  range: " << r 
+        << endmsg;
 
-    if (!m_cc->insert(r, t)) {
-      MsgStream msg(Athena::getMessageSvc(), "WriteCondHandle");
+    if (!m_cc->insert(r, std::move(t))) {
       msg << MSG::ERROR 
           << "WriteCondHandle::record() : unable to insert obj in CondCont<T>"
           << endmsg;
       return StatusCode::FAILURE;
     }
  
-
-    MsgStream msg(Athena::getMessageSvc(), "WriteCondHandle");
-    msg << MSG::DEBUG
-        << "WriteCondHandle::record() : obj at: " << t << "  range: " << r 
-        << endmsg;
-
     updateStore();
  
     return StatusCode::SUCCESS;
+  }
+
+  
+  template <typename T>
+  StatusCode
+  WriteCondHandle<T>::record(const EventIDRange& r, T* t)
+  {
+    return record (r, std::unique_ptr<T> (t));
   }
 
   //---------------------------------------------------------------------------

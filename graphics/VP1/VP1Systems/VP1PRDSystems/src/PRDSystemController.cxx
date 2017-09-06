@@ -22,9 +22,9 @@
 #include "VP1Base/VP1QtUtils.h"
 #include "VP1Base/VP1CollectionWidget.h"
 #include <Inventor/nodes/SoMaterial.h>
-#include <QtCore/QBuffer>
-#include <QtCore/QTimer>
-#include <QtCore/QSet>
+#include <QBuffer>
+#include <QTimer>
+#include <QSet>
 
 //____________________________________________________________________
 class PRDSystemController::Imp {

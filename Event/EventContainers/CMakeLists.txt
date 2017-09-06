@@ -13,11 +13,18 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/CLIDSvc
                           Control/SGTools )
 
-# Component(s) in the package:
-atlas_add_executable( testIdCont
-                      src/ID_ContainerTest.cxx
-                      LINK_LIBRARIES Identifier GaudiKernel SGTools )
-
 # Install files from the package:
-atlas_install_headers( EventContainers )
 
+atlas_add_library( EventContainers 
+   src/IdentifiableCacheBase.cxx
+   PUBLIC_HEADERS EventContainers
+   LINK_LIBRARIES GaudiKernel SGTools )
+
+atlas_add_test( IdCont SOURCES test/ID_ContainerTest.cxx
+                INCLUDE_DIRS src test EventContainers
+                LINK_LIBRARIES Identifier GaudiKernel SGTools
+               )
+atlas_add_test( IdMTCont SOURCES test/IDMT_ContainerTest.cxx
+                INCLUDE_DIRS src test EventContainers
+                LINK_LIBRARIES Identifier GaudiKernel SGTools
+               )

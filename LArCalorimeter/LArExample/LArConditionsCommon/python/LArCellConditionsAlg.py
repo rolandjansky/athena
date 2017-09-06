@@ -15,7 +15,6 @@ __doc__ = " An athena-like algorithm to interactivly convert LAr Identifiers and
 from AthenaPython.PyAthena import StatusCode
 import AthenaPython.PyAthena as PyAthena
 
-#import PyCintex as PyLCGDict
 import cppyy 
 
 from ROOT import HWIdentifier, Identifier, Identifier32, IdentifierHash, LArBadChannel
@@ -87,13 +86,6 @@ class LArCellConditionsAlg(PyAthena.Alg):
             return StatusCode.Failure
         else:
             self.msg.info('retrieved [%s]', self.msgSvc.name())
-
-
-#        f=open("pycintex.txt","w")
-#        f.write(str(PyCintex.getAllClasses()))
-#        f.close()
-#        print PyCintex.getAllClasses()
-
 
         # Get DetectorStore...
         from StoreGateBindings.Bindings import StoreGate

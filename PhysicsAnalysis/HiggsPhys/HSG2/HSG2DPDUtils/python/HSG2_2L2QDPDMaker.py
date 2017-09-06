@@ -3,14 +3,14 @@
 import AthenaPython.PyAthena as PyAthena
 import AthenaCommon.SystemOfUnits as Units
 from AthenaPython.PyAthena import StatusCode
-import PyCintex
+import cppyy
 import ROOT
 import math
-PyCintex.loadDictionary('egammaEnumsDict') # Needed for egammaParameters
+cppyy.loadDictionary('egammaEnumsDict') # Needed for egammaParameters
 from ROOT import egammaParameters
 from ROOT import egammaPID
-PyCintex.loadDict("libTrkTrackSummaryDict")
-PyCintex.loadDict('libegammaAnalysisUtilsDict')
+cppyy.loadDict("libTrkTrackSummaryDict")
+cppyy.loadDict('libegammaAnalysisUtilsDict')
 from ROOT import TLorentzVector
 
 class HSG2_2L2QDPDFilter(PyAthena.AthFilterAlgorithm):

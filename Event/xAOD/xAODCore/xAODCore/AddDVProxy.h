@@ -16,9 +16,6 @@
 #include <TClass.h>
 #include <TError.h>
 #include <TInterpreter.h>
-#if ROOT_VERSION_CODE < ROOT_VERSION( 5, 99, 0 )
-#   include <Cintex/Cintex.h>
-#endif // ROOT_VERSION
 
 // EDM include(s):
 #include "AthContainers/DataVector.h"
@@ -213,9 +210,6 @@ namespace xAOD {
 
          // Enable library auto-loading:
          gInterpreter->EnableAutoLoading();
-#if ROOT_VERSION_CODE < ROOT_VERSION( 5, 99, 0 )
-         ROOT::Cintex::Cintex::Enable();
-#endif // ROOT_VERSION
 
          // Load the minimal amount of required dictionaries:
          loadDictionaries();

@@ -187,6 +187,7 @@ StatusCode TrigJpsiMonTool::fill() {
 
 #ifdef ManagedMonitorToolBase_Uses_API_201401
 StatusCode TrigJpsiMonTool::proc() {
+  bool endOfRun = endOfRunFlag();
 #else
 StatusCode TrigJpsiMonTool::proc(bool /*endOfEventsBlock*/, bool /*endOfLumiBlock*/, bool endOfRun) {
 #endif

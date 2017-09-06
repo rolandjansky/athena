@@ -89,7 +89,6 @@ You may also be interested in:
 
    - TruthParticle in TruthParticleID/McParticleEvent
 
-@section ParticleEvent_ParticleEventReq Requirements
 
 
 */

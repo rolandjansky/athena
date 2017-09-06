@@ -15,30 +15,30 @@ SecondaryTracksHelper::SecondaryTracksHelper()
 
 SecondaryTracksHelper::SecondaryTracksHelper(const G4TrackingManager *tm)
 {
-  theTrackingManager=tm;
-  currentNrOfSecondaries=0;
+  m_theTrackingManager=tm;
+  m_currentNrOfSecondaries=0;
 }
 
 void SecondaryTracksHelper::SetTrackingManager(const G4TrackingManager *tm)
 {
-  theTrackingManager=tm;
+  m_theTrackingManager=tm;
 }
 
 const G4TrackingManager *SecondaryTracksHelper::GetTrackingManager()
 {
-  return theTrackingManager;
+  return m_theTrackingManager;
 }
 
 int SecondaryTracksHelper::NrOfNewSecondaries()
 {
   int value=0;
-  //std::cout<<" NrOfNewSecondaries "<<currentNrOfSecondaries <<
+  //std::cout<<" NrOfNewSecondaries "<<m_currentNrOfSecondaries <<
   //           " "<<CurrentNrOfSecondaries()<<std::endl;
   int curr=CurrentNrOfSecondaries();
-  if (curr>currentNrOfSecondaries)
+  if (curr>m_currentNrOfSecondaries)
   {
-    value=curr-currentNrOfSecondaries;
-    currentNrOfSecondaries=curr;
+    value=curr-m_currentNrOfSecondaries;
+    m_currentNrOfSecondaries=curr;
   }
   return value;
 }
@@ -46,8 +46,8 @@ int SecondaryTracksHelper::NrOfNewSecondaries()
 std::vector<G4Track*> SecondaryTracksHelper::GetSecondaries(int ntracks) const
 {
   std::vector<G4Track*> vTrack;
-  int iSize=theTrackingManager->GimmeSecondaries()->size();
+  int iSize=m_theTrackingManager->GimmeSecondaries()->size();
   for (int i=iSize-1;i>iSize-ntracks-1;i--)
-    vTrack.push_back((*(theTrackingManager->GimmeSecondaries()))[i]);
+    vTrack.push_back((*(m_theTrackingManager->GimmeSecondaries()))[i]);
   return vTrack;
 }

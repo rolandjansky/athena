@@ -50,7 +50,7 @@ namespace ana
 
   void SelectionData ::
   registerCut (SelectionStep step, const std::string& name,
-	       SelectionCut& cut)
+               SelectionCut& cut)
   {
     RCU_CHANGE_INVARIANT (this);
     RCU_REQUIRE (!isInitialized());
@@ -76,7 +76,7 @@ namespace ana
 
   StatusCode SelectionData ::
   initialize (const InternalConfiguration& configuration,
-	      const std::string& workingPoint)
+              const std::string& workingPoint)
   {
     RCU_CHANGE_INVARIANT (this);
     RCU_REQUIRE (!isInitialized());
@@ -92,7 +92,7 @@ namespace ana
       SelectionStep step = SelectionStep (iter);
 
       m_selections[iter].accessor
-	= configuration.selectionName (step) + postfix;
+        = configuration.selectionName (step) + postfix;
     }
 
     // the prefix for individual cuts
@@ -106,7 +106,7 @@ namespace ana
     {
       cut.accessor = prefix + cut.name;
       if (cut.step < m_firstStep)
-	m_firstStep = cut.step;
+        m_firstStep = cut.step;
     }
 
     m_state = State::RUNNING;
@@ -141,8 +141,8 @@ namespace ana
     {
       if (!selection.accessor.isAvailable (*m_particle))
       {
-	ANA_MSG_ERROR ("input decoration unavailable: " << (&selection-m_selections));
-	return StatusCode::FAILURE;
+        ANA_MSG_ERROR ("input decoration unavailable: " << (&selection-m_selections));
+        return StatusCode::FAILURE;
       }
       selection.select = selection.accessor (*m_particle);
     }
@@ -194,12 +194,12 @@ namespace ana
       cut.accessor (*m_particle) = (cut.selection == SelectionChoice::PASS);
       if (cut.selection == SelectionChoice::FAIL)
       {
-	for (std::size_t iter = std::size_t (cut.step),
-	       end = EnumSize<SelectionStep>::dataSize;
-	     iter != end; ++ iter)
-	{
-	  m_selections[iter].select = false;
-	}
+        for (std::size_t iter = std::size_t (cut.step),
+               end = EnumSize<SelectionStep>::dataSize;
+             iter != end; ++ iter)
+        {
+          m_selections[iter].select = false;
+        }
       }
     }
 

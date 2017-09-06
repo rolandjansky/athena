@@ -17,10 +17,6 @@ JetMissingEtTagTools contains the following tools:
 
 - for questions and comments: ketevi@bnl.gov
 
-@section JetMissingEtTagTools_used_packagesJetMissingEtTagTools Used packages
 
-@section JetMissingEtTagTools_requirementsJetMissingEtTagTools Requirements
 
 */
-
-

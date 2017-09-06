@@ -42,8 +42,6 @@ CREATED:  8th November, 2001
 #include "xAODMuon/Muon.h"
 #include "xAODEgamma/ElectronxAODHelpers.h"
 
-#include "CxxUtils/make_unique.h"
-
 // INCLUDE GAUDI HEADER FILES:
 #include "GaudiKernel/SystemOfUnits.h"
 #include "GaudiKernel/Property.h"
@@ -125,7 +123,7 @@ StatusCode eflowPreparation::initialize() {
     return StatusCode::SUCCESS;
   }
 
-  if (m_useLeptons) m_selectedMuons = CxxUtils::make_unique<xAOD::MuonContainer>(SG::VIEW_ELEMENTS);
+  if (m_useLeptons) m_selectedMuons = std::make_unique<xAOD::MuonContainer>(SG::VIEW_ELEMENTS);
   
   ATH_CHECK(m_selTool.retrieve());
 
@@ -134,7 +132,7 @@ StatusCode eflowPreparation::initialize() {
 
 StatusCode eflowPreparation::finalize() {
 
-  msg(MSG::INFO) << "Produced " << m_nMatches << " track-cluster matches." << endmsg;
+  ATH_MSG_INFO("Produced " << m_nMatches << " track-cluster matches.");
 
   return StatusCode::SUCCESS;
 
@@ -149,7 +147,7 @@ StatusCode eflowPreparation::execute() {
   /* Create the eflowCaloObjectContainer and register it */
 
 
-  sc = m_eflowCaloObjectContainerWriteHandle.record(CxxUtils::make_unique<eflowCaloObjectContainer>());
+  sc = m_eflowCaloObjectContainerWriteHandle.record(std::make_unique<eflowCaloObjectContainer>());
   
   if (sc.isFailure()) {
     if (msgLvl(MSG::WARNING)) {
@@ -159,7 +157,7 @@ StatusCode eflowPreparation::execute() {
   }
 
   /* Create the eflowRecTrackContainer and register it */
-  sc =  m_eflowRecTrackContainerWriteHandle.record(CxxUtils::make_unique<eflowRecTrackContainer>());
+  sc =  m_eflowRecTrackContainerWriteHandle.record(std::make_unique<eflowRecTrackContainer>());
   
   if (sc.isFailure()) {
     if (msgLvl(MSG::WARNING)) {
@@ -170,7 +168,7 @@ StatusCode eflowPreparation::execute() {
 
   /* Create the eflowRecClusterContainer and register it */
 
-  sc = m_eflowRecClusterContainerWriteHandle.record(CxxUtils::make_unique<eflowRecClusterContainer>());
+  sc = m_eflowRecClusterContainerWriteHandle.record(std::make_unique<eflowRecClusterContainer>());
 
   if (sc.isFailure()) {
     if (msgLvl(MSG::WARNING)) {
@@ -264,7 +262,7 @@ StatusCode eflowPreparation::makeClusterContainer() {
   unsigned int nClusters = m_caloClusterReadHandle->size();
   for (unsigned int iCluster = 0; iCluster < nClusters; ++iCluster) {
     /* Create the eflowRecCluster and put it in the container */
-    std::unique_ptr<eflowRecCluster> thisEFRecCluster  = CxxUtils::make_unique<eflowRecCluster>(ElementLink<xAOD::CaloClusterContainer>(*m_caloClusterReadHandle, iCluster));
+    std::unique_ptr<eflowRecCluster> thisEFRecCluster  = std::make_unique<eflowRecCluster>(ElementLink<xAOD::CaloClusterContainer>(*m_caloClusterReadHandle, iCluster));
     
     if (m_caloCalClusterReadHandle.isValid()){
       std::map<IdentifierHash,double> cellsWeightMap;
@@ -321,7 +319,7 @@ StatusCode eflowPreparation::makeTrackContainer() {
 
     if (!rejectTrack) {
       /* Create the eflowRecCluster and put it in the container */
-      std::unique_ptr<eflowRecTrack> thisEFRecTrack  = CxxUtils::make_unique<eflowRecTrack>(ElementLink<xAOD::TrackParticleContainer>(*m_trackReadHandle, trackIndex), m_theTrackExtrapolatorTool);
+      std::unique_ptr<eflowRecTrack> thisEFRecTrack  = std::make_unique<eflowRecTrack>(ElementLink<xAOD::TrackParticleContainer>(*m_trackReadHandle, trackIndex), m_theTrackExtrapolatorTool);
       thisEFRecTrack->setTrackId(trackIndex);
       m_eflowRecTrackContainerWriteHandle->push_back(std::move(thisEFRecTrack));
     }
@@ -340,7 +338,7 @@ bool eflowPreparation::selectTrack(const xAOD::TrackParticle* track) {
 
 StatusCode eflowPreparation::recordLeptonContainers(){
 
-  StatusCode sc = m_selectedElectronsWriteHandle.record(CxxUtils::make_unique<xAOD::ElectronContainer>(SG::VIEW_ELEMENTS));
+  StatusCode sc = m_selectedElectronsWriteHandle.record(std::make_unique<xAOD::ElectronContainer>(SG::VIEW_ELEMENTS));
   
   if (sc.isFailure()) {
     if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)
@@ -352,7 +350,7 @@ StatusCode eflowPreparation::recordLeptonContainers(){
   if (true == m_storeLeptonCells) {
 
     //record the cell container
-    sc =  m_leptonCaloCellContainerWriteHandle.record(CxxUtils::make_unique<ConstDataVector<CaloCellContainer> >(SG::VIEW_ELEMENTS));
+    sc =  m_leptonCaloCellContainerWriteHandle.record(std::make_unique<ConstDataVector<CaloCellContainer> >(SG::VIEW_ELEMENTS));
 
     if (sc.isFailure()) {
       if (msgLvl(MSG::WARNING))

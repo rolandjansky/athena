@@ -37,14 +37,14 @@ class RDBAccessSvc;
 
 #include "RDBVersionAccessor.h" 
 
-class RDBRecordset : public IRDBRecordset
+class RDBRecordset final: public IRDBRecordset
 {
  public:
   /// Construct empty recordset
   RDBRecordset(RDBAccessSvc* accessSvc);
   
   /// Destructor, deletes all records
-  virtual ~RDBRecordset();
+  ~RDBRecordset() override;
 
   /// Constructs SQL query and retrieves the data from DB
   /// @param session [IN] active relational session
@@ -55,23 +55,23 @@ class RDBRecordset : public IRDBRecordset
 	       const std::string& tagId);
 
   /// @return number of records
-  unsigned int size() const;
+  unsigned int size() const override;
 
   /// @return node name
-  std::string nodeName() const;
+  std::string nodeName() const override;
 
   /// @return tag name
-  std::string tagName() const;
+  std::string tagName() const override;
 
   /// @param index [IN] index of the record
   /// @return RDBRecord by index
-  const IRDBRecord* operator[](unsigned int index) const;
+  const IRDBRecord* operator[](unsigned int index) const override;
 
   /// @return begin iterator
-  IRDBRecordset::const_iterator begin() const;
+  IRDBRecordset::const_iterator begin() const override;
 
   /// @return end iterator
-  IRDBRecordset::const_iterator end() const;
+  IRDBRecordset::const_iterator end() const override;
 
   // Comparison operator
   bool operator!=(const RDBRecordset& rhs) const;

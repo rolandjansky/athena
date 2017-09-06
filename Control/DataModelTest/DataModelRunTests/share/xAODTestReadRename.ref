@@ -1,25 +1,21 @@
-Fri Apr 28 05:05:24 CEST 2017
-Preloading tcmalloc_minimal.so
+Wed Jun 21 15:34:31 EDT 2017
+WARNING: TCMALLOCDIR not defined, will use libc malloc
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [WorkDir-22.0.0] [x86_64-slc6-gcc62-dbg] [mt-sss/597cc7edb4] -- built on [2017-04-25T0444]
+Py:Athena            INFO using release [?-21.0.0] [i686-slc5-gcc43-dbg] [?/?] -- built on [?]
 Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
-[?1034hPy:Athena            INFO including file "AthenaCommon/Execution.py"
+Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "DataModelRunTests/xAODTestReadRename_jo.py"
-Py:ConfigurableDb    INFO Read module info for 5296 configurables from 13 genConfDb files
-Py:ConfigurableDb WARNING Found 1 duplicates among the 13 genConfDb files :
-Py:ConfigurableDb WARNING --------------------------------------------------
-Py:ConfigurableDb WARNING   -<component name>: <module> - [ <duplicates> ]
-Py:ConfigurableDb WARNING --------------------------------------------------
-Py:ConfigurableDb WARNING   -DMTest__xAODTestDecor: DataModelTestDataCommon.DataModelTestDataCommonConf - ['DataModelTestDataRead.DataModelTestDataReadConf']
-Py:ConfigurableDb WARNING Fix your cmt/requirements file !!
+Py:ConfigurableDb    INFO Read module info for 442 configurables from 2 genConfDb files
+Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
+# setting LC_ALL to "C"
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v28r1)
-                                          running on lxplus068.cern.ch on Fri Apr 28 05:05:46 2017
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
+                                          running on karma on Wed Jun 21 15:34:57 2017
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -27,21 +23,20 @@ ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to leve
 StatusCodeSvc        INFO initialize
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
-ClassIDSvc           INFO  getRegistryEntries: read 9155 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 9499 CLIDRegistry entries for module ALL
 ChronoStatSvc        INFO  Number of skipped events for MemStat-1
 CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
 AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
-ClassIDSvc           INFO  getRegistryEntries: read 362 CLIDRegistry entries for module ALL
-ClassIDSvc           INFO  getRegistryEntries: read 57 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 312 CLIDRegistry entries for module ALL
 MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
 AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-00-00
 PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
-DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy-wigner.cern.ch:3128) will be considered for COOL data
-DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2017-04-23T2225/Athena/22.0.0/InstallArea/x86_64-slc6-gcc62-dbg/share/dbreplica.config
-DBReplicaSvc         INFO Total of 10 servers found for host lxplus068.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+DBReplicaSvc         INFO Read replica configuration from /home/sss/atlas/dvtest/build/share/dbreplica.config
+DBReplicaSvc         INFO No specific match for domain found - use default fallback
+DBReplicaSvc         INFO Total of 1 servers found for host karma [atlas_dd ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc              INFO Setting up APR FileCatalog and Streams
 PoolSvc              INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
@@ -52,9 +47,9 @@ EventSelector        INFO reinitialization...
 EventSelector        INFO EventSelection with query 
 RootCollection Info Opening Collection File xaoddata.root in mode: READ
 RootCollection Info File xaoddata.root opened
-Domain[ROOT_All] Info ->  Access   DbDatabase   READ      [ROOT_All] 7FA8A637-A9D7-7347-AED4-23793AD15451
+Domain[ROOT_All] Info ->  Access   DbDatabase   READ      [ROOT_All] F951BFB1-7EE9-0D44-8107-A86EA5382814
 Domain[ROOT_All] Info                           xaoddata.root
-RootDatabase.open Info xaoddata.root File version:60802
+RootDatabase.open Info xaoddata.root File version:60806
 ImplicitCollection Info Opened the implicit collection with connection string "PFN:xaoddata.root"
 ImplicitCollection Info and a name "POOLContainer(DataHeader)"
 EventPersistenc...   INFO Added successfully Conversion service:AthenaPoolCnvSvc
@@ -66,26 +61,26 @@ RootCollection Info File xaoddata.root opened
 ImplicitCollection Info Opened the implicit collection with connection string "PFN:xaoddata.root"
 ImplicitCollection Info and a name "POOLContainer(DataHeader)"
 AthenaPoolAddre...   INFO Initializing AthenaPoolAddressProviderSvc - package version EventSelectorAthenaPool-00-00-00
-ClassIDSvc           INFO  getRegistryEntries: read 1074 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 1063 CLIDRegistry entries for module ALL
 HistogramPersis...WARNING Histograms saving not required.
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 ApplicationMgr       INFO Application Manager Initialized successfully
 xaoddata.root Info Database being retired...
-Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] 7FA8A637-A9D7-7347-AED4-23793AD15451
+Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] F951BFB1-7EE9-0D44-8107-A86EA5382814
 RootCollection Info Opening Collection File xaoddata.root in mode: READ
 RootCollection Info File xaoddata.root opened
 DbSession Info     Open     DbSession    
 Domain[ROOT_All] Info >   Access   DbDomain     READ      [ROOT_All] 
-Domain[ROOT_All] Info ->  Access   DbDatabase   READ      [ROOT_All] 7FA8A637-A9D7-7347-AED4-23793AD15451
+Domain[ROOT_All] Info ->  Access   DbDatabase   READ      [ROOT_All] F951BFB1-7EE9-0D44-8107-A86EA5382814
 Domain[ROOT_All] Info                           xaoddata.root
-RootDatabase.open Info xaoddata.root File version:60802
+RootDatabase.open Info xaoddata.root File version:60806
 ImplicitCollection Info Opened the implicit collection with connection string "PFN:xaoddata.root"
 ImplicitCollection Info and a name "POOLContainer(DataHeader)"
 ApplicationMgr       INFO Application Manager Started successfully
 AthenaPoolConve...   INFO massageEventInfo: unable to get OverrideRunNumberFromInput property from EventSelector 
 AthenaEventLoopMgr   INFO   ===>>>  start of run 0    <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #0, run #0 0 events processed so far  <<<===
-ClassIDSvc           INFO  getRegistryEntries: read 11 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 15 CLIDRegistry entries for module ALL
 cvec_renamed aux items: aFloat anInt anInt2 cEL dInt1_renamed dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
 Type of aux store: DMTest::CAuxContainer_v1
 RootAuxDynReader     INFO FILE:LINE (const RootAuxDynReader::BranchInfo& RootAuxDynReader::getBranchInfo(const unsigned long&, const SG::AuxStoreInternal&)): attribute dVar1 (id=226 typename=f) has different type than the branch vector<int>
@@ -131,7 +126,7 @@ RootAuxDynReader     INFO FILE:LINE (const RootAuxDynReader::BranchInfo& RootAux
   dpvFloat: [0.910 0.911 0.912 0.913 0.914 0.915 0.916 0.917 0.918 ]
 xAODTestReadDecor    INFO cvec_renamed.dInt1_renamed: 401 402 403 404 405 406 407 408 409 410
 xAODTestReadDecor    INFO cinfo.dInt1_renamed: 3000
-ClassIDSvc           INFO  getRegistryEntries: read 50 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 53 CLIDRegistry entries for module ALL
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #0, run #0 1 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #0 1 events processed so far  <<<===
 cvec_renamed aux items: aFloat anInt anInt2 cEL dInt1_renamed dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
@@ -274,47 +269,7 @@ AthenaEventLoopMgr   INFO   ===>>>  done processing event #3, run #0 4 events pr
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #4, run #0 4 events processed so far  <<<===
 cvec_renamed aux items: aFloat anInt anInt2 cEL dInt1_renamed dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
 Type of aux store: DMTest::CAuxContainer_v1
- anInt1 501 aFloat: 1000 pInt: 2501 pFloat: 0.05 anInt2: 1501 dVar1: 2251 dpInt1: 251 cEL: cvec_renamed[9]
-  pvInt: []
-  pvFloat: []
-  dpvFloat: []
- anInt1 502 aFloat: 1000.1 pInt: 2502 pFloat: 1.05 anInt2: 1502 dVar1: 2252 dpInt1: 252 cEL: cvec_renamed[8]
-  pvInt: [10 ]
-  pvFloat: [-0.485 ]
-  dpvFloat: [0.150 ]
- anInt1 503 aFloat: 1000.2 pInt: 2503 pFloat: 2.05 anInt2: 1503 dVar1: 2253 dpInt1: 253 cEL: cvec_renamed[7]
-  pvInt: [20 21 ]
-  pvFloat: [-0.475 -0.375 ]
-  dpvFloat: [0.250 0.251 ]
- anInt1 504 aFloat: 1000.3 pInt: 2504 pFloat: 3.05 anInt2: 1504 dVar1: 2254 dpInt1: 254 cEL: cvec_renamed[6]
-  pvInt: [30 31 32 ]
-  pvFloat: [-0.465 -0.365 -0.265 ]
-  dpvFloat: [0.350 0.351 0.352 ]
- anInt1 505 aFloat: 1000.4 pInt: 2505 pFloat: 4.05 anInt2: 1505 dVar1: 2255 dpInt1: 255 cEL: cvec_renamed[5]
-  pvInt: [40 41 42 43 ]
-  pvFloat: [-0.455 -0.355 -0.255 -0.155 ]
-  dpvFloat: [0.450 0.451 0.452 0.453 ]
- anInt1 506 aFloat: 1000.5 pInt: 2506 pFloat: 5.05 anInt2: 1506 dVar1: 2256 dpInt1: 256 cEL: cvec_renamed[4]
-  pvInt: [50 51 52 53 54 ]
-  pvFloat: [-0.445 -0.345 -0.245 -0.145 -0.045 ]
-  dpvFloat: [0.550 0.551 0.552 0.553 0.554 ]
- anInt1 507 aFloat: 1000.6 pInt: 2507 pFloat: 6.05 anInt2: 1507 dVar1: 2257 dpInt1: 257 cEL: cvec_renamed[3]
-  pvInt: [60 61 62 63 64 65 ]
-  pvFloat: [-0.435 -0.335 -0.235 -0.135 -0.035 0.065 ]
-  dpvFloat: [0.650 0.651 0.652 0.653 0.654 0.655 ]
- anInt1 508 aFloat: 1000.7 pInt: 2508 pFloat: 7.05 anInt2: 1508 dVar1: 2258 dpInt1: 258 cEL: cvec_renamed[2]
-  pvInt: [70 71 72 73 74 75 76 ]
-  pvFloat: [-0.425 -0.325 -0.225 -0.125 -0.025 0.075 0.175 ]
-  dpvFloat: [0.750 0.751 0.752 0.753 0.754 0.755 0.756 ]
- anInt1 509 aFloat: 1000.8 pInt: 2509 pFloat: 8.05 anInt2: 1509 dVar1: 2259 dpInt1: 259 cEL: cvec_renamed[1]
-  pvInt: [80 81 82 83 84 85 86 87 ]
-  pvFloat: [-0.415 -0.315 -0.215 -0.115 -0.015 0.085 0.185 0.285 ]
-  dpvFloat: [0.850 0.851 0.852 0.853 0.854 0.855 0.856 0.857 ]
- anInt1 510 aFloat: 1000.9 pInt: 2510 pFloat: 9.05 anInt2: 1510 dVar1: 2260 dpInt1: 260 cEL: cvec_renamed[0]
-  pvInt: [90 91 92 93 94 95 96 97 98 ]
-  pvFloat: [-0.405 -0.305 -0.205 -0.105 -0.005 0.095 0.195 0.295 0.395 ]
-  dpvFloat: [0.950 0.951 0.952 0.953 0.954 0.955 0.956 0.957 0.958 ]
-xAODTestReadDecor    INFO cvec_renamed.dInt1_renamed: 2001 2002 2003 2004 2005 2006 2007 2008 2009 2010
+xAODTestReadDecor    INFO cvec_renamed.dInt1_renamed:
 xAODTestReadDecor    INFO cinfo.dInt1_renamed: 15000
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #4, run #0 5 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #5, run #0 5 events processed so far  <<<===
@@ -1008,7 +963,7 @@ xAODTestReadDecor    INFO cvec_renamed.dInt1_renamed: 8001 8002 8003 8004 8005 8
 xAODTestReadDecor    INFO cinfo.dInt1_renamed: 60000
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #0 20 events processed so far  <<<===
 xaoddata.root Info Database being retired...
-Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] 7FA8A637-A9D7-7347-AED4-23793AD15451
+Domain[ROOT_All] Info ->  Deaccess DbDatabase   READ      [ROOT_All] F951BFB1-7EE9-0D44-8107-A86EA5382814
 ApplicationMgr       INFO Application Manager Stopped successfully
 IncidentProcAlg1     INFO Finalize
 IncidentProcAlg2     INFO Finalize

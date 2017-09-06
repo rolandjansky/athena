@@ -42,8 +42,8 @@ void IDHitSummaryPlots::fill(const xAOD::TrackParticle& trk)
   float phi=trk.phi();
   
   uint8_t iBLayerHits(0),bExpectBLayerHit(0);
-  trk.summaryValue(bExpectBLayerHit,xAOD::expectBLayerHit);
-  trk.summaryValue(iBLayerHits,xAOD::numberOfBLayerHits);
+  trk.summaryValue(bExpectBLayerHit,xAOD::expectInnermostPixelLayerHit);
+  trk.summaryValue(iBLayerHits,xAOD::numberOfInnermostPixelLayerHits);
   nBLayerHitsIfExpected.fill(bExpectBLayerHit*iBLayerHits,eta,phi);
 
   uint8_t iPixHits(0),iPixDead(0);

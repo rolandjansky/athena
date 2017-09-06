@@ -15,9 +15,9 @@
 #include "VP1Gui/VP1Prioritiser.h"
 #include "VP1Base/IVP1ChannelWidget.h"
 #include "VP1Base/IVP1System.h"
-#include <QtCore/QTime>
-#include <QtCore/QQueue>
-#include <QtCore/QSet>
+#include <QTime>
+#include <QQueue>
+#include <QSet>
 #include <map>
 #include <cassert>
 

@@ -23,6 +23,7 @@
 // fwk includes
 #include "AthenaKernel/IProxyDict.h"
 #include "AthenaKernel/IResetable.h"
+#include "AthenaKernel/StoreID.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/EventContext.h"
 
@@ -105,7 +106,7 @@ namespace SG {
     explicit VarHandleBase(CLID clid,
                            const std::string& sgkey,
                            Gaudi::DataHandle::Mode mode,
-                           const std::string& storename = "StoreGateSvc");
+                           const std::string& storename = StoreID::storeName(StoreID::EVENT_STORE));
 
 
     /**
@@ -422,6 +423,15 @@ namespace SG {
     StatusCode symLink_impl (CLID newClid, const std::string& newKey) const;
 
 
+    /**
+     * @brief Is the referenced object present in SG?
+     * @param key SG key to test.
+     *
+     * Const method; the handle does not change as a result of this.
+     */
+    bool isPresent_impl (const std::string& key) const;
+
+
   protected: 
     //*************************************************************************
     // Protected data.
@@ -484,6 +494,7 @@ namespace SG {
     void* 
     typeless_dataPointer_fromProxy (SG::DataProxy* proxy,
                                     bool quiet) const;
+
   }; 
 
 

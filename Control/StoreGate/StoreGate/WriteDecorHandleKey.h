@@ -72,8 +72,8 @@ namespace SG {
  * dependency on the container itself, and a write dependency on the decoration.
  * This class derives from @c WriteHandleKey, which provides the output dependency
  * on the decoration.  We also hold as a member a @c ReadHandleKey for the
- * container.  @c AthAlgorithm and friends need to be aware of this, and
- * add this extra dependency when the property is declared.
+ * container.  This extra depedency is added at initialize time via
+ * registerWriteDecorHandleKey(), which see.
  */
 template <class T>
 class WriteDecorHandleKey
@@ -89,11 +89,11 @@ public:
    * @param storeName Name to use for the store, if it's not encoded in sgkey.
    *
    * The provided key may actually start with the name of the store,
-   * separated by a slash:  "MyStore/Obj".  If no slash is present
+   * separated by a "+":  "MyStore+Obj".  If no "+" is present
    * the store named by @c storeName is used.
    */
   WriteDecorHandleKey (const std::string& key = "",
-                       const std::string& storeName = "StoreGateSvc");
+                       const std::string& storeName = StoreID::storeName(StoreID::EVENT_STORE));
 
 
   /**
@@ -101,7 +101,7 @@ public:
    * @param sgkey The StoreGate key for the object.
    * 
    * The provided key may actually start with the name of the store,
-   * separated by a slash:  "MyStore/Obj".  If no slash is present,
+   * separated by a "+":  "MyStore+Obj".  If no "+" is present,
    * the store is not changed.
    */
   WriteDecorHandleKey& operator= (const std::string& sgkey);
@@ -112,7 +112,7 @@ public:
    * @param sgkey The StoreGate key for the object.
    * 
    * The provided key may actually start with the name of the store,
-   * separated by a slash:  "MyStore/Obj".  If no slash is present
+   * separated by a "+":  "MyStore+Obj".  If no "+" is present
    * the store is not changed.  A key name that starts with a slash
    * is interpreted as a hierarchical key name, not an empty store name.
    *

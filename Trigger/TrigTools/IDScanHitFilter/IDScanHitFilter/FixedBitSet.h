@@ -71,40 +71,40 @@ class FixedBitSet {
 
 	public:
 
-		FixedBitSet()                       { bits = clearAllMask; };
-		FixedBitSet(const FixedBitSet& set) { bits = set.bits; };
+		FixedBitSet()                       { m_bits = s_clearAllMask; };
+		FixedBitSet(const FixedBitSet& set) { m_bits = set.m_bits; };
 
-		bool get(const int bitIndex) const   { return ((bits&setMask[bitIndex]) != 0); };
+		bool get(const int bitIndex) const   { return ((m_bits&setMask[bitIndex]) != 0); };
 		int length() const                   { return 32; };
 		int size() const                     { return 32; };
 		int count() const
 		{
-			return ( countLUT1[bits & maskByte]+
-			         countLUT1[(bits>>8) & maskByte]+
-			         countLUT1[(bits>>16) & maskByte]+
-			         countLUT1[(bits>>24) & maskByte] );
+			return ( countLUT1[m_bits & s_maskByte]+
+			         countLUT1[(m_bits>>8) & s_maskByte]+
+			         countLUT1[(m_bits>>16) & s_maskByte]+
+			         countLUT1[(m_bits>>24) & s_maskByte] );
 		};
 
-		void set(const int bitIndex)     { bits |= setMask[bitIndex]; };
-		void setAll()                    { bits = setAllMask; };
-		void clear(const int bitIndex)   { bits &= clearMask[bitIndex]; };
-		void clearAll()                  { bits = clearAllMask; };
+		void set(const int bitIndex)     { m_bits |= setMask[bitIndex]; };
+		void setAll()                    { m_bits = s_setAllMask; };
+		void clear(const int bitIndex)   { m_bits &= clearMask[bitIndex]; };
+		void clearAll()                  { m_bits = s_clearAllMask; };
 
-		void And  (FixedBitSet& set)   { bits &= set.bits; };
-		void NAnd (FixedBitSet& set)   { bits &= ~set.bits; };
-		void Or   (FixedBitSet& set)   { bits |= set.bits; };
-		void XOr  (FixedBitSet& set)   { bits ^= set.bits; };
+		void And  (FixedBitSet& set)   { m_bits &= set.m_bits; };
+		void NAnd (FixedBitSet& set)   { m_bits &= ~set.m_bits; };
+		void Or   (FixedBitSet& set)   { m_bits |= set.m_bits; };
+		void XOr  (FixedBitSet& set)   { m_bits ^= set.m_bits; };
 
-		bool operator==(const FixedBitSet& set) const   { return (bits == set.bits); };
+		bool operator==(const FixedBitSet& set) const   { return (m_bits == set.m_bits); };
 
 	private:
 
-		static const int clearAllMask = 0;
-		static const int setAllMask = ~((int) 0);
-		static const int maskByte = 255;
+		static const int s_clearAllMask = 0;
+		static const int s_setAllMask = ~((int) 0);
+		static const int s_maskByte = 255;
 
-		// The bits used to store this FixedBitSet.  
-		int bits;
+		// The m_bits used to store this FixedBitSet.  
+		int m_bits;
 
 };
 

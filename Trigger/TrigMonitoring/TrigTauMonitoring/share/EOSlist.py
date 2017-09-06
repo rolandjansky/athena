@@ -6,7 +6,7 @@ if(len(sys.argv)>1):
     
     print "looking for EOS files in ",sys.argv[1]
     dsName = sys.argv[1]
-    cmd  = '/afs/cern.ch/project/eos/installation/pro/bin/eos.select ls %s/ ' % (dsName)
+    cmd  = 'eos ls %s/ ' % (dsName)
     files = []
     count_files = 0
     print cmd

@@ -23,10 +23,9 @@
 #include "VP1Gui/VP1EventDisplayEditor.h"
 
 // include Qt
-#include <QtCore/QQueue>
-#include <QtCore/QStringList>
-#include <QtCore/QMap>
-#include <QtWebKit>
+#include <QQueue>
+#include <QStringList>
+#include <QMap>
 
 class VP1ChannelManager;
 class VP1TabManager;
@@ -43,6 +42,12 @@ class QComboBox;
 class VP1StreamMenuUpdater;
 class QMutex;
 
+//#include <QtGlobal>
+//#if QT_VERSION > QT_VERSION_CHECK(5, 5, 0)
+//  class QWebEngineView; // Qt 5.6
+//#else
+//  class QWebView;
+//#endif
 
 
 struct VP1DirStatusData
@@ -63,7 +68,7 @@ struct VP1DirStatusData
     , enabled(_enabled)
     , bold(_bold)
   {};
-		   
+
   QString inputDir;
   QString dirStatus;
   bool enabled;
@@ -82,9 +87,9 @@ public:
   ~VP1MainWindow();
 
   bool okToProceedToNextEvent() const;
- 
+
   // Set next event to the execution scheduler and updates event controls
-  // We needed to separate this method from goToNextEvent() in order to be able 
+  // We needed to separate this method from goToNextEvent() in order to be able
   // to skip the bootstrap event in the https mode
   void nextEvent();
 
@@ -240,8 +245,12 @@ protected:
   VP1StreamMenuUpdater* m_streamMenuUpdater;
   QMutex* m_mutex;
 
-  // Web broser instance to show VP1 documentation
-  QWebView *m_view;
+//  // Web broser instance to show VP1 documentation
+//  #if QT_VERSION > QT_VERSION_CHECK(5, 5, 0)
+//    QWebEngineView *m_view; // Qt 5
+//  #else
+//    QWebView *m_view;
+//  #endif
 
   // Event display editor
   VP1EventDisplayEditor* edEditor;

@@ -23,14 +23,16 @@
 #include "Inventor/nodes/SoMaterial.h"
 
 // Qt
-#include <QtCore/QTimer>
-#include <QtCore/QByteArray>
-#include <QtCore/QBuffer>
-#include <QtCore/QDataStream>
-#include <QtGui/QMouseEvent>
-#include <QtGui/QDragEnterEvent>
-#include <QtGui/QDropEvent>
-#include <QtGui/QShortcut>
+#include <QTimer>
+#include <QByteArray>
+#include <QBuffer>
+#include <QDataStream>
+#include <QMouseEvent>
+#include <QDragEnterEvent>
+#include <QDropEvent>
+#include <QShortcut>
+#include <QMimeData>
+#include <QDrag>
 
 // Misc
 #include <iostream>
@@ -151,8 +153,11 @@ void JetCollectionSettingsButton::Imp::initEditWindow()
 
 	// set b-tagging taggers
 	ui_disp.bTaggingComboBox->clear(); // remove all taggers defined in the .ui file
+
 	QStringList bTagList;
-	bTagList << "MV2c20" << "MV2c10" << "MV1" << "JetFitterCombNN_pb" << "JetFitterCombNN_pc" << "JetFitterCombNN_pu";
+	//bTagList << "MV2c20" << "MV2c10" << "MV1" << "JetFitterCombNN_pb" << "JetFitterCombNN_pc" << "JetFitterCombNN_pu";
+	//bTagList << "MV2c20" << "MV2c10" << "MV2c00" << "MV1" << "JetFitterCombNN_pb" << "JetFitterCombNN_pc" << "JetFitterCombNN_pu"; // the JetFitter helpers have been removed in xAODBTagging-00-00-35
+	bTagList << "MV2c20" << "MV2c10" << "MV2c00" << "MV1"; // (cfr. SVN changesets 797165 + 801102)
 	ui_disp.bTaggingComboBox->insertItems(0, bTagList);
 
 	// set b-tagging "Material" checked by default ("Skin" will be optional)

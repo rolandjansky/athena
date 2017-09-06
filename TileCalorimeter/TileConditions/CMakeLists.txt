@@ -5,6 +5,10 @@
 # Declare the package name:
 atlas_subdir( TileConditions )
 
+atlas_depends_on_subdirs( PRIVATE
+                          AtlasTest/TestTools
+                          DetectorDescription/IdDictParser )
+
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloConditions

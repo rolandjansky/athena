@@ -15,8 +15,8 @@
 #ifndef VP1TCPSERVER_H
 #define VP1TCPSERVER_H
 
-#include <QtCore/QObject>
-#include <QtNetwork/QAbstractSocket>
+#include <QObject>
+#include <QAbstractSocket>
 #include "VP1Base/VP1ExternalRequest.h"
 
 class VP1TcpServer : public QObject {

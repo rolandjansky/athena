@@ -28,14 +28,4 @@
 
 @section AnalysisTriggerEvent_AnalysisTriggerEvent Extra Pages
 
-   - @ref used_AnalysisTriggerEvent
-   - @ref requirements_AnalysisTriggerEvent
-*/
-
-/**
-   @page used_AnalysisTriggerEvent Used Packages
-*/
-
-/**
-   @page requirements_AnalysisTriggerEvent Requirements
 */

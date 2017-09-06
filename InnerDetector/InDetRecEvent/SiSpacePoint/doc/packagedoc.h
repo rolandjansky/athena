@@ -97,6 +97,5 @@ TrkSpacePoint.
 
 
 
-@section SiSpacePoint_SiSpacePointReq Requirements
 
 */

@@ -199,6 +199,10 @@ if hasattr(runArgs,"conditionsTag"):
     if(runArgs.conditionsTag!='NONE'):
         digitizationFlags.IOVDbGlobalTag = runArgs.conditionsTag
 
+if hasattr(runArgs,"PileUpPremixing"):
+    digilog.info("Doing pile-up premixing")
+    digitizationFlags.PileUpPremixing = runArgs.PileUpPremixing
+
 #--------------------------------------------------------------
 # Pileup configuration
 #--------------------------------------------------------------
@@ -405,11 +409,9 @@ if hasattr(runArgs,"outputRDOFile") or hasattr(runArgs,"outputRDO_FILTFile"):
         athenaCommonFlags.PoolRDOOutput.set_Value_and_Lock( runArgs.outputRDOFile )
     elif hasattr(runArgs,"outputRDO_FILTFile"):
         athenaCommonFlags.PoolRDOOutput.set_Value_and_Lock( runArgs.outputRDO_FILTFile )
-    if hasattr(runArgs, "AddCaloDigi"):
-        AddCaloDigi = runArgs.AddCaloDigi
-        if AddCaloDigi:
-            digilog.info("Will write out all LArDigitContainers and TileDigitsContainers to RDO file.")
-            digitizationFlags.experimentalDigi+=["AddCaloDigi"]
+    if digitizationFlags.PileUpPremixing or (hasattr(runArgs, "AddCaloDigi") and runArgs.AddCaloDigi):
+        digilog.info("Will write out all LArDigitContainers and TileDigitsContainers to RDO file.")
+        digitizationFlags.experimentalDigi+=["AddCaloDigi"]
 else:
     digilog.info("no output file (outputRDOFile or outputRDO_FILTFile) specified - switching off output StreamRDO")
     if not 'DetFlags' in dir():

@@ -118,7 +118,7 @@ const std::type_info& DataBucketVoid::tinfo() const
  */
 void* DataBucketVoid::cast (CLID /*clid*/,
                             SG::IRegisterTransient* /*itr = 0*/,
-                            bool /*isConst = true*/) const
+                            bool /*isConst = true*/)
 {
   // ??? unimplemented
   abort();
@@ -135,7 +135,7 @@ void* DataBucketVoid::cast (CLID /*clid*/,
  */
 void* DataBucketVoid::cast (const std::type_info& tinfo,
                             SG::IRegisterTransient* /*itr = 0*/,
-                            bool /*isConst = true*/) const
+                            bool /*isConst = true*/)
 {
   // If the requested type is the same as the held type,
   //no conversion is needed.

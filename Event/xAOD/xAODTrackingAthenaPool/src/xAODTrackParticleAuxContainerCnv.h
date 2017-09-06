@@ -47,9 +47,9 @@ protected:
 
    /// Function preparing the container to be written out
    virtual xAOD::TrackParticleAuxContainer*
-   createPersistent( xAOD::TrackParticleAuxContainer* trans );
+   createPersistent( xAOD::TrackParticleAuxContainer* trans ) override;
    /// Function reading in the object from the input file
-   virtual xAOD::TrackParticleAuxContainer* createTransient();
+   virtual xAOD::TrackParticleAuxContainer* createTransient() override;
 
 private:
    /// Compressor tool for the track particles

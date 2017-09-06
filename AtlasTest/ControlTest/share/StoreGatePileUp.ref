@@ -49,7 +49,7 @@ AthenaEventLoopMgr.OutStreamType = "AthenaOutputStream";
 
 ApplicationMgr.DLLs   += { "StoreGate", "CLIDSvc" };
 ApplicationMgr.ExtSvc += { "ClassIDSvc" };
-ApplicationMgr.ExtSvc += { "StoreGateSvc", "StoreGateSvc/DetectorStore", "StoreGateSvc/ConditionsStore" };
+ApplicationMgr.ExtSvc += { "StoreGateSvc", "StoreGateSvc/DetectorStore", "StoreGateSvc/ConditionStore" };
 ApplicationMgr.ExtSvc += { "ActiveStoreSvc" };
 //FIXME uncomment to verify that your  CLIDs are good!
 //ClassIDSvc.CLIDDBFiles += { "$CLIDSVCROOT/share/clid.db" };
@@ -293,7 +293,7 @@ ClassIDSvc           INFO ClassIDSvc Initialized successfully
 StoreGateSvc         INFO Initializing StoreGateSvc - package version StoreGate-02-09-06
 ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version StoreGate-02-09-06
 DetectorStore        INFO Initializing DetectorStore - package version StoreGate-02-09-06
-ConditionsStore      INFO Initializing ConditionsStore - package version StoreGate-02-09-06
+ConditionStore      INFO Initializing ConditionStore - package version StoreGate-02-09-06
 ActiveStoreSvc       INFO Initializing ActiveStoreSvc - package version StoreGate-02-09-06
 DetDescrCnvSvc       INFO  initializing [m
 DetDescrCnvSvc       INFO Found DetectorStore service[m

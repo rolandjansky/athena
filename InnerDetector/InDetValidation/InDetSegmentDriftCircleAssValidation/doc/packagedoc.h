@@ -43,9 +43,7 @@ The InDetSegmentDriftCircleAssValidation contains the following classes/files:
 
 - InDetSegmentDriftCircleAssValidation.cxx...Main class that does the truth association and computes an efficiency.
 
-@section InDetSegmentDriftCircleAssValidation_InDetSegmentDriftCircleAssValidationPackages Used Packages
 
 
-@section InDetSegmentDriftCircleAssValidation_InDetSegmentDriftCircleAssValidationReq Requirements file
 
 */

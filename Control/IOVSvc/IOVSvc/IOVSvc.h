@@ -73,7 +73,6 @@ template <class TYPE> class SvcFactory;
 
 
 class StoreGateSvc;
-class IProxyProviderSvc;
 class IClassIDSvc;
 class IProxyDict;
 class IToolSvc;
@@ -218,7 +217,6 @@ private:
   ServiceHandle<IClassIDSvc> p_CLIDSvc;
   ServiceHandle<StoreGateSvc> p_sgs, p_detStore;
   ServiceHandle<ICondSvc> p_condSvc;
-  ServiceHandle<IProxyProviderSvc> p_pps;
 
   mutable std::mutex m_lock;
 

@@ -13,6 +13,5 @@ Output of this algorithm is Trk::SegmentCollection.
 
 This algorithm uses standard ITRT_TrackSegmentsMaker tool.
 
-@section TRT_TrackSegmentsFinder_TRT_TrackSegmentsFinderReq Requirements file
 
 */

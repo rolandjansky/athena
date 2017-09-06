@@ -25,7 +25,7 @@
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackCollection.h"
 
-#include <QtCore/QRegExp>
+#include <QRegExp>
 
 //____________________________________________________________________
 class TrackCollHandle_TrkTrack::Imp {

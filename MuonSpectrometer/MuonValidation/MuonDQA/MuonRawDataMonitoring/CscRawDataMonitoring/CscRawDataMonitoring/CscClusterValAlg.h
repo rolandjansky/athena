@@ -196,7 +196,7 @@ class CscClusterValAlg : public ManagedMonitorToolBase {
     TH2F *m_h2csc_clus_eta_vs_phi_cluswidth_noise;
 
 
-    MonGroup *cscclus_oviewEA, *cscclus_oviewEC;
+    MonGroup *m_cscclus_oviewEA, *m_cscclus_oviewEC;
 
     std::vector<TH1*> m_cscClusExpert  , 
                       m_cscClusShift   , 

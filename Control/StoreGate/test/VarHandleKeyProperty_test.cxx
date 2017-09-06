@@ -49,13 +49,13 @@ void test1()
 
   std::ostringstream ss;
   Gaudi::Utils::toStream (k, ss);
-  assert (ss.str() == "'StoreGateSvc/aaa'");
+  assert (ss.str() == "'StoreGateSvc+aaa'");
 
-  assert (Gaudi::Parsers::parse (k, "FooSvc/bbb").isSuccess());
+  assert (Gaudi::Parsers::parse (k, "FooSvc+bbb").isSuccess());
   assert (k.key() == "bbb");
   assert (k.storeHandle().name() == "FooSvc");
 
-  assert (Gaudi::Parsers::parse (k, "BarSvc/c/bbb").isFailure());
+  assert (Gaudi::Parsers::parse (k, "BarSvc+c/bbb").isFailure());
 }
 
 
@@ -70,11 +70,11 @@ void test2()
   assert (k.key() == "aaa");
   assert (k.storeHandle().name() == "StoreGateSvc");
 
-  assert (p.fromString ("FooSvc/bbb").isSuccess());
+  assert (p.fromString ("FooSvc+bbb").isSuccess());
   assert (k.key() == "bbb");
   assert (k.storeHandle().name() == "FooSvc");
 
-  assert (p.fromString ("FooSvc/c/bbb").isFailure());
+  assert (p.fromString ("FooSvc+c/bbb").isFailure());
 
   SG::VarHandleKey k2 (1234, "ccc", Gaudi::DataHandle::Reader, "BarSvc");
   p.setValue (k2);
@@ -82,10 +82,10 @@ void test2()
   assert (k.key() == "ccc");
   assert (k.storeHandle().name() == "BarSvc");
 
-  assert (p.toString() == "'BarSvc/ccc'");
+  assert (p.toString() == "'BarSvc+ccc'");
   std::ostringstream ss;
   p.toStream (ss);
-  assert (ss.str() == "'BarSvc/ccc'");
+  assert (ss.str() == "'BarSvc+ccc'");
 
   std::unique_ptr<SG::VarHandleKeyProperty> p2 (p.clone());
   assert (p2->value().clid() == 1234);
@@ -122,56 +122,56 @@ void test3()
 
   SG::VarHandleKey k1 (1234, "", Gaudi::DataHandle::Reader);
   SimplePropertyRef<SG::VarHandleKey > p1 ("p1", k1);
-  assert (p1.fromString ("FeeSvc/aaa").isSuccess());
+  assert (p1.fromString ("FeeSvc+aaa").isSuccess());
   assert (k1.clid() == 1234);
   assert (k1.key() == "aaa");
   assert (k1.storeHandle().name() == "FeeSvc");
 
   SG::ReadHandleKey<MyObj> k2;
   SimplePropertyRef<SG::ReadHandleKey<MyObj> > p2 ("p2", k2);
-  assert (p2.fromString ("FooSvc/bbb").isSuccess());
+  assert (p2.fromString ("FooSvc+bbb").isSuccess());
   assert (k2.clid() == 293847295);
   assert (k2.key() == "bbb");
   assert (k2.storeHandle().name() == "FooSvc");
 
   SG::WriteHandleKey<MyObj> k3;
   SimplePropertyRef<SG::WriteHandleKey<MyObj> > p3 ("p3", k3);
-  assert (p3.fromString ("BarSvc/ccc").isSuccess());
+  assert (p3.fromString ("BarSvc+ccc").isSuccess());
   assert (k3.clid() == 293847295);
   assert (k3.key() == "ccc");
   assert (k3.storeHandle().name() == "BarSvc");
 
   SG::UpdateHandleKey<MyObj> k4;
   SimplePropertyRef<SG::UpdateHandleKey<MyObj> > p4 ("p4", k4);
-  assert (p4.fromString ("BazSvc/ddd").isSuccess());
+  assert (p4.fromString ("BazSvc+ddd").isSuccess());
   assert (k4.clid() == 293847295);
   assert (k4.key() == "ddd");
   assert (k4.storeHandle().name() == "BazSvc");
 
   SG::ReadDecorHandleKey<MyObj> k5;
   SimplePropertyRef<SG::ReadDecorHandleKey<MyObj> > p5 ("p5.zzz", k5);
-  assert (p5.fromString ("FooSvc/bbb.zzz").isSuccess());
+  assert (p5.fromString ("FooSvc+bbb.zzz").isSuccess());
   assert (k5.clid() == 293847295);
   assert (k5.key() == "bbb.zzz");
   assert (k5.storeHandle().name() == "FooSvc");
 
   SG::WriteDecorHandleKey<MyObj> k6;
   SimplePropertyRef<SG::WriteDecorHandleKey<MyObj> > p6 ("p6.zzz", k6);
-  assert (p6.fromString ("FooSvc/bbb.zzz").isSuccess());
+  assert (p6.fromString ("FooSvc+bbb.zzz").isSuccess());
   assert (k6.clid() == 293847295);
   assert (k6.key() == "bbb.zzz");
   assert (k6.storeHandle().name() == "FooSvc");
 
   SG::ReadCondHandleKey<MyObj> k7 ("p7");
   SimplePropertyRef<SG::ReadCondHandleKey<MyObj> > p7 ("p7", k7);
-  assert (p7.fromString ("FooSvc/bbb").isSuccess());
+  assert (p7.fromString ("FooSvc+bbb").isSuccess());
   assert (k7.clid() == 293847295);
   assert (k7.key() == "bbb");
   assert (k7.storeHandle().name() == "FooSvc");
 
   SG::WriteCondHandleKey<MyObj> k8 ("p8", "dbkey");
   SimplePropertyRef<SG::WriteCondHandleKey<MyObj> > p8 ("p8", k8);
-  assert (p8.fromString ("FooSvc/bbb").isSuccess());
+  assert (p8.fromString ("FooSvc+bbb").isSuccess());
   assert (k8.clid() == 293847295);
   assert (k8.key() == "bbb");
   assert (k8.storeHandle().name() == "FooSvc");
@@ -264,7 +264,9 @@ void test5()
 int main()
 {
   ISvcLocator* pDum;
-  Athena_test::initGaudi("VarHandleKeyProperty_test.txt", pDum);
+  if (!Athena_test::initGaudi("VarHandleKeyProperty_test.txt", pDum)) {
+    return 1;
+  }
 
   test1();
   test2();

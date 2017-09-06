@@ -34,9 +34,6 @@ private:
   std::string m_clustersViewInput;
 
   SG::WriteHandleKey< std::vector<SG::View*> > m_views;
-  //  SG::WriteHandleKey< TestClusterContainer > m_outputClusterContainer;
-
-
   
   ServiceHandle<IAlgResourcePool> m_viewAlgorithmsPool;
   std::vector<std::string> m_viewAlgorithmNames;

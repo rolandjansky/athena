@@ -22,16 +22,6 @@ resets those tables at the end of every event.
 
 @author Vakho Tsulaia <Vakhtang.Tsulaia@cern.ch>
 
-@ref used_TileGeoG4SD
 
-@ref requirements_TileGeoG4SD
 
-*/
-
-/**
-@page used_TileGeoG4SD Used Packages
-*/
-
-/**
-@page requirements_TileGeoG4SD Requirements
 */

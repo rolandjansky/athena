@@ -140,6 +140,8 @@ StatusCode CaloCellEnergyCorr2Ntuple::stop()
 
   }        // loop over cells
 
+  delete flt;
+
   return StatusCode::SUCCESS;
  }
 

@@ -10,20 +10,7 @@
    
 
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/AlgFactory.h"
-
-#include "StoreGate/StoreGate.h"
 #include "StoreGate/StoreGateSvc.h"
-
-#include "GaudiKernel/SmartDataPtr.h"
-#include "GaudiKernel/IDataProviderSvc.h"
-#include "GaudiKernel/ITHistSvc.h"
-#include "GaudiKernel/PropertyMgr.h"
-
-#include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/GaudiException.h"
-#include "GaudiKernel/ITHistSvc.h"
 #include "AthenaMonitoring/LogFileMsgStream.h"
  
 #include "TTree.h"
@@ -58,7 +45,7 @@ namespace MuonDQA {
 
   MuonEventInfoMonTool::MuonEventInfoMonTool( const std::string & type, const std::string & name, const IInterface* parent )
     : ManagedMonitorToolBase( type, name, parent ), m_eventStore(NULL), m_activeStore(NULL),
-      mdt_eventstotal(-1), mdt_event_inarea(-1), in_area(false), testcounter(-1), m_eventNumber(0),
+      m_mdt_eventstotal(-1), m_mdt_event_inarea(-1), m_in_area(false), m_testcounter(-1), m_eventNumber(0),
       m_hTriggerType(NULL)
   {
     /*---------------------------------------------------------*/ 
@@ -103,10 +90,10 @@ namespace MuonDQA {
     ATH_MSG_DEBUG( "MuonEventInfoMonTool Histograms being filled" );
     StatusCode sc = StatusCode::SUCCESS;
 
-    std::string m_generic_path_muonmonitoring = "Muon/MuonEventInfo";
+    std::string generic_path_muonmonitoring = "Muon/MuonEventInfo";
    
     //declare a group of histograms
-    MonGroup muonevt_shift( this, m_generic_path_muonmonitoring, run, ATTRIB_MANAGED );
+    MonGroup muonevt_shift( this, generic_path_muonmonitoring, run, ATTRIB_MANAGED );
       
     if(newEventsBlockFlag()){}
     if(newLumiBlockFlag()){}
@@ -222,15 +209,15 @@ namespace MuonDQA {
     // protection against simulated cosmics
     if(trig != NULL) {
       //bitset<8> m_l1Trig = trig->level1TriggerType();
-      uint m_l1Trig = (uint) ( trig->level1TriggerType() );
-      m_hTriggerType->Fill(m_l1Trig);
+      uint l1Trig = (uint) ( trig->level1TriggerType() );
+      m_hTriggerType->Fill(l1Trig);
     }
 
     // Get number of events per Trigger type : 0001 Tile | 0010 RPC | 0100 TGC | 1000 CTP
-    //for(int idx = 0; idx < 0; idx++) if(m_l1Trig.test(idx)) m_hTriggerType->Fill(idx);
+    //for(int idx = 0; idx < 0; idx++) if(l1Trig.test(idx)) m_hTriggerType->Fill(idx);
 
     // Fill CTP bin for exclusive CTP events only
-    //if( m_l1Trig == 8) m_hTriggerType->Fill(3);
+    //if( l1Trig == 8) m_hTriggerType->Fill(3);
 
     if ( m_TriggerTagAdd ) {
 

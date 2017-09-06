@@ -29,7 +29,7 @@ LVL1::L1TopoDataMaker::~L1TopoDataMaker()
 
 /** Fill DataVector of CPCMXTopoData from RoIBResult */
 void
-LVL1::L1TopoDataMaker::makeCPCMXTopoData(const ROIB::RoIBResult* roibResult, DataVector<CPCMXTopoData>* topoData) {
+LVL1::L1TopoDataMaker::makeCPCMXTopoData(const ROIB::RoIBResult* roibResult, DataVector<CPCMXTopoData>* topoData) const {
 
    /** retrieve EMTauResult from RoIBResult.         <br>
        Use other tool to fill CPCMXTopoData from it. <br> */
@@ -42,7 +42,7 @@ LVL1::L1TopoDataMaker::makeCPCMXTopoData(const ROIB::RoIBResult* roibResult, Dat
 
 /** Fill DataVector of CPCMXTopoData from vector of EMTauResult */
 void
-LVL1::L1TopoDataMaker::makeCPCMXTopoData(const std::vector<ROIB::EMTauResult> & roibData, DataVector<CPCMXTopoData>* topoData) {
+LVL1::L1TopoDataMaker::makeCPCMXTopoData(const std::vector<ROIB::EMTauResult> & roibData, DataVector<CPCMXTopoData>* topoData) const {
 
    // Clear collection before filling
    topoData->clear();
@@ -76,7 +76,7 @@ LVL1::L1TopoDataMaker::makeCPCMXTopoData(const std::vector<ROIB::EMTauResult> & 
 
 /** Fill DataVector of JetCMXTopoData from RoIBResult */
 void
-LVL1::L1TopoDataMaker::makeJetCMXTopoData(const ROIB::RoIBResult* roibResult, DataVector<JetCMXTopoData>* topoData) {
+LVL1::L1TopoDataMaker::makeJetCMXTopoData(const ROIB::RoIBResult* roibResult, DataVector<JetCMXTopoData>* topoData) const {
 
    /** retrieve JetEnergyResult from RoIBResult.         <br>
        Use other tool to fill JetMXTopoData from it. <br> */
@@ -89,7 +89,7 @@ LVL1::L1TopoDataMaker::makeJetCMXTopoData(const ROIB::RoIBResult* roibResult, Da
 
 /** Fill DataVector of JetCMXTopoData from vector of JetEnergyResult */
 void
-LVL1::L1TopoDataMaker::makeJetCMXTopoData(const std::vector<ROIB::JetEnergyResult> & roibData, DataVector<JetCMXTopoData>* topoData) {
+LVL1::L1TopoDataMaker::makeJetCMXTopoData(const std::vector<ROIB::JetEnergyResult> & roibData, DataVector<JetCMXTopoData>* topoData) const {
 
    // Clear collection before filling
    topoData->clear();
@@ -122,7 +122,7 @@ LVL1::L1TopoDataMaker::makeJetCMXTopoData(const std::vector<ROIB::JetEnergyResul
 
 /** Fill EnergyTopoData from RoIBResult */
 void
-LVL1::L1TopoDataMaker::makeEnergyTopoData(const ROIB::RoIBResult* roibResult, EnergyTopoData* topoData) {
+LVL1::L1TopoDataMaker::makeEnergyTopoData(const ROIB::RoIBResult* roibResult, EnergyTopoData* topoData) const {
 
    /** retrieve JetEnergyResult from RoIBResult.         <br>
        Use other tool to fill EnergyTopoData from it. <br> */
@@ -135,7 +135,7 @@ LVL1::L1TopoDataMaker::makeEnergyTopoData(const ROIB::RoIBResult* roibResult, En
 
 /** Fill EnergyTopoData from vector of JetEnergyResult */
 void
-LVL1::L1TopoDataMaker::makeEnergyTopoData(const std::vector<ROIB::JetEnergyResult> & roibData, EnergyTopoData* topoData) {
+LVL1::L1TopoDataMaker::makeEnergyTopoData(const std::vector<ROIB::JetEnergyResult> & roibData, EnergyTopoData* topoData) const {
 
   
    /** retrieve Jet RoIs from JetEnergyResult.            <br>

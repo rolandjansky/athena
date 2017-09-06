@@ -65,9 +65,11 @@ StatusCode TruthParticleBremFillerTool::fill (const xAOD::TruthParticle& p)
 
     for (size_t i = 0; i < sz; i++) {
       const xAOD::TruthParticle* child = vx->outgoingParticle(i);
-      if(n_children==0) pdgid_child1 = child->pdgId();
-      if(n_children==1) pdgid_child2 = child->pdgId();
-      n_children++;
+      if (child) {
+        if(n_children==0) pdgid_child1 = child->pdgId();
+        if(n_children==1) pdgid_child2 = child->pdgId();
+        n_children++;
+      }
     }
 
     if (n_children   == 2  &&

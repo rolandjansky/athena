@@ -31,9 +31,9 @@
 
 #include <Inventor/sensors/SoTimerSensor.h>
 
-#include <QtCore/QDir>
-#include <QtCore/QFile>
-#include <QtGui/QPixmap>
+#include <QDir>
+#include <QFile>
+#include <QPixmap>
 
 #include <map>
 #include <iostream>

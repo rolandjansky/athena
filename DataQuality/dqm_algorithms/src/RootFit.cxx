@@ -33,35 +33,35 @@ namespace
 }
 
 dqm_algorithms::RootFit::RootFit( const std::string & name )
-  : name_( name )
+  : m_name( name )
 { 
 
-  if (name_ == "gaus"){
-    func.reset( new TF1("gaus1","gaus") );
+  if (m_name == "gaus"){
+    m_func.reset( new TF1("gaus1","gaus") );
   }
-  if (name_ == "pol1"){
-    func.reset( new TF1("pol11","pol1") );
+  if (m_name == "pol1"){
+    m_func.reset( new TF1("pol11","pol1") );
   }
-  if (name_ == "landau"){
-    func.reset( new TF1("landau1","landau") );
+  if (m_name == "landau"){
+    m_func.reset( new TF1("landau1","landau") );
   }
-  if (name_ == "sinusoid"){
-    func.reset( new TF1("sinusoid","[0]*sin(x) + [1]*cos(x)") );
+  if (m_name == "sinusoid"){
+    m_func.reset( new TF1("sinusoid","[0]*sin(x) + [1]*cos(x)") );
   }
-  if (name_ == "gauspluspol1"){
-    func.reset( new TF1("gauspluspol1","gaus(0)+pol1(3)") );
+  if (m_name == "gauspluspol1"){
+    m_func.reset( new TF1("gauspluspol1","gaus(0)+pol1(3)") );
   }
-  if (name_ == "doublegaus"){
-    func.reset( new TF1("doublegaus","gaus(0)+gaus(3)",0,1) );
+  if (m_name == "doublegaus"){
+    m_func.reset( new TF1("doublegaus","gaus(0)+gaus(3)",0,1) );
   }
-  if (name_ == "gausplusexpo"){
-    func.reset( new TF1("gausplusexpo","gaus(0)+expo(3)",0,1) );
+  if (m_name == "gausplusexpo"){
+    m_func.reset( new TF1("gausplusexpo","gaus(0)+expo(3)",0,1) );
   }
-  if (name_ == "fermi"){
-    func.reset( new TF1("fermi","[0]/(1+exp(([1]-x)/[2]))") );
+  if (m_name == "fermi"){
+    m_func.reset( new TF1("fermi","[0]/(1+exp(([1]-x)/[2]))") );
   }
-  if (name_ == "flat"){
-    func.reset( new TF1("flat","[0]") );
+  if (m_name == "flat"){
+    m_func.reset( new TF1("flat","[0]") );
   }
   dqm_core::AlgorithmManager::instance().registerAlgorithm( "Simple_"+name +"_Fit", this );
 }
@@ -69,13 +69,13 @@ dqm_algorithms::RootFit::RootFit( const std::string & name )
 dqm_algorithms::RootFit::~RootFit()
 {
   // totally defeats the purpose of auto_ptr, but fixes a segfault in 5.34 ...
-  func.release();
+  m_func.release();
 }
 
 dqm_algorithms::RootFit * 
 dqm_algorithms::RootFit::clone()
 {
-  return new RootFit( name_ );
+  return new RootFit( m_name );
 }
 
 
@@ -160,54 +160,54 @@ dqm_algorithms::RootFit::execute(	const std::string & name,
     std::cout <<" fit option " << option << std::endl;
   }
   //std::cout<<"ROOTFIT Trying to do fit"<<std::endl;
-  if (name_ == "gauspluspol1"){
-    func->SetParameters(histogram->GetBinContent(histogram->GetMaximumBin()),histogram->GetMean(),histogram->GetRMS());
-    func->SetParNames ("Constant","Mean","Sigma","pol1[0]","pol1[1]");
+  if (m_name == "gauspluspol1"){
+    m_func->SetParameters(histogram->GetBinContent(histogram->GetMaximumBin()),histogram->GetMean(),histogram->GetRMS());
+    m_func->SetParNames ("Constant","Mean","Sigma","pol1[0]","pol1[1]");
   }
-  else if (name_ == "pol1"){
-    func->SetParNames ("pol1[0]","pol1[1]");
+  else if (m_name == "pol1"){
+    m_func->SetParNames ("pol1[0]","pol1[1]");
   }
-  else if (name_ == "sinusoid") {
-    func->SetParameters(4.0,-1.0);
-    func->SetParNames("s1","s2");
+  else if (m_name == "sinusoid") {
+    m_func->SetParameters(4.0,-1.0);
+    m_func->SetParNames("s1","s2");
   }
-  else if (name_ == "doublegaus"){
+  else if (m_name == "doublegaus"){
     TF1 f1("f1","gaus",xmin,xmax);
     histogram->Fit(&f1,"q");
     double par[6] ;
 
     f1.GetParameters(par);
-    func->SetParameters(par);
-    func->SetParameter(3,histogram->GetBinContent(histogram->GetMaximumBin()));
-    func->SetParameter(4,histogram->GetMean());
-    func->SetParameter(5,par[2]);
-    func->SetParNames("Constant","Mean","Sigma","Constant1","Mean1","Sigma1");
+    m_func->SetParameters(par);
+    m_func->SetParameter(3,histogram->GetBinContent(histogram->GetMaximumBin()));
+    m_func->SetParameter(4,histogram->GetMean());
+    m_func->SetParameter(5,par[2]);
+    m_func->SetParNames("Constant","Mean","Sigma","Constant1","Mean1","Sigma1");
     /*
-    const int numsig1 = func->GetParNumber("Sigma1");
+    const int numsig1 = m_func->GetParNumber("Sigma1");
     const double sigmaup = dqm_algorithms::tools::GetFirstFromMap( "Sigma_upperLimit", config.getParameters(), 1000000);
-    func->SetParLimits(numsig1, 0., sigmaup);
+    m_func->SetParLimits(numsig1, 0., sigmaup);
     */
   }
-  else if (name_ == "gausplusexpo") {
-    func->SetParameters(histogram->GetBinContent(histogram->GetMaximumBin()),histogram->GetMean(),histogram->GetRMS());
-    func->SetParNames("Constant","Mean","Sigma","ConstantExpo","Slope");
+  else if (m_name == "gausplusexpo") {
+    m_func->SetParameters(histogram->GetBinContent(histogram->GetMaximumBin()),histogram->GetMean(),histogram->GetRMS());
+    m_func->SetParNames("Constant","Mean","Sigma","ConstantExpo","Slope");
   }
-  else if (name_ == "fermi") {
-    func->SetParameter(0,0.99);
-    func->SetParameter(1,5);
-    func->SetParameter(2,1);
-    func->SetParNames("Plateau","Threshold","Resolution");
+  else if (m_name == "fermi") {
+    m_func->SetParameter(0,0.99);
+    m_func->SetParameter(1,5);
+    m_func->SetParameter(2,1);
+    m_func->SetParNames("Plateau","Threshold","Resolution");
   }
-  else if(name_ == "flat") {
+  else if(m_name == "flat") {
     if(verbose)std::cout << "set "<<name<< " parameters" << std::endl;
-    func->SetParNames("Height");
+    m_func->SetParNames("Height");
   }
 /*
-  const int numsig = func->GetParNumber("Sigma");
+  const int numsig = m_func->GetParNumber("Sigma");
 
   if (numsig != -1 ){
   	  double sigmaup = dqm_algorithms::tools::GetFirstFromMap( "Sigma_upperLimit", config.getParameters(), 1000000);
-	  func->SetParLimits(numsig, 0., sigmaup);
+	  m_func->SetParLimits(numsig, 0., sigmaup);
   }
   */ 
   
@@ -238,30 +238,30 @@ dqm_algorithms::RootFit::execute(	const std::string & name,
     }
 
   }
-  histogram->Fit( func.get(), option.c_str(),"",xmin,xmax );
-  if (name_ == "doublegaus") {
+  histogram->Fit( m_func.get(), option.c_str(),"",xmin,xmax );
+  if (m_name == "doublegaus") {
     double par[6];
-    func->GetParameters(par);
+    m_func->GetParameters(par);
     if (TMath::Abs(par[2]) > TMath::Abs(par[5])) {
-      func->SetParNames("Constant1","Mean1","Sigma1","Constant","Mean","Sigma");
-      double sigma=func->GetParameter(2);
-      func->SetParameter(2,fabs(sigma));
+      m_func->SetParNames("Constant1","Mean1","Sigma1","Constant","Mean","Sigma");
+      double sigma=m_func->GetParameter(2);
+      m_func->SetParameter(2,fabs(sigma));
     }
     else {
-      func->SetParNames("Constant","Mean","Sigma","Constant1","Mean1","Sigma1");
-      double sigma=func->GetParameter(5);
-      func->SetParameter(5,fabs(sigma));
+      m_func->SetParNames("Constant","Mean","Sigma","Constant1","Mean1","Sigma1");
+      double sigma=m_func->GetParameter(5);
+      m_func->SetParameter(5,fabs(sigma));
     }
   }
 
-  const int numsig = func->GetParNumber("Sigma");
+  const int numsig = m_func->GetParNumber("Sigma");
   if (numsig != -1 ){
-	  double sigma=func->GetParameter(numsig);
-	  func->SetParameter(numsig,fabs(sigma));
+	  double sigma=m_func->GetParameter(numsig);
+	  m_func->SetParameter(numsig,fabs(sigma));
   }
 
   try {
-    dqm_core::Result *result= dqm_algorithms::tools::GetFitResult (func.get() , config, minSig );
+    dqm_core::Result *result= dqm_algorithms::tools::GetFitResult (m_func.get() , config, minSig );
     return result;
   }
   catch ( dqm_core::Exception & ex ) {
@@ -272,17 +272,17 @@ dqm_algorithms::RootFit::execute(	const std::string & name,
 void
 dqm_algorithms::RootFit::printDescription(std::ostream& out)
 {
-  out<<"Simple_"+name_+"_Fit: Does simple "+name_+" fit to histogram and checks fit parameters against thresholds\n"<<std::endl;
-  if ( name_ == "gaus"){
+  out<<"Simple_"+m_name+"_Fit: Does simple "+m_name+" fit to histogram and checks fit parameters against thresholds\n"<<std::endl;
+  if ( m_name == "gaus"){
     out<<"The following fit Parameters can be checked with Red and Green Thresholds; only one parameter is needed to get back real result"<<std::endl;
     out<<"Green/Red Treshold: Mean : Mean fit value to give Green/Red Result"<<std::endl;
     out<<"Green/Red Treshold: AbsMean : AbsMean fit value to give Green/Red Result"<<std::endl;
     out<<"Green/Red Treshold: Simga : Sigma fit value to give Green/Red Result"<<std::endl;
     out<<"Green/Red Treshold: Constant : Constant fit value to give Green/Red Result\n"<<std::endl;
-  } else if ( name_ == "sinusoid"){
+  } else if ( m_name == "sinusoid"){
     out<<"The sinusoid fit has the following functional form: s1*sin(x) + s2*cos(x)."<<std::endl
 	     <<"Checks can be configured on both parameters, s1 and s2, with green and red thresholds:"<<std::endl;
-  } else if ( name_ == "doublegaus"){
+  } else if ( m_name == "doublegaus"){
     out<<"The following fit Parameters can be checked with Red and Green Thresholds; only one parameter is needed to get back real result"<<std::endl;
     out<<"smaller width will be assigned to Sigma"<<std::endl;
     out<<"Green/Red Treshold: Mean : Mean fit value to give Green/Red Result"<<std::endl;
@@ -293,11 +293,11 @@ dqm_algorithms::RootFit::printDescription(std::ostream& out)
     out<<"Green/Red Treshold: AbsMean1 : AbsMean fit value to give Green/Red Result"<<std::endl;
     out<<"Green/Red Treshold: Simga1 : Sigma fit value to give Green/Red Result"<<std::endl;
     out<<"Green/Red Treshold: Constant1 : Constant fit value to give Green/Red Result\n"<<std::endl;
-  } else if (name_ == "pol1") {
+  } else if (m_name == "pol1") {
     out<<"The following fit Parameters can be checked with Red and Green Thresholds; only one parameter is needed to get back real result"<<std::endl;
     out<<"Green/Red Treshold: pol1[0] : Constant linear fit value to give Green/Red Result"<<std::endl;
     out<<"Green/Red Treshold: pol1[1] : Slope linear fit value to give Green/Red Result\n"<<std::endl;
-  } else if (name_ == "gauspluspol1"){
+  } else if (m_name == "gauspluspol1"){
     out<<"The following fit Parameters can be checked with Red and Green Thresholds; only one parameter is needed to get back real result"<<std::endl;
     out<<"Green/Red Treshold: Mean : Mean fit value to give Green/Red Result"<<std::endl;
     out<<"Green/Red Treshold: AbsMean : AbsMean fit value to give Green/Red Result"<<std::endl;
@@ -305,7 +305,7 @@ dqm_algorithms::RootFit::printDescription(std::ostream& out)
     out<<"Green/Red Treshold: Constant : Constant fit value to give Green/Red Result"<<std::endl;
     out<<"Green/Red Treshold: pol1[0] : Constant linear fit value to give Green/Red Result"<<std::endl;
     out<<"Green/Red Treshold: pol1[1] : Slope linear fit value to give Green/Red Result\n"<<std::endl;
-  } else if (name_ == "gausplusexpo"){
+  } else if (m_name == "gausplusexpo"){
     out<<"The following fit Parameters can be checked with Red and Green Thresholds; only one parameter is needed to get back real result"<<std::endl;
     out<<"Green/Red Treshold: Mean : Mean fit value to give Green/Red Result"<<std::endl;
     out<<"Green/Red Treshold: AbsMean : AbsMean fit value to give Green/Red Result"<<std::endl;
@@ -313,12 +313,12 @@ dqm_algorithms::RootFit::printDescription(std::ostream& out)
     out<<"Green/Red Treshold: Constant : Constant fit value to give Green/Red Result"<<std::endl;
     out<<"Green/Red Treshold: ConstantExpo : ConstantExpo fit value to give Green/Red Result"<<std::endl;
     out<<"Green/Red Treshold: Slope : Slope fit value to give Green/Red Result\n"<<std::endl;
-  } else if (name_ == "landau") {
+  } else if (m_name == "landau") {
     out<<"The following fit Parameters can be checked with Red and Green Thresholds; only one parameter is needed to get back real result"<<std::endl;
     out<<"Green/Red Treshold: MPV : MPV fit value to give Green/Red Result"<<std::endl;
     out<<"Green/Red Treshold: Sigma : Sigma fit value to give Green/Red Result"<<std::endl;
     out<<"Green/Red Treshold: Constant : Constant fit value to give Green/Red Result\n"<<std::endl;
-  } else if (name_ == "fermi" ) {
+  } else if (m_name == "fermi" ) {
     out<<"The following fit Parameters can be checked with Red and Green Thresholds; only one parameter is needed to get back real result"<<std::endl;
     out<<"Green/Red Threshold: Plateau : Plateau fit value to give Green/Red Result"<<std::endl;
     out<<"Green/Red Threshold: Threshold : Fermi energy fit value to give Green/Red Result"<<std::endl;

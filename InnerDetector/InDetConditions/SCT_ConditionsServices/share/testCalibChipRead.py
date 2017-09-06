@@ -30,11 +30,31 @@ theApp.AuditAlgorithms=True
 # Load Geometry
 #--------------------------------------------------------------
 from AthenaCommon.GlobalFlags import globalflags
-globalflags.DetDescrVersion="ATLAS-GEO-16-00-00"
+globalflags.DetDescrVersion="ATLAS-R1-2012-03-00-00"
+globalflags.ConditionsTag="COMCOND-BLKPA-RUN1-09"
 globalflags.DetGeo="atlas"
 globalflags.InputFormat="pool"
-globalflags.DataSource="geant4"
+globalflags.DataSource="data"
 print globalflags
+
+#--------------------------------------------------------------
+# Set up conditions
+#--------------------------------------------------------------
+from RecExConfig.RecFlags import rec
+rec.projectName.set_Value_and_Lock("data12_8TeV")
+
+#--------------------------------------------------------------
+# Load IOVDbSvc
+#--------------------------------------------------------------
+#include("IOVDbSvc/IOVDbSvc_jobOptions.py")
+IOVDbSvc = Service("IOVDbSvc")
+from IOVDbSvc.CondDB import conddb
+conddb.dbdata="COMP200"
+IOVDbSvc.GlobalTag=globalflags.ConditionsTag()
+IOVDbSvc.OutputLevel = DEBUG
+
+conddb.addFolderWithTag("SCT","/SCT/DAQ/Calibration/ChipNoise","SctDaqCalibrationChipNoise-UPD1-002-00")
+conddb.addFolderWithTag("SCT","/SCT/DAQ/Calibration/ChipGain","SctDaqCalibrationChipGain-UPD1-002-00")
 
 #--------------------------------------------------------------
 # Set Detector setup
@@ -65,6 +85,9 @@ DetFlags.writeRIOPool.all_setOff()
 import AtlasGeoModel.SetGeometryVersion
 import AtlasGeoModel.GeoModelInit
 
+# Disable SiLorentzAngleSvc to remove
+# ERROR ServiceLocatorHelper::createService: wrong interface id IID_665279653 for service
+ServiceMgr.GeoModelSvc.DetectorTools['SCT_DetectorTool'].LorentzAngleSvc=""
 
 #--------------------------------------------------------------
 # Load ReadCalibData Alg and Service
@@ -97,12 +120,8 @@ import AthenaCommon.AtlasUnixGeneratorJob
 #ServiceMgr+= EventSelector()
 #ServiceMgr.EventSelector.FirstEvent = 1
 #ServiceMgr.EventSelector.EventsPerRun = 5
-#ServiceMgr.EventSelector.RunNumber = 0
+ServiceMgr.EventSelector.RunNumber = 215643
 theApp.EvtMax                    = 1
-
-#For real data, earliest timestamp is 0
-ServiceMgr.EventSelector.InitialTimeStamp = 1228950000
-
 
 #--------------------------------------------------------------
 # Set output lvl (VERBOSE, DEBUG, INFO, WARNING, ERROR, FATAL)
@@ -110,29 +129,6 @@ ServiceMgr.EventSelector.InitialTimeStamp = 1228950000
 ServiceMgr.MessageSvc.OutputLevel = INFO
 ServiceMgr.SCT_ReadCalibChipDataSvc.OutputLevel = INFO
 topSequence.SCT_ReadCalibChipDataTestAlg.OutputLevel = INFO
-
-
-#--------------------------------------------------------------
-# Load IOVDbSvc
-#--------------------------------------------------------------
-#include("IOVDbSvc/IOVDbSvc_jobOptions.py")
-IOVDbSvc = Service("IOVDbSvc")
-from IOVDbSvc.CondDB import conddb
-IOVDbSvc.GlobalTag='COMCOND-ES1C-000-00'
-IOVDbSvc.OutputLevel = DEBUG
-#ToolSvc = Service( "ToolSvc" )
-
-#For testing against the DEVDB10
-#DBname='<dbConnection>oracle://DEVDB10;schema=ATLAS_SCT_COMMCOND_DEV;dbname=ACALTEST;user=ATLAS_SCT_COMMCOND_DEV;password=********</dbConnection>'
-#IOVDbSvc.Folders += [ DBname + '/SCT/DAQ/Calibratsion/NPtGainDefects' ]
-#IOVDbSvc.Folders += [ DBname + '/SCT/DAQ/Calibration/NoiseOccupancyDefects' ]
-
-#For real Pit one data in comp200
-#conddb.addFolder("SCT",CoolFldrPathNoiseOcc)
-#conddb.addFolder("SCT",CoolFldrPathNPtGain)
-#Now multi-version in comp200:
-conddb.addFolder("SCT","/SCT/DAQ/Calibration/ChipNoise <tag>HEAD</tag>")
-conddb.addFolder("SCT","/SCT/DAQ/Calibration/ChipGain <tag>HEAD</tag>")
 
 #--------------------------------------------------------------
 # Set the correct flags

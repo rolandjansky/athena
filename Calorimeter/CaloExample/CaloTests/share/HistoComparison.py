@@ -2,8 +2,6 @@
 
 import os,commands,sys,logging
 import ROOT
-import PyCintex
-#PyCintex.Enable()
 
 class myHist:
     def __init__(self,histName,histComment,histBins,histMinX,histMaxX,histFormula,histCondForm):

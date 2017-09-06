@@ -28,6 +28,7 @@
 
 #include "CxxUtils/SealCommon.h"
 #include "CxxUtils/SealDebug.h"
+#include "CxxUtils/checker_macros.h"
 #include <exception>
 
 
@@ -43,7 +44,7 @@ namespace CxxUtils {
  * @param e The exception to print.
  * @param fd The file descriptor to which to write.
  */
-void exctrace (const std::exception& e, IOFD fd = IOFD_INVALID);
+void exctrace ATLAS_NOT_THREAD_SAFE (const std::exception& e, IOFD fd = IOFD_INVALID);
 
 
 } // namespace CxxUtils

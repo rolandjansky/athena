@@ -11,7 +11,7 @@ from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
 # Default 'do' list:
-validations = ["InDet","PrimaryTracking", "SecondaryTracking", "Jet", "MET", "Muon", "Egamma", "Tau", "Btag",
+validations = ["InDet","PrimaryTracking", "SecondaryTracking", "Jet", "MET", "Muon", "SlowMuon", "Egamma", "Tau", "Btag",
                "SMZee", "SMZMet", "HSG6", "Top", "SUSY", "Exotics",
                "Example"]
 

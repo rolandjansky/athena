@@ -21,7 +21,7 @@ namespace dqm_algorithms
       void printDescription(std::ostream& out);
       dqm_core::Result* execute(const std::string& , const TObject& , const dqm_core::AlgorithmConfig& );
       private:
-      std::string name_;
+      std::string m_name;
   };
 }
 

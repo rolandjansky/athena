@@ -9,7 +9,11 @@
 #include "xAODTracking/VertexContainer.h" 
 #include <cmath>
 
-CorrectPFOTool::CorrectPFOTool(const std::string &name): JetConstituentModifierBase(name), m_weightPFOTool("WeightPFOTool"), m_trkVtxAssocName("JetTrackVtxAssoc") {
+CorrectPFOTool::CorrectPFOTool(const std::string &name): JetConstituentModifierBase(name), 
+                                                         m_weightPFOTool("WeightPFOTool")
+                                                         // m_weightPFOTool("WeightPFOTool"), 
+                                                         // m_trkVtxAssocName("JetTrackVtxAssoc") 
+{
 
 #ifdef ASG_TOOL_ATHENA
   declareInterface<IJetConstituentModifier>(this);
@@ -23,7 +27,21 @@ CorrectPFOTool::CorrectPFOTool(const std::string &name): JetConstituentModifierB
   declareProperty("UseVertices", m_usevertices = true, "True if we make use of the primary vertex information.");
   declareProperty("UseChargedWeights",m_useChargedWeights = true, "True if we make use of weighting scheme for charged PFO");
   declareProperty("UseTrackToVertexTool", m_useTrackToVertexTool=false, "True if we will use the track to vertex tool");
-  declareProperty("TrackVertexAssociation", m_trkVtxAssocName, "SG key for the TrackVertexAssociation object");
+
+  declareProperty("TrackVertexAssociation", 
+                  m_trkVtxAssoc_key="JetTrackVtxAssoc",
+                  "Datahandle key for the TrackVertexAssociation object");
+
+
+}
+
+StatusCode CorrectPFOTool::initialize() {
+  ATH_MSG_INFO("Initializing tool " << name() << "...");
+  ATH_MSG_DEBUG("initializing version with data handles");
+
+  ATH_CHECK(m_vertexContainer_key.initialize());
+  ATH_CHECK(m_trkVtxAssoc_key.initialize());
+  return StatusCode::SUCCESS;
 }
 
 StatusCode CorrectPFOTool::process(xAOD::IParticleContainer* cont) const {
@@ -40,13 +58,20 @@ StatusCode CorrectPFOTool::process(xAOD::PFOContainer* cont) const {
   const xAOD::VertexContainer* pvtxs = nullptr;
   const xAOD::Vertex* vtx = nullptr;
   if (m_usevertices){
-    ATH_CHECK(evtStore()->retrieve(pvtxs, "PrimaryVertices"));
-    if ( pvtxs == nullptr || pvtxs->size()==0 ) {
+    auto handle = SG::makeHandle(m_vertexContainer_key);
+    if (!handle.isValid()){
       ATH_MSG_WARNING(" This event has no primary vertices " );
       return StatusCode::FAILURE;
     }
+    
+    pvtxs = handle.cptr();
+    if(pvtxs->empty()){
+      ATH_MSG_WARNING(" This event has no primary vertices " );
+      return StatusCode::FAILURE;
+    } 
 
-    //Usually the 0th vertex is the primary one, but this is not always the case. So we will choose the first vertex of type PriVtx
+    //Usually the 0th vertex is the primary one, but this is not always 
+    // the case. So we will choose the first vertex of type PriVtx
     for (auto theVertex : *pvtxs) {
       if (xAOD::VxType::PriVtx == theVertex->vertexType() ) {
 	vtx = theVertex;
@@ -54,7 +79,8 @@ StatusCode CorrectPFOTool::process(xAOD::PFOContainer* cont) const {
       }//If we have a vertex of type primary vertex
     }//iterate over the vertices and check their type
 
-    //If there is no primary vertex, then we cannot correct pflow inputs and hence we return (because this should not happen).
+    //If there is no primary vertex, then we cannot correct pflow inputs and 
+    // hence we return (because this should not happen).
     if (nullptr == vtx) {
       ATH_MSG_VERBOSE("Could not find a primary vertex in this event " );
       for (auto theVertex : *pvtxs) {
@@ -101,11 +127,14 @@ StatusCode CorrectPFOTool::process(xAOD::PFOContainer* cont) const {
       }
 
       if (true == m_useTrackToVertexTool && true == m_usevertices){
-	const jet::TrackVertexAssociation* trkVtxAssoc = nullptr;
 
-	StatusCode sc = evtStore()->retrieve(trkVtxAssoc, m_trkVtxAssocName);
-	if(sc.isFailure() || nullptr == trkVtxAssoc){ ATH_MSG_ERROR("Can't retrieve TrackVertexAssociation : "<< m_trkVtxAssocName); return StatusCode::FAILURE;}
-	
+        auto handle = SG::makeHandle(m_trkVtxAssoc_key);
+    if(!handle.isValid()){
+      ATH_MSG_ERROR("Can't retrieve TrackVertexAssociation : "<< m_trkVtxAssoc_key.key()); 
+      return StatusCode::FAILURE;
+    }
+
+    auto trkVtxAssoc = handle.cptr();
 	const xAOD::Vertex* thisTracksVertex = trkVtxAssoc->associatedVertex(ptrk);
 	
 	if (xAOD::VxType::PriVtx == thisTracksVertex->vertexType()) matchedToPrimaryVertex = true;
@@ -129,9 +158,6 @@ StatusCode CorrectPFOTool::process(xAOD::PFOContainer* cont) const {
 	  //if (weight>FLT_MIN){ // check against float precision
 	  ATH_MSG_VERBOSE("Fill pseudojet for CPFO with weighted pt: " << ppfo->pt()*weight);
 	  ppfo->setP4(ppfo->p4()*weight);
-	  //} else {
-	  //  ATH_MSG_VERBOSE("CPFO had a weight of 0, do not fill.");
-	  //} // received a weight
 	}//if should use charged PFO weighting scheme
       }
       if ( false == matchedToPrimaryVertex && m_applyCHS){

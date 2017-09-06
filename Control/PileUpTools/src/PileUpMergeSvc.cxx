@@ -145,8 +145,7 @@ PileUpMergeSvc::isLive(CLID id, const string& dataKey, int iXing) {
 }
 
 bool
-PileUpMergeSvc::doRefresh(CLID id, const string& dataKey, int iXing) {
-  const Range& r(m_ranges[make_pair(id, dataKey)]);
+PileUpMergeSvc::doRefresh(const Range& r, int iXing) {
   //  bool result(r.contains(iXing) && r.doRefresh(double(random())/RAND_MAX));
   //  std::cerr << "doRefresh: id " << id << " key " << dataKey 
   //	    << " xing " << iXing << " result " << result << std::endl;
@@ -165,35 +164,23 @@ PileUpMergeSvc::clearDataCaches() {
       StoreGateSvc* pSubEvtSG(iEvt->pSubEvtSG);
       assert(pSubEvtSG);
       //go object-by-object (driven by PileUpXingFolder settings)
-      SG::DataStore::ConstStoreIterator s_iter, s_end;
-      if ((pSubEvtSG->store()->tRange(s_iter, s_end)).isSuccess()) {
-	// loop over each type:
-	while (s_iter != s_end) {
-	  CLID id = s_iter->first;	
-	  // loop over proxies:
-	  SG::ConstProxyIterator p_iter = (s_iter->second).begin();
-	  SG::ConstProxyIterator p_end =  (s_iter->second).end();
-	  while (p_iter != p_end) {
-	    const std::string& key(p_iter->first);
-	    //FIXME turning the double iEvt->time is fraught with peril. Luckily 
-	    //FIXME it just works, but we should have the beam xing in iEvt
-	    if (doRefresh(id, key, int(iEvt->time()))) {
-	      (const_cast<SG::DataProxy&>(*p_iter->second)).setObject((DataObject*)0);
-#ifndef NDEBUG
-	      if (msg().level() <= MSG::DEBUG) {
-		msg() << MSG::DEBUG
-		      << "clearDataCachesByFolder: object with clid "
-		      << id << " and key " << key 
-		      << " removed from cache " 
-		      << iEvt->pSubEvtSG->name() << endmsg;
-	      }
-#endif
-	    }
-	    ++p_iter;
-	  } //Proxy loop
-	  ++s_iter;
-	} // CLID loop
-      } //tRange success
+      for (const auto& item : m_ranges) {
+        SG::sgkey_t sgkey = pSubEvtSG->stringToKey (item.first.second,
+                                                      item.first.first);
+        SG::DataProxy* proxy = pSubEvtSG->proxy_exact (sgkey);
+        //FIXME turning the double iEvt->time is fraught with peril. Luckily 
+        //FIXME it just works, but we should have the beam xing in iEvt
+        if (proxy && doRefresh (item.second, int(iEvt->time()))) {
+          proxy->setObject ((DataObject*)0);
+          if (msg().level() <= MSG::DEBUG) {
+            msg() << MSG::DEBUG
+                  << "clearDataCachesByFolder: object with clid "
+                  << item.first.first << " and key " << item.first.second
+                  << " removed from cache " 
+                  << pSubEvtSG->name() << endmsg;
+          }
+        }
+      }
       //even if we don't clear the store we need to empty the trash...
       iEvt->pSubEvtSG->emptyTrash();
 #ifndef NDEBUG

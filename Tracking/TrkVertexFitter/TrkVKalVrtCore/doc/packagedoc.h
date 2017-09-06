@@ -28,17 +28,6 @@ Neutral and charged tracks may be mixed together.
  Software related issues may be viewed in
  https://twiki.cern.ch/twiki/bin/view/Atlas/VKalVrt .
   
-@ref used_TrkVKalVrtCore
 
-@ref requirements_TrkVKalVrtCore
 
 */
-
-/**
-@page used_TrkVKalVrtCore Used Packages
-*/
-
-/**
-@page requirements_TrkVKalVrtCore Requirements
-*/
-

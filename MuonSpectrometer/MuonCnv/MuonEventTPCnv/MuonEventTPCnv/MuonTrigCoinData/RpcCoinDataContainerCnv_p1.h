@@ -17,6 +17,7 @@
 #include "MuonTrigCoinData/RpcCoinDataContainer.h"
 #include "MuonEventTPCnv/MuonPrepRawData/MuonPRD_Container_p2.h"
 #include "RpcCoinData_p1.h"
+#include "MuonEventTPCnv/CreateTransientTemplates.h"
 
 namespace MuonGM{ class MuonDetectorManager;}
 

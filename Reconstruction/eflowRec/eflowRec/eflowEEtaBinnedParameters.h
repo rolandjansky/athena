@@ -34,27 +34,22 @@ class eflowParameters {
     int nSubtRegions = eflowFirstIntRegions::nRegions;
     m_FirstIntParameters.resize(nSubtRegions);
     for (int i = 0; i < nSubtRegions; i++) {
-      m_FirstIntParameters[i] = new eflowFirstIntParameters;
+      m_FirstIntParameters[i] = std::make_unique<eflowFirstIntParameters>();
     }
   }
 
-  ~eflowParameters() {
-    int n = m_FirstIntParameters.size();
-    for (int i = 0; i < n; i++) {
-      delete m_FirstIntParameters[i];
-    }
-  }
+  ~eflowParameters() {}
 
   const eflowFirstIntParameters* getFirstIntBin(eflowFirstIntENUM j1st) const {
-    return (eflowFirstIntRegions::Unknown != j1st) ? m_FirstIntParameters[j1st] : 0;
+    return (eflowFirstIntRegions::Unknown != j1st) ? m_FirstIntParameters[j1st].get() : nullptr;
   }
   eflowFirstIntParameters* getFirstIntBin(eflowFirstIntENUM j1st) {
-    return (eflowFirstIntRegions::Unknown != j1st) ? m_FirstIntParameters[j1st] : 0;
+    return (eflowFirstIntRegions::Unknown != j1st) ? m_FirstIntParameters[j1st].get() : nullptr;
   }
 
-
+  
  private:
-  std::vector<eflowFirstIntParameters*> m_FirstIntParameters;
+  std::vector<std::unique_ptr<eflowFirstIntParameters> > m_FirstIntParameters;
 };
 
 
@@ -96,7 +91,7 @@ class eflowEEtaBinnedParameters :  public eflowEEtaBinBase {
  private:
 
   /* For different E bin, Eta bin, different (int)paramNumber, there are different (double)shapeParam */
-  std::vector< std::vector<eflowParameters*> > m_bins;
-
+  std::vector< std::vector<std::unique_ptr<eflowParameters> > > m_bins;
+  
 };
 #endif

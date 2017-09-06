@@ -29,10 +29,19 @@
 #include "xAODTruth/TruthVertex.h"
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 #include "xAODMuon/MuonSegmentContainer.h"
+#include "GeneratorObjects/xAODTruthParticleLink.h"
+
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
+#include "StoreGate/WriteHandleKeyArray.h"
 
 class IMCTruthClassifier;
 class MuonSimDataCollection;
 class CscSimDataCollection;
+
+namespace MuonGM {
+  class MuonDetectorManager;
+}
 
 namespace Muon {
 
@@ -50,30 +59,26 @@ public:
   virtual StatusCode finalize();
 
 private:
-  void addTrackRecords( xAOD::TruthParticle& truthParticle, std::vector< std::pair<const TrackRecordCollection*,std::string> >& trackRecords,
-                        const xAOD::TruthVertex* vertex ) const;
-  void addHitCounts( xAOD::TruthParticle& truthParticle, const std::vector<const PRD_MultiTruthCollection*>& collections,
-		     ChamberIdMap* ids = 0 ) const;
+  void addTrackRecords( xAOD::TruthParticle& truthParticle, const xAOD::TruthVertex* vertex ) const;
+  void addHitCounts( xAOD::TruthParticle& truthParticle, ChamberIdMap* ids = 0 ) const;
   void addHitIDVectors( xAOD::TruthParticle& truthParticle, const MuonTruthDecorationAlg::ChamberIdMap& ids) const;
-  void createSegments( const ElementLink< xAOD::TruthParticleContainer >& truthLink,
-                       const MuonTruthDecorationAlg::ChamberIdMap& ids, 
-		       xAOD::MuonSegmentContainer& segmentContainer,
-		       const std::vector<const MuonSimDataCollection*>& sdoCollections,
-		       const CscSimDataCollection* cscCollection ) const;
+  void createSegments( const ElementLink< xAOD::TruthParticleContainer >& truthLink,SG::WriteHandle<xAOD::MuonSegmentContainer> segmentContainer,
+                       const MuonTruthDecorationAlg::ChamberIdMap& ids) const;
 
-  std::string m_truthParticleContainerName;
-  std::string m_muonTruthParticleContainerName;
-  std::vector<std::string> m_trackRecordCollectionNames;
-  std::vector<std::string> m_PRD_TruthNames;
-  std::vector<std::string> m_SDO_TruthNames;
-  std::string              m_CSC_SDO_TruthNames;
-  std::string m_truthLinkVecName;
+  SG::ReadHandleKey<xAOD::TruthParticleContainer> m_truthParticleContainerName;
+  SG::WriteHandleKey<xAOD::TruthParticleContainer> m_muonTruthParticleContainerName;
+  SG::WriteHandleKey<xAOD::MuonSegmentContainer> m_muonTruthSegmentContainerName;
+  SG::ReadHandleKeyArray<TrackRecordCollection> m_trackRecordCollectionNames;
+  SG::ReadHandleKeyArray<PRD_MultiTruthCollection> m_PRD_TruthNames;
+  SG::ReadHandleKeyArray<MuonSimDataCollection> m_SDO_TruthNames;
+  SG::ReadHandleKey<CscSimDataCollection> m_CSC_SDO_TruthNames;
+  SG::ReadHandleKey<xAODTruthParticleLinkVector> m_truthLinkVecName;
   ToolHandle<Muon::MuonIdHelperTool>    m_idHelper;
   ToolHandle<Muon::MuonEDMPrinterTool>  m_printer;
   ToolHandle<IMCTruthClassifier>        m_truthClassifier;
   ToolHandle<Trk::IExtrapolator>        m_extrapolator;
+  const MuonGM::MuonDetectorManager * m_muonMgr;
   bool m_createTruthSegment;
-  std::string m_muonTruthSegmentContainerName;
   int m_barcodeOffset;
 };
 

@@ -40,6 +40,12 @@ namespace TestEDM {
     return get(c, "phi");
   }
 
+  void copyCluster(const TestCluster* from , TestCluster* to) {
+    setClusterEt(to, getClusterEt(from) );
+    setClusterEta(to, getClusterEta(from) );
+    setClusterPhi(to, getClusterPhi(from) );
+  }
+
 
   void setTrackPt(TestTrack* c, float pt) {
     set(c, "pt", pt);
@@ -62,6 +68,11 @@ namespace TestEDM {
     return get(c, "phi");  
   }
 
+  void copyTrack(const TestTrack* from , TestTrack* to) {
+    setTrackPt(to, getTrackPt(from) );
+    setTrackEta(to, getTrackEta(from) );
+    setTrackPhi(to, getTrackPhi(from) );
+  }
 
 
 }

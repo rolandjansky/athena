@@ -5,15 +5,11 @@ from AthenaPython.PyAthena import StatusCode
 import AthenaPython.PyAthena as PyAthena
 import sys,os
 from PyCool import cool,coral
-
-import PyCintex as PyLCGDict
+import cppyy
 
 import LArBadChannelBrowserTools
 import LArDBFolderBrowser_BadChan
 import LArDBFolderBrowser_MissingFEBs
-
-import PyCintex
-#PyCintex.loadDictionary("libBadChanDict")
 
 STATUS_INIT="INIT"
 STATUS_NEW="NEW"
@@ -75,13 +71,6 @@ class LArBadChannelBrowserAlg(PyAthena.Alg):
         else:
             self.msg.info('retrieved [%s]', self.msgSvc.name())
 
-
-#        f=open("pycintex.txt","w")
-#        f.write(str(PyCintex.getAllClasses()))
-#        f.close()
-#        print PyCintex.getAllClasses()
-
-
         # -----------------------------------------------------------
         # get database service and open database
         self.msg.debug('retrieve database service...')
@@ -141,12 +130,12 @@ class LArBadChannelBrowserAlg(PyAthena.Alg):
         # -----------------------------------------------------------
         # Create an objec instance for all interfaced python classes
 
-        LArBadChannelDBTools=PyCintex.makeNamespace('LArBadChannelDBTools')
+        LArBadChannelDBTools=cppyy.makeNamespace('LArBadChannelDBTools')
         self.nspace_LArBadChannelDBTools=LArBadChannelDBTools()
 
-        self.class_LArBadChannel=PyCintex.makeClass('LArBadChannel')
-        self.class_HWIdentifier=PyCintex.makeClass('HWIdentifier')
-        self.class_LArBadChanBitPacking=PyCintex.makeClass("LArBadChanBitPacking")
+        self.class_LArBadChannel=cppyy.makeClass('LArBadChannel')
+        self.class_HWIdentifier=cppyy.makeClass('HWIdentifier')
+        self.class_LArBadChanBitPacking=cppyy.makeClass("LArBadChanBitPacking")
 
         if self.folderId==BAD_CHANNEL:
             self.dbBrowserBadChan=LArDBFolderBrowser_BadChan.LArDBFolderBrowser_BadChan(self.nspace_LArBadChannelDBTools,

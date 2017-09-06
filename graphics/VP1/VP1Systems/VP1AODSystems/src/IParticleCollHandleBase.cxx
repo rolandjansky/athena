@@ -39,7 +39,7 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 
 //Qt
-#include <QtGui/QComboBox>
+#include <QComboBox>
 #include <QTreeWidgetItem>
 #include <qdatetime.h>
 #include <vector>

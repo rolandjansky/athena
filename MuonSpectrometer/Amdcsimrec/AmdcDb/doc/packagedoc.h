@@ -38,15 +38,5 @@ The AmdcDb package contains:
 
 @section AmdcDb_ExtrasAmdcDb Extra Pages
 
-  - @ref used_AmdcDb
-  - @ref requirements_AmdcDb
 
-*/
-
-/**
-@page used_AmdcDb Used Packages
-*/
-
-/**
-@page requirements_AmdcDb Requirements
 */

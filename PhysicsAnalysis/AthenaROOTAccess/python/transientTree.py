@@ -1011,26 +1011,9 @@ def get_DataHeader_p5 (dh_tree):
 # Make sure this is loaded, so we can call it from the C++ converters.
 ROOT.TDatabasePDG
 
-#Workarounds for root bugs. Needed to do e.g. tree.GetEntry(0)
-ROOT.RootUtils.ScanForAbstract.initialize()
-ROOT.RootUtils.StdHackGenerator.initialize()
-
 # Initialize the history, except if we're using the CINT shell.
 if ROOT.gApplication.GetName() != "TRint":
     ROOT.RootUtils.InitHist.initialize()
-
-# PyROOT sets up a callback to intercept Cint's error messages
-# and turn them into Python errors.  That's fine if you're using
-# Python as a shell.  But if you're using Cint as a shell
-# (and calling python through TPython), then this will result
-# in Cint's error messages being lost.
-#
-# Now, PyROOT itself is smart enough to only install the callback
-# if python is actually being used as a shell.  However, PyCintex
-# installs the callback unconditionally.  This function can be
-# used to undo the damage.
-if ROOT.gApplication.GetName() != "PyROOT::TPyROOTApplication":
-    ROOT.RootUtils.ClearCINTMessageCallback.initialize()
 
 # Set up RootConversions converters.
 #reg=ROOT.TConverterRegistry.Instance()

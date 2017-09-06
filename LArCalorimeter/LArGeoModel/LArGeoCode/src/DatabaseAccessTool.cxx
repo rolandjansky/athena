@@ -43,13 +43,10 @@ DatabaseAccessTool::DatabaseAccessTool ()
   m_cw->detectorKey  = LArVersion.empty() ? AtlasVersion : LArVersion;
   m_cw->detectorNode = LArVersion.empty() ? "ATLAS" : "LAr";
   
-  m_cw->pAccessSvc->connect();
-
 }
 
 DatabaseAccessTool::~DatabaseAccessTool () 
 {
-  m_cw->pAccessSvc->disconnect();
   delete m_cw;
 }
 

@@ -84,7 +84,7 @@ private:
 };
 int MyDataObj::count = 0;
 
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF(MyDataObj, 8000, 3) 
 
 #include <cassert>

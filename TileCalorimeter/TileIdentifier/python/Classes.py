@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-import PyCintex
+import cppyy
 
-TileHWID                = PyCintex.gbl.TileHWID
-TileFragHash            = PyCintex.gbl.TileFragHash
+TileHWID                = cppyy.gbl.TileHWID
+TileFragHash            = cppyy.gbl.TileFragHash
 

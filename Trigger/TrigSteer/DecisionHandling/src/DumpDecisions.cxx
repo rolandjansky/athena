@@ -22,7 +22,7 @@ DumpDecisions::DumpDecisions( const std::string& name,
   : AthReentrantAlgorithm( name, pSvcLocator )
 {
   declareProperty( "Decisions", m_decisionKey, "Input Decisions" );
-  declareProperty( "VerbosityLevel", m_verbosityLevel, "3 - tries to print as much possible, 2 - only list of objects and their decisions, 1 - only list of active objets");
+  declareProperty( "VerbosityLevel", m_verbosityLevel, "3 - tries to print as much possible, 2 - only list of objects and their decisions, 1 - only list of active objets" );
 }
 
 // Destructor
@@ -34,13 +34,13 @@ DumpDecisions::~DumpDecisions()
 ////////////////////////////
 StatusCode DumpDecisions::initialize()
 {
-  ATH_MSG_INFO ("Initializing " << name() << "...");
+  ATH_MSG_INFO ( "Initializing " << name() << "..." );
   CHECK( m_decisionKey.initialize() );
   return StatusCode::SUCCESS;
 }
 
 StatusCode DumpDecisions::finalize() {
-  ATH_MSG_INFO ("Finalizing " << name() << "...");
+  ATH_MSG_INFO ( "Finalizing " << name() << "..." );
 
   return StatusCode::SUCCESS;
 }
@@ -48,9 +48,9 @@ StatusCode DumpDecisions::finalize() {
 StatusCode DumpDecisions:: execute_r( const EventContext& ctx ) const {  
   using namespace TrigCompositeUtils;
   //  DecisionInput decisionInput;
-  auto decisionInput = SG::makeHandle(m_decisionKey, ctx);
+  auto decisionInput = SG::makeHandle( m_decisionKey, ctx );
   //  CHECK( decisionInput.retrieve()  );
-  //  CHECK ( decisionInput.retrieve( m_decisionKey, ctx) );
+  //  CHECK ( decisionInput.retrieve( m_decisionKey, ctx ) );
   ATH_MSG_DEBUG( "Retrieved decision with the key " << m_decisionKey.key() );
   ATH_MSG_DEBUG( "Pointer value " << decisionInput.cptr() );
   for ( auto d: *decisionInput ) {
@@ -59,7 +59,7 @@ StatusCode DumpDecisions:: execute_r( const EventContext& ctx ) const {
     ATH_MSG_DEBUG( "Decision object with " << ids.size() << " decisions" );
     if ( m_verbosityLevel >= 2 ) {
       for ( auto id: ids ) {
-	ATH_MSG_DEBUG( "Passing decision " << HLT::Identifier(id) );
+	ATH_MSG_DEBUG( "Passing decision " << HLT::Identifier( id ) );
       }      
     }
   }

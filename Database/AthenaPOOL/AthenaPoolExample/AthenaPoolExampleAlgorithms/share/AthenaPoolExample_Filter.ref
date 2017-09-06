@@ -1,4 +1,4 @@
-Wed Apr 26 00:05:26 CEST 2017
+Tue Jun 13 18:58:06 CEST 2017
 Preloading tcmalloc_minimal.so
 Athena               INFO including file "AthenaCommon/Preparation.py"
 Athena               INFO including file "AthenaCommon/Bootstrap.py"
@@ -6,14 +6,19 @@ Athena               INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Athena               INFO executing ROOT6Setup
 Athena               INFO including file "AthenaCommon/Execution.py"
 Athena               INFO including file "AthenaPoolExampleAlgorithms/AthenaPoolExample_FilterJobOptions.py"
-Py:ConfigurableDb    INFO Read module info for 5294 configurables from 5 genConfDb files
-Py:ConfigurableDb    INFO No duplicates have been found: that's good !
+Py:ConfigurableDb    INFO Read module info for 5328 configurables from 11 genConfDb files
+Py:ConfigurableDb WARNING Found 1 duplicates among the 11 genConfDb files :
+Py:ConfigurableDb WARNING --------------------------------------------------
+Py:ConfigurableDb WARNING   -<component name>: <module> - [ <duplicates> ]
+Py:ConfigurableDb WARNING --------------------------------------------------
+Py:ConfigurableDb WARNING   -DumpDecisions: DecisionHandling.DecisionHandlingConf - ['ViewAlgs.ViewAlgsConf']
+Py:ConfigurableDb WARNING Fix your cmt/requirements file !!
 Athena               INFO including file "AthenaCommon/runbatch.py"
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v28r1)
-                                          running on lxplus049.cern.ch on Wed Apr 26 00:05:35 2017
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v28r2)
+                                          running on lxplus074.cern.ch on Tue Jun 13 18:58:17 2017
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -21,7 +26,7 @@ ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to leve
 StatusCodeSvc        INFO initialize
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
-ClassIDSvc           INFO  getRegistryEntries: read 2307 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 2348 CLIDRegistry entries for module ALL
 ChronoStatSvc        INFO  Number of skipped events for MemStat-1
 CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
 AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
@@ -34,8 +39,8 @@ PoolSvc             DEBUG Property update for OutputLevel : new value = 2
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
 DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy-wigner.cern.ch:3128) will be considered for COOL data
-DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2017-04-24T2225/Athena/22.0.0/InstallArea/x86_64-slc6-gcc62-opt/share/dbreplica.config
-DBReplicaSvc         INFO Total of 10 servers found for host lxplus049.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2017-06-04T2251/Athena/22.0.0/InstallArea/x86_64-slc6-gcc62-dbg/share/dbreplica.config
+DBReplicaSvc         INFO Total of 10 servers found for host lxplus074.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc             DEBUG OutputLevel is 2
 PoolSvc              INFO Setting up APR FileCatalog and Streams
@@ -147,7 +152,7 @@ ReadData            DEBUG input handles: 0
 ReadData            DEBUG output handles: 0
 ReadData            DEBUG Data Deps for ReadData
 Stream1.Stream1...  DEBUG Property update for OutputLevel : new value = 2
-ClassIDSvc           INFO  getRegistryEntries: read 2988 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 3033 CLIDRegistry entries for module ALL
 Stream1             DEBUG Property update for OutputLevel : new value = 2
 Stream1             DEBUG In initialize 
 Stream1             DEBUG Found IDecisionSvc.
@@ -157,7 +162,7 @@ Stream1             DEBUG In initialize
 Stream1             DEBUG Found StoreGateSvc store.
 Stream1             DEBUG Found MetaDataStore store.
 OutputStreamSeq...   INFO Initializing OutputStreamSequencerSvc - package version AthenaServices-00-00-00
-ClassIDSvc           INFO  getRegistryEntries: read 392 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 395 CLIDRegistry entries for module ALL
 Stream1.Stream1...  DEBUG Property update for OutputLevel : new value = 2
 Stream1.Stream1...   INFO Initializing Stream1.Stream1Tool - package version OutputStreamAthenaPool-00-00-00
 AthenaPoolAddre...  DEBUG Cannot retrieve DataHeader from DetectorStore.
@@ -314,8 +319,6 @@ Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
 Stream1             DEBUG  Added object 9103,"MyTracks"
-Stream1             DEBUG addItemObjects(45903698,"*") called
-Stream1             DEBUG            Key:*
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 1
 Stream1             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 1
@@ -427,8 +430,6 @@ Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
 Stream1             DEBUG  Added object 9103,"MyTracks"
-Stream1             DEBUG addItemObjects(45903698,"*") called
-Stream1             DEBUG            Key:*
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 2
 Stream1             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 2
@@ -477,8 +478,6 @@ Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
 Stream1             DEBUG  Added object 9103,"MyTracks"
-Stream1             DEBUG addItemObjects(45903698,"*") called
-Stream1             DEBUG            Key:*
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 3
 Stream1             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 3
@@ -527,8 +526,6 @@ Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
 Stream1             DEBUG  Added object 9103,"MyTracks"
-Stream1             DEBUG addItemObjects(45903698,"*") called
-Stream1             DEBUG            Key:*
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 4
 Stream1             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 4
@@ -577,8 +574,6 @@ Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
 Stream1             DEBUG  Added object 9103,"MyTracks"
-Stream1             DEBUG addItemObjects(45903698,"*") called
-Stream1             DEBUG            Key:*
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 5
 Stream1             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 5
@@ -627,8 +622,6 @@ Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
 Stream1             DEBUG  Added object 9103,"MyTracks"
-Stream1             DEBUG addItemObjects(45903698,"*") called
-Stream1             DEBUG            Key:*
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 6
 Stream1             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 6
@@ -677,8 +670,6 @@ Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
 Stream1             DEBUG  Added object 9103,"MyTracks"
-Stream1             DEBUG addItemObjects(45903698,"*") called
-Stream1             DEBUG            Key:*
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 7
 Stream1             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 7
@@ -727,8 +718,6 @@ Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
 Stream1             DEBUG  Added object 9103,"MyTracks"
-Stream1             DEBUG addItemObjects(45903698,"*") called
-Stream1             DEBUG            Key:*
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 8
 Stream1             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 8
@@ -777,8 +766,6 @@ Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
 Stream1             DEBUG  Added object 9103,"MyTracks"
-Stream1             DEBUG addItemObjects(45903698,"*") called
-Stream1             DEBUG            Key:*
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 9
 Stream1             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 9
@@ -827,8 +814,6 @@ Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
 Stream1             DEBUG  Added object 9103,"MyTracks"
-Stream1             DEBUG addItemObjects(45903698,"*") called
-Stream1             DEBUG            Key:*
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 10
 Stream1             DEBUG  Object/count: ExampleTrackContainer_MyTracks, 10
@@ -920,13 +905,13 @@ EventSelector.Q...   INFO in finalize()
 *****Chrono*****     INFO ****************************************************************************************************
 *****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****     INFO ****************************************************************************************************
-commitOutput         INFO Time User   : Tot=    0 [us] Ave/Min/Max=    0(+-    0)/    0/    0 [us] #= 11
 fRep_ALL             INFO Time User   : Tot=    0 [us] Ave/Min/Max=    0(+-    0)/    0/    0 [us] #= 42
-cRep_ALL             INFO Time User   : Tot=    0 [us] Ave/Min/Max=    0(+-    0)/    0/    0 [us] #= 42
-cRepR_ALL            INFO Time User   : Tot=    0 [us] Ave/Min/Max=    0(+-    0)/    0/    0 [us] #= 63
-cObjR_ALL            INFO Time User   : Tot=   20 [ms] Ave/Min/Max=0.571(+- 2.32)/    0/   10 [ms] #= 35
-cObj_ALL             INFO Time User   : Tot=   50 [ms] Ave/Min/Max= 1.52(+- 4.35)/    0/   20 [ms] #= 33
-ChronoStatSvc        INFO Time User   : Tot= 1.06  [s]                                             #=  1
+commitOutput         INFO Time User   : Tot=   20 [ms] Ave/Min/Max= 1.82(+- 3.86)/    0/   10 [ms] #= 11
+cObjR_ALL            INFO Time User   : Tot=   30 [ms] Ave/Min/Max=0.857(+-  2.8)/    0/   10 [ms] #= 35
+cRepR_ALL            INFO Time User   : Tot=   50 [ms] Ave/Min/Max=0.794(+-  2.7)/    0/   10 [ms] #= 63
+cRep_ALL             INFO Time User   : Tot=   60 [ms] Ave/Min/Max= 1.43(+-  3.5)/    0/   10 [ms] #= 42
+cObj_ALL             INFO Time User   : Tot=   80 [ms] Ave/Min/Max= 2.42(+- 6.53)/    0/   30 [ms] #= 33
+ChronoStatSvc        INFO Time User   : Tot= 1.67  [s]                                             #=  1
 *****Chrono*****     INFO ****************************************************************************************************
 ChronoStatSvc.f...   INFO  Service finalized successfully 
 FileMgr           WARNING At finalize, the following files remained open:

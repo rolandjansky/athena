@@ -37,7 +37,8 @@ public:
 				   tadList& list) override;
 
   virtual StatusCode updateAddress(StoreID::type storeID,
-				   SG::TransientAddress* pTAd) override;
+				   SG::TransientAddress* pTAd,
+                                   const EventContext& ctx) override;
 
 
   void add (CLID clid, const std::string& name);
@@ -72,7 +73,8 @@ StatusCode TestProvider::loadAddresses(StoreID::type /*storeID*/,
 
 
 StatusCode TestProvider::updateAddress(StoreID::type /*storeID*/,
-                                       SG::TransientAddress* /*pTAd*/)
+                                       SG::TransientAddress* /*pTAd*/,
+                                       const EventContext& /*ctx*/)
 {
   std::abort();
 }
@@ -106,7 +108,6 @@ public:
                                      const std::string& /*key*/) const override
   { return nullptr; }
 
-  std::vector<SG::TransientAddress> tads;
   std::vector<std::unique_ptr<SG::DataProxy> > proxies;
 };
 
@@ -114,8 +115,7 @@ public:
 StatusCode
 TestProxyRegistry::addToStore (const CLID& /*id*/, SG::DataProxy* proxy)
 {
-  tads.emplace_back (*proxy->transientAddress());
-  proxies.push_back (std::unique_ptr<SG::DataProxy> (proxy));
+  proxies.emplace_back (proxy);
   return StatusCode::SUCCESS;
 }
 
@@ -126,23 +126,23 @@ TestProvider providers[NPROVIDERS];
 
 void checkStore (const TestProxyRegistry& store)
 {
-  assert (store.tads.size() == 3);
+  assert (store.proxies.size() == 3);
   assert (providers[0].tListLen == 0);
   assert (providers[1].tListLen == 0);
   assert (providers[2].tListLen == 2);
   assert (providers[3].tListLen == 2);
 
-  assert (store.tads[0].clID() == 10);
-  assert (store.tads[0].name() == "x1");
-  assert (store.tads[0].provider() == &providers[1]);
+  assert (store.proxies[0]->clID() == 10);
+  assert (store.proxies[0]->name() == "x1");
+  assert (store.proxies[0]->provider() == &providers[1]);
 
-  assert (store.tads[1].clID() == 11);
-  assert (store.tads[1].name() == "x2");
-  assert (store.tads[1].provider() == &providers[1]);
+  assert (store.proxies[1]->clID() == 11);
+  assert (store.proxies[1]->name() == "x2");
+  assert (store.proxies[1]->provider() == &providers[1]);
 
-  assert (store.tads[2].clID() == 12);
-  assert (store.tads[2].name() == "y1");
-  assert (store.tads[2].provider() == &providers[3]);
+  assert (store.proxies[2]->clID() == 12);
+  assert (store.proxies[2]->name() == "y1");
+  assert (store.proxies[2]->provider() == &providers[3]);
 }
 
 
@@ -164,7 +164,7 @@ void test1 (IProxyProviderSvc& svc)
 
   for (TestProvider& p : providers)
     p.tListLen = -1;
-  store.tads.clear();
+  store.proxies.clear();
 
   assert (svc.loadProxies (store).isSuccess());
   checkStore (store);

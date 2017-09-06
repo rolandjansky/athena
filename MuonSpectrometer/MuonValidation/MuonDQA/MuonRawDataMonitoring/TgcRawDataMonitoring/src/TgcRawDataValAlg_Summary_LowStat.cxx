@@ -53,8 +53,7 @@ using namespace std;
 
 StatusCode 
 TgcRawDataValAlg::bookHistogramsSummary(){
-  m_log << MSG::INFO << "bookHistogramsSummary" << endmsg;    
-  StatusCode sc=StatusCode::SUCCESS;
+  ATH_MSG_INFO( "bookHistogramsSummary"  );
   
   ///////////////////////////////////////////////////////////////////////////
   // Make MonGroups for histogram booking paths
@@ -72,19 +71,11 @@ TgcRawDataValAlg::bookHistogramsSummary(){
     //Summary
     ss.str(""); ss << "Summary_Of_Log10_"<<wireoccupergasgap<<side[i];
     m_tgcsummaryoflog10wireoccupancypergasgap[i]=new TH1F(ss.str().c_str(), (ss.str() + ";log10(Occupancy); Entries").c_str(),80,-8.,0.);
-    sc=tgcprd_summary_ac[i]->regHist(m_tgcsummaryoflog10wireoccupancypergasgap[i]) ;  
-    if(sc.isFailure()) { 
-      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-      return sc;
-    }
+    ATH_CHECK( tgcprd_summary_ac[i]->regHist(m_tgcsummaryoflog10wireoccupancypergasgap[i]) );
     
     ss.str(""); ss << "Summary_Of_Log10_"<<stripoccupergasgap<<side[i];
     m_tgcsummaryoflog10stripoccupancypergasgap[i]=new TH1F(ss.str().c_str(), (ss.str() + ";log10(Occupancy); Entries" ).c_str(),80,-8.,0.);
-    sc=tgcprd_summary_ac[i]->regHist(m_tgcsummaryoflog10stripoccupancypergasgap[i]) ;  
-    if(sc.isFailure()) { 
-      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-      return sc;
-    }
+    ATH_CHECK( tgcprd_summary_ac[i]->regHist(m_tgcsummaryoflog10stripoccupancypergasgap[i]) );
   }// side
   
   string wireoccuperchamtype  = "Wire_Occupancy_Per_Chamber_Type_Station";
@@ -109,32 +100,23 @@ TgcRawDataValAlg::bookHistogramsSummary(){
       // Summary
       ss.str(""); ss << "Summary_Of_Log10_" << wireoccuperchamtype << sta+1 << chamtype[sta][eta];
       m_tgcsummaryoflog10wireoccupancyperchambertype[ntype]=new TH1F(ss.str().c_str(), ( ss.str() + ";log10(Occupancy); Entries").c_str(),80,-8.,0.);
-      sc=tgcprd_summary.regHist(m_tgcsummaryoflog10wireoccupancyperchambertype[ntype]) ;  
-      if(sc.isFailure()) { 
-        m_log << MSG::FATAL << "m_tgcsummaryoflog10wireoccupancyperchambertype["<<ntype<<"] Failed to register histogram " << endmsg;       
-        return sc;
-      }
+      ATH_CHECK( tgcprd_summary.regHist(m_tgcsummaryoflog10wireoccupancyperchambertype[ntype]) );
       // Summary
       ss.str(""); ss << "Summary_Of_Log10_" << stripoccuperchamtype << sta+1 << chamtype[sta][eta];
       m_tgcsummaryoflog10stripoccupancyperchambertype[ntype]=new TH1F(ss.str().c_str(), ( ss.str() + ";log10(Occupancy); Entries").c_str(),80,-8.,0.);
-      sc=tgcprd_summary.regHist(m_tgcsummaryoflog10stripoccupancyperchambertype[ntype]) ;  
-      if(sc.isFailure()) { 
-        m_log << MSG::FATAL << "m_tgcsummaryoflog10stripoccupancyperchambertype["<<ntype<<"] Failed to register histogram " << endmsg;
-        return sc;
-      }
+      ATH_CHECK( tgcprd_summary.regHist(m_tgcsummaryoflog10stripoccupancyperchambertype[ntype]) );
       ntype++;
     }// eta
   }// station
   
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 
 
 StatusCode 
 TgcRawDataValAlg::bookHistogramsLowStat(){
-  m_log << MSG::INFO << "bookHistogramsLowStat" << endmsg;
-  StatusCode sc=StatusCode::SUCCESS;
+  ATH_MSG_INFO( "bookHistogramsLowStat"  );
 
   MonGroup tgcprd_lowstat_a( this, m_generic_path_tgcmonitoring + "/TGCEA", lowStat, ATTRIB_UNMANAGED ); 
   MonGroup tgcprd_lowstat_c( this, m_generic_path_tgcmonitoring + "/TGCEC", lowStat, ATTRIB_UNMANAGED ); 
@@ -150,11 +132,7 @@ TgcRawDataValAlg::bookHistogramsLowStat(){
     //Wire Strip Coincidence per GasGap
     ss.str(""); ss<< "Wire_Strip_Coincidence_Per_GasGap_In_10LBs_" << side[ac];
     m_tgcwirestripcoinlowstat[ac] = new TH2F( ss.str().c_str(), ss.str() .c_str(),43, 0, 43, 48, 1, 49 );
-    sc=tgcprd_lowstat_ac[ac]->regHist(m_tgcwirestripcoinlowstat[ac]) ;  
-    if(sc.isFailure()) { 
-      m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endmsg;       
-      return sc;
-    }
+    ATH_CHECK( tgcprd_lowstat_ac[ac]->regHist(m_tgcwirestripcoinlowstat[ac]) );;
 
     for(int sec=1;sec<=12;sec++){
       for(int phi=0;phi<=3;phi+=4){
@@ -190,5 +168,5 @@ TgcRawDataValAlg::bookHistogramsLowStat(){
     m_tgcwirestripcoinlowstat[ac]  ->GetXaxis()->LabelsOption("v");
   }//ac
 
-  return sc;
+  return StatusCode::SUCCESS;
 }

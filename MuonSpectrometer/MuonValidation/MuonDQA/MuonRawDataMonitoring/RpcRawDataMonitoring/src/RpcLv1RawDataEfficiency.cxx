@@ -40,91 +40,55 @@ using namespace std;
 RpcLv1RawDataEfficiency::RpcLv1RawDataEfficiency( const std::string & type, 
 						  const std::string & name, 
 						  const IInterface* parent )
-  :ManagedMonitorToolBase( type, name, parent ), 
-   m_log( msgSvc(), name ),
-   m_debuglevel(false)
+  :ManagedMonitorToolBase( type, name, parent )
 {}
 
 //================================================================================================================================
 RpcLv1RawDataEfficiency::~RpcLv1RawDataEfficiency()
 {
-  msg(MSG::INFO) << " Deleting RpcLv1RawDataEfficiency " << endmsg;
+  ATH_MSG_INFO( " Deleting RpcLv1RawDataEfficiency "  );
 }
 
 //================================================================================================================================
 StatusCode RpcLv1RawDataEfficiency::initialize()
 {
-  // Init message stream
-  m_log.setLevel(outputLevel());                // individual outputLevel not known before initialize
-  m_debuglevel = (m_log.level() <= MSG::DEBUG); // save if threshold for debug printout reached
+  ATH_MSG_INFO( "In initializing 'RpcLv1RawDataEfficiency'"  );
+  ATH_MSG_INFO( "Package version = "<< PACKAGE_VERSION  );
   
-  msg(MSG::INFO) << "In initializing 'RpcLv1RawDataEfficiency'" << endmsg;
-  msg(MSG::INFO) << "Package version = "<< PACKAGE_VERSION << endmsg;
-  
-  StatusCode sc; 
-  
-   m_eventStore  = 0 ;
-   m_activeStore  = 0 ;
-   m_rpcIdHelper  = 0 ;
-   m_sectorLogicContainer  = 0 ;
-   m_muonMgr  = 0 ;
-   m_trigtype  = 0 ;
-   m_event  = 0 ;
-   m_lumiblock  = 0 ;
-   m_BCID  = 0 ;
-   m_rpclv1_sectorhits_A[0]  = 0 ;
-   m_rpclv1_sectorhits_C[0]  = 0 ;  	
-   m_rpclv1_sectorhits_all[0]= 0 ;
-   m_rpclv1_sectorhits_A[1]  = 0 ;
-   m_rpclv1_sectorhits_C[1]  = 0 ;  	
-   m_rpclv1_sectorhits_all[1]= 0 ;
-   m_rpclv1_sectorhits_A[2]  = 0 ;
-   m_rpclv1_sectorhits_C[2]  = 0 ;  	
-   m_rpclv1_sectorhits_all[2]= 0 ;
-   m_rpclv1_sectorhits_A[3]  = 0 ;
-   m_rpclv1_sectorhits_C[3]  = 0 ;  	
-   m_rpclv1_sectorhits_all[3]= 0 ;
-   m_rpclv1_sectorhits_A[4]  = 0 ;
-   m_rpclv1_sectorhits_C[4]  = 0 ;  	
-   m_rpclv1_sectorhits_all[4]= 0 ;
-   m_rpclv1_sectorhits_A[5]  = 0 ;
-   m_rpclv1_sectorhits_C[5]  = 0 ;  	
-   m_rpclv1_sectorhits_all[5]= 0 ;
-  
-  // Store Gate store
-  sc = serviceLocator()->service("StoreGateSvc", m_eventStore);
-  if (sc != StatusCode::SUCCESS ) {
-    msg(MSG::ERROR) << " Cannot get StoreGateSvc! " << endmsg;
-    return sc;
-  }
+  m_activeStore  = 0 ;
+  m_rpcIdHelper  = 0 ;
+  m_sectorLogicContainer  = 0 ;
+  m_muonMgr  = 0 ;
+  m_trigtype  = 0 ;
+  m_event  = 0 ;
+  m_lumiblock  = 0 ;
+  m_BCID  = 0 ;
+  m_rpclv1_sectorhits_A[0]  = 0 ;
+  m_rpclv1_sectorhits_C[0]  = 0 ;  	
+  m_rpclv1_sectorhits_all[0]= 0 ;
+  m_rpclv1_sectorhits_A[1]  = 0 ;
+  m_rpclv1_sectorhits_C[1]  = 0 ;  	
+  m_rpclv1_sectorhits_all[1]= 0 ;
+  m_rpclv1_sectorhits_A[2]  = 0 ;
+  m_rpclv1_sectorhits_C[2]  = 0 ;  	
+  m_rpclv1_sectorhits_all[2]= 0 ;
+  m_rpclv1_sectorhits_A[3]  = 0 ;
+  m_rpclv1_sectorhits_C[3]  = 0 ;  	
+  m_rpclv1_sectorhits_all[3]= 0 ;
+  m_rpclv1_sectorhits_A[4]  = 0 ;
+  m_rpclv1_sectorhits_C[4]  = 0 ;  	
+  m_rpclv1_sectorhits_all[4]= 0 ;
+  m_rpclv1_sectorhits_A[5]  = 0 ;
+  m_rpclv1_sectorhits_C[5]  = 0 ;  	
+  m_rpclv1_sectorhits_all[5]= 0 ;
   
   // Retrieve the active store where all the information is being read from
-  sc = serviceLocator()->service("ActiveStoreSvc", m_activeStore);
-  if (sc != StatusCode::SUCCESS ) {
-    msg(MSG::ERROR) << " Cannot get ActiveStoreSvc! " << endmsg;
-    return sc;
-  }
-  // Initialize the IdHelper
-  StoreGateSvc* detStore = 0;
-  sc = service("DetectorStore", detStore);
-  if (sc.isFailure()) {
-    msg(MSG::FATAL) << "DetectorStore service not found !" << endmsg;
-    return StatusCode::FAILURE;
-  }
-  // Retrieve RPCIdHelper
-  sc = detStore->retrieve(m_rpcIdHelper,"RPCIDHELPER");
-  if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Can't retrieve RpcIdHelper" << endmsg;
-    return sc;
-  } 
-  // Retrieve the MuonDetectorManager  
-  sc = detStore->retrieve(m_muonMgr);
-  if (sc.isFailure()) {
-    msg(MSG::FATAL) <<   "Cannot get MuonDetectorManager from detector store" << endmsg;
-    return StatusCode::FAILURE;}  
-  else {
-    if (m_debuglevel) msg(MSG::DEBUG) << "Found the MuonDetectorManager from detector store." << endmsg ;
-  }
+  ATH_CHECK(  serviceLocator()->service("ActiveStoreSvc", m_activeStore) );
+
+  ATH_CHECK(  detStore()->retrieve(m_rpcIdHelper,"RPCIDHELPER") );
+  ATH_CHECK(  detStore()->retrieve(m_muonMgr) );
+  ATH_MSG_DEBUG( "Found the MuonDetectorManager from detector store."  );
+
   // Ignore the checking code
   ManagedMonitorToolBase::initialize().ignore();
   
@@ -137,7 +101,7 @@ StatusCode RpcLv1RawDataEfficiency::initialize()
 //================================================================================================================================
 StatusCode RpcLv1RawDataEfficiency::readOfflineMuonContainer( std::string key )
 {
-  if (m_log.level() == MSG::VERBOSE) msg(MSG::VERBOSE) << "Reading OfflineMuonContainer... " << endmsg;
+  ATH_MSG_VERBOSE( "Reading OfflineMuonContainer... "  );
 
   // read the container the first time or again, so delete the old one
   m_OfflineMuons.clear();
@@ -151,7 +115,7 @@ StatusCode RpcLv1RawDataEfficiency::readOfflineMuonContainer( std::string key )
   // retrieve the offline muon container
   StatusCode sc = (*m_activeStore)->retrieve(muonCont, key);
   if(sc.isFailure()) {
-    msg(MSG::WARNING) << "Container of muon particle with key " << key << " not found in ActiveStore"  << endmsg;
+    ATH_MSG_WARNING( "Container of muon particle with key " << key << " not found in ActiveStore"   );
     return StatusCode::SUCCESS;
   }
 
@@ -220,7 +184,7 @@ StatusCode RpcLv1RawDataEfficiency::readOfflineMuonContainer( std::string key )
     offmu.SetPtEtaPhiQ( pt/CLHEP::GeV, eta, (*it)->phi(), (*it)->charge() );
     m_OfflineMuons.push_back(offmu);
   }
-  if (m_log.level() == MSG::VERBOSE) msg(MSG::VERBOSE) << "Number of offline muons before dR check : " << m_OfflineMuons.size() << endmsg;    
+  ATH_MSG_VERBOSE( "Number of offline muons before dR check : " << m_OfflineMuons.size()  );
 
   // check if no track is too close to another track
   bool bTooClose = false;
@@ -238,7 +202,7 @@ StatusCode RpcLv1RawDataEfficiency::readOfflineMuonContainer( std::string key )
     ++it1; }
   if(bTooClose) m_OfflineMuons.clear();
 
-  if (m_log.level() == MSG::VERBOSE) msg(MSG::VERBOSE) << "Finished reading OfflineMuonContainer... " << endmsg;
+  ATH_MSG_VERBOSE( "Finished reading OfflineMuonContainer... "  );
   return StatusCode::SUCCESS;
 }
 
@@ -249,15 +213,10 @@ StatusCode RpcLv1RawDataEfficiency::readOfflineMuonContainer( std::string key )
 //================================================================================================================================
 StatusCode RpcLv1RawDataEfficiency::readRpcCoinDataContainer()
 {
-  if (m_debuglevel) msg(MSG::DEBUG) << "Reading RpcCoincidenceContainer... " << endmsg;
+  ATH_MSG_DEBUG( "Reading RpcCoincidenceContainer... "  );
    
   const Muon::RpcCoinDataContainer* rpc_coin_container;
-  StatusCode sc = StatusCode::SUCCESS;
-  sc = (*m_activeStore)->retrieve(rpc_coin_container, "RPC_triggerHits" );
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Cannot retrieve RPC trigger hits container" << endmsg;
-    return sc;
-  }
+  ATH_CHECK(  (*m_activeStore)->retrieve(rpc_coin_container, "RPC_triggerHits" ) );
   Muon::RpcCoinDataContainer::const_iterator  it_container;
   //Muon::RpcCoinDataCollection::const_iterator it_collection;
   Identifier prdcoll_id;
@@ -269,7 +228,7 @@ StatusCode RpcLv1RawDataEfficiency::readRpcCoinDataContainer()
 
   for( it_container = rpc_coin_container->begin(); it_container != rpc_coin_container->end(); ++it_container ) {
     for ( Muon::RpcCoinDataCollection::const_iterator it_collection = (*it_container)->begin(); it_collection != (*it_container)->end(); ++it_collection ) { // each collection is a trigger signal
-      if (m_debuglevel) msg(MSG::DEBUG) << "Original RPC container: " << (*it_collection)->threshold() <<int((*it_collection)->isLowPtCoin()) << int((*it_collection)->isHighPtCoin()) << endmsg;
+      ATH_MSG_DEBUG( "Original RPC container: " << (*it_collection)->threshold() <<int((*it_collection)->isLowPtCoin()) << int((*it_collection)->isHighPtCoin())  );
       if(int((*it_collection)->threshold())<1 || (*it_collection)->threshold()>3 || (int((*it_collection)->isLowPtCoin())+int((*it_collection)->isHighPtCoin())!=1)) continue; // some thresholds are 99 (lowpt=highpt=0)->skip
       CoincidenceData* coindata = new CoincidenceData;
       coindata->SetThresholdLowHigh(int((*it_collection)->threshold()), int((*it_collection)->isLowPtCoin()), int((*it_collection)->isHighPtCoin()));
@@ -300,7 +259,7 @@ StatusCode RpcLv1RawDataEfficiency::readRpcCoinDataContainer()
       m_CoincidenceData.push_back( coindata );
     }
   }
-  if (m_debuglevel) msg(MSG::DEBUG) << "Finished with reading the RpcCoinDataContainer... " << endmsg;
+  ATH_MSG_DEBUG( "Finished with reading the RpcCoinDataContainer... "  );
   return StatusCode::SUCCESS;
 }
 
@@ -309,16 +268,10 @@ StatusCode RpcLv1RawDataEfficiency::readRpcCoinDataContainer()
 //================================================================================================================================
 StatusCode RpcLv1RawDataEfficiency::StoreTriggerType() 
 {
-  if (m_debuglevel) msg(MSG::DEBUG) << "Storing Trigger Type... " << endmsg;
+  ATH_MSG_DEBUG( "Storing Trigger Type... "  );
   const xAOD::EventInfo* eventInfo;
-  StatusCode sc = StatusCode::SUCCESS;
-  sc = m_eventStore -> retrieve(eventInfo);
-  if (sc.isFailure()){
-    msg(MSG::ERROR) << "Cannot find EventInfo! " << endmsg;
-    return sc;
-  }
-  else if (m_debuglevel) 
-    msg(MSG::DEBUG) << "RpcLv1RawDataEfficiency::retrieved eventInfo" << endmsg;
+  ATH_CHECK( evtStore() -> retrieve(eventInfo) );
+  ATH_MSG_DEBUG( "RpcLv1RawDataEfficiency::retrieved eventInfo"  );
   
   // Protection against simulated cosmics when the trigger_info() of the event_info is not filled and returns a null pointer. 
   m_trigtype = eventInfo->level1TriggerType();  
@@ -328,7 +281,7 @@ StatusCode RpcLv1RawDataEfficiency::StoreTriggerType()
   m_event     = eventInfo->eventNumber() ;
   m_BCID      = eventInfo->bcid() ;
   
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 //================================================================================================================================
@@ -336,14 +289,11 @@ StatusCode RpcLv1RawDataEfficiency::StoreTriggerType()
 //================================================================================================================================
 StatusCode RpcLv1RawDataEfficiency::bookHistogramsRecurrent()
 {
-  msg(MSG::INFO) << "Booking Sector Hits histograms for RPCLV1RawDataEfficiency... " << endmsg;
-  StatusCode sc = StatusCode::SUCCESS; 
+  ATH_MSG_INFO( "Booking Sector Hits histograms for RPCLV1RawDataEfficiency... "  );
 
   // not used yet, but commenting them out leads to "unused variables" warnings since they are passed as arguments to the function  
-  if(newEventsBlock){}
-  if(newLumiBlock){}
 
-  if(newRun){ //book all histograms per new run
+  if(newRunFlag()){ //book all histograms per new run
     std::string generic_path_rpclv1monitoring = "Muon/MuonRawDataMonitoring/RPCLV1Efficiency";
     MonGroup MG_SectorHits(this, generic_path_rpclv1monitoring + "/SectorHits", run, ATTRIB_UNMANAGED ); 
 
@@ -352,32 +302,20 @@ StatusCode RpcLv1RawDataEfficiency::bookHistogramsRecurrent()
 
       m_ss.str(""); m_ss << "SectorHits" <<   "PT" <<iMuThreshold+1 << "_C";
       m_rpclv1_sectorhits_C[iMuThreshold] = new TH2I(m_ss.str().c_str(), (m_ss.str() + ";LB;Sector").c_str() , 500, 0., 1500., 32, 0., 32.); 
-      sc = MG_SectorHits.regHist(m_rpclv1_sectorhits_C[iMuThreshold]);		  
-      if( sc.isFailure()) {
-	msg(MSG::FATAL) << m_ss.str() << " Failed to register histogram!" << endmsg;
-	return sc;
-      }
+      ATH_CHECK( MG_SectorHits.regHist(m_rpclv1_sectorhits_C[iMuThreshold]) );
 
       m_ss.str(""); m_ss << "SectorHits" <<  "PT" <<iMuThreshold+1 << "_A";
       m_rpclv1_sectorhits_A[iMuThreshold] = new TH2I(m_ss.str().c_str(), (m_ss.str() + ";LB;Sector").c_str() , 500, 0., 1500., 32, 32., 64.); 
-      sc = MG_SectorHits.regHist(m_rpclv1_sectorhits_A[iMuThreshold]);
-      if( sc.isFailure()) {
-	msg(MSG::FATAL) << m_ss.str() << " Failed to register histogram!" << endmsg;
-	return sc;
-      }
+      ATH_CHECK(  MG_SectorHits.regHist(m_rpclv1_sectorhits_A[iMuThreshold]) );
 
       m_ss.str(""); m_ss << "SectorHits" <<  "PT" <<iMuThreshold+1 << "_all";
       m_rpclv1_sectorhits_all[iMuThreshold] = new TH2I(m_ss.str().c_str(), (m_ss.str() + ";LB;Sector").c_str() , 500, 0., 1500., 64, 0., 64.); 
-      sc = MG_SectorHits.regHist(m_rpclv1_sectorhits_all[iMuThreshold]);		  
-      if( sc.isFailure()) {
-	msg(MSG::FATAL) << m_ss.str() << " Failed to register histogram!" << endmsg;
-	return sc;
-      }
+      ATH_CHECK(  MG_SectorHits.regHist(m_rpclv1_sectorhits_all[iMuThreshold]) );
     }
   }
 
   
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 
@@ -386,22 +324,19 @@ StatusCode RpcLv1RawDataEfficiency::bookHistogramsRecurrent()
 //================================================================================================================================
 StatusCode RpcLv1RawDataEfficiency::fillHistograms( )
 {
-  msg(MSG::DEBUG) << "Filling histograms for RPCLv1RawDataEfficiency... " << endmsg;
-  StatusCode sc = StatusCode::SUCCESS;
+  ATH_MSG_DEBUG( "Filling histograms for RPCLv1RawDataEfficiency... "  );
 
   
   // Retreive and store trigger type for this event                                                                                                          
   if (StoreTriggerType() != StatusCode::SUCCESS)
-    msg(MSG::ERROR) << "Cannot find StoreTriggerType! " << endmsg;
+    ATH_MSG_ERROR( "Cannot find StoreTriggerType! "  );
 
   // == Filling the Histograms                                                                                                                               
   //--------------------Sector Hits---------------------------------
   // Retrieve the Sector Logic container
-  sc = (*m_activeStore) -> retrieve(m_sectorLogicContainer);     
-		    
-  if (sc.isFailure()) {
-    msg(MSG::INFO) << "Cannot retrieve the RpcSectorLogicContainer" << endmsg;     
-    return sc;
+  if ( (*m_activeStore) -> retrieve(m_sectorLogicContainer).isFailure() ) {
+    ATH_MSG_INFO( "Cannot retrieve the RpcSectorLogicContainer"  );
+    return StatusCode::FAILURE;
   }
   else {
 		      
@@ -431,7 +366,7 @@ StatusCode RpcLv1RawDataEfficiency::fillHistograms( )
       }
   }
   
-  return sc;
+  return StatusCode::SUCCESS;;
 }
 
 //================================================================================================================================
@@ -439,16 +374,7 @@ StatusCode RpcLv1RawDataEfficiency::fillHistograms( )
 //================================================================================================================================
 StatusCode RpcLv1RawDataEfficiency::procHistograms()
 {
-  msg(MSG::INFO) << "RpcLv1RawDataEfficiency finalize()" << endmsg;
-  if(endOfEventsBlock){}
-
-  // Process histograms per LumiBlock
-  if(endOfLumiBlock){}
-
-  // Process histograms per Run
-  if(endOfRun){ 
-  
-  } // isEndOfRun
+  ATH_MSG_INFO( "RpcLv1RawDataEfficiency finalize()"  );
 
   return StatusCode::SUCCESS;
 }
@@ -460,6 +386,6 @@ StatusCode RpcLv1RawDataEfficiency::procHistograms()
 //================================================================================================================================
 StatusCode RpcLv1RawDataEfficiency::finalize() 
 {
-  msg(MSG::INFO) << "RpcLv1RawDataEfficiency finalize()" << endmsg;
+  ATH_MSG_INFO( "RpcLv1RawDataEfficiency finalize()"  );
   return StatusCode::SUCCESS;
 }

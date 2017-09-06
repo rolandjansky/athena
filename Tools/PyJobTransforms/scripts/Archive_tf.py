@@ -36,7 +36,7 @@ def main():
     sys.exit(trf.exitCode)
 
 def getTransform():
-    trf = transform(executor = archiveExecutor(name = 'Archiver', exe='tar'))
+    trf = transform(executor = archiveExecutor(name = 'Archiver', exe = 'zip'))
 
     addMyArgs(trf.parser)
     return trf
@@ -44,17 +44,20 @@ def getTransform():
 
 def addMyArgs(parser):
     # Use arggroup to get these arguments in their own sub-section (of --help)
-    parser.defineArgGroup('Archive_tf', 'Archive transform specific options')
+    parser.defineArgGroup('Archive_tf', 'Archive transform options')
+    parser.defineArgGroup('Tar archiver', 'Options')
+    parser.add_argument('--exe', group='Archive_tf',
+                        help='Archiving command. Default is zip', choices=['zip', 'tar'],
+                        default='zip')
     parser.add_argument('--inputDataFile', '--inputFile', nargs='+', 
                         type=trfArgClasses.argFactory(trfArgClasses.argFile, io='input', type='misc'),
                         help='Input file(s)', group='Archive_tf')
     parser.add_argument('--outputArchFile', '--outputFile', 
                         type=trfArgClasses.argFactory(trfArgClasses.argFile, io='output', type='misc'),
-                        help='Output archive file', 
-                        group='Archive_tf')
-    parser.add_argument('--compressionType', group='Archive_tf',
-                        help='Underlying compression type', choices=['gzip', 'bzip2', 'none'],
-                        default='gzip')
+                        help='Output archive file', group='Archive_tf')
+    parser.add_argument('--compressionType', group='Tar archiver',
+                        help='Underlying compression type. Default is none', choices=['gzip', 'bzip2', 'none'],
+                        default='none')
 
 if __name__ == '__main__':
     main()

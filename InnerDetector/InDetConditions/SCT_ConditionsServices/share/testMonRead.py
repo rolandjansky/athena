@@ -29,7 +29,7 @@ theAuditorSvc.Auditors  += [ "MemStatAuditor" ]
 theApp.AuditAlgorithms=True
 
 from AthenaCommon.GlobalFlags import globalflags 
-globalflags.DetDescrVersion="ATLAS-GEO-16-00-00" 
+globalflags.DetDescrVersion="ATLAS-R2-2016-01-00-01"
 globalflags.DetGeo="atlas" 
 globalflags.InputFormat="pool" 
 globalflags.DataSource="data" 
@@ -65,6 +65,11 @@ DetFlags.writeRIOPool.all_setOff()
 import AtlasGeoModel.SetGeometryVersion
 import AtlasGeoModel.GeoModelInit
 
+# Disable SiLorentzAngleSvc to remove
+# ERROR ServiceLocatorHelper::createService: wrong interface id IID_665279653 for service
+ServiceMgr.GeoModelSvc.DetectorTools['PixelDetectorTool'].LorentzAngleSvc=""
+ServiceMgr.GeoModelSvc.DetectorTools['SCT_DetectorTool'].LorentzAngleSvc=""
+
 #------------------------------------------------------------
 
 from AthenaCommon.AlgSequence import AlgSequence
@@ -90,8 +95,8 @@ SCT_MonitorConditions.ReadWriteCool = True
 ## if ManualIOV = true, the user has to provide the
 ##    run range for the proper IOV
 SCT_MonitorConditions.ManualIOV = True
-SCT_MonitorConditions.BeginRun = 100
-SCT_MonitorConditions.EndRun   = 110
+SCT_MonitorConditions.BeginRun = 310809
+SCT_MonitorConditions.EndRun   = 310809
 SCT_MonitorConditions.VersionN   = 0
 
 from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_MonitorConditionsTestAlg
@@ -99,7 +104,7 @@ job+= SCT_MonitorConditionsTestAlg()
 
 SCT_MonitorTest=job.SCT_MonitorConditionsTestAlg
 SCT_MonitorTest.OutputLevel      = 2
-SCT_MonitorTest.RunNumber    = 3071
+SCT_MonitorTest.RunNumber    = 310809
 SCT_MonitorTest.EventNumber  = 5
 
 #--------------------------------------------------------------
@@ -108,11 +113,13 @@ SCT_MonitorTest.EventNumber  = 5
 #--------------------------------------------------------------
 #from IOVDbSvc.CondDB import conddb
 IOVDbSvc = Service("IOVDbSvc")
-
-IOVDbSvc.GlobalTag='OFLCOND-CSC-00-00-00'
-IOVDbSvc.Folders+=["<dbConnection>oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_SCT;dbname=OFLP200;user=ATLAS_COOL_READER_U;password="+pw+"</dbConnection>/SCT/Derived/Monitoring <tag>SctDerivedMonitoring-NOMINAL</tag>" ]
+IOVDbSvc.GlobalTag='CONDBR2-BLKPA-2017-10'
+#IOVDbSvc.Folders+=["<dbConnection>oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_SCT;dbname=OFLP200;user=ATLAS_COOL_READER_U;password="+pw+"</dbConnection>/SCT/Derived/Monitoring <tag>SctDerivedMonitoring-NOMINAL</tag>" ]
 #IOVDbSvc.Folders += ["<dbConnection>oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_SCT;dbname=OFLP200;user=ATLAS_COOL_READER_U</dbConnection>/SCT/Derived/NoiseOccupancy <tag>SctDerivedMonitoring-NOMINAL</tag>" ]
 #IOVDbSvc.Folders += ["<dbConnection>oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_SCT;dbname=OFLP200;user=ATLAS_COOL_READER_</dbConnection>/SCT/Derived/Monitoring <tag>SctDerivedMonitoring-NOMINAL</tag>" ]
+
+from IOVDbSvc.CondDB import conddb
+conddb.addFolderWithTag("SCT_OFL","/SCT/Derived/Monitoring","SctDerivedMonitoring-RUN2-UPD4-005")
 
 import RegistrationServices.IOVRegistrationSvc
 regSvc = ServiceMgr.IOVRegistrationSvc
@@ -132,7 +139,7 @@ ServiceMgr.AthenaSealSvc.CheckDictionary = TRUE
 #--------------------------------------------------------------
 import AthenaCommon.AtlasUnixGeneratorJob
 
-ServiceMgr.EventSelector.RunNumber  = 3071
+ServiceMgr.EventSelector.RunNumber  = 310809
 theApp.EvtMax                       = 10
 
 #--------------------------------------------------------------

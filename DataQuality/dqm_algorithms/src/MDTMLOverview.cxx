@@ -39,9 +39,9 @@ namespace dqm_algorithms {
 // *********************************************************************
 
 MDTMLOverview::MDTMLOverview()
-  : name("MDTMLoverview")
+  : m_name("MDTMLoverview")
 {
-  dqm_core::AlgorithmManager::instance().registerAlgorithm( name, this );
+  dqm_core::AlgorithmManager::instance().registerAlgorithm( m_name, this );
 }
 
 
@@ -218,7 +218,7 @@ MDTMLOverview::printDescription(std::ostream& out)
 {
   std::string message;
   message += "\n";
-  message += "Algorithm: \"" + name + "\"\n";
+  message += "Algorithm: \"" + m_name + "\"\n";
   message += "Description: compare the histo with reference and check if there are any ML switched off\n";
   message += "Mandatory Green/Red Threshold: Limits: number of new ML switched off while are on in reference\n";
   message += "                     thresh  = % of the mean entries per ML under which the algo will set ML off\n";

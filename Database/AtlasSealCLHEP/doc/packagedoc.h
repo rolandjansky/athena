@@ -22,12 +22,3 @@ with schema evolved CLHEP classes in the data. This is no longer
 needed with data written with from release 13 and beyond.
 
 */
-
-/**
-@page UsedAtlasSealCLHEP Used Packages
-*/
-
-/**
-@page RequirementsAtlasSealCLHEP Requirements
-*/
-

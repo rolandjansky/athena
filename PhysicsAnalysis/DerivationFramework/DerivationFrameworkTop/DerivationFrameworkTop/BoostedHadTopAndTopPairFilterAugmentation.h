@@ -38,7 +38,9 @@ namespace DerivationFramework {
   private:
 
     std::string m_eventInfoName;
-    ToolHandle<DerivationFramework::BoostedHadTopAndTopPairFilterTool> m_filterTool;
+    ToolHandle<DerivationFramework::BoostedHadTopAndTopPairFilterTool> m_filterTool_High;
+    ToolHandle<DerivationFramework::BoostedHadTopAndTopPairFilterTool> m_filterTool_Low;
+
     
 
   }; /// class

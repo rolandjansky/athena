@@ -9,8 +9,8 @@
 
 //---------------------------------------------------------------------------------
 
-TrigTrackCounterHypo::TrigTrackCounterHypo(const std::string& name, ISvcLocator* pSvcLocator): HLT::HypoAlgo(name, pSvcLocator),
-m_log(msgSvc(), name) {
+TrigTrackCounterHypo::TrigTrackCounterHypo(const std::string& name, ISvcLocator* pSvcLocator): HLT::HypoAlgo(name, pSvcLocator)
+{
   declareProperty("Max_z0", m_max_z0 = 200.0); // (mm)
   declareProperty("Min_pt", m_min_pt = 0.100); // (GeV)
   declareProperty("Min_eta", m_min_eta = -1.0); // eta
@@ -34,8 +34,6 @@ TrigTrackCounterHypo::~TrigTrackCounterHypo(){;}
 //---------------------------------------------------------------------------------
 
 HLT::ErrorCode TrigTrackCounterHypo::hltInitialize() {
-  m_log.setLevel( outputLevel() );
-  
   ATH_MSG_INFO("Initialising TrigTrackCounterHypo, name = " << name());
   ATH_MSG_INFO("max_z0 = " << m_max_z0 << " mm");
   ATH_MSG_INFO("min_pt = " << m_min_pt << " GeV");
@@ -91,10 +89,10 @@ HLT::ErrorCode TrigTrackCounterHypo::hltExecute(const HLT::TriggerElement* outpu
 			  m_trigTrackCounts->phiMax());
     th2dZ0_pt->setContents(m_trigTrackCounts->eta_phi());
     
-    double m_ntrksSelected_low = th2dZ0_pt->sumEntries(m_min_eta, 100, xAOD::TrigHistoCutType::ABOVE_X_BELOW_Y);
-    double m_ntrksSelected_up = th2dZ0_pt->sumEntries(m_max_eta, 100, xAOD::TrigHistoCutType::ABOVE_X_BELOW_Y);
+    double ntrksSelected_low = th2dZ0_pt->sumEntries(m_min_eta, 100, xAOD::TrigHistoCutType::ABOVE_X_BELOW_Y);
+    double ntrksSelected_up = th2dZ0_pt->sumEntries(m_max_eta, 100, xAOD::TrigHistoCutType::ABOVE_X_BELOW_Y);
     
-    m_ntrksSelected = m_ntrksSelected_low-m_ntrksSelected_up;
+    m_ntrksSelected = ntrksSelected_low-ntrksSelected_up;
   }
   
   ATH_MSG_DEBUG("There are " << m_ntrksSelected << " tracks within selection window.  ");

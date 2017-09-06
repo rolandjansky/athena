@@ -18,16 +18,6 @@ The package includes three classes:
  - G4Neutralino : Useful for r-parity conserving mSUGRA models
  - GMSBDecays : Defines both the Neutralino and Gravitino for late decay of the neutralino inside the detector (GMSB studies)
 
-@ref used_Gauginos
 
-@ref requirements_Gauginos
 
-*/
-
-/**
-@page used_Gauginos Used Packages
-*/
-
-/**
-@page requirements_Gauginos Requirements
 */

@@ -23,7 +23,7 @@ PrepRawDataContainer< CollectionT>::PrepRawDataContainer(unsigned int max) :
 template< class CollectionT>
 // Constructor with parameters:
 PrepRawDataContainer< CollectionT>::PrepRawDataContainer() :
-	IdentifiableContainer<CollectionT>()
+	IdentifiableContainer<CollectionT>(0)
 {
 }
 

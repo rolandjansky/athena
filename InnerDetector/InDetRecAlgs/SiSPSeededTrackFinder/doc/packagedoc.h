@@ -17,7 +17,5 @@ This algorithm uses three standard tools.
 2. ISiZvertexMake          - primary verices search tool.
 3. ISiTrackMaker           - local track-finding in Pixels and SCT tool.
 
-@section SiSPSeededTrackFinder_SiSPSeededTrackFinderReq Requirements file
 
 */
-

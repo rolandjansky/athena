@@ -22,6 +22,7 @@
 
 //<<<<<< INCLUDES                                                       >>>>>>
 
+#include "CxxUtils/checker_macros.h"
 #include "CxxUtils/SealCommon.h"  // sss -- needed for IOFD
 //# include "SealBase/Macros.h"                   wlav
 //# include "SealBase/sysapi/IOTypes.h"           wlav
@@ -59,13 +60,13 @@ class DebugAids
 {
 public:
     // Miscellaneous functions
-    static IOFD			stacktraceFd (IOFD fd = IOFD_INVALID);
-    static void			stacktrace (IOFD fd = IOFD_INVALID);
+    static IOFD			stacktraceFd ATLAS_NOT_THREAD_SAFE (IOFD fd = IOFD_INVALID);
+    static void			stacktrace ATLAS_NOT_THREAD_SAFE (IOFD fd = IOFD_INVALID);
     static void			coredump (int sig, ...);
     // sss
-    static void                        stacktraceLine (IOFD fd,
-                                                       unsigned long addr);
-    static void                 setStackTraceAddr2Line (const char* path);
+    static void                 stacktraceLine ATLAS_NOT_THREAD_SAFE (IOFD fd,
+                                                                      unsigned long addr);
+    static void                 setStackTraceAddr2Line ATLAS_NOT_THREAD_SAFE (const char* path);
 
 private:
     static IOFD			s_stackTraceFd;

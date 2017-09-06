@@ -78,4 +78,3 @@ CBNTAA_egTruth : fill the CBNT for truth particles
 @author F. Derue <derue@lpnhe.in2p3.fr>
 @author T. Koffas  <Thomas.Koffas@cern.ch>
 */
-

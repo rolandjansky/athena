@@ -16,8 +16,6 @@
   - @ref Rejectsection
   - @ref Streamsection
   - @ref MergesUsedsection
-- @subpage UsedPackagespage
-- @subpage Requirementspage
 
 */
 
@@ -118,19 +116,5 @@ See also the documentation for TrigT1CaloMonitoring.
   <tr><td> @c lowerLB          </td><td> Merge "status" histograms,
                                          i.e filled at start of run/LB.         </td></tr>
   </table>
-
-*/
-
-/**
-
-@page UsedPackagespage Used Packages
-
-
-*/
-
-/**
-
-@page Requirementspage Requirements
-
 
 */

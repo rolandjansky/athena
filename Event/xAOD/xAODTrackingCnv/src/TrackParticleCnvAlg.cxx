@@ -113,7 +113,7 @@ namespace xAODMaker {
 
   StatusCode TrackParticleCnvAlg::initialize() {
 
-    ATH_MSG_DEBUG( "Initializing - Package version: " << PACKAGE_VERSION );
+    ATH_MSG_DEBUG( "Initializing TrackParticleCnvAlg" );
     ATH_MSG_DEBUG( "AODContainerName  = " << m_aod.name() );
     ATH_MSG_DEBUG( "xAODContainerName = " << m_xaodTrackParticlesout.name() );
     ATH_CHECK(m_particleCreator.retrieve());
@@ -121,6 +121,7 @@ namespace xAODMaker {
     ATH_CHECK( m_TrackCollectionCnvTool.retrieve() );
     ATH_CHECK( m_RecTrackParticleContainerCnvTool.retrieve() );
     // to preserve the inisialised parameters of the ParticleCreatorTool:
+    ATH_MSG_DEBUG( "Overriding particle creator tool settings." );
     ATH_CHECK( m_TrackCollectionCnvTool->setParticleCreatorTool( &m_particleCreator ) );
     ATH_CHECK( m_RecTrackParticleContainerCnvTool->setParticleCreatorTool( &m_particleCreator ) );
 

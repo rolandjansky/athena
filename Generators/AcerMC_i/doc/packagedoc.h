@@ -35,16 +35,6 @@ The  AcerMC generator home page is here
 https://twiki.cern.ch/twiki/bin/view/AtlasProtected/AcerMCForAtlas
 
 
-@ref used_MyPackage
 
-@ref requirements_MyPackage
 
-*/
-
-/**
-@page used_MyPackage Used Packages
-*/
-
-/**
-@page requirements_MyPackage Requirements
 */

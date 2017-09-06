@@ -33,11 +33,11 @@ namespace dqm_algorithms {
 
 	protected:
 		
-		std::string  name;
+		std::string  m_name;
 		
 		//Histogram configuration parameters
-		int NbinsX;
-		int NbinsY;
+		int m_NbinsX;
+		int m_NbinsY;
 		
 		int Publish_GetFromMap(const std::map<std::string, double> & params);
 		int TypePublish_GetFromMap(const std::map<std::string, double> & params);

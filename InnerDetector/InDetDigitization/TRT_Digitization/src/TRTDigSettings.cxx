@@ -448,10 +448,10 @@ void TRTDigSettings::fillDefaults(const InDetDD::TRT_DetectorManager* detmgr) {
   m_cosmicFlag=0;
   m_isCTB = false;
   m_isOverlay=false;
+  m_noiseInUnhitStraws = false;
 
   // trues
   m_timeCorrection = true;
-  m_noiseInUnhitStraws = true;
   m_noiseInSimhits = true;
   m_electronicsAreAtFarEnd = true;
   m_timeshiftsSymmetricForPhiSectors = true;
@@ -509,7 +509,7 @@ void TRTDigSettings::fillDefaults(const InDetDD::TRT_DetectorManager* detmgr) {
   // Delta-ray suppression tune with backward compatibility with non suppressed delta-ray simulation tagged as 01-01-07
   // Delta-ray suppression HT middle-bit fraction tune - 2015 data; 01-01-16
   m_trtRangeCutProperty = m_doubleparMap["TrtRangeCutProperty"].valueSetByUser;//To avoid overwritting warning message and to use python configured value
-  if(fabs(m_trtRangeCutProperty-0.05) >= std::numeric_limits<double>::epsilon()){ 
+  if(fabs(m_trtRangeCutProperty-0.05) >= std::numeric_limits<double>::epsilon()){
     m_lowThresholdBar        = 0.260*CLHEP::keV;
     m_lowThresholdEC         = 0.275*CLHEP::keV;
     m_highThresholdBarShort  = 5.195*CLHEP::keV;
@@ -537,7 +537,7 @@ void TRTDigSettings::fillDefaults(const InDetDD::TRT_DetectorManager* detmgr) {
   // HT middle-bit fraction tune - wider shaping function; 01-00-24
   // HT middle-bit fraction tune - 2015 data; 01-01-16
   // Argon LT tune to 2015 data; 01-02-06
-  m_lowThresholdBarArgon        = 0.150*CLHEP::keV; 
+  m_lowThresholdBarArgon        = 0.150*CLHEP::keV;
   m_lowThresholdECArgon         = 0.150*CLHEP::keV;
   m_highThresholdBarShortArgon  = 2.607*CLHEP::keV;
   m_highThresholdBarLongArgon   = 2.540*CLHEP::keV;
@@ -547,7 +547,7 @@ void TRTDigSettings::fillDefaults(const InDetDD::TRT_DetectorManager* detmgr) {
   m_trEfficiencyEndCapAArgon = 0.80;
   m_trEfficiencyEndCapBArgon = 0.80;
 
-  // (Krypton) 
+  // (Krypton)
   // Initial implementation in May 2015 - guess; 01-01-00
   // Tuning from 2015 data by Kevin in April 2016, no LT tune; 01-02-01
   m_lowThresholdBarKrypton = 0.140*CLHEP::keV;
@@ -556,7 +556,7 @@ void TRTDigSettings::fillDefaults(const InDetDD::TRT_DetectorManager* detmgr) {
   m_highThresholdBarLongKrypton   = 2.90*CLHEP::keV;
   m_highThresholdECAwheelsKrypton = 3.15*CLHEP::keV;
   m_highThresholdECBwheelsKrypton = 3.02*CLHEP::keV;
-  m_trEfficiencyBarrelKrypton = 0.49; 
+  m_trEfficiencyBarrelKrypton = 0.49;
   m_trEfficiencyEndCapAKrypton = 0.68;
   m_trEfficiencyEndCapBKrypton = 0.68;
 

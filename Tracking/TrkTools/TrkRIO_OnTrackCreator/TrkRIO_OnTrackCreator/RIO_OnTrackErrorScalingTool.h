@@ -21,6 +21,9 @@
 #include "TrkToolInterfaces/IRIO_OnTrackErrorScalingTool.h"
 #include "EventPrimitives/EventPrimitives.h"
 
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
+
 class PixelID;
 
 namespace Trk {
@@ -201,6 +204,9 @@ namespace Trk {
 
     //! conditions data handling: call-back entry to re-set scaling parameters when an IOV is new or changed.
     StatusCode callback( IOVSVC_CALLBACK_ARGS );
+
+    SG::ReadHandleKey<xAOD::EventInfo> m_readKey;
+
   };
 
   ///////////////////////////////////////////////////////////////////

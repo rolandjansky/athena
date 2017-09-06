@@ -34,21 +34,84 @@ class IAsgElectronEfficiencyCorrectionTool;
 
 namespace ana
 {
-  /// TODO: needs documentation
-  class TriggerTool : public AnaTool
+  /// First-run trigger tool.  Gets trigger decision and decorates with it.
+  class TriggerBasicTool : public AnaTool
   {
     //
     // public interface
     //
 
-    ASG_TOOL_CLASS (TriggerTool, ana::IAnaTool)
+    ASG_TOOL_CLASS (TriggerBasicTool, ana::IAnaTool)
 
   public:
 
     /// effects: standard constructor
     /// guarantee: strong
     /// failures: out of memory II
-    TriggerTool (const std::string& name);
+    TriggerBasicTool (const std::string& name);
+
+
+    /// effects: initialize this tool
+    /// guarantee: basic
+    /// failures: configuration errors
+    StatusCode initialize() override;
+
+
+    virtual StatusCode
+    setObjectType (ObjectType type, const std::string& workingPoint) override;
+
+
+    /// returns: the processing step we are working on
+    /// guarantee: no-fail
+    virtual AnalysisStep step () const override;
+
+
+    /// \copydoc IAnaTool::inputTypes
+    virtual unsigned inputTypes () const override;
+
+
+    /// \copydoc IAnaTool::outputTypes
+    virtual unsigned outputTypes () const override;
+
+
+    /// effects: apply this analysis tool to the objects
+    /// guarantee: basic
+    /// failures: tool dependent
+    virtual StatusCode execute (IEventObjects& objects) override;
+
+  private:
+    std::string m_trigList;
+    std::string m_groupName;
+    std::vector<std::string> m_trig_names;
+    bool m_matchEl;
+    bool m_matchMu;
+
+    asg::AnaToolHandle<Trig::TrigDecisionTool> m_trigDecTool;
+    asg::AnaToolHandle<TrigConf::ITrigConfigTool> m_trigconfigTool;
+    /// Muon Trigger Matching
+    asg::AnaToolHandle<Trig::IMatchingTool> m_triggerMatching;
+
+  };
+
+
+
+
+  /// Second-run trigger tool.  Decides on 'final' matching (needs a pT cut) and
+  ///  calculates a scale factor for leptons.
+  class TriggerSFTool : public AnaTool
+  {
+    //
+    // public interface
+    //
+
+    ASG_TOOL_CLASS (TriggerSFTool, ana::IAnaTool)
+
+  public:
+
+    /// effects: standard constructor
+    /// guarantee: strong
+    /// failures: out of memory II
+    TriggerSFTool (const std::string& name);
 
 
     /// \copydoc IAnaTool::useInitialConfiguration
@@ -125,18 +188,12 @@ namespace ana
     //  Note: enum doesn't compile in athena; int doesn't run in RootCore
     int m_year;
 
-    asg::AnaToolHandle<Trig::TrigDecisionTool> m_trigDecTool;
-    asg::AnaToolHandle<TrigConf::ITrigConfigTool> m_trigconfigTool;
-    // Muon Trigger Matching
-    asg::AnaToolHandle<Trig::IMatchingTool> m_triggerMatching;
     // Muon trigger scale factors
     asg::AnaToolHandle<CP::IMuonTriggerScaleFactors> m_mu_trig_sf2015;
     asg::AnaToolHandle<CP::IMuonTriggerScaleFactors> m_mu_trig_sf2016;
     // Electron trigger scale factor
     asg::AnaToolHandle<IAsgElectronEfficiencyCorrectionTool> m_el_trig_sf;
     asg::AnaToolHandle<IAsgElectronEfficiencyCorrectionTool> m_el_trig_eff;
-
-    bool isTrigMatched (std::vector<const xAOD::IParticle*> myParticles, std::string trigger);
 
     asg::AnaToolHandle<CP::IMuonTriggerScaleFactors>& muonSFToolForThisYear(const int runNumber);
 

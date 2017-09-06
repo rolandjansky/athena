@@ -1738,10 +1738,10 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
 	  dump = true; 
 
 	  hipt = true;
-	  dumpstream << mname << "\tMISSING TRACK run " << r << "\tevent " << ev 
+	  dumpstream << m_name << "\tMISSING TRACK run " << r << "\tevent " << ev 
 		    << "\tlb " << lb << "\tN vertices " << NvtxCount << std::endl;
-	  dumpstream << mname << "\tMISSING TRACK RoI   " << *groi << std::endl;
-	  dumpstream << mname << "\tMISSING TRACK Track " << *reftracks[i];
+	  dumpstream << m_name << "\tMISSING TRACK RoI   " << *groi << std::endl;
+	  dumpstream << m_name << "\tMISSING TRACK Track " << *reftracks[i];
 	  if ( std::fabs(pTt)>=30 ) dumpstream << "\tvery high pt";
 	  if ( std::fabs(pTt)>4 &&
 	       std::fabs(pTt)<30  ) dumpstream << "\t     high pt";

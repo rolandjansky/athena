@@ -13,8 +13,8 @@
 TrigZFinderInternal::TrigZFinderInternal( const std::string& type, 
     const std::string& name)  
 {
-  mType = type;
-  mName = name;
+  m_type = type;
+  m_name = name;
 
   m_phiBinSize       = 0.2   ;
   m_usedphiBinSize   = m_phiBinSize   ;
@@ -91,7 +91,7 @@ void TrigZFinderInternal::initializeInternal(long maxLayers, long lastBarrel )
   // number of phi neighbours to look at
   //  if ( extraPhi.size()==0 ) 
 
-  extraPhi = std::vector< std::vector<long> >( m_IdScan_MaxNumLayers, std::vector<long>(m_IdScan_MaxNumLayers) ); 
+  m_extraPhi = std::vector< std::vector<long> >( m_IdScan_MaxNumLayers, std::vector<long>(m_IdScan_MaxNumLayers) ); 
 
   if ( m_fullScanMode ) m_usedROIphiWidth = 2*M_PI;
   else                  m_usedROIphiWidth = m_ROIphiWidth;
@@ -107,7 +107,7 @@ void TrigZFinderInternal::initializeInternal(long maxLayers, long lastBarrel )
 
   for (long l1=0; l1<m_IdScan_MaxNumLayers-1; ++l1) {
     for (long l2=l1+1; l2<m_IdScan_MaxNumLayers; ++l2) {
-      extraPhi[l1][l2]=1; // look at a single phi neighbour
+      m_extraPhi[l1][l2]=1; // look at a single phi neighbour
     }
   }
 
@@ -125,14 +125,14 @@ void TrigZFinderInternal::initializeInternal(long maxLayers, long lastBarrel )
     for (long l2=l1+1; l2<=m_IdScan_LastBrlLayer; ++l2) {
       double dphi = ZF_dphiBrl[lyrcnt + 7*first_layer];
       dphi *= m_neighborMultiplier;
-      extraPhi[l1][l2]=static_cast<long>( ceil(  sqrt(dphi*dphi+ZF_phiRes*ZF_phiRes*2) * m_invPhiSliceSize ) );
+      m_extraPhi[l1][l2]=static_cast<long>( ceil(  sqrt(dphi*dphi+ZF_phiRes*ZF_phiRes*2) * m_invPhiSliceSize ) );
 
       //      std::cout << "test 1 " << l1 << " " << l2 << "\tmax : " <<  m_IdScan_MaxNumLayers << std::endl;
 
-      if (extraPhi[l1][l2]<1) extraPhi[l1][l2]=1;
+      if (m_extraPhi[l1][l2]<1) m_extraPhi[l1][l2]=1;
       //      std::cout << "Delta Phi between layers " << l1 << " and " << l2
       //		<< " = "<< ZF_dphiBrl[lyrcnt] 
-      //		<< " rads ( " << extraPhi[l1][l2] << " bins including phi resln.)\n";
+      //		<< " rads ( " << m_extraPhi[l1][l2] << " bins including phi resln.)\n";
       lyrcnt++;
     }
   }
@@ -155,13 +155,13 @@ void TrigZFinderInternal::initializeInternal(long maxLayers, long lastBarrel )
     //	      << ". Extrapolate it to eta=0.9 to get ";
     dphi = dphi + m_dphideta * ( 0.9 - eta );
     dphi *= m_neighborMultiplier;
-    extraPhi[l1][l2]=static_cast<long>(ceil(sqrt(dphi*dphi+ZF_phiRes*ZF_phiRes*2)*m_invPhiSliceSize));
+    m_extraPhi[l1][l2]=static_cast<long>(ceil(sqrt(dphi*dphi+ZF_phiRes*ZF_phiRes*2)*m_invPhiSliceSize));
 
-    if (extraPhi[l1][l2]<1) extraPhi[l1][l2]=1;
+    if (m_extraPhi[l1][l2]<1) m_extraPhi[l1][l2]=1;
 
     //    std::cout << "test 2 " << l1 << " " << l2 << "\tmax : " <<  m_IdScan_MaxNumLayers << std::endl;
 
-    // std::cout << dphi << " rads ( " << extraPhi[l1][l2] << " bins including phi resln.)\n";
+    // std::cout << dphi << " rads ( " << m_extraPhi[l1][l2] << " bins including phi resln.)\n";
   }
 
 }
@@ -309,10 +309,10 @@ long TrigZFinderInternal::fillVectors (const std::vector<TrigSiSpacePointBase>& 
     /// DOES NOT span the phi=pi boundary
     for(long i=0; i<nSPs; ++i, ++SpItr) 
     {
-      double _phi = SpItr->phi() - roiPhiMin;
+      double phi2 = SpItr->phi() - roiPhiMin;
 
-      if ( _phi>=0 && _phi<dphi ) { 
-        phi[i] = _phi;
+      if ( phi2>=0 && phi2<dphi ) { 
+        phi[i] = phi2;
         rho[i] = SpItr->r();
         zed[i] = SpItr->z();
         lyr[i] = m_new2old[SpItr->layer()];
@@ -326,11 +326,11 @@ long TrigZFinderInternal::fillVectors (const std::vector<TrigSiSpacePointBase>& 
     /// DOES span the phi=pi boundary
     for(long i=0; i<nSPs; ++i, ++SpItr) 
     {
-      double _phi = SpItr->phi() - roiPhiMin;
-      if( _phi<0.0) _phi+=2*M_PI;
+      double phi2 = SpItr->phi() - roiPhiMin;
+      if( phi2<0.0) phi2+=2*M_PI;
 
-      if ( _phi>=0 && _phi<dphi ) { 
-        phi[i] = _phi;
+      if ( phi2>=0 && phi2<dphi ) { 
+        phi[i] = phi2;
         rho[i] = SpItr->r();
         zed[i] = SpItr->z();
         lyr[i] = m_new2old[SpItr->layer()];
@@ -489,7 +489,7 @@ std::vector<typename TrigZFinderInternal::vertex>* TrigZFinderInternal::findZInt
     {
       allSlices[ sliceIndex ]->GetHistogram( &( nHisto[0][sliceIndex] ), &( zHisto[0][sliceIndex] ),
           &( nHisto[1][sliceIndex] ), &( zHisto[1][sliceIndex] ),
-          extraPhi, extraPhiNeg, m_nFirstLayers, m_tripletMode, m_chargeAware, nHisto, zHisto );
+          m_extraPhi, extraPhiNeg, m_nFirstLayers, m_tripletMode, m_chargeAware, nHisto, zHisto );
       //Note the extra arguments here - pointers to the whole histogram collection
       //This allows the filling of neighbouring slice histograms as required, but breaks thread safety
 
@@ -512,7 +512,7 @@ std::vector<typename TrigZFinderInternal::vertex>* TrigZFinderInternal::findZInt
     {
       allSlices[ sliceIndex ]->GetHistogram( &( nHisto[0][0] ), &( zHisto[0][0] ),
           &( nHisto[1][0] ), &( zHisto[1][0] ),
-          extraPhi, extraPhiNeg, m_nFirstLayers, m_tripletMode, m_chargeAware );
+          m_extraPhi, extraPhiNeg, m_nFirstLayers, m_tripletMode, m_chargeAware );
       delete allSlices[ sliceIndex ];
     }
   }

@@ -57,9 +57,8 @@ namespace InDet{
     return tl;
   }
 
-  void InDetVKalVxInJetTool::printWrkSet(const std::vector<WrkVrt> *WrkVrtSet, const std::string name)
-  const
-  {
+  void InDetVKalVxInJetTool::printWrkSet(const std::vector<WrkVrt> *, const std::string ) const {
+/*  void InDetVKalVxInJetTool::printWrkSet(const std::vector<WrkVrt> *WrkVrtSet, const std::string name) const {
     int nGoodV=0;
     for(int iv=0; iv<(int)WrkVrtSet->size(); iv++) {
       std::cout<<name
@@ -80,7 +79,7 @@ namespace InDet{
       std::cout<<'\n';
       if((*WrkVrtSet)[iv].Good)nGoodV++;
     }
-    std::cout<<name<<" N="<<nGoodV<<'\n';
+    std::cout<<name<<" N="<<nGoodV<<'\n';*/
   }
 
                /*  Technicalities */
@@ -97,6 +96,26 @@ namespace InDet{
     return (Vrt.x()*JetDir.Px() + Vrt.y()*JetDir.Py())/JetDir.Pt();
   }
 
+  bool InDetVKalVxInJetTool::insideMatLayer(float xvt,float yvt) const
+  {
+        float Dist2DBP=sqrt( (xvt-m_Xbeampipe)*(xvt-m_Xbeampipe) + (yvt-m_Ybeampipe)*(yvt-m_Ybeampipe) ); 
+        float Dist2DBL=sqrt( (xvt-m_XlayerB)*(xvt-m_XlayerB) + (yvt-m_YlayerB)*(yvt-m_YlayerB) ); 
+        float Dist2DL1=sqrt( (xvt-m_Xlayer1)*(xvt-m_Xlayer1) + (yvt-m_Ylayer1)*(yvt-m_Ylayer1) );
+        float Dist2DL2=sqrt( (xvt-m_Xlayer2)*(xvt-m_Xlayer2) + (yvt-m_Ylayer2)*(yvt-m_Ylayer2) );
+        if(m_existIBL){              // 4-layer pixel detector
+               if( fabs(Dist2DBP-m_Rbeampipe)< 1.0)  return true;           // Beam Pipe removal  
+               if( fabs(Dist2DBL-m_RlayerB)  < 2.5)     return true;
+               if( fabs(Dist2DL1-m_Rlayer1)  < 3.0)      return true;
+               if( fabs(Dist2DL2-m_Rlayer2)  < 3.0)      return true;
+               //if( fabs(Dist2DL2-m_Rlayer3)  < 4.0)      return true;
+        }else{                       // 3-layer pixel detector
+               if( fabs(Dist2DBP-m_Rbeampipe)< 1.5)  return true;           // Beam Pipe removal  
+               if( fabs(Dist2DBL-m_RlayerB)  < 3.5)     return true;
+               if( fabs(Dist2DL1-m_Rlayer1)  < 4.0)      return true;
+               if( fabs(Dist2DL2-m_Rlayer2)  < 5.0)      return true;
+        }
+        return false; 
+  }
 
   double InDetVKalVxInJetTool::VrtVrtDist(const Trk::RecVertex & PrimVrt, const Amg::Vector3D & SecVrt, 
                                           const std::vector<double> SecVrtErr, double& Signif)
@@ -176,7 +195,7 @@ namespace InDet{
     double disty =  jetDir.y()*projDist;
     double distz =  jetDir.z()*projDist;
 
-    Amg::MatrixX  PrimCovMtx=PrimVrt.covariancePosition();  //Create
+    AmgSymMatrix(3)  PrimCovMtx=PrimVrt.covariancePosition();  //Create
     PrimCovMtx(0,0) += SecVrtErr[0];
     PrimCovMtx(0,1) += SecVrtErr[1];
     PrimCovMtx(1,0) += SecVrtErr[1];
@@ -187,7 +206,7 @@ namespace InDet{
     PrimCovMtx(2,1) += SecVrtErr[4];
     PrimCovMtx(2,2) += SecVrtErr[5];
 
-    Amg::MatrixX  WgtMtx = PrimCovMtx.inverse();
+    AmgSymMatrix(3)  WgtMtx = PrimCovMtx.inverse();
 
     double Signif = distx*WgtMtx(0,0)*distx
                    +disty*WgtMtx(1,1)*disty
@@ -214,7 +233,7 @@ namespace InDet{
     double disty =  jetDir.y()*projDist;
     double distz =  jetDir.z()*projDist;
 
-    Amg::MatrixX  PrimCovMtx=PrimVrt.covariancePosition();  //Create
+    AmgSymMatrix(3)  PrimCovMtx=PrimVrt.covariancePosition();  //Create
     PrimCovMtx(0,0) += SecVrtErr[0];
     PrimCovMtx(0,1) += SecVrtErr[1];
     PrimCovMtx(1,0) += SecVrtErr[1];
@@ -225,7 +244,7 @@ namespace InDet{
     PrimCovMtx(2,1) += SecVrtErr[4];
     PrimCovMtx(2,2) += SecVrtErr[5];
 
-    Amg::MatrixX  WgtMtx = PrimCovMtx.inverse();
+    AmgSymMatrix(3)  WgtMtx = PrimCovMtx.inverse();
 
     double Signif = distx*WgtMtx(0,0)*distx
                    +disty*WgtMtx(1,1)*disty
@@ -566,7 +585,7 @@ namespace InDet{
 	  //   bitH=HitPattern&((int)pow(2,Trk::pixelBarrel1));
         } else {                     // 3-layer pixel detector
           uint8_t BLhit,NPlay,NHoles,IBLhit;
-          if(!Part->summaryValue( BLhit,  xAOD::numberOfBLayerHits) )          BLhit = 0;
+          if(!Part->summaryValue( BLhit,  xAOD::numberOfInnermostPixelLayerHits) )          BLhit = 0;
           if(!Part->summaryValue(IBLhit,  xAOD::numberOfInnermostPixelLayerHits) )  IBLhit = 0; // Some safety
           BLhit=BLhit>IBLhit ? BLhit : IBLhit;                                                  // Some safety
           if(!Part->summaryValue( NPlay,  xAOD::numberOfContribPixelLayers) )  NPlay = 0;
@@ -587,7 +606,7 @@ namespace InDet{
         }
 
   }
-  void   InDetVKalVxInJetTool::getPixelProblems(const xAOD::TrackParticle* Part, int &splshIBL, int &splshBL ) const
+  void InDetVKalVxInJetTool::getPixelProblems(const xAOD::TrackParticle* Part, int &splshIBL, int &splshBL ) const
   {
     	splshIBL=splshBL=0;
         if(m_existIBL){              // 4-layer pixel detector
@@ -601,7 +620,7 @@ namespace InDet{
           splshBL=share+split;
        }
   }
-    void   InDetVKalVxInJetTool::getPixelProblems(const Rec::TrackParticle* , int &splshIBL, int &splshBL ) const
+  void InDetVKalVxInJetTool::getPixelProblems(const Rec::TrackParticle* , int &splshIBL, int &splshBL ) const
   {
     	splshIBL=splshBL=0;  // Temporary implementation
   }

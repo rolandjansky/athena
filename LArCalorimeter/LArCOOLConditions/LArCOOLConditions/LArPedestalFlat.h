@@ -44,4 +44,9 @@ public:
 };
 
 CLASS_DEF( LArPedestalFlat,69859981,1  )
+//ConditionsContainer clid for athenaMT
+#include "AthenaKernel/CondCont.h"
+CLASS_DEF( CondCont<LArPedestalFlat> , 151238349 , 1 )
+#include "SGTools/BaseInfo.h"
+SG_BASE( CondCont<LArPedestalFlat>, CondContBase );
 #endif 

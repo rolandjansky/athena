@@ -44,6 +44,7 @@ InDet::InDetDenseEnvAmbiTrackSelectionTool::InDetDenseEnvAmbiTrackSelectionTool(
   m_selectortool("InDet::InDetTrtDriftCircleCutTool"       ),
   m_IBLParameterSvc("IBLParameterSvc",n),
   m_incidentSvc("IncidentSvc", n),
+  m_detID(nullptr),
   m_observerTool("Trk::TrkObserverTool/TrkObserverTool"),
   m_mapFilled(false),
   m_monitorTracks(false)
@@ -79,7 +80,7 @@ InDet::InDetDenseEnvAmbiTrackSelectionTool::InDetDenseEnvAmbiTrackSelectionTool(
   declareProperty("minPtSplit"           ,m_minPtSplit   = 0.   );
   declareProperty("phiWidth"             ,m_phiWidth     = 0.2  );
   declareProperty("etaWidth"             ,m_etaWidth     = 0.2  );
-  declareProperty("InputHadClusterContainerName",m_inputHadClusterContainerName);  
+  declareProperty("InputHadClusterContainerName",m_inputHadClusterContainerName="InDetHadCaloClusterROIs");
   declareProperty("MonitorAmbiguitySolving"  , m_monitorTracks = false);
   declareProperty("ObserverTool"             , m_observerTool);
 
@@ -88,7 +89,7 @@ InDet::InDetDenseEnvAmbiTrackSelectionTool::InDetDenseEnvAmbiTrackSelectionTool(
   declareProperty("minPtConv"            ,m_minPtEm      = 10000.); // in MeV
   declareProperty("phiWidthEM"           ,m_phiWidthEm   = 0.05  );
   declareProperty("etaWidthEM"           ,m_etaWidthEm   = 0.05  );
-  declareProperty("InputEmClusterContainerName",m_inputEmClusterContainerName);  
+  declareProperty("InputEmClusterContainerName",m_inputEmClusterContainerName="InDetCaloClusterROIs");
  
  
   declareProperty("doPairSelection"       ,m_doPairSelection = true);
@@ -171,6 +172,9 @@ StatusCode InDet::InDetDenseEnvAmbiTrackSelectionTool::initialize()
   m_incidentSvc->addListener( this, "BeginEvent");
   //m_incidentSvc->addListener( this, "EndEvent");
 
+  ATH_CHECK(m_inputHadClusterContainerName.initialize(m_useHClusSeed));
+  ATH_CHECK(m_inputEmClusterContainerName.initialize(m_useEmClusSeed));
+
   ATH_MSG_INFO( "initialize() successful in " << name() );
   return StatusCode::SUCCESS;
 }
@@ -201,17 +205,13 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::newEvent()
     m_hadE.clear();
     m_hadR.clear();
     m_hadZ.clear();
-    
-    const CaloClusterROI_Collection* calo = 0;
-    StatusCode sc = evtStore()->retrieve(calo,m_inputHadClusterContainerName);
 
-    if(sc == StatusCode::SUCCESS && calo) {
-      for( const auto& ccROI : *calo) {
-        m_hadF.push_back( ccROI->globalPosition().phi() );
-        m_hadE.push_back( ccROI->globalPosition().eta() );
-        m_hadR.push_back( ccROI->globalPosition().perp() );
-        m_hadZ.push_back( ccROI->globalPosition().z() );
-      }
+    SG::ReadHandle<CaloClusterROI_Collection> calo(m_inputHadClusterContainerName);
+    for( const auto& ccROI : *calo) {
+      m_hadF.push_back( ccROI->globalPosition().phi() );
+      m_hadE.push_back( ccROI->globalPosition().eta() );
+      m_hadR.push_back( ccROI->globalPosition().perp() );
+      m_hadZ.push_back( ccROI->globalPosition().z() );
     }
   }
 
@@ -221,20 +221,16 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::newEvent()
     m_emE.clear();
     m_emR.clear();
     m_emZ.clear();
-    
-    const CaloClusterROI_Collection* calo = 0;
-    StatusCode sc = evtStore()->retrieve(calo,m_inputEmClusterContainerName);
 
-    if(sc == StatusCode::SUCCESS && calo) {
-      for( const Trk::CaloClusterROI* ccROI : *calo) {
-        if( ccROI->energy() * sin(ccROI->globalPosition().theta()) < m_minPtEm){ 
-          continue;
-        }  
-        m_emF.push_back( ccROI->globalPosition().phi() );
-        m_emE.push_back( ccROI->globalPosition().eta() );
-        m_emR.push_back( ccROI->globalPosition().perp() );
-        m_emZ.push_back( ccROI->globalPosition().z() );
+    SG::ReadHandle<CaloClusterROI_Collection> calo(m_inputEmClusterContainerName);
+    for( const Trk::CaloClusterROI* ccROI : *calo) {
+      if( ccROI->energy() * sin(ccROI->globalPosition().theta()) < m_minPtEm){
+	continue;
       }
+      m_emF.push_back( ccROI->globalPosition().phi() );
+      m_emE.push_back( ccROI->globalPosition().eta() );
+      m_emR.push_back( ccROI->globalPosition().perp() );
+      m_emZ.push_back( ccROI->globalPosition().z() );
     }
   }
   m_mapFilled = true;

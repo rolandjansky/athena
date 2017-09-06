@@ -33,7 +33,7 @@ atlas_depends_on_subdirs(
 # External dependencies:
 find_package( CLHEP )
 find_package( Coin3D )
-find_package( Qt4 COMPONENTS QtCore QtGui )
+find_package( Qt5 COMPONENTS Core Gui  )
 find_package( Qwt )
 
 # Generate UI files automatically:
@@ -49,9 +49,9 @@ atlas_add_library( VP1CaloSystems
    PRIVATE_INCLUDE_DIRS ${COIN3D_INCLUDE_DIRS} ${QWT_INCLUDE_DIRS}
    ${CMAKE_CURRENT_BINARY_DIR}
    DEFINITIONS ${CLHEP_DEFINITIONS}
-   LINK_LIBRARIES ${CLHEP_LIBRARIES} Identifier VP1Base Qt4::QtCore
+   LINK_LIBRARIES ${CLHEP_LIBRARIES} Identifier VP1Base Qt5::Core
    PRIVATE_LINK_LIBRARIES ${COIN3D_LIBRARIES} ${QWT_LIBRARIES} CaloDetDescrLib
    StoreGateLib LArToolsLib TileConditionsLib CaloConditions CaloEvent
    CaloIdentifier GeoModelKernel GeoModelUtilities GaudiKernel LArIdentifier
    LArRawEvent TileDetDescr TileEvent TileIdentifier VP1HEPVis VP1Utils
-   Qt4::QtGui )
+   Qt5::Gui )

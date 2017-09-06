@@ -11,7 +11,7 @@
 
 #include "eflowRec/eflowLookupExp.h"
 
-eflowLookupExp* eflowLookupExp::m_instance = nullptr;
-
+//eflowLookupExp* eflowLookupExp::m_instance = nullptr;
+std::unique_ptr<eflowLookupExp> eflowLookupExp::m_instance  = nullptr;
 
 

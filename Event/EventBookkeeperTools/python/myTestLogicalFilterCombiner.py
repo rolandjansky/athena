@@ -166,8 +166,8 @@ def py_alg(algname,iface='Algorithm'):
         msg.error (error)
         raise RuntimeError (error)
     
-    import PyCintex
-    alg = PyCintex.libPyROOT.MakeNullPointer(iface)
+    import cppyy
+    alg = cppyy.libPyROOT.MakeNullPointer(iface)
     if not algmgr.getAlgorithm(algname, alg).isSuccess():
         return
     return alg

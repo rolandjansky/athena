@@ -24,6 +24,7 @@ TrackParticleCellAssociationAlg::TrackParticleCellAssociationAlg(const std::stri
   declareProperty("ParticleCaloCellAssociationTool",m_caloCellAssociationTool);
   declareProperty("TrackParticleContainerName",m_trackParticleCollectionName = "InDetTrackParticles" );
   declareProperty("PtCut", m_ptCut = 25000. );
+  declareProperty("OutputCollectionPostFix", m_outputPostFix = "" );
 }
 
 TrackParticleCellAssociationAlg::~TrackParticleCellAssociationAlg()
@@ -34,7 +35,7 @@ TrackParticleCellAssociationAlg::~TrackParticleCellAssociationAlg()
 StatusCode TrackParticleCellAssociationAlg::initialize()
 {
   ATH_CHECK(m_caloCellAssociationTool.retrieve());
-  ATH_CHECK(m_trackSelector.retrieve());
+  // ATH_CHECK(m_trackSelector.retrieve());
 
   return StatusCode::SUCCESS; 
 }
@@ -43,7 +44,7 @@ StatusCode TrackParticleCellAssociationAlg::execute()
 {
 
   // get track particles
-  xAOD::TrackParticleContainer* trackParticles = 0;
+  const xAOD::TrackParticleContainer* trackParticles = 0;
   if(evtStore()->contains<xAOD::TrackParticleContainer>(m_trackParticleCollectionName)) {
     if(evtStore()->retrieve(trackParticles,m_trackParticleCollectionName).isFailure()) {
       ATH_MSG_FATAL( "Unable to retrieve " << m_trackParticleCollectionName );
@@ -55,8 +56,8 @@ StatusCode TrackParticleCellAssociationAlg::execute()
   }
 
   // create strings for locations based on input track collection
-  std::string clusterContainerName = m_trackParticleCollectionName + "AssociatedClusters";
-  std::string associationContainerName = m_trackParticleCollectionName + "ClusterAssociations";
+  std::string clusterContainerName = m_trackParticleCollectionName + "AssociatedClusters" + m_outputPostFix;
+  std::string associationContainerName = m_trackParticleCollectionName + "ClusterAssociations" + m_outputPostFix;
 
   // Create the xAOD container and its auxiliary store:
   xAOD::CaloClusterContainer* xaod = CaloClusterStoreHelper::makeContainer(&(*evtStore()),clusterContainerName,msg());
@@ -80,7 +81,8 @@ StatusCode TrackParticleCellAssociationAlg::execute()
 
     // slect track
     const xAOD::TrackParticle* tp = (*trackParticles)[i];
-    if( !m_trackSelector->decision(*tp) || tp->pt() < m_ptCut ) continue;
+    // if( !m_trackSelector->decision(*tp) || tp->pt() < m_ptCut ) continue;
+    if( tp->pt() < m_ptCut ) continue;
 
     // get ParticleCellAssociation
     ATH_MSG_DEBUG(" Selected track: pt " << tp->pt() << " eta " << tp->eta() << " phi " << tp->phi() );

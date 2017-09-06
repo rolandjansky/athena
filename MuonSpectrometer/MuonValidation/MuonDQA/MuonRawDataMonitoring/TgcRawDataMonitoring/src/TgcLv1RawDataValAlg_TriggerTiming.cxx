@@ -51,7 +51,6 @@ using namespace std;
 ///////////////////////////////////////////////////////////////////////////
 StatusCode
 TgcLv1RawDataValAlg::bookHistogramsTiming(){
-  StatusCode sc = StatusCode::SUCCESS; 
   
   ///////////////////////////////////////////////////////////////////////////
   // Make MonGroups for histogram booking paths
@@ -107,29 +106,20 @@ TgcLv1RawDataValAlg::bookHistogramsTiming(){
     ss.str(""); ss << sltiming << "_" << side[ac];
     m_tgclv1sltiming[ac] = new TH1F(ss.str().c_str(),ss.str().c_str(), 3, 0, 3);
     setTH1TitleLabelBCID(m_tgclv1sltiming[ac]);
-    if( ( tgclv1_shift_ac[ac]->regHist(m_tgclv1sltiming[ac]) ).isFailure() ){
-      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( tgclv1_shift_ac[ac]->regHist(m_tgclv1sltiming[ac]) );
     
     // SL Timing hist for pT threshold > pT1
     ss.str(""); ss << sltiming << morethanpt1 << "_" << side[ac];
     m_tgclv1sltimingptcut[ac] = new TH1F(ss.str().c_str(),ss.str().c_str(), 3, 0, 3);
     setTH1TitleLabelBCID(m_tgclv1sltimingptcut[ac]);
-    if( ( tgclv1_shift_ac[ac]->regHist(m_tgclv1sltimingptcut[ac]) ).isFailure() ){
-      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( tgclv1_shift_ac[ac]->regHist(m_tgclv1sltimingptcut[ac]) );
     
     // SL Timing hist for each pT threshold
     for(int ipt=0;ipt<6;ipt++){
       ss.str(""); ss << sltiming << PT << ipt+1 << "_" << side[ac];
       m_tgclv1sltimingpt[ac][ipt] = new TH1F(ss.str().c_str(),ss.str().c_str(), 3, 0, 3);
       setTH1TitleLabelBCID(m_tgclv1sltimingpt[ac][ipt]);
-      if( ( tgclv1_timing_ac[ac]->regHist(m_tgclv1sltimingpt[ac][ipt]) ).isFailure() ){
-        m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-        return StatusCode::FAILURE;
-      }
+      ATH_CHECK( tgclv1_timing_ac[ac]->regHist(m_tgclv1sltimingpt[ac][ipt]) );
     }
     
     /////////////////////////////////////
@@ -138,36 +128,24 @@ TgcLv1RawDataValAlg::bookHistogramsTiming(){
     // SL Timing map
     ss.str(""); ss << sltiming << "_Map_" << side[ac];
     m_tgclv1sltimingmap[ac] = new TH2F(ss.str().c_str(),ss.str().c_str(), 18, 0, 18, 48, 1 , 49);
-    if( ( tgclv1_expert_ac[ac]->regHist(m_tgclv1sltimingmap[ac]) ).isFailure() ){
-      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( tgclv1_expert_ac[ac]->regHist(m_tgclv1sltimingmap[ac]) );
     m_tgclv1sltimingmap[ac]->SetMinimum(0.0);
     
     // SL Timing Current Fraction map
     ss.str(""); ss << sl << "Timing_Fraction_Map_" << side[ac];
     m_tgclv1slcurrentfractionmap[ac] = new TH2F(ss.str().c_str(),ss.str().c_str(), 18, 0, 18, 48, 1 , 49);
-    if( ( tgclv1_expert_ac[ac]->regHist(m_tgclv1slcurrentfractionmap[ac]) ).isFailure() ){
-      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( tgclv1_expert_ac[ac]->regHist(m_tgclv1slcurrentfractionmap[ac]) );
     
     // SL Timing map for pT threshold > pT1
     ss.str(""); ss << sltiming << "_Map" << morethanpt1 << "_" << side[ac];
     m_tgclv1sltimingmapptcut[ac] = new TH2F(ss.str().c_str(),ss.str().c_str(), 18, 0, 18, 48, 1 , 49);
-    if( ( tgclv1_expert_ac[ac]->regHist(m_tgclv1sltimingmapptcut[ac]) ).isFailure() ){
-      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( tgclv1_expert_ac[ac]->regHist(m_tgclv1sltimingmapptcut[ac]) );
     m_tgclv1sltimingmapptcut[ac]->SetMinimum(0.0);
     
     // SL Timing Current Fraction map for pT threshold > pT1
     ss.str(""); ss << sl << "Timing_Fraction_Map" << morethanpt1 << side[ac];
     m_tgclv1slcurrentfractionmapptcut[ac] = new TH2F(ss.str().c_str(),ss.str().c_str(), 18, 0, 18, 48, 1 , 49);
-    if( ( tgclv1_expert_ac[ac]->regHist(m_tgclv1slcurrentfractionmapptcut[ac]) ).isFailure() ){
-      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( tgclv1_expert_ac[ac]->regHist(m_tgclv1slcurrentfractionmapptcut[ac]) );
     
     // Set Bin Labels for SL Timing maps
     for(int pcn=0;pcn<3;pcn++){
@@ -199,10 +177,7 @@ TgcLv1RawDataValAlg::bookHistogramsTiming(){
       if(isect+1<10)ss << "0";
       ss << isect+1;
       m_tgclv1sltimingsector[ac][isect] = new TH1F(ss.str().c_str(),ss.str().c_str(), 3, 0, 3);
-      if( ( tgclv1_timing_ac[ac]->regHist(m_tgclv1sltimingsector[ac][isect]) ).isFailure() ){
-        m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-        return StatusCode::FAILURE;
-      }
+      ATH_CHECK( tgclv1_timing_ac[ac]->regHist(m_tgclv1sltimingsector[ac][isect]) );
       setTH1TitleLabelBCID(m_tgclv1sltimingsector[ac][isect]);
       
       // SL Timing hist for pT threshold > pT1
@@ -210,10 +185,7 @@ TgcLv1RawDataValAlg::bookHistogramsTiming(){
       if(isect+1<10)ss << "0";
       ss << isect+1;
       m_tgclv1sltimingptcutsector[ac][isect] = new TH1F(ss.str().c_str(),ss.str().c_str(), 3, 0, 3);
-      if( ( tgclv1_timing_ac[ac]->regHist(m_tgclv1sltimingptcutsector[ac][isect]) ).isFailure() ){
-        m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-        return StatusCode::FAILURE;
-      }
+      ATH_CHECK( tgclv1_timing_ac[ac]->regHist(m_tgclv1sltimingptcutsector[ac][isect]) );
       setTH1TitleLabelBCID(m_tgclv1sltimingptcutsector[ac][isect]);
     }// sector
 
@@ -224,29 +196,20 @@ TgcLv1RawDataValAlg::bookHistogramsTiming(){
       ss.str(""); ss << sltiming << triggertype[itrig] << "_" << side[ac];
       m_tgclv1sltimingtrg[ac][itrig] = new TH1F(ss.str().c_str(),ss.str().c_str(), 3, 0, 3);
       setTH1TitleLabelBCID(m_tgclv1sltimingtrg[ac][itrig]);
-      if( ( tgclv1_expert_ac[ac]->regHist(m_tgclv1sltimingtrg[ac][itrig]) ).isFailure() ){
-        m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-        return StatusCode::FAILURE;
-      }
+      ATH_CHECK( tgclv1_expert_ac[ac]->regHist(m_tgclv1sltimingtrg[ac][itrig]) );
 
       // SL Timing hist for pT threshold > pT1
       ss.str(""); ss << sltiming << morethanpt1 << triggertype[itrig] << "_" << side[ac];
       m_tgclv1sltimingptcuttrg[ac][itrig] = new TH1F(ss.str().c_str(),ss.str().c_str(), 3, 0, 3);
       setTH1TitleLabelBCID(m_tgclv1sltimingptcuttrg[ac][itrig]);
-      if( ( tgclv1_expert_ac[ac]->regHist(m_tgclv1sltimingptcuttrg[ac][itrig]) ).isFailure() ){
-        m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-        return StatusCode::FAILURE;
-      }
+      ATH_CHECK( tgclv1_expert_ac[ac]->regHist(m_tgclv1sltimingptcuttrg[ac][itrig]) );
 
       // SL Timing hist for each pT threshold
       for(int ipt=0;ipt<6;ipt++){// pT
         ss.str(""); ss << sltiming << PT << ipt+1 << triggertype[itrig] << "_" << side[ac];
         m_tgclv1sltimingpttrg[ac][ipt][itrig] = new TH1F(ss.str().c_str(),ss.str().c_str(), 3, 0, 3);
         setTH1TitleLabelBCID(m_tgclv1sltimingpttrg[ac][ipt][itrig]);
-        if( ( tgclv1_timing_ac[ac]->regHist(m_tgclv1sltimingpttrg[ac][ipt][itrig]) ).isFailure() ){
-          m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-          return StatusCode::FAILURE;
-        }
+        ATH_CHECK( tgclv1_timing_ac[ac]->regHist(m_tgclv1sltimingpttrg[ac][ipt][itrig]) );
       }// pT
     }// trigger type
     
@@ -259,22 +222,16 @@ TgcLv1RawDataValAlg::bookHistogramsTiming(){
         if(isect+1<10)ss << "0";
         ss << isect+1;
         m_tgclv1sltimingsectortrg[ac][isect][itrig] = new TH1F(ss.str().c_str(),ss.str().c_str(), 3, 0, 3);
-        if( ( tgclv1_timing_ac[ac]->regHist(m_tgclv1sltimingsectortrg[ac][isect][itrig]) ).isFailure() ){
-          m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-          return StatusCode::FAILURE;
-        }
+        ATH_CHECK( tgclv1_timing_ac[ac]->regHist(m_tgclv1sltimingsectortrg[ac][isect][itrig]) );
         setTH1TitleLabelBCID(m_tgclv1sltimingsectortrg[ac][isect][itrig]);
         
         // SL Timing hist for pT threshold > pT1
         ss.str(""); ss << sltiming << morethanpt1 << triggertype[itrig] << "_" << side[ac];
         if(isect+1<10)ss << "0";
         ss << isect+1;
-        m_log << MSG::DEBUG << "histos for SL sector timing for pt>2" << endmsg; 
+        ATH_MSG_DEBUG( "histos for SL sector timing for pt>2"  );
         m_tgclv1sltimingptcutsectortrg[ac][isect][itrig] = new TH1F(ss.str().c_str(),ss.str().c_str(), 3, 0, 3);
-        if( ( tgclv1_timing_ac[ac]->regHist(m_tgclv1sltimingptcutsectortrg[ac][isect][itrig]) ).isFailure() ){
-          m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-          return StatusCode::FAILURE;
-        }
+        ATH_CHECK( tgclv1_timing_ac[ac]->regHist(m_tgclv1sltimingptcutsectortrg[ac][isect][itrig]) );
         setTH1TitleLabelBCID(m_tgclv1sltimingptcutsectortrg[ac][isect][itrig]);
       }// trigger type
     }// sector
@@ -286,19 +243,13 @@ TgcLv1RawDataValAlg::bookHistogramsTiming(){
       ss.str(""); ss << sltiming << smuid[imuid] << "_" << side[ac];
       m_tgclv1sltimingtrack[ac][imuid] = new TH1F(ss.str().c_str(), ss.str().c_str(), 3, 0, 3 );
       setTH1TitleLabelBCID(m_tgclv1sltimingtrack[ac][imuid]);
-      if( ( tgclv1_shift_ac[ac]->regHist(m_tgclv1sltimingtrack[ac][imuid] ) ).isFailure() ){
-        m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-        return StatusCode::FAILURE;
-      }
+      ATH_CHECK( tgclv1_shift_ac[ac]->regHist(m_tgclv1sltimingtrack[ac][imuid] ) );
       
       // SL Timing hist for pT threshold > pT1
       ss.str(""); ss << sltiming << morethanpt1 << smuid[imuid] << "_" << side[ac];
       m_tgclv1sltimingptcuttrack[ac][imuid] = new TH1F(ss.str().c_str(), ss.str().c_str(), 3, 0, 3 );
       setTH1TitleLabelBCID(m_tgclv1sltimingptcuttrack[ac][imuid]);
-      if( ( tgclv1_shift_ac[ac]->regHist(m_tgclv1sltimingptcuttrack[ac][imuid] ) ).isFailure() ){
-        m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-        return StatusCode::FAILURE;
-      }
+      ATH_CHECK( tgclv1_shift_ac[ac]->regHist(m_tgclv1sltimingptcuttrack[ac][imuid] ) );
     }// muonalg
 
   }// side
@@ -312,29 +263,20 @@ TgcLv1RawDataValAlg::bookHistogramsTiming(){
     // LpT Timing hist
     ss.str(""); ss << lpttiming << "_" << side[ac];
     m_tgclv1lpttiming[ac] = new TH1F(ss.str().c_str(),ss.str().c_str(), 3, 0, 3);
-    if( ( tgclv1_shift_ac[ac]->regHist(m_tgclv1lpttiming[ac]) ).isFailure() ){
-      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK(  tgclv1_shift_ac[ac]->regHist(m_tgclv1lpttiming[ac]) );
     setTH1TitleLabelBCID(m_tgclv1lpttiming[ac]);
 
     // LpT Timing hist for pT threshold > pT1
     ss.str(""); ss << lpttiming << morethanpt1 << "_" << side[ac];
     m_tgclv1lpttimingptcut[ac] = new TH1F(ss.str().c_str(),ss.str().c_str(), 3, 0, 3);
-    if( ( tgclv1_expert_ac[ac]->regHist(m_tgclv1lpttimingptcut[ac]) ).isFailure() ){
-      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( tgclv1_expert_ac[ac]->regHist(m_tgclv1lpttimingptcut[ac]) );
     setTH1TitleLabelBCID(m_tgclv1lpttimingptcut[ac]);
 
     // LpT Timing hist for each pT threshold
     for(int ipt=0;ipt<6;ipt++){
       ss.str(""); ss << lpttiming << PT << ipt+1 << "_" << side[ac];
       m_tgclv1lpttimingpt[ac][ipt] = new TH1F(ss.str().c_str(),ss.str().c_str(), 3, 0, 3);
-      if( ( tgclv1_timing_ac[ac]->regHist(m_tgclv1lpttimingpt[ac][ipt]) ).isFailure() ){
-        m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-        return StatusCode::FAILURE;
-      }
+      ATH_CHECK( tgclv1_timing_ac[ac]->regHist(m_tgclv1lpttimingpt[ac][ipt]) );
       m_tgclv1lpttimingpt[ac][ipt]->SetMinimum(0.0);
       setTH1TitleLabelBCID(m_tgclv1lpttimingpt[ac][ipt]);
     }
@@ -345,36 +287,24 @@ TgcLv1RawDataValAlg::bookHistogramsTiming(){
     // LpT Timing map
     ss.str(""); ss << lpttiming << "_Map_" << side[ac];
     m_tgclv1lpttimingmap[ac] = new TH2F(ss.str().c_str(),ss.str().c_str(), 18, 0, 18, 48, 1 , 49);
-    if( ( tgclv1_expert_ac[ac]->regHist(m_tgclv1lpttimingmap[ac]) ).isFailure() ){
-      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( tgclv1_expert_ac[ac]->regHist(m_tgclv1lpttimingmap[ac]) );
     m_tgclv1lpttimingmap[ac]->SetMinimum(0.0);
     
     // LpT Timing Current Fraction map
     ss.str(""); ss << lpt << "Timing_Fraction_Map_" << side[ac];
     m_tgclv1lptcurrentfractionmap[ac] = new TH2F(ss.str().c_str(),ss.str().c_str(), 18, 0, 18, 48, 1 , 49);
-    if( ( tgclv1_expert_ac[ac]->regHist(m_tgclv1lptcurrentfractionmap[ac]) ).isFailure() ){
-      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( tgclv1_expert_ac[ac]->regHist(m_tgclv1lptcurrentfractionmap[ac]) );
     
     // LpT Timing map for pT threshold > pT1
     ss.str(""); ss << lpttiming << "_Map" << morethanpt1 << side[ac];
     m_tgclv1lpttimingmapptcut[ac] = new TH2F(ss.str().c_str(),ss.str().c_str(), 18, 0, 18, 48, 1 , 49);
-    if( ( tgclv1_expert_ac[ac]->regHist(m_tgclv1lpttimingmapptcut[ac]) ).isFailure() ){
-      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( tgclv1_expert_ac[ac]->regHist(m_tgclv1lpttimingmapptcut[ac]) );
     m_tgclv1lpttimingmapptcut[ac]->SetMinimum(0.0);
     
     // LpT Timing Current Fraction map for pT threshold > pT1
     ss.str(""); ss << lpt << "Timing_Fraction_Map" << morethanpt1 << side[ac];
     m_tgclv1lptcurrentfractionmapptcut[ac] = new TH2F(ss.str().c_str(),ss.str().c_str(), 18, 0, 18, 48, 1 , 49);
-    if( ( tgclv1_expert_ac[ac]->regHist(m_tgclv1lptcurrentfractionmapptcut[ac]) ).isFailure() ){
-      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( tgclv1_expert_ac[ac]->regHist(m_tgclv1lptcurrentfractionmapptcut[ac]) );
 
     // Set Bin Labels for LpT Timing maps
     for(int pcn=0;pcn<3;pcn++){// 
@@ -407,22 +337,16 @@ TgcLv1RawDataValAlg::bookHistogramsTiming(){
       if(k+1<10)ss << "0";
       ss << k+1;
       m_tgclv1lpttimingsector[ac][k] = new TH1F(ss.str().c_str(),ss.str().c_str(), 3, 0, 3);
-      if( ( tgclv1_timing_ac[ac]->regHist(m_tgclv1lpttimingsector[ac][k]) ).isFailure() ){
-        m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-        return StatusCode::FAILURE;
-      }
+      ATH_CHECK( tgclv1_timing_ac[ac]->regHist(m_tgclv1lpttimingsector[ac][k]) );
       setTH1TitleLabelBCID(m_tgclv1lpttimingsector[ac][k]);
 
       // LpT Timing hist for pT threshold > pT1
-      m_log << MSG::DEBUG << "histos for LPT sector timing for pt>2" << endmsg; 
+      ATH_MSG_DEBUG( "histos for LPT sector timing for pt>2"  );
       ss.str(""); ss << lpttiming << morethanpt1 << "_" << side[ac];
       if(k+1<10)ss << "0";
       ss << k+1;
       m_tgclv1lpttimingptcutsector[ac][k] = new TH1F(ss.str().c_str(),ss.str().c_str(), 3, 0, 3);
-      if( ( tgclv1_timing_ac[ac]->regHist(m_tgclv1lpttimingptcutsector[ac][k]) ).isFailure() ){
-        m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-        return StatusCode::FAILURE;
-      }
+      ATH_CHECK( tgclv1_timing_ac[ac]->regHist(m_tgclv1lpttimingptcutsector[ac][k]) );
       setTH1TitleLabelBCID(m_tgclv1lpttimingptcutsector[ac][k]);
     }// sector
     
@@ -433,20 +357,14 @@ TgcLv1RawDataValAlg::bookHistogramsTiming(){
       ss.str(""); ss << lpttiming << triggertype[itrig] << "_" << side[ac];
       m_tgclv1lpttimingtrg[ac][itrig] = new TH1F(ss.str().c_str(),ss.str().c_str(), 3, 0, 3);
       setTH1TitleLabelBCID(m_tgclv1lpttimingtrg[ac][itrig]);
-      if( ( tgclv1_expert_ac[ac]->regHist(m_tgclv1lpttimingtrg[ac][itrig]) ).isFailure() ){
-        m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-        return StatusCode::FAILURE;
-      }
+      ATH_CHECK( tgclv1_expert_ac[ac]->regHist(m_tgclv1lpttimingtrg[ac][itrig]) );
       m_tgclv1lpttimingtrg[ac][itrig]->SetMinimum(0.0);
       
       // LpT Timing hist for pT threshold > pT1
       ss.str(""); ss << lpttiming << morethanpt1 << triggertype[itrig] << "_" << side[ac];
       m_tgclv1lpttimingptcuttrg[ac][itrig] = new TH1F(ss.str().c_str(),ss.str().c_str(), 3, 0, 3);
       setTH1TitleLabelBCID(m_tgclv1lpttimingptcuttrg[ac][itrig]);
-      if( ( tgclv1_expert_ac[ac]->regHist(m_tgclv1lpttimingptcuttrg[ac][itrig]) ).isFailure() ){
-        m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-        return StatusCode::FAILURE;
-      }
+      ATH_CHECK( tgclv1_expert_ac[ac]->regHist(m_tgclv1lpttimingptcuttrg[ac][itrig]) );
       m_tgclv1lpttimingptcuttrg[ac][itrig]->SetMinimum(0.0);
       
       // LpT Timing hist for each pT threshold
@@ -454,10 +372,7 @@ TgcLv1RawDataValAlg::bookHistogramsTiming(){
         ss.str(""); ss << lpttiming << PT << ipt+1 << triggertype[itrig] << "_" << side[ac];
         m_tgclv1lpttimingpttrg[ac][ipt][itrig] = new TH1F(ss.str().c_str(),ss.str().c_str(), 3, 0, 3);
         setTH1TitleLabelBCID(m_tgclv1lpttimingpttrg[ac][ipt][itrig]);
-        if( ( tgclv1_timing_ac[ac]->regHist(m_tgclv1lpttimingpttrg[ac][ipt][itrig]) ).isFailure() ){
-          m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-          return StatusCode::FAILURE;
-        }
+        ATH_CHECK( tgclv1_timing_ac[ac]->regHist(m_tgclv1lpttimingpttrg[ac][ipt][itrig]) );
         m_tgclv1lpttimingpttrg[ac][ipt][itrig]->SetMinimum(0.0);
       }// pT
     }// trigger type
@@ -471,10 +386,7 @@ TgcLv1RawDataValAlg::bookHistogramsTiming(){
         if(isect+1<10)ss << "0";
         ss << isect+1;
         m_tgclv1lpttimingsectortrg[ac][isect][itrig] = new TH1F(ss.str().c_str(),ss.str().c_str(), 3, 0, 3);
-        if( ( tgclv1_timing_ac[ac]->regHist(m_tgclv1lpttimingsectortrg[ac][isect][itrig]) ).isFailure() ){
-          m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-          return StatusCode::FAILURE;
-        }
+        ATH_CHECK( tgclv1_timing_ac[ac]->regHist(m_tgclv1lpttimingsectortrg[ac][isect][itrig]) );
         setTH1TitleLabelBCID(m_tgclv1lpttimingsectortrg[ac][isect][itrig]);
         
         // LpT Timing hist for pT threshold > pT1
@@ -482,10 +394,7 @@ TgcLv1RawDataValAlg::bookHistogramsTiming(){
         if(isect+1<10)ss << "0";
         ss << isect+1;
         m_tgclv1lpttimingptcutsectortrg[ac][isect][itrig] = new TH1F(ss.str().c_str(),ss.str().c_str(), 3, 0, 3);
-        if( ( tgclv1_timing_ac[ac]->regHist(m_tgclv1lpttimingptcutsectortrg[ac][isect][itrig]) ).isFailure() ){
-          m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-          return StatusCode::FAILURE;
-        }
+        ATH_CHECK( tgclv1_timing_ac[ac]->regHist(m_tgclv1lpttimingptcutsectortrg[ac][isect][itrig]) );
         setTH1TitleLabelBCID(m_tgclv1lpttimingptcutsectortrg[ac][isect][itrig]);
       }// trigger type
     }// sector
@@ -497,19 +406,13 @@ TgcLv1RawDataValAlg::bookHistogramsTiming(){
       ss.str(""); ss << lpttiming << smuid[imuid] << "_" << side[ac];
       m_tgclv1lpttimingtrack[ac][imuid] = new TH1F(ss.str().c_str(), ss.str().c_str(), 3, 0, 3 );
       setTH1TitleLabelBCID(m_tgclv1lpttimingtrack[ac][imuid]);
-      if( ( tgclv1_shift_ac[ac]->regHist(m_tgclv1lpttimingtrack[ac][imuid] ) ).isFailure() ){
-        m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-        return StatusCode::FAILURE;
-      }
+      ATH_CHECK( tgclv1_shift_ac[ac]->regHist(m_tgclv1lpttimingtrack[ac][imuid] ) );
       
       // LpT Timing hist for pT threshold > pT1
       ss.str(""); ss << lpttiming << morethanpt1 << smuid[imuid] << "_" << side[ac];
       m_tgclv1lpttimingptcuttrack[ac][imuid] = new TH1F(ss.str().c_str(), ss.str().c_str(), 3, 0, 3 );
       setTH1TitleLabelBCID(m_tgclv1lpttimingptcuttrack[ac][imuid]);
-      if( ( tgclv1_shift_ac[ac]->regHist(m_tgclv1lpttimingptcuttrack[ac][imuid] ) ).isFailure() ){
-        m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-        return StatusCode::FAILURE;
-      }
+      ATH_CHECK( tgclv1_shift_ac[ac]->regHist(m_tgclv1lpttimingptcuttrack[ac][imuid] ) );
     }// muonalg
 
   }// side
@@ -522,19 +425,13 @@ TgcLv1RawDataValAlg::bookHistogramsTiming(){
     // SL vs LpT Timing hist
     ss.str(""); ss << slvslpttiming << "_" << side[ac];
     m_tgclv1slvslpttiming[ac] = new TH2F(ss.str().c_str(),ss.str().c_str(), 3, 0, 3, 3, 0, 3);
-    if( ( tgclv1_shift_ac[ac]->regHist(m_tgclv1slvslpttiming[ac]) ).isFailure() ){
-      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( tgclv1_shift_ac[ac]->regHist(m_tgclv1slvslpttiming[ac]) );
     setTH2TitleLabelBCID(m_tgclv1slvslpttiming[ac]);
     
     // SL vs LpT Timing hists for pT threshold > pT1
     ss.str(""); ss << slvslpttiming << morethanpt1 << "_" << side[ac];
     m_tgclv1slvslpttimingptcut[ac] = new TH2F(ss.str().c_str(),ss.str().c_str(), 3, 0, 3, 3, 0, 3);
-    if( ( tgclv1_shift_ac[ac]->regHist(m_tgclv1slvslpttimingptcut[ac]) ).isFailure() ){
-      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( tgclv1_shift_ac[ac]->regHist(m_tgclv1slvslpttimingptcut[ac]) );
     setTH2TitleLabelBCID(m_tgclv1slvslpttimingptcut[ac]);
 
     /////////////////////////////////////
@@ -545,10 +442,7 @@ TgcLv1RawDataValAlg::bookHistogramsTiming(){
       if(isect+1<10)ss << "0";
       ss << isect+1;
       m_tgclv1slvslpttimingsector[ac][isect] = new TH2F(ss.str().c_str(),ss.str().c_str(), 3, 0, 3, 3, 0, 3);
-      if( ( tgclv1_timing_ac[ac]->regHist(m_tgclv1slvslpttimingsector[ac][isect]) ).isFailure() ){
-        m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-        return StatusCode::FAILURE;
-      }
+      ATH_CHECK( tgclv1_timing_ac[ac]->regHist(m_tgclv1slvslpttimingsector[ac][isect]) );
       setTH1TitleLabelBCID(m_tgclv1slvslpttimingsector[ac][isect]);
       
       // SL vs LpT Timing matrix for pT threshold > pT1
@@ -556,10 +450,7 @@ TgcLv1RawDataValAlg::bookHistogramsTiming(){
       if(isect+1<10)ss << "0";
       ss << isect+1;
       m_tgclv1slvslpttimingptcutsector[ac][isect] = new TH2F(ss.str().c_str(),ss.str().c_str(), 3, 0, 3, 3, 0, 3);
-      if( ( tgclv1_timing_ac[ac]->regHist(m_tgclv1slvslpttimingptcutsector[ac][isect]) ).isFailure() ){
-        m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-        return StatusCode::FAILURE;
-      }
+      ATH_CHECK( tgclv1_timing_ac[ac]->regHist(m_tgclv1slvslpttimingptcutsector[ac][isect]) );
       setTH1TitleLabelBCID(m_tgclv1slvslpttimingptcutsector[ac][isect]);
     }// sector
 
@@ -572,10 +463,7 @@ TgcLv1RawDataValAlg::bookHistogramsTiming(){
         if(isect+1<10)ss << "0";
         ss << isect+1;
         m_tgclv1slvslpttimingsectortrg[ac][isect][itrig] = new TH2F(ss.str().c_str(),ss.str().c_str(), 3, 0, 3, 3, 0, 3);
-        if( ( tgclv1_timing_ac[ac]->regHist(m_tgclv1slvslpttimingsectortrg[ac][isect][itrig]) ).isFailure() ){
-          m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-          return StatusCode::FAILURE;
-        }
+        ATH_CHECK( tgclv1_timing_ac[ac]->regHist(m_tgclv1slvslpttimingsectortrg[ac][isect][itrig]) );
         setTH1TitleLabelBCID(m_tgclv1slvslpttimingsectortrg[ac][isect][itrig]);
 
         //SL vs Lpt Timing matrix for pT threshold > pT1
@@ -583,10 +471,7 @@ TgcLv1RawDataValAlg::bookHistogramsTiming(){
         if(isect+1<10)ss << "0";
         ss << isect+1;
         m_tgclv1slvslpttimingptcutsectortrg[ac][isect][itrig] = new TH2F(ss.str().c_str(),ss.str().c_str(), 3, 0, 3, 3, 0, 3);
-        if( ( tgclv1_timing_ac[ac]->regHist(m_tgclv1slvslpttimingptcutsectortrg[ac][isect][itrig]) ).isFailure() ){
-          m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-          return StatusCode::FAILURE;
-        }
+        ATH_CHECK( tgclv1_timing_ac[ac]->regHist(m_tgclv1slvslpttimingptcutsectortrg[ac][isect][itrig]) );
         setTH1TitleLabelBCID(m_tgclv1slvslpttimingptcutsectortrg[ac][isect][itrig]);
       }//trigger type
     }//sector
@@ -601,66 +486,42 @@ TgcLv1RawDataValAlg::bookHistogramsTiming(){
     // SL Sector profile of Current Timing fraction
     ss.str(""); ss << "ES_" << sltiming << "_" << side[ac];
     m_tgclv1_SL_trigger_timing_ES[ac] = new TH1F(ss.str().c_str(), ( ss.str() + ";;Current Fraction").c_str(), 12, 0, 12);
-    if( ( tgclv1_timing_ac_ES[ac]->regHist( m_tgclv1_SL_trigger_timing_ES[ac] ) ).isFailure() ){
-      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( tgclv1_timing_ac_ES[ac]->regHist( m_tgclv1_SL_trigger_timing_ES[ac] ) );
 
     // SL Sector profile of Current Timing fraction GM
     ss.str(""); ss << "ES_GM_" << sltiming << "_" << side[ac];
     m_tgclv1_SL_trigger_timing_ES_GM[ac] = new TH1F(ss.str().c_str(), ( ss.str() + ";;Current Fraction").c_str(), 12, 0, 12);
-    if( ( tgclv1_timing_ac_ES_GM[ac]->regHist( m_tgclv1_SL_trigger_timing_ES_GM[ac] ) ).isFailure() ){
-      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( tgclv1_timing_ac_ES_GM[ac]->regHist( m_tgclv1_SL_trigger_timing_ES_GM[ac] ) );
 
     // SL Sector profile of Current Timing fraction Numerator
     ss.str(""); ss << "ES_" << sltiming << "_" << side[ac] << "_Numerator";
     m_tgclv1_SL_trigger_timing_num_ES[ac] = new TH1F(ss.str().c_str(), ( ss.str() + ";;Entry").c_str(), 12, 0, 12);
-    if( ( tgclv1_timing_ac_ES[ac]->regHist( m_tgclv1_SL_trigger_timing_num_ES[ac] ) ).isFailure() ){
-      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( tgclv1_timing_ac_ES[ac]->regHist( m_tgclv1_SL_trigger_timing_num_ES[ac] ) );
 
     // SL Sector profile of Current Timing fraction Denominator
     ss.str(""); ss << "ES_" << sltiming << "_" << side[ac] << "_Denominator";
     m_tgclv1_SL_trigger_timing_denom_ES[ac] = new TH1F(ss.str().c_str(), ( ss.str() + ";;Entry").c_str(), 12, 0, 12);
-    if( ( tgclv1_timing_ac_ES[ac]->regHist( m_tgclv1_SL_trigger_timing_denom_ES[ac] ) ).isFailure() ){
-      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( tgclv1_timing_ac_ES[ac]->regHist( m_tgclv1_SL_trigger_timing_denom_ES[ac] ) );
 
     // LpT Sector profile of Current Timing fraction
     ss.str(""); ss << "ES_" << lpttiming << "_" << side[ac];
     m_tgclv1_LPT_trigger_timing_ES[ac] = new TH1F(ss.str().c_str(), ( ss.str() + ";;Current Fraction").c_str(), 12, 0, 12);
-    if( ( tgclv1_timing_ac_ES[ac]->regHist( m_tgclv1_LPT_trigger_timing_ES[ac] ) ).isFailure() ){
-      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( tgclv1_timing_ac_ES[ac]->regHist( m_tgclv1_LPT_trigger_timing_ES[ac] ) );
 
     // LpT Sector profile of Current Timing fraction GM
     ss.str(""); ss << "ES_GM_" << lpttiming << "_" << side[ac];
     m_tgclv1_LPT_trigger_timing_ES_GM[ac] = new TH1F(ss.str().c_str(), ( ss.str() + ";;Current Fraction").c_str(), 12, 0, 12);
-    if( ( tgclv1_timing_ac_ES_GM[ac]->regHist( m_tgclv1_LPT_trigger_timing_ES_GM[ac] ) ).isFailure() ){
-      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( tgclv1_timing_ac_ES_GM[ac]->regHist( m_tgclv1_LPT_trigger_timing_ES_GM[ac] ) );
 
     // LpT Sector profile of Current Timing fraction Numerator
     ss.str(""); ss << "ES_" << lpttiming << "_" << side[ac] << "_Numerator";
     m_tgclv1_LPT_trigger_timing_num_ES[ac] = new TH1F(ss.str().c_str(), ( ss.str() + ";;Entry").c_str(), 12, 0, 12);
-    if( ( tgclv1_timing_ac_ES[ac]->regHist( m_tgclv1_LPT_trigger_timing_num_ES[ac] ) ).isFailure() ){
-      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( tgclv1_timing_ac_ES[ac]->regHist( m_tgclv1_LPT_trigger_timing_num_ES[ac] ) );
 
     // LpT Sector profile of Current Timing fraction Denominator
     ss.str(""); ss << "ES_" << lpttiming << "_" << side[ac] << "_Denominator";
     m_tgclv1_LPT_trigger_timing_denom_ES[ac] = new TH1F(ss.str().c_str(), ( ss.str() + ";;Entry").c_str(), 12, 0, 12);
-    if( ( tgclv1_timing_ac_ES[ac]->regHist( m_tgclv1_LPT_trigger_timing_denom_ES[ac] ) ).isFailure() ){
-      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endmsg;       
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( tgclv1_timing_ac_ES[ac]->regHist( m_tgclv1_LPT_trigger_timing_denom_ES[ac] ) );
     
     // Set Bin Labels for Sector profiles
     for( int isect=0 ; isect<12 ; isect++ ){// sector
@@ -681,7 +542,7 @@ TgcLv1RawDataValAlg::bookHistogramsTiming(){
   }// side
   // Express Stream end
   
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 
@@ -1022,7 +883,7 @@ TgcLv1RawDataValAlg::fillTriggerTimingAssociatedWithTrack( int ms,// 0:Muid 1:St
       }//trigger
       //fill SL timing
       if(tptmin!=-1){
-        if(m_debuglevel ) m_log << "fill triggertiming " <<ac <<" " << ms << " " << pcn <<  endmsg;
+        ATH_MSG_DEBUG( "fill triggertiming " <<ac <<" " << ms << " " << pcn  );
         m_tgclv1sltimingtrack[ac][ms]->Fill(pcn);
         if( tptmin > 1 )
           m_tgclv1sltimingptcuttrack[ac][ms]->Fill(pcn);
@@ -1072,7 +933,7 @@ TgcLv1RawDataValAlg::fillTriggerTimingAssociatedWithTrack( int ms,// 0:Muid 1:St
                 phi48lpts != slphi48 ) continue ;
             
             // Fill LpT Track Timing Histograms
-            if(m_debuglevel ) m_log << "fill triggertiming " <<ac <<" " << ms << " " << pcn <<  endmsg;
+            ATH_MSG_DEBUG( "fill triggertiming " <<ac <<" " << ms << " " << pcn  );
             m_tgclv1lpttimingtrack[ac][ms]->Fill(pcn);
             if( slpt > 1 )
               m_tgclv1lpttimingptcuttrack[ac][ms]->Fill(pcn);

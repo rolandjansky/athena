@@ -18,18 +18,6 @@
 #include "eflowRec/PFMatchInterfaces.h"
 
 namespace PFMatch {
-//
-///* Cache position  */
-//
-//template <class PositionType>
-//class PositionObjectCache {
-//protected:
-//  PositionObjectCache() { m_position = new PositionType(); }
-//  virtual ~PositionObjectCache() { delete m_position; }
-//  PositionType* m_position;
-//};
-
-
 /* Position classes */
 
 class EtaPhi: public eflowEtaPhiPosition {
@@ -103,11 +91,11 @@ private:
 
 class TrackPositionFactory {
 public:
-  static IPositionProvider* Get(std::string positionType) {
+  static std::unique_ptr<IPositionProvider> Get(std::string positionType) {
     if (positionType == "EM1EtaPhi") {
-      return new TrackEtaPhiInFixedLayersProvider(TrackLayer::EMB1, TrackLayer::EME1);
+      return std::make_unique<TrackEtaPhiInFixedLayersProvider>(TrackLayer::EMB1, TrackLayer::EME1);
     } else if (positionType == "EM2EtaPhi") {
-      return new TrackEtaPhiInFixedLayersProvider(TrackLayer::EMB2, TrackLayer::EME2);
+      return std::make_unique<TrackEtaPhiInFixedLayersProvider>(TrackLayer::EMB2, TrackLayer::EME2);
     } else {
       std::cerr << "TrackPositionFactory\tERROR\tInvalid track position type: \"" << positionType << "\"" << std::endl;
       assert(false);
@@ -118,11 +106,11 @@ public:
 
 class ClusterPositionFactory {
 public:
-  static IPositionProvider* Get(std::string positionType) {
+  static std::unique_ptr<IPositionProvider> Get(std::string positionType) {
     if (positionType == "PlainEtaPhi") {
-      return new ClusterPlainEtaPhiProvider();
+      return std::make_unique<ClusterPlainEtaPhiProvider>();
     } else if (positionType == "GeomCenterEtaPhi") {
-      return new ClusterGeometricalCenterProvider();
+      return std::make_unique<ClusterGeometricalCenterProvider>();
     } else {
       std::cerr << "ClusterPositionFactory\tERROR\tInvalid cluster position type: \"" << positionType << "\"" << std::endl;
       assert(false);

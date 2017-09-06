@@ -23,16 +23,6 @@ The helpers in this package are:
  - StepHelper : Set of functions for dealing with G4Steps
  - TrackVisualizationHelper : Set of functions for dealing with the visualization of tracks
 
-@ref used_SinHelpers
 
-@ref requirements_SinHelpers
 
-*/
-
-/**
-@page used_SinHelpers Used Packages
-*/
-
-/**
-@page requirements_SinHelpers Requirements
 */

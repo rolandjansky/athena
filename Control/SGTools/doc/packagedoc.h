@@ -8,10 +8,8 @@
 
 This package contains implementation classes for StoreGate.
 
-@section SGTools_uses Packages used
 
 
-@section SGTools_requirements requirements
 
 
 @section SGTools_refs More Documentation

@@ -23,6 +23,10 @@ if not 'IOVEndLB' in dir():
    IOVEndLB = -1
 
 
+if not 'ExecutiveSummaryFile' in dir():
+    ExecutiveSummaryFile=""
+
+
 import AthenaCommon.AtlasUnixGeneratorJob
 
 from AthenaCommon.GlobalFlags import  globalflags
@@ -31,7 +35,7 @@ globalflags.InputFormat="bytestream"
 globalflags.DatabaseInstance=DBInstance
 	
 from AthenaCommon.JobProperties import jobproperties
-jobproperties.Global.DetDescrVersion = "ATLAS-GEO-20-00-01"
+jobproperties.Global.DetDescrVersion = "ATLAS-R2-2015-03-01-00"
 
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.Calo_setOff()
@@ -44,10 +48,6 @@ DetFlags.digitize.all_setOff()
 #Set up GeoModel (not really needed but crashes without)
 from AtlasGeoModel import SetGeometryVersion
 from AtlasGeoModel import GeoModelInit
-
-#Get identifier mapping
-include( "LArConditionsCommon/LArIdMap_comm_jobOptions.py" )
-include( "LArIdCnv/LArIdCnv_joboptions.py" )
 
 include( "IdDictDetDescrCnv/IdDictDetDescrCnv_joboptions.py" )
 include( "CaloDetMgrDetDescrCnv/CaloDetMgrDetDescrCnv_joboptions.py" )
@@ -73,20 +73,33 @@ topSequence = AlgSequence()
 from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr,ToolSvc)
 
 
-conddb.addFolder("","/LAR/BadChannelsOfl/BadChannels"+tagStr+dbStr)
-#conddb.addFolder("LAR_OFL","/LAR/BadChannelsOfl/MissingFEBs")
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
 
-svcMgr.IOVDbSvc.GlobalTag="CONDBR2-ES1PA-2014-01" 
+from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
+condSeq+=xAODMaker__EventInfoCnvAlg()
 
-from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
-theLArBadChannelTool=LArBadChanTool()
-theLArBadChannelTool.CoolFolder="/LAR/BadChannelsOfl/BadChannels"
-theLArBadChannelTool.CoolMissingFEBsFolder=""
-ToolSvc+=theLArBadChannelTool
+from IOVSvc.IOVSvcConf import CondInputLoader
+theCLI=CondInputLoader( "CondInputLoader")
+condSeq += theCLI 
+
+import StoreGate.StoreGateConf as StoreGateConf
+svcMgr += StoreGateConf.StoreGateSvc("ConditionStore")
+
+include("LArRecUtils/LArOnOffMappingAlg.py")
+
+from LArBadChannelTool.LArBadChannelAccess import LArBadChannelAccess
+LArBadChannelAccess(dbString="/LAR/BadChannelsOfl/BadChannels"+dbStr+tagStr)
+
+if len(ExecutiveSummaryFile):
+    from LArBadChannelTool.LArBadFebAccess import LArBadFebAccess
+    LArBadFebAccess()
 
 from LArBadChannelTool.LArBadChannelToolConf import LArBadChannel2Ascii
-theLArBadChannels2Ascii=LArBadChannel2Ascii()
+theLArBadChannels2Ascii=LArBadChannel2Ascii(SkipDisconnected=True)
 theLArBadChannels2Ascii.FileName=OutputFile
 theLArBadChannels2Ascii.WithMissing=False
-theLArBadChannels2Ascii.ExecutiveSummaryFile=""
+theLArBadChannels2Ascii.ExecutiveSummaryFile=ExecutiveSummaryFile
 topSequence+=theLArBadChannels2Ascii
+
+svcMgr.IOVDbSvc.GlobalTag="CONDBR2-ES1PA-2014-01" 

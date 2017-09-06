@@ -5,13 +5,13 @@
 #ifndef MSVERTEXRECOALG_H
 #define MSVERTEXRECOALG_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include "MSVertexToolInterfaces/IMSVertexRecoTool.h"
 #include "MSVertexToolInterfaces/IMSVertexTrackletTool.h"
 
-class MSVertexRecoAlg : public AthAlgorithm 
+class MSVertexRecoAlg : public AthReentrantAlgorithm 
 {
 
  public:
@@ -19,9 +19,10 @@ class MSVertexRecoAlg : public AthAlgorithm
   MSVertexRecoAlg(const std::string& name, ISvcLocator* pSvcLocator);
   ~MSVertexRecoAlg();
 
-  StatusCode initialize();
-  StatusCode execute();
-  StatusCode finalize();
+  StatusCode initialize() override;
+  StatusCode execute_r (const EventContext& ctx) const override;
+  StatusCode finalize() override;
+
 
  private:
 

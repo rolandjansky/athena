@@ -37,17 +37,6 @@ The ARA convertors are defined in ARA_selection.xml
 @see https://twiki.cern.ch/twiki/bin/view/Atlas/TransientPersistentSeparation
 @see https://twiki.cern.ch/twiki/bin/view/Atlas/WriteReadDataViaPool
 
-@ref used_MuonEventTPCnv
 
-@ref requirements_MuonEventTPCnv
 
 */
-
-/**
-@page used_MuonEventTPCnv Used Packages
-*/
-
-/**
-@page requirements_MuonEventTPCnv Requirements
-*/
-

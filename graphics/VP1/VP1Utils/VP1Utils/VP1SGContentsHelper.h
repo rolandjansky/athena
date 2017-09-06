@@ -20,7 +20,7 @@
 
 #include "VP1Base/VP1HelperClassBase.h"
 #include "CLIDSvc/tools/ClassID_traits.h"
-#include <QtCore/QStringList>
+#include <QStringList>
 class StoreGateSvc;
 
 class VP1SGContentsHelper : public VP1HelperClassBase {

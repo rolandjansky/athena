@@ -170,37 +170,37 @@ typedef std::map<std::string, double> err_map;
 
 namespace dqm_algorithms {
 
-  TripleGaussCollFit::TripleGaussCollFit(const std::string& _name) : name(_name) {
+  TripleGaussCollFit::TripleGaussCollFit(const std::string& name) : m_name(name) {
  
     //Register our instance with the Alg. Manager
-    gaus3_fn = 0;
-    dqm_core::AlgorithmManager::instance().registerAlgorithm( "Gaus3_" + name +"_Fit", this );
+    m_gaus3_fn = 0;
+    dqm_core::AlgorithmManager::instance().registerAlgorithm( "Gaus3_" + m_name +"_Fit", this );
 
   }
 
   TripleGaussCollFit::~TripleGaussCollFit() {
 
-    if (gaus3_fn != 0) {
-      delete gaus3_fn;
-      gaus3_fn = 0;
+    if (m_gaus3_fn != 0) {
+      delete m_gaus3_fn;
+      m_gaus3_fn = 0;
     }
 
   } 
 
   TripleGaussCollFit* TripleGaussCollFit::clone() {
-    return new TripleGaussCollFit(name);
+    return new TripleGaussCollFit(m_name);
   }
 
 // This method probably need not be implemented, but I should have it anyway...
   void TripleGaussCollFit::printDescription(std::ostream& out) {
 
-    out << "Gaus3_"+ name +"_Fit: specialized fit for the Tile timining difference plot." << std::endl;
+    out << "Gaus3_"+ m_name +"_Fit: specialized fit for the Tile timining difference plot." << std::endl;
     out << "Current parameter values: " << std::endl;
 
-    if  (gaus3_fn != 0)
-      for (int i=0; i < gaus3_fn->GetNpar(); i++) 
-	out << " Param. " << i << ": " << gaus3_fn->GetParName(i) << " , current value: " 
-		  << gaus3_fn->GetParameter(i) << std::endl; 
+    if  (m_gaus3_fn != 0)
+      for (int i=0; i < m_gaus3_fn->GetNpar(); i++) 
+	out << " Param. " << i << ": " << m_gaus3_fn->GetParName(i) << " , current value: " 
+		  << m_gaus3_fn->GetParameter(i) << std::endl; 
 
     else 
       out << "    execute() has not been called" << std::endl;
@@ -228,11 +228,11 @@ namespace dqm_algorithms {
       { 
 	histogram = (TH1*) &(object);
 	if (histogram->GetDimension() > 2 ){
-	  throw dqm_core::BadConfig( ERS_HERE, name, "called with histogram of dimension > 2"  );
+	  throw dqm_core::BadConfig( ERS_HERE, m_name, "called with histogram of dimension > 2"  );
 	}
       }
     else 
-      throw dqm_core::BadConfig( ERS_HERE, name, "called with object that does not inherit from TH1" );
+      throw dqm_core::BadConfig( ERS_HERE, m_name, "called with object that does not inherit from TH1" );
 
     //Setup our TF1: find the binwidth
     Double_t binwidth = 0; 
@@ -240,7 +240,7 @@ namespace dqm_algorithms {
       if (histogram->GetNbinsX() >= 1) {
 	binwidth = histogram->GetBinWidth(1);
       } else {
-	throw dqm_core::BadConfig( ERS_HERE, name, "called with histogram with no bins");
+	throw dqm_core::BadConfig( ERS_HERE, m_name, "called with histogram with no bins");
       }
 
     else {   //running in 2D mode {
@@ -248,20 +248,20 @@ namespace dqm_algorithms {
       if (proj->GetNbinsX() >= 1) {
 	binwidth = proj ->GetBinWidth(1);
       } else {
-	throw dqm_core::BadConfig( ERS_HERE, name, "called with histogram with no bins");
+	throw dqm_core::BadConfig( ERS_HERE, m_name, "called with histogram with no bins");
       }
     }
     #ifdef PARAM_IS_AREA
-    gaus3_fn = new TF1("gaus3", Form("[3]/[2]/2.5066*%f*exp(-0.5*((x-[0]+[1])/[2])**2) + [4]/[2]/2.5066*%f*exp(-0.5*((x-[0])/[2])**2) + [5]/[2]/2.5066*%f*exp(-0.5*((x-[0]-[1])/[2])**2)", binwidth, binwidth, binwidth), -100, 100);
+    m_gaus3_fn = new TF1("gaus3", Form("[3]/[2]/2.5066*%f*exp(-0.5*((x-[0]+[1])/[2])**2) + [4]/[2]/2.5066*%f*exp(-0.5*((x-[0])/[2])**2) + [5]/[2]/2.5066*%f*exp(-0.5*((x-[0]-[1])/[2])**2)", binwidth, binwidth, binwidth), -100, 100);
     #else
-    gaus3_fn = new TF1("gaus3", "[3]*exp(-0.5*((x-[0]+[1])/[2])**2) + [4]*exp(-0.5*((x-[0])/[2])**2) + [5]*exp(-0.5*((x-[0]-[1])/[2])**2)", -100, 100);
+    m_gaus3_fn = new TF1("gaus3", "[3]*exp(-0.5*((x-[0]+[1])/[2])**2) + [4]*exp(-0.5*((x-[0])/[2])**2) + [5]*exp(-0.5*((x-[0]-[1])/[2])**2)", -100, 100);
     #endif
-    gaus3_fn->SetParName(0, "Mean_zero_gaus");	//mean of gaussian centered at zero, should be close to zero
-    gaus3_fn->SetParName(1, "Mean_offzero_gaus"); //mean of other two gaussians, should be close to 20
-    gaus3_fn->SetParName(2, "Width_all"); //shared width, should be about 5
-    gaus3_fn->SetParName(3, "N_negative_gaus"); //normalization for negative-centered gaussian
-    gaus3_fn->SetParName(4, "N_zero_gaus"); //normalization for zero-centered gaussian
-    gaus3_fn->SetParName(5, "N_positive_gaus"); //normalization for positive-centered gaussian 
+    m_gaus3_fn->SetParName(0, "Mean_zero_gaus");	//mean of gaussian centered at zero, should be close to zero
+    m_gaus3_fn->SetParName(1, "Mean_offzero_gaus"); //mean of other two gaussians, should be close to 20
+    m_gaus3_fn->SetParName(2, "Width_all"); //shared width, should be about 5
+    m_gaus3_fn->SetParName(3, "N_negative_gaus"); //normalization for negative-centered gaussian
+    m_gaus3_fn->SetParName(4, "N_zero_gaus"); //normalization for zero-centered gaussian
+    m_gaus3_fn->SetParName(5, "N_positive_gaus"); //normalization for positive-centered gaussian 
 
     Double_t resolutionAll, meanZeroPeak, meanNonzeroPeaks, minEvents;
     param_map mymap = cfg.getParameters();
@@ -275,25 +275,25 @@ namespace dqm_algorithms {
     if ( dqm_algorithms::tools::GetFirstFromMap("allowFitMean", mymap, 0) == 1 ) {
 
       //according to Peter, this can behave strangely, so we don't allow too much horizontal translation
-      gaus3_fn->SetParameter(0, meanZeroPeak);
-      gaus3_fn->SetParLimits(0, meanZeroPeak-5, meanZeroPeak+5);
+      m_gaus3_fn->SetParameter(0, meanZeroPeak);
+      m_gaus3_fn->SetParLimits(0, meanZeroPeak-5, meanZeroPeak+5);
     }
     else
-      gaus3_fn->FixParameter(0, meanZeroPeak);
+      m_gaus3_fn->FixParameter(0, meanZeroPeak);
     
     if ( dqm_algorithms::tools::GetFirstFromMap("allowFitMeanNonzeroPeaks", mymap, 0) == 1 ) {
-      gaus3_fn->SetParameter(1, meanNonzeroPeaks);
-      gaus3_fn->SetParLimits(1, meanNonzeroPeaks-10, meanNonzeroPeaks+10);
+      m_gaus3_fn->SetParameter(1, meanNonzeroPeaks);
+      m_gaus3_fn->SetParLimits(1, meanNonzeroPeaks-10, meanNonzeroPeaks+10);
     }
     else 
-      gaus3_fn->FixParameter(1, meanNonzeroPeaks);
+      m_gaus3_fn->FixParameter(1, meanNonzeroPeaks);
      
     if ( dqm_algorithms::tools::GetFirstFromMap("allowFitResolution", mymap, 0) == 1 ) {
-      gaus3_fn->SetParameter(2, resolutionAll);
-      gaus3_fn->SetParLimits(2, 1, 10); 
+      m_gaus3_fn->SetParameter(2, resolutionAll);
+      m_gaus3_fn->SetParLimits(2, 1, 10); 
     }
     else {
-      gaus3_fn->FixParameter(2, resolutionAll);
+      m_gaus3_fn->FixParameter(2, resolutionAll);
 
     }
     // get some starting values for the histogram
@@ -307,15 +307,15 @@ namespace dqm_algorithms {
 
       try {
 	
-	result->tags_ = dqm_algorithms::tools::GetFitParams(gaus3_fn);
-	err_map paramErrors = dqm_algorithms::tools::GetFitParamErrors(gaus3_fn);
+	result->tags_ = dqm_algorithms::tools::GetFitParams(m_gaus3_fn);
+	err_map paramErrors = dqm_algorithms::tools::GetFitParamErrors(m_gaus3_fn);
 	for (err_map::const_iterator peit = paramErrors.begin(); peit != paramErrors.end(); ++peit) {
 	  result->tags_[(*peit).first + " Error"] = (*peit).second;
 	}
 
       } 
       catch ( dqm_core::Exception & ex) {
-	throw dqm_core::BadConfig( ERS_HERE, name, ex.what(), ex);
+	throw dqm_core::BadConfig( ERS_HERE, m_name, ex.what(), ex);
       }
     }
     else { //working with a 2D histogram
@@ -346,13 +346,13 @@ namespace dqm_algorithms {
 
 	// I probably need to reset parameters 0-2 if they are not fixed
 	if ( dqm_algorithms::tools::GetFirstFromMap("allowFitMeanZeroPeak", mymap, 0) == 1 )
-	  gaus3_fn->SetParameter(0, meanZeroPeak);
+	  m_gaus3_fn->SetParameter(0, meanZeroPeak);
        
 	if ( dqm_algorithms::tools::GetFirstFromMap("allowFitMeanNonzeroPeaks", mymap, 0) == 1 )
-	  gaus3_fn->SetParameter(1, meanNonzeroPeaks);
+	  m_gaus3_fn->SetParameter(1, meanNonzeroPeaks);
     
 	if ( dqm_algorithms::tools::GetFirstFromMap("allowFitResolution", mymap, 0) == 1 )
-	  gaus3_fn->SetParameter(2, resolutionAll);
+	  m_gaus3_fn->SetParameter(2, resolutionAll);
     
 	fitSingle(proj);
 
@@ -360,12 +360,12 @@ namespace dqm_algorithms {
 	result->histos_.push_back((TH1D*)proj->Clone());
 #endif
 
-	if (gaus3_fn->GetParameter(4) == 0) {
+	if (m_gaus3_fn->GetParameter(4) == 0) {
 	  if (writeSig)
 	    result->tags_[sig_str+buf] = 0;
 	  continue;
 	}
-	Double_t sig = fabs(gaus3_fn->GetParameter(4) / gaus3_fn->GetParError(4));
+	Double_t sig = fabs(m_gaus3_fn->GetParameter(4) / m_gaus3_fn->GetParError(4));
 	if (writeSig)
 	  result->tags_[sig_str+buf] = sig;
 
@@ -387,7 +387,7 @@ namespace dqm_algorithms {
 
 
 #ifdef PARAM_IS_AREA
-#define ADJUST_VAL startVal = startVal * hist1D->GetBinWidth(1) / gaus3_fn->GetParameter(2) / 2.5066
+#define ADJUST_VAL startVal = startVal * hist1D->GetBinWidth(1) / m_gaus3_fn->GetParameter(2) / 2.5066
 #else
 #define ADJUST_VAL
 #endif 
@@ -397,57 +397,57 @@ namespace dqm_algorithms {
     Double_t startVal;
     const Double_t window = 5.0;
 
-    Double_t offset_all = gaus3_fn->GetParameter(0);
-    Double_t offset_nz  = gaus3_fn->GetParameter(1);
+    Double_t offset_all = m_gaus3_fn->GetParameter(0);
+    Double_t offset_nz  = m_gaus3_fn->GetParameter(1);
 
     startVal = getStartValue(hist1D, offset_all-offset_nz-window, offset_all-offset_nz+window); ADJUST_VAL; 
     if (startVal == 0.0)
-      gaus3_fn->FixParameter(3, 0.0);
+      m_gaus3_fn->FixParameter(3, 0.0);
     else {
-      gaus3_fn->SetParameter(3, startVal);
+      m_gaus3_fn->SetParameter(3, startVal);
       // DO NOT do something like this if we are using areas!!
-      // gaus3_fn->SetParLimits(3, 0, 5 * startVal);  
+      // m_gaus3_fn->SetParLimits(3, 0, 5 * startVal);  
     }
 
     startVal = getStartValue(hist1D, offset_all-window, offset_all+window); ADJUST_VAL; 
     if (startVal == 0.0)
-      gaus3_fn->FixParameter(4, 0.0);
+      m_gaus3_fn->FixParameter(4, 0.0);
     else {
-      gaus3_fn->SetParameter(4, startVal);
-      //   gaus3_fn->SetParLimits(4, 0, 100 * startVal); 
+      m_gaus3_fn->SetParameter(4, startVal);
+      //   m_gaus3_fn->SetParLimits(4, 0, 100 * startVal); 
     }
     startVal = getStartValue(hist1D, offset_all+offset_nz-window , offset_all+offset_nz+window); ADJUST_VAL; 
     if (startVal == 0.0)
-      gaus3_fn->FixParameter(5, 0.0);
+      m_gaus3_fn->FixParameter(5, 0.0);
     else {
-      gaus3_fn->SetParameter(5, startVal);
-      //  gaus3_fn->SetParLimits(5, 0, 5 * startVal);
+      m_gaus3_fn->SetParameter(5, startVal);
+      //  m_gaus3_fn->SetParLimits(5, 0, 5 * startVal);
     }
 
     /*  This is the old and obsolete method to extract limits
     Double_t startVal = getStartValue(hist1D, 46, 58);   //was 51-53
     if (startVal == 0.0)
-	gaus3_fn->FixParameter(3, 0.0);
+	m_gaus3_fn->FixParameter(3, 0.0);
       else {
-	gaus3_fn->SetParameter(3, startVal);
-        gaus3_fn->SetParLimits(3, 0, 5 * startVal);   //not sure if this sort of bound is necessary, but who knows...
+	m_gaus3_fn->SetParameter(3, startVal);
+        m_gaus3_fn->SetParLimits(3, 0, 5 * startVal);   //not sure if this sort of bound is necessary, but who knows...
       }
       startVal = getStartValue(hist1D, 70, 82); // was 75-77
       if (startVal == 0.0)
-	gaus3_fn->FixParameter(4, 0.0);
+	m_gaus3_fn->FixParameter(4, 0.0);
       else {
-	gaus3_fn->SetParameter(4, startVal);
-	gaus3_fn->SetParLimits(4, 0, 100 * startVal);  //for some reason this seems to want more
+	m_gaus3_fn->SetParameter(4, startVal);
+	m_gaus3_fn->SetParLimits(4, 0, 100 * startVal);  //for some reason this seems to want more
       }
       startVal = getStartValue(hist1D, 93, 106); //was 98-101
       if (startVal == 0.0)
-	gaus3_fn->FixParameter(5, 0.0);
+	m_gaus3_fn->FixParameter(5, 0.0);
       else {
-	gaus3_fn->SetParameter(5, startVal);
-	gaus3_fn->SetParLimits(5, 0, 5 * startVal);
+	m_gaus3_fn->SetParameter(5, startVal);
+	m_gaus3_fn->SetParLimits(5, 0, 5 * startVal);
       }  */
       
-      hist1D->Fit(gaus3_fn, "QN");
+      hist1D->Fit(m_gaus3_fn, "QN");
 
   }
 

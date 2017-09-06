@@ -17,16 +17,16 @@
 
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "StoreGate/DataHandle.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "AthenaPoolUtilities/CondAttrListCollection.h"
 
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
 #include "SCT_ConditionsServices/ISCT_ConditionsSvc.h"
-#include "SCT_Cabling/ISCT_CablingSvc.h" 
+
+#include "SCT_ConditionsData/SCT_TdaqEnabledCondData.h"
 
 // Read Handle Key
 #include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 // Event Info
 #include "EventInfo/EventInfo.h"
@@ -65,10 +65,10 @@ public:
    virtual bool isGood(const IdentifierHash & hashId);
 
    ///Manually get the data in the structure before proceeding
-   virtual StatusCode fillData();
-
+   virtual StatusCode fillData() { return StatusCode::FAILURE; };
+   
    ///Overload 'fillData' to provide callback to data folder
-   virtual StatusCode fillData(int& /*i*/ , std::list<std::string>& /*l*/);
+   virtual StatusCode fillData(int& /*i*/ , std::list<std::string>& /*l*/) { return StatusCode::FAILURE; };
 
    ///Are the data available?
    virtual bool filled() const;
@@ -77,27 +77,16 @@ public:
    virtual bool canFillDuringInitialize();
   
 private:
-   static const unsigned int NRODS; //!< This was 90 in run 1; changed to 128 on Oct 22, 2014
-   //StringArrayProperty m_badElements; //list of bad (unconfigured) robs
-   std::set<unsigned int> m_goodRods;
-   std::set<IdentifierHash> m_goodIds;
-   bool m_filled;
-   std::string m_coolFolderName;
-   //
+   mutable const SCT_TdaqEnabledCondData *m_condData;
   
    const SCT_ID * m_pHelper;
    bool m_useDatabase;
    ServiceHandle<StoreGateSvc>           m_detStore;                      //!< Handle on the detector store
-   ServiceHandle<StoreGateSvc>           m_storeGateSvc;                  //!< Handle on storegate
-   ServiceHandle<ISCT_CablingSvc>        m_cablingSvc;                    //!< Handle on SCT cabling service
-   const DataHandle<CondAttrListCollection>   m_dbList;                   //!< implies multi channel folder used
-   bool m_noneBad;
 
    SG::ReadHandleKey<EventInfo> m_eventInfoKey;
+   SG::ReadCondHandleKey<SCT_TdaqEnabledCondData> m_condKey;
 
-   bool unfilledRun() const;  //!<Before run 119253, the folder was never filled so it looks like a disabled detector: this is to flag that condition
-   ///The folder name changed from run 1 to run 2; this function looks to see which folder has been pre-loaded
-   std::string determineFolder(const std::string& option1, const std::string& option2) const;
+   bool getCondData() const;
 };
 
 inline const InterfaceID & SCT_TdaqEnabledSvc::interfaceID(){

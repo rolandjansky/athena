@@ -74,7 +74,7 @@ bool setNameGeneral(TObject* obj, const std::string& name) {
 }
 
 
-const int HanOutput::Result::charArrSize = 10;
+const int HanOutput::Result::s_charArrSize = 10;
 
 
 // *********************************************************************
@@ -439,7 +439,8 @@ publishMissingDQPars()
   DQParSet_t::const_iterator unpubEnd  = m_unpublishedDQPars.end();
   for( ; unpubIter != unpubEnd; ++unpubIter ) {
     const std::string& name = *unpubIter;
-    std::cout << "--> Publishing missing object: \"" << name << "\"\n";
+    //reduce verbosity
+    //std::cout << "--> Publishing missing object: \"" << name << "\"\n";
     publishResult( name, result );
   }
   
@@ -455,7 +456,7 @@ publishMissingDQPars()
 HanOutput::Result::
 Result( TDirectory* dir )
   : m_result( new TTree("result","Assessment Result") )
-  , m_status( new char[charArrSize] )
+  , m_status( new char[s_charArrSize] )
 {
   m_result->SetDirectory( dir );
   m_result->Branch( "Status", m_status, "Status/C" );
@@ -492,9 +493,9 @@ copyString( char* to, const std::string& from )
 {
   int i = 0;
   const char* f = from.c_str();
-  while( ++i < charArrSize && (*to++ = *f++) != 0 )
+  while( ++i < s_charArrSize && (*to++ = *f++) != 0 )
     ;
-  if( i == charArrSize ) {
+  if( i == s_charArrSize ) {
   *to = 0;
   }
 }

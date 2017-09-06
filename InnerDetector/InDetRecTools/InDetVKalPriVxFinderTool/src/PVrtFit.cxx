@@ -250,7 +250,7 @@ if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" Out1="<< Chi2PerTrk[Outlier]<<", Wei="<
                  pntTracks[i][2]=TrkAtVrt[i][2];
       }
 //
-      savedTrkFittedPerigees.push_back(pntTracks);
+      m_savedTrkFittedPerigees.push_back(pntTracks);
 //
       std::vector <double> CovFull;
       StatusCode sc = m_fitSvc->VKalGetFullCov( (long int) NTracksVrt, CovFull); 
@@ -381,16 +381,16 @@ if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" Out1="<< Chi2PerTrk[Outlier]<<", Wei="<
 
   {    std::vector<const Trk::Track*>::const_iterator i_ntrk;
        AmgVector(5) VectPerig; VectPerig<<0.,0.,0.,0.,0.;
-       const Trk::Perigee* m_mPer=NULL;
+       const Trk::Perigee* mPer=NULL;
        std::vector<double> Impact,ImpError;
 //
        ZTrk.clear();PtTrk.clear();PxTrk.clear();PyTrk.clear(); PhiTrk.clear();
        for (i_ntrk = ListTracks.begin(); i_ntrk < ListTracks.end(); ++i_ntrk) {
 //
 //- Search of Perigee in TrackParameters
-          m_mPer=GetPerigee( (*i_ntrk) ) ;
-          if( m_mPer == NULL ){continue;} 
-          VectPerig = m_mPer->parameters(); // perigee
+          mPer=GetPerigee( (*i_ntrk) ) ;
+          if( mPer == NULL ){continue;} 
+          VectPerig = mPer->parameters(); // perigee
 	  double InverseP = fabs(VectPerig[4]);
 	  PtTrk.push_back(sin(VectPerig[3])/InverseP);
 	  PxTrk.push_back(sin(VectPerig[3])*cos(VectPerig[2])/InverseP);
@@ -414,16 +414,16 @@ if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" Out1="<< Chi2PerTrk[Outlier]<<", Wei="<
 
   {    std::vector<const Trk::TrackParticleBase*>::const_iterator i_ntrk;
        AmgVector(5) VectPerig; VectPerig<<0.,0.,0.,0.,0.;
-       const Trk::Perigee* m_mPer=NULL;
+       const Trk::Perigee* mPer=NULL;
        std::vector<double> Impact,ImpError;
 //
        ZTrk.clear();PtTrk.clear();PxTrk.clear();PyTrk.clear(); PhiTrk.clear(); 
        for (i_ntrk = ListTracks.begin(); i_ntrk < ListTracks.end(); ++i_ntrk) {
 //
 //- Search of Perigee in TrackParameters
-          m_mPer=GetPerigee( (*i_ntrk) ) ;
-          if( m_mPer == NULL ){continue;} 
-          VectPerig = m_mPer->parameters(); // Measured perigee
+          mPer=GetPerigee( (*i_ntrk) ) ;
+          if( mPer == NULL ){continue;} 
+          VectPerig = mPer->parameters(); // Measured perigee
 	  double InverseP = fabs(VectPerig[4]);
 	  PtTrk.push_back(sin(VectPerig[3])/InverseP);
 	  PxTrk.push_back(sin(VectPerig[3])*cos(VectPerig[2])/InverseP);

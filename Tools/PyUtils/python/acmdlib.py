@@ -25,8 +25,6 @@ import extensions as ext_plugins
 import argparse
 import textwrap
 
-from PyUtils.decorator import decorator
-
 ### globals -------------------------------------------------------------------
 ACMD_GROUPNAME = 'acmdlib.commands'
 """The name under which all commands are grouped

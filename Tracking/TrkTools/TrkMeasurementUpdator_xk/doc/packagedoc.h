@@ -34,15 +34,4 @@ R. Fruehwirth, et al., <i>Data Analysis Techniques for High-Energy Physics</i>, 
 
 @section TrkMeasurementUpdator_xk_ExtrasTrkMeasurementUpdatorXK Extra Pages
 
- - @ref UsedTrkMeasurementUpdatorXK
- - @ref requirementsTrkMeasurementUpdatorXK
 */
-
-/**
-@page UsedTrkMeasurementUpdatorXK Used Packages
-*/
-
-/**
-@page requirementsTrkMeasurementUpdatorXK Requirements
-*/
-

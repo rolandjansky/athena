@@ -46,6 +46,8 @@ class SharedEvtQueueProvider : public AthenaMPToolBase
 
   // Properties
   bool m_isPileup;        // Are we doing pile-up digitization?
+  int  m_nprocesses;      // We use this data member for adding negative numbers at the end of the event queue
+                          // We cannot use m_nprocs for this purpose in order to avoid generating Output File Reports by Shared Queue Providers
   bool m_useSharedReader; // Are we doing the reading?
   int  m_nEventsBeforeFork;
   int  m_nChunkSize;
@@ -54,7 +56,6 @@ class SharedEvtQueueProvider : public AthenaMPToolBase
   
 
   int  m_nEvtRequested;    // Max event received from AppMgr
-  int  m_skipEvents;       // SkipEvent property value of the Event Selectors
   int  m_nEvtCounted;      // The number of events this tool has counted itself in the input files 
   
   AthenaInterprocess::SharedQueue*  m_sharedEventQueue;          
@@ -63,8 +64,6 @@ class SharedEvtQueueProvider : public AthenaMPToolBase
   // Add next event chunk to the queue
   void addEventsToQueue(); 
 
-  // Update shared memory segment
-  void updateShmem(int eventCount, bool countFinal);
 };
 
 #endif

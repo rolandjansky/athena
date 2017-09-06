@@ -3,7 +3,6 @@
 import os, sys, string
 from math import sqrt
 import ROOT
-import PyCintex
 from array import array
 from math import sqrt
 

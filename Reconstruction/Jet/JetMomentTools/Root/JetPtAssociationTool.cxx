@@ -18,13 +18,18 @@ using xAOD::JetConstituentVector;
 JetPtAssociationTool::JetPtAssociationTool(std::string myname)
 : JetModifierBase(myname) {
   declareProperty("AssociationName", m_aname);
-  declareProperty("InputContainer", m_conname);
+  declareProperty("InputContainer", m_jetContainer_key);
+
 }
 
 //**********************************************************************
 
 StatusCode JetPtAssociationTool::initialize() {
+
+  ATH_MSG_DEBUG("initializing version with data handles");
+  ATH_CHECK(m_jetContainer_key.initialize());
   return StatusCode::SUCCESS;
+
 }
 
 //**********************************************************************
@@ -32,17 +37,23 @@ StatusCode JetPtAssociationTool::initialize() {
 int JetPtAssociationTool::modifyJet(xAOD::Jet& jet) const {
   ATH_MSG_DEBUG("Processing jet " << jet.index());
   APVector apins;
+
   // Retrieve the association vector.
   if ( ! jet.getAssociatedObjects(m_aname, apins) ) {
     ATH_MSG_WARNING("Jet does not have association vector " << m_aname);
     return 1;
   }
+
   // Retrieve the container of jets to be matched.
-  const JetContainer* pjets = evtStore()->retrieve<const JetContainer>(m_conname);
-  if ( pjets == 0 ) {
-    ATH_MSG_WARNING("Matching jet container not found: " << m_conname);
+  auto handle = SG::makeHandle (m_jetContainer_key);
+  if (!handle.isValid()){
+    ATH_MSG_WARNING("Matching jet container not found: "
+                    << m_jetContainer_key.key()); 
     return 2;
   }
+
+  auto pjets = handle.cptr();
+
   // Match associated particle to jets.
   FloatVector ptfs;
   if ( ptfrac(apins, *pjets, ptfs) ) {

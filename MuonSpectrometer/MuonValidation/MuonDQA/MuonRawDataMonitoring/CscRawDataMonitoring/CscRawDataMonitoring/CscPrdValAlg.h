@@ -100,7 +100,7 @@ class CscPrdValAlg: public ManagedMonitorToolBase  {
   TH1F *m_h1csc_prd_maxdiffamp;             // max amplitude per cluster (ADC count)
 
 
-  MonGroup *cscprd_oviewEA, *cscprd_oviewEC;
+  MonGroup *m_cscprd_oviewEA, *m_cscprd_oviewEC;
 
   // Correlation plots
   TH2F *m_h2csc_prd_eta_vs_phi_cluscount;

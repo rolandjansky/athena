@@ -4,7 +4,7 @@ from RecExConfig.RecAlgsFlags import recAlgs
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 
 ## flag to set number of events to be processed
-EvtMax = -1
+EvtMax = 2
 
 ## flag for running in mig5
 doMig5 = False
@@ -44,7 +44,7 @@ muonRecFlags.doCalibNtuple = False # write calibration ntuple?
 #muonRecFlags.calibNtupleTrigger = False # write trigger info to ntuple?
 ###
 
-#rec.doNameAuditor = True
+rec.doNameAuditor = True
 #muonRecFlags.doVP1 = True    # Decide whether to run Virtual Point1 graphical event display
 rec.doTruth=True
 
@@ -82,10 +82,13 @@ try:
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
     from AthenaCommon.AlgScheduler import AlgScheduler
     AlgScheduler.CheckDependencies( True )
+    AlgScheduler.ShowControlFlow( True )
+    AlgScheduler.ShowDataDependencies( True )
+    AlgScheduler.setDataLoaderAlg( 'SGInputLoader' )
 
     from SGComps.SGCompsConf import SGInputLoader
     topSequence += SGInputLoader( OutputLevel=INFO, ShowEventDump=False )
-    topSequence.SGInputLoader.Load = [ ('MdtCsmContainer','MDTCSM'), ('RpcPadContainer','RPCPAD'), ('TgcRdoContainer','TGCRDO'), ('CscRawDataContainer','CSCRDO')]
+    # topSequence.SGInputLoader.Load = [ ('MdtCsmContainer','MDTCSM'), ('RpcPadContainer','RPCPAD'), ('TgcRdoContainer','TGCRDO'), ('CscRawDataContainer','CSCRDO')]
     ###### put any user finetuning after this line #####
 
     #from MuonTestEDM.MuonTestEDMConf import MuonTestEDM

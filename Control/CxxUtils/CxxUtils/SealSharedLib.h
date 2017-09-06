@@ -15,8 +15,8 @@
 #ifndef CXXUTILS_SEAL_SHAREDLIB_H // wlav SEAL_BASE_SHARED_LIBRARY_H
 #define CXXUTILS_SEAL_SHAREDLIB_H // wlav SEAL_BASE_SHARED_LIBRARY_H
 
-//<<<<<< INCLUDES                                                       >>>>>>
 
+#include "CxxUtils/checker_macros.h"
 //# include "SealBase/SharedLibraryError.h"       wlav
 //# include "SealBase/Callback.h"                 wlav
 # include <string>
@@ -26,12 +26,6 @@
 //namespace seal {                                wlav
 namespace Athena {                             // wlav
 
-//<<<<<< PUBLIC DEFINES                                                 >>>>>>
-//<<<<<< PUBLIC CONSTANTS                                               >>>>>>
-//<<<<<< PUBLIC TYPES                                                   >>>>>>
-//<<<<<< PUBLIC VARIABLES                                               >>>>>>
-//<<<<<< PUBLIC FUNCTIONS                                               >>>>>>
-//<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
 
 // wlav from SealBase/Callback.h
@@ -149,14 +143,13 @@ CreateCallback (void (*function) (T1, T2),
 class SharedLibraryError : public std::exception
 {
 public:
-    SharedLibraryError( const char *context, const std::string &cause );
+    SharedLibraryError( const std::string& context, const std::string& cause );
     virtual ~SharedLibraryError() throw() {}
 
     virtual const char* what() const throw();
 
 private:
-    std::string		m_context;
-    std::string		m_cause;
+    std::string		m_message;
 };
 
 
@@ -182,7 +175,7 @@ public:
     typedef Callback1<const LibraryInfo &> InfoHandler;
 
     static std::string		path (void);
-    static void			path (const std::string &path);
+    static void			path ATLAS_NOT_THREAD_SAFE (const std::string &path);
     static std::string		libname (const std::string &name);
     static std::string		symname (const std::string &name);
 

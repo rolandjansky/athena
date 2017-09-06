@@ -64,6 +64,8 @@ std::string LArBadChannelState::coolChannelName( CoolChannelEnum chan)
   case FCALC:
     return "FCALC";
     break;
+  case MAXCOOLCHAN:
+    break;
   }
   return "Unknown";
 }

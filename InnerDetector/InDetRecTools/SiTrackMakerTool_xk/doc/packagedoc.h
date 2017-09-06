@@ -34,6 +34,5 @@ This track finding algorithm contains 6 steps.
      
 This algorithm uses IMagneticFieldTool, IPropagator, IUpdator, IRIO_OnTrackCreator, ISiDetElementsRoadMaker tools.
 
-@section SiTrackMakerTool_xk_SiTrackMakerTool_xkReq Requirements file
 
 */

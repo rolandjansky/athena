@@ -14,14 +14,14 @@ AthenaHitsCollectionHelper::AthenaHitsCollectionHelper()
 void AthenaHitsCollectionHelper::initialize(){
   ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap
       
-  IMessageSvc*	m_msgSvc;
-  StatusCode status = svcLocator->service("MessageSvc", m_msgSvc);
+  IMessageSvc*	msgSvc;
+  StatusCode status = svcLocator->service("MessageSvc", msgSvc);
   if (status.isFailure()) 
   {
     std::cout<<"AthenaHitsCollectionHelper: could not access MessageSvc!  Will crash in a moment..."<<std::endl;
   }
 			
-  MsgStream log(m_msgSvc, "AthenaHitsCollectionHelper");
+  MsgStream log(msgSvc, "AthenaHitsCollectionHelper");
   log << MSG::INFO <<" new collection helper being created "<<std::endl;
   status = svcLocator->service("StoreGateSvc", m_storeGate);
   if (status.isFailure()) 

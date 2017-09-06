@@ -13,8 +13,8 @@
 #include <Inventor/nodes/SoLightModel.h>
 #include <Inventor/nodes/SoMaterial.h>
 #include <Inventor/nodes/SoSwitch.h>
-#include <QtGui/QFileDialog>
-#include <QtCore/QDir>
+#include <QFileDialog>
+#include <QDir>
 #include <map>
 
 class VP1ExtraInputSystem::Clockwork {

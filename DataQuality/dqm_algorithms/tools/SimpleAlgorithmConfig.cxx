@@ -8,13 +8,13 @@
 #include <dqm_algorithms/tools/SimpleAlgorithmConfig.h>
 
 dqm_algorithms::tools::SimpleAlgorithmConfig::SimpleAlgorithmConfig() :
-  dqm_core::AlgorithmConfig() , ref_(0)
+  dqm_core::AlgorithmConfig() , m_ref(0)
 {
   //Empty
 }
 
 dqm_algorithms::tools::SimpleAlgorithmConfig::SimpleAlgorithmConfig( TObject * ref ) :
-  dqm_core::AlgorithmConfig() , ref_(ref)
+  dqm_core::AlgorithmConfig() , m_ref(ref)
 {
   //Empty
 }
@@ -25,58 +25,58 @@ dqm_algorithms::tools::SimpleAlgorithmConfig::SimpleAlgorithmConfig(const Algori
   dqm_core::AlgorithmConfig()
 {
   //Copy configuration in this
-  ref_ = conf.getReference();
-  param_ = conf.getParameters();
-  green_ = conf.getGreenThresholds();
-  red_   = conf.getRedThresholds();
+  m_ref = conf.getReference();
+  m_param = conf.getParameters();
+  m_green = conf.getGreenThresholds();
+  m_red   = conf.getRedThresholds();
 }
 #endif
 
 TObject* 
 dqm_algorithms::tools::SimpleAlgorithmConfig::getReference() const
 {
-  return ref_;
+  return m_ref;
 }
 
 const std::map<std::string, double>&
 dqm_algorithms::tools::SimpleAlgorithmConfig::getParameters() const
 {
-  return param_;
+  return m_param;
 }
 
 const std::map<std::string, double>&
 dqm_algorithms::tools::SimpleAlgorithmConfig::getGreenThresholds() const
 {
-  return green_;
+  return m_green;
 }
 
 const std::map<std::string, double>&
 dqm_algorithms::tools::SimpleAlgorithmConfig::getRedThresholds() const
 {
-  return red_;
+  return m_red;
 }
 
 void
 dqm_algorithms::tools::SimpleAlgorithmConfig::setReference(TObject* o)
 {
-  ref_ = o;
+  m_ref = o;
 }
 
 void
 dqm_algorithms::tools::SimpleAlgorithmConfig::addParameter(std::string key, double value)
 {
-  param_.insert( std::make_pair(key,value) );
+  m_param.insert( std::make_pair(key,value) );
 }
 
 void
 dqm_algorithms::tools::SimpleAlgorithmConfig::addGreenThreshold(std::string key, double value)
 {
-  green_.insert( std::make_pair(key,value) );
+  m_green.insert( std::make_pair(key,value) );
 }
 
 void
 dqm_algorithms::tools::SimpleAlgorithmConfig::addRedThreshold(std::string key, double value)
 {
-  red_.insert( std::make_pair(key,value) );
+  m_red.insert( std::make_pair(key,value) );
 }
 

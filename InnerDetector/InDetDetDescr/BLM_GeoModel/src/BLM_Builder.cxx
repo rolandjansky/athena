@@ -154,10 +154,8 @@ StatusCode InDetDD::BLM_Builder::build(GeoVPhysVol* pv)
 	  return StatusCode::SUCCESS;
      	}
 
-      accessSvc->connect();
       IRDBRecordset_ptr DBmodul = accessSvc->getRecordsetPtr("BLMModule", versionKey.tag(), versionKey.node());
       //DBmodul = accessSvc->getRecordset("BLMModule", "InnerDetector-DC3-Dev", "InnerDetector");
-      accessSvc->disconnect();
 
       ATH_MSG_DEBUG(" --> Number of records fetched = " << DBmodul->size());
 

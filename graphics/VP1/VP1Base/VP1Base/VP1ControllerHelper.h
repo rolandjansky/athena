@@ -15,8 +15,8 @@
 #ifndef VP1CONTROLLERHELPER_H
 #define VP1CONTROLLERHELPER_H
 
-#include <QtCore/QMap>
-#include <QtCore/QPair>
+#include <QMap>
+#include <QPair>
 
 class QWidget;
 class IVP1System;

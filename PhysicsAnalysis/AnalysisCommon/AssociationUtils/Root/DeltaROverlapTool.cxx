@@ -4,12 +4,6 @@
 // Framework includes
 #include "CxxUtils/make_unique.h"
 
-namespace
-{
-  /// 1/GeV conversion factor
-  const float invGeV = 0.001;
-}
-
 namespace ORUtils
 {
 

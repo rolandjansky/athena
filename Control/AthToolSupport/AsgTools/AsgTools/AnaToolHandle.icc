@@ -592,7 +592,6 @@ namespace asg
     : m_parentName (val_parent ? val_parent->name() : std::string()),
       m_parentPtr (val_parent),
       m_handleUser (new ToolHandle<T> (val_name, val_parent)),
-      m_originalTypeAndName (m_handleUser->typeAndName ()),
       m_allowEmpty (val_name.empty())
   {
     setTypeAndName (val_name);
@@ -824,8 +823,7 @@ namespace asg
       break;
     case detail::AnaToolHandleMode::CREATE_SHARED:
       ANA_CHECK (detail::AnaToolShareList::singleton().makeShare (m_name, m_config, sharedTool));
-      // no break
-      /* FALLTHROUGH */
+      // FALLTHROUGH
     case detail::AnaToolHandleMode::RETRIEVE_SHARED:
       assert (sharedTool != nullptr);
       ANA_CHECK (detail::toolHandleCast (th, sharedTool->th()));
@@ -1004,6 +1002,8 @@ namespace asg
       ANA_MSG_FATAL ("can't declare tool handle " << *this << " as property for tool " << tool->name() << " as it has a different parent tool " << m_parentPtr->name());
       std::abort ();
     }
+    if (m_originalTypeAndName.empty())
+      m_originalTypeAndName = m_handleUser->typeAndName ();
     ANA_CHECK_THROW (tool->declareProperty (name, *m_handleUser, description));
   }
 
@@ -1095,7 +1095,8 @@ namespace asg
     if (m_handleUser->isSet())
       return detail::AnaToolHandleMode::USER;
 
-    if (m_handleUser->typeAndName() != m_originalTypeAndName)
+    if (!m_originalTypeAndName.empty() &&
+        m_handleUser->typeAndName() != m_originalTypeAndName)
       return detail::AnaToolHandleMode::USER;
 
 #ifdef ROOTCORE
@@ -1191,7 +1192,15 @@ namespace asg
       std::abort();
     }
 #endif
+
     m_config.setType (std::move (val_type));
+    if (m_originalTypeAndName.empty() &&
+        !this->type().empty() && !this->name().empty())
+      m_handleUser->setTypeAndName (this->type() + "/" + this->name());
+
+#ifndef NDEBUG
+    this->testInvariant ();
+#endif
   }
 
 
@@ -1210,6 +1219,9 @@ namespace asg
 #endif
 
     m_name = std::move (val_name);
+    if (m_originalTypeAndName.empty() &&
+        !this->type().empty() && !this->name().empty())
+      m_handleUser->setTypeAndName (this->type() + "/" + this->name());
 
 #ifndef NDEBUG
     this->testInvariant ();

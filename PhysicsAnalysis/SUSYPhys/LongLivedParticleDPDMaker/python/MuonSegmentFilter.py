@@ -62,10 +62,6 @@ class MuonSegmentFilter( PyAthena.AthFilterAlgorithm ):
         self.nMuonSegments         = 0
         self.nEventPassed          = 0
 
-        ## Import needed modules
-        import ROOT
-        import PyCintex
-
         ## retrieve a handle to the event store
         self.sgSvc = PyAthena.py_svc('StoreGateSvc')
         if not self.sgSvc :

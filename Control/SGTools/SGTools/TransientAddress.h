@@ -8,6 +8,8 @@
 ///< includes:
 #include <string>
 #include <set>
+#include <vector>
+#include <algorithm>
 
 
 ///< Gaudi includes:
@@ -18,6 +20,8 @@
 ///< forward declarations:
 class IOpaqueAddress;
 class IAddressProvider;
+class IProxyDict;
+class EventContext;
 
 namespace SG {
 
@@ -26,7 +30,10 @@ namespace SG {
 
   public:
 
-    typedef std::set<CLID> TransientClidSet;
+    /// Strictly a set, but there shouldn't be more than a handful
+    /// of entries, so store it as a sorted vector instead.
+    typedef std::vector<CLID> TransientClidSet;
+
     typedef std::set<std::string> TransientAliasSet;
     typedef IStringPool::sgkey_t sgkey_t;
 
@@ -69,10 +76,10 @@ namespace SG {
     void setSGKey (sgkey_t sgkey);
 
     ///< check if it is a transient ID (primary or symLinked):
-    bool transientID (const CLID& id) const;
+    bool transientID (CLID id) const;
 
     ///< set transient CLID's
-    void setTransientID(const CLID& id);
+    void setTransientID(CLID id);
 
     ///< get transient CLID's
     const TransientClidSet& transientID() const;
@@ -82,6 +89,9 @@ namespace SG {
 
     ///< set alias'
     void setAlias(const std::set<std::string>& keys);
+
+    ///< set alias'
+    void setAlias(std::set<std::string>&& keys);
 
     /// remove alias from proxy
     bool removeAlias(const std::string& key);
@@ -100,7 +110,9 @@ namespace SG {
     void consultProvider(const bool& flag);
 
     ///< Check the validity of the Transient Address.
-    bool isValid();
+    /// If forceUpdate is true, then call @c updateAddress
+    /// even if we already have an address.
+    bool isValid (IProxyDict* store, bool forceUpdate = false);
 
     ///< cache the pointer to the Address provider which can update
     ///< this transient address
@@ -109,7 +121,16 @@ namespace SG {
     void setProvider(IAddressProvider* provider, StoreID::type storeID);
 
   private:
+    /**
+     * @brief Retrieve the EventContext saved in store STORE.
+     * @param store The store from which to retrieve the context, or nullptr.
+     *
+     * If there is no context recorded in the store, return a default-initialized
+     * context.
+     */
+    const EventContext& contextFromStore (IProxyDict* store) const;
 
+    
     ///< clid of the concrete class (persistent clid)
     CLID m_clid;
 
@@ -188,16 +209,10 @@ namespace SG {
 
   /// check if it is a transient ID:
   inline
-  bool TransientAddress::transientID(const CLID& id) const
-  { 
-    return 0 != m_transientID.count(id);
-  }
-
-  /// set transient CLID's
-  inline
-  void TransientAddress::setTransientID(const CLID& id)
-  { 
-    m_transientID.insert(id);
+  bool TransientAddress::transientID(CLID id) const
+  {
+    return std::find (m_transientID.begin(), m_transientID.end(), id) !=
+      m_transientID.end();
   }
 
   /// get transient CLID's
@@ -219,6 +234,13 @@ namespace SG {
   void TransientAddress::setAlias(const std::set<std::string>& keys)
   {
     m_transientAlias = keys;
+  } 
+
+  /// set transient Alias'
+  inline 
+  void TransientAddress::setAlias(std::set<std::string>&& keys)
+  {
+    m_transientAlias = std::move(keys);
   } 
 
   /// remove alias

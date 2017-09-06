@@ -1,8 +1,10 @@
+// -*- c++ -*-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#pragma once
+#ifndef INDETTRACKSYSTEMATICSTOOLS_INDETTRACKTRUTHORIGINTOOL_H
+#define INDETTRACKSYSTEMATICSTOOLS_INDETTRACKTRUTHORIGINTOOL_H
 
 #include "IInDetTrackTruthOriginTool.h"
 #include "AsgTools/AsgTool.h"
@@ -36,7 +38,6 @@ namespace InDet {
 
   /** Computes the tracks origin */
   virtual int getTrackOrigin(const xAOD::TrackParticle* track) const override;
-  virtual int getTrackOrigin(const xAOD::TrackParticle* track, int &parentID) const override;
 
 private:
 
@@ -52,3 +53,5 @@ private:
 }; // class InDetTrackTruthOriginTool
 
 } // namespace InDet
+
+#endif

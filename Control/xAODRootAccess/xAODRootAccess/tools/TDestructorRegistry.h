@@ -10,6 +10,7 @@
 
 // System include(s):
 #include <map>
+#include <shared_mutex>
 
 // Forward declaration(s):
 namespace std {
@@ -45,6 +46,11 @@ namespace xAOD {
       void add();
 
    private:
+      /// Hide the constructor of the type
+      TDestructorRegistry();
+      /// Hide the copy-constructor
+      TDestructorRegistry( const TDestructorRegistry& ) = delete;
+
       /// Type used internally to clean up memory at the end of the process
       class TDestructorHolder {
       public:
@@ -61,6 +67,8 @@ namespace xAOD {
       typedef std::map< const std::type_info*, TDestructorHolder > Map_t;
       /// Internal map of known destructor objects
       Map_t m_types;
+      /// Mutex for the destructor map
+      mutable std::shared_timed_mutex m_mutex;
 
    }; // class TDestructorRegistry
 

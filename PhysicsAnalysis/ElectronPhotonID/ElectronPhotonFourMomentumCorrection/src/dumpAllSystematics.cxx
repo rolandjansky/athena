@@ -300,7 +300,7 @@ StatusCode DumpAllSystematics::do_egamma(const xAOD::Egamma& particle)
 {
   m_cl_phi = particle.phi();
   m_cl_eta = particle.caloCluster()->eta();
-  m_cl_etaCalo = xAOD::get_eta_calo(*particle.caloCluster());
+  m_cl_etaCalo = xAOD::get_eta_calo(*particle.caloCluster(),particle.author());
   m_cl_rawcl_Es0 = particle.caloCluster()->energyBE(0);
   m_cl_rawcl_Es1 = particle.caloCluster()->energyBE(1);
   m_cl_rawcl_Es2 = particle.caloCluster()->energyBE(2);

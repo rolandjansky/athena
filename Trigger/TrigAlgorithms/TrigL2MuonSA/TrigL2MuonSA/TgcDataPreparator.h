@@ -89,6 +89,7 @@ class TgcDataPreparator: public AthAlgTool
       const MuonGM::TgcReadoutElement* m_tgcReadout;
       const TgcIdHelper* m_tgcIdHelper;
       ActiveStoreSvc* m_activeStore;
+
       // vector of the TGC hash ID list
       std::vector<IdentifierHash> m_tgcHashList;         
 

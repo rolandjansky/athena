@@ -83,15 +83,15 @@ StatusCode ToolExamplesAlg::execute() {
   const xAOD::JetContainer* jets = 0; CHECK( evtStore()->retrieve( jets, "AntiKt4EMTopoJets" ) );
 
   //GRL Example
-  bool passGRL = m_grl->passRunLB(*ei);
+  //bool passGRL = m_grl->passRunLB(*ei);
   
   //PRW Example
   CHECK( m_prw->apply(*ei) );
-  float pileupWeight = ei->auxdecor<float>("PileupWeight");
-  uint randomRunNumber = ei->auxdecor<uint>("RandomRunNumber");
+  //float pileupWeight = ei->auxdecor<float>("PileupWeight");
+  //uint randomRunNumber = ei->auxdecor<uint>("RandomRunNumber");
 
   //Trigger Decision Example
-  bool passTrigger = m_tdt->isPassed("HLT_e24_lhmedium_L1EM20VH");
+  //bool passTrigger = m_tdt->isPassed("HLT_e24_lhmedium_L1EM20VH");
 
 
   //Electron Calibration, Iso Calibration, LH Selection, Iso Selection, Scale Factor Example

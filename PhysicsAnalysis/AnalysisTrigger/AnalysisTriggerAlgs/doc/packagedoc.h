@@ -36,14 +36,4 @@ This package contains some algorithms to create Trigger ESD/AOD objects.
 
 @section AnalysisTriggerAlgs_AnalysisTriggerAlgs Extra Pages
 
-- @ref used_AnalysisTriggerAlgs
-- @ref requirements_AnalysisTriggerAlgs
-*/
-
-/**
-   @page used_AnalysisTriggerAlgs Used Packages
-*/
-
-/**
-   @page requirements_AnalysisTriggerAlgs Requirements
 */

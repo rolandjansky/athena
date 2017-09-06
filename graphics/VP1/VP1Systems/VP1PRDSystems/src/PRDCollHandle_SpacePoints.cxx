@@ -20,7 +20,7 @@
 #include "VP1Utils/VP1SGContentsHelper.h"
 #include "VP1Utils/VP1SGAccessHelper.h"
 #include "TrkSpacePoint/SpacePointContainer.h"
-#include <QtGui/QColor>
+#include <QColor>
 
 //____________________________________________________________________
 QStringList PRDCollHandle_SpacePoints::availableCollections(IVP1System*sys)

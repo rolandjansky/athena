@@ -17,9 +17,6 @@ __all__ = [
 import os
 import re
 
-from PyUtils.Helpers import ROOT6Setup
-ROOT6Setup()
-
 def _libName(lib):
     import platform
     if platform.system() == "Linux":
@@ -174,17 +171,7 @@ def gen_typeregistry_dso(oname=_dflt_typereg_fname):
     cls_names = reg.db.keys()
     import cppyy
     _load_lib = cppyy.loadDict
-
-    # if int(cppyy.get_version().split('.')[0]) < 6:
-    if hasattr(cppyy, 'hasCintex'):
-        # load reflex for ROOT ver<6
-        msg.debug("::: loading reflex")
-        _load_lib('libReflexRflx.so')
-        rflx = cppyy.makeNamespace('Reflex')
-        if not rflx:
-            rflx = cppyy.makeNamespace('ROOT::Reflex')
-        rflx = rflx.Type
-        assert(rflx)
+    rflx = cppyy.gbl.RootType
 
     def _load_dict(libname,retry=10):
         msg.debug("::: loading [%s]...", libname)
@@ -243,11 +230,9 @@ def gen_typeregistry_dso(oname=_dflt_typereg_fname):
         return rflx_names
 
     rflx_names = {}
-    if hasattr(cppyy, 'hasCintex'):
-        for lib in dict_libs:
-            rflx_names.update(inspect_dict_lib(lib))
-    else:
-        msg.warning("::: DSO functionality disabled in ROOT6!")
+    # for lib in dict_libs:
+    #   rflx_names.update(inspect_dict_lib(lib))
+    msg.warning("::: DSO functionality disabled in ROOT6!")
                      
     msg.debug("::: rflx types: %d %d",len(rflx_names),len(reg.db.keys()))
     msg.info("::: saving informations in [%s]...", oname)
@@ -325,22 +310,11 @@ class CxxDsoDb(object):
     The repository of 'rootmap' files (location, content,...)
     """
     def __init__(self):
-        # import cintex
-        # import PyCintex; PyCintex.Cintex.Enable()
         import cppyy
         # import root
         import PyUtils.RootUtils as ru
         ROOT = ru.import_root()
         self._cxx = ROOT.Ath.DsoDb.instance()
-        # if int(cppyy.get_version().split('.')[0]) < 6:
-        if hasattr(cppyy, 'hasCintex'):
-           # load reflex for ROOT ver<6
-           _load_dict = cppyy.loadDict
-           _load_dict('ReflexRflx')
-           self._rflx = cppyy.makeNamespace('Reflex')
-           if not self._rflx:
-               self._rflx = cppyy.makeNamespace('ROOT::Reflex')
-           return
 
     def _to_py(self, cxx):
         dd = {}

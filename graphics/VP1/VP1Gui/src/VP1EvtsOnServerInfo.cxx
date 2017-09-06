@@ -14,8 +14,8 @@
 
 #include "VP1Gui/VP1EvtsOnServerInfo.h"
 #include "VP1Gui/VP1MD5Sum.h"
-#include <QtCore/QFileInfo>
-#include <QtCore/QTextStream>
+#include <QFileInfo>
+#include <QTextStream>
 #include <map>
 
 

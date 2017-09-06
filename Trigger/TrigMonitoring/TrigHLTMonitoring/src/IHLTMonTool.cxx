@@ -2,15 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include "AthenaMonitoring/AthenaMonManager.h"
 #include "AthenaMonitoring/ManagedMonitorToolTest.h"
 
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/ITHistSvc.h"
-#include "GaudiKernel/PropertyMgr.h"
-#include "GaudiKernel/IToolSvc.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "EventInfo/TriggerInfo.h"
 #include "EventInfo/EventInfo.h"
@@ -65,57 +60,31 @@ IHLTMonTool::~IHLTMonTool() {
 
 StatusCode IHLTMonTool::initialize() {
 
-  StatusCode sc;
-  
   // retrieve the trigger decision tool
-  sc = m_tdthandle.retrieve();
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR("Could not retrieve TrigDecisionTool!");
-    return sc;
-  }
+  ATH_CHECK(  m_tdthandle.retrieve() );
 
   // After retrieve enable Expert methods
   getTDT()->ExperimentalAndExpertMethods()->enable();
 
-  sc = m_storeGate.retrieve();
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR("Could not retrieve StoreGate");
-    return sc;
-  }
-
-  sc = m_inputMetaStore.retrieve();
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR("Could not retrieve InputMetaDataStore");
-    return sc;
-  }
+  ATH_CHECK( m_storeGate.retrieve() );
+  ATH_CHECK( m_inputMetaStore.retrieve() );
 
   if(m_configTool.empty()){
       ATH_MSG_INFO("No TrigConfigTool provided, using TrigConfigSvc (default)");
-      sc = m_configsvc.retrieve();
+      StatusCode sc = m_configsvc.retrieve();
       if ( sc.isFailure() ) {
           ATH_MSG_WARNING("Could not retrieve TrigConfigSvc - trying TrigConf::xAODConfigTool");
           m_configTool = ToolHandle<TrigConf::ITrigConfigTool>("TrigConf::xAODConfigTool");
-          sc = m_configTool.retrieve();
-          if ( sc.isFailure() ) {
-            ATH_MSG_ERROR("Could not retrieve TrigConfigTool");
-            return sc;
-          }
+          ATH_CHECK( m_configTool.retrieve() );
       }
   }
   else {
-      sc = m_configTool.retrieve();
-      if ( sc.isFailure() ) {
-          ATH_MSG_ERROR("Could not retrieve TrigConfigTool");
-          return sc;
-      }
+    ATH_CHECK( m_configTool.retrieve() );
   }
 
-  sc = ManagedMonitorToolBase::initialize();
-  if (sc.isFailure())  {
-    ATH_MSG_ERROR("Unable to call ManagedMonitoringToolBase::initialize");
-    return sc;
-  }
-  
+  ATH_CHECK( ManagedMonitorToolBase::initialize() );
+
+  StatusCode sc;
   try {
     sc = init();
   } catch(const GaudiException &e) {
@@ -134,7 +103,7 @@ int IHLTMonTool::getL1info() {
   int lvl1info = 0;
   
   const EventInfo* EventInfo(0);
-  StatusCode sc = m_storeGate->retrieve(EventInfo);
+  StatusCode sc = evtStore()->retrieve(EventInfo);
   if (sc.isFailure())  {
     return lvl1info;
   } else {
@@ -153,7 +122,7 @@ int IHLTMonTool::getRunNr() {
 
   int runnr = -1;
   const EventInfo* EventInfo(0);
-  StatusCode sc = m_storeGate->retrieve(EventInfo);
+  StatusCode sc = evtStore()->retrieve(EventInfo);
   if (sc.isFailure())  {
     return runnr;
   } else {
@@ -169,7 +138,7 @@ int IHLTMonTool::getRunNr() {
 
 int IHLTMonTool::getEventNr() {
   const EventInfo* EventInfo(0);
-  StatusCode sc = m_storeGate->retrieve(EventInfo);
+  StatusCode sc = evtStore()->retrieve(EventInfo);
   int eventnr = -1;
   if (sc.isFailure())  {
     return eventnr;
@@ -185,7 +154,7 @@ int IHLTMonTool::getEventNr() {
 
 int IHLTMonTool::getLumiBlockNr() {
   const EventInfo* EventInfo(0);
-  StatusCode sc = m_storeGate->retrieve(EventInfo);
+  StatusCode sc = evtStore()->retrieve(EventInfo);
   int lbnr = -1;
   if (sc.isFailure())  {
     return lbnr;

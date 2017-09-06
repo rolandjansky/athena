@@ -1,10 +1,10 @@
 // -*- c++ -*-
-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#pragma once
+#ifndef INDETTRACKSYSTEMATICSTOOLS_IINDETTRACKBIASINGTOOL_H
+#define INDETTRACKSYSTEMATICSTOOLS_IINDETTRACKBIASINGTOOL_H
 
 #include "AsgTools/IAsgTool.h"
 #include "PATInterfaces/CorrectionCode.h"
@@ -50,3 +50,5 @@ namespace InDet {
   }; // class IInDetTrackBiasingTool
   
 } // namespace InDet
+
+#endif

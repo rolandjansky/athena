@@ -55,7 +55,7 @@ StatusCode eflowLCCalibTool::initialize() {
 void eflowLCCalibTool::execute(eflowCaloObjectContainer* theEflowCaloObjectContainer) {
 
   if (m_useLocalWeight) {
-    eflowRecClusterContainer* theEFRecCluster = m_clusterCollectionTool->retrieve(theEflowCaloObjectContainer, true);
+    std::unique_ptr<eflowRecClusterContainer> theEFRecCluster = m_clusterCollectionTool->retrieve(theEflowCaloObjectContainer, true);
     /* Calibrate each cluster */
     eflowRecClusterContainer::iterator itCluster = theEFRecCluster->begin();
     eflowRecClusterContainer::iterator endCluster = theEFRecCluster->end();
@@ -63,12 +63,9 @@ void eflowLCCalibTool::execute(eflowCaloObjectContainer* theEflowCaloObjectConta
       eflowRecCluster* cluster = (*itCluster);
       applyLocalWeight(cluster);
     }
-
-    /* Don't delete the container, container doesn't own its elements) */
-
   } else {
     /* Collect all the clusters in a temporary container (with VIEW_ELEMENTS!) */
-    xAOD::CaloClusterContainer* tempClusterContainer = m_clusterCollectionTool->execute(
+    std::unique_ptr<xAOD::CaloClusterContainer> tempClusterContainer = m_clusterCollectionTool->execute(
         theEflowCaloObjectContainer, true);
 
     /* Calibrate each cluster */
@@ -88,8 +85,6 @@ void eflowLCCalibTool::execute(eflowCaloObjectContainer* theEflowCaloObjectConta
 
     }
 
-    /* Delete the container again (clusters are not deleted, as the container doesn't own its elements) */
-    delete tempClusterContainer;
   }
 }
 

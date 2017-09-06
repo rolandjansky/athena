@@ -228,8 +228,7 @@ inline double P4ImplIPtCotThPhiM::cotTh() const
 
 inline const I4MomentumError* P4ImplIPtCotThPhiM::errors() const
 {
-  // check if the pointer is empty before dereferencing
-  return (m_error ? &(*m_error) : 0);
+  return m_error.get();
 }
 
 // setters

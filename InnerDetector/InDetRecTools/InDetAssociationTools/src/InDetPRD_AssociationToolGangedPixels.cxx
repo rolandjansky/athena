@@ -30,6 +30,10 @@ InDet::InDetPRD_AssociationToolGangedPixels::~InDetPRD_AssociationToolGangedPixe
 
 StatusCode InDet::InDetPRD_AssociationToolGangedPixels::initialize()
 {
+  m_has_ambi_map = m_pixelClusterAmbiguitiesMapName.initialize().isSuccess();
+  if (!m_has_ambi_map)
+    ATH_MSG_WARNING("Could not retrieve "<< m_pixelClusterAmbiguitiesMapName << " this is ok if pixel is off");
+
   return StatusCode::SUCCESS;
 }
 
@@ -287,20 +291,13 @@ InDet::InDetPRD_AssociationToolGangedPixels::onTracks(const Trk::PrepRawData& pr
 
 void InDet::InDetPRD_AssociationToolGangedPixels::reset()
 {
-  if (evtStore()->contains<PixelGangedClusterAmbiguities>( m_pixelClusterAmbiguitiesMapName ) )
-    {      
-      StatusCode sc = evtStore()->retrieve(m_gangedAmbis, m_pixelClusterAmbiguitiesMapName );
-      
-      if (sc.isFailure()) {
-	msg(MSG::ERROR) << "Could not retrieve "<< m_pixelClusterAmbiguitiesMapName << endmsg;
-      } else {
-	if (msgLvl(MSG::DEBUG)) msg() << "Retrieved " << m_pixelClusterAmbiguitiesMapName
-				      << ", number of entries for this event:"
-				      << m_gangedAmbis->size() << endmsg;
-      }
-    } else {
-      if (msgLvl(MSG::DEBUG)) msg() << "Could not retrieve "<< m_pixelClusterAmbiguitiesMapName << " this is ok if pixel is off." << endmsg;
-    } 
+  if (m_has_ambi_map) {
+    m_gangedAmbis = SG::makeHandle(m_pixelClusterAmbiguitiesMapName);
+    ATH_MSG_DEBUG("Retrieved " << m_pixelClusterAmbiguitiesMapName
+		  << ", number of entries for this event:"
+		  << m_gangedAmbis->size());
+  }
+
   m_prepRawDataTrackMap.clear();
   m_trackPrepRawDataMap.clear();
 }

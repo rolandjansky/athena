@@ -18,15 +18,9 @@
  *****************************************************************************/
 
 #include "GaudiKernel/IInterface.h"
-#ifndef _CPP_STRING
 #include <string>
-#endif
-#ifndef KERNEL_STATUSCODES_H
 #include "GaudiKernel/StatusCode.h"
-#endif
-#ifndef GAUDIKERNEL_CLASSID_H
 #include "GaudiKernel/ClassID.h"
-#endif
 
 // Declaration of the interface ID. 
 static const InterfaceID IID_IOVDbSvc("IOVDbSvc", 1 , 0);   
@@ -34,6 +28,7 @@ static const InterfaceID IID_IOVDbSvc("IOVDbSvc", 1 , 0);
 class IOVRange;
 class IOVTime;
 class IOpaqueAddress;
+class EventContext;
 
 /**
  *
@@ -61,7 +56,8 @@ public:
 				      const std::string& tag ) = 0;
 
     /// Set time for begin run
-    virtual StatusCode signalBeginRun(const IOVTime& beginRunTime) = 0;
+    virtual StatusCode signalBeginRun(const IOVTime& beginRunTime,
+                                      const EventContext& ctx) = 0;
 
     /// Signal that callback has been fired
     virtual void       signalEndProxyPreload() = 0;

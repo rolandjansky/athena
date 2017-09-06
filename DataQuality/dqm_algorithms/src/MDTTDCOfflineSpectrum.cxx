@@ -22,7 +22,7 @@ namespace
 
 
 dqm_algorithms::MDTTDCOfflineSpectrum::MDTTDCOfflineSpectrum( const std::string & name )
-  : name_( name )
+  : m_name( name )
 {
   dqm_core::AlgorithmManager::instance().registerAlgorithm(name, this);
 }
@@ -31,7 +31,7 @@ dqm_algorithms::MDTTDCOfflineSpectrum *
 dqm_algorithms::MDTTDCOfflineSpectrum::clone()
 {
   
-  return new MDTTDCOfflineSpectrum( name_ );
+  return new MDTTDCOfflineSpectrum( m_name );
 }
 
 
@@ -52,8 +52,6 @@ dqm_algorithms::MDTTDCOfflineSpectrum::execute(	const std::string &  name,
   }
 
   const double minstat = dqm_algorithms::tools::GetFirstFromMap( "MinStat", config.getParameters(), -1);
-  const bool publish = (bool) dqm_algorithms::tools::GetFirstFromMap( "PublishBins", config.getParameters(), 0); 
-  const int maxpublish = (int) dqm_algorithms::tools::GetFirstFromMap( "MaxPublish", config.getParameters(), 20); 
   
   if (histogram->GetEntries() < minstat ) {
     dqm_core::Result *result = new dqm_core::Result(dqm_core::Result::Undefined);
@@ -95,7 +93,7 @@ dqm_algorithms::MDTTDCOfflineSpectrum::execute(	const std::string &  name,
   double t0Err = t0Fit->GetParameter(2);
   double tmaxErr = tmaxFit->GetParameter(2);
   
-  ERS_DEBUG(1, name_ << " TDrift " << " is " << tdrift );
+  ERS_DEBUG(1, m_name << " TDrift " << " is " << tdrift );
   ERS_DEBUG(1,"Green threshold: "<< t0_low_warning << " < t0 < "<< t0_high_warning << " &&  " << tmax_low_warning <<" < tmax < " << tmax_high_warning <<   
            " ;  Red threshold : t0 < " << t0_low_error      << "\n" << 
                                "t0 > " << t0_high_error     << "\n" << 
@@ -156,7 +154,7 @@ dqm_algorithms::MDTTDCOfflineSpectrum::printDescription(std::ostream& out)
 {
   
   out << "Analyze pre-fitted MDTTDC spectra histograms" << std::endl;
-  out << "Required Parameters: name " << name_ << ", t0Warning threshold" <<  ", tMaxWarning threshold" << std::endl;
+  out << "Required Parameters: name " << m_name << ", t0Warning threshold" <<  ", tMaxWarning threshold" << std::endl;
   out << "Required parameters: t0Error" << ", tMaxError " << std::endl;
   out << "Returns yellow if t0 < t0Warning or t0 > 800 or if tMax > tMaxWarning or tMax < 800" << std::endl;
   out << "Returns red if t0 < t0Error or t0 > 1000 or if tMax > tMaxError or tMax < 700" << std::endl;

@@ -8,7 +8,7 @@
 #include "VP1PRDSystems/PRDHandleBase.h"
 #include "VP1PRDSystems/PRDCollHandle_CSC_Strip.h"
 #include "MuonPrepRawData/CscStripPrepData.h"
-#include <QtCore/QStringList>
+#include <QStringList>
 
 class PRDHandle_CSC_Strip : public PRDHandleBase {
 public:

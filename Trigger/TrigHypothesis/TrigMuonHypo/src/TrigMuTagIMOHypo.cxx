@@ -158,12 +158,9 @@ HLT::ErrorCode TrigMuTagIMOHypo::hltExecute(const HLT::TriggerElement* outputTE,
 
   float threshold = 0;
 
-  TrigMuonEFInfoContainer::const_iterator pMuonEFInfo = trigMuonEFInfoColl->begin();
-  TrigMuonEFInfoContainer::const_iterator lastMuonEFInfo = trigMuonEFInfoColl->end();
+  for (const TrigMuonEFInfo* pMuonEFInfo : *trigMuonEFInfoColl) {
 
-  for ( ; pMuonEFInfo != lastMuonEFInfo; pMuonEFInfo++) { 
-
-    const TrigMuonEFInfoTrackContainer* trigMuonEFInfoTrackContainer = (*pMuonEFInfo)->TrackContainer();
+    const TrigMuonEFInfoTrackContainer* trigMuonEFInfoTrackContainer = pMuonEFInfo->TrackContainer();
 
     if (!(trigMuonEFInfoTrackContainer->size())) {
 
@@ -176,7 +173,11 @@ HLT::ErrorCode TrigMuTagIMOHypo::hltExecute(const HLT::TriggerElement* outputTE,
     const TrigMuonEFInfoTrack* infoTrack = (*trigMuonEFInfoTrackContainer->begin());
     if (infoTrack->MuonType() != 9) continue;
 
-    TrigMuonEFCbTrack* combinedTrack = (*pMuonEFInfo)->CombinedTrack();
+    const TrigMuonEFCbTrack* combinedTrack = nullptr;
+    if (pMuonEFInfo->hasLegacyTrack())
+      combinedTrack = pMuonEFInfo->legacyCombinedTrack();
+    else
+      combinedTrack = pMuonEFInfo->TrackContainer()->front()->CombinedTrack();
 
     //* Fill monitoring histos
     m_pt  = combinedTrack->pt()  ? combinedTrack->pt()  : -999;

@@ -36,7 +36,6 @@ The following classes are defined
 
 This package also contains selection.xml - a file for lcgdict generation
       
-@section TrigInDetEvent_TrigInDetEventReq Requirements
 
 
 */

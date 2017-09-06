@@ -1,340 +1,437 @@
+// This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+ * Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration.
+ */
+// $Id$
+/**
+ * @file AthenaKernel/CondCont.h
+ * @author Vakho, Charles, Scott
+ * @date 2017
+ * @brief Hold mappings of ranges to condition objects.
+ */
 
-#ifndef IOVSVC_CONDCONT_H
-#define IOVSVC_CONDCONT_H 1
+#ifndef ATHENAKERNEL_CONDCONT_H
+#define ATHENAKERNEL_CONDCONT_H
+
+#include "AthenaKernel/IOVEntryT.h"
+#include "AthenaKernel/ClassID_traits.h"
+#include "AthenaKernel/BaseInfo.h"
+
+#include "GaudiKernel/EventIDBase.h"
+#include "GaudiKernel/EventIDRange.h"
+#include "GaudiKernel/DataObjID.h"
 
 #include <iostream>
 #include <set>
 #include <vector>
 #include <typeinfo>
 #include <mutex>
-#include <typeinfo>
 
-#include "GaudiKernel/EventIDBase.h"
-#include "GaudiKernel/EventIDRange.h"
-
-#include "AthenaKernel/IOVEntryT.h"
-#include "GaudiKernel/DataObject.h"
-#include "GaudiKernel/DataObjID.h"
 
 namespace SG {
   class DataProxy;
-  template<class T>
-  class ReadCondHandle;
-  template<class T>
-  class WriteCondHandle;
 }
 
-class CondContBase {
+
+class CondContBase
+{
 public:
-  CondContBase() {};
-  virtual ~CondContBase(){};
+  /// Payload type held by this class.
+  /// Need to define this here for @c cast() to work properly.
+  typedef void Payload;
 
-  //  virtual void list() const { std::cout << "CCBase" << std::endl; }
-  virtual void list(std::ostringstream&) const = 0;
-  virtual int entries() const { return 0; }
-  virtual bool valid( const EventIDBase& t) const = 0;
+  /// Destructor.
+  virtual ~CondContBase() {};
+
+
+  /**
+   * @brief Return the CLID of the most-derived @c CondCont.
+   */
+  CLID clid() const;
+
+
+  /**
+   * @brief Return CLID/key corresponding to this container.
+   */
   virtual const DataObjID& id() const = 0;
-  virtual bool insert(const EventIDRange& r, DataObject* obj) = 0;
-  virtual bool insert(const EventIDRange& r, void* obj) = 0;
 
-  virtual SG::DataProxy* proxy() const = 0;
+
+  /**
+   * @brief Return the associated @c DataProxy, if any.
+   */
+  virtual SG::DataProxy* proxy() = 0;
+
+
+  /**
+   * @brief Set the associated @c DataProxy.
+   * @param proxy The proxy to set.
+   */
   virtual void setProxy(SG::DataProxy*) = 0;
 
-  virtual bool range(const EventIDBase&, EventIDRange&) const = 0;
+
+  /**
+   * @brief Dump the container contents for debugging.
+   * @param ost Stream to which to write the dump.
+   */
+  virtual void list (std::ostream& ost) const = 0;
+
+
+  /**
+   * @brief Return the number of conditions objects in the container.
+   */
+  virtual int entries() const = 0;
+
+
+  /**
+   * @brief Return all IOV validity ranges defined in this container.
+   */
   virtual std::vector<EventIDRange> ranges() const = 0;
 
+
+  /** 
+   * @brief Insert a new conditions object.
+   * @param r Range of validity of this object.
+   * @param obj Pointer to the object being inserted.
+   *
+   * @c obj must point to an object of type @c T,
+   * except in the case of inheritance, where the type of @c obj must
+   * correspond to the most-derived @c CondCont type.
+   * The container will take ownership of this object.
+   *
+   * Returns true if the object was successfully inserted; false otherwise
+   * (ownership of the object will be taken in either case).
+   */
+  virtual bool typelessInsert (const EventIDRange& r, void* obj) = 0;
+
+
+  /**
+   * @brief Test to see if a given IOV time is mapped in the container.
+   * @param t IOV time to check.
+   */
+  virtual bool valid( const EventIDBase& t) const = 0;
+
+
+  /**
+   * @brief Return the mapped validity range for an IOV time.
+   * @param t IOV time to check.
+   * @param r[out] The range containing @c t.
+   *
+   * Returns true if @c t is mapped; false otherwise.
+   */
+  virtual bool range (const EventIDBase& t, EventIDRange& r) const = 0;
+
+
+
+protected:
+  /**
+   * @brief Internal constructor.
+   * @param CLID of the most-derived @c CondCont.
+   * @param id CLID+key for this object.
+   * @param proxy @c DataProxy for this object.
+   */
+  CondContBase(CLID clid, const DataObjID& id, SG::DataProxy* proxy);
+
+
+  /**
+   * @brief Do pointer conversion for the payload type.
+   * @param clid CLID for the desired pointer type.
+   * @param ptr Pointer of type @c T*.
+   *
+   * Converts @c ptr from @c T* to a pointer to the type
+   * given by @c clid.  Returns nullptr if the conversion
+   * is not possible.
+   */
+  const void* cast (CLID clid, const void* ptr) const;
+
+
+  /** 
+   * @brief Internal lookup function.
+   * @param clid CLID for the desired pointer type.
+   * @param t IOV time to find.
+   * @param r If non-null, copy validity range of the object here.
+   *
+   * Looks up the conditions object corresponding to the IOV time @c t.
+   * If found, convert the pointer to a pointer to the type identified
+   * by CLID and return it.  Otherwise, return nullptr.
+   */
+  virtual const void* findByCLID (CLID clid,
+                                  const EventIDBase& t,
+                                  EventIDRange* r) const = 0;
+
+  
 private:
+  /// CLID of the most-derived @c CondCont
+  CLID m_clid;
 };
+
 
 ///////////////////////////////////////////////////////////////////////////
 
+
+template <class T> class CondCont;
+
+
+/**
+ * @brief Traits class to find the base for @c CondCont.
+ *
+ * @c CondCont<T> normally derives from @c CondContBase.
+ * However, if @c D derives from @c B, then using @c CONDCONT_BASE(D,B)
+ * will cause @c ContCont<D> to derive from @c CondCont<B>.
+ */
 template <typename T>
-class CondCont: public CondContBase {
+class CondContBaseInfo
+{
 public:
+  typedef CondContBase Base;
+};
 
-  friend SG::ReadCondHandle<T>;
-  friend SG::WriteCondHandle<T>;
 
-  CondCont(const DataObjID& id, SG::DataProxy* prx=nullptr):
-    m_id(id), m_proxy(prx) {};
-  ~CondCont();
+namespace SG {
+template <typename T>
+struct Bases<CondCont<T> >
+{
+  typedef CondContBase Base1;               
+  typedef NoBase Base2;          
+  typedef NoBase Base3;      
+};
+} // namespace SG
 
-  bool insert(const EventIDRange& r, DataObject* t);
-  bool insert(const EventIDRange& r, void* t);
-  bool insert(const EventIDRange& r, T* t);
 
-  bool find(const EventIDBase& t, T*&) const;
 
-  virtual void list(std::ostringstream&) const;
-  virtual int entries() const;
 
-  virtual bool valid( const EventIDBase& t ) const;
+/**
+ * @brief Declare that conditions object @c D derives from @c B.
+ *
+ * This allows using @c ReadCondHandle to retrieve a conditions object
+ * of type @c D as @c B.
+ */
+#define CONDCONT_BASE(D, B)       \
+template <>                       \
+class CondContBaseInfo<D>         \
+{                                 \
+public:                           \
+  typedef CondCont<B> Base;       \
+};                                 \
+SG_BASE(CondCont<D>, CondCont<B>); \
+SG_BASE(D, B)
+  
 
-  virtual const DataObjID& id() const { return m_id; }
 
-  virtual SG::DataProxy* proxy() const { return m_proxy; }
-  virtual void setProxy(SG::DataProxy* prx) { m_proxy = prx; }
 
-  virtual bool range(const EventIDBase&, EventIDRange&) const;
-  virtual std::vector<EventIDRange> ranges() const;
+/**
+ * @brief Hold mapping of ranges to condition objects.
+ *
+ * This object holds mappings from a set of IOV ranges (represented
+ * as EventIDRange) to conditions objects (which are owned by this object).
+ * It has methods to insert a new mapping and to retrieve objects
+ * by IOV time.
+ *
+ * This object is recorded in the conditions store, so it must have a CLID
+ * (the @c CondCont object, not @c T).
+ *
+ * It is possible for one conditions object to derive from another.
+ * For the case of class @c D deriving from @c B, use the macro
+ *
+ *@code
+ *  CONDCONT_BASE(D, B);
+ @endcode
+ *
+ * before any references to @c CondCont<D>.
+ * (At the moment, you will also need SG_BASE(D, B); but this should be
+ * temporary.)
+ * This is implemented by having @c CondCont<D> derive from @c CondCont<B>.
+ * In that case, the mappings will be stored only in the most-derived class.
+ */
+template <typename T>
+class CondCont: public CondContBaseInfo<T>::Base
+{
+public:
+  /// Base class.
+  typedef typename CondContBaseInfo<T>::Base Base;
+
+  /// Payload type held by this class.
+  typedef T Payload;
+
+
+  /** 
+   * @brief Constructor.
+   * @param id CLID+key for this object.
+   * @param proxy @c DataProxy for this object.
+   */
+  CondCont (const DataObjID& id, SG::DataProxy* proxy = nullptr);
+
+
+  /// Destructor.
+  virtual ~CondCont();
+
+  /// No copying.
+  CondCont (const CondCont&) = delete;
+  CondCont& operator= (const CondCont&) = delete;
+
+
+  /**
+   * @brief Return CLID/key corresponding to this container.
+   */
+  virtual const DataObjID& id() const override;
+
+
+  /**
+   * @brief Return the associated @c DataProxy, if any.
+   */
+  virtual SG::DataProxy* proxy() override;
+
+
+  /**
+   * @brief Set the associated @c DataProxy.
+   * @param proxy The proxy to set.
+   */
+  virtual void setProxy (SG::DataProxy* proxy) override;
+
+
+  /**
+   * @brief Dump the container contents for debugging.
+   * @param ost Stream to which to write the dump.
+   */
+  virtual void list (std::ostream& ost) const override;
+
+
+  /**
+   * @brief Return the number of conditions objects in the container.
+   */
+  virtual int entries() const override;
+
+
+  /**
+   * @brief Return all IOV validity ranges defined in this container.
+   */
+  virtual std::vector<EventIDRange> ranges() const override;
+
+
+  /** 
+   * @brief Insert a new conditions object.
+   * @param r Range of validity of this object.
+   * @param obj Pointer to the object being inserted.
+   *
+   * @c obj must point to an object of type @c T,
+   * except in the case of inheritance, where the type of @c obj must
+   * correspond to the most-derived @c CondCont type.
+   * The container will take ownership of this object.
+   *
+   * Returns true if the object was successfully inserted; false otherwise
+   * (ownership of the object will be taken in either case).
+   */
+  virtual bool typelessInsert (const EventIDRange& r, void* obj) override;
+
+
+  /** 
+   * @brief Insert a new conditions object.
+   * @param r Range of validity of this object.
+   * @param obj Pointer to the object being inserted.
+   *
+   * @c obj must point to an object of type @c T.
+   * This will give an error if this is not called
+   * on the most-derived @c CondCont.
+   *
+   * Returns true if the object was successfully inserted; false otherwise.
+   */
+  bool insert (const EventIDRange& r, std::unique_ptr<T> obj);
+
+
+  /** 
+   * @brief Look up a conditions object for a given time.
+   * @param t IOV time to find.
+   * @param obj[out] Object found.
+   * @param r If non-null, copy validity range of the object here.
+   *
+   * Returns true if the object was found; false otherwide.
+   */
+  bool find (const EventIDBase& t,
+             T const*& obj,
+             EventIDRange* r = nullptr) const;
+
+
+  /**
+   * @brief Test to see if a given IOV time is mapped in the container.
+   * @param t IOV time to check.
+   */
+  virtual bool valid (const EventIDBase& t) const override;
+
+
+  /**
+   * @brief Return the mapped validity range for an IOV time.
+   * @param t IOV time to check.
+   * @param r[out] The range containing @c t.
+   *
+   * Returns true if @c t is mapped; false otherwise.
+   */
+  virtual bool range (const EventIDBase& t, EventIDRange& r) const override;
+
+  
+protected:
+  /**
+   * @brief Internal constructor.
+   * @param CLID of the most-derived @c CondCont.
+   * @param id CLID+key for this object.
+   * @param proxy @c DataProxy for this object.
+   */
+  CondCont (CLID clid, const DataObjID& id, SG::DataProxy* proxy);
+
+
+  /**
+   * @brief Do pointer conversion for the payload type.
+   * @param clid CLID for the desired pointer type.
+   * @param ptr Pointer of type @c T*.
+   *
+   * Converts @c ptr from @c T* to a pointer to the type
+   * given by @c clid.  Returns nullptr if the conversion
+   * is not possible.
+   */
+  const void* cast (CLID clid, const void* ptr) const;
+
+
+  /** 
+   * @brief Internal lookup function.
+   * @param clid CLID for the desired pointer type.
+   * @param t IOV time to find.
+   * @param r If non-null, copy validity range of the object here.
+   *
+   * Looks up the conditions object corresponding to the IOV time @c t.
+   * If found, convert the pointer to a pointer to the type identified
+   * by CLID and return it.  Otherwise, return nullptr.
+   */
+  virtual const void* findByCLID (CLID clid,
+                                  const EventIDBase& t,
+                                  EventIDRange* r) const override;
+
 
 private:
 
-  bool findEntry(const EventIDBase& t, const IOVEntryT<T>*&) const;
+  /// Helper to ensure that the inheritance information for this class
+  /// gets initialized.
+  static void registerBaseInit();
 
-  bool isRE(const EventIDBase&) const;
-  bool isTS(const EventIDBase&) const;
 
-  mutable std::mutex m_mut;
+  /// Mutex used to protect the container.
+  typedef std::mutex mutex_t;
+  typedef std::lock_guard<mutex_t> lock_t;
+  mutable mutex_t m_mutex;
 
-  typedef std::set<IOVEntryT<T>, typename IOVEntryT<T>::IOVEntryTStartCritereon > CondContSet;
+
+  /// Sets of mapped objects, by timestamp and run+LBN.
+  typedef std::set<IOVEntryT<T>,
+                   typename IOVEntryT<T>::IOVEntryTStartCritereon > CondContSet;
   CondContSet m_condSet_clock, m_condSet_RE;
 
+  /// CLID+key for this container.
   DataObjID m_id;
 
+  /// Associated @c DataProxy.
   SG::DataProxy* m_proxy;
-
 };
 
-//
-///////////////////////////////////////////////////////////////////////////
-//
 
-template <typename T>
-CondCont<T>::~CondCont<T>() {
-  //  std::cout << "cleaning up - " << typeid( T ).name() << std::endl;
-  
-  for (auto itr=m_condSet_clock.begin(); itr != m_condSet_clock.end(); ++itr) {
-    delete itr->objPtr();
-  }
-  m_condSet_clock.clear();
-  for (auto itr=m_condSet_RE.begin(); itr != m_condSet_RE.end(); ++itr) {
-    delete itr->objPtr();
-  }
-  m_condSet_RE.clear();
-}    
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-template <typename T>
-bool CondCont<T>::insert(const EventIDRange& r, void* obj) {
-  T* t = static_cast<T*>(obj);
-
-  return insert(r, t);
-}
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-template <typename T>
-bool CondCont<T>::insert(const EventIDRange& r, DataObject* obj) {
-  T* t = dynamic_cast<T*>( obj );
-
-  if (t == 0) {
-    std::cerr << "CondCont<>T unable to dcast from DataObject to " 
-              << typeid(T).name()
-              << std::endl;
-    return false;
-  }
-
-  return insert(r, t);
-}
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-template <typename T>
-bool CondCont<T>::insert(const EventIDRange& r, T* t) {
-
-  std::lock_guard<std::mutex> lock(m_mut);
-
-  if (r.start().isRunEvent() && r.stop().isRunEvent()) {
-    m_condSet_RE.emplace( IOVEntryT<T>(t, r) );
-  } else if (r.start().isTimeStamp() && r.stop().isTimeStamp()) {
-    m_condSet_clock.emplace( IOVEntryT<T>(t,r) );
-  } else {
-    std::cerr << "CondCont<T>::insert error: EventIDRange " << r 
-              << " is neither fully RunEvent nor TimeStamp" 
-              << std::endl;
-    return false;
-  }
-
-  return true;
-}
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-template <typename T>
-bool CondCont<T>::valid(const EventIDBase& it) const {
-  typename CondContSet::const_iterator itr;
-  
-  std::lock_guard<std::mutex> lock(m_mut);
-
-  if (it.isRunEvent()) {
-    itr = m_condSet_RE.begin();
-    for (; itr != m_condSet_RE.end(); ++itr) {
-      if ( itr->range().isInRange( it ) ) {
-        return true;
-      }
-    }
-  } 
-  if (it.isTimeStamp()) {
-    itr = m_condSet_clock.begin();
-    for (; itr != m_condSet_clock.end(); ++itr) {
-      if ( itr->range().isInRange( it ) ) {
-        return true;
-      }
-    }
-  }
-        
-  return false;
-}
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-template <typename T>
-bool CondCont<T>::find(const EventIDBase& it, T*& t) const {
-  //  typename std::set<IOVEntryT<T>, IOVEntryTComp<T> >::const_iterator itr;
-  typename CondContSet::const_iterator itr;
-  
-  std::lock_guard<std::mutex> lock(m_mut);
-
-  if (it.isRunEvent()) {
-    itr = m_condSet_RE.begin();
-    for (; itr != m_condSet_RE.end(); ++itr) {
-      if ( itr->range().isInRange( it ) ) {
-        t = itr->objPtr();
-        return true;
-      }
-    }
-  } 
-  if (it.isTimeStamp()) {
-    itr = m_condSet_clock.begin();
-    for (; itr != m_condSet_clock.end(); ++itr) {
-      if ( itr->range().isInRange( it ) ) {
-        t = itr->objPtr();
-        return true;
-      }
-    }
-  }
-
-  return false;
-}
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-template <typename T>
-bool CondCont<T>::findEntry(const EventIDBase& it, const IOVEntryT<T>*& t) const {
-  typename CondContSet::const_iterator itr;
-  
-  std::lock_guard<std::mutex> lock(m_mut);
-
-  // if EventID is BOTH, we need to look in both sets
-  if (it.isRunEvent()) {
-    itr = m_condSet_RE.begin();
-    for (; itr != m_condSet_RE.end(); ++itr) {
-      if ( itr->range().isInRange( it ) ) {
-        t = &(*itr);
-        return true;
-      }
-    }
-  }
-  if (it.isTimeStamp()) {
-    itr = m_condSet_clock.begin();
-    for (; itr != m_condSet_clock.end(); ++itr) {
-      if ( itr->range().isInRange( it ) ) {
-        t = &(*itr);
-        return true;
-      }
-    }
-  }
-
-  return false;
-}
-    
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-template <typename T>
-void CondCont<T>::list(std::ostringstream& ost) const {
-  std::lock_guard<std::mutex> lock(m_mut);
-
-  ost << "id: " << m_id << "  proxy: " << m_proxy << std::endl;
-
-  ost << "clock: [" << m_condSet_clock.size() << "]" << std::endl;
-  //  std::set<IOVEntryT<T>, IOVEntryT<T>::IOVEntryTStartCritereon >::const_iterator itr = m_condSet_clock.begin();
-  typename CondContSet::const_iterator itr = m_condSet_clock.begin();
-  for (; itr != m_condSet_clock.end(); ++itr) {
-    ost << *itr << std::endl;
-  }
-  ost << "RE: [" << m_condSet_RE.size() << "]" << std::endl;
-  itr = m_condSet_RE.begin();
-  for (; itr != m_condSet_RE.end(); ++itr) {
-    ost << *itr << std::endl;
-  }
-}
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-template <typename T>
-int CondCont<T>::entries() const {
-  std::lock_guard<std::mutex> lock(m_mut);
-  return m_condSet_RE.size() + m_condSet_clock.size();
-}
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-template <typename T>
-std::vector<EventIDRange> 
-CondCont<T>::ranges() const {
-  std::lock_guard<std::mutex> lock(m_mut);
-
-  std::vector<EventIDRange> r;
-  for (auto ent : m_condSet_RE) {
-    r.push_back( ent.range() );
-  }
-  for (auto ent : m_condSet_clock) {
-    r.push_back( ent.range() );
-  }
-
-  return r;
-}
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-template <typename T>
-bool
-CondCont<T>::range(const EventIDBase& now, EventIDRange& r) const {
-  std::lock_guard<std::mutex> lock(m_mut);
-
-  typename CondContSet::const_iterator itr;
-  if (now.isRunEvent()) {
-    itr = m_condSet_RE.begin();
-    for (; itr != m_condSet_RE.end(); ++itr) {
-      if ( itr->range().isInRange( now ) ) {
-        r = itr->range();
-        return true;
-      }
-    }
-  } 
-  if (now.isTimeStamp()) {
-    itr = m_condSet_clock.begin();
-    for (; itr != m_condSet_clock.end(); ++itr) {
-      if ( itr->range().isInRange( now ) ) {
-        r = itr->range();
-        return true;
-      }
-    }
-  }
-  
-  return false;
-}
+#include "AthenaKernel/CondCont.icc"
 
 
-// #include "SGTools/CLASS_DEF.h"
-// CLASS_DEF( CondContBase , 34480459 , 1 )
-// #include "SGTools/BaseInfo.h"
-// // SG_BASE( CondCont<Cont>, CondContBase )
-
-#endif
+#endif // not ATHENAKERNEL_CONDCONT_H
 

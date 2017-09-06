@@ -31,7 +31,7 @@ monitoring_egamma = primary_single_ele + primary_double_ele + monitoring_ele_idp
 # MC 'monteCarlo'
 
 # Define the set of histograms to be monitored by shifters
-plots_efficiency = ["eff_et","eff_eta","eff_mu"]
+plots_efficiency = ["eff_et","eff_highet","eff_eta","eff_mu"]
 plots_distribution = ["et","eta","Reta","Rphi","Rhad","f1","f3","eratio","deta2","eprobHT","npixhits","nscthits","ptvarcone20"]
 plots_resolution = ["res_et","res_Rphi","res_Reta","res_Rhad","res_ptvarcone20","res_deta2"]
 

@@ -92,6 +92,7 @@ namespace {
 
 ////////////////////////////
 
+#if 0
 void fit_segment(const std::vector<Cluster*>& clus, float& s0, float& s1, float& d0, float& d1, float& d01, float& chsq ) {
   float q0 = 0.0;
   float q1 = 0.0;
@@ -130,6 +131,7 @@ void fit_segment(const std::vector<Cluster*>& clus, float& s0, float& s1, float&
   d01 = r01*r11*q2 + (r01*r10+r00*r11)*q1 + r00*r10*q0;
   chsq = q02 + s1*s1*q2 + 2*s0*s1*q1 + s0*s0*q0 - 2*s0*q01 - 2*s1*q11;
 }
+#endif
 
 void fit_segment_eqwgt(const std::vector<Cluster*>& clus, float& s0, float& s1, float& d0, float& d1, float& d01, float& chsq ) {
   float q0 = 0.0;

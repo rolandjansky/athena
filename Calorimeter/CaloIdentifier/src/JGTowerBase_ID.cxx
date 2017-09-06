@@ -576,7 +576,7 @@ int  JGTowerBase_ID::get_expanded_id  (const Identifier& id, ExpandedIdentifier&
   return (0);
 }
 void JGTowerBase_ID::tower_id_checks   ( int pos_neg, int sampling, int region,
-					 int eta,       int phi ) const throw(CaloID_Exception)
+					 int eta,       int phi ) const
 {  
   // Fill expanded id
   ExpandedIdentifier id(calo_exp());
@@ -599,7 +599,7 @@ void JGTowerBase_ID::tower_id_checks   ( int pos_neg, int sampling, int region,
 }
 
 void JGTowerBase_ID::tower_id_checks   ( const Identifier regionId,
-					 int eta,  int phi ) const throw(CaloID_Exception) 
+					 int eta,  int phi ) const
 {
   // Fill expanded id
   ExpandedIdentifier id; 
@@ -631,7 +631,6 @@ void JGTowerBase_ID::tower_id_checks   ( const Identifier regionId,
 }
 
 void JGTowerBase_ID::region_id_checks (int pos_neg, int sampling, int region)const 
-  throw(CaloID_Exception)
 {
   // Fill expanded id
   ExpandedIdentifier id(calo_exp());

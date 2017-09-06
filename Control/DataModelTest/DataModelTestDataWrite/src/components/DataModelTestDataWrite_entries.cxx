@@ -17,6 +17,7 @@
 #include "../xAODTestWriteCVecConst.h"
 #include "../xAODTestWriteSymlinks.h"
 #include "../HLTResultWriter.h"
+#include "../xAODTestWriteCInfoTool.h"
 
 DECLARE_NAMESPACE_ALGORITHM_FACTORY(DMTest, DMTestWrite)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY(DMTest, AuxDataTestWrite)
@@ -29,3 +30,4 @@ DECLARE_NAMESPACE_ALGORITHM_FACTORY(DMTest, xAODTestWriteCVecConst)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY(DMTest, xAODTestWriteSymlinks)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY(DMTest, HLTResultWriter)
 
+DECLARE_NAMESPACE_TOOL_FACTORY(DMTest, xAODTestWriteCInfoTool)

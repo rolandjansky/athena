@@ -16,7 +16,7 @@
 #include "VP1Base/IVP1System.h"
 
 #include <cassert>
-#include <QtGui/QPixmap>
+#include <QPixmap>
 
 class IVP1ChannelWidget::Imp {
 

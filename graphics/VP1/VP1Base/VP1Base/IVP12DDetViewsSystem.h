@@ -16,7 +16,8 @@
 #define IVP12DDETVIEWSSYSTEM_H
 
 #include "VP1Base/IVP12DSystem.h"
-#include <QtCore/QSet>
+
+#include <QSet>
 
 class VP1GraphicsItemCollection;
 

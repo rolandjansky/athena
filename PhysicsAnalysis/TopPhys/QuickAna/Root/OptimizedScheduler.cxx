@@ -63,6 +63,11 @@ namespace ana
     RCU_CHANGE_INVARIANT (this);
     ATH_MSG_DEBUG("initialize");
 
+    std::stable_sort (m_tools.begin(), m_tools.end(),
+		      [] (const std::unique_ptr<OptimizedTool>& a,
+                          const std::unique_ptr<OptimizedTool>& b)
+                      {return a->step() < b->step();});
+
     ATH_MSG_INFO ("tracing tool dependencies");
     for (auto& tool1 : m_tools)
     {
@@ -93,11 +98,11 @@ namespace ana
 
 
   StatusCode OptimizedScheduler ::
-  addTool (IAnaTool *tool)
+  addTool (std::unique_ptr<IAnaTool> tool)
   {
     RCU_CHANGE_INVARIANT (this);
     std::unique_ptr<OptimizedTool> mytool
-      (new OptimizedTool (std::unique_ptr<IAnaTool>(tool)));
+      (new OptimizedTool (std::move (tool)));
     m_tools.push_back (std::move (mytool));
     return StatusCode::SUCCESS;
   }

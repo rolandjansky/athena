@@ -16,12 +16,12 @@ namespace RoiBits
   const uint32_t maskId   = 0x000000ff;
   const uint32_t maskType = 0x00000f00;
   const uint32_t maskL1   = 0x000ff000;
-  const uint32_t maskFree = 0xfff00000;
+  //const uint32_t maskFree = 0xfff00000;
   
   const uint32_t shiftId   = 0;
   const uint32_t shiftType = 8;
   const uint32_t shiftL1   = 12;
-  const uint32_t shiftFree = 20;
+  //const uint32_t shiftFree = 20;
 }
 
 namespace MSGService

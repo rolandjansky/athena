@@ -9,14 +9,8 @@
 
 HiveAlgD::HiveAlgD( const std::string& name, 
                       ISvcLocator* pSvcLocator ) : 
-  ::HiveAlgBase( name, pSvcLocator ),
-  m_rdh1("a2"),
-  m_wrh1("d1")
+  ::HiveAlgBase( name, pSvcLocator )
 {
-  
-  declareProperty("Key_R1",m_rdh1);
-  declareProperty("Key_W1",m_wrh1);
-
 }
 
 HiveAlgD::~HiveAlgD() {}

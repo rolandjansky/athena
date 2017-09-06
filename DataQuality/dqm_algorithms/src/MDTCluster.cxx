@@ -37,9 +37,9 @@ namespace dqm_algorithms {
 // *********************************************************************
 
 MDTCluster::MDTCluster()
-  : name("MDTcluster")
+  : m_name("MDTcluster")
 {
-  dqm_core::AlgorithmManager::instance().registerAlgorithm( name, this );
+  dqm_core::AlgorithmManager::instance().registerAlgorithm( m_name, this );
 }
 
 
@@ -286,7 +286,7 @@ MDTCluster::printDescription(std::ostream& out)
 {
   std::string message;
   message += "\n";
-  message += "Algorithm: \"" + name + "\"\n";
+  message += "Algorithm: \"" + m_name + "\"\n";
   message += "Description: look for clusters of adiacent bins where each bin differ from reference more then n sigma\n";
   message += "Mandatory Green/Red Threshold: 	ClusterSize: the green threshold is the minimum cluster size, each cluster\n";
   message += "					smaller than this size will not recorded as cluster by this algorithm\n";

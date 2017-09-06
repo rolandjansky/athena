@@ -24,8 +24,5 @@ Global pattern recognition step uses the Hough transformation and historamming m
 local step contains straight linde finding algorithm.
 This algorithm uses IMagneticFieldTool, IPropagator, ITRT_DetElementsRoadMaker and ITRT_TrackExtensionTool tools.
 
-@section TRT_TrackSegmentsTool_xk_TRT_TrackSegmentsTool_xkReq Requirements file
 
 */
-
-

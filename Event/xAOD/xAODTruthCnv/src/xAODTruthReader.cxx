@@ -3,7 +3,7 @@
 */
 
 #include "AthenaKernel/errorcheck.h"
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/DataSvc.h"

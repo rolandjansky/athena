@@ -477,7 +477,7 @@ StatusCode egammaBuilder::execute(){
     chronoName = this->name()+"_"+m_conversionBuilder->name();         
     if(m_timingProfile) m_timingProfile->chronoStart(chronoName);
     //
-    if (m_conversionBuilder->contExecute().isFailure()){
+    if (m_conversionBuilder->contExecute(*egammaRecs).isFailure()){
       ATH_MSG_ERROR("Problem executing " << m_conversionBuilder);
       return StatusCode::FAILURE;  
     }

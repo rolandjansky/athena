@@ -53,15 +53,5 @@ have been retained for possible future use.
 
 @section CscClusterization_AdditionalCscClusterization Additional information
 
- - @ref UsedCscClusterization
- - @ref RequirementsCscClusterization
  - <a href=https://twiki.cern.ch/twiki/bin/view/Atlas/CscReconstruction>CSC reconstruction overview</a>
-*/
-
-/**
-@page UsedCscClusterization Used packages
-*/
-
-/**
-@page RequirementsCscClusterization Requirements
 */

@@ -26,8 +26,4 @@ class TFCSTruthState:public TLorentzVector {
   ClassDef(TFCSTruthState,1)  //TFCSTruthState
 };
 
-#if defined(__MAKECINT__)
-#pragma link C++ class TFCSTruthState+;
-#endif
-
 #endif

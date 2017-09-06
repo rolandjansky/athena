@@ -21,17 +21,6 @@ The branches are declared in the MuonCalib::MuonCalibBranchNtuple class, steerin
 
 For the content of the CalibrationNtuple, see <a href="https://twiki.cern.ch/twiki/bin/view/Atlas/MuonCalibNuptleContent"><span>Calibration Ntuple wiki</span></a>
 
-@ref used_MuonCalibNtuple
                                                                                 
-@ref requirements_MuonCalibNtuple
                                                                                 
 */
-                                                                                
-/**
-@page used_MuonCalibNtuple Used Packages
-*/
-                                                                                
-/**
-@page requirements_MuonCalibNtuple Requirements
-*/
-

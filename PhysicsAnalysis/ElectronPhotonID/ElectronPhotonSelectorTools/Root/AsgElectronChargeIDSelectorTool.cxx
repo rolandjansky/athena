@@ -42,15 +42,15 @@
 // Standard constructor
 //=============================================================================
 AsgElectronChargeIDSelectorTool::AsgElectronChargeIDSelectorTool(std::string myname) :
-  AsgTool(myname) //,m_cutOnBDT(0)//,m_configFile("")//,m_rootTool(0)
+  AsgTool(myname) ,
+  m_cutPosition_bdt(0),
+  m_resultPosition_bdt(0)
 {
   // Declare the needed properties
   declareProperty("WorkingPoint",m_WorkingPoint="","The Working Point");
-  //declareProperty("ConfigFile",m_configFile="","The config file to use");
   declareProperty("usePVContainer", m_usePVCont=true, "Whether to use the PV container");
   declareProperty("nPVdefault", m_nPVdefault = 0, "The default number of PVs if not counted");
   declareProperty("primaryVertexContainer", m_primVtxContName="PrimaryVertices", "The primary vertex container name" );
-
   declareProperty("TrainingFile",  m_trainingFile="", "The input ROOT file name holding training" );
   declareProperty("CutOnBDT",m_cutOnBDT=0,"Cut on BDT discriminant");
   m_pid_name=myname.data();
@@ -415,7 +415,7 @@ const Root::TResult& AsgElectronChargeIDSelectorTool::calculate( const xAOD::Ele
   if (!allFound) ATH_MSG_FATAL("Missing input variable for ECIDS BDT calculation");
 
   //long unsigned event_number=0;
-  //unsigned bdt_index=event_number%2;
+  //unsigned m_bdt_index=event_number%2;
 
   ////KM: dumping variables
   for (auto input: m_map_inputs)
@@ -423,7 +423,7 @@ const Root::TResult& AsgElectronChargeIDSelectorTool::calculate( const xAOD::Ele
 
   ////KM: dumping variables, only variables used by BDT
   // unsigned i=0;
-  // for (auto pointer: m_v_bdts.at(bdt_index)->GetPointers()) {
+  // for (auto pointer: m_v_bdts.at(m_bdt_index)->GetPointers()) {
   //   std::cout<<"\t kmdebug: "<<m_inputVars.at(i)<<"\t("<<pointer<<")\t = "<<*pointer<<std::endl; i++;
   // }
 

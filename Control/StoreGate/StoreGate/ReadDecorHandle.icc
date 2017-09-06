@@ -99,6 +99,21 @@ ReadDecorHandle<T, D>& ReadDecorHandle<T, D>::operator= (ReadDecorHandle&& rhs)
 
 
 /**
+ * @brief Is the referenced container present in SG?
+ *
+ * Note that this tests for the presence of the _container_,
+ * not for the decoration.
+ *
+ * Const method; the handle does not change as a result of this.
+ */
+template <class T, class D>
+bool ReadDecorHandle<T, D>::isPresent() const
+{
+  return this->isPresent_impl (contKeyFromKey (this->key()));
+}
+
+
+/**
  * @brief Fetch the variable for one element, as a const reference.
  * @param e The element for which to fetch the variable.
  */

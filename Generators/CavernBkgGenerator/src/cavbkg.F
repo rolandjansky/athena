@@ -46,6 +46,8 @@ C      PARAMETER (FO=8)
       DATA G32PDG/ 22, -11, 11, 12, 13, -13, 111, 211, -211, 130,
      >     321, -321, 2112, 2212, -2212, 310, 221, 3122, 3222, 3212,
      >     3112, 3322, 3312, 3334, -2112/
+      logical retry
+
 C Check FIRST
       IF (FIRST) THEN
          FIRST=.FALSE.
@@ -73,8 +75,10 @@ C     Loop here
         ITO=ITYPE
         CALL UCOPY(VECT,VECTO,3)
 C     Check ISTAT==0
-        IF (ISTAT.EQ.0) THEN
- 5020      CLOSE(LUN)
+        retry = .false.
+ 5020   IF (ISTAT.EQ.0 .or. retry) THEN
+           retry = .false.
+           CLOSE(LUN)
            IC0=ICHAR('0')
            IC9=ICHAR('9')
            ICS=ICHAR('/')
@@ -94,8 +98,10 @@ C     Check IC>IC0
              IF (IC.GT.IC0)GO TO 5032
  5031      CONTINUE
  5032      CONTINUE
+           retry = .true.
            OPEN (LUN,FILE=INPUT,FORM='UNFORMATTED',STATUS='OLD',
      >          ERR=5020)
+           retry = .false.
            NFILE=NFILE+1
            ISTAT=1
 C     Check IEVNT>100

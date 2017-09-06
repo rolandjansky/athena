@@ -14,13 +14,14 @@
 
 #include <vector>
 
-
+// Forward declarations
 class TH1D;
 
-namespace G4UA{
+namespace G4UA
+{
 
-  class FluxRecorder:
-  public IBeginRunAction,  public IEndRunAction,  public IEndEventAction, public ISteppingAction
+  class FluxRecorder : public IBeginRunAction, public IEndRunAction,
+                       public IEndEventAction, public ISteppingAction
   {
 
   public:
@@ -39,7 +40,7 @@ namespace G4UA{
 
     double m_nev;
     std::vector<int> m_list;
-    void findVolume( const double , const double , const double , const double ) ;
+    void findVolume( const double, const double, const double, const double );
 
   }; // class FluxRecorder
 

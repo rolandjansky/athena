@@ -19,11 +19,11 @@ atlas_depends_on_subdirs(
    graphics/VP1/VP1Utils )
 
 # External dependencies:
-find_package( Qt4 COMPONENTS QtCore )
+find_package( Qt5 COMPONENTS Core  )
 
 # Component(s) in the package:
 atlas_add_component( VP1TrkAuxAlgs src/*.cxx src/components/*.cxx
-   LINK_LIBRARIES Qt4::QtCore AthenaBaseComps GaudiKernel TrkExInterfaces
+   LINK_LIBRARIES Qt5::Core AthenaBaseComps GaudiKernel TrkExInterfaces ${SOQT_LIBRARIES}
    TrkFitterInterfaces VP1Base VP1Utils )
 
 # Install files from the package:

@@ -1047,9 +1047,6 @@ StatusCode TileTBCellMonTool::fillHistograms() {
   //Retrieve Cell collection from SG
   CHECK( evtStore()->retrieve(cell_container, m_cellsContName) );
 
-  CaloCellContainer::const_iterator iCell = cell_container->begin();
-  CaloCellContainer::const_iterator lastCell  = cell_container->end();
-
   std::string letterA="A";
   std::string letterB="B";
   std::string letterD="D";

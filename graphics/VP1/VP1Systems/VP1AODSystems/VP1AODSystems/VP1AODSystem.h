@@ -18,7 +18,7 @@
 
 #include "GaudiKernel/SystemOfUnits.h"
 
-#include <QtCore/QList>
+#include <QList>
 
 #include <vector>
 #include <map>

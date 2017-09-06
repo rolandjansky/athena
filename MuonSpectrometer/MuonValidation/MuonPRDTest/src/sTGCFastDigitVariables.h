@@ -46,7 +46,7 @@ class sTGCFastDigitVariables : public ValAlgVariables
   {
     if( (this->deleteVariables()).isFailure() ){
       ATH_MSG_ERROR("Failing to delete sTGCFastDigitVariables.");
-      throw;
+      std::terminate();
     }
   }
 

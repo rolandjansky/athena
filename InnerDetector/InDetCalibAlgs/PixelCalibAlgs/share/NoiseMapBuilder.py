@@ -235,18 +235,6 @@ if doClusterization :
 #  topSequence += monMan
 #
 
-# include Pixel ntuple writer alg (useful if some further validation is needed)
-# adds information about all PRDs in the Pixels
-#from InDetTrackValidation.InDetTrackValidationConf import InDet__PixelClusterValidationNtupleWriter
-#PixelNtupleWriter = InDet__PixelClusterValidationNtupleWriter(name                       = 'InDetPixelClusterValidationNtupleWriter',
-#                                                              NtupleFileName           = 'TRKVAL',
-#                                                              NtupleDirectoryName      = 'Validation',
-#                                                              NtupleTreeName           = 'PixelRIOs',
-#                                                              PixelClusterContainer    = 'PixelClusters')
-#topSequence += PixelNtupleWriter
-#ServiceMgr.THistSvc.Output += [ "TRKVAL DATAFILE='/tmp/aandreaz/TrkValidation.root' TYPE='ROOT' OPT='RECREATE'" ]
-
-
 
 #ServiceMgr.EventSelector.SkipEvents = 0
 theApp.EvtMax = -1

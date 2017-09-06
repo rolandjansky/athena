@@ -102,9 +102,9 @@ void test1 ()
   unpacked = neg_zero;
   packed = tf1.pack (unpacked);
   assert (packed == 0x800);
-  out = tf1.unpack (packed);
+  out = tf1.unpack (packed, &err);
   assert (bitwise_equal (unpacked, out));
-  assert (!tf1.errcheck (err));
+  assert (err.empty());
 
   FloatPacker tf2 (28, 24, 2, false);
 
@@ -129,38 +129,36 @@ void test1 ()
   unpacked = 0;
   packed = tf2.pack (unpacked);
   assert (packed == 0);
-  out = tf2.unpack (packed);
+  out = tf2.unpack (packed, &err);
   assert (bitwise_equal (unpacked, out));
-  assert (!tf2.errcheck (err));
+  assert (err.empty());
 
   // This gets a warning.
   unpacked = -1;
-  packed = tf2.pack (unpacked);
+  packed = tf2.pack (unpacked, &err);
   assert (packed == 0);
-  out = tf2.unpack (packed);
+  out = tf2.unpack (packed, &err);
   assert (bitwise_equal (0, out));
-  assert (tf2.errcheck (err));
   assert (err == "Float overflow during packing: -1");
-  assert (!tf2.errcheck (err));
+  err.clear();
 
   // This gets a warning.
   unpacked = infinity;
-  packed = tf2.pack (unpacked);
+  packed = tf2.pack (unpacked, &err);
   assert (packed == 0);
-  out = tf2.unpack (packed);
+  out = tf2.unpack (packed, &err);
   assert (bitwise_equal (0, out));
-  assert (tf2.errcheck (err));
-  
   assert (err == "Bad float number: inf (0 7ff00000)");
+  err.clear();
 
   // This gets a warning.
   unpacked = 100000;
-  packed = tf2.pack (unpacked);
+  packed = tf2.pack (unpacked, &err);
   assert (packed == 0xfffffff);
-  out = tf2.unpack (packed);
+  out = tf2.unpack (packed, &err);
   assert (almost_equal (out, 512, 24));
-  assert (tf2.errcheck (err));
   assert (err == "Float overflow during packing: 100000");
+  err.clear();
 
   // Testing underflow to denormal.
   unpacked = 0.5 / 32;
@@ -185,9 +183,9 @@ void test1 ()
   unpacked = 1e-50;
   packed = tf2.pack (unpacked);
   assert (packed == 0);
-  out = tf2.unpack (packed);
+  out = tf2.unpack (packed, &err);
   assert (bitwise_equal (0, out));
-  assert (!tf2.errcheck (err));
+  assert (err.empty());
 
   FloatPacker tf3 (28, 12, 0, false);
 
@@ -208,7 +206,7 @@ void test1 ()
   else
     assert (out == 0);
 #endif
-  assert (!tf3.errcheck (err));
+  assert (err.empty());
 
   // Testing rounding.
   FloatPacker tf6 (12, 8, 4, false, true);
@@ -229,19 +227,19 @@ void test1 ()
   unpacked = 1023./1024; // Test mantissa overflowing after rounding.
   packed = tf6.pack (unpacked);
   assert (packed == 0x600);
-  out = tf6.unpack (packed);
+  out = tf6.unpack (packed, &err);
   tmp = 1.0;
   assert (bitwise_equal (tmp, out));
-  assert (!tf6.errcheck (err));
+  assert (err.empty());
 
   // Test an unpacking problem with npack==packdest_bits.
   FloatPacker tf7 (32, 32, 0, false);
   unpacked = 1. / 65536 / 65536;
-  packed = tf7.pack (unpacked);
+  packed = tf7.pack (unpacked, &err);
   assert (packed == 0x1);
-  out = tf7.unpack (packed);
+  out = tf7.unpack (packed, &err);
   assert (bitwise_equal (unpacked, out));
-  assert (!tf7.errcheck (err));
+  assert (err.empty());
 
   // Test rounding during underflow_to_denormal.
   FloatPacker tf8 (8, 8, 0, false, true);
@@ -252,24 +250,24 @@ void test1 ()
   assert (bitwise_equal (unpacked, out));
 
   unpacked = 0.5 + 1. / 512;
-  packed = tf8.pack (unpacked);
+  packed = tf8.pack (unpacked, &err);
   assert (packed == 0x81);
-  out = tf8.unpack (packed);
+  out = tf8.unpack (packed, &err);
   tmp = 0.5 + 1. / 256;
   assert (bitwise_equal (tmp, out));
-  assert (!tf8.errcheck (err));
+  assert (err.empty());
 
   // This gets a warning.
   unpacked = 1023. / 1024;
-  packed = tf8.pack (unpacked);
+  packed = tf8.pack (unpacked, &err);
   assert (packed == 0xff);
   d.d = unpacked;
-  assert (tf8.errcheck (err));
-  assert (err == "Float overflow during packing: 0.999023");  
-  out = tf8.unpack (packed);
+  assert (err == "Float overflow during packing: 0.999023");
+  err.clear();
+  out = tf8.unpack (packed, &err);
   tmp = 255. / 256;
   assert (bitwise_equal (tmp, out));
-  assert (!tf8.errcheck (err));
+  assert (err.empty());
 
   // Test using bit 33 to control rounding.
   FloatPacker tf9 (32, 32, 0, false, true);
@@ -282,17 +280,17 @@ void test1 ()
   unpacked = 0.5 + 1. / 65536 / 65536 / 2;
   packed = tf9.pack (unpacked);
   assert (packed == 0x80000001);
-  out = tf9.unpack (packed);
+  out = tf9.unpack (packed, &err);
   tmp = 0.5 + 1. / 65536 / 65536;
   assert (bitwise_equal (tmp, out));
-  assert (!tf9.errcheck (err));
+  assert (err.empty());
 
   // This gets a warning.
   packed = 0xf654000;
-  out = tf3.unpack (packed);
-  assert (tf3.errcheck (err));
+  out = tf3.unpack (packed, &err);
   assert (err == "Overflow while unpacking float; exponent: 30292");
   assert (std::isinf (out));
+  err.clear();
 }
 
 

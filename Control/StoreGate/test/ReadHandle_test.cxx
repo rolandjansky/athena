@@ -12,6 +12,7 @@
 
 
 #undef NDEBUG
+#include "AthenaKernel/ExtendedEventContext.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/exceptions.h"
 #include "SGTools/TestStore.h"
@@ -68,7 +69,8 @@ void test1()
 
   SGTest::TestStore dumstore;
   EventContext ctx5;
-  ctx5.setProxy (&dumstore);
+  ctx5.setExtension( Atlas::ExtendedEventContext(&dumstore) );
+  
   SG::ReadHandle<MyObj> h5 (k3, ctx5);
   assert (h5.clid() == MyCLID);
   assert (h5.key() == "asd");
@@ -129,7 +131,6 @@ void test2()
   assert (h3.isInitialized());
   assert (h3.cptr() == fooptr);
   assert (foo_proxy->refCount() == 3);
-  assert (h2.key() == "foo");
   assert (h2.store() == "TestStore");
   assert (!h2.isInitialized());
   assert (h2.cachedPtr() == nullptr);
@@ -159,7 +160,6 @@ void test2()
   assert (h2.store() == "TestStore");
   assert (h2.isInitialized());
   assert (h2.cptr() == barptr);
-  assert (h3.key() == "bar");
   assert (h3.store() == "TestStore");
   assert (!h3.isInitialized());
   assert (h3.cachedPtr() == nullptr);
@@ -213,7 +213,7 @@ void test3()
   MyObj* foox = new MyObj;
   testStore2.record (foox, "foox");
   EventContext ctx2;
-  ctx2.setProxy (&testStore2);
+  ctx2.setExtension( Atlas::ExtendedEventContext(&testStore2) );
   assert (h3.get(ctx2) == foox);
 }
 
@@ -238,7 +238,8 @@ void test4()
 
   SGTest::TestStore dumstore;
   EventContext ctx;
-  ctx.setProxy (&dumstore);
+  ctx.setExtension( Atlas::ExtendedEventContext(&dumstore) );
+
   auto h2 = SG::makeHandle (k1, ctx);
   assert (h2.clid() == MyCLID);
   assert (h2.key() == "asd");
@@ -307,7 +308,10 @@ int main()
 {
   errorcheck::ReportMessage::hideErrorLocus();
   ISvcLocator* svcloc;
-  Athena_test::initGaudi("VarHandleBase_test.txt", svcloc); //need MessageSvc
+  //need MessageSvc
+  if (!Athena_test::initGaudi("VarHandleBase_test.txt", svcloc)) {
+    return 1;
+  }
 
   test1();
   test2();

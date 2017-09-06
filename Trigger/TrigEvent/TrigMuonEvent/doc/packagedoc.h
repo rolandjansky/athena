@@ -33,16 +33,6 @@ storage.
   - TrigMuonEFInfoTrackContainer : container for TrigMuonEFInfo
 
 
-@ref used_TrigMuonEvent
 
-@ref requirements_TrigMuonEvent
 
-*/
-
-/**
-@page used_TrigMuonEvent Used Packages
-*/
-
-/**
-@page requirements_TrigMuonEvent Requirements
 */

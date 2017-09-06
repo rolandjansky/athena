@@ -45,23 +45,7 @@ namespace D3PD {
         TileDigitsCollection::const_iterator m_digItr,m_digEnd;
 
     };
-// Template specialization for rel 16.5.0
-//    template <>
-//    struct Deref<TileDigitsCollection*>{
-//        typedef DataLinkVector<TileDigitsCollection>::DataHolder DH;
-//        typedef TileDigitsCollection type;
-//        static const type* deref (DH* p) { return p->getDataPtr(); }
-//    };
-//------------------------------------    
-    
-// Template specialization for rel 16.6.2
-    template <>
-    struct Deref<TileDigitsContainer,TileDigitsCollection*>{
-        typedef TileDigitsContainer::const_iterator it;
-        typedef TileDigitsCollection type;
-        static const type* deref (it& p) { return p->getDataPtr(); }
-    };
-//-------------------------------------
+
 
 }
 

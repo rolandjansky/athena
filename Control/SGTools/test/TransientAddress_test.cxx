@@ -51,7 +51,8 @@ class TestProvider
 {
 public:
   virtual StatusCode updateAddress(StoreID::type /*storeID*/,
-				   SG::TransientAddress* /*pTAd*/)
+				   SG::TransientAddress* /*pTAd*/,
+                                   const EventContext& /*ctx*/) override
   { return StatusCode::SUCCESS; }
 };
 
@@ -81,7 +82,7 @@ void test1()
   assert (tad1.name() == "");
   assert (tad1.transientID().size() == 0);
   assert (tad1.alias().size() == 0);
-  assert (!tad1.isValid());
+  assert (!tad1.isValid(nullptr));
   assert (tad1.provider() == 0);
   assert (tad1.storeID() == StoreID::UNKNOWN);
   assert (tad1.address() == 0);
@@ -97,7 +98,7 @@ void test1()
   assert (tad2.clID() == 123);
   assert (tad2.transientID().size() == 1);
   assert (tad2.alias().size() == 0);
-  assert (!tad2.isValid());
+  assert (!tad2.isValid(nullptr));
   assert (tad2.provider() == 0);
   assert (tad2.storeID() == StoreID::UNKNOWN);
   assert (tad2.address() == 0);
@@ -115,9 +116,14 @@ void test1()
   tad2.setAlias ("key2");
   assert (tad2.alias().size() == 1);
   std::set<std::string> a;
-  a.insert ("key3");
-  a.insert ("key4");
-  tad2.setAlias (a);
+  a.insert ("key3a");
+  a.insert ("key4a");
+  tad2.setAlias (std::move(a));
+  assert (a.size() == 0);
+  assert (tad2.alias().size() == 2);
+  assert (tad2.alias().count ("key2") == 0);
+  assert (tad2.alias().count ("key3a") == 1);
+  tad2.setAlias (std::set<std::string> {"key3", "key4"});
   assert (tad2.alias().size() == 2);
   assert (tad2.alias().count ("key2") == 0);
   assert (tad2.alias().count ("key3") == 1);
@@ -129,38 +135,38 @@ void test1()
   SG::TransientAddress tad3 (123, "key", &ad1);
   assert (tad3.name() == "key");
   assert (tad3.clID() == 123);
-  assert (tad3.isValid());
+  assert (tad3.isValid(nullptr));
   assert (tad3.provider() == 0);
   assert (tad3.storeID() == StoreID::UNKNOWN);
   assert (tad3.address() == &ad1);
 
   TestAddress ad2(2);
   tad3.setAddress (&ad2);
-  assert (tad3.isValid());
+  assert (tad3.isValid(nullptr));
   assert (tad3.address() == &ad2);
   tad3.reset();
-  assert (!tad3.isValid());
+  assert (!tad3.isValid(nullptr));
   assert (tad3.address() == 0);
 
   tad3.setAddress (&ad2);
   tad3.clearAddress (false);
   tad3.reset();
-  assert (tad3.isValid());
+  assert (tad3.isValid(nullptr));
   assert (tad3.address() == &ad2);
   tad3.clearAddress (true);
   tad3.reset();
-  assert (!tad3.isValid());
+  assert (!tad3.isValid(nullptr));
   assert (tad3.address() == 0);
 
   TestProvider tp;
   tad3.setProvider (&tp, StoreID::SPARE_STORE);
   assert (tad3.provider() == &tp);
   assert (tad3.storeID() == StoreID::SPARE_STORE);
-  assert (tad3.isValid());
+  assert (tad3.isValid(nullptr));
   tad3.consultProvider (false);
-  assert (!tad3.isValid());
+  assert (!tad3.isValid(nullptr));
   tad3.consultProvider (true);
-  assert (tad3.isValid());
+  assert (tad3.isValid(nullptr));
 
   SG::TransientAddress tad4(0, "");
   assert (tad4.clID() == CLID_NULL);

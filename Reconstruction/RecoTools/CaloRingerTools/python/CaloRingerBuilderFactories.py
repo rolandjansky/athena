@@ -21,10 +21,6 @@ class ConfigureEgammaCaloRings( object ):
     self.NRings = [8, 64, 8, 8, 4, 4, 4]
     self.CellMaxDEtaDist = .2
     self.CellMaxDPhiDist = .2
-    try:
-      import cppyy
-    except ImportError:
-      import PyCintex as cppyy
     from ROOT import CaloCell_ID
     # Changes in the layers may break the algorithm because it may not be able to
     # recognize whether a layer is correspondent to EM1, EM2 and so on. If it is

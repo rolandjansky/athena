@@ -26,6 +26,6 @@ atlas_add_library( ISF_FatrasEvent
                    src/*.cxx
                    PUBLIC_HEADERS ISF_FatrasEvent
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} AthLinks DataModel SGTools Identifier InDetPrepRawData ISF_FatrasDetDescrModel TrkPrepRawData TrkRIO_OnTrack
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} AthLinks DataModel SGTools Identifier InDetPrepRawData ISF_FatrasDetDescrModel TrkPrepRawData TrkRIO_OnTrack EventContainers
                    PRIVATE_LINK_LIBRARIES GaudiKernel )
 

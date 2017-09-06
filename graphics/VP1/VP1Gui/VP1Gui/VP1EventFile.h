@@ -17,8 +17,8 @@
 #ifndef VP1EVENTFILE_H
 #define VP1EVENTFILE_H
 
-#include <QtCore/QString>
-#include <QtCore/QDateTime>
+#include <QString>
+#include <QDateTime>
 
 class VP1EventFile {
 public:

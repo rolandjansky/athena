@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 ### import the modules 
-#print '... importing ROOT and PyCintex'
-import ROOT, PyCintex
+#print '... importing ROOT'
+import ROOT
 
 import sys
 if '-c' in sys.argv:

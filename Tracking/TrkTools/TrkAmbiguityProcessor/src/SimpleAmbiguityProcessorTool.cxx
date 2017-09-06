@@ -63,8 +63,6 @@ Trk::SimpleAmbiguityProcessorTool::SimpleAmbiguityProcessorTool(const std::strin
   m_validationTreeFolder("/val/AmbiProcessor"+n),
   m_validationTree(0),
   m_event(0),
-  m_trackSeedMap(0),
-  m_trackSeedMapLocation("TrackSeedMap"),
   m_trackTrackMap(0)
 #endif
 #ifdef SIMPLEAMBIGPROCDEBUGCODE
@@ -94,21 +92,24 @@ Trk::SimpleAmbiguityProcessorTool::SimpleAmbiguityProcessorTool(const std::strin
   declareProperty("pTminBrem"            , m_pTminBrem          = 1000.);
   declareProperty("etaBounds"            , m_etabounds,"eta intervals for internal monitoring");
 
+#ifdef SIMPLEAMBIGPROCNTUPLECODE
+  declareProperty("TrackSeedMap", m_trackSeedMapLocation = "TrackSeedMap");
+  declare(m_eventInfo_key = "EventInfo");
+#endif
+
 #ifdef SIMPLEAMBIGPROCDEBUGCODE
-  declareProperty("IsBackTracking"       , m_isBackTracking     = false);
-  declareProperty("TruthLocationTRT"       , m_truth_locationTRT     );  
-  declareProperty("ResolvedTrackConnection", m_resolvedTrackConnection = "SiSPS_ResolvedTrackConnection");
-  declareProperty("TruthCollection"        , m_truthCollection = "SiSPSeededTracksTruthCollection");
-  m_truth_locationTRT      = "PRD_MultiTruthTRT"              ;
+  declareProperty("ResolvedTrackConnection", m_resolvedTrackConnection="SiSPS_ResolvedTrackConnection");
+  declareProperty("TruthCollection", m_truthCollection="SiSPSeededTracksTruthCollection");
   //to get brem truth
-  m_generatedEventCollectionName = "TruthEvent"                ;
+  declareProperty("GeneratedEventCollection", m_generatedEventCollectionName="TruthEvent");
+  declare(m_write_resolvedTrackConnection);
 #endif
 
 #if defined SIMPLEAMBIGPROCNTUPLECODE || defined SIMPLEAMBIGPROCDEBUGCODE
-  declareProperty("TruthLocationSCT"       ,m_truth_locationSCT     );
-  declareProperty("TruthLocationPixel"     ,m_truth_locationPixel   );
-  m_truth_locationPixel    = "PRD_MultiTruthPixel"            ;
-  m_truth_locationSCT      = "PRD_MultiTruthSCT"              ;
+  declareProperty("IsBackTracking", m_isBackTracking=false);
+  declareProperty("TruthLocationPixel", m_truth_locationPixel="PRD_MultiTruthPixel");
+  declareProperty("TruthLocationSCT", m_truth_locationSCT="PRD_MultiTruthSCT");
+  declareProperty("TruthLocationTRT", m_truth_locationTRT="PRD_MultiTruthTRT");
 #endif
 
 
@@ -202,6 +203,11 @@ StatusCode Trk::SimpleAmbiguityProcessorTool::initialize()
 
 #ifdef SIMPLEAMBIGPROCNTUPLECODE
 
+  ATH_CHECK(m_eventInfo_key.initialize());
+  m_has_trackSeedMap = m_trackSeedMapLocation.initialize().isSuccess();
+  if (!m_has_trackSeedMap)
+    ATH_MSG_DEBUG("Could not find TrackSeedMap, "
+		  "Seed validation needs to be run as well to have full output!");
   
   // retrieve the ParticleProperties handle
   if( m_particlePropSvc.retrieve().isFailure())
@@ -257,6 +263,14 @@ StatusCode Trk::SimpleAmbiguityProcessorTool::initialize()
 #endif
 
 #ifdef SIMPLEAMBIGPROCDEBUGCODE
+  ATH_CHECK(m_generatedEventCollectionName.initialize());
+  ATH_CHECK(m_truthCollection.initialize());
+  m_has_resolvedTrackConnection = m_resolvedTrackConnection.initialize().isSuccess();
+  if (!m_has_resolvedTrackConnection) {
+    m_write_resolvedTrackConnection = m_resolvedTrackConnection.key();
+    ATH_CHECK(m_write_resolvedTrackConnection.initialize());
+  }
+
   // to get the brem truth
   IToolSvc* toolSvc;
   if ((sc=service("ToolSvc", toolSvc)).isFailure())  {
@@ -276,6 +290,12 @@ StatusCode Trk::SimpleAmbiguityProcessorTool::initialize()
       msg(MSG::ERROR) << "Could not get PixelID helper !" << endmsg;
       return StatusCode::FAILURE;
     }
+#endif
+
+#if defined SIMPLEAMBIGPROCNTUPLECODE || defined SIMPLEAMBIGPROCDEBUGCODE
+  ATH_CHECK(m_truth_locationPixel.initialize());
+  ATH_CHECK(m_truth_locationSCT.initialize());
+  ATH_CHECK(m_truth_locationTRT.initialize());
 #endif
   
   return sc;
@@ -461,155 +481,123 @@ TrackCollection*  Trk::SimpleAmbiguityProcessorTool::process(const TrackCollecti
   
   using namespace std;
 
+#if defined SIMPLEAMBIGPROCNTUPLECODE || defined SIMPLEAMBIGPROCDEBUGCODE
+  m_truthPIX = SG::makeHandle(m_truth_locationPixel);
+  m_truthSCT = SG::makeHandle(m_truth_locationSCT);
+  m_truthTRT = SG::makeHandle(m_truth_locationTRT);
+#endif
+
 #ifdef SIMPLEAMBIGPROCNTUPLECODE
-  const xAOD::EventInfo* eventInfo;
-  if (evtStore()->retrieve(eventInfo).isFailure()) 
-    msg(MSG::WARNING)<<"Could not get EventInfo object" << endmsg;  
-  else {
-    m_event = (int)eventInfo->eventNumber();
-  }
-  
-  m_truthPIX = 0;
-  m_truthSCT = 0;
-  // retrieve the multi-truth maps
-  if (evtStore()->contains<PRD_MultiTruthCollection>(m_truth_locationPixel) && evtStore()->retrieve(m_truthPIX,m_truth_locationPixel).isFailure())
-    msg(MSG::WARNING)<<"Could not find TruthPixel" << endmsg;  
-  
-  if (evtStore()->contains<PRD_MultiTruthCollection>(m_truth_locationSCT) && evtStore()->retrieve(m_truthSCT,m_truth_locationSCT).isFailure())
-    msg(MSG::WARNING)<<"Could not find TruthSCT" << endmsg;
-  
+  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfo_key);
+  m_event = (int)eventInfo->eventNumber();
   
   m_trackBarcodeMap.clear();
   m_barcodeTrackMap.clear();
   // fill the truth maps
-  if (m_truthPIX && m_truthSCT){
     
-    TrackCollection::const_iterator trackIt    = tracks->begin();
-    TrackCollection::const_iterator trackItEnd = tracks->end();
+  TrackCollection::const_iterator trackIt    = tracks->begin();
+  TrackCollection::const_iterator trackItEnd = tracks->end();
     
-    for ( ; trackIt != trackItEnd ; ++trackIt)
-      {
-	std::map<int,int> barcodeOccurence;
-	std::map<int,const HepMC::GenParticle*> barcodeGenParticle;
-	int numhits         = 0;
-	int numbarcodes     = 0;
-	int numtruthlost    = 0;
-	int leadingbarcode  = 0;
-	int leadingnumhits  = 0;  
-	// prd iteration
-	const DataVector<const MeasurementBase>* measurements = (*trackIt)->measurementsOnTrack();
-	if (!measurements) continue;
-	DataVector<const MeasurementBase>::const_iterator rotIter    = measurements->begin();
-	DataVector<const MeasurementBase>::const_iterator rotIterEnd = measurements->end();
+  for ( ; trackIt != trackItEnd ; ++trackIt) {
+    std::map<int,int> barcodeOccurence;
+    std::map<int,const HepMC::GenParticle*> barcodeGenParticle;
+    int numhits         = 0;
+    int numbarcodes     = 0;
+    int numtruthlost    = 0;
+    int leadingbarcode  = 0;
+    int leadingnumhits  = 0;  
+    // prd iteration
+    const DataVector<const MeasurementBase>* measurements = (*trackIt)->measurementsOnTrack();
+    if (!measurements) continue;
+    DataVector<const MeasurementBase>::const_iterator rotIter    = measurements->begin();
+    DataVector<const MeasurementBase>::const_iterator rotIterEnd = measurements->end();
         
         
-	for ( ; rotIter != rotIterEnd; ++rotIter ){
-	  // get the prd from the ROT    
-	  const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(*rotIter);
-	  if (!rot) continue;
-	  const Trk::PrepRawData* prd = (*rot).prepRawData();
-	  if (!prd) continue;
+    for ( ; rotIter != rotIterEnd; ++rotIter ){
+      // get the prd from the ROT    
+      const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(*rotIter);
+      if (!rot) continue;
+      const Trk::PrepRawData* prd = (*rot).prepRawData();
+      if (!prd) continue;
           
-	  // PIXEL / SCT
-	  const InDet::PixelCluster* pixCluster = dynamic_cast<const InDet::PixelCluster*>(prd);
-	  const InDet::SCT_Cluster*  sctCluster  = pixCluster ? 0 : dynamic_cast<const InDet::SCT_Cluster*>(prd);
-	  const InDet::SiCluster* siCluster = pixCluster;
-	  siCluster = siCluster ? siCluster : sctCluster;
-	  // get the right 
-	  const PRD_MultiTruthCollection* truthColll = pixCluster ? m_truthPIX : m_truthSCT;
-	  // one of the two worked
+      // PIXEL / SCT
+      const InDet::PixelCluster* pixCluster = dynamic_cast<const InDet::PixelCluster*>(prd);
+      const InDet::SCT_Cluster*  sctCluster  = pixCluster ? 0 : dynamic_cast<const InDet::SCT_Cluster*>(prd);
+      const InDet::SiCluster* siCluster = pixCluster;
+      siCluster = siCluster ? siCluster : sctCluster;
+      // get the right 
+      SG::ReadHandle<PRD_MultiTruthCollection> truthColll = pixCluster ? m_truthPIX : m_truthSCT;
+      // one of the two worked
           
-	  if (siCluster){
+      if (siCluster){
 	    
-	    ++numhits;            
-	    // get the rdo list and loop over it
-	    const std::vector<Identifier>& rdoList = siCluster->rdoList();
-	    std::vector<Identifier>::const_iterator rdoIter    = rdoList.begin();
-	    std::vector<Identifier>::const_iterator rdoIterEnd = rdoList.end();
+	++numhits;            
+	// get the rdo list and loop over it
+	const std::vector<Identifier>& rdoList = siCluster->rdoList();
+	std::vector<Identifier>::const_iterator rdoIter    = rdoList.begin();
+	std::vector<Identifier>::const_iterator rdoIterEnd = rdoList.end();
             
-	    for ( ; rdoIter != rdoIterEnd; ++rdoIter ){
-	      // find the GenParticle link : Pixels                                
-	      PRD_MultiTruthCollection::const_iterator hmcpIt      = m_truthPIX->end();
-	      std::pair<PRD_MultiTruthCollection::const_iterator, PRD_MultiTruthCollection::const_iterator> itpixRange = truthColll->equal_range(*rdoIter);
-	      for ( hmcpIt = itpixRange.first; hmcpIt != itpixRange.second; ++hmcpIt){
-		// get the HepMCParticleLink
-		HepMcParticleLink pLink = hmcpIt->second;
-		// get vertex and direction
-		const HepMC::GenParticle* particle = pLink.cptr();
-		if (particle){
-		  // get the particle barcode
-		  int barcode = particle->barcode();
-		  std::map<int,int>::iterator bcuIter = barcodeOccurence.find(barcode);
-		  if (barcode && bcuIter == barcodeOccurence.end()) {
-		    barcodeOccurence.insert(std::make_pair<int,int>(barcode,1));
-		    barcodeGenParticle.insert(std::make_pair<int,const HepMC::GenParticle*>(barcode,particle));
-		  }
-		  else if (barcode) ++barcodeOccurence[barcode];
-		  else ++numtruthlost; 
-		} else ++numtruthlost;
+	for ( ; rdoIter != rdoIterEnd; ++rdoIter ){
+	  // find the GenParticle link : Pixels                                
+	  PRD_MultiTruthCollection::const_iterator hmcpIt      = m_truthPIX->end();
+	  std::pair<PRD_MultiTruthCollection::const_iterator, PRD_MultiTruthCollection::const_iterator> itpixRange = truthColll->equal_range(*rdoIter);
+	  for ( hmcpIt = itpixRange.first; hmcpIt != itpixRange.second; ++hmcpIt){
+	    // get the HepMCParticleLink
+	    HepMcParticleLink pLink = hmcpIt->second;
+	    // get vertex and direction
+	    const HepMC::GenParticle* particle = pLink.cptr();
+	    if (particle){
+	      // get the particle barcode
+	      int barcode = particle->barcode();
+	      std::map<int,int>::iterator bcuIter = barcodeOccurence.find(barcode);
+	      if (barcode && bcuIter == barcodeOccurence.end()) {
+		barcodeOccurence.insert(std::make_pair(barcode,1));
+		barcodeGenParticle.insert(std::make_pair(barcode,particle));
+	      }
+	      else if (barcode) ++barcodeOccurence[barcode];
+	      else ++numtruthlost; 
+	    } else ++numtruthlost;
                 
-	      } // loop over GenParticles
-	    } // loop over rdos
-	  } // siCluster check 
-	} // prd Loop
-	numbarcodes = barcodeOccurence.size();
-	std::map<int,int>::iterator bcIter    = barcodeOccurence.begin();
-	std::map<int,int>::iterator bcIterEnd = barcodeOccurence.end();
-	for ( ; bcIter != bcIterEnd; ++bcIter){
-	  if ( (*bcIter).second > leadingnumhits ){
-	    leadingnumhits = (*bcIter).second;
-	    leadingbarcode = (*bcIter).first;
-	  }
-	}
-	if (leadingbarcode){
-	  // get the charge and the truth pt
-	  const HepMC::GenParticle* particle = barcodeGenParticle[leadingbarcode];
-	  m_pT_mc = particle ?  particle->momentum().perp() : 0.;
+	  } // loop over GenParticles
+	} // loop over rdos
+      } // siCluster check 
+    } // prd Loop
+    numbarcodes = barcodeOccurence.size();
+    std::map<int,int>::iterator bcIter    = barcodeOccurence.begin();
+    std::map<int,int>::iterator bcIterEnd = barcodeOccurence.end();
+    for ( ; bcIter != bcIterEnd; ++bcIter){
+      if ( (*bcIter).second > leadingnumhits ){
+	leadingnumhits = (*bcIter).second;
+	leadingbarcode = (*bcIter).first;
+      }
+    }
+    if (leadingbarcode){
+      // get the charge and the truth pt
+      const HepMC::GenParticle* particle = barcodeGenParticle[leadingbarcode];
+      m_pT_mc = particle ?  particle->momentum().perp() : 0.;
           
-	  int pdgCode = particle->pdg_id();
-	  int absPdgCode = abs(pdgCode);
+      int pdgCode = particle->pdg_id();
+      int absPdgCode = abs(pdgCode);
           
-	  // get the charge: ap->charge() is used later
-	  const HepPDT::ParticleData* ap =  m_particleDataTable->particle( absPdgCode);
-	  if( ap) m_charge_mc = ap->charge();
-	  // since the PDT table only has abs(PID) values for the charge
-	  m_charge_mc *= (pdgCode > 0.) ?  1. : -1.;
-	}
-	// create the stat object
-	TrackBarcodeStats tbcStats;
-	tbcStats.numhits        =  numhits       ;
-	tbcStats.numbarcodes    =  numbarcodes   ;
-	tbcStats.numtruthlost   =  numtruthlost  ;
-	tbcStats.leadingbarcode =  leadingbarcode;
-	tbcStats.leadingnumhits =  leadingnumhits;
-	// create the map entries
-	m_trackBarcodeMap.insert(std::make_pair<const Trk::Track*,TrackBarcodeStats>(*trackIt,tbcStats));
-	m_barcodeTrackMap.insert(std::make_pair<int,const Trk::Track*>(leadingbarcode,*trackIt));
+      // get the charge: ap->charge() is used later
+      const HepPDT::ParticleData* ap =  m_particleDataTable->particle( absPdgCode);
+      if( ap) m_charge_mc = ap->charge();
+      // since the PDT table only has abs(PID) values for the charge
+      m_charge_mc *= (pdgCode > 0.) ?  1. : -1.;
+    }
+    // create the stat object
+    TrackBarcodeStats tbcStats;
+    tbcStats.numhits        =  numhits       ;
+    tbcStats.numbarcodes    =  numbarcodes   ;
+    tbcStats.numtruthlost   =  numtruthlost  ;
+    tbcStats.leadingbarcode =  leadingbarcode;
+    tbcStats.leadingnumhits =  leadingnumhits;
+    // create the map entries
+    m_trackBarcodeMap.insert(std::make_pair(*trackIt,tbcStats));
+    m_barcodeTrackMap.insert(std::make_pair(leadingbarcode,*trackIt));
         
-      } // track loop
-    
-  } // MC case
+  } // track loop
   
-#endif
-  
-#ifdef SIMPLEAMBIGPROCDEBUGCODE
-  StatusCode sc1;
-  
-  m_truthPIX  = 0;
-  m_truthSCT  = 0;
-  m_truthTRT  = 0;
-  
-  sc1 = evtStore()->retrieve(m_truthPIX,m_truth_locationPixel);
-  if (sc1.isFailure()) 
-    msg(MSG::WARNING)<<"Could not find TruthPixel"<<endmsg;  
-  
-  sc1 = evtStore()->retrieve(m_truthSCT,m_truth_locationSCT);
-  if (sc1.isFailure()) 
-    msg(MSG::WARNING)<<"Could not find TruthSCT"<<endmsg;
-
-  sc1 = evtStore()->retrieve(m_truthTRT,m_truth_locationTRT);
-  if (sc1.isFailure()) 
-    msg(MSG::FATAL)<<"Could not find TruthTRT"<<endmsg;
 #endif
   
   ++m_Nevents; // statistics
@@ -678,15 +666,7 @@ void Trk::SimpleAmbiguityProcessorTool::addNewTracks(const TrackCollection* trac
   TrackCollection::const_iterator trackItEnd = tracks->end();
 
 #ifdef SIMPLEAMBIGPROCNTUPLECODE          
-  if (!evtStore()->contains<TrackSeedMap>(m_trackSeedMapLocation)){
-    msg(MSG::DEBUG)<<"Could not find TrackSeedMap, Seed validation needs to be run as well to have full output!" << endmsg;
-    m_trackSeedMap = 0;	
-  } else if (evtStore()->retrieve(m_trackSeedMap,m_trackSeedMapLocation).isFailure()){
-    msg(MSG::WARNING)<<"Could not retrieve TrackSeedMap" << endmsg;		
-    m_trackSeedMap = 0;	
-  } else{
-    msg(MSG::DEBUG)<<"Retrieved TrackSeedMap" << endmsg;	
-  }
+
   if (m_trackTrackMap) delete m_trackTrackMap;
   m_trackTrackMap = new  std::map<const Trk::Track* , Trk::Track*> ;
 #endif
@@ -740,8 +720,8 @@ void Trk::SimpleAmbiguityProcessorTool::addNewTracks(const TrackCollection* trac
       // only if seed map has been found
       m_nseeds = 0;
       
-      if ( m_trackSeedMap ){
-	pair< TrackSeedMap::iterator,TrackSeedMap::iterator > seeds = m_trackSeedMap->equal_range((*trackIt));
+      if ( m_has_trackSeedMap ){
+	pair< TrackSeedMap::const_iterator,TrackSeedMap::const_iterator > seeds = m_trackSeedMap->equal_range((*trackIt));
 	TrackSeedMap::const_iterator tsmIter = seeds.first;
 	TrackSeedMap::const_iterator tsmIterEnd = seeds.second;
         
@@ -999,14 +979,14 @@ void Trk::SimpleAmbiguityProcessorTool::solveTracks()
 	  
 	  m_nseeds = 0;
 	  
-	  if (m_trackSeedMap) {
+	  if (m_has_trackSeedMap) {
 	    // find the original track
 	    std::map<const Trk::Track* , Trk::Track*>::iterator iter;
 	    const Trk::Track * tmpTrack = itnext->second.first;
 	    while((iter = m_trackTrackMap->find(tmpTrack)) != m_trackTrackMap->end()){
 	      tmpTrack = iter->second;
 	    }
-	    pair< TrackSeedMap::iterator,TrackSeedMap::iterator > seeds = m_trackSeedMap->equal_range((tmpTrack));
+	    pair< TrackSeedMap::const_iterator,TrackSeedMap::const_iterator > seeds = m_trackSeedMap->equal_range((tmpTrack));
             
 	    TrackSeedMap::const_iterator tsmIter = seeds.first;
 	    TrackSeedMap::const_iterator tsmIterEnd = seeds.second;
@@ -1413,11 +1393,7 @@ void Trk::SimpleAmbiguityProcessorTool::findTrueTracks(const TrackCollection* re
   m_tracksShared.clear();
 
   msg(MSG::DEBUG) << "Acessing TrackTruthCollection " << endmsg;
-  const TrackTruthCollection* truthMap  = 0;
-  if (evtStore()->retrieve(truthMap , m_truthCollection).isFailure()) 
-    msg(MSG::WARNING) << "No truth map present, abort TrueTrack search" << endmsg;
-
-
+  SG::ReadHandle<TrackTruthCollection> truthMap(m_truthCollection);
   
   std::map<int,std::pair<float,const Trk::Track*> > barcodeMap;
   float minProb =0.95;
@@ -1484,36 +1460,28 @@ void Trk::SimpleAmbiguityProcessorTool::keepTrackOfTracks(const Trk::Track* oldT
 
 void Trk::SimpleAmbiguityProcessorTool::produceInputOutputConnection()
 {
-
-
-  const TrackCollectionConnection* dmp;
-  if (evtStore()->retrieve(dmp, m_resolvedTrackConnection).isFailure())
+  if (!m_has_resolvedTrackConnection) {
+    // output map: SiSpSeededTrack, ResolvedTrack  
+    TrackCollectionConnection siSP_ResolvedConnection;
+      
+    TrackCollection::const_iterator  itFinal = m_finalTracks->begin();
+    TrackCollection::const_iterator endFinal = m_finalTracks->end();
+    for ( ; itFinal != endFinal ; ++itFinal)
     {
-      // output map: SiSpSeededTrack, ResolvedTrack  
-      TrackCollectionConnection* siSP_ResolvedConnection = new TrackCollectionConnection();
-      
-      TrackCollection::const_iterator  itFinal = m_finalTracks->begin();
-      TrackCollection::const_iterator endFinal = m_finalTracks->end();
-      for ( ; itFinal != endFinal ; ++itFinal)
-	{
-	  std::map<const Trk::Track*, const Trk::Track*>::iterator pos = m_trackHistory.find(*itFinal);
-	  while (pos->first != pos->second && pos != m_trackHistory.end())
-	    pos = m_trackHistory.find(pos->second);
+      std::map<const Trk::Track*, const Trk::Track*>::iterator pos = m_trackHistory.find(*itFinal);
+      while (pos->first != pos->second && pos != m_trackHistory.end())
+	pos = m_trackHistory.find(pos->second);
 	  
-	  if (pos == m_trackHistory.end())
-	    msg(MSG::ERROR) << "Track not found in history" << endmsg;
-	  else
-	    siSP_ResolvedConnection->insert(std::make_pair(pos->second,*itFinal));
-	  
-	}
-      
-      StatusCode sc = evtStore()->record(siSP_ResolvedConnection, m_resolvedTrackConnection,false);
-      
-      if (sc.isFailure())
-	msg(MSG::ERROR) << "Could not record trackCollectionConnecton" << endmsg;
+      if (pos == m_trackHistory.end())
+	msg(MSG::ERROR) << "Track not found in history" << endmsg;
       else
-	msg(MSG::VERBOSE) << "Saved "<<siSP_ResolvedConnection->size()<<" track collection connections"<<endmsg; 
+	siSP_ResolvedConnection.insert(std::make_pair(pos->second,*itFinal));
+	  
     }
+
+    SG::WriteHandle<TrackCollectionConnection> h_write(m_write_resolvedTrackConnection);
+    h_write.record(std::make_unique<TrackCollectionConnection>(siSP_ResolvedConnection));
+  }
 }
 //============================================================================================
 
@@ -1639,7 +1607,7 @@ void Trk::SimpleAmbiguityProcessorTool::tsosTruth(const Trk::Track* track){
   DataVector<const TrackStateOnSurface>::const_iterator iTsos    = tsos->begin();
   DataVector<const TrackStateOnSurface>::const_iterator iTsosEnd = tsos->end();   
   for(; iTsos != iTsosEnd; ++iTsos){
-    msg(MSG::INFO)<< "the type of " << *iTsos << " is "<< (*iTsos)->type() << endmsg;
+    msg(MSG::INFO)<< "the type of " << *iTsos << " is "<< (*iTsos)->dumpType() << endmsg;
     const FitQualityOnSurface* fq = (*iTsos)->fitQualityOnSurface();
     if (fq)
       msg(MSG::INFO)<< "the chi2 of " << *iTsos << " is "<< fq->chiSquared() << endmsg;
@@ -1665,14 +1633,8 @@ StatusCode Trk::SimpleAmbiguityProcessorTool::getBremTruth(){
   StatusCode sc;
   
   // Retrieve McEventCollection from StoreGate
-  const McEventCollection* mcEventCollection = 0;
-  
-  sc = evtStore()->retrieve( mcEventCollection, m_generatedEventCollectionName );
-  
-  if ( sc.isFailure() ){
-    return StatusCode::FAILURE;
-  }
-  
+  SG::ReadHandle<McEventCollection> mcEventCollection(m_generatedEventCollectionName);
+
   // Loop over all events in StoreGate
   McEventCollection::const_iterator event = mcEventCollection->begin();
   
@@ -1716,7 +1678,7 @@ StatusCode Trk::SimpleAmbiguityProcessorTool::getBremTruth(){
   return StatusCode::SUCCESS;
 }
 //======================================================================================================
-const double Trk::SimpleAmbiguityProcessorTool::originalMomentum( const HepMC::GenEvent* genEvent )
+double Trk::SimpleAmbiguityProcessorTool::originalMomentum( const HepMC::GenEvent* genEvent )
 {
 
   // Loop over all particles in the event (info on this from GenEvent documentation)
@@ -1730,8 +1692,8 @@ const double Trk::SimpleAmbiguityProcessorTool::originalMomentum( const HepMC::G
   //  msg(MSG::WARNING) << "Inconsistency between initial particle and initial vertex" << endmsg;
 
   //Hep3Vector& initial3Momentum = initialParticle->momentum();
- 
-  double initialMomentum = initialParticle->momentum().mag();
+
+  double initialMomentum = initialParticle->momentum().perp();
 
   //  const Trk::TrackParameters* initialPerigeeParameters = m_truthToTrack->makePerigeeParameters(initialParticle);
 
@@ -1739,7 +1701,7 @@ const double Trk::SimpleAmbiguityProcessorTool::originalMomentum( const HepMC::G
 
 }
 //==================================================================================================
-const double Trk::SimpleAmbiguityProcessorTool::momentumLostByBrem( const HepMC::GenEvent* genEvent ) const
+double Trk::SimpleAmbiguityProcessorTool::momentumLostByBrem( const HepMC::GenEvent* genEvent ) const
 {
 
  

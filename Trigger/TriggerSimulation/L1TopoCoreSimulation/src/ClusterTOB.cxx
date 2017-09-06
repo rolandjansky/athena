@@ -50,7 +50,7 @@ TCS::ClusterTOB::ClusterTOB(const TCS::ClusterTOB & cluster) : BaseTOB()
 // destructor
 TCS::ClusterTOB::~ClusterTOB() {
    --fg_instances;
-};
+}
 
 
 TCS::ClusterTOB*

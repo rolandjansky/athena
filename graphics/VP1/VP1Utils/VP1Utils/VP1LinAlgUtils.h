@@ -30,7 +30,7 @@ class SbMatrix;
 #include "GeoPrimitives/GeoPrimitivesHelpers.h"
 
 
-#include <QtCore/QString>
+#include <QString>
 
 
 class VP1LinAlgUtils {

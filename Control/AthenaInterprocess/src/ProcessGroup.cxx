@@ -112,7 +112,7 @@ int ProcessGroup::wait(int options)
       return 0;
 
   // Schedule an exit if we are to wait forever
-  if((!options & WNOHANG) && map_async(0,0))
+  if(!(options & WNOHANG) && map_async(0,0))
     return -1;
 
    int result = 0;

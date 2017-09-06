@@ -43,7 +43,6 @@ material description for DC2 Layout and default values. Fine-tuning of the value
 </tr>
 </table>
   
-@section InDetTrackingGeometry_InDetTrackingGeometryReq Requirements
 
 
 */

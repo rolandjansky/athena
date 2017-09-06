@@ -20,6 +20,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/VxSecVertex
                           Tracking/TrkVertexFitter/TrkVKalVrtCore
                           Tracking/TrkVertexFitter/TrkVertexFitterInterfaces
+                          Tracking/TrkExtrapolation/TrkExInterfaces
                           PRIVATE
                           Tracking/TrkDetDescr/TrkSurfaces )
                           #Tracking/TrkEvent/VxVertex

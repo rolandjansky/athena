@@ -66,10 +66,10 @@ namespace ana
 
 
   StatusCode ToolScheduler ::
-  addTool (IAnaTool *tool)
+  addTool (std::unique_ptr<IAnaTool> tool)
   {
     RCU_CHANGE_INVARIANT (this);
-    m_tools.push_back (tool);
+    m_tools.push_back (std::move (tool));
     return StatusCode::SUCCESS;
   }
 
@@ -81,7 +81,7 @@ namespace ana
     RCU_READ_INVARIANT (this);
 
     CP::SystematicSet result;
-    for (auto tool : m_tools)
+    for (auto& tool : m_tools)
     {
       result.insert (tool->affectingSystematics());
     }
@@ -96,7 +96,7 @@ namespace ana
     RCU_READ_INVARIANT (this);
 
     CP::SystematicSet result;
-    for (auto tool : m_tools)
+    for (auto& tool : m_tools)
     {
       result.insert (tool->recommendedSystematics());
     }
@@ -110,7 +110,7 @@ namespace ana
   {
     RCU_CHANGE_INVARIANT (this);
 
-    for (auto tool : m_tools)
+    for (auto& tool : m_tools)
     {
       if (tool->applySystematicVariation (systConfig) !=
           CP::SystematicCode::Ok)
@@ -132,7 +132,7 @@ namespace ana
     for (unsigned iter = 0; iter <= STEP_WEIGHT; ++ iter)
     {
       ATH_MSG_DEBUG("Executing step: " << iter);
-      for (auto tool : m_tools)
+      for (auto& tool : m_tools)
       {
         if (tool->step() == iter)
         {
@@ -140,16 +140,16 @@ namespace ana
           try
           {
             ATH_CHECK (tool->execute (m_objects));
-	    if (tool->outputTypes() & (1 << OBJECT_EVENT_SELECT))
-	    {
-	      auto select = m_objects.eventSelect();
-	      if (select &&
-		  select->auxdata<ana::SelectType> ("ana_select") == false)
-	      {
-		objects = &m_objects;
-		return StatusCode::SUCCESS;
-	      }
-	    }
+            if (tool->outputTypes() & (1 << OBJECT_EVENT_SELECT))
+            {
+              auto select = m_objects.eventSelect();
+              if (select &&
+                  select->auxdata<ana::SelectType> ("ana_select") == false)
+              {
+                objects = &m_objects;
+                return StatusCode::SUCCESS;
+              }
+            }
           } catch (std::exception& e)
           {
             ATH_MSG_FATAL ("exception while executing tool " << tool->name() <<
@@ -205,16 +205,16 @@ namespace ana
       bool hasType = false;
       for (auto& tool : m_tools)
       {
-	if (tool->outputTypes() & (1 << type))
-	  hasType = true;
+        if (tool->outputTypes() & (1 << type))
+          hasType = true;
       }
       if (hasType)
       {
-	for (auto& sys : m_systematics)
-	{
-	  std::string anaName = "ana_" + ObjectTypeInfo::name[type] + "_" + sys.name();
-	  result.setName (type, sys, anaName);
-	}
+        for (auto& sys : m_systematics)
+        {
+          std::string anaName = "ana_" + ObjectTypeInfo::name[type] + "_" + sys.name();
+          result.setName (type, sys, anaName);
+        }
       }
     }
     for (auto& tool : m_tools)

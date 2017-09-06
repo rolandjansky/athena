@@ -5,10 +5,10 @@
 #ifndef CaloGeometryFromFile_h
 #define CaloGeometryFromFile_h
 
-#include "ISF_FastCaloSimParametrization/CaloGeometry.h"
+#include "ISF_FastCaloSimParametrization/CaloGeoGeometry.h"
 
 
-class CaloGeometryFromFile:public CaloGeometry {
+class CaloGeometryFromFile:public CaloGeoGeometry {
 public :
    CaloGeometryFromFile();
    virtual ~CaloGeometryFromFile();

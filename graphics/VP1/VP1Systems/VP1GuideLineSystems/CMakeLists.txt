@@ -18,7 +18,7 @@ atlas_depends_on_subdirs(
 
 # External dependencies:
 find_package( Coin3D )
-find_package( Qt4 COMPONENTS QtCore QtGui )
+find_package( Qt5 COMPONENTS Core Gui Widgets )
 
 # Generate UI files automatically:
 set( CMAKE_AUTOUIC TRUE )
@@ -30,6 +30,6 @@ atlas_add_library( VP1GuideLineSystems VP1GuideLineSystems/*.h src/*.cxx
    PUBLIC_HEADERS VP1GuideLineSystems
    INCLUDE_DIRS ${COIN3D_INCLUDE_DIRS}
    LINK_LIBRARIES ${COIN3D_LIBRARIES} GeoPrimitives VP1Base VP1Utils
-   Qt4::QtCore Qt4::QtGui
+   Qt5::Core Qt5::Gui
    PRIVATE_INCLUDE_DIRS ${CMAKE_CURRENT_BINARY_DIR}
    PRIVATE_LINK_LIBRARIES GaudiKernel VP1HEPVis )

@@ -69,13 +69,13 @@ DBLoader::setLevel(MSGTC::Level lvl) {
    msg().setLevel(lvl);
 
    switch(lvl) {
-   case MSGTC::ALWAYS: m_verbose = 5;
-   case MSGTC::VERBOSE: m_verbose = 4;
-   case MSGTC::DEBUG: m_verbose = 3;
-   case MSGTC::INFO: m_verbose = 2;
+   case MSGTC::ALWAYS: m_verbose = 5; break;
+   case MSGTC::VERBOSE: m_verbose = 4; break;
+   case MSGTC::DEBUG: m_verbose = 3; break;
+   case MSGTC::INFO: m_verbose = 2; break;
    case MSGTC::WARNING:
    case MSGTC::ERROR:
-   case MSGTC::FATAL: m_verbose = 0;
+   case MSGTC::FATAL: m_verbose = 0; break;
    default: m_verbose = 0;
    }
 }

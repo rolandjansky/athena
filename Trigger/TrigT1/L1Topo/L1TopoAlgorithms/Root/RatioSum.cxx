@@ -113,9 +113,70 @@ TCS::RatioSum::processBitCorrect( const std::vector<TCS::TOBArray const *> & inp
                      Decision & decision )
 
 {
-	return process(input,output,decision);
-}
+//Only difference between this method and process()
+//is the replacement of the function fabs() --> abs()
+//Note, however, that this algorithm benefits from MetSort
+//which is a sorting algorithm that does have a distinct bitwise implementation
 
+   if(input.size()!=3) {
+      TCS_EXCEPTION("RatioSum alg must have exactly 3 input lists, but got " << input.size());
+   }
+   // Note (from Murrough, ATR-14913, 2016-08-25):
+   // summing Et in ints so it might be losing 0.5 GeV counts from EM/Tau lists
+   unsigned int sumET = 0;
+   unsigned int sumET2 = 0;
+   unsigned int nLeadingele = p_NumberLeading3;
+
+   const TCS::GenericTOB & met = (*input[0])[0];
+
+   // loop over all jets
+   unsigned int objC(0);
+   for( TCS::GenericTOB * tob : *input[1]) {
+
+      if( parType_t(abs(tob->eta())) > p_EtaMax2 ) continue; // Eta cut
+      if( parType_t(abs(tob->eta())) < p_EtaMin2 ) continue; // Eta cut
+      if( tob->Et() <= p_MinET2 ) continue; // E_T cut
+
+      TRG_MSG_DEBUG("Jet : ET = " << tob->Et());
+      ++objC;
+      sumET2 += tob->Et();
+
+   }
+
+   sumET = sumET2;
+
+   // loop over the third collection (EM/tau)
+   for( TOBArray::const_iterator tob1 = input[2]->begin();
+           tob1 != input[2]->end() && distance( input[2]->begin(), tob1) < nLeadingele;
+           ++tob1)
+         {
+
+          if( parType_t(abs((*tob1)->eta())) > p_EtaMax3 ) continue; // Eta cut
+          if( parType_t(abs((*tob1)->eta())) < p_EtaMin3 ) continue; // Eta cut
+          if( (*tob1)->Et() <= p_MinET3 ) continue; // E_T cut
+          sumET += (*tob1)->Et() ;
+
+   }
+
+   for(unsigned int i=0; i<numberOutputBits(); ++i) {
+
+       bool accept = (objC!=0 && met.Et() > p_MinMET &&
+                      sumET!=sumET2 && // in practice, require an EM TOB with Et > 0 (see ATR-14913)
+                      sumET2 > p_HT &&
+                      sumET > p_SUM &&
+                      10*met.Et() >= p_Ratio[i]*sumET);
+
+    decision.setBit( i, accept );
+
+    if(accept)
+        output[i]->push_back( CompositeTOB( GenericTOB::createOnHeap( GenericTOB(sumET,0,0) ) ));
+
+    TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " HT = " << sumET2 << " SUM = " << sumET);
+
+   }
+
+   return TCS::StatusCode::SUCCESS;
+}
 
 TCS::StatusCode
 TCS::RatioSum::process( const std::vector<TCS::TOBArray const *> & input,
@@ -145,8 +206,7 @@ TCS::RatioSum::process( const std::vector<TCS::TOBArray const *> & input,
       TRG_MSG_DEBUG("Jet : ET = " << tob->Et());
       ++objC;
       sumET2 += tob->Et();  
-     
-   }
+}
  
    sumET = sumET2;
 

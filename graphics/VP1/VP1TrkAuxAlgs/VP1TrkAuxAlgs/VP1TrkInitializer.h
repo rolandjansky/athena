@@ -20,7 +20,7 @@
 #define VP1TRKAUXALGS_VP1TRKINITIALIZER
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include <QtCore/QStringList>
+#include <QStringList>
 
 class IToolSvc;
 

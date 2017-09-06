@@ -29,7 +29,7 @@ namespace xAODMaker {
   
   StatusCode RecTrackParticleContainerCnvTool::initialize() {
     // Greet the user:
-    ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
+    ATH_MSG_DEBUG( "Initializing RecTrackParticleContainerCnvTool"  );
     ATH_CHECK( m_particleCreator.retrieve() );
 
     return StatusCode::SUCCESS;
@@ -51,8 +51,8 @@ namespace xAODMaker {
       xAOD::TrackParticle* particle = createParticle(xaod, aod, *itr);
 
       if(!particle){
-	ATH_MSG_WARNING("Failed to create a TrackParticle");
-	continue;
+      	ATH_MSG_WARNING("Failed to create a TrackParticle");
+      	continue;
       }      
     }
 

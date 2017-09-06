@@ -4,6 +4,7 @@
   <class name="IMETMaker" />
   <class name="IMETRebuilder" />
   <class name="IMETSystematicsTool" />
+  <class name="IMETSignificance" />
 
   <!-- Suppress the unwanted classes found by ROOT 6. -->
   <!-- Hopefully we can remove these extra lines at one point... -->

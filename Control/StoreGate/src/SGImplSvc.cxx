@@ -39,6 +39,7 @@
 #include "StoreGate/StoreClearedIncident.h"
 #include "AthAllocators/ArenaHeader.h"
 #include "AthenaKernel/errorcheck.h"
+#include "AthenaKernel/StoreID.h"
 
 // StoreGateSvc. must come before SGImplSvc.h
 #include "StoreGate/StoreGateSvc.h"
@@ -63,81 +64,6 @@ using std::vector;
 using SG::DataProxy;
 using SG::DataStore;
 using SG::TransientAddress;
-
-///////////////////////////////////////////////////////////////////////////
-// Find the store id
-
-// return StoreID corresponding to storeNamePrefix. 
-StoreID::type findStoreID(const string& storeNamePrefix) {
-  //vector must be lexically sorted
-  static const vector<pair<string, StoreID::type> > NAMETOID {
-    { "ConditionsStore", StoreID::CONDITION_STORE },
-    { "DetectorStore", StoreID::DETECTOR_STORE },
-    { "EventStore", StoreID::EVENT_STORE },
-    { "InputMetaDataStore", StoreID::METADATA_STORE },
-    { "MetaDataStore", StoreID::SIMPLE_STORE },
-    { "SpareStore", StoreID::SPARE_STORE },
-    { "StoreGateSvc", StoreID::EVENT_STORE },
-    { "TagMetaDataStore", StoreID::METADATA_STORE }
-      };
-
-  // Account for AthenaMT stores that start with {digits}_
-  size_t ist (0);
-  if (::isdigit(storeNamePrefix.at(0))) {
-    ist = storeNamePrefix.find("_",0) +1;
-  }
-  //slightly faster
-
-  auto c(storeNamePrefix.at(ist));
-  switch(c){
-  case 'C':
-    {
-      return StoreID::CONDITION_STORE;
-      break;
-    }
-  case 'D':
-    {
-      return StoreID::DETECTOR_STORE;
-      break;
-    }
-  case 'E':
-    {
-      return StoreID::EVENT_STORE;
-      break;
-    }
-  case 'I':
-    {
-      return StoreID::METADATA_STORE;
-      break;
-    }
-  case 'M':
-    {
-      return StoreID::SIMPLE_STORE;
-      break;
-    }
-  case 'S':
-    {
-      if (storeNamePrefix.at(ist+1)=='p'){
-	return StoreID::SPARE_STORE;
-      }else{
-	return StoreID::EVENT_STORE;
-      }
-      break;
-    }
-  case 'T':
-    {
-      return StoreID::METADATA_STORE;
-      break;
-    }
-  default:
-    {
-      return StoreID::UNKNOWN;
-      break;
-    }
-  }
-  
-  return StoreID::UNKNOWN;
-}
 
 ///////////////////////////////////////////////////////////////////////////
 // Remapping implementation.
@@ -228,7 +154,7 @@ StatusCode SGImplSvc::initialize()    {
 
   //properties accessible from now on
   
-  store()->setStoreID(findStoreID(name()));
+  store()->setStoreID(StoreID::findStoreID(name()));
   // If this is the default event store (StoreGateSvc), then declare
   // our arena as the default for memory allocations.
   if (this->storeID() == StoreID::EVENT_STORE) {
@@ -959,6 +885,28 @@ SGImplSvc::proxies() const
 
   return proxies;
 }
+
+
+std::vector<CLID>
+SGImplSvc::clids() const
+{
+  lock_t lock (m_mutex);
+
+  using std::distance;
+  DataStore::ConstStoreIterator s_iter, s_end;
+  store()->tRange(s_iter, s_end).ignore();
+
+  std::vector<CLID> clids;
+  clids.reserve( distance( s_iter, s_end ) );
+
+  for (; s_iter != s_end; ++s_iter ) {
+    const CLID id = s_iter->first;
+    clids.push_back (id);
+  }
+
+  return clids;
+}
+
 
 DataProxy*
 SGImplSvc::transientProxy(const CLID& id, const string& key) const

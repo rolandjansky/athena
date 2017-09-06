@@ -504,14 +504,14 @@ namespace TrigInDetAnalysis {
               // 2 "hits" and an offline SCT "hit" is really a 1D cluster, so two intersetcting
               // stereo clusters making a spacepoint are two "hits"
               const Trk::TrackSummary *summary = track->trackSummary();
-              int nBlayerHits = 2*summary->get(Trk::numberOfBLayerHits); 
+              int nBlayerHits = 2*summary->get(Trk::numberOfInnermostPixelLayerHits);
               int nPixelHits  = 2*summary->get(Trk::numberOfPixelHits);  
               int nSctHits    = summary->get(Trk::numberOfSCTHits); 
               int nStrawHits  = summary->get(Trk::numberOfTRTHits);
               int nTrHits     = summary->get(Trk::numberOfTRTHighThresholdHits);
 
               int nSiHits     = nPixelHits + nSctHits;
-              bool expectBL   = summary->get(Trk::expectBLayerHit);
+              bool expectBL   = summary->get(Trk::expectInnermostPixelLayerHit);
 
               const Trk::FitQuality *quality = track->fitQuality();
               double chi2 = quality->chiSquared();

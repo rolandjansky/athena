@@ -16,70 +16,65 @@
 //
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/Property.h"
 //
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
 #include "SCT_ConditionsServices/ISCT_DCSConditionsSvc.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
-#include "AthenaKernel/IOVSvcDefs.h" 
 #include "AthenaKernel/IIOVDbSvc.h" 
+#include "Identifier/Identifier.h"
+#include "Identifier/IdentifierHash.h"
+#include "SCT_ConditionsData/SCT_DCSFloatCondData.h"
+#include "SCT_ConditionsData/SCT_DCSStatCondData.h"
 //STL
-#include <vector>
 #include <list>
 #include <string>
 #include <map>
 
-class IIOVSvc;
-template <class TYPE> class SvcFactory;
-class ISvcLocator;
-class IdentifierHash;
-class StatusCode;
-class SCT_DCSConditionsData;
 class SCT_ID;
 
 /**
  * Class to provide DCS information about modules from the COOL database
  **/
-class SCT_DCSConditionsSvc: virtual public ISCT_DCSConditionsSvc,virtual public AthService {
-  friend class SvcFactory<SCT_DCSConditionsSvc>;
+class SCT_DCSConditionsSvc: virtual public ISCT_DCSConditionsSvc, virtual public AthService {
   
 public:
-  SCT_DCSConditionsSvc( const std::string& name, ISvcLocator* pSvcLocator );
-  virtual ~SCT_DCSConditionsSvc(){ /*do nothing*/}
+  SCT_DCSConditionsSvc(const std::string& name, ISvcLocator* pSvcLocator);
+  virtual ~SCT_DCSConditionsSvc() { /*do nothing*/ }
   virtual StatusCode initialize();
   virtual StatusCode finalize();
-  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
+  virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
   static const InterfaceID& interfaceID();
-  
   
   /// @name Methods to be implemented from virtual baseclass methods, when introduced
   //@{
   ///Return whether this service can report on the hierarchy level (e.g. module, chip...)
   virtual bool canReportAbout(InDetConditions::Hierarchy h);
   //returns the module ID (int), or returns 9999 (not a valid module number) if not able to report
-  virtual  Identifier getModuleID(const Identifier & elementId, InDetConditions::Hierarchy h);
+  virtual  Identifier getModuleID(const Identifier& elementId, InDetConditions::Hierarchy h);
   ///Summarise the result from the service as good/bad
-  virtual bool isGood(const Identifier & elementId,InDetConditions::Hierarchy h=InDetConditions::DEFAULT);
+  virtual bool isGood(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT);
   ///is it good?, using wafer hash
-  virtual bool isGood(const IdentifierHash & hashId);
+  virtual bool isGood(const IdentifierHash& hashId);
   //Returns HV (0 if there is no information)
-  virtual float modHV(const Identifier & elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT);
+  virtual float modHV(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT);
   //Does the same for hashIds
-  virtual float modHV(const IdentifierHash & hashId);
+  virtual float modHV(const IdentifierHash& hashId);
   //Returns temp0 (0 if there is no information)
-  virtual float hybridTemperature(const Identifier & elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT);
+  virtual float hybridTemperature(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT);
   //Does the same for hashIds
-  virtual float hybridTemperature(const IdentifierHash & hashId);
+  virtual float hybridTemperature(const IdentifierHash& hashId);
   //Returns temp0 + correction for Lorentz angle calculation (0 if there is no information)
-  virtual float sensorTemperature(const Identifier & elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT);
+  virtual float sensorTemperature(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT);
   //Does the same for hashIds
-  virtual float sensorTemperature(const IdentifierHash & hashId);
-  virtual StatusCode fillData(int&  i  , std::list<std::string>& keys);
+  virtual float sensorTemperature(const IdentifierHash& hashId);
+  virtual StatusCode fillData(int& i, std::list<std::string>& keys);
   ///Manually get the data in the structure before proceding
-  virtual StatusCode fillData(){return StatusCode::FAILURE;}
+  virtual StatusCode fillData() { return StatusCode::FAILURE; }
   virtual bool filled() const;
   ///Need to access cool on every callback, so can't fill during initialize
-  virtual bool canFillDuringInitialize(){return false; }
+  virtual bool canFillDuringInitialize() { return false; }
   //@}
     
 private:
@@ -103,27 +98,22 @@ private:
   float m_ecOuter_correction;
   float m_hvLowLimit;
   float m_hvUpLimit;
-  SCT_DCSConditionsData* m_pBadModules;
-  std::map<CondAttrListCollection::ChanNum, float >* m_pModulesHV;
-  std::map<CondAttrListCollection::ChanNum, float >* m_pModulesTemp0;
-  std::map<CondAttrListCollection::ChanNum, float >* m_pModulesTemp1;
-  const SCT_ID*  m_pHelper;
-  //IdentifierHash  m_hashId;
-  //IdentifierHash  channum_hash;
-  Identifier  m_moduleId;
-  Identifier  m_waferId;
+  std::unique_ptr<SCT_DCSStatCondData> m_pBadModules;
+  std::unique_ptr<SCT_DCSFloatCondData> m_pModulesHV;
+  std::unique_ptr<SCT_DCSFloatCondData> m_pModulesTemp0;
+  std::unique_ptr<SCT_DCSFloatCondData> m_pModulesTemp1;
+  const SCT_ID* m_pHelper;
+  Identifier m_moduleId;
+  Identifier m_waferId;
   std::string m_folderPrefix;
   std::string m_chanstatCut;
   bool m_useHV;
   float m_useHVLowLimit;
   float  m_useHVUpLimit;
   std::string m_useHVChanCut;
+  static const Identifier s_invalidId;
+  static const float s_defaultHV;
+  static const float s_defaultTemperature;
 };
-
-// inline const InterfaceID & SCT_DCSConditionsSvc::interfaceID(){
-//   static const InterfaceID IID_SCT_DCSConditionsSvc("SCT_DCSConditionsSvc",1,0);
-//   return IID_SCT_DCSConditionsSvc;
-// }
-
 
 #endif // SCT_DCSConditionsSvc_h 

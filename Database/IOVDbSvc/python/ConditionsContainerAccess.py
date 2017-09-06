@@ -41,7 +41,7 @@
 #        i += 1
 
 
-import PyCintex as PyLCGDict
+import cppyy as PyLCGDict
 import os, sys, string
 
 

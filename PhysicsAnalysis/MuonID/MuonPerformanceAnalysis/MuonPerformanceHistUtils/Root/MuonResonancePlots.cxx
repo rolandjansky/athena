@@ -30,7 +30,7 @@ void MuonResonancePlots::Binning1D(TH1*& histo, std::string hname){
     if(it->first != hname) continue;
 
     if(m_binning[hname].size()==3) 
-      histo = Book1D(prefix+hname+suffix, prefix+hname+suffix,  m_binning[hname][0],m_binning[hname][1],m_binning[hname][2], false);
+      histo = Book1D(m_prefix+hname+m_suffix, m_prefix+hname+m_suffix,  m_binning[hname][0],m_binning[hname][1],m_binning[hname][2], false);
   }  
 }
 
@@ -42,7 +42,7 @@ void MuonResonancePlots::Binning2D(TH2*& histo, std::string hname){
     if(it->first != hname) continue;
 
     if(m_binning[hname].size()==6) 
-      histo = Book2D(prefix+hname+suffix, prefix+hname+suffix, m_binning[hname][0],m_binning[hname][1],m_binning[hname][2],m_binning[hname][3],m_binning[hname][4],m_binning[hname][5], false);  
+      histo = Book2D(m_prefix+hname+m_suffix, m_prefix+hname+m_suffix, m_binning[hname][0],m_binning[hname][1],m_binning[hname][2],m_binning[hname][3],m_binning[hname][4],m_binning[hname][5], false);  
   }
 }
 
@@ -178,81 +178,81 @@ void MuonResonancePlots::fill(const xAOD::Muon& mu1st, const xAOD::Muon& mu2nd, 
   Fill1D( mu_1stAuthor, int(mu1st.author()), w);
   Fill1D( mu_2ndAuthor, int(mu2nd.author()), w);
 
-  Fill1D( mu_1stPt,  l1.Pt()/fGeV, w);
-  Fill1D( mu_2ndPt,  l2.Pt()/fGeV, w);
-  Fill1D( mu_avPt,   (l1.Pt()+l2.Pt())*0.5/fGeV, w);
+  Fill1D( mu_1stPt,  l1.Pt()/m_fGeV, w);
+  Fill1D( mu_2ndPt,  l2.Pt()/m_fGeV, w);
+  Fill1D( mu_avPt,   (l1.Pt()+l2.Pt())*0.5/m_fGeV, w);
   Fill1D( mu_1stPhi, l1.Phi(), w);
   Fill1D( mu_2ndPhi, l2.Phi(), w);
   Fill1D( mu_1stEta, l1.Eta(), w);
   Fill1D( mu_2ndEta, l2.Eta(), w);
 
-  Fill1D( Mmumu, V.M()/fGeV, w);
-  Fill1D( Z_pt,  V.Pt()/fGeV, w);
+  Fill1D( Mmumu, V.M()/m_fGeV, w);
+  Fill1D( Z_pt,  V.Pt()/m_fGeV, w);
   Fill1D( Z_phi, V.Phi(), w);
 
-  Fill2D( h_Zpt_mu_1stPt,    l1.Pt()/fGeV,  V.Pt()/fGeV, w);
-  Fill2D( h_mu_1stPt_1stPhi, l1.Phi(),      l1.Pt()/fGeV, w);
-  Fill2D( h_mu_2ndPt_2ndPhi, l2.Phi(),      l2.Pt()/fGeV, w);    
-  Fill2D( h_Zpt_mu_avPt,     (l1.Pt()+l2.Pt())*0.5/fGeV, V.Pt()/fGeV, w); 
+  Fill2D( h_Zpt_mu_1stPt,    l1.Pt()/m_fGeV,  V.Pt()/m_fGeV, w);
+  Fill2D( h_mu_1stPt_1stPhi, l1.Phi(),      l1.Pt()/m_fGeV, w);
+  Fill2D( h_mu_2ndPt_2ndPhi, l2.Phi(),      l2.Pt()/m_fGeV, w);    
+  Fill2D( h_Zpt_mu_avPt,     (l1.Pt()+l2.Pt())*0.5/m_fGeV, V.Pt()/m_fGeV, w); 
 
-  Fill2D( h_Zm_1stPhi,  l1.Phi(), V.M()/fGeV, w);
-  Fill2D( h_Zm_2ndPhi,  l2.Phi(), V.M()/fGeV, w);
-  Fill2D( h_Zm_1stEta,  l1.Eta(), V.M()/fGeV, w);
-  Fill2D( h_Zm_2ndEta,  l2.Eta(), V.M()/fGeV, w);
+  Fill2D( h_Zm_1stPhi,  l1.Phi(), V.M()/m_fGeV, w);
+  Fill2D( h_Zm_2ndPhi,  l2.Phi(), V.M()/m_fGeV, w);
+  Fill2D( h_Zm_1stEta,  l1.Eta(), V.M()/m_fGeV, w);
+  Fill2D( h_Zm_2ndEta,  l2.Eta(), V.M()/m_fGeV, w);
 
 // BOTH MUONS IN SAME ETABIN: 20 BINS OF 0.25 FROM -2.5 TO 2.5
   for (int ie=0; ie<20; ie++){
     float xe = -2.5+0.25*ie;
     if ((l1.Eta()>xe && l1.Eta()<(xe+0.25)) && (l2.Eta()>xe && l2.Eta()<(xe+0.25))){
-      Fill2D( h_Zm_Eta,  l2.Eta(), V.M()/fGeV, w);
+      Fill2D( h_Zm_Eta,  l2.Eta(), V.M()/m_fGeV, w);
     }
   }
 
 // MASS VS ETA OF PT LEADING IN SMALL ETABIN, FROM -2.5 TO 2.5, STEP OF 0.1, 50 BINS
 
-  Fill2D( h_Zm_1stEta01,   l1.Eta(),  V.M()/fGeV, w);
+  Fill2D( h_Zm_1stEta01,   l1.Eta(),  V.M()/m_fGeV, w);
 
 // MASS VS PT LEADING IN LARGE ETABIN [-2.5, -2.0, -1.0, 0.0, 1.0, 2.0, 2.5]
 
-  Fill2D( h_Zm_1stPt,   l1.Pt()/fGeV,  V.M()/fGeV, w);
+  Fill2D( h_Zm_1stPt,   l1.Pt()/m_fGeV,  V.M()/m_fGeV, w);
 
-  Fill2D( h_Zm_2ndPt,   l2.Pt()/fGeV,  V.M()/fGeV, w);
-  Fill2D( h_Zm_mu_avPt, (l1.Pt()+l2.Pt())*0.5/fGeV, V.M()/fGeV, w);
-  Fill2D( h_Zm_Pexp,    p_star(l1, l2),             V.M()/fGeV, w);
+  Fill2D( h_Zm_2ndPt,   l2.Pt()/m_fGeV,  V.M()/m_fGeV, w);
+  Fill2D( h_Zm_mu_avPt, (l1.Pt()+l2.Pt())*0.5/m_fGeV, V.M()/m_fGeV, w);
+  Fill2D( h_Zm_Pexp,    p_star(l1, l2),             V.M()/m_fGeV, w);
 
-  Fill2D( h_Zm_1stPhi_truth,  l1.Phi(), V_truth.M()/fGeV, w);
-  Fill2D( h_Zm_2ndPhi_truth,  l2.Phi(), V_truth.M()/fGeV, w);
-  Fill2D( h_Zm_1stEta_truth,  l1.Eta(), V_truth.M()/fGeV, w);
-  Fill2D( h_Zm_2ndEta_truth,  l2.Eta(), V_truth.M()/fGeV, w);
-  Fill2D( h_Zm_1stPt_truth,   l1.Pt()/fGeV,               V_truth.M()/fGeV, w);
-  Fill2D( h_Zm_2ndPt_truth,   l2.Pt()/fGeV,               V_truth.M()/fGeV, w);  
-  Fill2D( h_Zm_mu_avPt_truth, (l1.Pt()+l2.Pt())*0.5/fGeV, V_truth.M()/fGeV, w);
-  Fill2D( h_Zm_Pexp_truth,    p_star(l1,l2),              V_truth.M()/fGeV, w); 
+  Fill2D( h_Zm_1stPhi_truth,  l1.Phi(), V_truth.M()/m_fGeV, w);
+  Fill2D( h_Zm_2ndPhi_truth,  l2.Phi(), V_truth.M()/m_fGeV, w);
+  Fill2D( h_Zm_1stEta_truth,  l1.Eta(), V_truth.M()/m_fGeV, w);
+  Fill2D( h_Zm_2ndEta_truth,  l2.Eta(), V_truth.M()/m_fGeV, w);
+  Fill2D( h_Zm_1stPt_truth,   l1.Pt()/m_fGeV,               V_truth.M()/m_fGeV, w);
+  Fill2D( h_Zm_2ndPt_truth,   l2.Pt()/m_fGeV,               V_truth.M()/m_fGeV, w);  
+  Fill2D( h_Zm_mu_avPt_truth, (l1.Pt()+l2.Pt())*0.5/m_fGeV, V_truth.M()/m_fGeV, w);
+  Fill2D( h_Zm_Pexp_truth,    p_star(l1,l2),              V_truth.M()/m_fGeV, w); 
 
-  Fill2D( Res_mu_1stPt_2D,  l1_truth.Pt()/fGeV,  l1.Pt()-l1_truth.Pt()/fGeV, w); 
-  Fill2D( Res_mu_2ndPt_2D,  l2_truth.Pt()/fGeV,  l2.Pt()-l2_truth.Pt()/fGeV, w);
+  Fill2D( Res_mu_1stPt_2D,  l1_truth.Pt()/m_fGeV,  l1.Pt()-l1_truth.Pt()/m_fGeV, w); 
+  Fill2D( Res_mu_2ndPt_2D,  l2_truth.Pt()/m_fGeV,  l2.Pt()-l2_truth.Pt()/m_fGeV, w);
   Fill2D( Res_mu_1stPhi_2D, l1_truth.Phi(),      l1.Phi()-l1_truth.Phi(), w);
   Fill2D( Res_mu_2ndPhi_2D, l2_truth.Phi(),      l2.Phi()-l2_truth.Phi(), w);
   Fill2D( Res_mu_1stEta_2D, l1_truth.Eta(),      l1.Eta()-l1_truth.Eta(), w);
   Fill2D( Res_mu_2ndEta_2D, l2_truth.Eta(),      l2.Eta()-l2_truth.Eta(), w);
 
-  Fill2D( Res_Zm_2D,      V_truth.M()/fGeV,   (V.M()-V_truth.M())/fGeV, w);
-  Fill2D( Res_Zm_Eta_2D,  l1.Eta(),           (V.M()-V_truth.M())/fGeV, w);
-  Fill2D( Res_Zm_Phi_2D,  l1.Phi(),           (V.M()-V_truth.M())/fGeV, w);
-  Fill2D( Res_Zm_Pt_2D,   l1.Pt()/fGeV,       (V.M()-V_truth.M())/fGeV, w);
-  Fill2D( Res_Zm_Pexp_2D, p_star(l1,l2),      (V.M()-V_truth.M())/fGeV, w);
-  Fill2D( Res_Zpt_2D,     V_truth.Pt()/fGeV,  (V.Pt()-V_truth.Pt())/fGeV, w); 
+  Fill2D( Res_Zm_2D,      V_truth.M()/m_fGeV,   (V.M()-V_truth.M())/m_fGeV, w);
+  Fill2D( Res_Zm_Eta_2D,  l1.Eta(),           (V.M()-V_truth.M())/m_fGeV, w);
+  Fill2D( Res_Zm_Phi_2D,  l1.Phi(),           (V.M()-V_truth.M())/m_fGeV, w);
+  Fill2D( Res_Zm_Pt_2D,   l1.Pt()/m_fGeV,       (V.M()-V_truth.M())/m_fGeV, w);
+  Fill2D( Res_Zm_Pexp_2D, p_star(l1,l2),      (V.M()-V_truth.M())/m_fGeV, w);
+  Fill2D( Res_Zpt_2D,     V_truth.Pt()/m_fGeV,  (V.Pt()-V_truth.Pt())/m_fGeV, w); 
   Fill2D( Res_Zphi_2D,    V_truth.Phi(),      V.Phi()-V_truth.Phi(), w);
 
   FillTwice( ChiSquared, getChiSquared(mu1st,trk), getChiSquared(mu2nd,trk), w); 
   FillTwice( p_pTRUE,    deltaPt(l1, l1_truth),    deltaPt(l2, l2_truth), w); 
   FillTwice( pID_pME,    deltaPt(getTrackTLV(mu1st, 1), getTrackTLV(mu1st, 2)), deltaPt(getTrackTLV(mu2nd, 1), getTrackTLV(mu2nd, 2)), w); 
 
-  Fill2D( Z_m_etaphi,        l1.Eta(), l1.Phi(),        V.M()/fGeV);
+  Fill2D( Z_m_etaphi,        l1.Eta(), l1.Phi(),        V.M()/m_fGeV);
   Fill2D( DeltaZ_m_etaphi,   l1.Eta(), l1.Phi(),        (V.M()-M0())/M0());
   Fill2D( DeltaZ_m_q_etaphi, l1.Eta(), l1.Phi(),        mu1st.charge()*(V.M()-M0())/M0()); 
-  Fill2D( p_pTRUE_etapt,     l1.Eta(), l1.Pt()/fGeV,    deltaPt(l1, l1_truth) );
-  Fill2D( p_pTRUE_etapt,     l2.Eta(), l2.Pt()/fGeV,    deltaPt(l2, l2_truth) ); 
+  Fill2D( p_pTRUE_etapt,     l1.Eta(), l1.Pt()/m_fGeV,    deltaPt(l1, l1_truth) );
+  Fill2D( p_pTRUE_etapt,     l2.Eta(), l2.Pt()/m_fGeV,    deltaPt(l2, l2_truth) ); 
   Fill2D( p_pTRUE_etaphi,    l1.Eta(), l1.Phi(),        deltaPt(l1, l1_truth) );
   Fill2D( p_pTRUE_etaphi,    l2.Eta(), l2.Phi(),        deltaPt(l2, l2_truth) );
   
@@ -315,11 +315,11 @@ std::pair<TLorentzVector, TLorentzVector>  MuonResonancePlots::sortedPair(TLoren
 float MuonResonancePlots::M0(){
   
   unsigned int res = 10;
-  if(prefix == "Zmm_")    res = 0;
-  if(prefix == "Jpsimm_") res = 1;
-  if(prefix == "Ymm_")    res = 2;
+  if(m_prefix == "Zmm_")    res = 0;
+  if(m_prefix == "Jpsimm_") res = 1;
+  if(m_prefix == "Ymm_")    res = 2;
   if(res == 10){
-    std::cout << "There is no resonance mass value associated to " << prefix << " . Exiting." << std::endl;
+    std::cout << "There is no resonance mass value associated to " << m_prefix << " . Exiting." << std::endl;
     throw;
   }
   else return M_pdg[res];

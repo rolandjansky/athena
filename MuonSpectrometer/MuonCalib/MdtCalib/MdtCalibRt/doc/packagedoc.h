@@ -23,16 +23,5 @@ The MdtCalibRt package contains at the moment the following classes:
 
 - MuonCalib::RtHistos: Set of histograms used in an iteration of RtCalibrationClassic
                                                                                 
-@ref used_MdtCalibRt
                                                                                 
-@ref requirements_MdtCalibRt
 */
-                                                                                
-/**
-@page used_MdtCalibRt Used Packages
-*/
-                                                                                
-/**
-@page requirements_MdtCalibRt Requirements
-*/
-

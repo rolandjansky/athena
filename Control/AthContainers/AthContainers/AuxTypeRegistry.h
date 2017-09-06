@@ -23,7 +23,7 @@
 #include "AthContainers/tools/AuxTypeVector.h"
 #include "AthContainers/tools/AuxTypeVectorFactory.h"
 #include "AthContainers/tools/threading.h"
-#ifndef XOAD_STANDALONE
+#ifndef XAOD_STANDALONE
 #include "AthenaKernel/IInputRename.h"
 #include "AthenaKernel/IStringPool.h"
 #endif

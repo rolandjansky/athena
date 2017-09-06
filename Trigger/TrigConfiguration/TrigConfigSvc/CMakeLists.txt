@@ -36,7 +36,7 @@ atlas_add_library( TrigConfigSvcLib
                    src/*.cxx
                    PUBLIC_HEADERS TrigConfigSvc
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS}
-                   LINK_LIBRARIES AthenaBaseComps GaudiKernel TrigConfHLTData TrigConfL1Data TrigSteeringEvent StoreGateLib SGtests TrigMonitorBaseLib
+                   LINK_LIBRARIES AthenaBaseComps GaudiKernel TrigConfHLTData TrigConfL1Data TrigSteeringEvent StoreGateLib SGtests TrigMonitorBaseLib EventContainers
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${COOL_LIBRARIES} AthenaKernel AthenaPoolUtilities IOVDbDataModel EventInfo PathResolver TrigConfBase TrigConfJobOptData TrigConfStorage L1TopoConfig )
 
 atlas_add_component( TrigConfigSvc
@@ -55,7 +55,7 @@ atlas_install_joboptions(  share/hltConfigSvc_standalone_test_configurables.py
   share/lvl1ConfigSvc_standalone_test.py
   share/testKeyByNameLoader.py
   share/testTriggerFrontierQuery.py )
-atlas_install_scripts( share/checkTrigger.py share/checkTriggerConfig.py )
+atlas_install_scripts( share/checkTrigger.py share/checkTriggerConfigOld.py )
 atlas_install_xmls( data/*.dtd )
 
 # Aliases:

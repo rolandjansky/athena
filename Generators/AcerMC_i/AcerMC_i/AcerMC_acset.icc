@@ -7,7 +7,7 @@
 //     Inline implementations for AcerMC_acset
 //     initialise pointer
 void AcerMC_acset::init(void) {
-  if (!_acermc_acset) _acermc_acset = static_cast<ACERMC_ACSET*>(acermc_acset_address_());
+  if (!s_acermc_acset) s_acermc_acset = static_cast<ACERMC_ACSET*>(acermc_acset_address_());
 }
    
 

@@ -17,10 +17,11 @@
 /////////////////////////////////////////////////////////////////////////
 
 #include "VP1Base/VP1HelperClassBase.h"
-#include <QtGui/QGraphicsView>
-#include <QtCore/QByteArray>
 #include "VP1Base/VP1Interval.h"
 #include "VP1Base/VP1Msg.h"
+
+#include <QGraphicsView>
+#include <QByteArray>
 
 class PhiSectionWidget : public QGraphicsView, public VP1HelperClassBase {
 

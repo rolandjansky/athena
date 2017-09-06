@@ -49,6 +49,9 @@ StatusCode FakeCTP::execute() {
   m_decisions = CxxUtils::make_unique< xAOD::TrigCompositeContainer >();
   m_decisionsAux = CxxUtils::make_unique< xAOD::TrigCompositeAuxContainer>();
   m_decisions->setStore(m_decisionsAux.ptr());
+
+
+
   
   for ( const auto& chain : m_events[m_currentEvent] ) {
     ATH_MSG_DEBUG("Enabling chain " << TrigConf::HLTUtils::hash2string(chain, "chain"));

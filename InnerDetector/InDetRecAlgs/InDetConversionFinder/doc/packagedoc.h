@@ -28,9 +28,7 @@ the algorithm will use this default value.
 <li>Specify the name of IVertexFinder:<br>
     <b>''VertexFinderTool' : PublicToolHandle('InDet::InDetConversionFinderTools') </b></li>
 </ul>
-@section InDetConversionFinder_used_packagesInDetConversionFinder used packages
 
-@section InDetConversionFinder_requirements Requirements
 
 \namespace Vtx
 A namespace for all vertexing packages and related stuff.

@@ -35,32 +35,32 @@ namespace ana
   {
     // TODO: needs documentation
     StatusCode addDefWP_internal (const DefinitionArgs& masterArgs,
-				  AnaToolSequence& tools,
-				  std::vector<DefinitionConf>& confList)
+                                  AnaToolSequence& tools,
+                                  std::vector<DefinitionConf>& confList)
     {
       using namespace msgConfiguration;
 
       for (auto& conf : confList)
       {
-	DefinitionArgs args = masterArgs.cloneConf();
+        DefinitionArgs args = masterArgs.cloneConf();
 
         // Ask the DefinitionConf to make the tools.
-	AnaToolSequence list;
-	ANA_CHECK (conf.makeTools (args, list));
+        AnaToolSequence list;
+        ANA_CHECK (conf.makeTools (args, list));
 
         // Loop over the tools to fill the output list.
         for (auto& tool : list)
         {
 	  if (tool.first)
 	  {
-	    tools.addTool (std::unique_ptr<IAnaTool>(tool.first));
+	    tools.addTool (std::move (tool.first));
 	  } else
 	  {
             // If the tool doesn't exist, we just add the label...?
             // What's going on here?
-	    tools.addLabel (tool.second);
-	  }
-	}
+            tools.addLabel (tool.second);
+          }
+        }
       }
 
       return StatusCode::SUCCESS;
@@ -69,7 +69,7 @@ namespace ana
 
 
     StatusCode addDefWP (const DefinitionArgs& masterArgs,
-			 AnaToolSequence& tools,
+                         AnaToolSequence& tools,
                          ObjectType type,
                          std::vector<DefinitionConf>& confList)
     {
@@ -82,41 +82,41 @@ namespace ana
       std::vector<std::string> mynames;
       for (auto& conf : confList)
       {
-	std::string wpName = conf.wpName();
+        std::string wpName = conf.wpName();
         // Under what condition would the name be empty???
-	if (!wpName.empty())
-	{
+        if (!wpName.empty())
+        {
           // Check to see if this WP name is already in our list of names.
           // We should use std::find here instead.
-	  for (auto& other : mynames)
-	  {
-	    if (other == wpName)
-	    {
-	      ANA_MSG_ERROR ("duplicate object definition name: " << wpName <<
+          for (auto& other : mynames)
+          {
+            if (other == wpName)
+            {
+              ANA_MSG_ERROR ("duplicate object definition name: " << wpName <<
                             " for " << ObjectTypeInfo::name[type]);
-	      return StatusCode::FAILURE;
-	    }
-	  }
-	  mynames.push_back (wpName);
-	}
+              return StatusCode::FAILURE;
+            }
+          }
+          mynames.push_back (wpName);
+        }
       }
       // For some reason, every conf needs to know whether it is first
       // and whether it is part of a multi-working point definition.
       bool first = true;
       for (auto& conf : confList)
       {
-	RCU_ASSERT (conf.defType() == type);
-	conf.setFirstWP (first);
-	conf.setMultiWP (mynames.size() > 1);
-	first = false;
+        RCU_ASSERT (conf.defType() == type);
+        conf.setFirstWP (first);
+        conf.setMultiWP (mynames.size() > 1);
+        first = false;
       }
 
       // ???
       if (ObjectTypeInfo::supportsIParticle (type))
       {
-	DefinitionConf conf
-	  = DefinitionConf::makeIParticleCommonConf (type, mynames);
-	confList.push_back (conf);
+        DefinitionConf conf
+          = DefinitionConf::makeIParticleCommonConf (type, mynames);
+        confList.push_back (conf);
       }
 
       ANA_CHECK (addDefWP_internal (masterArgs, tools, confList));
@@ -129,8 +129,8 @@ namespace ana
 
   StatusCode
   makeToolSequence (const std::vector<DefinitionConf>& confList,
-		    const DefinitionArgs& masterArgs,
-		    AnaToolSequence& tools)
+                    const DefinitionArgs& masterArgs,
+                    AnaToolSequence& tools)
   {
     using namespace msgConfiguration;
 
@@ -201,7 +201,7 @@ namespace ana
   addTool (std::unique_ptr<IAnaTool> val_definition)
   {
     RCU_CHANGE_INVARIANT (this);
-    m_tools.push_back (std::pair<IAnaTool*,std::string>(val_definition.release(),""));
+    m_tools.push_back (std::make_pair(std::move(val_definition),""));
   }
 
 
@@ -210,7 +210,7 @@ namespace ana
   addLabel (const std::string& val_label)
   {
     RCU_CHANGE_INVARIANT (this);
-    m_tools.push_back (std::pair<IAnaTool*,std::string>(nullptr, val_label));
+    m_tools.push_back (std::make_pair(std::unique_ptr<IAnaTool>(), val_label));
   }
 
 
@@ -225,7 +225,7 @@ namespace ana
 
 
   AnaToolSequence::iterator AnaToolSequence ::
-  begin () const
+  begin ()
   {
     RCU_READ_INVARIANT (this);
     return m_tools.begin();
@@ -234,7 +234,7 @@ namespace ana
 
 
   AnaToolSequence::iterator AnaToolSequence ::
-  end () const
+  end ()
   {
     RCU_READ_INVARIANT (this);
     return m_tools.end();

@@ -18,10 +18,6 @@
 #include <iomanip>
 #include <fstream>
 
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/PropertyMgr.h"
-#include "GaudiKernel/ToolHandle.h"
-
 #include "CscCalibData/CscCalibReportContainer.h"
 #include "CscCalibData/CscCalibReportPed.h"
 #include "MuonCondInterface/CscICoolStrSvc.h"
@@ -60,8 +56,8 @@ CscCalibMonToolPed::CscCalibMonToolPed(const std::string & type, const std::stri
   m_nEntriesColl(NULL),
   m_tholdDiffColl(NULL),
   m_maxBitCorrColl(NULL),
-  h2_rmsVnoiseEta(NULL),
-  h2_rmsVnoisePhi(NULL)
+  m_h2_rmsVnoiseEta(NULL),
+  m_h2_rmsVnoisePhi(NULL)
 {
   declareProperty("MaxPedDiff",m_pedMaxDiff=2.0);
   declareProperty("MaxNoiseDiff",m_noiseMaxDiff = 5.0);
@@ -127,24 +123,20 @@ StatusCode CscCalibMonToolPed::finalize()
 CscCalibMonToolPed::~CscCalibMonToolPed()
 {
 
-  m_log << MSG::INFO << "CscCalibMonToolPed :  deleting CscCalibMonToolPed " << endmsg;
+  ATH_MSG_INFO( "CscCalibMonToolPed :  deleting CscCalibMonToolPed "  );
 }
 
 StatusCode CscCalibMonToolPed::bookHistograms()
 { 
   if (!CscCalibMonToolBase::bookHistograms().isSuccess())
   {
-     m_log << MSG::WARNING << "CscCalibMonToolPed : in bookHistograms()" << endmsg;
+    ATH_MSG_WARNING( "CscCalibMonToolPed : in bookHistograms()"  );
   }
-  if (m_debuglevel) m_log << MSG::DEBUG << "CscCalibMonToolPed : in bookHistograms()" << endmsg;
-
-  StatusCode sc = StatusCode::SUCCESS;
+  ATH_MSG_DEBUG( "CscCalibMonToolPed : in bookHistograms()"  );
 
   //declare a group of histograms
 
-  if (newEventsBlock){}
-  if (newLumiBlock){}
-  if (newRun)
+  if (newRunFlag())
   {
     m_monGroupVec = new DataVector<MonGroup>;  
 
@@ -180,7 +172,7 @@ StatusCode CscCalibMonToolPed::bookHistograms()
     m_h_numBad->GetXaxis()->SetBinLabel(m_missingBadBin,"Missing channels ");
     m_h_numBad->GetXaxis()->SetBinLabel(m_onlTHoldBreachBadBin, "Onl THold Breaches");
     m_h_numBad->SetFillColor(m_histColAlert);
-    sc = monGroup.regHist(m_h_numBad);
+    monGroup.regHist(m_h_numBad).ignore();
 
 
     name = "h_csc_calib_pedMissingChannels";
@@ -194,7 +186,7 @@ StatusCode CscCalibMonToolPed::bookHistograms()
     m_h_pedMissingChannels->GetXaxis()->SetTitle(xaxis.c_str());
     m_h_pedMissingChannels->GetYaxis()->SetTitle(yaxis.c_str());     
     m_h_pedMissingChannels->SetFillColor(m_histColAlert);
-    sc = monGroup.regHist(m_h_pedMissingChannels);
+    monGroup.regHist(m_h_pedMissingChannels).ignore();
 
     //Set naming parameters for datatypes
     string pedDataName      = "ped";
@@ -314,160 +306,83 @@ StatusCode CscCalibMonToolPed::bookHistograms()
 
 
     //initialize, name, and book histograms in histogram collections:
-    if(m_debuglevel) m_log << MSG::DEBUG << "Registering pedNewColl" << endmsg;
 
-    sc = bookHistCollection(m_pedNewColl, pedDataName, pedDataTitle, newCatName, newCatTitle,
-        pedAxisLabel, pedNumBins, pedLowBound, pedHighBound, pedSubDir);
-    if(!sc.isSuccess())
-    {
-      m_log << MSG::FATAL << "Failed to book hist"<< endmsg;
-      return StatusCode::FAILURE;
-    } 
-    if(m_debuglevel) m_log << MSG::DEBUG << "Registering pedOldColl" << endmsg;
-    sc = bookHistCollection(m_pedOldColl, pedDataName, pedDataTitle, oldCatName, oldCatTitle,
-        pedAxisLabel, pedNumBins, pedLowBound, pedHighBound, pedSubDir);
-    if(!sc.isSuccess())
-    {
-      m_log << MSG::FATAL << "Failed to book hist"<< endmsg;
-      return StatusCode::FAILURE;
-    } 
+    ATH_MSG_DEBUG( "Registering pedNewColl"  );
+    ATH_CHECK( bookHistCollection(m_pedNewColl, pedDataName, pedDataTitle, newCatName, newCatTitle,
+                                  pedAxisLabel, pedNumBins, pedLowBound, pedHighBound, pedSubDir) );
 
-    if(m_debuglevel) m_log << MSG::DEBUG << "Registering pedDiffColl" << endmsg;
-    sc = bookHistCollection(m_pedDiffColl, pedDataName, pedDataTitle, diffCatName, diffCatTitle,
-        pedDiffAxisLabel, 100, -2, 2, pedSubDir);
-    if(!sc.isSuccess())
-    {
-      m_log << MSG::FATAL << "Failed to book hist"<< endmsg;
-      return StatusCode::FAILURE;
-    } 
+    ATH_MSG_DEBUG( "Registering pedOldColl"  );
+    ATH_CHECK( bookHistCollection(m_pedOldColl, pedDataName, pedDataTitle, oldCatName, oldCatTitle,
+                                  pedAxisLabel, pedNumBins, pedLowBound, pedHighBound, pedSubDir) );
 
-    if(m_debuglevel) m_log << MSG::DEBUG << "Registering noiseNewColl" << endmsg;
-    sc = bookHistCollection(m_noiseNewColl, noiseDataName, noiseDataTitle, newCatName, 
-        newCatTitle, noiseAxisLabel, noiseNumBins, noiseLowBound, noiseHighBound, noiseSubDir);
-    if(!sc.isSuccess())
-    {
-      m_log << MSG::FATAL << "Failed to book hist"<< endmsg;
-      return StatusCode::FAILURE;
-    } 
+    ATH_MSG_DEBUG( "Registering pedDiffColl"  );
+    ATH_CHECK( bookHistCollection(m_pedDiffColl, pedDataName, pedDataTitle, diffCatName, diffCatTitle,
+                                  pedDiffAxisLabel, 100, -2, 2, pedSubDir) );
 
-    if(m_debuglevel) m_log << MSG::DEBUG << "Registering noiseOldColl" << endmsg;
-    sc = bookHistCollection(m_noiseOldColl, noiseDataName, noiseDataTitle, oldCatName, 
-        oldCatTitle, noiseAxisLabel, 100, -2, 2, noiseSubDir);
-    if(!sc.isSuccess())
-    {
-      m_log << MSG::FATAL << "Failed to book hist"<< endmsg;
-      return StatusCode::FAILURE;
-    } 
+    ATH_MSG_DEBUG( "Registering noiseNewColl"  );
+    ATH_CHECK( bookHistCollection(m_noiseNewColl, noiseDataName, noiseDataTitle, newCatName, 
+                                  newCatTitle, noiseAxisLabel, noiseNumBins, noiseLowBound, noiseHighBound, noiseSubDir) );
 
-    if(m_debuglevel) m_log << MSG::DEBUG << "Registering noiseDiffColl" << endmsg;
-    sc = bookHistCollection(m_noiseDiffColl, noiseDataName, noiseDataTitle, diffCatName, 
-        diffCatTitle, noiseDiffAxisLabel, noiseNumBins, -1*noiseHighBound, noiseHighBound,noiseSubDir);
-    if(!sc.isSuccess())
-    {
-      m_log << MSG::FATAL << "Failed to book hist"<< endmsg;
-      return StatusCode::FAILURE;
-    } 
+    ATH_MSG_DEBUG( "Registering noiseOldColl"  );
+    ATH_CHECK( bookHistCollection(m_noiseOldColl, noiseDataName, noiseDataTitle, oldCatName, 
+                                  oldCatTitle, noiseAxisLabel, 100, -2, 2, noiseSubDir) );
 
-    if(m_debuglevel) m_log << MSG::DEBUG << "Registering rmsNewColl" << endmsg;
-    sc = bookHistCollection(m_rmsNewColl, rmsDataName, rmsDataTitle, newCatName, 
-        newCatTitle, rmsAxisLabel, rmsNumBins, rmsLowBound, rmsHighBound, rmsSubDir);
-    if(!sc.isSuccess())
-    {
-      m_log << MSG::FATAL << "Failed to book hist"<< endmsg;
-      return StatusCode::FAILURE;
-    } 
+    ATH_MSG_DEBUG( "Registering noiseDiffColl"  );
+    ATH_CHECK( bookHistCollection(m_noiseDiffColl, noiseDataName, noiseDataTitle, diffCatName, 
+                                  diffCatTitle, noiseDiffAxisLabel, noiseNumBins, -1*noiseHighBound, noiseHighBound,noiseSubDir) );
 
-    if(m_debuglevel) m_log << MSG::DEBUG << "Registering rmsOldColl" << endmsg;
-    sc = bookHistCollection(m_rmsOldColl, rmsDataName, rmsDataTitle, oldCatName, 
-        oldCatTitle, rmsAxisLabel, rmsNumBins, rmsLowBound, rmsHighBound, rmsSubDir);
-    if(!sc.isSuccess())
-    {
-      m_log << MSG::FATAL << "Failed to book hist"<< endmsg;
-      return StatusCode::FAILURE;
-    } 
+    ATH_MSG_DEBUG( "Registering rmsNewColl"  );
+    ATH_CHECK( bookHistCollection(m_rmsNewColl, rmsDataName, rmsDataTitle, newCatName, 
+                                  newCatTitle, rmsAxisLabel, rmsNumBins, rmsLowBound, rmsHighBound, rmsSubDir) );
 
-    if(m_debuglevel) m_log << MSG::DEBUG << "Registering rmsDiffColl" << endmsg;
-    sc = bookHistCollection(m_rmsDiffColl, rmsDataName, rmsDataTitle, diffCatName, 
-        diffCatTitle, rmsDiffAxisLabel, rmsNumBins, -1*rmsHighBound, rmsHighBound,rmsSubDir);
-    if(!sc.isSuccess())
-    {
-      m_log << MSG::FATAL << "Failed to book hist"<< endmsg;
-      return StatusCode::FAILURE;
-    } 
+    ATH_MSG_DEBUG( "Registering rmsOldColl"  );
+    ATH_CHECK( bookHistCollection(m_rmsOldColl, rmsDataName, rmsDataTitle, oldCatName, 
+                                  oldCatTitle, rmsAxisLabel, rmsNumBins, rmsLowBound, rmsHighBound, rmsSubDir) );
 
-    if(m_debuglevel) m_log << MSG::DEBUG << "Registering f001NewColl" << endmsg;
-    sc = bookHistCollection(m_f001NewColl, f001DataName, f001DataTitle, newCatName, 
-        newCatTitle, f001AxisLabel, f001NumBins, f001LowBound, f001HighBound, f001SubDir);
-    if(!sc.isSuccess())
-    {
-      m_log << MSG::FATAL << "Failed to book hist"<< endmsg;
-      return StatusCode::FAILURE;
-    } 
+    ATH_MSG_DEBUG( "Registering rmsDiffColl"  );
+    ATH_CHECK( bookHistCollection(m_rmsDiffColl, rmsDataName, rmsDataTitle, diffCatName, 
+                                  diffCatTitle, rmsDiffAxisLabel, rmsNumBins, -1*rmsHighBound, rmsHighBound,rmsSubDir) );
 
-    if(m_debuglevel) m_log << MSG::DEBUG << "Registering f001OldColl" << endmsg;
-    sc = bookHistCollection(m_f001OldColl, f001DataName, f001DataTitle, oldCatName, 
-        oldCatTitle, f001AxisLabel, 100, -2, 2, f001SubDir);
-    if(!sc.isSuccess())
-    {
-      m_log << MSG::FATAL << "Failed to book hist"<< endmsg;
-      return StatusCode::FAILURE;
-    } 
+    ATH_MSG_DEBUG( "Registering f001NewColl"  );
+    ATH_CHECK( bookHistCollection(m_f001NewColl, f001DataName, f001DataTitle, newCatName, 
+                                  newCatTitle, f001AxisLabel, f001NumBins, f001LowBound, f001HighBound, f001SubDir) );
 
-    if(m_debuglevel) m_log << MSG::DEBUG << "Registering f001DiffColl" << endmsg;
-    sc = bookHistCollection(m_f001DiffColl, f001DataName, f001DataTitle, diffCatName, 
-        diffCatTitle, f001DiffAxisLabel, 60, -30, 30, f001SubDir);
-    if(!sc.isSuccess())
-    {
-      m_log << MSG::FATAL << "Failed to book hist"<< endmsg;
-      return StatusCode::FAILURE;
-    } 
+    ATH_MSG_DEBUG( "Registering f001OldColl"  );
+    ATH_CHECK( bookHistCollection(m_f001OldColl, f001DataName, f001DataTitle, oldCatName, 
+                                  oldCatTitle, f001AxisLabel, 100, -2, 2, f001SubDir) );
+
+    ATH_MSG_DEBUG( "Registering f001DiffColl"  );
+    ATH_CHECK( bookHistCollection(m_f001DiffColl, f001DataName, f001DataTitle, diffCatName, 
+                                  diffCatTitle, f001DiffAxisLabel, 60, -30, 30, f001SubDir) );
     
-    if(m_debuglevel) m_log << MSG::DEBUG << "Registering onlTHoldBreachColl" << endmsg;
-    sc = bookHistCollection(m_onlTHoldBreachColl, onlTHoldBreachDataName, onlTHoldBreachDataTitle, "",  
-        "" , "Number of Online THold Breachs", 100, 0, 1000, onlTHoldBreachSubDir);
-    if(!sc.isSuccess())
-    {
-      m_log << MSG::FATAL << "Failed to book hist"<< endmsg;
-      return StatusCode::FAILURE;
-    } 
-    if(m_debuglevel) m_log << MSG::DEBUG << "Registering Num Entries" << endmsg;
-    sc = bookHistCollection(m_nEntriesColl, nEntriesDataName, nEntriesDataTitle, "", 
-        "", nEntriesAxisLabel, nEntriesNumBins, nEntriesLowBound, nEntriesHighBound, nEntriesSubDir, nEntriesHistMask);
-    if(!sc.isSuccess())
-    {
-      m_log << MSG::FATAL << "Failed to book hist"<< endmsg;
-      return StatusCode::FAILURE;
-    } 
+    ATH_MSG_DEBUG( "Registering onlTHoldBreachColl"  );
+    ATH_CHECK( bookHistCollection(m_onlTHoldBreachColl, onlTHoldBreachDataName, onlTHoldBreachDataTitle, "",  
+                                  "" , "Number of Online THold Breachs", 100, 0, 1000, onlTHoldBreachSubDir) );
 
-    sc = bookHistCollection(m_chi2Coll, chi2DataName, chi2DataTitle, "", "",
-        chi2AxisLabel, chi2NumBins, chi2LowBound, chi2HighBound, chi2SubDir);
-    if(!sc.isSuccess())
-    {
-      m_log << MSG::FATAL << "Failed to book hist"<< endmsg;
-      return StatusCode::FAILURE;
+    ATH_MSG_DEBUG( "Registering Num Entries"  );
+    ATH_CHECK( bookHistCollection(m_nEntriesColl, nEntriesDataName, nEntriesDataTitle, "", 
+                                  "", nEntriesAxisLabel, nEntriesNumBins, nEntriesLowBound, nEntriesHighBound, nEntriesSubDir, nEntriesHistMask) );
+
+    ATH_CHECK( bookHistCollection(m_chi2Coll, chi2DataName, chi2DataTitle, "", "",
+                                  chi2AxisLabel, chi2NumBins, chi2LowBound, chi2HighBound, chi2SubDir) );
+
+    ATH_CHECK( bookHistCollection(m_tholdDiffColl, "thold", "Threshold", diffCatName, diffCatTitle, "#Delta{}Threshold", 500, -10, 10, "THold") );
+
+    if(m_doBitCorrelations) {
+      ATH_CHECK( bookHistCollection(m_maxBitCorrColl, maxBitCorrDataName, maxBitCorrDataTitle,
+                                    "", "", maxBitCorrAxisLabel, maxBitCorrNumBins, maxBitCorrLowBound, 
+                                    maxBitCorrHighBound, maxBitCorrSubDir) );
     }
-
-    sc = bookHistCollection(m_tholdDiffColl, "thold", "Threshold", diffCatName, diffCatTitle, "#Delta{}Threshold", 500, -10, 10, "THold");
-    if(!sc.isSuccess())
-    {
-      m_log << MSG::FATAL << "Failed to book hist"<< endmsg;
-      return StatusCode::FAILURE;
-    }
-
-    if(m_doBitCorrelations)
-      sc = bookHistCollection(m_maxBitCorrColl, maxBitCorrDataName, maxBitCorrDataTitle,
-          "", "", maxBitCorrAxisLabel, maxBitCorrNumBins, maxBitCorrLowBound, 
-          maxBitCorrHighBound, maxBitCorrSubDir);
   }//end if newRun
 
-  return sc;
+  return StatusCode::SUCCESS;
 }//end bookHistograms
 
 
 //--handleParameter: Processes a vector of parameter values by filling the appropriate histograms
 StatusCode CscCalibMonToolPed::handleParameter(const CscCalibResultCollection* parVals)
 {
-  if (m_debuglevel) m_log << MSG::DEBUG << "CscCalibMonToolPed : in procParameter()" << endmsg;
+  ATH_MSG_DEBUG( "CscCalibMonToolPed : in procParameter()"  );
 
   //The whole point of this funciton is to pass the correct histograms and setup info 
   //to CsccalibMonToolBase::procParameter. To organize this, we store the setup info into
@@ -567,8 +482,8 @@ StatusCode CscCalibMonToolPed::handleParameter(const CscCalibResultCollection* p
   }
   else
   {
-    m_log << MSG::INFO << "CscCalibMonToolPed : Did not recognize parameter name " 
-      << parName << ". This is usually ok." << endmsg;
+    ATH_MSG_INFO( "CscCalibMonToolPed : Did not recognize parameter name " 
+                  << parName << ". This is usually ok."  );
     return StatusCode::SUCCESS;
   }
 
@@ -578,8 +493,8 @@ StatusCode CscCalibMonToolPed::handleParameter(const CscCalibResultCollection* p
   // -Look for deviations from expected values for each channel
   if(!procParameter(parVals,&ProcParameterInput).isSuccess())
   {
-    m_log << MSG::FATAL << "CscCalibMonToolPed : Failed to process parameter " 
-      << parName << endmsg;
+    ATH_MSG_FATAL( "CscCalibMonToolPed : Failed to process parameter " 
+                   << parName  );
     return StatusCode::FAILURE;
   }
 
@@ -623,9 +538,7 @@ void CscCalibMonToolPed::genThreshold(HistCollection * pedColl, HistCollection *
 //requested by the user in m_detailedHashIds.  
 StatusCode CscCalibMonToolPed::postProc()
 {
-  if (m_debuglevel) m_log << MSG::DEBUG << "CscCalibMonToolPed : in postProc()" << endmsg;
-
-  StatusCode sc = StatusCode::SUCCESS;
+  ATH_MSG_DEBUG( "CscCalibMonToolPed : in postProc()"  );
 
   IdContext chanContext = m_cscIdHelper->channel_context();
 
@@ -637,39 +550,39 @@ StatusCode CscCalibMonToolPed::postProc()
     string geoPath = getGeoPath();
     string path = getFullPath(geoPath, "Misc", "");
 
-    h2_rmsVnoiseEta = new TH2I("rmsVsigma_eta", "RMS versus sigma for #eta strips", 100, 0, 30, 100, 0,30) ;
-    h2_rmsVnoiseEta->GetXaxis()->SetTitle("Sigma");
-    h2_rmsVnoiseEta->GetYaxis()->SetTitle("RMS");
-    regHist(h2_rmsVnoiseEta,path, run, ATTRIB_MANAGED);
+    m_h2_rmsVnoiseEta = new TH2I("rmsVsigma_eta", "RMS versus sigma for #eta strips", 100, 0, 30, 100, 0,30) ;
+    m_h2_rmsVnoiseEta->GetXaxis()->SetTitle("Sigma");
+    m_h2_rmsVnoiseEta->GetYaxis()->SetTitle("RMS");
+    regHist(m_h2_rmsVnoiseEta,path, run, ATTRIB_MANAGED);
 
-    h2_rmsVnoisePhi = new TH2I("rmsVsigma_phi", "RMS versus sigma for #phi strips", 100, 0, 30, 100, 0,30) ;
-    h2_rmsVnoisePhi->GetXaxis()->SetTitle("Sigma");
-    h2_rmsVnoisePhi->GetYaxis()->SetTitle("RMS");
-    regHist(h2_rmsVnoisePhi,path, run, ATTRIB_MANAGED);
+    m_h2_rmsVnoisePhi = new TH2I("rmsVsigma_phi", "RMS versus sigma for #phi strips", 100, 0, 30, 100, 0,30) ;
+    m_h2_rmsVnoisePhi->GetXaxis()->SetTitle("Sigma");
+    m_h2_rmsVnoisePhi->GetYaxis()->SetTitle("RMS");
+    regHist(m_h2_rmsVnoisePhi,path, run, ATTRIB_MANAGED);
 
     std::vector<float> & rmsVec = m_rmsNewColl->data;
     std::vector<float> & noiseVec = m_noiseNewColl->data;
     size_t nEntries = rmsVec.size();
     if(nEntries != noiseVec.size()){
-      m_log << MSG::ERROR << "Number of noises != number of rmses" << endmsg;
+      ATH_MSG_ERROR( "Number of noises != number of rmses"  );
       return StatusCode::FAILURE;
     }
-    m_log << MSG::DEBUG << "Filling rmsVnoise " << endmsg;
+    ATH_MSG_DEBUG( "Filling rmsVnoise "  );
 
     for(unsigned int hashId = 0; hashId < nEntries; hashId++){
-      m_log << MSG::DEBUG << "Filling rmsVnoise for hash id " << hashId << endmsg;
+      ATH_MSG_DEBUG( "Filling rmsVnoise for hash id " << hashId  );
       Identifier chanId;
       m_cscIdHelper->get_id(IdentifierHash(hashId), chanId, &chanContext);
       int measuresPhi = m_cscIdHelper->measuresPhi(chanId);
 
       if(m_expectedHashIdsAll.count(hashId)) {
         if(measuresPhi)
-          h2_rmsVnoisePhi->Fill(noiseVec[hashId], rmsVec[hashId]);
+          m_h2_rmsVnoisePhi->Fill(noiseVec[hashId], rmsVec[hashId]);
         else
-          h2_rmsVnoiseEta->Fill(noiseVec[hashId], rmsVec[hashId]);
+          m_h2_rmsVnoiseEta->Fill(noiseVec[hashId], rmsVec[hashId]);
       }
     }
-    m_log <<MSG::DEBUG << "filled rmsVnoise " << endmsg;
+    ATH_MSG_DEBUG( "filled rmsVnoise "  );
 
   }
 
@@ -677,19 +590,18 @@ StatusCode CscCalibMonToolPed::postProc()
   {
     //Retrieve calibration report container from transient data store
     const DataHandle<CscCalibReportContainer> repCont;
-    sc = m_storeGate->retrieve(repCont, m_histKey);
-    if( !sc.isSuccess())
+    if (!evtStore()->retrieve(repCont, m_histKey).isSuccess())
     {
-      m_log << MSG::WARNING << " Cannot retrieve object from storegate with key " 
-        << m_histKey <<  " aborting retrieving hists " << endmsg;
+      ATH_MSG_WARNING( " Cannot retrieve object from storegate with key " 
+                       << m_histKey <<  " aborting retrieving hists "  );
       return StatusCode::RECOVERABLE;
     }
 
     if(repCont->size() != 1)
     {
-      m_log << MSG::WARNING << "Container with key " << m_histKey 
-        << " does not have a size of one. Do not know how to proceed, so aborting"
-        << " retrieving calibration histograms." << endmsg;
+      ATH_MSG_WARNING( "Container with key " << m_histKey 
+                       << " does not have a size of one. Do not know how to proceed, so aborting"
+                       << " retrieving calibration histograms."  );
       return StatusCode::RECOVERABLE;
     }
 
@@ -697,20 +609,20 @@ StatusCode CscCalibMonToolPed::postProc()
     const CscCalibReportPed * pedReport = dynamic_cast<const CscCalibReportPed *>(repCont->front());
     if(pedReport->getLabel() != "pedAmps")
     {
-      m_log << MSG::WARNING << "Incorrect object retrieved from  container."
-        << " Aborting hist retrieval." << endmsg;
+      ATH_MSG_WARNING( "Incorrect object retrieved from  container."
+                       << " Aborting hist retrieval."  );
       return StatusCode::RECOVERABLE;
     }
 
     const DataVector<TH1I> * pedAmpHists = pedReport->getPedAmpHists();
     if(!pedAmpHists)
-      m_log << MSG::WARNING << "No pedAmpHists vector found from calibration. "
-        << " Won't be in monitoring output file" << endmsg;
+      ATH_MSG_WARNING( "No pedAmpHists vector found from calibration. "
+                       << " Won't be in monitoring output file"  );
 
     const DataVector<TH1I> * bitHists = pedReport->getBitHists();
     if(!bitHists)
-      m_log << MSG::INFO << "No bit histogram vector found from calibration. "
-        << " Won't be in monitoring output file. " << endmsg;
+      ATH_MSG_INFO( "No bit histogram vector found from calibration. "
+                    << " Won't be in monitoring output file. "  );
 
     const DataVector<TH2F> * bitCorrelations = NULL;
 
@@ -724,8 +636,8 @@ StatusCode CscCalibMonToolPed::postProc()
     {
       if(m_expectedHashIdsAll.count(idItr))
       {
-        m_log << MSG::VERBOSE << "Debug info for hash " << idItr 
-          << " is being retrieved." << endmsg;
+        ATH_MSG_VERBOSE( "Debug info for hash " << idItr 
+                         << " is being retrieved."  );
         TH1I * sourceHist;
 
         Identifier chanId;
@@ -747,7 +659,7 @@ StatusCode CscCalibMonToolPed::postProc()
         if(bitCorrelations)
           bitCorrelationPath = getFullPath(geoPath, "BitCorrelations", "");
 
-        if(m_debuglevel) m_log << MSG::DEBUG << "Hash Id: " << idItr << ". Booking channel histograms in paths : " << pedAmpPath << " and " << bitHistPath  << endmsg;
+        ATH_MSG_DEBUG( "Hash Id: " << idItr << ". Booking channel histograms in paths : " << pedAmpPath << " and " << bitHistPath   );
         //MonGroup chanMonGroup( this, path , run, ATTRIB_MANAGED);
 
         //Pedestal amplitude histograms
@@ -757,8 +669,8 @@ StatusCode CscCalibMonToolPed::postProc()
           sourceHist = const_cast<TH1I*>((*pedAmpHists)[idItr]);
           if(!sourceHist)
           {
-            m_log << MSG::ERROR << "There is no pedestal amplitude histogram with hashId "
-              << idItr << endmsg;
+            ATH_MSG_ERROR( "There is no pedestal amplitude histogram with hashId "
+                           << idItr  );
             return StatusCode::RECOVERABLE;
           }
 
@@ -766,9 +678,9 @@ StatusCode CscCalibMonToolPed::postProc()
 
           if(idItr >= m_nEntriesColl->data.size() ){
 
-            m_log << MSG::ERROR << "idItr == " << idItr 
-              << " but maximum m_nEntriesColl.data.size() == "
-              << m_nEntriesColl->data.size()  << endmsg;
+            ATH_MSG_ERROR( "idItr == " << idItr 
+                           << " but maximum m_nEntriesColl.data.size() == "
+                           << m_nEntriesColl->data.size()   );
             return StatusCode::RECOVERABLE;
           }
           m_nEntriesColl->data[idItr] = nEntries;
@@ -832,8 +744,8 @@ StatusCode CscCalibMonToolPed::postProc()
           sourceHist = const_cast<TH1I*>((*bitHists)[idItr]);
           if(!sourceHist)
           {
-            m_log << MSG::ERROR << "There is no bit histogram with hashId "
-              << idItr << " Quiting out of detailed histogram loop." <<  endmsg;
+            ATH_MSG_ERROR( "There is no bit histogram with hashId "
+                           << idItr << " Quiting out of detailed histogram loop."  );
             return StatusCode::RECOVERABLE;
           }
 
@@ -880,9 +792,8 @@ StatusCode CscCalibMonToolPed::postProc()
       }//if detailedHashInfo[stripHash] || do all hists.
     }//end hash loop
   }
-  else if (m_debuglevel)
-    m_log << MSG::DEBUG << "No channels flagged for debug info retrieval"
-      <<endmsg;
+  else
+    ATH_MSG_DEBUG( "No channels flagged for debug info retrieval" );
 
   //Copy data from the num entries vector to all relevant histograms
   copyDataToHists(m_nEntriesColl);

@@ -58,6 +58,13 @@ public:
   virtual void setModuleErrors(IdentifierHash hashID, unsigned int errorcode)=0;
   virtual void setModuleRODErrors(IdentifierHash hashID, unsigned int errorcode)=0;
   
+  virtual const std::map<IdentifierHash, std::map<unsigned int, unsigned int> > & getAllFeErrors() = 0;
+  virtual unsigned int getFeErrorCode(IdentifierHash module, unsigned int fe_number) = 0;
+  virtual void setFeErrorCode(IdentifierHash module, unsigned int fe_number, unsigned int errorcode) = 0;
+
+  virtual void setModuleFragmentSize(IdentifierHash hashID, unsigned int length) = 0;
+  virtual unsigned int getModuleFragmentSize(IdentifierHash hashID) = 0;
+
   virtual void resetCounts()=0; // for the counts used by HLT 
   virtual int getNumberOfErrors(int errorType)=0; // for HLT 
 

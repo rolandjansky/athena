@@ -17,37 +17,7 @@
 #define SGTOOLS_CLASSNAME_H
 
 
-#include <string>
-
-
-/**
- * @brief An interface for getting the name of a class as a string.
- *
- * This template class provides an interface for getting the name
- * of a class as a string.  By default, it uses @c typeinfoName
- * from @c GaudiKernel, but it may be specialized to override
- * the behavior for specific classes.
- */
-template <class T>
-class ClassName
-{
-public:
-  /**
-   * @brief Return the name of class @c T as a string.
-   */
-  static std::string name()
-#ifdef __GNUC__
-    // Force this function to appear as a symbol in the output file,
-    // even in an optimized build where it's always inlined.
-    // Otherwise, we get complaints from cling that it can't find the symbol
-    // (as of root 6.04).
-    __attribute__ ((used))
-#endif
-    ;
-};
-
-
-#include "SGTools/ClassName.icc"
+#include "AthenaKernel/ClassName.h"
 
 
 #endif // not SGTOOLS_CLASSNAME_H

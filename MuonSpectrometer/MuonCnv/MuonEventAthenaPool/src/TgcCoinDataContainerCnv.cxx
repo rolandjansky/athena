@@ -19,6 +19,8 @@
 #include "MuonTrigCoinData/TgcCoinDataContainer.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/TgcReadoutElement.h"
+#include "MuonEventAthenaPool/CreateTransientTemplates.h"
+
 
 TgcCoinDataContainerCnv::TgcCoinDataContainerCnv(ISvcLocator* svcloc) :
 TgcCoinDataContainerCnvBase(svcloc),

@@ -215,7 +215,7 @@ inline double P4ImplEEtaPhiM::e() const
 
 inline const I4MomentumError* P4ImplEEtaPhiM::errors() const
 {
-  return &(*m_error);
+  return m_error.get();
 }
 
 inline void P4ImplEEtaPhiM::setE( const double theE )

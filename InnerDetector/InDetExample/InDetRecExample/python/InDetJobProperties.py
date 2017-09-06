@@ -296,7 +296,7 @@ class cutLevel(InDetFlagsJobProperty):
     statusOn     = True
     allowedTypes = ['int']
     allowedValues= [1,2,3,4,5,6,7,8,9,10,11,12,13,14]
-    StoredValue  = 13
+    StoredValue  = 14
 
 class doBremRecovery(InDetFlagsJobProperty):
     """Turn on running of Brem Recover in tracking"""
@@ -347,11 +347,18 @@ class doParticleCreation(InDetFlagsJobProperty):
     StoredValue  = True
 
 class KeepParameters(InDetFlagsJobProperty):
-    """Keep extra parameters on TrackParticles"""
+    """Keep extra parameters on slimmed tracks"""
     statusOn     = True
     allowedTypes = ['bool']
     #False to drop them
     StoredValue  = True
+
+class KeepFirstParameters(InDetFlagsJobProperty):
+    """Keep the first set of track parameters in addition to the defining ones for TrackParticles."""
+    statusOn     = True
+    allowedTypes = ['bool']
+    #False to drop them
+    StoredValue  = False
 
 class doTrackSegmentsPixel(InDetFlagsJobProperty):
     """Turn running of track segment creation in pixel on and off"""
@@ -714,19 +721,7 @@ class materialInteractionsType(InDetFlagsJobProperty):
     allowedValues= [0,1,2,3,4,5]
     StoredValue  = 3
 
-class doPixelClusterNtuple(InDetFlagsJobProperty):
-    """  """
-    statusOn     = True
-    allowedTypes = ['bool']
-    StoredValue  = False
-        
 class doSctClusterNtuple(InDetFlagsJobProperty):
-    """  """
-    statusOn     = True
-    allowedTypes = ['bool']
-    StoredValue  = False
-
-class doTrtDriftCircleNtuple(InDetFlagsJobProperty):
     """  """
     statusOn     = True
     allowedTypes = ['bool']
@@ -1156,7 +1151,7 @@ class checkDeadElementsOnTrack(InDetFlagsJobProperty):
   """Enable check for dead modules and FEs""" 
   statusOn     = True 
   allowedTypes = ['bool']
-  StoredValue  = False
+  StoredValue  = True
 
 
 ##-----------------------------------------------------------------------------
@@ -1975,7 +1970,7 @@ class InDetJobProperties(JobPropertyContainer):
     return (self.useDCS() and DetFlags.dcs.TRT_on())  
 
   def doNtupleCreation(self):
-    return (self.doPixelClusterNtuple() or self.doSctClusterNtuple() or self.doTrtDriftCircleNtuple() or
+    return (self.doSctClusterNtuple() or
 	    self.doTrkNtuple() or self.doPixelTrkNtuple() or self.doSctTrkNtuple() or
             self.doTrtTrkNtuple() or self.doVtxNtuple() or self.doConvVtxNtuple() or
             self.doV0VtxNtuple())
@@ -2375,7 +2370,9 @@ class InDetJobProperties(JobPropertyContainer):
        print '* create TrackParticles'
        if self.doSharedHits() :
           print '* - and do shared hits search'
-       if self.KeepParameters() :
+       if self.KeepFirstParameters() :
+          print '* - keep first parameters on track'
+       elif self.KeepParameters() :
           print '* - keep extra parameters on track'
     if self.doV0Finder() :
        print '* run V0 finder'
@@ -2411,13 +2408,9 @@ class InDetJobProperties(JobPropertyContainer):
        print '* run Physics Validation Monitoring'
     if self.doNtupleCreation():
        ntupleString = '* Ntuple cluster/drift circle trees activated:'
-       if self.doPixelClusterNtuple():
-          ntupleString += ' Pixel'
        if self.doSctClusterNtuple():
           ntupleString += ' SCT'
-       if self.doTrtDriftCircleNtuple():
-          ntupleString += ' TRT'
-       if self.doPixelClusterNtuple() or self.doSctClusterNtuple() or self.doTrtDriftCircleNtuple():
+       if self.doSctClusterNtuple():
           print ntupleString
 
        ntupleString = '* Ntuple track trees activated:'
@@ -2635,6 +2628,7 @@ _list_InDetJobProperties = [Enabled,
                             doHeavyIon,
                             doParticleCreation,
                             KeepParameters,
+                            KeepFirstParameters,
                             doTrackSegmentsPixel,
                             doTrackSegmentsSCT,
                             doTrackSegmentsTRT,
@@ -2692,9 +2686,7 @@ _list_InDetJobProperties = [Enabled,
                             doPhysValMon,
                             materialInteractions,
                             materialInteractionsType,
-                            doPixelClusterNtuple,
                             doSctClusterNtuple,
-                            doTrtDriftCircleNtuple,
                             doTrkNtuple,
                             doPixelTrkNtuple,
                             doSctTrkNtuple,

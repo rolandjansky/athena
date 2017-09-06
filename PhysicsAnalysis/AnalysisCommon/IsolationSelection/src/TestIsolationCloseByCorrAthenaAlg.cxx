@@ -1,9 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
-//// Developed by Arthur Lesage (arthur.lesage@cern.ch)
-
+//// Developed by Johannes Josef Junggeburth (jojungge@cern.ch)
 // Local include(s):
 #include "TestIsolationCloseByCorrAthenaAlg.h"
 
@@ -12,12 +11,27 @@
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODMuon/MuonContainer.h"
 
-const char* APP_NAME = "ISOLATIONCLOSEBYCORRTEST";
+#include <IsolationSelection/IIsolationCloseByCorrectionTool.h>
+#include <IsolationSelection/IIsolationSelectionTool.h>
+#include <IsolationSelection/IsoVariableHelper.h>
+#include <IsolationSelection/TestMacroHelpers.h>
+#include <IsolationSelection/Defs.h>
+
+
 
 namespace CP {
+    static CharDecorator dec_PassQuality("isCloseByObject");
+    static CharDecorator dec_PassIsol("defaultIso");
 
     TestIsolationCloseByCorrAthenaAlg::TestIsolationCloseByCorrAthenaAlg(const std::string& name, ISvcLocator* svcLoc) :
-        AthAlgorithm(name, svcLoc) {  
+                AthAlgorithm(name, svcLoc),
+                m_histSvc("THistSvc", name),
+                m_isoCloseByCorrTool(""),
+                m_isoSelectorTool(""),
+                m_tree(nullptr),
+                m_ele_helper(),
+                m_muo_helper(),
+                m_pho_helper() {
         declareProperty("IsoCloseByCorrTool", m_isoCloseByCorrTool);
         declareProperty("IsoSelectorTool", m_isoSelectorTool);
     }
@@ -25,169 +39,65 @@ namespace CP {
     StatusCode TestIsolationCloseByCorrAthenaAlg::initialize() {
         ATH_CHECK(m_isoSelectorTool.retrieve());
         ATH_CHECK(m_isoCloseByCorrTool.retrieve());
-        return StatusCode::SUCCESS;  
+
+        m_tree = new TTree("IsoCorrTest", "Test tree for the isolaiton correction tool");
+
+        m_ele_helper = std::unique_ptr < IsoCorrectionTestHelper > (new IsoCorrectionTestHelper(m_tree, "Electrons",m_isoSelectorTool->getElectronWPs()));
+        m_muo_helper = std::unique_ptr < IsoCorrectionTestHelper > (new IsoCorrectionTestHelper(m_tree, "Muons",m_isoSelectorTool->getMuonWPs()));
+        m_pho_helper = std::unique_ptr < IsoCorrectionTestHelper > (new IsoCorrectionTestHelper(m_tree, "Photons",m_isoSelectorTool->getPhotonWPs()));
+
+        ATH_CHECK(m_histSvc->regTree("/ISOCORRECTION/IsoCorrTest", m_tree));
+
+        return StatusCode::SUCCESS;
     }
 
     StatusCode TestIsolationCloseByCorrAthenaAlg::execute() {
+        xAOD::ElectronContainer* Electrons = nullptr;
+        xAOD::MuonContainer* Muons = nullptr;
+        xAOD::PhotonContainer* Photons = nullptr;
 
-        std::vector<xAOD::Iso::IsolationType> types;
-        std::vector<const char*> typeNames;
-        types.push_back(xAOD::Iso::IsolationType::ptcone20);
-        typeNames.push_back("ptcone20");
-        types.push_back(xAOD::Iso::IsolationType::ptcone30);
-        typeNames.push_back("ptcone30");
-        types.push_back(xAOD::Iso::IsolationType::ptcone40);
-        typeNames.push_back("ptcone40");
-        types.push_back(xAOD::Iso::IsolationType::ptvarcone20);
-        typeNames.push_back("ptvarcone20");
-        types.push_back(xAOD::Iso::IsolationType::ptvarcone30);
-        typeNames.push_back("ptvarcone30");
-        types.push_back(xAOD::Iso::IsolationType::ptvarcone40);
-        typeNames.push_back("ptvarcone40");
-        types.push_back(xAOD::Iso::IsolationType::topoetcone20);
-        typeNames.push_back("topoetcone20");
-        types.push_back(xAOD::Iso::IsolationType::topoetcone30);
-        typeNames.push_back("topoetcone30");
-        types.push_back(xAOD::Iso::IsolationType::topoetcone40);
-        typeNames.push_back("topoetcone40");
-//         types.push_back(xAOD::Iso::IsolationType::etcone20);
-//         typeNames.push_back("etcone20");
-//         types.push_back(xAOD::Iso::IsolationType::etcone30);
-//         typeNames.push_back("etcone30");
-//         types.push_back(xAOD::Iso::IsolationType::etcone40);
-//         typeNames.push_back("etcone40");
-
-        // get muon container of interest
-        const xAOD::MuonContainer* muons = 0;
-        ATH_CHECK(evtStore()->retrieve(muons, "Muons"));
-     
-        // Stores the muons in a vector.
-        std::vector<const xAOD::IParticle*> muonsVec;
-        for(auto muon: *muons) {
-            muonsVec.push_back((const xAOD::IParticle*) muon);
-        }
-     
-        // get electron container of interest
-        const xAOD::ElectronContainer* electrons = 0;
-        ATH_CHECK( evtStore()->retrieve(electrons, "Electrons") );
-     
-        // Stores the electrons in a vector.
-        std::vector<const xAOD::IParticle*> electronsVec;
-        for(auto electron: *electrons) {
-            electronsVec.push_back((const xAOD::IParticle*) electron);
-        }
-     
-        // get photon container of interest
-        const xAOD::PhotonContainer* photons = 0;
-        ATH_CHECK( evtStore()->retrieve(photons, "Photons") );
-     
-        // Stores the electrons in a vector.
-        std::vector<const xAOD::IParticle*> photonsVec;
-        for(auto photon: *photons) {
-            photonsVec.push_back((const xAOD::IParticle*) photon);
+        //Create the links to the shallow copy objects
+        ATH_CHECK(CreateContainerLinks("Electrons", Electrons));
+        for (const auto ielec : *Electrons) {
+            //Store if the electron passes the isolation
+            dec_PassIsol(*ielec) = m_isoSelectorTool->accept(*ielec);
+            //Quality criteria only baseline kinematic selection
+            dec_PassQuality(*ielec) = ielec->pt() > 10.e3 && fabs(ielec->eta()) < 2.47;
         }
 
-        for(auto muon: *muons){
-            Info(APP_NAME, "---------NEW MUON -------");
-            
-            unsigned int decision = m_isoSelectorTool->accept(*muon).getCutResultBitSet().to_ulong();
-            if ((decision&0x01) == 1) {
-                Info(APP_NAME, "Muon passes FixedCutLoose working point before correction.");
-            } else {
-                Info(APP_NAME, "Muon does not pass FixedCutLoose working point before correction.");
-            }
-            
-            unsigned int decisionCorr = m_isoCloseByCorrTool->acceptCorrected(*muon, muonsVec).getCutResultBitSet().to_ulong();
-            if ((decisionCorr&0x01) == 1) {
-                Info(APP_NAME, "Muon passes FixedCutLoose working point after correction.");
-            } else {
-                Info(APP_NAME, "Muon does not pass FixedCutLoose working point after correction.");
-            }
-      
-            // Calculates the corrections.
-            std::vector<Float_t> corrections;
-      
-            m_isoCloseByCorrTool->getCloseByCorrection(corrections, *muon, types, muonsVec);
-      
-            for (unsigned int j = 0; j < types.size(); j++) {
-                if(j < corrections.size()) {
-                    float value = -999999;
-                    muon->isolation(value, types.at(j));
-                    float afterCorrection = value - corrections.at(j);
-                    Info(APP_NAME, "Muon Isolation variable: %s", typeNames.at(j));
-                    Info(APP_NAME, "Muon Value, correction, corrected value: %f, %f, %f", value, corrections.at(j), afterCorrection);
-                }
-            }
+        ATH_CHECK(CreateContainerLinks("Photons", Photons));
+        for (const auto iphot : *Photons) {
+            //Store if the photon passes the isolation (only needed for later comparisons)
+            dec_PassIsol(*iphot) = m_isoSelectorTool->accept(*iphot);
+            //Quality criteria only baseline kinematic selection
+            dec_PassQuality(*iphot) = iphot->pt() > 25.e3 && fabs(iphot->eta()) < 2.35;
         }
-    
-        for(auto electron: *electrons){
-            Info(APP_NAME, "---------NEW ELECTRON -------");
-        
-            unsigned int decision = m_isoSelectorTool->accept(*electron).getCutResultBitSet().to_ulong();
-            if ((decision&0x01) == 1) {
-                Info(APP_NAME, "Electron passes Loose working point before correction.");
-            } else {
-                Info(APP_NAME, "Electron does not pass Loose working point before correction.");
-            }
-            
-            unsigned int decisionCorr = m_isoCloseByCorrTool->acceptCorrected(*electron, electronsVec).getCutResultBitSet().to_ulong();
-            if ((decisionCorr&0x01) == 1) {
-                Info(APP_NAME, "Electron passes Loose working point after correction.");
-            } else {
-                Info(APP_NAME, "Electron does not pass Loose working point after correction.");
-            }
-      
-            // Calculates the corrections.
-            std::vector<Float_t> corrections;
-      
-            m_isoCloseByCorrTool->getCloseByCorrection(corrections, *electron, types, electronsVec);
-      
-            for (unsigned int j = 0; j < types.size(); j++) {
-                if(j < corrections.size()) {
-                    float value = -999999;
-                    electron->isolation(value, types.at(j));
-                    float afterCorrection = value - corrections.at(j);
-                    Info(APP_NAME, "Electron Isolation variable: %s", typeNames.at(j));
-                    Info(APP_NAME, "Electron Value, correction, corrected value: %f, %f, %f", value, corrections.at(j), afterCorrection);
-                }
-            }
+
+        ATH_CHECK(CreateContainerLinks("Muons", Muons));
+        for (const auto imuon : *Muons) {
+            //Store if the muon passes the isolation
+            dec_PassIsol(*imuon) = m_isoSelectorTool->accept(*imuon);
+            //Quality criteria only baseline kinematic selection
+            dec_PassQuality(*imuon) = imuon->pt() > 5.e3 && fabs(imuon->eta()) < 2.7;
         }
-        
-        for(auto photon: *photons){
-            Info(APP_NAME, "---------NEW PHOTON -------");
-        
-            unsigned int decision = m_isoSelectorTool->accept(*photon).getCutResultBitSet().to_ulong();
-            if ((decision&0x01) == 1) {
-                Info(APP_NAME, "Photon passes FixedCutTightCaloOnly working point before correction.");
-            } else {
-                Info(APP_NAME, "Photon does not pass FixedCutTightCaloOnly working point before correction.");
-            }
-            
-            unsigned int decisionCorr = m_isoCloseByCorrTool->acceptCorrected(*photon, photonsVec).getCutResultBitSet().to_ulong();
-            if ((decisionCorr&0x01) == 1) {
-                Info(APP_NAME, "Photon passes FixedCutTightCaloOnly working point after correction.");
-            } else {
-                Info(APP_NAME, "Photon does not pass FixedCutTightCaloOnly working point after correction.");
-            }
-      
-            // Calculates the corrections.
-            std::vector<Float_t> corrections;
-      
-            m_isoCloseByCorrTool->getCloseByCorrection(corrections, *photon, types, photonsVec);
-      
-            for (unsigned int j = 0; j < types.size(); j++) {
-                if(j < corrections.size()) {
-                    float value = -999999;
-                    photon->isolation(value, types.at(j));
-                    float afterCorrection = value - corrections.at(j);
-                    Info(APP_NAME, "Photon Isolation variable: %s", typeNames.at(j));
-                    Info(APP_NAME, "Photon Value, correction, corrected value: %f, %f, %f", value, corrections.at(j), afterCorrection);
-                }
-            }
+        //Okay everything is defined for the preselection of the algorithm. lets  pass the things  towards the IsoCorrectionTool
+
+        if (m_isoCloseByCorrTool->getCloseByIsoCorrection(Electrons, Muons, Photons).code() == CorrectionCode::Error) {
+            ATH_MSG_ERROR("Something weird happened with the tool");
+            return StatusCode::FAILURE;
         }
-  
-//         Info(APP_NAME, "Finished successfully!");
-    
-        return StatusCode::SUCCESS;  
+        // The isoCorrectionTool has now corrected everything using close-by objects satisfiyng the dec_PassQuality criteria
+        // The name of the decorator is set via the 'SelectionDecorator' property of the tool
+        // Optionally one can also define that the tool shall only objects surviving the overlap removal without  changing the initial decorator
+        // Use therefore the 'PassOverlapDecorator' property to define the decorators name
+        // If you define  the 'BackupPrefix' property then the original values are stored before correction <Prefix>_<IsolationCone>
+        // The final result  whether the object  passes the isolation criteria now can be stored in the 'IsolationSelectionDecorator' e.g. 'CorrectedIso'
+
+        //Store everything in the final ntuples
+        ATH_CHECK(m_ele_helper->Fill(Electrons));
+        ATH_CHECK(m_muo_helper->Fill(Muons));
+        ATH_CHECK(m_pho_helper->Fill(Photons));
+        m_tree->Fill();
+        return StatusCode::SUCCESS;
     }
 }

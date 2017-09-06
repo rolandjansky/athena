@@ -27,7 +27,7 @@
 
 #include "GeneratorObjects/HepMcParticleLink.h"
 #include "TrkParameters/TrackParameters.h"
-#include <QtCore/QString>
+#include <QString>
 // typedef std::pair<int,HepMcParticleLink::index_type> ExtBarCode;
 
 class SimHitHandleBase {

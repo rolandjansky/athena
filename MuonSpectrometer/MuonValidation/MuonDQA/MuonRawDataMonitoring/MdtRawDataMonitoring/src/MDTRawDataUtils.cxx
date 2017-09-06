@@ -724,16 +724,16 @@ StatusCode MdtRawDataValAlg::fillMDTMaskedTubes(IdentifierHash idHash, const std
   std::set<Identifier> noisyTubes = m_masked_tubes->getNoiseList(idHash);
   for(std::set<Identifier>::const_iterator itr = noisyTubes.begin(); itr != noisyTubes.end(); ++itr){
     Identifier digcoll_id = *itr;
-    int m_mdtlayer = m_mdtIdHelper->tubeLayer(digcoll_id);
+    int mdtlayer = m_mdtIdHelper->tubeLayer(digcoll_id);
     if (m_mdtIdHelper->multilayer(digcoll_id)==2) {
       if ( hardware_name.at(1) == 'I' && hardware_name.at(3) != '8' )
-	m_mdtlayer += 4;
+	mdtlayer += 4;
       else 
-	m_mdtlayer += 3;
+	mdtlayer += 3;
     }	  
-    int m_mdttube= m_mdtIdHelper->tube(digcoll_id) + (m_mdtlayer-1) * m_mdtIdHelper->tubeMax(digcoll_id);
-    ChamberTubeNumberCorrection(m_mdttube, hardware_name, m_mdtIdHelper->tube(digcoll_id), m_mdtlayer-1);
-    h->Fill(m_mdttube, 1);
+    int mdttube= m_mdtIdHelper->tube(digcoll_id) + (mdtlayer-1) * m_mdtIdHelper->tubeMax(digcoll_id);
+    ChamberTubeNumberCorrection(mdttube, hardware_name, m_mdtIdHelper->tube(digcoll_id), mdtlayer-1);
+    h->Fill(mdttube, 1);
   }
   return StatusCode::SUCCESS;
 
@@ -957,11 +957,11 @@ StatusCode MdtRawDataValAlg::GetTimingInfo() {
 } 
 
 void MdtRawDataValAlg::StoreTriggerType(int type) {
-  trigtype = type;
-  if( trigtype == L1_BARREL )
-    trig_BARREL = true;
-  if( trigtype == L1_ENDCAP )
-    trig_ENDCAP = true;
+  m_trigtype = type;
+  if( m_trigtype == L1_BARREL )
+    m_trig_BARREL = true;
+  if( m_trigtype == L1_ENDCAP )
+    m_trig_ENDCAP = true;
 }
 
 void MdtRawDataValAlg::setIsATLASReady(){

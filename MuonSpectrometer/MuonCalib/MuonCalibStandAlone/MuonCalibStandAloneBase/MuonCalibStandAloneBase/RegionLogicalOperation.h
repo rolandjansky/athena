@@ -26,7 +26,7 @@ class RegionLogicalOperation : public RegionSelectorBase
 		@param invert: inverted logic for this region
 	Returns false when number of operators is insufficient
 	*/
-		bool AddRegion(const RegionSelectorBase *region, bool m_invert=false);
+		bool AddRegion(const RegionSelectorBase *region, bool invert=false);
 	/** Set next operator  
 		@param op: true=or false=and
 	return false if number of operators is too high

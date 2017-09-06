@@ -152,7 +152,9 @@ void PyAthena::throw_py_exception (bool display)
 }
 
 StatusCode 
-PyAthena::callPyMethod( PyObject* self, const char* methodName )
+PyAthena::callPyMethod( PyObject* self,
+                        const char* methodName,
+                        PyObject* arg /*= nullptr*/)
 {
   // that's a bit ugly...
   char* method = const_cast<char*>(methodName);
@@ -162,7 +164,11 @@ PyAthena::callPyMethod( PyObject* self, const char* methodName )
   
   // call Python 
   PyGILStateEnsure ensure;
-  PyObject* r = PyObject_CallMethod( self, method, const_cast<char*>("") );
+  PyObject* r;
+  if (arg)
+    r = PyObject_CallMethod( self, method, const_cast<char*>("O"), arg );
+  else
+    r = PyObject_CallMethod( self, method, const_cast<char*>("") );
   
   if ( 0 == r ) { 
     throw_py_exception();
@@ -297,21 +303,16 @@ StatusCode PyAthena::queryInterface( PyObject* self,
     const RootType fromType( cppName );
     const RootType toType( cppBaseName );
     void* objProxy = TPython::ObjectProxy_AsVoidPtr(self);
-    const RootObject cppObj( fromType, objProxy );
-#ifdef ROOT_6    
-    const RootObject baseObj = cppObj.CastObject(toType);
-    *ppvInterface = baseObj.Address();
-#else
-    const RootObject& baseObj = fromType.CastObject( toType, cppObj );
-    *ppvInterface = (void*)baseObj.Address();
-#endif    
+    *ppvInterface = objProxy;
+    if (fromType.Class() && toType.Class())
+      *ppvInterface = fromType.Class()->DynamicCast (toType.Class(), objProxy);
     std::cout << "::: [" << cppName << "]: " 
 	      << ( (bool)fromType ? " OK" : "ERR" ) 
-	      << " " << cppObj.Address()
+	      << " " << objProxy
 	      << "\n"
 	      << "::: [" << cppBaseName << "]: "
 	      << ( (bool)toType ? " OK" : "ERR" )
-	      << " " << baseObj.Address()
+	      << " " << *ppvInterface
 	      << "\n";
     std::cout << "::: *ppvInterface: " << *ppvInterface << std::endl;
     if ( *ppvInterface ) {

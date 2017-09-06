@@ -20,15 +20,15 @@ ZmumuDetRegionEfficiencyPlots::ZmumuDetRegionEfficiencyPlots(PlotBase* pParent, 
 
 void ZmumuDetRegionEfficiencyPlots::initializePlots()
 {
-  detregions  = Book1D("DetRegions" ," DetRegions; Detector region; Entries ",(int)(DetRegionBinning::nBINREGIONS),(int)(DetRegionBinning::binUNKNOWN)-0.5, (int)(DetRegionBinning::nBINREGIONS)-0.5);
-  detregions_A  = Book1D("DetRegions_Aside" ," DetRegions; Detector region; Entries ",(int)(DetRegionBinning::nBINREGIONS),(int)(DetRegionBinning::binUNKNOWN)-0.5, (int)(DetRegionBinning::nBINREGIONS)-0.5);
-  detregions_C  = Book1D("DetRegions_Cside" ,"DetRegions; Detector region; Entries ",(int)(DetRegionBinning::nBINREGIONS),(int)(DetRegionBinning::binUNKNOWN)-0.5, (int)(DetRegionBinning::nBINREGIONS)-0.5);
+  m_detregions  = Book1D("DetRegions" ," DetRegions; Detector region; Entries ",(int)(DetRegionBinning::nBINREGIONS),(int)(DetRegionBinning::binUNKNOWN)-0.5, (int)(DetRegionBinning::nBINREGIONS)-0.5);
+  m_detregions_A  = Book1D("DetRegions_Aside" ," DetRegions; Detector region; Entries ",(int)(DetRegionBinning::nBINREGIONS),(int)(DetRegionBinning::binUNKNOWN)-0.5, (int)(DetRegionBinning::nBINREGIONS)-0.5);
+  m_detregions_C  = Book1D("DetRegions_Cside" ,"DetRegions; Detector region; Entries ",(int)(DetRegionBinning::nBINREGIONS),(int)(DetRegionBinning::binUNKNOWN)-0.5, (int)(DetRegionBinning::nBINREGIONS)-0.5);
   
-  for (int k = 1; k < detregions->GetNbinsX()+1;++k){
-    std::string label = m_etaphi.GetRegionLabel(detregions->GetXaxis()->GetBinCenter(k));
-    detregions->GetXaxis()->SetBinLabel(k, label.c_str());
-    detregions_A->GetXaxis()->SetBinLabel(k, label.c_str());
-    detregions_C->GetXaxis()->SetBinLabel(k, label.c_str());
+  for (int k = 1; k < m_detregions->GetNbinsX()+1;++k){
+    std::string label = m_etaphi.GetRegionLabel(m_detregions->GetXaxis()->GetBinCenter(k));
+    m_detregions->GetXaxis()->SetBinLabel(k, label.c_str());
+    m_detregions_A->GetXaxis()->SetBinLabel(k, label.c_str());
+    m_detregions_C->GetXaxis()->SetBinLabel(k, label.c_str());
   }
 }
 
@@ -38,11 +38,11 @@ void ZmumuDetRegionEfficiencyPlots::fill(Probe& probe){
 
   TLorentzVector lv = probe.probeTrack().p4();
 
-  detregions->Fill(m_etaphi.symmetricBin(lv), sfweight);
+  m_detregions->Fill(m_etaphi.symmetricBin(lv), sfweight);
   if (fabs(lv.Eta()) > 0){
-    detregions_A->Fill(m_etaphi.symmetricBin(lv), sfweight);
+    m_detregions_A->Fill(m_etaphi.symmetricBin(lv), sfweight);
   }
   else {
-    detregions_C->Fill(m_etaphi.symmetricBin(lv), sfweight);
+    m_detregions_C->Fill(m_etaphi.symmetricBin(lv), sfweight);
   }
 }

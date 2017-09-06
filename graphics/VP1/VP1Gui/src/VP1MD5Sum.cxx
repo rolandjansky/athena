@@ -13,9 +13,9 @@
 ////////////////////////////////////////////////////////////////
 
 #include "VP1Gui/VP1MD5Sum.h"
-#include <QtCore/QFileInfo>
-#include <QtCore/QCryptographicHash>
-#include <QtCore/QRegExp>
+#include <QFileInfo>
+#include <QCryptographicHash>
+#include <QRegExp>
 
 //____________________________________________________________________
 class VP1MD5Sum::Imp {

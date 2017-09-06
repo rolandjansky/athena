@@ -15,7 +15,7 @@
 #ifndef VP1EXTERNALREQUEST_H
 #define VP1EXTERNALREQUEST_H
 
-#include <QtCore/QString>
+#include <QString>
 
 class VP1ExternalRequest {
 public:

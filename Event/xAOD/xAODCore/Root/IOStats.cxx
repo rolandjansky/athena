@@ -2,22 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: IOStats.cxx 778387 2016-10-14 00:02:04Z krasznaa $
-
 // Local include(s):
 #include "xAODCore/tools/IOStats.h"
-#include "xAODCore/tools/ReadStats.h"
 
 namespace xAOD {
-
-   IOStats::~IOStats() {
-
-      // The ReadStats object is not deleted. Since the object may be needed
-      // during the finalisation of the application. In which case it can lead
-      // to a race condition which object is deleted first. This one, or the one
-      // trying to use this one in its destructor.
-      //      delete m_stats;
-   }
 
    IOStats& IOStats::instance() {
 
@@ -27,16 +15,42 @@ namespace xAOD {
 
    ReadStats& IOStats::stats() {
 
-      return *m_stats;
+      // Try to access a cached pointer:
+      ReadStats* stats = m_ptr.get();
+
+      // If a pointer is not cached yet, do so now:
+      if( ! stats ) {
+         const std::thread::id id = std::this_thread::get_id();
+         std::lock_guard< std::mutex > lock( m_mutex );
+         stats = &( m_stats[ id ] );
+         m_ptr.reset( stats );
+      }
+
+      // Return the (now) cached object:
+      return *stats;
    }
 
-   const ReadStats& IOStats::stats() const {
+   ReadStats IOStats::merged() const {
 
-      return *m_stats;
+      // Get a lock on the map:
+      std::lock_guard< std::mutex > lock( m_mutex );
+
+      // Merge the objects from all the threads:
+      ReadStats result;
+      for( auto& pair : m_stats ) {
+         result += pair.second;
+      }
+
+      // Return the merged object:
+      return result;
    }
 
    IOStats::IOStats()
-      : m_stats( new ReadStats() ) {
+      : m_stats(),
+        // Make sure that the thread specific pointer doesn't try to delete
+        // the object it points to when the thread ends:
+        m_ptr( []( ReadStats* ){} ),
+        m_mutex() {
 
    }
 

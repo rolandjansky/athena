@@ -16,7 +16,7 @@
 #include <Inventor/C/errors/debugerror.h>
 #include <Inventor/SbLinear.h>
 
-#include <QtCore/QByteArray>
+#include <QByteArray>
 
 class AnimationSequence {
 

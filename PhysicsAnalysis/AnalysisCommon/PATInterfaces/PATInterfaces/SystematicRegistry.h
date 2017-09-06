@@ -1,23 +1,39 @@
+// Dear emacs, this is -*- c++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef PATINTERFACES_SYSTEMATIC_REGISTRY_H
 #define PATINTERFACES_SYSTEMATIC_REGISTRY_H
 
-// Author: Steve Farrell (steven.farrell@cern.ch)
-
-// This module implements the central registry for handling systematic
-// uncertainties with CP tools.
-
+// Local include(s):
 #include <PATInterfaces/Global.h>
 #include <PATInterfaces/SystematicSet.h>
-
 
 namespace CP
 {
 
+  /// This module implements the central registry for handling systematic
+  /// uncertainties with CP tools.
+  ///
+  /// @author Steve Farrell <steven.farrell@cern.ch>
+  ///
   class SystematicRegistry
   {
 
   public:
-    /// Get the singleton instance of the registry
+    /// Get the singleton instance of the registry for the curren thread
+    ///
+    /// Note that each thread gets its own instance of SystematicRegistry in
+    /// the current setup. Assuming that all analysis tools get instantiated
+    /// once per thread.
+    ///
+    /// This will have to be re-visited once we start making analysis tools
+    /// thread-safe.
+    ///
+    /// @return A thread specific SystematicRegistry instance
+    ///
     static SystematicRegistry& getInstance();
 
   public:
@@ -53,7 +69,8 @@ namespace CP
     SystematicRegistry();
 
   private:
-    // Sets of systematics in the registry
+    /// @name Sets of systematics in the registry
+    /// @{
 
     /// Global set of possible systematics
     SystematicSet m_globalSystematics;
@@ -61,14 +78,16 @@ namespace CP
     /// recommended set of systematics
     SystematicSet m_recommendedSystematics;
 
+    /// @}
+
   private:
     // Disallow copying of the registry.
     // These will not be implemented
 
     /// Private copy constructor
-    SystematicRegistry(SystematicRegistry const&);
+    SystematicRegistry(SystematicRegistry const&) = delete;
     /// Private assignment operator
-    void operator=(SystematicRegistry const&);
+    void operator=(SystematicRegistry const&) = delete;
 
   };
 

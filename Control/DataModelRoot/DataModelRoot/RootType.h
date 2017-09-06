@@ -5,54 +5,17 @@
 #ifndef DATAMODELROOT_ROOT_TYPE_H
 #define DATAMODELROOT_ROOT_TYPE_H
 
+// Standard
+#include <string>
+
 // ROOT
 #include "TClassRef.h"
-class TBaseClass;
-class TDictionary;
-class TDictAttributeMap;
 class TMethod;
 class TFunction;
-class TDataMember;
 class TMethodArg;
 
-#include "RVersion.h"
+#include "CxxUtils/checker_macros.h"
 
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,99,0)
-#include "Reflex/Kernel.h"
-#include "Reflex/Type.h"
-#include "Reflex/Object.h"
-#include "Reflex/Member.h"
-
-namespace std { class type_info; }
-
-class RootType : public Reflex::Type {
-public:
-  RootType(const Reflex::Type& rh) : Reflex::Type(rh) {}
-  RootType(const Reflex::TypeName* typName = 0, unsigned int modifiers = 0) :
-        Reflex::Type(typName, modifiers) {}
-  /// Better constructors
-  RootType(const std::string& name) : Reflex::Type(Reflex::Type::ByName(name)) {}
-  RootType(const std::type_info& info) : Reflex::Type(Reflex::Type::ByTypeInfo(info)) {}
-  /// Standard destructor
-  virtual ~RootType() {}
-
-  void AddProperty(const char* key, const char* value) const {
-     this->Properties().AddProperty(key, value);
-  }
-  std::string Name() const { return this->Reflex::Type::Name(Reflex::SCOPED); }
-  std::string Name(int flags) const { return this->Reflex::Type::Name(flags); }
-
-  using Type::operator=;
-  
-  /// call Cintex::Enable()
-  static void EnableCintex();
-};
-
-typedef Reflex::Member RootDataMember;
-typedef Reflex::Object RootObject;
-typedef Reflex::PropertyList RootPropertyList;
-
-#else   // ROOT 6
 #define ROOT_6
 
 namespace Reflex {
@@ -65,9 +28,6 @@ namespace Reflex {
       };
 
 } // namespace Reflex
-
-// Standard
-#include <string>
 
 
 class TScopeAdapter;
@@ -132,9 +92,9 @@ public:
    std::string FunctionParameterDefaultAt( size_t nth ) const;
 
    TReturnTypeAdapter   ReturnType() const;
-   TScopeAdapter        DeclaringScope() const;
-   TTypeAdapter         DeclaringType() const;
-   TTypeAdapter         TypeOf() const;
+   TScopeAdapter        DeclaringScope ATLAS_NOT_THREAD_SAFE () const;
+   TTypeAdapter         DeclaringType ATLAS_NOT_THREAD_SAFE () const;
+   TTypeAdapter         TypeOf ATLAS_NOT_THREAD_SAFE () const;
 
 private:
    TDictionary* fMember;
@@ -149,14 +109,14 @@ public:
 public:
    std::string Name() const;
 
-   TScopeAdapter ToType() const;
+   TScopeAdapter ToType ATLAS_NOT_THREAD_SAFE () const;
 
 private:
    TBaseClass* fBase;
 };
 
 
-class TScopeAdapter {
+class ATLAS_NOT_THREAD_SAFE TScopeAdapter {
 public:
    TScopeAdapter();
    TScopeAdapter( TClass* klass );
@@ -245,25 +205,5 @@ typedef TPropertyListAdapter      RootPropertyList;
 typedef TScopeAdapter             RootScope;
 typedef TTypeAdapter              RootType;
 
-
-//MN: ad-hoc simplistic  reimplementation of Reflex::Object
-class RootObject 
-{
-public:
-  RootObject(const RootType& type=RootType(), void* obj=0);
-  
-  void*                 Address() const  { return m_object; }
-  const RootType&       Type() const { return m_type; }
-  RootObject            CastObject( const RootType &toType) const;
- 
-private:
-  RootType      m_type;
-  void*         m_object = 0;
-  std::string   m_objectName;   ///not used yet
-};
-
-
-
-#endif  // ROOT ver
 
 #endif // !DATAMODELROOT_ROOT_TYPE_H

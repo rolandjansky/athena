@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
 ////////////////////////////////////////////////////////////////
 //                                                            //
 //  Implementation of class VP1WebWatcher                     //
@@ -13,12 +12,18 @@
 ////////////////////////////////////////////////////////////////
 
 #include "VP1Gui/VP1WebWatcher.h"
-#include <QtCore/QUrl>
-#include <QtCore/QThread>
-#include <QtCore/QDateTime>
-#include <QtNetwork/QHttp>
-#include <QtNetwork/QHttpRequestHeader>
-#include <QtNetwork/QHttpResponseHeader>
+
+#include <QUrl>
+#include <QThread>
+#include <QDateTime>
+
+#include <iostream>
+
+
+// TODO: replace QHttp with QNetworkManager!! See: http://stackoverflow.com/a/26182590
+// #include <QHttp>
+// #include <QHttpRequestHeader>
+// #include <QHttpResponseHeader>
 
 //Special values for result strings:
 static const QString VP1WebWatcher_PREFIX = "vp1webwatcher_";
@@ -39,11 +44,11 @@ public:
 	m_url(url),
 	m_result(VP1WebWatcher_ResultNotReady),
 	m_httpStartTime(0),
-        m_http(0),
+        // m_http(0),
 	m_watcher(ww) {}
 
     //________________________________________
-    ~HttpThread() { delete m_http; }
+    ~HttpThread() { /*delete m_http;*/ }
 
     //________________________________________
     QString result() const { return m_result; }
@@ -60,55 +65,69 @@ public:
     //________________________________________
     void run()
     {
-      QUrl qurl(m_url);
-      if (!qurl.isValid()) {
-	m_result = VP1WebWatcher_UrlInvalid;
-	return;
-      }
-      m_http = new QHttp;
-      QHttpRequestHeader header("HEAD", m_url);
-      header.setValue("Host", qurl.host());
-      header.setValue("User-Agent", "ATLASVP1");
-      m_http->setHost(qurl.host());
-      m_httpStartTime = QDateTime::currentDateTime().toTime_t();
-      m_http->request(header);
-      connect(m_http,SIGNAL(done(bool)),m_watcher,SLOT(httpRequestDone(bool)),Qt::QueuedConnection);
-      exec();
-      m_http->deleteLater();
-      m_http = 0;
+      // TODO: replace with QNetworkManager!!
+
+      std::cout << "WARNING!! - VP1WebWatcher::run() needs to be ported to QNetworkManager. Returning..." << std::endl;
+
+  //     QUrl qurl(m_url);
+  //     if (!qurl.isValid()) {
+	// m_result = VP1WebWatcher_UrlInvalid;
+	// return;
+  //     }
+  //     m_http = new QHttp;
+  //     QHttpRequestHeader header("HEAD", m_url);
+  //     header.setValue("Host", qurl.host());
+  //     header.setValue("User-Agent", "ATLASVP1");
+  //     m_http->setHost(qurl.host());
+  //     m_httpStartTime = QDateTime::currentDateTime().toTime_t();
+  //     m_http->request(header);
+  //     connect(m_http,SIGNAL(done(bool)),m_watcher,SLOT(httpRequestDone(bool)),Qt::QueuedConnection);
+  //     exec();
+  //     m_http->deleteLater();
+  //     m_http = 0;
     }
 
     //________________________________________
-    bool handleDone(bool error, QObject * sender) {
-      if (sender!=m_http)
-	return false;
-      if (!m_http) {
-	quit();
-       	return false;
-      }
-      if (error) {
-	m_result = VP1WebWatcher_httpProblems;
-	quit();
-	return true;
-      }
-      QHttpResponseHeader response = m_http->lastResponse();
-      if (!response.isValid()||!response.hasKey("last-modified")) {
-	int sc = response.statusCode();
-	m_result =  (sc==404||sc==410)? VP1WebWatcher_FileNotExist : VP1WebWatcher_httpProblems;
-	quit();
-	return true;
-      }
-      m_result = response.value("last-modified");
-      quit();
-      return true;
+    bool handleDone(bool /*error*/, QObject * /*sender*/) {
+
+      // TODO: replace with QNetworkManager!!
+      std::cout << "WARNING!! - VP1WebWatcher::handleDone() needs to be ported to QNetworkManager. Returning..." << std::endl;
+
+  //     if (sender!=m_http)
+	// return false;
+  //     if (!m_http) {
+	// quit();
+  //      	return false;
+  //     }
+  //     if (error) {
+	// m_result = VP1WebWatcher_httpProblems;
+	// quit();
+	// return true;
+  //     }
+  //     QHttpResponseHeader response = m_http->lastResponse();
+  //     if (!response.isValid()||!response.hasKey("last-modified")) {
+	// int sc = response.statusCode();
+	// m_result =  (sc==404||sc==410)? VP1WebWatcher_FileNotExist : VP1WebWatcher_httpProblems;
+	// quit();
+	// return true;
+  //     }
+  //     m_result = response.value("last-modified");
+  //     quit();
+  //     return true;
+    return true;
+
     }
 
-    QHttp * http() const { return m_http; }
+    // TODO: replace with QNetworkManager!!
+    // QHttp * http() const {
+    //   return m_http;
+    // }
+
   private:
     const QString m_url;
     QString m_result;
     unsigned m_httpStartTime;
-    QHttp * m_http;
+    // QHttp * m_http;
     VP1WebWatcher* m_watcher;
   };
 
@@ -128,25 +147,27 @@ public:
   QList<WatchedUrl*> watchedUrls;
 
 
-  static void ensureEndThread(HttpThread*& thread) {
-    if (!thread)
-      return;
-    thread->blockSignals(true);
-    if (thread->http())
-      thread->http()->blockSignals(true);
-    thread->quit();
-    if (!thread->wait(50)) {//Put 50 -> 0 to test the terminate fallback.
-      thread->terminate();
-      thread->wait();//Ensure synchronisation (so we can safely delete)
-    }
-    thread->deleteLater();
-    thread=0;
+  static void ensureEndThread(HttpThread*& /*thread*/) {
+
+    // if (!thread)
+    //   return;
+    // thread->blockSignals(true);
+    // if (thread->http())
+    //   thread->http()->blockSignals(true);
+    // thread->quit();
+    // if (!thread->wait(50)) {//Put 50 -> 0 to test the terminate fallback.
+    //   thread->terminate();
+    //   thread->wait();//Ensure synchronisation (so we can safely delete)
+    // }
+    // thread->deleteLater();
+    // thread=0;
   }
 
-  void startDownload(WatchedUrl* wu) {
-    ensureEndThread(wu->thread);
-    wu->thread = new Imp::HttpThread(wu->url,theclass);
-    wu->thread->start();
+  void startDownload(WatchedUrl* /*wu*/) {
+
+    // ensureEndThread(wu->thread);
+    // wu->thread = new Imp::HttpThread(wu->url,theclass);
+    // wu->thread->start();
   }
 
 };
@@ -202,68 +223,68 @@ bool VP1WebWatcher::isWatchingUrl(const QString&u) const
 }
 
 //____________________________________________________________________
-void VP1WebWatcher::addUrl(const QString&u)
+void VP1WebWatcher::addUrl(const QString&/*u*/)
 {
-  if (isWatchingUrl(u))
-    return;
-  Imp::WatchedUrl * wu = new Imp::WatchedUrl(u);
-  d->watchedUrls << wu;
-  d->startDownload(wu);
+  // if (isWatchingUrl(u))
+  //   return;
+  // Imp::WatchedUrl * wu = new Imp::WatchedUrl(u);
+  // d->watchedUrls << wu;
+  // d->startDownload(wu);
 }
 
 //____________________________________________________________________
-void VP1WebWatcher::addUrls(const QStringList&l)
+void VP1WebWatcher::addUrls(const QStringList&/*l*/)
 {
-  foreach (QString u, l)
-    addUrl(u);
+  // foreach (QString u, l)
+  //   addUrl(u);
 }
 
 //____________________________________________________________________
 QStringList VP1WebWatcher::urls() const
 {
   QStringList l;
-  foreach(Imp::WatchedUrl*wu,d->watchedUrls)
-    l << wu->url;
+  // foreach(Imp::WatchedUrl*wu,d->watchedUrls)
+  //   l << wu->url;
   return l;
 }
 
 //____________________________________________________________________
-void VP1WebWatcher::removeUrl(const QString&u)
+void VP1WebWatcher::removeUrl(const QString&/*u*/)
 {
-  foreach(Imp::WatchedUrl*wu,d->watchedUrls)
-    if (wu->url == u) {
-      d->watchedUrls.removeAll(wu);
-      delete wu;
-      return;
-    }
+  // foreach(Imp::WatchedUrl*wu,d->watchedUrls)
+  //   if (wu->url == u) {
+  //     d->watchedUrls.removeAll(wu);
+  //     delete wu;
+  //     return;
+  //   }
 }
 
 //____________________________________________________________________
-void VP1WebWatcher::removeUrls(const QStringList&l)
+void VP1WebWatcher::removeUrls(const QStringList&/*l*/)
 {
-  foreach (QString u, l)
-    removeUrl(u);
+  // foreach (QString u, l)
+  //   removeUrl(u);
 }
 
 //____________________________________________________________________
 void VP1WebWatcher::timerEvent(QTimerEvent*)
 {
-  const unsigned currentTime = QDateTime::currentDateTime().toTime_t();
-  foreach(Imp::WatchedUrl*wu,d->watchedUrls) {
-    if (!wu->thread) {
-      d->startDownload(wu);
-    } else {
-      //Thread is running. Check that it didn't run for too long.
-      //
-      //(No matter what, we never restart running thread that have been
-      //running for less than a second, or no less than twice the
-      //recheckInterval!)
-      if (wu->thread->httpStartTime()>0 && currentTime - wu->thread->httpStartTime() > (unsigned(d->recheckInterval_ms) * 1000 * 2 + 1000)) {
-	d->ensureEndThread(wu->thread);
-	d->startDownload(wu);
-      }
-    }
-  }
+  // const unsigned currentTime = QDateTime::currentDateTime().toTime_t();
+  // foreach(Imp::WatchedUrl*wu,d->watchedUrls) {
+  //   if (!wu->thread) {
+  //     d->startDownload(wu);
+  //   } else {
+  //     //Thread is running. Check that it didn't run for too long.
+  //     //
+  //     //(No matter what, we never restart running thread that have been
+  //     //running for less than a second, or no less than twice the
+  //     //recheckInterval!)
+  //     if (wu->thread->httpStartTime()>0 && currentTime - wu->thread->httpStartTime() > (unsigned(d->recheckInterval_ms) * 1000 * 2 + 1000)) {
+	// d->ensureEndThread(wu->thread);
+	// d->startDownload(wu);
+  //     }
+  //   }
+  // }
 }
 
 //____________________________________________________________________

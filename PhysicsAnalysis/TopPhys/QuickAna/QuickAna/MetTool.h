@@ -31,6 +31,7 @@
 
 class IMETMaker;
 class IMETSystematicsTool;
+class IJetModifier;
 
 namespace ana
 {
@@ -110,12 +111,15 @@ namespace ana
     std::string m_jetSelection;
     double m_uniqueFrac;
     double m_jetCut;
+    bool m_doFJVT;
 
   private:
 
     /// description: the MET tool
     asg::AnaToolHandle<IMETMaker> m_metutil;
     asg::AnaToolHandle<IMETSystematicsTool> m_metSystTool;
+    /// description: the fJVT tool
+    asg::AnaToolHandle<IJetModifier> m_fjvtTool;
 
     /// \brief the accessor to the selection
     SG::AuxElement::Accessor<SelectType> m_accessor;

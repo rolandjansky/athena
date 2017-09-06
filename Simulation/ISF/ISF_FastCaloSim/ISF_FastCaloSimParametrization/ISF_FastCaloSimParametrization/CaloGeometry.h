@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef CaloGeometry_h
-#define CaloGeometry_h
+#ifndef ISF_FASTCALOSIMPARAMETRIZATION_CALOGEOMETRY_H
+#define ISF_FASTCALOSIMPARAMETRIZATION_CALOGEOMETRY_H
 
 #include <TMath.h>
 
@@ -16,20 +16,20 @@
 #include "ISF_FastCaloSimParametrization/FSmap.h"
 #include "ISF_FastCaloSimParametrization/FCAL_ChannelMap.h"
 
-class CaloGeoDetDescrElement;
+class CaloDetDescrElement;
 class TCanvas;
 class TGraphErrors;
 
-typedef std::map< Identifier , const CaloGeoDetDescrElement* > t_cellmap;
-typedef std::map< double , const CaloGeoDetDescrElement* > t_eta_cellmap;
+typedef std::map< Identifier , const CaloDetDescrElement* > t_cellmap;
+typedef std::map< double , const CaloDetDescrElement* > t_eta_cellmap;
 
 class CaloGeometryLookup {
   public:
     CaloGeometryLookup(int ind=0);
     virtual ~CaloGeometryLookup();
 
-    bool IsCompatible(const CaloGeoDetDescrElement* cell);
-    void add(const CaloGeoDetDescrElement* cell);
+    bool IsCompatible(const CaloDetDescrElement* cell);
+    void add(const CaloDetDescrElement* cell);
     t_cellmap::size_type size() const {return m_cells.size();};
     int index() const {return m_index;};
     void set_index(int ind) {m_index=ind;};
@@ -76,7 +76,7 @@ class CaloGeometryLookup {
     int cell_grid_phi() const {return m_cell_grid_phi;};
     void set_xy_grid_adjustment_factor(float factor) {m_xy_grid_adjustment_factor=factor;};
 
-    virtual const CaloGeoDetDescrElement* getDDE(float eta,float phi,float* distance=0,int* steps=0);
+    virtual const CaloDetDescrElement* getDDE(float eta,float phi,float* distance=0,int* steps=0);
 
   protected:
     float neta_double() {return (maxeta_raw()-mineta_raw())/deta().mean();};
@@ -95,11 +95,11 @@ class CaloGeometryLookup {
     int raw_eta_position_to_index(float eta_raw) const {return TMath::Floor((eta_raw-mineta_raw())/m_deta_double);};
     int raw_phi_position_to_index(float phi_raw) const {return TMath::Floor((phi_raw-minphi_raw())/m_dphi_double);};
     bool index_range_adjust(int& ieta,int& iphi);
-    float calculate_distance_eta_phi(const CaloGeoDetDescrElement* DDE,float eta,float phi,float& dist_eta0,float& dist_phi0);
+    float calculate_distance_eta_phi(const CaloDetDescrElement* DDE,float eta,float phi,float& dist_eta0,float& dist_phi0);
 
     int m_index;
     t_cellmap m_cells;
-    std::vector< std::vector< const CaloGeoDetDescrElement* > > m_cell_grid;
+    std::vector< std::vector< const CaloDetDescrElement* > > m_cell_grid;
     int m_cell_grid_eta,m_cell_grid_phi;
     float m_mineta,m_maxeta,m_minphi,m_maxphi;
     float m_mineta_raw,m_maxeta_raw,m_minphi_raw,m_maxphi_raw;
@@ -124,11 +124,11 @@ class CaloGeometry : virtual public ICaloGeometry {
 
     virtual void Validate();
 
-    virtual const CaloGeoDetDescrElement* getDDE(Identifier identify);
-    virtual const CaloGeoDetDescrElement* getDDE(int sampling, Identifier identify);
+    virtual const CaloDetDescrElement* getDDE(Identifier identify);
+    virtual const CaloDetDescrElement* getDDE(int sampling, Identifier identify);
 
-    virtual const CaloGeoDetDescrElement* getDDE(int sampling,float eta,float phi,float* distance=0,int* steps=0);
-    virtual const CaloGeoDetDescrElement* getFCalDDE(int sampling,float eta,float phi,float z);
+    virtual const CaloDetDescrElement* getDDE(int sampling,float eta,float phi,float* distance=0,int* steps=0);
+    virtual const CaloDetDescrElement* getFCalDDE(int sampling,float eta,float phi,float z);
 
     double deta(int sample,double eta) const;
     void   minmaxeta(int sample,double eta,double& mineta,double& maxeta) const;
@@ -155,7 +155,7 @@ class CaloGeometry : virtual public ICaloGeometry {
     FCAL_ChannelMap* GetFCAL_ChannelMap(){return &m_FCal_ChannelMap;}
 
   protected:
-    virtual void addcell(const CaloGeoDetDescrElement* cell);
+    virtual void addcell(const CaloDetDescrElement* cell);
 
     virtual void post_process(int layer);
 
@@ -194,5 +194,3 @@ class CaloGeometry : virtual public ICaloGeometry {
 };
 
 #endif
-
-

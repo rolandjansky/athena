@@ -72,7 +72,7 @@ theApp.CreateSvc += ['xAODMaker::EventFormatSvc']
 # ItemList:
 include( "EventAthenaPool/EventAthenaPoolItemList_joboptions.py" )
 fullItemList+=["DMTest::CVec#cvec"]
-fullItemList+=["DMTest::CAuxContainer#cvecAux.-dVar2"]
+fullItemList+=["DMTest::CAuxContainer#cvecAux.-dVar2.-dtest"]
 fullItemList+=["DMTest::CVecWithData#cvecWD"]
 fullItemList+=["DMTest::CView#cview"]
 fullItemList+=["DMTest::CAuxContainer#cvecWDAux."]
@@ -134,3 +134,7 @@ ChronoStatSvc.StatPrintOutTable   = FALSE
 # to avoid races when running tests in parallel.
 PoolSvc = Service( "PoolSvc" )
 PoolSvc.WriteCatalog = "file:xAODTestWrite_catalog.xml"
+
+# Increment LBN every two events.
+from McEventSelector import McEventSelectorConf
+svcMgr+=McEventSelectorConf.McEventSelector('EventSelector',EventsPerLB=2)

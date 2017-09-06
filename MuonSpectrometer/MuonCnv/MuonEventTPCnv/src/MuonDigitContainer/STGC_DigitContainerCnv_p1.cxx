@@ -20,6 +20,8 @@
 
 // Athena
 #include "StoreGate/StoreGateSvc.h"
+#include "MuonEventTPCnv/CreateTransientTemplates.h"
+
 
 /*******************************************************************************/
 StatusCode Muon::STGC_DigitContainerCnv_p1::initialize(MsgStream &log) {

@@ -15,9 +15,11 @@
 #define VP1EVENTDISPLAYSCENEVIEW_H_
 
 
-#include <QFrame>
-#include <QGraphicsView>
 #include <QtGui>
+#include <QFrame>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QGraphicsView>
 
 QT_FORWARD_DECLARE_CLASS(QLabel)
 QT_FORWARD_DECLARE_CLASS(QSlider)

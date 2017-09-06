@@ -17,7 +17,7 @@ __version__ = "$Revision: 1.1 $"
 __author__  = "Michael Begel <Michael.Begel@cern.ch>"
 ##################################
 import os,time,sys
-import ROOT,PyCintex
+import ROOT
 from optparse import OptionParser
 ##################################
 ##################################

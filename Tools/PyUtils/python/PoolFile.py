@@ -29,8 +29,7 @@ import os
 import shelve
 import whichdb
 
-from Helpers import ShutUp, ROOT6Setup
-ROOT6Setup()
+from Helpers import ShutUp
 from Decorators import forking
 
 ### --- data ------------------------------------------------------------------
@@ -299,10 +298,8 @@ def extract_streams_from_tag (fname,
     import sys
     import PyUtils.RootUtils as ru
     ROOT = ru.import_root()
-    #import PyCintex; PyCintex.Cintex.Enable()
 
     print "::: opening file [%s]..." % fname
-
     # get the "final" file name (handles all kind of protocols)
     import PyUtils.AthFile as af
     try:
@@ -567,13 +564,12 @@ class PoolFile(object):
         else:
             import PyUtils.Helpers as _H
             projects = 'AtlasCore' if PoolOpts.FAST_MODE else None
-            with _H.restricted_ldenviron (projects=projects):
-                if self.verbose==True:
-                    print "## opening file [%s]..." % str(fileName)
-                self.__openPoolFile( fileName )
-                if self.verbose==True:
-                    print "## opening file [OK]"
-                self.__processFile()
+            if self.verbose==True:
+                print "## opening file [%s]..." % str(fileName)
+            self.__openPoolFile( fileName )
+            if self.verbose==True:
+                print "## opening file [OK]"
+            self.__processFile()
             
         return
 
@@ -590,11 +586,7 @@ class PoolFile(object):
         rootMsg = ShutUp()
         rootMsg.mute()
         ROOT.gErrorIgnoreLevel = ROOT.kFatal
-        rootMsg.unMute()
 
-        #import PyCintex;        PyCintex.Cintex.Enable()
-
-        rootMsg.mute()
         poolFile = None
         try:
             poolFile = ROOT.TFile.Open( fileName, PoolOpts.READ_MODE )

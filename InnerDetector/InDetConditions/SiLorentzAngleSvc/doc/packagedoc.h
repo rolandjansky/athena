@@ -107,7 +107,6 @@ or
 @endverbatim
 
 
-@section SiLorentzAngleSvc_SiLorentzAngleSvcReq Requirements
 
 
 */

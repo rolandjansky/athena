@@ -43,11 +43,9 @@ The package Database/AthenaPOOL/AthenaPoolExample contains running examples of a
 reading Data Objects using AthenaPool. 
 
 
-@section DBDataModel_Requirements Requirements
 
 
 
-@section DBDataModel_PackagesUsed Packages Used
 
 
 

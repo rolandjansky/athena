@@ -25,6 +25,7 @@
 
 #include "AsgTools/AsgTool.h"
 #include "JetInterface/IJetModifier.h"
+#include "xAODEventInfo/EventInfo.h"
 
 class JetOriginCorrectionTool : public asg::AsgTool,
                                 virtual public IJetModifier {
@@ -37,15 +38,19 @@ public:
 
   /// Inherited method to modify a jet. Compute the origin-corrected
   /// momentum and put it in the jet
-  virtual int modify(xAOD::JetContainer& jet) const;
+  int modify(xAOD::JetContainer& jet) const override;
+  StatusCode initialize() override;
 
  protected:
   
-  std::string m_vtxContainerName;
   std::string m_correctionName;
-  std::string m_eInfoName;
-
   bool m_onlyAssignPV;
+
+private:
+
+  SG::ReadHandleKey< xAOD::VertexContainer> m_vertexContainer_key;
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo_key;
+
 };
 
 #endif

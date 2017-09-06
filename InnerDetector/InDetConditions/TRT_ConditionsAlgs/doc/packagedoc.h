@@ -44,5 +44,3 @@ Example algorithm illustrating use of the TRT_ConditionsSummaryTool from the TRT
   - TRT_ConditionsSummaryExAlg.py   example of use of TRT_ConditionsSummaryTool
 
 */
-
-

@@ -28,9 +28,10 @@ atlas_depends_on_subdirs(
 
 # External dependencies:
 find_package( Coin3D )
-find_package( Qt4 COMPONENTS QtCore QtGui )
+find_package( Qt5 COMPONENTS Core Gui Widgets )
 
 # Generate UI files automatically:
+# Note: add the "Widgets" component to "find_package( Qt5 ...)" if you have UI files, otherwise UIC, even if CMAKE_AUTOUIC is set to ON, is not run
 set( CMAKE_AUTOUIC TRUE )
 # Generate MOC files automatically:
 set( CMAKE_AUTOMOC TRUE )
@@ -41,10 +42,10 @@ atlas_add_library( VP1AODSystems
    PUBLIC_HEADERS VP1AODSystems
    PRIVATE_INCLUDE_DIRS ${COIN3D_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR}
    LINK_LIBRARIES xAODMuon xAODTracking GaudiKernel VP1Base StoreGateLib
-   Qt4::QtCore
+   Qt5::Core Qt5::Gui
    PRIVATE_LINK_LIBRARIES ${COIN3D_LIBRARIES} GeoPrimitives EventPrimitives
    xAODBase xAODCaloEvent xAODJet xAODMissingET PathResolver TrkExInterfaces
-   VP1HEPVis VP1Utils Qt4::QtGui )
+   VP1HEPVis VP1Utils Qt5::Gui )
 
 # Install files from the package:
 atlas_install_runtime( textures/*.png )

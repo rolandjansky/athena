@@ -12,9 +12,33 @@
 
 
 #include "StoreGate/tools/DecorKeyHelpers.h"
+#include "GaudiKernel/IDataHandleHolder.h"
 
 
 namespace SG {
+
+
+namespace detail {
+
+
+/**
+ * @brief Optionally register read dependency of a @c WriteDecorHandleKey.
+ *
+ * A @c WriteDecorHandle logically has a read dependency on the container itself.
+ * However, just declaring this as a usual @c ReadHandleKey will cause problems
+ * if used in an algorithm that also creates the container: we'll get complaints
+ * from the @c Algorithm base class about circular dependencies.
+ *
+ * To deal with this, we don't declare the container @c ReadHandleKey in
+ * @c declareProperty.  Instead, we wait until @c initialize and declare
+ * the dependency with @c addDependency only if it is not already
+ * on a handle list.
+ */
+void registerWriteDecorHandleKey (IDataHandleHolder* owner,
+                                  const DataObjID& contHandleKey);
+
+
+} // namespace detail
 
 
 /**
@@ -23,7 +47,7 @@ namespace SG {
  * @param storeName Name to use for the store, if it's not encoded in sgkey.
  *
  * The provided key may actually start with the name of the store,
- * separated by a slash:  "MyStore/Obj".  If no slash is present
+ * separated by a "+":  "MyStore+Obj".  If no "+" is present
  * the store named by @c storeName is used.
  */
 template <class T>
@@ -40,7 +64,7 @@ WriteDecorHandleKey<T>::WriteDecorHandleKey (const std::string& key /*= ""*/,
  * @param sgkey The StoreGate key for the object.
  * 
  * The provided key may actually start with the name of the store,
- * separated by a slash:  "MyStore/Obj".  If no slash is present,
+ * separated by a "+":  "MyStore+Obj".  If no "+" is present,
  * the store is not changed.
  */
 template <class T>
@@ -58,8 +82,8 @@ WriteDecorHandleKey<T>::operator= (const std::string& sgkey)
  * @param sgkey The StoreGate key for the object.
  * 
  * The provided key may actually start with the name of the store,
- * separated by a slash:  "MyStore/Obj".  If no slash is present
- * the store is not changed.  A key name that starts with a slash
+ * separated by a "+":  "MyStore+Obj".  If no "+" is present
+ * the store is not changed.  A key name that starts with a "+"
  * is interpreted as a hierarchical key name, not an empty store name.
  *
  * Returns failure the key string format is bad.
@@ -84,6 +108,7 @@ StatusCode WriteDecorHandleKey<T>::assign (const std::string& sgkey)
 template <class T>
 StatusCode WriteDecorHandleKey<T>::initialize (bool used /*= true*/)
 {
+  detail::registerWriteDecorHandleKey (this->owner(), m_contHandleKey.fullKey());
   if (m_contHandleKey.initialize (used).isFailure())
     return StatusCode::FAILURE;
   return Base::initialize (used);

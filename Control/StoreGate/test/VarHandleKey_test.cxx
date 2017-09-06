@@ -41,23 +41,23 @@ void test1()
   assert (k1.storeHandle().name() == "StoreGateSvc");
   assert (k1.storeHandle().isSet());
 
-  assert (k1.assign ("FeeSvc/aac").isSuccess());
+  assert (k1.assign ("FeeSvc+aac").isSuccess());
   assert (k1.clid() == 1234);
   assert (k1.key() == "aac");
   assert (k1.mode() == Gaudi::DataHandle::Reader);
   assert (k1.storeHandle().name() == "FeeSvc");
   assert (!k1.storeHandle().isSet());
 
-  assert (k1.assign ("/Feedir/aac").isSuccess());
+  assert (k1.assign ("ConditionStore+Feedir/aac").isSuccess());
   assert (k1.clid() == 1234);
-  assert (k1.key() == "/Feedir/aac");
+  assert (k1.key() == "Feedir/aac");
   assert (k1.mode() == Gaudi::DataHandle::Reader);
-  assert (k1.storeHandle().name() == "FeeSvc");
+  assert (k1.storeHandle().name() == "ConditionStore");
   assert (!k1.storeHandle().isSet());
 
-  assert (k1.assign ("FeeSvc/foo/aac").isFailure());
+  assert (k1.assign ("FeeSvc+foo/aac").isFailure());
   EXPECT_EXCEPTION (SG::ExcBadHandleKey,
-                    k1 = "FeeSvc/foo/aac");
+                    k1 = "FeeSvc+foo/aac");
   
   SG::VarHandleKey k2 (1235, "bbb", Gaudi::DataHandle::Writer, "FooSvc");
   assert (k2.clid() == 1235);
@@ -68,7 +68,7 @@ void test1()
   assert (k2.initialize().isFailure());
   assert (!k2.storeHandle().isSet());
 
-  SG::VarHandleKey k3 (1236, "BarSvc/ccc", Gaudi::DataHandle::Updater, "FooSvc");
+  SG::VarHandleKey k3 (1236, "BarSvc+ccc", Gaudi::DataHandle::Updater, "FooSvc");
   assert (k3.clid() == 1236);
   assert (k3.key() == "ccc");
   assert (k3.mode() == Gaudi::DataHandle::Updater);
@@ -87,7 +87,7 @@ void test1()
   EXPECT_EXCEPTION (SG::ExcBadHandleKey,
                     SG::VarHandleKey (1237, "a/b/c", Gaudi::DataHandle::Updater));
 
-  SG::VarHandleKey k5 (1236, "BarSvc/ccc", Gaudi::DataHandle::Updater, "FooSvc");
+  SG::VarHandleKey k5 (1236, "BarSvc+ccc", Gaudi::DataHandle::Updater, "FooSvc");
   assert (k5.key() == "ccc");
   assert (k5.initialize(false).isSuccess());
   assert (k5.key() == "");

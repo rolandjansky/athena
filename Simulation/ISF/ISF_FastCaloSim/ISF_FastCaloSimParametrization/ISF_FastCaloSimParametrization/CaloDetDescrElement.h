@@ -45,76 +45,95 @@ class CaloGeoDetDescrElement
   virtual ~CaloGeoDetDescrElement() {};
 
   /** @brief cell eta
+   *  @copydoc CaloGeoDetDescrElement::m_eta
    */
   float eta() const;
   /** @brief cell phi
+   *  @copydoc CaloGeoDetDescrElement::m_phi
    */
   float phi() const;
   /** @brief cell r
+   *  @copydoc CaloGeoDetDescrElement::m_r
    */
   float r() const;
   /** @brief cell eta_raw
+   *  @copydoc CaloGeoDetDescrElement::m_eta_raw
    */
   float eta_raw() const;
   /** @brief cell phi_raw
+   *  @copydoc CaloGeoDetDescrElement::m_phi_raw
    */
   float phi_raw() const;
   /** @brief cell r_raw
+   *  @copydoc CaloGeoDetDescrElement::m_r_raw
    */
   float r_raw() const;
   /** @brief cell dphi
+   *  @copydoc CaloGeoDetDescrElement::m_dphi
    */
   float dphi() const;
   /** @brief cell deta
+   *  @copydoc CaloGeoDetDescrElement::m_deta
    */
   float deta() const;
   /** @brief cell dr
+   *  @copydoc CaloGeoDetDescrElement::m_dr
    */
   float dr() const;
-    
+
   /** @brief cell x
+   *  @copydoc CaloGeoDetDescrElement::m_x
    */
   float x() const;
   /** @brief cell y
+   *  @copydoc CaloGeoDetDescrElement::m_y
    */
   float y() const;
   /** @brief cell z
+   *  @copydoc CaloGeoDetDescrElement::m_z
    */
   float z() const;
   /** @brief cell x_raw
+   *  @copydoc CaloGeoDetDescrElement::m_x_raw
    */
   float x_raw() const;
   /** @brief cell y_raw
+   *  @copydoc CaloGeoDetDescrElement::m_y_raw
    */
   float y_raw() const;
   /** @brief cell z_raw
+   *  @copydoc CaloGeoDetDescrElement::m_z_raw
    */
   float z_raw() const;
   /** @brief cell dx
+   *  @copydoc CaloGeoDetDescrElement::m_dx
    */
   float dx() const;
   /** @brief cell dy
+   *  @copydoc CaloGeoDetDescrElement::m_dy
    */
   float dy() const;
   /** @brief cell dz
+   *  @copydoc CaloGeoDetDescrElement::m_dz
    */
   float dz() const;
-  
+
   /** @brief cell identifier
    */
   Identifier identify() const;
-  
+
   unsigned long long calo_hash() const;
 
   int getSampling() const ;
 
- //ACH protected:  
+ private:
+ //ACH protected:
  //
   long long m_identify;
   long long m_hash_id;
-  
+
   int m_calosample;
-   
+
   /** @brief cylindric coordinates : eta
    */
   float m_eta;
@@ -124,8 +143,8 @@ class CaloGeoDetDescrElement
 
  /** @brief this one is cached for algorithm working in transverse Energy
     */
-  float m_sinTh; 
-   /** @brief this one is cached for algorithm working in transverse Energy   
+  float m_sinTh;
+   /** @brief this one is cached for algorithm working in transverse Energy
    */
   float m_cosTh;
 
@@ -138,9 +157,9 @@ class CaloGeoDetDescrElement
 
   /** @brief cylindric coordinates : r
    */
-   
-  float m_volume;    
-  
+
+  float m_volume;
+
   /** @brief cache to allow fast px py pz computation
    */
   float m_sinPhi;
@@ -164,7 +183,7 @@ class CaloGeoDetDescrElement
   /** @brief cylindric coordinates : delta r
    */
   float m_dr;
-  
+
   /** @brief cartesian coordinates : X
    */
   float m_x;
@@ -192,13 +211,13 @@ class CaloGeoDetDescrElement
   /** @brief cartesian coordinates : delta Z
    */
   float m_dz;
-  
+
 };
 
 inline Identifier CaloGeoDetDescrElement::identify() const
-{ 
+{
 	Identifier id((unsigned long long) m_identify);
-	return id;	
+	return id;
 }
 
 inline unsigned long long CaloGeoDetDescrElement::calo_hash() const

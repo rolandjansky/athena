@@ -68,7 +68,8 @@ private:
 
   /// vector of converters created by the service,  (as Reflex Objects)
   /// kept so they can be deleted at the end
-  typedef std::vector< RootObject > ConverterVector_t;
+  typedef std::pair<RootType, void*> ConverterPair_t;
+  typedef std::vector< ConverterPair_t > ConverterVector_t;
   ConverterVector_t		m_createdConverters;
 };
 #endif

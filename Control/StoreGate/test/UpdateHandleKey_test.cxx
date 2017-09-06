@@ -31,7 +31,7 @@ void test1()
   SG::UpdateHandleKey<MyObj> k1 ("aaa");
   assert (k1.clid() == 293847295);
   assert (k1.key() == "aaa");
-  assert (k1.mode() == Gaudi::DataHandle::Updater);
+  assert (k1.mode() == Gaudi::DataHandle::Reader);
   assert (k1.storeHandle().name() == "StoreGateSvc");
   assert (!k1.storeHandle().isSet());
   assert (k1.initialize().isSuccess());
@@ -40,21 +40,21 @@ void test1()
   k1 = "aab";
   assert (k1.clid() == 293847295);
   assert (k1.key() == "aab");
-  assert (k1.mode() == Gaudi::DataHandle::Updater);
+  assert (k1.mode() == Gaudi::DataHandle::Reader);
   assert (k1.storeHandle().name() == "StoreGateSvc");
   assert (k1.storeHandle().isSet());
 
-  k1 = "FeeSvc/aac";
+  k1 = "FeeSvc+aac";
   assert (k1.clid() == 293847295);
   assert (k1.key() == "aac");
-  assert (k1.mode() == Gaudi::DataHandle::Updater);
+  assert (k1.mode() == Gaudi::DataHandle::Reader);
   assert (k1.storeHandle().name() == "FeeSvc");
   assert (!k1.storeHandle().isSet());
 
   SG::UpdateHandleKey<MyObj> k2 ("bbb", "FooSvc");
   assert (k2.clid() == 293847295);
   assert (k2.key() == "bbb");
-  assert (k2.mode() == Gaudi::DataHandle::Updater);
+  assert (k2.mode() == Gaudi::DataHandle::Reader);
   assert (k2.storeHandle().name() == "FooSvc");
   assert (!k2.storeHandle().isSet());
 }

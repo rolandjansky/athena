@@ -5,9 +5,9 @@
 #ifndef VP1LocalEvtRetriever_h
 #define VP1LocalEvtRetriever_h
 
-#include <QtCore/QThread>
-#include <QtCore/QString>
-#include <QtCore/QMutex>
+#include <QThread>
+#include <QString>
+#include <QMutex>
 
 class VP1AvailEvtsLocalDir;
 class QTimer;

@@ -5,8 +5,6 @@
 
 #include "DataModelRoot/RootType.h"
 
-#ifdef ROOT_6
-
 // ROOT  
 #include "TBaseClass.h"
 #include "TClass.h"
@@ -144,7 +142,7 @@ TMemberAdapter::operator TMethodArg*() const
 }
 
 //____________________________________________________________________________
-TTypeAdapter TMemberAdapter::TypeOf() const
+TTypeAdapter TMemberAdapter::TypeOf ATLAS_NOT_THREAD_SAFE () const
 {
    // get the type of the data member
    TDataMember* dataMember = (TDataMember*)*this;
@@ -332,7 +330,7 @@ TScopeAdapter TMemberAdapter::DeclaringScope() const
    return std::string( "" );
 }
 
-TTypeAdapter TMemberAdapter::DeclaringType() const
+TTypeAdapter TMemberAdapter::DeclaringType ATLAS_NOT_THREAD_SAFE () const
 {
 // no distinction between scope/type
    return DeclaringScope();
@@ -347,7 +345,7 @@ std::string TBaseAdapter::Name() const
 }
 
 //____________________________________________________________________________
-TScopeAdapter TBaseAdapter::ToType() const
+TScopeAdapter TBaseAdapter::ToType ATLAS_NOT_THREAD_SAFE () const
 {
 // wrap the actual class representing this base
    return TScopeAdapter( fBase->GetClassPointer() );
@@ -628,7 +626,7 @@ std::string TScopeAdapter::Name( unsigned int mod ) const
 }
 
 //____________________________________________________________________________
-TScopeAdapter TScopeAdapter::DeclaringScope() const
+TScopeAdapter TScopeAdapter::DeclaringScope  ATLAS_NOT_THREAD_SAFE () const
 {
    std::string name = Name( Reflex::FINAL | Reflex::SCOPED );
    std::string::size_type pos = name.rfind( "::" );
@@ -917,9 +915,8 @@ Bool_t TScopeAdapter::IsClass() const
       return (fClass->Property() & kIsClass) || ! (fClass->Property() & kIsFundamental);
    }
 
-// no class can mean either is no class (i.e. builtin), or no dict but coming in
-// through PyCintex/Reflex ... as a workaround, use TDataTypes that has a full
-// enumeration of builtin types
+   // no class can mean either is no class (i.e. builtin), or no dict or interpreted(?)
+   // as a workaround, use TDataTypes that has a full enumeration of builtin types
    return TDataType( Name( Reflex::FINAL | Reflex::SCOPED ).c_str() ).GetType() == kOther_t;
 }
 
@@ -975,28 +972,3 @@ bool TScopeAdapter::operator<( const TScopeAdapter& rh ) const
 }
 
 
-//____________________________________________________________________________
-//____________________________________________________________________________
-RootObject::RootObject(const RootType& type, void* obj)
-      : m_type(type), m_object(obj)
-{
-}
-  
-//____________________________________________________________________________
-RootObject
-RootObject::CastObject(const RootType &toType) const
-{
-   return (m_type.Class() && toType.Class())?
-      RootObject( toType, m_type.Class()->DynamicCast(toType.Class(), m_object) )
-      : RootObject();
-}
-
-
-#else  // ROOT ver
-
-#include "Cintex/Cintex.h"
-void RootType::EnableCintex() {
-   ROOT::Cintex::Cintex::Enable();
-}
-
-#endif // ROOT ver

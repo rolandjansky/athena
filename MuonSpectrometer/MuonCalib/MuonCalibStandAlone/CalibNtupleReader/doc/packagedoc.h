@@ -19,12 +19,3 @@ This package consists out of two classes:
 
 
 */
-
-
-/**
-@page used_CalibNtupleReader Used Packages
-*/
-
-/**
-@page requirements_CalibNtupleReader Requirements
-*/

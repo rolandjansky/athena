@@ -56,15 +56,4 @@ EndOfEvent()
 
 @section MuonG4SD_ExtrasMuonG4SD Extra Pages
 
- - @ref UsedMuonG4SD
- - @ref RequirementsMuonG4SD
 */
-
-/**
-@page UsedMuonG4SD Used Packages
-*/
-
-/**
-@page RequirementsMuonG4SD Requirements
-*/
-

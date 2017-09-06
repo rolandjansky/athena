@@ -10,9 +10,10 @@
 // includes
 #include <string>
 #include <set>
-#include <list>
+#include <vector>
 #include <typeinfo>
 #include <memory>
+#include <mutex>
 #include "GaudiKernel/IRegistry.h"
 #include "GaudiKernel/ClassID.h"
 #include "AthenaKernel/getMessageSvc.h" /*Athena::IMessageSvcHolder*/
@@ -47,12 +48,19 @@ namespace SG {
     typedef std::string id_type;
     typedef TransientAddress::TransientClidSet CLIDCont_t;
     typedef TransientAddress::TransientAliasSet AliasCont_t;
+    typedef IStringPool::sgkey_t sgkey_t;
 
     // Constructors
     DataProxy();                      // default constructor
 
     ///build from TransientAddress
+    ///Takes ownership of tAddr.
     DataProxy(TransientAddress* tAddr, 
+              IConverter* pDataLoader,
+              bool constFlag=false, bool resetOnly=true);
+
+    ///build from TransientAddress
+    DataProxy(std::unique_ptr<TransientAddress> tAddr, 
               IConverter* pDataLoader,
               bool constFlag=false, bool resetOnly=true);
 
@@ -67,39 +75,77 @@ namespace SG {
     ///\name IRegistry implementation
     //@{
     /// Add reference to object
-    virtual unsigned long addRef();
+    virtual unsigned long addRef() override;
 
     /// release reference to object
-    virtual unsigned long release();
+    virtual unsigned long release() override;
 
     /// return refCount
     unsigned long refCount() const;
 
     /// Retrieve data object key == string
-    virtual const name_type& name() const { return m_tAddress->name(); }
+    virtual const name_type& name() const override;
 
     /// Retrieve data object key == string
     /// duplicated for Gaudi folks does same as name()
-    virtual const id_type& identifier() const {return m_tAddress->name();}
+    virtual const id_type& identifier() const override;
 
     /// Retrieve DataObject
-    virtual DataObject* object() const      { return m_dObject; }
+    virtual DataObject* object() const override;
 
     /// set an IOpaqueAddress
-    virtual void setAddress(IOpaqueAddress* ioa);
+    virtual void setAddress(IOpaqueAddress* ioa) override;
 
     /// Retrieve IOpaqueAddress
-    virtual IOpaqueAddress* address() const { return m_tAddress->address(); } 
+    virtual IOpaqueAddress* address() const override;
 
     /// set DataSvc (Gaudi-specific); do nothing for us
-    virtual IDataProviderSvc* dataSvc() const { return 0; }
+    virtual IDataProviderSvc* dataSvc() const override;
     //@}
 
     /// Retrieve TransientAddress
-    virtual TransientAddress* transientAddress() const { return m_tAddress; }
+    TransientAddress* transientAddress() const;
+
+    ///< Get the primary (hashed) SG key.
+    sgkey_t sgkey() const;
+
+    ///< Set the primary (hashed) SG key.
+    void setSGKey (sgkey_t sgkey);
+
+    ///< Return the ID of the store containing this proxy.
+    StoreID::type storeID() const;
+
+    ///< check if it is a transient ID (primary or symLinked):
+    bool transientID (CLID id) const;
+
+    ///< return the list of transient IDs (primary or symLinked):
+    CLIDCont_t transientID() const;
+
+    /// Add a new transient ID
+    void setTransientID(CLID id);
 
     /// access set of proxy aliases
-    const AliasCont_t& alias() const { return m_tAddress->alias(); }
+    /// Returns a COPY of the alias set.
+    AliasCont_t alias() const;
+
+    /// Test to see if a given string is in the alias set.
+    bool hasAlias (const std::string& key) const;
+
+    /// Add a new proxy alias.
+    void setAlias(const std::string& key);
+
+    /// remove alias from proxy
+    bool removeAlias(const std::string& key);
+
+    /// Return the address provider.
+    IAddressProvider* provider();
+
+    /// Set the address provider.
+    void setProvider(IAddressProvider* provider, StoreID::type storeID);
+
+    /// Set the CLID / key.
+    /// This will only succeed if the clid/key are currently clear.
+    void setID (CLID id, const std::string& key);
 
     /// Other methods of DataProxy (not in Interface IRegistry):
 
@@ -107,8 +153,8 @@ namespace SG {
     /// If HARD is true, then the bound objects should also
     /// clear any data that depends on the identity
     /// of the current event store.  (See IResetable.h.)
-    virtual void reset (bool hard = false);
-    virtual void finalReset(); ///called by destructor
+    void reset (bool hard = false);
+    void finalReset(); ///called by destructor
 
     /// release or reset according to resetOnly flag
     /// If FORCE is true, then always release.
@@ -123,6 +169,8 @@ namespace SG {
 
     /// is the object valid?
     bool isValidObject() const;
+
+    bool updateAddress();
 
     /// set DataObject
     void setObject(DataObject* obj);
@@ -144,16 +192,16 @@ namespace SG {
      */
     std::unique_ptr<DataObject> readData (ErrNo* errNo) const;
 
-    ErrNo errNo() const { return m_errno; }
+    ErrNo errNo() const;
  
     /// Retrieve clid
-    CLID clID() const { return m_tAddress->clID(); }
+    CLID clID() const;
 
     /// Retrieve storage type
-    unsigned char svcType() const { return m_storageType; }
+    unsigned char svcType() const;
 
     /// Check if it is a const object
-    bool isConst() const { return m_const; }
+    bool isConst() const;
 
 
     /**
@@ -166,16 +214,13 @@ namespace SG {
 
 
     /// set the reset only flag: Clear Store will reset and not delete.
-    void resetOnly(const bool& flag) { m_resetFlag = flag; }
+    void resetOnly(const bool& flag);
 
     /// Check reset only:
-    bool isResetOnly() const { return m_resetFlag; }
+    bool isResetOnly() const;
 
     bool bindHandle(IResetable* ir);
     void unbindHandle(IResetable* ir);
-
-    /// The following kept temporarily for backward compatibility:
-    const CLIDCont_t& transientID() const {return m_tAddress->transientID();}  
 
     // cache the t2p
     void setT2p(T2pMap* t2p);
@@ -186,13 +231,13 @@ namespace SG {
      *
      * (@c IRegisterTransient interface.)
      */
-    virtual void registerTransient (void* p);
+    virtual void registerTransient (void* p) override;
 
     /// Set the store of which we're a part.
-    void setStore (IProxyDict* store) { m_store = store; }
+    void setStore (IProxyDict* store);
 
     /// Return the store of which we're a part.
-    IProxyDict* store() const { return m_store; }
+    IProxyDict* store() const;
 
     /// reset the bound DataHandles
     /// If HARD is true, then the bound objects should also
@@ -200,13 +245,13 @@ namespace SG {
     /// of the current event store.  (See IResetable.h.)
     void resetBoundHandles (bool hard);
 
-    IConverter* loader() const { return m_dataLoader; }
+    IConverter* loader() const;
 
   private:
-    DataProxy(const DataProxy&);
-    DataProxy& operator=(const DataProxy&);
+    DataProxy(const DataProxy&) = delete;
+    DataProxy& operator=(const DataProxy&) = delete;
 
-    TransientAddress* m_tAddress;
+    std::unique_ptr<TransientAddress> m_tAddress;
 
     unsigned long m_refCount;
 
@@ -224,7 +269,8 @@ namespace SG {
     bool m_resetFlag;        
 
     /// list of bound DataHandles
-    std::list<IResetable*> m_handles;
+    typedef std::vector<IResetable*> handleList_t;
+    handleList_t m_handles;
 
     T2pMap* m_t2p;
     Athena::IMessageSvcHolder m_ims;
@@ -235,6 +281,12 @@ namespace SG {
     /// The store of which we are a part.
     IProxyDict* m_store;
 
+
+    typedef std::mutex mutex_t;
+    typedef std::lock_guard<mutex_t> lock_t;
+    mutable mutex_t m_mutex;
+
+    
     /**
      * @brief Lock the data object we're holding, if any.
      */
@@ -248,19 +300,11 @@ namespace SG {
 
   ///const pointer version of the cast
   template<typename DATA>
-  const DATA* DataProxy_cast(const DataProxy* proxy)
-  {
-    return DataProxy_cast<DATA>(const_cast<DataProxy*>(proxy));
-  }
+  const DATA* DataProxy_cast(const DataProxy* proxy);
 
   ///const ref version of the cast. @throws SG::ExcBadDataProxyCast.
   template<typename DATA>
-  DATA DataProxy_cast(const DataProxy& proxy)
-  {
-    const DATA* result = DataProxy_cast<DATA>(&proxy);
-    if (!result) SG::throwExcBadDataProxyCast(proxy.clID(), typeid(DATA));
-    return *result;
-  }
+  DATA DataProxy_cast(const DataProxy& proxy);
 
   /**
    * @brief Try to get the pointer back from a @a DataProxy,

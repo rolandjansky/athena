@@ -6,7 +6,6 @@
 #include <cmath>
 #include <cstdlib>
 
-
 #include "G4UserActions/HitWrapper.h"
 #include "G4Step.hh"
 
@@ -23,10 +22,9 @@
 #include "InDetSimEvent/SiHitCollection.h"
 
 
-
 namespace G4UA
 {
-  
+
   //---------------------------------------------------------------------------
   HitWrapper::HitWrapper(const Config& config)
     : AthMessaging(Gaudi::svcLocator()->service<IMessageSvc>("MessageSvc"),
@@ -35,12 +33,10 @@ namespace G4UA
       m_detStore("StoreGateSvc/DetectorStore","HitWrapper"),
       m_config(config)
   {}
-  
-  
+
   //---------------------------------------------------------------------------
   void HitWrapper::endOfEvent(const G4Event*)
   {
-    
 
     SG::WriteHandle<CSCSimHitCollection> csc("CSC_Hits");
     SG::WriteHandle<MDTSimHitCollection> mdt("MDT_Hits");
@@ -49,7 +45,7 @@ namespace G4UA
     /** for nSW */
     SG::WriteHandle<GenericMuonSimHitCollection> mmhits("MicromegasSensitiveDetector");
     SG::WriteHandle<GenericMuonSimHitCollection> stgc("sTGCSensitiveDetector");
-    
+
     if (!csc.isValid() ) ATH_MSG_WARNING( " HitWrapper could not access csc hit collection" );
     else {
       //      std::cout << "Working on a collection of size " << cscC->size() << std::endl;
@@ -59,7 +55,7 @@ namespace G4UA
 	(*hit).setGlobalTime( fmod( (*hit).globalTime() , m_config.time ) );
       }
     }
-    
+
     if ( ! mdt.isValid() ) ATH_MSG_WARNING( " HitWrapper could not access mdt hit collection" );
     else {
       //      std::cout << "Working on a collection of size " << mdtC->size() << std::endl;
@@ -69,7 +65,7 @@ namespace G4UA
 	(*hit).setGlobalTime( fmod( (*hit).globalTime() , m_config.time ) );
       }
     }
-    
+
     if (! rpc.isValid() ) ATH_MSG_WARNING( " HitWrapper could not access rpc hit collection" );
     else {
       //      std::cout << "Working on a collection of size " << rpcC->size() << std::endl;
@@ -79,8 +75,8 @@ namespace G4UA
 	(*hit).setGlobalTime( fmod( (*hit).globalTime() , m_config.time ) );
       }
     }
-    
-    
+
+
     if (! tgc.isValid() ) ATH_MSG_WARNING( " HitWrapper could not access tgc hit collection" );
     else {
       //      std::cout << "Working on a collection of size " << tgcC->size() << std::endl;
@@ -90,8 +86,8 @@ namespace G4UA
 	(*hit).setGlobalTime( fmod( (*hit).globalTime() , m_config.time ) );
       }
     }
-    
-    
+
+
     /** for nSW */
     if (! mmhits.isValid() ) ATH_MSG_WARNING( " HitWrapper could not access Micromegas hit collection" );
     else {
@@ -102,7 +98,7 @@ namespace G4UA
 	(*hit).setGlobalTime( fmod( (*hit).globalTime() , m_config.time ) );
       }
     }
-    
+
     if (! stgc.isValid() ) ATH_MSG_WARNING( " HitWrapper could not access sTGC hit collection" );
     else {
       //      std::cout << "Working on a collection of size " << nswC->size() << std::endl;
@@ -112,12 +108,12 @@ namespace G4UA
 	(*hit).setGlobalTime( fmod( (*hit).globalTime() , m_config.time ) );
       }
     }
-    
+
     // Handle the inner detector next
     SG::WriteHandle<TRTUncompressedHitCollection> trt("TRTUncompressedHits");
     SG::WriteHandle<SiHitCollection> pix("PixelHits");
     SG::WriteHandle<SiHitCollection> sct("SCT_Hits");
-    
+
     if (! trt.isValid() ) ATH_MSG_WARNING( " HitWrapper could not access trt hit collection" );
     else {
       //TRTUncompressedHitCollection * trt = const_cast< TRTUncompressedHitCollection * > (&*trtC);
@@ -126,7 +122,7 @@ namespace G4UA
 	(*hit).SetGlobalTime( fmod( (*hit).GetGlobalTime() , m_config.time ) );
       }
     }
-    
+
     if (! pix.isValid()) ATH_MSG_WARNING( " HitWrapper could not access pix hit collection" );
     else {
       //SiHitCollection * pix = const_cast<SiHitCollection *> (&*pixC);
@@ -135,7 +131,7 @@ namespace G4UA
 	(*hit).setMeanTime( fmod( (*hit).meanTime() , m_config.time ) );
       }
     }
-    
+
     if (! sct.isValid() ) ATH_MSG_WARNING( " HitWrapper could not access sct hit collection" );
     else {
       //SiHitCollection * sct = const_cast<SiHitCollection *> (&*sctC);
@@ -144,7 +140,7 @@ namespace G4UA
 	(*hit).setMeanTime( fmod( (*hit).meanTime() , m_config.time ) );
       }
     }
-    
+
   }
+
 } // namespace G4UA
-  

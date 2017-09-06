@@ -11,23 +11,23 @@
 JetVertexFractionTool::JetVertexFractionTool(const std::string& name)
 : JetModifierBase(name)
 , m_assocTracksName("")
-, m_tvaName("")
-, m_tracksName("")
 , m_htsel("") {
-  declareProperty("VertexContainer", m_verticesName);
   declareProperty("AssociatedTracks", m_assocTracksName);
-  declareProperty("TrackVertexAssociation", m_tvaName);
-  declareProperty("TrackParticleContainer",m_tracksName);
   declareProperty("SumPtTrkName",m_sumPtTrkName="SumPtTrkPt500");
   declareProperty("TrackSelector", m_htsel);
   declareProperty("JVFName", m_jvfname ="JVF");
   declareProperty("K_JVFCorrScale",m_kcorrJVF = 0.01);
   declareProperty("PUTrkPtCut",m_PUtrkptcut = 30000.);
+
+  declareProperty("VertexContainer", m_vertexContainer_key);
+  declareProperty("TrackVertexAssociation", m_tva_key);
+  declareProperty("TrackParticleContainer",m_tracksCont_key);
 }
 
 //**********************************************************************
 
 StatusCode JetVertexFractionTool::initialize() {
+  ATH_MSG_DEBUG("initializing version with data handles");
   ATH_MSG_INFO("Initializing JetVertexFractionTool " << name());
   if ( m_htsel.empty() ) {
     ATH_MSG_INFO("  No track selector.");
@@ -35,8 +35,14 @@ StatusCode JetVertexFractionTool::initialize() {
     ATH_MSG_INFO("  Track selector: " << m_htsel->name());
   }
   ATH_MSG_INFO("  Attribute name: " << m_jvfname);
+
+  ATH_CHECK(m_vertexContainer_key.initialize());
+  ATH_CHECK(m_tva_key.initialize());
+  ATH_CHECK(m_tracksCont_key.initialize());
+
   return StatusCode::SUCCESS;
 }
+
 
 //**********************************************************************
 // Legacy version that uses the direct computation of sums over tracks
@@ -45,28 +51,39 @@ StatusCode JetVertexFractionTool::initialize() {
 int JetVertexFractionTool::modifyJet(xAOD::Jet& jet) const {
 
   // Get the vertices container
-  const xAOD::VertexContainer* vertices = NULL;
-  if ( evtStore()->retrieve(vertices,m_verticesName).isFailure() ) {
-    ATH_MSG_ERROR("Could not retrieve the VertexContainer from evtStore: " << m_verticesName);
+
+  auto vertexContainer = SG::makeHandle (m_vertexContainer_key);
+  if (!vertexContainer.isValid()){
+    ATH_MSG_WARNING("Invalid  xAOD::VertexContainer datahandle" 
+                    << m_vertexContainer_key.key());
     return 1;
   }
-  ATH_MSG_DEBUG("Successfully retrieved VertexContainer from evtStore: " << m_verticesName);
+  auto vertices = vertexContainer.cptr();
+
+  ATH_MSG_DEBUG("Successfully retrieved VertexContainer: " 
+                << m_vertexContainer_key.key());
 
   // Get the tracks associated to the jet
   // Note that there may be no tracks - this is both normal and an error case
   // In this case, just fill a vector with zero and don't set the highest vtx moment
+
   std::vector<const xAOD::TrackParticle*> tracks;
   if ( ! jet.getAssociatedObjects(m_assocTracksName, tracks) ) {
     ATH_MSG_WARNING("Associated tracks not found.");
   }
 
   // Get the TVA object
-  const jet::TrackVertexAssociation* tva = NULL;
-  if (evtStore()->retrieve(tva,m_tvaName).isFailure()) {
-    ATH_MSG_ERROR("Could not retrieve the TrackVertexAssociation from evtStore: " << m_tvaName);
+
+  auto tvaContainer = SG::makeHandle (m_tva_key);
+  if (!tvaContainer.isValid()){
+    ATH_MSG_ERROR("Could not retrieve the TrackVertexAssociation: " 
+                  << m_tva_key.key());
     return 3;
   }
-  ATH_MSG_DEBUG("Successfully retrieved TrackVertexAssociation from evtStore: " << m_tvaName);
+  auto tva = tvaContainer.cptr();
+
+  ATH_MSG_DEBUG("Successfully retrieved TrackVertexAssociation: " 
+                << m_tva_key.key());
 
   // Get and set the JVF vector
   const std::vector<float> jvf = getJetVertexFraction(vertices,tracks,tva);
@@ -86,28 +103,44 @@ int JetVertexFractionTool::modifyJet(xAOD::Jet& jet) const {
 int JetVertexFractionTool::modify(xAOD::JetContainer& jetCont) const {
 
   // Get the vertices container
-  const xAOD::VertexContainer* vertices = NULL;
-  if ( evtStore()->retrieve(vertices,m_verticesName).isFailure() ) {
-    ATH_MSG_ERROR("Could not retrieve the VertexContainer from evtStore: " << m_verticesName);
+
+  auto vertexContainer = SG::makeHandle (m_vertexContainer_key);
+  if (!vertexContainer.isValid()){
+    ATH_MSG_WARNING("Invalid  xAOD::VertexContainer datahandle"
+                    << m_vertexContainer_key.key()); 
     return 1;
   }
-  ATH_MSG_DEBUG("Successfully retrieved VertexContainer from evtStore: " << m_verticesName);
+  auto vertices = vertexContainer.cptr();
+
+  ATH_MSG_DEBUG("Successfully retrieved VertexContainer: " 
+                << m_vertexContainer_key.key()); 
 
   // Get the Tracks container
-  const xAOD::TrackParticleContainer* tracksCont = NULL;
-  if ( evtStore()->retrieve(tracksCont,m_tracksName).isFailure() ) {
-    ATH_MSG_ERROR("Could not retrieve the TrackParticleContainer from evtStore: " << m_tracksName);
+
+  auto tracksContainer = SG::makeHandle (m_tracksCont_key);
+  if (!tracksContainer.isValid()){
+    ATH_MSG_ERROR("Could not retrieve the TrackParticleContainer: " 
+                  << m_tracksCont_key.key());
     return 2;
   }
-  ATH_MSG_DEBUG("Successfully retrieved TrackParticleContainer from evtStore: " << m_tracksName);
+  auto tracksCont = tracksContainer.cptr();
+
+  ATH_MSG_DEBUG("Successfully retrieved TrackParticleContainer: " 
+                << m_tracksCont_key.key());
+  // << m_tracksName);
 
   // Get the TVA object
-  const jet::TrackVertexAssociation* tva = NULL;
-  if (evtStore()->retrieve(tva,m_tvaName).isFailure()) {
-    ATH_MSG_ERROR("Could not retrieve the TrackVertexAssociation from evtStore: " << m_tvaName);
+
+  auto tvaContainer = SG::makeHandle (m_tva_key);
+  if (!tvaContainer.isValid()){
+    ATH_MSG_ERROR("Could not retrieve the TrackVertexAssociation: " 
+                  << m_tva_key.key());
     return 3;
   }
-  ATH_MSG_DEBUG("Successfully retrieved TrackVertexAssociation from evtStore: " << m_tvaName);
+  auto tva = tvaContainer.cptr();
+
+  ATH_MSG_DEBUG("Successfully retrieved TrackVertexAssociation: " 
+                << m_tva_key.key());
 
   if (vertices->size() == 0 ) {
     ATH_MSG_WARNING("There are no vertices in the container. Exiting");

@@ -348,7 +348,7 @@ int  LArMiniFCAL_ID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
 
 }
 
-void LArMiniFCAL_ID::module_id_checks ( int pos_neg, int module ) const throw(LArID_Exception)
+void LArMiniFCAL_ID::module_id_checks ( int pos_neg, int module ) const
 {
 	
   // Check that id is within allowed range
@@ -371,7 +371,7 @@ void LArMiniFCAL_ID::module_id_checks ( int pos_neg, int module ) const throw(LA
   }
 }
 
-void LArMiniFCAL_ID::channel_id_checks ( int pos_neg, int module, int depth, int eta, int phi) const throw(LArID_Exception)
+void LArMiniFCAL_ID::channel_id_checks ( int pos_neg, int module, int depth, int eta, int phi) const
 {
 	
   // Check that id is within allowed range
@@ -396,7 +396,7 @@ void LArMiniFCAL_ID::channel_id_checks ( int pos_neg, int module, int depth, int
 }
 
 void   LArMiniFCAL_ID::channel_id_checks   (const Identifier moduleId, int depth,
-				        int eta, int phi) const throw(LArID_Exception)
+				        int eta, int phi) const
 {
   // Check that id is within allowed range
   // Fill expanded id

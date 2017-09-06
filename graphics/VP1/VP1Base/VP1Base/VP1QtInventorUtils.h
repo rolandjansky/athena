@@ -18,10 +18,10 @@
 
 #include <Inventor/C/errors/debugerror.h>
 #include <Inventor/actions/SoGLRenderAction.h>
-#include <QtCore/QString>
-#include <QtCore/QByteArray>
-#include <QtGui/QPixmap>
-#include <QtGui/QImage>
+#include <QString>
+#include <QByteArray>
+#include <QPixmap>
+#include <QImage>
 
 class SoQtRenderArea;
 class VP1ExaminerViewer;

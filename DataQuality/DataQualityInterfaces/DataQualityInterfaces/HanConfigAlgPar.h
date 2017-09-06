@@ -38,8 +38,8 @@ public:
 
 protected:
 
-  TObjString name;
-  Float_t    value;
+  TObjString m_name;
+  Float_t    m_value;
 
 };
 

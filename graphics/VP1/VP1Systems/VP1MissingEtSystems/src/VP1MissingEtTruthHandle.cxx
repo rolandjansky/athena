@@ -18,8 +18,8 @@
 #include "VP1Base/VP1MaterialButton.h"
 
 #include "MissingETEvent/MissingEtTruth.h"
-#include <QtCore/QStringList>
-#include <QtGui/QColor>
+#include <QStringList>
+#include <QColor>
 
 //____________________________________________________________________
 QList<VP1StdCollection*> VP1MissingEtTruthHandle::createCollections(IVP1System*sys)

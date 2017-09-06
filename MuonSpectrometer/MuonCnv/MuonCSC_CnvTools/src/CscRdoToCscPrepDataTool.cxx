@@ -298,11 +298,8 @@ StatusCode CscRdoToCscPrepDataTool::decode(const CscRawDataContainer* rdoContain
       } else {  // It won't be needed because we already skipped decoded one (should be checked it's true)
 
 //Hack for transition to athenaMT classes
-#ifdef __IdentifiableContainerMTUSED
 	CscStripPrepDataCollection * oldCollection = const_cast<CscStripPrepDataCollection*>( *it_coll );
-#else
-        CscStripPrepDataCollection * oldCollection = const_cast<CscStripPrepDataCollection*>( it_coll->cptr());
-#endif 
+
 	collection = oldCollection;
 	cscHashId = collection->identifyHash();
       }
@@ -538,12 +535,7 @@ StatusCode CscRdoToCscPrepDataTool::decode(const CscRawDataContainer* rdoContain
 	    
 	  } else {  
 //Hack for transition to athenaMT classes
-#ifdef __IdentifiableContainerMTUSED
             CscStripPrepDataCollection * oldCollection = const_cast<CscStripPrepDataCollection*>( *it_coll );
-#else
-            CscStripPrepDataCollection * oldCollection = const_cast<CscStripPrepDataCollection*>( it_coll->cptr());
-#endif
-
 
 	    collection = oldCollection;
 	    cscHashId = collection->identifyHash();

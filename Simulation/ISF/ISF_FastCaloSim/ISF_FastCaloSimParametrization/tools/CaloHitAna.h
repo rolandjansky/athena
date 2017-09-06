@@ -72,6 +72,7 @@ public :
    std::vector<Long64_t>  *G4HitCellIdentifier;
    std::vector<float>   *G4HitSamplingFraction;
    std::vector<int>     *G4HitSampling;
+   /*
    std::vector<std::vector<double> > *TTC_back_eta;
    std::vector<std::vector<double> > *TTC_back_phi;
    std::vector<std::vector<double> > *TTC_back_r;
@@ -86,6 +87,22 @@ public :
    std::vector<double>  *TTC_IDCaloBoundary_z;
    std::vector<double>  *TTC_Angle3D;
    std::vector<double>  *TTC_AngleEta;
+   */
+   std::vector<std::vector<double> >* newTTC_entrance_eta;
+   std::vector<std::vector<double> >* newTTC_entrance_phi;
+   std::vector<std::vector<double> >* newTTC_entrance_r;
+   std::vector<std::vector<double> >* newTTC_entrance_z;
+   std::vector<std::vector<double> >* newTTC_back_eta;
+   std::vector<std::vector<double> >* newTTC_back_phi;
+   std::vector<std::vector<double> >* newTTC_back_r;
+   std::vector<std::vector<double> >* newTTC_back_z;
+   std::vector<double>* newTTC_IDCaloBoundary_eta;
+   std::vector<double>* newTTC_IDCaloBoundary_phi;
+   std::vector<double>* newTTC_IDCaloBoundary_r;
+   std::vector<double>* newTTC_IDCaloBoundary_z;
+   std::vector<double>* newTTC_Angle3D;
+   std::vector<double>* newTTC_AngleEta;
+   
    //If this won't work, we will have to change it... (memory??)
    std::vector<FCS_matchedcellvector> m_all_cells; //hm, make it a vector of (vector of FCS_matchedcell) and have it for all 1000 events at once in memory??
 
@@ -120,6 +137,7 @@ public :
    TBranch        *b_G4HitCellIdentifier;   //!
    TBranch        *b_G4HitSamplingFraction;   //!
    TBranch        *b_G4HitSampling;   //!
+   /*
    TBranch        *b_TTC_back_eta;   //!
    TBranch        *b_TTC_back_phi;   //!
    TBranch        *b_TTC_back_r;   //!
@@ -134,7 +152,24 @@ public :
    TBranch        *b_TTC_IDCaloBoundary_z;   //!
    TBranch        *b_TTC_Angle3D;   //!
    TBranch        *b_TTC_AngleEta;   //!
-
+   */
+   
+   TBranch        *b_newTTC_back_eta;   //!
+   TBranch        *b_newTTC_back_phi;   //!
+   TBranch        *b_newTTC_back_r;   //!
+   TBranch        *b_newTTC_back_z;   //!
+   TBranch        *b_newTTC_entrance_eta;   //!
+   TBranch        *b_newTTC_entrance_phi;   //!
+   TBranch        *b_newTTC_entrance_r;   //!
+   TBranch        *b_newTTC_entrance_z;   //!
+   TBranch        *b_newTTC_IDCaloBoundary_eta;   //!
+   TBranch        *b_newTTC_IDCaloBoundary_phi;   //!
+   TBranch        *b_newTTC_IDCaloBoundary_r;   //!
+   TBranch        *b_newTTC_IDCaloBoundary_z;   //!
+   TBranch        *b_newTTC_Angle3D;   //!
+   TBranch        *b_newTTC_AngleEta;   //!
+   
+   
    CaloHitAna(TString filename="ISF_HitAnalysispion_eta1.root", TString outputname="output1.root", std::vector<Int_t> settings=std::vector<Int_t>(), Float_t timingcut=999999., Int_t debug=0, TTree *tree=0);
    virtual ~CaloHitAna();
    virtual Int_t    Cut(Long64_t entry);
@@ -248,6 +283,7 @@ void CaloHitAna::Init(TTree *tree)
    G4HitCellIdentifier = 0;
    G4HitSamplingFraction = 0;
    G4HitSampling = 0;
+   /*
    TTC_back_eta = 0;
    TTC_back_phi = 0;
    TTC_back_r = 0;
@@ -262,7 +298,23 @@ void CaloHitAna::Init(TTree *tree)
    TTC_IDCaloBoundary_z = 0;
    TTC_Angle3D = 0;
    TTC_AngleEta = 0;
-
+   */
+   newTTC_back_eta = 0;
+   newTTC_back_phi = 0;
+   newTTC_back_r = 0;
+   newTTC_back_z = 0;
+   newTTC_entrance_eta = 0;
+   newTTC_entrance_phi = 0;
+   newTTC_entrance_r = 0;
+   newTTC_entrance_z = 0;
+   newTTC_IDCaloBoundary_eta = 0;
+   newTTC_IDCaloBoundary_phi = 0;
+   newTTC_IDCaloBoundary_r = 0;
+   newTTC_IDCaloBoundary_z = 0;
+   newTTC_Angle3D = 0;
+   newTTC_AngleEta = 0;
+   
+   
    // Set branch addresses and branch pointers
    if (!tree) return;
    fChain = tree;
@@ -299,6 +351,7 @@ void CaloHitAna::Init(TTree *tree)
    fChain->SetBranchAddress("G4HitCellIdentifier", &G4HitCellIdentifier, &b_G4HitCellIdentifier);
    fChain->SetBranchAddress("G4HitSamplingFraction", &G4HitSamplingFraction, &b_G4HitSamplingFraction);
    fChain->SetBranchAddress("G4HitSampling", &G4HitSampling, &b_G4HitSampling);
+   /*
    fChain->SetBranchAddress("TTC_back_eta", &TTC_back_eta, &b_TTC_back_eta);
    fChain->SetBranchAddress("TTC_back_phi", &TTC_back_phi, &b_TTC_back_phi);
    fChain->SetBranchAddress("TTC_back_r", &TTC_back_r, &b_TTC_back_r);
@@ -311,8 +364,24 @@ void CaloHitAna::Init(TTree *tree)
    fChain->SetBranchAddress("TTC_IDCaloBoundary_phi", &TTC_IDCaloBoundary_phi, &b_TTC_IDCaloBoundary_phi);
    fChain->SetBranchAddress("TTC_IDCaloBoundary_r", &TTC_IDCaloBoundary_r, &b_TTC_IDCaloBoundary_r);
    fChain->SetBranchAddress("TTC_IDCaloBoundary_z", &TTC_IDCaloBoundary_z, &b_TTC_IDCaloBoundary_z);
-   fChain->SetBranchAddress("TTC_Angle3D", &TTC_Angle3D, &b_TTC_Angle3D);
-   fChain->SetBranchAddress("TTC_AngleEta", &TTC_AngleEta, &b_TTC_AngleEta);
+   fChain->SetBranchAddress("TTC_Angle3D",     &TTC_Angle3D, &b_TTC_Angle3D);
+   fChain->SetBranchAddress("TTC_AngleEta",    &TTC_AngleEta, &b_TTC_AngleEta);
+   */
+   fChain->SetBranchAddress("newTTC_back_eta", &newTTC_back_eta, &b_newTTC_back_eta);
+   fChain->SetBranchAddress("newTTC_back_phi", &newTTC_back_phi, &b_newTTC_back_phi);
+   fChain->SetBranchAddress("newTTC_back_r",   &newTTC_back_r, &b_newTTC_back_r);
+   fChain->SetBranchAddress("newTTC_back_z",   &newTTC_back_z, &b_newTTC_back_z);
+   fChain->SetBranchAddress("newTTC_entrance_eta", &newTTC_entrance_eta, &b_newTTC_entrance_eta);
+   fChain->SetBranchAddress("newTTC_entrance_phi", &newTTC_entrance_phi, &b_newTTC_entrance_phi);
+   fChain->SetBranchAddress("newTTC_entrance_r",   &newTTC_entrance_r, &b_newTTC_entrance_r);
+   fChain->SetBranchAddress("newTTC_entrance_z",   &newTTC_entrance_z, &b_newTTC_entrance_z);
+   fChain->SetBranchAddress("newTTC_IDCaloBoundary_eta", &newTTC_IDCaloBoundary_eta, &b_newTTC_IDCaloBoundary_eta);
+   fChain->SetBranchAddress("newTTC_IDCaloBoundary_phi", &newTTC_IDCaloBoundary_phi, &b_newTTC_IDCaloBoundary_phi);
+   fChain->SetBranchAddress("newTTC_IDCaloBoundary_r",   &newTTC_IDCaloBoundary_r, &b_newTTC_IDCaloBoundary_r);
+   fChain->SetBranchAddress("newTTC_IDCaloBoundary_z",   &newTTC_IDCaloBoundary_z, &b_newTTC_IDCaloBoundary_z);
+   fChain->SetBranchAddress("newTTC_Angle3D",  &newTTC_Angle3D, &b_newTTC_Angle3D);
+   fChain->SetBranchAddress("newTTC_AngleEta", &newTTC_AngleEta, &b_newTTC_AngleEta);
+   
    Notify();
 }
 

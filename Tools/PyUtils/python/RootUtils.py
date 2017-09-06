@@ -111,7 +111,6 @@ def root_compile(src=None, fname=None, batch=True):
         
 @memoize
 def _pythonize_tfile():
-    #import PyCintex; PyCintex.Cintex.Enable()
     import cppyy
     root = import_root()
     import PyUtils.Helpers as H

@@ -14,14 +14,12 @@
 #include "L1TopoEvent/TopoInputEvent.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
 #include "TrigT1Interfaces/TrigT1StoreGateKeys.h"
-#include "TrigT1Interfaces/MuCTPIToRoIBSLink.h"
 #include "TrigT1Interfaces/RecMuonRoiSvc.h"
 #include "TrigT1Interfaces/MuCTPIL1Topo.h"
 #include "TrigT1Interfaces/MuCTPIL1TopoCandidate.h"
 #include "TrigT1Interfaces/IMuctpiSimTool.h"
 
 #include "TrigT1Result/MuCTPIRoI.h"
-#include "TrigT1Result/RoIBResult.h"
 #include "TrigT1Result/Header.h"
 #include "TrigT1Result/Trailer.h"
 
@@ -36,6 +34,7 @@ using namespace LVL1;
 MuonInputProvider::MuonInputProvider( const std::string& type, const std::string& name, 
                                       const IInterface* parent) :
    base_class(type, name, parent),
+   m_roibLocation(""),
    m_histSvc("THistSvc", name),
    m_configSvc( "TrigConf::TrigConfigSvc/TrigConfigSvc", name ),
    m_recRPCRoiSvc( LVL1::ID_RecRpcRoiSvc, name ),
@@ -43,7 +42,8 @@ MuonInputProvider::MuonInputProvider( const std::string& type, const std::string
    m_MuctpiSimTool("LVL1MUCTPI::L1MuctpiTool/LVL1MUCTPI__L1MuctpiTool"),
    m_muonROILocation( LVL1MUCTPI::DEFAULT_MuonRoIBLocation ),
    m_MuonEncoding(0),
-   m_MuCTPItoL1TopoLocation ("/Run/L1MuCTPItoL1TopoLocation")
+   m_MuCTPItoL1TopoLocation (LVL1MUCTPI::DEFAULT_MuonL1TopoLocation),
+   m_MuCTPItoL1TopoLocationPlusOne("")
 {
    declareInterface<LVL1::IInputTOBConverter>( this );
    declareProperty( "ROIBResultLocation", m_roibLocation, "Storegate key for the reading the ROIBResult" );
@@ -52,9 +52,11 @@ MuonInputProvider::MuonInputProvider( const std::string& type, const std::string
    declareProperty( "RecTgcRoiSvc", m_recTGCRoiSvc, "TGC Rec Roi Service");
    declareProperty( "MuonROILocation", m_muonROILocation, "Storegate key for the Muon ROIs" );
 
-   declareProperty( "MuonEncoding", m_MuonEncoding = 0, "0=full granularity Mu ROIs, 1=MuCTPiToTopo granularity");
-   declareProperty( "locationMuCTPItoL1Topo", m_MuCTPItoL1TopoLocation = "/Run/L1MuCTPItoL1TopoLocation", "Storegate key for MuCTPItoL1Topo ");
+   declareProperty( "MuonEncoding", m_MuonEncoding, "0=full granularity Mu ROIs, 1=MuCTPiToTopo granularity");
+   declareProperty( "locationMuCTPItoL1Topo", m_MuCTPItoL1TopoLocation, "Storegate key for MuCTPItoL1Topo ");
    declareProperty( "MuctpiSimTool", m_MuctpiSimTool,"Tool for MUCTPIsimulation");
+
+   declareProperty("BCPlusOneLocation", m_MuCTPItoL1TopoLocationPlusOne);
 }
 
 MuonInputProvider::~MuonInputProvider()
@@ -84,6 +86,19 @@ MuonInputProvider::initialize() {
    // get MuctpiTool handle
    ATH_MSG_DEBUG("Retrieving MuctpiToolHandle " << m_MuctpiSimTool);
    CHECK( m_MuctpiSimTool.retrieve() );
+
+
+   //This is a bit ugly but I've done it so the job options can be used to determine 
+   //use of storegate
+   CHECK(m_MuCTPItoL1TopoLocation.initialize(!m_MuCTPItoL1TopoLocation.key().empty()));
+   
+   if(!m_MuCTPItoL1TopoLocationPlusOne.key().empty())
+      m_MuCTPItoL1TopoLocationPlusOne = m_MuCTPItoL1TopoLocation.key()+std::to_string(1);
+   
+   CHECK(m_MuCTPItoL1TopoLocationPlusOne.initialize(!m_MuCTPItoL1TopoLocationPlusOne.key().empty()));
+
+   CHECK(m_muonROILocation.initialize(!m_muonROILocation.key().empty()));
+   CHECK(m_roibLocation.initialize(!m_roibLocation.key().empty()));
 
    return StatusCode::SUCCESS;
 }
@@ -182,14 +197,26 @@ MuonInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
 
     const L1MUINT::MuCTPIToRoIBSLink* muctpi_slink {nullptr};
 
-    if( evtStore()->contains<L1MUINT::MuCTPIToRoIBSLink>("/Run/L1MuCTPItoRoIBLocation") ) {
-      CHECK( evtStore()->retrieve( muctpi_slink, "/Run/L1MuCTPItoRoIBLocation" ) );
-    } else if( evtStore()->contains<ROIB::RoIBResult>(m_roibLocation) ) {
-      CHECK( evtStore()->retrieve(roibResult, m_roibLocation) );
-    } else {
-      ATH_MSG_WARNING("Neither a MuCTPIToRoIBSLink with SG key '/Run/L1MuCTPItoRoIBLocation' nor a an RoIBResult were found in the event. No muon input for the L1Topo simulation.");
+
+    if(m_muonROILocation.key().empty()==false){
+       SG::ReadHandle<L1MUINT::MuCTPIToRoIBSLink> MuCTPIHandle(m_muonROILocation);//LVL1MUCTPI::DEFAULT_MuonRoIBLocation)
+       if( MuCTPIHandle.isValid() ){
+           muctpi_slink = MuCTPIHandle.cptr();
+       }
+    }
+
+    if(muctpi_slink == nullptr && not m_roibLocation.key().empty()){
+       SG::ReadHandle<ROIB::RoIBResult> roib (m_roibLocation);
+       if( roib.isValid() ){
+           roibResult = roib.cptr(); 
+       }
+    }
+
+    if(!muctpi_slink && !roibResult) {
+      ATH_MSG_WARNING("Neither a MuCTPIToRoIBSLink with SG key " << m_muonROILocation.key() << " nor an RoIBResult were found in the event. No muon input for the L1Topo simulation.");
       return StatusCode::RECOVERABLE;
     }
+
 
     if( roibResult ) {
 
@@ -235,9 +262,16 @@ MuonInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
 
     // first see if L1Muctpi simulation already ran and object is in storegate, if not
     // call tool version of the L1MuctpiSimulation and create it on the fly
-    if( evtStore()->contains<LVL1::MuCTPIL1Topo>(m_MuCTPItoL1TopoLocation) ) {
-      LVL1::MuCTPIL1Topo* l1topo  {nullptr};
-      CHECK( evtStore()->retrieve( l1topo, m_MuCTPItoL1TopoLocation ) );      
+
+    const LVL1::MuCTPIL1Topo* l1topo  {nullptr};
+
+    if(m_MuCTPItoL1TopoLocation.key().empty()==false){
+        SG::ReadHandle<LVL1::MuCTPIL1Topo> l1topoh(m_MuCTPItoL1TopoLocation);
+        if( l1topoh.isValid() ) l1topo = l1topoh.cptr();
+    }
+
+    if( l1topo ) {
+      
       ATH_MSG_DEBUG("Use MuCTPiToTopo granularity Muon ROIs: retrieve from SG");
 
       // std::cout << "TW: MuonInputProvider print l1topo candidates from SG" << std::endl; 
@@ -274,20 +308,20 @@ MuonInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
     
     //BC+1 ... this can only come from simulation, in data taking this is collected by the L1Topo at its input
     // so no need to do anything else here
-    if( evtStore()->contains<LVL1::MuCTPIL1Topo>(m_MuCTPItoL1TopoLocation.toString()+std::to_string(1)) ) {
-      LVL1::MuCTPIL1Topo* l1topoBC1  {nullptr};
-      CHECK( evtStore()->retrieve( l1topoBC1,m_MuCTPItoL1TopoLocation.toString()+std::to_string(1)));
-      ATH_MSG_DEBUG( "Contains L1Topo LateMuons L1Muctpi object from StoreGate!" );
-      //      l1topoBC1->print();
+    if(m_MuCTPItoL1TopoLocationPlusOne.key().empty()==false){
+      SG::ReadHandle<LVL1::MuCTPIL1Topo> l1topoBC1(m_MuCTPItoL1TopoLocationPlusOne);
+      if( l1topoBC1.isValid() ) {
+        ATH_MSG_DEBUG( "Contains L1Topo LateMuons L1Muctpi object from StoreGate!" );
       
-      std::vector<MuCTPIL1TopoCandidate> candList = l1topoBC1->getCandidates();
-      for(  std::vector<MuCTPIL1TopoCandidate>::const_iterator iMuCand = candList.begin(); iMuCand != candList.end(); iMuCand++)
+        std::vector<MuCTPIL1TopoCandidate> candList = l1topoBC1->getCandidates();
+        for(  std::vector<MuCTPIL1TopoCandidate>::const_iterator iMuCand = candList.begin(); iMuCand != candList.end(); iMuCand++)
 	{
 	  //or would it be better to create muon and dynamic_cast?
 	  ATH_MSG_DEBUG("MuonInputProvider addLateMuon ");
 	  inputEvent.addLateMuon( MuonInputProvider::createLateMuonTOB( *iMuCand ) );	   
 	}
-     }  
+     }
+    }
   }
 
 

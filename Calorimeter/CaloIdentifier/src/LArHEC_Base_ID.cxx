@@ -52,7 +52,7 @@ LArHEC_Base_ID::~LArHEC_Base_ID(void)
 }
 
 Identifier LArHEC_Base_ID::channel_id  ( int pos_neg, int sampling, 
-                                         int eta,     int phi ) const throw(LArID_Exception)
+                                         int eta,     int phi ) const
 {
     // must calculate region number and shift eta 
     int region=999;
@@ -64,7 +64,7 @@ Identifier LArHEC_Base_ID::channel_id  ( int pos_neg, int sampling,
 
 
 Identifier LArHEC_Base_ID::channel_id  ( int pos_neg, int sampling, int sector, int region, 
-				    int eta,     int phi_sector ) const throw(LArID_Exception)
+				    int eta,     int phi_sector ) const
 {
     int phi = ( region == 0 ? sector*2 + phi_sector : sector ); 
     return (channel_id (pos_neg, sampling, region, eta, phi ));
@@ -389,7 +389,7 @@ int  LArHEC_Base_ID::initialize_base_from_dictionary (const IdDictMgr& dict_mgr,
 
 
 
-void LArHEC_Base_ID::region_id_checks   ( int pos_neg, int sampling, int region ) const throw(LArID_Exception)
+void LArHEC_Base_ID::region_id_checks   ( int pos_neg, int sampling, int region ) const
 {
 	
   // Check that id is within allowed range
@@ -414,7 +414,7 @@ void LArHEC_Base_ID::region_id_checks   ( int pos_neg, int sampling, int region 
 }
 
 void LArHEC_Base_ID::channel_id_checks   ( int pos_neg, int sampling, int region,
-                                           int eta,     int phi ) const throw(LArID_Exception)
+                                           int eta,     int phi ) const
 {  
 	
   // Check that id is within allowed range
@@ -438,7 +438,7 @@ void LArHEC_Base_ID::channel_id_checks   ( int pos_neg, int sampling, int region
 }
 
 void LArHEC_Base_ID::channel_id_checks   ( const Identifier regionId,
-                                           int eta,       int phi ) const throw(LArID_Exception) 
+                                           int eta,       int phi ) const
 {
 	
   // Check that id is within allowed range

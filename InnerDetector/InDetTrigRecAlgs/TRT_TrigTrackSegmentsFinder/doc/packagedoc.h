@@ -15,8 +15,6 @@ TRT_TrackSegmentsFinder in the offline.
 
 This algorithm uses standard ITRT_TrackSegmentsMaker tool.
 
-@section TRT_TrigTrackSegmentsFinder_TRT_TrigTrackSegmentsFinderReq Requirements file
 
-@section TRT_TrigTrackSegmentsFinder_used_packagesTRT_TrigTrackSegments Used packages
 
 */

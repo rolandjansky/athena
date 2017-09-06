@@ -27,10 +27,6 @@ class TrigVertexCounterHypo: public HLT::HypoAlgo {
   HLT::ErrorCode hltExecute(const HLT::TriggerElement* outputTE, bool& pass);
   
  private:
-  /** A data member to retain a connection to the MsgStream
-      service. */
-  MsgStream m_log;
-  
   /** Hypo selection criteria */
   bool m_rejectPileup;
   unsigned int m_required_ntrks; //!< for ntrks cut

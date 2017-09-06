@@ -250,8 +250,8 @@ namespace xAOD {
       // If this is set up as the active event at the moment, notify
       // the active event object that this object will no longer be
       // available.
-      if( TActiveEvent::s_event == this ) {
-         TActiveEvent::s_event = 0;
+      if( TActiveEvent::event() == this ) {
+         TActiveEvent::setEvent( nullptr );
       }
 #ifndef XAOD_STANDALONE
       if( SG::CurrentEventStore::store() == this ) {
@@ -753,7 +753,7 @@ namespace xAOD {
       // Do the deed. Since this needs both a static and a const cast at
       // the same time, let's just do the "brutal" cast instead of writing
       // way too much for the same thing...
-      TActiveEvent::s_event = ( TVirtualEvent* ) this;
+      TActiveEvent::setEvent( ( TVirtualEvent* ) this );
 
 #ifndef XAOD_STANDALONE
       SG::CurrentEventStore::setStore( const_cast< TEvent* >( this ) );
@@ -2799,7 +2799,7 @@ namespace xAOD {
    TReturnCode TEvent::setUpDynamicStore( TObjectManager& mgr, ::TTree* tree ) {
 
       // Check if we can call setName(...) on the object:
-      static ::TMethodCall setNameCall;
+      ::TMethodCall setNameCall;
       // Don't use this code in Athena access mode. And just accept that access
       // monitoring is disabled in this case...
       if( m_auxMode != kAthenaAccess ) {

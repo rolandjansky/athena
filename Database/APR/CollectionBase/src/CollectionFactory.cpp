@@ -15,12 +15,7 @@
 #include "FileCatalog/FCException.h"
 #include "FileCatalog/IFileCatalog.h"
 
-#ifdef HAVE_GAUDI_PLUGINSVC
 #include "Gaudi/PluginService.h"
-#else
-#include "Reflex/PluginService.h"
-#endif
-#include "GAUDI_VERSION.h"
 
 #include "PersistencySvc/ISession.h"
 #include "POOLCore/Exception.h"
@@ -66,15 +61,7 @@ pool::CollectionFactory::create_callPlugin( const pool::ICollectionDescription& 
 					    pool::ISession* session ) const
 {
    std::string type( description.type() );
-#ifdef HAVE_GAUDI_PLUGINSVC
-#if GAUDI_VERSION > CALC_GAUDI_VERSION(25, 3) 
    ICollection *coll = Gaudi::PluginService::Factory<ICollection*, const ICollectionDescription*, ICollection::OpenMode, ISession*>::create( type, &description, openMode, session );
-#else  
-   ICollection *coll = Gaudi::PluginService::Factory3<ICollection*, const ICollectionDescription*, ICollection::OpenMode, ISession*>::create( type, &description, openMode, session );
-#endif
-#else
-   ICollection *coll = Reflex::PluginService::CreateWithId<ICollection*>( type, &description, openMode, session );
-#endif
    if( !coll ) {
       std::string errorMsg = "APR::CollectionFactory::create(" + type + "," + description.name() + ") FAILED!  Plugin for that collection technology could not be loaded.";
       if( type == "MemoryCollection" ) {

@@ -35,10 +35,6 @@ class TrigTrackCounter: public HLT::FexAlgo {
   HLT::ErrorCode hltExecute(const HLT::TriggerElement *, HLT::TriggerElement* outputTE);
   
  private:
-  /** A data member to retain a connection to the MsgStream
-      service. */
-  MsgStream m_log;
-  
   /** A histogram of the online reconstructed low pt tracks: z0 vs pt.*/
   xAOD::TrigHisto2D* m_z0_pt;
   
@@ -77,9 +73,6 @@ class TrigTrackCounter: public HLT::FexAlgo {
 
   /** A pointer to the track collection to be retrieved */
   const TrackCollection       *m_recoTracks;
-
-  /** A point to storegate */
-  StoreGateSvc                *m_storeGate;
 };
 
 #endif

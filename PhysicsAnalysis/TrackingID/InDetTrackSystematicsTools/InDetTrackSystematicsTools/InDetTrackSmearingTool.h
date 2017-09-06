@@ -1,11 +1,10 @@
-// Dear emacs, this is -*- c++ -*-
-
+// -*- c++ -*-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: InDetTrackSmearingTool.h 300810 2014-06-06 12:28:18Z krasznaa $
-#pragma once
+#ifndef INDETTRACKSYSTEMATICSTOOLS_INDETTRACKSMEARINGTOOL_H
+#define INDETTRACKSYSTEMATICSTOOLS_INDETTRACKSMEARINGTOOL_H
 
 // Framework include(s):
 #include "AsgTools/AsgTool.h"
@@ -64,10 +63,11 @@ namespace InDet {
     /// configure the tool to apply a given list of systematic variations
     virtual CP::SystematicCode applySystematicVariation( const CP::SystematicSet& );
 
-  private:
     /// Get smearing widths to add to IPs
     float GetSmearD0Sigma(const xAOD::TrackParticle&);
     float GetSmearZ0Sigma(const xAOD::TrackParticle&);
+
+  private:
 
     int m_seed = 0;
     std::unique_ptr<TRandom3> m_rnd; //!
@@ -94,3 +94,5 @@ namespace InDet {
   }; /// class InDetTrackSmearingTool
 
 } /// namespace InDet
+
+#endif

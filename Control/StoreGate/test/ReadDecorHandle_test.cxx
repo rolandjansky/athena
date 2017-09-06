@@ -13,6 +13,7 @@
 
 #undef NDEBUG
 #include "StoreGate/ReadDecorHandle.h"
+#include "AthenaKernel/ExtendedEventContext.h"
 #include "AthContainers/DataVector.h"
 #include "AthContainers/AuxElement.h"
 #include "AthContainers/AuxTypeRegistry.h"
@@ -58,10 +59,11 @@ void test1()
   assert (h1.storeHandle().name() == "StoreGateSvc");
   assert (h1.mode() == Gaudi::DataHandle::Reader);
   assert (h1.auxid() == ityp);
+  assert (!h1.isPresent());
 
   SGTest::TestStore dumstore;
   EventContext ctx5;
-  ctx5.setProxy (&dumstore);
+  ctx5.setExtension( Atlas::ExtendedEventContext(&dumstore) );
   SG::ReadDecorHandle<MyObj, int> h5 (k3, ctx5);
   assert (h5.clid() == MyCLID);
   assert (h5.key() == "asd.aaa");
@@ -136,7 +138,6 @@ void test2()
   assert (h3.cptr() == fooptr);
   assert (h3.auxid() == ityp);
   assert (foo_proxy->refCount() == 2);
-  assert (h2.key() == "foo.aaa");
   assert (h2.store() == "TestStore");
   assert (!h2.isInitialized());
   assert (h2.cachedPtr() == nullptr);
@@ -173,7 +174,6 @@ void test2()
   assert (h2.store() == "TestStore");
   assert (h2.isInitialized());
   assert (h2.cptr() == barptr);
-  assert (h3.key() == "bar.bbb");
   assert (h3.store() == "TestStore");
   assert (!h3.isInitialized());
   assert (h3.cachedPtr() == nullptr);
@@ -210,6 +210,7 @@ void test3()
   SG::ReadDecorHandle<MyObjCont, int> h1 (k1);
   assert (h1.setProxyDict (&testStore).isSuccess());
   assert (h1.auxid() == ityp);
+  assert (h1.isPresent());
   assert (!h1.isAvailable());
 
   MyObj::Decorator<int> adec ("aaa");
@@ -282,7 +283,7 @@ void test5()
 
   SGTest::TestStore dumstore;
   EventContext ctx;
-  ctx.setProxy (&dumstore);
+  ctx.setExtension( Atlas::ExtendedEventContext(&dumstore) );
   auto h2 = SG::makeHandle<int> (k1, ctx);
   assert (h2.clid() == MyCLID);
   assert (h2.key() == "asd.aaa");
@@ -311,7 +312,10 @@ int main()
 {
   errorcheck::ReportMessage::hideErrorLocus();
   ISvcLocator* svcloc;
-  Athena_test::initGaudi("VarHandleBase_test.txt", svcloc); //need MessageSvc
+  //need MessageSvc
+  if (!Athena_test::initGaudi("VarHandleBase_test.txt", svcloc)) {
+    return 1;
+  }
 
   test1();
   test2();

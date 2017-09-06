@@ -700,7 +700,6 @@ void VP1AODSystem::updateAssociatedObjects(const QList<const xAOD::MuonSegment*>
 
 void VP1AODSystem::dumpToJSON()
 {
-  messageVerbose("dumpToJSON called");
   
   // Format should be as follows:
   // { "Type1Name" : { "Coll1name": {coll1data}, "Coll2name": {coll2data} } , "Type2Name" : { "Coll1name": {coll1data}, "Coll2name": {coll2data} } }
@@ -752,6 +751,7 @@ void VP1AODSystem::dumpToJSON()
   } else {
     message("WAAAAH! Problem opening EventDump.json for output!");
   }
+  message("Wrote visible objects to \'EventDump.json\'");
 }
 
 

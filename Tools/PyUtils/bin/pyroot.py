@@ -128,10 +128,8 @@ else:
 
    del readline, rlcompleter
 
-### ROOT & Cintex loading -----------------------------------------------------
+### ROOT loading ------------------------------------------------------------
 print sys.ps1+"loading ROOT..."
-import PyCintex
-PyCintex.Cintex.Enable()
 import ROOT
 print sys.ps1+"loading ROOT... [ok]"
 ROOT.gROOT.SetStyle("Plain")

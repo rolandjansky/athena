@@ -1,4 +1,4 @@
-// $Id: AsgMetadataTool.cxx 771072 2016-08-31 14:50:22Z krasznaa $
+// $Id: AsgMetadataTool.cxx 799036 2017-03-01 09:56:55Z will $
 
 // System include(s):
 #include <stdexcept>
@@ -78,6 +78,14 @@ namespace asg {
                              "this tool" );
          }
       }
+#else
+      //if initialized, then we should remove listeners
+      if(FSMState() == Gaudi::StateMachine::INITIALIZED) {
+	ServiceHandle< IIncidentSvc > incSvc( "IncidentSvc", name() );
+        if( incSvc.retrieve().isSuccess() ) {
+	  incSvc->removeListener( this ); //removes entirely
+	}
+      }
 #endif // ASGTOOL_STANDALONE
    }
 
@@ -111,11 +119,11 @@ namespace asg {
       ServiceHandle< IIncidentSvc > incSvc( "IncidentSvc", name() );
       ATH_CHECK( incSvc.retrieve() );
 
-      // Set up the right callbacks:
-      incSvc->addListener( this, IncidentType::BeginEvent, 0, true );
-      incSvc->addListener( this, IncidentType::BeginInputFile, 0, true );
-      incSvc->addListener( this, IncidentType::EndInputFile, 0, true );
-      incSvc->addListener( this, IncidentType::MetaDataStop, 70, true );
+      // Set up the right callbacks: don't rethrow exceptions, any failure and we should end
+      incSvc->addListener( this, IncidentType::BeginEvent, 0, false );
+      incSvc->addListener( this, IncidentType::BeginInputFile, 0, false );
+      incSvc->addListener( this, IncidentType::EndInputFile, 0, false );
+      incSvc->addListener( this, IncidentType::MetaDataStop, 70, false );
 
       // Let the base class do its thing:
       ATH_CHECK( AlgTool::sysInitialize() );

@@ -10,6 +10,10 @@
 #include <fstream>
 #include <iostream>
 
+#include <TFile.h>
+#include <TTree.h>
+#include <TMath.h>
+
 using namespace std;
 
 FTKDetectorTool::FTKDetectorTool(const std::string &algname,const std::string &name, const IInterface *ifc)
@@ -470,4 +474,40 @@ void FTKDetectorTool::dumpIDMap()
     mapfile << endl;
   }
 
+}
+
+void FTKDetectorTool::dumpModulePositions() {
+   m_log << MSG::INFO << "dumpModulePositions"<< endmsg; 
+   TFile *output=new TFile("FTKmodulePositions.root","recreate");
+   TTree *t=new TTree("modulePositions","modulePositions");
+   int idhash;
+   Float_t phi[2],r[2],z[2];
+   t->Branch("id",&idhash,"id/I");
+   t->Branch("phi",phi,"phi[2]/F");
+   t->Branch("r",r,"r[2]/F");
+   t->Branch("z",z,"z[2]/F");
+   for( InDetDD::SiDetectorElementCollection::const_iterator i=m_PIX_mgr->getDetectorElementBegin(), f=m_PIX_mgr->getDetectorElementEnd() ; i!=f; ++i ) {
+      const InDetDD::SiDetectorElement* sielement( *i );
+      idhash=sielement->identifyHash();
+      r[0]=sielement->rMin();
+      r[1]=sielement->rMax();
+      z[0]=sielement->zMin();
+      z[1]=sielement->zMax();
+      phi[0]=sielement->phiMin();
+      phi[1]=sielement->phiMax();
+      t->Fill();
+   }
+   for( InDetDD::SiDetectorElementCollection::const_iterator i=m_SCT_mgr->getDetectorElementBegin(), f=m_SCT_mgr->getDetectorElementEnd() ; i!=f; ++i ) {
+      const InDetDD::SiDetectorElement* sielement( *i );
+      idhash=sielement->identifyHash();
+      r[0]=sielement->rMin();
+      r[1]=sielement->rMax();
+      z[0]=sielement->zMin();
+      z[1]=sielement->zMax();
+      phi[0]=sielement->phiMin();
+      phi[1]=sielement->phiMax();
+      t->Fill();
+   }
+   t->Write();
+   delete output;
 }

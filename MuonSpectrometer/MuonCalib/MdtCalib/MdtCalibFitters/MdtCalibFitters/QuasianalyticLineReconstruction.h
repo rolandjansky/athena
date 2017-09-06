@@ -166,9 +166,6 @@ private:
 	                                // track
 	mutable double m_chi2; // chi^2 of the final track
 	double m_m_x1, m_b_x1; // slope and intercept in the x1-x3 plane
-	double m_m_x2, m_b_x2; // slope and intercept in the x2-x3 plane
-	double m_m_x1_err, m_b_x1_err; // errors on m_x1 and b_x1
-	double m_m_x2_err, m_b_x2_err; // errors on m_x2 and b_x2
 	mutable MTStraightLine m_track; // final track
 
 // parameters for the adjustment of the track reconstruction //

@@ -31,16 +31,4 @@ is the default mode of running. It is possible to specify the 'cosmic' mode of r
 
   - TileTBHitToBeamElem: builds TileBeamElements from TileHits for testbeam simulation.
 
-@ref used_MyPackage
-
-@ref requirements_MyPackage
-*/
-
-/**
-@page used_MyPackage Used Packages
-*/
-
-/**
-@page requirements_MyPackage Requirements
-
 */

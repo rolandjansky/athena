@@ -21,14 +21,16 @@
 #include "Inventor/nodes/SoMaterial.h"
 
 // Qt
-#include <QtCore/QTimer>
-#include <QtCore/QByteArray>
-#include <QtCore/QBuffer>
-#include <QtCore/QDataStream>
-#include <QtGui/QMouseEvent>
-#include <QtGui/QDragEnterEvent>
-#include <QtGui/QDropEvent>
-#include <QtGui/QShortcut>
+#include <QTimer>
+#include <QByteArray>
+#include <QBuffer>
+#include <QDataStream>
+#include <QMouseEvent>
+#include <QDragEnterEvent>
+#include <QDropEvent>
+#include <QShortcut>
+#include <QMimeData>
+#include <QDrag>
 
 // Misc
 #include <iostream>
@@ -589,6 +591,14 @@ void TrackParticleCollectionSettingsButton::possibleChange_cutRequiredNHits()
   messageVerbose("cutRequiredNHits() changed");
   d->last_cutRequiredNHits=cutRequiredNHits();
   emit cutRequiredNHitsChanged(d->last_cutRequiredNHits);
+}
+
+void TrackParticleCollectionSettingsButton::possibleChange_cutOnlyVertexAssocTracks()
+{
+  if (d->last_cutOnlyVertexAssocTracks!=cutOnlyVertexAssocTracks()) return;
+  messageVerbose("cutOnlyVertexAssocTracks() changed");
+  d->last_cutOnlyVertexAssocTracks=cutOnlyVertexAssocTracks();
+  emit cutOnlyVertexAssocTracksChanged(d->last_cutOnlyVertexAssocTracks);
 }
 
 void TrackParticleCollectionSettingsButton::possibleChange_showParameters()

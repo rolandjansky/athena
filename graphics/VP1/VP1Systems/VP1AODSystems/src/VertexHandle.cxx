@@ -86,6 +86,8 @@ int VertexHandle::numberOfInstances()
   return Imp::nvtxhandles;
 }
 
+
+//____________________________________________________________________
 bool VertexHandle::has3DObjects() 
 {
   return 0!=d->sep;
@@ -106,6 +108,7 @@ void VertexHandle::clear3DObjects(){
 
 }
 
+//____________________________________________________________________
 SoNode* VertexHandle::nodes(){
 
   VP1Msg::messageVerbose("VertexHandle::nodes()");
@@ -152,10 +155,13 @@ SoMaterial * VertexHandle::determineMaterial() {
 QStringList VertexHandle::baseInfo() const
 {
   QStringList l;
-  l<<shortInfo() ;
+  l << shortInfo() ;
+  // vertex position
+  l << "Vx: " << VP1Msg::str(d->vertex->x()) << "Vy: " << VP1Msg::str(d->vertex->y()) << "Vz: " << VP1Msg::str(d->vertex->z());
   return l;
 }
 
+//____________________________________________________________________
 QString VertexHandle::vertexType() const {
   using namespace xAOD;
 
@@ -179,6 +185,21 @@ QString VertexHandle::vertexType() const {
     }
 }
 
+//____________________________________________________________________
+double VertexHandle::getPositionX() const {
+    return d->vertex->x();
+}
+//____________________________________________________________________
+double VertexHandle::getPositionY() const {
+    return d->vertex->y();
+}
+//____________________________________________________________________
+double VertexHandle::getPositionZ() const {
+    return d->vertex->z();
+}
+
+
+//____________________________________________________________________
 QString VertexHandle::shortInfo() const {
   QString l = vertexType();  
   return l;

@@ -74,7 +74,7 @@ namespace ana
     virtual StatusCode initialize() override;
 
   public:
-    virtual StatusCode addTool (IAnaTool *tool) override;
+    virtual StatusCode addTool (std::unique_ptr<IAnaTool> tool) override;
 
   public:
     virtual CP::SystematicSet affectingSystematics () const override;

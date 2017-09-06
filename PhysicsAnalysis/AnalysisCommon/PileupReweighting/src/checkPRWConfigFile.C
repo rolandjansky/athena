@@ -9,9 +9,9 @@
 #include "TSystem.h"
 #include "TH1D.h"
 
-using namespace std;
-
 #include <fstream>
+
+using namespace std;
 
 int main ( int argc, char *argv[] )
 {

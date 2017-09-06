@@ -73,7 +73,7 @@ namespace ana
     {
       ATH_CHECK (m_selection.prepare (object));
       if (m_selection.needSelectionTool())
-	ATH_CHECK (this->selectObject (*object));
+        ATH_CHECK (this->selectObject (*object));
       m_selection.apply ();
     }
     return StatusCode::SUCCESS;
@@ -83,7 +83,7 @@ namespace ana
 
   template<class XAODContainer> void AnaToolSelect<XAODContainer> ::
   registerCut (SelectionStep step, const std::string& name,
-	       SelectionCut& cut)
+               SelectionCut& cut)
   {
     RCU_CHANGE_INVARIANT (this);
     m_selection.registerCut (step, name, cut);

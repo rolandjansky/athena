@@ -29,15 +29,15 @@ public:
   const G4TrackingManager* GetTrackingManager();
   /// Calculate the number of new secondaries and update the current count.
   int NrOfNewSecondaries();
-  inline void ResetNrOfSecondaries() { currentNrOfSecondaries=0; }
+  inline void ResetNrOfSecondaries() { m_currentNrOfSecondaries=0; }
   inline int CurrentNrOfSecondaries() const {
-    return theTrackingManager->GimmeSecondaries()->size();
+    return m_theTrackingManager->GimmeSecondaries()->size();
   }
 
   std::vector<G4Track*> GetSecondaries(int) const;
 private:
-  const G4TrackingManager* theTrackingManager;
-  int currentNrOfSecondaries;
+  const G4TrackingManager* m_theTrackingManager;
+  int m_currentNrOfSecondaries;
 };
 
 #endif

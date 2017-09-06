@@ -45,7 +45,7 @@ class AtlasEnvSetup:
             self.logger.debug('Output file: %s' % f)
 
         conts = readTemplate()
-        conts = conts.replace('%USER_MODULE_NAME%', self.userScript)
+        conts = conts.replace('USER_MODULE_NAME', self.userScript)
         conts = conts.replace('%RTT_SHARE_DIR%', self.RTTShare)
         conts = conts.replace('%RTT_SRC_DIR%', self.RTTSrc)
         conts = conts.replace('%USER_MODULE_LOCATION%', self.userScriptLoc)

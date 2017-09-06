@@ -12,7 +12,6 @@ class StreamerInfoGenerator:
     #MN: ROOT6 strips std:: from types, so we need to check the names
     self.blacklist = ['std::', 'vector<', 'map<', 'queue<', 'list<']
     self.type = cppyy.gbl.RootType
-    self.type.EnableCintex()
     cppyy.loadDict('libSTLRflx')
     cppyy.loadDict('libSTLAddRflx')
     cppyy.loadDict('libAtlasSTLAddReflexDict')

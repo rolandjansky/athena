@@ -21,7 +21,7 @@
 // Athena
 #include "StoreGate/StoreGateSvc.h"
 #include <limits>       // std::numeric_limits
-
+#include "MuonEventTPCnv/CreateTransientTemplates.h"
 
 StatusCode Muon::MM_DigitContainerCnv_p1::initialize(MsgStream &log) {
    // Do not initialize again:

@@ -9,8 +9,10 @@ atlas_subdir( xAODTauAthenaPool )
 atlas_depends_on_subdirs( PRIVATE
                           Control/AthContainers
                           Control/AthenaKernel
+			  Control/StoreGate
                           Database/AthenaPOOL/AthenaPoolCnvSvc
                           Database/AthenaPOOL/AthenaPoolUtilities
+			  Event/xAOD/xAODTracking
                           Event/xAOD/xAODTau
                           GaudiKernel )
 
@@ -20,5 +22,5 @@ atlas_add_poolcnv_library( xAODTauAthenaPoolPoolCnv
                            FILES xAODTau/TauJetContainer.h xAODTau/TauJetAuxContainer.h xAODTau/DiTauJetContainer.h xAODTau/DiTauJetAuxContainer.h xAODTau/TauTrackContainer.h xAODTau/TauTrackAuxContainer.h
                            TYPES_WITH_NAMESPACE xAOD::TauJetContainer xAOD::TauJetAuxContainer xAOD::DiTauJetContainer xAOD::DiTauJetAuxContainer xAOD::TauTrackContainer xAOD::TauTrackAuxContainer
                            CNV_PFX xAOD
-                           LINK_LIBRARIES AthContainers AthenaKernel AthenaPoolCnvSvcLib AthenaPoolUtilities xAODTau GaudiKernel )
+                           LINK_LIBRARIES AthContainers AthenaKernel StoreGateLib AthenaPoolCnvSvcLib AthenaPoolUtilities xAODTracking xAODTau GaudiKernel )
 

@@ -37,7 +37,7 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
   from JetRec.JetRecFlags import jetFlags
 
   # Import the standard jet tool manager.
-  from JetRec.JetRecStandardToolManager import jtm
+  from JetRec.JetRecStandard import jtm
 
   # Set sequence and flags as needed.
   if job == None:
@@ -105,11 +105,35 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
   # Add the algorithm. It runs the jetrec tools.
   from JetRec.JetRecConf import JetAlgorithm
   ctools = []
+
+  # LCOriginTopoClusters and EMOriginTopoClusters are shallow copies
+  # of CaloCalTopoClusters.  This means that if CaloCalTopoClusters gets
+  # thinned on output, the the two derived containers need to be thinned
+  # in the same way, else they'll be corrupted in the output.
+  # FIXME: this should be automatic somehow.
+  postalgs = []
+  thinneg = False
+  from RecExConfig.RecFlags import rec
+  if rec.doWriteAOD() and not rec.readAOD():
+    from ParticleBuilderOptions.AODFlags import AODFlags
+    if AODFlags.ThinNegativeEnergyCaloClusters:
+      thinneg = True
+  
   if jetFlags.useTracks:
     if not cfgKeyStore.isInInputFile("xAOD::CaloClusterContainer","LCOriginTopoClusters"):
       ctools += [jtm.JetConstitSeq_LCOrigin]
+      if thinneg:
+        from ThinningUtils.ThinningUtilsConf import ThinNegativeEnergyCaloClustersAlg
+        postalgs.append (ThinNegativeEnergyCaloClustersAlg ('ThinNegLCOriginTopoClusters',
+                                                            ThinNegativeEnergyCaloClusters = True,
+                                                            CaloClustersKey = 'LCOriginTopoClusters'))
     if not cfgKeyStore.isInInputFile("xAOD::CaloClusterContainer","EMOriginTopoClusters"):
       ctools += [jtm.JetConstitSeq_EMOrigin]
+      if thinneg:
+        from ThinningUtils.ThinningUtilsConf import ThinNegativeEnergyCaloClustersAlg
+        postalgs.append (ThinNegativeEnergyCaloClustersAlg ('ThinNegEMOriginTopoClusters',
+                                                            ThinNegativeEnergyCaloClusters = True,
+                                                            CaloClustersKey = 'EMOriginTopoClusters'))
   from JetRec.JetRecConf import JetToolRunner
   runners = []
   if len(ctools)>0:
@@ -163,3 +187,7 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
     if jetFlags.debug > 3:
       jtm.setOutputLevel(jtm.jetBuilderWithArea, DEBUG)
       jtm.setOutputLevel(jtm.jetBuilderWithoutArea, DEBUG)
+
+  for postalg in postalgs:
+    job += postalg
+    

@@ -168,7 +168,7 @@ class JobOptionsTemplate(object):
                 # Also, aggregating the workers' logfiles into the mother's makes life
                 # easier for debugging
                 if self._exe._athenaMP:
-                    print >>runargsFile, os.linesep, '# AthenaMP Options'
+                    print >>runargsFile, os.linesep, '# AthenaMP Options. nprocs = %d' % self._exe._athenaMP
                     # Proxy for both options
                     print >>runargsFile, os.linesep.join((os.linesep,
                                                          'from AthenaMP.AthenaMPFlags import jobproperties as AthenaMPJobProps',

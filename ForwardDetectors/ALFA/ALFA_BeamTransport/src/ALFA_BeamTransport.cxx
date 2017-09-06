@@ -47,8 +47,7 @@
 
 ALFA_BeamTransport::ALFA_BeamTransport(const std::string& name, ISvcLocator* pSvcLocator)
   :
-  AthAlgorithm(name,pSvcLocator),
-  m_log(msgSvc(),name)
+  AthAlgorithm(name,pSvcLocator)
 {
   //  template for property decalration
   //declareProperty("PropertyName", m_propertyName);
@@ -114,17 +113,8 @@ StatusCode ALFA_BeamTransport::initialize()
   m_BeamTracker.ALFA_BeamTrack::initialize(m_FPConfig);
 
   //-----------------------------------------------------------------------------------------
-  m_log.setLevel(outputLevel());
-  m_log << MSG::INFO << name() << " initialize()" << endmsg;
-/*
-  // retrieve the StoreGate Service (delete if not needed)
-  StatusCode sc= service("StoreGateSvc",m_sgSvc);
-  if (sc.isFailure()) 
-    m_log << MSG::ERROR << "Could not retrieve StoreGateSvc!" << endmsg;
-  else 
-    m_log << MSG::INFO << "StoreGateSvc retrieved!" << endmsg;
-  */
-  m_log << MSG::INFO << "initialize() successful in " << name() << endmsg;
+  ATH_MSG_INFO( name() << " initialize()"  );
+  ATH_MSG_INFO( "initialize() successful in " << name()  );
   return StatusCode::SUCCESS;
 }
 

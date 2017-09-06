@@ -23,8 +23,8 @@
 #include "VP1GeometrySystems/VolumeHandle.h"//fixme
 #include <set>
 #include <map>
-#include <QtCore/QStack>
-#include <QtCore/QString>
+#include <QStack>
+#include <QString>
 
 class VP1GeometrySystem : public IVP13DSystemSimple {
 

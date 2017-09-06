@@ -27,7 +27,4 @@ corrections.
 For questions or comments: Ketevi A. Assamagan
    ketevi@bnl.gov
 
-@section CscCalibTools_used_packagesTkPara Used Packages
-
-@section CscCalibTools_requirements Requirements
 */

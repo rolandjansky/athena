@@ -29,14 +29,4 @@ This package contains algorithms for PanTau.
 
 @section PanTauAlgs_ExtrasPanTauA Extra Pages
 
-      - @ref UsedPanTauAlgs
-      - @ref requirementsPanTauAlgs
 */
-
-/**
- * @page UsedPanTauAlgs Used Packages
- * */
-
-/**
- * @page requirementsPanTauAlgs Requirements
- * */

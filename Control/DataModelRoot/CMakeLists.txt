@@ -5,10 +5,12 @@
 # Declare the package name:
 atlas_subdir( DataModelRoot )
 
-# External dependencies:
-find_package( ROOT COMPONENTS Cintex Core Tree MathCore Hist RIO pthread )
+atlas_depends_on_subdirs (
+  PUBLIC
+  Control/CxxUtils )
 
-# tag ROOTCintexLibs was not recognized in automatic conversion in cmt2cmake
+# External dependencies:
+find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 # Component(s) in the package:
 atlas_add_library( DataModelRoot
