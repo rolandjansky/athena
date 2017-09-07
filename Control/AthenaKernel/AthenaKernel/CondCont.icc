@@ -10,22 +10,6 @@
  */
 
 
-namespace SG {
-
-
-/**
- * @brief Check if @c id is in range @c r.
- */
-inline
-bool isInRange (const EventIDRange& r, const EventIDBase& id)
-{
-  return !EventIDBaseComp() (id, r.start()) && EventIDBaseComp() (id, r.stop());
-}
-
-
-} // namespace SG
-
-
 /**
  * @brief Return the CLID of the most-derived @c CondCont.
  */
@@ -396,9 +380,9 @@ const void* CondCont<T>::findByCLID (CLID clid,
   {
     lock_t lock (m_mutex);
 
-    if (t.isRunEvent()) {
+    if (t.isRunLumi()) {
       for (const IOVEntryT<T>& ent : m_condSet_RE) {
-        if ( SG::isInRange (ent.range(), t) ) {
+        if ( ent.range().isInRange(t) ) {
           if (r) {
             *r = ent.range();
           }
@@ -410,7 +394,7 @@ const void* CondCont<T>::findByCLID (CLID clid,
 
     if (!ptr && t.isTimeStamp()) {
       for (const IOVEntryT<T>& ent : m_condSet_clock) {
-        if ( SG::isInRange (ent.range(), t) ) {
+        if ( ent.range().isInRange(t) ) {
           if (r) {
             *r = ent.range();
           }
