@@ -36,26 +36,6 @@ namespace
     EXPECT_SUCCESS( ORUtils::recommendedTools(flags, tools) );
     EXPECT_SUCCESS( tools.initialize() );
   }
-
-#ifdef ROOTCORE
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-  TEST(OverlapRemovalInitTest, LegacyHelper)
-  {
-    ORUtils::ORToolBox tools;
-    EXPECT_SUCCESS( ORUtils::recommendedTools(tools, "OverlapRemovalTool") );
-    EXPECT_SUCCESS( tools.initialize() );
-  }
-
-  TEST(OverlapRemovalInitTest, HarmonizedHelper)
-  {
-    ORUtils::ORToolBox tools;
-    EXPECT_SUCCESS( ORUtils::harmonizedTools(tools, "OverlapRemovalTool") );
-    EXPECT_SUCCESS( tools.initialize() );
-  }
-#pragma GCC diagnostic pop
-#endif
-
 }
 
 int main(int argc, char** argv)
