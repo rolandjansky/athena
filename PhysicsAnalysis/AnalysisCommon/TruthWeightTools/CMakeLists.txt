@@ -7,12 +7,14 @@ atlas_subdir( TruthWeightTools )
 
 # Extra dependencies based on the build environment:
 set( extra_deps )
+set( extra_private_deps )
 set( extra_libs )
 set( extra_include_dirs )
 set( extra_link_libraries )
 set( extra_private_link_libraries )
 if( NOT XAOD_STANDALONE )
-    set( extra_deps Control/AthToolSupport/AsgTools Control/AthAnalysisBaseComps)
+    set( extra_deps Control/AthToolSupport/AsgTools Control/AthAnalysisBaseComps )
+    set( extra_private_deps PhysicsAnalysis/POOLRootAccess )
     set( extra_include_dirs ${HEPPDT_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} )
     set( extra_link_libraries ${HEPPDT_LIBRARIES} ${HEPMC_LIBRARIES} AthAnalysisBaseCompsLib )
 endif()
@@ -23,6 +25,7 @@ atlas_depends_on_subdirs( PUBLIC
                           ${extra_deps}
                           PRIVATE
                           Event/xAOD/xAODEventInfo
+                          ${extra_private_deps}
 )
 
 # External dependencies:
@@ -44,4 +47,8 @@ if( NOT XAOD_STANDALONE )
     atlas_add_component( TruthWeightTools
                          src/components/*.cxx
                          LINK_LIBRARIES TruthWeightToolsLib )
+
+    atlas_add_test( ath_test_truthWeightTool
+                    SOURCES test/ath_test_truthWeightTool.cxx
+                    LINK_LIBRARIES TruthWeightToolsLib POOLRootAccess )
 endif()
