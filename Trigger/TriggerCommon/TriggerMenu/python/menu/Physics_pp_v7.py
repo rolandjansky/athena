@@ -1820,6 +1820,8 @@ def setupMenu():
         ['e80_lhloose_nod0',                          'L1_EM22VHI',   [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
         ['e80_lhloose_nod0_L1EM24VHI',                          'L1_EM24VHI',   [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
         ['e5_lhtight_nod0',                           'L1_EM3',     [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
+				['e5_lhtight_nod0_e4_etcut_Jpsiee_L1RD0_FILLED',       'L1_RD0_FILLED',      ['L1_EM3','L1_EM3'],  [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1, True],
+
         ['e9_lhtight_nod0',                           'L1_EM7',     [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
         ['e14_lhtight_nod0',                          'L1_EM12',    [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
         ['e26_lhmedium_nod0',              'L1_EM22VHI',    [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
