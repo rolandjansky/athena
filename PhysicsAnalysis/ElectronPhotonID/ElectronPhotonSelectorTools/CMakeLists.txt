@@ -72,12 +72,6 @@ if( XAOD_STANDALONE )
       LINK_LIBRARIES ${ROOT_LIBRARIES} xAODCore xAODEgamma CxxUtils AsgTools
       xAODRootAccess ElectronPhotonSelectorToolsLib )
 
-   atlas_add_executable( EGIdentification_testEMAmbiguityResolver
-      util/testEMAmbiguityResolver.cxx
-      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODEgamma AsgTools xAODRootAccess
-      ElectronPhotonSelectorToolsLib )
-
    atlas_add_executable( EGIdentification_testEGChargeIDSelector
       util/testEGChargeIDSelector.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
