@@ -21,7 +21,4 @@
    <class name="LArTemperatureCorrectionTool" />
 
 
-  <variable pattern="EgammaCalibPeriodRunNumbersExample::*"/>
-  <class name="EgammaCalibPeriodRunNumbersExample::ROOT6_NamespaceAutoloadHook" /> 
-
 </lcgdict>
