@@ -21,13 +21,10 @@ set( _defaultUseFortran TRUE )
 foreach( _pp ${_parentProjectNames} )
    if( NOT "$ENV{${_pp}_DIR}" STREQUAL "" )
       set( _defaultParentProject ${_pp} )
-      # Only turn off Fortran support for the AnalysisBase project for now:
-      if( "${_pp}" STREQUAL "AnalysisBase" )
+      # Only turn off Fortran support for the AnalysisBase and AnalysisTop projects for now:
+      if( "${_pp}" STREQUAL "AnalysisBase" OR
+      	  "${_pp}" STREQUAL "AnalysisTop")
          set( _defaultUseFortran FALSE )	 
-      endif()
-      # Only turn off Fortran support for the AnalysisTop project for now (as per AnalysisBase)
-      if( "${_pp}" STREQUAL "AnalysisTop" )
-         set( _defaultUseFortran FALSE )
       endif()
       break()
    endif()
