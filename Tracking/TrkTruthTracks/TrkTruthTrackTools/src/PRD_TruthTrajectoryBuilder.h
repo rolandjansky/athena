@@ -68,7 +68,7 @@ namespace Trk {
         
         ToolHandleArray<IPRD_TruthTrajectoryManipulator>    m_prdTruthTrajectoryManipulators;   //!< PRD truth tracjectory manipulators
         
-	Gaudi::Property<SG::ReadHandleKeyArray<PRD_MultiTruthCollection>> m_prdMultiTruthCollectionNames {this,"PRD_MultiTruthCollections",{"PixelClusterTruth","SCT_ClusterTruth","TRT_DriftCircleTruth"}, "PRD multi truth collection names this builder is working on"};
+	SG::ReadHandleKeyArray<PRD_MultiTruthCollection> m_prdMultiTruthCollectionNames {this,"PRD_MultiTruthCollections",{"PixelClusterTruth","SCT_ClusterTruth","TRT_DriftCircleTruth"}, "PRD multi truth collection names this builder is working on"};
 	std::vector<const PRD_MultiTruthCollection*> m_prdMultiTruthCollections;         //!< the retrieved PRD muli truth collections
         
 	Gaudi::Property<double>                             m_minPt {this,"MinimumPt",400.,"minimum pT to be even considered"};
