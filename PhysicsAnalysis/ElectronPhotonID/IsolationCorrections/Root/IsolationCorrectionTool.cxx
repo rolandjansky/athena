@@ -120,6 +120,8 @@ namespace CP {
 
     //default result
     result = PATCore::ParticleDataType::Data;
+    //
+    std::string simType("");
     
 #ifndef ROOTCORE
     //Athena environent
@@ -137,7 +139,6 @@ namespace CP {
     //
     //if not data  determine Fast/FullSim
     ATH_MSG_DEBUG("IS_SIMULATION");
-    std::string simType("");
     if( AthAnalysisHelper::retrieveMetadata("/Simulation/Parameters", "SimulationFlavour", simType, inputMetaStore()).isFailure() ) {
       return StatusCode::FAILURE;    
     }
@@ -147,6 +148,7 @@ namespace CP {
       return StatusCode::SUCCESS;
     }
 #endif    
+
     //Here is the RootCore or to be dual use , assumes we have not returned before for Athena
     std::string simulationType("");
     if (!inputMetaStore()->contains<xAOD::FileMetaData>("FileMetaData")) {
