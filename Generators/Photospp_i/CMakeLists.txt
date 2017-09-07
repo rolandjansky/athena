@@ -13,9 +13,15 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           Generators/GeneratorObjects )
 
+# Set the version of Photospp to use:
+#set( PHOTOSPP_VERSION 3.61 )
+#set( PHOTOSPP_ROOT
+#   ${LCG_RELEASE_DIR}/MCGenerators/photos++/${PHOTOSPP_VERSION}/${LCG_PLATFORM} )
+
 # External dependencies:
 find_package( CLHEP )
-find_package( Photospp )
+find_package( Photospp COMPONENTS Photospp PhotosppHepMC )
+#find_package( Photospp )
 
 # Remove the --as-needed linker flags:
 atlas_disable_as_needed()
