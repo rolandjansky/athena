@@ -352,7 +352,7 @@ namespace ST {
 
     virtual float GetDataWeight(const std::string&) = 0;
  
-    virtual float GetCorrectedAverageInteractionsPerCrossing(bool includeDataSF) = 0;
+    virtual float GetCorrectedAverageInteractionsPerCrossing(bool includeDataSF=false) = 0;
 
     virtual double GetSumOfWeights(int channel) = 0;
     
