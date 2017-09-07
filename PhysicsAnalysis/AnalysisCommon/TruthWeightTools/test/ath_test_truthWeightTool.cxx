@@ -6,6 +6,7 @@
 /// Author: Dag Gillberg - based on
 ///  https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/AnalysisCommon/CPAnalysisExamples/trunk/test/ut_ath_checkTrigger_test.cxx
 /// by Will Buttinger
+/// Updated for git-based athena by James Robinson
 
 #include "AthAnalysisBaseComps/AthAnalysisHelper.h" //tool creation and configuration
 #include "POOLRootAccess/TEvent.h" //event looping
@@ -32,24 +33,23 @@ int main(int argc, char *argv[])
   IAppMgrUI *app = POOL::Init(); //important to do this first!
 
   // The application's name:
-  const char *APP_NAME = argv[ 0 ];
+  const char *APP_NAME = argv[0];
 
-  // Check that we received at least one file name:
+  // Use default MC file for testing if none is provided
+  TString fileName = "$ASG_TEST_FILE_MC";
   if (argc < 2) {
-    ::Error(APP_NAME, "Usage: %s <xAOD file>", APP_NAME);
-    return 1;
+    ANA_MSG_WARNING("No file name received, using $ASG_TEST_FILE_MC");
+  } else {
+   fileName = argv[1]; //use the user provided file
   }
-
 
   POOL::TEvent::EReadMode mode = POOL::TEvent::kClassAccess; //Class Access is faster than full POOL Access
 
   POOL::TEvent evt(mode);
-  evt.readFrom(argv[1]);
+  evt.readFrom(fileName);
   //evt.setEvtSelProperty("ReadMetaDataWithPool",false); // If test xAOD format metadata, will need to uncomment this until pool converter is present
 
-
-
-  ::Info(APP_NAME, "Will create tool");
+  ANA_MSG_INFO("Will create tool");
   // Create the truth weight tool:
   xAOD::TruthWeightTool weightTool("TruthWeightTool");
   weightTool.setProperty("OutputLevel", MSG::DEBUG).ignore();
@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
   //  return 1;
   //}
 
-  ::Info(APP_NAME, "Will loop");
+  ANA_MSG_INFO("Will loop");
 
   const ::Long64_t Nevts = evt.getEntries();
 
@@ -71,19 +71,19 @@ int main(int argc, char *argv[])
     if (evt.getEntry(i) < 0) { ANA_MSG_ERROR("Failed to read event " << i); continue; }
 
     if (i == 0) {
-      ::Info(APP_NAME, "Will print");
+      ANA_MSG_INFO("Will print");
       auto weightNames = weightTool.getWeightNames();
       auto weights = weightTool.getWeights();
 
-      for (size_t i = 0; i < weightNames.size(); ++i)
-        ::Info(APP_NAME, "Weight %3lu has value %.3f and name \"%s\"",
-               i, weights[i], weightNames[i].c_str());
+      for (size_t i = 0; i < weightNames.size(); ++i) {
+        ::Info(APP_NAME, "Weight %3lu has value %.3f and name \"%s\"", i, weights[i], weightNames[i].c_str());
+      }
     }
 
     // Give some feedback of where we are:
-    if ((i + 1) % 1000 == 0)
-    { ::Info(APP_NAME, "Processed %i / %llu events", i + 1, Nevts); }
-
+    if ((i + 1) % 1000 == 0) {
+      ::Info(APP_NAME, "Processed %i / %llu events", i + 1, Nevts);
+    }
   }
 
   // Will does this, so, so will I ;p

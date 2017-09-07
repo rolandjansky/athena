@@ -48,7 +48,8 @@ if( NOT XAOD_STANDALONE )
                          src/components/*.cxx
                          LINK_LIBRARIES TruthWeightToolsLib )
 
-    atlas_add_test( ath_test_truthWeightTool
-                    SOURCES test/ath_test_truthWeightTool.cxx
-                    LINK_LIBRARIES TruthWeightToolsLib POOLRootAccess )
+    # Could be an atlas_add_test, but currently the default input file does not have weights
+    atlas_add_executable( ath_test_truthWeightTool
+                          SOURCES test/ath_test_truthWeightTool.cxx
+                          LINK_LIBRARIES TruthWeightToolsLib POOLRootAccess )
 endif()
