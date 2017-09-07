@@ -388,7 +388,7 @@ namespace met {
       m_significance = Significance_LT(m_met,m_VarL,m_VarT,m_CvLT );
       m_rho = m_CvLT  / sqrt( m_VarL * m_VarT ) ;
     }
-    ATH_MSG_INFO("     Significance (squared) at new phi: " << m_significance 
+    ATH_MSG_DEBUG("     Significance (squared) at new phi: " << m_significance 
 		    << " rho: " << GetRho()
 		    << " MET: " << m_met 
 		    << " sigmaL: " << GetVarL()
@@ -529,10 +529,10 @@ namespace met {
 
       double varTST = Var_Ptsoft(soft->met()/m_GeV);
 
-      double particle_u[2][2] = {{varTST*varTST,0.0},
-				 {0.0,varTST*varTST}};
-      double particle_u_rot[2][2] = {{varTST*varTST,0.0},
-				     {0.0,varTST*varTST}};
+      double particle_u[2][2] = {{varTST,0.0},
+				 {0.0,varTST}};
+      double particle_u_rot[2][2] = {{varTST,0.0},
+				     {0.0,varTST}};
       
       RotateXY(particle_u, particle_u_rot,met_vect.DeltaPhi(m_pthard_vect));
       m_VarL+=particle_u_rot[0][0];
@@ -550,10 +550,10 @@ namespace met {
       
       double varTST = VarparPtSoftdir(soft->met()/m_GeV, soft->sumet()/m_GeV);
 
-      double particle_u[2][2] = {{varTST*varTST,0.0},
-				 {0.0,varTST*varTST}};
-      double particle_u_rot[2][2] = {{varTST*varTST,0.0},
-				     {0.0,varTST*varTST}};
+      double particle_u[2][2] = {{varTST,0.0},
+				 {0.0,varTST}};
+      double particle_u_rot[2][2] = {{varTST,0.0},
+				     {0.0,varTST}};
       
       RotateXY(particle_u, particle_u_rot,met_vect.DeltaPhi(m_soft_vect));
       m_VarL+=particle_u_rot[0][0];
