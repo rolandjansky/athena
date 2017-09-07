@@ -112,7 +112,8 @@ bool OverlapRemovalTestAlg::selectObject<xAOD::Jet>(const xAOD::Jet& jet)
   static ort::inputDecorator_t bJetDec(m_bJetLabel);
   bJetDec(jet) = false;
   double mv2c10 = 0.;
-  if(jet.btagging()->MVx_discriminant("MV2c10", mv2c10)){
+  auto btag = jet.btagging();
+  if(btag && btag->MVx_discriminant("MV2c10", mv2c10)){
     if(mv2c10 > -0.1416) bJetDec(jet) = true;
   }
   else ATH_MSG_WARNING("BTag info unavailable!");
