@@ -97,7 +97,7 @@ void RecoTauPlots::initializePlots(){
 	m_cellBased_charPFO_E      = Book1D("cellBased_PFO_c_E",m_sTauJetContainerName + " Charged PFO E; E; # PFO",200,0.,200000.);
 	m_cellBased_neuPFO_Pt      = Book1D("cellBased_PFO_n_Pt",m_sTauJetContainerName + " Neutral PFO pt; pt; # PFO",200,0.,200000.);
 	m_cellBased_neuPFO_Eta      = Book1D("cellBased_PFO_n_Eta",m_sTauJetContainerName + " Neutral PFO eta; eta; # PFO",128,-3.2,3.2);
-	m_cellBased_neuPFO_Phi      = Book1D("cellBased_PFO_n_Phi",m_sTauJetContainerName + " Neutral PFO phi; phi; # PFO",128,-3.2,3.2);
+	m_cellBased_neuPFO_Phi      = Book1D("cellBased_PFO_n_Phi",m_sTauJetContainerName + " Neutral PFO phi; phi; # PFO",64,-3.2,3.2);
 	m_cellBased_neuPFO_E      = Book1D("cellBased_PFO_n_E",m_sTauJetContainerName + " Neutral PFO E; E; # PFO",200,0.,200000.);
 	m_cellBased_neuPFO_bdtPi0Score = Book1D("cellBased_PFO_n_bdtPi0Score",m_sTauJetContainerName + " Neutral PFO BDT Pi0 Score; Score; # PFO",60,-1.0,1.0);
 
