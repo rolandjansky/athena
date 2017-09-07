@@ -412,19 +412,7 @@ namespace EL
   {
     RCU_READ_INVARIANT (this);
 
-    // /cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/x86_64/AtlasSetup/.config/.asetup.site
-    const char* ATLASSETUPSITE      = getenv("AtlasSetupSite");
-    // /cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/x86_64/AtlasSetup/V00-07-75/AtlasSetup
-    const char* ATLASSETUP          = getenv("AtlasSetup");
-    // AnalysisBase
-    const char* ATLASPROJECT        = getenv("AtlasProject");
-    // 21.2.3
-    const char* ATLASVERSION        = getenv("AtlasVersion");
-    // 21.2
-    const char* ATLASBUILDBRANCH    = getenv("AtlasBuildBranch");
-    // 2017-08-16T2249 (only set if using a nightly release)
-    const char* ATLASBUILDSTAMP     = getenv("AtlasBuildStamp");
-    // <path of build dir>/x86_64-slc6-gcc62-opt
+    // <path of build dir>/x86_64-slc6-gcc62-opt (comes from CMake, we need this)
     const char *WORKDIR_DIR         = getenv ("WorkDir_DIR");
 
     // name of tarball being made (this needs to match CondorDriver.cxx)
@@ -489,21 +477,33 @@ namespace EL
           }
 
         file << "\n";
-        file << "export AtlasSetupSite=" << ATLASSETUPSITE << "\n";
-        file << "export AtlasSetup=" << ATLASSETUP << "\n";
+        // /cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/x86_64/AtlasSetup/.config/.asetup.site
+        if(getenv("AtlasSetupSite"))  file << "export AtlasSetupSite=" << getenv("AtlasSetupSite") << "\n";
+        // /cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/x86_64/AtlasSetup/V00-07-75/AtlasSetup
+        if(getenv("AtlasSetup"))      file << "export AtlasSetup=" << getenv("AtlasSetup") << "\n";
+        // for now, needed because of errors like:
+        //  /cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/swConfig/asetup/asetupEpilog.sh: line 38:
+        //      /swConfig/python/pythonFix-Linux.sh: No such file or directory
         file << "export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase\n";
         file << "source $ATLAS_LOCAL_ROOT_BASE/user/atlasLocalSetup.sh --quiet\n";
 
         // default setup command
         std::ostringstream defaultSetupCommand;
         {
-          defaultSetupCommand << "source " << ATLASSETUP << "/scripts/asetup.sh " << ATLASPROJECT << ",";
-          if ((ATLASBUILDSTAMP != NULL) && (ATLASBUILDSTAMP[0] == '\0')) {
-            // probably not a nightly release
-            defaultSetupCommand << ATLASVERSION;
-          } else {
-            defaultSetupCommand << ATLASBUILDBRANCH << "," << ATLASBUILDSTAMP;
-          }
+          // AnalysisBase
+          if(getenv("AtlasProject"))     defaultSetupCommand << "export AtlasProject=" << getenv("AtlasProject") << "\n";
+          // 21.2.3
+          if(getenv("AtlasVersion"))     defaultSetupCommand << "export AtlasVersion=" << getenv("AtlasVersion") << "\n";
+          // 2017-08-16T2249 (only set if using a nightly release)
+          if(getenv("AtlasBuildStamp"))  defaultSetupCommand << "export AtlasBuildStamp=" << getenv("AtlasBuildStamp") << "\n";
+          // 21.2
+          if(getenv("AtlasBuildBranch")) defaultSetupCommand << "export AtlasBuildBranch=" << getenv("AtlasBuildBranch") << "\n";
+          defaultSetupCommand << "if [ -z \"${AtlasBuildStamp}\" ]; then\n";
+          defaultSetupCommand << "     source ${AtlasSetup}/scripts/asetup.sh ${AtlasProject},${AtlasVersion} || abortJob\n";
+          defaultSetupCommand << "else\n";
+          defaultSetupCommand << "     source ${AtlasSetup}/scripts/asetup.sh ${AtlasProject},${AtlasBuildBranch},${AtlasBuildStamp} || abortJob\n";
+          defaultSetupCommand << "fi\n";
+          defaultSetupCommand << "echo \"Using default setup command\"";
         }
         file << options()->castString(Job::optBatchSetupCommand, defaultSetupCommand.str()) << " || abortJob\n";
         if(sharedFileSystem) file << "source " << WORKDIR_DIR << "/setup.sh || abortJob\n";
