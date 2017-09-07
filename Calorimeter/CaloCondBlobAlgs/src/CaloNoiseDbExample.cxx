@@ -53,7 +53,7 @@ CaloNoiseDbExample::initialize()
   std::string folderName(m_foldername);
   /* OBSOLETE
      if(detStore->regHandle(m_noiseAttrListColl, folderName).isFailure()){
-     log << MSG::ERROR << "Could not register handle to " << folderName << endreq;
+     log << MSG::ERROR << "Could not register handle to " << folderName << endmsg;
      return StatusCode::FAILURE;
      }
   */
@@ -246,7 +246,7 @@ CaloNoiseDbExample::updateMap( IOVSVC_CALLBACK_ARGS_K(keys) )
   for (itr=keys.begin(); itr!=keys.end(); ++itr) {
     msg() << *itr << " ";
   }
-  msg() << endreq;
+  msg() << endmsg;
 
   //=== loop over collection (all cool channels)
   CondAttrListCollection::const_iterator iColl = m_noiseAttrListColl->begin();
