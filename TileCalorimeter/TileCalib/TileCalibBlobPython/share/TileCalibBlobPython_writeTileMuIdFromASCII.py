@@ -1,16 +1,12 @@
 #!/bin/env python
+
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
 # TileCalibBlobPython_writeTileMuIdFromASCII.py
 # Lukas Pribyl <lukas.pribyl@cern.ch>, 2009-04-29
 # change: Yuri Smirnov <iouri.smirnov@cern.ch>, 2014-12-24
 
-#import PyCintex
-try:
-   # ROOT5
-   import PyCintex
-except:
-   # ROOT6
-   import cppyy as PyCintex
-   sys.modules['PyCintex'] = PyCintex
+import cppyy
 
 from TileCalibBlobPython import TileCalibTools
 from TileCalibBlobObjs.Classes import * 
@@ -31,11 +27,11 @@ def fillTileMuId(file, since,
     folder = TileCalibTools.getTilePrefix(False)+"MUID"
 
     #=== common TileMuId defaults
-    default = PyCintex.gbl.std.vector('float')()
+    default = cppyy.gbl.std.vector('float')()
     for i in xrange(20):
         default.push_back(150.)
         default.push_back(5000.)
-    defVec = PyCintex.gbl.std.vector('std::vector<float>')()
+    defVec = cppyy.gbl.std.vector('std::vector<float>')()
     defVec.push_back(default)
     defVec.push_back(default)    
     
@@ -47,7 +43,7 @@ def fillTileMuId(file, since,
     parser = TileCalibTools.TileASCIIParser(file,"TileMuId");
 
     #=== initialize all channels and write global default
-    util = PyCintex.gbl.TileCalibUtils()
+    util = cppyy.gbl.TileCalibUtils()
     for ros in xrange(util.max_ros()):
         for drawer in xrange(util.getMaxDrawer(ros)):
             flt = writer.zeroBlob(ros,drawer)

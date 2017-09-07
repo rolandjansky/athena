@@ -1,16 +1,12 @@
 #!/bin/env python
+
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
 # TileCalibBlobPython_writeTimingFromASCII.py
 # Nils Gollub <nils.gollub@cern.ch>, 2007-11-26
 # change: Yuri Smirnov <iouri.smirnov@cern.ch>, 2014-12-24
 
-#import PyCintex
-try:
-   # ROOT5
-   import PyCintex
-except:
-   # ROOT6
-   import cppyy as PyCintex
-   sys.modules['PyCintex'] = PyCintex
+import cppyy
 
 from TileCalibBlobPython import TileCalibTools
 from TileCalibBlobObjs.Classes import * 
@@ -32,7 +28,7 @@ def fillTimingTc(fileTclas, tag, since,
 
     #=== create default: one number
     #--- per ADC    for Tclas
-    default = PyCintex.gbl.std.vector('float')()
+    default = cppyy.gbl.std.vector('float')()
     default.push_back(0.)
 
     #=====================================================
@@ -41,7 +37,7 @@ def fillTimingTc(fileTclas, tag, since,
     tclasWriter = TileCalibTools.TileBlobWriter(db,folderTclas,'Flt')
     tclasWriter.setComment(os.getlogin(),fileTclas)
     parserTclas = TileCalibTools.TileASCIIParser(fileTclas,"Tclas");
-    defTclas = PyCintex.gbl.std.vector('std::vector<float>')()
+    defTclas = cppyy.gbl.std.vector('std::vector<float>')()
     defTclas.push_back(default) # low  gain
     defTclas.push_back(default) # high gain
     #=== initialize defaults
@@ -86,7 +82,7 @@ def fillTimingTd(fileTdlas, tag, since,
 
     #=== create default: one number
     #--- per drawer for Tdlas
-    default = PyCintex.gbl.std.vector('float')()
+    default = cppyy.gbl.std.vector('float')()
     default.push_back(0.)
 
     #=====================================================
@@ -95,7 +91,7 @@ def fillTimingTd(fileTdlas, tag, since,
     tdlasWriter = TileCalibTools.TileBlobWriter(db,folderTdlas,'Flt')
     tdlasWriter.setComment(os.getlogin(),fileTdlas)
     parserTdlas = TileCalibTools.TileASCIIParser(fileTdlas,"Tdlas");
-    defTdlas = PyCintex.gbl.std.vector('std::vector<float>')()
+    defTdlas = cppyy.gbl.std.vector('std::vector<float>')()
     defTdlas.push_back(default)
     #=== initialize defaults
     ros = 0
