@@ -59,7 +59,7 @@ namespace xAOD {
        @param[in] indetTrackParticles if provided the isolation will be calculated using the ID track particle collection passed
        @return true if the calculation and decoration was successfull
     */    
-    virtual bool decorateParticle( IParticle& tp, 
+    virtual bool decorateParticle( const IParticle& tp, 
                                    const std::vector<Iso::IsolationType>& cones, 
                                    TrackCorrection corrections, 
                                    const Vertex* vertex = 0, 

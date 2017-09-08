@@ -81,7 +81,7 @@ namespace xAOD {
 
       /**ITrackIsolationTool interface: */    
       virtual
-      bool decorateParticle( IParticle& tp, 
+      bool decorateParticle( const IParticle& tp, 
                              const std::vector<Iso::IsolationType>& cones, 
                              TrackCorrection corrections, 
                              const Vertex* vertex = 0, 

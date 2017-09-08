@@ -42,7 +42,11 @@
 IsolationBuilder::IsolationBuilder( const std::string& name, 
 			  ISvcLocator* pSvcLocator ) : 
   ::AthAlgorithm( name, pSvcLocator ),
-  m_cellColl (nullptr)
+  m_cellIsolationTool("", this),
+  m_cellColl (nullptr),
+  m_topoIsolationTool("", this),
+  m_pflowIsolationTool("", this),
+  m_trackIsolationTool("", this)
 {
   //
   // Property declaration

@@ -28,8 +28,8 @@
 #include "xAODPrimitives/IsolationCorrection.h"
 #include "xAODPrimitives/IsolationHelpers.h"
 #include "xAODPrimitives/IsolationCorrectionHelper.h"
-#include "xAODPrimitives/tools/getIsolationAccessor.h"
-#include "xAODPrimitives/tools/getIsolationCorrectionAccessor.h"
+#include "xAODPrimitives/tools/getIsolationDecorator.h"
+#include "xAODPrimitives/tools/getIsolationCorrectionDecorator.h"
 
 #include "xAODEgamma/Egamma.h"
 #include "xAODEgamma/EgammaDefs.h"
@@ -56,13 +56,13 @@ namespace xAOD {
   CaloIsolationTool::CaloIsolationTool (const std::string& name):
         asg::AsgTool(name),
 #ifndef XAOD_ANALYSIS
-        m_assoTool("Rec::ParticleCaloCellAssociationTool/ParticleCaloCellAssociationTool"),
-        m_caloExtTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool"),
-	m_clustersInConeTool("xAOD::CaloClustersInConeTool/CaloClustersInConeTool"),
-        m_pflowObjectsInConeTool(""),
-        m_caloFillRectangularTool(""),
+        m_assoTool("Rec::ParticleCaloCellAssociationTool/ParticleCaloCellAssociationTool", this),
+        m_caloExtTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool", this),
+	m_clustersInConeTool("xAOD::CaloClustersInConeTool/CaloClustersInConeTool", this),
+        m_pflowObjectsInConeTool("", this),
+        m_caloFillRectangularTool("", this),
 #endif // XAOD_ANALYSIS
-        m_IsoLeakCorrectionTool("")
+        m_IsoLeakCorrectionTool("", this)
   {
 #ifndef XAOD_ANALYSIS
     declareInterface<ICaloCellIsolationTool>(this);
@@ -1374,7 +1374,7 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
   }
 
   bool CaloIsolationTool::decorateParticle(CaloIsolation& result,
-					   IParticle& tp,
+					   const IParticle& tp,
 					   const std::vector<Iso::IsolationType>& cones,
 					   CaloCorrection corrections){
     // get the applied corrections
@@ -1383,7 +1383,7 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
     ATH_MSG_DEBUG("Decoded correction types: " << correctionTypes.size());
 
     // decorate the particle
-    SG::AuxElement::Accessor< uint32_t >* bitsetAcc = getIsolationCorrectionBitsetAccessor(Iso::isolationFlavour(cones[0]));
+    SG::AuxElement::Decorator< uint32_t >* bitsetAcc = getIsolationCorrectionBitsetDecorator(Iso::isolationFlavour(cones[0]));
 
     if( bitsetAcc )
       (*bitsetAcc)(tp) = corrections.calobitset.to_ulong();
@@ -1397,7 +1397,7 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
       // core energy and area
       for (auto par : coretype.second) {
 	if (par.first == Iso::coreArea) continue; // do not store area, as they are constant ! (pi R**2 or 5*0.025 * 7*pi/128)
-	SG::AuxElement::Accessor< float >* isoCorAcc = getIsolationCorrectionAccessor( Iso::isolationFlavour(cones[0]), ctype, par.first );
+	SG::AuxElement::Decorator< float >* isoCorAcc = getIsolationCorrectionDecorator( Iso::isolationFlavour(cones[0]), ctype, par.first );
 	if (isoCorAcc) { 
 	  ATH_MSG_DEBUG("Storing core correction " << Iso::toString(ctype) << " var " << Iso::toString(par.first) << " = " << par.second);
 	  (*isoCorAcc)(tp) = par.second;
@@ -1416,7 +1416,7 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
 	continue;
       }
       for (unsigned int i = 0; i < corrvec.size();i++) {
-	SG::AuxElement::Accessor< float >* isoCorAcc = getIsolationCorrectionAccessor(cones[i],ctype);
+	SG::AuxElement::Decorator< float >* isoCorAcc = getIsolationCorrectionDecorator(cones[i],ctype);
 	if (isoCorAcc) {
 	  ATH_MSG_DEBUG("Storing non core correction " << Iso::toString(ctype) << " of iso type " << Iso::toString(cones[i]) << " = " << corrvec[i]);
 	  (*isoCorAcc)(tp) = corrvec[i];
@@ -1431,7 +1431,7 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
       for( unsigned int i=0;i<cones.size();++i ){
 	
 	Iso::IsolationType type = cones[i];
-        SG::AuxElement::Accessor< float >* isoTypeAcc = getIsolationAccessor(type);
+        SG::AuxElement::Decorator< float >* isoTypeAcc = getIsolationDecorator(type);
         if ( isoTypeAcc ) {
 	  ATH_MSG_DEBUG("Filling " << Iso::toString(type) << " = " << result.etcones[i]);
           (*isoTypeAcc)(tp) = result.etcones[i];
@@ -1444,7 +1444,7 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
     return true;
   }
 
-  bool CaloIsolationTool::decorateParticle_caloCellIso( IParticle& tp,
+  bool CaloIsolationTool::decorateParticle_caloCellIso( const IParticle& tp,
                                           const std::vector<Iso::IsolationType>& cones,
                                           CaloCorrection corrections,
                                           const CaloCellContainer* Cells){
@@ -1463,7 +1463,7 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
   }
 
 
-  bool CaloIsolationTool::decorateParticle_topoClusterIso( IParticle& tp,
+  bool CaloIsolationTool::decorateParticle_topoClusterIso( const IParticle& tp,
                                           const std::vector<Iso::IsolationType>& cones,
                                           CaloCorrection corrections,
                                           const CaloClusterContainer* TopClusters) {
@@ -1481,7 +1481,7 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
     return true;
   }
 
-  bool CaloIsolationTool::decorateParticle_eflowIso( IParticle& tp,
+  bool CaloIsolationTool::decorateParticle_eflowIso( const IParticle& tp,
                                           const std::vector<Iso::IsolationType>& cones,
                                           CaloCorrection corrections){
     // calculate the isolation
@@ -1499,7 +1499,7 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
   }
 
 #ifndef XAOD_ANALYSIS
-  bool CaloIsolationTool::decorateParticle( IParticle& tp,
+  bool CaloIsolationTool::decorateParticle( const IParticle& tp,
                                           const std::vector<Iso::IsolationType>& cones,
                                           CaloCorrection corrections,
                                           const CaloCellContainer* Cells,

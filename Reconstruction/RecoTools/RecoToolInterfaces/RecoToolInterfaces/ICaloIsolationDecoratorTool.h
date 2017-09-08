@@ -39,7 +39,7 @@ namespace xAOD {
        @param[in] TopClusters topoCluster contrainer (for trigger only)
        @return true if the decoration was successfull
     */    
-    virtual bool decorateParticle( IParticle& tp,
+    virtual bool decorateParticle( const IParticle& tp,
 				   const std::vector<Iso::IsolationType>& cones, 
 				   CaloCorrection corrections, 
 				   const CaloCellContainer* Cells = 0,
