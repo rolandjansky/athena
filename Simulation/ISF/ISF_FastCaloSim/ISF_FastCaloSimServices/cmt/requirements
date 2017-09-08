@@ -13,6 +13,7 @@ use GaudiInterface              GaudiInterface-*        External
 #################################################################
 # private use statements
 private
+use AthenaKernel                AthenaKernel-*              Control
 use AthenaBaseComps             AthenaBaseComps-*           Control
 use BarcodeEvent                BarcodeEvent-*              Simulation/Barcode
 use CaloInterface               CaloInterface-*             Calorimeter
@@ -28,6 +29,7 @@ use CaloEvent                   CaloEvent-*             	Calorimeter
 use FastCaloSim                 FastCaloSim-*           	Simulation/FastShower
 use ISF_FastCaloSimInterfaces	ISF_FastCaloSimInterfaces-*	Simulation/ISF/ISF_FastCaloSim
 use ISF_FastCaloSimEvent    	ISF_FastCaloSimEvent-*      	Simulation/ISF/ISF_FastCaloSim
+use CaloDetDescr    		CaloDetDescr-*      		Calorimeter
 use GeneratorObjects            GeneratorObjects-*              Generators
 
 use TrkExInterfaces      TrkExInterfaces-*      Tracking/TrkExtrapolation
@@ -37,6 +39,10 @@ use AtlasDetDescr						AtlasDetDescr-* 			DetectorDescription
 use IdDictParser						IdDictParser-* 			  DetectorDescription
 use AtlasDetDescr						AtlasDetDescr-* 			DetectorDescription
 use CaloIdentifier			CaloIdentifier-*				Calorimeter
+
+use AtlasROOT AtlasROOT-* External
+use ISF_FastCaloSimParametrization ISF_FastCaloSimParametrization-* Simulation/ISF/ISF_FastCaloSim
+#use Identifier                  Identifier-*                    DetectorDescription
 
 public
 library ISF_FastCaloSimServices *.cxx components/*.cxx

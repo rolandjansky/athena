@@ -701,6 +701,16 @@ def getNITimedExtrapolator(name="ISF_NITimedExtrapolator", **kwargs):
     from TrkExTools.TrkExToolsConf import Trk__TimedExtrapolator as TimedExtrapolator
     return TimedExtrapolator(name, **kwargs )
 
+
+def getTimedExtrapolator(name="TimedExtrapolator", **kwargs):
+    kwargs.setdefault("MaterialEffectsUpdators" , [ 'ISF_NIMatEffUpdator' ])
+    kwargs.setdefault("ApplyMaterialEffects"    , False )
+    kwargs.setdefault("STEP_Propagator"    , 'ISF_NIPropagator' )
+
+    from TrkExTools.TrkExToolsConf import Trk__TimedExtrapolator as TimedExtrapolator
+    return TimedExtrapolator(name, **kwargs )
+
+
 ## FastShowerCellBuilderTool
 
 def getDefaultFastShowerCellBuilderTool(name, **kwargs):
