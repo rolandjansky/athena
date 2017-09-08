@@ -152,11 +152,6 @@ int main( int argc, char* argv[] ) {
        ANA_MSG_INFO("Medium Without Had Leakage  mask: " << MediumWithouHadLeakageMask);
        //
 
-       ANA_MSG_INFO("result under different Masks: " );
-       bool passALLDecision= (decision^MediumMask)!=0;
-       std::bitset<32> passALLDecisionBitSet(decision^MediumMask);
-       ANA_MSG_INFO("Electron check all cuts via decision: "<< passALLDecision << " ,bitset " << passALLDecisionBitSet);
-
        bool passALLDecisionisem= (isEMdecision&MediumMask)==0;
        std::bitset<32> passALLDecisionisemBitSet(isEMdecision&MediumMask);
        ANA_MSG_INFO("Electron check all cuts via  isem: "<< passALLDecisionisem << " ,bitset " << passALLDecisionisemBitSet);
