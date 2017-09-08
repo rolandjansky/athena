@@ -157,7 +157,7 @@ namespace xAOD {
 
       // final dressing function
       bool decorateParticle(CaloIsolation& result,
-                            IParticle& tp,
+                            const IParticle& tp,
                             const std::vector<Iso::IsolationType>& cones,
                             CaloCorrection corrections);
       // etcone computation for TrackParticle
