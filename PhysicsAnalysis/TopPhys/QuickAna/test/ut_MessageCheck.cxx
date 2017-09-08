@@ -11,6 +11,7 @@
 // Please feel free to contact me (nils.erik.krumnack@cern.ch) for bug
 // reports, feature suggestions, praise and complaints.
 
+#undef NDEBUG
 
 //
 // includes
