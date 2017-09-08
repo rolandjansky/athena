@@ -43,8 +43,16 @@ RESULT=`eval "${CMD}"`
 echo ${RESULT}
 
 # copy the test results to EOS area
-#TARGETDIR=/eos/atlas/atlascerngroupdisk/art-build/${SUBDIR}
-#if [[ ! -e ${TARGETDIR} ]]; then
-#  eos mkdir -p ${TARGETDIR}
-#  xrdcp -vr ${OUTDIR} ${TARGETDIR}
-#fi
+if [ -z "${EOS_MGM_URL}" ]; then
+  echo "WARNING: EOS_MGM_URL variable is empty, setting it to root://eosatlas.cern.ch"
+  export EOS_MGM_URL="root://eosatlas.cern.ch" 
+else
+  echo "EOS_MGM_URL variable contains", ${EOS_MGM_URL}
+fi
+
+TARGETDIR=/eos/atlas/atlascerngroupdisk/data-art/_build-jobs/${SUBDIR}
+if [[ ! -e ${TARGETDIR} ]]; then
+  echo Target directory ${TARGETDIR}
+  eos mkdir ${TARGETDIR}
+  xrdcp -vr ${OUTDIR} ${TARGETDIR}
+fi
