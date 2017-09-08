@@ -89,17 +89,17 @@ public:
   const std::string& details(const IdentifierHash& id) const;
 
   /**Get number flagged as bad (per event)*/
-  inline int numBadIds() const {return m_badIds->size();}
+  inline int numBadIds() const {return m_badIds.size();}
 
   /**Get IdentifierHashs ofwafers flagged as bad + reason (per event)*/
-  inline std::map <IdentifierHash, std::string>* getBadIds() const {return m_badIds;}
+  inline const std::map<IdentifierHash, std::string>* getBadIds() const {return &m_badIds;}
 
   /**Reset between events*/
   virtual void resetBadIds();
 
  private:
   bool                                                m_filled;      //!< Has this been filles
-  std::map <IdentifierHash, std::string>*             m_badIds;      //!< Map of bad IdentiferHash and reason
+  std::map<IdentifierHash, std::string> m_badIds;  //!< Map of bad IdentiferHash and reason
 
   ServiceHandle<StoreGateSvc>                         m_detStore;    //!< Handle on detector store
   const SCT_ID*                                       m_sctID;       //!< ID helper for SCT

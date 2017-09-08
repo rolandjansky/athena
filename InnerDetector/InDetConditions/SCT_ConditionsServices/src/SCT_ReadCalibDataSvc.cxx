@@ -79,8 +79,8 @@ SCT_ReadCalibDataSvc::SCT_ReadCalibDataSvc(const std::string& name, ISvcLocator*
   m_attrListColl{nullptr},
   m_id_sct{nullptr},
   m_dataFilled{false},
-  m_NPGDefects{nullptr},
-  m_NODefects{nullptr},
+  m_NPGDefects{},
+  m_NODefects{},
   m_printCalibDefectMaps{false},
   m_recoOnly{true},
   m_ignoreDefects{},
@@ -172,10 +172,6 @@ StatusCode SCT_ReadCalibDataSvc::initialize() {
     }
   }
   
-  // Create Calib Defect and Data maps 
-  m_NPGDefects = new SCT_CalibDefectData;
-  m_NODefects = new SCT_CalibDefectData;
-   
   // Initialize arrays and all strips to True
   for (int w{0}; w!=NUMBER_OF_WAFERS; ++w) {
     for (int s{0}; s!=STRIPS_PER_WAFER; ++s) {
@@ -197,8 +193,6 @@ StatusCode SCT_ReadCalibDataSvc::initialize() {
 
 //----------------------------------------------------------------------
 StatusCode SCT_ReadCalibDataSvc::finalize() {
-  delete m_NPGDefects;
-  delete m_NODefects;
   return StatusCode::SUCCESS;
 } // SCT_ReadCalibDataSvc::finalize()
 
@@ -252,8 +246,8 @@ StatusCode SCT_ReadCalibDataSvc::fillData(int& /*i*/ , std::list<std::string>& l
     ATH_MSG_INFO("Calib Defect array/maps filled ok");
     // Print the defect maps
     if (m_printCalibDefectMaps and not m_recoOnly) {
-      std::string NPGCalibDefectMap{m_NPGDefects->str()};
-      std::string NOCalibDefectMap{m_NODefects->str()};
+      std::string NPGCalibDefectMap{m_NPGDefects.str()};
+      std::string NOCalibDefectMap{m_NODefects.str()};
       ATH_MSG_DEBUG("\n" << NPGCalibDefectMap);
       ATH_MSG_DEBUG(NOCalibDefectMap);
     }
@@ -307,8 +301,8 @@ StatusCode SCT_ReadCalibDataSvc::fillCalibDefectData(std::list<std::string>& key
 
   if (not m_recoOnly) {
     // Check if maps empty, and if not clear them
-    if (not m_NPGDefects->empty()) m_NPGDefects->clear();
-    if (not m_NODefects->empty()) m_NODefects->clear();
+    if (not m_NPGDefects.empty()) m_NPGDefects.clear();
+    if (not m_NODefects.empty()) m_NODefects.clear();
   }
   
   // Create pointer to CalibDataDefect object 
@@ -423,7 +417,7 @@ StatusCode SCT_ReadCalibDataSvc::fillCalibDefectData(std::list<std::string>& key
               ATH_MSG_DEBUG("No NPtGain defects for module " << moduleId);
               continue;
             }
-            if (!(m_NPGDefects->addModule(moduleId, theseDefects))) {
+            if (!(m_NPGDefects.addModule(moduleId, theseDefects))) {
               ATH_MSG_ERROR("Unable to add module " << moduleId << " to NPtGain defect map");
               return StatusCode::FAILURE;
             } else {
@@ -434,7 +428,7 @@ StatusCode SCT_ReadCalibDataSvc::fillCalibDefectData(std::list<std::string>& key
               ATH_MSG_DEBUG("No NoiseOccupancy defects for module " << moduleId);
               continue;
             }
-            if (!(m_NODefects->addModule(moduleId, theseDefects))) {
+            if (!(m_NODefects.addModule(moduleId, theseDefects))) {
               ATH_MSG_ERROR("Unable to add module " << moduleId << " to NoiseOccupancy defect map");
               return StatusCode::FAILURE;
             } else {
@@ -449,8 +443,8 @@ StatusCode SCT_ReadCalibDataSvc::fillCalibDefectData(std::list<std::string>& key
   }
 
   if (not m_recoOnly) {
-    ATH_MSG_DEBUG("There are " << m_NPGDefects->size() << " elements in the NPtGain module defect map");
-    ATH_MSG_DEBUG("There are " << m_NODefects->size() << " elements in the NoiseOccupancy module defect map");
+    ATH_MSG_DEBUG("There are " << m_NPGDefects.size() << " elements in the NPtGain module defect map");
+    ATH_MSG_DEBUG("There are " << m_NODefects.size() << " elements in the NoiseOccupancy module defect map");
   }
  
   return StatusCode::SUCCESS;
@@ -529,8 +523,8 @@ SCT_ReadCalibDataSvc::CalibDefectType SCT_ReadCalibDataSvc::defectType(const Ide
   // Create the calibDefectSummary
   CalibDefectType theseSummaryDefects;
   // Retrieve defect data from map
-  wantedNPGDefects = m_NPGDefects->findModule(moduleId);
-  wantedNODefects = m_NODefects->findModule(moduleId);
+  wantedNPGDefects = m_NPGDefects.findModule(moduleId);
+  wantedNODefects = m_NODefects.findModule(moduleId);
 
   switch (h) {
   case InDetConditions::SCT_MODULE:
@@ -619,9 +613,9 @@ SCT_CalibDefectData::CalibModuleDefects SCT_ReadCalibDataSvc::defectsSummary(con
   SCT_CalibDefectData::CalibModuleDefects wantedDefects;
   // Retrieve the correct defect map
   if (scan == "NPtGain") {
-    wantedDefects = m_NPGDefects->findModule(moduleId);
+    wantedDefects = m_NPGDefects.findModule(moduleId);
   } else if (scan == "NoiseOccupancy") {
-    wantedDefects = m_NODefects->findModule(moduleId);
+    wantedDefects = m_NODefects.findModule(moduleId);
   } else {
     ATH_MSG_ERROR("defectsSummary(): Module defects for scan" << scan << " does not exist (only NPtGain or NoiseOccupancy).");
   }
@@ -663,9 +657,9 @@ std::list<Identifier> SCT_ReadCalibDataSvc::defectList(const std::string& defect
       if (side!=0) continue;
       Identifier moduleId{m_id_sct->module_id(waferId)};
       if (NPDefect) {
-        wantedDefects = m_NPGDefects->findModule(moduleId);
+        wantedDefects = m_NPGDefects.findModule(moduleId);
       }  else if (NODefect) {
-        wantedDefects = m_NODefects->findModule(moduleId);
+        wantedDefects = m_NODefects.findModule(moduleId);
       }
       if (!wantedDefects.begDefects.empty()) {
         for (unsigned int i{0}; i < wantedDefects.begDefects.size(); ++i) {
