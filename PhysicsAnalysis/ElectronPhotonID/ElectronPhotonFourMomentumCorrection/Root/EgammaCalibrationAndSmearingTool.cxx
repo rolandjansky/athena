@@ -137,6 +137,7 @@ std::unique_ptr<egammaLayerRecalibTool> egammaLayerRecalibToolFactory(egEnergyCo
     case egEnergyCorr::es2017:
     case egEnergyCorr::es2017_R21_PRE:  
       tune = "2012_alt_with_layer2";
+      break;
     case egEnergyCorr::es2017_summer:
     case egEnergyCorr::es2017_summer_improved:
       tune = "es2017_20.7_improved";
