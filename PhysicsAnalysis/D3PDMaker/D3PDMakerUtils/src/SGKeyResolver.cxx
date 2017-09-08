@@ -69,7 +69,7 @@ std::string SGKeyResolver::key()
   // First see if any existing proxies match the keys.
   std::vector<const SG::DataProxy*> proxies = m_sg->proxies();
   BOOST_FOREACH (const SG::DataProxy* & p, proxies) {
-    if (p->transientAddress()->transientID (m_clid) &&
+    if (p->transientID (m_clid) &&
         std::find (keys.begin(), keys.end(), p->name()) != keys.end())
     {
       if (!m_haveKey ||
