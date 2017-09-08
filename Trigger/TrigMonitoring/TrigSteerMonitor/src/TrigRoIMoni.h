@@ -98,7 +98,6 @@ class TrigRoIMoni: public TrigMonitorToolBase {
   std::vector< unsigned int > m_configuredTETypes;
   std::map< unsigned int, unsigned int > m_labels; // TriggerElement ID -> bin
   std::map< std::string, std::pair<int, unsigned int> > m_thresholdNames; // Lvl1 threshhold --> histo bin/id
-  std::string m_trigLvl;
   unsigned int m_threshMultiMax;
   bool m_ignoreAbortGap;
 };
