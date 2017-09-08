@@ -42,7 +42,6 @@ namespace LVL1 {
    
     int m_TTCMultiplicity;
     int m_BoardMultiplicity;
-    int m_ToTCut;
     int m_cablestarts[3]; // threshold cable starts
 
     int BarrelChipToBoard(int chip);
