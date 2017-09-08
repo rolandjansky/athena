@@ -1093,7 +1093,7 @@ ProxyMap::addToStore (CLID id, SG::DataProxy* proxy)
   if (proxy == 0)
     return StatusCode::FAILURE;
 
-  sgkey_t sgkey = proxy->transientAddress()->sgkey();
+  sgkey_t sgkey = proxy->sgkey();
   if (m_proxymap.find (sgkey) != m_proxymap.end())
     return StatusCode::FAILURE;
 
