@@ -478,20 +478,20 @@ TEST (ToolMakeTest, initialize_TauLooseMuOverlapTool)
 
 TEST (ToolMakeTest, make_OverlapRemovalTool)
 {
-  asg::AnaToolHandle<IOverlapRemovalTool> handle ("tool");
-  ASSERT_SUCCESS (handle.make ("OverlapRemovalTool"));
+  asg::AnaToolHandle<ORUtils::IOverlapRemovalTool> handle ("tool");
+  ASSERT_SUCCESS (handle.make ("ORUtils::OverlapRemovalTool"));
 }
 
 TEST (ToolMakeTest, makeNew_OverlapRemovalTool)
 {
-  asg::AnaToolHandle<IOverlapRemovalTool> handle ("tool");
-  ASSERT_SUCCESS (ASG_MAKE_ANA_TOOL (handle, OverlapRemovalTool));
+  asg::AnaToolHandle<ORUtils::IOverlapRemovalTool> handle ("tool");
+  ASSERT_SUCCESS (ASG_MAKE_ANA_TOOL (handle, ORUtils::OverlapRemovalTool));
 }
 
 TEST (ToolMakeTest, initialize_OverlapRemovalTool)
 {
-  asg::AnaToolHandle<IOverlapRemovalTool> handle ("tool");
-  ASSERT_SUCCESS (ASG_MAKE_ANA_TOOL (handle, OverlapRemovalTool));
+  asg::AnaToolHandle<ORUtils::IOverlapRemovalTool> handle ("tool");
+  ASSERT_SUCCESS (ASG_MAKE_ANA_TOOL (handle, ORUtils::OverlapRemovalTool));
   ASSERT_SUCCESS (handle.initialize ());
 }
 
