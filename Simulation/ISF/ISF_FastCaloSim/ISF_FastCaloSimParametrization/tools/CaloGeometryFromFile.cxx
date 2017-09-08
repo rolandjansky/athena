@@ -5,7 +5,7 @@
 #include "CaloGeometryFromFile.h"
 #include <TTree.h>
 #include <TFile.h>
-#include "ISF_FastCaloSimParametrization/CaloGeoDetDescrElement.h"
+#include "CaloDetDescr/CaloDetDescrElement.h"
 #include <fstream>
 #include <sstream>
 #include <TGraph.h>
@@ -15,7 +15,7 @@ using namespace std;
 
 map<unsigned long long, unsigned long long> g_cellId_vs_cellHashId_map;
 
-CaloGeometryFromFile::CaloGeometryFromFile() : CaloGeoGeometry()
+CaloGeometryFromFile::CaloGeometryFromFile() : CaloGeometry()
 {
 	ifstream textfile("/afs/cern.ch/atlas/groups/Simulation/FastCaloSimV2/cellId_vs_cellHashId_map.txt");
 	unsigned long long id, hash_id; 
@@ -51,7 +51,7 @@ bool CaloGeometryFromFile::LoadGeometryFromFile(TString filename,TString treenam
 
   TTree* fChain = tree;
   
-  CaloGeoDetDescrElement cell;
+  CaloDetDescrElement cell;
   
   // List of branches
   TBranch        *b_identifier;   //!
@@ -106,7 +106,7 @@ bool CaloGeometryFromFile::LoadGeometryFromFile(TString filename,TString treenam
     if (g_cellId_vs_cellHashId_map.find(cell.m_identify)!=g_cellId_vs_cellHashId_map.end()) cell.m_hash_id=g_cellId_vs_cellHashId_map[cell.m_identify];
     else cout << endl << "ERROR: Cell id not found in the cellId_vs_cellHashId_map!!!" << endl << endl;
     
-    const CaloGeoDetDescrElement* pcell=new CaloGeoDetDescrElement(cell);
+    const CaloDetDescrElement* pcell=new CaloDetDescrElement(cell);
     int sampling = pcell->getSampling();
     
     
@@ -146,7 +146,7 @@ bool CaloGeometryFromFile::LoadGeometryFromFile(TString filename,TString treenam
 	bool ok = PostProcessGeometry();
 	
 	cout << "Result of PostProcessGeometry(): " << ok << endl;
-	const CaloGeoDetDescrElement* mcell=0;
+	const CaloDetDescrElement* mcell=0;
 	unsigned long long cellid64(3179554531063103488);
 	Identifier cellid(cellid64);
 	mcell=this->getDDE(cellid); //This is working also for the FCal
@@ -156,14 +156,14 @@ bool CaloGeometryFromFile::LoadGeometryFromFile(TString filename,TString treenam
 	if(!mcell)std::cout << "Cell is not found" << std::endl;
 	std::cout << "Identifier " << mcell->identify() <<" sampling " << mcell->getSampling() << " eta: " << mcell->eta() << " phi: " << mcell->phi() << std::endl<< std::endl;
 	
-	const CaloGeoDetDescrElement* mcell2 = this->getDDE(mcell->getSampling(),mcell->eta(),mcell->phi());
+	const CaloDetDescrElement* mcell2 = this->getDDE(mcell->getSampling(),mcell->eta(),mcell->phi());
 	std::cout << "Identifier " << mcell2->identify() <<" sampling " << mcell2->getSampling() << " eta: " << mcell2->eta() << " phi: " << mcell2->phi() << std::endl<< std::endl;
 	
   return ok;
 }
 
 
-bool CaloGeometryFromFile::LoadFCalGeometryFromFiles(TString filename1,TString filename2,TString filename3){
+void CaloGeometryFromFile::LoadFCalGeometryFromFiles(TString filename1,TString filename2,TString filename3){
 	
 	vector<ifstream*> electrodes(3);
   
@@ -254,8 +254,8 @@ bool CaloGeometryFromFile::LoadFCalGeometryFromFiles(TString filename1,TString f
 		for(auto it=m_FCal_ChannelMap.begin(imap);it!=m_FCal_ChannelMap.end(imap);it++){
 			phi_index = it->first & 0xffff;
 			eta_index = it->first >> 16;
-			CaloGeoDetDescrElement *DDE =new CaloGeoDetDescrElement; // side C
-			CaloGeoDetDescrElement *DDE2 =new CaloGeoDetDescrElement; // side A
+			CaloDetDescrElement *DDE =new CaloDetDescrElement; // side C
+			CaloDetDescrElement *DDE2 =new CaloDetDescrElement; // side A
 			x=it->second.x();
 			y=it->second.y();
 			m_FCal_ChannelMap.tileSize(imap, eta_index, phi_index,dx,dy);
@@ -313,7 +313,7 @@ bool CaloGeometryFromFile::LoadFCalGeometryFromFiles(TString filename1,TString f
         //for(auto it=m_cells_in_sampling[i].begin(); it!=m_cells_in_sampling[i].end();it++){
 					//if(k<10){
 						//cout << "  cells sampling "<< it->second->getSampling() << " : " << it->first << endl;
-						//const CaloGeoDetDescrElement *DDE = this->getDDE(it->second->getSampling(),it->second->eta(),it->second->phi());
+						//const CaloDetDescrElement *DDE = this->getDDE(it->second->getSampling(),it->second->eta(),it->second->phi());
 						//cout << "  cells sampling "<< DDE->getSampling()  << " : " << DDE->identify()  << endl;
 						//DDE = this->getDDE(it->first);
 						//cout << "  cells sampling "<< DDE->getSampling()  << " : " << DDE->identify() << endl << endl;
@@ -327,7 +327,6 @@ bool CaloGeometryFromFile::LoadFCalGeometryFromFiles(TString filename1,TString f
   for(int imodule=1;imodule<=3;imodule++) delete electrodes[imodule-1];
   electrodes.clear();
   
-	return true;
 }
 
 void CaloGeometryFromFile::DrawFCalGraph(int isam,int color){
@@ -339,7 +338,7 @@ void CaloGeometryFromFile::DrawFCalGraph(int isam,int color){
 	const int size=m_cells_in_sampling[isam].size();
 	double x[size];
 	double y[size];
-	//const CaloGeoDetDescrElement* cell;
+	//const CaloDetDescrElement* cell;
 	int i=0;
 	for(auto it=m_cells_in_sampling[isam].begin();it!=m_cells_in_sampling[isam].end();it++){
 		x[i]=it->second->x();

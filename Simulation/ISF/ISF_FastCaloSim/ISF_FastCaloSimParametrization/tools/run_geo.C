@@ -23,12 +23,13 @@ void run_geo()
  CaloGeometryFromFile* geo=new CaloGeometryFromFile();
  geo->SetDoGraphs(1);
  geo->LoadGeometryFromFile("/afs/cern.ch/atlas/groups/Simulation/FastCaloSim/ATLAS-GEO-20-00-01.root","ATLAS-GEO-20-00-01");
- geo->LoadFCalGeometryFromFiles("FCal1-electrodes.sorted.HV.09Nov2007.dat","FCal2-electrodes.sorted.HV.April2011.dat","FCal3-electrodes.sorted.HV.09Nov2007.dat");
+ TString path_to_fcal_geo_files = "/afs/cern.ch/atlas/groups/Simulation/FastCaloSimV2/";
+ geo->LoadFCalGeometryFromFiles(path_to_fcal_geo_files + "FCal1-electrodes.sorted.HV.09Nov2007.dat", path_to_fcal_geo_files + "FCal2-electrodes.sorted.HV.April2011.dat", path_to_fcal_geo_files + "FCal3-electrodes.sorted.HV.09Nov2007.dat");
   //CaloGeometry::m_debug_identity=3179554531063103488;
 	//geo->Validate();
  
  
-  const CaloGeoDetDescrElement* cell;
+  const CaloDetDescrElement* cell;
   cell=geo->getDDE(2,0.24,0.24); //This is not working yet for the FCal!!!
   //cout<<"Found cell id="<<cell->identify()<<" sample="<<cell->getSampling()<<" eta="<<cell->eta()<<" phi="<<cell->phi()<<endl;
   
@@ -85,9 +86,9 @@ void run_geo()
   
   vector<ifstream*> electrodes(3);
   
-  electrodes[0]=new ifstream("FCal1-electrodes.sorted.HV.09Nov2007.dat");
-  electrodes[1]=new ifstream("FCal2-electrodes.sorted.HV.April2011.dat");
-  electrodes[2]=new ifstream("FCal3-electrodes.sorted.HV.09Nov2007.dat");
+  electrodes[0]=new ifstream((path_to_fcal_geo_files +"FCal1-electrodes.sorted.HV.09Nov2007.dat").Data());
+  electrodes[1]=new ifstream((path_to_fcal_geo_files +"FCal2-electrodes.sorted.HV.April2011.dat").Data());
+  electrodes[2]=new ifstream((path_to_fcal_geo_files +"FCal3-electrodes.sorted.HV.09Nov2007.dat").Data());
   
   
   
@@ -166,8 +167,8 @@ void run_geo()
   double y=180;
   
   
-  const CaloGeoDetDescrElement* mcell=0;
-  const CaloGeoDetDescrElement* mcell2=0;
+  const CaloDetDescrElement* mcell=0;
+  const CaloDetDescrElement* mcell2=0;
   
   cout << endl;
   cout << "Looking for tile corresponding to [x,y] = [" <<  x << "," << y << "]" << endl;

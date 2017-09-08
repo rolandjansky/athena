@@ -12,6 +12,7 @@
 #include <TVector3.h>
 #include <TLegend.h>
 #include <fstream>
+#include <sstream>
 
 #include "CaloDetDescr/CaloDetDescrElement.h"
 //#include "ISF_FastCaloSimParametrization/CaloDetDescrElement.h"
