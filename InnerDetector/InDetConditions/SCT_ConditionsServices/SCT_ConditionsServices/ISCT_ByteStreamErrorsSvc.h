@@ -98,7 +98,7 @@ class ISCT_ByteStreamErrorsSvc: virtual public ISCT_ConditionsSvc {
 
   //@}
   
-  virtual std::set<IdentifierHash>* getErrorSet(int errorType)=0;
+  virtual const std::set<IdentifierHash>* getErrorSet(int errorType)=0;
 
   virtual void setRODSimulatedData()=0;
 
@@ -127,7 +127,7 @@ class ISCT_ByteStreamErrorsSvc: virtual public ISCT_ConditionsSvc {
   /** Get first temporarily masked chip information */
   virtual unsigned int getFirstTempMaskedChip(const IdentifierHash& hashId) const =0;
   /** Map of temporary chip status for all modules with at least one bad chip (packed as 1st 12 bits of unsigned int) */
-  virtual std::map<Identifier, unsigned int>* tempMaskedChips() const =0;
+  virtual const std::map<Identifier, unsigned int>* tempMaskedChips() const =0;
   /** Temporary status of chips for a particular module (packed as 1st 12 bits of unsigned int) */
   virtual unsigned int tempMaskedChips(const Identifier& moduleId) const =0;
   /** Status ABCD errors of chips for a particular module (packed as 1st 12 bits of unsigned int) */

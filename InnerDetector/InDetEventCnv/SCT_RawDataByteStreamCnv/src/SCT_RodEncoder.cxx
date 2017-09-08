@@ -94,16 +94,16 @@ void SCT_RodEncoder::fillROD(std::vector<uint32_t>& v32rod, uint32_t robid,
   
   /** retrieve errors from SCT_ByteStreamErrorsSvc */
   
-  std::set<IdentifierHash>* timeOutErrors{m_bsErrs->getErrorSet(SCT_ByteStreamErrors::TimeOutError)};
-  std::set<IdentifierHash>* l1idErrors{m_bsErrs->getErrorSet(SCT_ByteStreamErrors::LVL1IDError)};
-  std::set<IdentifierHash>* bcidErrors{m_bsErrs->getErrorSet(SCT_ByteStreamErrors::BCIDError)};
-  std::set<IdentifierHash>* preambleErrors{m_bsErrs->getErrorSet(SCT_ByteStreamErrors::PreambleError)};
-  std::set<IdentifierHash>* formatterErrors{m_bsErrs->getErrorSet(SCT_ByteStreamErrors::FormatterError)};
-  std::set<IdentifierHash>* trailerErrors{m_bsErrs->getErrorSet(SCT_ByteStreamErrors::TrailerError)};
-  std::set<IdentifierHash>* headertrailerErrors{m_bsErrs->getErrorSet(SCT_ByteStreamErrors::HeaderTrailerLimitError)};
-  std::set<IdentifierHash>* traileroverflowErrors{m_bsErrs->getErrorSet(SCT_ByteStreamErrors::TrailerOverflowError)};
-  std::set<IdentifierHash>* rawErrors{m_bsErrs->getErrorSet(SCT_ByteStreamErrors::RawError)};
-  std::set<IdentifierHash>* abcdErrors{m_bsErrs->getErrorSet(SCT_ByteStreamErrors::ABCDError)};
+  const std::set<IdentifierHash>* timeOutErrors{m_bsErrs->getErrorSet(SCT_ByteStreamErrors::TimeOutError)};
+  const std::set<IdentifierHash>* l1idErrors{m_bsErrs->getErrorSet(SCT_ByteStreamErrors::LVL1IDError)};
+  const std::set<IdentifierHash>* bcidErrors{m_bsErrs->getErrorSet(SCT_ByteStreamErrors::BCIDError)};
+  const std::set<IdentifierHash>* preambleErrors{m_bsErrs->getErrorSet(SCT_ByteStreamErrors::PreambleError)};
+  const std::set<IdentifierHash>* formatterErrors{m_bsErrs->getErrorSet(SCT_ByteStreamErrors::FormatterError)};
+  const std::set<IdentifierHash>* trailerErrors{m_bsErrs->getErrorSet(SCT_ByteStreamErrors::TrailerError)};
+  const std::set<IdentifierHash>* headertrailerErrors{m_bsErrs->getErrorSet(SCT_ByteStreamErrors::HeaderTrailerLimitError)};
+  const std::set<IdentifierHash>* traileroverflowErrors{m_bsErrs->getErrorSet(SCT_ByteStreamErrors::TrailerOverflowError)};
+  const std::set<IdentifierHash>* rawErrors{m_bsErrs->getErrorSet(SCT_ByteStreamErrors::RawError)};
+  const std::set<IdentifierHash>* abcdErrors{m_bsErrs->getErrorSet(SCT_ByteStreamErrors::ABCDError)};
 
   std::vector<int> vtbin;
   std::vector<uint16_t> v16data;

@@ -133,7 +133,7 @@ private:
   const TrackCollection * m_tracks; 
   Trk::TrackSummaryTool* m_TrackSum;
 
-  std::map < Identifier, unsigned int > * m_badChips;
+  const std::map < Identifier, unsigned int > * m_badChips;
   ServiceHandle<MagField::IMagFieldSvc>  m_fieldServiceHandle;
   ToolHandle<Trig::IBunchCrossingTool> m_bunchCrossingTool;
 
