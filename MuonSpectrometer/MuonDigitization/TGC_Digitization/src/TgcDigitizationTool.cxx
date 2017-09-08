@@ -24,6 +24,8 @@
 //#include "GaudiKernel/IToolSvc.h"
 
 #include "PileUpTools/PileUpMergeSvc.h"
+#include "PileUpTools/PileUpTypeHelper.h"
+#include "GeneratorObjects/McEventCollectionHelper.h"
 #include "PileUpTools/IPileUpTool.h" // for SubEventIterator
 #include "xAODEventInfo/EventInfo.h"
 
@@ -58,7 +60,7 @@ TgcDigitizationTool::TgcDigitizationTool(const std::string& type,
   m_vetoThisBarcode(crazyParticleBarcode) 
 {
   declareInterface<IMuonDigitizationTool>(this);
-
+  declareProperty("UseMcEventCollectionHelper", m_needsMcEventCollHelper = false);
   declareProperty("RndmSvc",          m_rndmSvc,                                  "Random Number Service used in Muon digitization");
   declareProperty("RndmEngine",       m_rndmEngineName,                           "Random engine name");
   declareProperty("InputObjectName",  m_inputHitCollectionName    = "TGC_Hits",   "name of the input object");
@@ -182,7 +184,7 @@ StatusCode TgcDigitizationTool::processBunchXing(int bunchXing,
   while(iEvt!=eSubEvents)
     {
       StoreGateSvc& seStore = *iEvt->ptr()->evtStore();
-      PileUpTimeEventIndex thisEventIndex = PileUpTimeEventIndex(static_cast<int>(iEvt->time()),iEvt->index());
+      PileUpTimeEventIndex thisEventIndex = PileUpTimeEventIndex(static_cast<int>(iEvt->time()),iEvt->index(),pileupTypeMapper(iEvt->type()));
       ATH_MSG_VERBOSE("SubEvt StoreGate " << seStore.name() << " :"
                       << " bunch crossing : " << bunchXing
                       << " time offset : " << iEvt->time()
@@ -376,6 +378,9 @@ StatusCode TgcDigitizationTool::digitizeCore() {
   //iterate over hits and fill id-keyed drift time map
   IdContext tgcContext = m_idHelper->module_context();
   
+  EBC_EVCOLL currentMcEventCollection(EBC_NCOLLKINDS); // Base on enum defined in HepMcParticleLink.h
+  int lastPileupType(6); // Based on enum defined in PileUpTimeEventIndex.h
+
   TimedHitCollection<TGCSimHit>::const_iterator i, e; 
   while(m_thpcTGC->nextDetectorElement(i, e)) {
     ATH_MSG_DEBUG("TgcDigitizationTool::digitizeCore next element");
@@ -476,8 +481,15 @@ StatusCode TgcDigitizationTool::digitizeCore() {
 	  // link to MC info
 	  //const HepMcParticleLink & particleLink = hit.particleLink();
 	  // create here deposit for MuonSimData, link and tof
-	  MuonSimData::Deposit deposit(HepMcParticleLink(phit->trackNumber(), phit.eventId()), MuonMCData(tof, 0));
-
+	  HepMcParticleLink trklink(phit->particleLink());
+	  if (m_needsMcEventCollHelper) {
+	    if(phit.pileupType()!=lastPileupType){
+	      currentMcEventCollection = McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(phit.pileupType());
+	      lastPileupType=phit.pileupType();
+	    }
+	    trklink.setEventCollection(currentMcEventCollection);
+	  }
+	  MuonSimData::Deposit deposit(trklink, MuonMCData(tof, 0));
 	  std::vector<MuonSimData::Deposit> deposits;
 	  deposits.push_back(deposit);
           MuonSimData simData(deposits,0);

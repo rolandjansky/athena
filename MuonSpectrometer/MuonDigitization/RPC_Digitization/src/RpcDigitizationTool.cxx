@@ -14,6 +14,7 @@
 
 #include "RPC_Digitization/RpcDigitizationTool.h"
 #include "PileUpTools/PileUpMergeSvc.h"
+#include "PileUpTools/PileUpTypeHelper.h"
 
 //Inputs
 #include "MuonSimEvent/RPCSimHit.h"
@@ -38,6 +39,7 @@
 
 //Truth
 #include "GeneratorObjects/HepMcParticleLink.h"
+#include "GeneratorObjects/McEventCollectionHelper.h"
 #include "HepMC/GenParticle.h"
 
 //Random Numbers
@@ -151,6 +153,7 @@ RpcDigitizationTool::RpcDigitizationTool(const std::string& type,
   declareProperty("ValidationSetup"           ,  m_validationSetup        = false   );
   declareProperty("IncludePileUpTruth"        ,  m_includePileUpTruth     = true    );
   declareProperty("ParticleBarcodeVeto"       ,  m_vetoThisBarcode = crazyParticleBarcode);
+  declareProperty("UseMcEventCollectionHelper",  m_needsMcEventCollHelper = false   );
 }
 
 // member function implementation
@@ -423,7 +426,7 @@ StatusCode RpcDigitizationTool::processBunchXing(int bunchXing,
   while(iEvt!=eSubEvents)
     {
       StoreGateSvc& seStore = *iEvt->ptr()->evtStore();
-      PileUpTimeEventIndex thisEventIndex = PileUpTimeEventIndex(static_cast<int>(iEvt->time()),iEvt->index());
+      PileUpTimeEventIndex thisEventIndex = PileUpTimeEventIndex(static_cast<int>(iEvt->time()),iEvt->index(),pileupTypeMapper(iEvt->type()));
       ATH_MSG_VERBOSE("SubEvt StoreGate " << seStore.name() << " :"
                       << " bunch crossing : " << bunchXing
                       << " time offset : " << iEvt->time()
@@ -651,7 +654,9 @@ StatusCode RpcDigitizationTool::doDigitization() {
     return StatusCode::FAILURE;
   }
 
-  
+  EBC_EVCOLL currentMcEventCollection(EBC_NCOLLKINDS); // Base on enum defined in HepMcParticleLink.h
+  int lastPileupType(6); // Based on enum defined in PileUpTimeEventIndex.h
+
   while( m_thpcRPC->nextDetectorElement(i, e) ) {
 
     // to store the a single 
@@ -680,6 +685,16 @@ StatusCode RpcDigitizationTool::doDigitization() {
       // the bunch time
       double bunchTime(globalHitTime - hit.globalTime());
 
+      // the HepMcParticleLink
+      HepMcParticleLink trklink(hit.particleLink());
+      if (m_needsMcEventCollHelper) {
+        if(phit.pileupType()!=lastPileupType)        {
+	  currentMcEventCollection = McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(phit.pileupType());
+	  lastPileupType=phit.pileupType();
+        }
+        trklink.setEventCollection(currentMcEventCollection);
+      }
+
 
       ATH_MSG_DEBUG  ( "Global time " << globalHitTime << " G4 time " << G4Time  << " Bunch time " << bunchTime       );
 
@@ -687,7 +702,7 @@ StatusCode RpcDigitizationTool::doDigitization() {
       //          << " Bunch time " << bunchTime      <<  std::endl;
 
       if (m_validationSetup){
-	  RPCSimHit* copyHit = new RPCSimHit(idHit, globalHitTime, hit.localPosition(), hit.trackNumber(),
+	  RPCSimHit* copyHit = new RPCSimHit(idHit, globalHitTime, hit.localPosition(), trklink,
 					     hit.postLocalPosition(), hit.energyDeposit(), hit.stepLength(), 
 					     hit.particleEncoding(), hit.kineticEnergy());
 	  ATH_MSG_VERBOSE("Validation:  globalHitTime, G4Time, BCtime = "<<globalHitTime<<" "<<G4Time<<" "<<bunchTime);
@@ -802,7 +817,7 @@ StatusCode RpcDigitizationTool::doDigitization() {
 	// ME unused: const HepMcParticleLink & particleLink = hit.particleLink();
 	// MuonMCData first  word is the packing of    : proptime, bunchTime, posy, posz
 	// MuonMCData second word is the total hit time: bunchcTime+tof+proptime+correlatedJitter / ns
-	MuonSimData::Deposit deposit(HepMcParticleLink(phit->trackNumber(),phit.eventId()),
+	MuonSimData::Deposit deposit(trklink,
 				     MuonMCData((*b),time)); // store tof+strip_propagation+corr.jitter
 	//				     MuonMCData((*b),G4Time+bunchTime+proptime          )); // store tof+strip_propagation
 

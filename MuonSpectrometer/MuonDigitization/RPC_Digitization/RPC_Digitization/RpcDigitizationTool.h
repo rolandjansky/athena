@@ -139,6 +139,7 @@ private:
   //pileup truth veto
   bool m_includePileUpTruth;
   IntegerProperty m_vetoThisBarcode;
+  bool m_needsMcEventCollHelper;
 
   /** Get next event and extract collection of hit collections: */
   StatusCode getNextEvent();

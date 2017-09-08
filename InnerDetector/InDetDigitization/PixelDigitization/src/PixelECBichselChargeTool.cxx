@@ -107,7 +107,9 @@ StatusCode PixelECBichselChargeTool::charge(const TimedHitPtr<SiHit> &phit,
 		  const InDetDD::SiDetectorElement &Module)
 {
   ATH_MSG_DEBUG("Applying PixelEC charge processor");
-  const HepMcParticleLink McLink = HepMcParticleLink(phit->trackNumber(),phit.eventId());
+  HepMcParticleLink McLink = HepMcParticleLink(phit->particleLink());
+  if (m_needsMcEventCollHelper)
+    McLink.setEventCollection( getMcEventCollectionHMPLEnumFromTimedHitPtr(phit) );
   const HepMC::GenParticle* genPart= McLink.cptr(); 
   bool delta_hit = true;
   if (genPart) delta_hit = false;
@@ -253,7 +255,7 @@ StatusCode PixelECBichselChargeTool::charge(const TimedHitPtr<SiHit> &phit,
       double ed=(1.0*iHitRecord.second/1.E+6/ncharges)*this->electronHolePairsPerEnergy;
       
       //The following lines are adapted from SiDigitization's Inserter class
-      SiSurfaceCharge scharge(chargePos,SiCharge(ed,hitTime(phit),SiCharge::track,HepMcParticleLink(phit->trackNumber(),phit.eventId())));
+      SiSurfaceCharge scharge(chargePos,SiCharge(ed,hitTime(phit),SiCharge::track,McLink));
     
       SiCellId diode = Module.cellIdOfPosition(scharge.position());
        

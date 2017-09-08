@@ -8,6 +8,7 @@
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
+#include "GeneratorObjects/McEventCollectionHelper.h"
 #include "InDetBCM_RawData/BCM_RawData.h"
 #include "InDetBCM_RawData/BCM_RDO_Collection.h"
 #include "InDetSimData/InDetSimDataCollection.h"
@@ -36,6 +37,7 @@ BCM_DigitizationTool::BCM_DigitizationTool(const std::string &type, const std::s
 {
   //declareProperty("PileupMergeSvc", m_mergeSvc, "Pileup merging service");
   declareProperty("RndmSvc", m_atRndmGenSvc, "Random number service used in BCM digitization");
+  declareProperty("UseMcEventCollectionHelper", m_needsMcEventCollHelper = false);
   declareProperty("HitCollName", m_hitCollName="BCMHits", "Input simulation hits collection name");
   declareProperty("ModNoise", m_modNoise, "RMS noise averaged over modules");
   declareProperty("ModSignal", m_modSignal, "Average MIP signal in modules");
@@ -99,7 +101,7 @@ StatusCode BCM_DigitizationTool::createOutputContainers()
 //----------------------------------------------------------------------
 // ProcessSiHit method:
 //----------------------------------------------------------------------
-void BCM_DigitizationTool::processSiHit(const SiHit &currentHit, double eventTime, unsigned int evtIndex)
+void BCM_DigitizationTool::processSiHit(const SiHit &currentHit, double eventTime, int pileupType)
 {
   int moduleNo = currentHit.getLayerDisk();
   float enerDep = computeEnergy(currentHit.energyLoss(), currentHit.localStartPosition(), currentHit.localEndPosition());
@@ -108,7 +110,10 @@ void BCM_DigitizationTool::processSiHit(const SiHit &currentHit, double eventTim
   m_enerVect[moduleNo].push_back(enerDep);
   m_timeVect[moduleNo].push_back(hitTime);
   // Create new deposit and add to vector
-  InDetSimData::Deposit deposit(HepMcParticleLink(currentHit.trackNumber(), evtIndex),currentHit.energyLoss());
+  HepMcParticleLink trklink(currentHit.particleLink());
+  if (m_needsMcEventCollHelper)
+    trklink.setEventCollection( McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(pileupType) );
+  InDetSimData::Deposit deposit(trklink,currentHit.energyLoss());
   int barcode = deposit.first.barcode();
   if (barcode == 0 || barcode == 10001){
     return;
@@ -186,14 +191,14 @@ StatusCode BCM_DigitizationTool::processAllSubEvents()
   TimedHitCollList::iterator iColl(hitCollList.begin());
   TimedHitCollList::iterator endColl(hitCollList.end());
   for (; iColl != endColl; ++iColl) {
+    int pileupType = iColl->first.type();
     const SiHitCollection* tmpColl(iColl->second);
-    HepMcParticleLink::index_type evtIndex = (iColl->first).index();
     ATH_MSG_DEBUG ( "SiHitCollection found with " << tmpColl->size() << " hits" );
     // Read hits from this collection
     SiHitCollection::const_iterator i = tmpColl->begin();
     SiHitCollection::const_iterator e = tmpColl->end();
     for (; i!=e; ++i) {
-      processSiHit(*i, (iColl->first).time(), evtIndex);
+      processSiHit(*i, (iColl->first).time(), pileupType);
     }
   }
 
@@ -227,7 +232,7 @@ StatusCode BCM_DigitizationTool::processBunchXing(int bunchXing,
     SiHitCollection::const_iterator e = seHitColl->end();
     // Read hits from this collection
     for (; i!=e; ++i) {
-      processSiHit(*i, iEvt->time(), iEvt->index());
+      processSiHit(*i, iEvt->time(), iEvt->type());
     }
   }
 

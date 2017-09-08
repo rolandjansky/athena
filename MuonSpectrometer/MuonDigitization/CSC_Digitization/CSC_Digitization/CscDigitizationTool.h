@@ -143,6 +143,8 @@ protected:
   std::string m_inputObjectName; // name of the input objects
   std::string m_outputObjectName; // name of the output digits
   
+  bool m_needsMcEventCollHelper;
+
   ServiceHandle <IAtRndmGenSvc> m_rndmSvc;      // Random number service
   CLHEP::HepRandomEngine *m_rndmEngine;    // Random number engine used - not init in SiDigitization
   std::string m_rndmEngineName;// name of random engine

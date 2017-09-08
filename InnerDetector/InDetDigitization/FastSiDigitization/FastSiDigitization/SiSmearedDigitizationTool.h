@@ -227,6 +227,7 @@ public:
   std::string                                  m_trackingGeometryName;       //!< The Name of the TrackingGeometry
 
   bool m_useCustomGeometry;
+  bool m_needsMcEventCollHelper;
 
   SiSmearedDigitizationTool();
   SiSmearedDigitizationTool(const SiSmearedDigitizationTool&);
