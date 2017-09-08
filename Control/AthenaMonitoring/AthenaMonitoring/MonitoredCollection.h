@@ -13,6 +13,9 @@
 
 namespace Monitored {
 
+    /**
+     * Monitoring of (double-convertable) collections
+     */
     namespace MonitoredCollection {
   
         // Forward declares
@@ -29,9 +32,9 @@ namespace Monitored {
          *
          * \code
          *   std::vector<float> eta( {0.2, 0.1} );
-         *   auto m = MonitoredCollection::declare( "Eta", eta );
+         *   auto m = MonitoredCollection::declare("Eta", eta);
          * \endcode
-         **/
+         */
         template<class T>
         MonitoredValuesCollection<T> declare(std::string name, const T& collection) {
           return MonitoredValuesCollection<T>(std::move(name), collection);
@@ -50,7 +53,7 @@ namespace Monitored {
          *   std::vector<Track> tracks;
          *   auto phi = MonitoredCollection::declare( "Phi", tracks, []( const Track& t ) { return t.phi(); } );
          * \endcode
-         **/
+         */
         template<class T>
         MonitoredObjectsCollection<T> declare(std::string name, const T& collection, 
                                               std::function<double(const typename MonitoredObjectsCollection<T>::value_type&)> converterToDouble) {
@@ -73,10 +76,10 @@ namespace Monitored {
   
         
         /**
-         * Monitored collection
+         * Monitoring of collections
          *
          * This class is not supposed to be used by the end user.
-         **/
+         */
         template<class T>
         class MonitoredValuesCollection : public IMonitoredVariable {
         public:
@@ -86,6 +89,7 @@ namespace Monitored {
             static_assert(std::is_convertible<value_type, double>::value, 
                           "Collection values must be convertable to double");
 
+            /// @brief .     \if empty doc string required due to doxygen bug 787131 \endif
             friend MonitoredValuesCollection<T> declare<T>(std::string name, const T& collection);
             
             MonitoredValuesCollection(MonitoredValuesCollection&&) = default;
@@ -104,16 +108,17 @@ namespace Monitored {
         
 
         /**
-         * Monitored object collection
+         * Monitoring of object collections
          *
          * This class is not supposed to be used by the end user.
-         **/
+         */
         template<class T>
         class MonitoredObjectsCollection : public IMonitoredVariable {
         public:
             /// Type of the collection elements
             using value_type = typename detail::get_value_type<T>::value_type;
 
+            /// @brief .     \if empty doc string required due to doxygen bug 787131 \endif
             friend MonitoredObjectsCollection<T> declare<T>(std::string name, const T& collection, 
                                                             std::function<double(const value_type&)> converterToDouble);
             
