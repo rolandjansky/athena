@@ -84,7 +84,6 @@ InDet::PixelClusterContainer* PixelClusterContainerCnv::createTransient() {
     p_collection = m_converter_p2.createTransient( p_coll.get(), msg() );
   } else if( compareClassGuid(p1_guid) ) {
     ATH_MSG_DEBUG("createTransient(): T/P version 1 detected");
-    usingTPCnvForReading( m_TPConverter );
     std::unique_ptr< InDet::PixelClusterContainer_tlp1 >  p_coll( poolReadObject< InDet::PixelClusterContainer_tlp1 >() );
     p_collection = m_TPConverter.createTransient( p_coll.get(), msg() );
   }

@@ -85,7 +85,6 @@ InDet::SCT_ClusterContainer* SCT_ClusterContainerCnv::createTransient() {
    
   } else if( compareClassGuid(p1_guid) ) {
     //ATH_MSG_DEBUG("createTransient(): T/P version 1 detected");
-    usingTPCnvForReading( m_TPConverter );
     std::unique_ptr< InDet::SCT_ClusterContainer_tlp1 >  p_coll( poolReadObject< InDet::SCT_ClusterContainer_tlp1 >() );
     p_collection = m_TPConverter.createTransient( p_coll.get(), msg() );
 

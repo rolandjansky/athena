@@ -54,7 +54,6 @@ HIPixelTrackletsCollectionCnv::createTransient() {
 
   HIPixelTrackletsCollection *p_collection = 0;
   if( compareClassGuid( p1_guid ) ) {
-    usingTPCnvForReading( m_TPConverter );
     std::auto_ptr< HIPixelTrackletsCollection_PERS > p_coll( poolReadObject< HIPixelTrackletsCollection_PERS >() );
     p_collection = m_TPConverter.createTransient( p_coll.get(), m_log );
   }
