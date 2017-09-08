@@ -1,4 +1,4 @@
 sweep-targets:
-  '21.1':
-    '.*':
+  '21.1-dev':
+    'NONE':
       - 'master'
