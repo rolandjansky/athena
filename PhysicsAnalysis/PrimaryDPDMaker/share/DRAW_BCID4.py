@@ -7,12 +7,12 @@
 # Sequence
 from AthenaCommon.AlgSequence import AlgSequence 
 topSequence = AlgSequence() 
-DRAW_BCID1_Seq = CfgMgr.AthSequencer("DRAW_BCID1_Seq")
+DRAW_BCID4_Seq = CfgMgr.AthSequencer("DRAW_BCID4_Seq")
 
 from PrimaryDPDMaker.PrimaryDPDMakerConf import BCIDFilterTool
-bcidFilterTool = BCIDFilterTool( name        = "BCID1Filter",
-                                 AcceptBCIDs = jobproperties.PrimaryDPDFlags.WriteDRAW_BCID1.AcceptBCIDs,
-                                 RejectBCIDs = jobproperties.PrimaryDPDFlags.WriteDRAW_BCID1.RejectBCIDs
+bcidFilterTool = BCIDFilterTool( name        = "BCID4Filter",
+                                 AcceptBCIDs = jobproperties.PrimaryDPDFlags.WriteDRAW_BCID4.AcceptBCIDs,
+                                 RejectBCIDs = jobproperties.PrimaryDPDFlags.WriteDRAW_BCID4.RejectBCIDs
                                  )
 
 bcidFilterTool.OutputLevel = 3 # INFO
@@ -20,10 +20,10 @@ ToolSvc += bcidFilterTool
 
 # Kernel algorithm
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-DRAW_BCID1_Seq += CfgMgr.DerivationFramework__DerivationKernel("DRAW_BCID1Kernel",
+DRAW_BCID4_Seq += CfgMgr.DerivationFramework__DerivationKernel("DRAW_BCID4Kernel",
                                                                   SkimmingTools = [bcidFilterTool]
                                                                 )
-topSequence += DRAW_BCID1_Seq 
+topSequence += DRAW_BCID4_Seq 
 
 ##################
 ### Output stream
@@ -31,17 +31,17 @@ topSequence += DRAW_BCID1_Seq
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
 from D2PDMaker.D2PDHelpers import buildFileName
 from PrimaryDPDMaker.PrimaryDPDFlags import primDPD
-streamName = primDPD.WriteDRAW_BCID1.StreamName
-fileName   = buildFileName( primDPD.WriteDRAW_BCID1 )
+streamName = primDPD.WriteDRAW_BCID4.StreamName
+fileName   = buildFileName( primDPD.WriteDRAW_BCID4 )
 # Remove the .pool.root ending in the file name, this is a RAW file!
 if fileName.endswith(".pool.root") :
     fileName = fileName.rstrip(".pool.root")
     pass
-StreamDRAW_BCID1 = MSMgr.NewByteStream( streamName, fileName )
-StreamDRAW_BCID1.AddRequireAlgs(["DRAW_BCID1Kernel"])
+StreamDRAW_BCID4 = MSMgr.NewByteStream( streamName, fileName )
+StreamDRAW_BCID4.AddRequireAlgs(["DRAW_BCID4Kernel"])
 
 # Don't write an output RAW file if it is empty
-StreamDRAW_BCID1.bsOutputSvc.WriteEventlessFiles = primDPD.WriteEventlessFiles()
+StreamDRAW_BCID4.bsOutputSvc.WriteEventlessFiles = primDPD.WriteEventlessFiles()
 
 
 #########################################
