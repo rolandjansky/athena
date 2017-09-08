@@ -1021,4 +1021,4 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    main(args.files, args.weights, args.treename, args.mcID, args.nTruthJets)
+    main(args.file, args.weights, args.treename, args.mcID, args.nTruthJets)
