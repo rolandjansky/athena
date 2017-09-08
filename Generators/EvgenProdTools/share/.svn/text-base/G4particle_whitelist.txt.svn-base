@@ -1,0 +1,371 @@
+12   nu(e)  0.0 (MeV/c) lepton nu(e) 0
+-12   nu(e)bar  0.0 (MeV/c) lepton nu(e) 0
+14   nu(mu)   0.0 (MeV/c) lepton nu(mu) 0
+-14   nu(mu)bar  0.0 (MeV/c) lepton nu(mu) 0
+16   nu(tau)  0.0 (MeV/c) lepton nu(tau) 0
+-16   nu(tau)bar  0.0 (MeV/c) lepton nu(tau) 0
+11   e-  0.510999 (MeV/c) lepton e 0
+22   gamma  0 (MeV/c) gamma photon 0
+-11   e+  0.510999 (MeV/c) lepton e 0
+-13   mu+  105.658 (MeV/c) lepton mu 0
+13   mu-  105.658 (MeV/c) lepton mu 0
+211   pi+  139.57 (MeV/c) meson pi 0
+-211   pi-  139.57 (MeV/c) meson pi 0
+321   kaon+  493.677 (MeV/c) meson kaon 0
+-321   kaon-  493.677 (MeV/c) meson kaon 0
+15   tau-  1776.82 (MeV/c) lepton tau 0
+-15   tau+  1776.82 (MeV/c) lepton tau 0
+111   pi0  134.977 (MeV/c) meson pi 0
+221   eta  547.853 (MeV/c) meson eta 0
+331   eta_prime  957.78 (MeV/c) meson eta_prime 0
+311   kaon0  497.614 (MeV/c) meson kaon 0
+-311   anti_kaon0  497.614 (MeV/c) meson kaon 0
+130   kaon0L  497.614 (MeV/c) meson kaon 0
+310   kaon0S  497.614 (MeV/c) meson kaon 0
+411   D+  1869.57 (MeV/c) meson D 0
+-411   D-  1869.57 (MeV/c) meson D 0
+421   D0  1864.8 (MeV/c) meson D 0
+-421   anti_D0  1864.8 (MeV/c) meson D 0
+431   Ds+  1968.45 (MeV/c) meson Ds 0
+-431   Ds-  1968.45 (MeV/c) meson Ds 0
+441   etac  2980.3 (MeV/c) meson etac 0
+443   J/psi  3096.92 (MeV/c) meson J/psi 0
+521   B+  5279.17 (MeV/c) meson B 0
+-521   B-  5279.17 (MeV/c) meson B 0
+511   B0  5279.5 (MeV/c) meson B 0
+-511   anti_B0  5279.5 (MeV/c) meson B 0
+531   Bs0  5366.3 (MeV/c) meson Bs 0
+-531   anti_Bs0  5366.3 (MeV/c) meson Bs 0
+541   Bc+  6277 (MeV/c) meson Bc 0
+-541   Bc-  6277 (MeV/c) meson Bc 0
+553   Upsilon  9460.3 (MeV/c) meson Upsilon 0
+2112   neutron  939.565 (MeV/c) baryon nucleon 0
+-2112   anti_neutron  939.565 (MeV/c) baryon nucleon 0
+3122   lambda  1115.68 (MeV/c) baryon lambda 0
+-3122   anti_lambda  1115.68 (MeV/c) baryon lambda 0
+3212   sigma0  1192.64 (MeV/c) baryon sigma 0
+-3212   anti_sigma0  1192.64 (MeV/c) baryon sigma 0
+3222   sigma+  1189.37 (MeV/c) baryon sigma 0
+-3222   anti_sigma+  1189.37 (MeV/c) baryon sigma 0
+3112   sigma-  1197.45 (MeV/c) baryon sigma 0
+-3112   anti_sigma-  1197.45 (MeV/c) baryon sigma 0
+3322   xi0  1314.86 (MeV/c) baryon xi 0
+-3322   anti_xi0  1314.86 (MeV/c) baryon xi 0
+3312   xi-  1321.71 (MeV/c) baryon xi 0
+-3312   anti_xi-  1321.71 (MeV/c) baryon xi 0
+3334   omega-  1672.45 (MeV/c) baryon omega 0
+-3334   anti_omega-  1672.45 (MeV/c) baryon omega 0
+4122   lambda_c+  2286.46 (MeV/c) baryon lambda_c 0
+4222   sigma_c++  2454.02 (MeV/c) baryon sigma_c 0
+4212   sigma_c+  2452.9 (MeV/c) baryon sigma_c 0
+4112   sigma_c0  2453.76 (MeV/c) baryon sigma_c 0
+4232   xi_c+  2467.8 (MeV/c) baryon xi_c 0
+4132   xi_c0  2470.88 (MeV/c) baryon xi_c 0
+4332   omega_c0  2695.2 (MeV/c) baryon omega_c 0
+-4122   anti_lambda_c+  2286.46 (MeV/c) baryon lambda_c 0
+-4222   anti_sigma_c++  2454.02 (MeV/c) baryon sigma_c 0
+-4212   anti_sigma_c+  2452.9 (MeV/c) baryon sigma_c 0
+-4112   anti_sigma_c0  2453.76 (MeV/c) baryon sigma_c 0
+-4232   anti_xi_c+  2467.8 (MeV/c) baryon xi_c 0
+-4132   anti_xi_c0  2470.88 (MeV/c) baryon xi_c 0
+-4332   anti_omega_c0  2695.2 (MeV/c) baryon omega_c 0
+5122   lambda_b  5620.2 (MeV/c) baryon lambda_b 0
+5222   sigma_b+  5807.8 (MeV/c) baryon sigma_b 0
+5112   sigma_b-  5815.2 (MeV/c) baryon sigma_b 0
+5232   xi_b0  5790.5 (MeV/c) baryon xi_b 0
+5132   xi_b-  5790.5 (MeV/c) baryon xi_b 0
+5332   omega_b-  6071 (MeV/c) baryon omega_b 0
+-5122   anti_lambda_b  5620.2 (MeV/c) baryon lambda_b 0
+-5222   anti_sigma_b+  5807.8 (MeV/c) baryon sigma_b 0
+-5112   anti_sigma_b-  5815.2 (MeV/c) baryon sigma_b 0
+-5232   anti_xi_b0  5790.5 (MeV/c) baryon xi_b 0
+-5132   anti_xi_b-  5790.5 (MeV/c) baryon xi_b 0
+-5332   anti_omega_b-  6071 (MeV/c) baryon omega_b 0
+2224   delta++  1232 (MeV/c) baryon  1
+2214   delta+  1232 (MeV/c) baryon  1
+2114   delta0  1232 (MeV/c) baryon  1
+1114   delta-  1232 (MeV/c) baryon  1
+-2224   anti_delta++  1232 (MeV/c) baryon  1
+-2214   anti_delta+  1232 (MeV/c) baryon  1
+-2114   anti_delta0  1232 (MeV/c) baryon  1
+-1114   anti_delta-  1232 (MeV/c) baryon  1
+223   omega  782.65 (MeV/c) meson  1
+333   phi  1019.46 (MeV/c) meson  1
+213   rho+  775.8 (MeV/c) meson  1
+-213   rho-  775.8 (MeV/c) meson  1
+113   rho0  775.49 (MeV/c) meson  1
+9000211   a0(980)+  980 (MeV/c) meson  1
+-9000211   a0(980)-  980 (MeV/c) meson  1
+9000111   a0(980)0  980 (MeV/c) meson  1
+9000221   f0(600)  800 (MeV/c) meson  1
+9010221   f0(980)  980 (MeV/c) meson  1
+9020221   eta(1405)  1409.8 (MeV/c) meson  1
+9030221   f0(1500)  1505 (MeV/c) meson  1
+10331   f0(1710)  1720 (MeV/c) meson  1
+323   k_star+  891.66 (MeV/c) meson  1
+313   k_star0  895.94 (MeV/c) meson  1
+-323   k_star-  891.66 (MeV/c) meson  1
+-313   anti_k_star0  895.94 (MeV/c) meson  1
+12112   N(1440)0  1440 (MeV/c) baryon  1
+12212   N(1440)+  1440 (MeV/c) baryon  1
+-12112   anti_N(1440)0  1440 (MeV/c) baryon  1
+-12212   anti_N(1440)+  1440 (MeV/c) baryon  1
+1214   N(1520)0  1520 (MeV/c) baryon  1
+2124   N(1520)+  1520 (MeV/c) baryon  1
+-1214   anti_N(1520)0  1520 (MeV/c) baryon  1
+-2124   anti_N(1520)+  1520 (MeV/c) baryon  1
+22112   N(1535)0  1535 (MeV/c) baryon  1
+22212   N(1535)+  1535 (MeV/c) baryon  1
+-22112   anti_N(1535)0  1535 (MeV/c) baryon  1
+-22212   anti_N(1535)+  1535 (MeV/c) baryon  1
+32112   N(1650)0  1655 (MeV/c) baryon  1
+32212   N(1650)+  1655 (MeV/c) baryon  1
+-32112   anti_N(1650)0  1655 (MeV/c) baryon  1
+-32212   anti_N(1650)+  1655 (MeV/c) baryon  1
+2116   N(1675)0  1675 (MeV/c) baryon  1
+2216   N(1675)+  1675 (MeV/c) baryon  1
+-2116   anti_N(1675)0  1675 (MeV/c) baryon  1
+-2216   anti_N(1675)+  1675 (MeV/c) baryon  1
+12116   N(1680)0  1685 (MeV/c) baryon  1
+12216   N(1680)+  1685 (MeV/c) baryon  1
+-12116   anti_N(1680)0  1685 (MeV/c) baryon  1
+-12216   anti_N(1680)+  1685 (MeV/c) baryon  1
+21214   N(1700)0  1700 (MeV/c) baryon  1
+22124   N(1700)+  1700 (MeV/c) baryon  1
+-21214   anti_N(1700)0  1700 (MeV/c) baryon  1
+-22124   anti_N(1700)+  1700 (MeV/c) baryon  1
+42112   N(1710)0  1710 (MeV/c) baryon  1
+42212   N(1710)+  1710 (MeV/c) baryon  1
+-42112   anti_N(1710)0  1710 (MeV/c) baryon  1
+-42212   anti_N(1710)+  1710 (MeV/c) baryon  1
+31214   N(1720)0  1720 (MeV/c) baryon  1
+32124   N(1720)+  1720 (MeV/c) baryon  1
+-31214   anti_N(1720)0  1720 (MeV/c) baryon  1
+-32124   anti_N(1720)+  1720 (MeV/c) baryon  1
+1218   N(2190)0  2190 (MeV/c) baryon  1
+2128   N(2190)+  2190 (MeV/c) baryon  1
+-1218   anti_N(2190)0  2190 (MeV/c) baryon  1
+-2128   anti_N(2190)+  2190 (MeV/c) baryon  1
+31114   delta(1600)-  1600 (MeV/c) baryon  1
+32114   delta(1600)0  1600 (MeV/c) baryon  1
+32214   delta(1600)+  1600 (MeV/c) baryon  1
+32224   delta(1600)++  1600 (MeV/c) baryon  1
+-31114   anti_delta(1600)-  1600 (MeV/c) baryon  1
+-32114   anti_delta(1600)0  1600 (MeV/c) baryon  1
+-32214   anti_delta(1600)+  1600 (MeV/c) baryon  1
+-32224   anti_delta(1600)++  1600 (MeV/c) baryon  1
+1112   delta(1620)-  1630 (MeV/c) baryon  1
+1212   delta(1620)0  1630 (MeV/c) baryon  1
+2122   delta(1620)+  1630 (MeV/c) baryon  1
+2222   delta(1620)++  1630 (MeV/c) baryon  1
+-1112   anti_delta(1620)-  1630 (MeV/c) baryon  1
+-1212   anti_delta(1620)0  1630 (MeV/c) baryon  1
+-2122   anti_delta(1620)+  1630 (MeV/c) baryon  1
+-2222   anti_delta(1620)++  1630 (MeV/c) baryon  1
+11114   delta(1700)-  1700 (MeV/c) baryon  1
+12114   delta(1700)0  1700 (MeV/c) baryon  1
+12214   delta(1700)+  1700 (MeV/c) baryon  1
+12224   delta(1700)++  1700 (MeV/c) baryon  1
+-11114   anti_delta(1700)-  1700 (MeV/c) baryon  1
+-12114   anti_delta(1700)0  1700 (MeV/c) baryon  1
+-12214   anti_delta(1700)+  1700 (MeV/c) baryon  1
+-12224   anti_delta(1700)++  1700 (MeV/c) baryon  1
+1116   delta(1905)-  1890 (MeV/c) baryon  1
+1216   delta(1905)0  1890 (MeV/c) baryon  1
+2126   delta(1905)+  1890 (MeV/c) baryon  1
+2226   delta(1905)++  1890 (MeV/c) baryon  1
+-1116   anti_delta(1905)-  1890 (MeV/c) baryon  1
+-1216   anti_delta(1905)0  1890 (MeV/c) baryon  1
+-2126   anti_delta(1905)+  1890 (MeV/c) baryon  1
+-2226   anti_delta(1905)++  1890 (MeV/c) baryon  1
+21112   delta(1910)-  1910 (MeV/c) baryon  1
+21212   delta(1910)0  1910 (MeV/c) baryon  1
+22122   delta(1910)+  1910 (MeV/c) baryon  1
+22222   delta(1910)++  1910 (MeV/c) baryon  1
+-21112   anti_delta(1910)-  1910 (MeV/c) baryon  1
+-21212   anti_delta(1910)0  1910 (MeV/c) baryon  1
+-22122   anti_delta(1910)+  1910 (MeV/c) baryon  1
+-22222   anti_delta(1910)++  1910 (MeV/c) baryon  1
+21114   delta(1920)-  1920 (MeV/c) baryon  1
+22114   delta(1920)0  1920 (MeV/c) baryon  1
+22214   delta(1920)+  1920 (MeV/c) baryon  1
+22224   delta(1920)++  1920 (MeV/c) baryon  1
+-21114   anti_delta(1920)-  1920 (MeV/c) baryon  1
+-22114   anti_delta(1920)0  1920 (MeV/c) baryon  1
+-22214   anti_delta(1920)+  1920 (MeV/c) baryon  1
+-22224   anti_delta(1920)++  1920 (MeV/c) baryon  1
+11116   delta(1930)-  1960 (MeV/c) baryon  1
+11216   delta(1930)0  1960 (MeV/c) baryon  1
+12126   delta(1930)+  1960 (MeV/c) baryon  1
+12226   delta(1930)++  1960 (MeV/c) baryon  1
+-11116   anti_delta(1930)-  1960 (MeV/c) baryon  1
+-11216   anti_delta(1930)0  1960 (MeV/c) baryon  1
+-12126   anti_delta(1930)+  1960 (MeV/c) baryon  1
+-12226   anti_delta(1930)++  1960 (MeV/c) baryon  1
+1118   delta(1950)-  1930 (MeV/c) baryon  1
+2118   delta(1950)0  1930 (MeV/c) baryon  1
+2218   delta(1950)+  1930 (MeV/c) baryon  1
+2228   delta(1950)++  1930 (MeV/c) baryon  1
+-1118   anti_delta(1950)-  1930 (MeV/c) baryon  1
+-2118   anti_delta(1950)0  1930 (MeV/c) baryon  1
+-2218   anti_delta(1950)+  1930 (MeV/c) baryon  1
+-2228   anti_delta(1950)++  1930 (MeV/c) baryon  1
+13122   lambda(1405)  1405.1 (MeV/c) baryon  1
+-13122   anti_lambda(1405)  1405.1 (MeV/c) baryon  1
+3124   lambda(1520)  1519.5 (MeV/c) baryon  1
+-3124   anti_lambda(1520)  1519.5 (MeV/c) baryon  1
+23122   lambda(1600)  1600 (MeV/c) baryon  1
+-23122   anti_lambda(1600)  1600 (MeV/c) baryon  1
+33122   lambda(1670)  1670 (MeV/c) baryon  1
+-33122   anti_lambda(1670)  1670 (MeV/c) baryon  1
+13124   lambda(1690)  1690 (MeV/c) baryon  1
+-13124   anti_lambda(1690)  1690 (MeV/c) baryon  1
+43122   lambda(1800)  1800 (MeV/c) baryon  1
+-43122   anti_lambda(1800)  1800 (MeV/c) baryon  1
+53122   lambda(1810)  1810 (MeV/c) baryon  1
+-53122   anti_lambda(1810)  1810 (MeV/c) baryon  1
+3126   lambda(1820)  1820 (MeV/c) baryon  1
+-3126   anti_lambda(1820)  1820 (MeV/c) baryon  1
+13126   lambda(1830)  1830 (MeV/c) baryon  1
+-13126   anti_lambda(1830)  1830 (MeV/c) baryon  1
+23124   lambda(1890)  1890 (MeV/c) baryon  1
+-23124   anti_lambda(1890)  1890 (MeV/c) baryon  1
+3128   lambda(2100)  2100 (MeV/c) baryon  1
+-3128   anti_lambda(2100)  2100 (MeV/c) baryon  1
+23126   lambda(2110)  2110 (MeV/c) baryon  1
+-23126   anti_lambda(2110)  2110 (MeV/c) baryon  1
+3114   sigma(1385)-  1387.2 (MeV/c) baryon  1
+3214   sigma(1385)0  1383.7 (MeV/c) baryon  1
+3224   sigma(1385)+  1382.8 (MeV/c) baryon  1
+-3114   anti_sigma(1385)-  1387.2 (MeV/c) baryon  1
+-3214   anti_sigma(1385)0  1383.7 (MeV/c) baryon  1
+-3224   anti_sigma(1385)+  1382.8 (MeV/c) baryon  1
+13112   sigma(1660)-  1660 (MeV/c) baryon  1
+13212   sigma(1660)0  1660 (MeV/c) baryon  1
+13222   sigma(1660)+  1660 (MeV/c) baryon  1
+-13112   anti_sigma(1660)-  1660 (MeV/c) baryon  1
+-13212   anti_sigma(1660)0  1660 (MeV/c) baryon  1
+-13222   anti_sigma(1660)+  1660 (MeV/c) baryon  1
+13114   sigma(1670)-  1670 (MeV/c) baryon  1
+13214   sigma(1670)0  1670 (MeV/c) baryon  1
+13224   sigma(1670)+  1670 (MeV/c) baryon  1
+-13114   anti_sigma(1670)-  1670 (MeV/c) baryon  1
+-13214   anti_sigma(1670)0  1670 (MeV/c) baryon  1
+-13224   anti_sigma(1670)+  1670 (MeV/c) baryon  1
+23112   sigma(1750)-  1750 (MeV/c) baryon  1
+23212   sigma(1750)0  1750 (MeV/c) baryon  1
+23222   sigma(1750)+  1750 (MeV/c) baryon  1
+-23112   anti_sigma(1750)-  1750 (MeV/c) baryon  1
+-23212   anti_sigma(1750)0  1750 (MeV/c) baryon  1
+-23222   anti_sigma(1750)+  1750 (MeV/c) baryon  1
+3116   sigma(1775)-  1775 (MeV/c) baryon  1
+3216   sigma(1775)0  1775 (MeV/c) baryon  1
+3226   sigma(1775)+  1775 (MeV/c) baryon  1
+-3116   anti_sigma(1775)-  1775 (MeV/c) baryon  1
+-3216   anti_sigma(1775)0  1775 (MeV/c) baryon  1
+-3226   anti_sigma(1775)+  1775 (MeV/c) baryon  1
+13116   sigma(1915)-  1915 (MeV/c) baryon  1
+13216   sigma(1915)0  1915 (MeV/c) baryon  1
+13226   sigma(1915)+  1915 (MeV/c) baryon  1
+-13116   anti_sigma(1915)-  1915 (MeV/c) baryon  1
+-13216   anti_sigma(1915)0  1915 (MeV/c) baryon  1
+-13226   anti_sigma(1915)+  1915 (MeV/c) baryon  1
+23114   sigma(1940)-  1940 (MeV/c) baryon  1
+23214   sigma(1940)0  1940 (MeV/c) baryon  1
+23224   sigma(1940)+  1940 (MeV/c) baryon  1
+-23114   anti_sigma(1940)-  1940 (MeV/c) baryon  1
+-23214   anti_sigma(1940)0  1940 (MeV/c) baryon  1
+-23224   anti_sigma(1940)+  1940 (MeV/c) baryon  1
+3118   sigma(2030)-  2030 (MeV/c) baryon  1
+3218   sigma(2030)0  2030 (MeV/c) baryon  1
+3228   sigma(2030)+  2030 (MeV/c) baryon  1
+-3118   anti_sigma(2030)-  2030 (MeV/c) baryon  1
+-3218   anti_sigma(2030)0  2030 (MeV/c) baryon  1
+-3228   anti_sigma(2030)+  2030 (MeV/c) baryon  1
+3314   xi(1530)-  1535 (MeV/c) baryon  1
+3324   xi(1530)0  1531.8 (MeV/c) baryon  1
+-3314   anti_xi(1530)-  1535 (MeV/c) baryon  1
+-3324   anti_xi(1530)0  1531.8 (MeV/c) baryon  1
+13314   xi(1820)-  1823 (MeV/c) baryon  1
+13324   xi(1820)0  1823 (MeV/c) baryon  1
+-13314   anti_xi(1820)-  1823 (MeV/c) baryon  1
+-13324   anti_xi(1820)0  1823 (MeV/c) baryon  1
+-10213   b1(1235)-  1229.5 (MeV/c) meson  1
+10113   b1(1235)0  1229.5 (MeV/c) meson  1
+10213   b1(1235)+  1229.5 (MeV/c) meson  1
+10223   h1(1170)  1170 (MeV/c) meson  1
+10313   k1(1270)0  1272 (MeV/c) meson  1
+10323   k1(1270)+  1272 (MeV/c) meson  1
+-10323   k1(1270)-  1272 (MeV/c) meson  1
+-10313   anti_k1(1270)0  1272 (MeV/c) meson  1
+-10211   a0(1450)-  1474 (MeV/c) meson  1
+10111   a0(1450)0  1474 (MeV/c) meson  1
+10211   a0(1450)+  1474 (MeV/c) meson  1
+-20213   a1(1260)-  1230 (MeV/c) meson  1
+20113   a1(1260)0  1230 (MeV/c) meson  1
+20213   a1(1260)+  1230 (MeV/c) meson  1
+20223   f1(1285)  1281.8 (MeV/c) meson  1
+20333   f1(1420)  1426.4 (MeV/c) meson  1
+20313   k1(1400)0  1403 (MeV/c) meson  1
+20323   k1(1400)+  1403 (MeV/c) meson  1
+-20323   k1(1400)-  1403 (MeV/c) meson  1
+-20313   anti_k1(1400)0  1403 (MeV/c) meson  1
+-215   a2(1320)-  1318.3 (MeV/c) meson  1
+115   a2(1320)0  1318.3 (MeV/c) meson  1
+215   a2(1320)+  1318.3 (MeV/c) meson  1
+225   f2(1270)  1275.1 (MeV/c) meson  1
+335   f2_prime(1525)  1525 (MeV/c) meson  1
+315   k2_star(1430)0  1432.4 (MeV/c) meson  1
+325   k2_star(1430)+  1425.6 (MeV/c) meson  1
+-325   k2_star(1430)-  1425.6 (MeV/c) meson  1
+-315   anti_k2_star(1430)0  1432.4 (MeV/c) meson  1
+-10215   pi2(1670)-  1672.2 (MeV/c) meson  1
+10115   pi2(1670)0  1672.2 (MeV/c) meson  1
+10215   pi2(1670)+  1672.2 (MeV/c) meson  1
+10225   eta2(1645)  1617 (MeV/c) meson  1
+10335   eta2(1870)  1842 (MeV/c) meson  1
+10315   k2(1770)0  1773 (MeV/c) meson  1
+10325   k2(1770)+  1773 (MeV/c) meson  1
+-10325   k2(1770)-  1773 (MeV/c) meson  1
+-10315   anti_k2(1770)0  1773 (MeV/c) meson  1
+-30213   rho(1700)-  1720 (MeV/c) meson  1
+30113   rho(1700)0  1720 (MeV/c) meson  1
+30213   rho(1700)+  1720 (MeV/c) meson  1
+30223   omega(1650)  1670 (MeV/c) meson  1
+30313   k_star(1680)0  1717 (MeV/c) meson  1
+30323   k_star(1680)+  1717 (MeV/c) meson  1
+-30323   k_star(1680)-  1717 (MeV/c) meson  1
+-30313   anti_k_star(1680)0  1717 (MeV/c) meson  1
+-217   rho3(1690)-  1688.8 (MeV/c) meson  1
+117   rho3(1690)0  1688.8 (MeV/c) meson  1
+217   rho3(1690)+  1688.8 (MeV/c) meson  1
+227   omega3(1670)  1667 (MeV/c) meson  1
+337   phi3(1850)  1854 (MeV/c) meson  1
+317   k3_star(1780)0  1776 (MeV/c) meson  1
+327   k3_star(1780)+  1776 (MeV/c) meson  1
+-327   k3_star(1780)-  1776 (MeV/c) meson  1
+-317   anti_k3_star(1780)0  1776 (MeV/c) meson  1
+-100211   pi(1300)-  1300 (MeV/c) meson  1
+100111   pi(1300)0  1300 (MeV/c) meson  1
+100211   pi(1300)+  1300 (MeV/c) meson  1
+100221   eta(1295)  1294 (MeV/c) meson  1
+100331   eta(1475)  1476 (MeV/c) meson  1
+100311   k(1460)0  1460 (MeV/c) meson  1
+100321   k(1460)+  1460 (MeV/c) meson  1
+-100321   k(1460)-  1460 (MeV/c) meson  1
+-100311   anti_k(1460)0  1460 (MeV/c) meson  1
+-100213   rho(1450)-  1465 (MeV/c) meson  1
+100113   rho(1450)0  1465 (MeV/c) meson  1
+100213   rho(1450)+  1465 (MeV/c) meson  1
+100223   omega(1420)  1425 (MeV/c) meson  1
+100333   phi(1680)  1680 (MeV/c) meson  1
+100313   k_star(1410)0  1414 (MeV/c) meson  1
+100323   k_star(1410)+  1414 (MeV/c) meson  1
+-100323   k_star(1410)-  1414 (MeV/c) meson  1
+-100313   anti_k_star(1410)0  1414 (MeV/c) meson  1
+9060225   f2(2010)  2010 (MeV/c) meson  1
+999   geantino  0 (MeV/c) geantino geantino 0
+998   chargedgeantino  0 (MeV/c) geantino geantino 0
+0   unboundPN  1877.84 (MeV/c) nucleus  1
+0   dineutron  1879.13 (MeV/c) nucleus  1
+0   diproton  1876.54 (MeV/c) nucleus  1
