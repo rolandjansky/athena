@@ -24,7 +24,7 @@ Branch                                                            | Purpose     
 Links
 -----
 
-- The [ATLAS webpage](https://atlas.ch) will tell you all about the ATLAS experiment (for ATLAS members, the collaboration webpage is [here](http://atlas.web.cern.ch/Atlas/Collaboration/))
+- The [ATLAS webpage](https://atlas.ch) will tell you all about the ATLAS experiment (for ATLAS members, the collaboration webpage is [here](https://atlas-collaboration.web.cern.ch/))
 - The [Twiki](https://twiki.cern.ch/twiki/bin/view/AtlasComputing/AtlasComputing) is the main source of documentation, and has many links to sub-domains
 - The [software documentation](https://atlassoftwaredocs.web.cern.ch) page has some tutorials etc
 - The git repository is [here](https://gitlab.cern.ch/atlas/athena)
