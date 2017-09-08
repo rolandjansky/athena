@@ -137,13 +137,10 @@ StatusCode JSSWTopTaggerBDT::initialize(){
     return StatusCode::FAILURE;
   }
   else if(m_calibarea.compare("Local")==0){
-    ATH_MSG_INFO( (m_APP_NAME+": Using Local calibarea BoostedJetTaggers/share/JSSWTopTaggerBDT/" ));
+    std::string localCalibArea = "BoostedJetTaggers/share/JSSWTopTaggerBDT/";
+    ATH_MSG_INFO( (m_APP_NAME+": Using Local calibarea "+localCalibArea));
     // convert the JSON config file name to the full path
-    #ifdef ROOTCORE
-        m_tmvaConfigFilePath = gSystem->ExpandPathName(("$ROOTCOREBIN/data/BoostedJetTaggers/JSSWTopTaggerBDT/"+m_tmvaConfigFileName).c_str());
-    #else
-        m_tmvaConfigFilePath   = PathResolverFindDataFile("BoostedJetTaggers/data/"+m_tmvaConfigFileName);
-    #endif
+    m_tmvaConfigFilePath = PathResolverFindCalibFile(localCalibArea+m_tmvaConfigFileName);
   }
   else{
     ATH_MSG_INFO( (m_APP_NAME+": Using CVMFS calibarea") );

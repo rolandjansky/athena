@@ -116,7 +116,7 @@ StatusCode JSSWTopTaggerDNN::initialize(){
         m_strMassCutLow.empty() ||
         m_strMassCutHigh.empty() ||
         m_decorationName.empty()) {
-      ATH_MSG_ERROR( "No config file provided AND you haven't manually specified all needed parameters" ) ;
+      ATH_MSG_ERROR( "No config file provided OR you haven't manually specified all needed parameters" ) ;
       ATH_MSG_ERROR( "Please read the TWiki for this tool" );
       return StatusCode::FAILURE;
     }
@@ -139,13 +139,10 @@ StatusCode JSSWTopTaggerDNN::initialize(){
     return StatusCode::FAILURE;
   }
   else if(m_calibarea.compare("Local")==0){
-    ATH_MSG_INFO( (m_APP_NAME+": Using Local calibarea BoostedJetTaggers/share/JSSWTopTaggerDNN/" ));
+    std::string localCalibArea = "BoostedJetTaggers/share/JSSWTopTaggerDNN/";
+    ATH_MSG_INFO( (m_APP_NAME+": Using Local calibarea "+localCalibArea ));
     // convert the JSON config file name to the full path
-    #ifdef ROOTCORE
-        m_kerasConfigFilePath = gSystem->ExpandPathName(("$ROOTCOREBIN/data/BoostedJetTaggers/JSSWTopTaggerDNN/"+m_kerasConfigFileName).c_str());
-    #else
-        m_kerasConfigFilePath   = PathResolverFindDataFile("BoostedJetTaggers/data/"+m_kerasConfigFileName);
-    #endif
+    m_kerasConfigFilePath = PathResolverFindCalibFile(localCalibArea+m_kerasConfigFileName);
   }
   else{
     ATH_MSG_INFO( (m_APP_NAME+": Using CVMFS calibarea") );
