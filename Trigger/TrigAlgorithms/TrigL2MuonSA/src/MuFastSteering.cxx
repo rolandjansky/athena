@@ -47,12 +47,10 @@ MuFastSteering::MuFastSteering(const std::string& name, ISvcLocator* svc)
     m_rpcFitResult(), m_tgcFitResult(),
     m_mdtHits_normal(), m_mdtHits_overlap(),
     m_cscHits(),
-    m_jobOptionsSvc(0), m_trigCompositeContainer(0),
-
-    //adding a part of DataHandle for AthenaMT
     m_roiCollection("L1MURoIs"),		//ReadHandle L1MuRoIs to read in
     m_muFeContainer("MuonFeature"),		//WriteHandle MuonFeature to record
-    m_muFeDeContainer("MuonFeatureDetails")	//WriteHandle MuonFeatureDetails to record
+    m_muFeDeContainer("MuonFeatureDetails"),    //WriteHandle MuonFeatureDetails to record
+    m_jobOptionsSvc(0), m_trigCompositeContainer(0)
 {
   declareProperty("DataPreparator",    m_dataPreparator,    "data preparator");
   declareProperty("PatternFinder",     m_patternFinder,     "pattern finder");
