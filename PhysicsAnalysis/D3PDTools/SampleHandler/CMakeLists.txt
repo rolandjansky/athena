@@ -71,6 +71,7 @@ endfunction( _add_test )
 # these particular tests needs a bit more time to finish (default 120 s)
 set_tests_properties( SampleHandler_gt_disk_list_eos_ctest PROPERTIES TIMEOUT 600)
 set_tests_properties( SampleHandler_it_GridTools_ctest PROPERTIES TIMEOUT 600)
+set_tests_properties( SampleHandler_ut_disk_list_xrd_ctest PROPERTIES TIMEOUT 600)
 
 file( GLOB _tests test/ut_*.cxx )
 foreach( test ${_tests} lnk_sample.cxx )
