@@ -3,8 +3,16 @@
 import PyJobTransforms.trfExceptions as trfExceptions
 import PyJobTransforms.trfArgClasses as trfArgClasses
 
+
+def addTrigFTKAthenaOptions(parser):
+    parser.defineArgGroup('Athena', 'General Athena Options')
+    parser.add_argument('--asetup', group='Athena', type=trfArgClasses.argFactory(trfArgClasses.argSubstep, runarg=False), nargs='+', metavar='substep:ASETUP',
+                        help='asetup command string to be run before this substep is executed')
+    return None
+
 def addTrigFTKSimOptions(parser,nsubregions=4):
     parser.defineArgGroup('TrigFTKSim', 'Fast tracker simulation generic options')
+
     parser.add_argument('--NBanks', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
                         help='Number of pattern banks', group='TrigFTKSim')
     # Here we set a default value as the merger wants this explicitly
@@ -215,15 +223,15 @@ def addTrigFTKSimTFOptions(parser):
                         help="Print SSB Constants in firmware-style", group='TrigFTKTrackFitter')
 
     parser.add_argument('--dTIBL', type=trfArgClasses.argFactory(trfArgClasses.argFloat, runarg=True),
-                        help="dT for IBL temperature shifts in SSB fit.", group='TrigFTKSim')
+                        help="dT for IBL temperature shifts in SSB fit.", group='TrigFTKTrackFitter')
 
 
     parser.add_argument('--doAuxFW', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
-                        help="Enables firmware-style constants", group='TrigFTKSim')
+                        help="Enables firmware-style constants", group='TrigFTKTrackFitter')
     parser.add_argument('--MaxNcomb', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
-                        help="Limit on the number of combinations per road", group='TrigFTKSim')
+                        help="Limit on the number of combinations per road", group='TrigFTKTrackFitter')
     parser.add_argument('--MaxNhitsPerPlane', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
-                        help="limit the number of hits per plane per road", group='TrigFTKSim')
+                        help="limit the number of hits per plane per road", group='TrigFTKTrackFitter')
 
     parser.add_argument("--Save1stStageTrks", type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help="Save the tracks after the first stage", group='TrigFTKTrackFitter')
