@@ -160,7 +160,7 @@ def applyJetCalibration(jetalg,algname,sequence):
     else:
         isdata=False
 
-        configdict = {'AntiKt4EMTopo':('JES_data2016_data2015_Recommendation_Dec2016_rel21.config',
+        configdict = {'AntiKt4EMTopo':('JES_MC16Recommendation_Aug2017.config',
                                        'JetArea_Residual_EtaJES_GSC'),
                       'AntiKt4LCTopo':('JES_data2016_data2015_Recommendation_Dec2016_rel21.config',
                                        'JetArea_Residual_EtaJES_GSC'),
