@@ -62,7 +62,7 @@ if( XAOD_STANDALONE )
    atlas_add_test( ut_triggers_fired
       SOURCES test/ut_triggers_fired.cxx
       LINK_LIBRARIES TrigAnalysisTestLib )
-
+   set_tests_properties( TrigAnalysisTest_ut_triggers_fired_ctest PROPERTIES TIMEOUT 600)
    atlas_add_test( ut_validate_run1_bs_to_xaod
       SOURCES test/ut_validate_run1_bs_to_xaod.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
