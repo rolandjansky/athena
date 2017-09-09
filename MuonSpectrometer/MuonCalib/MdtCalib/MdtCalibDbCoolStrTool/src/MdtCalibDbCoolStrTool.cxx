@@ -186,18 +186,11 @@ StatusCode MdtCalibDbCoolStrTool::initialize() {
     return StatusCode::FAILURE;
   }
 
-  // Get the transient address using the proxy
-  SG::TransientAddress *tad = proxy->transientAddress();
-  if (!tad) {
-    ATH_MSG_ERROR( "Unable to get the tad" );
-    return StatusCode::FAILURE;
-  }
-
   // Address provider is the pointer to this tool (MdtCalibDbCoolStrTool)
   // That is, the calib data is stored in MdtCalibDbCoolStrTool, but a pointer to that
   // is kept in StoreGate (I think...)
   IAddressProvider *addp = this;
-  tad->setProvider(addp, StoreID::DETECTOR_STORE);
+  proxy->setProvider(addp, StoreID::DETECTOR_STORE);
   ATH_MSG_DEBUG( "set address provider for MdtTubeCalibContainerCollection" );
 
   // initialize MdtRtRelationCollection 
@@ -221,14 +214,8 @@ StatusCode MdtCalibDbCoolStrTool::initialize() {
     return StatusCode::FAILURE;
   }
                                                                                 
-  tad =  proxy->transientAddress();
-  if (!tad) {
-    ATH_MSG_ERROR( "Unable to get the tad" );
-    return StatusCode::FAILURE;
-  }
-                                                                                
   addp = this;
-  tad->setProvider(addp, StoreID::DETECTOR_STORE);
+  proxy->setProvider(addp, StoreID::DETECTOR_STORE);
   ATH_MSG_DEBUG( "set address provider for MdtRtRelationCollection" );
    
   //initiallize random number generator if doing t0 smearing (for robustness studies)
@@ -489,14 +476,8 @@ StatusCode MdtCalibDbCoolStrTool::loadTube(IOVSVC_CALLBACK_ARGS) {
     return StatusCode::FAILURE;
   }
   
-  SG::TransientAddress *tad = proxy->transientAddress();
-  if (!tad) {
-    ATH_MSG_ERROR( "Unable to get the tad" );
-    return StatusCode::FAILURE;
-  }
-
   IAddressProvider *addp = this;
-  tad->setProvider(addp, StoreID::DETECTOR_STORE);
+  proxy->setProvider(addp, StoreID::DETECTOR_STORE);
   ATH_MSG_DEBUG( "set address provider for MdtTubeCalibContainerCollection" );
   
   m_IOVDbSvc->dropObject(m_tubeFolder, true);
@@ -907,14 +888,8 @@ StatusCode MdtCalibDbCoolStrTool::loadRt(IOVSVC_CALLBACK_ARGS) {
     return StatusCode::FAILURE;
   }
                                                                                 
-  SG::TransientAddress *tad = proxy->transientAddress();
-  if (!tad) {
-    ATH_MSG_ERROR( "Unable to get the tad" );
-    return StatusCode::FAILURE;
-  }
-                                                                                
   IAddressProvider *addp = this;
-  tad->setProvider(addp, StoreID::DETECTOR_STORE);
+  proxy->setProvider(addp, StoreID::DETECTOR_STORE);
   ATH_MSG_DEBUG( "set address provider for MdtRtRelationCollection" );
                                                                                 
   m_IOVDbSvc->dropObject(m_rtFolder, true);
