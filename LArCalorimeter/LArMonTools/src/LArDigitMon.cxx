@@ -124,7 +124,7 @@ LArDigitMon::~LArDigitMon()
 }
 
 StatusCode 
-LArDigitMon::finalHists()
+LArDigitMon::finalize()
 {
   ATH_MSG_INFO( "finalHists LArDigitMon" );
   DeleteHist(m_BarrelA);
