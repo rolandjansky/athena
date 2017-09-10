@@ -25,7 +25,14 @@ InDet::InDetTrtTrackScoringTool::InDetTrtTrackScoringTool(const std::string& t,
   m_summaryTypeScore(Trk::numberOfTrackSummaryTypes),
   m_trkSummaryTool("Trk::TrackSummaryTool"),
   m_selectortool("InDet::InDetTrtDriftCircleCutTool"),
-  m_magFieldSvc("AtlasFieldSvc",n) 
+  m_magFieldSvc("AtlasFieldSvc",n),
+  // Initialization of ID TRT helper
+  m_trtId(nullptr),
+  // Initialization of ScoreModifiers variables
+  m_maxSigmaChi2(-1), 
+  m_maxLogProb(-1),
+  m_maxTrtRatio(-1),
+  m_maxTrtFittedRatio(-1) 
 {
   declareInterface<Trk::ITrackScoringTool>(this);
   
