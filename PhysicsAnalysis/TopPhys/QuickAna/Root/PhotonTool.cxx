@@ -67,6 +67,8 @@ namespace ana
     // Initialize Fudge Tool
     ATH_CHECK (ASG_MAKE_ANA_TOOL (m_fudgeMCTool, ElectronPhotonShowerShapeFudgeTool));
     ATH_CHECK (m_fudgeMCTool.setProperty ("Preselection", 21)); // 21 == MC15
+    TString ffFile = "ElectronPhotonShowerShapeFudgeTool/v1/PhotonFudgeFactors.root";
+    ATH_CHECK (m_fudgeMCTool.setProperty("FFCalibFile", ffFile.Data())); //only for rel21 
     ATH_CHECK (m_fudgeMCTool.initialize());
 
     // Initialize isolation correction tool

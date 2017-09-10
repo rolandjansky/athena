@@ -72,7 +72,7 @@ namespace ana
     declareProperty("DoJVTCut", m_doJVTCut=true);
     declareProperty("DoTrackMet", m_doTrackMET=false);
     declareProperty("DoSetMuonJetEMScale", m_doMuJetEMScale=false);
-    declareProperty("JetSelection", m_jetSelection="Default");
+    declareProperty("JetSelection", m_jetSelection="Tight");
     declareProperty("ORCaloTaggedMuons", m_doORCaloTaggedMuons=true);
     declareProperty("JetUniqueFrac", m_uniqueFrac=-1.);
     declareProperty("JetUniqueCut", m_jetCut=-1.);
@@ -364,7 +364,7 @@ namespace ana
                           const bool doTrackMet=false,
                           const bool doORCaloTaggedMuons=true,
                           const bool doMuJetEMScale=false,
-                          const std::string& jetSelection="Default",
+                          const std::string& jetSelection="Tight",
                           const double uniqueFrac=-1.,
                           const double jetCut=-1.)
   {
