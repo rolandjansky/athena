@@ -1,1 +1,1 @@
-/afs/cern.ch/user/a/asgbase/patspace/xAODs/a818/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.merge.AOD.e3698_a766_a818_r7676/AOD.07919492._000100.pool.root.1
+/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/CommonInputs/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.AOD.e4993_s3189_r9524/AOD.11799733._000034.pool.root.1
