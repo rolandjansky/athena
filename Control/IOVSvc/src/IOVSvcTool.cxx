@@ -542,7 +542,7 @@ IOVSvcTool::handle(const Incident &inc) {
       // Load data if preload requested.
 
       if ( (m_partialPreLoadData && 
-            m_partPreLoad.find(prx->transientAddress()) != m_partPreLoad.end())
+            m_partPreLoad.find(TADkey(*prx)) != m_partPreLoad.end())
            ||
            m_preLoadData ) {       
         if (m_log.level() <= MSG::VERBOSE) {
@@ -633,9 +633,7 @@ IOVSvcTool::handle(const Incident &inc) {
           m_log << MSG::DEBUG << "calling provider()->udpateAddress(TAD) for " 
                 << m_names[prx]    << endmsg;
         }
-        static const EventContext ctx;
-        StatusCode sc = prx->transientAddress()->provider()->updateAddress(prx->transientAddress()->storeID(), prx->transientAddress(), ctx);
-        if (StatusCode::SUCCESS != sc) {
+        if (!prx->updateAddress()) {
           m_log << MSG::ERROR << "handle: Could not update address" << endmsg;
           if (perr != 0) throw (*perr);
           return;
@@ -643,7 +641,7 @@ IOVSvcTool::handle(const Incident &inc) {
       }
       
       if (m_log.level() <= MSG::VERBOSE) {
-        IOpaqueAddress *ioa = prx->transientAddress()->address();
+        IOpaqueAddress *ioa = prx->address();
         // Print out some debug info if this is an IOVAddress (coming 
         // from IOVASCIIDbSvc) 
         IOVAddress *iova  = dynamic_cast<IOVAddress*>(ioa);
@@ -885,7 +883,7 @@ IOVSvcTool::preLoadTAD( const TransientAddress *tad_in ) {
   }
 
   // check to see if it's a duplicate in partPreLoad
-  if (m_partPreLoad.find( tad_in ) != m_partPreLoad.end()) {
+  if (m_partPreLoad.find( TADkey(*tad_in) ) != m_partPreLoad.end()) {
     m_log << MSG::WARNING << "preLoadTAD: TransientAddress (" 
           << tad_in->clID() << "/" << tad_in->name() 
           << ") alread in partPreLoad set. Not inserting" << endmsg;
@@ -913,7 +911,7 @@ IOVSvcTool::preLoadDataTAD( const TransientAddress *tad_in ) {
     return StatusCode::SUCCESS;
   }
 
-  if (m_partPreLoad.find(tad_in) != m_partPreLoad.end()) {
+  if (m_partPreLoad.find(TADkey(*tad_in)) != m_partPreLoad.end()) {
     m_log << MSG::WARNING << "preLoadDataTAD: TransientAddress " 
           << fullProxyName( tad_in )
           << " alread in partPreLoad set. Not inserting" << endmsg;
@@ -922,7 +920,7 @@ IOVSvcTool::preLoadDataTAD( const TransientAddress *tad_in ) {
 
   TransientAddress* tad = new TransientAddress (tad_in->clID(),tad_in->name());
   m_preLoad.insert( tad );
-  m_partPreLoad.insert( tad );
+  m_partPreLoad.insert( TADkey(*tad) );
 
   return StatusCode::SUCCESS;
 }
@@ -1068,7 +1066,7 @@ IOVSvcTool::getRangeFromDB(const CLID& clid, const std::string& key,
   DataProxy* dp = p_cndSvc->proxy(clid,key);
   if (0 != dp) {    
     IIOVDbSvc *idb = 
-      dynamic_cast<IIOVDbSvc*>(dp->transientAddress()->provider());
+      dynamic_cast<IIOVDbSvc*>(dp->provider());
     if (idb != 0) {
       sc = idb->getRange(clid, key, time, range, tag, ioa);
     } else {
@@ -1107,7 +1105,7 @@ IOVSvcTool::setRangeInDB(const CLID& clid, const std::string& key,
           << " not registered with the IOVSvc" << endmsg;
   }
 
-  IAddressProvider *iadp = dp->transientAddress()->provider();
+  IAddressProvider *iadp = dp->provider();
   IIOVDbSvc *idb = dynamic_cast<IIOVDbSvc*>(iadp);
 
   if (idb != 0) {
@@ -1140,11 +1138,11 @@ IOVSvcTool::preLoadProxies() {
     if (m_log.level() <= MSG::VERBOSE) {
       m_log << MSG::VERBOSE;
       m_log.setColor(MSG::CYAN);
-      m_log << "loading proxy for CLID: " << dp->transientAddress()->clID()
+      m_log << "loading proxy for CLID: " << dp->clID()
             << "  " << m_names[dp] << endmsg;
     }
 
-    if (dp->transientAddress() == 0 || dp->transientAddress()->provider() == 0) {
+    if (dp->provider() == 0) {
       m_log << MSG::FATAL << "No provider found for proxy " << m_names[dp]
             << ".  It is probably  not a conditions object" << endl;
       m_log << "Proxy Map: ";
@@ -1163,18 +1161,18 @@ IOVSvcTool::preLoadProxies() {
       if (m_log.level() <= MSG::VERBOSE) {
         m_log << MSG::VERBOSE << "updating Range" << endmsg;
       }
-      static const EventContext ctx;
-      sc = dp->transientAddress()->provider()->updateAddress(dp->transientAddress()->storeID(), dp->transientAddress(), ctx);
+      if (!dp->updateAddress())
+        sc = StatusCode::FAILURE;
     }
 
     if ( ( m_partialPreLoadData && 
-           m_partPreLoad.find(dp->transientAddress()) != m_partPreLoad.end() )
+           m_partPreLoad.find(TADkey(*dp)) != m_partPreLoad.end() )
          ||
          m_preLoadData ) {
       if (m_log.level() <= MSG::VERBOSE) {
         m_log << MSG::VERBOSE << "preloading data for (" 
-              << dp->transientAddress()->clID() << "/"
-              << dp->transientAddress()->name() << ")" << endmsg;
+              << dp->clID() << "/"
+              << dp->name() << ")" << endmsg;
       }
       sc =  ( dp->accessData() != 0 ? 
               StatusCode::SUCCESS : StatusCode::FAILURE );
@@ -1361,7 +1359,7 @@ IOVSvcTool::PrintProxyMap(){
 void 
 IOVSvcTool::PrintProxyMap(const SG::DataProxy* dp){
 
-  m_log << "  " << dp << "  " << dp->transientAddress()->clID() << "  "
+  m_log << "  " << dp << "  " << dp->clID() << "  "
         << m_names.find(dp)->second << endl;
 
   pair<pmITR,pmITR> pi = m_proxyMap.equal_range(dp);
@@ -1465,7 +1463,7 @@ IOVSvcTool::regFcn(SG::DataProxy* dp,
       m_trigTree->connectNode(cn,cp);
     else
       m_log << MSG::ERROR << "Cannot find callback node for parent DataProxy "
-            << dp->transientAddress()->name()
+            << dp->name()
             << endmsg;
   }
 
