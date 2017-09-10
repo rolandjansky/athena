@@ -411,8 +411,8 @@ StatusCode RegistrationStream::getRefs(std::vector< std::pair<std::string,std::s
 	
         // Update ref token to handle fast merged files.
         SG::DataProxy* dhProxy = evtStore()->proxy(hdr);
-        if (dhProxy != 0 && dhProxy->transientAddress() != 0 && dhProxy->transientAddress()->address() != 0) {
-          ref  = dhProxy->transientAddress()->address()->par()[0];
+        if (dhProxy != 0 && dhProxy->address() != 0) {
+          ref  = dhProxy->address()->par()[0];
         }
 
         ATH_MSG_DEBUG("Pushing back ref " << ref << " for " << ptag);
