@@ -56,7 +56,7 @@ namespace Monitored {
          */
         template<class T>
         MonitoredObjectsCollection<T> declare(std::string name, const T& collection, 
-                                              std::function<double(const typename MonitoredObjectsCollection<T>::value_type&)> converterToDouble) {
+                                              std::function<double(const typename MonitoredObjectsCollection<T>::const_value_type&)> converterToDouble) {
             return MonitoredObjectsCollection<T>(std::move(name), collection, 
                                                  std::move(converterToDouble));
         }
@@ -71,6 +71,15 @@ namespace Monitored {
             template <typename T, size_t N>
             struct get_value_type<T[N]> {
                 typedef T value_type;
+            };
+
+            template <typename T>
+            struct make_pointer_const {
+              typedef T type;
+            };
+            template <typename T>
+            struct make_pointer_const<T*> {
+              typedef const T* type;
             };
         }
   
@@ -117,13 +126,14 @@ namespace Monitored {
         public:
             /// Type of the collection elements
             using value_type = typename detail::get_value_type<T>::value_type;
+            using const_value_type = typename detail::make_pointer_const<value_type>::type;
 
             /// @brief .     \if empty doc string required due to doxygen bug 787131 \endif
             // With a non-template friend declaration, clang 4.0.1
             // fails to match the friend.
             template <class U>
             friend MonitoredObjectsCollection<U> declare(std::string name, const U& collection, 
-                                                         std::function<double(const typename MonitoredObjectsCollection<U>::value_type&)> converterToDouble);
+                                                         std::function<double(const typename MonitoredObjectsCollection<U>::const_value_type&)> converterToDouble);
             
             MonitoredObjectsCollection(MonitoredObjectsCollection&&) = default;
             
@@ -140,10 +150,10 @@ namespace Monitored {
             }
         private:
             const T& m_collection;
-            std::function<double(const value_type&)> m_converterToDouble;
+            std::function<double(const const_value_type&)> m_converterToDouble;
             
             MonitoredObjectsCollection(std::string name, const T& collection, 
-                                       std::function<double(const value_type&)> converterToDouble)
+                                       std::function<double(const const_value_type&)> converterToDouble)
             : IMonitoredVariable(std::move(name)), 
               m_collection(collection), 
               m_converterToDouble(std::move(converterToDouble)) { }
