@@ -256,8 +256,6 @@ if DQMonFlags.doMonitoring():
       include("AthenaMonitoring/AtlasReadyFilterTool_jobOptions.py")
    monToolSet_after = set(ToolSvc.getChildren())
    local_logger.debug('DQ Post-Setup Configuration')
-   import re
-   from AthenaMonitoring.EventFlagFilterTool import GetEventFlagFilterTool
    for tool in monToolSet_after-monToolSet_before:
       # stop lumi access if we're in MC or enableLumiAccess == False
       if 'EnableLumi' in dir(tool):
@@ -273,25 +271,6 @@ if DQMonFlags.doMonitoring():
          if rec.triggerStream()=='express':
             local_logger.info('Stream is express and we will add ready tool for %s', tool)
             tool.FilterTools += [monAtlasReadyFilterTool]
-         # unless prevented: configure a generic event cleaning tool
-         if not any(re.match(_, tool.name()) for _ in DQMonFlags.excludeFromCleaning()):
-            if tool.name() in DQMonFlags.specialCleaningConfiguration():
-               config_ = DQMonFlags.specialCleaningConfiguration()[tool.name()].copy()
-               for _ in config_:
-                  try:
-                     config_[_] = bool(config_[_])
-                  except:
-                     local_logger.error('Unable to enact special event cleaning configuration for tool %s; cannot cast %s=%s to bool', tool.name(), _, config_[_])
-               config_['name'] = 'DQEventFlagFilterTool_%s' % tool.name()
-               tool.FilterTools += [GetEventFlagFilterTool(**config_)]
-               del config_
-               local_logger.info('Configurating special event cleaning for tool %s', tool)
-            else:
-               local_logger.info('Configuring generic event cleaning for tool %s', tool)
-               tool.FilterTools += [GetEventFlagFilterTool('DQEventFlagFilterTool')]
-         else:
-            local_logger.info('NOT configuring event cleaning for tool %s', tool)
-
          # give all the tools the trigger translator
          if DQMonFlags.useTrigger():
             tool.TrigDecisionTool = monTrigDecTool
