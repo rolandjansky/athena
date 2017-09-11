@@ -66,78 +66,13 @@ class TBSimSkeleton(SimSkeleton):
         Setup and add metadata to the HIT file
         """
         import AtlasG4Eng
-        from G4AtlasApps.SimFlags import simFlags
-        if (jobproperties.AthenaCommonFlags.PoolHitsOutput.statusOn) :
+        AtlasG4Eng.G4Eng.log.verbose('TBSimSkeleton :: _do_metadata :: starting')
+        from G4AtlasApps.G4Atlas_Metadata import createTBSimulationParametersMetadata
+        createTBSimulationParametersMetadata()
+
+        from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+        if (athenaCommonFlags.PoolHitsOutput.statusOn) :
             AtlasG4Eng.G4Eng.log.info('SimCtbKernel : Recording Metadata')
-            from IOVDbMetaDataTools import ParameterDbFiller
-            dbFiller = ParameterDbFiller.ParameterDbFiller()
-            myOutput = "-1"
-            import os
-
-            # sort out the run number that we need to use
-            myMinRunNumber = 0
-            myMaxRunNumber = 2147483647
-            if simFlags.__dict__.__contains__('RunNumber') and simFlags.RunNumber.statusOn :
-                AtlasG4Eng.G4Eng.log.info( "Setting run number to input: ",simFlags.RunNumber()," with a range of 1" )
-                myMinRunNumber = simFlags.RunNumber()
-                myMaxRunNumber = simFlags.RunNumber()+1
-            elif jobproperties.AthenaCommonFlags.PoolEvgenInput.statusOn:
-                import PyUtils.AthFile as af
-                try:
-                    f = af.fopen(jobproperties.AthenaCommonFlags.PoolEvgenInput()[0])
-                    if (f.run_numbers[0]>0) :
-                        myOutput = f.run_numbers[0]
-                        AtlasG4Eng.G4Eng.log.info( "Setting run number from file to ",myOutput," with a range of one" )
-                        myMinRunNumber = myOutput
-                        myMaxRunNumber = myOutput+1
-                    else:
-                        raise Exception('IllegalRunNumber')
-                except Exception :
-                    myCommand = 'dumpRunNumber.py '+jobproperties.AthenaCommonFlags.PoolEvgenInput.get_Value()[0] +' | grep "run number:" | sed \'s/run number://\''
-                    myOutput = os.popen3(myCommand)[1].read().strip() #read in child_stdout only
-                    if (len(myOutput) > 0 and int(myOutput) > 0) :
-                        AtlasG4Eng.G4Eng.log.info( "Setting run number from file to ",myOutput," with a range of one" )
-                        myMinRunNumber = myOutput
-                        myMaxRunNumber = myOutput+1
-                    else:
-                        AtlasG4Eng.G4Eng.log.info( "Setting run number from 0 to 2147483647 (could not open evgen file)" )
-
-            dbFiller.setBeginRun(myMinRunNumber)
-            dbFiller.setEndRun(myMaxRunNumber)
-
-            dbFiller.addSimParam('RunType','testbeam')
-            SimParams = ['CalibrationRun','DoLArBirk','LArParameterization',
-                         'MagneticField','PhysicsList','Seeds','SeedsG4','SimLayout',
-                         'WorldZRange','NeutronTimeCut','NeutronEnergyCut','ApplyEMCuts','RunNumber']
-            for o in [ o for o in SimParams if simFlags.__dict__.keys().__contains__(o) ]:
-                testValue = 'default'
-                if (simFlags.__dict__.__contains__(o) and simFlags.__dict__.get(o).statusOn) :
-                    testValue = simFlags.__dict__.get(o).get_Value()
-                    if not isinstance(testValue, str):
-                        testValue = str(simFlags.__dict__.get(o).get_Value())
-                dbFiller.addSimParam(o,  testValue)
-            if (simFlags.__dict__.__contains__('EventFilter') and simFlags.EventFilter.statusOn) :
-                dbFiller.addSimParam('EtaPhiStatus', str(simFlags.EventFilter.get_Value()['EtaPhiFilters']))
-                dbFiller.addSimParam('VertexStatus', str(simFlags.EventFilter.get_Value()['VertexPositioner']))
-                dbFiller.addSimParam('VRangeStatus', str(simFlags.EventFilter.get_Value()['VertexRangeChecker']))
-            else :
-                dbFiller.addSimParam('EtaPhiStatus', 'default')
-                dbFiller.addSimParam('VertexStatus', 'default')
-                dbFiller.addSimParam('VRangeStatus', 'default')
-            dbFiller.addSimParam('G4Version', str(os.environ['G4VERS']))
-            dbFiller.addSimParam('beamType',jobproperties.Beam.beamType.get_Value())
-
-            ####### Hard coded simulation hit file magic number (for major changes) ######
-            dbFiller.addSimParam('hitFileMagicNumber','0')
-
-            dbFiller.genSimDb()
-            folder = "/Simulation/Parameters"
-            dbConnection = "sqlite://;schema=SimParams.db;dbname=SIMPARAM"
-            from AthenaCommon.AppMgr import ServiceMgr
-            import IOVDbSvc.IOVDb
-            ServiceMgr.IOVDbSvc.Folders += [ folder + "<dbConnection>" + dbConnection + "</dbConnection>" ]
-            ServiceMgr.IOVDbSvc.FoldersToMetaData += [ folder ]
-            ServiceMgr.IOVSvc.partialPreLoadData = True
             from AthenaServices.AthenaServicesConf import AthenaOutputStream
             stream1_SimMetaData = AthenaOutputStream("StreamHITS_SimMetaData")
             stream1_SimMetaData.ItemList += [ "IOVMetaDataContainer#*" ]
@@ -248,6 +183,10 @@ class CtbSim(TBSimSkeleton):
             raise SystemExit("AtlasSimSkeleton._do_jobproperties :: Global ConditionsTag not set")
         if not hasattr(ServiceMgr.IOVDbSvc, 'GlobalTag') or not ServiceMgr.IOVDbSvc.GlobalTag:
             ServiceMgr.IOVDbSvc.GlobalTag = globalflags.ConditionsTag.get_Value()
+
+        if not simFlags.ISFRun:
+            from G4AtlasApps.G4Atlas_Metadata import checkForSpecialConfigurationMetadata
+            checkForSpecialConfigurationMetadata()
 
         ## Print out flags
         if AtlasG4Eng.G4Eng.log.getEffectiveLevel()<40:
@@ -693,6 +632,10 @@ class Tile2000_2003(TBSimSkeleton):
         if not hasattr(ServiceMgr.IOVDbSvc, 'GlobalTag') or not ServiceMgr.IOVDbSvc.GlobalTag:
             ServiceMgr.IOVDbSvc.GlobalTag = globalflags.ConditionsTag.get_Value()
 
+        if not simFlags.ISFRun:
+            from G4AtlasApps.G4Atlas_Metadata import checkForSpecialConfigurationMetadata
+            checkForSpecialConfigurationMetadata()
+
         ## Print flags
         if AtlasG4Eng.G4Eng.log.getEffectiveLevel()<40:
             AtlasG4Eng.G4Eng.log.info('SimCtbKernel : printing detector flags DetFlags')
@@ -727,6 +670,9 @@ class Tile2000_2003(TBSimSkeleton):
         if (simFlags.SimLayout.get_Value()=='tb_Tile2000_2003_2B2EB'):
             # 2 Barrels + 2 Extended Barrels
             GeoModelSvc.TileVersionOverride='TileTB-2B2EB-00'
+        elif (simFlags.SimLayout.get_Value()=='tb_Tile2000_2003_2B1EB'):
+            # 2 Barrels + 1 Extended Barrel
+            GeoModelSvc.TileVersionOverride='TileTB-2B1EB-00'
         elif (simFlags.SimLayout.get_Value()=='tb_Tile2000_2003_3B'):
             # 3 Barrels
             GeoModelSvc.TileVersionOverride='TileTB-3B-00'
@@ -945,6 +891,10 @@ class LArH6_TB(TBSimSkeleton):
             raise SystemExit("AtlasSimSkeleton._do_jobproperties :: Global ConditionsTag not set")
         if not hasattr(ServiceMgr.IOVDbSvc, 'GlobalTag') or not ServiceMgr.IOVDbSvc.GlobalTag:
             ServiceMgr.IOVDbSvc.GlobalTag = globalflags.ConditionsTag.get_Value()
+
+        if not simFlags.ISFRun:
+            from G4AtlasApps.G4Atlas_Metadata import checkForSpecialConfigurationMetadata
+            checkForSpecialConfigurationMetadata()
 
         ## Print flags
         if AtlasG4Eng.G4Eng.log.getEffectiveLevel()<40:

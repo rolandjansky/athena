@@ -922,77 +922,11 @@ class SimSkeleton(object):
              - The RunNumber flag
              - The input file run number """
 
-        from G4AtlasApps.SimFlags import simFlags
-        from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        import os
         G4AtlasEngine.log.verbose('SimSkeleton.do_run_number_modifications :: starting')
+        from G4AtlasApps.G4Atlas_Metadata import configureRunNumberOverrides
+        configureRunNumberOverrides()
+        G4AtlasEngine.log.verbose('SimSkeleton.do_run_number_modifications :: done')
 
-        myRunNumber = 1
-        myFirstLB = 1
-        myInitialTimeStamp = 0
-        if hasattr(simFlags, "RunNumber") and simFlags.RunNumber.statusOn:
-            myRunNumber = simFlags.RunNumber.get_Value()
-            G4AtlasEngine.log.info('SimSkeleton.do_run_number_modifications :: Found run number %d in sim flags.', myRunNumber)
-            ## Set event selector details based on evgen metadata
-
-            ######update the run/event info for each event
-            if not hasattr(svcMgr,'EvtIdModifierSvc'):
-                import AthenaServices.Configurables as asc
-                svcMgr +=asc.EvtIdModifierSvc(EvtStoreName="StoreGateSvc")
-                from AthenaCommon.AppMgr import theApp
-                theApp.CreateSvc += ["EvtIdModifierSvc"]
-            else:
-                G4AtlasEngine.log.warning('SimSkeleton.do_run_number_modifications :: Will override the settings of the EvtIdModifierSvc that was previously set up!')
-            #fix iov metadata
-            if not hasattr(svcMgr.ToolSvc, 'IOVDbMetaDataTool'):
-                from AthenaCommon import CfgMgr
-                svcMgr.ToolSvc += CfgMgr.IOVDbMetaDataTool()
-            svcMgr.ToolSvc.IOVDbMetaDataTool.MinMaxRunNumbers = [myRunNumber, 2147483647]
-            ## FIXME need to use maxRunNumber = 2147483647 for now to keep overlay working but in the future this should be set properly.
-
-            # Using event numbers to avoid "some very large number" setting
-            from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-            totalNumber = 1000000
-            if athenaCommonFlags.EvtMax() is not None and athenaCommonFlags.EvtMax()>0: totalNumber = athenaCommonFlags.EvtMax()+1
-            if athenaCommonFlags.SkipEvents() is not None and athenaCommonFlags.SkipEvents()>0: totalNumber += athenaCommonFlags.SkipEvents()
-            try:
-                from RunDependentSimComps.RunDMCFlags import runDMCFlags
-                myInitialTimeStamp = runDMCFlags.RunToTimestampDict.getTimestampForRun(myRunNumber)
-                #print "FOUND TIMESTAMP ", str(myInitialTimeStamp)
-            except:
-                myInitialTimeStamp = 1
-            svcMgr.EvtIdModifierSvc.add_modifier(run_nbr=myRunNumber, lbk_nbr=myFirstLB, time_stamp=myInitialTimeStamp, nevts=totalNumber)
-            if hasattr(svcMgr.EventSelector,'OverrideRunNumberFromInput'): svcMgr.EventSelector.OverrideRunNumberFromInput = True
-        elif 'G4ATLAS_SKIPFILEPEEK' in os.environ and os.environ['G4ATLAS_SKIPFILEPEEK']:
-            G4AtlasEngine.log.warning('SimSkeleton.do_run_number_modifications\
-            :: Requires simFlags.RunNUmber to be specified in this running mode.\
-            Using default value of 1 for RunNumber.')
-        elif athenaCommonFlags.PoolEvgenInput.statusOn:
-            ## Read input file metadata
-            import PyUtils.AthFile as af
-            hitfile = athenaCommonFlags.PoolEvgenInput.get_Value()[0]
-            f = af.fopen(hitfile)
-
-            ## Get evgen run number and lumi block
-            if len(f.run_numbers) > 0:
-                myRunNumber = f.run_numbers[0]
-                G4AtlasEngine.log.info('SimSkeleton.do_run_number_modifications :: Found run number %d in hits file metadata.', myRunNumber)
-            else:
-                G4AtlasEngine.log.warning("SimSkeleton.do_run_number_modifications :: Failed to find run number in hits file metadata.")
-            if f.lumi_block:
-                myFirstLB = f.lumi_block[0]
-        else:
-            G4AtlasEngine.log.warning('SimSkeleton.do_run_number_modifications\
-            :: Require at least one of the the following to be\
-            specified: input file or simFlags.RunNumber to be\
-            specified. Using default value of 1 for RunNumber.')
-
-        svcMgr.EventSelector.OverrideRunNumber = True
-        svcMgr.EventSelector.RunNumber = myRunNumber
-        svcMgr.EventSelector.FirstLB = myFirstLB
-        # Necessary to avoid a crash
-        svcMgr.EventSelector.InitialTimeStamp = myInitialTimeStamp
 
     @classmethod
     def _do_persistency(cls):
@@ -1012,7 +946,8 @@ class SimSkeleton(object):
             ## Default setting for one output stream
             from AthenaCommon.AppMgr import ServiceMgr as svcMgr
             svcMgr.AthenaPoolCnvSvc.PoolAttributes += ["TREE_BRANCH_OFFSETTAB_LEN = '100'"]
-            svcMgr.AthenaPoolCnvSvc.PoolAttributes += ["DEFAULT_BUFFERSIZE = '2048'"]
+            # Recommendations from Peter vG 16.08.25
+            svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolHitsOutput() + "'; ContainerName = 'TTree=CollectionTree'; TREE_AUTO_FLUSH = '1'" ]
 
             ## Write geometry tag info
             import EventInfoMgt.EventInfoMgtInit
@@ -1059,29 +994,8 @@ class SimSkeleton(object):
             svcMgr.EventSelector.InputCollections = athenaCommonFlags.PoolEvgenInput()
             if athenaCommonFlags.SkipEvents.statusOn:
                 svcMgr.EventSelector.SkipEvents = athenaCommonFlags.SkipEvents()
-
-            import os
-            if 'G4ATLAS_SKIPFILEPEEK' in os.environ and os.environ['G4ATLAS_SKIPFILEPEEK']:
-                G4AtlasEngine.log.info('SimSkeleton._do_readevgen: Skipping IS_SIMULATION check')
-            else:
-                ## Read input file metadata
-                import PyUtils.AthFile as af
-                hitfile = athenaCommonFlags.PoolEvgenInput.get_Value()[0]
-                f = af.fopen(hitfile)
-
-                ## Check that event type is SIMULATION (as it must be)
-                if "evt_type" in f.infos.keys():
-                    evttypes = f.infos["evt_type"]
-                    evttype0 = str(evttypes[0])
-                    if not evttype0.startswith("IS_SIMULATION"):
-                        msg = "SimSkeleton._do_readevgen :: This input file has incorrect evt_type: %s\n" % str(evttypes)
-                        msg += "Please make sure you have set input file metadata correctly - "
-                        msg += "consider using the job transforms for earlier steps if you aren't already doing so."
-                        G4AtlasEngine.log.error(msg)
-                        raise SystemExit("Input file evt_type is incorrect: please check your evgen jobs.")
-                else:
-                    G4AtlasEngine.log.warning("SimSkeleton._do_readevgen :: Could not find 'evt_type' key in athfile.infos. Unable to that check evt_type is correct.")
-
+            from G4AtlasApps.G4Atlas_Metadata import inputFileValidityCheck
+            inputFileValidityCheck()
         else:
             ## No input file so assume that we are running a Generator in the same job
             if not hasattr(svcMgr, 'EventSelector'):

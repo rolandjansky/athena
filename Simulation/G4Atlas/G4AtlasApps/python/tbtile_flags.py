@@ -12,7 +12,7 @@ during the years 2000-2003.
 """
 
 __author__= 'M. Gallas'
-__version__ = "$Revision: 800491 $"
+__version__ = "$Revision: 793038 $"
 
 
 from AthenaCommon.JobProperties import JobProperty

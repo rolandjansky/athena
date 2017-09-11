@@ -123,6 +123,15 @@ class TightMuonStepping(JobProperty):
     StoredValue = False
 
 
+class MuonFieldOnlyInCalo(JobProperty):
+    """
+    Switch so that only muons see the B-field in the calo
+    """
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+
+
 class ForwardDetectors(JobProperty):
     """
     Decide whether simulation must be run for forward detectors.

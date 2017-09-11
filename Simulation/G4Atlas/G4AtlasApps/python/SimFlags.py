@@ -295,6 +295,7 @@ class SimLayout(JobProperty):
     standalone test beams these are the possible tb
     configurations:
 
+    tb_Tile2000_2003_2B1EB --> 2 barrels and 1 extended barrel
     tb_Tile2000_2003_2B2EB --> 2 barrels and 2 extended barrels
     tb_Tile2000_2003_3B    --> 3 barrels
     tb_Tile2000_2003_5B    --> 5 barrels
@@ -314,18 +315,17 @@ class SimLayout(JobProperty):
                      'ATLAS-R1-2010-02-00-00', # Used in MC14a
                      'ATLAS-R1-2011-02-00-00', # Used in MC14a
                      'ATLAS-R1-2012-02-00-00', # Used in MC14a
-                     'ATLAS-R2-2015-01-01-00', # Used in MC14a
                      'ATLAS-R1-2012-03-00-00', # Used in MC15a
-                     'ATLAS-R2-2015-02-00-00', # Used in MC15a
-                     'ATLAS-R2-2015-02-01-00', # Used in MC15a
                      'ATLAS-R2-2015-03-00-00', # Used in MC15a
                      'ATLAS-R2-2015-03-01-00', # Used in MC15a
                      'ATLAS-R2-2016-00-00-00', # Testing for MC16
+                     'ATLAS-R2-2016-01-00-01', # Final (?) MC16
                      'ATLAS-P2-ITK-03-00-00',  # Phase 2 upgrade testing
                      'ctbh8_combined',
                      'ctbh8_photon',
                      'ctbh8_lar-material',
                      'ctbh8_calodata',
+                     'tb_Tile2000_2003_2B1EB',
                      'tb_Tile2000_2003_2B2EB',
                      'tb_Tile2000_2003_3B',
                      'tb_Tile2000_2003_5B',
@@ -683,6 +683,14 @@ class OptionalUserActionList(JobProperty):
             except ValueError:
                 print "WARNING Attempt to remove unkown action",actionTool,"from role ",role
 
+class G4Commands(JobProperty):
+    """
+    Commands to send to the G4 user interface once initialization is complete
+    """
+    statusOn = True
+    allowedTypes = ['list']
+    StoredValue = []
+
 class UserActionConfig(JobProperty):
     """Configuration for UserActions
     The name of the action must be a name retrievable through the ConfigurableFactory """
@@ -696,6 +704,14 @@ class UserActionConfig(JobProperty):
         else:
             self.StoredValue[actionTool]={prop:value}
 
+
+class specialConfiguration(JobProperty):
+    """ contains information on configuring simulation for special physics models.
+        Populated, if possible, by evgen file metadata.
+    """
+    statusOn = False
+    allowedTypes = ['dict']
+    StoredValue = dict()
 
 
 ## Definition and registration of the simulation flag container
