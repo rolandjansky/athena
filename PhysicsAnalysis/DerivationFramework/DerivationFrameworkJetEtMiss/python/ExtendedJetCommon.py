@@ -178,9 +178,12 @@ def applyJetCalibration(jetalg,algname,sequence):
                                            'JetArea_Residual_EtaJES_GSC')
 
         config,calibseq = configdict[jetalg]
-        if (not isMC) and jetalg in ['AntiKt4EMTopo','AntiKt4LCTopo']:
-            calibseq+='_Insitu'
-            isdata=True
+        # As of 11 Sept 2017, the in situ calibration for R21
+        # is not yet ready.
+        # When this is available, it should be reenabled -- for PFlow as well.
+        # if (not isMC) and jetalg in ['AntiKt4EMTopo','AntiKt4LCTopo']:
+        #     calibseq+='_Insitu'
+        #     isdata=True
 
         calibtool = CfgMgr.JetCalibrationTool(
             calibtoolname,
