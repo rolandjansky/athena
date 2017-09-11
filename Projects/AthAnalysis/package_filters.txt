@@ -58,7 +58,8 @@
 + PhysicsAnalysis/AnalysisCommon/ReweightUtils
 + PhysicsAnalysis/BPhys/BPhysTools
 + PhysicsAnalysis/D3PDTools/RootCoreUtils
-+ PhysicsAnalysis/D3PDTools/SampleHandler
++ Physicsanalysis/D3PDTools/SampleHandler
++ Physicsanalysis/D3PDTools/AnaAlgorithm
 - PhysicsAnalysis/D3PDTools/.*
 - PhysicsAnalysis/ElectronPhotonID/ElectronPhotonTagTools
 + PhysicsAnalysis/ElectronPhotonID/.*

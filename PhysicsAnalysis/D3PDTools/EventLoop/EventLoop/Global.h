@@ -21,6 +21,7 @@
 namespace EL
 {
   class Algorithm;
+  class AnaAlgorithmWrapper;
   struct BackgroundJob;
   class BackgroundSocket;
   class BackgroundWorker;
@@ -46,10 +47,6 @@ namespace EL
   class SlurmDriver;
   class StatusCode;
   class TorqueDriver;
-  struct UnitTest;
-  class UnitTestAlg;
-  class UnitTestAlg1;
-  struct UnitTestConfig;
   class Worker;
 }
 

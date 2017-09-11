@@ -24,6 +24,7 @@
 #include <EventLoop/Global.h>
 
 #include <vector>
+#include <AnaAlgorithm/Global.h>
 #include <SampleHandler/SampleHandler.h>
 #include <SampleHandler/MetaObject.h>
 
@@ -91,6 +92,7 @@ namespace EL
     algsIter algsBegin () const;
     algsIter algsEnd () const;
     void algsAdd (Algorithm *alg_swallow);
+    void algsAdd (const AnaAlgorithmConfig& config);
 
 
     /// \brief add a clone of the given algorithm
