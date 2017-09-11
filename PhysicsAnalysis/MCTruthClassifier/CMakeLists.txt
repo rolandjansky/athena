@@ -38,6 +38,7 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODMuon
    Event/xAOD/xAODTracking
    Event/xAOD/xAODTruth
+   Generators/TruthUtils
    ${extra_deps} )
 
 # External dependencies:

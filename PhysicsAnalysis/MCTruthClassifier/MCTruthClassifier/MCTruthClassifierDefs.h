@@ -50,22 +50,23 @@ namespace MCTruthPartClassifier {
    NonPrimary        =  20,
    GenParticle       =  21,
    SUSYParticle      =  22,
-   BBbarMesonPart    =  23,   
-   BottomMesonPart   =  24,
-   CCbarMesonPart    =  25,
-   CharmedMesonPart  =  26,
-   BottomBaryonPart  =  27,
-   CharmedBaryonPart =  28,
-   StrangeBaryonPart =  29,
-   LightBaryonPart   =  30,
-   StrangeMesonPart  =  31,
-   LightMesonPart    =  32,
-   BJet              =  33,
-   CJet              =  34,
-   LJet              =  35,
-   GJet              =  36,
-   TauJet            =  37,
-   UnknownJet        =  38 
+   OtherBSMParticle  =  23,
+   BBbarMesonPart    =  24,   
+   BottomMesonPart   =  25,
+   CCbarMesonPart    =  26,
+   CharmedMesonPart  =  27,
+   BottomBaryonPart  =  28,
+   CharmedBaryonPart =  29,
+   StrangeBaryonPart =  30,
+   LightBaryonPart   =  31,
+   StrangeMesonPart  =  32,
+   LightMesonPart    =  33,
+   BJet              =  34,
+   CJet              =  35,
+   LJet              =  36,
+   GJet              =  37,
+   TauJet            =  38,
+   UnknownJet        =  39 
   };
 
   enum ParticleOrigin {
@@ -97,29 +98,30 @@ namespace MCTruthPartClassifier {
     LQ            = 21,
 
     SUSY          = 22,
-    LightMeson    = 23,
-    StrangeMeson  = 24,
-    CharmedMeson  = 25,
-    BottomMeson   = 26,
-    CCbarMeson    = 27,
-    JPsi          = 28,
-    BBbarMeson    = 29,  
-    LightBaryon   = 30,
-    StrangeBaryon = 31,
-    CharmedBaryon = 32, 
-    BottomBaryon  = 33,
-    PionDecay     = 34,
-    KaonDecay     = 35,
-    BremPhot      = 36,
-    PromptPhot    = 37,
-    UndrPhot      = 38,
-    ISRPhot       = 39,
-    FSRPhot       = 40, 
-    NucReact      = 41,
-    PiZero        = 42,
-    DiBoson       = 43,
-    ZorHeavyBoson = 44,
-    QCD           = 45
+    OtherBSM      = 23,
+    LightMeson    = 24,
+    StrangeMeson  = 25,
+    CharmedMeson  = 26,
+    BottomMeson   = 27,
+    CCbarMeson    = 28,
+    JPsi          = 29,
+    BBbarMeson    = 30,  
+    LightBaryon   = 31,
+    StrangeBaryon = 32,
+    CharmedBaryon = 33, 
+    BottomBaryon  = 34,
+    PionDecay     = 35,
+    KaonDecay     = 36,
+    BremPhot      = 37,
+    PromptPhot    = 38,
+    UndrPhot      = 39,
+    ISRPhot       = 40,
+    FSRPhot       = 41, 
+    NucReact      = 42,
+    PiZero        = 43,
+    DiBoson       = 44,
+    ZorHeavyBoson = 45,
+    QCD           = 46
   };
 
   enum ParticleOutCome {
@@ -175,7 +177,8 @@ namespace MCTruthPartClassifier {
    sParticleType.push_back("NuclFrag");
    sParticleType.push_back("NonPrimary");
    sParticleType.push_back("GenParticle"); 
-   sParticleType.push_back("SUSYParticle"); 
+   sParticleType.push_back("SUSYParticle");
+   sParticleType.push_back("OtherBSMParticle");
    sParticleType.push_back("BBbarMesonPart"); 
    sParticleType.push_back("BottomMesonPart");
    sParticleType.push_back("CCbarMesonPart");
@@ -217,6 +220,7 @@ namespace MCTruthPartClassifier {
    sParticleOrigin.push_back("NuRTau");
    sParticleOrigin.push_back("LQ");
    sParticleOrigin.push_back("SUSY");
+   sParticleOrigin.push_back("OtherBSM");
    sParticleOrigin.push_back("LightMeson");
    sParticleOrigin.push_back("StrangeMeson");
    sParticleOrigin.push_back("CharmedMeson");

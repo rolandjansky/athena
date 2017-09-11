@@ -34,6 +34,9 @@ Updated:
 #include "xAODMuon/Muon.h"
 #include "xAODJet/Jet.h"
 
+// For making PID selections easier
+#include "TruthUtils/PIDHelpers.h"
+
 #ifndef XAOD_ANALYSIS
 //Athena only includes
 #include "GeneratorObjects/xAODTruthParticleLink.h"
@@ -219,8 +222,12 @@ MCTruthClassifier::particleTruthClassifier(const xAOD::TruthParticle  *thePart){
     }
   }
 
-  if(thePart->status()==1&&abs(iParticlePDG)<2000040&&abs(iParticlePDG)>1000001)  {
+  if(thePart->status()==1&&MC::PID::isSUSY(iParticlePDG)) {
     return std::make_pair(SUSYParticle,partOrig);
+  }
+
+  if(thePart->status()==1&&MC::PID::isBSM(iParticlePDG)) {
+    return std::make_pair(OtherBSMParticle,partOrig);
   }
 
   if(thePart->status()==10902&&(abs(iParticlePDG)!=11&&abs(iParticlePDG)!=13&&abs(iParticlePDG)!=15&&abs(iParticlePDG)!=22)&&!isPartHadr) {
@@ -674,8 +681,8 @@ ParticleOrigin MCTruthClassifier::defJetOrig(std::set<const xAOD::TruthParticle*
          pdg == 33 ||
          pdg == 34 )                        { partOrig = HeavyBoson; return partOrig; }
     if ( pdg == 42 )                        { partOrig = LQ;         return partOrig; }
-    if ( pdg < 2000040 &&
-         pdg > 1000001 )                    { partOrig = SUSY;       return partOrig; }
+    if ( MC::PID::isSUSY(pdg) )             { partOrig = SUSY;       return partOrig; }
+    if ( MC::PID::isBSM(pdg) )              { partOrig = OtherBSM;   return partOrig; }
   }
   return partOrig;
 }
@@ -814,7 +821,7 @@ ParticleType MCTruthClassifier::defTypeOfElectron(ParticleOrigin EleOrig){
       EleOrig == HeavyBoson || EleOrig == WBosonLRSM || EleOrig == NuREle    ||
       EleOrig == NuRMu      || EleOrig == NuRTau     || EleOrig == LQ        ||
       EleOrig == SUSY       || EleOrig == DiBoson    || EleOrig == ZorHeavyBoson ||
-      m_isPrompt ) {
+      EleOrig == OtherBSM   || m_isPrompt ) {
     return IsoElectron;
   }
   if (EleOrig == JPsi          || EleOrig == BottomMeson  ||
@@ -1191,11 +1198,11 @@ ParticleOrigin MCTruthClassifier::defOrigOfElectron(const xAOD::TruthParticleCon
   if(abs(m_MotherPDG)==9900014)                return NuRMu;
   if(abs(m_MotherPDG)==9900016)                return NuRTau;
 
-  if (abs(m_MotherPDG) == 42 || NumOfLQ!=0 )  return LQ;
+  if (abs(m_MotherPDG) == 42 || NumOfLQ!=0 )   return LQ;
 
-  if( abs(m_MotherPDG)<2000040&&
-      abs(m_MotherPDG)>1000001)                return SUSY;
+  if( MC::PID::isSUSY(m_MotherPDG) )           return SUSY;
 
+  if( MC::PID::isBSM(m_MotherPDG) )            return OtherBSM;
 
   ParticleType pType = defTypeOfHadron(m_MotherPDG);
   if( (pType==BBbarMesonPart || pType==CCbarMesonPart )
@@ -1217,7 +1224,7 @@ ParticleType MCTruthClassifier::defTypeOfMuon(ParticleOrigin MuOrig){
       MuOrig == HeavyBoson || MuOrig == WBosonLRSM || MuOrig == NuREle    ||
       MuOrig == NuRMu      || MuOrig == NuRTau     || MuOrig == LQ        ||
       MuOrig == SUSY       || MuOrig == DiBoson    || MuOrig == ZorHeavyBoson ||
-      m_isPrompt)  {
+      MuOrig == OtherBSM   || m_isPrompt)  {
     return IsoMuon;
   }
   if (MuOrig == JPsi          || MuOrig == BottomMeson  ||
@@ -1507,9 +1514,8 @@ ParticleOrigin MCTruthClassifier::defOrigOfMuon(const xAOD::TruthParticleContain
 
   if (abs(m_MotherPDG) == 42 || NumOfLQ!=0  )  return LQ;
 
-  if( abs(m_MotherPDG)<2000040&&
-      abs(m_MotherPDG)>1000001)                return SUSY;
-
+  if( MC::PID::isSUSY(m_MotherPDG) )           return SUSY;
+  if( MC::PID::isBSM(m_MotherPDG) )            return OtherBSM;
 
   ParticleType pType = defTypeOfHadron(m_MotherPDG);
   if( (pType==BBbarMesonPart || pType==CCbarMesonPart )
@@ -1529,7 +1535,7 @@ ParticleType MCTruthClassifier::defTypeOfTau(ParticleOrigin TauOrig){
       TauOrig == SingleMuon || TauOrig == Higgs      || TauOrig == HiggsMSSM ||
       TauOrig == HeavyBoson || TauOrig == WBosonLRSM || TauOrig ==  NuREle   ||
       TauOrig == NuRMu      || TauOrig ==  NuRTau    || TauOrig == SUSY      ||
-      TauOrig == DiBoson    || TauOrig == ZorHeavyBoson )
+      TauOrig == DiBoson    || TauOrig == ZorHeavyBoson || TauOrig == OtherBSM )
     return IsoTau;
 
   if (TauOrig == JPsi          || TauOrig == BottomMeson  ||
@@ -1739,9 +1745,9 @@ ParticleOrigin MCTruthClassifier::defOrigOfTau(const xAOD::TruthParticleContaine
   if(abs(m_MotherPDG)==9900024)                return WBosonLRSM;
   if(abs(m_MotherPDG)==9900016)                return NuRTau;
 
-  if( abs(m_MotherPDG)<2000040&&
-      abs(m_MotherPDG)>1000001)                return SUSY;
+  if( MC::PID::isSUSY(m_MotherPDG) )           return SUSY;
 
+  if( MC::PID::isBSM(m_MotherPDG) )            return OtherBSM;
 
   if ( abs(m_MotherPDG) == 443 )               return JPsi;
 
@@ -1758,7 +1764,7 @@ ParticleType MCTruthClassifier::defTypeOfPhoton(ParticleOrigin PhotOrig){
 
   if (PhotOrig == WBoson     || PhotOrig == ZBoson  || PhotOrig == SinglePhot ||
       PhotOrig == Higgs      || PhotOrig == HiggsMSSM  || PhotOrig == HeavyBoson  ||
-      PhotOrig == PromptPhot || PhotOrig == SUSY )   return IsoPhoton;
+      PhotOrig == PromptPhot || PhotOrig == SUSY || PhotOrig == OtherBSM)   return IsoPhoton;
 
   if (PhotOrig == ISRPhot ||  PhotOrig == FSRPhot || PhotOrig == TauLep ||
       PhotOrig == Mu      ||  PhotOrig == NuREle   || PhotOrig == NuRMu ||
@@ -2098,8 +2104,9 @@ ParticleOrigin MCTruthClassifier::defOrigOfPhoton(const xAOD::TruthParticleConta
       abs(m_MotherPDG)==5100039 // KK graviton
       )                                    return HeavyBoson;
 
-  if( abs(m_MotherPDG)<2000040&&
-      abs(m_MotherPDG)>1000001)            return SUSY;
+  if( MC::PID::isSUSY(m_MotherPDG) )       return SUSY;
+
+  if( MC::PID::isBSM(m_MotherPDG) )        return OtherBSM;
 
   // Pythia8 gamma+jet samples
   if ((m_MotherStatus==62||m_MotherStatus==52||m_MotherStatus==21||m_MotherStatus==22) &&
@@ -2384,10 +2391,11 @@ ParticleOrigin MCTruthClassifier::defOrigOfNeutrino(const xAOD::TruthParticleCon
   if(abs(m_MotherPDG)==9900014)                return NuRMu;
   if(abs(m_MotherPDG)==9900016)                return NuRTau;
 
-  if (abs(m_MotherPDG) == 42 || NumOfLQ!=0 )  return LQ;
+  if (abs(m_MotherPDG) == 42 || NumOfLQ!=0 )   return LQ;
 
-  if( abs(m_MotherPDG)<2000040&&
-      abs(m_MotherPDG)>1000001)                return SUSY;
+  if( MC::PID::isSUSY(m_MotherPDG) )           return SUSY;
+
+  if( MC::PID::isBSM(m_MotherPDG) )            return OtherBSM;
 
   ParticleType pType = defTypeOfHadron(m_MotherPDG);
   if( (pType==BBbarMesonPart || pType==CCbarMesonPart )
