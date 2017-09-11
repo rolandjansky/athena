@@ -5,8 +5,8 @@
 
 def getMCTruthUserActionTool(name='ISFMCTruthUserActionTool', **kwargs):
     # get the MT action
-    from ISF_Config.ISF_jobProperties import ISF_Flags
-    kwargs.setdefault('TruthRecordSvc',  ISF_Flags.TruthService.get_Value())
+    from G4AtlasApps.SimFlags import simFlags
+    kwargs.setdefault('TruthRecordSvc',  simFlags.TruthStrategy.TruthServiceName())
     from ISF_Geant4Tools.ISF_Geant4ToolsConf import G4UA__iGeant4__MCTruthUserActionTool
     return G4UA__iGeant4__MCTruthUserActionTool(name, **kwargs)
 
@@ -80,8 +80,7 @@ def addTrackProcessorTool(name,system=False):
 ### Base Version
 def getG4TransportTool(name='ISFG4TransportTool', **kwargs):
     from G4AtlasApps.SimFlags import simFlags
-    from ISF_Config.ISF_jobProperties import ISF_Flags
-    kwargs.setdefault('BarcodeSvc',               ISF_Flags.BarcodeService()     )
+    kwargs.setdefault('BarcodeSvc', simFlags.TruthStrategy.BarcodeServiceName())
     kwargs.setdefault('RandomGenerator', 'athena')
     kwargs.setdefault('RandomNumberService', simFlags.RandomSvc())
 

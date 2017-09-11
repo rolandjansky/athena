@@ -1,13 +1,13 @@
+## Get the logger
+from AthenaCommon.Logging import *
+atlasG4log = logging.getLogger('AtlasG4')
+atlasG4log.info('****************** STARTING ATLASG4 ******************')
+
 ## Include common skeleton
 include("SimuJobTransforms/skeleton.EVGENtoHIT.py")
 
 if hasattr(runArgs, 'useISF') and runArgs.useISF:
     raise RuntimeError("Unsupported configuration! If you want to run with useISF=True, please use Sim_tf.py!")
-
-## Get the logger
-from AthenaCommon.Logging import *
-atlasG4log = logging.getLogger('AtlasG4')
-atlasG4log.info('****************** STARTING ATLASG4 ******************')
 
 ## Simulation flags need to be imported first
 from G4AtlasApps.SimFlags import SimFlags, simFlags #FIXME drop import of SimFlags rather than simFlags asap
@@ -112,7 +112,7 @@ if hasattr(runArgs, "inputEVNT_CAVERNFile"):
     include('SimulationJobOptions/preInclude.G4ReadCavern.py')
 if hasattr(runArgs, "outputEVNT_CAVERNTRFile"):
     include('SimulationJobOptions/preInclude.G4WriteCavern.py')
-    
+
 # Avoid command line preInclude for event service
 if hasattr(runArgs, "eventService") and runArgs.eventService:
     include('AthenaMP/AthenaMP_EventService.py')
@@ -225,7 +225,6 @@ if not hasattr(runArgs, "enableLooperKiller") or runArgs.enableLooperKiller:
     simFlags.OptionalUserActionList.addAction('G4UA::LooperKillerTool', ['Step'])
 else:
     atlasG4log.warning("The looper killer will NOT be run in this job.")
-
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSeq = AlgSequence()
