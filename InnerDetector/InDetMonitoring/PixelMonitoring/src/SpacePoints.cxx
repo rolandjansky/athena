@@ -57,11 +57,11 @@ StatusCode PixelMainMon::FillSpacePointMon(void)
 {
   StatusCode sc = evtStore()->retrieve(m_Pixel_spcontainer, m_Pixel_SpacePointsName );
   if (sc.isFailure() || !m_Pixel_spcontainer)
-    {
-      ATH_MSG_WARNING("SpacePoint container for Pixels not found");
-      if (m_storegate_errors) m_storegate_errors->Fill(2.,3.);  
-      return StatusCode::SUCCESS;
-    } else ATH_MSG_DEBUG("Si SpacePoint container for Pixels found");
+  {
+    ATH_MSG_WARNING("SpacePoint container for Pixels not found");
+    if (m_storegate_errors) m_storegate_errors->Fill(2.,3.);  
+    return StatusCode::SUCCESS;
+  } else ATH_MSG_DEBUG("Si SpacePoint container for Pixels found");
   
   DataVector<SpacePoint>::const_iterator p_sp;             
   Identifier PixelModuleId;
@@ -69,31 +69,31 @@ StatusCode PixelMainMon::FillSpacePointMon(void)
   
   //loop over Pixel space points collections
   for (SpacePointContainer::const_iterator it=m_Pixel_spcontainer->begin(); it!=m_Pixel_spcontainer->end(); ++it)
+  {
+    const SpacePointCollection *colNext=&(**it);
+    if (!colNext)
     {
-      const SpacePointCollection *colNext=&(**it);
-      if (!colNext)
-	{
-	  if (m_storegate_errors) m_storegate_errors->Fill(2.,5.);  //first entry (1). is for SP, second (4) is for data problem
-	  continue;
-	}
-      for (p_sp=colNext->begin(); p_sp!=colNext->end(); ++p_sp)
-	{
-	  const SpacePoint& sp = **p_sp;
-	  PixelModuleId =  sp.clusterList().first->identify();
-	  
-	  if (m_doOnTrack) if (!OnTrack(PixelModuleId,true) ) continue; //if we only want hits on track, and the hit is NOT on the track, skip filling
-	  Amg::Vector3D point = sp.globalPosition();
-	  
-	  if (m_spHit_x) m_spHit_x->Fill(point.x());
-	  if (m_spHit_y) m_spHit_y->Fill(point.y());
-	  if (m_spHit_z) m_spHit_z->Fill(point.z());
-	  if (m_spHit_r) m_spHit_r->Fill(sqrt(point.y()*point.y() + point.x()*point.x()));     // spacepoint r.
-	  if (m_spHit_phi) m_spHit_phi->Fill(point.phi());                                     // spacepoint phi.
-	  if (m_spHit_xy && fabs(point.z()) < 400) m_spHit_xy->Fill(point.x(),point.y());
-	  if (m_spHit_rz) m_spHit_rz->Fill(point.z(),sqrt(point.y()*point.y() + point.x()*point.x()));
-	  nhits++;
-	} 
+      if (m_storegate_errors) m_storegate_errors->Fill(2.,5.);  //first entry (1). is for SP, second (4) is for data problem
+      continue;
     }
+    for (p_sp=colNext->begin(); p_sp!=colNext->end(); ++p_sp)
+    {
+      const SpacePoint& sp = **p_sp;
+      PixelModuleId =  sp.clusterList().first->identify();
+	  
+      if (m_doOnTrack) if (!OnTrack(PixelModuleId,true) ) continue; //if we only want hits on track, and the hit is NOT on the track, skip filling
+      Amg::Vector3D point = sp.globalPosition();
+	  
+      if (m_spHit_x) m_spHit_x->Fill(point.x());
+      if (m_spHit_y) m_spHit_y->Fill(point.y());
+      if (m_spHit_z) m_spHit_z->Fill(point.z());
+      if (m_spHit_r) m_spHit_r->Fill(sqrt(point.y()*point.y() + point.x()*point.x()));     // spacepoint r.
+      if (m_spHit_phi) m_spHit_phi->Fill(point.phi());                                     // spacepoint phi.
+      if (m_spHit_xy && fabs(point.z()) < 400) m_spHit_xy->Fill(point.x(),point.y());
+      if (m_spHit_rz) m_spHit_rz->Fill(point.z(),sqrt(point.y()*point.y() + point.x()*point.x()));
+      nhits++;
+    } 
+  }
   if (m_num_spacepoints) m_num_spacepoints->Fill(nhits);
   if (m_num_spacepoints_low) m_num_spacepoints_low->Fill(nhits);
   if (nhits==0 && m_storegate_errors) m_storegate_errors->Fill(2.,4.); //first entry for sp, second for size = 0

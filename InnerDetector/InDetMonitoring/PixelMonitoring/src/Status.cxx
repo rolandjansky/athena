@@ -55,17 +55,17 @@ StatusCode PixelMainMon::BookStatusMon(void)
   m_status_mon->SetMaxValue( 2.0 );
 
   if (m_doModules)
-    {
-      m_Status_modules = std::make_unique<PixelMonModules1D>(PixelMonModules1D("Status_of_Module", ("Module Status (0=Active+Good, 1=Active+Bad, 2=Inactive)" + m_histTitleExt + ";Status").c_str(),2,0,2));
-      sc = m_Status_modules->regHist(this, (path+"/Modules_Status").c_str(),run);
-      m_Status_modules->SetBinLabel( "Status",2 ); 
-      m_Status_modules->formatHist("status");
-    }
+  {
+    m_Status_modules = std::make_unique<PixelMonModules1D>(PixelMonModules1D("Status_of_Module", ("Module Status (0=Active+Good, 1=Active+Bad, 2=Inactive)" + m_histTitleExt + ";Status").c_str(),2,0,2));
+    sc = m_Status_modules->regHist(this, (path+"/Modules_Status").c_str(),run);
+    m_Status_modules->SetBinLabel( "Status",2 ); 
+    m_Status_modules->formatHist("status");
+  }
   if (m_doOffline)
-    { 
-      m_dqStatus = std::make_unique<PixelMon2DMapsLW>(PixelMon2DMapsLW("Ok_modules", ("module problems, empty bin means dead module not listed in status database"+ m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D));
-      sc = m_dqStatus->regHist(statusHistos);
-    }
+  { 
+    m_dqStatus = std::make_unique<PixelMon2DMapsLW>(PixelMon2DMapsLW("Ok_modules", ("module problems, empty bin means dead module not listed in status database"+ m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D));
+    sc = m_dqStatus->regHist(statusHistos);
+  }
 
   std::string tmp;
   std::string tmp2;
@@ -130,66 +130,66 @@ StatusCode PixelMainMon::FillStatusMon(void)
   if (m_isNewLumiBlock && m_Status_modules) m_Status_modules->Reset();
 
   for (; idIt != idItEnd; ++idIt)
+  {
+    Identifier WaferID = *idIt;
+    IdentifierHash id_hash = m_pixelid->wafer_hash(WaferID); 
+    int pixlayer = GetPixLayerID(m_pixelid->barrel_ec(WaferID), m_pixelid->layer_disk(WaferID), m_doIBL);
+    int pixlayeribl2d3d = 0;
+    if ( pixlayer == PixLayer::kIBL ) {
+      pixlayeribl2d3d = GetPixLayerIDIBL2D3D(m_pixelid->barrel_ec(WaferID), m_pixelid->layer_disk(WaferID), m_pixelid->eta_module(WaferID), m_doIBL);
+    }
+    if ( pixlayer == 99 ) continue;
+
+    // check in order of occurrence to reduce number of calls to conditions service
+    if      (m_pixelCondSummarySvc->isActive(id_hash) == true && m_pixelCondSummarySvc->isGood(id_hash) == true ) {Index=0;}
+    else if (m_pixelCondSummarySvc->isActive(id_hash) == false) {Index=2;}
+    else {Index=1;}
+
+    if (m_status) m_status->Fill(WaferID,m_pixelid,Index);
+    if (m_status_mon) m_status_mon->Fill(WaferID,m_pixelid,Index);
+
+    if (m_doLumiBlock){
+      if (m_status_LB) m_status_LB->Fill(WaferID,m_pixelid,Index);
+    }
+
+    if (Index > 0) // bad but active modules  
     {
-      Identifier WaferID = *idIt;
-      IdentifierHash id_hash = m_pixelid->wafer_hash(WaferID); 
-      int pixlayer = GetPixLayerID(m_pixelid->barrel_ec(WaferID), m_pixelid->layer_disk(WaferID), m_doIBL);
-      int pixlayeribl2d3d = 0;
-      if ( pixlayer == PixLayer::kIBL ) {
-         pixlayeribl2d3d = GetPixLayerIDIBL2D3D(m_pixelid->barrel_ec(WaferID), m_pixelid->layer_disk(WaferID), m_pixelid->eta_module(WaferID), m_doIBL);
+      if (Index == 1) {
+        nBad++;
+        nBad_mod[pixlayer]++;
+        if(pixlayeribl2d3d != 0) nBad_mod[pixlayeribl2d3d]++;
       }
-      if ( pixlayer == 99 ) continue;
-
-      // check in order of occurrence to reduce number of calls to conditions service
-      if      (m_pixelCondSummarySvc->isActive(id_hash) == true && m_pixelCondSummarySvc->isGood(id_hash) == true ) {Index=0;}
-      else if (m_pixelCondSummarySvc->isActive(id_hash) == false) {Index=2;}
-      else {Index=1;}
-
-      if (m_status) m_status->Fill(WaferID,m_pixelid,Index);
-      if (m_status_mon) m_status_mon->Fill(WaferID,m_pixelid,Index);
-
-      if (m_doLumiBlock){
-	if (m_status_LB) m_status_LB->Fill(WaferID,m_pixelid,Index);
-      }
-
-      if (Index > 0) // bad but active modules  
+      // inactive or bad modules
+      // should maybe use only inactive modules for these, however, since tracking etc use "disabled module" as !(active+good)
+      // continue monitoring that quantity for now
+      if (Index == 2)
       {
-	if (Index == 1) {
-	  nBad++;
-	  nBad_mod[pixlayer]++;
-	  if(pixlayeribl2d3d != 0) nBad_mod[pixlayeribl2d3d]++;
-	}
-	// inactive or bad modules
-	// should maybe use only inactive modules for these, however, since tracking etc use "disabled module" as !(active+good)
-	// continue monitoring that quantity for now
-	if (Index == 2)
-	  {
-            nDisabled++;
-            nDisabled_mod[pixlayer]++;
-            if(pixlayeribl2d3d != 0) nDisabled_mod[pixlayeribl2d3d]++;
-	  }
-
-	if (m_Status_modules)
-	  {
-            int diffToFill=0;
-            double content = floor(m_Status_modules->GetBinContent(1.5,WaferID,m_pixelid));   // 1.5 refers to the bin [1,2] 
-            // If we have module in state 1 (active+bad), and get 2 later (inactive), want to add 1 it to put module in state 2 
-            if (content==2)
-	      {
-		diffToFill=0;
-	      }
-            else if (content==1 && (Index==2))
-	      {
-		diffToFill=1;
-	      }
-            else if (content==0)
-	      {
-		diffToFill=Index;
-	      }
-            for (int i=0; i<diffToFill; i++) m_Status_modules->Fill(1.5,WaferID,m_pixelid);  //fill to the required value
-         }
+        nDisabled++;
+        nDisabled_mod[pixlayer]++;
+        if(pixlayeribl2d3d != 0) nDisabled_mod[pixlayeribl2d3d]++;
       }
-    } // of pixelid wafer loop 
+
+      if (m_Status_modules)
+      {
+        int diffToFill=0;
+        double content = floor(m_Status_modules->GetBinContent(1.5,WaferID,m_pixelid));   // 1.5 refers to the bin [1,2] 
+        // If we have module in state 1 (active+bad), and get 2 later (inactive), want to add 1 it to put module in state 2 
+        if (content==2)
+        {
+          diffToFill=0;
+        }
+        else if (content==1 && (Index==2))
+        {
+          diffToFill=1;
+        }
+        else if (content==0)
+        {
+          diffToFill=Index;
+        }
+        for (int i=0; i<diffToFill; i++) m_Status_modules->Fill(1.5,WaferID,m_pixelid);  //fill to the required value
+      }
+    }
+  } // of pixelid wafer loop 
 
   static float nmod_per_layer[PixLayerIBL2D3D::COUNT] = {144., 144., 286., 494., 676., 280., 168., 112.};
 
@@ -215,34 +215,34 @@ StatusCode PixelMainMon::FillStatusMon(void)
 StatusCode PixelMainMon::ProcStatusMon(void)
 {
   if (m_status && m_dqStatus && m_occupancy)
-    {
-      if (m_doIBL) {
-	for (int i=1;i<=12;i++) {
-	  for (int j=1;j<=14;j++) {
-	    m_dqStatus->IBL2D->SetBinContent(i,j, m_occupancy->IBL2D->GetBinContent(i,j) + m_status->IBL2D->GetBinContent(i,j) );
-	  }	 
-	}
-	for (int i=1;i<=8;i++) {
-	  for (int j=1;j<=14;j++) {
-	    m_dqStatus->IBL3D->SetBinContent(i,j, m_occupancy->IBL3D->GetBinContent(i,j) + m_status->IBL3D->GetBinContent(i,j) );
-	  }	 
-	}
+  {
+    if (m_doIBL) {
+      for (int i=1;i<=12;i++) {
+        for (int j=1;j<=14;j++) {
+          m_dqStatus->IBL2D->SetBinContent(i,j, m_occupancy->IBL2D->GetBinContent(i,j) + m_status->IBL2D->GetBinContent(i,j) );
+        }	 
       }
-      for (int i=1;i<=13;i++) {
-	for (int j=1;j<=22;j++)
-	  m_dqStatus->B0->SetBinContent(i,j, m_occupancy->B0->GetBinContent(i,j) + m_status->B0->GetBinContent(i,j) );
-	for (int j=1;j<=38;j++)                                                                                   
-	  m_dqStatus->B1->SetBinContent(i,j, m_occupancy->B1->GetBinContent(i,j) + m_status->B1->GetBinContent(i,j) );
-	for (int j=1;j<=52;j++)                                                                                   
-	  m_dqStatus->B2->SetBinContent(i,j, m_occupancy->B2->GetBinContent(i,j) + m_status->B2->GetBinContent(i,j) );
-      }
-      for (int i=1;i<=48;i++) {
-	for (int j=1;j<=3;j++) {
-	  m_dqStatus->A->SetBinContent(j,i, m_occupancy->A->GetBinContent(j,i) + m_status->A->GetBinContent(j,i) );
-	  m_dqStatus->C->SetBinContent(j,i, m_occupancy->C->GetBinContent(j,i) + m_status->C->GetBinContent(j,i) );
-	}
+      for (int i=1;i<=8;i++) {
+        for (int j=1;j<=14;j++) {
+          m_dqStatus->IBL3D->SetBinContent(i,j, m_occupancy->IBL3D->GetBinContent(i,j) + m_status->IBL3D->GetBinContent(i,j) );
+        }	 
       }
     }
+    for (int i=1;i<=13;i++) {
+      for (int j=1;j<=22;j++)
+        m_dqStatus->B0->SetBinContent(i,j, m_occupancy->B0->GetBinContent(i,j) + m_status->B0->GetBinContent(i,j) );
+      for (int j=1;j<=38;j++)                                                                                   
+        m_dqStatus->B1->SetBinContent(i,j, m_occupancy->B1->GetBinContent(i,j) + m_status->B1->GetBinContent(i,j) );
+      for (int j=1;j<=52;j++)                                                                                   
+        m_dqStatus->B2->SetBinContent(i,j, m_occupancy->B2->GetBinContent(i,j) + m_status->B2->GetBinContent(i,j) );
+    }
+    for (int i=1;i<=48;i++) {
+      for (int j=1;j<=3;j++) {
+        m_dqStatus->A->SetBinContent(j,i, m_occupancy->A->GetBinContent(j,i) + m_status->A->GetBinContent(j,i) );
+        m_dqStatus->C->SetBinContent(j,i, m_occupancy->C->GetBinContent(j,i) + m_status->C->GetBinContent(j,i) );
+      }
+    }
+  }
   return StatusCode::SUCCESS;                  
 }                                               
 

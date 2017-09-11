@@ -51,7 +51,7 @@ extern const std::array<std::string, kNumModulesDBM> ModulesDBM;
  *
  * This object is given to all histogram classes and determines for which
  * components the histograms are initialised.
-  *   - Pix  = pixel components (L0, L1, L2, ECA, ECC)
+ *   - Pix  = pixel components (L0, L1, L2, ECA, ECC)
  *   - IBL  = IBL
  *   - IBL2D3D = IBL plus additional IBL2D and IBL3D
  *   - DBM  = DBM
