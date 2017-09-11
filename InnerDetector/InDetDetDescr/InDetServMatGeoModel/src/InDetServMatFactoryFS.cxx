@@ -79,9 +79,9 @@ void InDetServMatFactoryFS::create(GeoPhysVol *world )
       << trtVersionKey.node() << endmsg;
   msg(MSG::DEBUG) << "                                with SCT   Version Tag: " << sctVersionKey.tag() << " at Node: "
       << sctVersionKey.node() << endmsg;
-  msg(MSG::DEBUG) << " InDetServices Version " << m_rdbAccess->getChildTag("InDetServices", indetVersionKey.tag(), indetVersionKey.node(), false) << endmsg;
-  msg(MSG::DEBUG) << " TRT           Version " << m_rdbAccess->getChildTag("TRT", trtVersionKey.tag(), trtVersionKey.node(), false) << endmsg;
-  msg(MSG::DEBUG) << " SCT           Version " << m_rdbAccess->getChildTag("SCT", sctVersionKey.tag(), sctVersionKey.node(), false) << endmsg;
+  msg(MSG::DEBUG) << " InDetServices Version " << m_rdbAccess->getChildTag("InDetServices", indetVersionKey.tag(), indetVersionKey.node()) << endmsg;
+  msg(MSG::DEBUG) << " TRT           Version " << m_rdbAccess->getChildTag("TRT", trtVersionKey.tag(), trtVersionKey.node()) << endmsg;
+  msg(MSG::DEBUG) << " SCT           Version " << m_rdbAccess->getChildTag("SCT", sctVersionKey.tag(), sctVersionKey.node()) << endmsg;
 
 
   IRDBRecordset_ptr atls = m_rdbAccess->getRecordsetPtr("AtlasMother",  atlasVersionKey.tag(), atlasVersionKey.node());

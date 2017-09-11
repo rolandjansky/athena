@@ -178,8 +178,6 @@ namespace LArG4 {
         }
       m_betweenWheel  = (*hadronicEndcap)[0]->getDouble("GAPWHL")*Units::cm-0.001*Units::cm; //40.5*mm
 
-      m_AccessSvc->shutdown();
-
       return StatusCode::SUCCESS;
     }
 
