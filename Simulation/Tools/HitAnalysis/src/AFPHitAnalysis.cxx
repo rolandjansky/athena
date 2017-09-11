@@ -7,11 +7,9 @@
 #include "AFP_SimEv/AFP_SIDSimHit.h"
 #include "AFP_SimEv/AFP_SIDSimHitCollection.h"
 
-
 #include "TH1.h"
 #include "TTree.h"
 #include "TString.h"
-
 
 #include <algorithm>
 #include <math.h>
@@ -34,21 +32,34 @@ AFPHitAnalysis::AFPHitAnalysis(const std::string& name, ISvcLocator* pSvcLocator
    , h_detID(0)
    , h_pixelRow(0)
    , h_pixelCol(0)
+   , m_hitID(0)
+   , m_pdgID(0)
+   , m_trackID(0)
+   , m_kine(0)
+   , m_edep(0)
+   , m_stepX(0)
+   , m_stepY(0)
+   , m_stepZ(0)
+   , m_time(0)
+   , m_stationID(0)
+   , m_detID(0)
+   , m_pixelRow(0)
+   , m_pixelCol(0)
    , m_tree(0)
-   , m_ntupleFileName("/AFPHitAnalysis/ntuples/")
-   , m_path("/AFPHitAnalysis/histos/")
+   , m_ntupleFileName("/AFPHitAnalysis/")
+   , m_path("/AFPHitAnalysis/")
    , m_thistSvc("THistSvc", name)
 {
-  declareProperty("HistPath", m_path); 
-  declareProperty("NtupleFileName", m_ntupleFileName); 
+  declareProperty("NtupleFileName", m_ntupleFileName);
+  declareProperty("HistPath", m_path);
 }
+
 
 StatusCode AFPHitAnalysis::initialize() {
   ATH_MSG_DEBUG( "Initializing AFPHitAnalysis" );
 
   // Grab the Ntuple and histogramming service for the tree
   CHECK(m_thistSvc.retrieve());
- 
 
   /** now define the histograms**/
   h_hitID = new TH1D("h_hitID", "hitID",100, 0., 100.);
@@ -95,15 +106,14 @@ StatusCode AFPHitAnalysis::initialize() {
   h_pixelRow->StatOverflows();
   CHECK(m_thistSvc->regHist(m_path+h_pixelRow->GetName(), h_pixelRow));
 
-
   h_pixelCol =  new TH1D("h_pixelCol", "pixelCol", 20, 0,20);
   h_pixelCol->StatOverflows();
   CHECK(m_thistSvc->regHist(m_path+h_pixelCol->GetName(), h_pixelCol));
   
   /** now add branches and leaves to the tree */
-    m_tree= new TTree("NtupleAFPHitAnanalysis","AFPHitAna");
-    std::string fullNtupleName =  "/"+m_ntupleFileName+"/";
-    CHECK(m_thistSvc->regTree(fullNtupleName,m_tree));
+  m_tree = new TTree("AFP","AFP");
+  std::string fullNtupleName =  "/" + m_ntupleFileName + "/";
+  CHECK(m_thistSvc->regTree(fullNtupleName,m_tree));
 
   if (m_tree){
     m_tree->Branch("hitID", &m_hitID);
@@ -117,16 +127,16 @@ StatusCode AFPHitAnalysis::initialize() {
     m_tree->Branch("stationID", &m_stationID);
     m_tree->Branch("detID", &m_detID);
     m_tree->Branch("pixelRow", &m_pixelRow);
-    m_tree->Branch("pixelCol", &m_pixelCol);
-    
-    
-  }else{
+    m_tree->Branch("pixelCol", &m_pixelCol);  
+  }
+  else {
     ATH_MSG_ERROR("No tree found!");
   }
+
+  ATH_MSG_INFO("Exiting AFPHitAnalysis::initialize()");
   
   return StatusCode::SUCCESS;
 }		 
-
   
 
 StatusCode AFPHitAnalysis::execute() {
@@ -146,10 +156,15 @@ StatusCode AFPHitAnalysis::execute() {
   m_pixelRow->clear();
   m_pixelCol->clear();
 
+  ATH_MSG_INFO( "AFPHitAnalysis tree branches cleared" );
+
   AFP_SIDSimHitConstIter hi;
   const DataHandle<AFP_SIDSimHitCollection> iter;
-  CHECK(evtStore()->retrieve(iter,"AFP_SIDSimHitCollection"));
-  for(hi=(*iter).begin(); hi != (*iter).end();++hi){
+  CHECK( evtStore()->retrieve(iter,"AFP_SIDSimHitCollection") );
+
+  ATH_MSG_DEBUG( "AFP_SIDSSimHitCollection retrieved" );
+  
+  for ( hi=(*iter).begin(); hi != (*iter).end(); ++hi ) {
     AFP_SIDSimHit ghit(*hi);
     h_hitID->Fill(ghit.m_nHitID);
     h_pdgID->Fill(ghit.m_nParticleEncoding);
@@ -164,7 +179,6 @@ StatusCode AFPHitAnalysis::execute() {
     h_detID->Fill(ghit.m_nDetectorID);
     h_pixelRow->Fill(ghit.m_nPixelRow);
     h_pixelCol->Fill(ghit.m_nPixelCol);
-
 
     m_hitID->push_back(ghit.m_nHitID);
     m_pdgID->push_back(ghit.m_nParticleEncoding);
@@ -182,5 +196,6 @@ StatusCode AFPHitAnalysis::execute() {
   }
    
   if (m_tree) m_tree->Fill();
+  
   return StatusCode::SUCCESS;
 }
