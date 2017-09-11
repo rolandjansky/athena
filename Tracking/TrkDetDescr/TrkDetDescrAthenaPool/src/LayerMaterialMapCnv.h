@@ -15,7 +15,6 @@
 #undef protected
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
-#include "AthenaPoolCnvSvc/AthenaPoolCnvTPExtension.h"
 
 #include "TrkGeometry/LayerMaterialMap.h"
 #include "TrkDetDescrTPCnv/LayerMaterialMapCnv_tlp1.h"
@@ -30,9 +29,7 @@ typedef T_AthenaPoolCustomCnv<Trk::LayerMaterialMap, LayerMaterialMap_PERS> Laye
 //-----------------------------------------------------------------------------
 // Converter for TrackCollection object
 //-----------------------------------------------------------------------------
-class LayerMaterialMapCnv
-   : public LayerMaterialMapCnvBase,
-     public AthenaPoolCnvTPExtension
+class LayerMaterialMapCnv : public LayerMaterialMapCnvBase
 {
 friend class CnvFactory<LayerMaterialMapCnv>;
 

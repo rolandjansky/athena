@@ -32,9 +32,7 @@ typedef  T_AthenaPoolCustomCnv<InDet::SCT_ClusterContainer, SCT_ClusterContainer
 ** Create derived converter to customize the saving of identifiable
 ** container
 **/
-class SCT_ClusterContainerCnv :
-    public SCT_ClusterContainerCnvBase,
-    public AthenaPoolCnvTPExtension
+class SCT_ClusterContainerCnv : public SCT_ClusterContainerCnvBase
 {
   friend class CnvFactory<SCT_ClusterContainerCnv >;
 
