@@ -26,7 +26,7 @@ namespace Trig {
         m_bunchTrains() {
 
       /// Declare the properties of the tool:
-      declareProperty( "MaxBunchSpacing", m_maxBunchSpacing = 150 );
+      declareProperty( "MaxBunchSpacing", m_maxBunchSpacing = 75 );
       declareProperty( "FrontLength", m_frontLength = 300 );
       declareProperty( "TailLength", m_tailLength = 300 );
    }
