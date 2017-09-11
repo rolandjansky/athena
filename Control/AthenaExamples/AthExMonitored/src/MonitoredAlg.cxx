@@ -10,9 +10,6 @@
 MonitoredAlg::MonitoredAlg(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator)
 {
-  // By default set an empty monitoring tool
-  // TODO: Replace this with a .h property once Gaudi!385 has been merged
-  declareProperty("MonTool", m_monTool=VoidMonitoringTool(this), "Monitoring tool");
 }
 
 StatusCode MonitoredAlg::initialize()
