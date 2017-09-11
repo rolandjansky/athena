@@ -1233,14 +1233,7 @@ namespace Trig {
       // Iterate downwards from the maximum spacing, searching for the minimum
       // spacing with which bunches exist.
       int result = maxSpacing;
-      for( ; result >= 0; --result ) {
-
-         // If we reached 0, then stop right away, and declare that the spacing
-         // is 1 BC in this configuration.
-         if( result == 0 ) {
-            result = 1;
-            break;
-         }
+      for( ; result > 0; --result ) {
 
          // Test how many bunches have neighbors inside of the current window.
          const int nbunches =
@@ -1262,6 +1255,11 @@ namespace Trig {
             }
             break;
          }
+      }
+      // If we went down to 0, then the right answer is 1. This is just how this
+      // algorithm works...
+      if( result == 0 ) {
+         result = 1;
       }
       ATH_MSG_DEBUG( "Bunch spacing: " << result << " BCs" );
 
