@@ -120,7 +120,7 @@ def TrigConfBunchCrossingTool():
     __tool = Trig__TrigConfBunchCrossingTool( __defaultToolName )
 
     # Create a default configuration for it:
-    __tool.MaxBunchSpacing = 150
+    __tool.MaxBunchSpacing = 75
     __tool.FrontLength = 300
     __tool.TailLength = 300
 #    __tool.FilledBunchNames = [ "Paired", "Filled" ]
@@ -187,7 +187,7 @@ def MCBunchCrossingTool():
     __tool = Trig__MCBunchCrossingTool( __defaultToolName )
 
     # Create a default configuration for it:
-    __tool.MaxBunchSpacing = 150
+    __tool.MaxBunchSpacing = 75
     __tool.FrontLength = 300
     __tool.TailLength = 300
     __tool.MinBunchIntensity = 0.1
@@ -252,7 +252,7 @@ def LHCBunchCrossingTool():
     __tool = Trig__LHCBunchCrossingTool( __defaultToolName )
 
     # Create a default configuration for it:
-    __tool.MaxBunchSpacing = 150
+    __tool.MaxBunchSpacing = 75
     __tool.FrontLength = 300
     __tool.TailLength = 300
     __tool.IntensityChannel = 1
@@ -309,7 +309,7 @@ def WebBunchCrossingTool():
     __tool = Trig__WebBunchCrossingTool( __defaultToolName )
 
     # Create a default configuration for it:
-    __tool.MaxBunchSpacing = 150
+    __tool.MaxBunchSpacing = 75
     __tool.FrontLength = 300
     __tool.TailLength = 300
     __logger.info( "Set the default values for the WebBunchCrossingTool configuration" )
@@ -350,7 +350,7 @@ def StaticBunchCrossingTool():
     __tool = Trig__StaticBunchCrossingTool( __defaultToolName )
 
     # Create a default configuration for it:
-    __tool.MaxBunchSpacing = 150
+    __tool.MaxBunchSpacing = 75
     __tool.FrontLength = 300
     __tool.TailLength = 300
 
@@ -388,7 +388,7 @@ def D3PDBunchCrossingTool():
     __tool = Trig__D3PDBunchCrossingTool( __defaultToolName )
 
     # Create a default configuration for it:
-    __tool.MaxBunchSpacing = 150
+    __tool.MaxBunchSpacing = 75
     __tool.FrontLength = 300
     __tool.TailLength = 300
 
