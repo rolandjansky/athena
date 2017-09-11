@@ -12,19 +12,19 @@ def writeEmulationFiles(data):
 
 # Testing menu used in the L1 decoders
 class MenuTest:
-    CTPToChainMapping = ["0:HLT_e3",
-                         "0:HLT_g5",
-                         "1:HLT_e7",
-                         "23:HLT_2e3",
+    CTPToChainMapping = ["0:HLT_e3_etcut",
+                         "0:HLT_g5_etcut",
+                         "1:HLT_e7_etcut",
+                         "23:HLT_2e3_etcut",
                          "15:HLT_mu6",
                          "33:HLT_2mu6",
                          "15:HLT_mu6idperf",
                          "42:HLT_e15mu4"]
 
-    EMThresholdToChainMapping = ["EM3 : HLT_e3",
-                                 "EM3 : HLT_g5",
-                                 "EM7 : HLT_e7",
-                                 "EM15 : HLT_e15mu4"]
+    EMThresholdToChainMapping = ["EM3 : HLT_e3_etcut",
+                                 "EM3 : HLT_g5_etcut",
+                                 "EM7 : HLT_e7_etcut",
+                                 "EM15 : HLT_e15mu4_etcut"]
 
     MUThresholdToChainMapping = ["MU6 : HLT_mu6",
                                  "MU6 : HLT_mu6idperf",
@@ -42,11 +42,13 @@ class L1DecoderTest(L1Decoder) :
         from L1Decoder.L1DecoderConf import CTPUnpackingTool, EMRoIsUnpackingTool, MURoIsUnpackingTool
 
         # CTP unpacker
-        self.ctpUnpacker = CTPUnpackingTool(OutputLevel = self.OutputLevel,
-                                            ForceEnableAllChains = True)
-        self.ctpUnpacker.MonTool = CTPUnpackingMonitoring(512, 200)
+
+        ctpUnpacker = CTPUnpackingTool(OutputLevel = self.OutputLevel,
+                                       ForceEnableAllChains = True)
+        ctpUnpacker.MonTool = CTPUnpackingMonitoring(512, 200)
         # Hard-coded CTP IDs from v7 menu
-        self.ctpUnpacker.CTPToChainMapping = MenuTest.CTPToChainMapping
+        ctpUnpacker.CTPToChainMapping = MenuTest.CTPToChainMapping
+        self.ctpUnpacker = ctpUnpacker
 
         # EM unpacker
         if TriggerFlags.doID() or TriggerFlags.doCalo():
@@ -54,6 +56,7 @@ class L1DecoderTest(L1Decoder) :
             emUnpacker.ThresholdToChainMapping = MenuTest.EMThresholdToChainMapping
             emUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="EM", maxCount=30 )
             self.roiUnpackers += [emUnpacker]
+
 
         # MU unpacker
         if TriggerFlags.doMuon():
@@ -87,10 +90,10 @@ class L1EmulationTest(L1Decoder) :
 
         from TrigUpgradeTest.TestUtils import writeEmulationFiles
         writeEmulationFiles(data)
-
-        self.ctpUnpacker = CTPUnpackingEmulationTool(OutputLevel = self.OutputLevel,
-                                                     ForceEnableAllChains = True)
-
+        ctpUnpacker = CTPUnpackingEmulationTool(OutputLevel = self.OutputLevel,
+                                                ForceEnableAllChains = True)
+        self.ctpUnpacker = ctpUnpacker
+        self += ctpUnpacker
         # Hard-coded CTP IDs from v7 menu
         self.ctpUnpacker.CTPToChainMapping = MenuTest.CTPToChainMapping
 
@@ -104,6 +107,7 @@ class L1EmulationTest(L1Decoder) :
             self.roiUnpackers += [emUnpacker]
             print emUnpacker
 
+
         # MU unpacker
         if TriggerFlags.doMuon():
             muUnpacker = RoIsUnpackingEmulationTool("MURoIsUnpackingTool",
@@ -111,7 +115,6 @@ class L1EmulationTest(L1Decoder) :
                                                     OutputTrigRoIs = "MURoIs",
                                                     OutputLevel=self.OutputLevel,
                                                     ThresholdToChainMapping = MenuTest.MUThresholdToChainMapping)
-
             self.roiUnpackers += [muUnpacker]
 
         self.Chains="HLTChainsResult"

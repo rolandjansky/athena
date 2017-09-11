@@ -43,7 +43,9 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigAlgorithms/TrigCaloRec
                           Trigger/TrigEvent/TrigMissingEtEvent
                           Trigger/TrigEvent/TrigNavigation 
-			  Trigger/TrigSteer/DecisionHandling )
+			  Trigger/TrigSteer/DecisionHandling
+			  Control/AthViews
+			  Control/AthContainers )
 
 # External dependencies:
 find_package( AIDA )
