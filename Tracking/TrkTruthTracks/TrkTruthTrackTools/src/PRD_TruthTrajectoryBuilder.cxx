@@ -9,7 +9,6 @@
 // package include
 #include "PRD_TruthTrajectoryBuilder.h"
 // Trk
-#include "TrkTruthData/PRD_MultiTruthCollection.h"
 #include "TrkToolInterfaces/IPRD_Provider.h"
 #include "TrkTruthTrackInterfaces/IPRD_TruthTrajectoryManipulator.h"
 //#include "TrkEventPrimitives/GlobalPosition.h"
@@ -20,27 +19,20 @@
 #include "HepMC/GenParticle.h"
 #include "HepMC/GenVertex.h"
 
+
 /** Constructor **/
 Trk::PRD_TruthTrajectoryBuilder::PRD_TruthTrajectoryBuilder(const std::string& t, const std::string& n, const IInterface* p) : 
   AthAlgTool(t,n,p),
   m_idHelper(0),
   m_idPrdProvider(""),
-  m_msPrdProvider(""),
-  m_minPt(400.),
-  m_geantinos(false)
+  m_msPrdProvider("")
 {
     declareInterface<Trk::IPRD_TruthTrajectoryBuilder>(this);
-    // the PRD multi truth collections this builder works on
-    declareProperty("PRD_MultiTruthCollections",  m_prdMultiTruthCollectionNames);
     // the PRD providers that turn Identifier -> IdentiferHash and get the PRD
     declareProperty("InDetPRD_Provider", m_idPrdProvider);
     declareProperty("MuonPRD_Provider",  m_msPrdProvider);
     // the PRD manipulators
     declareProperty("PRD_TruthTrajectoryManipulators", m_prdTruthTrajectoryManipulators);
-    // Minimum PT cut
-    declareProperty("MinimumPt",         m_minPt);
-    // Track geantinos
-    declareProperty("Geantinos",         m_geantinos);
 }
 
 // Athena algtool's Hooks - initialize
@@ -79,17 +71,16 @@ StatusCode Trk::PRD_TruthTrajectoryBuilder::refreshEvent()  {
    m_prdMultiTruthCollections.clear();
    m_prdMultiTruthCollections.reserve(m_prdMultiTruthCollectionNames.size());
    // load the PRD collections from SG
-   std::vector< std::string >::iterator pmtCollNameIter  = m_prdMultiTruthCollectionNames.begin();
-   std::vector< std::string >::iterator pmtCollNameIterE = m_prdMultiTruthCollectionNames.end();
-   for ( ;  pmtCollNameIter != pmtCollNameIterE; ++pmtCollNameIter ) {
-       // try to retrieve the PRD multi truth collection
-       const PRD_MultiTruthCollection* curColl = 0;
-       if ( evtStore()->retrieve(curColl,(*pmtCollNameIter)).isFailure() )
-           ATH_MSG_WARNING("Could not retrieve " << (*pmtCollNameIter) << ". Ignoring ... ");
-       else if (curColl){
-           ATH_MSG_VERBOSE("Added " << (*pmtCollNameIter) << " to collection list for truth track creation.");
-           m_prdMultiTruthCollections.push_back(curColl);
-       }
+   for(auto pmtCollNameIter:m_prdMultiTruthCollectionNames){
+     // try to retrieve the PRD multi truth collection
+     SG::ReadHandle<PRD_MultiTruthCollection> curColl (pmtCollNameIter);
+     if (!curColl.isValid()){
+       ATH_MSG_WARNING("Could not retrieve " << pmtCollNameIter << ". Ignoring ... ");
+     }
+     else{
+       ATH_MSG_VERBOSE("Added " << pmtCollNameIter << " to collection list for truth track creation.");
+       m_prdMultiTruthCollections.push_back(curColl.cptr());
+     }
    }
    // retrieve collection call to the PRD_Providers
    if (!m_idPrdProvider.empty() && m_idPrdProvider->retrieveCollection().isFailure()){
