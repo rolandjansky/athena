@@ -119,8 +119,11 @@ namespace Monitored {
             using value_type = typename detail::get_value_type<T>::value_type;
 
             /// @brief .     \if empty doc string required due to doxygen bug 787131 \endif
-            friend MonitoredObjectsCollection<T> declare<T>(std::string name, const T& collection, 
-                                                            std::function<double(const value_type&)> converterToDouble);
+            // With a non-template friend declaration, clang 4.0.1
+            // fails to match the friend.
+            template <class U>
+            friend MonitoredObjectsCollection<U> declare(std::string name, const U& collection, 
+                                                         std::function<double(const typename MonitoredObjectsCollection<U>::value_type&)> converterToDouble);
             
             MonitoredObjectsCollection(MonitoredObjectsCollection&&) = default;
             
