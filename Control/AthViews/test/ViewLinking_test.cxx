@@ -12,11 +12,13 @@
 
 #include "TestTools/initGaudi.h"
 #include "TestTools/expect.h"
+#include "TestTools/expect_exception.h"
 #include "AthViews/View.h"
 
 struct TestClass {
   int value = 0;
 };
+
 CLASS_DEF( TestClass , 16530831 , 1 )
 using namespace SG;
 void testDataInView( StoreGateSvc* /*sg*/ , MsgStream& log ) {
@@ -100,8 +102,7 @@ void testDataInView( StoreGateSvc* /*sg*/ , MsgStream& log ) {
   {
     SG::ReadHandle<TestClass> rh( "test1" );
     rh.setProxyDict( childView );
-    VALUE( rh.isValid() ) EXPECTED( true );
-    VALUE( rh->value ) EXPECTED( 3 ); // if we have reached parentView the value would be 1
+    EXPECT_EXCEPTION( std::runtime_error,  rh.isValid() );  
   }
   log << MSG::INFO << "Hiding works as expected " << endmsg;
 
