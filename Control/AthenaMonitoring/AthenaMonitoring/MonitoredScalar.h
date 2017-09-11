@@ -40,6 +40,12 @@ namespace Monitored {
 	    
             operator T() const { return m_value; }
             operator T&() { return m_value; }
+
+            // Needed to work around an apparent bug in clang 4.0.1.
+            // Without these declarations, clang rejects `--SCALAR'
+            // (but ++SCALAR, SCALAR++, and SCALAR-- are all accepted!).
+            T operator--() { return --m_value; }
+            T operator--(int) { return m_value--; }
             
             const std::vector<double> getVectorRepresentation() const override { return { double(m_value) }; }
         private:
