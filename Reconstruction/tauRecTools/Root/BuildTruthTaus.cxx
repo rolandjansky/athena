@@ -62,6 +62,9 @@ BuildTruthTaus::BuildTruthTaus( const std::string& name )
   declareProperty( "WriteVisibleChargedFourMomentum", m_bWriteVisibleChargedFourMomentum = false);
   declareProperty( "WriteVisibleNeutralFourMomentum", m_bWriteVisibleNeutralFourMomentum = false);
   declareProperty( "WriteDecayModeVector", m_bWriteDecayModeVector = true);
+
+  // Tool handle
+  m_tMCTruthClassifier.declarePropertyFor( this, "MCTruthClassifierTool", "The MCTruthClassifierTool" );
 }
 
 //______________________________________________________________________________

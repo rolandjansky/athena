@@ -9,6 +9,18 @@ from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkMuons.MuonsCommon import *
 # from DerivationFrameworkJetEtMiss.METCommon import *
 import AthenaCommon.SystemOfUnits as Units
+if not hasattr(ToolSvc,"IDTrackCaloDepositsDecoratorTool"):
+  from DerivationFrameworkMuons.DerivationFrameworkMuonsConf import IDTrackCaloDepositsDecoratorTool
+  DecoTool = IDTrackCaloDepositsDecoratorTool("IDTrackCaloDepositsDecoratorTool")
+  if hasattr(DecoTool, "TrackDepositInCaloTool"):
+    if not hasattr(ToolSvc,"TrkDepositInCaloTool"):
+        from CaloTrkMuIdTools.CaloTrkMuIdToolsConf import TrackDepositInCaloTool
+        TrkDepositInCaloTool = TrackDepositInCaloTool("TrkDepositInCaloTool")
+        TrkDepositInCaloTool.CaloCellContainerName = "AODCellContainer"
+        ToolSvc += TrkDepositInCaloTool
+    DecoTool.TrackDepositInCaloTool = ToolSvc.TrkDepositInCaloTool
+
+    ToolSvc += DecoTool
 
 #====================================================================
 # AUGMENTATION TOOLS
@@ -34,6 +46,7 @@ andTriggers1_run2 = [] # No trigger in 8TeV data
 
 andTriggers1 = andTriggers1_run2
 MUON3AugmentTool1 = DerivationFramework__dimuonTaggingTool(name = "MUON3AugmentTool1",
+                                                           IDTrackCaloDepoDecoTool = ToolSvc.IDTrackCaloDepositsDecoratorTool,
                                                            OrTrigs = orTriggers1,
                                                            AndTrigs = andTriggers1,
                                                            Mu1PtMin = 5.*Units.GeV,

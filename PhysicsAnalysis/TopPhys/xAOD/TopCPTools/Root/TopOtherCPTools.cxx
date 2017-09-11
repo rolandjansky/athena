@@ -54,8 +54,7 @@ StatusCode OtherCPTools::setupGRL() {
   } else {
     if (!m_config->grlFile().size()) {
       // do not configure GRL tool
-      std::cout << "No GRL files provided. "
-        "Will NOT setup GoodRunsListSelectionTool." << std::endl;
+      ATH_MSG_WARNING("No GRL files provided -> Will NOT setup GoodRunsListSelectionTool.");
       return StatusCode::SUCCESS;
     }
     

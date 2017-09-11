@@ -131,20 +131,31 @@ StatusCode MuonCPTools::setupScaleFactors() {
     *    as SFs very similar for all WPs.
   ************************************************************/
 
-  m_muonTriggerScaleFactors_2015
-    = setupMuonTrigSFTool("CP::MuonTriggerScaleFactors_2015",
-                          m_config->muonQuality(), "2015");
-  m_muonTriggerScaleFactorsLoose_2015
-    = setupMuonTrigSFTool("CP::MuonTriggerScaleFactorsLoose_2015",
-                          m_config->muonQualityLoose(), "2015");
-  m_muonTriggerScaleFactors_2016
-    = setupMuonTrigSFTool("CP::MuonTriggerScaleFactors_2016",
-                          m_config->muonQuality(), "2016");
-  m_muonTriggerScaleFactorsLoose_2016
-    = setupMuonTrigSFTool("CP::MuonTriggerScaleFactorsLoose_2016",
-                          m_config->muonQualityLoose(), "2016");
-
-
+  if(m_config->getReleaseSeries() == 24){
+    m_muonTriggerScaleFactors_2015
+      = setupMuonTrigSFTool("CP::MuonTriggerScaleFactors_2015",
+			    m_config->muonQuality(), "2015");
+    m_muonTriggerScaleFactorsLoose_2015
+      = setupMuonTrigSFTool("CP::MuonTriggerScaleFactorsLoose_2015",
+			    m_config->muonQualityLoose(), "2015");
+    m_muonTriggerScaleFactors_2016
+      = setupMuonTrigSFTool("CP::MuonTriggerScaleFactors_2016",
+			    m_config->muonQuality(), "2016");
+    m_muonTriggerScaleFactorsLoose_2016
+      = setupMuonTrigSFTool("CP::MuonTriggerScaleFactorsLoose_2016",
+			    m_config->muonQualityLoose(), "2016");
+  }
+  // In R21 now, we only need one instance of the tool 
+  // and do not need to set the year as it is handled
+  // internally with PRW tool
+  if(m_config->getReleaseSeries() == 25){
+    m_muonTriggerScaleFactors_R21
+      = setupMuonTrigSFTool("CP::MuonTriggerScaleFactors_R21",
+                            m_config->muonQuality(), "");
+    m_muonTriggerScaleFactorsLoose_R21
+      = setupMuonTrigSFTool("CP::MuonTriggerScaleFactorsLoose_R21",
+                            m_config->muonQualityLoose(), "");
+  }
   /************************************************************
     * Efficiency Scale Factors:
     *    setup muon efficiency SFs for the nominal and 
@@ -240,12 +251,21 @@ MuonCPTools::setupMuonTrigSFTool(const std::string& name, const std::string& qua
   } else {
     tool = new CP::MuonTriggerScaleFactors(name);
     top::check(asg::setProperty(tool, "MuonQuality", quality),
-                "Failed to set MuonQuality for " + name);
-    top::check(asg::setProperty(tool, "Year", year),
-                "Failed to set Year for " + name);
-    std::string MC_version = "mc15c";
-    top::check(asg::setProperty(tool, "MC", MC_version),
-                "Failed to set MC for " + name);
+                "Failed to set MuonQuality for " + name);    
+    // Setting year and MC is only needed in R20.7 
+    // R21 is smarter and uses eventInfo for this info
+    if(m_config->getReleaseSeries() == 24){
+      top::check(asg::setProperty(tool, "Year", year),
+		 "Failed to set Year for " + name);
+      std::string MC_version = "mc15c";
+      top::check(asg::setProperty(tool, "MC", MC_version),
+		 "Failed to set MC for " + name);
+    }
+    else{
+      // This is now needed for R21 as we get many error messages otherwise
+      top::check(asg::setProperty(tool,"AllowZeroSF", true),
+		 "Failed to set AllowZeroSF for "+name);
+    }
     top::check(tool->initialize(), "Failed to init. " + name);
   }
   return tool;

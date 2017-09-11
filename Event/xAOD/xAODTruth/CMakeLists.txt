@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 761796 2016-07-14 08:06:02Z krasznaa $
 ################################################################################
 # Package: xAODTruth
 ################################################################################
@@ -35,3 +34,8 @@ atlas_generate_cliddb( xAODTruth )
 atlas_add_test( ut_xaodtruth_particle_test
    SOURCES test/ut_xaodtruth_particle_test.cxx
    LINK_LIBRARIES xAODTruth )
+
+if( XAOD_STANDALONE )
+   atlas_add_test( ut_xaodtruth_helpers_test
+      SCRIPT test/ut_xaodtruth_helpers_test.py )
+endif()

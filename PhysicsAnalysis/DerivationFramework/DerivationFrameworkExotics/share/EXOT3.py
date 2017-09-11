@@ -9,7 +9,7 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
-from DerivationFrameworkFlavourTag.HbbCommon           import *
+from DerivationFrameworkFlavourTag.HbbCommon import *
 from DerivationFrameworkCore.WeightMetadata import *
 
 from JetRec.JetRecStandard import jtm
@@ -28,24 +28,8 @@ if globalflags.DataSource()=='geant4':
 
 thinningTools = []
 
+# Track thinning
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-
-# MET/Jet tracks
-#met_thinning_expression = "(InDetTrackParticles.pt > 0.5*GeV) && (InDetTrackParticles.numberOfPixelHits > 0) && (InDetTrackParticles.numberOfSCTHits > 5) && (abs(DFCommonInDetTrackZ0AtPV) < 1.5)"
-#EXOT3MetTPThinningTool = DerivationFramework__TrackParticleThinning( name                = "EXOT3MetTPThinningTool",
-#                                                                ThinningService         = "EXOT3ThinningSvc",
-#                                                                SelectionString         = met_thinning_expression,
-#                                                                InDetTrackParticlesKey  = "InDetTrackParticles")
-#ToolSvc += EXOT3MetTPThinningTool
-#
-#EXOT3JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          = "EXOT3JetTPThinningTool",
-#                                                                ThinningService         = "EXOT3ThinningSvc",
-#                                                                JetKey                  = "AntiKt4LCTopoJets",
-#                                                                InDetTrackParticlesKey  = "InDetTrackParticles")
-#ToolSvc += EXOT3JetTPThinningTool
-
-
-
 thinExpression = '(InDetTrackParticles.d0 < 1.5) && ((DFCommonInDetTrackZ0AtPV * sin(InDetTrackParticles.theta )) <= 1.5)'
 EXOT3TPThinningTool = DerivationFramework__TrackParticleThinning(name = "EXOT3TPThinningTool",
                                                                  ThinningService         = "EXOT3ThinningSvc",
@@ -72,6 +56,7 @@ EXOT3ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning( 
 ToolSvc += EXOT3ElectronTPThinningTool
 thinningTools.append(EXOT3ElectronTPThinningTool)
 
+# Tracks associated with Photons
 EXOT3PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(    	name                    = "EXOT3PhotonTPThinningTool",
                                                                                         ThinningService         = "EXOT3ThinningSvc",
                                                                                         SGKey             	= "Photons",
@@ -105,7 +90,6 @@ thinningTools.append(EXOT3AKt10JetTPThinningTool)
 #                                                                        InDetTrackParticlesKey  = "InDetTrackParticles")
 #ToolSvc += EXOT3AKt10JetTPThinningTool
 #thinningTools.append(EXOT3AKt10JetTPThinningTool)
-
 
 # Calo-cluster thinning
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__JetCaloClusterThinning
@@ -192,7 +176,6 @@ triggers = [
             "HLT_ht1000_L1J100",
            ]
 
-
 topology_selection_1jet = "((count (abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_eta) < 2.8 && AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 100*GeV && AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_m > 30*GeV)  >= 1)"
 topology_selection_1jet += " )"#FIX #ATLJETMET-744
 #topology_selection_1jet += " || (count (abs(CamKt12LCTopoBDRSFilteredMU100Y4Jets.eta) < 2.8 && CamKt12LCTopoBDRSFilteredMU100Y4Jets.pt > 100*GeV && CamKt12LCTopoBDRSFilteredMU100Y4Jets.m > 30*GeV)  >= 1))"#FIX #ATLJETMET-744
@@ -270,7 +253,6 @@ addVRJets(exot3Seq, "AntiKtVR30Rmax4Rmin02Track", "GhostVR30Rmax4Rmin02TrackJet"
           ghostArea = 0 , ptmin = 2000, ptminFilter = 7000,
           variableRMinRadius = 0.02, variableRMassScale = 30000, calibOpt = "none")
 
-
 #b-tagging
 
 # use alias for VR jets
@@ -293,7 +275,6 @@ addTrimmedJets("AntiKt", 1.0, "PV0Track", rclus=0.2, ptfrac=0.05, mods="groomed"
 
 #jet calibration
 applyJetCalibration_CustomColl("AntiKt10LCTopoTrimmedPtFrac5SmallR20", exot3Seq)
-
 
 #=======================================
 # SKIMMING, THINNING, AUGMENTATION
@@ -359,14 +340,13 @@ EXOT3SlimmingHelper.ExtraVariables += [
     "BTagging_AntiKtVR30Rmax4Rmin02Track.BTagTrackToJetAssociatorBB.JetFitter_JFvertices.JetFitter_tracksAtPVlinks.MSV_badTracksIP"
 ]
 
-
 if globalflags.DataSource()=='geant4':
   listJets.extend(['AntiKt10TruthTrimmedPtFrac5SmallR20Jets'])
 for i in listJets:
   EXOT3SlimmingHelper.AppendToDictionary[i] = 'xAOD::JetContainer'
   EXOT3SlimmingHelper.AppendToDictionary[i+'Aux'] = 'xAOD::JetAuxContainer'
 
-# (Dont) Add jet triger content
+# (Don't) Add jet trigger content
 #EXOT3SlimmingHelper.IncludeJetTauEtMissTriggerContent = True
 EXOT3SlimmingHelper.IncludeJetTriggerContent = True
 EXOT3SlimmingHelper.IncludeEGammaTriggerContent = True

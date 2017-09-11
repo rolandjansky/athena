@@ -22,11 +22,6 @@ namespace top {
     m_config(nullptr),
     m_systNominal(CP::SystematicSet()),
 
-    m_muonTriggerScaleFactors_2015("CP::MuonTriggerScaleFactors_2015"),
-    m_muonTriggerScaleFactorsLoose_2015("CP::MuonTriggerScaleFactorsLoose_2015"),
-    m_muonTriggerScaleFactors_2016("CP::MuonTriggerScaleFactors_2016"),
-    m_muonTriggerScaleFactorsLoose_2016("CP::MuonTriggerScaleFactorsLoose_2016"),
-
     m_muonEfficiencyCorrectionsTool("CP::MuonEfficiencyScaleFactorsTool"),
     m_muonEfficiencyCorrectionsToolLoose("CP::MuonEfficiencyScaleFactorsToolLoose"),
     m_muonEfficiencyCorrectionsToolIso("CP::MuonEfficiencyScaleFactorsToolIso"),
@@ -71,6 +66,18 @@ namespace top {
 
   StatusCode MuonScaleFactorCalculator::initialize() {
     ATH_MSG_INFO(" top::MuonScaleFactorCalculator initialize");
+    
+    // Different tools to retrieve, depending on the release
+    if(m_config->getReleaseSeries() == 24){
+      m_muonTriggerScaleFactors_2015      = ToolHandle<CP::IMuonTriggerScaleFactors>("CP::MuonTriggerScaleFactors_2015");
+      m_muonTriggerScaleFactorsLoose_2015 = ToolHandle<CP::IMuonTriggerScaleFactors>("CP::MuonTriggerScaleFactorsLoose_2015");
+      m_muonTriggerScaleFactors_2016      = ToolHandle<CP::IMuonTriggerScaleFactors>("CP::MuonTriggerScaleFactors_2016");
+      m_muonTriggerScaleFactorsLoose_2016 = ToolHandle<CP::IMuonTriggerScaleFactors>("CP::MuonTriggerScaleFactorsLoose_2016");
+    }
+    if(m_config->getReleaseSeries() == 25){
+      m_muonTriggerScaleFactors_R21      = ToolHandle<CP::IMuonTriggerScaleFactors>("CP::MuonTriggerScaleFactors_R21");
+      m_muonTriggerScaleFactorsLoose_R21 = ToolHandle<CP::IMuonTriggerScaleFactors>("CP::MuonTriggerScaleFactorsLoose_R21");
+    }
 
     std::set<std::string> implemented_systematics;
     // Default release 20.7 implemented systematic names
@@ -104,18 +111,31 @@ namespace top {
     }
 
     std::set<std::string> recommended_systematics;
-    this->retrieveSystematicTool(m_muonTriggerScaleFactors_2015,
-                                 recommended_systematics);
-    this->retrieveSystematicTool(m_muonTriggerScaleFactorsLoose_2015,
-                                 recommended_systematics);
-    this->retrieveSystematicTool(m_muonTriggerScaleFactors_2016,
-                                 recommended_systematics);
-    this->retrieveSystematicTool(m_muonTriggerScaleFactorsLoose_2016,
-                                 recommended_systematics);
+    // For R20.7, tool for each year
+    if(m_config->getReleaseSeries() == 24){
+      this->retrieveSystematicTool(m_muonTriggerScaleFactors_2015,
+				   recommended_systematics);
+      this->retrieveSystematicTool(m_muonTriggerScaleFactorsLoose_2015,
+				   recommended_systematics);
+      this->retrieveSystematicTool(m_muonTriggerScaleFactors_2016,
+				   recommended_systematics);
+      this->retrieveSystematicTool(m_muonTriggerScaleFactorsLoose_2016,
+				   recommended_systematics);
+    }
+    // For R21, a single tool
+    if(m_config->getReleaseSeries() == 25){
+
+      this->retrieveSystematicTool(m_muonTriggerScaleFactors_R21,
+                                   recommended_systematics);
+      this->retrieveSystematicTool(m_muonTriggerScaleFactorsLoose_R21,
+                                   recommended_systematics);
+    }
+
     this->retrieveSystematicTool(m_muonEfficiencyCorrectionsTool,
-                                 recommended_systematics);
+				 recommended_systematics);
     this->retrieveSystematicTool(m_muonEfficiencyCorrectionsToolLoose,
-                                 recommended_systematics);
+				 recommended_systematics);
+
 
     if (asg::ToolStore::contains<CP::IMuonEfficiencyScaleFactors>("CP::MuonEfficiencyScaleFactorsToolIso")) {
       this->retrieveSystematicTool(m_muonEfficiencyCorrectionsToolIso,
@@ -187,30 +207,62 @@ namespace top {
       else
         ATH_MSG_WARNING("Event has not been decorated with RandomRunNumber");
 
-      if (runNumber > 284484 || runNumber == 0) {
-        m_muonTriggerScaleFactors = m_muonTriggerScaleFactors_2016;
-        m_muonTriggerScaleFactorsLoose = m_muonTriggerScaleFactors_2016;
-        m_muon_trigger_sf_config = "HLT_mu26_ivarmedium_OR_HLT_mu50";
-      } else {
-        m_muonTriggerScaleFactors = m_muonTriggerScaleFactors_2015;
-        m_muonTriggerScaleFactorsLoose = m_muonTriggerScaleFactors_2015;
-        m_muon_trigger_sf_config = "HLT_mu20_iloose_L1MU15_OR_HLT_mu50";
+      if(m_config->getReleaseSeries() == 24){
+	if (runNumber > 284484 || runNumber == 0) {
+	  m_muonTriggerScaleFactors = m_muonTriggerScaleFactors_2016;
+	  m_muonTriggerScaleFactorsLoose = m_muonTriggerScaleFactors_2016;
+	  m_muon_trigger_sf_config = "HLT_mu26_ivarmedium_OR_HLT_mu50";
+	} else {
+	  m_muonTriggerScaleFactors = m_muonTriggerScaleFactors_2015;
+	  m_muonTriggerScaleFactorsLoose = m_muonTriggerScaleFactors_2015;
+	  m_muon_trigger_sf_config = "HLT_mu20_iloose_L1MU15_OR_HLT_mu50";
+	}
       }
 
-      // The PRW tool can give run numbers of zero for unrepresented
-      // mu values. If we give the muon tool a run number of zero it
-      // complains with the message:
-      // "WARNING I am using run #0 but I cannot find corresponding run period.
-      // Now setting to use 2016 period B.
-      // This might give problems! Please check which year and mc you
-      // have set up".
-      // We do this by hand to avoid the messages.
-      if (runNumber == 0) runNumber = 300345;
-      
-      top::check(m_muonTriggerScaleFactors->setRunNumber(runNumber),
-                 "Failed to set run number for muon trigger SFs");
-      top::check(m_muonTriggerScaleFactorsLoose->setRunNumber(runNumber),
-                 "Failed to set run number for (loose) muon trigger SFs");
+      if(m_config->getReleaseSeries() == 25){
+	// Keep an eye here for trigger strings
+	// https://twiki.cern.ch/twiki/bin/view/AtlasProtected/MCPAnalysisGuidelinesMC15#Supported_triggers
+	m_muonTriggerScaleFactors      = m_muonTriggerScaleFactors_R21;
+	m_muonTriggerScaleFactorsLoose = m_muonTriggerScaleFactorsLoose_R21;
+	m_muon_trigger_sf_config       = "";
+
+	if(runNumber == 0){
+	  m_muon_trigger_sf_config = "HLT_mu26_ivarmedium_OR_HLT_mu50";
+	}
+	// 2015
+	else if(runNumber > 0 && runNumber <= 284484){
+	  m_muon_trigger_sf_config = "HLT_mu20_iloose_L1MU15_OR_HLT_mu50";
+	}
+	// 2016 (set to a large value but split as we may need to have strings for 2016 -> certain 2017 run)
+	else if (runNumber > 284484 && runNumber < 324320) {
+	  m_muon_trigger_sf_config = "HLT_mu26_ivarmedium_OR_HLT_mu50";
+	}
+	// 2017+ (324320+)
+	else{
+	  m_muon_trigger_sf_config = "HLT_mu26_ivarmedium_OR_HLT_mu50"; 
+	}
+      }
+      ATH_MSG_DEBUG("Muon trigger scale factor config is : "+m_muon_trigger_sf_config);
+      ATH_MSG_DEBUG("RunNumber (0 < 2015 < 284484 < 2016 < 324320 < 2017) : ");
+      ATH_MSG_DEBUG(runNumber);
+
+      // This is now only needed in R20.7
+      // R21+ will be smarter
+      if(m_config->getReleaseSeries() == 24){
+	// The PRW tool can give run numbers of zero for unrepresented
+	// mu values. If we give the muon tool a run number of zero it
+	// complains with the message:
+	// "WARNING I am using run #0 but I cannot find corresponding run period.
+	// Now setting to use 2016 period B.
+	// This might give problems! Please check which year and mc you
+	// have set up".
+	// We do this by hand to avoid the messages.
+	if (runNumber == 0) runNumber = 300345;
+	top::check(m_muonTriggerScaleFactors->setRunNumber(runNumber),
+		   "Failed to set run number for muon trigger SFs");
+	top::check(m_muonTriggerScaleFactorsLoose->setRunNumber(runNumber),
+		   "Failed to set run number for (loose) muon trigger SFs");
+      }
     }
 
     ///-- Loop over all muon collections --///

@@ -5,7 +5,7 @@ from AthenaCommon import CfgMgr
 
 import cppyy
 try :
-    cppyy.loadDictionary("ElectronPhotonFourMomentumCorrectionDict")
+    cppyy.loadDictionary("EgammaAnalysisInterfacesDict")
 except :
     pass
 

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigBjetCnvTool.cxx 622249 2014-10-17 09:11:13Z lidiaz $
+// $Id: TrigBjetCnvTool.cxx 785653 2016-11-22 06:07:48Z ssnyder $
 
 // EDM include(s):
 #include "TrigParticle/TrigEFBjetContainer.h"
@@ -41,7 +41,7 @@ namespace xAODMaker {
    *          something else if not
    */
   StatusCode TrigBjetCnvTool::convert( const TrigEFBjetContainer* aod,
-                                       xAOD::BTaggingContainer* xaod ) {
+                                       xAOD::BTaggingContainer* xaod ) const {
 
     // A small sanity check. The output container should really be empty...
     if( xaod->size() ) {

@@ -14,13 +14,6 @@
 // reports, feature suggestions, praise and complaints.
 
 
-/// This module defines a base class for classes that implement an
-/// worker.  The interface provided in this module is intended for the
-/// general user, though implementing the derived classes is for
-/// experts only.  The module is considered to be in the pre-alpha
-/// stage.
-
-
 
 #include <EventLoop/Global.h>
 
@@ -30,6 +23,8 @@
 #include <Rtypes.h>
 #include <TList.h>
 #include <SampleHandler/Global.h>
+#include <AnaAlgorithm/IFilterWorker.h>
+#include <AnaAlgorithm/IHistogramWorker.h>
 
 class TFile;
 class TH1;
@@ -45,7 +40,7 @@ namespace xAOD
 
 namespace EL
 {
-  class Worker
+  class Worker : public IFilterWorker, public IHistogramWorker
   {
     //
     // public interface
@@ -74,7 +69,7 @@ namespace EL
     ///   objects.  I may do that at a later stage though, possibly
     ///   breaking existing code.
   public:
-    void addOutput (TObject *output_swallow);
+    void addOutput (TObject *output_swallow) final override;
 
 
     /// effects: add a given object to the output.  instead of trying
@@ -101,7 +96,7 @@ namespace EL
     ///   object not found
     /// \post result != 0
   public:
-    TH1 *getOutputHist (const std::string& name) const;
+    TH1 *getOutputHist (const std::string& name) const final override;
 
 
     /// effects: get the output file that goes into the dataset with
@@ -203,6 +198,20 @@ namespace EL
     ///   later algorithms that fill histograms
   public:
     void skipEvent ();
+
+
+    /// \brief whether the current algorithm passed its filter
+    /// criterion for the current event
+    /// \par Guarantee
+    ///   no-fail
+  public:
+    virtual bool filterPassed () const noexcept final override;
+
+    /// \brief set the value of \ref filterPassed
+    /// \par Guarantee
+    ///   no-fail
+  public:
+    virtual void setFilterPassed (bool val_filterPassed) noexcept final override;
 
 
 

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventCleaningSelection.h 806029 2017-06-06 19:10:49Z tpelzer $
+// $Id: EventCleaningSelection.h 809763 2017-08-25 11:04:10Z grancagn $
 #ifndef ANALYSISTOP_TOPOBJECTSELECTIONTOOLS_EVENTCLEANINGSELECTION_H
 #define ANALYSISTOP_TOPOBJECTSELECTIONTOOLS_EVENTCLEANINGSELECTION_H
 
@@ -30,7 +30,7 @@ namespace top{
       explicit EventCleaningSelection( const std::string& name );
       virtual ~EventCleaningSelection(){}
       
-      StatusCode initilize();
+      StatusCode initialize();
       
       void setEventSelections( const std::vector<top::SelectionConfigurationData>& selections );
       bool applyGRL() const;

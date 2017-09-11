@@ -169,8 +169,6 @@ namespace ST {
 			   // const xAOD::TauJetContainer* taujet = 0,
 			   ) override final;
 
-    StatusCode setRunNumber(const int run_number) override final;
-
     bool IsSignalJet(const xAOD::Jet& input, const float ptcut, const float etacut) const override final;
 
     bool IsBadJet(const xAOD::Jet& input) const override final;
@@ -290,7 +288,7 @@ namespace ST {
 
     float GetDataWeight(const std::string&) override final;
 
-    float GetCorrectedAverageInteractionsPerCrossing() override final;
+    float GetCorrectedAverageInteractionsPerCrossing(bool includeDataSF=false) override final;
 
     double GetSumOfWeights(int channel) override final;
 
@@ -616,8 +614,7 @@ namespace ST {
     asg::AnaToolHandle<CP::IMuonEfficiencyScaleFactors> m_muonEfficiencyBMHighPtSFTool;
     asg::AnaToolHandle<CP::IMuonEfficiencyScaleFactors> m_muonTTVAEfficiencySFTool;
     asg::AnaToolHandle<CP::IMuonEfficiencyScaleFactors> m_muonIsolationSFTool;
-    asg::AnaToolHandle<CP::IMuonTriggerScaleFactors> m_muonTriggerSFTool2015;
-    asg::AnaToolHandle<CP::IMuonTriggerScaleFactors> m_muonTriggerSFTool2016;
+    asg::AnaToolHandle<CP::IMuonTriggerScaleFactors> m_muonTriggerSFTool;
     //
     asg::AnaToolHandle<IAsgElectronEfficiencyCorrectionTool> m_elecEfficiencySFTool_reco;
     asg::AnaToolHandle<IAsgElectronEfficiencyCorrectionTool> m_elecEfficiencySFTool_id;

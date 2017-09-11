@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ITrigBjetCnvTool.h 601176 2014-06-11 10:54:22Z lidiaz $ 
+// $Id: ITrigBjetCnvTool.h 785653 2016-11-22 06:07:48Z ssnyder $ 
 #ifndef xAODBTaggingCNV_ITrigBjetCNVTOOL_H
 #define xAODBTaggingCNV_ITrigBjetCNVTOOL_H
 
@@ -41,7 +41,7 @@ namespace xAODMaker {
       //                             xAOD::TrigBjetContainer* xaod ) = 0;
       /// Function that fills an existing xAOD::TrigBjetContainer
        virtual StatusCode convert( const TrigEFBjetContainer* aod,
-                                   xAOD::BTaggingContainer* xaod ) = 0;
+                                   xAOD::BTaggingContainer* xaod ) const = 0;
 
       /// Gaudi interface definition
       static const InterfaceID& interfaceID() {

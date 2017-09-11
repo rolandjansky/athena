@@ -1,9 +1,9 @@
-///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+///////////////////////// -*- C++ -*- /////////////////////////////
 // ParticleSortingTool.cxx
 // Implementation file for class ParticleSortingTool
 // Author: Karsten Koeneke <karsten.koeneke@cern.ch>
@@ -34,6 +34,7 @@
 #include "xAODParticleEvent/CompositeParticleContainer.h"
 #include "xAODParticleEvent/ParticleContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
+#include "AthContainers/ConstDataVector.h"
 
 
 
@@ -101,7 +102,7 @@ StatusCode ParticleSortingTool::initialize()
     m_sortID = 7;
   }
   if ( m_sortDescending.value() ) { m_sortID *= -1; }
-  
+
   return StatusCode::SUCCESS;
 }
 
@@ -130,6 +131,20 @@ else if ( evtStore()->contains<CONTAINERTYPE>( m_inCollKey.value() ) ) {        
 }
 
 
+// Declare a short pre-processor macro to deal with the different container types
+#define OVERWRITE_AND_SORT_CONTAINER( CONTAINERTYPE )                                                \
+else if ( evtStore()->contains<CONTAINERTYPE>( m_inCollKey.value() ) ) {                             \
+  ATH_MSG_DEBUG("Trying to copy, sort, and overwrite container of type "#CONTAINERTYPE );            \
+  const CONTAINERTYPE* inCont;                                                                       \
+  ATH_CHECK( evtStore()->retrieve( inCont, m_inCollKey.value() ) );                                  \
+  ConstDataVector<CONTAINERTYPE>* outCont = new ConstDataVector<CONTAINERTYPE>( SG::VIEW_ELEMENTS ); \
+  for ( const CONTAINERTYPE::base_value_type* inPart : *inCont ){                                    \
+    outCont->push_back(inPart);                                                                      \
+  }                                                                                                  \
+  ATH_CHECK( evtStore()->overwrite( outCont, m_inCollKey.value() ) );                                \
+  ATH_CHECK( this->doSortConst<CONTAINERTYPE>(outCont) );                                            \
+}
+
 
 
 StatusCode ParticleSortingTool::addBranches() const
@@ -145,7 +160,31 @@ StatusCode ParticleSortingTool::addBranches() const
     ATH_MSG_DEBUG("Got an empty 'OutputCollection' property. "
                   << "Trying to retrieve a non-const version of the 'InputContainer'...");
     xAOD::IParticleContainer* inCont = evtStore()->tryRetrieve<xAOD::IParticleContainer>( m_inCollKey.value() );
-    ATH_CHECK( this->doSort(inCont) );
+    if (inCont){ ATH_CHECK( this->doSort(inCont) ); }
+    else {
+      ATH_MSG_DEBUG("We couldn't retrieve a non-const version of the input container... try const.");
+      const xAOD::IParticleContainer* inCont2 = nullptr;
+      ATH_CHECK( evtStore()->retrieve( inCont2, m_inCollKey.value()) );
+      // Now, do the copy and sorting and overwriting of all known container types
+      if (false) {
+      }
+      OVERWRITE_AND_SORT_CONTAINER(xAOD::MuonContainer)
+      OVERWRITE_AND_SORT_CONTAINER(xAOD::ElectronContainer)
+      OVERWRITE_AND_SORT_CONTAINER(xAOD::PhotonContainer)
+      OVERWRITE_AND_SORT_CONTAINER(xAOD::TauJetContainer)
+      OVERWRITE_AND_SORT_CONTAINER(xAOD::JetContainer)
+      OVERWRITE_AND_SORT_CONTAINER(xAOD::PFOContainer)
+      OVERWRITE_AND_SORT_CONTAINER(xAOD::NeutralParticleContainer)
+      OVERWRITE_AND_SORT_CONTAINER(xAOD::TrackParticleContainer)
+      OVERWRITE_AND_SORT_CONTAINER(xAOD::TruthParticleContainer)
+      OVERWRITE_AND_SORT_CONTAINER(xAOD::CompositeParticleContainer)
+      OVERWRITE_AND_SORT_CONTAINER(xAOD::ParticleContainer)
+      OVERWRITE_AND_SORT_CONTAINER(xAOD::CaloClusterContainer)
+      else {
+        ATH_MSG_ERROR("Couln't find the provided intput container in store gate for later overwriting");
+        return StatusCode::FAILURE;
+      }
+    }
   }
   else {
     ATH_MSG_DEBUG("Got a non-empty 'OutputCollection' property. "
