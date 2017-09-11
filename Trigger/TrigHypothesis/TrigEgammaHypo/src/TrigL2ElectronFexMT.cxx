@@ -61,7 +61,7 @@ TrigL2ElectronFexMT::TrigL2ElectronFexMT(const std::string & name, ISvcLocator* 
     declareProperty("ElectronsName", 
                   m_outputElectronsKey = std::string("Electrons"),
                   "Electron container");
-    declareProperty("roiCollectionName", 
+    declareProperty("RoIs", 
                   m_roiCollectionKey = std::string("rois"),
                   "RoI Collection");
 

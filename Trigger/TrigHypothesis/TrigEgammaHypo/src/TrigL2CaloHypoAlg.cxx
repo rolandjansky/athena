@@ -9,17 +9,7 @@ using namespace TrigCompositeUtils;
 
 TrigL2CaloHypoAlg::TrigL2CaloHypoAlg( const std::string& name, 
 				      ISvcLocator* pSvcLocator ) : 
-  ::AthReentrantAlgorithm( name, pSvcLocator ),
-  m_hypoTools( this ),
-  m_clustersKey( "CaloClusters" ),
-  m_roisKey( "RoIs" ),
-  m_decisionsKey( "CaloHypoDecisions" ) {
-
-  declareProperty( "HypoTools", m_hypoTools );
-  declareProperty( "CaloClusters", m_clustersKey );
-  declareProperty( "RoIs", m_roisKey );
-  declareProperty( "Decisions", m_decisionsKey ); 
-}
+  ::AthReentrantAlgorithm( name, pSvcLocator ) {}
 
 TrigL2CaloHypoAlg::~TrigL2CaloHypoAlg()
 {}
@@ -28,8 +18,15 @@ StatusCode TrigL2CaloHypoAlg::initialize()
 {
   ATH_MSG_INFO ( "Initializing " << name() << "..." );
   CHECK( m_hypoTools.retrieve() );
+
+  CHECK( m_viewsKey.initialize() );
+
+  renounce( m_clustersKey );
   CHECK( m_clustersKey.initialize() );
+
+  renounce( m_roisKey );
   CHECK( m_roisKey.initialize() );
+
   CHECK( m_decisionsKey.initialize() );
   return StatusCode::SUCCESS;
 }
@@ -44,43 +41,50 @@ StatusCode TrigL2CaloHypoAlg::finalize()
 StatusCode TrigL2CaloHypoAlg::execute_r( const EventContext& context ) const
 {  
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
-  auto clustersHandle = SG::makeHandle( m_clustersKey, context );
-  auto roisHandle = SG::makeHandle( m_roisKey, context );
+  auto viewsHandle = SG::makeHandle( m_viewsKey, context );
   
   auto decisions = std::make_unique<DecisionContainer>();
   auto aux = std::make_unique<DecisionAuxContainer>();
   decisions->setStore( aux.get() );
 
-  // prepare decision storage ( we could simplify it )
+
+  std::vector<TrigL2CaloHypoTool::Input> toolInput;
+  // exploit knowledge that there is one cluster in the view
   size_t counter = 0;
-  for ( auto clusterIter =   clustersHandle->begin();  clusterIter != clustersHandle->end(); ++clusterIter, ++counter ) {
+  for ( auto view: *viewsHandle ) {
     auto d = newDecisionIn( decisions.get() );
-    d->setObjectLink( "feature", ElementLink<xAOD::TrigEMClusterContainer>( m_clustersKey.key(), counter ) );
-    d->setObjectLink( "roi", ElementLink<TrigRoiDescriptorCollection>( m_roisKey.key(), counter ) );
-  }
-
-
-  size_t index = 0;
-  for ( ; index < decisions->size(); ++index ) {
-
-    auto cluster = clustersHandle->at( index );
-    auto roi = roisHandle->at( index );
-    auto decision = decisions->at( index );
-
-
-    for ( auto tool : m_hypoTools ) {
-      // interface of the tool needs to be suitable for current system, so no TrigComposite
-      // also no support for the multi-electrons yet ( will be additional method )
-      if ( tool->decide( cluster, roi ) ) {   
-	addDecisionID( tool->decisionId(), decision );	  
-	ATH_MSG_DEBUG( " + " << tool->name() );
-      } else {
-	ATH_MSG_DEBUG( " - " << tool->name() );
-      }
-    }
     
+    auto roiHandle =  SG::makeHandle( m_roisKey, context );
+    CHECK( roiHandle.setProxyDict( view ) );
+
+    auto clusterHandle =  SG::makeHandle( m_clustersKey, context );
+    CHECK( clusterHandle.setProxyDict( view ) );
+    
+    toolInput.emplace_back( d, roiHandle.cptr()->at(0), clusterHandle.cptr()->at(0) );
+
+
+    {
+      auto el = ElementLink<xAOD::TrigEMClusterContainer>( view->name()+"_"+clusterHandle.key(), 0 ); // 0 because there is only one obj in per-view collection
+      CHECK( el.isValid() );
+      d->setObjectLink( "feature",  el );
+    }
+    {
+      auto el = ElementLink<TrigRoiDescriptorCollection>( view->name()+"_"+m_roisKey.key(), 0 );
+      CHECK( el.isValid() );
+      d->setObjectLink( "roi", el );
+    }
+    {
+      auto el = ElementLink< std::vector<SG::View*> >( m_viewsKey.key(), counter );
+      CHECK( el.isValid() );
+      d->setObjectLink( "view", el );
+    }
+  }
+  
+  for ( auto& tool: m_hypoTools ) {
+    CHECK( tool->decide( toolInput ) );
   }
 
+ 
   {
     auto handle =  SG::makeHandle( m_decisionsKey, context );
     CHECK( handle.record( std::move( decisions ), std::move( aux ) ) );
