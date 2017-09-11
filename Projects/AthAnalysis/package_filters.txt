@@ -175,6 +175,9 @@
 + Event/EventBookkeeperTools
 + Event/EventBookkeeperMetaData
 
+# LumiBlockComps for the LumiBlockMetaDataTool
++ LumiBlock/LumiBlockComps
+
 # Other extras (would very much like to eliminate!) :
 + Event/EventInfo.*
 + Event/EventAthenaPool
