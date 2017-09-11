@@ -210,7 +210,7 @@ def buildGenericGroomAlg(jetalg, rsize, inputtype, groomedName, jetToolBuilder,
         # 1. make sure we have pseudo-jet in our original container
         # this returns a list of the needed tools to do so.
         jetalgTools = reCreatePseudoJets(jetalg, rsize, inputtype, variableRMassScale, variableRMinRadius)
-        if includePreTools:
+        if includePreTools and jetFlags.useTracks() and not "Truth" in inputtype:
             # enable track ghost association and JVF
             jetalgTools =  [jtm.tracksel, jtm.tvassoc] + jetalgTools 
 
