@@ -58,8 +58,8 @@ if recAlgs.doEFlow() :
   jtm += PseudoJetGetter(
     name               = "emnpflowget",
     Label              = "EMNPFlow",
-    InputContainer = "CHSParticleFlowObjects",
-    OutputContainer = "PseudoJetEMPFlow",
+    InputContainer = "CHSNeutralParticleFlowObjects",
+    OutputContainer = "PseudoJetEMNPFlow",
     SkipNegativeEnergy = True,
     )
 

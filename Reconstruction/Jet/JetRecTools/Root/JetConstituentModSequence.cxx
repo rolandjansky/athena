@@ -37,6 +37,8 @@ StatusCode JetConstituentModSequence::initialize() {
   }
 
   m_outPFOAllKey = m_outputContainer+"ParticleFlowObjects";
+  m_outPFOChargedKey = m_outputContainer+"ChargedParticleFlowObjects";
+  m_outPFONeutralKey = m_outputContainer+"NeutralParticleFlowObjects";
   m_caloClusterKey = m_outputContainer;
   m_truthParticleKey = m_outputContainer;
   m_trackParticleKey = m_outputContainer;
