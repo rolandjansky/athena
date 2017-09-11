@@ -448,7 +448,7 @@ StatusCode PixelMainMon::FillRODErrorMon(void) {
             has_err_cat[error_cat] = true;
           }
 
-          if (bit == 4) {  /// EoC trunc error
+          if (bit == 4) {  // EoC trunc error
             int fephi = 0;
             int feeta = 0;
             if (kLayer == PixLayer::kB0 && GetFEID(kLayer, m_pixelid->phi_index(WaferID), m_pixelid->eta_index(WaferID), fephi, feeta)) {

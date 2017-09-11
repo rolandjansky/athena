@@ -143,9 +143,7 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   m_Pixel_spcontainer = 0;
   m_tracks = 0;
 
-  ///
-  /// Initalize all pointers for histograms
-  ///
+  // Initalize all pointers for histograms
 
   // Event info
   m_events_per_lumi = 0;
@@ -353,11 +351,9 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   memset(m_hist_HVoltageLB, 0, sizeof(m_hist_HVoltageLB));
   m_hist_LB_staveID_HVoltage = 0;
   memset(m_hist_LB_moduleGroup_HVoltage, 0, sizeof(m_hist_LB_moduleGroup_HVoltage));
-  // KNUT: m_hist_Pipes_inletEtaPhi = 0;
   memset(m_hist_Pipes_inletLB, 0, sizeof(m_hist_Pipes_inletLB));
   m_hist_Pipes_inlet2Dscatter = 0;
   m_hist_LB_staveID_coolingPipeInlet = 0;
-  // KNUT: m_hist_Pipes_outletEtaPhi = 0;
   memset(m_hist_Pipes_outletLB, 0, sizeof(m_hist_Pipes_outletLB));
   m_hist_Pipes_outlet2Dscatter = 0;
   m_hist_LB_staveID_coolingPipeOutlet = 0;
@@ -755,14 +751,14 @@ StatusCode PixelMainMon::fillHistograms() {
     m_currentBCID = thisEventInfo->event_ID()->bunch_crossing_id();
     unsigned int currentdiff = (m_currentTime - m_firstBookTime) / 100;
     unsigned int currentdiff5min = (m_currentTime - m_firstBookTime) / 300;
-    /// for 100 sec
+    // for 100 sec
     if (currentdiff > m_nRefresh) {
       m_doRefresh = true;
       m_nRefresh = currentdiff;
     } else {
       m_doRefresh = false;
     }
-    /// for 5min
+    // for 5min
     if (currentdiff5min > m_nRefresh5min) {
       m_doRefresh5min = true;
       m_nRefresh5min = currentdiff5min;

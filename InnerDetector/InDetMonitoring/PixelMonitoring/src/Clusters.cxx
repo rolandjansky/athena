@@ -137,7 +137,7 @@ StatusCode PixelMainMon::BookClustersMon(void) {
   htitles = makeHisttitle("Cluster Level 1 Accept", (atext_lvl1 + atext_nclu), true);
   sc = timeShift.regHist(m_cluster_LVL1A = TH1F_LW::create(hname.c_str(), htitles.c_str(), nbins_lvl1, min_lvl1, max_lvl1));
 
-  /// per-layer histograms
+  // per-layer histograms
   for (int i = 0; i < PixLayer::COUNT - 1 + (int)(m_doIBL); i++) {
     hname = makeHistname(("Clusters_per_lumi_" + m_modLabel_PixLayerIBL2D3D[i]), false);
     htitles = makeHisttitle(("Average number of pixel clusters per event per LB, " + m_modLabel_PixLayerIBL2D3D[i]), (atext_LB + atext_clu), false);
@@ -393,7 +393,7 @@ StatusCode PixelMainMon::BookClustersMon(void) {
     }
   }
 
-  /// Quick Status
+  // Quick Status
   if (m_doOfflineAnalysis) {
     if (m_doOnTrack) {
       hname = makeHistname("Clusters_onTrack_per_lumi_L0_B11_S2_C6", false);
@@ -524,7 +524,7 @@ StatusCode PixelMainMon::FillClustersMon(void) {
         npixHitsInCluster = (int)(m_cluster_groupsize_mod[pixlayeribl2d3ddbm]->getXMax() - 0.5);
       }
 
-      /// Quick Status
+      // Quick Status
       int fephi = 0;
       int feeta = 0;
       if (m_doOfflineAnalysis) {
@@ -671,7 +671,6 @@ StatusCode PixelMainMon::FillClustersMon(void) {
     }  // PixelClusterContainer loop
   }    //end of event loop
 
-  //////////////////////Fill after event block////////////////
   if (m_doOnline) {
     FillSummaryHistos(m_cluster_occupancy.get(),
                       m_cluster_occupancy_summary_mod[PixLayer::kECA],
@@ -686,7 +685,6 @@ StatusCode PixelMainMon::FillClustersMon(void) {
   }
 
   if (m_clusters_per_lumi) m_clusters_per_lumi->Fill(m_manager->lumiBlockNumber(), nclusters);
-  // KNUT: if(m_clusters_per_lumi_PIX)m_clusters_per_lumi_PIX->Fill(m_manager->lumiBlockNumber(),nclusters-nclusters_IBL);
   for (int i = 0; i < PixLayer::COUNT - 1 + (int)(m_doIBL); i++) {
     if (m_clusters_per_lumi_mod[i]) m_clusters_per_lumi_mod[i]->Fill(m_manager->lumiBlockNumber(), nclusters_mod[i]);
     if (m_doOnTrack && m_clusters_per_track_per_lumi_mod[i] && m_ntracksPerEvent > 0) {
@@ -704,7 +702,6 @@ StatusCode PixelMainMon::FillClustersMon(void) {
   // Fill some histograms only if =< 50% of modules disabled
   if (!m_majorityDisabled) {
     if (m_num_clusters) m_num_clusters->Fill(nclusters);
-    // KNUT: if(m_num_clusters_low) m_num_clusters_low->Fill(nclusters);
 
     for (int i = 0; i < PixLayer::COUNT - 1 + (int)(m_doIBL); i++) {
       if (m_num_clusters_mod[i]) m_num_clusters_mod[i]->Fill(nclusters_mod[i]);

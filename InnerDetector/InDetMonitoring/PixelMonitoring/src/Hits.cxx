@@ -621,7 +621,7 @@ StatusCode PixelMainMon::FillHitsMon(void)  // Called once per event
             nhits_L0_B11_S2_C6[(int)(16 * fabs(6 + m_pixelid->eta_module(rdoID))) + (8 * fephi) + feeta]++;
           }
         }
-        /// for Pixel Operation TF
+        // for Pixel Operation TF
         if (pixlayer != 99 && m_hit_ToT_per_lumi_mod[pixlayer] && nGoodChannels_layer[pixlayer] > 0) {
           m_hit_ToT_per_lumi_mod[pixlayer]->Fill(m_manager->lumiBlockNumber(), (*p_rdo)->getToT(), 1.0 / nGoodChannels_layer[pixlayer]);
         }

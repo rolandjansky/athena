@@ -110,10 +110,6 @@ StatusCode PixelMainMon::BookTrackMon(void) {
     sc = m_tsos_holemap->regHist(trackHistos);
     m_tsos_outliermap = std::make_unique<PixelMon2DMapsLW>(PixelMon2DMapsLW("TSOS_Outlier", ("TSOS of type Outlier" + m_histTitleExt), PixMon::HistConf::kPixDBMIBL2D3D, true));
     sc = m_tsos_outliermap->regHist(trackHistos);
-
-    // KNUT: m_tsos_measratio = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW("TSOS_MeasRatio", ("TSOS of type Meas per track" + m_histTitleExt), PixMon::HistConf::kPixIBL2D3D, true));
-    // KNUT: m_tsos_holeratio = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW("TSOS_HoleRatio", ("TSOS of type Hole per track" + m_histTitleExt), PixMon::HistConf::kPixIBL2D3D, true));
-    // KNUT: m_misshits_ratio = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW("MissHitsRatioOnTrack", ("Hole+Outlier per track" + m_histTitleExt), PixMon::HistConf::kPixIBL2D3D, true));
   }
   if (m_doOnline) {
     m_tsos_holeratio_tmp = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW("HoleRatio_tmp", ("TSOS of type Hole per track tmp" + m_histTitleExt), PixMon::HistConf::kPixIBL2D3D, true));
@@ -232,7 +228,7 @@ StatusCode PixelMainMon::FillTrackMon(void) {
 
     const DataVector<const Trk::TrackStateOnSurface> *trackStates = track->trackStateOnSurfaces();
     for (DataVector<const Trk::TrackStateOnSurface>::const_iterator trackStateOnSurfaceIterator = trackStates->begin(); trackStateOnSurfaceIterator != trackStates->end(); trackStateOnSurfaceIterator++) {
-      /// Change the track state on 1 surface into the cluster it represents
+      // Change the track state on 1 surface into the cluster it represents
       Identifier clusID;
       Identifier surfaceID;
       IdentifierHash id_hash;
@@ -305,10 +301,8 @@ StatusCode PixelMainMon::FillTrackMon(void) {
       if (m_doOnline && m_tsos_holeratio_tmp && passQualityCut) m_tsos_holeratio_tmp->Fill(surfaceID, m_pixelid, nHole);
       if (passQualityCut) {
         if (nOutlier + nHole > 0.) {
-          if (m_misshits_ratio) m_misshits_ratio->Fill(surfaceID, m_pixelid, 1.0);
           if (m_doOnline && m_misshits_ratio_tmp) m_misshits_ratio_tmp->Fill(surfaceID, m_pixelid, 1.0);
         } else {
-          if (m_misshits_ratio) m_misshits_ratio->Fill(surfaceID, m_pixelid, 0.0);
           if (m_doOnline && m_misshits_ratio_tmp) m_misshits_ratio_tmp->Fill(surfaceID, m_pixelid, 0.0);
         }
       }
@@ -327,8 +321,8 @@ StatusCode PixelMainMon::FillTrackMon(void) {
 
       const InDet::PixelCluster *pixelCluster = dynamic_cast<const InDet::PixelCluster *>(RawDataClus);
       if (pixelCluster) {
-        if (!RawDataClus->gangedPixel() &&  /// not include ganged-pixel
-            !pixelCluster->isFake() &&      /// not fake
+        if (!RawDataClus->gangedPixel() &&  // not include ganged-pixel
+            !pixelCluster->isFake() &&      // not fake
             ((pixlayer == PixLayer::kIBL && fabs(clus->localParameters()[Trk::locX]) < 8.3) || (pixlayer != PixLayer::kIBL && fabs(clus->localParameters()[Trk::locX]) < 8.1)) &&
             ((pixlayeribl2d3d == PixLayerIBL2D3D::kIBL2D && fabs(clus->localParameters()[Trk::locY]) < 19.7) || (pixlayeribl2d3d == PixLayerIBL2D3D::kIBL3D && fabs(clus->localParameters()[Trk::locY]) < 9.5) || (pixlayer != PixLayer::kIBL && fabs(clus->localParameters()[Trk::locY]) < 28.7))) {
           passClusterSelection = true;

@@ -145,17 +145,9 @@ StatusCode PixelMainMon::BookPixelDCSMon(void) {
                                Form("Pipes_inlet_temperature_S%02dvsLB", ii + 1), "Pipes_inlet_temperature vs LB; LB;" + label_inletTemp + ";Number of LBs", nbins_LB, min_LB, max_LB));
     m_hist_Pipes_inletLB[ii]->SetMarkerSize(0.5);
 
-    // KNUT: sc = dcsExpert.regHist(m_hist_LB_moduleGroup_coolingPipeInlet[ii]
-    //    = TProfile2D_LW::create(Form("LB_moduleGroup_coolingPipeInlet_S%02dvsLB",ii + 1), "LB_moduleGroup_coolingPipeInlet; LB;moduleGoup;coolingPipeInlet",
-    //      nbins_LB,min_LB,max_LB,nbins_moduleGroup,min_moduleGroup,max_moduleGroup));
-
     sc = dcsExpert.regHist(m_hist_Pipes_outletLB[ii] = TProfile_LW::create(
                                Form("Pipes_outlet_temperature_S%02dvsLB", ii + 1), "Pipes_outlet_temperature vs LB; LB;" + label_outletTemp + ";Number of LBs", nbins_LB, min_LB, max_LB));
     m_hist_Pipes_outletLB[ii]->SetMarkerSize(0.5);
-
-    // KNUT: sc = dcsExpert.regHist(m_hist_LB_moduleGroup_coolingPipeOutlet[ii]
-    //    = TProfile2D_LW::create(Form("LB_moduleGroup_coolingPipeOutlet_S%02dvsLB",ii + 1), "LB_moduleGroup_coolingPipeOutlet; LB;moduleGoup;coolingPipeOutlet",
-    //      nbins_LB,min_LB,max_LB,nbins_moduleGroup,min_moduleGroup,max_moduleGroup));
 
     sc = dcsExpert.regHist(m_hist_LVoltage2Dscatter[ii] = TH2F_LW::create(
                                Form("LVvoltage_ModuleNumber_S%02d", ii + 1), "LV vs Module Number; Module Number;" + label_LVoltage + ";Number of LBs",
@@ -354,9 +346,6 @@ StatusCode PixelMainMon::BookPixelDCSMon(void) {
   sc = dcsExpert.regHist(m_hist_LB_staveID_coolingPipeInlet = TProfile2D_LW::create(
                              "LB_staveID_coolingPipeInlet", "LB_staveID_coolingPipeInlet; LB;staveID;" + label_inletTemp,
                              nbins_LB, min_LB, max_LB, nbins_staveID, min_staveID, max_staveID));
-  // KNUT: sc = dcsExpert.regHist(m_hist_Pipes_outletEtaPhi
-  //    = TProfile2D_LW::create("coolingPipeOutlet EtaPhi", "coolingPipeOutlet EtaPhi; Module #eta Index;staveID;coolingPipeOutlet",
-  //      nbins_module,min_module,max_module,nbins_staveID,min_staveID,max_staveID));
   sc = dcsExpert.regHist(m_hist_Pipes_outlet2Dscatter = TH2F_LW::create(
                              "Pipes_outlet_temperature_StaveNumber", "Pipes_outlet_temperature vs Stave Number; Stave Number;" + label_outletTemp,
                              nbins_staveID, min_staveID, max_staveID, nbins_temperature, min_temperature, max_temperature));
@@ -397,11 +386,6 @@ StatusCode PixelMainMon::BookPixelDCSMon(void) {
   sc = dcsExpert.regHist(m_hist_LB_staveID_HVcurrent = TProfile2D_LW::create(
                              "LB_staveID_HVcurrent", "LB_staveID_HVcurrent; LB;staveID;" + label_HVcurrent,
                              nbins_LB, min_LB, max_LB, nbins_staveID, min_staveID, max_staveID));
-
-  // KNUT: sc = dcsExpert.regHist(m_hist_FSMstateEtaPhi
-  //    = TProfile2D_LW::create("FSMstate EtaPhi", "FSMstate EtaPhi; Module #eta Index;staveID;"+label_FSMstate,
-  //      nbins_module,min_module,max_module,nbins_staveID,min_staveID,max_staveID));
-
   sc = dcsExpert.regHist(m_hist_FSMstateEtaPhi = new TH2F(
                              "FSMstate_EtaPhi", "FSMstate EtaPhi; Module #eta Index;staveID;" + label_FSMstate,
                              nbins_module, min_module, max_module, nbins_staveID, min_staveID, max_staveID));
@@ -420,10 +404,6 @@ StatusCode PixelMainMon::BookPixelDCSMon(void) {
   m_hist_LB_staveID_FSMstate->SetMaximum(NUMFSM);
   m_hist_LB_staveID_FSMstate->SetMinimum(0);
   m_hist_LB_staveID_FSMstate->SetContour(NUMFSM);
-
-  // KNUT: sc = dcsExpert.regHist(m_hist_FSMstatusEtaPhi
-  //    = TProfile2D_LW::create("FSMstatus EtaPhi", "FSMstatus EtaPhi; Module #eta Index;staveID;"+label_FSMstatus,
-  //      nbins_module,min_module,max_module,nbins_staveID,min_staveID,max_staveID));
 
   sc = dcsExpert.regHist(m_hist_FSMstatusEtaPhi = new TH2F(
                              "FSMstatus_EtaPhi", "FSMstatus EtaPhi; Module #eta Index;staveID;" + label_FSMstatus,
