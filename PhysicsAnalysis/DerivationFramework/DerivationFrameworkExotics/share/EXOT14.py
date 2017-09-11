@@ -118,8 +118,8 @@ if globalflags.DataSource() == 'geant4':
 
 ToolSvc += CfgMgr.JetCalibrationTool("m_JESTool",
                                      IsData = (globalflags.DataSource() == 'data'), # "data" or "geant4"
-                                     ConfigFile = "JES_data2016_data2015_Recommendation_Dec2016.config",
-                                     CalibSequence = "JetArea_Residual_Origin_EtaJES_GSC",
+                                     ConfigFile = "JES_MC16Recommendation_Aug2017.config",
+                                     CalibSequence = "JetArea_Residual_EtaJES_GSC",
                                      JetCollection = "AntiKt4EMTopo")
 
 lepton_triggers = ["HLT_e24_lhmedium_L1EM20VHI", "HLT_e24_medium_L1EM20VHI", "HLT_e24_tight_iloose",
