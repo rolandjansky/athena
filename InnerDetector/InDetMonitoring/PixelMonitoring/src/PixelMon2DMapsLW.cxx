@@ -7,13 +7,14 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "PixelMonitoring/PixelMon2DMapsLW.h"
-#include "PixelMonitoring/Components.h"
+#include <string.h>
+#include "GaudiKernel/StatusCode.h"
 #include "InDetIdentifier/PixelID.h"
 #include "LWHists/TH2F_LW.h"
-#include "GaudiKernel/StatusCode.h"     
-#include <string.h>
+#include "PixelMonitoring/Components.h"
 
-PixelMon2DMapsLW::PixelMon2DMapsLW(std::string name, std::string title, const PixMon::HistConf& config, bool copy2DFEval) : HolderTemplate<TH2F_LW>(config, copy2DFEval) {
+PixelMon2DMapsLW::PixelMon2DMapsLW(std::string name, std::string title, const PixMon::HistConf& config, bool copy2DFEval)
+    : HolderTemplate<TH2F_LW>(config, copy2DFEval) {
   std::string setatext = ";shifted eta index of module";
   std::string etatext = ";eta index of module";
   std::string phitext = ";phi index of module";
@@ -21,52 +22,52 @@ PixelMon2DMapsLW::PixelMon2DMapsLW(std::string name, std::string title, const Pi
   std::string layertext = ";layer number";
 
   if (m_doIBL && PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kIBL)) {
-    m_histograms.at(0).reset(TH2F_LW::create((name+"_IBL").c_str(), (title + ", IBL " + setatext + phitext).c_str(),
+    m_histograms.at(0).reset(TH2F_LW::create((name + "_IBL").c_str(), (title + ", IBL " + setatext + phitext).c_str(),
                                              PixMon::kNumModulesIBL, -16.5, -16.5 + PixMon::kNumModulesIBL,
                                              PixMon::kNumStavesIBL, -0.5, -0.5 + PixMon::kNumStavesIBL));
   }
   if (m_doIBL && PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kIBL2D)) {
-    m_histograms.at(1).reset(TH2F_LW::create((name+"_IBL2D").c_str(), (title + ", IBL planar modules " + setatext + phitext).c_str(),
+    m_histograms.at(1).reset(TH2F_LW::create((name + "_IBL2D").c_str(), (title + ", IBL planar modules " + setatext + phitext).c_str(),
                                              PixMon::kNumModulesIBL2D, -6.5, -6.5 + PixMon::kNumModulesIBL2D,
                                              PixMon::kNumStavesIBL, -0.5, -0.5 + PixMon::kNumStavesIBL));
   }
   if (m_doIBL && PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kIBL3D)) {
-    m_histograms.at(2).reset(TH2F_LW::create((name+"_IBL3D").c_str(), (title + ", IBL 3D modules " + etatext + phitext).c_str(),
+    m_histograms.at(2).reset(TH2F_LW::create((name + "_IBL3D").c_str(), (title + ", IBL 3D modules " + etatext + phitext).c_str(),
                                              PixMon::kNumModulesIBL3D, -0.5, -0.5 + PixMon::kNumModulesIBL3D,
                                              PixMon::kNumStavesIBL, -0.5, -0.5 + PixMon::kNumStavesIBL));
   }
   if (PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kB0)) {
-    m_histograms.at(3).reset(TH2F_LW::create((name+"_B0").c_str(), (title + ", B0 " + etatext + phitext).c_str(),
+    m_histograms.at(3).reset(TH2F_LW::create((name + "_B0").c_str(), (title + ", B0 " + etatext + phitext).c_str(),
                                              PixMon::kNumModulesBarrel, -6.5, -6.5 + PixMon::kNumModulesBarrel,
                                              PixMon::kNumStavesL0, -0.5, -0.5 + PixMon::kNumStavesL0));
   }
   if (PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kB1)) {
-    m_histograms.at(4).reset(TH2F_LW::create((name+"_B1").c_str(), (title + ", B1 " + etatext + phitext).c_str(),
+    m_histograms.at(4).reset(TH2F_LW::create((name + "_B1").c_str(), (title + ", B1 " + etatext + phitext).c_str(),
                                              PixMon::kNumModulesBarrel, -6.5, -6.5 + PixMon::kNumModulesBarrel,
                                              PixMon::kNumStavesL1, -0.5, -0.5 + PixMon::kNumStavesL1));
   }
   if (PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kB2)) {
-    m_histograms.at(5).reset(TH2F_LW::create((name+"_B2").c_str(), (title + ", B2 " + etatext + phitext).c_str(),
+    m_histograms.at(5).reset(TH2F_LW::create((name + "_B2").c_str(), (title + ", B2 " + etatext + phitext).c_str(),
                                              PixMon::kNumModulesBarrel, -6.5, -6.5 + PixMon::kNumModulesBarrel,
                                              PixMon::kNumStavesL2, -0.5, -0.5 + PixMon::kNumStavesL2));
   }
   if (PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kECA)) {
-    m_histograms.at(6).reset(TH2F_LW::create((name+"_ECA" ).c_str(), (title + ", ECA " + disktext + phitext).c_str(),
+    m_histograms.at(6).reset(TH2F_LW::create((name + "_ECA").c_str(), (title + ", ECA " + disktext + phitext).c_str(),
                                              PixMon::kNumLayersDisk, -0.5, -0.5 + PixMon::kNumLayersDisk,
                                              PixMon::kNumModulesDisk, -0.5, -0.5 + PixMon::kNumModulesDisk));
   }
   if (PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kECC)) {
-    m_histograms.at(7).reset(TH2F_LW::create((name+"_ECC" ).c_str(), (title + ", ECC " + disktext + phitext).c_str(),
+    m_histograms.at(7).reset(TH2F_LW::create((name + "_ECC").c_str(), (title + ", ECC " + disktext + phitext).c_str(),
                                              PixMon::kNumLayersDisk, -0.5, -0.5 + PixMon::kNumLayersDisk,
                                              PixMon::kNumModulesDisk, -0.5, -0.5 + PixMon::kNumModulesDisk));
   }
   if (PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kDBMA)) {
-    m_histograms.at(8).reset(TH2F_LW::create((name+"_DBMA" ).c_str(), (title + ", DBMA " + layertext + phitext).c_str(),
+    m_histograms.at(8).reset(TH2F_LW::create((name + "_DBMA").c_str(), (title + ", DBMA " + layertext + phitext).c_str(),
                                              PixMon::kNumLayersDBM, -0.5, -0.5 + PixMon::kNumLayersDBM,
                                              PixMon::kNumModulesDBM, -0.5, -0.5 + PixMon::kNumModulesDBM));
   }
   if (PixMon::HasComponent(m_config, PixMon::LayerIBL2D3DDBM::kDBMC)) {
-    m_histograms.at(9).reset(TH2F_LW::create((name+"_DBMC" ).c_str(), (title + ", DBMC " + layertext + phitext).c_str(),
+    m_histograms.at(9).reset(TH2F_LW::create((name + "_DBMC").c_str(), (title + ", DBMC " + layertext + phitext).c_str(),
                                              PixMon::kNumLayersDBM, -0.5, -0.5 + PixMon::kNumLayersDBM,
                                              PixMon::kNumModulesDBM, -0.5, -0.5 + PixMon::kNumModulesDBM));
   }
@@ -75,16 +76,19 @@ PixelMon2DMapsLW::PixelMon2DMapsLW(std::string name, std::string title, const Pi
   formatHist();
 }
 
-void PixelMon2DMapsLW::Fill(Identifier &id, const PixelID* pixID, float weight)
-{
+void PixelMon2DMapsLW::Fill(Identifier& id, const PixelID* pixID, float weight) {
   const int bec = pixID->barrel_ec(id);
-  const int pm  = pixID->phi_module(id);
+  const int pm = pixID->phi_module(id);
   int ld = pixID->layer_disk(id);
 
-  if (bec == 2 && A) A->Fill(ld, pm, weight);
-  else if (bec == -2 && C) C->Fill(ld, pm, weight);
-  else if (bec == 4 && DBMA) DBMA->Fill(ld, pm, weight);
-  else if (bec == -4 && DBMC) DBMC->Fill(ld, pm, weight);
+  if (bec == 2 && A)
+    A->Fill(ld, pm, weight);
+  else if (bec == -2 && C)
+    C->Fill(ld, pm, weight);
+  else if (bec == 4 && DBMA)
+    DBMA->Fill(ld, pm, weight);
+  else if (bec == -4 && DBMC)
+    DBMC->Fill(ld, pm, weight);
   else if (bec == 0) {
     if (m_doIBL) ld--;
     const int em = pixID->eta_module(id);
@@ -100,7 +104,7 @@ void PixelMon2DMapsLW::Fill(Identifier &id, const PixelID* pixID, float weight)
       bool copy = false;
       if (em < 6 && em > -7) {
         if (pixID->eta_index(id) >= 80) feid = 1;
-        emf = 2 * em + feid; 
+        emf = 2 * em + feid;
         if (IBL2D) IBL2D->Fill(em, pm, weight);
         copy = true;
       } else if (em < -6) {
@@ -116,8 +120,7 @@ void PixelMon2DMapsLW::Fill(Identifier &id, const PixelID* pixID, float weight)
   }
 }
 
-void PixelMon2DMapsLW::Fill2DMon(PixelMon2DMapsLW* oldmap)
-{
+void PixelMon2DMapsLW::Fill2DMon(PixelMon2DMapsLW* oldmap) {
   for (unsigned int index = 0; index < m_histograms.size(); ++index) {
     auto& hist = m_histograms.at(index);
     auto& oldhist = oldmap->m_histograms.at(index);
@@ -133,8 +136,7 @@ void PixelMon2DMapsLW::Fill2DMon(PixelMon2DMapsLW* oldmap)
   }
 }
 
-void PixelMon2DMapsLW::formatHist()
-{
+void PixelMon2DMapsLW::formatHist() {
   if (A && C) {
     for (unsigned int i = 0; i < PixMon::kNumModulesDisk; ++i) {
       A->GetYaxis()->SetBinLabel(i + 1, PixMon::ModulesECA.at(i).c_str());
@@ -180,7 +182,7 @@ void PixelMon2DMapsLW::formatHist()
     }
   }
   if (IBL2D && IBL3D) {
-    for (unsigned int i = 0; i < PixMon::kNumModulesIBL2D; ++i){
+    for (unsigned int i = 0; i < PixMon::kNumModulesIBL2D; ++i) {
       IBL2D->GetXaxis()->SetBinLabel(i + 1, PixMon::ModulesIBL2D.at(i).c_str());
     }
     for (unsigned int i = 0; i < PixMon::kNumModulesIBL3D; ++i) {

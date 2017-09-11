@@ -66,6 +66,6 @@ enum class HistConf {kPix = 0, kPixIBL, kPixIBL2D3D, kPixDBM, kPixDBMIBL, kPixDB
  * @param component: the pixel detector component to be tested
  */
 bool HasComponent(const HistConf& config, const LayerIBL2D3DDBM& component);
-}
+}  // namespace PixMon
 
 #endif  // PIXMON_COMPONENTS_H_
