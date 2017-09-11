@@ -129,6 +129,7 @@ if doG4SimConfig:
     from G4AtlasApps.SimFlags import simFlags
     if GMSBIndex == 1: # generic neutralino to photon scenario
         simFlags.PhysicsOptions += ["GauginosPhysicsTool"]
+        simFlags.PhysicsOptions += ["NeutralinoToPhotonGravitino"]
     elif GMSBIndex == 2 or GMSBIndex == 3 or GMSBIndex == 4: # generic stau scenario
         simFlags.PhysicsOptions += ["SleptonsPhysicsTool"]
     del GMSBIndex
