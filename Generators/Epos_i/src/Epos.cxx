@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 // ---------------------------------------------------------------------- 
 // Generators/Epos.cxx
 //  
@@ -209,7 +205,7 @@ StatusCode Epos::genInitialize()
   long int si1 = sip[0];
   long int si2 = sip[1];
 
-  int iSeed = si1;     // FIXME ?
+  int iSeed = si1%1000000000;     // FIXME ?
 
   // set up initial values
 

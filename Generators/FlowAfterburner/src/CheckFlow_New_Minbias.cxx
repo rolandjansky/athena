@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 // File:  Generators/FlowAfterburnber/CheckFlow_New_Minbias.h
 // Description:
 //    This is a simple algorithm to histogram particle properties
