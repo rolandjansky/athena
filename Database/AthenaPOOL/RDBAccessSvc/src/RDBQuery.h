@@ -34,15 +34,15 @@ class RDBQuery final : public IRDBQuery
 	   const std::string& nodeName,
 	   const std::string& tagId);
 
-  ~RDBQuery() override;
+  virtual ~RDBQuery() override;
   
-  void execute() override;
-  long size() override;
-  void finalize() override;
-  void setOrder(const std::string&) override;
-  void addToOutput(const std::string&) override;
+  virtual void execute() override;
+  virtual long size() override;
+  virtual void finalize() override;
+  virtual void setOrder(const std::string&) override;
+  virtual void addToOutput(const std::string&) override;
 
-  bool next();
+  virtual bool next() override;
 
  private:
   RDBQuery() {}
