@@ -23,6 +23,10 @@ SimpleView::~SimpleView()
 {
 }
 
+void SimpleView::linkParent( const IProxyDict* parent ) {
+  m_parents.push_back( parent );
+}
+
 
 /**
  * @brief Get proxy given a hashed key+clid.
@@ -55,7 +59,13 @@ SG::DataProxy * SimpleView::proxy_exact( SG::sgkey_t sgkey ) const
 SG::DataProxy * SimpleView::proxy( const CLID& id, const std::string& key ) const
 {
 	const std::string viewKey = m_name + "_" + key;
-	return m_store->proxy( id, viewKey );
+	auto dp =  m_store->proxy( id, viewKey );
+	if ( dp != nullptr ) return dp;
+	for ( auto parent: m_parents ) {
+	  dp = parent->proxy( id, key );
+	  if ( dp ) return dp;
+	}
+	return dp; // can be the nullptr still
 }
 
 
