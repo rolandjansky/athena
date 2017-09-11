@@ -2120,11 +2120,11 @@ float SUSYObjDef_xAOD::GetDataWeight(const std::string& trig) {
   return m_prwTool->getDataWeight( *evtInfo, trig );
 }
 
-float SUSYObjDef_xAOD::GetCorrectedAverageInteractionsPerCrossing() {
+float SUSYObjDef_xAOD::GetCorrectedAverageInteractionsPerCrossing(bool includeDataSF) {
 
   const xAOD::EventInfo* evtInfo = 0;
   ATH_CHECK( evtStore()->retrieve( evtInfo, "EventInfo" ) );
-  return m_prwTool->getCorrectedMu( *evtInfo );
+  return m_prwTool->getCorrectedMu( *evtInfo, includeDataSF );
 }
 
 double SUSYObjDef_xAOD::GetSumOfWeights(int channel) {
