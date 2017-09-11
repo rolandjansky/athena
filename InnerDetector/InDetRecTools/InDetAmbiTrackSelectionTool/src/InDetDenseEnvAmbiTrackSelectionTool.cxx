@@ -987,6 +987,8 @@ bool InDet::InDetDenseEnvAmbiTrackSelectionTool::decideWhichHitsToKeep(const Trk
       lastrot       = tsosDetails.RIO[index];
       lastrotindex  = index;   
       continue;    
+    } else if (tsosDetails.type[index] == Outlier &&  tsosDetails.hitIsShared[index] <= 0){
+          continue;
     } else{ 
       if (m_monitorTracks) m_observerTool->rejectTrack(*ptrTrack, 106);		// rejection location 106: "Too many hits shared - we have to remove at least one PRD"
       TrkCouldBeAccepted         = false; // we have to remove at least one PRD       
