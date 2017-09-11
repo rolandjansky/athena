@@ -249,10 +249,11 @@ namespace xAOD {
       enum PileUpType {
          Unknown     = 99, ///< Type not known/specified
          Signal      =  0, ///< The signal event
-         MinimumBias =  1, ///< Minimum bias pileup event
+         MinimumBias =  1, ///< (Low pT) Minimum bias pileup event
          Cavern      =  2, ///< Cavern background pileup event
          HaloGas     =  3, ///< Halo-gas non-collision background
-         ZeroBias    =  4, ///< Zero bias pileup event
+         HighPtMinimumBias = 4, ///< High pT Minimum bias pileup event
+         ZeroBias    = 5,  ///< Zero bias pileup event
          PileUp_NTYPES
       }; // enum PileUpType
 

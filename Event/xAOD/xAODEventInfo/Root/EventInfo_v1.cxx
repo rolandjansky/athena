@@ -391,6 +391,9 @@ namespace xAOD {
       } else if( m_type == HaloGas ) {
          static const std::string name = "HaloGas";
          return name;
+      } else if( m_type == HighPtMinimumBias ) {
+         static const std::string name = "HighPtMinimumBias";
+         return name;
       } else if( m_type == ZeroBias ) {
          static const std::string name = "ZeroBias";
          return name;
