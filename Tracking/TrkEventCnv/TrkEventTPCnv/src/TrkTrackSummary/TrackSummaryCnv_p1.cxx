@@ -12,6 +12,16 @@ void TrackSummaryCnv_p1::persToTrans( const Trk::TrackSummary_p1 *persObj,
    if (transObj->m_information.size() < Trk::numberOfTrackSummaryTypes)
      transObj->m_information.resize(Trk::numberOfTrackSummaryTypes,
                                     Trk::TrackSummary::SummaryTypeNotSet);
+    if (persObj->m_information.size() <= Trk::numberOfInnermostPixelLayerHits) {
+      transObj->m_information[Trk::numberOfInnermostPixelLayerHits] =
+        transObj->m_information[Trk::numberOfBLayerHits];
+    }
+
+    if (persObj->m_information.size() <= Trk::numberOfInnermostPixelLayerSharedHits) {
+      transObj->m_information[Trk::numberOfInnermostPixelLayerSharedHits] =
+        transObj->m_information[Trk::numberOfBLayerSharedHits];
+    }
+
    transObj->m_idHitPattern      = persObj->m_idHitPattern;
    transObj->m_eProbability      = persObj->m_eProbability;
    transObj->m_indetTrackSummary = createTransFromPStore( &m_indetSummaryCnv, persObj->m_indetTrackSummary, log );
