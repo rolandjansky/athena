@@ -489,6 +489,10 @@ class BjetHypoAllTE (TrigBjetHypoAllTE):
         #  eg: j100_2b55 passes only if:
         #        - (j100 & 3b55) || (j100 & 2b55 & !b100)
         #
+        #  NOTE: At the moment the following logic only hold for one highpt/looser requiremnt 
+        #        It will need to be extending to handle more than 2 operating points if needed.
+        #         (eg: j100_2btight55 work fine, but j100_bloose55_btight35 would not)
+        # 
         fullTrigReqOR      = []
 
         # Loop on unique pairs
