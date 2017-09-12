@@ -587,9 +587,11 @@ namespace CP {
       return false;
     }
 
-    // reject MuGirl muon if not found also by MuTagIMO 
-    if( mu.author()==xAOD::Muon::MuGirl && !mu.isAuthor(xAOD::Muon::MuTagIMO) ) {
-      return false;
+    // reject MuGirl muon if not found also by MuTagIMO
+    if(mu.isAvailable<uint16_t>("allAuthors")){
+      if( mu.author()==xAOD::Muon::MuGirl && !mu.isAuthor(xAOD::Muon::MuTagIMO) ) {
+	return false;
+      }
     }
 
     // apply some loose quality requirements 
