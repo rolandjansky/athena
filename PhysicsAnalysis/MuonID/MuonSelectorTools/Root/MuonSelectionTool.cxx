@@ -533,7 +533,7 @@ namespace CP {
       // ::
       if( m_quality==4 ) { 
 	// recipe for high-pt selection
-	IsBadMuon = ( qOverPerr_ME*1000. > sqrt( pow(8*fabs(qOverP_ME*1000)/(metrack->pt()/1000),2) + pow(0.07*fabs(qOverP_ME*1000),2) + pow(0.0005*sin(metrack->theta()),2) ) );
+	IsBadMuon = !passedErrorCutCB(mu);
       } else {
 	// recipe for other WP
 	double IdCbRatio = fabs( (qOverPerr_ID/qOverP_ID) / (qOverPerr_CB/qOverP_CB) );
@@ -647,7 +647,7 @@ namespace CP {
 
     //::: Require 3 (good) station muons
     if( nprecisionLayers < 3 ) return false;
-    if( nGoodPrecLayers < 3 ) return false;
+    //if( nGoodPrecLayers < 3 ) return false; // postponed (further studies needed)
 
     //::: Apply MS Chamber Vetoes
     // Given according to their eta-phi locations in the muon spectrometer
@@ -697,12 +697,14 @@ namespace CP {
 	     || ( fabs( phiMS ) >= BEE_phi[ 6 ] && fabs( phiMS ) <= BEE_phi[ 7 ] ) 
 	     ) {
 	  // Muon falls in the BEE eta-phi region: asking for 4 good precision layers
-	  if( nGoodPrecLayers < 4 ) return false;
+	  //if( nGoodPrecLayers < 4 ) return false; // postponed (further studies needed) 
+	  if( nprecisionLayers < 4 ) return false;
 	}  
       }
       if( fabs(etaCB)>1.4 ) {
 	// Veto residual 3-station muons in BEE region due to MS eta/phi resolution effects
-	if( nGoodPrecLayers<4 && (extendedSmallHits>0||extendedSmallHoles>0) ) return false;
+	//if( nGoodPrecLayers<4 && (extendedSmallHits>0||extendedSmallHoles>0) ) return false; // postponed (further studies needed)
+	if( nprecisionLayers<4 && (extendedSmallHits>0||extendedSmallHoles>0) ) return false;
       }
     } else {
       ATH_MSG_WARNING( "passedHighPtCuts - MS or CB track missing in muon! Failing High-pT selection..." );
@@ -750,6 +752,46 @@ namespace CP {
     else return false;
 
     return true;
+  }
+
+  bool MuonSelectionTool::passedErrorCutCB( const xAOD::Muon& mu ) const {
+    // ::
+    if( mu.muonType() != xAOD::Muon::Combined ) return false;
+    // :: 
+    float fabs_eta = fabs(mu.eta());
+    float p0(8.0), p1(0.034), p2(0.00011);
+    if( fabs_eta>1.05 && fabs_eta<1.3 ) {
+      p1=0.036;
+      p2=0.00012;
+    } else if( fabs_eta>1.3 && fabs_eta<1.7 ) {
+      p1=0.051;
+      p2=0.00014;
+    } else if( fabs_eta>1.7 && fabs_eta<2.0 ) {
+      p1=0.042;
+      p2=0.00010;
+    } else if( fabs_eta>2.0) {
+      p1=0.034;
+      p2=0.00013;
+    }
+    // :: 
+    bool passErrorCutCB = false;
+    const xAOD::TrackParticle* cbtrack = mu.trackParticle( xAOD::Muon::CombinedTrackParticle );
+    if( cbtrack ) {
+      // ::
+      double pt_CB = (cbtrack->pt() / 1000. < 5000.) ? cbtrack->pt() / 1000. : 5000.; // GeV
+      double qOverP_CB = cbtrack->qOverP();
+      double qOverPerr_CB = sqrt( cbtrack->definingParametersCovMatrix()(4,4) );
+      // sigma represents the average expected error at the muon's pt/eta 
+      double sigma = sqrt( pow(p0/pt_CB,2) + pow(p1,2) + pow(p2*pt_CB,2) );
+      // cuttting at 1.8*sigma for pt <=1 TeV, then linearly tightening untill 1*sigma is reached at pt >= 5TeV. 
+      double coefficient = (pt_CB > 1000.) ? (2.0-0.0002*pt_CB) : 1.8;
+      // ::
+      if( fabs(qOverPerr_CB/qOverP_CB) < coefficient*sigma ) {
+        passErrorCutCB = true;
+      }
+    }
+    // :: 
+    return passErrorCutCB;
   }
 
   bool MuonSelectionTool::passedMuonCuts( const xAOD::Muon& mu ) const {
