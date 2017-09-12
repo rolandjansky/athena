@@ -473,7 +473,6 @@ def defineMenu():
 #ATR-13743        'L1_MU4_J30',
         #'L1_MU4_J50',
         'L1_MU10_2J20','L1_MU10_3J20', 'L1_MU10_2J15_J20',
-        'L1_2MU4_J40_XE20',
         'L1_MU20_J40',
         'L1_MU20_XE30',
 
@@ -658,7 +657,7 @@ def defineMenu():
         'L1_2MU4_J40_XE50',
         'L1_2MU4_J20_XE40_DPHI-J20s2XE30','L1_2MU4_J20_XE50_DPHI-J20s2XE30',
         'L1_MU4_J30_XE40_DPHI-J20s2XE30','L1_MU4_J50_XE50_DPHI-J20s2XE30',
-        'L1_MU4_XE60','L1_2MU4_XE60',
+        'L1_MU4_XE60',
 
         # HT
         'L1_HT190-J15.ETA21',
@@ -769,7 +768,6 @@ def defineMenu():
         'L1_MU4_J20_XE30_DPHI-J20s2XE30',
         'L1_2MU4_J20_XE30_DPHI-J20s2XE30',
         'L1_MU4_2EM3_J20_XE30_DPHI-J20s2XE30',
-        'L1_3EM3_J40_XE50_DPHI-J20s2XE50',
         'L1_MJJ-900',
         'L1_MJJ-800',
         'L1_MJJ-700',
@@ -835,9 +833,6 @@ def defineMenu():
         
         # combined L1Topo for VBF
         'L1_MU6_MJJ-200',
-        'L1_MU6_MJJ-300',
-        'L1_MU6_MJJ-400',
-        'L1_MU6_MJJ-500',
         'L1_J30_2J20_4J20.0ETA49_MJJ-400',
         'L1_J30_2J20_4J20.0ETA49_MJJ-700',
         'L1_J30_2J20_4J20.0ETA49_MJJ-800',
@@ -1046,7 +1041,6 @@ def defineMenu():
         'L1_MU6_J20' : 88,
         'L1_MU6_J40' : 89,
         'L1_MU6_J75' : 90,
-        'L1_2MU4_J40_XE20' : 331,
         'L1_MU20_J40'  : 428,
         'L1_MU20_XE30' : 433,
         'L1_J12' : 91,
@@ -1321,7 +1315,6 @@ def defineMenu():
         'L1_MU4_J20_XE30_DPHI-J20s2XE30' : 257,
         'L1_2MU4_J20_XE30_DPHI-J20s2XE30' : 271,
         'L1_MU4_2EM3_J20_XE30_DPHI-J20s2XE30' : 434,
-        'L1_3EM3_J40_XE50_DPHI-J20s2XE50' : 435,
 
         'L1_2MU4_J40_XE50' : 449,
         'L1_2MU4_J20_XE40_DPHI-J20s2XE30' : 450,
@@ -1329,7 +1322,6 @@ def defineMenu():
         'L1_MU4_J30_XE40_DPHI-J20s2XE30' : 452,
         'L1_MU4_J50_XE50_DPHI-J20s2XE30' : 453,
         'L1_MU4_XE60' : 454,
-        'L1_2MU4_XE60' : 455,
 
 #SX
 #        'L1_BPH-DR-2MU4-B_BPH-2M-2MU4-B' : 254,
@@ -1494,9 +1486,6 @@ def defineMenu():
 #        'L1_BPH-DR-MU6MU4-B' : 356,
 #        'L1_BPH-DR-MU6MU4-BO' : 357,
         'L1_MU6_MJJ-200' : 358,
-        'L1_MU6_MJJ-300' : 359,
-        'L1_MU6_MJJ-400' : 360,
-        'L1_MU6_MJJ-500' : 361,
         'L1_J30_2J20_4J20.0ETA49_MJJ-400' : 362,
         'L1_J30_2J20_4J20.0ETA49_MJJ-700' : 363,
         'L1_J30_2J20_4J20.0ETA49_MJJ-800' : 364,
