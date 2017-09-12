@@ -1,8 +1,6 @@
 #!/usr/bin/env python
-
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #
-# $Id: ut_xaodrootaccess_tpystore_test.py 653595 2015-03-12 11:27:57Z krasznaa $
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #
 # Unit test for the TPyStore class.
 #
@@ -24,10 +22,7 @@ def main():
 
     # Set up the environment:
     import ROOT
-    if ROOT.gROOT.Macro( "$ROOTCOREDIR/scripts/load_packages.C" ):
-        logger.error( "Couldn't load the RootCore packages" )
-        return 1
-    if ROOT.xAOD.Init( APP_NAME ).isFailure():
+    if not ROOT.xAOD.Init( APP_NAME ).isSuccess():
         logger.error( "Failed to call xAOD::Init(...)" )
         return 1
 
@@ -46,6 +41,7 @@ def main():
                          "AuxInfoBase" ).isSuccess():
         logger.error( "Couldn't record xAOD::AuxInfoBase object" )
         return 1
+    logger.info( "Objects recorded into the store" )
 
     # Now check if the store know about them propertly:
     if not store.contains( "AuxContainerBase",
@@ -69,9 +65,9 @@ def main():
                       "SG::IAuxStoreIO" )
         return 1
     if store.contains( "AuxContainerBase",
-                       ROOT.xAOD.ElectronAuxContainer_v1 ):
+                       ROOT.xAOD.AuxInfoBase ):
         logger.error( "AuxContainerBase available as "
-                      "xAOD::ElectronAuxContainer_v1?!?" )
+                      "xAOD::AuxInfoBase?!?" )
         return 1
     logger.info( "AuxContainerBase/AuxInfoBase containment tests "
                  "succeeded" )
