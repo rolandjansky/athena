@@ -198,6 +198,9 @@ PP="$PP"'|db-read|read from COOL|ReadTime:'
 # EventInfoMgtInit
 PP="$PP"'|Got release version'
 
+# Messages depending on environment settings.
+PP="$PP"'|COOL_DISABLE_CORALCONNECTION|INFO Cache alignment'
+
 
 test=$1
 if [ -z "$testStatus" ]; then
