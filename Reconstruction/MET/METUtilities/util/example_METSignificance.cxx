@@ -3,9 +3,9 @@
 */
 
 
-//Author: Russell Smith
-//Email : rsmith@cern.ch
-//Date  : May 2015
+//Author: Doug Schaefer
+//Email : schae@cern.ch
+//Date  : May 2017
 #ifndef XAOD_ANALYSIS
 int main() {
   std::cout << "Examples are only defined in the analysis release." << std::endl;

@@ -115,6 +115,7 @@ namespace met {
       declareProperty("TreatPUJets",          m_treatPUJets   = true        );
       declareProperty("DoPhiReso",            m_doPhiReso     = false       );
       declareProperty("ApplyBias",            m_applyBias     = false       );
+      declareProperty("ScalarBias",           m_scalarBias    = 0.0         );
       declareProperty("ConfigPrefix",         m_configPrefix  = "METUtilities/data17_13TeV/metsig_Aug15/");
       declareProperty("ConfigJetPhiResoFile", m_configJetPhiResoFile  = "jet_unc.root" );
       
@@ -227,8 +228,7 @@ namespace met {
 	ATH_MSG_ERROR("Could not find the total MET with name:" <<totalMETName);
 	return StatusCode::SUCCESS; 
       }
-      TVector3 met_vect;
-      met_vect.SetPtEtaPhi(m_met, 0.0, m_metphi);
+      m_met_vect.SetPtEtaPhi(m_met, 0.0, m_metphi);
       
       // Fill the remaining terms
       for(const auto& met : *metCont) {
@@ -252,7 +252,7 @@ namespace met {
 	  ++nIterSoft;
 	  softSumET=(met->sumet()/m_GeV);
 	  
-	  AddSoftTerm(met, met_vect, particle_sum); 
+	  AddSoftTerm(met, m_met_vect, particle_sum); 
 	  m_metsoft = met->met()/m_GeV;
 	  m_metsoftphi = met->phi();
 	  // done with the soft term. go to the next term.
@@ -284,7 +284,7 @@ namespace met {
 					 {0.0,phi_reso*phi_reso/m_GeV/m_GeV}};
 	  double particle_u_rot[2][2] = {{pt_reso*pt_reso*obj->pt()*obj->pt()/m_GeV/m_GeV,0.0},
 					 {0.0,phi_reso*phi_reso/m_GeV/m_GeV}};
-	  RotateXY(particle_u, particle_u_rot,met_vect.DeltaPhi(obj->p4().Vect()));
+	  RotateXY(particle_u, particle_u_rot,m_met_vect.DeltaPhi(obj->p4().Vect()));
 	  m_VarL+=particle_u_rot[0][0];
 	  m_VarT+=particle_u_rot[1][1];
 	  m_CvLT+=particle_u_rot[0][1];
@@ -335,23 +335,35 @@ namespace met {
       if( m_VarL != 0 ){
 
 	if(m_applyBias){
+	  TVector3 met_vect = m_met_vect;
+	  TVector3 soft_vect = m_soft_vect;
+
 	  // should be done to reset the phi as well...
 	  if(m_softTermParam==met::TSTParam){
 	    Double_t Bias_TST = BiasPtSoftdir(m_metsoft);
-	    Double_t MEx = m_met * cos(m_metphi) -  Bias_TST * cos(m_metsoftphi); 
-	    Double_t MEy = m_met * sin(m_metphi) -  Bias_TST * sin(m_metsoftphi);
-	    m_met = sqrt(MEx*MEx+MEy*MEy);
-	    //m_metphi = ;
-	  }else if(m_softTermParam==met::PthardParam){
-	    
-	  }
-	}
+	    Double_t MEx = m_met * cos(m_metphi) - Bias_TST * cos(m_metsoftphi); 
+	    Double_t MEy = m_met * sin(m_metphi) - Bias_TST * sin(m_metsoftphi);
+	    met_vect.SetXYZ(MEx,MEy,0.0);
 
-	m_significance = Significance_LT(m_met, m_VarL, m_VarT, m_CvLT);
-	
-	m_rho = m_CvLT / sqrt( m_VarL * m_VarT ) ;
-	m_ht-=softSumET;
-	
+	  }else if(m_softTermParam==met::PthardParam){
+	    m_soft_vect.SetPtEtaPhi(m_metsoft, 0.0, m_metsoftphi);
+	    m_pthard_vect = m_soft_vect - m_met_vect;
+	    Double_t PtSoftparaPH = m_pthard_vect.Mag()>0.0 ? (m_soft_vect.Dot(m_pthard_vect))/m_pthard_vect.Mag() : 0.0; 
+	    Double_t Bias_pthard = Bias_PtSoftParall(PtSoftparaPH);
+	    Double_t MEx = m_met * cos(m_metphi) - Bias_pthard * cos(m_metsoftphi);
+	    Double_t MEy = m_met * sin(m_metphi) - Bias_pthard * sin(m_metsoftphi);
+	    met_vect.SetXYZ(MEx,MEy,0.0); 
+	  }
+	  // Rotate  & compute
+	  RotateToPhi(met_vect.Phi());
+	  m_significance = Significance_LT(met_vect.Pt(), m_VarL, m_VarT, m_CvLT);
+	  m_rho = m_CvLT / sqrt( m_VarL * m_VarT ) ;
+	}else{
+	  // standard calculation
+	  m_significance = Significance_LT(m_met, m_VarL, m_VarT, m_CvLT);
+	  m_rho = m_CvLT / sqrt( m_VarL * m_VarT ) ;
+	}
+	m_ht-=softSumET;	
 	ATH_MSG_VERBOSE("     Significance (squared): " << m_significance << " rho: " << GetRho()
 			<< " MET: " << m_met << " phi: " << m_metphi << " SUMET: " << m_sumet << " HT: " << m_ht << " sigmaL: " << GetVarL()
 			<< " sigmaT: " << GetVarT() << " MET/sqrt(SumEt): " << GetMETOverSqrtSumET()
@@ -376,7 +388,7 @@ namespace met {
       m_significance = Significance_LT(m_met,m_VarL,m_VarT,m_CvLT );
       m_rho = m_CvLT  / sqrt( m_VarL * m_VarT ) ;
     }
-    ATH_MSG_INFO("     Significance (squared) at new phi: " << m_significance 
+    ATH_MSG_DEBUG("     Significance (squared) at new phi: " << m_significance 
 		    << " rho: " << GetRho()
 		    << " MET: " << m_met 
 		    << " sigmaL: " << GetVarL()
@@ -488,7 +500,6 @@ namespace met {
       
       ATH_MSG_VERBOSE("Resolution Soft term set to 10GeV");
 
-      TVector3 m_soft_vect;
       m_soft_vect.SetPtEtaPhi(soft->met()/m_GeV, 0.0, soft->phi());
       
       double particle_u[2][2] = {{m_softTermReso*m_softTermReso,0.0},
@@ -509,20 +520,40 @@ namespace met {
 		      << " " << particle_u_rot[0][1]);
       
     }else if (m_softTermParam==met::PthardParam){
-      // 
+
+      ATH_MSG_VERBOSE("Resolution Soft term parameterized in pthard direction");
+
+      m_soft_vect.SetPtEtaPhi(soft->met()/m_GeV, 0.0, soft->phi());
+      
+      m_pthard_vect =  m_soft_vect - met_vect;
+
+      double varTST = Var_Ptsoft(soft->met()/m_GeV);
+
+      double particle_u[2][2] = {{varTST,0.0},
+				 {0.0,varTST}};
+      double particle_u_rot[2][2] = {{varTST,0.0},
+				     {0.0,varTST}};
+      
+      RotateXY(particle_u, particle_u_rot,met_vect.DeltaPhi(m_pthard_vect));
+      m_VarL+=particle_u_rot[0][0];
+      m_VarT+=particle_u_rot[1][1];
+      m_CvLT+=particle_u_rot[0][1];
+
+      RotateXY (particle_u,   particle_u_rot,-1.0*m_pthard_vect.Phi()); // negative phi rotation
+      AddMatrix(particle_sum, particle_u_rot,     particle_sum);
+
     }else if (m_softTermParam==met::TSTParam){
 
       ATH_MSG_VERBOSE("Resolution Soft term parameterized in TST");
 
-      TVector3 m_soft_vect;
       m_soft_vect.SetPtEtaPhi(soft->met()/m_GeV, 0.0, soft->phi());
       
       double varTST = VarparPtSoftdir(soft->met()/m_GeV, soft->sumet()/m_GeV);
 
-      double particle_u[2][2] = {{varTST*varTST,0.0},
-				 {0.0,varTST*varTST}};
-      double particle_u_rot[2][2] = {{varTST*varTST,0.0},
-				     {0.0,varTST*varTST}};
+      double particle_u[2][2] = {{varTST,0.0},
+				 {0.0,varTST}};
+      double particle_u_rot[2][2] = {{varTST,0.0},
+				     {0.0,varTST}};
       
       RotateXY(particle_u, particle_u_rot,met_vect.DeltaPhi(m_soft_vect));
       m_VarL+=particle_u_rot[0][0];
@@ -649,16 +680,17 @@ namespace met {
   
   double METSignificance::Significance_LT(double Numerator, double var_parall, double var_perpen, double cov)
   {
+
     Double_t rho = cov / sqrt( var_parall * var_perpen ) ;
     Double_t Significance = 0;
     if (fabs( rho ) >= 0.9 )  //Cov Max not invertible -> Significance diverges
       {
 	ATH_MSG_VERBOSE("rho is large: " << rho);
-	Significance = pow( Numerator , 2 ) / (  var_parall  ) ;
+	Significance = pow( Numerator - m_scalarBias , 2 ) / (  var_parall  ) ;
       }
     else
     {
-      Significance = pow( Numerator , 2 ) / (  var_parall * ( 1 - pow(rho,2) ) ) ;
+      Significance = pow( Numerator - m_scalarBias , 2 ) / (  var_parall * ( 1 - pow(rho,2) ) ) ;
     }
     
     if( fabs(Significance) >= 10e+15)
@@ -752,6 +784,19 @@ namespace met {
     }
   }
 
+  double METSignificance::Var_Ptsoft(const double PtSoft)//40. + 2*TST_Soft + 0.1*pow(TST_Soft,2)
+  {
+    if (PtSoft<45.) return 40. + 2*PtSoft + 0.1*pow(PtSoft,2);
+    else return 40. + 2*45 + 0.1*pow(45,2);
+  }
+  double METSignificance::Bias_PtSoftParall(const double PtSoft_Parall) 
+  {
+    if (-60.<=PtSoft_Parall && PtSoft_Parall<0.) return -8. -0.4*PtSoft_Parall;
+    if (-60.>PtSoft_Parall) return -8. -0.4 * (-60.);
+    if( PtSoft_Parall>=0. && PtSoft_Parall<60.) return -8. -PtSoft_Parall;
+    if(PtSoft_Parall>60.) return -8. -60.;
+    return 0.0;
+  }
 
 
 } //> end namespace met
