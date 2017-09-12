@@ -2,8 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ut_xaodrootaccess_transtree_test.cxx 728645 2016-03-09 12:19:46Z krasznaa $
-
 // System include(s):
 #include <memory>
 
@@ -14,6 +12,7 @@
 #include <TTree.h>
 #include <TH1.h>
 #include <TDirectory.h>
+#include <TSystem.h>
 
 // Local include(s):
 #include "xAODRootAccess/Init.h"
@@ -29,20 +28,12 @@ int main() {
    // Initialise the environment:
    RETURN_CHECK( APP_NAME, xAOD::Init( APP_NAME ) );
 
-   // The files used in the test:
-   static const char* FNAME1 = "/afs/cern.ch/atlas/project/PAT/xAODs/r5787/"
-      "mc14_13TeV.110401.PowhegPythia_P2012_ttbar_nonallhad.merge.AOD."
-      "e2928_s1982_s2008_r5787_r5853_tid01597980_00/"
-      "AOD.01597980._000098.pool.root.1";
-   static const char* FNAME2 = "/afs/cern.ch/atlas/project/PAT/xAODs/r5787/"
-      "mc14_13TeV.110401.PowhegPythia_P2012_ttbar_nonallhad.merge.AOD."
-      "e2928_s1982_s2008_r5787_r5853_tid01597980_00/"
-      "AOD.01597980._000420.pool.root.1";
-
    // Open it using a TFile:
-   std::unique_ptr< ::TFile > ifile( ::TFile::Open( FNAME1, "READ" ) );
+   std::unique_ptr< ::TFile > ifile( ::TFile::Open( "$ASG_TEST_FILE_MC",
+                                                    "READ" ) );
    if( ! ifile.get() ) {
-      ::Error( APP_NAME, XAOD_MESSAGE( "Couldn't open file: %s" ), FNAME1 );
+      ::Error( APP_NAME, XAOD_MESSAGE( "Couldn't open file: %s" ),
+               gSystem->Getenv( "ASG_TEST_FILE_MC" ) );
       return 1;
    }
 
@@ -51,13 +42,13 @@ int main() {
    if( ! tree ) {
       ::Error( APP_NAME,
                XAOD_MESSAGE( "Couldn't create transient tree from file: %s" ),
-               FNAME1 );
+               gSystem->Getenv( "ASG_TEST_FILE_MC" ) );
       return 1;
    }
 
    // Make a test plot:
-   tree->Draw( "ElectronCollection.eta()-"
-               "ElectronCollection.trackParticle().eta()>>dummyHist1" );
+   tree->Draw( "Electrons.eta()-"
+               "Electrons.trackParticle().eta()>>dummyHist1" );
    ::TH1* dummyHist = dynamic_cast< ::TH1* >( gDirectory->Get( "dummyHist1" ) );
    if( ! dummyHist ) {
       ::Error( APP_NAME, XAOD_MESSAGE( "Couldn't access \"dummyHist1\"" ) );
@@ -70,8 +61,7 @@ int main() {
 
    // Set up a chain with this one file:
    ::TChain eventChain( "CollectionTree" );
-   eventChain.Add( FNAME1 );
-   eventChain.Add( FNAME2 );
+   eventChain.Add( "$ASG_TEST_FILE_MC" );
 
    // Create a transient tree using it:
    tree = xAOD::MakeTransientTree( &eventChain );
@@ -83,8 +73,8 @@ int main() {
    }
 
    // Make a test plot:
-   tree->Draw( "ElectronCollection.eta()-"
-               "ElectronCollection.trackParticle().eta()>>dummyHist2" );
+   tree->Draw( "Electrons.eta()-"
+               "Electrons.trackParticle().eta()>>dummyHist2" );
    dummyHist = dynamic_cast< ::TH1* >( gDirectory->Get( "dummyHist2" ) );
    if( ! dummyHist ) {
       ::Error( APP_NAME, XAOD_MESSAGE( "Couldn't access \"dummyHist2\"" ) );
@@ -101,7 +91,7 @@ int main() {
       ::Error( APP_NAME,
                XAOD_MESSAGE( "Couldn't create transient metadata tree from "
                              "file: %s" ),
-               FNAME1 );
+               gSystem->Getenv( "ASG_TEST_FILE_MC" ) );
       return 1;
    }
 
@@ -116,8 +106,7 @@ int main() {
 
    // Set up a chain with this one file:
    ::TChain metaChain( "MetaData" );
-   metaChain.Add( FNAME1 );
-   metaChain.Add( FNAME2 );
+   metaChain.Add( "$ASG_TEST_FILE_MC" );
 
    // Create a transient tree using it:
    tree = xAOD::MakeTransientMetaTree( &metaChain );
@@ -144,8 +133,8 @@ int main() {
    xAOD::TTransTrees tt = xAOD::MakeTransientTrees( ifile.get() );
 
    // And make some test plots:
-   tt.eventTree()->Draw( "ElectronCollection.eta()-"
-                         "ElectronCollection.trackParticle().eta()"
+   tt.eventTree()->Draw( "Electrons.eta()-"
+                         "Electrons.trackParticle().eta()"
                          ">>dummyHist5" );
    dummyHist = dynamic_cast< ::TH1* >( gDirectory->Get( "dummyHist5" ) );
    if( ! dummyHist ) {
