@@ -91,9 +91,9 @@ if( XAOD_ANALYSIS )
    _add_test( ut_xaodrootaccess_tevent_copy_test )
    _add_test( ut_xaodrootaccess_transtree_test )
 
-   #atlas_add_test( ut_xaodrootaccess_tpyevent_test
-   #   SCRIPT test/ut_xaodrootaccess_tpyevent_test.py
-   #   PROPERTIES TIMEOUT 600 )
+   atlas_add_test( ut_xaodrootaccess_tpyevent_test
+      SCRIPT test/ut_xaodrootaccess_tpyevent_test.py
+      PROPERTIES TIMEOUT 600 )
    #atlas_add_test( ut_xaodrootaccess_tpystore_test
    #   SCRIPT test/ut_xaodrootaccess_tpystore_test.py
    #   PROPERTIES TIMEOUT 600 )
