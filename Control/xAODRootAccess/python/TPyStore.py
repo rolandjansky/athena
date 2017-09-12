@@ -1,6 +1,4 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
-# $Id: TPyStore.py 653595 2015-03-12 11:27:57Z krasznaa $
 #
 # Module holding the TPyStore Python class
 #
@@ -15,9 +13,6 @@ import ROOT
 # of this class, and not ROOT.xAOD.TPyStore directly.
 #
 # @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
-#
-# $Revision: 653595 $
-# $Date: 2015-03-12 12:27:57 +0100 (Thu, 12 Mar 2015) $
 #
 class TPyStore( ROOT.xAOD.TPyStore ):
 
@@ -43,7 +38,13 @@ class TPyStore( ROOT.xAOD.TPyStore ):
     #          <code>False</code> if it's not
     #
     def contains( self, key, type ):
-        return super( TPyStore, self ).contains( key, type.__name__ )
+        # Determine the class name:
+        clname = type.__name__
+        if hasattr( type, "__cppname__" ):
+            clname = type.__cppname__
+            pass
+        # Call the parent class's function:
+        return super( TPyStore, self ).contains( key, clname )
 
     ## Convenient version of the base class's isConst function
     #
@@ -60,7 +61,13 @@ class TPyStore( ROOT.xAOD.TPyStore ):
     #          <code>False</code> if it's not
     #
     def isConst( self, key, type ):
-        return super( TPyStore, self ).isConst( key, type.__name__ )
+        # Determine the class name:
+        clname = type.__name__
+        if hasattr( type, "__cppname__" ):
+            clname = type.__cppname__
+            pass
+        # Call the parent class's function:
+        return super( TPyStore, self ).isConst( key, clname )
 
     ## Convenient version of the base class's record function
     #
@@ -78,5 +85,10 @@ class TPyStore( ROOT.xAOD.TPyStore ):
     #          or <code>xAOD::TReturnCode::kFailure</code> if not
     #
     def record( self, obj, key ):
-        return super( TPyStore, self ).record( obj, key,
-                                               obj.__class__.__name__ )
+        # Determine the class name:
+        clname = obj.__class__.__name__
+        if hasattr( obj.__class__, "__cppname__" ):
+            clname = obj.__class__.__cppname__
+            pass
+        # Call the parent class's function:
+        return super( TPyStore, self ).record( obj, key, clname )
