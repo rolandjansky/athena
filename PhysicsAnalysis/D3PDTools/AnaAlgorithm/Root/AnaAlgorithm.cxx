@@ -69,7 +69,6 @@ namespace EL
   ::StatusCode AnaAlgorithm ::
   book (const TH1& hist)
   {
-    RCU_CHANGE_INVARIANT (this);
     histogramWorker()->addOutput (hist.Clone());
     return ::StatusCode::SUCCESS;
   }
@@ -79,7 +78,6 @@ namespace EL
   TH1 *AnaAlgorithm ::
   hist (const std::string& name) const
   {
-    RCU_READ_INVARIANT (this);
     return histogramWorker()->getOutputHist (name);
   }
 
