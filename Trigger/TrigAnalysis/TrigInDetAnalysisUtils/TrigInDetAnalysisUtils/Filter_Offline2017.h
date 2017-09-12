@@ -35,11 +35,6 @@
 #include "TrigInDetAnalysis/Track.h"
 #include "TrigInDetAnalysis/TIDARoiDescriptor.h"
 
-/// sadly need to include a root dependency, but no matter - the TIDA::Track 
-/// class itself inherets from TObject already, so perhaps the boat has sailed 
-/// on that concern long ago
-#include "TMath.h"
-
 
 // generic selection cut selection function 
 
