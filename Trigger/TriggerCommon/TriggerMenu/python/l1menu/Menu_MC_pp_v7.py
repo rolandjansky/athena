@@ -1,4 +1,17 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
+# Run this file in order to print out the empty slots
+
+def print_available():
+    from TriggerMenu.l1.Lvl1Flags import Lvl1Flags
+    defineMenu()
+    available = []
+    for i in range(512):
+      if i==463 or  i==464: continue #reserved for L1_RD2_BGRP14 and L1_RD3_BGRP15
+      if i>=509 and i<=511: continue #reserved for CALREQ
+      if not i in Lvl1Flags.CtpIdMap().values(): available.append(str(i))
+    available.sort()
+    print "Available CTP IDs: "+",".join(available)
 
 def defineMenu():
     """
@@ -1672,3 +1685,4 @@ def defineMenu():
 
     Lvl1Flags.prescales = {}
 
+if __name__ == "__main__": print_available()
