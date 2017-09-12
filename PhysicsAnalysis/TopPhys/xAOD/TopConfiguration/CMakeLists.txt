@@ -6,6 +6,7 @@ atlas_subdir( TopConfiguration None )
 # This package depends on other packages:
 atlas_depends_on_subdirs( PUBLIC
 			  xAODCore
+			  Tools/PathResolver
                           PATInterfaces )
 
 # This package uses ROOT:
@@ -26,6 +27,7 @@ atlas_add_library( TopConfiguration Root/*.cxx Root/*.h Root/*.icc
                    PUBLIC_HEADERS TopConfiguration
                    LINK_LIBRARIES xAODCore
 		   		  PATInterfaces
+				  PathResolver
                                   ${ROOT_LIBRARIES}
 				  ${Boost_LIBRARIES} 
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} 

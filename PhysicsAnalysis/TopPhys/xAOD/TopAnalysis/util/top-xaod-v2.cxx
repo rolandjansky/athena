@@ -62,7 +62,10 @@
 // to disable the sending of file access statistics
 #include "xAODRootAccess/tools/TFileAccessTracer.h"
 
-//*** Function prototypes used to refactor ***\\
+// Path resolver for TopDataPreparation
+#include "PathResolver/PathResolver.h"
+
+/// Function prototypes used to refactor 
 
 /// Check the command line inputs
 int CheckArgs(int, char**);
@@ -362,6 +365,7 @@ void SetMetadata(bool useAodMetaData, std::string usethisfile, std::string input
 
   // This function uses the python interface to get metadata information (we do use it)
   std::cout << "Loading meta-data from input files ... " << std::flush;
+  topConfig->setReleaseSeries();
   topConfig->aodMetaData().loadWithFilesFrom(inputFileList);
 
   // Work out if the file is MC or data (either from metadata, or otherwise)
@@ -393,14 +397,26 @@ void SetMetadata(bool useAodMetaData, std::string usethisfile, std::string input
     topConfig -> setDSID(DSID);
     // now need to get and set the parton shower generator from TopDataPrep
     SampleXsection tdp;
-    const char* const rc = getenv("ROOTCOREBIN");
-    std::string filename = std::string(rc) + "/data/TopDataPreparation/XSection-MC15-13TeV.data";
-
-    if (!tdp.readFromFile(filename.c_str())) {
+    
+    // List of environment variables from which to construct a searchable list of paths (order by priority)
+    std::vector<const char*> vec_envvar = {"CRAP","WorkDir_DIR","AnalysisTop_DIR","ROOTCOREDIR"};
+    std::string datapath;
+    // Construct string list                                                                               
+    for (auto var : vec_envvar){
+      const char* envvar = getenv(var);
+      if (envvar != NULL) datapath += ( std::string(envvar) + "/data:" );
+    }
+    // Package/filename - XS file we want to use                                                           
+    std::string tdp_filename = "TopDataPreparation/XSection-MC15-13TeV.data";
+    // Use the path resolver to find the first file in the list of possible paths                          
+    std::string fullpath = PathResolver::find_file_from_list (tdp_filename, datapath);
+    if (!tdp.readFromFile(fullpath.c_str())) {
       std::cout << "ERROR::TopDataPreparation - could not read file \n";
-      std::cout << filename << "\n";
+      std::cout << tdp_filename << "\n";
       exit(1);
     }
+    std::cout << "SampleXsection::Found " << fullpath << std::endl;
+
     // Identify the shower used in the sample for b-tagging weights later
     int ShowerIndex = tdp.getShoweringIndex(DSID);
     std::cout << "DSID: " << DSID << "\t" << "ShowerIndex: " << ShowerIndex << std::endl;

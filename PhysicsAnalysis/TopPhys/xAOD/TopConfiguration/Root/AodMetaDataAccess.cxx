@@ -2,6 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "TopConfiguration/AodMetaDataAccess.h"
 
 #include <algorithm>
@@ -14,12 +18,15 @@
 #include <unistd.h>
 #include <utility>
 #include <vector> 
+#include <string>
+#include <iostream>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/iostreams/device/file_descriptor.hpp>
 #include <boost/iostreams/stream.hpp>
 #include <boost/scope_exit.hpp>
 
+#include "PathResolver/PathResolver.h"
 
 namespace top {
 
@@ -34,12 +41,26 @@ AodMetaDataAccess::~AodMetaDataAccess() {
 
 void AodMetaDataAccess::loadWithFilesFrom(std::string const & fileListPath) {
 
-   char const * rootCoreBin = getenv("ROOTCOREBIN");
-   assert(rootCoreBin && rootCoreBin[0]);
-   std::string exePath(rootCoreBin);
-   if (exePath.back() != '/')
-      exePath.append("/");
-   exePath.append("python/TopConfiguration/AodMetaDataReader.py");
+   // Implementation using PathResolver
+   // List of environment variables from which to construct a searchable list of paths (order by priority)
+   std::vector<const char*> vec_envvar = {"WorkDir_DIR","AnalysisTop_DIR","ROOTCOREDIR"};
+   std::string datapath;
+   // Construct string list                                                                                                                                                                           
+   for (auto var : vec_envvar){
+     const char* envvar = getenv(var);
+     if (envvar != NULL) datapath += ( std::string(envvar) + "/python:" );
+   }
+   // Package/filename - XS file we want to use
+   std::string filename = "TopConfiguration/AodMetaDataReader.py";
+   // Use the path resolver to find the first file in the list of possible paths
+   std::string exePath = PathResolver::find_file_from_list (filename, datapath);
+   if(exePath == ""){
+     std::cout << "ERROR::AodMetaDataAccess - could not find file \n";
+     std::cout << filename << "\n";
+     exit(1);
+   }
+   std::cout << "AodMetaDataAccess::Found " << exePath << std::endl;
+
 
    int pipefd[2] = { -1, -1 };
    if (pipe(pipefd) == -1)

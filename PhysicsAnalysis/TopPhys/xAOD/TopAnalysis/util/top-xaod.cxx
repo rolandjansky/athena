@@ -61,6 +61,9 @@
 // to disable the sending of file access statistics
 #include "xAODRootAccess/tools/TFileAccessTracer.h"
 
+// Path resolver
+#include "PathResolver/PathResolver.h"
+
 /**
  * @file The main executable.
  *
@@ -202,14 +205,26 @@ int main(int argc, char** argv) {
 
             // now need to get and set the parton shower generator from TopDataPrep
             SampleXsection tdp;
-            const char* const rc = getenv("ROOTCOREBIN");
-            std::string filename = std::string(rc) + "/data/TopDataPreparation/XSection-MC15-13TeV.data";
+	    
+	    // List of environment variables from which to construct a searchable list of paths (order by priority)
+	    std::vector<const char*> vec_envvar = {"WorkDir_DIR","AnalysisTop_DIR","ROOTCOREDIR"};
+	    std::string datapath;
+	    // Construct string list                                                                               
+	    for (auto var : vec_envvar){
+	      const char* envvar = getenv(var);
+	      if (envvar != NULL) datapath += ( std::string(envvar) + "/data:" );
+	    }
+	    // Package/filename - XS file we want to use                                                           
+	    std::string tdp_filename = "TopDataPreparation/XSection-MC15-13TeV.data";
+	    // Use the path resolver to find the first file in the list of possible paths                          
+	    std::string fullpath = PathResolver::find_file_from_list (tdp_filename, datapath);
+	    if (!tdp.readFromFile(fullpath.c_str())) {
+	      std::cout << "ERROR::TopDataPreparation - could not read file \n";
+	      std::cout << tdp_filename << "\n";
+	      exit(1);
+	    }
+	    std::cout << "SampleXsection::Found " << fullpath << std::endl;
 
-            if (!tdp.readFromFile(filename.c_str())) {
-              std::cout << "ERROR::TopDataPreparation - could not read file \n";
-              std::cout << filename << "\n";
-              exit(1);
-            }
 
             int ShowerIndex = tdp.getShoweringIndex(DSID);
             std::cout << "DSID: " << DSID << "\t" << "ShowerIndex: " << ShowerIndex << std::endl;
