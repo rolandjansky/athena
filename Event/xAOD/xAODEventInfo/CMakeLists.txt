@@ -32,7 +32,8 @@ atlas_add_dictionary( xAODEventInfoDict
 atlas_add_test( ut_xaodeventinfo_evtstore_test
    SOURCES test/ut_xaodeventinfo_evtstore_test.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} xAODEventInfo )
+   LINK_LIBRARIES ${ROOT_LIBRARIES} xAODEventInfo
+   EXTRA_PATTERNS "<TInterpreter::ReadRootmapFile>" )
 
 atlas_add_test( ut_xaodeventinfo_printop_test
    SOURCES test/ut_xaodeventinfo_printop_test.cxx
