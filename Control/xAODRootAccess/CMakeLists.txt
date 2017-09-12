@@ -82,20 +82,22 @@ _add_test( ut_xaodrootaccess_tauxvector_test )
 _add_test( ut_xaodrootaccess_tauxstore_test )
 _add_test( ut_xaodrootaccess_tauxstore_insertmove_test )
 _add_test( ut_xaodrootaccess_tchain_test )
-_add_test( ut_xaodrootaccess_tevent_test )
-_add_test( ut_xaodrootaccess_tevent_copy_test )
 _add_test( ut_xaodrootaccess_tfileaccesstracer_test )
 _add_test( ut_xaodrootaccess_tfilemerger_test )
-_add_test( ut_xaodrootaccess_transtree_test )
 _add_test( ut_xaodrootaccess_tstore_test )
 
-# Run the scripted tests for the package:
-#atlas_add_test( ut_xaodrootaccess_tpyevent_test
-#   SCRIPT test/ut_xaodrootaccess_tpyevent_test.py
-#   PROPERTIES TIMEOUT 600 )
-#atlas_add_test( ut_xaodrootaccess_tpystore_test
-#   SCRIPT test/ut_xaodrootaccess_tpystore_test.py
-#   PROPERTIES TIMEOUT 600 )
-atlas_add_test( ut_xaodrootaccess_transtree2_test
-   SCRIPT test/ut_xaodrootaccess_transtree2_test.py
-   PROPERTIES TIMEOUT 600 )
+if( XAOD_ANALYSIS )
+   _add_test( ut_xaodrootaccess_tevent_test )
+   _add_test( ut_xaodrootaccess_tevent_copy_test )
+   _add_test( ut_xaodrootaccess_transtree_test )
+
+   #atlas_add_test( ut_xaodrootaccess_tpyevent_test
+   #   SCRIPT test/ut_xaodrootaccess_tpyevent_test.py
+   #   PROPERTIES TIMEOUT 600 )
+   #atlas_add_test( ut_xaodrootaccess_tpystore_test
+   #   SCRIPT test/ut_xaodrootaccess_tpystore_test.py
+   #   PROPERTIES TIMEOUT 600 )
+   atlas_add_test( ut_xaodrootaccess_transtree2_test
+      SCRIPT test/ut_xaodrootaccess_transtree2_test.py
+      PROPERTIES TIMEOUT 600 )
+endif()
