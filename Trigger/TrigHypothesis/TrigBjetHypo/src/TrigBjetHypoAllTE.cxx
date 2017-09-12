@@ -253,7 +253,10 @@ HLT::ErrorCode TrigBjetHypoAllTE::hltExecute(std::vector<std::vector<HLT::Trigge
   // Do the multiplicity requrements
   //
   clearCounters();
-  
+
+  //
+  // Loop on input btagged jets
+  //
   for(HLT::TriggerElement* btagTE : btaggingTEs){
 
     const xAOD::BTagging* btagInfo = getBTaggingPtr(btagTE);    
@@ -269,9 +272,16 @@ HLT::ErrorCode TrigBjetHypoAllTE::hltExecute(std::vector<std::vector<HLT::Trigge
       m_cutCode    = 7;
       return HLT::MISSING_FEATURE;
     }
-    
+
+    //
+    //  Get pt and btagging weight
+    //
     double btagWeight = btagInfo->auxdata<double>(m_tagger);  
-    double  btagEt     = jet->p4().Et();
+    double btagEt     = jet->p4().Et();
+
+    //
+    //  Increment counters
+    //
     for(triggerRequirement& trigReq:  m_triggerReqsAND){
       trigReq.countJet(btagEt, btagWeight);
     }
