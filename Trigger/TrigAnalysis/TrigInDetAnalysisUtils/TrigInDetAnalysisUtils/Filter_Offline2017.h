@@ -1,6 +1,6 @@
 // emacs: this is -*- c++ -*-
 //
-//   @file    Filter_Track.h        
+//   @file    Filter_Offline2017.h        
 //
 //            generic track filter to filter on kinematics, si and 
 //            trt hit content
@@ -15,7 +15,6 @@
 // 
 //   Copyright (C) 2007 M.Sutton (sutt@cern.ch)    
 //
-//   $Id: Filter_Offline2017.h, v0.0   Wed 28 Oct 2009 02:47:05 CET sutt $
 
 
 #ifndef TRIGINDETANALYSISUTILS_FILTER_OFFLINE2017_H 
