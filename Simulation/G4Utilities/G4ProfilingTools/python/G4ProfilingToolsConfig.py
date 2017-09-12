@@ -12,31 +12,22 @@ def getTestActionTimerTool(name="G4UA::TestActionTimerTool", **kwargs):
         #from AthenaCommon.AppMgr import theApp
         #theApp.exit(1)
         return False
+    from G4AtlasApps.SimFlags import simFlags
+    # example custom configuration
+    if name in simFlags.UserActionConfig.get_Value().keys():
+        for prop,value in simFlags.UserActionConfig.get_Value()[name].iteritems():
+            kwargs.setdefault(prop,value)
+    return CfgMgr.G4UA__TestActionTimerTool(name, **kwargs)
 
-    from G4AtlasApps.SimFlags import simFlags
-    # example custom configuration
-    if name in simFlags.UserActionConfig.get_Value().keys():
-        for prop,value in simFlags.UserActionConfig.get_Value()[name].iteritems():
-            kwargs.setdefault(prop,value)
-    from G4ProfilingTools.G4ProfilingToolsConf import G4UA__TestActionTimerTool
-    return G4UA__TestActionTimerTool(name, **kwargs)
-        
+
 def getTestActionVPTimerTool(name="G4UA::TestActionVPTimerTool", **kwargs):
-    from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps
-    # ADS: this tool should be safe to run in MT
-    #if concurrencyProps.ConcurrencyFlags.NumThreads() >1:
-    #    log=Logging.logging.getLogger(name)
-    #    log.fatal('Attempt to run '+name+' with more than one thread, which is not supported')
-    #    return False
-    
     from G4AtlasApps.SimFlags import simFlags
     # example custom configuration
     if name in simFlags.UserActionConfig.get_Value().keys():
         for prop,value in simFlags.UserActionConfig.get_Value()[name].iteritems():
             kwargs.setdefault(prop,value)
-            
-    from G4ProfilingTools.G4ProfilingToolsConf import G4UA__TestActionVPTimerTool
-    return G4UA__TestActionVPTimerTool(name, **kwargs)
+    return CfgMgr.G4UA__TestActionVPTimerTool(name, **kwargs)
+
 
 def getTestActionEHistTool(name="G4UA::TestActionEHistTool", **kwargs):
     from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps
@@ -46,12 +37,9 @@ def getTestActionEHistTool(name="G4UA::TestActionEHistTool", **kwargs):
         #from AthenaCommon.AppMgr import theApp
         #theApp.exit(1)
         return False
-
     from G4AtlasApps.SimFlags import simFlags
     # example custom configuration
     if name in simFlags.UserActionConfig.get_Value().keys():
         for prop,value in simFlags.UserActionConfig.get_Value()[name].iteritems():
             kwargs.setdefault(prop,value)
-            
-    from G4ProfilingTools.G4ProfilingToolsConf import G4UA__TestActionEHistTool
-    return G4UA__TestActionEHistTool(name, **kwargs)
+    return CfgMgr.G4UA__TestActionEHistTool(name, **kwargs)
