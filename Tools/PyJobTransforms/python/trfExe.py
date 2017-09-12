@@ -1871,11 +1871,9 @@ class tagMergeExecutor(scriptExecutor):
 ## @brief Archive transform - use tar
 class archiveExecutor(scriptExecutor):
 
-    def __init__(self, name = 'Archiver', exe = 'zip'):
-        super(archiveExecutor, self).__init__(name=name, exe=exe, memMonitor=False)
-
     def preExecute(self, input = set(), output = set()):
         self.setPreExeStart()
+        self._memMonitor = False
 
         if 'exe' in self.conf.argdict:
             self._exe = self.conf.argdict['exe']
@@ -1892,6 +1890,8 @@ class archiveExecutor(scriptExecutor):
                     pass
         elif self._exe == 'zip':
             self._cmd = [self._exe]
+            if 'compressionLevel' in self.conf.argdict:
+                self._cmd.append(self.conf.argdict['compressionLevel'])
             self._cmd.extend([self.conf.argdict['outputArchFile'].value[0]])
             if '.' not in self.conf.argdict['outputArchFile'].value[0]:
                 errmsg = 'Output filename must end in ".", ".zip" or ".anyname" '

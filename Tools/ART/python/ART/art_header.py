@@ -31,6 +31,7 @@ class ArtHeader(object):
         self.add('art-description', StringType, '')
         self.add('art-type', StringType, None, ['build', 'grid'])
         self.add('art-ci', ListType, [])
+        self.add('art-output', ListType, [])
 
         self.read(filename)
 
