@@ -61,7 +61,8 @@ endif()
 if( XAOD_STANDALONE )
    atlas_add_test( ut_triggers_fired
       SOURCES test/ut_triggers_fired.cxx
-      LINK_LIBRARIES TrigAnalysisTestLib )
+      LINK_LIBRARIES TrigAnalysisTestLib 
+      PROPERTIES TIMEOUT 600 )
 
    atlas_add_test( ut_validate_run1_bs_to_xaod
       SOURCES test/ut_validate_run1_bs_to_xaod.cxx
