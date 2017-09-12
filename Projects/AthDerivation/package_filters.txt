@@ -308,6 +308,7 @@
 + TileCalorimeter/TileTrackingGeometry
 
 # Tool package(s):
++ Tools/ART
 + Tools/LWHists
 + Tools/PathResolver
 + Tools/Py.*
