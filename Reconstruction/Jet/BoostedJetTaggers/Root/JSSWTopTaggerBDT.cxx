@@ -203,7 +203,7 @@ StatusCode JSSWTopTaggerBDT::initialize(){
     m_accept.addCut( "PassMassHigh"        , "mJet < mCutHigh"      );
     m_accept.addCut( "PassScore"           , "ScoreJet > ScoreCut"         );
   }
-  if(m_tagType.compare("TopQuark")==0){
+  if(m_tagType.compare("TopQuarkContained")==0){
     m_accept.addCut( "PassMassLow"         , "mJet > mCutLow"       );
     m_accept.addCut( "PassScore"           , "ScoreJet > ScoreCut"         );
   }
@@ -285,8 +285,8 @@ Root::TAccept JSSWTopTaggerBDT::tag(const xAOD::Jet& jet) const {
     if( jet_score > cut_score )
       m_accept.setCutResult( "PassScore"    , true );
   }
-  else if(m_tagType.compare("TopQuark")==0){
-    ATH_MSG_VERBOSE("Determining TopQuark tag return");
+  else if(m_tagType.compare("TopQuarkContained")==0){
+    ATH_MSG_VERBOSE("Determining TopQuarkContained tag return");
     if( jet_mass>cut_mass_low )
       m_accept.setCutResult( "PassMassLow"  , true );
     if( jet_score > cut_score )
