@@ -19,7 +19,7 @@ public:
   StatusCode execute();
 
 private:
-  ToolHandle<GenericMonitoringTool> m_monTool;
+  ToolHandle<GenericMonitoringTool> m_monTool{this,"MonTool","","Monitoring tool"};
 };
 
 

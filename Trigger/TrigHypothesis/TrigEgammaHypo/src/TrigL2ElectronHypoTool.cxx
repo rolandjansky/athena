@@ -18,8 +18,9 @@ TrigL2ElectronHypoTool::TrigL2ElectronHypoTool( const std::string& type,
 {}
 
 StatusCode TrigL2ElectronHypoTool::initialize()  {
-  ATH_MSG_DEBUG( "Initialization:" );
   
+  if (!m_monTool.empty()) CHECK(m_monTool.retrieve());
+
   ATH_MSG_DEBUG( "Initialization completed successfully:" );
   ATH_MSG_DEBUG( "AcceptAll            = " 
 		<< ( m_acceptAll==true ? "True" : "False" ) ); 

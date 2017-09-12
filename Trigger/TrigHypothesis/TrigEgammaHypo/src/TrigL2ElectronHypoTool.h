@@ -92,7 +92,7 @@ class TrigL2ElectronHypoTool
   
   size_t m_multiplicity = 1;
 
-  ToolHandle<GenericMonitoringTool> m_monTool{ this, "MonTool", "GenericMonitoringTool/MonTool", "Monitoring tool"};
+  ToolHandle<GenericMonitoringTool> m_monTool{ this, "MonTool", "", "Monitoring tool" };
 }; 
 
 inline const InterfaceID& TrigL2ElectronHypoTool::interfaceID() 

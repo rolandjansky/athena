@@ -18,6 +18,8 @@ monTool.Histograms = [defineHistogram( 'nTracks', path='EXPERT', type='TH1F', ti
                                        xbins=30, xmin=-3, xmax=3 ),
                       defineHistogram( 'AbsPhi', path='EXPERT', type='TH1F', title='|#phi|;;Entries',
                                        xbins=10, xmin=0, xmax=3.15 ),
+                      defineHistogram( 'eta,AbsPhi', path='EXPERT', type='TH2F', title='#eta vs #phi',
+                                       xbins=15, xmin=-3, xmax=3, ybins=15, ymin=0, ymax=3.15 ),
                       defineHistogram( 'TIME_execute', path='EXPERT', type='TH1F', title='Time for execute',
                                        xbins=100, xmin=0, xmax=100 ) ]
 
