@@ -50,7 +50,7 @@ StatusCode SCT_ConfigurationConditionsTestAlg::execute(){
   unsigned int nBadMods   = m_configConditions->badModules()->size();
 
   // Bad links
-  std::map<Identifier, std::pair<bool, bool> >* badLinks = m_configConditions->badLinks();
+  const std::map<Identifier, std::pair<bool, bool> >* badLinks = m_configConditions->badLinks();
   std::map<Identifier, std::pair<bool, bool> >::const_iterator linkItr(badLinks->begin());
   std::map<Identifier, std::pair<bool, bool> >::const_iterator linkEnd(badLinks->end());
 
@@ -64,7 +64,7 @@ StatusCode SCT_ConfigurationConditionsTestAlg::execute(){
   }
 
   // Bad chips
-  std::map<Identifier, unsigned int>* badChips = m_configConditions->badChips();
+  const std::map<Identifier, unsigned int>* badChips = m_configConditions->badChips();
   std::map<Identifier, unsigned int>::const_iterator chipItr(badChips->begin());
   std::map<Identifier, unsigned int>::const_iterator chipEnd(badChips->end());
 

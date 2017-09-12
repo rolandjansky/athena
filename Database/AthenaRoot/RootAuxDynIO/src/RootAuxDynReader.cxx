@@ -284,11 +284,11 @@ RootAuxDynReader::getBranchInfo(const SG::auxid_t& auxid, const SG::AuxStoreInte
       // For example, suppose we've renamed attribute `foo' to `foo_old',
       // and someone then comes and asks for `foo'.
       // `foo' will not be found in the m_branchMap test below
-      // (`foo_old' will be in this map).  Howeve, in the following
+      // (`foo_old' will be in this map).  However, in the following
       // else clause, we'll recreate the branch name from `foo'.
       // This branch exists (renaming is only in the transient store),
       // so if we didn't have the condition here, then we'd then
-      // make a `foo' attribute from theat branch.
+      // make a `foo' attribute from that branch.
       if (r.inputRename (m_key, brInfo.attribName) != brInfo.attribName) {
         brInfo.status = BranchInfo::NotFound;
         return brInfo;

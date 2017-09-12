@@ -60,9 +60,13 @@ namespace TrigCompositeUtils {
   /**
    * @brief Extracts DecisionIDs stored in the Decsion object 
    **/
-  void decisionIDs(const Decision* d, DecisionIDContainer& id );
+  void decisionIDs( const Decision* d, DecisionIDContainer& id );
 
-
+  /**
+   * @brief return true if thre is no positive decision stored
+   **/
+  bool allFailed( const Decision* d );
+  
   /**
    * @brief Checks if any of the DecisionIDs passed in arg required is availble in Decision object
    **/

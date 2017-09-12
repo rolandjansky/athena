@@ -65,11 +65,11 @@ public:
   /**    @name Usual algorithm methods */
   //@{
   ///Retrieve the tools used and initialize variables
-  virtual StatusCode initialize() override;
+  virtual StatusCode initialize();
   ///Form clusters and record them in StoreGate (detector store)
-  virtual StatusCode execute() override;
+  virtual StatusCode execute();
   ///Clean up and release the collection containers
-  virtual StatusCode finalize() override;
+  virtual StatusCode finalize();
   //@}
 
 
@@ -101,7 +101,6 @@ private:
   bool                                     m_checkBadModules;
   std::set<IdentifierHash>                 m_flaggedModules;
   unsigned int                             m_maxTotalOccupancyPercent;
-  SG::UpdateHandleKey<SCT_ClusterContainerCache> m_clusterContainerCacheKey;
 };
 
 }

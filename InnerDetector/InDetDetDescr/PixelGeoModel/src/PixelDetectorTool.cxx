@@ -114,7 +114,7 @@ StatusCode PixelDetectorTool::create( StoreGateSvc* detStore )
   }  
 
   // Print the version tag:
-  pixelVersionTag = m_rdbAccessSvc->getChildTag("Pixel", versionKey.tag(), versionKey.node(), false);
+  pixelVersionTag = m_rdbAccessSvc->getChildTag("Pixel", versionKey.tag(), versionKey.node());
   msg(MSG::INFO) << "Pixel Version: " << pixelVersionTag << "  Package Version: " << PACKAGE_VERSION << endmsg;
   
   

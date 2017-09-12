@@ -18,7 +18,6 @@
 #undef protected
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
-#include "AthenaPoolCnvSvc/AthenaPoolCnvTPExtension.h"
 
 #include "Particle/TrackParticleContainer.h"
 
@@ -37,9 +36,7 @@ typedef T_AthenaPoolCustomCnv<Rec::TrackParticleContainer, TrackParticleContaine
 //-----------------------------------------------------------------------------
 // Converter for TrackCollection object
 //-----------------------------------------------------------------------------
-class TrackParticleContainerCnv
-   : public TrackParticleContainerCnvBase,
-     public AthenaPoolCnvTPExtension
+class TrackParticleContainerCnv : public TrackParticleContainerCnvBase
 {
  
  friend class CnvFactory<TrackParticleContainerCnv>;

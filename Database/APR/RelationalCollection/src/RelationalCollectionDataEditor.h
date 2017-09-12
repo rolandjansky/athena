@@ -72,6 +72,9 @@ namespace pool {
        */
       ~RelationalCollectionDataEditor();
 
+      RelationalCollectionDataEditor (const RelationalCollectionDataEditor&) = delete;
+      RelationalCollectionDataEditor& operator= (const RelationalCollectionDataEditor&) = delete;
+
       /**
        * Sets the number of rows to cache before insertion into the collection. If the input
        * argument is 0 (the default) bulk row insertion will not be applied.

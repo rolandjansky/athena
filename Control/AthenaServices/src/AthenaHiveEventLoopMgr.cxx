@@ -33,6 +33,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/EventIDBase.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/ActiveStoreSvc.h"
@@ -664,6 +665,9 @@ StatusCode AthenaHiveEventLoopMgr::executeEvent(void* createdEvts_IntPtr )
   // const EventInfo* pEvent(reinterpret_cast<EventInfo*>(createdEvts_IntPtr)); //AUIII!
   const EventInfo* pEvent = m_pEvent;
   assert(pEvent);
+
+  // Make sure context is set before firing any incidents.
+  Gaudi::Hive::setCurrentContext (*evtContext);
 
   /// Fire begin-Run incident if new run:
   if (m_firstRun || (m_currentRun != pEvent->event_ID()->run_number()) ) {

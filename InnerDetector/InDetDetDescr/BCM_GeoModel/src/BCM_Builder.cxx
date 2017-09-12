@@ -134,8 +134,7 @@ StatusCode InDetDD::BCM_Builder::build(GeoVPhysVol* pv)
       
       // Print the BCM version tag:
       std::string BCMVersionTag;
-      BCMVersionTag = accessSvc->getChildTag("BCM", versionKey.tag(), versionKey.node(), false);
-      //BCMVersionTag = accessSvc->getChildTag("BCM", "InnerDetector-DC3-Dev", "InnerDetector", false);
+      BCMVersionTag = accessSvc->getChildTag("BCM", versionKey.tag(), versionKey.node());
       ATH_MSG_INFO("BCM Version: " << BCMVersionTag <<  "  Package Version: " << PACKAGE_VERSION);
       
       // Check if version is empty. If so, then the BCM cannot be built. This may or may not be intentional. We just issue an INFO message. 
@@ -146,10 +145,8 @@ StatusCode InDetDD::BCM_Builder::build(GeoVPhysVol* pv)
 	  return StatusCode::SUCCESS; 
      	}
       
-      accessSvc->connect();
       IRDBRecordset_ptr DBmodul = accessSvc->getRecordsetPtr("BCMModule", versionKey.tag(), versionKey.node());
       //DBmodul = accessSvc->getRecordset("BCMModule", "InnerDetector-DC3-Dev", "InnerDetector");
-      accessSvc->disconnect();
       
       ATH_MSG_DEBUG(" --> Number of records fetched = " << DBmodul->size());
       

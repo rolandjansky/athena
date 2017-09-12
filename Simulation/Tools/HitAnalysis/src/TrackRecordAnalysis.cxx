@@ -5,7 +5,6 @@
 #include "TrackRecordAnalysis.h"
 
 // Section of includes for TrackRecord tests
-
 #include "TrackRecord/TrackRecord.h"
 #include "TrackRecord/TrackRecordCollection.h"
 #include "CLHEP/Vector/LorentzVector.h"
@@ -13,7 +12,6 @@
 #include "TH1.h"
 #include "TTree.h"
 #include "TString.h"
-
 
 #include <algorithm>
 #include <math.h>
@@ -51,38 +49,45 @@ TrackRecordAnalysis::TrackRecordAnalysis(const std::string& name, ISvcLocator* p
    , m_time(0)
    , m_edep(0)
    , m_pdg(0)
-   , m_tree(0)
-   , m_ntupleFileName("/TrackRecordAnalysis/ntuple/")
-   , m_path("/TrackRecordAnalysis/histos/")
-   , m_thistSvc("THistSvc", name)
+     
    , m_collection("CaloEntryLayer")
+     
+   , m_tree(0)
+   , m_ntupleFileName("/TrackRecordAnalysis/")
+   , m_path("/TrackRecordAnalysis/")
+   , m_thistSvc("THistSvc", name)
 {
+  declareProperty("CollectionName", m_collection="CaloEntryLayer"); 
   declareProperty("NtupleFileName", m_ntupleFileName);
   declareProperty("HistPath", m_path); 
-  declareProperty("CollectionName", m_collection="CaloEntryLayer"); 
 }
+
 
 StatusCode TrackRecordAnalysis::initialize() {
   ATH_MSG_DEBUG( "Initializing TrackRecordAnalysis" );
 
-  // Grab the Ntuple and histogramming service for the tree
   std::string detName("CaloEntry");
   std::string ntupName("TrackRecordCaloEntry");
-  if(m_collection=="CaloEntryLayer"){
+  
+  if (m_collection == "CaloEntryLayer") {
     detName="CaloEntry";
     ntupName="TrackRecordCaloEntry";
-  } else if(m_collection=="MuonEntryLayer"){
+  }
+  else if (m_collection == "MuonEntryLayer") {
     detName="MuonEntry";
     ntupName="TrackRecordMuonEntry";
-  } else if(m_collection=="MuonExitLayer"){
+  }
+  else if (m_collection == "MuonExitLayer") {
     detName="MuonExit";
     ntupName="TrackRecordMuonExit";
-  }else{
+  }
+  else {
     ATH_MSG_ERROR("TrackRecordAnalysis for "<< name() << "not supported !!! \n");
     return StatusCode::FAILURE;
-
   }
-  std::cout<<"Name "<<name()<<std::endl;
+  
+  std::cout << "Name " << name() << std::endl;
+  
   //Grab the Ntuple and histogramming service for the tree
   CHECK(m_thistSvc.retrieve());
 
@@ -93,7 +98,7 @@ StatusCode TrackRecordAnalysis::initialize() {
   float eta_up = 5.8;
   float z_down = -7000;
   float z_up = 7000;
-  if(detName =="CaloEntry"){
+  if (detName == "CaloEntry") {
     x_down = -1180;
     x_up =  1180;
     radius = 1200;
@@ -101,7 +106,6 @@ StatusCode TrackRecordAnalysis::initialize() {
     eta_up = 5.6;
     z_down = -3700;
     z_up = 3700;
-
   }
 
   /** Histograms**/
@@ -165,37 +169,33 @@ StatusCode TrackRecordAnalysis::initialize() {
   h_pdg->StatOverflows();
   CHECK(m_thistSvc->regHist(m_path + h_pdg->GetName(), h_pdg));
 
-
-  m_tree= new TTree(ntupName.c_str(),ntupName.c_str());
-  std::string fullNtupleName =  "/"+m_ntupleFileName+"/"+detName;
+  /** now add branches and leaves to the tree */
+  m_tree = new TTree(ntupName.c_str(), ntupName.c_str());
+  std::string fullNtupleName =  "/" + m_ntupleFileName + "/" + detName;
   CHECK(m_thistSvc->regTree(fullNtupleName,m_tree));
-  
     
-    
-      /** now add branches and leaves to the tree */
-      if (m_tree){
-        m_tree->Branch("x", &m_x);
-        m_tree->Branch("y", &m_y);
-        m_tree->Branch("z", &m_z);
-        m_tree->Branch("r", &m_r);
-        m_tree->Branch("eta", &m_eta);
-        m_tree->Branch("phi", &m_phi);
-        m_tree->Branch("px", &m_px);
-        m_tree->Branch("py", &m_py);
-        m_tree->Branch("pz", &m_pz);
-        m_tree->Branch("pt", &m_pt);
-        m_tree->Branch("time", &m_time);
-        m_tree->Branch("energy", &m_edep);
-        m_tree->Branch("pdg", &m_pdg);
-      }else{
-        ATH_MSG_ERROR("No tree found!");
-      }
-
+  if (m_tree){
+    m_tree->Branch("x", &m_x);
+    m_tree->Branch("y", &m_y);
+    m_tree->Branch("z", &m_z);
+    m_tree->Branch("r", &m_r);
+    m_tree->Branch("eta", &m_eta);
+    m_tree->Branch("phi", &m_phi);
+    m_tree->Branch("px", &m_px);
+    m_tree->Branch("py", &m_py);
+    m_tree->Branch("pz", &m_pz);
+    m_tree->Branch("pt", &m_pt);
+    m_tree->Branch("time", &m_time);
+    m_tree->Branch("energy", &m_edep);
+    m_tree->Branch("pdg", &m_pdg);
+  }
+  else {
+    ATH_MSG_ERROR("No tree found!");
+  }
 
   return StatusCode::SUCCESS;
 }		 
 
-  
 
 StatusCode TrackRecordAnalysis::execute() {
   ATH_MSG_DEBUG( "In TrackRecordAnalysis::execute()" );
@@ -214,51 +214,49 @@ StatusCode TrackRecordAnalysis::execute() {
   m_edep->clear();
   m_pdg->clear();
     
-    const DataHandle<TrackRecordCollection> TRcoll;
-    if (evtStore()->retrieve(TRcoll, m_collection )==StatusCode::SUCCESS) {
-    for(TrackRecordCollection::const_iterator track = TRcoll->begin(); 
-  	            track != TRcoll->end();++track){
-    //TrackRecordCollection::const_iterator track;
-    //for(auto track : *TRcoll){
-      std::cout<<"Entra en el loop"<<std::endl;
+  const DataHandle<TrackRecordCollection> TRcoll;
+  if (evtStore()->retrieve(TRcoll, m_collection ) == StatusCode::SUCCESS) {
+    for (TrackRecordCollection::const_iterator track = TRcoll->begin(); track != TRcoll->end(); ++track) {
+      //TrackRecordCollection::const_iterator track;
+      //for(auto track : *TRcoll){
+      //std::cout<<"Entra en el loop"<<std::endl;
+      
       CLHEP::Hep3Vector p =(*track).GetPosition();
-        h_hits_x->Fill(p.x());
-        h_hits_y->Fill(p.y());
-        h_hits_z->Fill(p.z());
-        h_hits_r->Fill(p.perp());
-	h_xy->Fill(p.x(), p.y());
-	h_zr->Fill(p.z(),p.perp());
-        h_hits_eta->Fill(p.eta());
-        h_hits_phi->Fill(p.phi());
-	CLHEP::Hep3Vector mom = (*track).GetMomentum();
-	h_hits_px->Fill( mom.x());
-	h_hits_py->Fill( mom.y());
-	h_hits_pz->Fill( mom.z());
-	h_hits_pt->Fill( mom.perp());
-        h_edep->Fill((*track).GetEnergy());
-        h_time->Fill((*track).GetTime());
-        h_pdg->Fill((*track).GetPDGCode());
+      h_hits_x->Fill(p.x());
+      h_hits_y->Fill(p.y());
+      h_hits_z->Fill(p.z());
+      h_hits_r->Fill(p.perp());
+      h_xy->Fill(p.x(), p.y());
+      h_zr->Fill(p.z(),p.perp());
+      h_hits_eta->Fill(p.eta());
+      h_hits_phi->Fill(p.phi());
+      
+      CLHEP::Hep3Vector mom = (*track).GetMomentum();
+      h_hits_px->Fill(mom.x());
+      h_hits_py->Fill(mom.y());
+      h_hits_pz->Fill(mom.z());
+      h_hits_pt->Fill(mom.perp());
+      h_edep->Fill((*track).GetEnergy());
+      h_time->Fill((*track).GetTime());
+      h_pdg->Fill((*track).GetPDGCode());
   
-	m_x->push_back(p.x());
-	m_y->push_back(p.y());
-	m_z->push_back(p.z());
-	m_r->push_back(p.perp());
-	m_eta->push_back(p.eta());
-	m_phi->push_back(p.phi());
-	m_px->push_back( mom.x());
-	m_py->push_back( mom.y());
-	m_pz->push_back( mom.z());
-	m_pt->push_back( mom.perp());
-	m_edep->push_back((*track).GetEnergy());
-	m_time->push_back((*track).GetTime());
-	m_pdg->push_back((*track).GetPDGCode());
-	}
-     } // End while hits
-   
+      m_x->push_back(p.x());
+      m_y->push_back(p.y());
+      m_z->push_back(p.z());
+      m_r->push_back(p.perp());
+      m_eta->push_back(p.eta());
+      m_phi->push_back(p.phi());
+      m_px->push_back(mom.x());
+      m_py->push_back(mom.y());
+      m_pz->push_back(mom.z());
+      m_pt->push_back(mom.perp());
+      m_edep->push_back((*track).GetEnergy());
+      m_time->push_back((*track).GetTime());
+      m_pdg->push_back((*track).GetPDGCode());
+    }
+  } // End while hits 
  
-    if (m_tree) m_tree->Fill();
+  if (m_tree) m_tree->Fill();
  
-
-
   return StatusCode::SUCCESS;
 }

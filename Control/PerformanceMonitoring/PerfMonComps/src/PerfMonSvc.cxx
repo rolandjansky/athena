@@ -336,7 +336,7 @@ PerfMonSvc::postFinalize()
           );
       if ( 0 == res ) {
         PMON_WARNING("Problem on python side during finalize() !!");
-        ::throw_py_exception();
+        std::abort();
       }
       Py_DECREF( res );
     }
@@ -349,7 +349,7 @@ PerfMonSvc::postFinalize()
           const_cast<char*>("") );
       if ( 0 == res ) {
         PMON_WARNING("Problem on python side during finalize() !!");
-        ::throw_py_exception();
+        std::abort();
       }
       Py_DECREF( res );
     }

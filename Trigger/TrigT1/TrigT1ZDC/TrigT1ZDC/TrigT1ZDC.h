@@ -36,7 +36,6 @@ namespace LVL1 {
     
     /** flags **/
     bool m_zdcIncludeLHCf;
-    bool m_zdcMakeHisto;
     
     /** A data member to retain a connection to the level 1
 	configuration service */
@@ -67,7 +66,7 @@ namespace LVL1 {
     
     /** A flag to prevent the trigger simulation from running over bad
 	input data.  */
-    bool m_badDataFound;
+    //bool m_badDataFound;
     
     /** McEventCollection key.  Needed for truth based trigger
 	simulation. */

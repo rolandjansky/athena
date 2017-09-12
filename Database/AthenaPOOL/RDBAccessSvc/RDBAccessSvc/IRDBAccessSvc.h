@@ -44,25 +44,14 @@ static const InterfaceID IID_IRDBAccessSvc(1012, 1 , 0);
 
 class IRDBAccessSvc : virtual public IInterface 
 {
+  // Special friends who need to call connect()/disconnect() methods
+  friend class GeoModelSvc;
+  friend class SourceCompAlg;
+
  public:
 
   /// Retrieve interface ID
   static const InterfaceID& interfaceID() { return IID_IRDBAccessSvc; }
-
-  /// Connect to the relational DB.
-  /// If this method is called for already open connection the connection
-  /// counter is incremented.
-  /// @return success/failure
-  virtual bool connect(const std::string& connName = "ATLASDD") = 0;
-
-  /// If the counnection counter==1 closes the connection.
-  /// Decrements the connection counter value otherwise.
-  /// @return success/failure
-  virtual bool disconnect(const std::string& connName = "ATLASDD") = 0;
-
-  /// Closes the connection regardless of the counter value.
-  /// @return success/failure
-  virtual bool shutdown(const std::string& connName = "ATLASDD") = 0;
 
   /// Provides access to the Recordset object containing HVS-tagged data.
   /// @param node [IN] name of the leaf HVS node
@@ -84,7 +73,6 @@ class IRDBAccessSvc : virtual public IInterface
   virtual std::string getChildTag(const std::string& childNode,
 				  const std::string& parentTag,
 				  const std::string& parentNode,
-				  bool fetchData = true,
 				  const std::string& connName = "ATLASDD") = 0;
 
 
@@ -113,6 +101,23 @@ class IRDBAccessSvc : virtual public IInterface
   /// @return attribute list with tag details
   virtual RDBTagDetails getTagDetails(const std::string& tag,
 				      const std::string& connName = "ATLASDD") = 0;
+
+ protected:
+  /// Connect to the relational DB.
+  /// If this method is called for already open connection the connection
+  /// counter is incremented.
+  /// @return success/failure
+  virtual bool connect(const std::string& connName = "ATLASDD") = 0;
+
+  /// If the counnection counter==1 closes the connection.
+  /// Decrements the connection counter value otherwise.
+  /// @return success/failure
+  virtual bool disconnect(const std::string& connName = "ATLASDD") = 0;
+
+  /// Closes the connection regardless of the counter value.
+  /// @return success/failure
+  virtual bool shutdown(const std::string& connName = "ATLASDD") = 0;
+
 };
 
 #endif 

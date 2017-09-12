@@ -14,6 +14,8 @@
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
+#include "InDetReadoutGeometry/SiDetectorManager.h"
+#include "InDetReadoutGeometry/PixelDetectorManager.h"
 
 #include "TrigFTKToolInterfaces/ITrigFTKClusterConverterTool.h"
 #include "TrigFTKTrackConverter/TrigFTKClusterConverterTool.h"
@@ -33,6 +35,7 @@ class IPixelCablingSvc;
 class ISCT_CablingSvc;
 class StoreGateSvc; 
 class PixelID; 
+class AtlasDetector;
 class SCT_ID;
 class SCT_OnlineId;
 class IdentifierHash;
@@ -63,6 +66,9 @@ private:
   StoreGateSvc*  m_evtStore;
   const PixelID * m_pixelId;
   const SCT_ID * m_sctId;
+  const AtlasDetectorID* m_idHelper;
+  const InDetDD::SiDetectorManager*  m_PIX_mgr;
+  const InDetDD::SiDetectorManager*  m_SCT_mgr;
 
   // variables to manage the distribution of the hits
   int m_IBLMode; //  global FTK setup variable to handle IBL
@@ -99,6 +105,9 @@ private:
   bool m_DuplicateGanged;
   bool m_GangedPatternRecognition;
   bool m_WriteClustersToESD;  //write the clusters to the ESD
+
+  bool m_getOffline;
+  std::string m_offlineName;
 
   // variables related to the output fiels
   std::string m_outpath; // output path
@@ -154,6 +163,24 @@ private:
   std::string m_mcTruthName;  /** Truth collection name */
 
   std::vector<int> m_L1ID_to_save; // vector of L1ID to save, if empty save all
+
+  //offline clusters
+  std::vector<float>   *offline_locX;
+  std::vector<float>   *offline_locY;
+  std::vector<int>     *offline_isPixel;
+  std::vector<int>     *offline_isBarrel;
+  std::vector<int>     *offline_layer;
+  std::vector<int>     *offline_resAssociatedTrack;
+  std::vector<int>     *offline_clustID;
+  std::vector<int>     *offline_trackNumber;
+
+  //offline tracks
+  std::vector<float>   *offline_pt;
+  std::vector<float>   *offline_eta;
+  std::vector<float>   *offline_phi;
+
+
+  TTree *m_offline_cluster_tree;
 
 };
 

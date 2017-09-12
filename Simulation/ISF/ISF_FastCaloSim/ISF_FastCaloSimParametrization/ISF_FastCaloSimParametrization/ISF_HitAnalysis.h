@@ -159,41 +159,26 @@ class ISF_HitAnalysis : public AthAlgorithm {
    double m_ptruth_p;
    int m_pdgid;
 
-   std::vector<std::vector<double> >* m_TTC_entrance_eta;
-   std::vector<std::vector<double> >* m_TTC_entrance_phi;
-   std::vector<std::vector<double> >* m_TTC_entrance_r;
-   std::vector<std::vector<double> >* m_TTC_entrance_z;
-   std::vector<std::vector<double> >* m_TTC_back_eta;
-   std::vector<std::vector<double> >* m_TTC_back_phi;
-   std::vector<std::vector<double> >* m_TTC_back_r;
-   std::vector<std::vector<double> >* m_TTC_back_z;
-   std::vector<double>* m_TTC_IDCaloBoundary_eta;
-   std::vector<double>* m_TTC_IDCaloBoundary_phi;
-   std::vector<double>* m_TTC_IDCaloBoundary_r;
-   std::vector<double>* m_TTC_IDCaloBoundary_z;
-   std::vector<double>* m_TTC_Angle3D;
-   std::vector<double>* m_TTC_AngleEta;
-
-   std::vector<std::vector<double> >* m_newTTC_entrance_eta;
-   std::vector<std::vector<double> >* m_newTTC_entrance_phi;
-   std::vector<std::vector<double> >* m_newTTC_entrance_r;
-   std::vector<std::vector<double> >* m_newTTC_entrance_z;
-   std::vector<std::vector<double> >* m_newTTC_back_eta;
-   std::vector<std::vector<double> >* m_newTTC_back_phi;
-   std::vector<std::vector<double> >* m_newTTC_back_r;
-   std::vector<std::vector<double> >* m_newTTC_back_z;
-   std::vector<double>* m_newTTC_IDCaloBoundary_eta;
-   std::vector<double>* m_newTTC_IDCaloBoundary_phi;
-   std::vector<double>* m_newTTC_IDCaloBoundary_r;
-   std::vector<double>* m_newTTC_IDCaloBoundary_z;
-   std::vector<double>* m_newTTC_Angle3D;
-   std::vector<double>* m_newTTC_AngleEta;
+   std::vector<std::vector<float> >* m_newTTC_entrance_eta;
+   std::vector<std::vector<float> >* m_newTTC_entrance_phi;
+   std::vector<std::vector<float> >* m_newTTC_entrance_r;
+   std::vector<std::vector<float> >* m_newTTC_entrance_z;
+   std::vector<std::vector<float> >* m_newTTC_back_eta;
+   std::vector<std::vector<float> >* m_newTTC_back_phi;
+   std::vector<std::vector<float> >* m_newTTC_back_r;
+   std::vector<std::vector<float> >* m_newTTC_back_z;
+   std::vector<float>* m_newTTC_IDCaloBoundary_eta;
+   std::vector<float>* m_newTTC_IDCaloBoundary_phi;
+   std::vector<float>* m_newTTC_IDCaloBoundary_r;
+   std::vector<float>* m_newTTC_IDCaloBoundary_z;
+   std::vector<float>* m_newTTC_Angle3D;
+   std::vector<float>* m_newTTC_AngleEta;
 
    /** The new Extrapolator setup */
-   ToolHandle<Trk::ITimedExtrapolator>   m_extrapolator;
-   ToolHandle<ICaloSurfaceHelper>   m_caloSurfaceHelper;
-   mutable const Trk::TrackingVolume*  m_caloEntrance;
-   std::string                         m_caloEntranceName;
+   ToolHandle<Trk::ITimedExtrapolator>  m_extrapolator;
+   ToolHandle<ICaloSurfaceHelper>       m_caloSurfaceHelper;
+   mutable const Trk::TrackingVolume*   m_caloEntrance;
+   std::string                          m_caloEntranceName;
    // extrapolation through Calo
    std::vector<Trk::HitInfo>* caloHits(const HepMC::GenParticle& part ) const;
    Trk::PdgToParticleHypothesis        m_pdgToParticleHypothesis;

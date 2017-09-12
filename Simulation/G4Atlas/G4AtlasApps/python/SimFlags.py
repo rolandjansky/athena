@@ -681,7 +681,7 @@ class G4Commands(JobProperty):
     """
     statusOn = True
     allowedTypes = ['list']
-    StoredValue = []
+    StoredValue = ['/run/verbose 2'] # FIXME make configurable based on Athena message level?
 
 class UserActionConfig(JobProperty):
     """Configuration for UserActions
@@ -703,6 +703,32 @@ class specialConfiguration(JobProperty):
     statusOn = False
     allowedTypes = ['dict']
     StoredValue = dict()
+
+
+class TruthStrategy(JobProperty): ## TODO Setting this should automatically update dependent jobproperties.
+    """Steering of ISF: set truthStrategy"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'MC12'
+    def TruthServiceName(self):
+        # Sometimes want to override and use the Validation Truth Service for example
+        if  jobproperties.SimFlags.TruthService.statusOn:
+            return jobproperties.SimFlags.TruthService.get_Value()
+        if self.statusOn:
+            return 'ISF_' + self.StoredValue + 'TruthService'
+    def EntryLayerFilterName(self):
+        if self.statusOn:
+            return 'ISF_' + self.StoredValue + 'EntryLayerFilter'
+    def BarcodeServiceName(self):
+        if self.statusOn:
+            return 'Barcode_' + self.StoredValue + 'BarcodeSvc'
+
+
+class TruthService(JobProperty):
+    """Steering of ISF: set the TruthService"""
+    statusOn     = False
+    allowedTypes = ['str']
+    StoredValue  = 'ISF_TruthService'
 
 
 ## Definition and registration of the simulation flag container

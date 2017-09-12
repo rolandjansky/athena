@@ -19,7 +19,6 @@ namespace LVL1 {
 
   TrigT1ZDC::TrigT1ZDC(const std::string& name,
 		       ISvcLocator* pSvcLocator): AthAlgorithm(name, pSvcLocator), 
-						  m_zdcMakeHisto(0),
 						  m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name),
 						  m_zdcContainerName("ZDC"),
 						  m_threshold_c(-1),
@@ -29,8 +28,7 @@ namespace LVL1 {
 						  m_cablestart_ac(-1),	
 						  m_passedA(0),
 						  m_passedC(0),
-						  m_passedAC(0),
-						  m_badDataFound(false)
+						  m_passedAC(0)
   {
     declareProperty("LVL1ConfigSvc", m_configSvc, "LVL1 Config Service");
     declareProperty("ZdcContainerName", m_zdcContainerName = "ZDC");

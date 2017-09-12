@@ -308,9 +308,27 @@ void TRTElectronicsProcessing::ProcessDeposits( const std::vector<TRTElectronics
   //for (int i=0; i<m_totalNumberOfBins; ++i) std::cout <<  m_highhThresholdDiscriminator[i] << " ";
   //std::cout << std::endl;
 
-  // Finally turn the fine discriminator response arrays into an output digit.
-  //const unsigned int digit(EncodeDigit());
-  const unsigned int digit = EncodeDigit() & 0x03FFFEF0; // RDO reduction: zero first 5 unused bits, first and third HT bits, last 4 LT bits
+  // Finally turn the fine discriminator response arrays into an output digit;
+  // for RDO reduction, zero: msb, and first 4 unused bits, first and third HT bits, last 4 LT bits
+  //
+  //   bit31                          bit0
+  //   |    leading          trailing |
+  //   #----HLLLLLLLLHLLLLLLLLHLLLLLLLL
+  //   00000011111111111111111011110000
+
+  unsigned int digit = EncodeDigit() & 0x03FFFEF0;
+
+  // Only attempt this if the digit is non-zero
+  if ( m_settings->isOverlay() && digit ) { //doing overlay
+    digit += (1<<31);//flag digit a "MC" one
+    static bool first = true;
+    if (first){
+      first=false;
+      msg(MSG::DEBUG) << "ACH666: Flagging digits as MC (for overlay)" << endmsg;
+    }
+  }
+
+  // The digit only gets written to disk if it is non-zero
   if (digit) {
     outdigit = TRTDigit(hitID, digit);
   }
@@ -494,15 +512,6 @@ unsigned TRTElectronicsProcessing::EncodeDigit() const {
         digit += one << (26 - i * 9);
         break;
       }
-    }
-  }
-
-  if (m_settings->isOverlay()){//doing overlay
-    digit += (1<<31);//flag digit a "MC" one
-    static bool first = true;
-    if (first){
-      first=false;
-      msg(MSG::DEBUG) << "ACH666: Flagging digits as MC (for overlay)" << endmsg;
     }
   }
 

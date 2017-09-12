@@ -237,7 +237,8 @@ StatusCode AddressRemappingSvc::loadAddresses(StoreID::type /*storeID*/,
 		   newIter = m_newTads.begin(), oldIterEnd = m_oldTads.end();
 		   oldIter != oldIterEnd; oldIter++, newIter++) {
       CLID goodCLID = newIter->clID(); //newIter are the things we are remapping to 
-      SG::TransientAddress::TransientClidSet clidToKeep(oldIter->transientID());
+      SG::TransientAddress::TransientClidSet clidvec(oldIter->transientID());
+      std::set<CLID> clidToKeep (clidvec.begin(), clidvec.end());
       //try dataproxy, if it fails, try data proxy of next type 
       SG::DataProxy* dataProxy(m_proxyDict->proxy(goodCLID,newIter->name()/*the name of the address in the input file*/));
       if(dataProxy==0) {

@@ -87,23 +87,20 @@ public:
   IOVDbSvc( const std::string& name, ISvcLocator* svc );
   virtual ~IOVDbSvc();
   
-  /// Serice init
-  virtual StatusCode initialize();
+  /// Service init
+  virtual StatusCode initialize() override;
 
   /// Service finalize
-  virtual StatusCode finalize();
+  virtual StatusCode finalize() override;
   
   /// Query the interfaces.
-  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
+  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface )  override;
   static const InterfaceID& interfaceID();
   
-  /// Service type.
-  virtual const InterfaceID& type() const;
-
   // IIOVDbSvc interface   
 
   /// Access to COOL database for a given folder
-  virtual cool::IDatabasePtr getDatabase( bool readOnly );
+  virtual cool::IDatabasePtr getDatabase( bool readOnly ) override;
 
   typedef IAddressProvider::tadList tadList;
   typedef IAddressProvider::tadListIterator tadListIterator;
@@ -112,16 +109,16 @@ public:
   //@{
   /// Get all addresses that the provider wants to preload in SG maps
   virtual StatusCode preLoadAddresses( StoreID::type storeID,
-                                       tadList& list );
+                                       tadList& list ) override;
     
   /// Get all new addresses from Provider for this Event.
   virtual StatusCode loadAddresses( StoreID::type storeID,
-                                    tadList& list );
+                                    tadList& list ) override;
       
   /// Update a transient Address
   virtual StatusCode updateAddress( StoreID::type storeID,
                                     SG::TransientAddress* tad,
-                                    const EventContext& ctx );
+                                    const EventContext& ctx ) override;
   //@}
   
 
@@ -134,7 +131,7 @@ public:
                                const IOVTime& time,
                                IOVRange& range,
                                std::string& tag,
-                               IOpaqueAddress*& ioa);
+                               IOpaqueAddress*& ioa) override;
 
 
 
@@ -142,34 +139,36 @@ public:
   virtual StatusCode setRange( const CLID& clid,
                                const std::string& dbKey,
                                const IOVRange& range,
-                               const std::string& tag );
+                               const std::string& tag ) override;
 
   /// Set time for begin run
-  virtual StatusCode signalBeginRun(const IOVTime& beginRunTime);
+  virtual StatusCode signalBeginRun(const IOVTime& beginRunTime,
+                                    const EventContext& ctx) override;
 
   /// Signal that callback has been fired
-  virtual void       signalEndProxyPreload();
+  virtual void       signalEndProxyPreload() override;
   //@}
   
   /// Incident service handle for EndEvent
-  virtual void handle( const Incident& incident );
+  virtual void handle( const Incident& incident ) override;
 
   /// Register callback for TagInfo access
-  StatusCode registerTagInfoCallback();
+  virtual StatusCode registerTagInfoCallback() override;
 
   /// Callback method for TagInfo access
   StatusCode         processTagInfo(IOVSVC_CALLBACK_ARGS);
 
   // return list of SG keys being provided by IOVDbSvc
-  std::vector<std::string> getKeyList();
+  virtual std::vector<std::string> getKeyList() override;
 
   // return information about one SG key
   // - folder, tag, IOVRange and whether data has been retrieved
   // (if not, range and tag may not be meaningful)
   // return false if this key is not known to IOVDbSvc
+  virtual
   bool getKeyInfo(const std::string& key, std::string& foldername,
                   std::string& tag, IOVRange& range, bool& retrieved,
-                  unsigned long long& bytesRead, float& readTime);
+                  unsigned long long& bytesRead, float& readTime) override;
 
 
   // drop an IOVDbSvc-managed object from Storegate, indicating we will
@@ -177,7 +176,8 @@ public:
   // If resetCache=True, also drop the corresponding folder cache
   // so any subsequent reads will access the database again
   // returns False if key not known to IOVDbSvc
-  bool dropObject(const std::string& key,const bool resetCache=false);
+  virtual
+  bool dropObject(const std::string& key,const bool resetCache=false) override;
 
 
 private:

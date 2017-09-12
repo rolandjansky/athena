@@ -1912,8 +1912,6 @@ void AmdcDbSvcMakerFromRDB::Set(
   m_detectorKey  = detectorKey  ;
   m_detectorNode = detectorNode ;
   
-  pIRDBAccessSvc->connect();
-
   AMDC(pIRDBAccessSvc,pAmdcDbSvc);
   AGDD(pIRDBAccessSvc,pAmdcDbSvc);
   
@@ -1958,8 +1956,6 @@ void AmdcDbSvcMakerFromRDB::Set(
   HwSwIdMapping(pIRDBAccessSvc,pAmdcDbSvc);
 
   XtomoData(pIRDBAccessSvc,pAmdcDbSvc);
-
-  pIRDBAccessSvc->shutdown();
 
 }
 

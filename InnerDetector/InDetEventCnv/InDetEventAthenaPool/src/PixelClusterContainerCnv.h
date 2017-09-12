@@ -32,9 +32,7 @@ typedef  T_AthenaPoolCustomCnv<InDet::PixelClusterContainer, PixelClusterContain
 ** Create derived converter to customize the saving of identifiable
 ** container
 **/
-class PixelClusterContainerCnv :
-    public PixelClusterContainerCnvBase,
-    public AthenaPoolCnvTPExtension
+class PixelClusterContainerCnv :  public PixelClusterContainerCnvBase
 {
   friend class CnvFactory<PixelClusterContainerCnv >;
 

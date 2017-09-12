@@ -537,8 +537,6 @@ StatusCode AmdcsimrecAthenaSvc::initializeFromOracle()
     return StatusCode::FAILURE;
   }
 
-  pIRDBAccessSvc->connect();
-
   ATH_MSG_DEBUG( "      Keys are  (key) "  << m_detectorKey  
       << " (node) " << m_detectorNode 
       ) ;
@@ -583,8 +581,6 @@ StatusCode AmdcsimrecAthenaSvc::initializeFromOracle()
     ATH_MSG_DEBUG( "      agdd2geoVersion is empty " ) ;
   }
   ATH_MSG_DEBUG( "      AGDD2GeoSwitches data collected " ) ;
-
-  pIRDBAccessSvc->shutdown();
 
   if (m_CtrlFileOracle==1){
     std::ofstream  GeneratedFile;

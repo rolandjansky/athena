@@ -5,6 +5,9 @@
 #ifndef TILEMONITORING_ITILESTUCKBITSPROBSTOOL_H
 #define TILEMONITORING_ITILESTUCKBITSPROBSTOOL_H
 
+// Gaudi include(s):
+#include "GaudiKernel/IAlgTool.h"
+
 class TTree;
 
 class ITileStuckBitsProbsTool: virtual public IAlgTool {
