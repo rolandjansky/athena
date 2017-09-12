@@ -3,6 +3,7 @@
 */
 
 #include <iostream>
+#include <stdexcept>
 #include "AthViews/SimpleView.h"
 
 using namespace std;
@@ -21,6 +22,10 @@ SimpleView::SimpleView( std::string Name ) :
 
 SimpleView::~SimpleView()
 {
+}
+
+void SimpleView::linkParent( const IProxyDict* parent ) {
+  m_parents.push_back( parent );
 }
 
 
@@ -55,7 +60,17 @@ SG::DataProxy * SimpleView::proxy_exact( SG::sgkey_t sgkey ) const
 SG::DataProxy * SimpleView::proxy( const CLID& id, const std::string& key ) const
 {
 	const std::string viewKey = m_name + "_" + key;
-	return m_store->proxy( id, viewKey );
+	auto local =  m_store->proxy( id, viewKey );
+	
+	for ( auto parent: m_parents ) {
+	  auto dp = parent->proxy( id, key );
+	  if ( dp and not local ) {
+	    return dp;
+	  } else if ( dp and local ) {
+	    throw std::runtime_error("Duplicate object CLID:"+ std::to_string(id) + " key: " + key + " found in views: " + name()+ " and parent " + parent->name() );
+	  } // else search further
+	}
+	return local; // can be the nullptr still
 }
 
 
