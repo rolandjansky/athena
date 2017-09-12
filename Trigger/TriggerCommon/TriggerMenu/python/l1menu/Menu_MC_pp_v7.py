@@ -495,7 +495,7 @@ def defineMenu():
         # multi jet
 
         "L1_J20_J20.31ETA49",
-        "L1_3J15", "L1_3J20","L1_3J40", 'L1_3J15.0ETA25', "L1_3J50", "L1_4J15", "L1_4J20",
+        "L1_3J15", "L1_3J40",  "L1_3J50", "L1_4J15", "L1_4J20",
         "L1_4J20.0ETA49",
         "L1_3J15.0ETA25_XE40",
         
@@ -641,7 +641,7 @@ def defineMenu():
         #--------------------------------
 
         # B-jet
-        'L1_BTAG-MU4J15', 'L1_BTAG-MU4J30', 'L1_BTAG-MU6J20', 'L1_BTAG-MU6J25',
+        'L1_BTAG-MU4J15', 'L1_BTAG-MU6J20',
         #'L1_BTAG-MU4J20',
         'L1_3J15_BTAG-MU4J15', 'L1_3J15_BTAG-MU4J30', 'L1_3J15_BTAG-MU6J25', 'L1_3J20_BTAG-MU4J20',
         #'L1_3J20_BTAG-MU4J30', 'L1_3J20_BTAG-MU6J25',
@@ -1082,9 +1082,7 @@ def defineMenu():
 
         'L1_J20_J20.31ETA49' : 125,
         'L1_3J15' : 126,
-        'L1_3J20' : 127,
         'L1_3J40' : 128,
-        'L1_3J15.0ETA25' : 129,
         'L1_3J50' : 130,
         'L1_4J15' : 131,
         'L1_4J20' : 132,
@@ -1295,12 +1293,10 @@ def defineMenu():
         'L1_BCM_CA_CALIB' : 236,
         'L1_BCM_Wide_CALIB' : 237,
         'L1_BTAG-MU4J15' : 238,
-        'L1_BTAG-MU4J30' : 239,
         'L1_ZB' : 240,
         'L1_BPTX0_BGRP0' : 241,
         'L1_BPTX1_BGRP0' : 242,
         'L1_BTAG-MU6J20' : 243,
-        'L1_BTAG-MU6J25' : 244,
 #        'L1_BTAG-MU4J20' : 245,
         'L1_3J15_BTAG-MU4J15' : 246,
         'L1_3J15_BTAG-MU4J30' : 247,

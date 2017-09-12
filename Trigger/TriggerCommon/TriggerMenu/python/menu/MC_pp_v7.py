@@ -593,12 +593,6 @@ def setupMenu():
         ['j35_boffperf_3j35', 'L1_3J15', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
 
         ['j45_bperf_3j45_L14J20', 'L1_4J20', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
-        ['j45_bperf_3j45_L13J15.0ETA25', 'L1_3J15.0ETA25', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
-        ['j45_bperf_3j45_L13J20', 'L1_3J20', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
-        ['j45_boffperf_3j45_L13J15.0ETA25', 'L1_3J15.0ETA25', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
-        ['j45_boffperf_3j45_L13J20', 'L1_3J20', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
-        ['j45_bperf_split_3j45_L13J15.0ETA25', 'L1_3J15.0ETA25', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
-        ['j45_bperf_split_3j45_L13J20', 'L1_3J20', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
 
         ['j50_bmv2c1040_split_3j50', 'L1_4J20', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
 
@@ -2145,10 +2139,6 @@ def setupMenu():
         ['g20_loose_2j40_0eta490_3j25_0eta490', 'L1_MJJ-800', ['L1_EM15VH','',''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma'], -1,['serial',-1,["g20_loose","2j40_0eta490","3j25_0eta490"]]],
         ['g20_loose_2j40_0eta490_3j25_0eta490_L1MJJ-900', 'L1_MJJ-900', ['L1_EM15VH','',''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma'], -1,['serial',-1,["g20_loose","2j40_0eta490","3j25_0eta490"]]],
         ['mu6_2j40_0eta490_invm400', 'L1_MU6_MJJ-200', ['L1_MU6',''], [PhysicsStream], ['RATE:MuonJet', 'BW:Muon'], -1, ['serial',-1,["mu6","2j40_0eta490_invm400"]]],
-
-        # L1Topo BTAG Single mu-jet items
-        ['mu6_j60_dr05_L1BTAG-MU6J25', 'L1_BTAG-MU6J25', ['L1_MU6', ''], [PhysicsStream], ['RATE:MuonBJet', 'BW:BJet', 'BW:Muon'], -1,['serial',-1,['mu6', 'j60'] ], False],
-        ['mu4_j70_dr05_L1BTAG-MU4J30', 'L1_BTAG-MU4J30', ['L1_MU4', ''], [PhysicsStream], ['RATE:MuonBJet', 'BW:BJet', 'BW:Muon'], -1,['serial',-1,['mu4', 'j70'] ], False],
         
         # Asymmetric items
         ['mu6_j50_dr05_2j35_L13J15_BTAG-MU6J25', 'L1_3J15_BTAG-MU6J25', ['L1_MU6', '', ''], [PhysicsStream], ['RATE:MuonBJet', 'BW:BJet'], -1,['serial',-1,['mu6', 'j50', '2j35'] ], False],
