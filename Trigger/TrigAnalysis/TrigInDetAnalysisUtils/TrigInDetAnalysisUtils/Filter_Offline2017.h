@@ -2,18 +2,11 @@
 //
 //   @file    Filter_Offline2017.h        
 //
-//            generic track filter to filter on kinematics, si and 
-//            trt hit content
-//            NB: Should really make this up from sub filters, ie 
-//                with classes Filter_Param, Filter_Hits...
-//                   
-//                Filter_Track : Filter_Param, Filter_Hits { 
-//                   bool select(..) { 
-//		       return Filter_Param::select(..) && Filter_Hits::select(..);
-//                   }
-//                };                       
+//            Filter class to implement the 2017 CP recomendations
+//            on hadronic tracks as found in 
+//              https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/TrackingCPPreRecsSummer2017
 // 
-//   Copyright (C) 2007 M.Sutton (sutt@cern.ch)    
+//   Copyright (C) 2017 M.Sutton (sutt@cern.ch)    
 //
 //   This program is free software; you can redistribute it and/or
 //   modify it under the terms of the GNU General Public License
