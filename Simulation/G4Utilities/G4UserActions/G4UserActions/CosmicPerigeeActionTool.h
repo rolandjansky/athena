@@ -9,10 +9,9 @@
 #include <string>
 
 // Infrastructure includes
-#include "G4AtlasInterfaces/ISteppingActionTool.h"
-#include "G4AtlasInterfaces/IEndEventActionTool.h"
-#include "G4AtlasInterfaces/IBeginEventActionTool.h"
-#include "G4AtlasInterfaces/IPreTrackingActionTool.h"
+#include "G4AtlasInterfaces/IG4SteppingActionTool.h"
+#include "G4AtlasInterfaces/IG4EventActionTool.h"
+#include "G4AtlasInterfaces/IG4TrackingActionTool.h"
 #include "G4AtlasTools/ActionToolBase.h"
 
 // Local includes
@@ -29,10 +28,9 @@ namespace G4UA
   /// @author Andrea Di Simone
   ///
   class CosmicPerigeeActionTool : public ActionToolBase<CosmicPerigeeAction>,
-                                  public ISteppingActionTool,
-                                  public IEndEventActionTool,
-                                  public IBeginEventActionTool,
-                                  public IPreTrackingActionTool
+                                  public IG4SteppingActionTool,
+                                  public IG4EventActionTool,
+                                  public IG4TrackingActionTool
   {
 
     public:
@@ -43,20 +41,16 @@ namespace G4UA
 
 
       /// Retrieve the stepping action interface
-      virtual ISteppingAction* getSteppingAction() override final
-      { return static_cast<ISteppingAction*>( getAction() ); }
+      virtual G4UserSteppingAction* getSteppingAction() override final
+      { return static_cast<G4UserSteppingAction*>( getAction() ); }
 
-      /// Retrieve the begin-event action interface
-      virtual IBeginEventAction* getBeginEventAction() override final
-      { return static_cast<IBeginEventAction*>( getAction() ); }
-
-      /// Retrieve the end-event action interface
-      virtual IEndEventAction* getEndEventAction() override final
-      { return static_cast<IEndEventAction*>( getAction() ); }
+      /// Retrieve the event action interface
+      virtual G4UserEventAction* getEventAction() override final
+      { return static_cast<G4UserEventAction*>( getAction() ); }
 
       /// Retrieve the preTracking action interface
-      virtual IPreTrackingAction* getPreTrackingAction() override final
-      { return static_cast<IPreTrackingAction*>( getAction() ); }
+      virtual G4UserTrackingAction* getTrackingAction() override final
+      { return static_cast<G4UserTrackingAction*>( getAction() ); }
 
     protected:
 

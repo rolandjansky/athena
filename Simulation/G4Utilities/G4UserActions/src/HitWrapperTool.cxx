@@ -12,7 +12,7 @@ namespace G4UA
                                  const IInterface* parent)
     : ActionToolBase<HitWrapper>(type, name, parent)
   {
-    declareInterface<IEndEventActionTool>(this);
+    declareInterface<IG4EventActionTool>(this);
     declareProperty("Time", m_config.time);
   }
 
