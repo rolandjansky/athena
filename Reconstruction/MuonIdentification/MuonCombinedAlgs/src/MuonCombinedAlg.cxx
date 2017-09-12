@@ -3,15 +3,11 @@
 */
 
 #include "MuonCombinedAlg.h"
-#include "MuonCombinedToolInterfaces/IMuonCombinedTool.h"
 
 
 MuonCombinedAlg::MuonCombinedAlg(const std::string& name, ISvcLocator* pSvcLocator):
-  AthAlgorithm(name,pSvcLocator),
-  m_muonCombinedTool("MuonCombined::MuonCombinedTool/MuonCombinedTool")
-{  
-  declareProperty("MuonCombinedTool",m_muonCombinedTool);
-}
+  AthAlgorithm(name,pSvcLocator)
+{}
 
 MuonCombinedAlg::~MuonCombinedAlg(){}
 

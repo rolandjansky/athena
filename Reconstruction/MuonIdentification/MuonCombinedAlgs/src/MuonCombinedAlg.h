@@ -10,6 +10,7 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "MuonCombinedEvent/InDetCandidateCollection.h"
 #include "MuonCombinedEvent/MuonCandidateCollection.h"
+#include "MuonCombinedToolInterfaces/IMuonCombinedTool.h"
 #include <string>
 
 namespace MuonCombined {
@@ -28,9 +29,9 @@ class MuonCombinedAlg : public AthAlgorithm
   StatusCode finalize();
 
  private:
-  ToolHandle<MuonCombined::IMuonCombinedTool> m_muonCombinedTool;
-  Gaudi::Property<SG::ReadHandleKey<InDetCandidateCollection> >m_indetCandidateCollectionName{this,"InDetCandidateLocation","InDetCandidates","name of ID candidate collection"};
-  Gaudi::Property<SG::ReadHandleKey<MuonCandidateCollection> >m_muonCandidateCollectionName{this,"MuonCandidateLocation","MuonCandidates","name of muon candidate collection"};
+  ToolHandle<MuonCombined::IMuonCombinedTool> m_muonCombinedTool{this,"MuonCombinedTool","MuonCombined::MuonCombinedTool/MuonCombinedTool","muon combined tool"};
+  SG::ReadHandleKey<InDetCandidateCollection> m_indetCandidateCollectionName{this,"InDetCandidateLocation","InDetCandidates","name of ID candidate collection"};
+  SG::ReadHandleKey<MuonCandidateCollection> m_muonCandidateCollectionName{this,"MuonCandidateLocation","MuonCandidates","name of muon candidate collection"};
 
 };
 
