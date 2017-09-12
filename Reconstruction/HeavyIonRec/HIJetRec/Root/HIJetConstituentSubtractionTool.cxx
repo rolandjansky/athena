@@ -91,12 +91,15 @@ int HIJetConstituentSubtractionTool::modify(xAOD::JetContainer& jets) const
   }
   
   bool missingMoment=false;
+  bool needsUnsubMoment=false;
+  if(jets.size() > 0){
+     xAOD::JetFourMom_t tmp;
+     needsUnsubMoment = !((*jets.begin())->getAttribute<xAOD::JetFourMom_t>(HIJetRec::unsubtractedJetState(),tmp));
+  }
 
   //check to see if unsubtracted moment has been stored
   for ( xAOD::JetContainer::iterator ijet=jets.begin(); ijet!=jets.end(); ++ijet)
   {
-    xAOD::JetFourMom_t tmp2;
-    (*ijet)->getAttribute<xAOD::JetFourMom_t>(HIJetRec::unsubtractedJetState(),tmp2);
 
     xAOD::IParticle::FourMom_t p4_cl;
     xAOD::IParticle::FourMom_t p4_subtr;
@@ -190,6 +193,7 @@ int HIJetConstituentSubtractionTool::modify(xAOD::JetContainer& jets) const
 
     xAOD::JetFourMom_t tmp;
     //if(! (*ijet)->getAttribute<xAOD::JetFourMom_t>(HIJetRec::unsubtractedJetState(),tmp) ){
+    if(needsUnsubMoment)
        (*ijet)->setJetP4(HIJetRec::unsubtractedJetState(), (*ijet)->jetP4());
 //    }
     if(!MomentOnly()) 
