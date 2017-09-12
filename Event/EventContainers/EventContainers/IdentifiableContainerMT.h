@@ -380,7 +380,7 @@ template < class T>
 StatusCode
 IdentifiableContainerMT<T>::addOrDelete(std::unique_ptr<T> ptr, IdentifierHash hashId)
 {
-    bool added = m_cacheLink->add(std::move(ptr), hashId);
+    bool added = m_cacheLink->add(hashId, std::move(ptr));
     if(added) return StatusCode::SUCCESS;
     ptr.reset();//Explicity delete my ptr - should not be necessary maybe remove this line for optimization
     return StatusCode::SUCCESS;
