@@ -95,6 +95,8 @@ int HIJetConstituentSubtractionTool::modify(xAOD::JetContainer& jets) const
   //check to see if unsubtracted moment has been stored
   for ( xAOD::JetContainer::iterator ijet=jets.begin(); ijet!=jets.end(); ++ijet)
   {
+    xAOD::JetFourMom_t tmp2;
+    (*ijet)->getAttribute<xAOD::JetFourMom_t>(HIJetRec::unsubtractedJetState(),tmp2);
 
     xAOD::IParticle::FourMom_t p4_cl;
     xAOD::IParticle::FourMom_t p4_subtr;
@@ -187,7 +189,9 @@ int HIJetConstituentSubtractionTool::modify(xAOD::JetContainer& jets) const
     (*ijet)->setJetP4(MomentName(),jet4vec);
 
     xAOD::JetFourMom_t tmp;
-    if(! (*ijet)->getAttribute<xAOD::JetFourMom_t>(HIJetRec::unsubtractedJetState(),tmp) )(*ijet)->setJetP4(HIJetRec::unsubtractedJetState(), (*ijet)->jetP4());
+    //if(! (*ijet)->getAttribute<xAOD::JetFourMom_t>(HIJetRec::unsubtractedJetState(),tmp) ){
+       (*ijet)->setJetP4(HIJetRec::unsubtractedJetState(), (*ijet)->jetP4());
+//    }
     if(!MomentOnly()) 
     {
       //hack for now to allow use of pp calib tool skipping pileup subtraction

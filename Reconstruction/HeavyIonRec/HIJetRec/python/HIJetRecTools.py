@@ -17,10 +17,6 @@ from JetMomentTools.JetMomentToolsConf import JetCaloCellQualityTool
 
 #select the tracks
 if jetFlags.Enabled() : HIJetFlags.UseHITracks.set_Value_and_Lock(False)
-if jetFlags.Enabled():
-   print "Anne: using jetFlags"
-else :
-   print "Anne : not using jetFlags"
 if HIJetFlags.UseHITracks() :
     jtm += InDet__InDetTrackSelectionTool("trk_tracksel_HI",
                                           minPt                = HIJetFlags.TrackInputPtMin(),
@@ -78,10 +74,6 @@ if HIJetFlags.UseHITracks() :
     jtm.jvf.unlock()
     jtm.jvf.TrackVertexAssociation=jtm.tvassoc_HI.TrackVertexAssociation
     jtm.jvf.lock()
-
-#    jtm.jvt.unlock()
-#    jtm.jvt.TrackVertexAssociation=jtm.tvassoc_HI.TrackVertexAssociation
-#    jtm.jvt.lock()
 
     jtm.trkmoms.unlock()
     jtm.trkmoms.TrackVertexAssociation=jtm.tvassoc_HI.TrackVertexAssociation
