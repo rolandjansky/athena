@@ -10,7 +10,13 @@
 #include "xAODTruth/TruthEvent.h"
 #include "xAODTruth/TruthPileupEvent.h"
 #include "xAODTruth/TruthMetaDataContainer.h"
+#include "xAODTruth/TruthEventContainer.h"
+#include "xAODTruth/TruthPileupEventContainer.h"
+#include "xAODTruth/TruthParticleContainerFwd.h"
+#include "xAODTruth/TruthVertexContainerFwd.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 
 #include <unordered_set>
 
@@ -18,6 +24,9 @@ namespace HepMC {
   class GenVertex;
   class GenParticle;
 }
+
+class McEventCollection;
+class xAODTruthParticleLinkVector;
 
 namespace xAODMaker {
 
@@ -58,14 +67,18 @@ namespace xAODMaker {
     static void fillParticle(xAOD::TruthParticle *tp, const HepMC::GenParticle *gp);
 
     /// The key of the input AOD truth container
-    std::string m_aodContainerName;
+    SG::ReadHandleKey<McEventCollection> m_aodContainerKey;
 
     /// The key for the output xAOD truth containers
-    std::string m_xaodTruthEventContainerName;
-    std::string m_xaodTruthPUEventContainerName;
-    std::string m_xaodTruthParticleContainerName;
-    std::string m_xaodTruthVertexContainerName;
-    std::string m_truthLinkContainerName;
+    SG::WriteHandleKey<xAOD::TruthEventContainer> m_xaodTruthEventContainerKey;
+    SG::WriteHandleKey<xAOD::TruthPileupEventContainer> m_xaodTruthPUEventContainerKey;
+    SG::WriteHandleKey<xAOD::TruthParticleContainer> m_xaodTruthParticleContainerKey;
+    SG::WriteHandleKey<xAOD::TruthVertexContainer> m_xaodTruthVertexContainerKey;
+    SG::WriteHandleKey<xAODTruthParticleLinkVector> m_truthLinkContainerKey;
+
+    // if only redoing links (uses same confuration as stadard TruthEvent)
+    SG::ReadHandleKey<xAOD::TruthEventContainer> m_linksOnlyTruthEventContainerKey;
+
     /// Pile-up options
     bool m_doAllPileUp;
     bool m_doInTimePileUp;
@@ -80,8 +93,8 @@ namespace xAODMaker {
     /// Set for tracking the mc channels for which we already added meta data 
     std::unordered_set<uint32_t> m_existingMetaDataChan;
 
-    /// a flag to force rerunning (useful for rerunning on ESDs)
-    bool m_forceRerun;
+    // to only redo links
+    bool m_onlyRedoLinks;
 
     /// option to disable writing of metadata (e.g. if running a filter on xAOD in generators)
     bool m_writeMetaData;
