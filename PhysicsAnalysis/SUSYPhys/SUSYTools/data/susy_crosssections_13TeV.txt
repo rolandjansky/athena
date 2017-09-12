@@ -2389,7 +2389,7 @@ id/I:name/C:xsec/F:kfac/F:eff/F:relunc/F
 364288  Sherpa_222_NNPDF30NNLO_llll_lowMllPtComplement    1.4318    1.0  1.0  1.0
 364289  Sherpa_222_NNPDF30NNLO_lllv_lowMllPtComplement    2.9152    1.0  1.0  1.0	
 364290  Sherpa_222_NNPDF30NNLO_llvv_lowMllPtComplement    0.17046   1.0  1.0  1.0
-407315  Sherpa_221_NNPDF30NNLO_2l4v_EW6                   0.005837  1.0  1.0  1.0
+407315  Sherpa_221_NNPDF30NNLO_2l4v_EW6                   0.0058366 1.0  1.0  1.0
 
 ################################################################################################################
 # Sherpa VVV
