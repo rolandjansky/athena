@@ -313,7 +313,7 @@ class BjetHypoAllTE (TrigBjetHypoAllTE):
         super( BjetHypoAllTE, self ).__init__( name )
         
         mlog = logging.getLogger('BjetHypoAllTEConfig.py')
-        mlog.setLevel(0)
+        #mlog.setLevel(0)
         AllowedVersions  = ["2015","2017"]
         AllowedInstances = ["EF"  ]
 
