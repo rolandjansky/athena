@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 // ------------------------------------------------------------- 
 // Generators/Starlight_i.cxx Description: Allows the user
 // to generate Starlight events and store the result in the
