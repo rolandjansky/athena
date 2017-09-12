@@ -5,6 +5,6 @@
 #ifndef __PHOTONSELECTORHELPERS__
 #define __PHOTONSELECTORHELPERS__
 
-#pragma message "This functionality of this header has moved to  EgammaAnalysisHelpers/PhotonHelpers.h instead"
+#pragma message "The functionality of this header has moved to  EgammaAnalysisHelpers/PhotonHelpers.h"
 
 #endif
