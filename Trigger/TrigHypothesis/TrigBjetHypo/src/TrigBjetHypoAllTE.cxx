@@ -27,14 +27,12 @@ using std::vector;
 
 
 TrigBjetHypoAllTE::TrigBjetHypoAllTE(const std::string& name, ISvcLocator* pSvcLocator) :
-  HLT::AllTEAlgo(name, pSvcLocator),
-  m_cutCounter(0)
+  HLT::AllTEAlgo(name, pSvcLocator)
 {
   declareProperty("BTaggingKey", m_btaggingKey      = "");
   declareProperty ("UseBeamSpotFlag",       m_useBeamSpotFlag       = false);
   declareProperty ("OverrideBeamSpotValid", m_overRideBeamSpotValid = false);
   declareProperty ("Tagger",                m_tagger = "MV2c10_discriminant");
-  declareMonitoredVariable("CutCounter",   m_cutCounter);
 
   declareProperty("EtThresholds",   m_EtThresholds   ); 
   declareProperty("BTagMin",        m_BTagMin       );
@@ -46,11 +44,9 @@ TrigBjetHypoAllTE::TrigBjetHypoAllTE(const std::string& name, ISvcLocator* pSvcL
   declareProperty("BTagMaxOR",        m_BTagMaxOR       );
   declareProperty("MultiplicitiesOR", m_MultiplicitiesOR );
 
-  //declareMonitoredVariable("DeltaRPass",    m_deltaRPass);
-  //declareMonitoredVariable("DeltaRAll",    m_deltaRAll);
-  //declareMonitoredVariable("DeltaZPass",    m_deltaZPass);
-  //declareMonitoredVariable("DeltaZAll",    m_deltaZAll);
-
+  declareMonitoredVariable("CutCode",    m_cutCode);
+  declareMonitoredVariable("BSCode",     m_BSCode);
+  declareMonitoredVariable("nInputJets", m_nInputJets);
 }
 
 
@@ -171,7 +167,12 @@ HLT::ErrorCode TrigBjetHypoAllTE::hltExecute(std::vector<std::vector<HLT::Trigge
 
   beforeExecMonitors().ignore();
 
-  m_cutCounter   = -1;
+  //
+  //  Init to invalid numbers (These should all be set to != -1 later) 
+  //
+  m_cutCode      = -1;
+  m_BSCode       = -1;
+  m_nInputJets   = -1;
 
   bool pass = false;
 
@@ -185,6 +186,7 @@ HLT::ErrorCode TrigBjetHypoAllTE::hltExecute(std::vector<std::vector<HLT::Trigge
     
     if (sc.isFailure() || iBeamCondSvc == 0) {
       if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Could not retrieve Beam Conditions Service. " << endmsg;
+      m_BSCode = 3;
     } else {
 
       int beamSpotStatus = 0;
@@ -193,33 +195,45 @@ HLT::ErrorCode TrigBjetHypoAllTE::hltExecute(std::vector<std::vector<HLT::Trigge
       beamSpotStatus = ((beamSpotBitMap & 0x4) == 0x4);  
       if (beamSpotStatus) beamSpotStatus = ((beamSpotBitMap & 0x3) == 0x3);
       
-      if (!beamSpotStatus && !m_overRideBeamSpotValid) {
-	m_cutCounter=0;
-	pass = false;
-	return HLT::OK;
+      if (!beamSpotStatus){
+	if (!m_overRideBeamSpotValid) {
+	  m_BSCode = 1;
+	  m_cutCode    = 2;
+	  pass = false;
+	  return HLT::OK;
+	} else{
+	  m_BSCode = 2;
+	}
+      }else{
+	m_BSCode = 0;
       }
+
     }
+  } else {
+    m_BSCode = 4;
   }
 
-
-  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG 
-				    << "Number of input TEs is " <<  inputTE.size() 
-				    << " TE0: " << inputTE[0].size() 
-				    << " TE1: " << inputTE[1].size() <<  endmsg;  
+  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG  << "Number of input TEs is " <<  inputTE.size() << endmsg;
 
 
   if (inputTE.size() < 1) {
     msg() << MSG::WARNING << "Number of input TEs is " <<  inputTE.size() << " and not 1. Configuration problem." << endmsg;  
     afterExecMonitors().ignore();
+    m_cutCode    = 3;
     return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::MISSING_FEATURE);
   }
 
   if (inputTE.size() > 2) {
     msg() << MSG::WARNING << "Too many TEs passed as input" << endmsg;
     afterExecMonitors().ignore();
+    m_cutCode    = 4;
     return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::MISSING_FEATURE);
   }
 
+
+  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG 
+				    << " TE0: " << inputTE.at(0).size() 
+				    << " TE1: " << inputTE.at(1).size() <<  endmsg;  
 
   //
   // Retrieve the BTagging container
@@ -229,6 +243,7 @@ HLT::ErrorCode TrigBjetHypoAllTE::hltExecute(std::vector<std::vector<HLT::Trigge
   if (btaggingTEs.size() == 0) {
     msg() << MSG::WARNING << "Got an empty inputTE (btagging)" << endmsg;
     afterExecMonitors().ignore();
+    m_cutCode    = 5;
     return HLT::MISSING_FEATURE; 
   }
 
@@ -238,18 +253,20 @@ HLT::ErrorCode TrigBjetHypoAllTE::hltExecute(std::vector<std::vector<HLT::Trigge
   // Do the multiplicity requrements
   //
   clearCounters();
-
-  for(HLT::TriggerElement* btagTE : inputTE.at(0)){
+  
+  for(HLT::TriggerElement* btagTE : btaggingTEs){
 
     const xAOD::BTagging* btagInfo = getBTaggingPtr(btagTE);    
     if (!btagInfo) {
       if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Failed to retrieve features (btagging)" << endmsg;
+      m_cutCode    = 6;
       return HLT::MISSING_FEATURE;
     }
 
     const xAOD::Jet* jet = getJetPtr(btagInfo);
     if(!jet) {
       if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Missing feature (jet)." << endmsg;
+      m_cutCode    = 7;
       return HLT::MISSING_FEATURE;
     }
     
@@ -278,10 +295,10 @@ HLT::ErrorCode TrigBjetHypoAllTE::hltExecute(std::vector<std::vector<HLT::Trigge
   
   if (pass) {
     if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Accepting the event" << endmsg;
-    m_cutCounter=1;
+    m_cutCode    = 1; 
   } else {
     if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Rejecting the event" << endmsg;
-    m_cutCounter=0;
+    m_cutCode    = 0; 
   }
   
 
@@ -289,12 +306,17 @@ HLT::ErrorCode TrigBjetHypoAllTE::hltExecute(std::vector<std::vector<HLT::Trigge
   // Setting the output TE
   //
   HLT::TEVec allTEs;
-  allTEs.reserve(inputTE.at(0).size());
+  allTEs.reserve(btaggingTEs.size());
   if ((inputTE.size()>0)){
-    for(HLT::TriggerElement* btagTE : inputTE.at(0)){
+    for(HLT::TriggerElement* btagTE : btaggingTEs){
       allTEs.push_back(btagTE);
     }
   }
+
+  //
+  // monitoring
+  //
+  m_nInputJets = btaggingTEs.size();
 
   HLT::TriggerElement* outputTE = config()->getNavigation()->addNode(allTEs, output);
   outputTE->setActiveState(false); 

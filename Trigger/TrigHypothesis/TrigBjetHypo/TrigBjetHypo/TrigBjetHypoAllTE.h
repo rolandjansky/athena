@@ -67,7 +67,29 @@ class TrigBjetHypoAllTE: public HLT::AllTEAlgo {
   bool m_overRideBeamSpotValid;
 
   /** @brief Used for monitoring. */
-  float m_cutCounter;
+  /** @ brief -1 - invalid value */
+  /** @ brief  0 - Fail Event Cut  */
+  /** @ brief  1 - Accept Event  */
+  /** @ brief  2 - Fail BS   */
+  /** @ brief  3 - Too few input TEs  */
+  /** @ brief  4 - Too many input TEs  */
+  /** @ brief  5 - No input bjets  */
+  /** @ brief  6 - Failed to get btagging pointer  */
+  /** @ brief  7 - Failed to get jet pointer  */
+  float m_cutCode = -1;
+
+
+  /** @ brief Bytestream Code */
+  /** @ brief -1 - invalid value */
+  /** @ brief  0 - had valid BS */
+  /** @ brief  1 - no valid BS (reject event) */
+  /** @ brief  2 - no valid BS (do not reject event) */
+  /** @ brief  3 - cannot read BS information */
+  /** @ brief  4 - do not use BS information */
+  float m_BSCode = -1;
+
+  /** @ brief Number of input jets */  
+  float m_nInputJets = -1;
 
   struct triggerRequirement{
     float          m_EtThreshold;
