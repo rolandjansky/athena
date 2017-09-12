@@ -1,6 +1,4 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
-# $Id: TPyEvent.py 653595 2015-03-12 11:27:57Z krasznaa $
 #
 # Module holding the TPyEvent Python class
 #
@@ -15,9 +13,6 @@ import ROOT
 # of this class, and not ROOT.xAOD.TPyEvent directly.
 #
 # @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
-#
-# $Revision: 653595 $
-# $Date: 2015-03-12 12:27:57 +0100 (Thu, 12 Mar 2015) $
 #
 class TPyEvent( ROOT.xAOD.TPyEvent ):
 
@@ -43,7 +38,13 @@ class TPyEvent( ROOT.xAOD.TPyEvent ):
     #          <code>False</code> if it's not
     #
     def contains( self, key, type ):
-        return super( TPyEvent, self ).contains( key, type.__name__ )
+        # Determine the class name:
+        clname = type.__name__
+        if hasattr( type, "__cppname__" ):
+            clname = type.__cppname__
+            pass
+        # Call the parent class's function:
+        return super( TPyEvent, self ).contains( key, clname )
 
     ## Convenient version of the base class's transientContains function
     #
@@ -61,8 +62,14 @@ class TPyEvent( ROOT.xAOD.TPyEvent ):
     #          modifyable form, <code>False</code> if it's not
     #
     def transientContains( self, key, type ):
+        # Determine the class name:
+        clname = type.__name__
+        if hasattr( type, "__cppname__" ):
+            clname = type.__cppname__
+            pass
+        # Call the parent class's function:
         return super( TPyEvent,
-                      self ).transientContains( key, type.__name__ )
+                      self ).transientContains( key, clname )
 
     ## Convenient version of the base class's record function
     #
@@ -82,7 +89,11 @@ class TPyEvent( ROOT.xAOD.TPyEvent ):
     #          or <code>xAOD::TReturnCode::kFailure</code> if not
     #
     def record( self, obj, key, basketSize = 32000, splitLevel = 0 ):
-        return super( TPyEvent, self ).record( obj, key,
-                                               obj.__class__.__name__,
-                                               basketSize,
+        # Determine the class name:
+        clname = obj.__class__.__name__
+        if hasattr( obj.__class__, "__cppname__" ):
+            clname = obj.__class__.__cppname__
+            pass
+        # Call the parent class's function:
+        return super( TPyEvent, self ).record( obj, key, clname, basketSize,
                                                splitLevel )
