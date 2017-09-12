@@ -343,7 +343,6 @@ bool AmdcDb::shutdown  (const std::string& /*connName*/ ) { std::cout << " AmdcD
 std::string AmdcDb::getChildTag(const std::string& /*childNode*/  ,
 			        const std::string& /*parentTag*/  ,
 			        const std::string& /*parentNode*/ ,
-			        bool               /*fetchData*/  ,
 			        const std::string& /*connName*/   )
 { std::cout << " AmdcDb::getChildTag Not implemented " << std::endl ; std::string ToBeReturned = "Not Implemented"; return ToBeReturned; }
 IRDBQuery* AmdcDb::getQuery(const std::string& /*node*/     ,

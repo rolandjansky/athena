@@ -77,7 +77,7 @@ void TRT_DetDescrDB_ParameterInterface::SetValues() {
   /////////////////////////////////////////////////////////////////////////////////////////
   //                                  Version Information                                //
   /////////////////////////////////////////////////////////////////////////////////////////
-  versionTag = iAccessSvc->getChildTag("TRT", versionKey.tag(), versionKey.node(), false);
+  versionTag = iAccessSvc->getChildTag("TRT", versionKey.tag(), versionKey.node());
 
   /////////////////////////////////////////////////////////////////////////////////////////
   //                                    Special Flags                                    //

@@ -2,7 +2,6 @@
 from AthenaCommon.AppMgr import ServiceMgr
 import AthenaPoolCnvSvc.ReadAthenaPool
 
-
 from PartPropSvc.PartPropSvcConf import PartPropSvc
 
 include( "ParticleBuilderOptions/McAOD_PoolCnv_jobOptions.py")
@@ -11,9 +10,8 @@ include( "EventAthenaPool/EventAthenaPool_joboptions.py" )
 import os
 from glob import glob
 from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
-athenaCommonFlags.FilesInput = glob( "/afs/cern.ch/work/a/ancuetog/HitsAreas/20.3.X.Y-VAL-r3/atlasG4_10ttbar_20.3.X.Y-VAL-r3-modtime.NoFrozenShower.DeadLAr.hits.pool.root" )
-#athenaCommonFlags.FilesInput = glob( "/tmp/"+os.environ['USER']+"HITS*root*" )                                                                                         
-ServiceMgr.EventSelector.InputCollections = athenaCommonFlags.FilesInput() 
+athenaCommonFlags.FilesInput = glob( "/tmp/" + os.environ['USER'] + "/" + "HITS*root*" )
+ServiceMgr.EventSelector.InputCollections = athenaCommonFlags.FilesInput()
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
@@ -21,57 +19,70 @@ from HitAnalysis.HitAnalysisConf import *
 
 topSequence += SiHitAnalysis('PixelHitAnalysis')
 topSequence.PixelHitAnalysis.CollectionName='PixelHits'
+topSequence.PixelHitAnalysis.NtupleFileName='/HitAnalysis/Pixel/'
+topSequence.PixelHitAnalysis.HistPath='/HitAnalysis/Pixel/'
+
 topSequence += SiHitAnalysis('SCTHitAnalysis')
 topSequence.SCTHitAnalysis.CollectionName='SCT_Hits'
+topSequence.SCTHitAnalysis.NtupleFileName='/HitAnalysis/SCT/'
+topSequence.SCTHitAnalysis.HistPath='/HitAnalysis/SCT/'
+
 topSequence += SiHitAnalysis('BCMHitAnalysis')
 topSequence.BCMHitAnalysis.CollectionName='BCMHits'
+topSequence.BCMHitAnalysis.NtupleFileName='/HitAnalysis/BCM/'
+topSequence.BCMHitAnalysis.HistPath='/HitAnalysis/BCM/'
+
 topSequence += SiHitAnalysis('BLMHitAnalysis')
 topSequence.BLMHitAnalysis.CollectionName='BLMHits'
+topSequence.BLMHitAnalysis.NtupleFileName='/HitAnalysis/BLM/'
+topSequence.BLMHitAnalysis.HistPath='/HitAnalysis/BLM/'
+
 topSequence += TRTHitAnalysis('TRTHitAnalysis')
+topSequence.TRTHitAnalysis.NtupleFileName='/HitAnalysis/TRT/'
+topSequence.TRTHitAnalysis.HistPath='/HitAnalysis/TRT/'
+
 topSequence += RPCHitAnalysis('RPCHitAnalysis')
+topSequence.RPCHitAnalysis.NtupleFileName='/HitAnalysis/RPC/'
+topSequence.RPCHitAnalysis.HistPath='/HitAnalysis/RPC/'
+
 topSequence += MDTHitAnalysis('MDTHitAnalysis')
+topSequence.MDTHitAnalysis.NtupleFileName='/HitAnalysis/MDT/'
+topSequence.MDTHitAnalysis.HistPath='/HitAnalysis/MDT/'
+
 topSequence += CSCHitAnalysis('CSCHitAnalysis')
+topSequence.CSCHitAnalysis.NtupleFileName='/HitAnalysis/CSC/'
+topSequence.CSCHitAnalysis.HistPath='/HitAnalysis/CSC/'
+
 topSequence += TGCHitAnalysis('TGCHitAnalysis')
+topSequence.TGCHitAnalysis.NtupleFileName='/HitAnalysis/TGC/'
+topSequence.TGCHitAnalysis.HistPath='/HitAnalysis/TGC/'
+
 #topSequence += ALFAHitAnalysis('ALFAHitAnalysis')
+#topSequence.ALFAHitAnalysis.NtupleFileName='/HitAnalysis/ALFA/'
+#topSequence.ALFAHitAnalysis.HistPath='/HitAnalysis/ALFA/'
+
 #topSequence += LucidHitAnalysis('LucidHitAnalysis')
+#topSequence.LucidHitAnalysis.NtupleFileName='/HitAnalysis/Lucid/'
+#topSequence.LucidHitAnalysis.HistPath='/HitAnalysis/Lucid/'
+
 #topSequence += ZDCHitAnalysis('ZDCHitAnalysis')
+#topSequence.ZDCHitAnalysis.NtupleFileName='/HitAnalysis/ZDC/'
+#topSequence.ZDCHitAnalysis.HistPath='/HitAnalysis/ZDC/'
+
 topSequence += TrackRecordAnalysis('TrackRecordAnalysis')
+topSequence.TrackRecordAnalysis.NtupleFileName='/HitAnalysis/Track/'
+topSequence.TrackRecordAnalysis.HistPath='/HitAnalysis/Track/'
+
 topSequence += TruthHitAnalysis('TruthHitAnalysis')
+topSequence.TruthHitAnalysis.NtupleFileName = '/HitAnalysis/Truth/' 
+topSequence.TruthHitAnalysis.HistPath = '/HitAnalysis/Truth/'
+
 topSequence += CaloHitAnalysis('CaloHitAnalysis')
+topSequence.CaloHitAnalysis.NtupleFileName = '/HitAnalysis/Calo/' 
+topSequence.CaloHitAnalysis.HistPath = '/HitAnalysis/Calo/'
 
 
-
-topSequence.PixelHitAnalysis.HistPath='/HitAnalysis/Pixel/histos/'
-topSequence.SCTHitAnalysis.HistPath='/HitAnalysis/SCT/histos/'
-topSequence.BCMHitAnalysis.HistPath='/HitAnalysis/BCM/histos/'
-topSequence.BLMHitAnalysis.HistPath='/HitAnalysis/BLM/histos/'
-topSequence.TRTHitAnalysis.HistPath='/HitAnalysis/TRT/histos/'
-topSequence.RPCHitAnalysis.HistPath='/HitAnalysis/RPC/histos/'
-topSequence.MDTHitAnalysis.HistPath='/HitAnalysis/MDT/histos/'
-topSequence.CSCHitAnalysis.HistPath='/HitAnalysis/CSC/histos/'
-topSequence.TGCHitAnalysis.HistPath='/HitAnalysis/TGC/histos/'
-#topSequence.ALFAHitAnalysis.HistPath='/HitAnalysis/'
-#topSequence.LucidHitAnalysis.HistPath='/HitAnalysis/'
-#topSequence.ZDCHitAnalysis.HistPath='/HitAnalysis/'
-topSequence.TrackRecordAnalysis.HistPath='/HitAnalysis/Track/histos/'
-topSequence.TruthHitAnalysis.HistPath = '/HitAnalysis/Truth/histos/'                       
-topSequence.CaloHitAnalysis.HistPath = '/HitAnalysis/Calo/histos/'                                                                                                        
-topSequence.PixelHitAnalysis.NtupleFileName='/HitAnalysis/Pixel/ntuple/'
-topSequence.SCTHitAnalysis.NtupleFileName='/HitAnalysis/SCT/ntuple/'
-topSequence.BCMHitAnalysis.NtupleFileName='/HitAnalysis/BCM/ntuple/'
-topSequence.BLMHitAnalysis.NtupleFileName='/HitAnalysis/BLM/ntuple/'
-topSequence.TRTHitAnalysis.NtupleFileName='/HitAnalysis/TRT/ntuple/'
-topSequence.RPCHitAnalysis.NtupleFileName='/HitAnalysis/RPC/ntuple/'
-topSequence.MDTHitAnalysis.NtupleFileName='/HitAnalysis/MDT/ntuple/'
-topSequence.CSCHitAnalysis.NtupleFileName='/HitAnalysis/CSC/ntuple/'
-topSequence.TGCHitAnalysis.NtupleFileName='/HitAnalysis/TGC/ntuple/'
-#topSequence.ALFAHitAnalysis.NtupleFileName='/HitAnalysis/'
-#topSequence.LucidHitAnalysis.NtupleFileName='/HitAnalysis/'
-#topSequence.ZDCHitAnalysis.NtupleFileName='/HitAnalysis/'
-topSequence.TrackRecordAnalysis.NtupleFileName='/HitAnalysis/Track/ntuple/'
-topSequence.TruthHitAnalysis.NtupleFileName = '/HitAnalysis/Truth/ntuple/'                       
-topSequence.CaloHitAnalysis.NtupleFileName = '/HitAnalysis/Calo/ntuple/'                                                                                                        
-#Add some more TH2 histograms                                                                                                                                          
+#Add some more TH2 histograms
 
 
 topSequence.PixelHitAnalysis.ExpertMode= "off"
@@ -84,7 +95,6 @@ topSequence.CaloHitAnalysis.CalibHits = "off"
 from GaudiSvc.GaudiSvcConf import THistSvc
 ServiceMgr += THistSvc()
 ServiceMgr.THistSvc.Output += ["HitAnalysis DATAFILE='AllHitAnalysis.root' OPT='RECREATE'" ]
-
 
 ServiceMgr.MessageSvc.OutputLevel = INFO
 ServiceMgr.MessageSvc.defaultLimit = 9999999

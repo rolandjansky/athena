@@ -125,7 +125,6 @@ std::string MuonAGDDToolHelper::GetAGDD(bool dumpIt)
 
    const IRDBRecord *recordAGDD =  (*recordsetAGDD)[0];
    std::string AgddString = recordAGDD->getString("DATA");
-   accessSvc->shutdown();
 
    size_t pos=AgddString.find("AGDD.dtd");
    if (pos!=std::string::npos) AgddString.replace(pos-21,32,"-- Reference to AGDD.dtd automatically removed -->");

@@ -42,7 +42,8 @@ public:
   /**
    * @brief numeric ID
    **/    
-  unsigned numeric() const { return m_id; }
+  inline unsigned numeric() const { return m_id; }
+  inline operator unsigned () const { return numeric(); }
   /**
    *  @brief comparisons, for containers of identifiers
    **/      

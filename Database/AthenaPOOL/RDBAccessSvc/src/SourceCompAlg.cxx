@@ -53,7 +53,7 @@ StatusCode SourceCompAlg::initialize()
     }
 
     // Check existence of the global tag in the database
-    if(rdbAccess->getChildTag("ATLAS",m_globalTag,"ATLAS",false,connName)=="") {
+    if(rdbAccess->getChildTag("ATLAS",m_globalTag,"ATLAS",connName)=="") {
       msg(MSG::FATAL) << "Unable to find " << m_globalTag << " in the connection " << connName << endmsg;
       return StatusCode::FAILURE;
     }

@@ -14,7 +14,6 @@
 #include "TTree.h"
 #include "TString.h"
 
-
 #include <algorithm>
 #include <math.h>
 #include <functional>
@@ -64,22 +63,22 @@ TruthHitAnalysis::TruthHitAnalysis(const std::string& name, ISvcLocator* pSvcLoc
    , m_barcode(0)
    , m_status(0)
    , m_pdgid(0)
+     
    , m_tree(0)
-   , m_ntupleFileName("/TruthHitAnalysis/ntuples/")
-   , m_path("/TruthHitAnalysis/histos/")
+   , m_ntupleFileName("/TruthHitAnalysis/")
+   , m_path("/TruthHitAnalysis/")
    , m_thistSvc("THistSvc", name)
-   
 {
-  declareProperty("HistPath", m_path); 
-  declareProperty("NtupleFileName", m_ntupleFileName); 
+  declareProperty("NtupleFileName", m_ntupleFileName);
+  declareProperty("HistPath", m_path);  
 }
+
 
 StatusCode TruthHitAnalysis::initialize() {
   ATH_MSG_DEBUG( "Initializing TruthHitAnalysis" );
 
   // Grab the Ntuple and histogramming service for the tree
   CHECK(m_thistSvc.retrieve());
- 
 
   /** histograms declaration */
   h_n_vert = new TH1D("h_n_vert","n_vert", 100,200, 1500);
@@ -93,7 +92,6 @@ StatusCode TruthHitAnalysis::initialize() {
   h_n_vert_prim = new TH1D("h_n_vert_prim","n_vert prim", 100,0, 1000);
   h_n_vert_prim->StatOverflows();
   CHECK(m_thistSvc->regHist(m_path + h_n_vert_prim->GetName(), h_n_vert_prim));
-
 
   h_n_part_prim = new TH1D("h_n_part_prim","n_part prim", 100,200, 1500);
   h_n_part_prim->StatOverflows();
@@ -138,7 +136,6 @@ StatusCode TruthHitAnalysis::initialize() {
   h_vtx_sec_zr = new TH2D("h_vtx_sec_zr","vtx_sec_zr", 100,-6000, 6000, 100,0, 1160);
   h_vtx_sec_zr->StatOverflows();
   CHECK(m_thistSvc->regHist(m_path + h_vtx_sec_zr->GetName(), h_vtx_sec_zr));
-
 
   h_n_generations = new TH1D("h_n_generations","h_generations", 100,0, 25);
   h_n_generations->StatOverflows();
@@ -196,16 +193,12 @@ StatusCode TruthHitAnalysis::initialize() {
   h_part_p->StatOverflows();
   CHECK(m_thistSvc->regHist(m_path + h_part_p->GetName(), h_part_p));
 
-
-  m_tree= new TTree("TruthHitNtuple ","TruthHitAna");
-  std::string fullNtupleName =  "/"+m_ntupleFileName+"/";
+  /** now add branches and leaves to the tree */
+  m_tree = new TTree("Truth", "Truth");
+  std::string fullNtupleName =  "/" + m_ntupleFileName + "/";
   CHECK(m_thistSvc->regTree(fullNtupleName,m_tree));
   
-  
-  
-  /** now add branches and leaves to the tree */
-  if (m_tree){
-
+  if (m_tree) {
     m_tree->Branch("vtx_x", &m_vtx_x);
     m_tree->Branch("vtx_y", &m_vtx_y);
     m_tree->Branch("vtx_z", &m_vtx_z);
@@ -219,17 +212,15 @@ StatusCode TruthHitAnalysis::initialize() {
     m_tree->Branch("truth_phi", &m_truth_phi);
     m_tree->Branch("barcode", &m_barcode);
     m_tree->Branch("status", &m_status);
-    m_tree->Branch("pdg_id", &m_pdgid);
-    
-  }else{
+    m_tree->Branch("pdg_id", &m_pdgid); 
+  }
+  else {
     ATH_MSG_ERROR("No tree found!");
   }
-  
 
   return StatusCode::SUCCESS;
-}		 
+}
 
-  
 
 StatusCode TruthHitAnalysis::execute() {
   ATH_MSG_DEBUG( "In TruthHitAnalysis::execute()" );
@@ -248,111 +239,103 @@ StatusCode TruthHitAnalysis::execute() {
   m_barcode->clear();
   m_status->clear();
   m_pdgid->clear();
-
   
   const DataHandle<EventInfo> event;
   if (!evtStore()->retrieve(event, "McEventInfo" ).isSuccess()) 
     return StatusCode::FAILURE;
-      const DataHandle<McEventCollection> mcCollection;
-      if(evtStore()->retrieve(mcCollection,"TruthEvent")==StatusCode::SUCCESS){
-	McEventCollection::const_iterator currentGenEventIter = mcCollection->begin(); 
-	if(currentGenEventIter != mcCollection->end()){
-	    int nvtx = 0;
-	    int nvtx_sec=0;
-            for(HepMC::GenEvent::vertex_const_iterator vtx=(*currentGenEventIter)->vertices_begin(); vtx!=(*currentGenEventIter)->vertices_end();++vtx){
+  const DataHandle<McEventCollection> mcCollection;
+  if (evtStore()->retrieve(mcCollection,"TruthEvent") == StatusCode::SUCCESS) {
+    McEventCollection::const_iterator currentGenEventIter = mcCollection->begin(); 
+    if (currentGenEventIter != mcCollection->end()) {
+      int nvtx = 0;
+      int nvtx_sec=0;
+      for (HepMC::GenEvent::vertex_const_iterator vtx=(*currentGenEventIter)->vertices_begin(); vtx!=(*currentGenEventIter)->vertices_end(); ++vtx) {
+	double x = (*vtx)->position().x();
+	double y = (*vtx)->position().y();
+	double z = (*vtx)->position().z();
+	double r = sqrt(x*x+y*y);
+	h_vtx_x->Fill(x);
+	h_vtx_y->Fill(y);
+	h_vtx_r->Fill(r);
+	h_vtx_z->Fill(z);
 
+	int bcode = (*vtx)->barcode();
+	m_vtx_x->push_back(x);
+	m_vtx_y->push_back(y);
+	m_vtx_r->push_back(r);
+	m_vtx_z->push_back(z);
+	m_vtx_barcode->push_back(bcode);
 
-	        double x = (*vtx)->position().x();
-      	        double y = (*vtx)->position().y();
-	        double z = (*vtx)->position().z();
-	        double r = sqrt(x*x+y*y);
-		h_vtx_x->Fill(x);
-		h_vtx_y->Fill(y);
-	        h_vtx_r->Fill(r);
-	        h_vtx_z->Fill(z);
+	if ((*vtx)->barcode() > -20000) {
+	  h_vtx_prim_xy->Fill(x,y);
+	  h_vtx_prim_zr->Fill(z,r);
+	  ++nvtx;
+	}
+	else {
+	  h_vtx_sec_xy->Fill(x,y);
+	  h_vtx_sec_zr->Fill(z,r);
+	  ++nvtx_sec; 
+	}
+      } //End iteration over vertices
 
+      h_n_vert->Fill(nvtx+nvtx_sec);
+      h_n_vert_prim->Fill(nvtx);
+      h_n_vert_sec->Fill(nvtx_sec);
 
-		int bcode = (*vtx)->barcode();
-		m_vtx_x->push_back(x);
-		m_vtx_y->push_back(y);
-		m_vtx_r->push_back(r);
-		m_vtx_z->push_back(z);
-		m_vtx_barcode->push_back(bcode);
+      int npart_prim=0; 
+      int npart_sec=0;
+      HepMC::GenEvent::particle_const_iterator currentGenParticleIter;
+      for (currentGenParticleIter=(*currentGenEventIter)->particles_begin(); currentGenParticleIter!=(*currentGenEventIter)->particles_end(); ++currentGenParticleIter) {
+	const HepMC::FourVector mom = (*currentGenParticleIter)->momentum();
 
-		if((*vtx)->barcode()>-20000){
-		  h_vtx_prim_xy->Fill(x,y);
-		  h_vtx_prim_zr->Fill(z,r);
-                 ++nvtx;
-                } else{
-		  h_vtx_sec_xy->Fill(x,y);
-		  h_vtx_sec_zr->Fill(z,r);
-		  ++nvtx_sec; 
-                }
-
-	      } //End iteration over vertices
-
-	     h_n_vert->Fill(nvtx+nvtx_sec);
-	     h_n_vert_prim->Fill(nvtx);
-	     h_n_vert_sec->Fill(nvtx_sec);
-		int npart_prim=0; 
-		int npart_sec=0;
-		HepMC::GenEvent::particle_const_iterator currentGenParticleIter;
-	     for(currentGenParticleIter=(*currentGenEventIter)->particles_begin(); currentGenParticleIter!=(*currentGenEventIter)->particles_end(); ++currentGenParticleIter){
-
-
-	        const HepMC::FourVector mom=(*currentGenParticleIter)->momentum();             
-
-
-                h_truth_px->Fill(mom.x());
-                h_truth_py->Fill(mom.y());
-                h_truth_pz->Fill(mom.z());
-                h_truth_pt->Fill(mom.perp());
-                h_truth_eta->Fill(mom.eta());
-                h_truth_phi->Fill(mom.phi());
-                h_barcode->Fill((*currentGenParticleIter)->barcode());
-
-		h_part_status->Fill((*currentGenParticleIter)->status());
-		
-		m_truth_px->push_back(mom.x());
-		m_truth_py->push_back(mom.y());
-		m_truth_pz->push_back(mom.z());
-		m_truth_pt->push_back(mom.perp());
-		m_truth_eta->push_back(mom.eta());
-		m_truth_phi->push_back(mom.phi());
-		m_barcode->push_back((*currentGenParticleIter)->barcode());		
-		m_status->push_back((*currentGenParticleIter)->status());
-	        int pdg = (*currentGenParticleIter)->pdg_id();
-		m_pdgid->push_back(pdg);
-
-                 if((*currentGenParticleIter)->barcode()<200000){
-		   h_part_pdgid->Fill(pdg);
-		   h_part_p->Fill(mom.rho());
-		   h_part_eta->Fill(mom.eta());
-		   h_part_phi->Fill(mom.phi());
-		   ++npart_prim; 
-		   if((*currentGenParticleIter)->barcode()<10000){
-		     h_n_generations->Fill(0);
-		   }else{
-		     h_n_generations->Fill(1);
-		   }
-                } //End barcode <200000
-		else{
-		  h_part_pdgid_sec->Fill(pdg);
-		  ++npart_sec;
-		  const int gen = (*currentGenParticleIter)->barcode()/1000000 +2;
-		  h_n_generations ->Fill(gen);    
-		}             }  // End iteration over particles
-
-		  h_n_part_prim->Fill(npart_prim);
-		  h_n_part_sec->Fill(npart_sec);
-		  h_n_part->Fill(npart_prim+npart_sec);
+	h_truth_px->Fill(mom.x());
+	h_truth_py->Fill(mom.y());
+	h_truth_pz->Fill(mom.z());
+	h_truth_pt->Fill(mom.perp());
+	h_truth_eta->Fill(mom.eta());
+	h_truth_phi->Fill(mom.phi());
+	h_barcode->Fill((*currentGenParticleIter)->barcode());
+	h_part_status->Fill((*currentGenParticleIter)->status());
+	m_truth_px->push_back(mom.x());
+	m_truth_py->push_back(mom.y());
+	m_truth_pz->push_back(mom.z());
+	m_truth_pt->push_back(mom.perp());
+	m_truth_eta->push_back(mom.eta());
+	m_truth_phi->push_back(mom.phi());
+	m_barcode->push_back((*currentGenParticleIter)->barcode());		
+	m_status->push_back((*currentGenParticleIter)->status());
 	
-	} // End mcCollection 
-      }    // End statuscode success upon retrieval of events
- 
+	int pdg = (*currentGenParticleIter)->pdg_id();
+	m_pdgid->push_back(pdg);
+	
+	if ((*currentGenParticleIter)->barcode() < 200000) {
+	  h_part_pdgid->Fill(pdg);
+	  h_part_p->Fill(mom.rho());
+	  h_part_eta->Fill(mom.eta());
+	  h_part_phi->Fill(mom.phi());
+	  ++npart_prim; 
+	  if ((*currentGenParticleIter)->barcode() < 10000) {
+	    h_n_generations->Fill(0);
+	  }
+	  else {
+	    h_n_generations->Fill(1);
+	  }
+	} //End barcode <200000
+	else {
+	  h_part_pdgid_sec->Fill(pdg);
+	  ++npart_sec;
+	  const int gen = (*currentGenParticleIter)->barcode()/1000000 + 2;
+	  h_n_generations->Fill(gen);    
+	}
+      } // End iteration over particles
 
-      if (m_tree) m_tree->Fill();
+      h_n_part_prim->Fill(npart_prim);
+      h_n_part_sec->Fill(npart_sec);
+      h_n_part->Fill(npart_prim+npart_sec);	
+    } // End mcCollection 
+  } // End statuscode success upon retrieval of events
+ 
+  if (m_tree) m_tree->Fill();
 
   return StatusCode::SUCCESS;
 }
-

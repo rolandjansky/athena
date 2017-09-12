@@ -101,7 +101,6 @@ class RDBAccessSvc final : public AthService, virtual public IRDBAccessSvc
   std::string getChildTag(const std::string& childNode,
 				  const std::string& parentTag,
 				  const std::string& parentNode,
-				  bool fetchData,
 				  const std::string& connName) override;
 
   IRDBQuery* getQuery(const std::string& node,
@@ -137,6 +136,8 @@ private:
 
   RecordsetPtrsByConn m_recordsetptrs;  
   GlobalTagLookupMap m_globalTagLookup;
+
+  std::mutex m_mutex;
 
   bool shutdown_connection(const std::string& connName);
 };

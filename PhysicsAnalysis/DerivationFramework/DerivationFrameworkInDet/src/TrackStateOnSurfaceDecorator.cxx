@@ -299,9 +299,9 @@ namespace DerivationFramework {
 
 	decoratorTRTdEdx (*track)     = m_TRTdEdxTool->dEdx( trkTrack, true, true, true);
         ITRT_ToT_dEdx::EGasType gasType;
-	decoratorTRTusedHits (*track) = m_TRTdEdxTool->usedHits( trkTrack, gasType, true, true);
+	decoratorTRTusedHits (*track) = m_TRTdEdxTool->usedHits( trkTrack, true, true);
 	decoratorTRTdEdx_noHT_divByL (*track)     = m_TRTdEdxTool->dEdx( trkTrack, true, false, true);
-	decoratorTRTusedHits_noHT_divByL (*track) = m_TRTdEdxTool->usedHits( trkTrack, gasType, true, false);
+	decoratorTRTusedHits_noHT_divByL (*track) = m_TRTdEdxTool->usedHits( trkTrack, true, false);
       }
 
       // -- Add Track states to the current track, filtering on their type

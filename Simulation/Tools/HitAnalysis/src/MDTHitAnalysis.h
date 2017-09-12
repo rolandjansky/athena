@@ -16,13 +16,11 @@
 #include "TH2.h"
 #include "TTree.h"
 
-
-
 class TH1;
 class TH2;
 class TTree;
 
- 
+
 class MDTHitAnalysis : public AthAlgorithm {
 
  public:
@@ -52,6 +50,7 @@ class MDTHitAnalysis : public AthAlgorithm {
    TH1* h_hits_edep;
    TH1* h_hits_kine;
    TH1* h_hits_step;
+   
    std::vector<float>* m_hits_x;
    std::vector<float>* m_hits_y;
    std::vector<float>* m_hits_z;
@@ -69,11 +68,9 @@ class MDTHitAnalysis : public AthAlgorithm {
 
    TTree * m_tree;
    std::string m_ntupleFileName;
-
    std::string m_path;
-   ServiceHandle<ITHistSvc>  m_thistSvc;
+   ServiceHandle<ITHistSvc> m_thistSvc;
 
 };
 
 #endif // MDT_HIT_ANALYSIS_H
-

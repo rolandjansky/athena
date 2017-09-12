@@ -125,7 +125,9 @@ bool TrigL2ElectronHypoTool::decideOnSingleObject( const xAOD::TrigElectron* ele
 
 StatusCode TrigL2ElectronHypoTool::inclusiveSelection( std::vector<Input>& input ) const {
     for ( auto i: input ) {
-      if ( i.previousDecisionIDs.count( m_decisionId.numeric() ) == 0 ) continue; // the decision was negative or not even made in previous stage
+      if ( m_respectPreviousDecision 
+	   and ( i.previousDecisionIDs.count( m_decisionId.numeric() ) == 0 ) ) continue; // the decision was negative or not even made in previous stage
+
       auto objDecision = decideOnSingleObject( i.electron, 0);
       if ( objDecision == true ) {
 	addDecisionID( m_decisionId.numeric(), i.decision );
@@ -149,6 +151,9 @@ StatusCode TrigL2ElectronHypoTool::multiplicitySelection( std::vector<Input>& in
   for ( size_t cutIndex = 0; cutIndex < m_multiplicity; ++ cutIndex ) {
     size_t elIndex;
     for ( auto elIter =  input.begin(); elIter != input.end(); ++elIter, ++elIndex ) {
+      if ( m_respectPreviousDecision 
+	   and ( elIter->previousDecisionIDs.count( m_decisionId.numeric() ) == 0 ) ) continue;
+
       if ( decideOnSingleObject( elIter->electron, cutIndex ) ) 
 	passingSelection[cutIndex].push_back( elIndex );
     }
@@ -164,8 +169,9 @@ StatusCode TrigL2ElectronHypoTool::multiplicitySelection( std::vector<Input>& in
   if ( m_decisionPerCluster ) {            
     // additional constrain has to be applied for each combination
     // from each combination we extract set of clustusters associated to it
-    // if all are distinct then size of the set shoudl be == size of combination, 
+    // if all are distinct then size of the set should be == size of combination, 
     // if size of clusters is smaller then the combination consists of electrons from the same RoI
+    // and ought to be ignored
     auto notFromSameRoI = [&](const HLT::Index1DVec& comb ) {
       std::set<const xAOD::TrigEMCluster*> setOfClusters;
       for ( auto index: comb ) {
@@ -182,17 +188,14 @@ StatusCode TrigL2ElectronHypoTool::multiplicitySelection( std::vector<Input>& in
   return markPassing( input, passingIndices );
 }
 
-
 StatusCode TrigL2ElectronHypoTool::decide(  std::vector<Input>& input )  const{
-
-  // handle simples and most common case ( multiplicity == 1 ) in easiest possible manner
+  // handle the simplest and most common case ( multiplicity == 1 ) in easiest possible manner
   if ( m_trackPt.size() == 1 ) {
     return inclusiveSelection( input );
 
   } else {    
     return multiplicitySelection( input );    
   }
-
 
   return StatusCode::SUCCESS;
 }
