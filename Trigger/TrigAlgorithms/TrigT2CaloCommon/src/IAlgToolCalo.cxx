@@ -41,7 +41,7 @@ StatusCode IAlgToolCalo::initialize()
 
         // Initialize timing service in order to perform some measures
         // of performance
-        if( (m_timersvc.retrieve()).isFailure() ) {
+        if( !m_timersvc.empty() && m_timersvc.retrieve().isFailure() ) {
           ATH_MSG_WARNING( name() <<
                            ": Unable to locate TrigTimer Service" );
 	  // Does not need to fail the Algorithm if no timing service is found
