@@ -1440,12 +1440,6 @@ def setupMenu():
         ['xe110_trkmht_xe110_mht_xe80_L1XE60','L1_XE60', ['L1_XE60','L1_XE60','L1_XE60'], [PhysicsStream], ['RATE:MET', 'BW:MET' ], -1, ['serial',-1,['xe110_trkmht','xe110_mht','xe80_L1XE60'] ]],
         ['xe120_trkmht_xe110_mht_xe80_L1XE55','L1_XE55', ['L1_XE55','L1_XE55','L1_XE55'], [PhysicsStream], ['RATE:MET', 'BW:MET' ], -1, ['serial',-1,['xe120_trkmht','xe110_mht','xe80_L1XE55'] ]],
         ['xe120_trkmht_xe110_mht_xe80_L1XE60','L1_XE60', ['L1_XE60','L1_XE60','L1_XE60'], [PhysicsStream], ['RATE:MET', 'BW:MET' ], -1, ['serial',-1,['xe120_trkmht','xe110_mht','xe80_L1XE60'] ]],
-
-
-    ## XS triggers ##	
-        ['xs15_L1XS20',                            'L1_XS20',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
-        ['xs20_L1XS30',                            'L1_XS30',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
-
 	
 			 ]
     if TriggerFlags.doFTK():
@@ -3796,7 +3790,6 @@ def setupMenu():
         ['noalg_L1XE35',             'L1_XE35',             [], [PhysicsStream, 'express'], ['RATE:SeededStreamers', 'BW:MET'], -1],
         ['noalg_L1XE10',             'L1_XE10',             [], [PhysicsStream], ['RATE:SeededStreamers', 'BW:MET'], -1],
         ['noalg_L1XE30',             'L1_XE30',             [], [PhysicsStream], ['RATE:SeededStreamers', 'BW:MET'], -1],
-        ['noalg_L1XE150',            'L1_XE150',             [], [PhysicsStream], ['RATE:SeededStreamers', 'BW:MET'], -1],
         ['noalg_L1XE300',            'L1_XE300',             [], [PhysicsStream], ['RATE:SeededStreamers', 'BW:MET'], -1],
 
         # Jet streamers
@@ -4174,9 +4167,6 @@ def setupMenu():
         ['noalg_L1TE30.0ETA24',  'L1_TE30.0ETA24',   [], [PhysicsStream], ["RATE:SeededStreamers", "BW:MET"], -1 ], 
         ['noalg_L1TE40.0ETA24',  'L1_TE40.0ETA24',   [], [PhysicsStream], ["RATE:SeededStreamers", "BW:MET"], -1 ], 
         
-        ['noalg_L1XS30',  'L1_XS30',   [], [PhysicsStream], ["RATE:SeededStreamers", "BW:MET"], -1 ],
-        ['noalg_L1XS20',  'L1_XS20',   [], [PhysicsStream], ["RATE:SeededStreamers", "BW:MET"], -1 ],
-	
         ]
 
     TriggerFlags.MonitorSlice.signatures = [

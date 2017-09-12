@@ -527,10 +527,9 @@ def defineMenu():
         # XE
         "L1_XE35", "L1_XE40", "L1_XE45", "L1_XE50", 
         "L1_XE55", "L1_XE60", "L1_XE70", "L1_XE80",
-        'L1_XE10', 'L1_XE30', 'L1_XE65', 'L1_XE75', 'L1_XE150', 'L1_XE300',
+        'L1_XE10', 'L1_XE30', 'L1_XE300',
         
         #XS
-        'L1_XS20', 'L1_XS30',
         'L1_EM12_XS20', 'L1_EM15_XS30',
         
         # TE
@@ -670,7 +669,7 @@ def defineMenu():
         
         # Jpsi T&P
         'L1_JPSI-1M5', 'L1_JPSI-1M5-EM7', 'L1_JPSI-1M5-EM12',    
-        'L1_KF-XE40', 'L1_KF-XE50', 'L1_KF-XE55', 'L1_KF-XE60', 'L1_KF-XE65', 'L1_KF-XE75',
+        'L1_KF-XE50', 'L1_KF-XE55', 'L1_KF-XE60', 'L1_KF-XE65', 'L1_KF-XE75',
         
         # W T&P
 #        'L1_W-05DPHI-JXE-0',
@@ -1101,9 +1100,6 @@ def defineMenu():
         'L1_XE10': 68,
         #'L1_XE25': 82,
         'L1_XE30': 85,
-        'L1_XE65': 108,
-        'L1_XE75': 134,
-        'L1_XE150': 156,
         'L1_XE300': 187,
         
         'L1_XE35' : 144,
@@ -1114,8 +1110,6 @@ def defineMenu():
         'L1_XE60' : 149,
         'L1_XE70' : 150,
         'L1_XE80' : 151,
-        'L1_XS20' : 152,
-        'L1_XS30' : 153,
         'L1_EM12_XS20' : 154,
         'L1_EM15_XS30' : 155,
 
@@ -1321,7 +1315,6 @@ def defineMenu():
         'L1_JPSI-1M5' : 262,
         'L1_JPSI-1M5-EM7' : 263,
         'L1_JPSI-1M5-EM12' : 264,
-        'L1_KF-XE40' : 265,
         'L1_KF-XE50' : 266,
         'L1_KF-XE55' : 267,
         'L1_KF-XE60' : 268,
