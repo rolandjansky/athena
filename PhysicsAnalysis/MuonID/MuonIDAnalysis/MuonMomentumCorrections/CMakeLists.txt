@@ -20,6 +20,7 @@ atlas_depends_on_subdirs(
    Control/AthToolSupport/AsgTools
    Event/xAOD/xAODMuon
    PhysicsAnalysis/AnalysisCommon/PATInterfaces
+   PhysicsAnalysis/Intefaces/MuonAnalysisInterfaces
    PRIVATE
    Event/xAOD/xAODBase
    Event/xAOD/xAODCore
@@ -37,7 +38,7 @@ atlas_add_library( MuonMomentumCorrectionsLib
    MuonMomentumCorrections/*.h Root/*.cxx
    PUBLIC_HEADERS MuonMomentumCorrections
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AsgTools xAODMuon
+   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AsgTools xAODMuon MuonAnalysisInterfacesLib
    PATInterfaces
    PRIVATE_LINK_LIBRARIES xAODEventInfo PathResolver )
 
@@ -45,7 +46,7 @@ if( NOT XAOD_STANDALONE )
    atlas_add_component( MuonMomentumCorrections
       src/*.h src/*.cxx src/components/*.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps xAODMuon xAODCore
+      LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps xAODMuon xAODCore MuonAnalysisInterfacesLib
       xAODBase GaudiKernel MuonSelectorToolsLib MuonMomentumCorrectionsLib )
 endif()
 
@@ -61,7 +62,7 @@ if( XAOD_STANDALONE )
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} xAODRootAccess
       xAODEventInfo xAODMuon xAODCore PATInterfaces xAODCore AsgTools
-      MuonSelectorToolsLib MuonMomentumCorrectionsLib )
+      MuonSelectorToolsLib MuonMomentumCorrectionsLib  MuonAnalysisInterfacesLib)
 endif()
 
 # Install files from the package:

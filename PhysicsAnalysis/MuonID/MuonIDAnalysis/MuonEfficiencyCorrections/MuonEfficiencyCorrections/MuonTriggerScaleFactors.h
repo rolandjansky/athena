@@ -15,7 +15,7 @@
 #ifndef MUONTRIGGERSCALEFACTORS_H_
 #define MUONTRIGGERSCALEFACTORS_H_
 
-#include "MuonEfficiencyCorrections/IMuonTriggerScaleFactors.h"
+#include "MuonAnalysisInterfaces/IMuonTriggerScaleFactors.h"
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/ToolHandle.h"
 #include "PATInterfaces/ISystematicsTool.h"
