@@ -174,7 +174,7 @@ StatusCode sTgcDigitizationTool::initialize() {
   ATH_MSG_INFO ( "MCStore                " << m_sgSvc               );
   ATH_MSG_INFO ( "InputObjectName        " << m_inputHitCollectionName );
   ATH_MSG_INFO ( "OutputObjectName       " << m_outputDigitCollectionName );
-  ATH_MSG_INFO ( "OutputSDOName          " << m_outputSDO_CollectionName  );
+  //ATH_MSG_INFO ( "OutputSDOName          " << m_outputSDO_CollectionName  ); //Skip SDO to bypass Trigger Tool error
 
   // initialize transient event store 
   if(m_sgSvc.retrieve().isFailure()) { 
@@ -457,6 +457,7 @@ StatusCode sTgcDigitizationTool::recordDigitAndSdoContainers() {
   }
   ATH_MSG_DEBUG("sTgcDigitContainer recorded in StoreGate.");
   
+  /*** Skip SDO to bypass an error in Trigger tool
   // create and record the SDO container in StoreGate
   m_sdoContainer = new MuonSimDataCollection();
   status = m_sgSvc->record(m_sdoContainer, m_outputSDO_CollectionName);
@@ -466,7 +467,8 @@ StatusCode sTgcDigitizationTool::recordDigitAndSdoContainers() {
   } else {
     ATH_MSG_DEBUG("sTgcSDOCollection recorded in StoreGate.");
   }
-  
+  ***/
+
   m_digitInfoCollection = new sTgcDigitInfoCollection();
 
   status = m_sgSvc->record(m_digitInfoCollection, m_outputDigitInfoCollectionName);
@@ -840,6 +842,7 @@ StatusCode sTgcDigitizationTool::doDigitization() {
                    ATH_MSG_VERBOSE(" BC tag = "    << flushedDigit->bcTag()) ;
                    ATH_MSG_VERBOSE(" digitTime = " << flushedDigit->time()) ;
                    ATH_MSG_VERBOSE(" charge = "    << flushedDigit->charge()) ;
+
                 }
                else ATH_MSG_VERBOSE("No digit for this timestep on Pad REID[" << it_REID->first.getString() << "]");
            }
