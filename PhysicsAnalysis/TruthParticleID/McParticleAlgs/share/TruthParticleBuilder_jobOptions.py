@@ -26,13 +26,14 @@ from McParticleAlgs.JobOptCfg import McAodBuilder,createMcAodBuilder,PileUpClass
 
 # If we're reprocessing, we may have TruthEvents but not xAODTruthLinks.
 # Remake the links here if needed.
+#   JM: In the future, this would not work. If TrutheEvents exists, it should
+#       be renamed out of the way. Force rerun is effectivly always true.
 # This needs to come before the McAodBuilder below; otherwise,
 # xAODTruthCnvAlg will also try to rebuild TruthEvents.
 if (objKeyStore.isInInput( "xAOD::TruthEventContainer", "TruthEvents" ) and
       not objKeyStore.isInInput( "xAODTrigParticleLinkVector", "xAODTruthLinks" ) ):
     from xAODTruthCnv.xAODTruthCnvConf import xAODMaker__xAODTruthCnvAlg
-    job += xAODMaker__xAODTruthCnvAlg("GEN_AOD2xAOD",
-                                      ForceRerun = True)
+    job += xAODMaker__xAODTruthCnvAlg("GEN_AOD2xAOD")
 
 if (objKeyStore.isInInput( "McEventCollection", "TruthEvent" ) and 
     not objKeyStore.isInInput( "McEventCollection", "GEN_AOD" )):
