@@ -14,12 +14,15 @@
 #include <unistd.h>
 #include <utility>
 #include <vector> 
+#include <string>
+#include <iostream>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/iostreams/device/file_descriptor.hpp>
 #include <boost/iostreams/stream.hpp>
 #include <boost/scope_exit.hpp>
 
+#include "PathResolver/PathResolver.h"
 
 namespace top {
 
@@ -34,12 +37,18 @@ AodMetaDataAccess::~AodMetaDataAccess() {
 
 void AodMetaDataAccess::loadWithFilesFrom(std::string const & fileListPath) {
 
-   char const * rootCoreBin = getenv("ROOTCOREBIN");
-   assert(rootCoreBin && rootCoreBin[0]);
-   std::string exePath(rootCoreBin);
-   if (exePath.back() != '/')
-      exePath.append("/");
-   exePath.append("python/TopConfiguration/AodMetaDataReader.py");
+   // Implementation using PathResolver
+   std::string filename = "TopConfiguration/AodMetaDataReader.py";
+   // Use the path resolver to find the first file in the list of possible paths ($PYTHONPATH)
+   std::string exePath = PathResolver::find_file(filename, "PYTHONPATH");
+
+   if(exePath == ""){
+     std::cout << "ERROR::AodMetaDataAccess - could not find file \n";
+     std::cout << filename << "\n";
+     exit(1);
+   }
+   std::cout << "AodMetaDataAccess::Found " << exePath << std::endl;
+
 
    int pipefd[2] = { -1, -1 };
    if (pipe(pipefd) == -1)
