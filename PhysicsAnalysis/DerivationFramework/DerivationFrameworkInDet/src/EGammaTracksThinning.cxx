@@ -88,7 +88,7 @@ StatusCode DerivationFramework::EGammaTracksThinning::doThinning() const {
 
   // loop over electrons and for each electron mark the interesting tracks
 
-  std::set<int> m_goodTrackIDs;
+  std::set<int> goodTrackIDs;
 
   xAOD::ElectronContainer::const_iterator eleItr    = electronContainer->begin();
   xAOD::ElectronContainer::const_iterator eleItrEnd = electronContainer->end();
@@ -105,7 +105,7 @@ StatusCode DerivationFramework::EGammaTracksThinning::doThinning() const {
 
           // update the global list of tracks to keep
 
-          m_goodTrackIDs.insert(eg_trackList.begin() , eg_trackList.end() ) ;
+          goodTrackIDs.insert(eg_trackList.begin() , eg_trackList.end() ) ;
           
         }
       
@@ -128,7 +128,7 @@ StatusCode DerivationFramework::EGammaTracksThinning::doThinning() const {
 
           // update the global list of tracks to keep
 
-          m_goodTrackIDs.insert(eg_trackList.begin() , eg_trackList.end() ) ;
+          goodTrackIDs.insert(eg_trackList.begin() , eg_trackList.end() ) ;
           
         }
       
@@ -136,10 +136,10 @@ StatusCode DerivationFramework::EGammaTracksThinning::doThinning() const {
     
   // now do the real thinning and keep all marked tracks
 
-  ATH_CHECK( thinTracks( trackCollection, m_goodTrackIDs ) );
+  ATH_CHECK( thinTracks( trackCollection, goodTrackIDs ) );
   
   ATH_MSG_DEBUG( "Track thinning : tracks = " << trackCollection->size() 
-                << " accepted = " << m_goodTrackIDs.size() ); 
+                << " accepted = " << goodTrackIDs.size() ); 
   
   return StatusCode::SUCCESS;
 }
@@ -197,7 +197,7 @@ std::set<int> DerivationFramework::EGammaTracksThinning::findGoodTracks(const Tr
 // =======================================================
 
 StatusCode DerivationFramework::EGammaTracksThinning::thinTracks( const TrackCollection * trackCollection , 
-                                                                  const std::set<int>& m_goodTrackIDs ) const
+                                                                  const std::set<int>& goodTrackIDs ) const
 {
   
   ATH_MSG_DEBUG( "==> thinTracks " << name() << "..." );
@@ -219,7 +219,7 @@ StatusCode DerivationFramework::EGammaTracksThinning::thinTracks( const TrackCol
   for ( std::size_t i=0; i<trackCollection->size(); ++i )
     {
       ++nTotal;
-      if ( m_goodTrackIDs.find( i ) != m_goodTrackIDs.end() )
+      if ( goodTrackIDs.find( i ) != goodTrackIDs.end() )
         {
           mask[i] = true;
           ++nKeep;
