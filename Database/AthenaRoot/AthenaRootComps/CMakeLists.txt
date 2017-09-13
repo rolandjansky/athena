@@ -47,3 +47,49 @@ atlas_install_joboptions( share/tests/*.py )
 atlas_install_scripts( test/*.sh test/ref.* )
 
 
+atlas_add_test( test_athena_ntuple_dumper_multiple
+                SCRIPT test/test_athena_ntuple_dumper_multiple.sh
+                EXTRA_PATTERNS ".*"
+                PROPERTIES TIMEOUT 300 )
+
+
+atlas_add_test( test_athena_ntuple_dumper_varhandles_nooutput
+                SCRIPT test/test_athena_ntuple_dumper_varhandles_nooutput.sh
+                EXTRA_PATTERNS ".*"
+                PROPERTIES TIMEOUT 300 )
+
+atlas_add_test( test_athena_ntuple_dumper_varhandles
+                SCRIPT test/test_athena_ntuple_dumper_varhandles.sh
+                EXTRA_PATTERNS ".*"
+                PROPERTIES TIMEOUT 300 )
+
+atlas_add_test( test_athena_ntuple_dumper_novarhandles
+                SCRIPT test/test_athena_ntuple_dumper_novarhandles.sh
+                EXTRA_PATTERNS ".*"
+                PROPERTIES TIMEOUT 600 )
+
+atlas_add_test( test_athena_variable_shape1
+                SCRIPT test/test_athena_variable_shape1.sh
+                EXTRA_PATTERNS ".*"
+                PROPERTIES TIMEOUT 300 )
+
+atlas_add_test( test_athena_variable_shape2
+                SCRIPT test/test_athena_variable_shape2.sh
+                EXTRA_PATTERNS ".*"
+                PROPERTIES TIMEOUT 300 )
+
+atlas_add_test( test_athena_variable_shape3
+                SCRIPT test/test_athena_variable_shape3.sh
+                EXTRA_PATTERNS ".*"
+                PROPERTIES TIMEOUT 300 )
+
+configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/test/test_athena_variable_shape_merged.sh.in
+                ${CMAKE_CURRENT_BINARY_DIR}/test_athena_variable_shape_merged_script.sh
+                @ONLY )
+atlas_add_test( test_athena_variable_shape_merged
+                SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/test_athena_variable_shape_merged_script.sh
+                EXTRA_PATTERNS ".*"
+                PROPERTIES TIMEOUT 300 )
+set_tests_properties( AthenaRootComps_test_athena_variable_shape_merged_ctest
+                      PROPERTIES DEPENDS
+                      "AthenaRootComps_test_athena_variable_shape1_ctest;AthenaRootComps_test_athena_variable_shape2_ctest;AthenaRootComps_test_athena_variable_shape3_ctest" )
