@@ -635,12 +635,7 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
   return StatusCode::SUCCESS;
 }
 
-double PixelMainMon::getErrorBitFraction(const Identifier& WaferID, const unsigned int& num_femcc_errwords) {
-  // Do an estimation of the bit fraction consumed by FE/MCC error words in the
-  // MCC output. Simplifications: hits are distributed uniformly on all FEs,
-  // errors only occur on FEs with hits. Without these simplifications, we
-  // would have to consider the FE ID bit blocks (8 bits) more carefully.
-  //
+unsigned int PixelMainMon::getEventBitLength(const Identifier& WaferID, const unsigned int& num_femcc_errwords) {
   // The assumed bit lengths are:
   //  - 45 bits for event ID, header, trailer
   //  - 9 bits for each FE ID. If more than 16 hits:, count 16 FE ID blocks;
@@ -671,7 +666,22 @@ double PixelMainMon::getErrorBitFraction(const Identifier& WaferID, const unsign
   }
   total_bits += num_hits * 22;
   total_bits += num_femcc_errwords * 22;
-  return static_cast<double>(num_femcc_errwords * 22 / total_bits);
+  return total_bits;
+}
+
+double PixelMainMon::getBitStreamFraction(const Identifier& WaferID, const unsigned int& bits) {
+  // Assuming a trigger rate of 100k, this function returns the fraction of the
+  // bit stream consumed by the inputted number of bits.
+  const int layer = getPixLayerID(m_pixelid->barrel_ec(WaferID), m_pixelid->layer_disk(WaferID), m_doIBL);
+  if (layer == PixLayer::kIBL) return 0.;
+
+  // Assumed available bandwidth per layer
+  double mbits_sec = 80.;
+  if (layer == PixLayer::kB0 || layer == PixLayer::kB1) mbits_sec = 160.;
+
+  // Average bits available per event, assuming 100k trigger rate
+  double avg_available_bits = mbits_sec / 0.1;
+  return static_cast<double>(bits / avg_available_bits);
 }
 
 int PixelMainMon::getErrorState(int bit, bool isibl) {

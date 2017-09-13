@@ -127,7 +127,8 @@ class PixelMainMon : public ManagedMonitorToolBase {
   int parseDetailsString(std::string& detailsMod);
   bool isOnTrack(Identifier id, bool isCluster);
   bool isOnTrack(Identifier id, double& cosalpha);
-  double getErrorBitFraction(const Identifier& WaferID, const unsigned int& num_femcc_errorwords);
+  unsigned int getEventBitLength(const Identifier& WaferID, const unsigned int& num_femcc_errorwords);
+  double getBitStreamFraction(const Identifier& WaferID, const unsigned int& bits);
   int getErrorState(int bit, bool isibl);
   std::string makeHistname(std::string set, bool ontrk);
   std::string makeHisttitle(std::string set, std::string axis, bool ontrk);
