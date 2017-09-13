@@ -35,6 +35,7 @@
 #include <SampleHandler/SampleHandler.h>
 #include <SampleHandler/SampleLocal.h>
 #include <SampleHandler/SamplePtr.h>
+#include <SampleHandler/ScanDir.h>
 #include <SampleHandler/ToolsDiscovery.h>
 
 //
@@ -47,7 +48,11 @@ int main ()
     return EXIT_SUCCESS;
 
   SH::SampleHandler sh;
-  SH::scanDir (sh, "/export/home/suyogs/data12");
+  SH::ScanDir()
+    .sampleDepth (0)
+    .minDepth (1)
+    .maxDepth (1)
+    .scan (sh, "/export/home/suyogs/data12");
   sh.setMetaString ("nc_tree", "mini");
   sh.setMetaDouble ("jobOpt", 42);
   sh.setMetaString ("mymeta", "test");
