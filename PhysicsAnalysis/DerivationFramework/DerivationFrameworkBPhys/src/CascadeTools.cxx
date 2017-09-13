@@ -16,20 +16,8 @@ CascadeTools::CascadeTools(const std::string& t, const std::string& n, const IIn
 
 CascadeTools::~CascadeTools() {}
 
-StatusCode CascadeTools::initialize()
-{
-  ATH_MSG_INFO("Initialize successful");
-  return StatusCode::SUCCESS;
-}
 
-StatusCode CascadeTools::finalize()
-{
-  ATH_MSG_INFO("Finalize successful");
-  return StatusCode::SUCCESS;
-}
-
-
-double CascadeTools::invariantMass(std::vector<TLorentzVector> particleMom) const
+double CascadeTools::invariantMass(const std::vector<TLorentzVector> &particleMom) const
 {
   if(particleMom.size() == 0) return -999999.;
   TLorentzVector totalMom;
@@ -38,7 +26,7 @@ double CascadeTools::invariantMass(std::vector<TLorentzVector> particleMom) cons
   return totalMom.M();
 }
 
-double CascadeTools::invariantMass(std::vector<TLorentzVector> particleMom2, std::vector<double> masses) const
+double CascadeTools::invariantMass(const std::vector<TLorentzVector> &particleMom2, const std::vector<double> &masses) const
 {
   if(particleMom2.size() == 0) return -999999.;
   TLorentzVector totalMom;
@@ -47,35 +35,30 @@ double CascadeTools::invariantMass(std::vector<TLorentzVector> particleMom2, std
     ATH_MSG_DEBUG("The provided number of masses does not match the number of tracks in the vertex");
     return -999999.;
   }
-  std::vector<TLorentzVector> particleMom(NTrk); particleMom.clear();
+  TLorentzVector temp;
   for( unsigned int it=0; it<NTrk; it++) {
     double esq = particleMom2[it].Px()*particleMom2[it].Px() + particleMom2[it].Py()*particleMom2[it].Py() +
                  particleMom2[it].Pz()*particleMom2[it].Pz() + masses[it]*masses[it];
     double e = (esq>0.) ? sqrt(esq) : 0.;
-    particleMom[it].SetPxPyPzE(particleMom2[it].Px(),particleMom2[it].Py(),particleMom2[it].Pz(),e);
+
+    temp.SetPxPyPzE(particleMom2[it].Px(),particleMom2[it].Py(),particleMom2[it].Pz(),e);
+    totalMom += temp;
   }
-  for( unsigned int it=0; it<NTrk; it++) totalMom += particleMom[it];
   return totalMom.M();
 }
 
-double CascadeTools::invariantMassError(std::vector<TLorentzVector> particleMom, const Amg::MatrixX& cov) const
+double CascadeTools::invariantMassError(const std::vector<TLorentzVector> &particleMom, const Amg::MatrixX& cov) const
 {
   if(particleMom.size() == 0) return -999999.;
   unsigned int NTrk = particleMom.size();
   TLorentzVector totalMom;
   for( unsigned int it=0; it<NTrk; it++) totalMom += particleMom[it];
 
-  std::vector<double>dm2dpx(NTrk), dm2dpy(NTrk), dm2dpz(NTrk);
-  for( unsigned int it=0; it<NTrk; it++) {
-    dm2dpx[it] = 2.*(totalMom.E()*particleMom[it].Px()/particleMom[it].E()-totalMom.Px());
-    dm2dpy[it] = 2.*(totalMom.E()*particleMom[it].Py()/particleMom[it].E()-totalMom.Py());
-    dm2dpz[it] = 2.*(totalMom.E()*particleMom[it].Pz()/particleMom[it].E()-totalMom.Pz());
-  }
   Amg::MatrixX D_vec(3*NTrk+3,1); D_vec.setZero();
   for( unsigned int it=0; it<NTrk; it++) {
-    D_vec(3*it+3) = dm2dpx[it];
-    D_vec(3*it+4) = dm2dpy[it];
-    D_vec(3*it+5) = dm2dpz[it];
+    D_vec(3*it+3) = 2.*(totalMom.E()*particleMom[it].Px()/particleMom[it].E()-totalMom.Px());
+    D_vec(3*it+4) = 2.*(totalMom.E()*particleMom[it].Py()/particleMom[it].E()-totalMom.Py());
+    D_vec(3*it+5) = 2.*(totalMom.E()*particleMom[it].Pz()/particleMom[it].E()-totalMom.Pz());
   }
   Amg::MatrixX merr = D_vec.transpose() * cov * D_vec;
   double massVarsq = merr(0,0);
@@ -85,7 +68,7 @@ double CascadeTools::invariantMassError(std::vector<TLorentzVector> particleMom,
   return massErr;
 }
 
-double CascadeTools::invariantMassError(std::vector<TLorentzVector> particleMom2, const Amg::MatrixX& cov, std::vector<double> masses) const
+double CascadeTools::invariantMassError(const std::vector<TLorentzVector> &particleMom2, const Amg::MatrixX& cov, const std::vector<double> &masses) const
 {
   if(particleMom2.size() == 0) return -999999.;
   unsigned int NTrk = particleMom2.size();
@@ -123,14 +106,14 @@ double CascadeTools::invariantMassError(std::vector<TLorentzVector> particleMom2
   return massErr;
 }
 
-double CascadeTools::pT(std::vector<TLorentzVector> particleMom) const
+double CascadeTools::pT(const std::vector<TLorentzVector> &particleMom) const
 {
   if(particleMom.size() == 0) return -999999.;
   Amg::Vector3D P = Momentum(particleMom);;
   return P.perp();
 }
 
-double CascadeTools::pTError(std::vector<TLorentzVector> particleMom, const Amg::MatrixX& cov) const
+double CascadeTools::pTError(const std::vector<TLorentzVector> &particleMom, const Amg::MatrixX& cov) const
 {
   if(particleMom.size() == 0) return -999999.;
   Amg::Vector3D P = Momentum(particleMom);;
@@ -139,15 +122,10 @@ double CascadeTools::pTError(std::vector<TLorentzVector> particleMom, const Amg:
   double PT = P.perp();
 
   unsigned int NTrk = particleMom.size();
-  std::vector<double>dPTdpx(NTrk), dPTdpy(NTrk);
-  for( unsigned int it=0; it<NTrk; it++) {
-    dPTdpx[it] = Px/PT;
-    dPTdpy[it] = Py/PT;
-  }
   Amg::MatrixX D_vec(3*NTrk+3,1); D_vec.setZero();
   for( unsigned int it=0; it<NTrk; it++) {
-    D_vec(3*it+3) = dPTdpx[it];
-    D_vec(3*it+4) = dPTdpy[it];
+    D_vec(3*it+3) = Px/PT;
+    D_vec(3*it+4) = Py/PT;
     D_vec(3*it+5) = 0.;
   }
   Amg::MatrixX PtErrSq = D_vec.transpose() * cov * D_vec;
@@ -156,7 +134,7 @@ double CascadeTools::pTError(std::vector<TLorentzVector> particleMom, const Amg:
   return (PtErrsq>0.) ? sqrt(PtErrsq) : 0.;
 }
 
-double CascadeTools::lxy(std::vector<TLorentzVector> particleMom, xAOD::Vertex* SV, const xAOD::Vertex* PV) const
+double CascadeTools::lxy(const std::vector<TLorentzVector> &particleMom, xAOD::Vertex* SV, const xAOD::Vertex* PV) const
 {
   if(particleMom.size() == 0) return -999999.;
   auto vert = SV->position() - PV->position();
@@ -167,7 +145,7 @@ double CascadeTools::lxy(std::vector<TLorentzVector> particleMom, xAOD::Vertex* 
   return dxy;
 }
 
-double CascadeTools::lxyError(std::vector<TLorentzVector> particleMom, const Amg::MatrixX& cov, xAOD::Vertex* SV, const xAOD::Vertex* PV) const
+double CascadeTools::lxyError(const std::vector<TLorentzVector> &particleMom, const Amg::MatrixX& cov, xAOD::Vertex* SV, const xAOD::Vertex* PV) const
 {
   if(particleMom.size() == 0) return -999999.;
   auto vert = SV->position() - PV->position();
@@ -180,11 +158,7 @@ double CascadeTools::lxyError(std::vector<TLorentzVector> particleMom, const Amg
   double LXYoverPT = (Px*dx+Py*dy)/(PT*PT);
 
   unsigned int NTrk = particleMom.size();
-  std::vector<double>dLxydpx(NTrk), dLxydpy(NTrk);
-  for( unsigned int it=0; it<NTrk; it++) {
-    dLxydpx[it] = (dx - LXYoverPT*Px)/PT;
-    dLxydpy[it] = (dy - LXYoverPT*Py)/PT;
-  }
+
   double dLxydx = Px/PT;
   double dLxydy = Py/PT;
   double dLxydx0 = -dLxydx;
@@ -195,8 +169,8 @@ double CascadeTools::lxyError(std::vector<TLorentzVector> particleMom, const Amg
   D_vec(1) = dLxydy;
   D_vec(2) = 0.;
   for( unsigned int it=0; it<NTrk; it++) {
-    D_vec(3*it+3) = dLxydpx[it];
-    D_vec(3*it+4) = dLxydpy[it];
+    D_vec(3*it+3) = (dx - LXYoverPT*Px)/PT;
+    D_vec(3*it+4) = (dy - LXYoverPT*Py)/PT;
     D_vec(3*it+5) = 0.;
   }
   D_vec(3*NTrk+3) = dLxydx0;
@@ -214,7 +188,7 @@ double CascadeTools::lxyError(std::vector<TLorentzVector> particleMom, const Amg
   return (LxyErrsq>0.) ? sqrt(LxyErrsq) : 0.;
 }
 
-double CascadeTools::tau(std::vector<TLorentzVector> particleMom, xAOD::Vertex* SV, const xAOD::Vertex* PV) const
+double CascadeTools::tau(const std::vector<TLorentzVector> &particleMom, xAOD::Vertex* SV, const xAOD::Vertex* PV) const
 {
   if(particleMom.size() == 0) return -999999.;
   double CONST = 1000./299.792;
@@ -224,7 +198,7 @@ double CascadeTools::tau(std::vector<TLorentzVector> particleMom, xAOD::Vertex* 
   return CONST*M*LXY/PT;
 }
 
-double CascadeTools::tauError(std::vector<TLorentzVector> particleMom, const Amg::MatrixX& cov, xAOD::Vertex* SV, const xAOD::Vertex* PV) const
+double CascadeTools::tauError(const std::vector<TLorentzVector> &particleMom, const Amg::MatrixX& cov, xAOD::Vertex* SV, const xAOD::Vertex* PV) const
 {
   if(particleMom.size() == 0) return -999999.;
   double CONST = 1000./299.792;
@@ -241,12 +215,7 @@ double CascadeTools::tauError(std::vector<TLorentzVector> particleMom, const Amg
   unsigned int NTrk = particleMom.size();
   TLorentzVector totalMom;
   for( unsigned int it=0; it<NTrk; it++) totalMom += particleMom[it];
-  std::vector<double>dTaudpx(NTrk), dTaudpy(NTrk);
 
-  for( unsigned int it=0; it<NTrk; it++) {
-    dTaudpx[it] = (((totalMom.E()*particleMom[it].Px()*LXY)/(M*particleMom[it].E()))-Px*LXY/M+M*dx)/(PT*PT) - 2.*M*LXY*Px/(PT*PT*PT*PT);
-    dTaudpy[it] = (((totalMom.E()*particleMom[it].Py()*LXY)/(M*particleMom[it].E()))-Py*LXY/M+M*dy)/(PT*PT) - 2.*M*LXY*Py/(PT*PT*PT*PT);
-  }
   double dTaudx = (M*Px)/(PT*PT);
   double dTaudy = (M*Py)/(PT*PT);
   double dTaudx0 = -dTaudx;
@@ -257,8 +226,8 @@ double CascadeTools::tauError(std::vector<TLorentzVector> particleMom, const Amg
   D_vec(1) = dTaudy;
   D_vec(2) = 0.;
   for( unsigned int it=0; it<NTrk; it++) {
-    D_vec(3*it+3) = dTaudpx[it];
-    D_vec(3*it+4) = dTaudpy[it];
+    D_vec(3*it+3) = (((totalMom.E()*particleMom[it].Px()*LXY)/(M*particleMom[it].E()))-Px*LXY/M+M*dx)/(PT*PT) - 2.*M*LXY*Px/(PT*PT*PT*PT);
+    D_vec(3*it+4) = (((totalMom.E()*particleMom[it].Py()*LXY)/(M*particleMom[it].E()))-Py*LXY/M+M*dy)/(PT*PT) - 2.*M*LXY*Py/(PT*PT*PT*PT);
     D_vec(3*it+5) = 0.;
   }
   D_vec(3*NTrk+3) = dTaudx0;
@@ -277,7 +246,7 @@ double CascadeTools::tauError(std::vector<TLorentzVector> particleMom, const Amg
   return CONST*tauErr;
 }
 
-double CascadeTools::tau(std::vector<TLorentzVector> particleMom, xAOD::Vertex* SV, const xAOD::Vertex* PV, double M) const
+double CascadeTools::tau(const std::vector<TLorentzVector> &particleMom, xAOD::Vertex* SV, const xAOD::Vertex* PV, double M) const
 {
   if(particleMom.size() == 0) return -999999.;
   double CONST = 1000./299.792;
@@ -286,7 +255,7 @@ double CascadeTools::tau(std::vector<TLorentzVector> particleMom, xAOD::Vertex* 
   return CONST*M*LXY/PT;
 }
 
-double CascadeTools::tauError(std::vector<TLorentzVector> particleMom, const Amg::MatrixX& cov, xAOD::Vertex* SV, const xAOD::Vertex* PV, double M) const
+double CascadeTools::tauError(const std::vector<TLorentzVector> &particleMom, const Amg::MatrixX& cov, xAOD::Vertex* SV, const xAOD::Vertex* PV, double M) const
 {
   if(particleMom.size() == 0) return -999999.;
   double CONST = 1000./299.792;
@@ -302,12 +271,7 @@ double CascadeTools::tauError(std::vector<TLorentzVector> particleMom, const Amg
   unsigned int NTrk = particleMom.size();
   TLorentzVector totalMom;
   for( unsigned int it=0; it<NTrk; it++) totalMom += particleMom[it];
-  std::vector<double>dTaudpx(NTrk), dTaudpy(NTrk);
 
-  for( unsigned int it=0; it<NTrk; it++) {
-    dTaudpx[it] = (M*dx)/(PT*PT) - 2.*M*LXY*Px/(PT*PT*PT*PT);
-    dTaudpy[it] = (M*dy)/(PT*PT) - 2.*M*LXY*Py/(PT*PT*PT*PT);
-  }
   double dTaudx = (M*Px)/(PT*PT);
   double dTaudy = (M*Py)/(PT*PT);
   double dTaudx0 = -dTaudx;
@@ -318,8 +282,8 @@ double CascadeTools::tauError(std::vector<TLorentzVector> particleMom, const Amg
   D_vec(1) = dTaudy;
   D_vec(2) = 0.;
   for( unsigned int it=0; it<NTrk; it++) {
-    D_vec(3*it+3) = dTaudpx[it];
-    D_vec(3*it+4) = dTaudpy[it];
+    D_vec(3*it+3) = (M*dx)/(PT*PT) - 2.*M*LXY*Px/(PT*PT*PT*PT);
+    D_vec(3*it+4) = (M*dy)/(PT*PT) - 2.*M*LXY*Py/(PT*PT*PT*PT);
     D_vec(3*it+5) = 0.;
   }
   D_vec(3*NTrk+3) = dTaudx0;
@@ -338,7 +302,7 @@ double CascadeTools::tauError(std::vector<TLorentzVector> particleMom, const Amg
   return CONST*tauErr;
 }
 
-Amg::Vector3D CascadeTools::pca(std::vector<TLorentzVector> particleMom, xAOD::Vertex* SV, const xAOD::Vertex* PV) const
+Amg::Vector3D CascadeTools::pca(const std::vector<TLorentzVector> &particleMom, xAOD::Vertex* SV, const xAOD::Vertex* PV) const
 {
   if(particleMom.size() == 0) {
     Amg::Vector3D p; p.setZero();
@@ -352,7 +316,7 @@ Amg::Vector3D CascadeTools::pca(std::vector<TLorentzVector> particleMom, xAOD::V
   return sv - P*pdr/p2;
 }
 
-double CascadeTools::cosTheta(std::vector<TLorentzVector> particleMom, xAOD::Vertex* SV, const xAOD::Vertex* PV) const
+double CascadeTools::cosTheta(const std::vector<TLorentzVector> &particleMom, xAOD::Vertex* SV, const xAOD::Vertex* PV) const
 {
   if(particleMom.size() == 0) return -999999.;
   Amg::Vector3D P = Momentum(particleMom);;
@@ -361,7 +325,7 @@ double CascadeTools::cosTheta(std::vector<TLorentzVector> particleMom, xAOD::Ver
   return (P.dot(vtx))/(P.mag()*vtx.mag());
 }
 
-double CascadeTools::cosTheta_xy(std::vector<TLorentzVector> particleMom, xAOD::Vertex* SV, const xAOD::Vertex* PV) const
+double CascadeTools::cosTheta_xy(const std::vector<TLorentzVector> &particleMom, xAOD::Vertex* SV, const xAOD::Vertex* PV) const
 {
   if(particleMom.size() == 0) return -999999.;
   Amg::Vector3D P = Momentum(particleMom);;
@@ -371,7 +335,7 @@ double CascadeTools::cosTheta_xy(std::vector<TLorentzVector> particleMom, xAOD::
   return (P.x()*vtx.x()+P.y()*vtx.y())/(pT*vtx.perp());
 }
 
-double CascadeTools::a0z(std::vector<TLorentzVector> particleMom, xAOD::Vertex* SV, const xAOD::Vertex* PV) const
+double CascadeTools::a0z(const std::vector<TLorentzVector> &particleMom, xAOD::Vertex* SV, const xAOD::Vertex* PV) const
 {
   if(particleMom.size() == 0) return -999999.;
   Amg::Vector3D pv = PV->position();
@@ -380,7 +344,7 @@ double CascadeTools::a0z(std::vector<TLorentzVector> particleMom, xAOD::Vertex* 
   return a0_vec.z();
 }
 
-double CascadeTools::a0zError(std::vector<TLorentzVector> particleMom, const Amg::MatrixX& cov, xAOD::Vertex* SV, const xAOD::Vertex* PV) const
+double CascadeTools::a0zError(const std::vector<TLorentzVector> &particleMom, const Amg::MatrixX& cov, xAOD::Vertex* SV, const xAOD::Vertex* PV) const
 {
   if(particleMom.size() == 0) return -999999.;
   auto vert = SV->position() - PV->position();
@@ -395,12 +359,8 @@ double CascadeTools::a0zError(std::vector<TLorentzVector> particleMom, const Amg
   double L = Px*dx+Py*dy+Pz*dz;
 
   unsigned int NTrk = particleMom.size();
-  std::vector<double>da0zdpx(NTrk), da0zdpy(NTrk), da0zdpz(NTrk);
-  for( unsigned int it=0; it<NTrk; it++) {
-    da0zdpx[it] = (Pz*(P2*dx-2.*L*Px))/(P2*P2);
-    da0zdpy[it] = (Pz*(P2*dy-2.*L*Py))/(P2*P2);
-    da0zdpz[it] = (Pz*(P2*dz-2.*L*Pz))/(P2*P2)+L/P2;
-  }
+
+
   double da0zdx = (Px*Pz)/P2;
   double da0zdy = (Py*Pz)/P2;
   double da0zdz = (Pz*Pz)/P2 - 1.;
@@ -413,9 +373,9 @@ double CascadeTools::a0zError(std::vector<TLorentzVector> particleMom, const Amg
   D_vec(1) = da0zdy;
   D_vec(2) = da0zdz;
   for( unsigned int it=0; it<NTrk; it++) {
-    D_vec(3*it+3) = da0zdpx[it];
-    D_vec(3*it+4) = da0zdpy[it];
-    D_vec(3*it+5) = da0zdpz[it];
+    D_vec(3*it+3) = (Pz*(P2*dx-2.*L*Px))/(P2*P2);
+    D_vec(3*it+4) = (Pz*(P2*dy-2.*L*Py))/(P2*P2);
+    D_vec(3*it+5) = (Pz*(P2*dz-2.*L*Pz))/(P2*P2)+L/P2;
   }
   D_vec(3*NTrk+3) = da0zdx0;
   D_vec(3*NTrk+4) = da0zdy0;
@@ -432,7 +392,7 @@ double CascadeTools::a0zError(std::vector<TLorentzVector> particleMom, const Amg
   return (a0zErrsq>0.) ? sqrt(a0zErrsq) : 0.;
 }
 
-double CascadeTools::a0xy(std::vector<TLorentzVector> particleMom, xAOD::Vertex* SV, const xAOD::Vertex* PV) const
+double CascadeTools::a0xy(const std::vector<TLorentzVector> &particleMom, xAOD::Vertex* SV, const xAOD::Vertex* PV) const
 {
   if(particleMom.size() == 0) return -999999.;
   double cosineTheta_xy = cosTheta_xy(particleMom,SV,PV);
@@ -440,7 +400,7 @@ double CascadeTools::a0xy(std::vector<TLorentzVector> particleMom, xAOD::Vertex*
   return (SV->position()-PV->position()).perp() * sinTheta_xy;
 }
 
-double CascadeTools::a0xyError(std::vector<TLorentzVector> particleMom, const Amg::MatrixX& cov, xAOD::Vertex* SV, const xAOD::Vertex* PV) const
+double CascadeTools::a0xyError(const std::vector<TLorentzVector> &particleMom, const Amg::MatrixX& cov, xAOD::Vertex* SV, const xAOD::Vertex* PV) const
 {
   if(particleMom.size() == 0) return -999999.;
   auto vert = SV->position() - PV->position();
@@ -455,11 +415,7 @@ double CascadeTools::a0xyError(std::vector<TLorentzVector> particleMom, const Am
   double d = sqrt((P2*dR2-L*L)/P2);
 
   unsigned int NTrk = particleMom.size();
-  std::vector<double>da0dpx(NTrk), da0dpy(NTrk);
-  for( unsigned int it=0; it<NTrk; it++) {
-    da0dpx[it] = (L*(L*Px-P2*dx))/(P2*P2*d);
-    da0dpy[it] = (L*(L*Py-P2*dy))/(P2*P2*d);
-  }
+
   double da0dx = (P2*dx-L*Px)/(P2*d);
   double da0dy = (P2*dy-L*Py)/(P2*d);
   double da0dx0 = -da0dx;
@@ -470,8 +426,8 @@ double CascadeTools::a0xyError(std::vector<TLorentzVector> particleMom, const Am
   D_vec(1) = da0dy;
   D_vec(2) = 0.;
   for( unsigned int it=0; it<NTrk; it++) {
-    D_vec(3*it+3) = da0dpx[it];
-    D_vec(3*it+4) = da0dpy[it];
+    D_vec(3*it+3) = (L*(L*Px-P2*dx))/(P2*P2*d);
+    D_vec(3*it+4) = (L*(L*Py-P2*dy))/(P2*P2*d);
     D_vec(3*it+5) = 0.;
   }
   D_vec(3*NTrk+3) = da0dx0;
@@ -489,7 +445,7 @@ double CascadeTools::a0xyError(std::vector<TLorentzVector> particleMom, const Am
   return (a0xyErrsq>0.) ? sqrt(a0xyErrsq) : 0.;
 }
 
-double CascadeTools::a0(std::vector<TLorentzVector> particleMom, xAOD::Vertex* SV, const xAOD::Vertex* PV) const
+double CascadeTools::a0(const std::vector<TLorentzVector> &particleMom, xAOD::Vertex* SV, const xAOD::Vertex* PV) const
 {
   if(particleMom.size() == 0) return -999999.;
   double cosineTheta = cosTheta(particleMom,SV,PV);
@@ -497,7 +453,7 @@ double CascadeTools::a0(std::vector<TLorentzVector> particleMom, xAOD::Vertex* S
   return (SV->position()-PV->position()).mag() * sinTheta;
 }
 
-double CascadeTools::a0Error(std::vector<TLorentzVector> particleMom, const Amg::MatrixX& cov, xAOD::Vertex* SV, const xAOD::Vertex* PV) const
+double CascadeTools::a0Error(const std::vector<TLorentzVector> &particleMom, const Amg::MatrixX& cov, xAOD::Vertex* SV, const xAOD::Vertex* PV) const
 {
   if(particleMom.size() == 0) return -999999.;
   auto vert = SV->position() - PV->position();
@@ -514,12 +470,7 @@ double CascadeTools::a0Error(std::vector<TLorentzVector> particleMom, const Amg:
   double d = sqrt((P2*dR2-L*L)/P2);
 
   unsigned int NTrk = particleMom.size();
-  std::vector<double>da0dpx(NTrk), da0dpy(NTrk), da0dpz(NTrk);
-  for( unsigned int it=0; it<NTrk; it++) {
-    da0dpx[it] = (L*(L*Px-P2*dx))/(P2*P2*d);
-    da0dpy[it] = (L*(L*Py-P2*dy))/(P2*P2*d);
-    da0dpz[it] = (L*(L*Pz-P2*dz))/(P2*P2*d);
-  }
+
   double da0dx = (P2*dx-L*Px)/(P2*d);
   double da0dy = (P2*dy-L*Py)/(P2*d);
   double da0dz = (P2*dz-L*Pz)/(P2*d);
@@ -532,9 +483,9 @@ double CascadeTools::a0Error(std::vector<TLorentzVector> particleMom, const Amg:
   D_vec(1) = da0dy;
   D_vec(2) = da0dz;
   for( unsigned int it=0; it<NTrk; it++) {
-    D_vec(3*it+3) = da0dpx[it];
-    D_vec(3*it+4) = da0dpy[it];
-    D_vec(3*it+5) = da0dpz[it];
+    D_vec(3*it+3) = (L*(L*Px-P2*dx))/(P2*P2*d);
+    D_vec(3*it+4) = (L*(L*Py-P2*dy))/(P2*P2*d);
+    D_vec(3*it+5) = (L*(L*Pz-P2*dz))/(P2*P2*d);
   }
   D_vec(3*NTrk+3) = da0dx0;
   D_vec(3*NTrk+4) = da0dy0;
@@ -551,7 +502,7 @@ double CascadeTools::a0Error(std::vector<TLorentzVector> particleMom, const Amg:
   return (a0Errsq>0.) ? sqrt(a0Errsq) : 0.;
 }
 
-Amg::Vector3D CascadeTools::Momentum(std::vector<TLorentzVector> particleMom) const
+Amg::Vector3D CascadeTools::Momentum(const std::vector<TLorentzVector> &particleMom) const
 {
   if(particleMom.size() == 0) {
     Amg::Vector3D p; p.setZero();
@@ -630,7 +581,7 @@ Amg::MatrixX * CascadeTools::convertCovMatrix(xAOD::Vertex * vxCandidate) const
   return mtx;
 } 
   
-Amg::MatrixX CascadeTools::SetFullMatrix(int NTrk, std::vector<float> & Matrix) const
+Amg::MatrixX CascadeTools::SetFullMatrix(int NTrk, const std::vector<float> & Matrix) const
 {
 
   Amg::MatrixX mtx(3+3*NTrk,3+3*NTrk);   // Create identity matrix of needed size
