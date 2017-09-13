@@ -5,6 +5,11 @@
 #include "GaudiKernel/Property.h"
 #include "TrigJetHypo.h"
 
+using TrigCompositeUtils::DecisionContainer;
+using TrigCompositeUtils::DecisionAuxContainer;
+using TrigCompositeUtils::newDecisionIn;
+using TrigCompositeUtils::addDecisionID;
+
 TrigJetHypo::TrigJetHypo( const std::string& name, 
                           ISvcLocator* pSvcLocator ) : 
   ::AthReentrantAlgorithm( name, pSvcLocator ),
