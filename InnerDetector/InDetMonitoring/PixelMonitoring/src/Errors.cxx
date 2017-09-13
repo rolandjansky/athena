@@ -240,6 +240,15 @@ StatusCode PixelMainMon::bookRODErrorMon(void) {
     }
   }
 
+  if (m_do2DMaps) {
+    m_errhist_femcc_errwords_map = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW("femcc_errorwords", ("Average FE/MCC Error Words" + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL2D3D));
+    sc = m_errhist_femcc_errwords_map->regHist(rodHistos);
+    m_errhist_bitstr_occ_errors = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW("Bitstr_Occ_Errors", ("Average Bit-Stream Occupancy (FE/MCC Errors, at 100k L1)" + m_histTitleExt).c_str(), PixMon::HistConf::kPix));
+    sc = m_errhist_bitstr_occ_errors->regHist(rodHistos);
+    m_errhist_bitstr_occ_tot = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW("Bitstr_Occ_Tot", ("Average Bit-Stream Occupancy (at 100k L1)" + m_histTitleExt).c_str(), PixMon::HistConf::kPix));
+    sc = m_errhist_bitstr_occ_tot->regHist(rodHistos);
+  }
+
   for (int j = 0; j < kNumErrorStates; j++) {
     for (int i = 0; i < PixLayer::COUNT - 1; i++) {
       hname = makeHistname((error_state_labels[j].first + "_per_lumi_" + modlabel2[i]), false);
@@ -250,11 +259,6 @@ StatusCode PixelMainMon::bookRODErrorMon(void) {
     htitles = makeHisttitle((error_state_labels[j].second + " per event per LB"), "", false);
     m_errhist_expert_maps[j] = std::make_unique<PixelMon2DMapsLW>(PixelMon2DMapsLW(hname.c_str(), htitles.c_str(), PixMon::HistConf::kPix, true));
     sc = m_errhist_expert_maps[j]->regHist(rodExpert);
-  }
-
-  if (m_do2DMaps) {
-    m_errhist_femcc_errwords_map = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW("femcc_errorwords", ("Average FE/MCC Error Words" + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL2D3D));
-    sc = m_errhist_femcc_errwords_map->regHist(rodHistos);
   }
 
   for (int j = 0; j < kNumErrorStatesIBL; j++) {
@@ -546,6 +550,8 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
     }
 
     m_errhist_femcc_errwords_map->fill(WaferID, m_pixelid, num_femcc_errwords);
+    m_errhist_bitstr_occ_errors->fill(WaferID, m_pixelid, getBitStreamFraction(WaferID, num_femcc_errwords * 22));
+    m_errhist_bitstr_occ_tot->fill(WaferID, m_pixelid, getBitStreamFraction(WaferID, getEventBitLength(WaferID, num_femcc_errwords)));
 
     if (m_doLumiBlock) {
       if (m_errors_ModSync_mod && has_err_type[0]) m_errors_ModSync_mod->fill(WaferID, m_pixelid);

@@ -505,6 +505,8 @@ class PixelMainMon : public ManagedMonitorToolBase {
   TProfile* m_error_time3;
   std::unique_ptr<PixelMonModules1D> m_errors;
   std::unique_ptr<PixelMon2DProfilesLW> m_errhist_femcc_errwords_map;
+  std::unique_ptr<PixelMon2DProfilesLW> m_errhist_bitstr_occ_errors;
+  std::unique_ptr<PixelMon2DProfilesLW> m_errhist_bitstr_occ_tot;
 
   // Histograms in 'ErrorsExpert' folder
   std::unique_ptr<PixelMon2DMapsLW> m_errhist_expert_maps[kNumErrorStates + kNumErrorStatesIBL];
