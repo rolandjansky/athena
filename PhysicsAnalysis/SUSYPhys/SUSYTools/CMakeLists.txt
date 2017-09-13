@@ -52,8 +52,8 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODPrimitives
    PhysicsAnalysis/AnalysisCommon/IsolationSelection
    PhysicsAnalysis/AnalysisCommon/PileupReweighting
-   PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
    PhysicsAnalysis/ElectronPhotonID/IsolationCorrections
+   PhysicsAnalysis/ElectronPhotonID/EgammaAnalysisHelpers
    PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces
    PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
    PhysicsAnalysis/JetMissingEtID/JetSelectorTools
@@ -94,7 +94,8 @@ atlas_add_library( SUSYToolsLib
    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${BOOST_LIBRARIES}
    AthContainers EventPrimitives FourMomUtils xAODBTagging xAODBase
    xAODPrimitives IsolationSelectionLib PileupReweightingLib
-   ElectronPhotonSelectorToolsLib IsolationCorrectionsLib JetSelectorToolsLib
+   EgammaAnalysisInterfacesLib EgammaAnalysisHelpersLib		
+   IsolationCorrectionsLib JetSelectorToolsLib
    xAODBTaggingEfficiencyLib MuonEfficiencyCorrectionsLib
    MuonMomentumCorrectionsLib MuonSelectorToolsLib TauAnalysisToolsLib
    JetCPInterfaces JetCalibToolsLib JetInterface JetResolutionLib

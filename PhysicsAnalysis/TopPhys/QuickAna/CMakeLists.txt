@@ -41,6 +41,7 @@ atlas_depends_on_subdirs(
    PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
    PhysicsAnalysis/ElectronPhotonID/IsolationCorrections
    PhysicsAnalysis/ElectronPhotonID/PhotonEfficiencyCorrection
+   PhysicsAnalysis/ElectronPhotonID/EgammaAnalysisHelper
    PhysicsAnalysis/JetMissingEtID/JetSelectorTools
    PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/xAODBTaggingEfficiency
    PhysicsAnalysis/MuonID/MuonsIDAnalysis/MuonEfficiencyCorrections
@@ -92,7 +93,7 @@ atlas_add_library( QuickAnaLib
    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES}
    CxxUtils EventPrimitives xAODBase xAODTracking PileupReweightingLib
    ElectronEfficiencyCorrectionLib ElectronPhotonFourMomentumCorrectionLib
-   ElectronPhotonShowerShapeFudgeToolLib ElectronPhotonSelectorToolsLib
+   ElectronPhotonShowerShapeFudgeToolLib ElectronPhotonSelectorToolsLib EgammaAnalysisHelpersLib
    IsolationCorrectionsLib PhotonEfficiencyCorrectionLib JetSelectorToolsLib
    xAODBTaggingEfficiencyLib MuonEfficiencyCorrectionsLib
    MuonMomentumCorrectionsLib MuonSelectorToolsLib TauAnalysisToolsLib

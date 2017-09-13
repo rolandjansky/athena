@@ -24,7 +24,7 @@
 #include <xAODTracking/TrackParticlexAODHelpers.h>
 
 // Helper for object quality
-#include <ElectronPhotonSelectorTools/PhotonSelectorHelpers.h>
+#include <EgammaAnalysisHelpers/PhotonHelpers.h>
 
 // The photon tools are apparently lazy?
 #include <PathResolver/PathResolver.h>
@@ -170,7 +170,7 @@ namespace ana
                             (photon.author() & xAOD::EgammaParameters::AuthorAmbiguous) );
 
     // Photon cleaning from the same TWiki
-    cut_cleaning.setPassedIf( PhotonSelectorHelpers::passOQquality( &photon ) );
+    cut_cleaning.setPassedIf( PhotonHelpers::passOQquality( &photon ) );
 
     // Using MC15/R20 selections
     // Explicit check that the photon is not in the crack
