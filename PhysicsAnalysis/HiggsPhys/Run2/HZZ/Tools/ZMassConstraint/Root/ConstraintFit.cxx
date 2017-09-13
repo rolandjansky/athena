@@ -16,7 +16,7 @@
 #include "ZMassConstraint/ConstraintFit.h"
 #include "ZMassConstraint/ConstraintFitInput.h"
 #include "ZMassConstraint/ConstraintFitOutput.h"
-#include "ElectronPhotonFourMomentumCorrection/IEgammaCalibrationAndSmearingTool.h"
+#include "EgammaAnalysisInterfaces/IEgammaCalibrationAndSmearingTool.h"
 #include "MuonMomentumCorrections/MuonCalibrationAndSmearingTool.h"
 
 namespace ZMassConstraint 
