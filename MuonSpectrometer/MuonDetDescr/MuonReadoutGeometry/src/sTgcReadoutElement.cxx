@@ -491,6 +491,7 @@ reLog() << MSG::INFO<<"initDesign  Sum Height Check: "<<stgc->GetName()<<" stgc-
 
       // strip plane moved along normal, pad plane in the opposite direction
       double shift = 0.5*m_etaDesign[layer].thickness;
+      if (layer%2) shift = -shift; // In layers indexed 1 and 3, order is reversed
 
       // identifier of the first channel - strip plane
       id = manager()->stgcIdHelper()->channelID(getStationName(),getStationEta(),getStationPhi(),m_ml, layer+1, 1, 1);
