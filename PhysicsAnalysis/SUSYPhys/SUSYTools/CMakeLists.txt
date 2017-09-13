@@ -33,7 +33,7 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODTruth
    PhysicsAnalysis/AnalysisCommon/AssociationUtils
    PhysicsAnalysis/AnalysisCommon/PATInterfaces
-   PhysicsAnalysis/AnalysisCommon/PMGTools
+   PhysicsAnalysis/Interfaces/PMGAnalysisInterfaces
    PhysicsAnalysis/MCTruthClassifier
    Reconstruction/Jet/JetJvtEfficiency
    Reconstruction/Jet/JetSubStructureUtils
@@ -52,12 +52,9 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODPrimitives
    PhysicsAnalysis/AnalysisCommon/IsolationSelection
    PhysicsAnalysis/AnalysisCommon/PileupReweighting
-   PhysicsAnalysis/ElectronPhotonID/ElectronEfficiencyCorrection
-   PhysicsAnalysis/ElectronPhotonID/ElectronPhotonFourMomentumCorrection
-   PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
-   PhysicsAnalysis/ElectronPhotonID/ElectronPhotonShowerShapeFudgeTool
    PhysicsAnalysis/ElectronPhotonID/IsolationCorrections
-   PhysicsAnalysis/ElectronPhotonID/PhotonEfficiencyCorrection
+   PhysicsAnalysis/ElectronPhotonID/EgammaAnalysisHelpers
+   PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces
    PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
    PhysicsAnalysis/JetMissingEtID/JetSelectorTools
    PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/xAODBTaggingEfficiency
@@ -92,14 +89,13 @@ atlas_add_library( SUSYToolsLib
    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${BOOST_INCLUDE_DIRS}
    LINK_LIBRARIES AsgTools xAODCore xAODEgamma xAODEventInfo
    xAODJet xAODMissingET xAODMuon xAODTau xAODTracking xAODTruth
-   AssociationUtilsLib PATInterfaces TrigDecisionToolLib PMGToolsLib
+   AssociationUtilsLib PATInterfaces TrigDecisionToolLib 
    MCTruthClassifierLib JetJvtEfficiencyLib JetSubStructureUtils
    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${BOOST_LIBRARIES}
    AthContainers EventPrimitives FourMomUtils xAODBTagging xAODBase
    xAODPrimitives IsolationSelectionLib PileupReweightingLib
-   ElectronEfficiencyCorrectionLib ElectronPhotonFourMomentumCorrectionLib
-   ElectronPhotonSelectorToolsLib ElectronPhotonShowerShapeFudgeToolLib
-   IsolationCorrectionsLib PhotonEfficiencyCorrectionLib JetSelectorToolsLib
+   EgammaAnalysisInterfacesLib EgammaAnalysisHelpersLib		
+   IsolationCorrectionsLib JetSelectorToolsLib
    xAODBTaggingEfficiencyLib MuonEfficiencyCorrectionsLib
    MuonMomentumCorrectionsLib MuonSelectorToolsLib TauAnalysisToolsLib
    JetCPInterfaces JetCalibToolsLib JetInterface JetResolutionLib
@@ -140,7 +136,7 @@ atlas_add_executable( SUSYToolsTester
 atlas_add_executable( SUSYTools_check_xsections
    util/check_xsections.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} PMGToolsLib SUSYToolsLib )
+   LINK_LIBRARIES ${ROOT_LIBRARIES} SUSYToolsLib )
 
 if( XAOD_STANDALONE )
    atlas_add_executable( SUSYTools_check_syst

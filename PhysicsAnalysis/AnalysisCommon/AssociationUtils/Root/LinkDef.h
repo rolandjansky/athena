@@ -20,16 +20,12 @@
 #include "AssociationUtils/TauJetOverlapTool.h"
 #include "AssociationUtils/TauAntiTauJetOverlapTool.h"
 #include "AssociationUtils/ObjLinkOverlapTool.h"
-//#include "AssociationUtils/ORToolBox.h"
 #include "AssociationUtils/ToolBox.h"
 #include "AssociationUtils/BJetHelper.h"
 #include "AssociationUtils/DeltaRMatcher.h"
 #include "AssociationUtils/MuJetGhostDRMatcher.h"
 #include "AssociationUtils/OverlapDecorationHelper.h"
 #include "AssociationUtils/OverlapLinkHelper.h"
-
-#include "AssociationUtils/IOverlapRemovalToolLegacy.h"
-#include "AssociationUtils/OverlapRemovalToolLegacy.h"
 
 #pragma link off all globals;
 #pragma link off all classes;
@@ -56,18 +52,12 @@
 
 // Helpers
 #pragma link C++ class ORUtils::ToolBox+;
-//#pragma link C++ class ORUtils::ToolBoxBase+;
-//#pragma link C++ class ORUtils::ORToolBox+;
 #pragma link C++ class ORUtils::BJetHelper+;
 #pragma link C++ class ORUtils::DeltaRMatcher+;
 #pragma link C++ class ORUtils::SlidingDeltaRMatcher+;
 #pragma link C++ class ORUtils::MuJetGhostDRMatcher+;
 #pragma link C++ class ORUtils::OverlapDecorationHelper+;
 #pragma link C++ class ORUtils::OverlapLinkHelper+;
-
-// Legacy tools
-#pragma link C++ class IOverlapRemovalTool+;
-#pragma link C++ class OverlapRemovalTool+;
 
 #endif // __CLING__
 

@@ -11,7 +11,14 @@
 #include "TruthUtils/PIDHelpers.h"
 #include "PathResolver/PathResolver.h"
 
+#include "GenInterfaces/IHiggsTruthCategoryTool.h"
+#include "GenInterfaces/IxAODtoHepMCTool.h"
+
 #include "CLHEP/Units/SystemOfUnits.h"
+
+// Note: must include TLorentzVector before the next one
+#include "TLorentzVector.h"
+#include "TruthRivetTools/HiggsTemplateCrossSectionsDefs.h"
 
 #include <TObjString.h>
 #include <TObjArray.h>
@@ -190,43 +197,45 @@ namespace DerivationFramework {
     }
 
     // classify event according to simplified template cross section
-    HTXS::HiggsClassification htxs =  m_higgsTruthCatTool->getHiggsTruthCategoryObject(hepmc_evts[0],prodMode);
+    HTXS::HiggsClassification *htxs =  m_higgsTruthCatTool->getHiggsTruthCategoryObject(hepmc_evts[0],prodMode);
     
     // Decorate the enums
-    eventInfo->auxdecor<int>("HTXS_prodMode")   = (int)htxs.prodMode;
-    eventInfo->auxdecor<int>("HTXS_errorCode")  = (int)htxs.errorCode;
-    eventInfo->auxdecor<int>("HTXS_Stage0_Category") = (int)htxs.stage0_cat;
+    eventInfo->auxdecor<int>("HTXS_prodMode")   = (int)htxs->prodMode;
+    eventInfo->auxdecor<int>("HTXS_errorCode")  = (int)htxs->errorCode;
+    eventInfo->auxdecor<int>("HTXS_Stage0_Category") = (int)htxs->stage0_cat;
 
-    eventInfo->auxdecor<int>("HTXS_Stage1_Category_pTjet25") = (int)htxs.stage1_cat_pTjet25GeV;
-    eventInfo->auxdecor<int>("HTXS_Stage1_Category_pTjet30") = (int)htxs.stage1_cat_pTjet30GeV;
+    eventInfo->auxdecor<int>("HTXS_Stage1_Category_pTjet25") = (int)htxs->stage1_cat_pTjet25GeV;
+    eventInfo->auxdecor<int>("HTXS_Stage1_Category_pTjet30") = (int)htxs->stage1_cat_pTjet30GeV;
 
-    eventInfo->auxdecor<int>("HTXS_Stage1_FineIndex_pTjet30") = HTXSstage1_to_HTXSstage1FineIndex(htxs,th_type);
-    eventInfo->auxdecor<int>("HTXS_Stage1_FineIndex_pTjet25") = HTXSstage1_to_HTXSstage1FineIndex(htxs,th_type,true);
+    eventInfo->auxdecor<int>("HTXS_Stage1_FineIndex_pTjet30") = HTXSstage1_to_HTXSstage1FineIndex(*htxs,th_type);
+    eventInfo->auxdecor<int>("HTXS_Stage1_FineIndex_pTjet25") = HTXSstage1_to_HTXSstage1FineIndex(*htxs,th_type,true);
 
-    eventInfo->auxdecor<int>("HTXS_Njets_pTjet25")  = (int)htxs.jets25.size();
-    eventInfo->auxdecor<int>("HTXS_Njets_pTjet30")  = (int)htxs.jets30.size();
+    eventInfo->auxdecor<int>("HTXS_Njets_pTjet25")  = (int)htxs->jets25.size();
+    eventInfo->auxdecor<int>("HTXS_Njets_pTjet30")  = (int)htxs->jets30.size();
     
 
     // At the very least, save the Higgs boson pT
-    if (m_detailLevel==0) eventInfo->auxdecor<float>("HTXS_Higgs_pt") = htxs.higgs.Pt()/CLHEP::GeV;
+    if (m_detailLevel==0) eventInfo->auxdecor<float>("HTXS_Higgs_pt") = htxs->higgs.Pt()/CLHEP::GeV;
 
     if (m_detailLevel>0) {
       // The Higgs and the associated V (last instances prior to decay)
-      decorateFourVec(eventInfo,"HTXS_Higgs",htxs.higgs);
-      decorateFourVec(eventInfo,"HTXS_V",htxs.V);
+      decorateFourVec(eventInfo,"HTXS_Higgs",htxs->higgs);
+      decorateFourVec(eventInfo,"HTXS_V",htxs->V);
     }
 
     if (m_detailLevel>1) {
       // Jets built excluding Higgs decay products
-      decorateFourVecs(eventInfo,"HTXS_V_jets25",htxs.jets25);
-      decorateFourVecs(eventInfo,"HTXS_V_jets30",htxs.jets30);
+      decorateFourVecs(eventInfo,"HTXS_V_jets25",htxs->jets25);
+      decorateFourVecs(eventInfo,"HTXS_V_jets30",htxs->jets30);
     }
 
     if (m_detailLevel>2) {
       // Everybody might not want this ... but good for validation
-      decorateFourVec(eventInfo,"HTXS_Higgs_decay",htxs.p4decay_higgs);
-      decorateFourVec(eventInfo,"HTXS_V_decay",htxs.p4decay_V);
+      decorateFourVec(eventInfo,"HTXS_Higgs_decay",htxs->p4decay_higgs);
+      decorateFourVec(eventInfo,"HTXS_V_decay",htxs->p4decay_V);
     }
+
+    delete htxs;
 
     return StatusCode::SUCCESS;
 

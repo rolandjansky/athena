@@ -288,8 +288,8 @@ STDM4SlimmingHelper.SmartCollections = ["Electrons",
                                         "InDetTrackParticles",
                                         "PrimaryVertices" ]
 
-#STDM4SlimmingHelper.IncludeEGammaTriggerContent = True
-#STDM4SlimmingHelper.IncludeMuonTriggerContent = True
+STDM4SlimmingHelper.IncludeEGammaTriggerContent = True
+STDM4SlimmingHelper.IncludeMuonTriggerContent = True
 
 # removed end of line ot build in rel21
 STDM4SlimmingHelper.ExtraVariables = ExtraContentAll +["JetETMissChargedParticleFlowObjects.pt.eta.phi.m.DFCommonPFlow_PVMatched.DFCommonPFlow_CaloCorrectedPt","JetETMissNeutralParticleFlowObjects.pt.eta.phi.m.centerMag"]#+NewTrigVars

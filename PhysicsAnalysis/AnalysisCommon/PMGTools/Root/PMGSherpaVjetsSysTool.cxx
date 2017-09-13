@@ -5,8 +5,9 @@
 // $Id: PMGSherpaVjetsSysTool.cxx.cxx 2016-07-12 tripiana $
 
 // ROOT include(s):
-#include <TKey.h>
-#include <TIterator.h>
+#include "TKey.h"
+#include "TIterator.h"
+#include "TH2F.h"
 
 // EDM include(s):
 #include "xAODEventInfo/EventInfo.h"

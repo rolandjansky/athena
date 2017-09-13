@@ -91,13 +91,13 @@ namespace xAOD {
     /// Returns the sector number
     int sector() const;
     /// Returns the chamber index
-    Muon::MuonStationIndex::ChIndex chamberIndex() const;
+    ::Muon::MuonStationIndex::ChIndex chamberIndex() const;
     /// Returns the eta index, which corresponds to stationEta in the offline identifiers (and the ).
     int etaIndex() const;
     /// Returns the main technology of the segment.
-    Muon::MuonStationIndex::TechnologyIndex technology() const;
+    ::Muon::MuonStationIndex::TechnologyIndex technology() const;
     /// Set the identifier
-    void setIdentifier(int sector, Muon::MuonStationIndex::ChIndex chamberIndex, int etaIndex, Muon::MuonStationIndex::TechnologyIndex technology);
+    void setIdentifier(int sector, ::Muon::MuonStationIndex::ChIndex chamberIndex, int etaIndex, ::Muon::MuonStationIndex::TechnologyIndex technology);
     /// @}    
     
     /// @name Hit counts functions

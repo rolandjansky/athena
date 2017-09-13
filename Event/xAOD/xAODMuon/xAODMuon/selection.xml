@@ -1,6 +1,10 @@
 <?xml version="1.0"?>
 <lcgdict>
 
+  <typedef name="xAOD::Muon" />
+  <typedef name="xAOD::MuonContainer" />
+
+
   <!-- MuonAux _v2 dictionaries: -->
   <class name="xAOD::MuonAuxContainer_v2"
          id="AB53C81C-B10C-11E4-AC59-6C3BE51AB9F1"/>

@@ -1,6 +1,14 @@
 <!-- $Id: selection.xml 789134 2016-12-11 02:15:53Z christos $ -->
 <lcgdict>
 
+  <typedef name="xAOD::Egamma" />
+  <typedef name="xAOD::Electron" />
+  <typedef name="xAOD::Photon" />
+  <typedef name="xAOD::EgammaContainer" />
+  <typedef name="xAOD::ElectronContainer" />
+  <typedef name="xAOD::PhotonContainer" />
+  
+
   <!-- Egamma_v1 dictionaries: -->
   <class name="xAOD::Egamma_v1">
     <field name="m_p4" transient="true" />

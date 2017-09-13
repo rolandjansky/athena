@@ -130,11 +130,16 @@ namespace met {
     double VarparPtSoftdir(const double PtSoft, const double SoftSumet);
 
     // pthard - parameterization
-    //double BiasPtSoftdir(const double PtSoft);
-    //double VarparPtSoftdir(const double PtSoft, const double SoftSumet);
+    double Bias_PtSoftParall(const double PtSoft_Parall);
+    double Var_Ptsoft(const double PtSoft);
 
     // variables
     double m_GeV;
+
+    TVector3 m_met_vect;
+    TVector3 m_soft_vect;
+    TVector3 m_pthard_vect;
+
 
     int    m_softTermParam;
     double m_softTermReso;
@@ -145,6 +150,7 @@ namespace met {
     bool m_isData;
     bool m_isAFII;
 
+    double m_scalarBias;
     double m_significance;
     double m_rho;
     double m_VarL;

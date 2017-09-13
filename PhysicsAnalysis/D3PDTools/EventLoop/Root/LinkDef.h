@@ -2,39 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <EventLoop/Algorithm.h>
-#include <EventLoop/BackgroundDriver.h>
-#include <EventLoop/BackgroundJob.h>
-#include <EventLoop/BackgroundTSelector.h>
-#include <EventLoop/BackgroundWorker.h>
-#include <EventLoop/BatchDriver.h>
-#include <EventLoop/BatchJob.h>
-#include <EventLoop/BatchSegment.h>
-#include <EventLoop/BatchSample.h>
-#include <EventLoop/BatchWorker.h>
-#include <EventLoop/CondorDriver.h>
-#include <EventLoop/DirectDriver.h>
-#include <EventLoop/GEDriver.h>
-#include <EventLoop/Job.h>
-#include <EventLoop/LLDriver.h>
-#include <EventLoop/LSFDriver.h>
-#include <EventLoop/LocalDriver.h>
-#include <EventLoop/OutputStream.h>
-#include <EventLoop/MetricsSvc.h>
-#include <EventLoop/ProofArgs.h>
-#include <EventLoop/ProofDriver.h>
-#include <EventLoop/ProofTSelector.h>
-#include <EventLoop/SoGEDriver.h>
-#include <EventLoop/SlurmDriver.h>
-#include <EventLoop/StatusCode.h>
-#include <EventLoop/TEventSvc.h>
-#include <EventLoop/TorqueDriver.h>
-#include <EventLoop/UnitTestAlg.h>
-#include <EventLoop/UnitTestAlg1.h>
-#include <EventLoop/VomsProxySvc.h>
-#include <EventLoop/Worker.h>
-#include <EventLoop/ProofWorker.h>
-
 #ifdef __CINT__
 
 #pragma link off all globals;
@@ -43,6 +10,7 @@
 #pragma link C++ nestedclass;
 
 #pragma link C++ class EL::Algorithm+;
+#pragma link C++ class EL::AnaAlgorithmWrapper+;
 #pragma link C++ class EL::BackgroundDriver+;
 #pragma link C++ class EL::BackgroundJob+;
 #pragma link C++ class EL::BackgroundTSelector+;
@@ -70,8 +38,6 @@
 #pragma link C++ class EL::SoGEDriver+;
 #pragma link C++ class EL::StatusCode+;
 #pragma link C++ class EL::TorqueDriver+;
-#pragma link C++ class EL::UnitTestAlg+;
-#pragma link C++ class EL::UnitTestAlg1+;
 #pragma link C++ class EL::VomsProxySvc+;
 #pragma link C++ class EL::Worker+;
 

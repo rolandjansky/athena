@@ -72,6 +72,7 @@
 + Reconstruction/egamma/egammaRecEvent
 + Reconstruction/tauRecTools
 + Tools/PathResolver
++ Tools/ART
 + Trigger/TrigAnalysis/TrigAnalysisInterfaces
 + Trigger/TrigAnalysis/TrigBunchCrossingTool
 + Trigger/TrigAnalysis/TrigDecisionTool

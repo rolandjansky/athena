@@ -41,6 +41,7 @@ atlas_depends_on_subdirs(
    PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
    PhysicsAnalysis/ElectronPhotonID/IsolationCorrections
    PhysicsAnalysis/ElectronPhotonID/PhotonEfficiencyCorrection
+   PhysicsAnalysis/ElectronPhotonID/EgammaAnalysisHelper
    PhysicsAnalysis/JetMissingEtID/JetSelectorTools
    PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/xAODBTaggingEfficiency
    PhysicsAnalysis/MuonID/MuonsIDAnalysis/MuonEfficiencyCorrections
@@ -92,7 +93,7 @@ atlas_add_library( QuickAnaLib
    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES}
    CxxUtils EventPrimitives xAODBase xAODTracking PileupReweightingLib
    ElectronEfficiencyCorrectionLib ElectronPhotonFourMomentumCorrectionLib
-   ElectronPhotonShowerShapeFudgeToolLib ElectronPhotonSelectorToolsLib
+   ElectronPhotonShowerShapeFudgeToolLib ElectronPhotonSelectorToolsLib EgammaAnalysisHelpersLib
    IsolationCorrectionsLib PhotonEfficiencyCorrectionLib JetSelectorToolsLib
    xAODBTaggingEfficiencyLib MuonEfficiencyCorrectionsLib
    MuonMomentumCorrectionsLib MuonSelectorToolsLib TauAnalysisToolsLib
@@ -109,7 +110,7 @@ endif()
 
 # Executable(s) in the package:
 if( XAOD_STANDALONE )
-   foreach( exec quickana_basic quickana_multi_wp quickana_output
+   foreach( exec quickana_basic quickana_multi_wp quickana_event_data_filler quickana_output
          quickana_systematics quickana_test_or quickana_truth )
       atlas_add_executable( ${exec}
          util/${exec}.cxx
@@ -198,3 +199,4 @@ endif()
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
 atlas_install_data( share/*.conf )
+atlas_install_scripts( scripts/* )

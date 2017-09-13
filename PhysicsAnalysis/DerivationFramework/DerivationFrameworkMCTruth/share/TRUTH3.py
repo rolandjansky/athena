@@ -43,7 +43,7 @@ TRUTH3SlimmingHelper.AppendToDictionary = {'TruthEvents':'xAOD::TruthEventContai
                                            'TrimmedAntiKt10TruthJets':'xAOD::JetContainer','TrimmedAntiKt10TruthJetsAux':'xAOD::JetAuxContainer'
                                           }
 TRUTH3SlimmingHelper.AllVariables = ["MET_Truth","MET_TruthRegions","TruthElectrons","TruthMuons","TruthPhotons","TruthTaus","TruthNeutrinos","TruthBSM","TruthTop","TruthBoson"]
-TRUTH3SlimmingHelper.ExtraVariables = ["AntiKt4TruthWZJets.GhostCHadronsFinalCount.GhostBHadronsFinalCount.pt.HadronConeExclTruthLabelID.ConeTruthLabelID.PartonTruthLabelID.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T",
+TRUTH3SlimmingHelper.ExtraVariables = ["AntiKt4TruthWZJets.GhostCHadronsFinalCount.GhostBHadronsFinalCount.pt.HadronConeExclTruthLabelID.ConeTruthLabelID.PartonTruthLabelID.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.TrueFlavor",
                                        "TrimmedAntiKt10TruthJets.pt.Tau1_wta.Tau2_wta.Tau3_wta",
                                        "TruthEvents.Q.XF1.XF2.PDGID1.PDGID2.PDFID1.PDFID2.X1.X2.weights.crossSection"]
 TRUTH3SlimmingHelper.AppendContentToStream(TRUTH3Stream)

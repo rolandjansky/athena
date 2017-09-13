@@ -1,8 +1,6 @@
 #!/usr/bin/env python
-
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #
-# $Id: ut_xaodrootaccess_tpyevent_test.py 741414 2016-04-19 17:06:16Z krasznaa $
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #
 # Unit test for the xAOD::TPyEvent class.
 #
@@ -24,10 +22,7 @@ def main():
 
     # Set up the environment:
     import ROOT
-    if ROOT.gROOT.Macro( "$ROOTCOREDIR/scripts/load_packages.C" ):
-        logger.error( "Couldn't load the RootCore packages" )
-        return 1
-    if ROOT.xAOD.Init( APP_NAME ).isFailure():
+    if not ROOT.xAOD.Init( APP_NAME ).isSuccess():
         logger.error( "Failed to call xAOD::Init(...)" )
         return 1
 
@@ -38,17 +33,20 @@ def main():
     store = TPyStore()
 
     # Create a transient tree from a test file:
-    FNAME = "/afs/cern.ch/atlas/project/PAT/xAODs/r5591/" \
-            "mc14_8TeV.117050.PowhegPythia_P2011C_ttbar.recon." \
-            "AOD.e1727_s1933_s1911_r5591/AOD.01494881._105458.pool.root.1"
-    ifile = ROOT.TFile.Open( FNAME, "READ" )
+    import os
+    ifile = ROOT.TFile.Open( "$ASG_TEST_FILE_MC", "READ" )
     if not ifile:
-        logger.error( "Couldn't open input file: %s" % FNAME )
+        logger.error( "Couldn't open input file: %s" %
+                      os.environ.get( "ASG_TEST_FILE_MC",
+                                      "!ASG_TEST_FILE_MC!" ) )
         return 1
     tree = ROOT.xAOD.MakeTransientTree( ifile )
     if not tree:
-        logger.error( "Failed to make transient tree from file: %s" % FNAME )
+        logger.error( "Failed to make transient tree from file: %s" %
+                      os.environ.get( "ASG_TEST_FILE_MC",
+                                      "!ASG_TEST_FILE_MC!" ) )
         return 1
+    import xAODRootAccess.GenerateDVIterators
 
     # Connect the TPyEvent object to an output file:
     ofile = ROOT.TFile.Open( "test.root", "RECREATE" )
@@ -84,22 +82,22 @@ def main():
 
         # Check that the electrons can be accessed:
         logger.info( "  Number of electrons: %i" %
-                     tree.ElectronCollection.size() )
+                     tree.Electrons.size() )
 
         # Copy the electrons into the output:
-        if not event.record( tree.ElectronCollection,
+        if not event.record( tree.Electrons,
                              "AllElectrons" ).isSuccess():
             logger.error( "Failed to record xAOD::ElectronContainer from the "
                           "input file" )
             return 1
-        if not event.record( tree.ElectronCollection.getConstStore(),
+        if not event.record( tree.Electrons.getConstStore(),
                              "AllElectronsAux." ).isSuccess():
             logger.error( "Failed to record xAOD::ElectronAuxContainer from "
                           "the input file" )
             return 1
 
         # Create a container of just the central electrons:
-        cElectrons = ROOT.xAOD.ElectronContainer_v1()
+        cElectrons = ROOT.xAOD.ElectronContainer()
 
         # And record the container into the output right away. (In order to get
         # a proper auxiliary container for it.)
@@ -111,10 +109,9 @@ def main():
 
         # Now put all central electrons into this container, with just a few
         # properties. Since deep copying doesn't work this easily... :-(
-        for i in xrange( tree.ElectronCollection.size() ):
-            el = tree.ElectronCollection.at( i )
+        for el in tree.Electrons:
             if abs( el.eta() ) < 1.0:
-                newEl = ROOT.xAOD.Electron_v1()
+                newEl = ROOT.xAOD.Electron()
                 cElectrons.push_back( newEl )
                 newEl.setP4( el.pt(), el.eta(), el.phi(), el.m() )
                 pass
@@ -125,7 +122,7 @@ def main():
                      cElectrons.size() )
 
         # Put an object into the transient store:
-        trElectrons = ROOT.xAOD.ElectronContainer_v1()
+        trElectrons = ROOT.xAOD.ElectronContainer()
         if not store.record( trElectrons, "TransientElectrons" ).isSuccess():
             logger.error( "Failed to record transient electrons into the "
                           "transient store" )
@@ -133,7 +130,7 @@ def main():
 
         # Check that it is now available through TPyEvent:
         if not event.contains( "TransientElectrons",
-                               ROOT.xAOD.ElectronContainer_v1 ):
+                               ROOT.xAOD.ElectronContainer ):
             logger.error( "Transient electrons not visible through TPyEvent" )
             return 1
 

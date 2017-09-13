@@ -199,17 +199,18 @@ def buildGenericGroomAlg(jetalg, rsize, inputtype, groomedName, jetToolBuilder,
         dfjetlog.info( "Write "+ungroomedName )
 
     from JetRec.JetRecConf import JetAlgorithm
+    # Scheduling the parent jet algorithm
     # return if the alg is already scheduled here :
     if hasattr(algseq,ungroomedalgname):
         dfjetlog.warning( "Algsequence "+algseq.name()+" already has an instance of "+ungroomedalgname )
     elif ungroomedalgname in DFJetAlgs:
-        dfjetlog.info( "Added jet finder"+ ungroomedalgname+" to sequence"+ algseq.name() )
+        dfjetlog.info( "Added jet finder "+ ungroomedalgname+" to sequence"+ algseq.name() )
         algseq += DFJetAlgs[ungroomedalgname]
     else:
         # 1. make sure we have pseudo-jet in our original container
         # this returns a list of the needed tools to do so.
         jetalgTools = reCreatePseudoJets(jetalg, rsize, inputtype, variableRMassScale, variableRMinRadius)
-        if includePreTools:
+        if includePreTools and jetFlags.useTracks() and not "Truth" in inputtype:
             # enable track ghost association and JVF
             jetalgTools =  [jtm.tracksel, jtm.tvassoc] + jetalgTools 
 
@@ -218,14 +219,24 @@ def buildGenericGroomAlg(jetalg, rsize, inputtype, groomedName, jetToolBuilder,
         dfjetlog.info( "Added jet finder "+ungroomedalgname+" to sequence "+algseq.name() )
         algseq += finderalg
 
-    # 2nd step run the trimming alg. We can re-use the original largeR jet since we reassociated the PseudoJet already.
-    fatjet_groom = jetToolBuilder(groomedName, ungroomedName)
+    # Scheduling the groomed jet algorithm
+    # return if the alg is already scheduled here :
+    if hasattr(algseq,algname):
+        dfjetlog.warning( "Algsequence "+algseq.name()+" already has an instance of "+algname )
+    elif algname in DFJetAlgs:
+        dfjetlog.info( "Added jet groomed "+ algname+" to sequence"+ algseq.name() )
+        algseq += DFJetAlgs[algname]
+    else:
 
-    dfjetlog.info( "Added jet groomer "+algname+" to sequence "+algseq.name() )
-    groomeralg = JetAlgorithm(algname, Tools = [fatjet_groom])
-    DFJetAlgs[algname] = groomeralg;
-    algseq += groomeralg
-    return groomeralg
+        # 2nd step run the trimming alg. We can re-use the original largeR jet since we reassociated the PseudoJet already.
+        fatjet_groom = jetToolBuilder(groomedName, ungroomedName)
+
+        groomeralg = JetAlgorithm(algname, Tools = [fatjet_groom])
+        DFJetAlgs[algname] = groomeralg;
+        algseq += groomeralg
+
+        dfjetlog.info( "Added jet groomer "+algname+" to sequence "+algseq.name() )
+    return DFJetAlgs[algname]
 
 ##################################################################
 def addTrimmedJets(jetalg, rsize, inputtype, rclus=0.3, ptfrac=0.05, mods="groomed",

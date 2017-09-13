@@ -15,7 +15,8 @@ svcMgr.EventSelector.InputCollections = [ inputFile ] #specify input files here,
 AST99tauTruthTool = CfgMgr.TauAnalysisTools__TauTruthMatchingTool(
                                         name = "AST99TauTruthMatchingTool",
                               WriteTruthTaus = True,
-                                 OutputLevel = INFO)
+                                 OutputLevel = INFO,
+                       MCTruthClassifierTool = "" ) # This is data!
 ToolSvc += AST99tauTruthTool
 
 ToolSvc += CfgMgr.ST__SUSYObjDef_xAOD("SUSYTools")

@@ -6,29 +6,29 @@
 // TruthMetaDataWriter.cxx, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 // Author: James Catmore (James.Catmore@cern.ch)
-// Removes all truth particles/vertices which do not pass a user-defined cut
 
+// Header for this class
 #include "DerivationFrameworkMCTruth/TruthMetaDataWriter.h"
-#include "EventInfo/EventStreamInfo.h"
-#include "xAODTruth/TruthMetaDataAuxContainer.h"
+
+// EDM Objects that we need
 #include "xAODTruth/TruthMetaData.h"
-#include <vector>
-#include <string>
-#include <numeric>
+#include "xAODTruth/TruthMetaDataAuxContainer.h"
+#include "xAODEventInfo/EventInfo.h"
+
+// Service for the weights
+#include "GenInterfaces/IHepMCWeightSvc.h"
 
 // Constructor
 DerivationFramework::TruthMetaDataWriter::TruthMetaDataWriter(const std::string& t,
-                                                                const std::string& n,
-                                                                const IInterface* p) :
-
-AthAlgTool(t,n,p),
-m_metaStore( "MetaDataStore", n ),
-m_inputMetaStore( "StoreGateSvc/InputMetaDataStore",n)
+                                                              const std::string& n,
+                                                              const IInterface* p)
+  : AthAlgTool(t,n,p)
+  , m_metaStore( "MetaDataStore", n )
+  , m_weightSvc( "HepMCWeightSvc/HepMCWeightSvc" , n )
 {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
     declareProperty( "MetaObjectName", m_metaName = "TruthMetaData" );
     declareProperty( "MetaDataStore", m_metaStore );
-    declareProperty( "WeightNamesMap", m_weightNamesMap );
 }
 
 // Destructor
@@ -39,13 +39,15 @@ DerivationFramework::TruthMetaDataWriter::~TruthMetaDataWriter() {
 StatusCode DerivationFramework::TruthMetaDataWriter::initialize()
 {
     ATH_MSG_VERBOSE("initialize() ...");
-    
+    // Initialize the service handles
     CHECK( m_metaStore.retrieve() );
+    CHECK( m_weightSvc.retrieve() );
+
     // Create an empty truth meta data container:
     xAOD::TruthMetaDataAuxContainer* aux = new xAOD::TruthMetaDataAuxContainer();
     m_tmd = new xAOD::TruthMetaDataContainer();
     m_tmd->setStore( aux );
-    
+    // Record it in the metadata store    
     CHECK( m_metaStore->record( aux, m_metaName + "Aux." ) );
     CHECK( m_metaStore->record( m_tmd, m_metaName ) );
 
@@ -62,29 +64,35 @@ StatusCode DerivationFramework::TruthMetaDataWriter::finalize()
 StatusCode DerivationFramework::TruthMetaDataWriter::addBranches() const
 {
    
-    
-
     //The mcChannelNumber is used as a unique identifier for which truth meta data belongs to
-    const EventStreamInfo* esi = nullptr;
-    CHECK( m_inputMetaStore->retrieve(esi));
-    uint32_t mcChannelNumber = esi->getEventTypes().begin()->mc_channel_number();
+    uint32_t mcChannelNumber = 0;
+    // If this fails, we are running on a datatype with no EventInfo.  Such data types should
+    //  definitely not be mixing MC samples, so this should be safe (will fall back to 0 above)
+    if (evtStore()->contains<xAOD::EventInfo>("McEventInfo")){
+      const DataHandle<xAOD::EventInfo> eventInfo = nullptr;
+      CHECK( evtStore()->retrieve(eventInfo) );
+      mcChannelNumber = eventInfo->mcChannelNumber();
+    }
     
     //Inserting in a (unordered_)set returns an <iterator, boolean> pair, where the boolean
     //is used to check if the key already exists (returns false in the case it exists)
     if( m_existingMetaDataChan.insert(mcChannelNumber).second ) {
         xAOD::TruthMetaData* md = new xAOD::TruthMetaData();
         m_tmd->push_back( md );
-       
+
+        // Get the list of weights from the metadata       
+        std::map<std::string,std::size_t> weight_name_map = m_weightSvc->weightNames();
+
         std::vector<std::string> orderedWeightNameVec;
-        orderedWeightNameVec.reserve( m_weightNamesMap.size() );
-        for (auto& entry: m_weightNamesMap) {
+        orderedWeightNameVec.reserve( weight_name_map.size() );
+        for (auto& entry: weight_name_map) {
             orderedWeightNameVec.push_back(entry.first);
         }
        
         //The map from the HepMC record pairs the weight names with a corresponding index,
         //it is not guaranteed that the indices are ascending when iterating over the map
         std::sort(orderedWeightNameVec.begin(), orderedWeightNameVec.end(),
-                  [&](std::string i, std::string j){return m_weightNamesMap.at(i) < m_weightNamesMap.at(j);});
+                  [&](std::string i, std::string j){return weight_name_map.at(i) < weight_name_map.at(j);});
        
         md->setMcChannelNumber(mcChannelNumber);
         md->setWeightNames( std::move(orderedWeightNameVec) );

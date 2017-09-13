@@ -36,7 +36,7 @@
 #include "xAODTruth/TruthEventContainer.h"
 #include "xAODTruth/TruthEventAuxContainer.h"
 
-#include "HFORTools/IHFORSelectionTool.h"
+#include "PMGAnalysisInterfaces/IHFORSelectionTool.h"
 #include "HFORTools/HFOR_Truth.h"
 
 class HFORSelectionTool: public asg::AsgMetadataTool, public virtual IHFORSelectionTool {
@@ -45,7 +45,7 @@ class HFORSelectionTool: public asg::AsgMetadataTool, public virtual IHFORSelect
   //Note: if you add a second interface to your tool, you must use: ASG_TOOL_CLASS2( ToolName, Interface1, Interface2)
   ASG_TOOL_CLASS( HFORSelectionTool , IHFORSelectionTool )
 
-	HFORSelectionTool( const std::string& name );
+  HFORSelectionTool( const std::string& name );
 
   //Initialize the tool
   virtual StatusCode  initialize() override;

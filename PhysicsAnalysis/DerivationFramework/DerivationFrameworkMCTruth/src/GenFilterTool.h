@@ -29,6 +29,7 @@
 #include <string>
 
 class IMCTruthClassifier;
+class IHFORSelectionTool;
 
 namespace DerivationFramework {
 
@@ -58,7 +59,7 @@ namespace DerivationFramework {
 
     mutable std::map<const xAOD::TruthParticle*,MCTruthPartClassifier::ParticleOrigin> m_originMap;
     ToolHandle<IMCTruthClassifier> m_classif;
-
+    ToolHandle<IHFORSelectionTool> m_hforTool;
   }; /// class
 
 } /// namespace

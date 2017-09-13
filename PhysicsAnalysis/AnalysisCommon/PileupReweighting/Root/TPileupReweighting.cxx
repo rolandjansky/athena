@@ -462,7 +462,9 @@ Int_t CP::TPileupReweighting::AddMetaDataFile(const TString& fileName,const TStr
             Error("AddMetaDataFile","%s is not a valid metadata file. Should have a ChannelMetaData TTree",fileName.Data());
             throw std::runtime_error("Throwing 7");
          }
+	 rootFile->Close();
       }
+      delete rootFile;
    } else {
       //try to make the TTree by reading the file 
       tmp = new TTree("ChannelMetaData","ChannelMetaData");
@@ -1968,7 +1970,9 @@ void CP::TPileupReweighting::calculateHistograms(CompositeTrigger* t) {
                 if(ps1>0&&ps2>0&&ps3>0) prescaleByRunAndLbn[*it][runNbr][lbn] = ps1*ps2*ps3;
               }
           }
+	  rootFile->Close();
         }
+	delete rootFile;
        } //end of loop over lumicalc files for this trigger
    }
 
@@ -2043,6 +2047,7 @@ void CP::TPileupReweighting::calculateHistograms(CompositeTrigger* t) {
                 
               }
           }
+	  rootFile->Close();
         }
     }
     delete rootFile;

@@ -25,7 +25,7 @@ atlas_depends_on_subdirs(
    Tracking/TrkEvent/VxVertex
    Event/xAOD/xAODTrigger
    Control/AthContainers
-   Generators/TruthConverters
+   Generators/GenInterfaces
    Generators/TruthRivetTools
    Generators/TruthUtils
    Tools/PathResolver

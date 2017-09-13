@@ -255,41 +255,6 @@ namespace ExpressionParsing {
       };
 
 
-      class BSMParticleVariableLoader : public BaseVectorVariableLoader {
-        public:
-          BSMParticleVariableLoader(StoreGateSvc_t &evtStore,
-              const std::string &containerName,
-              const std::string &propertyName)
-            : BaseVectorVariableLoader(evtStore,containerName,propertyName),
-            m_isBSM(propertyName=="isBSM")
-          {
-          }
-
-          static BaseVariableLoader *tryCreation(StoreGateSvc_t &evtStore,
-              const std::string &containerName,
-              const std::string &methodName);
-
-          virtual IProxyLoader::VariableType variableType()
-          {
-            if (!m_initialised) {
-              m_initialised = true;
-              updateProxyLoader();
-              if (m_isBSM) m_variableType=m_vectorProxyLoader->variableTypeFromString("pdgId");
-              else m_variableType=m_vectorProxyLoader->variableTypeFromString(m_propertyName);
-            }
-            return m_variableType;
-          }
-
-          virtual std::vector<int> getVectorIntValue();
-
-        private:
-          virtual void updateProxyLoader();
-
-        private:
-          bool m_isBSM;
-      };
-
-
     public:
       SGxAODProxyLoader(StoreGateSvc_t &evtStore) : m_evtStore(evtStore) { }
       virtual ~SGxAODProxyLoader();

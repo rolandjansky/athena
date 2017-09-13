@@ -10,11 +10,11 @@
 #include "xAODMetaData/FileMetaData.h"
 #include "PATInterfaces/SystematicRegistry.h"
 #include "PathResolver/PathResolver.h"
+#include <boost/algorithm/string.hpp>
 
 #ifndef ROOTCORE
 #include "AthAnalysisBaseComps/AthAnalysisHelper.h"
 #include "AthAnalysisBaseComps/AthAnalysisAlgorithm.h"
-#include <boost/algorithm/string.hpp>
 #endif //ROOTCORE
 
 namespace CP {
@@ -120,6 +120,8 @@ namespace CP {
 
     //default result
     result = PATCore::ParticleDataType::Data;
+    //
+    std::string simType("");
     
 #ifndef ROOTCORE
     //Athena environent
@@ -137,7 +139,6 @@ namespace CP {
     //
     //if not data  determine Fast/FullSim
     ATH_MSG_DEBUG("IS_SIMULATION");
-    std::string simType("");
     if( AthAnalysisHelper::retrieveMetadata("/Simulation/Parameters", "SimulationFlavour", simType, inputMetaStore()).isFailure() ) {
       return StatusCode::FAILURE;    
     }
@@ -147,6 +148,7 @@ namespace CP {
       return StatusCode::SUCCESS;
     }
 #endif    
+
     //Here is the RootCore or to be dual use , assumes we have not returned before for Athena
     std::string simulationType("");
     if (!inputMetaStore()->contains<xAOD::FileMetaData>("FileMetaData")) {
@@ -157,11 +159,12 @@ namespace CP {
     //
     const bool s = fmd->value(xAOD::FileMetaData::simFlavour, simulationType);
     if (!s) { 
-      //no simFlavour metadata failure
+      ATH_MSG_DEBUG("no sim flavour from metadata: must be data");
       return StatusCode::FAILURE;    
     }
     else {
-      result = (simulationType == "FullSim" ? PATCore::ParticleDataType::Full : PATCore::ParticleDataType::Fast);
+      boost::to_upper(simType);
+      result = (simType.find("ATLFASTII")==std::string::npos) ?  PATCore::ParticleDataType::Full : PATCore::ParticleDataType::Fast;
       return StatusCode::SUCCESS;    
     }
     //

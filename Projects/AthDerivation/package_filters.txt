@@ -112,6 +112,7 @@
 
 # Generator package(s):
 + Generators/GenAnalysisTools/TruthHelper
++ Generators/GenInterfaces
 + Generators/GeneratorObjects.*
 + Generators/HepMCWeightSvc
 + Generators/TruthConverters
@@ -308,6 +309,7 @@
 + TileCalorimeter/TileTrackingGeometry
 
 # Tool package(s):
++ Tools/ART
 + Tools/LWHists
 + Tools/PathResolver
 + Tools/Py.*

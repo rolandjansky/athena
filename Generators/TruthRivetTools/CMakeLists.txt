@@ -11,7 +11,8 @@ atlas_depends_on_subdirs(
    PUBLIC
 	Control/AthToolSupport/AsgTools 
    PRIVATE
-	GaudiKernel )
+	GaudiKernel
+    GenInterfaces )
 
 # External dependencies:
 find_package( HepMC )

@@ -1,10 +1,6 @@
-// Dear emacs, this is -*- c++ -*-
-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: ut_xaodrootaccess_tevent_test.cxx 726838 2016-02-29 16:38:45Z krasznaa $
 
 // System include(s):
 #include <memory>
@@ -76,21 +72,18 @@ int main() {
    const char* APP_NAME = "ut_xaodrootaccess_tevent_test";
    
    // Initialise the environment:
-   RETURN_CHECK( APP_NAME, xAOD::Init( APP_NAME ) );
+   RETURN_CHECK( APP_NAME, xAOD::Init() );
    
    // Create the tested object(s):
-   xAOD::TEvent event( xAOD::TEvent::kClassAccess );
+   xAOD::TEvent event;
    xAOD::TStore store;
 
    // Connect an input file to the event:
-   static const char* FNAME =
-      "/afs/cern.ch/atlas/project/PAT/xAODs/r5597/"
-      "data12_8TeV.00204158.physics_JetTauEtmiss.recon.AOD.r5597/"
-      "AOD.01495682._003054.pool.root.1";
-   std::auto_ptr< ::TFile > ifile( ::TFile::Open( FNAME, "READ" ) );
-   if( ! ifile.get() ) {
+   std::unique_ptr< ::TFile > ifile( ::TFile::Open( "$ASG_TEST_FILE_DATA",
+                                                    "READ" ) );
+   if( ! ifile ) {
       ::Error( APP_NAME, XAOD_MESSAGE( "File %s couldn't be opened..." ),
-               FNAME );
+               gSystem->Getenv( "ASG_TEST_FILE_DATA" ) );
       return 1;
    }
    RETURN_CHECK( APP_NAME, event.readFrom( ifile.get() ) );
@@ -98,13 +91,13 @@ int main() {
    // Read in the first event:
    if( event.getEntry( 0 ) < 0 ) {
       ::Error( APP_NAME, XAOD_MESSAGE( "Couldn't load entry 0 from file %s" ),
-               FNAME );
+               gSystem->Getenv( "ASG_TEST_FILE_DATA" ) );
       return 1;
    }
 
    // Try to retrieve some objects:
    const xAOD::AuxContainerBase* c = 0;
-   RETURN_CHECK( APP_NAME, event.retrieve( c, "ElectronCollectionAux." ) );
+   RETURN_CHECK( APP_NAME, event.retrieve( c, "ElectronsAux." ) );
    RETURN_CHECK( APP_NAME, event.retrieve( c, "MuonsAux." ) );
 
    // Check if the second one was assigned the correct type of internal store:
