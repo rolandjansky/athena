@@ -2,10 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 #include "TopConfiguration/AodMetaDataAccess.h"
 
 #include <algorithm>
@@ -42,18 +38,10 @@ AodMetaDataAccess::~AodMetaDataAccess() {
 void AodMetaDataAccess::loadWithFilesFrom(std::string const & fileListPath) {
 
    // Implementation using PathResolver
-   // List of environment variables from which to construct a searchable list of paths (order by priority)
-   std::vector<const char*> vec_envvar = {"WorkDir_DIR","AnalysisTop_DIR","ROOTCOREDIR"};
-   std::string datapath;
-   // Construct string list                                                                                                                                                                           
-   for (auto var : vec_envvar){
-     const char* envvar = getenv(var);
-     if (envvar != NULL) datapath += ( std::string(envvar) + "/python:" );
-   }
-   // Package/filename - XS file we want to use
    std::string filename = "TopConfiguration/AodMetaDataReader.py";
-   // Use the path resolver to find the first file in the list of possible paths
-   std::string exePath = PathResolver::find_file_from_list (filename, datapath);
+   // Use the path resolver to find the first file in the list of possible paths ($PYTHONPATH)
+   std::string exePath = PathResolver::find_file(filename, "PYTHONPATH");
+
    if(exePath == ""){
      std::cout << "ERROR::AodMetaDataAccess - could not find file \n";
      std::cout << filename << "\n";

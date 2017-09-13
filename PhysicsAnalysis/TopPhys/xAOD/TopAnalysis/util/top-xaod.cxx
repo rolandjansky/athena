@@ -204,20 +204,11 @@ int main(int argc, char** argv) {
             topConfig -> setDSID(DSID);
 
             // now need to get and set the parton shower generator from TopDataPrep
-            SampleXsection tdp;
-	    
-	    // List of environment variables from which to construct a searchable list of paths (order by priority)
-	    std::vector<const char*> vec_envvar = {"WorkDir_DIR","AnalysisTop_DIR","ROOTCOREDIR"};
-	    std::string datapath;
-	    // Construct string list                                                                               
-	    for (auto var : vec_envvar){
-	      const char* envvar = getenv(var);
-	      if (envvar != NULL) datapath += ( std::string(envvar) + "/data:" );
-	    }
+            SampleXsection tdp;	   
 	    // Package/filename - XS file we want to use                                                           
 	    std::string tdp_filename = "TopDataPreparation/XSection-MC15-13TeV.data";
-	    // Use the path resolver to find the first file in the list of possible paths                          
-	    std::string fullpath = PathResolver::find_file_from_list (tdp_filename, datapath);
+	    // Use the path resolver to find the first file in the list of possible paths ($CALIBPATH)
+	    std::string fullpath = PathResolverFindCalibFile(tdp_filename);
 	    if (!tdp.readFromFile(fullpath.c_str())) {
 	      std::cout << "ERROR::TopDataPreparation - could not read file \n";
 	      std::cout << tdp_filename << "\n";
