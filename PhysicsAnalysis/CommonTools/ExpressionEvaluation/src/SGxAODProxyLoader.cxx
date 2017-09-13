@@ -28,11 +28,6 @@
   STORE_VARIABLE_LOADER; \
 } while (0)
 
-#define TRY_BSM_PARTICLE_CONTAINER do { \
-  variableLoader = BSMParticleVariableLoader::tryCreation(m_evtStore, containerName, methodName); \
-  STORE_VARIABLE_LOADER; \
-} while (0)
-
 #define TRY_VECTOR(CONTAINER) do { \
   variableLoader = VectorVariableLoader<CONTAINER>::tryCreation(m_evtStore, containerName, methodName); \
   STORE_VARIABLE_LOADER; \
@@ -68,9 +63,6 @@
 #include "xAODParticleEvent/ParticleContainer.h"
 #include "xAODParticleEvent/CompositeParticleContainer.h"
 #include "xAODTracking/TrackMeasurementValidationContainer.h"
-
-// For the MC PDG ID helpers
-#include "TruthUtils/PIDHelpers.h"
 
 #include <algorithm>
 #include <boost/algorithm/string.hpp>
@@ -112,33 +104,6 @@ namespace ExpressionParsing {
     const xAOD::MissingET *metElement = (*metContainer)[m_mapElement];
 
     m_elementProxyLoader->setData(metElement);
-  }
-
-  SGxAODProxyLoader::BaseVariableLoader *SGxAODProxyLoader::BSMParticleVariableLoader::tryCreation(StoreGateSvc_t &evtStore, const std::string &containerName, const std::string &methodName)
-  {
-    if (!(evtStore->contains<xAOD::TruthParticleContainer>(containerName))) return NULL;
-    return new BSMParticleVariableLoader(evtStore, containerName, methodName);
-  }
-
-  void SGxAODProxyLoader::BSMParticleVariableLoader::updateProxyLoader()
-  {
-    if (!m_vectorProxyLoader) {
-      m_vectorProxyLoader = new xAODVectorProxyLoader();
-    }
-
-    const xAOD::TruthParticleContainer *container = m_evtStore->retrieve<const xAOD::TruthParticleContainer>(m_containerName);
-    m_vectorProxyLoader->setData(container);
-  }
-
-  std::vector<int> SGxAODProxyLoader::BSMParticleVariableLoader::getVectorIntValue()
-  {
-    updateProxyLoader();
-    if (!m_isBSM) return m_vectorProxyLoader->loadVecIntVariableFromString(m_propertyName);
-    // We know which one this is...
-    std::vector<int> results = m_vectorProxyLoader->loadVecIntVariableFromString("pdgId");
-    // Now change the PDG IDs into isBSM answers
-    for (size_t i=0;i<results.size();++i) results[i]=MC::PID::isBSM(results[i]);
-    return results;
   }
 
   // End helper classes
@@ -189,11 +154,9 @@ namespace ExpressionParsing {
     // e.g. "MET_RefFinal[Final].met" (quotation marks around Final are optional, method name could be anything)
     TRY_MET_CONTAINER;
 
-    // Special handling for TruthParticles.isBSM
-    TRY_BSM_PARTICLE_CONTAINER;
-
     // End specific workarounds
 
+    TRY_VECTOR(xAOD::TruthParticleContainer);
     TRY_VECTOR(xAOD::ElectronContainer);
     TRY_VECTOR(xAOD::PhotonContainer);
     TRY_VECTOR(xAOD::MuonContainer);

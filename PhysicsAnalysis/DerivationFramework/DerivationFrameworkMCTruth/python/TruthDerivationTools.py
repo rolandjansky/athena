@@ -55,7 +55,7 @@ ToolSvc += DFCommonTruthBosonTool
 
 DFCommonTruthBSMTool = DerivationFramework__TruthCollectionMaker(name                   = "DFCommonTruthBSMTool",
                                                                 NewCollectionName       = "TruthBSM",
-                                                                ParticleSelectionString = "( (31<abs(TruthParticles.pdgId) && abs(TruthParticles.pdgId)<38) || abs(TruthParticles.pdgId)==39 || abs(TruthParticles.pdgId)==41 || abs(TruthParticles.pdgId)==42 || abs(TruthParticles.pdgId)== 7 || abs(TruthParticles.pdgId)== 8 || abs(TruthParticles.pdgId)==17 || abs(TruthParticles.pdgId)==18 || abs(TruthParticles.pdgId)==55 || (1000000<abs(TruthParticles.pdgId) && abs(TruthParticles.pdgId)<1000040) || (2000000<abs(TruthParticles.pdgId) && abs(TruthParticles.pdgId)<2000040) )",
+                                                                ParticleSelectionString = "(TruthParticles.isBSM || (32<=abs(TruthParticles.pdgId) && abs(TruthParticles.pdgId)<=80) || abs(TruthParticles.pdgId)== 7 || abs(TruthParticles.pdgId)== 8 || abs(TruthParticles.pdgId)==17 || abs(TruthParticles.pdgId)==18)",
                                                                 Do_Compress             = True)
 ToolSvc += DFCommonTruthBSMTool
 
