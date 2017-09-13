@@ -313,7 +313,6 @@ InDet::TRT_ElectronPidTool::electronProbability(const Trk::Track& track) const
     if(sum_ToT_by_sum_L>0 && nHits>0){
       // correct for data/MC normalisation
       // unfortunately vertex container not yet available here so pileup correction not applied
-      ITRT_ToT_dEdx::EGasType gasType;
       sum_ToT_by_sum_L*= m_TRTdEdxTool->correctNormalization(true,m_DATA);
       prob_El_ToT = m_TRTdEdxTool->getTest(sum_ToT_by_sum_L, pTrk,  Trk::electron,  Trk::pion, nHits);
     }

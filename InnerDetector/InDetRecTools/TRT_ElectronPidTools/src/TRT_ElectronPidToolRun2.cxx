@@ -403,7 +403,6 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) con
 
   // Jared - ToT Implementation
   dEdx = m_TRTdEdxTool->dEdx( &track, true, false, true); // Divide by L, exclude HT hits 
-  ITRT_ToT_dEdx::EGasType gasType;
   double usedHits = m_TRTdEdxTool->usedHits( &track, true, false);
   prob_El_ToT = m_TRTdEdxTool->getTest( dEdx, pTrk, Trk::electron, Trk::pion, usedHits, true ); 
   
