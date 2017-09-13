@@ -11,7 +11,7 @@ def print_available():
       if i>=509 and i<=511: continue #reserved for CALREQ
       if not i in Lvl1Flags.CtpIdMap().values(): available.append(str(i))
     available.sort()
-    print "Available CTP IDs: "+",".join(available)
+    print "There are %d available CTP IDs:"%len(available),",".join(available)
 
 def defineMenu():
     """
@@ -688,19 +688,11 @@ def defineMenu():
         'L1_EM12_W-MT25',
 #        'L1_EM12_W-MT35',
         'L1_EM15_W-MT35',
-        'L1_EM12_W-MT35_XS30_W-15DPHI-JXE-0_W-15DPHI-EMXE',
-        'L1_EM12_W-MT35_XS40_W-05DPHI-JXE-0_W-05DPHI-EMXE',
-        'L1_EM12_W-MT35_W-90RO2-XEHT-0_W-15DPHI-JXE-0_W-15DPHI-EMXE',
-        'L1_EM12_W-MT35_W-250RO2-XEHT-0_W-05DPHI-JXE-0_W-05DPHI-EMXE',
         'L1_EM15_W-MT35_W-250RO2-XEHT-0_W-15DPHI-JXE-0_W-15DPHI-EM15XE',
         'L1_EM15_W-MT35_W-250RO2-XEHT-0_W-05DPHI-JXE-0_W-05DPHI-EM15XE',
-        'L1_EM15_W-MT35_XS60_W-15DPHI-JXE-0_W-15DPHI-EM15XE',
         'L1_EM15_W-MT35_XS60_W-05DPHI-JXE-0_W-05DPHI-EM15XE',
-        'L1_EM15_W-MT35_XS40_W-15DPHI-JXE-0_W-15DPHI-EM15XE',
         'L1_EM15_W-MT35_XS40_W-05DPHI-JXE-0_W-05DPHI-EM15XE',
-        'L1_EM12_W-MT35_XS50',
         'L1_EM15_W-MT35_XS60',
-        'L1_EM10VH_W-MT35_XS50',
         'L1_EM15VH_W-MT35_XS60',
         'L1_EM20VH_W-MT35_XS60',
         'L1_EM22VHI_W-MT35_XS40',
@@ -1334,21 +1326,13 @@ def defineMenu():
         #'L1_W-NOMATCH_W-05RO-XEEMHT' : 283,
 
         'L1_EM12_W-MT25' : 50,
-        'L1_EM12_W-MT35_XS30_W-15DPHI-JXE-0_W-15DPHI-EMXE' : 77,
-        'L1_EM12_W-MT35_XS40_W-05DPHI-JXE-0_W-05DPHI-EMXE' : 79,
-        'L1_EM12_W-MT35_W-90RO2-XEHT-0_W-15DPHI-JXE-0_W-15DPHI-EMXE' : 80,
-        'L1_EM12_W-MT35_W-250RO2-XEHT-0_W-05DPHI-JXE-0_W-05DPHI-EMXE' : 124,
         'L1_EM15_W-MT35_W-250RO2-XEHT-0_W-15DPHI-JXE-0_W-15DPHI-EM15XE' : 139,
         'L1_EM15_W-MT35_W-250RO2-XEHT-0_W-05DPHI-JXE-0_W-05DPHI-EM15XE' : 250,
-        'L1_EM15_W-MT35_XS60_W-15DPHI-JXE-0_W-15DPHI-EM15XE' : 274,
         'L1_EM15_W-MT35_XS60_W-05DPHI-JXE-0_W-05DPHI-EM15XE' : 275,
 
-        'L1_EM15_W-MT35_XS40_W-15DPHI-JXE-0_W-15DPHI-EM15XE' : 284,
         'L1_EM15_W-MT35_XS40_W-05DPHI-JXE-0_W-05DPHI-EM15XE' : 285,
         'L1_EM15_W-MT35' : 286,
-        'L1_EM12_W-MT35_XS50' : 287,
         'L1_EM15_W-MT35_XS60' : 288,
-        'L1_EM10VH_W-MT35_XS50' : 289,
         'L1_EM15VH_W-MT35_XS60' : 290,
         'L1_EM20VH_W-MT35_XS60' : 291,
         'L1_EM22VHI_W-MT35_XS40' : 292,
