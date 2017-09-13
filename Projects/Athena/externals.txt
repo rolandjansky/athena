@@ -6,7 +6,7 @@
 # forbidden.
 
 # The version of atlas/atlasexternals to use:
-AthenaExternalsVersion = 5b5c77c6
+AthenaExternalsVersion = 8643cbb2
 
 # The version of atlas/Gaudi to use:
 GaudiVersion = v28r2.011

@@ -1,4 +1,4 @@
 # Versions of the various externals to build before starting the build of
 # this project, when doing a full stack nightly build.
 
-AnalysisBaseExternalsVersion = 5b5c77c6
+AnalysisBaseExternalsVersion = 8643cbb2
