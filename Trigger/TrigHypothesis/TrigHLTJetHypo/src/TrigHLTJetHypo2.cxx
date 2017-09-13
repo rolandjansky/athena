@@ -55,7 +55,6 @@ using std::chrono::duration_cast;
 using std::chrono::nanoseconds;
 using std::chrono::microseconds;
 
-
 float GeV = 1000.;
 
 enum class HypoStrategy{EtaEt, HT, TLA, DijetMassDEta, singlemass};
@@ -678,14 +677,14 @@ bool TrigHLTJetHypo2::setEtaEtConditions(){
 
 bool TrigHLTJetHypo2::setsinglemassConditions(){
 
-  std::vector<double> m_JetMassMin_d = getStringBoundaries(m_JetMassMin);
-  std::vector<double> m_JetMassMax_d = getStringBoundaries(m_JetMassMax);
+  std::vector<double> JetMassMin_d = getStringBoundaries(m_JetMassMin);
+  std::vector<double> JetMassMax_d = getStringBoundaries(m_JetMassMax);
 
   m_conditions = conditionsFactorysinglemass(m_etaMins,
                                         m_etaMaxs,
                                         m_EtThresholds,
-                                        m_JetMassMin_d,
-                                        m_JetMassMax_d);
+                                        JetMassMin_d,
+                                        JetMassMax_d);
   std::sort(m_conditions.begin(), m_conditions.end(), ConditionsSorter());
   return true;
 }

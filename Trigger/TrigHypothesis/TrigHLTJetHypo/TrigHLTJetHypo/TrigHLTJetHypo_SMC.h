@@ -41,7 +41,7 @@ class TrigHLTJetHypo_SMC : public TrigHLTJetHypoBase {
   std::vector<std::string> m_JetMassMax;
   std::vector<int> m_asymmetricEtas;
 
-  float GeV = 1000.;
+  static constexpr float s_GeV = 1000.;
 
 };
 #endif

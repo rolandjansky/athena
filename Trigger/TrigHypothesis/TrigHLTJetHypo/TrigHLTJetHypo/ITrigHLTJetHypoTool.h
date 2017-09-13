@@ -12,10 +12,10 @@
 class ITrigHLTJetHypoTool : virtual public IAlgTool {
 public:
    static const InterfaceID& interfaceID() {
-     static const InterfaceID _ITrigHLTJetHypoToolID("ITrigHLTJetHypoTool", 
-                                                     1, 
-                                                     0 );
-     return _ITrigHLTJetHypoToolID;
+     static const InterfaceID ITrigHLTJetHypoToolID("ITrigHLTJetHypoTool", 
+                                                    1, 
+                                                    0 );
+     return ITrigHLTJetHypoToolID;
    }
 
   virtual StatusCode decide(const xAOD::JetContainer*, bool&) const = 0;

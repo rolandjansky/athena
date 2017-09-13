@@ -43,7 +43,7 @@ class TrigHLTJetHypo_SMCTool : public TrigHLTJetHypoTool {
   std::vector<std::string> m_JetMassMax;
   std::vector<int> m_asymmetricEtas;
 
-  float GeV = 1000.;
+  static constexpr float s_GeV = 1000.;
 
 };
 #endif
