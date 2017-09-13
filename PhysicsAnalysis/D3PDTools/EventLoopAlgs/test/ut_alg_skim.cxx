@@ -57,7 +57,7 @@ int main ()
       gSystem->ExpandPathName (input);
       mysample->add (input.Data());
     }
-    mysample->setMetaString ("nc_tree", "physics");
+    mysample->meta()->setString ("nc_tree", "physics");
     sh.add (mysample.release());
 
     EL::Job job;
