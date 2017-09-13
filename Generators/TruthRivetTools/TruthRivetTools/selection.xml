@@ -1,5 +1,4 @@
- 
 <lcgdict>
-   <class name="HiggsTruthCategoryTool" />
-   <class name="IHiggsTruthCategoryTool" />
+  <class name="HiggsTruthCategoryTool" />
+  <class name="IHiggsTruthCategoryTool" />
 </lcgdict>

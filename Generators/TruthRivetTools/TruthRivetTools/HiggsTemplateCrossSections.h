@@ -11,7 +11,12 @@
 #include "Rivet/Projections/FastJets.hh"
 
 // Definition of the StatusCode and Category enums
-#include "HiggsTemplateCrossSectionsDefs.h"
+// Note: the Template XSec Defs *depends* on having included
+//  the TLorentzVector header *before* it is included -- it 
+//  uses the include guard from TLorentzVector to decide 
+//  what is available
+#include "TLorentzVector.h"
+#include "TruthRivetTools/HiggsTemplateCrossSectionsDefs.h"
 
 namespace Rivet {
   

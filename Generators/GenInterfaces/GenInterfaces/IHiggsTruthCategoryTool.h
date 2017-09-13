@@ -8,13 +8,15 @@
  * <james.lacey@cern.ch,jlacey@physics.carleton.ca>
  */
 
-#ifndef TRUTHRIVETTOOLS_IHIGGSTRUTHCATEGORYTOOL_H
-#define TRUTHRIVETTOOLS_IHIGGSTRUTHCATEGORYTOOL_H 1
+#ifndef GENINTERFACES_IHIGGSTRUTHCATEGORYTOOL_H
+#define GENINTERFACES_IHIGGSTRUTHCATEGORYTOOL_H 1
 
 #include "AsgTools/IAsgTool.h"
-#include "TLorentzVector.h"
-#include "HiggsTemplateCrossSectionsDefs.h"
 #include "HepMC/GenEvent.h"
+
+namespace HTXS {
+  class HiggsClassification;
+}
 
 class IHiggsTruthCategoryTool : public virtual asg::IAsgTool {
  public:
@@ -23,7 +25,7 @@ class IHiggsTruthCategoryTool : public virtual asg::IAsgTool {
  public:
   virtual StatusCode initialize() = 0;
   virtual StatusCode finalize () = 0;  
-  virtual HTXS::HiggsClassification getHiggsTruthCategoryObject(const HepMC::GenEvent& HepMCEvent, const HTXS::HiggsProdMode prodMode)=0;
+  virtual HTXS::HiggsClassification* getHiggsTruthCategoryObject(const HepMC::GenEvent& HepMCEvent, const HTXS::HiggsProdMode prodMode)=0;
 };
 
-#endif //> !HIGGSTRUTHCLASSIFIER_IHIGGSTRUTHCATEGORYTOOL_H
+#endif //> !GENINTERFACES_IHIGGSTRUTHCATEGORYTOOL_H

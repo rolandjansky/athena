@@ -17,12 +17,17 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
+
+// EDM: typedefs, so must be included and not forward-referenced
 #include "xAODTruth/TruthParticleContainer.h"
+#include "xAODEventInfo/EventInfo.h"
 
-#include "TruthRivetTools/IHiggsTruthCategoryTool.h" 
-#include "TruthConverters/IxAODtoHepMCTool.h" 
+// Note: must include TLorentzVector before the next one
+#include "TLorentzVector.h"
+#include "TruthRivetTools/HiggsTemplateCrossSectionsDefs.h"
 
-class TLorentzVector;
+class IHiggsTruthCategoryTool;
+class IxAODtoHepMCTool;
 
 namespace DerivationFramework {
   
