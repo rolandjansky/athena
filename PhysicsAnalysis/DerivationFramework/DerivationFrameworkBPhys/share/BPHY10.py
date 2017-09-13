@@ -182,6 +182,98 @@ BPHY10_Select_Bd2JpsiKst = DerivationFramework__Select_onia2mumu(
 ToolSvc += BPHY10_Select_Bd2JpsiKst
 print      BPHY10_Select_Bd2JpsiKst
 
+
+## 7/ call the V0Finder if a Jpsi has been found
+doSimpleV0Finder = False
+if doSimpleV0Finder:
+  include("DerivationFrameworkBPhys/configureSimpleV0Finder.py")
+else:
+  include("DerivationFrameworkBPhys/configureV0Finder.py")
+
+BPHY10_V0FinderTools = BPHYV0FinderTools("BPHY10")
+
+from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Reco_V0Finder
+BPHY10_Reco_V0Finder   = DerivationFramework__Reco_V0Finder(
+    name                   = "BPHY10_Reco_V0Finder",
+    V0FinderTool           = BPHY10_V0FinderTools.V0FinderTool,
+    CheckVertexContainers  = ['BPHY10JpsiCandidates'])
+
+ToolSvc += BPHY10_Reco_V0Finder
+print BPHY10_Reco_V0Finder
+
+## 8/ setup the cascade vertexing tool
+from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
+JpsiV0VertexFit = Trk__TrkVKalVrtFitter(
+    name                 = "JpsiV0VertexFit",
+    #OutputLevel          = DEBUG,
+    Extrapolator         = BPHY10_VertexTools.InDetExtrapolator,
+    #FirstMeasuredPoint   = True,
+    FirstMeasuredPoint   = False,
+    CascadeCnstPrecision = 1e-6,
+    MakeExtendedVertex   = True)
+
+ToolSvc += JpsiV0VertexFit
+print      JpsiV0VertexFit
+
+## 9/ setup the Jpsi+V0 finder
+## a/ Bd->JpsiKshort
+from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__JpsiPlusV0Cascade
+BPHY10JpsiKshort            = DerivationFramework__JpsiPlusV0Cascade(
+    name                    = "BPHY10JpsiKshort",
+    #OutputLevel             = DEBUG,
+    TrkVertexFitterTool     = JpsiV0VertexFit,
+    V0Hypothesis            = 310,
+    JpsiMassLowerCut        = 2800.,
+    JpsiMassUpperCut        = 3400.,
+    V0MassLowerCut          = 400.,
+    V0MassUpperCut          = 600.,
+    MassLowerCut            = 4500.,
+    MassUpperCut            = 6000.,
+    JpsiVertices            = "BPHY10JpsiCandidates",
+    V0Vertices              = "RecoV0Candidates")
+
+ToolSvc += BPHY10JpsiKshort
+print BPHY10JpsiKshort
+
+## b/ Lambda_b->JpsiLambda
+from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__JpsiPlusV0Cascade
+BPHY10JpsiLambda            = DerivationFramework__JpsiPlusV0Cascade(
+    name                    = "BPHY10JpsiLambda",
+    #OutputLevel             = DEBUG,
+    TrkVertexFitterTool     = JpsiV0VertexFit,
+    V0Hypothesis            = 3122,
+    JpsiMassLowerCut        = 2800.,
+    JpsiMassUpperCut        = 3400.,
+    V0MassLowerCut          = 1050.,
+    V0MassUpperCut          = 1250.,
+    MassLowerCut            = 4000.,
+    MassUpperCut            = 6000.,
+    JpsiVertices            = "BPHY10JpsiCandidates",
+    V0Vertices              = "RecoV0Candidates")
+
+ToolSvc += BPHY10JpsiLambda
+print BPHY10JpsiLambda
+
+## c/ Lambda_bbar->JpsiLambdabar
+from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__JpsiPlusV0Cascade
+BPHY10JpsiLambdabar         = DerivationFramework__JpsiPlusV0Cascade(
+    name                    = "BPHY10JpsiLambdabar",
+    #OutputLevel             = DEBUG,
+    TrkVertexFitterTool     = JpsiV0VertexFit,
+    V0Hypothesis            = -3122,
+    JpsiMassLowerCut        = 2800.,
+    JpsiMassUpperCut        = 3400.,
+    V0MassLowerCut          = 1050.,
+    V0MassUpperCut          = 1250.,
+    MassLowerCut            = 4000.,
+    MassUpperCut            = 6000.,
+    JpsiVertices            = "BPHY10JpsiCandidates",
+    V0Vertices              = "RecoV0Candidates")
+
+ToolSvc += BPHY10JpsiLambdabar
+print BPHY10JpsiLambdabar
+
+
 if not isSimulation: #Only Skim Data
    from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
    BPHY10_SelectBdJpsiKstEvent = DerivationFramework__xAODStringSkimmingTool(
@@ -259,6 +351,7 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel(
     "BPHY10Kernel",
     AugmentationTools = [BPHY10JpsiSelectAndWrite,  BPHY10_Select_Jpsi2mumu,
                          BPHY10BdKstSelectAndWrite, BPHY10_Select_Bd2JpsiKst,
+                         BPHY10_Reco_V0Finder, BPHY10JpsiKshort, BPHY10JpsiLambda, BPHY10JpsiLambdabar,
                          BPHY10_AugOriginalCounts],
     #Only skim if not MC
     SkimmingTools     = [BPHY10SkimmingOR] if not isSimulation else [],
@@ -321,15 +414,31 @@ StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % BPHY10Jpsi
 StaticContent += ["xAOD::VertexContainer#%s"        %                 BPHY10BdKstSelectAndWrite.OutputVtxContainerName]
 StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % BPHY10BdKstSelectAndWrite.OutputVtxContainerName]
 
+StaticContent += ["xAOD::VertexContainer#%s"        %                 'RecoV0Candidates']
+StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % 'RecoV0Candidates']
+StaticContent += ["xAOD::VertexContainer#%s"        %                 'RecoKshortContainerName']
+StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % 'RecoKshortContainerName']
+StaticContent += ["xAOD::VertexContainer#%s"        %                 'RecoLambdaContainerName']
+StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % 'RecoLambdaContainerName']
+StaticContent += ["xAOD::VertexContainer#%s"        %                 'RecoLambdabarContainerName']
+StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % 'RecoLambdabarContainerName']
+
 # Tagging information (in addition to that already requested by usual algorithms)
 #AllVariables += ["Electrons"] 
-AllVariables += ["GSFTrackParticles", "MuonSpectrometerTrackParticles" ] 
+AllVariables += ["GSFTrackParticles", "Electrons" , "Photons", "Kt4LCTopoEventShape" , "MuonSpectrometerTrackParticles" ] 
+tagJetCollections = ['AntiKt4LCTopoJets']
 
+for jet_collection in tagJetCollections:
+    AllVariables += [jet_collection]
+    AllVariables += ["BTagging_%s"       % (jet_collection[:-4]) ]
+    AllVariables += ["BTagging_%sJFVtx"  % (jet_collection[:-4]) ]
+    AllVariables += ["BTagging_%sSecVtx" % (jet_collection[:-4]) ]
 
 # Added by ASC
 # Truth information for MC only
 if isSimulation:
     AllVariables += ["TruthEvents","TruthParticles","TruthVertices","MuonTruthParticles"]
+    AllVariables += ["AntiKt4TruthJets","egammaTruthParticles", "AntiKt4TruthWZJets" ]
 
 AllVariables = list(set(AllVariables)) # remove duplicates
 
