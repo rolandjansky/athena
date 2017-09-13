@@ -1575,7 +1575,7 @@ void JepByteStreamV1Tool::setupJeMap(const JetElementCollection*
     JetElementCollection::const_iterator pos  = jeCollection->begin();
     JetElementCollection::const_iterator pose = jeCollection->end();
     for (; pos != pose; ++pos) {
-      LVL1::JetElement* const je = *pos;
+      const LVL1::JetElement* je = *pos;
       const unsigned int key = m_elementKey->jeKey(je->phi(), je->eta());
       m_jeMap.insert(std::make_pair(key, je));
     }
