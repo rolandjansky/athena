@@ -1524,6 +1524,11 @@ Float_t CP::TPileupReweighting::GetPrimaryWeight(Int_t periodNumber, Int_t chann
 
    double l = p->primaryHists[-1]->GetBinContent(bin);
 
+   if (l==0 && n==0){
+      Error("GetPrimaryWeight","No events expected with this mu.  Incorrect PRW profile?  Returning weight of zero.");
+      return 0.;
+   }
+
    return l/n;
 }
 
