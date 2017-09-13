@@ -5,7 +5,7 @@
 #include <xAODRootAccess/Init.h>
 #include "AsgTools/AnaToolHandle.h"
 #include "xAODEventInfo/EventInfo.h"
-#include "HFORTools/IHFORSelectionTool.h"
+#include "PMGAnalysisInterfaces/IHFORSelectionTool.h"
 
 #ifndef XAOD_STANDALONE
 #include "POOLRootAccess/TEvent.h"

@@ -19,6 +19,7 @@ atlas_depends_on_subdirs(
    PUBLIC
    Control/AthToolSupport/AsgTools
    PhysicsAnalysis/AnalysisCommon/PATInterfaces
+   PhysicsAnalysis/Interfaces/PMGAnalysisInterfaces
    PRIVATE
    Event/FourMomUtils
    Event/xAOD/xAODEventInfo

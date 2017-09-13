@@ -41,12 +41,12 @@ StatusCode DerivationFramework::TruthQGDecorationTool::addBranches() const
 
   for (auto ajet : *inputJets){
     if (!ajet->isAvailable<int>("PartonTruthLabelID") ||
-        !ajet->isAvailable<int>("ConeTruthLabelID")){
+        !ajet->isAvailable<int>("HadronConeExclTruthLabelID")){
       ATH_MSG_ERROR("Did not have input decorations available");
       return StatusCode::FAILURE;
     } // Now we have the input decorations          
-    if (ajet->auxdata<int>("ConeTruthLabelID")!=0){
-      output_decorator(*ajet) = ajet->auxdata<int>("ConeTruthLabelID");
+    if (ajet->auxdata<int>("HadronConeExclTruthLabelID")!=0){
+      output_decorator(*ajet) = ajet->auxdata<int>("HadronConeExclTruthLabelID");
     } else {
       output_decorator(*ajet) = ajet->auxdata<int>("PartonTruthLabelID");
     }

@@ -19,6 +19,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODJet
                           Generators/GeneratorObjects
                           PhysicsAnalysis/CommonTools/ExpressionEvaluation
+                          PhysicsAnalysis/Interfaces/PMGAnalysisInterfaces
                           PhysicsAnalysis/MCTruthClassifier
                           Reconstruction/tauRecTools )
 
