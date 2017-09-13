@@ -27,7 +27,7 @@ namespace xAOD {
     std::istringstream stream(lines);
     std::string line;
     while ( std::getline(stream, line) ) {
-      if ( !ostr.length() == 0 ) ostr += "\n";
+      if ( !ostr.empty() ) ostr += "\n";
       ostr += prefix + line;
     }
     return ostr;
