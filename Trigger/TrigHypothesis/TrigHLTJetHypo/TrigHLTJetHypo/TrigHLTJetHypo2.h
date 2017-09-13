@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRGHLTJETHYPO2_H
-#define TRIGHLTJETHYPO2_H
+#ifndef TRIGHLTJETHYPO_TRIGHLTJETHYPO2_H
+#define TRIGHLTJETHYPO_TRIGHLTJETHYPO2_H
 /********************************************************************
  *
  * NAME:     Trighltjethypo2.h
