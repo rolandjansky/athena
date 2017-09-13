@@ -399,7 +399,7 @@ void SetMetadata(bool useAodMetaData, std::string usethisfile, std::string input
     SampleXsection tdp;
     
     // List of environment variables from which to construct a searchable list of paths (order by priority)
-    std::vector<const char*> vec_envvar = {"CRAP","WorkDir_DIR","AnalysisTop_DIR","ROOTCOREDIR"};
+    std::vector<const char*> vec_envvar = {"WorkDir_DIR","AnalysisTop_DIR","ROOTCOREDIR"};
     std::string datapath;
     // Construct string list                                                                               
     for (auto var : vec_envvar){
