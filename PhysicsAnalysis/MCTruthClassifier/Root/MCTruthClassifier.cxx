@@ -1141,14 +1141,14 @@ ParticleOrigin MCTruthClassifier::defOrigOfElectron(const xAOD::TruthParticleCon
         if(!partOriVert->outgoingParticle(ipOut)) continue;
         if(!partOriVert->incomingParticle(ipIn)) continue;
         if (partOriVert->outgoingParticle(ipOut)->barcode()==partOriVert->incomingParticle(ipIn)->barcode()){
-          if(fabs(partOriVert->outgoingParticle(ipOut)->pdgId())==11) NumOfEleLoop++;
-          if(fabs(partOriVert->outgoingParticle(ipOut)->pdgId())==12) NumOfEleNeuLoop++;
-          if(fabs(partOriVert->outgoingParticle(ipOut)->pdgId())==11||
-             fabs(partOriVert->outgoingParticle(ipOut)->pdgId())==12||
-             fabs(partOriVert->outgoingParticle(ipOut)->pdgId())==13||
-             fabs(partOriVert->outgoingParticle(ipOut)->pdgId())==14||
-             fabs(partOriVert->outgoingParticle(ipOut)->pdgId())==15||
-             fabs(partOriVert->outgoingParticle(ipOut)->pdgId())==16) NumOfLepLoop++;
+          if(std::abs(partOriVert->outgoingParticle(ipOut)->pdgId())==11) NumOfEleLoop++;
+          if(std::abs(partOriVert->outgoingParticle(ipOut)->pdgId())==12) NumOfEleNeuLoop++;
+          if(std::abs(partOriVert->outgoingParticle(ipOut)->pdgId())==11||
+             std::abs(partOriVert->outgoingParticle(ipOut)->pdgId())==12||
+             std::abs(partOriVert->outgoingParticle(ipOut)->pdgId())==13||
+             std::abs(partOriVert->outgoingParticle(ipOut)->pdgId())==14||
+             std::abs(partOriVert->outgoingParticle(ipOut)->pdgId())==15||
+             std::abs(partOriVert->outgoingParticle(ipOut)->pdgId())==16) NumOfLepLoop++;
         }
       }
     }
@@ -1460,14 +1460,14 @@ ParticleOrigin MCTruthClassifier::defOrigOfMuon(const xAOD::TruthParticleContain
         if(!partOriVert->outgoingParticle(ipOut)) continue;
         if(!partOriVert->incomingParticle(ipIn)) continue;
         if (partOriVert->outgoingParticle(ipOut)->barcode()==partOriVert->incomingParticle(ipIn)->barcode()){
-          if(fabs(partOriVert->outgoingParticle(ipOut)->pdgId())==13) NumOfMuLoop++;
-          if(fabs(partOriVert->outgoingParticle(ipOut)->pdgId())==14) NumOfMuNeuLoop++;
-          if(fabs(partOriVert->outgoingParticle(ipOut)->pdgId())==11||
-             fabs(partOriVert->outgoingParticle(ipOut)->pdgId())==12||
-             fabs(partOriVert->outgoingParticle(ipOut)->pdgId())==13||
-             fabs(partOriVert->outgoingParticle(ipOut)->pdgId())==14||
-             fabs(partOriVert->outgoingParticle(ipOut)->pdgId())==15||
-             fabs(partOriVert->outgoingParticle(ipOut)->pdgId())==16) NumOfLepLoop++;
+          if(std::abs(partOriVert->outgoingParticle(ipOut)->pdgId())==13) NumOfMuLoop++;
+          if(std::abs(partOriVert->outgoingParticle(ipOut)->pdgId())==14) NumOfMuNeuLoop++;
+          if(std::abs(partOriVert->outgoingParticle(ipOut)->pdgId())==11||
+             std::abs(partOriVert->outgoingParticle(ipOut)->pdgId())==12||
+             std::abs(partOriVert->outgoingParticle(ipOut)->pdgId())==13||
+             std::abs(partOriVert->outgoingParticle(ipOut)->pdgId())==14||
+             std::abs(partOriVert->outgoingParticle(ipOut)->pdgId())==15||
+             std::abs(partOriVert->outgoingParticle(ipOut)->pdgId())==16) NumOfLepLoop++;
          }
       }
     }
@@ -1704,14 +1704,14 @@ ParticleOrigin MCTruthClassifier::defOrigOfTau(const xAOD::TruthParticleContaine
         if(!partOriVert->outgoingParticle(ipOut)) continue;
         if(!partOriVert->incomingParticle(ipIn)) continue;
         if (partOriVert->outgoingParticle(ipOut)->barcode()==partOriVert->incomingParticle(ipIn)->barcode()){
-          if(fabs(partOriVert->outgoingParticle(ipOut)->pdgId())==15) NumOfTauLoop++;
-          if(fabs(partOriVert->outgoingParticle(ipOut)->pdgId())==16) NumOfTauNeuLoop++;
-          if(fabs(partOriVert->outgoingParticle(ipOut)->pdgId())==11||
-             fabs(partOriVert->outgoingParticle(ipOut)->pdgId())==12||
-             fabs(partOriVert->outgoingParticle(ipOut)->pdgId())==13||
-             fabs(partOriVert->outgoingParticle(ipOut)->pdgId())==14||
-             fabs(partOriVert->outgoingParticle(ipOut)->pdgId())==15||
-             fabs(partOriVert->outgoingParticle(ipOut)->pdgId())==16) NumOfLepLoop++;
+          if(std::abs(partOriVert->outgoingParticle(ipOut)->pdgId())==15) NumOfTauLoop++;
+          if(std::abs(partOriVert->outgoingParticle(ipOut)->pdgId())==16) NumOfTauNeuLoop++;
+          if(std::abs(partOriVert->outgoingParticle(ipOut)->pdgId())==11||
+             std::abs(partOriVert->outgoingParticle(ipOut)->pdgId())==12||
+             std::abs(partOriVert->outgoingParticle(ipOut)->pdgId())==13||
+             std::abs(partOriVert->outgoingParticle(ipOut)->pdgId())==14||
+             std::abs(partOriVert->outgoingParticle(ipOut)->pdgId())==15||
+             std::abs(partOriVert->outgoingParticle(ipOut)->pdgId())==16) NumOfLepLoop++;
         }
       }
     }
@@ -2404,13 +2404,13 @@ float MCTruthClassifier::detPhi(float x, float y){
   det=x-y;
   if(det  >  M_PI) det=det-2.*M_PI;
   if(det < - M_PI) det=det+2.*M_PI;
-  return std::fabs(det);
+  return std::abs(det);
 }
 //---------------------------------------------------------------------------------
 ParticleOrigin MCTruthClassifier::convHadronTypeToOrig(ParticleType pType){
   //---------------------------------------------------------------------------------
   if(pType==BBbarMesonPart&&
-     abs(m_MotherPDG==443))         return JPsi;
+     std::abs(m_MotherPDG)==443)         return JPsi;
   else if(pType==BBbarMesonPart)    return BBbarMeson;
   else if(pType==BottomMesonPart)   return BottomMeson;
   else if(pType==BottomBaryonPart)  return BottomBaryon;
