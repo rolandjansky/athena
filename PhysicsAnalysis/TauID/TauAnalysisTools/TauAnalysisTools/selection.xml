@@ -11,7 +11,6 @@
   <class name="TauAnalysisTools::CommonDiTauEfficiencyTool" />
   <class name="TauAnalysisTools::DiTauEfficiencyCorrectionsTool" />
   <class name="TauAnalysisTools::DiTauTruthMatchingTool" />
-  <class name="TauAnalysisTools::BuildTruthTaus" />
   <function pattern="TauAnalysisTools::split*"/>
   <function pattern="TauAnalysisTools::testFileForEOFContainsCharacters*"/>
 
