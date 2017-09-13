@@ -1,8 +1,6 @@
 #!/usr/bin/env python
-
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #
-# $Id: ut_xaodrootaccess_transtree2_test.py 746122 2016-05-11 10:11:31Z krasznaa $
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #
 # Unit test for the transient tree creating infrastructure
 #
@@ -40,10 +38,7 @@ def main():
     logger.addHandler( hdlr )
 
     # Set up the environment:
-    if ROOT.gROOT.Macro( "$ROOTCOREDIR/scripts/load_packages.C" ):
-        logger.error( "Couldn't load the RootCore packages" )
-        return 1
-    if ROOT.xAOD.Init( APP_NAME ).isFailure():
+    if not ROOT.xAOD.Init( APP_NAME ).isSuccess():
         logger.error( "Failed to call xAOD::Init(...)" )
         return 1
 
