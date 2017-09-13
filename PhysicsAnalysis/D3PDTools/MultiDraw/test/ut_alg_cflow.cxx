@@ -53,7 +53,7 @@ int main ()
     EL::DirectDriver driver;
     std::auto_ptr<SH::SampleLocal> mysample (new SH::SampleLocal ("dataset"));
     mysample->add (input.Data());
-    mysample->setMetaString ("nc_tree", tree);
+    mysample->meta()->setString ("nc_tree", tree);
     SH::SamplePtr sample = mysample.release();
 
     EL::Job job;
