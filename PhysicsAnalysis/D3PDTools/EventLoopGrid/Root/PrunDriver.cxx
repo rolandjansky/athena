@@ -91,7 +91,7 @@ static JobState::Enum sampleState(SH::Sample* sample)
 {
   RCU_REQUIRE(sample);
   static const std::string defaultState = JobState::name[JobState::INIT];
-  std::string label = sample->getMetaString("nc_ELG_state", defaultState);
+  std::string label = sample->meta()->castString ("nc_ELG_state", defaultState, SH::MetaObject::CAST_NOCAST_DEFAULT);
   return JobState::parse(label);
 }
 
@@ -191,12 +191,12 @@ static Status::Enum submit(SH::Sample* const sample)
   TPython::Bind(0, "ELG_SAMPLE");   
 
   if (ret < 100) {
-    sample->setMetaString("nc_ELG_state_details", 
-			  "problem submitting"); 
+    sample->meta()->setString("nc_ELG_state_details", 
+                              "problem submitting"); 
     return Status::FAIL;
   }
 
-  sample->setMetaDouble("nc_jediTaskID", ret);
+  sample->meta()->setDouble("nc_jediTaskID", ret);
 
   return Status::DONE;
 }
@@ -204,7 +204,7 @@ static Status::Enum submit(SH::Sample* const sample)
 static Status::Enum checkPandaTask(SH::Sample* const sample)
 {
   RCU_REQUIRE(sample);
-  RCU_REQUIRE(static_cast<int>(sample->getMetaDouble("nc_jediTaskID",0)) > 100);
+  RCU_REQUIRE(static_cast<int>(sample->meta()->castDouble("nc_jediTaskID",0, SH::MetaObject::CAST_NOCAST_DEFAULT)) > 100);
 
   static bool loaded = false;
   if (not loaded) {
@@ -224,10 +224,10 @@ static Status::Enum checkPandaTask(SH::Sample* const sample)
   if (ret == "failed") return Status::FAIL;
   if (ret == "finished") return Status::FAIL;
 
-  if (ret != "running") { sample->setMetaString("nc_ELG_state_details", ret); }
+  if (ret != "running") { sample->meta()->setString("nc_ELG_state_details", ret); }
   if (ret.empty()) { 
-    sample->setMetaString("nc_ELG_state_details", 
-			  "problem checking jedi task status"); 
+    sample->meta()->setString("nc_ELG_state_details", 
+                              "problem checking jedi task status"); 
   }
 
   return Status::PENDING;
@@ -246,7 +246,7 @@ static Status::Enum download(SH::Sample* const sample)
 	      << sample->name() << "..." << std::endl;
   }
 
-  std::string container = sample->getMetaString("nc_outDS", "");
+  std::string container = sample->meta()->castString("nc_outDS", "", SH::MetaObject::CAST_NOCAST_DEFAULT);
   RCU_ASSERT(not container.empty());
   if (container[container.size()-1] == '/') {
     container.resize(container.size() - 1); 
@@ -257,8 +257,8 @@ static Status::Enum download(SH::Sample* const sample)
 
   if (not downloadOk) {
     std::cerr << "Failed to download one or more files" << std::endl;
-    sample->setMetaString("nc_ELG_state_details", 
-			  "error, check log for details"); 
+    sample->meta()->setString("nc_ELG_state_details", 
+                              "error, check log for details"); 
     return Status::PENDING;
   }
 
@@ -269,7 +269,7 @@ static Status::Enum merge(SH::Sample* const sample)
 {
   RCU_REQUIRE(sample);
 
-  std::string container = sample->getMetaString("nc_outDS", "");
+  std::string container = sample->meta()->castString("nc_outDS", "", SH::MetaObject::CAST_NOCAST_DEFAULT);
   RCU_ASSERT(not container.empty());
   if (container[container.size()-1] == '/') {
     container.resize(container.size() - 1); 
@@ -293,15 +293,15 @@ static Status::Enum merge(SH::Sample* const sample)
   if (not files.size()) {
     std::cerr << "Found no input files for merging! "
 	      << "Requeueing sample for download..." << std::endl;
-    sample->setMetaString("nc_ELG_state_details", "retry, files were lost"); 
+    sample->meta()->setString("nc_ELG_state_details", "retry, files were lost"); 
     return Status::FAIL;
   }
 
   try {
     RCU::hadd(target.c_str(), files); 
   } catch (...) {
-    sample->setMetaString("nc_ELG_state_details", 
-			  "error, check log for details"); 
+    sample->meta()->setString("nc_ELG_state_details", 
+                              "error, check log for details"); 
     gSystem->Exec(Form("rm -f %s", target.c_str()));
     return Status::PENDING;
   }
@@ -321,7 +321,7 @@ static void processTask(SH::Sample* const sample)
 
   JobState::Enum state = sampleState(sample);
   
-  sample->setMetaString("nc_ELG_state_details", "");
+  sample->meta()->setString("nc_ELG_state_details", "");
 
   Status::Enum status = Status::PENDING;
   switch (state) {
@@ -343,7 +343,7 @@ static void processTask(SH::Sample* const sample)
   }
 
   state = nextState(state, status);
-  sample->setMetaString("nc_ELG_state", JobState::name[state]);
+  sample->meta()->setString("nc_ELG_state", JobState::name[state]);
 }
 
 static void processAllInState(const SH::SampleHandler& sh, JobState::Enum state,
@@ -456,9 +456,9 @@ static SH::SampleHandler outputSH(const SH::SampleHandler& in,
   const std::string outDSSuffix = '_' + outputLabel + ".root/"; 
   for (SH::SampleHandler::iterator s = in.begin(); s != in.end(); ++s) {
     SH::SampleGrid* outSample = new SH::SampleGrid((*s)->name());
-    const std::string outputDS = (*s)->getMetaString("nc_outDS") + outDSSuffix;
-    outSample->setMetaString("nc_grid", outputDS);
-    outSample->setMetaString("nc_grid_filter", outputFile);
+    const std::string outputDS = (*s)->meta()->castString("nc_outDS", "", SH::MetaObject::CAST_NOCAST_DEFAULT) + outDSSuffix;
+    outSample->meta()->setString("nc_grid", outputDS);
+    outSample->meta()->setString("nc_grid_filter", outputFile);
     out.add(outSample);
   }
   out.fetch(in);
@@ -560,7 +560,7 @@ bool EL::PrunDriver::doRetrieve(const std::string& location) const
   bool allDone = true;
   for (SH::SampleHandler::iterator s = sh.begin(); s != sh.end(); ++s) {    
     JobState::Enum state = sampleState(*s);
-    std::string details = (*s)->getMetaString("nc_ELG_state_details");
+    std::string details = (*s)->meta()->castString("nc_ELG_state_details", "", SH::MetaObject::CAST_NOCAST_DEFAULT);
     if (not details.empty()) { details = '(' + details + ')'; }
 
     std::cout << (*s)->name() << "\t"; 
@@ -599,7 +599,7 @@ void EL::PrunDriver::status(const std::string& location)
   sh.save("input");
   for (SH::SampleHandler::iterator s = sh.begin(); s != sh.end(); ++s) {    
     JobState::Enum state = sampleState(*s);
-    std::string details = (*s)->getMetaString("nc_ELG_state_details");
+    std::string details = (*s)->meta()->castString("nc_ELG_state_details", "", SH::MetaObject::CAST_NOCAST_DEFAULT);
     if (not details.empty()) { details = '(' + details + ')'; }
     std::cout << (*s)->name() << "\t" << JobState::name[state] 
 	      << "\t" << details << std::endl;
@@ -624,6 +624,6 @@ void EL::PrunDriver::setState(const std::string& location,
     return;
   }
   JobState::parse(state);
-  sh.get(task)->setMetaString("nc_ELG_state", state);
+  sh.get(task)->meta()->setString("nc_ELG_state", state);
   sh.save("input");
 }
