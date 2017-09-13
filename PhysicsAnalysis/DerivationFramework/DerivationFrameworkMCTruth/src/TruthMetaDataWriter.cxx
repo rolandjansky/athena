@@ -16,7 +16,7 @@
 #include "xAODEventInfo/EventInfo.h"
 
 // Service for the weights
-#include "HepMCWeightSvc/IHepMCWeightSvc.h"
+#include "GenInterfaces/IHepMCWeightSvc.h"
 
 // Constructor
 DerivationFramework::TruthMetaDataWriter::TruthMetaDataWriter(const std::string& t,
