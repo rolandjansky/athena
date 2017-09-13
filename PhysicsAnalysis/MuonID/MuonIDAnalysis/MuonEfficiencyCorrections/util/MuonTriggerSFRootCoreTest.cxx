@@ -213,7 +213,7 @@ int main(int argc, char* argv[]) {
                         Int_t threshold = 0;
                         CP::CorrectionCode result = getThreshold(threshold, trigger);
                         if (result != CP::CorrectionCode::Ok) {
-                            Error("Could not extract threshold for trigger %s", trigger.c_str());
+                            Error("MuonTriggerSFRootCoreTest", "Could not extract threshold for trigger %s", trigger.c_str());
                             return 1;
                         }
                         bool displayWarning = false;
