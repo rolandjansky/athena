@@ -37,7 +37,7 @@
 #include "MuonMomentumCorrections/MuonCalibrationAndSmearingTool.h"
 #include "MuonMomentumCorrections/IMuonCalibrationAndSmearingTool.h"
 #include "ElectronPhotonFourMomentumCorrection/EgammaCalibrationAndSmearingTool.h"
-#include "ElectronPhotonFourMomentumCorrection/IEgammaCalibrationAndSmearingTool.h"
+#include "EgammaAnalysisInterfaces/IEgammaCalibrationAndSmearingTool.h"
 #include "tauRecTools/ITauToolBase.h"
 #include "tauRecTools/CombinedP4FromRecoTaus.h"
 #include "PathResolver/PathResolver.h"
