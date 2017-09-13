@@ -1,3 +1,6 @@
+
+#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
 ## Configure and schedule jet finding algorithms for the jet 
 ## containers defined in the user's JO fragment
 ##

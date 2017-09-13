@@ -1,3 +1,7 @@
+
+#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
+
 class CavernPropertyCalculator(object):
 
     xvert_low =  -1000.*200. # 200 m

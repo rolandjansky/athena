@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef XAOD_ANALYSIS
 #include "EvgenProdTools/SimTimeEstimate.h"
 #include "HepMC/GenEvent.h"
