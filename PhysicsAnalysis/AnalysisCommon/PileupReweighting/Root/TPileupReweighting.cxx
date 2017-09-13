@@ -686,7 +686,7 @@ Int_t CP::TPileupReweighting::AddDistribution(TH1* hist,Int_t runNumber, Int_t c
         if(period.first==runNumber) continue; //ok to add to this
         if(period.second->inputHists.find(channelNumber)!=period.second->inputHists.end()) {
           TString myMsg = TString::Format("Attempt to add distribution for channel %d to period %d, but this channels already has period %d defined.\nThis is indicative of use of incompatible PRW config files, please check your config files for multiple periods/runNumbers for the same channel.",channelNumber,runNumber,period.first);
-          Error("AddDistribution",myMsg);
+          Error("AddDistribution","%s",myMsg.Data());
           throw std::runtime_error(myMsg.Data());
         }
       }
