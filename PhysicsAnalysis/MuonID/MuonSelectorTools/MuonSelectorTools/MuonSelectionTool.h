@@ -132,6 +132,7 @@ namespace CP {
      bool m_PixCutOff;
      bool m_SiHolesCutOff;
      bool m_TurnOffMomCorr;
+     bool m_useAllAuthors;
 
      /// Checks for each histogram  
      StatusCode getHist( TFile* file, const char* histName, TH2D*& hist );

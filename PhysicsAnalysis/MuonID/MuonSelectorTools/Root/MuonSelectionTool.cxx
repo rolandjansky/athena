@@ -32,6 +32,7 @@ namespace CP {
     declareProperty( "SctCutOff", m_SctCutOff = false );
     declareProperty( "PixCutOff", m_PixCutOff = false );
     declareProperty( "SiHolesCutOff", m_SiHolesCutOff = false );
+    declareProperty( "UseAllAuthors", m_useAllAuthors = false );
     //
     m_tightWP_lowPt_rhoCuts = 0;
     m_tightWP_lowPt_qOverPCuts = 0;
@@ -99,6 +100,7 @@ namespace CP {
     if ( m_PixCutOff ) ATH_MSG_WARNING( "!! SWITCHING PIXEL REQUIREMENTS OFF !! FOR DEVELOPMENT USE ONLY !!" );
     if ( m_SiHolesCutOff ) ATH_MSG_WARNING( "!! SWITCHING SILICON HOLES REQUIREMENTS OFF !! FOR DEVELOPMENT USE ONLY !!" );
     if (m_custom_dir!="") ATH_MSG_WARNING("!! SETTING UP WITH USER SPECIFIED INPUT LOCATION \""<<m_custom_dir<<"\"!! FOR DEVELOPMENT USE ONLY !! ");
+    if (!m_useAllAuthors) ATH_MSG_WARNING("Not using allAuthors variable; lowPt working point result will be degraded");
 
     // Set up the TAccept object:
     m_accept.addCut( "Eta",
@@ -114,6 +116,7 @@ namespace CP {
       ATH_MSG_ERROR( "Invalid quality (i.e. selection WP) set: " << m_quality << " - it must be an integer between 0 and 5! (0=Tight, 1=Medium, 2=Loose, 3=Veryloose, 4=HighPt, 5=LowPtEfficiency)" );
       return StatusCode::FAILURE;
     }
+    if(m_quality==5 && !m_useAllAuthors) ATH_MSG_WARNING("Using lowPt working point but allAuthors is not available!");
 
     // Load Tight WP cut-map
     ATH_MSG_INFO( "Initialising tight working point histograms..." );
@@ -553,6 +556,8 @@ namespace CP {
 
   bool MuonSelectionTool::passedLowPtEfficiencyCuts( const xAOD::Muon& mu, xAOD::Muon::Quality thisMu_quality ) const {
 
+    if(!m_useAllAuthors && m_quality==5) ATH_MSG_WARNING("LowpT working point result will be degraded without allAuthors!");
+
     // requiring combined muons
     if( mu.muonType() != xAOD::Muon::Combined ) return false;
     if( mu.author()!=xAOD::Muon::MuGirl && mu.author()!=xAOD::Muon::MuidCo ) return false;
@@ -588,7 +593,7 @@ namespace CP {
     }
 
     // reject MuGirl muon if not found also by MuTagIMO
-    if(mu.isAvailable<uint16_t>("allAuthors")){
+    if(m_useAllAuthors){
       if( mu.author()==xAOD::Muon::MuGirl && !mu.isAuthor(xAOD::Muon::MuTagIMO) ) {
 	return false;
       }
