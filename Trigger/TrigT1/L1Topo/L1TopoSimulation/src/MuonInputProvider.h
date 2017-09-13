@@ -47,9 +47,9 @@ namespace LVL1 {
 
       virtual StatusCode initialize() override;
 
-      virtual StatusCode fillTopoInputEvent(TCS::TopoInputEvent& ) const; 
+      virtual StatusCode fillTopoInputEvent(TCS::TopoInputEvent& ) const override;
 
-      virtual void handle(const Incident&);
+      virtual void handle(const Incident&) override;
 
    private:
 
