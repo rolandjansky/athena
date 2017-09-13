@@ -223,22 +223,19 @@ HLT::ErrorCode TrigBjetHypoAllTE::hltExecute(std::vector<std::vector<HLT::Trigge
     return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::MISSING_FEATURE);
   }
 
-  if (inputTE.size() > 2) {
-    msg() << MSG::WARNING << "Too many TEs passed as input" << endmsg;
+  if (inputTE.size() > 1) {
+    msg() << MSG::WARNING << "Too many TEs passed as input. Number of input TEs is " <<  inputTE.size() << " and not 1. Configuration problem." << endmsg;  
     afterExecMonitors().ignore();
     m_cutCode    = 4;
     return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::MISSING_FEATURE);
   }
 
 
-  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG 
-				    << " TE0: " << inputTE.at(0).size() 
-				    << " TE1: " << inputTE.at(1).size() <<  endmsg;  
-
   //
   // Retrieve the BTagging container
   //
   std::vector<HLT::TriggerElement*>& btaggingTEs = inputTE.at(0); 
+  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " btaggingTE.size() " << btaggingTEs.size() << endmsg;
 
   if (btaggingTEs.size() == 0) {
     msg() << MSG::WARNING << "Got an empty inputTE (btagging)" << endmsg;
@@ -247,7 +244,6 @@ HLT::ErrorCode TrigBjetHypoAllTE::hltExecute(std::vector<std::vector<HLT::Trigge
     return HLT::MISSING_FEATURE; 
   }
 
-  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " btaggingTE.size() " << btaggingTEs.size() << endmsg;
 
   //
   // Do the multiplicity requrements
@@ -317,10 +313,8 @@ HLT::ErrorCode TrigBjetHypoAllTE::hltExecute(std::vector<std::vector<HLT::Trigge
   //
   HLT::TEVec allTEs;
   allTEs.reserve(btaggingTEs.size());
-  if ((inputTE.size()>0)){
-    for(HLT::TriggerElement* btagTE : btaggingTEs){
-      allTEs.push_back(btagTE);
-    }
+  for(HLT::TriggerElement* btagTE : btaggingTEs){
+    allTEs.push_back(btagTE);
   }
 
   //
