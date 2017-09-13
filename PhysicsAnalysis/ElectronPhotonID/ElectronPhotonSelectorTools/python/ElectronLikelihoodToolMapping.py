@@ -47,6 +47,13 @@ ElectronLHMapOffline2015 = {
     LikeEnum.Tight: ( LikeEnum.CustomOperatingPoint, ElectronLikelihoodMenuDefs.ElectronLikelihoodTightOfflineConfig2015 ),
     }
 
+ElectronLHMapOffline2016 = {
+    LikeEnum.VeryLoose: ( LikeEnum.CustomOperatingPoint, ElectronLikelihoodMenuDefs.ElectronLikelihoodVeryLooseOfflineConfig2016 ),
+    LikeEnum.Loose: ( LikeEnum.CustomOperatingPoint, ElectronLikelihoodMenuDefs.ElectronLikelihoodLooseOfflineConfig2016 ),
+    LikeEnum.Medium: ( LikeEnum.CustomOperatingPoint, ElectronLikelihoodMenuDefs.ElectronLikelihoodMediumOfflineConfig2016 ),
+    LikeEnum.Tight: ( LikeEnum.CustomOperatingPoint, ElectronLikelihoodMenuDefs.ElectronLikelihoodTightOfflineConfig2016 ),
+    }
+
 def ElectronLikelihoodMap(quality, menu):
     if menu == electronLHmenu.customMenu:
         return ElectronLHMapCustom[quality]
@@ -56,5 +63,7 @@ def ElectronLikelihoodMap(quality, menu):
         return ElectronLHMapTrigger2015[quality]
     elif menu == electronLHmenu.offline2015:
         return ElectronLHMapOffline2015[quality]
+    elif menu == electronLHmenu.offlineMC16:
+        return ElectronLHMapOffline2016[quality]
     else:
         raise ValueError("Requested menu is undefined: %d" % menu)
