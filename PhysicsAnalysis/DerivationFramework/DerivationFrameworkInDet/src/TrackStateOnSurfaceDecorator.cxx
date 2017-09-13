@@ -298,7 +298,6 @@ namespace DerivationFramework {
 	SG::AuxElement::Decorator< float > decoratorTRTusedHits_noHT_divByL("ToT_usedHits_noHT_divByL");    
 
 	decoratorTRTdEdx (*track)     = m_TRTdEdxTool->dEdx( trkTrack, true, true, true);
-        ITRT_ToT_dEdx::EGasType gasType;
 	decoratorTRTusedHits (*track) = m_TRTdEdxTool->usedHits( trkTrack, true, true);
 	decoratorTRTdEdx_noHT_divByL (*track)     = m_TRTdEdxTool->dEdx( trkTrack, true, false, true);
 	decoratorTRTusedHits_noHT_divByL (*track) = m_TRTdEdxTool->usedHits( trkTrack, true, false);
