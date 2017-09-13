@@ -89,11 +89,8 @@ public:
    ///The last example assumes the 'MyTool' class has declared a ToolHandle("SubTool/PrivateToolHandleName",this)
    ///and 'SubTool' class has an integer property called 'SubToolIntegerProperty' declared
 
-   template<typename T, typename W> static StatusCode setProperty(const ToolHandle<T>& toolHandle, const std::string& property, const W& value, bool override=true) {
-      if(toolHandle.isSet()) {
-         std::cout << "ERROR: Cannot setProperty on a tool that is already initialized" << std::endl;
-         return StatusCode::FAILURE;
-      }
+   template<typename W> static StatusCode setProperty(const GaudiHandleBase& toolHandle, const std::string& property, const W& value, bool override=true) {
+      
       std::string fullName = toolHandle.parentName() + "." + toolHandle.name();
       std::string thePropertyName(property);
       //if the property contains any "." then strip the last bit as the property name
@@ -112,14 +109,14 @@ public:
    }
    
    ///Partial template specialization for ToolHandles and ToolHandleArrays ... strips parent name from tool name, for setting private handles on
-   template<typename T, typename W> static StatusCode setProperty(const ToolHandle<T>& toolHandle, const std::string& property, const ToolHandle<W>& value, bool override=true) {
+   static StatusCode setProperty(const GaudiHandleBase& toolHandle, const std::string& property, const GaudiHandleBase& value, bool override=true) {
       std::string subToolName(value.name());
       size_t start_pos = subToolName.find(toolHandle.name()+".");
       if(start_pos!=std::string::npos) { subToolName.replace( start_pos, toolHandle.name().length()+1, "" ); }
       std::string typeAndName = value.type(); if(!subToolName.empty()) typeAndName += "/"+subToolName;
       return setProperty( toolHandle, property, typeAndName, override );
    }
-   template<typename T, typename W> static StatusCode setProperty(const ToolHandle<T>& toolHandle, const std::string& property, const ToolHandleArray<W>& value, bool override=true) {
+   static StatusCode setProperty(const GaudiHandleBase& toolHandle, const std::string& property, const GaudiHandleArrayBase& value, bool override=true) {
       return setProperty( toolHandle, property, value.typesAndNames(), override );
    }
 
@@ -219,7 +216,7 @@ public:
    
    ///check if tool already exists. FullName = Parent.Name
    static bool toolExists( const std::string& fullName );
-   template<typename T> static bool toolExists(const ToolHandle<T>& toolHandle) { return toolExists( toolHandle.parentName() + "." + toolHandle.name() ); }
+   static bool toolExists(const GaudiHandleBase& toolHandle) { return toolExists( toolHandle.parentName() + "." + toolHandle.name() ); }
 
   
   ///method that always returns as a string
@@ -348,12 +345,9 @@ public:
    //these aren't necessarily the same as what is in the JobOptionsSvc
   static void dumpProperties(const IProperty& component); //list properties of an existing component (may not match what is in the catalogue)
     
-  template<typename T> static void dumpProperties(const ServiceHandle<T>& handle) {
-    if(!handle.isSet()) {std::cout << "Please retrieve service before dumping properties" << std::endl; return;}
-    return dumpProperties(dynamic_cast<const IProperty&>(*handle));
-  }
-   template<typename T> static void dumpProperties(const ToolHandle<T>& handle) {
-    if(!handle.isSet()) {std::cout << "Please retrieve service before dumping properties" << std::endl; return;}
+
+   template<typename T> static void dumpProperties(const GaudiHandle<T>& handle) {
+    if(!handle.isSet()) {std::cout << "Please retrieve handle before dumping properties" << std::endl; return;}
     return dumpProperties(dynamic_cast<const IProperty&>(*handle));
   }
 
