@@ -21,24 +21,12 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 // mc tools
-//#include "McParticleKernel/IMcVtxFilterTool.h"
-//#include "McParticleKernel/ITruthParticleCnvTool.h"
-//#include "McParticleEvent/TruthParticle.h"
-//#include "McParticleEvent/TruthParticleContainer.h"
 #include "GeneratorObjects/McEventCollection.h"
 #include "HepMC/GenEvent.h"
 #include "HepMC/GenParticle.h"
 #include "HepMC/GenVertex.h"
 // Needed for FourVector
 #include "HepMC/SimpleVector.h"
-
-//#include "McParticleUtils/McVtxFilter.h"
-
-//#include "TruthHelper/IsGenStable.h"
-//#include "TruthHelper/IsGenNonInteracting.h"
-//#include "TruthHelper/IsGenerator.h"
-
-//#include "EventKernel/PdtPdg.h"
 
 // ROOT includes
 #include "TH1F.h"
@@ -140,7 +128,7 @@ StatusCode CompactHardTruth::execute() {
 
   ++m_evtCount;
   //if( m_evtCount%100 == 0 ){
-    ATH_MSG_INFO("Executing " <<name() <<" " <<m_evtCount);
+    ATH_MSG_DEBUG("Executing " <<name() <<" " <<m_evtCount);
   //}
 
   // Normally doPrint is used to print the first m_maxCount events
