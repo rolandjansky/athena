@@ -56,7 +56,7 @@ int main( int /*argc*/, char* argv[] ) {
 
    Info( APP_NAME, "Opening file: %s", fileName.Data() );
    TFile * ifile( TFile::Open( fileName, "READ" ) );
-   if (!ifile) Error(APP_NAME, "Cannot find file " + fileName);
+   if (!ifile) Error(APP_NAME, "%s", ("Cannot find file " + fileName).Data());
 
    // Create a TEvent object:
    xAOD::TEvent event( ifile, xAOD::TEvent::kClassAccess );
