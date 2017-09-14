@@ -53,13 +53,13 @@ namespace InDet {
     virtual bool accept( const xAOD::TrackParticle*, const xAOD::JetContainer* ) const override;
 
     /// returns: whether the tool is affected by the systematic
-    virtual bool isAffectedBySystematic( const CP::SystematicVariation& ) const;
+    virtual bool isAffectedBySystematic( const CP::SystematicVariation& ) const override;
     /// returns: list of systematics this tool can be affected by
-    virtual CP::SystematicSet affectingSystematics() const;
+    virtual CP::SystematicSet affectingSystematics() const override;
     /// returns: list of recommended systematics to use with this tool
-    virtual CP::SystematicSet recommendedSystematics() const;
+    virtual CP::SystematicSet recommendedSystematics() const override;
     /// configure the tool to apply a given list of systematic variations
-    virtual CP::SystematicCode applySystematicVariation( const CP::SystematicSet& );
+    virtual CP::SystematicCode applySystematicVariation( const CP::SystematicSet& ) override;
 
   private:
 
