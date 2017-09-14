@@ -149,6 +149,21 @@ namespace met {
     const TrackParticle* idtrack = mu->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
     const CaloCluster* muclus = mu->cluster();
 
+    ATH_MSG_VERBOSE("Muon " << mu->index() << " with pt " << mu->pt()
+		    << ", eta "   << mu->eta()
+		    << ", phi " << mu->phi());
+    if(muclus) {
+      ATH_MSG_VERBOSE(" has cluster with "
+		      << "eta "   << muclus->calEta()
+		      << ", phi " << muclus->calPhi()
+		      << ", E "   << muclus->calE()
+		      << " formed of " << muclus->size() << " cells.");
+    }
+    ATH_MSG_VERBOSE("Muon Eloss type: " << mu->energyLossType()
+		    << " Eloss: " << mu->floatParameter(xAOD::Muon::EnergyLoss)
+		    << " MeasuredEloss: " << mu->floatParameter(xAOD::Muon::MeasEnergyLoss)
+		    << " FSR E: " << mu->floatParameter(xAOD::Muon::FSR_CandidateEnergy) );
+
     // One loop over PFOs
     for(const auto& pfo : *constits.pfoCont) {
       if(fabs(pfo->charge())>1e-9) {
@@ -167,26 +182,14 @@ namespace met {
       } else {
       	// get neutral PFOs by matching the muon cluster
       	if(muclus && m_doMuonClusterMatch) {
-      	  ATH_MSG_VERBOSE("Muon " << mu->index() << " with pt " << mu->pt()
-      			  << ", eta "   << mu->eta()
-      			  << ", phi " << mu->phi()
-      			  << " has cluster with "
-      			  << "eta "   << muclus->calEta()
-      			  << ", phi " << muclus->calPhi()
-      			  << ", E "   << muclus->calE()
-      			  << " formed of " << muclus->size() << " cells.");
-      	  ATH_MSG_VERBOSE("Muon Eloss type: " << mu->energyLossType()
-      			  << " Eloss: " << mu->floatParameter(xAOD::Muon::EnergyLoss)
-      			  << " MeasuredEloss: " << mu->floatParameter(xAOD::Muon::MeasEnergyLoss)
-      			  << " FSR E: " << mu->floatParameter(xAOD::Muon::FSR_CandidateEnergy) );
       
       	  static const SG::AuxElement::ConstAccessor<std::vector<ElementLink<CaloClusterContainer> > > tcLinkAcc("constituentClusterLinks");
       	  for(const auto& matchel : tcLinkAcc(*muclus)) {
 	    if(!matchel.isValid()) {
 	      ATH_MSG_DEBUG("Invalid muon-cluster elementLink");
 	    } else {
-	      ATH_MSG_VERBOSE("Tool found cluster " << (*matchel)->index() << " with pt " << (*matchel)->pt() );
 	      if((*matchel)->e()>FLT_MIN && pfo->cluster(0) == *matchel) { // +ve E && matches cluster
+		ATH_MSG_VERBOSE("Tool found cluster " << (*matchel)->index() << " with pt " << (*matchel)->pt() );
 		pfolist.push_back(pfo);
 	      }
 	    }
