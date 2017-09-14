@@ -462,8 +462,10 @@ namespace InDet
       }
       
       if (!decision(summary, m_useSharedHitInfo, isInTrtAcceptance, perigeeBeforeExtrapolation)) {
+        summary=0;
 	return false;
       }
+      summary=0;
     }
     
     const Trk::Perigee* extrapolatedPerigee=dynamic_cast<const Trk::Perigee*>(definintParameters);
