@@ -19,19 +19,19 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 AFPHitAnalysis::AFPHitAnalysis(const std::string& name, ISvcLocator* pSvcLocator)
    : AthAlgorithm(name, pSvcLocator)
-   , h_hitID(0)
-   , h_pdgID(0)
-   , h_trackID(0)
-   , h_kine(0)
-   , h_edep(0)
-   , h_stepX(0)
-   , h_stepY(0)
-   , h_stepZ(0)
-   , h_time(0)
-   , h_stationID(0)
-   , h_detID(0)
-   , h_pixelRow(0)
-   , h_pixelCol(0)
+   , m_h_hitID(0)
+   , m_h_pdgID(0)
+   , m_h_trackID(0)
+   , m_h_kine(0)
+   , m_h_edep(0)
+   , m_h_stepX(0)
+   , m_h_stepY(0)
+   , m_h_stepZ(0)
+   , m_h_time(0)
+   , m_h_stationID(0)
+   , m_h_detID(0)
+   , m_h_pixelRow(0)
+   , m_h_pixelCol(0)
    , m_hitID(0)
    , m_pdgID(0)
    , m_trackID(0)
@@ -63,53 +63,53 @@ StatusCode AFPHitAnalysis::initialize() {
   CHECK(m_thistSvc.retrieve());
 
   /** now define the histograms**/
-  h_hitID = new TH1D("h_hitID", "hitID",100, 0., 100.);
-  h_hitID->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path+h_hitID->GetName(), h_hitID));
+  m_h_hitID = new TH1D("h_hitID", "hitID",100, 0., 100.);
+  m_h_hitID->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path+m_h_hitID->GetName(), m_h_hitID));
 
-  h_pdgID =  new TH1D("h_pdgID", "pdgID", 200, -100,100);
-  h_pdgID->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path+h_pdgID->GetName(), h_pdgID));	
+  m_h_pdgID =  new TH1D("h_pdgID", "pdgID", 200, -100,100);
+  m_h_pdgID->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path+m_h_pdgID->GetName(), m_h_pdgID));	
 
-  h_trackID =  new TH1D("h_trackID", "trackID", 100, 0,100);
-  h_trackID->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path+h_trackID->GetName(), h_trackID));	
+  m_h_trackID =  new TH1D("h_trackID", "trackID", 100, 0,100);
+  m_h_trackID->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path+m_h_trackID->GetName(), m_h_trackID));	
 
-  h_kine =  new TH1D("h_kine", "kine", 100, 0,1000);
-  h_kine->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path+h_kine->GetName(), h_kine));
+  m_h_kine =  new TH1D("h_kine", "kine", 100, 0,1000);
+  m_h_kine->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path+m_h_kine->GetName(), m_h_kine));
 
-  h_edep =  new TH1D("h_edep", "edep", 100, 0,1000);
-  h_edep->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path+h_edep->GetName(), h_edep));
+  m_h_edep =  new TH1D("h_edep", "edep", 100, 0,1000);
+  m_h_edep->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path+m_h_edep->GetName(), m_h_edep));
 
-  h_stepX =  new TH1D("h_stepX", "stepX", 100, 0,1000);
-  h_stepX->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path+h_stepX->GetName(), h_stepX));
+  m_h_stepX =  new TH1D("h_stepX", "stepX", 100, 0,1000);
+  m_h_stepX->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path+m_h_stepX->GetName(), m_h_stepX));
 
-  h_stepY =  new TH1D("h_stepY", "stepY", 100, 0,1000);
-  h_stepY->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path+h_stepY->GetName(), h_stepY));
+  m_h_stepY =  new TH1D("h_stepY", "stepY", 100, 0,1000);
+  m_h_stepY->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path+m_h_stepY->GetName(), m_h_stepY));
 
-  h_stepZ =  new TH1D("h_stepZ", "stepZ", 100, 0,1000);
-  h_stepZ->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path+h_stepZ->GetName(), h_stepZ));
+  m_h_stepZ =  new TH1D("h_stepZ", "stepZ", 100, 0,1000);
+  m_h_stepZ->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path+m_h_stepZ->GetName(), m_h_stepZ));
 
-  h_stationID =  new TH1D("h_stationID", "stationID", 50, 0,50);
-  h_stationID->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path+h_stationID->GetName(), h_stationID));
+  m_h_stationID =  new TH1D("h_stationID", "stationID", 50, 0,50);
+  m_h_stationID->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path+m_h_stationID->GetName(), m_h_stationID));
 
-  h_detID =  new TH1D("h_detID", "detID", 50, 0,50);
-  h_detID->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path+h_detID->GetName(), h_detID));
+  m_h_detID =  new TH1D("h_detID", "detID", 50, 0,50);
+  m_h_detID->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path+m_h_detID->GetName(), m_h_detID));
 
-  h_pixelRow =  new TH1D("h_pixelRow", "pixelRow", 20, 0,20);
-  h_pixelRow->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path+h_pixelRow->GetName(), h_pixelRow));
+  m_h_pixelRow =  new TH1D("h_pixelRow", "pixelRow", 20, 0,20);
+  m_h_pixelRow->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path+m_h_pixelRow->GetName(), m_h_pixelRow));
 
-  h_pixelCol =  new TH1D("h_pixelCol", "pixelCol", 20, 0,20);
-  h_pixelCol->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path+h_pixelCol->GetName(), h_pixelCol));
+  m_h_pixelCol =  new TH1D("h_pixelCol", "pixelCol", 20, 0,20);
+  m_h_pixelCol->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path+m_h_pixelCol->GetName(), m_h_pixelCol));
   
   /** now add branches and leaves to the tree */
   m_tree = new TTree("AFP","AFP");
@@ -167,19 +167,19 @@ StatusCode AFPHitAnalysis::execute() {
   
   for ( hi=(*iter).begin(); hi != (*iter).end(); ++hi ) {
     AFP_SIDSimHit ghit(*hi);
-    h_hitID->Fill(ghit.m_nHitID);
-    h_pdgID->Fill(ghit.m_nParticleEncoding);
-    h_trackID->Fill(ghit.m_nTrackID);
-    h_kine->Fill(ghit.m_fKineticEnergy);
-    h_edep->Fill(ghit.m_fEnergyDeposit);
-    h_stepX->Fill(ghit.m_fPostStepX-ghit.m_fPreStepX);
-    h_stepY->Fill(ghit.m_fPostStepY-ghit.m_fPreStepY);
-    h_stepX->Fill(ghit.m_fPostStepZ-ghit.m_fPreStepZ);
-    h_time->Fill(ghit.m_fGlobalTime);
-    h_stationID->Fill(ghit.m_nStationID);
-    h_detID->Fill(ghit.m_nDetectorID);
-    h_pixelRow->Fill(ghit.m_nPixelRow);
-    h_pixelCol->Fill(ghit.m_nPixelCol);
+    m_h_hitID->Fill(ghit.m_nHitID);
+    m_h_pdgID->Fill(ghit.m_nParticleEncoding);
+    m_h_trackID->Fill(ghit.m_nTrackID);
+    m_h_kine->Fill(ghit.m_fKineticEnergy);
+    m_h_edep->Fill(ghit.m_fEnergyDeposit);
+    m_h_stepX->Fill(ghit.m_fPostStepX-ghit.m_fPreStepX);
+    m_h_stepY->Fill(ghit.m_fPostStepY-ghit.m_fPreStepY);
+    m_h_stepX->Fill(ghit.m_fPostStepZ-ghit.m_fPreStepZ);
+    m_h_time->Fill(ghit.m_fGlobalTime);
+    m_h_stationID->Fill(ghit.m_nStationID);
+    m_h_detID->Fill(ghit.m_nDetectorID);
+    m_h_pixelRow->Fill(ghit.m_nPixelRow);
+    m_h_pixelCol->Fill(ghit.m_nPixelCol);
 
     m_hitID->push_back(ghit.m_nHitID);
     m_pdgID->push_back(ghit.m_nParticleEncoding);
