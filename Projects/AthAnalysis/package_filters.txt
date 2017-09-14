@@ -170,6 +170,7 @@
 
 # EVNT support :
 + PhysicsAnalysis/DerivationFramework/DerivationFrameworkMCTruth
++ Generators/GenInterfaces
 + Generators/GeneratorObjects.*
 + Generators/HepMCWeightSvc
 
