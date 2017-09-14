@@ -24,6 +24,7 @@
 + Event/xAOD/xAODTriggerCnv
 + Event/xAOD/xAODTrackingCnv
 + Event/xAOD/xAODEventFormatCnv
++ Event/xAOD/xAODCoreCnv
 
 # Just for AthAnalysis, also include xAODTruthCnv
 # This is for EVNT support (allows otf conversion to xAOD-format)
@@ -58,8 +59,8 @@
 + PhysicsAnalysis/AnalysisCommon/ReweightUtils
 + PhysicsAnalysis/BPhys/BPhysTools
 + PhysicsAnalysis/D3PDTools/RootCoreUtils
-+ Physicsanalysis/D3PDTools/SampleHandler
-+ Physicsanalysis/D3PDTools/AnaAlgorithm
++ PhysicsAnalysis/D3PDTools/SampleHandler
++ PhysicsAnalysis/D3PDTools/AnaAlgorithm
 - PhysicsAnalysis/D3PDTools/.*
 - PhysicsAnalysis/ElectronPhotonID/ElectronPhotonTagTools
 + PhysicsAnalysis/ElectronPhotonID/.*
@@ -136,7 +137,7 @@
 + Control/RootUtils
 + Control/PerformanceMonitoring/PerfMonKernel
 + Control/Navigation
-+ Event/xAOD/xAODCoreCnv
+
 + Tools/PyUtils
 # Pycmt is pulled in by PyUtils, which is pulled in by athena.py
 + Tools/PyCmt
@@ -169,6 +170,7 @@
 
 # EVNT support :
 + PhysicsAnalysis/DerivationFramework/DerivationFrameworkMCTruth
++ Generators/GenInterfaces
 + Generators/GeneratorObjects.*
 + Generators/HepMCWeightSvc
 
@@ -187,6 +189,5 @@
 + DetectorDescription/Identifier
 # + Calorimeter/CaloIdentifier
 + DetectorDescription/GeoModel/GeoModelInterfaces
-
 # Don't build anything else:
 - .*
