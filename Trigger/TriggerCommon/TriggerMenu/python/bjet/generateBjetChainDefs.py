@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-__author__  = 'M.Backes, C.Bernius'
+__author__  = 'J.Alison M.Backes, C.Bernius'
 __doc__="Definition of bjet chains" 
 
 from AthenaCommon.Logging import logging
@@ -115,7 +115,11 @@ def generateChainDefs(chainDict):
 
     bjetchainDicts = [cdict for cdict in listofChainDicts if cdict['chainParts']['bTag']] 
     if log.isEnabledFor(logging.DEBUG): log.debug("Final b-jet chainDict: \n %s" , pp.pformat(bjetchainDicts))
-    
+
+
+    # 
+    # Basic properties of the chain, these are used to decide if we use the new AllTE configuration
+    #
     isSplitChain = (not chainDict['chainName'].find("split") == -1)
     isRunITagger = (not chainDict['chainName'].find("btight") == -1 or not chainDict['chainName'].find("bmedium") == -1 or not chainDict['chainName'].find("bloose") == -1)
     is2015Tagger = (not chainDict['chainName'].find("bmv2c20") == -1 or not chainDict['chainName'].find("bperf") == -1)
@@ -183,6 +187,8 @@ def buildBjetChainsAllTE(theChainDef, bjetdict, numberOfSubChainDicts=1):
 
     #
     # Get the min threshold for tracking
+    #   This cut is applied after the jet splitting
+    #   So we only run precision tracking in ROIs above the minimum considered
     #
     minBTagThreshold = 1e9
     for bjetPart in bjetdict:
@@ -193,6 +199,8 @@ def buildBjetChainsAllTE(theChainDef, bjetdict, numberOfSubChainDicts=1):
 
     #
     # Configure the GSC calibration
+    #   This cut is applied after the GSC calibration
+    #   So we only btag ROIs above the minimum considered
     #
     doGSC = False
     minGSCThreshold = 1e9
@@ -308,11 +316,8 @@ def buildBjetChainsAllTE(theChainDef, bjetdict, numberOfSubChainDicts=1):
     #
     log.debug("Derive multiplicity requirements")
     btagReqs = []
-
-    name = bjetdict[0]['chainName']
-    
     for bjetchain in bjetdict:
-        print bjetdict
+        log.debug(bjetdict)
         btagCut = bjetchain['chainParts']['bTag']
         mult    = bjetchain['chainParts']['multiplicity']
 
@@ -323,8 +328,8 @@ def buildBjetChainsAllTE(theChainDef, bjetdict, numberOfSubChainDicts=1):
         btagReqs.append([threshold,btagCut,mult])
     
     log.debug("Config the ALLTE Hypo")
+    name = bjetdict[0]['chainName']
     theBjetHypoAllTE = getBjetHypoAllTEInstance("EF","2017",name,btagReqs)
-
 
     #theChainDef.signatureList[-1]['listOfTriggerElements'][0]
     log.debug("Adding Sequence")
