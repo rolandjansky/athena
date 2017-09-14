@@ -33,7 +33,7 @@ DerivationFrameworkJob += thinHard
 # Convert GEN_HARD to TruthEvent format with new name(s):
 # Need to set TruthLinks to avoid conflict with standard name
 # Need to set xAODTruthPileupEventContainerName
-
+# No need for truth metadata here; it comes from the other converter
 DerivationFrameworkJob += xAODMaker__xAODTruthCnvAlg(
                           "GEN_HARD2xAOD",
                           AODContainerName="GEN_HARD",
@@ -42,12 +42,8 @@ DerivationFrameworkJob += xAODMaker__xAODTruthCnvAlg(
                           xAODTruthParticleContainerName="TruthHardParticles",
                           xAODTruthVertexContainerName="TruthHardVertices",
                           TruthLinks="TruthHardLinks",
+                          WriteTruthMetaData=False,
                           OutputLevel = Lvl.INFO)
-
-
-#####################################
-# Skip new truth collections in TRUTH1
-#####################################
 
 #==============================================================================
 # Thin standard TruthEvent with HardTruthThinning
@@ -135,7 +131,7 @@ TRUTH2SlimmingHelper.AppendToDictionary = {'MET_Truth':'xAOD::MissingETContainer
 TRUTH2SlimmingHelper.AllVariables = ["MET_Truth","MET_TruthRegions","TruthElectrons","TruthMuons","TruthPhotons","TruthTaus","TruthNeutrinos","TruthBSM","TruthTop","TruthBoson"]
 TRUTH2SlimmingHelper.ExtraVariables = ["AntiKt4TruthWZJets.GhostCHadronsFinalCount.GhostBHadronsFinalCount.pt.HadronConeExclTruthLabelID.ConeTruthLabelID.PartonTruthLabelID.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T",
                                        "TrimmedAntiKt10TruthJets.pt.Tau1_wta.Tau2_wta.Tau3_wta"]
-TRUTH2SlimmingHelper.AppendContentToStream(TRUTH1Stream)
+TRUTH2SlimmingHelper.AppendContentToStream(TRUTH2Stream)
 # The entire event info, truth event, etc
 TRUTH2Stream.AddItem("xAOD::EventInfo#*")
 TRUTH2Stream.AddItem("xAOD::EventAuxInfo#*")
@@ -145,5 +141,3 @@ TRUTH2Stream.AddItem( "xAOD::TruthVertexContainer#*" )
 TRUTH2Stream.AddItem( "xAOD::TruthVertexAuxContainer#*" )
 TRUTH2Stream.AddItem( "xAOD::TruthParticleContainer#*" )
 TRUTH2Stream.AddItem( "xAOD::TruthParticleAuxContainer#*" )
-TRUTH2Stream.AddMetaDataItem( [ "xAOD::TruthMetaDataContainer#TruthMetaData", "xAOD::TruthMetaDataAuxContainer#TruthMetaDataAux." ] )
-
