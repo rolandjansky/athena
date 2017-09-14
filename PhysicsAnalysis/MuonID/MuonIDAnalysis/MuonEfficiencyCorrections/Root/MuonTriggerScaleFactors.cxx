@@ -656,25 +656,25 @@ namespace CP {
     std::string MuonTriggerScaleFactors::getDataPeriod(unsigned int runNumber, unsigned year) const {
         if (year == 2015) {
             if (runNumber >= 266904 && runNumber <= 272531) return "AC";
-            if (runNumber >= 276073 && runNumber <= 276954) return "D";
-            if (runNumber >= 278727 && runNumber <= 279928) return "E";
-            if (runNumber >= 279932 && runNumber <= 280422) return "F";
-            if (runNumber >= 280423 && runNumber <= 281075) return "G";
-            if (runNumber >= 281130 && runNumber <= 281411) return "H";
-            if (runNumber >= 281662 && runNumber <= 282482) return "I"; // special ALFA run
-            if (runNumber >= 282625 && runNumber <= 284484) return "J";
+            else if (runNumber >= 276073 && runNumber <= 276954) return "D";
+            else if (runNumber >= 278727 && runNumber <= 279928) return "E";
+            else if (runNumber >= 279932 && runNumber <= 280422) return "F";
+            else if (runNumber >= 280423 && runNumber <= 281075) return "G";
+            else if (runNumber >= 281130 && runNumber <= 281411) return "H";
+            else if (runNumber >= 281662 && runNumber <= 282482) return "I"; // special ALFA run
+            else if (runNumber >= 282625 && runNumber <= 284484) return "J";
         } else if (year == 2016) {
             if (runNumber >= 296939 && runNumber <= 300287) return "A";
-            if (runNumber >= 300345 && runNumber <= 300908) return "B";
-            if (runNumber >= 301912 && runNumber <= 302393) return "C";
-            if (runNumber >= 302737 && runNumber <= 302872) return "D1D3";
-            if (runNumber >= 302919 && runNumber <= 303560) return "D4D8";
-            if (runNumber >= 303638 && runNumber <= 303892) return "E";
-            if (runNumber >= 303943 && runNumber <= 304494) return "F";
-            if (runNumber >= 305291 && runNumber <= 306714) return "G";
-            if (runNumber >= 307124 && runNumber <= 308084) return "I";
-            if (runNumber >= 309311 && runNumber <= 309759) return "K";
-            if (runNumber >= 310015 && runNumber <= 311481) return "L";
+            else if (runNumber >= 300345 && runNumber <= 300908) return "B";
+            else if (runNumber >= 301912 && runNumber <= 302393) return "C";
+            else if (runNumber >= 302737 && runNumber <= 302872) return "D1D3";
+            else if (runNumber >= 302919 && runNumber <= 303560) return "D4D8";
+            else if (runNumber >= 303638 && runNumber <= 303892) return "E";
+            else if (runNumber >= 303943 && runNumber <= 304494) return "F";
+            else if (runNumber >= 305291 && runNumber <= 306714) return "G";
+            else if (runNumber >= 307124 && runNumber <= 308084) return "I";
+            else if (runNumber >= 309311 && runNumber <= 309759) return "K";
+            else if (runNumber >= 310015 && runNumber <= 311481) return "L";
         }
         //Return some  default  value
         return std::string();
