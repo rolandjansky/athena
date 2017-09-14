@@ -151,7 +151,7 @@ namespace EL
 
 
 
-    /// effects: generate the splits for the sample 
+    /// effects: generate the splits for the sample
     /// guarantee: basic
     /// failures: out of memory II
     /// failures: i/o errors
@@ -200,7 +200,7 @@ namespace EL
 
 
 
-    /// effects: generate the splits for the sample 
+    /// effects: generate the splits for the sample
     /// guarantee: basic
     /// failures: out of memory II
     /// failures: i/o errors
@@ -412,108 +412,130 @@ namespace EL
   {
     RCU_READ_INVARIANT (this);
 
-#ifndef USE_CMAKE
-    const char *ROOTCORECONFIG = getenv ("ROOTCORECONFIG");
-#endif
+    // <path of build dir>/x86_64-slc6-gcc62-opt (comes from CMake, we need this)
+    const char *WORKDIR_DIR         = getenv ("WorkDir_DIR");
+
+    // name of tarball being made (this needs to match CondorDriver.cxx)
+    const std::string tarballName("AnalysisPackage.tar.gz");
 
     const std::string writeLocation=getWriteLocation(location);
     const std::string submitLocation=getSubmitLocation(location);
-#ifndef USE_CMAKE
-    const std::string rootCoreBin=getRootCoreBin();
-#endif
 
     std::string name = batchName ();
     bool multiFile = (name.find ("{JOBID}") != std::string::npos);
-    for (std::size_t index = 0, end = multiFile ? njobs : 1;
-	 index != end; ++ index)
+    for (std::size_t index = 0, end = multiFile ? njobs : 1; index != end; ++ index)
     {
       std::ostringstream str;
       str << index;
-      const std::string fileName
-	= location + "/submit/" + RCU::substitute (name, "{JOBID}", str.str());
+      const std::string fileName = location + "/submit/" + RCU::substitute (name, "{JOBID}", str.str());
 
       {
-	std::ofstream file (fileName.c_str());
-	file << "#!/bin/bash\n";
-	file << "echo starting batch job initialization\n";
-	file << RCU::substitute (batchInit(), "{JOBID}", str.str()) << "\n";
-	file << "echo batch job user initialization finished\n";
-	if (multiFile)
-	  file << "EL_JOBID=" << index << "\n\n";
-	else
-	  file << batchJobId() << "\n";
+        std::ofstream file (fileName.c_str());
+        file << "#!/bin/bash\n";
+        file << "echo starting batch job initialization\n";
+        file << RCU::substitute (batchInit(), "{JOBID}", str.str()) << "\n";
+        file << "echo batch job user initialization finished\n";
+        if (multiFile) file << "EL_JOBID=" << index << "\n\n";
+        else           file << batchJobId() << "\n";
 
-	file << "function abortJob {\n";
-	file << "  touch \"" << writeLocation << "/fetch/fail-$EL_JOBID\"\n";
-	file << "  touch \"" << writeLocation << "/fetch/done-$EL_JOBID\"\n";
-	file << "  exit 1\n";
-	file << "}\n\n";
+        file << "function abortJob {\n";
+        file << "  touch \"" << writeLocation << "/fetch/fail-$EL_JOBID\"\n";
+        file << "  touch \"" << writeLocation << "/fetch/done-$EL_JOBID\"\n";
+        file << "  exit 1\n";
+        file << "}\n\n";
 
-	file << "test \"$TMPDIR\" == \"\" && TMPDIR=/tmp\n";
+        file << "test \"$TMPDIR\" == \"\" && TMPDIR=/tmp\n";
 
-	file << "EL_JOBSEG=`grep \"^$EL_JOBID \" \"" << submitLocation << "/segments\" | awk ' { print $2 }'`\n";
-	file << "test \"$EL_JOBSEG\" != \"\" || abortJob\n";
-	file << "hostname\n";
-	file << "pwd\n";
-	file << "whoami\n";
-	file << shellInit << "\n";
+        file << "EL_JOBSEG=`grep \"^$EL_JOBID \" \"" << submitLocation << "/segments\" | awk ' { print $2 }'`\n";
+        file << "test \"$EL_JOBSEG\" != \"\" || abortJob\n";
+        file << "hostname\n";
+        file << "pwd\n";
+        file << "whoami\n";
+        file << shellInit << "\n";
 
-	if(!sharedFileSystem)
-	  { // Create output transfer directories
-	    file << "mkdir \"${TMPDIR}/fetch\" || abortJob\n";
-	    file << "\n";
-	  }
+        if(!sharedFileSystem)
+          { // Create output transfer directories
+            file << "mkdir \"${TMPDIR}/fetch\" || abortJob\n";
+            file << "\n";
+          }
 
-	if(sharedFileSystem)
-	  {
-	    file << "RUNDIR=${TMPDIR}/EventLoop-Worker-$EL_JOBSEG-`date +%s`-$$\n";
-	    file << "mkdir \"$RUNDIR\" || abortJob\n";
-	  }
-	else
-	  {
-	    file << "RUNDIR=${TMPDIR}\n";
-	  }
-	file << "cd \"$RUNDIR\" || abortJob\n";
+        if(sharedFileSystem)
+          {
+            file << "RUNDIR=${TMPDIR}/EventLoop-Worker-$EL_JOBSEG-`date +%s`-$$\n";
+            file << "mkdir \"$RUNDIR\" || abortJob\n";
+          }
+        else
+          {
+            file << "RUNDIR=${TMPDIR}\n";
+          }
+        file << "cd \"$RUNDIR\" || abortJob\n";
 
-	if(!sharedFileSystem)
-	  {
-	    file << "tar -xf RootCore.par || abortJob\n";
-	    file << "\n";
-	  }
+        if(!sharedFileSystem)
+          {
+            file << "mkdir -p build && tar -C build/ -xf " << tarballName << " || abortJob\n";
+            file << "\n";
+          }
 
-#ifndef USE_CMAKE
-	if (ROOTCORECONFIG)
-	  file << "export ROOTCORECONFIG=" << ROOTCORECONFIG << "\n";
-#endif
+        file << "\n";
+        // /cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/x86_64/AtlasSetup/.config/.asetup.site
+        if(getenv("AtlasSetupSite"))  file << "export AtlasSetupSite=" << getenv("AtlasSetupSite") << "\n";
+        // /cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/x86_64/AtlasSetup/V00-07-75/AtlasSetup
+        if(getenv("AtlasSetup"))      file << "export AtlasSetup=" << getenv("AtlasSetup") << "\n";
+        // for now, needed because of errors like:
+        //  /cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/swConfig/asetup/asetupEpilog.sh: line 38:
+        //      /swConfig/python/pythonFix-Linux.sh: No such file or directory
+        file << "export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase\n";
+        file << "source $ATLAS_LOCAL_ROOT_BASE/user/atlasLocalSetup.sh --quiet\n";
 
-#ifndef USE_CMAKE
-	file << "\n";
-	file << "if test -z ${ROOTCOREBIN+x}\n";
-	file << "then\n";
-	file << "  if test -e " << rootCoreBin << "/local_setup.sh\n";
-	file << "  then\n";
-	file << "    source " << rootCoreBin << "/local_setup.sh || abortJob\n";
-	file << "  else\n";
-	file << "    source " << getenv ("ROOTCOREDIR") << "/scripts/setup.sh || abortJob\n";
-	file << "  fi\n";
-	file << "fi\n";
-	file << "\n";
-#endif
+        // default setup command
+        std::ostringstream defaultSetupCommand;
+        {
+          // AnalysisBase
+          if(getenv("AtlasProject"))     defaultSetupCommand << "export AtlasProject=" << getenv("AtlasProject") << "\n";
+          // 21.2.3
+          if(getenv("AtlasVersion"))     defaultSetupCommand << "export AtlasVersion=" << getenv("AtlasVersion") << "\n";
+          // 2017-08-16T2249 (only set if using a nightly release)
+          if(getenv("AtlasBuildStamp"))  defaultSetupCommand << "export AtlasBuildStamp=" << getenv("AtlasBuildStamp") << "\n";
+          // 21.2
+          if(getenv("AtlasBuildBranch")) defaultSetupCommand << "export AtlasBuildBranch=" << getenv("AtlasBuildBranch") << "\n";
+          defaultSetupCommand << "if [ -z \"${AtlasBuildStamp}\" ]; then\n";
+          defaultSetupCommand << "     source ${AtlasSetup}/scripts/asetup.sh ${AtlasProject},${AtlasVersion} || abortJob\n";
+          defaultSetupCommand << "else\n";
+          defaultSetupCommand << "     source ${AtlasSetup}/scripts/asetup.sh ${AtlasProject},${AtlasBuildBranch},${AtlasBuildStamp} || abortJob\n";
+          defaultSetupCommand << "fi\n";
+          defaultSetupCommand << "echo \"Using default setup command\"";
+        }
+        file << options()->castString(Job::optBatchSetupCommand, defaultSetupCommand.str()) << " || abortJob\n";
+        if(sharedFileSystem) file << "source " << WORKDIR_DIR << "/setup.sh || abortJob\n";
+        else                 file << "source build/setup.sh || abortJob\n";
+        file << "\n";
 
-	file << "eventloop_batch_worker $EL_JOBID '" << submitLocation << "/config.root' || abortJob\n";
+        file << "eventloop_batch_worker $EL_JOBID '" << submitLocation << "/config.root' || abortJob\n";
 
-	file << "test -f \"" << writeLocation << "/fetch/completed-$EL_JOBID\" || "
-	     << "touch \"" << writeLocation << "/fetch/fail-$EL_JOBID\"\n";
-	file << "touch \"" << writeLocation << "/fetch/done-$EL_JOBID\"\n";
-	if(sharedFileSystem) file << "cd .. && rm -rf \"$RUNDIR\"\n";
+        file << "test -f \"" << writeLocation << "/fetch/completed-$EL_JOBID\" || "
+             << "touch \"" << writeLocation << "/fetch/fail-$EL_JOBID\"\n";
+        file << "touch \"" << writeLocation << "/fetch/done-$EL_JOBID\"\n";
+        if(sharedFileSystem) file << "cd .. && rm -rf \"$RUNDIR\"\n";
       }
 
       {
-	std::ostringstream cmd;
-	cmd << "chmod +x " << fileName;
-	if (gSystem->Exec (cmd.str().c_str()) != 0)
-	  RCU_THROW_MSG (("failed to execute: " + cmd.str()).c_str());
+        std::ostringstream cmd;
+        cmd << "chmod +x " << fileName;
+        if (gSystem->Exec (cmd.str().c_str()) != 0)
+          RCU_THROW_MSG (("failed to execute: " + cmd.str()).c_str());
       }
+    }
+
+    {
+      std::ostringstream cmd;
+      cmd << "tar --dereference -C " << WORKDIR_DIR << " -czvf " << tarballName << " .";
+      // suppress the output from the tarball command
+      gSystem->RedirectOutput("/dev/null");
+      if (gSystem->Exec (cmd.str().c_str()) != 0){
+        gSystem->RedirectOutput(0);
+        RCU_THROW_MSG (("failed to execute: " + cmd.str()).c_str());
+      }
+      gSystem->RedirectOutput(0);
     }
   }
 
@@ -601,7 +623,7 @@ namespace EL
     return result;
   }
 
-  const std::string BatchDriver :: 
+  const std::string BatchDriver ::
   getWriteLocation (const std::string& location) const
   {
     RCU_READ_INVARIANT (this);
@@ -611,7 +633,7 @@ namespace EL
       return ".";
   }
 
-  const std::string BatchDriver :: 
+  const std::string BatchDriver ::
   getSubmitLocation (const std::string& location) const
   {
     RCU_READ_INVARIANT (this);
@@ -621,15 +643,4 @@ namespace EL
       return ".";
   }
 
-#ifndef USE_CMAKE
-  const std::string BatchDriver :: 
-  getRootCoreBin () const
-  {
-    RCU_READ_INVARIANT (this);
-    if(options()->castBool(Job::optBatchSharedFileSystem,true)) // Shared file-system, use local ROOTCOREBIN
-      return getenv ("ROOTCOREBIN");
-    else
-      return "${TMPDIR}/RootCore/RootCoreBin";
-  }
-#endif
 }
