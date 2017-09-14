@@ -62,7 +62,7 @@ protected:
       if(record){
         if(evtStore()->record( newconstit.first, m_outputContainer+suffix ).isFailure() ||
 	   evtStore()->record( newconstit.second, m_outputContainer+suffix+"Aux." ).isFailure() ){
-          ATH_MSG_ERROR("Unable to record object collection" << m_outputContainer+suffix );
+          ATH_MSG_ERROR("Unable to record object collection " << m_outputContainer+suffix );
           return NULL;
         }
       }
