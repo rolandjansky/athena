@@ -13,7 +13,7 @@ TrigL2CaloHypoTool::TrigL2CaloHypoTool( const std::string& type,
 		    const std::string& name, 
 		    const IInterface* parent ) :
   AthAlgTool( type, name, parent ),
-  m_decisionId( name ) {}
+  m_decisionId( HLT::Identifier::fromToolName( name ) ) {}
 
 StatusCode TrigL2CaloHypoTool::initialize()  {
   ATH_MSG_DEBUG( "Initialization completed successfully"   );   

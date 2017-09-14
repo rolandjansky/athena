@@ -24,6 +24,8 @@ public:
    **/
   static void reportStringIDs( bool report ) { s_reportStringIDs = report; }
   static bool reportStringIDs() { return s_reportStringIDs; }
+  
+  static HLT::Identifier fromToolName( const std::string& tname );
   /**
    * @brief constructs identifier from human redable name
    **/  
