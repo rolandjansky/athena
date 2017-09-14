@@ -1,8 +1,0 @@
-package SimulationJobOptions
-
-author John Chapman
-
-use AtlasPolicy		AtlasPolicy-*
-
-public
-apply_pattern declare_joboptions files="*.py hive/*.py atlfast2/*.py heavyIons/*.py cosmics/*.py digitization/*.py subdetectors/*.py g4/*.py cavern/*.py pileup/*.py susy/*.py specialConfig/*.py"
