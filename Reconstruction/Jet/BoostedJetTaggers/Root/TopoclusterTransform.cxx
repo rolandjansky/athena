@@ -76,7 +76,7 @@ double TopoclusterTransform::calculate_theta_for_rotations(std::map<std::string,
 
 void TopoclusterTransform::rotate_jet(std::map<std::string,double> &clusters, double angle){
 
-  for (uint i = 0; i < clusters.size() / 3; ++i) {
+  for (std::size_t i = 0; i < clusters.size() / 3; ++i) {
 
     double theta; 
 
@@ -127,12 +127,12 @@ void TopoclusterTransform::rotate_jet(std::map<std::string,double> &clusters, do
 
 void TopoclusterTransform::flip(std::map<std::string,double> &clusters){
   double sum_eta = 0.0;
-  for (uint i = 0; i < clusters.size() / 3; ++i) {
+  for (std::size_t i = 0; i < clusters.size() / 3; ++i) {
     sum_eta += clusters["clust_"+std::to_string(i)+"_pt"] * clusters["clust_"+std::to_string(i)+"_eta"];
   }
 
   if (sum_eta < 0){ // if more eta on negative, flip all eta
-    for (uint i = 0; i < clusters.size() / 3; ++i) {
+    for (std::size_t i = 0; i < clusters.size() / 3; ++i) {
       clusters["clust_"+std::to_string(i)+"_eta"] = -clusters["clust_"+std::to_string(i)+"_eta"];
     }
   }

@@ -1133,7 +1133,7 @@ namespace HTTxAOD {
     setSJNDCalibPtEtaBins(binningVersion);
     // information about configured HTT setup
     ATH_MSG_DEBUG("Using def-like HTT with 3D sub-jet calibration scaled by: ");
-    for( uint i = 0; i < m_ScaleFactor_JES_EtaPT.size(); i++ ){
+    for( size_t i = 0; i < m_ScaleFactor_JES_EtaPT.size(); i++ ){
       ATH_MSG_DEBUG(m_ScaleFactor_JES_EtaPT[i] << " for " << m_ScaleFactor_JES_ptmin[i]/1e3 << " < pT < " << m_ScaleFactor_JES_ptmax[i]/1e3 << " GeV ");
     }
 
