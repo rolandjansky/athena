@@ -82,12 +82,12 @@ class TrigL2ElectronHypoTool
 
   Gaudi::Property<bool>  m_respectPreviousDecision{ this, "RespectPreviousDecision", false, "If false, (do not even check), the decision made for the cluster" };
   Gaudi::Property<bool>  m_acceptAll{ this, "AcceptAll", false, "Ignore selection" };
-  Gaudi::Property< std::vector<float> > m_trackPt{ this, "TrackPt",  5.0*CLHEP::GeV, "Track pT requirement (separate threshold for each electron)" };
-  Gaudi::Property< std::vector<float> > m_caloTrackDEta{ this,  "CaloTrackdETA", 0, "Delta Eta between the track and cluster"      }; //loose cut
-  Gaudi::Property< std::vector<float> > m_caloTrackDPhi{ this,  "CaloTrackdPHI", 0, "Delta Phi between track and cluster"     }; //loose cut
-  Gaudi::Property< std::vector<float> > m_caloTrackdEoverPLow{ this,  "CaloTrackdEoverPLow", 0, "Min E over Pt cut "};
-  Gaudi::Property< std::vector<float> > m_caloTrackdEoverPHigh{ this,  "CaloTrackdEoverPHigh", 0, "Max E over pT cut" };
-  Gaudi::Property< std::vector<float> > m_trtRatio{ this,  "TRTRatio", 0, "TRT HT ratio" };
+  Gaudi::Property< std::vector<float> > m_trackPt{ this, "TrackPt",  { float(5.0*CLHEP::GeV) }, "Track pT requirement (separate threshold for each electron)" };
+  Gaudi::Property< std::vector<float> > m_caloTrackDEta{ this,  "CaloTrackdETA", {0}, "Delta Eta between the track and cluster"      }; //loose cut
+  Gaudi::Property< std::vector<float> > m_caloTrackDPhi{ this,  "CaloTrackdPHI", {0}, "Delta Phi between track and cluster"     }; //loose cut
+  Gaudi::Property< std::vector<float> > m_caloTrackdEoverPLow{ this,  "CaloTrackdEoverPLow", {0}, "Min E over Pt cut "};
+  Gaudi::Property< std::vector<float> > m_caloTrackdEoverPHigh{ this,  "CaloTrackdEoverPHigh", {0}, "Max E over pT cut" };
+  Gaudi::Property< std::vector<float> > m_trtRatio{ this,  "TRTRatio", {0}, "TRT HT ratio" };
 
   
   size_t m_multiplicity = 1;
