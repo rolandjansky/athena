@@ -84,7 +84,6 @@ Muon::CscStripPrepDataContainer* CscStripPrepDataContainerCnv::createTransient()
     Muon::CscStripPrepDataContainer* p_collection(0);
     if( compareClassGuid(p1_guid) ) {
         log<<MSG::DEBUG<<"createTransient(): T/P version 1 detected"<<endmsg;
-        usingTPCnvForReading( m_TPConverter );
         std::unique_ptr< CscStripPrepDataContainer_PERS >  p_coll( poolReadObject< CscStripPrepDataContainer_PERS >() );
         p_collection = m_TPConverter.createTransient( p_coll.get(), log );
     }

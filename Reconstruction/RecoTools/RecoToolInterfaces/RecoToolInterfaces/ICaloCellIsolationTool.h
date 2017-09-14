@@ -51,7 +51,7 @@ namespace xAOD {
        @param[in] container cell contrainer (for trigger only)
        @return true if the calculation and decoration was successfull
     */    
-    virtual bool decorateParticle_caloCellIso( IParticle& tp,
+    virtual bool decorateParticle_caloCellIso( const IParticle& tp,
                              const std::vector<Iso::IsolationType>& cones,
                              CaloCorrection corrections,
                              const CaloCellContainer* Cells = 0) = 0;

@@ -35,7 +35,20 @@ InDet::InDetAmbiScoringTool::InDetAmbiScoringTool(const std::string& t,
   m_selectortool("InDet::InDetTrtDriftCircleCutTool"),
   m_summaryTypeScore(Trk::numberOfTrackSummaryTypes),
   m_iBeamCondSvc("BeamCondSvc",n),
-  m_magFieldSvc("AtlasFieldSvc",n)
+  m_magFieldSvc("AtlasFieldSvc",n),
+  // Initialization of ScoreModifiers variables
+  m_maxDblHoles(-1),
+  m_maxPixHoles(-1),
+  m_maxSCT_Holes(-1),
+  m_maxHits(-1),
+  m_maxSigmaChi2(-1),
+  m_maxTrtRatio(-1),
+  m_maxTrtFittedRatio(-1),
+  m_maxB_LayerHits(-1),
+  m_maxPixelHits(-1),
+  m_maxPixLay(-1),
+  m_maxLogProb(-1),
+  m_maxGangedFakes(-1)
 {
   declareInterface<Trk::ITrackScoringTool>(this);
   

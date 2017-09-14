@@ -16,7 +16,6 @@
 #include "TTree.h"
 #include "TString.h"
 
-
 #include <algorithm>
 #include <math.h>
 #include <functional>
@@ -57,21 +56,22 @@ CSCHitAnalysis::CSCHitAnalysis(const std::string& name, ISvcLocator* pSvcLocator
    , m_hits_time(0)
    , m_hits_edep(0)
    , m_hits_kine(0)
+     
    , m_tree(0)
-   , m_ntupleFileName("/CSCHitAnalysis/ntuples/")
-   , m_path("/CSCHitAnalysis/histos/")
+   , m_ntupleFileName("/CSCHitAnalysis/")
+   , m_path("/CSCHitAnalysis/")
    , m_thistSvc("THistSvc", name)
 {
   declareProperty("NtupleFileName", m_ntupleFileName);
   declareProperty("HistPath", m_path); 
 }
 
+
 StatusCode CSCHitAnalysis::initialize() {
   ATH_MSG_DEBUG( "Initializing CSCHitAnalysis" );
 
   // Grab the Ntuple and histogramming service for the tree
   CHECK(m_thistSvc.retrieve());
- 
 
   /** Histograms**/
   h_hits_x = new TH1D("h_csc_hits_x","hits_x", 100,-2000, 2000);
@@ -118,7 +118,6 @@ StatusCode CSCHitAnalysis::initialize() {
   h_hits_sz->StatOverflows();
   CHECK(m_thistSvc->regHist(m_path + h_hits_sz->GetName(), h_hits_sz));
 
-
   h_hits_ex = new TH1D("h_csc_hits_ex","hits_ex", 100,-10, 10);
   h_hits_ex->StatOverflows();
   CHECK(m_thistSvc->regHist(m_path + h_hits_ex->GetName(), h_hits_ex));
@@ -143,13 +142,11 @@ StatusCode CSCHitAnalysis::initialize() {
   h_hits_kine->StatOverflows();
   CHECK(m_thistSvc->regHist(m_path + h_hits_kine->GetName(), h_hits_kine));
 
-  m_tree= new TTree("NtupleCSCHitAnalysis","CSCHitAna");
-  std::string fullNtupleName =  "/"+m_ntupleFileName+"/";
-  CHECK(m_thistSvc->regTree(fullNtupleName,m_tree));
-  
-  
-  
   /** now add branches and leaves to the tree */
+  m_tree = new TTree("CSC", "CSC");
+  std::string fullNtupleName =  "/" + m_ntupleFileName + "/";
+  CHECK(m_thistSvc->regTree(fullNtupleName, m_tree));
+  
   if (m_tree){
     m_tree->Branch("x", &m_hits_x);
     m_tree->Branch("y", &m_hits_y);
@@ -166,13 +163,14 @@ StatusCode CSCHitAnalysis::initialize() {
     m_tree->Branch("time", &m_hits_time);
     m_tree->Branch("edep", &m_hits_edep);
     m_tree->Branch("kine", &m_hits_kine);
-  }else{
+  }
+  else {
     ATH_MSG_ERROR("No tree found!");
   }
-  return StatusCode::SUCCESS;
-}		 
-
   
+  return StatusCode::SUCCESS;
+}
+
 
 StatusCode CSCHitAnalysis::execute() {
   ATH_MSG_DEBUG( "In CSCHitAnalysis::execute()" );
@@ -192,17 +190,16 @@ StatusCode CSCHitAnalysis::execute() {
   m_hits_time->clear();
   m_hits_edep->clear();
   m_hits_kine->clear();
-  
-
 
   const DataHandle<CSCSimHitCollection> csc_container;
-  if (evtStore()->retrieve(csc_container, "CSC_Hits" )==StatusCode::SUCCESS) {
-    for(CSCSimHitCollection::const_iterator i_hit = csc_container->begin(); 
-	i_hit != csc_container->end();++i_hit){
+  if (evtStore()->retrieve(csc_container, "CSC_Hits") == StatusCode::SUCCESS) {
+    for (CSCSimHitCollection::const_iterator i_hit = csc_container->begin(); 
+	i_hit != csc_container->end(); ++i_hit) {
       //CSCSimHitCollection::const_iterator i_hit;
       //for(auto i_hit : *csc_container){
       GeoCSCHit ghit(*i_hit);
-      if(!ghit) continue;
+      if (!ghit) continue;
+      
       Amg::Vector3D p = ghit.getGlobalPosition();
       h_hits_x->Fill(p.x());
       h_hits_y->Fill(p.y());
@@ -212,12 +209,12 @@ StatusCode CSCHitAnalysis::execute() {
       h_zr->Fill(p.z(), p.perp());
       h_hits_eta->Fill(p.eta());
       h_hits_phi->Fill(p.phi());
-      h_hits_sx->Fill( (*i_hit).getHitStart().x());
-      h_hits_sy->Fill( (*i_hit).getHitStart().y());
-      h_hits_sz->Fill( (*i_hit).getHitStart().z());
-      h_hits_ex->Fill( (*i_hit).getHitEnd().x());
-      h_hits_ey->Fill( (*i_hit).getHitEnd().y());
-      h_hits_ez->Fill( (*i_hit).getHitEnd().z());
+      h_hits_sx->Fill((*i_hit).getHitStart().x());
+      h_hits_sy->Fill((*i_hit).getHitStart().y());
+      h_hits_sz->Fill((*i_hit).getHitStart().z());
+      h_hits_ex->Fill((*i_hit).getHitEnd().x());
+      h_hits_ey->Fill((*i_hit).getHitEnd().y());
+      h_hits_ez->Fill((*i_hit).getHitEnd().z());
       h_hits_edep->Fill((*i_hit).energyDeposit());
       h_hits_time->Fill((*i_hit).globalTime());
       h_hits_kine->Fill((*i_hit).kineticEnergy());
@@ -228,21 +225,20 @@ StatusCode CSCHitAnalysis::execute() {
       m_hits_r->push_back(p.perp());
       m_hits_eta->push_back(p.eta());
       m_hits_phi->push_back(p.phi());
-      m_hits_start_x->push_back( (*i_hit).getHitStart().x());
-      m_hits_start_y->push_back( (*i_hit).getHitStart().y());
-      m_hits_start_z->push_back( (*i_hit).getHitStart().z());
-      m_hits_end_x->push_back( (*i_hit).getHitEnd().x());
-      m_hits_end_y->push_back( (*i_hit).getHitEnd().y());
-      m_hits_end_z->push_back( (*i_hit).getHitEnd().z());
+      m_hits_start_x->push_back((*i_hit).getHitStart().x());
+      m_hits_start_y->push_back((*i_hit).getHitStart().y());
+      m_hits_start_z->push_back((*i_hit).getHitStart().z());
+      m_hits_end_x->push_back((*i_hit).getHitEnd().x());
+      m_hits_end_y->push_back((*i_hit).getHitEnd().y());
+      m_hits_end_z->push_back((*i_hit).getHitEnd().z());
       m_hits_edep->push_back((*i_hit).energyDeposit());
       m_hits_time->push_back((*i_hit).globalTime());
-      m_hits_kine->push_back((*i_hit).kineticEnergy());
-      
+      m_hits_kine->push_back((*i_hit).kineticEnergy());    
     }
   } // End while hits
+  
   if (m_tree) m_tree->Fill();
  
-
-
   return StatusCode::SUCCESS;
+  
 }

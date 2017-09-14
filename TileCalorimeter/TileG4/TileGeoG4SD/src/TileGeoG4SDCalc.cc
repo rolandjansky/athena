@@ -50,13 +50,17 @@
 #include <stdexcept>
 #include <memory>
 
+namespace
+{
+  thread_local std::unique_ptr<TileGeoG4LookupBuilder> s_lookup(nullptr);
+}
+
 static const double tanPi64 = 0.049126849769467254105343321271314; //FIXME!!!!!
 
 TileGeoG4SDCalc::TileGeoG4SDCalc(const std::string& name, ISvcLocator *pSvcLocator)
   : AthService(name, pSvcLocator)
   , m_detStore("DetectorStore",name)
   , m_geoModSvc("GeoModelSvc",name)
-  , m_lookup(nullptr)
 {
   declareProperty( "DetectorStore", m_detStore );
   declareProperty( "GeoModelSvc", m_geoModSvc );
@@ -70,7 +74,6 @@ TileGeoG4SDCalc::TileGeoG4SDCalc(const std::string& name, ISvcLocator *pSvcLocat
 }
 
 TileGeoG4SDCalc::~TileGeoG4SDCalc() {
-  delete m_lookup;
 }
 
 StatusCode TileGeoG4SDCalc::initialize() {
@@ -198,9 +201,6 @@ StatusCode TileGeoG4SDCalc::initialize() {
     ATH_MSG_INFO("Using Optical Ratio = " << m_row->OpticalRatio[0].at(0));
   }
 
-  //build tilecal ordinary look-up table
-  m_lookup = new TileGeoG4LookupBuilder(&*m_detStore, m_options.verboseLevel);
-  m_lookup->BuildLookup(m_options.tileTB);
   return StatusCode::SUCCESS;
 }
 
@@ -221,9 +221,22 @@ int TileGeoG4SDCalc::getUshapeFromGM() const {
   return (tileDetectorTool) ? tileDetectorTool->Ushape() : 0;
 }
 
+TileGeoG4LookupBuilder* TileGeoG4SDCalc::GetLookupBuilder() const
+{
+  // Setup the lookup table if necessary
+  if(!s_lookup) {
+    s_lookup = std::make_unique<TileGeoG4LookupBuilder>(&*m_detStore, m_options.verboseLevel);
+    s_lookup->BuildLookup(m_options.tileTB);
+  }
+  return s_lookup.get();
+}
+
 G4bool TileGeoG4SDCalc::FindTileScinSection(const G4Step* aStep, TileHitData& hitData) const
 {
   ATH_MSG_VERBOSE("Process Hits");
+
+  // Get the lookup table
+  auto lookup = GetLookupBuilder();
 
   const G4double edep = aStep->GetTotalEnergyDeposit();
   if (edep == 0. && aStep->GetTrack()->GetDefinition() != G4Geantino::GeantinoDefinition()) {
@@ -281,11 +294,11 @@ G4bool TileGeoG4SDCalc::FindTileScinSection(const G4Step* aStep, TileHitData& hi
   static const G4String crackVolumeString("Crack");
   int sect = 0;
   if (namePhysSection.find(ebarrelVolumeString) != G4String::npos) {
-    hitData.section = m_lookup->GetSection(TileDddbManager::TILE_EBARREL);
+    hitData.section = lookup->GetSection(TileDddbManager::TILE_EBARREL);
     hitData.nDetector = 2;
     sect = 2;
   } else if (namePhysSection.find(barrelVolumeString) != G4String::npos) {
-    hitData.section = m_lookup->GetSection(TileDddbManager::TILE_BARREL);
+    hitData.section = lookup->GetSection(TileDddbManager::TILE_BARREL);
     hitData.nDetector = 1;
     sect = 1;
   } else if (namePhysSection.find(itcVolumeString) != G4String::npos) {
@@ -293,18 +306,18 @@ G4bool TileGeoG4SDCalc::FindTileScinSection(const G4Step* aStep, TileHitData& hi
     static const G4String plug1VolumeString("Plug1");
     const G4String namePlug = theTouchable->GetVolume(level - 3)->GetName();
     if (namePlug.find(plug1VolumeString) != G4String::npos) {
-      hitData.section = m_lookup->GetSection(TileDddbManager::TILE_PLUG1);
+      hitData.section = lookup->GetSection(TileDddbManager::TILE_PLUG1);
       sect = 3;
     } else {
-      hitData.section = m_lookup->GetSection(TileDddbManager::TILE_PLUG2);
+      hitData.section = lookup->GetSection(TileDddbManager::TILE_PLUG2);
       sect = 4;
     }
   } else if (namePhysSection.find(gapVolumeString) != G4String::npos) {
-    hitData.section = m_lookup->GetSection(TileDddbManager::TILE_PLUG3);
+    hitData.section = lookup->GetSection(TileDddbManager::TILE_PLUG3);
     hitData.nDetector = 3;
     sect = 5;
   } else if (namePhysSection.find(crackVolumeString) != G4String::npos) {
-    hitData.section = m_lookup->GetSection(TileDddbManager::TILE_PLUG4);
+    hitData.section = lookup->GetSection(TileDddbManager::TILE_PLUG4);
     hitData.nDetector = 3;
     sect = 6;
   } else {
@@ -369,8 +382,8 @@ G4bool TileGeoG4SDCalc::FindTileScinSection(const G4Step* aStep, TileHitData& hi
 
   // Attach special D4 cell to cell D5 in ext.barrel
   if (sect == 3) {
-    if ( m_lookup->TileGeoG4npmtD4(std::max(0, hitData.nSide), hitData.nModule - 1) == 0 ) {
-      hitData.section = m_lookup->GetSection(TileDddbManager::TILE_EBARREL);
+    if ( lookup->TileGeoG4npmtD4(std::max(0, hitData.nSide), hitData.nModule - 1) == 0 ) {
+      hitData.section = lookup->GetSection(TileDddbManager::TILE_EBARREL);
       hitData.nDetector = 2;  //ext.barrel
       hitData.tileSize += 9;
       nScin = hitData.tileSize; //last tile row in first period
@@ -383,13 +396,13 @@ G4bool TileGeoG4SDCalc::FindTileScinSection(const G4Step* aStep, TileHitData& hi
     }
   } else if (sect == 4) {
     // Change number of PMTs in Special C10 Cells
-    hitData.nrOfPMT = m_lookup->TileGeoG4npmtC10(std::max(0, hitData.nSide), hitData.nModule - 1);
+    hitData.nrOfPMT = lookup->TileGeoG4npmtC10(std::max(0, hitData.nSide), hitData.nModule - 1);
     if (m_options.verboseLevel > 10 && hitData.nrOfPMT != 2) {
       G4cout << "Changing number of PMTs in special C10 to " << hitData.nrOfPMT << G4endl;
     }
   } else if (sect == 6 && hitData.cell->tower > 16) {
     // Check number of PMTs in Special E4' Cells (side C, modules 32,33)
-    hitData.nrOfPMT = m_lookup->TileGeoG4npmtE5(std::max(0, hitData.nSide), hitData.nModule - 1);
+    hitData.nrOfPMT = lookup->TileGeoG4npmtE5(std::max(0, hitData.nSide), hitData.nModule - 1);
     if (hitData.nrOfPMT != hitData.cell->nrOfPMT) {
       ATH_MSG_WARNING("Changing number of PMTs in special E4' from " << hitData.cell->nrOfPMT << " to " << hitData.nrOfPMT);
     }

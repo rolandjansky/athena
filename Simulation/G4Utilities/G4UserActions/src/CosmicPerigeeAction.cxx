@@ -29,7 +29,7 @@ namespace G4UA
   }
 
   //---------------------------------------------------------------------------
-  void CosmicPerigeeAction::beginOfEvent(const G4Event*)
+  void CosmicPerigeeAction::BeginOfEventAction(const G4Event*)
   {
     if (!m_trackRecordCollection.isValid()) {
       m_trackRecordCollection = CxxUtils::make_unique<TrackRecordCollection>(
@@ -43,19 +43,19 @@ namespace G4UA
   }
 
   //---------------------------------------------------------------------------
-  void CosmicPerigeeAction::endOfEvent(const G4Event*)
+  void CosmicPerigeeAction::EndOfEventAction(const G4Event*)
   {
   }
 
   //---------------------------------------------------------------------------
-  void CosmicPerigeeAction::preTracking(const G4Track*)
+  void CosmicPerigeeAction::PreUserTrackingAction(const G4Track*)
   {
     // reset the field
     m_hasBeenSaved = false;
   }
 
   //---------------------------------------------------------------------------
-  void CosmicPerigeeAction::processStep(const G4Step* aStep)
+  void CosmicPerigeeAction::UserSteppingAction(const G4Step* aStep)
   {
     // See if this is a new track
     if (aStep->GetPreStepPoint()->GetStepStatus() == fUndefined)

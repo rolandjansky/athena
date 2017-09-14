@@ -51,8 +51,6 @@ class ISiSurfaceChargesInserter;
 class SiChargedDiodeCollection;
 class ISiChargedDiodesProcessorTool;
 class StoreGateService;
-// class TimeSvc;
-//class CalibSvc;
 
 namespace InDetDD
 {
@@ -65,8 +63,7 @@ namespace CLHEP
   class HepRandomEngine;
 }
 
-static const InterfaceID IID_ISCT_DigitizationTool ("SCT_DigitizationTool",1,0);
-
+static const InterfaceID IID_ISCT_DigitizationTool ("SCT_DigitizationTool", 1, 0);
 
 class SCT_DigitizationTool :
   virtual public IPileUpTool,
@@ -80,7 +77,7 @@ public:
   /**
      @brief Called before processing physics events
   */
-  StatusCode prepareEvent( unsigned int ) override final;
+  StatusCode prepareEvent(unsigned int) override final;
   virtual StatusCode processBunchXing(int bunchXing,
                                       SubEventIterator bSubEvents,
                                       SubEventIterator eSubEvents) override final;
@@ -95,9 +92,8 @@ protected:
   void       applyProcessorTools(SiChargedDiodeCollection* chargedDiodes); //!
   void       addSDO(SiChargedDiodeCollection* collection);
 
-  void storeTool(ISiChargedDiodesProcessorTool *p_processor) {m_diodeCollectionTools.push_back(p_processor);}
-  void store(const AtlasDetectorID *p_helper) {m_atlasID = p_helper;}  //FIXME should be removed
-//  void setManager(const InDetDD::SiDetectorManager *p_manager) {m_detMgr = p_manager;} //FIXME should be removed
+  void storeTool(ISiChargedDiodesProcessorTool* p_processor) {m_diodeCollectionTools.push_back(p_processor);}
+  void store(const AtlasDetectorID* p_helper) {m_atlasID = p_helper;}  //FIXME should be removed
 
 private:
 
@@ -112,15 +108,15 @@ private:
   /**
      @brief Initialize the SCT_FrontEnd AlgTool
   */
-  StatusCode initFrontEndTool() ;
+  StatusCode initFrontEndTool();
   /**
      @brief Initialize the SCT_RandomDisabledCellGenerator AlgTool
   */
-  StatusCode initDisabledCells() ;
+  StatusCode initDisabledCells();
   /**
      @brief Initialize the SCT_SurfaceChargesGenerator AlgTool
   */
-  StatusCode initSurfaceChargesGeneratorTool() ;
+  StatusCode initSurfaceChargesGeneratorTool();
 
   /** RDO and SDO methods*/
   /**
@@ -139,12 +135,8 @@ private:
   void       digitizeAllHits();     //!< digitize all hits
   void       digitizeNonHits();     //!< digitize SCT without hits
 
-  //enum {totmods = 8, totsides = 2, totstrips=768};
-
-
   float m_tfix;           //!< Use fixed timing for cosmics
   float m_comTime;         //!< Use Commission time for timing
-  //  float m_temperatureC ;  //!< Temperature
 
   bool m_enableHits;            //!< Flag to enable hits
   bool m_onlyHitElements;       //!<
@@ -152,7 +144,6 @@ private:
   bool m_useComTime;            //!< Flag to set the use of cosmics time for timing
   bool m_barrelonly;            //!< Only the barrel layers
   bool m_randomDisabledCells;   //!< Use Random disabled cells, default no
-  //bool m_onlyElementsWithHits;  //!< Process only elements with hits
   bool m_createNoiseSDO;        //!< Create SDOs for strips with only noise hits (huge increase in SDO collection size)
   int  m_HardScatterSplittingMode; //!< Process all SiHit or just those from signal or background events
   bool m_HardScatterSplittingSkipper;
@@ -182,13 +173,13 @@ private:
 
   std::string                                        m_inputObjectName;     //! name of the sub event  hit collections.
   ServiceHandle <IAtRndmGenSvc>                      m_rndmSvc;             //!< Random number service
-  ServiceHandle <PileUpMergeSvc> m_mergeSvc; //!
+  ServiceHandle <PileUpMergeSvc>                     m_mergeSvc; //!
 
   CLHEP::HepRandomEngine*                            m_rndmEngine;          //! Random number engine used - not init in SiDigitization
-  const AtlasDetectorID* m_atlasID;  //FIXME should be replaced with m_detID usage
-  std::list<ISiChargedDiodesProcessorTool* >         m_diodeCollectionTools;
-  TimedHitCollection<SiHit>                          *m_thpcsi;
-  SiChargedDiodeCollection                           *m_chargedDiodes;
+  const AtlasDetectorID*                             m_atlasID;  //FIXME should be replaced with m_detID usage
+  std::list<ISiChargedDiodesProcessorTool*>          m_diodeCollectionTools;
+  TimedHitCollection<SiHit>*                         m_thpcsi;
+  SiChargedDiodeCollection*                          m_chargedDiodes;
   IntegerProperty                                    m_vetoThisBarcode;
 
 
@@ -199,4 +190,4 @@ inline const InterfaceID& SCT_DigitizationTool::interfaceID()
   return IID_ISCT_DigitizationTool;
 }
 
-#endif
+#endif // SCT_DIGITZATION_SCT_DIGITZATIONTOOL_H

@@ -217,15 +217,8 @@ StatusCode MuonAlignmentDbTool::initialize()
 
 
 
-   SG::TransientAddress* tad =  proxy->transientAddress();
-   if (!tad) {
-     m_log << MSG::ERROR << "Unable to get the tad" << endmsg;
-      return StatusCode::FAILURE;
-   }
-   else m_log << MSG::INFO << "proxy transient Address found" << endmsg;
-
    IAddressProvider* addp = this;
-   tad->setProvider(addp, StoreID::DETECTOR_STORE);
+   proxy->setProvider(addp, StoreID::DETECTOR_STORE);
    //   tad->setProvider(addp);
    if( m_debug )  m_log << MSG::DEBUG << "set address provider for ALineParContainer" << endmsg;
 
@@ -238,15 +231,8 @@ StatusCode MuonAlignmentDbTool::initialize()
    }
    else m_log << MSG::INFO << "proxy for class BLineParContainer found" << endmsg;
    
-   tad =  proxy->transientAddress();
-   if (!tad) {
-     m_log << MSG::ERROR << "Unable to get the tad" << endmsg;
-     return StatusCode::FAILURE;
-   }
-   else m_log << MSG::INFO << "proxy transient Address found" << endmsg;
-
    addp = this;
-   tad->setProvider(addp, StoreID::DETECTOR_STORE);
+   proxy->setProvider(addp, StoreID::DETECTOR_STORE);
    //tad->setProvider(addp);
    if( m_debug )  m_log << MSG::DEBUG << "set address provider for BLineParContainer" << endmsg;
 
@@ -257,15 +243,8 @@ StatusCode MuonAlignmentDbTool::initialize()
    }
    else m_log << MSG::INFO << "proxy for class CscInternalAlignmentMapContainer found or not needed" << endmsg;
    
-   if( proxy ) tad =  proxy->transientAddress();
-   if (!tad && m_ILinesFromDb) {
-     m_log << MSG::ERROR << "Unable to get the tad" << endmsg;
-     return StatusCode::FAILURE;
-   }
-   else m_log << MSG::INFO << "proxy transient Address found or not needed" << endmsg;
-
    addp = this;
-   if( m_ILinesFromDb ) tad->setProvider(addp, StoreID::DETECTOR_STORE);
+   if( m_ILinesFromDb ) proxy->setProvider(addp, StoreID::DETECTOR_STORE);
    //tad->setProvider(addp);
    if( m_debug )  m_log << MSG::DEBUG << "set address provider for CscInternalAlignmentMapContainer" << endmsg;
 
@@ -277,15 +256,8 @@ StatusCode MuonAlignmentDbTool::initialize()
    }
    else m_log << MSG::INFO << "proxy for class MdtAsBuiltParContainer found" << endmsg;
    
-   tad =  proxy->transientAddress();
-   if (!tad) {
-     m_log << MSG::ERROR << "Unable to get the tad" << endmsg;
-     return StatusCode::FAILURE;
-   }
-   else m_log << MSG::INFO << "proxy transient Address found" << endmsg;
-
    addp = this;
-   tad->setProvider(addp, StoreID::DETECTOR_STORE);
+   proxy->setProvider(addp, StoreID::DETECTOR_STORE);
    //tad->setProvider(addp);
    if( m_debug )  m_log << MSG::DEBUG << "set address provider for MdtAsBuiltParContainer" << endmsg;
 
@@ -871,14 +843,9 @@ StatusCode MuonAlignmentDbTool::loadAlignABLines(std::string folderName)
       log << MSG::ERROR << "Unable to get the proxy for class ALineParContainer" << endmsg;
       return StatusCode::FAILURE;
     }
-    SG::TransientAddress* tad =  proxy->transientAddress();
-    if (!tad) {
-      log << MSG::ERROR << "Unable to get the tad" << endmsg;
-      return StatusCode::FAILURE;
-    }
     IAddressProvider* addp = this;
     //    tad->setProvider(addp);
-    tad->setProvider(addp, StoreID::DETECTOR_STORE);
+    proxy->setProvider(addp, StoreID::DETECTOR_STORE);
     if( m_debug ) log << MSG::DEBUG<< "set address provider for ALineParContainer" << endmsg;
    
    return  sc; 
@@ -1110,14 +1077,9 @@ StatusCode MuonAlignmentDbTool::loadAlignILines(std::string folderName)
       log << MSG::ERROR << "Unable to get the proxy for class ILineParContainer" << endmsg;
       return StatusCode::FAILURE;
     }
-    SG::TransientAddress* tad =  proxy->transientAddress();
-    if (!tad) {
-      log << MSG::ERROR << "Unable to get the tad" << endmsg;
-      return StatusCode::FAILURE;
-    }
     IAddressProvider* addp = this;
     //    tad->setProvider(addp);
-    tad->setProvider(addp, StoreID::DETECTOR_STORE);
+    proxy->setProvider(addp, StoreID::DETECTOR_STORE);
     if( m_debug ) log << MSG::DEBUG<< "set address provider for ILineParContainer" << endmsg;
    
    return  sc; 
@@ -1230,14 +1192,9 @@ StatusCode MuonAlignmentDbTool::loadAlignAsBuilt(std::string folderName)
       ATH_MSG_ERROR( "Unable to get the proxy for class ILineParContainer"  );
       return StatusCode::FAILURE;
     }
-    SG::TransientAddress* tad =  proxy->transientAddress();
-    if (!tad) {
-      m_log << MSG::ERROR << "Unable to get the tad" << endmsg;
-      return StatusCode::FAILURE;
-    }
     IAddressProvider* addp = this;
     //    tad->setProvider(addp);
-    tad->setProvider(addp, StoreID::DETECTOR_STORE);
+    proxy->setProvider(addp, StoreID::DETECTOR_STORE);
     ATH_MSG_DEBUG( "set address provider for MdtAsBuiltParContainer"  );
    
    return  sc; 

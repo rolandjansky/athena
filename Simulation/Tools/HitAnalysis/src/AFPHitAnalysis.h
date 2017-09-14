@@ -15,10 +15,10 @@
 #include "TH1.h"
 #include "TTree.h"
 
-
 class TH1;
 class TTree;
- 
+
+
 class AFPHitAnalysis : public AthAlgorithm {
 
  public:
@@ -59,6 +59,7 @@ class AFPHitAnalysis : public AthAlgorithm {
    std::vector<int>*   m_detID;
    std::vector<int>*   m_pixelRow;
    std::vector<int>*   m_pixelCol;
+   
    TTree * m_tree;
    std::string m_ntupleFileName;
    std::string m_path; 
@@ -67,4 +68,3 @@ class AFPHitAnalysis : public AthAlgorithm {
 };
 
 #endif // AFP_HIT_ANALYSIS_H
-

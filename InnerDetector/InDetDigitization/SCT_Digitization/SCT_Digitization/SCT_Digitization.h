@@ -8,7 +8,7 @@
  *          Jorgen.Dalmau@cern.ch, Kondo.Gnanvo@cern.ch, and others
  * Version 23/08/2007 Kondo.Gnanvo@cern.ch
  *          Conversion of the processors into AlgTool
-*/
+ */
 
 // Multiple inclusion protection
 #ifndef SCT_DIGITIZATION_SCT_DIGITIZATION_H
@@ -19,9 +19,6 @@
 // Gaudi
 #include "GaudiKernel/ToolHandle.h"
 
-
-
-
 class SCT_DigitizationTool;
 /** Top algorithm class for SCT digitization */
 class SCT_Digitization : public AthAlgorithm {
@@ -29,7 +26,7 @@ class SCT_Digitization : public AthAlgorithm {
  public:
 
   /** Constructor with parameters */
-  SCT_Digitization(const std::string &name,ISvcLocator *pSvcLocator);
+  SCT_Digitization(const std::string& name, ISvcLocator* pSvcLocator);
 
   /** Destructor */
   ~SCT_Digitization();
@@ -41,7 +38,7 @@ class SCT_Digitization : public AthAlgorithm {
 
  private:
 
-  ToolHandle<SCT_DigitizationTool> m_sctDigitizationTool;
+  ToolHandle<SCT_DigitizationTool> m_sctDigitizationTool{this, "DigitizationTool", "SCT_DigitizationTool", "SCT_DigitizationTool name"};
 
 };
 

@@ -766,6 +766,9 @@ StatusCode AthenaHiveEventLoopMgr::executeEvent(void* createdEvts_IntPtr )
 
   createdEvts++;
 
+  // invalidate thread local context once outside of event execute loop
+  Gaudi::Hive::setCurrentContext( EventContext() );
+
   return StatusCode::SUCCESS;
 
 }

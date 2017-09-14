@@ -6,8 +6,7 @@
 #define G4AtlasAlg_AthenaTrackingActionTool_H
 
 // Infrastructure includes
-#include "G4AtlasInterfaces/IPreTrackingActionTool.h"
-#include "G4AtlasInterfaces/IPostTrackingActionTool.h"
+#include "G4AtlasInterfaces/IG4TrackingActionTool.h"
 #include "G4AtlasTools/ActionToolBase.h"
 
 // Local includes
@@ -22,8 +21,7 @@ namespace G4UA
   /// @author Steve Farrell <Steven.Farrell@cern.ch>
   ///
   class AthenaTrackingActionTool : public ActionToolBase<AthenaTrackingAction>,
-                                   public IPreTrackingActionTool,
-                                   public IPostTrackingActionTool
+                                   public IG4TrackingActionTool
   {
 
     public:
@@ -36,20 +34,19 @@ namespace G4UA
       virtual StatusCode initialize() override;
 
       /// Retrieve the tracking action
-      virtual IPreTrackingAction* getPreTrackingAction() override final
-      { return static_cast<IPreTrackingAction*>( getAction() ); }
-
-      /// Retrieve the tracking action
-      virtual IPostTrackingAction* getPostTrackingAction() override final
-      { return static_cast<IPostTrackingAction*>( getAction() ); }
+      virtual G4UserTrackingAction* getTrackingAction() override final
+      { return static_cast<G4UserTrackingAction*>( getAction() ); }
 
     protected:
 
       /// Create an action for this thread
       virtual std::unique_ptr<AthenaTrackingAction> makeAction() override final;
-  private:
+
+    private:
+
       /// The saving level for secondaries.
       int m_secondarySavingLevel;
+
   }; // class AthenaTrackingActionTool
 
 } // namespace G4UA

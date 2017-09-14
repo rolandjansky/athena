@@ -29,7 +29,7 @@ TransientAddress::TransientAddress(const CLID& id, const std::string& key)
     m_sgkey(0)
 { 
   if (id != CLID_NULL)
-    m_transientID.insert(id);
+    m_transientID.push_back(id);
 }
 
 // Constructor with CLID, string key and IOpaqueAddress:
@@ -42,7 +42,7 @@ TransientAddress::TransientAddress(const CLID& id, const std::string& key,
     m_sgkey(0)
 { 
   if (id != CLID_NULL)
-    m_transientID.insert(id);
+    m_transientID.push_back(id);
   setAddress(addr);
 }
 
@@ -50,6 +50,19 @@ TransientAddress::TransientAddress(const CLID& id, const std::string& key,
 TransientAddress::~TransientAddress() 
 { 
   setAddress(0);
+}
+
+
+/// set transient CLID's
+void TransientAddress::setTransientID(CLID id)
+{
+  if (m_transientID.empty()) {
+    m_transientID.push_back (id);
+  }
+  else if (!transientID (id)) {
+    m_transientID.push_back (id);
+    std::sort (m_transientID.begin(), m_transientID.end());
+  }
 }
 
 
@@ -67,7 +80,7 @@ void TransientAddress::setID (CLID id, const std::string& key)
   m_clid = id;
   m_name = key;
   if (id != CLID_NULL)
-    m_transientID.insert(id);
+    m_transientID.push_back(id);
 }
 
 /// set IOpaqueAddress
@@ -78,9 +91,10 @@ void TransientAddress::setAddress(IOpaqueAddress* pAddress)
   m_address = pAddress;
 }
 
-bool TransientAddress::isValid(IProxyDict* store)
+bool TransientAddress::isValid(IProxyDict* store,
+                               bool forceUpdate /*= false*/)
 {
-  if (0 != address()) return true;
+  if (!forceUpdate && 0 != address()) return true;
 
   // FIXME CGL
 //    if (!m_consultProvider) {

@@ -421,7 +421,7 @@ void test6()
   testStore.record (new MyObj, "bar");
   assert (h1.setState (&testStore, "bar").isSuccess());
   assert (h1.isInitialized());
-  assert (h1.m_proxy->transientAddress()->name() == "bar");
+  assert (h1.m_proxy->name() == "bar");
 }
 
 
@@ -535,7 +535,7 @@ void test8()
   assert (h3.typeless_dataPointer_impl(false) == nullptr);
   assert (h3.typeless_dataPointer_impl(true) == nullptr);
 
-  testStore.proxy (293847296, "fee")->transientAddress()->setTransientID(293847295);
+  testStore.proxy (293847296, "fee")->setTransientID(293847295);
   assert (h3.typeless_dataPointer_impl(false) == obj2ptr);
   assert (h3.typeless_dataPointer(false) == obj2ptr);
   assert (h3.typeless_cptr() == obj2ptr);
@@ -716,7 +716,10 @@ int main()
 {
   errorcheck::ReportMessage::hideErrorLocus();
   ISvcLocator* svcloc;
-  Athena_test::initGaudi("VarHandleBase_test.txt", svcloc); //need MessageSvc
+  //need MessageSvc
+  if (!Athena_test::initGaudi("VarHandleBase_test.txt", svcloc)) {
+    return 1;
+  }
 
   test1();
   test2();

@@ -11,6 +11,8 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
 			  Control/AthContainers
 			  Control/AthLinks 
+                          Event/xAOD/xAODTrigCalo
+                          Event/xAOD/xAODTrigEgamma
                           PRIVATE
                           Control/AthViews
                           Control/StoreGate
@@ -18,15 +20,15 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/CxxUtils
                           Trigger/TrigConfiguration/TrigConfHLTData
                           Trigger/TrigEvent/TrigSteeringEvent
-                          Trigger/TrigSteer/L1Decoder )
+                          Trigger/TrigSteer/DecisionHandling )
 
 # Component(s) in the package:
 atlas_add_library( ViewAlgsLib
                    src/*.cxx
                    PUBLIC_HEADERS ViewAlgs
-                   LINK_LIBRARIES xAODTrigger GaudiKernel AthViews
-                   PRIVATE_LINK_LIBRARIES AthenaBaseComps CxxUtils TrigConfHLTData TrigSteeringEvent )
+                   LINK_LIBRARIES xAODTrigger GaudiKernel AthViews xAODTrigCalo xAODTrigEgamma
+                   PRIVATE_LINK_LIBRARIES AthenaBaseComps CxxUtils TrigConfHLTData TrigSteeringEvent DecisionHandlingLib )
 
 atlas_add_component( ViewAlgs
                      src/components/*.cxx
-                     LINK_LIBRARIES xAODTrigger GaudiKernel AthViews AthenaBaseComps CxxUtils TrigConfHLTData TrigSteeringEvent ViewAlgsLib )
+                     LINK_LIBRARIES xAODTrigger GaudiKernel AthViews AthenaBaseComps CxxUtils TrigConfHLTData TrigSteeringEvent ViewAlgsLib DecisionHandlingLib )

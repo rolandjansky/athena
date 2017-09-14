@@ -39,8 +39,8 @@ CosmicSamp2Fex::~CosmicSamp2Fex(){
 StatusCode CosmicSamp2Fex::execute(TrigEMCluster &rtrigEmCluster,
 				   const IRoiDescriptor& roi ) { 
   
-	lardecoded=false;
-	tiledecoded=false;
+        m_lardecoded=false;
+	m_tiledecoded=false;
 	// Time total AlgTool time 
 	if (!m_timersvc.empty()) m_timer[0]->start();      
 
@@ -62,7 +62,7 @@ StatusCode CosmicSamp2Fex::execute(TrigEMCluster &rtrigEmCluster,
 
 	if ( m_data->LoadCollections(m_iBegin,m_iEnd).isFailure() )
 		return StatusCode::FAILURE;
-	lardecoded=true;
+	m_lardecoded=true;
 	if ( m_saveCells ) IAlgToolCalo::storeCells();
 	// Finished to access Collection
 	if (!m_timersvc.empty()) m_timer[2]->stop();      

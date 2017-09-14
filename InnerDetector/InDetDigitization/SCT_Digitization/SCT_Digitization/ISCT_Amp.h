@@ -8,7 +8,7 @@
  * (c) ATLAS Detector software
  * Interface for the SiChargedDiode processor classes
  * 23/08/2007 Kondo.Gnanvo@cern.ch, and others   
-*/
+ */
 
 #ifndef SIDIGITIZATION_ISCT_AMP_H
 #define SIDIGITIZATION_ISCT_AMP_H
@@ -18,14 +18,14 @@
 
 #include <vector>
 
-static const InterfaceID IID_ISCT_Amp("ISCT_Amp",1,0);
+static const InterfaceID IID_ISCT_Amp("ISCT_Amp", 1, 0);
 
 class ISCT_Amp : virtual public IAlgTool {
 
   ///////////////////////////////////////////////////////////////////
   // Public methods:
   ///////////////////////////////////////////////////////////////////
-public:
+ public:
   typedef SiTotalCharge::list_t list_t;
 
   //Retrieve interface ID

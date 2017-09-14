@@ -573,7 +573,7 @@ StatusCode TRTDigitizationTool::processStraws(std::set<int>& sim_hitids, std::se
       m_vDigits.push_back(digit_straw);
       //int          mstrw = digit_straw.GetStrawID();
       //unsigned int mword = digit_straw.GetDigit();
-      //std::cout << "AJB " << mstrw << ":" << mword << std::endl;
+      //std::cout << "AJB "; bits32(mword);
     }
 
   } // end of straw loop

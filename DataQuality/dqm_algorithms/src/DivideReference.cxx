@@ -114,13 +114,11 @@ dqm_algorithms::DivideReference::execute(const std::string& name, const TObject&
       if ( robject->IsA()->InheritsFrom("TCollection") ) //It is already an array add it...
 	{	  
 	  static_cast<TCollection*>(robject)->Add( histogram );
-	  //Check in again
-	  result->object_.reset( robject );
 	}
       else
 	{
 	  TObjArray* array = new TObjArray( 2 );
-	  array->AddAt( robject , 0 );
+	  array->AddAt( robject->Clone() , 0 );
 	  array->AddAt( histogram , 1 );
 	  //Check in again
 	  result->object_.reset( array );

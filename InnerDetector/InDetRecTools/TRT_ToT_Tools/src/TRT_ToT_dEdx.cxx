@@ -161,6 +161,7 @@ StatusCode TRT_ToT_dEdx::initialize()
     return StatusCode::FAILURE;
   }
       
+  //  ShowDEDXSetup();  
 
   ATH_MSG_INFO("//////////////////////////////////////////////////////////////////");
   ATH_MSG_INFO("///              TRT_ToT_Tool setup configuration              ///");
@@ -772,7 +773,6 @@ bool TRT_ToT_dEdx::isData() const {
 double TRT_ToT_dEdx::dEdx(const Trk::Track* track, bool divideByL, bool useHThits, bool corrected) const
 {
   ATH_MSG_DEBUG("dEdx()");
-  ShowDEDXSetup();  
 
   double nVtx=-1.;
 
@@ -825,7 +825,7 @@ double TRT_ToT_dEdx::dEdx(const Trk::Track* track, bool divideByL, bool useHThit
       for (int i = 0; i < nhits;i++){
         ToTsum+=vecToT.at(i);
       } 
-      ToTsum*=correctNormalization(divideByL, m_isData, gasType, nVtx);
+      ToTsum*=correctNormalization(divideByL, m_isData, nVtx);
 
       return ToTsum/nhits;
     }
@@ -921,7 +921,7 @@ double TRT_ToT_dEdx::dEdx(const Trk::Track* track, bool divideByL, bool useHThit
 
         double ToTsum = ToTsumXe*nhitsXe + ToTsumAr*nhitsAr + ToTsumKr*nhitsKr;
 
-        ToTsum*=correctNormalization(divideByL, m_isData, gasType, nVtx);
+        ToTsum*=correctNormalization(divideByL, m_isData, nVtx);
 
         return ToTsum/nhits;
       }
@@ -931,16 +931,15 @@ double TRT_ToT_dEdx::dEdx(const Trk::Track* track, bool divideByL, bool useHThit
   return 0.;
 }
 
-double TRT_ToT_dEdx::usedHits(const Trk::Track* track, EGasType& gasType) const
+double TRT_ToT_dEdx::usedHits(const Trk::Track* track) const
 {
-  return usedHits(track, gasType, m_divideByL, m_useHThits);
+  return usedHits(track, m_divideByL, m_useHThits);
 }
 
-double TRT_ToT_dEdx::usedHits(const Trk::Track* track, EGasType& gasType, bool divideByL, bool useHThits) const
+double TRT_ToT_dEdx::usedHits(const Trk::Track* track, bool divideByL, bool useHThits) const
 {
   ATH_MSG_DEBUG("usedHits()");
-  ShowDEDXSetup();  
-  gasType = kUnset;
+  EGasType gasType = kUnset;
 
   if (!track) {
     return 0;
@@ -1074,15 +1073,17 @@ double TRT_ToT_dEdx::getProb(EGasType gasType, const double dEdx_obs, const doub
 }
 
 
-double TRT_ToT_dEdx::getTest(EGasType gasType, const double dEdx_obs, const double pTrk, Trk::ParticleHypothesis hypothesis, Trk::ParticleHypothesis antihypothesis, int nUsedHits) const {
+double TRT_ToT_dEdx::getTest(const double dEdx_obs, const double pTrk, Trk::ParticleHypothesis hypothesis, Trk::ParticleHypothesis antihypothesis, int nUsedHits) const {
 
-  return getTest(gasType, dEdx_obs, pTrk, hypothesis, antihypothesis, nUsedHits, m_divideByL);
+  return getTest(dEdx_obs, pTrk, hypothesis, antihypothesis, nUsedHits, m_divideByL);
 
 }
 
-double TRT_ToT_dEdx::getTest(EGasType gasType, const double dEdx_obs, const double pTrk, Trk::ParticleHypothesis hypothesis, Trk::ParticleHypothesis antihypothesis, int nUsedHits, bool divideByL) const
+double TRT_ToT_dEdx::getTest(const double dEdx_obs, const double pTrk, Trk::ParticleHypothesis hypothesis, Trk::ParticleHypothesis antihypothesis, int nUsedHits, bool divideByL) const
 {
   ATH_MSG_DEBUG("getTest()");
+
+  EGasType gasType = kUnset;
         
   if ( dEdx_obs<=0. || pTrk<=0. || nUsedHits<=0 ) return 0.5;
   
@@ -1237,9 +1238,9 @@ double TRT_ToT_dEdx::getToT(unsigned int BitPattern) const
 // Corrections
 /////////////////////////////////
 
-double TRT_ToT_dEdx::correctNormalization(bool divideLength,bool scaledata, EGasType& gasType, double nVtx) const
+double TRT_ToT_dEdx::correctNormalization(bool divideLength,bool scaledata, double nVtx) const
 {
-  gasType = static_cast<EGasType> (m_useTrackPartWithGasType);
+  EGasType gasType = static_cast<EGasType> (m_useTrackPartWithGasType);
   if(m_useTrackPartWithGasType==kUnset)
     gasType=kXenon;
   if(nVtx<=0)nVtx=Dedxcorrection::norm_nzero[gasType];

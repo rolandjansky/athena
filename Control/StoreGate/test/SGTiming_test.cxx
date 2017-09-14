@@ -21,7 +21,9 @@ int main() {
   std::cout << "**** SGTimingTest BEGINS ****" << std::endl;
 
   ISvcLocator* pSvcLoc;
-  Athena_test::initGaudi("SGTiming_test.txt", pSvcLoc);
+  if (!Athena_test::initGaudi("SGTiming_test.txt", pSvcLoc)) {
+    return 1;
+  }
 
   StoreGateSvc* pSG(0);
   assert( pSvcLoc->service("StoreGateSvc", pSG, true).isSuccess() );

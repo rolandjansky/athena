@@ -31,7 +31,7 @@ SCT_DataBase::SCT_DataBase(const SCT_GeoModelAthenaComps * athenaComps)
   IRDBAccessSvc* rdbSvc = m_athenaComps->rdbAccessSvc();
 
   // SCT version tag
-  m_sctVersionTag = rdbSvc->getChildTag("SCT", versionKey.tag(), versionKey.node(), false);
+  m_sctVersionTag = rdbSvc->getChildTag("SCT", versionKey.tag(), versionKey.node());
 
 
 /////////////////////////////////////////////////////////

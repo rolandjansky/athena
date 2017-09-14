@@ -28,28 +28,37 @@
  *
  * The tool can be used standalone or attached to an algorithm, tool or service.
  * The variables to be monitored need to be exposed via the Monitored framework.
- * The histograms to be created are configured via the `Histograms` property of the form:
+ * The histograms to be created are configured via the `Histograms` list property.
+ * Each list entry has the form:
  *
- *   PATH, HTYPE, NAME, TITLE, BINNING ...., OPTIONS
+ *   "PATH, HTYPE, NAME, TITLE, BINNING, [LABELS], OPTIONS"
  *
  * Example configuration strings:
- * - `"/SHIFT, TH1D, name, title, xbins, xmin, xmax, opt"`
- * - `"/EXPERT, TH2D, "name1,name2", title, xbins, xmin, xmax, ybins, ymin, ymax, opt"`
+ * - `"SHIFT, TH1D, name, title, xbins, xmin, xmax, opt"`
+ * - `"EXPERT, TH2D, "name1,name2", title, xbins, xmin, xmax, ybins, ymin, ymax, opt"`
  *
  * As an option an alias can be provided for the naming of the actual histogram:
  *   `"name;alias"` or `"name1,name2;alias"`
- * For the configuration from python the helper DefineHistogram.defineHistogram should be used.
+ * For the configuration from python the helper GenericMonitoringTool.defineHistogram should be used.
  *
- * The following histogram types are supported: TH1[F,D,I], TH2[F,D,I], TProfile, TProfile2D
+ * The following histogram types are supported:
+ * - TH1[F,D,I]
+ * - TH2[F,D,I]
+ * - TProfile[2D]
  *
- * The following top-level paths are supported: EXPERT, SHIFT, DEBUG, RUNSTAT, EXPRESS
+ * The following top-level paths are supported:
+ * - EXPERT, SHIFT, DEBUG, RUNSTAT, EXPRESS
  *
  * The following options are suppored:
- * - kCanRebin enables ROOT's internal functionality of autobinning the histogram
- * - kCumulative does fill of all bins left to the bin into which the value falls
- * - kLBN makes the histogram lumiblock aware
- * - kVec adds the content of the monitored variable to the histogram bins
- * - kVecUO same as kVec but treat 0th(last) element as underflow(overflow)
+ * - `kCanRebin` enables ROOT's internal functionality of autobinning the histogram
+ * - `kCumulative` does fill of all bins left to the bin into which the value falls
+ * - `kLBN` makes the histogram lumiblock aware
+ * - `kVec` adds the content of the monitored variable to the histogram bins
+ * - `kVecUO` same as kVec but treat 0th(last) element as underflow(overflow)
+ *
+ * Optionally, a colon-separated list of bin labels ("bin1:bin2:bin3:") can be provided (at least one
+ * colon is required). In case of a 2D histogram the labels are assigned consecutively to the x-axis 
+ * and then y-axis bins.
  *
  * @author Tomasz Bold
  * @author Piotr Sarna

@@ -243,6 +243,9 @@ CondInputLoader::execute()
 #endif
   }
 
+  EventIDBase now_event = now;
+  now.set_event_number (EventIDBase::UNDEFEVT);
+
   // For a MC event, the run number we need to use to look up the conditions
   // may be different from that of the event itself.  Override the run
   // number with the conditions run number from the event context,
@@ -269,7 +272,7 @@ CondInputLoader::execute()
     }
    
     if (ccb->valid(now)) {
-      ATH_MSG_INFO( "  CondObj " << vhk.fullKey() << " is still valid at " << now );
+      ATH_MSG_INFO( "  CondObj " << vhk.fullKey() << " is still valid at " << now_event );
       evtStore()->addedNewTransObject(vhk.fullKey().clid(), vhk.key());
       continue;
     }

@@ -24,10 +24,13 @@
 // Containers
 // numbers obtained using clid.db
 namespace InDet {
-  typedef Trk::PrepRawDataContainer< SCT_ClusterCollection > SCT_ClusterContainer; 
+  typedef Trk::PrepRawDataContainer< SCT_ClusterCollection > SCT_ClusterContainer;
+  typedef EventContainers::IdentifiableCache< SCT_ClusterCollection > SCT_ClusterContainerCache;
 }
 
 CLASS_DEF(InDet::SCT_ClusterContainer,2561,1)
 CONTAINER_IS_IDENTCONT(InDet::SCT_ClusterContainer)
+
+CLASS_DEF( InDet::SCT_ClusterContainerCache , 1302859648 , 1 )
 
 #endif // TRKPREPRAWDATA_PREPRAWDATACLASS_DEF_H

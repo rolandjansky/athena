@@ -6,7 +6,7 @@
  * ISCT_RandomDisabledCellGenerator.h
  * Header file for interface class for SCT_RandomDisabledCellGenerator
  * (c) ATLAS Detector software
-*/
+ */
 
 #ifndef SCT_DIGITIZATION_ISCT_RANDOMDISABLEDCELLGENERATOR_H
 #define SCT_DIGITIZATION_ISCT_RANDOMDISABLEDCELLGENERATOR_H
@@ -27,10 +27,10 @@ class ISCT_RandomDisabledCellGenerator : virtual public ISiChargedDiodesProcesso
   ///////////////////////////////////////////////////////////////////
   // Public methods:
   ///////////////////////////////////////////////////////////////////
-public:
+ public:
 
   //Retrieve interface ID
-  static const InterfaceID & interfaceID() {return IID_ISCT_RandomDisabledCellGenerator; }
+  static const InterfaceID& interfaceID() { return IID_ISCT_RandomDisabledCellGenerator; }
 
   // Destructor:
   virtual ~ISCT_RandomDisabledCellGenerator() {}
@@ -40,8 +40,8 @@ public:
   ///////////////////////////////////////////////////////////////////
 
   // process the collection of charged diodes
-  virtual void process(SiChargedDiodeCollection &collection) const =0;
-  virtual void setRandomEngine(CLHEP::HepRandomEngine *rndmEngine) =0;
+  virtual void process(SiChargedDiodeCollection& collection) const =0;
+  virtual void setRandomEngine(CLHEP::HepRandomEngine* rndmEngine) =0;
 };
 
 #endif // SCT_DIGITIZATION_ISCT_RANDOMDISABLEDCELLGENERATOR_H

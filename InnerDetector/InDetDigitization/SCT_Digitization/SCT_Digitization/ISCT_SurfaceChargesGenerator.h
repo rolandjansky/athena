@@ -31,7 +31,7 @@ namespace CLHEP {
 
 class ISiSurfaceChargesInserter
 {
-public:
+ public:
   virtual ~ISiSurfaceChargesInserter() {}
   virtual void operator() (const SiSurfaceCharge& scharge) const = 0;
 };
@@ -43,16 +43,16 @@ class ISCT_SurfaceChargesGenerator : virtual public IAlgTool {
   ///////////////////////////////////////////////////////////////////
   // Public methods:
   ///////////////////////////////////////////////////////////////////
-public:
+ public:
 
   //Retrieve interface ID
-  static const InterfaceID & interfaceID() {return IID_ISCT_SurfaceChargesGenerator; }
+  static const InterfaceID& interfaceID() { return IID_ISCT_SurfaceChargesGenerator; }
   
   // Destructor:
   virtual ~ISCT_SurfaceChargesGenerator() {}
 
-  virtual void setDetectorElement(const InDetDD::SiDetectorElement *ele) = 0 ;
-  virtual void process(const TimedHitPtr<SiHit> & phit,
+  virtual void setDetectorElement(const InDetDD::SiDetectorElement* ele) = 0 ;
+  virtual void process(const TimedHitPtr<SiHit>& phit,
                        const ISiSurfaceChargesInserter& inserter) const =0;
   virtual void processFromTool(const SiHit* phit, const ISiSurfaceChargesInserter& inserter, const float p_eventTime, const unsigned short p_eventId) const =0;
   //TESTING NEW METHODS
@@ -60,7 +60,7 @@ public:
   virtual void setFixedTime(float fixedTime) =0;                             
   virtual void setCosmicsRun(bool cosmicsRun) =0;                            
   virtual void setComTimeFlag(bool useComTime) =0;                                 
-  virtual void setRandomEngine(CLHEP::HepRandomEngine *rndmEngine) =0;       
+  virtual void setRandomEngine(CLHEP::HepRandomEngine* rndmEngine) =0;       
 };
 
 #endif // SIDIGITIZATION_ISCT_SURFACECHARGESGENERATOR_H

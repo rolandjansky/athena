@@ -209,7 +209,7 @@ class IAlgToolCalo: public virtual IAlgTool,
         CaloCellContainer** m_CaloCellContPoint;
         // Objects that the Tools should not worry about
   protected:
-	bool lardecoded, tiledecoded;
+	bool m_lardecoded, m_tiledecoded;
 	/** error control */
         uint32_t m_error;
         /** caloDDE (of the cluster 2nd layer hottest cell) */

@@ -53,6 +53,7 @@ TrigL2MuonSA::TgcDataPreparator::TgcDataPreparator(const std::string& type,
    declareProperty("TGC_RawDataProvider", m_tgcRawDataProvider);
 }
 
+
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
@@ -177,7 +178,7 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::prepareData(const LVL1::RecMuonRoI* 
    int channel;
    
    bool isLowPt = m_recMuonRoIUtils.isLowPt(p_roi);
-   
+
    // Select the eta cut based on ROI Pt.
    double mid_eta_test = (isLowPt) ? m_options.roadParameters().deltaEtaAtMiddleForLowPt()
      : m_options.roadParameters().deltaEtaAtMiddleForHighPt();

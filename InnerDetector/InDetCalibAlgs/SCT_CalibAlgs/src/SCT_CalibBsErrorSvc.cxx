@@ -149,10 +149,10 @@ SCT_CalibBsErrorSvc::fillFromData(){
  m_numberOfEventsHisto->Fill( 1 );
  //--- Loop over BSErrors
   for ( int type = 0; type < SCT_ByteStreamErrors::NUM_ERROR_TYPES; ++type ) {
-    std::set<IdentifierHash>* errorSet = m_bytestreamErrorsSvc->getErrorSet( type );
+    const std::set<IdentifierHash>* errorSet = m_bytestreamErrorsSvc->getErrorSet( type );
     if ( errorSet != 0 ) {
-      std::set<IdentifierHash>::iterator it  = errorSet->begin();
-      std::set<IdentifierHash>::iterator itE = errorSet->end();
+      std::set<IdentifierHash>::const_iterator it  = errorSet->begin();
+      std::set<IdentifierHash>::const_iterator itE = errorSet->end();
       for ( ; it != itE; ++it ) {
         Identifier waferId = m_pSCTHelper->wafer_id( *it );
         fillBsErrorsForWafer(waferId, type);

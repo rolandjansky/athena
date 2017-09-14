@@ -58,7 +58,7 @@ class EgammaSamp2Fex: public IAlgToolCalo {
                 std::string basename(name().substr(25,5)+".");
 		//std::string basename(name().substr(6,1)+name().substr(name().find("Fex",0)-5,5));
                 //basename+=(name().substr(6,1)+name().substr(name().find("Fex",0)-5,5));
-		if (m_timersvc) {
+		if (!m_timersvc.empty()) {
                 	m_timer[0]->propName(basename+"Eta");
 		}
                 return StatusCode::SUCCESS;

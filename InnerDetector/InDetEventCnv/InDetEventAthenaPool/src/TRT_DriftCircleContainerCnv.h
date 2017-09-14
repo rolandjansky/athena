@@ -20,9 +20,7 @@
 typedef  InDet::TRT_DriftCircleContainer_p2  TRT_DriftCircleContainer_PERS;
 typedef  T_AthenaPoolCustomCnv<InDet::TRT_DriftCircleContainer, TRT_DriftCircleContainer_PERS >   TRT_DriftCircleContainerCnvBase;
 
-class TRT_DriftCircleContainerCnv :
-    public TRT_DriftCircleContainerCnvBase, 
-    public AthenaPoolCnvTPExtension
+class TRT_DriftCircleContainerCnv : public TRT_DriftCircleContainerCnvBase
 {
   friend class CnvFactory<TRT_DriftCircleContainerCnv >;
 

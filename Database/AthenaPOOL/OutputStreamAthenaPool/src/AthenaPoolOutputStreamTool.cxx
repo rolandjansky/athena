@@ -217,7 +217,6 @@ StatusCode AthenaPoolOutputStreamTool::connectOutput(const std::string& outputNa
          if (m_extendProvenanceRecord) {
             std::string pTag;
             SG::TransientAddress* dhTransAddr = 0;
-            bool ownDhTransAddr = true;
             for (std::vector<DataHeaderElement>::const_iterator i = dh->begin(), iEnd = dh->end();
                 i != iEnd; i++) {
                if (i->getPrimaryClassID() == ClassID_traits<DataHeader>::ID()) {
@@ -227,15 +226,17 @@ StatusCode AthenaPoolOutputStreamTool::connectOutput(const std::string& outputNa
             }
             // Update dhTransAddr to handle fast merged files.
             SG::DataProxy* dhProxy = m_store->proxy(dh.operator->());
-            if (dhProxy != 0 && dhProxy->transientAddress() != 0 && dhProxy->transientAddress()->address() != 0) {
-               delete dhTransAddr; dhTransAddr = dhProxy->transientAddress();
-               ownDhTransAddr = false;
+            if (dhProxy != 0 && dhProxy->address() != 0) {
+              delete dhTransAddr;
+              m_dataHeader->insertProvenance(DataHeaderElement(dhProxy,
+                                                               dhProxy->address(),
+                                                               pTag));
             }
-            if (!dhTransAddr) std::abort();
-            DataHeaderElement dhe(dhTransAddr, dhTransAddr->address(), pTag);
-            m_dataHeader->insertProvenance(dhe);
-            if (ownDhTransAddr) {
-               delete dhTransAddr; dhTransAddr = 0;
+            else {
+              m_dataHeader->insertProvenance(DataHeaderElement(dhTransAddr,
+                                                               dhTransAddr->address(),
+                                                               pTag));
+              delete dhTransAddr;
             }
          }
          if (!m_provTagList.empty()) {
@@ -384,7 +385,7 @@ StatusCode AthenaPoolOutputStreamTool::streamObjects(const DataObjectVec& dataOb
             if ((*doIter)->clID() != 1) {
                SG::DataProxy* proxy = dynamic_cast<SG::DataProxy*>((*doIter)->registry());
                if (proxy != 0) {
-                  m_dataHeader->insert(proxy->transientAddress(), addr);
+                  m_dataHeader->insert(proxy, addr);
                   if (proxy->address() == 0) {
                      proxy->setAddress(addr);
                   } else {
@@ -397,7 +398,7 @@ StatusCode AthenaPoolOutputStreamTool::streamObjects(const DataObjectVec& dataOb
                ATH_MSG_DEBUG("Pers to Pers copy for " << (*doIter)->clID() << " " << (*doIter)->name());
                SG::DataProxy* proxy = dynamic_cast<SG::DataProxy*>((*doIter)->registry());
                if (proxy != 0) {
-                  m_dataHeader->insert(proxy->transientAddress(), addr);
+                  m_dataHeader->insert(proxy, addr);
                   if (proxy->address() == 0) {
                      proxy->setAddress(addr);
                   } else {
@@ -421,7 +422,7 @@ StatusCode AthenaPoolOutputStreamTool::streamObjects(const DataObjectVec& dataOb
    if ((m_conversionSvc->createRep(dataHeaderObj, addr)).isSuccess()) {
       SG::DataProxy* proxy = dynamic_cast<SG::DataProxy*>(dataHeaderObj->registry());
       if (proxy != 0) {
-         m_dataHeader->insert(proxy->transientAddress(), addr, m_processTag);
+         m_dataHeader->insert(proxy, addr, m_processTag);
          if (proxy->address() == 0) {
             proxy->setAddress(addr);
          } else {

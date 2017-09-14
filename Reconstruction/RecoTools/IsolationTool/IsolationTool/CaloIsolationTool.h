@@ -87,26 +87,26 @@ namespace xAOD {
 
 #ifndef XAOD_ANALYSIS
       virtual
-      bool decorateParticle( IParticle& tp,
+      bool decorateParticle( const IParticle& tp,
                              const std::vector<Iso::IsolationType>& cones,
                              CaloCorrection corrections,
                              const CaloCellContainer* Cells = 0,
                              const CaloClusterContainer* TopClusters = 0) override final; 
 #endif
       virtual
-      bool decorateParticle_caloCellIso( IParticle& tp,
+      bool decorateParticle_caloCellIso( const IParticle& tp,
                              const std::vector<Iso::IsolationType>& cones,
                              CaloCorrection corrections,
                              const CaloCellContainer* Cells) override final;
 
       virtual
-      bool decorateParticle_topoClusterIso( IParticle& tp,
+      bool decorateParticle_topoClusterIso( const IParticle& tp,
                              const std::vector<Iso::IsolationType>& cones,
                              CaloCorrection corrections,
                              const CaloClusterContainer* TopClusters) override final;
 
       virtual
-      bool decorateParticle_eflowIso( IParticle& tp,
+      bool decorateParticle_eflowIso( const IParticle& tp,
                              const std::vector<Iso::IsolationType>& cones,
                              CaloCorrection corrections) override final;
 
@@ -157,7 +157,7 @@ namespace xAOD {
 
       // final dressing function
       bool decorateParticle(CaloIsolation& result,
-                            IParticle& tp,
+                            const IParticle& tp,
                             const std::vector<Iso::IsolationType>& cones,
                             CaloCorrection corrections);
       // etcone computation for TrackParticle

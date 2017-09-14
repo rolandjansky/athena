@@ -5,7 +5,7 @@
 #ifndef G4USERACTIONS_G4UA__STOPPEDPARTICLEACTIONTOOL_H
 #define G4USERACTIONS_G4UA__STOPPEDPARTICLEACTIONTOOL_H
 
-#include "G4AtlasInterfaces/ISteppingActionTool.h"
+#include "G4AtlasInterfaces/IG4SteppingActionTool.h"
 #include "G4AtlasTools/ActionToolBase.h"
 #include "G4UserActions/StoppedParticleAction.h"
 
@@ -15,7 +15,7 @@ namespace G4UA
   /// @brief Tool which manages the StoppedParticleAction
   ///
   class StoppedParticleActionTool: public ActionToolBase<StoppedParticleAction>,
-                                   public ISteppingActionTool
+                                   public IG4SteppingActionTool
   {
 
     public:
@@ -24,8 +24,8 @@ namespace G4UA
       StoppedParticleActionTool(const std::string& type, const std::string& name,
                                 const IInterface* parent);
 
-      virtual ISteppingAction* getSteppingAction() override final
-      { return static_cast<ISteppingAction*>( getAction() ); }
+      virtual G4UserSteppingAction* getSteppingAction() override final
+      { return static_cast<G4UserSteppingAction*>( getAction() ); }
 
     protected:
 

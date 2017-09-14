@@ -11,6 +11,7 @@
 #include "PersistentDataModel/TokenAddress.h"
 
 #include "SGTools/TransientAddress.h"
+#include "SGTools/DataProxy.h"
 #include "AthenaKernel/IStringPool.h"
 
 //______________________________________________________________________________
@@ -30,34 +31,58 @@ DataHeaderElement::DataHeaderElement(const DataHeaderElement& rhs) : m_pClid(rhs
 }
 //______________________________________________________________________________
 DataHeaderElement::DataHeaderElement(const SG::TransientAddress* sgAddress, IOpaqueAddress* tokAddress,
-	const std::string& pTag) : m_pClid(0), m_clids(), m_key(), m_alias(), m_token(0), m_ownToken(false), m_hashes() {
-   if (sgAddress != 0) {
-      m_pClid = sgAddress->clID();
-      std::set<CLID> tClids = sgAddress->transientID();
-      std::set<CLID>::iterator lastClid = m_clids.begin();
-      for (std::set<CLID>::const_iterator iter = tClids.begin(), last = tClids.end();
-	      iter != last; iter++) {
-         lastClid = m_clids.insert(lastClid, *iter);
-      }
-      m_clids.erase(m_pClid);
-      m_key = (pTag.empty()) ? sgAddress->name() : pTag;
-      m_alias = sgAddress->alias();
-      TokenAddress* tokAddr = dynamic_cast<TokenAddress*>(tokAddress);
-      if (tokAddr != 0 && tokAddr->getToken() != 0) {
-         m_token = new Token(tokAddr->getToken()); m_ownToken = true;
-      } else {
-         tokAddr = dynamic_cast<TokenAddress*>(sgAddress->address());
-         if (tokAddr != 0 && tokAddr->getToken() != 0) {
-            m_token = tokAddr->getToken();
-         } else if (tokAddress != 0) {
-            m_token = new Token; m_ownToken = true;
-            const_cast<Token*>(m_token)->fromString(*(tokAddress->par()));
-         } else if (sgAddress->address() != 0) {
-            m_token = new Token; m_ownToken = true;
-            const_cast<Token*>(m_token)->fromString(*(sgAddress->address()->par()));
-         }
-      }
-   }
+                                     const std::string& pTag)
+  : DataHeaderElement (sgAddress->clID(),
+                       sgAddress->name(),
+                       sgAddress->transientID(),
+                       SG::DataProxy::AliasCont_t (sgAddress->alias()),
+                       sgAddress->address(),
+                       tokAddress, pTag)
+{
+}
+//______________________________________________________________________________
+DataHeaderElement::DataHeaderElement(const SG::DataProxy* proxy, IOpaqueAddress* tokAddress,
+                                     const std::string& pTag)
+  : DataHeaderElement (proxy->clID(),
+                       proxy->name(),
+                       proxy->transientID(),
+                       proxy->alias(),
+                       proxy->address(),
+                       tokAddress, pTag)
+{
+}
+//______________________________________________________________________________
+DataHeaderElement::DataHeaderElement(CLID clid,
+                                     const std::string& name,
+                                     const std::vector<CLID>& tClids,
+                                     std::set<std::string>&& alias,
+                                     IOpaqueAddress* tadAddress,
+                                     IOpaqueAddress* tokAddress,
+                                     const std::string& pTag)
+  : m_pClid(clid),
+    m_clids(tClids.begin(), tClids.end()),
+    m_key((pTag.empty()) ? name : pTag),
+    m_alias(std::move(alias)),
+    m_token(0), m_ownToken(false), m_hashes()
+{
+  m_clids.erase(m_pClid);
+  TokenAddress* tokAddr = dynamic_cast<TokenAddress*>(tokAddress);
+  if (tokAddr != 0 && tokAddr->getToken() != 0) {
+    m_token = new Token(tokAddr->getToken()); m_ownToken = true;
+  } else {
+    tokAddr = dynamic_cast<TokenAddress*>(tadAddress);
+    if (tokAddr != 0 && tokAddr->getToken() != 0) {
+      m_token = tokAddr->getToken();
+    } else if (tokAddress != 0) {
+      Token* token = new Token;
+      m_token = token; m_ownToken = true;
+      token->fromString(*(tokAddress->par()));
+    } else if (tadAddress != 0) {
+      Token* token = new Token;
+      m_token = token; m_ownToken = true;
+      token->fromString(*(tadAddress->par()));
+    }
+  }
 }
 //______________________________________________________________________________
 DataHeaderElement::DataHeaderElement(const CLID classID,
@@ -93,14 +118,9 @@ CLID DataHeaderElement::getPrimaryClassID() const {
 }
 //______________________________________________________________________________
 const std::set<CLID> DataHeaderElement::getClassIDs() const {
-   std::set<CLID> allClids;
-   std::set<CLID>::iterator lastClid = allClids.begin();
-   for (std::set<CLID>::const_iterator iter = m_clids.begin(), last = m_clids.end();
-	   iter != last; iter++) {
-      lastClid = allClids.insert(lastClid, *iter);
-   }
-   allClids.insert(m_pClid);
-   return(allClids);
+  std::set<CLID> allClids (m_clids);
+  allClids.insert(m_pClid);
+  return(allClids);
 }
 //______________________________________________________________________________
 const std::string& DataHeaderElement::getKey() const {
@@ -227,9 +247,12 @@ const std::vector<DataHeaderElement>& DataHeader::elements() const {
 //______________________________________________________________________________
 void DataHeader::insert(const SG::TransientAddress* sgAddress, IOpaqueAddress* tokAddress, const std::string& pTag) {
    if (sgAddress != 0) {
-      DataHeaderElement dhElement(sgAddress, tokAddress, pTag);
-      m_dataHeader.push_back(dhElement);
+      m_dataHeader.emplace_back(sgAddress, tokAddress, pTag);
    }
+}
+//______________________________________________________________________________
+void DataHeader::insert(const SG::DataProxy* proxy, IOpaqueAddress* tokAddress, const std::string& pTag) {
+  m_dataHeader.emplace_back(proxy, tokAddress, pTag);
 }
 //______________________________________________________________________________
 void DataHeader::insert(const DataHeaderElement& dhe) {

@@ -35,6 +35,7 @@ int main() {
    // Create the tool to be tested:
    Trig::StaticBunchCrossingTool tool;
    SIMPLE_CHECK( tool.setProperty( "OutputLevel", MSG::DEBUG ) );
+   SIMPLE_CHECK( tool.setProperty( "MaxBunchSpacing", 150 ) );
 
    // Try to load some configurations:
    SIMPLE_CHECK( tool.loadConfig( 1 ) );

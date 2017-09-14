@@ -67,7 +67,7 @@ def getLastRunNumber(partition=""):
         data = response.read().split()
     except:
         data=[]
-    return int(data[0]) if len(data) else 222222
+    return int(data[0])+1 if len(data) else 222222
 
 #
 #______________________________________________________________________
