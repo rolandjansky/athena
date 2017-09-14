@@ -147,9 +147,10 @@ namespace G4UA{
                                                                                       m_geoIDSvcQuick);
 
           ISF::ISFParticle *tmpISP = ::iGeant4::ISFG4Helper::convertG4TrackToISFParticle( *aTrack,
-                                                                                *curISP,
-                                                                                nullptr // truthBinding
-                                                                                );
+                                                                                          *curISP,
+                                                                                          nullptr, // truthBinding
+                                                                                          new HepMcParticleLink(tHelp.GetParticleLink())
+                                                                                          );
           tmpISP->setNextGeoID(nextGeoID);
           tmpISP->setNextSimID(ISF::fUndefinedSimID);
 

@@ -26,8 +26,9 @@
 /** convert the given G4Track into an ISFParticle */
 ISF::ISFParticle*
 iGeant4::ISFG4Helper::convertG4TrackToISFParticle(const G4Track& aTrack,
-                                                   const ISF::ISFParticle& parent,
-                                                   ISF::TruthBinding* truth)
+                                                  const ISF::ISFParticle& parent,
+                                                  ISF::TruthBinding* truth,
+                                                  const HepMcParticleLink * partLink)
 {
   const G4ThreeVector& g4pos = aTrack.GetPosition();
   const double         gTime = aTrack.GetGlobalTime();
@@ -52,7 +53,8 @@ iGeant4::ISFG4Helper::convertG4TrackToISFParticle(const G4Track& aTrack,
                                                 gTime,
                                                 parent,
                                                 barcode,
-                                                truth
+                                                truth,
+                                                partLink
                                                );
 
   return isp;
@@ -65,6 +67,16 @@ iGeant4::ISFG4Helper::getISFTrackInfo(const G4Track& aTrack)
 {
   VTrackInformation* trackInfo = static_cast<VTrackInformation*>(aTrack.GetUserInformation());
   return trackInfo;
+}
+
+
+/** get the ParticleBarcode corresponding to the given G4Track */
+Barcode::ParticleBarcode
+iGeant4::ISFG4Helper::getParticleBarcode(const G4Track &aTrack)
+{
+  VTrackInformation* trackInfo = getISFTrackInfo(aTrack);
+  Barcode::ParticleBarcode barcode = (trackInfo) ? trackInfo->GetParticleBarcode() : Barcode::fUndefinedBarcode;
+  return barcode;
 }
 
 
