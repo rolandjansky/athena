@@ -65,10 +65,8 @@ public:
   /// Used by FastCaloSimParamAction
   virtual TileMicroHit GetTileMicroHit(const G4Step*, TileHitData& hitData) const override final;
   ///
-  inline virtual TileGeoG4LookupBuilder* GetLookupBuilder() const override final
-  {
-    return m_lookup;
-  }
+  virtual TileGeoG4LookupBuilder* GetLookupBuilder() const override final;
+
   /// Method used by TileFastCaloSim/TileFCSmStepToTileHitVec
   virtual void pmtEdepFromFCS_StepInfo(TileHitData& hitData, double ene, double yLocal, double halfYLocal, double zLocal, int Ushape) const override final;
 private:
@@ -98,8 +96,6 @@ private:
 
   ServiceHandle<StoreGateSvc> m_detStore; // used by TileGeoG4CalibSD.cc
   ServiceHandle<IGeoModelSvc> m_geoModSvc;
-
-  TileGeoG4LookupBuilder* m_lookup;
 
   Identifier m_invalid_id; /// FIXME just a default-constructed Identifier???
 
