@@ -71,7 +71,6 @@ StatusCode AFPSiRowColToLocalCSTool::initialize()
 
   initTransformationMatricesSize(matricesForLayersInit, m_numberOfLayersInStations);
 
-
   // count total number of layers
   unsigned int totalLayersN = 0;
   for (const int layersN : m_numberOfLayersInStations)
@@ -115,27 +114,51 @@ StatusCode AFPSiRowColToLocalCSTool::initialize()
 
     const float layerSpacingZ = 9.*CLHEP::mm;
 
+    const double xOffset = 0;
+    const double yOffset = 0;
+    // station 0
+    m_transformationsErr[0][0] = rotation;
+    m_transformationsErr[0][1] = ROOT::Math::Transform3D(ROOT::Math::RotationY(-0.2443461*CLHEP::rad));
+    m_transformationsErr[0][2] = ROOT::Math::Transform3D(ROOT::Math::RotationY(-0.2443461*CLHEP::rad));
+    m_transformationsErr[0][3] = ROOT::Math::Transform3D(ROOT::Math::RotationY(-0.2443461*CLHEP::rad));
+
+    m_transformations[0][0] = ROOT::Math::Translation3D(xOffset, yOffset, 0)*m_transformationsErr[0][0];
+    m_transformations[0][1] = ROOT::Math::Translation3D(xOffset, yOffset, 0)*ROOT::Math::Translation3D(0, 0, layerSpacingZ)*m_transformationsErr[0][1];
+    m_transformations[0][2] = ROOT::Math::Translation3D(xOffset, yOffset, 0)*ROOT::Math::Translation3D(0, 0, 2.*layerSpacingZ)*m_transformationsErr[0][2];
+    m_transformations[0][3] = ROOT::Math::Translation3D(xOffset, yOffset, 0)*ROOT::Math::Translation3D(0, 0, 3.*layerSpacingZ)*m_transformationsErr[0][3];
+
+    // station 1
+    m_transformationsErr[1][0] = rotation;
+    m_transformationsErr[1][1] = ROOT::Math::Transform3D(ROOT::Math::RotationY(-0.2443461*CLHEP::rad));
+    m_transformationsErr[1][2] = ROOT::Math::Transform3D(ROOT::Math::RotationY(-0.2443461*CLHEP::rad));
+    m_transformationsErr[1][3] = ROOT::Math::Transform3D(ROOT::Math::RotationY(-0.2443461*CLHEP::rad));
+
+    m_transformations[1][0] = ROOT::Math::Translation3D(xOffset, yOffset, 0)*m_transformationsErr[1][0];
+    m_transformations[1][1] = ROOT::Math::Translation3D(xOffset, yOffset, 0)*ROOT::Math::Translation3D(0, 0, layerSpacingZ)*m_transformationsErr[1][1];
+    m_transformations[1][2] = ROOT::Math::Translation3D(xOffset, yOffset, 0)*ROOT::Math::Translation3D(0, 0, 2.*layerSpacingZ)*m_transformationsErr[1][2];
+    m_transformations[1][3] = ROOT::Math::Translation3D(xOffset, yOffset, 0)*ROOT::Math::Translation3D(0, 0, 3.*layerSpacingZ)*m_transformationsErr[1][3];
+
     // station 2
     m_transformationsErr[2][0] = rotation;
-    m_transformationsErr[2][1] = ROOT::Math::Transform3D(ROOT::Math::RotationY(-0.253198*CLHEP::rad));
-    m_transformationsErr[2][2] = ROOT::Math::Transform3D(ROOT::Math::RotationY(-0.227862*CLHEP::rad));
-    m_transformationsErr[2][3] = ROOT::Math::Transform3D(ROOT::Math::RotationY(0*CLHEP::rad));
+    m_transformationsErr[2][1] = ROOT::Math::Transform3D(ROOT::Math::RotationY(-0.2443461*CLHEP::rad));
+    m_transformationsErr[2][2] = ROOT::Math::Transform3D(ROOT::Math::RotationY(-0.2443461*CLHEP::rad));
+    m_transformationsErr[2][3] = ROOT::Math::Transform3D(ROOT::Math::RotationY(-0.2443461*CLHEP::rad));
 
-    m_transformations[2][0] = m_transformationsErr[2][0];
-    m_transformations[2][1] = ROOT::Math::Translation3D(-0.187358, -0.134756, layerSpacingZ)*m_transformationsErr[2][1];
-    m_transformations[2][2] = ROOT::Math::Translation3D(-0.127971, -0.204807, 2.*layerSpacingZ)*m_transformationsErr[2][2];
-    m_transformations[2][3] = ROOT::Math::Translation3D(0, 0, 3.*layerSpacingZ)*m_transformationsErr[2][3];
+    m_transformations[2][0] = ROOT::Math::Translation3D(xOffset, yOffset, 0)*m_transformationsErr[2][0];
+    m_transformations[2][1] = ROOT::Math::Translation3D(xOffset, yOffset, 0)*ROOT::Math::Translation3D(0, 0, layerSpacingZ)*m_transformationsErr[2][1];
+    m_transformations[2][2] = ROOT::Math::Translation3D(xOffset, yOffset, 0)*ROOT::Math::Translation3D(0, 0, 2.*layerSpacingZ)*m_transformationsErr[2][2];
+    m_transformations[2][3] = ROOT::Math::Translation3D(xOffset, yOffset, 0)*ROOT::Math::Translation3D(0, 0, 3.*layerSpacingZ)*m_transformationsErr[2][3];
 
     // station 3
     m_transformationsErr[3][0] = rotation;
-    m_transformationsErr[3][1] = ROOT::Math::Transform3D(ROOT::Math::RotationY(-0.250661*CLHEP::rad));
-    m_transformationsErr[3][2] = ROOT::Math::Transform3D(ROOT::Math::RotationY(-0.252849*CLHEP::rad));
-    m_transformationsErr[3][3] = ROOT::Math::Transform3D(ROOT::Math::RotationY(-0.247896*CLHEP::rad));
+    m_transformationsErr[3][1] = ROOT::Math::Transform3D(ROOT::Math::RotationY(-0.2443461*CLHEP::rad));
+    m_transformationsErr[3][2] = ROOT::Math::Transform3D(ROOT::Math::RotationY(-0.2443461*CLHEP::rad));
+    m_transformationsErr[3][3] = ROOT::Math::Transform3D(ROOT::Math::RotationY(-0.2443461*CLHEP::rad));
 
-    m_transformations[3][0] = m_transformationsErr[3][0];
-    m_transformations[3][1] = ROOT::Math::Translation3D(-0.101478, -0.155841, layerSpacingZ)*m_transformationsErr[3][1];
-    m_transformations[3][2] = ROOT::Math::Translation3D(-0.0661546, -0.334444, 2.*layerSpacingZ)*m_transformationsErr[3][2];
-    m_transformations[3][3] = ROOT::Math::Translation3D(-0.0675869, -0.341143, 3.*layerSpacingZ)*m_transformationsErr[3][3];
+    m_transformations[3][0] = ROOT::Math::Translation3D(xOffset, yOffset, 0)*m_transformationsErr[3][0];
+    m_transformations[3][1] = ROOT::Math::Translation3D(xOffset, yOffset, 0)*ROOT::Math::Translation3D(0, 0, layerSpacingZ)*m_transformationsErr[3][1];
+    m_transformations[3][2] = ROOT::Math::Translation3D(xOffset, yOffset, 0)*ROOT::Math::Translation3D(0, 0, 2.*layerSpacingZ)*m_transformationsErr[3][2];
+    m_transformations[3][3] = ROOT::Math::Translation3D(xOffset, yOffset, 0)*ROOT::Math::Translation3D(0, 0, 3.*layerSpacingZ)*m_transformationsErr[3][3];
   }
 
   int stationCounter(0);
@@ -147,6 +170,7 @@ StatusCode AFPSiRowColToLocalCSTool::initialize()
       ATH_MSG_INFO ("Layer "<<layersCounter++<<" "<<layerTrans);
   } // close for (stations)
 
+  stationCounter = 0;
   ATH_MSG_INFO("The following transformation matrices for errors will be used");
   for (const std::vector<ROOT::Math::Transform3D>& station : m_transformationsErr) {
     int layersCounter (0);
@@ -179,7 +203,9 @@ void AFPSiRowColToLocalCSTool::fillXAOD (const int stationID, const int layerID,
 
 xAOD::AFPSiHitsCluster* AFPSiRowColToLocalCSTool::newXAODLocal (const int stationID, const int layerID, const AFPSiClusterBasicObj& cluster, xAOD::AFPSiHitsClusterContainer* xAODContainer)
 {
-  ROOT::Math::XYZPoint horizVertID (cluster.horizID()*m_pixelHorizSize, cluster.vertID()*m_pixelVertSize, 0);
+  const int halfColumns = 168;
+  const int halfRows = 40;
+  ROOT::Math::XYZPoint horizVertID ((cluster.horizID()-halfColumns)*m_pixelHorizSize, (cluster.vertID() - halfRows)*m_pixelVertSize, 0);
   ROOT::Math::XYZPoint horizVertIDErr (cluster.horizIDErr()*m_pixelHorizSize, cluster.vertIDErr()*m_pixelVertSize, 0);
 
   try {  
