@@ -609,20 +609,6 @@ if isSimulation:
     from DerivationFrameworkTau.TauTruthCommon import *
 #also added the TruthTau containers to the output
 
-
-
-from DerivationFrameworkTau.DerivationFrameworkTauConf import DerivationFramework__TauTruthMatchingWrapper
-from TauAnalysisTools.TauAnalysisToolsConf import TauAnalysisTools__TauTruthMatchingTool
-
-# Truth matching
-DFCommonTauTruthMatchingTool = TauAnalysisTools__TauTruthMatchingTool(name="DFCommonTauTruthMatchingTool")
-ToolSvc += DFCommonTauTruthMatchingTool
-DFCommonTauTruthMatchingWrapper = DerivationFramework__TauTruthMatchingWrapper( name = "DFCommonTauTruthMatchingWrapper",
-										OutputLevel          = ERROR,
-                                                                                TauTruthMatchingTool = DFCommonTauTruthMatchingTool,
-                                                                                TauContainerName     = "TauJets")
-ToolSvc += DFCommonTauTruthMatchingWrapper
-
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS  
 #====================================================================
