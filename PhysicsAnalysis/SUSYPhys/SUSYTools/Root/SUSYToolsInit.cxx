@@ -167,7 +167,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     if (isAtlfast()) {
 
       if (m_jetInputType == xAOD::JetInput::EMTopo || m_jetInputType == xAOD::JetInput::LCTopo) { // only supported ones for AF-II
-        JES_config_file = "JES_MC15Prerecommendation_AFII_June2015.config";
+        JES_config_file = "JES_MC15Prerecommendation_AFII_June2015_rel21.config";
       }
       else {
         ATH_MSG_ERROR("JES recommendations only exist for EMTopo jets in AF-II samples (m_jetInputType = " << m_jetInputType << ")");
