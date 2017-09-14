@@ -195,7 +195,6 @@ namespace met {
     double sumE_pfo = 0.;
     const IParticle* bestbadmatch = 0;
     std::sort(nearbyPFO.begin(),nearbyPFO.end(),greaterPtPFO);
-    TLorentzVector momentum;
     for(const auto& pfo : nearbyPFO) {
       // Skip charged PFOs, as we already matched them
       if(fabs(pfo->charge())>FLT_MIN || !P4Helpers::isInDeltaR(*pfo, *swclus, m_tcMatch_dR, m_useRapidity)) {continue;}
@@ -213,8 +212,8 @@ namespace met {
 	pfolist.push_back(pfo);
 	sumE_pfo += pfo_e;
     	ATH_MSG_VERBOSE("Accept pfo with pt " << pfo->pt() << ", e " << pfo->e() << " in sum.");
+    	ATH_MSG_VERBOSE("Energy ratio of nPFO to eg: " << pfo_e / eg_cl_e);
     	ATH_MSG_VERBOSE("E match with new PFO: " << fabs(sumE_pfo+pfo_e - eg_cl_e) / eg_cl_e);
-    	ATH_MSG_VERBOSE("Energy ratio of TC to eg: " << pfo_e / eg_cl_e);
       } // if we will retain the topocluster
       else {break;}
     } // loop over nearby clusters
@@ -252,8 +251,8 @@ namespace met {
       ATH_MSG_VERBOSE("E match with new cluster: " << fabs(sumE_tc+tcl_e - eg_cl_e) / eg_cl_e);
       if( (doSum = (fabs(sumE_tc+tcl_e - eg_cl_e) < fabs(sumE_tc - eg_cl_e))) ) {
     	ATH_MSG_VERBOSE("Accept topocluster with pt " << cl->pt() << ", e " << cl->e() << " in sum.");
+    	ATH_MSG_VERBOSE("Energy ratio of nPFO to eg: " << tcl_e / eg_cl_e);
     	ATH_MSG_VERBOSE("E match with new cluster: " << fabs(sumE_tc+tcl_e - eg_cl_e) / eg_cl_e);
-    	ATH_MSG_VERBOSE("Energy ratio of TC to eg: " << tcl_e / eg_cl_e);
     	tclist.push_back(cl);
     	sumE_tc += tcl_e;
       } // if we will retain the topocluster
