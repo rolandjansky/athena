@@ -44,8 +44,8 @@ namespace xAOD
   class AFPClusterAlgID
   {
   public:
-    static const int singleHit = 0; ///< Single hit algorithm
-    static const int nearestNeighbour = 1; ///< Nearest neighbour algorithm
+    static constexpr int singleHit = 0; ///< Single hit algorithm
+    static constexpr int nearestNeighbour = 1; ///< Nearest neighbour algorithm
   };
 
 }
