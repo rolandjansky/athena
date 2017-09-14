@@ -9,76 +9,12 @@
 #==============================================================================
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 
-#====================================================================
-# ATTACH THE RECONSTRUCTION TO THE SEQUENCER  
-#====================================================================
-
-# Flag to distinguish EVNT/xAOD input
-isEVNT = True
-
-# Add translator from EVGEN input to xAOD-like truth here
-from RecExConfig.ObjKeyStore import objKeyStore
-from xAODTruthCnv.xAODTruthCnvConf import xAODMaker__xAODTruthCnvAlg
-from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__xAODtoHepMCCnvAlg
-
-if objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ):
-    DerivationFrameworkJob += xAODMaker__xAODTruthCnvAlg("GEN_EVNT2xAOD",AODContainerName="GEN_EVENT")
-    isEVNT = True
-else:
-    # Add back-translator from xAOD::TruthEvent to HepMC for xAOD input
-    # Needed to run hard truth on xAOD input files
-    # Use GEN_EVENT name for output
-    DerivationFrameworkJob += DerivationFramework__xAODtoHepMCCnvAlg("xAOD2GEN_EVENT",
-                                  xAODTruthEventKey = "TruthEvents",
-                                  HepMCTruthEventKey = "GEN_EVENT",
-                                  MaxCount = 5,
-                                  OutputLevel = Lvl.INFO)
-    isEVNT = False
-    
-#==============================================================================
-# Make truth jets and MET
-#==============================================================================
-
-# Only do this for EVNT input, not xAOD
-# For Rel.20 use JetRec-02-04-82-08 to avoid CaloCluster ERROR for truth
-
-if( isEVNT ):
-
-    # Set jet flags
-    from JetRec.JetRecFlags import jetFlags
-    jetFlags.useTruth = True
-    jetFlags.useTracks = False
-    # Add jet algorithms
-    from JetRec.JetAlgorithm import addJetRecoToAlgSequence
-    addJetRecoToAlgSequence(DerivationFrameworkJob,eventShapeTools=None)
-    from JetRec.JetRecStandard import jtm
-    from JetRec.JetRecConf import JetAlgorithm
-    jetFlags.truthFlavorTags = ["BHadronsInitial", "BHadronsFinal", "BQuarksFinal",
-                                "CHadronsInitial", "CHadronsFinal", "CQuarksFinal",
-                                "TausFinal",
-                                "Partons",
-                                ]
-    # Standard truth jets
-    # To recover jet constituents remove the last modifier.
-    akt4 = jtm.addJetFinder("AntiKt4TruthJets", "AntiKt", 0.4, "truth", modifiersin=[jtm.truthpartondr, jtm.partontruthlabel, jtm.removeconstit], ptmin= 5000)
-    akt4alg = JetAlgorithm("jetalgAntiKt4TruthJets", Tools = [akt4] )
-    DerivationFrameworkJob += akt4alg
-    
-    # WZ Truth Jets
-    #jtm.addJetFinder("AntiKt4TruthWZJets",  "AntiKt", 0.4,  "truthwz", ptmin= 5000)
-    #jtm.addJetFinder("AntiKt6TruthWZJets",  "AntiKt", 0.6,  "truthwz", ptmin= 5000)
-    # Other jets
-    #akt6  = jtm.addJetFinder("AntiKt6TruthJets", "AntiKt", 0.6, "truth", ptmin= 5000)
-    #akt10 = jtm.addJetFinder("AntiKt10TruthJets", "AntiKt", 1.0, "truth", ptmin= 5000)
-    #akt10trim = jtm.addJetTrimmer("TrimmedAntiKt10TruthJets", rclus=0.3, ptfrac=0.05, input='AntiKt10TruthJets')
-    
-    # Add truth-based MET algorithm here
-    import METReconstruction.METConfig_Truth
-    from METReconstruction.METRecoFlags import metFlags # not sure if you even need this line
-    from METReconstruction.METRecoConfig import getMETRecoAlg
-    metAlg = getMETRecoAlg('METReconstruction')
-    DerivationFrameworkJob += metAlg
-
+# Add translator from EVGEN input to xAOD-like truth
+# Add all the particle derivation tools
+# This sets up its own common kernel and adds the common tools to it
+from DerivationFrameworkMCTruth.MCTruthCommon import * 
+# Extra classifiers for the Higgs group
+from DerivationFrameworkHiggs.TruthCategories import *
 
 #==============================================================================
 # Build hard truth HepMC
@@ -181,14 +117,28 @@ svcMgr += createThinningSvc( svcName="TRUTH2ThinningSvc", outStreams=[evtStream]
 #==============================================================================
 # Set up slimming content list here
 #==============================================================================
-
+from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
+TRUTH2SlimmingHelper = SlimmingHelper("TRUTH2SlimmingHelper")
+TRUTH2SlimmingHelper.AppendToDictionary = {'MET_Truth':'xAOD::MissingETContainer','MET_TruthAux':'xAOD::MissingETAuxContainer',
+                                           'MET_TruthRegions':'xAOD::MissingETContainer','MET_TruthRegionsAux':'xAOD::MissingETAuxContainer',
+                                           'TruthElectrons':'xAOD::TruthParticleContainer','TruthElectronsAux':'xAOD::TruthParticleAuxContainer',
+                                           'TruthMuons':'xAOD::TruthParticleContainer','TruthMuonsAux':'xAOD::TruthParticleAuxContainer',
+                                           'TruthPhotons':'xAOD::TruthParticleContainer','TruthPhotonsAux':'xAOD::TruthParticleAuxContainer',
+                                           'TruthTaus':'xAOD::TruthParticleContainer','TruthTausAux':'xAOD::TruthParticleAuxContainer',
+                                           'TruthNeutrinos':'xAOD::TruthParticleContainer','TruthNeutrinosAux':'xAOD::TruthParticleAuxContainer',
+                                           'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
+                                           'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer',
+                                           'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
+                                           'AntiKt4TruthWZJets':'xAOD::JetContainer','AntiKt4TruthWZJetsAux':'xAOD::JetAuxContainer',
+                                           'TrimmedAntiKt10TruthJets':'xAOD::JetContainer','TrimmedAntiKt10TruthJetsAux':'xAOD::JetAuxContainer'
+                                          }
+TRUTH2SlimmingHelper.AllVariables = ["MET_Truth","MET_TruthRegions","TruthElectrons","TruthMuons","TruthPhotons","TruthTaus","TruthNeutrinos","TruthBSM","TruthTop","TruthBoson"]
+TRUTH2SlimmingHelper.ExtraVariables = ["AntiKt4TruthWZJets.GhostCHadronsFinalCount.GhostBHadronsFinalCount.pt.HadronConeExclTruthLabelID.ConeTruthLabelID.PartonTruthLabelID.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T",
+                                       "TrimmedAntiKt10TruthJets.pt.Tau1_wta.Tau2_wta.Tau3_wta"]
+TRUTH2SlimmingHelper.AppendContentToStream(TRUTH1Stream)
+# The entire event info, truth event, etc
 TRUTH2Stream.AddItem("xAOD::EventInfo#*")
 TRUTH2Stream.AddItem("xAOD::EventAuxInfo#*")
-TRUTH2Stream.AddItem("xAOD::JetContainer#*")
-TRUTH2Stream.AddItem("xAOD::JetAuxContainer#*")
-TRUTH2Stream.AddItem("xAOD::MissingETContainer#*")
-TRUTH2Stream.AddItem("xAOD::MissingETAuxContainer#*")
-
 TRUTH2Stream.AddItem( "xAOD::TruthEventContainer#*" )
 TRUTH2Stream.AddItem( "xAOD::TruthEventAuxContainer#*" )
 TRUTH2Stream.AddItem( "xAOD::TruthVertexContainer#*" )
