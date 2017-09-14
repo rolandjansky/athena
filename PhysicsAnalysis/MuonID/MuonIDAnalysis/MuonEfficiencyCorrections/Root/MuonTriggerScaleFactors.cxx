@@ -643,8 +643,8 @@ namespace CP {
     // == MuonTriggerScaleFactors::getDataPeriod
     // ==================================================================================
     unsigned int MuonTriggerScaleFactors::getYear(unsigned int run) const {
-        if (run < 296939) return 2015;
-        if (run < 311481) return 2016;
+        if (run <= 284484) return 2015;
+        if (run <= 311481) return 2016;
         return 2017;
     }
     std::string MuonTriggerScaleFactors::getDataPeriod() const {
