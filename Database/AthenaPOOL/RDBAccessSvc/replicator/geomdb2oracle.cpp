@@ -614,9 +614,9 @@ void transferTag(coral::ISessionProxy* proxySrc, coral::ISessionProxy* proxyTarg
       updateData.extend<bool>("lockflag");
       updateData[0].data<long long>() = detTagSrc["TAG_ID"].data<long long>();
       updateData[1].data<bool>() = 1;
-      std::string _action = "LOCKED = :lockflag";
-      std::string _condition = "TAG_ID = :tagid";
-      editorTarg.updateRows(_action,_condition,updateData);
+      std::string action = "LOCKED = :lockflag";
+      std::string condition = "TAG_ID = :tagid";
+      editorTarg.updateRows(action,condition,updateData);
 
       if(verbose) {
 	doFormatting(format_level);
@@ -914,8 +914,8 @@ int main(int argc, char ** argv)
     printUsage = true;
   else
     for(int i=1; i<argc; i++) {
-      std::string _param(argv[i]);
-      if(_param == "-h" || _param == "-help" || _param == "--help") {
+      std::string param(argv[i]);
+      if(param == "-h" || param == "-help" || param == "--help") {
 	printUsage = true;
 	break;
       } else if (argv[i][0] == '-') {
@@ -938,7 +938,7 @@ int main(int argc, char ** argv)
 	  }
 	if(printUsage) break;
       } else {
-	vectInpTags.push_back(_param);
+	vectInpTags.push_back(param);
       }
     }
 
@@ -967,10 +967,10 @@ int main(int argc, char ** argv)
     }
   }
 
-  coral::Context* m_context = &coral::Context::instance();
+  coral::Context* context = &coral::Context::instance();
 
-  m_context->loadComponent("CORAL/Services/RelationalService");
-  m_context->loadComponent("CORAL/Services/ConnectionService");
+  context->loadComponent("CORAL/Services/RelationalService");
+  context->loadComponent("CORAL/Services/ConnectionService");
  
   coral::ConnectionService conSvcH;
 
