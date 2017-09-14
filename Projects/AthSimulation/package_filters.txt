@@ -145,6 +145,7 @@
 + Event/EventTPCnv
 + Event/FourMom
 + Event/NavFourMom
++ Event/PyDumper
 + Event/xAOD/xAODBase
 + Event/xAOD/xAODCaloEvent
 + Event/xAOD/xAODCore
