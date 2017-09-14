@@ -65,7 +65,7 @@ StatusCode JetConstituentModifierBase::setEnergyPt(xAOD::IParticle* obj, float e
       xAOD::CaloCluster* clus = static_cast<xAOD::CaloCluster*>(obj);
       // Clusters get pt via the energy
       // This currently leaves the mass unaltered.
-      // if(weightAcc) (*weightAcc)(*clus) = clus->calE() > FLT_MIN ? e / clus->calE() : 0.;
+      if(weightAcc) (*weightAcc)(*clus) = clus->calE() > FLT_MIN ? e / clus->calE() : 0.;
       clus->setCalE(e);
     }
     break;
@@ -74,7 +74,7 @@ StatusCode JetConstituentModifierBase::setEnergyPt(xAOD::IParticle* obj, float e
       xAOD::PFO* pfo = static_cast<xAOD::PFO*>(obj);
       if( (m_applyToChargedPFO && fabs(pfo->charge())>=1e-9) || 
 	  (m_applyToNeutralPFO && fabs(pfo->charge())<1e-9) ) {
-	// if(weightAcc) (*weightAcc)(*pfo) = pt / pfo->pt();
+	if(weightAcc) (*weightAcc)(*pfo) = pt / pfo->pt();
 	// KTJ: Temporary fix
 	// Defeats the purpose, but we need to use this to reset the 4-vec cache
 	pfo->setP4(pt, pfo->eta(), pfo->phi());
@@ -96,7 +96,7 @@ StatusCode JetConstituentModifierBase::setP4(xAOD::IParticle* obj, const xAOD::J
     {
       xAOD::CaloCluster* clus = static_cast<xAOD::CaloCluster*>(obj);
       // This currently leaves the mass unaltered
-      // if(weightAcc) (*weightAcc)(*clus) = clus->calE() > FLT_MIN ? p4.e() / clus->calE() : 0.;
+      if(weightAcc) (*weightAcc)(*clus) = clus->calE() > FLT_MIN ? p4.e() / clus->calE() : 0.;
       clus->setCalE(p4.e());
       clus->setCalEta(p4.eta());
       clus->setCalPhi(p4.phi());
@@ -108,7 +108,7 @@ StatusCode JetConstituentModifierBase::setP4(xAOD::IParticle* obj, const xAOD::J
       // The PFO setter defaults to m=0
       if( (m_applyToChargedPFO && fabs(pfo->charge())>=1e-9) || 
 	  (m_applyToNeutralPFO && fabs(pfo->charge())<1e-9) ) {
-	// if(weightAcc) (*weightAcc)(*pfo) = pfo->pt() > FLT_MIN ? p4.pt() / pfo->pt() : 0.;
+	if(weightAcc) (*weightAcc)(*pfo) = pfo->pt() > FLT_MIN ? p4.pt() / pfo->pt() : 0.;
 	pfo->setP4(p4.pt(),p4.eta(),p4.phi(),p4.mass());
       }
       break;
