@@ -93,6 +93,11 @@ int JetConstituentModSequence::execute() const {
     chargedCopy = static_cast<xAOD::PFOContainer *>(copyAndRecord<xAOD::PFOContainer, xAOD::PFOAuxContainer, xAOD::PFO>(charged, !m_trigger, "ChargedParticleFlowObjects"));
     neutralCopy = static_cast<xAOD::PFOContainer *>(copyAndRecord<xAOD::PFOContainer, xAOD::PFOAuxContainer, xAOD::PFO>(neutral, !m_trigger, "NeutralParticleFlowObjects"));
 
+    if(!chargedCopy || !neutralCopy) {
+      ATH_MSG_ERROR("Unable to record output collections for " << m_outputContainer+"*ParticleFlowObjects" );
+      return 1;
+    }
+
     xAOD::PFOContainer* tmpCont = new xAOD::PFOContainer(SG::VIEW_ELEMENTS);
     for ( xAOD::PFO* pfo: *chargedCopy){
       tmpCont->push_back(pfo);
