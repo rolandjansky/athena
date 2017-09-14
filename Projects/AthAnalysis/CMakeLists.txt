@@ -1,4 +1,3 @@
-
 # The minimum required CMake version:
 cmake_minimum_required( VERSION 3.2 FATAL_ERROR )
 
@@ -24,7 +23,7 @@ find_package( Gaudi REQUIRED )
 
 # additional externals
 find_package( Xrootd )
-
+find_package( GSL )
 
 # Conditional compile flags:
 add_definitions( -DXAOD_ANALYSIS )
