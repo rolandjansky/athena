@@ -70,12 +70,11 @@ if dfInputIsEVNT:
 #Save the post-shower HT and MET filter values that will make combining filtered samples easier (adds to the EventInfo)
 from DerivationFrameworkMCTruth.GenFilterToolSetup import *
 
-# schedule the special truth building tools and add them to a common augmentation
+# schedule the special truth building tools and add them to a common augmentation; note taus are handled separately below
 augmentationToolsList += [  DFCommonTruthClassificationTool,
                            DFCommonTruthGenFilter,
                            DFCommonTruthMuonTool,DFCommonTruthElectronTool,
                            DFCommonTruthPhotonToolSim,
-                           #DFCommonTruthTauTool,
                            DFCommonTruthNeutrinoTool,
                            DFCommonTruthTopTool,
                            DFCommonTruthBosonTool,

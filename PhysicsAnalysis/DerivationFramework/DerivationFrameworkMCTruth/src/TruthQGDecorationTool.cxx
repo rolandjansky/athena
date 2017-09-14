@@ -19,7 +19,7 @@ DerivationFramework::TruthQGDecorationTool::TruthQGDecorationTool(const std::str
 {
   declareInterface<DerivationFramework::IAugmentationTool>(this);
   declareProperty ("JetCollection",
-          m_jetsKey = "AntiKt4TruthJets",
+          m_jetsKey = "AntiKt4TruthWZJets",
           "Name of jet collection for decoration");
   declareProperty ("OutputDecoration",
           m_decOutput = "TrueFlavor",
@@ -35,7 +35,7 @@ StatusCode DerivationFramework::TruthQGDecorationTool::addBranches() const
 {
   // Retrieve the truth collections
   const DataHandle<xAOD::JetContainer> inputJets(nullptr);
-  CHECK(evtStore()->retrieve(inputJets, m_jetsKey).isFailure());
+  CHECK(evtStore()->retrieve(inputJets, m_jetsKey));
 
   SG::AuxElement::Decorator<int> output_decorator(m_decOutput);
 
