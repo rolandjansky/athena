@@ -22,6 +22,7 @@ class electronLHmenu:
     trigger2012 = 1
     trigger2015 = 2
     offline2015 = 3
+    offlineMC16 = 4
 
 import ElectronPhotonSelectorTools.ElectronLikelihoodMenuDefs as ElectronLikelihoodMenuDefs
 
