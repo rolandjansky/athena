@@ -31,11 +31,6 @@ InDet::InDetAmbiScoringTool::InDetAmbiScoringTool(const std::string& t,
               const std::string& n,
               const IInterface*  p ) :
   AthAlgTool(t,n,p),
-  m_trkSummaryTool("Trk::TrackSummaryTool"),
-  m_selectortool("InDet::InDetTrtDriftCircleCutTool"),
-  m_summaryTypeScore(Trk::numberOfTrackSummaryTypes),
-  m_iBeamCondSvc("BeamCondSvc",n),
-  m_magFieldSvc("AtlasFieldSvc",n),
   // Initialization of ScoreModifiers variables
   m_maxDblHoles(-1),
   m_maxPixHoles(-1),
@@ -48,7 +43,12 @@ InDet::InDetAmbiScoringTool::InDetAmbiScoringTool(const std::string& t,
   m_maxPixelHits(-1),
   m_maxPixLay(-1),
   m_maxLogProb(-1),
-  m_maxGangedFakes(-1)
+  m_maxGangedFakes(-1),
+  m_trkSummaryTool("Trk::TrackSummaryTool"),
+  m_selectortool("InDet::InDetTrtDriftCircleCutTool"),
+  m_summaryTypeScore(Trk::numberOfTrackSummaryTypes),
+  m_iBeamCondSvc("BeamCondSvc",n),
+  m_magFieldSvc("AtlasFieldSvc",n)
 {
   declareInterface<Trk::ITrackScoringTool>(this);
   
