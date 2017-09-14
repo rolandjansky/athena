@@ -1,0 +1,53 @@
+package InDetPriVxFinderTool
+author  Andreas Wildauer <andreas.wildauer@cern.ch>
+
+public
+
+use AtlasPolicy            AtlasPolicy-*
+use GaudiInterface         GaudiInterface-*         External
+use AthenaBaseComps        AthenaBaseComps-*        Control
+use AtlasEigen	           AtlasEigen-*		    External
+use InDetRecToolInterfaces InDetRecToolInterfaces-* InnerDetector/InDetRecTools
+use TrkParticleBase        TrkParticleBase-*        Tracking/TrkEvent
+use TrkTrack               TrkTrack-*               Tracking/TrkEvent
+use TrkParameters          TrkParameters-*          Tracking/TrkEvent
+use xAODTracking           xAODTracking-*           Event/xAOD
+
+private
+# general athena dependecies
+use EventPrimitives	      EventPrimitives-*	           Event
+use GeoPrimitives             GeoPrimitives-*              DetectorDescription
+use AtlasCLHEP                AtlasCLHEP-*                 External
+use AtlasROOT                 AtlasROOT-*                  External  
+# DataModel is needed to read Tracks
+use DataModel                 DataModel-*                  Control
+# for the new track class
+use TrkEventPrimitives        TrkEventPrimitives-*         Tracking/TrkEvent
+use TrkSurfaces               TrkSurfaces-*                Tracking/TrkDetDescr
+use TrkTrackSummary           TrkTrackSummary-*            Tracking/TrkEvent
+use TrkVertexFitters          TrkVertexFitters-*	   Tracking/TrkVertexFitter
+use TrkTrackLink              TrkTrackLink-*               Tracking/TrkEvent
+use TrkLinks		      TrkLinks-*		   Tracking/TrkEvent
+use InDetBeamSpotService      InDetBeamSpotService-*       InnerDetector/InDetConditions 
+# dependencies on other vertexing packages
+use VxVertex                  VxVertex-*                   Tracking/TrkEvent
+use VxMultiVertex             VxMultiVertex-*              Tracking/TrkEvent
+use TrkVertexFitterInterfaces TrkVertexFitterInterfaces-*  Tracking/TrkVertexFitter
+use TrkVertexFitterInterfaces TrkVertexFitterInterfaces-*  Tracking/TrkVertexFitter
+use TrkVxEdmCnv		   TrkVxEdmCnv-*	    Tracking/TrkVertexFitter
+
+use InDetTrackSelectionTool InDetTrackSelectionTool-* InnerDetector/InDetRecTools
+
+# Add a cmake-specific dependency against the PATCore package. This is necessary since
+# packages which create component libraries don't expose their header files or dependencies
+# to any clients, whereas this package relies upon the InDetTrackSelectionTool to access
+# the PATCore package. I haven't added the direct dependency to the "use" statements
+# so thqt checkreq won't generate any warnings.
+apply_pattern cmake_add_dependency package=PhysicsAnalysis/AnalysisCommon/PATCore
+
+library InDetPriVxFinderTool *.cxx components/*.cxx
+apply_pattern component_library
+
+#private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
