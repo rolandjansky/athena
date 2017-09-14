@@ -56,11 +56,9 @@ atlas_depends_on_subdirs(
    PhysicsAnalysis/ElectronPhotonID/EgammaAnalysisHelpers
    PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces
    PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
+   PhysicsAnalysis/Interfaces/MuonAnalysisInterfaces
    PhysicsAnalysis/JetMissingEtID/JetSelectorTools
    PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/xAODBTaggingEfficiency
-   PhysicsAnalysis/MuonID/MuonIDAnalysis/MuonEfficiencyCorrections
-   PhysicsAnalysis/MuonID/MuonIDAnalysis/MuonMomentumCorrections
-   PhysicsAnalysis/MuonID/MuonSelectorTools
    PhysicsAnalysis/TauID/TauAnalysisTools
    Reconstruction/Jet/JetCPInterfaces
    Reconstruction/Jet/JetCalibTools
@@ -96,8 +94,7 @@ atlas_add_library( SUSYToolsLib
    xAODPrimitives IsolationSelectionLib PileupReweightingLib
    EgammaAnalysisInterfacesLib EgammaAnalysisHelpersLib		
    IsolationCorrectionsLib JetSelectorToolsLib
-   xAODBTaggingEfficiencyLib MuonEfficiencyCorrectionsLib
-   MuonMomentumCorrectionsLib MuonSelectorToolsLib TauAnalysisToolsLib
+   xAODBTaggingEfficiencyLib TauAnalysisToolsLib
    JetCPInterfaces JetCalibToolsLib JetInterface JetResolutionLib
    JetUncertaintiesLib JetMomentToolsLib METInterface METUtilitiesLib
    PathResolver TriggerMatchingToolLib TrigConfInterfaces TrigConfxAODLib
