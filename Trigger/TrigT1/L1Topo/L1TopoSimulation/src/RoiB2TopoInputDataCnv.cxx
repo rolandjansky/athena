@@ -21,7 +21,7 @@
 LVL1::RoiB2TopoInputDataCnv::RoiB2TopoInputDataCnv( const std::string& name, 
                                                     ISvcLocator* pSvcLocator ) : 
    ::AthReentrantAlgorithm( name, pSvcLocator ),
-   datamaker( new LVL1::L1TopoDataMaker() ),
+   m_datamaker( new LVL1::L1TopoDataMaker() ),
    m_roibLocation( "RoIBResult" ),
    m_emTauLocation( TrigT1CaloDefs::EmTauTopoTobLocation ),
    m_jetLocation(TrigT1CaloDefs::JetTopoTobLocation),
@@ -37,7 +37,7 @@ LVL1::RoiB2TopoInputDataCnv::RoiB2TopoInputDataCnv( const std::string& name,
 // Destructor
 LVL1::RoiB2TopoInputDataCnv::~RoiB2TopoInputDataCnv()
 {
-   delete datamaker;
+   delete m_datamaker;
 }
 
 StatusCode
@@ -70,7 +70,7 @@ LVL1::RoiB2TopoInputDataCnv::execute_r (const EventContext& ctx) const
    } else {
       ATH_MSG_DEBUG("Recording DataVector<CPCMXTopoData> with SG key '" << m_emTauLocation.key() << "'.");
       emtauTopoData.record(std::make_unique< DataVector<CPCMXTopoData> >());
-      datamaker->makeCPCMXTopoData(roibResult.cptr(), emtauTopoData.ptr());
+      m_datamaker->makeCPCMXTopoData(roibResult.cptr(), emtauTopoData.ptr());
    }
    
    // jet
@@ -80,7 +80,7 @@ LVL1::RoiB2TopoInputDataCnv::execute_r (const EventContext& ctx) const
    } else {
       ATH_MSG_DEBUG("Recording DataVector<JetCMXTopoData> with SG key '" << m_jetLocation.key() << "'.");
       jetTopoData.record(std::make_unique<DataVector<JetCMXTopoData>>());
-      datamaker->makeJetCMXTopoData(roibResult.cptr(), jetTopoData.ptr());
+      m_datamaker->makeJetCMXTopoData(roibResult.cptr(), jetTopoData.ptr());
    }
 
    // energy
@@ -90,7 +90,7 @@ LVL1::RoiB2TopoInputDataCnv::execute_r (const EventContext& ctx) const
    } else {
       ATH_MSG_DEBUG("Recording EnergyTopoData with SG key '" << m_energyLocation.key() << "'.");
       energyTopoData.record(std::make_unique<EnergyTopoData>());
-      datamaker->makeEnergyTopoData(roibResult.cptr(), energyTopoData.ptr());
+      m_datamaker->makeEnergyTopoData(roibResult.cptr(), energyTopoData.ptr());
    }
 
    return StatusCode::SUCCESS;
