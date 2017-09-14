@@ -24,8 +24,8 @@ namespace InDet
   //----------------------------------------------------------------------------
   InDetCosmicTrackSelectorTool::InDetCosmicTrackSelectorTool(const std::string& t, const std::string& n, const IInterface* p)
     : AthAlgTool(t,n,p), 
-    m_magFieldSvc("AtlasFieldSvc",n),
-    m_trackSumToolAvailable(false)
+    m_trackSumToolAvailable(false),
+    m_magFieldSvc("AtlasFieldSvc",n)
   {
     declareInterface<ITrackSelectorTool>(this);
     declareProperty("maxZ0",                     m_maxZ0 = 150.);
