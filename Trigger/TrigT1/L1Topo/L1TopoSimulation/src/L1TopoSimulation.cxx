@@ -84,7 +84,7 @@ L1TopoSimulation::L1TopoSimulation(const std::string &name, ISvcLocator *pSvcLoc
    declareProperty( "AthenaMonTools", m_monitors, "List of monitoring tools to be run with this instance, if incorrect then tool is silently skipped.");
    declareProperty( "MonHistBaseDir", m_histBaseDir = "L1TopoAlgorithms", "Base directory for monitoring histograms will be /EXPERT/<MonHistBaseDir>" );
    declareProperty( "EnableInputDump", m_enableInputDump, "Boolean to enable writing of input data for standalone running");
-   declareProperty( "UseBitwise", m_enableBitwise, "Boolean to enable the bitwise version of software algorithms");
+   declareProperty( "UseBitwise", m_enableBitwise=true, "Boolean to enable the bitwise version of software algorithms");
    declareProperty("FillHistoBasedOnHardware", m_fillHistogramsBasedOnHardwareDecision=true,
                    "Boolean to fill accept/reject histograms based on hdw; default based on sim");
    declareProperty( "InputDumpFile", m_inputDumpFile, "File name for dumping input data");
@@ -157,7 +157,8 @@ L1TopoSimulation::initialize() {
    }
 
    m_topoSteering->setUseBitwise(m_enableBitwise);
-   std::cout << "Calling m_topoSteering->setupFromConfiguration(*menu)" << endl;
+   ATH_MSG_INFO("Calling m_topoSteering->setUseBitwise("<<m_enableBitwise<<")");
+   ATH_MSG_INFO("Calling m_topoSteering->setupFromConfiguration(*menu)");
    try {
       m_topoSteering->setupFromConfiguration(*menu);
    }
