@@ -131,7 +131,8 @@ namespace CP {
             if (not periodKey->IsFolder()) continue;
             TDirectory* periodDirectory = qualityDirectory->GetDirectory(periodKey->GetName());
             std::string periodName = std::string(periodKey->GetName());
-            YearPeriod period = YearPeriod(year, periodName.substr(std::string("Period").size(), periodName.size()));
+            std::string periodName_InMap = periodName.substr(std::string("Period").size(), periodName.size());
+            YearPeriod period = YearPeriod(year, periodName_InMap);
             TKey* triggerKey;
             TIter nextTrigger(periodDirectory->GetListOfKeys());
             while ((triggerKey = (TKey*) nextTrigger())) {
@@ -154,7 +155,7 @@ namespace CP {
                             }
                             hist->SetDirectory(0);
 
-                            EffiHistoIdent HistoId = EffiHistoIdent(period, encodeHistoName(periodName, triggerName, isData, isys, isBarrel));
+                            EffiHistoIdent HistoId = EffiHistoIdent(period, encodeHistoName(periodName_InMap, triggerName, isData, isys, isBarrel));
                             if (m_efficiencyMap.find(HistoId) != m_efficiencyMap.end()) {
                                 ATH_MSG_FATAL("MuonTriggerScaleFactors::initialize(): histogram " << path << " is duplicated for year" << year << " in period " << periodName);
                                 return StatusCode::FAILURE;
