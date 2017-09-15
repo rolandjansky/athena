@@ -427,22 +427,6 @@ private:
    /// cluster size
    TH1F_LW*                m_clusize_ontrack_mod[PixLayerIBL2D3D::COUNT];
    TH1F_LW*                m_clusize_offtrack_mod[PixLayerIBL2D3D::COUNT];
-   /// module histo
-   TH1F_LW*                m_track_chi2_bcl1;
-   TH1F_LW*                m_track_chi2_bcl0;
-   TH1F_LW*                m_track_chi2_bclgt1;
-   TH1F_LW*                m_track_chi2_bcl1_highpt;
-   TH1F_LW*                m_track_chi2_bcl0_highpt;
-   TH1F_LW*                m_track_chi2_bclgt1_highpt;
-   TH2F_LW*                m_clustot_vs_pt;
-   TH1F_LW*                m_clustot_lowpt;
-   TH1F_LW*                m_1hitclustot_lowpt;
-   TH1F_LW*                m_2hitclustot_lowpt;
-   TH1F_LW*                m_clustot_highpt;
-   TH1F_LW*                m_1hitclustot_highpt;
-   TH1F_LW*                m_2hitclustot_highpt;
-   std::unique_ptr<PixelMonModulesProf> m_tsos_hiteff_vs_lumi;
-
 
    ///
    /// Cluster histograms
