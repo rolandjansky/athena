@@ -125,6 +125,7 @@ def generateChainDefs(chainDict):
     is2015Tagger = (not chainDict['chainName'].find("bmv2c20") == -1 or not chainDict['chainName'].find("bperf") == -1)
     isMuDr       = (not chainDict['chainName'].find("mu") == -1 and not chainDict['chainName'].find("_dr") == -1)
     isMuDz       = (not chainDict['chainName'].find("mu") == -1 and not chainDict['chainName'].find("_dz") == -1)
+    isIsoLep     = (not chainDict['chainName'].find("ivarmedium") == -1 or not chainDict['chainName'].find("ivarloose") == -1)
     
     #
     # Only run the All TE on split chains
@@ -140,8 +141,8 @@ def generateChainDefs(chainDict):
     # Need all the ouput bjet TEs to properly match to muons
     #  so dont use all TE here either
     #
-    if isMuDz or isMuDr: doAllTEConfig = False
-
+    if isMuDz or isMuDr or isIsoLep: doAllTEConfig = False
+    
 
     if doAllTEConfig:
         log.debug("Doing new buildBjetChainsAllTE")
@@ -228,7 +229,7 @@ def buildBjetChainsAllTE(theChainDef, bjetdict, numberOfSubChainDicts=1):
     #
     #  PV Tracking
     #
-    [trkvtx, trkftf, trkprec] = TrigInDetSequence("Bjet", "bjet", "IDTrig", "2step").getSequence() # new
+    [trkvtx, trkftf, trkprec] = TrigInDetSequence("Bjet", "bjet", "IDTrig", sequenceFlavour=["2step"]).getSequence() # new
     tracking        = "IDTrig"
     superTrackingTE = superTE+tracking
     theChainDef.addSequence(trkvtx,  superTE,      superTrackingTE) 
