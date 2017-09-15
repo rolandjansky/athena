@@ -100,7 +100,7 @@ namespace CP {
     if ( m_PixCutOff ) ATH_MSG_WARNING( "!! SWITCHING PIXEL REQUIREMENTS OFF !! FOR DEVELOPMENT USE ONLY !!" );
     if ( m_SiHolesCutOff ) ATH_MSG_WARNING( "!! SWITCHING SILICON HOLES REQUIREMENTS OFF !! FOR DEVELOPMENT USE ONLY !!" );
     if (m_custom_dir!="") ATH_MSG_WARNING("!! SETTING UP WITH USER SPECIFIED INPUT LOCATION \""<<m_custom_dir<<"\"!! FOR DEVELOPMENT USE ONLY !! ");
-    if (!m_useAllAuthors) ATH_MSG_WARNING("Not using allAuthors variable; lowPt working point result will be degraded");
+    if (!m_useAllAuthors) ATH_MSG_WARNING("Not using allAuthors variable; lowPt working point will always return false");
 
     // Set up the TAccept object:
     m_accept.addCut( "Eta",
@@ -116,7 +116,10 @@ namespace CP {
       ATH_MSG_ERROR( "Invalid quality (i.e. selection WP) set: " << m_quality << " - it must be an integer between 0 and 5! (0=Tight, 1=Medium, 2=Loose, 3=Veryloose, 4=HighPt, 5=LowPtEfficiency)" );
       return StatusCode::FAILURE;
     }
-    if(m_quality==5 && !m_useAllAuthors) ATH_MSG_WARNING("Using lowPt working point but allAuthors is not available!");
+    if(m_quality==5 && !m_useAllAuthors){
+      ATH_MSG_ERROR("Cannot use lowPt working point if allAuthors is not available!");
+      return StatusCode::FAILURE;
+    }
 
     // Load Tight WP cut-map
     ATH_MSG_INFO( "Initialising tight working point histograms..." );
@@ -232,8 +235,10 @@ namespace CP {
 
     // Passes quality requirements 
     xAOD::Muon::Quality thisMu_quality = getQuality(mu);
-    bool thisMu_highpt = passedHighPtCuts(mu);
-    bool thisMu_lowptE = passedLowPtEfficiencyCuts(mu,thisMu_quality);
+    bool thisMu_highpt=false;
+    thisMu_highpt = passedHighPtCuts(mu);
+    bool thisMu_lowptE=false;
+    thisMu_lowptE = passedLowPtEfficiencyCuts(mu,thisMu_quality);
     ATH_MSG_VERBOSE( "Muon quality: " << thisMu_quality << " passes HighPt: "<< thisMu_highpt << " passes LowPtEfficiency: "<< thisMu_lowptE );
     if(m_quality<4 && thisMu_quality > m_quality){
       return m_accept;
@@ -556,8 +561,6 @@ namespace CP {
 
   bool MuonSelectionTool::passedLowPtEfficiencyCuts( const xAOD::Muon& mu, xAOD::Muon::Quality thisMu_quality ) const {
 
-    if(!m_useAllAuthors && m_quality==5) ATH_MSG_WARNING("LowpT working point result will be degraded without allAuthors!");
-
     // requiring combined muons
     if( mu.muonType() != xAOD::Muon::Combined ) return false;
     if( mu.author()!=xAOD::Muon::MuGirl && mu.author()!=xAOD::Muon::MuidCo ) return false;
@@ -598,6 +601,7 @@ namespace CP {
 	return false;
       }
     }
+    else return false;
 
     // apply some loose quality requirements 
     float momentumBalanceSignificance(0.), scatteringCurvatureSignificance(0.), scatteringNeighbourSignificance(0.);
