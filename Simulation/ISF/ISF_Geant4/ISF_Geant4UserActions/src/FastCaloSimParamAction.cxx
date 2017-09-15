@@ -710,8 +710,8 @@ void FastCaloSimParamAction::update_map(const CLHEP::Hep3Vector & l_vec, const I
 
       // Overall merging scheme
       if (layer >= CaloCell_ID::PreSamplerB && layer <= CaloCell_ID::EME3){
-        // Customized merging scheme for LAr barrel and endcap, use only if we're not doing 1mm merging
-        if(m_config.m_maxRadiusLAr != 1){
+        // Customized merging scheme for LAr barrel and endcap, use only if we're not changing maxRadiusLAr value
+        if(m_config.m_maxRadiusLAr == 25){
           if (layer==CaloCell_ID::PreSamplerB || layer==CaloCell_ID::PreSamplerE){
             // PS default is 1mm in eta, 5mm in phi, no cut in r
             if (delta_r >= m_config.m_maxrPS) continue;
@@ -733,7 +733,7 @@ void FastCaloSimParamAction::update_map(const CLHEP::Hep3Vector & l_vec, const I
             if (delta_eta >= m_config.m_maxEtaEM3) continue;
             if (delta_phi >= m_config.m_maxPhiEM3) continue;
           }
-        } else{ // 1mm merging scheme
+        } else{ // Merging schemes done by changing maxRadiusLAr
             if ( hit_diff2 >= m_config.m_maxRadiusLAr ) continue;
         }
       } else if (layer >= CaloCell_ID::HEC0  && layer <= CaloCell_ID::HEC3){

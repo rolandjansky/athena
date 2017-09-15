@@ -12,6 +12,9 @@ parser.add_argument('--grl', type=str, help='Specify an input GRL')
 parser.add_argument('--out', type=str, help='output ROOT file')
 parser.add_argument('--tag', type=str, help='Lumi tag',
                     default='OflLumiAcct-001')
+parser.add_argument('--useofficial', action='store_true', help='Use official lumi folder (otherwise, use OflLumiAcct')
+parser.add_argument('--lumifolder', type=str, help='Lumi folder', default='/TRIGGER/OFLLUMI/OflPrefLumi')
+parser.add_argument('--lumitag', type=str, help='Lumi tag', default='OflLumi-13TeV-009')
 parser.add_argument('--plotdir', type=str, help='Directory to dump plots',
                     default='plots')
 parser.add_argument('--mudep', type=int, help='Run mu-dependent efficiencies',
@@ -138,8 +141,9 @@ lblb = fetch_iovs("LBLB", runs=int(runname[4:]))
 lbtime = inverse_lblb(lblb)
 #print list(lbtime)
 iovs_acct = fetch_iovs('COOLOFL_TRIGGER::/TRIGGER/OFLLUMI/LumiAccounting', lbtime.first.since, lbtime.last.until, tag=args.tag)
-#iovs_lum = fetch_iovs('COOLOFL_TRIGGER::/TRIGGER/OFLLUMI/OflPrefLumi', lblb.first.since, lblb.last.until, tag='OflLumi-13TeV-003')
-#print list(iovs_lum)
+if args.useofficial:
+    iovs_lum = fetch_iovs('COOLOFL_TRIGGER::%s' % args.lumifolder, lblb.first.since, lblb.last.until, tag=args.lumitag, channels=[0])
+    #print list(iovs_lum)
 lb_start_end = {}
 lb_lhcfill = {}
 for iov in lblb:
@@ -152,9 +156,20 @@ for iov in iovs_acct:
     if args.dblivetime:
         livetime.Fill(iov.LumiBlock, iov.LiveFraction)
     #print iov.InstLumi, iovs_lum[iov.LumiBlock-1].LBAvInstLumi
-    official_lum_zero.Fill(iov.LumiBlock, iov.InstLumi/1e3)
-    official_lum.Fill(iov.LumiBlock, iov.InstLumi*iov.LBTime*iov.LiveFraction/1e3)
-    official_mu.Fill(iov.LumiBlock, iov.AvEvtsPerBX)
+    if not args.useofficial:
+        official_lum_zero.Fill(iov.LumiBlock, iov.InstLumi/1e3)
+        official_lum.Fill(iov.LumiBlock, iov.InstLumi*iov.LBTime*iov.LiveFraction/1e3)
+        official_mu.Fill(iov.LumiBlock, iov.AvEvtsPerBX)
+    else:
+        offlumiov = [_ for _ in iovs_lum if _.since.lumi==iov.LumiBlock]
+        if len(offlumiov) != 1: 
+            print 'MAJOR PROBLEM, LUMI IOV MISMATCH'
+            print len(offlumiov)
+            continue
+        offlumiov = offlumiov[0]
+        official_lum_zero.Fill(iov.LumiBlock, offlumiov.LBAvInstLumi/1e3)
+        official_lum.Fill(iov.LumiBlock, offlumiov.LBAvInstLumi*iov.LBTime*iov.LiveFraction/1e3)
+        official_mu.Fill(iov.LumiBlock, offlumiov.LBAvEvtsPerBX)
 
 divisor = lb_length.Clone('divisor').ProjectionX()
 px = livetime.ProjectionX()

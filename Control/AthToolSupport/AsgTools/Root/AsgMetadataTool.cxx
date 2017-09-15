@@ -1,4 +1,4 @@
-// $Id: AsgMetadataTool.cxx 692722 2015-09-02 13:06:02Z krasznaa $
+// $Id: AsgMetadataTool.cxx 799036 2017-03-01 09:56:55Z will $
 
 // System include(s):
 #include <stdexcept>
@@ -36,11 +36,12 @@ namespace asg {
       : AsgTool( name ),
 #ifdef ASGTOOL_STANDALONE
         m_inputMetaStore( SgTEventMeta::InputStore ),
-        m_outputMetaStore( SgTEventMeta::OutputStore )
+        m_outputMetaStore( SgTEventMeta::OutputStore ),
 #elif defined(ASGTOOL_ATHENA)
         m_inputMetaStore( "StoreGateSvc/InputMetaDataStore", name ),
-        m_outputMetaStore( "StoreGateSvc/MetaDataStore", name )
+        m_outputMetaStore( "StoreGateSvc/MetaDataStore", name ),
 #endif // Environment selection
+        m_beginInputFileCalled( false )
    {
 
 #ifdef ASGTOOL_STANDALONE
@@ -77,6 +78,14 @@ namespace asg {
                              "this tool" );
          }
       }
+#else
+      //if initialized, then we should remove listeners
+      if(FSMState() == Gaudi::StateMachine::INITIALIZED) {
+	ServiceHandle< IIncidentSvc > incSvc( "IncidentSvc", name() );
+        if( incSvc.retrieve().isSuccess() ) {
+	  incSvc->removeListener( this ); //removes entirely
+	}
+      }
 #endif // ASGTOOL_STANDALONE
    }
 
@@ -110,11 +119,11 @@ namespace asg {
       ServiceHandle< IIncidentSvc > incSvc( "IncidentSvc", name() );
       ATH_CHECK( incSvc.retrieve() );
 
-      // Set up the right callbacks:
-      incSvc->addListener( this, IncidentType::BeginEvent, 0, true );
-      incSvc->addListener( this, IncidentType::BeginInputFile, 0, true );
-      incSvc->addListener( this, IncidentType::EndInputFile, 0, true );
-      incSvc->addListener( this, IncidentType::MetaDataStop, 70, true );
+      // Set up the right callbacks: don't rethrow exceptions, any failure and we should end
+      incSvc->addListener( this, IncidentType::BeginEvent, 0, false );
+      incSvc->addListener( this, IncidentType::BeginInputFile, 0, false );
+      incSvc->addListener( this, IncidentType::EndInputFile, 0, false );
+      incSvc->addListener( this, IncidentType::MetaDataStop, 70, false );
 
       // Let the base class do its thing:
       ATH_CHECK( AlgTool::sysInitialize() );
@@ -132,6 +141,7 @@ namespace asg {
 
       // Call the appropriate member function:
       if( inc.type() == IncidentType::BeginInputFile ) {
+         m_beginInputFileCalled = true;
          if( beginInputFile().isFailure() ) {
             ATH_MSG_FATAL( "Failed to call beginInputFile()" );
             throw std::runtime_error( "Couldn't call beginInputFile()" );
@@ -142,6 +152,16 @@ namespace asg {
             throw std::runtime_error( "Couldn't call endInputFile()" );
          }
       } else if( inc.type() == IncidentType::BeginEvent ) {
+         // If the tool didn't catch the begin input file incident for the
+         // first input file of the job, then call the appropriate function
+         // now.
+         if( ! m_beginInputFileCalled ) {
+            m_beginInputFileCalled = true;
+            if( beginInputFile().isFailure() ) {
+               ATH_MSG_FATAL( "Failed to call beginInputFile()" );
+               throw std::runtime_error( "Couldn't call beginInputFile()" );
+            }
+         }
          if( beginEvent().isFailure() ) {
             ATH_MSG_FATAL( "Failed to call beginEvent()" );
             throw std::runtime_error( "Couldn't call beginEvent()" );
