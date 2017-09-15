@@ -22,7 +22,7 @@
 #include <iostream>
 #include <typeinfo>
 
-const uint16_t MAX_AMPL = 4095; // 12-bit ADC
+constexpr uint16_t MAX_AMPL = 4095; // 12-bit ADC
 
 //================================================================
 CscOverlay::CscOverlay(const std::string &name, ISvcLocator *pSvcLocator) :
@@ -155,13 +155,13 @@ StatusCode CscOverlay::overlayExecute() {
 	  ATH_MSG_WARNING("Could not get real data CSC RDO container \"" << m_mainInputCSC_Name << "\"");
 	  return StatusCode::SUCCESS;
 	}
-      if ((cdata->begin()==cdata->end()) || !(cdata->begin()->cptr())){
+      if ((cdata->begin()==cdata->end()) || !*(cdata->begin())){
 	ATH_MSG_WARNING("Could not get nsamples, cdata empty?");
 	//return StatusCode::SUCCESS;
       }
       else
 	{
-	  numsamples=cdata->begin()->cptr()->numSamples();
+	  numsamples=cdata->begin()->numSamples();
 	}
     }
   else{
@@ -170,14 +170,14 @@ StatusCode CscOverlay::overlayExecute() {
 	ATH_MSG_WARNING("Could not get real data CSC RDO container \"" << m_mainInputCSC_Name << "\"");
 	return StatusCode::SUCCESS;
       }
-    if ((data_input_CSC->begin()==data_input_CSC->end()) || !(data_input_CSC->begin()->cptr()))
+    if ((data_input_CSC->begin()==data_input_CSC->end()) || !*(data_input_CSC->begin()))
       {
 	ATH_MSG_WARNING("Could not get nsamples, data_input_CSC empty?");
 	//return StatusCode::SUCCESS;
       }
     else
       {
-	numsamples=data_input_CSC->begin()->cptr()->numSamples();
+	numsamples=data_input_CSC->begin()->numSamples();
       }
     }
 
@@ -258,8 +258,8 @@ void CscOverlay::overlayContainer(const CscRawDataContainer *main,
   
   for(; p_main != p_main_end; ) {
     
-    /** retrieve the ovl collection by calling cptr() */
-    const CscRawDataCollection *coll_main = p_main->cptr();
+
+    const CscRawDataCollection *coll_main = *p_main;
     if ( outputContainer->addCollection(coll_main, p_main.hashId()).isFailure() ) {
       msg << MSG::WARNING << "addCollection failed for main" << endmsg; 
     }
@@ -275,8 +275,7 @@ void CscOverlay::overlayContainer(const CscRawDataContainer *main,
 
   for(; p_ovl != p_ovl_end; ) {
 
-    /** retrieve the ovl collection by calling cptr() */
-    const CscRawDataCollection *coll_ovl = p_ovl->cptr();
+    const CscRawDataCollection *coll_ovl = *p_ovl;
 
     uint16_t coll_id = (*p_ovl)->identify();
 
@@ -290,7 +289,7 @@ void CscOverlay::overlayContainer(const CscRawDataContainer *main,
       /** Need to merge the collections
           Retrieve q */
 
-      const CscRawDataCollection *coll_data = q->cptr();
+      const CscRawDataCollection *coll_data = *q;
 
       /** copy a few things to the new collection */
       out_coll->set_eventType( coll_data->eventType() );

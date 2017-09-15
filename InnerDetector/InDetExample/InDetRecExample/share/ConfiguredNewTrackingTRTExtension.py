@@ -133,7 +133,11 @@ class  ConfiguredNewTrackingTRTExtension:
                                                                 usePixel                = NewTrackingCuts.usePixel(),
                                                                 useSCT                  = NewTrackingCuts.useSCT(),
                                                                 minTRTonTrk             = NewTrackingCuts.minTRTonTrk(),
-                                                                minTRTPrecisionFraction = NewTrackingCuts.minTRTPrecFrac())
+                                                                minTRTPrecisionFraction = NewTrackingCuts.minTRTPrecFrac(),
+                                                                doEmCaloSeed = DetFlags.detdescr.Calo_allOn())
+            if not InDetExtenScoringTool.doEmCaloSeed:
+               InDetExtenScoringTool.InputEmClusterContainerName = ''
+            
             
             if InDetFlags.trackFitterType() in ['KalmanFitter', 'KalmanDNAFitter', 'ReferenceKalmanFitter']:
                InDetExtenScoringTool.minTRTPrecisionFraction = 0.2

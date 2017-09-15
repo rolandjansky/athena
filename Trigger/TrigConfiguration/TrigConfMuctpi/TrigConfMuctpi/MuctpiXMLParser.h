@@ -70,7 +70,6 @@ private:
   
   
   // input validation variables
-  bool m_isValidConfigurtion {false};
   int  m_verbosity {0};
   
   // configuration variables

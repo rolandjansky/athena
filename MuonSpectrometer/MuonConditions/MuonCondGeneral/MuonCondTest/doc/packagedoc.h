@@ -17,18 +17,6 @@ The MuonCondTest package contains the following class
 - MuonCalib::MuonCondTest: algorithm used to initialize the service 
 used for the alignment Conditions Access (only test)
 
-@ref used_MuonCondTest
 
-@ref requirements_MuonCondTest
 
 */
-
-/**
-@page used_MuonCondTest Used Packages
-*/
-
-/**
-@page requirements_MuonCondTest Requirements
-*/
-
-

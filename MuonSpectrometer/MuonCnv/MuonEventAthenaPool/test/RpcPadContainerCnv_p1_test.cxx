@@ -21,7 +21,7 @@
 #include "TestTools/leakcheck.h"
 #include <cassert>
 #include <iostream>
-
+#include "MuonEventAthenaPool/CreateTransientTemplates.h"
 #include "make_dd.icc"
 
 

@@ -6,8 +6,11 @@
 #define MUONCOMBINEDALGS_MUONSEGMENTAGALG_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteDecorHandleKey.h"
+#include "xAODMuon/MuonSegmentContainer.h"
+#include "MuonCombinedEvent/InDetCandidateCollection.h"
 #include "GaudiKernel/ToolHandle.h"
-#include <string>
 
 namespace MuonCombined {
   class IMuonSegmentTagTool;
@@ -26,8 +29,8 @@ class MuonSegmentTagAlg : public AthAlgorithm
 
  private:
   ToolHandle<MuonCombined::IMuonSegmentTagTool> m_muonSegmentTagTool;
-  std::string m_indetCandidateCollectionName;
-  std::string m_muonSegmenteCollectionName;
+  Gaudi::Property<SG::ReadHandleKey<InDetCandidateCollection> > m_indetCandidateCollectionName{this,"InDetCandidateLocation","InDetCandidates","name of ID candidate collection"};
+  Gaudi::Property<SG::ReadHandleKey<xAOD::MuonSegmentContainer> >m_muonSegmentCollectionName{this,"MuonSegmentLocation","MuonSegments","name of muon segment container"};
 };
 
 

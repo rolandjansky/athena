@@ -139,7 +139,6 @@ if hasattr(runArgs,"outputNTUP_TRKVALIDFile"):
     from InDetRecExample.InDetJobProperties import InDetFlags
     InDetFlags.doTrkNtuple.set_Value_and_Lock( True )
     InDetFlags.doPixelTrkNtuple.set_Value_and_Lock( True )
-    InDetFlags.doPixelClusterNtuple.set_Value_and_Lock( True )
 
     from InDetRecExample.InDetKeys import InDetKeys
     InDetKeys.trkValidationNtupleName.set_Value_and_Lock( runArgs.outputNTUP_TRKVALIDFile )

@@ -15,10 +15,6 @@ ExoticPhysTagTools contains the following tools:
 
 - for questions and comments: ketevi@bnl.gov
 
-@section ExoticPhysTagTools_used_packagesExoticPhysTagTools Used packages
 
-@section ExoticPhysTagTools_requirementsExoticPhysTagTools Requirements
 
 */
-
-

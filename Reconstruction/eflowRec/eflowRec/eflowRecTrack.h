@@ -16,6 +16,8 @@
 #include <cassert>
 #include <map>
 #include <string>
+
+#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include "CxxUtils/fpcompare.h"
@@ -32,8 +34,10 @@
 #include "xAODTracking/TrackParticleContainer.h"
 
 class eflowTrackClusterLink;
-
 class eflowTrackExtrapolatorBaseAlgTool;
+
+class IMessageSvc;
+class ISvcLocator;
 
 class eflowRecTrack {
 public:
@@ -70,9 +74,16 @@ public:
 
   void setSubtracted() {
     if (isSubtracted()){
-      std::cout << "eflowRecTrack\tWarning:\tInvoke setSubtracted() on track that is subtracted already!" << std::endl;
+      MsgStream* mlog = m_mlog.get();
+      std::string errorString = "Invoke setSubtracted() on track that is subtracted already!";
+      if (mlog) (*mlog) << MSG::WARNING << errorString << endmsg;
+      else {
+	std::string errorPrefix = "eflowRecTrack: WARNING";
+	std::cerr << errorPrefix << " - have invalid pointer to MsgStream service " << std::endl;
+	std::cerr << errorPrefix << errorString << std::endl;
+      }//if don't have valid pointer to mlog service, warn and use cerr
       return;
-    }
+    }//if track was already subtracted then print a warning to the user about that and return
     m_isSubtracted = true;
   }
 
@@ -128,6 +139,10 @@ private:
   eflowRingSubtractionManager m_ringSubtractionManager;
   std::vector<eflowTrackClusterLink*> m_clusterMatches;
   std::map<std::string,std::vector<eflowTrackClusterLink*> > m_alternativeClusterMatches;
+
+  ISvcLocator* m_svcLoc;
+  IMessageSvc* m_msgSvc;
+  std::unique_ptr<MsgStream> m_mlog;
 
 public:
   class SortDescendingPt {

@@ -16,11 +16,9 @@ namespace LArG4
   EMBSDTool::EMBSDTool(const std::string& type, const std::string& name,
                        const IInterface* parent)
     : SimpleSDTool(type, name, parent)
-    , m_hitCollName("LArHitEMB")
     , m_embcalc("EMBCalculator", name)
     , m_pscalc("EMBPresamplerCalculator", name)
   {
-    declareProperty("HitCollectionName", m_hitCollName);
     declareProperty("StacVolumes", m_stacVolumes);
     declareProperty("PresamplerVolumes", m_presVolumes);
 
@@ -45,7 +43,7 @@ namespace LArG4
   G4VSensitiveDetector* EMBSDTool::makeSD()
   {
     // Create the wrapper
-    auto sdWrapper = new SimpleSDWrapper("LArEMBSDWrapper", m_hitCollName);
+    auto sdWrapper = new SimpleSDWrapper("LArEMBSDWrapper", m_outputCollectionNames[0]);
 
     // Add the SDs
     sdWrapper->addSD( makeOneSD("LAr::Barrel::Presampler::Module", &*m_pscalc, m_presVolumes) );

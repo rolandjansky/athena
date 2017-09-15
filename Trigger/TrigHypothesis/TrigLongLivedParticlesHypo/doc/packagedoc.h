@@ -19,16 +19,6 @@ algorithm computes the number
 of tracks with a Pt > 1 GeV in a region etaxphi 0.2x0.2 
 around the jet direction. Moreover the jet has to be the non-standard value for Log(Ehad/Eem)>1.  
 
-@ref used_TrigLongLivedParticlesHypo
 
-@ref requirements_TrigLongLivedParticlesHypo
 
-*/
-
-/**
-@page used_TrigLongLivedParticlesHypo Used Packages
-*/
-
-/**
-@page requirements_TrigLongLivedParticlesHypo Requirements
 */

@@ -20,14 +20,11 @@
 #include "G4AtlasStackingAction.h"
 #include "G4AtlasTrackingAction.h"
 #include "G4AtlasSteppingAction.h"
-#include "G4AtlasInterfaces/IBeginRunActionTool.h"
-#include "G4AtlasInterfaces/IEndRunActionTool.h"
-#include "G4AtlasInterfaces/IBeginEventActionTool.h"
-#include "G4AtlasInterfaces/IEndEventActionTool.h"
-#include "G4AtlasInterfaces/IStackingActionTool.h"
-#include "G4AtlasInterfaces/IPreTrackingActionTool.h"
-#include "G4AtlasInterfaces/IPostTrackingActionTool.h"
-#include "G4AtlasInterfaces/ISteppingActionTool.h"
+#include "G4AtlasInterfaces/IG4RunActionTool.h"
+#include "G4AtlasInterfaces/IG4EventActionTool.h"
+#include "G4AtlasInterfaces/IG4StackingActionTool.h"
+#include "G4AtlasInterfaces/IG4TrackingActionTool.h"
+#include "G4AtlasInterfaces/IG4SteppingActionTool.h"
 
 #include "G4AtlasInterfaces/IUserActionSvc.h"
 #include "G4AtlasTools/ThreadActionHolder.h"
@@ -57,29 +54,23 @@ namespace G4UA
 
       /// Gaudi interface query
       virtual StatusCode queryInterface(const InterfaceID& riid,
-                                        void** ppvInterface);
+                                        void** ppvInterface) override;
 
     private:
 
       /// @name Handles to ATLAS action tools
       /// @{
 
-      /// Begin-run action tools
-      ToolHandleArray<IBeginRunActionTool> m_beginRunActionTools;
-      /// End-run action tools
-      ToolHandleArray<IEndRunActionTool> m_endRunActionTools;
-      /// Begin-event action tools
-      ToolHandleArray<IBeginEventActionTool> m_beginEventActionTools;
-      /// End-event action tools
-      ToolHandleArray<IEndEventActionTool> m_endEventActionTools;
+      /// Run action tools
+      ToolHandleArray<IG4RunActionTool> m_runActionTools;
+      /// Event action tools
+      ToolHandleArray<IG4EventActionTool> m_eventActionTools;
       /// Stacking action tools
-      ToolHandleArray<IStackingActionTool> m_stackingActionTools;
-      /// Pre-tracking action tools
-      ToolHandleArray<IPreTrackingActionTool> m_preTrackingActionTools;
-      /// Post-tracking action tools
-      ToolHandleArray<IPostTrackingActionTool> m_postTrackingActionTools;
+      ToolHandleArray<IG4StackingActionTool> m_stackingActionTools;
+      /// Tracking action tools
+      ToolHandleArray<IG4TrackingActionTool> m_trackingActionTools;
       /// Stepping action tools
-      ToolHandleArray<ISteppingActionTool> m_steppingActionTools;
+      ToolHandleArray<IG4SteppingActionTool> m_steppingActionTools;
 
       /// @}
 

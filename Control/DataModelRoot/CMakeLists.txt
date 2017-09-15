@@ -5,6 +5,10 @@
 # Declare the package name:
 atlas_subdir( DataModelRoot )
 
+atlas_depends_on_subdirs (
+  PUBLIC
+  Control/CxxUtils )
+
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 

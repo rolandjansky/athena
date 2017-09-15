@@ -12,7 +12,5 @@ This algorithm is devoted to track - PRD assocoation.
 
 This algorithm uses Trk::IPRD_AssociationTool
 
-@section InDetTrackPRD_Association_InDetTrackPRD_AssociationReq Requirements file
 
 */
-

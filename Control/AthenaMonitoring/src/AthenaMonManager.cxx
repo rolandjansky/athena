@@ -58,7 +58,11 @@ public:
         m_lumiBlockProp(0),
         m_nMonGroupCopies(0),
         m_nActiveLWHists(0),
-        m_doResourceMon(false) {}
+	m_forkedProcess(false),
+	m_lastPID(0),
+	m_doResourceMon(false)
+ {}
+  
     ~Imp()
     {
         std::map<IMonitorToolBase*,ToolBench*>::iterator it, itE;
@@ -100,6 +104,10 @@ public:
     unsigned m_nMonGroupCopies;
     long m_nActiveLWHists;
 
+    bool m_forkedProcess;
+    pid_t m_lastPID;
+
+
     //NB: The LW hist leak checker is now also looking for
     //inappropriate usage of MonGroup copy constructors (temporary
     //until we outlaw copy/assignment of MonGroups):
@@ -124,6 +132,7 @@ public:
     }
 
     bool m_doResourceMon;
+
     class ToolBench {
     public:
         ToolBench(IMonitorToolBase * t) :  m_theTool(t) {}
@@ -340,6 +349,12 @@ dataType()
     return Imp::s_dataType;
 }
 
+bool 
+AthenaMonManager::
+forkedProcess() {
+  return m_d->m_forkedProcess;
+}
+
 
 unsigned int
 AthenaMonManager::
@@ -524,6 +539,15 @@ StatusCode
 AthenaMonManager::
 execute()
 {
+    m_d->m_forkedProcess=false;
+    pid_t currPID=getpid();
+    //m_lastPID 0 means the execute method was not called yet. 
+    if (m_d->m_lastPID!=0 && m_d->m_lastPID!=currPID) {
+      m_d->m_forkedProcess=true;
+      ATH_MSG_INFO("Forked event discovered!");
+    }
+    m_d->m_lastPID=currPID;
+
     Imp::LWHistLeakChecker lc(m_d);
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "AthenaMonManager::execute():" << endmsg;
 

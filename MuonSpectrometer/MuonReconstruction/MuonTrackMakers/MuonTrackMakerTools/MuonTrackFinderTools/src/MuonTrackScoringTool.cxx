@@ -37,8 +37,8 @@ namespace Muon {
     m_summaryTypeScore[Trk::numberOfPixelSharedHits]  = -10;  // a shared hit is only half the weight
     m_summaryTypeScore[Trk::numberOfPixelHoles]	      = -10;  // a hole is bad
 
-    m_summaryTypeScore[Trk::numberOfBLayerHits]	      =  10;  // addition for being b-layer
-    m_summaryTypeScore[Trk::numberOfBLayerSharedHits] =  -5;  // a shared hit is only half the weight
+    m_summaryTypeScore[Trk::numberOfInnermostPixelLayerHits]	      =  10;  // addition for being b-layer
+    m_summaryTypeScore[Trk::numberOfInnermostPixelLayerSharedHits] =  -5;  // a shared hit is only half the weight
 
     m_summaryTypeScore[Trk::numberOfGangedPixels]     =  -5;  // decrease for being ganged
 

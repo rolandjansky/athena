@@ -38,8 +38,4 @@ the provided histogram classes. The applications are <b>lwhists_benchmark.exe</b
 
 @author Thomas.Kittelmann@cern.ch
 
-@section LWHists_used_packagesLWHists Used Packages
-
-@section LWHists_requirements Requirements
-
 */

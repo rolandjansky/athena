@@ -103,10 +103,6 @@ StatusCode TgcDigitizationTool::initialize()
 
   IRDBAccessSvc* rdbAccess = nullptr;
   CHECK( service("RDBAccessSvc",rdbAccess) );
-  if(!rdbAccess->connect()) {
-    ATH_MSG_ERROR("Unable to connect to the Geometry DB");
-    return StatusCode::FAILURE;
-  }
 
   IRDBRecordset_ptr atlasCommonRec = rdbAccess->getRecordsetPtr("AtlasCommon",atlasVersion,"ATLAS");
   unsigned int runperiod = 1;
@@ -425,7 +421,7 @@ StatusCode TgcDigitizationTool::digitizeCore() {
 	    ATH_MSG_DEBUG("New TgcHitCollection with key=" << coll_hash << " recorded in StoreGate."); 
 	  }
 	} else {
-	  digitCollection = const_cast<TgcDigitCollection*>(it_coll->cptr());
+	  digitCollection = const_cast<TgcDigitCollection*>(*it_coll);
 
 	  // to avoid to store digits with identical id
 	  TgcDigitCollection::const_iterator it_tgcDigit;

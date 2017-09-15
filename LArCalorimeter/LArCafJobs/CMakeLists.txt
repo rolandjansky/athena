@@ -15,8 +15,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloDetDescr
                           Calorimeter/CaloInterface
                           DetectorDescription/Identifier
-                          External/AtlasCLHEP
-                          External/AtlasHepMC
                           GaudiKernel
                           LArCalorimeter/LArIdentifier
                           LArCalorimeter/LArRawConditions

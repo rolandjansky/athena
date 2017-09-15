@@ -20,7 +20,6 @@ track prediction and calibrates its error estimate.
 More general information on RIO_OnTrackCreation and instructions
 how to use these tools can be found under Trk::RIO_OnTrackCreator.
 
-@section MdtDriftCircleOnTrackCreator_MdtDriftCircleOnTrackCreatorDocReq The requirements file
 
 @section MdtDriftCircleOnTrackCreator_MdtDriftCircleOnTrackCreatorDocMgr Package Managers
 The Muon::MdtDriftCircleOnTrackCreator package is currently maintained by Niels van Eldik

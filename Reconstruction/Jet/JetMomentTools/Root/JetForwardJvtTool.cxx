@@ -45,6 +45,10 @@
     declareProperty("JetScaleFactor",          m_jetScaleFactor         = 0.4              );
     //declareProperty("FJVTThreshold",          m_fjvtThresh         = 15e3              );//15GeV->92%,11GeV->85%
     declareProperty("UseTightOP",          m_tightOP         = false              );//Tight or Loose
+
+    declareProperty("VertexContainer", m_vertexContainer_key="PrimaryVertices");
+    declareProperty("Met_Track", m_trkMET_key="Met_Track");
+
   }
 
   // Destructor
@@ -56,11 +60,16 @@
   ////////////////////////////
   StatusCode JetForwardJvtTool::initialize()
   {
+    ATH_MSG_DEBUG("initializing version with data handles");
     ATH_MSG_INFO ("Initializing " << name() << "...");
     if (m_tightOP) m_fjvtThresh = 0.4;
     else m_fjvtThresh = 0.5;
     if (m_orLabel!="")  Dec_OR = new SG::AuxElement::Decorator<char>(m_orLabel);
     Dec_out = new SG::AuxElement::Decorator<char>(m_outLabel);
+
+    ATH_CHECK(m_vertexContainer_key.initialize());
+    ATH_CHECK(m_trkMET_key.initialize());
+
     return StatusCode::SUCCESS;
   }
 
@@ -97,20 +106,31 @@
 
   void JetForwardJvtTool::calculateVertexMomenta(const xAOD::JetContainer *jets) const {
     m_pileupMomenta.clear();
-    const xAOD::MissingETContainer* trkMet  = nullptr;
-    if( evtStore()->retrieve(trkMet, "MET_Track").isFailure()) {
-      ATH_MSG_WARNING("Unable to retrieve MET_Track container");
+
+    auto trkMETContainer = SG::makeHandle (m_trkMET_key);
+    if (!trkMETContainer.isValid()){
+      ATH_MSG_WARNING("Invalid  xAOD::MissingETContainer datahandle");
+      return;
     }
-    const xAOD::VertexContainer *vxCont = 0;
-    if( evtStore()->retrieve(vxCont, "PrimaryVertices").isFailure() ) {
-      ATH_MSG_WARNING("Unable to retrieve primary vertex container");
+    auto trkMet = trkMETContainer.cptr();
+
+    auto vertexContainer = SG::makeHandle (m_vertexContainer_key);
+    if (!vertexContainer.isValid()){
+      ATH_MSG_WARNING("Invalid  xAOD::VertexContainer datahandle");
+      return;
     }
+    auto vxCont = vertexContainer.cptr();
+
     for(const auto& vx : *vxCont) {
       if(vx->vertexType()!=xAOD::VxType::PriVtx && vx->vertexType()!=xAOD::VxType::PileUp) continue;
       TString vname = "PVTrack_vx";
       vname += vx->index();
-      m_pileupMomenta.push_back((vx->index()==m_pvind?0:-(1./m_jetScaleFactor))*TVector2(0.5*(*trkMet)[vname.Data()]->mpx(),0.5*(*trkMet)[vname.Data()]->mpy()));
+      m_pileupMomenta.push_back(\
+                                (vx->index()==m_pvind ? \
+                                 0:\
+                                 -(1./m_jetScaleFactor))*TVector2(0.5*(*trkMet)[vname.Data()]->mpx(),0.5*(*trkMet)[vname.Data()]->mpy()));
     }
+
     for (const auto& jet : *jets) {
       if (!centralJet(jet)) continue;
       int jetvert = getJetVertex(jet);
@@ -179,11 +199,16 @@
   }
 
   void JetForwardJvtTool::getPV() const {
-    const xAOD::VertexContainer *vxCont = 0;
+
+    auto vertexContainer = SG::makeHandle (m_vertexContainer_key);
+    if (!vertexContainer.isValid()){
+      ATH_MSG_WARNING("Invalid  xAOD::VertexContainer datahandle");
+      return;
+    }
+    auto vxCont = vertexContainer.cptr();
+
     m_pvind = 0;
-    if( evtStore()->retrieve(vxCont, "PrimaryVertices").isFailure() ) {
-      ATH_MSG_WARNING("Unable to retrieve primary vertex container");
-    } else if(vxCont->empty()) {
+    if(vxCont->empty()) {
       ATH_MSG_WARNING("Event has no primary vertices!");
     } else {
       ATH_MSG_DEBUG("Successfully retrieved primary vertex container");

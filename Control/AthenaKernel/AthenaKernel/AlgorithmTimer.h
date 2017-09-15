@@ -45,7 +45,6 @@ namespace Athena {
   
   namespace AlgorithmTimerHandler
   {
-    void onAlarmSignal(int sig, siginfo_t *info, void* extra);
     void onAlarmThread(sigval_t sv);
   }
 
@@ -90,7 +89,6 @@ namespace Athena {
    */  
   class AlgorithmTimer
   {
-    friend void AlgorithmTimerHandler::onAlarmSignal(int sig, siginfo_t *info, void* extra);
     friend void AlgorithmTimerHandler::onAlarmThread(sigval_t sv);
   
   public:
@@ -102,7 +100,7 @@ namespace Athena {
       {
         DEFAULT          = 0x0,    ///< default
         USEREALTIME      = 0x1,    ///< use real time instead of system time
-        DELIVERYBYTHREAD = 0x2     ///< deliver timeout by thread instead of signal
+        DELIVERYBYTHREAD = 0x2     ///< deprecated; delivery is always by thread.
       };
   
     typedef boost::function<void()> callbackFct_t;
@@ -167,15 +165,8 @@ namespace Athena {
     timer_t          m_timerid;         ///< timer ID
     callbackFct_t    m_onAlarm;         ///< user callback 
   
-    bool installSignalHandler();        ///< Install signal handler
-    bool uninstallSignalHandler();      ///< Uninstall signal handler
   
   private:
-    enum {SIGNO = SIGUSR1};                     ///< Use this signal number
-    static struct sigaction s_oldSigHandler;    ///< Old signal handler for SIGNO
-    static std::list<AlgorithmTimer*> s_registry;    ///< List of all AlgorithmTimer instances
-    static bool s_handlerInstalled;             ///< Signal handler installed?
-  
     // Dummies
     AlgorithmTimer();                                 ///< no default constructor
     AlgorithmTimer(const AlgorithmTimer&);            ///< no copying allowed

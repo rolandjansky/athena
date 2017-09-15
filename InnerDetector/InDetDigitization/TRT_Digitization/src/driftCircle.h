@@ -10,6 +10,16 @@
 // For basic tuning and development tests.
 // 13/10/2012 Andrew.Beddall@cern.ch
 
+void bits32(unsigned int n) {
+  for (unsigned int k=0; k<32; k++) {
+    unsigned int i = n & 0x80000000u;
+    bool b = (i==0x80000000u);
+    std::cout << b;
+    n=n<<1;
+  }
+  std::cout << std::endl;
+}
+
 void bits27(unsigned int n) {
   for (unsigned int k=0; k<32; k++) {
     if (k>4) {

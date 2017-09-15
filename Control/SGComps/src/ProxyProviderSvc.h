@@ -54,18 +54,14 @@ public:
   ///IProxyProvider interface
   //@{
   ///add proxies to the store to modify (before Begin Event)
-  virtual StatusCode preLoadProxies(IProxyRegistry& storeToModify);
+  virtual StatusCode preLoadProxies(IProxyRegistry& storeToModify) override;
 
   ///add proxies to the store to modify (during Begin Event)
-  virtual StatusCode loadProxies(IProxyRegistry& storeToModify);
+  virtual StatusCode loadProxies(IProxyRegistry& storeToModify) override;
 
   ///get the default proxy. Optionally add proxies to the store to modify
   virtual SG::DataProxy* retrieveProxy(const CLID& id, const std::string& key,
-				       IProxyRegistry& storeToModify);
-
-  /// update a transient Address
-  virtual StatusCode updateAddress(StoreID::type storeID,
-				   SG::TransientAddress* tad);
+				       IProxyRegistry& storeToModify) override;
 
  ///create a list of transient Addresses:
   StatusCode addAddresses(IProxyRegistry& dataStore,
@@ -80,12 +76,12 @@ public:
 
   ///IAddressProvider manager functionality
   ///add a provider to the set of known ones. PROVIDER IS OWNED BY THE CLIENT
-  virtual void addProvider(IAddressProvider* aProvider);
+  virtual void addProvider(IAddressProvider* aProvider) override;
 
   /// Service boilerplate
   //@{
-  virtual StatusCode initialize();
-  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
+  virtual StatusCode initialize() override;
+  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface ) override;
   //@}
 
 protected:    
@@ -96,6 +92,16 @@ protected:
   virtual ~ProxyProviderSvc();
 
 private:
+  /**
+   * @brief Retrieve the EventContext saved in store DS.
+   * @param ds The store from which to retrieve the context.
+   *
+   * If there is no context recorded in the store, return a default-initialized
+   * context.
+   */
+   const EventContext& contextFromStore (IProxyRegistry& ds) const;
+
+
   /**
    * @brief Add lists of TADs to the store.
    * @param store Store to which to add.

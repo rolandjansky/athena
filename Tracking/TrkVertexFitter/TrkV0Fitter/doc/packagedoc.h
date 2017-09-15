@@ -17,7 +17,6 @@ correlations is calculated and returned via Trk::ExtendedVxCandidate
 
 @section TrkV0Fitter_designTrkV0Fitter Design
 
-@section TrkV0Fitter_requirementsTrkV0Fitter Requirements
 
 
 */

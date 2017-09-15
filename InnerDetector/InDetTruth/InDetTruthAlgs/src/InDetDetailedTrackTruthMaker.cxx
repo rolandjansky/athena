@@ -6,10 +6,6 @@
 // A. Gaponenko, 2006
 
 #include "InDetTruthAlgs/InDetDetailedTrackTruthMaker.h"
-#include "TrkTruthData/DetailedTrackTruthCollection.h"
-#include "TrkTrack/TrackCollection.h"
-
-#include "StoreGate/ReadHandle.h"
 
 #include <iterator>
 
@@ -17,14 +13,19 @@ namespace InDet {
 
 //================================================================
 InDetDetailedTrackTruthMaker::InDetDetailedTrackTruthMaker(const std::string &name, ISvcLocator *pSvcLocator) :
-  AthAlgorithm(name,pSvcLocator),
+  AthReentrantAlgorithm(name,pSvcLocator),
+  m_PRDTruthNamePixel("PRD_MultiTruthPixel"),
+  m_PRDTruthNameSCT("PRD_MultiTruthSCT"),
+  m_PRDTruthNameTRT("PRD_MultiTruthTRT"),
+  m_trackCollectionName("Tracks"),
+  m_detailedTrackTruthName("DetailedTrackTruth"),
   m_truthTool("Trk::DetailedTrackTruthBuilder")
-{  
-  declareProperty("TruthNamePixel",          m_PRDTruthNamePixel      = "PRD_MultiTruthPixel");
-  declareProperty("TruthNameSCT",            m_PRDTruthNameSCT        = std::string("PRD_MultiTruthSCT"));
-  declareProperty("TruthNameTRT",            m_PRDTruthNameTRT        = "PRD_MultiTruthTRT");
-  declareProperty("TrackCollectionName",     m_trackCollectionName    = "Tracks");
-  declareProperty("DetailedTrackTruthName",  m_detailedTrackTruthName = "DetailedTrackTruth");
+{
+  declareProperty("TruthNamePixel",          m_PRDTruthNamePixel);
+  declareProperty("TruthNameSCT",            m_PRDTruthNameSCT);
+  declareProperty("TruthNameTRT",            m_PRDTruthNameTRT);
+  declareProperty("TrackCollectionName",     m_trackCollectionName);
+  declareProperty("DetailedTrackTruthName",  m_detailedTrackTruthName);
   declareProperty("TruthTool",               m_truthTool);
 }
 
@@ -33,99 +34,102 @@ InDetDetailedTrackTruthMaker::InDetDetailedTrackTruthMaker(const std::string &na
 StatusCode InDetDetailedTrackTruthMaker::initialize()
 {
   ATH_MSG_DEBUG ("InDetDetailedTrackTruthMaker::initialize()");
-  
+
   //----------------
   if ( m_truthTool.retrieve().isFailure() ) {
     ATH_MSG_FATAL ("Failed to retrieve tool " << m_truthTool);
     return StatusCode::FAILURE;
   } else {
-    ATH_MSG_INFO ("Retrieved tool " << m_truthTool);
+    ATH_MSG_DEBUG ("Retrieved tool " << m_truthTool);
   }
 
   // Read Handle Key
+  ATH_CHECK(m_trackCollectionName.initialize());
+
+  ATH_CHECK(m_PRDTruthNamePixel.initialize(not m_PRDTruthNamePixel.key().empty()));
   ATH_CHECK(m_PRDTruthNameSCT.initialize(not m_PRDTruthNameSCT.key().empty()));
+  ATH_CHECK(m_PRDTruthNameTRT.initialize(not m_PRDTruthNameTRT.key().empty()));
+
+  ATH_CHECK(m_detailedTrackTruthName.initialize());
 
   //----------------
   return StatusCode::SUCCESS;
 }
 
 // -----------------------------------------------------------------------------------------------------
-StatusCode InDetDetailedTrackTruthMaker::finalize() 
+StatusCode InDetDetailedTrackTruthMaker::finalize()
 {
   ATH_MSG_DEBUG ("InDetDetailedTrackTruthMaker finalized");
   return StatusCode::SUCCESS;
 }
 
 // -----------------------------------------------------------------------------------------------------
-StatusCode InDetDetailedTrackTruthMaker::execute()
+StatusCode InDetDetailedTrackTruthMaker::execute_r(const EventContext &ctx) const
 {
-  ATH_MSG_DEBUG ("InDetDetailedTrackTruthMaker::execute()");
-
-  StatusCode sc;
+  ATH_MSG_DEBUG ("InDetDetailedTrackTruthMaker::execute_r(...)");
 
   //----------------------------------------------------------------
   // Retrieve track collection
-  const TrackCollection *tracks = 0;
-  sc = evtStore()->retrieve(tracks, m_trackCollectionName);
-  if (sc.isFailure()){
-    ATH_MSG_ERROR ("TrackCollection "<<m_trackCollectionName<<" NOT found");
-    return sc;
+  SG::ReadHandle<TrackCollection> tracks(m_trackCollectionName,ctx);
+  if (!tracks.isValid()) {
+    ATH_MSG_ERROR ("TrackCollection "<<m_trackCollectionName.key()<<" NOT found");
+    return StatusCode::FAILURE;
   } else {
-    ATH_MSG_DEBUG ("Got TrackCollection "<<m_trackCollectionName);
+    ATH_MSG_DEBUG ("Got TrackCollection "<<m_trackCollectionName.key());
   }
 
   //----------------------------------------------------------------
   // Retrieve prep raw data truth
-  std::vector<const PRD_MultiTruthCollection*> prdCollectionVector(3);
+  std::vector<SG::ReadHandle<PRD_MultiTruthCollection> > read_handle;
+  read_handle.reserve(3);
 
-  if(!m_PRDTruthNamePixel.empty()) {
-    sc = evtStore()->retrieve(prdCollectionVector[0], m_PRDTruthNamePixel);
-    if (sc.isFailure()){
-      ATH_MSG_WARNING ("Pixel PRD_MultiTruthCollection "<<m_PRDTruthNamePixel<<" NOT found");
-    } else {
-      ATH_MSG_DEBUG ("Got Pixel PRD_MultiTruthCollection "<<m_PRDTruthNamePixel);
+  std::vector<const PRD_MultiTruthCollection*> prdCollectionVector;
+  prdCollectionVector.reserve(3);
+
+  if(!m_PRDTruthNamePixel.key().empty()) {
+    read_handle.push_back( SG::ReadHandle<PRD_MultiTruthCollection>(m_PRDTruthNamePixel,ctx) );
+    if (!read_handle.back().isValid())  {
+      ATH_MSG_WARNING ("Pixel PRD_MultiTruthCollection "<<m_PRDTruthNamePixel.key()<<" NOT found");
+    }
+    else {
+      ATH_MSG_DEBUG ("Got Pixel PRD_MultiTruthCollection "<<m_PRDTruthNamePixel.key());
+      prdCollectionVector.push_back( &(*read_handle.back()) );
     }
   }
 
   if(!m_PRDTruthNameSCT.key().empty()) {
-    SG::ReadHandle<PRD_MultiTruthCollection> prdCollection(m_PRDTruthNameSCT);
-    if (not prdCollection.isValid()){
+    read_handle.push_back( SG::ReadHandle<PRD_MultiTruthCollection>(m_PRDTruthNameSCT,ctx) );
+    if (!read_handle.back().isValid())  {
       ATH_MSG_WARNING ("SCT PRD_MultiTruthCollection "<<m_PRDTruthNameSCT.key()<<" NOT found");
     } else {
       ATH_MSG_DEBUG ("Got SCT PRD_MultiTruthCollection "<<m_PRDTruthNameSCT.key());
+      prdCollectionVector.push_back( &(*read_handle.back()) );
     }
-    prdCollectionVector[1] = prdCollection.cptr();
   }
 
-  if(!m_PRDTruthNameTRT.empty()) {
-    sc = evtStore()->retrieve(prdCollectionVector[2], m_PRDTruthNameTRT);
-    if (sc.isFailure()){
-      ATH_MSG_WARNING ("TRT PRD_MultiTruthCollection "<<m_PRDTruthNameTRT<<" NOT found");
+  if(!m_PRDTruthNameTRT.key().empty()) {
+    read_handle.push_back( SG::ReadHandle<PRD_MultiTruthCollection>(m_PRDTruthNameTRT,ctx) );
+    if (!read_handle.back().isValid())  {
+      ATH_MSG_WARNING ("TRT PRD_MultiTruthCollection "<<m_PRDTruthNameTRT.key()<<" NOT found");
     } else {
-      ATH_MSG_DEBUG ("Got TRT PRD_MultiTruthCollection "<<m_PRDTruthNameTRT);
+      ATH_MSG_DEBUG ("Got TRT PRD_MultiTruthCollection "<<m_PRDTruthNameTRT.key());
+      prdCollectionVector.push_back( &(*read_handle.back()) );
     }
   }
 
   //----------------------------------------------------------------
   // Produce and store the output.
-
-  DetailedTrackTruthCollection *dttc = new DetailedTrackTruthCollection(tracks);
-  m_truthTool->buildDetailedTrackTruth(dttc, *tracks, prdCollectionVector);
-
-  sc=evtStore()->record(dttc, m_detailedTrackTruthName, false);
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR ("DetailedTrackTruthCollection '" << m_detailedTrackTruthName << "' could not be registered in StoreGate !");
+  SG::WriteHandle<DetailedTrackTruthCollection> dttc(m_detailedTrackTruthName,ctx);
+  if (dttc.record(std::make_unique<DetailedTrackTruthCollection>(&(*tracks))).isFailure()) {
+    ATH_MSG_ERROR ("DetailedTrackTruthCollection '" << m_detailedTrackTruthName.key() << "' could not be recorded !");
     return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_DEBUG ("DetailedTrackTruthCollection '" << m_detailedTrackTruthName	<< "' is registered in StoreGate, size="<<dttc->size());
   }
-  
-  return StatusCode::SUCCESS;
+  else {
+    ATH_MSG_DEBUG ("DetailedTrackTruthCollection '" << m_detailedTrackTruthName.key()	<< "' is registered in StoreGate, size="<<dttc->size());
+    m_truthTool->buildDetailedTrackTruth(&(*dttc), *tracks, prdCollectionVector);
+    return StatusCode::SUCCESS;
+  }
+
 }
 
-//================================================================
 } // namespace InDet
-
-
-//================================================================
-//EOF

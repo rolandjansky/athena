@@ -20,4 +20,6 @@
    <function name="Athena::DsoUtils::inDso" />
    <function name="Athena::PackageInfo" />
 
+   <class name="SG::BaseInfoBase" />
+
 </lcgdict>

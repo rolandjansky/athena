@@ -23,9 +23,17 @@ PrepRawDataContainer< CollectionT>::PrepRawDataContainer(unsigned int max) :
 template< class CollectionT>
 // Constructor with parameters:
 PrepRawDataContainer< CollectionT>::PrepRawDataContainer() :
-	IdentifiableContainer<CollectionT>()
+	IdentifiableContainer<CollectionT>(0)
 {
 }
+
+template< class CollectionT>
+// Constructor with parameters:
+PrepRawDataContainer< CollectionT>::PrepRawDataContainer(EventContainers::IdentifiableCache<CollectionT>* cache) :
+	IdentifiableContainer<CollectionT>(cache)
+{
+}
+
 
 template< class CollectionT>
 // Destructor:

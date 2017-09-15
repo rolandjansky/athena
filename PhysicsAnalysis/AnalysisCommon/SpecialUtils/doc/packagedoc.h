@@ -20,8 +20,6 @@ the collinear approximation to solve for the neutrinos in the decay X --> a + b 
 carry (1-x_a) of that tau's momentum. Both of these 2 utilities return a container of Neutrino Objects. There is 
 a class for the neutrino, Netrino.h, in the package PhyscisAnalysis/AnalysisCommon/ParticleEvent. 
 
-@section SpecialUtils_used_packagesSpecialUtils Used packages
 
-@section SpecialUtils_requirementsSpecialUtils Requirements
 
 */

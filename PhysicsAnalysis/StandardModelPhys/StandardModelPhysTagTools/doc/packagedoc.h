@@ -15,10 +15,6 @@ StandardModelPhysTagTools contains the following tools:
 
 - for questions and comments: ketevi@bnl.gov
 
-@section StandardModelPhysTagTools_used_packagesStandardModelPhysTagTools Used packages
 
-@section StandardModelPhysTagTools_requirementsStandardModelPhysTagTools Requirements
 
 */
-
-

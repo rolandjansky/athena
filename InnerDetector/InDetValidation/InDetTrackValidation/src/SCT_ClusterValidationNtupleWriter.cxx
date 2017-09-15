@@ -624,11 +624,11 @@ StatusCode InDet::SCT_ClusterValidationNtupleWriter::execute() {
        * At the moment there are 15 different types of BS error.
        */
       for (int type=0; type < SCT_ByteStreamErrors::NUM_ERROR_TYPES; ++type) { 
-	std::set<IdentifierHash>* errorSet = m_byteStreamErrSvc->getErrorSet(type);
+	const std::set<IdentifierHash>* errorSet = m_byteStreamErrSvc->getErrorSet(type);
 	if (errorSet != 0) {
 	  int eta=0,phi=0,bec=0,layer=0,side=0;
-	  std::set<IdentifierHash>::iterator it = errorSet->begin();
-	  std::set<IdentifierHash>::iterator itEnd = errorSet->end();
+	  std::set<IdentifierHash>::const_iterator it = errorSet->begin();
+	  std::set<IdentifierHash>::const_iterator itEnd = errorSet->end();
 	  m_totalNumErrors += errorSet->size();
 	  for (; it != itEnd; ++it) {
 	    Identifier itId = m_sctid->wafer_id(*it);

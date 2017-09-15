@@ -24,8 +24,6 @@ It can operate in RoI driven or full-scan mode (m_doFullScan). In the
 latter RegionSelector is used to obtain list of SCT and Pixel detector
 elements.
 
-@section SiTrigSPSeededTrackFinder_used_packagesSiTrigSPSeededTrackFinder Used packages
 
-@section SiTrigSPSeededTrackFinder_SiTrigSPSeededTrackFinderReq Requirements file
 
 */

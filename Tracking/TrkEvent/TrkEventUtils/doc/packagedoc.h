@@ -19,8 +19,4 @@ Please send any comments to
 @author Andreas.Salzburger@cern.ch
 @author Edward.Moyse@cern.ch
 
-@section TrkEventUtils_used_packages Used Packages
-
-@section TrkEventUtils_requirements Requirements
-
 */

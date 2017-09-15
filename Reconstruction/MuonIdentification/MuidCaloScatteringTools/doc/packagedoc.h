@@ -18,15 +18,4 @@ MuidCaloScattering : Allocates 2 scattering centers onto the track to represent 
 
 MuidCaloMaterialParam : Contains a model/parametrization of the calorimeter material. This parametrization represents the Coulomb scattering between the InDet and MuonSpectrometer entrance. The parametrized positions and thicknesses (CaloLayers) are stored as a function of eta assuming any track will 'see' 2 scattering centres, taken from an inner and an outer layer.
 
- - @ref UsedMuidCaloScatteringTools
- - @ref RequirementsMuidCaloScatteringTools
 */
-
-/**
-@page UsedMuidCaloScatteringTools Used Packages
-*/
-
-/**
-@page RequirementsMuidCaloScatteringTools Requirements
-*/
-

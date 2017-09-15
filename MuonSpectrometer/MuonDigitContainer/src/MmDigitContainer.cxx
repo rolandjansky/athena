@@ -23,11 +23,6 @@ using std::endl;
 
 // Default constructor.
 
-MmDigitContainer::MmDigitContainer()
-  : IdentifiableContainer<MmDigitCollection>()
-{
-}
-
 
 MmDigitContainer::MmDigitContainer(unsigned int hash_max)
   : IdentifiableContainer<MmDigitCollection>(hash_max) 

@@ -21,7 +21,6 @@ theApp.EventLoop = "PileUpEventLoopMgr"
 
  - Simulation/Digitization/test/TestPileUp.xml
 
-@section PileUpComps_reqs CMT requirements file
 
 
 @section PileUpComps_refs More Documentation

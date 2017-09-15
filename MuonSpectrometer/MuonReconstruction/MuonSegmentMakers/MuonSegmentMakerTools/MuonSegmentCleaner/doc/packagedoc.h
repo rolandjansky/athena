@@ -17,16 +17,6 @@ This package contains tools that clean segments, e.g. outliers, delta electrons,
   - MuonPhiHitSelector: cleans Phi segments from outliers, build rio's, competing rio's (ambiguous hits) and perform clusterization
   - MuonSegmentAmbiCleaner: solves TGC and RPC ambiguities, extrapolating MDT segments
 
-@ref used_MuonSegmentCleaner
 
-@ref requirements_MuonSegmentCleaner
 
-*/
-
-/**
-@page used_MuonSegmentCleaner Used Packages
-*/
-
-/**
-@page requirements_MuonSegmentCleaner Requirements
 */

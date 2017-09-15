@@ -69,15 +69,15 @@ public:
 
   /// Gaudi Service Implementation
   //@{
-  StatusCode initialize();
-  StatusCode stop();
-  StatusCode finalize();
-  StatusCode queryInterface( const InterfaceID& riid, void** ppvi );
+  virtual StatusCode initialize() override;
+  virtual StatusCode stop() override;
+  virtual StatusCode finalize() override;
+  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvi ) override;
   //@}
 
 
   /// Incident service handle listening for BeginFile and EndFile.
-  void handle(const Incident& incident);
+  virtual void handle(const Incident& incident) override;
 
   ///////////////////////////////////////////////////////////////////
   // Non-const methods:

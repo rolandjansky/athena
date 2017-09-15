@@ -29,6 +29,7 @@
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetPrepRawData/SiClusterContainer.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
+#include "StoreGate/ReadHandle.h"
 
 ///////////////////////////////////////////////////////////////////
 // Constructor
@@ -44,8 +45,8 @@ InDet::SiCombinatorialTrackFinder_xk::SiCombinatorialTrackFinder_xk
     m_updatortool("Trk::KalmanUpdator_xk/InDetPatternUpdator"  ),
     m_riocreator ("Trk::RIO_OnTrackCreator/RIO_OnTrackCreator" ),
     m_assoTool   ("InDet::InDetPRD_AssociationToolGangedPixels"),
-    m_pixcontainer ("PixelClusters"),
-    m_sctcontainer ("SCT_Clusters")
+    m_pixcontainerkey ("PixelClusters"),
+    m_sctcontainerkey ("SCT_Clusters")
 {
   m_usePIX      = true               ;
   m_useSCT      = true               ;
@@ -68,8 +69,8 @@ InDet::SiCombinatorialTrackFinder_xk::SiCombinatorialTrackFinder_xk
   declareProperty("UpdatorTool"          ,m_updatortool        );
   declareProperty("RIOonTrackTool"       ,m_riocreator         );
   declareProperty("MagneticFieldMode"    ,m_fieldmode          );
-  declareProperty("PixelClusterContainer",m_pixcontainer       );
-  declareProperty("SCT_ClusterContainer" ,m_sctcontainer       ); 
+  declareProperty("PixelClusterContainer",m_pixcontainerkey    );
+  declareProperty("SCT_ClusterContainer" ,m_sctcontainerkey    ); 
   declareProperty("AssosiationTool"      ,m_assoTool           );
   declareProperty("usePixel"             ,m_usePIX             );
   declareProperty("useSCT"               ,m_useSCT             );
@@ -256,10 +257,10 @@ MsgStream& InDet::SiCombinatorialTrackFinder_xk::dumpconditions( MsgStream& out 
   std::string s5; for(int i=0; i<n; ++i) s5.append(" "); s5.append("|");
 
 
-  n     = 62-m_pixcontainer.name().size();
+  n     = 62-m_pixcontainerkey.key().size();
   std::string s7; for(int i=0; i<n; ++i) s7.append(" "); s7.append("|");
 
-  n     = 62-m_sctcontainer.name().size();
+  n     = 62-m_sctcontainerkey.key().size();
   std::string s8; for(int i=0; i<n; ++i) s8.append(" "); s8.append("|");
 
   n     = 62-m_assoTool.type().size();
@@ -269,10 +270,10 @@ MsgStream& InDet::SiCombinatorialTrackFinder_xk::dumpconditions( MsgStream& out 
      <<"-------------------|"
        <<std::endl;
   if(m_usePIX) {
-    out<<"| Pixel clusters location | "<<m_pixcontainer.name()      <<s7<<std::endl;
+    out<<"| Pixel clusters location | "<<m_pixcontainerkey.key()      <<s7<<std::endl;
   }
   if(m_useSCT) {
-    out<<"| SCT   clusters location | "<<m_sctcontainer.name()      <<s8<<std::endl;
+    out<<"| SCT   clusters location | "<<m_sctcontainerkey.key()      <<s8<<std::endl;
   }
   out<<"| Tool for propagation    | "<<m_proptool   .type()<<s1<<std::endl;
   out<<"| Tool for updator        | "<<m_updatortool.type()<<s4<<std::endl;
@@ -363,27 +364,9 @@ std::ostream& InDet::operator <<
 
 void InDet::SiCombinatorialTrackFinder_xk::newEvent()
 {
-//  m_pix          = false;
-//  m_sct          = false;
-//  m_pixcontainer = 0    ;
-//  m_sctcontainer = 0    ; 
 
-//  // Test is sct clusters collection for given event
-//  //
-//  if(m_usePIX) {
-//    StatusCode sc = evtStore()->retrieve(m_pixcontainer,m_pixelname);
-//    if(!sc.isFailure() && m_pixcontainer) m_pix = true;
-//  }
-//  // Test is sct clusters collection for given event
-//  //
-//  if(m_useSCT) {
-//    StatusCode  sc = evtStore()->retrieve(m_sctcontainer,m_sctname);
-//    if(!sc.isFailure() && m_sctcontainer) m_sct = true;
-//  }
-
-//Adam - Migration to ReadHandle
-  m_pix = m_usePIX && m_pixcontainer.isValid();
-  m_sct = m_useSCT && m_sctcontainer.isValid();
+  m_pix = m_usePIX && m_pixcontainerkey.initialize().isSuccess();
+  m_sct = m_useSCT && m_sctcontainerkey.initialize().isSuccess();
 
 
   // Erase statistic information
@@ -452,7 +435,9 @@ const std::list<Trk::Track*>&  InDet::SiCombinatorialTrackFinder_xk::getTracks
   m_tracks.erase(m_tracks.begin(),m_tracks.end());
 
   ++m_inputseeds;
-  if(!m_pix && !m_sct) return m_tracks;
+  if(!m_pix && !m_sct) {
+    return m_tracks;
+  }
 
   // Get track qulaity cuts information
   //
@@ -495,7 +480,9 @@ const std::list<Trk::Track*>&  InDet::SiCombinatorialTrackFinder_xk::getTracks
   m_tracks.erase(m_tracks.begin(),m_tracks.end());
 
   ++m_inputseeds;
-  if(!m_pix && !m_sct) return m_tracks;
+  if(!m_pix && !m_sct) {
+    return m_tracks;
+  }
 
   if(!findTrack(Tp,Sp,Gp,DE,PT)     ) return m_tracks;
   if(!m_trajectory.isNewTrack(PT)) return m_tracks;
@@ -543,7 +530,9 @@ const std::list<Trk::Track*>&  InDet::SiCombinatorialTrackFinder_xk::getTracksWi
   m_tracks.erase(m_tracks.begin(),m_tracks.end());
 
   ++m_inputseeds;
-  if(!m_pix && !m_sct) return m_tracks;
+  if(!m_pix && !m_sct) {
+    return m_tracks;
+  }
 
   bool  Q = findTrack(Tp,Sp,Gp,DE,PT); 
   if(Q) Q = m_trajectory.isNewTrack(PT); 
@@ -612,33 +601,40 @@ bool InDet::SiCombinatorialTrackFinder_xk::findTrack
   std::list<const InDet::SiDetElementBoundaryLink_xk*> DEL; 
   detectorElementLinks(DE,DEL);
 
+  SG::ReadHandle<InDet::SiClusterContainer> pixcontainer(m_pixcontainerkey);
+  ATH_CHECK(pixcontainer.isValid());
+  SG::ReadHandle<InDet::SiClusterContainer> sctcontainer(m_sctcontainerkey);
+  ATH_CHECK(sctcontainer.isValid());
+
   // List cluster preparation
   //
   std::list<const InDet::SiCluster*> Cl; 
   bool TWO     = false;
 
   if     (Sp.size() > 1) {
-    if(!spacePointsToClusters(Sp,Cl)) return false;
+    if(!spacePointsToClusters(Sp,Cl)) {
+      return false;
+    }
     if(Sp.size()<=2) TWO = true;
   }
   else if(Gp.size() > 2) {
-    if(!m_trajectory.globalPositionsToClusters(m_pixcontainer.ptr(),m_sctcontainer.ptr(),Gp,DEL,PT,Cl)) return false;
+    if(!m_trajectory.globalPositionsToClusters(pixcontainer.ptr(),sctcontainer.ptr(),Gp,DEL,PT,Cl)) return false;
   }
   else                   {
-    if(!m_trajectory.trackParametersToClusters(m_pixcontainer.ptr(),m_sctcontainer.ptr(),Tp,DEL,PT,Cl)) return false;
+    if(!m_trajectory.trackParametersToClusters(pixcontainer.ptr(),sctcontainer.ptr(),Tp,DEL,PT,Cl)) return false;
   }
   ++m_goodseeds;
 
   // Build initial trajectory
   //
   bool Qr;
-  bool Q = m_trajectory.initialize(m_pix,m_sct,m_pixcontainer.ptr(),m_sctcontainer.ptr(),Tp,Cl,DEL,Qr);
+  bool Q = m_trajectory.initialize(m_pix,m_sct,pixcontainer.ptr(),sctcontainer.ptr(),Tp,Cl,DEL,Qr);
 
   if(!Q && Sp.size() < 2 && Gp.size() > 3) {
 
     Cl.clear();
-    if(!m_trajectory.trackParametersToClusters(m_pixcontainer.ptr(),m_sctcontainer.ptr(),Tp,DEL,PT,Cl)) return false;
-    if(!m_trajectory.initialize   (m_pix,m_sct,m_pixcontainer.ptr(),m_sctcontainer.ptr(),Tp,Cl,DEL,Qr)) return false;
+    if(!m_trajectory.trackParametersToClusters(pixcontainer.ptr(),sctcontainer.ptr(),Tp,DEL,PT,Cl)) return false;
+    if(!m_trajectory.initialize   (m_pix,m_sct,pixcontainer.ptr(),sctcontainer.ptr(),Tp,Cl,DEL,Qr)) return false;
     Q=Qr=true;
   }
 

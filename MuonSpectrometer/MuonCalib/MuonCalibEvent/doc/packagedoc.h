@@ -20,16 +20,6 @@ and a typedef:
 
 - MuonCalibPatternCollection: a DataVector of MuonCalib::MuonCalibPattern objects
 
-@ref used_MuonCalibEvent
                                                                                 
-@ref requirements_MuonCalibEvent
                                                                                 
-*/
-                                                                                
-/**
-@page used_MuonCalibEvent Used Packages
-*/
-                                                                                
-/**
-@page requirements_MuonCalibEvent Requirements
 */

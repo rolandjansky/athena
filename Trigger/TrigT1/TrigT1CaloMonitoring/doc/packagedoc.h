@@ -31,8 +31,6 @@
   - @ref CPMRoIAsymmetrysection
   - @ref JEMRoIAsymmetrysection
 - @subpage ErrorEventspage
-- @subpage UsedPackagespage
-- @subpage Requirementspage
 
 */
 
@@ -607,14 +605,12 @@ CERN Castor first if you have permission (the l1ccalib account can do it).
 
 /**
 
-@page UsedPackagespage Used Packages
 
 
 */
 
 /**
 
-@page Requirementspage Requirements
 
 
 */

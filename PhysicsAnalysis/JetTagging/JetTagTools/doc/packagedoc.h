@@ -101,8 +101,6 @@ JetTagTools contains the following files/classes:
 There are no jobOptions files for this package. Examples how to use these
 algtools are given in the package BTaggingAlgs.
 
-@section JetTagTools_used_packagesJetTagTools used packages
 
-@section JetTagTools_requirementsJetTagTools Requirements
 
 */

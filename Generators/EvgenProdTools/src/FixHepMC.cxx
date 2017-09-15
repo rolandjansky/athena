@@ -97,7 +97,11 @@ StatusCode FixHepMC::execute() {
     const int num_nochild_vtxs_orig = MC::const_vertices_match(evt, MC::hasNoChildren).size();
 
     // Clean!
+    int signal_vertex_bc = evt->signal_process_vertex() ? evt->signal_process_vertex()->barcode() : 0;
     MC::reduce(evt , toremove);
+    if (evt->barcode_to_vertex (signal_vertex_bc) == nullptr) {
+      evt->set_signal_process_vertex (nullptr);
+    }
 
     // Properties after cleaning
     const int num_particles_filt = evt->particles_size();

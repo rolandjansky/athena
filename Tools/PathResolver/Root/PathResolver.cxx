@@ -73,7 +73,7 @@ PathResolver::PR_find( const std::string& logical_file_name, const string& searc
       result = bf::system_complete(file).string();
       return true;
     }
-  } catch (bf::filesystem_error /*err*/) {
+  } catch (bf::filesystem_error& /*err*/) {
   }
 
   // assume that "." is always part of the search path, so check locally first
@@ -85,7 +85,7 @@ PathResolver::PR_find( const std::string& logical_file_name, const string& searc
       result = bf::system_complete(file).string();
       return true;
     }
-  } catch (bf::filesystem_error /*err*/) {
+  } catch (bf::filesystem_error& /*err*/) {
   }
 
    std::string locationToDownloadTo = "."; //will replace with first search location 

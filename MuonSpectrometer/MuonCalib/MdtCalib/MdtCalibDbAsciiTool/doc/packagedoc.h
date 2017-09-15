@@ -51,16 +51,5 @@ do a trial run with few events
 setting the OutputLevel to VERBOSE and look in the output for the string 
 "Adding chamber " followed by "adding tubes at XXX". 
                                                                                 
-@ref used_MdtCalibDbAsciiTool
                                                                                 
-@ref requirements_MdtCalibDbAsciiTool
 */
-                                                                                
-/**
-@page used_MdtCalibDbAsciiTool Used Packages
-*/
-                                                                                
-/**
-@page requirements_MdtCalibDbAsciiTool Requirements
-*/
- 

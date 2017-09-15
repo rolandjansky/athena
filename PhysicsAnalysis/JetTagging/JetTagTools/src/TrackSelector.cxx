@@ -233,7 +233,7 @@ namespace Analysis {
     }
     if(m_useTrackSummaryInfo) {
       uint8_t nb=0;
-      track->summaryValue(nb, xAOD::numberOfBLayerHits); 
+      track->summaryValue(nb, xAOD::numberOfInnermostPixelLayerHits);
       if(nb < m_nHitBLayer) {
 	failedCuts.set(nHitBLayer);
 	if(!m_useBLayerHitPrediction) { 
@@ -241,8 +241,8 @@ namespace Analysis {
 	  failedCuts.set(deadBLayer);
 	} else {
 	  uint8_t ehib=1;
-	  if (!track->summaryValue(ehib,xAOD::expectBLayerHit)) {
-	    ATH_MSG_WARNING("#BTAG# expectBLayerHit not computed in  TrackSummary: assuming true");
+	  if (!track->summaryValue(ehib,xAOD::expectInnermostPixelLayerHit)) {
+	    ATH_MSG_WARNING("#BTAG# expectInnermostPixelLayerHit not computed in  TrackSummary: assuming true");
 	    ehib=1;
 	  }
 	  if(ehib) {  // check if module was alive

@@ -42,9 +42,4 @@ SiTrigSpacePointFormation.
 
 </li>
 
-@section InDetTrigToolInterfaces_used_InDetTrigToolInterfaces Used Packages
-
-@section InDetTrigToolInterfaces_requirements_InDetTrigToolInterfaces requirements
-
-
 */

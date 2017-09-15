@@ -37,7 +37,8 @@ static const InterfaceID IID_ITruthNtupleTool("ITruthNtupleTool",1,0);
     @author Sebastian.Fleischmann -at- cern.ch, Wolfgang.Liebig -at- cern.ch
 */
 
-struct ValidationTrackTruthData {
+class ValidationTrackTruthData {
+public:
     const HepMC::GenParticle*                   genParticle;
     const Trk::TrackParameters*                 truthPerigee;
     std::vector< std::vector<unsigned int> >    truthToTrackIndices;

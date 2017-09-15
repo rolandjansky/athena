@@ -610,9 +610,15 @@ def getChainsAndStreams(connection, smk):
 
 def getChains(connection, smk):
     cursor,schemaname = getTriggerDBCursor(connection)
-        
-    output = ['TC.HTC_ID', 'TC.HTC_CHAIN_COUNTER', 'TC.HTC_NAME', 'TC.HTC_L2_OR_EF']
+       
+    isrun2 = isRun2(cursor,schemaname)
+
+    output = []
     
+    if isrun2:
+        output = ['TC.HTC_ID', 'TC.HTC_CHAIN_COUNTER', 'TC.HTC_NAME']
+    else:
+        output = ['TC.HTC_ID', 'TC.HTC_CHAIN_COUNTER', 'TC.HTC_NAME', 'TC.HTC_L2_OR_EF']
     tables = {}
     tables['SM']    = 'SUPER_MASTER_TABLE'
     tables['M2C']   = 'HLT_TM_TO_TC'
@@ -631,8 +637,11 @@ def getChains(connection, smk):
     chainsl2 = {}
     chainsef = {}
     for x in res:
-        if x[3]=='L2': chainsl2[x[1]] = x[2]
-        else: chainsef[x[1]] = x[2]
+        if isrun2:
+            chainsef[x[1]] = x[2]
+        else:
+            if x[3]=='L2': chainsl2[x[1]] = x[2]
+            else: chainsef[x[1]] = x[2]
 
     return chainsl2, chainsef
 
@@ -800,6 +809,72 @@ def getExpressStreamPrescales(connection,psk):
     name, res = queryHLTPrescaleTable(connection,psk)
 
     return name, [(r[1],r[3]) for r in res if r[0]=='express']
+
+
+def getHLTPrescalesRun2(connection,psk):
+    """returns set name, prescale and passthrough 
+    values for a given HLT prescale key 
+    @connection - connection string, e.g. TRIGGERDB
+    @psk - HLT prescale key
+    @return (ps name, [('L2/EF',chainId,prescale,pass-through),...])
+    """
+
+    res = queryHLTPrescaleTableRun2(connection,psk)
+
+    return [(r) for r in res if r[3]!='express']
+
+def getExpressStreamPrescalesRun2(connection,psk):
+    """returns the express stream prescales for a given HLT prescale key
+    @connection - connection string, e.g. TRIGGERDB
+    @psk - HLT prescale key
+    @return (ps name, [chainId,prescale),...])
+    """
+
+    res = queryHLTPrescaleTableRun2(connection,psk)
+
+    return [(r) for r in res if r[3]=='express']
+
+
+def queryHLTPrescaleTableRun2(connection,psk):
+
+    cursor,schemaname = getTriggerDBCursor(connection)
+
+    output = [ "HTC.HTC_NAME", "PS.HPR_CHAIN_COUNTER", "PS.HPR_TYPE", "PS.HPR_CONDITION" , "PS.HPR_VALUE"]
+
+    tables = {}
+    tables['PS'] = 'HLT_PRESCALE' 
+    tables['HTC'] = 'HLT_TRIGGER_CHAIN'
+
+    condition = [ "PS.HPR_PRESCALE_SET_ID = :psk",
+                  "HTC.HTC_CHAIN_COUNTER = PS.HPR_CHAIN_COUNTER"
+                  ]
+
+    bindvars = { "psk": psk }
+
+    res = executeQuery(cursor, output, condition, schemaname, tables, bindvars)
+
+    return res
+
+def getHLTPrescalesFromSMK(connection, smk):
+
+    cursor,schemaname = getTriggerDBCursor(connection)
+
+    tables = {}
+    tables['HPS']   = 'HLT_PRESCALE_SET'
+    tables['TM2PS'] = 'HLT_TM_TO_PS'
+    tables['HTM']  = 'HLT_TRIGGER_MENU'
+    tables['HMT']    = 'HLT_MASTER_TABLE'
+    tables['SM']    = 'SUPER_MASTER_TABLE'
+
+    output = ['TM2PS.HTM2PS_PRESCALE_SET_ID']
+    condition = [ "TM2PS.HTM2PS_TRIGGER_MENU_ID = HTM.HTM_ID",
+                  "HTM.HTM_ID = HMT.HMT_TRIGGER_MENU_ID",
+                  "HMT.HMT_ID = SM.SMT_HLT_MASTER_TABLE_ID",
+                  "SM.SMT_ID = %s" % smk ]
+
+    hltpsk  = executeQuery(cursor, output, condition, schemaname, tables)
+
+    return hltpsk
 
 
 def test():

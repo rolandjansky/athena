@@ -69,11 +69,6 @@ private:
   InDetRawDataContainer(const InDetRawDataContainer&);
   InDetRawDataContainer &operator=(const InDetRawDataContainer&);
 
-public:
-  // The default constructor is required in DEBUG builds (opt is OK),
-  // by boost's remove_const.hpp via T_AthenaPoolTPConverter
-  InDetRawDataContainer(){};
-
   ///////////////////////////////////////////////////////////////////
   // Private data:
   ///////////////////////////////////////////////////////////////////

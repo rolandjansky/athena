@@ -21,14 +21,4 @@ localParameters() and localErrorMatrix() return the mean values according to the
 
 @section MuonCompetingRIOsOnTrack_ExtrasMuonCompetingRIOsOnTrack Extra Pages
 
- - @ref UsedMuonCompetingRIOsOnTrack
- - @ref requirementsMuonCompetingRIOsOnTrack
-*/
-
-/**
-@page UsedMuonCompetingRIOsOnTrack Used Packages
-*/
-
-/**
-@page requirementsMuonCompetingRIOsOnTrack Requirements
 */

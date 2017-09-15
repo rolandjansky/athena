@@ -111,6 +111,11 @@ namespace SG {
   
 } // namespace SG
 
+namespace std {
+  ostream& operator<<(ostream& s, const SG::VarHandleKeyArray& m);
+}
+
+
 #include "StoreGate/VarHandleKeyArray.icc"
 
 #endif

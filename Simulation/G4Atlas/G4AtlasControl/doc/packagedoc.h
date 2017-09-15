@@ -19,17 +19,6 @@ The classes in this package are:
  - ParticleDataModifier : An interface for modifying particle properties during the simulation (charge, mass, etc)
  - SimControl : One interface to rule them all
 
-@ref used_G4AtlasControl
 
-@ref requirements_G4AtlasControl
 
 */
-
-/**
-@page used_G4AtlasControl Used Packages
-*/
-
-/**
-@page requirements_G4AtlasControl Requirements
-*/
-

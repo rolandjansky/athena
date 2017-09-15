@@ -287,10 +287,10 @@ private:
 	/** create expanded Identifier from Identifier (return == 0 for OK) */
 	int  get_expanded_id  (const Identifier& id, ExpandedIdentifier& exp_id, const IdContext* context) const;
 	void  tower_id_checks   	(int pos_neg, int sampling, int region,
-		 int eta,       int phi ) const throw(CaloID_Exception);
+		 int eta,       int phi ) const;
 	void  tower_id_checks   	(const Identifier regionId,
-		 int eta,       int phi )  const throw(CaloID_Exception);
-	void region_id_checks  ( int pos_neg, int sampling, int region ) const throw(CaloID_Exception);
+		 int eta,       int phi )  const;
+	void region_id_checks  ( int pos_neg, int sampling, int region ) const;
 
 	int         initLevelsFromDict(const std::string& t_pre) ;
 

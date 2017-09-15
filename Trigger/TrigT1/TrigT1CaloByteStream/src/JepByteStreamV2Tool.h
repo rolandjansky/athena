@@ -107,39 +107,91 @@ class JepByteStreamV2Tool : public AthAlgTool {
    typedef DataVector<LVL1::CMXJetHits>                  CmxHitsCollection;
    typedef DataVector<LVL1::CMXEtSums>                   CmxSumsCollection;
    typedef std::map<unsigned int, LVL1::JetElement*>     JetElementMap;
+   typedef std::map<unsigned int, const LVL1::JetElement*> ConstJetElementMap;
    typedef std::map<int, LVL1::JEMEtSums*>               EnergySumsMap;
+   typedef std::map<int, const LVL1::JEMEtSums*>         ConstEnergySumsMap;
    typedef std::map<int, LVL1::CMXJetTob*>               CmxTobMap;
+   typedef std::map<int, const LVL1::CMXJetTob*>         ConstCmxTobMap;
    typedef std::map<int, LVL1::CMXJetHits*>              CmxHitsMap;
+   typedef std::map<int, const LVL1::CMXJetHits*>        ConstCmxHitsMap;
    typedef std::map<int, LVL1::CMXEtSums*>               CmxSumsMap;
+   typedef std::map<int, const LVL1::CMXEtSums*>         ConstCmxSumsMap;
 
    typedef IROBDataProviderSvc::VROBFRAG::const_iterator ROBIterator;
    typedef OFFLINE_FRAGMENTS_NAMESPACE::PointerType      ROBPointer;
    typedef OFFLINE_FRAGMENTS_NAMESPACE::PointerType      RODPointer;
 
+   struct JepByteStreamToolData
+   {
+     JepByteStreamToolData (const CollectionType collection)
+       : m_collection(collection){}
+     const CollectionType m_collection;
+   };
+   struct JetElementData : public JepByteStreamToolData
+   {
+     JetElementData (JetElementCollection* const jeCollection)
+       : JepByteStreamToolData (JET_ELEMENTS), m_jeCollection (jeCollection) {}
+     JetElementCollection* const m_jeCollection;
+     JetElementMap m_jeMap;
+   };
+   struct EnergySumsData : public JepByteStreamToolData
+   {
+     EnergySumsData (EnergySumsCollection* const etCollection)
+       : JepByteStreamToolData (ENERGY_SUMS), m_etCollection (etCollection) {}
+     EnergySumsCollection* const m_etCollection;
+     EnergySumsMap m_etMap;
+   };
+   struct CmxTobData : public JepByteStreamToolData
+   {
+     CmxTobData (CmxTobCollection* const tobCollection)
+       : JepByteStreamToolData (CMX_TOBS), m_cmxTobCollection (tobCollection) {}
+     CmxTobCollection* const m_cmxTobCollection;
+     CmxTobMap     m_cmxTobMap;
+   };
+   struct CmxHitsData : public JepByteStreamToolData
+   {
+     CmxHitsData (CmxHitsCollection* const hitCollection)
+       : JepByteStreamToolData (CMX_HITS), m_cmxHitCollection (hitCollection) {}
+     CmxHitsCollection* const m_cmxHitCollection;
+     CmxHitsMap    m_cmxHitsMap;
+   };
+   struct CmxSumsData : public JepByteStreamToolData
+   {
+     CmxSumsData (CmxSumsCollection* const etCollection)
+       : JepByteStreamToolData (CMX_SUMS), m_cmxEtCollection (etCollection) {}
+     CmxSumsCollection* const m_cmxEtCollection;
+     CmxSumsMap    m_cmxEtMap;
+   };
+
    /// Convert bytestream to given container type
    StatusCode convertBs(const IROBDataProviderSvc::VROBFRAG& robFrags,
-                        CollectionType collection);
+                        JepByteStreamToolData& data);
    /// Unpack CMX-Energy sub-block
-   void decodeCmxEnergy(CmxEnergySubBlock* subBlock, int trigJem);
+   void decodeCmxEnergy(CmxEnergySubBlock* subBlock, int trigJem, CmxSumsData& data);
    /// Unpack CMX-Jet sub-block
    void decodeCmxJet(CmxJetSubBlock* subBlock, int trigJem,
-                                         CollectionType collection);
+                     JepByteStreamToolData& data);
    /// Unpack JEM sub-block
    void decodeJem(JemSubBlockV2* subBlock, int trigJem,
-                                         CollectionType collection);
+                  JepByteStreamToolData& data);
 
    /// Find TOB map key for given crate, jem, frame, loc
    int tobKey(int crate, int jem, int frame, int loc);
    /// Find a jet element given eta, phi
-   LVL1::JetElement* findJetElement(double eta, double phi);
+   const LVL1::JetElement* findJetElement(double eta, double phi) const;
+   LVL1::JetElement* findJetElement(const JetElementData& data, double eta, double phi) const;
    /// Find energy sums for given crate, module
-   LVL1::JEMEtSums*  findEnergySums(int crate, int module);
+   const LVL1::JEMEtSums*  findEnergySums(int crate, int module) const;
+   LVL1::JEMEtSums*  findEnergySums(const EnergySumsData& data, int crate, int module) const;
    /// Find CMX TOB for given key
-   LVL1::CMXJetTob*  findCmxTob(int key);
+   const LVL1::CMXJetTob*  findCmxTob(int key) const;
+   LVL1::CMXJetTob*  findCmxTob(const CmxTobData& data, int key) const;
    /// Find CMX hits for given crate, source
-   LVL1::CMXJetHits* findCmxHits(int crate, int source);
+   const LVL1::CMXJetHits* findCmxHits(int crate, int source) const;
+   LVL1::CMXJetHits* findCmxHits(const CmxHitsData& data, int crate, int source) const;
    /// Find CMX energy sums for given crate, source
-   LVL1::CMXEtSums*  findCmxSums(int crate, int source);
+   const LVL1::CMXEtSums*  findCmxSums(int crate, int source) const;
+   LVL1::CMXEtSums*  findCmxSums(const CmxSumsData& data, int crate, int source) const;
 
    /// Set up jet element map
    void setupJeMap(const JetElementCollection* jeCollection);
@@ -235,26 +287,16 @@ class JepByteStreamV2Tool : public AthAlgTool {
    DataVector<CmxEnergySubBlock> m_cmxEnergyBlocks;
    /// Vector for current CMX-Jet sub-blocks
    DataVector<CmxJetSubBlock> m_cmxJetBlocks;
-   /// Current jet elements collection
-   JetElementCollection* m_jeCollection;
-   /// Current energy sums collection
-   EnergySumsCollection* m_etCollection;
-   /// Current CMX TOB collection
-   CmxTobCollection*     m_cmxTobCollection;
-   /// Current CMX hits collection
-   CmxHitsCollection*    m_cmxHitCollection;
-   /// Current CMX energy sums collection
-   CmxSumsCollection*    m_cmxEtCollection;
    /// Jet element map
-   JetElementMap m_jeMap;
+   ConstJetElementMap m_jeMap;
    /// Energy sums map
-   EnergySumsMap m_etMap;
+   ConstEnergySumsMap m_etMap;
    /// CMX TOB map
-   CmxTobMap     m_cmxTobMap;
+   ConstCmxTobMap     m_cmxTobMap;
    /// CMX hits map
-   CmxHitsMap    m_cmxHitsMap;
+   ConstCmxHitsMap    m_cmxHitsMap;
    /// CMX energy sums map
-   CmxSumsMap    m_cmxEtMap;
+   ConstCmxSumsMap    m_cmxEtMap;
    /// ROD Status words
    std::vector<uint32_t>* m_rodStatus;
    /// ROD status map

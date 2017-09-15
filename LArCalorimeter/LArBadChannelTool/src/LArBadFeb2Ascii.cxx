@@ -14,9 +14,9 @@
 
 LArBadFeb2Ascii::LArBadFeb2Ascii(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm( name, pSvcLocator),
-  m_BadChanTool("LArBadChanTool")
+  m_BFKey("LArBadFeb")
 {
-  declareProperty("BadChannelTool", m_BadChanTool, "public, shared BadChannelTool");
+  declareProperty("BFKey",m_BFKey);
   declareProperty("FileName",m_fileName="");
 }
 
@@ -26,7 +26,7 @@ LArBadFeb2Ascii::~LArBadFeb2Ascii() {}
 StatusCode LArBadFeb2Ascii::initialize() {
 
   ATH_MSG_INFO ( "initialize()" );
-  ATH_CHECK( m_BadChanTool.retrieve() );
+  ATH_CHECK(m_BFKey.initialize());
   return StatusCode::SUCCESS;
 }
 
@@ -49,6 +49,11 @@ StatusCode LArBadFeb2Ascii::finalize() {
       ATH_MSG_ERROR ( "Failed to open file " << m_fileName );
   }
 
+
+  SG::ReadCondHandle<LArBadFebCont> bfc{m_BFKey};
+  const LArBadFebCont* badfebCont{*bfc};
+
+
   const LArBadFebBitPacking packing;
 
 
@@ -57,7 +62,7 @@ StatusCode LArBadFeb2Ascii::finalize() {
   unsigned count=0;
   for(;it!=it_e;++it) {  
     const HWIdentifier fid=*it;
-    LArBadFeb bf = m_BadChanTool->febStatus(fid);
+    LArBadFeb bf = badfebCont->status(fid);
     if (bf.packedData()) {
       ++count;
       (*out) << larOnlineID->barrel_ec(fid) << " " 

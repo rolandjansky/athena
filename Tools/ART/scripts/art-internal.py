@@ -4,15 +4,16 @@
 ART-internal - ATLAS Release Tester (internal command).
 
 Usage:
-  art-internal.py job build   [-v]  <script_directory> <package> <job_type> <sequence_tag> <index> <out>
-  art-internal.py job grid    [-v]  <package> <job_type> <sequence_tag> <index> <out> <nightly_release> <project> <platform> <nightly_tag>
-  art-internal.py task build  [-v]  <script_directory> <package> <job_type> <sequence_tag>
-  art-internal.py task grid   [-v]  <package> <job_type> <sequence_tag> <nightly_release> <project> <platform> <nightly_tag>
+  art-internal.py job build   [-v]  <script_directory> <package> <job_type> <sequence_tag> <index> <out> <nightly_release> <project> <platform> <nightly_tag>
+  art-internal.py job grid    [-v --skip-setup]  <script_directory> <package> <job_type> <sequence_tag> <index> <out> <nightly_release> <project> <platform> <nightly_tag>
+  art-internal.py task build  [-v]  <script_directory> <package> <job_type> <sequence_tag> <nightly_release> <project> <platform> <nightly_tag>
+  art-internal.py task grid   [-v --skip-setup]  <submit_directory> <script_directory> <package> <job_type> <sequence_tag> <nightly_release> <project> <platform> <nightly_tag>
 
 Options:
+  --skip-setup      Do not run atlas setup or voms
   -h --help         Show this screen.
-  --version         Show version.
   -v, --verbose     Show details.
+  --version         Show version.
 
 Sub-commands:
   job               Runs a single job, given a particular index
@@ -26,8 +27,9 @@ Arguments:
   package           Package of the test (e.g. Tier0ChainTests)
   platform          Platform (e.g. x86_64-slc6-gcc62-opt)
   project           Name of the project (e.g. Athena)
-  script_directory  Directory containing the packages with tests
+  script_directory  Directory containing the package(s) with tests
   sequence_tag      Sequence tag (e.g. 0 or PIPELINE_ID)
+  submit_directory  Temporary directory with all files for submission
   job_type          Type of job (e.g. grid, ci, build)
 """
 
@@ -42,39 +44,41 @@ from ART import ArtGrid, ArtBuild
 
 
 @dispatch.on('job', 'build')
-def job_build(script_directory, package, job_type, sequence_tag, index, out, **kwargs):
+def job_build(script_directory, package, job_type, sequence_tag, index, out, nightly_release, project, platform, nightly_tag, **kwargs):
     """TBD.
 
     Tests are called with the following parameters:
     SCRIPT_DIRECTORY, PACKAGE, TYPE, TEST_NAME
     """
     art_directory = os.path.dirname(os.path.realpath(sys.argv[0]))
-    exit(ArtBuild(art_directory, script_directory).job(package, job_type, sequence_tag, index, out))
+    exit(ArtBuild(art_directory, nightly_release, project, platform, nightly_tag, script_directory).job(package, job_type, sequence_tag, index, out))
 
 
 @dispatch.on('job', 'grid')
-def job_grid(package, job_type, sequence_tag, index, out, nightly_release, project, platform, nightly_tag, **kwargs):
+def job_grid(script_directory, package, job_type, sequence_tag, index, out, nightly_release, project, platform, nightly_tag, **kwargs):
     """TBD.
 
     Tests are called with the following parameters:
     SCRIPT_DIRECTORY, PACKAGE, TYPE, TEST_NAME, NIGHTLY_RELEASE, PROJECT, PLATFORM, NIGHTLY_TAG
     """
     art_directory = os.path.dirname(os.path.realpath(sys.argv[0]))
-    exit(ArtGrid(art_directory, nightly_release, project, platform, nightly_tag).job(package, job_type, sequence_tag, index, out))
+    skip_setup = kwargs['skip_setup']
+    exit(ArtGrid(art_directory, nightly_release, project, platform, nightly_tag, script_directory, skip_setup).job(package, job_type, sequence_tag, index, out))
 
 
 @dispatch.on('task', 'build')
-def task_build(script_directory, job_type, sequence_tag, **kwargs):
+def task_build(script_directory, job_type, sequence_tag, nightly_release, project, platform, nightly_tag, **kwargs):
     """TBD."""
     art_directory = os.path.dirname(os.path.realpath(sys.argv[0]))
-    exit(ArtBuild(art_directory, script_directory).task(job_type, sequence_tag))
+    exit(ArtBuild(art_directory, nightly_release, project, platform, nightly_tag, script_directory).task(job_type, sequence_tag))
 
 
 @dispatch.on('task', 'grid')
-def task_grid(package, job_type, sequence_tag, nightly_release, project, platform, nightly_tag, **kwargs):
+def task_grid(submit_directory, script_directory, package, job_type, sequence_tag, nightly_release, project, platform, nightly_tag, **kwargs):
     """TBD."""
     art_directory = os.path.dirname(os.path.realpath(sys.argv[0]))
-    exit(ArtGrid(art_directory, nightly_release, project, platform, nightly_tag).task(package, job_type, sequence_tag))
+    skip_setup = kwargs['skip_setup']
+    exit(ArtGrid(art_directory, nightly_release, project, platform, nightly_tag, script_directory, skip_setup, submit_directory).task(package, job_type, sequence_tag))
 
 
 if __name__ == '__main__':

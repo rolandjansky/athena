@@ -134,3 +134,7 @@ ChronoStatSvc.StatPrintOutTable   = FALSE
 # to avoid races when running tests in parallel.
 PoolSvc = Service( "PoolSvc" )
 PoolSvc.WriteCatalog = "file:xAODTestWrite_catalog.xml"
+
+# Increment LBN every two events.
+from McEventSelector import McEventSelectorConf
+svcMgr+=McEventSelectorConf.McEventSelector('EventSelector',EventsPerLB=2)

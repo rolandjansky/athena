@@ -27,16 +27,5 @@ It ships the concrete implementations of interfaces exported from the PerfMonKer
   - PerfMon::CallGraphBuilderSvc : a <i>work in progress</i> service, meant to build a callgraph structure out of the sequence of algorithms and attach (performance monitoring) informations at each edge. Not yet in production.
   - PerfMon::CallGraphAuditor : a <i>work in progress</i> auditor, meant to notify the @c PerfMon::CallGraphBuilderSvc when (new) nodes of the callgraph structure should be added/updated. Not yet in production.
 
-@ref used_PerfMonComps
 
-@ref requirements_PerfMonComps
-
-*/
-
-/**
-@page used_PerfMonComps Used Packages
-*/
-
-/**
-@page requirements_PerfMonComps Requirements
 */

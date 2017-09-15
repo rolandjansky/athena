@@ -63,7 +63,7 @@ SCT_DataBase::SCT_DataBase()
   IRDBAccessSvc* rdbSvc = s_athenaComps->rdbAccessSvc();
 
   // SCT version tag
-  m_sctVersionTag = rdbSvc->getChildTag("SCT", versionKey.tag(), versionKey.node(), false);
+  m_sctVersionTag = rdbSvc->getChildTag("SCT", versionKey.tag(), versionKey.node());
 
 
 /////////////////////////////////////////////////////////

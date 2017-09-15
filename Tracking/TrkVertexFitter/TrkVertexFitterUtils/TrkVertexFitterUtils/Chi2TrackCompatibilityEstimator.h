@@ -58,8 +58,6 @@ namespace Trk
     
   private:  
   
-     mutable unsigned int                        m_outputLevel;
-
     /**
     * Compatibility method returning the compatibility value
     */  

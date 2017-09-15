@@ -27,8 +27,6 @@ ParticleEventAthenaPool contains the following topOs and jobOs:
 
 - AODFlags.py : flags for AOD making
 
-@section ParticleEventAthenaPool_used_packagesParticleEventAthenaPool Used packages
 
-@section ParticleEventAthenaPool_requirementsParticleEventAthenaPool Requirements
 
 */

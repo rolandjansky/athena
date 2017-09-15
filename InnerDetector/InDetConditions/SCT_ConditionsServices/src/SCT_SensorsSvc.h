@@ -69,7 +69,7 @@ private:
   const DataHandle<CondAttrListCollection> m_sensorsData;
   std::vector<std::string> m_sensorsValues;
 
-  std::map<CondAttrListCollection::ChanNum, std::string >* m_sensorsManufacturer;
+  std::map<CondAttrListCollection::ChanNum, std::string> m_sensorsManufacturer;
 };
 
 inline const InterfaceID & SCT_SensorsSvc::interfaceID(){

@@ -229,8 +229,8 @@ const HistogramDef HistogramDef::parse(const std::string& jobOpts) {
     }
   }
 
-  if (itr->find(":") != std::string::npos ) { // it means that last paramater has format str1:str2:str3:str4 which means this are bins labels
-    // breate it 
+  if (itr->find(":") != std::string::npos ) { // it means that last paramater has format str1:str2:str3:str4 which means these are bins labels
+    // split it 
     boost::char_separator<char> colon(":");
     tokenizer_t labels(*itr, colon);
     for ( tokenizer_t::iterator l = labels.begin(); l != labels.end(); ++l ) {

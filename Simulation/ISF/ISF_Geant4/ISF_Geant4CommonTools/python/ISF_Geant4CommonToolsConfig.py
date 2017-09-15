@@ -16,12 +16,13 @@ from ISF_Config.ISF_jobProperties import ISF_Flags # IMPORTANT: Flags must be se
 
 
 def getEntryLayerTool(name="ISF_EntryLayerTool", **kwargs):
-    kwargs.setdefault('GeoIDSvc'        , getService('ISF_GeoIDSvc')   )
-    kwargs.setdefault('ParticleFilters' , [ ISF_Flags.EntryLayerFilter() ] )
+    kwargs.setdefault('GeoIDSvc'        , 'ISF_GeoIDSvc')
+    from G4AtlasApps.SimFlags import simFlags
+    kwargs.setdefault('ParticleFilters' , [ simFlags.TruthStrategy.EntryLayerFilterName() ] )
 
     from ISF_Geant4CommonTools.ISF_Geant4CommonToolsConf import ISF__EntryLayerTool
     return ISF__EntryLayerTool(name, **kwargs)
 
 def getAFIIEntryLayerTool(name="ISF_AFIIEntryLayerTool", **kwargs):
-    kwargs.setdefault('GeoIDSvc'        , getService('ISF_AFIIGeoIDSvc'))
+    kwargs.setdefault('GeoIDSvc'        , 'ISF_AFIIGeoIDSvc')
     return getEntryLayerTool(name, **kwargs)

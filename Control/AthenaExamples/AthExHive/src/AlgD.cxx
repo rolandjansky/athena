@@ -16,16 +16,8 @@
 
 AlgD::AlgD( const std::string& name, 
             ISvcLocator* pSvcLocator ) : 
-  ::AthAlgorithm( name, pSvcLocator ),
-  m_rdh1("a1"),
-  m_rch1("X1"),
-  m_rch2("X2")
+  ::AthAlgorithm( name, pSvcLocator )
 {
-  
-  declareProperty("Key_R1",m_rdh1);
-  declareProperty("Key_CH1",m_rch1);
-  declareProperty("Key_CH2",m_rch2);
-
 }
 
 //---------------------------------------------------------------------------

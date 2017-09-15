@@ -14,17 +14,6 @@ the Combined Test Beam layout, stored only in NOVA and the newest ATLAS layouts 
 In order to avoid duplicating the code (and classes) reading the geometry database for the Nova and Oracle case, the classes in this package have been designed 
 following the data structure of the Nova Objects and using templated functions in the reading code (MuonGM::DBReader.h).
 
-@ref used_GMdbObjects
 
-@ref requirements_GMdbObjects
 
 */
-
-/**
-@page used_GMdbObjects Used Packages
-*/
-
-/**
-@page requirements_GMdbObjects Requirements
-*/
-

@@ -126,11 +126,3 @@ EFMissingETFromFEBHeader::EFMissingETFromFEBHeader
 "useFullCollection"        [true]          Use calorimeter load full collection T/F
 
 */
-
-/**
-@page used_TrigEFMissingET Used Packages
-*/
-
-/**
-@page requirements_TrigEFMissingET Requirements
-*/

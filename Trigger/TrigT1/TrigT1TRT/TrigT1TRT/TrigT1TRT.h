@@ -36,13 +36,12 @@ namespace LVL1 {
  
     const TRT_ID* m_pTRTHelper;
 
-    const InDetDD::TRT_DetectorManager *mgr;
+    const InDetDD::TRT_DetectorManager *m_mgr;
     
     ServiceHandle<ITRT_StrawNeighbourSvc> m_TRTStrawNeighbourSvc;
    
     int m_TTCMultiplicity;
     int m_BoardMultiplicity;
-    int m_ToTCut;
     int m_cablestarts[3]; // threshold cable starts
 
     int BarrelChipToBoard(int chip);
@@ -51,10 +50,10 @@ namespace LVL1 {
     int EndcapStrawNumber(int strawNumber,int strawLayerNumber,int LayerNumber,int phi_stack,int side);
     int BarrelStrawLayerNumber(int strawLayerNumber, int LayerNumber);
 
-    unsigned char mat_chip_barrel[64][1642];
-    unsigned char mat_chip_endcap[64][3840];
+    unsigned char m_mat_chip_barrel[64][1642];
+    unsigned char m_mat_chip_endcap[64][3840];
 
-    int numberOfStraws[75];
+    int m_numberOfStraws[75];
 
   };
 }

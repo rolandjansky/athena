@@ -48,7 +48,7 @@ namespace xAOD {
        @param[in] corrections bitset specifying which corrections to apply to isolation
        @return true if the calculation and decoration was successfull
     */  
-    virtual bool decorateParticle_eflowIso(IParticle& tp,
+    virtual bool decorateParticle_eflowIso(const IParticle& tp,
                                            const std::vector<Iso::IsolationType>& cones,
                                            CaloCorrection corrections) = 0;
   };

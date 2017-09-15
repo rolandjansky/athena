@@ -41,10 +41,13 @@ public:
     std::string title(const std::string &name, const std::string &dirName="") const final;
     unsigned int nBinsX(const std::string &name, const std::string &dirName="") const final;
     unsigned int nBinsY(const std::string &name, const std::string &dirName="") const final;
+    unsigned int nBinsZ(const std::string &name, const std::string &dirName="") const final;
     IHistogramDefinitionSvc::axesLimits_t xLimits(const std::string &name, const std::string &dirName="") const final;
     IHistogramDefinitionSvc::axesLimits_t yLimits(const std::string &name, const std::string &dirName="") const final;
+    IHistogramDefinitionSvc::axesLimits_t zLimits(const std::string &name, const std::string &dirName="") const final;
     std::string xTitle(const std::string &name, const std::string &dirName="") const final;
     std::string yTitle(const std::string &name, const std::string &dirName="") const final;
+    std::string zTitle(const std::string &name, const std::string &dirName="") const final;
     
 private:
     StringProperty m_source;

@@ -20,20 +20,6 @@ TrigL2JpsieeFex.cxx and TrigL2JpsieeHypo.cxx :      Select B decays with Jpsi->e
 
 JpsiHypo.cxx  :                   Select Jpsi->mumu decays after TrigDiMuon from MuonHypo package.
 
-@ref used_TrigBphysHypo
 
-@ref requirements_TrigBphysHypo
 
 */
-
-/**
-@page used_TrigBphysHypo Used Packages
-*/
-
-/**
-@page requirements_TrigBphysHypo Requirements
-*/
-
-
-
-

@@ -283,9 +283,9 @@ bool TrigT2HistoPrmVtxBase::efTrackSel(const xAOD::TrackParticle*& track, unsign
   uint8_t nSCT  = 0; 
 
   uint8_t expBL  = 0;
-  track->summaryValue(expBL, xAOD::expectBLayerHit);
+  track->summaryValue(expBL, xAOD::expectInnermostPixelLayerHit);
 
-  track->summaryValue(nBlay, xAOD::numberOfBLayerHits);
+  track->summaryValue(nBlay, xAOD::numberOfInnermostPixelLayerHits);
   track->summaryValue(nPix,  xAOD::numberOfPixelHits);
   track->summaryValue(nSCT,  xAOD::numberOfSCTHits);
 

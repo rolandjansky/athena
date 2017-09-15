@@ -104,20 +104,4 @@ ClusterMakerTool
   It computes the global coordinates of a (pixel or strip) cluster, 
 including Lorentz angle correction, and the error to be associated 
 to the cluster, according to the ErrorStrategy flag.
-  
-
-@ref used_SiClusterizationTool
-
-@ref requirements_SiClusterizationTool
-
-*/
-
-/**
-
-@page used_SiClusterizationTool Used Packages
-
-*/
-
-/**
-@page requirements_SiClusterizationTool requirements
 */

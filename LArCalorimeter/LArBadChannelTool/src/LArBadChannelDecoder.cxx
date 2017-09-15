@@ -95,7 +95,7 @@ HWIdentifier LArBadChannelDecoder::constructChannelId( const std::vector<int>& i
   try {
     HWIdentifier hwid( m_onlineID->channel_Id( intVec[barrel_ec], intVec[pos_neg], intVec[feedthrough],
 					       intVec[slot], intVec[channel]));
-    if (!checkId( hwid, intVec[barrel_ec], intVec[pos_neg], coolChan)) {
+    if (coolChan<LArBadChannelState::MAXCOOLCHAN && !checkId( hwid, intVec[barrel_ec], intVec[pos_neg], coolChan)) {
       log << MSG::WARNING << "Channel "; insertExpandedID( intVec, log);
       log << " does not belong to COOL channel " << State::coolChannelName( coolChan) 
 	  << ". Skipped" <<  endmsg;

@@ -72,8 +72,8 @@ namespace SG {
     virtual const CLID& clID() const override { return m_clid; }
     virtual void* object() override { return m_obj; }
     virtual const std::type_info& tinfo() const override { return typeid(void); }
-    virtual void* cast (CLID, SG::IRegisterTransient*, bool) const override { std::abort(); }
-    virtual void* cast (const std::type_info&, SG::IRegisterTransient*, bool) const override { std::abort(); }
+    virtual void* cast (CLID, SG::IRegisterTransient*, bool) override { std::abort(); }
+    virtual void* cast (const std::type_info&, SG::IRegisterTransient*, bool) override { std::abort(); }
     virtual DataBucketBase* clone() const override { std::abort(); }
     virtual void relinquish() override { std::abort(); }
     virtual void lock() override { }
@@ -345,18 +345,7 @@ namespace SG {
    */
   bool VarHandleBase::isPresent() const
   {
-    const DataProxy* proxy = m_proxy;
-    if (!proxy) {
-      const IProxyDict* store = m_store;
-      if (!store)
-        store = this->storeHandle().get();
-      if (store)
-        proxy = store->proxy(this->clid(), this->key());
-    }
-    if (proxy) {
-      return proxy->isValid();
-    }
-    return false;
+    return isPresent_impl (key());
   }
 
 
@@ -456,6 +445,10 @@ namespace SG {
   VarHandleBase::setState()
   {
     CHECK( initialize() );
+    if (!m_storeWasSet) {
+      IProxyDict* store = storeFromHandle (nullptr);
+      if (store) m_store = store;
+    }
 
     StatusCode sc = this->setState(m_store->proxy(this->clid(), this->key()));
 
@@ -988,7 +981,7 @@ namespace SG {
     // the object was stored with, nor it inherits from it.
     // before giving up, let's check its transient CLIDs
     DataBucketBase *dbb = 0;
-    if (proxy->transientAddress()->transientID(clid) &&
+    if (proxy->transientID(clid) &&
         0 != (dbb = dynamic_cast<DataBucketBase*>(dobj))) {
       // it is a symlink after all.
       // Let's hard cast (and keep our fingers Xed)
@@ -1002,6 +995,29 @@ namespace SG {
       }
     } // try symlink -- endif
     return ptr;
+  }
+
+
+  /**
+   * @brief Is the referenced object present in SG?
+   * @param key SG key to test.
+   *
+   * Const method; the handle does not change as a result of this.
+   */
+  bool VarHandleBase::isPresent_impl (const std::string& key) const
+  {
+    const DataProxy* proxy = m_proxy;
+    if (!proxy) {
+      const IProxyDict* store = m_store;
+      if (!store)
+        store = this->storeHandle().get();
+      if (store)
+        proxy = store->proxy(this->clid(), key);
+    }
+    if (proxy) {
+      return proxy->isValid();
+    }
+    return false;
   }
 
 

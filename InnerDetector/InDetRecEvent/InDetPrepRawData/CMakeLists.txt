@@ -35,5 +35,5 @@ atlas_add_dictionary( InDetPrepRawDataDict
                       InDetPrepRawData/InDetPrepRawDataDict.h
                       InDetPrepRawData/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthLinks SGTools GeoPrimitives Identifier EventPrimitives GaudiKernel InDetReadoutGeometry TrkSurfaces TrkEventPrimitives TrkPrepRawData InDetPrepRawData )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthLinks SGTools GeoPrimitives Identifier EventPrimitives GaudiKernel InDetReadoutGeometry TrkSurfaces TrkEventPrimitives TrkPrepRawData InDetPrepRawData EventContainers )
 

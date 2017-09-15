@@ -38,7 +38,7 @@ class PixelRawDataProviderTool : virtual public IPixelRawDataProviderTool, publi
   StatusCode finalize();
   
   //! this is the main decoding method
-  StatusCode convert( std::vector<const ROBFragment*>& vecRobs,
+  StatusCode convert( std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs,
 		      PixelRDO_Container*               rdoIdc );
 
 
@@ -49,7 +49,6 @@ private:
   
   // bookkeeping if we have decoded a ROB already
   std::set<uint32_t> m_robIdSet;
-  unsigned int      m_lastLvl1ID;
 
   InDetTimeCollection* m_LVL1Collection;
   InDetTimeCollection* m_BCIDCollection;

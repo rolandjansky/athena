@@ -6,9 +6,6 @@
 // A. Gaponenko, 2006
 
 #include "MuonTruthAlgs/MuonDetailedTrackTruthMaker.h"
-#include "TrkTruthData/PRD_MultiTruthCollection.h"
-#include "TrkTruthData/DetailedTrackTruthCollection.h"
-#include "TrkTrack/TrackCollection.h"
 #include <iterator>
 
 //================================================================
@@ -21,24 +18,24 @@ MuonDetailedTrackTruthMaker::MuonDetailedTrackTruthMaker(const std::string &name
   // Inputs
   declareProperty("TrackCollectionNames",     m_trackCollectionNames );
   m_trackCollectionNames.reserve(9);
-  m_trackCollectionNames.push_back("MuonSpectrometerTracks");
-  m_trackCollectionNames.push_back("MooreTracks");
-  m_trackCollectionNames.push_back("ConvertedMBoyMuonSpectroOnlyTracks");
-  m_trackCollectionNames.push_back("ConvertedMBoyTracks");
-  m_trackCollectionNames.push_back("MuidExtrapolatedTracks");
-  m_trackCollectionNames.push_back("ExtrapolatedMuonSpectrometerTracks");
-  m_trackCollectionNames.push_back("Combined_Tracks");
-  m_trackCollectionNames.push_back("CombinedFitMuonTracks");
-  m_trackCollectionNames.push_back("ConvertedMuIdCBTracks");
-  m_trackCollectionNames.push_back("ConvertedMuIdExtrTracks");
-  m_trackCollectionNames.push_back("ConvertedStacoTracks");
-  m_trackCollectionNames.push_back("MuGirlRefittedTracks");
+  m_trackCollectionNames.emplace_back("MuonSpectrometerTracks");
+  m_trackCollectionNames.emplace_back("MooreTracks");
+  m_trackCollectionNames.emplace_back("ConvertedMBoyMuonSpectroOnlyTracks");
+  m_trackCollectionNames.emplace_back("ConvertedMBoyTracks");
+  m_trackCollectionNames.emplace_back("MuidExtrapolatedTracks");
+  m_trackCollectionNames.emplace_back("ExtrapolatedMuonSpectrometerTracks");
+  m_trackCollectionNames.emplace_back("Combined_Tracks");
+  m_trackCollectionNames.emplace_back("CombinedFitMuonTracks");
+  m_trackCollectionNames.emplace_back("ConvertedMuIdCBTracks");
+  m_trackCollectionNames.emplace_back("ConvertedMuIdExtrTracks");
+  m_trackCollectionNames.emplace_back("ConvertedStacoTracks");
+  m_trackCollectionNames.emplace_back("MuGirlRefittedTracks");
 
   declareProperty("PRD_TruthNames",          m_PRD_TruthNames);
-  m_PRD_TruthNames.push_back("CSC_TruthMap");
-  m_PRD_TruthNames.push_back("RPC_TruthMap");
-  m_PRD_TruthNames.push_back("TGC_TruthMap");
-  m_PRD_TruthNames.push_back("MDT_TruthMap");
+  m_PRD_TruthNames.emplace_back("CSC_TruthMap");
+  m_PRD_TruthNames.emplace_back("RPC_TruthMap");
+  m_PRD_TruthNames.emplace_back("TGC_TruthMap");
+  m_PRD_TruthNames.emplace_back("MDT_TruthMap");
 
 
   // Output
@@ -60,16 +57,14 @@ StatusCode MuonDetailedTrackTruthMaker::initialize()
   }
 
   m_detailedTrackTruthNames.reserve ( m_trackCollectionNames.size());
-  std::vector<std::string >::const_iterator it = m_trackCollectionNames.begin(), itEnd = m_trackCollectionNames.end();
-  for ( ; it!=itEnd ; ++it)
-    m_detailedTrackTruthNames.push_back(*it+"Truth");
-  
-  msg(MSG::INFO) << " processing: ";
-  std::vector<std::string>::const_iterator ikeyt = m_detailedTrackTruthNames.begin();
-  for(std::vector<std::string>::const_iterator ikey = m_trackCollectionNames.begin(); ikey != m_trackCollectionNames.end(); ikey++,++ikeyt) {
-    msg(MSG::INFO) << "  " << *ikey << "  " << *ikeyt;
+  for(unsigned int i=0;i<m_trackCollectionNames.size();i++){
+    m_detailedTrackTruthNames.emplace_back(m_trackCollectionNames.at(i).key()+"Truth");
+    ATH_MSG_INFO("process "<<m_trackCollectionNames.at(i).key()<<" for detailed truth collection "<<m_detailedTrackTruthNames.at(i).key());
   }
-  msg(MSG::INFO) << endmsg;
+
+  ATH_CHECK(m_trackCollectionNames.initialize());
+  ATH_CHECK(m_PRD_TruthNames.initialize());
+  ATH_CHECK(m_detailedTrackTruthNames.initialize());
   
   //----------------
   return StatusCode::SUCCESS;
@@ -86,49 +81,36 @@ StatusCode MuonDetailedTrackTruthMaker::finalize()
 StatusCode MuonDetailedTrackTruthMaker::execute() {
   ATH_MSG_DEBUG( "MuonDetailedTrackTruthMaker::execute()");
 
-  StatusCode sc;
-
   //----------------------------------------------------------------
   // Retrieve prep raw data truth
   std::vector<const PRD_MultiTruthCollection*> prdCollectionVector;
-  for(std::vector<std::string>::const_iterator ikey = m_PRD_TruthNames.begin(); ikey != m_PRD_TruthNames.end(); ikey++) {
-    prdCollectionVector.push_back(0);
-    sc = evtStore()->retrieve(*prdCollectionVector.rbegin(), *ikey);
-    if (!sc.isSuccess()){
-      ATH_MSG_WARNING(  "PRD_MultiTruthCollection "<<*ikey<<" NOT found");
-    } else {
-      ATH_MSG_DEBUG( "Got PRD_MultiTruthCollection "<<*ikey);
+  for(SG::ReadHandle<PRD_MultiTruthCollection>& col : m_PRD_TruthNames.makeHandles()){
+    if(!col.isPresent()) continue;
+    if(!col.isValid()){
+      ATH_MSG_WARNING("invalid PRD_MultiTruthCollection "<<col.name());
+      return StatusCode::FAILURE;
     }
+    prdCollectionVector.push_back(col.cptr());
   }
 
   //----------------------------------------------------------------
   // Retrieve track collections
-  unsigned int i=0;
-  std::vector<std::string>::const_iterator it = m_trackCollectionNames.begin(), itEnd = m_trackCollectionNames.end();
-  for ( ; it!=itEnd ; ++it, ++i) {
-
-    const TrackCollection *tracks = 0;
-    if (evtStore()->contains<TrackCollection>(*it) && evtStore()->retrieve(tracks, *it).isSuccess()){
-      ATH_MSG_DEBUG( "Got TrackCollection "<<*it );
-    } else {
-      ATH_MSG_VERBOSE( "TrackCollection "<<*it<<" NOT found");
-      continue;
+  int i=0;
+  for(SG::ReadHandle<TrackCollection>& tcol : m_trackCollectionNames.makeHandles()){
+    if(!tcol.isValid()){
+      ATH_MSG_WARNING("invalid TrackCollection "<<tcol.name());
+      return StatusCode::FAILURE;
     }
+    if(!tcol.isPresent()) continue;
 
     //----------------------------------------------------------------
     // Produce and store the output.
 
-    DetailedTrackTruthCollection *dttc = new DetailedTrackTruthCollection(tracks);
-    m_truthTool->buildDetailedTrackTruth(dttc, *tracks, prdCollectionVector);
-
-    sc=evtStore()->record(dttc, m_detailedTrackTruthNames[i], false);
-    if (sc.isFailure()) {
-      ATH_MSG_WARNING( "DetailedTrackTruthCollection '" << m_detailedTrackTruthNames[i] << "' could not be registered in StoreGate !" );
-      return StatusCode::SUCCESS;
-    } else {
-      ATH_MSG_DEBUG("DetailedTrackTruthCollection '" << m_detailedTrackTruthNames[i]
-        << "' is registered in StoreGate, size="<<dttc->size() );
-    }
+    SG::WriteHandle<DetailedTrackTruthCollection> dttc(m_detailedTrackTruthNames.at(i));
+    ATH_CHECK(dttc.record(std::make_unique<DetailedTrackTruthCollection>()));
+    dttc->setTrackCollection(tcol.cptr());
+    m_truthTool->buildDetailedTrackTruth(dttc.ptr(), *(tcol.cptr()), prdCollectionVector);
+    i++;
   }
   return StatusCode::SUCCESS;
 }

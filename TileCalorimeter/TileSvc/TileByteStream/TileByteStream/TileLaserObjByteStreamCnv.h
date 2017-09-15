@@ -26,6 +26,7 @@ class IROBDataProviderSvc;
 class TileLaserObjByteStreamTool ; 
 class TileROD_Decoder;
 class TileLaserObject;
+class TileHid2RESrcID;
 
 #include <vector>
 #include <stdint.h>
@@ -73,6 +74,9 @@ class TileLaserObjByteStreamCnv
     const eformat::ROBFragment<const uint32_t*>* m_robFrag;
     
     std::vector<uint32_t> m_ROBID;
+
+    /** Pointer to TileHid2RESrcID */
+    const TileHid2RESrcID* m_hid2re;
 
     /* Pointer to TileLaserObject */
     TileLaserObject* m_container;

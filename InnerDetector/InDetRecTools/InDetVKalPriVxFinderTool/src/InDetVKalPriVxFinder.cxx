@@ -307,7 +307,7 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
               const Trk::TrackSummary* testSum = m_sumSvc->createSummary(*(*i_ntrk));
               PixelHits = (long int) testSum->get(Trk::numberOfPixelHits);
               SctHits   = (long int) testSum->get(Trk::numberOfSCTHits);
-              BLayHits  = (long int) testSum->get(Trk::numberOfBLayerHits);
+              BLayHits  = (long int) testSum->get(Trk::numberOfInnermostPixelLayerHits);
               SharedHits= (long int) testSum->get(Trk::numberOfPixelSharedHits);
 	      if(PixelHits<0)PixelHits=0;
               if(SctHits<0)SctHits=0;
@@ -347,7 +347,7 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
                const Trk::TrackSummary* testSum = m_sumSvc->createSummary(*(*i_ntrk));
                PixelHits = (long int) testSum->get(Trk::numberOfPixelHits);
                SctHits   = (long int) testSum->get(Trk::numberOfSCTHits);
-               BLayHits  = (long int) testSum->get(Trk::numberOfBLayerHits);
+               BLayHits  = (long int) testSum->get(Trk::numberOfInnermostPixelLayerHits);
                SharedHits= (long int) testSum->get(Trk::numberOfPixelSharedHits);
 	       if(PixelHits<0)PixelHits=0;
                if(SctHits<0)SctHits=0;
@@ -484,7 +484,7 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
                  const Trk::TrackSummary* testSum = (*i_nprt)->trackSummary();
                  PixelHits = (long int) testSum->get(Trk::numberOfPixelHits);
                  SctHits   = (long int) testSum->get(Trk::numberOfSCTHits);
-                 BLayHits  = (long int) testSum->get(Trk::numberOfBLayerHits);
+                 BLayHits  = (long int) testSum->get(Trk::numberOfInnermostPixelLayerHits);
                  SharedHits= (long int) testSum->get(Trk::numberOfPixelSharedHits);
 	         if(PixelHits<0)PixelHits=0;
                  if(SctHits<0)SctHits=0;
@@ -521,7 +521,7 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
                  const Trk::TrackSummary* testSum = (*i_nprt)->trackSummary();
                  PixelHits = (long int) testSum->get(Trk::numberOfPixelHits);
                  SctHits   = (long int) testSum->get(Trk::numberOfSCTHits);
-                 BLayHits  = (long int) testSum->get(Trk::numberOfBLayerHits);
+                 BLayHits  = (long int) testSum->get(Trk::numberOfInnermostPixelLayerHits);
                  SharedHits= (long int) testSum->get(Trk::numberOfPixelSharedHits);
 	         if(PixelHits<0)PixelHits=0;
                  if(SctHits<0)SctHits=0;

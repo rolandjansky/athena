@@ -7,8 +7,6 @@
 #include <sstream>
 #include <iostream>
 
-typedef unsigned int uint;
-
 // Default constructor: chip has id 0, config = 0 and all strips good.
 SCT_Chip::SCT_Chip():
   m_id(0),
@@ -33,10 +31,10 @@ bool SCT_Chip::initializeMaskFromInts(uint32_t mask0, uint32_t mask1, uint32_t m
   uint32_t subWords[nSubwords]={mask0,mask1,mask2,mask3};
   // Put the integers into 32 bit bitsets
   std::bitset<lenSubword> subBinary;
-  for(uint i(0);i!=nSubwords;++i){
+  for(unsigned int i{0}; i!=nSubwords; ++i) {
     subBinary = subWords[i];
     // Put the four bitsets together in one 128 bit bitset (private member data)
-    for(uint j(0);j!=lenSubword;++j){
+    for(unsigned int j{0}; j!=lenSubword; ++j) {
       m_mask[i*lenSubword+j]=subBinary[j];
     }
   }

@@ -1,3 +1,4 @@
+
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -16,21 +17,28 @@ L1Decoder::L1Decoder(const std::string& name, ISvcLocator* pSvcLocator)
 }
 
 StatusCode L1Decoder::initialize() {
-  CHECK( m_RoIBResultKey.initialize( not m_RoIBResultKey.key().empty() )  );
+  ATH_MSG_INFO( "Reading RoIB infromation from: "<< m_RoIBResultKey.objKey() << " : " << m_RoIBResultKey.fullKey() << " : " << m_RoIBResultKey.key() );
+
+  if (  m_RoIBResultKey.objKey().empty() )
+    renounce( m_RoIBResultKey );
+  else
+    CHECK( m_RoIBResultKey.initialize( ) );
+  
   CHECK( m_chainsKey.initialize() );
 
   CHECK( m_ctpUnpacker.retrieve() );
   CHECK( m_roiUnpackers.retrieve() );
   //  CHECK( m_prescaler.retrieve() );
 
+  // this code should be in th ebeginRun but the later does not seem to be called
+  for ( auto t: m_roiUnpackers )
+    CHECK( t->updateConfiguration() );
   
 
   return StatusCode::SUCCESS;
 }
 
 StatusCode L1Decoder::beginRun() {
-  for ( auto t: m_roiUnpackers )
-    CHECK( t->updateConfiguration() );
   return StatusCode::SUCCESS;
 }
 

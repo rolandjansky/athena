@@ -48,10 +48,8 @@ OverrideEventInfoTags   - true
 ExtraTagValuePairs      - just add in release version
 TagInfoKey              - ProcessingTags
 
-@section EventInfoMgt_requirements requirements
 
 
-@section EventInfoMgt_uses Packages used
 
 
 */

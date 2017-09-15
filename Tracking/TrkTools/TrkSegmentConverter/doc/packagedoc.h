@@ -11,7 +11,6 @@ This package implements the SegmentConverter interface. It uses a TrackFitter to
 @author Christian Schmitt <Christian.Schmitt@cern.ch>
 
 
-@section TrkSegmentConverter_TrkSegmentConverterReq Requirements
 
 
 */

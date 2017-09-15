@@ -455,7 +455,7 @@ StatusCode topoEgammaBuilder::execute(){
   if (m_doConversions){
     ATH_MSG_DEBUG("Running ConversionBuilder");  
     smallChrono timer(m_timingProfile, this->name()+"_"+m_conversionBuilder->name()+"_AllClusters");
-    if (m_conversionBuilder->contExecute().isFailure()){
+    if (m_conversionBuilder->contExecute(*egammaRecs).isFailure()){
       ATH_MSG_ERROR("Problem executing " << m_conversionBuilder);
       return StatusCode::FAILURE;  
     }

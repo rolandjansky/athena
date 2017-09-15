@@ -1,10 +1,13 @@
 from AthenaCommon.AlgSequence import AlgSequence, AthSequencer
 topSequence = AlgSequence()
 
-from TrigUpgradeTest.CFElements import *
+from AthenaCommon.CFElements import parOR, seqAND
 
 TopHLTSeq = seqAND("TopHLTSeq")
 topSequence += TopHLTSeq
+
+
+
 
 L1UnpackingSeq = parOR("L1UnpackingSeq")
 from L1Decoder.L1DecoderConf import CTPUnpackingEmulationTool, RoIsUnpackingEmulationTool, L1Decoder

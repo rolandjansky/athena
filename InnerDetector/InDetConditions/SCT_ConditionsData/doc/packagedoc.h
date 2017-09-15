@@ -28,16 +28,4 @@ This package provides data classes used to access data in the conditions
   - StringifyVector: Local utility function to tokenise and stream a string to a vector.
 
 @section SCT_ConditionsData_SCT_ConditionsDataRefs Reference pages
-  - @ref used_SCT_ConditionsData
-  - @ref requirements_SCT_ConditionsData
-*/
-
-
-/**
-@page used_SCT_ConditionsData Used packages
-*/
-
-
-/**
-@page requirements_SCT_ConditionsData Requirements
 */

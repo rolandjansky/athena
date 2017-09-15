@@ -76,7 +76,9 @@ MDT_DCSConditionsTool::MDT_DCSConditionsTool (const std::string& type,
 
 
 //StatusCode MDT_DCSConditionsTool::updateAddress(SG::TransientAddress* /*tad*/)
-StatusCode MDT_DCSConditionsTool::updateAddress(StoreID::type /*storeID*/, SG::TransientAddress* /*tad*/)
+StatusCode MDT_DCSConditionsTool::updateAddress(StoreID::type /*storeID*/,
+                                                SG::TransientAddress* /*tad*/,
+                                                const EventContext& /*ctx*/)
 {
 //   MsgStream m_log(msgSvc(), name());
 //   CLID clid        = tad->clID();

@@ -33,7 +33,6 @@ If a track has more shared hits than allowed, as many shared hits as allowed are
 and a new track is constructed from these hits.
 If this track is sufficiently good, it is returned, otherweise zero is returned.
 
-@section InDetAmbiTrackSelectionTool_InDetAmbiTrackSelectionToolReq Requirements
 
 
 */

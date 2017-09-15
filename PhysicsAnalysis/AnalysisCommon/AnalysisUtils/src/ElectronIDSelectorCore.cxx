@@ -241,8 +241,8 @@ bool ElectronIDSelectorCore::accept( const INavigable4Momentum *part ) const
   // Check for the b-layer requirement if RobusterTight is requested
   if ( m_isEM_NoConvCut != 0 )
     {
-      bool expectBLayerHit = electron->detailValue( egammaParameters::expectHitInBLayer );        
-      if ( expectBLayerHit )
+      bool expectInnermostPixelLayerHit = electron->detailValue( egammaParameters::expectHitInBLayer );
+      if ( expectInnermostPixelLayerHit )
         {
           if ( electron->isem(m_isEM) != 0 )
             {

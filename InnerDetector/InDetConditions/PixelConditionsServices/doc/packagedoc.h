@@ -38,15 +38,4 @@ to the screen.
 
 @section PixelConditionsServices_PixelConditionsServicesExtras Extra Pages
 
- - @ref PixelConditionsServicesUsedPackages
- - @ref PixelConditionsServicesRequirements
 */
-
-/**
-@page PixelConditionsServicesUsedPackages Used Packages
-*/
-
-/**
-@page PixelConditionsServicesRequirements Requirements
-*/
-

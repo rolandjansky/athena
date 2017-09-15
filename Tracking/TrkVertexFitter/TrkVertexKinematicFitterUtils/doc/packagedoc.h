@@ -27,14 +27,4 @@ of the athena components, therefore the package follows the installed_library pa
 
 @section TrkVertexKinematicFitterUtils_ExtrasTrkKinUtils Extra Pages
 
- - @ref UsedTrkKinUtils
- - @ref requirementsTrkKinUtils
-*/
-
-/**
-@page UsedTrkKinUtils Used Packages
-*/
-
-/**
-@page requirementsTrkKinUtils Requirements
 */

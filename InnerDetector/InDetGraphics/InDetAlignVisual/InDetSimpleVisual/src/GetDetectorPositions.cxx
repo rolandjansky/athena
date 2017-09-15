@@ -41,34 +41,6 @@ GetDetectorPositions::GetDetectorPositions(std::string const&  name, ISvcLocator
   m_detailLevel(0),
   m_doTRT(true),
   m_outputFileName("IDgeometry.txt"),  
-  
-  /** Pixel Variables */
-  m_pix_barrel_ec(0),
-  m_pix_layer_disk(0),
-  m_pix_phi_module(0),
-  m_pix_eta_module(0),
-  m_pix_x(0),
-  m_pix_y(0),
-  m_pix_z(0),
-  
-  /** SCT variables */  
-  m_sct_barrel_ec(0),
-  m_sct_layer_disk(0),
-  m_sct_phi_module(0),
-  m_sct_eta_module(0),
-  m_sct_x(0),
-  m_sct_y(0),
-  m_sct_z(0),
-
-  /** TRT variables */    
-  m_trt_barrel_ec(0),
-  m_trt_layer_or_wheel(0),
-  m_trt_phi_module(0),
-  m_trt_straw_layer(0),
-  m_trt_straw(0),
-  m_trt_x(0),
-  m_trt_y(0),
-  m_trt_z(0),
 
   /** ID Tools */
   m_PixelHelper(0),
@@ -80,8 +52,8 @@ GetDetectorPositions::GetDetectorPositions(std::string const&  name, ISvcLocator
 
 {
   declareProperty("OutputTextFile",m_outputFileName);
-  declareProperty("DetailLevel",m_detailLevel);
-  declareProperty("DoTRT",        m_doTRT);
+  declareProperty("DetailLevel",   m_detailLevel);
+  declareProperty("DoTRT",         m_doTRT);
 }
 
 /** initialize */
@@ -127,7 +99,7 @@ StatusCode GetDetectorPositions::initialize(){
   }
   
   /** Output text File */
-  outputFile.open((m_outputFileName).c_str());
+  m_outputFile.open((m_outputFileName).c_str());
   
   return StatusCode::SUCCESS;
 }
@@ -166,7 +138,7 @@ StatusCode GetDetectorPositions::finalize() {
   if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "finalize()" << endmsg;
   
   /** Close the file */
-  outputFile.close();
+  m_outputFile.close();
 
   return StatusCode::SUCCESS;
 }
@@ -183,22 +155,26 @@ void GetDetectorPositions::writePixelPositions(){
     InDetDD::SiDetectorElement* si_hit = m_pixelDetectorManager->getDetectorElement( *pixIt );
     Amg::Vector3D p3d = si_hit->center();
     
-    m_pix_barrel_ec = m_PixelHelper->barrel_ec(*pixIt);
-    m_pix_layer_disk= m_PixelHelper->layer_disk(*pixIt);
-    m_pix_phi_module= m_PixelHelper->phi_module(*pixIt);
-    m_pix_eta_module = m_PixelHelper->eta_module(*pixIt);
-    m_pix_x = p3d.x();
-    m_pix_y = p3d.y();
-    m_pix_z = p3d.z();
+    int   pix_barrel_ec = m_PixelHelper->barrel_ec(*pixIt);
+    int   pix_layer_disk= m_PixelHelper->layer_disk(*pixIt);
+    int   pix_phi_module= m_PixelHelper->phi_module(*pixIt);
+    int   pix_eta_module = m_PixelHelper->eta_module(*pixIt);
+    int   nPixPhi      = m_PixelHelper->phi_index_max(*pixIt)+1;
+    int   nPixEta      = m_PixelHelper->eta_index_max(*pixIt)+1;
+    float pix_x = p3d.x();
+    float pix_y = p3d.y();
+    float pix_z = p3d.z();
     
-    outputFile << 1 << " "
-	       << m_pix_barrel_ec << " " 
-	       << m_pix_layer_disk << " " 
-	       << m_pix_phi_module << " "
-	       << m_pix_eta_module << " "
-	       << m_pix_x << " "
-	       << m_pix_y << " " 
-	       << m_pix_z << " " 
+    m_outputFile << 1 << " "
+	       << pix_barrel_ec << " " 
+	       << pix_layer_disk << " " 
+	       << pix_phi_module << " "
+	       << pix_eta_module << " "
+	       << pix_x << " "
+	       << pix_y << " " 
+	       << pix_z << " " 
+	       << nPixPhi << " " 
+	       << nPixEta << " " 
 	       << std::endl;
   }
   
@@ -218,22 +194,24 @@ void GetDetectorPositions::writeSCTPositions(){
     InDetDD::SiDetectorElement* si_hit = m_SCTDetectorManager->getDetectorElement( *sctIt );
     Amg::Vector3D p3d = si_hit->center();
     
-    m_sct_barrel_ec = m_SCTHelper->barrel_ec(*sctIt);
-    m_sct_layer_disk= m_SCTHelper->layer_disk(*sctIt);
-    m_sct_phi_module= m_SCTHelper->phi_module(*sctIt);
-    m_sct_eta_module = m_SCTHelper->eta_module(*sctIt);
-    m_sct_x = p3d.x();
-    m_sct_y = p3d.y();
-    m_sct_z = p3d.z();
+    int sct_barrel_ec = m_SCTHelper->barrel_ec(*sctIt);
+    int sct_layer_disk= m_SCTHelper->layer_disk(*sctIt);
+    int sct_phi_module= m_SCTHelper->phi_module(*sctIt);
+    int sct_eta_module = m_SCTHelper->eta_module(*sctIt);
+    int nStrips      = m_SCTHelper->strip_max(*sctIt)+1;
+    float sct_x = p3d.x();
+    float sct_y = p3d.y();
+    float sct_z = p3d.z();
     
-    outputFile << 2 << " "
-	       << m_sct_barrel_ec << " "
-	       << m_sct_layer_disk << " "
-	       << m_sct_phi_module << " "
-	       << m_sct_eta_module << " " 
-	       << m_sct_x << " "
-	       << m_sct_y << " "
-	       << m_sct_z << " " 
+    m_outputFile << 2 << " "
+	       << sct_barrel_ec << " "
+	       << sct_layer_disk << " "
+	       << sct_phi_module << " "
+	       << sct_eta_module << " " 
+	       << sct_x << " "
+	       << sct_y << " "
+	       << sct_z << " " 
+	       << nStrips << " " 
 	       << std::endl;
   }
   
@@ -317,27 +295,27 @@ void GetDetectorPositions::writeTRTPositions(Identifier const& trtId){
   const Amg::Vector3D  &p3d = m_TRTDetectorManager->getElement( trtId )->center(trtId);
   
   
-    m_trt_barrel_ec = m_TRTHelper->barrel_ec(trtId);
-  m_trt_layer_or_wheel = m_TRTHelper->layer_or_wheel(trtId);
-  m_trt_phi_module = m_TRTHelper->phi_module(trtId);
-  m_trt_straw_layer = m_TRTHelper->straw_layer(trtId);
-  m_trt_straw = m_TRTHelper->straw(trtId);
-  m_trt_x = p3d.x();
-  m_trt_y = p3d.y();
-  m_trt_z = p3d.z();
+  int trt_barrel_ec = m_TRTHelper->barrel_ec(trtId);
+  int trt_layer_or_wheel = m_TRTHelper->layer_or_wheel(trtId);
+  int trt_phi_module = m_TRTHelper->phi_module(trtId);
+  int trt_straw_layer = m_TRTHelper->straw_layer(trtId);
+  int trt_straw = m_TRTHelper->straw(trtId);
+  float trt_x = p3d.x();
+  float trt_y = p3d.y();
+  float trt_z = p3d.z();
   
-  outputFile << 3 << " "
-	     << m_trt_barrel_ec << " "
-	     << m_trt_layer_or_wheel << " "
-	     << m_trt_phi_module << " "
-	     << m_trt_straw_layer << " ";
+  m_outputFile << 3 << " "
+	     << trt_barrel_ec << " "
+	     << trt_layer_or_wheel << " "
+	     << trt_phi_module << " "
+	     << trt_straw_layer << " ";
   
   if(m_detailLevel)	     
-    outputFile << m_trt_straw << " ";
+    m_outputFile << trt_straw << " ";
   
-  outputFile << m_trt_x << " "
-	     << m_trt_y << " "
-	     << m_trt_z << " "
+  m_outputFile << trt_x << " "
+	     << trt_y << " "
+	     << trt_z << " "
 	     << std::endl;
   
   if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Leaving writeTRTPositions()" << endmsg;
@@ -352,50 +330,45 @@ void GetDetectorPositions::writeTRTPositions(Identifier const& trtId){
 void GetDetectorPositions::writeTwoTRTPositions(Identifier const& trtId){
   if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "In writeTwoTRTPositions()" << endmsg;
 
-  const Amg::Vector3D &p3d = m_TRTDetectorManager->getElement( trtId )->center(trtId);
-  
-  m_trt_barrel_ec = m_TRTHelper->barrel_ec(trtId);
-  m_trt_layer_or_wheel = m_TRTHelper->layer_or_wheel(trtId);
-  m_trt_phi_module = m_TRTHelper->phi_module(trtId);
-  m_trt_straw_layer = m_TRTHelper->straw_layer(trtId);
-  m_trt_straw = m_TRTHelper->straw(trtId);
-  m_trt_x = p3d.x();
-  m_trt_y = p3d.y();
-  m_trt_z = p3d.z();
+  int trt_barrel_ec = m_TRTHelper->barrel_ec(trtId);
+  int trt_layer_or_wheel = m_TRTHelper->layer_or_wheel(trtId);
+  int trt_phi_module = m_TRTHelper->phi_module(trtId);
+  int trt_straw_layer = m_TRTHelper->straw_layer(trtId);
+  int trt_straw = m_TRTHelper->straw(trtId);
  
   // We sample the straw position at two places
   Amg::Vector3D posZSample(0,0,100);
-  Amg::Vector3D firstSampling = m_TRTDetectorManager->getElement( trtId )->strawTransform(m_trt_straw) * posZSample;
-  float m_first_X = firstSampling.x();
-  float m_first_Y = firstSampling.y();
-  float m_first_Z = firstSampling.z();
+  Amg::Vector3D firstSampling = m_TRTDetectorManager->getElement( trtId )->strawTransform(trt_straw) * posZSample;
+  float first_X = firstSampling.x();
+  float first_Y = firstSampling.y();
+  float first_Z = firstSampling.z();
 
   Amg::Vector3D negZSample(0,0,-100);
-  Amg::Vector3D secondSampling = m_TRTDetectorManager->getElement( trtId )->strawTransform(m_trt_straw) * negZSample;
-  float m_second_X = secondSampling.x();
-  float m_second_Y = secondSampling.y();
-  float m_second_Z = secondSampling.z();
+  Amg::Vector3D secondSampling = m_TRTDetectorManager->getElement( trtId )->strawTransform(trt_straw) * negZSample;
+  float second_X = secondSampling.x();
+  float second_Y = secondSampling.y();
+  float second_Z = secondSampling.z();
   
-  outputFile << 3 << " "
-	     << m_trt_barrel_ec << " "
-	     << m_trt_layer_or_wheel << " "
-	     << m_trt_phi_module << " "
-	     << m_trt_straw_layer << " "
-	     << m_trt_straw << " "
-  	     << m_first_X << " "
-	     << m_first_Y << " "
-	     << m_first_Z << " "
+  m_outputFile << 3 << " "
+	     << trt_barrel_ec << " "
+	     << trt_layer_or_wheel << " "
+	     << trt_phi_module << " "
+	     << trt_straw_layer << " "
+	     << trt_straw << " "
+  	     << first_X << " "
+	     << first_Y << " "
+	     << first_Z << " "
 	     << std::endl;
 
-  outputFile << 3 << " "
-	     << m_trt_barrel_ec << " "
-	     << m_trt_layer_or_wheel << " "
-	     << m_trt_phi_module << " "
-	     << m_trt_straw_layer << " "
-	     << m_trt_straw << " "
-  	     << m_second_X << " "
-	     << m_second_Y << " "
-	     << m_second_Z << " "
+  m_outputFile << 3 << " "
+	     << trt_barrel_ec << " "
+	     << trt_layer_or_wheel << " "
+	     << trt_phi_module << " "
+	     << trt_straw_layer << " "
+	     << trt_straw << " "
+  	     << second_X << " "
+	     << second_Y << " "
+	     << second_Z << " "
 	     << std::endl;
 
   

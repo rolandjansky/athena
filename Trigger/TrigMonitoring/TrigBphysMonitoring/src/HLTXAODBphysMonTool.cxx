@@ -1449,7 +1449,7 @@ void HLTXAODBphysMonTool::fillTrigBphysHists(const xAOD::TrigBphys *bphysItem, c
         float etaTrk1    = ptl1->eta();
         
         uint8_t tmpValue(0);
-        int bLayerHitsTrk1 = ptl1->summaryValue(tmpValue,xAOD::numberOfBLayerHits) ?  tmpValue : -99;
+        int bLayerHitsTrk1 = ptl1->summaryValue(tmpValue,xAOD::numberOfInnermostPixelLayerHits) ?  tmpValue : -99;
         int sctHitsTrk1    = ptl1->summaryValue(tmpValue,xAOD::numberOfSCTHits)    ?  tmpValue : -99;
         int pixHitsTrk1    = ptl1->summaryValue(tmpValue,xAOD::numberOfPixelHits)  ?  tmpValue : -99;
         int trtHitsTrk1    = ptl1->summaryValue(tmpValue,xAOD::numberOfTRTHits)    ?  tmpValue : -99;
@@ -1492,7 +1492,7 @@ void HLTXAODBphysMonTool::fillTrigBphysHists(const xAOD::TrigBphys *bphysItem, c
                 float etaTrk2    = ptl2->eta();
                 
                 tmpValue = 0;
-                int bLayerHitsTrk2 = ptl2->summaryValue(tmpValue,xAOD::numberOfBLayerHits) ?  tmpValue : -99;
+                int bLayerHitsTrk2 = ptl2->summaryValue(tmpValue,xAOD::numberOfInnermostPixelLayerHits) ?  tmpValue : -99;
                 int sctHitsTrk2    = ptl2->summaryValue(tmpValue,xAOD::numberOfSCTHits)    ?  tmpValue : -99;
                 int pixHitsTrk2    = ptl2->summaryValue(tmpValue,xAOD::numberOfPixelHits)  ?  tmpValue : -99;
                 int trtHitsTrk2    = ptl2->summaryValue(tmpValue,xAOD::numberOfTRTHits)    ?  tmpValue : -99;

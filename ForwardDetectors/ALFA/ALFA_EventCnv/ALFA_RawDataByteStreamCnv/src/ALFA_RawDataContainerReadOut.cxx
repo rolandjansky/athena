@@ -14,7 +14,6 @@
  
 ALFA_RawDataContainerReadOut::ALFA_RawDataContainerReadOut():
   m_wordMarker(0),
-  m_dataWord(0),
   m_subdetId(0),
   m_mrodId(0),
   m_lvl1Id(0),
@@ -42,7 +41,7 @@ void ALFA_RawDataContainerReadOut::decodeHeaderFull(std::vector<uint32_t>& vData
   setZeroFull();
 
  
-  if (vDataFull[0] == FullEVmarker) 
+  if (vDataFull[0] == s_FullEVmarker) 
     {
       // cout  << "Full HEADER found : vDataFull[0]  "<< std::hex  << vDataFull[0] <<  std::dec  <<endl;
 
@@ -75,14 +74,14 @@ void ALFA_RawDataContainerReadOut::decodeHeader(std::vector<uint32_t>& vData)
 
   setZero();
 
-  if (vData[0] != RODmarker) 
+  if (vData[0] != s_RODmarker) 
     {
 #ifndef NDEBUG
       log << MSG::ERROR << "ROD Start of header marker not found" << endmsg;
 #endif
       assert(0);
     }
-  if (vData[1] != RODheadersize) 
+  if (vData[1] != s_RODheadersize) 
     {
 #ifndef NDEBUG
       log << MSG::ERROR << "ROD header size doesn't match " << endmsg;

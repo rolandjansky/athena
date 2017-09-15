@@ -73,11 +73,19 @@ StatusCode xAODTestDecor::execute_r (const EventContext& ctx) const
 
   if (m_doCInfo) {
     SG::WriteDecorHandle<C, int> cinfoDecor (m_cinfoDecorKey, ctx);
+    if (!cinfoDecor.isPresent()) {
+      ATH_MSG_ERROR( "cinfoDecor.isPresent check fails" );
+      return StatusCode::FAILURE;
+    }
     cinfoDecor(0) = cinfoDecor->anInt() + (m_offset ? 400 + m_offset : count * 2000);
   }
 
   if (m_doCVec) {
     SG::WriteDecorHandle<CVec, int> cvecDecor (m_cvecDecorKey, ctx);
+    if (!cvecDecor.isPresent()) {
+      ATH_MSG_ERROR( "cvecDecor.isPresent check fails" );
+      return StatusCode::FAILURE;
+    }
     for (const C* celt : *cvecDecor) {
       cvecDecor(*celt) = celt->anInt() + (m_offset ? m_offset : count*300);
     }
@@ -85,6 +93,10 @@ StatusCode xAODTestDecor::execute_r (const EventContext& ctx) const
 
   if (m_doCTrig) {
     SG::WriteDecorHandle<CVec, int> ctrigDecor (m_ctrigDecorKey, ctx);
+    if (!ctrigDecor.isPresent()) {
+      ATH_MSG_ERROR( "ctrigDecor.isPresent check fails" );
+      return StatusCode::FAILURE;
+    }
     for (const C* celt : *ctrigDecor) {
       ctrigDecor(*celt) = celt->anInt() + (m_offset ? 600 + m_offset : -count*20);
     }

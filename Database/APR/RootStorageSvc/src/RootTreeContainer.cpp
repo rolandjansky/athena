@@ -442,6 +442,14 @@ RootTreeContainer::loadObject(DataCallBack* call, Token::OID_t& oid, DbAccessMod
               }
               // read the object
               numBytesBranch = dsc.branch->GetEntry(evt_id);
+              TTree::TClusterIterator clusterIterator = dsc.branch->GetTree()->GetClusterIterator(evt_id);
+              clusterIterator.Next();
+              if (evt_id == clusterIterator.GetStartEntry() && dsc.branch->GetTree()->GetMaxVirtualSize() != 0) {
+                 for (int i = dsc.branch->GetReadBasket(); i < dsc.branch->GetMaxBaskets()
+	                 && dsc.branch->GetBasketEntry()[i] < clusterIterator.GetNextEntry(); i++) {
+                    dsc.branch->GetBasket(i);
+                 }
+              }
               numBytes += numBytesBranch;
               if ( numBytesBranch >= 0 )     {
 		 hasRead=true;

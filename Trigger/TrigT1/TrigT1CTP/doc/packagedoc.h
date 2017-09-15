@@ -52,14 +52,4 @@ triggers are simulated: random trigger, prescaled clock trigger and bunch group 
 
 @section TrigT1CTP_TrigT1CTP Extra Pages
 
-- @ref used_TrigT1CTP
-- @ref requirements_TrigT1CTP
-*/
-
-/**
-   @page used_TrigT1CTP Used Packages
-*/
-
-/**
-   @page requirements_TrigT1CTP Requirements
 */

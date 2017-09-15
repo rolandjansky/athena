@@ -17,6 +17,7 @@ from ISF_Config.ISF_jobProperties import ISF_Flags # IMPORTANT: Flags must be se
 from ISF_FatrasServices.ISF_FatrasJobProperties import ISF_FatrasFlags
 from ISF_FatrasServices.FatrasTuning import FatrasTuningFlags
 from ISF_FatrasServices.FatrasValidation import FatrasValidationFlags
+from ISF_Algorithms.collection_merger_helpers import generate_mergeable_collection_name
 
 #################################################################################
 # Material for the Geometry
@@ -241,7 +242,7 @@ def getFatrasParticleDecayHelper(name="ISF_FatrasParticleDecayHelper", **kwargs)
     kwargs.setdefault("RandomStreamName"    , ISF_FatrasFlags.RandomStreamName())
     kwargs.setdefault("G4RandomStreamName"    , "FatrasG4") # TODO: read stream name "FatrasG4" from Fatras jobProperties
     kwargs.setdefault("ParticleBroker"  , getService('ISF_ParticleBrokerSvc'))
-    kwargs.setdefault("ParticleTruthSvc", ISF_Flags.TruthService.get_Value())
+    kwargs.setdefault("ParticleTruthSvc", simFlags.TruthStrategy.TruthServiceName())
     kwargs.setdefault("PDGToG4ParticleConverter", getPublicTool('ISF_FatrasPdgG4Particle'))
     # the validation output
     kwargs.setdefault("ValidationMode"              , ISF_Flags.ValidationMode())
@@ -265,7 +266,7 @@ def getFatrasG4HadIntProcessor(name="ISF_FatrasG4HadIntProcessor", **kwargs):
     kwargs.setdefault("RandomNumberService" , simFlags.RandomSvc() )
     kwargs.setdefault("RandomStreamName"    , ISF_FatrasFlags.RandomStreamName())
     kwargs.setdefault("ParticleBroker"      , getService('ISF_ParticleBrokerSvc'))
-    kwargs.setdefault("TruthRecordSvc"      , ISF_Flags.TruthService.get_Value())
+    kwargs.setdefault("TruthRecordSvc"      , simFlags.TruthStrategy.TruthServiceName())
     kwargs.setdefault("PhysicsValidationTool"       , getPublicTool('ISF_FatrasPhysicsValidationTool'))
     kwargs.setdefault('ValidationMode'      , ISF_Flags.ValidationMode())
     kwargs.setdefault("MomentumCut"        , FatrasTuningFlags.MomCutOffSec())
@@ -280,7 +281,7 @@ def getFatrasParametricHadIntProcessor(name="ISF_FatrasParametricHadIntProcessor
     kwargs.setdefault("RandomNumberService" , simFlags.RandomSvc() )
     kwargs.setdefault("RandomStreamName"    , ISF_FatrasFlags.RandomStreamName())
     kwargs.setdefault("ParticleBroker"      , getService('ISF_ParticleBrokerSvc'))
-    kwargs.setdefault("TruthRecordSvc"      , ISF_Flags.TruthService.get_Value())
+    kwargs.setdefault("TruthRecordSvc"      , simFlags.TruthStrategy.TruthServiceName())
     kwargs.setdefault("HadronicInteractionScaleFactor"  , FatrasTuningFlags.HadronicInteractionProbabilityScalor())
     kwargs.setdefault("MinimumHadronicInitialEnergy"    , FatrasTuningFlags.MomCutOffSec())
     kwargs.setdefault("MinimumHadronicOutEnergy"        , FatrasTuningFlags.MomCutOffSec())
@@ -301,7 +302,7 @@ def getFatrasConversionCreator(name="ISF_FatrasConversionCreator", **kwargs):
     kwargs.setdefault("RandomNumberService" , simFlags.RandomSvc() )
     kwargs.setdefault("RandomStreamName"    , ISF_FatrasFlags.RandomStreamName())
     kwargs.setdefault("ParticleBroker"  , getService('ISF_ParticleBrokerSvc'))
-    kwargs.setdefault("TruthRecordSvc"  , ISF_Flags.TruthService.get_Value())
+    kwargs.setdefault("TruthRecordSvc"  , simFlags.TruthStrategy.TruthServiceName())
     kwargs.setdefault("PhysicsValidationTool"       , getPublicTool('ISF_FatrasPhysicsValidationTool'))
     kwargs.setdefault("PhysicsProcessCode"              , 14) # TODO: to be taken from central definition
     kwargs.setdefault('ValidationMode'      , ISF_Flags.ValidationMode())
@@ -315,7 +316,7 @@ def getFatrasProcessSamplingTool(name="ISF_FatrasProcessSamplingTool", **kwargs)
     from G4AtlasApps.SimFlags import SimFlags,simFlags
     kwargs.setdefault( "RandomNumberService", simFlags.RandomSvc())
     # truth record
-    kwargs.setdefault("TruthRecordSvc"      , ISF_Flags.TruthService.get_Value())
+    kwargs.setdefault("TruthRecordSvc"      , simFlags.TruthStrategy.TruthServiceName())
     # decays
     kwargs.setdefault("ParticleDecayHelper" , getPublicTool('ISF_FatrasParticleDecayHelper'))
     # photon conversion
@@ -401,7 +402,7 @@ def getFatrasMaterialUpdator(name="ISF_FatrasMaterialUpdator", **kwargs):
     kwargs.setdefault("RandomNumberService" , simFlags.RandomSvc() )
     kwargs.setdefault("RandomStreamName"    , ISF_FatrasFlags.RandomStreamName())
     kwargs.setdefault("ParticleBroker"              , getService('ISF_ParticleBrokerSvc'))
-    kwargs.setdefault("TruthRecordSvc"              , ISF_Flags.TruthService.get_Value())
+    kwargs.setdefault("TruthRecordSvc"              , simFlags.TruthStrategy.TruthServiceName())
     # hadronic interactions
     kwargs.setdefault("HadronicInteraction"         , True)
     #kwargs.setdefault("HadronicInteractionProcessor", getPublicTool('ISF_FatrasParametricHadIntProcessor'))
@@ -437,7 +438,7 @@ def getFatrasMaterialEffectsEngine(name="ISF_FatrasMaterialEffectsEngine", **kwa
     kwargs.setdefault("RandomNumberService"         , simFlags.RandomSvc() )
     kwargs.setdefault("RandomStreamName"            , ISF_FatrasFlags.RandomStreamName())
     kwargs.setdefault("ParticleBroker"              , getService('ISF_ParticleBrokerSvc'))
-    kwargs.setdefault("TruthRecordSvc"              , ISF_Flags.TruthService.get_Value())
+    kwargs.setdefault("TruthRecordSvc"              , simFlags.TruthStrategy.TruthServiceName())
     kwargs.setdefault("ProcessSamplingTool"         , getPublicTool('ISF_FatrasProcessSamplingTool'))
     kwargs.setdefault("ParticleDecayHelper"         , getPublicTool('ISF_FatrasParticleDecayHelper'))
     # energy loss
@@ -527,32 +528,53 @@ def getFatrasExEngine(name="ISF_FatrasExEngine", **kwargs):
 #   Fatras Hadronic Interaction Processor
 #   hadronic interaction creator
 def getFatrasHitCreatorPixel(name="ISF_FatrasHitCreatorPixel", **kwargs):
+    bare_collection_name = "PixelHits"
+    mergeable_collection_suffix = "_Fatras"
+    merger_input_property = "PixelHits"
+    hits_collection_name = generate_mergeable_collection_name(bare_collection_name,
+                                                              mergeable_collection_suffix,
+                                                              merger_input_property)
+
     from G4AtlasApps.SimFlags import SimFlags,simFlags
     kwargs.setdefault("RandomNumberService" , simFlags.RandomSvc() )
     kwargs.setdefault("RandomStreamName"    , ISF_FatrasFlags.RandomStreamName())
     kwargs.setdefault("IdHelperName"    , 'PixelID')
-    kwargs.setdefault("CollectionName"  , 'PixelHits')
+    kwargs.setdefault("CollectionName"  , hits_collection_name)
+
+    from FastCaloSimHit.FastCaloSimHitConf import FastHitConvertTool
     kwargs.setdefault("UseConditionsSvc", False)
 
     from ISF_FatrasToolsID.ISF_FatrasToolsIDConf import iFatras__HitCreatorSilicon
     return iFatras__HitCreatorSilicon(name, **kwargs )
 
 def getFatrasHitCreatorSCT(name="ISF_FatrasHitCreatorSCT", **kwargs):
+    bare_collection_name = "SCT_Hits"
+    mergeable_collection_suffix = "_Fatras"
+    merger_input_property = "SCTHits"
+    hits_collection_name = generate_mergeable_collection_name(bare_collection_name,
+                                                              mergeable_collection_suffix,
+                                                              merger_input_property)
     from G4AtlasApps.SimFlags import SimFlags,simFlags
     kwargs.setdefault("RandomNumberService" , simFlags.RandomSvc() )
     kwargs.setdefault("RandomStreamName"    , ISF_FatrasFlags.RandomStreamName())
     kwargs.setdefault("IdHelperName"    , 'SCT_ID')
-    kwargs.setdefault("CollectionName"  , 'SCT_Hits')
+    kwargs.setdefault("CollectionName"  , hits_collection_name)
     kwargs.setdefault("UseConditionsSvc", False)
 
     from ISF_FatrasToolsID.ISF_FatrasToolsIDConf import iFatras__HitCreatorSilicon
     return iFatras__HitCreatorSilicon(name, **kwargs )
 
 def getFatrasHitCreatorTRT(name="ISF_FatrasHitCreatorTRT", **kwargs):
+    bare_collection_name = "TRTUncompressedHits"
+    mergeable_collection_suffix = "_Fatras"
+    merger_input_property = "TRTUncompressedHits"
+    hits_collection_name = generate_mergeable_collection_name(bare_collection_name,
+                                                              mergeable_collection_suffix,
+                                                              merger_input_property)
     from G4AtlasApps.SimFlags import SimFlags,simFlags
     kwargs.setdefault("RandomNumberService" , simFlags.RandomSvc() )
     kwargs.setdefault("RandomStreamName"    , ISF_FatrasFlags.RandomStreamName())
-    kwargs.setdefault("CollectionName"  , 'TRTUncompressedHits')
+    kwargs.setdefault("CollectionName"  , hits_collection_name)
 
     from ISF_FatrasToolsID.ISF_FatrasToolsIDConf import iFatras__HitCreatorTRT
     return iFatras__HitCreatorTRT(name, **kwargs )
@@ -588,10 +610,38 @@ def getFatrasPileupSimHitCreatorID(name="ISF_FatrasPileupSimHitCreatorID", **kwa
     return getFatrasSimHitCreatorID(name, **kwargs )
 
 def getFatrasSimHitCreatorMS(name="ISF_FatrasSimHitCreatorMS", **kwargs):
+    mergeable_collection_suffix = "_Fatras"
+
+    mdt_bare_collection_name = "MDT_Hits"
+    mdt_merger_input_property = "MDTHits"
+    mdt_hits_collection_name = generate_mergeable_collection_name(mdt_bare_collection_name,
+                                                                  mergeable_collection_suffix,
+                                                                  mdt_merger_input_property)
+    rpc_bare_collection_name = "RPC_Hits"
+    rpc_merger_input_property = "RPCHits"
+    rpc_hits_collection_name = generate_mergeable_collection_name(rpc_bare_collection_name,
+                                                                  mergeable_collection_suffix,
+                                                                  rpc_merger_input_property)
+    tgc_bare_collection_name = "TGC_Hits"
+    tgc_merger_input_property = "TGCHits"
+    tgc_hits_collection_name = generate_mergeable_collection_name(tgc_bare_collection_name,
+                                                                  mergeable_collection_suffix,
+                                                                  tgc_merger_input_property)
+    csc_bare_collection_name = "CSC_Hits"
+    csc_merger_input_property = "CSCHits"
+    csc_hits_collection_name = generate_mergeable_collection_name(csc_bare_collection_name,
+                                                                  mergeable_collection_suffix,
+                                                                  csc_merger_input_property)
+
     from G4AtlasApps.SimFlags import SimFlags,simFlags
     kwargs.setdefault("RandomNumberService" , simFlags.RandomSvc() )
     kwargs.setdefault("RandomStreamName"    , ISF_FatrasFlags.RandomStreamName())
     kwargs.setdefault("Extrapolator" , getPublicTool('ISF_FatrasExtrapolator'))
+    kwargs.setdefault("MDTCollectionName", mdt_hits_collection_name)
+    kwargs.setdefault("RPCCollectionName", rpc_hits_collection_name)
+    kwargs.setdefault("TGCCollectionName", tgc_hits_collection_name)
+    kwargs.setdefault("CSCCollectionName", csc_hits_collection_name)
+
     from ISF_FatrasToolsMS.ISF_FatrasToolsMSConf import iFatras__SimHitCreatorMS
     return iFatras__SimHitCreatorMS(name, **kwargs )
 
@@ -661,12 +711,12 @@ def getFatrasSimServiceID(name="ISF_FatrasSimSvc", **kwargs):
 
     # set the output level
     kwargs.setdefault("OutputLevel"         , ISF_FatrasFlags.OutputLevelGeneral())
-    
+
     # register Fatras random number stream if not already registered
     from G4AtlasApps.SimFlags import SimFlags,simFlags
     if not simFlags.RandomSeedList.checkForExistingSeed( "FatrasRnd" ):
       simFlags.RandomSeedList.addSeed( "FatrasRnd", 81234740, 23474923 )
-        
+
     from ISF_FatrasServices.ISF_FatrasServicesConf import iFatras__FatrasSimSvc
     return iFatras__FatrasSimSvc(name, **kwargs )
 

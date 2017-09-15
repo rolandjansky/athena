@@ -132,7 +132,7 @@ StatusCode eflowPreparation::initialize() {
 
 StatusCode eflowPreparation::finalize() {
 
-  msg(MSG::INFO) << "Produced " << m_nMatches << " track-cluster matches." << endmsg;
+  ATH_MSG_INFO("Produced " << m_nMatches << " track-cluster matches.");
 
   return StatusCode::SUCCESS;
 

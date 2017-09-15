@@ -71,55 +71,53 @@ SCT_DetailedSurfaceChargesGenerator::SCT_DetailedSurfaceChargesGenerator(const s
     m_vs_h(8761659.83530), //<! hole mobility at 273.15K
     m_Ec_h(15366.52650), 
     m_PotentialValue{{0.}},
-    m_ExValue150{{0.}},
-    m_EyValue150{{0.}},
-    m_stripCharge{{{{0.}}}},
-    m_distortionsTool("SCT_DistortionsTool", this),
-    m_siConditionsSvc("SCT_SiliconConditionsSvc",name),
-    m_siPropertiesSvc("SCT_SiPropertiesSvc",name),
-    m_element(0),
-    m_rndmEngine(0),
-    m_rndmEngineName("SCT_Digitization")
-{
-  declareInterface< ISCT_SurfaceChargesGenerator  >( this );
+  m_ExValue150{{0.}},
+  m_EyValue150{{0.}},
+  m_stripCharge{{{{0.}}}},
+  m_siConditionsSvc("SCT_SiliconConditionsSvc",name),
+  m_siPropertiesSvc("SCT_SiPropertiesSvc",name),
+  m_element(0),
+  m_rndmEngine(0),
+  m_rndmEngineName("SCT_Digitization")
+  {
+    declareInterface< ISCT_SurfaceChargesGenerator  >( this );
 
-  declareProperty("FixedTime",m_tfix=-999);                //!< fixed timing
-  declareProperty("SubtractTime",m_tsubtract=-999);        //!< substract drift time
-  declareProperty("SurfaceDriftTime",m_tSurfaceDrift=10);  //!< max surface drift time
-  declareProperty("NumberOfCharges",m_numberOfCharges=1);
-  declareProperty("SmallStepLength",m_smallStepLength=5);
-  declareProperty("ChargeDriftModel",m_chargeDriftModel=1); //!< 1 eh transport model, 2 map model
-  declareProperty("EFieldModel",m_eFieldModel=2);           //!< FEM solution as default
-  declareProperty("DepletionVoltage",m_depletionVoltage=70);
-  declareProperty("BiasVoltage",m_biasVoltage=150);
-  declareProperty("MagneticField",m_magneticField=-2.0);
-  declareProperty("SensorTemperature",m_sensorTemperature=273.15);
-  declareProperty("TransportTimeStep",m_transportTimeStep=0.25);
-  declareProperty("TransportTimeMax",m_transportTimeMax=25.0);
-  declareProperty("SiConditionsSvc", m_siConditionsSvc);
-  declareProperty("SiPropertiesSvc", m_siPropertiesSvc);
-  //  declareProperty("rndmEngineName",m_rndmEngineName="SCT_Digitization");
-  declareProperty("doDistortions",   m_doDistortions, "Simulation of module distortions");
-  declareProperty("SCTDistortionsTool", m_distortionsTool, "Tool to retrieve SCT distortions");
-  declareProperty("doHistoTrap", m_doHistoTrap, "Allow filling of histos for charge trapping effect"); 
-  declareProperty("doTrapping", m_doTrapping, "Simulation of charge trapping effect"); 
-  declareProperty("Fluence", m_Fluence, "Fluence for charge trapping effect");
-  // 
-  m_beta_e = 2.57E-2* pow(m_sensorTemperature,0.66);
-  m_beta_h = 0.46 * pow(m_sensorTemperature,0.17);
-  double Emean = m_biasVoltage / m_depletion_depth;
-  m_driftMobility  = mud_h(Emean);
-  m_diffusion = m_kB * m_sensorTemperature * m_driftMobility/ m_e;
-  double r_h = 0.72 - 0.0005*(m_sensorTemperature-273.15);
-  m_tanLA = r_h * m_driftMobility * m_magneticField * 1.E-4;
-  // sroe: the following were never initialised before, which begs the question:
-  // Did this code *ever* work? Has it *ever* been used?
-  m_stripCharge_ixmax = 80;
-  m_stripCharge_iymax = 284;
-  m_stripCharge_dx=1;
-  m_stripCharge_dy=1;
-  declareProperty("isOverlay", m_isOverlay=false);
-}
+    declareProperty("FixedTime",m_tfix=-999);                //!< fixed timing
+    declareProperty("SubtractTime",m_tsubtract=-999);        //!< substract drift time
+    declareProperty("SurfaceDriftTime",m_tSurfaceDrift=10);  //!< max surface drift time
+    declareProperty("NumberOfCharges",m_numberOfCharges=1);
+    declareProperty("SmallStepLength",m_smallStepLength=5);
+    declareProperty("ChargeDriftModel",m_chargeDriftModel=1); //!< 1 eh transport model, 2 map model
+    declareProperty("EFieldModel",m_eFieldModel=2);           //!< FEM solution as default
+    declareProperty("DepletionVoltage",m_depletionVoltage=70);
+    declareProperty("BiasVoltage",m_biasVoltage=150);
+    declareProperty("MagneticField",m_magneticField=-2.0);
+    declareProperty("SensorTemperature",m_sensorTemperature=273.15);
+    declareProperty("TransportTimeStep",m_transportTimeStep=0.25);
+    declareProperty("TransportTimeMax",m_transportTimeMax=25.0);
+    declareProperty("SiConditionsSvc", m_siConditionsSvc);
+    declareProperty("SiPropertiesSvc", m_siPropertiesSvc);
+    //  declareProperty("rndmEngineName",m_rndmEngineName="SCT_Digitization");
+    declareProperty("doDistortions",   m_doDistortions, "Simulation of module distortions");
+    declareProperty("doHistoTrap", m_doHistoTrap, "Allow filling of histos for charge trapping effect"); 
+    declareProperty("doTrapping", m_doTrapping, "Simulation of charge trapping effect"); 
+    declareProperty("Fluence", m_Fluence, "Fluence for charge trapping effect");
+    // 
+    m_beta_e = 2.57E-2* pow(m_sensorTemperature,0.66);
+    m_beta_h = 0.46 * pow(m_sensorTemperature,0.17);
+    double Emean = m_biasVoltage / m_depletion_depth;
+    m_driftMobility  = mud_h(Emean);
+    m_diffusion = m_kB * m_sensorTemperature * m_driftMobility/ m_e;
+    double r_h = 0.72 - 0.0005*(m_sensorTemperature-273.15);
+    m_tanLA = r_h * m_driftMobility * m_magneticField * 1.E-4;
+    // sroe: the following were never initialised before, which begs the question:
+    // Did this code *ever* work? Has it *ever* been used?
+    m_stripCharge_ixmax = 80;
+    m_stripCharge_iymax = 284;
+    m_stripCharge_dx=1;
+    m_stripCharge_dy=1;
+    declareProperty("isOverlay", m_isOverlay=false);
+  }
 
 // Destructor:
 SCT_DetailedSurfaceChargesGenerator::~SCT_DetailedSurfaceChargesGenerator(){}
@@ -146,13 +144,6 @@ StatusCode SCT_DetailedSurfaceChargesGenerator::initialize() {
   sc = m_siConditionsSvc.retrieve();
   if (sc.isFailure()) {
     ATH_MSG_FATAL ( "Could not retrieve silicon conditions service: " << m_siConditionsSvc.name() );
-    return sc ;
-  }
-  
-  //Get ISCT_ModuleDistortionsTool
-  sc = m_distortionsTool.retrieve();
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL ( "Could not retrieve distortions tool: " << m_distortionsTool.name() );
     return sc ;
   }
   
@@ -309,7 +300,7 @@ float SCT_DetailedSurfaceChargesGenerator::MaxDriftTime() const {
   }
   else {
     ATH_MSG_INFO ("Error: SiDetectorElement not set!") ;
-   return 0;
+    return 0;
   }
 }
 
@@ -492,7 +483,7 @@ void SCT_DetailedSurfaceChargesGenerator::processSiHit(const SiHit& phit, const 
       float x1 = xhit+StepX*dstep;//(static_cast<float>(istep)+0.5) ;
       float y1 = yhit+StepY*dstep;//(static_cast<float>(istep)+0.5) ;
 
-     //PJ select driftmodel here
+      //PJ select driftmodel here
       if (m_chargeDriftModel == 0 || m_element->isEndcap()){ //Standard SCT driftmodel
 	y1 += tanLorentz*zReadout ; //!< Taking into account the magnetic field
 	float diffusionSigma = DiffusionSigma(zReadout);
@@ -532,7 +523,7 @@ void SCT_DetailedSurfaceChargesGenerator::processSiHit(const SiHit& phit, const 
 	}
 	
 	double stripPitch         = p_design->stripPitch();
-  double stripPatternCentre = b_design->phiStripPatternCentre();
+	double stripPatternCentre = b_design->phiStripPatternCentre();
 	double dstrip=(y1-stripPatternCentre)/stripPitch;
 
 	// need the distance from the nearest strips edge not centre, xtaka = 1/2*stripPitch
@@ -625,9 +616,9 @@ void SCT_DetailedSurfaceChargesGenerator::processSiHit(const SiHit& phit, const 
 	    double time = 0.;
 	    double charge = 0.;
 	    for (int it=0; it<50; it++) {
-		time = 0.25 + 0.5*it;
-		charge = q1 * inducedCharge(strip, x0, y0, time);
-		if (charge != 0.) inserter(SiSurfaceCharge(position, SiCharge(charge,time+timeOfFlight,hitproc,trklink))) ; 
+	      time = 0.25 + 0.5*it;
+	      charge = q1 * inducedCharge(strip, x0, y0, time);
+	      if (charge != 0.) inserter(SiSurfaceCharge(position, SiCharge(charge,time+timeOfFlight,hitproc,trklink))) ; 
 	    }
 	  }
 	  else {
@@ -749,7 +740,7 @@ void SCT_DetailedSurfaceChargesGenerator::init_mud_h(double T) {
   ATH_MSG_INFO("     m_beta_h  = "<< m_beta_h);
 #endif  
 
-return ;
+  return ;
 }
 
 //--------------------------------------------------------------

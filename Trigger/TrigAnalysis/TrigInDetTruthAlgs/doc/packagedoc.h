@@ -19,15 +19,5 @@ fills a TrigInDetTrackTruthMap with them.
 
 @section TrigInDetTruthAlgs_extras_TrigInDetTruthAlgs Extra Pages
 
-  - @ref used_TrigInDetTruthAlgs
-  - @ref requirements_TrigInDetTruthAlgs
 
-*/
-
-/**
-@page used_TrigInDetTruthAlgs Used Packages
-*/
-
-/**
-@page requirements_TrigInDetTruthAlgs Requirements
 */

@@ -51,7 +51,7 @@ class EgammaHadEnFex: public IAlgToolCalo {
                         << MSG::FATAL
                         << "Could not init base class IAlgTooCalo" << endmsg;
                 }
-                if (m_timersvc) {
+                if (!m_timersvc.empty()) {
                         m_timer[0]->propName("T2CaEm_NCells");
                 }
                 return StatusCode::SUCCESS;

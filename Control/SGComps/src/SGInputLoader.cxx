@@ -14,23 +14,21 @@
 #include "GaudiKernel/Property.h"
 #include "AthenaKernel/errorcheck.h"
 #include "StoreGate/VarHandleKey.h"
+#include "AthenaKernel/StoreID.h"
 
 //---------------------------------------------------------------------------------
 
 
 SGInputLoader::SGInputLoader( const std::string& name, 
 			  ISvcLocator* pSvcLocator ) : 
-  ::AthAlgorithm( name, pSvcLocator ), m_dump(false)
+  ::AthAlgorithm( name, pSvcLocator )
 {
   //
   // Property declaration
   // 
-  declareProperty( "Load", m_load)->declareUpdateHandler(&SGInputLoader::loader, this);
-  declareProperty( "ShowEventDump", m_dump=false);
-  declareProperty( "FailIfNoProxy", m_failEvt=true, 
-                   "execute returns FAILURE if a requested proxy is not found in store");
-  declareProperty( "LoadExtraProxies", m_loadProxies=true,
-                   "load the Proxies attributed to the SGInputLoader by the Scheduler");
+  declareProperty( "Load", m_load, "create Output data dependencies for these objects")
+    ->declareUpdateHandler(&SGInputLoader::loader, this);
+
 }
 
 //---------------------------------------------------------------------------------
@@ -84,21 +82,35 @@ SGInputLoader::execute()
 
   // add objects automatically added by the Scheduler
   if (m_first) {
-    if (m_loadProxies) {
+    if (m_loadProxies.value()) {
       for (auto obj : outputDataObjs() ) {
         m_load.emplace(obj);
       }
     }
+
+    // check if objects are not in EventStore
+    DataObjIDColl toLoad;
+    for (auto obj : m_load) {
+      SG::VarHandleKey vhk(obj.clid(),obj.key(),Gaudi::DataHandle::Writer);
+      if (StoreID::findStoreID(vhk.storeHandle().name()) == StoreID::EVENT_STORE) {
+        toLoad.emplace(obj);
+      } else {
+        ATH_MSG_WARNING("Will not auto-load proxy for non-EventStore object: "
+                        << obj);
+      }
+    }
+    m_load = toLoad;
+    
     m_first = false;
   }
 
   bool b = loadObjs( m_load );
 
-  if (m_dump) {
+  if (m_dump.value()) {
     ATH_MSG_DEBUG(evtStore()->dump()); 
   }
 
-  if (m_failEvt && !b) {
+  if (m_failEvt.value() && !b) {
     ATH_MSG_ERROR("autoload of objects failed. aborting event processing");
     sc = StatusCode::FAILURE;
   }
@@ -112,6 +124,16 @@ void
 SGInputLoader::loader(Property& p ) {
 
   ATH_MSG_DEBUG("setting prop ExtraOutputs to " <<  p.toString());
+
+  DataObjIDColl toLoad;
+
+  for (auto obj : m_load) {
+    // add an explicit storename as needed
+    SG::VarHandleKey vhk(obj.clid(),obj.key(),Gaudi::DataHandle::Writer);
+    obj.updateKey( vhk.objKey() );
+    toLoad.emplace(obj);
+  }
+  m_load = toLoad;
 
   if (!setProperty("ExtraOutputs", p).isSuccess()) {
     ATH_MSG_WARNING("failed setting property ExtraOutputs");
@@ -136,7 +158,7 @@ SGInputLoader::loadObjs(const DataObjIDColl& objs) const {
     SG::DataProxy* dp = evtStore()->proxy(obj.clid(), vhk.key());
     if (dp != 0) {
       ATH_MSG_DEBUG(" found proxy for " << obj);
-      if (dp->transientAddress()->provider() == 0) {
+      if (dp->provider() == 0) {
 	ATH_MSG_DEBUG("   obj " << obj << " has no provider, and is only Transient" );
       }
 
@@ -149,16 +171,16 @@ SGInputLoader::loadObjs(const DataObjIDColl& objs) const {
       }
 
       // ... and linked classes.
-      for (CLID clid2 : dp->transientAddress()->transientID()) {
+      for (CLID clid2 : dp->transientID()) {
         if (clid2 != obj.clid())
           evtStore()->addedNewTransObject(clid2, vhk.key());
       }
     } else {
       ok = false;
-      if (m_failEvt) {
-        ATH_MSG_ERROR("unable to get proxy for " << obj);
+      if (m_failEvt.value()) {
+        ATH_MSG_ERROR("unable to find proxy for " << obj);
       } else {
-        ATH_MSG_WARNING("unable to get proxy for " << obj);
+        ATH_MSG_WARNING("unable to find proxy for " << obj);
       }
     }
   }

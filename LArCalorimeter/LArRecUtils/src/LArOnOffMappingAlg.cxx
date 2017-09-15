@@ -16,8 +16,8 @@
 
 LArOnOffMappingAlg::LArOnOffMappingAlg(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  m_readKey("/LAr/Identifier/LArOnOnffMap"),
-  m_writeKey("LArOnOffMap","LArOnOffMap"),
+  m_readKey("/LAr/Identifier/OnOnffMap"),
+  m_writeKey("LArOnOffIdMap","LArOnOffIdMap"),
   m_condSvc("CondSvc",name),
   m_isSuperCell(false)
 {

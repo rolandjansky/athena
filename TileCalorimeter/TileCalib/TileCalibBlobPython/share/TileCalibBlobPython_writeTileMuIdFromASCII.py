@@ -1,4 +1,7 @@
 #!/bin/env python
+
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
 # TileCalibBlobPython_writeTileMuIdFromASCII.py
 # Lukas Pribyl <lukas.pribyl@cern.ch>, 2009-04-29
 # change: Yuri Smirnov <iouri.smirnov@cern.ch>, 2014-12-24

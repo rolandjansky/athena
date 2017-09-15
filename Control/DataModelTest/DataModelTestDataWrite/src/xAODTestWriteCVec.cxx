@@ -90,7 +90,9 @@ StatusCode xAODTestWriteCVec::execute_r (const EventContext& ctx) const
   const static C::Decorator<unsigned int> dpInt1 ("dpInt1");
   const static C::Decorator<std::vector<float> > dpvFloat ("dpvFloat");
 
-  for (int i=0; i < 10; i++) {
+  int nent = 10;
+  if (count == 5) nent = 0;
+  for (int i=0; i < nent; i++) {
     coll->push_back (new DMTest::C);
     C& c = *coll->back();
     c.setAnInt (count * 100 + i+1);
@@ -124,7 +126,7 @@ StatusCode xAODTestWriteCVec::execute_r (const EventContext& ctx) const
   CHECK( cvec.record (std::move(coll), std::move(store)) );
 
   SG::WriteDecorHandle<DMTest::CVec, int> dtest (m_cvecDecorKey, ctx);
-  for (int i=0; i < 10; i++) {
+  for (int i=0; i < nent; i++) {
     dtest (*(*dtest)[i]) = i+123;
   }
 

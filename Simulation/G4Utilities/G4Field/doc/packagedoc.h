@@ -18,16 +18,6 @@ The package includes the following classes:
  - ConstantFieldXMLHandler : An interface for constructing constant fields from an XML file
  - FieldMapMgr : The manager that handles the fields which will be used during the simulation
 
-@ref used_G4Field
 
-@ref requirements_G4Field
 
-*/
-
-/**
-@page used_G4Field Used Packages
-*/
-
-/**
-@page requirements_G4Field Requirements
 */

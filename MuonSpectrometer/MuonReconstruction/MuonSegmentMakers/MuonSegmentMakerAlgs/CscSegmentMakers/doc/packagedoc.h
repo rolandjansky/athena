@@ -25,15 +25,5 @@ from CscSegmentMakers.Csc4dSegmentMaker import theCsc4dSegmentMaker
 
 @section CscSegmentMakers_AdditionalCscSegmentMakers Additional information
 
- - @ref UsedCscSegmentMakers
- - @ref RequirementsCscSegmentMakers
  - <a href=https://twiki.cern.ch/twiki/bin/view/Atlas/CscReconstruction>CSC reconstruction overview</a>
-*/
-
-/**
-@page UsedCscSegmentMakers Used packages
-*/
-
-/**
-@page RequirementsCscSegmentMakers Requirements
 */

@@ -27,6 +27,8 @@
 // Athena
 #include "StoreGate/StoreGateSvc.h"
 #include "AthAllocators/DataPool.h"
+#include "MuonEventTPCnv/CreateTransientTemplates.h"
+
 
 StatusCode Muon::RpcCoinDataContainerCnv_p1::initialize(MsgStream &log) {
    // Do not initialize again:

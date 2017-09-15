@@ -33,72 +33,61 @@
 ///Read Handle
 #include "StoreGate/ReadHandleKey.h"
 
-// Include STL stuff
-#include <string>
-#include <list>
-#include <vector>
-#include <map>
+// Include boost stuff
 #include "boost/array.hpp"
 
 // Forward declarations
 class CondAttrListCollection;
 class ISvcLocator;
 class StoreGateSvc;
-class Identifier;
-class IdentifierHash;
-class StatusCode;
 class ISCT_CablingSvc;
 class SCT_ID;
-namespace InDetDD{class SCT_DetectorManager;}
-template <class TYPE> class SvcFactory;
+namespace InDetDD{ class SCT_DetectorManager; }
 
-//class Identifier;
+/** This class contains a Service that reads SCT calibration data and makes it available to 
+    other algorithms. The current implementation reads the data from a COOL database. 
+*/
 
-  /** This class contains a Service that reads SCT calibration data and makes it available to 
-      other algorithms. The current implementation reads the data from a COOL database. 
-  */
-
-class SCT_ReadCalibDataSvc: virtual public ISCT_ReadCalibDataSvc, virtual public AthService{
-  friend class SvcFactory<SCT_ReadCalibDataSvc>;
+class SCT_ReadCalibDataSvc: virtual public ISCT_ReadCalibDataSvc, virtual public AthService {
 
  public:
-  enum {STRIPS_PER_WAFER=768,NUMBER_OF_WAFERS=8176};  
+  enum {STRIPS_PER_WAFER=768, NUMBER_OF_WAFERS=8176};  
   //----------Public Member Functions----------//
   // Structors
-  SCT_ReadCalibDataSvc (const std::string& name, ISvcLocator* pSvcLocator ); //!< Constructor
+  SCT_ReadCalibDataSvc(const std::string& name, ISvcLocator* pSvcLocator); //!< Constructor
   virtual ~SCT_ReadCalibDataSvc();                                           //!< Destructor
   
   // Retrive interface ID
-  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
+  virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
   static const InterfaceID& interfaceID();
   
   // Standard Gaudi functions
   virtual StatusCode initialize(); //!< Gaudi initialiser
-  virtual StatusCode finalize();   //!< Gaudi finaliser
+  virtual StatusCode finalize(); //!< Gaudi finaliser
   
   /// @name Methods to be implemented from virtual baseclass methods, when introduced
   ///Return whether this service can report on the hierarchy level (e.g. module, chip...)
   virtual bool canReportAbout(InDetConditions::Hierarchy h);
   ///Summarise the result from the service as good/bad
-  virtual bool isGood(const Identifier & elementId,InDetConditions::Hierarchy h=InDetConditions::DEFAULT);
+  virtual bool isGood(const Identifier& elementId,InDetConditions::Hierarchy h=InDetConditions::DEFAULT);
   ///same thing with id hash, introduced by shaun with dummy method for now
-  virtual bool isGood(const IdentifierHash & /*hashId*/){ return true; }
+  virtual bool isGood(const IdentifierHash& /*hashId*/) { return true; }
   // Fill the data structures
-  StatusCode fillData() {return StatusCode::FAILURE;}
+  StatusCode fillData() { return StatusCode::FAILURE; }
   // Fill the data structures from a Callback 
   StatusCode fillData(int& /*i*/, std::list<std::string>& l);
   // Report whether the map was filled
-  bool filled() const ;
+  bool filled() const;
   // Report whether the service can fill its data during the initialize phase
-  virtual bool canFillDuringInitialize(){ return false ; } //PJ need to know IOV/run#
+  virtual bool canFillDuringInitialize() { return false ; } //PJ need to know IOV/run#
   //@}
   
   //Define methods
-  virtual StatusCode fillCalibDefectData(std::list<std::string>& keys);             //!< Callback for retriving defect data
+  virtual StatusCode fillCalibDefectData(std::list<std::string>& keys); //!< Callback for retriving defect data
   
   // Methods to return calibration defect type and summary
-  virtual SCT_ReadCalibDataSvc::calibDefectType defectType(const Identifier & stripId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT); //!<Return summary of defect type and values for a strip
-  virtual SCT_CalibDefectData::CalibModuleDefects defectsSummary(const Identifier & moduleId, const std::string& scan); //!<Returns module summary of defect  
+  virtual SCT_ReadCalibDataSvc::CalibDefectType defectType(const Identifier& stripId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT); //!<Return summary of defect type and values for a strip
+  virtual SCT_CalibDefectData::CalibModuleDefects defectsSummary(const Identifier& moduleId, const std::string& scan); //!<Returns module summary of defect  
   virtual std::list<Identifier> defectList(const std::string& defect); //!<Returns module summary of defect  
 
  private:
@@ -117,14 +106,14 @@ class SCT_ReadCalibDataSvc: virtual public ISCT_ReadCalibDataSvc, virtual public
   // List folders to be read as CondAttrListCollection*
   StringArrayProperty m_atrcollist;
   // Calib defect maps
-  SCT_CalibDefectData* m_NPGDefects;
-  SCT_CalibDefectData* m_NODefects;
-  BooleanProperty      m_printCalibDefectMaps;             //!< Print the calib defect maps?
+  SCT_CalibDefectData m_NPGDefects;
+  SCT_CalibDefectData m_NODefects;
+  BooleanProperty m_printCalibDefectMaps; //!< Print the calib defect maps?
   // Flag to set true to be able to use all methods not just isGood
   bool m_recoOnly;
   // Calib defect arrays
   typedef boost::array<bool, STRIPS_PER_WAFER> WaferIsGoodInfo_t; // [768b]
-  typedef boost::array< WaferIsGoodInfo_t, NUMBER_OF_WAFERS> AllWaferIsGoodInfo_t; // [8176][768b]
+  typedef boost::array<WaferIsGoodInfo_t, NUMBER_OF_WAFERS> AllWaferIsGoodInfo_t; // [8176][768b]
   AllWaferIsGoodInfo_t m_isGoodAllWafersInfo;
   // Arrays to hold defects to ignore/limits
   std::vector<std::string> m_ignoreDefects;
@@ -138,8 +127,6 @@ class SCT_ReadCalibDataSvc: virtual public ISCT_ReadCalibDataSvc, virtual public
 
   // Read Handle Key
   SG::ReadHandleKey<EventInfo> m_eventInfoKey;
-  
-  //  BooleanProperty                   m_printCalibDefectMaps;         //!< Print the calib defect maps?
 };
 
 //---------------------------------------------------------------------- 

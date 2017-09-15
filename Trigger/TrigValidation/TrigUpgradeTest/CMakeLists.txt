@@ -33,33 +33,42 @@ atlas_add_component( TrigUpgradeTest
 		     AthenaBaseComps TrigUpgradeTestLib )
 
 
-atlas_add_test( GraphView1 SCRIPT scripts/GraphView.sh
+atlas_add_test( GraphView1 SCRIPT test/test_graph_view.sh
                 ENVIRONMENT THREADS=1     )
-atlas_add_test( GraphView2 SCRIPT scripts/GraphView.sh
+atlas_add_test( GraphView2 SCRIPT test/test_graph_view.sh
                 ENVIRONMENT THREADS=2     )
-atlas_add_test( GraphView64 SCRIPT scripts/GraphView.sh
+atlas_add_test( GraphView64 SCRIPT test/test_graph_view.sh
                 ENVIRONMENT THREADS=64              )
 
 # out untill we find a way to properly invoke tests from other packages
-# atlas_add_test( creatingEVTest SCRIPT  forward.sh ViewAlgsTest/scripts/creatingEVTest.sh )
+# atlas_add_test( creatingEVTest SCRIPT  forward.sh ViewAlgsTest/test/creatingEVTest.sh )
 
-atlas_add_test( mergeTest SCRIPT scripts/mergeTest.sh)
+atlas_add_test( merge SCRIPT test/test_merge.sh)
 
-atlas_add_test( IDRunMC     SCRIPT scripts/IDRunMC.sh
-                PROPERTIES TIMEOUT 500 
-              )
-
-#atlas_add_test( IDRunData     SCRIPT scripts/IDRunData.sh
+#not working at the moment
+#atlas_add_test( IDRunMC     SCRIPT test/test_id_run_mc.sh
 #                PROPERTIES TIMEOUT 500 
 #              )
 
-atlas_add_test( caloRunData   SCRIPT scripts/caloRunData.sh
+atlas_add_test( IDRunData     SCRIPT test/test_id_run_data.sh
                 PROPERTIES TIMEOUT 500 
               )
 
-atlas_add_test( EmuL1DecodingTest SCRIPT scripts/EmuL1DecodingTest.sh)
+#atlas_add_test( caloRunData   SCRIPT test/test_calo_run_data.sh
+#                PROPERTIES TIMEOUT 500 
+#              )
+# replaced by complete egamma test
 
-atlas_add_test( DataL1DecodingTest SCRIPT scripts/DataL1DecodingTest.sh )
+atlas_add_test( egammaRunData   SCRIPT test/test_egamma_run_data.sh
+                PROPERTIES TIMEOUT 500 
+              )
+
+
+atlas_add_test( idCaloRunData   SCRIPT test/test_id_calo_run_data.sh
+                PROPERTIES TIMEOUT 500 
+              )
+
+atlas_add_test( EmuL1Decoding SCRIPT test/test_emu_l1_decoding.sh)
 
 atlas_install_joboptions( share/*.py )
 atlas_install_python_modules( python/*.py )

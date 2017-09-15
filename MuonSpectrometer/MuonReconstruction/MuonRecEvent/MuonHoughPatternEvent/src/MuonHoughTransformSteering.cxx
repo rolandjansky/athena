@@ -9,7 +9,6 @@
 MuonHoughTransformSteering::MuonHoughTransformSteering(MuonHoughTransformer* houghtransformer)
 {
   m_houghtransformer=houghtransformer;
-  m_maximum_residu_grad = 0.1;
   m_maximum_residu_mm = 1.;
 }
 

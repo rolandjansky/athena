@@ -59,6 +59,7 @@ void test1()
   assert (h1.storeHandle().name() == "StoreGateSvc");
   assert (h1.mode() == Gaudi::DataHandle::Writer);
   assert (h1.auxid() == ityp);
+  assert (!h1.isPresent());
 
   SGTest::TestStore dumstore;
   EventContext ctx5;
@@ -210,10 +211,13 @@ void test3()
   SG::WriteDecorHandle<MyObjCont, int> h1 (k1);
   assert (h1.setProxyDict (&testStore).isSuccess());
   assert (h1.auxid() == ityp);
+  assert (!h1.isAvailable());
+  assert (h1.isPresent());
 
   h1.getDecorationArray()[0] = 10;
   h1 (*(*pcont)[1]) = 11;
   h1 (2) = 12;
+  assert (h1.isAvailable());
 
   MyObj::Accessor<int> adec ("aaa");
   assert (adec (*(*pcont)[0]) == 10);
@@ -303,7 +307,10 @@ int main()
 {
   errorcheck::ReportMessage::hideErrorLocus();
   ISvcLocator* svcloc;
-  Athena_test::initGaudi("VarHandleBase_test.txt", svcloc); //need MessageSvc
+  //need MessageSvc
+  if (!Athena_test::initGaudi("VarHandleBase_test.txt", svcloc)) {
+    return 1;
+  }
 
   test1();
   test2();

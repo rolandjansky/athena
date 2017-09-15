@@ -31,17 +31,5 @@
   - @link LVL1TGC::TGCRecRoiSvc::RoIsize @endlink : return the maximum/minimum eta and phi values for a given RoI word.
    
 @section TrigT1TGCRecRoiSvc_TrigT1TGCRecRoiSvc Extra Packages
-  - @ref used_TrigT1TGCRecRoiSvc
-  - @ref requirements_TrigT1TGCRecRoiSvc
 
 */
-
-/**
-   @page used_TrigT1TGCRecRoiSvc Used Packages
-*/
-
-/**
-   @page requirements_TrigT1TGCRecRoiSvc Requirements
-*/
-
-

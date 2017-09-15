@@ -124,10 +124,10 @@ HLT::ErrorCode TrigROBListWriter::hltExecute(const HLT::TriggerElement* te_in,
   while (phiMin < 0)      phiMin += 2*M_PI;
   while (phiMax > 2*M_PI) phiMax -= 2*M_PI;  // AH HA!! This is wrong! Need in the range -pi .. pi
   
-  TrigRoiDescriptor _roi( roIDescriptor->eta(), etaMin, etaMax, roIDescriptor->phi(), phiMin, phiMax );
+  TrigRoiDescriptor roi( roIDescriptor->eta(), etaMin, etaMax, roIDescriptor->phi(), phiMin, phiMax );
 
   // now add ROBs
-  HLT::ErrorCode ec = m_robSelector->fillPEBInfo(*pebInfo, _roi, &m_dets, &m_nROBs);
+  HLT::ErrorCode ec = m_robSelector->fillPEBInfo(*pebInfo, roi, &m_dets, &m_nROBs);
   if (ec != HLT::OK) return ec;
 
   // Add extra ROBs

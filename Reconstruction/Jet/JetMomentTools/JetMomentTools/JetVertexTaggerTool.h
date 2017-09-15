@@ -105,7 +105,6 @@ public:
 private:  // data
 
   // Configurable parameters
-  std::string m_verticesName;
   std::string m_assocTracksName;
   std::string m_tvaName;
   std::string m_tracksName;
@@ -118,6 +117,8 @@ private:  // data
   TString m_fn;
   TFile * m_jvtfile;
   TH2F * m_jvthisto;
+
+  SG::ReadHandleKey<xAOD::VertexContainer> m_vertexContainer_key;
 
 };
 

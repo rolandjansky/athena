@@ -18,8 +18,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef __IDSCANZFINDERINTERNAL_H__
-#define __IDSCANZFINDERINTERNAL_H__
+#ifndef IDSCANZFINDER_IDSCANZFINDERINTERNAL_H
+#define IDSCANZFINDER_IDSCANZFINDERINTERNAL_H
 
 #include <cmath>
 #include <vector>
@@ -74,8 +74,8 @@ protected:  // member functions
   		    std::vector<double>& phi, std::vector<double>& rho, std::vector<double>& zed, 
   		    std::vector<long>&   lyr, std::vector<long>&   filledLayers);
   
-  std::string getType() const { return mType; }
-  std::string getName() const { return mName; }
+  std::string getType() const { return m_Type; }
+  std::string getName() const { return m_Name; }
   std::string getVersion() const { return mZFIVER; }
   
   int GetInternalStatus() const { return m_Status; }
@@ -84,8 +84,8 @@ protected:  // member functions
   double computeZV(double r1, double z1, double r2, double z2) const;
   double computeZV(double r1, double p1, double z1, double r2, double p2, double z2) const;
   
-  void   SetReturnValue(double d) { mreturnval=d; }
-  double GetReturnValue() const   { return mreturnval; }
+  void   SetReturnValue(double d) { m_returnval=d; }
+  double GetReturnValue() const   { return m_returnval; }
   
   
 protected:  // data members
@@ -111,8 +111,8 @@ protected:  // data members
   
   bool   m_pixOnly;             // use only Pixel space points
   
-  std::string mType;  // type information for internal book keeping
-  std::string mName;  // name information for the same
+  std::string m_Type;  // type information for internal book keeping
+  std::string m_Name;  // name information for the same
   
   int    m_Status;   // return status of the algorithm: 0=ok, -1=error
     
@@ -121,8 +121,8 @@ protected:  // data members
   
   double m_dphideta; // how, as a function of eta, the number of phi neighbours decreases
   double m_neighborMultiplier; // extra factor to manually increase the number of phi neighbors
-  //  long extraPhi[IdScan_MaxNumLayers][IdScan_MaxNumLayers]; // number of phi neighbours to look at
-  std::vector< std::vector<long> > extraPhi; // ( IdScan_MaxNumLayers, std::vector<long>(IdScan_MaxNumLayers) ); // number of phi neighbours to look at
+  //  long m_extraPhi[IdScan_MaxNumLayers][IdScan_MaxNumLayers]; // number of phi neighbours to look at
+  std::vector< std::vector<long> > m_extraPhi; // ( IdScan_MaxNumLayers, std::vector<long>(IdScan_MaxNumLayers) ); // number of phi neighbours to look at
   
   // access the ZFinder histogram from outside the findZInternal method
   
@@ -140,7 +140,7 @@ protected:  // data members
   
   bool m_trustSPprovider; // Should we re-extract the RoI phi range from the phis of the SPs from the SPP
   
-  double mreturnval; // return value for algorithm
+  double m_returnval; // return value for algorithm
   
   bool   m_fullScanMode;
   
@@ -170,8 +170,8 @@ template<class SpacePoint>
 IDScanZFinderInternal<SpacePoint>::IDScanZFinderInternal( const std::string& type, 
   							  const std::string& name)  
 {
-  mType = type;
-  mName = name;
+  m_Type = type;
+  m_Name = name;
   
   m_phiBinSize       = 0.2   ;
   m_usedphiBinSize   = m_phiBinSize   ;
@@ -226,8 +226,8 @@ void IDScanZFinderInternal<SpacePoint>::initializeInternal(long maxLayers, long 
   //	    << "\tm_IdScan_LastBrlLayer "  <<  m_IdScan_LastBrlLayer << std::endl;
   
   // number of phi neighbours to look at
-  //  if ( extraPhi.size()==0 ) 
-  extraPhi = std::vector< std::vector<long> >( m_IdScan_MaxNumLayers, std::vector<long>(m_IdScan_MaxNumLayers) ); 
+  //  if ( m_extraPhi.size()==0 ) 
+  m_extraPhi = std::vector< std::vector<long> >( m_IdScan_MaxNumLayers, std::vector<long>(m_IdScan_MaxNumLayers) ); 
   
   if ( m_fullScanMode ) m_usedROIphiWidth = 2*M_PI;
   else                  m_usedROIphiWidth = m_ROIphiWidth;
@@ -243,7 +243,7 @@ void IDScanZFinderInternal<SpacePoint>::initializeInternal(long maxLayers, long 
   
   for (long l1=0; l1<m_IdScan_MaxNumLayers-1; ++l1) {
     for (long l2=l1+1; l2<m_IdScan_MaxNumLayers; ++l2) {
-      extraPhi[l1][l2]=1; // look at a single phi neighbour
+      m_extraPhi[l1][l2]=1; // look at a single phi neighbour
     }
   }
   
@@ -261,14 +261,14 @@ void IDScanZFinderInternal<SpacePoint>::initializeInternal(long maxLayers, long 
     for (long l2=l1+1; l2<=m_IdScan_LastBrlLayer; ++l2) {
       double dphi = ZF_dphiBrl[lyrcnt + 7*first_layer];
       dphi *= m_neighborMultiplier;
-      extraPhi[l1][l2]=static_cast<long>( ceil(  sqrt(dphi*dphi+ZF_phiRes*ZF_phiRes*2) * m_invPhiSliceSize ) );
+      m_extraPhi[l1][l2]=static_cast<long>( ceil(  sqrt(dphi*dphi+ZF_phiRes*ZF_phiRes*2) * m_invPhiSliceSize ) );
   					      
       //      std::cout << "test 1 " << l1 << " " << l2 << "\tmax : " <<  m_IdScan_MaxNumLayers << std::endl;
   						   
-      if (extraPhi[l1][l2]<1) extraPhi[l1][l2]=1;
+      if (m_extraPhi[l1][l2]<1) m_extraPhi[l1][l2]=1;
       //      std::cout << "Delta Phi between layers " << l1 << " and " << l2
       //		<< " = "<< ZF_dphiBrl[lyrcnt] 
-      //		<< " rads ( " << extraPhi[l1][l2] << " bins including phi resln.)\n";
+      //		<< " rads ( " << m_extraPhi[l1][l2] << " bins including phi resln.)\n";
       lyrcnt++;
     }
   }
@@ -291,13 +291,13 @@ void IDScanZFinderInternal<SpacePoint>::initializeInternal(long maxLayers, long 
     //	      << ". Extrapolate it to eta=0.9 to get ";
     dphi = dphi + m_dphideta * ( 0.9 - eta );
     dphi *= m_neighborMultiplier;
-    extraPhi[l1][l2]=static_cast<long>(ceil(sqrt(dphi*dphi+ZF_phiRes*ZF_phiRes*2)*m_invPhiSliceSize));
+    m_extraPhi[l1][l2]=static_cast<long>(ceil(sqrt(dphi*dphi+ZF_phiRes*ZF_phiRes*2)*m_invPhiSliceSize));
   						 
-    if (extraPhi[l1][l2]<1) extraPhi[l1][l2]=1;
+    if (m_extraPhi[l1][l2]<1) m_extraPhi[l1][l2]=1;
   
     //    std::cout << "test 2 " << l1 << " " << l2 << "\tmax : " <<  m_IdScan_MaxNumLayers << std::endl;
   
-    // std::cout << dphi << " rads ( " << extraPhi[l1][l2] << " bins including phi resln.)\n";
+    // std::cout << dphi << " rads ( " << m_extraPhi[l1][l2] << " bins including phi resln.)\n";
   }
   
 }
@@ -445,10 +445,10 @@ template<class SpacePoint> long IDScanZFinderInternal<SpacePoint>::fillVectors (
       /// DOES NOT span the phi=pi boundary
       for(long i=0; i<nSPs; ++i, ++SpItr) 
   	{
-  	  double _phi = (*SpItr)->phi() - roiPhiMin;
+  	  double phi2 = (*SpItr)->phi() - roiPhiMin;
   
-  	  if ( _phi>=0 && _phi<dphi ) { 
-  	    phi[i] = _phi;
+  	  if ( phi2>=0 && phi2<dphi ) { 
+  	    phi[i] = phi2;
   	    rho[i] = (*SpItr)->r();
   	    zed[i] = (*SpItr)->z();
   	    lyr[i] = (*SpItr)->layer();
@@ -462,11 +462,11 @@ template<class SpacePoint> long IDScanZFinderInternal<SpacePoint>::fillVectors (
       /// DOES span the phi=pi boundary
       for(long i=0; i<nSPs; ++i, ++SpItr) 
   	{
-  	  double _phi = (*SpItr)->phi() - roiPhiMin;
-  	  if( _phi<0.0) _phi+=2*M_PI;
+  	  double phi2 = (*SpItr)->phi() - roiPhiMin;
+  	  if( phi2<0.0) phi2+=2*M_PI;
   
-  	  if ( _phi>=0 && _phi<dphi ) { 
-  	    phi[i] = _phi;
+  	  if ( phi2>=0 && phi2<dphi ) { 
+  	    phi[i] = phi2;
   	    rho[i] = (*SpItr)->r();
   	    zed[i] = (*SpItr)->z();
   	    lyr[i] = (*SpItr)->layer();
@@ -627,7 +627,7 @@ std::vector<typename IDScanZFinderInternal<SpacePoint>::vertex>* IDScanZFinderIn
 	{
 	  allSlices[ sliceIndex ]->GetHistogram( &( nHisto[0][sliceIndex] ), &( zHisto[0][sliceIndex] ),
 						 &( nHisto[1][sliceIndex] ), &( zHisto[1][sliceIndex] ),
-						 extraPhi, extraPhiNeg, m_nFirstLayers, m_tripletMode, m_chargeAware, nHisto, zHisto );
+						 m_extraPhi, extraPhiNeg, m_nFirstLayers, m_tripletMode, m_chargeAware, nHisto, zHisto );
 	  //Note the extra arguments here - pointers to the whole histogram collection
 	  //This allows the filling of neighbouring slice histograms as required, but breaks thread safety
   
@@ -650,7 +650,7 @@ std::vector<typename IDScanZFinderInternal<SpacePoint>::vertex>* IDScanZFinderIn
 	{
 	  allSlices[ sliceIndex ]->GetHistogram( &( nHisto[0][0] ), &( zHisto[0][0] ),
 						 &( nHisto[1][0] ), &( zHisto[1][0] ),
-						 extraPhi, extraPhiNeg, m_nFirstLayers, m_tripletMode, m_chargeAware );
+						 m_extraPhi, extraPhiNeg, m_nFirstLayers, m_tripletMode, m_chargeAware );
 	  delete allSlices[ sliceIndex ];
 	}
     }

@@ -22,7 +22,6 @@ The validaiton algorithms that can be found in this package are:
 The algorithms can be steered through jobOptions files that are located in the
 TrkExExample package.
 
-@section TrkExAlgs_TrkExAlgsReq Requirements
 
 
 */

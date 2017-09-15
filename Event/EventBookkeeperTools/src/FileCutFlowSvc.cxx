@@ -42,8 +42,7 @@ FileCutFlowSvc::FileCutFlowSvc(const std::string& name,
   m_incompleteCollName(""),
   m_skimmingCycle(0),
   m_fileCollName("CutBookkeepersFile"),
-  m_inputStream(""),
-  m_alreadyDeterminedCycleNumber(false)
+  m_inputStream("")
 {
   declareProperty("OutputCollName",           m_completeCollName="CutBookkeepers",
     "DEFUNCT - handled by tool now");

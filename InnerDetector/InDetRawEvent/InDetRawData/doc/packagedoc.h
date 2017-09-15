@@ -42,6 +42,5 @@ deriving from the same base class).
 
    - TRT_TB04_RawData: Class to implement test beam 2004 RawData for TRT
    
-@section InDetRawData_InDetRawDataReq Requirements
 
 */

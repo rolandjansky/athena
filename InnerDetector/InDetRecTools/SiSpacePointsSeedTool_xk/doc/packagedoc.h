@@ -34,6 +34,5 @@ exist two addition requariments for this combination.
 
  This algorithm uses IMagneticFieldTool tool.
 
-@section SiSpacePointsSeedTool_xk_SiSpacePointsSeedTool_xkReq Requirements file
 
 */

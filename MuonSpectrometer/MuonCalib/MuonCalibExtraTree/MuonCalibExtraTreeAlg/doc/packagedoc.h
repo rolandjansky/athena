@@ -26,17 +26,6 @@ MuonCalibExtraTreeAlgAlg is the package responsible for configuring the filling 
 - MuonCalib::MuonCalibTrack_EBranch :Branch storing variables describing Tracks (MuonCalib::MuonCalibTrack_E)
 
 
-@ref used_MuonCalibExtraTreeAlg
                                                                                 
-@ref requirements_MuonCalibExtraTreeAlg
                                                                                 
 */
-                                                                                
-/**
-@page used_MuonCalibExtraTreeAlg Used Packages
-*/
-                                                                                
-/**
-@page requirements_MuonCalibExtraTreeAlg Requirements
-*/
-       

@@ -23,17 +23,6 @@ The MuonCalibITools package contains the following interface classes:
 
 - MuonCalib::IIdToFixedIdTool: base class for Identifier converters
                                                                                 
-@ref used_MuonCalibITools
                                                                                 
-@ref requirements_MuonCalibITools
                                                                                 
 */
-                                                                                
-/**
-@page used_MuonCalibITools Used Packages
-*/
-                                                                                
-/**
-@page requirements_MuonCalibITools Requirements
-*/
- 

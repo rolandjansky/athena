@@ -1,11 +1,11 @@
 #include "GaudiKernel/DeclareFactoryEntries.h"
 #include "InDetOverlay/InDetOverlay.h"
-#include "InDetOverlay/DynConfSCT.h"
+#include "InDetOverlay/InDetSDOOverlay.h"
 
 DECLARE_ALGORITHM_FACTORY( InDetOverlay )
-DECLARE_ALGORITHM_FACTORY( DynConfSCT )
+DECLARE_ALGORITHM_FACTORY( InDetSDOOverlay )
   
 DECLARE_FACTORY_ENTRIES( InDetOverlay ) {
   DECLARE_ALGORITHM( InDetOverlay )
-  DECLARE_ALGORITHM( DynConfSCT )
+  DECLARE_ALGORITHM( InDetSDOOverlay )
 }

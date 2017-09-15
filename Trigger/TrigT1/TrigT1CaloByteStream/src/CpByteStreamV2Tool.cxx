@@ -154,9 +154,8 @@ StatusCode CpByteStreamV2Tool::convert(
     const IROBDataProviderSvc::VROBFRAG &robFrags,
     DataVector<LVL1::CPMTower> *const ttCollection)
 {
-    m_ttCollection = ttCollection;
-    m_ttMap.clear();
-    return convertBs(robFrags, CPM_TOWERS);
+    CpmTowerData data (ttCollection);
+    return convertBs(robFrags, data);
 }
 
 // Conversion bytestream to CMX-CP TOBs
@@ -176,9 +175,8 @@ StatusCode CpByteStreamV2Tool::convert(
     const IROBDataProviderSvc::VROBFRAG &robFrags,
     DataVector<LVL1::CMXCPTob> *const tobCollection)
 {
-    m_tobCollection = tobCollection;
-    m_tobMap.clear();
-    return convertBs(robFrags, CMX_CP_TOBS);
+    CmxCpTobData data (tobCollection);
+    return convertBs(robFrags, data);
 }
 
 // Conversion bytestream to CMX-CP hits
@@ -198,9 +196,8 @@ StatusCode CpByteStreamV2Tool::convert(
     const IROBDataProviderSvc::VROBFRAG &robFrags,
     DataVector<LVL1::CMXCPHits> *const hitCollection)
 {
-    m_hitCollection = hitCollection;
-    m_hitsMap.clear();
-    return convertBs(robFrags, CMX_CP_HITS);
+    CmxCpHitsData data (hitCollection);
+    return convertBs(robFrags, data);
 }
 
 // Conversion of CP container to bytestream
@@ -532,7 +529,7 @@ const std::vector<uint32_t> &CpByteStreamV2Tool::sourceIDs(
 
 StatusCode CpByteStreamV2Tool::convertBs(
     const IROBDataProviderSvc::VROBFRAG &robFrags,
-    const CollectionType collection)
+    CpByteStreamToolData& data)
 {
     const bool debug = msgLvl(MSG::DEBUG);
     if (debug) msg(MSG::DEBUG);
@@ -681,9 +678,9 @@ StatusCode CpByteStreamV2Tool::convertBs(
                         break;
                     }
 
-                    if (collection == CMX_CP_TOBS || collection == CMX_CP_HITS)
+                    if (data.m_collection == CMX_CP_TOBS || data.m_collection == CMX_CP_HITS)
                     {
-                        decodeCmxCp(m_cmxCpSubBlock, trigCpm, collection);
+                        decodeCmxCp(m_cmxCpSubBlock, trigCpm, data);
                         if (m_rodErr != L1CaloSubBlock::ERROR_NONE)
                         {
                             if (debug) msg() << "decodeCmxCp failed" << endmsg;
@@ -710,9 +707,9 @@ StatusCode CpByteStreamV2Tool::convertBs(
                     m_rodErr = L1CaloSubBlock::ERROR_CRATE_NUMBER;
                     break;
                 }
-                if (collection == CPM_TOWERS)
+                if (data.m_collection == CPM_TOWERS)
                 {
-                    decodeCpm(m_cpmSubBlock, trigCpm);
+                    decodeCpm(m_cpmSubBlock, trigCpm, static_cast<CpmTowerData&>(data));
                     if (m_rodErr != L1CaloSubBlock::ERROR_NONE)
                     {
                         if (debug) msg() << "decodeCpm failed" << endmsg;
@@ -732,7 +729,7 @@ StatusCode CpByteStreamV2Tool::convertBs(
 // Unpack CMX-CP sub-block
 
 void CpByteStreamV2Tool::decodeCmxCp(CmxCpSubBlock *subBlock, int trigCpm,
-                                     CollectionType collection)
+                                     CpByteStreamToolData& data)
 {
     const bool debug = msgLvl(MSG::DEBUG);
     if (debug) msg(MSG::DEBUG);
@@ -794,8 +791,9 @@ void CpByteStreamV2Tool::decodeCmxCp(CmxCpSubBlock *subBlock, int trigCpm,
     for (int slice = sliceBeg; slice < sliceEnd; ++slice)
     {
 
-        if (collection == CMX_CP_TOBS)
+        if (data.m_collection == CMX_CP_TOBS)
         {
+            CmxCpTobData& tdata = static_cast<CmxCpTobData&> (data);
 
             // TOBs
 
@@ -823,7 +821,7 @@ void CpByteStreamV2Tool::decodeCmxCp(CmxCpSubBlock *subBlock, int trigCpm,
                     }
                     error = errBits.error();
                     const int key = tobKey(crate, cmx, cpm, chip, loc);
-                    LVL1::CMXCPTob *tb = findCmxCpTob(key);
+                    LVL1::CMXCPTob *tb = findCmxCpTob(tdata, key);
                     if ( ! tb )   // create new CMX TOB
                     {
                         m_energyVec.assign(timeslices, 0);
@@ -834,11 +832,12 @@ void CpByteStreamV2Tool::decodeCmxCp(CmxCpSubBlock *subBlock, int trigCpm,
                         m_isolVec[slice]   = isolation;
                         m_errorVec[slice]  = error;
                         m_presenceMapVec[slice] = presenceMap;
-                        tb = new LVL1::CMXCPTob(swCrate, cmx, cpm, chip, loc,
-                                                m_energyVec, m_isolVec, m_errorVec,
-                                                m_presenceMapVec, trigCpm);
-                        m_tobMap.insert(std::make_pair(key, tb));
-                        m_tobCollection->push_back(tb);
+                        auto tbp =
+                          std::make_unique<LVL1::CMXCPTob>(swCrate, cmx, cpm, chip, loc,
+                                                           m_energyVec, m_isolVec, m_errorVec,
+                                                           m_presenceMapVec, trigCpm);
+                        tdata.m_tobMap.insert(std::make_pair(key, tbp.get()));
+                        tdata.m_tobCollection->push_back(std::move(tbp));
                     }
                     else
                     {
@@ -871,8 +870,9 @@ void CpByteStreamV2Tool::decodeCmxCp(CmxCpSubBlock *subBlock, int trigCpm,
             }
 
         }
-        else if (collection == CMX_CP_HITS)
+        else if (data.m_collection == CMX_CP_HITS)
         {
+            CmxCpHitsData& hdata = static_cast<CmxCpHitsData&> (data);
 
             // Hit/Topo counts
 
@@ -899,7 +899,7 @@ void CpByteStreamV2Tool::decodeCmxCp(CmxCpSubBlock *subBlock, int trigCpm,
                 if (hits0 || hits1 || err0 || err1)
                 {
                     const int key = hitsKey(crate, cmx, source);
-                    LVL1::CMXCPHits *ch = findCmxCpHits(key);
+                    LVL1::CMXCPHits *ch = findCmxCpHits(hdata, key);
                     if ( ! ch )     // create new CMX hits
                     {
                         m_hitsVec0.assign(timeslices, 0);
@@ -910,11 +910,12 @@ void CpByteStreamV2Tool::decodeCmxCp(CmxCpSubBlock *subBlock, int trigCpm,
                         m_hitsVec1[slice] = hits1;
                         m_errVec0[slice]  = err0;
                         m_errVec1[slice]  = err1;
-                        ch = new LVL1::CMXCPHits(swCrate, cmx, source,
-                                                 m_hitsVec0, m_hitsVec1,
-                                                 m_errVec0, m_errVec1, trigCpm);
-                        m_hitsMap.insert(std::make_pair(key, ch));
-                        m_hitCollection->push_back(ch);
+                        auto chp =
+                          std::make_unique<LVL1::CMXCPHits>(swCrate, cmx, source,
+                                                            m_hitsVec0, m_hitsVec1,
+                                                            m_errVec0, m_errVec1, trigCpm);
+                        hdata.m_hitsMap.insert(std::make_pair(key, chp.get()));
+                        hdata.m_hitCollection->push_back(std::move(chp));
                     }
                     else
                     {
@@ -953,7 +954,8 @@ void CpByteStreamV2Tool::decodeCmxCp(CmxCpSubBlock *subBlock, int trigCpm,
 
 // Unpack CPM sub-block
 
-void CpByteStreamV2Tool::decodeCpm(CpmSubBlockV2 *subBlock, int trigCpm)
+void CpByteStreamV2Tool::decodeCpm(CpmSubBlockV2 *subBlock, int trigCpm,
+                                   CpmTowerData& data)
 {
     const bool debug   = msgLvl(MSG::DEBUG);
     const bool verbose = msgLvl(MSG::VERBOSE);
@@ -1049,7 +1051,7 @@ void CpByteStreamV2Tool::decodeCpm(CpmSubBlockV2 *subBlock, int trigCpm)
                     if (layer == m_coreOverlap)
                     {
                         const unsigned int key = m_towerKey->ttKey(phi, eta);
-                        LVL1::CPMTower *tt = findCpmTower(key);
+                        LVL1::CPMTower *tt = findCpmTower(data, key);
                         if ( ! tt )     // create new CPM tower
                         {
                             m_emVec.assign(timeslices, 0);
@@ -1060,10 +1062,11 @@ void CpByteStreamV2Tool::decodeCpm(CpmSubBlockV2 *subBlock, int trigCpm)
                             m_hadVec[slice]    = had;
                             m_emErrVec[slice]  = emErr1;
                             m_hadErrVec[slice] = hadErr1;
-                            tt = new LVL1::CPMTower(phi, eta, m_emVec, m_emErrVec,
-                                                    m_hadVec, m_hadErrVec, trigCpm);
-                            m_ttMap.insert(std::make_pair(key, tt));
-                            m_ttCollection->push_back(tt);
+                            auto ttp =
+                              std::make_unique<LVL1::CPMTower>(phi, eta, m_emVec, m_emErrVec,
+                                                               m_hadVec, m_hadErrVec, trigCpm);
+                            data.m_ttMap.insert(std::make_pair(key, ttp.get()));
+                            data.m_ttCollection->push_back(std::move(ttp));
                         }
                         else
                         {
@@ -1118,35 +1121,56 @@ void CpByteStreamV2Tool::decodeCpm(CpmSubBlockV2 *subBlock, int trigCpm)
 
 // Find a CPM tower for given key
 
-LVL1::CPMTower *CpByteStreamV2Tool::findCpmTower(const unsigned int key)
+const
+LVL1::CPMTower *CpByteStreamV2Tool::findCpmTower(const unsigned int key) const
 {
-    LVL1::CPMTower *tt = 0;
-    CpmTowerMap::const_iterator mapIter;
-    mapIter = m_ttMap.find(key);
-    if (mapIter != m_ttMap.end()) tt = mapIter->second;
-    return tt;
+    ConstCpmTowerMap::const_iterator mapIter = m_ttMap.find(key);
+    if (mapIter != m_ttMap.end()) return mapIter->second;
+    return nullptr;
+}
+
+LVL1::CPMTower *CpByteStreamV2Tool::findCpmTower(const CpmTowerData& data,
+                                                 const unsigned int key) const
+{
+    CpmTowerMap::const_iterator mapIter = data.m_ttMap.find(key);
+    if (mapIter != data.m_ttMap.end()) return mapIter->second;
+    return nullptr;
 }
 
 // Find CMX-CP TOB for given key
 
-LVL1::CMXCPTob *CpByteStreamV2Tool::findCmxCpTob(const int key)
+const
+LVL1::CMXCPTob *CpByteStreamV2Tool::findCmxCpTob(const int key) const
 {
-    LVL1::CMXCPTob *tob = 0;
-    CmxCpTobMap::const_iterator mapIter;
-    mapIter = m_tobMap.find(key);
-    if (mapIter != m_tobMap.end()) tob = mapIter->second;
-    return tob;
+    ConstCmxCpTobMap::const_iterator mapIter = m_tobMap.find(key);
+    if (mapIter != m_tobMap.end()) return mapIter->second;
+    return nullptr;
+}
+
+LVL1::CMXCPTob *CpByteStreamV2Tool::findCmxCpTob(const CmxCpTobData& data,
+                                                 const int key) const
+{
+    CmxCpTobMap::const_iterator mapIter = data.m_tobMap.find(key);
+    if (mapIter != data.m_tobMap.end()) return mapIter->second;
+    return nullptr;
 }
 
 // Find CMX-CP hits for given key
 
-LVL1::CMXCPHits *CpByteStreamV2Tool::findCmxCpHits(const int key)
+const
+LVL1::CMXCPHits *CpByteStreamV2Tool::findCmxCpHits(const int key) const
 {
-    LVL1::CMXCPHits *hits = 0;
-    CmxCpHitsMap::const_iterator mapIter;
-    mapIter = m_hitsMap.find(key);
-    if (mapIter != m_hitsMap.end()) hits = mapIter->second;
-    return hits;
+    ConstCmxCpHitsMap::const_iterator mapIter = m_hitsMap.find(key);
+    if (mapIter != m_hitsMap.end()) return mapIter->second;
+    return nullptr;
+}
+
+LVL1::CMXCPHits *CpByteStreamV2Tool::findCmxCpHits(const CmxCpHitsData& data,
+                                                   const int key) const
+{
+    CmxCpHitsMap::const_iterator mapIter = data.m_hitsMap.find(key);
+    if (mapIter != data.m_hitsMap.end()) return mapIter->second;
+    return nullptr;
 }
 
 // Set up CPM tower map
@@ -1161,7 +1185,7 @@ void CpByteStreamV2Tool::setupCpmTowerMap(const CpmTowerCollection *
         CpmTowerCollection::const_iterator pose = ttCollection->end();
         for (; pos != pose; ++pos)
         {
-            LVL1::CPMTower *const tt = *pos;
+            const LVL1::CPMTower *const tt = *pos;
             const unsigned int key = m_towerKey->ttKey(tt->phi(), tt->eta());
             m_ttMap.insert(std::make_pair(key, tt));
         }
@@ -1180,7 +1204,7 @@ void CpByteStreamV2Tool::setupCmxCpTobMap(const CmxCpTobCollection *
         CmxCpTobCollection::const_iterator pose = tobCollection->end();
         for (; pos != pose; ++pos)
         {
-            LVL1::CMXCPTob *const tob = *pos;
+            const LVL1::CMXCPTob *const tob = *pos;
             const int crate = tob->crate() - m_crateOffsetSw;
             const int cmx = tob->cmx();
             const int cpm = tob->cpm();
@@ -1204,7 +1228,7 @@ void CpByteStreamV2Tool::setupCmxCpHitsMap(const CmxCpHitsCollection *
         CmxCpHitsCollection::const_iterator pose = hitCollection->end();
         for (; pos != pose; ++pos)
         {
-            LVL1::CMXCPHits *const hits = *pos;
+            const LVL1::CMXCPHits *const hits = *pos;
             const int crate = hits->crate() - m_crateOffsetSw;
             const int cmx = hits->cmx();
             const int source = hits->source();

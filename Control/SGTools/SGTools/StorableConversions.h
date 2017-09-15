@@ -12,10 +12,9 @@
  * @author ATLAS Collaboration
  **/
 
-//<<<<<< INCLUDES                                                       >>>>>>
 #include "SGTools/DataBucket.h"
-#include "SGTools/ClassID_traits.h"
 #include "SGTools/DataBucketTraitFwd.h"
+#include "AthenaKernel/ClassID_traits.h"
 #include "AthenaKernel/tools/type_tools.h"
 #include "AthenaKernel/DataObjectSharedPtr.h"
 #include "GaudiKernel/DataObject.h"

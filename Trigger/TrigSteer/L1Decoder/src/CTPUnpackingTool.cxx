@@ -11,20 +11,26 @@ using namespace HLT;
 CTPUnpackingTool::CTPUnpackingTool( const std::string& type,
 				    const std::string& name, 
 				    const IInterface* parent ) 
-  : AthAlgTool(type, name, parent),
-    m_monTool("GenericMonitoringTool/MonTool", this) {  
+  : AthAlgTool(type, name, parent) {
   declareProperty("CTPToChainMapping", m_ctpToChainProperty, "Mapping of the form: '34:HLT_x', '35:HLT_y', ..., both CTP ID and chain may appear many times");
   declareProperty("ForceEnableAllChains", m_forceEnable=false, "Enables all chains in each event, testing mode");
-  declareProperty("MonTool", m_monTool=ToolHandle<GenericMonitoringTool>("", this), "Basic Monitoring");
+  declareProperty("MonTool", m_monTool=VoidMonitoringTool(this), "Basic Monitoring");
 }
 
 CTPUnpackingTool::~CTPUnpackingTool()
 {}
 
 StatusCode CTPUnpackingTool::initialize() {   
-  if ( not m_monTool.name().empty() ) 
-    CHECK( m_monTool.retrieve() );
-  return decodeCTPToChainMapping(); 
+  if ( !m_monTool.empty() ) CHECK( m_monTool.retrieve() );
+  CHECK( decodeCTPToChainMapping() ); 
+  if ( m_ctpToChain.empty() ) {
+    ATH_MSG_WARNING( "Empty CTP to chains mapping " );
+    ATH_MSG_WARNING( "Property confoguring it: " << m_ctpToChainProperty );
+  } 
+  for ( auto m: m_ctpToChain ) {
+    ATH_MSG_INFO( "Mapping of CTP bit: " << m.first << " to chains " << m.second );
+  }
+  return StatusCode::SUCCESS;
 }
 
 

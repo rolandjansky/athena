@@ -4,9 +4,13 @@
   <class name="TauAnalysisTools::TauEfficiencyCorrectionsTool" />
   <class name="TauAnalysisTools::TauSelectionTool" />
   <class name="TauAnalysisTools::TauSmearingTool" />
+  <class name="TauAnalysisTools::BuildTruthTaus" />
   <class name="TauAnalysisTools::TauTruthMatchingTool" />
   <class name="TauAnalysisTools::TauTruthTrackMatchingTool" />
   <class name="TauAnalysisTools::TauOverlappingElectronLLHDecorator" />
+  <class name="TauAnalysisTools::CommonDiTauEfficiencyTool" />
+  <class name="TauAnalysisTools::DiTauEfficiencyCorrectionsTool" />
+  <class name="TauAnalysisTools::DiTauTruthMatchingTool" />
   <function pattern="TauAnalysisTools::split*"/>
   <function pattern="TauAnalysisTools::testFileForEOFContainsCharacters*"/>
 

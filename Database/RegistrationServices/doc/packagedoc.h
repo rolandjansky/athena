@@ -389,10 +389,8 @@ classname.
 
 @include OutputConditionsAlg_jobOptions.py
 
-@section RegistrationServices_requirements requirements
 
 
-@section RegistrationServices_uses Packages used
 
 
 

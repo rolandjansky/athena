@@ -16,8 +16,6 @@
 #include "TH2.h"
 #include "TTree.h"
 
-
-
 class TH1;
 class TH2;
 class TTree;
@@ -35,7 +33,6 @@ class TrackRecordAnalysis : public AthAlgorithm {
 
  private:
    
-
    /** Some variables**/
    TH1* h_hits_x;
    TH1* h_hits_y;
@@ -53,8 +50,6 @@ class TrackRecordAnalysis : public AthAlgorithm {
    TH1* h_edep;
    TH1* h_pdg;
 
-
-   
    std::vector<float>* m_x;
    std::vector<float>* m_y;
    std::vector<float>* m_z;
@@ -68,13 +63,14 @@ class TrackRecordAnalysis : public AthAlgorithm {
    std::vector<float>* m_time;
    std::vector<float>* m_edep;
    std::vector<float>* m_pdg;
+
+   std::string m_collection;
         
    TTree * m_tree;
    std::string m_ntupleFileName; 
    std::string m_path; 
    ServiceHandle<ITHistSvc>  m_thistSvc;
-   std::string m_collection;
+
 };
 
 #endif // TRACK_RECORD_ANALYSIS_H
-

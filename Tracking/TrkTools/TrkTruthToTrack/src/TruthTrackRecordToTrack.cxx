@@ -25,7 +25,7 @@
 //#include "TrkParameters/AtaPlane.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrackRecord/TrackRecord.h"
-#include "TrackRecord/TrackRecordCollection.h"
+
 
 //================================================================
 Trk::TruthTrackRecordToTrack::TruthTrackRecordToTrack(const std::string& type, const std::string& name,
@@ -57,8 +57,10 @@ StatusCode Trk::TruthTrackRecordToTrack::initialize() {
     return StatusCode::FAILURE;
   } else {
     ATH_MSG_INFO("Retrieved tool " << m_extrapolator);
-  }
-  
+  } 
+
+  ATH_CHECK( m_reccollkey.initialize() );
+
   return StatusCode::SUCCESS;
 }
 
@@ -91,10 +93,9 @@ const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makeProdVertexParamete
 
   }*/
 
-  const TrackRecordCollection* recordCollection;
+  SG::ReadHandle<TrackRecordCollection> recordCollection(m_reccollkey);
       
-  StatusCode sc=evtStore()->retrieve(recordCollection, m_reccollkey);
-  if (sc==StatusCode::FAILURE) {
+  if (recordCollection.isValid()) {
     ATH_MSG_ERROR ("Could not get track record!");
     return 0;
   }
@@ -162,12 +163,13 @@ const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makeProdVertexParamete
   double charge = 0.0;
   const HepPDT::ParticleData* pd = 0;
 
-  const TrackRecordCollection* recordCollection;      
-  StatusCode sc=evtStore()->retrieve(recordCollection, m_reccollkey);
-  if (sc==StatusCode::FAILURE) {
+   SG::ReadHandle<TrackRecordCollection> recordCollection(m_reccollkey);
+      
+  if (recordCollection.isValid()) {
     ATH_MSG_ERROR ("Could not get track record!");
     return 0;
   }
+
   ATH_MSG_DEBUG("reading from track record, size=" << recordCollection->size());
 
   if (recordCollection->size() == 0) ATH_MSG_WARNING ("action required but record size is 0");

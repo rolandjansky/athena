@@ -15,7 +15,6 @@ an athena Algorithm.
 
 
 
-@section TBBExamples_reqs CMT requirements file
 
 @section TBBExamples_Refs More Documentation
 

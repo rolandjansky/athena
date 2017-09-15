@@ -13,6 +13,12 @@
  * $Id: Timeout.h,v 1.2 2008-12-09 16:48:42 fwinkl Exp $
  */
 
+
+#include "AthenaKernel/SlotSpecificObj.h"
+#include "GaudiKernel/ThreadLocalContext.h"
+#include <atomic>
+
+
 namespace Athena {
   
   // Forward declarations
@@ -33,27 +39,31 @@ namespace Athena {
   public:
     /// Get reference to Timeout singleton
     static Timeout& instance();
+    static Timeout& instance(const EventContext& ctx);
 
     /// Check if the timeout was reached
     bool reached() const { return m_state; }
   
+    Timeout() : m_state(false) {}
+
   private:
-    bool m_state;                       ///< Timeout flag
+    std::atomic<bool> m_state;          ///< Timeout flag
     void set()   { m_state = true; }    ///< Set timeout flag
     void reset() { m_state = false; }   ///< Reset timeout flag
   
     // Prevent direct instantiation 
-    Timeout() : m_state(false) {}
     Timeout(Timeout&);
     Timeout& operator=(const Timeout&);
   };
 
-  // Meyers' singleton implementation
-  inline Timeout& Timeout::instance() {
-    static Timeout theInstance;
-    return theInstance;
+  inline Timeout& Timeout::instance (const EventContext& ctx) {
+    static SG::SlotSpecificObj<Timeout> instances ATLAS_THREAD_SAFE;
+    return *instances.get (ctx);
   }
 
+  inline Timeout& Timeout::instance() {
+    return instance (Gaudi::Hive::currentContext());
+  }
 
   
   /**

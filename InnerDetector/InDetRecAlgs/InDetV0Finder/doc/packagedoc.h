@@ -65,7 +65,6 @@ which can be changed through jobOptions:
   - double <b></i>m_nsig</i></b> : mass windows set to m_nsig times the mass resolution (5.)
 
 
-@section InDetV0Finder_requirementsInDetV0Finder Requirements
 
 
 */

@@ -15,7 +15,7 @@ using namespace std;
 ServicesTracker* ServicesTrackerBuilder::buildGeometry(const InDetServMatGeometryManager& geoMgr) const
 {
 
-  const Athena::MsgStreamMember msg(Athena::Options::Eager,"ServiceTrackerBuilder");
+  Athena::MsgStreamMember msg(Athena::Options::Eager,"ServiceTrackerBuilder");
   
   msg<< MSG::INFO << "Entering ServicesTrackerBuilder::buildGeometry" <<endmsg;
 

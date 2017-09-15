@@ -14,15 +14,4 @@ starting from MuonSegmentCombinations. It uses a combination of extrapolation + 
  	
 @section MuonSegmentTrackMaker_ExtrasMuonSegmentTrackMaker Extra Pages
 
- - @ref UsedMuonSegmentTrackMaker
- - @ref RequirementsMuonSegmentTrackMaker
-*/
-
-/**
-@page UsedMuonSegmentTrackMaker Used Packages
-*/
-
-/**
-@page RequirementsMuonSegmentTrackMaker Requirements
-
 */

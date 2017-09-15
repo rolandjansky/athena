@@ -49,6 +49,5 @@ are used from the GeoPrimitives package
 - Amg::Vector3D for 3D points and vectors
 - Amg::Vector2D for 2D points on a surface or the special local direction 
 
-@section TrkSurfaces_TrkSurfaceReq Requirements
 
 */

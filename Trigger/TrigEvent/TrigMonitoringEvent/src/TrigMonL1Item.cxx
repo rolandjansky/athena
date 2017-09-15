@@ -12,7 +12,7 @@
 namespace L1Bits
 {
   const uint32_t maskCtpId = 0x0fff;  // mask ctpid bits
-  const uint32_t maskDecis = 0x7000;  // mask decision bits
+  //const uint32_t maskDecis = 0x7000;  // mask decision bits
 }
 
 namespace MSGService

@@ -2,5 +2,5 @@
 
 InDetTrackParticlesCPContent = [
 "InDetTrackParticles",
-"InDetTrackParticlesAux.phi.theta.qOverP.chiSquared.numberDoF.numberOfBLayerHits.numberOfPixelHits.numberOfPixelHoles.numberOfPixelSharedHits.numberOfPixelDeadSensors.numberOfSCTHits.numberOfSCTHoles.numberOfSCTSharedHits.numberOfSCTDeadSensors"
+"InDetTrackParticlesAux.phi.theta.qOverP.chiSquared.numberDoF.numberOfInnermostPixelLayerHits.numberOfPixelHits.numberOfPixelHoles.numberOfPixelSharedHits.numberOfPixelDeadSensors.numberOfSCTHits.numberOfSCTHoles.numberOfSCTSharedHits.numberOfSCTDeadSensors"
 ]

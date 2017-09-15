@@ -46,8 +46,5 @@ distribution of number of pileup events - equivalent to the mu profile but
 with the additional Poisson fluctuations, filled for nevt values for each 
 BCID (but before multiplying by the R values).
 
-@section FastChainPileup_Req The requirements file:
-
-@section FastChainPileup_Uses The packages used:
 
 */

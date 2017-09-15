@@ -25,7 +25,6 @@
 #include "G4PhysicalConstants.hh"
 #include "G4SystemOfUnits.hh"
 
-
 // System includes
 #include <mutex>
 
@@ -101,7 +100,7 @@ namespace G4UA
   //---------------------------------------------------------------------------
   // Cache primary info at beginning of event
   //---------------------------------------------------------------------------
-  void LengthIntegrator::beginOfEvent(const G4Event* event)
+  void LengthIntegrator::BeginOfEventAction(const G4Event* event)
   {
     m_detThickMap.clear();
     G4PrimaryVertex* vert = event->GetPrimaryVertex(0);
@@ -114,7 +113,7 @@ namespace G4UA
   //---------------------------------------------------------------------------
   // Finalize event measurements
   //---------------------------------------------------------------------------
-  void LengthIntegrator::endOfEvent(const G4Event*)
+  void LengthIntegrator::EndOfEventAction(const G4Event*)
   {
     // Lazily protect this whole code from concurrent access
     std::lock_guard<std::mutex> lock(gHistSvcMutex);
@@ -142,7 +141,7 @@ namespace G4UA
 
     // Adding zeros to TProfile bins, so that each bin contains the same number of entries,
     // so that a THStack of all the material TProfile plots (or all the element plots) will equal the Total_X0 TProfile plot
-    // It's because each plot (for each material, say) is only filled if a Geantion hits it, not if it's not hit in an event 
+    // It's because each plot (for each material, say) is only filled if a Geantion hits it, not if it's not hit in an event
 
     TProfile* totalEtaRL = m_etaMapRL["Total_X0"];
     int nbins = totalEtaRL->GetNbinsX();
@@ -217,7 +216,7 @@ namespace G4UA
   //---------------------------------------------------------------------------
   // Accumulate results from one step
   //---------------------------------------------------------------------------
-  void LengthIntegrator::processStep(const G4Step* aStep)
+  void LengthIntegrator::UserSteppingAction(const G4Step* aStep)
   {
     G4TouchableHistory* touchHist =
       (G4TouchableHistory*) aStep->GetPreStepPoint()->GetTouchable();
@@ -269,7 +268,7 @@ namespace G4UA
       }
 
     }
-  
+
     //G4ThreeVector midPoint = (aStep->GetPreStepPoint()->GetPosition()+aStep->GetPostStepPoint()->GetPosition())*0.5;
     //m_rzProfRL->Fill( midPoint.z() , midPoint.perp() , thickstepRL , 1. );
     //m_rzProfIL->Fill( midPoint.z() , midPoint.perp() , thickstepIL , 1. );
@@ -319,12 +318,12 @@ namespace G4UA
 
       static std::mutex mutex_register;
       std::lock_guard<std::mutex> lock(mutex_register);
-      
+
       plotstring = it;
-      
+
       //G4cout<<"processing string "<<plotstring<<G4endl;;
-      
-      if(!m_rzMapRL[plotstring]){  
+
+      if(!m_rzMapRL[plotstring]){
 
 	TString rzname = "RZRadLen_"+plotstring;
 	std::string rznameReg = "/lengths/radLen/RZRadLen_"+plotstring;
@@ -336,22 +335,22 @@ namespace G4UA
 	m_xyMapRL[plotstring]=getOrCreateProfile(xynameReg, xyname, "X [mm]", 1000,-1200.,1200.,"Y [mm]",1000,-1200.,1200.,"%X0");
 	
       }
-      
+
       m_rzMapRL[plotstring]->Fill( hitPoint.z() , hitPoint.perp() , thickstepRL , 1. );
       m_rzMapRL[plotstring]->Fill( endPoint.z() , endPoint.perp() , thickstepRL , 1. );
       m_xyMapRL[plotstring]->Fill( hitPoint.x() , hitPoint.y() , thickstepRL , 1. );
       m_xyMapRL[plotstring]->Fill( endPoint.x() , endPoint.y() , thickstepRL , 1. );
-      
-    }  
-    
+
+    }
+
     for (auto it : L) {
-      
+
       static std::mutex mutex_instance;
       std::lock_guard<std::mutex> lock(mutex_instance);
-      
+
       plotstring = it;
 
-      if(!m_rzMapIL[plotstring]){  
+      if(!m_rzMapIL[plotstring]){
 	
 	std::string rznameReg = "/lengths/intLen/RZIntLen_"+plotstring;
 	TString rzname = "RZIntLen_"+plotstring;
@@ -362,13 +361,13 @@ namespace G4UA
 	m_xyMapIL[plotstring]=getOrCreateProfile(xynameReg, xyname, "X [mm]", 1000,-1200.,1200.,"Y [mm]",1000,-1200.,1200.,"#lambda");
 	
       }
-      
+
       m_rzMapIL[plotstring]->Fill( hitPoint.z() , hitPoint.perp() , thickstepIL , 1. );
       m_rzMapIL[plotstring]->Fill( endPoint.z() , endPoint.perp() , thickstepIL , 1. );
       m_xyMapIL[plotstring]->Fill( hitPoint.x() , hitPoint.y() , thickstepIL , 1. );
       m_xyMapIL[plotstring]->Fill( endPoint.x() , endPoint.y() , thickstepIL , 1. );
-      
-    }  
+
+    }
 
 
     const G4ElementVector* eVec = mat->GetElementVector();
@@ -381,7 +380,7 @@ namespace G4UA
       double el_thickstep = stepl * (mat->GetVecNbOfAtomsPerVolume())[i] * (*eVec)[i]->GetfRadTsai() * 100.0;
 
       if(!m_rzMapRL[elementName]){
-  
+
 	std::string rznameReg = "/lengths/radLen/RZRadLen_"+elementName;
 	TString rzname = "RZRadLen_"+elementName;
 	TString xyname = "XYRadLen_"+elementName;
@@ -391,16 +390,16 @@ namespace G4UA
 	m_xyMapRL[elementName]=getOrCreateProfile(xynameReg, xyname, "X [mm]", 1000,-1200.,1200.,"Y [mm]",1000,-1200.,1200.,"%X0");
 	
       }
-      
+
       m_rzMapRL[elementName]->Fill( hitPoint.z() , hitPoint.perp() , el_thickstep , 1. );
       m_rzMapRL[elementName]->Fill( endPoint.z() , endPoint.perp() , el_thickstep , 1. );
       m_xyMapRL[elementName]->Fill( hitPoint.x() , hitPoint.y() , el_thickstep , 1. );
       m_xyMapRL[elementName]->Fill( endPoint.x() , endPoint.y() , el_thickstep , 1. );
-      
+
     }
-    
+
     for (size_t i=0 ; i < mat->GetNumberOfElements() ; ++i) {
-      
+
       static std::mutex mutex_instance;
       std::lock_guard<std::mutex> lock(mutex_instance);
 
@@ -409,7 +408,7 @@ namespace G4UA
       //G4Pow* m_g4pow = G4Pow::GetInstance();
       double el_thickstep = stepl * amu/lambda0 * (mat->GetVecNbOfAtomsPerVolume())[i] * m_g4pow->Z23( G4int( (*eVec)[i]->GetN() + 0.5 ) );
 
-      if(!m_rzMapIL[elementName]){  
+      if(!m_rzMapIL[elementName]){
 
 	TString rzname = "RZIntLen_"+elementName;
 	std::string rznameReg = "/lengths/intLen/RZIntLen_"+elementName;
@@ -420,7 +419,7 @@ namespace G4UA
 	m_xyMapIL[elementName]=getOrCreateProfile(xynameReg, xyname, "X [mm]", 1000,-1200.,1200.,"Y [mm]",1000,-1200.,1200.,"#lambda");
 
       }
-      
+
       m_rzMapIL[elementName]->Fill( hitPoint.z() , hitPoint.perp() , el_thickstep , 1. );
       m_rzMapIL[elementName]->Fill( endPoint.z() , endPoint.perp() , el_thickstep , 1. );
       m_xyMapIL[elementName]->Fill( hitPoint.x() , hitPoint.y() , el_thickstep , 1. );
@@ -431,7 +430,7 @@ namespace G4UA
   }
 
   /// note that this should be called from a section protected by a mutex, since it talks to the THitSvc
-  
+
   TProfile2D* LengthIntegrator::getOrCreateProfile(std::string regName, TString histoname, TString xtitle, int nbinsx, float xmin, float xmax, TString ytitle, int nbinsy,float ymin, float ymax,TString ztitle){
 
     //G4cout<<"histo "<<histoname<<" not found. checking for  "<<regName<<G4endl;
@@ -446,14 +445,14 @@ namespace G4UA
       result->GetXaxis()->SetTitle(xtitle);
       result->GetYaxis()->SetTitle(ytitle);
       result->GetZaxis()->SetTitle(ztitle);
-      
+
       if (m_hSvc && m_hSvc->regHist(regName,result).isFailure()){
 	//ATH_MSG_FATAL( "Registration of histogram " << rznameReg << " failed" );
 	throw GaudiException("Registration of histogram " + regName + " failed", "RegHistErr", StatusCode::FAILURE);
       }
       return result;
     }
-    
+
     // should never be here
     G4cout<<"ERROR something went wrong in handling of THistSvc "<<regName <<" "<<histoname<<G4endl;
     return nullptr;
@@ -462,7 +461,7 @@ namespace G4UA
   //---------------------------------------------------------------------------
   // Add elements and values to the map
   //---------------------------------------------------------------------------
-  void LengthIntegrator::addToDetThickMap(std::string name, double thickstepRL, double thickstepIL) 
+  void LengthIntegrator::addToDetThickMap(std::string name, double thickstepRL, double thickstepIL)
   {
     auto it=m_detThickMap.find(name);
     if(it!=m_detThickMap.end()){

@@ -13,7 +13,6 @@
 #include "CaloInterface/ICaloCellNormalizedQualityTool.h"
 #include "CaloInterface/ICaloNoiseTool.h"
 #include "CaloInterface/ICalorimeterNoiseTool.h"
-#include "CaloInterface/ICaloParticleIDTool.h"
 #include "CaloInterface/ICaloAffectedTool.h"
 #include "CaloInterface/ICaloLumiBCIDTool.h"
 

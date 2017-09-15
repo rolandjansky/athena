@@ -112,7 +112,7 @@ std::ostream& operator<<(std::ostream& s, const RegSelModule& m)
 
 bool getModule(std::istream& s, RegSelModule& m)
 {
-  char _s[128], _s1[128], _s2[128]; 
+  char sbuf[128], s1buf[128], s2buf[128]; 
 
   int layer;
   int detector;
@@ -126,26 +126,26 @@ bool getModule(std::istream& s, RegSelModule& m)
   //  IdentifierHash hash;
   unsigned int hashint;
 
-  s >> _s >> _s >> std::dec >> layer 
-    >> _s >> _s >> std::dec >> detector 
-    >> _s >> _s >> rMin    >> _s >> rMax  
-    >> _s >> _s >> phiMin  >> _s >> phiMax  
-    >> _s >> _s >> zMin    >> _s >> zMax;
+  s >> sbuf >> sbuf >> std::dec >> layer 
+    >> sbuf >> sbuf >> std::dec >> detector 
+    >> sbuf >> sbuf >> rMin    >> sbuf >> rMax  
+    >> sbuf >> sbuf >> phiMin  >> sbuf >> phiMax  
+    >> sbuf >> sbuf >> zMin    >> sbuf >> zMax;
  
   /// copy z limits to max radius values just in case
   z2Min = zMin;
   z2Max = zMax;
   
-  s >> _s1 >> _s2;
+  s >> s1buf >> s2buf;
 
   /// read in extra z limits if required
-  if ( std::string(_s2)=="z2=" ) { 
-    s >> z2Min    >> _s >> z2Max;
-    s >> _s >> _s;
+  if ( std::string(s2buf)=="z2=" ) { 
+    s >> z2Min    >> sbuf >> z2Max;
+    s >> sbuf >> sbuf;
   }
 
   s >> std::hex >> robid 
-    >> _s >> _s >> std::hex >> hashint >> std::dec >> _s;
+    >> sbuf >> sbuf >> std::hex >> hashint >> std::dec >> sbuf;
 
   if ( s.fail() ) return false;
   
@@ -154,18 +154,14 @@ bool getModule(std::istream& s, RegSelModule& m)
   phiMin *= M_PI/180;   
   phiMax *= M_PI/180;   
 
-  RegSelModule _m( zMin,   zMax, 
-		   z2Min,  z2Max, 
-		   rMin,   rMax, 
-		   phiMin, phiMax, 
-		   layer, 
-		   detector, 
-		   robid, 
-		   IdentifierHash(hashint));
-  
-  m=_m;
-
-  //  std::cout << _m << std::endl;
+  m = RegSelModule( zMin,   zMax, 
+                    z2Min,  z2Max, 
+                    rMin,   rMax, 
+                    phiMin, phiMax, 
+                    layer, 
+                    detector, 
+                    robid, 
+                    IdentifierHash(hashint));
 
   return true;
 }  

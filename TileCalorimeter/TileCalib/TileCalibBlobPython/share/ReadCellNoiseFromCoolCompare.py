@@ -1,4 +1,7 @@
-#!/usr/bin/env python
+#!/bin/env python
+
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
 # ReadCellNoiseFromCoolCompare.py
 # based on ReadCellNoiseFromCool.py and ReadFromCoolCompare.py
 # Yuri Smirnov 2015-03-19

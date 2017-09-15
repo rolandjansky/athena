@@ -227,20 +227,15 @@ EMBAccordionDetails::EMBAccordionDetails():m_c(new Clockwork()) {
   std::string detectorKey  = LArVersion.empty() ? AtlasVersion : LArVersion;
   std::string detectorNode = LArVersion.empty() ? "ATLAS" : "LAr";
   
-  pAccessSvc->connect();
-  
   IRDBRecordset_ptr barrelGeometry = pAccessSvc->getRecordsetPtr("BarrelGeometry",detectorKey,detectorNode);
   if (barrelGeometry->size()==0) {
     throw std::runtime_error("Cannot find the BarrelGeometry Table");
   }
   
-
   IRDBRecordset_ptr barrelLongDiv = pAccessSvc->getRecordsetPtr("BarrelLongDiv",detectorKey,detectorNode);
   if (barrelLongDiv->size()==0) {
     throw std::runtime_error("Cannot find the BarrelLongDiv Table");
   }
-  
-  pAccessSvc->disconnect();
   
   // number of straight sections (should be 14)
   m_c->Nbrt = (*barrelGeometry)[0]->getInt("NBRT");

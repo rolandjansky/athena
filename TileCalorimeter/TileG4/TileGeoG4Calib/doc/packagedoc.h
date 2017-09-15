@@ -20,17 +20,6 @@ TileEscapedEnergyProcessing  -  manages processing of those particles that were 
 
 @author Gia Khoriauli <gia.khoriauli@cern.ch>
 
-@ref used_TileGeoG4Calib
 
-@ref requirements_TileGeoG4Calib
 
 */
-
-/**
-@page used_TileGeoG4Calib Used Packages
-*/
-
-/**
-@page requirements_TileGeoG4Calib Requirements
-*/
-

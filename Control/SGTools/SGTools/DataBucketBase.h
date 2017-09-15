@@ -43,7 +43,7 @@ class DataBucketBase : public DataObject
    * @param isConst True if the object being converted is regarded as const.
    */
   template <class T> T* cast (SG::IRegisterTransient* irt = 0,
-                              bool isConst = true) const;
+                              bool isConst = true);
 
   /**
    * @brief Return the contents of the @c DataBucket,
@@ -55,7 +55,7 @@ class DataBucketBase : public DataObject
    */
   virtual void* cast (CLID clid,
                       SG::IRegisterTransient* irt = 0,
-                      bool isConst = true) const = 0;
+                      bool isConst = true) = 0;
 
   /**
    * @brief Return the contents of the @c DataBucket,
@@ -67,7 +67,7 @@ class DataBucketBase : public DataObject
    */
   virtual void* cast (const std::type_info& tinfo,
                       SG::IRegisterTransient* irt = 0,
-                      bool isConst = true) const = 0;
+                      bool isConst = true) = 0;
 
   /**
    * @brief Return a new @c DataBucket whose payload has been cloned from the

@@ -325,17 +325,4 @@ These are found in the /scripts directory, and are designed to run on the statis
 - <b>resolution_[param].cc (doplot = "res[param]", "pull[param]", "narres[param]") - average value for parameter resoltuions (pulls) as a function of eta, for abs(eta) < 2.5 (or abs(eta) < 1.5 for narres);  resolution = X_reco - X_truth, pull as above
 - <b>vertex.cc</b> (doplot = "vtx") - plot generated, and reconstructed z0 vertex, and the difference 
 
-@section InDetRecStatistics_used_packagesInDetRecStatistics Used Packages
-
-@section InDetRecStatistics_requirements Requirements
-
 */
-
-
-//@page used_InDetRecStatistics Used Packages
-//
-//@page requirements_InDetRecStatistics Requirements
-//
-*/
-
-

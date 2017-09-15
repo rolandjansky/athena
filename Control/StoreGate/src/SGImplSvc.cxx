@@ -416,7 +416,7 @@ StatusCode SGImplSvc::recordAddress(const std::string& skey,
   //do not overwrite a persistent object
   if (m_pPPS) {
     DataProxy *dp(m_pPPS->retrieveProxy(dataID, skey, *m_pStore));
-    if (dp && dp->transientAddress() && dp->transientAddress()->provider()) {
+    if (dp && dp->provider()) {
       std::string clidTypeName; 
       m_pCLIDSvc->getTypeNameOfID(dataID, clidTypeName).ignore();
       msg() << MSG::WARNING
@@ -551,7 +551,7 @@ SGImplSvc::keys(const CLID& id, std::vector<std::string>& vkeys,
 
 bool SGImplSvc::isSymLinked(const CLID& linkID, DataProxy* dp)   
 {        
-  return (0 != dp) ? dp->transientAddress()->transientID(linkID) : false;        
+  return (0 != dp) ? dp->transientID(linkID) : false;        
 }
 
 //////////////////////////////////////////////////////////////////
@@ -760,7 +760,7 @@ SG::DataProxy* SGImplSvc::recordObject (SG::DataObjectSharedPtr<DataObject> obj,
     // Look for the same object recorded under a different key/clid.
     proxy = this->proxy (raw_ptr);
     if (proxy && proxy->isValid()) {
-      if (proxy->transientAddress()->transientID (obj->clID())) {
+      if (proxy->transientID (obj->clID())) {
         // CLID matches.  Make an alias.
         if (addAlias (key, proxy).isFailure()) {
           CLID clid = proxy->clID();
@@ -885,6 +885,28 @@ SGImplSvc::proxies() const
 
   return proxies;
 }
+
+
+std::vector<CLID>
+SGImplSvc::clids() const
+{
+  lock_t lock (m_mutex);
+
+  using std::distance;
+  DataStore::ConstStoreIterator s_iter, s_end;
+  store()->tRange(s_iter, s_end).ignore();
+
+  std::vector<CLID> clids;
+  clids.reserve( distance( s_iter, s_end ) );
+
+  for (; s_iter != s_end; ++s_iter ) {
+    const CLID id = s_iter->first;
+    clids.push_back (id);
+  }
+
+  return clids;
+}
+
 
 DataProxy*
 SGImplSvc::transientProxy(const CLID& id, const string& key) const
@@ -1034,9 +1056,7 @@ SGImplSvc::record_impl( DataObject* pDObj, const std::string& key,
     DataProxy *dp(proxy(clid, vk.key()));
     if (dp) {
       //proxies primary key
-      TransientAddress *pTA(dp->transientAddress());
-      assert(pTA);
-      const std::string& pTAName(pTA->name());
+      const std::string& pTAName(dp->name());
       //original key as versioned
       SG::VersionedKey primaryVK(pTAName);
       
@@ -1066,7 +1086,7 @@ SGImplSvc::record_impl( DataObject* pDObj, const std::string& key,
   if (!allowOverwrite && m_pPPS) {
     //do not overwrite a persistent object
     DataProxy *dp(m_pPPS->retrieveProxy(clid, rawKey, *m_pStore));
-    if (dp && dp->transientAddress() && dp->transientAddress()->provider()) {
+    if (dp && dp->provider()) {
       std::string clidTypeName; 
       m_pCLIDSvc->getTypeNameOfID(clid, clidTypeName).ignore();
       msg() << MSG::WARNING
@@ -1604,7 +1624,7 @@ void SGImplSvc::addedNewPersObject(CLID clid, DataProxy* dp) {
   lock_t lock (m_mutex);
   //if proxy is loading from persistency
   //add key of object to list of "newly recorded" objects
-  if (0 != dp->transientAddress()->provider()) {
+  if (0 != dp->provider()) {
     // The object itself.
     s_newObjs.insert(DataObjID(clid,dp->name()));
 
@@ -1614,7 +1634,7 @@ void SGImplSvc::addedNewPersObject(CLID clid, DataProxy* dp) {
     }
 
     // Symlinks.
-    for (CLID clid2 : dp->transientAddress()->transientID()) {
+    for (CLID clid2 : dp->transientID()) {
       if (clid2 != clid)
         s_newObjs.insert(DataObjID(clid2,dp->name()));
     }

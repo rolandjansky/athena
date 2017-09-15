@@ -1,7 +1,7 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
-
+#include "xAODTracking/TrackParticleContainer.h"
 #include "FastTrackSimWrap/FTKRegionalWrapper.h"
 #include "TrigFTKSim/FTKDataInput.h"
 #include "TrigFTKSim/atlClustering.h"
@@ -14,6 +14,7 @@
 #include "PixelCabling/IPixelCablingSvc.h"
 #include "SCT_Cabling/ISCT_CablingSvc.h"
 #include "SCT_Cabling/SCT_OnlineId.h"
+#include "InDetRIO_OnTrack/SiClusterOnTrack.h"
 
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
@@ -36,6 +37,9 @@ FTKRegionalWrapper::FTKRegionalWrapper (const std::string& name, ISvcLocator* pS
   m_evtStore(0 ),
   m_pixelId(0),
   m_sctId(0),
+  m_idHelper(0),
+  m_PIX_mgr(0),
+  m_SCT_mgr(0),
   m_IBLMode(0),
   m_fixEndcapL0(false),
   m_ITkMode(false),
@@ -55,9 +59,12 @@ FTKRegionalWrapper::FTKRegionalWrapper (const std::string& name, ISvcLocator* pS
   m_DiagClustering(true),
   m_SctClustering(false),
   m_PixelClusteringMode(1),
+  m_Ibl3DRealistic(false),
   m_DuplicateGanged(true),
   m_GangedPatternRecognition(false),
   m_WriteClustersToESD(false),
+  m_getOffline(false),
+  m_offlineName("InDetTrackParticles"),
   m_outpath("ftksim_smartwrapper.root"),
   m_outfile(0x0),
   m_hittree(0x0),
@@ -102,7 +109,18 @@ FTKRegionalWrapper::FTKRegionalWrapper (const std::string& name, ISvcLocator* pS
   m_ftkPixelTruthName("PRD_MultiTruthPixel_FTK"),
   m_ftkSctTruthName("PRD_MultiTruthSCT_FTK"),
   m_mcTruthName("TruthEvent"),
-  m_L1ID_to_save(std::vector<int>())
+  m_L1ID_to_save(std::vector<int>()),
+  offline_locX(nullptr),
+  offline_locY(nullptr),
+  offline_isPixel(nullptr),
+  offline_isBarrel(nullptr),
+  offline_layer(nullptr),
+  offline_clustID(nullptr),
+  offline_trackNumber(nullptr),
+  offline_pt(nullptr),
+  offline_eta(nullptr),
+  offline_phi(nullptr),
+  m_offline_cluster_tree(nullptr)
 {
   
   declareProperty("TrigFTKClusterConverterTool", m_clusterConverterTool);
@@ -124,12 +142,16 @@ FTKRegionalWrapper::FTKRegionalWrapper (const std::string& name, ISvcLocator* pS
   declareProperty("SavePerPlane",m_SavePerPlane);
   declareProperty("DumpTestVectors",m_DumpTestVectors);
   
+  declareProperty("GetOffline",m_getOffline);
+  declareProperty("OfflineName",m_offlineName);
+
   // clustering options
   declareProperty("Clustering",m_Clustering);
   declareProperty("SaveClusterContent",m_SaveClusterContent);
   declareProperty("DiagClustering",m_DiagClustering);
   declareProperty("SctClustering",m_SctClustering);
   declareProperty("PixelClusteringMode",m_PixelClusteringMode);
+  declareProperty("Ibl3DRealistic",m_Ibl3DRealistic);
   declareProperty("DuplicateGanged",m_DuplicateGanged);
   declareProperty("GangedPatternRecognition",m_GangedPatternRecognition);
 
@@ -255,7 +277,23 @@ StatusCode FTKRegionalWrapper::initialize()
     return StatusCode::FAILURE;
   }
 
+  if( m_detStore->retrieve(m_idHelper, "AtlasID").isFailure() ) {
+    log << MSG::ERROR << "Unable to retrieve AtlasDetector helper from DetectorStore" << endmsg;
+    return StatusCode::FAILURE;
+  }
   
+  if( m_detStore->retrieve(m_PIX_mgr, "Pixel").isFailure() ) {
+    log << MSG::ERROR << "Unable to retrieve Pixel manager from DetectorStore" << endmsg;
+    return StatusCode::FAILURE;
+  }
+
+  if( m_detStore->retrieve(m_SCT_mgr, "SCT").isFailure() ) {
+    log << MSG::ERROR << "Unable to retrieve SCT manager from DetectorStore" << endmsg;
+    return StatusCode::FAILURE;
+  }
+  
+
+
   // Write clusters in InDetCluster format to ESD for use in Pseudotracking
   if (m_WriteClustersToESD){
     StatusCode sc = service("StoreGateSvc", m_storeGate);
@@ -326,6 +364,7 @@ StatusCode FTKRegionalWrapper::initialize()
   DIAG_CLUSTERING = m_DiagClustering;
   SCT_CLUSTERING = m_SctClustering;
   PIXEL_CLUSTERING_MODE = m_PixelClusteringMode;
+  IBL3D_REALISTIC = m_Ibl3DRealistic;
   DUPLICATE_GANGED = m_DuplicateGanged;
   GANGED_PATTERN_RECOGNITION = m_GangedPatternRecognition;
 
@@ -428,8 +467,8 @@ StatusCode FTKRegionalWrapper::initOutputFile() {
 
   m_evtinfo->Branch("LB",&m_LB,"LB/I");
   m_evtinfo->Branch("BCID",&m_BCID,"BCID/I");
-  m_evtinfo->Branch("ExtendedLevel1ID",&m_extendedLevel1ID,"ExtendedLevel1ID/I");
-  m_evtinfo->Branch("Level1TriggerType",&m_level1TriggerType,"Level1TriggerType/I");
+  m_evtinfo->Branch("ExtendedLevel1ID",&m_extendedLevel1ID,"ExtendedLevel1ID/i");
+  m_evtinfo->Branch("Level1TriggerType",&m_level1TriggerType,"Level1TriggerType/i");
   m_evtinfo->Branch("Level1TriggerInfo",&m_level1TriggerInfo);
   m_evtinfo->Branch("AverageInteractionsPerCrossing",&m_averageInteractionsPerCrossing,"AverageInteractionsPerCrossing/F");
   m_evtinfo->Branch("ActualInteractionsPerCrossing",&m_actualInteractionsPerCrossing,"ActualInteractionsPerCrossing/F");  
@@ -439,6 +478,34 @@ StatusCode FTKRegionalWrapper::initOutputFile() {
   m_hittree = new TTree("ftkhits","Raw hits for the FTK simulation");
   m_hittree_perplane = new TTree("ftkhits_perplane","Raw hits for the FTK simulation");
   
+
+  if (m_getOffline) {
+    offline_locX = new std::vector<float>;
+    offline_locY = new std::vector<float>;
+    offline_isPixel = new std::vector<int>;
+    offline_isBarrel = new std::vector<int>;
+    offline_layer = new std::vector<int>;
+    offline_clustID = new std::vector<int>;
+    offline_trackNumber = new std::vector<int>;
+    offline_pt = new std::vector<float>;
+    offline_eta = new std::vector<float>;
+    offline_phi = new std::vector<float>;
+
+    m_offline_cluster_tree = new TTree("offline_cluster_tree","offline_cluster_tree");
+    m_offline_cluster_tree->Branch("offline_locX",&offline_locX);
+    m_offline_cluster_tree->Branch("offline_locY",&offline_locY);
+    m_offline_cluster_tree->Branch("offline_is_Pixel",&offline_isPixel);
+    m_offline_cluster_tree->Branch("offline_is_Barrel",&offline_isBarrel);
+    m_offline_cluster_tree->Branch("offline_layer",&offline_layer);
+    m_offline_cluster_tree->Branch("offline_clustID",&offline_clustID);
+    
+    m_offline_cluster_tree->Branch("offline_trackNumber",&offline_trackNumber);
+    m_offline_cluster_tree->Branch("offline_pt",&offline_pt);
+    m_offline_cluster_tree->Branch("offline_eta",&offline_eta);
+    m_offline_cluster_tree->Branch("offline_phi",&offline_phi);
+  }
+
+
   // prepare a branch for each tower
   m_ntowers = m_rmap->getNumRegions();
 
@@ -501,6 +568,19 @@ StatusCode FTKRegionalWrapper::execute()
 	if (m_SaveHits) m_logical_hits_per_plane[ireg][iplane].clear();
       }
     }
+  }
+
+  if (m_getOffline) {
+    offline_locX->clear();
+    offline_locY->clear();
+    offline_isPixel->clear();
+    offline_isBarrel->clear();
+    offline_layer->clear(); 
+    offline_clustID->clear();
+    offline_trackNumber->clear(); 
+    offline_pt->clear(); 
+    offline_eta->clear();
+    offline_phi->clear();
   }
 
   // ask to read the data in the current event
@@ -612,6 +692,67 @@ StatusCode FTKRegionalWrapper::execute()
   // if the clustering is requested it has to be done before the hits are distributed
   if (m_Clustering ) {
     atlClusteringLNF(fulllist);
+  }
+
+  if (m_getOffline) {
+    const xAOD::TrackParticleContainer *offlineTracks = nullptr;
+    if(m_storeGate->retrieve(offlineTracks,m_offlineName).isFailure()) {
+      ATH_MSG_ERROR("Failed to retrieve Offline Tracks " << m_offlineName);
+      return StatusCode::FAILURE;
+    }
+    if(offlineTracks->size()!=0){
+      auto track_it   = offlineTracks->begin();
+      auto last_track = offlineTracks->end();
+      for (int iTrk=0 ; track_it!= last_track; track_it++, iTrk++){
+	auto track = (*track_it)->track();
+	offline_pt->push_back((*track_it)->pt()*(*track_it)->charge());
+	offline_eta->push_back((*track_it)->eta());
+	offline_phi->push_back((*track_it)->phi());
+	const DataVector<const Trk::TrackStateOnSurface>* trackStates=track->trackStateOnSurfaces();   
+	if(!trackStates)     ATH_MSG_ERROR("trackStatesOnSurface troubles");
+	DataVector<const Trk::TrackStateOnSurface>::const_iterator it=trackStates->begin();
+	DataVector<const Trk::TrackStateOnSurface>::const_iterator it_end=trackStates->end();
+	if (!(*it)) {
+	  ATH_MSG_WARNING("TrackStateOnSurface == Null" << endl);
+	  continue;
+	}
+	for (; it!=it_end; it++) {
+	  const Trk::TrackStateOnSurface* tsos=(*it);       
+	  if (tsos == 0) continue;
+	  if ((*it)->type(Trk::TrackStateOnSurface::Measurement) ){
+	    const Trk::MeasurementBase *measurement = (*it)->measurementOnTrack();
+	    if(  (*it)->trackParameters() !=0 &&
+		 (*it)->trackParameters()->associatedSurface().associatedDetectorElement() != nullptr &&
+		 (*it)->trackParameters()->associatedSurface().associatedDetectorElement()->identify() !=0
+		 ){
+	      const Trk::RIO_OnTrack* hit = dynamic_cast <const Trk::RIO_OnTrack*>(measurement);
+	      const Identifier & hitId = hit->identify();
+
+	      if (m_idHelper->is_pixel(hitId)) {
+		offline_isPixel->push_back(1);
+		offline_isBarrel->push_back(int(m_pixelId->is_barrel(hitId)));
+		const InDetDD::SiDetectorElement* sielement = m_PIX_mgr->getDetectorElement(hitId);
+		offline_clustID->push_back(sielement->identifyHash());
+		offline_trackNumber->push_back(iTrk);
+		offline_layer->push_back(m_pixelId->layer_disk(hitId));
+		offline_locX->push_back((float)measurement->localParameters()[Trk::locX]);
+		offline_locY->push_back((float)measurement->localParameters()[Trk::locY]);
+	      }
+	      else if (m_idHelper->is_sct(hitId)) {
+		offline_isPixel->push_back(0);
+		offline_isBarrel->push_back(int(m_sctId->is_barrel(hitId)));
+		const InDetDD::SiDetectorElement* sielement = m_SCT_mgr->getDetectorElement(hitId);
+		offline_clustID->push_back(sielement->identifyHash());
+		offline_trackNumber->push_back(iTrk);
+		offline_layer->push_back(m_sctId->layer_disk(hitId));
+		offline_locX->push_back((float)measurement->localParameters()[Trk::locX]);
+		offline_locY->push_back(-99999.9);
+	      }
+	    }
+	  }
+	}
+      }
+    }
   }
 
   //get all the containers to write clusters
@@ -743,6 +884,9 @@ StatusCode FTKRegionalWrapper::execute()
 
   // fill the branches
   m_hittree->Fill();
+
+  if (m_getOffline) m_offline_cluster_tree->Fill();
+
   if (m_SavePerPlane) { m_hittree_perplane->Fill(); }
   
   // get the list of the truth tracks

@@ -140,7 +140,7 @@ bool PileUpStream::setupStore()
       m_ownStore = true;
       // further initialization of the cloned service 
       rc = (p_SG->sysInitialize()).isSuccess();      
-      p_SG->setStoreID(StoreID::EVENT_STORE); //needed by ProxyProviderSvc
+      p_SG->setStoreID(StoreID::PILEUP_STORE); //needed by ProxyProviderSvc
     } //clones
   }
   if (rc) {

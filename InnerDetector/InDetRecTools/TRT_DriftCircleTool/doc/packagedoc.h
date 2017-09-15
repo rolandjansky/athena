@@ -17,23 +17,4 @@ of trigger (cosmics/CTB).
 
   - InDet::TRT_DriftCircleTool : converts RDO coll to DriftCircle coll
   - InDet::TRT_DriftCircleToolCosmics : with appropiate phase corrections
-
-@ref used_TRT_DriftcircleTool
-
-@ref requirements_TRT_DriftCircleTool
-
-*/
-
-/**
-
-@page used_TRT_DriftCircleTool Used Packages
-
-
-*/
-
-/**
-
-@page requirements_TRT_DriftCircleTool requirements
-
-
 */

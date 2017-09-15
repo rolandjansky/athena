@@ -4,7 +4,7 @@
 
 #ifndef QUIRKS_G4UA__DEBUGSTEPPINGACTIONTOOL_H 
 #define QUIRKS_G4UA__DEBUGSTEPPINGACTIONTOOL_H 
-#include "G4AtlasInterfaces/ISteppingActionTool.h"
+#include "G4AtlasInterfaces/IG4SteppingActionTool.h"
 #include "G4AtlasTools/ActionToolBase.h"
 #include "DebugSteppingAction.h"
 namespace G4UA{ 
@@ -14,14 +14,14 @@ namespace G4UA{
   
   class DebugSteppingActionTool: 
   public ActionToolBase<DebugSteppingAction>,
-    public ISteppingActionTool
+    public IG4SteppingActionTool
     {
       
     public:
       DebugSteppingActionTool(const std::string& type, const std::string& name,const IInterface* parent);
       /// retrieves the stepping action
-      virtual ISteppingAction* getSteppingAction() override final 
-      { return static_cast<ISteppingAction*>( getAction() ); }
+      virtual G4UserSteppingAction* getSteppingAction() override final 
+      { return static_cast<G4UserSteppingAction*>( getAction() ); }
       /// gaudi interface handling
       virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
     protected:

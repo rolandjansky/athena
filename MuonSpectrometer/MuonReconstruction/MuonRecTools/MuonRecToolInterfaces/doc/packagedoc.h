@@ -27,15 +27,4 @@ The following interface are available:
 
 @section MuonRecToolInterfaces_ExtrasMuonRecToolInterfaces Extra Pages
 
- - @ref UsedMuonRecToolInterfaces
- - @ref RequirementsMuonRecToolInterfaces
-*/
-
-
-/**
-@page UsedMuonRecToolInterfaces Used Packages
-*/
-
-/**
-@page RequirementsMuonRecToolInterfaces Requirements
 */

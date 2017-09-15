@@ -4,7 +4,7 @@
 <unifiedTestConfiguration>
 <atn>
   <TEST name="ATN_BS_default" type="script" suite="MuonConfigBSTrfATN">
-    <options_atn>ATHENA_PYCINTEX_MINVMEM=180 Reco_trf.py --ignoreerrors=True maxEvents=5 AMITag=q122 autoConfiguration=everything --athenaopts=--stdcmalloc postInclude=MuonRecConfigTests/MuonRecConfigTests_postinclude.py  inputBSFile=/afs/cern.ch/atlas/project/pmb/data/data11_7TeV.00189822.physics_Muons.merge.RAW._lb0120._SFO-11._0001.1_500evts outputESDFile=myESD.pool.root preExec=muonRecFlags.doTrackPerformance=True,,rec.doDetailedAuditor=True</options_atn>
+    <options_atn>ATHENA_PYCINTEX_MINVMEM=180 Reco_tf.py --ignoreErrors=True --maxEvents=5 --AMI q122 --autoConfiguration=everything --athenaopts=--stdcmalloc --postInclude=MuonRecConfigTests/MuonRecConfigTests_postinclude.py  --inputBSFile=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/CommonInputs/data12_8TeV.00209109.physics_JetTauEtmiss.merge.RAW._lb0186._SFO-1._0001.1 --outputESDFile=myESD.pool.root --preExec 'muonRecFlags.doTrackPerformance=True' 'rec.doDetailedAuditor=True'</options_atn>
     <timelimit>20</timelimit>
     <author> Rikard Sandstrom </author>
     <mailto> rikard.sandstrom@cern.ch,liebig@mail.cern.ch </mailto>

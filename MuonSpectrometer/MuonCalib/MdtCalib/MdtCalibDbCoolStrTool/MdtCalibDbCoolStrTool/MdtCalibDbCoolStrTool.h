@@ -47,7 +47,9 @@ class MdtCalibDbCoolStrTool: public AthAlgTool, virtual public IMdtCalibDBTool {
   virtual ~MdtCalibDbCoolStrTool();
 
   /** required by the IAddressProvider interface */
-  virtual StatusCode updateAddress(StoreID::type storeID, SG::TransientAddress *tad);
+  virtual StatusCode updateAddress(StoreID::type storeID,
+                                   SG::TransientAddress *tad,
+                                   const EventContext& ctx);
 
 private: 
   /** intialization: callbacks to loadTube and loadRt are registered 

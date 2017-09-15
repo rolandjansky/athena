@@ -46,15 +46,4 @@
 
 @section muonEvent_ExtrasMuonEvent CMT and Dependency Description
 
- - @ref UsedMuonEvent
- - @ref RequirementsMuonEvent
 */
-
-/**
-@page UsedMuonEvent Used Packages
-*/
-
-/**
-@page RequirementsMuonEvent Requirements
-*/
-

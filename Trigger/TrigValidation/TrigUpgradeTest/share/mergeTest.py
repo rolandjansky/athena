@@ -83,10 +83,12 @@ steps[stepNo] += seqFilter( "Step0EM", Inputs=["L1EM"], Outputs=["step0EM"], Cha
 
 
 trkInputMerger = merger("trkInputMerger", Inputs=["step0MU", "step0MUE_MU", "step0MUE_EM", "step0EM"], Output="TrackingRoIs")
-allRoITrk = reco("allRoITrk", Output="TrigTracks", FileName="noreco.dat", Input="TrackingRoIs") # we do not care how many tracks are made, just want see if right RoIs arrive at the input of this reco
+allRoITrk = TestRecoAlg("allRoITrk", Output="TrigTracks", FileName="noreco.dat", Input="TrackingRoIs") # we do not care how many tracks are made, just want see if right RoIs arrive at the input of this reco
 
 # the seq of merger & tracking shoudl be enabled by any of the filter
 stepNo += 1
+
+from AthenaCommon.CFElements import stepSeq
 
 steps[stepNo] += stepSeq("emtrk",  useExisting( "Step0EM" ),   [ trkInputMerger, allRoITrk ] )
 steps[stepNo] += stepSeq("mutrk",  useExisting( "Step0MU" ),   [ trkInputMerger, allRoITrk ] )

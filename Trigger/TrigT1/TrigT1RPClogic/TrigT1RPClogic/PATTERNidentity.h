@@ -21,7 +21,7 @@
 class PATTERNidentity
 {
     private:
-    static const char inputTag[4][9];
+    static const char s_inputTag[4][9];
 
     CMAinput m_input_id;
     int      m_layer_id;

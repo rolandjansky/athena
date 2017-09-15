@@ -214,9 +214,14 @@ if DetFlags.haveRIO.SCT_on():
         conddb.addFolderSplitMC("SCT","/SCT/DAQ/Calibration/NoiseOccupancyDefects","/SCT/DAQ/Calibration/NoiseOccupancyDefects")
 
     if not athenaCommonFlags.isOnline():
-        if not conddb.folderRequested('/SCT/Derived/Monitoring'):
-            conddb.addFolder("SCT_OFL","/SCT/Derived/Monitoring")
-    
+        sctDerivedMonitoringFolder = '/SCT/Derived/Monitoring'
+        if not conddb.folderRequested(sctDerivedMonitoringFolder):
+            conddb.addFolder("SCT_OFL", sctDerivedMonitoringFolder, className="CondAttrListCollection")
+            from AthenaCommon.AlgSequence import AthSequencer
+            condSequence = AthSequencer("AthCondSeq")
+            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_MonitorConditionsCondAlg
+            condSequence += SCT_MonitorConditionsCondAlg(name = "SCT_MonitorConditionsCondAlg",
+                                                         ReadKey = sctDerivedMonitoringFolder)
     
     # Load conditions summary service
     from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConditionsSummarySvc
@@ -251,11 +256,7 @@ if DetFlags.haveRIO.SCT_on():
     if not athenaCommonFlags.isOnline():
         from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_MonitorConditionsSvc
         InDetSCT_MonitorConditionsSvc = SCT_MonitorConditionsSvc(name          = "InDetSCT_MonitorConditionsSvc",
-                                                                 OutputLevel   = INFO,
-                                                                 WriteCondObjs = False,
-                                                                 RegisterIOV   = False,
-                                                                 ReadWriteCool = True,
-                                                                 EventInfoKey  = eventInfoKey)
+                                                                 OutputLevel   = INFO)
         ServiceMgr += InDetSCT_MonitorConditionsSvc
         if (InDetFlags.doPrintConfigurables()):
             print InDetSCT_MonitorConditionsSvc

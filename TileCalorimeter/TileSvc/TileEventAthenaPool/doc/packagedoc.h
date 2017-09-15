@@ -44,12 +44,3 @@ Transient/Persistent separation. More details here:
 https://twiki.cern.ch/twiki/bin/view/Atlas/TransientPersistentSeparation
 
 */
-
-/**
-@page used_MyPackage Used Packages
-*/
-
-/**
-@page requirements_MyPackage Requirements
-
-*/

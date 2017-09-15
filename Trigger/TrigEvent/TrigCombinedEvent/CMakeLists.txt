@@ -16,8 +16,7 @@ atlas_depends_on_subdirs( PUBLIC
                           AtlasTest/TestTools
                           Control/CxxUtils
                           Control/AthenaKernel
-                          Trigger/TrigDataAccess/TrigSerializeCnvSvc
-                          Trigger/TrigDataAccess/TrigSerializeUtils )
+                          Trigger/TrigDataAccess/TrigSerializeCnvSvc )
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )

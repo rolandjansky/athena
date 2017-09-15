@@ -39,8 +39,10 @@ atlas_install_xmls( data/*.xml )
 
 atlas_add_test( creatingEVTest 
 		SCRIPT scripts/creatingEVTest.sh
-		EXTRA_PATTERNS AthenaHiveEventLoopMgr )
+		POST_EXEC_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/scripts/post_with_filter.sh creatingEVTest"
+		ENVIRONMENT PATTERNS=EMViewsMaker algInView "start processing")
 
 atlas_add_test( mergingEVTest 
-		SCRIPT scripts/mergingEVTest.sh 
-		EXTRA_PATTERNS AthenaHiveEventLoopMgr )
+		SCRIPT scripts/mergingEVTest.sh
+ 		POST_EXEC_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/scripts/post_with_filter.sh mergingEVTest"
+		ENVIRONMENT PATTERNS=EMViewsMaker algInView EMViewsMerger "start processing" )

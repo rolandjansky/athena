@@ -17,7 +17,6 @@ It can be seen as an extension of GaudiKernel.
  - type_tools_test.cxx
 
 
-@section AthenaKernel_reqs CMT requirements file
 
 @section AthenaKernel_Refs More Documentation
 

@@ -15,15 +15,4 @@ When running on simulated data it can be configured to perform truth matching as
  	
 @section MuonTrackPerformance_ExtrasMuonTrackPerformance Extra Pages
 
- - @ref UsedMuonTrackPerformance
- - @ref RequirementsMuonTrackPerformance
-*/
-
-/**
-@page UsedMuonTrackPerformance Used Packages
-*/
-
-/**
-@page RequirementsMuonTrackPerformance Requirements
-
 */

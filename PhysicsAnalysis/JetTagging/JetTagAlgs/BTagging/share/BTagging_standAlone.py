@@ -116,7 +116,6 @@ BTaggingFlags.CalibrationChannelAliases += [ "AntiKt6H1NewTopo->Cone4H1Tower", "
 BTaggingFlags.CalibrationChannelAliases += [ "AntiKtZ4Track->Cone4H1Tower", "AntiKtZ4Track->Cone4H1Tower" ]
 
 if IDSimulationOnly:
-  BTaggingFlags.SoftEl = False
   BTaggingFlags.SoftMu = False
 include( "BTagging/BTagging_LoadTools.py" )
 

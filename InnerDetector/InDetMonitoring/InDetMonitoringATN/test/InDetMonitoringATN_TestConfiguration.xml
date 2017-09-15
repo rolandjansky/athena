@@ -24,7 +24,7 @@
    </TEST>
 
    <TEST name="InDetMonitoringATN_Subdetector" type="script" suite="Examples">
-     <options_atn>InnerDetector/InDetMonitoring/InDetMonitoringATN/test/InDetMonitoringATN_Subdetector.sh</options_atn>
+     <options_atn>InDetMonitoringATN_Subdetector.sh</options_atn>
      <timelimit>8</timelimit>
      <author> Atlas Developer </author>
      <mailto> Markus.Elsing@cern.ch, nicholas.styles@desy.de </mailto>

@@ -47,6 +47,7 @@ public:
   virtual void lock() override { m_locked = true; }
   virtual void clearDecorations() override { }
   virtual size_t size() const override { return 0; }
+  virtual void lockDecoration (SG::auxid_t) override { std::abort(); }
 
   static std::vector<int> deleted;
 };
@@ -690,13 +691,13 @@ void test12()
   SG::WriteHandleKey<MyObj> h2 ("foo3", "FooSvc");
   assert (h1.alias (h2).isSuccess());
   assert (testStore.proxy (ClassID_traits<MyObj>::ID(), "foo3") == prox1);
-  assert (prox1->transientAddress()->alias().count ("foo3") == 1);
+  assert (prox1->alias().count ("foo3") == 1);
 
   // Making symlink.
   SG::WriteHandleKey<MyObj2> h3 ("foo1", "FooSvc");
   assert (h1.symLink (h3).isSuccess());
   assert (testStore.proxy (ClassID_traits<MyObj2>::ID(), "foo1") == prox1);
-  assert (prox1->transientAddress()->transientID (ClassID_traits<MyObj2>::ID()));
+  assert (prox1->transientID (ClassID_traits<MyObj2>::ID()));
 
   // Should give an error.
   SG::WriteHandleKey<MyObj2> h4 ("foo3", "FooSvc");
@@ -709,7 +710,10 @@ int main()
   errorcheck::ReportMessage::hideErrorLocus();
   errorcheck::ReportMessage::hideFunctionNames();
   ISvcLocator* svcloc;
-  Athena_test::initGaudi("VarHandleBase_test.txt", svcloc); //need MessageSvc
+  //need MessageSvc
+  if (!Athena_test::initGaudi("VarHandleBase_test.txt", svcloc)) {
+    return 1;
+  }
 
   test1();
   test2();

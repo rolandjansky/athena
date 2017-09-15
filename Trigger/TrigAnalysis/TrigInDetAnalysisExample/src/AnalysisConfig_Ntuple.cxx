@@ -298,8 +298,8 @@ void AnalysisConfig_Ntuple::loop() {
 	const xAOD::EventInfo* pEventInfo = 0;
 #endif
 
-	unsigned run_number         = 0;
-	unsigned event_number       = 0;
+	unsigned run_number                   = 0;
+	unsigned long long event_number       = 0;
 
 	unsigned lumi_block         = 0;
 	unsigned bunch_crossing_id  = 0;

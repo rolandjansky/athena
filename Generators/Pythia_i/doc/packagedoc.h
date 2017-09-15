@@ -224,11 +224,3 @@ of the Generators/Lhapdf_i package for the LHAPDF set/member index settings).
 
 
 */
-
-/**
-@page usedPythia_i Used Packages
-*/
-
-/**
-@page requirementsPythia_i Requirements
-*/

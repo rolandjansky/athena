@@ -27,7 +27,6 @@ The following interface classes are defined
 
 This package is not built as any library, it is a simple include package.   
 
-@section TrkFitterInterfaces_TrkFitterInterfacesReq Requirements
 
 
 */

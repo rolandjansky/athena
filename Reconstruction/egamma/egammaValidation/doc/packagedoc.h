@@ -18,4 +18,4 @@ Another macro then superimposes these histograms to a reference file ( if any ) 
 
 The list of input files ( all single particles ) and tests ran can be found in the RTT configuration file :
 test/egammaValidation_TestConfiguration.xml 
-
+*/

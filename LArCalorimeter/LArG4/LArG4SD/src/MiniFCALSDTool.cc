@@ -14,11 +14,9 @@ namespace LArG4
   //---------------------------------------------------------------------------
   MiniFCALSDTool::MiniFCALSDTool(const std::string& type, const std::string& name,
                                  const IInterface* parent)
-    : SimpleSDTool(type, name, parent),
-      m_hitCollName("LArHitMiniFCAL")
+    : SimpleSDTool(type, name, parent)
     , m_calc("MiniFCALCalculator", name)
   {
-    declareProperty("HitCollectionName", m_hitCollName);
     declareProperty("MiniVolumes", m_miniVolumes);
 
     declareProperty("MiniFCALCalculator", m_calc);
@@ -36,7 +34,7 @@ namespace LArG4
   G4VSensitiveDetector* MiniFCALSDTool::makeSD()
   {
     // Create the wrapper
-    auto sdWrapper = new SimpleSDWrapper("LArMiniFCALSDWrapper", m_hitCollName);
+    auto sdWrapper = new SimpleSDWrapper("LArMiniFCALSDWrapper", m_outputCollectionNames[0]);
 
     // Add the SDs
     sdWrapper->addSD( makeOneSD("MiniFCAL::Wafer", &*m_calc, m_miniVolumes) );

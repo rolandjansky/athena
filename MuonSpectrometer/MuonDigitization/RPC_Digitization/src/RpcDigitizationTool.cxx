@@ -229,11 +229,6 @@ StatusCode RpcDigitizationTool::initialize() {
     return result; 
   } 
 
-  if(!rdbAccess->connect()) { 
-    ATH_MSG_ERROR("Unable to connect to the Geometry DB"); 
-    return StatusCode::FAILURE; 
-  } 
-
   bool m_run1 = true;
   std::string configVal = "";
   const IGeoModelSvc* geoModel = 0; 
@@ -1013,7 +1008,7 @@ StatusCode RpcDigitizationTool::doDigitization() {
 	      ATH_MSG_DEBUG ( "New RpcHitCollection with key=" << coll_hash << " recorded in StoreGate." );
 	    }
 	  } else {
-	    digitCollection = const_cast<RpcDigitCollection*>( it_coll->cptr() );
+	    digitCollection = const_cast<RpcDigitCollection*>( *it_coll );
 	    digitCollection->push_back(newDigit);
 	  }
 

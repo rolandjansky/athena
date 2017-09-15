@@ -32,14 +32,15 @@ public:
   
 private:
   
-  SG::ReadHandle<EventInfo> m_evt;
+  SG::ReadHandleKey<EventInfo> m_evt {this,"EvtInfo", "McEventInfo", "EventInfo name"};
 
-  SG::WriteCondHandleKey<CondDataObj> m_wchk;
+  SG::WriteCondHandleKey<CondDataObj> m_wchk {this, "Key_CH", "X2", "cond handle key"};
+
+  Gaudi::Property<std::string> m_dbKey {this, "Key_DB", "X2", "explicit dbKey for cond handle"};
 
   ServiceHandle<ICondSvc> m_cs;
   ServiceHandle<IASCIICondDbSvc> m_cds;
 
-  std::string m_dbKey;
 
 };
 

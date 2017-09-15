@@ -34,7 +34,7 @@ function (datamodel_run_test testName)
   atlas_add_test( ${testName}
                   SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/datamodel_${testName}.sh
                   PROPERTIES TIMEOUT 300
-                  ENVIRONMENT "ATLAS_REFERENCE_TAG=DataModelRunTests/DataModelRunTestsReference-01-00-01"
+                  ENVIRONMENT "ATLAS_REFERENCE_TAG=DataModelRunTests/DataModelRunTestsReference-01-00-02"
                   POST_EXEC_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/test/post.sh ${testName}"
                    )
   if( ARG_DEPENDS )
@@ -91,7 +91,15 @@ datamodel_run_test (xAODTestDecorHandle1)
 datamodel_run_test (xAODTestDecorHandle1MT
                     COMMAND "athena.py --thread=1")
 
-datamodel_run_test (xAODTestDecorHandle2)
+datamodel_run_test (xAODTestDecorHandle2
+                    DEPENDS xAODTestWrite)
 datamodel_run_test (xAODTestDecorHandle2MT
                     COMMAND "athena.py --thread=1"
                     DEPENDS xAODTestWrite)
+
+datamodel_run_test (CondWriter)
+datamodel_run_test (CondReader
+                    DEPENDS CondWriter)
+datamodel_run_test (CondReaderMT
+                    COMMAND "athena.py --thread=1"
+                    DEPENDS CondWriter)

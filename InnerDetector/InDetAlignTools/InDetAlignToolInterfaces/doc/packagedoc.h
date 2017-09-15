@@ -20,7 +20,6 @@ which are used to prepare track collections prior to alignment.
 
 This package is not going to be built as any library, it is a simple include package.   
       
-@section InDetAlignToolInterfaces_InDetAlignIntReq Requirements
 
 
  */

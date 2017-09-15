@@ -13,8 +13,6 @@ AnalysisTools contains the following classes:
 
 - AnalysisTools : provides I/F to analysis tools
 
-@section AnalysisTools_used_packagesAnalysisTools Used packages
 
-@section AnalysisTools_requirementsAnalysisTools Requirements
 
 */

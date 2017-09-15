@@ -24,6 +24,7 @@
 
 // Tile includes
 #include "TileByteStream/TileMuRcvContByteStreamTool.h"
+#include "TileByteStream/TileROD_Decoder.h"
 #include "TileByteStream/TileROD_Encoder.h"
 #include "TileEvent/TileMuonReceiverObj.h"
 #include "TileEvent/TileContainer.h"
@@ -46,6 +47,7 @@ TileMuRcvContByteStreamTool::TileMuRcvContByteStreamTool(const std::string& type
     const IInterface* parent)
   : AthAlgTool(type, name, parent)
   , m_tileHWID(0)
+  , m_hid2re(0)
     //, m_verbose(false)
 {
   declareInterface<TileMuRcvContByteStreamTool>(this);
@@ -62,9 +64,10 @@ StatusCode TileMuRcvContByteStreamTool::initialize() {
 
   CHECK( detStore()->retrieve(m_tileHWID, "TileHWID") );
 
-  // rodid 8 modules/rodid
-  m_hid2re.setTileMuRcvHWID(m_tileHWID);
-  m_fea.idMap().setTileMuRcvHWID(m_tileHWID);
+  ToolHandle<TileROD_Decoder> dec("TileROD_Decoder");
+  CHECK( dec.retrieve() );
+
+  m_hid2re = dec->getHid2reHLT();
 
   return StatusCode::SUCCESS;
 }
@@ -95,7 +98,7 @@ StatusCode TileMuRcvContByteStreamTool::convert(TileMuonReceiverContainer* cont,
     {
       n++;
       frag_id = (*it_cont)->identify();
-      reid = m_hid2re.getRodTileMuRcvID(frag_id);
+      reid = m_hid2re->getRodTileMuRcvID(frag_id);
       mapEncoder[reid].setTileHWID(m_tileHWID);
       const TileMuonReceiverObj* tileMuRcv = *it_cont;	
       mapEncoder[reid].addTileMuRcvObj(tileMuRcv);

@@ -50,7 +50,6 @@ namespace MuonCalib {
     /** selection criteria */
     double m_chi2_max;         //!< maximum chi2 of pattern
     unsigned int m_mdtSeg_min; //!< minimum number of mdt segments on pattern
-    unsigned int m_phiSeg_min; //!< minimum number of phi segments on pattern
 
     /** print level */
     int m_printLevel;

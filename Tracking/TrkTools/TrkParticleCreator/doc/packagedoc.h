@@ -11,8 +11,4 @@
 This package contains the Trk::ParticleCreatorTool which is used (mainly) by the InDet::ParticleCreator of the
 package InDetParticleCreation to construct Rec::TrackParticle objects.
 
-@section TrkParticleCreator_UsedPackages 
-
-@section TrkParticleCreator_Requirements 
-
 */

@@ -952,7 +952,7 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
   //   .... Hope that future tags will be used in a 'normal' way
 
 
-  std::string strDMTopTag = rdbAccess->getChildTag("LArBarrelDM",larVersionKey.tag(),larVersionKey.node(),false);
+  std::string strDMTopTag = rdbAccess->getChildTag("LArBarrelDM",larVersionKey.tag(),larVersionKey.node());
 
   if(strDMTopTag=="")
     throw std::runtime_error("Error in BarrelDMConstruction, empty BarrelDM tag!");

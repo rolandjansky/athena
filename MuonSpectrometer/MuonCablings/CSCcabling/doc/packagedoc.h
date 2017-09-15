@@ -11,10 +11,4 @@
  - For questions or comments: Ketevi A. Assamagan
    ketevi@bnl.gov
 
-@section CSCcabling_used_packagesTkPara Used Packages
-
-@section CSCcabling_requirements Requirements
-
 */
-
-

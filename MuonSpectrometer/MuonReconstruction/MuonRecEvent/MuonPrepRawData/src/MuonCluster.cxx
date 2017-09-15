@@ -86,14 +86,9 @@ namespace Muon
     stream << MSG::INFO<<"MuonCluster {"<<std::endl;
     Trk::PrepRawData::dump(stream);
     stream << "Global Coordinates (x,y,z) = (";
-    if ( &(this->globalPosition() )!=0 )
-    {
-      stream<<this->globalPosition().x()<<", "
-      <<this->globalPosition().y()<<", "
-      <<this->globalPosition().z()<<")"<<std::endl;
-    } else {
-      stream<<"NULL!), "<<std::endl;
-    }
+    stream<<this->globalPosition().x()<<", "
+          <<this->globalPosition().y()<<", "
+          <<this->globalPosition().z()<<")"<<std::endl;
     stream<<"} End MuonCluster"<<endmsg;
     return stream;
   }

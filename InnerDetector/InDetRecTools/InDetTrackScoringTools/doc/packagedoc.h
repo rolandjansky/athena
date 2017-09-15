@@ -36,7 +36,6 @@ a) Hits in the TRT are not relevant for the ambiguity processing in the InDet re
 b) In the case that a given Track has hits on the first and the third Pixel layer, two track candidates could be formed: One including the innermost hit and one excluding it. The inclusion of the innermost pixel hit automatically introduces also a hole (the missing second layer hit) to the track. The score of a track with two pixel hits and a hole is smaller than the score of a track with only one pixel hit but no holes. This would generally prefer the track without the b-layer information and therefore have a negative impact on the impact parameter measurement. Therefore, a correction is applied which penalizes the solution without the b-Layer hit in this situation.
 
 
-@section InDetTrackScoringTools_MyTestReq Requirements
 
 
 */

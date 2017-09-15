@@ -98,7 +98,7 @@ public:
    * @param isConst True if the object being converted is regarded as const.
    */
   virtual void* cast (CLID clid, IRegisterTransient* irt = 0,
-                      bool isConst = true) const override;
+                      bool isConst = true) override;
     
 
   /**
@@ -111,7 +111,7 @@ public:
    */
   virtual void* cast (const std::type_info& tinfo,
                       IRegisterTransient* irt = 0,
-                      bool isConst = true) const override;
+                      bool isConst = true) override;
 
 
   /**

@@ -102,25 +102,9 @@ myAtRndmGenSvc.OutputLevel 	= VERBOSE
 myAtRndmGenSvc.EventReseeding   = False
 ServiceMgr += myAtRndmGenSvc
 
-
 ## Add an action
-try:
-    # Post UserAction Migration (ATLASSIM-1752)
-    # NB the migrated MaterialStepRecorder does not have any special
-    # properties, hence these are not set here.
-    from G4AtlasServices.G4AtlasUserActionConfig import UAStore
-    UAStore.addAction('MaterialStepRecorder',['BeginOfRun','EndOfRun','BeginOfEvent','EndOfEvent','Step'])
-except:
-    # Pre UserAction Migration
-    def geantino_action():
-        from G4AtlasApps import AtlasG4Eng,PyG4Atlas
-        GeantinoAction = PyG4Atlas.UserAction('TrkG4UserActions','MaterialStepRecorder', ['BeginOfRun','EndOfRun','BeginOfEvent','EndOfEvent','Step'])
-        GeantinoAction.set_Properties({ "verboseLevel" : "1",
-                                        "recordELoss"  : "1",
-                                        "recordMSc"    : "1" })
-        AtlasG4Eng.G4Eng.menu_UserActions.add_UserAction(GeantinoAction)
-
-    SimFlags.InitFunctions.add_function('preInitG4', geantino_action)
+from G4AtlasApps.SimFlags import simFlags
+simFlags.OptionalUserActionList.addAction('G4UA::MaterialStepRecorderTool'['Run','Event','Step'])
 
 ############### The Material hit collection ##################
 

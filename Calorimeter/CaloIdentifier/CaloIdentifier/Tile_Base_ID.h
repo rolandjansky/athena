@@ -70,42 +70,42 @@ public:
     Identifier          tile_gap                ()     const;
 
     /** build identifier for any Tilecal section */
-    Identifier          tile_det                ( int section)                  const throw(TileID_Exception);
+    Identifier          tile_det                ( int section)                  const;
 
     /** build single region, module, tower, cell, pmt, adc identifiers */
-    Identifier          region_id               ( int index)                    const throw(TileID_Exception);
-    Identifier          region_id               ( int section, int side)        const throw(TileID_Exception);
+    Identifier          region_id               ( int index)                    const;
+    Identifier          region_id               ( int section, int side)        const;
     Identifier          region_id               ( const Identifier& any_id)     const;
 
     Identifier          module_id               ( int section, int side,
-                                                  int module)                   const throw(TileID_Exception);
+                                                  int module)                   const;
     Identifier          module_id               ( const Identifier& any_id)     const;
     Identifier          tower_id                ( int section,  int side,
-                                                  int module,   int tower)      const throw(TileID_Exception);
+                                                  int module,   int tower)      const;
     Identifier          tower_id               ( const Identifier& any_id)     const;
     Identifier          cell_id                 ( const Identifier & any_id )   const;
     Identifier          cell_id                 ( int section,  int side,
                                                   int module,   int tower,
-                                                  int sample )                  const throw(TileID_Exception);
+                                                  int sample )                  const;
     Identifier          pmt_id                  ( const Identifier & any_id )   const;
     Identifier          pmt_id                  ( const Identifier & cell_id,
-                                                  int pmt )                     const throw(TileID_Exception);
+                                                  int pmt )                     const;
     Identifier          pmt_id                  ( int section,  int side,
                                                   int module,   int tower,
-                                                  int sample,   int pmt )       const throw(TileID_Exception);
+                                                  int sample,   int pmt )       const;
     Identifier          adc_id                  ( const Identifier & cell_id,
-                                                  int pmt, int adc )            const throw(TileID_Exception);
+                                                  int pmt, int adc )            const;
     Identifier          adc_id                  ( const Identifier & pmt_id,
-                                                  int adc )                     const throw(TileID_Exception);
+                                                  int adc )                     const;
     Identifier          adc_id                  ( int section,  int side,
                                                   int module,   int tower,
                                                   int sample,   int pmt,
-                                                  int adc )                     const throw(TileID_Exception);
+                                                  int adc ) const;
 
     /** fast conversion from hash to ID for cells */
-    Identifier          cell_id                 (const IdentifierHash& hash_id) const throw(TileID_Exception);
+    Identifier          cell_id                 (const IdentifierHash& hash_id) const;
     /** fast conversion from ID to hash for cells */
-    IdentifierHash      cell_hash               (const Identifier& cell_id) const throw(TileID_Exception);
+    IdentifierHash      cell_hash               (const Identifier& cell_id) const;
 
     /** Test of an Identifier to see if it belongs to a particular part of the calorimeter */
 //    bool	is_tile                         (const Identifier& id) const;

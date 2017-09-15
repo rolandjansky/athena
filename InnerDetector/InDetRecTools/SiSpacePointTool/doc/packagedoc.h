@@ -23,6 +23,5 @@ SiSpacePointFormation and also by the EF algorithms.
    SpacePoints given one Pixel cluster collection or two SCT cluster 
    collections. 
 
-@section SiSpacePointTool_SiSpacePointToolReq Requirements
 
 */

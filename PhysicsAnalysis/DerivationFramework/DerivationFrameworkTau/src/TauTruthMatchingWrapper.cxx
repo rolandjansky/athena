@@ -44,8 +44,6 @@ namespace DerivationFramework {
       return StatusCode::FAILURE;
     }
 
-    CHECK(m_tTauTruthMatchingTool->initializeEvent());
-
     for(auto xTau : *xTauContainer)
       m_tTauTruthMatchingTool->applyTruthMatch(*xTau);
     

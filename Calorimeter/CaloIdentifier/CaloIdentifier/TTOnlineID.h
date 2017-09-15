@@ -128,14 +128,14 @@ private:
   IdentifierHash channel_hash_binary_search(HWIdentifier channelId) const;
 
   // Check methods
-  void  channel_Id_checks(int crate, int module, int submodule, int channel ) const throw(CaloID_Exception);
-  void  channel_Id_checks(const HWIdentifier crateId, int module, int submodule, int channel ) const throw(CaloID_Exception);
-  void  channel_Id_checks(const HWIdentifier moduleId, int submodule, int channel ) const throw(CaloID_Exception);
-  void  channel_Id_checks(const HWIdentifier submoduleId, int channel ) const throw(CaloID_Exception);
+  void  channel_Id_checks(int crate, int module, int submodule, int channel ) const;
+  void  channel_Id_checks(const HWIdentifier crateId, int module, int submodule, int channel ) const;
+  void  channel_Id_checks(const HWIdentifier moduleId, int submodule, int channel ) const;
+  void  channel_Id_checks(const HWIdentifier submoduleId, int channel ) const;
 
-  void  submodule_Id_checks(int crate, int module, int submodule ) const throw(CaloID_Exception);
-  void  module_Id_checks(int crate, int module ) const throw(CaloID_Exception);
-  void  crate_Id_checks( int crate ) const throw(CaloID_Exception);
+  void  submodule_Id_checks(int crate, int module, int submodule ) const;
+  void  module_Id_checks(int crate, int module ) const;
+  void  crate_Id_checks( int crate ) const;
 
   /** create expanded HWIdentifier from HWIdentifier (return == 0 for OK) */
   int  get_expanded_id (const HWIdentifier& id, ExpandedIdentifier& exp_id,

@@ -1,6 +1,10 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
+
+from ISF_Algorithms.collection_merger_helpers import generate_mergeable_collection_name
+
+
 def getLArActiveSensitiveDetector(name="LArActiveSensitiveDetector", **kwargs):
     ## Main configuration
     from G4AtlasApps.SimFlags import simFlags
@@ -115,17 +119,29 @@ def getLArDeadSensitiveDetector(name="LArDeadSensitiveDetector", **kwargs):
     return CfgMgr.LArG4__DeadSDTool(name, **kwargs)
 
 def getLArEMBSensitiveDetector(name="LArEMBSensitiveDetector", **kwargs):
+    bare_collection_name = "LArHitEMB"
+    mergeable_collection_suffix = "_G4"
+    merger_input_property = "LArEMBHits"
+    hits_collection_name = generate_mergeable_collection_name(bare_collection_name,
+                                                              mergeable_collection_suffix,
+                                                              merger_input_property)
     ## Main configuration
     kwargs.setdefault("StacVolumes",["LArMgr::LAr::EMB::STAC"])
     kwargs.setdefault("PresamplerVolumes",["LArMgr::LAr::Barrel::Presampler::Module"])
     # No effect currently
-    kwargs.setdefault("OutputCollectionNames", ["LArHitEMB"])
+    kwargs.setdefault("OutputCollectionNames", [hits_collection_name])
     # Hook for fast simulation
     from G4AtlasApps.SimFlags import simFlags
     kwargs.setdefault("UseFrozenShowers", simFlags.LArParameterization()>0)
     return CfgMgr.LArG4__EMBSDTool(name, **kwargs)
 
 def getLArEMECSensitiveDetector(name="LArEMECSensitiveDetector", **kwargs):
+    bare_collection_name = "LArHitEMEC"
+    mergeable_collection_suffix = "_G4"
+    merger_input_property = "LArEMECHits"
+    hits_collection_name = generate_mergeable_collection_name(bare_collection_name,
+                                                              mergeable_collection_suffix,
+                                                              merger_input_property)
     from G4AtlasApps.SimFlags import simFlags
     if simFlags.SimLayout.get_Value() not in ["tb_LArH6_2002","tb_LArH6EC_2002"]:
         kwargs.setdefault("NegIWVolumes",["LArMgr::LAr::EMEC::Neg::InnerWheel"])
@@ -136,29 +152,41 @@ def getLArEMECSensitiveDetector(name="LArEMECSensitiveDetector", **kwargs):
         kwargs.setdefault("PosOWVolumes",["LArMgr::LAr::EMEC::Pos::OuterWheel"])
     kwargs.setdefault("PresVolumes", ["LArMgr::LAr::Endcap::Presampler::LiquidArgon"])
     # No effect currently
-    kwargs.setdefault("OutputCollectionNames", ["LArHitEMEC"])
+    kwargs.setdefault("OutputCollectionNames", [hits_collection_name])
     # Hook for fast simulation
     kwargs.setdefault("UseFrozenShowers", simFlags.LArParameterization()>0)
     return CfgMgr.LArG4__EMECSDTool(name, **kwargs)
 
 def getLArFCALSensitiveDetector(name="LArFCALSensitiveDetector", **kwargs):
+    bare_collection_name = "LArHitFCAL"
+    mergeable_collection_suffix = "_G4"
+    merger_input_property = "LArFCALHits"
+    hits_collection_name = generate_mergeable_collection_name(bare_collection_name,
+                                                              mergeable_collection_suffix,
+                                                              merger_input_property)
     kwargs.setdefault("FCAL1Volumes",["LArMgr::LAr::FCAL::Module1::Gap"])
     kwargs.setdefault("FCAL2Volumes",["LArMgr::LAr::FCAL::Module2::Gap"])
     kwargs.setdefault("FCAL3Volumes",["LArMgr::LAr::FCAL::Module3::Gap"])
     # No effect currently
-    kwargs.setdefault("OutputCollectionNames", ["LArHitFCAL"])
+    kwargs.setdefault("OutputCollectionNames", [hits_collection_name])
     # Hook for fast simulation
     from G4AtlasApps.SimFlags import simFlags
     kwargs.setdefault("UseFrozenShowers", simFlags.LArParameterization()>0)
     return CfgMgr.LArG4__FCALSDTool(name, **kwargs)
 
 def getLArHECSensitiveDetector(name="LArHECSensitiveDetector", **kwargs):
+    bare_collection_name = "LArHitHEC"
+    mergeable_collection_suffix = "_G4"
+    merger_input_property = "LArHECHits"
+    hits_collection_name = generate_mergeable_collection_name(bare_collection_name,
+                                                              mergeable_collection_suffix,
+                                                              merger_input_property)
     #kwargs.setdefault("SliceVolumes",["LAr::HEC::Module::Depth::Slice"])
     #kwargs.setdefault("LocalVolumes",["LAr::HEC::Module::Depth::Slice::Local"])
     kwargs.setdefault("WheelVolumes",["LArMgr::LAr::HEC::Module::Depth::Slice"])
     #  You might think this should go here, but we don't think so!  LAr::HEC::Module::Depth::Slice::Wheel"])
     # No effect currently
-    kwargs.setdefault("OutputCollectionNames", ["LArHitHEC"])
+    kwargs.setdefault("OutputCollectionNames", [hits_collection_name])
     return CfgMgr.LArG4__HECSDTool(name, **kwargs)
 
 def getLArInactiveSensitiveDetector(name="LArInactiveSensitiveDetector", **kwargs):

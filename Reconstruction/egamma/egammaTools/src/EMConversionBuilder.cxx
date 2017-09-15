@@ -47,11 +47,6 @@ EMConversionBuilder::EMConversionBuilder(const std::string& type,
 		  m_conversionContainerName="PhotonConversionVertices",
 		  "Name of the input conversion container");
 	
-  // Name of the input egammaRec container
-  declareProperty("egammaRecContainerName",                 
-		  m_egammaRecContainerName="egammaRecs",
-		  "Name of the input egammaRec container");
-
   // Name of the extrapolation tool
   declareProperty("ExtrapolationTool",
 		  m_extrapolationTool,
@@ -115,7 +110,7 @@ StatusCode EMConversionBuilder::initialize()
 }
 
 // =============================================================
-StatusCode EMConversionBuilder::contExecute() 
+StatusCode EMConversionBuilder::contExecute(EgammaRecContainer& cont) 
 {
 
   // retrieve Conversion Container
@@ -125,13 +120,7 @@ StatusCode EMConversionBuilder::contExecute()
     return StatusCode::SUCCESS;
   }
   
-  // retrieve egammaRec container
-  const EgammaRecContainer* egammaRecs = 0;
-  if(evtStore()->retrieve(egammaRecs,m_egammaRecContainerName).isFailure()){
-    ATH_MSG_WARNING("Could not retrieve egammaRec container! EMConversionBuilder will stop.");
-    return StatusCode::SUCCESS;
-  }   
-  for (auto& egRec : *egammaRecs){
+  for (egammaRec* egRec : cont){
     ATH_CHECK(vertexExecute(egRec,conversions));
   }
   return StatusCode::SUCCESS;

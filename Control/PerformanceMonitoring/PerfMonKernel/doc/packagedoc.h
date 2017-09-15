@@ -37,16 +37,6 @@ The assumption that performance data is in good shape and may be committed to pe
 
  - ICallGraphBuilderSvc : the interface to the service building a callgraph out of the sequence of @c Algorithm. It is a rather <i>'work in progress'</i> class at the moment (June 2007) and not (yet) officially part of the toolkit of the Performance Monitoring domain. The main idea is to use the Gaudi @c IAuditor infrastructure to monitor algorithms/services and later on attach to each of the nodes of the callgraph additional informations (CPU, memory consumption,...).
 
-@ref used_PerfMonKernel
 
-@ref requirements_PerfMonKernel
 
-*/
-
-/**
-@page used_PerfMonKernel Used Packages
-*/
-
-/**
-@page requirements_PerfMonKernel Requirements
 */

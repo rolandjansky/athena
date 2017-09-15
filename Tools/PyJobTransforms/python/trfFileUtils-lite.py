@@ -10,7 +10,7 @@
 import logging
 msg = logging.getLogger(__name__)
 
-#  @note Use the PyCmt forking decorator to ensure that ROOT is run completely within 
+#  @note Use the PyUtils forking decorator to ensure that ROOT is run completely within 
 #  a child process and will not 'pollute' the parent python process with unthread-safe
 #  bits of code (otherwise strange hangs are observed on subsequent uses of ROOT)
 import PyUtils.Decorators as _decos
@@ -201,7 +201,7 @@ def AthenaLiteFileInfo(filename, filetype, retrieveKeys = athFileInterestingKeys
 #  @return 
 #  - Number of events.
 #  - @c None if the determination failed.
-#  @note Use the PyCmt forking decorator to ensure that ROOT is run completely within 
+#  @note Use the PyUtils forking decorator to ensure that ROOT is run completely within 
 #  a child process and will not 'pollute' the parent python process with unthread-safe
 #  bits of code (otherwise strange hangs are observed on subsequent uses of ROOT)
 @_decos.forking
@@ -299,7 +299,7 @@ def HISTEntries(fileName):
 #  @return 
 #  - Number of entries.
 #  - @c None if the determination failed.
-#  @note Use the PyCmt forking decorator to ensure that ROOT is run completely within 
+#  @note Use the PyUtils forking decorator to ensure that ROOT is run completely within 
 #  a child process and will not 'pollute' the parent python process with unthread-safe
 #  bits of code (otherwise strange hangs are observed on subsequent uses of ROOT)
 @_decos.forking
@@ -349,7 +349,7 @@ def NTUPEntries(fileName, treeNames):
 #  @details Use TFile.Open to retrieve a ROOT filehandle, which will
 #  deal with all non-posix filesystems. Return the GetSize() value.
 #  The option filetype=raw is added to ensure this works for non-ROOT files too (e.g. BS)
-#  @note Use the PyCmt forking decorator to ensure that ROOT is run completely within 
+#  @note Use the PyUtils forking decorator to ensure that ROOT is run completely within 
 #  a child process and will not 'pollute' the parent python process with unthread-safe
 #  bits of code (otherwise strange hangs are observed on subsequent uses of ROOT)
 #  @param filename Filename to get size of

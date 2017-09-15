@@ -26,7 +26,6 @@ The following child branches are (planned) to inherit from this one (only base c
 Please let me know of any errors, or if anything is unclear.
 @author Andreas.Salzburger@cern.ch
 
-@section TrkMeasurementBase_requirementsTrkMeasurementBase Requirements
 
 @namespace Trk
 A namespace to enclose the Tracking classes.

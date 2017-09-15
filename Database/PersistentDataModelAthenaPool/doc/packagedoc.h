@@ -28,11 +28,9 @@ The package Database/AthenaPOOL/AthenaPoolExample contains running examples of a
 reading Data Objects using AthenaPool. 
 
 
-@section PersistentDataModelAthenaPool_Requirements Requirements
 
 
 
-@section PersistentDataModelAthenaPool_PackagesUsed Packages Used
 
 
 

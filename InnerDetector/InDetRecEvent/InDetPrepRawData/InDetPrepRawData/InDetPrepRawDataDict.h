@@ -29,20 +29,14 @@ template<class T>
 struct PrdWrapper
 {
   typedef typename T::const_iterator prd_iterator;
-  typedef typename T::DataHolder     prd_data_holder;
-  typedef typename T::Entry          prd_entry;
 };
 
 #define EXPAND_PRD(T, suffix)						\
   T ## Container m_prd_ ## suffix ;					\
   PrdWrapper<T ## Container> m_prd_wrapper_ ## suffix ;			\
-  PrdWrapper<T ## Container> ::prd_data_holder m_prd_holder_ ## suffix ; \
-  PrdWrapper<T ## Container> ::prd_entry m_prd_entry_ ## suffix ;	\
   PrdWrapper<T ## Container> ::prd_iterator m_prd_citr_ ## suffix ;	\
-  ::DataLinkVector< Trk::PrepRawDataCollection< T > > m_dummy_dlv_ ## suffix ; \
-  T ## Container ::DataHolder m_dummy_holder_ ## suffix ; \
-  T ## Container ::Entry m_dummy_entry_ ## suffix ; \
-  T ## Container ::iterator m_dummy_iter_ ## suffix  
+  ::EventContainers::IdentifiableCache< Trk::PrepRawDataCollection< T > > m_dummy_dlv_ ## suffix ; \
+  T ## Container ::const_iterator m_dummy_iter_ ## suffix  
   
 namespace InDet {
     struct InDetPrepRawDataDict_Dummy

@@ -2,19 +2,25 @@
 #  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #
 
+
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from AthenaCommon.AlgScheduler import AlgScheduler
 AlgScheduler.CheckDependencies( True )
-AlgScheduler.OutputLevel( VERBOSE )
-AlgScheduler.ShowDataDependencies( True )
+#AlgScheduler.OutputLevel( VERBOSE )
+#AlgScheduler.ShowDataDependencies( True )
 AlgScheduler.setDataLoaderAlg( 'SGInputLoader' )
 
-
-## get a handle on the ServiceManager
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
+
 from SGComps.SGCompsConf import SGInputLoader
-topSequence += SGInputLoader( )
+topSequence += SGInputLoader()
+
+
+#print topSequence
+#print kaboom
+
+
 
 from AthenaCommon.GlobalFlags import globalflags;
 globalflags.DataSource.set_Value_and_Lock("data");
@@ -24,8 +30,11 @@ globalflags.DetDescrVersion.set_Value_and_Lock(DetDescrVersion);
 globalflags.InputFormat.set_Value_and_Lock("bytestream");
 globalflags.ConditionsTag.set_Value_and_Lock(ConditionsTag)
 globalflags.DatabaseInstance.set_Value_and_Lock('CONDBR2')
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags;
+athenaCommonFlags.BSRDOInput = [ "/afs/cern.ch/atlas/project/trigger/pesa-sw/validation/atn-test/data15_13TeV.00266904.physics_EnhancedBias.merge.RAW._lb0452._SFO-1._0001.1" ]
+#FilesInput 
 
-include ("RecExRecoTest/RecExRecoTest_RTT_common.py")
+#include ("RecExRecoTest/RecExRecoTest_RTT_common.py")
 
 #jp.AthenaCommonFlags.PoolESDOutput="id_ESD.pool.root"
 rec.doTrigger=False
@@ -62,9 +71,27 @@ larRODFlags.doLArFebErrorSummary.set_Value_and_Lock(False)
 #DetFlags.Print()
 
 # main jobOption
+
+
+#include ("RecExRecoTest/RecExRecoTest_RTT_common_postOptions.py")
+
+## get a handle on the ServiceManager
+
+topSequence.SGInputLoader.Load = [ ('ROIB::RoIBResult','StoreGateSvc+RoIBResult'), ('AthenaAttributeList','StoreGateSvc+Input') ]
+topSequence.SGInputLoader.FailIfNoProxy=False
+#topSequence.CondInputLoader.Load = [('AthenaAttributeList','ConditionStore+Input')]
+
+#from IOVSvc.IOVSvcConf import CondInputLoader
+#topSequence += CondInputLoader( "CondInputLoader", OutputLevel=DEBUG )
+
 include ("RecExCommon/RecExCommon_topOptions.py")
 
-include ("RecExRecoTest/RecExRecoTest_RTT_common_postOptions.py")
+#remove RecExCommon 
+# topSequence = AlgSequence()
+# for i in topSequence:
+#   log.info('removing '+ i.getName())
+#   if i.getName() not in [ "SGInputLoader", "CondInputLoader" ]: # list of what we want to keep
+#     topSequence.remove(i)
 
 
 
@@ -102,10 +129,7 @@ if nThreads >= 1:
 #import AthenaCommon.AtlasUnixGeneratorJob
 
 ## get a handle on the default top-level algorithm sequence
-from AthenaCommon.AlgSequence import AlgSequence
-topSequence = AlgSequence()
-
-svcMgr.ByteStreamInputSvc.FullFileName = [ "/afs/cern.ch/atlas/project/trigger/pesa-sw/validation/atn-test/data15_13TeV.00266904.physics_EnhancedBias.merge.RAW._lb0452._SFO-1._0001.1" ]
+#svcMgr.ByteStreamInputSvc.FullFileName = 
 
 svcMgr.ByteStreamInputSvc.ValidateEvent = True
 svcMgr.EventSelector.ProcessBadEvent = True
@@ -126,20 +150,54 @@ l1svc.XMLMenuFile = findFileInXMLPATH(TriggerFlags.inputLVL1configFile())
 svcMgr += l1svc
 
 
+from TriggerJobOpts.TriggerFlags import TriggerFlags
+TriggerFlags.enableMonitoring = ['Validation', 'Time']
+
+if not hasattr(svcMgr, 'THistSvc'):
+  from GaudiSvc.GaudiSvcConf import THistSvc
+  svcMgr += THistSvc()
+svcMgr.THistSvc.Output = ["EXPERT DATAFILE='expert-monitoring.root', OPT='RECREATE'"]
+
 # This is the list of proxies to set up so that retrieval attempt will trigger the BS conversion
-svcMgr.ByteStreamAddressProviderSvc.TypeNames += [
-    "ROIB::RoIBResult/RoIBResult" ]
+svcMgr.ByteStreamAddressProviderSvc.TypeNames += [ "ROIB::RoIBResult/RoIBResult" ]
 
 #--------------------------------------------------------------
 # Private Application Configuration options
 #--------------------------------------------------------------
 # Load "user algorithm" top algorithms to be run, and the libraries that house them
 
-#Run calo decoder
-from L1Decoder.L1DecoderConf import L1CaloDecoder
-caloDecoder = L1CaloDecoder() # by default it is steered towards the RoIBResult of the name above
-caloDecoder.OutputLevel=VERBOSE
-topSequence += caloDecoder
+
+
+
+#from AthenaCommon.CFElements import parOR, seqAND
+#TopHLTSeq = seqAND("TopHLTSeq")
+#topSequence += TopHLTSeq
+
+
+from L1Decoder.L1DecoderMonitoring import CTPUnpackingMonitoring, RoIsUnpackingMonitoring
+from L1Decoder.L1DecoderConf import CTPUnpackingTool, EMRoIsUnpackingTool, L1Decoder, MURoIsUnpackingTool
+from L1Decoder.L1DecoderConf import CTPUnpackingEmulationTool, RoIsUnpackingEmulationTool
+l1Decoder = L1Decoder( OutputLevel=DEBUG )
+ctpUnpacker = CTPUnpackingTool( OutputLevel =  DEBUG, ForceEnableAllChains=True )
+
+allChains = [ "HLT_e5_perf", "HLT_e5_lhloose", "HLT_e5_tight", "HLT_e7_perf" ]
+
+l1Decoder.ctpUnpacker = ctpUnpacker
+l1Decoder.ctpUnpacker.MonTool = CTPUnpackingMonitoring(512, 200)
+#l1Decoder.ctpUnpacker.CTPToChainMapping = ["0:HLT_e3",  "0:HLT_g5", "1:HLT_e7", "2:HLT_2e3", "15:HLT_mu6", "33:HLT_2mu6", "15:HLT_mu6idperf", "42:HLT_e15mu4"] # this are real IDs of L1_* items in pp_v5 menu
+
+l1Decoder.ctpUnpacker.CTPToChainMapping = [ "0:"+c for c in allChains  ] # CAVEAT this needs real mapping from chain to CTP ID
+emUnpacker = EMRoIsUnpackingTool( OutputLevel=DEBUG, OutputTrigRoIs="StoreGateSvc+EMRoIs" )
+emUnpacker.ThresholdToChainMapping = ["EM3 : "+c for c in allChains ]  # CAVEAT this needs real mapping to from the chain to L1 threshold
+
+emUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="EM", maxCount=30 )
+
+l1Decoder.roiUnpackers = [emUnpacker]
+l1Decoder.Chains="HLTChainsResult"
+
+topSequence += l1Decoder
+
+
 
 #Dumper
 #from ViewAlgs.ViewAlgsConf import DumpDecisions
@@ -156,8 +214,26 @@ svcMgr.ToolSvc+=TrigDataAccess()
 svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection=False
 
 from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_FastAlgo
-topSequence+=T2CaloEgamma_FastAlgo("testFastAlgo")
-topSequence.testFastAlgo.OutputLevel=VERBOSE
+algo=T2CaloEgamma_FastAlgo("testFastAlgo")
+algo.RoIs="StoreGateSvc+EMRoIs"
+algo.OutputLevel=VERBOSE
+#TopHLTSeq += algo
+topSequence += algo
+
+
+
+from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2CaloHypoAlg
+from TrigEgammaHypo.TrigL2CaloHypoTool import TrigL2CaloHypoToolFromName
+hypoAlg = TrigL2CaloHypoAlg()
+hypoAlg.RoIs="StoreGateSvc+EMRoIs"
+hypoAlg.OutputLevel=VERBOSE
+topSequence += hypoAlg
+# this should come from the menu, but let's see if it falls apart wiht a full single electron menu
+hypoTools = [ TrigL2CaloHypoToolFromName(chain) for chain in allChains ] 
+
+hypoAlg.HypoTools = hypoTools
+hypoAlg += hypoTools
+
 
 #--------------------------------------------------------------
 # Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL)
@@ -186,9 +262,13 @@ from CaloRec.CaloRecConf import CaloCellMaker
 topSequence.remove(CaloCellMaker('CaloCellMaker'))
 from xAODCaloEventCnv.xAODCaloEventCnvConf import ClusterCreator
 topSequence.remove(ClusterCreator('CaloCluster2xAOD'))
+#topSequence.remove(CondInputLoader("CondInputLoader"))
 
 
 theApp.EvtMax = 100
+
+#print topSequence
+#print fail
 
 
 #

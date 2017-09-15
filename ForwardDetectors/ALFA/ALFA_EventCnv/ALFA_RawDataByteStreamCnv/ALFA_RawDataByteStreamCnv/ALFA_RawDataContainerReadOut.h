@@ -43,7 +43,6 @@ class ALFA_RawDataContainerReadOut : public ALFA_ReadOut
   // Raw data word and word header
  
   uint32_t m_wordMarker;
-  uint32_t m_dataWord;
 
   // Data members
   uint16_t m_subdetId;   // Sub-detector Id 
@@ -64,22 +63,22 @@ class ALFA_RawDataContainerReadOut : public ALFA_ReadOut
   // Data words in the ROD header
   
   // Full Event marker
-  static const uint32_t FullEVmarker = 0xaa1234aa;
+  static const uint32_t s_FullEVmarker = 0xaa1234aa;
   // ROB marker
-  static const uint32_t ROBmarker = 0xdd1234dd;
+  static const uint32_t s_ROBmarker = 0xdd1234dd;
   // ROD marker
-  static const uint32_t RODmarker = 0xee1234ee;
+  static const uint32_t s_RODmarker = 0xee1234ee;
 
-  static const uint32_t RODheadersize = 0x00000009; 
-  static const uint32_t RODversion  = 0x03010000;    
+  static const uint32_t s_RODheadersize = 0x00000009; 
+  static const uint32_t s_RODversion  = 0x03010000;    
 
  public:
   ALFA_RawDataContainerReadOut();
   ~ALFA_RawDataContainerReadOut();
  
-  bool is_FullEVmarker() {return m_wordMarker == FullEVmarker;};
-  bool is_ROBmarker() {return m_wordMarker == ROBmarker;};  	
-  bool is_RODmarker() {return m_wordMarker == RODmarker;};  	
+  bool is_FullEVmarker() {return m_wordMarker == s_FullEVmarker;};
+  bool is_ROBmarker() {return m_wordMarker == s_ROBmarker;};  	
+  bool is_RODmarker() {return m_wordMarker == s_RODmarker;};  	
   
  
   void decodeWord(uint32_t dataWord);

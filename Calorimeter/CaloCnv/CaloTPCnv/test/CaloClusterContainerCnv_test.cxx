@@ -66,23 +66,6 @@ struct randi_fn
 };
 
 
-class CaloClusterContainerCnvTestMakeCluster
-  : public CaloCluster
-{
-public:
-  static void setStores (CaloCluster& c);
-};
-
-
-void CaloClusterContainerCnvTestMakeCluster::setStores (CaloCluster& c)
-{
-  c.setLinkStore (new CaloCellLink);
-}
-
-
-typedef CaloClusterContainerCnvTestMakeCluster MakeCluster;
-
-
 std::vector<CaloSampling::CaloSample> getSamplingList()
 {
   std::vector<CaloSampling::CaloSample> v;
@@ -94,7 +77,7 @@ std::vector<CaloSampling::CaloSample> getSamplingList()
 }
 
 
-CaloCluster* make_cluster()
+CaloCluster* make_cluster (int iclus)
 {
   float eta0 = randf (4, -4);
   float phi0 = randf (3, -3);
@@ -109,7 +92,6 @@ CaloCluster* make_cluster()
   }
   
   CaloCluster* c = new CaloCluster (eta0, phi0, mask);
-  MakeCluster::setStores (*c);
   
   std::vector<CaloSampling::CaloSample> vsamp = getSamplingList();
   for (int i = 0; i < nvars; i++) {
@@ -159,6 +141,9 @@ CaloCluster* make_cluster()
   c->setRecoStatus (CaloRecoStatus
                     ((CaloRecoStatus::StatusIndicator)randi (100000)));
 
+  ElementLink<CaloCellLinkContainer> el ("celllinkkey", iclus);
+  c->resetCellLink (el);
+
   return c;
 }
 
@@ -169,7 +154,7 @@ std::unique_ptr<const CaloClusterContainer> make_clusters()
   ccc->setROIAuthor ("theauthor");
   ccc->setTowerSeg (CaloTowerSeg (20, 10, -4, 4, -3, 3));
   for (int i=0; i < 5; i++)
-    ccc->push_back (make_cluster());
+    ccc->push_back (make_cluster(i));
   return std::unique_ptr<const CaloClusterContainer>(ccc.release());
 }
 
@@ -325,42 +310,6 @@ void compare (const CaloClusterContainer& clust1,
 }
 
 
-class MungeCellLinks
-{
-public:
-  MungeCellLinks (const CaloClusterContainer& cont);
-  ~MungeCellLinks();
-
-private:
-  const CaloClusterContainer* m_cont;
-  std::vector<const CaloCellLink*> m_saved;
-};
-
-
-MungeCellLinks::MungeCellLinks (const CaloClusterContainer& cont)
-  : m_cont (&cont)
-{
-  for (size_t i = 0; i < cont.size(); i++) {
-    CaloCluster& cl = *const_cast<CaloCluster*> (cont[i]);
-    m_saved.push_back (*cl.cellLink().cptr());
-    ElementLink<CaloCellLinkContainer> el ("celllinkkey", i);
-    cl.resetCellLink (el);
-  }
-}
-
-
-MungeCellLinks::~MungeCellLinks()
-{
-  assert (m_cont->size() == m_saved.size());
-  for (size_t i = 0; i < m_cont->size(); i++) {
-    CaloCluster& cl = *const_cast<CaloCluster*> ((*m_cont)[i]);
-    ElementLink<CaloCellLinkContainer> el;
-    el.setElement (m_saved[i]);
-    cl.resetCellLink (el);
-  }
-}
-
-
 template <class PERS, class TPCONV>
 void testit (const CaloClusterContainer& clust, int version)
 {
@@ -368,10 +317,7 @@ void testit (const CaloClusterContainer& clust, int version)
 
   TPCONV cnv;
   PERS pers;
-  {
-    MungeCellLinks munge (clust);
-    cnv.transToPers (&clust, &pers, log);
-  }
+  cnv.transToPers (&clust, &pers, log);
 
   CaloClusterContainer clust2;
   cnv.persToTrans (&pers, &clust2, log);

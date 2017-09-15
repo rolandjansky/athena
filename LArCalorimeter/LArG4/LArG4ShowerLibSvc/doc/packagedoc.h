@@ -46,16 +46,4 @@ need a dedicated sensitive detector to be put back into the simulation.
 
 @section LArG4ShowerLibSvc_LArG4ShowerLibSvc Extra Pages
 
-- @ref used_LArG4ShowerLibSvc
-- @ref requirements_LArG4ShowerLibSvc
 */
-
-/**
-   @page used_LArG4ShowerLibSvc Used Packages
-*/
-
-/**
-   @page requirements_LArG4ShowerLibSvc Requirements
-*/
-
-

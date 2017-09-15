@@ -16,16 +16,6 @@ This tool fits a momentum to a vector of segments or 2 segments using a curved t
 
   - MuonSegmentMomentum: calculates a momentum estimate for segments, 2 methods, one for 2 segments, one for a vector 
 
-@ref used_MuonSegmentMomentum
 
-@ref requirements_MuonSegmentMomentum
 
-*/
-
-/**
-@page used_MuonSegmentMomentum Used Packages
-*/
-
-/**
-@page requirements_MuonSegmentMomentum Requirements
 */

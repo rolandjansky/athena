@@ -14,19 +14,6 @@ This package contains Csc Container
 The MuonCondData package contains the methods
 GetParameter, GetXXX that hold the database parameters
 
-@ref used_MuonCondData
 
-@ref requirements_MuonCondData
 
 */
-
-/**
-@page used_MuonCondData Used Packages
-*/
-
-/**
-@page requirements_MuonCondData Requirements
-*/
-
-
-

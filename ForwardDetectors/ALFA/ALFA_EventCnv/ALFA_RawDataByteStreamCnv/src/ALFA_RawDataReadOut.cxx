@@ -24,8 +24,7 @@ ALFA_RawDataReadOut::ALFA_RawDataReadOut() :
   m_scaler(0),
   m_bit16(0),
   m_error_bit17(0),
-  m_bit18(0),
-  MarocChan()
+  m_bit18(0)
 {  }
 
 ALFA_RawDataReadOut::~ALFA_RawDataReadOut()
@@ -39,7 +38,7 @@ void ALFA_RawDataReadOut::decodeWord(uint32_t dataWord)
   setZero();
   m_dataWord = dataWord;
   m_word = dataWord;
-  m_wordHeader = (dataWord>>headerPos)&headerBits;
+  m_wordHeader = (dataWord>>s_headerPos)&s_headerBits;
 
   if (is_TDCt())         // TDC single measurement
     {
@@ -103,7 +102,6 @@ void ALFA_RawDataReadOut::setZero()
   m_MBId = 0;   
   m_bit26_27=0;
   m_bit24_27=0; 
-  //MarocChan.clear();
 }
 
 //-------------------------------------------------------------------------

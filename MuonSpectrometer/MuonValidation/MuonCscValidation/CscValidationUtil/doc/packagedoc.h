@@ -30,16 +30,6 @@ PhysicsAnalysis/MuonID/MuonRootUtils.
 
 The atlas release macro and python accessor are in PhysicsAnalysis/MuonAtlasRelease.
 
- - @ref UsedCscValidationUtil
- - @ref RequirementsCscValidationUtil
  - <a href=https://twiki.cern.ch/twiki/bin/view/Atlas/CscReconstruction>CSC reconstruction overview</a>
  - <a href=https://twiki.cern.ch/twiki/bin/view/Atlas/MuPerf>MuPerf overview</a>
-*/
-
-/**
-@page UsedCscValidationUtil Used packages
-*/
-
-/**
-@page RequirementsCscValidationUtil Requirements
 */

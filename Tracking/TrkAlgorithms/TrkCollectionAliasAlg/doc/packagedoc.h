@@ -9,7 +9,6 @@ This package contains the Algorithm TrkCollectionAliasAlg which generates a Stor
 
 @author Martin Siebel <Martin.Siebel@CERN.ch>
 
-@section TrkCollectionAliasAlg_TrkCollectionAliasAlgReq Requirements
 
 
 */

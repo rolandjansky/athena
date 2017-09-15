@@ -1,0 +1,150 @@
+/*
+ * Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration.
+ */
+// $Id$
+/**
+ * @file AthenaKernel/SlotSpecificObj.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Jul, 2017
+ * @brief Maintain a set of objects, one per slot.
+ */
+
+
+#include <cassert>
+
+
+namespace SG {
+
+
+/**
+ * @brief Constructor.
+ *
+ * The number of slots will be found by calling @c getNSlots().
+ */
+template <class T>
+inline
+SlotSpecificObj<T>::SlotSpecificObj()
+  : SlotSpecificObj (getNSlots())
+{
+}
+
+
+/**
+ * @brief Constructor, with number of slots specified explicitly.
+ * @param nslots The number of event slots.
+ */
+template <class T>
+inline
+SlotSpecificObj<T>::SlotSpecificObj (size_t nslots)
+  : m_slots (nslots)
+{
+}
+
+
+/**
+ * @brief Return pointer to the object for slot given by @c ctx.
+ * @param ctx Event context giving the desired slot.
+ */
+template <class T>
+inline
+T* SlotSpecificObj<T>::get (const EventContext& ctx)
+{
+  size_t slot = ctx.slot();
+  assert (slot < m_slots.size());
+  return &m_slots[slot];
+}
+
+
+/**
+ * @brief Return pointer to the object for the current slot.
+ *
+ * The slot number is found by retrieving the global current context.
+ */
+template <class T>
+inline
+T* SlotSpecificObj<T>::get()
+{
+  return get (Gaudi::Hive::currentContext());
+}
+
+
+/**
+ * @brief Return pointer to the object for slot given by @c ctx.
+ * @param ctx Event context giving the desired slot.
+ */
+template <class T>
+inline
+const T* SlotSpecificObj<T>::get (const EventContext& ctx) const
+{
+  size_t slot = ctx.slot();
+  assert (slot < m_slots.size());
+  return &m_slots[slot];
+}
+
+
+/**
+ * @brief Return pointer to the object for the current slot.
+ *
+ * The slot number is found by retrieving the global current context.
+ */
+template <class T>
+inline
+const T* SlotSpecificObj<T>::get() const
+{
+  return get (Gaudi::Hive::currentContext());
+}
+
+
+/**
+ * @brief Dereference the pointer.
+ *
+ * The slot number is found by retrieving the global current context.
+ */
+template <class T>
+inline
+T& SlotSpecificObj<T>::operator* ()
+{
+  return *get();
+}
+
+
+/**
+ * @brief Dereference the pointer.
+ *
+ * The slot number is found by retrieving the global current context.
+ */
+template <class T>
+inline
+const T& SlotSpecificObj<T>::operator* () const
+{
+  return *get();
+}
+
+
+/**
+ * @brief Dereference the pointer.
+ *
+ * The slot number is found by retrieving the global current context.
+ */
+template <class T>
+inline
+T* SlotSpecificObj<T>::operator-> ()
+{
+  return get();
+}
+
+
+/**
+ * @brief Dereference the pointer.
+ *
+ * The slot number is found by retrieving the global current context.
+ */
+template <class T>
+inline
+const T* SlotSpecificObj<T>::operator-> () const
+{
+  return get();
+}
+
+  
+} // namespace SG

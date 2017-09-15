@@ -181,9 +181,7 @@ InDetFlags.doTruth       = (globalflags.InputFormat() == 'pool' and globalflags.
 #InDetFlags.doPixelTrkNtuple = False
 #InDetFlags.doSctTrkNtuple   = False
 #InDetFlags.doTrtTrkNtuple   = True
-#InDetFlags.doPixelClusterNtuple = True
 #InDetFlags.doSctClusterNtuple   = True
-#InDetFlags.doTrtDriftCircleNtuple = True
 #InDetFlags.doVtxNtuple      = True
 #InDetFlags.doConvVtxNtuple  = True
 #InDetFlags.doV0VtxNtuple    = True

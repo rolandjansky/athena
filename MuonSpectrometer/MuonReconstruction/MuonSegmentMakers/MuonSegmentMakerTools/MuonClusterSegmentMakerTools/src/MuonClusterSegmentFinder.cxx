@@ -164,7 +164,7 @@ return (fabs(i.z()) < fabs(j.z()));}
     std::vector<const Muon::MuonSegment*>* segs = new std::vector<const Muon::MuonSegment*>;
     
     if (doTGCClust) { 
-      const Muon::TgcPrepDataContainer* tgcPrds = new Muon::TgcPrepDataContainer;
+      const Muon::TgcPrepDataContainer* tgcPrds = new Muon::TgcPrepDataContainer(0); //Isn't this memory leak?
       const std::string keyTgc ("TGC_Measurements");
       if ( evtStore()->contains<Muon::TgcPrepDataContainer>(keyTgc) && evtStore()->retrieve(tgcPrds,keyTgc).isFailure()) {
         ATH_MSG_WARNING("Cannot retrieve TgcPrepDataContainer " << keyTgc);
@@ -186,7 +186,7 @@ return (fabs(i.z()) < fabs(j.z()));}
     }//end if TGC
 
     if (doRPCClust) {
-      const Muon::RpcPrepDataContainer* rpcPrds = new Muon::RpcPrepDataContainer;
+      const Muon::RpcPrepDataContainer* rpcPrds = new Muon::RpcPrepDataContainer(0); //Isn't this memory leak?
       const std::string keyRpc ("RPC_Measurements");
       if ( evtStore()->contains<Muon::RpcPrepDataContainer>(keyRpc) && evtStore()->retrieve(rpcPrds,keyRpc).isFailure()) {
         ATH_MSG_WARNING("Cannot retrieve RpcPrepDataContainer " << keyRpc);

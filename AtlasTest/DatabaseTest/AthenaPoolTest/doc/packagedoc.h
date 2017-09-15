@@ -144,10 +144,8 @@ The following tests are currently being run:
     .
   .
 
-@section AthenaPoolTest_requirements requirements
 
 
-@section AthenaPoolTest_uses Packages used
 
 
 

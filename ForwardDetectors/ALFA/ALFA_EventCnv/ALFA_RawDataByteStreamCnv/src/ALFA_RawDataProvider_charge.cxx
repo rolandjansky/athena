@@ -16,8 +16,6 @@
 ////////////////////////
 ALFA_RawDataProvider_charge::ALFA_RawDataProvider_charge(const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm (name, pSvcLocator),
-  m_nRawDataCollection(0),
-  m_nRawData(0),
   m_robDataProvider("ROBDataProviderSvc",name),
   m_rawDataTool_charge("ALFA_RawDataProviderTool_charge"),
   m_ALFA_RawDataCollectionKey_charge(),
@@ -85,7 +83,7 @@ msg(MSG::DEBUG) << "ALFA_RawDataProvider_charge::EXECUTE" << endmsg;
 
 
 
-  std::vector<const ROBFragment*> listOfRobf;
+  std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> listOfRobf;
   std::vector<unsigned int> ROBIDs;
   ROBIDs.push_back(0x00840000);
   ROBIDs.push_back(0x00840001);

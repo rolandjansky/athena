@@ -28,12 +28,4 @@ dual-use.
 @author Bruno Lenzi
 
 @section MVAUtils_ExtrasMVAUtils Extra Pages
- - @ref UsedMVAUtils
- - @ref RequirementsMVAUtils
-*/
-/**
-@page UsedMVAUtils Used Packages
-*/
-/**
-@page RequirementsMVAUtils Requirements
 */

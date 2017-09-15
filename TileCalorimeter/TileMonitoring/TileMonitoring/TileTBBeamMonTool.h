@@ -106,9 +106,9 @@ class TileTBBeamMonTool: public TileFatherMonTool {
     int m_muHalo;
     int m_muVeto;
 
-    float m_muBack[8]; // MUON/MuBack
+    float m_muBack[16]; // MUON/MuBack
 
-    int m_btdc[8];
+    int m_btdc[16];
 
     //PMT counters
     int m_pmt1cou;

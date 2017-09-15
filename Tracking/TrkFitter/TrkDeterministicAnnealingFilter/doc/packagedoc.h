@@ -30,15 +30,4 @@ a study of elastic tracking and non-linear filters</i>,  Computer Physics Commun
     
 @section TrkDeterministicAnnealingFilter_ExtrasTrkDeterministicAnnealingFilter Extra Pages
 
- - @ref UsedTrkDeterministicAnnealingFilter
- - @ref requirementsTrkDeterministicAnnealingFilter
 */
-
-/**
-@page UsedTrkDeterministicAnnealingFilter Used Packages
-*/
-
-/**
-@page requirementsTrkDeterministicAnnealingFilter Requirements
-*/
-

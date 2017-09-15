@@ -139,6 +139,17 @@ public:
    * May return 0 for a store with no aux data.
    */
   virtual size_t size() const = 0;
+
+
+  /**
+   * @brief Lock a decoration.
+   * @param auxid Identifier of the decoration to lock.
+   *
+   * A decoration is locked by changing from a decoration to an ordinary
+   * variable.  If the container itself is locked, then modifications
+   * to be variable are not permitted after this call.
+   */
+  virtual void lockDecoration (SG::auxid_t auxid) = 0;
 };
 
 

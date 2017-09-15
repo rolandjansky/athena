@@ -111,7 +111,6 @@ namespace Trk {
     m_trackingGeometry(nullptr),
     m_caloEntrance(nullptr),
     m_msEntrance(nullptr),
-    m_option_allowEmptyROT{},
     m_signedradius{},
     m_calomat{}, m_extmat{}, m_idmat{},
     m_derivmat(nullptr),
@@ -130,7 +129,6 @@ namespace Trk {
     m_maxit{},
     m_nfits{}, m_nsuccessfits{}, m_matrixinvfailed{}, m_notenoughmeas{}, m_propfailed{}, m_invalidangles{},
     m_notconverge{}, m_highchi2{}, m_lowmomentum{},
-    m_kinkallowed{},
     m_acceleration{},
     m_numderiv{},
     m_lastiter{},
@@ -140,7 +138,6 @@ namespace Trk {
     m_fieldpropnofield(nullptr),
     m_fieldpropfullfield(nullptr),
     m_fieldprop(nullptr),
-    m_prefit{},
     // m_derivpool{}, static member
     m_a{}, m_ainv{},
     m_particleMasses{},

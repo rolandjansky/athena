@@ -22,6 +22,7 @@
 class IOpaqueAddress;
 namespace SG {
    class TransientAddress;
+   class DataProxy;
 }
 namespace coral {
    class AttributeList;
@@ -37,10 +38,17 @@ public: // Constructor and Destructor
    DataHeaderElement();
    /// Copy Constructor
    DataHeaderElement(const DataHeaderElement& rhs);
+
    /// Constructor
    /// @param sgAddress [IN] pointer to TransientAddress for which a DataHeaderElement is created.
    /// @param pTag [IN] string used as key element in DataHeader (SG key for DataObjects).
    DataHeaderElement(const SG::TransientAddress* sgAddress, IOpaqueAddress* tokAddress, const std::string& pTag);
+
+   /// Constructor
+   /// @param proxy [IN] pointer to DataProxy for which a DataHeaderElement is created.
+   /// @param pTag [IN] string used as key element in DataHeader (SG key for DataObjects).
+   DataHeaderElement(const SG::DataProxy* proxy, IOpaqueAddress* tokAddress, const std::string& pTag);
+
    /// Constructor
    /// @param classID [IN] Primary ClassID of the DataObject for which a DataHeaderElement is created.
    /// @param key [IN] SG Key of the DataObject for which a DataHeaderElement is created.
@@ -81,6 +89,14 @@ private:
    friend class DataHeaderElementCnv_p4;
    friend class DataHeaderElementCnv_p5;
    friend class DataHeaderElementCnv_p6;
+
+   /// Internal constructor.
+   DataHeaderElement(CLID clid,
+                     const std::string& name,
+                     const std::vector<CLID>& tClids,
+                     std::set<std::string>&& alias,
+                     IOpaqueAddress* tadAddress,
+                     IOpaqueAddress* tokAddress, const std::string& pTag);
 
    /// primary ClassID.
    CLID m_pClid;
@@ -143,6 +159,10 @@ public: // Non-static members
    /// @param sgAddress [IN] pointer to the TransientAddress of the DataObject.
    /// @param pTag [IN] string to overwrite key meber of the DataHeaderElement
    void insert(const SG::TransientAddress* sgAddress, IOpaqueAddress* tokAddress = 0, const std::string& pTag = "");
+   /// Insert a new element into the "DataObject" vector.
+   /// @param proxy [IN] pointer to the DataProxy for the DataObject.
+   /// @param pTag [IN] string to overwrite key meber of the DataHeaderElement
+   void insert(const SG::DataProxy* proxy, IOpaqueAddress* tokAddress = 0, const std::string& pTag = "");
    /// Insert a new element into the "DataObject" vector.
    /// @param dhe [IN] reference to the DataHeaderElement to be inserted.
    void insert(const DataHeaderElement& dhe);

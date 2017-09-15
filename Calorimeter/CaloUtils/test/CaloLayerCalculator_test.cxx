@@ -243,9 +243,9 @@ void test1 (const CaloCellContainer* cells)
              5*deta, 5*dphi, CaloSampling::EMB2);
   clust1_check (calc);
 
-  xAOD::CaloCluster* clust = CaloClusterStoreHelper::makeCluster (cells);
+  std::unique_ptr<xAOD::CaloCluster> clust (CaloClusterStoreHelper::makeCluster (cells));
   calc.fill (cells->begin(), cells->end(), clust1_eta0, clust1_phi0,
-             5*deta, 5*dphi, CaloSampling::EMB2, clust);
+             5*deta, 5*dphi, CaloSampling::EMB2, clust.get());
   clust1_check (calc);
   assert (clust->size() == 3);
   calc.fill (clust->begin(), clust->end(), clust1_eta0, clust1_phi0,

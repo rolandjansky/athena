@@ -48,7 +48,4 @@ should return a const pointer, set to NULL (i.e. 0) whenever the object is void.
 - Trk::LocalParameters are defined in TrkEventPrimitives
 
 @author Edward.Moyse@cern.ch, Andreas.Salzburger@cern.ch
-@section TrkNeutralParameters_used_packagesTkPara Used Packages
-
-@section TrkNeutralParameters_requirements Requirements
 */

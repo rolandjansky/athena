@@ -18,15 +18,6 @@ Athena interface for Herwig++ was written by Andy Buckley and is available
 since rel.14.
 
 
-@ref used_MyPackage
 
-@ref requirements_MyPackage
 
 */
-
-/**
-@page used_MyPackage Used Packages
-*/
-
-/**
-@page requirements_MyPackage Requirements

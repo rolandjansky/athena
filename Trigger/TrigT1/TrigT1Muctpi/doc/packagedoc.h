@@ -31,11 +31,3 @@
    The actual hardware simulation uses a lot of classes. Those can all be found in the "Classes" tab.
 
  */
-
-/**
-   @page used_TrigT1Muctpi Used Packages
-*/
-
-/**
-   @page requirements_TrigT1Muctpi Requirements
-*/

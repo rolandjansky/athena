@@ -8,6 +8,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "L1TopoSimulation/IInputTOBConverter.h"
 #include "GaudiKernel/IIncidentListener.h"
+#include "TrigT1CaloEvent/EnergyTopoData.h"
 
 class TH1I;
 
@@ -32,7 +33,7 @@ namespace LVL1 {
 
       ServiceHandle<ITHistSvc> m_histSvc;
 
-      StringProperty m_energyLocation;    //!<  EnergyROI SG key
+      SG::ReadHandleKey< LVL1::EnergyTopoData > m_energyLocation;    //!<  EnergyROI SG key
 
       TH1I * m_hPt {nullptr};
       TH1I * m_hPhi {nullptr};

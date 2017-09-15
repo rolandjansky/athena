@@ -37,18 +37,19 @@ if (InDetTrigFlags.doPrintConfigurables()):
 
 from TrkGlobalChi2Fitter.TrkGlobalChi2FitterConf import Trk__GlobalChi2Fitter
 from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigExtrapolator, InDetTrigNavigator, InDetTrigPropagator, \
-     InDetTrigRefitRotCreator,InDetTrigUpdator, InDetTrigMaterialUpdator
+     InDetTrigRefitRotCreator, InDetTrigUpdator, InDetTrigMaterialUpdator
 from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
-
-from InDetTrigRecExample.InDetTrigConditionsAccess import PixelConditionsSetup
 
 from FTK_RecTools.FTK_RecToolsConf import FTK_PixelClusterOnTrackTool, FTK_SCTClusterOnTrackTool
 
-
+from InDetTrigRecExample.InDetTrigConditionsAccess import PixelConditionsSetup
+ 
 InDetTrigBroadPixelClusterOnTrackToolFTK = \
                                          FTK_PixelClusterOnTrackTool("InDetTrigBroadPixelClusterOnTrackToolFTK",
                                                                      PixelOfflineCalibSvc=PixelConditionsSetup.instanceName('PixelOfflineCalibSvc'),
                                                                      ErrorStrategy = 0) # use broad errors
+ 
+  
 ToolSvc += InDetTrigBroadPixelClusterOnTrackToolFTK
 if (InDetTrigFlags.doPrintConfigurables()):
   print InDetTrigBroadPixelClusterOnTrackToolFTK
@@ -97,4 +98,66 @@ InDetTrigTrackFitterFTK = Trk__GlobalChi2Fitter(name = "InDetTrigTrackFitterFTK"
 ToolSvc += InDetTrigTrackFitterFTK
 if (InDetTrigFlags.doPrintConfigurables()):
   print InDetTrigTrackFitterFTK
-  
+
+
+from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigExtrapolator,InDetTrigHoleSearchTool,InDetTrigPrdAssociationTool 
+
+
+from InDetTrackSummaryHelperTool.InDetTrackSummaryHelperToolConf import InDet__InDetTrackSummaryHelperTool
+InDetTrigTrackSummaryHelperToolFTK = InDet__InDetTrackSummaryHelperTool(name = "InDetTrigTrackSummaryHelperToolFTK",
+                                                                        AssoTool     = InDetTrigPrdAssociationTool,
+                                                                        DoSharedHits = False,
+                                                                        HoleSearch   = InDetTrigHoleSearchTool,
+                                                                        TestBLayerTool = None,
+                                                                        PixelToTPIDTool = None,
+                                                                        usePixel=True,
+                                                                        useSCT=True,
+                                                                        useTRT=False
+                                                                        )
+
+ToolSvc += InDetTrigTrackSummaryHelperToolFTK
+if (InDetTrigFlags.doPrintConfigurables()):
+  print InDetTrigTrackSummaryHelperToolFTK
+        
+
+        
+from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool
+InDetTrigTrackSummaryToolFTK = Trk__TrackSummaryTool(name = "InDetTrigTrackSummaryToolFTK",
+                                                 InDetSummaryHelperTool = InDetTrigTrackSummaryHelperToolFTK,
+                                                 InDetHoleSearchTool    = None,
+                                                 doSharedHits           = False,
+                                                 TRT_ElectronPidTool    = None
+                                                 )
+ToolSvc += InDetTrigTrackSummaryToolFTK
+if (InDetTrigFlags.doPrintConfigurables()):
+  print InDetTrigTrackSummaryToolFTK
+
+
+from TrkParticleCreator.TrkParticleCreatorConf import Trk__TrackParticleCreatorTool
+
+
+InDetTrigTrackParticleCreatorToolFTK = Trk__TrackParticleCreatorTool( name = "InDetTrigParticleCreatorToolFTK",
+                                                                      Extrapolator = InDetTrigExtrapolator,
+                                                                      TrackSummaryTool = InDetTrigTrackSummaryToolFTK,
+                                                                      KeepParameters = True,
+                                                                      ForceTrackSummaryUpdate = False,  #summary update moved (in the slimmer now)
+                                                                      )
+        
+ToolSvc += InDetTrigTrackParticleCreatorToolFTK
+if (InDetTrigFlags.doPrintConfigurables()):
+  print InDetTrigTrackParticleCreatorToolFTK
+
+
+from FTK_DataProviderSvc.FTK_DataProviderSvcConf import FTK_UncertaintyTool
+TrigFTK_UncertaintyTool= FTK_UncertaintyTool(name="FTK_UncertaintyTool")
+ToolSvc+=TrigFTK_UncertaintyTool
+if (InDetTrigFlags.doPrintConfigurables()):
+  print TrigFTK_UncertaintyTool
+
+from TrigInDetConf.TrigInDetRecVtxTools import InDetTrigVxEdmCnv  
+from FTK_RecTools.FTK_RecToolsConf import FTK_VertexFinderTool
+TrigFTK_RawVertexFinderTool=  FTK_VertexFinderTool(name="FTK_RawVertexFinderTool",
+                                                   VertexInternalEdmFactory=InDetTrigVxEdmCnv)
+ToolSvc+=TrigFTK_RawVertexFinderTool
+if (InDetTrigFlags.doPrintConfigurables()):
+  print TrigFTK_RawVertexFinderTool

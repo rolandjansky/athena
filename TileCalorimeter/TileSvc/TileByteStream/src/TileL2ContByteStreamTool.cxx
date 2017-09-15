@@ -24,6 +24,7 @@
 
 // Tile includes
 #include "TileByteStream/TileL2ContByteStreamTool.h"
+#include "TileByteStream/TileROD_Decoder.h"
 #include "TileByteStream/TileROD_Encoder.h"
 #include "TileEvent/TileContainer.h"
 #include "TileEvent/TileL2.h"
@@ -46,7 +47,11 @@ const InterfaceID& TileL2ContByteStreamTool::interfaceID() {
 
 TileL2ContByteStreamTool::TileL2ContByteStreamTool(const std::string& type, const std::string& name,
     const IInterface* parent)
-    : AthAlgTool(type, name, parent), m_verbose(false) {
+  : AthAlgTool(type, name, parent)
+  , m_tileHWID(0)
+  , m_hid2re(0)
+  , m_verbose(false)
+{
   declareInterface<TileL2ContByteStreamTool>(this);
   declareProperty("DoFragTypeMu", m_doFragTypeMu = true);
   declareProperty("DoFragTypeEt", m_doFragTypeEt = true);
@@ -59,24 +64,15 @@ TileL2ContByteStreamTool::~TileL2ContByteStreamTool() {
 
 StatusCode TileL2ContByteStreamTool::initialize() {
 
+  ATH_MSG_INFO ("Initializing TileL2ContByteStreamTool");
+
   CHECK( detStore()->retrieve(m_tileHWID, "TileHWID") );
 
-  m_hid2re.setTileHWID(m_tileHWID);
-  m_fea.idMap().setTileHWID(m_tileHWID);
-  /*
-   IProperty* propertyServer(0);
-   sc = serviceLocator()->service("TileROD_Decoder", propertyServer);
-   if (sc.isSuccess() ) {
+  ToolHandle<TileROD_Decoder> dec("TileROD_Decoder");
+  CHECK( dec.retrieve() );
 
-   bool boolProp;
-   BooleanProperty boolProperty("VerboseOutput",boolProp);
+  m_hid2re = dec->getHid2reHLT();
 
-   sc = propertyServer->getProperty(&boolProperty);
-   if (sc.isSuccess()) {
-   m_verbose = boolProperty.value();
-   }
-   }
-   */
   return StatusCode::SUCCESS;
 }
 
@@ -89,7 +85,6 @@ StatusCode TileL2ContByteStreamTool::convert(TileL2Container* cont,
     FullEventAssembler<TileHid2RESrcID> *fea) {
 
   //fea->clear(); 
-  // m_fea.idMap().setTileHWID(m_tileHWID);
 
   FullEventAssembler<TileHid2RESrcID>::RODDATA* theROD;
   TileL2Container::const_iterator it_cont = cont->begin();
@@ -104,7 +99,7 @@ StatusCode TileL2ContByteStreamTool::convert(TileL2Container* cont,
 
     int frag_id = (*it_cont)->identify();
 
-    uint32_t reid = m_hid2re.getRodID(frag_id);
+    uint32_t reid = m_hid2re->getRodID(frag_id);
     mapEncoder[reid].setTileHWID(m_tileHWID, m_verbose, 0x12);
 
     const TileL2* l2 = *it_cont;

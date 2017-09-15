@@ -21,16 +21,5 @@ The MdtCalibInterfaces package provides the following abstract interfaces:
 - MuonCalib::IMdtSegmentSelector: Interface class for MdtSegmentSelectors
 - MuonCalib::IMdtCalibDBTool: interface class for Tools accessing conditions DB 
 
-@ref used_MdtCalibInterfaces
                                                                                 
-@ref requirements_MdtCalibInterfaces
 */
-                                                                                
-/**
-@page used_MdtCalibInterfaces Used Packages
-*/
-                                                                                
-/**
-@page requirements_MdtCalibInterfaces Requirements
-*/
-

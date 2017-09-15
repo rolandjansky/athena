@@ -72,7 +72,8 @@ PixelRecoDbTool::PixelRecoDbTool(const std::string& type,
 
 //================ Address update =============================================
 // What is this stuff ???
-StatusCode PixelRecoDbTool::updateAddress(StoreID::type, SG::TransientAddress* tad)
+StatusCode PixelRecoDbTool::updateAddress(StoreID::type, SG::TransientAddress* tad,
+                                          const EventContext& /*ctx*/)
 { 
   CLID clid = tad->clID(); 
   std::string key = tad->name(); 

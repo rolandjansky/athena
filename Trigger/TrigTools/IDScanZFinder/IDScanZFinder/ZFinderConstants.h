@@ -27,8 +27,6 @@
 #include "CLHEP/Units/PhysicalConstants.h"
 
 
-using namespace CLHEP;
-
 // z histogram range is [ -ZFinder_MaxZ, +ZFinder_MaxZ ]
 //const double ZFinder_MaxZ             = 800.0*millimeter; // this is now a property - jamie boyd 26 jan 2007...
 

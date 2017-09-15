@@ -72,7 +72,6 @@ private:
   PixelRawContByteStreamTool* m_PixelRawContBSTool;
 
   IByteStreamEventAccess* m_ByteStreamEventAccess; 
-  PixelRDO_Container* m_PixelRDO_Container ; 
 
   StoreGateSvc* m_StoreGate;
 

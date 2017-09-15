@@ -451,7 +451,6 @@ void PixelRodEncoder::fillROD(std::vector<uint32_t>& v32rod, MsgStream& log, int
 	rdo_same_it_end = rdos_sameIBL_offlineId.end();
 
 	VRDO::iterator rdo_test_it = rdos_sameIBL_offlineId.begin();
-	VRDO::iterator rdo_test_it_end = rdos_sameIBL_offlineId.end();
 #ifdef PIXEL_DEBUG
 	log << MSG::VERBOSE << "Looking for adjacent pixels and saving col, row and tot information." << endmsg;
 #endif

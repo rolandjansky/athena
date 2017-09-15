@@ -82,16 +82,6 @@ after the detector performance in the 2004 combined test beam.
   - TRTNoise: Together with @c TRTElectronicsNoise, this controls the
                          simulation of electronics noise.
 
-@ref used_Package
 
-@ref requirements_TRT_Digitization
 
-*/
-
-/**
-@page used_Package Used Packages
-*/
-
-/**
-@page requirements_TRT_Digitization Requirements
 */

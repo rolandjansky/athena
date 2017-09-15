@@ -15,10 +15,6 @@ JetTaggingTagTools contains the following tools:
 
 - for questions and comments: ketevi@bnl.gov
 
-@section JetTaggingTagTools_used_packagesJetTaggingTagTools Used packages
 
-@section JetTaggingTagTools_requirementsJetTaggingTagTools Requirements
 
 */
-
-

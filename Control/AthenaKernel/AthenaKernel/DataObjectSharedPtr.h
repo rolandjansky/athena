@@ -53,6 +53,9 @@ public:
   template <class U>
   DataObjectSharedPtr (const DataObjectSharedPtr<U>& rhs)
     : Base (rhs) {}
+
+  // Avoid coverity warning.
+  DataObjectSharedPtr& operator= (const DataObjectSharedPtr& rhs) = default;
 };
 
 

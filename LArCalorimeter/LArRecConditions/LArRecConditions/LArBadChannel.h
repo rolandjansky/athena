@@ -65,6 +65,8 @@ class  LArBadChannel : public LArBadChannelEnum {
   bool operator==(BitWord other) {return m_word == other;}
   bool operator==(LArBadChannel other) {return m_word == other.packedData();}
 
+  LArBadChannel& operator|=(LArBadChannel other) {m_word|=other.m_word; return *this;}
+
   BitWord packedData() const {return m_word;}
 
  private:

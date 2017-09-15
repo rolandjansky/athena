@@ -1,4 +1,4 @@
-include.block("LArRecConditions/LArOnOffMappingAlg.py")
+include.block("LArRecUtils/LArOnOffMappingAlg.py")
 
 from IOVDbSvc.CondDB import conddb
 conddb.addFolder("LAR","/LAR/Identifier/OnOffIdMap",className="AthenaAttributeList")

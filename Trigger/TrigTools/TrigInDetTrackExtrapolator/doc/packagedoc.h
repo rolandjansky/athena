@@ -31,4 +31,3 @@ radius Rcalo and half-length of Zcalo, returns phiC, etaC - coordinates of the t
 the calo surface.
 
 */  
-

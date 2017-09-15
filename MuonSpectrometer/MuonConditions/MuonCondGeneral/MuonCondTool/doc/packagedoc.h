@@ -24,16 +24,5 @@ Both tools register a callback to update in the TDS the data objetcs
   virtual StatusCode loadTubeStatus(IOVSVC_CALLBACK_ARGS);
 
                                                                         
-@ref used_MuonCondTool
                                                                                 
-@ref requirements_MuonCondTool
 */
-                                                                                
-/**
-@page used_MuonCondTool Used Packages
-*/
-                                                                                
-/**
-@page requirements_MuonCondTool Requirements
-*/
- 

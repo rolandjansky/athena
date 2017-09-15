@@ -36,16 +36,4 @@ This package is not built as any library, it is a simple include package.
 
 @section MuonCombinedToolInterfaces_ExtrasMuCombToolInterfaces Extra Pages
 
- - @ref UsedMuCombToolInterfaces
- - @ref requirementsMuCombToolInterfaces
 */
-
-/**
-@page UsedMuCombToolInterfaces Used Packages
-*/
-
-/**
-@page requirementsMuCombToolInterfaces Requirements
-*/
-
-

@@ -14,16 +14,6 @@ The TrigLoFRemoval is accessing the EF jet collection and the cal cell container
 It saves the cells associated in PHI with the leading jets for LoF removal in the HYPO
 algorithm TrigLongLivedParticlesHypo/LoFRemovalHypo.h 
 
-@ref used_TrigEFLongLivedParticles
 
-@ref requirements_TrigEFLongLivedParticles
 
-*/
-
-/**
-@page used_TrigEFLongLivedParticles Used Packages
-*/
-
-/**
-@page requirements_TrigEFLongLivedParticles Requirements
 */

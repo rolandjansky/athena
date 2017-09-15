@@ -32,6 +32,14 @@
 #
 #==============================================================
 
+import os
+if not os.path.exists ('test_defl.data'):
+    fname = "/afs/cern.ch/atlas/offline/test/daq.m4_combined.0020720.extract.L1TT-b00000010._0001.data"
+    if not os.path.exists (fname) and os.environ.has_key('ATLAS_REFERENCE_DATA'):
+        fname = os.environ['ATLAS_REFERENCE_DATA'] + "/bstest/daq.m4_combined.0020720.extract.L1TT-b00000010._0001.data"
+    os.system ('AtlCopyBSEvent.exe -d -e 14350,14356,14382 -o test_defl.data ' + fname)
+
+
 ## basic job configuration
 import AthenaCommon.AtlasUnixStandardJob
 

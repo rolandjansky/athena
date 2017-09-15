@@ -70,7 +70,7 @@ class SCT_DetailedSurfaceChargesGenerator : public AthAlgTool, virtual public IS
   /** AlgTool finalize */
   virtual StatusCode finalize();
 
-private:
+ private:
 
   void setComTime(float comTime)                                 {m_comTime = comTime;} 
   void setFixedTime(float fixedTime)                             {m_tfix = fixedTime;} 
@@ -189,7 +189,7 @@ private:
   double m_stripCharge_dy;
   
   //ToolHandles
-  ToolHandle<ISCT_ModuleDistortionsTool> m_distortionsTool;
+  ToolHandle<ISCT_ModuleDistortionsTool> m_distortionsTool{this, "SCTDistortionsTool", "SCT_DistortionsTool", "Tool to retrieve SCT distortions"};
   //ServiceHandles
   ServiceHandle<ISiliconConditionsSvc> m_siConditionsSvc;
   ServiceHandle<ISiPropertiesSvc> m_siPropertiesSvc;
@@ -202,6 +202,3 @@ private:
 };
 
 #endif // SCT_DETAILEDSURFACECHARGESGENERATOR_H
-
-
- 

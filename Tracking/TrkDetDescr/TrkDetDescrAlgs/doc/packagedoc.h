@@ -27,7 +27,6 @@ the TrackingGeometry.
 @section TrkDetDescrAlgs_TrkDetDescrToolsIntro Introduction
 
 
-@section TrkDetDescrAlgs_TrkDetDescrToolsReq Requirements
 
 
 */

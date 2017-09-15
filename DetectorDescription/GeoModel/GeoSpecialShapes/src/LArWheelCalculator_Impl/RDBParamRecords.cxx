@@ -15,19 +15,16 @@ RDBParamRecords::RDBParamRecords(RDBParamReader* rdbParAcc, IRDBRecordset_ptr in
 	m_rdbParAcc(rdbParAcc),
 	m_RecSet(initRecSet)
 {
-	m_rdbParAcc->acquire();
 }
 
 RDBParamRecords::RDBParamRecords(const RDBParamRecords& other)
   : m_rdbParAcc (other.m_rdbParAcc),
     m_RecSet (other.m_RecSet)
 {
-  m_rdbParAcc->acquire();
 }
 
 
 RDBParamRecords::~RDBParamRecords() {
-	m_rdbParAcc->release();
 }
 
 RDBParamRecords::self_t & RDBParamRecords::fallback_to(const std::string& node, const std::string& tag, const std::string& tag2node) {

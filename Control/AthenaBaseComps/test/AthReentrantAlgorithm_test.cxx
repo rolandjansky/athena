@@ -175,10 +175,10 @@ void test1 (ISvcLocator* svcLoc)
   assert (pdict == xdict);
 
   DataObjIDColl exp = {
-    { ClassID_traits<AthenaBaseCompsTest::MyObj>::ID(), "eee" },
-    { ClassID_traits<AthenaBaseCompsTest::MyBase>::ID(), "eee" },
-    { ClassID_traits<AthenaBaseCompsTest::MyObj>::ID(), "zzz.rrr" },
-    { ClassID_traits<AthenaBaseCompsTest::MyBase>::ID(), "zzz.rrr" },
+    { ClassID_traits<AthenaBaseCompsTest::MyObj>::ID(), "BarSvc+eee" },
+    { ClassID_traits<AthenaBaseCompsTest::MyBase>::ID(), "BarSvc+eee" },
+    { ClassID_traits<AthenaBaseCompsTest::MyObj>::ID(), "StoreGateSvc+zzz.rrr" },
+    { ClassID_traits<AthenaBaseCompsTest::MyBase>::ID(), "StoreGateSvc+zzz.rrr" },
   };
   if (exp != alg.outputDataObjs()) {
     for (const DataObjID& o : alg.outputDataObjs()) {
@@ -267,7 +267,8 @@ void test2 (ISvcLocator* svcLoc)
 int main()
 {
   ISvcLocator* svcLoc = nullptr;
-  Athena_test::initGaudi ("propertyHandling_test.txt", svcLoc);
+  if (!Athena_test::initGaudi ("propertyHandling_test.txt", svcLoc))
+    return 1;
 
   test1 (svcLoc);
   test2 (svcLoc);

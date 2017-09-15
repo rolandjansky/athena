@@ -5,7 +5,7 @@
 #undef NDEBUG
 
 #include "SGTools/safe_clid.h"
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "GaudiKernel/DataObject.h"
 #include <cassert>
 

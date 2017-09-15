@@ -16,18 +16,6 @@ the trigger LVL2 for taus. It builds a set of shower shape variables
 to discriminate jet and taus.
 Deposited energy is available in 3 different window sizes for all sampling.
 
-@ref used_TrigT2CaloTau
-
-@ref requirements_TrigT2CaloTau
-
-*/
-
-/**
-@page used_TrigT2CaloTau Used Packages
-*/
-
-/**
-@page requirements_TrigT2CaloTau Requirements
 
 
 */

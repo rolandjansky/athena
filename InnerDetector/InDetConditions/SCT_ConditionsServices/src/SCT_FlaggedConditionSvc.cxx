@@ -16,7 +16,7 @@
 SCT_FlaggedConditionSvc::SCT_FlaggedConditionSvc( const std::string& name, ISvcLocator* pSvcLocator ): 
   AthService(name, pSvcLocator),
   m_filled(false),
-  m_badIds{nullptr},
+  m_badIds{},
   m_detStore("DetectorStore", name),
   m_sctID{nullptr}
 {/* Do nothing */}
@@ -36,9 +36,6 @@ StatusCode SCT_FlaggedConditionSvc::initialize(){
     incsvc->addListener( this, "BeginEvent", priority);
   }
 
-  // Allocate memory for map of bad IDs
-  m_badIds = new std::map <IdentifierHash, std::string>;
-
   // Retrieve SCT helper
   if (m_detStore->retrieve(m_sctID,"SCT_ID").isFailure()) 
     return  msg(MSG:: ERROR) << "SCT helper failed to retrieve" << endmsg, StatusCode::FAILURE;
@@ -50,7 +47,6 @@ StatusCode SCT_FlaggedConditionSvc::initialize(){
 StatusCode SCT_FlaggedConditionSvc::finalize(){
   StatusCode sc(StatusCode::SUCCESS);
   msg(MSG::INFO) << "SCT_FlaggedConditionSvc::finalize()" << endmsg;
-  delete m_badIds;
   return sc;
 }
 
@@ -71,7 +67,7 @@ StatusCode SCT_FlaggedConditionSvc::queryInterface(const InterfaceID& riid, void
 
 // Clear list of bad IDs (called at begin event)
 void SCT_FlaggedConditionSvc::resetBadIds() {
-  m_badIds->clear();
+  m_badIds.clear();
 }
 
 // Handle BeginEvent incident and call reset function
@@ -93,12 +89,12 @@ bool SCT_FlaggedConditionSvc::isGood(const Identifier& elementId, InDetCondition
 
 // Is this element good (by IdentifierHash)?
 bool SCT_FlaggedConditionSvc::isGood(const IdentifierHash& hashId){
-  return (m_badIds->find(hashId) == m_badIds->end());;
+  return (m_badIds.find(hashId) == m_badIds.end());;
 }
 
 // Flag a wafer as bad (by IdentifierHash) with a reason
 bool SCT_FlaggedConditionSvc::flagAsBad(const IdentifierHash& hashId, const std::string& source) {
-  return m_badIds->insert(make_pair(hashId, source)).second;
+  return m_badIds.insert(make_pair(hashId, source)).second;
 }
 
 // Flag a wafer as bad (by Identifier) with a reason
@@ -110,9 +106,9 @@ bool SCT_FlaggedConditionSvc::flagAsBad(const Identifier& Id, const std::string&
 // Retrieve the reason why the wafer is flagged as bad (by IdentifierHash)
 // If wafer is not found return a null string
 const std::string& SCT_FlaggedConditionSvc::details(const IdentifierHash& hashId) const {
-  std::map<IdentifierHash, std::string>::const_iterator itr(m_badIds->find(hashId)); 
+  std::map<IdentifierHash, std::string>::const_iterator itr(m_badIds.find(hashId)); 
   static const std::string nullString;
-  return ((itr != m_badIds->end()) ? (*itr).second : nullString);
+  return ((itr != m_badIds.end()) ? (*itr).second : nullString);
 }
 
 // Retrieve the reason why the wafer is flagged as bad (by Identifier)

@@ -50,15 +50,15 @@ namespace MagField {
       virtual ~AtlasFieldSvc();
 
       /** Athena algorithm's interface methods */
-      StatusCode  initialize();
-      StatusCode  finalize();
+      virtual StatusCode  initialize() override;
+      virtual StatusCode  finalize() override;
 
       /** Read **/
-      void handle(const Incident& runIncident);
+      virtual void handle(const Incident& runIncident) override;
 
       /** Query the interfaces **/
-      StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
-
+      virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface ) override;
+     
       /** Call back for possible magnet current update **/
       StatusCode updateCurrent(IOVSVC_CALLBACK_ARGS);
 

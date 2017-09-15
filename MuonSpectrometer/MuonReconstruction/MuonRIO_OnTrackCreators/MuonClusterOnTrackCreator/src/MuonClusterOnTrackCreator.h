@@ -86,7 +86,6 @@ namespace Muon {
     // Private data:
     // /////////////////////////////////////////////////////////////////
 
-    const MuonGM::MuonDetectorManager*   m_muonMgr;          // Muon GeoModel
     ToolHandle<Trk::IRIO_OnTrackErrorScalingTool>   m_errorScalingTool;
     ToolHandle<Muon::MuonIdHelperTool>   m_idHelper;
     bool                                 m_scaleCscCov;

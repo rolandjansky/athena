@@ -36,7 +36,9 @@ namespace PyAthena {
   std::string str (PyObject* o);
 
   /// call the python method
-  StatusCode callPyMethod( PyObject* self , const char* method );
+  StatusCode callPyMethod( PyObject* self,
+                           const char* method,
+                           PyObject* arg = nullptr );
 
   /// query interface binding
   StatusCode queryInterface( PyObject* self,

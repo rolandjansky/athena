@@ -30,15 +30,4 @@ extensions to handle material effects in the ATLAS tracking EDM
 
 @section TrkMaterialOnTrack_ExtrasTrkMaterialOnTrack Extra Pages
 
- - @ref UsedTrkMaterialOnTrack
- - @ref RequirementsTrkMaterialOnTrack
 */
-
-/**
-@page UsedTrkMaterialOnTrack Used Packages
-*/
-
-/**
-@page RequirementsTrkMaterialOnTrack Requirements
-*/
-

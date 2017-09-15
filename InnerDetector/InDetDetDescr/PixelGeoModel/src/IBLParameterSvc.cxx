@@ -92,7 +92,6 @@ StatusCode IBLParameterSvc::setIblParameters() {
      msg(MSG::FATAL) << "Could not locate RDBAccessSvc" << endmsg;
      return (StatusCode::FAILURE); 
   } 
-  m_rdbAccessSvc->connect();
   IRDBRecordset_ptr switchSet = m_rdbAccessSvc->getRecordsetPtr("PixelSwitches", versionKey.tag(), versionKey.node());
   const IRDBRecord    *switchTable   = (*switchSet)[0];
   std::string versionName("");
@@ -129,7 +128,6 @@ StatusCode IBLParameterSvc::setIblParameters() {
 		for (int i =0; i < 4; i++) m_LayerFEsPerHalfModule.push_back(m_LayerFEsPerHalfModule_3d);
 	}
   }
-  m_rdbAccessSvc->disconnect();
   return StatusCode::SUCCESS;
 } 
 

@@ -1,4 +1,7 @@
 #!/bin/env python
+
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
 # TileCalibBlobPython_writeOfc.py
 # Nils Gollub <nils.gollub@cern.ch>, 2007-11-19
 # change: Yuri Smirnov <iouri.smirnov@cern.ch>, 2014-12-24
@@ -55,7 +58,7 @@ folderMode = cool.FolderVersioning.SINGLE_VERSION
 folderSpec = cool.FolderSpecification(folderMode, spec)
 
 #=== loop over all input files
-for fileName in ofcFiles:
+for fileName in [ofcFiles[0]]:
     log.info( "Reading file: %s" % fileName )
 
     #=== determine COOL folder from input file name
@@ -83,9 +86,9 @@ for fileName in ofcFiles:
             #=== for all channels
             drawerOfc = g.TileCalibDrawerOfc.getInstance(blob,objVersion,7,-2001,1,2)
             #=== set phases as ints: phase[ns] * 10
-            phases = g.std.vector('int')()
+            phases = g.std.vector('float')()
             for phase in xrange(-1000,1001):
-                phases.push_back(int(phase))
+                phases.push_back(phase/10.)
             drawerOfc.setPhases(0,0,phases);
     
             #=== read file and fill OFCs
@@ -99,20 +102,21 @@ for fileName in ofcFiles:
                 #=== check for consistency
                 if phase>1000:
                     raise ("Phase out of range: %i" % phase)
+                phaseF=phase/10.
 
                 ofc = line.split()
                 #=== fill OFCs depending on OF version number
                 if objVersion==1:
                     if len(ofc)!=3: raise ("OF1, but len(ofc)=%i" % len(ofc))
-                    drawerOfc.setOfc(drawerOfc.FieldA,channel,adc,phase,sample,float(ofc[0]))
-                    drawerOfc.setOfc(drawerOfc.FieldB,channel,adc,phase,sample,float(ofc[1]))
-                    drawerOfc.setOfc(drawerOfc.FieldG,channel,adc,phase,sample,float(ofc[2]))
+                    drawerOfc.setOfc(drawerOfc.FieldA,channel,adc,phaseF,sample,float(ofc[0]))
+                    drawerOfc.setOfc(drawerOfc.FieldB,channel,adc,phaseF,sample,float(ofc[1]))
+                    drawerOfc.setOfc(drawerOfc.FieldG,channel,adc,phaseF,sample,float(ofc[2]))
                 elif objVersion==2:
                     if len(ofc)!=4: raise ("OF2, but len(ofc)=%i" % len(ofc))
-                    drawerOfc.setOfc(drawerOfc.FieldA,channel,adc,phase,sample,float(ofc[0]))
-                    drawerOfc.setOfc(drawerOfc.FieldB,channel,adc,phase,sample,float(ofc[1]))
-                    drawerOfc.setOfc(drawerOfc.FieldC,channel,adc,phase,sample,float(ofc[2]))
-                    drawerOfc.setOfc(drawerOfc.FieldG,channel,adc,phase,sample,float(ofc[3]))
+                    drawerOfc.setOfc(drawerOfc.FieldA,channel,adc,phaseF,sample,float(ofc[0]))
+                    drawerOfc.setOfc(drawerOfc.FieldB,channel,adc,phaseF,sample,float(ofc[1]))
+                    drawerOfc.setOfc(drawerOfc.FieldC,channel,adc,phaseF,sample,float(ofc[2]))
+                    drawerOfc.setOfc(drawerOfc.FieldG,channel,adc,phaseF,sample,float(ofc[3]))
                 else:
                     raise ("Impossible objVersion: %i" % objVersion)
 

@@ -125,14 +125,14 @@ public:
    * @param bool variable whether HT hits shoule be used
    * @return nHits
    */
-  double usedHits(const Trk::Track* track, EGasType& gasType, bool DivideByL, bool useHThits) const;
+  double usedHits(const Trk::Track* track, bool DivideByL, bool useHThits) const;
 
   /**
    * @brief function to calculate number of used hits
    * @param track pointer
    * @return nHits
    */
-  double usedHits(const Trk::Track* track, EGasType& gasType) const;
+  double usedHits(const Trk::Track* track) const;
 
   /** 
    * @brief function to define what is a good hit to be used for dEdx calculation
@@ -151,7 +151,7 @@ public:
    * @param number of primary vertices per event
    * @return scaling variable
    */
-  double correctNormalization(bool divideLength, bool scaledata, EGasType& gasType, double nVtx=-1) const;
+  double correctNormalization(bool divideLength, bool scaledata, double nVtx=-1) const;
 
   /**
    * @brief function to calculate likelihood from prediction and resolution
@@ -174,8 +174,8 @@ public:
    * @param number of used hits
    * @return test value between 0 and 1
    */
-  double getTest(EGasType gasType, const double dEdx_obs, const double pTrk, Trk::ParticleHypothesis hypothesis, Trk::ParticleHypothesis antihypothesis, int nUsedHits) const;
-  double getTest(EGasType gasType, const double dEdx_obs, const double pTrk, Trk::ParticleHypothesis hypothesis, Trk::ParticleHypothesis antihypothesis, int nUsedHits, bool dividebyL) const;
+  double getTest(const double dEdx_obs, const double pTrk, Trk::ParticleHypothesis hypothesis, Trk::ParticleHypothesis antihypothesis, int nUsedHits) const;
+  double getTest(const double dEdx_obs, const double pTrk, Trk::ParticleHypothesis hypothesis, Trk::ParticleHypothesis antihypothesis, int nUsedHits, bool dividebyL) const;
 
   /**
    * @brief function to calculate expectation value for dEdx using BB fit

@@ -196,7 +196,7 @@ namespace Muon {
     mutable std::map <const Trk::PrepRawData*, std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess> >* m_phietahitassociation;
 
     /** histogram file for studies on weighting (only in use, when m_use_histos is true) */
-    TFile* f_file;
+    TFile* m_file;
     /** all hits histograms for studies on weighting (only in use, when m_use_histos is true) */
     TH1F* m_weighthistogram;
     /** mdt histogram */

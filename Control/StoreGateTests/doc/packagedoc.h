@@ -25,16 +25,6 @@ A typical test job consists of these 2 algorithms chained together in the topSeq
   The tests can be run via the @c share/test_sgProducerConsumer_jobOptions.py file which will run in sequence the @c SgStressProducer and the @c SgStressConsumer algorithms. Performance data will be gathered during the job by the @c PerfMonSvc and saved into a tuple.
 This tuple can be analyzed later on by the @c perfmon.py script provided by the performance toolbox (see @ref PerfMonSvc)
 
-@ref used_StoreGateTests
 
-@ref requirements_StoreGateTests
 
-*/
-
-/**
-@page used_StoreGateTests Used Packages
-*/
-
-/**
-@page requirements_StoreGateTests Requirements
 */

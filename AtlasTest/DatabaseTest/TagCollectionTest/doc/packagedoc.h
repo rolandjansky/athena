@@ -207,15 +207,4 @@ http://atlassw1.phy.bnl.gov/lxr/source/atlas/AtlasTest/TestTools/scripts/nightli
 
 @section TagCollectionTest_ExtraPages Extra Pages
 
- - @ref UsedPackagesTagCollectionTest
- - @ref RequirementsTagCollectionTest
 */
-
-/**
-@page UsedPackagesTagCollectionTest Used Packages
-*/
-
-/**
-@page RequirementsTagCollectionTest Requirements 
-*/
-

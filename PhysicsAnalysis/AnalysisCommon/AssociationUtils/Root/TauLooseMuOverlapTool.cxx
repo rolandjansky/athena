@@ -12,7 +12,6 @@ namespace
 {
   /// Unit conversion constants
   const float GeV = 1e3;
-  const float invGeV = 1e-3;
 }
 
 namespace ORUtils

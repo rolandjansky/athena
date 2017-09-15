@@ -29,17 +29,6 @@ MuonHitRelocation - runs on SimHit files; gets the local_position of the hit and
                     Residuals are <0.1microns for samples of geantino's hits generated from a fixed IP.
 
 
-@ref used_MuonGeoModelTest
 
-@ref requirements_MuonGeoModelTest
 
 */
-
-/**
-@page used_MuonGeoModelTest Used Packages
-*/
-
-/**
-@page requirements_MuonGeoModelTest Requirements
-*/
-

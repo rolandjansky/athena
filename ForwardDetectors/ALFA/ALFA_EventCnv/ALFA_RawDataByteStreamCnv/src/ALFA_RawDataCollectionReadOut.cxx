@@ -33,8 +33,8 @@ void ALFA_RawDataCollectionReadOut::decodeWord(uint32_t dataWord)
 
   m_dataWord   = dataWord;
   m_word       = dataWord;
-  m_wordHeader = (dataWord>>headerPos) & headerBits;
-  m_wordHeader2 = (dataWord>>headerPos2) & headerBits2;
+  m_wordHeader = (dataWord>>s_headerPos) & s_headerBits;
+  m_wordHeader2 = (dataWord>>s_headerPos2) & s_headerBits2;
 
   if (is_BOB())
     {

@@ -39,7 +39,6 @@ The package contains the following main classes:
  - TRTParameterInterface: %Base class for Interface to primary numbers.
  - TRT_DetDescrDB_ParameterInterface: Interface to primary numbers from the Detector Description Database.
 
-@section TRT_GeoModel_TRT_GeoModelReq Requirements
 
 
 

@@ -23,15 +23,5 @@ trees.
 
 @section CscClusterPerformance_AdditionalCscClusterPerformance Additional information
 
- - @ref UsedCscClusterPerformance
- - @ref RequirementsCscClusterPerformance
  - <a href=https://twiki.cern.ch/twiki/bin/view/Atlas/CscReconstruction>CSC reconstruction overview</a>
-*/
-
-/**
-@page UsedCscClusterPerformance Used packages
-*/
-
-/**
-@page RequirementsCscClusterPerformance Requirements
 */

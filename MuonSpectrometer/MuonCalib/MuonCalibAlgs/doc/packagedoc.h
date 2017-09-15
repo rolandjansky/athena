@@ -16,17 +16,6 @@ The MuonCalibAlgs package contains the following class
 
 - MuonCalib::MuonCalibAlg: ATHENA Algorithm retrieving the 'ingredients' to construct a MuonCalibEvent from storegate and passing them to a calibration tool. See the MuonCalibEvent class description for the content of a MuonCalibEvent.
 
-@ref used_MuonCalibAlgs
 
-@ref requirements_MuonCalibAlgs
 
 */
-
-/**
-@page used_MuonCalibAlgs Used Packages
-*/
-
-/**
-@page requirements_MuonCalibAlgs Requirements
-*/
-

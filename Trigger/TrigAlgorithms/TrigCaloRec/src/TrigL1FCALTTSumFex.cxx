@@ -64,7 +64,7 @@ HLT::ErrorCode TrigL1FCALTTSumFex::hltExecute(
        const xAOD::TriggerTower* tt = container->at(i);
        double etaTower = tt->eta();
        count_all++;
-       if ( fabsf(etaTower) < 3.1 ) continue;
+       if ( std::abs(etaTower) < 3.1 ) continue;
        count_fcal++;
        if ( etaTower > 0 ) {
 	if ( etaTower < eta_min_pos ) eta_min_pos = etaTower;

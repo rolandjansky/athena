@@ -188,7 +188,6 @@ void LArHVToolMC::InitHV()
     if(!setHandcoded)
     {
      // retrieve the payload data
-     pAccessSvc->connect("LARHV");
      IRDBRecordset_ptr hvGlob = pAccessSvc->getRecordsetPtr("HVBarrelGlob",tagName,nodeName,"LARHV");
 
      if(hvGlob->size()>0)
@@ -236,7 +235,6 @@ void LArHVToolMC::InitHV()
                     << "Eta Reg  = " << nEtaReg << "\n"
                     << "Gap Side = " << nGapSide << "\n";
       }
-      pAccessSvc->disconnect("LARHV");
     }
 
   }

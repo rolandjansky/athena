@@ -1,6 +1,6 @@
 
 from G4AtlasApps.SimFlags import simFlags
-simFlags.OptionalUserActionList.addAction('G4UA::SG_StepNtupleTool',['BeginOfRun','BeginOfEvent','EndOfEvent','Step'])
+simFlags.OptionalUserActionList.addAction('G4UA::SG_StepNtupleTool',['Run','Event','Step'])
 
 
 theApp.HistogramPersistency = "ROOT"

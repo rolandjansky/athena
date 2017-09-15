@@ -71,15 +71,4 @@ Trk::TrackExtensionMap and with any type of track fitter.
 
 @section InDetExtensionProcessor_ExtrasInDetExtensionProcessor Extra Pages
 
- - @ref UsedInDetExtensionProcessor
- - @ref RequirementsInDetExtensionProcessor
 */
-
-/**
-@page UsedInDetExtensionProcessor Used Packages
-*/
-
-/**
-@page RequirementsInDetExtensionProcessor Requirements
-*/
-

@@ -4,26 +4,33 @@ from AthenaCommon import CfgMgr, Logging
 from G4AtlasServices import G4AtlasServicesConfig
 
 def getVerboseSelectorTool(name="G4UA::VerboseSelectorTool", **kwargs):
-    from G4DebuggingTools.G4DebuggingToolsConf import G4UA__VerboseSelectorTool
-    return G4UA__VerboseSelectorTool(name, **kwargs)
+    from G4AtlasApps.SimFlags import simFlags
+    # example custom configuration
+    if name in simFlags.UserActionConfig.get_Value().keys():
+        for prop,value in simFlags.UserActionConfig.get_Value()[name].iteritems():
+            kwargs.setdefault(prop,value)
+    return CfgMgr.G4UA__VerboseSelectorTool(name, **kwargs)
+
 
 def addVerboseSelectorTool(name="G4UA::VerboseSelectorTool",system=False):
-    G4AtlasServicesConfig.addAction(name,['BeginOfEvent','Step','BeginOfTracking','EndOfTracking'],system)
+    G4AtlasServicesConfig.addAction(name,['Event','Step','Tracking'],system)
+
 
 def getG4AtlantisDumperTool(name="G4UA::G4AtlantisDumperTool", **kwargs):
-    from G4DebuggingTools.G4DebuggingToolsConf import G4UA__G4AtlantisDumperTool
-    return G4UA__G4AtlantisDumperTool(name, **kwargs)
+    return CfgMgr.G4UA__G4AtlantisDumperTool(name, **kwargs)
+
 
 def addG4AtlantisDumperTool(name="G4UA::G4AtlantisDumperTool",system=False):
-    G4AtlasServicesConfig.addAction(name,['EndOfEvent','Step','BeginOfEvent'],system)
+    G4AtlasServicesConfig.addAction(name,['Event','Step','Event'],system)
 
 
 def getEnergyConservationTestTool(name="G4UA::EnergyConservationTestTool", **kwargs):
-    from G4DebuggingTools.G4DebuggingToolsConf import G4UA__EnergyConservationTestTool
-    return G4UA__EnergyConservationTestTool(name, **kwargs)
+    return CfgMgr.G4UA__EnergyConservationTestTool(name, **kwargs)
+
 
 def addEnergyConservationTestTool(name="G4UA::EnergyConservationTestTool",system=False):
-    G4AtlasServicesConfig.addAction(name,['EndOfEvent','Step','BeginOfTracking','EndOfTracking'],system)
+    G4AtlasServicesConfig.addAction(name,['Event','Step','Tracking'],system)
+
 
 def getHyperspaceCatcherTool(name="G4UA::HyperspaceCatcherTool", **kwargs):
     from G4AtlasApps.SimFlags import simFlags
@@ -31,12 +38,12 @@ def getHyperspaceCatcherTool(name="G4UA::HyperspaceCatcherTool", **kwargs):
     if name in simFlags.UserActionConfig.get_Value().keys():
         for prop,value in simFlags.UserActionConfig.get_Value()[name].iteritems():
             kwargs.setdefault(prop,value)
+    return CfgMgr.G4UA__HyperspaceCatcherTool(name, **kwargs)
 
-    from G4DebuggingTools.G4DebuggingToolsConf import G4UA__HyperspaceCatcherTool
-    return G4UA__HyperspaceCatcherTool(name, **kwargs)
 
 def addHyperspaceCatcherTool(name="G4UA::HyperspaceCatcherTool",system=False):
-    G4AtlasServicesConfig.addAction(name,['BeginOfRun','Step'],system)
+    G4AtlasServicesConfig.addAction(name,['Run','Step'],system)
+
 
 def getStepNtupleTool(name="G4UA::StepNtupleTool", **kwargs):
     from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps
@@ -46,9 +53,7 @@ def getStepNtupleTool(name="G4UA::StepNtupleTool", **kwargs):
         #from AthenaCommon.AppMgr import theApp
         #theApp.exit(1)
         return False
-
-    from G4DebuggingTools.G4DebuggingToolsConf import G4UA__StepNtupleTool
-    return G4UA__StepNtupleTool(name, **kwargs)
+    return CfgMgr.G4UA__StepNtupleTool(name, **kwargs)
 
 
 def getVolumeDebuggerTool(name="G4UA::VolumeDebuggerTool", **kwargs):
@@ -59,9 +64,8 @@ def getVolumeDebuggerTool(name="G4UA::VolumeDebuggerTool", **kwargs):
     if name in simFlags.UserActionConfig.get_Value().keys():
         for prop,value in simFlags.UserActionConfig.get_Value()[name].iteritems():
             kwargs.setdefault(prop,value)
+    return CfgMGr.G4UA__VolumeDebuggerTool(name, **kwargs)
 
-    from G4DebuggingTools.G4DebuggingToolsConf import G4UA__VolumeDebuggerTool
-    return G4UA__VolumeDebuggerTool(name, **kwargs)
 
 def getGeant4SetupCheckerTool(name="G4UA::Geant4SetupCheckerTool", **kwargs):
     # Set reference based on geometry
@@ -77,6 +81,5 @@ def getGeant4SetupCheckerTool(name="G4UA::Geant4SetupCheckerTool", **kwargs):
         for prop,value in simFlags.UserActionConfig.get_Value()[name].iteritems():
             kwargs.setdefault(prop,value)
     # Set up the user action
-    from G4DebuggingTools.G4DebuggingToolsConf import G4UA__Geant4SetupCheckerTool
-    return G4UA__Geant4SetupCheckerTool(name, **kwargs)
+    return CfgMgr.G4UA__Geant4SetupCheckerTool(name, **kwargs)
 

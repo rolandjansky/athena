@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// AthAlgorithm.h 
+// AthReentrantAlgorithm.h 
 // Header file for class AthReentrantAlgorithm
 // Author: Charles Leggett
 /////////////////////////////////////////////////////////////////// 
@@ -15,6 +15,23 @@
 // STL includes
 #include <string>
 #include <type_traits>
+
+// Need to do this very early so parser for VarHandleKey picked up
+#include <string>
+#include "GaudiKernel/StatusCode.h"
+namespace SG {
+  class VarHandleKey;
+  class VarHandleKeyArray;
+}
+namespace Gaudi {
+  namespace Parsers {
+    StatusCode parse(SG::VarHandleKey& v, const std::string& s);
+    StatusCode parse(SG::VarHandleKeyArray& v, const std::string& s);
+  }
+}
+
+
+
 
 // Framework includes
 #ifndef REENTRANT_GAUDI
@@ -161,6 +178,71 @@ class AthReentrantAlgorithm
 private:
   // to keep track of VarHandleKeyArrays for data dep registration
   mutable std::vector<SG::VarHandleKeyArray*> m_vhka;
+
+public:
+  /////////////////////////////////////////////////////////////////
+  //
+  //// Enable use of Gaudi::Property<Foo> m_foo {this,"NAME",init,"doc"};
+  //   style properties in AthReentrantAlgorithms
+  //
+
+  template <class T>
+  Property& declareProperty(Gaudi::Property<T> &t) {
+    return AthReentrantAlgorithm::declareGaudiProperty(t, 
+                                              std::is_base_of<SG::VarHandleKey, T>(),
+                                              std::is_base_of<SG::VarHandleKeyArray, T>()
+                                              );
+  }
+
+private:
+  /**
+   * @brief specialization for handling Gaudi::Property<SG::VarHandleKey>
+   *
+   */
+  template <class T>
+  Property& declareGaudiProperty(Gaudi::Property<T> &hndl, 
+                                 std::true_type, std::false_type) {
+
+    return *AthReentrantAlgorithm::declareProperty(hndl.name(), hndl.value(), hndl.documentation());
+
+  }
+
+  /**
+   * @brief specialization for handling Gaudi::Property<SG::VarHandleKeyArray>
+   *
+   */
+  template <class T>
+  Property& declareGaudiProperty(Gaudi::Property<T> &hndl, 
+                                 std::false_type, std::true_type) {
+
+    return *AthReentrantAlgorithm::declareProperty(hndl.name(), hndl.value(), hndl.documentation());
+
+  }
+
+  /**
+   * @brief Error: can't be both a VarHandleKey and VarHandleKeyArray
+   *
+   */
+  template <class T>
+  Property& declareGaudiProperty(Gaudi::Property<T> &t, std::true_type, std::true_type) {
+      ATH_MSG_ERROR("AthReentrantAlgorith::declareGaudiProperty: " << t 
+                    << " cannot be both a VarHandleKey and VarHandleKeyArray. "
+                    << "This should not happen!");
+      throw std::runtime_error("AthReentrantAlgorith::declareGaudiProperty: cannot be both a VarHandleKey and VarHandleKeyArray (this should not happen)!");
+    return Algorithm::declareProperty(t);
+  }
+
+
+
+  /**
+   * @brief specialization for handling everything that's not a
+   * Gaudi::Property<SG::VarHandleKey> or a <SG::VarHandleKeyArray>
+   *
+   */
+  template <class T>
+  Property& declareGaudiProperty(Gaudi::Property<T> &t, std::false_type, std::false_type) {
+    return Algorithm::declareProperty(t);
+  }
 
   /////////////////////////////////////////////////////////////////
   //
@@ -343,6 +425,8 @@ public:
 
   /// callback for output level property 
   void msg_update_handler(Property& outputLevel);
+  /// callback to add storeName to ExtraInputs/Outputs data deps
+  void extraDeps_update_handler(Property&);
 
   /////////////////////////////////////////////////////////////////// 
   // Private data: 

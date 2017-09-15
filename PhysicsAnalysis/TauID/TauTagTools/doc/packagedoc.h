@@ -16,10 +16,6 @@ TauTagTools contains the following tools:
 
 - for questions and comments: ketevi@bnl.gov
 
-@section TauTagTools_used_packagesTauTagTools Used packages
 
-@section TauTagTools_requirementsTauTagTools Requirements
 
 */
-
-

@@ -137,6 +137,17 @@ HistogramDefinitionSvc::nBinsY(const std::string& name, const std::string& dirNa
   return nbins;
 }
 
+unsigned int
+HistogramDefinitionSvc::nBinsZ(const std::string& name, const std::string& dirName) const {
+  unsigned int nbins(0);
+  const auto pthisHistoPair(m_histoDefMap.find(SingleHistogramDefinition::stringIndex(name, dirName)));
+
+  if (pthisHistoPair != m_histoDefMap.end()) {
+    nbins = pthisHistoPair->second.nBinsZ;
+  }
+  return nbins;
+}
+
 IHistogramDefinitionSvc::axesLimits_t
 HistogramDefinitionSvc::xLimits(const std::string& name, const std::string& dirName) const {
   axesLimits_t result(invalidLimits);
@@ -159,6 +170,17 @@ HistogramDefinitionSvc::yLimits(const std::string& name, const std::string& dirN
   return result;
 }
 
+IHistogramDefinitionSvc::axesLimits_t
+HistogramDefinitionSvc::zLimits(const std::string& name, const std::string& dirName) const {
+  axesLimits_t result(invalidLimits);
+  const auto pthisHistoPair(m_histoDefMap.find(SingleHistogramDefinition::stringIndex(name, dirName)));
+
+  if (pthisHistoPair != m_histoDefMap.end()) {
+    result = pthisHistoPair->second.zAxis;
+  }
+  return result;
+}
+
 std::string
 HistogramDefinitionSvc::xTitle(const std::string& name, const std::string& dirName) const {
   std::string result {};
@@ -176,6 +198,16 @@ HistogramDefinitionSvc::yTitle(const std::string& name, const std::string& dirNa
   const auto pthisHistoPair(m_histoDefMap.find(SingleHistogramDefinition::stringIndex(name, dirName)));
   if (pthisHistoPair != m_histoDefMap.end()) {
     result = pthisHistoPair->second.yTitle;
+  }
+  return result;
+}
+
+std::string
+HistogramDefinitionSvc::zTitle(const std::string& name, const std::string& dirName) const {
+  std::string result {};
+  const auto pthisHistoPair(m_histoDefMap.find(SingleHistogramDefinition::stringIndex(name, dirName)));
+  if (pthisHistoPair != m_histoDefMap.end()) {
+    result = pthisHistoPair->second.zTitle;
   }
   return result;
 }

@@ -116,15 +116,5 @@ At the moment, we are using matchAlg=1.
 
 @section MooPerformance_ExtrasMooPerformance Extra Pages
 
-  - @ref used_MooPerformance
-  - @ref requirements_MooPerformance
 
-*/
-
-/**
-@page used_MooPerformance Used Packages
-*/
-
-/**
-@page requirements_MooPerformance Requirements
 */

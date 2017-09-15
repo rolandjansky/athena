@@ -40,16 +40,5 @@ but be aware that folder name can change frequently
 - RT_InputFiles: RT to be used in absence of DB info. If the list contains more than one file only the first one is used (default value DC2_rt_default.dat)
 - defaultT0: T0 value to be used in absence of DB info  (default value 800 ns)
 
-@ref used_MdtCalibDbCoolStrTool
                                                                                 
-@ref requirements_MdtCalibDbCoolStrTool
 */
-                                                                                
-/**
-@page used_MdtCalibDbCoolStrTool Used Packages
-*/
-                                                                                
-/**
-@page requirements_MdtCalibDbCoolStrTool Requirements
-*/
- 

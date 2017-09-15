@@ -185,7 +185,7 @@ StatusCode IDPerfMonEoverP::initialize()
   m_PID_TrackCaloMatchType_Names.push_back( std::make_pair( xAOD::EgammaParameters::deltaPhi2,"deltaphi2"));//21
   //  m_PID_TrackCaloMatchType_Names.push_back( std::make_pair( xAOD::EgammaParameters::deltaPhiRescaled,"deltaphiRescaled"));//22
   // Following are of summary type
-  //  m_PID_SummaryType_Names.push_back( std::make_pair(xAOD::expectBLayerHit,"expectHitInBLayer"));//23 // throwing an error for some reason
+  //  m_PID_SummaryType_Names.push_back( std::make_pair(xAOD::expectInnermostPixelLayerHit,"expectHitInBLayer"));//23 // throwing an error for some reason
 
 
   //
@@ -550,7 +550,7 @@ StatusCode IDPerfMonEoverP::execute()
       m_nTRT[m_electronCounter]      = mytp->summaryValue(  dummy , xAOD::numberOfTRTHits  )? dummy :-1;
       m_nSCT[m_electronCounter]      = mytp->summaryValue(  dummy , xAOD::numberOfSCTHits )? dummy :-1;
       m_nPIX[m_electronCounter]      = mytp->summaryValue(  dummy , xAOD::numberOfPixelHits )? dummy :-1;
-      m_nBLayer[m_electronCounter]   = mytp->summaryValue(  dummy , xAOD::numberOfBLayerHits)? dummy :-1;
+      m_nBLayer[m_electronCounter]   = mytp->summaryValue(  dummy , xAOD::numberOfInnermostPixelLayerHits)? dummy :-1;
       m_nTRTout[m_electronCounter]   = mytp->summaryValue(  dummy , xAOD::numberOfTRTOutliers)? dummy :-1;
       m_nSCTout[m_electronCounter]   = mytp->summaryValue(  dummy , xAOD::numberOfSCTOutliers)? dummy :-1;
       m_nTRTHT[m_electronCounter]    = mytp->summaryValue(  dummy , xAOD::numberOfTRTHighThresholdHits)? dummy :-1;

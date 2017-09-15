@@ -116,7 +116,7 @@ namespace Muon {
   StatusCode MuonHoughPatternFinderTool::initialize()
   {
     if (m_use_histos == true) {
-      f_file = new TFile("Hough_histos.root","RECREATE");
+      m_file = new TFile("Hough_histos.root","RECREATE");
       m_weighthistogram =  new TH1F("weighthisto","weighthisto",100,-0.5,2);
       m_weighthistogrammdt =  new TH1F("weighthistomdt","weighthistomdt",100,-0.3,2.2);
       m_weighthistogramrpc =  new TH1F("weighthistorpc","weighthistorpc",100,-0.3,2.2);
@@ -271,11 +271,11 @@ namespace Muon {
   StatusCode MuonHoughPatternFinderTool::finalize()
   {
     if (m_use_histos == true) {
-      f_file->Write();
-      f_file->Close();
+      m_file->Write();
+      m_file->Close();
       ATH_MSG_DEBUG ("MuonHoughPatternFinderTool:: delete rootfile");
-      delete f_file;
-      f_file=0;
+      delete m_file;
+      m_file=0;
       ATH_MSG_DEBUG ("MuonHoughPatternFinderTool::delete Histogram: ");
     }
     delete m_phietahitassociation;
@@ -1734,7 +1734,8 @@ namespace Muon {
 	      ATH_MSG_VERBOSE (" Summary nHits " << matchedHits << " nl1 " << matchWithLine.hitsMl1() 
                                << " nl2 " << matchWithLine.hitsMl2());
 	      if (matchedHits > nHits || (matchedHits ==  nHits && psi < angleDif )) {
-		int dnl = abs(matchWithLine.hitsMl1()-matchWithLine.hitsMl2());
+		int dnl = std::abs(static_cast<int>(matchWithLine.hitsMl1())-
+                                   static_cast<int>(matchWithLine.hitsMl2()));
                 ATH_MSG_DEBUG (" matchWithLine.hitsOnTrack() >  nHits old " << nHits << " new: " << matchedHits);
                 ATH_MSG_DEBUG (" dnl " << dnl << " old dnl " << std::abs(nl1-nl2));
                 ATH_MSG_DEBUG (" hit cos phi " << cphi << " line " << coshit << " sin phi " << sphi << " line " << sinhit << " psi " << psi);

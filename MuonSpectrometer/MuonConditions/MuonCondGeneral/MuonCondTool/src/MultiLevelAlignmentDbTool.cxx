@@ -86,10 +86,12 @@ MultiLevelAlignmentDbTool::MultiLevelAlignmentDbTool (const std::string& type,
 
 //________________________________________________________________________
 //StatusCode MultiLevelAlignmentDbTool::updateAddress(SG::TransientAddress* tad)
-StatusCode MultiLevelAlignmentDbTool::updateAddress(StoreID::type storeID, SG::TransientAddress* tad)
+StatusCode MultiLevelAlignmentDbTool::updateAddress(StoreID::type storeID,
+                                                    SG::TransientAddress* tad,
+                                                    const EventContext& ctx)
 {
   //  StatusCode sc=m_abLineDbTool->updateAddress(tad);
-  StatusCode sc=m_abLineDbTool->updateAddress(storeID, tad);
+  StatusCode sc=m_abLineDbTool->updateAddress(storeID, tad, ctx);
   if (sc == StatusCode::FAILURE) return sc;
 
   return StatusCode::FAILURE;
@@ -140,15 +142,8 @@ StatusCode MultiLevelAlignmentDbTool::initialize()
   }
   else ATH_MSG_INFO("proxy for class ALineParContainer found");
   
-  SG::TransientAddress* tad =  proxy->transientAddress();
-  if (!tad) {
-    ATH_MSG_ERROR("Unable to get the tad");
-    return StatusCode::FAILURE;
-  }
-  else ATH_MSG_INFO("proxy transient Address found");
-  
   IAddressProvider* addp = this;
-  tad->setProvider(addp, StoreID::DETECTOR_STORE);
+  proxy->setProvider(addp, StoreID::DETECTOR_STORE);
   //tad->setProvider(addp);
   ATH_MSG_DEBUG("set address provider for ALineParContainer");
   
@@ -160,15 +155,8 @@ StatusCode MultiLevelAlignmentDbTool::initialize()
   }
   else ATH_MSG_INFO("proxy for class BLineParContainer found");
   
-  tad =  proxy->transientAddress();
-  if (!tad) {
-    ATH_MSG_ERROR("Unable to get the tad");
-    return StatusCode::FAILURE;
-  }
-  else ATH_MSG_INFO("proxy transient Address found");
-  
   addp = this;
-  tad->setProvider(addp, StoreID::DETECTOR_STORE);
+  proxy->setProvider(addp, StoreID::DETECTOR_STORE);
   //tad->setProvider(addp);
   ATH_MSG_DEBUG("set address provider for BLineParContainer");
   

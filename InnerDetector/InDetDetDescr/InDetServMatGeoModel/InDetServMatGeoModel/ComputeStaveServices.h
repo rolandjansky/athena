@@ -11,7 +11,7 @@
 class ComputeStaveServices {
 public:
 
-  ComputeStaveServices(const Athena::MsgStreamMember& msg):m_msg(msg) {}
+  ComputeStaveServices(Athena::MsgStreamMember& msg):m_msg(msg) {}
 
   StaveServices compute( DetType::Type, DetType::Part, int layerNumber, int nModulesPerStave, int nChipsPerModule) const;
   int computeLVGaugeSerial( DetType::Type, DetType::Part, int layerNumber, 
@@ -21,7 +21,7 @@ public:
  private:
   // the message stream (same for all derived classes)
   MsgStream& msg (MSG::Level lvl) const { return m_msg << lvl; }
-  const Athena::MsgStreamMember m_msg;
+  mutable Athena::MsgStreamMember m_msg;
   
 };
 

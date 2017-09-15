@@ -102,7 +102,6 @@ See ReadDBS.py and WriteDBS.py.
 
 The standalone job options should run out of the box.
 
-@section InDetAlignExample_InDetAlignExampleReq Requirements
 
 
 */

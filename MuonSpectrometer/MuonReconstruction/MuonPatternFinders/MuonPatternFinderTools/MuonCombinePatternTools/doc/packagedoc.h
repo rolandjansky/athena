@@ -15,16 +15,6 @@ This AlgTool will combine global eta and phi patterns from the HoughPatternTool 
 
   - MuonCombinePatternTool: combines eta and phi patterns
 
-@ref used_MuonCombinePatternTools
 
-@ref requirements_MuonCombinePatternTools
 
-*/
-
-/**
-@page used_MuonCombinePatternTools Used Packages
-*/
-
-/**
-@page requirements_MuonCombinePatternTools Requirements
 */

@@ -233,9 +233,7 @@ InDetFlags.doMonitoringAlignment = False
 #InDetFlags.doPixelTrkNtuple = loadInDetRec_Options["doTrkNtuple"]
 #InDetFlags.doSctTrkNtuple   = loadInDetRec_Options["doTrkNtuple"]
 #InDetFlags.doTrtTrkNtuple   = loadInDetRec_Options["doTrkNtuple"]
-#InDetFlags.doPixelClusterNtuple = True
 #InDetFlags.doSctClusterNtuple   = True
-#InDetFlags.doTrtDriftCircleNtuple = True
 #InDetFlags.doVtxNtuple      = True
 #InDetFlags.doConvVtxNtuple  = True
 #InDetFlags.doV0VtxNtuple    = True
@@ -263,8 +261,6 @@ from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
 TrkDetFlags.MaterialDatabaseLocal =False
 
 include("InDetRecExample/InDetRec_all.py")
-
-#InDetFlags.doPixelClusterNtuple = False
 
 # My change
 #--------------------------------------------------------------

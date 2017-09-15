@@ -37,15 +37,4 @@ This is the draft of TileDetDescr documentation, under construction ... us usual
   - TileDetDescrRegion: This class provides an interface to detector description
     information for the regions (sub-detectors) of the  Tile calorimeter.
 
-@section TileDetDescr_Requirements 
-
 */
-
-/**
-@page requirements_TileDetDescr Requirements
-*/
-
-/**
-@page used_TileDetDescr Used Packages
-*/
-

@@ -24,9 +24,7 @@ Rec::PriVtx, if not it will be set to Rec::NoVtx.
 InDetTrigParticleCreation contains the following files/classes:
 - TrigParticleCreator.cxx ... the algoritm which creates particles
 
-@section InDetTrigParticleCreation_used_packagesInDetTrigParticleCreation used packages
 
-@section InDetTrigParticleCreation_requirements Requirements
 
 \namespace PCreate
 */

@@ -11,6 +11,8 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "TrigT1Interfaces/MuCTPIL1Topo.h"
 #include <vector>
+#include "TrigT1Result/RoIBResult.h"
+#include "TrigT1Interfaces/MuCTPIToRoIBSLink.h"
 
 class TH1I;
 class TH2I;
@@ -55,7 +57,7 @@ namespace LVL1 {
       TCS::MuonTOB createMuonTOB(const MuCTPIL1TopoCandidate & roi) const;
       TCS::LateMuonTOB createLateMuonTOB(const MuCTPIL1TopoCandidate & roi) const;
 
-      StringProperty m_roibLocation;
+      SG::ReadHandleKey<ROIB::RoIBResult> m_roibLocation;
 
       ServiceHandle<ITHistSvc> m_histSvc;
 
@@ -68,13 +70,14 @@ namespace LVL1 {
 
       std::vector< TrigConf::TriggerThreshold* > m_MuonThresholds;
 
-      StringProperty m_muonROILocation;    //!<  Muon ROIs SG key
+      SG::ReadHandleKey<L1MUINT::MuCTPIToRoIBSLink> m_muonROILocation;    //!<  Muon ROIs SG key
 
       TH1I * m_hPt {nullptr};
       TH2I * m_hEtaPhi {nullptr};
 
-     int m_MuonEncoding; //!< Use 0 for full granularity; 1 for MuCTPiToTopo muon granularity
-     StringProperty m_MuCTPItoL1TopoLocation;
+      int m_MuonEncoding; //!< Use 0 for full granularity; 1 for MuCTPiToTopo muon granularity
+      SG::ReadHandleKey<LVL1::MuCTPIL1Topo> m_MuCTPItoL1TopoLocation;
+      SG::ReadHandleKey<LVL1::MuCTPIL1Topo> m_MuCTPItoL1TopoLocationPlusOne;
    };
 }
 

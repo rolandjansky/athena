@@ -42,7 +42,9 @@ MuonDetectorStatusDbTool::MuonDetectorStatusDbTool (const std::string& type,
 }
 
 //StatusCode MuonDetectorStatusDbTool::updateAddress(SG::TransientAddress* tad)
-StatusCode MuonDetectorStatusDbTool::updateAddress(StoreID::type /*storeID*/, SG::TransientAddress* tad)
+StatusCode MuonDetectorStatusDbTool::updateAddress(StoreID::type /*storeID*/,
+                                                   SG::TransientAddress* tad,
+                                                   const EventContext& /*ctx*/)
 {
     CLID clid        = tad->clID();
     std::string key  = tad->name();
@@ -79,14 +81,8 @@ StatusCode MuonDetectorStatusDbTool::initialize()
     return StatusCode::FAILURE;
   }
 
-  SG::TransientAddress* tad =  proxy->transientAddress();
-  if (!tad) {
-    ATH_MSG_ERROR( "Unable to get the tad" );
-    return StatusCode::FAILURE;
-  }
-
   IAddressProvider* addp = this;
-  tad->setProvider(addp, StoreID::DETECTOR_STORE);
+  proxy->setProvider(addp, StoreID::DETECTOR_STORE);
   //tad->setProvider(addp);
   ATH_MSG_DEBUG( "set address provider for TubeStatusContainer" );
   
@@ -264,14 +260,8 @@ StatusCode MuonDetectorStatusDbTool::loadTubeStatus(IOVSVC_CALLBACK_ARGS_P(I,key
      return StatusCode::FAILURE;
    }
    
-   SG::TransientAddress* tad =  proxy->transientAddress();
-   if (!tad) {
-     ATH_MSG_ERROR( "Unable to get the tad" );
-     return StatusCode::FAILURE;
-   }
-   
    IAddressProvider* addp = this;
-   tad->setProvider(addp, StoreID::DETECTOR_STORE);
+   proxy->setProvider(addp, StoreID::DETECTOR_STORE);
    //tad->setProvider(addp);
    ATH_MSG_DEBUG( "set address provider for TubeStatusContainer" );
    

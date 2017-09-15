@@ -93,28 +93,28 @@ public:
   virtual bool                          canFillDuringInitialize(){ return false; }
 
   /**List of bad modules*/
-  virtual std::set<Identifier>*         badModules() { return m_badModuleIds; }
+  virtual const std::set<Identifier>*   badModules() { return &m_badModuleIds; }
   /**List of bad strips*/
-  virtual void                          badStrips(std::set<Identifier>& strips, bool ignoreBadModules = false, bool ignoreBadChips = false); //  { return m_badChannelIds; }
+  virtual void                          badStrips(std::set<Identifier>& strips, bool ignoreBadModules = false, bool ignoreBadChips = false);
   /**List of bad strips for a given module*/
   virtual void                          badStrips(const Identifier & moduleId , std::set<Identifier>& strips, bool ignoreBadModules = false, bool ignoreBadChips = false);
   /**List of bad links*/
-  virtual std::pair<bool, bool>         badLinks(const Identifier & moduleId);                        
+  virtual std::pair<bool, bool>         badLinks(const Identifier & moduleId);
   /**Bad links for a given module*/
-  virtual std::map<Identifier, std::pair<bool, bool> >* badLinks() {return m_badLinks;}
+  virtual const std::map<Identifier, std::pair<bool, bool> >* badLinks() {return &m_badLinks;}
   /**List of bad chips*/
-  virtual std::map<Identifier, unsigned int>*           badChips() {return m_badChips;}
+  virtual const std::map<Identifier, unsigned int>*           badChips() {return &m_badChips;}
   /**Bad chips for a given module*/
   virtual unsigned int                  badChips(const Identifier & moduleId);
   /** Get the chip number containing a particular strip*/
   int                                   getChip(const Identifier & stripId);
 
 private:
-  std::set<Identifier>*                 m_badChannelIds;                 //!< Set of bad strip identifiers (not those in bad strips)
-  std::set<Identifier>*                 m_badModuleIds;                  //!< Set of bad module identifiers
-  std::set<Identifier>*                 m_badWaferIds;                   //!< Set of bad wafer identifiers
-  std::map<Identifier, std::pair<bool, bool> >* m_badLinks;              //!< Map of the state of the 2 links in a module by truncated serial number 
-  std::map<Identifier, unsigned int>*   m_badChips;                      //!< Map of bad chips per module
+  std::set<Identifier> m_badChannelIds;                 //!< Set of bad strip identifiers (not those in bad strips)
+  std::set<Identifier> m_badModuleIds;                  //!< Set of bad module identifiers
+  std::set<Identifier> m_badWaferIds;                   //!< Set of bad wafer identifiers
+  std::map<Identifier, std::pair<bool, bool>> m_badLinks;                //!< Map of the state of the 2 links in a module by truncated serial number
+  std::map<Identifier, unsigned int>    m_badChips;                      //!< Map of bad chips per module
   bool                                  m_filled;                        //!< Had the data been filled?
   ServiceHandle<StoreGateSvc>           m_detStore;                      //!< Handle on the detector store
   ServiceHandle<IIOVSvc>                m_IOVSvc;                        //!< Handle on the IOV service
@@ -124,7 +124,7 @@ private:
   const DataHandle<CondAttrListVec>     m_dataMur;                       //!< Handle for link info from DB
   const SCT_ID*                         m_pHelper;                       //!< ID helper for SCT
   ServiceHandle<ISCT_CablingSvc>        m_cablingSvc;                    //!< Handle on SCT cabling service
-  ToolHandle<ISCT_ReadoutTool>          m_readoutTool;                   //!< Handle on readout tool
+  ToolHandle<ISCT_ReadoutTool> m_readoutTool{this, "SCT_ReadoutTool", "SCT_ReadoutTool", "Handle on readout tool"}; //!< Handle on readout tool
   const InDetDD::SCT_DetectorManager*   m_pManager;                      //!< SCT detector manager
   bool                                  m_checkStripsInsideModules;      //!< Do we want to check if a strip is bad because it is inside a bad module
 

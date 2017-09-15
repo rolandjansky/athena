@@ -33,7 +33,9 @@ public:
 
   /** required by the IAddressProvider interface */
   //  virtual StatusCode updateAddress(SG::TransientAddress* tad);
-  virtual StatusCode updateAddress(StoreID::type storeID, SG::TransientAddress* tad) override;
+  virtual StatusCode updateAddress(StoreID::type storeID,
+                                   SG::TransientAddress* tad,
+                                   const EventContext& ctx) override;
 
 private: 
   bool m_FirstCall ;

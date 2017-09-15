@@ -14,17 +14,6 @@ This package creates a Pool converter for scintillator hit collections
 
 Pool converters are included for ScintillatorHitCollections and SimpleScintillatorHitCollections.
 
-@ref used_G4AncillaryEventAthenaPool
 
-@ref requirements_G4AncillaryEventAthenaPool
 
 */
-
-/**
-@page used_G4AncillaryEventAthenaPool Used Packages
-*/
-
-/**
-@page requirements_G4AncillaryEventAthenaPool Requirements
-*/
-

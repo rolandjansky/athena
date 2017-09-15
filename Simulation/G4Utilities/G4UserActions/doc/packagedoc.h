@@ -33,16 +33,6 @@ default, and some are for very specific cases.
 
   - VerboseSelector : Sets the verbosity level for several Geant actions
 
-@ref used_G4UserActions
 
-@ref requirements_G4UserActions
 
-*/
-
-/**
-@page used_G4UserActions Used Packages
-*/
-
-/**
-@page requirements_G4UserActions Requirements
 */

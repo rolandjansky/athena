@@ -34,8 +34,4 @@ For the moment there are following tools (in development):
 Please let me know of any errors, or if anything is unclear.
 Andreas.Wildauer@cern.ch
 
-@section ParticleJetTools_ParticleJetTools_used_packages Used Packages
-
-@section ParticleJetTools_requirements Requirements
 */
-

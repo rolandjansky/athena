@@ -20,11 +20,3 @@ available tools are:
    ntuple.  Used for validation and testing. 
 
 */
-
-/**
-@page used_MuonGeometryManagerTool Used Packages
-*/
-
-/**
-@page requirements_MuonGeometryManagerTool Requirements
-*/

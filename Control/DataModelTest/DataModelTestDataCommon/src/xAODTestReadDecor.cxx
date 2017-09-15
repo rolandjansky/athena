@@ -61,6 +61,7 @@ StatusCode xAODTestReadDecor::execute_r (const EventContext& ctx) const
   {
     std::ostringstream ss;
     SG::ReadDecorHandle<CVec, int> cvecDecor (m_cvecDecorKey, ctx);
+    if (!cvecDecor.isPresent()) return StatusCode::FAILURE;
     for (const C* celt : *cvecDecor) {
       ss << " " << cvecDecor(*celt);
     }
@@ -69,7 +70,15 @@ StatusCode xAODTestReadDecor::execute_r (const EventContext& ctx) const
 
   {
     SG::ReadDecorHandle<C, int> cinfoDecor (m_cinfoDecorKey, ctx);
+    if (!cinfoDecor.isPresent()) return StatusCode::FAILURE;
     ATH_MSG_INFO (m_cinfoDecorKey.key() << ": " << cinfoDecor(0));
+  }
+
+  {
+    SG::ReadDecorHandleKey<C> testKey (m_cinfoDecorKey);
+    testKey = testKey.key() + "_test";
+    SG::ReadDecorHandle<C, int> cinfoDecorTest (testKey, ctx);
+    if (!cinfoDecorTest.isPresent()) return StatusCode::FAILURE;
   }
 
   return StatusCode::SUCCESS;

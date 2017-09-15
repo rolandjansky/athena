@@ -14,6 +14,8 @@ class TMethod;
 class TFunction;
 class TMethodArg;
 
+#include "CxxUtils/checker_macros.h"
+
 #define ROOT_6
 
 namespace Reflex {
@@ -90,9 +92,9 @@ public:
    std::string FunctionParameterDefaultAt( size_t nth ) const;
 
    TReturnTypeAdapter   ReturnType() const;
-   TScopeAdapter        DeclaringScope() const;
-   TTypeAdapter         DeclaringType() const;
-   TTypeAdapter         TypeOf() const;
+   TScopeAdapter        DeclaringScope ATLAS_NOT_THREAD_SAFE () const;
+   TTypeAdapter         DeclaringType ATLAS_NOT_THREAD_SAFE () const;
+   TTypeAdapter         TypeOf ATLAS_NOT_THREAD_SAFE () const;
 
 private:
    TDictionary* fMember;
@@ -107,14 +109,14 @@ public:
 public:
    std::string Name() const;
 
-   TScopeAdapter ToType() const;
+   TScopeAdapter ToType ATLAS_NOT_THREAD_SAFE () const;
 
 private:
    TBaseClass* fBase;
 };
 
 
-class TScopeAdapter {
+class ATLAS_NOT_THREAD_SAFE TScopeAdapter {
 public:
    TScopeAdapter();
    TScopeAdapter( TClass* klass );

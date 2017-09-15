@@ -20,8 +20,6 @@ void TileRawDataContainer<_TCollection>::initialize(bool createColl, TYPE type,
 {
     // initialize HashFunc
     this->m_hashFunc.initialize(TileCablingService::getInstance()->getTileHWID(),type); 
-    // initialize base class
-    DLV::init(this->m_hashFunc.max());
 
     if (createColl) {
         int ncoll = this->m_hashFunc.max();
@@ -54,7 +52,7 @@ TileRawDataContainer<_TCollection>::TileRawDataContainer(bool createColl,
                                                          TYPE type,
                                                          UNIT unit,
                                                          SG::OwnershipPolicy ownPolicy)
-    : MyBase(0) // 0 = do not initialize DLV in base class.
+    : MyBase(TileCablingService::getInstance()->getTileHWID()->drawer_hash_max())
     , m_unit(unit)
     , m_type(type)
     , m_bsflags(0)
@@ -67,7 +65,7 @@ TileRawDataContainer<_TCollection>::TileRawDataContainer(bool createColl,
 template <typename _TCollection> 
 TileRawDataContainer<_TCollection>::TileRawDataContainer(bool createColl,
                                                          SG::OwnershipPolicy ownPolicy)
-    : MyBase(0) // 0 = do not initialize DLV in base class.
+    : MyBase(TileCablingService::getInstance()->getTileHWID()->drawer_hash_max())
     , m_unit(TileRawChannelUnit::ADCcounts)
     , m_type(TileFragHash::Digitizer)
     , m_bsflags(0)

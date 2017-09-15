@@ -3,8 +3,12 @@
 */
 
 #include "SGTools/TransientAddress.h"
+#include "SGTools/DataProxy.h"
 #include "AthenaKernel/IAddressProvider.h"
+#include "AthenaKernel/IProxyDict.h"
+#include "AthenaKernel/EventContextClid.h"
 #include "GaudiKernel/IOpaqueAddress.h"
+#include "GaudiKernel/EventContext.h"
 
 #include <assert.h>
 
@@ -25,7 +29,7 @@ TransientAddress::TransientAddress(const CLID& id, const std::string& key)
     m_sgkey(0)
 { 
   if (id != CLID_NULL)
-    m_transientID.insert(id);
+    m_transientID.push_back(id);
 }
 
 // Constructor with CLID, string key and IOpaqueAddress:
@@ -38,7 +42,7 @@ TransientAddress::TransientAddress(const CLID& id, const std::string& key,
     m_sgkey(0)
 { 
   if (id != CLID_NULL)
-    m_transientID.insert(id);
+    m_transientID.push_back(id);
   setAddress(addr);
 }
 
@@ -46,6 +50,19 @@ TransientAddress::TransientAddress(const CLID& id, const std::string& key,
 TransientAddress::~TransientAddress() 
 { 
   setAddress(0);
+}
+
+
+/// set transient CLID's
+void TransientAddress::setTransientID(CLID id)
+{
+  if (m_transientID.empty()) {
+    m_transientID.push_back (id);
+  }
+  else if (!transientID (id)) {
+    m_transientID.push_back (id);
+    std::sort (m_transientID.begin(), m_transientID.end());
+  }
 }
 
 
@@ -63,7 +80,7 @@ void TransientAddress::setID (CLID id, const std::string& key)
   m_clid = id;
   m_name = key;
   if (id != CLID_NULL)
-    m_transientID.insert(id);
+    m_transientID.push_back(id);
 }
 
 /// set IOpaqueAddress
@@ -74,22 +91,41 @@ void TransientAddress::setAddress(IOpaqueAddress* pAddress)
   m_address = pAddress;
 }
 
-bool TransientAddress::isValid()
+bool TransientAddress::isValid(IProxyDict* store,
+                               bool forceUpdate /*= false*/)
 {
-  if (0 != address()) return true;
+  if (!forceUpdate && 0 != address()) return true;
 
   // FIXME CGL
 //    if (!m_consultProvider) {
 //      if ( m_clid != 0 && m_name != "" ) { return true; }
 //    }
   if (m_consultProvider && 0 != provider()) {
-    if ((provider()->updateAddress(storeID(), this)).isSuccess())
+    if ((provider()->updateAddress(storeID(), this,
+                                   contextFromStore (store))).isSuccess())
       return true;
   }
   return false;
 }
 
 
-
-
-
+/**
+ * @brief Retrieve the EventContext saved in store STORE.
+ * @param store The store from which to retrieve the context, or nullptr.
+ *
+ * If there is no context recorded in the store, return a default-initialized
+ * context.
+ */
+const EventContext& TransientAddress::contextFromStore (IProxyDict* store) const
+{
+  if (store) {
+    SG::DataProxy* proxy = store->proxy (ClassID_traits<EventContext>::ID(),
+                                         "EventContext");
+    if (proxy) {
+      EventContext* ctx = SG::DataProxy_cast<EventContext> (proxy);
+      if (ctx) return *ctx;
+    }
+  }
+  static const EventContext emptyContext;
+  return emptyContext;
+}

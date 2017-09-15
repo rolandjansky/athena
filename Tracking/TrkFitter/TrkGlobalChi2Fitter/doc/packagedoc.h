@@ -24,15 +24,4 @@ The TrkGlobalChi2Fitter package implements the global chi2 technique for track f
 
 @section TrkGlobalChi2Fitter_ExtrasTrkGlobalChi2Fitter Extra Pages
 
- - @ref UsedTrkGlobalChi2Fitter
- - @ref RequirementsTrkGlobalChi2Fitter
 */
-
-/**
-@page UsedTrkKalmanFitter Used Packages
-*/
-
-/**
-@page RequirementsTrkGlobalChi2Fitter Requirements
-*/
-

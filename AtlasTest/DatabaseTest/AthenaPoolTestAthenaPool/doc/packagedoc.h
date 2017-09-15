@@ -11,10 +11,5 @@
  * This package generates the pool converters for the classes 
  * defined in AthenaPoolTestData using the poolcnv pattern.
  * 
-@section AthenaPoolTestAthenaPool_@section requirements requirements
- * 
- * 
-@section AthenaPoolTestAthenaPool_@section Links Links to used packages
- * 
  * 
 */

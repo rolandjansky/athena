@@ -12,7 +12,7 @@ import subprocess
 
 def run_command(cmd, dir=None, shell=False):
     """Run the given command locally and returns the output, err and exit_code."""
-    print "Execute: " + cmd
+    # print "Execute: " + cmd
     if "|" in cmd:
         cmd_parts = cmd.split('|')
     else:

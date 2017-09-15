@@ -38,16 +38,16 @@ AthAlgorithm::AthAlgorithm( const std::string& name,
   //
   // Property declaration
   // 
-  //declareProperty( "Property", m_nProperty );
 
   auto props = getProperties();
   for( Property* prop : props ) {
-    if( prop->name() != "OutputLevel" ) {
-      continue;
+    if( prop->name() == "OutputLevel" ) {
+      prop->declareUpdateHandler
+        (&AthAlgorithm::msg_update_handler, this);
+    } else if (prop->name() == "ExtraOutputs" || prop->name() == "ExtraInputs") {
+      prop->declareUpdateHandler
+        (&AthAlgorithm::extraDeps_update_handler, this);
     }
-    prop->declareUpdateHandler
-      (&AthAlgorithm::msg_update_handler, this);
-    break;
   }
 
   declareProperty( "EvtStore",
@@ -117,6 +117,29 @@ AthAlgorithm::msg_update_handler( Property& outputLevel )
    }
 }
 
+/**
+ * @brief Add StoreName to extra input/output deps as needed
+ *
+ * use the logic of the VarHandleKey to parse the DataObjID keys
+ * supplied via the ExtraInputs and ExtraOuputs Properties to add
+ * the StoreName if it's not explicitly given
+ */
+void 
+AthAlgorithm::extraDeps_update_handler( Property& ExtraDeps ) 
+{  
+  DataObjIDColl newColl;
+  Gaudi::Property<DataObjIDColl> *prop = dynamic_cast<Gaudi::Property<DataObjIDColl>*> (&ExtraDeps);
+  if ( prop ) {
+    for (auto id : prop->value()) {
+      SG::VarHandleKey vhk(id.clid(), id.key(), Gaudi::DataHandle::Reader);
+      id.updateKey( vhk.objKey() );
+      newColl.emplace( id );
+    }
+    if (newColl.size() != 0) prop->setValue( newColl );
+  } else {
+    ATH_MSG_ERROR("unable to dcast ExtraInput/Output Property");
+  }
+}
 
 /**
  * @brief Perform system initialization for an algorithm.

@@ -152,7 +152,7 @@ namespace CP {
     CP::SystematicSet m_mySysConf;
     CP::SystematicSet m_affectingSys;
 
- /// Currently applied systematics
+    /// Currently applied systematics
    CP::SystematicSet* m_appliedSystematics;
  
     /// Decorator

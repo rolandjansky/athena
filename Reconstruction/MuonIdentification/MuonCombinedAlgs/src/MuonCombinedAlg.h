@@ -7,6 +7,10 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "MuonCombinedEvent/InDetCandidateCollection.h"
+#include "MuonCombinedEvent/MuonCandidateCollection.h"
+#include "MuonCombinedToolInterfaces/IMuonCombinedTool.h"
 #include <string>
 
 namespace MuonCombined {
@@ -25,9 +29,9 @@ class MuonCombinedAlg : public AthAlgorithm
   StatusCode finalize();
 
  private:
-  ToolHandle<MuonCombined::IMuonCombinedTool> m_muonCombinedTool;
-  std::string m_indetCandidateCollectionName;
-  std::string m_muonCandidateCollectionName;
+  ToolHandle<MuonCombined::IMuonCombinedTool> m_muonCombinedTool{this,"MuonCombinedTool","MuonCombined::MuonCombinedTool/MuonCombinedTool","muon combined tool"};
+  SG::ReadHandleKey<InDetCandidateCollection> m_indetCandidateCollectionName{this,"InDetCandidateLocation","InDetCandidates","name of ID candidate collection"};
+  SG::ReadHandleKey<MuonCandidateCollection> m_muonCandidateCollectionName{this,"MuonCandidateLocation","MuonCandidates","name of muon candidate collection"};
 
 };
 

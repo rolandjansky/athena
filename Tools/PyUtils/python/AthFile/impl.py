@@ -404,28 +404,25 @@ class AthFileServer(object):
     def _root_open(self, fname):
         import PyUtils.Helpers as H
         # speed-up by tampering LD_LIBRARY_PATH to not load reflex-dicts
-        import re, os
-        restrictedProjects = ['AtlasCore']
-        if "AthAnalysisBase_DIR" in os.environ or "AthSimulation_DIR" in os.environ: restrictedProjects=[] #special cases
-        with H.restricted_ldenviron(projects=restrictedProjects):
-            with H.ShutUp(filters=[
-                re.compile(
-                    'TClass::TClass:0: RuntimeWarning: no dictionary for.*'),
-                re.compile(
-                    'Warning in <TEnvRec::ChangeValue>: duplicate entry.*'
-                    ),
-                ]):
-                root_open = self.pyroot.TFile.Open
-                protocol, _ = self.fname(fname)
-                if protocol == 'https':
-                    _setup_ssl(self.msg, self.pyroot)
-                    root_open = self.pyroot.TWebFile
-                    pass
-                f = root_open(fname+"?filetype=raw", "read")
-                if f is None or not f:
-                    raise IOError(errno.ENOENT, 'No such file or directory',
-                                  fname)
-                return f
+        import re
+        with H.ShutUp(filters=[
+            re.compile(
+                'TClass::TClass:0: RuntimeWarning: no dictionary for.*'),
+            re.compile(
+                'Warning in <TEnvRec::ChangeValue>: duplicate entry.*'
+                ),
+            ]):
+            root_open = self.pyroot.TFile.Open
+            protocol, _ = self.fname(fname)
+            if protocol == 'https':
+                _setup_ssl(self.msg, self.pyroot)
+                root_open = self.pyroot.TWebFile
+                pass
+            f = root_open(fname+"?filetype=raw", "read")
+            if f is None or not f:
+                raise IOError(errno.ENOENT, 'No such file or directory',
+                              fname)
+            return f
         return
 
     def pfopen(self, fnames, evtmax=1):
@@ -1036,38 +1033,34 @@ class FilePeeker(object):
 
     def _root_open(self, fname, raw=False):
         import PyUtils.Helpers as H
-        restrictedProjects = ['AtlasCore']
-        import os
-        if "AthAnalysisBase_DIR" in os.environ or "AthSimulation_DIR" in os.environ: restrictedProjects=[] #special cases
-        with H.restricted_ldenviron(projects=restrictedProjects):
-            root = self.pyroot
-            import re
-            with H.ShutUp(filters=[
-                re.compile('TClass::TClass:0: RuntimeWarning: no dictionary for class.*'),
-                re.compile("Error in <T.*?File::Init>:.*? not a ROOT file")]):
-                # for AttributeListLayout which uses CINT for its dict...
-                # first try the APR version
-                ooo = root.gSystem.Load('libRootCollection')
-                if ooo < 0:
-                    # then try the POOL one
-                    root.gSystem.Load('liblcg_RootCollection')
-                root_open = root.TFile.Open
+        root = self.pyroot
+        import re
+        with H.ShutUp(filters=[
+            re.compile('TClass::TClass:0: RuntimeWarning: no dictionary for class.*'),
+            re.compile("Error in <T.*?File::Init>:.*? not a ROOT file")]):
+            # for AttributeListLayout which uses CINT for its dict...
+            # first try the APR version
+            ooo = root.gSystem.Load('libRootCollection')
+            if ooo < 0:
+                # then try the POOL one
+                root.gSystem.Load('liblcg_RootCollection')
+            root_open = root.TFile.Open
 
-                # we need to get back the protocol b/c of the special
-                # case of secure-http which needs to open TFiles as TWebFiles...
-                protocol, _ = self.server.fname(fname)
-                if protocol == 'https':
-                    _setup_ssl(self.msg(), root)
-                    root_open = root.TWebFile
-                if raw:
-                    f = root_open(fname+'?filetype=raw', 'READ')
-                else:
-                    f = root_open(fname, 'READ')
-                if f is None or not f:
-                    raise IOError(errno.ENOENT,
-                                  'No such file or directory',
-                                  fname)
-                return f
+            # we need to get back the protocol b/c of the special
+            # case of secure-http which needs to open TFiles as TWebFiles...
+            protocol, _ = self.server.fname(fname)
+            if protocol == 'https':
+                _setup_ssl(self.msg(), root)
+                root_open = root.TWebFile
+            if raw:
+                f = root_open(fname+'?filetype=raw', 'READ')
+            else:
+                f = root_open(fname, 'READ')
+            if f is None or not f:
+                raise IOError(errno.ENOENT,
+                              'No such file or directory',
+                              fname)
+            return f
         
     def _is_tag_file(self, fname, evtmax):
         is_tag = False
@@ -1077,101 +1070,90 @@ class FilePeeker(object):
         runs=[]
         evts=[]
         import PyUtils.Helpers as H
-        restrictedProjects = ['AtlasCore']
-        import os
-        if "AthAnalysisBase_DIR" in os.environ or "AthSimulation_DIR" in os.environ: restrictedProjects=[] #special cases
-        with H.restricted_ldenviron(projects=restrictedProjects):
-            root = self.pyroot
-            do_close = True
-            if isinstance(fname, basestring):
-                f = self._root_open(fname, raw=False)
-            else:
-                f = fname
-                do_close = False
-            schema = f.Get('Schema') if f else None
-            if schema:
-                is_tag  = True
-                # note: we used to use .rstrip('\0') b/c of the change in
-                # semantics in PyROOT (char[] and const char* may not mean
-                # the same thing)
-                # see https://savannah.cern.ch/bugs/?100920 for the gory details
-                # but in the end, we use ctypes...
-                # see https://savannah.cern.ch/bugs/?101200 for the gory details
-                import ctypes
-                tag_ref = str(ctypes.c_char_p(schema.m_eventRefColumnName).value)
-            del schema
-            metadata= f.Get('CollectionMetadata') if f else None
-            if metadata:
-                nbytes = metadata.GetEntry(0)
-                # note: we used to use .rstrip('\0') b/c of the change in
-                # semantics in PyROOT (char[] and const char* may not mean
-                # the same thing)
-                # see https://savannah.cern.ch/bugs/?100920 for the gory details
-                # but in the end, we use ctypes...
-                # see https://savannah.cern.ch/bugs/?101200 for the gory details
-                # 
-                # make sure it is what we think it is
-                import ctypes
-                key_name = str(ctypes.c_char_p(metadata.Key).value)
-                assert key_name == 'POOLCollectionID' 
-                tag_guid = str(ctypes.c_char_p(metadata.Value).value)
-            del metadata
-            coll_tree = f.Get('POOLCollectionTree') if f else None
-            if coll_tree:
-                nentries = coll_tree.GetEntries()
-                if evtmax in (-1, None):
-                    evtmax = nentries
-                evtmax = int(evtmax)
-                for row in xrange(evtmax):
-                    if coll_tree.GetEntry(row) < 0:
-                        break
-                    # With root 5.34.22, trying to access leaves of a
-                    # fundamental type like this gives an error:
-                    #   TypeError: attempt to bind ROOT object w/o class
-                    # Rewrite like this for now to work around the problem.
-                    #runnbr = coll_tree.RunNumber
-                    runnbr = coll_tree.GetBranch('RunNumber').GetListOfLeaves()[0].GetValueLong64()
-                    runs.append(runnbr)
-                    #evtnbr = coll_tree.EventNumber
-                    evtnbr = coll_tree.GetBranch('EventNumber').GetListOfLeaves()[0].GetValueLong64()
-                    evts.append(evtnbr)
-            del coll_tree
-            if f and do_close:
-                f.Close()
-                del f
+        root = self.pyroot
+        do_close = True
+        if isinstance(fname, basestring):
+            f = self._root_open(fname, raw=False)
+        else:
+            f = fname
+            do_close = False
+        schema = f.Get('Schema') if f else None
+        if schema:
+            is_tag  = True
+            # note: we used to use .rstrip('\0') b/c of the change in
+            # semantics in PyROOT (char[] and const char* may not mean
+            # the same thing)
+            # see https://savannah.cern.ch/bugs/?100920 for the gory details
+            # but in the end, we use ctypes...
+            # see https://savannah.cern.ch/bugs/?101200 for the gory details
+            import ctypes
+            tag_ref = str(ctypes.c_char_p(schema.m_eventRefColumnName).value)
+        del schema
+        metadata= f.Get('CollectionMetadata') if f else None
+        if metadata:
+            nbytes = metadata.GetEntry(0)
+            # note: we used to use .rstrip('\0') b/c of the change in
+            # semantics in PyROOT (char[] and const char* may not mean
+            # the same thing)
+            # see https://savannah.cern.ch/bugs/?100920 for the gory details
+            # but in the end, we use ctypes...
+            # see https://savannah.cern.ch/bugs/?101200 for the gory details
+            # 
+            # make sure it is what we think it is
+            import ctypes
+            key_name = str(ctypes.c_char_p(metadata.Key).value)
+            assert key_name == 'POOLCollectionID' 
+            tag_guid = str(ctypes.c_char_p(metadata.Value).value)
+        del metadata
+        coll_tree = f.Get('POOLCollectionTree') if f else None
+        if coll_tree:
+            nentries = coll_tree.GetEntries()
+            if evtmax in (-1, None):
+                evtmax = nentries
+            evtmax = int(evtmax)
+            for row in xrange(evtmax):
+                if coll_tree.GetEntry(row) < 0:
+                    break
+                # With root 5.34.22, trying to access leaves of a
+                # fundamental type like this gives an error:
+                #   TypeError: attempt to bind ROOT object w/o class
+                # Rewrite like this for now to work around the problem.
+                #runnbr = coll_tree.RunNumber
+                runnbr = coll_tree.GetBranch('RunNumber').GetListOfLeaves()[0].GetValueLong64()
+                runs.append(runnbr)
+                #evtnbr = coll_tree.EventNumber
+                evtnbr = coll_tree.GetBranch('EventNumber').GetListOfLeaves()[0].GetValueLong64()
+                evts.append(evtnbr)
+        del coll_tree
+        if f and do_close:
+            f.Close()
+            del f
         return (is_tag, tag_ref, tag_guid, nentries, runs, evts)
 
     def _is_empty_pool_file(self, fname):
         is_empty = False
-        import PyUtils.Helpers as H
-        restrictedProjects = ['AtlasCore']
-        import os
-        if "AthAnalysisBase_DIR" in os.environ or "AthSimulation_DIR" in os.environ: restrictedProjects=[] #special cases
-        with H.restricted_ldenviron(projects=restrictedProjects):
-            root = self.pyroot
-            do_close = True
-            if isinstance(fname, basestring):
-                f = self._root_open(fname, raw=False)
-            else:
-                f = fname
-                do_close = False
-            payload = f.Get('CollectionTree') if f else None
-            if payload:
-                is_empty = False
-            else:
-                is_empty = True
-            del payload
+        root = self.pyroot
+        do_close = True
+        if isinstance(fname, basestring):
+            f = self._root_open(fname, raw=False)
+        else:
+            f = fname
+            do_close = False
+        payload = f.Get('CollectionTree') if f else None
+        if payload:
+            is_empty = False
+        else:
+            is_empty = True
+        del payload
 
-            if f and do_close:
-                f.Close()
-                del f
+        if f and do_close:
+            f.Close()
+            del f
         return is_empty
      
     def _process_call(self, fname, evtmax, projects=['AtlasCore']):
         import os
-        if "AthAnalysisBase_DIR" in os.environ or "AthSimulation_DIR" in os.environ: projects=[] #special cases
         msg = self.msg()
-        import PyUtils.Helpers as H
         f = _create_file_infos()
         protocol, _ = self.server.fname(fname)
         f_raw  = self._root_open(fname, raw=True)
@@ -1195,15 +1177,13 @@ class FilePeeker(object):
                 # POOL files are most nutritious when known to PoolFileCatalog.xml
                 # FIXME: best would be to do that in athfile_peeker.py but
                 #        athena.py closes sys.stdin when in batch, which confuses
-                #        PyCmt.Cmt:subprocess.getstatusoutput
+                #        PyUtils:subprocess.getstatusoutput
                 #
                 # ATEAM-192: avoid the PoolFileCatalog.xml conflict
                 #cmd = ['pool_insertFileToCatalog.py',
                 #       file_name,]
                 #subprocess.call(cmd, env=self._sub_env)
                 #
-                #with H.restricted_ldenviron(projects=None):
-                # MN: disabled clean environ to let ROOT6 find headers
                 if True:
                     is_tag, tag_ref, tag_guid, nentries, runs, evts = self._is_tag_file(f_root, evtmax)
                     if is_tag:

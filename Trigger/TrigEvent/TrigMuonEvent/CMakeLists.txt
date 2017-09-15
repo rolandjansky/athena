@@ -25,7 +25,6 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonSegment
                           Reconstruction/MuonIdentification/MuidEvent
                           Trigger/TrigDataAccess/TrigSerializeCnvSvc
-                          Trigger/TrigDataAccess/TrigSerializeUtils
                           Trigger/TrigEvent/TrigNavigation )
 
 # External dependencies:

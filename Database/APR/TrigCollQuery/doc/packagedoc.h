@@ -68,14 +68,4 @@ Mapping of the trigger names to bit locations in the TAGs is done according to t
 
 @section TrigCollQuery_ExtrasTrigCollQuery Extra Pages
 
- - @ref UsedTrigCollQuery
- - @ref RequirementsTrigCollQuery
-*/
-
-/**
-@page UsedTrigCollQuery Used Packages
-*/
-
-/**
-@page RequirementsTrigCollQuery Requirements
 */

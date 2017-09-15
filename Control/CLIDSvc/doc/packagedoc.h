@@ -34,7 +34,6 @@ a "gmake check" (after "source setup.sh").
  - clid_unittest.py
 
 
-@section CLIDSvc_requirements CMT requirements file
 
 
 @section CLIDSvc_Docs More Documentation

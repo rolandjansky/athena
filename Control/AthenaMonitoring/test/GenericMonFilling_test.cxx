@@ -278,10 +278,27 @@ bool assignWorked() {
     return true;
 }
 
+bool operatorsWorked() {
+  auto count = MonitoredScalar::declare<float>( "Count", 0 );
+
+  VALUE( count==count ) EXPECTED (true);
+
+  count += 1;
+  VALUE ( int(count) ) EXPECTED (1);
+  count++;
+  VALUE ( int(count) ) EXPECTED (2);
+  --count;
+  VALUE ( int(count) ) EXPECTED (1);
+  count *= 3;
+  VALUE ( int(count) ) EXPECTED (3);
+
+  return true;
+}
+
 bool timerFillingWorked( ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* histSvc ) {
 
-  auto t1 = MonitoredTimer::declare( "t1" );
-  auto t2 = MonitoredTimer::declare( "t2" );
+  auto t1 = MonitoredTimer::declare( "TIME_t1" );
+  auto t2 = MonitoredTimer::declare( "TIME_t2" );
   {
     auto monitorIt = MonitoredScope::declare( monTool, t1, t2 ); // this is binding to histograms
   
@@ -291,8 +308,8 @@ bool timerFillingWorked( ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* 
   VALUE( double( t1 ) <= double( t2 ) ) EXPECTED( true );  // timer is monotonic
   VALUE( double( t1 ) < 1e6 ) EXPECTED ( true ); // should be less than 1s unless the stop/start are wrong
   VALUE( double( t2 ) < 1e6 ) EXPECTED ( true ); // should be less than 1s unless the contr and op double are wrong
-  VALUE( getHist( histSvc, "/EXPERT/TestGroup/t1" )->GetEntries() ) EXPECTED( 1 );
-  VALUE( getHist( histSvc, "/EXPERT/TestGroup/t2" )->GetEntries() ) EXPECTED( 1 );
+  VALUE( getHist( histSvc, "/EXPERT/TestGroup/TIME_t1" )->GetEntries() ) EXPECTED( 1 );
+  VALUE( getHist( histSvc, "/EXPERT/TestGroup/TIME_t2" )->GetEntries() ) EXPECTED( 1 );
   
   return true;
   
@@ -346,6 +363,7 @@ int main() {
   assert( fillExplcitelyWorked( validMon, histSvc ) );
   assert( fillFromScalarIndependentScopesWorked( validMon, histSvc ) );
   assert( assignWorked() );
+  assert( operatorsWorked() );
   assert( timerFillingWorked( validMon, histSvc ) );
 
   log << MSG::DEBUG << "All OK"  << endmsg;

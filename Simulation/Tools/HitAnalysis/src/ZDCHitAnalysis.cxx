@@ -4,16 +4,13 @@
 
 #include "ZDCHitAnalysis.h"
 
-
 #include "ZDC_SimEvent/ZDC_SimStripHit_Collection.h"
 #include "ZDC_SimEvent/ZDC_SimStripHit.h"
 #include "ZDC_SimEvent/ZDC_SimPixelHit_Collection.h"
 #include "ZDC_SimEvent/ZDC_SimPixelHit.h"
 
-
 #include "TH1.h"
 #include "TString.h"
-
 
 #include <algorithm>
 #include <math.h>
@@ -22,25 +19,28 @@
 #include <stdio.h>
 
 ZDCHitAnalysis::ZDCHitAnalysis(const std::string& name, ISvcLocator* pSvcLocator)
-   : AthAlgorithm(name, pSvcLocator)
-   , h_zdc_sidea_0(0)
-   , h_zdc_sidea_1(0)
-   , h_zdc_sidea_2(0)
-   , h_zdc_sidea_3(0)
-   , h_zdc_sidec_0(0)
-   , h_zdc_sidec_1(0)
-   , h_zdc_sidec_2(0)
-   , h_zdc_sidec_3(0)
-   , m_zdc_strip_side(0)
-   , m_zdc_strip_mod(0)
-   , m_zdc_strip_energy(0)
-   , m_zdc_pix_side(0)
-   , m_zdc_pix_mod(0)
-   , m_zdc_pix_energy(0)
-   , m_path("/ZDCHitAnalysis/")
-   , m_thistSvc("THistSvc", name)
+  : AthAlgorithm(name, pSvcLocator)
+  , h_zdc_sidea_0(0)
+  , h_zdc_sidea_1(0)
+  , h_zdc_sidea_2(0)
+  , h_zdc_sidea_3(0)
+  , h_zdc_sidec_0(0)
+  , h_zdc_sidec_1(0)
+  , h_zdc_sidec_2(0)
+  , h_zdc_sidec_3(0)
+  , m_zdc_strip_side(0)
+  , m_zdc_strip_mod(0)
+  , m_zdc_strip_energy(0)
+  , m_zdc_pix_side(0)
+  , m_zdc_pix_mod(0)
+  , m_zdc_pix_energy(0)
+  , m_tree(0)
+  , m_ntupleFileName("/ZDCHitAnalysis/")
+  , m_path("/ZDCHitAnalysis/")
+  , m_thistSvc("THistSvc", name)
 {
-  declareProperty("HistPath", m_path); 
+  declareProperty("NtupleFileName", m_ntupleFileName);
+  declareProperty("HistPath", m_path);
 }
 
 StatusCode ZDCHitAnalysis::initialize() {
@@ -50,7 +50,6 @@ StatusCode ZDCHitAnalysis::initialize() {
   CHECK(m_thistSvc.retrieve());
  
   /** Histograms*/
-
   h_zdc_sidea_0 = new TH1D("m_edep_side_a0","edep_side_a0", 100,0, 1000);
   h_zdc_sidea_0->StatOverflows();
   CHECK(m_thistSvc->regHist(m_path + h_zdc_sidea_0->GetName(), h_zdc_sidea_0));
@@ -84,27 +83,27 @@ StatusCode ZDCHitAnalysis::initialize() {
   CHECK(m_thistSvc->regHist(m_path + h_zdc_sidec_3->GetName(), h_zdc_sidec_3));
 
 
-  m_tree= new TTree("NtupleZDCHitAnalysis","ZDCHitAna");
-  std::string fullNtupleName =  "/"+m_ntupleFileName+"/";
+  /** now add branches and leaves to the tree */
+  m_tree = new TTree("ZDC","ZDC");
+  std::string fullNtupleName =  "/" + m_ntupleFileName + "/";
   CHECK(m_thistSvc->regTree(fullNtupleName,m_tree));
   
-      /** now add branches and leaves to the tree */
-      if (m_tree){
-        m_tree->Branch("strip_side", &m_zdc_strip_side);
-        m_tree->Branch("strip_mode", &m_zdc_strip_mod);
-        m_tree->Branch("strip_energy", &m_zdc_strip_energy);
+  if (m_tree) {
+    m_tree->Branch("strip_side", &m_zdc_strip_side);
+    m_tree->Branch("strip_mode", &m_zdc_strip_mod);
+    m_tree->Branch("strip_energy", &m_zdc_strip_energy);
 
-	m_tree->Branch("pix_side", &m_zdc_pix_side);
-        m_tree->Branch("pix_mode", &m_zdc_pix_mod);
-        m_tree->Branch("pix_energy", &m_zdc_pix_energy);
-    
-      }else{
-        ATH_MSG_ERROR("No tree found!");
-      }
+    m_tree->Branch("pix_side", &m_zdc_pix_side);
+    m_tree->Branch("pix_mode", &m_zdc_pix_mod);
+    m_tree->Branch("pix_energy", &m_zdc_pix_energy);  
+  }
+  else {
+    ATH_MSG_ERROR("No tree found!");
+  }
+
   return StatusCode::SUCCESS;
-}		 
+}
 
-  
 
 StatusCode ZDCHitAnalysis::execute() {
   ATH_MSG_DEBUG( "In ZDCHitAnalysis::execute()" );
@@ -115,24 +114,25 @@ StatusCode ZDCHitAnalysis::execute() {
   m_zdc_pix_side->clear();
   m_zdc_pix_mod->clear();
   m_zdc_pix_energy->clear();
+
   double ene_strip = -999.;
   int side_strip = -1;
-  int mod_strip  = -1;
+  int mod_strip = -1;
   double ene_pix = -999.;
   int side_pix = -1;
-  int mod_pix  = -1;
+  int mod_pix = -1;
 
   ZDC_SimStripHit_ConstIterator striphi;
   const DataHandle<ZDC_SimStripHit_Collection> stripiter;
   CHECK(evtStore()->retrieve(stripiter,"ZDC_SimStripHit_Collection"));
-  for(striphi=(*stripiter).begin(); striphi != (*stripiter).end();++striphi){
+  for (striphi=(*stripiter).begin(); striphi != (*stripiter).end(); ++striphi) {
     ZDC_SimStripHit ghit(*striphi);
-     ene_strip=ghit.GetEdep();
-     side_strip = ghit.GetSide();
-     mod_strip  = ghit.GetMod();
+    ene_strip = ghit.GetEdep();
+    side_strip = ghit.GetSide();
+    mod_strip = ghit.GetMod();
     
-    if(side_pix==1){
-      switch(mod_strip){
+    if (side_pix==1) {
+      switch (mod_strip) {
       case 0:
 	h_zdc_sidea_0->Fill(ene_strip);
 	break;
@@ -146,8 +146,9 @@ StatusCode ZDCHitAnalysis::execute() {
 	h_zdc_sidea_3->Fill(ene_strip);
 	break;
       }
-    }else{
-      switch (mod_strip){
+    }
+    else {
+      switch (mod_strip) {
       case 0:
 	h_zdc_sidec_0->Fill(ene_strip);
 	break;
@@ -167,14 +168,14 @@ StatusCode ZDCHitAnalysis::execute() {
   ZDC_SimPixelHit_ConstIterator pixelhi;
   const DataHandle<ZDC_SimPixelHit_Collection> pixeliter;
   CHECK(evtStore()->retrieve(pixeliter,"ZDC_SimPixelHit_Collection"));
-  for(pixelhi=(*pixeliter).begin(); pixelhi != (*pixeliter).end();++pixelhi){
+  for (pixelhi=(*pixeliter).begin(); pixelhi != (*pixeliter).end(); ++pixelhi) {
     ZDC_SimPixelHit ghit(*pixelhi);
-     ene_pix=ghit.GetEdep();
-     side_pix = ghit.GetSide();
-     mod_pix  = ghit.GetMod();
+    ene_pix = ghit.GetEdep();
+    side_pix = ghit.GetSide();
+    mod_pix = ghit.GetMod();
     
-    if(side_pix==1){
-      switch(mod_pix){
+    if (side_pix==1) {
+      switch (mod_pix) {
       case 0:
 	h_zdc_sidea_0->Fill(ene_pix);
 	break;
@@ -188,8 +189,9 @@ StatusCode ZDCHitAnalysis::execute() {
 	h_zdc_sidea_3->Fill(ene_pix);
 	break;
       }
-    }else{
-      switch (mod_pix){
+    }
+    else {
+      switch (mod_pix) {
       case 0:
 	h_zdc_sidec_0->Fill(ene_pix);
 	break;
@@ -205,14 +207,15 @@ StatusCode ZDCHitAnalysis::execute() {
       }
     }
   
-  m_zdc_strip_side->push_back(side_strip);
-  m_zdc_strip_mod->push_back(mod_strip);
-  m_zdc_strip_energy->push_back(ene_strip);
-  m_zdc_pix_side->push_back(side_pix);
-  m_zdc_pix_mod->push_back(mod_pix);
-  m_zdc_pix_energy->push_back(ene_pix);
+    m_zdc_strip_side->push_back(side_strip);
+    m_zdc_strip_mod->push_back(mod_strip);
+    m_zdc_strip_energy->push_back(ene_strip);
+    m_zdc_pix_side->push_back(side_pix);
+    m_zdc_pix_mod->push_back(mod_pix);
+    m_zdc_pix_energy->push_back(ene_pix);
   }
 
   if (m_tree) m_tree->Fill();
+  
   return StatusCode::SUCCESS;
 }

@@ -35,11 +35,6 @@
 #include "ByteStreamCnvSvcBase/IByteStreamEventAccess.h"
 
 
-using eformat::helper::SourceIdentifier; 
-
-using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
-using OFFLINE_FRAGMENTS_NAMESPACE::FullEventFragment;
-
 class ISvcLocator;
 class StatusCode;
 
@@ -64,7 +59,7 @@ class ALFA_Decoder_charge: public AthAlgTool {
   virtual StatusCode initialize();
   virtual StatusCode finalize();
 
-  StatusCode fillCollection(const ROBFragment *robFrag, ALFA_RawDataContainer_charge* rdoCont,  std::vector<unsigned int>* vecHash = NULL); 
+  StatusCode fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment *robFrag, ALFA_RawDataContainer_charge* rdoCont,  std::vector<unsigned int>* vecHash = NULL); 
  
 ALFA_RawDataCollection_charge* getCollection (unsigned int MotherBoardId, ALFA_RawDataContainer_charge* cont);
 ALFA_RawData_charge* getRawData_charge (unsigned int PMFId, ALFA_RawDataCollection_charge* coll);

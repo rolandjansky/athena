@@ -7,9 +7,8 @@
 
 // Default constructor.
 CscRawDataContainer::CscRawDataContainer()
-  : IdentifiableContainer<CscRawDataCollection>(0) 
+  : IdentifiableContainer<CscRawDataCollection>(hashFcn().max()) 
 {
-    DLV::init(hashFcn().max());	
 }
 
 CscRawDataContainer::CscRawDataContainer(unsigned int hashmax)
@@ -29,8 +28,8 @@ CscRawDataContainer::idToHash(unsigned int id) const
 }
 
 /// Convert identifier to idhash
-CscRawDataCollectionIdHash& 
-CscRawDataContainer::hashFcn() const
+const CscRawDataCollectionIdHash& 
+CscRawDataContainer::hashFcn()
 {
 
     static CscRawDataCollectionIdHash hashFcn;

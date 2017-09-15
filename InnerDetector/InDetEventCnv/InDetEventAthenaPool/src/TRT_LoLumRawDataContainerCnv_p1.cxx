@@ -10,6 +10,8 @@
 #include "TRT_LoLumRawDataCnv_p1.h"
 #include "TRT_LoLumRawDataContainerCnv_p1.h"
 #include "MsgUtil.h"
+#include "CreateTransientTemplate.h"
+
 
 void TRT_LoLumRawDataContainerCnv_p1::transToPers(const TRT_RDO_Container* transCont, InDetRawDataContainer_p1* persCont, MsgStream &log) 
 {

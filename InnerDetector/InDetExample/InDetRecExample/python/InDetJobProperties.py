@@ -277,6 +277,12 @@ class doForwardTracks(InDetFlagsJobProperty):
     allowedTypes = ['bool']
     StoredValue  = True
 
+class doLowPtLargeD0(InDetFlagsJobProperty):
+    """Turn running of doLargeD0 second pass down to 100 MeV on and off"""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue   = False
+
 class doLargeD0(InDetFlagsJobProperty):
     """Turn running of doLargeD0 second pass on and off"""
     statusOn     = True
@@ -721,19 +727,7 @@ class materialInteractionsType(InDetFlagsJobProperty):
     allowedValues= [0,1,2,3,4,5]
     StoredValue  = 3
 
-class doPixelClusterNtuple(InDetFlagsJobProperty):
-    """  """
-    statusOn     = True
-    allowedTypes = ['bool']
-    StoredValue  = False
-        
 class doSctClusterNtuple(InDetFlagsJobProperty):
-    """  """
-    statusOn     = True
-    allowedTypes = ['bool']
-    StoredValue  = False
-
-class doTrtDriftCircleNtuple(InDetFlagsJobProperty):
     """  """
     statusOn     = True
     allowedTypes = ['bool']
@@ -1163,7 +1157,7 @@ class checkDeadElementsOnTrack(InDetFlagsJobProperty):
   """Enable check for dead modules and FEs""" 
   statusOn     = True 
   allowedTypes = ['bool']
-  StoredValue  = False
+  StoredValue  = True
 
 
 ##-----------------------------------------------------------------------------
@@ -1693,6 +1687,7 @@ class InDetJobProperties(JobPropertyContainer):
       # --------------------------------------------------------------------      
       # no Large radius tracking if pixel or sct off (new tracking = inside out only)
       self.doLargeD0 = self.doLargeD0() and (DetFlags.haveRIO.pixel_on() or DetFlags.haveRIO.SCT_on())
+      self.doLowPtLargeD0 = self.doLowPtLargeD0() and (DetFlags.haveRIO.pixel_on() or DetFlags.haveRIO.SCT_on())
       if self.doDVRetracking():
           self.setDVRetracking()
       
@@ -1738,7 +1733,7 @@ class InDetJobProperties(JobPropertyContainer):
       #
       # control whether to run SiSPSeededTrackFinder
       self.doSiSPSeededTrackFinder = (self.doNewTracking() or self.doNewTrackingSegments() or \
-                                      self.doBeamGas() or self.doLargeD0() ) \
+                                      self.doBeamGas() or self.doLargeD0() or self.doLowPtLargeD0() ) \
                                     and (DetFlags.haveRIO.pixel_on() or DetFlags.haveRIO.SCT_on())      
       # failsafe lines in case requirements are not met to run TRT standalone or back tracking
       self.doTRTStandalone         = self.doTRTStandalone() and DetFlags.haveRIO.TRT_on()
@@ -1925,7 +1920,7 @@ class InDetJobProperties(JobPropertyContainer):
   def doAmbiSolving(self):
     from AthenaCommon.DetFlags import DetFlags
     return (self.doNewTracking() or self.doBeamGas() or self.doTrackSegmentsPixel() \
-            or self.doTrackSegmentsSCT() or self.doLargeD0() ) \
+            or self.doTrackSegmentsSCT() or self.doLargeD0() or self.doLowPtLargeD0() ) \
            and (DetFlags.haveRIO.pixel_on() or DetFlags.haveRIO.SCT_on())
   
   def loadRotCreator(self):
@@ -1949,7 +1944,7 @@ class InDetJobProperties(JobPropertyContainer):
   def doNewTrackingPattern(self):
     return self.doNewTracking() or self.doBackTracking() or self.doBeamGas() \
            or self.doLowPt() or self.doVeryLowPt() or self.doTRTStandalone() \
-           or self.doForwardTracks() or self.doLargeD0()
+           or self.doForwardTracks() or self.doLargeD0() or self.doLowPtLargeD0()
 
   def doNewTrackingSegments(self):
     return self.doTrackSegmentsPixel() or self.doTrackSegmentsSCT() or self.doTrackSegmentsTRT()
@@ -1959,11 +1954,13 @@ class InDetJobProperties(JobPropertyContainer):
   
   def doTRTExtension(self):
     from AthenaCommon.DetFlags import DetFlags
-    return ((self.doNewTracking() or self.doBeamGas() or self.doLargeD0()) and DetFlags.haveRIO.TRT_on() ) and self.doTRTExtensionNew()
+    return ((self.doNewTracking() or self.doBeamGas() or self.doLargeD0() or self.doLowPtLargeD0()) \
+             and DetFlags.haveRIO.TRT_on() ) and self.doTRTExtensionNew()
   
   def doExtensionProcessor(self):
     from AthenaCommon.DetFlags    import DetFlags
-    return (self.doNewTracking() or self.doBeamGas() or self.doLargeD0()) and DetFlags.haveRIO.TRT_on()
+    return (self.doNewTracking() or self.doBeamGas() or self.doLargeD0() or self.doLowPtLargeD0()) \
+            and DetFlags.haveRIO.TRT_on()
  
   def solenoidOn(self):
     from AthenaCommon.BFieldFlags import jobproperties
@@ -1982,7 +1979,7 @@ class InDetJobProperties(JobPropertyContainer):
     return (self.useDCS() and DetFlags.dcs.TRT_on())  
 
   def doNtupleCreation(self):
-    return (self.doPixelClusterNtuple() or self.doSctClusterNtuple() or self.doTrtDriftCircleNtuple() or
+    return (self.doSctClusterNtuple() or
 	    self.doTrkNtuple() or self.doPixelTrkNtuple() or self.doSctTrkNtuple() or
             self.doTrtTrkNtuple() or self.doVtxNtuple() or self.doConvVtxNtuple() or
             self.doV0VtxNtuple())
@@ -2009,6 +2006,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.doVeryLowPt               = False  
        self.doForwardTracks           = False
        self.doLargeD0                 = False
+       self.doLowPtLargeD0            = False
        self.doHadCaloSeededSSS        = False
 
        self.doxKalman                 = False
@@ -2287,7 +2285,7 @@ class InDetJobProperties(JobPropertyContainer):
           standAloneTracking += 'TRT'
        print standAloneTracking
     # -----------------------------------------
-    if self.doLargeD0() :
+    if self.doLargeD0() or self.doLowPtLargeD0() :
        print '*'
        print '* LargeD0 Tracking is ON'
        if self.doSiSPSeededTrackFinder() :
@@ -2420,13 +2418,9 @@ class InDetJobProperties(JobPropertyContainer):
        print '* run Physics Validation Monitoring'
     if self.doNtupleCreation():
        ntupleString = '* Ntuple cluster/drift circle trees activated:'
-       if self.doPixelClusterNtuple():
-          ntupleString += ' Pixel'
        if self.doSctClusterNtuple():
           ntupleString += ' SCT'
-       if self.doTrtDriftCircleNtuple():
-          ntupleString += ' TRT'
-       if self.doPixelClusterNtuple() or self.doSctClusterNtuple() or self.doTrtDriftCircleNtuple():
+       if self.doSctClusterNtuple():
           print ntupleString
 
        ntupleString = '* Ntuple track trees activated:'
@@ -2629,6 +2623,7 @@ _list_InDetJobProperties = [Enabled,
                             doVeryLowPt,
                             doSLHCConversionFinding,
                             doForwardTracks,
+                            doLowPtLargeD0,
                             doLargeD0,
                             useExistingTracksAsInput,
                             cutLevel,
@@ -2702,9 +2697,7 @@ _list_InDetJobProperties = [Enabled,
                             doPhysValMon,
                             materialInteractions,
                             materialInteractionsType,
-                            doPixelClusterNtuple,
                             doSctClusterNtuple,
-                            doTrtDriftCircleNtuple,
                             doTrkNtuple,
                             doPixelTrkNtuple,
                             doSctTrkNtuple,

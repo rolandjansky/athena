@@ -41,7 +41,9 @@ CLASS_DEF(Foo, 8101, 1)
 int main() {
   cout << "*** ActiveStoreTest BEGINS ***" << endl;
   ISvcLocator* pSvcLoc;
-  initGaudi("ActiveStore_test.txt", pSvcLoc);
+  if (!initGaudi("ActiveStore_test.txt", pSvcLoc)) {
+    return 1;
+  }
   ActiveStoreSvc* pASS(0);
   assert( pSvcLoc->service("ActiveStoreSvc", pASS, true).isSuccess() );
   assert( pASS->activeStore() == pASS->operator->() );

@@ -30,3 +30,8 @@ atlas_add_dictionary( LArRecConditionsDict
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                       LINK_LIBRARIES ${ROOT_LIBRARIES} CaloIdentifier AthenaKernel Identifier GaudiKernel LArRecConditions)
 
+atlas_add_test (test_LArBadChannelCont
+	        SOURCES
+	        test/test_LArBadChannelCont.cxx
+                LINK_LIBRARIES Identifier CxxUtils StoreGateLib LArRecConditions 
+               )

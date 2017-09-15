@@ -76,17 +76,6 @@ jobOptions, setting the property DigitizationTool of the MDT_Digitizer:
 	
 @section MDT_Digitization_ExtrasMDT_Digitization Extra Pages
 
- - @ref UsedMDT_Digitization
- - @ref RequirementsMDT_Digitization
-*/
-
-/**
-@page UsedMDT_Digitization Used Packages
-*/
-
-/**
-@page RequirementsMDT_Digitization Requirements
-
  - For more detailed information, see the note on the Muon Digitization.
 
  - for questions or comments: 

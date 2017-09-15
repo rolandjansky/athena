@@ -34,11 +34,9 @@ The code can be browsed using LXR
 (http://alxr.usatlas.bnl.gov/lxr/source/atlas/Database/PersistentDataModel/)
    
 
-@section PersistentDataModel_Requirements Requirements
 
 
 
-@section PersistentDataModel_PackagesUsed Packages Used
 
 
 

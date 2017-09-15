@@ -99,7 +99,7 @@ StatusCode InDetServMatTool::create( StoreGateSvc* detStore )
     return (StatusCode::FAILURE); 
   }  
   
-  std::string versionTag = m_rdbAccessSvc->getChildTag("InDetServices", versionKey.tag(), versionKey.node(), false);
+  std::string versionTag = m_rdbAccessSvc->getChildTag("InDetServices", versionKey.tag(), versionKey.node());
   msg(MSG::INFO) << "InDetServMat Package Version: " << PACKAGE_VERSION << endmsg;
   if(msgLvl(MSG::DEBUG)) msg() << "versionTag=" << versionTag <<" %%%"<< endmsg;
 
@@ -115,7 +115,7 @@ StatusCode InDetServMatTool::create( StoreGateSvc* detStore )
   
   std::string versionName;
   std::string descrName="noDescr";
-  if (!m_rdbAccessSvc->getChildTag("InDetServSwitches", versionKey.tag(), versionKey.node(), false).empty()) {
+  if (!m_rdbAccessSvc->getChildTag("InDetServSwitches", versionKey.tag(), versionKey.node()).empty()) {
     IRDBRecordset_ptr switchSet = m_rdbAccessSvc->getRecordsetPtr("InDetServSwitches", versionKey.tag(), versionKey.node());
     const IRDBRecord    *switchTable   = (*switchSet)[0];    
     versionName = switchTable->getString("VERSIONNAME"); 

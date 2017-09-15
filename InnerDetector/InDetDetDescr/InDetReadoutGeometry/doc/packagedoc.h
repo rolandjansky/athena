@@ -65,7 +65,6 @@ normally use.
 The managers are retrieved from storegate. Their names are Pixel, SCT and TRT.
 From the manager, one can get the id helpers and access the detector elements using various methods. 
 
-@section InDetReadoutGeometry_InDetReadoutGeometryReq Requirements
 
 
 

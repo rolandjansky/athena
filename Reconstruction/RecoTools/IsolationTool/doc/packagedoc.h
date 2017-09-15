@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+/**
 @page IsolationTool_page The Track Isolation Tools
 
  - A package with base implementations to calculate the track isolation et() given a TrackParticle and a 
@@ -16,9 +17,4 @@ base implementation is overwritten in derived class in the package Reconstructio
  - For questions or comments: Ketevi A. Assamagan
    ketevi@bnl.gov
 
-@section IsolationTool_used_packagesTkPara Used Packages
-
-@section IsolationTool_requirements Requirements
-
 */
-

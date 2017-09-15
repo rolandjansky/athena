@@ -21,16 +21,5 @@ forward them to the formatting tool. Each tool implements the IDataRetriever int
 - JiveXML::VertexRetriever : @copydoc JiveXML::VertexRetriever
 
 @section TrkJiveXML_TrkJiveXMLEnv Environment
- - @ref used_TrkJiveXML
- - @ref requirements_TrkJiveXML
 
 */
-
-/**
-@page used_TrkJiveXML Used Packages
-*/
-
-/**
-@page requirements_TrkJiveXML Requirements
-*/
-

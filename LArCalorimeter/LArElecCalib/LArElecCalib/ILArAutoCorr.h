@@ -45,4 +45,11 @@ class ILArAutoCorr {
 
 CLASS_DEF( ILArAutoCorr, 8124,1) 
 
+#include "AthenaKernel/CondCont.h"
+CLASS_DEF( CondCont<ILArAutoCorr>,253577051 , 1 )
+#include "SGTools/BaseInfo.h"
+SG_BASE( CondCont<ILArAutoCorr>, CondContBase );
+
+
+
 #endif 

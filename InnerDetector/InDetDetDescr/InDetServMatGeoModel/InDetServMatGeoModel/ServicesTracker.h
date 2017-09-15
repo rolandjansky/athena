@@ -75,12 +75,12 @@ private:
   void add( std::map<std::string, double>& res, const std::string& name, double len);
   void addEosMaterial( const ServiceVolume& vol, std::vector<ServiceMaterial>& result);
   
-  const Athena::MsgStreamMember m_msg;
+  Athena::MsgStreamMember m_msg;
   // the message stream (same for all derived classes)
-  MsgStream& msg (MSG::Level lvl) const { return m_msg << lvl; }
-  const Athena::MsgStreamMember& msgStream() const {return m_msg;}
+  MsgStream& msg (MSG::Level lvl) { return m_msg << lvl; }
+  Athena::MsgStreamMember& msgStream() {return m_msg;}
   //Declaring the Method providing Verbosity Level
-  bool msgLvl (MSG::Level lvl) const { return m_msg.get().level() <= lvl; }
+  bool msgLvl (MSG::Level lvl) { return m_msg.get().level() <= lvl; }
 
 };
 

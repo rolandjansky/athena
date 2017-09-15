@@ -44,15 +44,7 @@ namespace D3PD {
         TileHitVector::const_iterator m_evtItr,m_evtEnd;
 
     };
-    
-// Template specialization for rel 16.6.2
-//    template <>
-//    struct Deref<TileHitVector,TileHitCollection*>{
-//        typedef TileHitVector::const_iterator it;
-//        typedef TileHitCollection type;
-//        static const type* deref (it& p) { return p->getDataPtr(); }
-//    };
-//-------------------------------------
+
 
 }
 

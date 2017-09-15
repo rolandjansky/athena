@@ -28,7 +28,6 @@
 #include "G4Gamma.hh"
 
 
-
 namespace G4UA
 {
 
@@ -43,7 +42,7 @@ namespace G4UA
   // Classify a new track
   //---------------------------------------------------------------------------
   G4ClassificationOfNewTrack
-  AthenaStackingAction::classifyNewTrack(const G4Track* track)
+  AthenaStackingAction::ClassifyNewTrack(const G4Track* track)
   {
     // Kill neutrinos if enabled
     if(m_config.killAllNeutrinos && isNeutrino(track)) {
@@ -115,20 +114,6 @@ namespace G4UA
       }
 
     return fUrgent;
-  }
-
-  //---------------------------------------------------------------------------
-  // New tracking stack
-  //---------------------------------------------------------------------------
-  void AthenaStackingAction::newStage()
-  {
-  }
-
-  //---------------------------------------------------------------------------
-  // Prepare stacking for new event
-  //---------------------------------------------------------------------------
-  void AthenaStackingAction::prepareNewEvent()
-  {
   }
 
   //---------------------------------------------------------------------------

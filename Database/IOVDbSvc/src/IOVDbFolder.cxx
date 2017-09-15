@@ -1291,7 +1291,15 @@ IOVDbFolder::preLoadFolder(StoreGateSvc* detStore,
     std::string linkname;
     std::string::size_type idx;
     do {
-      idx=buf.find(":");
+      // Type names may be qualified C++ names including a scope: SCOPE::NAME.
+      // So ignore double colons when splitting the symlink list.
+      idx = 0;
+      while (true) {
+        idx=buf.find(":", idx);
+        if (idx == std::string::npos || buf[idx+1] != ':') break;
+        idx += 2;
+      }
+
       if (idx!=std::string::npos) {
         linkname=buf.substr(0,idx);
         buf=buf.substr(1+idx,buf.size());
