@@ -5,11 +5,6 @@
 #include "AthenaKernel/errorcheck.h"
 #include "AthLinks/ElementLink.h"
 
-#define private public
-#   include "GeneratorObjects/McEventCollection.h"
-#undef private
-#include "GeneratorObjects/xAODTruthParticleLink.h"
-
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/DataSvc.h"
 #include "GaudiKernel/PhysicalConstants.h"
@@ -46,30 +41,22 @@ namespace xAODMaker {
     xAODTruthCnvAlg::xAODTruthCnvAlg( const string& name, ISvcLocator* svcLoc )
     : AthAlgorithm( name, svcLoc ), m_metaStore( "MetaDataStore", name ), m_inputMetaStore( "StoreGateSvc/InputMetaDataStore",name)
     {
-        declareProperty("AODContainerName", m_aodContainerName="GEN_AOD" );
-        declareProperty("xAODTruthEventContainerName", m_xaodTruthEventContainerName="TruthEvents" );
-        declareProperty("xAODTruthPileupEventContainerName", m_xaodTruthPUEventContainerName="TruthPileupEvents" );
-        /// @todo TruthParticle -> TruthParticles
-        declareProperty("xAODTruthParticleContainerName", m_xaodTruthParticleContainerName="TruthParticles" );
-        /// @todo TruthVertex -> TruthVertices
-        declareProperty("xAODTruthVertexContainerName", m_xaodTruthVertexContainerName="TruthVertices" );
-        declareProperty("TruthLinks", m_truthLinkContainerName="xAODTruthLinks" );
         declareProperty( "WriteAllPileUpTruth", m_doAllPileUp = false);
         declareProperty( "WriteInTimePileUpTruth", m_doInTimePileUp = false);
         declareProperty( "MetaObjectName", m_metaName = "TruthMetaData" );
         declareProperty( "MetaDataStore", m_metaStore );
-        declareProperty( "ForceRerun", m_forceRerun = false);
+        declareProperty( "OnlyRedoLinks", m_onlyRedoLinks = false);
         declareProperty( "WriteTruthMetaData", m_writeMetaData = true);
     }
     
     
     StatusCode xAODTruthCnvAlg::initialize() {
         ATH_MSG_DEBUG("Initializing; package version: " << PACKAGE_VERSION );
-        ATH_MSG_DEBUG("AODContainerName = " << m_aodContainerName );
-        ATH_MSG_DEBUG("xAOD TruthEventContainer name = " << m_xaodTruthEventContainerName );
-        ATH_MSG_DEBUG("xAOD TruthPileupEventContainer name = " << m_xaodTruthPUEventContainerName );
-        ATH_MSG_DEBUG("xAOD TruthParticleContainer name = " << m_xaodTruthParticleContainerName );
-        ATH_MSG_DEBUG("xAOD TruthVertexContainer name = " << m_xaodTruthVertexContainerName );
+        ATH_MSG_DEBUG("AODContainerName = " << m_aodContainerKey.key() );
+        ATH_MSG_DEBUG("xAOD TruthEventContainer name = " << m_xaodTruthEventContainerKey.key() );
+        ATH_MSG_DEBUG("xAOD TruthPileupEventContainer name = " << m_xaodTruthPUEventContainerKey.key());
+        ATH_MSG_DEBUG("xAOD TruthParticleContainer name = " << m_xaodTruthParticleContainerKey.key() );
+        ATH_MSG_DEBUG("xAOD TruthVertexContainer name = " << m_xaodTruthVertexContainerKey.key() );
         if (m_doAllPileUp && m_doInTimePileUp) {
             ATH_MSG_FATAL( "Contradictory xAOD truth pile-up setting: all pile-up AND in-time alone requested simultaneously. Check settings." );
             return StatusCode::FAILURE;
@@ -77,6 +64,8 @@ namespace xAODMaker {
         if (m_doAllPileUp) ATH_MSG_INFO( "All pile-up truth (including out-of-time) will be written" );
         if (m_doInTimePileUp) ATH_MSG_INFO( "In-time pile-up truth (but not out-of-time) will be written" );
         if (!m_doAllPileUp && !m_doInTimePileUp) ATH_MSG_INFO( "No pile-up truth will be written" );
+
+        if (m_onlyRedoLinks) ATH_MSG_INFO( "Will only redo links, not full xAOD Truth." );
         
         if (m_writeMetaData) {
             CHECK( m_metaStore.retrieve() );
@@ -90,70 +79,70 @@ namespace xAODMaker {
             CHECK( m_metaStore->record( m_tmd, m_metaName ) );
         }
         
+	// initialize handles
+	ATH_CHECK(m_truthLinkContainerKey.initialize());
+
+	// if only redoing links
+	ATH_CHECK(m_linksOnlyTruthEventContainerKey.initialize(m_onlyRedoLinks));
+
+	// only if doing full truth
+	ATH_CHECK(m_aodContainerKey.initialize(!m_onlyRedoLinks));
+	ATH_CHECK(m_xaodTruthEventContainerKey.initialize(!m_onlyRedoLinks));
+	ATH_CHECK(m_xaodTruthPUEventContainerKey.initialize(!m_onlyRedoLinks && 
+							    (m_doAllPileUp || m_doInTimePileUp)));
+	ATH_CHECK(m_xaodTruthParticleContainerKey.initialize(!m_onlyRedoLinks));
+	ATH_CHECK(m_xaodTruthVertexContainerKey.initialize(!m_onlyRedoLinks));
+
         return StatusCode::SUCCESS;
     }
     
     
     StatusCode xAODTruthCnvAlg::execute() {
         
+	SG::WriteHandle<xAODTruthParticleLinkVector> truthLinkVec(m_truthLinkContainerKey);
+	ATH_CHECK(truthLinkVec.record(std::make_unique<xAODTruthParticleLinkVector>()));
         
-        // If the containers already exist then assume that nothing needs to be done
-        /// @todo Should this check be AND rather than OR? But pileup might be missing.
-        if ((evtStore()->contains< xAOD::TruthEventContainer >(m_xaodTruthEventContainerName) ||
-             evtStore()->contains< xAOD::TruthPileupEventContainer >(m_xaodTruthPUEventContainerName) ||
-             evtStore()->contains< xAOD::TruthParticleContainer >(m_xaodTruthParticleContainerName) ||
-             evtStore()->contains< xAOD::TruthVertexContainer >(m_xaodTruthVertexContainerName)) &&
-            !m_forceRerun) {
-            ATH_MSG_WARNING("xAOD Truth seems to be already available in the event");
-            return StatusCode::SUCCESS;
-        }
-        
-        xAODTruthParticleLinkVector* truthLinkVec = new xAODTruthParticleLinkVector();
-        CHECK( evtStore()->record( truthLinkVec, m_truthLinkContainerName ) );
-        
-        if (evtStore()->contains<McEventCollection>(m_aodContainerName)) {
+        if (!m_onlyRedoLinks) {
             
-            // Retrieve the HepMC truth:
-            const McEventCollection* mcColl = 0;
-            CHECK( evtStore()->retrieve( mcColl, m_aodContainerName ) );
-            ATH_MSG_DEBUG( "Retrieved HepMC with key: " << m_aodContainerName );
-            
+	    // Retrieve the HepMC truth:
+	    SG::ReadHandle<McEventCollection> mcColl(m_aodContainerKey);
+	    // validity check is only really needed for serial running. Remove when MT is only way.
+	    if (!mcColl.isValid()) {
+	      ATH_MSG_ERROR("Could not retrieve HepMC with key:" << m_aodContainerKey.key());
+	      return StatusCode::FAILURE;
+	    } else {
+	      ATH_MSG_DEBUG( "Retrieved HepMC with key: " << m_aodContainerKey.key() );
+	    }
+
             // **************************************************************
             // Create the xAOD containers and their auxiliary stores:
             // **************************************************************
             // Signal event
-            xAOD::TruthEventContainer* xTruthEventContainer = new xAOD::TruthEventContainer();
-            CHECK( evtStore()->record( xTruthEventContainer, m_xaodTruthEventContainerName ) );
-            xAOD::TruthEventAuxContainer* xTruthEventAuxContainer = new xAOD::TruthEventAuxContainer();
-            CHECK( evtStore()->record( xTruthEventAuxContainer, m_xaodTruthEventContainerName + "Aux." ) );
-            xTruthEventContainer->setStore( xTruthEventAuxContainer );
-            ATH_MSG_DEBUG( "Recorded TruthEventContainer with key: " << m_xaodTruthEventContainerName );
+            SG::WriteHandle<xAOD::TruthEventContainer> xTruthEventContainer(m_xaodTruthEventContainerKey);
+	    ATH_CHECK(xTruthEventContainer.record(std::make_unique<xAOD::TruthEventContainer>(),
+						  std::make_unique<xAOD::TruthEventAuxContainer>()));
+            ATH_MSG_DEBUG( "Recorded TruthEventContainer with key: " << m_xaodTruthEventContainerKey.key() );
+
             // Pile-up events
-            xAOD::TruthPileupEventContainer* xTruthPileupEventContainer = 0;
-            xAOD::TruthPileupEventAuxContainer* xTruthPileupEventAuxContainer = 0;
+            SG::WriteHandle<xAOD::TruthPileupEventContainer> xTruthPileupEventContainer;
             if (m_doAllPileUp || m_doInTimePileUp) {
-                xTruthPileupEventContainer = new xAOD::TruthPileupEventContainer();
-                CHECK( evtStore()->record( xTruthPileupEventContainer, m_xaodTruthPUEventContainerName ) );
-                xTruthPileupEventAuxContainer = new xAOD::TruthPileupEventAuxContainer();
-                CHECK( evtStore()->record( xTruthPileupEventAuxContainer, m_xaodTruthPUEventContainerName + "Aux." ) );
-                xTruthPileupEventContainer->setStore( xTruthPileupEventAuxContainer );
-                ATH_MSG_DEBUG( "Recorded TruthPileupEventContainer with key: " << m_xaodTruthPUEventContainerName );
+	      xTruthPileupEventContainer = SG::WriteHandle<xAOD::TruthPileupEventContainer>(m_xaodTruthPUEventContainerKey);
+	      ATH_CHECK(xTruthPileupEventContainer.record(std::make_unique<xAOD::TruthPileupEventContainer>(),
+							  std::make_unique<xAOD::TruthPileupEventAuxContainer>()));
+	      ATH_MSG_DEBUG( "Recorded TruthPileupEventContainer with key: " << m_xaodTruthPUEventContainerKey.key() );
             }
+
             // Particles
-            xAOD::TruthParticleContainer* xTruthParticleContainer = new xAOD::TruthParticleContainer();
-            CHECK( evtStore()->record( xTruthParticleContainer, m_xaodTruthParticleContainerName ) );
-            xAOD::TruthParticleAuxContainer* xTruthParticleAuxContainer = new xAOD::TruthParticleAuxContainer();
-            CHECK( evtStore()->record( xTruthParticleAuxContainer, m_xaodTruthParticleContainerName + "Aux." ) );
-            xTruthParticleContainer->setStore( xTruthParticleAuxContainer );
-            ATH_MSG_DEBUG( "Recorded TruthParticleContainer with key: " << m_xaodTruthParticleContainerName );
+            SG::WriteHandle<xAOD::TruthParticleContainer> xTruthParticleContainer(m_xaodTruthParticleContainerKey);
+	    ATH_CHECK(xTruthParticleContainer.record(std::make_unique<xAOD::TruthParticleContainer>(),
+						     std::make_unique<xAOD::TruthParticleAuxContainer>()));
+            ATH_MSG_DEBUG( "Recorded TruthParticleContainer with key: " << m_xaodTruthParticleContainerKey.key() );
             // Vertices
-            xAOD::TruthVertexContainer* xTruthVertexContainer = new xAOD::TruthVertexContainer();
-            CHECK( evtStore()->record( xTruthVertexContainer, m_xaodTruthVertexContainerName ) );
-            xAOD::TruthVertexAuxContainer* xTruthVertexAuxContainer = new xAOD::TruthVertexAuxContainer();
-            CHECK( evtStore()->record( xTruthVertexAuxContainer, m_xaodTruthVertexContainerName + "Aux." ) );
-            xTruthVertexContainer->setStore( xTruthVertexAuxContainer );
-            ATH_MSG_DEBUG( "Recorded TruthVertexContainer with key: " << m_xaodTruthVertexContainerName );
-            
+             SG::WriteHandle<xAOD::TruthVertexContainer> xTruthVertexContainer(m_xaodTruthVertexContainerKey);
+	    ATH_CHECK(xTruthVertexContainer.record(std::make_unique<xAOD::TruthVertexContainer>(),
+						     std::make_unique<xAOD::TruthVertexAuxContainer>()));
+            ATH_MSG_DEBUG( "Recorded TruthVertexContainer with key: " << m_xaodTruthVertexContainerKey.key() );
+             
             // ***********************************************************************************
             // Create the xAOD objects
             // This consists of three parts:
@@ -387,33 +376,33 @@ namespace xAODMaker {
                 
             } // end of loop over McEventCollection
             
-        } else {
+        } else { // m_onlyRedoLinks
             
-            ATH_MSG_INFO("McEventCollection with name " << m_aodContainerName << " not found");
-            
-            // Retrieve the xAOD Truth and recreate the TruthLinks
-            if ( !evtStore()->contains<xAOD::TruthEventContainer>(m_xaodTruthEventContainerName) ) {
-                ATH_MSG_WARNING("TruthEventContainer " <<  m_xaodTruthEventContainerName << " not found");
-                return StatusCode::SUCCESS;
-            }
-            const xAOD::TruthEventContainer* xTruthEventContainer = 0;
-            CHECK( evtStore()->retrieve( xTruthEventContainer, m_xaodTruthEventContainerName ) );
-            
-            // Loop over events and particles
-            for (const xAOD::TruthEvent* evt : *xTruthEventContainer) {
-                for (const auto& par : evt->truthParticleLinks()) {
-                    if ( !par.isValid() ) {
-                        // This can happen if particles have been thinned.
-                        ATH_MSG_VERBOSE("Found invalid particle element link in TruthEvent"); //< @todo Use HepMC evt number?
-                        continue;
-                    }
-                    // Create link between HepMC and xAOD truth
-                    //truthLinkVec->push_back(new xAODTruthParticleLink(HepMcParticleLink((*par)->barcode(), evt->eventNumber()), par));
-                    /// @todo AB: Truth particle links should only be made to the signal event... hence the 0. Right?
-                    truthLinkVec->push_back(new xAODTruthParticleLink(HepMcParticleLink((*par)->barcode(), 0), par));
-                }
-            }
-            
+	  SG::ReadHandle<xAOD::TruthEventContainer> xTruthEventContainer(m_linksOnlyTruthEventContainerKey);
+	  // validity check is only really needed for serial running. Remove when MT is only way.
+	  if (!xTruthEventContainer.isValid()) {
+	    ATH_MSG_ERROR("Could not retrieve xAOD::TruthEventContainer with key:" << 
+			  m_linksOnlyTruthEventContainerKey.key());
+	    return StatusCode::FAILURE;
+	  } else {
+	    ATH_MSG_DEBUG( "Retrieved for reading xAOD::TruthEventContainer key: " <<
+			   m_linksOnlyTruthEventContainerKey.key());
+	  }
+	  // Loop over events and particles
+	  for (const xAOD::TruthEvent* evt : *xTruthEventContainer) {
+	    for (const auto& par : evt->truthParticleLinks()) {
+	      if ( !par.isValid() ) {
+		// This can happen if particles have been thinned.
+		ATH_MSG_VERBOSE("Found invalid particle element link in TruthEvent"); //< @todo Use HepMC evt number?
+		continue;
+	      }
+	      // Create link between HepMC and xAOD truth
+	      //truthLinkVec->push_back(new xAODTruthParticleLink(HepMcParticleLink((*par)->barcode(), evt->eventNumber()), par));
+	      /// @todo AB: Truth particle links should only be made to the signal event... hence the 0. Right?
+	      truthLinkVec->push_back(new xAODTruthParticleLink(HepMcParticleLink((*par)->barcode(), 0), par));
+	    }
+	  }
+          
         }
         
         std::stable_sort(truthLinkVec->begin(), truthLinkVec->end(), SortTruthParticleLink());
