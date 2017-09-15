@@ -502,12 +502,14 @@ class BjetHypoAllTE (TrigBjetHypoAllTE):
 
                 # check if pt is harder
                 jetDef_ptBigger = jetDef[0] > otherJetDefs[0] 
+                mlog.debug("jetDef_ptBigger: "+str(jetDef_ptBigger)+" ( "+str(jetDef[0])+" > "+str(otherJetDefs[0])+" )")
 
                 # check if btagging is looser (higher AllowedCuts index means looser btagging)
                 jetDef_btagLooser = jetDef[1] > otherJetDefs[1]
+                mlog.debug("jetDef_btagLooser: "+str(jetDef_btagLooser)+" ( "+str(jetDef[1])+" > "+str(otherJetDefs[1])+" )")
 
                 # if both harder and looser, add two cases to be ORed as example above
-                if jetDef_ptBigger and jetDef_ptBigger :
+                if jetDef_ptBigger and jetDef_btagLooser :
                     
                     # 1st) both requirements pass the tighter btagging
                     #  eg: j100 & 3b55 (in our example above)
