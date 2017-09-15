@@ -5015,6 +5015,21 @@
 	      <chainfileout>DAOD_*.pool.root</chainfileout>
             </chainElement>
 
+            <chainElement>
+              <jobTransform userJobId="MC16Pileup">
+		<doc>MC16Pileup</doc>
+		<jobTransformJobName>MC16Pileup</jobTransformJobName>
+		<jobTransformCmd>
+                  Reco_tf.py --inputAODFile root://eosatlas//eos/atlas/user/m/mdobre/forRTTmc16/MC16_210.AOD.pool.root --outputNTUP_PILEUPFile Pileup_MC16.pool.root
+		</jobTransformCmd>
+		<group>DAODValid</group>
+		<queue>medium</queue>
+		<keepFilePattern>*.root*</keepFilePattern>
+		<keepFilePattern>log.AODtoDAOD</keepFilePattern>
+		<keepFilePattern>jobReport.*</keepFilePattern>
+              </jobTransform>
+            </chainElement>
+
 	  <sequential>
 
             <chainElement>
