@@ -55,6 +55,3 @@
 - Trigger/TrigAnalysis/TrigTauAnalysis/TrigTauMatching
 - Trigger/TrigFTK/FTKStandaloneMonitoring
 
-+ Tools/XMLCoreParser
-+ Control/CLIDComps
-
