@@ -315,6 +315,14 @@ StatusCode G4AtlasAlg::execute()
     }
   }
 
+  // Set the RNG to use for this event. We need to reset it for MT jobs
+  // because of the mismatch between Gaudi slot-local and G4 thread-local RNG.
+  if(m_useMT) {
+    ATHRNG::RNGWrapper* rngWrapper = m_rndmGenSvc->getEngine(this);
+    rngWrapper->setSeed( name(), Gaudi::Hive::currentContext() );
+    G4Random::setTheEngine(*rngWrapper);
+  }
+
   ATH_MSG_DEBUG("Calling SimulateG4Event");
 
   if(!m_senDetTool) {
