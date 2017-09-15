@@ -6,7 +6,6 @@
 #include "CLHEP/Random/RandomEngine.h"
 
 ATHRNG::RNGWrapper::RNGWrapper(factoryFunc& genFact, size_t nSlots)
-  : m_evNum(0), m_runNum(0)
 {
   // Construct the random engines; one per event slot.
   m_engines.reserve(nSlots);
@@ -36,16 +35,11 @@ bool ATHRNG::RNGWrapper::setSeed(const std::string& algName, const EventContext&
 bool ATHRNG::RNGWrapper::setSeed(const std::string& algName, size_t slot,
                                  uint64_t ev, uint64_t run)
 {
-  if ((m_evNum != ev) || (m_runNum != run)){
-    m_evNum = ev;
-    m_runNum = run;
-    auto algHash = std::hash<std::string>{}(algName);
-    auto evHash = std::hash<decltype(m_evNum)>{}(m_evNum);
-    auto runHash = std::hash<decltype(m_runNum)>{}(m_evNum);
-    auto hsh = evHash ^ (runHash + (evHash << 6) + (evHash >> 2));
-    hsh = hsh ^ (algHash + (hsh << 6) + (hsh >> 2));
-    m_engines[slot]->setSeed(hsh, 0);
-    return true;
-  }
-  return false;
+  auto algHash = std::hash<std::string>{}(algName);
+  auto evHash = std::hash<uint64_t>{}(ev);
+  auto runHash = std::hash<uint64_t>{}(run);
+  auto hsh = evHash ^ (runHash + (evHash << 6) + (evHash >> 2));
+  hsh = hsh ^ (algHash + (hsh << 6) + (hsh >> 2));
+  m_engines[slot]->setSeed(hsh, 0);
+  return true;
 }
