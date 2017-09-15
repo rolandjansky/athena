@@ -20,12 +20,12 @@ atlas_depends_on_subdirs(
    Control/AthToolSupport/AsgTools
    Event/xAOD/xAODMuon
    PhysicsAnalysis/AnalysisCommon/PATInterfaces
-   PhysicsAnalysis/Intefaces/MuonAnalysisInterfaces
+   PhysicsAnalysis/Interfaces/MuonAnalysisInterfaces
    PRIVATE
    Event/xAOD/xAODBase
    Event/xAOD/xAODCore
    Event/xAOD/xAODEventInfo
-   PhysicsAnalysis/MuonID/MuonSelectorTools
+#   PhysicsAnalysis/MuonID/MuonSelectorTools
    Tools/PathResolver
    ${extra_deps} )
 
