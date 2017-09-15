@@ -5,11 +5,6 @@
 #include "AthenaKernel/errorcheck.h"
 #include "AthLinks/ElementLink.h"
 
-#define private public
-#   include "GeneratorObjects/McEventCollection.h"
-#undef private
-#include "GeneratorObjects/xAODTruthParticleLink.h"
-
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/DataSvc.h"
 #include "GaudiKernel/PhysicalConstants.h"
@@ -46,14 +41,6 @@ namespace xAODMaker {
     xAODTruthCnvAlg::xAODTruthCnvAlg( const string& name, ISvcLocator* svcLoc )
     : AthAlgorithm( name, svcLoc ), m_metaStore( "MetaDataStore", name ), m_inputMetaStore( "StoreGateSvc/InputMetaDataStore",name)
     {
-        declareProperty("AODContainerName", m_aodContainerKey="GEN_AOD" );
-        declareProperty("xAODTruthEventContainerName", m_xaodTruthEventContainerKey="TruthEvents" );
-        declareProperty("xAODTruthPileupEventContainerName", m_xaodTruthPUEventContainerKey="TruthPileupEvents" );
-        /// @todo TruthParticle -> TruthParticles
-        declareProperty("xAODTruthParticleContainerName", m_xaodTruthParticleContainerKey="TruthParticles" );
-        /// @todo TruthVertex -> TruthVertices
-        declareProperty("xAODTruthVertexContainerName", m_xaodTruthVertexContainerKey="TruthVertices" );
-        declareProperty("TruthLinks", m_truthLinkContainerKey="xAODTruthLinks" );
         declareProperty( "WriteAllPileUpTruth", m_doAllPileUp = false);
         declareProperty( "WriteInTimePileUpTruth", m_doInTimePileUp = false);
         declareProperty( "MetaObjectName", m_metaName = "TruthMetaData" );
@@ -96,7 +83,6 @@ namespace xAODMaker {
 	ATH_CHECK(m_truthLinkContainerKey.initialize());
 
 	// if only redoing links
-	m_linksOnlyTruthEventContainerKey = m_xaodTruthEventContainerKey.key();
 	ATH_CHECK(m_linksOnlyTruthEventContainerKey.initialize(m_onlyRedoLinks));
 
 	// only if doing full truth

@@ -7,6 +7,14 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 
+// The lines below I don't like. We should fix them when we update the
+// the metadata to handles (ATLASRECTS-4162).
+#define private public
+#   include "GeneratorObjects/McEventCollection.h"
+#undef private
+
+#include "GeneratorObjects/xAODTruthParticleLink.h"
+
 #include "xAODTruth/TruthEvent.h"
 #include "xAODTruth/TruthPileupEvent.h"
 #include "xAODTruth/TruthMetaDataContainer.h"
@@ -24,9 +32,6 @@ namespace HepMC {
   class GenVertex;
   class GenParticle;
 }
-
-class McEventCollection;
-class xAODTruthParticleLinkVector;
 
 namespace xAODMaker {
 
@@ -67,17 +72,24 @@ namespace xAODMaker {
     static void fillParticle(xAOD::TruthParticle *tp, const HepMC::GenParticle *gp);
 
     /// The key of the input AOD truth container
-    SG::ReadHandleKey<McEventCollection> m_aodContainerKey;
-
+    SG::ReadHandleKey<McEventCollection> m_aodContainerKey{ 
+      this, "AODContainerName", "GEN_AOD", "The input McEvenCollection"};
+    
     /// The key for the output xAOD truth containers
-    SG::WriteHandleKey<xAOD::TruthEventContainer> m_xaodTruthEventContainerKey;
-    SG::WriteHandleKey<xAOD::TruthPileupEventContainer> m_xaodTruthPUEventContainerKey;
-    SG::WriteHandleKey<xAOD::TruthParticleContainer> m_xaodTruthParticleContainerKey;
-    SG::WriteHandleKey<xAOD::TruthVertexContainer> m_xaodTruthVertexContainerKey;
-    SG::WriteHandleKey<xAODTruthParticleLinkVector> m_truthLinkContainerKey;
+    SG::WriteHandleKey<xAOD::TruthEventContainer> m_xaodTruthEventContainerKey{
+      this, "xAODTruthEventContainerName", "TruthEvents", "Output TruthEvents container"};
+    SG::WriteHandleKey<xAOD::TruthPileupEventContainer> m_xaodTruthPUEventContainerKey{
+      this, "xAODTruthPileupEventContainerName", "TruthPileupEvents", "Output TruthPileupEvents container"};
+    SG::WriteHandleKey<xAOD::TruthParticleContainer> m_xaodTruthParticleContainerKey{
+      this, "xAODTruthParticleContainerName", "TruthParticles", "Output TruthParticles container"};
+    SG::WriteHandleKey<xAOD::TruthVertexContainer> m_xaodTruthVertexContainerKey{
+      this, "xAODTruthVertexContainerName", "TruthVertices", "Output TruthVertices container"};
+    SG::WriteHandleKey<xAODTruthParticleLinkVector> m_truthLinkContainerKey{
+      this, "TruthLinks", "xAODTruthLinks", "Output xAODTruthLinks container"};
 
-    // if only redoing links (uses same confuration as stadard TruthEvent)
-    SG::ReadHandleKey<xAOD::TruthEventContainer> m_linksOnlyTruthEventContainerKey;
+    // if only redoing links 
+    SG::ReadHandleKey<xAOD::TruthEventContainer> m_linksOnlyTruthEventContainerKey{
+      this, "linksOnlyTruthEventContainerName", "TruthEvents", "Input TruthEvents container"};
 
     /// Pile-up options
     bool m_doAllPileUp;
