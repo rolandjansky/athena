@@ -105,33 +105,33 @@ StatusCode PixelMainMon::BookTrackMon(void)
   if (m_LorentzAngle_B2)    m_LorentzAngle_B2->SetOption("colz");
     
   if (m_do2DMaps && !m_doOnline) {
-    m_tsos_hitmap = new PixelMon2DMapsLW("TSOS_Measurement", ("TSOS of type Measurement" + m_histTitleExt), PixMon::HistConf::kPixDBMIBL2D3D, true);
+    m_tsos_hitmap = std::make_unique<PixelMon2DMapsLW>(PixelMon2DMapsLW("TSOS_Measurement", ("TSOS of type Measurement" + m_histTitleExt), PixMon::HistConf::kPixDBMIBL2D3D, true));
     sc = m_tsos_hitmap->regHist(trackHistos);
-    m_tsos_holemap = new PixelMon2DMapsLW("TSOS_Hole", ("TSOS of type Hole" + m_histTitleExt), PixMon::HistConf::kPixDBMIBL2D3D, true);
+    m_tsos_holemap = std::make_unique<PixelMon2DMapsLW>(PixelMon2DMapsLW("TSOS_Hole", ("TSOS of type Hole" + m_histTitleExt), PixMon::HistConf::kPixDBMIBL2D3D, true));
     sc = m_tsos_holemap->regHist(trackHistos);
-    m_tsos_outliermap = new PixelMon2DMapsLW("TSOS_Outlier", ("TSOS of type Outlier" + m_histTitleExt), PixMon::HistConf::kPixDBMIBL2D3D, true);
+    m_tsos_outliermap = std::make_unique<PixelMon2DMapsLW>(PixelMon2DMapsLW("TSOS_Outlier", ("TSOS of type Outlier" + m_histTitleExt), PixMon::HistConf::kPixDBMIBL2D3D, true));
     sc = m_tsos_outliermap->regHist(trackHistos);
     
-    //m_tsos_measratio = new PixelMon2DProfilesLW("TSOS_MeasRatio", ("TSOS of type Meas per track" + m_histTitleExt), PixMon::HistConf::kPixIBL2D3D, true);
+    //m_tsos_measratio = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW("TSOS_MeasRatio", ("TSOS of type Meas per track" + m_histTitleExt), PixMon::HistConf::kPixIBL2D3D, true));
     //sc = m_tsos_measratio->regHist(trackHistos);
-    //m_tsos_holeratio = new PixelMon2DProfilesLW("TSOS_HoleRatio", ("TSOS of type Hole per track" + m_histTitleExt), PixMon::HistConf::kPixIBL2D3D, true);
+    //m_tsos_holeratio = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW("TSOS_HoleRatio", ("TSOS of type Hole per track" + m_histTitleExt), PixMon::HistConf::kPixIBL2D3D, true));
     //sc = m_tsos_holeratio->regHist(trackHistos);
-    //m_misshits_ratio = new PixelMon2DProfilesLW("MissHitsRatioOnTrack", ("Hole+Outlier per track" + m_histTitleExt), PixMon::HistConf::kPixIBL2D3D, true);
+    //m_misshits_ratio = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW("MissHitsRatioOnTrack", ("Hole+Outlier per track" + m_histTitleExt), PixMon::HistConf::kPixIBL2D3D, true));
     //sc = m_misshits_ratio->regHist(trackHistos);
   }
   if (m_doOnline) {
-    m_tsos_holeratio_tmp = new PixelMon2DProfilesLW("HoleRatio_tmp", ("TSOS of type Hole per track tmp" + m_histTitleExt), PixMon::HistConf::kPixIBL2D3D, true);
+    m_tsos_holeratio_tmp = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW("HoleRatio_tmp", ("TSOS of type Hole per track tmp" + m_histTitleExt), PixMon::HistConf::kPixIBL2D3D, true));
     sc = m_tsos_holeratio_tmp->regHist(trackHistos);
-    m_tsos_holeratio_mon = new PixelMon2DProfilesLW("HoleRatio_mon", ("TSOS of type Hole per track for monitoring" + m_histTitleExt), PixMon::HistConf::kPixIBL2D3D, true);
+    m_tsos_holeratio_mon = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW("HoleRatio_mon", ("TSOS of type Hole per track for monitoring" + m_histTitleExt), PixMon::HistConf::kPixIBL2D3D, true));
     sc = m_tsos_holeratio_mon->regHist(trackHistos);
-    m_misshits_ratio_tmp = new PixelMon2DProfilesLW("MissHitsRatioOnTrack_tmp", ("Hole+Outlier per track" + m_histTitleExt), PixMon::HistConf::kPixIBL2D3D, true);
+    m_misshits_ratio_tmp = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW("MissHitsRatioOnTrack_tmp", ("Hole+Outlier per track" + m_histTitleExt), PixMon::HistConf::kPixIBL2D3D, true));
     sc = m_misshits_ratio_tmp->regHist(trackHistos);
-    m_misshits_ratio_mon = new PixelMon2DProfilesLW("MissHitsRatioOnTrack_mon", ("Hole+Outlier per track for monitoring" + m_histTitleExt), PixMon::HistConf::kPixIBL2D3D, true);
+    m_misshits_ratio_mon = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW("MissHitsRatioOnTrack_mon", ("Hole+Outlier per track for monitoring" + m_histTitleExt), PixMon::HistConf::kPixIBL2D3D, true));
     sc = m_misshits_ratio_mon->regHist(trackHistos);
   }
   
   if (m_doModules && !m_doOnTrack) { // tbc essentially code weren't used since doModules was enabled only for AllHits; to keep it disabled also now !m_doOnTrack switch was added
-    m_tsos_hiteff_vs_lumi = new PixelMonModulesProf("TSOS_HitEfficiency",("TSOS-based hit efficiency in module" + m_histTitleExt).c_str(),2500,-0.5,2499.5);
+    m_tsos_hiteff_vs_lumi = std::make_unique<PixelMonModulesProf>(PixelMonModulesProf("TSOS_HitEfficiency",("TSOS-based hit efficiency in module" + m_histTitleExt).c_str(),2500,-0.5,2499.5));
     sc = m_tsos_hiteff_vs_lumi->regHist(this,(path+"/Modules_TSOSHitEff").c_str(),run);
     if (!m_doOnline) {
       sc=trackHistos.regHist(m_clustot_lowpt = TH1F_LW::create("m_clustot_lowpt",("Cluster ToT vs Track pT (pT<10GeV)" + m_histTitleExt + "; Track pT; Cluster ToT (on track)").c_str(),250,0,250));
@@ -511,8 +511,8 @@ StatusCode PixelMainMon::FillTrackMon(void)
 
    if (m_doOnline) {
       if (m_doRefresh5min) {
-         if (m_tsos_holeratio_mon && m_tsos_holeratio_tmp) m_tsos_holeratio_mon->Fill2DMon(m_tsos_holeratio_tmp);
-         if (m_misshits_ratio_mon && m_misshits_ratio_tmp) m_misshits_ratio_mon->Fill2DMon(m_misshits_ratio_tmp);
+         if (m_tsos_holeratio_mon && m_tsos_holeratio_tmp) m_tsos_holeratio_mon->Fill2DMon(m_tsos_holeratio_tmp.get());
+         if (m_misshits_ratio_mon && m_misshits_ratio_tmp) m_misshits_ratio_mon->Fill2DMon(m_misshits_ratio_tmp.get());
       }
    }
 
