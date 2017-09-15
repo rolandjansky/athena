@@ -14,7 +14,7 @@ atlas_depends_on_subdirs( PRIVATE
 atlas_install_headers( VP1GeometryPlugin )
 
 # External dependencies:
-find_package( Qt5 COMPONENTS Core OpenGL Gui Widgets )
+find_package( Qt5 COMPONENTS Core OpenGL Gui Widgets HINTS ${QT5_ROOT} )
 find_package( SoQt )
 find_package( Coin3D )
 

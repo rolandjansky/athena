@@ -15,7 +15,7 @@ atlas_depends_on_subdirs(
    )
 
 # External dependencies:
-find_package( Qt5 COMPONENTS Core OpenGL Gui Network PrintSupport)
+find_package( Qt5 COMPONENTS Core OpenGL Gui Network PrintSupport HINTS ${QT5_ROOT} )
 find_package( Coin3D )
 find_package( SoQt )
 

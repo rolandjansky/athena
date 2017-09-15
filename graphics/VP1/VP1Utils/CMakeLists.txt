@@ -44,7 +44,7 @@ find_package( CLHEP )
 find_package( Coin3D )
 find_package( Eigen )
 find_package( HepPDT )
-find_package( Qt5 COMPONENTS Core )
+find_package( Qt5 COMPONENTS Core HINTS ${QT5_ROOT} )
 
 # CLHEP definitions:
 add_definitions( -DCLHEP_MAX_MIN_DEFINED
