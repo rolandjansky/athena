@@ -3,7 +3,6 @@
 */
 
 #include "BoostedJetTaggers/TopoclusterTransform.h"
-#include <string>
 
 namespace {
   static const double MIN_PT = 0.0;
