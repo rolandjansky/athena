@@ -13,6 +13,7 @@
 
 #include "AthenaKernel/ClassID_traits.h"
 #include "CxxUtils/unused.h"
+#include "CxxUtils/checker_macros.h"
 #include <boost/preprocessor/stringize.hpp>
 
 #ifdef __CLING__
@@ -70,11 +71,11 @@
     static const bool s_isDataObject = isDObj_t::value;                 \
     typedef std::integral_constant<bool, s_isDataObject> is_DataObject_tag; \
     typedef std::true_type has_classID_tag;                             \
-    static const CLID& ID() { static const CLID c(CID); return  c; }    \
-    static const char* typeNameString() {                               \
+    static const CLID& ID ATLAS_CHECK_THREAD_SAFETY () { static const CLID c(CID); return  c; }    \
+    static const char* typeNameString ATLAS_CHECK_THREAD_SAFETY () {    \
       return #NAME;                                                     \
     }									\
-    static const std::string& typeName() {                              \
+    static const std::string& typeName ATLAS_CHECK_THREAD_SAFETY () {   \
       static const std::string name = typeNameString();                 \
       return name;		 					\
     }									\
@@ -110,13 +111,13 @@
     static const bool s_isDataObject = isDObj_t::value;                 \
     typedef std::integral_constant<bool, s_isDataObject> is_DataObject_tag; \
     typedef std::true_type has_classID_tag;                             \
-    static const CLID& ID() {						\
+    static const CLID& ID ATLAS_CHECK_THREAD_SAFETY () {                \
       static const CLID c(CID); return  c;                              \
     }									\
-    static const char* typeNameString() {				\
+    static const char* typeNameString ATLAS_CHECK_THREAD_SAFETY () {    \
       return #ARG1 "," #ARG2;                                           \
     }									\
-    static const std::string& typeName() {				\
+    static const std::string& typeName ATLAS_CHECK_THREAD_SAFETY () {   \
       static const std::string name = typeNameString();                 \
       return name;							\
     }									\
