@@ -17,6 +17,7 @@
  *
  *****************************************************************************/
 
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/EventIDRange.h"
 #include <set>
 
@@ -56,7 +57,7 @@ public:
   EventIDRange range() const { return m_range; }
   void setRange( const EventIDRange& range) { m_range=range; }
 
-  T* objPtr() const { return m_objPtr; }
+  T* objPtr ATLAS_NOT_CONST_THREAD_SAFE () const { return m_objPtr; }
   void setPtr( T* ptr ) { m_objPtr = ptr; }
 
   friend std::ostream& operator<< (std::ostream& os, const IOVEntryT<T>& rhs) {
