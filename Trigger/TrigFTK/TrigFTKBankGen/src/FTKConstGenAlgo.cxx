@@ -1649,7 +1649,7 @@ void FTKConstGenAlgo::extract_1stStage()
       Mtmp.Coto=tmpCoto, Mtmp.Z=tmpZ,Mtmp.nhit=nhit;
 
       // check if the module belongs to endcap (for endcap inversion.).
-      bool isEndcap[nplane]={0};
+      std::vector<bool> isEndcap (nplane);
 
       for(int plane_idx_2nd_stage = 0;plane_idx_2nd_stage<nplane;plane_idx_2nd_stage++){
 	if(m_ITkMode){
