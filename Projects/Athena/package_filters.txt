@@ -26,6 +26,7 @@
 - graphics/VP1/VP1Systems/VP1MCSystems
 - graphics/VP1/VP1Systems/VP1CaloSystems 
 - graphics/VP1/VP1Systems/VP1TriggerDecisionSystems
+- graphics/VP1/VP1Systems/VP1BPhysSystems
 + graphics/VP1/.*
 
 # Some analysis packages that are not part of Athena
@@ -53,3 +54,7 @@
 - Reconstruction/Jet/JetAnalysisTools/JetTileCorrection
 - Trigger/TrigAnalysis/TrigTauAnalysis/TrigTauMatching
 - Trigger/TrigFTK/FTKStandaloneMonitoring
+
++ Tools/XMLCoreParser
++ Control/CLIDComps
+
