@@ -25,7 +25,7 @@ streamName        ='express_express'
 
 #COND tag and GEO are needed for running over a test partition or against ATLAS cosmics, calib
 ConditionsTag     = 'COMCOND-HLTP-004-03'  # was -01
-DetDescrVersion   = 'ATLAS-GEO-20-00-01'
+DetDescrVersion   = 'ATLAS-R1-2012-03-01-00'
 if (not 'beamType' in dir()):
     beamType = 'collisions'
 
@@ -81,6 +81,10 @@ doMuonMon = doAllMon
 from AthenaMonitoring.DQMonFlags import DQMonFlags
 DQMonFlags.doMuonCombinedMon.set_Value_and_Lock(False)
 DQMonFlags.doMuonPhysicsMon.set_Value_and_Lock(False)
+
+# Doesn't work with run 1 data (conditions issue).
+from InDetRecExample.InDetJobProperties import InDetFlags
+InDetFlags.doTIDE_Ambi.set_Value_and_Lock(False)
 
 ## main online reco scripts
 include ("RecExOnline/RecExOnline_jobOptions.py")
