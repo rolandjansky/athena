@@ -31,7 +31,7 @@ public:
 
   /// Interface to retrieve the CLHEP engine
   virtual ATHRNG::RNGWrapper* getEngine(const INamedInterface* client,
-                                        const std::string& streamName) = 0;
+                                        const std::string& streamName = "") = 0;
 
   /// out-of-line destructor
   virtual ~IAthRNGSvc();

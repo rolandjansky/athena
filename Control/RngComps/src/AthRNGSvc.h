@@ -31,7 +31,7 @@ namespace CLHEP{
 ///
 /// @todo Move from manual pointer management to smart pointer management.
 ///
-class AthRNGSvc : public extends<AthService, IAthRNGSvc, IIncidentListener>
+class AthRNGSvc : public extends<AthService, IAthRNGSvc>
 {
 
 public:
@@ -40,38 +40,28 @@ public:
   AthRNGSvc(const std::string& name, ISvcLocator* svc);
   virtual ~AthRNGSvc();
 
-  /// Initialize the service; this is not where the RNGs are constructed.
+  /// Initialize the service
   StatusCode initialize() override final;
-  /// Gaudi "start" state is where we construct the RNGs.
-  StatusCode start() override final;
-  /// Nothing currently happens in finalization.
-  StatusCode finalize() override final;
 
   /// IAthRNGSvc method to retrieve the random number wrapper.
   virtual ATHRNG::RNGWrapper* getEngine(const INamedInterface* client,
                                         const std::string& streamName="") override final;
 
-  /// Incident handling method, where we reseed the engine of this slot.
-  virtual void handle( const Incident& incident );
-
 private:
+
+  /// Random number engine type (e.g. dSFMT, ranecu)
+  std::string m_rngType;
 
   /// The structure for storing the RNGWrappers.
   std::unordered_map<std::string, ATHRNG::RNGWrapper*> m_wrappers;
 
+  /// Factory function which constructs a HepRandomEngine
+  typedef std::function<CLHEP::HepRandomEngine*(void)> factoryFunc;
+  factoryFunc m_fact;
+
   /// Mutex for protecting access to the wrapper structure.
   std::mutex m_mutex;
 
-  /// @name configurable properties
-  /// @{
-  std::string m_RNGType;
-  std::vector<std::string> m_seeds;
-  /// @}
-
-  std::size_t m_numSlots;
-  bool m_initialized;
-  typedef std::function<CLHEP::HepRandomEngine*(void)> factoryFunc;
-  factoryFunc m_fact;
 };
 
 #endif
