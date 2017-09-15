@@ -3,7 +3,7 @@
 from RecExConfig.Configured import Configured
 from egammaRec import egammaKeys
 from egammaAlgs import egammaAlgsConf
-from egammaRec.Factories import ToolFactory, AlgFactory, FcnWrapper
+from egammaRec.Factories import ToolFactory, PublicToolFactory, AlgFactory, FcnWrapper
 from AthenaCommon.BeamFlags import jobproperties
 from egammaRec import egammaRecFlags as egRecFlags
 egammaRecFlags = egRecFlags.jobproperties.egammaRecFlags
@@ -25,11 +25,10 @@ def getSimBarcodeOffset1():
   "Return the simulation barcode offset for G4 particles from metadata + 1"
   return getSimBarcodeOffset() + 1
 
-EMClassifierParticleCaloExtensionTool =  ToolFactory (CfgMgr.Trk__ParticleCaloExtensionTool, 
-                                                      name="EMClassifierParticleCaloExtensionTool",
-                                                      Extrapolator = egammaExtrapolator,
-                                                      OutputContainerName="EGClassifierCaloExtension",
-                                                      doAdd = True)
+EMClassifierParticleCaloExtensionTool =  PublicToolFactory (CfgMgr.Trk__ParticleCaloExtensionTool, 
+                                                            name="EMClassifierParticleCaloExtensionTool",
+                                                            Extrapolator = egammaExtrapolator,
+                                                            OutputContainerName="EGClassifierCaloExtension" )
 
 EMMCTruthClassifier = ToolFactory( MCTruthClassifierConf.MCTruthClassifier, name = 'EMMCTruthClassifier',
                                    ParticleCaloExtensionTool=EMClassifierParticleCaloExtensionTool,
