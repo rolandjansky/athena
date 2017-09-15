@@ -142,6 +142,7 @@ DFCommonTruthPhotonIsolationTool2 = DerivationFramework__TruthIsolationTool(name
                                                                   ChargedParticlesOnly = True
                                                                   )
 ToolSvc += DFCommonTruthPhotonIsolationTool2
+from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthQGDecorationTool
 DFCommonTruthQGLabelTool = DerivationFramework__TruthQGDecorationTool(name="DFCommonTruthQGLabelTool",
                                                                   JetCollection = "AntiKt4TruthWZJets")
 ToolSvc += DFCommonTruthQGLabelTool

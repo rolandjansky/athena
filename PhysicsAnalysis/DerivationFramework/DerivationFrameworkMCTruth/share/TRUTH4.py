@@ -108,4 +108,6 @@ TRUTH4Stream.AddItem( "xAOD::TruthParticleContainer#TruthLabelTQuarksFinal" )
 TRUTH4Stream.AddItem( "xAOD::TruthParticleContainer#TruthLabelTausFinal" )
 TRUTH4Stream.AddItem( "xAOD::TruthParticleContainer#TruthLabelWBosons" )
 TRUTH4Stream.AddItem( "xAOD::TruthParticleContainer#TruthLabelZBosons" )
+# Keep the metadata of course!
 TRUTH4Stream.AddMetaDataItem( [ "xAOD::TruthMetaDataContainer#TruthMetaData", "xAOD::TruthMetaDataAuxContainer#TruthMetaDataAux." ] )
+

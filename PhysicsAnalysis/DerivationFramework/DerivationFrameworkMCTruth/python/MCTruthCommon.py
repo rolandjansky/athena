@@ -55,7 +55,7 @@ if not objKeyStore.isInInput( "xAOD::JetContainer","AntiKt4TruthWZJets"):
 if not objKeyStore.isInInput( "xAOD::JetContainer","TrimmedAntiKt10TruthJets"):
     #Large R jets
     from DerivationFrameworkJetEtMiss.JetCommon import addTrimmedJets
-    addTrimmedJets('AntiKt', 1.0, 'Truth', rclus=0.2, ptfrac=0.05, mods="groomed",
+    addTrimmedJets('AntiKt', 1.0, 'Truth', rclus=0.2, ptfrac=0.05, mods="truth_groomed",
                    algseq=DerivationFrameworkJob, outputGroup="Trimmed", writeUngroomed=False)
 
 # If we are running on EVNT, we also need some MET
@@ -70,12 +70,11 @@ if dfInputIsEVNT:
 #Save the post-shower HT and MET filter values that will make combining filtered samples easier (adds to the EventInfo)
 from DerivationFrameworkMCTruth.GenFilterToolSetup import *
 
-# schedule the special truth building tools and add them to a common augmentation
+# schedule the special truth building tools and add them to a common augmentation; note taus are handled separately below
 augmentationToolsList += [  DFCommonTruthClassificationTool,
                            DFCommonTruthGenFilter,
                            DFCommonTruthMuonTool,DFCommonTruthElectronTool,
                            DFCommonTruthPhotonToolSim,
-                           #DFCommonTruthTauTool,
                            DFCommonTruthNeutrinoTool,
                            DFCommonTruthTopTool,
                            DFCommonTruthBosonTool,

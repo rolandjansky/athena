@@ -47,5 +47,5 @@ TRUTH3SlimmingHelper.ExtraVariables = ["AntiKt4TruthWZJets.GhostCHadronsFinalCou
                                        "TrimmedAntiKt10TruthJets.pt.Tau1_wta.Tau2_wta.Tau3_wta",
                                        "TruthEvents.Q.XF1.XF2.PDGID1.PDGID2.PDFID1.PDFID2.X1.X2.weights.crossSection"]
 TRUTH3SlimmingHelper.AppendContentToStream(TRUTH3Stream)
+# Keep the metadata of course!
 TRUTH3Stream.AddMetaDataItem( [ "xAOD::TruthMetaDataContainer#TruthMetaData", "xAOD::TruthMetaDataAuxContainer#TruthMetaDataAux." ] )
-
