@@ -4,76 +4,25 @@
 #ifndef L1DECODER_TAUROISUNPACKINGTOOL_H
 #define L1DECODER_TAUROISUNPACKINGTOOL_H 1
 
-// STL includes
+#include "RoIsUnpackingToolBase.h"
+
 #include <string>
 
-// FrameWork includes
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ServiceHandle.h"
 
-// L1Decoder includes
-#include "IRoIsUnpackingTool.h"
+class TAURoIsUnpackingTool : public RoIsUnpackingToolBase { 
+public: 
 
-// Forward declaration
-class StoreGateSvc;
-
-
-
-class TAURoIsUnpackingTool
-  : virtual public ::IRoIsUnpackingTool,
-            public ::AthAlgTool
-{ 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Public methods: 
-  /////////////////////////////////////////////////////////////////// 
- public: 
-
-  // Copy constructor: 
-
-  /// Constructor with parameters: 
   TAURoIsUnpackingTool( const std::string& type,
-	     const std::string& name, 
-	     const IInterface* parent );
+                        const std::string& name, 
+                        const IInterface* parent );
 
-  /// Destructor: 
-  virtual ~TAURoIsUnpackingTool(); 
-  StatusCode  updateConfiguration() override { return StatusCode::SUCCESS; }
-  // Athena algtool's Hooks
-  virtual StatusCode  initialize() override;
-  virtual StatusCode  finalize() override;
+  virtual StatusCode updateConfiguration() override { return StatusCode::SUCCESS; }
 
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
+  virtual StatusCode initialize() override;
 
-  /////////////////////////////////////////////////////////////////// 
-  // Non-const methods: 
-  /////////////////////////////////////////////////////////////////// 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Private data: 
-  /////////////////////////////////////////////////////////////////// 
- private: 
-
-  /// Default constructor: 
-  TAURoIsUnpackingTool();
-
-  typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
-  /// Pointer to the StoreGate service
-  StoreGateSvc_t m_storeGate;
-
-  // Containers
-  
+private: 
 
 }; 
 
-// I/O operators
-//////////////////////
 
-/////////////////////////////////////////////////////////////////// 
-// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
-
-
-#endif //> !L1DECODER_TAUROISUNPACKINGTOOL_H
+#endif //> !L1DECODER_JROISUNPACKINGTOOL_H

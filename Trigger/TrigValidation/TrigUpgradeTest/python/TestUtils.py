@@ -52,7 +52,9 @@ class L1DecoderTest(L1Decoder) :
 
         # EM unpacker
         if TriggerFlags.doID() or TriggerFlags.doCalo():
-            emUnpacker = EMRoIsUnpackingTool(OutputLevel = self.OutputLevel)
+            emUnpacker = EMRoIsUnpackingTool(OutputLevel = self.OutputLevel,
+                                             Decisions = "EMRoIDecisions",
+                                             OutputTrigRoIs = "EMRoIs")
             emUnpacker.ThresholdToChainMapping = MenuTest.EMThresholdToChainMapping
             emUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="EM", maxCount=30 )
             self.roiUnpackers += [emUnpacker]
@@ -60,7 +62,9 @@ class L1DecoderTest(L1Decoder) :
 
         # MU unpacker
         if TriggerFlags.doMuon():
-            muUnpacker = MURoIsUnpackingTool(OutputLevel = self.OutputLevel)
+            muUnpacker = MURoIsUnpackingTool(OutputLevel = self.OutputLevel,
+                                             Decisions = "MURoIDecisions",
+                                             OutputTrigRoIs = "MURoIs")
             muUnpacker.ThresholdToChainMapping = MenuTest.MUThresholdToChainMapping
             muUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="MU", maxCount=20 )
             self.roiUnpackers += [muUnpacker]

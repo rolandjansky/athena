@@ -53,10 +53,14 @@ ctpUnpacker = CTPUnpackingEmulationTool( OutputLevel =  DEBUG, ForceEnableAllCha
 l1Decoder.ctpUnpacker = ctpUnpacker
 l1Decoder.ctpUnpacker.CTPToChainMapping = ["0:HLT_e3",  "0:HLT_g5", "1:HLT_e7", "2:HLT_2e3", "15:HLT_mu6", "33:HLT_2mu6", "15:HLT_mu6idperf", "42:HLT_e15mu4"] # this are real IDs of L1_* items in pp_v5 menu
 
-emUnpacker = RoIsUnpackingEmulationTool("EMRoIsUnpackingTool", OutputLevel=DEBUG )
+emUnpacker = RoIsUnpackingEmulationTool("EMRoIsUnpackingTool",
+                                        Decisions = "EMRoIDecisions",
+                                        OutputLevel=DEBUG )
 emUnpacker.ThresholdToChainMapping = ["EM3 : HLT_e3", "EM3 : HLT_g5",  "EM7 : HLT_e7", "EM15 : HLT_e15mu4" ]
 
-muUnpacker = RoIsUnpackingEmulationTool("MURoIsUnpackingTool", OutputLevel=DEBUG )
+muUnpacker = RoIsUnpackingEmulationTool("MURoIsUnpackingTool", 
+                                        Decisions = "MURoIDecisions",
+                                        OutputLevel=DEBUG )
 muUnpacker.ThresholdToChainMapping = ["MU6 : HLT_mu6", "MU6 : HLT_mu6idperf", "MU4 : HLT_e15mu4"] 
 # do not know yet how to configure the services for it
 

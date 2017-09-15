@@ -1,21 +1,29 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
+
+#include <iostream>
+
+#include "CTPUnpackingToolBase.h"
 #include "DecisionHandling/HLTIdentifier.h"
-#include "ICTPUnpackingTool.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IMessageSvc.h"
-#include "AsgTools/MsgStream.h"
-
-using namespace HLT;
 
 
+CTPUnpackingToolBase::CTPUnpackingToolBase(const std::string& type, 
+                                           const std::string& name, 
+                                           const IInterface* parent) 
+  : base_class(type, name, parent)
+{
+}
 
-ICTPUnpackingTool::~ICTPUnpackingTool()
-{}
 
-StatusCode ICTPUnpackingTool::decodeCTPToChainMapping() {
-  //  MsgStream log(msgSvc(), "ICTPUnpackingTool");
+StatusCode CTPUnpackingToolBase::initialize() 
+{
+  if ( !m_monTool.empty() ) CHECK( m_monTool.retrieve() );
+  
+  return StatusCode::SUCCESS;
+}
+
+StatusCode CTPUnpackingToolBase::decodeCTPToChainMapping() {
   std::istringstream input;
   for ( auto entry: m_ctpToChainProperty ) {
     input.clear();
