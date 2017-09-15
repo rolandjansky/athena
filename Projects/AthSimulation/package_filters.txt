@@ -338,6 +338,7 @@
 + TileCalorimeter/TileSvc/TileIdCnv
 + TileCalorimeter/TileSvc/TileSimEventAthenaPool
 + TileCalorimeter/TileSvc/TileSimEventTPCnv
++ Tools/ART
 + Tools/AtlasDoxygen
 + Tools/CodeCheck
 + Tools/JobTransforms
