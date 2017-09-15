@@ -77,6 +77,36 @@
   </Edges>
 </FrontEndChip>
 
+<FrontEndChip>
+  <name> RD53_20x19_25x100 </name>
+  <chipLength>20.0</chipLength>
+  <chipWidth>19.2</chipWidth>
+  <pitchEta>0.100</pitchEta>
+  <pitchPhi>0.025</pitchPhi>
+  <columns>200</columns>
+  <rows>768</rows>
+  <Edges>
+    <wide>0.1</wide>
+    <narrow>0.1</narrow>
+    <inlength>0.1</inlength>
+  </Edges>
+</FrontEndChip>
+
+<FrontEndChip>
+  <name> RD53_20x19_Rot_25x100 </name>
+  <chipLength>19.2</chipLength>
+  <chipWidth>20.0</chipWidth>
+  <pitchEta>0.100</pitchEta>
+  <pitchPhi>0.025</pitchPhi>
+  <columns>192</columns>
+  <rows>800</rows>
+  <Edges>
+    <wide>0.1</wide>
+    <narrow>0.1</narrow>
+    <inlength>0.1</inlength>
+  </Edges>
+</FrontEndChip>
+
 <!-- ######## ITK modules  ########### -->
 
 <!-- ### 50 um x 50 um pixels ### -->
@@ -856,6 +886,91 @@
 <Module>
   <moduleName>SingleChip_RD53_20x19_Rot_3D</moduleName>
   <chipName> RD53_20x19_Rot </chipName>
+  <lengthInChips>1</lengthInChips>
+  <widthMaxInChips>1</widthMaxInChips>
+  <sensorThickness>0.150</sensorThickness>
+  <chipThickness>0.150</chipThickness>
+  <hybridThickness>0.</hybridThickness>
+</Module>
+
+
+<!-- ### 25 um x 100 um pixels ### -->
+
+<Module>
+  <moduleName>FourChip_RD53_20x19_thin_25x100</moduleName>
+  <chipName> RD53_20x19_25x100 </chipName>
+  <lengthInChips>2</lengthInChips>
+  <widthMaxInChips>2</widthMaxInChips>
+  <sensorThickness>0.100</sensorThickness>
+  <chipThickness>0.150</chipThickness>
+  <hybridThickness>0.</hybridThickness>
+</Module>
+
+<Module>
+  <moduleName>FourChip_RD53_20x19_Rot_thin_25x100</moduleName>
+  <chipName> RD53_20x19_Rot_25x100 </chipName>
+  <lengthInChips>2</lengthInChips>
+  <widthMaxInChips>2</widthMaxInChips>
+  <sensorThickness>0.100</sensorThickness>
+  <chipThickness>0.150</chipThickness>
+  <hybridThickness>0.</hybridThickness>
+</Module>
+
+<Module>
+  <moduleName>FourChip_RD53_20x19_25x100</moduleName>
+  <chipName> RD53_20x19_25x100 </chipName>
+  <lengthInChips>2</lengthInChips>
+  <widthMaxInChips>2</widthMaxInChips>
+  <sensorThickness>0.150</sensorThickness>
+  <chipThickness>0.150</chipThickness>
+  <hybridThickness>0.</hybridThickness>
+</Module>
+
+<Module>
+  <moduleName>FourChip_RD53_20x19_Rot_25x100</moduleName>
+  <chipName> RD53_20x19_Rot_25x100 </chipName>
+  <lengthInChips>2</lengthInChips>
+  <widthMaxInChips>2</widthMaxInChips>
+  <sensorThickness>0.150</sensorThickness>
+  <chipThickness>0.150</chipThickness>
+  <hybridThickness>0.</hybridThickness>
+</Module>
+
+<Module>
+  <moduleName>DoubleWidth_RD53_20x19_Rot_25x100</moduleName>
+  <chipName> RD53_20x19_Rot_25x100 </chipName>
+  <lengthInChips>1</lengthInChips>
+  <widthMaxInChips>2</widthMaxInChips>
+  <sensorThickness>0.150</sensorThickness>
+  <chipThickness>0.150</chipThickness>
+  <hybridThickness>0.</hybridThickness>
+</Module>
+
+<!-- ### 25 um x 100 um pixels, 3D sensor ### -->
+
+<Module>
+  <moduleName>FourChip_RD53_20x19_3D_25x100</moduleName>
+  <chipName> RD53_20x19_25x100 </chipName>
+  <lengthInChips>2</lengthInChips>
+  <widthMaxInChips>2</widthMaxInChips>
+  <sensorThickness>0.150</sensorThickness>
+  <chipThickness>0.150</chipThickness>
+  <hybridThickness>0.</hybridThickness>
+</Module>
+
+<Module>
+  <moduleName>DoubleLength_RD53_20x19_3D_25x100</moduleName>
+  <chipName> RD53_20x19_25x100 </chipName>
+  <lengthInChips>2</lengthInChips>
+  <widthMaxInChips>1</widthMaxInChips>
+  <sensorThickness>0.150</sensorThickness>
+  <chipThickness>0.150</chipThickness>
+  <hybridThickness>0.</hybridThickness>
+</Module>
+
+<Module>
+  <moduleName>SingleChip_RD53_20x19_Rot_3D_25x100</moduleName>
+  <chipName> RD53_20x19_Rot_25x100 </chipName>
   <lengthInChips>1</lengthInChips>
   <widthMaxInChips>1</widthMaxInChips>
   <sensorThickness>0.150</sensorThickness>

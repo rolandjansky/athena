@@ -478,6 +478,80 @@
     <chipMat>pix::Chip_SimpleChip_3D</chipMat>
   </ModuleGeo>
 
+<!-- ***********  20x19  with 25x100 *********************** -->
+
+  <ModuleGeo>
+    <name>FourChip_RD53_20x19_25x100</name>
+    <sensorMat>std::Silicon</sensorMat>
+    <hybridLength>0.</hybridLength>
+    <hybridWidth>0.</hybridWidth>
+    <hybridMat>pix::Hybrid_FourChip</hybridMat>
+    <chipMat>pix::Chip_FourChip</chipMat>
+  </ModuleGeo>
+
+  <ModuleGeo>
+    <name>FourChip_RD53_20x19_thin_25x100</name>
+    <sensorMat>std::Silicon</sensorMat>
+    <hybridLength>0.</hybridLength>
+    <hybridWidth>0.</hybridWidth>
+    <hybridMat>pix::Hybrid_FourChip</hybridMat>
+    <chipMat>pix::Chip_FourChip</chipMat>
+  </ModuleGeo>
+
+  <ModuleGeo>
+    <name>FourChip_RD53_20x19_Rot_thin_25x100</name>
+    <sensorMat>std::Silicon</sensorMat>
+    <hybridLength>0.</hybridLength>
+    <hybridWidth>0.</hybridWidth>
+    <hybridMat>pix::Hybrid_FourChip</hybridMat>
+    <chipMat>pix::Chip_FourChip</chipMat>
+  </ModuleGeo>
+  
+  <ModuleGeo>
+    <name>DoubleWidth_RD53_20x19_Rot_25x100</name>
+    <sensorMat>std::Silicon</sensorMat>
+    <hybridLength>0.</hybridLength>
+    <hybridWidth>0.</hybridWidth>
+    <hybridMat>pix::Hybrid_DoubleChip</hybridMat>
+    <chipMat>pix::Chip_DoubleChip</chipMat>
+  </ModuleGeo>
+
+  <ModuleGeo>
+    <name>FourChip_RD53_20x19_Rot_25x100</name>
+    <sensorMat>std::Silicon</sensorMat>
+    <hybridLength>0.</hybridLength>
+    <hybridWidth>0.</hybridWidth>
+    <hybridMat>pix::Hybrid_FourChip</hybridMat>
+    <chipMat>pix::Chip_FourChip</chipMat>
+  </ModuleGeo>
+
+  <ModuleGeo>
+    <name>FourChip_RD53_20x19_3D_25x100</name>
+    <sensorMat>std::Silicon</sensorMat>
+    <hybridLength>0.</hybridLength>
+    <hybridWidth>0.</hybridWidth>
+    <hybridMat>pix::Hybrid_FourChip</hybridMat>
+    <chipMat>pix::Chip_FourChip_3D</chipMat>
+  </ModuleGeo>
+
+  <ModuleGeo>
+    <name>DoubleLength_RD53_20x19_3D_25x100</name>
+    <sensorMat>std::Silicon</sensorMat>
+    <hybridLength>0.</hybridLength>
+    <hybridWidth>0.</hybridWidth>
+    <hybridMat>pix::Hybrid_DoubleChip</hybridMat>
+    <chipMat>pix::Chip_DoubleChip_3D</chipMat>
+  </ModuleGeo>
+
+  <ModuleGeo>
+    <name>SingleChip_RD53_20x19_Rot_3D_25x100</name>
+    <sensorMat>std::Silicon</sensorMat>
+    <hybridLength>0.</hybridLength>
+    <hybridWidth>0.</hybridWidth>
+    <hybridMat>pix::Hybrid_SimpleChip</hybridMat>
+    <chipMat>pix::Chip_SimpleChip_3D</chipMat>
+  </ModuleGeo>
+
 <!-- ******************************************************* -->
 
 <ModuleGeo>

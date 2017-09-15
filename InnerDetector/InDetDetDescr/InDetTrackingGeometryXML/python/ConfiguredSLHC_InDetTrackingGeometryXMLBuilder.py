@@ -94,12 +94,13 @@ class ConfiguredSLHC_InDetTrackingGeometryXMLBuilder( InDet__StagedTrackingGeome
         InDetBarrelBuilder.StaveBuilder         = InDetStaveBuilder
         InDetBarrelBuilder.BarrelLayerBinsZ     = TrkDetFlags.PixelBarrelLayerMaterialBinsZ()
         InDetBarrelBuilder.BarrelLayerBinsPhi   = TrkDetFlags.PixelBarrelLayerMaterialBinsPhi()
-#       InDetBarrelBuilder.OutputLevel          = 2
+        InDetBarrelBuilder.OutputLevel          = TrkDetFlags.InDetBuildingOutputLevel()
         
         InDetEndcapBuilder.ModuleProvider       = InDetModuleProvider
         InDetEndcapBuilder.ModuleProvider       = InDetModuleProvider
         InDetEndcapBuilder.EndcapLayerBinR      = TrkDetFlags.PixelEndcapLayerMaterialBinsR()
         InDetEndcapBuilder.EndcapLayerBinPhi    = TrkDetFlags.PixelEndcapLayerMaterialBinsPhi()
+        InDetEndcapBuilder.OutputLevel          = TrkDetFlags.InDetBuildingOutputLevel()
         
 	
 ##         if doSCT :
