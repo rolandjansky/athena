@@ -276,7 +276,7 @@ DsoDb::has_type(const std::string& type_name) const
 }
 
 std::string
-DsoDb::load_type(const std::string& type_name) const
+DsoDb::load_type ATLAS_NOT_THREAD_SAFE (const std::string& type_name) const
 {
   RootType t = this->rflx_type(type_name);
   if (t.Id()) {
@@ -634,7 +634,7 @@ DsoDb::get_dups(DsoMap_t& dups, const DsoMap_t& db, bool pedantic) const
 
 /// load the reflex type after having loaded the hosting library
 RootType 
-DsoDb::rflx_type(const std::string& type_name) const
+DsoDb::rflx_type ATLAS_NOT_THREAD_SAFE (const std::string& type_name) const
 {
   const std::string rootmap_name = ::to_rootmap_name(type_name);
   const std::string rflx_name = ::to_rflx_name(type_name);
