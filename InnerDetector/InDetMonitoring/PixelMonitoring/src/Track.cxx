@@ -410,7 +410,8 @@ StatusCode PixelMainMon::FillTrackMon(void)
             }
 	  }
       } // end of TSOS loop
-    
+
+      if (m_track_chi2 && track0->fitQuality()->numberDoF() != 0) m_track_chi2->Fill(track0->fitQuality()->chiSquared()/track0->fitQuality()->numberDoF());
       if (nPixelHits>0)
 	{
 	  m_ntracksPerEvent++;
