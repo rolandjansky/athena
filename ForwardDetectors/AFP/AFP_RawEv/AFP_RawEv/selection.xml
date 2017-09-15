@@ -1,23 +1,14 @@
-
 <lcgdict>
+  <class name="AFP_RawContainer" id = "9942A27B-F44A-4313-8723-4F817A350F7D"/>
 
-
-
-
-
-
-
-
-
- 
-  <class name="AFP_RawDataContainer" id = "229CCDDE-6686-49A2-BC5D-431FEA055EC8"/>
-  <class name="std::vector<AFP_RawDataCollection*>" />
-  <class name="DataVector<AFP_RawDataCollection>" />
-
-  <class name="AFP_RawDataCollection" />
-  <class name="std::vector<AFP_RawData*>" />
-  <class name="DataVector<AFP_RawData>" />
-   
-  <class name="AFP_RawData" />
+  <class name="AFP_SiRawCollection" />
+  <class name="std::list<AFP_SiRawCollection*>" />
+  <class name="std::list<AFP_SiRawData>" />
+  <class name="AFP_SiRawData" />
+  
+  <class name="AFP_ToFRawCollection" />
+  <class name="std::list<AFP_ToFRawCollection*>" />
+  <class name="std::list<AFP_ToFRawData>" />
+  <class name="AFP_ToFRawData" />
 </lcgdict>
 

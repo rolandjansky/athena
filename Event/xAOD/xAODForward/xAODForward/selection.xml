@@ -19,6 +19,10 @@
   <class name="xAOD::AFPSiHitContainer_v1" id="6BE5A00E-A13D-4904-9358-CB28D4C57879" />
   <class name="xAOD::AFPSiHitAuxContainer_v1" id="B7C50786-FA4B-4D48-86C3-180EF5E6DE43" />
 
+  <class name="xAOD::AFPToFHit_v1" />
+  <class name="xAOD::AFPToFHitContainer_v1" id="AF3603F3-CDC9-4597-B111-155D9BC2E8D1" />
+  <class name="xAOD::AFPToFHitAuxContainer_v1" id="65012075-753E-4F3E-8A37-5BBB66C523D6" />
+
   <class name="xAOD::AFPSiHitsCluster_v1" />
   <class name="xAOD::AFPSiHitsClusterContainer_v1" id="CCBFAFB3-9A9E-486B-AD37-43C0FFB68998" />
   <class name="xAOD::AFPSiHitsClusterAuxContainer_v1" id="1B4F1207-38F5-42ED-BC5B-F9125F845C3F" />
@@ -58,7 +62,8 @@
   <class name="std::vector<ElementLink<xAOD::ALFADataContainer_v1> >" />
   <class name="std::vector<std::vector<ElementLink<xAOD::ALFADataContainer_v1> > >" />
 
-  <!-- AFP -->
+  <!-- *** AFP *** -->
+  <!-- AFPDataContainer -->
   <class name="DataLink<xAOD::AFPDataContainer_v1>" />
   <class name="std::vector<DataLink<xAOD::AFPDataContainer_v1> >" />
 
@@ -66,6 +71,7 @@
   <class name="std::vector<ElementLink<xAOD::AFPDataContainer_v1> >" />
   <class name="std::vector<std::vector<ElementLink<xAOD::AFPDataContainer_v1> > >" />
 
+  <!-- AFPSiHitContainer -->
   <class name="DataLink<xAOD::AFPSiHitContainer_v1>" />
   <class name="std::vector<DataLink<xAOD::AFPSiHitContainer_v1> >" />
  
@@ -73,6 +79,15 @@
   <class name="std::vector<ElementLink<xAOD::AFPSiHitContainer_v1> >" />
   <class name="std::vector<std::vector<ElementLink<xAOD::AFPSiHitContainer_v1> > >" />
 
+  <!-- AFPToFHitContainer -->
+  <class name="DataLink<xAOD::AFPToFHitContainer_v1>" />
+  <class name="std::vector<DataLink<xAOD::AFPToFHitContainer_v1> >" />
+ 
+  <class name="ElementLink<xAOD::AFPToFHitContainer_v1>" />
+  <class name="std::vector<ElementLink<xAOD::AFPToFHitContainer_v1> >" />
+  <class name="std::vector<std::vector<ElementLink<xAOD::AFPToFHitContainer_v1> > >" />
+
+  <!-- AFPSiHitsClusterContainer -->
   <class name="DataLink<xAOD::AFPSiHitsClusterContainer_v1>" />
   <class name="std::vector<DataLink<xAOD::AFPSiHitsClusterContainer_v1> >" />
  
@@ -80,6 +95,7 @@
   <class name="std::vector<ElementLink<xAOD::AFPSiHitsClusterContainer_v1> >" />
   <class name="std::vector<std::vector<ElementLink<xAOD::AFPSiHitsClusterContainer_v1> > >" />
 
+  <!-- AFPTrackContainer -->
   <class name="DataLink<xAOD::AFPTrackContainer_v1>" />
   <class name="std::vector<DataLink<xAOD::AFPTrackContainer_v1> >" />
  
