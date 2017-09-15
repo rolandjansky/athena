@@ -51,6 +51,9 @@ StatusCode InDet::TRT_TrackExtensionAlg::initialize() {
 		msg(MSG::INFO) << "Retrieved tool " << m_trtExtension << endmsg;
 	}
 
+	ATH_CHECK( m_inputTracksKey.initialize() );
+	ATH_CHECK( m_outputTracksKey.initialize() );
+
 	// Get output print level
 	//
 	m_outputlevel = msg().level()-MSG::DEBUG;
