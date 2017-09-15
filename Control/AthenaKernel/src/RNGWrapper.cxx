@@ -15,7 +15,13 @@ ATHRNG::RNGWrapper::RNGWrapper(factoryFunc& genFact, size_t nSlots)
   }
 }
 
-ATHRNG::RNGWrapper::~RNGWrapper(){}
+ATHRNG::RNGWrapper::~RNGWrapper()
+{
+  // Clean up the allocated engines
+  for(auto engPtr : m_engines) {
+    delete engPtr;
+  }
+}
 
 bool ATHRNG::RNGWrapper::setSeed(const std::string& algName, const EventContext& ctx)
 {
