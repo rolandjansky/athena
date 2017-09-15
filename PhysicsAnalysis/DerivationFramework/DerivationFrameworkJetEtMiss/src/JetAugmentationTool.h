@@ -49,6 +49,7 @@ namespace DerivationFramework {
 
     // JVT
     SG::AuxElement::Decorator<float>* dec_jvt;
+    SG::AuxElement::Decorator<char>* dec_passJvt;
     ToolHandle<IJetUpdateJvt> m_jvtTool;
     std::string m_jvtMomentKey;
     bool m_dojvt;

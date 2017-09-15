@@ -50,29 +50,37 @@ StatusCode OverlapRemovalTestAlg::initialize()
 //-----------------------------------------------------------------------------
 StatusCode OverlapRemovalTestAlg::execute()
 {
+  ATH_MSG_INFO("Julia enter execute");
   // Electrons
   const xAOD::ElectronContainer* electrons = 0;
   ATH_CHECK( evtStore()->retrieve(electrons, "Electrons") );
   applySelection(*electrons);
+  ATH_MSG_INFO("Julia retrieved electrons");
   // Muons
   const xAOD::MuonContainer* muons = 0;
   ATH_CHECK( evtStore()->retrieve(muons, "Muons") );
   applySelection(*muons);
+  ATH_MSG_INFO("Julia retrieved muons");
   // Taus
   const xAOD::TauJetContainer* taus = 0;
   ATH_CHECK( evtStore()->retrieve(taus, "TauJets") );
   applySelection(*taus);
+  ATH_MSG_INFO("Julia retrieved taus");
   // Jets
   const xAOD::JetContainer* jets = 0;
-  ATH_CHECK( evtStore()->retrieve(jets, "AntiKt4LCTopoJets") );
+  ATH_CHECK( evtStore()->retrieve(jets, "AntiKt4EMTopoJets") );
   applySelection(*jets);
+  ATH_MSG_INFO("Julia retrieved EM jets");
   // Photons
   const xAOD::PhotonContainer* photons = 0;
   ATH_CHECK( evtStore()->retrieve(photons, "Photons") );
   applySelection(*photons);
+  ATH_MSG_INFO("Julia retrieved photons");
 
+  ATH_MSG_INFO("Julia retrieved objects");
   // Apply the overlap removal
   ATH_CHECK( m_orTool->removeOverlaps(electrons, muons, jets, taus, photons) );
+  ATH_MSG_INFO("Julia removed overlaps");
 
   // Dump the objects
   ATH_MSG_DEBUG("Dumping results");
@@ -141,7 +149,7 @@ void OverlapRemovalTestAlg::printObjects(const xAOD::IParticleContainer& contain
   for(auto obj : container){
     if(selectAcc(*obj)){
       bool overlaps = overlapAcc(*obj);
-      ATH_MSG_DEBUG("  " << type << " pt " << obj->pt()*invGeV
+      ATH_MSG_INFO("  " << type << " pt " << obj->pt()*invGeV
                     << " eta " << obj->eta() << " phi " << obj->phi()
                     << " overlaps " << overlaps);
     }

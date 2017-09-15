@@ -193,6 +193,7 @@
 # Physics analysis package(s):
 + PhysicsAnalysis/AnalysisCommon/AODSelect
 + PhysicsAnalysis/AnalysisCommon/AnalysisUtils
++ PhysicsAnalysis/AnalysisCommon/AssociationUtils
 + PhysicsAnalysis/AnalysisCommon/Particle.*
 + PhysicsAnalysis/AnalysisCommon/PAT.*
 + PhysicsAnalysis/AnalysisCommon/PileupReweighting

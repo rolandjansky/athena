@@ -41,16 +41,10 @@ from JetSelectorTools.JetCleaningCutDefs import *
 #
 #    return tool
 
-def recommended_tools(name='EventCleaningTool'):
+def EventCleaningTool(name='EventCleaningTool'):
     """
-    Provides the pre-configured overlap removal recommendations.
-    All overlap tools will be (private) added to the master tool
-    which is then returned by this function.
-
     Arguments:
       name                  - set the name of the master tool.
-      input_label           - set the InputLabel property for all tools.
-      output_label          - set the OutputLabel property for all tools.
     """
     # Configure the master tool
     ecTool = EventCleaningTool(name)
