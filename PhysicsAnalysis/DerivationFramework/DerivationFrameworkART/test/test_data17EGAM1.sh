@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# art-description: DAOD building EGAM1 data17_13TeV
+# art-description: DAOD building EGAM1 data17
 # art-type: grid
 # art-output: *.pool.root
 
