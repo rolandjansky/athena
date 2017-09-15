@@ -204,7 +204,7 @@ class MuFastSteering : public HLT::FexAlgo,
   SG::WriteHandle<MuonFeatureDetails> m_muFeDeContainer;  		
 
   //Test Value to confirm to record with WriteHandle
-  MuonFeatureDetails muFeDeTestValue;					
+  MuonFeatureDetails m_muFeDeTestValue;
 
   //Monitored variables
   float m_inner_mdt_hits;

@@ -365,13 +365,13 @@ StatusCode MuFastSteering::execute() {
   float muFeDePt = 1.52;
   float muFeDeAlpha = 1.23;
   float muFeDeBeta = -1.15;
-  muFeDeTestValue.setPt(muFeDePt);
-  muFeDeTestValue.setAlpha(muFeDeAlpha);
-  muFeDeTestValue.setBeta(muFeDeBeta);
+  m_muFeDeTestValue.setPt(muFeDePt);
+  m_muFeDeTestValue.setAlpha(muFeDeAlpha);
+  m_muFeDeTestValue.setBeta(muFeDeBeta);
   
   //WriteHandle:MuonFeatureDetails to record
   SG::WriteHandle<MuonFeatureDetails> muFeDeContainerHandle(m_muFeDeContainerKey);
-  muFeDeContainerHandle = std::make_unique<MuonFeatureDetails>(muFeDeTestValue);
+  muFeDeContainerHandle = std::make_unique<MuonFeatureDetails>(m_muFeDeTestValue);
   if(!muFeDeContainerHandle.isValid()){
         ATH_MSG_ERROR("ReadHandle for MuonFeatureDetails isn't Valid");
         return StatusCode::FAILURE;
