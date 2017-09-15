@@ -65,7 +65,7 @@ def declareDefaultTools():
     jtm += ParticleJetDeltaRLabelTool(
       "jetdrlabeler",
       LabelName = "HadronConeExclTruthLabelID",
-      DoubleLabelName = "HadronConeExclTruthLabelID",
+      DoubleLabelName = "HadronConeExclExtendedTruthLabelID",
       BLabelName = "ConeExclBHadronsFinal",
       CLabelName = "ConeExclCHadronsFinal",
       TauLabelName = "ConeExclTausFinal",
@@ -82,7 +82,7 @@ def declareDefaultTools():
     jtm += ParticleJetDeltaRLabelTool(
       "trackjetdrlabeler",
       LabelName = "HadronConeExclTruthLabelID",
-      DoubleLabelName = "HadronConeExclTruthLabelID",
+      DoubleLabelName = "HadronConeExclExtendedTruthLabelID",
       BLabelName = "ConeExclBHadronsFinal",
       CLabelName = "ConeExclCHadronsFinal",
       TauLabelName = "ConeExclTausFinal",
