@@ -15,8 +15,6 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-const char ALFA_ConfigParams::ms_szinvalid[]="invalid";
-
 ALFA_ConfigParams::ALFA_ConfigParams()
 {
 	m_bIsValid=false;
