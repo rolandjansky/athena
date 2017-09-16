@@ -51,10 +51,6 @@ namespace ISF {
     std::string                                                  m_validationStream; //!< validation THist stream name
     /** Validation output TTree (+variables) */
     TTree                                                       *m_t_simHits;        //!< ROOT tree containing simulated hit info
-    int                                                          m_mdt_n;
-    int                                                          m_rpc_n;
-    int                                                          m_tgc_n;
-    int                                                          m_csc_n;
     mutable int                                                  m_pileup;
     mutable int                                                  m_type;
     mutable int                                                  m_id;
