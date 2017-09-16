@@ -1,7 +1,0 @@
-# date: 24 March 2015
-# used https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections13TeVsquarkantisquark
-# format : datasetID   finalState   XS(pb)   K-factor   filterEff   relUncertainty
-148071       4     0.647281      1      1      0.132892
-148052       4     0.457041      1      1      0.136397
-148055       4     4.95179       1      1      0.132598
-148065       4     0.125868      1      1      0.151762
