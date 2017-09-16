@@ -22,8 +22,6 @@ static const InterfaceID IID_TrigL2ElectronHypoTool("TrigL2ElectronHypoTool", 1,
  **/
 
 
-using namespace TrigCompositeUtils;
-
 class TrigL2ElectronHypoTool
   : virtual public ::AthAlgTool
 { 
@@ -40,10 +38,10 @@ class TrigL2ElectronHypoTool
 
 
   struct Input {
-    Decision* decision;
+    TrigCompositeUtils::Decision* decision;
     const xAOD::TrigElectron* electron;
     const xAOD::TrigEMCluster* cluster;
-    const DecisionIDContainer previousDecisionIDs;
+    const TrigCompositeUtils::DecisionIDContainer previousDecisionIDs;
   };
 
   /**
