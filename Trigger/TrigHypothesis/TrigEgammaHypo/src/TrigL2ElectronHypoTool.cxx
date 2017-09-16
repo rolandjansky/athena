@@ -154,7 +154,7 @@ StatusCode TrigL2ElectronHypoTool::multiplicitySelection( std::vector<Input>& in
   HLT::Index2DVec passingSelection( m_multiplicity );
   
   for ( size_t cutIndex = 0; cutIndex < m_multiplicity; ++ cutIndex ) {
-    size_t elIndex;
+    size_t elIndex = 0;
     for ( auto elIter =  input.begin(); elIter != input.end(); ++elIter, ++elIndex ) {
       if ( m_respectPreviousDecision 
 	   and ( elIter->previousDecisionIDs.count( m_decisionId.numeric() ) == 0 ) ) continue;
