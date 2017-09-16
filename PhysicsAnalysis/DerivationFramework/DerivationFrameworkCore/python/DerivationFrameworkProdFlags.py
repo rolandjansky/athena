@@ -316,18 +316,18 @@ class WriteDAOD_HIGG1D2Stream(JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_HIGG1D2Stream)
 listAODtoDPD.append(WriteDAOD_HIGG1D2Stream.StreamName)
 
-class WriteDAOD_HIGG1D3Stream(JobProperty):
-    """HIGG1D3 derivation"""
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue = False
-    StreamName = 'StreamDAOD_HIGG1D3'
-    FileName = ''
-    isVirtual = False
-    DPDMakerScript = "DerivationFrameworkHiggs/HIGG1D3.py"
-    pass
-jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_HIGG1D3Stream)
-listAODtoDPD.append(WriteDAOD_HIGG1D3Stream.StreamName)
+#class WriteDAOD_HIGG1D3Stream(JobProperty):
+#    """HIGG1D3 derivation"""
+#    statusOn = True
+#    allowedTypes = ['bool']
+#    StoredValue = False
+#    StreamName = 'StreamDAOD_HIGG1D3'
+#    FileName = ''
+#    isVirtual = False
+#    DPDMakerScript = "DerivationFrameworkHiggs/HIGG1D3.py"
+#    pass
+#jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_HIGG1D3Stream)
+#listAODtoDPD.append(WriteDAOD_HIGG1D3Stream.StreamName)
 
 ##################################
 # Defined by Higgs subgroup 2
@@ -359,18 +359,18 @@ class WriteDAOD_HIGG2D2Stream(JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_HIGG2D2Stream)
 listAODtoDPD.append(WriteDAOD_HIGG2D2Stream.StreamName)
 
-class WriteDAOD_HIGG2D3Stream(JobProperty):
-    """HIGG2D3 derivation"""
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue = False
-    StreamName = 'StreamDAOD_HIGG2D3'
-    FileName = ''
-    isVirtual = False
-    DPDMakerScript = "DerivationFrameworkHiggs/HIGG2D3.py"
-    pass
-jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_HIGG2D3Stream)
-listAODtoDPD.append(WriteDAOD_HIGG2D3Stream.StreamName)
+#class WriteDAOD_HIGG2D3Stream(JobProperty):
+#    """HIGG2D3 derivation"""
+#    statusOn = True
+#    allowedTypes = ['bool']
+#    StoredValue = False
+#    StreamName = 'StreamDAOD_HIGG2D3'
+#    FileName = ''
+#    isVirtual = False
+#    DPDMakerScript = "DerivationFrameworkHiggs/HIGG2D3.py"
+#    pass
+#jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_HIGG2D3Stream)
+#listAODtoDPD.append(WriteDAOD_HIGG2D3Stream.StreamName)
 
 class WriteDAOD_HIGG2D4Stream(JobProperty):
     """HIGG2D4 derivation"""
@@ -606,18 +606,18 @@ class WriteDAOD_HIGG8D1Stream(JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_HIGG8D1Stream)
 listAODtoDPD.append(WriteDAOD_HIGG8D1Stream.StreamName)
 
-class WriteDAOD_HIGG8D2Stream(JobProperty):
-    """HIGG8D1 derivation"""
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue = False
-    StreamName = 'StreamDAOD_HIGG8D2'
-    FileName = ''
-    isVirtual = False
-    DPDMakerScript = "DerivationFrameworkHiggs/HIGG8D2.py"
-    pass
-jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_HIGG8D2Stream)
-listAODtoDPD.append(WriteDAOD_HIGG8D2Stream.StreamName)
+#class WriteDAOD_HIGG8D2Stream(JobProperty):
+#    """HIGG8D1 derivation"""
+#    statusOn = True
+#    allowedTypes = ['bool']
+#    StoredValue = False
+#    StreamName = 'StreamDAOD_HIGG8D2'
+#    FileName = ''
+#    isVirtual = False
+#    DPDMakerScript = "DerivationFrameworkHiggs/HIGG8D2.py"
+#    pass
+#jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_HIGG8D2Stream)
+#listAODtoDPD.append(WriteDAOD_HIGG8D2Stream.StreamName)
 
 #################################
 # Defined by the STDM group
@@ -1054,18 +1054,18 @@ class WriteDAOD_EXOT0Stream(JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT0Stream)
 listAODtoDPD.append(WriteDAOD_EXOT0Stream.StreamName)
 
-class WriteDAOD_EXOT1Stream(JobProperty):
-    """EXOT1 derivation"""
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue = False
-    StreamName = 'StreamDAOD_EXOT1'
-    FileName = ''
-    isVirtual = False
-    DPDMakerScript = "DerivationFrameworkExotics/EXOT1.py"
-    pass
-jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT1Stream)
-listAODtoDPD.append(WriteDAOD_EXOT1Stream.StreamName)
+#class WriteDAOD_EXOT1Stream(JobProperty):
+#    """EXOT1 derivation"""
+#    statusOn = True
+#    allowedTypes = ['bool']
+#    StoredValue = False
+#    StreamName = 'StreamDAOD_EXOT1'
+#    FileName = ''
+#    isVirtual = False
+#    DPDMakerScript = "DerivationFrameworkExotics/EXOT1.py"
+#    pass
+#jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT1Stream)
+#listAODtoDPD.append(WriteDAOD_EXOT1Stream.StreamName)
 
 class WriteDAOD_EXOT2Stream(JobProperty):
     """EXOT2 derivation"""
@@ -1184,18 +1184,18 @@ class WriteDAOD_EXOT10Stream(JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT10Stream)
 listAODtoDPD.append(WriteDAOD_EXOT10Stream.StreamName)
 
-class WriteDAOD_EXOT11Stream(JobProperty):
-    """EXOT11 derivation"""
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue = False
-    StreamName = 'StreamDAOD_EXOT11'
-    FileName = ''
-    isVirtual = False
-    DPDMakerScript = "DerivationFrameworkExotics/EXOT11.py"
-    pass
-jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT11Stream)
-listAODtoDPD.append(WriteDAOD_EXOT11Stream.StreamName)
+#class WriteDAOD_EXOT11Stream(JobProperty):
+#    """EXOT11 derivation"""
+#    statusOn = True
+#    allowedTypes = ['bool']
+#    StoredValue = False
+#    StreamName = 'StreamDAOD_EXOT11'
+#    FileName = ''
+#    isVirtual = False
+#    DPDMakerScript = "DerivationFrameworkExotics/EXOT11.py"
+#    pass
+#jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT11Stream)
+#listAODtoDPD.append(WriteDAOD_EXOT11Stream.StreamName)
 
 class WriteDAOD_EXOT12Stream(JobProperty):
     """EXOT12 derivation"""
@@ -1249,18 +1249,18 @@ class WriteDAOD_EXOT15Stream(JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT15Stream)
 listAODtoDPD.append(WriteDAOD_EXOT15Stream.StreamName)
 
-class WriteDAOD_EXOT16Stream(JobProperty):
-    """EXOT16 derivation"""
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue = False
-    StreamName = 'StreamDAOD_EXOT16'
-    FileName = ''
-    isVirtual = False
-    DPDMakerScript = "DerivationFrameworkExotics/EXOT16.py"
-    pass
-jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT16Stream)
-listAODtoDPD.append(WriteDAOD_EXOT16Stream.StreamName)
+#class WriteDAOD_EXOT16Stream(JobProperty):
+#    """EXOT16 derivation"""
+#    statusOn = True
+#    allowedTypes = ['bool']
+#    StoredValue = False
+#    StreamName = 'StreamDAOD_EXOT16'
+#    FileName = ''
+#    isVirtual = False
+#    DPDMakerScript = "DerivationFrameworkExotics/EXOT16.py"
+#    pass
+#jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT16Stream)
+#listAODtoDPD.append(WriteDAOD_EXOT16Stream.StreamName)
 
 class WriteDAOD_EXOT17Stream(JobProperty):
     """EXOT17 derivation"""
@@ -1478,18 +1478,18 @@ listAODtoDPD.append(WriteDAOD_JETM11Stream.StreamName)
 # Defined by the inner tracking group
 #####################################
 
-class WriteDAOD_IDTR0Stream(JobProperty):
-    """IDTR0 derivation"""
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue = False
-    StreamName = 'StreamDAOD_IDTR0'
-    FileName = ''
-    isVirtual = False
-    DPDMakerScript = "DerivationFrameworkInDet/IDTR0.py"
-    pass
-jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_IDTR0Stream)
-listAODtoDPD.append(WriteDAOD_IDTR0Stream.StreamName)
+#class WriteDAOD_IDTR0Stream(JobProperty):
+#    """IDTR0 derivation"""
+#    statusOn = True
+#    allowedTypes = ['bool']
+#    StoredValue = False
+#    StreamName = 'StreamDAOD_IDTR0'
+#    FileName = ''
+#    isVirtual = False
+#    DPDMakerScript = "DerivationFrameworkInDet/IDTR0.py"
+#    pass
+#jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_IDTR0Stream)
+#listAODtoDPD.append(WriteDAOD_IDTR0Stream.StreamName)
 
 
 class WriteDAOD_IDTR1Stream(JobProperty):
