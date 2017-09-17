@@ -8,25 +8,21 @@
 
 #include "PixelMonitoring/PixelMonModules.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
-#include "TH1I.h"
-#include "TH2I.h"
-#include "TProfile.h"
 #include "LWHists/TH1F_LW.h"
 #include "LWHists/TProfile_LW.h"
 #include "InDetIdentifier/PixelID.h"
 #include "GaudiKernel/StatusCode.h"       
-#include <iostream>
 #include <string.h>
 
 PixelMonModules::~PixelMonModules()
 {
 }
 
-PixelMonModulesProf::PixelMonModulesProf(std::string name, std::string title, int nbins, double* arr, bool doIBL) : m_doIBL(doIBL)
+PixelMonModulesProf::PixelMonModulesProf(std::string name, std::string title, int nbins, double* arr)
 {
    m_nBins=nbins;
    for (int i = 0; i < 1744 + 280 * m_doIBL; i++) {
-      getHist(i) = TProfile_LW::create((getHistName(i,false,m_doIBL)+"_"+name).c_str(), (getHistName(i,false,m_doIBL)+" "+title).c_str(), nbins, arr);
+      getHist(i) = TProfile_LW::create((getHistName(i,false)+"_"+name).c_str(), (getHistName(i,false)+" "+title).c_str(), nbins, arr);
    }
    if (m_doIBL == false) {
       for (int i = 1744; i < 2024; i++) {
@@ -37,11 +33,11 @@ PixelMonModulesProf::PixelMonModulesProf(std::string name, std::string title, in
    m_Dummy = 0;
 }
 
-PixelMonModulesProf::PixelMonModulesProf(std::string name, std::string title, int nbins, double low, double high, bool doIBL) : m_doIBL(doIBL)
+PixelMonModulesProf::PixelMonModulesProf(std::string name, std::string title, int nbins, double low, double high)
 {
    m_nBins = nbins;
    for (int i = 0; i < 1744 + 280 * m_doIBL; i++) {
-      getHist(i) = TProfile_LW::create((getHistName(i,false,m_doIBL)+"_"+name).c_str(), (getHistName(i,false,m_doIBL)+" "+title).c_str(), nbins, low, high);
+      getHist(i) = TProfile_LW::create((getHistName(i,false)+"_"+name).c_str(), (getHistName(i,false)+" "+title).c_str(), nbins, low, high);
    }
    if (m_doIBL == false) {
       for (int i = 1744; i < 2024; i++) {
@@ -59,11 +55,11 @@ PixelMonModulesProf::~PixelMonModulesProf()
    }
 }
 
-PixelMonModules1D::PixelMonModules1D(std::string name, std::string title, int nbins, double* arr, bool doIBL) : m_doIBL(doIBL)
+PixelMonModules1D::PixelMonModules1D(std::string name, std::string title, int nbins, double* arr)
 {
    m_nBins = nbins;
    for (int i = 0; i < 1744 + 280 * m_doIBL; i++) {
-      getHist(i) = new TH1F((getHistName(i,false,m_doIBL)+"_"+name).c_str(), (getHistName(i,false,m_doIBL)+" "+title).c_str(), nbins, arr);
+      getHist(i) = new TH1F((getHistName(i,false)+"_"+name).c_str(), (getHistName(i,false)+" "+title).c_str(), nbins, arr);
    }
    if (m_doIBL == false) {
       for (int i = 1744; i < 2024; i++) {
@@ -74,11 +70,11 @@ PixelMonModules1D::PixelMonModules1D(std::string name, std::string title, int nb
    m_Dummy = 0;
 }
 
-PixelMonModules1D::PixelMonModules1D(std::string name, std::string title, int nbins, double low, double high, bool doIBL) : m_doIBL(doIBL)
+PixelMonModules1D::PixelMonModules1D(std::string name, std::string title, int nbins, double low, double high)
 {
    m_nBins=nbins;
    for (int i = 0; i < 1744 + 280 * m_doIBL; i++) {
-      getHist(i) = new TH1F((getHistName(i,false,m_doIBL)+"_"+name).c_str(), (getHistName(i,false,m_doIBL)+" "+title).c_str(), nbins, low, high);
+      getHist(i) = new TH1F((getHistName(i,false)+"_"+name).c_str(), (getHistName(i,false)+" "+title).c_str(), nbins, low, high);
    }
    if (m_doIBL == false) {
       for (int i = 1744; i < 2024; i++) {
@@ -96,11 +92,11 @@ PixelMonModules1D::~PixelMonModules1D()
    }
 }
 
-PixelMonModules2D::PixelMonModules2D(std::string name, std::string title, int nbins0, double low0, double high0, int nbins1, double low1, double high1, bool doIBL) : m_doIBL(doIBL)
+PixelMonModules2D::PixelMonModules2D(std::string name, std::string title, int nbins0, double low0, double high0, int nbins1, double low1, double high1)
 {
    m_nBins = nbins0 * nbins1;
    for (int i = 0; i < 1744 + 280 * m_doIBL; i++) {
-      getHist(i) = new TH2F((getHistName(i,false,m_doIBL)+"_"+name).c_str(), (getHistName(i,false,m_doIBL)+" "+title).c_str(), nbins0, low0, high0, nbins1, low1, high1);
+      getHist(i) = new TH2F((getHistName(i,false)+"_"+name).c_str(), (getHistName(i,false)+" "+title).c_str(), nbins0, low0, high0, nbins1, low1, high1);
    }
    if (m_doIBL == false) {
       for (int i = 1744; i < 2024; i++) {
@@ -128,7 +124,7 @@ void PixelMonModulesProf::Reset()
 StatusCode PixelMonModulesProf::regHist(ManagedMonitorToolBase* thisptr, std::string path, ManagedMonitorToolBase::Interval_t Run)
 {
    for (int i = 0; i < 1744 + 280 * m_doIBL; i++) {
-     ManagedMonitorToolBase::MonGroup mgroup(thisptr, (path+"/"+getHistName(i,true,m_doIBL)).c_str(),Run);
+     ManagedMonitorToolBase::MonGroup mgroup(thisptr, (path+"/"+getHistName(i,true)).c_str(),Run);
       if (mgroup.regHist(getHist(i)).isFailure()) {
          return StatusCode::FAILURE;
       }
@@ -162,24 +158,6 @@ void PixelMonModulesProf::Fill(double value0, double value1, Identifier &id, con
    else if (bec == 0) {
       if (m_doIBL) ld--;
       const int em = pixID->eta_module(id);
-      if (ld == 0) B0[em+6][pm]->Fill(value0, value1);
-      else if (ld == 1) B1[em+6][pm]->Fill(value0, value1);
-      else if (ld == 2) B2[em+6][pm]->Fill(value0, value1);
-      else if (ld == -1) IBL[em+10][pm]->Fill(value0, value1);
-   }
-}
-
-void PixelMonModules2D::Fill(double value0, double value1, Identifier &id, const PixelID* pixID)
-{
-   const int bec = pixID->barrel_ec(id);
-   const int pm  = pixID->phi_module(id);
-   int ld = pixID->layer_disk(id);
-
-   if (bec == 2) A[ld][pm]->Fill(value0, value1); 
-   else if (bec == -2) C[ld][pm]->Fill(value0, value1);
-   else if (bec == 0) {
-      if (m_doIBL) ld--;
-      const int em  = pixID->eta_module(id);
       if (ld == 0) B0[em+6][pm]->Fill(value0, value1);
       else if (ld == 1) B1[em+6][pm]->Fill(value0, value1);
       else if (ld == 2) B2[em+6][pm]->Fill(value0, value1);
@@ -244,7 +222,7 @@ void PixelMonModules1D::Fill(double value, Identifier &id, const PixelID* pixID)
 StatusCode PixelMonModules1D::regHist(ManagedMonitorToolBase* thisptr, std::string path, ManagedMonitorToolBase::Interval_t Run)
 {
    for (int i = 0; i < 1744 + 280 * m_doIBL; i++) {
-     ManagedMonitorToolBase::MonGroup mgroup(thisptr, (path+"/"+getHistName(i,true,m_doIBL)).c_str(),Run);
+     ManagedMonitorToolBase::MonGroup mgroup(thisptr, (path+"/"+getHistName(i,true)).c_str(),Run);
       if (mgroup.regHist(getHist(i)).isFailure()) {
          return StatusCode::FAILURE;
       }
@@ -255,7 +233,7 @@ StatusCode PixelMonModules1D::regHist(ManagedMonitorToolBase* thisptr, std::stri
 StatusCode PixelMonModules2D::regHist(ManagedMonitorToolBase* thisptr, std::string path, ManagedMonitorToolBase::Interval_t Run)
 {
    for (int i = 0; i < 1744 + 280 * m_doIBL; i++) {
-     ManagedMonitorToolBase::MonGroup mgroup(thisptr, (path+"/"+getHistName(i,true,m_doIBL)).c_str(),Run);
+     ManagedMonitorToolBase::MonGroup mgroup(thisptr, (path+"/"+getHistName(i,true)).c_str(),Run);
       if (mgroup.regHist(getHist(i)).isFailure()) {
          return StatusCode::FAILURE;
       }
@@ -344,7 +322,7 @@ TH2F* &PixelMonModules2D::getHist(int i)
    return m_Dummy;
 }
 
-std::string PixelMonModules::getHistName(int i, bool forPath, bool doIBL)
+std::string PixelMonModules::getHistName(int i, bool forPath)
 {
    const int ndisk = 3;
    const int nphi  = 48;
@@ -426,7 +404,7 @@ std::string PixelMonModules::getHistName(int i, bool forPath, bool doIBL)
      i -= 144;                      
      if (i < 144) return diskC[i/48];
      i -= 144;
-     if (doIBL && i < 280) return newbarrel[0]+joint+staveb[i%14];
+     if (m_doIBL && i < 280) return newbarrel[0]+joint+staveb[i%14];
 
   } else {
      std::string joint = "_";
@@ -440,9 +418,10 @@ std::string PixelMonModules::getHistName(int i, bool forPath, bool doIBL)
      i -= 144;                      
      if (i < 144) return diskC[i/48]+joint+staveC[i%48];
      i -= 144;
-     if (doIBL && i < 280) return newbarrel[0]+joint+staveb[i%14]+joint+modIBL[i/14];;
+     if (m_doIBL && i < 280) return newbarrel[0]+joint+staveb[i%14]+joint+modIBL[i/14];;
   }
   std::string dummy="wrong initialization";
   return dummy;  //should never get here
 }
 
+const bool PixelMonModules::m_doIBL{true};

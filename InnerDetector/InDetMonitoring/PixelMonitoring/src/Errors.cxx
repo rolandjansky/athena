@@ -25,9 +25,10 @@
 #include <sstream>
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
+#include "PixelMonitoring/Components.h"
 #include "PixelMonitoring/PixelMon2DMapsLW.h"
+#include "PixelMonitoring/PixelMon2DProfilesLW.h"
 #include "PixelMonitoring/PixelMonModules.h"
-#include "PixelMonitoring/PixelMonProfiles.h"
 #include "PixelMonitoring/PixelMon2DLumiMaps.h"
 
 
@@ -42,7 +43,6 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
    std::string path = "Pixel/Errors";
    std::string path2 = "Pixel/ErrorsExpert";
    if (m_doOnTrack) path.replace(path.begin(), path.end(), "Pixel/ErrorsOnTrack");
-   if (m_doOnPixelTrack) path.replace(path.begin(), path.end(), "Pixel/ErrorsOnPixelTrack");
    MonGroup rodHistos(this, path.c_str(), run, ATTRIB_MANAGED); //declare a group of histograms
    MonGroup rodExpert(this, path2.c_str(), run, ATTRIB_MANAGED); //declare a group of histograms
 
@@ -63,6 +63,36 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
        std::make_pair("SEU_Hamming",                   "SEU Hamming Code errors"),
        std::make_pair("ROD_Timeout",                   "ROD Formatter Timeout errors"),
        std::make_pair("FE_Warning",                    "FE Warning errors"),
+     }};
+
+   std::array <std::pair <std::string, std::string>, kNumErrorStatesIBL > error_state_labelsIBL = {{
+       std::make_pair("BCID_errors",                   "Synchronization BCID errors"),
+       std::make_pair("LVL1ID_errors",                 "Synchronization LVL1ID errors"),
+       std::make_pair("Row_Column_errors",             "Row Column errors"),
+       std::make_pair("Limit_errors",                  "Limit_errors"),
+       std::make_pair("Preamble_errors",               "Preamble errors"),
+       std::make_pair("Masked_link_errors",            "Masked link errors"),
+       std::make_pair("Hamming_code_0_errors",         "Hamming code 0 errors"),
+       std::make_pair("Hamming_code_1_errors",         "Hamming code 1 errors"),
+       std::make_pair("Hamming_code_2_errors",         "Hamming code 2 errors"),
+       std::make_pair("L1_incounter_errors",           "L1 in counter errors"),
+       std::make_pair("L1_request_counter_errors",     "L1 request counter errors"),
+       std::make_pair("L1_register_errors",            "L1 register errors"),
+       std::make_pair("L1_Trigger_ID_errors",          "L1 trigger ID errors"),
+       std::make_pair("Readout_processor_errors",      "Readout processor errors"),
+       std::make_pair("Skipped_trig_counter_errors",   "Skipped trigger counter errors"),
+       std::make_pair("Truncated_event_flag_errors",   "Truncated event errors"),
+       std::make_pair("Triple redundant_errors",       "Triple redundant errors"),
+       std::make_pair("Write_reg_data_errors",         "Write register data errors"),
+       std::make_pair("Address_errors",                "Address errors"),
+       std::make_pair("Other_CMD_decoder_errors",      "CMD decoder errors"),
+       std::make_pair("CMD_decoder_bitflip_errors",    "CMD decoder bit flip errors"),
+       std::make_pair("CMD_decoder_SEU_errors",        "CMD decoder SEU errors"),
+       std::make_pair("Data_bus_address_errors",       "Data bus address errors"),
+       std::make_pair("ROD_Timeout_errors",            "ROD Timeout errors"),
+       std::make_pair("Timeout_errors",                "Timeout errors"),
+       std::make_pair("BCID_counter_errors",           "BCID counter errors"),
+       std::make_pair("Triple_redundant_errors2",      "Triple redundant errors 2"),
      }};
 
    const char * errorBitsPIX[kNumErrorBits] = {
@@ -190,25 +220,29 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
    }
 
    if (m_doModules) {
-      m_errors = new PixelMonModules1D("errors", ("Errors in module:ErrorType" + m_histTitleExt + ";Number of Errors").c_str(), 7, 0.5, 7.5, m_doIBL);
+      m_errors = new PixelMonModules1D("errors", ("Errors in module:ErrorType" + m_histTitleExt + ";Number of Errors").c_str(), 7, 0.5, 7.5);
       sc = m_errors->regHist(this, (path+"/ModulesErrors").c_str(), run);
       for (int k = 0; k < 7; k++) m_errors->SetBinLabel(error_type_labels[k].second.c_str(), k+1);
    }
 
    if (m_do2DMaps && !m_doOnline) {
       for (int i = 0; i < ErrorCategoryMODROD::COUNT - 3; i++) {
-         m_errhist_errtype_map[i] = new PixelMon2DMapsLW(error_type_labels[i].first, (error_type_labels[i].second + m_histTitleExt).c_str(), m_doIBL);
+         m_errhist_errtype_map[i] = new PixelMon2DMapsLW(error_type_labels[i].first, (error_type_labels[i].second + m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D, true);
          sc = m_errhist_errtype_map[i]->regHist(rodHistos);
       }
       for (int i = 0; i < ErrorCategory::COUNT; i++) {
-         m_errhist_errcat_map[i] = new PixelMon2DMapsLW(error_cat_labels[i].first.c_str(), (error_cat_labels[i].second + m_histTitleExt).c_str(), m_doIBL);
+         m_errhist_errcat_map[i] = new PixelMon2DMapsLW(error_cat_labels[i].first.c_str(), (error_cat_labels[i].second + m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D, true);
          sc = m_errhist_errcat_map[i]->regHist(rodHistos);
       }
    }
 
    if (m_do2DMaps && !m_doOnline) {
       for (int j = 0; j < kNumErrorStates; j++) {
-         m_errhist_expert_LB_maps[j]  = new PixelMon2DLumiMaps(error_state_labels[j].first + "_int_LB", error_state_labels[j].second + " per event per LB" + m_histTitleExt, "# Errors", m_doIBL, true);
+         m_errhist_expert_LB_maps[j]  = new PixelMon2DLumiMaps(error_state_labels[j].first + "_int_LB", error_state_labels[j].second + " per event per LB" + m_histTitleExt, "# Errors", PixMon::HistConf::kPix);
+         sc = m_errhist_expert_LB_maps[j]->regHist(rodExpert);
+      }
+      for (int j = kNumErrorStates; j < kNumErrorStates+kNumErrorStatesIBL; j++) {
+         m_errhist_expert_LB_maps[j] = new PixelMon2DLumiMaps(error_state_labelsIBL[j - kNumErrorStates].first + "_int_LB", error_state_labelsIBL[j - kNumErrorStates].second + " per event per LB" + m_histTitleExt, "# Errors", PixMon::HistConf::kIBL);
          sc = m_errhist_expert_LB_maps[j]->regHist(rodExpert);
       }
    }
@@ -221,13 +255,26 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
       }
       hname = makeHistname((error_state_labels[j].first+"_Map"), false);
       htitles = makeHisttitle((error_state_labels[j].second + " per event per LB"), "", false);
-      m_errhist_expert_maps[j] = new PixelMon2DMapsLW(hname.c_str(), htitles.c_str(), m_doIBL, true);
+      m_errhist_expert_maps[j] = new PixelMon2DMapsLW(hname.c_str(), htitles.c_str(), PixMon::HistConf::kPix, true);
       sc = m_errhist_expert_maps[j]->regHist(rodExpert);
    }
 
    if (m_do2DMaps) {
-      m_errhist_femcc_errwords_map = new PixelMonProfiles("femcc_errorwords", ("Average FE/MCC Error Words" + m_histTitleExt).c_str(), m_doIBL);
+      m_errhist_femcc_errwords_map = new PixelMon2DProfilesLW("femcc_errorwords", ("Average FE/MCC Error Words" + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL2D3D);
       sc = m_errhist_femcc_errwords_map->regHist(rodHistos);
+   }
+
+   for (int j = 0; j < kNumErrorStatesIBL; j++) {
+      hname = makeHistname((error_state_labelsIBL[j].first + "_per_lumi_" + modlabel2[PixLayerIBL2D3D::kIBL]), false);
+      htitles = makeHisttitle(("Average " + error_state_labelsIBL[j].second + " per event per LB, " + modlabel2[PixLayerIBL2D3D::kIBL]), (atext_LB + atext_erf), false);
+      sc = rodExpert.regHist(m_errhist_expert_IBL_LB[j] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB));
+   }
+
+   for (int j = kNumErrorStates; j < kNumErrorStates+kNumErrorStatesIBL; j++) {
+      hname = makeHistname((error_state_labelsIBL[j - kNumErrorStates].first+"_Map"), false);
+      htitles = makeHisttitle((error_state_labelsIBL[j - kNumErrorStates].second + " per event per LB"), "", false);
+      m_errhist_expert_maps[j] = new PixelMon2DMapsLW(hname.c_str(), htitles.c_str(), PixMon::HistConf::kIBL, m_doIBL);
+      sc = m_errhist_expert_maps[j]->regHist(rodExpert);
    }
 
    hname = makeHistname("ServiceRecord_Unweighted_IBL", false);
@@ -270,19 +317,18 @@ StatusCode PixelMainMon::BookRODErrorLumiBlockMon(void)
 
    std::string path = "Pixel/LumiBlock";
    if (m_doOnTrack) path.replace(path.begin(), path.end(), "Pixel/LumiBlockOnTrack");
-   if (m_doOnPixelTrack) path.replace(path.begin(), path.end(), "Pixel/LumiBlockOnPixelTrack");
    MonGroup lumiBlockHist(this, path.c_str(), lowStat, ATTRIB_MANAGED); //declare a group of histograms
 
    StatusCode sc;
 
    if (m_do2DMaps && !m_doOnline) {
-      m_errors_LB = new PixelMon2DMapsLW("Errors_LB", ("Errors" + m_histTitleExt).c_str(), m_doIBL);
+      m_errors_LB = new PixelMon2DMapsLW("Errors_LB", ("Errors" + m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D, true);
       sc = m_errors_LB->regHist(lumiBlockHist);
 
-      m_errors_RODSync_mod = new PixelMon2DMapsLW("Errors_RODSync_LB", ("Errors_RODSync" + m_histTitleExt).c_str(), m_doIBL);
+      m_errors_RODSync_mod = new PixelMon2DMapsLW("Errors_RODSync_LB", ("Errors_RODSync" + m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D, true);
       sc = m_errors_RODSync_mod->regHist(lumiBlockHist);
 
-      m_errors_ModSync_mod = new PixelMon2DMapsLW("Errors_ModSync_LB", ("Errors_ModSync" + m_histTitleExt).c_str(), m_doIBL);
+      m_errors_ModSync_mod = new PixelMon2DMapsLW("Errors_ModSync_LB", ("Errors_ModSync" + m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D, true);
       sc = m_errors_ModSync_mod->regHist(lumiBlockHist);
    }
 
@@ -302,6 +348,7 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
    int num_errors[PixLayerIBL2D3D::COUNT] = {0};
    int num_errors_per_bit[PixLayerIBL2D3D::COUNT][kNumErrorBits] = {0};
    int num_errors_per_state[PixLayer::COUNT - 1][kNumErrorStates] = {0}; // no IBL here
+   int num_errors_per_stateIBL[kNumErrorStatesIBL] = {0};  // IBL
 
    // Counter for erroneous modules on the layer, per error type and
    // category (error cat. = error type w/o ROD/MOD distinction).
@@ -425,6 +472,7 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
 
             if (getErrorState(bit, is_ibl) != 99) {
                num_errors_per_state[kLayer][getErrorState(bit, is_ibl)]++;
+               num_errors_per_stateIBL[getErrorState(bit, is_ibl)]++;
                if (m_errhist_expert_maps[getErrorState(bit, is_ibl)])
                   m_errhist_expert_maps[getErrorState(bit, is_ibl)]->Fill(WaferID, m_pixelid);
                if (m_errhist_expert_LB_maps[getErrorState(bit, is_ibl)])
@@ -442,7 +490,7 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
       unsigned int num_femcc_errwords = 0;
 
       // Do the same bit-shifting again, this time for FE/MCC error words.
-      if (kFeErrorWords.find(id_hash) != kFeErrorWords.end()) {
+      if (!is_ibl && kFeErrorWords.find(id_hash) != kFeErrorWords.end()) {
          // Collection of: FE ID, associated error word
          std::map<unsigned int, unsigned int> fe_errorword_map = kFeErrorWords.find(id_hash)->second;
          if (fe_errorword_map.size() > 0) {
@@ -532,6 +580,12 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
          if (m_errhist_expert_LB[i][j]) {
             m_errhist_expert_LB[i][j]->Fill(kLumiBlock, (float) num_errors_per_state[i][j]/m_nActive_mod[i]);
          }
+      }
+   }
+
+   for (int j = 0; j < kNumErrorStatesIBL; j++) {
+      if (m_errhist_expert_IBL_LB[j]) {
+         m_errhist_expert_IBL_LB[j]->Fill(kLumiBlock, (float) num_errors_per_stateIBL[j]/m_nActive_mod[PixLayerIBL2D3D::kIBL]);
       }
    }
 
@@ -677,6 +731,67 @@ int PixelMainMon::getErrorState(int bit, bool isibl)
             erstate = 99; break;
       }
    }
+   else {
+      switch (bit) {
+         case 3:
+            erstate = 16; break;  // BCID, Synch
+         case 4:
+            erstate = 17; break;  // LVL1ID, Synch
+         case 8:
+            erstate = 18; break;  // BCID counter, Synch
+         case 12:
+            erstate = 19; break;  // L1 trigger input in EODCL counter (write pointer), Synch
+         case 13:
+            erstate = 20; break;  // L1 trigger request counter to EODCL (read pointer), Synch
+         case 14:
+            erstate = 21; break;  // L1 register, register is full, Synch
+         case 15:
+            erstate = 22; break;  // L1 trigger ID in BC register, Synch
+         case 17:
+            erstate = 23; break;  // Skipped trigger because the L1 register is full, Synch
+         case 0:
+            erstate = 24; break;  // Row/Column, Trunc
+         case 18:
+            erstate = 25; break;  // Truncated event, Trunc
+         case 1:
+            erstate = 26; break;  // Limit error ROD, Trunc
+         case 5:
+            erstate = 27; break;  // Preamble error, Optical
+         case 9:
+            erstate = 28; break;  // Hamming code in word 0 in EOCHL, SEU
+         case 10:
+            erstate = 29; break;  // Hamming code in word 1 in EOCHL, SEU
+         case 11:
+            erstate = 30; break;  // Hamming code in word 2 in EOCHL, SEU
+         case 19:
+            erstate = 31; break;  // Triple redundant mismatch in Global Configuration Memory (CNFGMEM,) SEU
+         case 23:
+            erstate = 32; break;  // Bit flip in CMD, SEU
+         case 24:
+            erstate = 33; break;  // Triple redundant mismatch in CMD, SEU
+         case 26:
+            erstate = 34; break;  // Triple redundant mismatch in EFUSE,  SEU
+         case 2:
+            erstate = 35; break;  // Trailer timeout, Timeout
+         case 7:
+            erstate = 36; break;  // Timeout ROD, Timeout
+         case 6:
+            erstate = 37; break;  // Masked link
+         case 16:
+            erstate = 38; break;  // FE readout process error
+         case 20:
+            erstate = 39; break;  // Write register data error
+         case 21:
+            erstate = 40; break;  // Address error
+         case 22:
+            erstate = 41; break;  // Other CMD decoder error
+         case 25:
+            erstate = 42; break;  // Data bus address
+         default:
+            erstate = 99; break;
+      }
+   }
+
    return erstate;
 }
 

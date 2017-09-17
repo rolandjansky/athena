@@ -52,7 +52,7 @@ def defineCPSGroups():
         #Egamma chains
         "RATE:CPS:HLT_e5_vloose"  :  ['e5_lhvloose_nod0',],
                                       
-
+        "RATE:CPS:HLT_2g3" : ['2g3_loose_L12EM3_VTE70','2g3_loose_dPhi15_L12EM3_VTE70','2g3_medium_dPhi15_L12EM3_VTE70'],
         ########################################################################
 
         "RATE:CPS:HLT_e20_vloose"        : ['e20_lhvloose_nod0'],
@@ -90,6 +90,11 @@ def defineCPSGroups():
                                                'e13_etcut_trkcut_xs15_j20_perf_xe15_6dphi05_mt25',
                                                'e13_etcut_trkcut_j20_perf_xe15_2dphi05_mt25',
                                                'e13_etcut_trkcut_xs15_j20_perf_xe15_2dphi05_mt25',],
+
+        #muon chains
+        'RATE:CPS:HLT_muon_idperf'         :['mu20_idperf',
+                                             'mu24_idperf',
+                                             'mu40_idperf',],
 
         #tau chains   
         'RATE:CPS:HLT_tau25_express'         :['tau25_idperf_track',

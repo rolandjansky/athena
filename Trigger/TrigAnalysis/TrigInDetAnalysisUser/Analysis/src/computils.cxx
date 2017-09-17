@@ -24,6 +24,7 @@
 
 #include "TFile.h"
 #include "TKey.h"
+#include "TTree.h"
 #include "TList.h"
 #include "TObject.h"
 #include "TDirectory.h"
@@ -468,4 +469,27 @@ std::string findrun( TFile* f ) {
   here->cd();
 
   return "";
+}
+
+
+
+
+/// copy the release info TTree
+
+void copyReleaseInfo( TFile* finput, TFile* foutdir ) { 
+
+  std::vector<std::string> release_data;
+
+  if ( finput && foutdir ) { 
+
+    TTree* tree  = (TTree*)finput->Get("dataTree");    
+    TTree* clone = tree->CloneTree();
+
+    foutdir->cd();
+    clone->Write("", TObject::kOverwrite);
+
+    delete clone;
+
+  }
+  
 }

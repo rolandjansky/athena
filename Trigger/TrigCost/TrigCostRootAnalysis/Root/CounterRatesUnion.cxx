@@ -271,9 +271,9 @@ namespace TrigCostRootAnalysis {
     }
 
     // Otherwise we have to use the general form
-    if (m_L1s.size() > 20) { // 32 is the technical maximim - but the this is already impractical
+    if (m_L1s.size() > 15) { // 32 is the technical maximim - but the this is already impractical
       Warning("CounterRatesUnion::classify",
-              "Union %s topology is Many-To-Many with NL1:%i (Complexity (2^NL1-1)=%e). Disabling (max L1 seeds is 20 for Many-To-Many).",
+              "Union %s topology is Many-To-Many with NL1:%i (Complexity (2^NL1-1)=%e). Disabling (max L1 seeds is 15 for Many-To-Many).",
               getName().c_str(), (Int_t) m_L1s.size(), TMath::Power(2., (Double_t) m_L1s.size()) - 1.);
       m_cannotCompute = kTRUE;
     } else if (m_L1s.size() > 10) {
