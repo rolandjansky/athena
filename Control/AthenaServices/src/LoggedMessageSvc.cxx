@@ -122,7 +122,7 @@ LoggedMessageSvc::~LoggedMessageSvc()
 /// Initialize Service
 StatusCode LoggedMessageSvc::initialize() {
   StatusCode sc;
-  sc = Service::initialize();
+  sc = base_class::initialize();
   if( sc.isFailure() ) return sc;
 #ifdef ATLAS_GAUDI_V21
   // Release pointer to myself done in Service base class
@@ -855,7 +855,7 @@ StatusCode LoggedMessageSvc::queryInterface(const InterfaceID& riid, void** ppvI
     *ppvInterface = (IMessageSvc*)this;
   }
   else  {
-    return Service::queryInterface(riid, ppvInterface);
+    return base_class::queryInterface(riid, ppvInterface);
   }
   addRef();
   return StatusCode::SUCCESS;

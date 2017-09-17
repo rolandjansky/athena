@@ -3,12 +3,8 @@
 # art-description: RecoTrf
 # art-type: grid
 
-Reco_tf.py  --outputHISTFile=myMergedMonitoring_Main_0.root --AMI=x383 --maxEvents=50 --outputESDFile=myESD_Main_0.pool.root --geometryVersion=ATLAS-R2-2015-04-00-00 --outputAODFile=myAOD_Main_0.AOD.pool.root --outputTAGFile=myTAG_Main_0.root --ignoreErrors=False --inputBSFile=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/data16_cos.00289954.physics_Main.daq.RAW._lb0844._SFO-6._0001.data
+Reco_tf.py  --outputHISTFile=myMergedMonitoring_Main_0.root --AMI=x383 --maxEvents=50 --outputESDFile=myESD_Main_0.pool.root --geometryVersion=ATLAS-R2-2015-04-00-00 --outputAODFile=myAOD_Main_0.AOD.pool.root --outputTAGFile=myTAG_Main_0.root --ignoreErrors=False --inputBSFile=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/data16_cos.00289954.physics_Main.daq.RAW._lb0844._SFO-6._0001.data --imf False
 
-export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
-alias setupATLAS='source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh'
-setupATLAS --quiet
-lsetup rucio
 SCRIPT_DIRECTORY=$1
 PACKAGE=$2
 TYPE=$3

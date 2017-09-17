@@ -95,8 +95,8 @@ WRKDIR=$PWD
 REGID=$((LSB_JOBINDEX-1))
 
 # common commands
-EOSCP="/afs/cern.ch/project/eos/installation/atlas/bin/eos.select cp"
-EOSLS="/afs/cern.ch/project/eos/installation/atlas/bin/eos.select ls"
+EOSCP="eos cp"
+EOSLS="eos ls"
 
 #BANKDS=/afs/cern.ch/user/g/gvolpi/public/user.annovi.raw_8LcIbl123_15x16x36Ibl_8LextFrom12Lcache.ftk.2013_11_19_14_51_50.list
 BANKDS=/eos/atlas/user/g/gvolpi/HWPrepBanks/PU40Bank

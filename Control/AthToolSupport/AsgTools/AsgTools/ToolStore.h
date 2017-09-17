@@ -1,5 +1,5 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: ToolStore.h 671353 2015-06-01 13:33:51Z krasznaa $
+// $Id: ToolStore.h 802972 2017-04-15 18:13:17Z krumnack $
 #ifndef ASGTOOLS_TOOLSTORE_H
 #define ASGTOOLS_TOOLSTORE_H
 
@@ -24,8 +24,8 @@ namespace asg {
    /// @author David Adams <dladams@bnl.gov>
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 671353 $
-   /// $Date: 2015-06-01 15:33:51 +0200 (Mon, 01 Jun 2015) $
+   /// $Revision: 802972 $
+   /// $Date: 2017-04-15 20:13:17 +0200 (Sat, 15 Apr 2017) $
    ///
    class ToolStore {
 
@@ -59,6 +59,11 @@ namespace asg {
       static StatusCode remove( const IAsgTool* tool );
       /// Remove a tool with a given name from the store
       static StatusCode remove( const std::string& name );
+
+#ifdef ROOTCORE
+     /// dump the tool configuration for all tools to std::cout
+     static void dumpToolConfig ();
+#endif
 
    }; // class ToolStore
 

@@ -24,7 +24,25 @@ bool TIDA::isGoodOffline(const xAOD::Electron& elec, const unsigned int selectio
 }
 
 // Currently no xAOD offline muon selection implemented
-bool TIDA::isGoodOffline(const xAOD::Muon& /*muon*/, double ) { return true; }
+bool TIDA::isGoodOffline(const xAOD::Muon& muon, const unsigned int selection, double ) { 
+
+  /// should allow this to be set also
+  if ( muon.muonType() != xAOD::Muon::Combined ) return false;
+ 
+  bool good_muon = false;
+
+  /// This muon selection is *ridiculous* - it looks like if it passed "Tight" 
+  /// selection, then it *does not* pass medium selection, as the goups are *exclusive*
+  /// this is completely nonsensical !
+
+  if      ( selection == 1 ) good_muon = (muon.quality()<=xAOD::Muon::Tight);
+  else if ( selection == 2 ) good_muon = (muon.quality()<=xAOD::Muon::Medium);
+  else if ( selection == 3 ) good_muon = (muon.quality()<=xAOD::Muon::Loose);
+  else if ( selection == 4 ) good_muon = (muon.quality()<=xAOD::Muon::VeryLoose);
+  else                       good_muon = true;
+
+  return good_muon; 
+}
 
 
 // xAOD offline tau selection

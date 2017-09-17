@@ -101,6 +101,10 @@ class TileDQstatus {
 	return (m_EmptyEventArray[partition][drawer][dmu][0]+((m_EmptyEventArray[partition][drawer][dmu][1]) << 1));
   }
   
+  /** @brief returns 1 if adc channel has any global error */
+  inline int checkGlobalErr(int partition, int drawer, int gain) const {
+    return m_GlobalCRCErrArray[partition][drawer][gain];
+  }
   /** @brief returns 1 if adc channel has global CRC error */
   inline int checkGlobalCRCErr(int partition, int drawer, int gain) const {
     return m_GlobalCRCErrArray[partition][drawer][gain] & 1;

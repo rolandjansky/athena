@@ -3,12 +3,12 @@
 ## -----------------------------------------------------------------------------
 ### Base Version
 
+from AthenaCommon import CfgMgr
+
 def getMCTruthUserActionTool(name='ISFMCTruthUserActionTool', **kwargs):
-    # get the MT action
-    from ISF_Config.ISF_jobProperties import ISF_Flags
-    kwargs.setdefault('TruthRecordSvc',  ISF_Flags.TruthService.get_Value())
-    from ISF_Geant4Tools.ISF_Geant4ToolsConf import G4UA__iGeant4__MCTruthUserActionTool
-    return G4UA__iGeant4__MCTruthUserActionTool(name, **kwargs)
+    from G4AtlasApps.SimFlags import simFlags
+    kwargs.setdefault('TruthRecordSvc',  simFlags.TruthStrategy.TruthServiceName())
+    return CfgMgr.G4UA__iGeant4__MCTruthUserActionTool(name, **kwargs)
 
 def addMCTruthUserActionTool(name="ISFMCTruthUserActionTool",system=False):
     from G4AtlasServices import G4AtlasServicesConfig
@@ -18,8 +18,7 @@ def addMCTruthUserActionTool(name="ISFMCTruthUserActionTool",system=False):
 ### Base Version
 def getPhysicsValidationUserActionTool(name="ISFG4PhysicsValidationUserActionTool", **kwargs):
     kwargs.setdefault('ParticleBroker'     , 'ISF_ParticleBrokerSvc')
-    from ISF_Geant4Tools.ISF_Geant4ToolsConf import G4UA__iGeant4__PhysicsValidationUserActionTool
-    return G4UA__iGeant4__PhysicsValidationUserActionTool(name, **kwargs)
+    return CfgMgr.G4UA__iGeant4__PhysicsValidationUserActionTool(name, **kwargs)
 ### Specialized Versions
 def getG4OnlyPhysicsValidationUserActionTool(name="G4OnlyPhysicsValidationUserActionTool", **kwargs):
     kwargs.setdefault('ParticleBroker'     , 'ISF_ParticleBrokerSvcNoOrdering')
@@ -37,12 +36,9 @@ def getQuasiStableG4PhysicsValidationUserActionTool(name="QuasiStableG4PhysicsVa
 ### Base Version
 
 def getTrackProcessorUserActionTool(name="ISFG4TrackProcessorUserActionTool", **kwargs):
-    from AthenaCommon.BeamFlags import jobproperties
-    from G4AtlasApps.SimFlags import simFlags
     kwargs.setdefault('ParticleBroker', 'ISF_ParticleBrokerSvc')
     kwargs.setdefault('GeoIDSvc',       'ISF_GeoIDSvc'         )
-    from ISF_Geant4Tools.ISF_Geant4ToolsConf import G4UA__iGeant4__TrackProcessorUserActionPassBackTool
-    return G4UA__iGeant4__TrackProcessorUserActionPassBackTool(name, **kwargs)
+    return CfgMgr.G4UA__iGeant4__TrackProcessorUserActionPassBackTool(name, **kwargs)
 
 
 ### Specialized Versions
@@ -55,8 +51,7 @@ def getFullG4TrackProcessorUserActionTool(name='FullG4TrackProcessorUserActionTo
     if jobproperties.Beam.beamType() == 'cosmics' or \
        (simFlags.CavernBG.statusOn and not 'Signal' in simFlags.CavernBG.get_Value() ):
         kwargs.setdefault('TruthVolumeLevel',  2)
-    from ISF_Geant4Tools.ISF_Geant4ToolsConf import G4UA__iGeant4__TrackProcessorUserActionFullG4Tool
-    return G4UA__iGeant4__TrackProcessorUserActionFullG4Tool(name, **kwargs)
+    return CfgMgr.G4UA__iGeant4__TrackProcessorUserActionFullG4Tool(name, **kwargs)
 
 def getPassBackG4TrackProcessorUserActionTool(name='PassBackG4TrackProcessorUserActionTool', **kwargs):
     kwargs.setdefault('ParticleBroker', 'ISF_ParticleBrokerSvcNoOrdering')
@@ -96,8 +91,7 @@ def getG4TransportTool(name='ISFG4TransportTool', **kwargs):
     kwargs.setdefault('MultiThreading', is_hive)
     # Set commands for the G4AtlasAlg
     kwargs.setdefault("G4Commands", simFlags.G4Commands.get_Value())
-    from ISF_Geant4Tools.ISF_Geant4ToolsConf import iGeant4__G4TransportTool
-    return iGeant4__G4TransportTool(name, **kwargs)
+    return CfgMgr.iGeant4__G4TransportTool(name, **kwargs)
 ### Specialized Versions
 def getFullG4TransportTool(name='FullG4TransportTool', **kwargs):
     kwargs.setdefault('UserActionSvc','G4UA::ISFFullUserActionSvc')

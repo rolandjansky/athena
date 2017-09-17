@@ -450,21 +450,6 @@ for (containerItr=mcContainer->begin(); containerItr!=mcContainer->end(); ++cont
   }
 
   //----------------------------------------------------------------
-  ATH_MSG_DEBUG("Processing MC truth data");
-
-  // Main stream is normally real data without any MC info.
-  // In tests we may use a MC generated file instead of real data.
-  // Remove truth info from the main input stream, if any.
-  //
-  // Here we handle just InDet-specific truth classes.
-  // (McEventCollection is done by the base.)
-
-  //Simply don not copy: removeAllObjectsOfType<InDetSimDataCollection>(&*m_storeGateData);
-
-  // Now copy InDet-specific MC truth objects to the output.
-  copyAllObjectsOfType<InDetSimDataCollection>(&*m_storeGateOutput, &*m_storeGateMC);
-
-  //----------------------------------------------------------------
   ATH_MSG_DEBUG("InDetOverlay::execute() end");
   return StatusCode::SUCCESS;
 }

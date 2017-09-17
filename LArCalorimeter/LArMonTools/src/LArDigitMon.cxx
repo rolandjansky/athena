@@ -126,7 +126,7 @@ LArDigitMon::~LArDigitMon()
 StatusCode 
 LArDigitMon::finalize()
 {
-  msg(MSG::INFO)<<"Finalize LArDigitMon" << endmsg;
+  ATH_MSG_INFO( "finalHists LArDigitMon" );
   DeleteHist(m_BarrelA);
   DeleteHist(m_BarrelC);
   DeleteHist(m_EmecA);
@@ -145,7 +145,7 @@ StatusCode
 LArDigitMon::initialize()
 {
   
-  msg(MSG::INFO)<<"Initialize LArDigitMon" << endmsg;
+  ATH_MSG_INFO( "Initialize LArDigitMon" );
   
   StatusCode sc;
   
@@ -156,7 +156,7 @@ LArDigitMon::initialize()
     
   } else {
     
-    msg(MSG::FATAL) << "unable to connect non-tool: LArOnlineID" << endmsg;
+    ATH_MSG_FATAL( "unable to connect non-tool: LArOnlineID" );
     return StatusCode::FAILURE;
     
   }
@@ -169,7 +169,7 @@ LArDigitMon::initialize()
     
   } else {
     
-    msg(MSG::FATAL) << "unable to connect non-tool: LArEM_ID" << endmsg;
+    ATH_MSG_FATAL( "unable to connect non-tool: LArEM_ID" );
     return StatusCode::FAILURE;
     
   }
@@ -178,7 +178,7 @@ LArDigitMon::initialize()
   /** Get LAr Calbling Service*/
   sc=m_LArCablingService.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not retrieve LArCablingService" << endmsg;
+    ATH_MSG_ERROR( "Could not retrieve LArCablingService" );
     return StatusCode::FAILURE;
   }
   
@@ -186,7 +186,7 @@ LArDigitMon::initialize()
   if (m_ignoreKnownBadChannels) { 
     sc=m_badChannelMask.retrieve();
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Could not retrieve BadChannelMask" << m_badChannelMask<< endmsg;
+      ATH_MSG_ERROR( "Could not retrieve BadChannelMask" << m_badChannelMask);
       return StatusCode::FAILURE;
     }
   }
@@ -194,7 +194,7 @@ LArDigitMon::initialize()
   /** Retrieve pedestals container*/
   sc =  detStore()->regHandle(m_larPedestal,m_larPedestalKey);
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "could not register handle for pedestal " << endmsg;
+    ATH_MSG_ERROR( "could not register handle for pedestal " );
     return StatusCode::FAILURE;
   }
   
@@ -299,7 +299,7 @@ LArDigitMon::fillHistograms()
   StatusCode sc = evtStore()->retrieve(noisyRO,"LArNoisyROSummary");
   if (sc.isFailure()) 
   {
-    msg(MSG::WARNING) << "Can't retrieve LArNoisyROSummary " <<endmsg;
+    ATH_MSG_WARNING( "Can't retrieve LArNoisyROSummary " );
     return StatusCode::SUCCESS;
   }
   const std::vector<HWIdentifier>& noisyFEB = noisyRO->get_noisy_febs();
@@ -313,7 +313,7 @@ LArDigitMon::fillHistograms()
   //  unsigned long run=0;
   const xAOD::EventInfo* thisEvent;
   if (evtStore()->retrieve(thisEvent).isFailure()) {
-    msg(MSG::ERROR) << "Failed to retrieve EventInfo object" << endmsg;
+    ATH_MSG_ERROR( "Failed to retrieve EventInfo object" );
     return StatusCode::FAILURE;
   }
   
@@ -329,8 +329,8 @@ LArDigitMon::fillHistograms()
   const LArDigitContainer* pLArDigitContainer;
   sc = evtStore()->retrieve(pLArDigitContainer, m_LArDigitContainerKey);
   if (sc.isFailure()) {
-    msg(MSG::WARNING) << "Can\'t retrieve LArDigitContainer with key " 
-		      << m_LArDigitContainerKey << endmsg;
+    ATH_MSG_WARNING( "Can\'t retrieve LArDigitContainer with key " 
+		      << m_LArDigitContainerKey );
     return StatusCode::SUCCESS;
   }
   
@@ -964,16 +964,17 @@ void LArDigitMon::ScaleHisto(LWHist2D * hist,int& events)
 void LArDigitMon::ComputeError(LWHist2D* hist,int& events)
 {
   int normFactor=events;
+  if (normFactor == 0) return;
+  double inv_normFactor2 = 1. / (static_cast<double> (normFactor) * static_cast<double> (normFactor));
   unsigned xbin, ybin;
   double numer, error;
   hist->resetActiveBinLoop();
   while(hist->getNextActiveBin(xbin,ybin,numer,error)) 
   {
     if(numer>normFactor)continue;//protection against sqrt(neg)
-    if(normFactor==0)continue;//protection against div 0
     if(numer>0)
     {
-      float tabError = 100*sqrt(numer*normFactor*(normFactor-numer))/normFactor/normFactor;
+      float tabError = 100*sqrt(numer*normFactor*(normFactor-numer))*inv_normFactor2;
       hist->SetBinError(xbin,ybin,tabError);       
     }
   }

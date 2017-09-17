@@ -52,6 +52,7 @@ public:
     m_doVertices(false),
     m_doMuons(false),
     m_doMuonsSP(false),
+    m_muonType(),
     m_electronType(),
     m_rawElectrons(),
     m_tauType(),
@@ -87,8 +88,8 @@ public:
 
       if ( chainNames[i]=="Offline" )     m_doOffline     = true;
       if ( chainNames[i]=="Vertex" )      m_doVertices    = true;
-      if ( chainNames[i]=="Muons" )       m_doMuons       = true;
       if ( chainNames[i]=="MuonsSP" )     m_doMuonsSP     = true;
+      if ( chain.head()=="Muons" )        m_muonType.push_back(chain.tail());
 
       if ( chain.head()=="Electrons" ) { 
  	 m_electronType.push_back(chain.tail());
@@ -139,6 +140,8 @@ protected:
   bool m_doVertices;
   bool m_doMuons;
   bool m_doMuonsSP;
+
+  std::vector<std::string>  m_muonType;
 
   std::vector<std::string>  m_electronType;
   std::vector<std::string>  m_rawElectrons;

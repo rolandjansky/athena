@@ -7,6 +7,7 @@
 #include "TDirectory.h"
 #include "TList.h"
 #include "TKey.h"
+#include "TH1D.h"
 
 
 
@@ -20,10 +21,11 @@ int usage(std::ostream& s, int argc, char** argv) {
   s << "Usage: " << argv[0] << " [OPTIONS] <file1>  <file2>  ... \n\n";
   s << "  writes names of chains from files\n\n";
   s << "Options: \n";
-  s << "    -a, --always   \t always descend, \n";
-  s << "    -d, --depth  maxdepth  \t maximum depth to descend, \n";
-  s << "    -v, --verbose  \t verbose output, \n";
-  s << "    -h, --help     \t this help,\n";
+  s << "    -a, --always             \t always descend, \n";
+  s << "    -d, --depth    maxdepth  \t maximum depth to descend, \n";
+  s << "    -c, --contents histogram \t display number of entries in histogram, \n";
+  s << "    -v, --verbose            \t verbose output, \n";
+  s << "    -h, --help               \t this help,\n";
   //  s << "\nSee " << PACKAGE_URL << " for more details\n"; 
   //  s << "\nReport bugs to <" << PACKAGE_BUGREPORT << ">";
   s << std::endl;
@@ -34,14 +36,16 @@ int usage(std::ostream& s, int argc, char** argv) {
 /// very lazy!!! should not use unnessecary 
 /// global variables !!!!
 
-bool verbose        = false;
-bool always_descend = false;
+bool               verbose = false;
+bool        always_descend = false;
+std::string      histogram = "";
 
 int main(int argc, char** argv ) { 
 
   std::vector<std::string> args;
 
   int maxdepth = 2;
+
 
   for ( int i=1 ; i<argc ; i++ ) { 
     std::string arg = argv[i];
@@ -52,6 +56,11 @@ int main(int argc, char** argv ) {
       if ( ++i<argc ) maxdepth = std::atoi(argv[i]);
       else            return usage( std::cout, argc, argv );
     }
+    else if ( arg=="-c" || arg=="--contents" )  { 
+      if ( ++i<argc ) histogram = argv[i];
+      else            return usage( std::cout, argc, argv );
+    }
+
     else args.push_back(arg);
   } 
 
@@ -75,6 +84,12 @@ int main(int argc, char** argv ) {
   return 0;
 }
 
+/// sum the bin contents including the over and underflow bins
+double hsum( TH1* h ) { 
+  double d=0;
+  for ( int i=0 ; i<=h->GetNbinsX()+1 ; i++ ) d += h->GetBinContent(i);
+  return d;
+}
 
 void descend( TDirectory* d, int level, int maxdepth, const std::vector<std::string>& labels ) { 
 
@@ -96,8 +111,17 @@ void descend( TDirectory* d, int level, int maxdepth, const std::vector<std::str
 
   for ( int ip=plevel ; ip-- ; ) std::cout << "\t";
   
+  bool displayed = false;
+
+  int dsize = 0;
+
   if ( verbose )  std::cout << "Directory: ";
-  if ( verbose || level>0 ) std::cout<< name << std::endl; 
+  if ( verbose || level>0 ) { 
+    std::cout<< name;
+    displayed = true;
+    dsize = name.size();
+    if ( dsize<60 ) std::cout << "\t";
+  }
 
   //    struct timeval tv = simpletimer_start();
   
@@ -137,9 +161,26 @@ void descend( TDirectory* d, int level, int maxdepth, const std::vector<std::str
       }
     }
     else { 
-      //for ( int ip=level+1 ; ip-- ; ) std::cout << "\t";
-      // std::cout << "Object: " << name << "/" <<  tobj->GetName() << std::endl;
+      if ( histogram != "" ){ 
+        if ( std::string(tobj->GetClassName()).find("TH1")!=std::string::npos ||
+             //  std::string(tobj->GetClassName()).find("TH2")!=std::string::npos ||
+             std::string(tobj->GetClassName()).find("TProfile")!=std::string::npos ) {
+          
+          TH1* th = (TH1*)tobj->ReadObj();
+          
+          if ( th && std::string(th->GetName()) == histogram ) { 
+ 
+            double d = hsum( th );
+	    
+	    std::cout << "\t" << d << std::endl;
+
+	    displayed = false;
+
+          }
+        }
+      }
     }
   }
+  if ( displayed ) std::cout << std::endl;
 }
 

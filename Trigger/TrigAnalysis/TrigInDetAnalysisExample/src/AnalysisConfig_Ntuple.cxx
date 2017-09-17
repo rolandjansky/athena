@@ -298,14 +298,12 @@ void AnalysisConfig_Ntuple::loop() {
 	const xAOD::EventInfo* pEventInfo = 0;
 #endif
 
-	unsigned run_number         = 0;
-	unsigned event_number       = 0;
-
-	unsigned lumi_block         = 0;
-	unsigned bunch_crossing_id  = 0;
-
-	unsigned time_stamp = 0;
-	double mu_val = 0;
+	unsigned           run_number         = 0;
+	unsigned long long event_number       = 0;
+	unsigned           lumi_block         = 0;
+	unsigned           bunch_crossing_id  = 0;
+	unsigned           time_stamp         = 0;
+	double             mu_val             = 0;
 
 	if ( m_provider->evtStore()->retrieve(pEventInfo).isFailure() ) {
 		m_provider->msg(MSG::DEBUG) << "Failed to get EventInfo " << endmsg;
@@ -1015,18 +1013,30 @@ void AnalysisConfig_Ntuple::loop() {
 	}
 	
        
-	//	std::cout << "doMuons " << m_doMuons << std::endl;
+
+	std::string MuonRef[5] =  { "", "Tight", "Medium", "Loose", "VeryLoose" };
 
 	/// get muons 
-	if ( m_doMuons ) { 
+	for ( size_t imuon=0 ; imuon<m_muonType.size() ; imuon++ ) {
 	  
 	  m_provider->msg(MSG::INFO) << "fetching offline muons " << endmsg; 
 
-	  Nmu += processMuons( selectorRef );
+          int muonType = -1;
+          for ( int it=0 ; it<5 ; it++ ) if ( m_muonType[imuon] == MuonRef[it] ) muonType=it; 
+          if ( muonType<0 ) continue; 
+
+	  int Nmu_ = processMuons( selectorRef, muonType );
+
+          if ( Nmu_ < 1 ) continue;
+
+          Nmu += Nmu_;
 
 	  m_provider->msg(MSG::INFO) << "found " << Nmu << " offline muons " << endmsg; 
 
-	  m_event->addChain("Muons");
+          std::string mchain = "Muons";
+          if ( m_muonType[imuon]!="" )  mchain += "_" + m_muonType[imuon];
+
+	  m_event->addChain(mchain);
 	  m_event->back().addRoi(TIDARoiDescriptor(true));
 	  m_event->back().back().addTracks(selectorRef.tracks());
 	  if ( selectorRef.getBeamX()!=0 || selectorRef.getBeamY()!=0 || selectorRef.getBeamZ()!=0 ) { 
@@ -1052,7 +1062,9 @@ void AnalysisConfig_Ntuple::loop() {
 	  
 	  m_provider->msg(MSG::INFO) << "fetching offline muons " << endmsg; 
 
-	  Nmu += processMuons( selectorRef );
+          int muonType = 0;
+
+	  Nmu += processMuons( selectorRef, muonType );
 
 	  m_provider->msg(MSG::INFO) << "found " << Nmu << " offline muons " << endmsg; 
 

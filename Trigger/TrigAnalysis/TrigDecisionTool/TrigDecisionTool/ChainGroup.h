@@ -124,7 +124,9 @@ namespace Trig {
                  const Trig::CacheGlobalMemory& parent);
       // 
       ~ChainGroup();
-    
+
+      bool  isCorrelatedL1items(const std::string& item) const;
+      float correlatedL1Prescale(const std::string& item) const;
       float calculatePrescale(unsigned int condition=TrigDefs::Physics);
 
       /*

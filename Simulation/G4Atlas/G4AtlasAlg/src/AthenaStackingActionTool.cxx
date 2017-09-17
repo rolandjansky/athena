@@ -28,7 +28,7 @@ namespace G4UA
   //---------------------------------------------------------------------------
   StatusCode AthenaStackingActionTool::initialize()
   {
-    ATH_MSG_INFO("initialize");
+    ATH_MSG_DEBUG("initialize");
     return StatusCode::SUCCESS;
   }
 

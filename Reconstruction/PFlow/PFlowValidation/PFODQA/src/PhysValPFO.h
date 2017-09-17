@@ -5,14 +5,16 @@
 #ifndef PHYSVALPFO_H
 #define PHYSVALPFO_H
 
-#include "PFOValidationPlots.h"
+#include "PFOChargedValidationPlots.h"
+#include "PFONeutralValidationPlots.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include <string>
 #include "PFlowUtils/IRetrievePFOTool.h"
+#include "xAODTracking/VertexContainer.h"
 
 class PhysValPFO : public ManagedMonitorToolBase {
 
- public:
+public:
 
   /** Standard Constructor */
   PhysValPFO (const std::string& type, const std::string& name, const IInterface* parent );
@@ -28,12 +30,15 @@ class PhysValPFO : public ManagedMonitorToolBase {
 
  private:
 
-  /** String that defines with PFO container to use */
-  std::string m_PFOContainerName;
+  /** ReadHandle to retrieve xAOD::VertexContainer */
+  SG::ReadHandle<xAOD::VertexContainer> m_vertexContainerReadHandle;
+  
+  /** Pointer to class that deals with histograms for charged PFO */
+  std::unique_ptr<PFOChargedValidationPlots> m_PFOChargedValidationPlots;
 
-  /** Pointer to class that defines which histogram blocks to fill */
-  std::unique_ptr<PFOValidationPlots> m_PFOValidationPlots;
-
+  /** Pointer to class that deals with histograms for neutral PFO */
+  std::unique_ptr<PFONeutralValidationPlots> m_PFONeutralValidationPlots;
+  
   /** Tool to retrieve PFO */
   ToolHandle<CP::IRetrievePFOTool> m_retrievePFOTool;
 
@@ -42,9 +47,6 @@ class PhysValPFO : public ManagedMonitorToolBase {
   
   /** Select whether to use neutral or charged PFO */
   bool m_useNeutralPFO;
-
-  /** Select whether to fill EM scale histograms up */
-  bool m_fillEMHistograms;
 
 };
 #endif

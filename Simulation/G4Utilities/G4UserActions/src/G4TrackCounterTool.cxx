@@ -22,7 +22,7 @@ namespace G4UA
   //---------------------------------------------------------------------------
   StatusCode G4TrackCounterTool::initialize()
   {
-    ATH_MSG_INFO("initialize");
+    ATH_MSG_DEBUG("initialize");
     return StatusCode::SUCCESS;
   }
 
@@ -31,7 +31,7 @@ namespace G4UA
   //---------------------------------------------------------------------------
   StatusCode G4TrackCounterTool::finalize()
   {
-    ATH_MSG_INFO("finalize");
+    ATH_MSG_DEBUG("finalize");
 
     mergeReports();
 

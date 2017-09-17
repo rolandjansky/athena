@@ -18,7 +18,7 @@ def get_file_list( DATAPATH ) :
         new_paths = []
         for path in paths :
           subdirectories = []
-          cmd = [ '/afs/cern.ch/project/eos/installation/atlas/bin/eos.select', 'ls', path ]
+          cmd = [ 'eos', 'ls', path ]
           eos_ls = Popen( args = cmd, bufsize = 1, shell = False, stdout = PIPE, stderr = STDOUT )
           while eos_ls.poll() is None :
             line = eos_ls.stdout.readline()
