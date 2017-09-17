@@ -90,7 +90,6 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_force_noElId(false),
     m_force_noMuId(false),
     m_doTTVAsf(true),
-    m_muNoTRT(false),
     m_jesNPset(-99),
     m_useBtagging(false),
     m_debug(false),
@@ -398,7 +397,6 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "MuonRequireHighPtCuts",  m_murequirepassedHighPtCuts);
   declareProperty( "MuonForceNoId", m_force_noMuId );
   declareProperty( "MuonTTVASF", m_doTTVAsf );
-  declareProperty( "MuonDisableTRT", m_muNoTRT );
 
   //PHOTONS
   declareProperty( "PhotonBaselinePt", m_photonBaselinePt);
@@ -814,7 +812,6 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   m_conf_to_prop["Ele.ForceNoId"] = "EleForceNoId";
   m_conf_to_prop["Muon.ForceNoId"] = "MuonForceNoId";
   m_conf_to_prop["Muon.TTVASF"] = "MuonTTVASF";
-  m_conf_to_prop["Muon.DisableTRT"] = "MuonDisableTRT";
   m_conf_to_prop["Muon.passedHighPt"] = "MuonRequireHighPtCuts";
   m_conf_to_prop["PhotonBaseline.CrackVeto"] = "PhotonBaselineCrackVeto";
   m_conf_to_prop["Photon.CrackVeto"] = "PhotonCrackVeto";
@@ -884,7 +881,6 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_muBaselineEta, "MuonBaseline.Eta", rEnv, 2.7);
   configFromFile(m_force_noMuId, "Muon.ForceNoId", rEnv, false);
   configFromFile(m_doTTVAsf, "Muon.TTVASF", rEnv, true);
-  configFromFile(m_muNoTRT, "Muon.DisableTRT", rEnv, false);
   //
   configFromFile(m_muPt, "Muon.Pt", rEnv, 25000.);
   configFromFile(m_muEta, "Muon.Eta", rEnv, 2.7);
