@@ -61,8 +61,8 @@ print DFCommonMuonToolWrapperPreselection
 DFCommonMuonToolWrapperTools.append(DFCommonMuonToolWrapperPreselection)
 
 ### Decoration of the muon objects with the ID track covariances
-from DerivationFrameworkMuons.DerivationFrameworkMuonsConf import DerivationFramework_MuonIDCovMatrixDecorator
-DFCommonMuonIDCovMatrixDecorator = DerivationFramework_MuonIDCovMatrixDecorator( name = "DFCommonMuonIDCovMatrixDecorator")
+from DerivationFrameworkMuons.DerivationFrameworkMuonsConf import DerivationFramework__MuonIDCovMatrixDecorator
+DFCommonMuonIDCovMatrixDecorator = DerivationFramework__MuonIDCovMatrixDecorator( name = "DFCommonMuonIDCovMatrixDecorator")
 ToolSvc += DFCommonMuonIDCovMatrixDecorator
 print DFCommonMuonIDCovMatrixDecorator
 DFCommonMuonToolWrapperTools.append(DFCommonMuonIDCovMatrixDecorator)

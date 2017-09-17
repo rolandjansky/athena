@@ -6,6 +6,8 @@
 // MuonIDCovMatrixDecorator.cxx, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 // Author: James Catmore (james.catmore@cern.ch) 
+// Decorates muon objects with the covariance matrix (std::vector<float>) 
+// from the corresponding inner detector track particle
 #include "DerivationFrameworkMuons/MuonIDCovMatrixDecorator.h"
 #include "AthenaKernel/errorcheck.h"
 #include <vector>
@@ -55,10 +57,15 @@ StatusCode DerivationFramework::MuonIDCovMatrixDecorator::addBranches() const
   SG::AuxElement::Decorator< std::vector<float>  > decorator("inDet_definingParametersCovarianceMatrix"); 
 
   // Loop over the muons and apply the decoration
+  std::vector<float> defaultCovarianceMatrix(15,0.0); // in case the ID track doesn't exist
   for (auto mu : *muons) {
     auto trackParticle = mu->trackParticle(xAOD::Muon::TrackParticleType::InnerDetectorTrackParticle);
-    auto covarianceMatrix = trackParticle->definingParametersCovMatrixVec();
-    decorator(*mu) = covarianceMatrix;
+    if (trackParticle==nullptr) {
+      decorator(*mu) = defaultCovarianceMatrix;            
+    } else {
+     auto covarianceMatrix = trackParticle->definingParametersCovMatrixVec();
+     decorator(*mu) = covarianceMatrix;      
+    }
   }
 
   return StatusCode::SUCCESS;
