@@ -50,7 +50,15 @@ def _addTopoInfo(theChainDef,chainDict,doAtL2AndEF=True):
 
     EFChainName = "EF_" + chainDict['chainName']
     
-    if "Jpsiee" in chainDict["topo"]:
+    if 'dPhi15' in chainDict['topo']:
+        EFChainName = 'EF_2g_OvlRem_dPhi15'
+        from TrigGenericAlgs.TrigGenericAlgsConfig import OverlapRemovalConfig
+        OverlapRemoval_algo = OverlapRemovalConfig('OvlRem', MinPhiDist = 1.5, MinEtaDist = 0)
+    
+        theChainDef.addSequence([OverlapRemoval_algo],inputTEsEF,EFChainName)
+        theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFChainName])
+
+    elif "Jpsiee" in chainDict["topo"]:
 
         from TrigEgammaHypo.TrigEFDielectronMassHypoConfig import TrigEFDielectronMassFex_Jpsi, TrigEFDielectronMassHypo_Jpsi
 

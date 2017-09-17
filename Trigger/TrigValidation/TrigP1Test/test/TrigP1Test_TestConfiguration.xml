@@ -599,7 +599,7 @@
                     <testidentifier>CheckFileRunner0</testidentifier>
                 </testToRemove>
 		<testToRemove>
-                    <jobGroupName>RTT:Top</jobGroupName>
+                    <jobGroupName>Athena</jobGroupName>
                     <testidentifier>PerfMonRunner</testidentifier>
                 </testToRemove>
             </jobTransform>
@@ -636,7 +636,7 @@
                     <testidentifier>CheckFileRunner0</testidentifier>
                 </testToRemove>
 		<testToRemove>
-                    <jobGroupName>RTT:Top</jobGroupName>
+                    <jobGroupName>Athena</jobGroupName>
                     <testidentifier>PerfMonRunner</testidentifier>
                 </testToRemove>
 

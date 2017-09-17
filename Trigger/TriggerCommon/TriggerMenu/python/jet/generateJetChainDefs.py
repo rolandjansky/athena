@@ -109,7 +109,7 @@ def generateMuonClusterLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, 
 
     # tracking
     from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
-    [trkcore,trkiso,trkprec] = TrigInDetSequence("Muon", "muon", "IDTrig", "2step").getSequence()
+    [trkcore,trkiso,trkprec] = TrigInDetSequence("Muon", "muon", "IDTrig", sequenceFlavour=["2step"]).getSequence()
 
     # muon cluster 
     from TrigL2LongLivedParticles.TrigL2LongLivedParticlesConfig import MuonClusterConfig
@@ -167,7 +167,7 @@ def generateCaloRatioLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, to
 
     # tracking
     from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
-    [trkcore, trkiso, trkprec] = TrigInDetSequence("Tau", "tau", "IDTrig", "2step").getSequence()
+    [trkcore, trkiso, trkprec] = TrigInDetSequence("Tau", "tau", "IDTrig", sequenceFlavour=["2step"]).getSequence()
 
     # calo-ratio
     from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConfig import getCaloRatioHypoInstance
@@ -229,7 +229,7 @@ def generateReversedCaloRatioLLPchain(theChainDef, chainDict, inputTEsL2, inputT
 
     # tracking
     from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
-    [trkcore, trkiso, trkprec] = TrigInDetSequence("Tau", "tau", "IDTrig", "2step").getSequence()
+    [trkcore, trkiso, trkprec] = TrigInDetSequence("Tau", "tau", "IDTrig", sequenceFlavour=["2step"]).getSequence()
 
     # reversed calo-ratio
     from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConfig import getCaloRatioHypoInstance

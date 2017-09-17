@@ -153,7 +153,6 @@ def setupMenu():
 
         ['mu24_ivarloose',           'L1_MU20MU21',   ['L1_MU20'], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
         ['mu24_iloose',              'L1_MU20MU21',   ['L1_MU20'], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
-        ['mu24_ivarmedium',	     'L1_MU20MU21',   ['L1_MU20'], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
 
         ['mu0_perf',               'L1_MU4',            [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1], 
         ['mu26_imedium',           'L1_MU20MU21',   ['L1_MU20'], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
@@ -496,12 +495,9 @@ def setupMenu():
         ['j0_1i2c200m8000TLA_delayed',      'L1_J100',  [], ['ExoDelayed'], ['RATE:ExoDelayed', 'BW:Jet'], -1],
         ['j0_0i1c500m2000TLA_delayed',      'L1_J100',  [], ['ExoDelayed'], ['RATE:ExoDelayed', 'BW:Jet'], -1],
 
-        ['2j220_j120',                      'L1_J100', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
-        ['2j250_j120',                      'L1_J100', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
         ['2j250_j140',                      'L1_J100', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
         ['2j250_j150',                      'L1_J100', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
         ['2j275_j120',                      'L1_J100', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
-        ['2j275_j140',                      'L1_J100', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
         ['2j220_0eta240_j120_0eta240',      'L1_J100', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
         ['2j250_0eta240_j120_0eta240',      'L1_J100', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
         ['2j250_0eta240_j140_0eta240',      'L1_J100', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
@@ -3071,11 +3067,12 @@ ps_minb_list=[
 
 ps_rerun_list = [
 
-
-
-
-
-
+    'xe0noL1_l2fsperf',
+    'xe0noL1_l2fsperf_mht',
+    'xe0noL1_l2fsperf_mht_em',
+    'xe0noL1_l2fsperf_pufit',
+    'xe0noL1_l2fsperf_tc_em',
+    'xe0noL1_l2fsperf_tc_lcw',
 
     ]
 
@@ -3199,12 +3196,6 @@ ps_perform_list = [
     'xe45_wEFMu',
     'xe50',
     'xe50_mht_FStracks_L1XE50',
-    'xe0noL1_l2fsperf',
-    'xe0noL1_l2fsperf_mht',
-    'xe0noL1_l2fsperf_mht_em',
-    'xe0noL1_l2fsperf_pufit',
-    'xe0noL1_l2fsperf_tc_em',
-    'xe0noL1_l2fsperf_tc_lcw',   
     'xe110_mht_em_L1KF-XE60',
     'xe110_mht_em_L1KF-XE65',
     'xe110_mht_em_L1KF-XE75',
