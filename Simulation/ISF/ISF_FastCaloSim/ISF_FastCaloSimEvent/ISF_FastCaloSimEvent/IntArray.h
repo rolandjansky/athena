@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef IntArray_h
-#define IntArray_h
+#ifndef ISF_FASTCALOSIMEVENT_IntArray_h
+#define ISF_FASTCALOSIMEVENT_IntArray_h
 
 #include "TArrayI.h"
 #include "TObject.h"
@@ -16,9 +16,9 @@ public:
    ~IntArray();
 
 private:
-   TArrayI* m_array;
+//   TArrayI* m_array;
 
-   ClassDef( IntArray, 0 )
+   ClassDef( IntArray, 1 )
 };
 
 #endif

@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 781526 2016-11-01 06:57:09Z vpascuzz $
+# $Id: CMakeLists.txt 801699 2017-03-28 14:18:58Z fladias $
 ################################################################################
 # Package: ISF_FastCaloSimEvent
 ################################################################################
@@ -18,14 +18,14 @@ atlas_depends_on_subdirs(
 
 # External dependencies:
 find_package( CLHEP )
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO TMVA Matrix Physics )
+find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO Matrix Physics )
 
 # Remove the --as-needed linker flags:
 atlas_disable_as_needed()
 
 # Component(s) in the package:
 atlas_add_root_dictionary( ISF_FastCaloSimEvent _dictSource
-  ROOT_HEADERS ISF_FastCaloSimEvent/IntArray.h ISF_FastCaloSimEvent/TFCS1DFunction.h ISF_FastCaloSimEvent/TFCSEnergyParametrization.h ISF_FastCaloSimEvent/TFCSExtrapolationState.h ISF_FastCaloSimEvent/TFCSParametrization.h ISF_FastCaloSimEvent/TFCSParametrizationBase.h ISF_FastCaloSimEvent/TFCSPCAEnergyParametrization.h ISF_FastCaloSimEvent/TFCSSimulationState.h ISF_FastCaloSimEvent/TFCSTruthState.h )
+  ROOT_HEADERS ISF_FastCaloSimEvent/IntArray.h ISF_FastCaloSimEvent/DoubleArray.h ISF_FastCaloSimEvent/TFCS1DFunction.h ISF_FastCaloSimEvent/TFCSEnergyParametrization.h ISF_FastCaloSimEvent/TFCSExtrapolationState.h ISF_FastCaloSimEvent/TFCSParametrization.h ISF_FastCaloSimEvent/TFCSParametrizationBase.h ISF_FastCaloSimEvent/TFCSPCAEnergyParametrization.h ISF_FastCaloSimEvent/TFCS1DFunctionHistogram.h ISF_FastCaloSimEvent/TFCS1DFunctionRegression.h ISF_FastCaloSimEvent/TFCS1DFunctionRegressionTF.h ISF_FastCaloSimEvent/TFCSSimulationState.h ISF_FastCaloSimEvent/TFCSTruthState.h ISF_FastCaloSimEvent/LinkDef.h )
 
 atlas_add_library( ISF_FastCaloSimEvent
    ISF_FastCaloSimEvent/*.h ${_dictSource} src/*.cxx
