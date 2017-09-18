@@ -669,6 +669,7 @@ StatusCode HLTTauMonTool::proc()
             for(unsigned int j=0;j<m_topo_chains_ditau.size(); ++j){
 		setCurrentMonGroup("HLT/TauMon/Shifter/"+lowest_names.at(i)+"/OtherPlots/"+m_topo_chains_ditau.at(j));
 		cloneProfile("TProfRecoL1_dREfficiency","HLT/TauMon/Expert/TopoDiTau/"+m_topo_chains_ditau.at(j));	
+
             }
 	    
             
