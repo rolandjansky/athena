@@ -242,8 +242,8 @@ StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau)
           etHotShotDR1 = etShot;
         }
         // In 0.012 x 0.1 window
-        if(abs(shot->eta() - etaCalo) > 0.012 ) continue;
-        if(abs(xAOD::P4Helpers::deltaPhi(shot->phi(), phiCalo)) > 0.1 ) continue;
+        if(std::abs(shot->eta() - etaCalo) > 0.012 ) continue;
+        if(std::abs(xAOD::P4Helpers::deltaPhi(shot->phi(), phiCalo)) > 0.1 ) continue;
         if(etShot > etHotShotWin) etHotShotWin = etShot;
     }
     acc_etHotShotDR1(tau) = etHotShotDR1;

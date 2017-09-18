@@ -69,7 +69,7 @@ StatusCode CombinedP4FromRecoTaus::initialize() {
   std::string Graphname="";
 
   //loop over decay modes
-  for(int imode=0;imode < abs(m_modeNames.size());imode++){
+  for(int imode=0;imode < m_modeNames.size();imode++){
     
     ATH_MSG_DEBUG("mode = " << imode);
 
@@ -86,10 +86,10 @@ StatusCode CombinedP4FromRecoTaus::initialize() {
 
 
   //loop over eta bins
-  for(int ietaBin=0;ietaBin < abs(m_etaBinNames.size()); ietaBin++){
+  for(int ietaBin=0;ietaBin < m_etaBinNames.size(); ietaBin++){
   
     //loop over decay modes
-    for(int imode=0;imode < abs(m_modeNames.size());imode++){
+    for(int imode=0;imode < m_modeNames.size();imode++){
 
       ATH_MSG_DEBUG("eta bin = " << ietaBin << " / mode = " << imode );
       
