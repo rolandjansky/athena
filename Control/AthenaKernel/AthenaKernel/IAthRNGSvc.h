@@ -36,6 +36,10 @@ public:
   /// out-of-line destructor
   virtual ~IAthRNGSvc();
 
+  /// Extract and print RNG state to MsgStream
+  virtual void printEngineState(const INamedInterface* client,
+                                const std::string& streamName = "") = 0;
+
   /// Declare interface to the framework
   DeclareInterfaceID( IAthRNGSvc, 1, 0 );
 

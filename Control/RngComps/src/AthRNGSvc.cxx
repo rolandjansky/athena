@@ -67,6 +67,24 @@ ATHRNG::RNGWrapper* AthRNGSvc::getEngine(const INamedInterface* client,
   return it->second;
 }
 
+void AthRNGSvc::printEngineState(const INamedInterface* client,
+                                 const std::string& streamName)
+{
+  // Retrieve the current slot's engine
+  ATHRNG::RNGWrapper* wrapper = getEngine(client, streamName);
+  CLHEP::HepRandomEngine* engine( *wrapper );
+  // Extract the engine state numbers
+  std::vector<unsigned long> rngStates = engine->put();
+  std::string rngName = client->name();
+  if(!streamName.empty()) rngName += "/" + streamName;
+  msg(MSG::ALWAYS) << rngName << " ";
+  // We mask 32 bits because the other bits are garbage and unused
+  for(const unsigned long s : rngStates) {
+    msg() << (s & 0xffffffffu) << " ";
+  }
+  msg() << endmsg;
+}
+
 AthRNGSvc::~AthRNGSvc()
 {
   // Clean up the RNGWrappers and HepRandomEngines

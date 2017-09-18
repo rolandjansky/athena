@@ -47,6 +47,10 @@ public:
   virtual ATHRNG::RNGWrapper* getEngine(const INamedInterface* client,
                                         const std::string& streamName="") override final;
 
+  /// Print engine state
+  virtual void printEngineState(const INamedInterface* client,
+                                const std::string& streamName = "") override final;
+
 private:
 
   /// Random number engine type (e.g. dSFMT, ranecu)
