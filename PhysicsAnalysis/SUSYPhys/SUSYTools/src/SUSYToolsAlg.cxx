@@ -83,7 +83,7 @@ StatusCode SUSYToolsAlg::initialize() {
   ATH_MSG_INFO("Retrieved tool: " << m_SUSYTools->name() );
 
   // Need truth matching for tau CP tools
-  if( m_SUSYTools->isData() ){
+  if( !m_SUSYTools->isData() ){
     m_tauTruthTool.setTypeAndName("TauAnalysisTools::TauTruthMatchingTool/TauTruthMatch");
     ATH_CHECK( m_tauTruthTool.retrieve() );
     ATH_MSG_INFO("Retrieved tool: " << m_tauTruthTool->name() );  
