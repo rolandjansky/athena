@@ -52,7 +52,7 @@ bool MTTmaxPatternRecognition :: estimate_background( TH1F *hist)
 			if(!m_vbh.Smooth(hist->GetBinWidth(1)/i))
 				{
 				m_error=true;
-				return -1.0;
+				return false;
 				}
 		}
 	if(m_draw_debug_graph)
