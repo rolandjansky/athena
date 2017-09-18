@@ -121,7 +121,7 @@ StatusCode TrigL2ElectronFexMT::execute() {
     return StatusCode::SUCCESS;
   }
 
-  TrigRoiDescriptor* roiDescriptor = *(roiCollection->begin());
+  const TrigRoiDescriptor* roiDescriptor = *(roiCollection->begin());
 
   ATH_MSG_DEBUG(" RoI ID = "   << (roiDescriptor)->roiId()
 		<< ": Eta = "      << (roiDescriptor)->eta()
