@@ -1,7 +1,7 @@
 <unifiedTestConfiguration>
   <atn>
      <TEST name="EventMixer" type="athena" suite="Examples">
-        <options_atn>-s AthenaServices/MixingEventSelector_test.py</options_atn>
+        <options_atn> AthenaServices/MixingEventSelector_test.py</options_atn>
         <timelimit>15</timelimit>
         <author> Paolo Calafiura </author>
         <mailto> pcalafiura@lbl.gov </mailto>
