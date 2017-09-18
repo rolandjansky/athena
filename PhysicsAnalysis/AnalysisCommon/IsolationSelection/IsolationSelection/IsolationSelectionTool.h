@@ -95,6 +95,9 @@ namespace CP {
             std::string m_muWPname;
             std::string m_elWPname;
             std::string m_phWPname;
+            std::vector<std::string> m_muWPvec;
+            std::vector<std::string> m_elWPvec;
+            std::vector<std::string> m_phWPvec;
             std::string m_muWPKey;
             std::string m_elWPKey;
             std::string m_phWPKey;
