@@ -56,42 +56,42 @@ class HitCounter
 		class DQInfo
 			{
 			public:
-				inline DQInfo(): severity(0), noisy(false), dead(false)
+				inline DQInfo(): m_severity(0), m_noisy(false), m_dead(false)
 					{}
 				inline void SetNoisy()
 					{
-					if(severity<2)
-						severity=2;
-					noisy=true;
+					if(m_severity<2)
+						m_severity=2;
+					m_noisy=true;
 					}
 				inline void SetDead()
 					{
-					if(severity<1)
-						severity=1;
-					dead=true;	
+					if(m_severity<1)
+						m_severity=1;
+					m_dead=true;	
 					}
 				inline const int & GetSeverity() const
 					{
-					return severity;
+					return m_severity;
 					}
 				inline const bool & GetNoisy() const
 					{
-					return noisy;
+					return m_noisy;
 					}
 				inline const bool & GetDead() const
 					{
-					return dead;
+					return m_dead;
 					}
 			private:
-				int severity;
-				bool noisy;
-				bool dead;
+				int m_severity;
+				bool m_noisy;
+				bool m_dead;
 			};
 //==============================================================================
 	/** default constructor */
-		inline HitCounter() : m_is_initialized(false), m_per_chamber(0), n_dead_tubes(0),
-			n_dead_mezz(0), n_dead_ml(0), m_fit_by_int(0), p_hits_per_segments(NULL),
-			p_wd(NULL)
+		inline HitCounter() : m_is_initialized(false), m_per_chamber(0), m_n_dead_tubes(0),
+			m_n_dead_mezz(0), m_n_dead_ml(0), m_fit_by_int(0), m_hits_per_segments(NULL),
+			m_wd(NULL)
 			{
 			}
 	/** initialize class */
@@ -99,7 +99,7 @@ class HitCounter
 	/** process segment */
 		void ProcessSegment(const MuonCalibSegment & segment);
 	/** decide on how to fit */
-		const std::string & FittingBy(int min_hits, double m_bad_fit_rate);
+		const std::string & FittingBy(int min_hits, double bad_fit_rate);
 	/** return true if class is initialized */
 		inline bool IsInitialized()
 			{
@@ -116,15 +116,15 @@ class HitCounter
 	/** return number of dead tubes - mezzanines - multilayers */
 		inline int NDeadTubes() const
 			{
-			return n_dead_tubes;
+			return m_n_dead_tubes;
 			}
 		inline int NDeadMezzanines() const
 			{
-			return n_dead_mezz;
+			return m_n_dead_mezz;
 			}
 		inline int NDeadMultilayers() const
 			{
-			return n_dead_ml;
+			return m_n_dead_ml;
 			}
 		std::map<HitCounter::TubeId, HitCounter::DQInfo> InitialDQ(int noisy_tube_factor) const;
 	private:
@@ -139,17 +139,17 @@ class HitCounter
 		std::map<int, int> m_per_ml;
 		int m_per_chamber;
 	//! number of dead tubes - dead mezzanines - dead tubs
-		int n_dead_tubes;
-		int n_dead_mezz;
-		int n_dead_ml;
+		int m_n_dead_tubes;
+		int m_n_dead_mezz;
+		int m_n_dead_ml;
 	//! number of tubes per layer and mezzanine
 		std::map<int,int> m_mezz_width;
 	//! fitt by
 		std::string m_fit_by;
 		int m_fit_by_int;
 	//!root histograms
-		TH1F *p_hits_per_segments;
-		TDirectory *p_wd;
+		TH1F *m_hits_per_segments;
+		TDirectory *m_wd;
 	//! station id to which this counter applies
 		NtupleStationId m_id;
 	};

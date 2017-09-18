@@ -150,7 +150,7 @@ StatusCode NtupleDisplayTool::initialize() {
     //-- Variables --//
     //---------------//
         
-    qfitter = NULL;
+    m_qfitter = NULL;
     
     m_nb_multilayers = -1;
     m_nb_layers      = -1;
@@ -230,12 +230,12 @@ NtupleDisplayTool::handleEvent( const MuonCalibEvent & event,
     //-- VARIABLES --//
     //---------------//
     
-    if(qfitter==NULL){
+    if(m_qfitter==NULL){
        if (m_fitter_name==string("QuasianalyticLineReconstruction")) {
-        qfitter = new QuasianalyticLineReconstruction();
+        m_qfitter = new QuasianalyticLineReconstruction();
        }
        if (m_fitter_name==string("StraightPatRec")) {
-        qfitter = new StraightPatRec();
+        m_qfitter = new StraightPatRec();
        }
        if (m_fitter_name!=string("QuasianalyticLineReconstruction") &&
            m_fitter_name!=string("StraightPatRec")) {
@@ -423,13 +423,13 @@ NtupleDisplayTool::handleEvent( const MuonCalibEvent & event,
     
     //refit segment 
     bool fit_success(false);
-    if(qfitter)
+    if(m_qfitter)
     	{
-	    qfitter->setRoadWidth(m_road_width); //0.65
-	    qfitter->switchOnRefit();
+	    m_qfitter->setRoadWidth(m_road_width); //0.65
+	    m_qfitter->switchOnRefit();
     
     
-	    fit_success = qfitter->fit(segment);
+	    fit_success = m_qfitter->fit(segment);
         }
     MTStraightLine track_refit(segment.position(),segment.direction(),
                                           Amg::Vector3D(0,0,0), Amg::Vector3D(0,0,0));
@@ -600,7 +600,7 @@ NtupleDisplayTool::handleEvent( const MuonCalibEvent & event,
     line->Draw();
 
     if(fit_success){
-        //if(fit_success && qfitter->numberOfTrackHits()>=m_nb_hits){ 
+        //if(fit_success && m_qfitter->numberOfTrackHits()>=m_nb_hits){ 
         line_refit->Draw();
     }
     else{
