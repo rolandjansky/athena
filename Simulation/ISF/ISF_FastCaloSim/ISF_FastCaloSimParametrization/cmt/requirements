@@ -27,6 +27,7 @@ use CaloInterface               CaloInterface-*                 Calorimeter
 use BarcodeEvent                BarcodeEvent-*                  Simulation/Barcode
 use ISF_Interfaces              ISF_Interfaces-*                Simulation/ISF/ISF_Core
 use ISF_FastCaloSimEvent        ISF_FastCaloSimEvent-*          Simulation/ISF/ISF_FastCaloSim
+use LArReadoutGeometry		LArReadoutGeometry-*		LArCalorimeter/LArGeoModel
 
 private
 use Geant4                      Geant4-*                        External
@@ -72,7 +73,7 @@ apply_pattern named_installed_library library=ISF_FastCaloSimParametrizationLib
 private
 macro_append extra_root_cint_includes " -p -I$(CaloGeoHelpers_root) "
 end_private
-apply_pattern have_root_headers root_headers="MeanAndRMS.h TFCSLateralShapeParametrization.h TFCSNNLateralShapeParametrization.h TFCSSimpleLateralShapeParametrization.h TFCS1DFunctionRegression.h TFCS1DFunctionHistogram.h TFCSFunction.h TreeReader.h firstPCA.h secondPCA.h TFCS2Function.h TFCS2DFunction.h DetailedShapeBinning.h FitDetailedShape.h TFCS2DFunctionRegression.h TFCS1DFunctionRegressionTF.h ../Root/LinkDef.h" \ 
+apply_pattern have_root_headers root_headers="MeanAndRMS.h TFCSLateralShapeParametrization.h TFCSNNLateralShapeParametrization.h TFCSSimpleLateralShapeParametrization.h TreeReader.h ../Root/LinkDef.h" \
               headers_lib=ISF_FastCaloSimParametrizationLib 
 
 macro_append ISF_FastCaloSimParametrizationLib_shlibflags "-L$(ROOTSYS)/lib -lTree -lTreePlayer"
