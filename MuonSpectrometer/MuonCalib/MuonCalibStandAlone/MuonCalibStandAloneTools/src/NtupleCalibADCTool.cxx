@@ -646,8 +646,8 @@ void NtupleCalibADCTool::createMaps(const MuonFixedId & id) {
    string tempside=(id.eta()>0)?"A":"C";
    string tempeta=tostring(abs(id.eta()));
    int tempphi=(file_dir.substr(2,1)=="L")?(2*(id.phi())-1):(2*(id.phi()));
-   char sphi[2];
-   sprintf(sphi,"%02d",tempphi);
+   char sphi[4];
+   snprintf(sphi,sizeof(sphi),"%02d",tempphi);
    string chambername=file_dir.substr(0,3)+tempeta+tempside+sphi;
   
   // string chambername=file_dir;
