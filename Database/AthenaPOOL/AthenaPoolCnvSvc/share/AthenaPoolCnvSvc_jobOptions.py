@@ -52,11 +52,14 @@ svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '<fileName>'; <attri
 # Set Container Attribute
 svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '<fileName>'; ContainerName = '<type>/<key>'; <attributeName> = '<value>'" ]
 
-# Set Input Database Attribute - set attribute for each incoming file/db
+# Set Input Database Attribute - set attribute for domain
 svcMgr.AthenaPoolCnvSvc.InputPoolAttributes += [ "<attributeName> = '<value>'" ]
 
+# Set Input Database Attribute - set attribute for each incoming file/db
+svcMgr.AthenaPoolCnvSvc.InputPoolAttributes += [ "DatabaseName = '*'; <attributeName> = '<value>'" ]
+
 # Set Input Database Attribute - set attribute for each incoming file/db for a particular container/tree
-svcMgr.AthenaPoolCnvSvc.InputPoolAttributes += [ "ContainerName = '<treeName>'; <attributeName> = '<value>'" ]
+svcMgr.AthenaPoolCnvSvc.InputPoolAttributes += [ "DatabaseName = '*'; ContainerName = '<treeName>'; <attributeName> = '<value>'" ]
 
 # To get an Attribute value printed to the log while commit, use the same syntax as for
 # setting attributes, but replace the <value> with its <dataType> (int, DbLonglong, double).
