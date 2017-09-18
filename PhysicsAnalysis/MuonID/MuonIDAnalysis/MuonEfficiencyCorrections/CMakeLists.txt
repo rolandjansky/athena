@@ -24,7 +24,7 @@ atlas_depends_on_subdirs(
    PhysicsAnalysis/AnalysisCommon/PATInterfaces
    PhysicsAnalysis/AnalysisCommon/PileupReweighting
    PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
-    PhysicsAnalysis/Intefaces/MuonAnalysisInterfaces
+   PhysicsAnalysis/Interfaces/MuonAnalysisInterfaces
    PRIVATE
    Control/AthContainers
    Event/xAOD/xAODTrigger
