@@ -150,7 +150,7 @@ StatusCode DerivationFramework::EGammaTracksThinning::doThinning() const {
 // =======================================================
 
 std::set<int> DerivationFramework::EGammaTracksThinning::findGoodTracks(const TrackCollection* trackCont,
-                                                               TLorentzVector candHepLorentz, 
+                                                               const TLorentzVector& candHepLorentz, 
                                                                double maxDeltaR ) const 
 {
 
@@ -197,7 +197,7 @@ std::set<int> DerivationFramework::EGammaTracksThinning::findGoodTracks(const Tr
 // =======================================================
 
 StatusCode DerivationFramework::EGammaTracksThinning::thinTracks( const TrackCollection * trackCollection , 
-                                                            std::set<int> m_goodTrackIDs ) const
+                                                                  const std::set<int>& m_goodTrackIDs ) const
 {
   
   ATH_MSG_DEBUG( "==> thinTracks " << name() << "..." );
