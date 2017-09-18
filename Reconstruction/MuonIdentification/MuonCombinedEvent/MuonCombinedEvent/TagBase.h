@@ -22,12 +22,12 @@ namespace MuonCombined {
   inline int authorRank( const xAOD::Muon::Author& a ) {
     if( a == xAOD::Muon::MuidCo )   return 0;
     if( a == xAOD::Muon::MuGirl )   return 1;
-    if( a == xAOD::Muon::STACO )    return 2;
-    if( a == xAOD::Muon::MuTagIMO ) return 3;
-    if( a == xAOD::Muon::MuTag )    return 4;
-    if( a == xAOD::Muon::CaloTag )  return 5;
-    if( a == xAOD::Muon::CaloLikelihood ) return 6;
-    if( a == xAOD::Muon::MuidSA )   return 7;
+    if( a == xAOD::Muon::MuTagIMO ) return 2;
+    if( a == xAOD::Muon::MuTag )    return 3;
+    if( a == xAOD::Muon::CaloTag )  return 4;
+    if( a == xAOD::Muon::CaloLikelihood ) return 5;
+    if( a == xAOD::Muon::MuidSA )   return 6;
+    if( a == xAOD::Muon::STACO )    return 7;
     return 8;
   }
 
@@ -92,7 +92,7 @@ namespace MuonCombined {
   inline bool operator<( const TagBase& t1,  const TagBase& t2 ){
     int r1 = typeRank(t1.type());
     int r2 = typeRank(t2.type());
-    if( r1 != r2 ) return r1 < r2; 
+    if( r1 != r2 && t1.author()!=xAOD::Muon::STACO && t2.author()!=xAOD::Muon::STACO) return r1 < r2; 
     return authorRank(t1.author()) < authorRank(t2.author());
   }
   
