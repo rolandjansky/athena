@@ -5,3 +5,5 @@
 # art-output: *.pool.root
 
 Reco_tf.py --inputAODFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.11866988._000378.pool.root.1 --outputDAODFile art.pool.root --reductionConf TAUP2 --maxEvents 5000
+
+DAODMerge_tf.py --maxEvents 5 --inputDAOD_TAUP2File DAOD_TAUP2.art.pool.root --outputDAOD_TAUP2_MRGFile art_merged.pool.root
