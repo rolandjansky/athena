@@ -329,11 +329,6 @@ namespace ana
       if ( (my_runNumber<290000 && m_year==Only2016) ||
            (my_runNumber>290000 && m_year==Only2015) ) return StatusCode::SUCCESS;
 
-      if ( muonSFToolForThisYear(my_runNumber)->setRunNumber(my_runNumber)!=CP::CorrectionCode::Ok ){
-        ATH_MSG_ERROR ("setRunNumber failed for muon trigger SF tool");
-        return StatusCode::FAILURE;
-      }
-
       // This is unreadably ugly...
       bool isDiMuTrig = (m_muon_trig_str.find("2mu") != std::string::npos || m_muon_trig_str.find("mu", m_muon_trig_str.find("mu")+1 ) != std::string::npos);
       // For the time being: if the trigger string has "OR" then it is still a single-lepton trigger, it's just several OR'd together
