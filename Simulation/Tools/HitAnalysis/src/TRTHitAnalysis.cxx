@@ -45,8 +45,8 @@ TRTHitAnalysis::TRTHitAnalysis(const std::string& name, ISvcLocator* pSvcLocator
    , m_TRT_barcode(0)
      
    , m_tree(0)
-   , m_ntupleFileName("/TRTHitAnalysis/")
    , m_path("/TRTHitAnalysis/")
+   , m_ntupleFileName("/TRTHitAnalysis/")
    , m_thistSvc("THistSvc", name)
 {
   declareProperty("NtupleFileName", m_ntupleFileName);
