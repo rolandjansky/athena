@@ -257,11 +257,17 @@ namespace top {
 	// This might give problems! Please check which year and mc you
 	// have set up".
 	// We do this by hand to avoid the messages.
-	if (runNumber == 0) runNumber = 300345;
+	if (runNumber == 0) runNumber = 300345;	
+
+	// <iconnell@cern.ch> - The function was removed from R21 but we will use preprocessor
+	// statements to protect the compilation until we are happy for the two releases to be out of sync
+        #if ROOTCORE_RELEASE_SERIES < 25 // Release 2.4.X
 	top::check(m_muonTriggerScaleFactors->setRunNumber(runNumber),
 		   "Failed to set run number for muon trigger SFs");
 	top::check(m_muonTriggerScaleFactorsLoose->setRunNumber(runNumber),
 		   "Failed to set run number for (loose) muon trigger SFs");
+        #endif // Release 2.4.X
+
       }
     }
 
