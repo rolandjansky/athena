@@ -27,7 +27,7 @@ def metaDataInputAvailable(inputType, inputKey):
   flag = False
   from RecExConfig.InputFilePeeker import inputFileSummary
   metaItemList=inputFileSummary.get('metadata_itemsList')
-  if ( '%s#%s' % (inputType, inputKey) ) in metaItemList:
+  if metaItemList and ( '%s#%s' % (inputType, inputKey) ) in metaItemList:
     flag = True
     mlog.verbose(("metaItemList does have ContainerType input %s with "
       "key %s."), inputType, inputKey)
