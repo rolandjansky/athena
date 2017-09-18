@@ -43,9 +43,11 @@
 #include "xAODTrigCalo/TrigEMCluster.h"
 #include "xAODTrigEgamma/TrigElectron.h"
 #include "xAODTrigEgamma/TrigElectronContainer.h"
+#include "RecoToolInterfaces/IParticleCaloExtensionTool.h" 
 
-namespace Trk
-{ class IParticleCaloExtensionTool; } 
+#include "AthenaMonitoring/GenericMonitoringTool.h"
+//namespace Trk
+//{ class IParticleCaloExtensionTool; } 
 
 /**
  * \class TrigL2ElectronFexMT 
@@ -57,12 +59,6 @@ namespace Trk
  * The TrigElectron conatiner will then be retrieved by the hypothesis algorithm TrigL2ElectronHypo
  * that will perform the corresponding L2 electron selection
  *
- * Cleanup / Update for Run2
- * Remove m_calo_algoID; m_trackalgoID -- only 1 type of track
- * Remove deta/dphi cluster -- this is checked at L2Calo
- * Remove track pt for TRT tracks -- TRT only not used
- * Remove m_calotrackdeta/dphiTRT -- not cutting on TRT tracks
- * calotrack deta/dphi and eoverp cuts flat (not as function of eta)
  */
 
 class TrigL2ElectronFexMT : public AthAlgorithm  {
@@ -79,29 +75,6 @@ class TrigL2ElectronFexMT : public AthAlgorithm  {
 
  private:
   
-  //tracking cut
-  float  m_trackPtthr;
-  float  m_trackPtthr_highet; //!< track pt cut for high et cluster (20 GeV)
-  float  m_clusEtthr; //!< cluster Et threshold for high et cuts
-  float m_calotrkdeta_noextrap; //!< preselection between track eta and cluster before extrapolation 
-  float m_calotrkdeta_noextrap_highet; //!< preselection between track eta and cluster before extrapolation for high et cluster
-  //calo-tracking cuts
-
-  float m_calotrackdeta; //!<  deta between calo and track
-  float m_calotrackdphi; //!<  dphi between calo and track
-  float m_calotrackdeoverp_low; //!<  E/p lower cut between calo and track
-  float m_calotrackdeoverp_high; //!<  E/p upper cut  between calo and track
-  
-  //radius and Z of calorimeter face
-  float m_RCAL;  //!<  radious of calorimeter face
-  float m_ZCAL;  //!<  Z of calorimeter face
-  
-  // build electrons for all tracks  
-  bool m_acceptAll;
-
-  // for extrapolating TrigInDetTracks to calorimeter surface
-  ToolHandle< Trk::IParticleCaloExtensionTool > m_caloExtensionTool; 
-
   // track-extrapolation error counter
   unsigned long m_extrapolator_failed;
 
@@ -117,18 +90,44 @@ class TrigL2ElectronFexMT : public AthAlgorithm  {
   }
 
   bool extrapolate(const xAOD::TrigEMCluster *, const xAOD::TrackParticle *, double &, double &);
+  
+   // Algorithm properties: the parameters are {this, <name>, <default value>, <documentation>}
+  Gaudi::Property<bool>  m_acceptAll  {this, "AcceptAll", false, "Build electrons for all tracks"};
+  Gaudi::Property<float> m_clusEtthr {this,  "ClusEt",  20.0*CLHEP::GeV , " lower limit on cluster Et"};
+  Gaudi::Property<float> m_trackPtthr {this,  "TrackPt",  5.0*CLHEP::GeV , "lower limit on TrackPt cut" };
+  Gaudi::Property<float> m_calotrkdeta_noextrap {this,  "CaloTrackdEtaNoExtrap",   0.5, "Upper limit on DEta between Calo cluster and Track for track preselection before extrapolation"};
+  Gaudi::Property<float> m_trackPtthr_highet  {this,  "TrackPtHighEt",  2.0*CLHEP::GeV , "lower limit on TrackPt cut High Et Cluster (20GeV)"};
+  Gaudi::Property<float> m_calotrkdeta_noextrap_highet {this,  "CaloTrackdEtaNoExtrapHighEt",  0, "upper limit on DEta between Calo cluster and Track for track preselection before extrapolation for High Et cluster (20GeV)"};
+  Gaudi::Property<float> m_calotrackdeta {this,  "CaloTrackdETA",    0, "Upper limit on DEta between Calo cluster and Track"};
+  Gaudi::Property<float> m_calotrackdphi {this,  "CaloTrackdPHI",     0, "Upper limit on DPhi between Calo cluster and Track"}; 
+  Gaudi::Property<float> m_calotrackdeoverp_low {this,  "CaloTrackdEoverPLow",  0, "lower limit on E(calo)/p(track)"};
+  Gaudi::Property<float> m_calotrackdeoverp_high {this,  "CaloTrackdEoverPHigh", 0, "upper limit on track E(calo)/p(track)"};
+  Gaudi::Property<float> m_RCAL {this,  "RCalBarrelFace",  1470.0*CLHEP::mm , "Radius of inner face of the barrel calorimeter"};
+  Gaudi::Property<float> m_ZCAL {this,  "ZCalEndcapFace",     3800.0*CLHEP::mm, "z of the inner face of endcap calorimeter"};
+  // Too be changed Public Tools depreciated
+  PublicToolHandle<Trk::IParticleCaloExtensionTool > m_caloExtensionTool {this,  "ParticleCaloExtensionTool",  "Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool", "Tool to extrapolate Track to Calo inner surface"};
+ 
+  SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey { this, 
+      "RoIs",                             // property name
+      "rois",                                                        // default value of StoreGate key
+      "input RoI Collection name"};
+  
+  SG::ReadHandleKey<xAOD::TrigEMClusterContainer> m_TrigEMClusterContainerKey{ this,
+      "TrigEMClusterName",       // property name
+      "clusters",                                                // default value of StoreGate key
+      "input TrigEMCluster Container name"};
+  
+  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_TrackParticleContainerKey{ this,
+      "TrackParticlesName",         // property name
+      "Tracks",                                                  // default value of StoreGate key
+      "input TrackParticle container name"};
 
-  std::vector<float> m_calotrkdeta_noextrap_mon; //!< monitor preselection between track eta and cluster before extrapolation 
-  std::vector<float> m_calotrackdeta_mon; 
-  std::vector<float> m_calotrackdphi_mon; 
-  std::vector<float> m_calotrackdeoverp_mon;
-  std::vector<float> m_trackpt_mon;
-  std::vector<float> m_calopt_mon;
+  SG::WriteHandleKey<xAOD::TrigElectronContainer> m_outputElectronsKey{ this,
+      "ElectronsName",                  // property name
+      "Electrons",                                             // default value of StoreGate key
+      "output Electron container name "};
 
-  SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;
-  SG::ReadHandleKey<xAOD::TrigEMClusterContainer> m_TrigEMClusterContainerKey;
-  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_TrackParticleContainerKey;
-  SG::WriteHandleKey<xAOD::TrigElectronContainer> m_outputElectronsKey;
-};
-
+  ToolHandle<GenericMonitoringTool> m_monTool;
+  
+};  
 #endif
