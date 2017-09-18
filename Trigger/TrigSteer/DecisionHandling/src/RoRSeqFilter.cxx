@@ -61,6 +61,7 @@ StatusCode RoRSeqFilter::execute() {
       passCounter += copyPassing( *inputHandle, *output );
     }
 
+    ATH_MSG_DEBUG( "Recording " <<  m_outputKeys[ 0 ].key() );
     auto outputHandle = SG::makeHandle( m_outputKeys[ 0 ] );
     CHECK( outputHandle.record( std::move( output ) ) );
 
@@ -73,7 +74,8 @@ StatusCode RoRSeqFilter::execute() {
       output->clear( SG::VIEW_ELEMENTS );
       
       passCounter += copyPassing( *inputHandle, *output );
-      
+
+      ATH_MSG_DEBUG( "Recording " << outputIndex << " " <<  m_outputKeys[ outputIndex ].key() );
       auto outputHandle = SG::makeHandle( m_outputKeys[ outputIndex ] );
       CHECK( outputHandle.record( std::move( output ) ) );
 
@@ -81,6 +83,7 @@ StatusCode RoRSeqFilter::execute() {
     }
   }
 
+  ATH_MSG_DEBUG( "Filter " << ( passCounter != 0 ? "passed" : "rejected") );
   setFilterPassed( passCounter != 0 );  
   return StatusCode::SUCCESS;
 }

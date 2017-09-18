@@ -51,13 +51,22 @@ theFastCaloAlgo.OutputLevel=VERBOSE
 theFastCaloAlgo.ClustersName="L2CaloClusters"
 svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection=False
 
+from DecisionHandling.DecisionHandlingConf import RoRSeqFilter
+
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 if viewTest:
+  topSequence += RoRSeqFilter("RoRSeqFilterEMCalo")
+  topSequence.RoRSeqFilterEMCalo.Input = ["EMRoIDecisions"]
+  topSequence.RoRSeqFilterEMCalo.Output = ["FilteredEMRoIDecisions"]
+  topSequence.RoRSeqFilterEMCalo.Chains = ["HLT_e5_etcut", "HLT_e7_etcut"]
+  topSequence.RoRSeqFilterEMCalo.OutputLevel = DEBUG
+  
   allViewAlgorithms += theFastCaloAlgo
   svcMgr.ViewAlgPool.TopAlg += [ theFastCaloAlgo.getName() ]
   l2CaloViewsMaker = EventViewCreatorAlgorithm("l2CaloViewsMaker", OutputLevel=DEBUG)
+  
   topSequence += l2CaloViewsMaker
-  l2CaloViewsMaker.Decisions = "EMRoIDecisions" # from EMRoIsUnpackingTool
+  l2CaloViewsMaker.Decisions = "FilteredEMRoIDecisions" # from EMRoIsUnpackingTool
   l2CaloViewsMaker.RoIsLink = "initialRoI" # -||-
   l2CaloViewsMaker.InViewRoIs = "EMCaloRoIs" # contract with the fastCalo
   l2CaloViewsMaker.Views = "EMCaloViews"
