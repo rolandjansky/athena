@@ -341,6 +341,11 @@ PFOChargedCreatorAlgorithm.TrackVertexAssociationTool = PFlowTrackVertexAssociat
 
 topSequence += [PFOChargedCreatorAlgorithm]
 
+from eflowRec.eflowRecConf import PFONeutralCreatorAlgorithm
+PFONeutralCreatorAlgorithm =  PFONeutralCreatorAlgorithm("PFONeutralCreatorAlgorithm")
+
+topSequence += PFONeutralCreatorAlgorithm
+
 import AthenaPoolCnvSvc.WriteAthenaPool
 logRecoOutputItemList_jobOptions = logging.getLogger( 'py:RecoOutputItemList_jobOptions' )
 from OutputStreamAthenaPool.OutputStreamAthenaPool import  createOutputStream
@@ -351,6 +356,9 @@ StreamESD.ItemList+=CaloESDList
 
 StreamESD.ItemList += [ "xAOD::PFOContainer#JetETMissChargedParticleFlowObjectsV2"]
 StreamESD.ItemList += [ "xAOD::PFOAuxContainer#JetETMissChargedParticleFlowObjectsV2Aux."]
+
+StreamESD.ItemList += [ "xAOD::PFOContainer#JetETMissNeutralParticleFlowObjectsV2"]
+StreamESD.ItemList += [ "xAOD::PFOAuxContainer#JetETMissNeutralParticleFlowObjectsV2Aux."]
 
 print StreamESD.ItemList
 
