@@ -24,7 +24,7 @@
 Simulation::GenEventBeamEffectBooster::GenEventBeamEffectBooster( const std::string& t,
                                                            const std::string& n,
                                                            const IInterface* p )
-  : AthAlgTool(t,n,p),
+  : base_class(t,n,p),
     m_beamCondSvc("BeamCondSvc", n),
     m_rndGenSvc("AtRndmGenSvc", n),
     m_randomEngine(0),
@@ -47,7 +47,6 @@ Simulation::GenEventBeamEffectBooster::GenEventBeamEffectBooster( const std::str
   , m_beam2ParticleMass(CLHEP::proton_mass_c2)
 
 {
-  declareInterface<Simulation::IGenEventManipulator>(this);
   // declare properties for the configuration
   declareProperty( "BeamCondSvc"      , m_beamCondSvc      );
   declareProperty( "RandomSvc"        , m_rndGenSvc        );
