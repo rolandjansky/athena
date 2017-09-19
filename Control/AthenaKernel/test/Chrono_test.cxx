@@ -14,11 +14,15 @@
 
 
 #include "AthenaKernel/Chrono.h"
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/ChronoEntity.h"
 #include <iostream>
 #include <stdexcept>
 #include <cstdlib>
 #include <cassert>
+
+
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 
 
 int count = 0;

@@ -14,6 +14,7 @@
 
 #include "AthenaKernel/RCUObject.h"
 #include "AthenaKernel/IRCUSvc.h"
+#include "CxxUtils/checker_macros.h"
 #include "boost/thread/shared_mutex.hpp"
 #include "boost/thread/shared_lock_guard.hpp"
 #include <cassert>
@@ -94,15 +95,15 @@ struct Payload
   int a, b, c, d;
 
   static std::atomic<int> ninstance;
-  static bool dolog;
+  static std::atomic<bool> dolog;
 
 private:
-  static std::vector<int> m_dlog;
-  static std::mutex m_mutex;
+  static std::vector<int> m_dlog ATLAS_THREAD_SAFE;
+  static std::mutex m_mutex ATLAS_THREAD_SAFE;
 };
 
 std::atomic<int> Payload::ninstance;
-bool Payload::dolog = true;
+std::atomic<bool> Payload::dolog (true);
 std::vector<int> Payload::m_dlog;
 std::mutex Payload::m_mutex;
 
