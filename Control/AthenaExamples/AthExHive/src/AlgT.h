@@ -32,12 +32,14 @@ public:
   
 private:
 
-  SG::WriteHandleKey<HiveDataObj> m_wrh1;
-  SG::ReadHandleKey<HiveDataObj>  m_rdh1;
-  SG::ReadHandleKey<EventInfo> m_evt;
+  SG::ReadHandleKey<EventInfo> m_evt{this, "EvtInfo", "McEventInfo", "EventInfo name"};
+  SG::ReadHandleKey<HiveDataObj>  m_rdh1{this,"Key_R1","","read key"};
+  SG::WriteHandleKey<HiveDataObj> m_wrh1{this,"Key_W1","t1","write key"};
 
 
-  ToolHandle<IHiveTool> m_tool1, m_tool2, m_tool3;
+  ToolHandle<IHiveTool> m_tool1{this, "Tool1", "HiveTool", "tool 1"};
+  ToolHandle<IHiveTool> m_tool2{this, "Tool2", "HiveTool", "tool 2"};
+  ToolHandle<IHiveTool> m_tool3{this, "Tool3", "HiveTool", "tool 3"};
   
 };
 #endif
