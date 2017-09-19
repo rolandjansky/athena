@@ -68,7 +68,7 @@ public:
 
 
     // get all the ROBFragments
-    const size_t MAX_ROBFRAGMENTS = 2048 * 1024;
+    const size_t MAX_ROBFRAGMENTS = 2048;
     OFFLINE_FRAGMENTS_NAMESPACE::PointerType robF[MAX_ROBFRAGMENTS];
     OFFLINE_FRAGMENTS_NAMESPACE::PointerType rePointer;
     re->start(rePointer);
@@ -81,7 +81,6 @@ public:
     // loop over all ROBs
     for (size_t irob=0; irob<robcount; ++irob)
       {
-	{
 	  // add to the map
 	  OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment rob(robF[irob]);
 	  
@@ -111,7 +110,6 @@ public:
 	    std::cout << std::endl << "WARNING : ROD has unexpected data size " 
 		      << rob.rod_ndata() << " and RODFragment size_word is too small!" << std::endl;
           }
-	}    
       } 
   }
 };

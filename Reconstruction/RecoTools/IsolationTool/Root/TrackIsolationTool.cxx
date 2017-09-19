@@ -16,8 +16,8 @@
 #include "xAODPrimitives/IsolationConeSize.h"
 #include "xAODPrimitives/IsolationHelpers.h"
 #include "xAODPrimitives/IsolationCorrectionHelper.h"
-#include "xAODPrimitives/tools/getIsolationAccessor.h"
-#include "xAODPrimitives/tools/getIsolationCorrectionAccessor.h"
+#include "xAODPrimitives/tools/getIsolationDecorator.h"
+#include "xAODPrimitives/tools/getIsolationCorrectionDecorator.h"
 #include "xAODMuon/Muon.h"
 
 #include <iomanip>
@@ -29,7 +29,7 @@ namespace xAOD {
   TrackIsolationTool::TrackIsolationTool (const std::string& name):
     asg::AsgTool(name)
 #ifndef XAOD_ANALYSIS
-    , m_tracksInConeTool("xAOD::TrackParticlesInConeTool/TrackParticlesInConeTool"),
+    , m_tracksInConeTool("xAOD::TrackParticlesInConeTool/TrackParticlesInConeTool", this),
 	m_trkselTool( "InDet::InDetTrackSelectionTool/TrackSelectionTool", this )
 #endif // XAOD_ANALYSIS
   {
@@ -185,7 +185,7 @@ namespace xAOD {
     return success;
   }
 
-  bool TrackIsolationTool::decorateParticle( IParticle& tp, 
+  bool TrackIsolationTool::decorateParticle( const IParticle& tp, 
                                              const std::vector<Iso::IsolationType>& cones, 
                                              TrackCorrection corrections, 
                                              const Vertex* vertex, 
@@ -209,7 +209,7 @@ namespace xAOD {
 
     // This is independant of the size. At least for the time being
     // fill bitset
-    SG::AuxElement::Accessor< uint32_t >* bitsetAcc = getIsolationCorrectionBitsetAccessor(Iso::isolationFlavour(cones[0]));
+    SG::AuxElement::Decorator< uint32_t >* bitsetAcc = getIsolationCorrectionBitsetDecorator(Iso::isolationFlavour(cones[0]));
 
     if( bitsetAcc ){
       (*bitsetAcc)(tp) = corrections.trackbitset.to_ulong();
@@ -222,7 +222,7 @@ namespace xAOD {
 	ATH_MSG_WARNING("Correction value not found " << Iso::toString(ctype) );         
 	continue;
       }
-      SG::AuxElement::Accessor< float >* isoCorAcc = getIsolationCorrectionAccessor( Iso::isolationFlavour(cones[0]), ctype );
+      SG::AuxElement::Decorator< float >* isoCorAcc = getIsolationCorrectionDecorator( Iso::isolationFlavour(cones[0]), ctype );
       if( isoCorAcc ){
 	(*isoCorAcc)(tp) = el->second;
       }        
@@ -237,7 +237,7 @@ namespace xAOD {
 
       // fill main isolation
       if( result.ptcones.size() == cones.size() ){
-        SG::AuxElement::Accessor< float >* isoTypeAcc = getIsolationAccessor(type);
+        SG::AuxElement::Decorator< float >* isoTypeAcc = getIsolationDecorator(type);
         if( isoTypeAcc ){
 	  ATH_MSG_DEBUG("Filling std cone " << result.ptcones[i]);
           (*isoTypeAcc)(tp) = result.ptcones[i];
@@ -249,7 +249,7 @@ namespace xAOD {
       // also fill var cone
       if( result.ptvarcones_10GeVDivPt.size() == cones.size() ){
         Iso::IsolationType varIsoType = Iso::isolationType( Iso::ptvarcone, coneSize );
-        SG::AuxElement::Accessor< float >* isoTypeAcc = getIsolationAccessor(varIsoType);
+        SG::AuxElement::Decorator< float >* isoTypeAcc = getIsolationDecorator(varIsoType);
         if( isoTypeAcc ){
 	  ATH_MSG_DEBUG("Filling var cone " << result.ptvarcones_10GeVDivPt[i]);
           (*isoTypeAcc)(tp) = result.ptvarcones_10GeVDivPt[i];

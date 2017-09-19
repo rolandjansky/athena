@@ -758,7 +758,7 @@ void CpByteStreamV1Tool::decodeCmmCp(CmmCpSubBlock* subBlock, int trigCmm,
                                               m_errVec0, m_errVec1, trigCmm);
           const int key = crate*100 + dataID;
 	  data.m_cmmHitsMap.insert(std::make_pair(key, chp.get()));
-	  data.m_cmmHitCollection->push_back(std::move(ch));
+	  data.m_cmmHitCollection->push_back(std::move(chp));
         } else {
 	  m_hitsVec0 = ch->HitsVec0();
 	  m_hitsVec1 = ch->HitsVec1();
@@ -899,7 +899,7 @@ void CpByteStreamV1Tool::decodeCpm(CpmSubBlockV1* subBlock,
                   std::make_unique<LVL1::CPMTower>(phi, eta, m_emVec, m_emErrVec,
                                                    m_hadVec, m_hadErrVec, trigCpm);
 	        tdata.m_ttMap.insert(std::make_pair(key, ttp.get()));
-                tdata.m_ttCollection->push_back(std::move(tt));
+                tdata.m_ttCollection->push_back(std::move(ttp));
               } else {
 	        m_emVec     = tt->emEnergyVec();
 	        m_hadVec    = tt->hadEnergyVec();

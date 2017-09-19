@@ -1,11 +1,7 @@
 # Modify the hit wrapping action to wrap on 150 ns
 
-try:
-    from G4AtlasServices.G4AtlasUserActionConfig import UAStore
-except ImportError:
-    from G4AtlasServices.UserActionStore import UAStore
-from AthenaCommon.CfgGetter import getPublicTool
-
-getPublicTool('HitWrapper',tryDefaultConfigurable=True).WrapTime=150
-UAStore.addAction('HitWrapper',['EndOfEvent'])
+from G4AtlasApps.SimFlags import simFlags
+# new MT actions. Note that this will only work with one thread.
+simFlags.OptionalUserActionList.addAction('G4UA::HitWrapperTool',['Event'])
+simFlags.UserActionConfig.addConfig('G4UA::HitWrapperTool','WrapTime',150)
 

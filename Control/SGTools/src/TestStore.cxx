@@ -89,14 +89,14 @@ SG::DataProxy* TestStore::recordObject (SG::DataObjectSharedPtr<DataObject> obj,
       // Alias?
       m_kmap[sgkey] = proxy;
       proxy->addRef();
-      proxy->transientAddress()->setAlias (key);
+      proxy->setAlias (key);
       return proxy;
     }
     if (key == proxy->name()) {
       // Symlink?
       m_kmap[sgkey] = proxy;
       proxy->addRef();
-      proxy->transientAddress()->setTransientID (obj->clID());
+      proxy->setTransientID (obj->clID());
       return proxy;
     }
 
@@ -183,7 +183,7 @@ bool TestStore::tryELRemap (sgkey_t sgkey_in, size_t index_in,
 StatusCode TestStore::addToStore (CLID /*id*/, SG::DataProxy* proxy)
 {
   proxy->setStore (this);
-  m_kmap[proxy->transientAddress()->sgkey()] = proxy;
+  m_kmap[proxy->sgkey()] = proxy;
   proxy->addRef();
   return StatusCode::SUCCESS;
 }
@@ -211,8 +211,8 @@ SG::DataProxy* TestStore::record1 (const void* p, DataObject* obj,
   if (m_kmap.find (sgkey) != m_kmap.end()) {
     SG::DataProxy* dp = m_kmap[sgkey];
     dp->setObject (obj);
-    if (dp->transientAddress()->clID() == CLID_NULL)
-      dp->transientAddress()->setID (clid, key);
+    if (dp->clID() == CLID_NULL)
+      dp->setID (clid, key);
     m_tmap[p] = dp;
     return dp;
   }
@@ -243,7 +243,7 @@ void TestStore::alias (SG::DataProxy* proxy,
   sgkey_t sgkey = stringToKey (newKey, proxy->clID());
   m_kmap[sgkey] = proxy;
   proxy->addRef();
-  proxy->transientAddress()->setAlias (newKey);
+  proxy->setAlias (newKey);
 }
 
 

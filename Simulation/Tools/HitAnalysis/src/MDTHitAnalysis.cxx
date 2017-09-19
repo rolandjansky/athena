@@ -15,7 +15,6 @@
 #include "TTree.h"
 #include "TString.h"
 
-
 #include <algorithm>
 #include <math.h>
 #include <functional>
@@ -54,25 +53,24 @@ MDTHitAnalysis::MDTHitAnalysis(const std::string& name, ISvcLocator* pSvcLocator
    , m_hits_edep(0)
    , m_hits_kine(0)
    , m_hits_step(0)
+     
    , m_tree(0)
-   , m_ntupleFileName("MDTHitAnalysis/ntuple/")
-   , m_path("/MDTHitAnalysis/histos/")
+   , m_ntupleFileName("/MDTHitAnalysis/")
+   , m_path("/MDTHitAnalysis/")
    , m_thistSvc("THistSvc", name)
 {
   declareProperty("NtupleFileName", m_ntupleFileName); 
   declareProperty("HistPath", m_path); 
-
 }
+
 
 StatusCode MDTHitAnalysis::initialize() {
   ATH_MSG_DEBUG( "Initializing MDTHitAnalysis" );
 
   // Grab the Ntuple and histogramming service for the tree
   CHECK(m_thistSvc.retrieve());
- 
 
   /** Histograms */
-
   h_hits_x = new TH1D("h_hits_mdt_x","hits_x", 100,-25000, 25000);
   h_hits_x->StatOverflows();
   CHECK(m_thistSvc->regHist(m_path + h_hits_x->GetName(), h_hits_x));
@@ -137,13 +135,11 @@ StatusCode MDTHitAnalysis::initialize() {
   h_hits_step->StatOverflows();
   CHECK(m_thistSvc->regHist(m_path + h_hits_step->GetName(), h_hits_step));
 
-  m_tree= new TTree("NtupleMDTHitAnalysis","MDTHitAna");
-  std::string fullNtupleName =  "/"+m_ntupleFileName+"/";
+  /** now add branches and leaves to the tree */
+  m_tree = new TTree("MDT","MDT");
+  std::string fullNtupleName =  "/" + m_ntupleFileName + "/";
   CHECK(m_thistSvc->regTree(fullNtupleName,m_tree));
   
-  
-  
-  /** now add branches and leaves to the tree */
   if (m_tree){
     m_tree->Branch("x", &m_hits_x);
     m_tree->Branch("y", &m_hits_y);
@@ -159,14 +155,14 @@ StatusCode MDTHitAnalysis::initialize() {
     m_tree->Branch("edep", &m_hits_edep);
     m_tree->Branch("kine", &m_hits_kine);
     m_tree->Branch("step", &m_hits_step);
-  }else{
+  }
+  else {
     ATH_MSG_ERROR("No tree found!");
   }
   
   return StatusCode::SUCCESS;
-}		 
+}
 
-  
 
 StatusCode MDTHitAnalysis::execute() {
   ATH_MSG_DEBUG( "In MDTHitAnalysis::execute()" );
@@ -187,13 +183,13 @@ StatusCode MDTHitAnalysis::execute() {
   m_hits_step->clear();
   
   const DataHandle<MDTSimHitCollection> mdt_container;
-  if (evtStore()->retrieve(mdt_container, "MDT_Hits" )==StatusCode::SUCCESS) {
-    for(MDTSimHitCollection::const_iterator i_hit = mdt_container->begin(); 
-	i_hit != mdt_container->end();++i_hit){
+  if (evtStore()->retrieve(mdt_container, "MDT_Hits") == StatusCode::SUCCESS) {
+    for (MDTSimHitCollection::const_iterator i_hit = mdt_container->begin(); i_hit != mdt_container->end(); ++i_hit) {
       //MDTSimHitCollection::const_iterator i_hit;
       //for(auto i_hit : *mdt_container){
       GeoMDTHit ghit(*i_hit);
-      if(!ghit) continue;
+      if (!ghit) continue;
+
       Amg::Vector3D p = ghit.getGlobalPosition();
       h_hits_x->Fill(p.x());
       h_hits_y->Fill(p.y());
@@ -212,7 +208,6 @@ StatusCode MDTHitAnalysis::execute() {
       h_hits_step->Fill((*i_hit).stepLength());
       h_hits_kine->Fill((*i_hit).kineticEnergy());
       
-      
       m_hits_x->push_back(p.x());
       m_hits_y->push_back(p.y());
       m_hits_z->push_back(p.z());
@@ -220,9 +215,9 @@ StatusCode MDTHitAnalysis::execute() {
       m_hits_eta->push_back(p.eta());
       m_hits_phi->push_back(p.phi());
       m_hits_driftR->push_back((*i_hit).driftRadius());
-      m_hits_lx->push_back( (*i_hit).localPosition().x());
-      m_hits_ly->push_back( (*i_hit).localPosition().y());
-      m_hits_lz->push_back( (*i_hit).localPosition().z());
+      m_hits_lx->push_back((*i_hit).localPosition().x());
+      m_hits_ly->push_back((*i_hit).localPosition().y());
+      m_hits_lz->push_back((*i_hit).localPosition().z());
       m_hits_edep->push_back((*i_hit).energyDeposit());
       m_hits_time->push_back((*i_hit).globalTime());
       m_hits_step->push_back((*i_hit).stepLength());

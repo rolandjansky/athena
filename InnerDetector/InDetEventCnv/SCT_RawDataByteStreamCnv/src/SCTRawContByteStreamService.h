@@ -46,12 +46,12 @@ class SCTRawContByteStreamService: virtual public ISCTRawContByteStreamService, 
 
 
   //! constructor
-  SCTRawContByteStreamService( const std::string& name, ISvcLocator* svcloc) ;
+  SCTRawContByteStreamService(const std::string& name, ISvcLocator* svcloc) ;
   
   //! destructor 
   virtual ~SCTRawContByteStreamService() ;
 
-  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvIf );
+  virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvIf);
 
   virtual StatusCode initialize();
   virtual StatusCode finalize();
@@ -61,12 +61,12 @@ class SCTRawContByteStreamService: virtual public ISCTRawContByteStreamService, 
   
  private: 
   
-  ToolHandle<ISCT_RodEncoder> m_encoder;
+  ToolHandle<ISCT_RodEncoder> m_encoder{this, "Encoder", "SCT_RodEncoder", "SCT ROD Encoder for RDO to BS conversion"};
   ServiceHandle<ISCT_CablingSvc> m_cabling;
   ServiceHandle<StoreGateSvc> m_detStore;
   const InDetDD::SCT_DetectorManager* m_sct_mgr;
-  const SCT_ID*                m_sct_idHelper;
-  unsigned short               m_RodBlockVersion;
+  const SCT_ID* m_sct_idHelper;
+  unsigned short m_RodBlockVersion;
   FullEventAssembler<SrcIdMap> m_fea; 
 
 };

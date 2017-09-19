@@ -22,7 +22,15 @@ CTPUnpackingTool::~CTPUnpackingTool()
 
 StatusCode CTPUnpackingTool::initialize() {   
   if ( !m_monTool.empty() ) CHECK( m_monTool.retrieve() );
-  return decodeCTPToChainMapping(); 
+  CHECK( decodeCTPToChainMapping() ); 
+  if ( m_ctpToChain.empty() ) {
+    ATH_MSG_WARNING( "Empty CTP to chains mapping " );
+    ATH_MSG_WARNING( "Property confoguring it: " << m_ctpToChainProperty );
+  } 
+  for ( auto m: m_ctpToChain ) {
+    ATH_MSG_INFO( "Mapping of CTP bit: " << m.first << " to chains " << m.second );
+  }
+  return StatusCode::SUCCESS;
 }
 
 

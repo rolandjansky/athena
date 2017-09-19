@@ -66,6 +66,32 @@ class NumThreads(JobProperty):
 
         return
 
+
+class NumConcurrentEvents(JobProperty):
+    """ Flag to indicate number of concurrent events, possibly per worker"
+    """
+    statusOn = True
+    allowedTypes = ['int']
+    StoredValue = 0
+
+    def _do_action(self):
+        try:
+            import GaudiHive
+        except ImportError:
+            from Logging import log
+            log.fatal("GaudiHive not in release - can't use --concurrent-events parameter")
+            import sys, ExitCodes
+            sys.exit(ExitCodes.IMPORT_ERROR)
+
+        if (self.get_Value() < 0):
+            from Logging import log
+            log.fatal("Number of concurrent events [%s] cannot be negative",self.get_Value())
+            import sys, ExitCodes
+            sys.exit(ExitCodes.CONFIGURATION_ERROR)
+
+        return
+
+
 class DebugWorkers(JobProperty):
     """ stops the worker in bootstratp until a SIGUSR1 is recieved. Used as debug hook
     """
@@ -86,6 +112,7 @@ jobproperties.add_Container(ConcurrencyFlags)
 list_jobproperties = [
     NumProcs,
     NumThreads,
+    NumConcurrentEvents,
     DebugWorkers,
 ]
 

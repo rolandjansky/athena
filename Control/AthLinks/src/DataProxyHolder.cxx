@@ -76,19 +76,18 @@ DataProxyHolder::toStorableObject (const_pointer_t obj,
     else {
       // Found a proxy.  Fetch the SG key and check that the type of the object
       // is consistent with the link type.
-      SG::TransientAddress* tad = m_proxy->transientAddress();
-      key = tad->sgkey();
-      if (link_clid != tad->clID() && !tad->transientID (link_clid)) {
-        if (tad->clID() != CLID_NULL)
-          throw SG::ExcCLIDMismatch (tad->clID(), link_clid);
+      key = m_proxy->sgkey();
+      if (link_clid != m_proxy->clID() && !m_proxy->transientID (link_clid)) {
+        if (m_proxy->clID() != CLID_NULL)
+          throw SG::ExcCLIDMismatch (m_proxy->clID(), link_clid);
 
         // Transient clid was null.
         // This can happen when reading a view vector with xAODRootAccess
         // in an athena build, where the TAD may not get a CLID set.
         // Check based on key.
-        sgkey_t link_sgkey = sg->stringToKey (tad->name(), link_clid);
-        if (link_sgkey != tad->sgkey())
-          throw SG::ExcCLIDMismatch (tad->clID(), link_clid);
+        sgkey_t link_sgkey = sg->stringToKey (m_proxy->name(), link_clid);
+        if (link_sgkey != m_proxy->sgkey())
+          throw SG::ExcCLIDMismatch (m_proxy->clID(), link_clid);
       }
     }
   }
@@ -130,15 +129,15 @@ DataProxyHolder::toIdentifiedObject (const ID_type& dataID,
   m_proxy = sg->proxy (link_clid, dataID);
   if (m_proxy == 0) {
     // Didn't find a proxy; make a dummy.
-    SG::TransientAddress* tad = new SG::TransientAddress (link_clid, dataID);
+    auto tad = std::make_unique<SG::TransientAddress> (link_clid, dataID);
     tad->setSGKey (sg->stringToKey (dataID, link_clid));
-    m_proxy = new SG::DataProxy (tad, static_cast<IConverter*>(nullptr));
+    m_proxy = new SG::DataProxy (std::move(tad), static_cast<IConverter*>(nullptr));
     if (sg->addToStore (link_clid, m_proxy).isFailure())
       std::abort();
   }
 
   // Return the proxy's sgkey.
-  return m_proxy->transientAddress()->sgkey();
+  return m_proxy->sgkey();
 }
 
 
@@ -192,19 +191,19 @@ DataProxyHolder::toIdentifiedObject (sgkey_t sgkey,
   
   if (m_proxy == 0) {
     // Still didn't find it --- make a dummy.
-    SG::TransientAddress* tad;
+    std::unique_ptr<SG::TransientAddress> tad;
     if (key)
-      tad = new SG::TransientAddress (clid, *key);
+      tad = std::make_unique<SG::TransientAddress> (clid, *key);
     else
-      tad = new SG::TransientAddress();
+      tad = std::make_unique<SG::TransientAddress>();
     tad->setSGKey (sgkey);
-    m_proxy = new SG::DataProxy (tad, static_cast<IConverter*>(nullptr));
+    m_proxy = new SG::DataProxy (std::move(tad), static_cast<IConverter*>(nullptr));
     if (sg->addToStore (clid, m_proxy).isFailure())
       std::abort();
   }
   else if (link_clid != CLID_NULL &&
            m_proxy->clID() != CLID_NULL &&
-           !m_proxy->transientAddress()->transientID(link_clid))
+           !m_proxy->transientID(link_clid))
   {
     // Found a proxy, but types don't match.
     throw SG::ExcCLIDMismatch (m_proxy->clID(), link_clid);
@@ -260,7 +259,7 @@ void* DataProxyHolder::storableBase (castfn_t* castfn, CLID clid) const
   // between clid and the object type: it may have been stored
   // using a hard cast.  Check to see if this object has actually
   // been registered under the requested clid.
-  if (m_proxy->transientAddress()->transientID (clid)) {
+  if (m_proxy->transientID (clid)) {
     DataBucketBase* db =
       dynamic_cast<DataBucketBase*> (m_proxy->accessData());
 
@@ -373,7 +372,7 @@ void DataProxyHolder::toPersistentNoRemap (sgkey_t& sgkey)
 {
   if (!sgkey && m_proxy) {
     m_proxy = proxy(); // May throw.
-    sgkey = m_proxy->transientAddress()->sgkey();
+    sgkey = m_proxy->sgkey();
   }
 }
 

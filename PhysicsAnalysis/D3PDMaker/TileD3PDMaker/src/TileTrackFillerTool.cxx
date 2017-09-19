@@ -121,9 +121,9 @@ StatusCode TileTrackFillerTool::book(){
     }
 
     if (m_LevelOfDetails > 3){
-        CHECK( addVariable("numberOfBLayerHits",               m_numberOfBLayerHits,               "", m_defaultValue));
+        CHECK( addVariable("numberOfInnermostPixelLayerHits",               m_numberOfBLayerHits,               "", m_defaultValue));
         CHECK( addVariable("numberOfTRTHighThresholdHits",     m_numberOfTRTHighThresholdHits,     "", m_defaultValue));
-        CHECK( addVariable("numberOfBLayerSharedHits",         m_numberOfBLayerSharedHits,         "", m_defaultValue));
+        CHECK( addVariable("numberOfInnermostPixelLayerSharedHits",         m_numberOfBLayerSharedHits,         "", m_defaultValue));
         CHECK( addVariable("numberOfPixelSharedHits",          m_numberOfPixelSharedHits,          "", m_defaultValue));
         CHECK( addVariable("numberOfPixelHoles",               m_numberOfPixelHoles,               "", m_defaultValue));
         CHECK( addVariable("numberOfSCTSharedHits",            m_numberOfSCTSharedHits,            "", m_defaultValue));
@@ -222,9 +222,9 @@ StatusCode TileTrackFillerTool::fill(const xAOD::TrackParticle& p){
     } // IF
     
     if(m_LevelOfDetails > 3){
-        trackPointer->summaryValue( *((uint8_t*)m_numberOfBLayerHits), xAOD::numberOfBLayerHits );
+        trackPointer->summaryValue( *((uint8_t*)m_numberOfBLayerHits), xAOD::numberOfInnermostPixelLayerHits );
         trackPointer->summaryValue( *((uint8_t*)m_numberOfTRTHighThresholdHits), xAOD::numberOfTRTHighThresholdHits );
-        trackPointer->summaryValue( *((uint8_t*)m_numberOfBLayerSharedHits), xAOD::numberOfBLayerSharedHits );
+        trackPointer->summaryValue( *((uint8_t*)m_numberOfBLayerSharedHits), xAOD::numberOfInnermostPixelLayerSharedHits );
         trackPointer->summaryValue( *((uint8_t*)m_numberOfPixelSharedHits), xAOD::numberOfPixelSharedHits );
         trackPointer->summaryValue( *((uint8_t*)m_numberOfPixelHoles), xAOD::numberOfPixelHoles );
         trackPointer->summaryValue( *((uint8_t*)m_numberOfSCTSharedHits), xAOD::numberOfSCTSharedHits );

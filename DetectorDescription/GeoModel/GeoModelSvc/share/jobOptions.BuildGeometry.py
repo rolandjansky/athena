@@ -17,7 +17,7 @@ DetFlags.Lucid_setOn()
 DetFlags.Print()
 
 # GeoModel
-globalflags.DetDescrVersion = "ATLAS-GEO-18-01-03"
+globalflags.DetDescrVersion = "ATLAS-R2-2016-01-00-01"
 from AtlasGeoModel import SetGeometryVersion
 from AtlasGeoModel import GeoModelInit
 

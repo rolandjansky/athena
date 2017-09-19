@@ -45,7 +45,7 @@ class SCT_ReadoutTestAlg : public AthAlgorithm {
   StatusCode                          finalize();
    
  private:
-  ToolHandle<ISCT_ReadoutTool>        m_readout;      //!< Handle to the SCT_ReadoutTool
+  ToolHandle<ISCT_ReadoutTool>        m_readout{this, "SCT_ReadoutTool", "SCT_ReadoutTool", "Handle to the SCT_ReadoutTool"};      //!< Handle to the SCT_ReadoutTool
   std::vector<SCT_Chip*>              m_chips;        //!< List of chips for that module
   std::vector<std::string>            m_chipConfigs;  //!< The configuration of the chips in that module (from job options)
   int                                 m_moduleId;     //!< The Module identifier (from job options)

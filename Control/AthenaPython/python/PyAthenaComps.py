@@ -77,6 +77,7 @@ class Alg( CfgPyAlgorithm ):
         super(Alg, self).__init__(name, **kw)
         self._pyath_evtstore = None # handle to the evt store
         self._pyath_detstore = None # handle to the det store
+        self._ctx = None
         return
 
     @property
@@ -107,8 +108,14 @@ class Alg( CfgPyAlgorithm ):
     def reinitialize(self):
         return StatusCode.Success
 
-    def sysExecute(self):
-        return self.execute()
+    def sysExecute(self, cppcontext):
+        import cppyy
+        self._ctx = cppyy.bind_object(cppcontext, "EventContext")
+        try:
+            ret = self.execute()
+        finally:
+            self._ctx = None
+        return ret
     
     def execute(self):
         return StatusCode.Success
@@ -148,6 +155,9 @@ class Alg( CfgPyAlgorithm ):
     
     def isExecuted(self):
        return self._cppHandle.isExecuted()
+
+    def getContext(self):
+       return self._ctx
     
     pass # PyAthena.Alg
 

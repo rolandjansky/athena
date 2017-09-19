@@ -10,9 +10,6 @@
 #include <vector>
 #include <string>
 
-class RDBVersionAccessor;
-typedef std::shared_ptr<RDBVersionAccessor> RDBVersionAccessor_ptr;
-
 namespace coral
 {
   class IQuery;
@@ -29,9 +26,7 @@ namespace coral
 
 class RDBAccessSvc;
 
-#include "RDBVersionAccessor.h" 
-
-class RDBQuery : public IRDBQuery
+class RDBQuery final : public IRDBQuery
 {
  public:
   RDBQuery(RDBAccessSvc* _accessSvc,
@@ -39,15 +34,15 @@ class RDBQuery : public IRDBQuery
 	   const std::string& nodeName,
 	   const std::string& tagId);
 
-  virtual ~RDBQuery();
+  virtual ~RDBQuery() override;
   
-  void execute();
-  long size();
-  void finalize();
-  void setOrder(const std::string&);
-  void addToOutput(const std::string&);
+  virtual void execute() override;
+  virtual long size() override;
+  virtual void finalize() override;
+  virtual void setOrder(const std::string&) override;
+  virtual void addToOutput(const std::string&) override;
 
-  bool next();
+  virtual bool next() override;
 
  private:
   RDBQuery() {}

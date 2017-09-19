@@ -656,6 +656,7 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
 {
   const EventInfo* pEvent(nullptr);
   std::unique_ptr<EventInfo> pEventPtr;
+  unsigned int conditionsRun = EventIDBase::UNDEFNUM;
   if ( m_evtContext )
   { // Deal with the case when an EventSelector is provided
     // Retrieve the Event object
@@ -671,6 +672,11 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
         pEventPtr = CxxUtils::make_unique<EventInfo>
           (new EventID(runNumber, eventNumber, eventTime, eventTimeNS, lumiBlock, bunchId), (EventType*)nullptr);
         pEvent = pEventPtr.get();
+
+        if (pAttrList->exists ("ConditionsRun"))
+          conditionsRun = (*pAttrList)["ConditionsRun"].data<unsigned int>();
+        else
+          conditionsRun = runNumber;
         
       } catch (...) {
       }
@@ -712,21 +718,12 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
   }
   assert(pEvent);
 
-  m_eventContext.setEventID( *((EventIDBase*) pEvent->event_ID()) );
-  m_eventContext.set(m_nev,0);
-
-  m_eventContext.setExtension( Atlas::ExtendedEventContext( eventStore()->hiveProxyDict() ) );
-  Gaudi::Hive::setCurrentContext( m_eventContext );
-
-  m_aess->reset(m_eventContext);
-  if (eventStore()->record(std::make_unique<EventContext> (m_eventContext),
-                           "EventContext").isFailure())
+  if (installEventContext (pEvent, conditionsRun).isFailure())
   {
     m_msg << MSG::ERROR 
-          << "Error recording event context object" << endmsg;
+          << "Error installing event context object" << endmsg;
     return (StatusCode::FAILURE);
   }
-
 
   /// Fire begin-Run incident if new run:
   if (m_firstRun || (m_currentRun != pEvent->event_ID()->run_number()) ) {
@@ -776,7 +773,7 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
   }
 
   // Reset the timeout singleton
-  resetTimeout(Athena::Timeout::instance());
+  resetTimeout(Athena::Timeout::instance(m_eventContext));
   if(toolsPassed) {
   // Fire BeginEvent "Incident"
   //m_incidentSvc->fireIncident(EventIncident(*pEvent, name(),"BeginEvent"));
@@ -1128,6 +1125,21 @@ void AthenaEventLoopMgr::handle(const Incident& inc)
     return;
   }
 
+  // Need to make sure we have a valid EventContext in place before
+  // doing anything that could fire incidents.
+  unsigned int conditionsRun = pEvent->event_ID()->run_number();
+  {
+    const AthenaAttributeList* pAttrList = eventStore()->tryConstRetrieve<AthenaAttributeList>();
+    if ( pAttrList != nullptr ) {
+      if (pAttrList->exists ("ConditionsRun"))
+        conditionsRun = (*pAttrList)["ConditionsRun"].data<unsigned int>();
+    }
+  }
+  if (installEventContext (pEvent, conditionsRun).isFailure()) {
+    m_msg << MSG::ERROR << "Unable to install EventContext object" << endmsg;
+    return;
+  }
+
   sc = beginRunAlgorithms(*pEvent);
   if (!sc.isSuccess()) {
     m_msg << MSG::ERROR << "beginRunAlgorithms() failed" << endmsg;
@@ -1171,4 +1183,28 @@ AthenaEventLoopMgr::queryInterface(const InterfaceID& riid,
 StoreGateSvc* 
 AthenaEventLoopMgr::eventStore() const {
   return m_eventStore.get();
+}
+
+
+// Fill in our EventContext object and make it current.
+StatusCode AthenaEventLoopMgr::installEventContext (const EventInfo* pEvent,
+                                                    unsigned int conditionsRun)
+{
+  m_eventContext.setEventID( *((EventIDBase*) pEvent->event_ID()) );
+  m_eventContext.set(m_nev,0);
+
+  m_eventContext.setExtension( Atlas::ExtendedEventContext( eventStore()->hiveProxyDict(),
+                                                            conditionsRun) );
+  Gaudi::Hive::setCurrentContext( m_eventContext );
+
+  m_aess->reset(m_eventContext);
+  if (eventStore()->record(std::make_unique<EventContext> (m_eventContext),
+                           "EventContext").isFailure())
+  {
+    m_msg << MSG::ERROR 
+          << "Error recording event context object" << endmsg;
+    return (StatusCode::FAILURE);
+  }
+
+  return StatusCode::SUCCESS;
 }

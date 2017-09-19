@@ -137,7 +137,7 @@ StatusCode FTKConstGenAlgo::initialize(){
 
     // These 6 counters will evolve in each step of map building
     // to generalize to 1st/2nd stage extrapolation.
-    endcap_inversion = new bool[12];
+    endcap_inversion = new bool[nplane];
 
     plane_index_1st_stage = 0;
     plane_index_2nd_stage = 0;
@@ -879,6 +879,7 @@ void FTKConstGenAlgo::constantgen()
   maxvals[2]= maxvals[2]*M_PI;
   minvals[2]= minvals[2]*M_PI;
 
+  // Hardcoded resolutions need to be fixed
   double resolutions[14] = {0.04, 0.08265625, 0.04, 0.08265625, 0.04, 0.08265625, 0.04515625, 0.04515625, 0.04515625, 0.04515625, 0.04515625, 0.04515625, 0.04515625, 0.04515625};
 #ifdef DEBUG_NOISE
   float n[30];
@@ -1504,8 +1505,8 @@ void FTKConstGenAlgo::extract_1stStage()
   double *tmpxZ;
   double *tmpcovx;
 
-  int ndim8 = 11;
-  int ndim2_8 = 11*11;
+  int ndim8 = m_pmap_8L->getTotalDim();;
+  int ndim2_8 = ndim8*ndim8;
   int nth_dim8 = 0;
   int nth_dim8_2 = 0;
   int idx_cov8 = 0;
@@ -1648,10 +1649,16 @@ void FTKConstGenAlgo::extract_1stStage()
       Mtmp.Coto=tmpCoto, Mtmp.Z=tmpZ,Mtmp.nhit=nhit;
 
       // check if the module belongs to endcap (for endcap inversion.).
-      bool isEndcap[12]={0};
+      std::vector<bool> isEndcap (nplane);
 
       for(int plane_idx_2nd_stage = 0;plane_idx_2nd_stage<nplane;plane_idx_2nd_stage++){
-      	if(sectorID[plane_idx_2nd_stage]%1000>20) isEndcap[plane_idx_2nd_stage]=true;
+	if(m_ITkMode){
+	  if((sectorID[plane_idx_2nd_stage]%100) / 10 != 2 ){
+	    isEndcap[plane_idx_2nd_stage]=true;
+	  }
+	}else{
+	  if(sectorID[plane_idx_2nd_stage]%1000>20) isEndcap[plane_idx_2nd_stage]=true;
+	}
       }
 
       // main function extract 1st stage (8L) from 2nd stage (12L)

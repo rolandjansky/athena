@@ -190,13 +190,16 @@ PP="$PP"'|INFO massageEventInfo:'
 PP="$PP"'|Loop Finished'
 
 # Hive ordering.
-PP="$PP"'|Terminating thread-pool resources|Joining Scheduler thread'
+PP="$PP"'|Terminating thread-pool resources|Joining Scheduler thread|Disconnecting from sqlite|Opening COOL connection|Initializing CondInputLoader|preLoadAddresses: Removing|IOVRanges will be checked|User session with|ConnectionService Info|Disconnect from the database|RalSessionMgr Info|Connect to the database'
 
 # Cool timing information.
 PP="$PP"'|db-read|read from COOL|ReadTime:'
 
 # EventInfoMgtInit
 PP="$PP"'|Got release version'
+
+# Messages depending on environment settings.
+PP="$PP"'|COOL_DISABLE_CORALCONNECTION|INFO Cache alignment'
 
 
 test=$1

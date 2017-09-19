@@ -60,7 +60,9 @@ MuonAlignmentErrorDbTool::MuonAlignmentErrorDbTool (const std::string& type,
 
 
 
-StatusCode MuonAlignmentErrorDbTool::updateAddress(StoreID::type /*storeID*/, SG::TransientAddress* /*tad*/)
+StatusCode MuonAlignmentErrorDbTool::updateAddress(StoreID::type /*storeID*/,
+                                                   SG::TransientAddress* /*tad*/,
+                                                   const EventContext& /*ctx*/)
 {
 //   MsgStream m_log(msgSvc(), name());
 //   CLID clid        = tad->clID();

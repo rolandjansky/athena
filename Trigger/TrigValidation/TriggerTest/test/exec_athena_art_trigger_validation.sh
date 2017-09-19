@@ -61,4 +61,6 @@ jp.Rec.OutputLevel=WARNING;\
 ${EXTRA}\
 LVL1OutputLevel=WARNING;\
 HLTOutputLevel=WARNING;" \
-TriggerTest/${JOBOPTION} > ${JOB_LOG} 2>&1
+TriggerTest/${JOBOPTION} | tee ${JOB_LOG}
+
+export ATH_EXIT=$?

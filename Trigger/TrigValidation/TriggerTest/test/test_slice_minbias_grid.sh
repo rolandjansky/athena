@@ -3,6 +3,7 @@
 # art-description: MinBias slice TriggerTest on MinBias MC
 # art-type: grid
 
+export NAME="slice_minbias_grid"
 export SLICE="minbias"
 export MENU="Physics_pp_v7"
 export INPUT="minbias"

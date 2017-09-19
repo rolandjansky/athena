@@ -823,7 +823,7 @@ namespace asg
       break;
     case detail::AnaToolHandleMode::CREATE_SHARED:
       ANA_CHECK (detail::AnaToolShareList::singleton().makeShare (m_name, m_config, sharedTool));
-      // no break
+      // FALLTHROUGH
     case detail::AnaToolHandleMode::RETRIEVE_SHARED:
       assert (sharedTool != nullptr);
       ANA_CHECK (detail::toolHandleCast (th, sharedTool->th()));

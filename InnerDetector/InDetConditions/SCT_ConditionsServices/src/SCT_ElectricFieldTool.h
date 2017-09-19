@@ -14,7 +14,6 @@
 
 //Gaudi Includes
 //#include "GaudiKernel/IInterface.h"
-//#include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "SCT_ConditionsServices/ISCT_ElectricFieldTool.h"
 
@@ -43,7 +42,7 @@ public:
   int m_eFieldModel;      //!< 0 uniform E-field model, 1 flat diode model
 
 private:
-  TF1* m_model;
+  std::unique_ptr<TF1> m_model;
 };
 
 

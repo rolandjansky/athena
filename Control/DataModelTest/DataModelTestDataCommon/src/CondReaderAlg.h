@@ -54,6 +54,7 @@ private:
   SG::ReadHandleKey<EventInfo> m_eventInfoKey;
   SG::ReadCondHandleKey<AthenaAttributeList> m_attrListKey;
   SG::ReadCondHandleKey<DMTest::S1> m_scondKey;
+  SG::ReadCondHandleKey<DMTest::S1> m_s2Key;
 };
 
 

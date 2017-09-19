@@ -34,7 +34,7 @@ class ISCT_ReadCalibDataSvc: virtual public ISCT_ConditionsSvc {
     std::vector<std::string> scan;
     std::vector<std::string> defect;
     std::vector<float> value;
-  } calibDefectType;
+  } CalibDefectType;
 
   //----------Public Member Functions----------//
   // Structors

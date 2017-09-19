@@ -8,6 +8,7 @@
 #include "AthenaKernel/getMessageSvc.h"
 #include "AthenaKernel/CondCont.h"
 #include "AthenaKernel/IOVEntryT.h"
+#include "AthenaKernel/ExtendedEventContext.h"
 
 #include "StoreGate/VarHandleBase.h"
 #include "StoreGate/ReadHandle.h"
@@ -86,14 +87,13 @@ namespace SG {
     m_cc( key.getCC() ),
     m_hkey(key)
   {
-    // FIXME: propagate input dependency?
-    SG::ReadHandleKey<AthenaAttributeList> inputKey ("Input");
-    inputKey.initialize().ignore();
-    SG::ReadHandle<AthenaAttributeList> input (inputKey, ctx);
-    if (input.isValid()) {
-      if (input->exists ("ConditionsRun"))
-        m_eid.set_run_number ((*input)["ConditionsRun"].data<unsigned int>());
+    EventIDBase::number_type conditionsRun =
+      ctx.template getExtension<Atlas::ExtendedEventContext>()->conditionsRun();
+    if (conditionsRun != EventIDBase::UNDEFNUM) {
+      m_eid.set_run_number (conditionsRun);
     }
+    // Event number not used in IOV comparisons, only run+lbn.
+    m_eid.set_event_number (EventIDBase::UNDEFEVT);
 
     if (! m_hkey.isInit()) {
       MsgStream msg(Athena::getMessageSvc(), "ReadCondHandle");

@@ -28,7 +28,11 @@ InDet::InDetDNASeparator::InDetDNASeparator(const std::string& t,
   :
   AthAlgTool(t,n,p),
   m_kutoff(4.50),
-  m_floorseparation_drr(4.00*CLHEP::mm)
+  m_floorseparation_drr(4.00*CLHEP::mm),
+  // Initialization of ID SCT helper
+  m_SCT_Tool(nullptr),
+  // Initialization of ID Pixel helper
+  m_pixelTool(nullptr)
 {
   declareInterface<ITrackBreakpointAnalyser>(this);
 

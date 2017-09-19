@@ -11,11 +11,7 @@
 HiveAlgV::HiveAlgV( const std::string& name, 
                       ISvcLocator* pSvcLocator ) : 
   ::HiveAlgBase( name, pSvcLocator )
-{
-  
-  declareProperty("WriteBeforeRead",m_writeFirst=true);
-
-}
+{}
 
 HiveAlgV::~HiveAlgV() {}
 

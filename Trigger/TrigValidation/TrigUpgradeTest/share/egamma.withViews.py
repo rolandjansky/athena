@@ -35,6 +35,56 @@ if viewTest:
 
 from InDetRecExample.InDetKeys import InDetKeys
 
+
+# provide a minimal menu information
+#topSequence.L1DecoderTest.ctpUnpacker.CTPToChainMapping = ['0:HLT_e3', '0:HLT_e5', '1:HLT_e7', '1:HLT_e10']
+topSequence.L1DecoderTest.ctpUnpacker.OutputLevel=DEBUG
+
+#topSequence.L1DecoderTest.roiUnpackers[0].ThresholdToChainMapping = ['EM3 : HLT_e3', 'EM3 : HLT_e5', 'EM7 : HLT_e7', 'EM7 : HLT_e10']
+topSequence.L1DecoderTest.roiUnpackers[0].OutputLevel=DEBUG
+#topSequence.L1DecoderTest.roi[].ThresholdToChainMapping = ['EM3 : HLT_e3', 'EM3 : HLT_e5', 'EM7 : HLT_e7', 'EM7 : HLT_e10']
+
+
+from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_FastAlgo
+theFastCaloAlgo=T2CaloEgamma_FastAlgo("FastCaloAlgo" )
+theFastCaloAlgo.OutputLevel=VERBOSE
+theFastCaloAlgo.ClustersName="L2CaloClusters"
+svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection=False
+
+from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
+if viewTest:
+  allViewAlgorithms += theFastCaloAlgo
+  svcMgr.ViewAlgPool.TopAlg += [ theFastCaloAlgo.getName() ]
+  l2CaloViewsMaker = EventViewCreatorAlgorithm("l2CaloViewsMaker", OutputLevel=DEBUG)
+  topSequence += l2CaloViewsMaker
+  l2CaloViewsMaker.Decisions = "EMRoIDecisions" # from EMRoIsUnpackingTool
+  l2CaloViewsMaker.RoIsLink = "initialRoI" # -||-
+  l2CaloViewsMaker.InViewRoIs = "EMCaloRoIs" # contract with the fastCalo
+  l2CaloViewsMaker.Views = "EMCaloViews"
+  l2CaloViewsMaker.AlgorithmNameSequence = [ theFastCaloAlgo.getName() ]
+  theFastCaloAlgo.RoIs = l2CaloViewsMaker.InViewRoIs
+
+
+  from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2CaloHypoAlg
+  from TrigEgammaHypo.TrigL2CaloHypoTool import TrigL2CaloHypoToolFromName
+  theFastCaloHypo = TrigL2CaloHypoAlg("L2CaloHypo")
+  theFastCaloHypo.OutputLevel = DEBUG
+  theFastCaloHypo.Views = l2CaloViewsMaker.Views
+  theFastCaloHypo.CaloClusters = theFastCaloAlgo.ClustersName
+  theFastCaloHypo.RoIs = l2CaloViewsMaker.InViewRoIs
+  theFastCaloHypo.Decisions = "EgammaCaloDecisions"
+  theFastCaloHypo.HypoTools =  [ TrigL2CaloHypoToolFromName("HLT_e5_etcut"),   TrigL2CaloHypoToolFromName("HLT_e7_etcut") ]
+  for t in theFastCaloHypo.HypoTools:
+    t.OutputLevel = DEBUG
+
+  topSequence += theFastCaloHypo
+
+else:
+  topSequence += theFastCaloAlgo
+
+
+
+
 #Pixel
 
 from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConf import PixelRodDecoder
@@ -52,23 +102,8 @@ if (InDetFlags.doPrintConfigurables()):
 from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConf import PixelRawDataProvider
 InDetPixelRawDataProvider = PixelRawDataProvider(name         = "InDetPixelRawDataProvider",
                                                  RDOKey       = InDetKeys.PixelRDOs(),
-                                                 ProviderTool = InDetPixelRawDataProviderTool)
-
-if ( viewTest ):
-  allViewAlgorithms += InDetPixelRawDataProvider
-  allViewAlgorithms.InDetPixelRawDataProvider.isRoI_Seeded = True
-  allViewAlgorithms.InDetPixelRawDataProvider.RoIs = "EMViewRoIs"
-  svcMgr.ViewAlgPool.TopAlg += [ "InDetPixelRawDataProvider" ]
-  topSequence.viewMaker.AlgorithmNameSequence += [ "InDetPixelRawDataProvider" ]
-else:
-  topSequence += InDetPixelRawDataProvider
-  topSequence.InDetPixelRawDataProvider.isRoI_Seeded = True
-  topSequence.InDetPixelRawDataProvider.RoIs = "EMRoIs"
-
-
-if (InDetFlags.doPrintConfigurables()):
-  print          InDetPixelRawDataProvider
-
+                                                 ProviderTool = InDetPixelRawDataProviderTool,
+                                                 isRoI_Seeded = True )
 
 #SCT
 from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCT_RodDecoder
@@ -86,19 +121,10 @@ if (InDetFlags.doPrintConfigurables()):
 # load the SCTRawDataProvider
 from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCTRawDataProvider
 InDetSCTRawDataProvider = SCTRawDataProvider(name         = "InDetSCTRawDataProvider",
-                                            RDOKey       = InDetKeys.SCT_RDOs(),
-                                            ProviderTool = InDetSCTRawDataProviderTool)
+                                             RDOKey       = InDetKeys.SCT_RDOs(),
+                                             ProviderTool = InDetSCTRawDataProviderTool,
+                                             isRoI_Seeded = True )
 
-if ( viewTest ):
-  allViewAlgorithms += InDetSCTRawDataProvider
-  allViewAlgorithms.InDetSCTRawDataProvider.isRoI_Seeded = True
-  allViewAlgorithms.InDetSCTRawDataProvider.RoIs = "EMViewRoIs"
-  svcMgr.ViewAlgPool.TopAlg += [ "InDetSCTRawDataProvider" ]
-  topSequence.viewMaker.AlgorithmNameSequence += [ "InDetSCTRawDataProvider" ]
-else:
-  topSequence += InDetSCTRawDataProvider
-  topSequence.InDetSCTRawDataProvider.isRoI_Seeded = True
-  topSequence.InDetSCTRawDataProvider.RoIs = "EMRoIs"
 
 
 #TRT
@@ -125,18 +151,10 @@ ToolSvc += InDetTRTRawDataProviderTool
 from TRT_RawDataByteStreamCnv.TRT_RawDataByteStreamCnvConf import TRTRawDataProvider
 InDetTRTRawDataProvider = TRTRawDataProvider(name         = "InDetTRTRawDataProvider",
                                              RDOKey       = "TRT_RDOs",
-                                              ProviderTool = InDetTRTRawDataProviderTool)
+                                             ProviderTool = InDetTRTRawDataProviderTool,
+                                             isRoI_Seeded = True
+                                             )
 
-if ( viewTest ):
-  allViewAlgorithms += InDetTRTRawDataProvider
-  allViewAlgorithms.InDetTRTRawDataProvider.isRoI_Seeded = True
-  allViewAlgorithms.InDetTRTRawDataProvider.RoIs = "EMViewRoIs"
-  svcMgr.ViewAlgPool.TopAlg += [ "InDetTRTRawDataProvider" ]
-  topSequence.viewMaker.AlgorithmNameSequence += [ "InDetTRTRawDataProvider" ]
-else:
-  topSequence += InDetTRTRawDataProvider
-  topSequence.InDetTRTRawDataProvider.isRoI_Seeded = True
-  topSequence.InDetTRTRawDataProvider.RoIs = "EMRoIs"
 
 
 #Pixel clusterisation
@@ -170,19 +188,8 @@ InDetPixelClusterization = InDet__PixelClusterization(name                    = 
                                                       gangedAmbiguitiesFinder = InDetPixelGangedAmbiguitiesFinder,
                                                       DetectorManagerName     = InDetKeys.PixelManager(),
                                                       DataObjectName          = InDetKeys.PixelRDOs(),
-                                                      ClustersName            = "PixelTrigClusters")
-if ( viewTest ):
-  allViewAlgorithms += InDetPixelClusterization
-  allViewAlgorithms.InDetPixelClusterization.isRoI_Seeded = True
-  allViewAlgorithms.InDetPixelClusterization.RoIs = "EMViewRoIs"
-  svcMgr.ViewAlgPool.TopAlg += [ "InDetPixelClusterization" ]
-  topSequence.viewMaker.AlgorithmNameSequence += [ "InDetPixelClusterization" ]
-else:
-  topSequence += InDetPixelClusterization
-  topSequence.InDetPixelClusterization.isRoI_Seeded = True
-  topSequence.InDetPixelClusterization.RoIs = "EMRoIs"
-
-
+                                                      ClustersName            = "PixelTrigClusters",
+                                                      isRoI_Seeded            = True)
 
 #
 # --- SCT_ClusteringTool (public)
@@ -202,18 +209,9 @@ InDetSCT_Clusterization = InDet__SCT_Clusterization(name                    = "I
                                                     DataObjectName          = InDetKeys.SCT_RDOs(),
                                                     ClustersName            = "SCT_TrigClusters",
                                                     conditionsService       = InDetSCT_ConditionsSummarySvc,
-                                                    FlaggedConditionService = InDetSCT_FlaggedConditionSvc)
+                                                    FlaggedConditionService = InDetSCT_FlaggedConditionSvc, 
+                                                    isRoI_Seeded            = True )
 
-if ( viewTest ):
-  allViewAlgorithms += InDetSCT_Clusterization
-  allViewAlgorithms.InDetSCT_Clusterization.isRoI_Seeded = True
-  allViewAlgorithms.InDetSCT_Clusterization.RoIs = "EMViewRoIs"
-  svcMgr.ViewAlgPool.TopAlg += [ "InDetSCT_Clusterization" ]
-  topSequence.viewMaker.AlgorithmNameSequence += [ "InDetSCT_Clusterization" ]
-else:
-  topSequence += InDetSCT_Clusterization
-  topSequence.InDetSCT_Clusterization.isRoI_Seeded = True
-  topSequence.InDetSCT_Clusterization.RoIs = "EMRoIs"
 
 
 #Space points and FTF
@@ -239,95 +237,66 @@ from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_e
 theFTF = TrigFastTrackFinder_eGamma()
 theFTF.OutputLevel = DEBUG
 
-if ( viewTest ):
-  allViewAlgorithms += InDetSiTrackerSpacePointFinder
-  allViewAlgorithms += theFTF
-  allViewAlgorithms.TrigFastTrackFinder_eGamma.isRoI_Seeded = True
-  allViewAlgorithms.TrigFastTrackFinder_eGamma.RoIs = "EMViewRoIs"
-  svcMgr.ViewAlgPool.TopAlg += [ "InDetSiTrackerSpacePointFinder", "TrigFastTrackFinder_eGamma" ]
-  topSequence.viewMaker.AlgorithmNameSequence += [ "InDetSiTrackerSpacePointFinder", "TrigFastTrackFinder_eGamma" ]
-else:
-  topSequence += InDetSiTrackerSpacePointFinder
-  theFTF.RoIs = "EMRoIs"
-  topSequence += theFTF
-
-svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection=False
-
-
-
-from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_FastAlgo
-theFastCaloAlgo=T2CaloEgamma_FastAlgo("FastCaloAlgo")
-theFastCaloAlgo.OutputLevel=VERBOSE
-
-if ( viewTest ):
-  theFastCaloAlgo.RoIs="EMViewRoIs"
-  allViewAlgorithms += theFastCaloAlgo
-  svcMgr.ViewAlgPool.TopAlg += [ "FastCaloAlgo" ]
-  topSequence.viewMaker.AlgorithmNameSequence += [ "FastCaloAlgo" ]
-else:
-  theFastCaloAlgo.RoIs="EMRoIs"
-  topSequence += theFastCaloAlgo
-
 from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigFastTrackSummaryTool
 from TrigInDetConf.TrigInDetPostTools import  InDetTrigParticleCreatorToolFTF
-
-#print "ToolSvc:"
-#print ToolSvc
-
-
-#from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__TrackParticleCnvAlg
-#xAODTrackParticleCnvAlg = xAODMaker__TrackParticleCnvAlg(name = "InDetxAODParticleCreatorAlg",
-#                                                         ConvertTracks = True,
-#                                                         ConvertTrackParticles = False,
-#                                                         TrackContainerName = "TrigFastTrackFinder_Tracks",
-#                                                         xAODContainerName = "xAODTracks",
-#                                                         xAODTrackParticlesFromTracksContainerName = "xAODTracks2",
-#                                                         TrackParticleCreator =  InDetTrigParticleCreatorToolFTF,
-#                                                         PrintIDSummaryInfo = True)
-#
-#
-#if ( viewTest ):
-#    allViewAlgorithms += xAODTrackParticleCnvAlg
-#    svcMgr.ViewAlgPool.TopAlg += [ "InDetxAODParticleCreatorAlg"]
-#    topSequence.viewMaker.AlgorithmNameSequence += ["InDetxAODParticleCreatorAlg"]  
-#else:
-#    topSequence +=  xAODTrackParticleCnvAlg
-
-
 
 from InDetTrigParticleCreation.InDetTrigParticleCreationConf import InDet__TrigTrackingxAODCnvMT
 theTrackParticleCreatorAlg = InDet__TrigTrackingxAODCnvMT(name = "InDetTrigTrackParticleCreatorAlg",
                                                          doIBLresidual = False,
-                                                         roiCollectionName="EMRoIs",         
                                                          TrackName = "TrigFastTrackFinder_Tracks",
                                                          TrackParticlesName = "xAODTracks",
                                                          ParticleCreatorTool = InDetTrigParticleCreatorToolFTF)
-                                                        
-theTrackParticleCreatorAlg.OutputLevel=VERBOSE
-print"theTrackParticleCreatorAlg"
-print theTrackParticleCreatorAlg
-if ( viewTest ):
-    allViewAlgorithms += theTrackParticleCreatorAlg
-    allViewAlgorithms.InDetTrigTrackParticleCreatorAlg.TrackName = "TrigFastTrackFinder_Tracks"
-    allViewAlgorithms.InDetTrigTrackParticleCreatorAlg.TrackParticlesName = "xAODTracks"
-    allViewAlgorithms.InDetTrigTrackParticleCreatorAlg.roiCollectionName = "EMViewRoIs"
-    svcMgr.ViewAlgPool.TopAlg += [ "InDetTrigTrackParticleCreatorAlg" ]
-    topSequence.viewMaker.AlgorithmNameSequence += ["InDetTrigTrackParticleCreatorAlg"]  
-else:
-    topSequence +=  theTrackParticleCreatorAlg
+
+IDSequence = [ InDetPixelRawDataProvider, InDetSCTRawDataProvider, InDetTRTRawDataProvider, InDetPixelClusterization, InDetSCT_Clusterization, InDetSiTrackerSpacePointFinder, theFTF, theTrackParticleCreatorAlg ]
+
 
 from TrigEgammaHypo.TrigL2ElectronFexMTConfig import L2ElectronFex_1
 theElectronFex= L2ElectronFex_1()
-theElectronFex.TrigEMClusterName="CaloClusters"
-theElectronFex.TrackParticlesName="xAODTracks"
+theElectronFex.TrigEMClusterName = theFastCaloAlgo.ClustersName
+theElectronFex.TrackParticlesName = theTrackParticleCreatorAlg.TrackParticlesName
 theElectronFex.ElectronsName="Electrons"
 theElectronFex.OutputLevel=VERBOSE
 
-if (viewTest):
-    theElectronFex.roiCollectionName="EMViewRoIs"
-    allViewAlgorithms+=theElectronFex
-    svcMgr.ViewAlgPool.TopAlg += ["L2ElectronFex_1"]
-    topSequence.viewMaker.AlgorithmNameSequence += [ "L2ElectronFex_1" ]
+
+if viewTest:
+  l2ElectronViewsMaker = EventViewCreatorAlgorithm("l2ElectronViewsMaker", OutputLevel=DEBUG)
+  topSequence += l2ElectronViewsMaker
+  l2ElectronViewsMaker.Decisions = theFastCaloHypo.Decisions # output of L2CaloHypo
+  l2ElectronViewsMaker.RoIsLink = "roi" # -||-
+  l2ElectronViewsMaker.InViewRoIs = "EMIDRoIs" # contract with the fastCalo
+  l2ElectronViewsMaker.Views = "EMElectronViews"
+
+
+  theTrackParticleCreatorAlg.roiCollectionName = l2ElectronViewsMaker.InViewRoIs
+  for idAlg in IDSequence:
+    if idAlg.properties().has_key("RoIs"):
+      idAlg.RoIs = l2ElectronViewsMaker.InViewRoIs
+
+    allViewAlgorithms += idAlg
+    svcMgr.ViewAlgPool.TopAlg += [ idAlg.getName() ]
+    l2ElectronViewsMaker.AlgorithmNameSequence += [ idAlg.getName() ]    
+
+
+  theElectronFex.RoIs = l2ElectronViewsMaker.InViewRoIs
+  allViewAlgorithms += theElectronFex
+  svcMgr.ViewAlgPool.TopAlg += [ theElectronFex.getName() ]
+  l2ElectronViewsMaker.AlgorithmNameSequence += [ theElectronFex.getName() ]    
+
+
+  from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2ElectronHypoAlg
+  from TrigEgammaHypo.TrigL2ElectronHypoTool import TrigL2ElectronHypoToolFromName
+  theElectronHypo = TrigL2ElectronHypoAlg()
+  theElectronHypo.Views = l2ElectronViewsMaker.Views
+  theElectronHypo.Electrons = theElectronFex.ElectronsName
+  theElectronHypo.ClusterDecisions = theFastCaloHypo.Decisions 
+  theElectronHypo.ElectronDecisions = "ElectronL2Decisions"
+  theElectronHypo.OutputLevel = VERBOSE
+  theElectronHypo.HypoTools = [ TrigL2ElectronHypoToolFromName("HLT_e5_etcut"), TrigL2ElectronHypoToolFromName("HLT_e7_etcut") ]
+  for t in theElectronHypo.HypoTools:
+    t.OutputLevel = VERBOSE
+  topSequence += theElectronHypo
+
+
 else:
-    theElectronFex.roiCollectionName="EMRoIs"
-    topSequence += theElectronFex
+  # ID algs can't run w/o views yet
+  pass

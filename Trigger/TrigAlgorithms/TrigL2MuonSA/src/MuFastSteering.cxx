@@ -24,6 +24,7 @@
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
+using namespace SG;
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
@@ -46,6 +47,9 @@ MuFastSteering::MuFastSteering(const std::string& name, ISvcLocator* svc)
     m_rpcFitResult(), m_tgcFitResult(),
     m_mdtHits_normal(), m_mdtHits_overlap(),
     m_cscHits(),
+    m_roiCollection("L1MURoIs"),		//ReadHandle L1MuRoIs to read in
+    m_muFeContainer("MuonFeature"),		//WriteHandle MuonFeature to record
+    m_muFeDeContainer("MuonFeatureDetails"),    //WriteHandle MuonFeatureDetails to record
     m_jobOptionsSvc(0), m_trigCompositeContainer(0)
 {
   declareProperty("DataPreparator",    m_dataPreparator,    "data preparator");
@@ -110,6 +114,12 @@ MuFastSteering::MuFastSteering(const std::string& name, ISvcLocator* svc)
   declareMonitoredStdContainer("TrackPhi", m_track_phi);
   declareMonitoredStdContainer("FailedRoIEta", m_failed_eta);
   declareMonitoredStdContainer("FailedRoIPhi", m_failed_phi);
+
+  //adding a part of DataHandle for AthenaMT
+  declareProperty("MuRoIs", m_roiCollectionKey = std::string("L1MURoIs"), "L1MuRoIs to read in"); 
+  declareProperty("MuonFeature",m_muFeContainerKey = std::string("MuonFeature"),"MuonFeature to record");	
+  declareProperty("MuonFeatureDetails",m_muFeDeContainerKey = std::string("MuonFeatureDetails"),"MuonFeatureDetails to record");
+
 }
 
 // --------------------------------------------------------------------------------
@@ -166,7 +176,8 @@ HLT::ErrorCode MuFastSteering::hltInitialize()
   
   // 
   if (m_patternFinder.retrieve().isFailure()) {
-    ATH_MSG_ERROR("Cannot retrieve Tool DataPreparator");
+   
+ATH_MSG_ERROR("Cannot retrieve Tool DataPreparator");
     return HLT::BAD_JOB_SETUP;
   }
 
@@ -199,8 +210,6 @@ HLT::ErrorCode MuFastSteering::hltInitialize()
     ATH_MSG_ERROR("Could not retrieve " << m_cscsegmaker);
     return HLT::BAD_JOB_SETUP;
   }
-
-
   // Set service tools
   m_trackExtrapolator->setExtrapolatorTool(&m_backExtrapolatorTool);
   m_dataPreparator->setExtrapolatorTool(&m_backExtrapolatorTool);
@@ -276,15 +285,23 @@ HLT::ErrorCode MuFastSteering::hltInitialize()
       p_incidentSvc->addListener(this,"UpdateAfterFork",pri);
       p_incidentSvc.release().ignore();
     }
+  } 
+
+  //adding a part of DataHandle for AThenaMT
+  if (m_roiCollectionKey.initialize().isFailure() ) { 
+    ATH_MSG_ERROR("ReadHandleKey for L1MURoIs initialize Failure!");
+    return HLT::BAD_JOB_SETUP;   
   }
-
-
-
-
-
+  if (m_muFeContainerKey.initialize().isFailure() ) {
+    ATH_MSG_ERROR("WriteHandleKey for MuonFeature initialize Failure!");
+    return HLT::BAD_JOB_SETUP;
+  }
+  if (m_muFeDeContainerKey.initialize().isFailure() ) {
+    ATH_MSG_ERROR("WriteHandleKey for MuonFeatureDetails initialize Failure!");
+    return HLT::BAD_JOB_SETUP;
+  }
   
   ATH_MSG_DEBUG("initialize success");
-  
   return HLT::OK;
 }
 
@@ -309,6 +326,61 @@ HLT::ErrorCode MuFastSteering::hltEndRun() {
    } 
 
    return HLT::OK;
+}
+
+//adding a part of DataHandel for AthenaMT
+StatusCode MuFastSteering::execute() {
+
+  ATH_MSG_DEBUG("StatusCode MuFastSteering::execute() start");
+
+  //ReadHandle:L1MURoIs to read in 
+  auto roiCollectionHandle = SG::makeHandle( m_roiCollectionKey );
+  const TrigRoiDescriptorCollection *roiCollection = roiCollectionHandle.cptr();
+  if (!roiCollectionHandle.isValid()){
+    ATH_MSG_ERROR("ReadHandle for L1MURoIs isn't Valid");
+    return StatusCode::FAILURE;
+  }
+  const TrigRoiDescriptor* roiDescriptor = 0;
+  TrigRoiDescriptorCollection::const_iterator roiIn = roiCollection->begin();
+  TrigRoiDescriptorCollection::const_iterator roiEn = roiCollection->end(); 
+  for(; roiIn != roiEn; ++roiIn){
+	roiDescriptor = *roiIn;
+	float roieta = roiDescriptor->eta();
+        float roiphi = roiDescriptor->phi();
+        ATH_MSG_DEBUG("L1MURoIs eta/phi = " << roieta << "/" << roiphi);
+  }
+  ATH_MSG_DEBUG("ReadHandle for L1MURoIs success");
+
+  //WriteHandle:MuonFeature to record
+  SG::WriteHandle<MuonFeature> muFeContainerHandle(m_muFeContainerKey);
+  muFeContainerHandle = std::make_unique<MuonFeature>();
+  if(!muFeContainerHandle.isValid()){
+        ATH_MSG_ERROR("ReadHandle for MuonFeature isn't Valid");
+        return StatusCode::FAILURE;
+  }
+//  ATH_MSG_DEBUG("muFeContainer Pt/Alpha/Beta= " << muFeContainerHandle->Pt() << "/" << muFeContainerHandle->Alpha() << "/" << muFeContainerHandle->Beta());
+  ATH_MSG_DEBUG("WriteHandle for MuonFeature success");
+
+  //Test Value defined
+  float muFeDePt = 1.52;
+  float muFeDeAlpha = 1.23;
+  float muFeDeBeta = -1.15;
+  m_muFeDeTestValue.setPt(muFeDePt);
+  m_muFeDeTestValue.setAlpha(muFeDeAlpha);
+  m_muFeDeTestValue.setBeta(muFeDeBeta);
+  
+  //WriteHandle:MuonFeatureDetails to record
+  SG::WriteHandle<MuonFeatureDetails> muFeDeContainerHandle(m_muFeDeContainerKey);
+  muFeDeContainerHandle = std::make_unique<MuonFeatureDetails>(m_muFeDeTestValue);
+  if(!muFeDeContainerHandle.isValid()){
+        ATH_MSG_ERROR("ReadHandle for MuonFeatureDetails isn't Valid");
+        return StatusCode::FAILURE;
+  }
+  ATH_MSG_DEBUG("muFeDeContainer Pt/Alpha/Beta= " << muFeDeContainerHandle->Pt() << "/" << muFeDeContainerHandle->Alpha() << "/" << muFeDeContainerHandle->Beta());
+  ATH_MSG_DEBUG("WriteHandle for MuonFeatureDetails success");
+
+  ATH_MSG_DEBUG("StatusCode MuFastSteering::execute() success");
+  return StatusCode::SUCCESS;
 }
 
 HLT::ErrorCode MuFastSteering::hltFinalize() {
@@ -352,7 +424,7 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
     }
   }
   clearEvent();
-  
+ 
   if (m_timerSvc) m_timers[ITIMER_TOTAL_PROCESSING]->resume();
   if (m_timerSvc) m_timers[ITIMER_DATA_PREPARATOR]->resume();
   
@@ -395,7 +467,7 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
 
     if ( m_recMuonRoIUtils.isBarrel(*p_roi) ) { // Barrel
       ATH_MSG_DEBUG("Barrel");
-      
+     
       m_muonRoad.setScales(m_scaleRoadBarrelInner,
                            m_scaleRoadBarrelMiddle,
                            m_scaleRoadBarrelOuter);      

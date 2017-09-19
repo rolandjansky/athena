@@ -19,6 +19,17 @@ from AthenaCommon.AppMgr import theApp
 
 
 #--------------------------------------------------------------
+# Load POOL support
+#--------------------------------------------------------------
+include( "AthenaPoolCnvSvc/AthenaPool_jobOptions.py" )
+import ROOT
+import cppyy
+cppyy.loadDictionary("libDataModelTestDataCommonDict")
+ROOT.DMTest.B
+ROOT.DMTest.setConverterLibrary ('libDataModelTestDataWriteCnvPoolCnv.so')
+
+
+#--------------------------------------------------------------
 # Conditions setup.
 #--------------------------------------------------------------
 
@@ -37,11 +48,30 @@ svcMgr += StoreGateConf.StoreGateSvc("ConditionStore")
 from IOVDbSvc.CondDB import conddb
 conddb.addFolder ('condtest.db', '/DMTest/TestAttrList <tag>tag AttrList_noTag</tag>',
                   className='AthenaAttributeList')
+conddb.addFolder ('condtest.db', '/DMTest/S2 <tag>tag S2_noTag</tag>',
+                  className='DMTest::S2')
+
 
 #--------------------------------------------------------------
 # Event related parameters
 #--------------------------------------------------------------
 theApp.EvtMax = 20
+
+
+#--------------------------------------------------------------
+# Set up the algorithm.
+#--------------------------------------------------------------
+
+
+from AthenaCommon.ConcurrencyFlags import jobproperties as jp
+nThreads = jp.ConcurrencyFlags.NumThreads()
+if nThreads >= 1:
+  from AthenaCommon.AlgScheduler import AlgScheduler
+  AlgScheduler.ShowDataDependencies (True)
+  AlgScheduler.setDataLoaderAlg ('SGInputLoader')
+
+  from SGComps.SGCompsConf import SGInputLoader
+  topSequence += SGInputLoader( OutputLevel=INFO, ShowEventDump=False )
 
 
 from DataModelTestDataCommon.DataModelTestDataCommonConf import \

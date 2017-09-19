@@ -30,9 +30,17 @@
 #include "TrkParameters/TrackParameters.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "EventPrimitives/EventPrimitives.h"
+#include "CLHEP/Random/RandomEngine.h"
+#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "InDetSimData/InDetSimDataCollection.h"
 
- class InDetSimDataCollection;
- 
+//class InDetSimDataCollection;
+
+namespace CLHEP{
+  class HepRandomEngine;
+}
+
 namespace InDet {
  
   class PixelCluster;
@@ -63,12 +71,17 @@ namespace InDet {
                                                       
    private:
 	/** IncidentSvc to catch begining of event and end of event */   
-    ServiceHandle<IIncidentSvc>           m_incidentSvc;   
-	
-	std::string                             m_simDataCollectionName;    //!< sim data collection name
-	mutable const InDetSimDataCollection*   m_simDataCollection;        //!< sim data collection - refreshed at BeginEvent incident
+    ServiceHandle<IIncidentSvc>           m_incidentSvc;   	
+    SG::ReadHandleKey<InDetSimDataCollection> m_simDataCollectionName {this, "InputSDOMap", "PixelSDO_Map", "sim data collection name"};
+    mutable const InDetSimDataCollection*   m_simDataCollection;        //!< sim data collection - refreshed at BeginEvent incident
+
+  protected:
+    ServiceHandle<IAtRndmGenSvc> m_rndmSvc;
+    Gaudi::Property<std::string> m_rndmEngineName {this, "RndmEngine", "TruthClustering", "Random Engine Name"};
+    CLHEP::HepRandomEngine*      m_rndmEngine;	
+
    };
    
- }//end InDet namespace
+}//end InDet namespace
  
  #endif

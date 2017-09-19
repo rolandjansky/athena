@@ -981,7 +981,7 @@ namespace SG {
     // the object was stored with, nor it inherits from it.
     // before giving up, let's check its transient CLIDs
     DataBucketBase *dbb = 0;
-    if (proxy->transientAddress()->transientID(clid) &&
+    if (proxy->transientID(clid) &&
         0 != (dbb = dynamic_cast<DataBucketBase*>(dobj))) {
       // it is a symlink after all.
       // Let's hard cast (and keep our fingers Xed)

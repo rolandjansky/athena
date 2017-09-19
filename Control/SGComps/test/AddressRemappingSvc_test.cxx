@@ -114,7 +114,7 @@ void checkTADList (const IAddressProvider::tadList& tads,
       assert (tad->address() == &addrs.addr2);
       assert (tad->clearAddress() == false);
       assert (tad->transientID() ==
-              (SG::TransientAddress::TransientClidSet { fooclid, 321 }));
+              (SG::TransientAddress::TransientClidSet { 321, fooclid }));
       assert (tad->alias() ==
               (SG::TransientAddress::TransientAliasSet { "bar2.d1",
                                                          "bar2.d2",

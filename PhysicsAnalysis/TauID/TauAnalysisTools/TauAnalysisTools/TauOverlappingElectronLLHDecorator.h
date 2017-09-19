@@ -1,8 +1,9 @@
+// Dear emacs, this is -*- c++ -*-
+
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// Dear emacs, this is -*- c++ -*-
 #ifndef TAUANALYSISTOOLS_TAUOVERLAPPINGELECTRONLLHDECORATOR_H
 #define TAUANALYSISTOOLS_TAUOVERLAPPINGELECTRONLLHDECORATOR_H
 

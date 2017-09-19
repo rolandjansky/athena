@@ -85,11 +85,11 @@ StatusCode MuonDetailedTrackTruthMaker::execute() {
   // Retrieve prep raw data truth
   std::vector<const PRD_MultiTruthCollection*> prdCollectionVector;
   for(SG::ReadHandle<PRD_MultiTruthCollection>& col : m_PRD_TruthNames.makeHandles()){
+    if(!col.isPresent()) continue;
     if(!col.isValid()){
       ATH_MSG_WARNING("invalid PRD_MultiTruthCollection "<<col.name());
       return StatusCode::FAILURE;
     }
-    if(!col.isPresent()) continue;
     prdCollectionVector.push_back(col.cptr());
   }
 

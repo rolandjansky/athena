@@ -44,6 +44,7 @@ namespace InDet{
   m_clusterContainerKey(""),
   m_clusterContainerLinkKey(""),
   m_ambiguitiesMapKey(""),
+  m_clusterContainercacheKey(""),
   m_manager(nullptr) {  
     // Get parameter values from jobOptions file
     declareProperty("DataObjectName", m_rdoContainerKey = std::string("PixelRDOs"));
@@ -61,7 +62,7 @@ namespace InDet{
                   "Ambiguity Map container");
     declareProperty("RoIs", m_roiCollectionKey = std::string(""), "RoIs to read in");
     declareProperty("isRoI_Seeded", m_roiSeeded = false, "Use RoI");
-    
+    declareProperty("ClusterContainerCacheKey", m_clusterContainercacheKey, "Optional External Pixel cluster Cache");
     // error strategy <-- this is now in the MergedPixelTool
     //
     // 0 : broad errors (cluster width/sqrt(12) )
@@ -100,6 +101,7 @@ namespace InDet{
     ATH_CHECK( m_clusterContainerKey.initialize() );
     ATH_CHECK( m_clusterContainerLinkKey.initialize() );
     ATH_CHECK( m_ambiguitiesMapKey.initialize() );
+    ATH_CHECK( m_clusterContainercacheKey.initialize(!m_clusterContainercacheKey.key().empty()) );
 
     ATH_MSG_DEBUG( "Initialize done !" );
     return StatusCode::SUCCESS;
@@ -109,9 +111,14 @@ namespace InDet{
   // Execute method:
   StatusCode PixelClusterization::execute() {
   
-//    ATH_MSG_INFO( "Container m_clusterContainer '" << m_clusterContainer.name() << "' set");
+
     SG::WriteHandle<PixelClusterContainer> clusterContainer(m_clusterContainerKey);
-    ATH_CHECK( clusterContainer.record (std::make_unique<PixelClusterContainer>(m_idHelper->wafer_hash_max())) );
+    if(m_clusterContainercacheKey.key().empty()){
+      ATH_CHECK( clusterContainer.record (std::make_unique<PixelClusterContainer>(m_idHelper->wafer_hash_max())) );
+    }else{
+      SG::UpdateHandle<PixelClusterContainerCache> clusterContainercache(m_clusterContainercacheKey);
+      ATH_CHECK( clusterContainer.record (std::make_unique<PixelClusterContainer>(clusterContainercache.ptr() )));
+    }
 
     ATH_CHECK(clusterContainer.isValid());
     ATH_MSG_DEBUG( "Container '" << clusterContainer->name() << "' initialised" );
@@ -121,7 +128,7 @@ namespace InDet{
 
     ATH_MSG_DEBUG( "Creating the ganged ambiguities map");
     SG::WriteHandle<PixelGangedClusterAmbiguities> ambiguitiesMap(m_ambiguitiesMapKey);
-    ambiguitiesMap = CxxUtils::make_unique<PixelGangedClusterAmbiguities>();
+    ambiguitiesMap = std::make_unique<PixelGangedClusterAmbiguities>();
 
     SG::ReadHandle<PixelRDO_Container> rdoContainer(m_rdoContainerKey);
 
@@ -135,16 +142,16 @@ namespace InDet{
       for(; rdoCollections!=rdoCollectionsEnd; ++rdoCollections){
         const COLLECTION* RDO_Collection(*rdoCollections);
         if (!RDO_Collection || RDO_Collection->empty()) continue;
+        if( clusterContainer->tryFetch( rdoCollections.hashId() )) continue;
+
 
         // Use one of the specific clustering AlgTools to make clusters
         std::unique_ptr<PixelClusterCollection> clusterCollection (m_clusteringTool->clusterize(*RDO_Collection, *m_manager, *m_idHelper));
         if (clusterCollection && !clusterCollection->empty()){
 
           m_gangedAmbiguitiesFinder->execute(clusterCollection.get(),*m_manager,*ambiguitiesMap);
-          // -me- new IDC does no longer register in Storegate if hash is used !
-          ATH_CHECK(clusterContainer->addCollection( clusterCollection.get(), clusterCollection->identifyHash() ));
-          clusterCollection.release();//Release ownership if sucessfully added to collection
-
+          
+          ATH_CHECK(clusterContainer->addOrDelete( std::move(clusterCollection), clusterCollection->identifyHash() ));
         }else{
           ATH_MSG_DEBUG("No PixelClusterCollection to write");
         }
@@ -156,7 +163,7 @@ namespace InDet{
 
       TrigRoiDescriptorCollection::const_iterator roi = roiCollection->begin();
       TrigRoiDescriptorCollection::const_iterator roiE = roiCollection->end();
-      PixelRDO_Container::const_iterator rdoCollectionsEnd   = rdoContainer->end();
+
       std::vector<IdentifierHash> listOfPixIds;
       for (; roi!=roiE; ++roi) {
         
@@ -166,13 +173,10 @@ namespace InDet{
         ATH_MSG_VERBOSE( "REGTEST: Pixel : Roi contains " 
 		     << listOfPixIds.size() << " det. Elements" );
         for (unsigned int i=0; i < listOfPixIds.size(); i++) {
-            
-          PixelRDO_Container::const_iterator 
-            RDO_collection_iter = rdoContainer->indexFind(listOfPixIds[i]); 
 
-          if (RDO_collection_iter == rdoCollectionsEnd) continue;
+          if( clusterContainer->tryFetch( listOfPixIds[i] )) continue;
 
-          const InDetRawDataCollection<PixelRDORawData>* RDO_Collection (*RDO_collection_iter);
+          const InDetRawDataCollection<PixelRDORawData>* RDO_Collection (rdoContainer->indexFindPtr(listOfPixIds[i]));
 
           if (!RDO_Collection) continue;
 
@@ -182,8 +186,7 @@ namespace InDet{
             ATH_MSG_VERBOSE( "REGTEST: Pixel : clusterCollection contains " 
                 << clusterCollection->size() << " clusters" );
             m_gangedAmbiguitiesFinder->execute(clusterCollection.get(),*m_manager,*ambiguitiesMap);
-            ATH_CHECK(clusterContainer->addCollection( clusterCollection.get(), clusterCollection->identifyHash() ));
-            clusterCollection.release();//Release ownership if sucessfully added to collection
+            ATH_CHECK(clusterContainer->addOrDelete( std::move(clusterCollection), clusterCollection->identifyHash() ));
 
           }else{
             ATH_MSG_DEBUG("No PixelClusterCollection to write");

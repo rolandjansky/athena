@@ -96,7 +96,7 @@ namespace Athena_test {
     assert(hMyU.isValid());
     assert(hMyU->m_i==3);
     assert(*hMyU.cachedPtr() == 3);
-    assert(hMyU!=empty);
+    assert(hMyU==empty);
 
     WriteHandle<MyDataObj> hMy ("hMy");
     assert(!hMy.isInitialized());

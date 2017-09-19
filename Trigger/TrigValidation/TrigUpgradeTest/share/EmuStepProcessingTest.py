@@ -77,7 +77,6 @@ writeEmulationFiles(data)
 include("TrigUpgradeTest/L1CF.py")
 include("TrigUpgradeTest/HLTCF.py")
 
-
 # Cati's menu code
 #print "=============== MEOW ================"
 #include("TrigUpgradeTest/TriggerMenuMT.py")
@@ -86,104 +85,186 @@ include("TrigUpgradeTest/HLTCF.py")
 #print "=============== WOOF ================"
 
 
-
-from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoTool
-def emHTool(name):
-    v = int(name[5:])*1000
-    return HLTTest__TestHypoTool(name, OutputLevel=DEBUG, Threshold=v, Property="et")
-
-
-muChains  = [ 'HLT_mu20', 'HLT_mu8', 'HLT_2mu8' ]
-eChains   = [ 'HLT_e20', ]
-eChains_iso = ['HLT_e20_ivarloose' ]
-gChains   = [ 'HLT_g100', 'HLT_2g50' ]
-mueChains = [ 'HLT_mu8_e8' ]
-
-steps = [ parOR("step%i" % i) for i in range(2)]
-stepNo = 0
-steps[stepNo] += seqFilter( "Step1MU", Inputs=["L1MU"], Outputs=["step0MU"], Chains=muChains )
-#steps[stepNo] += seqFilter( "Step1MU_E", Inputs=["L1MU", "L1EM"], Outputs=["step0MU","step0EM"], Chains=mueChains )
-steps[stepNo] += seqFilter( "Step1EM", Inputs=["L1EM"], Outputs=["step0EM"], Chains=(eChains + gChains)  )
-
-emHypo = hypo("Step1ElGamHypo", Input="EMClusters", Output="EMDecisions")
-emHypoTools = [ emHTool("HLT_e2"), emHTool("HLT_e3"), emHTool("HLT_e5"),
-                emHTool("HLT_g5"), emHTool("HLT_g7"), emHTool("HLT_g15") ]
-emHypo.HypoTools = emHypoTools 
-emHypo += emHypoTools
-
-def msMuHTool(name):
-    v = int(name[6:])*1000
-    return HLTTest__TestHypoTool(name, OutputLevel=DEBUG, Threshold=v, Property="pt")
-
-msMuHypo =  hypo("Step1MuHypo", Input="MSMuons", Output="MSMUonDecisions")
-msMuHypoTools = [ msMuHTool("HLT_mu6"), msMuHTool("HLT_mu8"),  msMuHTool("HLT_mu10")  ]
-msMuHypo.HypoTools = msMuHypoTools
-msMuHypo += msMuHypoTools
-
-from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestComboHypoAlg
-
-stepNo += 1 
-em1 = stepSeq( "em1", useExisting("Step1EM"), [ reco("CaloClustering", FileName="emclusters.dat", Output="EMClusters", Input="L1EM"),
-                                                emHypo ] )
-steps[stepNo] += em1
-mu1 = stepSeq("mu1", useExisting("Step1MU"), [  reco("muMSRecAlg", FileName="msmu.dat", Output="MSMuons", Input="L1MU"),
-                                                msMuHypo ] )
-steps[stepNo] += mu1
-
-## mue1 = stepSeq("mue1", useExisting("Step1MU_E"), [ useExisting("CaloClustering"), useExisting("muMSRecAlg"),
-##                                             HLTTest__TestComboHypoAlg("mueHypo1", OutputLevel=DEBUG, Input1="EMClusters", Input2="MSMuons",
-##                                                                       Output1="step1MUEDecisionsEM", Output2="step1MUEDecisionsMU",
-##                                                                       Property1="et", Property2="pt", Threshold1=8000, Threshold2=8000,
-##                                                                       DecisionLabel="HLT_mu8_e8" )  ])
-## steps[stepNo] += mue1
-
-## # STEP2 
-## stepNo += 1
-## steps[stepNo] += seqFilter("Step2MU", Inputs=["step1MUDecisions"], Outputs=["step2MU"], Chains=muChains )
-## steps[stepNo] += seqFilter("Step2MU_E", Inputs=[ "step1MUEDecisionsEM", "step1MUEDecisionsMU"], Outputs=["step2MUE_EM", "step2MUE_MU"], Chains=mueChains  )
-## steps[stepNo] += seqFilter("Step2E", Inputs=["step1EDecisions"], Outputs=["step2E"], Chains=eChains  )
-## steps[stepNo] += seqFilter("Step2G", Inputs=["step1GDecisions"], Outputs=["step2G"], Chains=gChains )
+# steps: sequential AND of 1=Filter 2=Processing
+# chainstep=single chain step
+# global step=joint for all chains
+# filters: one SeqFilter per step, per chain
+# inputMakers: one per each first RecoAlg in a step (so one per step), one input per chain that needs that step
 
 
-## muCombHypo = hypo("Step2MuHypo", Input="CombMuons", Output="CombMuonDecisions")
-## muCombHypoTools = [ msMuHTool("HLT_mu6"), msMuHTool("HLT_mu8"),  msMuHTool("HLT_mu10")  ] # this tools are the same as MS ones,
-## muCombHypo.HypoTools = muCombHypoTools
-## muCombHypo += muCombHypoTools
+from TrigUpgradeTest.HLTCFConfig import *
+
+muStep1 = Sequence("Step1MuHypo", Algs=["muMSRecAlg:msmu.dat"], Hypo="Step1MuHypo")
+MuChains  = [ Chain(name='HLT_mu20', Seed="L1MU10",   ChainSteps=[ChainStep("Step1Mu20", Sequence=muStep1, Threshold="pt20")]),
+            Chain(name='HLT_mu8',  Seed="L1MU6",    ChainSteps=[ChainStep("Step1Mu8",  Sequence=muStep1, Threshold="pt8")]) ]
+                                                                                                                            
+
+elStep1 = Sequence("Step1ElGamHypo", Algs=["CaloClustering:emclusters.dat"], Hypo="Step1ElGamHypo")
+ElChains  = [ Chain(name='HLT_e20' , Seed="L1EM10", ChainSteps=[ChainStep("Step1E20",  Sequence=elStep1, Threshold="et20")])  ]
 
 
-## eHypo = hypo("Step2ElHypo", Input="Electrons", Output="ElectronDecisions")
-## eHypoTools = [ emHTool("HLT_e2"), emHTool("HLT_e3"), emHTool("HLT_e5") ]
-## eHypo.HypoTools = emHypoTools 
-## eHypo += emHypoTools
+#CombChains =[ Chain(name='HLT_mu8_e8' , Seed="L1EM6MU6", ChainSteps=[ChainStep("Step1E6Mu6",  Sequence=elStep1, Threshold="et20")]) ]
 
-## gHypo = hypo("Step2GammHypo", Input="Photons", Output="PhotonDecisions")
-## gHypoTools = [ emHTool("HLT_e2"), emHTool("HLT_e3"), emHTool("HLT_e5") ]
-## gHypo.HypoTools = emHypoTools 
-## gHypo += emHypoTools
 
-## from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestMerger
-## def merger(name, Inputs, Output ):
-##     m = HLTTest__TestMerger( "M_"+name, Inputs=Inputs, Output=Output )
-##     allAlgs[name] = m
-##     return m
 
-## stepNo += 1
-## mu2 = stepSeq("mu2", useExisting("Step2MU"), [ reco("TrigFastTrackFinder", FileName="tracks.dat", Output="Tracks"),  reco("MuonRecAlg", FileName="mucomb.dat", Output="CombMuons"), muCombHypo ] )
-## steps[stepNo] += mu2
+group_of_chains = MuChains + ElChains  
 
-## e2 = stepSeq( "e2" , useExisting("Step2E"), [ useExisting("TrigFastTrackFinder"), reco("ElectronRecAlg", FileName="electrons.dat", Output="Electrons"), eHypo ] )
-## steps[stepNo] += e2
 
-## g2 = stepSeq("g2", useExisting("Step2G"), [ reco("GRoIs", "noreco.dat"), reco("PhotonRecAlg", FileName="photons.dat", Output="Photons"), gHypo ])
-## steps[stepNo] += g2
-## stepNo += 1
+#decide the number of steps, starting from 1
+NSTEPS=1
+group_of_steps = { "Step%i"%(i+1) :  parOR("Step%i" %(i+1)) for i in range(NSTEPS)}
 
-## #mue2 = stepSeq("mue2", useExisting("Step2MU_E"), [ useExisting("TrkRoIs", "noreco.dat"), useExisting("TrigFastTrackFinder"), reco("MuonRecAlg", "mucomb.dat"),  reco("ElectronRecAlg"), hypo("Step2MuEHypo") ])
-## #steps[stepNo] += mue2
+
+#loop over chains to configure
+count_steps=0
+for stepCF_name, stepCF in group_of_steps.iteritems():
+    step_list = []
+
+    for chain in group_of_chains:
+        chain_step_name= "%s:%s"%(stepCF_name, chain.name)
+        print "\n*******Filling stepCF %s for chain  %s"%(stepCF_name, chain.name)
+      
+        chain_step=chain.steps[count_steps]
+        sequence=chain_step.sequence
+        step_name= sequence.name
+
+        #define sequence input
+        if count_steps == 0: # seeding
+            previous_sequence=chain.group_seed
+            sequence_input = chain.group_seed
+        else:
+            # from previous step
+            previous_sequence=chain.steps[count_steps-1].sequence
+            sequence_input=previous_sequence.outputs
+
+        # one filter per previous sequence at the start of the sequence: check if it exists or create a new one        
+        # if the hypo has more than one output, try to get all of them
+        filter_name="Filter%s%s"%(stepCF_name,previous_sequence)
+        filter_out="%s_out"%filter_name
+        filter_already_exists=False
+        findFilter= [step.filter for step in step_list if step.filter.name in filter_name]
+        
+        if len(findFilter):
+            print "Filter %s already exists"%(filter_name)
+            filter_already_exists=True
+            sfilter=findFilter[0]
+
+        else:
+            sfilter = SequenceFilter( filter_name, Inputs=[], Outputs=[], Chains=[] )
+            sfilter.addOutput(filter_out)            
+
+
+        sfilter.addChain(chain.name)
+        sfilter.addInput(sequence_input)
+        print "Filter Done: %s"%(sfilter)        
+
+        #was this sequence already used in other steps? Find if the step exists
+        step_already_exists=False        
+        findStep= [step for step in step_list if step.name in step_name]
+        #findStep= [step.name for seq in seq_list if seq.name in sequence.name]
+        if len(findStep):
+            step_already_exists=True
+        
+       
+        #make the step
+        if  step_already_exists:
+            print "  Step %s already exists"%(step_name)
+            step=findStep[0]
+            #get the hypo
+            hypoAlg= step.hypo
+            if not hypoAlg:
+                print "Error %s not found in existing sequence %s"%(sequence.hypo,sequence.name)
+            else:
+                print "Found HypoAlg %s"%(hypoAlg.name)
+        else:
+            print "  Making new step %s from sequence %s"%(step_name,sequence.name)
+            # first create the InputMaker
+            # imaker_out="IMaker%s_out"%chain_step_name
+            # last_output = imaker_out
+            #fill the step sequence with algorithms
+            algs=sequence.algs_name
+            last_output = sequence_input #filter_out #tmp, no InputMaker
+            list_of_algs = []
+            for alg in algs:
+                name_file=alg.split(":")
+                input=last_output
+                input_list = []
+                input_list.append(input)
+                output="R%s_out"%(name_file[0])
+                output_list = []
+                output_list.append(output)
+
+                reco_alg = RecoAlg(name_file[0], Output=output_list,  FileName=name_file[1], Input=input_list)  
+                print "   added %s for this sequence %s"%(reco_alg,sequence.name)
+                list_of_algs.append(reco_alg)
+                last_output= output
+
+            #make the hypo
+            hypo=sequence.hypo
+            input_list = []
+            input_list.append(last_output)            
+            sequence_out = "Sequence%s_out"%sequence
+            output_list = []
+            output_list.append(sequence_out)
+            hypoAlg = HypoAlg(hypo, Input=input_list, Output=output_list)
+            print "Create HypoAlg %s, and create the Decision Step -> %s"%(hypo,step_name)
+            
+            #make the decision step                        
+            step_seq = Step( step_name, FilterAlg=sfilter, RecoAlgs=list_of_algs, Hypo=hypoAlg)
+            step_list.append(step_seq)
+           
+
+        # fill hypoTools for each chain       
+        threshold=chain_step.threshold
+        hypotool_name=chain.name
+        print "Adding %s to %s"%(threshold,hypoAlg.name)
+        hypoAlg.addHypoTool(threshold)
+
+    #end of this step configuration, now implement CF:
+ 
+    print "\n******** instantiate algorithms in CF"
+    print "There are %d steps in this CFStep"%(len(step_list))
+    for step in step_list:
+        print "\n Create Step %s"%(step.name)
+        filt=step.filter
+        print "Create seqFilter %s"%filt
+        filterAlg=seqFilter(filt.name, Inputs=filt.inputs, Outputs=filt.outputs, Chains=filt.chains)
+        #make algos:
+        algos = []
+        for alg in step.algs:
+            print "Crate Algo %s"%alg
+            algAlg= TestRecoAlg(alg.name, FileName=alg.filename, Output=alg.outputs[0], Input=alg.inputs[0])
+            algos.append(algAlg)
+
+        hypo=step.hypo
+        print "Crate HypoAlgo %s"%hypo.name
+        hypoAlg=TestHypoAlg(hypo.name, Input=hypo.inputs[0], Output=hypo.outputs[0])
+        algos.append(hypoAlg)
+        tools=hypo.tools
+        htool_list = []
+        for tool in tools:
+            print "Crate HypoTool %s"%tool
+            prop = ''.join(filter(lambda x: x.isalpha(), tool))
+            hypotoolTool=TestHypoTool(tool, prop)
+            htool_list.append(hypotoolTool)
+            
+        hypoAlg.HypoTools =htool_list
+        print "Crate StepSeq %s"%step.name
+        step_seq = stepSeq( step.name, filterAlg=filterAlg, rest=algos)       
+        print "Add this step %s to %s"%(step.name,stepCF_name)
+        stepCF += step_seq
+
+    print "Add stepCF %s to the root"%stepCF_name
+    TopHLTSeq += addSteps(stepCF)
+    count_steps+=1
+    print "************* End of step %s"%stepCF_name
+    # end of steps
 
 
 theApp.EvtMax = 3
 
-TopHLTSeq += addSteps(steps)
 
 
+
+#  is this needed??
+#step +=seqFilter

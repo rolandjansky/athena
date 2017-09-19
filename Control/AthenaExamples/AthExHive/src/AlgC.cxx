@@ -17,15 +17,7 @@
 AlgC::AlgC( const std::string& name, 
             ISvcLocator* pSvcLocator ) : 
   ::AthAlgorithm( name, pSvcLocator )
-// ,
-//   m_rdh1("a2"),
-//   m_rch("X1")
-{
-  
-  // declareProperty("Key_R1",m_rdh1);
-  // declareProperty("Key_CH", m_rch);
-
-}
+{}
 
 //---------------------------------------------------------------------------
 

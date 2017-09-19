@@ -102,7 +102,7 @@ SCT_DetectorFactory::SCT_DetectorFactory(const SCT_GeoModelAthenaComps * athenaC
     description = switches->getString("DESCRIPTION");
   }
 
-  std::string versionTag = rdbAccessSvc()->getChildTag("SCT", versionKey.tag(), versionKey.node(), false);
+  std::string versionTag = rdbAccessSvc()->getChildTag("SCT", versionKey.tag(), versionKey.node());
   std::string versionName = switches->getString("VERSIONNAME");
   int versionMajorNumber = 3;
   int versionMinorNumber = 6;

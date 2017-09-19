@@ -1,21 +1,21 @@
-Tue Jul 18 22:07:22 CEST 2017
+Sat Aug 19 19:56:17 CEST 2017
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [AthenaWorkDir-22.0.0] [x86_64-slc6-gcc62-opt] [atlas-work3/7f75f2adc7] -- built on [2017-07-18T2200]
+Py:Athena            INFO using release [AthenaWorkDir-22.0.0] [x86_64-slc6-gcc62-dbg] [atlas-work3/3a9dcda165] -- built on [2017-08-19T1734]
 Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "DataModelRunTests/CondWriter_jo.py"
-Py:ConfigurableDb    INFO Read module info for 5364 configurables from 38 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5387 configurables from 56 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
-EventInfoMgtInit: Got release version  Athena-22.0.0
+[?1034hEventInfoMgtInit: Got release version  Athena-22.0.0
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
-[?1034hApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
+ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v28r2)
-                                          running on lxplus061.cern.ch on Tue Jul 18 22:07:32 2017
+                                          running on lxplus047.cern.ch on Sat Aug 19 19:56:37 2017
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -23,18 +23,20 @@ ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to leve
 StatusCodeSvc        INFO initialize
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
-ClassIDSvc           INFO  getRegistryEntries: read 2393 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 3098 CLIDRegistry entries for module ALL
 ChronoStatSvc        INFO  Number of skipped events for MemStat-1
 CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
 AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
-ClassIDSvc           INFO  getRegistryEntries: read 955 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 379 CLIDRegistry entries for module ALL
+MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
+AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-00-00
 PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
 DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy-wigner.cern.ch:3128) will be considered for COOL data
-DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2017-07-17T2251/Athena/22.0.0/InstallArea/x86_64-slc6-gcc62-opt/share/dbreplica.config
-DBReplicaSvc         INFO Total of 10 servers found for host lxplus061.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2017-08-18T2251/Athena/22.0.0/InstallArea/x86_64-slc6-gcc62-dbg/share/dbreplica.config
+DBReplicaSvc         INFO Total of 10 servers found for host lxplus047.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc              INFO Setting up APR FileCatalog and Streams
 PoolSvc              INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
@@ -47,14 +49,16 @@ IOVDbSvc             INFO Read from meta data only for folder /TagInfo
 IOVDbSvc             INFO Initialised with 1 connections and 1 folders
 IOVDbSvc             INFO Service IOVDbSvc initialised successfully
 IOVDbSvc             INFO preLoadAddresses: Removing folder /TagInfo. It should only be in the file meta data and was not found.
+DMTest::CondWri...   INFO Initializing DMTest::CondWriterAlg.CondStream - package version OutputStreamAthenaPool-00-00-00
 HistogramPersis...WARNING Histograms saving not required.
 EventSelector        INFO  Enter McEventSelector Initialization 
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr       INFO Application Manager Started successfully
 EventPersistenc...   INFO Added successfully Conversion service:McCnvSvc
+ClassIDSvc           INFO  getRegistryEntries: read 2188 CLIDRegistry entries for module ALL
 AthenaEventLoopMgr   INFO   ===>>>  start of run 0    <<<===
-ClassIDSvc           INFO  getRegistryEntries: read 1493 CLIDRegistry entries for module ALL
+EventPersistenc...   INFO Added successfully Conversion service:AthenaPoolCnvSvc
 EventPersistenc...   INFO Added successfully Conversion service:TagInfoMgr
 ClassIDSvc           INFO  getRegistryEntries: read 114 CLIDRegistry entries for module ALL
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #0, run #0 0 events processed so far  <<<===
@@ -108,11 +112,23 @@ RalSessionMgr Info Connect to the database server
 CORAL/Services/ConnectionService Info New connection to service "condtest.db" with connectionID=C#2 has been connected
 CORAL/Services/ConnectionService Info New user session with sessionID=S#2(C#2.s#1) started on connectionID=C#2 to service "condtest.db" for user "" in update mode
 RelationalDatabase Info Instantiate a R/W RalDatabase for 'sqlite://;schema=condtest.db;dbname=OFLP200'
+DbSession Info     Open     DbSession    
+Domain[ROOT_All] Info >   Access   DbDomain     UPDATE    [ROOT_All] 
+Domain[ROOT_All] Info ->  Access   DbDatabase   CREATE    [ROOT_All] D62E9950-7478-7B4D-90AD-35552387901E
+Domain[ROOT_All] Info                           condtest.pool.root
+RootDatabase.open Info condtest.pool.root File version:60806
+StorageSvc Info Building shape according to reflection information using shape ID for:
+StorageSvc Info DMTest::S2 [EC2D9BCD-4B99-41EB-A799-82BAF48887FC]
+StorageSvc Info Building shape according to reflection information using shape ID for:
+StorageSvc Info DataHeaderForm_p5 [3397D8A3-BBE6-463C-9F8E-4B3DFD8831FE]
+StorageSvc Info Building shape according to reflection information using shape ID for:
+StorageSvc Info DataHeader_p5 [D82968A1-CF91-4320-B2DD-E0F739CBC7E6]
+ClassIDSvc           INFO  getRegistryEntries: read 37 CLIDRegistry entries for module ALL
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #0, run #0 1 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #0 1 events processed so far  <<<===
 IOVSvc               INFO No IOVSvcTool associated with store "StoreGateSvc"
 IOVSvcTool           INFO IOVRanges will be checked at every Event
-ClassIDSvc           INFO  getRegistryEntries: read 284 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 268 CLIDRegistry entries for module ALL
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #0 2 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #2, run #0 2 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #2, run #0 3 events processed so far  <<<===
@@ -151,6 +167,9 @@ AthenaEventLoopMgr   INFO   ===>>>  done processing event #18, run #0 19 events 
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #19, run #0 19 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #0 20 events processed so far  <<<===
 Domain[ROOT_All] Info >   Deaccess DbDomain     READ      [ROOT_All] 
+condtest.pool.root Info Database being retired...
+Domain[ROOT_All] Info ->  Deaccess DbDatabase   CREATE    [ROOT_All] D62E9950-7478-7B4D-90AD-35552387901E
+Domain[ROOT_All] Info >   Deaccess DbDomain     UPDATE    [ROOT_All] 
 ApplicationMgr       INFO Application Manager Stopped successfully
 IncidentProcAlg1     INFO Finalize
 IncidentProcAlg2     INFO Finalize

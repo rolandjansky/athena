@@ -31,6 +31,19 @@ InDet::InDetAmbiScoringTool::InDetAmbiScoringTool(const std::string& t,
               const std::string& n,
               const IInterface*  p ) :
   AthAlgTool(t,n,p),
+  // Initialization of ScoreModifiers variables
+  m_maxDblHoles(-1),
+  m_maxPixHoles(-1),
+  m_maxSCT_Holes(-1),
+  m_maxHits(-1),
+  m_maxSigmaChi2(-1),
+  m_maxTrtRatio(-1),
+  m_maxTrtFittedRatio(-1),
+  m_maxB_LayerHits(-1),
+  m_maxPixelHits(-1),
+  m_maxPixLay(-1),
+  m_maxLogProb(-1),
+  m_maxGangedFakes(-1),
   m_trkSummaryTool("Trk::TrackSummaryTool"),
   m_selectortool("InDet::InDetTrtDriftCircleCutTool"),
   m_summaryTypeScore(Trk::numberOfTrackSummaryTypes),
@@ -84,8 +97,8 @@ InDet::InDetAmbiScoringTool::InDetAmbiScoringTool(const std::string& t,
   m_summaryTypeScore[Trk::numberOfPixelHits]            =  20;
   m_summaryTypeScore[Trk::numberOfPixelSharedHits]      = -10;  // NOT USED --- a shared hit is only half the weight
   m_summaryTypeScore[Trk::numberOfPixelHoles]           = -10;  // a hole is bad
-  m_summaryTypeScore[Trk::numberOfBLayerHits]           =  10;  // addition for being b-layer
-  m_summaryTypeScore[Trk::numberOfBLayerSharedHits]     =  -5;  // NOT USED --- a shared hit is only half the weight
+  m_summaryTypeScore[Trk::numberOfInnermostPixelLayerHits]           =  10;  // addition for being b-layer
+  m_summaryTypeScore[Trk::numberOfInnermostPixelLayerSharedHits]     =  -5;  // NOT USED --- a shared hit is only half the weight
   m_summaryTypeScore[Trk::numberOfGangedPixels]         =  -5;  // decrease for being ganged
   m_summaryTypeScore[Trk::numberOfGangedFlaggedFakes]   = -10;  // decrease for being ganged fake
   m_summaryTypeScore[Trk::numberOfSCTHits]              =  10;  // half of a pixel, since only 1dim
@@ -475,7 +488,7 @@ Trk::TrackScore InDet::InDetAmbiScoringTool::ambigScore( const Trk::Track& track
          << "  New score now: " << prob);
     }
     // --- Pixel blayer hits
-    int bLayerHits = trackSummary.get(Trk::numberOfBLayerHits);
+    int bLayerHits = trackSummary.get(Trk::numberOfInnermostPixelLayerHits);
     if (bLayerHits > -1 && m_maxB_LayerHits > 0) {
       if (bLayerHits > m_maxB_LayerHits) {
         prob *= (bLayerHits - m_maxB_LayerHits + 1); // hits are good !

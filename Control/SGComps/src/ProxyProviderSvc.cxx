@@ -19,8 +19,6 @@
 
 #include "ProxyProviderSvc.h"
 
-#include "boost/foreach.hpp"
-
 using namespace std;
 
 ProxyProviderSvc::ProxyProviderSvc(const std::string& name, 
@@ -176,9 +174,9 @@ StatusCode ProxyProviderSvc::addAddresses(IProxyRegistry& store,
     {
       proxy->setAddress(pTAD->address());
       delete pTAD;
-      pTAD = proxy->transientAddress();
-      if (pTAD->provider() == 0)
-        pTAD->setProvider(provider, store.storeID());
+      pTAD = nullptr;
+      if (proxy->provider() == 0)
+        proxy->setProvider(provider, store.storeID());
     } else {
       pTAD->setProvider(provider, store.storeID());
       if ( 0 == addAddress(store, pTAD) ) return StatusCode::FAILURE;
@@ -205,9 +203,8 @@ ProxyProviderSvc::addAddress(IProxyRegistry& store,
   bool addedProxy(false);
   // loop over all the transient CLIDs:
   SG::TransientAddress::TransientClidSet tClid = tAddr->transientID();
-  SG::TransientAddress::TransientClidSet::const_iterator tIter = tClid.begin();
-  for (; tIter != tClid.end(); tIter++) {
-    addedProxy |= (store.addToStore(*tIter, dp)).isSuccess();
+  for (CLID clid : tClid) {
+    addedProxy |= (store.addToStore(clid, dp)).isSuccess();
   }
 
   if (addedProxy) {
@@ -219,15 +216,15 @@ ProxyProviderSvc::addAddress(IProxyRegistry& store,
     // Add any other allowable conversions.
     const SG::BaseInfoBase* bi = SG::BaseInfoBase::find (tAddr->clID());
     if (bi) {
-      BOOST_FOREACH(CLID clid, bi->get_bases()) {
-	if (tClid.find (clid) == tClid.end()) {
+      for (CLID clid : bi->get_bases()) {
+        if (std::find (tClid.begin(), tClid.end(), clid) == tClid.end()) {
 	  store.addToStore (clid, dp).ignore();
           tAddr->setTransientID (clid);
         }
       }
 
-      BOOST_FOREACH(CLID clid, bi->get_copy_conversions()) {
-	if (tClid.find (clid) == tClid.end()) {
+      for (CLID clid : bi->get_copy_conversions()) {
+        if (std::find (tClid.begin(), tClid.end(), clid) == tClid.end()) {
 	  store.addToStore (clid, dp).ignore();
           tAddr->setTransientID (clid);
         }
@@ -250,11 +247,11 @@ ProxyProviderSvc::retrieveProxy(const CLID& id, const std::string& key,
   if ( (dp=store.proxy(id,key)) != 0 ) return dp;
 
   if ( store.storeID() != StoreID::SIMPLE_STORE ) {
-    //const EventContext& ctx = contextFromStore (store);
+    const EventContext& ctx = contextFromStore (store);
     SG::TransientAddress* pTAd = new SG::TransientAddress(id, key);
     pAPiterator iProvider(m_providers.begin()), iEnd(m_providers.end());
     for (; iProvider != iEnd; iProvider++) {
-      if ( ((*iProvider)->updateAddress(store.storeID(),pTAd)).isSuccess() ) 
+      if ( ((*iProvider)->updateAddress(store.storeID(),pTAd,ctx)).isSuccess() ) 
 	{
 	  pTAd->setProvider(*iProvider, store.storeID());
 	  return this->addAddress(store,pTAd);

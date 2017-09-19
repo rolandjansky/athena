@@ -1,7 +1,10 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
+/*
+ * Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration.
+ */
 /**
  * @file  SGTools/crc64.h
- * @author scott snyder, originally from David T. Jones
+ * @author scott snyder
  * @date Mar 2007
  * @brief A CRC-64 implementation.
  */

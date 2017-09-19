@@ -102,7 +102,8 @@ public:
   virtual StatusCode loadAddresses(StoreID::type  storeID ,
                                    IAddressProvider::tadList& tads  ) override;
   virtual StatusCode updateAddress(StoreID::type  storeID ,
-				   SG::TransientAddress*  tad) override;
+				   SG::TransientAddress*  tad,
+                                   const EventContext& ctx) override;
   //@}
 
   

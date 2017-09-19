@@ -31,16 +31,9 @@ xAODTrackCaloClusterContainerCnv::
 createPersistent( xAOD::TrackCaloClusterContainer* trans ) {
 
    // Create a view copy of the container:
-   xAOD::TrackCaloClusterContainer* result =
+   return
       new xAOD::TrackCaloClusterContainer( trans->begin(), trans->end(),
-                                      SG::VIEW_ELEMENTS );
-
-   // Prepare the objects to be written out:
-   xAOD::TrackCaloClusterContainer::iterator itr = result->begin();
-   xAOD::TrackCaloClusterContainer::iterator end = result->end();
-
-   // Return the new container:
-   return result;
+                                           SG::VIEW_ELEMENTS );
 }
 
 /**

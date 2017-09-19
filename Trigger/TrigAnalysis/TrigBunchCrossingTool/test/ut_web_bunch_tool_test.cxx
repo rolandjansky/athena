@@ -43,6 +43,7 @@ int main() {
    SIMPLE_CHECK( tool.setProperty( "OutputLevel", MSG::DEBUG ) );
    SIMPLE_CHECK( tool.setProperty( "ServerAddress",
                                    "atlas-trigconf.cern.ch" ) );
+   SIMPLE_CHECK( tool.setProperty( "MaxBunchSpacing", 150 ) );
 
    // Try to load some configurations by key:
    SIMPLE_CHECK( tool.loadConfig( 104 ) );

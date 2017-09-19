@@ -7,4 +7,4 @@
 #########################################################
 
 from G4AtlasApps.SimFlags import simFlags
-simFlags.OptionalUserActionList.addAction('G4UA::FastMBKillerTool', ['BeginOfRun','Step'])
+simFlags.OptionalUserActionList.addAction('G4UA::FastMBKillerTool', ['Run','Step'])

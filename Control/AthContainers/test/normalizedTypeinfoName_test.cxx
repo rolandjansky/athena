@@ -35,6 +35,9 @@ void test1()
 
   const std::type_info& ti4 = typeid (std::vector<std::string>);
   assert (SG::normalizedTypeinfoName (ti4) == "std::vector<std::string>");
+
+  const std::type_info& ti5 = typeid (std::map<std::string, int>);
+  assert (SG::normalizedTypeinfoName (ti5) == "std::map<std::string,int>");
 }
 
 

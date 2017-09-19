@@ -12,7 +12,6 @@
 #include "TTree.h"
 #include "TString.h"
 
-
 #include <algorithm>
 #include <math.h>
 #include <functional>
@@ -44,24 +43,24 @@ TRTHitAnalysis::TRTHitAnalysis(const std::string& name, ISvcLocator* pSvcLocator
    , m_TRT_kine_photons(0)
    , m_TRT_kine_nonphotons(0)
    , m_TRT_barcode(0)
+     
    , m_tree(0)
-   , m_path("/histos/TRTHitAnalysis/")
-   , m_ntupleFileName("/ntuples/TRTHitAnalysis/")
+   , m_path("/TRTHitAnalysis/")
+   , m_ntupleFileName("/TRTHitAnalysis/")
    , m_thistSvc("THistSvc", name)
-   
 {
-  declareProperty("HistPath", m_path);
   declareProperty("NtupleFileName", m_ntupleFileName);
+  declareProperty("HistPath", m_path);
 }
+
 
 StatusCode TRTHitAnalysis::initialize() {
   ATH_MSG_DEBUG( "Initializing TRTHitAnalysis" );
 
   // Grab the Ntuple and histogramming service for the tree
   CHECK(m_thistSvc.retrieve());
-
+  
   /** Histograms **/
-
   h_TRT_x = new TH1D("h_TRT_x","hits_x", 100,-1100, 1100);
   h_TRT_x->StatOverflows();
   CHECK(m_thistSvc->regHist(m_path + h_TRT_x->GetName(), h_TRT_x));
@@ -114,14 +113,12 @@ StatusCode TRTHitAnalysis::initialize() {
   h_TRT_barcode->StatOverflows();
   CHECK(m_thistSvc->regHist(m_path + h_TRT_barcode->GetName(), h_TRT_barcode));
 
-
-  /*ntuples*/
-
-  m_tree= new TTree("TRTHitNtuple","TRTHitAna");
-  std::string fullNtupleName =  "/"+m_ntupleFileName+"/";
+  /** now add branches and leaves to the tree */
+  m_tree = new TTree("TRT","TRT");
+  std::string fullNtupleName =  "/" + m_ntupleFileName + "/";
   CHECK(m_thistSvc->regTree(fullNtupleName,m_tree));
 
-  if (m_tree){
+  if (m_tree) {
     m_tree->Branch("x", &m_TRT_x);
     m_tree->Branch("y", &m_TRT_y);
     m_tree->Branch("z", &m_TRT_z);
@@ -133,15 +130,14 @@ StatusCode TRTHitAnalysis::initialize() {
     m_tree->Branch("KineticEnergy_photons", &m_TRT_kine_photons);
     m_tree->Branch("KineticEnergy_nonphotons", &m_TRT_kine_nonphotons);
     m_tree->Branch("barcode", &m_TRT_barcode);
-  }else{
+  }
+  else {
     ATH_MSG_ERROR("No tree found!");
   }
-  
   
   return StatusCode::SUCCESS;
 }		 
 
-  
 
 StatusCode TRTHitAnalysis::execute() {
   ATH_MSG_DEBUG( "In TRTHitAnalysis::execute()" );
@@ -159,48 +155,46 @@ StatusCode TRTHitAnalysis::execute() {
   m_TRT_barcode->clear();
   
   const DataHandle<TRTUncompressedHitCollection> p_collection;
-    if (evtStore()->retrieve(p_collection, "TRTUncompressedHits" )==StatusCode::SUCCESS) {
-      for(TRTUncompressedHitConstIter i_hit = p_collection->begin(); 
-	            i_hit != p_collection->end();++i_hit){
-	GeoTRTUncompressedHit ghit(*i_hit);
-	HepGeom::Point3D<double> p = ghit.getGlobalPosition();
+  if (evtStore()->retrieve(p_collection, "TRTUncompressedHits") == StatusCode::SUCCESS) {
+    for (TRTUncompressedHitConstIter i_hit = p_collection->begin(); i_hit != p_collection->end(); ++i_hit) {
+      GeoTRTUncompressedHit ghit(*i_hit);
+      HepGeom::Point3D<double> p = ghit.getGlobalPosition();
 
-        h_TRT_x->Fill(p.x());
-        h_TRT_y->Fill(p.y());
-        h_TRT_z->Fill(p.z());
-        h_TRT_r->Fill(p.perp());
-        h_TRT_xy->Fill(p.x(), p.y());
-        h_TRT_zr->Fill(p.z(),sqrt(pow(p.x(),2)+pow(p.y(),2)));
-        h_TRT_barcode->Fill(i_hit->particleLink().barcode());
+      h_TRT_x->Fill(p.x());
+      h_TRT_y->Fill(p.y());
+      h_TRT_z->Fill(p.z());
+      h_TRT_r->Fill(p.perp());
+      h_TRT_xy->Fill(p.x(), p.y());
+      h_TRT_zr->Fill(p.z(),sqrt(pow(p.x(),2)+pow(p.y(),2)));
+      h_TRT_barcode->Fill(i_hit->particleLink().barcode());
 
-	m_TRT_x->push_back(p.x());
-	m_TRT_y->push_back(p.y());
-	m_TRT_z->push_back(p.z());
-	m_TRT_r->push_back(p.perp());
-	m_TRT_barcode->push_back(i_hit->particleLink().barcode());
-        int particleId(i_hit->GetParticleEncoding());
-        if(particleId == 22 || static_cast<int>(abs(particleId)/100000)==41 || static_cast<int>(abs(particleId)/10000000) == 1){
-          h_TRT_time_photons->Fill(i_hit->GetGlobalTime());
-          h_TRT_edep_photons->Fill(i_hit->GetEnergyDeposit());
-          h_TRT_kine_photons->Fill(i_hit->GetKineticEnergy());
-	  m_TRT_time_photons->push_back(i_hit->GetGlobalTime());
-	  m_TRT_edep_photons->push_back(i_hit->GetEnergyDeposit());
-	  m_TRT_kine_photons->push_back(i_hit->GetKineticEnergy());
-        }else{
-          h_TRT_time_nonphotons->Fill(i_hit->GetGlobalTime());
-          h_TRT_edep_nonphotons->Fill(i_hit->GetEnergyDeposit());
-          h_TRT_kine_nonphotons->Fill(i_hit->GetKineticEnergy());
-	  
-	  m_TRT_time_nonphotons->push_back(i_hit->GetGlobalTime());
-	  m_TRT_edep_nonphotons->push_back(i_hit->GetEnergyDeposit());
-	  m_TRT_kine_nonphotons->push_back(i_hit->GetKineticEnergy());
-        }
-      } // End while hits                                                                                                                                                  
-    } 
-    if (m_tree) m_tree->Fill();
-
+      m_TRT_x->push_back(p.x());
+      m_TRT_y->push_back(p.y());
+      m_TRT_z->push_back(p.z());
+      m_TRT_r->push_back(p.perp());
+      m_TRT_barcode->push_back(i_hit->particleLink().barcode());
       
+      int particleId(i_hit->GetParticleEncoding());
+      if(particleId == 22 || static_cast<int>(abs(particleId)/100000)==41 || static_cast<int>(abs(particleId)/10000000)==1) {
+	h_TRT_time_photons->Fill(i_hit->GetGlobalTime());
+	h_TRT_edep_photons->Fill(i_hit->GetEnergyDeposit());
+	h_TRT_kine_photons->Fill(i_hit->GetKineticEnergy());
+	m_TRT_time_photons->push_back(i_hit->GetGlobalTime());
+	m_TRT_edep_photons->push_back(i_hit->GetEnergyDeposit());
+	m_TRT_kine_photons->push_back(i_hit->GetKineticEnergy());
+      }
+      else {
+	h_TRT_time_nonphotons->Fill(i_hit->GetGlobalTime());
+	h_TRT_edep_nonphotons->Fill(i_hit->GetEnergyDeposit());
+	h_TRT_kine_nonphotons->Fill(i_hit->GetKineticEnergy());	  
+	m_TRT_time_nonphotons->push_back(i_hit->GetGlobalTime());
+	m_TRT_edep_nonphotons->push_back(i_hit->GetEnergyDeposit());
+	m_TRT_kine_nonphotons->push_back(i_hit->GetKineticEnergy());
+      }
+    } // End while hits
+  }
+  
+  if (m_tree) m_tree->Fill();      
 
   return StatusCode::SUCCESS;
 }
-

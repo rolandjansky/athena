@@ -71,7 +71,6 @@ private:
   // Algorithm properties
   bool m_printTable;
   bool m_testTable;
-  bool m_2017RODs;
 
   // Names for ascii files
   std::string m_roiFileNameTile;

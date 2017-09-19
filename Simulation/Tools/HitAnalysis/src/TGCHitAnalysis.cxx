@@ -15,7 +15,6 @@
 #include "TTree.h"
 #include "TString.h"
 
-
 #include <algorithm>
 #include <math.h>
 #include <functional>
@@ -58,9 +57,10 @@ TGCHitAnalysis::TGCHitAnalysis(const std::string& name, ISvcLocator* pSvcLocator
    , m_hits_edep(0)
    , m_hits_kine(0)
    , m_hits_step(0)
+     
    , m_tree(0)
-   , m_ntupleFileName("/TGCHitAnalysis/ntuple/")
-   , m_path("/TGCHitAnalysis/histos/")
+   , m_ntupleFileName("/TGCHitAnalysis/")
+   , m_path("/TGCHitAnalysis/")
    , m_thistSvc("THistSvc", name)
 {
   declareProperty("NtupleFileName", m_ntupleFileName); 
@@ -72,7 +72,7 @@ StatusCode TGCHitAnalysis::initialize() {
 
   // Grab the Ntuple and histogramming service for the tree
   CHECK(m_thistSvc.retrieve());
- 
+  
   /** Histograms**/
   h_hits_x = new TH1D("h_hits_tgc_x","hits_x", 100,-5000, 5000);
   h_hits_x->StatOverflows();
@@ -97,7 +97,6 @@ StatusCode TGCHitAnalysis::initialize() {
   h_rz = new TH2D("h_tgc_rz", "rz", 100,2000.,10000.,100, -12000., 12000.);
   h_rz->StatOverflows();
   CHECK(m_thistSvc->regHist( m_path+h_rz->GetName(), h_rz));
-
 
   h_hits_eta = new TH1D("h_hits_tgc_eta", "hits_eta", 100,-10.0,10.0);
   h_hits_eta->StatOverflows();
@@ -147,14 +146,12 @@ StatusCode TGCHitAnalysis::initialize() {
   h_hits_step->StatOverflows();
   CHECK(m_thistSvc->regHist(m_path + h_hits_step->GetName(), h_hits_step));
 
-  m_tree= new TTree("NtupleTGCHitAnalysis","TGCHitAna");
-  std::string fullNtupleName =  "/"+m_ntupleFileName+"/";
+  /** now add branches and leaves to the tree */
+  m_tree = new TTree("TGC", "TGC");
+  std::string fullNtupleName =  "/" + m_ntupleFileName + "/";
   CHECK(m_thistSvc->regTree(fullNtupleName,m_tree));
   
-  
-  
-  /** now add branches and leaves to the tree */
-  if (m_tree){
+  if (m_tree) {
     m_tree->Branch("x", &m_hits_x);
     m_tree->Branch("y", &m_hits_y);
     m_tree->Branch("z", &m_hits_z);
@@ -171,15 +168,14 @@ StatusCode TGCHitAnalysis::initialize() {
     m_tree->Branch("edep", &m_hits_edep);
     m_tree->Branch("kine", &m_hits_kine);
     m_tree->Branch("step", &m_hits_step);
-  }else{
+  }
+  else {
     ATH_MSG_ERROR("No tree found!");
   }
   
-
   return StatusCode::SUCCESS;
 }		 
 
-  
 
 StatusCode TGCHitAnalysis::execute() {
   ATH_MSG_DEBUG( "In TGCHitAnalysis::execute()" );
@@ -202,13 +198,13 @@ StatusCode TGCHitAnalysis::execute() {
   m_hits_step->clear();
   
   const DataHandle<TGCSimHitCollection> tgc_container;
-  if (evtStore()->retrieve(tgc_container, "TGC_Hits" )==StatusCode::SUCCESS) {
-    for(TGCSimHitCollection::const_iterator i_hit = tgc_container->begin(); 
-	i_hit != tgc_container->end();++i_hit){
+  if (evtStore()->retrieve(tgc_container, "TGC_Hits" ) == StatusCode::SUCCESS) {
+    for (TGCSimHitCollection::const_iterator i_hit = tgc_container->begin(); i_hit != tgc_container->end(); ++i_hit) {
       //TGCSimHitCollection::const_iterator i_hit;
-    //for(auto i_hit : *tgc_container){
+      //for(auto i_hit : *tgc_container){
       GeoTGCHit ghit(*i_hit);
-      if(!ghit) continue;
+      if (!ghit) continue;
+
       Amg::Vector3D p = ghit.getGlobalPosition();
       h_hits_x->Fill(p.x());
       h_hits_y->Fill(p.y());
@@ -218,9 +214,9 @@ StatusCode TGCHitAnalysis::execute() {
       h_rz->Fill(p.perp(), p.z());
       h_hits_eta->Fill(p.eta());
       h_hits_phi->Fill(p.phi());
-      h_hits_lx->Fill( (*i_hit).localPosition().x());
-      h_hits_ly->Fill( (*i_hit).localPosition().y());
-      h_hits_lz->Fill( (*i_hit).localPosition().z());
+      h_hits_lx->Fill((*i_hit).localPosition().x());
+      h_hits_ly->Fill((*i_hit).localPosition().y());
+      h_hits_lz->Fill((*i_hit).localPosition().z());
       h_hits_dcx->Fill((*i_hit).localDireCos().x());
       h_hits_dcy->Fill((*i_hit).localDireCos().y());
       h_hits_dcz->Fill((*i_hit).localDireCos().z());
@@ -235,9 +231,9 @@ StatusCode TGCHitAnalysis::execute() {
       m_hits_r->push_back(p.perp());
       m_hits_eta->push_back(p.eta());
       m_hits_phi->push_back(p.phi());
-      m_hits_lx->push_back( (*i_hit).localPosition().x());
-      m_hits_ly->push_back( (*i_hit).localPosition().y());
-      m_hits_lz->push_back( (*i_hit).localPosition().z());
+      m_hits_lx->push_back((*i_hit).localPosition().x());
+      m_hits_ly->push_back((*i_hit).localPosition().y());
+      m_hits_lz->push_back((*i_hit).localPosition().z());
       m_hits_dcx->push_back((*i_hit).localDireCos().x());
       m_hits_dcy->push_back((*i_hit).localDireCos().y());
       m_hits_dcz->push_back((*i_hit).localDireCos().z());
@@ -250,6 +246,5 @@ StatusCode TGCHitAnalysis::execute() {
   
   if (m_tree) m_tree->Fill();
 
-
-  return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS; 
 }

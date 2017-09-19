@@ -86,7 +86,7 @@ class SCT_ReadCalibDataSvc: virtual public ISCT_ReadCalibDataSvc, virtual public
   virtual StatusCode fillCalibDefectData(std::list<std::string>& keys); //!< Callback for retriving defect data
   
   // Methods to return calibration defect type and summary
-  virtual SCT_ReadCalibDataSvc::calibDefectType defectType(const Identifier& stripId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT); //!<Return summary of defect type and values for a strip
+  virtual SCT_ReadCalibDataSvc::CalibDefectType defectType(const Identifier& stripId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT); //!<Return summary of defect type and values for a strip
   virtual SCT_CalibDefectData::CalibModuleDefects defectsSummary(const Identifier& moduleId, const std::string& scan); //!<Returns module summary of defect  
   virtual std::list<Identifier> defectList(const std::string& defect); //!<Returns module summary of defect  
 
@@ -106,8 +106,8 @@ class SCT_ReadCalibDataSvc: virtual public ISCT_ReadCalibDataSvc, virtual public
   // List folders to be read as CondAttrListCollection*
   StringArrayProperty m_atrcollist;
   // Calib defect maps
-  SCT_CalibDefectData* m_NPGDefects;
-  SCT_CalibDefectData* m_NODefects;
+  SCT_CalibDefectData m_NPGDefects;
+  SCT_CalibDefectData m_NODefects;
   BooleanProperty m_printCalibDefectMaps; //!< Print the calib defect maps?
   // Flag to set true to be able to use all methods not just isGood
   bool m_recoOnly;

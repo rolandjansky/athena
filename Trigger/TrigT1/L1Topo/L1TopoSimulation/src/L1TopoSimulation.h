@@ -56,6 +56,14 @@ namespace LVL1 {
       virtual StatusCode execute() override;
 
       virtual StatusCode finalize() override;
+      /**
+         @brief Retrieve the L1Topo hardware bits from the DAQ RODs
+         
+         No need to cache them within this AthAlgorithm; just pass
+         them to TopoSteering, which will then do all the work with
+         them.
+      */
+      StatusCode retrieveHardwareDecision();
 
    private:
 
@@ -79,7 +87,6 @@ namespace LVL1 {
 
       BooleanProperty m_enableInputDump { false }; // for enabling input dumping
       BooleanProperty m_enableBitwise { false }; // for enabling bitwise algorithms
-
       StringProperty  m_inputDumpFile { "inputdump.txt" }; // input dump file
 //      SG::ReadHandleKey<EventInfo> m_EventInfoKey;
       SG::WriteHandleKey<LVL1::FrontPanelCTP>  m_topoCTPLocation { "" }; ///< SG key of decision bits for CTP
@@ -89,14 +96,13 @@ namespace LVL1 {
 
       std::unique_ptr<TCS::TopoSteering>  m_topoSteering; //!< the topo steering 
 
-      TH1 *  m_DecisionHist[3] { nullptr, nullptr, nullptr };
-
+      BooleanProperty m_fillHistogramsBasedOnHardwareDecision { false }; // default: fill based on simulation
+      UnsignedIntegerProperty m_prescaleForDAQROBAccess {4}; ///< read hdw bits every N events (used only when m_fillHistogramsBasedOnHardwareDecision is true)
       UnsignedIntegerProperty m_prescale; //! property for prescale factor
       LVL1::PeriodicScaler* m_scaler; //! prescale decision tool
 
       StringProperty m_histBaseDir; //! sets base dir for monitoring histograms
-
-   };
+  };
 
 }
 #endif

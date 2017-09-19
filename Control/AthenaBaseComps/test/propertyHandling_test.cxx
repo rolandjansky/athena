@@ -233,7 +233,7 @@ void test1 (ISvcLocator* svcLoc)
   assert (alg.ukey.clid() == 293847295);
   assert (alg.ukey.key() == "ccc");
   assert (alg.ukey.storeHandle().name() == "StoreGateSvc");
-  assert (alg.ukey.mode() == Gaudi::DataHandle::Updater);
+  assert (alg.ukey.mode() == Gaudi::DataHandle::Reader);
 
   assert (alg.rdkey.clid() == 293847295);
   assert (alg.rdkey.key() == "ggg.qqq");
@@ -270,7 +270,7 @@ void test1 (ISvcLocator* svcLoc)
   assert (alg.uhandle.clid() == 293847295);
   assert (alg.uhandle.key() == "fff");
   assert (alg.uhandle.storeHandle().name() == "StoreGateSvc");
-  assert (alg.uhandle.mode() == Gaudi::DataHandle::Updater);
+  assert (alg.uhandle.mode() == Gaudi::DataHandle::Reader);
 
   assert (alg.gp_rkey.value().clid() == 293847295);
   assert (alg.gp_rkey.value().key() == "AAA_gp");
@@ -288,7 +288,7 @@ void test1 (ISvcLocator* svcLoc)
   }
 
   std::vector<std::string> outputKeys { 
-    "BarSvc+bbb", "StoreGateSvc+ccc", "BarSvc+eee", "StoreGateSvc+fff",
+    "BarSvc+bbb", "BarSvc+eee",
       "StoreGateSvc+hhh.rrr", "ConditionStore+jjj" };
   assert (alg.outputs.size() == outputKeys.size());
   for (size_t i = 0; i < alg.outputs.size(); i++) {
@@ -330,7 +330,7 @@ void test2 (ISvcLocator* svcLoc)
   assert (tool.ukey.clid() == 293847295);
   assert (tool.ukey.key() == "tcc");
   assert (tool.ukey.storeHandle().name() == "StoreGateSvc");
-  assert (tool.ukey.mode() == Gaudi::DataHandle::Updater);
+  assert (tool.ukey.mode() == Gaudi::DataHandle::Reader);
 
   assert (tool.rdkey.clid() == 293847295);
   assert (tool.rdkey.key() == "tgg.qqq");
@@ -367,7 +367,7 @@ void test2 (ISvcLocator* svcLoc)
   assert (tool.uhandle.clid() == 293847295);
   assert (tool.uhandle.key() == "tff");
   assert (tool.uhandle.storeHandle().name() == "StoreGateSvc");
-  assert (tool.uhandle.mode() == Gaudi::DataHandle::Updater);
+  assert (tool.uhandle.mode() == Gaudi::DataHandle::Reader);
 
   std::vector<std::string> inputKeys { 
     "FooSvc+taa", "StoreGateSvc+tcc", "FooSvc+tdd", "StoreGateSvc+tff",
@@ -380,7 +380,7 @@ void test2 (ISvcLocator* svcLoc)
   }
 
   std::vector<std::string> outputKeys { 
-    "BarSvc+tbb", "StoreGateSvc+tcc", "BarSvc+tee", "StoreGateSvc+tff",
+    "BarSvc+tbb", "BarSvc+tee",
     "StoreGateSvc+thh.rrr", "ConditionStore+tjj" };
   assert (tool.outputs.size() == outputKeys.size());
   for (size_t i = 0; i < tool.outputs.size(); i++) {

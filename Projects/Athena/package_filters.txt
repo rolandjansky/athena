@@ -20,25 +20,14 @@
 - Generators/Herwigpp_i
 
 # Temporary VP1 compilation issues
-+ graphics/VP1/VP1HEPVis
-+ graphics/VP1/VP1UtilsBase
-+ graphics/VP1/VP1Base
-+ graphics/VP1/VP1Gui
-+ graphics/VP1/VP1Algs
-+ graphics/VP1/VP1Utils
-+ graphics/VP1/VP1TrkAuxAlgs
-+ graphics/VP1/VP1AlgsBatch
-+ graphics/VP1/VP1AlgsEventProd
-+ graphics/VP1/VP1Systems/VP1AODSystems
-+ graphics/VP1/VP1Plugins/VP1AODPlugin
-+ graphics/VP1/VP1Systems/VP1GeometrySystems
-+ graphics/VP1/VP1Plugins/VP1GeometryPlugin
-+ graphics/VP1/VP1Systems/VP1GuideLineSystems
-+ graphics/VP1/VP1Systems/VP1SimHitSystems
-#+ graphics/VP1/VP1Plugins/VP1TrackPlugin # need more tests
-#+ graphics/VP1/VP1Systems/VP1TrackSystems # need more tests
-#+ graphics/VP1/VP1Systems/VP1PRDSystems # need more tests
-- graphics/VP1/.*
+- graphics/VP1/VP1Systems/VP1UtilitySystems
+- graphics/VP1/VP1Systems/VP1TriggerSystems
+- graphics/VP1/VP1Systems/VP12DGeometrySystems
+- graphics/VP1/VP1Systems/VP1MCSystems
+- graphics/VP1/VP1Systems/VP1CaloSystems 
+- graphics/VP1/VP1Systems/VP1TriggerDecisionSystems
+- graphics/VP1/VP1Systems/VP1BPhysSystems
++ graphics/VP1/.*
 
 # Some analysis packages that are not part of Athena
 - Control/AthLinksSA
@@ -65,7 +54,4 @@
 - Reconstruction/Jet/JetAnalysisTools/JetTileCorrection
 - Trigger/TrigAnalysis/TrigTauAnalysis/TrigTauMatching
 - Trigger/TrigFTK/FTKStandaloneMonitoring
-
-+ Tools/XMLCoreParser
-+ Control/CLIDComps
 

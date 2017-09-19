@@ -24,10 +24,10 @@
 
 int main(int, char **) 
 {
-  coral::Context* m_context = &coral::Context::instance();
+  coral::Context* context = &coral::Context::instance();
 
-  m_context->loadComponent("CORAL/Services/RelationalService");
-  m_context->loadComponent("CORAL/Services/ConnectionService");
+  context->loadComponent("CORAL/Services/RelationalService");
+  context->loadComponent("CORAL/Services/ConnectionService");
  
   coral::ConnectionService conSvcH;
 

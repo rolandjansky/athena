@@ -9,16 +9,8 @@
 
 HiveAlgM::HiveAlgM( const std::string& name, 
                       ISvcLocator* pSvcLocator ) : 
-  ::HiveAlgBase( name, pSvcLocator ),
-  m_rdh1("a2"),
-  m_rdh2("l1")
-{
-  
-  declareProperty("Key_R1",m_rdh1);
-  declareProperty("Key_R2",m_rdh2);
-  declareProperty("Offset",m_off);
-
-}
+  ::HiveAlgBase( name, pSvcLocator )
+{}
 
 HiveAlgM::~HiveAlgM() {}
 
@@ -58,7 +50,7 @@ StatusCode HiveAlgM::execute() {
   ATH_MSG_INFO("  read: " << rdh2.key() << " = " << rdh2->val() );
 
   if ( rdh2->val() != (rdh1->val() + m_off) ) {
-    ATH_MSG_ERROR (rdh2.key() << " != " << rdh1.key() << " + " << m_off);
+    ATH_MSG_ERROR (rdh2.key() << " != " << rdh1.key() << " + " << (int) m_off);
   } else {
     ATH_MSG_INFO( "loop is ok");
   }

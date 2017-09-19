@@ -10,7 +10,6 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ITHistSvc.h"
 
-
 #include <string>
 #include <vector>
 #include "TH1.h"
@@ -19,7 +18,8 @@
 class TH1;
 class TH2;
 class TTree;
- 
+
+
 class SiHitAnalysis : public AthAlgorithm {
 
  public:
@@ -32,7 +32,6 @@ class SiHitAnalysis : public AthAlgorithm {
 
  private:
 
-   std::string m_collection;
    /** Some variables**/
    TH1* h_hits_x;
    TH1* h_hits_y;
@@ -56,15 +55,15 @@ class SiHitAnalysis : public AthAlgorithm {
    std::vector<float>* m_hits_eloss;
    std::vector<float>* m_hits_step;
    std::vector<float>* m_hits_barcode;
+
+   std::string m_collection;
+   std::string m_expert;  
    
    TTree* m_tree;
    std::string m_ntupleFileName; 
-
-   std::string m_expert; 
-   std::string m_path; 
+   std::string m_path;
    ServiceHandle<ITHistSvc>  m_thistSvc;
 
 };
 
 #endif // SI_HIT_ANALYSIS_H
-

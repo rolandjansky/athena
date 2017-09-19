@@ -47,6 +47,10 @@ class SCTRawDataProvider : public AthAlgorithm
   //! Constructor.
   SCTRawDataProvider(const std::string &name, ISvcLocator *pSvcLocator);
 
+  //! Destructur
+  ~SCTRawDataProvider() {
+  }
+
   //! Initialize
   virtual StatusCode initialize();
 
@@ -54,20 +58,17 @@ class SCTRawDataProvider : public AthAlgorithm
   virtual StatusCode execute();
 
   //! Finalize
-  virtual StatusCode finalize()
-  { return StatusCode::SUCCESS;}
-
-  //! Destructur
-  ~SCTRawDataProvider() 
-    { }
+  virtual StatusCode finalize() {
+    return StatusCode::SUCCESS;
+  }
 
  private:
 
-  ServiceHandle<IRegSelSvc>             m_regionSelector;     
+  ServiceHandle<IRegSelSvc> m_regionSelector;     
   ServiceHandle<IROBDataProviderSvc> m_robDataProvider;
-  ToolHandle<ISCTRawDataProviderTool> m_rawDataTool;
-  ServiceHandle<ISCT_CablingSvc>     m_cabling;
-  const SCT_ID*                      m_sct_id; 
+  ToolHandle<ISCTRawDataProviderTool> m_rawDataTool{this, "ProviderTool", "SCTRawDataProviderTool", "SCT  Raw Data Provider Tool"};
+  ServiceHandle<ISCT_CablingSvc> m_cabling;
+  const SCT_ID* m_sct_id; 
   bool m_roiSeeded;
   SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;
   SG::WriteHandleKey<SCT_RDO_Container> m_rdoContainerKey;
@@ -77,4 +78,4 @@ class SCTRawDataProvider : public AthAlgorithm
 
 };
 
-#endif
+#endif // SCT_RAWDATABYTESTREAMCNV_SCTRAWDATAPROVIDER_H

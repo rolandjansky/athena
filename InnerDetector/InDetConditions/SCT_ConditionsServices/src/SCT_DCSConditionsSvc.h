@@ -25,12 +25,13 @@
 #include "AthenaKernel/IIOVDbSvc.h" 
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
+#include "SCT_ConditionsData/SCT_DCSFloatCondData.h"
+#include "SCT_ConditionsData/SCT_DCSStatCondData.h"
 //STL
 #include <list>
 #include <string>
 #include <map>
 
-class SCT_DCSConditionsData;
 class SCT_ID;
 
 /**
@@ -97,13 +98,13 @@ private:
   float m_ecOuter_correction;
   float m_hvLowLimit;
   float m_hvUpLimit;
-  SCT_DCSConditionsData* m_pBadModules;
-  std::map<CondAttrListCollection::ChanNum, float>* m_pModulesHV;
-  std::map<CondAttrListCollection::ChanNum, float>* m_pModulesTemp0;
-  std::map<CondAttrListCollection::ChanNum, float>* m_pModulesTemp1;
-  const SCT_ID*  m_pHelper;
-  Identifier  m_moduleId;
-  Identifier  m_waferId;
+  std::unique_ptr<SCT_DCSStatCondData> m_pBadModules;
+  std::unique_ptr<SCT_DCSFloatCondData> m_pModulesHV;
+  std::unique_ptr<SCT_DCSFloatCondData> m_pModulesTemp0;
+  std::unique_ptr<SCT_DCSFloatCondData> m_pModulesTemp1;
+  const SCT_ID* m_pHelper;
+  Identifier m_moduleId;
+  Identifier m_waferId;
   std::string m_folderPrefix;
   std::string m_chanstatCut;
   bool m_useHV;

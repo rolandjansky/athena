@@ -16,7 +16,6 @@
 #undef protected
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
-#include "AthenaPoolCnvSvc/AthenaPoolCnvTPExtension.h"
 
 #include "HIGlobal/HIPixelTrackletsCollection.h"
 #include "HIRecTPCnv/HIPixelTrackletsCollectionCnv_tlp1.h"
@@ -24,8 +23,7 @@
 typedef HIPixelTrackletsCollection_tlp1 HIPixelTrackletsCollection_PERS;
 typedef T_AthenaPoolCustomCnv<HIPixelTrackletsCollection, HIPixelTrackletsCollection_PERS> HIPixelTrackletsCollectionCnvBase;
 
-class HIPixelTrackletsCollectionCnv : public HIPixelTrackletsCollectionCnvBase,
-  public AthenaPoolCnvTPExtension
+class HIPixelTrackletsCollectionCnv : public HIPixelTrackletsCollectionCnvBase
 {
   friend class CnvFactory<HIPixelTrackletsCollectionCnv>;
   

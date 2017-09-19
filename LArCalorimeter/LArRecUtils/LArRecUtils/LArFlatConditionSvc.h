@@ -59,7 +59,9 @@ class LArFlatConditionSvc : public virtual IAddressProvider,
   { return StatusCode::SUCCESS;}
 
   /// update a transient Address
-  virtual StatusCode updateAddress(StoreID::type, SG::TransientAddress* tad);
+  virtual StatusCode updateAddress(StoreID::type,
+                                   SG::TransientAddress* tad,
+                                   const EventContext& ctx);
 
   ///Incident handle
   virtual void handle( const Incident& incident );

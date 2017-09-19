@@ -45,30 +45,25 @@ namespace G4UA{
       return std::move(action);
     }
 
-    StatusCode PhysicsValidationUserActionTool::queryInterface(const InterfaceID& riid, void** ppvIf){
-
-      if(riid == IBeginEventActionTool::interfaceID()) {
-        *ppvIf = (IBeginEventActionTool*) this;
+    StatusCode PhysicsValidationUserActionTool::queryInterface(const InterfaceID& riid, void** ppvIf)
+    {
+      if(riid == IG4EventActionTool::interfaceID()) {
+        *ppvIf = (IG4EventActionTool*) this;
         addRef();
         return StatusCode::SUCCESS;
       }
-      if(riid == IEndEventActionTool::interfaceID()) {
-        *ppvIf = (IEndEventActionTool*) this;
+      if(riid == IG4RunActionTool::interfaceID()) {
+        *ppvIf = (IG4RunActionTool*) this;
         addRef();
         return StatusCode::SUCCESS;
       }
-      if(riid == IBeginRunActionTool::interfaceID()) {
-        *ppvIf = (IBeginRunActionTool*) this;
+      if(riid == IG4SteppingActionTool::interfaceID()) {
+        *ppvIf = (IG4SteppingActionTool*) this;
         addRef();
         return StatusCode::SUCCESS;
       }
-      if(riid == ISteppingActionTool::interfaceID()) {
-        *ppvIf = (ISteppingActionTool*) this;
-        addRef();
-        return StatusCode::SUCCESS;
-      }
-      if(riid == IPreTrackingActionTool::interfaceID()) {
-        *ppvIf = (IPreTrackingActionTool*) this;
+      if(riid == IG4TrackingActionTool::interfaceID()) {
+        *ppvIf = (IG4TrackingActionTool*) this;
         addRef();
         return StatusCode::SUCCESS;
       }

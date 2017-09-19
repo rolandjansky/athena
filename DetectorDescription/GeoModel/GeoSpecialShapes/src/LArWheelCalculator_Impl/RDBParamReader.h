@@ -24,9 +24,6 @@ class RDBParamReader {
 		RDBParamRecords  data(const std::string& node, const std::string& tag, const std::string& tag2node="");
 		// for internal use only
 		IRDBRecordset_ptr  _getRecordsetPtr(const std::string& node, const std::string& tag, const std::string& tag2node="");
-		void acquire();
-		void release();
-		
 	private:
 		IRDBAccessSvc* m_rdbAccess;
 };

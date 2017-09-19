@@ -103,7 +103,7 @@ namespace G4UA{
 
   }
 
-  void VolumeDebugger::beginOfRun(const G4Run*){
+  void VolumeDebugger::BeginOfRunAction(const G4Run*){
 
     std::call_once(VolumeDebugger_DumpGeometryOnce,&G4UA::VolumeDebugger::DumpGeometry,this);
     

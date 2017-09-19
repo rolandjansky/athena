@@ -778,15 +778,15 @@ StatusCode SCTCalib::getDeadStrip() {
     ATH_MSG_INFO( "getDeadStrip() called" );
 
     // Bad Mods
-    std::set<Identifier>* badMods = m_ConfigurationConditionsSvc->badModules();
+    const std::set<Identifier>* badMods = m_ConfigurationConditionsSvc->badModules();
     std::set<Identifier>::const_iterator ModItr(badMods->begin());
     std::set<Identifier>::const_iterator ModEnd(badMods->end());
     // Bad links
-    std::map<Identifier, std::pair<bool, bool> >* badLinks = m_ConfigurationConditionsSvc->badLinks();
+    const std::map<Identifier, std::pair<bool, bool> >* badLinks = m_ConfigurationConditionsSvc->badLinks();
     std::map<Identifier, std::pair<bool, bool> >::const_iterator linkItr(badLinks->begin());
     std::map<Identifier, std::pair<bool, bool> >::const_iterator linkEnd(badLinks->end());
     // Bad chips
-    std::map<Identifier, unsigned int>* badChips = m_ConfigurationConditionsSvc->badChips();
+    const std::map<Identifier, unsigned int>* badChips = m_ConfigurationConditionsSvc->badChips();
     std::map<Identifier, unsigned int>::const_iterator chipItr(badChips->begin());
     std::map<Identifier, unsigned int>::const_iterator chipEnd(badChips->end());
     // Bad strips (w/o bad modules and chips)

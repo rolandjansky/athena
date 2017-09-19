@@ -44,6 +44,7 @@ InDet::InDetDenseEnvAmbiTrackSelectionTool::InDetDenseEnvAmbiTrackSelectionTool(
   m_selectortool("InDet::InDetTrtDriftCircleCutTool"       ),
   m_IBLParameterSvc("IBLParameterSvc",n),
   m_incidentSvc("IncidentSvc", n),
+  m_detID(nullptr),
   m_observerTool("Trk::TrkObserverTool/TrkObserverTool"),
   m_mapFilled(false),
   m_monitorTracks(false)

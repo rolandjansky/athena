@@ -20,9 +20,9 @@ public:
 
    virtual TH1 * findHist(const std::string & histName) override;
 
-   virtual void setBaseDir(const std::string & baseDir);
+   virtual void setBaseDir(const std::string & baseDir) override;
 
-   virtual void save();
+   virtual void save() override;
 
 private:
 

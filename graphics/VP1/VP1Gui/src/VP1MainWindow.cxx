@@ -734,8 +734,6 @@ QMap<QString,QString> VP1MainWindow::availableFiles(const QString& extension,
 			vp1pluginpath<<VP1Settings::defaultFileSelectDirectory();
 	}
 
-
-
 	//Add directories from pathvar (looking in subdir instareasubdir):
 	QString varStr = QString(::getenv(pathvar.toStdString().c_str()));
 	//VP1Msg::messageDebug("Add directories from pathvar... " + pathvar + " - " + varStr);

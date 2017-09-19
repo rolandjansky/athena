@@ -171,12 +171,6 @@ namespace InDet {
     }  
     else ATH_MSG_INFO("retrieved RDBAccessSvc");
     
-    if(!m_rdbAccessSvc->connect()) {
-      msg(MSG::FATAL) << "Unable to connect to the Geometry DB" << endmsg;
-      return StatusCode::FAILURE;
-    }
-    else ATH_MSG_INFO("connection to geometry DB successfull");  
-
     // dump module selection
     if(m_doModuleSelection && msgLvl(MSG::INFO)) {
       msg(MSG::INFO)<<"Creating geometry for selected "<<m_moduleSelection.size()<<" modules:"<<endmsg;

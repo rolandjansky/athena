@@ -110,9 +110,9 @@ bool TIDA::isGoodOffline(const Analysis::Muon& muon) {
     /// maybe select all these track based quantitied om the TIDA::Track, so we dont 
     /// have to fuss with is it xAOD/is it not xAOD etc
     // B-Layer hits
-    int numberOfBLayerHits = summary->get(Trk::numberOfBLayerHits);
-    bool expectBLayerHit = summary->get(Trk::expectBLayerHit);
-    if (expectBLayerHit && numberOfBLayerHits<1) return false;
+    int numberOfInnermostPixelLayerHits = summary->get(Trk::numberOfInnermostPixelLayerHits);
+    bool expectInnermostPixelLayerHit = summary->get(Trk::expectInnermostPixelLayerHit);
+    if (expectInnermostPixelLayerHit && numberOfInnermostPixelLayerHits<1) return false;
     
     // Pix hits
     int nPixelHits = summary->get(Trk::numberOfPixelHits);

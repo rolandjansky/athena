@@ -84,7 +84,7 @@ protected:
 
   std::list<FTKTrack> m_tracks; // list of output tracks
   std::list<FTKTrack> m_tracks_pre_hw; // list of output tracks before HW filter
-  std::list<FTKTrack> sector_tracks; // list of first stage tracks in the same sector
+  std::list<FTKTrack> m_sector_tracks; // list of first stage tracks in the same sector
   std::list<FTKTrack> m_tracks_first; // list of first stage tracks
 
   int m_processor_stage; // It tells processor() which part to work on for HW within the same sector

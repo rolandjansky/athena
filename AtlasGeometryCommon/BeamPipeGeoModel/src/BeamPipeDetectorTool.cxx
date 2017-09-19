@@ -72,7 +72,7 @@ StatusCode BeamPipeDetectorTool::create( StoreGateSvc* detStore )
     // Check we have the beampipe and print its version
     // Print the  version tag:
     std::string beampipeVersionTag;
-    beampipeVersionTag = raccess->getChildTag("BeamPipe", atlasVersion,versionNode, false);
+    beampipeVersionTag = raccess->getChildTag("BeamPipe", atlasVersion,versionNode);
     log << MSG::DEBUG << "Beampipe Version: " << beampipeVersionTag << endmsg;
 
 

@@ -44,8 +44,8 @@ CosmicHadEnFex::~CosmicHadEnFex(){
 StatusCode CosmicHadEnFex::execute(TrigEMCluster &rtrigEmCluster,double etamin,
 		double etamax, double phimin, double phimax){
 
-	lardecoded=false;
-	tiledecoded=false;
+	m_lardecoded=false;
+	m_tiledecoded=false;
         // Time total AlgTool time
         if (!m_timersvc.empty()) m_timer[0]->start();
 
@@ -100,7 +100,7 @@ StatusCode CosmicHadEnFex::execute(TrigEMCluster &rtrigEmCluster,double etamin,
 	// For the others no
         if ( m_data->LoadCollections(m_itBegin,m_itEnd,iR,!iR).isFailure() )
                 return StatusCode::FAILURE;
-	tiledecoded=true;
+	m_tiledecoded=true;
 	if ( m_saveCells ) IAlgToolCalo::storeCells();
         // Finished to access Collection
         if (!m_timersvc.empty()) m_timer[2]->pause();

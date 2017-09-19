@@ -172,7 +172,7 @@ StatusCode TrackExample::execute() {
       /// access to TrackSummary information
       ATH_MSG_DEBUG( "Track summary information:" );
       uint8_t ival = 0;
-      if( trackParticle->summaryValue( ival, xAOD::numberOfBLayerHits ) ) {
+      if( trackParticle->summaryValue( ival, xAOD::numberOfInnermostPixelLayerHits ) ) {
          ATH_MSG_DEBUG( " * Number of B layer hits : " << ( int ) ival );
       }
       if( trackParticle->summaryValue( ival, xAOD::numberOfPixelHits ) ) {

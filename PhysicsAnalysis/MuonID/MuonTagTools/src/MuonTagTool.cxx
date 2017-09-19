@@ -634,13 +634,13 @@ StatusCode MuonTagTool::execute(TagFragmentCollection & muonTagCol, const int ma
         uint8_t nblh   = 0x0;
         uint8_t eblh   = 0x0;
         uint8_t nblo   = 0x0;
-        if( !tp->summaryValue(nblh,xAOD::numberOfBLayerHits)){
+        if( !tp->summaryValue(nblh,xAOD::numberOfInnermostPixelLayerHits)){
           ATH_MSG_WARNING("No nBLayerHits");
         }
-        if( !tp->summaryValue(nblo,xAOD::numberOfBLayerOutliers)){
+        if( !tp->summaryValue(nblo,xAOD::numberOfInnermostPixelLayerOutliers)){
           ATH_MSG_WARNING("No nofBLayerOutliers");
         }
-        if( !tp->summaryValue(eblh,xAOD::expectBLayerHit) ||
+        if( !tp->summaryValue(eblh,xAOD::expectInnermostPixelLayerHit) ||
             (nblh + nblo > 0) )        tightness = tightness | bit2int(11);
       
         // pixel hit counts

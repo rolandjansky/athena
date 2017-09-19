@@ -217,6 +217,9 @@ private:
   AthenaEventLoopMgr(const AthenaEventLoopMgr&); ///< no implementation
   AthenaEventLoopMgr& operator= (const AthenaEventLoopMgr&); ///< no implementation
 
+  StatusCode installEventContext (const EventInfo* pEvent,
+                                  unsigned int conditionsRun);
+
   int m_nevt;
   /// @property histogram write/update interval
   IntegerProperty m_writeInterval;

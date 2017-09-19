@@ -26,13 +26,13 @@ def TrigL2CaloHypoToolFromName( name ):
 
     tool = TrigL2CaloHypoTool( name ) 
     tool.AcceptAll = False
+    tool.MonTool = ""
     from TriggerJobOpts.TriggerFlags import TriggerFlags
-#    print "monitoring", TriggerFlags.enableMonitoring()
+    print "monitoring", TriggerFlags.enableMonitoring()
 
 
     if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in  TriggerFlags.enableMonitoring():
-        from AthenaMonitoring.AthenaMonitoringConf import GenericMonitoringTool
-        from AthenaMonitoring.DefineHistogram import defineHistogram
+        from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
         monTool = GenericMonitoringTool("MonTool"+name)
         monTool.Histograms = [ defineHistogram('dEta', type='TH1F', title="L2Calo Hypo #Delta#eta_{L2 L1}; #Delta#eta_{L2 L1}", xbins=80, xmin=-0.01, xmax=0.01),
                                defineHistogram('dPhi', type='TH1F', title="L2Calo Hypo #Delta#phi_{L2 L1}; #Delta#phi_{L2 L1}", xbins=80, xmin=-0.01, xmax=0.01),
@@ -60,9 +60,9 @@ def TrigL2CaloHypoToolFromName( name ):
                                     defineHistogram('Wstot', type='TH1F', title="L2Calo Hypo Wstot; E Width in sampling 1", xbins=48, xmin=-0.1, xmax=11.),
                                     defineHistogram('F3', type='TH1F', title="L2Calo Hypo F3; E3/(E0+E1+E2+E3)", xbins=96, xmin=-0.1, xmax=1.1) ]        
             
-
+        monTool.HistPath = 'L2CaloHypo/'+tool.name()
         tool.MonTool = monTool
-        tool.MonTool.HistPath = 'L2CaloHypo/'+tool.name()
+        tool += monTool
 
 
         

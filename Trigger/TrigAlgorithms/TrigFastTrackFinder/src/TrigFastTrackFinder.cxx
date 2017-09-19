@@ -15,6 +15,7 @@
 #include <iostream>
 #include <algorithm>
 #include <array>
+#include <memory>
 
 #include <tbb/parallel_for.h>
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
@@ -72,7 +73,6 @@
 #include "SiSpacePointsSeed/SiSpacePointsSeed.h"
 #include "src/TrigFastTrackFinder.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
-#include "CxxUtils/make_unique.h"
 
 TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* pSvcLocator) : 
 
@@ -544,7 +544,7 @@ StatusCode TrigFastTrackFinder::findTracks(const TrigRoiDescriptor& roi,
 
     m_currentStage = 2;
     
-    std::unique_ptr<TrigRoiDescriptor> superRoi = CxxUtils::make_unique<TrigRoiDescriptor>();
+    std::unique_ptr<TrigRoiDescriptor> superRoi = std::make_unique<TrigRoiDescriptor>();
 
     if (m_doZFinder) {
       if (m_doFTKZFinder ) {

@@ -70,7 +70,7 @@ namespace G4UA{
         }
     }
 
-    void PhysicsValidationUserAction::beginOfEvent(const G4Event*)
+    void PhysicsValidationUserAction::BeginOfEventAction(const G4Event*)
     {
 
 
@@ -87,7 +87,7 @@ namespace G4UA{
       
     }
 
-    void PhysicsValidationUserAction::endOfEvent(const G4Event*)
+    void PhysicsValidationUserAction::EndOfEventAction(const G4Event*)
     {
       
       m_X0=0.;
@@ -100,7 +100,7 @@ namespace G4UA{
       return;
     }
 
-    void PhysicsValidationUserAction::beginOfRun(const G4Run*)
+    void PhysicsValidationUserAction::BeginOfRunAction(const G4Run*)
     {
       
       if (m_config.particleBroker.retrieve().isFailure()) {
@@ -213,8 +213,8 @@ namespace G4UA{
 	}
       
     }
-    
-    void PhysicsValidationUserAction::processStep(const G4Step* aStep)
+
+    void PhysicsValidationUserAction::UserSteppingAction(const G4Step* aStep)
     {
       //std::cout<<"PhysicsValidationUserAction::SteppingAction"<<std::endl;
       
@@ -526,8 +526,8 @@ namespace G4UA{
       }
       
     }
-    
-    void PhysicsValidationUserAction::preTracking(const G4Track*)
+
+    void PhysicsValidationUserAction::PreUserTrackingAction(const G4Track*)
     {
 
       m_sHelper.ResetNrOfSecondaries();

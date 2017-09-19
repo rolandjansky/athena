@@ -160,9 +160,9 @@ StatusCode Trk::ReFitTrack::execute()
   // clean up association tool
   m_assoTool->reset();
 
-  SG::ReadHandle<TrackCollection> m_tracks (m_TrackName);
+  SG::ReadHandle<TrackCollection> tracks (m_TrackName);
 
-  if (!m_tracks.isValid()){
+  if (!tracks.isValid()){
     msg(MSG::ERROR) <<"Track collection named " << m_TrackName.key() 
 		    << " not found, exit ReFitTrack." << endmsg;
     return StatusCode::SUCCESS;
@@ -218,7 +218,7 @@ StatusCode Trk::ReFitTrack::execute()
   SG::WriteHandle<TrackCollection> outputtracks (m_NewTrackName);
 
   // loop over tracks
-  for (TrackCollection::const_iterator itr  = (*m_tracks).begin(); itr < (*m_tracks).end(); itr++){
+  for (TrackCollection::const_iterator itr  = (*tracks).begin(); itr < (*tracks).end(); itr++){
 
     ATH_MSG_VERBOSE ("input track:" << **itr);
 

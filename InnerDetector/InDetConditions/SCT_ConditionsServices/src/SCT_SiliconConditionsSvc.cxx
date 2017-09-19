@@ -188,7 +188,6 @@ SCT_SiliconConditionsSvc::setConditionsFromGeoModel()
     msg(MSG::ERROR) << "Could not locate GeoModelSvc" << endmsg;
     return false;
   }
-  m_rdbSvc->connect();
   DecodeVersionKey versionKey(&*m_geoModelSvc, "SCT");
   ATH_MSG_DEBUG( "Checking GeoModel Version Tag: "<<  versionKey.tag() << " at Node: " << versionKey.node() );
 
@@ -213,8 +212,6 @@ SCT_SiliconConditionsSvc::setConditionsFromGeoModel()
     m_geoModelDepletionVoltage = 20; 
     conditionsPresent = true; 
   }
-
-  m_rdbSvc->disconnect();
 
   return (!useCondDB && conditionsPresent);
 

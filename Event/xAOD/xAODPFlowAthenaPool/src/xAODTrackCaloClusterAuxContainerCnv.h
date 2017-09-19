@@ -33,7 +33,7 @@ class xAODTrackCaloClusterAuxContainerCnv :
    friend class CnvFactory< xAODTrackCaloClusterAuxContainerCnv >;
 
    /// Function initialising the converter
-   StatusCode initialize() override;
+   virtual StatusCode initialize() override;
 
 protected:
    /// Converter constructor
@@ -41,9 +41,9 @@ protected:
 
    /// Function preparing the container to be written out
    virtual xAOD::TrackCaloClusterAuxContainer*
-   createPersistent( xAOD::TrackCaloClusterAuxContainer* trans );
+   createPersistent( xAOD::TrackCaloClusterAuxContainer* trans ) override;
    /// Function reading in the object from the input file
-   virtual xAOD::TrackCaloClusterAuxContainer* createTransient();
+   virtual xAOD::TrackCaloClusterAuxContainer* createTransient() override;
 
 private:
 

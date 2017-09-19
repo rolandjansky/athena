@@ -21,11 +21,11 @@ namespace errorcheck {
 
 
 /// If true, hide the source file and line number in output messages.
-bool ReportMessage::s_hide_error_locus = false;
+std::atomic<bool> ReportMessage::s_hide_error_locus;
 
 
 /// If true, hide the function names in output messages.
-bool ReportMessage::s_hide_function_names = false;
+std::atomic<bool> ReportMessage::s_hide_function_names;
 
 
 /**

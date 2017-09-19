@@ -106,14 +106,12 @@ StatusCode CaloCluster_OnTrackBuilder::finalize(){ return StatusCode::SUCCESS; }
   if(!surface) return 0;
   
   const Trk::LocalParameters*  lp =getClusterLocalParameters( cluster, surface, charge );
-
   if (!lp){
     delete surface;
     return 0;
   }
      
-  const  Amg::MatrixX *em  =getClusterErrorMatrix( cluster, surface, charge );
-  
+  const  Amg::MatrixX *em  =getClusterErrorMatrix( cluster, surface, charge );  
   if (!em){
     delete surface;
     delete lp;
@@ -123,10 +121,10 @@ StatusCode CaloCluster_OnTrackBuilder::finalize(){ return StatusCode::SUCCESS; }
   Trk::CaloCluster_OnTrack* ccot = new  Trk::CaloCluster_OnTrack( *lp, *em, *surface );
   delete surface;
   delete lp;
+  delete em;
 
   if(ccot) {
     ATH_MSG_DEBUG("Successful build of Trk::CaloCluster_OnTrack");
-    //std::cout << *ccot << std::endl;
   }
   
   return ccot;

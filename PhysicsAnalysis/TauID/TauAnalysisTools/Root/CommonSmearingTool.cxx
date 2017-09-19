@@ -143,15 +143,16 @@ StatusCode CommonSmearingTool::initialize()
   if (applySystematicVariation(CP::SystematicSet()) != CP::SystematicCode::Ok )
     return StatusCode::FAILURE;
 
+#ifndef XAODTAU_VERSIONS_TAUJET_V3_H
   if (m_bApplyMVATES)
   {
     ATH_CHECK(ASG_MAKE_ANA_TOOL(m_tMvaTESVariableDecorator, MvaTESVariableDecorator));
     ATH_CHECK(ASG_MAKE_ANA_TOOL(m_tMvaTESEvaluator, MvaTESEvaluator));
-    // ATH_CHECK(m_tMvaTESEvaluator.setProperty("WeightFileName", "LC.pantau.interpolPt250GeV_mediumTaus_BDTG.weights.xml"));
     ATH_CHECK(m_tMvaTESEvaluator.setProperty("WeightFileName", "MvaTES_20161015_pi0fix_BDTG.weights.xml"));
     ATH_CHECK(m_tMvaTESVariableDecorator.initialize());
     ATH_CHECK(m_tMvaTESEvaluator.initialize());
   }
+#endif
 
   if (m_bApplyCombinedTES || m_bApplyMVATES) // CombinedTES has to be available for MVA fix
   {
@@ -197,6 +198,7 @@ CP::CorrectionCode CommonSmearingTool::applyCorrection( xAOD::TauJet& xTau )
 
     if (not m_bPtFinalCalibIsAvailable)
     {
+#ifndef XAODTAU_VERSIONS_TAUJET_V3_H
       // TODO: only call eventInitialize once per event, probably via migration to
       // AsgMetadataTool
       if (m_tMvaTESVariableDecorator->eventInitialize().isFailure())
@@ -205,6 +207,10 @@ CP::CorrectionCode CommonSmearingTool::applyCorrection( xAOD::TauJet& xTau )
         return CP::CorrectionCode::Error;
       if (m_tMvaTESEvaluator->execute(xTau).isFailure())
         return CP::CorrectionCode::Error; 
+#else
+      ATH_MSG_ERROR("MVA TES decoration 'ptFinalCalib' is not available ");
+      return CP::CorrectionCode::Error;
+#endif
     }
     
     // veto MVA TES for unreasonably low resolution values
@@ -603,9 +609,9 @@ CP::CorrectionCode CommonSmearingTool::getValue(const std::string& sHistName,
     {
       TF1 f("",sTitle.c_str(), 0, 1000);
       if (sHistName.find("sf_") != std::string::npos)
-        dEfficiencyScaleFactor = (dEfficiencyScaleFactor -1) *f.Eval(dPt) + 1;
+        dEfficiencyScaleFactor = (dEfficiencyScaleFactor -1) *f.Eval(m_fX(xTau)) + 1;
       else
-        dEfficiencyScaleFactor *= f.Eval(dPt);
+        dEfficiencyScaleFactor *= f.Eval(m_fX(xTau));
     }
   }
   return CP::CorrectionCode::Ok;

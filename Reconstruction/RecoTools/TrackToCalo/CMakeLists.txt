@@ -30,6 +30,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTracking
                           Event/xAOD/xAODTruth
                           Reconstruction/RecoTools/ParticlesInConeTools
+                          InnerDetector/InDetRecTools/TrackVertexAssociationTool
                           Tracking/TrkDetDescr/TrkSurfaces
                           Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkEvent/TrkParameters

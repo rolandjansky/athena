@@ -49,7 +49,6 @@ CondInputLoader::CondInputLoader( const std::string& name,
   declareProperty( "Load", m_load); 
   //->declareUpdateHandler(&CondInputLoader::loader, this);
   declareProperty( "ShowEventDump", m_dump=false);
-  declareProperty( "InputKey", m_inputKey="Input" );
 }
 
 // Destructor
@@ -90,8 +89,6 @@ CondInputLoader::initialize()
     ATH_MSG_FATAL("unable to retrieve IOVDbSvc");
     return StatusCode::FAILURE;
   }
-
-  ATH_CHECK( m_inputKey.initialize() );
 
   std::vector<std::string> keys = idb->getKeyList();
   std::string folderName, tg;
@@ -246,14 +243,17 @@ CondInputLoader::execute()
 #endif
   }
 
+  EventIDBase now_event = now;
+  now.set_event_number (EventIDBase::UNDEFEVT);
+
   // For a MC event, the run number we need to use to look up the conditions
-  // may be different from that of the event itself.  If we have
-  // a ConditionsRun attribute defined, use that to override
-  // the event number.
-  SG::ReadHandle<AthenaAttributeList> input (m_inputKey, getContext());
-  if (input.isValid()) {
-    if (input->exists ("ConditionsRun"))
-      now.set_run_number ((*input)["ConditionsRun"].data<unsigned int>());
+  // may be different from that of the event itself.  Override the run
+  // number with the conditions run number from the event context,
+  // if it is defined.
+  EventIDBase::number_type conditionsRun =
+    getContext().template getExtension<Atlas::ExtendedEventContext>()->conditionsRun();
+  if (conditionsRun != EventIDBase::UNDEFNUM) {
+    now.set_run_number (conditionsRun);
   }
 
   IOVTime t(now.run_number(), now.lumi_block(), now.time_stamp());
@@ -272,7 +272,7 @@ CondInputLoader::execute()
     }
    
     if (ccb->valid(now)) {
-      ATH_MSG_INFO( "  CondObj " << vhk.fullKey() << " is still valid at " << now );
+      ATH_MSG_INFO( "  CondObj " << vhk.fullKey() << " is still valid at " << now_event );
       evtStore()->addedNewTransObject(vhk.fullKey().clid(), vhk.key());
       continue;
     }

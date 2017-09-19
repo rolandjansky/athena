@@ -1,27 +1,5 @@
 <?xml version="1.0"?>
 <atn>
-   <TEST name="arc_rw" type="script" suite="athenarootcomps">
-      <package_atn>Control/AthenaRootComps</package_atn>
-      <options_atn>run_test_athena_ntuple_dumper.sh</options_atn>
-      <timelimit>30</timelimit>
-      <author> Sebastien Binet </author>
-      <mailto> binet@cern.ch </mailto>
-      <expectations>
-         <returnValue>0</returnValue>
-      </expectations>
-   </TEST>
-
-   <TEST name="arc_variable_shape" type="script" suite="athenarootcomps">
-      <package_atn>Control/AthenaRootComps</package_atn>
-      <options_atn>run_test_athena_variable_shape_ntuple.sh</options_atn>
-      <timelimit>30</timelimit>
-      <author> Sebastien Binet </author>
-      <mailto> binet@cern.ch </mailto>
-      <expectations>
-         <returnValue>0</returnValue>
-      </expectations>
-   </TEST>
-
    <TEST name="arc_filters" type="makecheck" suite="AthenaRootComps">
       <timelimit>20</timelimit>
       <author>Jack Cranshaw</author>

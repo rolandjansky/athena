@@ -1,0 +1,107 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+
+namespace SG {
+  
+  template <class T>
+  MetaHandleKey<T>::MetaHandleKey(const std::string& key, 
+                                  const std::string& dbKey,
+                                  Gaudi::DataHandle::Mode mode ) :
+    VarHandleKey(ClassID_traits<T>::ID(), key, mode,
+                 "StoreGateSvc/MetaDataStore"),
+    m_store("StoreGateSvc/MetaDataStore","MetaHandleKey"),
+    m_dbKey(dbKey)
+  {}
+
+  //------------------------------------------------------------------------  
+  
+  template <class T>
+  StatusCode
+  MetaHandleKey<T>::initialize() {
+    if (m_isInit) return StatusCode::SUCCESS;
+    
+
+    if (VarHandleKey::initialize() != StatusCode::SUCCESS) {
+      return StatusCode::FAILURE;
+    }
+
+    if (!m_store.isValid()) {
+      MsgStream msg(Athena::getMessageSvc(), "MetaHandleKey");
+      msg << MSG::ERROR 
+          << "MetaHandleKey::initialize() :Unable to locate MetaDataStore " 
+          << m_store.name()
+          << endmsg;
+      return StatusCode::FAILURE;
+    }
+
+
+    // If container does not exist, then create it in the store
+    //   otherwise cache pointer to container    
+    if (m_store->contains< MetaCont<T> > (Gaudi::DataHandle::objKey())) {      
+      if (m_store->retrieve(m_cont, Gaudi::DataHandle::objKey()).isFailure()) {
+        MsgStream msg(Athena::getMessageSvc(), "MetaHandleKey");
+        msg << MSG::ERROR 
+            << "MetaHandleKey::init(): unable to retrieve MetaCont of "
+            << Gaudi::DataHandle::fullKey() << " from MetaDataStore" 
+            << endmsg;
+        return StatusCode::FAILURE;
+      }
+    } else {
+      m_cont = new MetaCont<T>(Gaudi::DataHandle::fullKey());
+      if (m_store->record(m_cont, Gaudi::DataHandle::objKey()).isFailure()) {
+        MsgStream msg(Athena::getMessageSvc(), "MetaHandleKey");
+        msg << MSG::ERROR 
+            << "MetaHandleKey::init(): unable to record empty MetaCont of " 
+            << Gaudi::DataHandle::fullKey() << " in MetaDataStore" << endmsg;
+        delete m_cont;
+        m_cont = 0;
+        return StatusCode::FAILURE;
+      }
+    }
+
+    // Retrieve the guid/SID from the data header
+    const DataHeader* thisDH;
+    ServiceHandle<StoreGateSvc> instore("StoreGateSvc/InputMetaDataStore","MetaHandleKey");
+    if (instore.retrieve().isFailure()) return StatusCode::FAILURE;
+    if(instore->retrieve(thisDH)!=StatusCode::SUCCESS) {
+      MsgStream msg(Athena::getMessageSvc(), "MetaHandleKey");
+      msg << MSG::ERROR << "Unable to get DataHeader" << endmsg;
+      msg << instore->dump() << endmsg;
+      return StatusCode::FAILURE;
+    }
+    // Get string guid for SourceID
+    m_dbKey = thisDH->begin()->getToken()->dbID().toString();
+
+    // if you can't get the sid, then this won't work, so fail
+    if (m_dbKey.size()==0) {
+      MsgStream msg(Athena::getMessageSvc(), "MetaHandleKey");
+      msg << MSG::ERROR << "Unable to get source id from dataheader" << endmsg;
+      return StatusCode::FAILURE;
+    }
+
+    m_isInit = true;
+
+    return StatusCode::SUCCESS;
+
+  }
+
+  //------------------------------------------------------------------------
+
+  template <class T>
+  StoreGateSvc* 
+  MetaHandleKey<T>::getStore() const {
+    if (!m_store.isValid()) {
+      MsgStream msg(Athena::getMessageSvc(), "MetaHandleKey");
+      msg << MSG::ERROR 
+          << "MetaHandleKey::getStore() : Unable to locate MetaDataStore" 
+          << endmsg;
+      return 0;
+    }
+
+    return m_store.get();
+  }
+
+
+}

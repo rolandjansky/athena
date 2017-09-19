@@ -219,7 +219,7 @@ std::unique_ptr<eflowTrackCaloPoints> eflowTrackCaloDummyExtensionTool::execute(
   else{
     std::unique_ptr<eflowTrackCaloPoints> eflowTrackCaloPoints_uniquePtr = std::make_unique<eflowTrackCaloPoints>(parametersMap);
     SimpleExtrap::decorateWithLayerEtaPhi(*track, *(eflowTrackCaloPoints_uniquePtr.get()));
-    return std::move(eflowTrackCaloPoints_uniquePtr);
+    return eflowTrackCaloPoints_uniquePtr;
   }
     
 }

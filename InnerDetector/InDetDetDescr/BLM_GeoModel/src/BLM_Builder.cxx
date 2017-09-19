@@ -142,8 +142,7 @@ StatusCode InDetDD::BLM_Builder::build(GeoVPhysVol* pv)
 
       // Print the BLM version tag:
       std::string BLMVersionTag;
-      BLMVersionTag = accessSvc->getChildTag("BLM", versionKey.tag(), versionKey.node(), false);
-      //BLMVersionTag = accessSvc->getChildTag("BLM", "InnerDetector-DC3-Dev", "InnerDetector", false);
+      BLMVersionTag = accessSvc->getChildTag("BLM", versionKey.tag(), versionKey.node());
       ATH_MSG_INFO("BLM Version: " << BLMVersionTag <<  "  Package Version: " << PACKAGE_VERSION);
 
       // Check if version is empty. If so, then the BLM cannot be built. This may or may not be intentional. We just issue an INFO message.
@@ -154,10 +153,8 @@ StatusCode InDetDD::BLM_Builder::build(GeoVPhysVol* pv)
 	  return StatusCode::SUCCESS;
      	}
 
-      accessSvc->connect();
       IRDBRecordset_ptr DBmodul = accessSvc->getRecordsetPtr("BLMModule", versionKey.tag(), versionKey.node());
       //DBmodul = accessSvc->getRecordset("BLMModule", "InnerDetector-DC3-Dev", "InnerDetector");
-      accessSvc->disconnect();
 
       ATH_MSG_DEBUG(" --> Number of records fetched = " << DBmodul->size());
 

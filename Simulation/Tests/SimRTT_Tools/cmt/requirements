@@ -1,8 +1,0 @@
-package SimRTT_Tools
-author Thomas Gillam <thomas.gillam@cern.ch>
-
-use AtlasPolicy AtlasPolicy-*
-
-apply_pattern declare_scripts files="../scripts/parse_TruthEvent.py ../scripts/grabRttRootFile.py ../share/simCoreFileGrepperScript.py"
-
-apply_pattern declare_runtime extras="../share/DCubeFlexibleRunner.py ../share/FlexibleDiffPoolFilesRunner.py ../share/SimCoreFileGrepper.py"

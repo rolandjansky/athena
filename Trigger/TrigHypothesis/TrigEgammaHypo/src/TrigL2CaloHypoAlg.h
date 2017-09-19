@@ -7,6 +7,7 @@
 #include <string>
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "AthViews/View.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
@@ -17,7 +18,6 @@
  * @class Implements egamma calo selection for the new HLT framework
  * @brief 
  **/
-using namespace TrigCompositeUtils;
 
 class TrigL2CaloHypoAlg
   : public ::AthReentrantAlgorithm
@@ -34,10 +34,12 @@ class TrigL2CaloHypoAlg
  
  private: 
   TrigL2CaloHypoAlg();
-  ToolHandleArray< TrigL2CaloHypoTool > m_hypoTools;
-  SG::ReadHandleKey< xAOD::TrigEMClusterContainer > m_clustersKey;
-  SG::ReadHandleKey< TrigRoiDescriptorCollection > m_roisKey;
-  SG::WriteHandleKey< DecisionContainer > m_decisionsKey;
+  ToolHandleArray< TrigL2CaloHypoTool > m_hypoTools { this, "HypoTools", {}, "Hypo tools" };
+  
+  SG::ReadHandleKey< std::vector< SG::View* > > m_viewsKey { this, "Views", "Unspecified", "Input Views" };
+  SG::ReadHandleKey< xAOD::TrigEMClusterContainer > m_clustersKey { this, "CaloClusters", "CaloClusters", "CaloClusters in view" };
+  SG::ReadHandleKey< TrigRoiDescriptorCollection > m_roisKey { this, "RoIs", "RoIs", "RoIs key in the view" };
+  SG::WriteHandleKey< TrigCompositeUtils::DecisionContainer > m_decisionsKey { this, "Decisions", "Unspecified", "Decisions" };
  
 }; 
 

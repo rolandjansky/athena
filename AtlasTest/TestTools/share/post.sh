@@ -90,7 +90,7 @@ PP="$PP"'|DirSearchPath::existsDir: WARNING not a directory'
 PP="$PP"'|Service factory for type [^ ]+ already declared'
 PP="$PP"'|Converter for class:[^ ]+ already exists'
 # Number of configurables read can vary from build to build.
-PP="$PP"'|INFO Read module info for'
+PP="$PP"'|INFO Read module info for|confDb modules in'
 # ignore ApplicationMgr header.
 PP="$PP"'|^ApplicationMgr *SUCCESS *$'
 PP="$PP"'|^=+$'
@@ -145,6 +145,7 @@ PP="$PP"'|INFO ... COOL  exception caught: The database does not exist|Create a 
 PP="$PP"'|^SetGeometryVersion.py obtained'
 PP="$PP"'|^ConditionStore +INFO Start ConditionStore'
 PP="$PP"'|^ConditionStore +INFO Stop ConditionStore'
+PP="$PP"'|INFO Found XML file:|INFO copying from'
 
 # Differences between Gaudi versions.
 PP="$PP"'|DEBUG input handles:|DEBUG output handles:|DEBUG Data Deps for|DEBUG Property update for OutputLevel :|-ExtraInputs |-ExtraOutputs |-Cardinality |-IsClonable |-NeededResources |-Timeline |Service base class initialized successfully'
@@ -161,8 +162,7 @@ PP="$PP"'|bits/regex.h:11'
 # More StoreGate changes.
 PP="$PP"'|DEBUG trying to create store'
 
-# Differences in MT build.
-PP="$PP"'|^IncidentProcAlg.* INFO|^Ath.*Seq +INFO'
+PP="$PP"'|^IncidentProcAlg.* INFO|^Ath.*Seq +INFO|Loop Finished .seconds'
 PP="$PP"'|INFO massageEventInfo:'
 PP="$PP"'|Loop Finished'
 PP="$PP"'|Terminating thread-pool resources|Joining Scheduler thread'
@@ -230,9 +230,14 @@ else
                fi
            fi
        else
-           tail $joblog
-           echo "$YELLOW post.sh> WARNING: reference output $reflog not available $RESET"
-           echo  " post.sh> Please check ${PWD}/$joblog"
+           # Don't warn for gtest tests.
+           tail -1 $joblog | grep 'PASSED .* tests' > /dev/null
+           refstat=$?
+           if [ $refstat != 0 ]; then
+             tail $joblog
+             echo "$YELLOW post.sh> WARNING: reference output $reflog not available $RESET"
+             echo  " post.sh> Please check ${PWD}/$joblog"
+           fi
        fi
    else
        tail $joblog

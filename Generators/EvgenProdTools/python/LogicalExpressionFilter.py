@@ -158,7 +158,7 @@ class LogicalExpressionFilter( PyAthena.Alg ):
 
     def evalFilter(self, filterName):
       if not self.algdict[filterName].isExecuted():
-         self.algdict[filterName].sysExecute()
+         self.algdict[filterName].sysExecute(self.getContext())
          self.algdict[filterName].setExecuted(True)
       decision = self.algdict[filterName].filterPassed()
       self.msg.verbose(filterName + " decision=" + str(decision))

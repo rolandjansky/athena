@@ -10,7 +10,7 @@
 // FrameWork includes
 #include "GaudiKernel/Property.h"
 #include "CxxUtils/make_unique.h"
-//#include "AthContainers/ConstDataVector.h"
+#include "AthContainers/ConstDataVector.h"
 
 namespace AthViews {
 
@@ -90,20 +90,19 @@ StatusCode RoiCollectionToViews::execute()
   //Skip if there's nothing to do
   if ( inputRoIs->empty() ) return StatusCode::SUCCESS;
 
-  std::vector< TrigRoiDescriptorCollection > outputRoICollectionVector;
+  std::vector< ConstDataVector<TrigRoiDescriptorCollection> > outputRoICollectionVector;
   for ( auto roi: *inputRoIs )
   {
     ATH_MSG_DEBUG( "RoI Eta: " << roi->eta() << " Phi: " << roi->phi() << " RoIWord: " << roi->roiWord() );
     
-    auto oneRoIColl = std::make_unique< TrigRoiDescriptorCollection >();
-    oneRoIColl->clear( SG::VIEW_ELEMENTS ); //Don't delete the RoIs
-    oneRoIColl->push_back( roi );
-    outputRoICollectionVector.push_back( *oneRoIColl );
+    ConstDataVector<TrigRoiDescriptorCollection> oneRoIColl (SG::VIEW_ELEMENTS);
+    oneRoIColl.push_back( roi );
+    outputRoICollectionVector.push_back( std::move(oneRoIColl) );
   }
 
   //Create the views and populate them
   std::vector< SG::View* > viewVector;
-  SG::WriteHandle< TrigRoiDescriptorCollection > outputRoIs( m_viewRoIs, ctx );
+  SG::WriteHandle< ConstDataVector<TrigRoiDescriptorCollection> > outputRoIs( m_viewRoIs, ctx );
   CHECK( ViewHelper::MakeAndPopulate( m_viewBaseName, //Base name for all views to use
           viewVector,                                 //Vector to store views
           outputRoIs,                                 //A writehandle to use to access the views (the handle itself, not the contents)

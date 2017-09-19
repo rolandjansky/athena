@@ -81,14 +81,12 @@ InDet::TRT_DriftCircleContainer* TRT_DriftCircleContainerCnv::createTransient() 
   }
   else if( compareClassGuid(p1_guid) ) {
     ATH_MSG_DEBUG("createTransient(): T/P version 1 detected");
-    usingTPCnvForReading( m_TPConverter );
     std::unique_ptr< InDet::TRT_DriftCircleContainer_tlp1 >  p_coll( poolReadObject< InDet::TRT_DriftCircleContainer_tlp1 >() );
     p_collection = m_TPConverter.createTransient( p_coll.get(), msg() );
   }
   //----------------------------------------------------------------
   else if( compareClassGuid(p0_guid) ) {
     ATH_MSG_DEBUG("createTransient(): Old input file");
-
     std::unique_ptr< TRT_DriftCircleContainer_p0 >   col_vect( poolReadObject< TRT_DriftCircleContainer_p0 >() );
     p_collection = m_converter_p0.createTransient( col_vect.get(), msg() );
   }

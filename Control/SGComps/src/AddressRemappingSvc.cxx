@@ -237,7 +237,8 @@ StatusCode AddressRemappingSvc::loadAddresses(StoreID::type /*storeID*/,
 		   newIter = m_newTads.begin(), oldIterEnd = m_oldTads.end();
 		   oldIter != oldIterEnd; oldIter++, newIter++) {
       CLID goodCLID = newIter->clID(); //newIter are the things we are remapping to 
-      SG::TransientAddress::TransientClidSet clidToKeep(oldIter->transientID());
+      SG::TransientAddress::TransientClidSet clidvec(oldIter->transientID());
+      std::set<CLID> clidToKeep (clidvec.begin(), clidvec.end());
       //try dataproxy, if it fails, try data proxy of next type 
       SG::DataProxy* dataProxy(m_proxyDict->proxy(goodCLID,newIter->name()/*the name of the address in the input file*/));
       if(dataProxy==0) {
@@ -285,7 +286,9 @@ StatusCode AddressRemappingSvc::loadAddresses(StoreID::type /*storeID*/,
 }
 //________________________________________________________________________________
 StatusCode AddressRemappingSvc::updateAddress(StoreID::type /*storeID*/,
-					      SG::TransientAddress* tad) {
+					      SG::TransientAddress* tad,
+                                              const EventContext& /*ctx*/)
+{
    for (std::vector<SG::TransientAddress>::const_iterator oldIter = m_oldTads.begin(),
 		   newIter = m_newTads.begin(), oldIterEnd = m_oldTads.end();
 		   oldIter != oldIterEnd; oldIter++, newIter++) {

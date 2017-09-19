@@ -129,8 +129,6 @@ namespace LArG4 {
       ATH_CHECK(m_AccessSvc.retrieve());
 
       // Obtain the geometry version information:
-      m_AccessSvc->connect();
-
       std::string AtlasVersion = m_geoModel->atlasVersion();
       std::string LArVersion = m_geoModel->LAr_VersionOverride();
 
@@ -179,8 +177,6 @@ namespace LArG4 {
           return StatusCode::FAILURE;
         }
       m_betweenWheel  = (*hadronicEndcap)[0]->getDouble("GAPWHL")*Units::cm-0.001*Units::cm; //40.5*mm
-
-      m_AccessSvc->shutdown();
 
       return StatusCode::SUCCESS;
     }

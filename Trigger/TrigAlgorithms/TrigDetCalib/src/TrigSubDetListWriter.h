@@ -120,14 +120,6 @@ class TrigSubDetListWriter : public HLT::AllTEAlgo
 
     std::string m_outputpath;
 
-    TH1I *m_httemrob;
-    TH1I *m_htthecrob;
-    TH1I *m_htilerob;
-    TH1I *m_hfcalrob;
-    TH1I *m_hpixrob;
-    TH1I *m_hsctrob;
-    TH1I *m_htrtrob;
-
     bool m_rejectAll;
     /** detector mask */
   typedef SimpleProperty< std::vector<uint32_t> > Uint32ArrayProperty;

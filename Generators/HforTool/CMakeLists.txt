@@ -13,8 +13,9 @@ atlas_depends_on_subdirs( PUBLIC
                           Reconstruction/Jet/JetEvent
                           PRIVATE
                           Control/StoreGate
+                          Generators/TruthUtils
                           Generators/GeneratorObjects
-                          Generators/TruthUtils )
+                          Generators/GenInterfaces )
 
 # External dependencies:
 find_package( HepMC )
@@ -26,12 +27,6 @@ atlas_add_component( HforTool
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps EventInfo GaudiKernel JetEvent StoreGateLib SGtests GeneratorObjects TruthUtils )
-
-atlas_add_dictionary( HforToolDict
-                      HforTool/HforToolDict.h
-                      HforTool/selection.xml
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps EventInfo GaudiKernel JetEvent StoreGateLib SGtests GeneratorObjects TruthUtils )
 
 # Install files from the package:
 atlas_install_headers( HforTool )

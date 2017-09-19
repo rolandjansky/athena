@@ -356,9 +356,9 @@ StatusCode TileDigitsMonTool::fillHists()
     uint32_t status = digitsCollection->getFragStatus();
     if (status != TileFragStatus::ALL_OK) {
       float bin = 99.;
-      if (status & (TileFragStatus::ALL_FF || TileFragStatus::ALL_00)) {
+      if (status & (TileFragStatus::ALL_FF | TileFragStatus::ALL_00)) {
         bin = 6.;
-      } else if (status & (TileFragStatus::NO_FRAG || TileFragStatus::NO_ROB)) {
+      } else if (status & (TileFragStatus::NO_FRAG | TileFragStatus::NO_ROB)) {
         bin = 7.;
       }
       for (int dmu = 0; dmu < 16; dmu++) {
