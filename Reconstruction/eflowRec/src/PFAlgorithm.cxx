@@ -1,7 +1,6 @@
-#include "eflowRec/eflowCaloObject.h"
 #include "eflowRec/PFAlgorithm.h"
 
-PFAlgorithm::PFAlgorithm(const std::string& name,  ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator), m_IPFSubtractionTools(this), m_IPFBaseTools(this), m_eflowRecTracksReadHandle("eflowRecTracks"), m_eflowRecClustersReadHandle("eflowRecClusters"),  m_caloClustersWriteHandle("PFCaloCluster")   
+PFAlgorithm::PFAlgorithm(const std::string& name,  ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator), m_IPFSubtractionTools(this), m_IPFBaseTools(this), m_eflowRecTracksReadHandle("eflowRecTracks"), m_eflowRecClustersReadHandle("eflowRecClusters"),  m_caloClustersWriteHandle("PFCaloCluster"), m_eflowCaloObjectsWriteHandle("eflowCaloObjects")   
 {
   declareProperty( "SubtractionToolList",  m_IPFSubtractionTools, "List of Private Subtraction IPFSubtractionTools" );
   declareProperty( "BaseToolList",  m_IPFBaseTools, "List of Private IPFBaseTools" );
@@ -18,6 +17,7 @@ StatusCode PFAlgorithm::initialize(){
   ATH_CHECK(m_eflowRecTracksReadHandle.initialize());
   ATH_CHECK(m_eflowRecClustersReadHandle.initialize());
 
+  ATH_CHECK(m_eflowCaloObjectsWriteHandle.initialize());
   ATH_CHECK(m_caloClustersWriteHandle.initialize());
 
   printTools();
@@ -29,19 +29,20 @@ StatusCode PFAlgorithm::execute(){
 
   ATH_MSG_DEBUG("Executing");
 
-  eflowCaloObjectContainer theElowCaloObjectContainer;
+  ATH_CHECK(m_eflowCaloObjectsWriteHandle.record(std::make_unique<eflowCaloObjectContainer>()));
+  eflowCaloObjectContainer* theElowCaloObjectContainer = m_eflowCaloObjectsWriteHandle.ptr();
 
   ATH_CHECK(m_caloClustersWriteHandle.record(std::make_unique<xAOD::CaloClusterContainer>(),std::make_unique<xAOD::CaloClusterAuxContainer>()));
   ATH_MSG_DEBUG("CaloClusterWriteHandle has container of size" << m_caloClustersWriteHandle->size());
   
   /* Run the SubtractionTools */
   for (auto thisIPFSubtractionTool : m_IPFSubtractionTools){
-    thisIPFSubtractionTool->execute(&theElowCaloObjectContainer,const_cast<eflowRecTrackContainer*>(m_eflowRecTracksReadHandle.ptr()),const_cast<eflowRecClusterContainer*>(m_eflowRecClustersReadHandle.ptr()),*(m_caloClustersWriteHandle.ptr()));
+    thisIPFSubtractionTool->execute(theElowCaloObjectContainer,const_cast<eflowRecTrackContainer*>(m_eflowRecTracksReadHandle.ptr()),const_cast<eflowRecClusterContainer*>(m_eflowRecClustersReadHandle.ptr()),*(m_caloClustersWriteHandle.ptr()));
   }
 
   /* Run the other AglTools */
   for (auto thisIPFBaseTool :  m_IPFBaseTools){
-    thisIPFBaseTool->execute(&theElowCaloObjectContainer,*(m_caloClustersWriteHandle.ptr()));
+    thisIPFBaseTool->execute(theElowCaloObjectContainer,*(m_caloClustersWriteHandle.ptr()));
   }
   
   

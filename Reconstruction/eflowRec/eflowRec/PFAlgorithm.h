@@ -5,6 +5,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/DataHandle.h"
 
+#include "eflowRec/eflowCaloObject.h"
 #include "eflowRec/eflowRecCluster.h"
 #include "eflowRec/eflowRecTrack.h"
 
@@ -37,6 +38,9 @@ private:
 
   /** WriteHandle for CaloClusterContainer to be written out */
   SG::WriteHandle<xAOD::CaloClusterContainer> m_caloClustersWriteHandle;
+
+  /** WriteHandle for eflowCaloObjectContainer to be written out */
+  SG::WriteHandle<eflowCaloObjectContainer> m_eflowCaloObjectsWriteHandle;
   
   /** Funciton to print out list of tools if in VERBOSE mode */
   void printTools();

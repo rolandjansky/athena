@@ -330,17 +330,16 @@ PFLCCalibTool.UseLocalWeight = False
 
 PFAlgorithm.BaseToolList += [PFLCCalibTool]
 
-from eflowRec.eflowRecConf import PFOChargedCreatorTool
-PFOChargedCreatorTool = PFOChargedCreatorTool("PFOChargedCreatorTool")
+topSequence += PFAlgorithm
+
+from eflowRec.eflowRecConf import PFOChargedCreatorAlgorithm
+PFOChargedCreatorAlgorithm = PFOChargedCreatorAlgorithm("PFOChargedCreatorAlgorithm")
 
 from TrackVertexAssociationTool.TrackVertexAssociationToolConf import CP__TightTrackVertexAssociationTool        
 PFlowTrackVertexAssociationTool = CP__TightTrackVertexAssociationTool(name="PFlowTightCPTool", dzSinTheta_cut=2.0, doPV=True)
-PFOChargedCreatorTool.TrackVertexAssociationTool = PFlowTrackVertexAssociationTool
+PFOChargedCreatorAlgorithm.TrackVertexAssociationTool = PFlowTrackVertexAssociationTool
 
-PFAlgorithm.BaseToolList += [PFOChargedCreatorTool]
-
-topSequence += PFAlgorithm
-
+topSequence += [PFOChargedCreatorAlgorithm]
 
 import AthenaPoolCnvSvc.WriteAthenaPool
 logRecoOutputItemList_jobOptions = logging.getLogger( 'py:RecoOutputItemList_jobOptions' )
