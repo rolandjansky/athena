@@ -55,15 +55,16 @@ namespace LVL1 {
       TCS::MuonTOB createMuonTOB(const MuCTPIL1TopoCandidate & roi) const;
       TCS::LateMuonTOB createLateMuonTOB(const MuCTPIL1TopoCandidate & roi) const;
       /**
-         This is a hack to modify the unphysical muon pt values
+         @brief convert the 2-bit value from MuCTPIL1TopoCandidate::getptL1TopoCode() to an actual pt
 
-         The muon TOB should be able to encode pt values only up to 10GeV.
-         However, we observe TOBs with larger pt values, leading to
-         hdw-sim mismatches for items using the INVM algorithm.
-         This hack should be removed once the origin of the problem
-         has been identified and fixed.
-       */
-      TCS::MuonTOB hackMuonTOB(const TCS::MuonTOB &mu) const;
+         The muon TOB encodes pt values in 2 bits.
+         A MuCTPIL1TopoCandidate provides the encoded 2-bit value with
+         the function getptL1TopoCode().
+         This function uses the information from the l1 trigger menu
+         configuration to convert the threshold to an actual pt value.
+         For more details, see ATR-16781.
+      */
+      unsigned int topoMuonPtThreshold(const MuCTPIL1TopoCandidate &mctpiCand) const;
 
       StringProperty m_roibLocation;
 

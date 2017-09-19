@@ -5,12 +5,16 @@
 #ifndef PIXELMON2DMAPSLW_H_
 #define PIXELMON2DMAPSLW_H_
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
+#include <array>
 #include <string.h>
 
 class TH2F_LW;
 class Identifier;
 class PixelID;
 class StatusCode;
+namespace PixMon {
+enum class HistConf;
+}
 
 // A helper class to remove a lot of the code duplication.
 // This is a collection of 5 2D histograms which make up the '2D mapsLW' used a lot of in the monitoring.
@@ -22,7 +26,7 @@ class StatusCode;
 class PixelMon2DMapsLW
 {
    public:
-      PixelMon2DMapsLW(std::string name, std::string title, bool doIBL, bool errorHist = false, bool copy2DFEval = false);
+      PixelMon2DMapsLW(std::string name, std::string title, const PixMon::HistConf& config, bool copy2DFEval = false);
       ~PixelMon2DMapsLW();
       TH2F_LW* IBL;
       TH2F_LW* IBL2D;
@@ -39,9 +43,11 @@ class PixelMon2DMapsLW
       void Fill2DMon(PixelMon2DMapsLW* oldmap);
       StatusCode regHist(ManagedMonitorToolBase::MonGroup &group);
 private:
+      friend class PixelMon2DProfilesLW;
       void formatHist();
-      const bool m_doIBL;
-      const bool m_errorHist;
+      std::array<TH2F_LW*, 10> m_histograms;
+      const PixMon::HistConf m_config;
+      static const bool m_doIBL;
       const bool m_copy2DFEval;
 };
 
