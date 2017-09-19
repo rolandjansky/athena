@@ -40,7 +40,7 @@ namespace CP {
                 m_sf_replica_decoration_name(),
                 m_eff_replica_decoration_name(),
                 m_mc_eff_replica_decoration_name(),
-                m_calibration_version("170904_Rel21PreRec"),
+                m_calibration_version("170916_Rel21PreRec"),
                 m_lowpt_threshold(15.e3),
                 m_effDec(0),
                 m_MCeffDec(0),
