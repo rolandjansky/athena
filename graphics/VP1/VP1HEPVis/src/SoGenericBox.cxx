@@ -59,12 +59,12 @@ static int sogenericbox_vindices_foraltreplines[20] =
 };
 
 //____________________________________________________________________
-bool SoGenericBox::didInit = false;
+bool SoGenericBox::s_didInit = false;
 void SoGenericBox::initClass()
 {
-  if ( !didInit ) {
+  if ( !s_didInit ) {
     SO_NODE_INIT_CLASS(SoGenericBox, SoShape, "Shape");
-    didInit = true;
+    s_didInit = true;
   }
 }
 
