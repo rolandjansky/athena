@@ -48,27 +48,6 @@ HIGG6D1TauWrapper = DerivationFramework__TauSelectionWrapper(name = "HIGG6D1TauS
 ToolSvc += HIGG6D1TauWrapper
 augmentationTools.append(HIGG6D1TauWrapper)
 
-#=======================================
-# Tau truth matching tool
-#=======================================
-
-#truth matching
-#if is_MC:
-#    from TauAnalysisTools.TauAnalysisToolsConf import TauAnalysisTools__TauTruthMatchingTool
-#    HIGG6D1TauTruthMatchingTool = TauAnalysisTools__TauTruthMatchingTool(name="HIGG6D1TauTruthMatchingTool",
-#                                                                         WriteTruthTaus = True)
-#
-#
-#    ToolSvc += HIGG6D1TauTruthMatchingTool
-#
-#    from DerivationFrameworkTau.DerivationFrameworkTauConf import DerivationFramework__TauTruthMatchingWrapper
-#    HIGG6D1TauTruthMatchingWrapper = DerivationFramework__TauTruthMatchingWrapper( name = "HIGG6D1TauTruthMatchingWrapper",
-#                                                                                TauTruthMatchingTool = HIGG6D1TauTruthMatchingTool,
-#                                                                                TauContainerName     = "TauJets")
-#
-#    ToolSvc += HIGG6D1TauTruthMatchingWrapper
-#    augmentationTools.append(HIGG6D1TauTruthMatchingWrapper)
-
 #====================================================================
 # MC selection 
 #====================================================================
