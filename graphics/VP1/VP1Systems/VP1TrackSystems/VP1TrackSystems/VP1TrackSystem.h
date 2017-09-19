@@ -100,7 +100,7 @@ private:
   void refitSingleTrack(const Trk::ITrackFitter* currentFitter, QList<const Trk::Track*>& fittedtracks);
   
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
 };
 

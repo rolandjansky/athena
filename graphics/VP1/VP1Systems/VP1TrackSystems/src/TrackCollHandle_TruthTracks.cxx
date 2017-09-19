@@ -156,21 +156,21 @@ QStringList TrackCollHandle_TruthTracks::availableCollections( IVP1System*sys )
 //____________________________________________________________________
 TrackCollHandle_TruthTracks::TrackCollHandle_TruthTracks(TrackSysCommonData * cd,
 							 const QString& name)
-  : TrackCollHandleBase(cd,name,TrackType::TruthTrack), d(new Imp)
+  : TrackCollHandleBase(cd,name,TrackType::TruthTrack), m_d(new Imp)
 {
   setHelperClassName("TrackCollHandle_TruthTracks");
-  d->theclass = this;
-  d->updateGUICounter = 0;
-  d->cut_fromIROnly = true;
-  d->cut_excludeBarcodeZero = true;
-  d->cut_excludeNeutrals = true;
-  d->displayAscObjs = false;
+  m_d->theclass = this;
+  m_d->updateGUICounter = 0;
+  m_d->cut_fromIROnly = true;
+  m_d->cut_excludeBarcodeZero = true;
+  m_d->cut_excludeNeutrals = true;
+  m_d->displayAscObjs = false;
 }
 
 //____________________________________________________________________
 TrackCollHandle_TruthTracks::~TrackCollHandle_TruthTracks()
 {
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________
@@ -192,11 +192,11 @@ void TrackCollHandle_TruthTracks::setupSettingsFromControllerSpecific(TrackSyste
 //____________________________________________________________________
 void TrackCollHandle_TruthTracks::setShowAscObjs(bool b)
 {
-  if (d->displayAscObjs==b)
+  if (m_d->displayAscObjs==b)
     return;
-  d->displayAscObjs=b;
+  m_d->displayAscObjs=b;
   messageVerbose("Associated objects shown flag changed to " + str(b));
-  d->updateVisibleAssociatedObjects();
+  m_d->updateVisibleAssociatedObjects();
 }
 
 //____________________________________________________________________
@@ -301,15 +301,15 @@ void TrackCollHandle_TruthTracks::fixPDGCode(SimHitHandleBase* handle) const
 
   if (pdgfromsimhit!=SimBarCode::unknownPDG) {
     handle->setPDG(handle->actualPDGCodeFromSimHit());
-    std::map<SimBarCode::ExtBarCode,int>::const_iterator it = d->extBarCode2pdg.find(extBarCode);
-    if ( !isNonUniqueSecondary && it==d->extBarCode2pdg.end())
-      d->extBarCode2pdg[extBarCode] = pdgfromsimhit;
+    std::map<SimBarCode::ExtBarCode,int>::const_iterator it = m_d->extBarCode2pdg.find(extBarCode);
+    if ( !isNonUniqueSecondary && it==m_d->extBarCode2pdg.end())
+      m_d->extBarCode2pdg[extBarCode] = pdgfromsimhit;
     return;
   }
   if (isNonUniqueSecondary)
     return;
-  std::map<SimBarCode::ExtBarCode,int>::const_iterator it = d->extBarCode2pdg.find(extBarCode);
-  if (it!=d->extBarCode2pdg.end()) {
+  std::map<SimBarCode::ExtBarCode,int>::const_iterator it = m_d->extBarCode2pdg.find(extBarCode);
+  if (it!=m_d->extBarCode2pdg.end()) {
     handle->setPDG(it->second);
   }
 }
@@ -387,13 +387,13 @@ bool TrackCollHandle_TruthTracks::load()
   //get genparticles (should be done BEFORE we load sim. hits., so the barCode2pdg map gets filled):
   std::map<SimBarCode,const HepMC::GenParticle*> genParticles;
   if (!hepmckey.isEmpty())
-    if (!d->loadGenParticles(genParticles,hepmckey))
+    if (!m_d->loadGenParticles(genParticles,hepmckey))
       return false;
 
   //get sim hits and track records:
   std::map<SimBarCode,SimHitList> hitLists;
   if (augmented) {
-    if (!d->loadHitLists(hitLists))
+    if (!m_d->loadHitLists(hitLists))
       return false;
     messageVerbose("TrackCollHandle_TruthTracks "+name()
 		   +": Found "+str(hitLists.size())+" truth particles from simhits");
@@ -421,7 +421,7 @@ bool TrackCollHandle_TruthTracks::load()
   QTime timer;timer.start();
   for (itHitList = hitLists.begin();itHitList!=itHitListEnd;) {
     if (itHitList->first.isNonUniqueSecondary()) {
-       d->createSecondaryHitLists(itHitList->first,itHitList->second,secondaryHitLists,newBarCode);
+       m_d->createSecondaryHitLists(itHitList->first,itHitList->second,secondaryHitLists,newBarCode);
        itHitListTemp = itHitList;
        ++itHitList;
        hitLists.erase(itHitListTemp);
@@ -448,9 +448,9 @@ bool TrackCollHandle_TruthTracks::load()
 
 //     if (!itHitList->first.isNonUniqueSecondary()) continue;//FIXME
 //    if (!itHitList->first.actualBarCode()==0) continue;//FIXME
-    d->possiblyUpdateGUI();
+    m_d->possiblyUpdateGUI();
 
-    if (d->fixMomentumInfoInSimHits(p,itHitList->second))//Provide guesses for momentum in simhits that needs them (and deletes the rest).
+    if (m_d->fixMomentumInfoInSimHits(p,itHitList->second))//Provide guesses for momentum in simhits that needs them (and deletes the rest).
       addTrackHandle( new TrackHandle_TruthTrack( this, itHitList->first, itHitList->second, p ) );
   }
 
@@ -471,12 +471,12 @@ bool TrackCollHandle_TruthTracks::load()
       if ( dx*dx+dy*dy+dz*dz < minSepSq )
 	continue;
     }
-    d->possiblyUpdateGUI();
+    m_d->possiblyUpdateGUI();
     addTrackHandle( new TrackHandle_TruthTrack( this, itGenPart->first, SimHitList(), p ) );
   }
 
   //Maybe we need to show measurements, etc.:
-  d->updateVisibleAssociatedObjects();
+  m_d->updateVisibleAssociatedObjects();
 
   return true;
 }
@@ -487,14 +487,14 @@ bool TrackCollHandle_TruthTracks::cut(TrackHandleBase* handle)
   if (!TrackCollHandleBase::cut(handle))
     return false;
 
-  if (d->cut_excludeNeutrals && handle->hasCharge() && handle->charge()==0.0)
+  if (m_d->cut_excludeNeutrals && handle->hasCharge() && handle->charge()==0.0)
     return false;
 
   TrackHandle_TruthTrack * truthhandle = static_cast<TrackHandle_TruthTrack *>(handle);
-  if (d->cut_excludeBarcodeZero && truthhandle->hasBarCodeZero())
+  if (m_d->cut_excludeBarcodeZero && truthhandle->hasBarCodeZero())
     return false;
 
-  if (d->cut_fromIROnly && ! truthhandle->hasVertexAtIR(2.8*CLHEP::cm*2.8*CLHEP::cm,50*CLHEP::cm))
+  if (m_d->cut_fromIROnly && ! truthhandle->hasVertexAtIR(2.8*CLHEP::cm*2.8*CLHEP::cm,50*CLHEP::cm))
     return false;
 
   return true;
@@ -503,9 +503,9 @@ bool TrackCollHandle_TruthTracks::cut(TrackHandleBase* handle)
 //____________________________________________________________________
 void TrackCollHandle_TruthTracks::setCutFromIROnly(bool b)
 {
-  if (d->cut_fromIROnly == b)
+  if (m_d->cut_fromIROnly == b)
     return;
-  d->cut_fromIROnly = b;
+  m_d->cut_fromIROnly = b;
   if (b)
     recheckCutStatusOfAllVisibleHandles();
   else
@@ -515,9 +515,9 @@ void TrackCollHandle_TruthTracks::setCutFromIROnly(bool b)
 //____________________________________________________________________
 void TrackCollHandle_TruthTracks::setCutExcludeBarcodeZero(bool b)
 {
-  if (d->cut_excludeBarcodeZero==b)
+  if (m_d->cut_excludeBarcodeZero==b)
     return;
-  d->cut_excludeBarcodeZero=b;
+  m_d->cut_excludeBarcodeZero=b;
   if (b)
     recheckCutStatusOfAllVisibleHandles();
   else
@@ -527,9 +527,9 @@ void TrackCollHandle_TruthTracks::setCutExcludeBarcodeZero(bool b)
 //____________________________________________________________________
 void TrackCollHandle_TruthTracks::setCutExcludeNeutrals(bool b)
 {
-  if (d->cut_excludeNeutrals==b)
+  if (m_d->cut_excludeNeutrals==b)
     return;
-  d->cut_excludeNeutrals=b;
+  m_d->cut_excludeNeutrals=b;
   if (b)
     recheckCutStatusOfAllVisibleHandles();
   else
