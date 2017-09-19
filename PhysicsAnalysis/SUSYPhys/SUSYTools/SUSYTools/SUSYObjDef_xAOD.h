@@ -412,7 +412,6 @@ namespace ST {
     bool m_force_noElId;
     bool m_force_noMuId;
     bool m_doTTVAsf;
-    bool m_muNoTRT;
 
     int m_jesNPset;
     bool m_useBtagging;

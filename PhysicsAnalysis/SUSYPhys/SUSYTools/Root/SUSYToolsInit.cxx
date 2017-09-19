@@ -455,7 +455,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_muonSelectionToolBaseline.setProperty( "MaxEta", m_muBaselineEta) );
     //      ATH_CHECK( m_muonSelectionToolBaseline.setProperty( "MuQuality", int(m_muIdBaseline) ) );
     ATH_CHECK( m_muonSelectionToolBaseline.setProperty( "MuQuality", m_muIdBaseline ) );
-    ATH_CHECK( m_muonSelectionToolBaseline.setProperty( "TrtCutOff", m_muNoTRT ));
     ATH_CHECK( m_muonSelectionToolBaseline.retrieve() );
   }
 
@@ -480,7 +479,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_muonSelectionTool.setProperty( "MaxEta", m_muEta) );
     //      ATH_CHECK( m_muonSelectionTool.setProperty( "MuQuality", int(m_muId) ) );
     ATH_CHECK( m_muonSelectionTool.setProperty( "MuQuality", m_muId ) );
-    ATH_CHECK( m_muonSelectionTool.setProperty( "TrtCutOff", m_muNoTRT ));
     ATH_CHECK( m_muonSelectionTool.retrieve() );
   }
 
@@ -489,7 +487,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     m_muonSelectionHighPtTool.setTypeAndName("CP::MuonSelectionTool/"+toolName);
     ATH_CHECK( m_muonSelectionHighPtTool.setProperty( "MaxEta", m_muEta) );
     ATH_CHECK( m_muonSelectionHighPtTool.setProperty( "MuQuality", 4 ) );
-    ATH_CHECK( m_muonSelectionHighPtTool.setProperty( "TrtCutOff", m_muNoTRT ));
     ATH_CHECK( m_muonSelectionHighPtTool.retrieve() );
   }
 
@@ -499,9 +496,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     toolName = "MuonEfficiencyScaleFactors_" + muQual;
     m_muonEfficiencySFTool.setTypeAndName("CP::MuonEfficiencyScaleFactors/"+toolName);
     ATH_CHECK( m_muonEfficiencySFTool.setProperty("WorkingPoint", muQual) );
-    if(m_muNoTRT) //use config with disabled TRT quality cut
-      ATH_CHECK( m_muonEfficiencySFTool.setProperty("CalibrationRelease", "170410_Moriond_noTRT") );
-    
     ATH_CHECK( m_muonEfficiencySFTool.retrieve() );
   }
 
@@ -509,9 +503,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     toolName = "MuonEfficiencyScaleFactorsBMHighPt_" + muQual;
     m_muonEfficiencyBMHighPtSFTool.setTypeAndName("CP::MuonEfficiencyScaleFactors/"+toolName);
     ATH_CHECK( m_muonEfficiencyBMHighPtSFTool.setProperty("WorkingPoint", "BadMuonVeto_HighPt") );
-    if(m_muNoTRT) //use config with disabled TRT quality cut
-      ATH_CHECK( m_muonEfficiencyBMHighPtSFTool.setProperty("CalibrationRelease", "170410_Moriond_noTRT") );
-    
     ATH_CHECK( m_muonEfficiencyBMHighPtSFTool.retrieve() );
   }
 
@@ -524,9 +515,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     toolName = "MuonTTVAEfficiencyScaleFactors";
     m_muonTTVAEfficiencySFTool.setTypeAndName("CP::MuonEfficiencyScaleFactors/"+toolName);
     ATH_CHECK( m_muonTTVAEfficiencySFTool.setProperty("WorkingPoint", "TTVA") );
-    // Recommendation of the muon experts: use noTRT calibration, as the noTRT and standard
-    //  calibrations are the same, but the noTRT calibration includes low-pT SFs
-    ATH_CHECK( m_muonTTVAEfficiencySFTool.setProperty("CalibrationRelease", "170410_Moriond_noTRT") );
     ATH_CHECK( m_muonTTVAEfficiencySFTool.retrieve() );
   }
   
