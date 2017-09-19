@@ -129,6 +129,10 @@ StatusCode EMRoIsUnpackingTool::unpack( const EventContext& ctx,
 	if ( recRoI->passedThreshold( th->thresholdNumber() ) ) {
 	  ATH_MSG_DEBUG( "Passed Threshold name " << th->name() );
 	  addChainsToDecision( HLT::Identifier( th->name() ), decision, activeChains );
+	  ATH_MSG_DEBUG( "Labeled object with chains: " << [&](){ 
+	      TrigCompositeUtils::DecisionIDContainer ids; 
+	      TrigCompositeUtils::decisionIDs( decision, ids ); 
+	      return std::vector<TrigCompositeUtils::DecisionID>( ids.begin(), ids.end() ); }() );
 	}
       }
       

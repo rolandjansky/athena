@@ -322,9 +322,10 @@ else:
   # ID algs can't run w/o views yet
   pass
 
+
+# CF construction
 step0 = parOR("step0", [ egammaCaloStep ] )
 step1 = parOR("step1", [ egammaIDStep ] )
-
 steps = seqAND("HLTSteps", [ step0, step1 ]  )
 topSequence += steps
   

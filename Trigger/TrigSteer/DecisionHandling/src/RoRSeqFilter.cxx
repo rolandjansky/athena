@@ -7,14 +7,10 @@
 
 #include "GaudiKernel/Property.h"
 
-
-
 RoRSeqFilter::RoRSeqFilter( const std::string& name, 
 			  ISvcLocator* pSvcLocator ) : 
   ::AthAlgorithm( name, pSvcLocator )
-{
-  //declareProperty( "Property", m_nProperty );
-}
+{}
 
 RoRSeqFilter::~RoRSeqFilter()
 {}
@@ -63,12 +59,10 @@ StatusCode RoRSeqFilter::execute() {
     output->clear( SG::VIEW_ELEMENTS );
 
     for ( auto inputHandle: inputHandles ) {
-      //auto inputHandle = SG::makeHandle( inputKey );      
       passCounter += copyPassing( *inputHandle, *output );
     }
 
-    ATH_MSG_DEBUG( "Recording " <<  m_outputKeys[ 0 ].key() );
-    //auto outputHandle = SG::makeHandle( m_outputKeys[ 0 ] );
+    ATH_MSG_DEBUG( "Recording " <<  m_outputKeys[ 0 ].key() ); 
     CHECK( outputHandles[0].record( std::move( output ) ) );
 
   } else {
@@ -82,7 +76,7 @@ StatusCode RoRSeqFilter::execute() {
       passCounter += copyPassing( *inputHandle, *output );
 
       ATH_MSG_DEBUG( "Recording " << outputIndex << " " <<  m_outputKeys[ outputIndex ].key() );
-      //auto outputHandle = SG::makeHandle( m_outputKeys[ outputIndex ] );
+  
       CHECK( outputHandles[outputIndex].record( std::move( output ) ) );
 
       outputIndex++;
@@ -90,8 +84,7 @@ StatusCode RoRSeqFilter::execute() {
   }
 
   ATH_MSG_DEBUG( "Filter " << ( passCounter != 0 ? "passed" : "rejected") );
-  //setFilterPassed( passCounter != 0 );  
-  setFilterPassed( true );  
+  setFilterPassed( passCounter != 0 );  
   return StatusCode::SUCCESS;
 }
   
@@ -102,8 +95,10 @@ size_t RoRSeqFilter::copyPassing( const TrigCompositeUtils::DecisionContainer& i
   for ( const TrigCompositeUtils::Decision* i: input ) {
     
     TrigCompositeUtils::DecisionIDContainer objDecisions;      
-    TrigCompositeUtils::passingIDs( i, objDecisions );
+    TrigCompositeUtils::decisionIDs( i, objDecisions );
+
     ATH_MSG_DEBUG("Number of positive decisions " << objDecisions.size() );
+
     for ( TrigCompositeUtils::DecisionID id : objDecisions ) {
       ATH_MSG_DEBUG( "Positive decision " << HLT::Identifier( id ) );
     }

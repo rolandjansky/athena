@@ -15,8 +15,8 @@
 
 
 /**
- * @class $(klass)s
- * @brief 
+ * @class Filtering algorithm for HLT step sequencer
+ * @brief Consumes multiple decision inputs and filters those that are labled with the required  decision IDs
  **/
 
 class RoRSeqFilter
@@ -27,11 +27,10 @@ class RoRSeqFilter
 
   virtual ~RoRSeqFilter(); 
 
-  //RoRSeqFilter &operator=(const RoRSeqFilter &alg); 
-
-  StatusCode  initialize() override;
-  StatusCode  execute() override;
-  StatusCode  finalize() override;
+  
+  virtual StatusCode  initialize() override;
+  virtual StatusCode  execute() override;
+  virtual StatusCode  finalize() override;
 
  private: 
   RoRSeqFilter();
