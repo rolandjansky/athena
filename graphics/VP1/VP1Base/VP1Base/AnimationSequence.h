@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef _AnimationSequence_h_
-#define _AnimationSequence_h_
+#ifndef VP1BASE_ANIMATIONSEQUENCE_H
+#define VP1BASE_ANIMATIONSEQUENCE_H
 #include <vector>
 //_________________class AnimationSequence and AnimationSequence::Frame________
 //
@@ -47,32 +47,32 @@ class AnimationSequence {
 
   };
 
-  void clearAllFrames() { sequence.clear(); }
+  void clearAllFrames() { m_sequence.clear(); }
 
   // Add a frame:
   void addFrame(REGION reg, const SbVec3f & dir, const SbVec3f & upvec, double t,
 		bool variableSpeed = false, bool forceCircular = false, double clip=100.0  ) {
-    sequence.push_back(Frame(reg, dir, upvec, t, variableSpeed, forceCircular, clip));
+    m_sequence.push_back(Frame(reg, dir, upvec, t, variableSpeed, forceCircular, clip));
   }
   void addFrame(REGION reg, const SbVec3f & dir, double t,
 		bool variableSpeed = false, bool forceCircular = false, double clip=100.0  ) {//default upvec along y-axis
-    sequence.push_back(Frame(reg, dir, SbVec3f(0,1,0), t, variableSpeed, forceCircular, clip));
+    m_sequence.push_back(Frame(reg, dir, SbVec3f(0,1,0), t, variableSpeed, forceCircular, clip));
   }
   void addFrame(QByteArray camState, double t,
 		bool variableSpeed = true, bool forceCircular = false, double clip=100.0  ) {//default upvec along y-axis
-    sequence.push_back(Frame(camState, t, variableSpeed, forceCircular, clip));
+    m_sequence.push_back(Frame(camState, t, variableSpeed, forceCircular, clip));
   }
 
   // Get number of frames;
-  unsigned int getNumFrames() const { return sequence.size();}
+  unsigned int getNumFrames() const { return m_sequence.size();}
 
   // Get a frame:
-  const Frame & getFrame(unsigned int i) const { return sequence.at(i);}
+  const Frame & getFrame(unsigned int i) const { return m_sequence.at(i);}
 
  private:
 
   // Storage for frames:
-  std::vector<Frame> sequence;
+  std::vector<Frame> m_sequence;
 
 };
 

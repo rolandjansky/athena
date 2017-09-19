@@ -100,7 +100,7 @@ private:
   VP1CameraHelper( SoCamera *, SoGroup * );
   virtual ~VP1CameraHelper();
   class Imp;
-  Imp * d;
+  Imp * m_d;
 };
 
 #endif

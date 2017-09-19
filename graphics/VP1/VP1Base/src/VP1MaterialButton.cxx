@@ -121,26 +121,26 @@ public:
 };
 
 //____________________________________________________________________
-VP1MaterialButton::VP1MaterialButton(QWidget * parent,int _dim)
-  : VP1MaterialButtonBase(parent,0,"VP1MaterialButton"), d(new Imp)
+VP1MaterialButton::VP1MaterialButton(QWidget * parent,int dim)
+  : VP1MaterialButtonBase(parent,0,"VP1MaterialButton"), m_d(new Imp)
 {
-  d->simplemode = false;
-  d->dim = _dim;
-  d->theclass = this;
-  d->editwindow = 0;
-  d->preview_material = 0;
-  d->renderarea = 0;
-  d->previewswitch = 0;
-  d->blockcount = 0;
+  m_d->simplemode = false;
+  m_d->dim = dim;
+  m_d->theclass = this;
+  m_d->editwindow = 0;
+  m_d->preview_material = 0;
+  m_d->renderarea = 0;
+  m_d->previewswitch = 0;
+  m_d->blockcount = 0;
   connect(this,SIGNAL(clicked()),this,SLOT(showEditMaterialDialog()));
 
-  d->lastapplied_ambient = QColor::fromRgbF(0.2,0.2,0.2);
-  d->lastapplied_diffuse = QColor::fromRgbF(0.8,0.8,0.8);
-  d->lastapplied_specular = Qt::black;
-  d->lastapplied_emissive = Qt::black;
-  d->lastapplied_shininess = 20;
-  d->lastapplied_transparency = 0;
-  d->lastapplied_brightness = 0;
+  m_d->lastapplied_ambient = QColor::fromRgbF(0.2,0.2,0.2);
+  m_d->lastapplied_diffuse = QColor::fromRgbF(0.8,0.8,0.8);
+  m_d->lastapplied_specular = Qt::black;
+  m_d->lastapplied_emissive = Qt::black;
+  m_d->lastapplied_shininess = 20;
+  m_d->lastapplied_transparency = 0;
+  m_d->lastapplied_brightness = 0;
   setMaterialText("");
   setAcceptDrops(true);
   QTimer::singleShot(0, this, SLOT(updateButton()));
@@ -151,31 +151,31 @@ VP1MaterialButton::~VP1MaterialButton()
 {
   clearHandledMaterials();
   setUpdatesEnabled(false);
-  if (d->renderarea) {
-    d->renderarea->setAutoRedraw(false);
-    SoNode * root = d->renderarea->getSceneGraph();
+  if (m_d->renderarea) {
+    m_d->renderarea->setAutoRedraw(false);
+    SoNode * root = m_d->renderarea->getSceneGraph();
     root->ref();
-    d->renderarea->setSceneGraph(0);
-    delete d->renderarea;
+    m_d->renderarea->setSceneGraph(0);
+    delete m_d->renderarea;
     root->unref();
   }
-  delete d->editwindow;
-  delete d;
+  delete m_d->editwindow;
+  delete m_d;
 }
 
 //____________________________________________________________________
-QColor VP1MaterialButton::lastAppliedDiffuseColour() const { return d->lastapplied_diffuse; }
-QColor VP1MaterialButton::lastAppliedAmbientColour() const { return d->lastapplied_ambient; }
-QColor VP1MaterialButton::lastAppliedSpecularColour() const { return d->lastapplied_specular; }
-QColor VP1MaterialButton::lastAppliedEmissiveColour() const { return d->lastapplied_emissive; }
-double VP1MaterialButton::lastAppliedTransparency() const { return std::max<double>(0.0,std::min<double>(1.0,d->lastapplied_transparency/100.0)); }
-double VP1MaterialButton::lastAppliedShininess() const { return std::max<double>(0.0,std::min<double>(1.0,d->lastapplied_shininess/100.0)); }
-double VP1MaterialButton::lastAppliedBrightness() const { return std::max<double>(0.0,std::min<double>(1.0,d->lastapplied_brightness/100.0)); }
+QColor VP1MaterialButton::lastAppliedDiffuseColour() const { return m_d->lastapplied_diffuse; }
+QColor VP1MaterialButton::lastAppliedAmbientColour() const { return m_d->lastapplied_ambient; }
+QColor VP1MaterialButton::lastAppliedSpecularColour() const { return m_d->lastapplied_specular; }
+QColor VP1MaterialButton::lastAppliedEmissiveColour() const { return m_d->lastapplied_emissive; }
+double VP1MaterialButton::lastAppliedTransparency() const { return std::max<double>(0.0,std::min<double>(1.0,m_d->lastapplied_transparency/100.0)); }
+double VP1MaterialButton::lastAppliedShininess() const { return std::max<double>(0.0,std::min<double>(1.0,m_d->lastapplied_shininess/100.0)); }
+double VP1MaterialButton::lastAppliedBrightness() const { return std::max<double>(0.0,std::min<double>(1.0,m_d->lastapplied_brightness/100.0)); }
 
 QWidget& VP1MaterialButton::editWindow() {
-  if (!d->editwindow)
-    d->initEditWindow();
-  return *(d->editwindow);
+  if (!m_d->editwindow)
+    m_d->initEditWindow();
+  return *(m_d->editwindow);
 }
 
 //____________________________________________________________________
@@ -190,10 +190,10 @@ void VP1MaterialButton::showEditMaterialDialog()
 //____________________________________________________________________
 void VP1MaterialButton::setMaterialText(const QString& t)
 {
-  d->materialtext = ( t.isEmpty() ? "Edit Material" : "Edit Material "+t );
-  if (d->editwindow)
-    d->editwindow->setWindowTitle(d->materialtext);
-  setToolTip(d->materialtext);
+  m_d->materialtext = ( t.isEmpty() ? "Edit Material" : "Edit Material "+t );
+  if (m_d->editwindow)
+    m_d->editwindow->setWindowTitle(m_d->materialtext);
+  setToolTip(m_d->materialtext);
 }
 
 //____________________________________________________________________
@@ -260,17 +260,17 @@ void VP1MaterialButton::copyValuesFromMaterial(SoMaterial*m)
   int new_shininess = std::min(std::max(0,static_cast<int>(m->shininess[0]*100.0f+0.5f)),100);
   int new_transparency = std::min(std::max(0,static_cast<int>(m->transparency[0]*100.0f+0.5f)),100);
 
-  d->lastapplied_ambient = d->sbcol2qcol(m->ambientColor[0]);
-  d->lastapplied_diffuse = d->sbcol2qcol(m->diffuseColor[0]);
-  d->lastapplied_specular = d->sbcol2qcol(m->specularColor[0]);
-  d->lastapplied_emissive = d->sbcol2qcol(m->emissiveColor[0]);
-  d->lastapplied_shininess = new_shininess;
-  d->lastapplied_transparency = new_transparency;
-  d->lastapplied_brightness = std::max<int>(0,std::min<int>(100,static_cast<int>(100*d->brightnessEstimateFromDetailedParameters(d->lastapplied_diffuse,d->lastapplied_emissive)+0.5)));
+  m_d->lastapplied_ambient = m_d->sbcol2qcol(m->ambientColor[0]);
+  m_d->lastapplied_diffuse = m_d->sbcol2qcol(m->diffuseColor[0]);
+  m_d->lastapplied_specular = m_d->sbcol2qcol(m->specularColor[0]);
+  m_d->lastapplied_emissive = m_d->sbcol2qcol(m->emissiveColor[0]);
+  m_d->lastapplied_shininess = new_shininess;
+  m_d->lastapplied_transparency = new_transparency;
+  m_d->lastapplied_brightness = std::max<int>(0,std::min<int>(100,static_cast<int>(100*m_d->brightnessEstimateFromDetailedParameters(m_d->lastapplied_diffuse,m_d->lastapplied_emissive)+0.5)));
 
   m->unrefNoDelete();
 
-  d->adaptGuiAndMaterialsToLastApplied();
+  m_d->adaptGuiAndMaterialsToLastApplied();
 
   emit lastAppliedChanged();
 }
@@ -426,11 +426,11 @@ void VP1MaterialButton::Imp::applyValuesToMaterial(SoMaterial* m, bool preview)
 //____________________________________________________________________
 bool VP1MaterialButton::handleMaterial( SoMaterial * m )
 {
-  if (!m||d->handledmaterials.contains(m))
+  if (!m||m_d->handledmaterials.contains(m))
     return false;
   m->ref();
-  d->handledmaterials << m;
-  d->applyValuesToMaterial(m);
+  m_d->handledmaterials << m;
+  m_d->applyValuesToMaterial(m);
   return true;
 }
 
@@ -449,9 +449,9 @@ bool VP1MaterialButton::setMaterial(SoMaterial*m)
 //____________________________________________________________________
 bool VP1MaterialButton::stopHandlingMaterial( SoMaterial * m )
 {
-  if (!m||!d->handledmaterials.contains(m))
+  if (!m||!m_d->handledmaterials.contains(m))
     return false;
-  d->handledmaterials.removeAll(m);
+  m_d->handledmaterials.removeAll(m);
   m->unref();
   return true;
 }
@@ -459,31 +459,31 @@ bool VP1MaterialButton::stopHandlingMaterial( SoMaterial * m )
 //____________________________________________________________________
 void VP1MaterialButton::clearHandledMaterials()
 {
-  foreach (SoMaterial * m,d->handledmaterials)
+  foreach (SoMaterial * m,m_d->handledmaterials)
     m->unref();
-  d->handledmaterials.clear();
+  m_d->handledmaterials.clear();
 }
 
 //____________________________________________________________________
 void VP1MaterialButton::updatePreview()
 {
-  if (!d->editwindow)
+  if (!m_d->editwindow)
     return;
-  if (d->preview_material)
-    d->applyValuesToMaterial(d->preview_material,true);
-  d->updateApplyResetButtons();
+  if (m_d->preview_material)
+    m_d->applyValuesToMaterial(m_d->preview_material,true);
+  m_d->updateApplyResetButtons();
 }
 
 //____________________________________________________________________
 void VP1MaterialButton::updatePreviewSceneAndBgd()
 {
-  if (!d->editwindow||!d->renderarea||!d->previewswitch)
+  if (!m_d->editwindow||!m_d->renderarea||!m_d->previewswitch)
     return;
 
-  if (d->editwindow_ui.radioButton_box->isChecked())
-    d->previewswitch->whichChild = 0;
+  if (m_d->editwindow_ui.radioButton_box->isChecked())
+    m_d->previewswitch->whichChild = 0;
   else
-    d->previewswitch->whichChild = (d->editwindow_ui.radioButton_cone->isChecked() ? 1 : 2);
+    m_d->previewswitch->whichChild = (m_d->editwindow_ui.radioButton_cone->isChecked() ? 1 : 2);
 }
 
 //____________________________________________________________________
@@ -622,22 +622,22 @@ void VP1MaterialButton::Imp::updateApplyResetButtons()
 //____________________________________________________________________
 void VP1MaterialButton::apply()
 {
-  d->setLastAppliedFromCurrent();
-  foreach (SoMaterial * m, d->handledmaterials)
-    d->applyValuesToMaterial(m);
+  m_d->setLastAppliedFromCurrent();
+  foreach (SoMaterial * m, m_d->handledmaterials)
+    m_d->applyValuesToMaterial(m);
   updateButton();
 }
 
 //____________________________________________________________________
 void VP1MaterialButton::reset()
 {
-  d->adaptGuiAndMaterialsToLastApplied();
+  m_d->adaptGuiAndMaterialsToLastApplied();
 }
 
 //____________________________________________________________________
 QList<SoMaterial*> VP1MaterialButton::handledMaterials() const
 {
-  return d->handledmaterials;
+  return m_d->handledmaterials;
 }
 
 //____________________________________________________________________
@@ -653,16 +653,16 @@ void VP1MaterialButton::updateButton()
 {
   if (objectName().isEmpty())
     setObjectName("VP1MaterialButton");
-  messageVerbose("setColButtonProperties: color=" + str(d->lastapplied_diffuse));
-  VP1ColorSelectButton::setColButtonProperties(this,d->lastapplied_diffuse,d->dim);
+  messageVerbose("setColButtonProperties: color=" + str(m_d->lastapplied_diffuse));
+  VP1ColorSelectButton::setColButtonProperties(this,m_d->lastapplied_diffuse,m_d->dim);
 }
 
 //____________________________________________________________________
-void VP1MaterialButton::setDimension(int _dim)
+void VP1MaterialButton::setDimension(int dim)
 {
-  if (d->dim == _dim)
+  if (m_d->dim == dim)
     return;
-  d->dim = _dim;
+  m_d->dim = dim;
   updateButton();
 }
 
@@ -671,18 +671,18 @@ void VP1MaterialButton::transparencyChanged()
 {
   QSlider * slider1(0);
   QSlider * slider2(0);
-  if (sender()==d->editwindow_ui.slider_simple_transparency) {
-    slider1 = d->editwindow_ui.slider_simple_transparency;
-    slider2 = d->editwindow_ui.slider_transparency;
+  if (sender()==m_d->editwindow_ui.slider_simple_transparency) {
+    slider1 = m_d->editwindow_ui.slider_simple_transparency;
+    slider2 = m_d->editwindow_ui.slider_transparency;
   } else {
-    slider1 = d->editwindow_ui.slider_transparency;
-    slider2 = d->editwindow_ui.slider_simple_transparency;
+    slider1 = m_d->editwindow_ui.slider_transparency;
+    slider2 = m_d->editwindow_ui.slider_simple_transparency;
   }
   bool save = slider2->blockSignals(true);
   slider2->setValue(slider1->value());
   slider2->blockSignals(save);
-  d->editwindow_ui.label_num_transparency->setNum(slider1->value());
-  d->editwindow_ui.label_num_simple_transparency->setNum(slider1->value());
+  m_d->editwindow_ui.label_num_transparency->setNum(slider1->value());
+  m_d->editwindow_ui.label_num_simple_transparency->setNum(slider1->value());
 
   updatePreview();
 }
@@ -732,41 +732,41 @@ void VP1MaterialButton::Imp::switchModeBasedOnLastApplied()
 //____________________________________________________________________
 void VP1MaterialButton::switchMode()
 {
-  if (!d->editwindow)
+  if (!m_d->editwindow)
     return;
 
-  const bool new_simplemode = !d->simplemode;
+  const bool new_simplemode = !m_d->simplemode;
 
   //Transparency sliders should already be updated.
 
-  d->blockGuiSignals(true);
+  m_d->blockGuiSignals(true);
 
   if (new_simplemode) {
     //Update detailed gui elements from simple gui elements. NB: All
-    //the d->guiXX() methods returns detailed parameters until we
-    //update d->simplemode below.
-    double brightness = d->brightnessEstimateFromDetailedParameters(d->guiDiffuseColour(),d->guiEmissiveColour());
+    //the m_d->guiXX() methods returns detailed parameters until we
+    //update m_d->simplemode below.
+    double brightness = m_d->brightnessEstimateFromDetailedParameters(m_d->guiDiffuseColour(),m_d->guiEmissiveColour());
     int brightness_i = std::max<int>(0,std::min<int>(100,static_cast<int>(brightness*100+0.5)));
-    QColor col = d->guiDiffuseColour();
-    d->editwindow_ui.colbutton_simple_colour->setColor(col);
-    d->editwindow_ui.slider_simple_brightness->setValue(brightness_i);
-    d->editwindow_ui.label_num_simple_brightness->setNum(brightness_i);
+    QColor col = m_d->guiDiffuseColour();
+    m_d->editwindow_ui.colbutton_simple_colour->setColor(col);
+    m_d->editwindow_ui.slider_simple_brightness->setValue(brightness_i);
+    m_d->editwindow_ui.label_num_simple_brightness->setNum(brightness_i);
   } else {
     //Update detailed gui elements from simple gui elements. NB: All
-    //the d->guiXX() methods returns simple parameters until we
-    //update d->simplemode below.
-    d->editwindow_ui.colbutton_ambient->setColor(d->guiAmbientColour());
-    d->editwindow_ui.colbutton_diffuse->setColor(d->guiDiffuseColour());
-    d->editwindow_ui.colbutton_specular->setColor(d->guiSpecularColour());
-    d->editwindow_ui.colbutton_emissive->setColor(d->guiEmissiveColour());
-    d->editwindow_ui.slider_shininess->setValue(d->guiShininess());
-    d->editwindow_ui.label_num_shininess->setNum(d->guiShininess());
+    //the m_d->guiXX() methods returns simple parameters until we
+    //update m_d->simplemode below.
+    m_d->editwindow_ui.colbutton_ambient->setColor(m_d->guiAmbientColour());
+    m_d->editwindow_ui.colbutton_diffuse->setColor(m_d->guiDiffuseColour());
+    m_d->editwindow_ui.colbutton_specular->setColor(m_d->guiSpecularColour());
+    m_d->editwindow_ui.colbutton_emissive->setColor(m_d->guiEmissiveColour());
+    m_d->editwindow_ui.slider_shininess->setValue(m_d->guiShininess());
+    m_d->editwindow_ui.label_num_shininess->setNum(m_d->guiShininess());
   }
 
-  d->simplemode = new_simplemode;
-  d->adaptGuiForMode();
+  m_d->simplemode = new_simplemode;
+  m_d->adaptGuiForMode();
 
-  d->blockGuiSignals(false);
+  m_d->blockGuiSignals(false);
   updatePreview();
 }
 
@@ -828,7 +828,7 @@ void VP1MaterialButton::setMaterialParameters( SoMaterial * m, const double& in_
 void VP1MaterialButton::mousePressEvent(QMouseEvent *event)
 {
   if (event->button() == Qt::LeftButton)
-    d->dragStartPosition = event->pos();
+    m_d->dragStartPosition = event->pos();
   QPushButton::mousePressEvent(event);
 }
 
@@ -837,7 +837,7 @@ void VP1MaterialButton::mouseMoveEvent(QMouseEvent *event)
 {
   if (!(event->buttons() & Qt::LeftButton))
     return;
-  if ((event->pos() - d->dragStartPosition).manhattanLength()
+  if ((event->pos() - m_d->dragStartPosition).manhattanLength()
       < QApplication::startDragDistance())
     return;
 
@@ -852,13 +852,13 @@ void VP1MaterialButton::mouseMoveEvent(QMouseEvent *event)
   QBuffer buffer(&byteArray);
   buffer.open(QIODevice::WriteOnly);
   QDataStream out(&buffer);
-  out << d->lastapplied_ambient;
-  out << d->lastapplied_diffuse;
-  out << d->lastapplied_specular;
-  out << d->lastapplied_emissive;
-  out << d->lastapplied_shininess;
-  out << d->lastapplied_transparency;
-  out << d->lastapplied_brightness;
+  out << m_d->lastapplied_ambient;
+  out << m_d->lastapplied_diffuse;
+  out << m_d->lastapplied_specular;
+  out << m_d->lastapplied_emissive;
+  out << m_d->lastapplied_shininess;
+  out << m_d->lastapplied_transparency;
+  out << m_d->lastapplied_brightness;
   buffer.close();
   mimeData->setData("vp1/material", byteArray);
 
@@ -868,22 +868,22 @@ void VP1MaterialButton::mouseMoveEvent(QMouseEvent *event)
   ////////////////////////////////////////////////////////
 
   QString s = "SoMaterial * mat = new SoMaterial;\n";
-  QString str_ambient = d->toSbColTxt(d->lastapplied_ambient);
+  QString str_ambient = m_d->toSbColTxt(m_d->lastapplied_ambient);
   if (str_ambient!="SbColor(0.2,0.2,0.2)")
     s += "mat->ambientColor.setValue("+str_ambient+");\n";
-  QString str_diffuse = d->toSbColTxt(d->lastapplied_diffuse);
+  QString str_diffuse = m_d->toSbColTxt(m_d->lastapplied_diffuse);
   if (str_diffuse!="SbColor(0.8,0.8,0.8)")
     s += "mat->diffuseColor.setValue("+str_diffuse+");\n";
-  QString str_specular = d->toSbColTxt(d->lastapplied_specular);
+  QString str_specular = m_d->toSbColTxt(m_d->lastapplied_specular);
   if (str_specular!="SbColor(0,0,0)")
     s += "mat->specularColor.setValue("+str_specular+");\n";
-  QString str_emissive = d->toSbColTxt(d->lastapplied_emissive);
+  QString str_emissive = m_d->toSbColTxt(m_d->lastapplied_emissive);
   if (str_emissive!="SbColor(0,0,0)")
     s += "mat->emissiveColor.setValue("+str_emissive+");\n";
-  QString str_shininess = d->printFloat(d->lastapplied_shininess/100.0);
+  QString str_shininess = m_d->printFloat(m_d->lastapplied_shininess/100.0);
   if (str_shininess!="0.2")
     s +=     "mat->shininess.setValue("+str_shininess+");\n";
-  QString str_transparency = d->printFloat(d->lastapplied_transparency/100.0);
+  QString str_transparency = m_d->printFloat(m_d->lastapplied_transparency/100.0);
   if (str_transparency!="0")
     s +=     "mat->transparency.setValue("+str_transparency+");\n";
   mimeData->setText(s);
@@ -909,15 +909,15 @@ void VP1MaterialButton::dropEvent(QDropEvent *event)
   QBuffer buffer(&data);
   buffer.open(QIODevice::ReadOnly);
   QDataStream state(&buffer);
-  state >> d->lastapplied_ambient;
-  state >> d->lastapplied_diffuse;
-  state >> d->lastapplied_specular;
-  state >> d->lastapplied_emissive;
-  state >> d->lastapplied_shininess;
-  state >> d->lastapplied_transparency;
-  state >> d->lastapplied_brightness;
+  state >> m_d->lastapplied_ambient;
+  state >> m_d->lastapplied_diffuse;
+  state >> m_d->lastapplied_specular;
+  state >> m_d->lastapplied_emissive;
+  state >> m_d->lastapplied_shininess;
+  state >> m_d->lastapplied_transparency;
+  state >> m_d->lastapplied_brightness;
   buffer.close();
-  d->adaptGuiAndMaterialsToLastApplied();
+  m_d->adaptGuiAndMaterialsToLastApplied();
 }
 
 QByteArray VP1MaterialButton::saveState() const{
