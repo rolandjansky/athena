@@ -22,7 +22,7 @@
  *  }
  @endcode
  *
- * This has several undesireable properties.  First, it is overly verbose.
+ * This has several undesirable properties.  First, it is overly verbose.
  * 80% of the code in this example is devoted to error handling; if there
  * are many of these, it becomes difficult to read what the code is
  * actually doing.
@@ -129,6 +129,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IMessageSvc.h"
 #include <string>
+#include <atomic>
 
 class INamedInterface;
 
@@ -285,10 +286,10 @@ private:
   std::string::size_type m_pos;
 
   /// If true, hide the source file and line number in output messages.
-  static bool s_hide_error_locus;
+  static std::atomic<bool> s_hide_error_locus;
 
   /// If true, hide the function names in output messages.
-  static bool s_hide_function_names;
+  static std::atomic<bool> s_hide_function_names;
 };
 
 

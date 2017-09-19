@@ -73,11 +73,10 @@ if viewTest:
   theFastCaloHypo.CaloClusters = theFastCaloAlgo.ClustersName
   theFastCaloHypo.RoIs = l2CaloViewsMaker.InViewRoIs
   theFastCaloHypo.Decisions = "EgammaCaloDecisions"
-  tools = [ TrigL2CaloHypoToolFromName("HLT_e5_etcut"),   TrigL2CaloHypoToolFromName("HLT_e7_etcut") ]
-  for t in tools:
+  theFastCaloHypo.HypoTools =  [ TrigL2CaloHypoToolFromName("HLT_e5_etcut"),   TrigL2CaloHypoToolFromName("HLT_e7_etcut") ]
+  for t in theFastCaloHypo.HypoTools:
     t.OutputLevel = DEBUG
 
-  theFastCaloHypo.HypoTools = tools
   topSequence += theFastCaloHypo
 
 else:
@@ -248,15 +247,13 @@ theTrackParticleCreatorAlg = InDet__TrigTrackingxAODCnvMT(name = "InDetTrigTrack
                                                          TrackParticlesName = "xAODTracks",
                                                          ParticleCreatorTool = InDetTrigParticleCreatorToolFTF)
 
-
-
 IDSequence = [ InDetPixelRawDataProvider, InDetSCTRawDataProvider, InDetTRTRawDataProvider, InDetPixelClusterization, InDetSCT_Clusterization, InDetSiTrackerSpacePointFinder, theFTF, theTrackParticleCreatorAlg ]
 
 
 from TrigEgammaHypo.TrigL2ElectronFexMTConfig import L2ElectronFex_1
 theElectronFex= L2ElectronFex_1()
-theElectronFex.TrigEMClusterName="CaloClusters"
-theElectronFex.TrackParticlesName="xAODTracks"
+theElectronFex.TrigEMClusterName = theFastCaloAlgo.ClustersName
+theElectronFex.TrackParticlesName = theTrackParticleCreatorAlg.TrackParticlesName
 theElectronFex.ElectronsName="Electrons"
 theElectronFex.OutputLevel=VERBOSE
 
@@ -279,24 +276,27 @@ if viewTest:
     svcMgr.ViewAlgPool.TopAlg += [ idAlg.getName() ]
     l2ElectronViewsMaker.AlgorithmNameSequence += [ idAlg.getName() ]    
 
-  # this is only partially working
-  # theElectronFex.RoIs = l2ElectronViewsMaker.InViewRoIs
-  # allViewAlgorithms += theElectronFex
-  # svcMgr.ViewAlgPool.TopAlg += [ theElectronFex.getName() ]
-  # l2ElectronViewsMaker.AlgorithmNameSequence += [ theElectronFex.getName() ]    
+
+  theElectronFex.RoIs = l2ElectronViewsMaker.InViewRoIs
+  allViewAlgorithms += theElectronFex
+  svcMgr.ViewAlgPool.TopAlg += [ theElectronFex.getName() ]
+  l2ElectronViewsMaker.AlgorithmNameSequence += [ theElectronFex.getName() ]    
+
+
+  from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2ElectronHypoAlg
+  from TrigEgammaHypo.TrigL2ElectronHypoTool import TrigL2ElectronHypoToolFromName
+  theElectronHypo = TrigL2ElectronHypoAlg()
+  theElectronHypo.Views = l2ElectronViewsMaker.Views
+  theElectronHypo.Electrons = theElectronFex.ElectronsName
+  theElectronHypo.ClusterDecisions = theFastCaloHypo.Decisions 
+  theElectronHypo.ElectronDecisions = "ElectronL2Decisions"
+  theElectronHypo.OutputLevel = VERBOSE
+  theElectronHypo.HypoTools = [ TrigL2ElectronHypoToolFromName("HLT_e5_etcut"), TrigL2ElectronHypoToolFromName("HLT_e7_etcut") ]
+  for t in theElectronHypo.HypoTools:
+    t.OutputLevel = VERBOSE
+  topSequence += theElectronHypo
+
 
 else:
   # ID algs can't run w/o views yet
   pass
-
-
-# from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2ElectronHypoAlg
-# from TrigEgammaHypo.TrigL2ElectronHypoTool import TrigL2ElectronHypoToolFromName
-# theElectronHypo = TrigL2ElectronHypoAlg()
-# theElectronHypo.Electrons = theElectronFex.ElectronsName
-# theElectronHypo.ClusterDecisions = "EgammaFastCaloDecisions"
-# theElectronHypo.ElectronDecisions = "ElectronL2Decisions"
-# theElectronHypo.OutputLevel = VERBOSE
-# theElectronHypo.HypoTools = [ TrigL2ElectronHypoToolFromName("HLT_e5_etcut"), TrigL2ElectronHypoToolFromName("HLT_e7_etcut") ]
-
-# topSequence += theElectronHypo

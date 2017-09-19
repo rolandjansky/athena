@@ -14,12 +14,12 @@ TrigL2ElectronHypoTool::TrigL2ElectronHypoTool( const std::string& type,
 		    const std::string& name, 
 		    const IInterface* parent ) :
   AthAlgTool( type, name, parent ),
-  m_decisionId( name )
+  m_decisionId( HLT::Identifier::fromToolName( name ) )
 {}
 
 StatusCode TrigL2ElectronHypoTool::initialize()  {
   
-  if (!m_monTool.empty()) CHECK(m_monTool.retrieve());
+  if ( !m_monTool.empty() ) CHECK( m_monTool.retrieve() );
 
   ATH_MSG_DEBUG( "Initialization completed successfully:" );
   ATH_MSG_DEBUG( "AcceptAll            = " 
@@ -31,13 +31,17 @@ StatusCode TrigL2ElectronHypoTool::initialize()  {
   ATH_MSG_DEBUG( "CaloTrackdEoverPHigh = " << m_caloTrackdEoverPHigh );
   ATH_MSG_DEBUG( "TRTRatio = " << m_trtRatio );
 
-  std::vector<size_t> sizes( {m_trackPt.size(), m_caloTrackDEta.size(), m_caloTrackDPhi.size(), m_caloTrackdEoverPLow.size(), m_caloTrackdEoverPHigh.size(), m_trtRatio.size() });
+  std::vector<size_t> sizes( {m_trackPt.size(), m_caloTrackDEta.size(), m_caloTrackDPhi.size(), m_caloTrackdEoverPLow.size(), m_caloTrackdEoverPHigh.size(), m_trtRatio.size() } );
 
-  if ( min( sizes.begin(), sizes.end() ) != std::max( sizes.begin(), sizes.end() )  ) {
-    ATH_MSG_ERROR( "Missconfiguration, cut properties listed above (when DEBUG) have different dimensions" );
+
+
+  if ( *std::min_element( sizes.begin(), sizes.end() ) != *std::max_element( sizes.begin(), sizes.end() )  ) {
+    ATH_MSG_ERROR( "Missconfiguration, cut properties listed above ( when DEBUG ) have different dimensions shortest: " <<  *std::min_element( sizes.begin(), sizes.end() ) << " longest " << *std::max_element( sizes.begin(), sizes.end() ) );
+    return StatusCode::FAILURE;
   }
 
   m_multiplicity = m_trackPt.size();
+  ATH_MSG_DEBUG( "Tool configured for chain/id: " << m_decisionId  );
 
   return StatusCode::SUCCESS;
 }
@@ -86,39 +90,40 @@ bool TrigL2ElectronHypoTool::decideOnSingleObject( const xAOD::TrigElectron* ele
   float NStrawHits  = ( float )( electron->nTRTHiThresholdHits() );
   float TRTHitRatio = NStrawHits == 0 ? 1e10 : NTRHits/NStrawHits;
 
-
+  ATH_MSG_VERBOSE("Cut index " << cutIndex );
   if ( ptCalo < m_trackPt[cutIndex] ){ 
-    ATH_MSG_VERBOSE( "Fails pt cut" );
+    ATH_MSG_VERBOSE( "Fails pt cut" << ptCalo << " < " << m_trackPt[cutIndex] );
     return  false;
   }
   cutCounter++;
 
   if ( dEtaCalo > m_caloTrackDEta[cutIndex] ) {
-    ATH_MSG_VERBOSE( "Fails dEta cut" );
+    ATH_MSG_VERBOSE( "Fails dEta cut " << dEtaCalo << " < " << m_caloTrackDEta[cutIndex] );
     return  false;
   }
   cutCounter++;
   if ( dPhiCalo > m_caloTrackDPhi[cutIndex] ) {
-    ATH_MSG_VERBOSE( "Fails dPhi cut" );
+    ATH_MSG_VERBOSE( "Fails dPhi cut " << dPhiCalo << " < " << m_caloTrackDPhi[cutIndex] );
     return  false;
   }
 
   cutCounter++;
   if( eToverPt <  m_caloTrackdEoverPLow[cutIndex] ) {
-    ATH_MSG_VERBOSE( "Fails eoverp low cut" );
+    ATH_MSG_VERBOSE( "Fails eoverp low cut " << eToverPt << " < " <<  m_caloTrackdEoverPLow[cutIndex] );
     return  false;
   }
   cutCounter++;
   if ( eToverPt > m_caloTrackdEoverPHigh[cutIndex] ) {
-    ATH_MSG_VERBOSE( "Fails eoverp high cut" );
+    ATH_MSG_VERBOSE( "Fails eoverp high cut " << eToverPt << " < " << m_caloTrackdEoverPHigh[cutIndex] );
     return  false;
   }
   cutCounter++;
   if ( TRTHitRatio < m_trtRatio[cutIndex] ){
-    ATH_MSG_VERBOSE( "Fails TRT cut" );
+    ATH_MSG_VERBOSE( "Fails TRT cut " << TRTHitRatio << " < " << m_trtRatio[cutIndex] );
     return  false;
   }
   cutCounter++;
+  ATH_MSG_DEBUG("Passed selection");
   return  true;
 
 }
@@ -128,7 +133,7 @@ StatusCode TrigL2ElectronHypoTool::inclusiveSelection( std::vector<Input>& input
       if ( m_respectPreviousDecision 
 	   and ( i.previousDecisionIDs.count( m_decisionId.numeric() ) == 0 ) ) continue; // the decision was negative or not even made in previous stage
 
-      auto objDecision = decideOnSingleObject( i.electron, 0);
+      auto objDecision = decideOnSingleObject( i.electron, 0 );
       if ( objDecision == true ) {
 	addDecisionID( m_decisionId.numeric(), i.decision );
       }
@@ -172,7 +177,7 @@ StatusCode TrigL2ElectronHypoTool::multiplicitySelection( std::vector<Input>& in
     // if all are distinct then size of the set should be == size of combination, 
     // if size of clusters is smaller then the combination consists of electrons from the same RoI
     // and ought to be ignored
-    auto notFromSameRoI = [&](const HLT::Index1DVec& comb ) {
+    auto notFromSameRoI = [&]( const HLT::Index1DVec& comb ) {
       std::set<const xAOD::TrigEMCluster*> setOfClusters;
       for ( auto index: comb ) {
 	setOfClusters.insert( input[index].cluster );

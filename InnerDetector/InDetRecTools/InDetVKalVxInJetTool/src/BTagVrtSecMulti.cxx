@@ -214,6 +214,7 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
           newvrt.Good         = true;
           newvrt.nCloseVrt    = 0;
           newvrt.dCloseVrt    = 1000000.;
+          newvrt.ProjectedVrt=JetProjDist(newvrt.vertex, PrimVrt, JetDir);
           WrkVrtSet->push_back(newvrt);
     } 
 //==================================================================================
@@ -246,6 +247,7 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
             else if(RECwork)probV=mergeAndRefitVertices( WrkVrtSet, iv, jv, newvrt, RECwork->listJetTracks);
 	    if(probV<probVrtMergeLimit)continue;
             newvrt.Good = true;
+            newvrt.ProjectedVrt=JetProjDist(newvrt.vertex, PrimVrt, JetDir);
             (*WrkVrtSet).push_back(newvrt);
 	    (*WrkVrtSet)[iv].Good=false;      
 	    (*WrkVrtSet)[jv].Good=false;      
@@ -261,6 +263,9 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
        if( TMath::Prob( (*WrkVrtSet)[iv].Chi2, 2*(*WrkVrtSet)[iv].SelTrk.size()-3) <1.e-2){
           if     (xAODwrk)DisassembleVertex(WrkVrtSet,iv,xAODwrk->listJetTracks);
           else if(RECwork)DisassembleVertex(WrkVrtSet,iv,RECwork->listJetTracks);
+          (*WrkVrtSet)[iv].ProjectedVrt=JetProjDist((*WrkVrtSet)[iv].vertex, PrimVrt, JetDir);
+          int kpp=(*WrkVrtSet).size()-1;
+          (*WrkVrtSet)[kpp].ProjectedVrt=JetProjDist((*WrkVrtSet)[kpp].vertex, PrimVrt, JetDir);
        }
     }
 //-Remove vertices fully contained in other vertices 
@@ -292,6 +297,7 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
 	    if(probV>probVrtMergeLimit){        //  Good merged vertex found
               double tstDst=JetProjDist(newvrt.vertex, PrimVrt, JetDir);
 	      if(tstDst>0.){                               // only positive vertex directions are accepted as merging result
+                newvrt.ProjectedVrt=tstDst;
                 (*WrkVrtSet).push_back(newvrt);
 	        (*WrkVrtSet)[iv].Good=false;      
 	        (*WrkVrtSet)[jv].Good=false;      
@@ -461,7 +467,7 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
 	  WrkVrt newV(ntrVrt); newV.SelTrk.push_back(ntrVrt.detachedTrack);
           if     (xAODwrk)vProb = RefitVertex( newV, xAODwrk->listJetTracks);
           else if(RECwork)vProb = RefitVertex( newV, RECwork->listJetTracks);
-	  if(vProb>0.01){ onetVrt.Good=false; ntrVrt=newV;  ntrVrt.detachedTrack=-1;}
+	  if(vProb>probVrtMergeLimit){ onetVrt.Good=false; ntrVrt=newV;  ntrVrt.detachedTrack=-1;}
 	  break;
     } } }
 //=Recheck if the track was detached from a 2track vertex. If so - reattach. 
@@ -471,7 +477,7 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
 	  WrkVrt newV(iVrt); newV.SelTrk.push_back(iVrt.detachedTrack);
           if     (xAODwrk)vProb = RefitVertex( newV, xAODwrk->listJetTracks);
           else if(RECwork)vProb = RefitVertex( newV, RECwork->listJetTracks);
-	  if(vProb>0.01){ jVrt.Good=false; iVrt=newV;  iVrt.detachedTrack=-1;}
+	  if(vProb>probVrtMergeLimit){ jVrt.Good=false; iVrt=newV;  iVrt.detachedTrack=-1;}
 	  break;
     } } }
     for(auto &ntrVrt : (*WrkVrtSet)){ if(!ntrVrt.Good  || ntrVrt.SelTrk.size()<=1)  continue;
@@ -481,14 +487,14 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
 	    WrkVrt newV(ntrVrt); newV.SelTrk.push_back(onetVrt.SelTrk[0]);
             if     (xAODwrk)vProb = RefitVertex( newV, xAODwrk->listJetTracks);
             else if(RECwork)vProb = RefitVertex( newV, RECwork->listJetTracks);
-	    if(vProb>0.01){ onetVrt.Good=false; ntrVrt=newV;}
+	    if(vProb>probVrtMergeLimit){ onetVrt.Good=false; ntrVrt=newV;}
     } } } }
     for(auto & curVrt : (*WrkVrtSet) ) {
        if(!curVrt.Good )                 continue;  //don't work on vertex which is already bad
        if( fabs(curVrt.vertex.z())>650. ){curVrt.Good=false; continue;}  //vertex outside Pixel det. For ALL vertices
        if(curVrt.SelTrk.size() != 1)     continue;
        curVrt.Good=false;       // Make them bad by default
-       if(MomAtVrt(curVrt.TrkAtVrt[0]).Pt() < TMath::Max(m_hadronIntPtCut,m_JetPtFractionCut*JetDir.Perp()) ) continue; //Low Pt
+       if(MomAtVrt(curVrt.TrkAtVrt[0]).Pt() < m_JetPtFractionCut*JetDir.Perp() ) continue; //Low Pt
        if(m_MultiWithOneTrkVrt){          /* 1track vertices left unassigned from good 2tr vertices */
           VrtVrtDist(PrimVrt,curVrt.vertex, curVrt.vertexCov, Signif3D); //VK non-projected Signif3D is worse
           double tmpProb=TMath::Prob( curVrt.Chi2, 1);                 //Chi2 of the original 2tr vertex
@@ -688,12 +694,33 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
 		  }
       } 
     }
+//-------------------------------------------------------------
+// Check if very close vertices are present and merge them. Not big effect in ttbar
 //
-    //printWrkSet(&GoodVertices,"FinalVrtSet");
+    bool vrtMerged=false;   //to check whether something is really merged
+    for(int iv=0; iv<(int)GoodVertices.size()-1; iv++ ){      if(!GoodVertices[iv].Good) continue;
+      for(int jv=iv+1; jv<(int)GoodVertices.size(); jv++){    if(!GoodVertices[jv].Good) continue;
+        if(GoodVertices[iv].SelTrk.size()>2 && GoodVertices[jv].SelTrk.size()>2)continue;
+        double probV=-1.;
+        if     (xAODwrk)probV=mergeAndRefitVertices( &GoodVertices, iv, jv, newvrt, xAODwrk->listJetTracks);
+        else if(RECwork)probV=mergeAndRefitVertices( &GoodVertices, iv, jv, newvrt, RECwork->listJetTracks);
+	if(probV>0.1){                 // Merged vertex is very good
+           std::swap(GoodVertices[iv],newvrt);
+           GoodVertices[iv].ProjectedVrt=JetProjDist(GoodVertices[iv].vertex, PrimVrt, JetDir);
+	   GoodVertices[jv].Good=false;         //Drop vertex
+	   vrtMerged=true;
+    } } }
+    if(vrtMerged){             //-Remove all bad vertices from the good vertex set    
+      int iV=0; while( iV<(int)GoodVertices.size() )
+              { if( !GoodVertices[iV].Good ) { GoodVertices.erase(GoodVertices.begin()+iV);} else {iV++;} }
+    }
+//--
+//  printWrkSet(&GoodVertices,"FinalVrtSet");
 //-------------------------------------------
 // Saving and final cleaning
 //
     nGoodVertices=0;         // Final number of good vertices
+    int n1trVrt=0;           // Final number of good 1-track vertices
     TLorentzVector VertexMom;
     double trackPt, trackPtMax=0.;
     for(int iv=0; iv<(int)GoodVertices.size(); iv++) {
@@ -753,6 +780,7 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
           finalVertices.push_back(tmpVertex);
 //-----
           nGoodVertices++;
+          if(nth==1)n1trVrt++;
 //-----
           if( iv==0 && m_MultiWithPrimary ) continue;  //skip primary vertex if present
           VertexMom += GoodVertices[iv].vertexMom;
@@ -768,7 +796,8 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
 //    }       finalVertices.push_back(tmpVertex);
 //==============================================
 
-    if(m_FillHist){m_hb_goodvrtN->Fill( (double)nGoodVertices, m_w_1); }
+    if(m_FillHist){m_hb_goodvrtN->Fill( nGoodVertices+0.1, m_w_1);
+                   m_hb_goodvrtN->Fill( n1trVrt+15., m_w_1);}
     if(nGoodVertices == 0){
       delete WrkVrtSet;
       delete TrkInVrt; if(weit)delete[] weit; if(Solution)delete[] Solution;
@@ -872,6 +901,7 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
            newvrt.Chi2PerTrk[0]=newvrt.Chi2PerTrk[1]=newvrt.Chi2/2.;
            newvrt.nCloseVrt    = 0;
            newvrt.dCloseVrt    = 1000000.;
+           newvrt.ProjectedVrt = 0.9999;
            if((int)WrkVrtSet->size()==NVrtCur) { WrkVrtSet->push_back(newvrt); continue;}  // just the first added vertex
            if( (*WrkVrtSet).at(NVrtCur).Chi2<newvrt.Chi2 ) continue;  // previously added 2tr vertex was better
            WrkVrtSet->pop_back();
@@ -993,24 +1023,23 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
             }
 	 }
       }
-//-- Additional check for a common track in 2tr-2tr vertex topology
+//-- Additional check for a common track in 2tr-2tr/Ntr vertex topology
       if( (*TrkInVrt)[SelectedTrack].size() == 2){
           int v1=(*TrkInVrt)[SelectedTrack][0]; int v2=(*TrkInVrt)[SelectedTrack][1];
-          if( (*WrkVrtSet)[v1].SelTrk.size()==2 && (*WrkVrtSet)[v2].SelTrk.size()==2){
-            if( (*WrkVrtSet)[SelectedVertex].Chi2 < TMath::ChisquareQuantile(0.9, 1) ){    // Probability > 10%!!!
-              //double vr1=(*WrkVrtSet)[v1].vertex.perp(); double vr2=(*WrkVrtSet)[v2].vertex.perp();
+          double prb1=TMath::Prob( (*WrkVrtSet)[v1].Chi2, 2*(*WrkVrtSet)[v1].SelTrk.size()-3),
+                 prb2=TMath::Prob( (*WrkVrtSet)[v2].Chi2, 2*(*WrkVrtSet)[v2].SelTrk.size()-3);
+	  double dst1=(*WrkVrtSet)[v1].ProjectedVrt, dst2=(*WrkVrtSet)[v2].ProjectedVrt; 
+          if(prb1>0.05 && prb2>0.05){
+            if( (*WrkVrtSet)[v1].SelTrk.size()==2 && (*WrkVrtSet)[v2].SelTrk.size()==2){
+              if     (SelectedVertex==v1 && dst2<dst1)  SelectedVertex=v2;  // Swap to remove the closest to PV vertex
+              else if(SelectedVertex==v2 && dst1<dst2)  SelectedVertex=v1;  // Swap to remove the closest to PV vertex
               double M1=(*WrkVrtSet)[v1].vertexMom.M();  double M2=(*WrkVrtSet)[v2].vertexMom.M();
-              if     (SelectedVertex==v1 && M2<M1)  SelectedVertex=v2;  // Swap to remove the lightest vertex
-              else if(SelectedVertex==v2 && M1<M2)  SelectedVertex=v1;  // Swap to remove the lightest vertex
               if( M1>VrtBCMassLimit && M2<VrtBCMassLimit ) SelectedVertex=v1;
               if( M1<VrtBCMassLimit && M2>VrtBCMassLimit ) SelectedVertex=v2;
             }
-	  }
-          if( (*WrkVrtSet)[v1].SelTrk.size()+(*WrkVrtSet)[v2].SelTrk.size() > 4){
-            if(TMath::Prob( (*WrkVrtSet)[v1].Chi2, 2*(*WrkVrtSet)[v1].SelTrk.size()-3)>0.05 && 
-               TMath::Prob( (*WrkVrtSet)[v2].Chi2, 2*(*WrkVrtSet)[v2].SelTrk.size()-3)>0.05){
-	       if( (*WrkVrtSet)[v1].SelTrk.size()==2 ) SelectedVertex=v1;
-	       if( (*WrkVrtSet)[v2].SelTrk.size()==2 ) SelectedVertex=v2;
+            if( (*WrkVrtSet)[v1].SelTrk.size()+(*WrkVrtSet)[v2].SelTrk.size() > 4){
+	       if( (*WrkVrtSet)[v1].SelTrk.size()==2 && dst1>dst2) SelectedVertex=v2;
+	       if( (*WrkVrtSet)[v2].SelTrk.size()==2 && dst2>dst1) SelectedVertex=v1;
           } }	
       }
 //

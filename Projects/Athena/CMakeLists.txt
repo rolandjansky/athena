@@ -85,10 +85,6 @@ if( NOT "$ENV{NICOS_PROJECT_RELNAME}" STREQUAL "" )
    list( APPEND _replacements $ENV{NICOS_PROJECT_RELNAME}
       "\${Athena_VERSION}" )
 endif()
-if( NOT "$ENV{TDAQ_RELEASE_BASE}" STREQUAL "" )
-   list( APPEND _replacements $ENV{TDAQ_RELEASE_BASE}
-      "\${TDAQ_RELEASE_BASE}" )
-endif()
 
 # Now generate and install the installed setup files:
 lcg_generate_env( SH_FILE ${CMAKE_BINARY_DIR}/env_setup_install.sh

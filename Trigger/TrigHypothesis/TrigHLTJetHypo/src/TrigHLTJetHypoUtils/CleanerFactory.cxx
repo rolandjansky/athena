@@ -42,9 +42,9 @@ std::shared_ptr<ICleaner> makeEtaEtCleaner(double etaMin,
 
 
 CleanerFactory::CleanerFactory(//basic cleaning
-			       double n90Threshold,
-			       double presamplerThreshold,
-			       double negativeEThreshold,
+			       double /*n90Threshold*/,
+			       double /*presamplerThreshold*/,
+			       double /*negativeEThreshold*/,
 			       //loose cleaning
 			       double fSampMaxLooseThreshold,
 			       double etaLooseThreshold,
@@ -64,9 +64,9 @@ CleanerFactory::CleanerFactory(//basic cleaning
 			       double hecqLlpThreshold,
 			       double avLarQFLlpThreshold,
 			       const std::string& key):
-  m_n90Threshold(n90Threshold),
-  m_presamplerThreshold(presamplerThreshold),
-  m_negativeEThreshold(negativeEThreshold),
+  //m_n90Threshold(n90Threshold),
+  //m_presamplerThreshold(presamplerThreshold),
+  //m_negativeEThreshold(negativeEThreshold),
   m_fSampMaxLooseThreshold(fSampMaxLooseThreshold),
   m_etaLooseThreshold(etaLooseThreshold),
   m_emfLowLooseThreshold(emfLowLooseThreshold),

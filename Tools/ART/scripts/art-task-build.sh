@@ -22,6 +22,14 @@ BRANCH=`echo $RELEASE_BASE |tr "/" " " |awk '{print $5}'`
 source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh --quiet
 lsetup asetup
 asetup none,cmakesetup --platform ${PLATFORM}
+
+if [ -d /cvmfs/atlas.cern.ch/repo/sw/tdaq ]; then
+   echo "WARNING: Setting TDAQ_RELEASE_BASE to /cvmfs/atlas.cern.ch/repo/sw/tdaq"
+   export TDAQ_RELEASE_BASE=/cvmfs/atlas.cern.ch/repo/sw/tdaq
+else
+   echo "Error: Cannot find TDAQ software installation"
+   return 1
+fi
 source ${RELEASE_BASE}/build/install/${PROJECT}/*/InstallArea/${PLATFORM}/setup.sh
 
 # run build tests

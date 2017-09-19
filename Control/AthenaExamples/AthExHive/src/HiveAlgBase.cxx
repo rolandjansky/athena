@@ -14,9 +14,6 @@ HiveAlgBase::HiveAlgBase( const std::string& name,
   ::AthAlgorithm( name, pSvcLocator ),
   m_hes("HiveExSvc",name)
 {
-
-  declareProperty("Time",m_time=0);
-
 }
 
 HiveAlgBase::~HiveAlgBase() {}

@@ -1,9 +1,0 @@
-package ISF_Geant4Interfaces
-
-author Robert Harrington <roberth@cern.ch>
-
-use AtlasPolicy      AtlasPolicy-*
-
-use GaudiInterface   GaudiInterface-*    External
-
-

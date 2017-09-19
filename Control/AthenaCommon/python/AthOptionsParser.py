@@ -34,7 +34,7 @@ _userlongopts = [
     "debugWorker",
     "pycintex_minvmem=", "cppyy_minvmem",
     "minimal",                     # private, undocumented
-    "threads=",
+    "threads=", "concurrent-events=",
     "evtMax=",    #will set theApp.EvtMax just before theApp.run() in runbatch.py
     "skipEvents=",#will set svcMgr.EventSelector.SkipEvents just before theApp.run() in runbatch.py 
     "filesInput=" #will set the AthenaCommonFlags.FilesInput job option and lock it
@@ -96,8 +96,9 @@ Accepted command line options:
      --stdcmalloc                     ...  use libc malloc for memory allocation
      --preloadlib=<lib>               ...  localized preload of library <lib>
      --nprocs=n                       ...  enable AthenaMP if n>=1 or n==-1
-     --threads=n                      ...  number of threads for Hive. 
+     --threads=n                      ...  number of threads for AthenaMT
                                            With AthenaMP, number of threads per worker
+     --concurrent-events              ...  number of concurrent events for AthenaMT
      --debugWorker                    ...  pause AthenaMP workers at bootstrap until SIGUSR1 signal received
  [<file1>.py [<file2>.py [...]]]      ...  scripts to run
  """
@@ -152,7 +153,8 @@ def parse(chk_tcmalloc=True):
     opts.do_heap_mon = False     # default is not to do any heap monitoring
     opts.profile_python = None   # set to file name to collect and dump python profile
     opts.nprocs = 0              # enable AthenaMP if >= 1 or == -1
-    opts.threads = 0             # enable Hive if >= 1
+    opts.threads = 0             # enable AthenaMT if >= 1
+    opts.concurrent_events = 0   # enable AthenaMT if >= 1
     opts.debug_worker = False    # pause AthenaMP worker after bootstrap until SIGUSR1 received
     opts.cppyy_minvmem = None    # artificial vmem bump around cppyy's import
     opts.minimal = False         # private, undocumented
@@ -397,6 +399,15 @@ def parse(chk_tcmalloc=True):
                 print "ERROR:",err
                 _help_and_exit()
             opts.threads = arg
+
+        elif opt in ("--concurrent-events",):
+            if not arg:
+                arg = 0
+            try: arg = int(arg)
+            except Exception,err:
+                print "ERROR:",err
+                _help_and_exit()
+            opts.concurrent_events = arg
 
         elif opt in ("--debugWorker",):
             opts.debug_worker = True

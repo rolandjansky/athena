@@ -1,6 +1,4 @@
 #include "GaudiKernel/DeclareFactoryEntries.h"
-#include "../TTreeEventSelector.h"
-#include "../TTreeEventSelectorHelperSvc.h"
 #include "../NtupleCnvSvc.h"
 //#include "../LeafCnv.h"
 #include "../RootOutputStreamTool.h"
@@ -23,8 +21,6 @@
 #include "../xAODCnv.h"
 #include "../xAODEventSelector.h"
 
-DECLARE_SERVICE_FACTORY( TTreeEventSelector )
-DECLARE_SERVICE_FACTORY( TTreeEventSelectorHelperSvc )
 DECLARE_NAMESPACE_SERVICE_FACTORY(Athena, NtupleCnvSvc)
 //DECLARE_NAMESPACE_CONVERTER_FACTORY (Athena, LeafCnv)
 
@@ -47,8 +43,6 @@ DECLARE_NAMESPACE_ALGORITHM_FACTORY( Athena, RootAsciiDumperAlgHandle )
 DECLARE_SERVICE_FACTORY( IoSvc )
 
 DECLARE_FACTORY_ENTRIES( AthenaRootComps ) {
-  DECLARE_SERVICE( TTreeEventSelector )
-  DECLARE_SERVICE( TTreeEventSelectorHelperSvc )
   DECLARE_NAMESPACE_SERVICE(Athena, NtupleCnvSvc)
   DECLARE_NAMESPACE_CONVERTER(Athena, LeafCnv)
   DECLARE_NAMESPACE_CONVERTER(Athena, xAODCnv)

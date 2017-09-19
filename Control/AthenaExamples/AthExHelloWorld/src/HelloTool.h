@@ -10,7 +10,7 @@
 
 #include <string>
 
-class HelloTool : virtual public extends<AthAlgTool, IHelloTool> {
+class HelloTool : public extends<AthAlgTool, IHelloTool> {
 public:
    HelloTool( const std::string&, const std::string&, const IInterface* );
 

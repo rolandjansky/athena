@@ -4,7 +4,7 @@
 
 // $Id$
 /**
- * @file  IRCUOSVC_test.cxx
+ * @file IRCUSVC_test.cxx
  * @author scott snyder <snyder@bnl.gov>
  * @date Aug, 2016
  * @brief Regression tests for RCUObject.

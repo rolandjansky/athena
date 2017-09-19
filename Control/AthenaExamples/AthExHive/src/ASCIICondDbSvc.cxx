@@ -25,11 +25,7 @@ boost::regex ref(r_ef);
 
 ASCIICondDbSvc::ASCIICondDbSvc( const std::string& name, ISvcLocator* svcLoc ):
   base_class(name,svcLoc)
-{
-
-  declareProperty("CondFile",m_file="");
-  
-}
+{}
 
 //---------------------------------------------------------------------------
 
@@ -120,7 +116,7 @@ ASCIICondDbSvc::readDbFile(const std::string& fname) {
     }
     ifs.close();
   } else {
-    error() << "unable to open file " << m_file << endmsg;
+    error() << "unable to open file " << (std::string) m_file << endmsg;
     sc = StatusCode::FAILURE;
   }
 
@@ -193,8 +189,13 @@ ASCIICondDbSvc::parse(EventIDRange& t, const std::string& s) {
 
   if (m.size() != 5) { return false; }
 
-  t = EventIDRange( EventIDBase(std::stoi(m[1]),std::stoi(m[2])), 
-                    EventIDBase(std::stoi(m[3]), std::stoi(m[4])));
+  EventIDBase start(std::stoi(m[1]), std::stoi(m[2]));
+  EventIDBase   end(std::stoi(m[3]), std::stoi(m[4]));
+
+  start.set_lumi_block(m_lbn);
+  end.set_lumi_block(m_lbn);
+  
+  t = EventIDRange(start, end);
 
   return true;
 
@@ -210,9 +211,14 @@ ASCIICondDbSvc::parse(IOVEntryT<IASCIICondDbSvc::dbData_t>& ie, const std::strin
 
   if (m.size() != 6) { return false; }
 
-  ie.setRange( EventIDRange( EventIDBase(std::stoi(m[1]), std::stoi(m[2])), 
-                             EventIDBase(std::stoi(m[3]), std::stoi(m[4])) ) );
+  EventIDBase start(std::stoi(m[1]), std::stoi(m[2]));
+  EventIDBase   end(std::stoi(m[3]), std::stoi(m[4]));
 
+  start.set_lumi_block(m_lbn);
+  end.set_lumi_block(m_lbn);
+
+  ie.setRange(EventIDRange(start,end));
+  
   IASCIICondDbSvc::dbData_t *v = new IASCIICondDbSvc::dbData_t( std::stof(m[5]) );
   ie.setPtr(v);
 
@@ -237,6 +243,8 @@ ASCIICondDbSvc::getRange(const std::string& dbKey , const EventContext& ctx,
   }
 
   for (auto e : itr->second) {
+    debug() << "compare " << e.range() << " with " << ctx.eventID()
+            << endmsg;
     if (e.range().isInRange(EventIDBase(ctx.eventID()))) {
       rng = e.range();
       val = *(e.objPtr());

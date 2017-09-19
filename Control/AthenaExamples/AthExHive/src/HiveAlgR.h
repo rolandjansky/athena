@@ -29,9 +29,9 @@ public:
   
 private:
 
-  SG::ReadHandleKey<EventInfo> m_evt;
+  SG::ReadHandleKey<EventInfo> m_evt{this, "EvtInfo", "McEventInfo", "event info key"};
 
-  SG::WriteHandleKey<HiveDataObj> m_wrh1;
+  SG::WriteHandleKey<HiveDataObj> m_wrh1 {this, "Key_W1", "ar1", "write handle key"};
   
 };
 #endif

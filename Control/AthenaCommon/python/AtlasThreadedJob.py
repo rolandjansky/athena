@@ -29,7 +29,7 @@ def _setupAtlasThreadedJob():
     svcMgr.StatusCodeSvc.AbortOnError = False
 
     nThreads = jps.ConcurrencyFlags.NumThreads()
-    numStores = nThreads
+    numStores = jps.ConcurrencyFlags.NumConcurrentEvents()
     numAlgsInFlight = nThreads
     numThreads = nThreads
 

@@ -7,10 +7,24 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 
+// The lines below I don't like. We should fix them when we update the
+// the metadata to handles (ATLASRECTS-4162).
+#define private public
+#   include "GeneratorObjects/McEventCollection.h"
+#undef private
+
+#include "GeneratorObjects/xAODTruthParticleLink.h"
+
 #include "xAODTruth/TruthEvent.h"
 #include "xAODTruth/TruthPileupEvent.h"
 #include "xAODTruth/TruthMetaDataContainer.h"
+#include "xAODTruth/TruthEventContainer.h"
+#include "xAODTruth/TruthPileupEventContainer.h"
+#include "xAODTruth/TruthParticleContainerFwd.h"
+#include "xAODTruth/TruthVertexContainerFwd.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 
 #include <unordered_set>
 
@@ -58,14 +72,25 @@ namespace xAODMaker {
     static void fillParticle(xAOD::TruthParticle *tp, const HepMC::GenParticle *gp);
 
     /// The key of the input AOD truth container
-    std::string m_aodContainerName;
-
+    SG::ReadHandleKey<McEventCollection> m_aodContainerKey{ 
+      this, "AODContainerName", "GEN_AOD", "The input McEvenCollection"};
+    
     /// The key for the output xAOD truth containers
-    std::string m_xaodTruthEventContainerName;
-    std::string m_xaodTruthPUEventContainerName;
-    std::string m_xaodTruthParticleContainerName;
-    std::string m_xaodTruthVertexContainerName;
-    std::string m_truthLinkContainerName;
+    SG::WriteHandleKey<xAOD::TruthEventContainer> m_xaodTruthEventContainerKey{
+      this, "xAODTruthEventContainerName", "TruthEvents", "Output TruthEvents container"};
+    SG::WriteHandleKey<xAOD::TruthPileupEventContainer> m_xaodTruthPUEventContainerKey{
+      this, "xAODTruthPileupEventContainerName", "TruthPileupEvents", "Output TruthPileupEvents container"};
+    SG::WriteHandleKey<xAOD::TruthParticleContainer> m_xaodTruthParticleContainerKey{
+      this, "xAODTruthParticleContainerName", "TruthParticles", "Output TruthParticles container"};
+    SG::WriteHandleKey<xAOD::TruthVertexContainer> m_xaodTruthVertexContainerKey{
+      this, "xAODTruthVertexContainerName", "TruthVertices", "Output TruthVertices container"};
+    SG::WriteHandleKey<xAODTruthParticleLinkVector> m_truthLinkContainerKey{
+      this, "TruthLinks", "xAODTruthLinks", "Output xAODTruthLinks container"};
+
+    // if only redoing links 
+    SG::ReadHandleKey<xAOD::TruthEventContainer> m_linksOnlyTruthEventContainerKey{
+      this, "linksOnlyTruthEventContainerName", "TruthEvents", "Input TruthEvents container"};
+
     /// Pile-up options
     bool m_doAllPileUp;
     bool m_doInTimePileUp;
@@ -80,8 +105,8 @@ namespace xAODMaker {
     /// Set for tracking the mc channels for which we already added meta data 
     std::unordered_set<uint32_t> m_existingMetaDataChan;
 
-    /// a flag to force rerunning (useful for rerunning on ESDs)
-    bool m_forceRerun;
+    // to only redo links
+    bool m_onlyRedoLinks;
 
     /// option to disable writing of metadata (e.g. if running a filter on xAOD in generators)
     bool m_writeMetaData;

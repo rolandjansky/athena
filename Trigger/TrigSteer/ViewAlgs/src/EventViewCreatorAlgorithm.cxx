@@ -68,7 +68,7 @@ StatusCode EventViewCreatorAlgorithm::execute()
     ATH_MSG_DEBUG( "Placing TrigRoiDescriptor " << *roiDescriptor );
 
     if ( previousRoI == roiDescriptor ) continue; 
-    // TODO here code supporting the case wnen we haev many decisions associated to a single RoI needs to be added 
+    // TODO here code supporting the case wnen we have many decisions associated to a single RoI
     previousRoI = roiDescriptor;
 
     auto oneRoIColl = std::make_unique< ConstDataVector<TrigRoiDescriptorCollection> >();    
@@ -78,9 +78,17 @@ StatusCode EventViewCreatorAlgorithm::execute()
     // make the view
     viewVector->push_back( ViewHelper::makeView( name()+"_view", viewCounter++ ) );
     contexts.emplace_back( ctx );
-
     contexts.back().setExtension( Atlas::ExtendedEventContext( viewVector->back(), conditionsRun ) );
     
+    // see if there is a view linked to the decision object, if so link it to the view that is just made
+    if ( decision->hasObjectLink( "view" ) ) {
+      auto viewEL = decision->objectLink< std::vector<SG::View*> >( "view" );
+      CHECK( viewEL.isValid() );
+      auto parentView = *viewEL;
+      viewVector->back()->linkParent( parentView );
+      ATH_MSG_DEBUG( "Parent view linked" );
+    }
+
     auto handle = SG::makeHandle( m_inViewRoIs, contexts.back() );
     CHECK( handle.setProxyDict( viewVector->back() ) );
     CHECK( handle.record( std::move( oneRoIColl ) ) );

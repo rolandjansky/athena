@@ -24,7 +24,6 @@ class ALFA_ConfigParams
 		virtual ~ALFA_ConfigParams();
 
 	private:
-		static const char ms_szinvalid[];
 		bool m_bIsValid;
 		std::string m_strSection;
 		MAPSTR2STR m_mapParams;

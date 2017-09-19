@@ -19,14 +19,7 @@ DECLARE_COMPONENT(HiveAlgR)
 HiveAlgR::HiveAlgR( const std::string& name, 
 		    ISvcLocator* pSvcLocator ) : 
   ::AthReentrantAlgorithm( name, pSvcLocator )
-  ,m_evt("McEventInfo")
-  ,m_wrh1("ar1")
-{
-  
-  declareProperty("Key_W1",m_wrh1);
-  declareProperty("EvtInfo",m_evt);
-
-}
+{}
 
 HiveAlgR::~HiveAlgR() {}
 

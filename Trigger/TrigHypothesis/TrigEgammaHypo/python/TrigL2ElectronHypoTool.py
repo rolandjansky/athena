@@ -12,6 +12,8 @@ def TrigL2ElectronHypoToolFromName( name ):
     assert str(threshold) == bname[1][1:], "Threshold definition is not a simple int"
     from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2ElectronHypoTool
 
+    tool = TrigL2ElectronHypoTool(name)
+    tool.MonTool = ""
     from TriggerJobOpts.TriggerFlags import TriggerFlags
     if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in  TriggerFlags.enableMonitoring():
         from AthenaMonitoring.AthenaMonitoringConf import GenericMonitoringTool
@@ -27,12 +29,18 @@ def TrigL2ElectronHypoToolFromName( name ):
             defineHistogram('CaloEta', type='TH1F', title="L2Electron Hypo #eta^{calo} ; #eta^{calo};Nevents", xbins=200, xmin=-2.5, xmax=2.5),
             defineHistogram('CaloPhi', type='TH1F', title="L2Electron Hypo #phi^{calo} ; #phi^{calo};Nevents", xbins=320, xmin=-3.2, xmax=3.2) ]        
 
-    tool = TrigL2ElectronHypoTool(name)
-    from AthenaCommon.SystemOfUnits import GeV
-    tool.RespectPreviousDecision = False # this is only for testing purpose, this setting & flag will be gone 
+        monTool.HistPath = 'L2ElectronHypo/'+tool.name()
+        tool.MonTool = monTool
+        tool += monTool
+
+    from AthenaCommon.SystemOfUnits import GeV    
     tool.TrackPt = [ 1.0 * GeV ] 
     tool.CaloTrackdETA = [ 0.2 ]
     tool.CaloTrackdPHI = [ 999. ]
+    tool.CaloTrackdEoverPLow = [ 0.0 ]
+    tool.CaloTrackdEoverPHigh = [ 999.0 ]
+    tool.TRTRatio = [ -999. ]
+
     if float(threshold) < 15:
         tool.TrackPt = [ 1.0 * GeV ]
     elif float(threshold) >= 15 and float(threshold) < 20:

@@ -16,6 +16,10 @@ acmdlib.register('gen-klass', 'PyUtils.scripts.gen_klass:main')
 acmdlib.register('merge-files', 'PyUtils.scripts.merge_files:main')
 acmdlib.register('filter-files', 'PyUtils.scripts.filter_files:main')
 
+acmdlib.register('cmake.new-skeleton', 'PyUtils.scripts.cmake_newskeleton:main')
+acmdlib.register('cmake.new-pkg', 'PyUtils.scripts.cmake_newpkg:main')
+acmdlib.register('cmake.new-analysisalg', 'PyUtils.scripts.cmake_newanalysisalg:main')
+
 acmdlib.register('jira.issues', 'PyUtils.scripts.jira_issues:main')
 # acmdlib.register('jira.issue', 'PyUtils.scripts.jira_issue:main')
 ##
