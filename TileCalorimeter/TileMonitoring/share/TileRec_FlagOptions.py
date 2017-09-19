@@ -5,29 +5,30 @@ if not 'RunNumber' in dir():
     RunNumber = 215027
 
 if not 'FileNameVec' in dir():
-    if not 'FileName' in dir():
-        FileNameVec = []
-        for i in xrange(450, 452, 1):
-            FileNameVec.append("/castor/cern.ch/grid/atlas/tzero/prod1/perm/data12_8TeV/express_express/%(R)08d/data12_8TeV.%(R)08d.express_express.merge.RAW/data12_8TeV.%(R)08d.express_express.merge.RAW._lb%(LB)04d._SFO-ALL._0001.1" % {'LB':i, 'R':RunNumber})
-    else:
-        if FileName == 'ALL' :
-            files = []
-            fullname = []
-            if InputDirectory.startswith("/castor") :
-                for f in popen('nsls %(path)s | grep %(run)s' % {'path': InputDirectory, 'run':RunNumber }):
-                    files.append(f)
-            elif InputDirectory.startswith("/eos") :
-                for f in popen('eos ls %(path)s | grep %(run)s' % {'path': InputDirectory, 'run':RunNumber }):
-                    files.append(f)
-            else:
-                for f in popen('ls %(path)s | grep %(run)s' % {'path': InputDirectory, 'run':RunNumber }):
-                    files.append(f)
-            for nn in range(len(files)):
-               temp = files[nn].split('\n')
-               fullname.append(InputDirectory + '/' + temp[0])
-            FileNameVec = fullname
+    if not 'FileName' in dir() or FileName == 'ALL':
+        files = []
+        fullname = []
+        if InputDirectory.startswith("/castor") :
+            for f in popen('nsls %(path)s | grep %(run)s' % {'path': InputDirectory, 'run':RunNumber }):
+                files.append(f)
+        elif InputDirectory.startswith("/eos") :
+            for f in popen('xrd eosatlas dirlist %(path)s | grep %(run)s | sed "s|^.*/||" ' % {'path': InputDirectory, 'run':RunNumber }):
+                files.append(f)
         else:
-            FileNameVec = [ FileName ]
+            for f in popen('ls %(path)s | grep %(run)s' % {'path': InputDirectory, 'run':RunNumber }):
+                files.append(f)
+        for nn in range(len(files)):
+            temp = files[nn].split('\n')
+            if not 'FileFilter' in dir() or FileFilter in temp[0]:
+                if InputDirectory.startswith("/castor") :
+                    fullname.append('root://castoratlas/' + InputDirectory + '/' + temp[0])
+                elif InputDirectory.startswith("/eos") :
+                    fullname.append('root://eosatlas/' + InputDirectory + '/' + temp[0])
+                else:
+                    fullname.append(InputDirectory + '/' + temp[0])
+        FileNameVec = fullname
+    else:
+        FileNameVec = [ FileName ]
 
 
 print "Input files:"

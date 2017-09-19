@@ -19,7 +19,7 @@ def FindFile(path, runinput, filter):
     fullname = []
 
     if path.startswith('/castor') :
-        for f in popen('ls %(path)s | grep %(run)s | grep %(filt)s' % {'path': path, 'run':run, 'filt':filter }):
+        for f in popen('nsls %(path)s | grep %(run)s | grep %(filt)s' % {'path': path, 'run':run, 'filt':filter }):
             files.append(f)
 
     elif path.startswith('/eos') :
@@ -27,7 +27,7 @@ def FindFile(path, runinput, filter):
             files.append(f)
 
     else:
-        for f in popen('nsls  %(path)s | grep %(run)s | grep %(filt)s' % {'path': path, 'run':run, 'filt':filter }):
+        for f in popen('ls  %(path)s | grep %(run)s | grep %(filt)s' % {'path': path, 'run':run, 'filt':filter }):
             files.append(f)
             
 

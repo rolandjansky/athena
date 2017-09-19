@@ -311,13 +311,6 @@ SCTErrMonTool::errorsString(int errtype) {
 StatusCode
 SCTErrMonTool::copyHistograms() {
 
-  MonGroup ConfHist[NREGIONS_INC_GENERAL] = {
-    MonGroup(this, "SCT/SCTB/Conf", ManagedMonitorToolBase::run, ATTRIB_UNMANAGED),
-    MonGroup(this, "SCT/SCTEA/Conf", ManagedMonitorToolBase::run, ATTRIB_UNMANAGED),
-    MonGroup(this, "SCT/SCTEC/Conf", ManagedMonitorToolBase::run, ATTRIB_UNMANAGED),
-    MonGroup(this, "SCT/GENERAL/Conf", ManagedMonitorToolBase::run, ATTRIB_UNMANAGED)
-  };
-
   //RODLevelErrors histograms
   {
     for (int reg = 0; reg != NREGIONS_INC_GENERAL; ++reg) {
@@ -526,6 +519,9 @@ SCTErrMonTool::copyHistograms_book() {
       std::string regDir[4] = {
     	"SCTEC", "SCTB", "SCTEA", "GENERAL"
       };
+      std::string regSuf[4] = {
+    	"ECm", "", "ECp", ""
+      };
 
       int nERR=28;
       std::string tmp_errorsNames[] = {
@@ -557,11 +553,11 @@ SCTErrMonTool::copyHistograms_book() {
     	for (int layer(0); layer != nLayers; ++layer) {
     	  for (int errType(0); errType != nERR; ++errType) {
     	    MonGroup err2(this, tmp_errorsNamesMG[errType], lumiBlock, ATTRIB_UNMANAGED);
-    	    std::string name1 = tmp_errorsNames[errType] + "Errs_";
+    	    std::string name1 = tmp_errorsNames[errType] + "Errs" + regSuf[reg] + "_";
     	    std::string title = tmp_errorsNames[errType] + " errors layer ";
-    	    std::string name2 = std::string("T") + tmp_errorsNames[errType] + "Errs_";
+    	    std::string name2 = std::string("T") + tmp_errorsNames[errType] + "Errs" + regSuf[reg] + "_";
     	    bookErrHistosHelper(err2, name1, title, name2, tmp_allErrs[errType][reg][layer],
-    				tmp_pallErrs[errType][reg][layer], layer).isFailure();
+    				tmp_pallErrs[errType][reg][layer], layer, reg==iBARREL).isFailure();
     	    tmp_allErrs[errType][reg][layer]->GetXaxis()->SetTitle("Index in the direction of #eta");
     	    tmp_allErrs[errType][reg][layer]->GetYaxis()->SetTitle("Index in the direction of #phi");
     	  }
@@ -583,10 +579,10 @@ SCTErrMonTool::copyHistograms_book() {
     	  "ABCDChip5","ABCDError1","ABCDError2","ABCDError4","NumberOfErrors","NumberOfBadErrors","NumberOfLinkLevelErrors","NumberOfRODLevelErrors",""
     	  };
       TString regLabel[4] = {
-    	"Barrel", "EndcapA", "EndcapC", ""
+    	"EndcapC", "Barrel", "EndcapA", ""
       };
       TString regTitle[4] = {
-    	"Barrel", "EndcapA", "EndcapC", "All Region"
+    	"EndcapC", "Barrel", "EndcapA", "All Region"
       };
 
       for (int reg = 0; reg != NREGIONS_INC_GENERAL; ++reg) {
@@ -701,11 +697,9 @@ SCTErrMonTool::bookHistograms() {
     }
   }
 
-  msg(MSG::WARNING) << "SH++++++++++++++++++++++++++++++++++++++++++++++++++++++ copyHistograms_book B" << endmsg;
   if (copyHistograms_book().isFailure()) {
     msg(MSG::WARNING) << "Error in copyHistograms_book() " << endmsg;
   }
-  msg(MSG::WARNING) << "SH++++++++++++++++++++++++++++++++++++++++++++++++++++++ copyHistograms_book F" << endmsg;
 
   ATH_CHECK(m_byteStreamErrSvc.retrieve());
 
@@ -988,11 +982,9 @@ SCTErrMonTool::procHistograms() {
     if (checkRateHists().isFailure()) {
       msg(MSG::WARNING) << "Error in checkRateHists()" << endmsg;
     }
-    msg(MSG::WARNING) << "SH++++++++++++++++++++++++++++++++++++++++++++++++++++++ copyHistograms B" << endmsg;
     if (endOfEventsBlock && copyHistograms().isFailure()) {
       msg(MSG::WARNING) << "Error in copyHistograms()" << endmsg;
     }
-    msg(MSG::WARNING) << "SH++++++++++++++++++++++++++++++++++++++++++++++++++++++ copyHistograms F" << endmsg;
     ATH_MSG_DEBUG("Exiting finalHists");
   }
   return StatusCode::SUCCESS;
@@ -1024,16 +1016,16 @@ SCTErrMonTool::fillByteStreamErrorsHelper(const std::set<IdentifierHash> *errors
 
   b_category[CategoryErrors::LINKLEVEL] = false;
   b_category[CategoryErrors::LINKLEVEL] =
-    (err_type == SCT_ByteStreamErrors::RODClockError) || (err_type == SCT_ByteStreamErrors::TruncatedROD) ||
-    (err_type == SCT_ByteStreamErrors::ROBFragmentError) || (err_type == SCT_ByteStreamErrors::MaskedROD);
-
-  b_category[CategoryErrors::RODLEVEL] = false;
-  b_category[CategoryErrors::RODLEVEL] =
     (err_type == SCT_ByteStreamErrors::ByteStreamParseError) || (err_type == SCT_ByteStreamErrors::TimeOutError) ||
     (err_type == SCT_ByteStreamErrors::BCIDError) || (err_type == SCT_ByteStreamErrors::LVL1IDError) ||
     (err_type == SCT_ByteStreamErrors::PreambleError) || (err_type == SCT_ByteStreamErrors::FormatterError) ||
     (err_type == SCT_ByteStreamErrors::ABCDError) || (err_type == SCT_ByteStreamErrors::RawError) ||
     (err_type == SCT_ByteStreamErrors::MaskedLink) || (err_type == SCT_ByteStreamErrors::MissingLinkHeaderError);
+
+  b_category[CategoryErrors::RODLEVEL] = false;
+  b_category[CategoryErrors::RODLEVEL] =
+    (err_type == SCT_ByteStreamErrors::RODClockError) || (err_type == SCT_ByteStreamErrors::TruncatedROD) ||
+    (err_type == SCT_ByteStreamErrors::ROBFragmentError) || (err_type == SCT_ByteStreamErrors::MaskedROD);
 
   //--- Count BS errors
   int nerrors = 0;
@@ -1141,6 +1133,10 @@ SCTErrMonTool::fillByteStreamErrors() {
       if (!m_sctflag) m_ByteStreamVsLB[errType][reg]->Fill(current_lb, double (bs_errs[reg]));
       else m_ByteStreamWithSctFlagVsLB[errType][reg]->Fill(current_lb, double (bs_errs[reg]));
     }
+  }
+
+  if(m_sctflag) {
+    return StatusCode::SUCCESS;
   }
 
   //--- Reset Histograms
@@ -1455,19 +1451,19 @@ SCTErrMonTool::bookErrHistos(int reg=-1) { // reg = 0:EC, 1:B, 2:EA
         for (int layer(0); layer != nLayers; ++layer) {
 	  for (int errType(0); errType != SCT_ByteStreamErrors::NUM_ERROR_TYPES; ++errType) {
             MonGroup lumiErr2(this, "SCT/"+regName+"/errors/"+SCT_ByteStreamErrors::errorTypesDescription[errType], lumiBlock, ATTRIB_UNMANAGED);
-            std::string name1 = "SCT_" + SCT_ByteStreamErrors::errorTypesDescription[errType] + "_PerLumi";
+            std::string name1 = "SCT_" + SCT_ByteStreamErrors::errorTypesDescription[errType] + subDetNameShort[reg].Data() + "_PerLumi";
             std::string title = SCT_ByteStreamErrors::errorTypesDescription[errType] + " per Lumi-Block per "+layerTitle;
-            std::string name2 = std::string("SCT_T") + SCT_ByteStreamErrors::errorTypesDescription[errType] + "_PerLumi_";
+            std::string name2 = std::string("SCT_T") + SCT_ByteStreamErrors::errorTypesDescription[errType]  + subDetNameShort[reg].Data() + "_PerLumi_";
             somethingFailed |= bookErrHistosHelper(lumiErr2, name1, title, name2,m_allErrsPerLumi[errType][reg][layer],
-						   m_pallErrsPerLumi[errType][reg][layer], layer).isFailure();
+						   m_pallErrsPerLumi[errType][reg][layer], layer, reg==iBARREL).isFailure();
           }
 	  for (int errType(0); errType != CategoryErrors::N_ERRCATEGORY; ++errType) {
             MonGroup lumiErr2(this, "SCT/"+regName+"/errors/"+std::string(errorsString(errType).Data()), lumiBlock, ATTRIB_UNMANAGED);
-            std::string name1 = ("SCT_NumberOf" + errorsString(errType) + "_PerLumi").Data();
+            std::string name1 = ("SCT_NumberOf" + errorsString(errType)  + subDetNameShort[reg].Data() + "_PerLumi").Data();
 	    std::string title = ("Num of " + errorsString(errType) + " Errors per Lumi-Block per "+layerTitle).Data();
-            std::string name2 = (TString("SCT_T") + errorsString(errType) + "_PerLumi_").Data();
+            std::string name2 = (TString("SCT_T") + errorsString(errType)  + subDetNameShort[reg].Data() + "_PerLumi_").Data();
             somethingFailed |= bookErrHistosHelper(lumiErr2, name1, title, name2, m_allErrsCatePerLumi[errType][reg][layer],
-						   m_pallErrsCatePerLumi[errType][reg][layer], layer).isFailure();
+						   m_pallErrsCatePerLumi[errType][reg][layer], layer, reg==iBARREL).isFailure();
           }
         }
       }
@@ -1497,26 +1493,26 @@ SCTErrMonTool::bookErrHistos(int reg=-1) { // reg = 0:EC, 1:B, 2:EA
     for (int layer(0); layer != nLayers; ++layer) {
       for (int errType(0); errType != SCT_ByteStreamErrors::NUM_ERROR_TYPES; ++errType) {
 	MonGroup err2(this, "SCT/"+regName+"/errors/"+SCT_ByteStreamErrors::errorTypesDescription[errType], run, ATTRIB_UNMANAGED);
-	std::string name1 = "SCT_" + SCT_ByteStreamErrors::errorTypesDescription[errType] + "_";
+	std::string name1 = "SCT_" + SCT_ByteStreamErrors::errorTypesDescription[errType]  + subDetNameShort[reg].Data() + "_";
 	std::string title = SCT_ByteStreamErrors::errorTypesDescription[errType] + " per "  + layerTitle;
-	std::string name2 = std::string("SCT_T") + SCT_ByteStreamErrors::errorTypesDescription[errType] + "_";
+	std::string name2 = std::string("SCT_T") + SCT_ByteStreamErrors::errorTypesDescription[errType]  + subDetNameShort[reg].Data() + "_";
 	//______________________________________________________________________________________
 	somethingFailed |= bookErrHistosHelper(err2, name1, title, name2, m_allErrs[errType][reg][layer],
-					       m_pallErrs[errType][reg][layer], layer).isFailure();
+					       m_pallErrs[errType][reg][layer], layer, reg==iBARREL).isFailure();
 	m_allErrs[errType][reg][layer]->GetXaxis()->SetTitle("Index in the direction of #eta");
 	m_allErrs[errType][reg][layer]->GetYaxis()->SetTitle("Index in the direction of #phi");
 	//______________________________________________________________________________________
       }
       for (int errType(0); errType != CategoryErrors::N_ERRCATEGORY; ++errType) {
 	MonGroup err2(this, "SCT/"+regName+"/errors/"+std::string(errorsString(errType).Data()), lumiBlock, ATTRIB_UNMANAGED);
-	std::string name1 = ("SCT_NumberOf" + errorsString(errType) + "_").Data();
+	std::string name1 = ("SCT_NumberOf" + errorsString(errType)  + subDetNameShort[reg].Data() + "_").Data();
 	std::string title = ("Num of " + errorsString(errType) + " per "+layerTitle).Data();
-	std::string name2 = (TString("SCT_T") + errorsString(errType) + "_").Data();
+	std::string name2 = (TString("SCT_T") + errorsString(errType)  + subDetNameShort[reg].Data() + "_").Data();
 	somethingFailed |= bookErrHistosHelper(err2, name1, title, name2, m_allErrsCate[errType][reg][layer],
-					       m_pallErrsCate[errType][reg][layer], layer).isFailure();
+					       m_pallErrsCate[errType][reg][layer], layer, reg==iBARREL).isFailure();
       }
       if (m_environment == AthenaMonManager::online) {
-	somethingFailed |= bookErrHistosHelper(err, ("summaryErrsRecent"+subDetNameShort[reg]+"_").Data(), "summary recent Layer ", m_summaryErrsRecent[reg][layer], layer).isFailure();
+	somethingFailed |= bookErrHistosHelper(err, ("summaryErrsRecent"+subDetNameShort[reg]+"_").Data(), "summary recent Layer ", m_summaryErrsRecent[reg][layer], layer, reg==iBARREL).isFailure();
       }
     }
     if (somethingFailed) {
@@ -1535,9 +1531,9 @@ SCTErrMonTool::bookErrHistosGen() {
   if (ManagedMonitorToolBase::newRunFlag()) {
     MonGroup MaskErrs(this, "SCT/GENERAL/errors", ManagedMonitorToolBase::run, ATTRIB_UNMANAGED);
     m_MaskedAllLinks = new TH1I("Masked Links", "Number of Masked Links for SCT,ECA,B,ECC", 4, -0.5, 3.5); // should reorder to C,B,A,total ?
-    m_MaskedAllLinks->GetXaxis()->SetBinLabel(1, "Barrel");
-    m_MaskedAllLinks->GetXaxis()->SetBinLabel(2, "EndCapA");
-    m_MaskedAllLinks->GetXaxis()->SetBinLabel(3, "EndCapC");
+    m_MaskedAllLinks->GetXaxis()->SetBinLabel(1, "EndCapC");
+    m_MaskedAllLinks->GetXaxis()->SetBinLabel(2, "Barrel");
+    m_MaskedAllLinks->GetXaxis()->SetBinLabel(3, "EndCapA");
     m_MaskedAllLinks->GetXaxis()->SetBinLabel(4, "All");
     if (MaskErrs.regHist(m_MaskedAllLinks).isFailure()) {
       msg(MSG::WARNING) << "Couldn't book MaskedLinks" << endmsg;
@@ -1660,7 +1656,7 @@ SCTErrMonTool::bookConfMapsGen() {
 				"Ave. Number of " + errorsString(errType) + " per LB in " + regTitle[reg],
 				NBINS_LBs, 0.5, NBINS_LBs+0.5);
           m_ByteStreamCategorisedVsLB[errType][reg]->GetXaxis()->SetTitle("LumiBlock");
-          m_ByteStreamCategorisedVsLB[errType][reg]->GetYaxis()->SetTitle(("Num of " + TString(SCT_ByteStreamErrors::errorTypesDescription[errType])).Data());
+          m_ByteStreamCategorisedVsLB[errType][reg]->GetYaxis()->SetTitle(("Num of "+errorsString(errType)));
 
           m_LinksWithCategorisedErrorsVsLB[errType][reg] =
 	    TProfile_LW::create("SCT_LinksWith" + errorsString(errType) + "VsLbs" + regLabel[reg],

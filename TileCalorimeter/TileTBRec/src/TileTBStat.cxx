@@ -442,7 +442,7 @@ StatusCode TileTBStat::execute() {
 //              << std::endl << "Alpha: "  << lasAlpha << std::endl   << std::endl;
   }
   
-  //log<<MSG::DEBUG<<"execute() completed successfully"<<endreq;
+  //log<<MSG::DEBUG<<"execute() completed successfully"<<endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -632,7 +632,7 @@ void TileTBStat::find_frag(const uint32_t * data, unsigned int size, T_RobRodFra
   }
 
   if ( v3Format ) --offset; // set offset back to correct value
-  if ( offset > size ) { // wrong length in last frag, drop it
+  if ( offset > size && ROBfrag.fragID.size() > 0 ) { // wrong length in last frag, drop it
     ROBfrag.fragID.resize(ROBfrag.fragID.size()-1);
   }
 }

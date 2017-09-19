@@ -14,6 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkExtrapolation/TrkExUtils
                           PRIVATE
                           Generators/GenAnalysisTools/TruthTools
+                          Generators/GenInterfaces
                           Generators/GeneratorObjects
                           Tracking/TrkDetDescr/TrkSurfaces
                           Tracking/TrkExtrapolation/TrkExInterfaces )
