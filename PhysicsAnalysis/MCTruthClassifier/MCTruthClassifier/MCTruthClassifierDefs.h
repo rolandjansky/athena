@@ -178,7 +178,6 @@ namespace MCTruthPartClassifier {
    sParticleType.push_back("NonPrimary");
    sParticleType.push_back("GenParticle"); 
    sParticleType.push_back("SUSYParticle");
-   sParticleType.push_back("OtherBSMParticle");
    sParticleType.push_back("BBbarMesonPart"); 
    sParticleType.push_back("BottomMesonPart");
    sParticleType.push_back("CCbarMesonPart");
@@ -195,7 +194,8 @@ namespace MCTruthPartClassifier {
    sParticleType.push_back("GJet");
    sParticleType.push_back("TauJet");
    sParticleType.push_back("UnknownJet");
-   
+   sParticleType.push_back("OtherBSMParticle");
+
    sParticleOrigin.reserve(PARTICLEORIGIN);
    sParticleOrigin.push_back("NonDefined");
    sParticleOrigin.push_back("SingleElec");
