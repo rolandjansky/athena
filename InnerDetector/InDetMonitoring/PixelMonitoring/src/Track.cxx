@@ -445,18 +445,6 @@ StatusCode PixelMainMon::FillTrackMon(void)
 
 StatusCode PixelMainMon::ProcTrackMon(void)
 {
-  double lengthLB = 0;
-  lengthLB = m_LBendTime - m_LBstartTime;
-  if (lengthLB <= 0) {
-    ATH_MSG_INFO("Luminosity block has length <= 0 sec, cannot calculate track rate.");  
-    return StatusCode::SUCCESS; //if LB length is zero, the rest is pointless and would divide by 0
-  }
- 
-  //if(m_trackRate_per_lumi) {
-  //  if(m_tracks_per_lumi) double ntrkLB = m_tracks_per_lumi->GetBinContent(m_manager->lumiBlockNumber()+1); //value LB number corresponds to bin nbr (m_lumiBlockNum+1)
-  //  double trackRateLB = (double) ntrkLB/lengthLB;
-  //  m_trackRate_per_lumi->Fill(m_manager->lumiBlockNumber(),trackRateLB);
-  //}
   //for(int i=0; i<PixLayer::COUNT-1+(int)(m_doIBL); i++){
   for (int i=0; i<PixLayerDisk::COUNT; i++){
      if (m_hiteff_incl_mod[i]) m_hiteff_incl_mod[i]->SetMinimum(0.8);
