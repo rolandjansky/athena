@@ -116,9 +116,9 @@ if not hasattr(DerivationFrameworkJob,"MUONSequence"):
     MUONSeq = CfgMgr.AthSequencer("MUONSequence")
     DerivationFrameworkJob += MUONSeq
 
-    if not hasattr(MUONSeq,"Muons_decoratePromptLepton"):
-        import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as Config
-        MUONSeq += Config.GetDecoratePromptLeptonAlgs()
+    #if not hasattr(MUONSeq,"Muons_decoratePromptLepton"):
+    #    import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as Config
+    #    MUONSeq += Config.GetDecoratePromptLeptonAlgs()
 
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS 
