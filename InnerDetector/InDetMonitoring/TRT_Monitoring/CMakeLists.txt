@@ -12,6 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetRawEvent/InDetRawData
                           LumiBlock/LumiBlockComps
                           PRIVATE
+                          Control/StoreGate
                           Commission/CommissionEvent
                           Control/DataModel
                           DetectorDescription/AtlasDetDescr
