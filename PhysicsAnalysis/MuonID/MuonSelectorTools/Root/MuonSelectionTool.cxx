@@ -239,7 +239,6 @@ namespace CP {
     thisMu_highpt = passedHighPtCuts(mu);
     bool thisMu_lowptE=false;
     thisMu_lowptE = passedLowPtEfficiencyCuts(mu,thisMu_quality);
-    if(!m_useAllAuthors) thisMu_lowptE=false;
     ATH_MSG_VERBOSE( "Muon quality: " << thisMu_quality << " passes HighPt: "<< thisMu_highpt << " passes LowPtEfficiency: "<< thisMu_lowptE );
     if(m_quality<4 && thisMu_quality > m_quality){
       return m_accept;
@@ -561,6 +560,8 @@ namespace CP {
   }
 
   bool MuonSelectionTool::passedLowPtEfficiencyCuts( const xAOD::Muon& mu, xAOD::Muon::Quality thisMu_quality ) const {
+
+    if(!m_useAllAuthors) return false; //no allAuthors, always fail the WP
 
     // requiring combined muons
     if( mu.muonType() != xAOD::Muon::Combined ) return false;
