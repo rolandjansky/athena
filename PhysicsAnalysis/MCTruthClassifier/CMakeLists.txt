@@ -52,13 +52,13 @@ if( HEPMC_FOUND )
       PUBLIC_HEADERS MCTruthClassifier
       INCLUDE_DIRS ${HEPMC_INCLUDE_DIRS}
       LINK_LIBRARIES ${HEPMC_LIBRARIES} AsgTools xAODCaloEvent xAODEgamma
-      xAODJet xAODMuon xAODTracking xAODTruth ${extra_libs} )
+      xAODJet xAODMuon xAODTracking xAODTruth ${extra_libs} TruthUtils )
 else()
    atlas_add_library( MCTruthClassifierLib
       MCTruthClassifier/*.h src/*.cxx Root/*.cxx
       PUBLIC_HEADERS MCTruthClassifier
       LINK_LIBRARIES AsgTools xAODCaloEvent xAODEgamma
-      xAODJet xAODMuon xAODTracking xAODTruth ${extra_libs} )
+      xAODJet xAODMuon xAODTracking xAODTruth ${extra_libs} TruthUtils )
 endif()
 
 if( NOT XAOD_STANDALONE )
