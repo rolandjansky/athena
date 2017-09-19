@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "egammaAlgs/egammaTopoClusterCopier.h"
+#include "egammaTopoClusterCopier.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "AthContainers/ConstDataVector.h"
 #include "CaloUtils/CaloClusterStoreHelper.h"

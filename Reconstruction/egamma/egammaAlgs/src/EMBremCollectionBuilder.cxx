@@ -12,7 +12,7 @@ CREATED:
 PURPOSE:  Performs Brem refit of all tracks 
 UPDATE :
 **********************************************************************/
-#include "egammaAlgs/EMBremCollectionBuilder.h"
+#include "EMBremCollectionBuilder.h"
 //
 #include "Particle/TrackParticleContainer.h"
 #include "Particle/TrackParticle.h"

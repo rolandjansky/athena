@@ -3,7 +3,7 @@
 */
 
 
-#include "egammaAlgs/egammaTruthAssociationAlg.h"
+#include "egammaTruthAssociationAlg.h"
 
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/ReadHandle.h"

@@ -15,6 +15,7 @@ changes :
 
 ***************************************************************************/
 
+#include "EMVertexBuilder.h"
 
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/VertexContainer.h"
@@ -23,7 +24,6 @@ changes :
 #include "InDetConversionFinderTools/SingleTrackConversionTool.h"
 #include "xAODEgamma/EgammaxAODHelpers.h"
 #include "egammaInterfaces/IEMExtrapolationTools.h"
-#include "egammaAlgs/EMVertexBuilder.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
 

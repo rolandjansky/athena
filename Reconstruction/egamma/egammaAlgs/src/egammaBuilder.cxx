@@ -20,7 +20,7 @@ PURPOSE:  Algorithm which makes a egammaObjectCollection. For each cluster
 
 // INCLUDE HEADER FILES:
 
-#include "egammaAlgs/egammaBuilder.h"
+#include "egammaBuilder.h"
 
 #include "AthenaKernel/errorcheck.h"
 #include "GaudiKernel/IToolSvc.h"

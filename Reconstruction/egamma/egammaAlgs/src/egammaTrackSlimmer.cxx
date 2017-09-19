@@ -13,7 +13,7 @@ PACKAGE:  offline/Reconstruction/egammaRec
 
 #include "AthenaKernel/IThinningSvc.h"
 
-#include "egammaAlgs/egammaTrackSlimmer.h"
+#include "egammaTrackSlimmer.h"
 
 #include "xAODTracking/TrackParticleContainer.h"
 

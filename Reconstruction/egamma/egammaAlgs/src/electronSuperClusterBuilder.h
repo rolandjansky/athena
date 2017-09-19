@@ -6,8 +6,8 @@
 #define EGAMMAALGS_ELECTRONSUPERCLUSTERBUILDER_H
 
 // INCLUDE HEADER FILES:
-#include "GaudiKernel/ServiceHandle.h"
-#include "egammaAlgs/egammaSuperClusterBuilder.h"
+#include "egammaSuperClusterBuilder.h"
+
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 

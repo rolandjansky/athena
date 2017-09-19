@@ -3,7 +3,7 @@
 */
 
 
-#include "egammaAlgs/egammaRecBuilder.h"
+#include "egammaRecBuilder.h"
 
 #include "AthenaKernel/errorcheck.h"
 #include "GaudiKernel/IToolSvc.h"

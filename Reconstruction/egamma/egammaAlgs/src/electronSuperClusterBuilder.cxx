@@ -3,7 +3,7 @@
 */
 
 
-#include "egammaAlgs/electronSuperClusterBuilder.h"
+#include "electronSuperClusterBuilder.h"
 //
 #include "xAODEgamma/Egamma.h"
 #include "xAODEgamma/EgammaxAODHelpers.h"

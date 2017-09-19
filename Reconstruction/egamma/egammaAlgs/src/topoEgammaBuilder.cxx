@@ -3,7 +3,7 @@
 */
 
 
-#include "egammaAlgs/topoEgammaBuilder.h"
+#include "topoEgammaBuilder.h"
 
 #include "AthenaKernel/errorcheck.h"
 #include "GaudiKernel/IToolSvc.h"
