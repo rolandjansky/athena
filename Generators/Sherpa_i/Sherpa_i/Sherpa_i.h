@@ -31,26 +31,10 @@ protected:
   
   SHERPA::Sherpa * p_sherpa;
 
-  /// Sherpa run card snippet (from JO file)
-  std::string m_runcard;
-
-  /// List of additional Sherpa parameters beyond run card snippet (from JO file)
+  std::string m_path;
   std::vector<std::string> m_params;
-
-  /// List of needed OpenLoops process libraries (from JO file)
-  std::vector<std::string> m_openloopslibs;
-
-  /// List of any additional needed files, e.g. custom libraries, PDF sets (from JO file)
-  std::vector<std::string> m_extrafiles;
-
-  /// Number of cores recommended for multi-core integration file
-  int m_ncores;
-
-  /// Memory required for integration/evgen
-  double m_memorymb;
-
   double m_xsscale;
-  bool m_cleanup;
+  std::string m_scalevarref;
 };
 
 
