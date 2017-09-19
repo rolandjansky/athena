@@ -16,6 +16,7 @@ if viewTest:
   viewMaker.AlgPoolName = svcMgr.ViewAlgPool.name()
   viewMaker.InputRoICollection = "EMRoIs"
   viewMaker.OutputRoICollection = "EMViewRoIs"
+  viewMaker.ViewFallThrough = True
   topSequence += viewMaker
 
 
