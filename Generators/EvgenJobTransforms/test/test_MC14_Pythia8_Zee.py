@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
 ## Pythia8 Z->ee
 
 evgenConfig.description = "Z->ee production with no lepton filter and AU2 CTEQ6L1 tune"
