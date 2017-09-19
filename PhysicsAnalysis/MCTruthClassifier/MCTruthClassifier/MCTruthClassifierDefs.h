@@ -98,30 +98,30 @@ namespace MCTruthPartClassifier {
     LQ            = 21,
 
     SUSY          = 22,
-    OtherBSM      = 23,
-    LightMeson    = 24,
-    StrangeMeson  = 25,
-    CharmedMeson  = 26,
-    BottomMeson   = 27,
-    CCbarMeson    = 28,
-    JPsi          = 29,
-    BBbarMeson    = 30,  
-    LightBaryon   = 31,
-    StrangeBaryon = 32,
-    CharmedBaryon = 33, 
-    BottomBaryon  = 34,
-    PionDecay     = 35,
-    KaonDecay     = 36,
-    BremPhot      = 37,
-    PromptPhot    = 38,
-    UndrPhot      = 39,
-    ISRPhot       = 40,
-    FSRPhot       = 41, 
-    NucReact      = 42,
-    PiZero        = 43,
-    DiBoson       = 44,
-    ZorHeavyBoson = 45,
-    QCD           = 46
+    OtherBSM      = 46,
+    LightMeson    = 23,
+    StrangeMeson  = 24,
+    CharmedMeson  = 25,
+    BottomMeson   = 26,
+    CCbarMeson    = 27,
+    JPsi          = 28,
+    BBbarMeson    = 29,  
+    LightBaryon   = 30,
+    StrangeBaryon = 31,
+    CharmedBaryon = 32, 
+    BottomBaryon  = 33,
+    PionDecay     = 34,
+    KaonDecay     = 35,
+    BremPhot      = 36,
+    PromptPhot    = 37,
+    UndrPhot      = 38,
+    ISRPhot       = 39,
+    FSRPhot       = 40, 
+    NucReact      = 41,
+    PiZero        = 42,
+    DiBoson       = 43,
+    ZorHeavyBoson = 44,
+    QCD           = 45
   };
 
   enum ParticleOutCome {
@@ -220,7 +220,6 @@ namespace MCTruthPartClassifier {
    sParticleOrigin.push_back("NuRTau");
    sParticleOrigin.push_back("LQ");
    sParticleOrigin.push_back("SUSY");
-   sParticleOrigin.push_back("OtherBSM");
    sParticleOrigin.push_back("LightMeson");
    sParticleOrigin.push_back("StrangeMeson");
    sParticleOrigin.push_back("CharmedMeson");
@@ -244,6 +243,7 @@ namespace MCTruthPartClassifier {
    sParticleOrigin.push_back("DiBoson");
    sParticleOrigin.push_back("ZorHeavyBoson");
    sParticleOrigin.push_back("QCD");
+   sParticleOrigin.push_back("OtherBSM");
    
    sParticleOutCome.reserve(PARTICLEOUTCOME);
    sParticleOutCome.push_back("NonDefinedOutCome");
