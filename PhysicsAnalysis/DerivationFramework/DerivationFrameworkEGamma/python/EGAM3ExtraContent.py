@@ -122,7 +122,9 @@ ExtraContainersTrigger=[
 	"LVL1EmTauRoIs",
 	"HLT_TrigPassBitsCollection_passbits",
 	"HLT_TrigPassFlagsCollection_passflags",
-	"HLT_TrigRoiDescriptorCollection_initialRoI"
+	"HLT_TrigRoiDescriptorCollection_initialRoI",
+        # extra containers requested by e/gamma trigger (ATLEGAMDPD-36)
+        "HLT_xAOD__PhotonContainer_egamma_Iso_Photons"
 	]
 
 ExtraContainersTriggerDataOnly=[
