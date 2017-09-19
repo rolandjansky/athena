@@ -110,7 +110,9 @@ ExtraContainersTrigger=[
         # for L1 studies
         "LVL1EmTauRoIs",
         "HLT_TrigRoiDescriptorCollection_initialRoI", #Athena
-        "HLT_xAOD__RoiDescriptorStore_initialRoI" #AthAnalysis
+        "HLT_xAOD__RoiDescriptorStore_initialRoI", #AthAnalysis
+        # 
+        "HLT_xAOD__TrigRNNOutputContainer_TrigRingerNeuralFex"
         ]
 
 ExtraContainersTriggerDataOnly=[ 
