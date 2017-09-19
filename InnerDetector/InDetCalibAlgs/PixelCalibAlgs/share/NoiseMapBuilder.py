@@ -16,7 +16,8 @@ from AthenaCommon.AppMgr import ToolSvc
 collection = []
 if os.path.isfile(filelist):
     for line in open(filelist):
-        collection.append(line.strip())
+        if line[0] != '#':
+            collection.append(line.strip())
 else:
     errmess="### Unable to open input filelist: '%s'" % filelist
     raise RuntimeError(errmess)
