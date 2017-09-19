@@ -24,7 +24,7 @@ int main()
   std::cout << "Environment variables" << std::endl;
   system("env");
 
-  std::string cmd = "SUSYToolsTester $ASG_TEST_FILE_DATA 1000 isData=1 isAtlfast=0 Debug=0";
+  std::string cmd("SUSYToolsTester $ASG_TEST_FILE_DATA maxEvents=500 isData=1 isAtlfast=0 Debug=0");
   std::cout << "Will now run this command: " << cmd << std::endl;
   int ret = system(cmd.c_str());
 
