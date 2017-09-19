@@ -38,9 +38,12 @@ StatusCode RoRSeqFilter::initialize()
   
   CHECK( not m_chainsProperty.empty() );
   
-  for ( auto& el: m_chainsProperty ) 
+  for ( const std::string& el: m_chainsProperty ) 
     m_chains.insert( HLT::Identifier( el ).numeric() );
 
+  for ( const HLT::Identifier& id: m_chains )
+    ATH_MSG_DEBUG( "Configured to require chain " << id );
+  
   return StatusCode::SUCCESS;
 }
 
@@ -51,19 +54,22 @@ StatusCode RoRSeqFilter::finalize() {
 StatusCode RoRSeqFilter::execute() {  
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
 
+  auto inputHandles  = m_inputKeys.makeHandles();
+  auto outputHandles = m_outputKeys.makeHandles();
+
   size_t passCounter = 0;    
   if ( m_mergeInputs ) {
     auto output = std::make_unique< ConstDataVector< TrigCompositeUtils::DecisionContainer > > ();
     output->clear( SG::VIEW_ELEMENTS );
 
-    for ( auto inputKey: m_inputKeys ) {
-      auto inputHandle = SG::makeHandle( inputKey );      
+    for ( auto inputHandle: inputHandles ) {
+      //auto inputHandle = SG::makeHandle( inputKey );      
       passCounter += copyPassing( *inputHandle, *output );
     }
 
     ATH_MSG_DEBUG( "Recording " <<  m_outputKeys[ 0 ].key() );
-    auto outputHandle = SG::makeHandle( m_outputKeys[ 0 ] );
-    CHECK( outputHandle.record( std::move( output ) ) );
+    //auto outputHandle = SG::makeHandle( m_outputKeys[ 0 ] );
+    CHECK( outputHandles[0].record( std::move( output ) ) );
 
   } else {
     size_t outputIndex = 0;
@@ -76,25 +82,32 @@ StatusCode RoRSeqFilter::execute() {
       passCounter += copyPassing( *inputHandle, *output );
 
       ATH_MSG_DEBUG( "Recording " << outputIndex << " " <<  m_outputKeys[ outputIndex ].key() );
-      auto outputHandle = SG::makeHandle( m_outputKeys[ outputIndex ] );
-      CHECK( outputHandle.record( std::move( output ) ) );
+      //auto outputHandle = SG::makeHandle( m_outputKeys[ outputIndex ] );
+      CHECK( outputHandles[outputIndex].record( std::move( output ) ) );
 
       outputIndex++;
     }
   }
 
   ATH_MSG_DEBUG( "Filter " << ( passCounter != 0 ? "passed" : "rejected") );
-  setFilterPassed( passCounter != 0 );  
+  //setFilterPassed( passCounter != 0 );  
+  setFilterPassed( true );  
   return StatusCode::SUCCESS;
 }
   
 size_t RoRSeqFilter::copyPassing( const TrigCompositeUtils::DecisionContainer& input, 
 				  ConstDataVector<TrigCompositeUtils::DecisionContainer>& output ) const {
   size_t passCounter = 0;
-  for ( auto i: input ) {
+  ATH_MSG_DEBUG( "Input size " << input.size() );
+  for ( const TrigCompositeUtils::Decision* i: input ) {
+    
     TrigCompositeUtils::DecisionIDContainer objDecisions;      
     TrigCompositeUtils::passingIDs( i, objDecisions );
-    
+    ATH_MSG_DEBUG("Number of positive decisions " << objDecisions.size() );
+    for ( TrigCompositeUtils::DecisionID id : objDecisions ) {
+      ATH_MSG_DEBUG( "Positive decision " << HLT::Identifier( id ) );
+    }
+
     std::vector<TrigCompositeUtils::DecisionID> intersection;
     std::set_intersection( m_chains.begin(), m_chains.end(),
 			   objDecisions.begin(), objDecisions.end(),
@@ -105,5 +118,6 @@ size_t RoRSeqFilter::copyPassing( const TrigCompositeUtils::DecisionContainer& i
       passCounter ++;
     }
   }
+  ATH_MSG_DEBUG( "Output size " << output.size() );
   return passCounter;  
 }

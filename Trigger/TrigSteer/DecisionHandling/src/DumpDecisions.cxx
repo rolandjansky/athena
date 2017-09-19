@@ -19,15 +19,12 @@
 ////////////////
 DumpDecisions::DumpDecisions( const std::string& name, 
 			      ISvcLocator* pSvcLocator )
-  : AthReentrantAlgorithm( name, pSvcLocator )
-{
-  declareProperty( "Decisions", m_decisionKey, "Input Decisions" );
-  declareProperty( "VerbosityLevel", m_verbosityLevel, "3 - tries to print as much possible, 2 - only list of objects and their decisions, 1 - only list of active objets" );
-}
+  : AthReentrantAlgorithm( name, pSvcLocator ) 
+{}
 
 // Destructor
 ///////////////
-DumpDecisions::~DumpDecisions()
+DumpDecisions::~DumpDecisions() 
 {}
 
 // Athena Algorithm's Hooks
