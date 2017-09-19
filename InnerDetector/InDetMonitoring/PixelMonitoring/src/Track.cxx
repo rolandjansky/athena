@@ -54,10 +54,6 @@ StatusCode PixelMainMon::BookTrackMon(void)
   if (m_doOnTrack) path.replace(path.begin(), path.end(), "Pixel/TrackOnTrack");
   MonGroup trackHistos( this, path.c_str(), run, ATTRIB_MANAGED ); //declare a group of track histograms
   
-  std::string modlabel[9];
-  modlabel[0]="ECA"; modlabel[1]="ECC";
-  modlabel[2]="B0";  modlabel[3]="B1";    modlabel[4]="B2"; 
-  modlabel[5]="IBL"; modlabel[6]="IBL2D"; modlabel[7]="IBL3D"; 
   std::string hname;
   std::string htitles;
   
@@ -158,10 +154,10 @@ StatusCode PixelMainMon::FillTrackMon(void)
   int nPixelHits=0;
    
   ///
-  /// Clear
+  /// Clear containters, which hold id's of hits and clusters on track
   ///
   if (m_doOnTrack) {
-    m_RDOIDs.clear();//reset these so you can fill them with the new id's
+    m_RDOIDs.clear();
     m_ClusterIDs.clear();
   }
 
@@ -177,14 +173,6 @@ StatusCode PixelMainMon::FillTrackMon(void)
 	break;
       }
 
-      int nholes=-1;
-      int nbadclus=0;
-      int ngoodclus=0;
-      bool passQualityCut = false;
-      bool passTightCut = false;
-      bool pass1hole2GeVTightCut = false;
-      
-      const Trk::TrackParameters *trkParameters = 0;
       const Trk::TrackSummary* summary = track0->trackSummary();
       const Trk::Perigee *measPerigee = dynamic_cast< const Trk::Perigee *>(track0->perigeeParameters());
 
@@ -199,19 +187,23 @@ StatusCode PixelMainMon::FillTrackMon(void)
       }
 
       const Trk::Track* track = track0;
+      int nbadclus=0;
+      int ngoodclus=0;
       
       ///
       /// get the track state on surfaces (a vector, on element per surface) and loop over it
       ///
-      
-      nholes = summary->get(Trk::numberOfPixelHoles);
+      int nholes = summary->get(Trk::numberOfPixelHoles);
       if (m_doHoleSearch && !m_doOnline && nholes>0) {
 	track = m_holeSearchTool->getTrackWithHoles(*track0);
       }
 
       ///
-      /// Track Quality Cut
+      /// Track Quality Cuts
       ///
+      bool passQualityCut = false;
+      bool passTightCut = false;
+      bool pass1hole2GeVTightCut = false;
 
       if ( measPerigee->pT()/1000.0 > 5.0 && fabs(measPerigee->eta()) < 2.5) passQualityCut = true;
 
@@ -246,9 +238,10 @@ StatusCode PixelMainMon::FillTrackMon(void)
 	IdentifierHash id_hash;
 	const InDet::SiClusterOnTrack *clus=0;
 	const InDetDD::SiDetectorElement *side = 0;
+
 	const Trk::MeasurementBase* mesb=(*trackStateOnSurfaceIterator)->measurementOnTrack();
-	
 	const Trk::RIO_OnTrack* hit = mesb ? dynamic_cast<const Trk::RIO_OnTrack*>(mesb) : 0;
+	if (mesb && !hit) continue;  // skip pseudomeasurements etc.
         
 	//float nMeasurement = 0.;
 	float nOutlier = 0.;
@@ -262,7 +255,7 @@ StatusCode PixelMainMon::FillTrackMon(void)
 	///
 	/// Requiements
 	///
-	if (mesb && !hit) continue;  // skip pseudomeasurements etc.                                         
+
 	if (mesb && mesb->associatedSurface().associatedDetectorElement()) {
 	  surfaceID = mesb->associatedSurface().associatedDetectorElement()->identify();
 	  side = dynamic_cast<const InDetDD::SiDetectorElement *>( mesb->associatedSurface().associatedDetectorElement() );
@@ -271,7 +264,9 @@ StatusCode PixelMainMon::FillTrackMon(void)
 	    ATH_MSG_INFO("pointer of TSOS to track parameters or associated surface is null");
 	    continue;
 	  }
-	  surfaceID = (*trackStateOnSurfaceIterator)->trackParameters()->associatedSurface().associatedDetectorElementIdentifier();//check ptr
+	  if ((*trackStateOnSurfaceIterator)->trackParameters()->associatedSurface()) {
+	    surfaceID = (*trackStateOnSurfaceIterator)->trackParameters()->associatedSurface().associatedDetectorElementIdentifier();
+	  }
 	}
 
 	if ( !m_idHelper->is_pixel(surfaceID)) continue;
@@ -325,17 +320,22 @@ StatusCode PixelMainMon::FillTrackMon(void)
 	///
 	/// PixelClusters are valid
 	///
-	if (!(*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Measurement)) continue;
-	if (!clus) continue;
+	if ( !(*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Measurement) || !clus) continue;
+
 	const InDet::SiCluster *RawDataClus = dynamic_cast< const InDet::SiCluster*>(clus->prepRawData());
 	if (!RawDataClus) continue;
 	if (!RawDataClus->detectorElement()->isPixel()) continue;
  
-	nPixelHits++; //add another pixel hit 
-	for (unsigned int loopSize=0;loopSize < RawDataClus->rdoList().size(); loopSize++) {
-	  if (m_doOnTrack) m_RDOIDs.push_back(RawDataClus->rdoList().at(loopSize));
+	nPixelHits++; //add another pixel hit
+
+	/// Fill containters, which hold id's of hits and clusters on track
+	///
+	if (m_doOnTrack) {
+	  for (unsigned int loopSize=0;loopSize < RawDataClus->rdoList().size(); loopSize++) {
+	    m_RDOIDs.push_back(RawDataClus->rdoList().at(loopSize));
+	  }
+	  m_ClusterIDs.push_back( clus->identify());
 	}
-	if (m_doOnTrack) m_ClusterIDs.push_back( clus->identify());
 
 	const InDet::PixelCluster* pixelCluster = dynamic_cast<const InDet::PixelCluster*>(RawDataClus);
 	if (pixelCluster) {
@@ -368,7 +368,7 @@ StatusCode PixelMainMon::FillTrackMon(void)
 	///
 	/// Get track parameters for current surface (with AtaPlane)
 	///
-	trkParameters = (*trackStateOnSurfaceIterator)->trackParameters();
+	const Trk::TrackParameters *trkParameters = (*trackStateOnSurfaceIterator)->trackParameters();
 	const Trk::AtaPlane *trackAtPlane = dynamic_cast<const Trk::AtaPlane*>(trkParameters);
 	if (trackAtPlane)
 	  {
