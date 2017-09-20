@@ -51,13 +51,24 @@ theFastCaloAlgo.OutputLevel=VERBOSE
 theFastCaloAlgo.ClustersName="L2CaloClusters"
 svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection=False
 
+from AthenaCommon.CFElements import parOR, seqAND, stepSeq
+
+from DecisionHandling.DecisionHandlingConf import RoRSeqFilter
+
+
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 if viewTest:
+  filterL1RoIsAlg = RoRSeqFilter("filterL1RoIsAlg")
+  filterL1RoIsAlg.Input = ["EMRoIDecisions"]
+  filterL1RoIsAlg.Output = ["FilteredEMRoIDecisions"]
+  filterL1RoIsAlg.Chains = ["HLT_e5_etcut", "HLT_e7_etcut"]
+  filterL1RoIsAlg.OutputLevel = DEBUG
+  
   allViewAlgorithms += theFastCaloAlgo
   svcMgr.ViewAlgPool.TopAlg += [ theFastCaloAlgo.getName() ]
   l2CaloViewsMaker = EventViewCreatorAlgorithm("l2CaloViewsMaker", OutputLevel=DEBUG)
-  topSequence += l2CaloViewsMaker
-  l2CaloViewsMaker.Decisions = "EMRoIDecisions" # from EMRoIsUnpackingTool
+  
+  l2CaloViewsMaker.Decisions = "FilteredEMRoIDecisions" # from EMRoIsUnpackingTool
   l2CaloViewsMaker.RoIsLink = "initialRoI" # -||-
   l2CaloViewsMaker.InViewRoIs = "EMCaloRoIs" # contract with the fastCalo
   l2CaloViewsMaker.Views = "EMCaloViews"
@@ -77,7 +88,9 @@ if viewTest:
   for t in theFastCaloHypo.HypoTools:
     t.OutputLevel = DEBUG
 
-  topSequence += theFastCaloHypo
+  # topSequence += theFastCaloHypo
+
+  egammaCaloStep = stepSeq("egammaCaloStep", filterL1RoIsAlg, [ l2CaloViewsMaker, theFastCaloHypo ])
 
 else:
   topSequence += theFastCaloAlgo
@@ -259,9 +272,16 @@ theElectronFex.OutputLevel=VERBOSE
 
 
 if viewTest:
+  filterCaloRoIsAlg = RoRSeqFilter("filterCaloRoIsAlg")
+  filterCaloRoIsAlg.Input = [theFastCaloHypo.Decisions]
+  filterCaloRoIsAlg.Output = ["Filtered"+theFastCaloHypo.Decisions]
+  filterCaloRoIsAlg.Chains = ["HLT_e5_etcut", "HLT_e7_etcut"]
+  filterCaloRoIsAlg.OutputLevel = DEBUG
+
+
   l2ElectronViewsMaker = EventViewCreatorAlgorithm("l2ElectronViewsMaker", OutputLevel=DEBUG)
-  topSequence += l2ElectronViewsMaker
-  l2ElectronViewsMaker.Decisions = theFastCaloHypo.Decisions # output of L2CaloHypo
+  # topSequence += l2ElectronViewsMaker
+  l2ElectronViewsMaker.Decisions = filterCaloRoIsAlg.Output[0] # output of L2CaloHypo
   l2ElectronViewsMaker.RoIsLink = "roi" # -||-
   l2ElectronViewsMaker.InViewRoIs = "EMIDRoIs" # contract with the fastCalo
   l2ElectronViewsMaker.Views = "EMElectronViews"
@@ -294,9 +314,18 @@ if viewTest:
   theElectronHypo.HypoTools = [ TrigL2ElectronHypoToolFromName("HLT_e5_etcut"), TrigL2ElectronHypoToolFromName("HLT_e7_etcut") ]
   for t in theElectronHypo.HypoTools:
     t.OutputLevel = VERBOSE
-  topSequence += theElectronHypo
-
+  # topSequence += theElectronHypo
+  
+  egammaIDStep = stepSeq("egammaIDStep", filterCaloRoIsAlg, [ l2ElectronViewsMaker, theElectronHypo ] )
 
 else:
   # ID algs can't run w/o views yet
   pass
+
+
+# CF construction
+step0 = parOR("step0", [ egammaCaloStep ] )
+step1 = parOR("step1", [ egammaIDStep ] )
+steps = seqAND("HLTSteps", [ step0, step1 ]  )
+topSequence += steps
+  
