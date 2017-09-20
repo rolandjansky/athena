@@ -140,6 +140,7 @@ int main( int argc, char* argv[] ) {
 
   int doRTT=0; //if running on RTT DxAODs
   int SUSYx=1; //SUSY DxAOD flavour
+  Long64_t entries=-1;
 
   std::string config_file = "SUSYTools/SUSYTools_Default.conf";
   std::string prw_file = "DUMMY";
@@ -152,24 +153,16 @@ int main( int argc, char* argv[] ) {
     Info( APP_NAME,  "processing key %s  with value %s", key, val );
 
     if (strcmp(key, "isData") == 0) isData = atoi(val);
-
     if (strcmp(key, "isAtlfast") == 0) isAtlfast = atoi(val);
-
     if (strcmp(key, "NoSyst") == 0) NoSyst = atoi(val);
-
     if (strcmp(key, "Debug") == 0) debug = atoi(val);
-
     if (strcmp(key, "ConfigFile") == 0) config_file = std::string(val);
-
     if (strcmp(key, "PRWFile") == 0) prw_file = std::string(val);
-
     if (strcmp(key, "ilumicalcFile") == 0) ilumicalc_file = std::string(val);
-
     if (strcmp(key, "JESNPset") == 0) JESNPset = atoi(val);
-
     if (strcmp(key, "doRTT") == 0) doRTT = atoi(val);
-
     if (strcmp(key, "SUSYx") == 0) SUSYx = atoi(val);
+    if (strcmp(key, "maxEvents") == 0) entries = atoi(val);
 
   }
 
@@ -233,15 +226,10 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
   //std::auto_ptr< TFile > ofile( TFile::Open( "out.root", "RECREATE" ) );
   //ANA_CHECK( event.writeTo( ofile.get() ) );
 
-  // Decide how many events to run over:
-  Long64_t entries = event.getEntries();
-  if ( argc > 2 ) {
-    const Long64_t e = atoll( argv[ 2 ] );
-    if ( e > 0 && e < entries ) {
-      entries = e;
-    }
+  // If we haven't set the number of events, then run over the whole tree
+  if (entries<0){
+    entries = event.getEntries();
   }
-
 
   // GRL tool
   asg::AnaToolHandle<IGoodRunsListSelectionTool> m_grl;
