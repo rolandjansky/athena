@@ -76,7 +76,7 @@ PixelMon2DMapsLW::PixelMon2DMapsLW(std::string name, std::string title, const Pi
   formatHist();
 }
 
-void PixelMon2DMapsLW::Fill(Identifier& id, const PixelID* pixID, float weight) {
+void PixelMon2DMapsLW::fill(Identifier& id, const PixelID* pixID, float weight) {
   const int bec = pixID->barrel_ec(id);
   const int pm = pixID->phi_module(id);
   int ld = pixID->layer_disk(id);
@@ -120,7 +120,7 @@ void PixelMon2DMapsLW::Fill(Identifier& id, const PixelID* pixID, float weight) 
   }
 }
 
-void PixelMon2DMapsLW::Fill2DMon(PixelMon2DMapsLW* oldmap) {
+void PixelMon2DMapsLW::fill2DMon(PixelMon2DMapsLW* oldmap) {
   for (unsigned int index = 0; index < m_histograms.size(); ++index) {
     auto& hist = m_histograms.at(index);
     auto& oldhist = oldmap->m_histograms.at(index);

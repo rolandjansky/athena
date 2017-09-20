@@ -71,7 +71,7 @@ PixelMon2DLumiMaps::PixelMon2DLumiMaps(std::string name, std::string title, std:
   formatHist();
 }
 
-void PixelMon2DLumiMaps::Fill(double LB, Identifier& id, const PixelID* pixID, float weight) {
+void PixelMon2DLumiMaps::fill(double LB, Identifier& id, const PixelID* pixID, float weight) {
   const int bec = pixID->barrel_ec(id);
   const int pm = pixID->phi_module(id);
   int ld = pixID->layer_disk(id);

@@ -273,8 +273,8 @@ StatusCode PixelMainMon::fillTrackMon(void) {
         clus = dynamic_cast<const InDet::SiClusterOnTrack *>(mesb);
         if (clus) clusID = clus->identify();
 
-        if (m_tsos_hitmap) m_tsos_hitmap->Fill(surfaceID, m_pixelid);
-        if (m_tsos_hiteff_vs_lumi) m_tsos_hiteff_vs_lumi->Fill(m_manager->lumiBlockNumber(), 1., surfaceID, m_pixelid);
+        if (m_tsos_hitmap) m_tsos_hitmap->fill(surfaceID, m_pixelid);
+        if (m_tsos_hiteff_vs_lumi) m_tsos_hiteff_vs_lumi->fill(m_manager->lumiBlockNumber(), 1., surfaceID, m_pixelid);
         if (m_hiteff_incl_mod[pixlayerdisk] && pass1hole2GeVTightCut) m_hiteff_incl_mod[pixlayerdisk]->Fill(m_manager->lumiBlockNumber(), 1.0);
       }
 
@@ -283,8 +283,8 @@ StatusCode PixelMainMon::fillTrackMon(void) {
         if (clus) clusID = clus->identify();
         nOutlier = 1.0;
 
-        if (m_tsos_holemap) m_tsos_holemap->Fill(surfaceID, m_pixelid);
-        if (m_tsos_hiteff_vs_lumi) m_tsos_hiteff_vs_lumi->Fill(m_manager->lumiBlockNumber(), 0., surfaceID, m_pixelid);
+        if (m_tsos_holemap) m_tsos_holemap->fill(surfaceID, m_pixelid);
+        if (m_tsos_hiteff_vs_lumi) m_tsos_hiteff_vs_lumi->fill(m_manager->lumiBlockNumber(), 0., surfaceID, m_pixelid);
         if (m_hiteff_incl_mod[pixlayerdisk] && pass1hole2GeVTightCut) m_hiteff_incl_mod[pixlayerdisk]->Fill(m_manager->lumiBlockNumber(), 0.0);
       }
 
@@ -293,17 +293,17 @@ StatusCode PixelMainMon::fillTrackMon(void) {
         if (clus) clusID = clus->identify();
         nHole = 1.0;
 
-        if (m_tsos_outliermap) m_tsos_outliermap->Fill(surfaceID, m_pixelid);
-        if (m_tsos_hiteff_vs_lumi) m_tsos_hiteff_vs_lumi->Fill(m_manager->lumiBlockNumber(), 0., surfaceID, m_pixelid);
+        if (m_tsos_outliermap) m_tsos_outliermap->fill(surfaceID, m_pixelid);
+        if (m_tsos_hiteff_vs_lumi) m_tsos_hiteff_vs_lumi->fill(m_manager->lumiBlockNumber(), 0., surfaceID, m_pixelid);
         if (m_hiteff_incl_mod[pixlayerdisk] && pass1hole2GeVTightCut) m_hiteff_incl_mod[pixlayerdisk]->Fill(m_manager->lumiBlockNumber(), 0.0);
       }
 
-      if (m_doOnline && m_tsos_holeratio_tmp && passQualityCut) m_tsos_holeratio_tmp->Fill(surfaceID, m_pixelid, nHole);
+      if (m_doOnline && m_tsos_holeratio_tmp && passQualityCut) m_tsos_holeratio_tmp->fill(surfaceID, m_pixelid, nHole);
       if (passQualityCut) {
         if (nOutlier + nHole > 0.) {
-          if (m_doOnline && m_misshits_ratio_tmp) m_misshits_ratio_tmp->Fill(surfaceID, m_pixelid, 1.0);
+          if (m_doOnline && m_misshits_ratio_tmp) m_misshits_ratio_tmp->fill(surfaceID, m_pixelid, 1.0);
         } else {
-          if (m_doOnline && m_misshits_ratio_tmp) m_misshits_ratio_tmp->Fill(surfaceID, m_pixelid, 0.0);
+          if (m_doOnline && m_misshits_ratio_tmp) m_misshits_ratio_tmp->fill(surfaceID, m_pixelid, 0.0);
         }
       }
 
@@ -442,8 +442,8 @@ StatusCode PixelMainMon::fillTrackMon(void) {
 
   if (m_doOnline) {
     if (m_doRefresh5min) {
-      if (m_tsos_holeratio_mon && m_tsos_holeratio_tmp) m_tsos_holeratio_mon->Fill2DMon(m_tsos_holeratio_tmp.get());
-      if (m_misshits_ratio_mon && m_misshits_ratio_tmp) m_misshits_ratio_mon->Fill2DMon(m_misshits_ratio_tmp.get());
+      if (m_tsos_holeratio_mon && m_tsos_holeratio_tmp) m_tsos_holeratio_mon->fill2DMon(m_tsos_holeratio_tmp.get());
+      if (m_misshits_ratio_mon && m_misshits_ratio_tmp) m_misshits_ratio_mon->fill2DMon(m_misshits_ratio_tmp.get());
     }
   }
 

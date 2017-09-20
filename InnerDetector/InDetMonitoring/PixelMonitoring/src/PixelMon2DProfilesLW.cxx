@@ -78,19 +78,19 @@ PixelMon2DProfilesLW::PixelMon2DProfilesLW(std::string name, std::string title, 
   formatHist();
 }
 
-void PixelMon2DProfilesLW::SetMaxValue(float max) {
+void PixelMon2DProfilesLW::setMaxValue(float max) {
   for (auto& hist : m_histograms) {
     if (hist) hist->SetMaximum(max);
   }
 }
 
-void PixelMon2DProfilesLW::Reset() {
+void PixelMon2DProfilesLW::reset() {
   for (auto& hist : m_histograms) {
     if (hist) hist->Reset();
   }
 }
 
-void PixelMon2DProfilesLW::Fill(Identifier& id, const PixelID* pixID, float weight) {
+void PixelMon2DProfilesLW::fill(Identifier& id, const PixelID* pixID, float weight) {
   const int bec = pixID->barrel_ec(id);
   const int pm = pixID->phi_module(id);
   int ld = pixID->layer_disk(id);
@@ -204,7 +204,7 @@ void PixelMon2DProfilesLW::formatHist() {
   }
 }
 
-void PixelMon2DProfilesLW::Fill2DMon(PixelMon2DProfilesLW* oldmap) {
+void PixelMon2DProfilesLW::fill2DMon(PixelMon2DProfilesLW* oldmap) {
   for (unsigned int index = 0; index < m_histograms.size(); ++index) {
     auto& hist = m_histograms.at(index);
     auto& oldhist = oldmap->m_histograms.at(index);
@@ -220,7 +220,7 @@ void PixelMon2DProfilesLW::Fill2DMon(PixelMon2DProfilesLW* oldmap) {
   }
 }
 
-void PixelMon2DProfilesLW::FillFromMap(PixelMon2DMapsLW* inputmap, bool clear_inputmap) {
+void PixelMon2DProfilesLW::fillFromMap(PixelMon2DMapsLW* inputmap, bool clear_inputmap) {
   const float weightIBL = 1.0 / 26880.0;
   const float weightPixel = 1.0 / 46080.0;
 

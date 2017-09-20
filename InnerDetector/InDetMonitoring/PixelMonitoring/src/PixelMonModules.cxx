@@ -90,7 +90,7 @@ PixelMonModules2D::PixelMonModules2D(std::string name, std::string title, int nb
   m_Dummy = 0;
 }
 
-void PixelMonModulesProf::Reset() {
+void PixelMonModulesProf::reset() {
   for (int i = 0; i < 2024; i++) {
     if (getHist(i)) getHist(i)->Reset();
   }
@@ -106,19 +106,19 @@ StatusCode PixelMonModulesProf::regHist(ManagedMonitorToolBase* thisptr, std::st
   return StatusCode::SUCCESS;
 }
 
-void PixelMonModules1D::Reset() {
+void PixelMonModules1D::reset() {
   for (int i = 0; i < 2024; i++) {
     if (getHist(i)) getHist(i)->Reset();
   }
 }
 
-void PixelMonModules2D::Reset() {
+void PixelMonModules2D::reset() {
   for (int i = 0; i < 2024; i++) {
     if (getHist(i)) getHist(i)->Reset();
   }
 }
 
-void PixelMonModulesProf::Fill(double value0, double value1, Identifier& id, const PixelID* pixID) {
+void PixelMonModulesProf::fill(double value0, double value1, Identifier& id, const PixelID* pixID) {
   const int bec = pixID->barrel_ec(id);
   const int pm = pixID->phi_module(id);
   int ld = pixID->layer_disk(id);
@@ -142,7 +142,7 @@ void PixelMonModulesProf::Fill(double value0, double value1, Identifier& id, con
   }
 }
 
-void PixelMonModules2D::Fill(double value0, double value1, Identifier& id, const PixelID* pixID, double weight) {
+void PixelMonModules2D::fill(double value0, double value1, Identifier& id, const PixelID* pixID, double weight) {
   const int bec = pixID->barrel_ec(id);
   const int pm = pixID->phi_module(id);
   int ld = pixID->layer_disk(id);
@@ -166,7 +166,7 @@ void PixelMonModules2D::Fill(double value0, double value1, Identifier& id, const
   }
 }
 
-double PixelMonModules1D::GetBinContent(double value, Identifier& id, const PixelID* pixID) {
+double PixelMonModules1D::getBinContent(double value, Identifier& id, const PixelID* pixID) {
   const int bec = pixID->barrel_ec(id);
   const int pm = pixID->phi_module(id);
   int ld = pixID->layer_disk(id);
@@ -190,7 +190,7 @@ double PixelMonModules1D::GetBinContent(double value, Identifier& id, const Pixe
   return 0.0;
 }
 
-void PixelMonModules1D::Fill(double value, Identifier& id, const PixelID* pixID) {
+void PixelMonModules1D::fill(double value, Identifier& id, const PixelID* pixID) {
   const int bec = pixID->barrel_ec(id);
   const int pm = pixID->phi_module(id);
   int ld = pixID->layer_disk(id);
@@ -256,7 +256,7 @@ void PixelMonModules2D::formatHist(std::string /*opt*/) {
   }
 }
 
-void PixelMonModules1D::SetBinLabel(const char* label, int binN) {
+void PixelMonModules1D::setBinLabel(const char* label, int binN) {
   if (binN > m_nBins) return;
   for (int i = 0; i < 2024; i++) {
     if (getHist(i)) getHist(i)->GetXaxis()->SetBinLabel(binN, label);

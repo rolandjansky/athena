@@ -70,7 +70,7 @@ PixelMon2DLumiProfiles::PixelMon2DLumiProfiles(std::string name, std::string tit
   formatHist();
 }
 
-void PixelMon2DLumiProfiles::Fill(double LB, Identifier& id, const PixelID* pixID, double weight) {
+void PixelMon2DLumiProfiles::fill(double LB, Identifier& id, const PixelID* pixID, double weight) {
   const int bec = pixID->barrel_ec(id);
   const int pm = pixID->phi_module(id);
   int ld = pixID->layer_disk(id);

@@ -25,7 +25,7 @@ class PixelMonModules {
  public:
   // PixelMonModules();
   virtual void formatHist(std::string) = 0;  // pass the bin labels here if needed
-  virtual void Reset() = 0;
+  virtual void reset() = 0;
   virtual StatusCode regHist(ManagedMonitorToolBase* thisptr, std::string path, ManagedMonitorToolBase::Interval_t Run) = 0;
 
  protected:
@@ -46,10 +46,10 @@ class PixelMonModules1D : public PixelMonModules {
   TH1F* A[3][48];
   TH1F* C[3][48];
   virtual void formatHist(std::string opt = "");  // pass the bin labels here if needed
-  void Fill(double value, Identifier& id, const PixelID* pixID);
-  void SetBinLabel(const char* lable, int binN);
-  virtual void Reset();
-  double GetBinContent(double value, Identifier& id, const PixelID* pixID);
+  void fill(double value, Identifier& id, const PixelID* pixID);
+  void setBinLabel(const char* lable, int binN);
+  virtual void reset();
+  double getBinContent(double value, Identifier& id, const PixelID* pixID);
 
  private:
   TH1F* m_Dummy;          // shouldn't be used unless messed up;
@@ -68,9 +68,9 @@ class PixelMonModulesProf : public PixelMonModules {
   TProfile_LW* A[3][48];
   TProfile_LW* C[3][48];
   virtual void formatHist(std::string opt = "");  // pass the bin labels here if needed
-  void Fill(double value0, double value1, Identifier& id, const PixelID* pixID);
-  void SetBinLabel(const char* lable, int binN);
-  virtual void Reset();
+  void fill(double value0, double value1, Identifier& id, const PixelID* pixID);
+  void setBinLabel(const char* lable, int binN);
+  virtual void reset();
 
  private:
   TProfile_LW* m_Dummy;          // shouldn't be used unless messed up;
@@ -89,8 +89,8 @@ class PixelMonModules2D : public PixelMonModules {
   TH2F* A[3][48];
   TH2F* C[3][48];
   virtual void formatHist(std::string opt = "");  // pass the bin labels here if needed
-  void Fill(double value0, double value1, Identifier& id, const PixelID* pixID, double weight = 1.);
-  virtual void Reset();
+  void fill(double value0, double value1, Identifier& id, const PixelID* pixID, double weight = 1.);
+  virtual void reset();
 
  private:
   TH2F* m_Dummy;          // shouldn't be used unless messed up;

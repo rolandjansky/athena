@@ -225,7 +225,7 @@ StatusCode PixelMainMon::bookRODErrorMon(void) {
     m_errors = std::make_unique<PixelMonModules1D>(PixelMonModules1D("errors", ("Errors in module:ErrorType" + m_histTitleExt + ";Number of Errors").c_str(), 7, 0.5, 7.5));
     sc = m_errors->regHist(this, (path + "/ModulesErrors").c_str(), run);
     for (int k = 0; k < 7; k++) {
-      m_errors->SetBinLabel(error_type_labels[k].second.c_str(), k + 1);
+      m_errors->setBinLabel(error_type_labels[k].second.c_str(), k + 1);
     }
   }
 
@@ -425,15 +425,15 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
           if (error_type == 6) error_cat = ErrorCategory::kSeu;
           if (error_type == 7) error_cat = ErrorCategory::kTout;
 
-          if (m_errors) m_errors->Fill(error_type, WaferID, m_pixelid);
+          if (m_errors) m_errors->fill(error_type, WaferID, m_pixelid);
 
           if (m_doLumiBlock && m_errors_LB) {
-            m_errors_LB->Fill(WaferID, m_pixelid);
+            m_errors_LB->fill(WaferID, m_pixelid);
           }
 
           if (!has_err_type[error_type - 1]) {
             if (m_errhist_errtype_map[error_type - 1] && !m_doOnline) {
-              m_errhist_errtype_map[error_type - 1]->Fill(WaferID, m_pixelid);
+              m_errhist_errtype_map[error_type - 1]->fill(WaferID, m_pixelid);
             }
             num_errormodules_per_type[kLayer][error_type - 1]++;
             if (kLayerIBL != 99) num_errormodules_per_type[kLayerIBL][error_type - 1]++;
@@ -441,7 +441,7 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
           }
           if (!has_err_cat[error_cat]) {
             if (m_errhist_errcat_map[error_cat] && !m_doOnline) {
-              m_errhist_errcat_map[error_cat]->Fill(WaferID, m_pixelid);
+              m_errhist_errcat_map[error_cat]->fill(WaferID, m_pixelid);
             }
             num_errormodules_per_cat[kLayer][error_cat]++;
             if (kLayerIBL != 99) {
@@ -474,8 +474,8 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
         if (getErrorState(bit, is_ibl) != 99) {
           num_errors_per_state[kLayer][getErrorState(bit, is_ibl)]++;
           num_errors_per_stateIBL[getErrorState(bit, is_ibl)]++;
-          if (m_errhist_expert_maps[getErrorState(bit, is_ibl)]) m_errhist_expert_maps[getErrorState(bit, is_ibl)]->Fill(WaferID, m_pixelid);
-          if (m_errhist_expert_LB_maps[getErrorState(bit, is_ibl)]) m_errhist_expert_LB_maps[getErrorState(bit, is_ibl)]->Fill(kLumiBlock, WaferID, m_pixelid, 1);
+          if (m_errhist_expert_maps[getErrorState(bit, is_ibl)]) m_errhist_expert_maps[getErrorState(bit, is_ibl)]->fill(WaferID, m_pixelid);
+          if (m_errhist_expert_LB_maps[getErrorState(bit, is_ibl)]) m_errhist_expert_LB_maps[getErrorState(bit, is_ibl)]->fill(kLumiBlock, WaferID, m_pixelid, 1);
         }
 
         if (kLayer == PixLayer::kIBL) {
@@ -517,17 +517,17 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
               if (error_type == 3) error_cat = ErrorCategory::kTrunc;
               if (error_type == 6) error_cat = ErrorCategory::kSeu;
 
-              if (m_errors) m_errors->Fill(error_type, WaferID, m_pixelid);
+              if (m_errors) m_errors->fill(error_type, WaferID, m_pixelid);
 
               if (m_doLumiBlock && m_errors_LB) {
-                m_errors_LB->Fill(WaferID, m_pixelid);
+                m_errors_LB->fill(WaferID, m_pixelid);
               }
 
               // Should this stay the same? This counts '1' for errors,
               // regardless of how many FEs have that error type.
               if (!has_err_type[error_type - 1]) {
                 if (m_errhist_errtype_map[error_type - 1] && !m_doOnline) {
-                  m_errhist_errtype_map[error_type - 1]->Fill(WaferID, m_pixelid);
+                  m_errhist_errtype_map[error_type - 1]->fill(WaferID, m_pixelid);
                 }
                 num_errormodules_per_type[kLayer][error_type - 1]++;
                 if (kLayerIBL != 99) num_errormodules_per_type[kLayerIBL][error_type - 1]++;
@@ -535,7 +535,7 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
               }
               if (!has_err_cat[error_cat]) {
                 if (m_errhist_errcat_map[error_cat] && !m_doOnline) {
-                  m_errhist_errcat_map[error_cat]->Fill(WaferID, m_pixelid);
+                  m_errhist_errcat_map[error_cat]->fill(WaferID, m_pixelid);
                 }
                 num_errormodules_per_cat[kLayer][error_cat]++;
                 if (kLayerIBL != 99) {
@@ -547,19 +547,19 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
 
             if (getErrorState(bit, is_ibl) != 99) {
               num_errors_per_state[kLayer][getErrorState(bit, is_ibl)]++;
-              if (m_errhist_expert_maps[getErrorState(bit, is_ibl)]) m_errhist_expert_maps[getErrorState(bit, is_ibl)]->Fill(WaferID, m_pixelid);
-              if (m_errhist_expert_LB_maps[getErrorState(bit, is_ibl)]) m_errhist_expert_LB_maps[getErrorState(bit, is_ibl)]->Fill(kLumiBlock, WaferID, m_pixelid, 1);
+              if (m_errhist_expert_maps[getErrorState(bit, is_ibl)]) m_errhist_expert_maps[getErrorState(bit, is_ibl)]->fill(WaferID, m_pixelid);
+              if (m_errhist_expert_LB_maps[getErrorState(bit, is_ibl)]) m_errhist_expert_LB_maps[getErrorState(bit, is_ibl)]->fill(kLumiBlock, WaferID, m_pixelid, 1);
             }
           }  // end bit shifting
         }    // end for loop over bits
       }      // end loop over FE error words
     }
 
-    m_errhist_femcc_errwords_map->Fill(WaferID, m_pixelid, num_femcc_errwords);
+    m_errhist_femcc_errwords_map->fill(WaferID, m_pixelid, num_femcc_errwords);
 
     if (m_doLumiBlock) {
-      if (m_errors_ModSync_mod && has_err_type[0]) m_errors_ModSync_mod->Fill(WaferID, m_pixelid);
-      if (m_errors_RODSync_mod && has_err_type[1]) m_errors_RODSync_mod->Fill(WaferID, m_pixelid);
+      if (m_errors_ModSync_mod && has_err_type[0]) m_errors_ModSync_mod->fill(WaferID, m_pixelid);
+      if (m_errors_RODSync_mod && has_err_type[1]) m_errors_RODSync_mod->fill(WaferID, m_pixelid);
     }
   }  // end loop over all identifiers
 
