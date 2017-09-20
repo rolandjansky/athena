@@ -34,8 +34,7 @@ namespace iFatras{
       @author Noemi.Calace@cern.ch, Andreas.Salzburger@cern.ch
    */
 
-  class EnergyLossSamplerBetheHeitler : public AthAlgTool, 
-    virtual public iFatras::IEnergyLossSampler {
+  class EnergyLossSamplerBetheHeitler : public extends<AthAlgTool, iFatras::IEnergyLossSampler> {
 
  public:
     
