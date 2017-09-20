@@ -293,9 +293,8 @@ StatusCode PixelMainMon::BookHitsMon(void) {
     sc = m_pixel_occupancy->regHist(this, (path + "/PixelOccupancy").c_str(), run);
   }
 
-  if (m_doDetails)
+  if (m_doDetails) {
     // evaluate for specific modules
-  {
     sc = rdoExpert.regHist(m_Details_mod1_num_hits = TH1F_LW::create(("Details_num_hits_" + m_DetailsMod1).c_str(), ("number of pixel hits per event for mod1" + m_histTitleExt).c_str(), 100, -0., 100));
     sc = rdoExpert.regHist(m_Details_mod2_num_hits = TH1F_LW::create(("Details_num_hits_" + m_DetailsMod2).c_str(), ("number of pixel hits per event for mod2" + m_histTitleExt).c_str(), 100, -0., 100));
     sc = rdoExpert.regHist(m_Details_mod3_num_hits = TH1F_LW::create(("Details_num_hits_" + m_DetailsMod3).c_str(), ("number of pixel hits per event for mod3" + m_histTitleExt).c_str(), 100, -0., 100));
@@ -479,9 +478,9 @@ StatusCode PixelMainMon::FillHitsMon(void)  // Called once per event
   int lvl1idATLAS(-1);
   const EventInfo* thisEventInfo;
   sc = evtStore()->retrieve(thisEventInfo);
-  if (sc != StatusCode::SUCCESS)
+  if (sc != StatusCode::SUCCESS) {
     ATH_MSG_WARNING("No EventInfo object found");
-  else {
+  } else {
     lvl1idATLAS = (int)((thisEventInfo->trigger_info()->extendedLevel1ID()) & 0xf);
   }
 
@@ -735,10 +734,11 @@ StatusCode PixelMainMon::FillHitsMon(void)  // Called once per event
             if (i == PixLayer::kB1) m_modocc_per_lumi[i]->Fill(m_manager->lumiBlockNumber(), m_HitPerEventArray_l1[phi][eta] * inv_nChannels_mod[i]);
             if (i == PixLayer::kB2) m_modocc_per_lumi[i]->Fill(m_manager->lumiBlockNumber(), m_HitPerEventArray_l2[phi][eta] * inv_nChannels_mod[i]);
             if (i == PixLayer::kIBL) {
-              if (eta < 4 || eta > 15)
+              if (eta < 4 || eta > 15) {
                 m_modocc_per_lumi[i]->Fill(m_manager->lumiBlockNumber(), m_HitPerEventArray_lI[phi][eta] * inv_nChannels_mod[i]);
-              else
+              } else {
                 m_modocc_per_lumi[i]->Fill(m_manager->lumiBlockNumber(), m_HitPerEventArray_lI[phi][eta] * inv_nChannels_mod[i + 1]);
+              }
             }
           }
         }

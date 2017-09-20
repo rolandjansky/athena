@@ -87,8 +87,9 @@ StatusCode PixelMainMon::BookStatusMon(void) {
   tmp2 = makeHisttitle("Number of disabled modules per event per LB for Pixel barrel", (atext_LB + atext_nmod), false);
   sc = statusHistos.regHist(m_disabledModules_per_lumi_PIX = TProfile_LW::create(tmp.c_str(), (tmp2 + m_histTitleExt + atext_LB + atext_nmod).c_str(), nbins_LB, min_LB, max_LB));
 
-  if (sc.isFailure())
+  if (sc.isFailure()) {
     if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "histograms not booked" << endmsg;
+  }
   return StatusCode::SUCCESS;
 }
 
@@ -103,8 +104,9 @@ StatusCode PixelMainMon::BookStatusLumiBlockMon(void) {
   StatusCode sc = m_status_LB->regHist(lumiBlockHist);
   m_status_LB->SetMaxValue(2.0);
 
-  if (sc.isFailure())
+  if (sc.isFailure()) {
     if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "histograms not booked" << endmsg;
+  }
   return StatusCode::SUCCESS;
 }
 
@@ -147,8 +149,7 @@ StatusCode PixelMainMon::FillStatusMon(void) {
       if (m_status_LB) m_status_LB->Fill(WaferID, m_pixelid, Index);
     }
 
-    if (Index > 0)  // bad but active modules
-    {
+    if (Index > 0) {  // bad but active modules
       if (Index == 1) {
         nBad++;
         nBad_mod[pixlayer]++;

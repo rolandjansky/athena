@@ -176,10 +176,11 @@ StatusCode PixelMainMon::BookClustersMon(void) {
     sc = clusterExpert.regHist(m_bigcluster_Q_mod[i] = TH1F_LW::create(hname.c_str(), htitles.c_str(), nbins_Q, min_Q, max_Q));
 
     hname = makeHistname(("Cluster_LVL1A_" + m_modLabel_PixLayerIBL2D3D[i]), true);
-    if (i != PixLayer::kIBL)
+    if (i != PixLayer::kIBL) {
       htitles = makeHisttitle(("Cluster Level 1 Accept with ToT > 15, " + m_modLabel_PixLayerIBL2D3D[i]), (atext_lvl1 + atext_nclu), false);
-    else
+    } else {
       htitles = makeHisttitle(("Cluster Level 1 Accept with ToT > 4, " + m_modLabel_PixLayerIBL2D3D[i]), (atext_lvl1 + atext_nclu), false);
+    }
     sc = timeExpert.regHist(m_cluster_LVL1A1d_mod[i] = TH1F_LW::create(hname.c_str(), htitles.c_str(), nbins_lvl1, min_lvl1, max_lvl1));
 
     hname = makeHistname(("Cluster_groupsize_vs_eta_" + m_modLabel_PixLayerIBL2D3D[i]), false);
@@ -438,7 +439,8 @@ StatusCode PixelMainMon::BookClustersLumiBlockMon(void) {
     sc = lumiBlockHist.regHist(m_num_clusters_LB = TH1I_LW::create("num_clusters_LB", ("Number of pixel clusters per event" + m_histTitleExt + ";# pixel clusters/event;# events").c_str(), nbins_nclusters, min_nclusters, max_nclusters));
   }
 
-  if (m_doModules && m_doOnTrack) {  // normally not booked, as doModules is online, doLumiBlock is offline
+  // normally not booked, as doModules is online, doLumiBlock is offline
+  if (m_doModules && m_doOnTrack) {
     m_cluster_num_mod_LB = std::make_unique<PixelMonModules1D>(PixelMonModules1D("Cluster_num_LB", ("Number of clusters per event in module" + m_histTitleExt).c_str(), 20, -0.5, 59.5));
     sc = m_cluster_num_mod_LB->regHist(this, (path + "/Modules_NumberOfClusters").c_str(), lowStat);
     m_cluster_ToT_mod_LB = std::make_unique<PixelMonModules1D>(PixelMonModules1D("Cluster_ToT_mod_LB", ("Cluster ToT in Module" + m_histTitleExt).c_str(), 75, 0., 300.));
@@ -493,7 +495,8 @@ StatusCode PixelMainMon::FillClustersMon(void) {
     const InDet::PixelClusterCollection* ClusterCollection(*colNext);
 
     if (!ClusterCollection) {
-      if (m_storegate_errors) m_storegate_errors->Fill(3., 5.);  // first entry is for RDO, second is for data problem
+      // first entry is for RDO, second is for data problem
+      if (m_storegate_errors) m_storegate_errors->Fill(3., 5.);
       continue;
     }
     for (p_clus = ClusterCollection->begin(); p_clus != ClusterCollection->end(); ++p_clus) {

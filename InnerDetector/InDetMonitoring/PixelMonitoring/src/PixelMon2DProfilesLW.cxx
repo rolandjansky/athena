@@ -95,15 +95,15 @@ void PixelMon2DProfilesLW::Fill(Identifier& id, const PixelID* pixID, float weig
   const int pm = pixID->phi_module(id);
   int ld = pixID->layer_disk(id);
 
-  if (bec == 2 && A)
+  if (bec == 2 && A) {
     A->Fill(ld, pm, weight);
-  else if (bec == -2 && C)
+  } else if (bec == -2 && C) {
     C->Fill(ld, pm, weight);
-  else if (bec == 4 && DBMA)
+  } else if (bec == 4 && DBMA) {
     DBMA->Fill(ld, pm, weight);
-  else if (bec == -4 && DBMC)
+  } else if (bec == -4 && DBMC) {
     DBMC->Fill(ld, pm, weight);
-  else if (bec == 0) {
+  } else if (bec == 0) {
     if (m_doIBL) ld--;
     const int em = pixID->eta_module(id);
     if (ld == 0 && B0) {

@@ -36,11 +36,11 @@ std::string PixelMainMon::makeHisttitle(std::string set, std::string axis, bool 
 
 int PixelMainMon::GetPixLayerID(int ec, int ld, bool ibl) {
   int layer = 99;
-  if (ec == 2)
+  if (ec == 2) {
     layer = PixLayer::kECA;
-  else if (ec == -2)
+  } else if (ec == -2) {
     layer = PixLayer::kECC;
-  else if (ec == 0) {
+  } else if (ec == 0) {
     if (ibl && ld == 0) layer = PixLayer::kIBL;
     if (ld == 0 + ibl) layer = PixLayer::kB0;
     if (ld == 1 + ibl) layer = PixLayer::kB1;
@@ -51,22 +51,18 @@ int PixelMainMon::GetPixLayerID(int ec, int ld, bool ibl) {
 
 int PixelMainMon::GetPixLayerIDDBM(int ec, int ld, bool ibl) {
   int layer = 99;
-  if (ec == 2)
+  if (ec == 2) {
     layer = PixLayerDBM::kECA;
-  else if (ec == -2)
+  } else if (ec == -2) {
     layer = PixLayerDBM::kECC;
-  else if (ec == 0) {
+  } else if (ec == 0) {
     if (ibl && ld == 0) layer = PixLayerDBM::kIBL;
     if (ld == 0 + ibl) layer = PixLayerDBM::kB0;
     if (ld == 1 + ibl) layer = PixLayerDBM::kB1;
     if (ld == 2 + ibl) layer = PixLayerDBM::kB2;
   } else {
-    if (ec == 4) {
-      layer = PixLayerDBM::kDBMA;
-    }
-    if (ec == -4) {
-      layer = PixLayerDBM::kDBMC;
-    }
+    if (ec == 4) layer = PixLayerDBM::kDBMA;
+    if (ec == -4) layer = PixLayerDBM::kDBMC;
   }
   return layer;
 }
@@ -91,11 +87,11 @@ int PixelMainMon::GetPixLayerIDIBL2D3DDBM(int ec, int ld, int eta, bool ibl) {
 
 int PixelMainMon::GetPixLayerDiskID(int ec, int ld, bool ibl) {
   int layer = 99;
-  if (ec == 2)
+  if (ec == 2) {
     layer = PixLayerDisk::kECA0 + ld;
-  else if (ec == -2)
+  } else if (ec == -2) {
     layer = PixLayerDisk::kECC0 + ld;
-  else if (ec == 0) {
+  } else if (ec == 0) {
     if (ibl && ld == 0) layer = PixLayerDisk::kIBL;
     if (ld == 0 + ibl) layer = PixLayerDisk::kB0;
     if (ld == 1 + ibl) layer = PixLayerDisk::kB1;
@@ -115,14 +111,14 @@ int PixelMainMon::GetEtaID(Identifier& id, const PixelID* pixID, bool doIBL, boo
   int bec = pixID->barrel_ec(id);
   int ld = pixID->layer_disk(id);
 
-  if (bec == 2 || bec == -2)
+  if (bec == 2 || bec == -2) {
     etaid = ld;
-  else if (bec == 0) {
+  } else if (bec == 0) {
     if (doIBL) ld--;
     int em = pixID->eta_module(id);
-    if (ld == 0 || ld == 1 || ld == 2)
+    if (ld == 0 || ld == 1 || ld == 2) {
       etaid = em;
-    else if (ld == -1) {
+    } else if (ld == -1) {
       int feid = 0;
       int emf = 0;
       if (em < 6 && em > -7) {

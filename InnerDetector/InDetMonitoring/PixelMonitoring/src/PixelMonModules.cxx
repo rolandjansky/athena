@@ -123,21 +123,22 @@ void PixelMonModulesProf::Fill(double value0, double value1, Identifier& id, con
   const int pm = pixID->phi_module(id);
   int ld = pixID->layer_disk(id);
 
-  if (bec == 2)
+  if (bec == 2) {
     A[ld][pm]->Fill(value0, value1);
-  else if (bec == -2)
+  } else if (bec == -2) {
     C[ld][pm]->Fill(value0, value1);
-  else if (bec == 0) {
+  } else if (bec == 0) {
     if (m_doIBL) ld--;
     const int em = pixID->eta_module(id);
-    if (ld == 0)
+    if (ld == 0) {
       B0[em + 6][pm]->Fill(value0, value1);
-    else if (ld == 1)
+    } else if (ld == 1) {
       B1[em + 6][pm]->Fill(value0, value1);
-    else if (ld == 2)
+    } else if (ld == 2) {
       B2[em + 6][pm]->Fill(value0, value1);
-    else if (ld == -1)
+    } else if (ld == -1) {
       IBL[em + 10][pm]->Fill(value0, value1);
+    }
   }
 }
 
@@ -146,21 +147,22 @@ void PixelMonModules2D::Fill(double value0, double value1, Identifier& id, const
   const int pm = pixID->phi_module(id);
   int ld = pixID->layer_disk(id);
 
-  if (bec == 2)
+  if (bec == 2) {
     A[ld][pm]->Fill(value0, value1, weight);
-  else if (bec == -2)
+  } else if (bec == -2) {
     C[ld][pm]->Fill(value0, value1, weight);
-  else if (bec == 0) {
+  } else if (bec == 0) {
     if (m_doIBL) ld--;
     int em = pixID->eta_module(id);
-    if (ld == 0)
+    if (ld == 0) {
       B0[em + 6][pm]->Fill(value0, value1, weight);
-    else if (ld == 1)
+    } else if (ld == 1) {
       B1[em + 6][pm]->Fill(value0, value1, weight);
-    else if (ld == 2)
+    } else if (ld == 2) {
       B2[em + 6][pm]->Fill(value0, value1, weight);
-    else if (ld == -1)
+    } else if (ld == -1) {
       IBL[em + 10][pm]->Fill(value0, value1, weight);
+    }
   }
 }
 
@@ -169,20 +171,21 @@ double PixelMonModules1D::GetBinContent(double value, Identifier& id, const Pixe
   const int pm = pixID->phi_module(id);
   int ld = pixID->layer_disk(id);
 
-  if (bec == 2)
+  if (bec == 2) {
     return A[ld][pm]->GetBinContent(A[ld][pm]->GetXaxis()->FindBin(value));
-  else if (bec == -2)
+  } else if (bec == -2) {
     return C[ld][pm]->GetBinContent(C[ld][pm]->GetXaxis()->FindBin(value));
-  else if (bec == 0) {
+  } else if (bec == 0) {
     const int em = pixID->eta_module(id);
-    if (ld == 0)
+    if (ld == 0) {
       return B0[em + 6][pm]->GetBinContent(B0[em + 6][pm]->GetXaxis()->FindBin(value));
-    else if (ld == 1)
+    } else if (ld == 1) {
       return B1[em + 6][pm]->GetBinContent(B1[em + 6][pm]->GetXaxis()->FindBin(value));
-    else if (ld == 2)
+    } else if (ld == 2) {
       return B2[em + 6][pm]->GetBinContent(B2[em + 6][pm]->GetXaxis()->FindBin(value));
-    else if (ld == -1)
+    } else if (ld == -1) {
       return IBL[em + 10][pm]->GetBinContent(IBL[em + 10][pm]->GetXaxis()->FindBin(value));
+    }
   }
   return 0.0;
 }
@@ -192,21 +195,22 @@ void PixelMonModules1D::Fill(double value, Identifier& id, const PixelID* pixID)
   const int pm = pixID->phi_module(id);
   int ld = pixID->layer_disk(id);
 
-  if (bec == 2)
+  if (bec == 2) {
     A[ld][pm]->Fill(value);
-  else if (bec == -2)
+  } else if (bec == -2) {
     C[ld][pm]->Fill(value);
-  else if (bec == 0) {
+  } else if (bec == 0) {
     if (m_doIBL) ld--;
     const int em = pixID->eta_module(id);
-    if (ld == 0)
+    if (ld == 0) {
       B0[em + 6][pm]->Fill(value);
-    else if (ld == 1)
+    } else if (ld == 1) {
       B1[em + 6][pm]->Fill(value);
-    else if (ld == 2)
+    } else if (ld == 2) {
       B2[em + 6][pm]->Fill(value);
-    else if (ld == -1)
+    } else if (ld == -1) {
       IBL[em + 10][pm]->Fill(value);
+    }
   }
 }
 
@@ -394,22 +398,25 @@ std::string PixelMonModules::getHistName(int i, bool forPath) {
 
   } else {
     std::string joint = "_";
-    if (i < 286)
+    if (i < 286) {
       return barrel[0] + joint + stave0[i % 22] + joint + mod[i / 22];
+    }
     i -= 286;
-    if (i < 494)
+    if (i < 494) {
       return barrel[1] + joint + stave1[i % 38] + joint + mod[i / 38];
+    }
     i -= 494;
-    if (i < 676)
+    if (i < 676) {
       return barrel[2] + joint + stave2[i % 52] + joint + mod[i / 52];
+    }
     i -= 676;
     if (i < 144) return diskA[i / 48] + joint + staveA[i % 48];
     i -= 144;
     if (i < 144) return diskC[i / 48] + joint + staveC[i % 48];
     i -= 144;
-    if (m_doIBL && i < 280)
+    if (m_doIBL && i < 280) {
       return newbarrel[0] + joint + staveb[i % 14] + joint + modIBL[i / 14];
-    ;
+    }
   }
   std::string dummy = "wrong initialization";
   return dummy;  // should never get here

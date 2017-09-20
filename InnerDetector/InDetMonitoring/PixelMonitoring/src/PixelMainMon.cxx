@@ -675,8 +675,9 @@ StatusCode PixelMainMon::bookHistograms() {
     if (m_doOnTrack) path.replace(path.begin(), path.end(), "Pixel/ErrorsOnTrack");
     MonGroup errorHistos(this, path.c_str(), run, ATTRIB_MANAGED);  //declare a group of histograms
     sc = errorHistos.regHist(m_storegate_errors = TH2F_LW::create("storegate_errors", ("Storegate Errors" + m_histTitleExt + ";Container Name;Error Type").c_str(), 6, 0.5, 6.5, 5, 0.5, 5.5));
-    if (sc.isFailure())
+    if (sc.isFailure()) {
       if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not book histograms" << endmsg;
+    }
 
     m_storegate_errors->SetOption("colz");
     const char* xlabel[6] = {"RDOs", "SpacePoints", "Clusters", "Tracks", "RODErrors", "DCS"};
@@ -839,8 +840,9 @@ StatusCode PixelMainMon::fillHistograms() {
       if (FillTrackMon().isFailure()) {
         if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not fill histograms" << endmsg;
       }
-    } else if (m_storegate_errors)
+    } else if (m_storegate_errors) {
       m_storegate_errors->Fill(4., 2.);
+    }
   } else {
     if (m_storegate_errors) m_storegate_errors->Fill(4., 1.);
   }
@@ -851,8 +853,9 @@ StatusCode PixelMainMon::fillHistograms() {
       if (FillClustersMon().isFailure()) {
         if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not fill histograms" << endmsg;
       }
-    } else if (m_storegate_errors)
+    } else if (m_storegate_errors) {
       m_storegate_errors->Fill(3., 2.);
+    }
   } else {
     if (m_storegate_errors) m_storegate_errors->Fill(3., 1.);
   }
@@ -863,8 +866,9 @@ StatusCode PixelMainMon::fillHistograms() {
       if (FillSpacePointMon().isFailure()) {
         if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not fill histograms" << endmsg;
       }
-    } else if (m_storegate_errors)
+    } else if (m_storegate_errors) {
       m_storegate_errors->Fill(2., 2.);
+    }
   } else {
     if (m_storegate_errors) m_storegate_errors->Fill(2., 1.);
   }
