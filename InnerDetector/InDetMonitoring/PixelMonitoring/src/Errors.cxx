@@ -35,7 +35,7 @@
 //////////////////////booking methods//////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-StatusCode PixelMainMon::BookRODErrorMon(void) {
+StatusCode PixelMainMon::bookRODErrorMon(void) {
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "starting Book Errors" << endmsg;
 
   std::string path = "Pixel/Errors";
@@ -314,7 +314,7 @@ StatusCode PixelMainMon::BookRODErrorMon(void) {
   return StatusCode::SUCCESS;
 }
 
-StatusCode PixelMainMon::BookRODErrorLumiBlockMon(void) {
+StatusCode PixelMainMon::bookRODErrorLumiBlockMon(void) {
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "starting Book Errors for lowStat" << endmsg;
 
   std::string path = "Pixel/LumiBlock";
@@ -338,7 +338,7 @@ StatusCode PixelMainMon::BookRODErrorLumiBlockMon(void) {
   return StatusCode::SUCCESS;
 }
 
-StatusCode PixelMainMon::FillRODErrorMon(void) {
+StatusCode PixelMainMon::fillRODErrorMon(void) {
   const int kLumiBlock = m_manager->lumiBlockNumber();
   const int kNumFEs{16};
 
@@ -378,8 +378,8 @@ StatusCode PixelMainMon::FillRODErrorMon(void) {
     if (m_ErrorSvc->isActive(id_hash) && m_pixelid->barrel_ec(WaferID) == 0 && m_pixelid->layer_disk(WaferID) == 0 && m_doIBL) is_ibl = true;
 
     // Determine layer; functions return '99' for non-sensible IDs.
-    const int kLayer = GetPixLayerID(m_pixelid->barrel_ec(WaferID), m_pixelid->layer_disk(WaferID), m_doIBL);
-    const int kLayerIBL = GetPixLayerIDIBL2D3D(m_pixelid->barrel_ec(WaferID), m_pixelid->layer_disk(WaferID), m_pixelid->eta_module(WaferID), m_doIBL);
+    const int kLayer = getPixLayerID(m_pixelid->barrel_ec(WaferID), m_pixelid->layer_disk(WaferID), m_doIBL);
+    const int kLayerIBL = getPixLayerIDIBL2D3D(m_pixelid->barrel_ec(WaferID), m_pixelid->layer_disk(WaferID), m_pixelid->eta_module(WaferID), m_doIBL);
     if (kLayer == 99) continue;
 
     // Boolean whether current module has an error of type/category.
@@ -453,19 +453,19 @@ StatusCode PixelMainMon::FillRODErrorMon(void) {
           if (bit == 4) {  // EoC trunc error
             int fephi = 0;
             int feeta = 0;
-            if (kLayer == PixLayer::kB0 && GetFEID(kLayer, m_pixelid->phi_index(WaferID), m_pixelid->eta_index(WaferID), fephi, feeta)) {
+            if (kLayer == PixLayer::kB0 && getFEID(kLayer, m_pixelid->phi_index(WaferID), m_pixelid->eta_index(WaferID), fephi, feeta)) {
               num_errorFEs_B0[m_pixelid->phi_module(WaferID)][(int)(fabs(6 + m_pixelid->eta_module(WaferID)))][(int)((8 * fephi) + feeta)] = 1;
             }
-            if (kLayer == PixLayer::kB1 && GetFEID(kLayer, m_pixelid->phi_index(WaferID), m_pixelid->eta_index(WaferID), fephi, feeta)) {
+            if (kLayer == PixLayer::kB1 && getFEID(kLayer, m_pixelid->phi_index(WaferID), m_pixelid->eta_index(WaferID), fephi, feeta)) {
               num_errorFEs_B1[m_pixelid->phi_module(WaferID)][(int)(fabs(6 + m_pixelid->eta_module(WaferID)))][(int)((8 * fephi) + feeta)] = 1;
             }
-            if (kLayer == PixLayer::kB2 && GetFEID(kLayer, m_pixelid->phi_index(WaferID), m_pixelid->eta_index(WaferID), fephi, feeta)) {
+            if (kLayer == PixLayer::kB2 && getFEID(kLayer, m_pixelid->phi_index(WaferID), m_pixelid->eta_index(WaferID), fephi, feeta)) {
               num_errorFEs_B2[m_pixelid->phi_module(WaferID)][(int)(fabs(6 + m_pixelid->eta_module(WaferID)))][(int)((8 * fephi) + feeta)] = 1;
             }
-            if (kLayer == PixLayer::kECA && GetFEID(kLayer, m_pixelid->phi_index(WaferID), m_pixelid->eta_index(WaferID), fephi, feeta)) {
+            if (kLayer == PixLayer::kECA && getFEID(kLayer, m_pixelid->phi_index(WaferID), m_pixelid->eta_index(WaferID), fephi, feeta)) {
               num_errorFEs_EA[m_pixelid->phi_module(WaferID)][(int)m_pixelid->layer_disk(WaferID)][(int)((8 * fephi) + feeta)] = 1;
             }
-            if (kLayer == PixLayer::kECC && GetFEID(kLayer, m_pixelid->phi_index(WaferID), m_pixelid->eta_index(WaferID), fephi, feeta)) {
+            if (kLayer == PixLayer::kECC && getFEID(kLayer, m_pixelid->phi_index(WaferID), m_pixelid->eta_index(WaferID), fephi, feeta)) {
               num_errorFEs_EC[m_pixelid->phi_module(WaferID)][(int)m_pixelid->layer_disk(WaferID)][(int)((8 * fephi) + feeta)] = 1;
             }
           }
@@ -568,7 +568,7 @@ StatusCode PixelMainMon::FillRODErrorMon(void) {
     total_errors += num_errors[i];
   }
   if (m_error_time1 && m_error_time2 && m_error_time3) {
-    FillTimeHisto(total_errors, m_error_time1, m_error_time2, m_error_time3, 10., 60., 360.);
+    fillTimeHisto(total_errors, m_error_time1, m_error_time2, m_error_time3, 10., 60., 360.);
   }
 
   for (int i = 0; i < PixLayer::COUNT - 1; i++) {
@@ -657,7 +657,7 @@ double PixelMainMon::getErrorBitFraction(const Identifier& WaferID, const unsign
   //    otherwise calculate max(number of hits, number of error words).
   //  - 22 bits for each hit word
   //  - 22 bits for each error word
-  const int layer = GetPixLayerID(m_pixelid->barrel_ec(WaferID), m_pixelid->layer_disk(WaferID), m_doIBL);
+  const int layer = getPixLayerID(m_pixelid->barrel_ec(WaferID), m_pixelid->layer_disk(WaferID), m_doIBL);
   if (layer == PixLayer::kIBL) return 0.;
 
   unsigned int num_hits = 0;

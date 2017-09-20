@@ -26,7 +26,7 @@
 //////////////////////booking methods//////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-StatusCode PixelMainMon::BookSpacePointMon(void) {
+StatusCode PixelMainMon::bookSpacePointMon(void) {
   ATH_MSG_DEBUG("Start booking SpacePoint histogtams..");
   std::string path = "Pixel/SpacePoint";
   if (m_doOnTrack) path.replace(path.begin(), path.end(), "Pixel/SpacePointOnTrack");
@@ -51,7 +51,7 @@ StatusCode PixelMainMon::BookSpacePointMon(void) {
   return StatusCode::SUCCESS;
 }
 
-StatusCode PixelMainMon::FillSpacePointMon(void) {
+StatusCode PixelMainMon::fillSpacePointMon(void) {
   StatusCode sc = evtStore()->retrieve(m_Pixel_spcontainer, m_Pixel_SpacePointsName);
   if (sc.isFailure() || !m_Pixel_spcontainer) {
     ATH_MSG_WARNING("SpacePoint container for Pixels not found");
@@ -76,7 +76,7 @@ StatusCode PixelMainMon::FillSpacePointMon(void) {
       const SpacePoint& sp = **p_sp;
       PixelModuleId = sp.clusterList().first->identify();
 
-      if (m_doOnTrack && !OnTrack(PixelModuleId, true)) {
+      if (m_doOnTrack && !isOnTrack(PixelModuleId, true)) {
         // if we only want hits on track, and the hit is NOT on the track, skip filling
         continue;
       }

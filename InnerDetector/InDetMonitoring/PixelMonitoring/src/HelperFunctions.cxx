@@ -34,7 +34,7 @@ std::string PixelMainMon::makeHisttitle(std::string set, std::string axis, bool 
   return name;
 }
 
-int PixelMainMon::GetPixLayerID(int ec, int ld, bool ibl) {
+int PixelMainMon::getPixLayerID(int ec, int ld, bool ibl) {
   int layer = 99;
   if (ec == 2) {
     layer = PixLayer::kECA;
@@ -49,7 +49,7 @@ int PixelMainMon::GetPixLayerID(int ec, int ld, bool ibl) {
   return layer;
 }
 
-int PixelMainMon::GetPixLayerIDDBM(int ec, int ld, bool ibl) {
+int PixelMainMon::getPixLayerIDDBM(int ec, int ld, bool ibl) {
   int layer = 99;
   if (ec == 2) {
     layer = PixLayerDBM::kECA;
@@ -67,7 +67,7 @@ int PixelMainMon::GetPixLayerIDDBM(int ec, int ld, bool ibl) {
   return layer;
 }
 
-int PixelMainMon::GetPixLayerIDIBL2D3D(int ec, int ld, int eta, bool ibl) {
+int PixelMainMon::getPixLayerIDIBL2D3D(int ec, int ld, int eta, bool ibl) {
   int layer = 99;
   if (ec == 0) {
     if (ibl && ld == 0 && eta < 6 && eta > -7) layer = PixLayerIBL2D3D::kIBL2D;
@@ -76,7 +76,7 @@ int PixelMainMon::GetPixLayerIDIBL2D3D(int ec, int ld, int eta, bool ibl) {
   return layer;
 }
 
-int PixelMainMon::GetPixLayerIDIBL2D3DDBM(int ec, int ld, int eta, bool ibl) {
+int PixelMainMon::getPixLayerIDIBL2D3DDBM(int ec, int ld, int eta, bool ibl) {
   int layer = 99;
   if (ec == 0) {
     if (ibl && ld == 0 && eta < 6 && eta > -7) layer = PixLayerIBL2D3DDBM::kIBL2D;
@@ -85,7 +85,7 @@ int PixelMainMon::GetPixLayerIDIBL2D3DDBM(int ec, int ld, int eta, bool ibl) {
   return layer;
 }
 
-int PixelMainMon::GetPixLayerDiskID(int ec, int ld, bool ibl) {
+int PixelMainMon::getPixLayerDiskID(int ec, int ld, bool ibl) {
   int layer = 99;
   if (ec == 2) {
     layer = PixLayerDisk::kECA0 + ld;
@@ -100,45 +100,7 @@ int PixelMainMon::GetPixLayerDiskID(int ec, int ld, bool ibl) {
   return layer;
 }
 
-int PixelMainMon::GetPhiID(Identifier& id, const PixelID* pixID) {
-  int phiid = pixID->phi_module(id);
-  return phiid;
-}
-
-int PixelMainMon::GetEtaID(Identifier& id, const PixelID* pixID, bool doIBL, bool doIBL2D3D) {
-  int etaid = -1;
-
-  int bec = pixID->barrel_ec(id);
-  int ld = pixID->layer_disk(id);
-
-  if (bec == 2 || bec == -2) {
-    etaid = ld;
-  } else if (bec == 0) {
-    if (doIBL) ld--;
-    int em = pixID->eta_module(id);
-    if (ld == 0 || ld == 1 || ld == 2) {
-      etaid = em;
-    } else if (ld == -1) {
-      int feid = 0;
-      int emf = 0;
-      if (em < 6 && em > -7) {
-        if (pixID->eta_index(id) >= 80) feid = 1;
-        emf = 2 * em + feid;
-        etaid = em;
-      } else if (em < -6) {
-        emf = em - 6;
-        etaid = em + 10;
-      } else {
-        emf = em + 6;
-        etaid = em - 2;
-      }
-      if (!doIBL2D3D) etaid = emf;
-    }
-  }
-  return etaid;
-}
-
-void PixelMainMon::TH1FFillMonitoring(TH1F_LW* mon, TH1F_LW* tmp) {
+void PixelMainMon::th1FillMonitoring(TH1F_LW* mon, TH1F_LW* tmp) {
   for (unsigned int i = 1; i <= tmp->GetNbinsX(); i++) {
     float content = tmp->GetBinContent(i);
     mon->SetBinContent(i, content);
@@ -146,15 +108,7 @@ void PixelMainMon::TH1FFillMonitoring(TH1F_LW* mon, TH1F_LW* tmp) {
   tmp->Reset();
 }
 
-void PixelMainMon::TH2FSetBinScaled(TH2F_LW* mon, TH2F_LW* tmp, int nevent) {
-  for (unsigned int i = 1; i <= tmp->GetXaxis()->GetNbins(); i++) {
-    for (unsigned int j = 1; j <= tmp->GetYaxis()->GetNbins(); j++) {
-      mon->SetBinContent(i, j, tmp->GetBinContent(i, j) / (1.0 * nevent));
-    }
-  }
-}
-
-void PixelMainMon::FillTimeHisto(double value, TProfile* one = 0, TProfile* two = 0, TProfile* three = 0, double time1 = 10., double time2 = 60., double time3 = 360.) {
+void PixelMainMon::fillTimeHisto(double value, TProfile* one = 0, TProfile* two = 0, TProfile* three = 0, double time1 = 10., double time2 = 60., double time3 = 360.) {
   // This function fills time profile histograms
   time_t rawtime;
   struct tm* timeinfo;
@@ -266,7 +220,7 @@ void PixelMainMon::FillTimeHisto(double value, TProfile* one = 0, TProfile* two 
   }
 }
 
-void PixelMainMon::FillSummaryHistos(PixelMon2DMapsLW* occupancy, TH1F_LW* A, TH1F_LW* C, TH1F_LW* IBL, TH1F_LW* B0, TH1F_LW* B1, TH1F_LW* B2) {
+void PixelMainMon::fillSummaryHistos(PixelMon2DMapsLW* occupancy, TH1F_LW* A, TH1F_LW* C, TH1F_LW* IBL, TH1F_LW* B0, TH1F_LW* B1, TH1F_LW* B2) {
   // if the histos don't exist, dont' fill them
   if (!(A && C && B0 && B1 && B2 && occupancy)) return;
   double events = m_event;
@@ -312,7 +266,7 @@ void PixelMainMon::FillSummaryHistos(PixelMon2DMapsLW* occupancy, TH1F_LW* A, TH
   }
 }
 
-bool PixelMainMon::OnTrack(Identifier id, bool isCluster) {
+bool PixelMainMon::isOnTrack(Identifier id, bool isCluster) {
   bool onTrack = false;
   // search through vector of ID's on track to see if there is a match
   if (isCluster) {
@@ -324,7 +278,7 @@ bool PixelMainMon::OnTrack(Identifier id, bool isCluster) {
 }
 
 // Not yet updated to include IBL:
-int PixelMainMon::ParseDetailsString(std::string& detailsMod) {
+int PixelMainMon::parseDetailsString(std::string& detailsMod) {
   int modID[4] = {0, 0, 0, 0};
   char* pch;
   pch = new char[detailsMod.size() + 1];
@@ -439,7 +393,7 @@ int PixelMainMon::ParseDetailsString(std::string& detailsMod) {
   return (1000000 + (modID[0] + 2) * 100000 + (modID[1]) * 10000 + (modID[2]) * 100 + (modID[3] + 6));
 }
 
-bool PixelMainMon::GetFEID(int pixlayer, int phiid, int etaid, int& oufephi, int& outfeeta) {
+bool PixelMainMon::getFEID(int pixlayer, int phiid, int etaid, int& oufephi, int& outfeeta) {
   bool isValid = true;
   int npixPerFe_phi, npixPerFe_eta;
   if (pixlayer == PixLayer::kECA || pixlayer == PixLayer::kECC) {

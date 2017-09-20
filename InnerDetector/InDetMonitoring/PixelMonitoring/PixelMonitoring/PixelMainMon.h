@@ -109,55 +109,52 @@ class PixelMainMon : public ManagedMonitorToolBase {
   virtual StatusCode fillHistograms();  //!< Runs at every event, bulk of the code is inside here.  Fills the histograms.
   virtual StatusCode procHistograms();  //!
 
-  int GetPixLayerID(int ec, int ld, bool ibl);
-  int GetPixLayerIDIBL2D3D(int ec, int ld, int eta, bool ibl);
-  int GetPixLayerIDIBL2D3DDBM(int ec, int ld, int eta, bool ibl);
-  int GetPixLayerIDDBM(int ec, int ld, bool ibl);
-  int GetPixLayerDiskID(int ec, int ld, bool ibl);
-  int GetPhiID(Identifier& id, const PixelID* pixID);
-  int GetEtaID(Identifier& id, const PixelID* pixID, bool doIBL, bool doIBL2D3D);
-  void TH1FFillMonitoring(TH1F_LW* mon, TH1F_LW* tmp);
-  void TH2FSetBinScaled(TH2F_LW* mon, TH2F_LW* tmp, int nevent);
-  void FillTimeHisto(double, TProfile*, TProfile*, TProfile*, double, double, double);
-  void FillSummaryHistos(PixelMon2DMapsLW* occupancy, TH1F_LW* A, TH1F_LW* C, TH1F_LW* IBL, TH1F_LW* B0, TH1F_LW* B1, TH1F_LW* B2);
-  int ParseDetailsString(std::string& detailsMod);
-  bool OnTrack(Identifier id, bool isCluster);
+  int getPixLayerID(int ec, int ld, bool ibl);
+  int getPixLayerIDIBL2D3D(int ec, int ld, int eta, bool ibl);
+  int getPixLayerIDIBL2D3DDBM(int ec, int ld, int eta, bool ibl);
+  int getPixLayerIDDBM(int ec, int ld, bool ibl);
+  int getPixLayerDiskID(int ec, int ld, bool ibl);
+  void th1FillMonitoring(TH1F_LW* mon, TH1F_LW* tmp);
+  void fillTimeHisto(double, TProfile*, TProfile*, TProfile*, double, double, double);
+  void fillSummaryHistos(PixelMon2DMapsLW* occupancy, TH1F_LW* A, TH1F_LW* C, TH1F_LW* IBL, TH1F_LW* B0, TH1F_LW* B1, TH1F_LW* B2);
+  int parseDetailsString(std::string& detailsMod);
+  bool isOnTrack(Identifier id, bool isCluster);
   double getErrorBitFraction(const Identifier& WaferID, const unsigned int& num_femcc_errorwords);
   int getErrorState(int bit, bool isibl);
   std::string makeHistname(std::string set, bool ontrk);
   std::string makeHisttitle(std::string set, std::string axis, bool ontrk);
-  bool GetFEID(int pixlayer, int phiid, int etaid, int& oufephi, int& outfeeta);
+  bool getFEID(int pixlayer, int phiid, int etaid, int& oufephi, int& outfeeta);
 
-  StatusCode BookClustersMon(void);
-  StatusCode BookClustersLumiBlockMon(void);
-  StatusCode FillClustersMon(void);
-  StatusCode ProcClustersMon(void);
+  StatusCode bookClustersMon(void);
+  StatusCode bookClustersLumiBlockMon(void);
+  StatusCode fillClustersMon(void);
+  StatusCode procClustersMon(void);
 
-  StatusCode BookHitsMon(void);
-  StatusCode BookHitsLumiBlockMon(void);
-  StatusCode FillHitsMon(void);
-  StatusCode ProcHitsMon(void);
+  StatusCode bookHitsMon(void);
+  StatusCode bookHitsLumiBlockMon(void);
+  StatusCode fillHitsMon(void);
+  StatusCode procHitsMon(void);
 
-  StatusCode BookStatusMon(void);
-  StatusCode BookStatusLumiBlockMon(void);
-  StatusCode FillStatusMon(void);
-  StatusCode ProcStatusMon(void);
+  StatusCode bookStatusMon(void);
+  StatusCode bookStatusLumiBlockMon(void);
+  StatusCode fillStatusMon(void);
+  StatusCode procStatusMon(void);
 
-  StatusCode BookTrackMon(void);
-  StatusCode BookTrackLumiBlockMon(void);
-  StatusCode FillTrackMon(void);
-  StatusCode ProcTrackMon(void);
+  StatusCode bookTrackMon(void);
+  StatusCode bookTrackLumiBlockMon(void);
+  StatusCode fillTrackMon(void);
+  StatusCode procTrackMon(void);
 
-  StatusCode BookRODErrorMon(void);
-  StatusCode BookRODErrorLumiBlockMon(void);
-  StatusCode FillRODErrorMon(void);
+  StatusCode bookRODErrorMon(void);
+  StatusCode bookRODErrorLumiBlockMon(void);
+  StatusCode fillRODErrorMon(void);
 
-  StatusCode BookSpacePointMon(void);
-  StatusCode FillSpacePointMon(void);
+  StatusCode bookSpacePointMon(void);
+  StatusCode fillSpacePointMon(void);
 
-  StatusCode BookPixelDCSMon(void);
-  StatusCode FillPixelDCSMon(void);
-  StatusCode ProcPixelDCSMon(void);
+  StatusCode bookPixelDCSMon(void);
+  StatusCode fillPixelDCSMon(void);
+  StatusCode procPixelDCSMon(void);
 
  private:
   ServiceHandle<IInDetConditionsSvc> m_pixelCondSummarySvc;

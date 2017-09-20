@@ -45,7 +45,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //////////////////////booking methods//////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
-StatusCode PixelMainMon::BookTrackMon(void) {
+StatusCode PixelMainMon::bookTrackMon(void) {
   ATH_MSG_DEBUG("Start booking Track histogtams..");
 
   std::string path = "Pixel/Track";
@@ -152,7 +152,7 @@ StatusCode PixelMainMon::BookTrackMon(void) {
   return StatusCode::SUCCESS;
 }
 
-StatusCode PixelMainMon::FillTrackMon(void) {
+StatusCode PixelMainMon::fillTrackMon(void) {
   ATH_MSG_DEBUG("Filling Track Monitoring Histograms");
 
   StatusCode sc;
@@ -259,11 +259,11 @@ StatusCode PixelMainMon::FillTrackMon(void) {
 
       if (!m_idHelper->is_pixel(surfaceID)) continue;
 
-      int pixlayer = GetPixLayerID(m_pixelid->barrel_ec(surfaceID), m_pixelid->layer_disk(surfaceID), m_doIBL);
-      int pixlayerdisk = GetPixLayerDiskID(m_pixelid->barrel_ec(surfaceID), m_pixelid->layer_disk(surfaceID), m_doIBL);
+      int pixlayer = getPixLayerID(m_pixelid->barrel_ec(surfaceID), m_pixelid->layer_disk(surfaceID), m_doIBL);
+      int pixlayerdisk = getPixLayerDiskID(m_pixelid->barrel_ec(surfaceID), m_pixelid->layer_disk(surfaceID), m_doIBL);
       int pixlayeribl2d3d = pixlayer;
       if (pixlayeribl2d3d == PixLayer::kIBL) {
-        pixlayeribl2d3d = GetPixLayerIDIBL2D3D(m_pixelid->barrel_ec(surfaceID), m_pixelid->layer_disk(surfaceID), m_pixelid->eta_module(surfaceID), m_doIBL);
+        pixlayeribl2d3d = getPixLayerIDIBL2D3D(m_pixelid->barrel_ec(surfaceID), m_pixelid->layer_disk(surfaceID), m_pixelid->eta_module(surfaceID), m_doIBL);
       }
       if (pixlayer == 99) continue;
 
@@ -450,7 +450,7 @@ StatusCode PixelMainMon::FillTrackMon(void) {
   return StatusCode::SUCCESS;
 }
 
-StatusCode PixelMainMon::ProcTrackMon(void) {
+StatusCode PixelMainMon::procTrackMon(void) {
   double lengthLB = 0;
   lengthLB = m_LBendTime - m_LBstartTime;
   if (lengthLB <= 0) {

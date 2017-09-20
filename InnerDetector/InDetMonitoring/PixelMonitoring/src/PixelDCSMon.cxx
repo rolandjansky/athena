@@ -33,7 +33,7 @@
 //////////////////////booking methods//////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-StatusCode PixelMainMon::BookPixelDCSMon(void) {
+StatusCode PixelMainMon::bookPixelDCSMon(void) {
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "starting Book Status" << endmsg;
 
   msg(MSG::DEBUG) << "[BookPixelDCSMon]" << endmsg;
@@ -496,7 +496,7 @@ StatusCode PixelMainMon::BookPixelDCSMon(void) {
   return StatusCode::SUCCESS;
 }
 
-StatusCode PixelMainMon::FillPixelDCSMon(void) {
+StatusCode PixelMainMon::fillPixelDCSMon(void) {
   // see only the first event of LB
   if (m_lumiBlockNum != m_currentLumiBlockNumber) {
     ATH_MSG_DEBUG("Current LB Number has been changed from " << m_currentLumiBlockNumber << " to " << m_lumiBlockNum);
@@ -639,7 +639,7 @@ StatusCode PixelMainMon::FillPixelDCSMon(void) {
   return StatusCode::SUCCESS;
 }
 
-StatusCode PixelMainMon::ProcPixelDCSMon(void) {
+StatusCode PixelMainMon::procPixelDCSMon(void) {
   msg(MSG::DEBUG) << "[ProcPixelDCSMon]" << endmsg;
 
   //---------------------------------------

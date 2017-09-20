@@ -31,7 +31,7 @@
 //////////////////////booking methods//////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-StatusCode PixelMainMon::BookStatusMon(void) {
+StatusCode PixelMainMon::bookStatusMon(void) {
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "starting Book Status" << endmsg;
 
   std::string path = "Pixel/Status";
@@ -93,7 +93,7 @@ StatusCode PixelMainMon::BookStatusMon(void) {
   return StatusCode::SUCCESS;
 }
 
-StatusCode PixelMainMon::BookStatusLumiBlockMon(void) {
+StatusCode PixelMainMon::bookStatusLumiBlockMon(void) {
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "starting Book Status for lowStat" << endmsg;
 
   std::string path = "Pixel/LumiBlock";
@@ -110,7 +110,7 @@ StatusCode PixelMainMon::BookStatusLumiBlockMon(void) {
   return StatusCode::SUCCESS;
 }
 
-StatusCode PixelMainMon::FillStatusMon(void) {
+StatusCode PixelMainMon::fillStatusMon(void) {
   int Index = -1;
   PixelID::const_id_iterator idIt = m_pixelid->wafer_begin();
   PixelID::const_id_iterator idItEnd = m_pixelid->wafer_end();
@@ -126,10 +126,10 @@ StatusCode PixelMainMon::FillStatusMon(void) {
   for (; idIt != idItEnd; ++idIt) {
     Identifier WaferID = *idIt;
     IdentifierHash id_hash = m_pixelid->wafer_hash(WaferID);
-    int pixlayer = GetPixLayerID(m_pixelid->barrel_ec(WaferID), m_pixelid->layer_disk(WaferID), m_doIBL);
+    int pixlayer = getPixLayerID(m_pixelid->barrel_ec(WaferID), m_pixelid->layer_disk(WaferID), m_doIBL);
     int pixlayeribl2d3d = 0;
     if (pixlayer == PixLayer::kIBL) {
-      pixlayeribl2d3d = GetPixLayerIDIBL2D3D(m_pixelid->barrel_ec(WaferID), m_pixelid->layer_disk(WaferID), m_pixelid->eta_module(WaferID), m_doIBL);
+      pixlayeribl2d3d = getPixLayerIDIBL2D3D(m_pixelid->barrel_ec(WaferID), m_pixelid->layer_disk(WaferID), m_pixelid->eta_module(WaferID), m_doIBL);
     }
     if (pixlayer == 99) continue;
 
@@ -199,7 +199,7 @@ StatusCode PixelMainMon::FillStatusMon(void) {
   return StatusCode::SUCCESS;
 }
 
-StatusCode PixelMainMon::ProcStatusMon(void) {
+StatusCode PixelMainMon::procStatusMon(void) {
   if (m_status && m_dqStatus && m_occupancy) {
     if (m_doIBL) {
       for (int i = 1; i <= 12; i++) {
