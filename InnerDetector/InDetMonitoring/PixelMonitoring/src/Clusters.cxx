@@ -470,13 +470,22 @@ StatusCode PixelMainMon::FillClustersMon(void) {
 
   if (m_doModules && m_doOnTrack) {
     if (m_doIBL) {
-      for (int i = 0; i < 20; i++)
-        for (int j = 0; j < 14; j++) m_ClusPerEventArray_lI[j][i] = 0;
+      for (int i = 0; i < 20; i++) {
+        for (int j = 0; j < 14; j++) {
+          m_ClusPerEventArray_lI[j][i] = 0;
+        }
+      }
     }
     for (int i = 0; i < 13; i++) {
-      for (int j = 0; j < 22; j++) m_ClusPerEventArray_l0[j][i] = 0;
-      for (int j = 0; j < 38; j++) m_ClusPerEventArray_l1[j][i] = 0;
-      for (int j = 0; j < 52; j++) m_ClusPerEventArray_l2[j][i] = 0;
+      for (int j = 0; j < 22; j++) {
+        m_ClusPerEventArray_l0[j][i] = 0;
+      }
+      for (int j = 0; j < 38; j++) {
+        m_ClusPerEventArray_l1[j][i] = 0;
+      }
+      for (int j = 0; j < 52; j++) {
+        m_ClusPerEventArray_l2[j][i] = 0;
+      }
     }
     for (int j = 0; j < 3; j++) {
       for (int i = 0; i < 48; i++) {

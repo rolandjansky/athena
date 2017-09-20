@@ -294,9 +294,15 @@ void PixelMainMon::FillSummaryHistos(PixelMon2DMapsLW* occupancy, TH1F_LW* A, TH
     }
   }
   for (int etaIndex = 1; etaIndex <= 13; etaIndex++) {
-    for (int phiIndex = 1; phiIndex <= 22; phiIndex++) B0->Fill(occupancy->B0->GetBinContent(etaIndex, phiIndex) / events);
-    for (int phiIndex = 1; phiIndex <= 38; phiIndex++) B1->Fill(occupancy->B1->GetBinContent(etaIndex, phiIndex) / events);
-    for (int phiIndex = 1; phiIndex <= 52; phiIndex++) B2->Fill(occupancy->B2->GetBinContent(etaIndex, phiIndex) / events);
+    for (int phiIndex = 1; phiIndex <= 22; phiIndex++) {
+      B0->Fill(occupancy->B0->GetBinContent(etaIndex, phiIndex) / events);
+    }
+    for (int phiIndex = 1; phiIndex <= 38; phiIndex++) {
+      B1->Fill(occupancy->B1->GetBinContent(etaIndex, phiIndex) / events);
+    }
+    for (int phiIndex = 1; phiIndex <= 52; phiIndex++) {
+      B2->Fill(occupancy->B2->GetBinContent(etaIndex, phiIndex) / events);
+    }
   }
   for (int etaIndex = 1; etaIndex <= 3; etaIndex++) {
     for (int phiIndex = 1; phiIndex <= 48; phiIndex++) {

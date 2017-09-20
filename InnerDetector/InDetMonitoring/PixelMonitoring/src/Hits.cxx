@@ -681,8 +681,9 @@ StatusCode PixelMainMon::FillHitsMon(void)  // Called once per event
   if (nGoodChannels_total > 0) avgocc = nhits / nGoodChannels_total;
   if (m_avgocc_per_lumi) m_avgocc_per_lumi->Fill(m_manager->lumiBlockNumber(), avgocc);
   if (m_doOfflineAnalysis) {
-    for (int i = 0; i < PixLayerIBL2D3D::COUNT; i++)
+    for (int i = 0; i < PixLayerIBL2D3D::COUNT; i++) {
       if (m_avgocc_per_bcid_per_lumi_mod[i]) m_avgocc_per_bcid_per_lumi_mod[i]->Fill(m_manager->lumiBlockNumber(), pix_rod_bcid, avgocc_mod[i]);
+    }
   }
 
   for (int i = 0; i < PixLayerIBL2D3D::COUNT; i++) {

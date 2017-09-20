@@ -653,15 +653,33 @@ class PixelMainMon : public ManagedMonitorToolBase {
                             m_fsm_status(new std::map<int, std::map<int, float>*>),
                             m_moduleMap(new std::map<std::string, int>){};
     ~moduleDcsDataHolder() {
-      for (auto lbmap : *m_tempModule) delete lbmap.second;
-      for (auto lbmap : *m_tempInlet) delete lbmap.second;
-      for (auto lbmap : *m_tempOutlet) delete lbmap.second;
-      for (auto lbmap : *m_hv_voltage) delete lbmap.second;
-      for (auto lbmap : *m_lv_voltage) delete lbmap.second;
-      for (auto lbmap : *m_hv_current) delete lbmap.second;
-      for (auto lbmap : *m_lv_current) delete lbmap.second;
-      for (auto lbmap : *m_fsm_state) delete lbmap.second;
-      for (auto lbmap : *m_fsm_status) delete lbmap.second;
+      for (auto lbmap : *m_tempModule) {
+        delete lbmap.second;
+      }
+      for (auto lbmap : *m_tempInlet) {
+        delete lbmap.second;
+      }
+      for (auto lbmap : *m_tempOutlet) {
+        delete lbmap.second;
+      }
+      for (auto lbmap : *m_hv_voltage) {
+        delete lbmap.second;
+      }
+      for (auto lbmap : *m_lv_voltage) {
+        delete lbmap.second;
+      }
+      for (auto lbmap : *m_hv_current) {
+        delete lbmap.second;
+      }
+      for (auto lbmap : *m_lv_current) {
+        delete lbmap.second;
+      }
+      for (auto lbmap : *m_fsm_state) {
+        delete lbmap.second;
+      }
+      for (auto lbmap : *m_fsm_status) {
+        delete lbmap.second;
+      }
       delete m_tempModule;
       delete m_tempInlet;
       delete m_tempOutlet;

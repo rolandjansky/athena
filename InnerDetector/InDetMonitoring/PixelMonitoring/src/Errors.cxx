@@ -224,7 +224,9 @@ StatusCode PixelMainMon::BookRODErrorMon(void) {
   if (m_doModules) {
     m_errors = std::make_unique<PixelMonModules1D>(PixelMonModules1D("errors", ("Errors in module:ErrorType" + m_histTitleExt + ";Number of Errors").c_str(), 7, 0.5, 7.5));
     sc = m_errors->regHist(this, (path + "/ModulesErrors").c_str(), run);
-    for (int k = 0; k < 7; k++) m_errors->SetBinLabel(error_type_labels[k].second.c_str(), k + 1);
+    for (int k = 0; k < 7; k++) {
+      m_errors->SetBinLabel(error_type_labels[k].second.c_str(), k + 1);
+    }
   }
 
   if (m_do2DMaps && !m_doOnline) {
@@ -562,7 +564,9 @@ StatusCode PixelMainMon::FillRODErrorMon(void) {
   }  // end loop over all identifiers
 
   double total_errors = 0;
-  for (int i = 0; i < PixLayerIBL2D3D::COUNT; i++) total_errors += num_errors[i];
+  for (int i = 0; i < PixLayerIBL2D3D::COUNT; i++) {
+    total_errors += num_errors[i];
+  }
   if (m_error_time1 && m_error_time2 && m_error_time3) {
     FillTimeHisto(total_errors, m_error_time1, m_error_time2, m_error_time3, 10., 60., 360.);
   }

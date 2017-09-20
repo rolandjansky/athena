@@ -544,8 +544,7 @@ StatusCode PixelMainMon::FillPixelDCSMon(void) {
       atrlistcol = atrlistcol_fsmstatus;
     }
     if (sc == StatusCode::SUCCESS) {
-      for (CondAttrListCollection::const_iterator citr = atrlistcol->begin();
-           citr != atrlistcol->end(); ++citr) {
+      for (CondAttrListCollection::const_iterator citr = atrlistcol->begin(); citr != atrlistcol->end(); ++citr) {
         // the following code dumps the attribute list into a string for printing
         // to access individual elements by name, use e.g.
         // float var1=(((*citr).second)["T04"]).data<float>();

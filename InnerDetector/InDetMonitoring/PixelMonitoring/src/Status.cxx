@@ -214,12 +214,15 @@ StatusCode PixelMainMon::ProcStatusMon(void) {
       }
     }
     for (int i = 1; i <= 13; i++) {
-      for (int j = 1; j <= 22; j++)
+      for (int j = 1; j <= 22; j++) {
         m_dqStatus->B0->SetBinContent(i, j, m_occupancy->B0->GetBinContent(i, j) + m_status->B0->GetBinContent(i, j));
-      for (int j = 1; j <= 38; j++)
+      }
+      for (int j = 1; j <= 38; j++) {
         m_dqStatus->B1->SetBinContent(i, j, m_occupancy->B1->GetBinContent(i, j) + m_status->B1->GetBinContent(i, j));
-      for (int j = 1; j <= 52; j++)
+      }
+      for (int j = 1; j <= 52; j++) {
         m_dqStatus->B2->SetBinContent(i, j, m_occupancy->B2->GetBinContent(i, j) + m_status->B2->GetBinContent(i, j));
+      }
     }
     for (int i = 1; i <= 48; i++) {
       for (int j = 1; j <= 3; j++) {
