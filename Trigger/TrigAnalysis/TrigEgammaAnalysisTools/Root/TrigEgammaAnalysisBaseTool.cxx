@@ -448,7 +448,13 @@ bool TrigEgammaAnalysisBaseTool::splitTriggerName(const std::string trigger, std
   boost::split(strs,hltinfo,boost::is_any_of("_"));
 
   if((strs.at(0))[0]=='2'){
-    ((p1trigger+=((strs.at(0)).substr(1,(int)strs.at(0).find_last_of(strs.at(0)))))+="_")+=strs.at(1);
+    ((p1trigger+=("HLT_"+((strs.at(0)).substr(1,(int)strs.at(0).find_last_of(strs.at(0)))))+="_"));
+
+    for(unsigned int i=1; i<strs.size();i++){
+      if(strs.at(i)=="Jpsiee") continue;
+      (p1trigger+="_")+=strs.at(i); 
+    }
+
     p2trigger=p1trigger;
     return true;
   }
@@ -458,11 +464,25 @@ bool TrigEgammaAnalysisBaseTool::splitTriggerName(const std::string trigger, std
       return false;
     }
 
-    ((p1trigger+=strs.at(0))+="_")+=strs.at(1);
-    ((p2trigger+=strs.at(2))+="_")+=strs.at(3);
+    int index=-1;
+    p1trigger+=("HLT_"+strs.at(0));
+    
+    for(int i=1; index<0;i++)
+      {
+        (p1trigger+="_")+=strs.at(i); 
+        
+        if(strs.at(i+1)[0]=='e' || strs.at(i+1)[0]=='g') index=(i+1);
+      } 
+    
+    p2trigger+=("HLT_"+strs.at(index));
+    
+    for(unsigned int i=index+1; i< strs.size();i++){
+      if(strs.at(i)=="Jpsiee") continue;
+      (p2trigger+="_")+=strs.at(i); 
+    }
     return true;
   }
-
+  
 
 }
 

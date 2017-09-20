@@ -185,7 +185,8 @@ def getKernel_GenericSimulator(name="ISF_Kernel_GenericSimulator", **kwargs):
     kwargs.setdefault("OutputHardScatterTruthCollection", "TruthEvent")
     kwargs.setdefault("InputConverter", "ISF_InputConverter")
     kwargs.setdefault("ParticleBroker", "ISF_ParticleBrokerSvc")
-    kwargs.setdefault("TruthRecordService", ISF_Flags.TruthService.get_Value())
+    from G4AtlasApps.SimFlags import simFlags
+    kwargs.setdefault("TruthRecordService", simFlags.TruthStrategy.TruthServiceName())
     kwargs.setdefault("SimHitService", "ISF_SimHitService")
     kwargs.setdefault("MemoryMonitoringTool", "ISF_MemoryMonitor")
     kwargs.setdefault("DoCPUMonitoring", ISF_Flags.DoTimeMonitoring())

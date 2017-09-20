@@ -32,7 +32,7 @@ class ArtBuild(ArtBase):
         """TBD."""
         # print "ArtBuild", art_directory, script_directory, max_jobs
         self.art_directory = art_directory
-        self.script_directory = script_directory
+        self.script_directory = script_directory.rstrip("/")
         self.nightly_release = nightly_release
         self.project = project
         self.platform = platform

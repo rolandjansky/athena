@@ -1025,6 +1025,7 @@ void TileTBDump::dump_digi(unsigned int subdet_id, const uint32_t* roddata, unsi
             }
             break;
           }
+          /* FALLTHROUGH */
 
         case LASERII_OBJ_FRAG:
 
@@ -1890,7 +1891,7 @@ void TileTBDump::find_frag(const uint32_t* data, unsigned int size, unsigned int
 
     } else {
       offset += frag[*nfrag]->size;
-      if (version == 0x1 && offset < size) offset += 7; // skip extra header
+      // if (version == 0x1 && offset < size) offset += 7; // skip extra header - was needed for 2001-2003 TB data only
       ++(*nfrag);
     }
   }

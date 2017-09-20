@@ -124,6 +124,7 @@ class DV_METFilterFlags(JobProperty):
               "HLT_xe110_mht_L1XE55_AND_xe80_L1XE55"
 		         ]
     triggers+=[ "HLT_xe110_pufit_L1XE60", "HLT_xe120_mht_L1XE60_xe80_L1XE60" ]  #2017
+    triggers+=[ "HLT_xe120_pufit_L1XE60", "HLT_xe120_mht_xe80_L1XE60" ] #L34
     pass
 primRPVLLDESDM.add_JobProperty(DV_METFilterFlags)
 
