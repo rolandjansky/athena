@@ -10,7 +10,6 @@
 LArG4H6WarmTCSDTool::LArG4H6WarmTCSDTool(const std::string& type, const std::string& name, const IInterface *parent)
   : SensitiveDetectorBase(type,name,parent)
 {
-  declareInterface<ISensitiveDetector>(this);
 }
 
 G4VSensitiveDetector* LArG4H6WarmTCSDTool::makeSD()
