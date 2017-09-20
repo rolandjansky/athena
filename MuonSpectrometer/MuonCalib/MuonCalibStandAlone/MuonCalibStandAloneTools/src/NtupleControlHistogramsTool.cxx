@@ -1195,17 +1195,17 @@ void NtupleControlHistogramsTool::createMaps(const MuonFixedId & id) {
 		m_MDT_raw_TDC[station_identifier
 				]->SetYTitle("entries/(0.78125 ns)");
 
-	T0MTSettings *m_settings = new T0MTSettings;
-	m_settings->NBinsTime()=2*4096+1;
-	m_settings->TimeMin()=-4096.5*0.78125;
-	m_settings->TimeMax()=4096.5*0.78125;
-	m_settings->AddFitfun()=true;
+	T0MTSettings *settings = new T0MTSettings;
+	settings->NBinsTime()=2*4096+1;
+	settings->TimeMin()=-4096.5*0.78125;
+	settings->TimeMax()=4096.5*0.78125;
+	settings->AddFitfun()=true;
 	for(unsigned int i=0; i<3; i++)
 		{
 		m_MDT_segment_tspec_ml[i][station_identifier]= new T0MTHistos();
 		std::ostringstream name;
 		name<<"segments_ml"<<i+1;
-		m_MDT_segment_tspec_ml[i][station_identifier]->Initialize(i, m_settings, name.str().c_str());
+		m_MDT_segment_tspec_ml[i][station_identifier]->Initialize(i, settings, name.str().c_str());
 		}		
 	m_MDT_segment_t[station_identifier] = new TH1F("MDT_segment_t",
 				"Segment MDT Hit TDC Counts",

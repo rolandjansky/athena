@@ -149,7 +149,7 @@ for(int i=0;i<3;++i)
      //   m_MDT_residual_vs_radius_TimeSlewing.clear(); 
       for(int i=0;i<15;++i) 
 {
-	r_MDT_residual_vs_adc[i].clear(); 
+	m_r_MDT_residual_vs_adc[i].clear(); 
 }
 
 /*for(int i=0;i<6;++i) 
@@ -531,7 +531,7 @@ double low_bin[15] = {52.1363,59.5508,72.9139,79.8775,82.4582,82.4905,81.2233,80
 				Int_t radius=static_cast<int>(fabs(r1));
 			        if(radius>14) radius = 14;	
 				Int_t adcCount = (segment_fitter->trackHits())[l]->adcCount();
-			        r_MDT_residual_vs_adc[radius][station_identifier]->Fill(adcCount,fabs(r1)-fabs(d1),1.0);  // remove the delta ray
+			        m_r_MDT_residual_vs_adc[radius][station_identifier]->Fill(adcCount,fabs(r1)-fabs(d1),1.0);  // remove the delta ray
 										} 
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -656,44 +656,44 @@ void NtupleCalibADCTool::createMaps(const MuonFixedId & id) {
 
 
      //v2.0 move  const char* category[5]={"CalibSeg","Muonboy","Moore","Mean140","CalibSegCalibADC"}; 
-       char m_radc[100],/*mc_radc[100],*//*m_tadc[100],*//*m_tdcadc[100],*/m_resiadc[100],m_rt[100],/*m_posXresi[100],*/m_pathadc[100],m_posXadc[100],/*m_Revadcresi[100],*/m_resir[100],/*m_pathresi[100],*//*m_posXr[100],*/m_dadc[100],m_dr[200];
+       char radc[100],/*mc_radc[100],*//*m_tadc[100],*//*m_tdcadc[100],*/resiadc[100],rt[100],/*m_posXresi[100],*/pathadc[100],posXadc[100],/*m_Revadcresi[100],*/resir[100],/*m_pathresi[100],*//*m_posXr[100],*/dadc[100],dr[200];
      //  char m_hit_dis[100],m_localXZ[100],m_localYZ[100],m_globalXZ[100],m_globalYZ[100];
-       char m_XZ[100],m_YZ[100];
-	       sprintf(m_pathadc,"%.7s_ADC_vs_PathLength",chambername.c_str());
-	       sprintf(m_resiadc,"%.7s_ADC_vs_Residual",chambername.c_str());
-	       sprintf(m_radc,"%.7s_ADC_vs_Radius",chambername.c_str());
-	       sprintf(m_dadc,"%.7s_ADC_vs_DistanceToSegmentTrack",chambername.c_str());
-	       sprintf(m_dr,"%.7s_Radius_vs_DistanceToSegmentTrack",chambername.c_str());
-	       sprintf(m_posXadc,"%.7s_ADC_vs_DistanceToReadout",chambername.c_str());
-	       sprintf(m_resir,"%.7s_Residual_vs_Radius",chambername.c_str());
-	       sprintf(m_rt,"%.7s_Radius_vs_DriftTime",chambername.c_str());
-               m_MDT_adc_vs_pathD[station_identifier]= new TH2F(m_pathadc,m_pathadc,1000,0, 100, 350, 50, 400);
+       char XZ[100],YZ[100];
+	       sprintf(pathadc,"%.7s_ADC_vs_PathLength",chambername.c_str());
+	       sprintf(resiadc,"%.7s_ADC_vs_Residual",chambername.c_str());
+	       sprintf(radc,"%.7s_ADC_vs_Radius",chambername.c_str());
+	       sprintf(dadc,"%.7s_ADC_vs_DistanceToSegmentTrack",chambername.c_str());
+	       sprintf(dr,"%.7s_Radius_vs_DistanceToSegmentTrack",chambername.c_str());
+	       sprintf(posXadc,"%.7s_ADC_vs_DistanceToReadout",chambername.c_str());
+	       sprintf(resir,"%.7s_Residual_vs_Radius",chambername.c_str());
+	       sprintf(rt,"%.7s_Radius_vs_DriftTime",chambername.c_str());
+               m_MDT_adc_vs_pathD[station_identifier]= new TH2F(pathadc,pathadc,1000,0, 100, 350, 50, 400);
                m_MDT_adc_vs_pathD[station_identifier]->SetXTitle("PathLength(mm)");
                m_MDT_adc_vs_pathD[station_identifier]->SetYTitle("ADC count(ns)");	       
-               m_MDT_adc_vs_posX[station_identifier]= new TH2F(m_posXadc,m_posXadc,600,0, 6000, 350, 50, 400);
+               m_MDT_adc_vs_posX[station_identifier]= new TH2F(posXadc,posXadc,600,0, 6000, 350, 50, 400);
                m_MDT_adc_vs_posX[station_identifier]->SetXTitle("DistanceToReadout(mm)");
                m_MDT_adc_vs_posX[station_identifier]->SetYTitle("ADC count(ns)");	       
-               m_MDT_adc_vs_DistanceToSegmentTrack[station_identifier]= new TH2F(m_dadc,m_dadc,300,-15,15,350, 50, 400);
+               m_MDT_adc_vs_DistanceToSegmentTrack[station_identifier]= new TH2F(dadc,dadc,300,-15,15,350, 50, 400);
                m_MDT_adc_vs_DistanceToSegmentTrack[station_identifier]->SetXTitle("DistanceToSegmentTrack(mm)");
                m_MDT_adc_vs_DistanceToSegmentTrack[station_identifier]->SetYTitle("ADC count(ns)");
-               m_MDT_adc_vs_radius[station_identifier]= new TH2F(m_radc,m_radc,150,0, 15, 350, 50, 400);
+               m_MDT_adc_vs_radius[station_identifier]= new TH2F(radc,radc,150,0, 15, 350, 50, 400);
                m_MDT_adc_vs_radius[station_identifier]->SetXTitle("Radius(mm)");
                m_MDT_adc_vs_radius[station_identifier]->SetYTitle("ADC count(ns)");	       
-               m_MDT_adc_vs_residual[station_identifier]= new TH2F(m_resiadc,m_resiadc,300,-15, 15, 350, 50, 400);
+               m_MDT_adc_vs_residual[station_identifier]= new TH2F(resiadc,resiadc,300,-15, 15, 350, 50, 400);
                m_MDT_adc_vs_residual[station_identifier]->SetXTitle("Residual(mm)");
                m_MDT_adc_vs_residual[station_identifier]->SetYTitle("ADC count(ns)");	       
               
-               m_MDT_radius_vs_DistanceToSegmentTrack[station_identifier]= new TH2F(m_dr,m_dr,300,-15,15,300,-15,15);
+               m_MDT_radius_vs_DistanceToSegmentTrack[station_identifier]= new TH2F(dr,dr,300,-15,15,300,-15,15);
                m_MDT_radius_vs_DistanceToSegmentTrack[station_identifier]->SetXTitle("DistanceToSegmentTrack(mm)");
                m_MDT_radius_vs_DistanceToSegmentTrack[station_identifier]->SetYTitle("Radius(mm)");
-               m_MDT_radius_vs_t[station_identifier]= new TH2F(m_rt,m_rt,1000, -100, 900, 150,0,15);
+               m_MDT_radius_vs_t[station_identifier]= new TH2F(rt,rt,1000, -100, 900, 150,0,15);
                m_MDT_radius_vs_t[station_identifier]->SetYTitle("Radius(mm)");
                m_MDT_radius_vs_t[station_identifier]->SetXTitle("DriftTime(ns)");	       
-               sprintf(m_XZ,"%.7s_LocalAngle_XZ",chambername.c_str());
-	       sprintf(m_YZ,"%.7s_LocalAngle_YZ",chambername.c_str());
-          	m_MDT_segment_localangle_YZ[station_identifier] =new TH1F(m_YZ,m_YZ,180, -90, 90);
+               sprintf(XZ,"%.7s_LocalAngle_XZ",chambername.c_str());
+	       sprintf(YZ,"%.7s_LocalAngle_YZ",chambername.c_str());
+          	m_MDT_segment_localangle_YZ[station_identifier] =new TH1F(YZ,YZ,180, -90, 90);
 		m_MDT_segment_localangle_YZ[station_identifier]->SetXTitle("Incidence Angle at local YZ plane(degrees)");
-          	m_MDT_segment_localangle_XZ[station_identifier] =new TH1F(m_XZ,m_XZ,180, -90, 90);
+          	m_MDT_segment_localangle_XZ[station_identifier] =new TH1F(XZ,XZ,180, -90, 90);
 		m_MDT_segment_localangle_XZ[station_identifier]->SetXTitle("Incidence Angle at local XZ plane(degrees)"); 
      // 1D plot 
       /*       
@@ -717,22 +717,22 @@ void NtupleCalibADCTool::createMaps(const MuonFixedId & id) {
 		m_MDT_adc_vs_segment_globalangle_XZ[station_identifier]->SetXTitle("Incidence Angle at global XZ plane(degrees)");
 		m_MDT_adc_vs_segment_globalangle_YZ[station_identifier]->SetYTitle("ADC count(ns)");
 	
-               sprintf(m_XZ,"%.7s_LocalAngle_XZ",chambername.c_str());
-	       sprintf(m_YZ,"%.7s_LocalAngle_YZ",chambername.c_str());
-          	m_MDT_segment_localangle_YZ[station_identifier] =new TH1F(m_YZ,m_YZ,1800, -90, 90);
+               sprintf(XZ,"%.7s_LocalAngle_XZ",chambername.c_str());
+	       sprintf(YZ,"%.7s_LocalAngle_YZ",chambername.c_str());
+          	m_MDT_segment_localangle_YZ[station_identifier] =new TH1F(YZ,YZ,1800, -90, 90);
 		m_MDT_segment_localangle_YZ[station_identifier]->SetXTitle("Incidence Angle at local YZ plane(degrees)");
-          	m_MDT_segment_localangle_XZ[station_identifier] =new TH1F(m_XZ,m_XZ,1800, -90, 90);
+          	m_MDT_segment_localangle_XZ[station_identifier] =new TH1F(XZ,XZ,1800, -90, 90);
 		m_MDT_segment_localangle_XZ[station_identifier]->SetXTitle("Incidence Angle at local XZ plane(degrees)");
              
 	       sprintf(m_pathresi,"%.7s_Residual_vs_PathLength",chambername.c_str());
-	       sprintf(m_radc,"%.7s_ADC_vs_Radius",chambername.c_str());
-	       sprintf(m_dadc,"%.7s_ADC_vs_DistanceToSegmentTrack",chambername.c_str());
-	       sprintf(m_posXadc,"%.7s_ADC_vs_DistanceToReadout",chambername.c_str());
+	       sprintf(radc,"%.7s_ADC_vs_Radius",chambername.c_str());
+	       sprintf(dadc,"%.7s_ADC_vs_DistanceToSegmentTrack",chambername.c_str());
+	       sprintf(posXadc,"%.7s_ADC_vs_DistanceToReadout",chambername.c_str());
 	
 		m_MDT_Revadc_vs_residual[station_identifier]= new TH2F(m_Revadcresi,m_Revadcresi,200,0, 20, 3000,-15, 15);
                m_MDT_Revadc_vs_residual[station_identifier]->SetYTitle("Residual(mm)");
                m_MDT_Revadc_vs_residual[station_identifier]->SetXTitle("Reverse ADC count(1/ns)");	       
-               m_MDT_radius_vs_residual[station_identifier]= new TH2F(m_resir,m_resir, 1500,0,15,3000,-15, 15);
+               m_MDT_radius_vs_residual[station_identifier]= new TH2F(resir,resir, 1500,0,15,3000,-15, 15);
                m_MDT_radius_vs_residual[station_identifier]->SetXTitle("Radius(mm)");
                m_MDT_radius_vs_residual[station_identifier]->SetYTitle("Residual(mm)");	       
                m_MDT_pathD_vs_residual[station_identifier]= new TH2F(m_pathresi,m_pathresi,2000,0, 100, 3000, -15, 15);
@@ -771,35 +771,35 @@ void NtupleCalibADCTool::createMaps(const MuonFixedId & id) {
      for(int i=0;i<15;i++) {
 	       char r_adcresi[200];
 	       sprintf(r_adcresi,"%.7s_Radius%02d_Residual_vs_ADC",chambername.c_str(),i);
-               r_MDT_residual_vs_adc[i][station_identifier]= new TH2F(r_adcresi,r_adcresi,350,50, 400,300 ,-15, 15);
-               r_MDT_residual_vs_adc[i][station_identifier]->SetYTitle("Residual(mm)");
-               r_MDT_residual_vs_adc[i][station_identifier]->SetXTitle("ADC Count(ns)");	       
+               m_r_MDT_residual_vs_adc[i][station_identifier]= new TH2F(r_adcresi,r_adcresi,350,50, 400,300 ,-15, 15);
+               m_r_MDT_residual_vs_adc[i][station_identifier]->SetYTitle("Residual(mm)");
+               m_r_MDT_residual_vs_adc[i][station_identifier]->SetXTitle("ADC Count(ns)");	       
                             }
      const char* FitFlag[3] = {"NoRefit","Refit","TimeSlewing"};
-     char m_hits[100],m_chi2[100],m_rresi[100];
+     char hits[100],chi2[100],rresi[100];
      for(int i=0;i<3;i++) {	     
-	        sprintf(m_hits,"%.7s_Segment_hits_%s",chambername.c_str(),FitFlag[i]);
-        	m_MDT_segment_hits[i][station_identifier] =new TH1F(m_hits,m_hits,100, 0, 100);
+	        sprintf(hits,"%.7s_Segment_hits_%s",chambername.c_str(),FitFlag[i]);
+        	m_MDT_segment_hits[i][station_identifier] =new TH1F(hits,hits,100, 0, 100);
 	        m_MDT_segment_hits[i][station_identifier]->SetXTitle("Hits per segment"); 
-	        sprintf(m_chi2,"%.7s_Segment_chi2_%s",chambername.c_str(),FitFlag[i]);
-        	m_MDT_segment_chi2[i][station_identifier] =new TH1F(m_chi2,m_chi2,500, 0, 50);
+	        sprintf(chi2,"%.7s_Segment_chi2_%s",chambername.c_str(),FitFlag[i]);
+        	m_MDT_segment_chi2[i][station_identifier] =new TH1F(chi2,chi2,500, 0, 50);
 	        m_MDT_segment_chi2[i][station_identifier]->SetXTitle("Segment chi2/ndf"); 
-	        sprintf(m_rresi,"%.7s_Residual_vs_Radius_%s",chambername.c_str(),FitFlag[i]);
-        	m_MDT_residual_vs_radius[i][station_identifier] = new TH2F(m_rresi,m_rresi, 1500,0,15,3000,-15, 15);
+	        sprintf(rresi,"%.7s_Residual_vs_Radius_%s",chambername.c_str(),FitFlag[i]);
+        	m_MDT_residual_vs_radius[i][station_identifier] = new TH2F(rresi,rresi, 1500,0,15,3000,-15, 15);
 	        m_MDT_residual_vs_radius[i][station_identifier]->SetXTitle("Radius(mm)");
 	        m_MDT_residual_vs_radius[i][station_identifier]->SetYTitle("Residual(mm)");
                           }
-     char m_delta_chi2[100];
-     sprintf(m_delta_chi2,"%.7s_Segment_delta_chi2",chambername.c_str());
-     m_MDT_segment_delta_chi2[station_identifier]= new TH1F(m_delta_chi2,m_delta_chi2,100,-5,5);
+     char delta_chi2[100];
+     sprintf(delta_chi2,"%.7s_Segment_delta_chi2",chambername.c_str());
+     m_MDT_segment_delta_chi2[station_identifier]= new TH1F(delta_chi2,delta_chi2,100,-5,5);
      m_MDT_segment_delta_chi2[station_identifier]->SetXTitle("Delta_Segment_chi2()");
-     char m_fhit[100],m_shit[100];
-      sprintf(m_fhit,"%.7s_fristHit_ADC_vs_TDC",chambername.c_str());
-      sprintf(m_shit,"%.7s_secondHit_ADC_vs_TDC",chambername.c_str());
-      m_MDT_fhit_adc[station_identifier]= new TH2F(m_fhit,m_shit,3000, 0,3000,500, 0, 500);
+     char fhit[100],shit[100];
+      sprintf(fhit,"%.7s_fristHit_ADC_vs_TDC",chambername.c_str());
+      sprintf(shit,"%.7s_secondHit_ADC_vs_TDC",chambername.c_str());
+      m_MDT_fhit_adc[station_identifier]= new TH2F(fhit,shit,3000, 0,3000,500, 0, 500);
       m_MDT_fhit_adc[station_identifier]->SetXTitle("ADC count(ns)");	        
       m_MDT_fhit_adc[station_identifier]->SetYTitle("TDC count(ns)");	        
-      m_MDT_shit_adc[station_identifier]= new TH2F(m_shit,m_shit,3000,0,3000, 500, 0, 500);
+      m_MDT_shit_adc[station_identifier]= new TH2F(shit,shit,3000,0,3000, 500, 0, 500);
       m_MDT_shit_adc[station_identifier]->SetXTitle("ADC count(ns)");	        
       m_MDT_shit_adc[station_identifier]->SetYTitle("TDC count(ns)");	        
 
