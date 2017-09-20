@@ -34,7 +34,7 @@ namespace ViewHelper
 	//Function to create a vector of views, each populated with one data object
 	template< typename T >
 	inline StatusCode MakeAndPopulate( std::string const& ViewNameRoot, std::vector< SG::View* > & ViewVector,
-			SG::WriteHandle< T > & PopulateHandle, std::vector< T > const& InputData )
+			SG::WriteHandle< T > & PopulateHandle, std::vector< T > const& InputData, bool AllowFallThrough=false )
 	{
 		//Loop over all input data
 		unsigned int const viewNumber = InputData.size();
@@ -42,7 +42,7 @@ namespace ViewHelper
 		{
 			//Create view
 			std::string viewName = ViewNameRoot + std::to_string( viewIndex );
-			SG::View * outputView = new SG::View( viewName );
+			SG::View * outputView = new SG::View( viewName, AllowFallThrough );
 			ViewVector.push_back( outputView );
 
 			//Attach the handle to the view
