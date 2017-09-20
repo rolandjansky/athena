@@ -56,7 +56,7 @@ namespace iGeant4
 
   class G4AtlasRunManager;
 
-  class G4TransportTool : virtual public ITransportTool, public AthAlgTool
+  class G4TransportTool : public extends<AthAlgTool, ITransportTool>
   {
 
   public:
