@@ -160,6 +160,7 @@ DataProxy::~DataProxy()
 
 void DataProxy::setT2p(T2pMap* t2p)
 {
+  lock_t lock (m_mutex);
   m_t2p = t2p;
 }
 
@@ -172,8 +173,9 @@ void DataProxy::setT2p(T2pMap* t2p)
  */
 void DataProxy::setConst()
 {
+  lock_t lock (m_mutex);
   m_const = true;
-  lock();
+  this->lock (lock);
 }
 
 bool DataProxy::bindHandle(IResetable* ir) {
@@ -193,25 +195,30 @@ bool DataProxy::bindHandle(IResetable* ir) {
 
 void DataProxy::reset (bool hard /*= false*/)
 {
+  resetBoundHandles (hard);
 
-  if (! m_handles.empty()) { resetBoundHandles (hard); }
-
+  lock_t lock (m_mutex);
   resetGaudiRef(m_dObject);
   m_tAddress->reset();
   m_const = m_origConst;
-
 }
 
 void DataProxy::finalReset()
 {
-  m_const=false; //hack to force the resetting of proxy ptr in VarHandleBase
+  handleList_t handles;
+  {
+    lock_t lock (m_mutex);
+    m_const=false; //hack to force the resetting of proxy ptr in VarHandleBase
 
-  for (auto ih: m_handles) {
-    if (0 != ih) ih->finalReset();
+    handles = m_handles;
+
+    resetGaudiRef(m_dObject);
+    resetGaudiRef(m_dataLoader);
   }
 
-  resetGaudiRef(m_dObject);
-  resetGaudiRef(m_dataLoader);
+  for (auto ih: handles) {
+    if (0 != ih) ih->finalReset();
+  }
 }
 
 /// don't need no comment
@@ -283,9 +290,14 @@ unsigned long DataProxy::release()
 bool DataProxy::requestRelease(bool force, bool hard) {
 
   //this needs to happen no matter what
-  if (! m_handles.empty()) { resetBoundHandles(hard); }
+  resetBoundHandles(hard);
 
-  bool canRelease = !isResetOnly() || force;
+  bool canRelease = force;
+  {
+    lock_t lock (m_mutex);
+    if (!m_resetFlag) canRelease = true;
+  }
+
 #ifndef NDEBUG
   MsgStream gLog(m_ims, "DataProxy");
   if (gLog.level() <= MSG::VERBOSE) {
@@ -297,24 +309,33 @@ bool DataProxy::requestRelease(bool force, bool hard) {
   }
 #endif
   if (canRelease)  release();
-    else             reset(hard);
+  else             reset(hard);
   return canRelease;
 }
 
 /// set a DataObject address
-void DataProxy::setObject(DataObject* dObject)
+void DataProxy::setObject(lock_t& lock, DataObject* dObject)
 {
   setGaudiRef(dObject, m_dObject);
   if (0 != m_dObject) {
     m_dObject->setRegistry(this);
-    if (m_const) lock();
+    if (m_const) this->lock (lock);
   }
+}
+
+
+/// set a DataObject address
+void DataProxy::setObject(DataObject* dObject)
+{
+  lock_t lock (m_mutex);
+  setObject (lock, dObject);
 }
 
 
 // set IOpaqueAddress
 void DataProxy::setAddress(IOpaqueAddress* address)
 {
+  lock_t lock (m_mutex);
   m_tAddress->setAddress(address);
 }
 //////////////////////////////////////////////////////////////
@@ -331,7 +352,7 @@ void DataProxy::setAddress(IOpaqueAddress* address)
  * This will fail if the proxy does not refer to an object read from an
  * input file.
  */
-std::unique_ptr<DataObject> DataProxy::readData (ErrNo* errNo) const
+std::unique_ptr<DataObject> DataProxy::readData (lock_t& lock, ErrNo* errNo) const
 {
   if (errNo) *errNo = ALLOK;
 
@@ -342,7 +363,7 @@ std::unique_ptr<DataObject> DataProxy::readData (ErrNo* errNo) const
     if (errNo) *errNo=NOCNVSVC;
     return nullptr;
   }
-  if (!isValidAddress()) {
+  if (!isValidAddress (lock)) {
     //MsgStream gLog(m_ims, "DataProxy");
     //gLog << MSG::WARNING
     //	 << "accessData:  IOA pointer not set" <<endmsg;
@@ -368,16 +389,17 @@ std::unique_ptr<DataObject> DataProxy::readData (ErrNo* errNo) const
 /// Access DataObject on-demand using conversion service
 DataObject* DataProxy::accessData()
 {
+  lock_t lock (m_mutex);
   if (0 != m_dObject) return m_dObject;  // cached object
 
-  if (isValidAddress()) {
+  if (isValidAddress (lock)) {
     // An address provider called by isValidAddress may have set the object
     // pointer directly, rather than filling in the address.  So check
     // the cached object pointer again.
     if (0 != m_dObject) return m_dObject;  // cached object
   }
 
-  std::unique_ptr<DataObject> obju = readData (&m_errno);
+  std::unique_ptr<DataObject> obju = readData (lock, &m_errno);
   if (!obju) {
     if (m_errno == NOIOA) {
       MsgStream gLog(m_ims, "DataProxy");
@@ -391,12 +413,12 @@ DataObject* DataProxy::accessData()
            <<m_tAddress->clID() << '/' << m_tAddress->name() << '\n'
            <<" Returning NULL DataObject pointer  " << endmsg;
     }
-    setObject(0);
+    setObject(lock, 0);
     return 0;   
   }
 
   DataObject* obj = obju.release();
-  setObject(obj);
+  setObject(lock, obj);
   DataBucketBase* bucket = dynamic_cast<DataBucketBase*>(obj);
   if (m_t2p) {
     if (bucket) {
@@ -422,7 +444,7 @@ DataObject* DataProxy::accessData()
            <<m_tAddress->clID() << '/' << m_tAddress->name() << '\n'
            <<" Returning NULL DataObject pointer  " << endmsg;
       obj=0; 
-      setObject(0);
+      setObject(lock, 0);
       m_errno=T2PREGFAILED;
     }
   }
@@ -432,13 +454,20 @@ DataObject* DataProxy::accessData()
 
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-bool DataProxy::isValidAddress() const
+bool DataProxy::isValidAddress (lock_t&) const
 {
   return (0 != m_tAddress && m_tAddress->isValid(m_store));
 }
 
+bool DataProxy::isValidAddress() const
+{
+  lock_t lock (m_mutex);
+  return isValidAddress (lock);
+}
+
 bool DataProxy::isValidObject() const
 {
+  lock_t lock (m_mutex);
   // FIXME: should we try to chase?
   return (0!= m_dObject);
 }
@@ -451,6 +480,7 @@ bool DataProxy::isValid() const
 
 bool DataProxy::updateAddress()
 {
+  lock_t lock (m_mutex);
   return m_tAddress->isValid(m_store, true);
 }
 
@@ -480,6 +510,7 @@ void* SG::DataProxy_cast (SG::DataProxy* proxy, CLID clid)
  */
 void DataProxy::registerTransient (void* p)
 {
+  lock_t lock (m_mutex);
   if (m_t2p)
     m_t2p->t2pRegister (p, this);
 }
@@ -487,8 +518,10 @@ void DataProxy::registerTransient (void* p)
 
 /**
  * @brief Lock the data object we're holding, if any.
+ *
+ * Should be called with the mutex held.
  */
-void DataProxy::lock()
+void DataProxy::lock (lock_t&)
 {
   DataBucketBase* bucket = dynamic_cast<DataBucketBase*>(m_dObject);
   if (bucket)
