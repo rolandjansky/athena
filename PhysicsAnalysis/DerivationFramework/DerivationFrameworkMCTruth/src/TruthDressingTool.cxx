@@ -22,7 +22,6 @@ DerivationFramework::TruthDressingTool::TruthDressingTool(const std::string& t,
         const std::string& n,
         const IInterface* p )
    : AthAlgTool(t,n,p)
-   , m_dressDec(nullptr)
 {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
     declareProperty ("particlesKey",
@@ -52,9 +51,6 @@ DerivationFramework::TruthDressingTool::~TruthDressingTool() {
 // Athena initialize and finalize
 StatusCode DerivationFramework::TruthDressingTool::initialize()
 {
-    if (!m_decorationName.empty()){
-        m_dressDec = std::make_unique<SG::AuxElement::Decorator<char> >(m_decorationName);
-    }
     return StatusCode::SUCCESS;
 }
 
@@ -78,19 +74,22 @@ StatusCode DerivationFramework::TruthDressingTool::addBranches() const
         ATH_MSG_ERROR("No TruthParticleContainer with name " << m_dressParticlesKey << " found in StoreGate!");
         return StatusCode::FAILURE;
     }
-    SG::AuxElement::Decorator< float > decorator_e("e_dressed");
-    SG::AuxElement::Decorator< float > decorator_pt("pt_dressed");
-    SG::AuxElement::Decorator< float > decorator_eta("eta_dressed");
-    SG::AuxElement::Decorator< float > decorator_phi("phi_dressed");
+    const static SG::AuxElement::Decorator< float > decorator_e("e_dressed");
+    const static SG::AuxElement::Decorator< float > decorator_pt("pt_dressed");
+    const static SG::AuxElement::Decorator< float > decorator_eta("eta_dressed");
+    const static SG::AuxElement::Decorator< float > decorator_phi("phi_dressed");
 
     // for truth taus, use 'vis' in the decoration name to avoid prompt/visible tau momentum ambiguity
     // use (pt,eta,phi,m) for taus, for consistency with other TauAnalysisTools decorations
-    SG::AuxElement::Decorator< float > decorator_pt_vis("pt_vis_dressed");
-    SG::AuxElement::Decorator< float > decorator_eta_vis("eta_vis_dressed");
-    SG::AuxElement::Decorator< float > decorator_phi_vis("phi_vis_dressed");
-    SG::AuxElement::Decorator< float > decorator_m_vis("m_vis_dressed");
+    const static SG::AuxElement::Decorator< float > decorator_pt_vis("pt_vis_dressed");
+    const static SG::AuxElement::Decorator< float > decorator_eta_vis("eta_vis_dressed");
+    const static SG::AuxElement::Decorator< float > decorator_phi_vis("phi_vis_dressed");
+    const static SG::AuxElement::Decorator< float > decorator_m_vis("m_vis_dressed");
 
-    SG::AuxElement::Decorator< int > decorator_nphoton("nPhotons_dressed");
+    const static SG::AuxElement::Decorator< int > decorator_nphoton("nPhotons_dressed");
+
+    // One for the photons as well
+    const static SG::AuxElement::Decorator< char > dressDec (m_decorationName.empty()?m_decorationName:"unusedPhotonDecoration");
 
     //get struct of helper functions
     DerivationFramework::DecayGraphHelper decayHelper;
@@ -158,8 +157,8 @@ StatusCode DerivationFramework::TruthDressingTool::addBranches() const
         if(idx > -1) {
           listOfDressedParticles[idx] += phot->p4();
           dressedParticlesNPhot[idx]++;
-          if (m_dressDec){
-            (*m_dressDec)(*phot) = 1;
+          if (!m_decorationName.empty()){
+            dressDec(*phot) = 1;
           }
         }
       }
@@ -274,12 +273,12 @@ StatusCode DerivationFramework::TruthDressingTool::addBranches() const
         }
       }
       // Check if we wanted to decorate photons used for dressing
-      if (m_dressDec){
+      if (!m_decorationName.empty()){
         //loop over photons, uniquely associate each to nearest bare particle
         for (const auto& phot : photonsFSRList ) {
           bool found=std::find(photon_barcodes.begin(),photon_barcodes.end(),phot->barcode())!=photon_barcodes.end();
           if (found){
-            (*m_dressDec)(*phot) = 1;
+            dressDec(*phot) = 1;
           }
         } // End of loop over photons
       } // End of decoration of photons used in dressing

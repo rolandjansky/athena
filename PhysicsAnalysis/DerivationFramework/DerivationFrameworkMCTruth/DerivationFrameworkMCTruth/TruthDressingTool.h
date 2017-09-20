@@ -42,8 +42,6 @@ namespace DerivationFramework {
       bool m_useAntiKt;
       /// Parameter: Name of the decoration to apply
       std::string m_decorationName;
-      /// Member: Decorator for the particles
-      std::unique_ptr< SG::AuxElement::Decorator<char> > m_dressDec;
   }; 
 }
 
