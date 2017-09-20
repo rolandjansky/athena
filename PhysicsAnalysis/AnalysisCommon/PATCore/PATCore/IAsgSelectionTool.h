@@ -28,7 +28,7 @@ namespace xAOD{
 
 //static const InterfaceID IID_IAsgSelectionTool("IAsgSelectionTool", 1, 0);
 
-class IAsgSelectionTool
+class [[deprecated("do not use for multi-threaded code")]] IAsgSelectionTool
   : virtual public asg::IAsgTool
 { 
   /// Declare the interface ID for this pure-virtual interface class to the Athena framework

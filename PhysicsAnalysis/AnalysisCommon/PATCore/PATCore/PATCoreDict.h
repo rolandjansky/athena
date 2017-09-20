@@ -14,7 +14,12 @@
    @date   October 2011
 
 */
+
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 #include "PATCore/TAccept.h"
+#include "PATCore/TAcceptInfo.h"
+#include "PATCore/TAcceptData.h"
 #include "PATCore/TSelectorToolBase.h"
 #include "PATCore/IAthSelectorTool.h"
 #include "PATCore/TResult.h"
