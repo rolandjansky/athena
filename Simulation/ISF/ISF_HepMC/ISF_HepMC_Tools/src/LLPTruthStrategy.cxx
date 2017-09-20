@@ -15,13 +15,11 @@
 
 /** Constructor **/
 ISF::LLPTruthStrategy::LLPTruthStrategy(const std::string& t, const std::string& n, const IInterface* p) :
-  AthAlgTool(t,n,p),
+  base_class(t,n,p),
   m_passProcessCodeRangeLow(0),
   m_passProcessCodeRangeHigh(0),
   m_passProcessCategory(0)
 {
-    declareInterface<ISF::ITruthStrategy>(this);
-
     declareProperty("PassProcessCodeRangeLow",  m_passProcessCodeRangeLow=200);
     declareProperty("PassProcessCodeRangeHigh", m_passProcessCodeRangeHigh=299);
     declareProperty("PassProcessCategory",      m_passProcessCategory=9);

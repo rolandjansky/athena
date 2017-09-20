@@ -30,8 +30,7 @@ namespace ISF {
  
        @author ZLMarshall -at- lbl.gov
       */
-      class GenParticleSimWhiteList : public AthAlgTool,
-                              virtual public IGenParticleFilter {
+  class GenParticleSimWhiteList : public extends<AthAlgTool, IGenParticleFilter> {
 
     public:
       //** Constructor with parameters */
