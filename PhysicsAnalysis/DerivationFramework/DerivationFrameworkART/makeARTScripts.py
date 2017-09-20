@@ -1,5 +1,9 @@
 import os
 
+makeDataDAODs=False
+makeMCDAODs=False
+makeTruthDAODs=True
+
 formatList = ['PHYSVAL', 
               'TOPQ1', 'TOPQ2', 'TOPQ3', 'TOPQ4', 'TOPQ5', 
               'HIGG1D1', 'HIGG1D2',  
@@ -20,19 +24,21 @@ formatList = ['PHYSVAL',
               'BPHY1', 'BPHY2', 'BPHY3', 'BPHY4', 'BPHY5', 'BPHY6', 'BPHY7', 'BPHY8', 'BPHY9', 'BPHY10', 'BPHY11', 'BPHY12', 
               'MUON0', 'MUON1', 'MUON2', 'MUON3', 'MUON4', 
               #'TCAL1', 
-              #'TRUTH0', 'TRUTH1', 'TRUTH2', 'TRUTH3', 'TRUTH4', 'TRUTH5', 
               #'DAPR0', 'DAPR1', 'DAPR2', 
               #'HION1', 'HION2', 'HION3', 'HION4', 'HION5', 'HION6', 'HION7', 'HION8', 'HION9', 'HION10', 
               #'TRIG1', 'TRIG2', 'TRIG3', 'TRIG4', 'TRIG5'
 ]
+
+truthFormatList = ['TRUTH0', 'TRUTH1', 'TRUTH3']
+
 mcLabel = "mc16"
 dataLabel = "data17"
+truthLabel = "mc15"
 mcFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.11866988._000378.pool.root.1"
 dataFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/data17_13TeV.00327342.physics_Main.merge.AOD.f838_m1824._lb0300._0001.1"
-daodBuild = True
-doadMerge = False
+truthFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/EVNT.05192704._020091.pool.root.1"
 
-def generateText(formatName,label,inputFile):
+def generateText(formatName,label,inputFile,isTruth):
    outputFileName = "test_"+label+formatName+".sh" 
    outputFile = open(outputFileName,"w")
    outputFile.write("#!/bin/sh"+"\n")
@@ -41,14 +47,20 @@ def generateText(formatName,label,inputFile):
    outputFile.write("# art-type: grid"+"\n")
    outputFile.write("# art-output: *.pool.root"+"\n")
    outputFile.write("\n")
-   outputFile.write("Reco_tf.py --inputAODFile "+inputFile+" --outputDAODFile art.pool.root --reductionConf "+formatName+" --maxEvents 5000"+"\n")
+   if (isTruth==False): outputFile.write("Reco_tf.py --inputAODFile "+inputFile+" --outputDAODFile art.pool.root --reductionConf "+formatName+" --maxEvents 5000"+"\n")
+   if (isTruth==True): outputFile.write("Reco_tf.py --inputEVNTFile "+inputFile+" --outputDAODFile art.pool.root --reductionConf "+formatName+" --maxEvents 1000"+"\n")
    outputFile.write("\n")
-   outputFile.write("DAODMerge_tf.py --maxEvents 5 --inputDAOD_"+formatName+"File DAOD_"+formatName+".art.pool.root --outputDAOD_"+formatName+"_MRGFile art_merged.pool.root"+"\n")
+   if (isTruth==False): outputFile.write("DAODMerge_tf.py --maxEvents 5 --inputDAOD_"+formatName+"File DAOD_"+formatName+".art.pool.root --outputDAOD_"+formatName+"_MRGFile art_merged.pool.root"+"\n")
+   if (isTruth==True): outputFile.write("DAODMerge_tf.py --maxEvents 5 --inputDAOD_"+formatName+"File DAOD_"+formatName+".art.pool.root --outputDAOD_"+formatName+"_MRGFile art_merged.pool.root"+" --autoConfiguration ProjectName RealOrSim BeamType ConditionsTag DoTruth InputType BeamEnergy LumiFlags TriggerStream"+"\n")
    outputFile.close()
    os.system("chmod +x "+outputFileName)
 
-for formatName in formatList:
-   generateText(formatName,dataLabel,dataFile)
-   generateText(formatName,mcLabel,mcFile)
+if (makeDataDAODs or makeMCDAODs):
+   for formatName in formatList:
+      if (makeDataDAODs): generateText(formatName,dataLabel,dataFile,False)
+      if (makeMCDAODs): generateText(formatName,mcLabel,mcFile,False)
 
+if (makeTruthDAODs):
+   for formatName in truthFormatList:
+      generateText(formatName,truthLabel,truthFile,True)
 
