@@ -124,18 +124,18 @@ StatusCode MdtCalibOutputDbSvc::initialize(void) {
 //get id helper and detector manager if postprocessing of calibration is selected
   if(m_postprocess_calibration)	{
     //retrieve detector store
-    StoreGateSvc *m_detStore;
-    ATH_CHECK( serviceLocator()->service("DetectorStore", m_detStore) );
+    StoreGateSvc *detStore;
+    ATH_CHECK( serviceLocator()->service("DetectorStore", detStore) );
     //retrieve mdt id helper
-    ATH_CHECK( m_detStore->retrieve(m_mdtIdHelper, "MDTIDHELPER" ) );
+    ATH_CHECK( detStore->retrieve(m_mdtIdHelper, "MDTIDHELPER" ) );
     //retrieve detector manager
-    ATH_CHECK( m_detStore->retrieve( m_detMgr ) );
+    ATH_CHECK( detStore->retrieve( m_detMgr ) );
   }
 
 //get region selection service
   ATH_CHECK( m_reg_sel_svc.retrieve() );
-  region_ids=m_reg_sel_svc->GetStationsInRegions();
-  ATH_MSG_INFO("Regions selected: "<<region_ids.size() );
+  m_region_ids=m_reg_sel_svc->GetStationsInRegions();
+  ATH_MSG_INFO("Regions selected: "<<m_region_ids.size() );
 //retrieve tool
   ATH_CHECK( m_calib_output_tool.retrieve() );
   ATH_CHECK( m_input_service.retrieve() );
@@ -211,7 +211,7 @@ StatusCode MdtCalibOutputDbSvc::saveCalibrationResults(void) {
 /////////////////////////////////////////////////////////////////////////////
 
 //-----------------------------------------------------------------------------
-  for (std::vector<MuonCalib::NtupleStationId>::const_iterator it=region_ids.begin(); it!=region_ids.end(); it++) {
+  for (std::vector<MuonCalib::NtupleStationId>::const_iterator it=m_region_ids.begin(); it!=m_region_ids.end(); it++) {
 //-----------------------------------------------------------------------------
     MuonCalib::NtupleStationId the_id(*it);
 // get region geometry if required
