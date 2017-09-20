@@ -45,7 +45,7 @@ class TileID;
     @author  Bo Liu <boliu@cern.ch>
 */
 
-class FastHitConvertTool : public AthAlgTool,virtual public ICaloCellMakerTool
+class FastHitConvertTool : public extends<AthAlgTool, ICaloCellMakerTool>
 {
 public:
   FastHitConvertTool(const std::string& type,const std::string& name,const IInterface* parent);
