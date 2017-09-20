@@ -2,8 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-using namespace std;
-
 //this
 #include "MdtCalibT0/MTT0PatternRecognition.h"
 
@@ -11,6 +9,8 @@ using namespace std;
 #include "TLine.h"
 #include "TGraph.h"
 #include "TH1.h"
+
+using namespace std;
 
 namespace MuonCalib{
 

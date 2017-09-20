@@ -2,8 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-using namespace std;
-
 #include "MdtCalibT0/ADCMTHistos.h"
 
 //root
@@ -12,6 +10,8 @@ using namespace std;
 #include "TMath.h"
 #include "TDirectory.h"
 #include <cmath>
+
+using namespace std;
 
 namespace MuonCalib {
 
