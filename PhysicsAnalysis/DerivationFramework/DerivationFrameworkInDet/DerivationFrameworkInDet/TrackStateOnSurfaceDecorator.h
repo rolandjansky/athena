@@ -34,6 +34,7 @@ namespace Trk {
   class ITrackHoleSearchTool;
   class PrepRawData;
   class IExtrapolator;
+  class IPRD_AssociationTool;
 }
 
 namespace DerivationFramework {
@@ -95,6 +96,7 @@ namespace DerivationFramework {
       ServiceHandle<ITRT_CalDbSvc>              m_trtcaldbSvc;
 	  
       ToolHandle<ITRT_ToT_dEdx>    m_TRTdEdxTool;
+      ToolHandle< Trk::IPRD_AssociationTool >  m_assoTool;
       // --- Private other members
   }; 
 }
