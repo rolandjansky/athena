@@ -254,14 +254,14 @@ private:
   int *m_tmp_ssID; //TODO std::vector<int> tmp_SSID;
   int *m_tmp_hashID; //TODO std::vector<int> tmp_SSID;
 
-  ofstream m_file_resolution;
-  ofstream m_file_truthpar;
-  ofstream m_file_recpar;
-  ofstream m_file_coverage;
+  std::ofstream m_file_resolution;
+  std::ofstream m_file_truthpar;
+  std::ofstream m_file_recpar;
+  std::ofstream m_file_coverage;
 
   char m_str_gcon_file_name[200];
   char m_str_sector_file_name[200];
-  string m_gcon_path;
+  std::string m_gcon_path;
 
    FTKTrack m_base_trk;
    FTKConstantBank **m_constant; // constant banks

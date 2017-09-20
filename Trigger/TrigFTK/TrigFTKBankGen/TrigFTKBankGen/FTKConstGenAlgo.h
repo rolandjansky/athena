@@ -65,7 +65,7 @@ public:
   std::vector<std::string> m_fpath;  
   std::vector<std::string> m_gfpath;
   std::vector<std::string> m_sfpath;
-  string m_extractpath;  
+  std::string m_extractpath;  
   
   std::string m_outfilename; // the algorithm mostly produce a single file, if set this is the name of the file, a default option is otherwise used
   TFile *m_good_file;
