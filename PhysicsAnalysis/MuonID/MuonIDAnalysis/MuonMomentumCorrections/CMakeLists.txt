@@ -25,7 +25,6 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODBase
    Event/xAOD/xAODCore
    Event/xAOD/xAODEventInfo
-#   PhysicsAnalysis/MuonID/MuonSelectorTools
    Tools/PathResolver
    ${extra_deps} )
 
