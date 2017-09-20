@@ -47,7 +47,6 @@ LArFastShowerTool::LArFastShowerTool(const std::string& type, const std::string&
   declareProperty("ShowerLibSvc" , m_showerLibSvc, "Handle on the shower library service");
   m_configuration.m_showerLibSvcName = m_showerLibSvc.name();
 
-  declareInterface<IFastSimulation>(this);
 }
 
 StatusCode LArFastShowerTool::initialize()
