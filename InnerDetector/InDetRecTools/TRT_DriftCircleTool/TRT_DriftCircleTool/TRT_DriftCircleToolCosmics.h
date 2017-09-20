@@ -76,7 +76,7 @@ public:
   ///////////////////////////////////////////////////////////////////
   // Private data:
   ///////////////////////////////////////////////////////////////////
-  SG::ReadHandleKey<ComTime> m_comTimeName ;
+  SG::ReadHandleKey<ComTime> m_comTimeName {this,"ComTimeName","ComTime","RHK to retrieve ComTime"}; //!< RHK for ComTime
 
   ToolHandle< ITRT_DriftFunctionTool > m_driftFunctionTool;  //!< DriftFunctionTool
 //  ServiceHandle< IInDetConditionsSvc> m_ConditionsSummary; //!< The ConditionsSummaryTool

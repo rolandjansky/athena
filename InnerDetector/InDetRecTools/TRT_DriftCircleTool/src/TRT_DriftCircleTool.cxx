@@ -42,7 +42,6 @@ InDet::TRT_DriftCircleTool::TRT_DriftCircleTool(const std::string& t,
 						const std::string& n,
 						const IInterface*  p ):
   AthAlgTool(t,n,p),
-  m_eventInfoKey(std::string("EventInfo")),
   m_driftFunctionTool("TRT_DriftFunctionTool"),
   m_ConditionsSummary("InDetTRTConditionsSummaryService",n),
   m_useConditionsStatus(false),
@@ -102,7 +101,6 @@ InDet::TRT_DriftCircleTool::TRT_DriftCircleTool(const std::string& t,
   declareProperty("MaskMiddleHTBitArgon",m_mask_middle_HT_bit_argon);
   declareProperty("MaskLastHTBit",m_mask_last_HT_bit);
   declareProperty("MaskLastHTBitArgon",m_mask_last_HT_bit_argon);
-  declareProperty("xAODEventInfoKey",m_eventInfoKey);
 }
 
 ///////////////////////////////////////////////////////////////////

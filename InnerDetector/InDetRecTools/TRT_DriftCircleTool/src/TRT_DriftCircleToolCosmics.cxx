@@ -77,7 +77,6 @@ InDet::TRT_DriftCircleToolCosmics::TRT_DriftCircleToolCosmics(const std::string&
   declareProperty("TrtDescrManageLocation",m_trt_mgr_location);
   declareProperty("TRTDriftFunctionTool", m_driftFunctionTool);
   declareProperty("ConditionsSummaryTool",m_ConditionsSummary);
-  declareProperty("ComTimeName",m_comTimeName = std::string("ComTime"));
   declareProperty("UseConditionsStatus",m_useConditionsStatus);
 
   declareProperty("UseConditionsHTStatus",m_useConditionsHTStatus);
