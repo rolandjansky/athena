@@ -7,6 +7,7 @@
 
 #include <Inventor/C/errors/debugerror.h>
 #include <Inventor/nodes/SoSelection.h>
+#include <Inventor/nodes/SoGroup.h>
 #include <Inventor/fields/SoSFNode.h>
 
 // Class: SoCooperativeSelection.
