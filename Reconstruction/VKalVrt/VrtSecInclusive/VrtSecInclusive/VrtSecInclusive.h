@@ -163,7 +163,8 @@ namespace VKalVrtAthena {
     int			 m_CutBLayHits;
     int 		 m_CutSharedHits;
     int 		 m_CutTRTHits; // Kazuki
-    double 		 m_VertexMergeFinalDistCut; // Kazuki
+    double               m_VertexMergeFinalDistCut; // Kazuki
+    double               m_VertexMergeFinalDistScaling; // L. Lee
     double		 m_A0TrkErrorCut;
     double		 m_ZTrkErrorCut;
     double               m_VertexMergeCut;

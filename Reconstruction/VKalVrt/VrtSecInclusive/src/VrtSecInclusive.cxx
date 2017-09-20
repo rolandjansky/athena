@@ -119,6 +119,7 @@ namespace VKalVrtAthena {
     m_CutSharedHits                ( 0   ),
     m_CutTRTHits                   ( 0   ),
     m_VertexMergeFinalDistCut      ( 1.  ),
+    m_VertexMergeFinalDistScaling  ( 0.02 ),
     m_A0TrkErrorCut                ( 10.   ),
     m_ZTrkErrorCut                 ( 20.   ),
     m_VertexMergeCut               ( 3.   ),
