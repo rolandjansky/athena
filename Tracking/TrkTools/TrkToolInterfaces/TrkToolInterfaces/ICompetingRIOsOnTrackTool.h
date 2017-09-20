@@ -50,8 +50,6 @@ public:
     static const InterfaceID& interfaceID() {
         return IID_ICompetingRIOsOnTrackTool;
     }    //!< The AlgTool InterfaceID
-    virtual StatusCode initialize()=0;     //!< standard AlgTool method
-    virtual StatusCode finalize()=0;       //!< standard AlgTool method
 
     /** @brief abstract base method for making a Trk::CompetingRIOsOnTrack object.
 
