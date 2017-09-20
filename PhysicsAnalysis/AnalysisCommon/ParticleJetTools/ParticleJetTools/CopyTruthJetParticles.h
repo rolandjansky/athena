@@ -54,20 +54,28 @@ private:
   MCTruthPartClassifier::ParticleOrigin getPartOrigin(const xAOD::TruthParticle* tp,
 						      std::map<const xAOD::TruthParticle*,MCTruthPartClassifier::ParticleOrigin>& originMap) const;
 
+  /// Maximum allowed eta for particles in jets
   float m_maxAbsEta;
 
-  int m_barcodeOffset;
-  
+  /// Offset for Geant4 particle barcodes
+  // this is set to mutable so that it changes if the metadata information is available
+  //http://stackoverflow.com/questions/12247970/error-in-assignment-of-member-in-read-only-object
+  mutable int m_barcodeOffset;
+
   /// Determine how the barcode offset is set from metadata
   ///  0 -> no metdata access, use BarCodeOffset property
   ///  1 -> from metadata. Fails if not found
   ///  2 -> from metadata, use BarCodeOffset property if not found (default)
   int m_barcodeFromMetadata;
 
+  /// Cone to be used for removing FSR photons from around prompt leptons
   float m_photonCone;
 
   std::vector<int> m_vetoPDG_IDs; //! List of PDG IDs that should be ignored (and whose children should be ignored)
   bool comesFrom( const xAOD::TruthParticle* tp, const int pdgID, std::vector<int>& used_vertices ) const;
+
+  /// Name of the decoration to be used for identifying FSR (dressing) photons
+  std::string m_dressingName;
 
   mutable ToolHandle<IMCTruthClassifier> m_classif;
 };
