@@ -658,6 +658,11 @@ unsigned int PixelMainMon::getEventBitLength(const Identifier& WaferID, const un
     num_hits = m_HitPerEventArray_disksC[m_pixelid->phi_module(WaferID)][static_cast<int>(fabs(6 + m_pixelid->eta_module(WaferID)))];
   }
 
+  // Return here if we have neither hits nor errors
+  if (num_hits == 0 && num_femcc_errwords == 0) {
+    return 0;
+  }
+
   int total_bits = 45;
   if (num_hits >= 16) {
     total_bits += 16 * 9;
