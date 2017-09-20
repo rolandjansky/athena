@@ -127,7 +127,7 @@ bool CopyTruthJetParticles::classifyJetInput(const xAOD::TruthParticle* tp, int 
   // If we want to remove photons via the dressing decoration
   if (!m_dressingName.empty()){
     // Accessor for the dressing decoration above
-    SG::AuxElement::Accessor<char> dressAcc(m_dressingName);
+    const static SG::AuxElement::Accessor<char> dressAcc(m_dressingName);
     if (pdgid==22 && dressAcc(*tp)) return false;
   } // End of removal via dressing decoration
 
