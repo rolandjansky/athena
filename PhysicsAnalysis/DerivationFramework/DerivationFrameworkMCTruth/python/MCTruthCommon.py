@@ -71,7 +71,7 @@ if dfInputIsEVNT:
 from DerivationFrameworkMCTruth.GenFilterToolSetup import *
 
 # schedule the special truth building tools and add them to a common augmentation; note taus are handled separately below
-augmentationToolsList += [  DFCommonTruthClassificationTool,
+augmentationToolsList += [ DFCommonTruthClassificationTool,
                            DFCommonTruthGenFilter,
                            DFCommonTruthMuonTool,DFCommonTruthElectronTool,
                            DFCommonTruthPhotonToolSim,

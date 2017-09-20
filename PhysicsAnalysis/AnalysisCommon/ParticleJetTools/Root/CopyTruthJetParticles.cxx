@@ -52,6 +52,9 @@ CopyTruthJetParticles::CopyTruthJetParticles(const std::string& name)
   declareProperty("FSRPhotonCone", m_photonCone);
 
   declareProperty("VetoPDG_IDs", m_vetoPDG_IDs, "List of PDG IDs (python list) to veto.  Will ignore these and all children of these.");
+
+  declareProperty("DressingDecorationName", m_dressingName="", "Name of the dressed photon decoration (if one should be used)");
+
 }
 
 bool CopyTruthJetParticles::classifyJetInput(const xAOD::TruthParticle* tp, int barcodeOffset,
@@ -104,13 +107,13 @@ bool CopyTruthJetParticles::classifyJetInput(const xAOD::TruthParticle* tp, int 
     // Only exclude photons within deltaR of leptons (if m_photonCone<0, exclude all photons)
     if(m_photonCone>0) {
       for(const auto& lep : promptLeptons) {
-  	double deltaR = tp->p4().DeltaR(lep->p4());
-  	// if photon within deltaR of lepton, remove along with lepton
-  	if( deltaR < m_photonCone ) {
-  	  ATH_MSG_VERBOSE("Veto photon with pt " << tp->pt() << " with dR=" << deltaR
-		       << " near to a " << lep->pdgId() << " with pt " << lep->pt());
-  	  return false;
-  	}
+          double deltaR = tp->p4().DeltaR(lep->p4());
+          // if photon within deltaR of lepton, remove along with lepton
+          if( deltaR < m_photonCone ) {
+            ATH_MSG_VERBOSE("Veto photon with pt " << tp->pt() << " with dR=" << deltaR
+                       << " near to a " << lep->pdgId() << " with pt " << lep->pt());
+            return false;
+          }
       }
     }
   }
@@ -120,6 +123,13 @@ bool CopyTruthJetParticles::classifyJetInput(const xAOD::TruthParticle* tp, int 
     ParticleOrigin orig = getPartOrigin(tp, originMap);
     if (orig==Higgs || orig==HiggsMSSM) return false;
   }
+
+  // If we want to remove photons via the dressing decoration
+  if (!m_dressingName.empty()){
+    // Accessor for the dressing decoration above
+    SG::AuxElement::Accessor<char> dressAcc(m_dressingName);
+    if (pdgid==22 && dressAcc(*tp)) return false;
+  } // End of removal via dressing decoration
 
   // Pseudo-rapidity cut
   if(fabs(tp->eta())>m_maxAbsEta) return false;
@@ -138,7 +148,7 @@ bool CopyTruthJetParticles::classifyJetInput(const xAOD::TruthParticle* tp, int 
 }
 
 bool CopyTruthJetParticles::isPrompt( const xAOD::TruthParticle* tp,
-				      std::map<const xAOD::TruthParticle*,MCTruthPartClassifier::ParticleOrigin>& originMap ) const
+                                      std::map<const xAOD::TruthParticle*,MCTruthPartClassifier::ParticleOrigin>& originMap ) const
 {
   ParticleOrigin orig = getPartOrigin(tp, originMap);
   switch(orig) {
@@ -168,7 +178,7 @@ bool CopyTruthJetParticles::isPrompt( const xAOD::TruthParticle* tp,
 }
 
 // bool CopyTruthJetParticles::fromTau( const xAOD::TruthParticle* tp,
-// 				     std::map<const xAOD::TruthParticle*,MCTruthPartClassifier::ParticleOrigin>& originMap ) const
+//                                      std::map<const xAOD::TruthParticle*,MCTruthPartClassifier::ParticleOrigin>& originMap ) const
 // {
 //   ParticleOrigin orig = getPartOrigin(tp, originMap);
 //   if(orig==TauLep) return true;
@@ -177,7 +187,7 @@ bool CopyTruthJetParticles::isPrompt( const xAOD::TruthParticle* tp,
 
 
 MCTruthPartClassifier::ParticleOrigin CopyTruthJetParticles::getPartOrigin(const xAOD::TruthParticle* tp,
-									   std::map<const xAOD::TruthParticle*,MCTruthPartClassifier::ParticleOrigin>& originMap) const
+                                                                           std::map<const xAOD::TruthParticle*,MCTruthPartClassifier::ParticleOrigin>& originMap) const
 {
   if(originMap.find(tp)==originMap.end()) {
     std::pair<ParticleType, ParticleOrigin> classification = m_classif->particleTruthClassifier( tp );
