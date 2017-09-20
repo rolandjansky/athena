@@ -132,7 +132,7 @@ InDet::TRT_SeededTrackFinder_ATL::TRT_SeededTrackFinder_ATL
   declareProperty("phiWidth"                ,m_phiWidth    );
   declareProperty("etaWidth"                ,m_etaWidth    );
   declareProperty("CaloClusterE"            ,m_ClusterE    );
-  declareProperty("InputClusterContainerName",m_inputClusterContainerName=std::string("InDetCaloClusterROIs"));
+
 }
 
 ///////////////////////////////////////////////////////////////////
