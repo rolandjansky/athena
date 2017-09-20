@@ -25,13 +25,6 @@ InDet::TRT_TrackExtensionAlg::TRT_TrackExtensionAlg
 	m_nTracksTotal = 0;
 	m_nTracksExtendedTotal = 0;
 
-	// TRT_TrackExtensionAlg steering parameters
-	//
-	//	m_tracksLocation = "SiSPSeededTracks";
-	//	m_extendedTracksLocation = "TRT_ExtendedTracks";
-
-	//	declareProperty("InputTracksLocation", m_tracksLocation);
-	//	declareProperty("ExtendedTracksLocation", m_extendedTracksLocation);
 	declareProperty("TrackExtensionTool", m_trtExtension);
 }
 
@@ -41,27 +34,22 @@ InDet::TRT_TrackExtensionAlg::TRT_TrackExtensionAlg
 
 StatusCode InDet::TRT_TrackExtensionAlg::initialize() {
 	// Get tool for track ectension to TRT
-	//
-	if( m_trtExtension.retrieve().isFailure()) {
 
-		msg(MSG::FATAL)<< "Failed to retrieve tool " << m_trtExtension << endmsg;
-		return StatusCode::FAILURE;
-	}
-	else {
-		msg(MSG::INFO) << "Retrieved tool " << m_trtExtension << endmsg;
-	}
+	ATH_CHECK(m_trtExtension.retrieve());
 
 	ATH_CHECK( m_inputTracksKey.initialize() );
 	ATH_CHECK( m_outputTracksKey.initialize() );
 
 	// Get output print level
-	//
+
 	m_outputlevel = msg().level()-MSG::DEBUG;
 	if(m_outputlevel<=0) {
 		m_nprint=0; msg(MSG::DEBUG)<<(*this)<<endmsg;
 	}
+
 	m_nTracksTotal         = 0;
 	m_nTracksExtendedTotal = 0;
+
 	return StatusCode::SUCCESS;
 }
 
@@ -74,15 +62,6 @@ StatusCode InDet::TRT_TrackExtensionAlg::execute() {
 	m_nTracksExtended = 0;
 
 	// Get input tracks collection
-	//
-	/*
-	const TrackCollection*  inputTracks = 0;
-	StatusCode sc	= evtStore()->retrieve(inputTracks, m_tracksLocation);
-	if (sc.isFailure() || !inputTracks) {
-
-		if(m_outputlevel<=0) {m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;}
-		return StatusCode::SUCCESS;
-	}	*/
 	SG::ReadHandle<TrackCollection> inputTracks(m_inputTracksKey);
 	if (not inputTracks.isValid()) {
 		ATH_MSG_DEBUG("Could not find input track collection " << m_inputTracksKey);
@@ -92,7 +71,6 @@ StatusCode InDet::TRT_TrackExtensionAlg::execute() {
 	m_trtExtension->newEvent();
 
 	// Loop through all input track and output tracks collection production
-	//
 	SG::WriteHandle<TrackExtensionMap> outputTracks(m_outputTracksKey);
 	ATH_CHECK( outputTracks.record(std::make_unique<TrackExtensionMap>()) );
 
@@ -111,17 +89,7 @@ StatusCode InDet::TRT_TrackExtensionAlg::execute() {
 	m_nTracksTotal        += m_nTracks        ;
 	m_nTracksExtendedTotal+= m_nTracksExtended;
 
-	// Save extended to TRT RIOs
-	//
-	/*
-	sc = evtStore()->record(extendedTracks,m_extendedTracksLocation,false);
-	if (sc.isFailure() ) {
-		msg(MSG::ERROR)<<"Could not save converted extended to TRT tracks"<<endmsg;
-		return sc;
-	}	*/
-
 	// Print common event information
-	//
 	if(m_outputlevel<=0) {m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;}
 	return StatusCode::SUCCESS;
 }
@@ -180,9 +148,9 @@ MsgStream& InDet::TRT_TrackExtensionAlg::dumpConditions( MsgStream& out ) const 
 	   <<std::endl;
 	out<<"| Tool for tracks extension to TRT                | "<<m_trtExtension.type()   
 	   <<s1<<std::endl;
-	out<<"| Location of input tracks                        | "<<m_inputTracksKey
+	out<<"| Location of input tracks                        | "<<m_inputTracksKey.key()
 	   <<s2<<std::endl;
-	out<<"| Extended tracks location                        | "<<m_outputTracksKey
+	out<<"| Extended tracks location                        | "<<m_outputTracksKey.key()
 	   <<s3<<std::endl;
 	out<<"|----------------------------------------------------------------"
 	   <<"----------------------------------------------------|"
