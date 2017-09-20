@@ -35,9 +35,6 @@ namespace InDet
     m_eventPhaseTool()
   {
     
-    declareProperty("InputTracksNames" , m_readKey_tracks );
-    m_readKey_tracks.emplace_back("Tracks");
-    declareProperty("EventPhaseName" , m_writeKey_TRTPhase = "TRT_Phase");
     declareProperty("TRTCalDbSvc"      , m_trtconddbsvc);
     declareProperty("TrackSummaryTool" , m_trackSumTool);
     declareProperty("EventPhaseTool"   , m_eventPhaseTool);
@@ -53,12 +50,11 @@ namespace InDet
 	ATH_MSG_FATAL("Failed to retrieve TRT Calibration DB Service!");
 	return sc;
       }
-   
+  
 
-    ATH_CHECK( m_readKey_tracks.initialize() );
-    ATH_CHECK( m_writeKey_TRTPhase.initialize() );
+   ATH_CHECK( m_readKey_tracks.initialize() );
+   ATH_CHECK( m_writeKey_TRTPhase.initialize() ); 
 
- 
     return StatusCode::SUCCESS;
   }
   

@@ -99,9 +99,10 @@ class InDetEventCnvTool :  virtual public Trk::ITrkEventCnvTool, public AthAlgTo
   const IdDictManager * m_idDictMgr;
 
 
-  SG::ReadHandleKey<PixelClusterContainer>	m_pixClusContName;		//!< location of container of pixel clusters
-  SG::ReadHandleKey<SCT_ClusterContainer> 	m_sctClusContName;		//!< location of container of sct clusters
-  SG::ReadHandleKey<TRT_DriftCircleContainer> 	m_trtDriftCircleContName;	//!< location of container of TRT drift circles
+  SG::ReadHandleKey<PixelClusterContainer>	m_pixClusContName	{this, "PixelClusterContainer"		,"PixelClusters"		, "Pixel Cluster container name"};		//!< location of container of pixel clusters
+  SG::ReadHandleKey<SCT_ClusterContainer> 	m_sctClusContName	{this, "SCT_ClusterContainer"		,"SCT_Clusters"			, "SCT Cluster container name"}	;		//!< location of container of sct clusters
+  SG::ReadHandleKey<TRT_DriftCircleContainer> 	m_trtDriftCircleContName{this, "TRT_DriftCircleContainer"	,"TRT_DriftCircleContainer"	, "TRT DriftCircle Container"};	//!< location of container of TRT drift circles
+
 };
 
 

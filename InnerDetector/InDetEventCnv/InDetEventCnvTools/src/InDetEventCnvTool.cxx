@@ -48,9 +48,6 @@ InDet::InDetEventCnvTool::InDetEventCnvTool(
   declareProperty("PixelMgrLocation", m_pixMgrLocation);
   declareProperty("SCT_MgrLocation", m_sctMgrLocation);
   declareProperty("TRT_MgrLocation", m_trtMgrLocation);
-  declareProperty("PixelClusterContainer", m_pixClusContName="PixelClusters");
-  declareProperty("SCT_ClusterContainer", m_sctClusContName="SCT_Clusters");
-  declareProperty("TRT_DriftCircleContainer", m_trtDriftCircleContName="TRT_DriftCircles");
   declareProperty("RecreatePRDLinks", m_setPrepRawDataLink);
   
 }
@@ -128,6 +125,7 @@ StatusCode InDet::InDetEventCnvTool::initialize()
   ATH_CHECK( m_pixClusContName.initialize() );
   ATH_CHECK( m_sctClusContName.initialize() );
   ATH_CHECK( m_trtDriftCircleContName.initialize() );
+
   return sc;
      
 }

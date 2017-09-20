@@ -41,8 +41,8 @@ namespace InDet
       int 	m_event;
       double	m_phase;
 
-      SG::ReadHandleKeyArray<TrackCollection>	m_readKey_tracks ;
-      SG::WriteHandleKey<ComTime> 		m_writeKey_TRTPhase;
+      SG::ReadHandleKeyArray<TrackCollection>	m_readKey_tracks 	{this, "InputTracksNames"	,{"Tracks"}, "Tracks to extract event phase" };
+      SG::WriteHandleKey<ComTime> 		m_writeKey_TRTPhase	{this, "EventPhaseName"		,"TRT_Phase", "TRT Event Phase name to store" };
 
       ServiceHandle<ITRT_CalDbSvc>       m_trtconddbsvc ;//!< TRT Calibration DB tool
       ToolHandle<Trk::ITrackSummaryTool> m_trackSumTool; //<! Track summary tool
