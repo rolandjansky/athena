@@ -249,6 +249,16 @@ StatusCode PixelMainMon::bookRODErrorMon(void) {
     sc = m_errhist_bitstr_occ_tot->regHist(rodHistos);
   }
 
+  for (int i = 0; i < PixLayer::COUNT - 1; ++i) {
+    hname = makeHistname(("Bitstr_Occ_Errors_LB_" + modlabel2[i]), false);
+    htitles = makeHisttitle(("Average Bit-Stream Occupancy per Module (FE/MCC Errors, at 100k L1), "+modlabel2[i]), (atext_LB + ";bitstream occ./module/event"), false);
+    sc = rodHistos.regHist(m_errhist_bitstr_occ_errors_avg[i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB));
+
+    hname = makeHistname(("Bitstr_Occ_Tot_LB_" + modlabel2[i]), false);
+    htitles = makeHisttitle(("Average Bit-Stream Occupancy per Module (at 100k L1), "+modlabel2[i]), (atext_LB + ";bitstream occ./module/event"), false);
+    sc = rodHistos.regHist(m_errhist_bitstr_occ_tot_avg[i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB));
+  }
+
   for (int j = 0; j < kNumErrorStates; j++) {
     for (int i = 0; i < PixLayer::COUNT - 1; i++) {
       hname = makeHistname((error_state_labels[j].first + "_per_lumi_" + modlabel2[i]), false);
@@ -343,6 +353,8 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
   int num_errors_per_bit[PixLayerIBL2D3D::COUNT][kNumErrorBits] = {{0}};
   int num_errors_per_state[PixLayer::COUNT - 1][kNumErrorStates] = {{0}};  // no IBL here
   int num_errors_per_stateIBL[kNumErrorStatesIBL] = {0};                 // IBL
+  double bitstream_occ_errors[PixLayer::COUNT] = {0};
+  double bitstream_occ_tot[PixLayer::COUNT] = {0};
 
   // Counter for erroneous modules on the layer, per error type and
   // category (error cat. = error type w/o ROD/MOD distinction).
@@ -552,6 +564,8 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
     m_errhist_femcc_errwords_map->fill(WaferID, m_pixelid, num_femcc_errwords);
     m_errhist_bitstr_occ_errors->fill(WaferID, m_pixelid, getBitStreamFraction(WaferID, num_femcc_errwords * 22));
     m_errhist_bitstr_occ_tot->fill(WaferID, m_pixelid, getBitStreamFraction(WaferID, getEventBitLength(WaferID, num_femcc_errwords)));
+    bitstream_occ_errors[kLayer] += getBitStreamFraction(WaferID, num_femcc_errwords * 22);
+    bitstream_occ_tot[kLayer] += getBitStreamFraction(WaferID, getEventBitLength(WaferID, num_femcc_errwords));
 
     if (m_doLumiBlock) {
       if (m_errors_ModSync_mod && has_err_type[0]) m_errors_ModSync_mod->fill(WaferID, m_pixelid);
@@ -616,6 +630,12 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
       }
     }
   }
+
+  for (int i = 0; i < PixLayer::COUNT - 1; ++i) {
+    if (m_errhist_bitstr_occ_errors_avg[i]) m_errhist_bitstr_occ_errors_avg[i]->Fill(kLumiBlock, (float) bitstream_occ_errors[i]/m_nActive_mod[i]);
+    if (m_errhist_bitstr_occ_tot_avg[i]) m_errhist_bitstr_occ_tot_avg[i]->Fill(kLumiBlock, (float) bitstream_occ_tot[i]/m_nActive_mod[i]);
+  }
+
   if (m_errhist_syncerr_LB_pix) {
     m_errhist_syncerr_LB_pix->Fill(kLumiBlock, num_errormodules_per_cat[PixLayerIBL2D3D::kB0][ErrorCategory::kSync]
                                    + num_errormodules_per_cat[PixLayerIBL2D3D::kB1][ErrorCategory::kSync]
