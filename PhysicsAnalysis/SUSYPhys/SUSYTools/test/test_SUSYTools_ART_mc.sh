@@ -5,7 +5,6 @@
 # art-ci: 21.2
 
 echo "Running SUSYTools test: \'share/minimalExampleJobOptions_mc.py\'"
-pwd
 athena SUSYTools/minimalExampleJobOptions_mc.py
 
 result=$?
