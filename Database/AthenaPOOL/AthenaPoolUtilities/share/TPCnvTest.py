@@ -31,12 +31,12 @@ if os.path.exists ('PoolFileCatalog.xml'):
     os.remove ('PoolFileCatalog.xml')
 
 testdata = '/afs/cern.ch/atlas/maxidisk/d33/referencefiles'
+
+testdata = os.environ.get ('ATLAS_REFERENCE_DATA', testdata)
+
 if infile.startswith ('rtt:'):
     testdata = '/afs/cern.ch/atlas/project/rig/referencefiles/RTTinputFiles/MC15_13TeV'
     infile = infile[4:]
-
-import os
-testdata = os.environ.get ('D3PDTESTDATA', testdata)
 
 svcMgr.EventSelector.InputCollections        = [ os.path.join (testdata,
                                                                infile) ]
@@ -71,9 +71,21 @@ class Dumper (PyAthena.Alg):
     def initialize (self):
         self.sg = PyAthena.py_svc('StoreGateSvc')
         self.ofile_name = os.path.basename (infile) + '.dump'
-        self.reffile_name = '../share/' + os.path.basename (infile) + '.ref'
+        refbase = os.path.basename (infile) + '.ref'
+        self.reffile_name = '../share/' + refbase
         if not os.path.exists (self.reffile_name):
             self.reffile_name = '../' + self.reffile_name
+
+        if not os.path.exists (self.reffile_name) and globals().has_key('ATLAS_REFERENCE_TAG'):
+            from AthenaCommon.Utils.unixtools import find_datafile
+            r = find_datafile (ATLAS_REFERENCE_TAG)
+            if r:
+                self.reffile_name = os.path.join (r, ATLAS_REFERENCE_TAG,
+                                                  refbase)
+
+        if not os.path.exists (self.reffile_name):
+            self.reffile_name = os.path.join (testdata, ATLAS_REFERENCE_TAG,
+                                              refbase)
 
         self.ofile = open (self.ofile_name, 'w')
         self.icount = 0
