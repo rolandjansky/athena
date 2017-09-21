@@ -470,9 +470,6 @@ bool VP1VertexCollection::load()
     const Trk::VxCandidate* theVxCandidate = *vtxItr;
     if (!theVxCandidate)
       continue;
-    const Trk::RecVertex& vertex = theVxCandidate->recVertex();
-    if (!&vertex)
-      continue;
     d->vertices << new Imp::VertexHandle(theVxCandidate, this);
     if (!(i++%20))
       systemBase()->updateGUI();
