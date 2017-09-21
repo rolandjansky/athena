@@ -176,7 +176,8 @@ namespace VKalVrtAthena {
       double associate_minDistanceToPV;
       double associate_minImpactParamDistance;
       
-      double reassembleMaxImpactParameter;
+      double reassembleMaxImpactParameterD0;
+      double reassembleMaxImpactParameterZ0;
       double mergeByShufflingMaxSignificance;
       double mergeByShufflingAllowance;
       
@@ -337,6 +338,9 @@ namespace VKalVrtAthena {
     /** refit the vertex. */
     StatusCode refitVertex( WrkVrt& );
     
+    /** refit the vertex with suggestion */
+    StatusCode refitVertexWithSuggestion( WrkVrt&, const Amg::Vector3D& );
+    
     /** attempt to improve the vertex chi2 by removing the most-outlier track one by one until 
         the vertex chi2 satisfies a certain condition. */
     double improveVertexChi2( WrkVrt& );
@@ -373,6 +377,8 @@ namespace VKalVrtAthena {
     
     /** the 2nd vertex is merged into the 1st vertex. A destructive operation. */
     StatusCode mergeVertices( WrkVrt& destination, WrkVrt& source );
+    
+    enum mergeStep { RECONSTRUCT_NTRK, REASSEMBLE, SHUFFLE1, SHUFFLE2, SHUFFLE3, FINAL };
     
     typedef struct track_summary_properties {
       uint8_t numIBLHits;

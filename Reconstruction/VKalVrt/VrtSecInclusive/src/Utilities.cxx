@@ -517,6 +517,70 @@ namespace VKalVrtAthena {
   
 
   //____________________________________________________________________________________________________
+  StatusCode VrtSecInclusive::refitVertexWithSuggestion( WrkVrt& workVertex, const Amg::Vector3D& suggestedPosition )
+  {
+    
+    //
+    vector<const xAOD::NeutralParticle*> dummyNeutrals;
+      
+    int nth = workVertex.selectedTrackIndices.size();
+ 
+    if(nth<2) {
+      workVertex.isGood = false;
+      return StatusCode::SUCCESS;
+    }
+
+    vector<const xAOD::TrackParticle*>  ListBaseTracks;
+    
+    workVertex.Chi2PerTrk.clear();
+    
+    for( const auto& index : workVertex.selectedTrackIndices ) {
+      ListBaseTracks.emplace_back( m_selectedBaseTracks->at( index ) );
+      workVertex.Chi2PerTrk.emplace_back( AlgConsts::chi2PerTrackInitValue );
+    }
+    
+    for( const auto& index : workVertex.associatedTrackIndices ) {
+      ListBaseTracks.emplace_back( m_associableTracks->at( index ) );
+      workVertex.Chi2PerTrk.emplace_back( AlgConsts::chi2PerTrackInitValue );
+    }
+    
+    auto& vertexPos = workVertex.vertex;
+        
+    m_fitSvc->setApproximateVertex( suggestedPosition.x(), suggestedPosition.y(), suggestedPosition.z() );
+    
+    ATH_MSG_DEBUG( " >>> " << __FUNCTION__ <<": ListBaseTracks.size = " << ListBaseTracks.size()
+                   << ", #selectedBaseTracks = " << workVertex.selectedTrackIndices.size()
+                   << ", #assocTracks = " << workVertex.associatedTrackIndices.size() );
+    for( auto *trk : ListBaseTracks ) {
+      ATH_MSG_DEBUG( " >>> " << __FUNCTION__ << ": track index = " << trk->index() );
+    }
+    
+    m_fitSvc->setDefault();
+    ATH_MSG_DEBUG( " >>> " << __FUNCTION__ << ": m_fitSvc is reset." );
+    
+    ATH_MSG_DEBUG( " >>> " << __FUNCTION__ << ": approx vertex is set. Now going to perform fitting..." );
+    
+    StatusCode SC=m_fitSvc->VKalVrtFit(ListBaseTracks,dummyNeutrals,
+				       workVertex.vertex,
+				       workVertex.vertexMom,
+				       workVertex.Charge,
+				       workVertex.vertexCov,
+				       workVertex.Chi2PerTrk, 
+				       workVertex.TrkAtVrt,
+				       workVertex.Chi2); 
+
+    auto& cov = workVertex.vertexCov;
+        
+    if(SC.isFailure()) ATH_MSG_DEBUG(" >>> " << __FUNCTION__ << ": SC in refitVertex returned failure "); 
+    ATH_MSG_VERBOSE(" >>> " << __FUNCTION__ << ": "<<SC<<", "<<ListBaseTracks.size()<<","<<workVertex.Chi2PerTrk.size());
+    ATH_MSG_DEBUG( " >>> " << __FUNCTION__ << ": succeeded in fitting. New vertex pos = (" << vertexPos.x() << ", " << vertexPos.y() << ", " << vertexPos.z() << ")" );
+    ATH_MSG_DEBUG( " >>> " << __FUNCTION__ << ": New vertex cov = (" << cov.at(0) << ", " << cov.at(1) << ", " << cov.at(2) << ", " << cov.at(3) << ", " << cov.at(4) << ", " << cov.at(5) << ")" );
+
+    return SC;
+  }
+  
+
+  //____________________________________________________________________________________________________
   size_t VrtSecInclusive::nTrkCommon( std::vector<WrkVrt> *workVerticesContainer, const std::pair<unsigned, unsigned>& pairIndex) const
   {
     //
@@ -610,7 +674,8 @@ namespace VKalVrtAthena {
     declareProperty("TrackDetachCut",                  m_jp.TrackDetachCut                  = 6                             );
     declareProperty("associate_minDistanceToPV",       m_jp.associate_minDistanceToPV       = 1.                            );
     declareProperty("associate_minImpactParamDistance",m_jp.associate_minImpactParamDistance= 1.                            );
-    declareProperty("reassembleMaxImpactParameter",    m_jp.reassembleMaxImpactParameter    = 1.                            ); // in [mm]
+    declareProperty("reassembleMaxImpactParameterD0",  m_jp.reassembleMaxImpactParameterD0  = 1.                            ); // in [mm]
+    declareProperty("reassembleMaxImpactParameterZ0",  m_jp.reassembleMaxImpactParameterZ0  = 5.                            ); // in [mm]
     declareProperty("mergeByShufflingMaxSignificance", m_jp.mergeByShufflingMaxSignificance = 100.                          ); // in unit of sigma
     declareProperty("mergeByShufflingAllowance",       m_jp.mergeByShufflingAllowance       = 4.                            ); // in unit of sigma
     declareProperty("VertexMergeFinalDistCut",         m_jp.VertexMergeFinalDistCut         = 1.                            ); // in [mm]

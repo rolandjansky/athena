@@ -256,13 +256,13 @@ namespace VKalVrtAthena {
 
       // Perform vertex fitting
       StatusCode sc =m_fitSvc->VKalVrtFit(ListBaseTracks,dummyNeutrals,
-          newvrt.vertex,
-          newvrt.vertexMom,
-          newvrt.Charge,
-          newvrt.vertexCov,
-          newvrt.Chi2PerTrk, 
-          newvrt.TrkAtVrt,
-          newvrt.Chi2);   
+                                          newvrt.vertex,
+                                          newvrt.vertexMom,
+                                          newvrt.Charge,
+                                          newvrt.vertexCov,
+                                          newvrt.Chi2PerTrk, 
+                                          newvrt.TrkAtVrt,
+                                          newvrt.Chi2);
 
       ATH_MSG_DEBUG(" > reconstruct2TrackVertices(): FoundAppVrt="<<NPTR<<", "<<newvrt.vertex[0]<<", "<<newvrt.vertex[1]<<
           ", "<<newvrt.vertex[2]<<", "<<newvrt.Chi2);
@@ -376,6 +376,8 @@ namespace VKalVrtAthena {
       if( FoundMax < m_jp.TrackDetachCut && minSignificance < m_jp.VertexMergeCut ) {
 
         StatusCode sc = mergeVertices( workVerticesContainer->at( indexPair.first ), workVerticesContainer->at( indexPair.second ) );
+        
+        if( m_jp.FillHist ) { m_hists["mergeType"]->Fill( RECONSTRUCT_NTRK ); }
 
         if( sc.isFailure() )  continue;                            /* Bad fit - goto next solution */
 
@@ -383,6 +385,8 @@ namespace VKalVrtAthena {
           
           sc = mergeVertices( workVerticesContainer->at( indexPair.first ), workVerticesContainer->at( indexPair.second ) );
           if( sc.isFailure() )  break;                            /* Bad fit - goto next solution */
+          
+          if( m_jp.FillHist ) { m_hists["mergeType"]->Fill( RECONSTRUCT_NTRK ); }
           
         }
 
@@ -481,7 +485,8 @@ namespace VKalVrtAthena {
           const auto& distance = hypot( impactParameters.at(k_d0), impactParameters.at(k_z0) );
           distances.emplace_back( distance );
           
-          if( distance > m_jp.reassembleMaxImpactParameter ) continue;
+          if( fabs( impactParameters.at(k_d0) > m_jp.reassembleMaxImpactParameterD0 ) ) continue;
+          if( fabs( impactParameters.at(k_z0) > m_jp.reassembleMaxImpactParameterZ0 ) ) continue;
           
           mergiableVertex[index] = ritr;
           mergiableVerticesSet.emplace( ritr );
@@ -511,6 +516,8 @@ namespace VKalVrtAthena {
         
         StatusCode sc = mergeVertices( destination, workVertex );
         if( sc.isFailure() ) {}
+        
+        if( m_jp.FillHist ) { m_hists["mergeType"]->Fill( REASSEMBLE ); }
         
         ATH_MSG_DEBUG(" > " << __FUNCTION__ << ": destination #tracks after merging = " << destination.selectedTrackIndices.size() );
         
@@ -718,26 +725,75 @@ namespace VKalVrtAthena {
         
         double min_signif = AlgConsts::maxValue;
         
-        // Loop over tracks in vertexToMerge
-        for( auto& index : vertexToMerge.selectedTrackIndices ) {
-          
+        // Method 1. Assume that the solution is somewhat wrong, and the solution gets correct if it starts from the other vertex position
+        if( !mergeFlag ) {
           WrkVrt testVertex = workVertex;
-          testVertex.selectedTrackIndices.emplace_back( index );
-          
-          StatusCode sc = refitVertex( testVertex );
+          StatusCode sc = refitVertexWithSuggestion( testVertex, vertexToMerge.vertex );
           if( sc.isFailure() ) {}
           
           const auto signif = significanceBetweenVertices( testVertex, vertexToMerge );
           if( signif < min_signif ) min_signif = signif;
           
           if( signif < m_jp.mergeByShufflingAllowance ) {
-            ATH_MSG_DEBUG(" > " << __FUNCTION__ << ":   vertexToMerge " << &vertexToMerge << " track index " << index << ": test signif = " << signif );
+            ATH_MSG_DEBUG(" > " << __FUNCTION__ << ":  method1:  vertexToMerge " << &vertexToMerge << ": test signif = " << signif );
+            mergeFlag = true;
+            
+          }
+          
+          if( m_jp.FillHist && mergeFlag ) { m_hists["mergeType"]->Fill( SHUFFLE1 ); }
+        }
+        
+        // Method 2. magnet merging: borrowing another track from the target vertex to merge
+        if( !mergeFlag ) {
+          
+          // Loop over tracks in vertexToMerge
+          for( auto& index : vertexToMerge.selectedTrackIndices ) {
+          
+            WrkVrt testVertex = workVertex;
+            testVertex.selectedTrackIndices.emplace_back( index );
+          
+            StatusCode sc = refitVertexWithSuggestion( testVertex, vertexToMerge.vertex );
+            if( sc.isFailure() ) {}
+          
+            const auto signif = significanceBetweenVertices( testVertex, vertexToMerge );
+            if( signif < min_signif ) min_signif = signif;
+          
+            if( signif < m_jp.mergeByShufflingAllowance ) {
+              ATH_MSG_DEBUG(" > " << __FUNCTION__ << ": method2:  vertexToMerge " << &vertexToMerge << " track index " << index << ": test signif = " << signif );
+              mergeFlag = true;
+            }
+          
+          }
+        
+          if( m_jp.FillHist && min_signif > 0. ) m_hists["shuffleMinSignif"]->Fill( log10( min_signif ) );
+          
+          if( m_jp.FillHist && mergeFlag ) { m_hists["mergeType"]->Fill( SHUFFLE2 ); }
+        }
+        
+        
+        // Method 3. Attempt to force merge
+        if( !mergeFlag ) {
+          
+          WrkVrt testVertex = workVertex;
+          
+          for( auto& index : vertexToMerge.selectedTrackIndices ) {
+            testVertex.selectedTrackIndices.emplace_back( index );
+          }
+          
+          StatusCode sc = refitVertexWithSuggestion( testVertex, vertexToMerge.vertex );
+          if( sc.isFailure() ) {}
+          
+          const auto signif = significanceBetweenVertices( testVertex, vertexToMerge );
+          if( signif < min_signif ) min_signif = signif;
+          
+          if( signif < m_jp.mergeByShufflingAllowance ) {
+            ATH_MSG_DEBUG(" > " << __FUNCTION__ << ": method3:  vertexToMerge " << &vertexToMerge << ": test signif = " << signif );
             mergeFlag = true;
           }
           
+          if( m_jp.FillHist && mergeFlag ) { m_hists["mergeType"]->Fill( SHUFFLE3 ); }
         }
         
-        if( m_jp.FillHist && min_signif > 0. ) m_hists["shuffleMinSignif"]->Fill( log10( min_signif ) );
         
         if( mergeFlag ) {
           ATH_MSG_DEBUG(" > " << __FUNCTION__ << ":   vertexToMerge " << &vertexToMerge << " ==> min signif = " << min_signif << " judged to merge" );
@@ -789,6 +845,7 @@ namespace VKalVrtAthena {
         
       StatusCode sc = mergeVertices( v1, v2 );
       if( sc.isFailure() ) {}
+      if( m_jp.FillHist ) { m_hists["mergeType"]->Fill( FINAL ); }
         
     }
 
@@ -819,7 +876,7 @@ namespace VKalVrtAthena {
 
       int nth = WrkVrt.selectedTrackIndices.size();
 
-      if(nth <= 1) continue;               /* Bad vertices */
+      if(nth < 2) continue;               /* Bad vertices */
 
       StatusCode sc = refitVertex( WrkVrt );
       if( sc.isFailure() ) {
@@ -827,7 +884,12 @@ namespace VKalVrtAthena {
         continue;   /* Bad fit - goto next solution */
       }
       
-      if( m_jp.doFinalImproveChi2 ) improveVertexChi2( WrkVrt );
+      if( m_jp.doFinalImproveChi2 ) {
+        improveVertexChi2( WrkVrt );
+        
+        // If the number of remaining seed selected tracks is less than 2, drop.
+        if( WrkVrt.selectedTrackIndices.size() < 2 ) continue;
+      }
       
       //
       //  Store good vertices into StoreGate 
@@ -1145,8 +1207,9 @@ namespace VKalVrtAthena {
     for( auto& vertex : *workVerticesContainer ) {
       auto ntrk = vertex.selectedTrackIndices.size() + vertex.associatedTrackIndices.size();
       if( vertex.isGood && ntrk >= 2 ) {
-        m_hists["finalVtxNtrk"]->Fill( ntrk );
-        m_hists["finalVtxR"]   ->Fill( vertex.vertex.perp() );
+        m_hists["finalVtxNtrk"] ->Fill( ntrk );
+        m_hists["finalVtxR"]    ->Fill( vertex.vertex.perp() );
+        dynamic_cast<TH2F*>( m_hists["finalVtxNtrkR"] )->Fill( ntrk, vertex.vertex.perp() );
       }
     }
     
