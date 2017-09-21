@@ -45,10 +45,22 @@ StatusCode DerivationFramework::TruthQGDecorationTool::addBranches() const
       ATH_MSG_ERROR("Did not have input decorations available");
       return StatusCode::FAILURE;
     } // Now we have the input decorations          
+    /* Agreement from the HF-tagging and Jet/MET group:
+        - If it is non-zero, use the label from the HF-tagging group (b, c, tau)
+        - If it is zero, use the label from the Jet/MET group (q/g)
+        - In the case that the two disagree (e.g. Jet/MET says b and HF says light),
+           multiply the Jet/MET label by 100 to ensure this case is kept separate
+    */
     if (ajet->auxdata<int>("HadronConeExclTruthLabelID")!=0){
       output_decorator(*ajet) = ajet->auxdata<int>("HadronConeExclTruthLabelID");
     } else {
-      output_decorator(*ajet) = ajet->auxdata<int>("PartonTruthLabelID");
+      if (std::abs(ajet->auxdata<int>("PartonTruthLabelID"))!=5 &&
+          std::abs(ajet->auxdata<int>("PartonTruthLabelID"))!=4 &&
+          std::abs(ajet->auxdata<int>("PartonTruthLabelID"))!=15){
+        output_decorator(*ajet) = ajet->auxdata<int>("PartonTruthLabelID");
+      } else {
+        output_decorator(*ajet) = ajet->auxdata<int>("PartonTruthLabelID")*100;
+      }
     }
   } // Loop over jets
 
