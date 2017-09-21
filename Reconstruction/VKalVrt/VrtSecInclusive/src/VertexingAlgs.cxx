@@ -740,6 +740,7 @@ namespace VKalVrtAthena {
             
           }
           
+          if( m_jp.FillHist && min_signif > 0. ) m_hists["shuffleMinSignif1"]->Fill( log10( min_signif ) );
           if( m_jp.FillHist && mergeFlag ) { m_hists["mergeType"]->Fill( SHUFFLE1 ); }
         }
         
@@ -765,7 +766,7 @@ namespace VKalVrtAthena {
           
           }
         
-          if( m_jp.FillHist && min_signif > 0. ) m_hists["shuffleMinSignif"]->Fill( log10( min_signif ) );
+          if( m_jp.FillHist && min_signif > 0. ) m_hists["shuffleMinSignif2"]->Fill( log10( min_signif ) );
           
           if( m_jp.FillHist && mergeFlag ) { m_hists["mergeType"]->Fill( SHUFFLE2 ); }
         }
@@ -791,6 +792,7 @@ namespace VKalVrtAthena {
             mergeFlag = true;
           }
           
+          if( m_jp.FillHist && min_signif > 0. ) m_hists["shuffleMinSignif3"]->Fill( log10( min_signif ) );
           if( m_jp.FillHist && mergeFlag ) { m_hists["mergeType"]->Fill( SHUFFLE3 ); }
         }
         

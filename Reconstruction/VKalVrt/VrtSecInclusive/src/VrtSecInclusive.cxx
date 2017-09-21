@@ -188,16 +188,18 @@ namespace VKalVrtAthena {
       
       ATH_MSG_INFO("initialize: Filling Histograms");
       //
-      m_hists["trkSelCuts"]       = new TH1F("trkSelCuts",       ";Cut Order;Tracks",                         10, -0.5, 10-0.5              );
-      m_hists["disabledCount"]    = new TH1F("disabledCount",    ";N_{modules};Tracks",                       20, -0.5, 10-0.5              );
-      m_hists["vertexYield"]      = new TH1F("vertexYield",      ";Algorithm Step;Events",                    10, -0.5, 10-0.5              );
-      m_hists["vertexYieldNtrk"]  = new TH2F("vertexYieldNtrk",  ";Ntrk;Algorithm Step;Events",               100, 0, 100, 10, -0.5, 10-0.5 );
-      m_hists["vertexYieldChi2"]  = new TH2F("vertexYieldChi2",  ";#chi^{2}/N_{dof};Algorithm Step;Events",   100, 0, 100, 10, -0.5, 10-0.5 );
-      m_hists["mergeType"]        = new TH1F("mergeType",        ";Merge Algorithm Type;Entries",             10, -0.5, 10-0.5              );
-      m_hists["shuffleMinSignif"] = new TH1F("shuffleMinSignif", ";Min( log_{10}( Significance ) );Vertices", 100, -3, 5                    );
-      m_hists["finalVtxNtrk"]     = new TH1F("finalVtxNtrk",     ";N_{trk};Vertices",                         nbins.size()-1, &(nbins[0])   );
-      m_hists["finalVtxR"]        = new TH1F("finalVtxR",        ";r [mm];Vertices",                          rbins.size()-1, &(rbins[0])   );
-      m_hists["finalVtxNtrkR"]    = new TH2F("finalVtxNtrkR",    ";N_{trk};r [mm];Vertices",                  nbins.size()-1, &(nbins[0]), rbins.size()-1, &(rbins[0])      );
+      m_hists["trkSelCuts"]        = new TH1F("trkSelCuts",        ";Cut Order;Tracks",                         10, -0.5, 10-0.5              );
+      m_hists["disabledCount"]     = new TH1F("disabledCount",     ";N_{modules};Tracks",                       20, -0.5, 10-0.5              );
+      m_hists["vertexYield"]       = new TH1F("vertexYield",       ";Algorithm Step;Events",                    10, -0.5, 10-0.5              );
+      m_hists["vertexYieldNtrk"]   = new TH2F("vertexYieldNtrk",   ";Ntrk;Algorithm Step;Events",               100, 0, 100, 10, -0.5, 10-0.5 );
+      m_hists["vertexYieldChi2"]   = new TH2F("vertexYieldChi2",   ";#chi^{2}/N_{dof};Algorithm Step;Events",   100, 0, 100, 10, -0.5, 10-0.5 );
+      m_hists["mergeType"]         = new TH1F("mergeType",         ";Merge Algorithm Type;Entries",             10, -0.5, 10-0.5              );
+      m_hists["shuffleMinSignif1"] = new TH1F("shuffleMinSignif1", ";Min( log_{10}( Significance ) );Vertices", 100, -3, 5                    );
+      m_hists["shuffleMinSignif2"] = new TH1F("shuffleMinSignif2", ";Min( log_{10}( Significance ) );Vertices", 100, -3, 5                    );
+      m_hists["shuffleMinSignif3"] = new TH1F("shuffleMinSignif3", ";Min( log_{10}( Significance ) );Vertices", 100, -3, 5                    );
+      m_hists["finalVtxNtrk"]      = new TH1F("finalVtxNtrk",      ";N_{trk};Vertices",                         nbins.size()-1, &(nbins[0])   );
+      m_hists["finalVtxR"]         = new TH1F("finalVtxR",         ";r [mm];Vertices",                          rbins.size()-1, &(rbins[0])   );
+      m_hists["finalVtxNtrkR"]     = new TH2F("finalVtxNtrkR",     ";N_{trk};r [mm];Vertices",                  nbins.size()-1, &(nbins[0]), rbins.size()-1, &(rbins[0])      );
       
       std::string histDir("/AANT/VrtSecInclusive/");
       
