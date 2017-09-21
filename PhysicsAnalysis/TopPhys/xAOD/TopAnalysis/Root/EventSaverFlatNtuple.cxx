@@ -1622,9 +1622,12 @@ namespace top {
                 m_jet_phi[i] = jetPtr->phi();
                 m_jet_e[i] = jetPtr->e();
                 double SV1IP3 = -999;
-                const xAOD::BTagging* btag(nullptr);
-                btag = jetPtr->btagging();
-                if (btag) SV1IP3 = btag->SV1plusIP3D_discriminant();
+		// In R21, list of b-tagging variables is changing and this is outdated
+		const xAOD::BTagging* btag(nullptr);
+		btag = jetPtr->btagging();
+		if(m_config->getReleaseSeries() == 24){
+		  if (btag) SV1IP3 = btag->SV1plusIP3D_discriminant();
+		}
                 m_jet_ip3dsv1[i] = SV1IP3;
                 if (m_config->isMC()) {
                   m_jet_truthflav[i] = -99;
