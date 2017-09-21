@@ -229,13 +229,9 @@ namespace VKalVrtAthena {
       
       
       
-      if( is_selected ) {
+      if( ( is_selected || is_associable ) && !is_pv_associated ) {
         
         storeTrackToCollection( trk, selectedBaseTracks, "selected" );
-        
-      } else if( is_associable && !is_pv_associated ) {
-        
-        storeTrackToCollection( trk, associableTracks, "flagged as associable" );
         
       }
       

@@ -5,6 +5,7 @@
 // Header include
 #include "VrtSecInclusive/VrtSecInclusive.h"
 #include "VrtSecInclusive/NtupleVars.h"
+#include "VrtSecInclusive/Tools.h"
 
 #include "TrkTrackSummary/TrackSummary.h"
 
@@ -16,6 +17,7 @@
 #include "TLorentzVector.h"
 
 #include <iostream>
+#include <algorithm>
 
 //-------------------------------------------------
 
@@ -781,12 +783,17 @@ namespace VKalVrtAthena {
   StatusCode VrtSecInclusive::associateNonSelectedTracks( std::vector<WrkVrt>* workVerticesContainer )
   {
     
+    const xAOD::TrackParticleContainer *allTracks ( nullptr );
+    ATH_CHECK( evtStore()->retrieve(allTracks, "InDetTrackParticles") );
+    
     xAOD::TrackParticleContainer *selectedTracks ( nullptr );
     ATH_CHECK( evtStore()->retrieve(selectedTracks, "VrtSecInclusive_SelectedTrackParticles") );
     
     xAOD::TrackParticleContainer *associableTracks ( nullptr );
     ATH_CHECK( evtStore()->retrieve(associableTracks, "VrtSecInclusive_AssociableParticles") );
     
+    const xAOD::VertexContainer *pvs (nullptr);
+    ATH_CHECK( evtStore()->retrieve( pvs, "PrimaryVertices") );
     
     ATH_MSG_DEBUG( " >> associateNonSeletedTracks: #verticess = " << workVerticesContainer->size() );
     
@@ -797,18 +804,36 @@ namespace VKalVrtAthena {
       
       auto& vertexPos = workVertex.vertex;
       
+      
+      std::vector<double> distanceToPVs;
+      
+      for( auto* pv : *pvs ) {
+        distanceToPVs.emplace_back( VKalVrtAthena::vtxVtxDistance( vertexPos, pv->position() ) );
+      }
+      const auto& minDistance = *( std::min_element( distanceToPVs.begin(), distanceToPVs.end() ) );
+      
+      if( minDistance < 1.0 ) continue;
+      
+      
       ATH_MSG_DEBUG( " >> associateNonSeletedTracks: vertex pos = (" << vertexPos.x() << ", " << vertexPos.y() << ", " << vertexPos.z() << "), "
                      "#selected = " << workVertex.SelTrk.size() << ", #assoc = " << workVertex.assocTrk.size() );
       
-      std::map<unsigned, xAOD::TrackParticle*> candidates;
+      std::vector<const xAOD::TrackParticle*> candidates;
       
       // Search for candidate tracks
-      for( auto itr = associableTracks->begin(); itr != associableTracks->end(); ++itr ) {
-        xAOD::TrackParticle* trk = *itr;
-        auto index = itr - associableTracks->begin();
+      for( auto itr = allTracks->begin(); itr != allTracks->end(); ++itr ) {
+        auto* trk = *itr;
         
-        if( trk->isAvailable<bool>("is_associated") ) {
-          if( trk->auxdata<bool>("is_associated") ) continue;
+        {
+          auto result = std::find_if( selectedTracks->begin(), selectedTracks->end(),
+                                      [&] (xAOD::TrackParticle* strk) { return trk->index() == strk->auxdata<unsigned long>("trk_id"); } );
+          if( result != selectedTracks->end() ) continue;
+        }
+        
+        {
+          auto result = std::find_if( associableTracks->begin(), associableTracks->end(),
+                                      [&] (xAOD::TrackParticle* atrk) { return trk->index() == atrk->auxdata<unsigned long>("trk_id"); } );
+          if( result != associableTracks->end() ) continue;
         }
         
         // Get the closest approach
@@ -821,24 +846,21 @@ namespace VKalVrtAthena {
         
         enum { k_d0, k_z0, k_theta, k_phi, k_qOverP };
         
+        if( hypot( impactParameters.at(k_d0), impactParameters.at(k_z0) ) > 1.0 ) continue;
+        
         ATH_MSG_DEBUG( " >> associateNonSeletedTracks: trk " << trk
                        << ": d0 to vtx = " << impactParameters.at(k_d0)
                        << ", z0 to vtx = " << impactParameters.at(k_z0)
                        << ", distance to vtx = " << hypot( impactParameters.at(k_d0), impactParameters.at(k_z0) ) );
         
-        if( hypot( impactParameters.at(k_d0), impactParameters.at(k_z0) ) > 10.0 ) continue;
-        
-        candidates[index] = trk;
+        candidates.emplace_back( trk );
         
       }
       
       ATH_MSG_DEBUG( " >> associateNonSeletedTracks: number of candidate tracks = " << candidates.size() );
       
       // Attempt to add the track to the vertex and try fitting
-      for( auto& pair : candidates ) {
-        
-        auto& index = pair.first;
-        auto* trk   = pair.second;
+      for( const auto* trk : candidates ) {
         
         ATH_MSG_DEBUG( " >> associateNonSeletedTracks: attempting to associate track = " << trk );
         
@@ -902,9 +924,13 @@ namespace VKalVrtAthena {
         ATH_MSG_DEBUG( " >> associateNonSeletedTracks: succeeded in associating. New vertex pos = (" << vertexPos.x() << ", " << vertexPos.y() << ", " << vertexPos.z() << ")" );
         ATH_MSG_DEBUG( " >> associateNonSeletedTracks: New vertex cov = (" << cov.at(0) << ", " << cov.at(1) << ", " << cov.at(2) << ", " << cov.at(3) << ", " << cov.at(4) << ", " << cov.at(5) << ")" );
         
-        trk->auxdecor<bool>("is_associated") = true;
+        workVertex.assocTrk.emplace_back( associableTracks->size() );
         
-        workVertex.assocTrk.emplace_back( index );
+        auto *a_trk = new xAOD::TrackParticle;
+        associableTracks->emplace_back( a_trk );
+        *a_trk = *trk;
+        a_trk->auxdata<unsigned long>("trk_id")  = trk->index();
+        
       }
 
     }

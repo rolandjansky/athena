@@ -423,7 +423,6 @@ namespace VKalVrtAthena {
     
     ATH_MSG_DEBUG( "execute: Number of total tracks      = " << trackParticleContainer->size() );
     ATH_MSG_DEBUG( "execute: Number of selected tracks   = " << selectedBaseTracks->size() );
-    ATH_MSG_DEBUG( "execute: Number of associable tracks = " << associableTracks->size() );
     
     if( m_FillNtuple )
       m_ntupleVars->get<unsigned int>( "NumSelTrks" ) = static_cast<int>( selectedBaseTracks->size() );

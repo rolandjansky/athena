@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef _VrtSecInclusive_Tools_H
 #define _VrtSecInclusive_Tools_H
 
@@ -6,21 +10,9 @@
 
 namespace VKalVrtAthena {
   
-  bool isAssociatedToVertices( const xAOD::TrackParticle *trk, const xAOD::VertexContainer* vertices ) {
-    
-      bool is_pv_associated = false;
-      
-      for( auto* vtx : *vertices ) {
-        for( size_t iv = 0; iv < vtx->nTrackParticles(); iv++ ) {
-          auto* pvtrk = vtx->trackParticle( iv );
-          if( trk == pvtrk ) {
-            is_pv_associated = true;
-            break;
-          }
-        }
-      }
-      return is_pv_associated;
-  }
+  extern bool isAssociatedToVertices( const xAOD::TrackParticle *trk, const xAOD::VertexContainer* vertices );
+  
+  extern double vtxVtxDistance( const Amg::Vector3D& v1, const Amg::Vector3D& v2 );
 
 }
 
