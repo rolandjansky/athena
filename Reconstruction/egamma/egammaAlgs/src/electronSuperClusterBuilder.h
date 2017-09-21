@@ -16,7 +16,7 @@
 #include "egammaRecEvent/egammaRecContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 
-class IEMTrackMatchBuilder;
+#include "egammaInterfaces/IEMTrackMatchBuilder.h"
 
 class electronSuperClusterBuilder : public egammaSuperClusterBuilder {
 
@@ -52,14 +52,29 @@ class electronSuperClusterBuilder : public egammaSuperClusterBuilder {
   /////////////////////////////////////////////////////////////////////
   
   /** @brief Size of maximum search window in eta */
-  int   m_maxDelEtaCells;
+  Gaudi::Property<int> m_maxDelEtaCells {this, 
+      "MaxWindowDelEtaCells", 5,
+      "Size of maximum search window in eta"};
   float m_maxDelEta;
-  float m_bremExtrapMatchDelEta;
-  float m_secEOverPCut;  
-  /** @brief Size of maximum search window in eta */
-  int   m_maxDelPhiCells;
+
+  Gaudi::Property<float> m_bremExtrapMatchDelEta {this,
+      "BremExtrapDelEtaCut",  0.05,
+      "maximum DelEta for brem search"};
+
+  Gaudi::Property<float> m_secEOverPCut {this,
+      "BremSearchEOverPCut",  1.5,
+      "E/p requirement when doing brem search"};
+ 
+  /** @brief Size of maximum search window in phi */
+  Gaudi::Property<int> m_maxDelPhiCells {this,
+      "MaxWindowDelPhiCells", 12,
+      "Size of maximum search window in phi"};
   float m_maxDelPhi;
-  float m_bremExtrapMatchDelPhi;
+
+  Gaudi::Property<float> m_bremExtrapMatchDelPhi {this,
+      "BremExtrapDelPhiCut",  0.1,
+      "maximum DelPhi for brem search"};
+
   //Keep track of # of 3x5 and brem point
   //clusters added to seed clusters.
   int m_nWindowClusters;
@@ -67,20 +82,32 @@ class electronSuperClusterBuilder : public egammaSuperClusterBuilder {
   int m_nSameTrackClusters;
   int m_nSimpleBremSearchClusters;
 
-  float m_numberOfSiHits;
+  Gaudi::Property<std::size_t> m_numberOfSiHits {this, 
+      "NumberOfReqSiHits", 4, "Number of required silicon hits for electrons"};
 
   /** @brief Key for input egammaRec container */
-  SG::ReadHandleKey<EgammaRecContainer> m_inputEgammaRecContainerKey;
+  SG::ReadHandleKey<EgammaRecContainer> m_inputEgammaRecContainerKey {this,
+      "InputEgammaRecContainerName", "egammaRecCollection",
+      "input egammaRec container"};
+      
   /** @brief Key for output egammaRec container */
-  SG::WriteHandleKey<EgammaRecContainer> m_electronSuperRecCollectionKey;
+  SG::WriteHandleKey<EgammaRecContainer> m_electronSuperRecCollectionKey {this,
+      "SuperElectronRecCollectionName", "ElectronSuperRecCollection",
+      "output egammaRec container"};
+  
   /** @brief Key for output clusters */
-  SG::WriteHandleKey<xAOD::CaloClusterContainer> m_outputElectronSuperClustersKey;
+  SG::WriteHandleKey<xAOD::CaloClusterContainer> m_outputElectronSuperClustersKey {this,
+      "SuperClusterCollestionName", "ElectronSuperClusters",
+      "output calo cluster container"};
 
   /** @brief Tool to perform track matching*/
-  ToolHandle<IEMTrackMatchBuilder>             m_trackMatchBuilder;
+  ToolHandle<IEMTrackMatchBuilder> m_trackMatchBuilder {this,
+      "TrackMatchBuilderTool", "EMTrackMatchBuilder",
+      "Tool that matches tracks to egammaRecs"};
 
-  /** @brief private member flag to do the TrackMatching (and conversion building)*/
-  bool         m_doTrackMatching;
+  /** @brief private member flag to do the track matching */
+  Gaudi::Property<bool> m_doTrackMatching {this, "doTrackMatching", true,
+      "Boolean to do track matching"};
 
 };
 

@@ -118,7 +118,7 @@ class egammaBuilder : public AthAlgorithm
   /** @brief Name of the electron output collection*/
   SG::WriteHandleKey<xAOD::ElectronContainer> m_electronOutputKey {this,
       "ElectronOutputName", "ElectronContainer", 
-      "Name of Electron Connainer to be created"};
+      "Name of Electron Container to be created"};
 
   /** @brief Name of the photon output collection */
   SG::WriteHandleKey<xAOD::PhotonContainer> m_photonOutputKey {this,

@@ -22,15 +22,9 @@
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/Photon.h"
 
-#include "egammaInterfaces/IegammaBaseTool.h" 
-#include "ElectronPhotonSelectorTools/IEGammaAmbiguityTool.h"
-
 // INCLUDE GAUDI HEADER FILES:
 #include <algorithm> 
 #include <cmath>
-
-using CLHEP::MeV;
-using CLHEP::GeV;
 
 namespace{
   class smallChrono{
@@ -57,43 +51,8 @@ namespace{
 topoEgammaBuilder::topoEgammaBuilder(const std::string& name, 
 				     ISvcLocator* pSvcLocator): 
   AthAlgorithm(name, pSvcLocator),
-  m_egammaTools(this), m_electronTools(this), m_photonTools(this),
-  m_ambiguityTool("EGammaAmbiguityTool", this),
-  m_timingProfile(0){
-
-  //Containers
-  declareProperty("ElectronOutputName",
-		  m_electronOutputKey="ElectronContainer",
-		  "Name of Electron Connainer to be created");
-  
-  declareProperty("PhotonOutputName",
-		  m_photonOutputKey="PhotonContainer",
-		  "Name of Photon Container to be created");
-
-  declareProperty("SuperElectronRecCollectionName",
-		  m_electronSuperClusterRecContainerKey="ElectronSuperRecCollection",
-		  "Input container for electron  Super Cluster  egammaRec objects");
-
-  declareProperty("SuperPhotonRecCollectionName",
-		  m_photonSuperClusterRecContainerKey="PhotonSuperRecCollection",
-		  "Input container for electron  Super Cluster  egammaRec objects");
-
-  // Handles of tools
-    
-  declareProperty("egammaTools", m_egammaTools,
-		  "Tools for dressing electrons and photons");
-  
-  declareProperty("ElectronTools", m_electronTools,
-		  "Tools for dressing ONLY electrons");
-
-  declareProperty("PhotonTools", m_photonTools,
-		  "Tools for dressing ONLY photons");
-
-  // Handle of ambiguity tool
-  declareProperty("AmbiguityTool", m_ambiguityTool,
-		  "Handle of ambiguity tool");
-
-
+  m_timingProfile(0)
+{
 }
 
 // =================================================================

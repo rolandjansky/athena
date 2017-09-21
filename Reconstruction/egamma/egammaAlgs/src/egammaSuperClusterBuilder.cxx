@@ -112,52 +112,8 @@ namespace {
 //Constructor.
 egammaSuperClusterBuilder::egammaSuperClusterBuilder(const std::string& name, 
 						     ISvcLocator* pSvcLocator): 
-  AthAlgorithm(name, pSvcLocator),
-  m_MVACalibTool("egammaMVATool", this),
-  m_clusterCorrectionTool("egammaSwTool/egammaswtool", this)
+  AthAlgorithm(name, pSvcLocator)
 {
-
-  declareProperty("EtThresholdCut", m_EtThresholdCut = 1.5*GeV,
-		  "The minimum Et required of SEED clusters (not applied to secondaries)");
-
-  declareProperty("EMFracCut", m_emFracCut = 0.5,
-		  "The minimum EM fraction required of both seed and secondary clusters");
-
-  declareProperty("SearchWindowEtaCellsBarrel", m_searchWindowEtaCellsBarrel = 3, 
-		  "Number of cells in eta of window in which to search for topoclusters");
-
-  declareProperty("SearchWindowPhiCellsBarrel", m_searchWindowPhiCellsBarrel = 5,
-		  "Number of cells in phi of window in which to search for topoclusters");
-
-  declareProperty("SearchWindowEtaCellsEndcap", m_searchWindowEtaCellsEndcap = 3, 
-		  "Number of cells in eta of window in which to search for topoclusters");
-
-  declareProperty("SearchWindowPhiCellsEndcap", m_searchWindowPhiCellsEndcap = 5,
-		  "Number of cells in phi of window in which to search for topoclusters");
-
-  declareProperty("AddCellsWindowEtaCellsBarrel", m_addCellsWindowEtaCellsBarrel = 3, 
-		  "Number of cells in eta of window around topocluster center to add cells");
-
-  declareProperty("AddCellsWindowPhiCellsBarrel", m_addCellsWindowPhiCellsBarrel = 999 /*7 for SW*/,
-		  "Number of cells in phi of window around topocluster center to add cells");
-
-  declareProperty("AddCellsWindowEtaCellsEndcap", m_addCellsWindowEtaCellsEndcap = 5, 
-		  "Number of cells in eta of window around topocluster center to add cells");
-
-  declareProperty("AddCellsWindowPhiCellsEndcap", m_addCellsWindowPhiCellsEndcap = 999 /*5 for SW*/,
-		  "Number of cells in phi of window around topocluster center to add cells");
-  
-  declareProperty("RefineEta1", m_refineEta1 = true, 
-		  "Whether to Refine Eta1 calculation");
-
-  declareProperty("CorrectClusters", m_correctClusters = true, 
-		  "Whether to run cluster corrections");
-  
-  declareProperty("CalibrateClusters", m_calibrateClusters = true, 
-		  "Whether to run cluster calibrations");
-  
-  declareProperty("MVACalibTool", m_MVACalibTool);
-  declareProperty("ClusterCorrectionTool", m_clusterCorrectionTool);
   
   m_searchWindowPhiBarrel = m_searchWindowPhiCellsBarrel * s_cellPhiSize * 0.5;
   m_searchWindowEtaBarrel = m_searchWindowEtaCellsBarrel * s_cellEtaSize * 0.5;

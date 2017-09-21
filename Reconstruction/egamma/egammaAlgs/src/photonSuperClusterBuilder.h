@@ -15,8 +15,7 @@
 #include "egammaRecEvent/egammaRecContainer.h"
 #include "xAODEgamma/EgammaEnums.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
-
-class IEMConversionBuilder;
+#include "egammaInterfaces/IEMConversionBuilder.h"
 
 class photonSuperClusterBuilder : public egammaSuperClusterBuilder {
 
@@ -54,25 +53,57 @@ class photonSuperClusterBuilder : public egammaSuperClusterBuilder {
   /////////////////////////////////////////////////////////////////////
   //internal variables
   /** @brief Key for input egammaRec container */
-  SG::ReadHandleKey<EgammaRecContainer> m_inputEgammaRecContainerKey;
+  SG::ReadHandleKey<EgammaRecContainer> m_inputEgammaRecContainerKey {this,
+      "InputEgammaRecContainerName", "egammaRecCollection",
+      "input egammaRec container"};
+
   /** @brief Key for output egammaRec container */
-  SG::WriteHandleKey<EgammaRecContainer> m_photonSuperRecCollectionKey;
+  SG::WriteHandleKey<EgammaRecContainer> m_photonSuperRecCollectionKey {this,
+      "SuperPhotonRecCollectionName", "PhotonSuperRecCollection",
+      "output egammaRec container"};
+
   /** @brief Key for output clusters */
-  SG::WriteHandleKey<xAOD::CaloClusterContainer> m_outputPhotonSuperClustersKey;
+  SG::WriteHandleKey<xAOD::CaloClusterContainer> m_outputPhotonSuperClustersKey {this,
+      "SuperClusterCollestionName", "PhotonSuperClusters",
+      "output calo cluster container"};
 
   /** @brief Tool to retrieve the conversions*/
-  ToolHandle<IEMConversionBuilder>             m_conversionBuilder;
+  ToolHandle<IEMConversionBuilder> m_conversionBuilder {this,
+      "ConversionBuilderTool", "EMConversionBuilder",
+      "Tool that matches conversion vertices to egammaRecs"};
 
   // options for how to build superclusters
-  bool m_addClustersInWindow; //!< add the topoclusters in window
-  bool m_addClustersMatchingVtx; //!< add the topoclusters matching conversion vertex
-  bool m_useOnlyLeadingVertex; //!< use only the leading vertex for matching
-  bool m_useOnlySi; //!< use only vertices/tracks with silicon tracks
-  bool m_addClustersMatchingVtxTracks; //!< add the topoclusters matching conversion vertex tracks
-  bool m_useOnlyLeadingTrack; //!< use only the leading track for matching
+  /** @brief add the topoclusters in window */
+  Gaudi::Property<bool> m_addClustersInWindow {this,
+      "AddClustersInWindow", true, "add the topoclusters in window"};
+
+  /** @brief add the topoclusters matching conversion vertex */
+  Gaudi::Property<bool>  m_addClustersMatchingVtx {this,
+      "AddClustersMatchingVtx", true, 
+      "add the topoclusters matching conversion vertex"};
+
+  /** @brief use only the leading vertex for matching */
+  Gaudi::Property<bool>  m_useOnlyLeadingVertex {this,
+      "UseOnlyLeadingVertex", true, 
+      "use only the leading vertex for matching"};
+
+  /** @brief use only vertices/tracks with silicon tracks */
+  Gaudi::Property<bool>  m_useOnlySi {this, "UseOnlySi", true, 
+      "use only vertices/tracks with silicon tracks for adding sec. clusters (Mix not considered Si)"};
+ 
+  /** @brief add the topoclusters matching conversion vertex tracks */
+  Gaudi::Property<bool>  m_addClustersMatchingVtxTracks {this, 
+      "AddClustrsMatchingVtxTracks", true, 
+      "add the topoclusters matching conversion vertex tracks"};
+
+  /** @brief use only the leading track for matching */
+  Gaudi::Property<bool>  m_useOnlyLeadingTrack {this, 
+      "UseOnlyLeadingTrack", true, 
+      "use only the leading track for matching"}; 
 
   /** @brief private member flag to do the conversion building and matching */
-  bool         m_doConversions;
+  Gaudi::Property<bool> m_doConversions {this, "doConversions", true,
+      "Boolean to do conversion matching"};
 
 };
 

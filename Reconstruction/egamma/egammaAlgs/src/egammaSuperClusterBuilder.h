@@ -46,8 +46,13 @@ protected:
   static constexpr float s_cellPhiSize = M_PI/128.;
 
   /** @brief Seed selection requirements */
-  float m_EtThresholdCut;
-  float m_emFracCut;
+  Gaudi::Property<float> m_EtThresholdCut {this,
+      "EtThresholdCut", 1.5*CLHEP::GeV,
+      "The minimum Et required of SEED clusters (not applied to secondaries)"};
+
+  Gaudi::Property<float> m_emFracCut {this, "EMFracCut", 0.5,
+      "The minimum EM fraction required of both seed and secondary clusters"};
+
   // these are calculated search window values
   float m_searchWindowEtaBarrel; //!< half of search window size, converted to units of eta
   float m_searchWindowPhiBarrel; //!< half of search window size, converted to units of phi
@@ -85,28 +90,66 @@ private:
   float m_addCellsWindowPhiEndcap; //!< half of addCells window size, converted to units of phi
 
   /** @brief Size of search window in eta for the barrel */
-  int   m_searchWindowEtaCellsBarrel;
+  Gaudi::Property<int> m_searchWindowEtaCellsBarrel {this,
+      "SearchWindowEtaCellsBarrel", 3, 
+      "Number of cells in eta of window in which to search for topoclusters"};
+
   /** @brief Size of search window in phi for the barrel */
-  int   m_searchWindowPhiCellsBarrel;
+  Gaudi::Property<int> m_searchWindowPhiCellsBarrel {this,
+      "SearchWindowPhiCellsBarrel", 5,
+      "Number of cells in phi of window in which to search for topoclusters"};
+
   /** @brief Size of search window in eta for the end-cap*/
-  int   m_searchWindowEtaCellsEndcap;
+  Gaudi::Property<int> m_searchWindowEtaCellsEndcap {this,
+      "SearchWindowEtaCellsEndcap", 3, 
+      "Number of cells in eta of window in which to search for topoclusters"};
+
   /** @brief Size of search window in phi for the end-cap*/
-  int   m_searchWindowPhiCellsEndcap;
+  Gaudi::Property<int> m_searchWindowPhiCellsEndcap {this,
+      "SearchWindowPhiCellsEndcap", 5,
+      "Number of cells in phi of window in which to search for topoclusters"};
+
   /** @brief Size of windows et eta in which cells of topoclusters are edded for the barrel */
-  int   m_addCellsWindowEtaCellsBarrel;
+  Gaudi::Property<int>   m_addCellsWindowEtaCellsBarrel {this,
+      "AddCellsWindowEtaCellsBarrel", 3, 
+      "Number of cells in eta of window around topocluster center to add cells"};
+
   /** @brief Size of windows et phi in which cells of topoclusters are edded for the barrel */
-  int   m_addCellsWindowPhiCellsBarrel;
+  Gaudi::Property<int>   m_addCellsWindowPhiCellsBarrel {this,
+      "AddCellsWindowPhiCellsBarrel", 999 /*7 for SW*/,
+      "Number of cells in phi of window around topocluster center to add cells"};
+
   /** @brief Size of windows et eta in which cells of topoclusters are edded for the endcap */
-  int   m_addCellsWindowEtaCellsEndcap;
+  Gaudi::Property<int>   m_addCellsWindowEtaCellsEndcap {this,
+      "AddCellsWindowEtaCellsEndcap", 5, 
+      "Number of cells in eta of window around topocluster center to add cells"};
+
   /** @brief Size of windows et phi in which cells of topoclusters are edded for the endcap */
-  int   m_addCellsWindowPhiCellsEndcap;
-  bool m_refineEta1 ;   //!< Whether to refine the eta1 calculation
-  bool m_correctClusters;  //!< Whether to run cluster correction
-  bool m_calibrateClusters;  //!< Whether to run cluster calibration
+  Gaudi::Property<int>   m_addCellsWindowPhiCellsEndcap {this,
+      "AddCellsWindowPhiCellsEndcap", 999 /*5 for SW*/,
+      "Number of cells in phi of window around topocluster center to add cells"};
+
+  /** @brief Whether to refine the eta1 calculation */
+  Gaudi::Property<bool> m_refineEta1 {this, "RefineEta1", true, 
+      "Whether to Refine Eta1 calculation"};
+   
+  /** @brief Whether to run cluster correction */
+  Gaudi::Property<bool> m_correctClusters {this, "CorrectClusters", true, 
+      "Whether to run cluster corrections"};
+
+  /** @brief Whether to run cluster calibration */
+  Gaudi::Property<bool> m_calibrateClusters {this, "CalibrateClusters", true, 
+      "Whether to run cluster calibrations"};
+
   /** @brief Handle to the MVA calibration Tool **/
-  ToolHandle<IegammaMVATool>  m_MVACalibTool;  
+  ToolHandle<IegammaMVATool>  m_MVACalibTool {this,
+      "MVACalibTool", "egammaMVATool", "calibration tool"};
+  
   /** @brief Tool to handle cluster corrections */
-  ToolHandle<IegammaSwTool>   m_clusterCorrectionTool;
+  ToolHandle<IegammaSwTool>   m_clusterCorrectionTool {this,
+      "ClusterCorrectionTool", "egammaswtool", 
+      "tool that applies cluster corrections"};
+
   /** @brief Position in Calo frame**/  
   CaloCellDetPos m_caloCellDetPos;
 

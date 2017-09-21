@@ -27,8 +27,8 @@
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "egammaRecEvent/egammaRecContainer.h"
 
-class IegammaBaseTool;
-class IEGammaAmbiguityTool;
+#include "ElectronPhotonSelectorTools/IEGammaAmbiguityTool.h"
+#include "egammaInterfaces/IegammaBaseTool.h" 
 
 class egammaRec;
 
@@ -49,13 +49,16 @@ class topoEgammaBuilder : public AthAlgorithm
  private:
 
   /** @brief Vector of tools for dressing electrons and photons **/
-  ToolHandleArray<IegammaBaseTool> m_egammaTools;
+  ToolHandleArray<IegammaBaseTool> m_egammaTools {this,
+      "egammaTools", {}, "Tools for dressing electrons and photons"};
   
   /** @brief Vector of tools for dressing ONLY electrons **/
-  ToolHandleArray<IegammaBaseTool> m_electronTools;
+  ToolHandleArray<IegammaBaseTool> m_electronTools {this,
+      "ElectronTools", {}, "Tools for dressing ONLY electrons"};
 
   /** @brief Vector of tools for dressing ONLY photons **/
-  ToolHandleArray<IegammaBaseTool> m_photonTools;
+  ToolHandleArray<IegammaBaseTool> m_photonTools {this,
+      "PhotonTools", {}, "Tools for dressing ONLY photons"};
 
   /** @brief Retrieve each tool in the given vector **/
   StatusCode RetrieveTools(ToolHandleArray<IegammaBaseTool>& tools);
@@ -85,19 +88,35 @@ class topoEgammaBuilder : public AthAlgorithm
 
   /** @brief retrieve EMAmbiguityTool **/
   StatusCode RetrieveAmbiguityTool();
+
   /** @brief Name of the electron output collection*/
-  SG::WriteHandleKey<xAOD::ElectronContainer> m_electronOutputKey;
+  SG::WriteHandleKey<xAOD::ElectronContainer> m_electronOutputKey {this,
+      "ElectronOutputName", "ElectronContainer", 
+      "Name of Electron Container to be created"};
+
   /** @brief Name of the photon output collection */
-  SG::WriteHandleKey<xAOD::PhotonContainer> m_photonOutputKey;
+  SG::WriteHandleKey<xAOD::PhotonContainer> m_photonOutputKey {this,
+      "PhotonOutputName", "PhotonContainer",
+      "Name of Photon Container to be created"};
+
   /** @brief Name of input super cluster electron egammaRec container */
-  SG::ReadHandleKey<EgammaRecContainer> m_electronSuperClusterRecContainerKey;
+  SG::ReadHandleKey<EgammaRecContainer> m_electronSuperClusterRecContainerKey {this,
+      "SuperElectronRecCollectionName", 
+      "ElectronSuperRecCollection",
+      "Input container for electron  Super Cluster  egammaRec objects"};
+
   /** @brief Name of input super cluster photon egammaRec container */
-  SG::ReadHandleKey<EgammaRecContainer> m_photonSuperClusterRecContainerKey;
+  SG::ReadHandleKey<EgammaRecContainer> m_photonSuperClusterRecContainerKey {this,
+      "SuperPhotonRecCollectionName",
+      "PhotonSuperRecCollection",
+      "Input container for electron  Super Cluster  egammaRec objects"};
   //
   // The tools
   //
   /** @brief Tool to resolve electron/photon ambiguity */
-  ToolHandle<IEGammaAmbiguityTool>             m_ambiguityTool;
+  ToolHandle<IEGammaAmbiguityTool> m_ambiguityTool {this, 
+      "AmbiguityTool", "EGammaAmbiguityTool", 
+      "Tool that does electron/photon ambiguity resolution"};
 
   //
   // Other properties.

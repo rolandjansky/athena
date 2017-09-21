@@ -8,6 +8,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MCTruthClassifier/MCTruthClassifierDefs.h"
+#include "MCTruthClassifier/IMCTruthClassifier.h"
 #include "xAODEgamma/EgammaContainer.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
@@ -22,7 +23,6 @@
 
 #include <memory>
 #include <array>
-class IMCTruthClassifier;
 
 /**
    @class egammaTruthAssociationAlg
@@ -107,53 +107,73 @@ private:
 
   
   /** @brief Create egamma truth container? **/
-  bool m_doEgammaTruthContainer;
+  Gaudi::Property<bool> m_doEgammaTruthContainer {this,
+      "CreateEgammaTruthContainer", true,
+      "Create egammaTruthContainer?"};
   
   /** @brief Match fwd electrons? **/
-  bool m_matchForwardElectrons;
+  Gaudi::Property<bool> m_matchForwardElectrons {this,
+      "MatchForwardElectrons", true,
+      "Match forward electrons?"};
 
   /** @brief Match clusters? **/
-  bool m_matchClusters;
+  Gaudi::Property<bool> m_matchClusters {this, "MatchClusters", false,
+      "Match clusters?"};
   
   /** @brief Name of the egamma cluster container **/
-  std::string m_clusterContainerName;
+  Gaudi::Property<std::string> m_clusterContainerName {this,
+      "ClusterContainerName", "", 
+      "Name of the egamma cluster container"};
   writeDecorHandleKeys<xAOD::CaloClusterContainer> m_clusterDecKeys;
     
   /** @brief Name of the input electron container **/
-  std::string m_electronContainerName;
+  Gaudi::Property<std::string> m_electronContainerName {this,
+      "ElectronContainerName", "",
+      "Name of the input electron container"};
   writeDecorHandleKeys<xAOD::ElectronContainer> m_electronDecKeys;  
 
   /** @brief Name of the input electron container **/
-  std::string m_fwdElectronContainerName;
+  Gaudi::Property<std::string> m_fwdElectronContainerName {this,
+      "FwdElectronContainerName", "",
+      "Name of the input fwd electron container"};
   writeDecorHandleKeys<xAOD::ElectronContainer> m_fwdElectronDecKeys;  
  
   /** @brief Name of the input photon container **/
-  std::string m_photonContainerName;  
+  Gaudi::Property<std::string> m_photonContainerName {this,
+      "PhotonContainerName", "",
+      "Name of the input photon container"};  
   writeDecorHandleKeys<xAOD::PhotonContainer> m_photonDecKeys;  
 
   /** @brief Name of the truth event container **/
-  SG::ReadHandleKey<xAOD::TruthEventContainer> m_truthEventContainerKey;
+  SG::ReadHandleKey<xAOD::TruthEventContainer> m_truthEventContainerKey {this,
+      "TruthParticleContainerName", "", 
+      "Name of the truth particle container"};
 
   /** @brief Name of the truth particle container **/
-  SG::ReadHandleKey<xAOD::TruthParticleContainer>  m_truthParticleContainerKey;
+  SG::ReadHandleKey<xAOD::TruthParticleContainer>  m_truthParticleContainerKey {this,
+      "TruthEventContainerName", "", 
+      "Name of the truth event container"};
 
   /** @brief Name of the output egamma truth container **/
-  SG::WriteHandleKey<xAOD::TruthParticleContainer> m_egammaTruthParticleContainerKey;
+  SG::WriteHandleKey<xAOD::TruthParticleContainer> m_egammaTruthParticleContainerKey {this,
+      "EgammaTruthContainerName", "",
+      "Name of the output egamma truth particle container"};
   
   /** @brief Minimum Pt to enter egamma truth particle container **/
-  float m_minPt;
+  Gaudi::Property<float> m_minPt {this, "MinPtEgammaTruth", 10, 
+      "Minimum Pt to enter egamma truth particle container"};
 
   /** @brief Minimum Pt for FSR to enter egamma truth particle container **/
-  float m_minPtFSR;
+  Gaudi::Property<float> m_minPtFSR {this, "MinPtEgammaTruthFSR", 1e3, 
+      "Minimum Pt for FSR to enter egamma truth particle container"};
 
   /** Barcode offset for G4 particles **/
-  int m_barcodeOffset;
+  Gaudi::Property<int> m_barcodeOffset {this, "SimBarcodeOffset", 200e3,
+      "Barcode offset for G4 particles"};
   
   /** @brief MCTruthClassifier **/
-  ToolHandle<IMCTruthClassifier>   m_mcTruthClassifier;
-  
-  // let's try without this
-  //std::unique_ptr<xAOD::TruthParticleContainer> m_egammaTruthContainer; 
+  ToolHandle<IMCTruthClassifier> m_mcTruthClassifier {this,
+      "MCTruthClassifier", "EMMCTruthClassifier", "Handle of MCTruthClassifier"};
   
 };
 

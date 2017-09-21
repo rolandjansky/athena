@@ -19,8 +19,6 @@
 #include "xAODTruth/TruthEventContainer.h"
 #include "CxxUtils/make_unique.h"
 
-#include "MCTruthClassifier/IMCTruthClassifier.h"
-
 typedef ElementLink<xAOD::TruthParticleContainer> TruthLink_t;
 typedef ElementLink<xAOD::CaloClusterContainer> ClusterLink_t;  
 typedef ElementLink<xAOD::ElectronContainer> ElectronLink_t;  
@@ -29,38 +27,8 @@ typedef ElementLink<xAOD::PhotonContainer> PhotonLink_t;
 // =============================================================
 egammaTruthAssociationAlg::egammaTruthAssociationAlg(const std::string& name, 
 						     ISvcLocator* pSvcLocator): 
-  AthAlgorithm(name, pSvcLocator),
-  m_mcTruthClassifier("MCTruthClassifier/EMMCTruthClassifier", this)
+  AthAlgorithm(name, pSvcLocator)
 {
-  declareProperty("ClusterContainerName", m_clusterContainerName, 
-    "Name of the egamma cluster container");
-  declareProperty("ElectronContainerName", m_electronContainerName, 
-    "Name of the input electron container");
-  declareProperty("FwdElectronContainerName", m_fwdElectronContainerName,
-    "Name of the input fwd electron container");    
-  declareProperty("PhotonContainerName", m_photonContainerName, 
-    "Name of the input photon container");
-  declareProperty("TruthParticleContainerName", m_truthParticleContainerKey, 
-    "Name of the truth particle container");
-  declareProperty("TruthEventContainerName", m_truthEventContainerKey, 
-    "Name of the truth event container");
-  declareProperty("EgammaTruthContainerName", m_egammaTruthParticleContainerKey,
-    "Name of the output egamma truth particle container");
-  declareProperty("CreateEgammaTruthContainer", m_doEgammaTruthContainer = true,
-    "Create egammaTruthContainer ?");
-  declareProperty("MatchForwardElectrons", m_matchForwardElectrons = true,
-    "Match forward electrons?");
-  declareProperty("MatchClusters", m_matchClusters = false,
-    "Match clusters?");    
-  declareProperty("MinPtEgammaTruth", m_minPt = 10, 
-    "Minimum Pt to enter egamma truth particle container");
-  declareProperty("MinPtEgammaTruthFSR", m_minPtFSR = 1e3, 
-    "Minimum Pt for FSR to enter egamma truth particle container");  
-  declareProperty("SimBarcodeOffset", m_barcodeOffset = 200e3,
-    "Barcode offset for G4 particles");
-      
-  declareProperty("MCTruthClassifier", m_mcTruthClassifier, 
-    "Handle of MCTruthClassifier");
 }
 
 egammaTruthAssociationAlg::~egammaTruthAssociationAlg() {}

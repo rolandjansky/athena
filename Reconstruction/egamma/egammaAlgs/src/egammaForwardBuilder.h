@@ -31,21 +31,16 @@
 
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODCaloEvent/CaloCluster.h"
+#include "CaloEvent/CaloClusterCellLinkContainer.h"
 
 #include "xAODEgamma/Egamma.h"
 #include "xAODEgamma/ElectronContainer.h"
 
+#include "egammaInterfaces/IegammaBaseTool.h"
+#include "egammaInterfaces/IEMFourMomBuilder.h"
+#include "ElectronPhotonSelectorTools/IAsgForwardElectronIsEMSelector.h"
+
 #include <string>
-
-class egamma;
-class IegammaBaseTool;
-class StoreGateSvc;
-class IEMFourMomBuilder;
-class IAsgSelectionTool;
-class IAsgForwardElectronIsEMSelector;
-class ILumiBlockMuTool;
-class CaloClusterCellLink;
-
 
 class egammaForwardBuilder : public AthAlgorithm
 {
@@ -73,38 +68,52 @@ class egammaForwardBuilder : public AthAlgorithm
 
  private:
 
-  /** @brief Name of tool to perform object quality*/
-  std::string  m_ObjectQualityToolName;
   /** @brief Tool to perform object quality*/
-  ToolHandle<IegammaBaseTool> m_objectqualityTool;
+  ToolHandle<IegammaBaseTool> m_objectqualityTool {this,
+      "ObjectQualityToolName", "",
+      "Name of the object quality tool (empty tool name ignored)"};
 
   /** @brief Tool to perform the 4-mom computation*/
-  ToolHandle<IEMFourMomBuilder> m_fourMomBuilder;
+  ToolHandle<IEMFourMomBuilder> m_fourMomBuilder {this,
+      "FourMomBuilderTool", "EMFourMomBuilder",
+      "Handle of 4-mom Builder"};
 
   /** @brief input topo cluster type */
-  SG::ReadHandleKey<xAOD::CaloClusterContainer> m_topoClusterKey;
+  SG::ReadHandleKey<xAOD::CaloClusterContainer> m_topoClusterKey {this,
+      "TopoClusterName", "",
+      "Name of the input cluster collection"};
 
   /** @brief output electron container */
-  SG::WriteHandleKey<xAOD::ElectronContainer>  m_electronOutputKey;
+  SG::WriteHandleKey<xAOD::ElectronContainer>  m_electronOutputKey {this,
+      "ElectronOutputName", "",
+      "Name of Electron Container to be created"};
   
   /** @brief output cluster container */
-  SG::WriteHandleKey<xAOD::CaloClusterContainer> m_outClusterContainerKey;
+  SG::WriteHandleKey<xAOD::CaloClusterContainer> m_outClusterContainerKey {this,
+      "ClusterContainerName", ""
+      "Name of the output EM cluster container"};
+
   /** @brief output cluster container cell links: name taken from containter name **/
   SG::WriteHandleKey<CaloClusterCellLinkContainer> m_outClusterContainerCellLinkKey;
 
   /** @brief  ET cut */
-  double m_ETcut;
+  Gaudi::Property<double> m_ETcut {this, "EtCut", 5.*CLHEP::GeV, "ET cut"};
+
   /** @brief eta cut */
-  double m_etacut;
+  Gaudi::Property<double> m_etacut {this, "EtaCut", 2.5, "eta cut"};
 
   // to measure speed of the algorithm
   IChronoStatSvc* m_timingProfile;
   
  protected:
   /** Handle to the selectors */
-  ToolHandleArray<IAsgForwardElectronIsEMSelector> m_forwardelectronIsEMselectors;
-  std::vector<std::string> m_forwardelectronIsEMselectorResultNames;
-  
+  ToolHandleArray<IAsgForwardElectronIsEMSelector> m_forwardelectronIsEMselectors {this,
+      "forwardelectronIsEMselectors", {}, 
+      "The selectors that we need to apply to the FwdElectron object"};
+
+  Gaudi::Property<std::vector<std::string> > m_forwardelectronIsEMselectorResultNames {this,
+      "forwardelectronIsEMselectorResultNames", {},
+      "The selector result names"};
   
 };
 #endif

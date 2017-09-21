@@ -4,7 +4,6 @@
 
 #include "egammaTopoClusterCopier.h"
 #include "xAODCaloEvent/CaloCluster.h"
-#include "AthContainers/ConstDataVector.h"
 #include "CaloUtils/CaloClusterStoreHelper.h"
 #include "xAODCore/ShallowCopy.h"
 #include "xAODCaloEvent/CaloClusterKineHelper.h"
@@ -38,14 +37,8 @@ public:
 // =============================================================
 egammaTopoClusterCopier::egammaTopoClusterCopier(const std::string& name, 
 						 ISvcLocator* pSvcLocator): 
-  AthReentrantAlgorithm(name, pSvcLocator) {
-  declareProperty("InputTopoCollection", m_inputTopoCollection = "CaloTopoCluster");
-  declareProperty("OutputTopoCollection", m_outputTopoCollection = "egammaTopoCluster");
-  declareProperty("OutputTopoCollectionShallow", m_outputTopoCollectionShallow = "tmp_egammaTopoCluster");
-  declareProperty("EtaCut", m_etaCut = 2.6);
-  declareProperty("ECut", m_ECut = 400);
-  declareProperty("EMFracCut", m_EMFracCut = 0.5);
-  declareProperty("EMCrackEtCut", m_EMCrackEtCut = 1.0E3);
+  AthReentrantAlgorithm(name, pSvcLocator) 
+{
 }
 
 // =============================================================

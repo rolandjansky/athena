@@ -50,37 +50,8 @@ namespace{
 egammaRecBuilder::egammaRecBuilder(const std::string& name, 
 				   ISvcLocator* pSvcLocator): 
   AthAlgorithm(name, pSvcLocator),
-  m_trackMatchBuilder("EMTrackMatchBuilder", this),
-  m_conversionBuilder("EMConversionBuilder", this),
-  m_timingProfile(0){
-
-  //Containers
-  declareProperty("InputTopoClusterContainerName",
-		  m_inputTopoClusterContainerKey = "egammaTopoCluster",
-		  "Name of input cluster container");
-
-  declareProperty("egammaRecContainer",
-		  m_egammaRecContainerKey="egammaRecCollection",
-		  "Output container for egammaRec objects");
-
-  // Handle of TrackMatchBuilder
-  declareProperty("TrackMatchBuilderTool", m_trackMatchBuilder,
-		  "Handle of TrackMatchBuilder");
-
-  // Handle of Conversion Builder
-  declareProperty("ConversionBuilderTool",m_conversionBuilder,
-		  "Handle of Conversion Builder");
-
-  // All booleans
-
-  // Boolean to do track matching
-  declareProperty("doTrackMatching",m_doTrackMatching= true,
-		  "Boolean to do track matching (and conversion building)");
-
-  // Boolean to do conversion reconstruction
-  declareProperty("doConversions",m_doConversions= true,
-		  "Boolean to do conversion building / matching");
-
+  m_timingProfile(0)
+{
 }
 
 // =================================================================

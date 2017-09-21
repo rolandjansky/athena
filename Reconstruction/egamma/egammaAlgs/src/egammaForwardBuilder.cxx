@@ -4,8 +4,6 @@
 
 #include "egammaForwardBuilder.h"
 #include "egammaInterfaces/IegammaBaseTool.h"
-#include "egammaInterfaces/IegammaBaseTool.h"
-#include "egammaInterfaces/IEMFourMomBuilder.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "PathResolver/PathResolver.h"
@@ -25,9 +23,6 @@
 #include <math.h>
 
 
-using CLHEP::GeV;
-
-
 //  END OF HEADER FILES INCLUDE
 
 /////////////////////////////////////////////////////////////////
@@ -36,53 +31,8 @@ using CLHEP::GeV;
     
 egammaForwardBuilder::egammaForwardBuilder(const std::string& name, ISvcLocator* pSvcLocator): 
   AthAlgorithm(name, pSvcLocator),
-  m_objectqualityTool("egammaOQFlagsBuilder", this),
-  m_fourMomBuilder("EMFourMomBuilder", this),
-  m_timingProfile(0),
-  m_forwardelectronIsEMselectors(this)
+  m_timingProfile(0)
 { 
-  // Name of Electron Container to be created
-  declareProperty("ElectronOutputName",
-		  m_electronOutputKey="",
-		  "Name of Electron Container to be created");
-
-  // Name of the input cluster collection
-  declareProperty("TopoClusterName",
-		  m_topoClusterKey="",
-		  "Name of the input cluster collection");
-
-  // Value of the ET cut
-  declareProperty("EtCut",
-		  m_ETcut=5.*GeV,
-		  "Value of the ET cut");
-
-  // Value of the eta cut
-  declareProperty("EtaCut",
-		  m_etacut=2.5,
-		  "Value of the eta cut");
-
- 
-  // Name of the output EM cluster container
-  declareProperty("ClusterContainerName",
-		  m_outClusterContainerKey="",
-		  "Name of the output EM cluster container");
-
-  // Selector definition
-  declareProperty("forwardelectronIsEMselectors", m_forwardelectronIsEMselectors,
-    "The selectors that we need to apply to the FwdElectron object");
-  declareProperty("forwardelectronIsEMselectorResultNames", m_forwardelectronIsEMselectorResultNames,
-    "The selector result names");
-
-  // Name of the object quality tool
-  declareProperty("ObjectQualityToolName", 
-		  m_ObjectQualityToolName="",
-		  "Name of the object quality Tool");
-
-
-  // Handle of 4-mom Builder
-  declareProperty("FourMomBuilderTool",m_fourMomBuilder,
-		  "Handle of 4-mom Builder");
-
 } 
 
 
@@ -146,13 +96,11 @@ void egammaForwardBuilder::RetrieveObjectQualityTool()
   // retrieve object quality tool
   //
 
-  if (m_ObjectQualityToolName=="") {
-    ATH_MSG_INFO("egammaOQFlagsBuilder is disabled  " 
-		 << m_ObjectQualityToolName);
+  if (m_objectqualityTool.name()=="") {
+    ATH_MSG_INFO("egammaOQFlagsBuilder is disabled"); 
     return;
   } 
 
-  m_objectqualityTool = ToolHandle<IegammaBaseTool>(m_ObjectQualityToolName);
   if(m_objectqualityTool.retrieve().isFailure()) {
     ATH_MSG_ERROR("Unable to retrieve " << m_objectqualityTool
 		  << ", turning it off");
@@ -221,12 +169,11 @@ StatusCode egammaForwardBuilder::execute()
   SG::ReadHandle<xAOD::CaloClusterContainer> cluster(m_topoClusterKey);
 
   // check is only used for serial running; remove when MT scheduler used 
-  // (also then it would be a failure, not just a warning)
+  // --used to be a warning with SUCCESS, but that won't work in MT
   if(!cluster.isValid()) {
-    ATH_MSG_WARNING("egammaForwardBuilder::Could not retrieve Cluster container"); 
-    return StatusCode::SUCCESS;
+    ATH_MSG_FATAL("egammaForwardBuilder::Could not retrieve Cluster container"); 
+    return StatusCode::FAILURE;
   }
-
 
 
   //loop over cluster container
@@ -303,7 +250,7 @@ StatusCode egammaForwardBuilder::ExecObjectQualityTool(xAOD::Egamma *eg)
   // return success as algorithm may be able to run without it 
   // in degraded mode
 
-  if (m_ObjectQualityToolName=="") return StatusCode::SUCCESS;
+  if (m_objectqualityTool.name()=="") return StatusCode::SUCCESS;
 
   // setup chrono for this tool
   std::string chronoName=this->name()+"_"+m_objectqualityTool->name() ;

@@ -12,15 +12,10 @@
 #include "xAODCaloEvent/CaloClusterKineHelper.h"
 #include "xAODTracking/TrackParticle.h" 
 #include "xAODTracking/TrackParticleContainer.h" 
-//
-//extrapolation
-#include "egammaInterfaces/IEMExtrapolationTools.h"
 
 //
 #include "TrkMaterialOnTrack/EstimatedBremOnTrack.h"
 #include "FourMomUtils/P4Helpers.h"
-
-#include "egammaInterfaces/IEMTrackMatchBuilder.h"
 
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
@@ -40,39 +35,14 @@ electronSuperClusterBuilder::electronSuperClusterBuilder(const std::string& name
   m_nWindowClusters(0),
   m_nExtraClusters(0),
   m_nSameTrackClusters(0),
-  m_nSimpleBremSearchClusters(0),
-  m_trackMatchBuilder("EMTrackMatchBuilder", this)
+  m_nSimpleBremSearchClusters(0)
 {
 
   ////////////////////////////////////////////////////////////////////////////////
   //Search parameters.
   //Window we search in 
-  declareProperty("MaxWindowDelEtaCells", m_maxDelEtaCells = 5);
-  declareProperty("MaxWindowDelPhiCells", m_maxDelPhiCells = 12);
   m_maxDelPhi = m_maxDelPhiCells * s_cellPhiSize * 0.5;
   m_maxDelEta = m_maxDelEtaCells * s_cellEtaSize * 0.5;
-  //For the Brem matching
-  declareProperty("BremExtrapDelEtaCut",  m_bremExtrapMatchDelEta = 0.05);
-  declareProperty("BremExtrapDelPhiCut",  m_bremExtrapMatchDelPhi = 0.1);
-  declareProperty("BremSearchEOverPCut",  m_secEOverPCut = 1.5);
-
-  //Containers
-  declareProperty("InputEgammaRecContainerName", 
-		  m_inputEgammaRecContainerKey = "egammaRecCollection");
-  declareProperty("SuperElectronRecCollectionName", 
-		  m_electronSuperRecCollectionKey = "ElectronSuperRecCollection");
-  declareProperty("SuperClusterCollestionName",  
-		  m_outputElectronSuperClustersKey  = "ElectronSuperClusters");
-  //
-  declareProperty("NumberOfReqSiHits", m_numberOfSiHits = 4);
-
-  // Handle of TrackMatchBuilder
-  declareProperty("TrackMatchBuilderTool", m_trackMatchBuilder,
-		  "Handle of TrackMatchBuilder");
-
-  // Boolean to do track matching
-  declareProperty("doTrackMatching",m_doTrackMatching= true,
-		  "Boolean to do track matching (and conversion building)");
 
 }
 

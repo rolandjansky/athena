@@ -15,8 +15,6 @@
 #include "xAODTracking/TrackParticle.h"
 //
 #include "FourMomUtils/P4Helpers.h"
-//
-#include "egammaInterfaces/IEMConversionBuilder.h"
 
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
@@ -33,46 +31,8 @@ using CLHEP::GeV;
 //Constructor.
 photonSuperClusterBuilder::photonSuperClusterBuilder(const std::string& name, 
 						     ISvcLocator* pSvcLocator):
-  egammaSuperClusterBuilder(name, pSvcLocator),
-  m_conversionBuilder("EMConversionBuilder", this)
-{
-
-  //Containers
-  declareProperty("InputEgammaRecContainerName", 
-		  m_inputEgammaRecContainerKey = "egammaRecCollection");
-
-  declareProperty("SuperPhotonRecCollectionName", 
-		  m_photonSuperRecCollectionKey = "PhotonSuperRecCollection");
-
-  declareProperty("SuperClusterCollestionName",  
-		  m_outputPhotonSuperClustersKey  = "PhotonSuperClusters");
-  //other options
-  declareProperty("AddClustersInWindow", m_addClustersInWindow = true,  
-		  "add the topoclusters in window");
-
-  declareProperty("AddClustersMatchingVtx", m_addClustersMatchingVtx = true, 
-		  "add the topoclusters matching conversion vertex");
-
-  declareProperty("UseOnlyLeadingVertex", m_useOnlyLeadingVertex = true, 
-		  "use only the leading vertex for matching");
-
-  declareProperty("UseOnlySi", m_useOnlySi = true, 
-		  "use only vertices/tracks with silicon tracks for adding sec. clusters (Mix not considered Si)");
-
-  declareProperty("AddClustrsMatchingVtxTracks", m_addClustersMatchingVtxTracks = true, 
-		  "add the topoclusters matching conversion vertex tracks");
-
-  declareProperty("UseOnlyLeadingTrack", m_useOnlyLeadingTrack = true, 
-		  "use only the leading track for matching");
-
-  // Handle of Conversion Builder
-  declareProperty("ConversionBuilderTool",m_conversionBuilder,
-		  "Handle of Conversion Builder");
-
-  // Boolean to do conversion reconstruction
-  declareProperty("doConversions",m_doConversions= true,
-		  "Boolean to do conversion building / matching");
-  
+  egammaSuperClusterBuilder(name, pSvcLocator)
+{ 
 }
 
 StatusCode photonSuperClusterBuilder::initialize() {

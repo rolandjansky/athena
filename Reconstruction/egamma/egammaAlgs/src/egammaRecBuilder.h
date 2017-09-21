@@ -48,25 +48,39 @@ class egammaRecBuilder : public AthAlgorithm
   /** @brief retrieve EMConversionBuilder **/
   StatusCode RetrieveEMConversionBuilder();
   /** @brief Key for the topo cluster input collection */
-  SG::ReadHandleKey<xAOD::CaloClusterContainer>  m_inputTopoClusterContainerKey;
+  SG::ReadHandleKey<xAOD::CaloClusterContainer>  m_inputTopoClusterContainerKey {this,
+      "InputTopoClusterContainerName", "egammaTopoCluster",
+      "Name of input cluster container"};
+
   /** @brief Key for egammaRec container */
-  SG::WriteHandleKey<EgammaRecContainer> m_egammaRecContainerKey;
-  /** @brief Name of input super cluster electron egammaRec container */
+  SG::WriteHandleKey<EgammaRecContainer> m_egammaRecContainerKey {this, 
+      "egammaRecContainer", "egammaRecCollection",
+      "Output container for egammaRec objects"};
 
   //
   // The tools
   //
   /** @brief Tool to perform track matching*/
-  ToolHandle<IEMTrackMatchBuilder>             m_trackMatchBuilder;
-  /** @brief Tool to retrieve the conversions*/
-  ToolHandle<IEMConversionBuilder>             m_conversionBuilder;
+  /** @brief Tool to perform track matching*/
+  ToolHandle<IEMTrackMatchBuilder> m_trackMatchBuilder {this,
+      "TrackMatchBuilderTool", "EMTrackMatchBuilder",
+      "Tool that matches tracks to egammaRecs"};
+
+  /** @brief Tool to perfrom conversion vertex matching*/
+  ToolHandle<IEMConversionBuilder> m_conversionBuilder {this,
+      "ConversionBuilderTool", "EMConversionBuilder",
+      "Tool that matches conversion vertices to egammaRecs"};
+
   //
   // All booleans
   //
-  /** @brief private member flag to do the TrackMatching (and conversion building)*/
-  bool         m_doTrackMatching;
-  /** @brief private member flag to do the conversion building and matching */
-  bool         m_doConversions;
+  /** @brief private member flag to do the track matching */
+  Gaudi::Property<bool> m_doTrackMatching {this, "doTrackMatching", true,
+      "Boolean to do track matching"};
+
+  /** @brief private member flag to do the conversion matching */
+  Gaudi::Property<bool> m_doConversions {this, "doConversions", true,
+      "Boolean to do conversion matching"};
   //
   // Other properties.
   //
