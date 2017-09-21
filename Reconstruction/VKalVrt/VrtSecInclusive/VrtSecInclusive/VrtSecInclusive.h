@@ -147,25 +147,25 @@ namespace VKalVrtAthena {
     
     // JO: Analysis Cut Variables
     bool   m_ImpactWrtBL;
-    double m_a0TrkPVDstMinCut;
-    double m_a0TrkPVDstMaxCut;
+    double m_d0TrkPVDstMinCut;
+    double m_d0TrkPVDstMaxCut;
     double m_zTrkPVDstMinCut;
     double m_zTrkPVDstMaxCut;
-    double m_a0TrkPVSignifCut;
+    double m_d0TrkPVSignifCut;
     double m_zTrkPVSignifCut;
     
     double               m_TrkChi2Cut;
     double               m_SelVrtChi2Cut;
     double               m_TrkPtCut;
+    double               m_AssociableTrkPtCut;
     int 		 m_CutSctHits;
     int 		 m_CutPixelHits;
     int 		 m_CutSiHits;
     int			 m_CutBLayHits;
     int 		 m_CutSharedHits;
     int 		 m_CutTRTHits; // Kazuki
-    double               m_VertexMergeFinalDistCut; // Kazuki
-    double               m_VertexMergeFinalDistScaling; // L. Lee
-    double		 m_A0TrkErrorCut;
+    double 		 m_VertexMergeFinalDistCut; // Kazuki
+    double		 m_D0TrkErrorCut;
     double		 m_ZTrkErrorCut;
     double               m_VertexMergeCut;
     double               m_TrackDetachCut;
@@ -244,6 +244,7 @@ namespace VKalVrtAthena {
     struct WrkVrt { 
       bool Good;
       std::deque<long int> SelTrk;
+      std::deque<long int> assocTrk;
       Amg::Vector3D        vertex;
       TLorentzVector       vertexMom;
       long int             Charge;
@@ -267,6 +268,7 @@ namespace VKalVrtAthena {
     StatusCode reconstruct2TrackVertices( std::vector<int>&, std::vector<WrkVrt>* );
     StatusCode reconstructNTrackVertices( std::vector<WrkVrt>* );
     StatusCode mergeFinalVertices( std::vector<WrkVrt>* ); // Kazuki
+    StatusCode associateNonSelectedTracks( std::vector<WrkVrt>* );
     StatusCode refitAndSelectGoodQualityVertices( std::vector<WrkVrt>* );
     
     void printWrkSet(const std::vector<WrkVrt> *WrkVrtSet, const std::string name);
@@ -302,8 +304,11 @@ namespace VKalVrtAthena {
     template<class Track> void getIntersection(Track *trk, std::vector<IntersectionPos*>& layers, const Trk::Perigee* per);
     template<class Track> void setIntersection(Track *trk, IntersectionPos *bec, const Trk::Perigee* per);
     
-    StatusCode CutTrk(double PInvVert,double ThetaVert,double A0Vert, double Zvert, double Chi2, 
+    StatusCode CutTrk(double PInvVert,double ThetaVert,double D0Vert, double Zvert, double Chi2, 
 		      long int PixelHits,long int SctHits,long int SharedHits, long int BLayHits, long int TRTHits);
+
+    StatusCode CutTrkForAssoc(double PInvVert,double ThetaVert, double Chi2, 
+                              long int PixelHits,long int SctHits,long int SharedHits, long int BLayHits, long int TRTHits);
 
     const Trk::Perigee* GetPerigee( const xAOD::TrackParticle* i_ntrk);
     
@@ -336,7 +341,7 @@ namespace VKalVrtAthena {
    
     void fillTrackSummary( track_summary& summary, const xAOD::TrackParticle *trk );
     bool passedFakeReject( const Amg::Vector3D& FitVertex, const xAOD::TrackParticle *itrk, const xAOD::TrackParticle *jtrk );
-    
+    bool checkTrackHitPatternToVertex( const xAOD::TrackParticle *trk, const Amg::Vector3D& vertex );
    
     ////////////////////////////////////////////////////////////////////////////////////////
     // 

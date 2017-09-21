@@ -5,29 +5,9 @@
 // Header include
 #include "VrtSecInclusive/VrtSecInclusive.h"
 #include "VrtSecInclusive/NtupleVars.h"
-//#include "GaudiKernel/MsgStream.h"
-//-------------------------------------------------
-//
-#include <string>
-//----
-//#include  "TrkTrack/Track.h"
-//#include  "TrkTrack/TrackCollection.h"
-//#include  "Particle/TrackParticleContainer.h"
-//#include  "TrkParticleBase/LinkToTrackParticleBase.h"
-#include  "VxVertex/VxTrackAtVertex.h"
-//-----
-//#include "McParticleEvent/TruthParticleContainer.h"
-//#include "ParticleTruth/TrackParticleTruthKey.h"
-//#include "CLHEP/Vector/LorentzVector.h"
-//#include "HepMC/SimpleVector.h"
 
-
-//ss, new includes
+#include "VxVertex/VxTrackAtVertex.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
-//----
-#include <new>
-#include <iostream>
-#include <tuple>
 
 // ROOT Classes
 #include "TMath.h"
@@ -35,6 +15,11 @@
 #include "TNtuple.h"
 #include "TTree.h"
 #include "TROOT.h"
+
+#include <string>
+#include <new>
+#include <iostream>
+#include <tuple>
 
 using namespace std;
 
@@ -102,11 +87,11 @@ namespace VKalVrtAthena {
     
     // Analysis cut constants
     m_ImpactWrtBL                  ( false ),
-    m_a0TrkPVDstMinCut             ( 0.   ),
-    m_a0TrkPVDstMaxCut             ( 1000.   ),
+    m_d0TrkPVDstMinCut             ( 0.   ),
+    m_d0TrkPVDstMaxCut             ( 1000.   ),
     m_zTrkPVDstMinCut              ( 0.   ),
     m_zTrkPVDstMaxCut              ( 1000.   ),
-    m_a0TrkPVSignifCut             ( 0.   ),
+    m_d0TrkPVSignifCut             ( 0.   ),
     m_zTrkPVSignifCut              ( 0.   ),
     
     m_TrkChi2Cut                   ( 3.   ),
@@ -119,8 +104,7 @@ namespace VKalVrtAthena {
     m_CutSharedHits                ( 0   ),
     m_CutTRTHits                   ( 0   ),
     m_VertexMergeFinalDistCut      ( 1.  ),
-    m_VertexMergeFinalDistScaling  ( 0.02 ),
-    m_A0TrkErrorCut                ( 10.   ),
+    m_D0TrkErrorCut                ( 10.   ),
     m_ZTrkErrorCut                 ( 20.   ),
     m_VertexMergeCut               ( 3.   ),
     m_TrackDetachCut               ( 6.   ),
@@ -343,23 +327,30 @@ namespace VKalVrtAthena {
     //
     auto *selectedBaseTracks          = new xAOD::TrackParticleContainer;
     auto *selectedBaseTracksAux       = new xAOD::TrackParticleAuxContainer;
+    auto *associableTracks            = new xAOD::TrackParticleContainer;
+    auto *associableTracksAux         = new xAOD::TrackParticleAuxContainer;
     auto *twoTrksVertexContainer      = new xAOD::VertexContainer;
     auto *twoTrksVertexAuxContainer   = new xAOD::VertexAuxContainer;
     auto *secondaryVertexContainer    = new xAOD::VertexContainer;
     auto *secondaryVertexAuxContainer = new xAOD::VertexAuxContainer;
     
     selectedBaseTracks       ->setStore( selectedBaseTracksAux );
+    associableTracks         ->setStore( associableTracksAux );
     twoTrksVertexContainer   ->setStore( twoTrksVertexAuxContainer );
     secondaryVertexContainer ->setStore( secondaryVertexAuxContainer );
     
-    ATH_CHECK( evtStore()->record( selectedBaseTracks,    "VrtSecInclusive_SelectedTrackParticles" ) );
-    ATH_CHECK( evtStore()->record( selectedBaseTracksAux, "VrtSecInclusive_SelectedTrackParticlesAux." ) );
     
-    ATH_CHECK( evtStore()->record( twoTrksVertexContainer, "VrtSecInclusive_All2TrksVertices" ) );
-    ATH_CHECK( evtStore()->record( twoTrksVertexAuxContainer, "VrtSecInclusive_All2TrksVerticesAux." ) );
+    ATH_CHECK( evtStore()->record( selectedBaseTracks,          "VrtSecInclusive_SelectedTrackParticles"       ) );
+    ATH_CHECK( evtStore()->record( selectedBaseTracksAux,       "VrtSecInclusive_SelectedTrackParticlesAux."   ) );
     
-    ATH_CHECK( evtStore()->record( secondaryVertexContainer, "VrtSecInclusive_SecondaryVertices" ) );
-    ATH_CHECK( evtStore()->record( secondaryVertexAuxContainer, "VrtSecInclusive_SecondaryVerticesAux." ) );
+    ATH_CHECK( evtStore()->record( associableTracks,            "VrtSecInclusive_AssociableParticles"          ) );
+    ATH_CHECK( evtStore()->record( associableTracksAux,         "VrtSecInclusive_AssociableParticlesAux."      ) );
+    
+    ATH_CHECK( evtStore()->record( twoTrksVertexContainer,      "VrtSecInclusive_All2TrksVertices"             ) );
+    ATH_CHECK( evtStore()->record( twoTrksVertexAuxContainer,   "VrtSecInclusive_All2TrksVerticesAux."         ) );
+    
+    ATH_CHECK( evtStore()->record( secondaryVertexContainer,    "VrtSecInclusive_SecondaryVertices"            ) );
+    ATH_CHECK( evtStore()->record( secondaryVertexAuxContainer, "VrtSecInclusive_SecondaryVerticesAux."        ) );
     
     
     ///////////////////////////////////////////////////////////////////////////
@@ -430,6 +421,10 @@ namespace VKalVrtAthena {
     // Perform track selection and store it to selectedBaseTracks
     ATH_CHECK( SelGoodTrkParticle( trackParticleContainer ) );
     
+    ATH_MSG_DEBUG( "execute: Number of total tracks      = " << trackParticleContainer->size() );
+    ATH_MSG_DEBUG( "execute: Number of selected tracks   = " << selectedBaseTracks->size() );
+    ATH_MSG_DEBUG( "execute: Number of associable tracks = " << associableTracks->size() );
+    
     if( m_FillNtuple )
       m_ntupleVars->get<unsigned int>( "NumSelTrks" ) = static_cast<int>( selectedBaseTracks->size() );
     
@@ -446,15 +441,11 @@ namespace VKalVrtAthena {
     
     
     // fill information about selected tracks in AANT
-    if( true /*m_FillNtuple*/ ) {
-      ATH_CHECK( fillAANT_SelectedBaseTracks() );
-    }
-    
+    ATH_CHECK( fillAANT_SelectedBaseTracks() );
     
     //-------------------------------------------------------
     // Skip the event if the number of selected tracks is more than m_SelTrkMaxCutoff
     
-    ATH_MSG_DEBUG( "execute: Number of selected tracks = " << selectedBaseTracks->size() );
     if(  selectedBaseTracks->size() > m_SelTrkMaxCutoff ) {
       
       if( selectedBaseTracks->size() < 2 ) {
@@ -471,12 +462,9 @@ namespace VKalVrtAthena {
     //
     
     // List of track indices which are not used for the 2-track vertices.
-    vector<int> Incomp;
+    std::vector<int> Incomp;
     
     // Try to compose 2-track vertices for all combinations of selected tracks greather than the given chi2 cut.
-    // The composed 2-track vertices are not directly used in the following algorithm,
-    // but the list of incompatible tracks are important.
-    // (Here "incompatible" menas that the track is not matching to the PV)
       
     ATH_CHECK( extractIncompatibleTracks( Incomp ) );
     
@@ -484,26 +472,30 @@ namespace VKalVrtAthena {
     if( m_FillNtuple ) m_ntupleVars->get<unsigned int>( "SizeIncomp" ) = Incomp.size();
     
     // set of vertices created in the following while loop.
-    vector<WrkVrt> *WrkVrtSet= new vector<WrkVrt>;
+    auto workVerticesContainer = new std::vector<WrkVrt>;
     
     // Reconstruction of initial solution set (2-track vertices)
-    ATH_CHECK( reconstruct2TrackVertices( Incomp, WrkVrtSet ) );
+    ATH_CHECK( reconstruct2TrackVertices( Incomp, workVerticesContainer ) );
     
     // No need to use Incomp anymore.
     Incomp.clear();
     
     // Reconstruction of N-track vertices from 2-track vertices
-    ATH_CHECK( reconstructNTrackVertices( WrkVrtSet ) );
+    ATH_CHECK( reconstructNTrackVertices( workVerticesContainer ) );
     
     if ( m_mergeFinalVerticesDistance ) {
       ATH_MSG_DEBUG("execute: trying to merge vertices within " << m_VertexMergeFinalDistCut << " mm.");
-      ATH_CHECK( mergeFinalVertices( WrkVrtSet ) );
+      ATH_CHECK( mergeFinalVertices( workVerticesContainer ) );
     } // end if m_mergeFinalVerticesDistance
     
-      // Refitting and selection of good-quality vertices
-    ATH_CHECK( refitAndSelectGoodQualityVertices( WrkVrtSet ) );
     
-    delete WrkVrtSet;
+    // Attempt to associate more tracks other than selected tracks to the final vertices
+    ATH_CHECK( associateNonSelectedTracks( workVerticesContainer ) );
+    
+    // Refitting and selection of good-quality vertices
+    ATH_CHECK( refitAndSelectGoodQualityVertices( workVerticesContainer ) );
+    
+    delete workVerticesContainer;
     
     // Fill AANT
     if( m_FillNtuple ) {

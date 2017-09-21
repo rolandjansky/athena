@@ -39,16 +39,8 @@ namespace VKalVrtAthena {
     // Needs a conversion function from WrkVrtSet to xAOD::Vertex here.
     // The supposed form of the function will be as follows:
 
-    //m_twoTrksVertexContainer    = new xAOD::VertexContainer;
-    //m_twoTrksVertexAuxContainer = new xAOD::VertexAuxContainer;
-
-    //m_twoTrksVertexContainer->setStore( m_twoTrksVertexAuxContainer );
-
-    //ATH_CHECK( evtStore()->record( m_twoTrksVertexContainer, "VrtSecInclusive_All2TrksVertices" ) );
-    //ATH_CHECK( evtStore()->record( m_twoTrksVertexAuxContainer, "VrtSecInclusive_All2TrksVerticesAux." ) );
-
-    xAOD::TrackParticleContainer *m_selectedBaseTracks ( nullptr );
-    ATH_CHECK( evtStore()->retrieve(m_selectedBaseTracks, "VrtSecInclusive_SelectedTrackParticles") );
+    xAOD::TrackParticleContainer *selectedBaseTracks ( nullptr );
+    ATH_CHECK( evtStore()->retrieve(selectedBaseTracks, "VrtSecInclusive_SelectedTrackParticles") );
     
     xAOD::VertexContainer *m_twoTrksVertexContainer( nullptr );
     ATH_CHECK( evtStore()->retrieve( m_twoTrksVertexContainer, "VrtSecInclusive_All2TrksVertices" ) );
@@ -64,17 +56,17 @@ namespace VKalVrtAthena {
     long int           Charge;
     double             Chi2 = 0.;
     
-    ATH_MSG_DEBUG(" > extractIncompatibleTracks: Selected Tracks = "<< m_selectedBaseTracks->size());
+    ATH_MSG_DEBUG(" > extractIncompatibleTracks: Selected Tracks = "<< selectedBaseTracks->size());
 
 
     // first make all 2-track vertices
-    for( auto itrk = m_selectedBaseTracks->begin(); itrk != m_selectedBaseTracks->end(); ++itrk ) {
-      for( auto jtrk = itrk; jtrk != m_selectedBaseTracks->end(); ++jtrk ) {
+    for( auto itrk = selectedBaseTracks->begin(); itrk != selectedBaseTracks->end(); ++itrk ) {
+      for( auto jtrk = itrk; jtrk != selectedBaseTracks->end(); ++jtrk ) {
 
         if( itrk == jtrk ) continue;
 
-        int itrk_id = itrk - m_selectedBaseTracks->begin();
-        int jtrk_id = jtrk - m_selectedBaseTracks->begin();
+        int itrk_id = itrk - selectedBaseTracks->begin();
+        int jtrk_id = jtrk - selectedBaseTracks->begin();
 
         // Attempt to think the combination is incompatible by default
         Incomp.emplace_back( itrk_id );
@@ -125,7 +117,7 @@ namespace VKalVrtAthena {
         for( auto *trk: ListBaseTracks ) {
 
           // Acquire link to the track
-          ElementLink<xAOD::TrackParticleContainer>  trackElementLink( *m_selectedBaseTracks, trk->index() );
+          ElementLink<xAOD::TrackParticleContainer>  trackElementLink( *selectedBaseTracks, trk->index() );
 
           // Register link to the vertex
           vertex->addTrackAtVertex( trackElementLink, 1. );
@@ -192,8 +184,8 @@ namespace VKalVrtAthena {
   {
     ATH_MSG_DEBUG(" > reconstruct2TrackVertices(): begin");
 
-    xAOD::TrackParticleContainer *m_selectedBaseTracks ( nullptr );
-    ATH_CHECK( evtStore()->retrieve(m_selectedBaseTracks, "VrtSecInclusive_SelectedTrackParticles") );
+    xAOD::TrackParticleContainer *selectedBaseTracks ( nullptr );
+    ATH_CHECK( evtStore()->retrieve(selectedBaseTracks, "VrtSecInclusive_SelectedTrackParticles") );
     
     // Graph method: Trk::pgraphm_()
     // used in order to find compatible sub-graphs from the incompatible graph
@@ -209,14 +201,14 @@ namespace VKalVrtAthena {
 
     // Solution of the graph method routine (minimal covering of the graph)
     // The size of the solution is returned by NPTR (see below)
-    long int* Solution = new long int[ m_selectedBaseTracks->size() ];
+    long int* Solution = new long int[ selectedBaseTracks->size() ];
 
     // Number of edges in the list
     // This is two-folded (a pair of incompatible tracks composes an edge).
     long int edges = Incomp.size()/2; 
 
     // input number of nodes in the graph.
-    long int NTracks = static_cast<long int>( m_selectedBaseTracks->size() );
+    long int NTracks = static_cast<long int>( selectedBaseTracks->size() );
 
     // Input variable; the threshold. Solutions shorter than nth are not returned (ignored).
     long int nth=2;    //VK some speed up
@@ -254,7 +246,7 @@ namespace VKalVrtAthena {
       newvrt.SelTrk.clear();
       for(int i=0; i<NPTR; i++) {
         newvrt.SelTrk.emplace_back(Solution[i]-1);
-        ListBaseTracks.emplace_back( m_selectedBaseTracks->at(Solution[i]-1) );
+        ListBaseTracks.emplace_back( selectedBaseTracks->at(Solution[i]-1) );
       }
 
       // Perform vertex fitting
@@ -290,7 +282,7 @@ namespace VKalVrtAthena {
     ATH_MSG_VERBOSE(" > reconstruct2TrackVertices(): Remove worst track from vertices with very bad Chi2.");
     for(int iv=0; iv< static_cast<int>( (*WrkVrtSet).size() ); iv++) {
       if( (*WrkVrtSet)[iv].Chi2 > (4.*(*WrkVrtSet)[iv].SelTrk.size()) )
-        ATH_CHECK( DisassembleVertex( WrkVrtSet, iv, m_selectedBaseTracks ) );
+        ATH_CHECK( DisassembleVertex( WrkVrtSet, iv, selectedBaseTracks ) );
     }
 
     //-Remove vertices fully contained in other vertices 
@@ -349,13 +341,13 @@ namespace VKalVrtAthena {
   StatusCode VrtSecInclusive::reconstructNTrackVertices( std::vector<WrkVrt> *WrkVrtSet )
   {
     
-    xAOD::TrackParticleContainer *m_selectedBaseTracks ( nullptr );
-    ATH_CHECK( evtStore()->retrieve(m_selectedBaseTracks, "VrtSecInclusive_SelectedTrackParticles") );
+    xAOD::TrackParticleContainer *selectedBaseTracks ( nullptr );
+    ATH_CHECK( evtStore()->retrieve(selectedBaseTracks, "VrtSecInclusive_SelectedTrackParticles") );
     
     //
     //  Rearrangement of solutions
     //
-    const long int NTracks = static_cast<long int>( m_selectedBaseTracks->size() );
+    const long int NTracks = static_cast<long int>( selectedBaseTracks->size() );
 
     // TrkInVrt has IDs of each track which can contain array of vertices.
     // e.g. TrkInVrt->at( track_id ).size() gives the number of vertices which use the track [track_id].
@@ -388,12 +380,12 @@ namespace VKalVrtAthena {
 
         MergeVertices( WrkVrtSet, foundV1, foundV2 );
 
-        StatusCode sc = RefitVertex( WrkVrtSet->at(foundV1), m_selectedBaseTracks);
+        StatusCode sc = RefitVertex( WrkVrtSet->at(foundV1), selectedBaseTracks);
         if( sc.isFailure() )  continue;                            /* Bad fit - goto next solution */
 
         while ( minVrtVrtDistNext( WrkVrtSet, foundV1, foundV2) < m_VertexMergeCut) {
           MergeVertices( WrkVrtSet, foundV1, foundV2);
-          sc = RefitVertex( WrkVrtSet->at(foundV1), m_selectedBaseTracks);
+          sc = RefitVertex( WrkVrtSet->at(foundV1), selectedBaseTracks);
           if( sc.isFailure() )  break;                            /* Bad fit - goto next solution */
         }
 
@@ -406,7 +398,7 @@ namespace VKalVrtAthena {
 
         RemoveTrackFromVertex(WrkVrtSet, TrkInVrt, SelectedTrack, SelectedVertex);
 
-        StatusCode sc = RefitVertex( WrkVrtSet->at(SelectedVertex), m_selectedBaseTracks);
+        StatusCode sc = RefitVertex( WrkVrtSet->at(SelectedVertex), selectedBaseTracks);
         if( sc.isFailure() )  continue;                            /* Bad fit - goto next solution */
       }
 
@@ -422,7 +414,7 @@ namespace VKalVrtAthena {
       double tmpProb=TMath::Prob( (*WrkVrtSet)[iv].Chi2, 2*(*WrkVrtSet)[iv].SelTrk.size()-3 ); //Chi2 of the original vertex
 
       if(tmpProb<0.001){
-        tmpProb=improveVertexChi2( WrkVrtSet, iv, m_selectedBaseTracks);
+        tmpProb=improveVertexChi2( WrkVrtSet, iv, selectedBaseTracks);
         if(tmpProb<0.001)(*WrkVrtSet)[iv].Good=false;
       }
 
@@ -449,16 +441,11 @@ namespace VKalVrtAthena {
     // Needs a conversion function from WrkVrtSet to xAOD::Vertex here.
     // The supposed form of the function will be as follows:
 
-    //m_secondaryVertexContainer    = new xAOD::VertexContainer;
-    //m_secondaryVertexAuxContainer = new xAOD::VertexAuxContainer;
+    xAOD::TrackParticleContainer *selectedBaseTracks ( nullptr );
+    ATH_CHECK( evtStore()->retrieve(selectedBaseTracks, "VrtSecInclusive_SelectedTrackParticles") );
 
-    //m_secondaryVertexContainer->setStore( m_secondaryVertexAuxContainer );
-
-    //ATH_CHECK( evtStore()->record( m_secondaryVertexContainer, "VrtSecInclusive_SecondaryVertices" ) );
-    //ATH_CHECK( evtStore()->record( m_secondaryVertexAuxContainer, "VrtSecInclusive_SecondaryVerticesAux." ) );
-
-    xAOD::TrackParticleContainer *m_selectedBaseTracks ( nullptr );
-    ATH_CHECK( evtStore()->retrieve(m_selectedBaseTracks, "VrtSecInclusive_SelectedTrackParticles") );
+    xAOD::TrackParticleContainer *associableTracks ( nullptr );
+    ATH_CHECK( evtStore()->retrieve(associableTracks, "VrtSecInclusive_AssociableParticles") );
 
     xAOD::VertexContainer *m_secondaryVertexContainer( nullptr );
     ATH_CHECK( evtStore()->retrieve( m_secondaryVertexContainer, "VrtSecInclusive_SecondaryVertices" ) );
@@ -467,7 +454,6 @@ namespace VKalVrtAthena {
     const double w_1 = 1.0;
     
     //----------------------------------------------------------
-    //Amg::MatrixX CovMtx(3, 3);
 
     m_fitSvc->setDefault();
     m_fitSvc->setMomCovCalc(1);
@@ -480,7 +466,7 @@ namespace VKalVrtAthena {
 
       if(nth <= 1) continue;               /* Bad vertices */
 
-      StatusCode sc = RefitVertex( WrkVrt, m_selectedBaseTracks);
+      StatusCode sc = RefitVertex( WrkVrt, selectedBaseTracks);
       if( sc.isFailure() )  continue;   /* Bad fit - goto next solution */
 
 
@@ -501,25 +487,11 @@ namespace VKalVrtAthena {
       //
       if( m_FillNtuple ) m_ntupleVars->get<unsigned int>( "NumSecVrt" )++;
 
-      // CovMtx(0,0)            =WrkVrt.vertexCov[0];
-      // CovMtx(0,1)=CovMtx(1,0)=WrkVrt.vertexCov[1];
-      // CovMtx(1,1)            =WrkVrt.vertexCov[2];
-      // CovMtx(0,2)=CovMtx(2,0)=WrkVrt.vertexCov[3];
-      // CovMtx(1,2)=CovMtx(2,1)=WrkVrt.vertexCov[4];
-      // CovMtx(2,2)            =WrkVrt.vertexCov[5];
-
       std::vector <double> CovFull;
       sc = m_fitSvc->VKalGetFullCov( static_cast<long int>( nth ), CovFull); 
 
       if( sc.isFailure() )  ATH_MSG_VERBOSE(" here 6 ");
       
-      //int covarExist=0;
-      //if( sc.isSuccess() ) covarExist=1;
-
-      // number of dof is ( 2*N_tracks - 3 )
-      //const int ndof = static_cast<int>( nth*2-1 );
-      //Trk::RecVertex * tmpRecV = new  Trk::RecVertex( WrkVrt.vertex, CovMtx, ndof, WrkVrt.Chi2 );
-      //vector<Trk::VxTrackAtVertex*> * tmpVTAV = new std::vector<Trk::VxTrackAtVertex*>();
 
       double vert_mass=0; double vert_pt=0; double vert_pz=0;
       double vert_masse=0; //assuming tracks are electrons
@@ -528,15 +500,10 @@ namespace VKalVrtAthena {
       int AllBLay = 1;
       int SumBLay=0;
 
-      double trkpx[10], trkpy[10], trkpz[10];
-      for (int i=0; i<10; ++i) {
-        trkpx[i]=0;trkpy[i]=0;trkpz[i]=0;
-      }
-
       // Pre-check before storing vertex if the SV perigee is available
       bool good_flag = true;
       for(int itrk=0; itrk<nth; itrk++) {
-        xAOD::TrackParticle* trk = m_selectedBaseTracks->at( WrkVrt.SelTrk[itrk] );
+        xAOD::TrackParticle* trk = selectedBaseTracks->at( WrkVrt.SelTrk[itrk] );
         const Trk::Perigee* sv_perigee = m_trackToVertexTool->perigeeAtVertex( *trk, WrkVrt.vertex );
         if( !sv_perigee ) {
           ATH_MSG_INFO(" > refitAndSelectGoodQualityVertices: > Track index " << trk->index() << ": Failed in obtaining the SV perigee!" );
@@ -546,15 +513,16 @@ namespace VKalVrtAthena {
       if( !good_flag ) {
         continue;
       }
+      
+      std::vector<xAOD::TrackParticle*> tracks;
+      for( const auto& index : WrkVrt.SelTrk )   tracks.emplace_back( selectedBaseTracks->at( index ) );
+      for( const auto& index : WrkVrt.assocTrk ) tracks.emplace_back( associableTracks  ->at( index ) );
 
       // loop over vertex tracks
       ATH_MSG_DEBUG(" > refitAndSelectGoodQualityVertices: Track loop: size = " << nth );
-      for(int itrk=0; itrk<nth; itrk++) {
+      for( auto *trk : tracks ) {
 
-        // Here trk is not const - will augment SV perigee variables in the loop.
-        xAOD::TrackParticle* trk = m_selectedBaseTracks->at( WrkVrt.SelTrk[itrk] );
-
-        ATH_MSG_DEBUG(" > refitAndSelectGoodQualityVertices: > Track index " << trk->index() << ": start." );
+        ATH_MSG_VERBOSE(" > refitAndSelectGoodQualityVertices: > Track index " << trk->index() << ": start." );
 
         track_summary trk_summary;
         fillTrackSummary( trk_summary, trk );
@@ -587,7 +555,7 @@ namespace VKalVrtAthena {
         //double trk_errQoverP = trk->definingParametersCovMatrix()(Trk::qOverP, Trk::qOverP);
         //double trk_errP      = trk_p*trk_p * trk_errQoverP;
 
-        ATH_MSG_DEBUG(" > refitAndSelectGoodQualityVertices: > Track index " << trk->index() << ": in vrt chg/px/py/pz/pt/e/phi/eta = "
+        ATH_MSG_VERBOSE(" > refitAndSelectGoodQualityVertices: > Track index " << trk->index() << ": in vrt chg/px/py/pz/pt/e/phi/eta = "
             << trk->charge() <<","
             <<trk_px<<","
             <<trk_py<<","
@@ -599,7 +567,7 @@ namespace VKalVrtAthena {
 
         /////////////////////////////////////////////
         // Get the perigee of the track at the vertex
-        ATH_MSG_DEBUG(" > refitAndSelectGoodQualityVertices: > Track index " << trk->index() << ": Get the prigee of the track at the vertex." );
+        ATH_MSG_VERBOSE(" > refitAndSelectGoodQualityVertices: > Track index " << trk->index() << ": Get the prigee of the track at the vertex." );
 
         const Trk::Perigee* sv_perigee = m_trackToVertexTool->perigeeAtVertex( *trk, WrkVrt.vertex );
         if( !sv_perigee ) {
@@ -640,12 +608,6 @@ namespace VKalVrtAthena {
         trk->auxdata<float>( "errz0_wrtSV" )  = errz0_wrtSV;
 
 
-        if(itrk<10) { // store info about tracks (upto 10)
-          trkpx[itrk]=trk_px;
-          trkpy[itrk]=trk_py;
-          trkpz[itrk]=trk_pz;
-        }
-
         vert_pt += pt_wrtSV;
         vert_pz += p_wrtSV * cos(theta_wrtSV);
         vx      += p_wrtSV * sin(theta_wrtSV) * cos(phi_wrtSV);
@@ -655,15 +617,15 @@ namespace VKalVrtAthena {
         vee     += sqrt( p_wrtSV*p_wrtSV + m_e*m_e );
         vep     += sqrt( p_wrtSV*p_wrtSV + m_proton*m_proton );
 
-        ATH_MSG_DEBUG(" > refitAndSelectGoodQualityVertices: > Track index " << trk->index() << ": end." );
+        ATH_MSG_VERBOSE(" > refitAndSelectGoodQualityVertices: > Track index " << trk->index() << ": end." );
       } // loop over tracks in vertex
 
-      ATH_MSG_DEBUG(" > refitAndSelectGoodQualityVertices: Track loop end. ");
+      ATH_MSG_VERBOSE(" > refitAndSelectGoodQualityVertices: Track loop end. ");
 
       //nVrtVx->emplace_back(tmpVx);
 
       // Make vertex mass
-      vert_mass = sqrt(ve*ve - vx*vx -vy*vy -vz*vz);
+      vert_mass  = sqrt(ve*ve - vx*vx -vy*vy -vz*vz);
       vert_masse = sqrt(vee*vee - vx*vx -vy*vy -vz*vz);
       vert_massp = sqrt(vep*vep - vx*vx -vy*vy -vz*vz);
 
@@ -677,9 +639,20 @@ namespace VKalVrtAthena {
       // calculate opening angle between all 2-track pairs, and store the minimum
       //
       double minOpAng = 1000;
-      double opAng=0;
-      double p1=0;
-      double p2=0;
+      std::vector<double> opAngles;
+      
+      for( auto itr1 = tracks.begin(); itr1 != tracks.end(); ++itr1 ) {
+        for( auto itr2 = std::next( itr1 ); itr2 != tracks.end(); ++itr2 ) {
+          const auto& p1 = (*itr1)->p4().Vect();
+          const auto& p2 = (*itr2)->p4().Vect();
+          auto cos = p1 * p2 / p1.Mag() / p2.Mag();
+          opAngles.emplace_back( cos );
+        }
+      }
+      minOpAng = *( std::max_element( opAngles.begin(), opAngles.end() ) );
+      if( m_FillNtuple ) m_ntupleVars->get< vector<double> >( "SecVtx_MinOpAng" ).emplace_back(minOpAng);
+        
+      /*
       for (int it1=0; it1<nth; ++it1) {
         if(it1>=10) continue;
         p1 = sqrt(trkpx[it1]*trkpx[it1] + trkpy[it1]*trkpy[it1] + trkpz[it1]*trkpz[it1]);
@@ -690,11 +663,12 @@ namespace VKalVrtAthena {
           p2 = sqrt(trkpx[it2]*trkpx[it2] + trkpy[it2]*trkpy[it2] + trkpz[it2]*trkpz[it2]);
           opAng = trkpx[it1]*trkpx[it2]+trkpy[it1]*trkpy[it2]+trkpz[it1]*trkpz[it2];
           opAng = (opAng/p1)/p2;
-          ATH_MSG_DEBUG(" > refitAndSelectGoodQualityVertices: Final Sec Vtx Opening Ang/ minOpAng "<<opAng<<","<<minOpAng);
+          ATH_MSG_VERBOSE(" > refitAndSelectGoodQualityVertices: Final Sec Vtx Opening Ang/ minOpAng "<<opAng<<","<<minOpAng);
           if(opAng < minOpAng) minOpAng = opAng;
         }
       }
       if( m_FillNtuple ) m_ntupleVars->get< vector<double> >( "SecVtx_MinOpAng" ).emplace_back(minOpAng);
+      */
 
 
 
@@ -713,7 +687,7 @@ namespace VKalVrtAthena {
       vertex->setVertexType( xAOD::VxType::SecVtx );
 
       // Registering the vertex chi2 and Ndof
-      int ndof = 2*WrkVrt.SelTrk.size()-3;
+      int ndof = 2*( WrkVrt.SelTrk.size() + WrkVrt.assocTrk.size() ) - 3;
       vertex->setFitQuality( WrkVrt.Chi2, ndof );
 
       // Registering the vertex covariance matrix
@@ -744,10 +718,22 @@ namespace VKalVrtAthena {
       // loop over the tracks comprising the vertex
       for( auto trk_id : WrkVrt.SelTrk ) {
 
-        const xAOD::TrackParticle *trk = m_selectedBaseTracks->at( trk_id );
+        const xAOD::TrackParticle *trk = selectedBaseTracks->at( trk_id );
 
         // Acquire link the track to the vertex
-        ElementLink<xAOD::TrackParticleContainer> link_trk( *m_selectedBaseTracks, static_cast<long unsigned int>(trk->index()) );
+        ElementLink<xAOD::TrackParticleContainer> link_trk( *selectedBaseTracks, static_cast<long unsigned int>(trk->index()) );
+
+        // Register the link to the vertex
+        vertex->addTrackAtVertex( link_trk, 1. );
+
+      }
+      
+      for( auto trk_id : WrkVrt.assocTrk ) {
+
+        const xAOD::TrackParticle *trk = associableTracks->at( trk_id );
+
+        // Acquire link the track to the vertex
+        ElementLink<xAOD::TrackParticleContainer> link_trk( *associableTracks, static_cast<long unsigned int>(trk->index()) );
 
         // Register the link to the vertex
         vertex->addTrackAtVertex( link_trk, 1. );
@@ -789,12 +775,150 @@ namespace VKalVrtAthena {
 
     return StatusCode::SUCCESS;
   }
+  
+  
+  //____________________________________________________________________________________________________
+  StatusCode VrtSecInclusive::associateNonSelectedTracks( std::vector<WrkVrt>* workVerticesContainer )
+  {
+    
+    xAOD::TrackParticleContainer *selectedTracks ( nullptr );
+    ATH_CHECK( evtStore()->retrieve(selectedTracks, "VrtSecInclusive_SelectedTrackParticles") );
+    
+    xAOD::TrackParticleContainer *associableTracks ( nullptr );
+    ATH_CHECK( evtStore()->retrieve(associableTracks, "VrtSecInclusive_AssociableParticles") );
+    
+    
+    ATH_MSG_DEBUG( " >> associateNonSeletedTracks: #verticess = " << workVerticesContainer->size() );
+    
+    // Loop over vertices
+    for( auto& workVertex : *workVerticesContainer ) {
+      
+      if( workVertex.SelTrk.size() <= 1 ) continue;
+      
+      auto& vertexPos = workVertex.vertex;
+      
+      ATH_MSG_DEBUG( " >> associateNonSeletedTracks: vertex pos = (" << vertexPos.x() << ", " << vertexPos.y() << ", " << vertexPos.z() << "), "
+                     "#selected = " << workVertex.SelTrk.size() << ", #assoc = " << workVertex.assocTrk.size() );
+      
+      std::map<unsigned, xAOD::TrackParticle*> candidates;
+      
+      // Search for candidate tracks
+      for( auto itr = associableTracks->begin(); itr != associableTracks->end(); ++itr ) {
+        xAOD::TrackParticle* trk = *itr;
+        auto index = itr - associableTracks->begin();
+        
+        if( trk->isAvailable<bool>("is_associated") ) {
+          if( trk->auxdata<bool>("is_associated") ) continue;
+        }
+        
+        // Get the closest approach
+        std::vector<double> impactParameters;
+        std::vector<double> impactParErrors;
+        
+        if( !checkTrackHitPatternToVertex( trk, vertexPos ) ) continue;
+        
+        m_fitSvc->VKalGetImpact(trk, vertexPos, static_cast<int>( trk->charge() ), impactParameters, impactParErrors);
+        
+        enum { k_d0, k_z0, k_theta, k_phi, k_qOverP };
+        
+        ATH_MSG_DEBUG( " >> associateNonSeletedTracks: trk " << trk
+                       << ": d0 to vtx = " << impactParameters.at(k_d0)
+                       << ", z0 to vtx = " << impactParameters.at(k_z0)
+                       << ", distance to vtx = " << hypot( impactParameters.at(k_d0), impactParameters.at(k_z0) ) );
+        
+        if( hypot( impactParameters.at(k_d0), impactParameters.at(k_z0) ) > 10.0 ) continue;
+        
+        candidates[index] = trk;
+        
+      }
+      
+      ATH_MSG_DEBUG( " >> associateNonSeletedTracks: number of candidate tracks = " << candidates.size() );
+      
+      // Attempt to add the track to the vertex and try fitting
+      for( auto& pair : candidates ) {
+        
+        auto& index = pair.first;
+        auto* trk   = pair.second;
+        
+        ATH_MSG_DEBUG( " >> associateNonSeletedTracks: attempting to associate track = " << trk );
+        
+        m_fitSvc->setDefault();
+        m_fitSvc->setApproximateVertex( vertexPos.x(), vertexPos.y(), vertexPos.z() );
+        
+        std::vector<const xAOD::TrackParticle*>   baseTracks;
+        std::vector<const xAOD::NeutralParticle*> dummyNeutrals;
+        
+        workVertex.Chi2PerTrk.clear();
+        
+        for( const auto& index : workVertex.SelTrk ) {
+          baseTracks.emplace_back( selectedTracks->at( index ) );
+          workVertex.Chi2PerTrk.emplace_back( 100. );
+        }
+        
+        baseTracks.emplace_back( trk );
+        workVertex.Chi2PerTrk.emplace_back( 100. );
+        
+        Amg::Vector3D initPos;
+        
+        {
+          StatusCode sc = m_fitSvc->VKalVrtFitFast( baseTracks, initPos );/* Fast crude estimation */
+        
+          if( sc.isFailure() ) ATH_MSG_DEBUG(" >> associateNonSeletedTracks: fast crude estimation failed.");
+        
+          const auto& diffPos = initPos = vertexPos;
+        
+          if( diffPos.x()*diffPos.x() + diffPos.y()*diffPos.y() + diffPos.z()*diffPos.z() > 100. ) {
+        
+            ATH_MSG_VERBOSE( " >> associateNonSeletedTracks: approx vertex as original" );
+            m_fitSvc->setApproximateVertex( vertexPos.x(), vertexPos.y(), vertexPos.z() );
+          
+          } else {
+          
+            ATH_MSG_VERBOSE( " >> associateNonSeletedTracks: approx vertex set to (" << initPos.x() << ", " << initPos.y() << ", " << initPos.z() << ")" );
+            m_fitSvc->setApproximateVertex( initPos.x(), initPos.y(), initPos.z() );
+          
+          }
+        }
+        
+        
+        ATH_MSG_VERBOSE( " >> associateNonSeletedTracks: now vertex fitting..." );
+        
+        StatusCode sc = m_fitSvc->VKalVrtFit(baseTracks, dummyNeutrals,
+                                             workVertex.vertex,
+                                             workVertex.vertexMom,
+                                             workVertex.Charge,
+                                             workVertex.vertexCov,
+                                             workVertex.Chi2PerTrk, 
+                                             workVertex.TrkAtVrt,
+                                             workVertex.Chi2            );
+        
+        if( sc.isFailure() ) {
+          ATH_MSG_DEBUG(" >> associateNonSeletedTracks: VKalVrtFit failure ");
+          continue;
+        }
+        
+        auto& cov = workVertex.vertexCov;
+        
+        ATH_MSG_DEBUG( " >> associateNonSeletedTracks: succeeded in associating. New vertex pos = (" << vertexPos.x() << ", " << vertexPos.y() << ", " << vertexPos.z() << ")" );
+        ATH_MSG_DEBUG( " >> associateNonSeletedTracks: New vertex cov = (" << cov.at(0) << ", " << cov.at(1) << ", " << cov.at(2) << ", " << cov.at(3) << ", " << cov.at(4) << ", " << cov.at(5) << ")" );
+        
+        trk->auxdecor<bool>("is_associated") = true;
+        
+        workVertex.assocTrk.emplace_back( index );
+      }
 
+    }
+    
+    return StatusCode::SUCCESS;
+  }
+  
+  
+  //____________________________________________________________________________________________________
   StatusCode VrtSecInclusive::mergeFinalVertices( std::vector<WrkVrt> *WrkVrtSet )
   {
     
-    xAOD::TrackParticleContainer *m_selectedBaseTracks ( nullptr );
-    ATH_CHECK( evtStore()->retrieve(m_selectedBaseTracks, "VrtSecInclusive_SelectedTrackParticles") );
+    xAOD::TrackParticleContainer *selectedBaseTracks ( nullptr );
+    ATH_CHECK( evtStore()->retrieve(selectedBaseTracks, "VrtSecInclusive_SelectedTrackParticles") );
 
     while (true) {
       int foundV1(-9999), foundV2(-9999);
@@ -829,20 +953,17 @@ namespace VKalVrtAthena {
       
       if( foundV1 < 0 or foundV2 < 0 ) break;
       
-      double averageRadius = ( TMath::Hypot( (*WrkVrtSet)[foundV1].vertex.x(), (*WrkVrtSet)[foundV1].vertex.x() ) +
-                                  TMath::Hypot( (*WrkVrtSet)[foundV2].vertex.x(), (*WrkVrtSet)[foundV2].vertex.x() ) ) / 2.;
-
-      if( foundMinVrtDst >  m_VertexMergeFinalDistCut + m_VertexMergeFinalDistScaling*averageRadius ) {
+      if( foundMinVrtDst >  m_VertexMergeFinalDistCut ) {
         ATH_MSG_DEBUG( "Vertices " << foundV1 << " and " << foundV2
             <<" are separated by distance " << foundMinVrtDst );
         return StatusCode::SUCCESS;
       }
 
-      if( foundMinVrtDst < m_VertexMergeFinalDistCut + m_VertexMergeFinalDistScaling*averageRadius) {
+      if( foundMinVrtDst < m_VertexMergeFinalDistCut) {
         ATH_MSG_DEBUG( "Merging FINAL vertices " << foundV1 << " and " << foundV2
             <<" which are separated by distance "<< foundMinVrtDst );
         MergeVertices( WrkVrtSet, foundV1, foundV2 );
-        StatusCode sc = RefitVertex( WrkVrtSet->at(foundV1), m_selectedBaseTracks);
+        StatusCode sc = RefitVertex( WrkVrtSet->at(foundV1), selectedBaseTracks);
         if( sc.isFailure() ) {
           //ATH_MSG_WARNING("Final merging vertex refit failed!!!!!");
           //return StatusCode::FAILURE;
