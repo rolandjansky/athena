@@ -109,8 +109,6 @@ namespace VKalVrtAthena {
       std::string          truthParticleContainerName;
       std::string          mcEventContainerName;
       
-      std::string selectedTracksContainerName;
-      std::string associatedTracksContainerName;
       std::string all2trksVerticesContainerName;
       std::string secondaryVerticesContainerName;
       
@@ -332,7 +330,7 @@ namespace VKalVrtAthena {
     StatusCode refitAndSelectGoodQualityVertices( std::vector<WrkVrt>* );
     
     using vertexingAlg = StatusCode (VrtSecInclusive::*)( std::vector<WrkVrt>* );
-    std::vector<vertexingAlg> m_vertexingAlgorithms;
+    std::vector< std::pair<std::string, vertexingAlg> > m_vertexingAlgorithms;
     unsigned m_vertexingAlgorithmStep;
     
     
@@ -415,22 +413,23 @@ namespace VKalVrtAthena {
     
     ExtrapolatedPattern* extrapolatedPattern( const xAOD::TrackParticle* );
    
-    /* A classical method with hard-coded geometry */
+    /** A classical method with hard-coded geometry */
     bool checkTrackHitPatternToVertex( const xAOD::TrackParticle *trk, const Amg::Vector3D& vertex );
     
-    /* New method with track extrapolation */
+    /** New method with track extrapolation */
     bool checkTrackHitPatternToVertexByExtrapolation( const xAOD::TrackParticle *trk, const Amg::Vector3D& vertex );
     
-    /* Flag false if the consistituent tracks are not consistent with the vertex position */
+    /** Flag false if the consistituent tracks are not consistent with the vertex position */
     bool passedFakeReject( const Amg::Vector3D& FitVertex, const xAOD::TrackParticle *itrk, const xAOD::TrackParticle *jtrk );
     
-    /* Remove inconsistent tracks from vertices */
+    /** Remove inconsistent tracks from vertices */
     void removeInconsistentTracks( WrkVrt& );
    
     template<class Track> void getIntersection(Track *trk, std::vector<IntersectionPos*>& layers, const Trk::Perigee* per);
     template<class Track> void setIntersection(Track *trk, IntersectionPos *bec, const Trk::Perigee* per);
     
-    void monitorVertexingAlgorithmStep( std::vector<WrkVrt>*, const std::string name, bool final = false );
+    /** monitor the intermediate status of vertexing */
+    StatusCode monitorVertexingAlgorithmStep( std::vector<WrkVrt>*, const std::string name, bool final = false );
     
     ////////////////////////////////////////////////////////////////////////////////////////
     // 

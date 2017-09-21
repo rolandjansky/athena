@@ -151,30 +151,30 @@ namespace VKalVrtAthena {
     
     
     // Vertexing algorithm configuration
-    m_vertexingAlgorithms.emplace_back( &VrtSecInclusive::reconstruct2TrackVertices         );
-    m_vertexingAlgorithms.emplace_back( &VrtSecInclusive::reconstructNTrackVertices         );
+    m_vertexingAlgorithms.emplace_back( std::pair<std::string, vertexingAlg>( "reconstruct2trkVertices", &VrtSecInclusive::reconstruct2TrackVertices )        );
+    m_vertexingAlgorithms.emplace_back( std::pair<std::string, vertexingAlg>( "reconstructNtrkVertices", &VrtSecInclusive::reconstructNTrackVertices )        );
     
     if( m_jp.doReassembleVertices ) {
-      m_vertexingAlgorithms.emplace_back( &VrtSecInclusive::reassembleVertices              );
+      m_vertexingAlgorithms.emplace_back( std::pair<std::string, vertexingAlg>( "reassembleVertices", &VrtSecInclusive::reassembleVertices )             );
     }
       
     if( m_jp.doMergeByShuffling ) {
-      m_vertexingAlgorithms.emplace_back( &VrtSecInclusive::mergeByShuffling                );
+      m_vertexingAlgorithms.emplace_back( std::pair<std::string, vertexingAlg>( "mergeByShuffling", &VrtSecInclusive::mergeByShuffling )               );
     }
       
     if( m_jp.doAssociateNonSelectedTracks ) {
-      m_vertexingAlgorithms.emplace_back( &VrtSecInclusive::associateNonSelectedTracks      );
+      m_vertexingAlgorithms.emplace_back( std::pair<std::string, vertexingAlg>( "associateNonSelectedTracks", &VrtSecInclusive::associateNonSelectedTracks )     );
     }
     
     if( m_jp.doMergeByShuffling ) {
-      m_vertexingAlgorithms.emplace_back( &VrtSecInclusive::mergeByShuffling                );
+      m_vertexingAlgorithms.emplace_back( std::pair<std::string, vertexingAlg>( "mergeByShuffling2", &VrtSecInclusive::mergeByShuffling )               );
     }
       
     if ( m_jp.doMergeFinalVerticesDistance ) {
-      m_vertexingAlgorithms.emplace_back( &VrtSecInclusive::mergeFinalVertices              );
+      m_vertexingAlgorithms.emplace_back( std::pair<std::string, vertexingAlg>( "mergeFinalVertices", &VrtSecInclusive::mergeFinalVertices )             );
     }
     
-    m_vertexingAlgorithms.emplace_back( &VrtSecInclusive::refitAndSelectGoodQualityVertices );
+    m_vertexingAlgorithms.emplace_back( std::pair<std::string, vertexingAlg>( "refitAndSelect", &VrtSecInclusive::refitAndSelectGoodQualityVertices ) );
 
     
     // now make histograms/ntuples
@@ -196,9 +196,11 @@ namespace VKalVrtAthena {
       m_hists["vertexYieldNtrk"]   = new TH2F("vertexYieldNtrk",   ";Ntrk;Algorithm Step;Vertices",             100, 0, 100, nAlgs, -0.5, nAlgs-0.5                      );
       m_hists["vertexYieldChi2"]   = new TH2F("vertexYieldChi2",   ";#chi^{2}/N_{dof};Algorithm Step;Vertices", 100, 0, 100, nAlgs, -0.5, nAlgs-0.5                      );
       m_hists["mergeType"]         = new TH1F("mergeType",         ";Merge Algorithm Type;Entries",             10, -0.5, 10-0.5                                         );
+      m_hists["associateMonitor"]  = new TH1F("associateMonitor",  ";Step;Vertices",                            10, -0.5, 10-0.5                                         );
       m_hists["shuffleMinSignif1"] = new TH1F("shuffleMinSignif1", ";Min( log_{10}( Significance ) );Vertices", 100, -3, 5                                               );
       m_hists["shuffleMinSignif2"] = new TH1F("shuffleMinSignif2", ";Min( log_{10}( Significance ) );Vertices", 100, -3, 5                                               );
       m_hists["shuffleMinSignif3"] = new TH1F("shuffleMinSignif3", ";Min( log_{10}( Significance ) );Vertices", 100, -3, 5                                               );
+      m_hists["finalCutMonitor"]   = new TH1F("finalCutMonitor",   ";Step;Vertices",                            6, -0.5, 6-0.5                                           );
       m_hists["finalVtxNtrk"]      = new TH1F("finalVtxNtrk",      ";N_{trk};Vertices",                         nbins.size()-1, &(nbins[0])                              );
       m_hists["finalVtxR"]         = new TH1F("finalVtxR",         ";r [mm];Vertices",                          rbins.size()-1, &(rbins[0])                              );
       m_hists["finalVtxNtrkR"]     = new TH2F("finalVtxNtrkR",     ";N_{trk};r [mm];Vertices",                  nbins.size()-1, &(nbins[0]), rbins.size()-1, &(rbins[0]) );
@@ -282,7 +284,7 @@ namespace VKalVrtAthena {
     
     // Check Return StatusCode::Failure if the user-specified container names have duplication.
     {
-      std::vector<std::string> userContainerNames { m_jp.selectedTracksContainerName, m_jp.associatedTracksContainerName, m_jp.secondaryVerticesContainerName, m_jp.all2trksVerticesContainerName };
+      std::vector<std::string> userContainerNames { m_jp.secondaryVerticesContainerName, m_jp.all2trksVerticesContainerName };
       std::set<std::string> userContainerNamesSet;
       for( auto& name : userContainerNames ) userContainerNamesSet.insert( name );
       if( userContainerNamesSet.size() != userContainerNames.size() ) {
@@ -386,14 +388,19 @@ namespace VKalVrtAthena {
     // see initialize() what kind of algorithms exist.
     for( auto itr = m_vertexingAlgorithms.begin(); itr!=m_vertexingAlgorithms.end(); ++itr ) {
       
-      auto alg = *itr;
+      auto& name = itr->first;
+      auto alg = itr->second;
       
       ATH_CHECK( (this->*alg)( workVerticesContainer ) );
       
-      auto end = std::remove_if( workVerticesContainer->begin(), workVerticesContainer->end(), []( WrkVrt& wrkvrt ) { return wrkvrt.isGood == false || wrkvrt.selectedTrackIndices.size() < 2; } );
+      auto end = std::remove_if( workVerticesContainer->begin(), workVerticesContainer->end(),
+                                 []( WrkVrt& wrkvrt ) {
+                                   return wrkvrt.isGood == false || ( wrkvrt.selectedTrackIndices.size() + wrkvrt.associatedTrackIndices.size() ) < 2; }
+                                 );
+      
       workVerticesContainer->erase( end, workVerticesContainer->end() );
 
-      monitorVertexingAlgorithmStep( workVerticesContainer, "", std::next( itr ) == m_vertexingAlgorithms.end() );
+      ATH_CHECK( monitorVertexingAlgorithmStep( workVerticesContainer, name, std::next( itr ) == m_vertexingAlgorithms.end() ) );
       
       m_vertexingAlgorithmStep++;
       

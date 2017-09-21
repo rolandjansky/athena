@@ -247,6 +247,8 @@ namespace VKalVrtAthena {
     while (chi2Probability < m_jp.improveChi2ProbThreshold ) {
       if( ntrk(vertex) == 2 ) return chi2Probability;
       
+      WrkVrt vertex_backup = vertex;
+      
       auto maxChi2 = std::max_element( vertex.Chi2PerTrk.begin(), vertex.Chi2PerTrk.end() );
       size_t index   = maxChi2 - vertex.Chi2PerTrk.begin();
       
@@ -266,7 +268,10 @@ namespace VKalVrtAthena {
       
       StatusCode sc = refitVertex( vertex );
       
-      if( sc.isFailure() ) return 0.;
+      if( sc.isFailure() ) {
+        vertex = vertex_backup;
+        return 0.;
+      }
       
       chi2Probability = TMath::Prob( vertex.Chi2, 2*ntrk(vertex)-3 );
     }
@@ -617,8 +622,6 @@ namespace VKalVrtAthena {
     declareProperty("McParticleContainer",             m_jp.truthParticleContainerName      = "TruthParticles"              );
     declareProperty("MCEventContainer",                m_jp.mcEventContainerName            = "TruthEvents"                 );
     
-    declareProperty("SelectedTracksContainerName",     m_jp.selectedTracksContainerName     = "SelectedTrackParticles"      );
-    declareProperty("AssociatedTracksContainerName",   m_jp.associatedTracksContainerName   = "AssociatedTrackParticles"    );
     declareProperty("All2trkVerticesContainerName",    m_jp.all2trksVerticesContainerName   = "All2TrksVertices"            );
     declareProperty("SecondaryVerticesContainerName",  m_jp.secondaryVerticesContainerName  = "SecondaryVertices"           );
 
