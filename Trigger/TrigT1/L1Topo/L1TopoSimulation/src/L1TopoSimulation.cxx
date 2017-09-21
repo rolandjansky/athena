@@ -365,7 +365,7 @@ StatusCode L1TopoSimulation::retrieveHardwareDecision()
         } else if (rdos->empty()) {
             ATH_MSG_INFO ( "L1Topo DAQ RDO collection is empty" );
         } else {
-            for (auto & rdo : *rdos){
+            for (const L1TopoRDO* rdo : *rdos){
                 const std::vector<uint32_t> cDataWords = rdo->getDataWords();
                 // initialise header: set version 15, BCN -7, which is unlikely
                 L1Topo::Header header(0xf,0,0,0,0,1,0x7);
