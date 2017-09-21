@@ -1299,6 +1299,9 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     if (m_orDoTau) ATH_CHECK(m_orToolbox.tauJetORT.setProperty("EnableUserPriority", true));
     if (m_orDoPhoton) ATH_CHECK(m_orToolbox.phoJetORT.setProperty("EnableUserPriority", true));
 
+    if (!m_orDoEleJet) m_orToolbox.eleJetORT.setTypeAndName("");
+    if (!m_orDoMuonJet) m_orToolbox.muJetORT.setTypeAndName("");
+
     ATH_CHECK(m_orToolbox.initialize());
 
   } // Done with the OR toolbox setup!

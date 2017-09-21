@@ -183,6 +183,8 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     //
     m_orDoTau(false),
     m_orDoPhoton(false),
+    m_orDoEleJet(true),
+    m_orDoMuonJet(true),
     m_orDoBjet(false),
     m_orDoElBjet(true),
     m_orDoMuBjet(true),
@@ -307,6 +309,8 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   //Overlap Removal
   declareProperty( "DoTauOR",       m_orDoTau );
   declareProperty( "DoPhotonOR",    m_orDoPhoton );
+  declareProperty( "DoEleJetOR",    m_orDoEleJet );
+  declareProperty( "DoMuonJetOR",   m_orDoMuonJet );
   declareProperty( "DoBjetOR",      m_orDoBjet );
   declareProperty( "DoElBjetOR",    m_orDoElBjet );
   declareProperty( "DoMuBjetOR",    m_orDoMuBjet );
@@ -826,6 +830,8 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   m_conf_to_prop["OR.DoMuonJetGhostAssociation"] = "ORDoMuonJetGhostAssociation";
   m_conf_to_prop["OR.DoTau"] = "DoTauOR";
   m_conf_to_prop["OR.DoPhoton"] = "DoPhotonOR";
+  m_conf_to_prop["OR.DoEleJet"] = "DoEleJetOR";
+  m_conf_to_prop["OR.DoMuonJet"] = "DoMuonJetOR";
   m_conf_to_prop["OR.Bjet"] = "DoBjetOR";
   m_conf_to_prop["OR.ElBjet"] = "DoElBjetOR";
   m_conf_to_prop["OR.MuBjet"] = "DoMuBjetOR";
@@ -956,6 +962,8 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_orDoMuonJetGhostAssociation, "OR.DoMuonJetGhostAssociation", rEnv, true);
   configFromFile(m_orDoTau, "OR.DoTau", rEnv, false);
   configFromFile(m_orDoPhoton, "OR.DoPhoton", rEnv, false);
+  configFromFile(m_orDoEleJet, "OR.EleJet", rEnv, true);
+  configFromFile(m_orDoMuonJet, "OR.MuonJet", rEnv, true);
   configFromFile(m_orDoBjet, "OR.Bjet", rEnv, true);
   configFromFile(m_orDoElBjet, "OR.ElBjet", rEnv, true);
   configFromFile(m_orDoMuBjet, "OR.MuBjet", rEnv, true);
