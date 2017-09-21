@@ -83,7 +83,7 @@ namespace TrigL2MuonSA {
     void setRoIBasedDataAccess(bool use_RoIBasedDataAccess);
 
   public:
-    float etaMinChamber[10],etaMaxChamber[10],phiMinChamber[10],phiMaxChamber[10];
+    float etaMinChamber[11],etaMaxChamber[11],phiMinChamber[11],phiMaxChamber[11];
 
   private:
     
