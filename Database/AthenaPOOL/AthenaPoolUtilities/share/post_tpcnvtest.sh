@@ -221,6 +221,15 @@ PP="$PP"'|has no streamer or dictionary'
 PP="$PP"'|^RootDatabase.open Always'
 PP="$PP"'|No valid proxy for object /Generation/Parameters'
 
+# Messages that differ between tests run in AtlasCore vs AtlasEvent.
+PP="$PP"'|^RalDatabaseSvc Info|^CoralApplication Info|^TRT_GeoModel +WARNING|Xtomo'
+
+# ubsan
+PP="$PP"'|bits/regex.h:1545'
+
+PP="$PP"'|Cannot convert TrigRNNOutput'
+
+
 test=$1
 if [ -z "$testStatus" ]; then
     echo "post.sh> Warning: athena exit status is not available "
