@@ -106,15 +106,15 @@ void TrackHandle_TrkTrack::ensureTouchedMuonChambersInitialiasedFromMeas( const 
     // for competing ROTs, it is expected that these are in the same DE. If this turns out not to be the case, need to loop & recursively call this method. EJWM
     if (crot)
       meas=&(crot->rioOnTrack(0));
-      VP1TrackSanity * sanity = common()->trackSanityHelper();
-      if (!sanity->isSafe(meas)) {
-        if (VP1Msg::verbose())
-          VP1Msg::messageVerbose("TrackHandle_TrkTrack WARNING: Skipping unsafe TSOS for touched muon chamber determination.");
-        return;
-      }
-      const MuonGM::MuonReadoutElement* muonDetEl = dynamic_cast<const MuonGM::MuonReadoutElement*>(meas->associatedSurface().associatedDetectorElement() );
-      if (muonDetEl)
-        registerTouchedMuonChamber(muonDetEl->parentStationPV());
+    VP1TrackSanity * sanity = common()->trackSanityHelper();
+    if (!sanity->isSafe(meas)) {
+      if (VP1Msg::verbose())
+        VP1Msg::messageVerbose("TrackHandle_TrkTrack WARNING: Skipping unsafe TSOS for touched muon chamber determination.");
+      return;
+    }
+    const MuonGM::MuonReadoutElement* muonDetEl = dynamic_cast<const MuonGM::MuonReadoutElement*>(meas->associatedSurface().associatedDetectorElement() );
+    if (muonDetEl)
+      registerTouchedMuonChamber(muonDetEl->parentStationPV());
   }
 }
 
