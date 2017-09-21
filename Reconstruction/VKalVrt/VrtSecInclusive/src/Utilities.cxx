@@ -357,32 +357,41 @@ namespace VKalVrtAthena {
 
   
   //____________________________________________________________________________________________________
-  void VrtSecInclusive::MergeVertices( std::vector<WrkVrt> *WrkVrtSet, int & V1, int & V2)
+  void VrtSecInclusive::MergeVertices( std::vector<WrkVrt> *workVerticesContainer, int & v1, int & v2)
   {
     //
     //  Merge two close vertices into one (first) and set NTr=0 for second vertex
     //
+    
+    MergeVertices( workVerticesContainer->at(v1), workVerticesContainer->at(v2) );
 
-    int i;
-    int nth=(*WrkVrtSet).at(V2).SelTrk.size();   //number of tracks in second vertex
-
-    for(i=0;i<nth;i++) (*WrkVrtSet)[V1].SelTrk.emplace_back(   (*WrkVrtSet)[V2].SelTrk[i]   );
+  }
+  
+  
+  //____________________________________________________________________________________________________
+  void VrtSecInclusive::MergeVertices( WrkVrt& v1, WrkVrt& v2 )
+  {
     //
+    //  Merge two close vertices into one (first) and set NTr=0 for second vertex
+    //
+    
+    for( auto& index : v2.SelTrk ) { v1.SelTrk.emplace_back( index ); }
+
     // Cleaning
-    deque<long int>::iterator   TransfEnd ;
-    sort( (*WrkVrtSet)[V1].SelTrk.begin(), (*WrkVrtSet)[V1].SelTrk.end() );
-    TransfEnd =  unique((*WrkVrtSet)[V1].SelTrk.begin(), (*WrkVrtSet)[V1].SelTrk.end() );
-    (*WrkVrtSet)[V1].SelTrk.erase( TransfEnd, (*WrkVrtSet)[V1].SelTrk.end());
+    deque<long int>::iterator TransfEnd;
+    sort( v1.SelTrk.begin(), v1.SelTrk.end() );
+    TransfEnd =  unique(v1.SelTrk.begin(), v1.SelTrk.end() );
+    v1.SelTrk.erase( TransfEnd, v1.SelTrk.end());
     //
     //----------------------------------------------------------
-    (*WrkVrtSet)[V2].SelTrk.clear();     //Clean dropped vertex
-    (*WrkVrtSet)[V2].dCloseVrt=1000000.; //Clean dropped vertex
-    (*WrkVrtSet)[V2].nCloseVrt=0;        //Clean dropped vertex
-    (*WrkVrtSet)[V2].Good=false;        //Clean dropped vertex
-    (*WrkVrtSet)[V1].dCloseVrt=1000000.; //Clean new vertex
-    (*WrkVrtSet)[V1].nCloseVrt=0;        //Clean new vertex
-    //(*WrkVrtSet)[V2].Good=true;          //Clean new vertex
-    (*WrkVrtSet)[V1].Good=true;          //Clean new vertex
+    v2.SelTrk.clear();     //Clean dropped vertex
+    v2.dCloseVrt=1000000.; //Clean dropped vertex
+    v2.nCloseVrt=0;        //Clean dropped vertex
+    
+    v2.Good=false;         //Clean dropped vertex
+    v1.dCloseVrt=1000000.; //Clean new vertex
+    v1.nCloseVrt=0;        //Clean new vertex
+    v1.Good=true;          //Clean new vertex
 
   }
   

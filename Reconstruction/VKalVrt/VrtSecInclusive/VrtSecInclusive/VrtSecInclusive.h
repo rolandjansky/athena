@@ -267,6 +267,7 @@ namespace VKalVrtAthena {
     StatusCode extractIncompatibleTracks( std::vector<int>& );
     StatusCode reconstruct2TrackVertices( std::vector<int>&, std::vector<WrkVrt>* );
     StatusCode reconstructNTrackVertices( std::vector<WrkVrt>* );
+    StatusCode reassembleVertices( std::vector<WrkVrt>* );
     StatusCode mergeFinalVertices( std::vector<WrkVrt>* ); // Kazuki
     StatusCode associateNonSelectedTracks( std::vector<WrkVrt>* );
     StatusCode refitAndSelectGoodQualityVertices( std::vector<WrkVrt>* );
@@ -293,6 +294,7 @@ namespace VKalVrtAthena {
     
     double minVrtVrtDistNext( std::vector<WrkVrt> *WrkVrtSet, int & V1, int & V2);
     
+    void MergeVertices( WrkVrt& v1, WrkVrt& v2 );
     void MergeVertices( std::vector<WrkVrt> *WrkVrtSet, int & V1, int & V2);
     
     double VrtVrtDist(const Amg::Vector3D & Vrt1, const std::vector<double>  & VrtErr1,

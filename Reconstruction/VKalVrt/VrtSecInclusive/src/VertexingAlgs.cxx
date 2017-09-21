@@ -780,6 +780,100 @@ namespace VKalVrtAthena {
   
   
   //____________________________________________________________________________________________________
+  StatusCode VrtSecInclusive::reassembleVertices( std::vector<WrkVrt>* workVerticesContainer )
+  {
+    // Here, the supposed issue is that, the position of the reconstructed vertex may be significantly
+    // displaced from its truth position, even if the constituent tracks are all from that truth.
+    // The fundamental reason of this is speculated that the VKalVrt vertex fitting could fall in
+    // a local minimum. This function attempts to improve the situation, given that N-track vertices
+    // are already reconstructed, by attempting to asociate a track of a small multiplicity vertex
+    // to another large multiplicity vertex.
+    
+    xAOD::TrackParticleContainer *selectedBaseTracks ( nullptr );
+    ATH_CHECK( evtStore()->retrieve(selectedBaseTracks, "VrtSecInclusive_SelectedTrackParticles") );
+    
+    // First, sort WrkVrt by the track multiplicity
+    std::sort( workVerticesContainer->begin(), workVerticesContainer->end(), [](WrkVrt& v1, WrkVrt& v2) { return v1.SelTrk.size() < v2.SelTrk.size(); } );
+    
+    ATH_MSG_DEBUG(" > " << __FUNCTION__ << ": #vertices = " << workVerticesContainer->size() );
+    // Loop over vertices (small -> large Ntrk order)
+    for( auto& workVertex : *workVerticesContainer ) {
+      if( !workVertex.Good               ) continue;
+      if(  workVertex.SelTrk.size() <= 1 ) continue;
+      
+      ATH_MSG_DEBUG(" > " << __FUNCTION__ << ": vertex " << &workVertex << " #tracks = " << workVertex.SelTrk.size() );
+      std::map<unsigned, std::vector<WrkVrt>::reverse_iterator> mergiableVertex;
+      std::set<std::vector<WrkVrt>::reverse_iterator> mergiableVerticesSet;
+      
+      for( auto& index : workVertex.SelTrk ) {
+        
+        const xAOD::TrackParticle* trk = selectedBaseTracks->at( index );
+        
+        mergiableVertex[index] = workVerticesContainer->rend();
+        
+        std::vector<double> distances;
+        
+        // Reverse iteration: large Ntrk -> small Ntrk order
+        for( auto ritr = workVerticesContainer->rbegin(); ritr != workVerticesContainer->rend(); ++ritr ) {
+          auto& vertexToAttach = *ritr;
+          
+          if( &workVertex == &vertexToAttach ) continue;
+          if( workVertex.SelTrk.size() >= vertexToAttach.SelTrk.size() ) continue;
+          if( !checkTrackHitPatternToVertex( trk, vertexToAttach.vertex ) ) continue;
+          
+          // Get the closest approach
+          std::vector<double> impactParameters;
+          std::vector<double> impactParErrors;
+        
+          m_fitSvc->VKalGetImpact(trk, vertexToAttach.vertex, static_cast<int>( trk->charge() ), impactParameters, impactParErrors);
+          
+          enum { k_d0, k_z0, k_theta, k_phi, k_qOverP };
+          
+          const auto& distance = hypot( impactParameters.at(k_d0), impactParameters.at(k_z0) );
+          distances.emplace_back( distance );
+          
+          if( distance > 1.0 ) continue;
+          
+          mergiableVertex[index] = ritr;
+          mergiableVerticesSet.emplace( ritr );
+          
+        }
+        
+        auto min_distance = distances.size() > 0 ? *(std::min_element( distances.begin(), distances.end() )) : 99999.;
+        
+        if( mergiableVertex[index] == workVerticesContainer->rend() ) {
+          ATH_MSG_DEBUG(" > " << __FUNCTION__ << ": track " << trk << " --> none : min distance = " << min_distance );
+        } else {
+          ATH_MSG_DEBUG(" > " << __FUNCTION__ << ": track " << trk << " --> " << &( *(mergiableVertex[index]) ) << " --> size = " << mergiableVertex[index]->SelTrk.size() << ": min distance = " << min_distance );
+        }
+        
+      }
+      
+      size_t count_mergiable = std::count_if( mergiableVertex.begin(), mergiableVertex.end(),
+                                               [&](std::pair<unsigned, std::vector<WrkVrt>::reverse_iterator> p ) {
+                                                 return p.second != workVerticesContainer->rend(); } );
+      
+      if( mergiableVerticesSet.size() == 1 && count_mergiable == workVertex.SelTrk.size() ) {
+        
+        ATH_MSG_DEBUG(" > " << __FUNCTION__ << ": identified a unique association destination vertex" );
+        
+        WrkVrt& destination = *( mergiableVertex.begin()->second );
+        ATH_MSG_DEBUG(" > " << __FUNCTION__ << ": destination #tracks before merging = " << destination.SelTrk.size() );
+        
+        MergeVertices( destination, workVertex );
+        StatusCode sc = RefitVertex( destination, selectedBaseTracks );
+        if( sc.isFailure() ) {}
+        
+        ATH_MSG_DEBUG(" > " << __FUNCTION__ << ": destination #tracks after merging = " << destination.SelTrk.size() );
+        
+      }
+          
+    }
+    return StatusCode::SUCCESS;
+  }
+  
+  
+  //____________________________________________________________________________________________________
   StatusCode VrtSecInclusive::associateNonSelectedTracks( std::vector<WrkVrt>* workVerticesContainer )
   {
     
@@ -800,7 +894,8 @@ namespace VKalVrtAthena {
     // Loop over vertices
     for( auto& workVertex : *workVerticesContainer ) {
       
-      if( workVertex.SelTrk.size() <= 1 ) continue;
+      if( !workVertex.Good               ) continue;
+      if(  workVertex.SelTrk.size() <= 1 ) continue;
       
       auto& vertexPos = workVertex.vertex;
       
@@ -836,11 +931,11 @@ namespace VKalVrtAthena {
           if( result != associableTracks->end() ) continue;
         }
         
+        if( !checkTrackHitPatternToVertex( trk, vertexPos ) ) continue;
+        
         // Get the closest approach
         std::vector<double> impactParameters;
         std::vector<double> impactParErrors;
-        
-        if( !checkTrackHitPatternToVertex( trk, vertexPos ) ) continue;
         
         m_fitSvc->VKalGetImpact(trk, vertexPos, static_cast<int>( trk->charge() ), impactParameters, impactParErrors);
         
@@ -938,7 +1033,7 @@ namespace VKalVrtAthena {
     
     return StatusCode::SUCCESS;
   }
-  
+    
   
   //____________________________________________________________________________________________________
   StatusCode VrtSecInclusive::mergeFinalVertices( std::vector<WrkVrt> *WrkVrtSet )

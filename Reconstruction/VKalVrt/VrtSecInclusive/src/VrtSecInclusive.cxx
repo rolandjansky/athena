@@ -482,6 +482,8 @@ namespace VKalVrtAthena {
     // Reconstruction of N-track vertices from 2-track vertices
     ATH_CHECK( reconstructNTrackVertices( workVerticesContainer ) );
     
+    ATH_CHECK( reassembleVertices( workVerticesContainer ) );
+    
     if ( m_mergeFinalVerticesDistance ) {
       ATH_MSG_DEBUG("execute: trying to merge vertices within " << m_VertexMergeFinalDistCut << " mm.");
       ATH_CHECK( mergeFinalVertices( workVerticesContainer ) );
