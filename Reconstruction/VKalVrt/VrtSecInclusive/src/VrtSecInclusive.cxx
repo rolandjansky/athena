@@ -129,8 +129,8 @@ namespace VKalVrtAthena {
     m_truthToTrack                 ( "Trk::TruthToTrack/InDetTruthToTrack" ),
     m_trackToVertexTool            ( "Reco::TrackToVertex" ),
     m_trackToVertexIPEstimatorTool ( "Trk::TrackToVertexIPEstimator/TrackToVertexIPEstimator" ),
+    m_extrapolator                 ( "Trk::Extrapolator/AtlasExtrapolator" ),
     m_vertexMapper                 ( "" ),
-    m_extrapolationEngine          ( "" ),
     
     // Services
     m_pixelCondSummarySvc          ( "PixelConditionsSummarySvc", "VrtSecInclusive" ),
@@ -239,7 +239,7 @@ namespace VKalVrtAthena {
     if( detStore()->retrieve(m_pixelId, "PixelID").isFailure() ) return StatusCode::SUCCESS;
     if( detStore()->retrieve(m_sctId,   "SCT_ID") .isFailure() ) return StatusCode::SUCCESS;
     
-    ATH_CHECK( m_extrapolationEngine.retrieve() );
+    ATH_CHECK( m_extrapolator.retrieve() );
     
     // extract VertexMapper
     if( m_doMapToLocal ) {

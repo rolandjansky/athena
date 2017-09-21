@@ -11,7 +11,6 @@
 
 #include <iostream>
 
-
 #include "TH1D.h"
 #include "TNtuple.h"
 #include "TTree.h"
@@ -594,7 +593,6 @@ namespace VKalVrtAthena {
 
     declareProperty("VertexFitterTool",             m_fitSvc, " Private TrkVKalVrtFitter"           );
     declareProperty("Extrapolator",                 m_extrapolator                                  );
-    declareProperty("ExtrapolationEngine",          m_extrapolationEngine                           );
     declareProperty("VertexMapper",                 m_vertexMapper                                  );
     declareProperty("PixelConditionsSummarySvc",    m_pixelCondSummarySvc                           );
     declareProperty("SCT_ConditionsSummarySvc",     m_sctCondSummarySvc                             );
@@ -802,25 +800,13 @@ namespace VKalVrtAthena {
     
     auto* pattern = new ExtrapolatedPattern;
     
-    Trk::ExtrapolationCell < Trk::TrackParameters > ecc( trk->perigeeParameters() );
-    ecc.setParticleHypothesis( Trk::ParticleHypothesis::pion );
-    ecc.addConfigurationMode(Trk::ExtrapolationMode::StopAtBoundary);   // stop at the next ID / Calo / MS boundary
-    ecc.addConfigurationMode(Trk::ExtrapolationMode::FATRAS);           // force initial radialDirection to be outward
-    ecc.addConfigurationMode(Trk::ExtrapolationMode::CollectSensitive); // collect parameters on sensitive elements
+    const auto* paramsVector = m_extrapolator->extrapolateBlindly( trk->perigeeParameters(), Trk::alongMomentum );
     
-    auto eCode = m_extrapolationEngine->extrapolate(ecc);
-    
-    if( !eCode.isSuccess() ) { 
-      ecc.emptyGarbageBin( eCode );
-      return pattern;
-    }
-    
-    for (auto& es : ecc.extrapolationSteps) {
-      const auto* parameters = es.parameters;
+    for( auto* params : *paramsVector ) {
       
-      const TVector3 position( parameters->position().x(), parameters->position().y(), parameters->position().z() );
+      const TVector3 position( params->position().x(), params->position().y(), params->position().z() );
       
-      const auto* detElement = parameters->associatedSurface().associatedDetectorElement();
+      const auto* detElement = params->associatedSurface().associatedDetectorElement();
       
       if( detElement ) {
         
@@ -850,19 +836,11 @@ namespace VKalVrtAthena {
         
       }
       
-      // Stressfully, user needs to explicitly care of the memory management :(
-      delete parameters;
-      delete es.transportJacobian;
+      delete params;
     }
     
-    // Stressfully, user needs to explicitly care of the memory management :(
-    if( ecc.endParameters )          delete ecc.endParameters;
-    if( ecc.leadParameters )         delete ecc.leadParameters;
-    if( ecc.eLoss )                  delete ecc.eLoss;
-    
-    ecc.emptyGarbageBin( eCode );
-    
     return pattern;
+
   }
   
   

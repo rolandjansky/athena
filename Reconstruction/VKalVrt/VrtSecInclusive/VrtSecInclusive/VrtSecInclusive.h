@@ -31,7 +31,7 @@
 #include "ITrackToVertex/ITrackToVertex.h"
 #include "TrkVertexFitterInterfaces/ITrackToVertexIPEstimator.h"
 #include "TrkExInterfaces/IExtrapolator.h"
-#include "TrkExInterfaces/IExtrapolationEngine.h"
+#include "TrkExInterfaces/IPropagator.h"
 #include "TrkSurfaces/CylinderSurface.h"
 #include "TrkDetDescrInterfaces/IVertexMapper.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -200,8 +200,8 @@ namespace VKalVrtAthena {
     ToolHandle< Reco::ITrackToVertex > m_trackToVertexTool;
     ToolHandle<Trk::ITrackToVertexIPEstimator> m_trackToVertexIPEstimatorTool;
     ToolHandle<Trk::IExtrapolator> m_extrapolator;
+    ToolHandle<Trk::IPropagator> m_propagator;
     ToolHandle<Trk::IVertexMapper> m_vertexMapper;
-    ToolHandle<Trk::IExtrapolationEngine> m_extrapolationEngine;
     
     /** Condition service **/
     ServiceHandle <IInDetConditionsSvc> m_pixelCondSummarySvc;
