@@ -468,17 +468,17 @@ namespace VKalVrtAthena {
         
         // Reverse iteration: large Ntrk -> small Ntrk order
         for( auto ritr = workVerticesContainer->rbegin(); ritr != workVerticesContainer->rend(); ++ritr ) {
-          auto& vertexToAttach = *ritr;
+          auto& targetVertex = *ritr;
           
-          if( &workVertex == &vertexToAttach ) continue;
-          if( workVertex.selectedTrackIndices.size() >= vertexToAttach.selectedTrackIndices.size() ) continue;
-          if( ! ( this->*m_patternStrategyFuncs[m_checkPatternStrategy] )( trk, vertexToAttach.vertex ) ) continue;
+          if( &workVertex == &targetVertex ) continue;
+          if( workVertex.selectedTrackIndices.size() >= targetVertex.selectedTrackIndices.size() ) continue;
+          if( ! ( this->*m_patternStrategyFuncs[m_checkPatternStrategy] )( trk, targetVertex.vertex ) ) continue;
           
           // Get the closest approach
           std::vector<double> impactParameters;
           std::vector<double> impactParErrors;
         
-          m_fitSvc->VKalGetImpact(trk, vertexToAttach.vertex, static_cast<int>( trk->charge() ), impactParameters, impactParErrors);
+          m_fitSvc->VKalGetImpact(trk, targetVertex.vertex, static_cast<int>( trk->charge() ), impactParameters, impactParErrors);
           
           enum { k_d0, k_z0, k_theta, k_phi, k_qOverP };
           
@@ -549,7 +549,6 @@ namespace VKalVrtAthena {
       
       auto& vertexPos = workVertex.vertex;
       
-      
       std::vector<double> distanceToPVs;
       
       for( auto* pv : *pvs ) {
@@ -557,7 +556,7 @@ namespace VKalVrtAthena {
       }
       const auto& minDistance = *( std::min_element( distanceToPVs.begin(), distanceToPVs.end() ) );
       
-      if( minDistance < m_jp.associate_minDistanceToPV ) continue;
+      if( minDistance < m_jp.associateMinDistanceToPV ) continue;
       
       
       ATH_MSG_DEBUG( " >> associateNonSeletedTracks: vertex pos = (" << vertexPos.x() << ", " << vertexPos.y() << ", " << vertexPos.z() << "), "
@@ -569,6 +568,7 @@ namespace VKalVrtAthena {
       for( auto itr = allTracks->begin(); itr != allTracks->end(); ++itr ) {
         auto* trk = *itr;
         
+        // If the track is already used for any DV candidate, reject.
         {
           auto result = std::find_if( workVerticesContainer->begin(), workVerticesContainer->end(),
                                       [&] ( WrkVrt& wrkvrt ) {
@@ -581,11 +581,18 @@ namespace VKalVrtAthena {
           if( result != workVerticesContainer->end() ) continue;
         }
         
+        // If the track is already registered to the associated track list, rejct.
         {
           auto result = std::find_if( m_associableTracks->begin(), m_associableTracks->end(),
                                       [&] (xAOD::TrackParticle* atrk) { return trk->index() == atrk->auxdata<unsigned long>("trk_id"); } );
           if( result != m_associableTracks->end() ) continue;
         }
+        
+        // pT selection
+        if( trk->pt() < m_jp.associatePtCut ) continue;
+        
+        // chi2 selection
+        if( trk->chiSquared() / trk->numberDoF() < m_jp.associateChi2Cut ) continue;
         
         // Get the closest approach
         std::vector<double> impactParameters;
@@ -595,8 +602,10 @@ namespace VKalVrtAthena {
         
         enum { k_d0, k_z0, k_theta, k_phi, k_qOverP };
         
-        if( hypot( impactParameters.at(k_d0), impactParameters.at(k_z0) ) > m_jp.associate_minImpactParamDistance ) continue;
+        if( fabs( impactParameters.at(k_d0) ) > m_jp.associateMaxD0 ) continue;
+        if( fabs( impactParameters.at(k_z0) ) > m_jp.associateMaxZ0 ) continue;
         
+        // Hit pattern consistentcy requirement
         if( ! ( this->*m_patternStrategyFuncs[m_checkPatternStrategy] )( trk, vertexPos ) ) continue;
         
         ATH_MSG_DEBUG( " >> associateNonSeletedTracks: trk " << trk
@@ -614,6 +623,9 @@ namespace VKalVrtAthena {
       for( const auto* trk : candidates ) {
         
         ATH_MSG_DEBUG( " >> associateNonSeletedTracks: attempting to associate track = " << trk );
+        
+        // Backup the current vertes status
+        WrkVrt wrkvrt_backup = workVertex;
         
         m_fitSvc->setDefault();
         m_fitSvc->setApproximateVertex( vertexPos.x(), vertexPos.y(), vertexPos.z() );
@@ -666,7 +678,8 @@ namespace VKalVrtAthena {
                                              workVertex.Chi2            );
         
         if( sc.isFailure() ) {
-          ATH_MSG_DEBUG(" >> associateNonSeletedTracks: VKalVrtFit failure ");
+          ATH_MSG_DEBUG(" >> associateNonSeletedTracks: VKalVrtFit failure. Revert to backup");
+          workVertex = wrkvrt_backup;
           continue;
         }
         

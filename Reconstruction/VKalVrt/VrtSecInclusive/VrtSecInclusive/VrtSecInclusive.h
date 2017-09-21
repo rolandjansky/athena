@@ -173,8 +173,11 @@ namespace VKalVrtAthena {
       double TrackDetachCut;
       
       
-      double associate_minDistanceToPV;
-      double associate_minImpactParamDistance;
+      double associateMinDistanceToPV;
+      double associateMaxD0;
+      double associateMaxZ0;
+      double associatePtCut;
+      double associateChi2Cut;
       
       double reassembleMaxImpactParameterD0;
       double reassembleMaxImpactParameterZ0;

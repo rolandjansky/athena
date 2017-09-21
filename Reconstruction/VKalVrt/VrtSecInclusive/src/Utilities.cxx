@@ -426,7 +426,7 @@ namespace VKalVrtAthena {
       v1 = v1_bak;
       v2 = v2_bak;
       
-      ATH_MSG_INFO(" >>> " << __FUNCTION__ << ": failure in merging" );
+      ATH_MSG_DEBUG(" >>> " << __FUNCTION__ << ": failure in merging" );
         
       return StatusCode::FAILURE;
     }
@@ -672,10 +672,13 @@ namespace VKalVrtAthena {
     
     declareProperty("VertexMergeCut",                  m_jp.VertexMergeCut                  = 3                             );
     declareProperty("TrackDetachCut",                  m_jp.TrackDetachCut                  = 6                             );
-    declareProperty("associate_minDistanceToPV",       m_jp.associate_minDistanceToPV       = 1.                            );
-    declareProperty("associate_minImpactParamDistance",m_jp.associate_minImpactParamDistance= 1.                            );
-    declareProperty("reassembleMaxImpactParameterD0",  m_jp.reassembleMaxImpactParameterD0  = 1.                            ); // in [mm]
-    declareProperty("reassembleMaxImpactParameterZ0",  m_jp.reassembleMaxImpactParameterZ0  = 5.                            ); // in [mm]
+    declareProperty("associateMinDistanceToPV",        m_jp.associateMinDistanceToPV        = 1.                            );
+    declareProperty("associateMaxD0",                  m_jp.associateMaxD0                  = 1.                            ); // wrt. DV in [mm]
+    declareProperty("associateMaxZ0",                  m_jp.associateMaxZ0                  = 3.                            ); // wrt. DV in [mm]
+    declareProperty("associatePtCut",                  m_jp.associatePtCut                  = 0.                            ); // in [MeV]
+    declareProperty("associateChi2Cut",                m_jp.associateChi2Cut                = 20.                           );
+    declareProperty("reassembleMaxImpactParameterD0",  m_jp.reassembleMaxImpactParameterD0  = 1.                            ); // wrt. DV in [mm]
+    declareProperty("reassembleMaxImpactParameterZ0",  m_jp.reassembleMaxImpactParameterZ0  = 5.                            ); // wrt. DV in [mm]
     declareProperty("mergeByShufflingMaxSignificance", m_jp.mergeByShufflingMaxSignificance = 100.                          ); // in unit of sigma
     declareProperty("mergeByShufflingAllowance",       m_jp.mergeByShufflingAllowance       = 4.                            ); // in unit of sigma
     declareProperty("VertexMergeFinalDistCut",         m_jp.VertexMergeFinalDistCut         = 1.                            ); // in [mm]
