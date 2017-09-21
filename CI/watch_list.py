@@ -14,6 +14,12 @@ WATCH_LIST['AFP'] = set(['ggach'])
 WATCH_LIST['MuonEfficiencyCorrections'] = set(['nkoehler','jojungge'])
 WATCH_LIST['DerivationFrameworkMuons'] = set(['nkoehler','jojungge', 'maklein'])
 WATCH_LIST['^PhysicsAnalysis/D3PDTools'] = set(['krumnack'])
+#BPHY Derivation Contacts
+WATCH_LIST['xAODBPhys'] = set(['abarton', 'wwalko'])
+WATCH_LIST['BPhysTools'] = set(['abarton', 'wwalko'])
+WATCH_LIST['DerivationFrameworkBPhys'] = set(['abarton', 'wwalko'])
+WATCH_LIST['JpsiUpsilonTools'] = set(['abarton', 'wwalko'])
+#END BPHY
 WATCH_LIST['QuickAna'] = set(['krumnack'])
 WATCH_LIST['AsgTools'] = set(['krumnack'])
 WATCH_LIST['PATInterfaces'] = set(['krumnack'])
