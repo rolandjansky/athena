@@ -123,19 +123,19 @@ namespace VKalVrtAthena {
     using cutFunc = bool (VrtSecInclusive::*) ( const xAOD::TrackParticle* );
     std::vector<cutFunc> cuts;
     
-    // These cuts are used by default
-    cuts.emplace_back( &VrtSecInclusive::selectTrack_notPVassociated );
-    cuts.emplace_back( &VrtSecInclusive::selectTrack_hitPattern );
-    cuts.emplace_back( &VrtSecInclusive::selectTrack_chi2Cut );
-    cuts.emplace_back( &VrtSecInclusive::selectTrack_pTCut );
-    
     // These cuts are optional. Specified by JobProperty
+    if( m_jp.do_PVvetoCut )   cuts.emplace_back( &VrtSecInclusive::selectTrack_notPVassociated );
     if( m_jp.do_d0Cut )       cuts.emplace_back( &VrtSecInclusive::selectTrack_d0Cut );
     if( m_jp.do_z0Cut )       cuts.emplace_back( &VrtSecInclusive::selectTrack_d0Cut );
     if( m_jp.do_d0errCut )    cuts.emplace_back( &VrtSecInclusive::selectTrack_d0errCut );
     if( m_jp.do_z0errCut )    cuts.emplace_back( &VrtSecInclusive::selectTrack_z0errCut );
-    if( m_jp.do_d0signifCut ) cuts.emplace_back( &VrtSecInclusive::selectTrack_d0signifCut );
-    if( m_jp.do_z0signifCut ) cuts.emplace_back( &VrtSecInclusive::selectTrack_z0signifCut );
+    //if( m_jp.do_d0signifCut ) cuts.emplace_back( &VrtSecInclusive::selectTrack_d0signifCut ); // not implemented yet
+    //if( m_jp.do_z0signifCut ) cuts.emplace_back( &VrtSecInclusive::selectTrack_z0signifCut ); // not implemented yet
+    
+    // These cuts are used by default
+    cuts.emplace_back( &VrtSecInclusive::selectTrack_hitPattern );
+    cuts.emplace_back( &VrtSecInclusive::selectTrack_chi2Cut );
+    cuts.emplace_back( &VrtSecInclusive::selectTrack_pTCut );
     
     
     // Loop over tracks

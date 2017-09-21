@@ -21,6 +21,7 @@
 #include <new>
 #include <iostream>
 #include <tuple>
+#include <functional>
 
 using namespace std;
 

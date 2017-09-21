@@ -62,7 +62,13 @@ namespace VKalVrtAthena {
       
     const double s2 = distance.transpose() * sumCov.inverse() * distance;
     
-    return s2 > 0. ? sqrt( s2 ) : AlgConsts::maxSignificance;
+    return s2 > 0. ? sqrt( s2 ) : AlgConsts::maxValue;
+  }
+  
+  
+  //____________________________________________________________________________________________________
+  double VrtSecInclusive::distanceBetweenVertices( const WrkVrt& v1, const WrkVrt& v2 ) const {
+    return (v2.vertex - v1.vertex).norm();
   }
   
   
@@ -179,7 +185,7 @@ namespace VKalVrtAthena {
       if( sc.isFailure() ) continue;
       
       newvrt.closestWrkVrtIndex    = 0;
-      newvrt.closestWrkVrtSignificance    = AlgConsts::maxSignificance;
+      newvrt.closestWrkVrtValue    = AlgConsts::maxValue;
       
       // register the new vertex to the vertex list
       ATH_MSG_VERBOSE(" >> disassembleVertex(): > register the new vertex to the vertex list" );
@@ -235,7 +241,7 @@ namespace VKalVrtAthena {
     
     double chi2Probability = TMath::Prob( vertex.Chi2, 2*ntrk(vertex)-3 );
     
-    while (chi2Probability < 0.01) {
+    while (chi2Probability < m_jp.improveChi2ProbThreshold ) {
       if( ntrk(vertex) == 2 ) return chi2Probability;
       
       auto maxChi2 = std::max_element( vertex.Chi2PerTrk.begin(), vertex.Chi2PerTrk.end() );
@@ -262,7 +268,7 @@ namespace VKalVrtAthena {
       chi2Probability = TMath::Prob( vertex.Chi2, 2*ntrk(vertex)-3 );
     }
     
-    if(chi2Probability<0.001) vertex.isGood = false;
+    //if(chi2Probability<0.001) vertex.isGood = false;
     
     ATH_MSG_VERBOSE( " >>> " << __FUNCTION__ << ": end: chi2 = " << vertex.Chi2);
     
@@ -309,18 +315,18 @@ namespace VKalVrtAthena {
   
   
   //____________________________________________________________________________________________________
-  double VrtSecInclusive::findMinSignificanceVerticesPair( std::vector<WrkVrt> *workVerticesContainer, std::pair<unsigned, unsigned>& indexPair)
+  double VrtSecInclusive::findMinVerticesPair( std::vector<WrkVrt> *workVerticesContainer, std::pair<unsigned, unsigned>& indexPair, VrtSecInclusive::AlgForVerticesPair algorithm )
   {  
     //
     //  Minimal normalized vertex-vertex distance
     //
     
     for( auto& workVertex : *workVerticesContainer ) {
-      workVertex.closestWrkVrtSignificance = AlgConsts::maxSignificance;
+      workVertex.closestWrkVrtValue = AlgConsts::maxValue;
       workVertex.closestWrkVrtIndex = 0;
     }
 
-    double minSignificance = AlgConsts::maxSignificance;
+    double minValue = AlgConsts::maxValue;
     
     for( auto iv = workVerticesContainer->begin(); iv != workVerticesContainer->end(); ++iv ) {
       if( (*iv).selectedTrackIndices.size()< 2) continue;   /* Bad vertices */
@@ -332,28 +338,24 @@ namespace VKalVrtAthena {
         
         auto j_index = iv - workVerticesContainer->begin();
         
-        double distance = vtxVtxDistance( (*iv).vertex, (*jv).vertex );
+        double value = (this->*algorithm)( (*iv), (*jv) );
         
-        if( distance > 100. ) continue;
-        
-        double significance = significanceBetweenVertices( (*iv), (*jv) );
-        
-        if( significance < minSignificance ){
-          minSignificance = significance;
+        if( value < minValue ){
+          minValue = value;
           indexPair.first  = i_index;
           indexPair.second = j_index;
         }
-        if( significance < (*iv).closestWrkVrtSignificance ) {(*iv).closestWrkVrtSignificance = significance; (*iv).closestWrkVrtIndex = j_index; }
-        if( significance < (*jv).closestWrkVrtSignificance ) {(*jv).closestWrkVrtSignificance = significance; (*jv).closestWrkVrtIndex = i_index; }
+        if( value < (*iv).closestWrkVrtValue ) {(*iv).closestWrkVrtValue = value; (*iv).closestWrkVrtIndex = j_index; }
+        if( value < (*jv).closestWrkVrtValue ) {(*jv).closestWrkVrtValue = value; (*jv).closestWrkVrtIndex = i_index; }
       }
     }
     
-    return minSignificance;
+    return minValue;
   }
 
 
   //____________________________________________________________________________________________________
-  double VrtSecInclusive::findMinSignificanceVerticesNextPair( std::vector<WrkVrt> *workVerticesContainer, std::pair<unsigned, unsigned>& indexPair )
+  double VrtSecInclusive::findMinVerticesNextPair( std::vector<WrkVrt> *workVerticesContainer, std::pair<unsigned, unsigned>& indexPair )
   {  
     //   
     // Give minimal distance between nonmodifed yet vertices
@@ -361,33 +363,34 @@ namespace VKalVrtAthena {
 
     indexPair.first = 0;
     indexPair.second = 0;
-    
-    double minSignificance = AlgConsts::maxSignificance;
-    
+   
+    double minValue = AlgConsts::maxValue;
+   
     for(unsigned iv=0; iv<workVerticesContainer->size()-1; iv++) {
       auto& vertex = workVerticesContainer->at(iv);
-      
+     
       if( vertex.selectedTrackIndices.size() < 2) continue;   /* Bad vertex */
       if( vertex.closestWrkVrtIndex == 0 )   continue;   /* Used vertex */
-      
-      if( vertex.closestWrkVrtSignificance < minSignificance ) {
-        
+     
+      if( vertex.closestWrkVrtValue < minValue ) {
+       
         unsigned jv = vertex.closestWrkVrtIndex;
-        
+       
         // Close vertex to given [iv] one is modified already 
         if( workVerticesContainer->at(jv).closestWrkVrtIndex == 0 ) continue;
-        
-        minSignificance = vertex.closestWrkVrtSignificance;
-        
+       
+        minValue = vertex.closestWrkVrtValue;
+       
         indexPair.first  = iv;
         indexPair.second = jv;
-        
+       
       }
     }
-    
-    return minSignificance;
+   
+    return minValue;
   }
-
+  
+  
   
   //____________________________________________________________________________________________________
   StatusCode VrtSecInclusive::mergeVertices( WrkVrt& v1, WrkVrt& v2 )
@@ -409,14 +412,14 @@ namespace VKalVrtAthena {
     v1.selectedTrackIndices.erase( TransfEnd, v1.selectedTrackIndices.end());
     //
     //----------------------------------------------------------
-    v2.selectedTrackIndices.clear();                           //Clean dropped vertex
-    v2.closestWrkVrtSignificance = AlgConsts::maxSignificance; //Clean dropped vertex
-    v2.closestWrkVrtIndex=0;                                   //Clean dropped vertex
-    v2.isGood=false;                                           //Clean dropped vertex
+    v2.selectedTrackIndices.clear();             //Clean dropped vertex
+    v2.closestWrkVrtValue = AlgConsts::maxValue; //Clean dropped vertex
+    v2.closestWrkVrtIndex=0;                     //Clean dropped vertex
+    v2.isGood=false;                             //Clean dropped vertex
     
-    v1.closestWrkVrtSignificance = AlgConsts::maxSignificance; //Clean new vertex
-    v1.closestWrkVrtIndex=0;                                   //Clean new vertex
-    v1.isGood=true;                                            //Clean new vertex
+    v1.closestWrkVrtValue = AlgConsts::maxValue; //Clean new vertex
+    v1.closestWrkVrtIndex=0;                     //Clean new vertex
+    v1.isGood=true;                              //Clean new vertex
     
     StatusCode sc = refitVertex( v1 );
     if( sc.isFailure() ) {
@@ -553,11 +556,13 @@ namespace VKalVrtAthena {
     declareProperty("DoMapToLocal",                    m_jp.doMapToLocal                    = false                         );
     declareProperty("DoTruth",                         m_jp.doTruth                         = false                         );
     declareProperty("RemoveFake2TrkVrt",               m_jp.removeFakeVrt                   = true                          );
+    declareProperty("CheckHitPatternStrategy",         m_checkPatternStrategy               = "Classical"                   ); // Either Classical or Extrapolation
     declareProperty("MCTrackResolution",               m_jp.mcTrkResolution                 = 0.06                          ); // see getTruth for explanation
     declareProperty("TruthTrkLen",                     m_jp.TruthTrkLen                     = 1000                          ); // in [mm]
     declareProperty("ExtrapPV",                        m_jp.extrapPV                        = false                         ); // Leave false. only for testing
     
     // default values are set upstream - check top of file
+    declareProperty("do_PVvetoCut",                    m_jp.do_PVvetoCut                    = true                          );
     declareProperty("do_d0Cut",                        m_jp.do_d0Cut                        = true                          );
     declareProperty("do_z0Cut",                        m_jp.do_z0Cut                        = true                          );
     declareProperty("do_d0errCut",                     m_jp.do_d0errCut                     = false                         );
@@ -593,20 +598,24 @@ namespace VKalVrtAthena {
     declareProperty("doMergeByShuffling",              m_jp.doMergeByShuffling              = false                         );
     declareProperty("doMergeFinalVerticesDistance",    m_jp.doMergeFinalVerticesDistance    = false                         );
     declareProperty("doAssociateNonSelectedTracks",    m_jp.doAssociateNonSelectedTracks    = false                         );
+    declareProperty("doFinalImproveChi2",              m_jp.doFinalImproveChi2              = false                         );
     
-    declareProperty("VertexMergeFinalDistCut",         m_jp.VertexMergeFinalDistCut         = 1.                            );
     declareProperty("VertexMergeCut",                  m_jp.VertexMergeCut                  = 3                             );
     declareProperty("TrackDetachCut",                  m_jp.TrackDetachCut                  = 6                             );
+    declareProperty("associate_minDistanceToPV",       m_jp.associate_minDistanceToPV       = 1.                            );
+    declareProperty("associate_minImpactParamDistance",m_jp.associate_minImpactParamDistance= 1.                            );
     declareProperty("reassembleMaxImpactParameter",    m_jp.reassembleMaxImpactParameter    = 1.                            ); // in [mm]
     declareProperty("mergeByShufflingMaxSignificance", m_jp.mergeByShufflingMaxSignificance = 100.                          ); // in unit of sigma
     declareProperty("mergeByShufflingAllowance",       m_jp.mergeByShufflingAllowance       = 4.                            ); // in unit of sigma
+    declareProperty("VertexMergeFinalDistCut",         m_jp.VertexMergeFinalDistCut         = 1.                            ); // in [mm]
+    declareProperty("VertexMergeFinalDistScaling",     m_jp.VertexMergeFinalDistScaling     = 0.                            ); // in [1/mm]
+    declareProperty("improveChi2ProbThreshold",        m_jp.improveChi2ProbThreshold        = 1.e-4                         ); 
     
     // Additional ToolHandles
     declareProperty("VertexFitterTool",                m_fitSvc, " Private TrkVKalVrtFitter"                                );
     declareProperty("Extrapolator",                    m_extrapolator                                                       );
     declareProperty("VertexMapper",                    m_vertexMapper                                                       );
     
-    declareProperty("CheckHitPatternStrategy",      m_checkPatternStrategy = "Classical"            ); // Either Classical or Extrapolation
   }
   
   
@@ -808,9 +817,17 @@ namespace VKalVrtAthena {
     
     const auto* paramsVector = m_extrapolator->extrapolateBlindly( trk->perigeeParameters(), Trk::alongMomentum );
     
+    TVector3 prevPos( AlgConsts::invalidFloat, AlgConsts::invalidFloat, AlgConsts::invalidFloat );
+    
     for( auto* params : *paramsVector ) {
       
       const TVector3 position( params->position().x(), params->position().y(), params->position().z() );
+      
+      if( prevPos == position ) {
+        continue;
+      }
+      
+      prevPos = position;
       
       const auto* detElement = params->associatedSurface().associatedDetectorElement();
       
@@ -837,13 +854,20 @@ namespace VKalVrtAthena {
           
         }
         
-        ATH_MSG_VERBOSE(" >> " << __FUNCTION__ << ", track " << trk << ": position = (" << position.x() << ", " << position.y() << ", " << position.z() << "), detElement ID = " << id << ", active = " << active
-                     << ": (det, bec, layer) = (" << std::get<1>( pattern->back() ) << ", " << std::get<2>( pattern->back() ) << ", "  << std::get<3>( pattern->back() ) << ")" );
+        if( pattern->size() > 0 ) {
+          
+          ATH_MSG_DEBUG(" >> " << __FUNCTION__ << ", track " << trk << ": position = (" << position.x() << ", " << position.y() << ", " << position.z() << "), detElement ID = " << id << ", active = " << active
+                        << ": (det, bec, layer) = (" << std::get<1>( pattern->back() ) << ", " << std::get<2>( pattern->back() ) << ", "  << std::get<3>( pattern->back() ) << ")" );
+          
+        }
         
       }
       
-      delete params;
     }
+    
+    // cleanup
+    for( auto* params : *paramsVector ) { delete params; }
+    delete paramsVector;
     
     return pattern;
 
@@ -899,8 +923,6 @@ namespace VKalVrtAthena {
     
     enum { position=0, detector=1, bec=2, layer=3, isActive=4 };
     
-    static const unsigned INVALID = 9999;
-    
     // Labmda!
     auto getDetectorType = [&]( const ExtrapolatedPoint& point ) -> unsigned {
       
@@ -912,7 +934,7 @@ namespace VKalVrtAthena {
         }
       }
       
-      return INVALID;
+      return AlgConsts::invalidUnsigned;
     };
     
     uint32_t expectedHitPattern { 0 };
@@ -937,9 +959,12 @@ namespace VKalVrtAthena {
       // Else, the point is outer than the vertex and expect to have hits
       // when the track is originated from the vertex.
       
-      ATH_MSG_DEBUG( " > " <<  __FUNCTION__ << ": sectionVector = (" << sectionVector.x() << ", " << sectionVector.y() << ", " << sectionVector.z() << ")" );
-      ATH_MSG_DEBUG( " > " <<  __FUNCTION__ << ": vertexVector = (" << vertexVector.x() << ", " << vertexVector.y() << ", " << vertexVector.z() << ")" );
-      ATH_MSG_DEBUG( " > " <<  __FUNCTION__ << ": cosTheta( sectionVector, vertexVector)  = " << sectionVector * vertexVector / sectionVector.Mag() / vertexVector.Mag() );
+      if( sectionVector.Mag() == 0. ) continue;
+      
+      ATH_MSG_DEBUG( " > " <<  __FUNCTION__
+                     << ": sectionVector = (" << sectionVector.x() << ", " << sectionVector.y() << ", " << sectionVector.z() << ")"
+                     << ", vertexVector = (" << vertexVector.x() << ", " << vertexVector.y() << ", " << vertexVector.z() << ")"
+                     << ", cosTheta( sectionVector, vertexVector)  = " << sectionVector * vertexVector / ( sectionVector.Mag() * vertexVector.Mag() + AlgConsts::infinitesimal ) );
       
       if( sectionVector * vertexVector > 0. ) continue;
       
@@ -949,7 +974,7 @@ namespace VKalVrtAthena {
       
       ATH_MSG_DEBUG( " > " <<  __FUNCTION__ << ": detType = " << detectorType );
       
-      if( detectorType == INVALID ) continue;
+      if( detectorType == AlgConsts::invalidUnsigned ) continue;
       
       if( ! (expectedHitPattern & (1 << detectorType)) ) {
         expectedHitPattern += ( 1 << detectorType );

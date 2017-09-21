@@ -48,6 +48,7 @@
 // Normal STL and physical vectors
 #include <vector>
 #include <deque>
+#include <functional>
 
 
 /** Forward declarations **/
@@ -122,6 +123,7 @@ namespace VKalVrtAthena {
       bool  SAloneTRT;
       
       /* impact parameters */
+      bool   do_PVvetoCut;
       bool   do_d0Cut;
       bool   do_z0Cut;
       bool   do_d0errCut;
@@ -158,14 +160,22 @@ namespace VKalVrtAthena {
       bool   doMergeByShuffling;
       bool   doMergeFinalVerticesDistance; // Kazuki
       bool   doAssociateNonSelectedTracks;
+      bool   doFinalImproveChi2;
       double SelVrtChi2Cut;
       double VertexMergeFinalDistCut; // Kazuki
+      double VertexMergeFinalDistScaling;
       double VertexMergeCut;
       double TrackDetachCut;
+      
+      
+      double associate_minDistanceToPV;
+      double associate_minImpactParamDistance;
       
       double reassembleMaxImpactParameter;
       double mergeByShufflingMaxSignificance;
       double mergeByShufflingAllowance;
+      
+      double improveChi2ProbThreshold;
       
       // MC truth
       double               mcTrkResolution;
@@ -253,7 +263,7 @@ namespace VKalVrtAthena {
       long int             Charge;                    //! total charge of the vertex
       std::vector< std::vector<double> > TrkAtVrt;    //! list of track parameters wrt the reconstructed vertex
       unsigned long        closestWrkVrtIndex;        //! stores the index of the closest WrkVrt in std::vector<WrkVrt>
-      double               closestWrkVrtSignificance; //! stores the significance of the distance to the closest WrkVrt
+      double               closestWrkVrtValue;        //! stores the value of some observable to the closest WrkVrt ( observable = e.g. significance )
     };
     
     
@@ -345,11 +355,16 @@ namespace VKalVrtAthena {
     /** calculate the significance (Mahalanobis distance) between two reconstructed vertices */
     double significanceBetweenVertices( const WrkVrt&, const WrkVrt& ) const;
     
-    /** returns the pair of vertices that give minimum distance significance */
-    double findMinSignificanceVerticesPair( std::vector<WrkVrt>*, std::pair<unsigned, unsigned>& );
+    /** calculate the physical distance */
+    double distanceBetweenVertices( const WrkVrt&, const WrkVrt& ) const;
+    
+    using AlgForVerticesPair = double (VrtSecInclusive::*)( const WrkVrt&, const WrkVrt& ) const;
+    
+    /** returns the pair of vertices that give minimum in terms of some observable (e.g. distance, significance) */
+    double findMinVerticesPair( std::vector<WrkVrt>*, std::pair<unsigned, unsigned>&, AlgForVerticesPair );
     
     /** returns the next pair of vertices that give next-to-minimum distance significance */
-    double findMinSignificanceVerticesNextPair( std::vector<WrkVrt>*, std::pair<unsigned, unsigned>& );
+    double findMinVerticesNextPair( std::vector<WrkVrt>*, std::pair<unsigned, unsigned>& );
     
     /** the 2nd vertex is merged into the 1st vertex. A destructive operation. */
     StatusCode mergeVertices( WrkVrt& destination, WrkVrt& source );

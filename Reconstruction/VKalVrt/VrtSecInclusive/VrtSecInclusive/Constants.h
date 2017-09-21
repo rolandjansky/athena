@@ -17,7 +17,7 @@ namespace VKalVrtAthena {
   
   namespace AlgConsts {
     constexpr double infinitesimal            =  1.e-9;
-    constexpr double maxSignificance          =  1.e10;
+    constexpr double maxValue                 =  1.e10;
     constexpr double chi2PerTrackInitValue    =  1.e5;
     constexpr double minVertexChi2Probability =  1.e-3;
     constexpr double invalidFloat             = -9999.;
