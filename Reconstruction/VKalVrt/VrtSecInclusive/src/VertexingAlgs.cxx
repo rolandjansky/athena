@@ -930,6 +930,7 @@ namespace VKalVrtAthena {
         associableTracks->emplace_back( a_trk );
         *a_trk = *trk;
         a_trk->auxdata<unsigned long>("trk_id")  = trk->index();
+        a_trk->auxdata<bool>("is_associated")  = true;
         
       }
 
