@@ -151,6 +151,7 @@ namespace VKalVrtAthena {
 
         // fake rejection cuts with track hit pattern consistencies
         if( m_removeFakeVrt && !(this->passedFakeReject( FitVertex, (*itrk), (*jtrk) )) ) continue;
+        //if( m_removeFakeVrt && !(this->passedFakeRejectByExtrapolation( FitVertex, *itrk, *jtrk )) ) continue;
 
 
         if( m_FillNtuple ) {
@@ -819,7 +820,7 @@ namespace VKalVrtAthena {
           
           if( &workVertex == &vertexToAttach ) continue;
           if( workVertex.SelTrk.size() >= vertexToAttach.SelTrk.size() ) continue;
-          if( !checkTrackHitPatternToVertex( trk, vertexToAttach.vertex ) ) continue;
+          if( ! ( this->*m_patternStrategyFuncs[m_checkPatternStrategy] )( trk, vertexToAttach.vertex ) ) continue;
           
           // Get the closest approach
           std::vector<double> impactParameters;
@@ -931,8 +932,6 @@ namespace VKalVrtAthena {
           if( result != associableTracks->end() ) continue;
         }
         
-        if( !checkTrackHitPatternToVertex( trk, vertexPos ) ) continue;
-        
         // Get the closest approach
         std::vector<double> impactParameters;
         std::vector<double> impactParErrors;
@@ -942,6 +941,8 @@ namespace VKalVrtAthena {
         enum { k_d0, k_z0, k_theta, k_phi, k_qOverP };
         
         if( hypot( impactParameters.at(k_d0), impactParameters.at(k_z0) ) > 1.0 ) continue;
+        
+        if( ! ( this->*m_patternStrategyFuncs[m_checkPatternStrategy] )( trk, vertexPos ) ) continue;
         
         ATH_MSG_DEBUG( " >> associateNonSeletedTracks: trk " << trk
                        << ": d0 to vtx = " << impactParameters.at(k_d0)

@@ -31,8 +31,13 @@
 #include "ITrackToVertex/ITrackToVertex.h"
 #include "TrkVertexFitterInterfaces/ITrackToVertexIPEstimator.h"
 #include "TrkExInterfaces/IExtrapolator.h"
+#include "TrkExInterfaces/IExtrapolationEngine.h"
 #include "TrkSurfaces/CylinderSurface.h"
 #include "TrkDetDescrInterfaces/IVertexMapper.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
+#include "InDetIdentifier/PixelID.h"
+#include "InDetIdentifier/SCT_ID.h"
 
 // xAOD Classes
 #include "xAODEventInfo/EventInfo.h"
@@ -196,6 +201,19 @@ namespace VKalVrtAthena {
     ToolHandle<Trk::ITrackToVertexIPEstimator> m_trackToVertexIPEstimatorTool;
     ToolHandle<Trk::IExtrapolator> m_extrapolator;
     ToolHandle<Trk::IVertexMapper> m_vertexMapper;
+    ToolHandle<Trk::IExtrapolationEngine> m_extrapolationEngine;
+    
+    /** Condition service **/
+    ServiceHandle <IInDetConditionsSvc> m_pixelCondSummarySvc;
+    ServiceHandle <IInDetConditionsSvc> m_sctCondSummarySvc;
+    
+    const AtlasDetectorID* m_atlasId;
+    const PixelID* m_pixelId;
+    const SCT_ID*  m_sctId;
+    
+    std::string m_checkPatternStrategy;
+    using PatternStrategyFunc = bool (VrtSecInclusive::*) ( const xAOD::TrackParticle *trk, const Amg::Vector3D& vertex );
+    std::map<std::string, PatternStrategyFunc> m_patternStrategyFuncs;
     
     // Histograms for stats
     TH1D* m_hb_massPiPi;
@@ -256,6 +274,13 @@ namespace VKalVrtAthena {
       double               dCloseVrt;
     };
     
+    
+    using Detector = int;
+    using Bec      = int;
+    using Layer    = int;
+    using Flag     = int;
+    using ExtrapolatedPoint   = std::tuple<const TVector3, Detector, Bec, Layer, Flag>;
+    using ExtrapolatedPattern = std::vector< ExtrapolatedPoint >;
     
     ////////////////////////////////////////////////////////////////////////////////////////
     // 
@@ -342,9 +367,21 @@ namespace VKalVrtAthena {
     } track_summary;
    
     void fillTrackSummary( track_summary& summary, const xAOD::TrackParticle *trk );
-    bool passedFakeReject( const Amg::Vector3D& FitVertex, const xAOD::TrackParticle *itrk, const xAOD::TrackParticle *jtrk );
-    bool checkTrackHitPatternToVertex( const xAOD::TrackParticle *trk, const Amg::Vector3D& vertex );
+    
+    ExtrapolatedPattern* extrapolatedPattern( const xAOD::TrackParticle* );
    
+    /* A classical method with hard-coded geometry */
+    bool checkTrackHitPatternToVertex( const xAOD::TrackParticle *trk, const Amg::Vector3D& vertex );
+    
+    /* New method with track extrapolation */
+    bool checkTrackHitPatternToVertexByExtrapolation( const xAOD::TrackParticle *trk, const Amg::Vector3D& vertex );
+    
+    /* A classical method with hard-coded geometry */
+    bool passedFakeReject( const Amg::Vector3D& FitVertex, const xAOD::TrackParticle *itrk, const xAOD::TrackParticle *jtrk );
+    
+    /* New method with track extrapolation */
+    bool passedFakeRejectByExtrapolation( const Amg::Vector3D& FitVertex, const xAOD::TrackParticle *itrk, const xAOD::TrackParticle *jtrk );
+    
     ////////////////////////////////////////////////////////////////////////////////////////
     // 
     // Truth Information Algorithms Member Functions
@@ -354,8 +391,6 @@ namespace VKalVrtAthena {
     // new version of truth routine - MCEventCollection (GEN_AOD or TruthEvent (ESD)
     StatusCode getNewTruthInfo();
     
-    //
-    //HepMC::GenParticle *getTrkGenParticle(const xAOD::TrackParticle*, double& matchProb);
     const xAOD::TruthParticle *getTrkGenParticle(const xAOD::TrackParticle* /*, double& matchProb*/) const;
     
     

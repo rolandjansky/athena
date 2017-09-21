@@ -42,10 +42,6 @@ namespace VKalVrtAthena {
     
     if( m_FillHist ) m_trkSelCuts->Fill(1.); 
     
-    //ATH_MSG_VERBOSE("here:0 ");
-    
-    unsigned n = 0;
-    
     for( auto *trk : *trackParticleContainer ) {
       
       //trk->auxdecor<bool>("is_selected") = false;
@@ -70,9 +66,9 @@ namespace VKalVrtAthena {
       if( !(trk->summaryValue( TRTHits,   xAOD::numberOfTRTHits                 ) ) ) TRTHits   =0;
       long int SharedHits = PixShare + SctShare;
       
-      double theta  = trk->theta();
-      double qOverP = trk->qOverP();
-      double ptrk   = (1./qOverP);
+      //double theta  = trk->theta();
+      //double qOverP = trk->qOverP();
+      //double ptrk   = (1./qOverP);
       double pT     = trk->pt();
       double trketa = trk->eta();
       double chi2   = trk->chiSquared() / trk->numberDoF();

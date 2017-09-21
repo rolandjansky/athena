@@ -130,6 +130,13 @@ namespace VKalVrtAthena {
     m_trackToVertexTool            ( "Reco::TrackToVertex" ),
     m_trackToVertexIPEstimatorTool ( "Trk::TrackToVertexIPEstimator/TrackToVertexIPEstimator" ),
     m_vertexMapper                 ( "" ),
+    m_extrapolationEngine          ( "" ),
+    
+    // Services
+    m_pixelCondSummarySvc          ( "PixelConditionsSummarySvc", "VrtSecInclusive" ),
+    m_sctCondSummarySvc            ( "SCT_ConditionsSummarySvc", "VrtSecInclusive" ),
+    
+    m_checkPatternStrategy( "Classical" ),
     
     // Histograms for stats
     // (Hide: from C++11 "nullptr" is recommended for NULL)
@@ -146,8 +153,11 @@ namespace VKalVrtAthena {
     
     m_importedTrkTruthColl     ( nullptr ),
     m_importedFullTruthColl    ( nullptr )
-    
+
   {
+    
+    m_patternStrategyFuncs["Classical"]     = &VrtSecInclusive::checkTrackHitPatternToVertex;
+    m_patternStrategyFuncs["Extrapolation"] = &VrtSecInclusive::checkTrackHitPatternToVertexByExtrapolation;
 
     this->declareProperties();
     
@@ -223,6 +233,13 @@ namespace VKalVrtAthena {
     else {
       ATH_MSG_INFO("initialize: Retrieved Trk::TrackToVertexIPEstimator Tool" << m_trackToVertexIPEstimatorTool);
     }
+    
+    
+    if( detStore()->retrieve(m_atlasId, "AtlasID").isFailure() ) return StatusCode::SUCCESS;
+    if( detStore()->retrieve(m_pixelId, "PixelID").isFailure() ) return StatusCode::SUCCESS;
+    if( detStore()->retrieve(m_sctId,   "SCT_ID") .isFailure() ) return StatusCode::SUCCESS;
+    
+    ATH_CHECK( m_extrapolationEngine.retrieve() );
     
     // extract VertexMapper
     if( m_doMapToLocal ) {
