@@ -702,9 +702,10 @@ namespace VKalVrtAthena {
     
     // A test implementation for muon vertices
     declareProperty("doSelectTracksFromMuons",         m_jp.doSelectTracksFromMuons         = false                         );
+    declareProperty("doSelectTracksFromElectrons",     m_jp.doSelectTracksFromElectrons     = false                         );
     
     // Additional dressing option
-    declareProperty("doAugmentDVimpactParametersToMuons", m_jp.doAugmentDVimpactParametersToMuons = false                   );
+    declareProperty("doAugmentDVimpactParametersToMuons",     m_jp.doAugmentDVimpactParametersToMuons     = false           );
     declareProperty("doAugmentDVimpactParametersToElectrons", m_jp.doAugmentDVimpactParametersToElectrons = false           );
     
     // Additional ToolHandles

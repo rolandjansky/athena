@@ -150,13 +150,21 @@ namespace VKalVrtAthena {
     }
     
     // Track selection algorithm configuration
-    if( !m_jp.doSelectTracksFromMuons ) {
+    if( m_jp.doSelectTracksFromMuons ) {
       
-      m_trackSelectionAlg = &VrtSecInclusive::selectTracks;
+      m_trackSelectionAlgs.emplace_back( &VrtSecInclusive::selectTracksFromMuons );
       
-    } else {
+    }
+    
+    if( m_jp.doSelectTracksFromElectrons ) {
       
-      m_trackSelectionAlg = &VrtSecInclusive::selectTracksFromMuons;
+      m_trackSelectionAlgs.emplace_back( &VrtSecInclusive::selectTracksFromElectrons );
+      
+    }
+    
+    if( !m_jp.doSelectTracksFromMuons && !m_jp.doSelectTracksFromElectrons ) {
+      
+      m_trackSelectionAlgs.emplace_back( &VrtSecInclusive::selectTracks );
       
     }
     
@@ -361,7 +369,9 @@ namespace VKalVrtAthena {
     }    
 
     // Perform track selection and store it to selectedBaseTracks
-    ATH_CHECK( (this->*m_trackSelectionAlg)() );
+    for( auto alg : m_trackSelectionAlgs ) {
+      ATH_CHECK( (this->*alg)() );
+    }
     
     if( m_jp.FillNtuple )
       m_ntupleVars->get<unsigned int>( "NumSelTrks" ) = static_cast<int>( m_selectedTracks->size() );

@@ -202,4 +202,26 @@ namespace VKalVrtAthena {
     return StatusCode::SUCCESS;
   }
   
+  //____________________________________________________________________________________________________
+  StatusCode  VrtSecInclusive::selectTracksFromElectrons() { 
+    
+    const xAOD::ElectronContainer *electrons( nullptr );
+    ATH_CHECK( evtStore()->retrieve( electrons, "Electrons" ) );
+    
+    static SG::AuxElement::Decorator< char > decor_isSelected( "is_selected" );
+    
+    for( const auto& electron : *electrons ) {
+      if( 0 == electron->nTrackParticles() ) continue;
+      
+      // The first track is the best-matched track
+      const auto* trk = electron->trackParticle(0);
+      if( trk ) {
+        decor_isSelected( *trk ) = true;
+        m_selectedTracks->emplace_back( trk );
+      }
+    }
+    
+    return StatusCode::SUCCESS;
+  }
+  
 } // end of namespace VKalVrtAthena

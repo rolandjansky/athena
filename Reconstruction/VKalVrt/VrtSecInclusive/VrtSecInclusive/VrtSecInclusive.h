@@ -196,6 +196,7 @@ namespace VKalVrtAthena {
       
       // vertexing using muons (test implementation)
       bool doSelectTracksFromMuons;
+      bool doSelectTracksFromElectrons;
       
       // Additional dressing option
       bool doAugmentDVimpactParametersToMuons;     // potentially useful for DV + muon search
@@ -312,9 +313,10 @@ namespace VKalVrtAthena {
     /** select tracks which become seeds for vertex finding */
     StatusCode selectTracks();
     StatusCode selectTracksFromMuons();
+    StatusCode selectTracksFromElectrons();
     
     using TrackSelectionAlg = StatusCode (VrtSecInclusive::*)();
-    TrackSelectionAlg m_trackSelectionAlg;
+    std::vector<TrackSelectionAlg> m_trackSelectionAlgs;
     
     /** track-by-track selection strategies */
     bool selectTrack_notPVassociated ( const xAOD::TrackParticle* ) const;
