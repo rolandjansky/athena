@@ -48,6 +48,7 @@ topSequence.VrtSecInclusive.TrkChi2Cut                             = 50
 topSequence.VrtSecInclusive.TruthTrkLen                            = 1
 topSequence.VrtSecInclusive.SelTrkMaxCutoff                        = 300
 topSequence.VrtSecInclusive.mergeByShufflingAllowance              = 5.
+topSequence.VrtSecInclusive.associatePtCut                         = 1000.
 topSequence.VrtSecInclusive.MergeFinalVerticesDist                 = 1.
 topSequence.VrtSecInclusive.MergeFinalVerticesScaling              = 0.
 topSequence.VrtSecInclusive.improveChi2ProbThreshold               = 0.00001
