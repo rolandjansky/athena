@@ -77,48 +77,9 @@ namespace VKalVrtAthena {
   StatusCode  VrtSecInclusive::selectTracks( const xAOD::TrackParticleContainer *trackParticleContainer ) { 
     
     ATH_MSG_DEBUG( " > selectTracks: begin"  );
-
-    //------------------------------------------------------------
-    // Lambda
-    auto storeTrackToCollection = [&] ( const xAOD::TrackParticle* trk, xAOD::TrackParticleContainer* container, const char* message ) {
-        
-      // Store the selected track to the new container
-      // Here we firstly need to register the empty pointer to the container,
-      // then need to do deep copy after then. This is the feature of xAOD.
-        
-      unsigned long barcode=0;
-      if( m_jp.doTruth )
-        {  
-          const xAOD::TruthParticle* aTemp_truth = getTrkGenParticle(trk);
-          if(aTemp_truth)
-            {
-              barcode = aTemp_truth->barcode();
-            }
-        }
-        
-      xAOD::TrackParticle *a_trk = new xAOD::TrackParticle;
-      container->emplace_back( a_trk );
-      *a_trk = *trk;
-      a_trk->auxdata<unsigned long>("trk_id")  = trk->index();
-      a_trk->auxdata<int>("truth_barcode")     = static_cast<long int>( barcode );
-      
-      
-      ElementLink<xAOD::TrackParticleContainer>  trackElementLink_orig( *trackParticleContainer, trk->index() );
-      a_trk->auxdata<ElementLink<xAOD::TrackParticleContainer> >("recoTrackLink") = trackElementLink_orig;
-      
-      
-      if( m_jp.FillNtuple ) m_ntupleVars->get< vector<int> >( "SelTrk_barcode" ).emplace_back(barcode); // will need this later          
-      
-      ATH_MSG_DEBUG( " > selectTracks: Track index " << trk->index() << " has been " << message << "." );
-      ATH_MSG_VERBOSE( " > selectTracks: Track index " << trk->index()
-                       << " parameter:"
-                       << " pt = "  << a_trk->pt()
-                       << " eta = " << a_trk->eta()
-                       << " d0 = "  << a_trk->d0()
-                       << " z0 = "  << a_trk->z0() << "." );
-    };
-      
     
+    static SG::AuxElement::Decorator< char > decor_isSelected( "is_selected" );
+
     // Setup cut functions
     using cutFunc = bool (VrtSecInclusive::*) ( const xAOD::TrackParticle* );
     std::vector<cutFunc> cuts;
@@ -161,7 +122,35 @@ namespace VKalVrtAthena {
       
       if( isGood_standard ) {
         
-        storeTrackToCollection( trk, m_selectedTracks, "selected" );
+        // Store the selected track to the new m_selectedTracks
+        // Here we firstly need to register the empty pointer to the m_selectedTracks,
+        // then need to do deep copy after then. This is the feature of xAOD.
+        
+        unsigned long barcode=0;
+      
+        if( m_jp.doTruth ) {  
+        
+          const auto* truth = getTrkGenParticle(trk);
+        
+          if ( truth ) {
+            barcode = truth->barcode();
+          }
+        
+        }
+      
+        decor_isSelected( *trk ) = true;
+      
+        m_selectedTracks->emplace_back( trk );
+      
+        if( m_jp.FillNtuple ) m_ntupleVars->get< vector<int> >( "SelTrk_barcode" ).emplace_back(barcode); // will need this later          
+      
+        ATH_MSG_DEBUG( " > selectTracks: Track index " << trk->index() << " has been selected." );
+        ATH_MSG_VERBOSE( " > selectTracks: Track index " << trk->index()
+                         << " parameter:"
+                         << " pt = "  << trk->pt()
+                         << " eta = " << trk->eta()
+                         << " d0 = "  << trk->d0()
+                         << " z0 = "  << trk->z0() << "." );
         
       }
       

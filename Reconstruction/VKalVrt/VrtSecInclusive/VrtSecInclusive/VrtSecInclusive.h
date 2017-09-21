@@ -201,8 +201,8 @@ namespace VKalVrtAthena {
     // xAOD Accessors
     const xAOD::VertexContainer*  m_primaryVertices;
     xAOD::Vertex*                 m_thePV;
-    xAOD::TrackParticleContainer* m_selectedTracks;
-    xAOD::TrackParticleContainer* m_associatedTracks;
+    std::unique_ptr<std::vector<const xAOD::TrackParticle*> > m_selectedTracks;
+    std::unique_ptr<std::vector<const xAOD::TrackParticle*> > m_associatedTracks;
     
     std::vector<double>  m_BeamPosition;
     

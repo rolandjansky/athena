@@ -291,38 +291,18 @@ namespace VKalVrtAthena {
       }
     }
     
-    auto *selectedBaseTracks          = new xAOD::TrackParticleContainer;
-    auto *selectedBaseTracksAux       = new xAOD::TrackParticleAuxContainer;
-    auto *associatedTracks            = new xAOD::TrackParticleContainer;
-    auto *associatedTracksAux         = new xAOD::TrackParticleAuxContainer;
-    auto *twoTrksVertexContainer      = new xAOD::VertexContainer;
-    auto *twoTrksVertexAuxContainer   = new xAOD::VertexAuxContainer;
     auto *secondaryVertexContainer    = new xAOD::VertexContainer;
     auto *secondaryVertexAuxContainer = new xAOD::VertexAuxContainer;
     
-    selectedBaseTracks       ->setStore( selectedBaseTracksAux );
-    associatedTracks         ->setStore( associatedTracksAux );
-    twoTrksVertexContainer   ->setStore( twoTrksVertexAuxContainer );
     secondaryVertexContainer ->setStore( secondaryVertexAuxContainer );
-    
-    
-    ATH_CHECK( evtStore()->record( selectedBaseTracks,          "VrtSecInclusive_" + m_jp.selectedTracksContainerName             ) );
-    ATH_CHECK( evtStore()->record( selectedBaseTracksAux,       "VrtSecInclusive_" + m_jp.selectedTracksContainerName + "Aux."    ) );
-    
-    ATH_CHECK( evtStore()->record( associatedTracks,            "VrtSecInclusive_" + m_jp.associatedTracksContainerName           ) );
-    ATH_CHECK( evtStore()->record( associatedTracksAux,         "VrtSecInclusive_" + m_jp.associatedTracksContainerName + "Aux."  ) );
     
     ATH_CHECK( evtStore()->record( secondaryVertexContainer,    "VrtSecInclusive_" + m_jp.secondaryVerticesContainerName          ) );
     ATH_CHECK( evtStore()->record( secondaryVertexAuxContainer, "VrtSecInclusive_" + m_jp.secondaryVerticesContainerName + "Aux." ) );
     
-    if( m_jp.FillIntermediateVertices ) {
-      ATH_CHECK( evtStore()->record( twoTrksVertexContainer,      "VrtSecInclusive_" + m_jp.all2trksVerticesContainerName           ) );
-      ATH_CHECK( evtStore()->record( twoTrksVertexAuxContainer,   "VrtSecInclusive_" + m_jp.all2trksVerticesContainerName + "Aux."  ) );
-    }
     
     // Later use elsewhere in the algorithm
-    m_selectedTracks    = selectedBaseTracks;
-    m_associatedTracks  = associatedTracks;
+    m_selectedTracks.reset  ( new std::vector<const xAOD::TrackParticle*> );
+    m_associatedTracks.reset( new std::vector<const xAOD::TrackParticle*> );
     
     ///////////////////////////////////////////////////////////////////////////
     //
@@ -364,23 +344,23 @@ namespace VKalVrtAthena {
     ATH_CHECK( selectTracks( trackParticleContainer ) );
     
     ATH_MSG_DEBUG( "execute: Number of total tracks      = " << trackParticleContainer->size() );
-    ATH_MSG_DEBUG( "execute: Number of selected tracks   = " << selectedBaseTracks->size() );
+    ATH_MSG_DEBUG( "execute: Number of selected tracks   = " << m_selectedTracks->size() );
     
     
     if( m_jp.FillNtuple )
-      m_ntupleVars->get<unsigned int>( "NumSelTrks" ) = static_cast<int>( selectedBaseTracks->size() );
+      m_ntupleVars->get<unsigned int>( "NumSelTrks" ) = static_cast<int>( m_selectedTracks->size() );
     
     // fill information about selected tracks in AANT
     ATH_CHECK( fillAANT_SelectedBaseTracks() );
     
     //-------------------------------------------------------
     // Skip the event if the number of selected tracks is more than m_jp.SelTrkMaxCutoff
-    if( selectedBaseTracks->size() < 2 ) {
+    if( m_selectedTracks->size() < 2 ) {
       ATH_MSG_INFO( "execute: Too few (<2) selected reco tracks. Terminated reconstruction." );
       return StatusCode::SUCCESS;   
     }
       
-    if( selectedBaseTracks->size() > m_jp.SelTrkMaxCutoff ) {
+    if( m_selectedTracks->size() > m_jp.SelTrkMaxCutoff ) {
       ATH_MSG_INFO( "execute: Too many selected reco tracks. Terminated reconstruction." );
       return StatusCode::SUCCESS;   
     }
@@ -396,7 +376,7 @@ namespace VKalVrtAthena {
     // Try to compose 2-track vertices for all combinations of selected tracks greather than the given chi2 cut.      
     ATH_CHECK( extractIncompatibleTracks() );
     
-    ATH_MSG_VERBOSE( "execute: Found= "<<m_incomp.size()<<", "<< selectedBaseTracks->size() );
+    ATH_MSG_VERBOSE( "execute: Found= "<<m_incomp.size()<<", "<< m_selectedTracks->size() );
     if( m_jp.FillNtuple ) m_ntupleVars->get<unsigned int>( "SizeIncomp" ) = m_incomp.size();
     
     // set of vertices created in the following while loop.

@@ -1479,19 +1479,19 @@ namespace VKalVrtAthena {
     
     const auto& vertex = wrkvrt.vertex;
     
-    std::map< std::deque<long int>*, xAOD::TrackParticleContainer* > indexMap;
-    
-    indexMap[ &(wrkvrt.selectedTrackIndices)   ] = m_selectedTracks;
-    indexMap[ &(wrkvrt.associatedTrackIndices) ] = m_associatedTracks;
+    std::map< std::deque<long int>*, std::vector<const xAOD::TrackParticle*>& > indexMap
+    {
+      { &(wrkvrt.selectedTrackIndices), *m_selectedTracks }, { &(wrkvrt.associatedTrackIndices), *m_associatedTracks } 
+    };
     
     for( auto& pair : indexMap ) {
       
       auto* indices = pair.first;
-      auto* tracks  = pair.second;
+      auto& tracks  = pair.second;
     
       auto newEnd = std::remove_if( indices->begin(), indices->end(),
                                     [&]( auto& index ) {
-                                      bool isConsistent = (this->*m_patternStrategyFuncs[m_checkPatternStrategy] )( tracks->at(index), vertex );
+                                      bool isConsistent = (this->*m_patternStrategyFuncs[m_checkPatternStrategy] )( tracks.at(index), vertex );
                                       return !isConsistent;
                                     } );
       
