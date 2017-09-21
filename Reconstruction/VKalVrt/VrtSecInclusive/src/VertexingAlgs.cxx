@@ -51,6 +51,8 @@ namespace VKalVrtAthena {
     if( m_jp.FillIntermediateVertices ) {
       ATH_CHECK( evtStore()->retrieve( twoTrksVertexContainer, "VrtSecInclusive_" + m_jp.all2trksVerticesContainerName ) );
     }
+    
+    m_incomp.clear();
    
     // Work variables
     std::vector<const xAOD::TrackParticle*>    baseTracks;
