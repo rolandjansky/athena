@@ -2,7 +2,7 @@
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-import sys,os
+import sys,os,filecmp
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags as TF
 from TriggerMenu.TriggerConfigLVL1 import TriggerConfigLVL1
@@ -40,6 +40,23 @@ def generateL1Menu(menu, doFTK="False",useTopoMenu="MATCH"):
         
     return tpcl1.menu
 
+def compareL1Menus(menu="LVL1config_Physics_pp_v7.xml"):
+
+    from AthenaCommon.Logging import logging
+    log = logging.getLogger("TriggerConfigLVL1")
+    log.setLevel(logging.INFO)
+
+    import os
+    for path in os.environ['XMLPATH'].split(':'):
+        if not 'TriggerMenuXML' in os.listdir(path):
+            continue
+        if menu in os.listdir("%s/TriggerMenuXML/" % path):
+            fullname = "%s/TriggerMenuXML/%s" % (path,menu)
+        break # we only want to look into the first TriggerMenuXML package
+    print 'comparing: ', fullname, TF.outputLVL1configFile()
+    local_menu = TF.outputLVL1configFile()
+    are_files_identical = filecmp.cmp(fullname,local_menu)
+    return are_files_identical
 
 def readL1MenuFromXML(menu="LVL1config_Physics_pp_v6.xml"):
 
@@ -143,6 +160,22 @@ def main():
         if arg.lower().startswith("doftk"):
             FTKFlag = True
 
+    if len(sys.argv) > 1 and sys.argv[1] == "l1xml_unit_test_v7":
+        generateL1Menu(menu="Physics_pp_v7")
+        phys_comp = compareL1Menus(menu="LVL1config_Physics_pp_v7.xml")
+        generateL1Menu(menu="MC_pp_v7")
+        mc_comp = compareL1Menus(menu="LVL1config_MC_pp_v7.xml")
+
+        from AthenaCommon.Logging import logging
+        log = logging.getLogger("L1MenuDiff")
+        log.setLevel(logging.INFO)
+
+        if phys_comp and mc_comp:
+            log.info("The menus are the same")
+        else:
+            log.error("The L1 menus are different!")
+        return 0
+
     if len(sys.argv)==1 or (len(sys.argv)==2 and FTKFlag):        
         
         generateL1Menu(menu="Physics_pp_v7",doFTK=FTKFlag)
@@ -155,7 +188,6 @@ def main():
 #        generateL1Menu(menu="Physics_HI_v3")  # currently disabled since not defined in JobProp
 #        generateL1Menu(menu="MC_HI_v3")  # currently disabled since not defined in JobProp
         return 0
-
     
     if sys.argv[1].endswith(".xml"):
         readL1MenuFromXML(sys.argv[1])
