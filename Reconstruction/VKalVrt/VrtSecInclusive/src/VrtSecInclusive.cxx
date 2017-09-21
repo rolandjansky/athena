@@ -186,20 +186,22 @@ namespace VKalVrtAthena {
       std::vector<double> rbins = { 0.1, 0.3, 0.5, 1, 2, 3, 5, 7, 10, 14, 20, 28, 38, 50, 64, 80, 100, 130, 170, 220, 280, 350, 450, 600 };
       std::vector<double> nbins = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 16, 20, 24, 28, 38, 50, 70, 100, 150 };
       
+      const size_t& nAlgs = m_vertexingAlgorithms.size();
+      
       ATH_MSG_INFO("initialize: Filling Histograms");
       //
-      m_hists["trkSelCuts"]        = new TH1F("trkSelCuts",        ";Cut Order;Tracks",                         10, -0.5, 10-0.5              );
-      m_hists["disabledCount"]     = new TH1F("disabledCount",     ";N_{modules};Tracks",                       20, -0.5, 10-0.5              );
-      m_hists["vertexYield"]       = new TH1F("vertexYield",       ";Algorithm Step;Events",                    10, -0.5, 10-0.5              );
-      m_hists["vertexYieldNtrk"]   = new TH2F("vertexYieldNtrk",   ";Ntrk;Algorithm Step;Events",               100, 0, 100, 10, -0.5, 10-0.5 );
-      m_hists["vertexYieldChi2"]   = new TH2F("vertexYieldChi2",   ";#chi^{2}/N_{dof};Algorithm Step;Events",   100, 0, 100, 10, -0.5, 10-0.5 );
-      m_hists["mergeType"]         = new TH1F("mergeType",         ";Merge Algorithm Type;Entries",             10, -0.5, 10-0.5              );
-      m_hists["shuffleMinSignif1"] = new TH1F("shuffleMinSignif1", ";Min( log_{10}( Significance ) );Vertices", 100, -3, 5                    );
-      m_hists["shuffleMinSignif2"] = new TH1F("shuffleMinSignif2", ";Min( log_{10}( Significance ) );Vertices", 100, -3, 5                    );
-      m_hists["shuffleMinSignif3"] = new TH1F("shuffleMinSignif3", ";Min( log_{10}( Significance ) );Vertices", 100, -3, 5                    );
-      m_hists["finalVtxNtrk"]      = new TH1F("finalVtxNtrk",      ";N_{trk};Vertices",                         nbins.size()-1, &(nbins[0])   );
-      m_hists["finalVtxR"]         = new TH1F("finalVtxR",         ";r [mm];Vertices",                          rbins.size()-1, &(rbins[0])   );
-      m_hists["finalVtxNtrkR"]     = new TH2F("finalVtxNtrkR",     ";N_{trk};r [mm];Vertices",                  nbins.size()-1, &(nbins[0]), rbins.size()-1, &(rbins[0])      );
+      m_hists["trkSelCuts"]        = new TH1F("trkSelCuts",        ";Cut Order;Tracks",                         10, -0.5, 10-0.5                                         );
+      m_hists["disabledCount"]     = new TH1F("disabledCount",     ";N_{modules};Tracks",                       20, -0.5, 10-0.5                                         );
+      m_hists["vertexYield"]       = new TH1F("vertexYield",       ";Algorithm Step;Vertices",                  nAlgs, -0.5, nAlgs-0.5                                   );
+      m_hists["vertexYieldNtrk"]   = new TH2F("vertexYieldNtrk",   ";Ntrk;Algorithm Step;Vertices",             100, 0, 100, nAlgs, -0.5, nAlgs-0.5                      );
+      m_hists["vertexYieldChi2"]   = new TH2F("vertexYieldChi2",   ";#chi^{2}/N_{dof};Algorithm Step;Vertices", 100, 0, 100, nAlgs, -0.5, nAlgs-0.5                      );
+      m_hists["mergeType"]         = new TH1F("mergeType",         ";Merge Algorithm Type;Entries",             10, -0.5, 10-0.5                                         );
+      m_hists["shuffleMinSignif1"] = new TH1F("shuffleMinSignif1", ";Min( log_{10}( Significance ) );Vertices", 100, -3, 5                                               );
+      m_hists["shuffleMinSignif2"] = new TH1F("shuffleMinSignif2", ";Min( log_{10}( Significance ) );Vertices", 100, -3, 5                                               );
+      m_hists["shuffleMinSignif3"] = new TH1F("shuffleMinSignif3", ";Min( log_{10}( Significance ) );Vertices", 100, -3, 5                                               );
+      m_hists["finalVtxNtrk"]      = new TH1F("finalVtxNtrk",      ";N_{trk};Vertices",                         nbins.size()-1, &(nbins[0])                              );
+      m_hists["finalVtxR"]         = new TH1F("finalVtxR",         ";r [mm];Vertices",                          rbins.size()-1, &(rbins[0])                              );
+      m_hists["finalVtxNtrkR"]     = new TH2F("finalVtxNtrkR",     ";N_{trk};r [mm];Vertices",                  nbins.size()-1, &(nbins[0]), rbins.size()-1, &(rbins[0]) );
       
       std::string histDir("/AANT/VrtSecInclusive/");
       
@@ -213,8 +215,8 @@ namespace VKalVrtAthena {
       
       ATH_CHECK( setupNtupleVariables() );
 
-      m_tree_Vert = new TTree("tree_VrtSec","TTree of VrtSecInclusive"); 
-      ATH_CHECK( hist_root->regTree("/AANT/tree_VrtSec", m_tree_Vert) );
+      m_tree_Vert = new TTree("tree_VrtSecInclusive","TTree of VrtSecInclusive"); 
+      ATH_CHECK( hist_root->regTree("/AANT/tree_VrtSecInclusive", m_tree_Vert) );
       
       ATH_CHECK( setupNtuple() );
       
@@ -280,7 +282,7 @@ namespace VKalVrtAthena {
     
     // Check Return StatusCode::Failure if the user-specified container names have duplication.
     {
-      std::vector<std::string> userContainerNames { m_jp.selectedTracksContainerName, m_jp.associableTracksContainerName, m_jp.secondaryVerticesContainerName, m_jp.all2trksVerticesContainerName };
+      std::vector<std::string> userContainerNames { m_jp.selectedTracksContainerName, m_jp.associatedTracksContainerName, m_jp.secondaryVerticesContainerName, m_jp.all2trksVerticesContainerName };
       std::set<std::string> userContainerNamesSet;
       for( auto& name : userContainerNames ) userContainerNamesSet.insert( name );
       if( userContainerNamesSet.size() != userContainerNames.size() ) {
@@ -291,15 +293,15 @@ namespace VKalVrtAthena {
     
     auto *selectedBaseTracks          = new xAOD::TrackParticleContainer;
     auto *selectedBaseTracksAux       = new xAOD::TrackParticleAuxContainer;
-    auto *associableTracks            = new xAOD::TrackParticleContainer;
-    auto *associableTracksAux         = new xAOD::TrackParticleAuxContainer;
+    auto *associatedTracks            = new xAOD::TrackParticleContainer;
+    auto *associatedTracksAux         = new xAOD::TrackParticleAuxContainer;
     auto *twoTrksVertexContainer      = new xAOD::VertexContainer;
     auto *twoTrksVertexAuxContainer   = new xAOD::VertexAuxContainer;
     auto *secondaryVertexContainer    = new xAOD::VertexContainer;
     auto *secondaryVertexAuxContainer = new xAOD::VertexAuxContainer;
     
     selectedBaseTracks       ->setStore( selectedBaseTracksAux );
-    associableTracks         ->setStore( associableTracksAux );
+    associatedTracks         ->setStore( associatedTracksAux );
     twoTrksVertexContainer   ->setStore( twoTrksVertexAuxContainer );
     secondaryVertexContainer ->setStore( secondaryVertexAuxContainer );
     
@@ -307,8 +309,8 @@ namespace VKalVrtAthena {
     ATH_CHECK( evtStore()->record( selectedBaseTracks,          "VrtSecInclusive_" + m_jp.selectedTracksContainerName             ) );
     ATH_CHECK( evtStore()->record( selectedBaseTracksAux,       "VrtSecInclusive_" + m_jp.selectedTracksContainerName + "Aux."    ) );
     
-    ATH_CHECK( evtStore()->record( associableTracks,            "VrtSecInclusive_" + m_jp.associableTracksContainerName           ) );
-    ATH_CHECK( evtStore()->record( associableTracksAux,         "VrtSecInclusive_" + m_jp.associableTracksContainerName + "Aux."  ) );
+    ATH_CHECK( evtStore()->record( associatedTracks,            "VrtSecInclusive_" + m_jp.associatedTracksContainerName           ) );
+    ATH_CHECK( evtStore()->record( associatedTracksAux,         "VrtSecInclusive_" + m_jp.associatedTracksContainerName + "Aux."  ) );
     
     ATH_CHECK( evtStore()->record( secondaryVertexContainer,    "VrtSecInclusive_" + m_jp.secondaryVerticesContainerName          ) );
     ATH_CHECK( evtStore()->record( secondaryVertexAuxContainer, "VrtSecInclusive_" + m_jp.secondaryVerticesContainerName + "Aux." ) );
@@ -319,8 +321,8 @@ namespace VKalVrtAthena {
     }
     
     // Later use elsewhere in the algorithm
-    m_selectedBaseTracks = selectedBaseTracks;
-    m_associableTracks   = associableTracks;
+    m_selectedTracks    = selectedBaseTracks;
+    m_associatedTracks  = associatedTracks;
     
     ///////////////////////////////////////////////////////////////////////////
     //

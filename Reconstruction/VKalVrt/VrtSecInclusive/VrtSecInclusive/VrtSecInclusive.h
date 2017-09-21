@@ -110,7 +110,7 @@ namespace VKalVrtAthena {
       std::string          mcEventContainerName;
       
       std::string selectedTracksContainerName;
-      std::string associableTracksContainerName;
+      std::string associatedTracksContainerName;
       std::string all2trksVerticesContainerName;
       std::string secondaryVerticesContainerName;
       
@@ -161,6 +161,7 @@ namespace VKalVrtAthena {
       
       // Vertex reconstruction
       bool   removeFakeVrt;
+      bool   removeFakeVrtLate;
       bool   doReassembleVertices;
       bool   doMergeByShuffling;
       bool   doMergeFinalVerticesDistance; // Kazuki
@@ -200,8 +201,8 @@ namespace VKalVrtAthena {
     // xAOD Accessors
     const xAOD::VertexContainer*  m_primaryVertices;
     xAOD::Vertex*                 m_thePV;
-    xAOD::TrackParticleContainer* m_selectedBaseTracks;
-    xAOD::TrackParticleContainer* m_associableTracks;
+    xAOD::TrackParticleContainer* m_selectedTracks;
+    xAOD::TrackParticleContainer* m_associatedTracks;
     
     std::vector<double>  m_BeamPosition;
     
@@ -266,7 +267,7 @@ namespace VKalVrtAthena {
     struct WrkVrt { 
       bool isGood;                                    //! flaged true for good vertex candidates
       std::deque<long int> selectedTrackIndices;      //! list if indices in TrackParticleContainer for selectedBaseTracks
-      std::deque<long int> associatedTrackIndices;    //! list if indices in TrackParticleContainer for associableTracks
+      std::deque<long int> associatedTrackIndices;    //! list if indices in TrackParticleContainer for associatedTracks
       Amg::Vector3D        vertex;                    //! VKalVrt fit vertex position
       TLorentzVector       vertexMom;                 //! VKalVrt fit vertex 4-momentum
       std::vector<double>  vertexCov;                 //! VKalVrt fit covariance
@@ -420,11 +421,11 @@ namespace VKalVrtAthena {
     /* New method with track extrapolation */
     bool checkTrackHitPatternToVertexByExtrapolation( const xAOD::TrackParticle *trk, const Amg::Vector3D& vertex );
     
-    /* A classical method with hard-coded geometry */
+    /* Flag false if the consistituent tracks are not consistent with the vertex position */
     bool passedFakeReject( const Amg::Vector3D& FitVertex, const xAOD::TrackParticle *itrk, const xAOD::TrackParticle *jtrk );
     
-    /* New method with track extrapolation */
-    bool passedFakeRejectByExtrapolation( const Amg::Vector3D& FitVertex, const xAOD::TrackParticle *itrk, const xAOD::TrackParticle *jtrk );
+    /* Remove inconsistent tracks from vertices */
+    void removeInconsistentTracks( WrkVrt& );
    
     template<class Track> void getIntersection(Track *trk, std::vector<IntersectionPos*>& layers, const Trk::Perigee* per);
     template<class Track> void setIntersection(Track *trk, IntersectionPos *bec, const Trk::Perigee* per);

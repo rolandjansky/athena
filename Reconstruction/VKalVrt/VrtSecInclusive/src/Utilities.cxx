@@ -10,6 +10,9 @@
 #include "TrkTrackSummary/TrackSummary.h"
 
 #include <iostream>
+#include <map>
+#include <vector>
+#include <deque>
 
 #include "TH1D.h"
 #include "TNtuple.h"
@@ -89,7 +92,7 @@ namespace VKalVrtAthena {
     if( wrkvrt.selectedTrackIndices.size() <= 2 ) return StatusCode::SUCCESS;
     
     for( auto& index : wrkvrt.selectedTrackIndices ) {
-      const xAOD::TrackParticle* trk = m_selectedBaseTracks->at( index );
+      const xAOD::TrackParticle* trk = m_selectedTracks->at( index );
       
       ATH_MSG_VERBOSE(" >> disassembleVertex(): > track at vertex[" << iv << "]: "
 		      << "index = " << trk->index()
@@ -130,23 +133,23 @@ namespace VKalVrtAthena {
       const size_t this_trk_id     = wrkvrt.selectedTrackIndices[itrk];
       const size_t selected_trk_id = wrkvrt.selectedTrackIndices[maxChi2TrackIndex];
       
-      ATH_MSG_VERBOSE(" >> disassembleVertex(): > this_trk_id  = " << this_trk_id << ", selected_trk_id = " << selected_trk_id << ", alltrks_size = " << m_selectedBaseTracks->size() );
-      if( this_trk_id >= m_selectedBaseTracks->size() ) {
+      ATH_MSG_VERBOSE(" >> disassembleVertex(): > this_trk_id  = " << this_trk_id << ", selected_trk_id = " << selected_trk_id << ", alltrks_size = " << m_selectedTracks->size() );
+      if( this_trk_id >= m_selectedTracks->size() ) {
 	ATH_MSG_VERBOSE(" >> disassembleVertex(): > this_trk_id is invalid. continue!" );
 	continue;
       }
-      if( selected_trk_id >= m_selectedBaseTracks->size() ) {
+      if( selected_trk_id >= m_selectedTracks->size() ) {
 	ATH_MSG_VERBOSE(" >> disassembleVertex(): > selected_trk_id is invalid. continue!" );
 	continue;
       }
       
       ATH_MSG_VERBOSE(" >> disassembleVertex(): > Storing tracks to ListBaseTracks" );
-      ATH_MSG_VERBOSE(" >> disassembleVertex(): > m_selectedBaseTracks->at( this_trk_id ) = " << m_selectedBaseTracks->at( this_trk_id     )->index() );
-      ATH_MSG_VERBOSE(" >> disassembleVertex(): > m_selectedBaseTracks->at( this_trk_id ) = " << m_selectedBaseTracks->at( selected_trk_id )->index() );
+      ATH_MSG_VERBOSE(" >> disassembleVertex(): > m_selectedTracks->at( this_trk_id ) = " << m_selectedTracks->at( this_trk_id     )->index() );
+      ATH_MSG_VERBOSE(" >> disassembleVertex(): > m_selectedTracks->at( this_trk_id ) = " << m_selectedTracks->at( selected_trk_id )->index() );
       
       vector<const xAOD::TrackParticle*>    ListBaseTracks;
-      ListBaseTracks.emplace_back( m_selectedBaseTracks->at( this_trk_id     ) );
-      ListBaseTracks.emplace_back( m_selectedBaseTracks->at( selected_trk_id ) );
+      ListBaseTracks.emplace_back( m_selectedTracks->at( this_trk_id     ) );
+      ListBaseTracks.emplace_back( m_selectedTracks->at( selected_trk_id ) );
 	
       ATH_MSG_VERBOSE(" >> disassembleVertex(): > ListBaseTracks was stored." );
       
@@ -455,12 +458,12 @@ namespace VKalVrtAthena {
     workVertex.Chi2PerTrk.clear();
     
     for( const auto& index : workVertex.selectedTrackIndices ) {
-      ListBaseTracks.emplace_back( m_selectedBaseTracks->at( index ) );
+      ListBaseTracks.emplace_back( m_selectedTracks->at( index ) );
       workVertex.Chi2PerTrk.emplace_back( AlgConsts::chi2PerTrackInitValue );
     }
     
     for( const auto& index : workVertex.associatedTrackIndices ) {
-      ListBaseTracks.emplace_back( m_associableTracks->at( index ) );
+      ListBaseTracks.emplace_back( m_associatedTracks->at( index ) );
       workVertex.Chi2PerTrk.emplace_back( AlgConsts::chi2PerTrackInitValue );
     }
     
@@ -535,12 +538,12 @@ namespace VKalVrtAthena {
     workVertex.Chi2PerTrk.clear();
     
     for( const auto& index : workVertex.selectedTrackIndices ) {
-      ListBaseTracks.emplace_back( m_selectedBaseTracks->at( index ) );
+      ListBaseTracks.emplace_back( m_selectedTracks->at( index ) );
       workVertex.Chi2PerTrk.emplace_back( AlgConsts::chi2PerTrackInitValue );
     }
     
     for( const auto& index : workVertex.associatedTrackIndices ) {
-      ListBaseTracks.emplace_back( m_associableTracks->at( index ) );
+      ListBaseTracks.emplace_back( m_associatedTracks->at( index ) );
       workVertex.Chi2PerTrk.emplace_back( AlgConsts::chi2PerTrackInitValue );
     }
     
@@ -615,7 +618,7 @@ namespace VKalVrtAthena {
     declareProperty("MCEventContainer",                m_jp.mcEventContainerName            = "TruthEvents"                 );
     
     declareProperty("SelectedTracksContainerName",     m_jp.selectedTracksContainerName     = "SelectedTrackParticles"      );
-    declareProperty("AssociableTracksContainerName",   m_jp.associableTracksContainerName   = "AssociableTrackParticles"    );
+    declareProperty("AssociatedTracksContainerName",   m_jp.associatedTracksContainerName   = "AssociatedTrackParticles"    );
     declareProperty("All2trkVerticesContainerName",    m_jp.all2trksVerticesContainerName   = "All2TrksVertices"            );
     declareProperty("SecondaryVerticesContainerName",  m_jp.secondaryVerticesContainerName  = "SecondaryVertices"           );
 
@@ -626,6 +629,7 @@ namespace VKalVrtAthena {
     declareProperty("DoMapToLocal",                    m_jp.doMapToLocal                    = false                         );
     declareProperty("DoTruth",                         m_jp.doTruth                         = false                         );
     declareProperty("RemoveFake2TrkVrt",               m_jp.removeFakeVrt                   = true                          );
+    declareProperty("DoDelayedFakeReject",             m_jp.removeFakeVrtLate               = false                         );
     declareProperty("CheckHitPatternStrategy",         m_checkPatternStrategy               = "Classical"                   ); // Either Classical or Extrapolation
     declareProperty("MCTrackResolution",               m_jp.mcTrkResolution                 = 0.06                          ); // see getTruth for explanation
     declareProperty("TruthTrkLen",                     m_jp.TruthTrkLen                     = 1000                          ); // in [mm]
@@ -935,8 +939,8 @@ namespace VKalVrtAthena {
         
         if( pattern->size() > 0 ) {
           
-          ATH_MSG_DEBUG(" >> " << __FUNCTION__ << ", track " << trk << ": position = (" << position.x() << ", " << position.y() << ", " << position.z() << "), detElement ID = " << id << ", active = " << active
-                        << ": (det, bec, layer) = (" << std::get<1>( pattern->back() ) << ", " << std::get<2>( pattern->back() ) << ", "  << std::get<3>( pattern->back() ) << ")" );
+          ATH_MSG_VERBOSE(" >> " << __FUNCTION__ << ", track " << trk << ": position = (" << position.x() << ", " << position.y() << ", " << position.z() << "), detElement ID = " << id << ", active = " << active
+                          << ": (det, bec, layer) = (" << std::get<1>( pattern->back() ) << ", " << std::get<2>( pattern->back() ) << ", "  << std::get<3>( pattern->back() ) << ")" );
           
           if( !active ) nDisabled++;
         }
@@ -1031,7 +1035,7 @@ namespace VKalVrtAthena {
       const auto& point      = *itr;
       const auto& nextPoint  = *( std::next( itr ) );
       
-      ATH_MSG_DEBUG( " > " <<  __FUNCTION__ << ": isActive = " << std::get<isActive>( point ) );
+      ATH_MSG_VERBOSE( " > " <<  __FUNCTION__ << ": isActive = " << std::get<isActive>( point ) );
       
       // if the front-end module is not active, then the hit is not expected.
       if( false == std::get<isActive>( point ) ) continue;
@@ -1046,10 +1050,10 @@ namespace VKalVrtAthena {
       
       if( sectionVector.Mag() == 0. ) continue;
       
-      ATH_MSG_DEBUG( " > " <<  __FUNCTION__
-                     << ": sectionVector = (" << sectionVector.x() << ", " << sectionVector.y() << ", " << sectionVector.z() << ")"
-                     << ", vertexVector = (" << vertexVector.x() << ", " << vertexVector.y() << ", " << vertexVector.z() << ")"
-                     << ", cosTheta( sectionVector, vertexVector)  = " << sectionVector * vertexVector / ( sectionVector.Mag() * vertexVector.Mag() + AlgConsts::infinitesimal ) );
+      ATH_MSG_VERBOSE( " > " <<  __FUNCTION__
+                       << ": sectionVector = (" << sectionVector.x() << ", " << sectionVector.y() << ", " << sectionVector.z() << ")"
+                       << ", vertexVector = (" << vertexVector.x() << ", " << vertexVector.y() << ", " << vertexVector.z() << ")"
+                       << ", cosTheta( sectionVector, vertexVector)  = " << sectionVector * vertexVector / ( sectionVector.Mag() * vertexVector.Mag() + AlgConsts::infinitesimal ) );
       
       if( sectionVector * vertexVector > 0. ) continue;
       
@@ -1057,7 +1061,7 @@ namespace VKalVrtAthena {
       
       const auto& detectorType = getDetectorType( point );
       
-      ATH_MSG_DEBUG( " > " <<  __FUNCTION__ << ": detType = " << detectorType );
+      ATH_MSG_VERBOSE( " > " <<  __FUNCTION__ << ": detType = " << detectorType );
       
       if( detectorType == AlgConsts::invalidUnsigned ) continue;
       
@@ -1070,13 +1074,13 @@ namespace VKalVrtAthena {
     for( unsigned i=0; i<Trk::numberOfDetectorTypes; i++) {
       msg += Form("%u", ( expectedHitPattern >> i ) & 1 );
     }
-    ATH_MSG_DEBUG( " > " << __FUNCTION__ << ": " << msg );
+    ATH_MSG_VERBOSE( " > " << __FUNCTION__ << ": " << msg );
     
     msg = "Recorded hit pattern: ";
     for( unsigned i=0; i<Trk::numberOfDetectorTypes; i++) {
       msg += Form("%u", ( trk->hitPattern() >> i ) & 1 );
     }
-    ATH_MSG_DEBUG( " > " << __FUNCTION__ << ": " << msg );
+    ATH_MSG_VERBOSE( " > " << __FUNCTION__ << ": " << msg );
     
     exPattern->clear();
     
@@ -1084,17 +1088,6 @@ namespace VKalVrtAthena {
   }
     
 
-  //____________________________________________________________________________________________________
-  bool VrtSecInclusive::passedFakeRejectByExtrapolation( const Amg::Vector3D& FitVertex,
-                                                         const xAOD::TrackParticle *itrk,
-                                                         const xAOD::TrackParticle *jtrk  )
-  {
-    const bool check_itrk = checkTrackHitPatternToVertexByExtrapolation( itrk, FitVertex );
-    const bool check_jtrk = checkTrackHitPatternToVertexByExtrapolation( jtrk, FitVertex );
-    return ( check_itrk && check_jtrk );
-  }
-  
-  
   //____________________________________________________________________________________________________
   bool VrtSecInclusive::checkTrackHitPatternToVertex( const xAOD::TrackParticle *trk, const Amg::Vector3D& vertex )
   {
@@ -1478,6 +1471,35 @@ namespace VKalVrtAthena {
     return ( check_itrk && check_jtrk );
     
   }    
+  
+
+  //____________________________________________________________________________________________________
+  void VrtSecInclusive::removeInconsistentTracks( WrkVrt& wrkvrt )
+  {
+    
+    const auto& vertex = wrkvrt.vertex;
+    
+    std::map< std::deque<long int>*, xAOD::TrackParticleContainer* > indexMap;
+    
+    indexMap[ &(wrkvrt.selectedTrackIndices)   ] = m_selectedTracks;
+    indexMap[ &(wrkvrt.associatedTrackIndices) ] = m_associatedTracks;
+    
+    for( auto& pair : indexMap ) {
+      
+      auto* indices = pair.first;
+      auto* tracks  = pair.second;
+    
+      auto newEnd = std::remove_if( indices->begin(), indices->end(),
+                                    [&]( auto& index ) {
+                                      bool isConsistent = (this->*m_patternStrategyFuncs[m_checkPatternStrategy] )( tracks->at(index), vertex );
+                                      return !isConsistent;
+                                    } );
+      
+      indices->erase( newEnd, indices->end() );
+      
+    }
+    
+  }
   
 
   //____________________________________________________________________________________________________

@@ -60,17 +60,17 @@ namespace VKalVrtAthena {
     long int           Charge;
     double             Chi2 = 0.;
     
-    ATH_MSG_DEBUG(" > extractIncompatibleTracks: Selected Tracks = "<< m_selectedBaseTracks->size());
+    ATH_MSG_DEBUG(" > extractIncompatibleTracks: Selected Tracks = "<< m_selectedTracks->size());
 
 
     // first make all 2-track vertices
-    for( auto itrk = m_selectedBaseTracks->begin(); itrk != m_selectedBaseTracks->end(); ++itrk ) {
-      for( auto jtrk = itrk; jtrk != m_selectedBaseTracks->end(); ++jtrk ) {
+    for( auto itrk = m_selectedTracks->begin(); itrk != m_selectedTracks->end(); ++itrk ) {
+      for( auto jtrk = itrk; jtrk != m_selectedTracks->end(); ++jtrk ) {
 
         if( itrk == jtrk ) continue;
 
-        int itrk_id = itrk - m_selectedBaseTracks->begin();
-        int jtrk_id = jtrk - m_selectedBaseTracks->begin();
+        int itrk_id = itrk - m_selectedTracks->begin();
+        int jtrk_id = jtrk - m_selectedTracks->begin();
 
         // Attempt to think the combination is incompatible by default
         m_incomp.emplace_back( itrk_id );
@@ -124,7 +124,7 @@ namespace VKalVrtAthena {
           for( auto *trk: ListBaseTracks ) {
 
             // Acquire link to the track
-            ElementLink<xAOD::TrackParticleContainer>  trackElementLink( *m_selectedBaseTracks, trk->index() );
+            ElementLink<xAOD::TrackParticleContainer>  trackElementLink( *m_selectedTracks, trk->index() );
 
             // Register link to the vertex
             vertex->addTrackAtVertex( trackElementLink, 1. );
@@ -156,7 +156,7 @@ namespace VKalVrtAthena {
 
 
         // fake rejection cuts with track hit pattern consistencies
-        if( m_jp.removeFakeVrt ) {
+        if( m_jp.removeFakeVrt && !m_jp.removeFakeVrtLate ) {
           if( !this->passedFakeReject( FitVertex, (*itrk), (*jtrk) ) ) continue;
         }
         
@@ -206,14 +206,14 @@ namespace VKalVrtAthena {
 
     // Solution of the graph method routine (minimal covering of the graph)
     // The size of the solution is returned by NPTR (see below)
-    long int* Solution = new long int[ m_selectedBaseTracks->size() ];
+    long int* Solution = new long int[ m_selectedTracks->size() ];
 
     // Number of edges in the list
     // This is two-folded (a pair of incompatible tracks composes an edge).
     long int edges = m_incomp.size()/2; 
 
     // input number of nodes in the graph.
-    long int NTracks = static_cast<long int>( m_selectedBaseTracks->size() );
+    long int NTracks = static_cast<long int>( m_selectedTracks->size() );
 
     // Input variable; the threshold. Solutions shorter than nth are not returned (ignored).
     long int nth=2;    //VK some speed up
@@ -251,7 +251,7 @@ namespace VKalVrtAthena {
       newvrt.selectedTrackIndices.clear();
       for(int i=0; i<NPTR; i++) {
         newvrt.selectedTrackIndices.emplace_back(Solution[i]-1);
-        ListBaseTracks.emplace_back( m_selectedBaseTracks->at(Solution[i]-1) );
+        ListBaseTracks.emplace_back( m_selectedTracks->at(Solution[i]-1) );
       }
 
       // Perform vertex fitting
@@ -348,7 +348,7 @@ namespace VKalVrtAthena {
     //
     //  Rearrangement of solutions
     //
-    const long int NTracks = static_cast<long int>( m_selectedBaseTracks->size() );
+    const long int NTracks = static_cast<long int>( m_selectedTracks->size() );
 
     // TrkInVrt has IDs of each track which can contain array of vertices.
     // e.g. TrkInVrt->at( track_id ).size() gives the number of vertices which use the track [track_id].
@@ -460,7 +460,7 @@ namespace VKalVrtAthena {
       
       for( auto& index : workVertex.selectedTrackIndices ) {
         
-        const xAOD::TrackParticle* trk = m_selectedBaseTracks->at( index );
+        const xAOD::TrackParticle* trk = m_selectedTracks->at( index );
         
         mergiableVertex[index] = workVerticesContainer->rend();
         
@@ -574,7 +574,7 @@ namespace VKalVrtAthena {
                                       [&] ( WrkVrt& wrkvrt ) {
                                         auto found = std::find_if( wrkvrt.selectedTrackIndices.begin(), wrkvrt.selectedTrackIndices.end(),
                                                                    [&]( long int index ) {
-                                                                     return trk->index() == m_selectedBaseTracks->at(index)->auxdata<unsigned long>("trk_id");
+                                                                     return trk->index() == m_selectedTracks->at(index)->auxdata<unsigned long>("trk_id");
                                                                    } );
                                         return found != wrkvrt.selectedTrackIndices.end();
                                       } );
@@ -583,9 +583,9 @@ namespace VKalVrtAthena {
         
         // If the track is already registered to the associated track list, rejct.
         {
-          auto result = std::find_if( m_associableTracks->begin(), m_associableTracks->end(),
+          auto result = std::find_if( m_associatedTracks->begin(), m_associatedTracks->end(),
                                       [&] (xAOD::TrackParticle* atrk) { return trk->index() == atrk->auxdata<unsigned long>("trk_id"); } );
-          if( result != m_associableTracks->end() ) continue;
+          if( result != m_associatedTracks->end() ) continue;
         }
         
         // pT selection
@@ -636,7 +636,7 @@ namespace VKalVrtAthena {
         workVertex.Chi2PerTrk.clear();
         
         for( const auto& index : workVertex.selectedTrackIndices ) {
-          baseTracks.emplace_back( m_selectedBaseTracks->at( index ) );
+          baseTracks.emplace_back( m_selectedTracks->at( index ) );
           workVertex.Chi2PerTrk.emplace_back( AlgConsts::chi2PerTrackInitValue );
         }
         
@@ -688,10 +688,10 @@ namespace VKalVrtAthena {
         ATH_MSG_DEBUG( " >> associateNonSeletedTracks: succeeded in associating. New vertex pos = (" << vertexPos.x() << ", " << vertexPos.y() << ", " << vertexPos.z() << ")" );
         ATH_MSG_DEBUG( " >> associateNonSeletedTracks: New vertex cov = (" << cov.at(0) << ", " << cov.at(1) << ", " << cov.at(2) << ", " << cov.at(3) << ", " << cov.at(4) << ", " << cov.at(5) << ")" );
         
-        workVertex.associatedTrackIndices.emplace_back( m_associableTracks->size() );
+        workVertex.associatedTrackIndices.emplace_back( m_associatedTracks->size() );
         
         auto *a_trk = new xAOD::TrackParticle;
-        m_associableTracks->emplace_back( a_trk );
+        m_associatedTracks->emplace_back( a_trk );
         *a_trk = *trk;
         a_trk->auxdata<unsigned long>("trk_id")  = trk->index();
         a_trk->auxdata<bool>("is_associated")  = true;
@@ -892,6 +892,10 @@ namespace VKalVrtAthena {
     // Loop over vertices
     for( auto& wrkvrt : *workVerticesContainer ) {
 
+      if( m_jp.removeFakeVrt && m_jp.removeFakeVrtLate ) {
+        removeInconsistentTracks( wrkvrt );
+      }
+      
       int nth = wrkvrt.selectedTrackIndices.size();
 
       if(nth < 2) continue;               /* Bad vertices */
@@ -931,7 +935,7 @@ namespace VKalVrtAthena {
       bool good_flag = true;
       
       for(size_t itrk=0; itrk<wrkvrt.selectedTrackIndices.size(); itrk++) {
-        xAOD::TrackParticle* trk = m_selectedBaseTracks->at( wrkvrt.selectedTrackIndices[itrk] );
+        xAOD::TrackParticle* trk = m_selectedTracks->at( wrkvrt.selectedTrackIndices[itrk] );
         const Trk::Perigee* sv_perigee = m_trackToVertexTool->perigeeAtVertex( *trk, wrkvrt.vertex );
         if( !sv_perigee ) {
           ATH_MSG_INFO(" > refitAndSelectGoodQualityVertices: > Track index " << trk->index() << ": Failed in obtaining the SV perigee!" );
@@ -940,7 +944,7 @@ namespace VKalVrtAthena {
         delete sv_perigee;
       }
       for(size_t itrk=0; itrk<wrkvrt.associatedTrackIndices.size(); itrk++) {
-        xAOD::TrackParticle* trk = m_associableTracks->at( wrkvrt.associatedTrackIndices[itrk] );
+        xAOD::TrackParticle* trk = m_associatedTracks->at( wrkvrt.associatedTrackIndices[itrk] );
         const Trk::Perigee* sv_perigee = m_trackToVertexTool->perigeeAtVertex( *trk, wrkvrt.vertex );
         if( !sv_perigee ) {
           ATH_MSG_INFO(" > refitAndSelectGoodQualityVertices: > Track index " << trk->index() << ": Failed in obtaining the SV perigee!" );
@@ -953,8 +957,8 @@ namespace VKalVrtAthena {
       }
       
       std::vector<xAOD::TrackParticle*> tracks;
-      for( const auto& index : wrkvrt.selectedTrackIndices )   tracks.emplace_back( m_selectedBaseTracks->at( index ) );
-      for( const auto& index : wrkvrt.associatedTrackIndices ) tracks.emplace_back( m_associableTracks  ->at( index ) );
+      for( const auto& index : wrkvrt.selectedTrackIndices )   tracks.emplace_back( m_selectedTracks->at( index ) );
+      for( const auto& index : wrkvrt.associatedTrackIndices ) tracks.emplace_back( m_associatedTracks  ->at( index ) );
 
       // loop over vertex tracks
       ATH_MSG_DEBUG(" > refitAndSelectGoodQualityVertices: Track loop: size = " << tracks.size() );
@@ -1139,10 +1143,10 @@ namespace VKalVrtAthena {
       // loop over the tracks comprising the vertex
       for( auto trk_id : wrkvrt.selectedTrackIndices ) {
 
-        const xAOD::TrackParticle *trk = m_selectedBaseTracks->at( trk_id );
+        const xAOD::TrackParticle *trk = m_selectedTracks->at( trk_id );
 
         // Acquire link the track to the vertex
-        ElementLink<xAOD::TrackParticleContainer> link_trk( *m_selectedBaseTracks, static_cast<long unsigned int>(trk->index()) );
+        ElementLink<xAOD::TrackParticleContainer> link_trk( *m_selectedTracks, static_cast<long unsigned int>(trk->index()) );
 
         // Register the link to the vertex
         vertex->addTrackAtVertex( link_trk, 1. );
@@ -1151,10 +1155,10 @@ namespace VKalVrtAthena {
       
       for( auto trk_id : wrkvrt.associatedTrackIndices ) {
 
-        const xAOD::TrackParticle *trk = m_associableTracks->at( trk_id );
+        const xAOD::TrackParticle *trk = m_associatedTracks->at( trk_id );
 
         // Acquire link the track to the vertex
-        ElementLink<xAOD::TrackParticleContainer> link_trk( *m_associableTracks, static_cast<long unsigned int>(trk->index()) );
+        ElementLink<xAOD::TrackParticleContainer> link_trk( *m_associatedTracks, static_cast<long unsigned int>(trk->index()) );
 
         // Register the link to the vertex
         vertex->addTrackAtVertex( link_trk, 1. );

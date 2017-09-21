@@ -161,7 +161,7 @@ namespace VKalVrtAthena {
       
       if( isGood_standard ) {
         
-        storeTrackToCollection( trk, m_selectedBaseTracks, "selected" );
+        storeTrackToCollection( trk, m_selectedTracks, "selected" );
         
       }
       
