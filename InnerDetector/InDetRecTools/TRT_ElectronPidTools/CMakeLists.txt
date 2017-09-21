@@ -16,6 +16,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkTools/TrkToolInterfaces
                           PRIVATE
+                          Control/StoreGate
                           DetectorDescription/Identifier
                           Event/EventInfo
                           InnerDetector/InDetDetDescr/InDetIdentifier
