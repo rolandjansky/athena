@@ -237,7 +237,7 @@ namespace VKalVrtAthena {
 
     if( ntrk(vertex) < 2 ) return 0.;
     
-    StatusCode sc = refitVertex( vertex );
+    StatusCode sc = refitVertexWithSuggestion( vertex, vertex.vertex );
     if( sc.isFailure() ) {
       return 0;
     }
@@ -266,7 +266,7 @@ namespace VKalVrtAthena {
         vertex.associatedTrackIndices.erase( vertex.associatedTrackIndices.begin() + index ); //remove track
       }
       
-      StatusCode sc = refitVertex( vertex );
+      StatusCode sc = refitVertexWithSuggestion( vertex, vertex.vertex );
       
       if( sc.isFailure() ) {
         vertex = vertex_backup;
@@ -480,7 +480,7 @@ namespace VKalVrtAthena {
                    << ", #selectedBaseTracks = " << workVertex.selectedTrackIndices.size()
                    << ", #assocTracks = " << workVertex.associatedTrackIndices.size() );
     for( auto *trk : ListBaseTracks ) {
-      ATH_MSG_DEBUG( " >>> refitVertex: track index = " << trk->index() );
+      ATH_MSG_VERBOSE( " >>> refitVertex: track index = " << trk->index() );
     }
     
     m_fitSvc->setDefault();
@@ -516,7 +516,7 @@ namespace VKalVrtAthena {
     auto& cov = workVertex.vertexCov;
         
     if(SC.isFailure()) ATH_MSG_DEBUG(" >>> refitVertex: SC in refitVertex returned failure "); 
-    ATH_MSG_VERBOSE(" >>> refitVertex "<<SC<<", "<<ListBaseTracks.size()<<","<<workVertex.Chi2PerTrk.size());
+    ATH_MSG_DEBUG(" >>> refitVertex "<<SC<<", "<<ListBaseTracks.size()<<","<<workVertex.Chi2PerTrk.size());
     ATH_MSG_DEBUG( " >>> refitVertex: succeeded in fitting. New vertex pos = (" << vertexPos.x() << ", " << vertexPos.y() << ", " << vertexPos.z() << ")" );
     ATH_MSG_DEBUG( " >>> refitVertex: New vertex cov = (" << cov.at(0) << ", " << cov.at(1) << ", " << cov.at(2) << ", " << cov.at(3) << ", " << cov.at(4) << ", " << cov.at(5) << ")" );
 
@@ -579,10 +579,13 @@ namespace VKalVrtAthena {
 
     auto& cov = workVertex.vertexCov;
         
-    if(SC.isFailure()) ATH_MSG_DEBUG(" >>> " << __FUNCTION__ << ": SC in refitVertex returned failure "); 
+    if( SC.isFailure() ) ATH_MSG_VERBOSE(" >>> " << __FUNCTION__ << ": SC in refitVertex returned failure "); 
     ATH_MSG_VERBOSE(" >>> " << __FUNCTION__ << ": "<<SC<<", "<<ListBaseTracks.size()<<","<<workVertex.Chi2PerTrk.size());
-    ATH_MSG_DEBUG( " >>> " << __FUNCTION__ << ": succeeded in fitting. New vertex pos = (" << vertexPos.x() << ", " << vertexPos.y() << ", " << vertexPos.z() << ")" );
-    ATH_MSG_DEBUG( " >>> " << __FUNCTION__ << ": New vertex cov = (" << cov.at(0) << ", " << cov.at(1) << ", " << cov.at(2) << ", " << cov.at(3) << ", " << cov.at(4) << ", " << cov.at(5) << ")" );
+    
+    if( SC.isSuccess() ) {
+      ATH_MSG_VERBOSE( " >>> " << __FUNCTION__ << ": succeeded in fitting. New vertex pos = (" << vertexPos.x() << ", " << vertexPos.y() << ", " << vertexPos.z() << ")" );
+      ATH_MSG_VERBOSE( " >>> " << __FUNCTION__ << ": New vertex cov = (" << cov.at(0) << ", " << cov.at(1) << ", " << cov.at(2) << ", " << cov.at(3) << ", " << cov.at(4) << ", " << cov.at(5) << ")" );
+    }
 
     return SC;
   }
@@ -631,6 +634,7 @@ namespace VKalVrtAthena {
     declareProperty("DoIntersectionPos",               m_jp.doIntersectionPos               = false                         );
     declareProperty("DoMapToLocal",                    m_jp.doMapToLocal                    = false                         );
     declareProperty("DoTruth",                         m_jp.doTruth                         = false                         );
+    declareProperty("DoPVcompatibility",               m_jp.doPVcompatibilityCut            = true                          );
     declareProperty("RemoveFake2TrkVrt",               m_jp.removeFakeVrt                   = true                          );
     declareProperty("DoDelayedFakeReject",             m_jp.removeFakeVrtLate               = false                         );
     declareProperty("CheckHitPatternStrategy",         m_checkPatternStrategy               = "Classical"                   ); // Either Classical or Extrapolation
@@ -660,6 +664,7 @@ namespace VKalVrtAthena {
     declareProperty("SelTrkMaxCutoff",                 m_jp.SelTrkMaxCutoff                 = 50                            ); // max number of tracks
     declareProperty("TrkPtCut",                        m_jp.TrkPtCut                        = 1000.                         ); // low pT threshold. in [MeV]
     declareProperty("TrkChi2Cut",                      m_jp.TrkChi2Cut                      = 3.                            ); // in terms of chi2 / ndof
+    declareProperty("PVcompatibilityCut",              m_jp.pvCompatibilityCut              = -20.                          ); // in [mm]
     declareProperty("SelVrtChi2Cut",                   m_jp.SelVrtChi2Cut                   = 4.5                           ); // in terms of chi2 / ndof
     
     declareProperty("CutSctHits",                      m_jp.CutSctHits                      = 0                             );
@@ -784,7 +789,7 @@ namespace VKalVrtAthena {
     
     // if thePV is null, the PV is not found.
     if( !m_thePV ) {
-      ATH_MSG_INFO("No PV is found in the PV collection!");
+      ATH_MSG_DEBUG("No PV is found in the PV collection!");
       return StatusCode::FAILURE;
     }
     

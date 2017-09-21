@@ -158,6 +158,7 @@ namespace VKalVrtAthena {
       int  CutTRTHits; // Kazuki
       
       // Vertex reconstruction
+      bool   doPVcompatibilityCut;
       bool   removeFakeVrt;
       bool   removeFakeVrtLate;
       bool   doReassembleVertices;
@@ -165,6 +166,7 @@ namespace VKalVrtAthena {
       bool   doMergeFinalVerticesDistance; // Kazuki
       bool   doAssociateNonSelectedTracks;
       bool   doFinalImproveChi2;
+      double pvCompatibilityCut;
       double SelVrtChi2Cut;
       double VertexMergeFinalDistCut; // Kazuki
       double VertexMergeFinalDistScaling;

@@ -191,6 +191,7 @@ namespace VKalVrtAthena {
       ATH_MSG_INFO("initialize: Filling Histograms");
       //
       m_hists["trkSelCuts"]        = new TH1F("trkSelCuts",        ";Cut Order;Tracks",                         10, -0.5, 10-0.5                                         );
+      m_hists["vPosDist"]          = new TH2F("vPosDist",          ";r;#vec{x}*#vec{p}/p_{T} [mm]",             rbins.size()-1, &(rbins[0]), 200, -1000, 1000            );
       m_hists["disabledCount"]     = new TH1F("disabledCount",     ";N_{modules};Tracks",                       20, -0.5, 10-0.5                                         );
       m_hists["vertexYield"]       = new TH1F("vertexYield",       ";Algorithm Step;Vertices",                  nAlgs, -0.5, nAlgs-0.5                                   );
       m_hists["vertexYieldNtrk"]   = new TH2F("vertexYieldNtrk",   ";Ntrk;Algorithm Step;Vertices",             100, 0, 100, nAlgs, -0.5, nAlgs-0.5                      );

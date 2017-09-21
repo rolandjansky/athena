@@ -103,16 +103,16 @@ namespace VKalVrtAthena {
 
         // Vertex VKal Fitting
         sc = m_fitSvc->VKalVrtFit( ListBaseTracks,
-            dummyNeutrals,
-            FitVertex, Momentum, Charge,
-            ErrorMatrix, Chi2PerTrk,
-            TrkAtVrt, Chi2  );
-
+                                   dummyNeutrals,
+                                   FitVertex, Momentum, Charge,
+                                   ErrorMatrix, Chi2PerTrk,
+                                   TrkAtVrt, Chi2  );
+        
         if( sc.isFailure() )  continue;          /* No fit */ 
 
         // Compatibility to the primary vertex.
         Amg::Vector3D vDist = FitVertex - m_thePV->position();
-        double vPos=(vDist.x()*Momentum.Px()+vDist.y()*Momentum.Py()+vDist.z()*Momentum.Pz())/Momentum.Rho();
+        double vPos = ( vDist.x()*Momentum.Px()+vDist.y()*Momentum.Py()+vDist.z()*Momentum.Pz() )/Momentum.Rho();
         
         if( m_jp.FillNtuple ) {
           // Fill the 2-track vertex properties to AANT
@@ -173,6 +173,8 @@ namespace VKalVrtAthena {
           if( !this->passedFakeReject( FitVertex, (*itrk), (*jtrk) ) ) continue;
         }
         
+        if( m_jp.FillHist ) dynamic_cast<TH2F*>( m_hists["vPosDist"] )->Fill( FitVertex.perp(), vPos );
+        
         if( m_jp.FillNtuple ) {
           // Fill AANT for vertices after fake rejection
           m_ntupleVars->get< unsigned int >( "AfFakVrtNum" )++;
@@ -190,8 +192,10 @@ namespace VKalVrtAthena {
           vertex->auxdata<bool>("isFake")  = false;
         }
 
-
-        if(vPos<-20.) continue;
+        
+        if( m_jp.doPVcompatibilityCut ) {
+          if( vPos < m_jp.pvCompatibilityCut ) continue;
+        }
 
         // Removefrom the incompatible track list only after passing all criteria
         m_incomp.pop_back();
@@ -411,9 +415,15 @@ namespace VKalVrtAthena {
       }else{
 
         removeTrackFromVertex(workVerticesContainer, TrkInVrt, SelectedTrack, SelectedVertex);
-
-        StatusCode sc = refitVertex( workVerticesContainer->at(SelectedVertex) );
-        if( sc.isFailure() )  continue;                            /* Bad fit - goto next solution */
+        
+        WrkVrt& vertex = workVerticesContainer->at(SelectedVertex);
+        WrkVrt  vertex_backup = vertex;
+        
+        StatusCode sc = refitVertex( vertex );
+        if( sc.isFailure() ) {
+          vertex = vertex_backup;
+          continue;                            /* Bad fit - goto next solution */
+        }
       }
 
     }
@@ -701,9 +711,19 @@ namespace VKalVrtAthena {
           continue;
         }
         
+        if( workVertex.Chi2 / (2.0*baseTracks.size()-3.0) > 1.e4 ) {
+          
+          if( m_jp.FillHist ) m_hists["associateMonitor"]->Fill( 2 );
+          
+          workVertex = wrkvrt_backup;
+          continue;
+        }
+        
+        if( m_jp.FillHist ) m_hists["associateMonitor"]->Fill( 0 );
+
         auto& cov = workVertex.vertexCov;
         
-        ATH_MSG_DEBUG( " >> associateNonSeletedTracks: succeeded in associating. New vertex pos = (" << vertexPos.x() << ", " << vertexPos.y() << ", " << vertexPos.z() << ")" );
+        ATH_MSG_DEBUG( " >> associateNonSeletedTracks: succeeded in associating. New vertex pos = (" << vertexPos.perp() << ", " << vertexPos.z() << ", " << vertexPos.perp()*vertexPos.phi() << ")" );
         ATH_MSG_DEBUG( " >> associateNonSeletedTracks: New vertex cov = (" << cov.at(0) << ", " << cov.at(1) << ", " << cov.at(2) << ", " << cov.at(3) << ", " << cov.at(4) << ", " << cov.at(5) << ")" );
         
         workVertex.associatedTrackIndices.emplace_back( m_associatedTracks->size() );
@@ -932,23 +952,45 @@ namespace VKalVrtAthena {
       
       int nth = wrkvrt.selectedTrackIndices.size() + wrkvrt.associatedTrackIndices.size();
 
-      if(nth < 2) continue;               /* Bad vertices */
+      if( nth < 2 ) continue;               /* Bad vertices */
 
       if( m_jp.FillHist ) m_hists["finalCutMonitor"]->Fill( 1 );
-      
-      StatusCode sc = refitVertex( wrkvrt );
-      if( sc.isFailure() ) {
-        wrkvrt.isGood = false;
-        continue;   /* Bad fit - goto next solution */
-      }
-      
-      if( m_jp.FillHist ) m_hists["finalCutMonitor"]->Fill( 2 );
       
       if( m_jp.doFinalImproveChi2 ) {
         improveVertexChi2( wrkvrt );
         
         // If the number of remaining tracks is less than 2, drop.
         if( wrkvrt.selectedTrackIndices.size() + wrkvrt.associatedTrackIndices.size() < 2 ) continue;
+      }
+      
+      if( m_jp.FillHist ) m_hists["finalCutMonitor"]->Fill( 2 );
+      
+      
+      {
+        WrkVrt backup = wrkvrt;
+      
+        StatusCode sc = refitVertexWithSuggestion( wrkvrt, wrkvrt.vertex );
+        if( sc.isFailure() ) {
+          
+          auto indices = wrkvrt.associatedTrackIndices;
+          
+          wrkvrt.associatedTrackIndices.clear();
+          sc = refitVertexWithSuggestion( wrkvrt, wrkvrt.vertex );
+          if( sc.isFailure() ) {
+            wrkvrt = backup;
+          }
+          
+          for( auto& index : indices ) {
+            backup = wrkvrt;
+            wrkvrt.associatedTrackIndices.emplace_back( index );
+            sc = refitVertexWithSuggestion( wrkvrt, wrkvrt.vertex );
+            if( sc.isFailure() || wrkvrt.Chi2 / (2.0*(wrkvrt.selectedTrackIndices.size() + wrkvrt.associatedTrackIndices.size())-3.0) > 1.e4 ) {
+              wrkvrt = backup;
+              continue;
+            }
+          }
+          
+        }
       }
       
       if( m_jp.FillHist ) m_hists["finalCutMonitor"]->Fill( 3 );
@@ -959,9 +1001,10 @@ namespace VKalVrtAthena {
       if( m_jp.FillNtuple ) m_ntupleVars->get<unsigned int>( "NumSecVrt" )++;
 
       std::vector <double> CovFull;
-      sc = m_fitSvc->VKalGetFullCov( static_cast<long int>( nth ), CovFull); 
-
-      if( sc.isFailure() ){}
+      { 
+        StatusCode sc = m_fitSvc->VKalGetFullCov( static_cast<long int>( nth ), CovFull); 
+        if( sc.isFailure() ){}
+      }
       
 
       double vert_mass=0; double vert_pt=0; double vert_pz=0;
@@ -1176,6 +1219,8 @@ namespace VKalVrtAthena {
 
       ///////////////////////////////////////////////////
       // Data filling to xAOD container
+      
+      wrkvrt.isGood = true;
 
       // Firstly store the new vertex to the container before filling properties.
       // (This is the feature of xAOD.)
@@ -1368,7 +1413,7 @@ namespace VKalVrtAthena {
     printWrkSet( workVerticesContainer, Form("%s (step %u)", name.c_str(), m_vertexingAlgorithmStep) );
     
     unsigned count = std::count_if( workVerticesContainer->begin(), workVerticesContainer->end(),
-                                    []( WrkVrt& v ) { return v.isGood && ( v.selectedTrackIndices.size() + v.associatedTrackIndices.size() ) >= 2; } );
+                                    []( WrkVrt& v ) { return ( v.selectedTrackIndices.size() + v.associatedTrackIndices.size() ) >= 2; } );
     
     m_hists["vertexYield"]->Fill( m_vertexingAlgorithmStep, count );
     m_hists["vertexYield"]->GetXaxis()->SetBinLabel( m_vertexingAlgorithmStep+1, name.c_str() );
