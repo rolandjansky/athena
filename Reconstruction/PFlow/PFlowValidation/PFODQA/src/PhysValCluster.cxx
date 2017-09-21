@@ -43,7 +43,7 @@ StatusCode PhysValCluster::fillHistograms(){
     ATH_CHECK( evtStore()->retrieve(theClusterContainer,m_clusterContainerName) );
 
     if (!theClusterContainer){
-      if (msgLvl(MSG::WARNING))  msg(MSG::WARNING) << " Have NULL pointer to xAOD::PFOContainer " << endreq;
+      if (msgLvl(MSG::WARNING)) ATH_MSG_WARNING(" Have NULL pointer to xAOD::PFOContainer  " );  
       return StatusCode::FAILURE;
     }
   
@@ -55,7 +55,7 @@ StatusCode PhysValCluster::fillHistograms(){
       m_clusterValidationPlots->fill(*theCluster);
     }
   }
-  else msg(MSG::WARNING) << " Cluster container : "<< m_clusterContainerName << " not found " << endmsg;
+  else ATH_MSG_WARNING(" Cluster container : " << m_clusterContainerName << " not found");
   return StatusCode::SUCCESS;
 
 }
