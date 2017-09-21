@@ -11,7 +11,8 @@
 
 // ROOT Classes
 #include "TMath.h"
-#include "TH1D.h"
+#include "TH1F.h"
+#include "TH2F.h"
 #include "TNtuple.h"
 #include "TTree.h"
 #include "TROOT.h"
@@ -32,99 +33,15 @@ namespace Trk {
 
 namespace VKalVrtAthena {
   
-
   //Constructor and destructor
   //__________________________________________________________________________
   VrtSecInclusive::VrtSecInclusive(const std::string& name, ISvcLocator* pSvcLocator):
-    AthAlgorithm                  (name,pSvcLocator),
+    AthAlgorithm                   (name,pSvcLocator),
     
-    // Physics/Math Constants
-    m_pi      ( 139.57018 ),    // Pion mass [MeV]
-    m_e       ( 0.511     ),    // Electron mass [MeV]
-    m_proton  ( 938.27205 ),    // Proton mass [MeV]
-    m_PI      ( 4.*atan(1.) ),  // pi
-    
-    // Conversion units
-    m_cnv_xyz ( 0.1 ),     /* conversion units for distance mm*/ 
-    m_cnv_mom ( 1000. ),   /* conversion units for energy MeV*/   
-    
-    // Detector radius constants
-    // Hide: these constants requires to be adapted depending on geometry. Now for Run2
-    m_avRad_bp   ( 23.9 ),
-    m_avRad_pix0 ( 33.0 ),
-    m_avRad_pix1 ( 52.5 ),
-    m_avRad_pix2 ( 90.5 ),
-    m_avRad_pix3 ( 125  ), // use just MC, since I don't have enough in data
-    m_avRad_sct0 ( 302  ),
-    m_avRad_sct1 ( 373  ),
-  
-    m_ec_pix_rmin (  88.8 ),
-    m_ec_pix_rmax ( 149.6 ),
-    m_ec_pix0     ( 495   ),
-    m_ec_pix1     ( 580   ),
-    m_ec_pix2     ( 650   ),
-
-    m_ec_sct_rmin  ( 275    ),
-    m_ec_sct_rmax  ( 560    ),
-    m_ec_sct0_rmin ( 337.6  ),
-    m_ec_sct0      ( 853.8  ),
-    m_ec_sct1      ( 934    ),
-    m_ec_sct2      ( 1091.5 ),
-    m_ec_sct3      ( 1299.9 ),
-    m_ec_sct4      ( 1399.8 ),
-  
-    m_vertexTES ( nullptr ),
-  
-    // String constants
-    m_TrackLocation                ( "InDetTrackParticles" ),
-    m_PrimVrtLocation              ( "VKalPrimVrtCollection" ),
-    m_SecVrtLocation               ( "VKalSecVrtCollection" ),
-    m_truthParticleContainerName   ( "TruthParticles" ),
-    m_mcEventContainerName         ( "TruthEvent" ),
-    
-    // GeoModel
-    m_geoModel                     ( VKalVrtAthena::GeoModel::Run2 ),
-    
-    // Analysis cut constants
-    m_ImpactWrtBL                  ( false ),
-    m_d0TrkPVDstMinCut             ( 0.   ),
-    m_d0TrkPVDstMaxCut             ( 1000.   ),
-    m_zTrkPVDstMinCut              ( 0.   ),
-    m_zTrkPVDstMaxCut              ( 1000.   ),
-    m_d0TrkPVSignifCut             ( 0.   ),
-    m_zTrkPVSignifCut              ( 0.   ),
-    
-    m_TrkChi2Cut                   ( 3.   ),
-    m_SelVrtChi2Cut                ( 4.5   ),
-    m_TrkPtCut                     ( 500.   ),
-    m_CutSctHits                   ( 0   ),
-    m_CutPixelHits                 ( 0   ),
-    m_CutSiHits                    ( 0   ),
-    m_CutBLayHits                  ( 0   ),
-    m_CutSharedHits                ( 0   ),
-    m_CutTRTHits                   ( 0   ),
-    m_VertexMergeFinalDistCut      ( 1.  ),
-    m_D0TrkErrorCut                ( 10.   ),
-    m_ZTrkErrorCut                 ( 20.   ),
-    m_VertexMergeCut               ( 3.   ),
-    m_TrackDetachCut               ( 6.   ),
-    m_FillHist                     ( false ),
-    m_FillNtuple                   ( false ),
-    m_LoPtCut                      ( 500.   ),
-    m_SelTrkMaxCutoff              ( 50  ),
-    
-    // Internal statuses of the algorithm
-    m_SAloneTRT                    ( false ),
-    m_doTRTPixCut                  ( false ),
-    m_mergeFinalVerticesDistance   ( false ),
-    m_doTruth                      ( false ),
-    m_removeFakeVrt                ( false ),
-    m_mcTrkResolution              ( 0.    ),
-    m_TruthTrkLen                  ( 0.    ),
-    m_extrapPV                     ( false ),
+    m_primaryVertices              ( nullptr ),
     m_thePV                        ( nullptr ),
-    
-    // Tools
+  
+    // ToolsHandles
     m_fitSvc                       ( "Trk::TrkVKalVrtFitter", this ),
     m_truthToTrack                 ( "Trk::TruthToTrack/InDetTruthToTrack" ),
     m_trackToVertexTool            ( "Reco::TrackToVertex" ),
@@ -136,30 +53,22 @@ namespace VKalVrtAthena {
     m_pixelCondSummarySvc          ( "PixelConditionsSummarySvc", "VrtSecInclusive" ),
     m_sctCondSummarySvc            ( "SCT_ConditionsSummarySvc", "VrtSecInclusive" ),
     
-    m_checkPatternStrategy( "Classical" ),
-    
-    // Histograms for stats
-    // (Hide: from C++11 "nullptr" is recommended for NULL)
-    m_hb_massPiPi        ( nullptr ),
-    m_hb_2Ddist          ( nullptr ),
-    m_hb_massEE          ( nullptr ),
-    m_hb_nvrt2           ( nullptr ),
-    m_hb_ratio           ( nullptr ),
-    m_trkSelCuts         ( nullptr ),
+    m_checkPatternStrategy         ( "Classical" ),
     
     // Pointers of Ntuple variable vectors
-    m_tree_Vert ( nullptr ),
-    m_ntupleVars( new NtupleVars() ),
+    m_tree_Vert                    ( nullptr ),
+    m_ntupleVars                   ( nullptr )
     
-    m_importedTrkTruthColl     ( nullptr ),
-    m_importedFullTruthColl    ( nullptr )
-
   {
     
     m_patternStrategyFuncs["Classical"]     = &VrtSecInclusive::checkTrackHitPatternToVertex;
     m_patternStrategyFuncs["Extrapolation"] = &VrtSecInclusive::checkTrackHitPatternToVertexByExtrapolation;
 
     this->declareProperties();
+    
+    if( m_jp.FillNtuple ) {
+      m_ntupleVars.reset( new NtupleVars );
+    }
     
   }
   
@@ -168,8 +77,6 @@ namespace VKalVrtAthena {
   //__________________________________________________________________________
   VrtSecInclusive::~VrtSecInclusive()
   { 
-    delete m_ntupleVars;
-    
     ATH_MSG_DEBUG("destructor called");
   }
 
@@ -178,12 +85,7 @@ namespace VKalVrtAthena {
   //__________________________________________________________________________
   StatusCode VrtSecInclusive::beginRun()  { 
 
-    ATH_MSG_INFO("beginRun()");
-    //
-    ATH_MSG_VERBOSE("Charged electron/pion mass " << m_e<<","<<m_pi);
-    //
-    // average radii of various material layers - use both MC and data
-    //
+    ATH_MSG_DEBUG("beginRun()");
 
     return StatusCode::SUCCESS;
   }
@@ -242,42 +144,59 @@ namespace VKalVrtAthena {
     ATH_CHECK( m_extrapolator.retrieve() );
     
     // extract VertexMapper
-    if( m_doMapToLocal ) {
+    if( m_jp.doMapToLocal ) {
       ATH_CHECK( m_vertexMapper.retrieve() );
     }
     
-    //
+    
+    // Vertexing algorithm configuration
+    m_vertexingAlgorithms.emplace_back( &VrtSecInclusive::reconstruct2TrackVertices         );
+    m_vertexingAlgorithms.emplace_back( &VrtSecInclusive::reconstructNTrackVertices         );
+    
+    if( m_jp.doReassembleVertices ) {
+      m_vertexingAlgorithms.emplace_back( &VrtSecInclusive::reassembleVertices              );
+    }
+    
+    if( m_jp.doMergeByShuffling ) {
+      m_vertexingAlgorithms.emplace_back( &VrtSecInclusive::mergeByShuffling                );
+    }
+    
+    if ( m_jp.doMergeFinalVerticesDistance ) {
+      m_vertexingAlgorithms.emplace_back( &VrtSecInclusive::mergeFinalVertices              );
+    }
+    
+    if( m_jp.doAssociateNonSelectedTracks ) {
+      m_vertexingAlgorithms.emplace_back( &VrtSecInclusive::associateNonSelectedTracks      );
+    }
+    
+    m_vertexingAlgorithms.emplace_back( &VrtSecInclusive::refitAndSelectGoodQualityVertices );
 
     
     // now make histograms/ntuples
     
     ATH_CHECK( service( "THistSvc", hist_root ) );
     
-    if( m_FillHist ) {
+    if( m_jp.FillHist ) {
       
-      ATH_MSG_INFO("initialize: VrtSecInclusiv Histogram found");
+      ATH_MSG_INFO("initialize: Filling Histograms");
       //
-      m_hb_massPiPi   = new TH1D("91"," massPiPi", 200, 200., 800.);
-      m_hb_2Ddist     = new TH1D("92"," 2Ddist",   200,   0., 500.);
-      m_hb_massEE     = new TH1D("93"," massEE",   100,   0., 200.);
-      m_hb_nvrt2      = new TH1D("94"," vertices2", 50,   0.,  50.);
-      m_hb_ratio      = new TH1D("95"," ratio",     50,   0.,   1.);
-      m_trkSelCuts    = new TH1D("TrkSelCuts"," TrkSelCuts ",35, 0., 35.);
-      
-      m_shuffleMinSignif = new TH1F("shuffleMinSignif", ";Min( log_{10}( Significance ) );Entries", 100, -3, 5);
+      m_hists["trkSelCuts"]       = new TH1F("trkSelCuts",";Cut Order;Trackss",10, -0.5, 10-0.5);
+      m_hists["vertexYield"]      = new TH1F("vertexYield",";Algorithm Step;Events",10, -0.5, 10-0.5);
+      m_hists["vertexYieldNtrk"]  = new TH2F("vertexYieldNtrk",";Ntrk;Algorithm Step;Events", 100, 0, 100, 10, -0.5, 10-0.5);
+      m_hists["vertexYieldChi2"]  = new TH2F("vertexYieldChi2",";#chi^{2}/N_{dof};Algorithm Step;Events", 100, 0, 100, 10, -0.5, 10-0.5);
+      m_hists["shuffleMinSignif"] = new TH1F("shuffleMinSignif", ";Min( log_{10}( Significance ) );Vertices", 100, -3, 5);
+      m_hists["finalVtxNtrk"]     = new TH1F("finalVtxNtrk", ";N_{trk};Vertices", 100, 0, 100);
+      m_hists["finalVtxR"]        = new TH1F("finalVtxR", ";r [mm];Vertices", 400, 0, 400);
       
       std::string histDir("/AANT/VrtSecInclusive/");
-      ATH_CHECK( hist_root->regHist(histDir+"91", m_hb_massPiPi) );
-      ATH_CHECK( hist_root->regHist(histDir+"92", m_hb_2Ddist) );
-      ATH_CHECK( hist_root->regHist(histDir+"93", m_hb_massEE ) );
-      ATH_CHECK( hist_root->regHist(histDir+"94", m_hb_nvrt2) );
-      ATH_CHECK( hist_root->regHist(histDir+"95", m_hb_ratio) );
-      ATH_CHECK( hist_root->regHist(histDir+"TrkSelCuts", m_trkSelCuts) );
-      ATH_CHECK( hist_root->regHist(histDir+m_shuffleMinSignif->GetName(), m_shuffleMinSignif) );
+      
+      for( auto& pair : m_hists ) {
+        ATH_CHECK( hist_root->regHist( histDir + pair.first, pair.second ) );
+      }
     }
     
     
-    if( m_FillNtuple ) {
+    if( m_jp.FillNtuple ) {
       
       ATH_CHECK( setupNtupleVariables() );
 
@@ -309,7 +228,7 @@ namespace VKalVrtAthena {
     ATH_MSG_DEBUG("initEvent: begin");
     
     // Clear all variables to be stored to the AANT
-    if( m_FillNtuple ) {
+    if( m_jp.FillNtuple ) {
       ATH_CHECK( clearNtupleVariables() );
     }
     
@@ -333,7 +252,7 @@ namespace VKalVrtAthena {
     }
     
     // add event level info to ntuple
-    if( m_FillNtuple ) sc = addEventInfo();
+    if( m_jp.FillNtuple ) sc = addEventInfo();
     
     if (sc.isFailure() ) {
       ATH_MSG_WARNING("Failure in getEventInfo() ");
@@ -372,6 +291,9 @@ namespace VKalVrtAthena {
     ATH_CHECK( evtStore()->record( secondaryVertexContainer,    "VrtSecInclusive_SecondaryVertices"            ) );
     ATH_CHECK( evtStore()->record( secondaryVertexAuxContainer, "VrtSecInclusive_SecondaryVerticesAux."        ) );
     
+    // Later use elsewhere in the algorithm
+    m_selectedBaseTracks = selectedBaseTracks;
+    m_associableTracks   = associableTracks;
     
     ///////////////////////////////////////////////////////////////////////////
     //
@@ -383,10 +305,7 @@ namespace VKalVrtAthena {
     //
     
     const xAOD::TrackParticleContainer* trackParticleContainer ( nullptr );
-    ATH_CHECK( evtStore()->retrieve( trackParticleContainer, m_TrackLocation) );
-    
-    // Truth matching. need this later for getting TrackParticle Truth
-    if( m_doTruth ) setTrackParticleContainer( trackParticleContainer );
+    ATH_CHECK( evtStore()->retrieve( trackParticleContainer, m_jp.TrackLocation) );
     
     ATH_MSG_DEBUG( "Extracted xAOD::TrackParticle number=" << trackParticleContainer->size() );
     
@@ -402,36 +321,10 @@ namespace VKalVrtAthena {
     }
     
 
-    if( m_FillNtuple )
+    if( m_jp.FillNtuple )
       m_ntupleVars->get<unsigned int>( "NumAllTrks" ) = static_cast<int>( trackParticleContainer->size() );
     
-    //--------------------------------------------------------
-    //
-    // set up truth information
-    //
-    if( m_doTruth ) {
-
-      // we need the following to look for Truth tracks matching RecoParticle
-      const xAOD::TruthEventContainer* gen( nullptr );
-      ATH_CHECK( evtStore()->retrieve(gen, m_mcEventContainerName) );
-      ATH_MSG_VERBOSE("execute: MC Event " << m_mcEventContainerName << " found with " << gen->size() << " entries."); 
-      setMcEventCollection( gen ); // for later use
-      
-      // TrackTruthParticle Container
-      const xAOD::TruthParticleContainer* trackTruthColl( nullptr );
-      
-      ATH_CHECK( evtStore()->retrieve(trackTruthColl, m_truthParticleContainerName) );
-      
-      if ( !trackTruthColl ) {
-	ATH_MSG_ERROR("execute: No " << m_truthParticleContainerName << " found in StoreGate");
-	trackTruthColl=nullptr; 
-      }
-      
-      setTrackParticleTruthCollection( trackTruthColl );
     
-    } // endif( m_doTruth )
-    
-
     //-----------------------------------------------------------
     //  Track selection
     //
@@ -439,88 +332,69 @@ namespace VKalVrtAthena {
     ATH_MSG_DEBUG("execute: Reco. Tracks in event = "<< static_cast<int>( trackParticleContainer->size() ) );
 
     // Perform track selection and store it to selectedBaseTracks
-    ATH_CHECK( SelGoodTrkParticle( trackParticleContainer ) );
+    ATH_CHECK( selectTracks( trackParticleContainer ) );
     
     ATH_MSG_DEBUG( "execute: Number of total tracks      = " << trackParticleContainer->size() );
     ATH_MSG_DEBUG( "execute: Number of selected tracks   = " << selectedBaseTracks->size() );
     
-    if( m_FillNtuple )
+    
+    if( m_jp.FillNtuple )
       m_ntupleVars->get<unsigned int>( "NumSelTrks" ) = static_cast<int>( selectedBaseTracks->size() );
-    
-    // look at truth vertices
-    // do this after I have filled m_RecoTrk_barcode in Utilities.cxx
-    //
-    if( m_FillNtuple && m_doTruth ) {
-      
-      // this method runs on MCEventCollection, i.e., GEN_AOD or TruthEvent in ESD file
-      sc = getNewTruthInfo();
-      
-      if( sc.isFailure() ) ATH_MSG_INFO("execute: Couldn't get truth info");
-    }
-    
     
     // fill information about selected tracks in AANT
     ATH_CHECK( fillAANT_SelectedBaseTracks() );
     
     //-------------------------------------------------------
-    // Skip the event if the number of selected tracks is more than m_SelTrkMaxCutoff
-    
-    if(  selectedBaseTracks->size() > m_SelTrkMaxCutoff ) {
-      
-      if( selectedBaseTracks->size() < 2 ) {
-        ATH_MSG_INFO( "execute: Too few (<2) selected reco tracks. Terminated reconstruction." );
-      } else {
-        ATH_MSG_INFO( "execute: Too many selected reco tracks. Terminated reconstruction." );
-      }
-      
+    // Skip the event if the number of selected tracks is more than m_jp.SelTrkMaxCutoff
+    if( selectedBaseTracks->size() < 2 ) {
+      ATH_MSG_INFO( "execute: Too few (<2) selected reco tracks. Terminated reconstruction." );
       return StatusCode::SUCCESS;   
     }
-    
+      
+    if( selectedBaseTracks->size() > m_jp.SelTrkMaxCutoff ) {
+      ATH_MSG_INFO( "execute: Too many selected reco tracks. Terminated reconstruction." );
+      return StatusCode::SUCCESS;   
+    }
+      
     //-------------------------------------------------------
     // Core part of Vertexing
     //
     
     // List of track indices which are not used for the 2-track vertices.
-    std::vector<int> Incomp;
+    m_incomp.clear();
+    m_vertexingAlgorithmStep = 0;
     
-    // Try to compose 2-track vertices for all combinations of selected tracks greather than the given chi2 cut.
-      
-    ATH_CHECK( extractIncompatibleTracks( Incomp ) );
+    // Try to compose 2-track vertices for all combinations of selected tracks greather than the given chi2 cut.      
+    ATH_CHECK( extractIncompatibleTracks() );
     
-    ATH_MSG_VERBOSE( "execute: Found= "<<Incomp.size()<<", "<< selectedBaseTracks->size() );
-    if( m_FillNtuple ) m_ntupleVars->get<unsigned int>( "SizeIncomp" ) = Incomp.size();
+    ATH_MSG_VERBOSE( "execute: Found= "<<m_incomp.size()<<", "<< selectedBaseTracks->size() );
+    if( m_jp.FillNtuple ) m_ntupleVars->get<unsigned int>( "SizeIncomp" ) = m_incomp.size();
     
     // set of vertices created in the following while loop.
     auto* workVerticesContainer = new std::vector<WrkVrt>;
     
-    // Reconstruction of initial solution set (2-track vertices)
-    ATH_CHECK( reconstruct2TrackVertices( Incomp, workVerticesContainer ) );
-    
-    // No need to use Incomp anymore.
-    Incomp.clear();
-    
-    // Reconstruction of N-track vertices from 2-track vertices
-    ATH_CHECK( reconstructNTrackVertices( workVerticesContainer ) );
-    
-    ATH_CHECK( reassembleVertices( workVerticesContainer ) );
-    
-    if ( m_mergeFinalVerticesDistance ) {
-      ATH_MSG_DEBUG("execute: trying to merge vertices within " << m_VertexMergeFinalDistCut << " mm.");
-      ATH_CHECK( mergeFinalVertices( workVerticesContainer ) );
-    } // end if m_mergeFinalVerticesDistance
-    
-    ATH_CHECK( mergeByShuffling( workVerticesContainer ) );
-    
-    // Attempt to associate more tracks other than selected tracks to the final vertices
-    ATH_CHECK( associateNonSelectedTracks( workVerticesContainer ) );
-    
-    // Refitting and selection of good-quality vertices
-    ATH_CHECK( refitAndSelectGoodQualityVertices( workVerticesContainer ) );
+    // the main sequence of the main vertexing algorithms
+    // see initialize() what kind of algorithms exist.
+    for( auto itr = m_vertexingAlgorithms.begin(); itr!=m_vertexingAlgorithms.end(); ++itr ) {
+      
+      auto alg = *itr;
+      
+      ATH_CHECK( (this->*alg)( workVerticesContainer ) );
+      
+      auto end = std::remove_if( workVerticesContainer->begin(), workVerticesContainer->end(), []( WrkVrt& wrkvrt ) { return wrkvrt.isGood == false || wrkvrt.selectedTrackIndices.size() < 2; } );
+      workVerticesContainer->erase( end, workVerticesContainer->end() );
+
+      monitorVertexingAlgorithmStep( workVerticesContainer, "", std::next( itr ) == m_vertexingAlgorithms.end() );
+      
+      m_vertexingAlgorithmStep++;
+      
+    }
     
     delete workVerticesContainer;
     
+    
     // Fill AANT
-    if( m_FillNtuple ) {
+    if( m_jp.FillNtuple ) {
       m_tree_Vert->Fill();
       ATH_CHECK( clearNtupleVariables() );
     }
