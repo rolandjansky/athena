@@ -9,29 +9,23 @@
          Algorithm which creates new brem-refitted tracks
 */
 
+#include "egammaInterfaces/IegammaTrkRefitterTool.h"
+#include "egammaInterfaces/IEMExtrapolationTools.h"
+#include "TrkToolInterfaces/ITrackParticleCreatorTool.h"
+#include "TrkToolInterfaces/ITrackSlimmingTool.h"
+#include "TrkToolInterfaces/ITrackSummaryTool.h"
+
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "TrkTrack/TrackCollection.h"
 
-class IegammaTrkRefitterTool;
-class IegammaCheckEnergyDepositTool;
-class IEMExtrapolationTools;
-
-
 #include "xAODTracking/TrackParticleFwd.h"
 #include "xAODTracking/TrackParticleContainerFwd.h"
 #include "xAODCaloEvent/CaloClusterFwd.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 
-
-namespace Trk
-{
-  class ITrackParticleCreatorTool;
-  class ITrackSlimmingTool;
-  class ITrackSummaryTool;
-}
 
 class CaloCluster;
 
@@ -59,35 +53,73 @@ private:
   //      configurable data members
   //------------------------------------------------------------------------       
   /** @brief The track refitter */
-  ToolHandle<IegammaTrkRefitterTool>  m_trkRefitTool;
+  ToolHandle<IegammaTrkRefitterTool>  m_trkRefitTool {this,
+      "TrackRefitTool", "ElectronRefitterTool", "Track refitter tool"};
+
   /** @brief Tool to create track particle */
-  ToolHandle< Trk::ITrackParticleCreatorTool > m_particleCreatorTool;
+  ToolHandle< Trk::ITrackParticleCreatorTool > m_particleCreatorTool {this,
+      "TrackParticleCreatorTool", 
+      "TrackParticleCreatorTool", 
+      "TrackParticle creator tool"};
+
   /** @brief Tool to slim tracks  */
-  ToolHandle<Trk::ITrackSlimmingTool>  m_slimTool;
+  ToolHandle<Trk::ITrackSlimmingTool>  m_slimTool {this,
+      "TrackSlimmingTool", "TrkTrackSlimmingTool", "Track slimming tool"};
+
   /** @brief Tool for Track summary  */
-  ToolHandle<Trk::ITrackSummaryTool>   m_summaryTool;
+  ToolHandle<Trk::ITrackSummaryTool>   m_summaryTool {this,
+      "TrackSummaryTool", "InDetTrackSummaryTool", "Track summary tool"};
+
   /** @brief Tool for extrapolation */
-  ToolHandle<IEMExtrapolationTools> m_extrapolationTool;
+  ToolHandle<IEMExtrapolationTools> m_extrapolationTool {this,
+      "ExtrapolationTool", "EMExtrapolationTools", "Extrapolation tool"};
+
   /** @brier Option to do truth*/
-  bool                              m_doTruth;
+  Gaudi::Property<bool> m_doTruth {this, "DoTruth", false, "do truth"};
+
   /** @brief Names of input output collections */
-  SG::ReadHandleKey<xAOD::CaloClusterContainer>  m_clusterContainerKey;
-  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackParticleContainerKey;
-  SG::WriteHandleKey<xAOD::TrackParticleContainer> m_OutputTrkPartContainerKey;
-  SG::WriteHandleKey<TrackCollection> m_OutputTrackContainerKey;
+  SG::ReadHandleKey<xAOD::CaloClusterContainer>  m_clusterContainerKey {this,
+      "ClusterContainerName", "LArClusterEM", "Input calo cluster for seeding"};
+
+  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackParticleContainerKey {this,
+      "TrackParticleContainerName", "InDetTrackParticles", 
+      "Input TrackParticles to refit"};
+
+  SG::WriteHandleKey<xAOD::TrackParticleContainer> m_OutputTrkPartContainerKey {this,
+      "OutputTrkPartContainerName", "GSFTrackParticles", 
+      "Output refitted TrackParticles"};
+
+  SG::WriteHandleKey<TrackCollection> m_OutputTrackContainerKey {this,
+      "OutputTrackContainerName", "GSFTracks", "Output refitted Trk::Tracks"};
+  
   /** @Cut on minimum silicon hits*/
-  int                               m_MinNoSiHits;
+  Gaudi::Property<int> m_MinNoSiHits {this, "minNoSiHits", 4, 
+      "Minimum number of silicon hits on track before it is allowed to be refitted"};
+
   /** @brief broad cut on deltaEta*/
-  double                m_broadDeltaEta;
+  Gaudi::Property<double> m_broadDeltaEta {this, "broadDeltaEta", 0.1,
+      "Value of broad cut for delta eta, it is mult by 2"};
+
   /** @brief broad cut on deltaPhi*/
-  double                m_broadDeltaPhi;
+  Gaudi::Property<double> m_broadDeltaPhi {this, "broadDeltaPhi", 0.15,
+      "Value of broad cut for delta phi, it is mult by 2"};
+
   /** @narrow windows*/
-  double                m_narrowDeltaEta;
-  double                m_narrowDeltaPhi;
-  double                m_narrowDeltaPhiBrem;
-  double                m_narrowRescale;
-  double                m_narrowRescaleBrem;
-  //bool                  m_useBremFinder;
+  Gaudi::Property<double> m_narrowDeltaEta {this, "narrowDeltaEta", 0.05,
+      "Value of narrow cut for delta eta"};
+
+  Gaudi::Property<double> m_narrowDeltaPhi {this, "narrowDeltaPhi", 0.05,
+      "Value of narrow cut for delta phi"};
+
+  Gaudi::Property<double> m_narrowDeltaPhiBrem {this, "narrowDeltaPhiBrem", 0.15,
+      "Value of the narrow cut for delta phi in the brem direction"};
+
+  Gaudi::Property<double> m_narrowRescale {this, "narrowDeltaPhiRescale", 0.05,
+      "Value of the narrow cut for delta phi Rescale"};
+
+  Gaudi::Property<double> m_narrowRescaleBrem {this, "narrowDeltaPhiRescaleBrem", 0.1,
+      "Value of the narrow cut for delta phi Rescale Brem"};
+
   //collections
   TrackCollection*                    m_finalTracks;
   xAOD::TrackParticleContainer*       m_finalTrkPartContainer;

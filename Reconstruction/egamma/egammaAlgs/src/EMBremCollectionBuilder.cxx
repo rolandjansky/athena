@@ -23,13 +23,6 @@ UPDATE :
 #include "TrkTrack/LinkToTrack.h"
 #include "TrkTrackLink/ITrackLink.h"
 #include "TrkParticleBase/LinkToTrackParticleBase.h"
-#include "TrkToolInterfaces/ITrackParticleCreatorTool.h"
-#include "TrkToolInterfaces/ITrackSlimmingTool.h"
-#include "TrkToolInterfaces/ITrackSummaryTool.h"
-//Refit
-#include "egammaInterfaces/IegammaTrkRefitterTool.h"
-//extrapolation
-#include "egammaInterfaces/IEMExtrapolationTools.h"
 //
 #include "TrkEventPrimitives/VertexType.h"
 #include "NavFourMom/INavigable4MomentumCollection.h"
@@ -64,51 +57,9 @@ UPDATE :
 EMBremCollectionBuilder::EMBremCollectionBuilder(const std::string& name, 
 						 ISvcLocator* pSvcLocator):
   AthAlgorithm(name, pSvcLocator),
-  m_trkRefitTool("egamma/ElectronRefitterTool", this),
-  m_particleCreatorTool("Trk::TrackParticleCreatorTool", this),
-  m_slimTool("Trk::TrkTrackSlimmingTool/TrkTrackSlimmingTool", this),
-  m_summaryTool("Trk::TrackSummaryTool/InDetTrackSummaryTool", this),
-  m_extrapolationTool("EMExtrapolationTools", this),
-  m_finalTracks(0),
-  m_finalTrkPartContainer(0)
+  m_finalTracks(nullptr),
+  m_finalTrkPartContainer(nullptr)
 {
-  //options
-  declareProperty("DoTruth",                                m_doTruth=false);
-  //Collection
-  declareProperty("ClusterContainerName"  ,                 m_clusterContainerKey   = "LArClusterEM");
-  declareProperty("TrackParticleContainerName"  ,           m_trackParticleContainerKey   = "InDetTrackParticles");
-  declareProperty("OutputTrkPartContainerName",             m_OutputTrkPartContainerKey = "GSFTrackParticles");
-  declareProperty("OutputTrackContainerName",               m_OutputTrackContainerKey = "GSFTracks");
-  //=================================================================================
-  // Tools
-  declareProperty("TrackRefitTool",                         m_trkRefitTool);
-  declareProperty("TrackParticleCreatorTool",               m_particleCreatorTool);
-  declareProperty("TrackSlimmingTool",                      m_slimTool);
-  declareProperty("TrackSummaryTool",                       m_summaryTool);
-  declareProperty("ExtrapolationTool",                      m_extrapolationTool, "Handle of the extrapolation tool");
-  //=================================================================================
-  //Minimum silicon hits before doing GSF
-  declareProperty("minNoSiHits",                            m_MinNoSiHits = 4,         
-		  "Minimum number of silicon hits on track before it is allowed to be refitted");
-  //=================================================================================
-  // Value of broad cut for delta eta
-  declareProperty("broadDeltaEta",                           m_broadDeltaEta = 0.1, 
-		  "Value of broad cut for delta eta, it is mult by 2");
-  // Value of broad cut for delta phi
-  declareProperty("broadDeltaPhi",                           m_broadDeltaPhi = 0.15,
-		  "Value of broad cut for delta phi, it is mult by 2 ");
-  // Value of narrow cuts
-  declareProperty("narrowDeltaEta",                          m_narrowDeltaEta = 0.05,
-		  "Value of narrow cut for delta eta");
-  declareProperty("narrowDeltaPhi",                          m_narrowDeltaPhi = 0.05,
-		  "Value of narrow cut for delta phi");
-  declareProperty("narrowDeltaPhiBrem",                      m_narrowDeltaPhiBrem =0.15,
-		  "Value of the narrow cut for delta phi in the brem direction");
-  declareProperty("narrowDeltaPhiRescale",                   m_narrowRescale =0.05,
-		  "Value of the narrow cut for delta phi Rescale");
-  declareProperty("narrowDeltaPhiRescaleBrem",               m_narrowRescaleBrem =0.1,
-		  "Value of the narrow cut for delta phi Rescale Brem");
-
   m_AllClusters=0;
   m_AllTracks=0;
   m_AllTRTTracks=0;
@@ -119,7 +70,6 @@ EMBremCollectionBuilder::EMBremCollectionBuilder(const std::string& name,
   m_FailedFitTracks=0;
   m_FailedSiliconRequirFit=0;
   m_RefittedTracks=0;
-
 }
 
 // ==================================================================
@@ -219,7 +169,7 @@ StatusCode EMBremCollectionBuilder::execute()
 
   // check is only used for serial running; remove when MT scheduler used
   if(!clusterTES.isValid()) {
-    ATH_MSG_ERROR("Failed to retrieve cluster container: "<< m_clusterContainerKey.key());
+    ATH_MSG_FATAL("Failed to retrieve cluster container: "<< m_clusterContainerKey.key());
     return StatusCode::FAILURE;
   }
 
@@ -227,7 +177,7 @@ StatusCode EMBremCollectionBuilder::execute()
 
   // check is only used for serial running; remove when MT scheduler used
   if(!trackTES.isValid()) {
-    ATH_MSG_ERROR("Failed to retrieve TrackParticle container: "<< m_trackParticleContainerKey.key());
+    ATH_MSG_FATAL("Failed to retrieve TrackParticle container: "<< m_trackParticleContainerKey.key());
     return StatusCode::FAILURE;
   }
 

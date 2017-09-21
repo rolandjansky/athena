@@ -5,21 +5,15 @@
 #ifndef EGAMMAALGS_EMVERTEXBUILDER_H
 #define EGAMMAALGS_EMVERTEXBUILDER_H
 
+#include "xAODTracking/TrackParticleContainerFwd.h"
+#include "xAODTracking/VertexContainerFwd.h"
+#include "InDetRecToolInterfaces/IVertexFinder.h"
+#include "egammaInterfaces/IEMExtrapolationTools.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
-#include "xAODTracking/TrackParticleContainerFwd.h"
-#include "xAODTracking/VertexContainerFwd.h"
-
-namespace InDet
-{
-  class IVertexFinder;
-  class SingleTrackConversionTool;
-}
-
-class IEMExtrapolationTools;
 
 /**
    @class EMVertexBuilder
@@ -40,22 +34,35 @@ class EMVertexBuilder : public AthAlgorithm {
  private:
 	
   /** Maximum radius accepted for conversion vertices **/
-  float m_maxRadius;
+  Gaudi::Property<float> m_maxRadius {this, "MaxRadius", 800., 
+      "Maximum radius accepted for conversion vertices"};
+
   /**  Minimum Pt, less than that TRT track are pileup for double/single track conversion **/
-  float m_minPtCut_DoubleTrack;
-  float m_minPtCut_SingleTrack;
+  Gaudi::Property<float> m_minPtCut_DoubleTrack {this, 
+      "minPCutDoubleTrackConversion", 2000,  
+      "Minimum Pt, less than that TRT tracks pileup for double-track conversion"};
+
+  Gaudi::Property<float> m_minPtCut_SingleTrack {this, 
+      "minPCutSingleTrackConversion", 2000,
+      "Minimum Pt, less than that TRT track pileup for single-track conversion"};
 
   /** @brief TrackParticle container input name*/
-  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_inputTrackParticleContainerKey;
+  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_inputTrackParticleContainerKey {this,
+      "InputTrackParticleContainerName", "GSFTrackParticles", "Input TrackParticles"};
 
   /** @brief conversion container output name*/
-  SG::WriteHandleKey<xAOD::VertexContainer> m_outputConversionContainerKey;
+  SG::WriteHandleKey<xAOD::VertexContainer> m_outputConversionContainerKey {this,
+      "OutputConversionContainerName", "GSFConversionVertices", 
+      "Output conversion vertices"};
 
   /** @brief Tool to find vertices (creates double-track conversions) */
-  ToolHandle<InDet::IVertexFinder>    m_vertexFinderTool;
+  ToolHandle<InDet::IVertexFinder> m_vertexFinderTool {this,
+      "VertexFinderTool", "InDetConversionFinderTools",
+      "The tool that does the converions finding"};
 
   /** @brief EMExtrapolationTool */
-  ToolHandle<IEMExtrapolationTools>  m_EMExtrapolationTool;
+  ToolHandle<IEMExtrapolationTools>  m_EMExtrapolationTool {this,
+      "ExtrapolationTool", "EMExtrapolationTools", "Handle of the extrapolation tool"};
     		
 };
 

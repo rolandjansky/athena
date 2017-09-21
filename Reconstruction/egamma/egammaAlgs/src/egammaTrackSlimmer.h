@@ -10,10 +10,17 @@
 
 
 // INCLUDE HEADER FILES:
-class IThinningSvc;
+#include "xAODEgamma/ElectronContainerFwd.h"
+#include "xAODEgamma/PhotonContainerFwd.h"
+#include "xAODTracking/TrackParticleContainerFwd.h"
+#include "xAODTracking/VertexContainerFwd.h"
+
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "StoreGate/ReadHandleKey.h"
+
+class IThinningSvc;
 
 class egammaTrackSlimmer : public AthAlgorithm
 {
@@ -36,20 +43,34 @@ class egammaTrackSlimmer : public AthAlgorithm
 
 
   /** @brief electron collection input name*/
-  std::string m_InputElectronContainerName;		
+  SG::ReadHandleKey<xAOD::ElectronContainer> m_InputElectronContainerKey {this, 
+      "InputElectronContainerName", 
+      "Electrons", 
+      "Name of the input electron container"};
+
   /** @brief photon collection input name*/
-  std::string m_InputPhotonContainerName;		
-  /** @brief GSF Track Particle container to slim */
-  std::string m_TrackParticlesName;
-  /** @brief  GSF vertex container to slim */
-  std::string m_VertexName ;
+  SG::ReadHandleKey<xAOD::PhotonContainer> m_InputPhotonContainerKey {this,
+      "InputPhotonContainerName",
+      "Photons",
+      "Name of the input photon container"};
+		
+  /** @brief GSF Track Particle container to thin */
+  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_TrackParticlesKey {this,
+      "TrackParticleContainerName", 
+      "",
+      "Name of the Track Particle container to thin"};
+
+  /** @brief  GSF vertex container to thin */
+  SG::ReadHandleKey<xAOD::VertexContainer> m_VertexKey {this,
+      "VertexContainerName", 
+      "",
+      "Name of the Vertex container to thin"};
 
   /** @brief Bool to decide if we actually do the Thinning */
-  bool m_doThinning;
+  Gaudi::Property<bool> m_doThinning{this, "doThinning", true, "Bool to do Thinning"};
 
   /** @brief The thinning service */
-  typedef ServiceHandle<IThinningSvc> IThinningSvc_t;
-  IThinningSvc_t m_thinningSvc;
+  ServiceHandle<IThinningSvc> m_thinningSvc;
 
 };
 

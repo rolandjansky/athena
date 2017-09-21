@@ -40,13 +40,12 @@
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "egammaRecEvent/egammaRecContainer.h"
 
-class IegammaBaseTool;
-class IEGammaAmbiguityTool;
-class IEMTrackMatchBuilder;
-class IEMConversionBuilder;
+#include "ElectronPhotonSelectorTools/IEGammaAmbiguityTool.h"
+#include "egammaInterfaces/IegammaBaseTool.h" 
+#include "egammaInterfaces/IEMTrackMatchBuilder.h"
+#include "egammaInterfaces/IEMConversionBuilder.h"
 
 class egammaRec;
-class StoreGateSvc;
 
 class egammaBuilder : public AthAlgorithm
 {
@@ -90,13 +89,16 @@ class egammaBuilder : public AthAlgorithm
 
 
   /** @brief Vector of tools for dressing electrons and photons **/
-  ToolHandleArray<IegammaBaseTool> m_egammaTools;
+  ToolHandleArray<IegammaBaseTool> m_egammaTools {this,
+      "egammaTools", {}, "Tools for dressing electrons and photons"};
   
   /** @brief Vector of tools for dressing ONLY electrons **/
-  ToolHandleArray<IegammaBaseTool> m_electronTools;
+  ToolHandleArray<IegammaBaseTool> m_electronTools {this,
+      "ElectronTools", {}, "Tools for dressing ONLY electrons"};
 
   /** @brief Vector of tools for dressing ONLY photons **/
-  ToolHandleArray<IegammaBaseTool> m_photonTools;
+  ToolHandleArray<IegammaBaseTool> m_photonTools {this,
+      "PhotonTools", {}, "Tools for dressing ONLY photons"};
 
   /** @brief Retrieve each tool in the given vector **/
   StatusCode RetrieveTools(ToolHandleArray<IegammaBaseTool>& tools);
@@ -114,58 +116,92 @@ class egammaBuilder : public AthAlgorithm
   StatusCode RetrieveEMConversionBuilder();
   
   /** @brief Name of the electron output collection*/
-  SG::WriteHandleKey<xAOD::ElectronContainer> m_electronOutputKey;
+  SG::WriteHandleKey<xAOD::ElectronContainer> m_electronOutputKey {this,
+      "ElectronOutputName", "ElectronContainer", 
+      "Name of Electron Connainer to be created"};
+
   /** @brief Name of the photon output collection */
-  SG::WriteHandleKey<xAOD::PhotonContainer> m_photonOutputKey;
+  SG::WriteHandleKey<xAOD::PhotonContainer> m_photonOutputKey {this,
+      "PhotonOutputName", "PhotonContainer",
+      "Name of Photon Container to be created"};
 
   /** @brief Name of the cluster intput collection */
-  SG::ReadHandleKey<xAOD::CaloClusterContainer> m_inputClusterContainerKey;
+  SG::ReadHandleKey<xAOD::CaloClusterContainer> m_inputClusterContainerKey {this,
+      "InputClusterContainerName", "LArClusterEM",
+      "Input cluster container for egamma objects"};
 
   /** @brief Name of the topo-seeded cluster collection */
-  SG::ReadHandleKey<xAOD::CaloClusterContainer> m_topoSeededClusterContainerKey;
+  SG::ReadHandleKey<xAOD::CaloClusterContainer> m_topoSeededClusterContainerKey {this,
+      "TopoSeededClusterContainerName", "EMTopoCluster430",
+      "Input topo-seeded cluster container for egamma objects"};
 
   /** @brief Name of egammaRec container */
-  SG::WriteHandleKey<EgammaRecContainer> m_egammaRecContainerKey;
+  SG::WriteHandleKey<EgammaRecContainer> m_egammaRecContainerKey {this, 
+      "egammaRecContainer", "egammaRecCollection",
+      "Output container for egammaRec objects"};
 
   //
   // The tools
   //
   // subalgorithm pointers cached in initialize:
   /** @brief Tool to resolve electron/photon ambiguity */
-  ToolHandle<IEGammaAmbiguityTool>             m_ambiguityTool;
+  ToolHandle<IEGammaAmbiguityTool> m_ambiguityTool {this, 
+      "AmbiguityTool", "EGammaAmbiguityTool", 
+      "Tool that does electron/photon ambiguity resolution"};
+
   /** @brief Tool to perform track matching*/
-  ToolHandle<IEMTrackMatchBuilder>             m_trackMatchBuilder;
-  /** @brief Tool to retrieve the conversions*/
-  ToolHandle<IEMConversionBuilder>             m_conversionBuilder;
+  ToolHandle<IEMTrackMatchBuilder> m_trackMatchBuilder {this,
+      "TrackMatchBuilderTool", "EMTrackMatchBuilder",
+      "Tool that matches tracks to egammaRecs"};
+
+  /** @brief Tool to perfrom conversion vertex matching*/
+  ToolHandle<IEMConversionBuilder> m_conversionBuilder {this,
+      "ConversionBuilderTool", "EMConversionBuilder",
+      "Tool that matches conversion vertices to egammaRecs"};
+
   //
   // All booleans
   //
-  /** @brief private member flag to do the TrackMatching (and conversion building)*/
-  bool         m_doTrackMatching;
+  /** @brief private member flag to do the track matching */
+  Gaudi::Property<bool> m_doTrackMatching {this, "doTrackMatching", true,
+      "Boolean to do track matching"};
+
   /** @brief private member flag to do the conversion matching */
-  bool         m_doConversions;
+  Gaudi::Property<bool> m_doConversions {this, "doConversions", true,
+      "Boolean to do conversion matching"};
+
   /** @brief add topo-seeded photons */
-  bool         m_doTopoSeededPhotons;
+  Gaudi::Property<bool> m_doTopoSeededPhotons {this, 
+      "doTopoSeededPhotons", true,
+      "Boolean to do topo-seeded photons"};
   //
   // Other properties.
   //
   /** @brief Discard clusters with energy less than this after corrections. */
-  float        m_clusterEnergyCut;
+  Gaudi::Property<float> m_clusterEnergyCut {this, 
+      "clusterEnergyCut", 10 * CLHEP::MeV,
+      "Discard clusters with energies below this after corrections"};
   
   // @brief Minimum deltaEta to check if clusters overlap
-  float m_minDeltaEta;
+  Gaudi::Property<float> m_minDeltaEta {this, "minDeltaEta", 0.05,
+      "Minimum deltaEta to check if clusters overlap"};
   
   // @brief Minimum deltaPhi to check if clusters overlap
-  float m_minDeltaPhi;  
+  Gaudi::Property<float> m_minDeltaPhi {this, "minDeltaPhi", 0.1,
+      "Minimum deltaPhi to check if clusters overlap"};
   
   // @brief Minimum transverse energy to accept topo-seeded clusters
-  float m_minEtTopo;
+  Gaudi::Property<float> m_minEtTopo {this, "minEtTopo", 1.5 * CLHEP::GeV,
+      "Minimum transverse energy to accept topo-seeded clusters"};
 
   // @brief Maximum transverse energy to accept topo-seeded clusters
-  float m_maxEtTopo;
+  Gaudi::Property<float> m_maxEtTopo {this, "maxEtTopo", 8 * CLHEP::GeV,
+      "Maximum transverse energy to accept topo-seeded clusters"};
   
   // others:
-  bool            m_dump ;
+  Gaudi::Property<bool> m_dump {this, "Dump", false,
+      "Boolean to dump content of each object"};
+
   IChronoStatSvc* m_timingProfile;
 
 };

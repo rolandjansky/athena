@@ -20,38 +20,14 @@ changes :
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/VertexAuxContainer.h"
-#include "InDetRecToolInterfaces/IVertexFinder.h"
-#include "InDetConversionFinderTools/SingleTrackConversionTool.h"
 #include "xAODEgamma/EgammaxAODHelpers.h"
-#include "egammaInterfaces/IEMExtrapolationTools.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
 
 EMVertexBuilder::EMVertexBuilder(const std::string& name, 
 				 ISvcLocator* pSvcLocator):
-  AthAlgorithm(name, pSvcLocator),
-  m_vertexFinderTool("InDet::InDetConversionFinderTools", this),
-  m_EMExtrapolationTool("EMExtrapolationTools", this)
+  AthAlgorithm(name, pSvcLocator)
 {
-  declareProperty("InputTrackParticleContainerName", m_inputTrackParticleContainerKey = "GSFTrackParticles");
-
-  declareProperty("OutputConversionContainerName",   m_outputConversionContainerKey = "GSFConversionVertices");
-
-  declareProperty("VertexFinderTool",                m_vertexFinderTool);
-
-  // Name of the extrapolation tool
-  declareProperty("ExtrapolationTool",
-		  m_EMExtrapolationTool,
-		  "Handle of the extrapolation tool");
-
-
-  declareProperty("MaxRadius", m_maxRadius = 800., 
-      "Maximum radius accepted for conversion vertices");
-
-  declareProperty("minPCutDoubleTrackConversion",      m_minPtCut_DoubleTrack = 2000 ,  "Minimum Pt, less than that TRT tracks pileup for double-track conversion");  
-
-  declareProperty("minPCutSingleTrackConversion",      m_minPtCut_SingleTrack = 2000 ,  "Minimum Pt, less than that TRT track pileup for single-track conversion");  
-
 }
 
 // ============================================================
@@ -64,7 +40,7 @@ StatusCode EMVertexBuilder::initialize() {
 
   // Get the ID VertexFinderTool
   if ( m_vertexFinderTool.retrieve().isFailure() ) {
-    ATH_MSG_ERROR("Failed to retrieve vertex finder tool " << m_vertexFinderTool);
+    ATH_MSG_FATAL("Failed to retrieve vertex finder tool " << m_vertexFinderTool);
     return StatusCode::FAILURE;
   } else {
     ATH_MSG_DEBUG( "Retrieved tool " << m_vertexFinderTool);
@@ -72,7 +48,7 @@ StatusCode EMVertexBuilder::initialize() {
 
   // Retrieve EMExtrapolationTool
   if(m_EMExtrapolationTool.retrieve().isFailure()){
-    ATH_MSG_ERROR("Cannot retrieve extrapolationTool " << m_EMExtrapolationTool);
+    ATH_MSG_FATAL("Cannot retrieve extrapolationTool " << m_EMExtrapolationTool);
     return StatusCode::FAILURE;
   } else {
     ATH_MSG_DEBUG("Retrieved extrapolationTool " << m_EMExtrapolationTool);
@@ -97,7 +73,7 @@ StatusCode EMVertexBuilder::execute()
 
   // check for serial running only, remove in MT
   if(!TPCol.isValid()){
-    ATH_MSG_ERROR("No TrackParticleInputContainer found in TDS");
+    ATH_MSG_FATAL("No TrackParticleInputContainer found in TDS");
     return StatusCode::FAILURE;
   }
 

@@ -38,11 +38,6 @@ PURPOSE:  Algorithm which makes a egammaObjectCollection. For each cluster
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/Photon.h"
 
-#include "ElectronPhotonSelectorTools/IEGammaAmbiguityTool.h"
-#include "egammaInterfaces/IegammaBaseTool.h" 
-#include "egammaInterfaces/IEMTrackMatchBuilder.h"
-#include "egammaInterfaces/IEMConversionBuilder.h"
-#include "egammaInterfaces/IegammaCheckEnergyDepositTool.h"
 
 #include "egammaUtils/egammaDuplicateRemoval.h"
 
@@ -58,9 +53,6 @@ PURPOSE:  Algorithm which makes a egammaObjectCollection. For each cluster
 #include <algorithm> 
 #include <math.h>
 
-using CLHEP::MeV;
-using CLHEP::GeV;
-
 
 //  END OF HEADER FILES INCLUDE
 
@@ -71,105 +63,8 @@ using CLHEP::GeV;
 egammaBuilder::egammaBuilder(const std::string& name, 
 				   ISvcLocator* pSvcLocator): 
   AthAlgorithm(name, pSvcLocator),
-  m_egammaTools(this), m_electronTools(this), m_photonTools(this),
-  m_ambiguityTool("EGammaAmbiguityTool", this),
-  m_trackMatchBuilder("EMTrackMatchBuilder", this),
-  m_conversionBuilder("EMConversionBuilder", this),
-  m_doTrackMatching(true),
-  m_doConversions(true),
   m_timingProfile(0)
 {
-
-  // The following properties are specified at run-time
-  // (declared in jobOptions file)
-  
-  declareProperty("ElectronOutputName",
-		  m_electronOutputKey="ElectronContainer",
-		  "Name of Electron Connainer to be created");
-  
-  declareProperty("PhotonOutputName",
-		  m_photonOutputKey="PhotonContainer",
-		  "Name of Photon Container to be created");
-
-  declareProperty("InputClusterContainerName",
-		  m_inputClusterContainerKey="LArClusterEM",
-		  "Input cluster container for egamma objects");
-
-
-  declareProperty("TopoSeededClusterContainerName",
-		  m_topoSeededClusterContainerKey="EMTopoCluster430",
-		  "Input topo-seeded cluster container for egamma objects");
-
-  declareProperty("egammaRecContainer",
-		  m_egammaRecContainerKey="egammaRecCollection",
-		  "Output container for egammaRec objects");
-
-  declareProperty("egammaTools", m_egammaTools,
-    "Tools for dressing electrons and photons");
-  
-  declareProperty("ElectronTools", m_electronTools,
-    "Tools for dressing ONLY electrons");
-
-  declareProperty("PhotonTools", m_photonTools,
-    "Tools for dressing ONLY photons");
-
-  //
-  // Handles of tools
-  //
-
-  // Handle of ambiguity tool
-  declareProperty("AmbiguityTool", m_ambiguityTool,
-		  "Handle of ambiguity tool");
-
-
-  // Handle of TrackMatchBuilder
-  declareProperty("TrackMatchBuilderTool", m_trackMatchBuilder,
-		  "Handle of TrackMatchBuilder");
-
-  // Handle of Conversion Builder
-  declareProperty("ConversionBuilderTool",m_conversionBuilder,
-		  "Handle of Conversion Builder");
-
-  //
-  // All booleans
-  //
-
-  // Boolean to do track matching
-  declareProperty("doTrackMatching",m_doTrackMatching= true,
-		  "Boolean to do track matching (and conversion building)");
-
-  // Boolean to do conversion reconstruction
-  declareProperty("doConversions",m_doConversions= true,
-		  "Boolean to do conversion building / matching");
-
-  // Boolean to do topo-seeded photons
-  declareProperty("doTopoSeededPhotons",m_doTopoSeededPhotons= true,
-		  "Boolean to do topo-seeded photons");
-
-
-  // Boolean to dump content of each object
-  declareProperty("Dump",m_dump=false,
-		  "Boolean to dump content of each object");
-  //
-  // Other properties.
-  //
-  // Threshold for discarding pathological clusters.
-  declareProperty ("clusterEnergyCut", m_clusterEnergyCut = 10 * MeV,
-                   "Discard clusters with energies below this "
-                   "after corrections.");
-  
-  declareProperty("minDeltaEta", m_minDeltaEta = 0.05,
-                  "Minimum deltaEta to check if clusters overlap");
-  
-  declareProperty("minDeltaPhi", m_minDeltaPhi = 0.1,
-                  "Minimum deltaPhi to check if clusters overlap");
-
-  declareProperty("minEtTopo", m_minEtTopo = 1.5 * GeV,
-                  "Minimum transverse energy to accept topo-seeded clusters");
-
-  declareProperty("maxEtTopo", m_maxEtTopo = 8 * GeV,
-                  "Minimum transverse energy to accept topo-seeded clusters");
-  
 }
 
 // ================================================================
@@ -340,7 +235,7 @@ StatusCode egammaBuilder::execute(){
   SG::ReadHandle<xAOD::CaloClusterContainer> clusters(m_inputClusterContainerKey);
   // only for single-threaded running, remove later
   if (!clusters.isValid()) {
-    ATH_MSG_ERROR("Could not retrieve cluster container " << m_inputClusterContainerKey.key());
+    ATH_MSG_FATAL("Could not retrieve cluster container " << m_inputClusterContainerKey.key());
     return StatusCode::FAILURE;
   }
   
@@ -624,7 +519,7 @@ StatusCode egammaBuilder::addTopoSeededPhotons(xAOD::PhotonContainer *photonCont
   SG::ReadHandle<xAOD::CaloClusterContainer> topoSeededClusters(m_topoSeededClusterContainerKey);
   // only for single-threaded running, remove later
   if (!topoSeededClusters.isValid()) {
-    ATH_MSG_ERROR("Could not retrieve toposeeded cluster container " << m_topoSeededClusterContainerKey.key());
+    ATH_MSG_FATAL("Could not retrieve toposeeded cluster container " << m_topoSeededClusterContainerKey.key());
     return StatusCode::FAILURE;
   }
 

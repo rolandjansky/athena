@@ -184,7 +184,7 @@ StatusCode topoEgammaBuilder::execute(){
 
   // check is only used for serial running; remove when MT scheduler used
   if(!electronSuperRecs.isValid()) {
-    ATH_MSG_ERROR("Failed to retrieve "<< m_electronSuperClusterRecContainerKey.key());
+    ATH_MSG_FATAL("Failed to retrieve "<< m_electronSuperClusterRecContainerKey.key());
     return StatusCode::FAILURE;
   }
 
@@ -192,7 +192,7 @@ StatusCode topoEgammaBuilder::execute(){
 
   // check is only used for serial running; remove when MT scheduler used
   if(!photonSuperRecs.isValid()) {
-    ATH_MSG_ERROR("Failed to retrieve "<< m_photonSuperClusterRecContainerKey.key());
+    ATH_MSG_FATAL("Failed to retrieve "<< m_photonSuperClusterRecContainerKey.key());
     return StatusCode::FAILURE;
   }
 
