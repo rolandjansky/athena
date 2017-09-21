@@ -55,6 +55,7 @@
 #include <deque>
 
 
+class TH1;
 class TH1D;
 
 //using namespace std;
@@ -216,12 +217,13 @@ namespace VKalVrtAthena {
     std::map<std::string, PatternStrategyFunc> m_patternStrategyFuncs;
     
     // Histograms for stats
-    TH1D* m_hb_massPiPi;
-    TH1D* m_hb_2Ddist;
-    TH1D* m_hb_massEE;
-    TH1D* m_hb_nvrt2;
-    TH1D* m_hb_ratio;
-    TH1D* m_trkSelCuts;
+    TH1* m_hb_massPiPi;
+    TH1* m_hb_2Ddist;
+    TH1* m_hb_massEE;
+    TH1* m_hb_nvrt2;
+    TH1* m_hb_ratio;
+    TH1* m_trkSelCuts;
+    TH1* m_shuffleMinSignif;
     
     //////////////////////////////////////////////////////////////////////////////////////
     //
@@ -294,6 +296,7 @@ namespace VKalVrtAthena {
     StatusCode reconstructNTrackVertices( std::vector<WrkVrt>* );
     StatusCode reassembleVertices( std::vector<WrkVrt>* );
     StatusCode mergeFinalVertices( std::vector<WrkVrt>* ); // Kazuki
+    StatusCode mergeByShuffling( std::vector<WrkVrt>* );
     StatusCode associateNonSelectedTracks( std::vector<WrkVrt>* );
     StatusCode refitAndSelectGoodQualityVertices( std::vector<WrkVrt>* );
     

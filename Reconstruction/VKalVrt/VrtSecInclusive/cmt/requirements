@@ -34,7 +34,7 @@ private
 #use TruthHelper                 TruthHelper-*                   Generators/GenAnalysisTools
 use TrkTrackSummary     TrkTrackSummary-*       Tracking/TrkEvent
 use VxVertex            VxVertex-*              Tracking/TrkEvent
-
+use EventPrimitives     EventPrimitives-*       Event/EventPrimitives
 use xAODEventInfo			xAODEventInfo-*			    Event/xAOD
 
 

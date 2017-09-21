@@ -9,6 +9,8 @@
 
 #include "TrkTrackSummary/TrackSummary.h"
 
+#include "EventPrimitives/EventPrimitivesHelpers.h"
+
 
 #include "TH1D.h"
 #include "TNtuple.h"
@@ -1099,5 +1101,96 @@ namespace VKalVrtAthena {
     return StatusCode::SUCCESS;
 
   } // end of mergeFinalVertices
-
+  
+  
+  
+  //____________________________________________________________________________________________________
+  StatusCode VrtSecInclusive::mergeByShuffling( std::vector<WrkVrt> *workVerticesContainer )
+  {
+    
+    xAOD::TrackParticleContainer *selectedBaseTracks ( nullptr );
+    ATH_CHECK( evtStore()->retrieve(selectedBaseTracks, "VrtSecInclusive_SelectedTrackParticles") );
+    
+    // First, sort WrkVrt by the track multiplicity
+    std::sort( workVerticesContainer->begin(), workVerticesContainer->end(), [](WrkVrt& v1, WrkVrt& v2) { return v1.SelTrk.size() < v2.SelTrk.size(); } );
+    
+    auto calcSignificance = []( const WrkVrt& v1, const WrkVrt& v2 ) -> double {
+      
+      const auto distance = v2.vertex - v1.vertex;
+      AmgSymMatrix(3) sumCov;
+      
+      sumCov.fillSymmetric(0, 0, v1.vertexCov.at(0) + v2.vertexCov.at(0));
+      sumCov.fillSymmetric(1, 0, v1.vertexCov.at(1) + v2.vertexCov.at(1));
+      sumCov.fillSymmetric(1, 1, v1.vertexCov.at(2) + v2.vertexCov.at(2));
+      sumCov.fillSymmetric(2, 0, v1.vertexCov.at(3) + v2.vertexCov.at(3));
+      sumCov.fillSymmetric(2, 1, v1.vertexCov.at(4) + v2.vertexCov.at(4));
+      sumCov.fillSymmetric(2, 2, v1.vertexCov.at(5) + v2.vertexCov.at(5));
+      
+      const double s2 = distance.transpose() * sumCov.inverse() * distance;
+      
+      return sqrt( s2 );
+    };
+    
+    // Loop over vertices (small -> large Ntrk order)
+    for( auto& workVertex : *workVerticesContainer ) {
+      if( !workVertex.Good               ) continue;
+      if(  workVertex.SelTrk.size() <= 1 ) continue;
+      
+      // Reverse iteration: large Ntrk -> small Ntrk order
+      for( auto ritr = workVerticesContainer->rbegin(); ritr != workVerticesContainer->rend(); ++ritr ) {
+        auto& vertexToMerge = *ritr;
+          
+        if( !vertexToMerge.Good               ) continue;
+        if(  vertexToMerge.SelTrk.size() <= 1 ) continue;
+        if( &workVertex == &vertexToMerge     ) continue;
+        if(  vertexToMerge.SelTrk.size() < workVertex.SelTrk.size() ) continue;
+        
+        
+        const double& significance = calcSignificance( workVertex, vertexToMerge );
+        
+        if( significance > 100. ) continue;
+        
+        bool mergeFlag { false };
+        
+        ATH_MSG_INFO(" > " << __FUNCTION__ 
+                     << ": vertex " << &workVertex << " #tracks = " << workVertex.SelTrk.size()
+                     << " --> to Merge : " << &vertexToMerge << ", #tracks = " << vertexToMerge.SelTrk.size()
+                     << " significance = " << significance );
+        
+        double min_signif = 99999;
+        // Loop over tracks in vertexToMerge
+        for( auto& index : vertexToMerge.SelTrk ) {
+          
+          WrkVrt testVertex = workVertex;
+          testVertex.SelTrk.emplace_back( index );
+          
+          StatusCode sc = RefitVertex( testVertex, selectedBaseTracks );
+          if( sc.isFailure() ) {}
+          
+          const auto signif = calcSignificance( testVertex, vertexToMerge );
+          if( signif < min_signif ) min_signif = signif;
+          
+          if( signif < 4.0 ) {
+            ATH_MSG_INFO(" > " << __FUNCTION__ << ":   vertexToMerge " << &vertexToMerge << " track index " << index << ": test signif = " << signif );
+            mergeFlag = true;
+          }
+          
+        }
+        
+        if( m_FillHist ) m_shuffleMinSignif->Fill( min_signif );
+        
+        if( mergeFlag ) {
+          ATH_MSG_INFO(" > " << __FUNCTION__ << ":   vertexToMerge " << &vertexToMerge << " ==> min signif = " << min_signif << " judged to merge" );
+          MergeVertices( vertexToMerge, workVertex );
+          StatusCode sc = RefitVertex( vertexToMerge, selectedBaseTracks );
+          if( sc.isFailure() ) {}
+        }
+          
+      }
+      
+    }
+    
+    return StatusCode::SUCCESS;
+  }
+  
 } // end of namespace VKalVrtAthena

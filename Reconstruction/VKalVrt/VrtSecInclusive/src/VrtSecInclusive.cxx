@@ -264,13 +264,16 @@ namespace VKalVrtAthena {
       m_hb_ratio      = new TH1D("95"," ratio",     50,   0.,   1.);
       m_trkSelCuts    = new TH1D("TrkSelCuts"," TrkSelCuts ",35, 0., 35.);
       
-      std::string histDir("/AANT/stat/SecVrtInclusive/");
+      m_shuffleMinSignif = new TH1F("shuffleMinSignif", ";Min( log_{10}( Significance ) );Entries", 100, -3, 5);
+      
+      std::string histDir("/AANT/VrtSecInclusive/");
       ATH_CHECK( hist_root->regHist(histDir+"91", m_hb_massPiPi) );
       ATH_CHECK( hist_root->regHist(histDir+"92", m_hb_2Ddist) );
       ATH_CHECK( hist_root->regHist(histDir+"93", m_hb_massEE ) );
       ATH_CHECK( hist_root->regHist(histDir+"94", m_hb_nvrt2) );
       ATH_CHECK( hist_root->regHist(histDir+"95", m_hb_ratio) );
       ATH_CHECK( hist_root->regHist(histDir+"TrkSelCuts", m_trkSelCuts) );
+      ATH_CHECK( hist_root->regHist(histDir+m_shuffleMinSignif->GetName(), m_shuffleMinSignif) );
     }
     
     
@@ -488,7 +491,7 @@ namespace VKalVrtAthena {
     if( m_FillNtuple ) m_ntupleVars->get<unsigned int>( "SizeIncomp" ) = Incomp.size();
     
     // set of vertices created in the following while loop.
-    auto workVerticesContainer = new std::vector<WrkVrt>;
+    auto* workVerticesContainer = new std::vector<WrkVrt>;
     
     // Reconstruction of initial solution set (2-track vertices)
     ATH_CHECK( reconstruct2TrackVertices( Incomp, workVerticesContainer ) );
@@ -506,6 +509,7 @@ namespace VKalVrtAthena {
       ATH_CHECK( mergeFinalVertices( workVerticesContainer ) );
     } // end if m_mergeFinalVerticesDistance
     
+    ATH_CHECK( mergeByShuffling( workVerticesContainer ) );
     
     // Attempt to associate more tracks other than selected tracks to the final vertices
     ATH_CHECK( associateNonSelectedTracks( workVerticesContainer ) );
