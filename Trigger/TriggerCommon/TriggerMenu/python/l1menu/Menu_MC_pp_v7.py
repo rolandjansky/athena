@@ -381,7 +381,7 @@ def defineMenu():
         'L1_MU4_UNPAIRED_ISO','L1_MU4_UNPAIRED_NONISO',
          'L1_MU20_FIRSTEMPTY','L1_MU21_FIRSTEMPTY',
 
-        
+        'L1_2EM3_VTE70', 
         
         # multi lepton
         "L1_2EM3", "L1_2EM7", "L1_2EM10VH", "L1_2EM15", "L1_2EM15VH", "L1_2EM15VHI", "L1_EM7_2EM3", "L1_EM12_2EM3", "L1_EM15VH_3EM7", "L1_EM15VH_3EM8VH", "L1_EM15VH_2EM10VH_3EM7",
@@ -422,6 +422,10 @@ def defineMenu():
         'L1_J25_2J20_3J12_BOX-TAU20ITAU12I',  
         'L1_DR-MU10TAU12I_TAU12I-J25', 
         "L1_MU10_TAU12I-J25",
+        "L1_2TAU20IM_3J20",
+        "L1_2TAU20IM_J25_3J20",
+        "L1_TAU25IM_2TAU12IM_J25_3J12",
+
 
 
         # combined tau - xe
@@ -555,7 +559,7 @@ def defineMenu():
         "L1_RD2_FILLED","L1_RD2_EMPTY","L1_RD2_BGRP12",
         "L1_RD3_FILLED","L1_RD3_EMPTY",
         'L1_RD0_FIRSTEMPTY', 
-        'L1_RD0_BGRP9', 'L1_RD0_BGRP11', 'L1_RD0_ABORTGAPNOTCALIB',
+        'L1_RD0_BGRP9', 'L1_RD0_BGRP10', 'L1_RD0_BGRP11', 'L1_RD0_ABORTGAPNOTCALIB',
 
         #LUCID
         'L1_LUCID', 'L1_LUCID_EMPTY', 'L1_LUCID_UNPAIRED_ISO', 
@@ -912,7 +916,7 @@ def defineMenu():
     
 
 #CTP IDs are taken from this mapping. Every L1 item needs a unique ctpid.
-#Free CTP IDs (2017-07-20) are: 473-479, 481, 486, 487, 488
+#Free CTP IDs (2017-09-01) are: 475-478, 
 # 463-464 are reserved for L1_RD2_BGRP14 and L1_RD3_BGRP15 (in MC_Physics_pp_v7)
 # 509-511 are reserved for CALREQ
 
@@ -1003,6 +1007,10 @@ def defineMenu():
         'L1_MU10_TAU20IM' : 67,
         'L1_MU11_TAU20IM' : 430,
         'L1_MU10_TAU20IM_J25_2J20' : 377,
+
+        'L1_2TAU20IM_3J20' : 486, 
+        'L1_2TAU20IM_J25_3J20' : 479, 
+        'L1_TAU25IM_2TAU12IM_J25_3J12' : 481,
 
         'L1_TAU20IM_2TAU12IM_J25_2J20_3J12' : 70,
         'L1_TAU25IM_2TAU20IM_2J25_3J20' : 398,
@@ -1248,6 +1256,7 @@ def defineMenu():
         'L1_RD3_EMPTY' : 208,
         'L1_RD0_FIRSTEMPTY' : 209,
         'L1_RD0_BGRP9' : 210,
+        'L1_RD0_BGRP10' : 473,
         'L1_RD0_BGRP11' : 211,
         'L1_LUCID' : 212,
         'L1_LUCID_EMPTY' : 213,
@@ -1543,6 +1552,8 @@ def defineMenu():
         #'L1_TE60.0ETA24':416, 
         'L1_TE70.0ETA24':417, 
         'L1_TE40.0ETA24':418, 
+
+        'L1_2EM3_VTE70' : 474,
 
         # 3 x ZDC
         'L1_ZDC_A':419,

@@ -64,7 +64,7 @@ public:
                        const std::vector<std::string>& ignoreThresholds);
 
 private:
-  bool m_printErrorMessages;
+  bool m_printWarnings;
   bool m_returnFailure;
   std::vector<std::string> m_thresholdsToCheck;
 
