@@ -500,6 +500,17 @@ private:
     std::vector<char>  m_jet_isTrueHS;
     std::unordered_map<std::string, std::vector<char>>  m_jet_isbtagged;//one vector per jet per WP
     std::vector<int>  m_jet_tagWeightBin;//tag-weight bin in case Continuous WP is used
+    // R21 b-tagging
+    std::vector<float> m_jet_MV2c10mu;
+    std::vector<float> m_jet_MV2c10rnn;
+    std::vector<float> m_jet_DL1;
+    std::vector<float> m_jet_DL1mu;
+    std::vector<float> m_jet_DL1rnn;
+    std::vector<float> m_jet_MV2cl100;
+    std::vector<float> m_jet_MV2c100;
+    std::vector<float> m_jet_DL1rnn_pu;
+    std::vector<float> m_jet_DL1rnn_pc;
+    std::vector<float> m_jet_DL1rnn_pb;
 
     // for upgrade, we store the tagging efficiency per jet & whether it is from pileup
     std::vector<float> m_jet_mv1eff;
