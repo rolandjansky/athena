@@ -186,6 +186,9 @@ namespace VKalVrtAthena {
       
       double improveChi2ProbThreshold;
       
+      // Additional dressing option
+      bool doAugmentDVimpactParametersToMuons; // potentially useful for DV + muon search
+      
       // MC truth
       double               mcTrkResolution;
       double               TruthTrkLen;
@@ -331,6 +334,7 @@ namespace VKalVrtAthena {
     std::vector<vertexingAlg> m_vertexingAlgorithms;
     unsigned m_vertexingAlgorithmStep;
     
+    
     ////////////////////////////////////////////////////////////////////////////////////////
     // 
     // Supporting utility functions
@@ -436,7 +440,14 @@ namespace VKalVrtAthena {
     const xAOD::TruthParticle *getTrkGenParticle(const xAOD::TrackParticle*) const;
     
     StatusCode categorizeVertexTruthTopology( xAOD::Vertex *vertex );
-      
+    
+    ////////////////////////////////////////////////////////////////////////////////////////
+    // 
+    // Additional augmentation
+    //
+    // 
+    
+    StatusCode augmentDVimpactParametersToMuons();
     
   };
   

@@ -881,29 +881,32 @@ namespace VKalVrtAthena {
     xAOD::VertexContainer *secondaryVertexContainer( nullptr );
     ATH_CHECK( evtStore()->retrieve( secondaryVertexContainer, "VrtSecInclusive_" + m_jp.secondaryVerticesContainerName ) );
     
+    
+    std::map<const WrkVrt*, const xAOD::Vertex*> wrkvrtLinkMap;
+    
     //----------------------------------------------------------
 
     m_fitSvc->setDefault();
     m_fitSvc->setMomCovCalc(1);
 
     // Loop over vertices
-    for( auto WrkVrt : *workVerticesContainer ) {
+    for( auto& wrkvrt : *workVerticesContainer ) {
 
-      int nth = WrkVrt.selectedTrackIndices.size();
+      int nth = wrkvrt.selectedTrackIndices.size();
 
       if(nth < 2) continue;               /* Bad vertices */
 
-      StatusCode sc = refitVertex( WrkVrt );
+      StatusCode sc = refitVertex( wrkvrt );
       if( sc.isFailure() ) {
-        WrkVrt.isGood = false;
+        wrkvrt.isGood = false;
         continue;   /* Bad fit - goto next solution */
       }
       
       if( m_jp.doFinalImproveChi2 ) {
-        improveVertexChi2( WrkVrt );
+        improveVertexChi2( wrkvrt );
         
         // If the number of remaining seed selected tracks is less than 2, drop.
-        if( WrkVrt.selectedTrackIndices.size() < 2 ) continue;
+        if( wrkvrt.selectedTrackIndices.size() < 2 ) continue;
       }
       
       //
@@ -927,18 +930,18 @@ namespace VKalVrtAthena {
       // Pre-check before storing vertex if the SV perigee is available
       bool good_flag = true;
       
-      for(size_t itrk=0; itrk<WrkVrt.selectedTrackIndices.size(); itrk++) {
-        xAOD::TrackParticle* trk = m_selectedBaseTracks->at( WrkVrt.selectedTrackIndices[itrk] );
-        const Trk::Perigee* sv_perigee = m_trackToVertexTool->perigeeAtVertex( *trk, WrkVrt.vertex );
+      for(size_t itrk=0; itrk<wrkvrt.selectedTrackIndices.size(); itrk++) {
+        xAOD::TrackParticle* trk = m_selectedBaseTracks->at( wrkvrt.selectedTrackIndices[itrk] );
+        const Trk::Perigee* sv_perigee = m_trackToVertexTool->perigeeAtVertex( *trk, wrkvrt.vertex );
         if( !sv_perigee ) {
           ATH_MSG_INFO(" > refitAndSelectGoodQualityVertices: > Track index " << trk->index() << ": Failed in obtaining the SV perigee!" );
           good_flag = false;
         }
         delete sv_perigee;
       }
-      for(size_t itrk=0; itrk<WrkVrt.associatedTrackIndices.size(); itrk++) {
-        xAOD::TrackParticle* trk = m_associableTracks->at( WrkVrt.associatedTrackIndices[itrk] );
-        const Trk::Perigee* sv_perigee = m_trackToVertexTool->perigeeAtVertex( *trk, WrkVrt.vertex );
+      for(size_t itrk=0; itrk<wrkvrt.associatedTrackIndices.size(); itrk++) {
+        xAOD::TrackParticle* trk = m_associableTracks->at( wrkvrt.associatedTrackIndices[itrk] );
+        const Trk::Perigee* sv_perigee = m_trackToVertexTool->perigeeAtVertex( *trk, wrkvrt.vertex );
         if( !sv_perigee ) {
           ATH_MSG_INFO(" > refitAndSelectGoodQualityVertices: > Track index " << trk->index() << ": Failed in obtaining the SV perigee!" );
           good_flag = false;
@@ -950,8 +953,8 @@ namespace VKalVrtAthena {
       }
       
       std::vector<xAOD::TrackParticle*> tracks;
-      for( const auto& index : WrkVrt.selectedTrackIndices )   tracks.emplace_back( m_selectedBaseTracks->at( index ) );
-      for( const auto& index : WrkVrt.associatedTrackIndices ) tracks.emplace_back( m_associableTracks  ->at( index ) );
+      for( const auto& index : wrkvrt.selectedTrackIndices )   tracks.emplace_back( m_selectedBaseTracks->at( index ) );
+      for( const auto& index : wrkvrt.associatedTrackIndices ) tracks.emplace_back( m_associableTracks  ->at( index ) );
 
       // loop over vertex tracks
       ATH_MSG_DEBUG(" > refitAndSelectGoodQualityVertices: Track loop: size = " << tracks.size() );
@@ -1004,7 +1007,7 @@ namespace VKalVrtAthena {
         // Get the perigee of the track at the vertex
         ATH_MSG_VERBOSE(" > refitAndSelectGoodQualityVertices: > Track index " << trk->index() << ": Get the prigee of the track at the vertex." );
 
-        const Trk::Perigee* sv_perigee = m_trackToVertexTool->perigeeAtVertex( *trk, WrkVrt.vertex );
+        const Trk::Perigee* sv_perigee = m_trackToVertexTool->perigeeAtVertex( *trk, wrkvrt.vertex );
         if( !sv_perigee ) {
           ATH_MSG_WARNING(" > refitAndSelectGoodQualityVertices: > Track index " << trk->index() << ": Failed in obtaining the SV perigee!" );
 
@@ -1068,8 +1071,8 @@ namespace VKalVrtAthena {
 
 
       ATH_MSG_DEBUG(" > refitAndSelectGoodQualityVertices: Final Sec.Vertex="<<nth<<", "
-          <<WrkVrt.vertex[0]<<", "<<WrkVrt.vertex[1]<<", "
-          <<WrkVrt.vertex[2]<<","<<vert_mass<<","<<vert_pt<<","<<vert_masse);
+          <<wrkvrt.vertex[0]<<", "<<wrkvrt.vertex[1]<<", "
+          <<wrkvrt.vertex[2]<<","<<vert_mass<<","<<vert_pt<<","<<vert_masse);
 
 
       //
@@ -1099,26 +1102,26 @@ namespace VKalVrtAthena {
       secondaryVertexContainer->emplace_back( vertex );
 
       // Registering the vertex position to xAOD::Vertex
-      vertex->setPosition( WrkVrt.vertex );
+      vertex->setPosition( wrkvrt.vertex );
 
       // Registering the vertex type: SV
       vertex->setVertexType( xAOD::VxType::SecVtx );
 
       // Registering the vertex chi2 and Ndof
-      int ndof = 2*( WrkVrt.selectedTrackIndices.size() + WrkVrt.associatedTrackIndices.size() ) - 3;
-      vertex->setFitQuality( WrkVrt.Chi2, ndof );
+      int ndof = 2*( wrkvrt.selectedTrackIndices.size() + wrkvrt.associatedTrackIndices.size() ) - 3;
+      vertex->setFitQuality( wrkvrt.Chi2, ndof );
 
       // Registering the vertex covariance matrix
-      std::vector<float> fCov(WrkVrt.vertexCov.cbegin(), WrkVrt.vertexCov.cend());
+      std::vector<float> fCov(wrkvrt.vertexCov.cbegin(), wrkvrt.vertexCov.cend());
       vertex->setCovariance(fCov);
 
       // Registering the vertex momentum and charge
-      vertex->auxdata<float>("vtx_px")		= WrkVrt.vertexMom.Px();
-      vertex->auxdata<float>("vtx_py")		= WrkVrt.vertexMom.Py();
-      vertex->auxdata<float>("vtx_pz")		= WrkVrt.vertexMom.Pz();
+      vertex->auxdata<float>("vtx_px")		= wrkvrt.vertexMom.Px();
+      vertex->auxdata<float>("vtx_py")		= wrkvrt.vertexMom.Py();
+      vertex->auxdata<float>("vtx_pz")		= wrkvrt.vertexMom.Pz();
 
-      vertex->auxdata<float>("vtx_mass")	= WrkVrt.vertexMom.M();
-      vertex->auxdata<float>("vtx_charge")	= WrkVrt.Charge;
+      vertex->auxdata<float>("vtx_mass")	= wrkvrt.vertexMom.M();
+      vertex->auxdata<float>("vtx_charge")	= wrkvrt.Charge;
 
       // Other SV properties
       vertex->auxdata<float>("mass")		= vert_mass;
@@ -1129,12 +1132,12 @@ namespace VKalVrtAthena {
       vertex->auxdata<float>("sumBLayHits")     = SumBLay;
       vertex->auxdata<float>("allTrksBLayHits") = AllBLay;
       vertex->auxdata<float>("minOpAng")        = minOpAng;
-      vertex->auxdata<float>("num_trks")        = WrkVrt.selectedTrackIndices.size();
-      vertex->auxdata<float>("dCloseVrt")       = WrkVrt.closestWrkVrtValue;
+      vertex->auxdata<float>("num_trks")        = wrkvrt.selectedTrackIndices.size();
+      vertex->auxdata<float>("dCloseVrt")       = wrkvrt.closestWrkVrtValue;
 
       // Registering tracks comprising the vertex to xAOD::Vertex
       // loop over the tracks comprising the vertex
-      for( auto trk_id : WrkVrt.selectedTrackIndices ) {
+      for( auto trk_id : wrkvrt.selectedTrackIndices ) {
 
         const xAOD::TrackParticle *trk = m_selectedBaseTracks->at( trk_id );
 
@@ -1146,7 +1149,7 @@ namespace VKalVrtAthena {
 
       }
       
-      for( auto trk_id : WrkVrt.associatedTrackIndices ) {
+      for( auto trk_id : wrkvrt.associatedTrackIndices ) {
 
         const xAOD::TrackParticle *trk = m_associableTracks->at( trk_id );
 
@@ -1161,7 +1164,7 @@ namespace VKalVrtAthena {
       
       if( m_jp.doMapToLocal ) {
         // Obtain the local mapping of the reconstructed vertex
-        Trk::MappedVertex mappedVtx = m_vertexMapper->mapToLocal( WrkVrt.vertex );
+        Trk::MappedVertex mappedVtx = m_vertexMapper->mapToLocal( wrkvrt.vertex );
         if( mappedVtx.valid ) {
           vertex->auxdata<int>("local_identifierHash") = mappedVtx.identifierHash;
           vertex->auxdata<int>("local_layerIndex")     = mappedVtx.layerIndex;
@@ -1183,11 +1186,23 @@ namespace VKalVrtAthena {
       if( m_jp.doTruth ) {
         ATH_CHECK( categorizeVertexTruthTopology( vertex ) );
       }
-
+      
+      // Keep the link between wrkvrt and vertex for later use
+      wrkvrtLinkMap[&wrkvrt] = vertex;
+      
+      
     } // loop over vertices
 
     if( m_jp.FillNtuple ) {
       ATH_CHECK( fillAANT_SecondaryVertices( secondaryVertexContainer ) );
+    }
+    
+    
+    // Post process -- Additional augmentations
+    if( m_jp.doAugmentDVimpactParametersToMuons ) {
+      
+      ATH_CHECK( augmentDVimpactParametersToMuons() );
+      
     }
 
     return StatusCode::SUCCESS;
