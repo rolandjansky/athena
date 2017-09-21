@@ -266,6 +266,18 @@ namespace VKalVrtAthena {
     //
     // Setup StoreGate Variables
     //
+    
+    // Check Return StatusCode::Failure if the user-specified container names have duplication.
+    {
+      std::vector<std::string> userContainerNames { m_jp.selectedTracksContainerName, m_jp.associableTracksContainerName, m_jp.secondaryVerticesContainerName, m_jp.all2trksVerticesContainerName };
+      std::set<std::string> userContainerNamesSet;
+      for( auto& name : userContainerNames ) userContainerNamesSet.insert( name );
+      if( userContainerNamesSet.size() != userContainerNames.size() ) {
+        ATH_MSG_ERROR( " > " << __FUNCTION__ << ": detected duplicated user-specified container name. Please check your job property" );
+        return StatusCode::FAILURE;
+      }
+    }
+    
     auto *selectedBaseTracks          = new xAOD::TrackParticleContainer;
     auto *selectedBaseTracksAux       = new xAOD::TrackParticleAuxContainer;
     auto *associableTracks            = new xAOD::TrackParticleContainer;
