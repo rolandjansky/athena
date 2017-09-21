@@ -705,6 +705,7 @@ namespace VKalVrtAthena {
     
     // Additional dressing option
     declareProperty("doAugmentDVimpactParametersToMuons", m_jp.doAugmentDVimpactParametersToMuons = false                   );
+    declareProperty("doAugmentDVimpactParametersToElectrons", m_jp.doAugmentDVimpactParametersToElectrons = false           );
     
     // Additional ToolHandles
     declareProperty("VertexFitterTool",                m_fitSvc, " Private TrkVKalVrtFitter"                                );
@@ -1569,6 +1570,8 @@ namespace VKalVrtAthena {
     static SG::AuxElement::Decorator< std::vector<ElementLink< xAOD::VertexContainer > > > decor_svLink("svLinks");
     
     for( const auto& muon : *muonContainer ) {
+      // Loop over muons
+      
       const auto& primaryTrackLink = muon->primaryTrackParticleLink();
       const auto* trk = *primaryTrackLink;
       if( trk ) {
@@ -1604,7 +1607,64 @@ namespace VKalVrtAthena {
       }
     }
     
-    // Loop over muons
+    return StatusCode::SUCCESS;
+  }
+
+
+  //____________________________________________________________________________________________________
+  StatusCode VrtSecInclusive::augmentDVimpactParametersToElectrons()
+  {
+    
+    const xAOD::VertexContainer *secondaryVertexContainer( nullptr );
+    ATH_CHECK( evtStore()->retrieve( secondaryVertexContainer, "VrtSecInclusive_" + m_jp.secondaryVerticesContainerName ) );
+    
+    const xAOD::ElectronContainer *electronContainer( nullptr );
+    ATH_CHECK( evtStore()->retrieve( electronContainer, "Electrons" ) );
+    
+    static SG::AuxElement::Decorator< std::vector<float> > decor_d0wrtSV( "d0_wrtSVs" );
+    static SG::AuxElement::Decorator< std::vector<float> > decor_z0wrtSV( "z0_wrtSVs" );
+    static SG::AuxElement::Decorator< std::vector<ElementLink< xAOD::VertexContainer > > > decor_svLink("svLinks");
+    
+    for( const auto& electron : *electronContainer ) {
+      // Loop over electrons
+      
+      if( 0 == electron->nTrackParticles() ) continue;
+      
+      // The first track is the best-matched track
+      const auto* trk = electron->trackParticle(0);
+      if( trk ) {
+        
+        std::map< const xAOD::Vertex*, std::vector<double> > distanceMap;
+      
+        std::vector<float> d0wrtSV;
+        std::vector<float> z0wrtSV;
+        std::vector<ElementLink< xAOD::VertexContainer > > links;
+      
+        for( const auto& vtx : *secondaryVertexContainer ) {
+      
+          std::vector<double> impactParameters;
+          std::vector<double> impactParErrors;
+          
+          m_fitSvc->VKalGetImpact( trk, vtx->position(), static_cast<int>( electron->charge() ), impactParameters, impactParErrors);
+          
+          enum { k_d0, k_z0, k_theta, k_phi, k_qOverP };
+          
+          d0wrtSV.emplace_back( impactParameters.at(k_d0) );
+          z0wrtSV.emplace_back( impactParameters.at(k_z0) );
+          
+          ElementLink<xAOD::VertexContainer> link_SV( *( dynamic_cast<const xAOD::VertexContainer*>( vtx->container() ) ), static_cast<size_t>( vtx->index() ) );
+          
+          links.emplace_back( link_SV );
+          
+        }
+      
+        decor_d0wrtSV( *electron ) = d0wrtSV;
+        decor_z0wrtSV( *electron ) = z0wrtSV;
+        decor_svLink ( *electron ) = links;
+      
+      }
+    }
+    
     return StatusCode::SUCCESS;
   }
 

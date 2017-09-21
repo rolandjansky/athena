@@ -46,6 +46,8 @@
 #include "xAODTruth/TruthVertexContainer.h"
 #include "xAODMuon/MuonContainer.h"
 #include "xAODMuon/Muon.h"
+#include "xAODEgamma/ElectronContainer.h"
+#include "xAODEgamma/Electron.h"
 
 // Normal STL and physical vectors
 #include <vector>
@@ -196,7 +198,8 @@ namespace VKalVrtAthena {
       bool doSelectTracksFromMuons;
       
       // Additional dressing option
-      bool doAugmentDVimpactParametersToMuons; // potentially useful for DV + muon search
+      bool doAugmentDVimpactParametersToMuons;     // potentially useful for DV + muon search
+      bool doAugmentDVimpactParametersToElectrons; // potentially useful for analyses involving electrons
       
       // MC truth
       double               mcTrkResolution;
@@ -462,6 +465,7 @@ namespace VKalVrtAthena {
     // 
     
     StatusCode augmentDVimpactParametersToMuons();
+    StatusCode augmentDVimpactParametersToElectrons();
     
   };
   
