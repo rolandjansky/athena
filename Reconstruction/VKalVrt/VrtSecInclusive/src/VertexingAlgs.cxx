@@ -45,7 +45,9 @@ namespace VKalVrtAthena {
     // The supposed form of the function will be as follows:
 
     xAOD::VertexContainer *twoTrksVertexContainer( nullptr );
-    ATH_CHECK( evtStore()->retrieve( twoTrksVertexContainer, "VrtSecInclusive_All2TrksVertices" ) );
+    if( m_jp.FillIntermediateVertices ) {
+      ATH_CHECK( evtStore()->retrieve( twoTrksVertexContainer, "VrtSecInclusive_" + m_jp.all2trksVerticesContainerName ) );
+    }
     
     // Work variables
     vector<const xAOD::TrackParticle*>    ListBaseTracks;
@@ -113,27 +115,31 @@ namespace VKalVrtAthena {
 
 
         // Create a xAOD::Vertex instance
-        xAOD::Vertex *vertex = new xAOD::Vertex;
-        twoTrksVertexContainer->emplace_back( vertex );
+        xAOD::Vertex *vertex { nullptr };
+        
+        if( m_jp.FillIntermediateVertices ) {
+          vertex = new xAOD::Vertex;
+          twoTrksVertexContainer->emplace_back( vertex );
 
-        for( auto *trk: ListBaseTracks ) {
+          for( auto *trk: ListBaseTracks ) {
 
-          // Acquire link to the track
-          ElementLink<xAOD::TrackParticleContainer>  trackElementLink( *m_selectedBaseTracks, trk->index() );
+            // Acquire link to the track
+            ElementLink<xAOD::TrackParticleContainer>  trackElementLink( *m_selectedBaseTracks, trk->index() );
 
-          // Register link to the vertex
-          vertex->addTrackAtVertex( trackElementLink, 1. );
+            // Register link to the vertex
+            vertex->addTrackAtVertex( trackElementLink, 1. );
+          }
+
+          vertex->setVertexType( xAOD::VxType::SecVtx );
+          vertex->setPosition( FitVertex );
+          vertex->setFitQuality( Chi2, 1 ); // Ndof is always 1
+
+          vertex->auxdata<float>("mass")   = Momentum.M();
+          vertex->auxdata<float>("pT")     = Momentum.Perp();
+          vertex->auxdata<float>("charge") = Charge;
+          vertex->auxdata<float>("vPos")   = vPos;
+          vertex->auxdata<bool>("isFake")  = true;
         }
-
-        vertex->setVertexType( xAOD::VxType::SecVtx );
-        vertex->setPosition( FitVertex );
-        vertex->setFitQuality( Chi2, 1 ); // Ndof is always 1
-
-        vertex->auxdata<float>("mass")   = Momentum.M();
-        vertex->auxdata<float>("pT")     = Momentum.Perp();
-        vertex->auxdata<float>("charge") = Charge;
-        vertex->auxdata<float>("vPos")   = vPos;
-        vertex->auxdata<bool>("isFake")  = true;
 
 
         /////////////////////////////
@@ -167,7 +173,9 @@ namespace VKalVrtAthena {
         }
 
         // The vertex passed the quality cut: overwrite isFake to false
-        vertex->auxdata<bool>("isFake")  = false;
+        if( m_jp.FillIntermediateVertices && vertex ) {
+          vertex->auxdata<bool>("isFake")  = false;
+        }
 
 
         if(vPos<-20.) continue;
@@ -555,9 +563,15 @@ namespace VKalVrtAthena {
         auto* trk = *itr;
         
         {
-          auto result = std::find_if( m_selectedBaseTracks->begin(), m_selectedBaseTracks->end(),
-                                      [&] (xAOD::TrackParticle* strk) { return trk->index() == strk->auxdata<unsigned long>("trk_id"); } );
-          if( result != m_selectedBaseTracks->end() ) continue;
+          auto result = std::find_if( workVerticesContainer->begin(), workVerticesContainer->end(),
+                                      [&] ( WrkVrt& wrkvrt ) {
+                                        auto found = std::find_if( wrkvrt.selectedTrackIndices.begin(), wrkvrt.selectedTrackIndices.end(),
+                                                                   [&]( long int index ) {
+                                                                     return trk->index() == m_selectedBaseTracks->at(index)->auxdata<unsigned long>("trk_id");
+                                                                   } );
+                                        return found != wrkvrt.selectedTrackIndices.end();
+                                      } );
+          if( result != workVerticesContainer->end() ) continue;
         }
         
         {
@@ -792,8 +806,8 @@ namespace VKalVrtAthena {
     // Needs a conversion function from workVerticesContainer to xAOD::Vertex here.
     // The supposed form of the function will be as follows:
 
-    xAOD::VertexContainer *m_secondaryVertexContainer( nullptr );
-    ATH_CHECK( evtStore()->retrieve( m_secondaryVertexContainer, "VrtSecInclusive_SecondaryVertices" ) );
+    xAOD::VertexContainer *secondaryVertexContainer( nullptr );
+    ATH_CHECK( evtStore()->retrieve( secondaryVertexContainer, "VrtSecInclusive_" + m_jp.secondaryVerticesContainerName ) );
     
     //----------------------------------------------------------
 
@@ -1005,7 +1019,7 @@ namespace VKalVrtAthena {
       // Firstly store the new vertex to the container before filling properties.
       // (This is the feature of xAOD.)
       xAOD::Vertex* vertex = new xAOD::Vertex;
-      m_secondaryVertexContainer->emplace_back( vertex );
+      secondaryVertexContainer->emplace_back( vertex );
 
       // Registering the vertex position to xAOD::Vertex
       vertex->setPosition( WrkVrt.vertex );
@@ -1096,7 +1110,7 @@ namespace VKalVrtAthena {
     } // loop over vertices
 
     if( m_jp.FillNtuple ) {
-      ATH_CHECK( fillAANT_SecondaryVertices( m_secondaryVertexContainer ) );
+      ATH_CHECK( fillAANT_SecondaryVertices( secondaryVertexContainer ) );
     }
 
     return StatusCode::SUCCESS;

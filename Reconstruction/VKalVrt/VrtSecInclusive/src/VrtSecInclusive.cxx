@@ -181,7 +181,8 @@ namespace VKalVrtAthena {
       
       ATH_MSG_INFO("initialize: Filling Histograms");
       //
-      m_hists["trkSelCuts"]       = new TH1F("trkSelCuts",";Cut Order;Trackss",10, -0.5, 10-0.5);
+      m_hists["trkSelCuts"]       = new TH1F("trkSelCuts",";Cut Order;Tracks",10, -0.5, 10-0.5);
+      m_hists["disabledCount"]    = new TH1F("disabledCount",";N_{modules};Tracks", 20, -0.5, 10-0.5);
       m_hists["vertexYield"]      = new TH1F("vertexYield",";Algorithm Step;Events",10, -0.5, 10-0.5);
       m_hists["vertexYieldNtrk"]  = new TH2F("vertexYieldNtrk",";Ntrk;Algorithm Step;Events", 100, 0, 100, 10, -0.5, 10-0.5);
       m_hists["vertexYieldChi2"]  = new TH2F("vertexYieldChi2",";#chi^{2}/N_{dof};Algorithm Step;Events", 100, 0, 100, 10, -0.5, 10-0.5);
@@ -280,17 +281,19 @@ namespace VKalVrtAthena {
     secondaryVertexContainer ->setStore( secondaryVertexAuxContainer );
     
     
-    ATH_CHECK( evtStore()->record( selectedBaseTracks,          "VrtSecInclusive_SelectedTrackParticles"       ) );
-    ATH_CHECK( evtStore()->record( selectedBaseTracksAux,       "VrtSecInclusive_SelectedTrackParticlesAux."   ) );
+    ATH_CHECK( evtStore()->record( selectedBaseTracks,          "VrtSecInclusive_" + m_jp.selectedTracksContainerName             ) );
+    ATH_CHECK( evtStore()->record( selectedBaseTracksAux,       "VrtSecInclusive_" + m_jp.selectedTracksContainerName + "Aux."    ) );
     
-    ATH_CHECK( evtStore()->record( associableTracks,            "VrtSecInclusive_AssociableParticles"          ) );
-    ATH_CHECK( evtStore()->record( associableTracksAux,         "VrtSecInclusive_AssociableParticlesAux."      ) );
+    ATH_CHECK( evtStore()->record( associableTracks,            "VrtSecInclusive_" + m_jp.associableTracksContainerName           ) );
+    ATH_CHECK( evtStore()->record( associableTracksAux,         "VrtSecInclusive_" + m_jp.associableTracksContainerName + "Aux."  ) );
     
-    ATH_CHECK( evtStore()->record( twoTrksVertexContainer,      "VrtSecInclusive_All2TrksVertices"             ) );
-    ATH_CHECK( evtStore()->record( twoTrksVertexAuxContainer,   "VrtSecInclusive_All2TrksVerticesAux."         ) );
+    ATH_CHECK( evtStore()->record( secondaryVertexContainer,    "VrtSecInclusive_" + m_jp.secondaryVerticesContainerName          ) );
+    ATH_CHECK( evtStore()->record( secondaryVertexAuxContainer, "VrtSecInclusive_" + m_jp.secondaryVerticesContainerName + "Aux." ) );
     
-    ATH_CHECK( evtStore()->record( secondaryVertexContainer,    "VrtSecInclusive_SecondaryVertices"            ) );
-    ATH_CHECK( evtStore()->record( secondaryVertexAuxContainer, "VrtSecInclusive_SecondaryVerticesAux."        ) );
+    if( m_jp.FillIntermediateVertices ) {
+      ATH_CHECK( evtStore()->record( twoTrksVertexContainer,      "VrtSecInclusive_" + m_jp.all2trksVerticesContainerName           ) );
+      ATH_CHECK( evtStore()->record( twoTrksVertexAuxContainer,   "VrtSecInclusive_" + m_jp.all2trksVerticesContainerName + "Aux."  ) );
+    }
     
     // Later use elsewhere in the algorithm
     m_selectedBaseTracks = selectedBaseTracks;

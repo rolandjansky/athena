@@ -106,14 +106,19 @@ namespace VKalVrtAthena {
    
       std::string          TrackLocation;
       std::string          PrimVrtLocation;
-      std::string          SecVrtLocation;
       std::string          truthParticleContainerName;
       std::string          mcEventContainerName;
+      
+      std::string selectedTracksContainerName;
+      std::string associableTracksContainerName;
+      std::string all2trksVerticesContainerName;
+      std::string secondaryVerticesContainerName;
       
       // common feature flags
       bool   doTruth;
       bool   FillHist;
       bool   FillNtuple;
+      bool   FillIntermediateVertices;
       bool   doIntersectionPos;
       bool   doMapToLocal;
       bool   extrapPV; //extrapolate reco and prim truth trks to PV (for testing only)

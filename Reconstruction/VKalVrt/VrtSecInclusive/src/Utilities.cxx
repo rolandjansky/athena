@@ -549,9 +549,15 @@ namespace VKalVrtAthena {
     declareProperty("PrimVrtLocation",                 m_jp.PrimVrtLocation                 = "PrimaryVertices"             );
     declareProperty("McParticleContainer",             m_jp.truthParticleContainerName      = "TruthParticles"              );
     declareProperty("MCEventContainer",                m_jp.mcEventContainerName            = "TruthEvents"                 );
+    
+    declareProperty("SelectedTracksContainerName",     m_jp.selectedTracksContainerName     = "SelectedTrackParticles"      );
+    declareProperty("AssociableTracksContainerName",   m_jp.associableTracksContainerName   = "AssociableTrackParticles"    );
+    declareProperty("All2trkVerticesContainerName",    m_jp.all2trksVerticesContainerName   = "All2TrksVertices"            );
+    declareProperty("SecondaryVerticesContainerName",  m_jp.secondaryVerticesContainerName  = "SecondaryVertices"           );
 
     declareProperty("FillHist",                        m_jp.FillHist                        = false                         );
     declareProperty("FillNtuple",                      m_jp.FillNtuple                      = false                         );
+    declareProperty("FillIntermediateVertices",        m_jp.FillIntermediateVertices        = false                         );
     declareProperty("DoIntersectionPos",               m_jp.doIntersectionPos               = false                         );
     declareProperty("DoMapToLocal",                    m_jp.doMapToLocal                    = false                         );
     declareProperty("DoTruth",                         m_jp.doTruth                         = false                         );
@@ -819,6 +825,8 @@ namespace VKalVrtAthena {
     
     TVector3 prevPos( AlgConsts::invalidFloat, AlgConsts::invalidFloat, AlgConsts::invalidFloat );
     
+    auto nDisabled = 0;
+    
     for( auto* params : *paramsVector ) {
       
       const TVector3 position( params->position().x(), params->position().y(), params->position().z() );
@@ -859,11 +867,17 @@ namespace VKalVrtAthena {
           ATH_MSG_DEBUG(" >> " << __FUNCTION__ << ", track " << trk << ": position = (" << position.x() << ", " << position.y() << ", " << position.z() << "), detElement ID = " << id << ", active = " << active
                         << ": (det, bec, layer) = (" << std::get<1>( pattern->back() ) << ", " << std::get<2>( pattern->back() ) << ", "  << std::get<3>( pattern->back() ) << ")" );
           
+          if( !active ) nDisabled++;
         }
         
       }
       
     }
+    
+    if( m_jp.FillHist ) {
+      m_hists["disabledCount"]->Fill( nDisabled );
+    }
+
     
     // cleanup
     for( auto* params : *paramsVector ) { delete params; }
