@@ -149,6 +149,17 @@ namespace VKalVrtAthena {
       ATH_CHECK( m_vertexMapper.retrieve() );
     }
     
+    // Track selection algorithm configuration
+    if( !m_jp.doSelectTracksFromMuons ) {
+      
+      m_trackSelectionAlg = &VrtSecInclusive::selectTracks;
+      
+    } else {
+      
+      m_trackSelectionAlg = &VrtSecInclusive::selectTracksFromMuons;
+      
+    }
+    
     
     // Vertexing algorithm configuration
     m_vertexingAlgorithms.emplace_back( std::pair<std::string, vertexingAlg>( "reconstruct2trkVertices", &VrtSecInclusive::reconstruct2TrackVertices )        );
@@ -302,6 +313,29 @@ namespace VKalVrtAthena {
     ATH_CHECK( evtStore()->record( secondaryVertexContainer,    "VrtSecInclusive_" + m_jp.secondaryVerticesContainerName          ) );
     ATH_CHECK( evtStore()->record( secondaryVertexAuxContainer, "VrtSecInclusive_" + m_jp.secondaryVerticesContainerName + "Aux." ) );
     
+    if( m_jp.FillIntermediateVertices ) {
+      auto *twoTrksVertexContainer      = new xAOD::VertexContainer;
+      auto *twoTrksVertexAuxContainer   = new xAOD::VertexAuxContainer;
+      
+      twoTrksVertexContainer   ->setStore( twoTrksVertexAuxContainer );
+      
+      ATH_CHECK( evtStore()->record( twoTrksVertexContainer,      "VrtSecInclusive_" + m_jp.all2trksVerticesContainerName           ) );
+      ATH_CHECK( evtStore()->record( twoTrksVertexAuxContainer,   "VrtSecInclusive_" + m_jp.all2trksVerticesContainerName + "Aux."  ) );
+    
+      for( auto itr = m_vertexingAlgorithms.begin(); itr!=m_vertexingAlgorithms.end(); ++itr ) {
+      
+        auto& name = itr->first;
+      
+        auto *intermediateVertexContainer      = new xAOD::VertexContainer;
+        auto *intermediateVertexAuxContainer   = new xAOD::VertexAuxContainer;
+      
+        intermediateVertexContainer   ->setStore( intermediateVertexAuxContainer );
+      
+        ATH_CHECK( evtStore()->record( intermediateVertexContainer,      "VrtSecInclusive_IntermediateVertices_" + name           ) );
+        ATH_CHECK( evtStore()->record( intermediateVertexAuxContainer,   "VrtSecInclusive_IntermediateVertices_" + name + "Aux."  ) );
+      }
+    
+    }
     
     // Later use elsewhere in the algorithm
     m_selectedTracks.reset  ( new std::vector<const xAOD::TrackParticle*> );
@@ -313,15 +347,6 @@ namespace VKalVrtAthena {
     //
     
     //--------------------------------------------------------
-    //  Extract tracks from xAOD::TrackParticle container
-    //
-    
-    const xAOD::TrackParticleContainer* trackParticleContainer ( nullptr );
-    ATH_CHECK( evtStore()->retrieve( trackParticleContainer, m_jp.TrackLocation) );
-    
-    ATH_MSG_DEBUG( "Extracted xAOD::TrackParticle number=" << trackParticleContainer->size() );
-    
-    //--------------------------------------------------------
     //  Primary vertex processing
     // 
     sc = this->processPrimaryVertices(); // fetch the 1st primary reconstructed vertex
@@ -330,25 +355,10 @@ namespace VKalVrtAthena {
       
       ATH_MSG_WARNING("processPrimaryVertices() failed");
       return StatusCode::SUCCESS;
-    }
-    
-
-    if( m_jp.FillNtuple )
-      m_ntupleVars->get<unsigned int>( "NumAllTrks" ) = static_cast<int>( trackParticleContainer->size() );
-    
-    
-    //-----------------------------------------------------------
-    //  Track selection
-    //
-    
-    ATH_MSG_DEBUG("execute: Reco. Tracks in event = "<< static_cast<int>( trackParticleContainer->size() ) );
+    }    
 
     // Perform track selection and store it to selectedBaseTracks
-    ATH_CHECK( selectTracks( trackParticleContainer ) );
-    
-    ATH_MSG_DEBUG( "execute: Number of total tracks      = " << trackParticleContainer->size() );
-    ATH_MSG_DEBUG( "execute: Number of selected tracks   = " << m_selectedTracks->size() );
-    
+    ATH_CHECK( (this->*m_trackSelectionAlg)() );
     
     if( m_jp.FillNtuple )
       m_ntupleVars->get<unsigned int>( "NumSelTrks" ) = static_cast<int>( m_selectedTracks->size() );
@@ -359,7 +369,7 @@ namespace VKalVrtAthena {
     //-------------------------------------------------------
     // Skip the event if the number of selected tracks is more than m_jp.SelTrkMaxCutoff
     if( m_selectedTracks->size() < 2 ) {
-      ATH_MSG_INFO( "execute: Too few (<2) selected reco tracks. Terminated reconstruction." );
+      ATH_MSG_DEBUG( "execute: Too few (<2) selected reco tracks. Terminated reconstruction." );
       return StatusCode::SUCCESS;   
     }
       

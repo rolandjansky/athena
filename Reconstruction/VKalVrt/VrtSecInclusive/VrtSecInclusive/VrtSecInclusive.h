@@ -44,6 +44,8 @@
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTruth/TruthEventContainer.h"
 #include "xAODTruth/TruthVertexContainer.h"
+#include "xAODMuon/MuonContainer.h"
+#include "xAODMuon/Muon.h"
 
 // Normal STL and physical vectors
 #include <vector>
@@ -187,6 +189,9 @@ namespace VKalVrtAthena {
       
       double improveChi2ProbThreshold;
       
+      // vertexing using muons (test implementation)
+      bool doSelectTracksFromMuons;
+      
       // Additional dressing option
       bool doAugmentDVimpactParametersToMuons; // potentially useful for DV + muon search
       
@@ -296,7 +301,11 @@ namespace VKalVrtAthena {
     ///
     
     /** select tracks which become seeds for vertex finding */
-    StatusCode selectTracks( const xAOD::TrackParticleContainer* );
+    StatusCode selectTracks();
+    StatusCode selectTracksFromMuons();
+    
+    using TrackSelectionAlg = StatusCode (VrtSecInclusive::*)();
+    TrackSelectionAlg m_trackSelectionAlg;
     
     /** track-by-track selection strategies */
     bool selectTrack_notPVassociated ( const xAOD::TrackParticle* );

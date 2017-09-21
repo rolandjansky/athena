@@ -74,10 +74,31 @@ namespace VKalVrtAthena {
   
   
   //____________________________________________________________________________________________________
-  StatusCode  VrtSecInclusive::selectTracks( const xAOD::TrackParticleContainer *trackParticleContainer ) { 
+  StatusCode  VrtSecInclusive::selectTracks() { 
     
     ATH_MSG_DEBUG( " > selectTracks: begin"  );
     
+    //--------------------------------------------------------
+    //  Extract tracks from xAOD::TrackParticle container
+    //
+    
+    const xAOD::TrackParticleContainer* trackParticleContainer ( nullptr );
+    ATH_CHECK( evtStore()->retrieve( trackParticleContainer, m_jp.TrackLocation) );
+    
+    ATH_MSG_DEBUG( "Extracted xAOD::TrackParticle number=" << trackParticleContainer->size() );
+    
+    
+    if( m_jp.FillNtuple )
+      m_ntupleVars->get<unsigned int>( "NumAllTrks" ) = static_cast<int>( trackParticleContainer->size() );
+    
+    
+    //-----------------------------------------------------------
+    //  Track selection
+    //
+    
+    ATH_MSG_DEBUG("execute: Reco. Tracks in event = "<< static_cast<int>( trackParticleContainer->size() ) );
+    
+
     static SG::AuxElement::Decorator< char > decor_isSelected( "is_selected" );
 
     // Setup cut functions
@@ -156,8 +177,31 @@ namespace VKalVrtAthena {
       
     }
     
+    ATH_MSG_DEBUG( "execute: Number of total tracks      = " << trackParticleContainer->size() );
+    ATH_MSG_DEBUG( "execute: Number of selected tracks   = " << m_selectedTracks->size() );
+    
     return StatusCode::SUCCESS;
   }
   
+  
+  //____________________________________________________________________________________________________
+  StatusCode  VrtSecInclusive::selectTracksFromMuons() { 
+    
+    const xAOD::MuonContainer* muons ( nullptr );
+    ATH_CHECK( evtStore()->retrieve( muons, "Muons") );
+    
+    static SG::AuxElement::Decorator< char > decor_isSelected( "is_selected" );
+    
+    for( const auto& muon : *muons ) {
+      const auto& primaryTrackLink = muon->primaryTrackParticleLink();
+      const auto* trk = *primaryTrackLink;
+      if( trk ) {
+        decor_isSelected( *trk ) = true;
+        m_selectedTracks->emplace_back( trk );
+      }
+    }
+    
+    return StatusCode::SUCCESS;
+  }
   
 } // end of namespace VKalVrtAthena
