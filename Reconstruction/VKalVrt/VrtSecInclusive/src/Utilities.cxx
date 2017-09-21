@@ -53,19 +53,24 @@ namespace VKalVrtAthena {
   
   //____________________________________________________________________________________________________
   double VrtSecInclusive::significanceBetweenVertices( const WrkVrt& v1, const WrkVrt& v2 ) const {
-    const auto distance = v2.vertex - v1.vertex;
-    AmgSymMatrix(3) sumCov;
+    try {
+      const auto distance = v2.vertex - v1.vertex;
+      AmgSymMatrix(3) sumCov;
       
-    sumCov.fillSymmetric(0, 0, v1.vertexCov.at(0) + v2.vertexCov.at(0));
-    sumCov.fillSymmetric(1, 0, v1.vertexCov.at(1) + v2.vertexCov.at(1));
-    sumCov.fillSymmetric(1, 1, v1.vertexCov.at(2) + v2.vertexCov.at(2));
-    sumCov.fillSymmetric(2, 0, v1.vertexCov.at(3) + v2.vertexCov.at(3));
-    sumCov.fillSymmetric(2, 1, v1.vertexCov.at(4) + v2.vertexCov.at(4));
-    sumCov.fillSymmetric(2, 2, v1.vertexCov.at(5) + v2.vertexCov.at(5));
+      sumCov.fillSymmetric(0, 0, v1.vertexCov.at(0) + v2.vertexCov.at(0));
+      sumCov.fillSymmetric(1, 0, v1.vertexCov.at(1) + v2.vertexCov.at(1));
+      sumCov.fillSymmetric(1, 1, v1.vertexCov.at(2) + v2.vertexCov.at(2));
+      sumCov.fillSymmetric(2, 0, v1.vertexCov.at(3) + v2.vertexCov.at(3));
+      sumCov.fillSymmetric(2, 1, v1.vertexCov.at(4) + v2.vertexCov.at(4));
+      sumCov.fillSymmetric(2, 2, v1.vertexCov.at(5) + v2.vertexCov.at(5));
       
-    const double s2 = distance.transpose() * sumCov.inverse() * distance;
-    
-    return s2 > 0. ? sqrt( s2 ) : AlgConsts::maxValue;
+      const double s2 = distance.transpose() * sumCov.inverse() * distance;
+      
+      return s2 > 0. ? sqrt( s2 ) : AlgConsts::maxValue;
+    } catch(...) {
+      ATH_MSG_WARNING( " >>> " << __FUNCTION__ << ": detected covariance matrix broken exception" );
+      return AlgConsts::maxValue;
+    }
   }
   
   
@@ -205,7 +210,7 @@ namespace VKalVrtAthena {
     StatusCode sc = refitVertex( wrkvrt );
     if( sc.isFailure() ) {
         // WARNING CODE ATLASRECTS-3145::001 refitVertex Failure, vertex lost
-        ATH_MSG_WARNING("ATLASRECTS-3145::001" );
+        //ATH_MSG_WARNING("ATLASRECTS-3145::001" );
         return StatusCode::SUCCESS;
     }
     // end of workaround
@@ -230,22 +235,17 @@ namespace VKalVrtAthena {
     
     ATH_MSG_VERBOSE( " >>> " << __FUNCTION__ << ": begin: chi2 = " << vertex.Chi2);
     
-    // Lambda!
-    auto ntrk = []( WrkVrt& vertex ) {
-      return vertex.selectedTrackIndices.size() + vertex.associatedTrackIndices.size();
-    };
-
-    if( ntrk(vertex) < 2 ) return 0.;
+    if( vertex.nTracksTotal() < 2 ) return 0.;
     
     StatusCode sc = refitVertexWithSuggestion( vertex, vertex.vertex );
     if( sc.isFailure() ) {
       return 0;
     }
     
-    double chi2Probability = TMath::Prob( vertex.Chi2, 2*ntrk(vertex)-3 );
+    double chi2Probability = TMath::Prob( vertex.Chi2, vertex.ndof() );
     
     while (chi2Probability < m_jp.improveChi2ProbThreshold ) {
-      if( ntrk(vertex) == 2 ) return chi2Probability;
+      if( vertex.nTracksTotal() == 2 ) return chi2Probability;
       
       WrkVrt vertex_backup = vertex;
       
@@ -273,7 +273,7 @@ namespace VKalVrtAthena {
         return 0.;
       }
       
-      chi2Probability = TMath::Prob( vertex.Chi2, 2*ntrk(vertex)-3 );
+      chi2Probability = TMath::Prob( vertex.Chi2, vertex.ndof() );
     }
     
     //if(chi2Probability<0.001) vertex.isGood = false;
@@ -476,7 +476,7 @@ namespace VKalVrtAthena {
         
     m_fitSvc->setApproximateVertex( vertexPos.x(), vertexPos.y(), vertexPos.z() );
     
-    ATH_MSG_DEBUG( " >>> refitVertex: ListBaseTracks.size = " << ListBaseTracks.size()
+    ATH_MSG_VERBOSE( " >>> refitVertex: ListBaseTracks.size = " << ListBaseTracks.size()
                    << ", #selectedBaseTracks = " << workVertex.selectedTrackIndices.size()
                    << ", #assocTracks = " << workVertex.associatedTrackIndices.size() );
     for( auto *trk : ListBaseTracks ) {
@@ -484,13 +484,13 @@ namespace VKalVrtAthena {
     }
     
     m_fitSvc->setDefault();
-    ATH_MSG_DEBUG( " >>> refitVertex: m_fitSvc is reset." );
+    ATH_MSG_VERBOSE( " >>> refitVertex: m_fitSvc is reset." );
     
     Amg::Vector3D initVertex;
     
     StatusCode sc = m_fitSvc->VKalVrtFitFast( ListBaseTracks, initVertex );/* Fast crude estimation */
     if(sc.isFailure()) ATH_MSG_DEBUG(" >>> refitVertex: fast crude estimation failed.");
-    ATH_MSG_DEBUG( " >>> refitVertex: Fast VKalVrtFit succeeded. vertex = (" << initVertex.x() << ", " << initVertex.y() << ", " << initVertex.z() << ")" );
+    ATH_MSG_VERBOSE( " >>> refitVertex: Fast VKalVrtFit succeeded. vertex (r,z) = (" << initVertex.perp() << ", " << initVertex.z() << ", " << ")" );
     
     if( vtxVtxDistance( initVertex, vertexPos ) > 10. ) {
       
@@ -502,7 +502,7 @@ namespace VKalVrtAthena {
       
     }
     
-    ATH_MSG_DEBUG( " >>> refitVertex: approx vertex is set. Now going to perform fitting..." );
+    ATH_MSG_VERBOSE( " >>> refitVertex: approx vertex is set. Now going to perform fitting..." );
     
     StatusCode SC=m_fitSvc->VKalVrtFit(ListBaseTracks,dummyNeutrals,
 				       workVertex.vertex,
@@ -516,9 +516,9 @@ namespace VKalVrtAthena {
     auto& cov = workVertex.vertexCov;
         
     if(SC.isFailure()) ATH_MSG_DEBUG(" >>> refitVertex: SC in refitVertex returned failure "); 
-    ATH_MSG_DEBUG(" >>> refitVertex "<<SC<<", "<<ListBaseTracks.size()<<","<<workVertex.Chi2PerTrk.size());
-    ATH_MSG_DEBUG( " >>> refitVertex: succeeded in fitting. New vertex pos = (" << vertexPos.x() << ", " << vertexPos.y() << ", " << vertexPos.z() << ")" );
-    ATH_MSG_DEBUG( " >>> refitVertex: New vertex cov = (" << cov.at(0) << ", " << cov.at(1) << ", " << cov.at(2) << ", " << cov.at(3) << ", " << cov.at(4) << ", " << cov.at(5) << ")" );
+    ATH_MSG_VERBOSE(" >>> refitVertex "<<SC<<", "<<ListBaseTracks.size()<<","<<workVertex.Chi2PerTrk.size());
+    ATH_MSG_VERBOSE( " >>> refitVertex: succeeded in fitting. New vertex pos (r,z) = (" << vertexPos.perp() << ", " << vertexPos.z() << ")" );
+    ATH_MSG_VERBOSE( " >>> refitVertex: New vertex cov = (" << cov.at(0) << ", " << cov.at(1) << ", " << cov.at(2) << ", " << cov.at(3) << ", " << cov.at(4) << ", " << cov.at(5) << ")" );
 
     return SC;
   }
@@ -556,17 +556,17 @@ namespace VKalVrtAthena {
         
     m_fitSvc->setApproximateVertex( suggestedPosition.x(), suggestedPosition.y(), suggestedPosition.z() );
     
-    ATH_MSG_DEBUG( " >>> " << __FUNCTION__ <<": ListBaseTracks.size = " << ListBaseTracks.size()
+    ATH_MSG_VERBOSE( " >>> " << __FUNCTION__ <<": ListBaseTracks.size = " << ListBaseTracks.size()
                    << ", #selectedBaseTracks = " << workVertex.selectedTrackIndices.size()
                    << ", #assocTracks = " << workVertex.associatedTrackIndices.size() );
     for( auto *trk : ListBaseTracks ) {
-      ATH_MSG_DEBUG( " >>> " << __FUNCTION__ << ": track index = " << trk->index() );
+      ATH_MSG_VERBOSE( " >>> " << __FUNCTION__ << ": track index = " << trk->index() );
     }
     
     m_fitSvc->setDefault();
-    ATH_MSG_DEBUG( " >>> " << __FUNCTION__ << ": m_fitSvc is reset." );
+    ATH_MSG_VERBOSE( " >>> " << __FUNCTION__ << ": m_fitSvc is reset." );
     
-    ATH_MSG_DEBUG( " >>> " << __FUNCTION__ << ": approx vertex is set. Now going to perform fitting..." );
+    ATH_MSG_VERBOSE( " >>> " << __FUNCTION__ << ": approx vertex is set. Now going to perform fitting..." );
     
     StatusCode SC=m_fitSvc->VKalVrtFit(ListBaseTracks,dummyNeutrals,
 				       workVertex.vertex,
@@ -678,6 +678,9 @@ namespace VKalVrtAthena {
     
     declareProperty("doReassembleVertices",            m_jp.doReassembleVertices            = false                         );
     declareProperty("doMergeByShuffling",              m_jp.doMergeByShuffling              = false                         );
+    declareProperty("doSuggestedRefitOnMerging",       m_jp.doSuggestedRefitOnMerging       = true                          ); // sub-option of doMergeByShuffling-1
+    declareProperty("doMagnetMerging",                 m_jp.doMagnetMerging                 = true                          ); // sub-option of doMergeByShuffling-2
+    declareProperty("doWildMerging",                   m_jp.doWildMerging                   = true                          ); // sub-option of doMergeByShuffling-3
     declareProperty("doMergeFinalVerticesDistance",    m_jp.doMergeFinalVerticesDistance    = false                         );
     declareProperty("doAssociateNonSelectedTracks",    m_jp.doAssociateNonSelectedTracks    = false                         );
     declareProperty("doFinalImproveChi2",              m_jp.doFinalImproveChi2              = false                         );
@@ -803,64 +806,89 @@ namespace VKalVrtAthena {
   
   
   //____________________________________________________________________________________________________
-  void VrtSecInclusive::trackClassification(std::vector<WrkVrt> *workVerticesContainer, 
-					    std::vector< std::deque<long int> > *TrkInVrt)
+  void VrtSecInclusive::trackClassification(std::vector<WrkVrt> *workVerticesContainer, std::map<long int, std::vector<long int> >& trackToVertexMap )
   { 
     // Fill TrkInVrt with vertex IDs of each track
+    
+    trackToVertexMap.clear();
     
     for( size_t iv = 0; iv<workVerticesContainer->size(); iv++ ) {
       
       WrkVrt& vertex = workVerticesContainer->at(iv);
       
-      std::deque<long int>& tracks = vertex.selectedTrackIndices;
-      if( tracks.size()<2 ) continue;
+      auto& trackIndices = vertex.selectedTrackIndices;
+      if( !vertex.isGood ) continue;
+      if( trackIndices.size() < 2 ) continue;
       
-      for( size_t itrk=0; itrk < tracks.size(); itrk++ ) {
-	
-	long int track_id = tracks[itrk];
-	( TrkInVrt->at(track_id) ).emplace_back(iv);
+      for( auto& index : trackIndices ) {
+	trackToVertexMap[index].emplace_back( iv );
       }
+    }
+    
+    for( auto& pair: trackToVertexMap ) {
+      std::string msg = Form("track index [%ld]: vertices = (", pair.first);
+      for( auto& v : pair.second ) {
+        msg += Form("%ld, ", v);
+      }
+      msg += ")";
+      if( pair.second.size() >=2 ) ATH_MSG_VERBOSE(" >> " << __FUNCTION__ << ": " << msg );
     }
     
   }
   
   
   //____________________________________________________________________________________________________
-  double VrtSecInclusive::maxOfShared(std::vector<WrkVrt> *workVerticesContainer, 
-				      std::vector< std::deque<long int> > *TrkInVrt,
-				      long int & SelectedTrack,
-				      long int & SelectedVertex)
+  double VrtSecInclusive::findWorstChi2ofMaximallySharedTrack(std::vector<WrkVrt> *workVerticesContainer, 
+				      std::map<long int, std::vector<long int> >& trackToVertexMap,
+				      long int & maxSharedTrack,
+				      long int & worstMatchingVertex)
   {
 
-    long int NTrack=TrkInVrt->size(); long int it, jv, itmp, NVrt, VertexNumber;
- 
-    double MaxOf= AlgConsts::invalidFloat;
-    //
-    long int NShMax=0;
-    for( it=0; it<NTrack; it++) {
-      NVrt=(*TrkInVrt)[it].size();         /*Number of vertices for this track*/
-      if(  NVrt > NShMax ) NShMax=NVrt;
-    }
-    if(NShMax<=1)return MaxOf;              /* No shared tracks */
-    //      
-    for( it=0; it<NTrack; it++) {
-      NVrt=(*TrkInVrt)[it].size();         /*Number of vertices for this track*/
-      if(  NVrt < NShMax )    continue;     /*Not a shared track with maximal sharing*/
-      for( jv=0; jv<NVrt; jv++ ){
-	VertexNumber=(*TrkInVrt)[it][jv];
-	if( (*workVerticesContainer).at(VertexNumber).selectedTrackIndices.size() <= 1) continue; // one track vertex - nothing to do
-	for( itmp=0; itmp<(int)(*workVerticesContainer)[VertexNumber].selectedTrackIndices.size(); itmp++){
-	  if( (*workVerticesContainer)[VertexNumber].selectedTrackIndices[itmp] == it ) {         /* Track found*/  
-	    if( MaxOf < (*workVerticesContainer)[VertexNumber].Chi2PerTrk.at(itmp) ){
-	      MaxOf = (*workVerticesContainer)[VertexNumber].Chi2PerTrk[itmp];
-	      SelectedTrack=it;
-	      SelectedVertex=VertexNumber;
-	    }
-	  }
-	}
+    double worstChi2 = AlgConsts::invalidFloat;
+    
+    // Find the track index that has the largest shared vertices
+    auto maxSharedTrackToVertices = std::max_element( trackToVertexMap.begin(), trackToVertexMap.end(), []( auto& p1, auto& p2 ) { return p1.second.size() < p2.second.size(); } );
+    
+    if( maxSharedTrackToVertices == trackToVertexMap.end() ) return worstChi2;
+    
+    ATH_MSG_DEBUG( " > " << __FUNCTION__ << ": max-shared track index = " << maxSharedTrackToVertices->first << ", number of shared vertices = " << maxSharedTrackToVertices->second.size() );
+    
+    if( maxSharedTrackToVertices->second.size() < 2 ) return worstChi2;
+    
+    // map of vertex index and the chi2 of the track for the maxSharedTrack
+    std::map<long int, double> vrtChi2Map;
+    
+    // loop over vertices for the largest shared track
+    for( auto& iv : maxSharedTrackToVertices->second ) {
+      ATH_MSG_VERBOSE( " > " << __FUNCTION__ << ": loop over vertices: vertex index " << iv );
+      
+      auto& wrkvrt = workVerticesContainer->at( iv );
+      auto& trackIndices = wrkvrt.selectedTrackIndices;
+      
+      // find the index of the track
+      auto index = std::find_if( trackIndices.begin(), trackIndices.end(), [&]( auto& index ) { return index == maxSharedTrackToVertices->first; } );
+      if( index == trackIndices.end() ) {
+        ATH_MSG_WARNING(" >> " << __FUNCTION__ << ": index not found (algorithm inconsistent)" );
+        return worstChi2;
       }
+      
+      auto& chi2 = wrkvrt.Chi2PerTrk.at( index - trackIndices.begin() );
+      
+      vrtChi2Map.emplace( std::pair<long int, double>(iv, chi2) );
     }
-    return MaxOf;
+    
+    auto worstVrtChi2Pair = std::max_element( vrtChi2Map.begin(), vrtChi2Map.end(), []( auto& p1, auto& p2 ) { return p1.second < p2.second; } );
+    
+    if( worstVrtChi2Pair == vrtChi2Map.end() ) {
+      ATH_MSG_WARNING(" >> " << __FUNCTION__ << ": max_element of vrtChi2Map not found" );
+      return worstChi2;
+    }
+    
+    maxSharedTrack      = maxSharedTrackToVertices->first;
+    worstMatchingVertex = worstVrtChi2Pair->first;
+    worstChi2           = worstVrtChi2Pair->second;
+    
+    return worstChi2;
   }
 
 
@@ -869,19 +897,32 @@ namespace VKalVrtAthena {
   {
     ATH_MSG_DEBUG( " >> " << __FUNCTION__ << ": " << name << ": #vertices = " << workVerticesContainer->size() );
     
+    std::set<long int> usedTracks;
+    
     for(size_t iv=0; iv<workVerticesContainer->size(); iv++) {
       auto& wrkvrt = workVerticesContainer->at(iv);
       unsigned ntrk = ( wrkvrt.selectedTrackIndices.size() + wrkvrt.associatedTrackIndices.size() );
       if( ntrk < 2 ) continue;
-      ATH_MSG_DEBUG( " >> " << __FUNCTION__ << ": " << name << " vertex [" <<  iv << "]: "
-                    << " isGood  = "            << (wrkvrt.isGood? "true" : "false")
-                    << ", #ntrks = "            << ntrk
-                    << ", #selectedTracks = "   << wrkvrt.selectedTrackIndices.size()
-                    << ", #associatedTracks = " << wrkvrt.associatedTrackIndices.size()
-                    << ", chi2/ndof = "         << wrkvrt.Chi2 / ( ( ntrk*2 - 3 )*1.0 + AlgConsts::infinitesimal )
-                    << ", (r, z) = ("           << wrkvrt.vertex.perp()
-                    <<", "                      << wrkvrt.vertex.z() << ")" );
+      if( m_vertexingAlgorithmStep > 0 ) {
+        ATH_MSG_DEBUG( " >> " << __FUNCTION__ << ": " << name << " vertex [" <<  iv << "]: "
+                       << " isGood  = "            << (wrkvrt.isGood? "true" : "false")
+                       << ", #ntrks = "            << ntrk
+                       << ", #selectedTracks = "   << wrkvrt.selectedTrackIndices.size()
+                       << ", #associatedTracks = " << wrkvrt.associatedTrackIndices.size()
+                       << ", chi2/ndof = "         << wrkvrt.Chi2 / ( wrkvrt.ndof() + AlgConsts::infinitesimal )
+                       << ", (r, z) = ("           << wrkvrt.vertex.perp()
+                       <<", "                      << wrkvrt.vertex.z() << ")" );
+      }
+      
+      for( auto& index : wrkvrt.selectedTrackIndices ) usedTracks.insert( index );
+      for( auto& index : wrkvrt.associatedTrackIndices ) usedTracks.insert( index );
     }
+    ATH_MSG_DEBUG( " >> " << __FUNCTION__ << ": number of used tracks = " << usedTracks.size() );
+    
+    std::string msg;
+    for( auto& index : usedTracks ) { msg += Form("%ld, ", index); }
+    ATH_MSG_DEBUG( " >> " << __FUNCTION__ << ": used tracks = " << msg );
+    
   }
   
   
@@ -1520,21 +1561,18 @@ namespace VKalVrtAthena {
     const xAOD::VertexContainer *secondaryVertexContainer( nullptr );
     ATH_CHECK( evtStore()->retrieve( secondaryVertexContainer, "VrtSecInclusive_" + m_jp.secondaryVerticesContainerName ) );
     
-    std::vector<std::string> muonContainerNames { "CombinedMuonTrackParticles", "ExtrapolatedMuonTrackParticles" };
+    const xAOD::MuonContainer *muonContainer( nullptr );
+    ATH_CHECK( evtStore()->retrieve( muonContainer, "Muons" ) );
     
-    for( auto& muonContainerName : muonContainerNames ) {
-      
-      const xAOD::TrackParticleContainer* muonContainer ( nullptr );
-      ATH_CHECK( evtStore()->retrieve( muonContainer, muonContainerName) );
+    static SG::AuxElement::Decorator< std::vector<float> > decor_d0wrtSV( "d0_wrtSVs" );
+    static SG::AuxElement::Decorator< std::vector<float> > decor_z0wrtSV( "z0_wrtSVs" );
+    static SG::AuxElement::Decorator< std::vector<ElementLink< xAOD::VertexContainer > > > decor_svLink("svLinks");
     
-      static SG::AuxElement::Decorator< std::vector<float> > decor_d0wrtSV( "d0_wrtSVs" );
-      static SG::AuxElement::Decorator< std::vector<float> > decor_z0wrtSV( "z0_wrtSVs" );
-      static SG::AuxElement::Decorator< std::vector<ElementLink< xAOD::VertexContainer > > > decor_svLink("svLinks");
-    
-      enum { k_d0, k_z0, k_theta, k_phi, k_qOverP };
-    
-      for( const auto& muon : *muonContainer ) {
-      
+    for( const auto& muon : *muonContainer ) {
+      const auto& primaryTrackLink = muon->primaryTrackParticleLink();
+      const auto* trk = *primaryTrackLink;
+      if( trk ) {
+        
         std::map< const xAOD::Vertex*, std::vector<double> > distanceMap;
       
         std::vector<float> d0wrtSV;
@@ -1546,7 +1584,9 @@ namespace VKalVrtAthena {
           std::vector<double> impactParameters;
           std::vector<double> impactParErrors;
           
-          m_fitSvc->VKalGetImpact( muon, vtx->position(), static_cast<int>( muon->charge() ), impactParameters, impactParErrors);
+          m_fitSvc->VKalGetImpact( trk, vtx->position(), static_cast<int>( muon->charge() ), impactParameters, impactParErrors);
+          
+          enum { k_d0, k_z0, k_theta, k_phi, k_qOverP };
           
           d0wrtSV.emplace_back( impactParameters.at(k_d0) );
           z0wrtSV.emplace_back( impactParameters.at(k_z0) );
@@ -1562,7 +1602,6 @@ namespace VKalVrtAthena {
         decor_svLink ( *muon ) = links;
       
       }
-      
     }
     
     // Loop over muons

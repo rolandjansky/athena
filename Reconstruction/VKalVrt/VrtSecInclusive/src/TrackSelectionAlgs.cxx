@@ -22,17 +22,17 @@ namespace VKalVrtAthena {
   
 
   //____________________________________________________________________________________________________
-  bool VrtSecInclusive::selectTrack_d0Cut       ( const xAOD::TrackParticle* trk ) { return ( fabs( trk->d0() ) > m_jp.d0TrkPVDstMinCut && fabs( trk->d0() ) < m_jp.d0TrkPVDstMaxCut ); }
-  bool VrtSecInclusive::selectTrack_z0Cut       ( const xAOD::TrackParticle* trk ) { return ( fabs( trk->z0() ) > m_jp.z0TrkPVDstMinCut && fabs( trk->z0() ) < m_jp.z0TrkPVDstMaxCut ); }
-  bool VrtSecInclusive::selectTrack_d0errCut    ( const xAOD::TrackParticle* trk ) { const double cov11 = trk->definingParametersCovMatrix()(0,0); return cov11 < m_jp.d0TrkErrorCut*m_jp.d0TrkErrorCut; }
-  bool VrtSecInclusive::selectTrack_z0errCut    ( const xAOD::TrackParticle* trk ) { const double cov22 = trk->definingParametersCovMatrix()(1,1); return cov22 < m_jp.z0TrkErrorCut*m_jp.z0TrkErrorCut; }
-  bool VrtSecInclusive::selectTrack_d0signifCut ( const xAOD::TrackParticle* trk ) { return true; }
-  bool VrtSecInclusive::selectTrack_z0signifCut ( const xAOD::TrackParticle* trk ) { return true; }
-  bool VrtSecInclusive::selectTrack_pTCut       ( const xAOD::TrackParticle* trk ) { return trk->pt() > m_jp.TrkPtCut; }
-  bool VrtSecInclusive::selectTrack_chi2Cut     ( const xAOD::TrackParticle* trk ) { return trk->chiSquared() / (trk->numberDoF()+AlgConsts::infinitesimal) < m_jp.TrkChi2Cut; }
+  bool VrtSecInclusive::selectTrack_d0Cut       ( const xAOD::TrackParticle* trk ) const { return ( fabs( trk->d0() ) > m_jp.d0TrkPVDstMinCut && fabs( trk->d0() ) < m_jp.d0TrkPVDstMaxCut ); }
+  bool VrtSecInclusive::selectTrack_z0Cut       ( const xAOD::TrackParticle* trk ) const { return ( fabs( trk->z0() ) > m_jp.z0TrkPVDstMinCut && fabs( trk->z0() ) < m_jp.z0TrkPVDstMaxCut ); }
+  bool VrtSecInclusive::selectTrack_d0errCut    ( const xAOD::TrackParticle* trk ) const { const double cov11 = trk->definingParametersCovMatrix()(0,0); return cov11 < m_jp.d0TrkErrorCut*m_jp.d0TrkErrorCut; }
+  bool VrtSecInclusive::selectTrack_z0errCut    ( const xAOD::TrackParticle* trk ) const { const double cov22 = trk->definingParametersCovMatrix()(1,1); return cov22 < m_jp.z0TrkErrorCut*m_jp.z0TrkErrorCut; }
+  bool VrtSecInclusive::selectTrack_d0signifCut ( const xAOD::TrackParticle*     ) const { return true; }
+  bool VrtSecInclusive::selectTrack_z0signifCut ( const xAOD::TrackParticle*     ) const { return true; }
+  bool VrtSecInclusive::selectTrack_pTCut       ( const xAOD::TrackParticle* trk ) const { return trk->pt() > m_jp.TrkPtCut; }
+  bool VrtSecInclusive::selectTrack_chi2Cut     ( const xAOD::TrackParticle* trk ) const { return trk->chiSquared() / (trk->numberDoF()+AlgConsts::infinitesimal) < m_jp.TrkChi2Cut; }
   
   //____________________________________________________________________________________________________
-  bool VrtSecInclusive::selectTrack_hitPattern( const xAOD::TrackParticle* trk ) {
+  bool VrtSecInclusive::selectTrack_hitPattern( const xAOD::TrackParticle* trk ) const {
     
     uint8_t PixelHits = 0;
     uint8_t SctHits   = 0; 
@@ -68,7 +68,7 @@ namespace VKalVrtAthena {
   }
   
   //____________________________________________________________________________________________________
-  bool VrtSecInclusive::selectTrack_notPVassociated  ( const xAOD::TrackParticle* trk ) {
+  bool VrtSecInclusive::selectTrack_notPVassociated  ( const xAOD::TrackParticle* trk ) const {
       return !( VKalVrtAthena::isAssociatedToVertices( trk, m_primaryVertices ) );
   }
   
@@ -96,13 +96,11 @@ namespace VKalVrtAthena {
     //  Track selection
     //
     
-    ATH_MSG_DEBUG("execute: Reco. Tracks in event = "<< static_cast<int>( trackParticleContainer->size() ) );
-    
 
     static SG::AuxElement::Decorator< char > decor_isSelected( "is_selected" );
 
     // Setup cut functions
-    using cutFunc = bool (VrtSecInclusive::*) ( const xAOD::TrackParticle* );
+    using cutFunc = bool (VrtSecInclusive::*) ( const xAOD::TrackParticle* ) const;
     std::vector<cutFunc> cuts;
     
     // These cuts are optional. Specified by JobProperty
@@ -165,7 +163,7 @@ namespace VKalVrtAthena {
       
         if( m_jp.FillNtuple ) m_ntupleVars->get< vector<int> >( "SelTrk_barcode" ).emplace_back(barcode); // will need this later          
       
-        ATH_MSG_DEBUG( " > selectTracks: Track index " << trk->index() << " has been selected." );
+        ATH_MSG_VERBOSE( " > selectTracks: Track index " << trk->index() << " has been selected." );
         ATH_MSG_VERBOSE( " > selectTracks: Track index " << trk->index()
                          << " parameter:"
                          << " pt = "  << trk->pt()

@@ -162,30 +162,31 @@ namespace VKalVrtAthena {
     
     
     // Vertexing algorithm configuration
-    m_vertexingAlgorithms.emplace_back( std::pair<std::string, vertexingAlg>( "reconstruct2trkVertices", &VrtSecInclusive::reconstruct2TrackVertices )        );
-    m_vertexingAlgorithms.emplace_back( std::pair<std::string, vertexingAlg>( "reconstructNtrkVertices", &VrtSecInclusive::reconstructNTrackVertices )        );
+    m_vertexingAlgorithms.emplace_back( std::pair<std::string, vertexingAlg>( "extractIncompatibleTrackPairs", &VrtSecInclusive::extractIncompatibleTrackPairs )     );
+    m_vertexingAlgorithms.emplace_back( std::pair<std::string, vertexingAlg>( "findNtrackVertices",            &VrtSecInclusive::findNtrackVertices )                );
+    m_vertexingAlgorithms.emplace_back( std::pair<std::string, vertexingAlg>( "rearrangeTracks",               &VrtSecInclusive::rearrangeTracks)                    );
     
     if( m_jp.doReassembleVertices ) {
-      m_vertexingAlgorithms.emplace_back( std::pair<std::string, vertexingAlg>( "reassembleVertices", &VrtSecInclusive::reassembleVertices )             );
+      m_vertexingAlgorithms.emplace_back( std::pair<std::string, vertexingAlg>( "reassembleVertices",          &VrtSecInclusive::reassembleVertices )                );
     }
       
     if( m_jp.doMergeByShuffling ) {
-      m_vertexingAlgorithms.emplace_back( std::pair<std::string, vertexingAlg>( "mergeByShuffling", &VrtSecInclusive::mergeByShuffling )               );
+      m_vertexingAlgorithms.emplace_back( std::pair<std::string, vertexingAlg>( "mergeByShuffling",            &VrtSecInclusive::mergeByShuffling )                  );
     }
       
     if( m_jp.doAssociateNonSelectedTracks ) {
-      m_vertexingAlgorithms.emplace_back( std::pair<std::string, vertexingAlg>( "associateNonSelectedTracks", &VrtSecInclusive::associateNonSelectedTracks )     );
+      m_vertexingAlgorithms.emplace_back( std::pair<std::string, vertexingAlg>( "associateNonSelectedTracks",  &VrtSecInclusive::associateNonSelectedTracks )        );
     }
     
     if( m_jp.doMergeByShuffling ) {
-      m_vertexingAlgorithms.emplace_back( std::pair<std::string, vertexingAlg>( "mergeByShuffling2", &VrtSecInclusive::mergeByShuffling )               );
+      m_vertexingAlgorithms.emplace_back( std::pair<std::string, vertexingAlg>( "mergeByShuffling2",           &VrtSecInclusive::mergeByShuffling )                  );
     }
       
     if ( m_jp.doMergeFinalVerticesDistance ) {
-      m_vertexingAlgorithms.emplace_back( std::pair<std::string, vertexingAlg>( "mergeFinalVertices", &VrtSecInclusive::mergeFinalVertices )             );
+      m_vertexingAlgorithms.emplace_back( std::pair<std::string, vertexingAlg>( "mergeFinalVertices",          &VrtSecInclusive::mergeFinalVertices )                );
     }
     
-    m_vertexingAlgorithms.emplace_back( std::pair<std::string, vertexingAlg>( "refitAndSelect", &VrtSecInclusive::refitAndSelectGoodQualityVertices ) );
+    m_vertexingAlgorithms.emplace_back( std::pair<std::string, vertexingAlg>( "refitAndSelect",                &VrtSecInclusive::refitAndSelectGoodQualityVertices ) );
 
     
     // now make histograms/ntuples
@@ -202,6 +203,9 @@ namespace VKalVrtAthena {
       ATH_MSG_INFO("initialize: Filling Histograms");
       //
       m_hists["trkSelCuts"]        = new TH1F("trkSelCuts",        ";Cut Order;Tracks",                         10, -0.5, 10-0.5                                         );
+      m_hists["incompMonitor"]     = new TH1F("incompMonitor",     ";Setp;Track Pairs",                         10, -0.5, 10-0.5                                         );
+      m_hists["2trkChi2Dist"]      = new TH1F("2trkChi2Dist",      ";log10(#chi^{2}/N_{dof});Entries",          100, -3, 7                                               );
+      m_hists["NtrkChi2Dist"]      = new TH1F("NtrkChi2Dist",      ";log10(#chi^{2}/N_{dof});Entries",          100, -3, 7                                               );
       m_hists["vPosDist"]          = new TH2F("vPosDist",          ";r;#vec{x}*#vec{p}/p_{T} [mm]",             rbins.size()-1, &(rbins[0]), 200, -1000, 1000            );
       m_hists["disabledCount"]     = new TH1F("disabledCount",     ";N_{modules};Tracks",                       20, -0.5, 10-0.5                                         );
       m_hists["vertexYield"]       = new TH1F("vertexYield",       ";Algorithm Step;Vertices",                  nAlgs, -0.5, nAlgs-0.5                                   );
@@ -287,7 +291,6 @@ namespace VKalVrtAthena {
       ATH_MSG_WARNING("Failure in getEventInfo() ");
       return StatusCode::SUCCESS;
     }
-    
     
     ///////////////////////////////////////////////////////////////////////////
     //
@@ -382,15 +385,7 @@ namespace VKalVrtAthena {
     // Core part of Vertexing
     //
     
-    // List of track indices which are not used for the 2-track vertices.
-    m_incomp.clear();
     m_vertexingAlgorithmStep = 0;
-    
-    // Try to compose 2-track vertices for all combinations of selected tracks greather than the given chi2 cut.      
-    ATH_CHECK( extractIncompatibleTracks() );
-    
-    ATH_MSG_VERBOSE( "execute: Found= "<<m_incomp.size()<<", "<< m_selectedTracks->size() );
-    if( m_jp.FillNtuple ) m_ntupleVars->get<unsigned int>( "SizeIncomp" ) = m_incomp.size();
     
     // set of vertices created in the following while loop.
     auto* workVerticesContainer = new std::vector<WrkVrt>;
@@ -400,13 +395,13 @@ namespace VKalVrtAthena {
     for( auto itr = m_vertexingAlgorithms.begin(); itr!=m_vertexingAlgorithms.end(); ++itr ) {
       
       auto& name = itr->first;
-      auto alg = itr->second;
+      auto alg   = itr->second;
       
       ATH_CHECK( (this->*alg)( workVerticesContainer ) );
       
       auto end = std::remove_if( workVerticesContainer->begin(), workVerticesContainer->end(),
                                  []( WrkVrt& wrkvrt ) {
-                                   return wrkvrt.isGood == false || ( wrkvrt.selectedTrackIndices.size() + wrkvrt.associatedTrackIndices.size() ) < 2; }
+                                   return wrkvrt.isGood == false || wrkvrt.nTracksTotal() < 2; }
                                  );
       
       workVerticesContainer->erase( end, workVerticesContainer->end() );

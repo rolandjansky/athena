@@ -165,6 +165,9 @@ namespace VKalVrtAthena {
       bool   removeFakeVrtLate;
       bool   doReassembleVertices;
       bool   doMergeByShuffling;
+      bool   doSuggestedRefitOnMerging;
+      bool   doMagnetMerging;
+      bool   doWildMerging;
       bool   doMergeFinalVerticesDistance; // Kazuki
       bool   doAssociateNonSelectedTracks;
       bool   doFinalImproveChi2;
@@ -282,6 +285,9 @@ namespace VKalVrtAthena {
       std::vector< std::vector<double> > TrkAtVrt;    //! list of track parameters wrt the reconstructed vertex
       unsigned long        closestWrkVrtIndex;        //! stores the index of the closest WrkVrt in std::vector<WrkVrt>
       double               closestWrkVrtValue;        //! stores the value of some observable to the closest WrkVrt ( observable = e.g. significance )
+      
+      inline double ndof() const { return 2.0*( selectedTrackIndices.size() + associatedTrackIndices.size() ) - 3.0; }
+      inline unsigned nTracksTotal() const { return selectedTrackIndices.size() + associatedTrackIndices.size(); }
     };
     
     
@@ -292,7 +298,7 @@ namespace VKalVrtAthena {
     using ExtrapolatedPoint   = std::tuple<const TVector3, Detector, Bec, Layer, Flag>;
     using ExtrapolatedPattern = std::vector< ExtrapolatedPoint >;
     
-    std::vector<int> m_incomp;
+    std::vector< std::pair<int, int> > m_incomp;
     
     
     ////////////////////////////////////////////////////////////////////////////////////////
@@ -308,21 +314,21 @@ namespace VKalVrtAthena {
     TrackSelectionAlg m_trackSelectionAlg;
     
     /** track-by-track selection strategies */
-    bool selectTrack_notPVassociated ( const xAOD::TrackParticle* );
-    bool selectTrack_pTCut           ( const xAOD::TrackParticle* );
-    bool selectTrack_chi2Cut         ( const xAOD::TrackParticle* );
-    bool selectTrack_hitPattern      ( const xAOD::TrackParticle* );
-    bool selectTrack_d0Cut           ( const xAOD::TrackParticle* );
-    bool selectTrack_z0Cut           ( const xAOD::TrackParticle* );
-    bool selectTrack_d0errCut        ( const xAOD::TrackParticle* );
-    bool selectTrack_z0errCut        ( const xAOD::TrackParticle* );
-    bool selectTrack_d0signifCut     ( const xAOD::TrackParticle* );
-    bool selectTrack_z0signifCut     ( const xAOD::TrackParticle* );
+    bool selectTrack_notPVassociated ( const xAOD::TrackParticle* ) const;
+    bool selectTrack_pTCut           ( const xAOD::TrackParticle* ) const;
+    bool selectTrack_chi2Cut         ( const xAOD::TrackParticle* ) const;
+    bool selectTrack_hitPattern      ( const xAOD::TrackParticle* ) const;
+    bool selectTrack_d0Cut           ( const xAOD::TrackParticle* ) const;
+    bool selectTrack_z0Cut           ( const xAOD::TrackParticle* ) const;
+    bool selectTrack_d0errCut        ( const xAOD::TrackParticle* ) const;
+    bool selectTrack_z0errCut        ( const xAOD::TrackParticle* ) const;
+    bool selectTrack_d0signifCut     ( const xAOD::TrackParticle* ) const;
+    bool selectTrack_z0signifCut     ( const xAOD::TrackParticle* ) const;
     
     /** related to the graph method and verte finding */
-    StatusCode extractIncompatibleTracks();
-    StatusCode reconstruct2TrackVertices(std::vector<WrkVrt>* );
-    StatusCode reconstructNTrackVertices( std::vector<WrkVrt>* );
+    StatusCode extractIncompatibleTrackPairs( std::vector<WrkVrt>* );
+    StatusCode findNtrackVertices(std::vector<WrkVrt>* );
+    StatusCode rearrangeTracks( std::vector<WrkVrt>* );
     
     /** attempt to merge vertices when all tracks of a vertex A is close to vertex B in terms of impact parameter */
     StatusCode reassembleVertices( std::vector<WrkVrt>* );
@@ -362,18 +368,15 @@ namespace VKalVrtAthena {
         the vertex chi2 satisfies a certain condition. */
     double improveVertexChi2( WrkVrt& );
     
-    void removeTrackFromVertex(std::vector<WrkVrt> *, 
+    void removeTrackFromVertex(std::vector<WrkVrt>*, 
                                std::vector< std::deque<long int> > *,
 			       const long int & ,const long int & );
  
-    StatusCode disassembleVertex(std::vector<WrkVrt> *WrkVrtSet, const unsigned& vertexIndex );
+    StatusCode disassembleVertex(std::vector<WrkVrt> *, const unsigned& vertexIndex );
     
-    void trackClassification(std::vector< WrkVrt >* , 
-                             std::vector< std::deque<long int> >* );
+    void trackClassification(std::vector< WrkVrt >* , std::map< long int, std::vector<long int> >& );
     
-    double maxOfShared(std::vector<WrkVrt> *, 
-                       std::vector< std::deque<long int> >*,
-	               long int & ,long int & );
+    double findWorstChi2ofMaximallySharedTrack(std::vector<WrkVrt>*, std::map< long int, std::vector<long int> >&, long int & ,long int & );
     
     /** returns the number of tracks commonly present in both vertices */
     size_t nTrkCommon( std::vector<WrkVrt> *WrkVrtSet, const std::pair<unsigned, unsigned>& pairIndex ) const;
