@@ -8,6 +8,9 @@ if( ATLAS_RELEASE_MODE )
    return()
 endif()
 
+# for setuptools
+find_package( pytools )
+
 # Helper macro for building and installing the packages. Documentation
 # to be written later...
 function( _setup_python_package name file md5 )
