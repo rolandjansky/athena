@@ -112,6 +112,9 @@ AthenaHiveEventLoopMgr::AthenaHiveEventLoopMgr(const std::string& nam,
                   "Event interval at which to increment lumiBlock# when "
                   "creating events without an EventSelector. Zero means " 
                   "don't increment it");
+  declareProperty("FakeTimestampInterval", m_timeStampInt = 1,
+                  "timestamp interval between events when creating Events "
+                  "without an EventSelector");
 
   m_scheduledStop = false;
 
@@ -1149,10 +1152,12 @@ int AthenaHiveEventLoopMgr::declareEventRootAddress(const EventContext* ctx){
       runNmb = m_nevt / m_flmbi + 1;
       evtNmb = m_nevt % m_flmbi;
     }
-    auto eid = std::make_unique<EventID> (runNmb,evtNmb);
+    auto eid = std::make_unique<EventID> (runNmb,evtNmb, m_timeStamp);
     // Change lumiBlock# to match runNumber
     eid->set_lumi_block( runNmb );
 
+    m_timeStamp += m_timeStampInt;
+    
     pEvent = new EventInfo(eid.release(), new EventType());
 
     m_pEvent = pEvent;

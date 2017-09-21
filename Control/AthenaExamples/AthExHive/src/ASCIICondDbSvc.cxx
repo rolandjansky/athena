@@ -189,8 +189,9 @@ ASCIICondDbSvc::parse(EventIDRange& t, const std::string& s) {
 
   if (m.size() != 5) { return false; }
 
-  EventIDBase start(std::stoi(m[1]), std::stoi(m[2]));
-  EventIDBase   end(std::stoi(m[3]), std::stoi(m[4]));
+  // set run# and timestamp
+  EventIDBase start(std::stoi(m[1]), EventIDBase::UNDEFEVT, std::stoi(m[2]));
+  EventIDBase   end(std::stoi(m[3]), EventIDBase::UNDEFEVT, std::stoi(m[4]));
 
   start.set_lumi_block(m_lbn);
   end.set_lumi_block(m_lbn);
@@ -211,8 +212,9 @@ ASCIICondDbSvc::parse(IOVEntryT<IASCIICondDbSvc::dbData_t>& ie, const std::strin
 
   if (m.size() != 6) { return false; }
 
-  EventIDBase start(std::stoi(m[1]), std::stoi(m[2]));
-  EventIDBase   end(std::stoi(m[3]), std::stoi(m[4]));
+  // set run# and timestamp
+  EventIDBase start(std::stoi(m[1]), EventIDBase::UNDEFEVT, std::stoi(m[2]));
+  EventIDBase   end(std::stoi(m[3]), EventIDBase::UNDEFEVT, std::stoi(m[4]));
 
   start.set_lumi_block(m_lbn);
   end.set_lumi_block(m_lbn);
