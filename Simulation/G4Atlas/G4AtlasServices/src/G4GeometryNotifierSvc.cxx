@@ -8,7 +8,7 @@
 #include "LVNotifier.h"
 
 G4GeometryNotifierSvc::G4GeometryNotifierSvc( const std::string& name, ISvcLocator* pSvcLocator )
-  : AthService(name,pSvcLocator),
+  : base_class(name,pSvcLocator),
     m_activateLVNotifier(false),
     m_activatePVNotifier(false),
     lvNotifier(nullptr),
@@ -39,17 +39,5 @@ StatusCode G4GeometryNotifierSvc::initialize(){
 
 StatusCode G4GeometryNotifierSvc::finalize(){
   ATH_MSG_DEBUG( "G4GeometryNotifierSvc being finalized!!!" );
-  return StatusCode::SUCCESS;
-}
-
-StatusCode G4GeometryNotifierSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
-{
-  if ( IG4GeometryNotifierSvc::interfaceID().versionMatch(riid) ) {
-    *ppvInterface = dynamic_cast<IG4GeometryNotifierSvc*>(this);
-  } else {
-    // Interface is not directly available : try out a base class
-    return AthService::queryInterface(riid, ppvInterface);
-  }
-  addRef();
   return StatusCode::SUCCESS;
 }
