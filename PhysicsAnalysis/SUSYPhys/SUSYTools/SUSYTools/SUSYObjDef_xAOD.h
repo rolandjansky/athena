@@ -539,8 +539,11 @@ namespace ST {
 
     std::string m_JMScalib;
 
+    /// Overlap removal options
     bool m_orDoTau;
     bool m_orDoPhoton;
+    bool m_orDoEleJet;
+    bool m_orDoMuonJet;
     bool m_orDoBjet;
     bool m_orDoElBjet;
     bool m_orDoMuBjet;
