@@ -24,6 +24,9 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummarySvc.h"
 
+#include "CommissionEvent/ComTime.h"
+#include "StoreGate/ReadHandleKey.h"
+
 class ITRT_StrawSummarySvc;
 class IInDetConditionsSvc;
 class ITRT_DriftFunctionTool;
@@ -73,6 +76,7 @@ public:
   ///////////////////////////////////////////////////////////////////
   // Private data:
   ///////////////////////////////////////////////////////////////////
+  SG::ReadHandleKey<ComTime> m_comTimeName {this,"ComTimeName","ComTime","RHK to retrieve ComTime"}; //!< RHK for ComTime
 
   ToolHandle< ITRT_DriftFunctionTool > m_driftFunctionTool;  //!< DriftFunctionTool
 //  ServiceHandle< IInDetConditionsSvc> m_ConditionsSummary; //!< The ConditionsSummaryTool
@@ -81,7 +85,7 @@ public:
   bool                                 m_useConditionsStatus;     //!< SHall the ConditionsSummaryTool be used?
   bool                                 m_useConditionsHTStatus;     //!< Shall the ConditionsSummaryTool be used for HT to find argon straws? 
   std::string                          m_trt_mgr_location ;  //!< Manager name
-  std::string                          m_comTimeName      ;  //!< Phase handler name
+  //std::string                          m_comTimeName      ;  //!< Phase handler name
   const InDetDD::TRT_DetectorManager * m_trt_mgr          ;  //!< Manager handle
   const TRT_ID                       * m_trtid            ;  //!< TRT id helper handle
   unsigned int                         m_coll_pll         ;  //!< phase offset (in clock bins)
