@@ -27,7 +27,7 @@ class EventViewCreatorAlgorithm : public AthAlgorithm
 
   private:
     //Input trig composite collection to split into views
-    SG::ReadHandleKey< ConstDataVector< TrigCompositeUtils::DecisionContainer> > m_inputDecisionsKey{ this, "Decisions", "Unspecified", "The name of decision container to use in making views" };
+    SG::ReadHandleKey< TrigCompositeUtils::DecisionContainer > m_inputDecisionsKey{ this, "Decisions", "Unspecified", "The name of decision container to use in making views" };
 
     //Output views for merging
     SG::WriteHandleKey< std::vector< SG::View* > > m_viewsKey{ this, "Views", "Unspecified", "The key of views collection produced" };
