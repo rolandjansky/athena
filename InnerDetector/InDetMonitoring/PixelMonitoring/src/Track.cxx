@@ -231,7 +231,6 @@ StatusCode PixelMainMon::FillTrackMon(void)
       for (DataVector< const Trk::TrackStateOnSurface>::const_iterator trackStateOnSurfaceIterator=trackStates->begin(); trackStateOnSurfaceIterator!=trackStates->end(); trackStateOnSurfaceIterator++)
       {
 	/// Change the track state on 1 surface into the cluster it represents
-	Identifier clusID;
 	Identifier surfaceID;
 	IdentifierHash id_hash;
 	const InDet::SiClusterOnTrack *clus=0;
@@ -280,7 +279,6 @@ StatusCode PixelMainMon::FillTrackMon(void)
 
 	if ((*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Measurement)) {
 	  clus = dynamic_cast< const InDet::SiClusterOnTrack*>(mesb);
-	  if (clus) clusID = clus->identify();
 
 	  if ( m_tsos_hitmap ) m_tsos_hitmap->Fill(surfaceID, m_pixelid);
 	  if ( m_hiteff_incl_mod[pixlayerdisk] && pass1hole2GeVTightCut ) m_hiteff_incl_mod[pixlayerdisk]->Fill( m_manager->lumiBlockNumber(), 1.0 );
@@ -288,7 +286,6 @@ StatusCode PixelMainMon::FillTrackMon(void)
          
 	if ((*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Outlier)) {
 	  clus = dynamic_cast< const InDet::SiClusterOnTrack*>((*trackStateOnSurfaceIterator)->measurementOnTrack());
-	  if (clus) clusID = clus->identify();
 	  nOutlier = 1.0;
 
 	  if ( m_tsos_holemap ) m_tsos_holemap->Fill(surfaceID, m_pixelid);
@@ -297,7 +294,6 @@ StatusCode PixelMainMon::FillTrackMon(void)
           
 	if ((*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Hole)) {
 	  clus = dynamic_cast< const InDet::SiClusterOnTrack*>((*trackStateOnSurfaceIterator)->measurementOnTrack());
-	  if (clus) clusID = clus->identify();
 	  nHole = 1.0;
 
 	  if ( m_tsos_outliermap) m_tsos_outliermap->Fill(surfaceID, m_pixelid);
@@ -314,7 +310,7 @@ StatusCode PixelMainMon::FillTrackMon(void)
 	}
 
 	///
-	/// PixelClusters are valid
+	/// PixelClusters (=Trk::TrackStateOnSurface::Measurement)) are valid
 	///
 	if ( !(*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Measurement) || !clus) continue;
 
