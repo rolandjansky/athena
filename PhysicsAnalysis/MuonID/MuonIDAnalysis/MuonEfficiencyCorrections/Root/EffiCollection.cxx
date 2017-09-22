@@ -228,16 +228,12 @@ namespace CP {
     }
     EffiCollection::~EffiCollection() {
 
-        std::cout << "Lalalala" << std::endl;
         m_central_eff.reset();
         m_calo_eff.reset();
-
         m_forward_eff.reset();
 
         m_lowpt_central_eff.reset();
         m_lowpt_calo_eff.reset();
-
-        std::cout << "Effi Collectiion destructor" << std::endl;
     }
     std::string EffiCollection::FileTypeName(EffiCollection::CollectionType T) {
         if (T == CollectionType::Central) return "Central ";
@@ -375,15 +371,8 @@ namespace CP {
         return m_SF.begin()->second->sysname();
     }
     EffiCollection::CollectionContainer::~CollectionContainer() {
-        std::cout << "Collection container destructor" << std::endl;
-        for (auto& SF : m_SF) {
-            std::cout << "Kaffee" << std::endl;
-            SF.second = EfficiencyScaleFactor_Ptr();
-        }
-        m_SF.clear();
-        std::cout << "Go we here?!" << std::endl;
-    }
 
+    }
     CP::EffiCollection::CollectionContainer& EffiCollection::CollectionContainer::operator =(const EffiCollection::CollectionContainer & other) {
         if (this == &other) {
             return *this;

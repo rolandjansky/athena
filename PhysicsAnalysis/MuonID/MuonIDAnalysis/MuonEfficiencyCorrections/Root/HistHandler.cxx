@@ -88,12 +88,6 @@ namespace CP {
         Copy(other);
     }
     HistHandler::~HistHandler() {
-        std::cout << m_H.get()->GetName() << std::endl;
-        std::unique_ptr<TH1>* Komisch = new std::unique_ptr<TH1>();
-        Komisch->swap(m_H);
-        m_H = std::unique_ptr < TH1 > (nullptr);
-
-        std::cout << "Wieso" << std::endl;
     }
     double HistHandler::GetBinContent(int bin) const {
         if (!m_H) {
