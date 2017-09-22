@@ -117,22 +117,22 @@ HVPoint3D operator +(const HVPoint3D& v1,const HVPoint3D& v2) {
  ***********************************************************************/
 std::ostream & operator<<(std::ostream & ostr, const SbFacet & facet) {
   for (int k=0; k<4; k++) {
-    ostr << " " << facet.edge[k].v << "/" << facet.edge[k].f;
+    ostr << " " << facet.m_edge[k].v << "/" << facet.m_edge[k].f;
   }
   return ostr;
 }
 
 std::ostream & operator<<(std::ostream & ostr, const SbPolyhedron & ph) {
   ostr << std::endl;
-  ostr << "Nverteces=" << ph.nvert << ", Nfacets=" << ph.nface << std::endl;
+  ostr << "Nverteces=" << ph.m_nvert << ", Nfacets=" << ph.m_nface << std::endl;
   int i;
-  for (i=1; i<=ph.nvert; i++) {
+  for (i=1; i<=ph.m_nvert; i++) {
      ostr << "xyz(" << i << ")="
-          << ph.pV[i][0] << ' ' << ph.pV[i][1] << ' ' << ph.pV[i][2]
+          << ph.m_pV[i][0] << ' ' << ph.m_pV[i][1] << ' ' << ph.m_pV[i][2]
           << std::endl;
   }
-  for (i=1; i<=ph.nface; i++) {
-    ostr << "face(" << i << ")=" << ph.pF[i] << std::endl;
+  for (i=1; i<=ph.m_nface; i++) {
+    ostr << "face(" << i << ")=" << ph.m_pF[i] << std::endl;
   }
   return ostr;
 }
@@ -145,16 +145,16 @@ SbPolyhedron::SbPolyhedron(const SbPolyhedron &from)
  *                                                                     *
  ***********************************************************************/
 {
-  if (from.nvert > 0 && from.nface > 0) {
-    nvert = from.nvert;
-    nface = from.nface;
-    pV = new HVPoint3D[nvert + 1];
-    pF = new SbFacet[nface + 1];
+  if (from.m_nvert > 0 && from.m_nface > 0) {
+    m_nvert = from.m_nvert;
+    m_nface = from.m_nface;
+    m_pV = new HVPoint3D[m_nvert + 1];
+    m_pF = new SbFacet[m_nface + 1];
     int i;
-    for (i=1; i<=nvert; i++) pV[i] = from.pV[i];
-    for (i=1; i<=nface; i++) pF[i] = from.pF[i];
+    for (i=1; i<=m_nvert; i++) m_pV[i] = from.m_pV[i];
+    for (i=1; i<=m_nface; i++) m_pF[i] = from.m_pF[i];
   }else{
-    nvert = 0; nface = 0; pV = 0; pF = 0;
+    m_nvert = 0; m_nface = 0; m_pV = 0; m_pF = 0;
   }
 }
 
@@ -169,18 +169,18 @@ SbPolyhedron & SbPolyhedron::operator=(const SbPolyhedron &from)
  ***********************************************************************/
 {
   if (this == &from) return *this;
-  delete [] pV;
-  delete [] pF;
-  if (from.nvert > 0  && from.nface > 0) {
-    nvert = from.nvert;
-    nface = from.nface;
-    pV = new HVPoint3D[nvert + 1];
-    pF = new SbFacet[nface + 1];
+  delete [] m_pV;
+  delete [] m_pF;
+  if (from.m_nvert > 0  && from.m_nface > 0) {
+    m_nvert = from.m_nvert;
+    m_nface = from.m_nface;
+    m_pV = new HVPoint3D[m_nvert + 1];
+    m_pF = new SbFacet[m_nface + 1];
     int i;
-    for (i=1; i<=nvert; i++) pV[i] = from.pV[i];
-    for (i=1; i<=nface; i++) pF[i] = from.pF[i];
+    for (i=1; i<=m_nvert; i++) m_pV[i] = from.m_pV[i];
+    for (i=1; i<=m_nface; i++) m_pF[i] = from.m_pF[i];
   }else{
-    nvert = 0; nface = 0; pV = 0; pF = 0;
+    m_nvert = 0; m_nface = 0; m_pV = 0; m_pF = 0;
   }
   return *this;
 }
@@ -198,7 +198,7 @@ SbPolyhedron::FindNeighbour(int iFace, int iNode, int iOrder) const
 {
   int i;
   for (i=0; i<4; i++) {
-    if (iNode == iabs(pF[iFace].edge[i].v)) break;
+    if (iNode == iabs(m_pF[iFace].m_edge[i].v)) break;
   }
   if (i == 4) {
     std::cerr
@@ -209,9 +209,9 @@ SbPolyhedron::FindNeighbour(int iFace, int iNode, int iOrder) const
   }
   if (iOrder < 0) {
     if ( --i < 0) i = 3;
-    if (pF[iFace].edge[i].v == 0) i = 2;
+    if (m_pF[iFace].m_edge[i].v == 0) i = 2;
   }
-  return (pF[iFace].edge[i].v > 0) ? 0 : pF[iFace].edge[i].f;
+  return (m_pF[iFace].m_edge[i].v > 0) ? 0 : m_pF[iFace].m_edge[i].f;
 }
 
 HVNormal3D SbPolyhedron::FindNodeNormal(int iFace, int iNode) const
@@ -259,9 +259,9 @@ void SbPolyhedron::SetNumberOfRotationSteps(int n)
       << "SbPolyhedron::SetNumberOfRotationSteps: attempt to set the\n"
       << "number of steps per circle < " << nMin << "; forced to " << nMin
       << std::endl;
-    fNumberOfRotationSteps = nMin;
+    s_numberOfRotationSteps = nMin;
   }else{
-    fNumberOfRotationSteps = n;
+    s_numberOfRotationSteps = n;
   }
 }
 
@@ -278,10 +278,10 @@ void SbPolyhedron::AllocateMemory(int Nvert, int Nface)
  *                                                                     *
  ***********************************************************************/
 {
-  nvert = Nvert;
-  nface = Nface;
-  pV    = new HVPoint3D[nvert+1];
-  pF    = new SbFacet[nface+1];
+  m_nvert = Nvert;
+  m_nface = Nface;
+  m_pV    = new HVPoint3D[m_nvert+1];
+  m_pF    = new SbFacet[m_nface+1];
 }
 
 void SbPolyhedron::CreatePrism()
@@ -296,12 +296,12 @@ void SbPolyhedron::CreatePrism()
 {
   enum {DUMMY, BOTTOM, LEFT, BACK, RIGHT, FRONT, TOP};
 
-  pF[1] = SbFacet(1,LEFT,  4,BACK,  3,RIGHT,  2,FRONT);
-  pF[2] = SbFacet(5,TOP,   8,BACK,  4,BOTTOM, 1,FRONT);
-  pF[3] = SbFacet(8,TOP,   7,RIGHT, 3,BOTTOM, 4,LEFT);
-  pF[4] = SbFacet(7,TOP,   6,FRONT, 2,BOTTOM, 3,BACK);
-  pF[5] = SbFacet(6,TOP,   5,LEFT,  1,BOTTOM, 2,RIGHT);
-  pF[6] = SbFacet(5,FRONT, 6,RIGHT, 7,BACK,   8,LEFT);
+  m_pF[1] = SbFacet(1,LEFT,  4,BACK,  3,RIGHT,  2,FRONT);
+  m_pF[2] = SbFacet(5,TOP,   8,BACK,  4,BOTTOM, 1,FRONT);
+  m_pF[3] = SbFacet(8,TOP,   7,RIGHT, 3,BOTTOM, 4,LEFT);
+  m_pF[4] = SbFacet(7,TOP,   6,FRONT, 2,BOTTOM, 3,BACK);
+  m_pF[5] = SbFacet(6,TOP,   5,LEFT,  1,BOTTOM, 2,RIGHT);
+  m_pF[6] = SbFacet(5,FRONT, 6,RIGHT, 7,BACK,   8,LEFT);
 }
 
 void SbPolyhedron::RotateEdge(int k1, int k2, double r1, double r2,
@@ -322,7 +322,7 @@ void SbPolyhedron::RotateEdge(int k1, int k2, double r1, double r2,
  *        ifWholeCircle - is true in case of whole circle rotation     *
  *        ns     - number of discrete steps                            *
  *        r[]    - r-coordinates                                       *
- *        kface  - current free cell in the pF array                   *
+ *        kface  - current free cell in the m_pF array                   *
  *                                                                     *
  ***********************************************************************/
 {
@@ -337,31 +337,31 @@ void SbPolyhedron::RotateEdge(int k1, int k2, double r1, double r2,
 
   if (ns == 1) {
     if (r1 == 0.) {
-      pF[kface++]   = SbFacet(i1,0,    v2*i2,0, (i2+1),0);
+      m_pF[kface++]   = SbFacet(i1,0,    v2*i2,0, (i2+1),0);
     }else if (r2 == 0.) {
-      pF[kface++]   = SbFacet(i1,0,    i2,0,    v1*(i1+1),0);
+      m_pF[kface++]   = SbFacet(i1,0,    i2,0,    v1*(i1+1),0);
     }else{
-      pF[kface++]   = SbFacet(i1,0,    v2*i2,0, (i2+1),0, v1*(i1+1),0);
+      m_pF[kface++]   = SbFacet(i1,0,    v2*i2,0, (i2+1),0, v1*(i1+1),0);
     }
   }else{
     if (r1 == 0.) {
-      pF[kface++]   = SbFacet(vv*i1,0,    v2*i2,0, vEdge*(i2+1),0);
+      m_pF[kface++]   = SbFacet(vv*i1,0,    v2*i2,0, vEdge*(i2+1),0);
       for (i2++,i=1; i<ns-1; i2++,i++) {
-        pF[kface++] = SbFacet(vEdge*i1,0, v2*i2,0, vEdge*(i2+1),0);
+        m_pF[kface++] = SbFacet(vEdge*i1,0, v2*i2,0, vEdge*(i2+1),0);
       }
-      pF[kface++]   = SbFacet(vEdge*i1,0, v2*i2,0, vv*ii2,0);
+      m_pF[kface++]   = SbFacet(vEdge*i1,0, v2*i2,0, vv*ii2,0);
     }else if (r2 == 0.) {
-      pF[kface++]   = SbFacet(vv*i1,0,    vEdge*i2,0, v1*(i1+1),0);
+      m_pF[kface++]   = SbFacet(vv*i1,0,    vEdge*i2,0, v1*(i1+1),0);
       for (i1++,i=1; i<ns-1; i1++,i++) {
-        pF[kface++] = SbFacet(vEdge*i1,0, vEdge*i2,0, v1*(i1+1),0);
+        m_pF[kface++] = SbFacet(vEdge*i1,0, vEdge*i2,0, v1*(i1+1),0);
       }
-      pF[kface++]   = SbFacet(vEdge*i1,0, vv*i2,0,    v1*ii1,0);
+      m_pF[kface++]   = SbFacet(vEdge*i1,0, vv*i2,0,    v1*ii1,0);
     }else{
-      pF[kface++]   = SbFacet(vv*i1,0,    v2*i2,0, vEdge*(i2+1),0,v1*(i1+1),0);
+      m_pF[kface++]   = SbFacet(vv*i1,0,    v2*i2,0, vEdge*(i2+1),0,v1*(i1+1),0);
       for (i1++,i2++,i=1; i<ns-1; i1++,i2++,i++) {
-        pF[kface++] = SbFacet(vEdge*i1,0, v2*i2,0, vEdge*(i2+1),0,v1*(i1+1),0);
+        m_pF[kface++] = SbFacet(vEdge*i1,0, v2*i2,0, vEdge*(i2+1),0,v1*(i1+1),0);
       }
-      pF[kface++]   = SbFacet(vEdge*i1,0, v2*i2,0, vv*ii2,0,      v1*ii1,0);
+      m_pF[kface++]   = SbFacet(vEdge*i1,0, v2*i2,0, vv*ii2,0,      v1*ii1,0);
     }
   }
 }
@@ -382,7 +382,7 @@ void SbPolyhedron::SetSideFacets(int ii[4], int vv[4],
  *        r[]   - radiuses                                             *
  *        dphi  - delta phi                                            *
  *        ns     - number of discrete steps                            *
- *        kface  - current free cell in the pF array                   *
+ *        kface  - current free cell in the m_pF array                   *
  *                                                                     *
  ***********************************************************************/
 {
@@ -399,40 +399,40 @@ void SbPolyhedron::SetSideFacets(int ii[4], int vv[4],
     k1 = kk[ii[0]];
     k2 = kk[ii[2]];
     k3 = kk[ii[3]];
-    pF[kface++] = SbFacet(vv[0]*k1,0, vv[2]*k2,0, vv[3]*k3,0);
+    m_pF[kface++] = SbFacet(vv[0]*k1,0, vv[2]*k2,0, vv[3]*k3,0);
     if (r[ii[0]] != 0.) k1 += ns;
     if (r[ii[2]] != 0.) k2 += ns;
     if (r[ii[3]] != 0.) k3 += ns;
-    pF[kface++] = SbFacet(vv[2]*k3,0, vv[0]*k2,0, vv[3]*k1,0);
+    m_pF[kface++] = SbFacet(vv[2]*k3,0, vv[0]*k2,0, vv[3]*k1,0);
   }else if (kk[ii[0]] == kk[ii[1]]) {
     k1 = kk[ii[0]];
     k2 = kk[ii[2]];
     k3 = kk[ii[3]];
-    pF[kface++] = SbFacet(vv[1]*k1,0, vv[2]*k2,0, vv[3]*k3,0);
+    m_pF[kface++] = SbFacet(vv[1]*k1,0, vv[2]*k2,0, vv[3]*k3,0);
     if (r[ii[0]] != 0.) k1 += ns;
     if (r[ii[2]] != 0.) k2 += ns;
     if (r[ii[3]] != 0.) k3 += ns;
-    pF[kface++] = SbFacet(vv[2]*k3,0, vv[1]*k2,0, vv[3]*k1,0);
+    m_pF[kface++] = SbFacet(vv[2]*k3,0, vv[1]*k2,0, vv[3]*k1,0);
   }else if (kk[ii[2]] == kk[ii[3]]) {
     k1 = kk[ii[0]];
     k2 = kk[ii[1]];
     k3 = kk[ii[2]];
-    pF[kface++] = SbFacet(vv[0]*k1,0, vv[1]*k2,0, vv[3]*k3,0);
+    m_pF[kface++] = SbFacet(vv[0]*k1,0, vv[1]*k2,0, vv[3]*k3,0);
     if (r[ii[0]] != 0.) k1 += ns;
     if (r[ii[1]] != 0.) k2 += ns;
     if (r[ii[2]] != 0.) k3 += ns;
-    pF[kface++] = SbFacet(vv[1]*k3,0, vv[0]*k2,0, vv[3]*k1,0);
+    m_pF[kface++] = SbFacet(vv[1]*k3,0, vv[0]*k2,0, vv[3]*k1,0);
   }else{
     k1 = kk[ii[0]];
     k2 = kk[ii[1]];
     k3 = kk[ii[2]];
     k4 = kk[ii[3]];
-    pF[kface++] = SbFacet(vv[0]*k1,0, vv[1]*k2,0, vv[2]*k3,0, vv[3]*k4,0);
+    m_pF[kface++] = SbFacet(vv[0]*k1,0, vv[1]*k2,0, vv[2]*k3,0, vv[3]*k4,0);
     if (r[ii[0]] != 0.) k1 += ns;
     if (r[ii[1]] != 0.) k2 += ns;
     if (r[ii[2]] != 0.) k3 += ns;
     if (r[ii[3]] != 0.) k4 += ns;
-    pF[kface++] = SbFacet(vv[2]*k4,0, vv[1]*k3,0, vv[0]*k2,0, vv[3]*k1,0);
+    m_pF[kface++] = SbFacet(vv[2]*k4,0, vv[1]*k3,0, vv[0]*k2,0, vv[3]*k1,0);
   }
 }
 
@@ -546,27 +546,27 @@ void SbPolyhedron::RotateAroundZ(int nstep, double phi, double dphi,
   k = 1;
   for(i=i1beg; i<=i1end; i++) {
     kk[i] = k;
-    if (r[i] == 0.) { pV[k++] = HVPoint3D(0, 0, z[i]); } else { k += nVphi; }
+    if (r[i] == 0.) { m_pV[k++] = HVPoint3D(0, 0, z[i]); } else { k += nVphi; }
   }
 
   i = i2beg;
   if (ifSide1) {
     kk[i] = k;
-    if (r[i] == 0.) { pV[k++] = HVPoint3D(0, 0, z[i]); } else { k += nVphi; }
+    if (r[i] == 0.) { m_pV[k++] = HVPoint3D(0, 0, z[i]); } else { k += nVphi; }
   }else{
     kk[i] = kk[i1beg];
   }
 
   for(i=i2beg+1; i<i2end; i++) {
     kk[i] = k;
-    if (r[i] == 0.) { pV[k++] = HVPoint3D(0, 0, z[i]); } else { k += nVphi; }
+    if (r[i] == 0.) { m_pV[k++] = HVPoint3D(0, 0, z[i]); } else { k += nVphi; }
   }
 
   if (absNp2 > 1) {
     i = i2end;
     if (ifSide2) {
       kk[i] = k;
-      if (r[i] == 0.) pV[k] = HVPoint3D(0, 0, z[i]);
+      if (r[i] == 0.) m_pV[k] = HVPoint3D(0, 0, z[i]);
     }else{
       kk[i] = kk[i1end];
     }
@@ -578,7 +578,7 @@ void SbPolyhedron::RotateAroundZ(int nstep, double phi, double dphi,
     cosPhi = cos(phi+j*delPhi/nSphi);
     sinPhi = sin(phi+j*delPhi/nSphi);
     for(i=i1beg; i<=i2end; i++) {
-      if (r[i] != 0.) pV[kk[i]+j] = HVPoint3D(r[i]*cosPhi,r[i]*sinPhi,z[i]);
+      if (r[i] != 0.) m_pV[kk[i]+j] = HVPoint3D(r[i]*cosPhi,r[i]*sinPhi,z[i]);
     }
   }
 
@@ -671,11 +671,11 @@ void SbPolyhedron::RotateAroundZ(int nstep, double phi, double dphi,
 
   delete [] kk;
 
-  if (k-1 != nface) {
+  if (k-1 != m_nface) {
     std::cerr
       << "Polyhedron::RotateAroundZ: number of generated faces ("
       << k-1 << ") is not equal to the number of allocated faces ("
-      << nface << ")"
+      << m_nface << ")"
       << std::endl;
   }
 }
@@ -690,7 +690,7 @@ void SbPolyhedron::SetReferences()
  *                                                                     *
  ***********************************************************************/
 {
-  if (nface <= 0) return;
+  if (m_nface <= 0) return;
 
   struct edgeListMember {
     edgeListMember *next;
@@ -702,31 +702,31 @@ void SbPolyhedron::SetReferences()
 
   //   A L L O C A T E   A N D   I N I T I A T E   L I S T S
 
-  edgeList = new edgeListMember[2*nface];
-  headList = new edgeListMember*[nvert];
+  edgeList = new edgeListMember[2*m_nface];
+  headList = new edgeListMember*[m_nvert];
 
   int i;
-  for (i=0; i<nvert; i++) {
+  for (i=0; i<m_nvert; i++) {
     headList[i] = 0;
   }
   freeList = edgeList;
-  for (i=0; i<2*nface-1; i++) {
+  for (i=0; i<2*m_nface-1; i++) {
     edgeList[i].next = &edgeList[i+1];
   }
-  edgeList[2*nface-1].next = 0;
+  edgeList[2*m_nface-1].next = 0;
 
   //   L O O P   A L O N G   E D G E S
 
   int iface, iedge, nedge, i1, i2, k1, k2;
   edgeListMember *prev, *cur;
 
-  for(iface=1; iface<=nface; iface++) {
-    nedge = (pF[iface].edge[3].v == 0) ? 3 : 4;
+  for(iface=1; iface<=m_nface; iface++) {
+    nedge = (m_pF[iface].m_edge[3].v == 0) ? 3 : 4;
     for (iedge=0; iedge<nedge; iedge++) {
       i1 = iedge;
       i2 = (iedge < nedge-1) ? iedge+1 : 0;
-      i1 = iabs(pF[iface].edge[i1].v);
-      i2 = iabs(pF[iface].edge[i2].v);
+      i1 = iabs(m_pF[iface].m_edge[i1].v);
+      i2 = iabs(m_pF[iface].m_edge[i2].v);
       k1 = (i1 < i2) ? i1 : i2;          // k1 = ::min(i1,i2);
       k2 = (i1 > i2) ? i1 : i2;          // k2 = ::max(i1,i2);
 
@@ -747,17 +747,17 @@ void SbPolyhedron::SetReferences()
         headList[k1] = cur->next;
         cur->next = freeList;
         freeList = cur;
-        pF[iface].edge[iedge].f = cur->iface;
-        pF[cur->iface].edge[cur->iedge].f = iface;
-        i1 = (pF[iface].edge[iedge].v < 0) ? -1 : 1;
-        i2 = (pF[cur->iface].edge[cur->iedge].v < 0) ? -1 : 1;
+        m_pF[iface].m_edge[iedge].f = cur->iface;
+        m_pF[cur->iface].m_edge[cur->iedge].f = iface;
+        i1 = (m_pF[iface].m_edge[iedge].v < 0) ? -1 : 1;
+        i2 = (m_pF[cur->iface].m_edge[cur->iedge].v < 0) ? -1 : 1;
         if (i1 != i2) {
           std::cerr
             << "Polyhedron::SetReferences: different edge visibility "
             << iface << "/" << iedge << "/"
-            << pF[iface].edge[iedge].v << " and "
+            << m_pF[iface].m_edge[iedge].v << " and "
             << cur->iface << "/" << cur->iedge << "/"
-            << pF[cur->iface].edge[cur->iedge].v
+            << m_pF[cur->iface].m_edge[cur->iedge].v
             << std::endl;
         }
         continue;
@@ -782,17 +782,17 @@ void SbPolyhedron::SetReferences()
           prev->next = cur->next;
           cur->next = freeList;
           freeList = cur;
-          pF[iface].edge[iedge].f = cur->iface;
-          pF[cur->iface].edge[cur->iedge].f = iface;
-          i1 = (pF[iface].edge[iedge].v < 0) ? -1 : 1;
-          i2 = (pF[cur->iface].edge[cur->iedge].v < 0) ? -1 : 1;
+          m_pF[iface].m_edge[iedge].f = cur->iface;
+          m_pF[cur->iface].m_edge[cur->iedge].f = iface;
+          i1 = (m_pF[iface].m_edge[iedge].v < 0) ? -1 : 1;
+          i2 = (m_pF[cur->iface].m_edge[cur->iedge].v < 0) ? -1 : 1;
             if (i1 != i2) {
               std::cerr
                 << "Polyhedron::SetReferences: different edge visibility "
                 << iface << "/" << iedge << "/"
-                << pF[iface].edge[iedge].v << " and "
+                << m_pF[iface].m_edge[iedge].v << " and "
                 << cur->iface << "/" << cur->iedge << "/"
-                << pF[cur->iface].edge[cur->iedge].v
+                << m_pF[cur->iface].m_edge[cur->iedge].v
                 << std::endl;
             }
           break;
@@ -803,7 +803,7 @@ void SbPolyhedron::SetReferences()
 
   //  C H E C K   T H A T   A L L   L I S T S   A R E   E M P T Y
 
-  for (i=0; i<nvert; i++) {
+  for (i=0; i<m_nvert; i++) {
     if (headList[i] != 0) {
       std::cerr
         << "Polyhedron::SetReferences: List " << i << " is not empty"
@@ -827,18 +827,18 @@ void SbPolyhedron::InvertFacets()
  *                                                                     *
  ***********************************************************************/
 {
-  if (nface <= 0) return;
+  if (m_nface <= 0) return;
   int i, k, nnode, v[4],f[4];
-  for (i=1; i<=nface; i++) {
-    nnode =  (pF[i].edge[3].v == 0) ? 3 : 4;
+  for (i=1; i<=m_nface; i++) {
+    nnode =  (m_pF[i].m_edge[3].v == 0) ? 3 : 4;
     for (k=0; k<nnode; k++) {
-      v[k] = (k+1 == nnode) ? pF[i].edge[0].v : pF[i].edge[k+1].v;
-      if (v[k] * pF[i].edge[k].v < 0) v[k] = -v[k];
-      f[k] = pF[i].edge[k].f;
+      v[k] = (k+1 == nnode) ? m_pF[i].m_edge[0].v : m_pF[i].m_edge[k+1].v;
+      if (v[k] * m_pF[i].m_edge[k].v < 0) v[k] = -v[k];
+      f[k] = m_pF[i].m_edge[k].f;
     }
     for (k=0; k<nnode; k++) {
-      pF[i].edge[nnode-1-k].v = v[k];
-      pF[i].edge[nnode-1-k].f = f[k];
+      m_pF[i].m_edge[nnode-1-k].v = v[k];
+      m_pF[i].m_edge[nnode-1-k].f = f[k];
     }
   }
 }
@@ -857,11 +857,11 @@ SbPolyhedron & SbPolyhedron::Transform(const HVRotation & rotation, const HVVect
 // *                                                                     *
 // ***********************************************************************
 {
-  if (nvert > 0) {
-    for (int i=1; i<=nvert; i++) {
+  if (m_nvert > 0) {
+    for (int i=1; i<=m_nvert; i++) {
       HVVector3D tmp;
-      rotation.multVec(pV[i],tmp);
-      pV[i] = tmp+translation;
+      rotation.multVec(m_pV[i],tmp);
+      m_pV[i] = tmp+translation;
     }
 
     //  C H E C K   D E T E R M I N A N T   A N D
@@ -881,11 +881,11 @@ SbPolyhedron & SbPolyhedron::Transform(
 ,const SbVec3d& translation
 )
 {
-  if (nvert > 0) {
+  if (m_nvert > 0) {
     SbVec3d tmp;
-    for (int i=1; i<=nvert; i++) {
-      rotation.multVec(pV[i],tmp);
-      pV[i] = tmp+translation;
+    for (int i=1; i<=m_nvert; i++) {
+      rotation.multVec(m_pV[i],tmp);
+      m_pV[i] = tmp+translation;
     }
     SbVec3d x;  rotation.multVec(SbVec3d(1,0,0),x);
     SbVec3d y;  rotation.multVec(SbVec3d(0,1,0),y);
@@ -912,14 +912,14 @@ bool SbPolyhedron::GetNextVertexIndex(int &index, int &edgeFlag) const
 {
   static int iFace = 1;
   static int iQVertex = 0;
-  int vIndex = pF[iFace].edge[iQVertex].v;
+  int vIndex = m_pF[iFace].m_edge[iQVertex].v;
 
   edgeFlag = (vIndex > 0) ? 1 : 0;
   index = iabs(vIndex);
 
-  if (iQVertex >= 3 || pF[iFace].edge[iQVertex+1].v == 0) {
+  if (iQVertex >= 3 || m_pF[iFace].m_edge[iQVertex+1].v == 0) {
     iQVertex = 0;
-    if (++iFace > nface) iFace = 1;
+    if (++iFace > m_nface) iFace = 1;
     return false;  // Last Edge
   }else{
     ++iQVertex;
@@ -937,19 +937,19 @@ HVPoint3D SbPolyhedron::GetVertex(int index) const
  *                                                                     *
  ***********************************************************************/
 {
-  if (index <= 0 || index > nvert) {
+  if (index <= 0 || index > m_nvert) {
     std::cerr
       << "SbPolyhedron::GetVertex: irrelevant index " << index
       << std::endl;
     return HVPoint3D();
   }
-  return pV[index];
+  return m_pV[index];
 }
 
 
 // rbianchi - 14.12.2012
 const HVPoint3D& SbPolyhedron::GetVertexFast(int index) const { //G.Barrand
-  return pV[index];
+  return m_pV[index];
 }
 //---
 
@@ -969,7 +969,7 @@ SbPolyhedron::GetNextVertex(HVPoint3D &vertex, int &edgeFlag) const
 {
   int index;
   bool rep = GetNextVertexIndex(index, edgeFlag);
-  vertex = pV[index];
+  vertex = m_pV[index];
   return rep;
 }
 
@@ -989,15 +989,15 @@ bool SbPolyhedron::GetNextVertex(HVPoint3D &vertex, int &edgeFlag,
   static int iFace = 1;
   static int iNode = 0;
 
-  if (nface == 0) return false;  // empty polyhedron
+  if (m_nface == 0) return false;  // empty polyhedron
 
-  int k = pF[iFace].edge[iNode].v;
+  int k = m_pF[iFace].m_edge[iNode].v;
   if (k > 0) { edgeFlag = 1; } else { edgeFlag = -1; k = -k; }
-  vertex = pV[k];
+  vertex = m_pV[k];
   normal = FindNodeNormal(iFace,k);
-  if (iNode >= 3 || pF[iFace].edge[iNode+1].v == 0) {
+  if (iNode >= 3 || m_pF[iFace].m_edge[iNode+1].v == 0) {
     iNode = 0;
-    if (++iFace > nface) iFace = 1;
+    if (++iFace > m_nface) iFace = 1;
     return false;                // last node
   }else{
     ++iNode;
@@ -1024,32 +1024,32 @@ bool SbPolyhedron::GetNextEdgeIndeces(int &i1, int &i2, int &edgeFlag,
   int  k1, k2, kflag, kface1, kface2;
 
   if (iFace == 1 && iQVertex == 0) {
-    k2 = pF[nface].edge[0].v;
-    k1 = pF[nface].edge[3].v;
-    if (k1 == 0) k1 = pF[nface].edge[2].v;
+    k2 = m_pF[m_nface].m_edge[0].v;
+    k1 = m_pF[m_nface].m_edge[3].v;
+    if (k1 == 0) k1 = m_pF[m_nface].m_edge[2].v;
     if (iabs(k1) > iabs(k2)) iOrder = -1;
   }
 
   do {
-    k1     = pF[iFace].edge[iQVertex].v;
+    k1     = m_pF[iFace].m_edge[iQVertex].v;
     kflag  = k1;
     k1     = iabs(k1);
     kface1 = iFace;
-    kface2 = pF[iFace].edge[iQVertex].f;
-    if (iQVertex >= 3 || pF[iFace].edge[iQVertex+1].v == 0) {
+    kface2 = m_pF[iFace].m_edge[iQVertex].f;
+    if (iQVertex >= 3 || m_pF[iFace].m_edge[iQVertex+1].v == 0) {
       iQVertex = 0;
-      k2 = iabs(pF[iFace].edge[iQVertex].v);
+      k2 = iabs(m_pF[iFace].m_edge[iQVertex].v);
       iFace++;
     }else{
       iQVertex++;
-      k2 = iabs(pF[iFace].edge[iQVertex].v);
+      k2 = iabs(m_pF[iFace].m_edge[iQVertex].v);
     }
   } while (iOrder*k1 > iOrder*k2);
 
   i1 = k1; i2 = k2; edgeFlag = (kflag > 0) ? 1 : 0;
   iface1 = kface1; iface2 = kface2;
 
-  if (iFace > nface) {
+  if (iFace > m_nface) {
     iFace  = 1; iOrder = 1;
     return false;
   }else{
@@ -1089,8 +1089,8 @@ SbPolyhedron::GetNextEdge(HVPoint3D &p1,
 {
   int i1,i2;
   bool rep = GetNextEdgeIndeces(i1,i2,edgeFlag);
-  p1 = pV[i1];
-  p2 = pV[i2];
+  p1 = m_pV[i1];
+  p2 = m_pV[i2];
   return rep;
 }
 
@@ -1110,8 +1110,8 @@ SbPolyhedron::GetNextEdge(HVPoint3D &p1, HVPoint3D &p2,
 {
   int i1,i2;
   bool rep = GetNextEdgeIndeces(i1,i2,edgeFlag,iface1,iface2);
-  p1 = pV[i1];
-  p2 = pV[i2];
+  p1 = m_pV[i1];
+  p2 = m_pV[i2];
   return rep;
 }
 
@@ -1126,7 +1126,7 @@ void SbPolyhedron::GetFacet(int iFace, int &n, int *iNodes,
  *                                                                     *
  ***********************************************************************/
 {
-  if (iFace < 1 || iFace > nface) {
+  if (iFace < 1 || iFace > m_nface) {
     std::cerr
       << "SbPolyhedron::GetFacet: irrelevant index " << iFace
       << std::endl;
@@ -1134,9 +1134,9 @@ void SbPolyhedron::GetFacet(int iFace, int &n, int *iNodes,
   }else{
     int i, k;
     for (i=0; i<4; i++) {
-      k = pF[iFace].edge[i].v;
+      k = m_pF[iFace].m_edge[i].v;
       if (k == 0) break;
-      if (iFaces != 0) iFaces[i] = pF[iFace].edge[i].f;
+      if (iFaces != 0) iFaces[i] = m_pF[iFace].m_edge[i].f;
       if (k > 0) {
         iNodes[i] = k;
         if (edgeFlags != 0) edgeFlags[i] = 1;
@@ -1164,7 +1164,7 @@ void SbPolyhedron::GetFacet(int index, int &n, HVPoint3D *nodes,
   GetFacet(index, n, iNodes, edgeFlags);
   if (n != 0) {
     for (int i=0; i<4; i++) {
-      nodes[i] = pV[iNodes[i]];
+      nodes[i] = m_pV[iNodes[i]];
       if (normals != 0) normals[i] = FindNodeNormal(index,iNodes[i]);
     }
   }
@@ -1193,7 +1193,7 @@ SbPolyhedron::GetNextFacet(int &n, HVPoint3D *nodes,
     GetFacet(iFace, n, nodes, edgeFlags, normals);
   }
 
-  if (++iFace > nface) {
+  if (++iFace > m_nface) {
     iFace  = 1;
     return false;
   }else{
@@ -1211,19 +1211,19 @@ HVNormal3D SbPolyhedron::GetNormal(int iFace) const
  *                                                                     *
  ***********************************************************************/
 {
-  if (iFace < 1 || iFace > nface) {
+  if (iFace < 1 || iFace > m_nface) {
     std::cerr
       << "SbPolyhedron::GetNormal: irrelevant index " << iFace
       << std::endl;
     return HVNormal3D();
   }
 
-  int i0  = iabs(pF[iFace].edge[0].v);
-  int i1  = iabs(pF[iFace].edge[1].v);
-  int i2  = iabs(pF[iFace].edge[2].v);
-  int i3  = iabs(pF[iFace].edge[3].v);
+  int i0  = iabs(m_pF[iFace].m_edge[0].v);
+  int i1  = iabs(m_pF[iFace].m_edge[1].v);
+  int i2  = iabs(m_pF[iFace].m_edge[2].v);
+  int i3  = iabs(m_pF[iFace].m_edge[3].v);
   if (i3 == 0) i3 = i0;
-  return (pV[i2] - pV[i0]).cross(pV[i3] - pV[i1]);
+  return (m_pV[i2] - m_pV[i0]).cross(m_pV[i3] - m_pV[i1]);
 }
 
 HVNormal3D SbPolyhedron::GetUnitNormal(int iFace) const
@@ -1236,19 +1236,19 @@ HVNormal3D SbPolyhedron::GetUnitNormal(int iFace) const
  *                                                                     *
  ***********************************************************************/
 {
-  if (iFace < 1 || iFace > nface) {
+  if (iFace < 1 || iFace > m_nface) {
     std::cerr
       << "SbPolyhedron::GetUnitNormal: irrelevant index " << iFace
       << std::endl;
     return HVNormal3D();
   }
 
-  int i0  = iabs(pF[iFace].edge[0].v);
-  int i1  = iabs(pF[iFace].edge[1].v);
-  int i2  = iabs(pF[iFace].edge[2].v);
-  int i3  = iabs(pF[iFace].edge[3].v);
+  int i0  = iabs(m_pF[iFace].m_edge[0].v);
+  int i1  = iabs(m_pF[iFace].m_edge[1].v);
+  int i2  = iabs(m_pF[iFace].m_edge[2].v);
+  int i3  = iabs(m_pF[iFace].m_edge[3].v);
   if (i3 == 0) i3 = i0;
-  HVNormal3D nm = (pV[i2] - pV[i0]).cross(pV[i3] - pV[i1]);
+  HVNormal3D nm = (m_pV[i2] - m_pV[i0]).cross(m_pV[i3] - m_pV[i1]);
   nm.normalize();
   return nm;
 }
@@ -1266,7 +1266,7 @@ bool SbPolyhedron::GetNextNormal(HVNormal3D &normal) const
 {
   static int iFace = 1;
   normal = GetNormal(iFace);
-  if (++iFace > nface) {
+  if (++iFace > m_nface) {
     iFace = 1;
     return false;
   }else{
@@ -1301,13 +1301,13 @@ double SbPolyhedron::GetSurfaceArea() const
  ***********************************************************************/
 {
   double s = 0.;
-  for (int iFace=1; iFace<=nface; iFace++) {
-    int i0 = iabs(pF[iFace].edge[0].v);
-    int i1 = iabs(pF[iFace].edge[1].v);
-    int i2 = iabs(pF[iFace].edge[2].v);
-    int i3 = iabs(pF[iFace].edge[3].v);
+  for (int iFace=1; iFace<=m_nface; iFace++) {
+    int i0 = iabs(m_pF[iFace].m_edge[0].v);
+    int i1 = iabs(m_pF[iFace].m_edge[1].v);
+    int i2 = iabs(m_pF[iFace].m_edge[2].v);
+    int i3 = iabs(m_pF[iFace].m_edge[3].v);
     if (i3 == 0) i3 = i0;
-    s += ((pV[i2] - pV[i0]).cross(pV[i3] - pV[i1])).length();
+    s += ((m_pV[i2] - m_pV[i0]).cross(m_pV[i3] - m_pV[i1])).length();
   }
   return s/2.;
 }
@@ -1323,19 +1323,19 @@ double SbPolyhedron::GetVolume() const
  ***********************************************************************/
 {
   double v = 0.;
-  for (int iFace=1; iFace<=nface; iFace++) {
-    int i0 = iabs(pF[iFace].edge[0].v);
-    int i1 = iabs(pF[iFace].edge[1].v);
-    int i2 = iabs(pF[iFace].edge[2].v);
-    int i3 = iabs(pF[iFace].edge[3].v);
+  for (int iFace=1; iFace<=m_nface; iFace++) {
+    int i0 = iabs(m_pF[iFace].m_edge[0].v);
+    int i1 = iabs(m_pF[iFace].m_edge[1].v);
+    int i2 = iabs(m_pF[iFace].m_edge[2].v);
+    int i3 = iabs(m_pF[iFace].m_edge[3].v);
     HVPoint3D g;
     if (i3 == 0) {
       i3 = i0;
-      g  = (pV[i0]+pV[i1]+pV[i2]) * (1.0f/3.0f);
+      g  = (m_pV[i0]+m_pV[i1]+m_pV[i2]) * (1.0f/3.0f);
     }else{
-      g  = (pV[i0]+pV[i1]+pV[i2]+pV[i3]) * 0.25f;
+      g  = (m_pV[i0]+m_pV[i1]+m_pV[i2]+m_pV[i3]) * 0.25f;
     }
-    v += ((pV[i2] - pV[i0]).cross(pV[i3] - pV[i1])).dot(g);
+    v += ((m_pV[i2] - m_pV[i0]).cross(m_pV[i3] - m_pV[i1])).dot(g);
   }
   return v/6.;
 }
@@ -1360,14 +1360,14 @@ SbPolyhedronTrd2::SbPolyhedronTrd2(double Dx1, double Dx2,
 {
   AllocateMemory(8,6);
 
-  pV[1] = HVPoint3D(-Dx1,-Dy1,-Dz);
-  pV[2] = HVPoint3D( Dx1,-Dy1,-Dz);
-  pV[3] = HVPoint3D( Dx1, Dy1,-Dz);
-  pV[4] = HVPoint3D(-Dx1, Dy1,-Dz);
-  pV[5] = HVPoint3D(-Dx2,-Dy2, Dz);
-  pV[6] = HVPoint3D( Dx2,-Dy2, Dz);
-  pV[7] = HVPoint3D( Dx2, Dy2, Dz);
-  pV[8] = HVPoint3D(-Dx2, Dy2, Dz);
+  m_pV[1] = HVPoint3D(-Dx1,-Dy1,-Dz);
+  m_pV[2] = HVPoint3D( Dx1,-Dy1,-Dz);
+  m_pV[3] = HVPoint3D( Dx1, Dy1,-Dz);
+  m_pV[4] = HVPoint3D(-Dx1, Dy1,-Dz);
+  m_pV[5] = HVPoint3D(-Dx2,-Dy2, Dz);
+  m_pV[6] = HVPoint3D( Dx2,-Dy2, Dz);
+  m_pV[7] = HVPoint3D( Dx2, Dy2, Dz);
+  m_pV[8] = HVPoint3D(-Dx2, Dy2, Dz);
 
   CreatePrism();
 }
@@ -1426,14 +1426,14 @@ SbPolyhedronTrap::SbPolyhedronTrap(double Dz,
 
   AllocateMemory(8,6);
 
-  pV[1] = HVPoint3D(-DzTthetaCphi-Dy1Talp1-Dx1,-DzTthetaSphi-Dy1,-Dz);
-  pV[2] = HVPoint3D(-DzTthetaCphi-Dy1Talp1+Dx1,-DzTthetaSphi-Dy1,-Dz);
-  pV[3] = HVPoint3D(-DzTthetaCphi+Dy1Talp1+Dx2,-DzTthetaSphi+Dy1,-Dz);
-  pV[4] = HVPoint3D(-DzTthetaCphi+Dy1Talp1-Dx2,-DzTthetaSphi+Dy1,-Dz);
-  pV[5] = HVPoint3D( DzTthetaCphi-Dy2Talp2-Dx3, DzTthetaSphi-Dy2, Dz);
-  pV[6] = HVPoint3D( DzTthetaCphi-Dy2Talp2+Dx3, DzTthetaSphi-Dy2, Dz);
-  pV[7] = HVPoint3D( DzTthetaCphi+Dy2Talp2+Dx4, DzTthetaSphi+Dy2, Dz);
-  pV[8] = HVPoint3D( DzTthetaCphi+Dy2Talp2-Dx4, DzTthetaSphi+Dy2, Dz);
+  m_pV[1] = HVPoint3D(-DzTthetaCphi-Dy1Talp1-Dx1,-DzTthetaSphi-Dy1,-Dz);
+  m_pV[2] = HVPoint3D(-DzTthetaCphi-Dy1Talp1+Dx1,-DzTthetaSphi-Dy1,-Dz);
+  m_pV[3] = HVPoint3D(-DzTthetaCphi+Dy1Talp1+Dx2,-DzTthetaSphi+Dy1,-Dz);
+  m_pV[4] = HVPoint3D(-DzTthetaCphi+Dy1Talp1-Dx2,-DzTthetaSphi+Dy1,-Dz);
+  m_pV[5] = HVPoint3D( DzTthetaCphi-Dy2Talp2-Dx3, DzTthetaSphi-Dy2, Dz);
+  m_pV[6] = HVPoint3D( DzTthetaCphi-Dy2Talp2+Dx3, DzTthetaSphi-Dy2, Dz);
+  m_pV[7] = HVPoint3D( DzTthetaCphi+Dy2Talp2+Dx4, DzTthetaSphi+Dy2, Dz);
+  m_pV[8] = HVPoint3D( DzTthetaCphi+Dy2Talp2-Dx4, DzTthetaSphi+Dy2, Dz);
 
   CreatePrism();
 }
@@ -1824,10 +1824,10 @@ SbPolyhedronTorus::SbPolyhedronTorus(double rmin,
 
 SbPolyhedronTorus::~SbPolyhedronTorus() {}
 
-int SbPolyhedron::fNumberOfRotationSteps = DEFAULT_NUMBER_OF_STEPS;
+int SbPolyhedron::s_numberOfRotationSteps = DEFAULT_NUMBER_OF_STEPS;
 /***********************************************************************
  *                                                                     *
- * Name: SbPolyhedron::fNumberOfRotationSteps       Date:    24.06.97 *
+ * Name: SbPolyhedron::s_numberOfRotationSteps       Date:    24.06.97 *
  * Author: J.Allison (Manchester University)         Revised:          *
  *                                                                     *
  * Function: Number of steps for whole circle                          *
@@ -1977,12 +1977,12 @@ SbPolyhedronPolygonXSect::SbPolyhedronPolygonXSect(const std::vector<double>& x,
 SbPolyhedronPolygonXSect::~SbPolyhedronPolygonXSect() {}
 
 //_______________________________________________________________________________________________________________________
-void SbPolyhedronPolygonXSect::Internals::setData(const std::vector<double> * xx,const std::vector<double>* yy, const double& _dz)
+void SbPolyhedronPolygonXSect::Internals::setData(const std::vector<double> * xx,const std::vector<double>* yy, const double& the_dz)
 {
   n = xx->size();
   ntriangles = n-2;
   assert (n==yy->size()&&n>3);//fixme n>2, and special code for n==3.
-  dz = _dz;
+  dz = the_dz;
   x = xx;
   y = yy;
   nextraexternalvertices = nextrainternalvertices = 0;
@@ -2138,24 +2138,24 @@ void SbPolyhedronPolygonXSect::Internals::allocateMemoryAndDefineVertexCoordinat
 
   //First the original n vertices at +dz
   for (unsigned i = 0; i<n; ++i)
-    sbpolyhedron->pV[i+1] = HVPoint3D(x->at(i),y->at(i),dz);
+    sbpolyhedron->m_pV[i+1] = HVPoint3D(x->at(i),y->at(i),dz);
   //Then the original n vertices at -dz
   for (unsigned i = 0; i<n; ++i)
-    sbpolyhedron->pV[i+1+n] = HVPoint3D(x->at(i),y->at(i),-dz);
+    sbpolyhedron->m_pV[i+1+n] = HVPoint3D(x->at(i),y->at(i),-dz);
   //Extra vertices at +dz.
   std::map<Edge,unsigned>::const_iterator itlid = edgewithextravertex_2_id.begin();
   std::map<Edge,unsigned>::const_iterator itlidE = edgewithextravertex_2_id.end();
   for (; itlid!=itlidE; ++itlid) {
     double xx = 0.5*(x->at(itlid->first.first-1)+x->at(itlid->first.second-1));
     double yy = 0.5*(y->at(itlid->first.first-1)+y->at(itlid->first.second-1));
-    sbpolyhedron->pV[itlid->second] = HVPoint3D(xx,yy,dz);
+    sbpolyhedron->m_pV[itlid->second] = HVPoint3D(xx,yy,dz);
   }
   //Extra vertices at -dz.
   itlid = edgewithextravertex_2_id.begin();
   for (; itlid!=itlidE; ++itlid) {
     double xx = 0.5*(x->at(itlid->first.first-1)+x->at(itlid->first.second-1));
     double yy = 0.5*(y->at(itlid->first.first-1)+y->at(itlid->first.second-1));
-    sbpolyhedron->pV[itlid->second+edgewithextravertex_2_id.size()] = HVPoint3D(xx,yy,-dz);
+    sbpolyhedron->m_pV[itlid->second+edgewithextravertex_2_id.size()] = HVPoint3D(xx,yy,-dz);
   }
 
 }
@@ -2186,7 +2186,7 @@ SbPolyhedronPolygonXSect::Internals::Edge  SbPolyhedronPolygonXSect::Internals::
 //____________________________________________________________________________________________________
 void SbPolyhedronPolygonXSect::Internals::setupface(const unsigned& face_id, const std::vector<unsigned>&v) const {
   assert(v.size()==8);
-  sbpolyhedron->pF[face_id] = SbFacet(v.at(0),v.at(1),v.at(2),v.at(3),v.at(4),v.at(5),v.at(6),v.at(7));
+  sbpolyhedron->m_pF[face_id] = SbFacet(v.at(0),v.at(1),v.at(2),v.at(3),v.at(4),v.at(5),v.at(6),v.at(7));
 }
 
 
@@ -2354,8 +2354,8 @@ void SbPolyhedronPolygonXSect::Internals::defineFacesTopology() {
 SbPolyhedronArbitrary::SbPolyhedronArbitrary(const int nVertices, const int nFacets)
 {
   AllocateMemory(nVertices, nFacets);
-  nVertexCount = 0;
-  nFacetCount  = 0;
+  m_nVertexCount = 0;
+  m_nFacetCount  = 0;
 }
 
 SbPolyhedronArbitrary::~SbPolyhedronArbitrary()
@@ -2364,42 +2364,42 @@ SbPolyhedronArbitrary::~SbPolyhedronArbitrary()
 
 void SbPolyhedronArbitrary::AddVertex(const double v1, const double v2, const double v3)
 {
-  if(nVertexCount==nvert+1) {
+  if(m_nVertexCount==m_nvert+1) {
     std::cerr <<"ERROR in SbPolyhedronArbitrary::AddVertex. Attempt to exceed maximum number of vertices: " 
-	      << nVertexCount << std::endl;
+	      << m_nVertexCount << std::endl;
   }
   else {
-    nVertexCount++;
-    pV[nVertexCount] = HVPoint3D(v1,v2,v3);
+    m_nVertexCount++;
+    m_pV[m_nVertexCount] = HVPoint3D(v1,v2,v3);
   }
 }
  
 void SbPolyhedronArbitrary::AddFacet(const int iv1, const int iv2, const int iv3, const int iv4)
 {
-  if(nFacetCount==nface) {
+  if(m_nFacetCount==m_nface) {
     std::cerr <<"ERROR in SbPolyhedronArbitrary::AddFacet. Attempt to exceed maximum number of facets: "
-	      << nFacetCount << std::endl;
+	      << m_nFacetCount << std::endl;
   }
   else if(iv1 < 1 
-	  || iv1 > nvert 
+	  || iv1 > m_nvert 
 	  || iv2 < 1 
-	  || iv2 > nvert 
+	  || iv2 > m_nvert 
 	  || iv3 < 1 
-	  || iv3 > nvert 
-	  || iv4 > nvert) {
+	  || iv3 > m_nvert 
+	  || iv4 > m_nvert) {
     std::cerr <<"ERROR in SbPolyhedronArbitrary::AddFacet. Attempt to index vertex number which is out-of-range: ("
 	      << iv1 << "," << iv2 << "," << iv3 << "," << iv4 << ")" << std::endl; 
   }
-  else if(iv1 > nVertexCount 
-	  || iv2 > nVertexCount 
-	  || iv3 > nVertexCount 
-	  || iv4 > nVertexCount) {
+  else if(iv1 > m_nVertexCount 
+	  || iv2 > m_nVertexCount 
+	  || iv3 > m_nVertexCount 
+	  || iv4 > m_nVertexCount) {
     std::cerr <<"ERROR in SbPolyhedronArbitrary::AddFacet. Vertex needs to be defined first : ("
 	      << iv1 << "," << iv2 << "," << iv3 << "," << iv4 << ")" << std::endl;
   }
   else {
-    nFacetCount++;
-    pF[nFacetCount] = SbFacet(iv1, 0, iv2, 0, iv3, 0, iv4, 0);
+    m_nFacetCount++;
+    m_pF[m_nFacetCount] = SbFacet(iv1, 0, iv2, 0, iv3, 0, iv4, 0);
   }
 }
 
@@ -2412,14 +2412,14 @@ SbPolyhedronGenericTrap::SbPolyhedronGenericTrap(double Dz, const std::vector<st
 {
   AllocateMemory(8,6);
 
-  pV[1] = HVPoint3D(Vertices[0].first,Vertices[0].second,-Dz);
-  pV[2] = HVPoint3D(Vertices[1].first,Vertices[1].second,-Dz);
-  pV[3] = HVPoint3D(Vertices[2].first,Vertices[2].second,-Dz);
-  pV[4] = HVPoint3D(Vertices[3].first,Vertices[3].second,-Dz);
-  pV[5] = HVPoint3D(Vertices[4].first,Vertices[4].second,Dz);
-  pV[6] = HVPoint3D(Vertices[5].first,Vertices[5].second,Dz);
-  pV[7] = HVPoint3D(Vertices[6].first,Vertices[6].second,Dz);
-  pV[8] = HVPoint3D(Vertices[7].first,Vertices[7].second,Dz);
+  m_pV[1] = HVPoint3D(Vertices[0].first,Vertices[0].second,-Dz);
+  m_pV[2] = HVPoint3D(Vertices[1].first,Vertices[1].second,-Dz);
+  m_pV[3] = HVPoint3D(Vertices[2].first,Vertices[2].second,-Dz);
+  m_pV[4] = HVPoint3D(Vertices[3].first,Vertices[3].second,-Dz);
+  m_pV[5] = HVPoint3D(Vertices[4].first,Vertices[4].second,Dz);
+  m_pV[6] = HVPoint3D(Vertices[5].first,Vertices[5].second,Dz);
+  m_pV[7] = HVPoint3D(Vertices[6].first,Vertices[6].second,Dz);
+  m_pV[8] = HVPoint3D(Vertices[7].first,Vertices[7].second,Dz);
 
   CreatePrism();
 }
