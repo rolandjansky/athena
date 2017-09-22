@@ -100,6 +100,20 @@ if doHitsOnTrack:
   
   InDetPixelMainsMonOnTrack.TrackName      = InDetKeys.Tracks()
 
+  ## Track Selection Criteria
+  # InDetTrackSelectionToolPixelMon = InDet__InDetTrackSelectionTool(name = "InDetTrackSelectionToolPixelMon",
+  #                                                                               UseTrkTrackTools = True,
+  #                                                                               CutLevel = "TightPrimary",
+  #                                                                               minPt = 5000,
+  #                                                                               TrackSummaryTool    = InDetTrackSummaryTool,
+  #                                                                               Extrapolator        = InDetExtrapolator)
+  #ToolSvc += InDetTrackSelectionToolPixelMon
+  #InDetPixelMainsMonOnTrack.TrackSelectionTool = InDetTrackSelectionToolPixelMon
+  InDetPixelMainsMonOnTrack.TrackSelectionTool.UseTrkTrackTools = True
+  InDetPixelMainsMonOnTrack.TrackSelectionTool.CutLevel = "TightPrimary"
+  InDetPixelMainsMonOnTrack.TrackSelectionTool.minPt = 5000
+  InDetPixelMainsMonOnTrack.TrackSelectionTool.TrackSummaryTool    = InDetTrackSummaryTool
+  InDetPixelMainsMonOnTrack.TrackSelectionTool.Extrapolator        = InDetExtrapolator
   ##Other parameters                                                                                                                  
 
   if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
