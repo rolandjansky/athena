@@ -1,40 +1,51 @@
-#ifndef TRUTHWEIGHTTOOLS_INDEXRECEIVER_H
-#define TRUTHWEIGHTTOOLS_INDEXRECEIVER_H
+/*
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 
+#ifndef PMGTOOLS_TRUTHWEIGHTINDEXRETRIEVER_H
+#define PMGTOOLS_TRUTHWEIGHTINDEXRETRIEVER_H
+
+// STL include(s):
+#include <string>
+#include <vector>
+
+// EDM include(s):
 #include "xAODTruth/TruthMetaData.h"
-#include <stdexcept>
 
-class IIndexRetriever{
+// Interface include(s):
+#include "PMGAnalysisInterfaces/IPMGTruthWeightIndexRetriever.h"
 
-   public:
-     IIndexRetriever(): m_isValid(false){};
-     virtual ~IIndexRetriever(){};
-     virtual void update(xAOD::TruthMetaData const * const) = 0;
-     virtual void update(const std::vector<std::string>& weightNamesVec) = 0;
 
-     virtual size_t getIndex() = 0;
-     //virtual size_t getIndex() {
-     //  if (!m_isValid) throw std::runtime_error("Weight name not found in event"); 
-     //  return m_currentIndex;
-     //}
-     virtual bool isValid() { return m_isValid;}  
-   protected:
-     bool m_isValid;
-     size_t m_currentIndex;
-};
-
-class IndexRetriever : public IIndexRetriever
+namespace PMGTools
 {
-   public:
-     IndexRetriever(std::string);
-     virtual void update(xAOD::TruthMetaData const * const);
-     virtual void update(const std::vector<std::string>& weightNamesVec);
-     virtual size_t getIndex() {
-       if (!m_isValid) throw std::runtime_error("Weight \""+m_WeightName+"\" not found in event"); 
-       return m_currentIndex;
-     }
-   protected:
-     IndexRetriever();
-     std::string m_WeightName;
-};
-#endif
+  /// Implementation for the xAOD truth meta data weight index retriever
+  ///
+  /// @author Tobias Bisanz  <tobias.bisanz@cern.ch>
+  /// @author Dag Gillberg <dag.gillberg@cern.ch>, trivial modifications
+  /// @author James Robinson <james.robinson@cern.ch>, rewrite for inclusion in PMGTools
+  ///
+  class PMGTruthWeightIndexRetriever: public IPMGTruthWeightIndexRetriever
+  {
+  public:
+    /// Default constructor
+    PMGTruthWeightIndexRetriever(const std::string& weightName);
+
+    /// Implements interface from IPMGTruthWeightIndexRetriever
+    virtual void update(const xAOD::TruthMetaData* const truthMetaData);
+
+    /// Implements interface from IPMGTruthWeightIndexRetriever
+    virtual void update(const std::vector<std::string>& weightNamesVec);
+
+    /// Implements interface from IPMGTruthWeightIndexRetriever
+    virtual size_t getIndex();
+
+  protected:
+    /// Default destructor
+    PMGTruthWeightIndexRetriever();
+
+    /// Name of weight
+    const std::string m_weightName;
+  };
+} // namespace PMGTools
+
+#endif // PMGTOOLS_TRUTHWEIGHTINDEXRETRIEVER_H

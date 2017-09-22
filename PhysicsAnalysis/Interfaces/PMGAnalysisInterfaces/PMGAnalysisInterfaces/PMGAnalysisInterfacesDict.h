@@ -4,5 +4,7 @@
 #include "IHFORSelectionTool.h"
 #include "IPMGCrossSectionTool.h"
 #include "IPMGSherpaVjetsSysTool.h"
+#include "IPMGTruthWeightIndexRetriever.h"
+#include "IPMGTruthWeightTool.h"
 
 #endif

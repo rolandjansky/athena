@@ -1,52 +1,55 @@
-// $Id$
-#ifndef TRUTHWEIGHTTOOLS_ITRUTHWEIGHTTOOL_H
-#define TRUTHWEIGHTTOOLS_ITRUTHWEIGHTTOOL_H
+/*
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
-//STL includes
+#ifndef PMGTOOLS_IPMGTRUTHWEIGHTTOOL_H
+#define PMGTOOLS_IPMGTRUTHWEIGHTTOOL_H
+
+// STL include(s):
 #include <memory>
+#include <string>
+#include <vector>
 
-// Framework include(s):
+// EDM include(s):
 #include "AsgTools/IAsgTool.h"
 
-#include "TruthWeightTools/IndexRetriever.h"
+// Local include(s):
+#include "PMGAnalysisInterfaces/IPMGTruthWeightIndexRetriever.h"
 
-namespace xAOD {
+namespace PMGTools
+{
+  /// Interface for xAOD Truth Weight Tool which retrieves
+  /// Meta Data from a truth record to interface the event
+  /// weights
+  ///
+  /// @author Tobias Bisanz <tobias.bisanz@cern.ch>
+  /// @author James Robinson <james.robinson@cern.ch>, rewrite for inclusion in PMGTools
+  ///
+  class IPMGTruthWeightTool: public virtual asg::IAsgTool
+  {
+    /// Declare the interface that the class provides
+    ASG_TOOL_INTERFACE(xAOD::IPMGTruthWeightTool)
 
-   /// Interface for xAOD Truth Weight Tool which retrieves
-   /// Meta Data from a truth record to interface the event
-   /// weights
-   ///
-   /// @author Tobias Bisanz <tobias.bisanz@cern.ch>
-   ///
-   /// $Revision$
-   /// $Date$
-   ///
-   class ITruthWeightTool : public virtual asg::IAsgTool {
+  public:
+    /// Create an instance of the index retriever
+    virtual std::shared_ptr<IPMGTruthWeightIndexRetriever> spawnTruthWeightIndexRetriever(std::string weightName) const = 0;
 
-      /// Declare the interface that the class provides
-      ASG_TOOL_INTERFACE( xAOD::ITruthWeightTool )
+    /// Return vector of weight names (descriptions) from meta data
+    virtual const std::vector<std::string>& getWeightNames() const = 0;
 
-   public:
-      virtual std::shared_ptr<IIndexRetriever> spawnIndexRetriever(std::string weightName) = 0;
+    /// Return vector of MC event weights. Same as accessing it from TruthEvent or EventInfo
+    virtual const std::vector<float>& getWeights() const = 0;
 
-      /// Return weight names (descriptions) from meta data
-      virtual std::vector<std::string> const & getWeightNames() const = 0;
+    // Return the weight. Same as getWeights()[getWeightIndex(weightName)]
+    virtual float getWeight(const std::string& weightName) const = 0;
 
-      /// check if a weight exist
-      virtual bool hasWeight(std::string weightName) = 0;
+    /// Return weight index for weightName
+    virtual size_t getWeightIndex(const std::string& weightName) const = 0;
 
-      /// return the MC weight vector. Same as accessing it from TruthEvent or EventInfo
-      virtual const std::vector<float> &getWeights() const = 0;
-
-      /// Return weight index
-      virtual size_t getWeightIndex(std::string weightName) = 0;
-
-      // Return the weight. Same as getWeights()[getWeightIndex(weightName)]
-      virtual float getWeight(std::string weightName) = 0;
-
-   }; // class ITruthWeightTool 
+    /// Check if a weight with the current name exists
+    virtual bool hasWeight(const std::string& weightName) const = 0;
+  }; // class IPMGTruthWeightTool
 
 } // namespace xAOD
 
-#endif 
-
+#endif // PMGTOOLS_IPMGTRUTHWEIGHTTOOL_H

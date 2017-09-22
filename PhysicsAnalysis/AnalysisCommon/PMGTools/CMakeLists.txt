@@ -10,8 +10,7 @@ set( extra_deps )
 if( XAOD_STANDALONE )
    set( extra_deps Control/xAODRootAccess )
 else()
-   set( extra_deps Control/AthAnalysisBaseComps PhysicsAnalysis/POOLRootAccess
-      GaudiKernel )
+   set( extra_deps Control/AthAnalysisBaseComps PhysicsAnalysis/POOLRootAccess GaudiKernel )
 endif()
 
 # Declare the package's dependencies:
@@ -73,7 +72,13 @@ if( XAOD_STANDALONE )
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODRootAccess PATInterfaces
       PMGToolsLib )
+else()
+   atlas_add_test( ut_PMGTruthWeightTool_test
+      SOURCES test/ut_PMGTruthWeightTool_test.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} PMGToolsLib POOLRootAccessLib )
 endif()
+
 
 # Install files from the package:
 atlas_install_data( data/*.txt share/*.txt )
