@@ -252,6 +252,8 @@ int main( int argc, char** argv ) {
 
   /// read through and parse chain list file
 
+  bool purity = contains( slice, "Purity" );
+
   while( getline( file, line ) && !file.fail() ) {
 
     if ( !contains( line, slice ) ) continue;
