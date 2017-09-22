@@ -4,18 +4,14 @@
 
 ExtraContent=[
     "Muons.clusterLink.EnergyLoss.energyLossType",
-    "AntiKt4LCTopoJets.TrackWidthPt500.GhostTrackCount.Jvt.JvtJvfcorr.JvtRpt",
-    "AntiKt4LCTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m",
     "AntiKt4EMTopoJets.TrackWidthPt500.GhostTrackCount.Jvt.JvtJvfcorr.JvtRpt",
     "AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m.DetectorEta",
     "AntiKt4EMTopoJets.DFCommonJets_Calib_pt.DFCommonJets_Calib_eta.DFCommonJets_Calib_phi.DFCommonJets_Calib_m",
     "Photons.f3core",
-    "TauJets.IsTruthMatched.truthJetLink.truthParticleLink.ptDetectorAxis.etaDetectorAxis.phiDetectorAxis.mDetectorAxis",
     "BTagging_AntiKt4EMTopo.MV2cl100_discriminant"]
 
 ExtraContentTruth=[
-    "AntiKt4EMTopoJets.ConeTruthLabelID",
-    "AntiKt4LCTopoJets.ConeTruthLabelID"]
+    "AntiKt4EMTopoJets.ConeTruthLabelID"]
 
 ExtraContainers=[
     #"BTagging_AntiKt10LCTopo",
@@ -26,9 +22,7 @@ ExtraContainers=[
     #"HLT_TrigEFBjetContainer_EFBjetFex", # for TrigEFBjetContainer
     #"HLT_TrigL2BjetContainer_L2BjetFex", # for TrigL2BjetContainer
     #"HLT_JetCollection_TrigJetRec",
-    "MuonSegments",
-    "CaloCalTopoClusters",
-    "TauChargedParticleFlowObjects"]
+    "MuonSegments"]
 
 
 ExtraContainersTruth=[

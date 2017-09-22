@@ -104,27 +104,6 @@ HIGG5D3PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning( 
 ToolSvc += HIGG5D3PhotonTPThinningTool
 thinningTools.append(HIGG5D3PhotonTPThinningTool)
 
-# Tracks associated with taus
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
-HIGG5D3TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name                  = "HIGG5D3TauTPThinningTool",
-                                                                          ThinningService         = HIGG5D3ThinningHelper.ThinningSvc(),
-                                                                          TauKey                  = "TauJets",
-                                                                          ConeSize                = 0.6,
-                                                                          InDetTrackParticlesKey  = "InDetTrackParticles")
-ToolSvc += HIGG5D3TauTPThinningTool
-thinningTools.append(HIGG5D3TauTPThinningTool)
-
-
-# calo cluster thinning
-from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
-HIGG5D3TauCCThinningTool = DerivationFramework__CaloClusterThinning(name                  = "HIGG5D3TauCCThinningTool",
-                                                                    ThinningService       = HIGG5D3ThinningHelper.ThinningSvc(),
-                                                                    SGKey                 = "TauJets",
-                                                                    TopoClCollectionSGKey = "CaloCalTopoClusters")
-ToolSvc += HIGG5D3TauCCThinningTool
-thinningTools.append(HIGG5D3TauCCThinningTool)
-
-
 #====================================================================
 # Skimming Tool
 #====================================================================
@@ -389,16 +368,11 @@ if not "HIGG5D3Jets" in OutputJets:
     #AntiKt4PV0TrackJets
     addStandardJets("AntiKt", 0.4, "PV0Track", 2000, mods="track_ungroomed", algseq=higg5d3Seq, outputGroup="HIGG5D3Jets")
     OutputJets["HIGG5D3Jets"].append("AntiKt4PV0TrackJets")
-    #AntiKt10LCTopoJets
-    addStandardJets("AntiKt", 1.0, "LCTopo", mods="lctopo_ungroomed", ptmin=40000, ptminFilter=50000, calibOpt="none", algseq=higg5d3Seq, outputGroup="HIGG5D3Jets")
-    OutputJets["HIGG5D3Jets"].append("AntiKt10LCTopoJets")
 
 #====================================================================
 # Special jets
 #====================================================================
 # if not "HIGG5D3Jets" in OutputJets:
-    # OutputJets["HIGG5D3Jets"] = ["AntiKt2PV0TrackJets","AntiKt10LCTopoJets","CamKt12LCTopoJets"]
-
     if jetFlags.useTruth:
       #AntiKt4TruthJets
       addStandardJets("AntiKt", 0.4, "Truth", 5000, mods="truth_ungroomed", algseq=higg5d3Seq, outputGroup="HIGG5D3Jets")
@@ -406,23 +380,12 @@ if not "HIGG5D3Jets" in OutputJets:
       #AntiKt4TruthWZJets
       addStandardJets("AntiKt", 0.4, "TruthWZ", 5000, mods="truth_ungroomed", algseq=higg5d3Seq, outputGroup="HIGG5D3Jets")
       OutputJets["HIGG5D3Jets"].append("AntiKt4TruthWZJets")
-      # OutputJets["HIGG5D3Jets"].append("AntiKt10TruthWZJets")
-      # OutputJets["HIGG5D3Jets"].append("AntiKt10TruthJets")
-      # OutputJets["HIGG5D3Jets"].append("CamKt12TruthJets")
-      addTrimmedJets("AntiKt", 1.0, "TruthWZ", rclus=0.2, ptfrac=0.05, includePreTools=False, algseq=higg5d3Seq,outputGroup="HIGG5D3Jets")
-
-    # addFilteredJets("CamKt", 1.2, "LCTopo", mumax=1.0, ymin=0.15, includePreTools=False, algseq=higg5d3Seq,outputGroup="HIGG5D3Jets")
-    addTrimmedJets("AntiKt", 1.0, "LCTopo", rclus=0.2, ptfrac=0.05, includePreTools=False, algseq=higg5d3Seq,outputGroup="HIGG5D3Jets")
-
 
 higg5d3Seq += CfgMgr.DerivationFramework__DerivationKernel(
     "HIGG5D3Kernel",
     ThinningTools = thinningTools
     )
 
-
-# applyJetCalibration_CustomColl(jetalg="AntiKt10LCTopoTrimmedPtFrac5SmallR20", sequence=higg5d3Seq)
-# applyJetCalibration_OTFJets("AntiKt10LCTopoTrimmedPtFrac5SmallR20",sequence=higg5d3Seq)
 
 #===================================================================
 # Run b-tagging
@@ -459,13 +422,8 @@ HIGG5D3SlimmingHelper = SlimmingHelper("HIGG5D3SlimmingHelper")
 HIGG5D3SlimmingHelper.SmartCollections = [ "Electrons",
                                            "Photons",
                                            "Muons",
-                                           "TauJets",
-                                           "MET_Reference_AntiKt4EMTopo",
-                                           "MET_Reference_AntiKt4LCTopo",
                                            "AntiKt4EMTopoJets",
-                                           "AntiKt4LCTopoJets",
                                            "BTagging_AntiKt4EMTopo",
-                                           "BTagging_AntiKt4LCTopo",
                                            "InDetTrackParticles",
                                            "PrimaryVertices" ]
 
@@ -479,12 +437,11 @@ HIGG5D3SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForD
 # Add the jet containers to the stream
 addJetOutputs(HIGG5D3SlimmingHelper,["HIGG5D3Jets"])
 # Add the MET containers to the stream
-addMETOutputs(HIGG5D3SlimmingHelper,["AntiKt4LCTopo","Track"])
+addMETOutputs(HIGG5D3SlimmingHelper,["AntiKt4EMTopo"])
 
 #HIGG5D3SlimmingHelper.IncludeMuonTriggerContent = True
 HIGG5D3SlimmingHelper.IncludeEGammaTriggerContent = True
 #HIGG5D3SlimmingHelper.IncludeBPhysTriggerContent = True
-#HIGG5D3SlimmingHelper.IncludeJetTauEtMissTriggerContent = True
 #HIGG5D3SlimmingHelper.IncludeEtMissTriggerContent = True
 HIGG5D3SlimmingHelper.IncludeJetTriggerContent = True
 HIGG5D3SlimmingHelper.IncludeBJetTriggerContent = True
