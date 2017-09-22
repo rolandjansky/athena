@@ -378,6 +378,7 @@ HIGG5D3SlimmingHelper.SmartCollections = [ "Electrons",
                                            "Muons",
                                            "AntiKt4EMTopoJets",
                                            "BTagging_AntiKt4EMTopo",
+                                           "BTagging_AntiKt2Track",
                                            "InDetTrackParticles",
                                            "PrimaryVertices" ]
 

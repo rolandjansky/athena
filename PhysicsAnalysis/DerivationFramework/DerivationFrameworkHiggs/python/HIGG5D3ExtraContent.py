@@ -15,7 +15,6 @@ ExtraContentTruth=[
 
 ExtraContainers=[
     #"BTagging_AntiKt10LCTopo",
-    "BTagging_AntiKt2Track",
     #"xTrigDecision", # for xAOD::TrigDecision_v1
     #"xTrigDecisionAux", # for xAOD::TrigDecisionAuxInfo_v1
     #"TrigDecision", # for TrigDec::TrigDecision
