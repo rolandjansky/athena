@@ -46,7 +46,7 @@ namespace InDet{
     template<typename T>
     StatusCode CacheCreator::CreateContainer(const SG::WriteHandleKey<T>& containerKey, long unsigned int size, const EventContext& ctx) const{
         SG::WriteHandle<T> ContainerCacheKey(containerKey, ctx);
-        ATH_CHECK( ContainerCacheKey.record ( std::make_unique<T>(IdentifierHash(size), nullptr) ));
+        ATH_CHECK( ContainerCacheKey.recordNonConst ( std::make_unique<T>(IdentifierHash(size), nullptr) ));
         ATH_MSG_DEBUG( "Container "<< containerKey.key() << " created to hold " << size );
         return StatusCode::SUCCESS;
     }
