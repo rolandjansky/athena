@@ -30,7 +30,7 @@ def getPixelCablingSvc(name="PixelCablingSvc", **kwargs):
                 logger.debug("Requested CablingMap folder")
         else:
             kwargs.setdefault("MappingType", "Final")
-            kwargs.setdefault("MappingFile", "Pixels_Atlas_IdMapping_May08.dat")
+            kwargs.setdefault("MappingFile", "PixelCabling/Pixels_Atlas_IdMapping_May08.dat")
 
 
     # Offline mode
@@ -62,7 +62,7 @@ def getPixelCablingSvc(name="PixelCablingSvc", **kwargs):
 
             # No IBL
             elif (geoFlags.isIBL() == False):
-                kwargs.setdefault("MappingFile", "Pixels_Atlas_IdMapping.dat")
+                kwargs.setdefault("MappingFile", "PixelCabling/Pixels_Atlas_IdMapping.dat")
 
             else:
                 # Planar IBL
@@ -70,14 +70,14 @@ def getPixelCablingSvc(name="PixelCablingSvc", **kwargs):
 
                     # DBM or not
                     if (geoFlags.isDBM() == True):
-                        kwargs.setdefault("MappingFile", "Pixels_Atlas_IdMapping_inclIBL_DBM.dat")
+                        kwargs.setdefault("MappingFile", "PixelCabling/Pixels_Atlas_IdMapping_inclIBL_DBM.dat")
                     else:
-                        kwargs.setdefault("MappingFile", "Pixels_Atlas_IdMapping_inclIBL.dat")
+                        kwargs.setdefault("MappingFile", "PixelCabling/Pixels_Atlas_IdMapping_inclIBL.dat")
 
                 # Hybrid IBL plus DBM
                 elif (geoFlags.IBLLayout() == "3D"):
                     #kwargs.setdefault("MappingFile", "Pixels_Atlas_IdMapping_inclIBL3D_DBM.dat")
-                    kwargs.setdefault("MappingFile", "Pixels_Atlas_IdMapping_Run2.dat")
+                    kwargs.setdefault("MappingFile", "PixelCabling/Pixels_Atlas_IdMapping_Run2.dat")
 
                 elif (geoFlags.IBLLayout() == "UNDEFINED"):
                     logger.warning("Got GeometryFlags.isIBL = True, but IBLLayout is UNDEFINED")
@@ -93,7 +93,7 @@ def getPixelCablingSvc(name="PixelCablingSvc", **kwargs):
             # For data older than run number 222222, use the appropriate text file
             if (runNum < 222222):
                 kwargs.setdefault("MappingType", "Final")
-                kwargs.setdefault("MappingFile", "Pixels_Atlas_IdMapping_May08.dat")
+                kwargs.setdefault("MappingFile", "PixelCabling/Pixels_Atlas_IdMapping_May08.dat")
 
             # For Run-2 onwards, get cabling map from database
             else:
@@ -107,11 +107,11 @@ def getPixelCablingSvc(name="PixelCablingSvc", **kwargs):
 
                 # Even though we are reading from COOL, set the correct fallback map.
                 if (runNum >= 289350): # 2016
-                    kwargs.setdefault("MappingFile", "Pixels_Atlas_IdMapping_2016.dat")
+                    kwargs.setdefault("MappingFile", "PixelCabling/Pixels_Atlas_IdMapping_2016.dat")
                 elif (runNum >= 222222 and runNum < 289350): # 2015
-                    kwargs.setdefault("MappingFile", "Pixels_Atlas_IdMapping_Run2.dat")
+                    kwargs.setdefault("MappingFile", "PixelCabling/Pixels_Atlas_IdMapping_Run2.dat")
                 else:
-                    kwargs.setdefault("MappingFile", "Pixels_Atlas_IdMapping_May08.dat")
+                    kwargs.setdefault("MappingFile", "PixelCabling/Pixels_Atlas_IdMapping_May08.dat")
 
 
         # Unknown input
