@@ -11,6 +11,8 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
+if DerivationFrameworkIsMonteCarlo:
+  from DerivationFrameworkMCTruth.MCTruthCommon import *
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkCore.WeightMetadata import *
 from DerivationFrameworkHiggs.TruthCategories import *
@@ -158,9 +160,6 @@ else:
                                                                       PreserveGeneratorDescendants = True,
                                                                       WriteFirstN                  = -1)
 
-from AthenaCommon.GlobalFlags import globalflags
-print "HIGG2D2.py globalflags.DataSource()", globalflags.DataSource()
-
 if DerivationFrameworkIsMonteCarlo:
     ToolSvc += HIGG2D2TruthThinningTool
     thinningTools.append(HIGG2D2TruthThinningTool)
@@ -242,18 +241,7 @@ from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramew
 higg2d2Seq += CfgMgr.DerivationFramework__DerivationKernel("HIGG2D2Kernel",
                                                            SkimmingTools = [SkimmingToolHIGG2D2],
                                                            ThinningTools = thinningTools,
-                                                           AugmentationTools = augmentationTools)
-
-#====================================================================
-# Standard jets
-#====================================================================
-
-if not "HIGG2D2Jets" in OutputJets:
-    OutputJets["HIGG2D2Jets"] = []
-    reducedJetList = []
-    if jetFlags.useTruth:
-        reducedJetList += ["AntiKt4TruthJets", "AntiKt4TruthWZJets"]
-    replaceAODReducedJets(reducedJetList, higg2d2Seq, "HIGG2D2Jets")
+                                                           AugmentationTools = augmentationTools
 
 DerivationFrameworkJob += higg2d2Seq
 

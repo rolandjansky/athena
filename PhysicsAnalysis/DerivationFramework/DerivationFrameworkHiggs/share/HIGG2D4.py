@@ -12,6 +12,8 @@ from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkFlavourTag.HbbCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
+if DerivationFrameworkIsMonteCarlo:
+  from DerivationFrameworkMCTruth.MCTruthCommon import *
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkCore.WeightMetadata import *
 from DerivationFrameworkHiggs.TruthCategories import *
@@ -42,18 +44,6 @@ HIGG2D4ThinningHelper = ThinningHelper("HIGG2D4ThinningHelper")
 #trigger navigation content  
 HIGG2D4ThinningHelper.TriggerChains = 'HLT_e.*|HLT_2e.*|HLT_mu.*|HLT_2mu.*|HLT_j.*|HLT_b.*' 
 HIGG2D4ThinningHelper.AppendToStream(HIGG2D4Stream) 
-
-# MET/Jet tracks
-# thinning_expression = "(InDetTrackParticles.pt > 0.5*GeV) && (InDetTrackParticles.numberOfPixelHits > 0) && (InDetTrackParticles.numberOfSCTHits > 5) && (abs(DFCommonInDetTrackZ0AtPV) < 1.5)"
-# from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-# HIGG2D4TPThinningTool = DerivationFramework__TrackParticleThinning(name                   = "HIGG2D4TPThinningTool",
-#                                                                    ThinningService        = HIGG2D4ThinningHelper.ThinningSvc(),
-#                                                                    SelectionString        = thinning_expression,
-#                                                                    InDetTrackParticlesKey = "InDetTrackParticles",
-#                                                                    ApplyAnd               = True)
-# ToolSvc += HIGG2D4TPThinningTool
-# thinningTools.append(HIGG2D4TPThinningTool)
-
 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
 HIGG2D4JetTPThinningTool = DerivationFramework__JetTrackParticleThinning(name                   = "HIGG2D4JetTPThinningTool",
@@ -159,9 +149,6 @@ else:
                                                                       PreserveGeneratorDescendants = True,
                                                                       WriteFirstN                  = -1)
 
-from AthenaCommon.GlobalFlags import globalflags
-print "HIGG2D4.py globalflags.DataSource()", globalflags.DataSource()
-
 if DerivationFrameworkIsMonteCarlo:
     ToolSvc += HIGG2D4TruthThinningTool
     thinningTools.append(HIGG2D4TruthThinningTool)
@@ -227,7 +214,7 @@ SkimmingToolHIGG2D4 = DerivationFramework__SkimmingToolHIGG2(name               
                                                              NumberOfMergedJets0     = 1,
                                                              MergedJetPtCut0         = 100.*Units.GeV,
                                                              MergedJetEtaCut0        = 2.6, 
-                                                             MergedJetContainerKey1  = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",#"AntiKt10LCTopoJets",
+                                                             MergedJetContainerKey1  = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                                              NumberOfMergedJets1     = 1,
                                                              MergedJetPtCut1         = 100.*Units.GeV,
                                                              MergedJetEtaCut1        = 2.6, 
@@ -268,8 +255,6 @@ if not "HIGG2D4Jets" in OutputJets:
     OutputJets["HIGG2D4Jets"] = []
 
     reducedJetList = ["AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets", "AntiKt10LCTopoJets"]
-    if jetFlags.useTruth:
-        reducedJetList += ["AntiKt4TruthJets", "AntiKt4TruthWZJets"]
     replaceAODReducedJets(reducedJetList, higg2d4Seq, "HIGG2D4Jets")
 
 #====================================================================
