@@ -52,44 +52,188 @@ PixelCablingSvc::PixelCablingSvc(const std::string& name, ISvcLocator*svc):
   m_keyCabling("/PIXEL/CablingMap"),
   m_dump_map_to_file(false)
 {
-  // "Final": use text file, "COOL": read from COOL
-  declareProperty("MappingType", m_mappingType = "COOL");
-  // Name of mapping file to use, if mappingType == Final
-  declareProperty("MappingFile", m_final_mapping_file = "PixelCabling/Pixels_Atlas_IdMapping_2016.dat");
-  // NOT USED
-  declareProperty("Bandwidth", m_bandwidth = 0);
-  // NOT USED
-  declareProperty("Coral_Connectionstring", m_coraldbconnstring = "oracle://ATLAS_COOLPROD/ATLAS_COOLONL_PIXEL"); // used to configure CORAL based tool
-  // NOT USED
-  declareProperty("DictionaryTag", m_dictTag="PIXEL");
-  // NOT USED
-  declareProperty("ConnectivityTag", m_connTag="PIT-ALL-V39");
-  // Folder name for FE-I4 hit discriminator configuration
-  declareProperty("KeyFEI4", m_keyFEI4 = "/PIXEL/HitDiscCnfg");
-  // Folder name for readout speed
-  declareProperty("Key", m_key, "Key=/PIXEL/ReadoutSpeed");
-  // Folder name for cabling map
-  declareProperty("KeyCabling", m_keyCabling, "Key=/PIXEL/CablingMap");
-  // Write out the cabling map to a text file
-  declareProperty("DumpMapToFile", m_dump_map_to_file = false);
+    // "Final": use text file, "COOL": read from COOL
+    declareProperty("MappingType", m_mappingType = "COOL");
+    // Name of mapping file to use, if mappingType == Final
+// STSTST    declareProperty("MappingFile", m_final_mapping_file = "Pixels_Atlas_IdMapping_2016.dat");
+    declareProperty("MappingFile", m_final_mapping_file = "PixelCabling/Pixels_Atlas_IdMapping_2016.dat");
+    // NOT USED
+    declareProperty("Bandwidth", m_bandwidth = 0);
+    // NOT USED
+    declareProperty("Coral_Connectionstring", m_coraldbconnstring = "oracle://ATLAS_COOLPROD/ATLAS_COOLONL_PIXEL"); // used to configure CORAL based tool
+    // NOT USED
+    declareProperty("DictionaryTag", m_dictTag="PIXEL");
+    // NOT USED
+    declareProperty("ConnectivityTag", m_connTag="PIT-ALL-V39");
+    // Folder name for FE-I4 hit discriminator configuration
+    declareProperty("KeyFEI4", m_keyFEI4 = "/PIXEL/HitDiscCnfg");
+    // Folder name for readout speed
+    declareProperty("Key", m_key, "Key=/PIXEL/ReadoutSpeed");
+    // Folder name for cabling map
+    declareProperty("KeyCabling", m_keyCabling, "Key=/PIXEL/CablingMap");
+    // Write out the cabling map to a text file
+    declareProperty("DumpMapToFile", m_dump_map_to_file = false);
 }
 
-PixelCablingSvc::~PixelCablingSvc() { }
+/*
+////////////////////////
+// Copy constructor
+////////////////////////
+PixelCablingSvc::PixelCablingSvc(const PixelCablingSvc &other, const std::string& name, ISvcLocator*svc) :
+    AthService(name,svc),
+    m_cablingTool("PixelFillCablingData"),
+    m_detStore("DetectorStore", name),
+    m_IBLParameterSvc("IBLParameterSvc",name),
+    m_idHelper(0),
+    m_cabling(0),
+    m_callback_calls(0),
+    m_dataString(""),
+    m_key("/PIXEL/ReadoutSpeed"),
+    m_keyFEI4("/PIXEL/HitDiscCnfg"),
+    m_keyCabling("/PIXEL/CablingMap"),
+    m_dump_map_to_file(false),
+    m_useIBLParameterSvc(true),
+    m_IBLpresent(false),
+    m_isHybrid(false),
+    m_DBMpresent(false),
+    m_dbm_columnsPerFE(0),
+    m_dbm_rowsPerFE(0),
+    m_dbm_FEsPerHalfModule(0),
+    m_eta_module_offset(0)
+{
+    // Copy everyzing
+    m_mappingType = other.m_mappingType;
+    m_final_mapping_file = other.m_final_mapping_file;
+    m_bandwidth = other.m_bandwidth;
+    m_coraldbconnstring = other.m_coraldbconnstring;
+    m_dictTag = other.m_dictTag;
+    m_connTag = other.m_connTag;
+    m_key = other.m_key;
+    m_keyFEI4 = other.m_keyFEI4;
+    m_keyCabling = other.m_keyCabling;
+    m_dump_map_to_file = other.m_dump_map_to_file;
+}
 
-StatusCode PixelCablingSvc::initialize() {
-  ATH_MSG_INFO("PixelCablingSvc::initialize()");
+////////////////////////
+// Assignment operator
+////////////////////////
+PixelCablingSvc& PixelCablingSvc::operator= (const PixelCablingSvc &other) {
 
-  CHECK(m_detStore.retrieve());
+    if (&other != this) {
+        m_mappingType = other.m_mappingType;
+        m_final_mapping_file = other.m_final_mapping_file;
+        m_bandwidth = other.m_bandwidth;
+        m_coraldbconnstring = other.m_coraldbconnstring;
+        m_dictTag = other.m_dictTag;
+        m_connTag = other.m_connTag;
+        m_key = other.m_key;
+        m_keyFEI4 = other.m_keyFEI4;
+        m_keyCabling = other.m_keyCabling;
+        m_dump_map_to_file = other.m_dump_map_to_file;
+    }
+    return *this;
+}
+*/
 
-  CHECK(m_detStore->retrieve(m_detManager,"Pixel"));
+////////////////////////
+// destructor
+////////////////////////
+PixelCablingSvc::~PixelCablingSvc()
+{
+}
 
-  CHECK(m_detStore->retrieve(m_idHelper,"PixelID"));
 
-  // Get ToolSvc
-  IToolSvc* toolSvc;
-  CHECK(service("ToolSvc",toolSvc));
+////////////////////////
+// initialize
+////////////////////////
+StatusCode PixelCablingSvc::initialize( )
+{
+    StatusCode sc;
+    msg(MSG::INFO) << "PixelCablingSvc::initialize" << endmsg;
 
-  // Print out all values
+    // Get an Identifier helper object
+    sc = m_detStore.retrieve();
+    if(!sc.isSuccess()){
+        ATH_MSG_FATAL("Unable to retrieve detector store");
+        return StatusCode::FAILURE;
+    }
+    else {
+        msg(MSG::DEBUG) << "DetectorStore service found" << endmsg;
+    }
+
+
+    // Get the PixelID Helper
+    if (m_detStore->retrieve(m_idHelper, "PixelID").isFailure()) {
+        msg(MSG::FATAL) << "Could not get Pixel ID helper" << endmsg;
+        return StatusCode::FAILURE;
+    }
+
+    // Get ToolSvc
+    IToolSvc* toolSvc;
+    if(StatusCode::SUCCESS != service("ToolSvc", toolSvc)) {
+        msg(MSG::ERROR) << "Cannot get ToolSvc!" << endmsg;
+        return StatusCode::FAILURE;
+    }
+
+
+    // Get IBLParameterSvc
+    if (!m_useIBLParameterSvc) {
+        msg(MSG::INFO) << "IBLParameterSvc not used" << endmsg;
+    }
+    else if (m_IBLParameterSvc.retrieve().isFailure()) {
+        msg(MSG::FATAL) << "Could not retrieve IBLParameterSvc" << endmsg;
+        return StatusCode::FAILURE;
+    }
+
+
+    // Get IBL and DBM properties from IBLParameterSvc
+
+    // Set layout
+    m_IBLpresent = m_IBLParameterSvc->containsIBL();
+    m_isHybrid = m_IBLParameterSvc->contains3D();
+    m_DBMpresent = m_IBLParameterSvc->containsDBM();
+
+    // Get the values
+    m_IBLParameterSvc->setCablingParameters(m_layer_columnsPerFE, m_layer_rowsPerFE, m_layer_FEsPerHalfModule,
+                                            &m_dbm_columnsPerFE, &m_dbm_rowsPerFE, &m_dbm_FEsPerHalfModule);
+
+
+    // Fill the columns/rows/FEsPerHalfModule vectors with remaining pixel values
+    // m_layer_columns(rows)PerFE should be [IBL, PixLayer1, PixLayer2, PixLayer3]
+
+    unsigned int numLayers = m_IBLpresent ? defaultNumLayers : (defaultNumLayers - 1);
+
+    while (numLayers > m_layer_columnsPerFE.size()) {
+        m_layer_columnsPerFE.push_back(defaultColumnsPerFE_pix);
+    }
+    while (numLayers > m_layer_rowsPerFE.size()) {
+        m_layer_rowsPerFE.push_back(defaultRowsPerFE_pix);
+    }
+    std::vector<int> numFEs;
+    numFEs.push_back(defaultFEsPerHalfModule_pix);
+    while (numLayers > m_layer_FEsPerHalfModule.size()) {
+        m_layer_FEsPerHalfModule.push_back(numFEs);
+    }
+
+    // Do the same for disks
+    while (defaultNumDisks > m_disk_columnsPerFE.size()) {
+        m_disk_columnsPerFE.push_back(defaultColumnsPerFE_pix);
+    }
+    while (defaultNumDisks > m_disk_rowsPerFE.size()) {
+        m_disk_rowsPerFE.push_back(defaultRowsPerFE_pix);
+    }
+    while (defaultNumDisks > m_disk_FEsPerHalfModule.size()) {
+        m_disk_FEsPerHalfModule.push_back(defaultFEsPerHalfModule_pix);
+    }
+
+
+    // The Eta_module value returned by PixelID::eta_module is a signed integer,
+    // symmetric around z = 0. We need to offset is so that it starts at 0 (is unsigned)
+    m_eta_module_offset = m_layer_FEsPerHalfModule[0].size()/2;
+
+
+    // Print out all values
+
 #ifdef PIXEL_DEBUG
   ATH_MSG_DEBUG("-- PixelCablingSvc ------------------------------");
   ATH_MSG_DEBUG("m_final_mapping_file = " << m_final_mapping_file);
