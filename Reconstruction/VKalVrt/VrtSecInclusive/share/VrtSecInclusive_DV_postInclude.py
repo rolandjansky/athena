@@ -1,16 +1,6 @@
-try:
-	StreamESD.ItemList+=["xAOD::TrackParticleContainer#VrtSecInclusive*"]
-	StreamESD.ItemList+=["xAOD::VertexContainer#VrtSecInclusive*"]
-	StreamESD.ItemList+=["xAOD::VertexAuxContainer#VrtSecInclusive*"]
-except:
-	print "StreamESD undefined"
-
-try:
-	StreamAOD.ItemList+=["xAOD::TrackParticleContainer#VrtSecInclusive*"]
-	StreamAOD.ItemList+=["xAOD::VertexContainer#VrtSecInclusive*"]
-	StreamAOD.ItemList+=["xAOD::VertexAuxContainer#VrtSecInclusive*"]
-except:
-	print "StreamAOD undefined"
+StreamESD.ItemList+=["xAOD::TrackParticleContainer#VrtSecInclusive*"]
+StreamESD.ItemList+=["xAOD::VertexContainer#VrtSecInclusive*"]
+StreamESD.ItemList+=["xAOD::VertexAuxContainer#VrtSecInclusive*"]
 
 
 ToolSvc.EGammaAmbiguityTool.minNoSiHits = 2
