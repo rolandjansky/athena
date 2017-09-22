@@ -144,11 +144,6 @@ def cherry_pick_mr(merge_commit,source_branch,target_branch_rules,project,dry_ru
             else:
                 logging.warning("merge commit '%s' has empty 'alsoTargeting:' label -> ignore")
 
-    labels.add("sweep:done")
-    mr_handle.labels = list(labels)
-    # update labels only if this is for real
-    if not dry_run:
-        mr_handle.save()
 
     # get list of affected packages for this MR
     affected_packages = list_changed_packages(mr_handle)
@@ -168,9 +163,18 @@ def cherry_pick_mr(merge_commit,source_branch,target_branch_rules,project,dry_ru
 
     logging.info("MR %d [%s] is swept to %d branches: %r",MR_IID,merge_commit,len(target_branches),list(target_branches))
 
+    if len(target_branches) == 0:
+        labels.add("sweep:ignore")
+        logging.debug("\n\nZero target branches found, adding sweep:ignore label to the MR handle\n\n")
+    else:
+        labels.add("sweep:done")
+
     if dry_run:
         logging.debug("\n\n----- This is a test run, stop with this MR here ----\n\n ")
         return
+
+    mr_handle.labels = list(labels)
+    mr_handle.save()
 
     # get initial MR commit title and description
     _,mr_title,_ = execute_command_with_retry('git show {0} --pretty=format:"%s"'.format(merge_commit))
