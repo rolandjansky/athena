@@ -13,7 +13,7 @@ ExtraContent=[
 ExtraContentTruth=[
     "AntiKt4EMTopoJets.ConeTruthLabelID"]
 
-ExtraContainers=[
+ExtraContainers=[]
     #"BTagging_AntiKt10LCTopo",
     #"xTrigDecision", # for xAOD::TrigDecision_v1
     #"xTrigDecisionAux", # for xAOD::TrigDecisionAuxInfo_v1
@@ -21,7 +21,7 @@ ExtraContainers=[
     #"HLT_TrigEFBjetContainer_EFBjetFex", # for TrigEFBjetContainer
     #"HLT_TrigL2BjetContainer_L2BjetFex", # for TrigL2BjetContainer
     #"HLT_JetCollection_TrigJetRec",
-    "MuonSegments"]
+    #"MuonSegments"]
 
 
 ExtraContainersTruth=[
