@@ -308,7 +308,6 @@ namespace CP {
         return res;
     }
     EfficiencyScaleFactor::~EfficiencyScaleFactor() {
-        std::cout<<"Dafuq"<<std::endl;
         Clear();
     }
     void EfficiencyScaleFactor::DeleteOldReplicas(EfficiencyScaleFactor::SFvec &Vec, bool ClearVec) {
