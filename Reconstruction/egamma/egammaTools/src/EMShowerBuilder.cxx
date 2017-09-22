@@ -40,8 +40,6 @@ EMShowerBuilder::EMShowerBuilder(const std::string& type,
                                  const std::string& name,
                                  const IInterface* parent)
   : egammaBaseTool(type, name, parent),
-    m_ShowerShapeTool("egammaShowerShape/egammashowershape", this),
-    m_HadronicLeakageTool("egammaIso", this),
     m_cellcoll(0),
     m_clus(0),
     m_caloSelection(false),
@@ -53,38 +51,6 @@ EMShowerBuilder::EMShowerBuilder(const std::string& type,
 
   // declare interface
   declareInterface<IEMShowerBuilder>(this);
-  
-  // The following properties are specified at run-time
-  // (declared in jobOptions file)
-  
-  // Names of containers which contain cells  
-  declareProperty("CellsName",m_cellsKey="AllCalo", "Names of containers which contain cells ");
-
-  // list of calo to treat
-  declareProperty("CaloNums",m_caloNums, "list of calo to treat");
-
-  // Boolean to call shower shape calculation and filling
-  // (NB: this could be important when redoing calculation from AODs)
-  declareProperty("UseShowerShapeTool", m_UseShowerShapeTool=true, "Boolean to call shower shape calculation and filling");
-  
-  // Boolean to call isolation variables calculation and filling
-  // (NB: this could be important when redoing calculation from AODs)
-  declareProperty("UseCaloIsoTool", m_UseCaloIsoTool=true, "Boolean to call hadronic leakage calculation and filling");
-  
-  // Handles of instance of egammaShowerShape Tool to be run 
-  declareProperty("ShowerShapeTool", m_ShowerShapeTool, "Handle of instance of egammaShowerShape Tool to be run");
-
-  // Handle of the calorimetric isolation tool
-  declareProperty("HadronicLeakageTool", m_HadronicLeakageTool, "Handle of the EMCaloIsolationTool for Hadronic leakage");
-
-  // Boolean for use of cosmics
-  declareProperty("isCosmics",m_isCosmics=false,"Boolean for use of cosmics");
-
-  // in case we want some extra print
-  declareProperty("Print",m_Print=false,"in case of extra prints");
-
-  // in case we want some extra print
-  declareProperty("Timing",m_timing=false,"do extra timing");      
 }
 
 // ===============================================================

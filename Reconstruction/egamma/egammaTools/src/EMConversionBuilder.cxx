@@ -19,7 +19,6 @@ PURPOSE:  subAlgorithm which creates an EMConversion object.
 
 #include "EMConversionBuilder.h"
 #include "ConvVxSorter.h"
-#include "egammaInterfaces/IEMExtrapolationTools.h"
 #include "xAODTracking/VertexContainer.h"
 #include "egammaRecEvent/egammaRecContainer.h"
 #include "egammaRecEvent/egammaRec.h"
@@ -30,59 +29,16 @@ PURPOSE:  subAlgorithm which creates an EMConversion object.
 
 /////////////////////////////////////////////////////////////////
 
-using CLHEP::GeV;
 using namespace xAOD::EgammaParameters;
 
 EMConversionBuilder::EMConversionBuilder(const std::string& type,
 					 const std::string& name,
 					 const IInterface* parent)
-  : egammaBaseTool(type, name, parent),
-    m_extrapolationTool("EMExtrapolationTools", this)
+  : egammaBaseTool(type, name, parent)
 {
   
   // declare interface
   declareInterface<IEMConversionBuilder>(this);
-  
-  // Name of the input conversion container
-  declareProperty("ConversionContainerName",                 
-		  m_conversionContainerKey="PhotonConversionVertices",
-		  "Name of the input conversion container");
-	
-  // Name of the extrapolation tool
-  declareProperty("ExtrapolationTool",
-		  m_extrapolationTool,
-		  "Handle of the extrapolation tool");
-      
-  declareProperty("RejectAllTRTConversions", m_rejectAllTRT = false,
-		  "Ignore all conversion vertices containing exclusively TRT-only tracks");
-    
-  declareProperty("minTRTHits", m_minTRTHits = 0,
-		  "minimum number of TRT hits for TRT-only tracks (both single and double track conversion vertices)");
-  
-  declareProperty("minPt_singleTrack", m_minPt_singleTrack = 0*GeV,
-		  "minimum pT for single-track conversion vertices");
-  
-  declareProperty("minPt_singleTRT", m_minPt_singleTRT = 2*GeV,
-		  "minimum pT for TRT-only single-track conversion vertices");
-  
-  declareProperty("minTRTonlyTrackPt", m_minTRTonlyTrackPt = 0*GeV,
-		  "minimum pT for each track in TRT-only double-track conversion vertices");
-        
-  declareProperty("minSumPt_double", m_minSumPt_double = 0*GeV,
-		  "minimum sum pT for double track conversion vertices");
-
-  declareProperty("minSumPt_doubleTRT", m_minSumPt_doubleTRT = 2*GeV,
-		  "minimum sum pT for double TRT track conversion vertices");
-
-  declareProperty("maxEoverP_singleTrack", m_maxEoverP_singleTrack = 10.,
-      "Maximum E/p for single track conversion vertices");
-
-  declareProperty("maxEoverP_singleTrack_EtSf", m_maxEoverP_singleTrack_EtSf = 0.01,  
-      "Scale maxEoverP_singleTrack by ( 1+sf*Et(cluster)/GeV ) ");
-  
-  declareProperty("maxTRTTubeHitFraction", m_maxTRTTubeHitFraction = 999.,
-		  "Maximum fraction of tube hits for vertices with TRT tracks"); // for 21.0.X: minTRTPrecisionFraction cut applied InDetTRT_StandaloneScoringTool
-  
 
 }
 

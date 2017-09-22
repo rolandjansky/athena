@@ -4,8 +4,6 @@
 
 #include "EMClusterTool.h"
 
-#include "egammaInterfaces/IegammaSwTool.h"
-#include "egammaMVACalib/IegammaMVATool.h"
 #include "xAODEgamma/EgammaxAODHelpers.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODCaloEvent/CaloClusterAuxContainer.h"
@@ -20,27 +18,11 @@
 #include "StoreGate/WriteHandle.h"
 
 
-
 // =============================================================
 EMClusterTool::EMClusterTool(const std::string& type, const std::string& name, const IInterface* parent) :
   egammaBaseTool(type, name, parent), 
-  m_MVACalibTool("egammaMVATool", this),
-  m_clusterCorrectionTool("egammaSwTool/egammaswtool", this),
   m_doTopoSeededContainer(false)
 {
-  declareProperty("ClusterCorrectionTool", m_clusterCorrectionTool);
-  declareProperty("MVACalibTool", m_MVACalibTool);
-  declareProperty("OutputClusterContainerName", m_outputClusterContainerKey, 
-    "Name of the output cluster container");
-  declareProperty("OutputTopoSeededClusterContainerName",
-    m_outputTopoSeededClusterContainerKey, 
-    "Name of the output cluster container for topo-seeded clusters (can be the same as the other clusters)");
-  declareProperty("doSuperCluster", m_doSuperClusters = true, 
-    "Do Super Cluster Reco");
-  declareProperty("applyMVAToSuperCluster", m_applySuperClusters = true, 
-    "Protection to not do anything for superClusters");
-
-
   declareInterface<IEMClusterTool>(this);
   
   m_caloCellDetPos = std::make_unique<CaloCellDetPos>();

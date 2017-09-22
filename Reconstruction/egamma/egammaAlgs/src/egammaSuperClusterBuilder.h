@@ -147,7 +147,7 @@ private:
   
   /** @brief Tool to handle cluster corrections */
   ToolHandle<IegammaSwTool>   m_clusterCorrectionTool {this,
-      "ClusterCorrectionTool", "egammaswtool", 
+      "ClusterCorrectionTool", "egammaSwTool/egammaswtool", 
       "tool that applies cluster corrections"};
 
   /** @brief Position in Calo frame**/  
