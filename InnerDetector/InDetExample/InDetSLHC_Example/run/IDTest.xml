@@ -1,0 +1,214 @@
+<!--
+
+   The InnerDetector identifier is arranged as follows
+
+   InnerDetector
+     part=Pixel
+       side=barrel
+         layer phi_module eta_module phi_index eta_index
+       side=endcap
+         disk phi_module eta_module phi_index eta_index
+     part=SCT
+       side=barrel
+         layer phi_module eta_module side strip
+       side=endcap
+         disk phi_module eta_module side strip
+     part=TRT
+       side=barrel
+         layer phi_module straw_layer straw
+       side=endcap
+         wheel phi_module straw_layer straw
+
+  -->
+
+<IdDictionary name="InnerDetector" version="SLHC" >
+  <field name="part" >
+    <label name="Pixel" value="1" />
+    <label name="SCT"   value="2" />
+    <label name="TRT"   value="3" />
+  </field>
+
+  <field name="barrel_endcap">
+    <label name="negative_endcap" value="-2" />
+    <label name="negative_barrel" value="-1" />
+    <label name="barrel"          value="0" />
+    <label name="positive_barrel" value="+1"  />
+    <label name="positive_endcap" value="+2"  />
+  </field>
+
+ 
+
+
+
+
+  <subregion name="TRT_barrel">
+    <range field="part" value="TRT" />
+    <range field="barrel_endcap" values="negative_barrel positive_barrel" />
+  </subregion>
+  <subregion name="TRT_endcap">
+    <range field="part" value="TRT" />
+    <range field="barrel_endcap" values="negative_endcap positive_endcap" />
+  </subregion>
+  <subregion name="TRT_layer_0">
+    <reference subregion="TRT_barrel" />
+    <range field="phi_sector" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="layer_or_wheel" value="0" />
+  </subregion>
+  <region group="trt" >
+    <reference subregion="TRT_layer_0" />
+    <range field="straw_layer" value="0" />
+    <range field="straw" minvalue="0" maxvalue="14" />
+  </region>
+  <region group="trt" >
+    <reference subregion="TRT_layer_0" />
+    <range field="straw_layer" minvalue="1" maxvalue="4" />
+    <range field="straw" minvalue="0" maxvalue="15" />
+  </region>
+  <region group="trt" >
+    <reference subregion="TRT_layer_0" />
+    <range field="straw_layer" minvalue="5" maxvalue="9" />
+    <range field="straw" minvalue="0" maxvalue="16" />
+  </region>
+  <region group="trt" >
+    <reference subregion="TRT_layer_0" />
+    <range field="straw_layer" minvalue="10" maxvalue="14" />
+    <range field="straw" minvalue="0" maxvalue="17" />
+  </region>
+  <region group="trt" >
+    <reference subregion="TRT_layer_0" />
+    <range field="straw_layer" minvalue="15" maxvalue="17" />
+    <range field="straw" minvalue="0" maxvalue="18" />
+  </region>
+  <region group="trt" >
+    <reference subregion="TRT_layer_0" />
+    <range field="straw_layer" value="18" />
+    <range field="straw" minvalue="0" maxvalue="17" />
+  </region>
+  <subregion name="TRT_layer_1">
+    <reference subregion="TRT_barrel" />
+    <range field="phi_sector" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="layer_or_wheel" value="1" />
+  </subregion>
+  <region group="trt" >
+    <reference subregion="TRT_layer_1" />
+    <range field="straw_layer" value="0" />
+    <range field="straw" minvalue="0" maxvalue="18" />
+  </region>
+  <region group="trt" >
+    <reference subregion="TRT_layer_1" />
+    <range field="straw_layer" minvalue="1" maxvalue="5" />
+    <range field="straw" minvalue="0" maxvalue="19" />
+  </region>
+  <region group="trt" >
+    <reference subregion="TRT_layer_1" />
+    <range field="straw_layer" minvalue="6" maxvalue="10" />
+    <range field="straw" minvalue="0" maxvalue="20" />
+  </region>
+  <region group="trt" >
+    <reference subregion="TRT_layer_1" />
+    <range field="straw_layer" minvalue="11" maxvalue="15" />
+    <range field="straw" minvalue="0" maxvalue="21" />
+  </region>
+  <region group="trt" >
+    <reference subregion="TRT_layer_1" />
+    <range field="straw_layer" minvalue="16" maxvalue="20" />
+    <range field="straw" minvalue="0" maxvalue="22" />
+  </region>
+  <region group="trt" >
+    <reference subregion="TRT_layer_1" />
+    <range field="straw_layer" minvalue="21" maxvalue="22" />
+    <range field="straw" minvalue="0" maxvalue="23" />
+  </region>
+  <region group="trt" >
+    <reference subregion="TRT_layer_1" />
+    <range field="straw_layer" value="23" />
+    <range field="straw" minvalue="0" maxvalue="22" />
+  </region>
+  <subregion name="TRT_layer_2">
+    <reference subregion="TRT_barrel" />
+    <range field="phi_sector" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="layer_or_wheel" value="2" />
+  </subregion>
+  <region group="trt" >
+    <reference subregion="TRT_layer_2" />
+    <range field="straw_layer" value="0" />
+    <range field="straw" minvalue="0" maxvalue="22" />
+  </region>
+  <region group="trt" >
+    <reference subregion="TRT_layer_2" />
+    <range field="straw_layer" minvalue="1" maxvalue="4" />
+    <range field="straw" minvalue="0" maxvalue="23" />
+  </region>
+  <region group="trt" >
+    <reference subregion="TRT_layer_2" />
+    <range field="straw_layer" minvalue="5" maxvalue="9" />
+    <range field="straw" minvalue="0" maxvalue="24" />
+  </region>
+  <region group="trt" >
+    <reference subregion="TRT_layer_2" />
+    <range field="straw_layer" minvalue="10" maxvalue="14" />
+    <range field="straw" minvalue="0" maxvalue="25" />
+  </region>
+  <region group="trt" >
+    <reference subregion="TRT_layer_2" />
+    <range field="straw_layer" minvalue="15" maxvalue="19" />
+    <range field="straw" minvalue="0" maxvalue="26" />
+  </region>
+  <region group="trt" >
+    <reference subregion="TRT_layer_2" />
+    <range field="straw_layer" minvalue="20" maxvalue="24" />
+    <range field="straw" minvalue="0" maxvalue="27" />
+  </region>
+  <region group="trt" >
+    <reference subregion="TRT_layer_2" />
+    <range field="straw_layer" minvalue="25" maxvalue="28" />
+    <range field="straw" minvalue="0" maxvalue="28" />
+  </region>
+  <region group="trt" >
+    <reference subregion="TRT_layer_2" />
+    <range field="straw_layer" value="29" />
+    <range field="straw" minvalue="0" maxvalue="27" />
+  </region>
+  <region group="trt" >
+    <reference subregion="TRT_endcap" />
+    <range field="phi_sector" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="layer_or_wheel" minvalue="0" maxvalue="5" />
+    <range field="straw_layer" minvalue="0" maxvalue="15" />
+    <range field="straw" minvalue="0" maxvalue="23" />
+  </region>
+  <region group="trt" >
+    <reference subregion="TRT_endcap" />
+    <range field="phi_sector" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    <range field="layer_or_wheel" minvalue="6" maxvalue="13" />
+    <range field="straw_layer" minvalue="0" maxvalue="7" />
+    <range field="straw" minvalue="0" maxvalue="23" />
+  </region>
+  <alternate_regions>
+    <region group="trt" >
+      <reference subregion="TRT_endcap" />
+      <range field="phi_sector" minvalue="0" maxvalue="31" wraparound="TRUE" />
+      <range field="layer_or_wheel" minvalue="14" maxvalue="17" />
+      <range field="straw_layer" minvalue="0" maxvalue="15" />
+      <range field="straw" minvalue="0" maxvalue="17" />
+    </region>
+    <region group="trt"  tag="initial_layout" />
+    <region group="trt" tag="final_layout" >
+      <reference subregion="TRT_endcap" />
+      <range field="phi_sector" minvalue="0" maxvalue="31" wraparound="TRUE" />
+      <range field="layer_or_wheel" minvalue="14" maxvalue="17" />
+      <range field="straw_layer" minvalue="0" maxvalue="15" />
+      <range field="straw" minvalue="0" maxvalue="17" />
+    </region>
+    <region group="trt"  tag="destaged_layout" />
+  </alternate_regions>
+  <!-- Dummy region: This forces the bit packing to be the same for all layouts -->
+  <region group="trt" name = "dummy">
+    <range field="part" value="TRT" />
+    <range field="barrel_endcap" values="negative_endcap negative_barrel positive_barrel positive_endcap"/>
+    <range field="phi_sector" minvalue="0" maxvalue="31" />
+    <range field="layer_or_wheel" minvalue="0" maxvalue="17" />
+    <range field="straw_layer" minvalue="0" maxvalue="29" />
+    <range field="straw" minvalue="0" maxvalue="28" />
+  </region>
+
+</IdDictionary>
