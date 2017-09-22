@@ -120,6 +120,8 @@ namespace HLTTest {
 	ATH_MSG_DEBUG( "  " << prop.first << " : " << prop.second );
       }
     }
+
+    ATH_MSG_DEBUG("Reconstructed "<<output->size() <<" objects");
   
     auto handle = SG::makeHandle(m_output);
     CHECK( handle.record( std::move(output), std::move(aux) ) );

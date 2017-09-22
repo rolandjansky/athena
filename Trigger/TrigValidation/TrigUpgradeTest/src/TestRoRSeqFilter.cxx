@@ -10,8 +10,6 @@
 
 #include "GaudiKernel/Property.h"
 
-using namespace TrigCompositeUtils;
-
 namespace HLTTest {
 
   TestRoRSeqFilter::TestRoRSeqFilter( const std::string& name, 
@@ -30,12 +28,15 @@ namespace HLTTest {
   StatusCode TestRoRSeqFilter::initialize()
   {
     ATH_MSG_INFO ("Initializing " << name() << "...");
-    ATH_MSG_DEBUG("Will consume the input data: " << m_inputs << " and produce " << m_outputs );
 
-    if ( m_inputs.size() != m_inputs.size() ) {
-      ATH_MSG_ERROR("Inputs and Outputs have different size, the mapping is unclear");
-      return StatusCode::FAILURE;
-    }
+    ATH_MSG_DEBUG("Will consume the input data: " << m_inputs << " and produce " << m_outputs );
+    ATH_MSG_DEBUG("This filter has alwaysPass=" << m_alwaysPass);
+    ATH_MSG_DEBUG("Configured chains are:");
+    for ( auto& el: m_chainsProperty ) ATH_MSG_DEBUG(el);
+    // if ( m_inputs.size() != m_outputs.size() ) {
+    //   ATH_MSG_ERROR("Inputs and Outputs have different size, the mapping is unclear");
+    //   return StatusCode::FAILURE;
+    // }
   
     for ( auto& el: m_chainsProperty ) 
       m_chains.insert( HLT::Identifier(el).numeric() );
@@ -91,6 +92,7 @@ namespace HLTTest {
     return StatusCode::SUCCESS;
   }
 
+
   void TestRoRSeqFilter::copyPassing( const std::string& inputKey, DecisionContainer* output ) const {
     SG::ReadHandle<DecisionContainer> inputDH( inputKey );
     if ( not inputDH.isValid() ) {
@@ -98,6 +100,7 @@ namespace HLTTest {
       return;
     }
 
+    ATH_MSG_DEBUG( "Filtering "<<inputDH->size()<<" obejcts with key "<<inputKey);
     
     size_t counter=0;
     for ( auto objIter =  inputDH->begin(); objIter != inputDH->end(); ++objIter, ++counter ) {      
@@ -110,15 +113,17 @@ namespace HLTTest {
 			     objDecisions.begin(), objDecisions.end(),
 			     std::back_inserter( intersection ) );
       
+      ATH_MSG_DEBUG( "Found "<<intersection.size()<<" objects of interest for key "<<inputKey);
       for ( auto positive: intersection ) {
-	ATH_MSG_DEBUG( "A positive decision for object: " << HLT::Identifier( positive ) );
+	ATH_MSG_DEBUG( "Found positive decision for chain " << HLT::Identifier( positive ) );
       }
+
       const bool positiveObjectDecision = not intersection.empty();
       if ( positiveObjectDecision ) {
 	auto d = newDecisionIn( output );
 	linkToPrevious( d, inputKey, counter );
       } else {
-	ATH_MSG_DEBUG( "Skipping object as it passed no chain of interest to this filter" );
+	ATH_MSG_DEBUG( "Skipping objects with key " << inputKey <<" as they passed no chain of interest to this filter" );
       }
     }
   }
