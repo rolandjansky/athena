@@ -409,7 +409,9 @@ def parse(chk_tcmalloc=True):
             #and for each use glob to expand path
             files = []
             for fe in arg.split(","):
-                files += glob(fe)
+                #only glob if wildcard present
+                if "*" in fe: files += glob(fe)
+                else: files += [fe]
             jps.AthenaCommonFlags.FilesInput.set_Value_and_Lock(files)
 
         elif opt in("--evtMax",):
