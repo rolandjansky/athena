@@ -52,9 +52,10 @@ class METTriggerDerivationContentManager(object):
 # Slimming Tools #
 ##################
   def makeSlimmingTools(self, stream, jetAlgorithms):
+    hltJets = ["a4tclcwsubjesFS", "a4tclcwsubjesISFS", "a4tcemsubjesFS", "a4tcemsubjesISFS"]
     streamName = self.streamName
     self.slimmingHelper = SlimmingHelper(streamName + "SlimmingHelper")
-    self.slimmingHelper.SmartCollections = ["Electrons", "Muons", "Photons", "TauJets", "PrimaryVertices"] + ["{0}Jets".format(a) for a in jetAlgorithms] #+ ["BTagging_{0}".format(a) for a in jetAlgorithms]
+    self.slimmingHelper.SmartCollections = ["Electrons", "Muons", "Photons", "TauJets", "PrimaryVertices"] + ["{0}Jets".format(a) for a in jetAlgorithms] + ["BTagging_{0}".format(a) for a in jetAlgorithms]
     self.slimmingHelper.AllVariables = [
       "CaloCalTopoClusters",
       "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET",
@@ -64,7 +65,7 @@ class METTriggerDerivationContentManager(object):
       "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl",
       "LVL1EnergySumRoI",
       "LVL1JetRoIs",
-      "LVL1JetEtRoI"] + ["MET_Core_{0}".format(a) for a in jetAlgorithms] + ["METAssoc_{0}".format(a) for a in jetAlgorithms]
-    hltJets = ["a4tclcwsubjesFS", "a4tclcwsubjesISFS", "a4tcemsubjesFS", "a4tcemsubjesISFS"]
-    self.slimmingHelper.ExtraVariables = ["HLT_xAOD__JetContainer_{0}.pt.eta.phi.m" for j in hltJets]
+      "LVL1JetEtRoI"] + ["MET_Core_{0}".format(a) for a in jetAlgorithms] + ["METAssoc_{0}".format(a) for a in jetAlgorithms] + ["HLT_xAOD__JetContainer_{0}".format(j) for j in hltJets]
+    self.slimmingHelper.ExtraVariables = ["Muons.EnergyLoss.energyLossType"]
+    # self.slimmingHelper.ExtraVariables = ["HLT_xAOD__JetContainer_{0}.pt.eta.phi.m".format(j) for j in hltJets]
     self.slimmingHelper.AppendContentToStream(stream)
