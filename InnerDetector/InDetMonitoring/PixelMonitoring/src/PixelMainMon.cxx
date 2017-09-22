@@ -52,6 +52,7 @@
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
+#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 #include "PathResolver/PathResolver.h"
 #include "PixelMonitoring/PixelMon2DMapsLW.h"
 #include "PixelMonitoring/PixelMon2DProfilesLW.h"
@@ -70,6 +71,7 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_pixelCableSvc("PixelCablingSvc",name),
    m_IBLParameterSvc("IBLParameterSvc",name),
    m_holeSearchTool("InDet::InDetTrackHoleSearchTool/InDetHoleSearchTool"),
+   m_trackSelTool("InDet::InDetTrackSelectionTool/TrackSelectionTool", this),
    m_lumiTool("LuminosityTool"),
    m_moduleTemperature(new dcsDataHolder()),
    m_coolingPipeTemperatureInlet(new dcsDataHolder()),
@@ -86,6 +88,7 @@ PixelMainMon::PixelMainMon(const std::string & type,
    declareProperty("PixelByteStreamErrorsSvc",  m_ErrorSvc);
    declareProperty("PixelCablingSvc",           m_pixelCableSvc);
    declareProperty("HoleSearchTool",            m_holeSearchTool);
+   declareProperty("TrackSelectionTool",        m_trackSelTool);
    declareProperty("LuminosityTool",            m_lumiTool);
 
    declareProperty("RDOName",          m_Pixel_RDOName         = "PixelRDOs");  //storegate container names
@@ -251,20 +254,6 @@ PixelMainMon::PixelMainMon(const std::string & type,
    /// cluster size
    memset(m_clusize_ontrack_mod, 0, sizeof(m_clusize_ontrack_mod));
    memset(m_clusize_offtrack_mod, 0, sizeof(m_clusize_offtrack_mod));
-   /// module histo
-   m_track_chi2_bcl1 = 0;
-   m_track_chi2_bcl0 = 0;
-   m_track_chi2_bclgt1 = 0;
-   m_track_chi2_bcl1_highpt = 0;
-   m_track_chi2_bcl0_highpt = 0;
-   m_track_chi2_bclgt1_highpt = 0;
-   m_clustot_vs_pt = 0;
-   m_clustot_lowpt = 0;
-   m_1hitclustot_lowpt = 0;
-   m_2hitclustot_lowpt = 0;
-   m_clustot_highpt = 0;
-   m_1hitclustot_highpt = 0;
-   m_2hitclustot_highpt = 0;
    ///
    /// Cluster histograms
    /// 
@@ -514,6 +503,9 @@ StatusCode PixelMainMon::initialize()
       }
    }
 
+   if (m_doOnTrack) {
+     ATH_CHECK(m_trackSelTool.retrieve() );
+   }
    if ( m_lumiTool.retrieve().isFailure() ) {
       msg(MSG::FATAL) << "Failed to retrieve tool " << m_lumiTool << endmsg;
       return StatusCode::FAILURE;
