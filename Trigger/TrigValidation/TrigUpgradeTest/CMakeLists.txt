@@ -63,6 +63,11 @@ atlas_add_test( egammaRunData   SCRIPT test/test_egamma_run_data.sh
                 PROPERTIES TIMEOUT 500 
               )
 
+atlas_add_test( muRunData   SCRIPT test/test_mu_run_data.sh
+                PROPERTIES TIMEOUT 500 
+              )
+
+
 
 atlas_add_test( idCaloRunData   SCRIPT test/test_id_calo_run_data.sh
                 PROPERTIES TIMEOUT 500 
