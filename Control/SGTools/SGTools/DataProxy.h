@@ -179,19 +179,6 @@ namespace SG {
     ///@throws runtime_error when converter fails
     DataObject* accessData();
 
-    /**
-     * @brief Read in a new copy of the object referenced by this proxy.
-     * @param errNo If non-null, set to the resulting error code.
-     *
-     * If this proxy has an associated loader and address, then load
-     * a new copy of the object and return it.  Any existing copy
-     * held by the proxy is unaffected.
-     *
-     * This will fail if the proxy does not refer to an object read from an
-     * input file.
-     */
-    std::unique_ptr<DataObject> readData (ErrNo* errNo) const;
-
     ErrNo errNo() const;
  
     /// Retrieve clid
@@ -282,15 +269,40 @@ namespace SG {
     IProxyDict* m_store;
 
 
-    typedef std::mutex mutex_t;
+    // Needs to be recursive since updateAddress can call back
+    // into the DataProxy.
+    typedef std::recursive_mutex mutex_t;
     typedef std::lock_guard<mutex_t> lock_t;
     mutable mutex_t m_mutex;
 
     
+    bool isValidAddress (lock_t&) const;
+
+
     /**
      * @brief Lock the data object we're holding, if any.
+     *
+     * Should be called with the mutex held.
      */
-    void lock();
+    void lock (lock_t&);
+
+
+    /**
+     * @brief Read in a new copy of the object referenced by this proxy.
+     * @param errNo If non-null, set to the resulting error code.
+     *
+     * If this proxy has an associated loader and address, then load
+     * a new copy of the object and return it.  Any existing copy
+     * held by the proxy is unaffected.
+     *
+     * This will fail if the proxy does not refer to an object read from an
+     * input file.
+     */
+    std::unique_ptr<DataObject> readData (lock_t&, ErrNo* errNo) const;
+
+
+    /// set DataObject
+    void setObject (lock_t&, DataObject* obj);
   };
 
   ///cast the proxy into the concrete data object it proxies
