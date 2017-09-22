@@ -16,16 +16,13 @@
 
 InDet::TRT_TrackExtensionAlg::TRT_TrackExtensionAlg
 (const std::string& name,ISvcLocator* pSvcLocator) :
-	AthAlgorithm(name, pSvcLocator),
-	m_trtExtension("InDet::TRT_TrackExtensionTool_xk") {
+	AthAlgorithm(name, pSvcLocator) {
 	m_outputlevel = 0;
 	m_nprint = 0;
 	m_nTracks = 0;
 	m_nTracksExtended = 0;
 	m_nTracksTotal = 0;
 	m_nTracksExtendedTotal = 0;
-
-	declareProperty("TrackExtensionTool", m_trtExtension);
 }
 
 ///////////////////////////////////////////////////////////////////

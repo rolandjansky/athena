@@ -68,7 +68,7 @@ namespace InDet {
 		int m_nTracksExtendedTotal;  // Number output tracks
 		//		std::string m_tracksLocation;  // Input  tracks location
 		//		std::string m_extendedTracksLocation;  // Output tracks location
-		ToolHandle<ITRT_TrackExtensionTool> m_trtExtension;  // TRT track extension tool
+		ToolHandle<ITRT_TrackExtensionTool> m_trtExtension{this, "TrackExtensionTool", "InDet::TRT_TrackExtensionTool_xk", "TRT track extension tool"};
 
 		// Data handle keys
 		SG::ReadHandleKey<TrackCollection> m_inputTracksKey	{ this, "InputTracksLocation", "SiSPSeededTracks", "Input tracks container name" };
