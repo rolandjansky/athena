@@ -108,14 +108,14 @@ StatusCode DerivationFramework::EGammaPrepRawDataThinning::doThinning() const {
 
   const Trk::Vertex* vertex=0;
   const VxContainer* importedVxContainer = 0;
-  static const std::string m_containerName = "VxPrimaryCandidate";
+  static const std::string containerName = "VxPrimaryCandidate";
   Hep3Vector VertexPos(0.0,0.0,0.0);
-  if ( evtStore()->contains<VxContainer>(m_containerName))
+  if ( evtStore()->contains<VxContainer>(containerName))
     {
-      if ( StatusCode::SUCCESS != evtStore()->retrieve(importedVxContainer,m_containerName))
+      if ( StatusCode::SUCCESS != evtStore()->retrieve(importedVxContainer,containerName))
         {
           // in general this means this container won't be around at all for this run
-          ATH_MSG_WARNING( "No " << m_containerName
+          ATH_MSG_WARNING( "No " << containerName
                            << " found in StoreGate."
                            << " Will use the default 0,0,0 vertex position instead!" );
           return StatusCode::SUCCESS;
@@ -292,8 +292,7 @@ std::vector<IdentifierHash> DerivationFramework::EGammaPrepRawDataThinning::find
   
   ATH_MSG_DEBUG("===>> Calling findGoodIDObject for detector " << detectorID ) ;
 	
-  std::vector<IdentifierHash>  m_listOfHashIDs ;
-  m_listOfHashIDs.clear();
+  std::vector<IdentifierHash>  listOfHashIDs ;
    
   double roiZMin =  primaryVertex.z() - maxDeltaZ/2.;
   double roiZMax =  primaryVertex.z() + maxDeltaZ/2.;
@@ -328,13 +327,13 @@ std::vector<IdentifierHash> DerivationFramework::EGammaPrepRawDataThinning::find
   //  while ( roiPhiMax<-M_PI ) roiPhiMax += 2*M_PI;
   // while ( roiPhiMax> M_PI ) roiPhiMax -= 2*M_PI;
 
-  RoiDescriptor _roi( candHepLorentz.Eta(), roiEtaMin, roiEtaMax, 
-		      candHepLorentz.Phi(), roiPhiMin, roiPhiMax, 
-		      primaryVertex.z(), roiZMin, roiZMax );
+  RoiDescriptor roi( candHepLorentz.Eta(), roiEtaMin, roiEtaMax, 
+		     candHepLorentz.Phi(), roiPhiMin, roiPhiMax, 
+		     primaryVertex.z(), roiZMin, roiZMax );
 
-  m_regionSelector->DetHashIDList( detectorID, _roi, m_listOfHashIDs);
+  m_regionSelector->DetHashIDList( detectorID, roi, listOfHashIDs);
  
-  return m_listOfHashIDs;
+  return listOfHashIDs;
 
 }
 
