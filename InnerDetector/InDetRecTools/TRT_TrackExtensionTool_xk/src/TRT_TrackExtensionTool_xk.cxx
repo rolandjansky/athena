@@ -32,8 +32,7 @@ InDet::TRT_TrackExtensionTool_xk::TRT_TrackExtensionTool_xk
     m_updatortool ("Trk::KalmanUpdator_xk"                                                           ),
     m_selectortool("InDet::InDetTrtDriftCircleCutTool"                                               ),
     m_riontrackD("InDet::TRT_DriftCircleOnTrackTool/TRT_DriftCircleOnTrackTool"                      ),
-    m_riontrackN("InDet::TRT_DriftCircleOnTrackNoDriftTimeTool/TRT_DriftCircleOnTrackNoDriftTimeTool"),
-    m_trtcontainer("TRT_DriftCircles"                                                                )
+    m_riontrackN("InDet::TRT_DriftCircleOnTrackNoDriftTimeTool/TRT_DriftCircleOnTrackNoDriftTimeTool")
 {
   m_fieldmode       = "MapSolenoid"      ;
   m_trtmanager      = "TRT"              ;
@@ -68,7 +67,6 @@ InDet::TRT_TrackExtensionTool_xk::TRT_TrackExtensionTool_xk
   declareProperty("UseDriftRadius"         ,m_usedriftrad     );
   declareProperty("ScaleHitUncertainty"    ,m_scale_error     );
   declareProperty("SegmentFindMode"        ,m_segmentFindMode );
-  declareProperty("TRT_ClustersContainer"  ,m_trtcontainer    );   
   declareProperty("MagneticFieldMode"      ,m_fieldmode       );
   declareProperty("MinNumberSCTclusters"   ,m_minNumberSCT    );
   declareProperty("MinNumberPIXclusters"   ,m_minNumberPIX    );
@@ -204,7 +202,7 @@ StatusCode InDet::TRT_TrackExtensionTool_xk::initialize()
 
 
   //Initialize container
-  ATH_CHECK(m_trtcontainer.initialize());
+  ATH_CHECK(m_trtname.initialize());
 
   // Get output print level
   //
@@ -255,7 +253,7 @@ MsgStream& InDet::TRT_TrackExtensionTool_xk::dumpConditions( MsgStream& out ) co
   std::string s3; for(int i=0; i<n; ++i) s3.append(" "); s3.append("|");
   n     = 64-m_roadtool.type().size();
   std::string s6; for(int i=0; i<n; ++i) s6.append(" "); s6.append("|");
-  n     = 64-m_trtcontainer.key().size();
+  n     = 64-m_trtname.key().size();
   std::string s7; for(int i=0; i<n; ++i) s7.append(" "); s7.append("|");
   n     = 64-m_riontrackD.type().size();
   std::string s8; for(int i=0; i<n; ++i) s8.append(" "); s8.append("|");
@@ -265,7 +263,7 @@ MsgStream& InDet::TRT_TrackExtensionTool_xk::dumpConditions( MsgStream& out ) co
   out<<"|----------------------------------------------------------------------"
      <<"---------------------|"
      <<std::endl;
-  out<<"| TRT container           | "<<m_trtcontainer.key()           <<s7 <<std::endl;
+  out<<"| TRT container           | "<<m_trtname.key()           <<s7 <<std::endl;
   out<<"| Tool for propagation    | "<<m_proptool    .type()<<s1 <<std::endl;
   out<<"| Tool for updator        | "<<m_updatortool .type()<<s10<<std::endl;
   out<<"| Tool for rio  on trackD | "<<m_riontrackD.type()<<s8 <<std::endl;
@@ -343,6 +341,7 @@ std::ostream& InDet::operator <<
 
 void InDet::TRT_TrackExtensionTool_xk::newEvent()
 {
+  SG::ReadHandle<TRT_DriftCircleContainer> m_trtcontainer(m_trtname);
   if((not m_trtcontainer.isValid()) && m_outputlevel<=0) {
     msg(MSG::DEBUG)<<"Could not get TRT_DriftCircleContainer"<<endmsg;
   }
@@ -357,7 +356,7 @@ InDet::TRT_TrackExtensionTool_xk::extendTrack(const Trk::Track& Tr)
 { 
   m_measurement.clear();
 
- 
+  SG::ReadHandle<TRT_DriftCircleContainer> m_trtcontainer(m_trtname);
   if (not m_trtcontainer.isValid()) return m_measurement;
 
   const DataVector<const Trk::TrackStateOnSurface>* 
@@ -425,7 +424,12 @@ InDet::TRT_TrackExtensionTool_xk::findSegment(const Trk::TrackParameters& par)
   // Initiate trajectory
   //
   
-  const TRT_DriftCircleContainer* mjo_trtcontainer = m_trtcontainer.get();
+  const TRT_DriftCircleContainer* mjo_trtcontainer = 0;
+  SG::ReadHandle<TRT_DriftCircleContainer> m_trtcontainer(m_trtname);
+  if (m_trtcontainer.isValid()){
+    mjo_trtcontainer = m_trtcontainer.cptr();
+  } 
+
   m_trajectory.initiateForTRTSeed(gpos,DE,mjo_trtcontainer,Tp);
   
   if(m_trajectory.naElements() < nCut) return 0;
@@ -539,7 +543,13 @@ bool InDet::TRT_TrackExtensionTool_xk::isGoodExtension(const Trk::TrackParameter
 
   // Initiate trajectory
   //
-  const TRT_DriftCircleContainer* mjo_trtcontainer = m_trtcontainer.get();
+  const TRT_DriftCircleContainer* mjo_trtcontainer = 0;
+  SG::ReadHandle<TRT_DriftCircleContainer> m_trtcontainer(m_trtname);
+  if (m_trtcontainer.isValid()){
+    mjo_trtcontainer = m_trtcontainer.cptr();
+  }
+
+  
   m_trajectory.initiateForPrecisionSeed(gpos,DE,mjo_trtcontainer,Tp);
   if(m_trajectory.naElements() < m_minNumberDCs) return false;
 
@@ -566,6 +576,7 @@ bool InDet::TRT_TrackExtensionTool_xk::isGoodExtension(const Trk::TrackParameter
 Trk::Track* InDet::TRT_TrackExtensionTool_xk::newTrack(const Trk::Track& Tr)
 { 
 
+  SG::ReadHandle<TRT_DriftCircleContainer> m_trtcontainer(m_trtname);
   if (not m_trtcontainer.isValid()) return 0;
 
   const DataVector<const Trk::TrackStateOnSurface>* 

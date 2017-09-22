@@ -24,6 +24,7 @@
 #include "InDetRecToolInterfaces/ITRT_TrackExtensionTool.h"
 #include "TRT_TrackExtensionTool_xk/TRT_Trajectory_xk.h"
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
+#include "StoreGate/ReadHandleKey.h"
 
 class MsgStream;
 
@@ -111,10 +112,10 @@ namespace InDet{
       double                           m_scale_error    ; // Scalefactor for hit uncertainty
       std::string                      m_fieldmode      ; // Mode of magnetic field
       std::string                      m_trtmanager     ; // Name of TRT det. manager 
-      std::string                      m_trtname        ; // Name container with TRT clusters
+      //std::string                      m_trtname        ; // Name container with TRT clusters
 
       Trk::MagneticFieldProperties     m_fieldprop      ; // Magnetic field properties
-      SG::ReadHandle<TRT_DriftCircleContainer> m_trtcontainer;
+      SG::ReadHandleKey<TRT_DriftCircleContainer> m_trtname {this,"TRT_ClustersContainer","TRT_DriftCircles","RHK to retrieve TRT_DriftCircleContainer"};
       TRT_Trajectory_xk                         m_trajectory   ;
       std::vector<const Trk::MeasurementBase*>  m_measurement  ;
 

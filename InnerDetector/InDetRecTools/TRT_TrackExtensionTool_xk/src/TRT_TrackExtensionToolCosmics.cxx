@@ -31,8 +31,7 @@ InDet::TRT_TrackExtensionToolCosmics::TRT_TrackExtensionToolCosmics
 (const std::string& t,const std::string& n,const IInterface* p)
   : AthAlgTool(t,n,p),
     m_riontrackD("InDet::TRT_DriftCircleOnTrackTool/TRT_DriftCircleOnTrackToolUniversal"                      ),
-    m_riontrackN("InDet::TRT_DriftCircleOnTrackNoDriftTimeTool/TRT_DriftCircleOnTrackNoDriftTimeTool"),
-    m_trtcontainer("TRT_DriftCircles")
+    m_riontrackN("InDet::TRT_DriftCircleOnTrackNoDriftTimeTool/TRT_DriftCircleOnTrackNoDriftTimeTool")
 {
   m_trtmanager      = "TRT"             ;
   m_minNumberDCs    = 9                 ;
@@ -52,7 +51,7 @@ InDet::TRT_TrackExtensionToolCosmics::TRT_TrackExtensionToolCosmics
   declareProperty("SearchNeighbour"      ,m_searchNeighbour=false);
   declareProperty("MinNumberDriftCircles",m_minNumberDCs   );
   declareProperty("BoundaryCheck"        ,m_boundarycheck=false);
-  declareProperty("TRT_ClustersContainer",m_trtcontainer    );
+
 
   m_trtcylinder=0;
   m_trtdiscA=0;
@@ -116,7 +115,7 @@ StatusCode InDet::TRT_TrackExtensionToolCosmics::initialize()
 
 
   //Initialize container
-  ATH_CHECK(m_trtcontainer.initialize());
+  ATH_CHECK(m_trtname.initialize());
 
   return sc;
 
@@ -223,7 +222,7 @@ void InDet::TRT_TrackExtensionToolCosmics::newEvent()
     t = new Amg::Transform3D(r * Amg::Translation3D(Amg::Vector3D(0.,0.,-3000)));
     m_trtdiscC   = new Trk::DiscSurface    (t,1.,1200.);
   }
-
+  SG::ReadHandle<TRT_DriftCircleContainer> m_trtcontainer(m_trtname);
   if(not m_trtcontainer.isValid() && m_outputlevel<=0) {
     msg(MSG::DEBUG)<<"Could not get TRT_DriftCircleContainer"<<endmsg;
   }
@@ -238,7 +237,7 @@ InDet::TRT_TrackExtensionToolCosmics::extendTrack(const Trk::Track& Tr)
 { 
   m_measurement.erase(m_measurement.begin(), m_measurement.end());
 
-
+  SG::ReadHandle<TRT_DriftCircleContainer> m_trtcontainer(m_trtname);
   if(not m_trtcontainer.isValid()) return m_measurement;
 
   const DataVector<const Trk::TrackStateOnSurface>* 
@@ -270,6 +269,11 @@ InDet::TRT_TrackExtensionToolCosmics::extendTrack(const Trk::Track& Tr)
 void InDet::TRT_TrackExtensionToolCosmics::analyze_tpars(const std::vector<const Trk::TrackParameters* >* tpars)
 {
   msg(MSG::DEBUG)<<"Number of tpars: "<<tpars->size()<<endmsg;
+
+  SG::ReadHandle<TRT_DriftCircleContainer> m_trtcontainer(m_trtname);
+  if (!m_trtcontainer.isValid()) {
+    return;
+  }
   
   double lastz=-99999;
   std::vector< const Trk::TrackParameters* >::const_iterator parameterIter = tpars->begin();
@@ -407,6 +411,11 @@ InDet::TRT_TrackExtensionToolCosmics::extendTrack(const Trk::TrackParameters& pa
 const Trk::Perigee *per=dynamic_cast<const Trk::Perigee *>(&par);
   if (!per) {
     msg(MSG::FATAL)<<"Track perigee not found!"<<endmsg;
+    return m_measurement;
+  }
+
+  SG::ReadHandle<TRT_DriftCircleContainer> m_trtcontainer(m_trtname);
+  if (!m_trtcontainer.isValid()) {
     return m_measurement;
   }
 
