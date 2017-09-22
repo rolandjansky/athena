@@ -134,8 +134,6 @@
 + Event/EventBookkeeperAthenaPool
 + Event/EventBookkeeperMetaData
 + Event/EventBookkeeperTPCnv
-+ Event/EventCommonAthenaPool
-+ Event/EventCommonTPCnv
 + Event/EventContainers
 + Event/EventInfo
 + Event/EventInfoMgt
@@ -143,8 +141,6 @@
 + Event/EventPTCnv
 + Event/EventPrimitives
 + Event/EventTPCnv
-+ Event/FourMom
-+ Event/NavFourMom
 + Event/PyDumper
 + Event/xAOD/xAODBase
 + Event/xAOD/xAODCaloEvent
