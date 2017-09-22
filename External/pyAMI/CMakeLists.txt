@@ -8,6 +8,9 @@ if( ATLAS_RELEASE_MODE )
    return()
 endif()
 
+# for setuptools
+find_package( pytools )
+
 # Helper macro for building and installing the package(s). Documentation
 # to be written later...
 function( _setup_python_package name file md5 )
@@ -38,7 +41,6 @@ function( _setup_python_package name file md5 )
 
    # Make the package target depend on this one:
    add_dependencies( Package_pyAMI ${name} )
-   add_dependencies( ${name} distribute )
 
    # Get the package directory:
    atlas_get_package_dir( pkgDir )
