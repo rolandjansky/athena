@@ -71,16 +71,16 @@ private:
   StoreGateSvc*  m_storeGate;
   ToolHandle<FTK_SGHitInputI> m_hitInputTool; // input handler
   
-  TFile *file;
+  TFile *m_file;
 
   //for ConstGenTest  
-  int count_match;
-  int count_pass_filter;
-  double coverage;
+  int m_count_match;
+  int m_count_pass_filter;
+  double m_coverage;
 
   //for event filter
-  int nmuon;
-  double pt,eta,truth_phi;
+  int m_nmuon;
+  double m_pt,m_eta,m_truth_phi;
 
   int m_nevent;
   // Number of regions/banks
@@ -126,21 +126,21 @@ private:
   
   std::string m_sector_dir_path;//for const test
   std::string m_gcon_dir_path;//for const test
-  char c_sector_dir_path[200];
-  char c_gcon_dir_path[200];
+  char m_c_sector_dir_path[200];
+  char m_c_gcon_dir_path[200];
 
   int m_nplanes;
-  int  TotalDim;
-  int  TotalDim2;
-  int *npatterns;
-  int *ntracks;
+  int  m_TotalDim;
+  int  m_TotalDim2;
+  int *m_npatterns;
+  int *m_ntracks;
   TTree *m_tree[100]; // expanded from 64-->100 to allow for more ITk regions
 
   TTree *m_slicetree;
   TTree *m_montree;
   ULong64_t m_monval[100];
 
-  std::vector <short> int_c,int_phi,int_d0,int_z0,int_eta; 
+  std::vector <short> m_int_c,m_int_phi,m_int_d0,m_int_z0,m_int_eta; 
   std::vector<short> *m_intc;
   std::vector<short> *m_intphi;
   std::vector<short> *m_intd0;
@@ -195,34 +195,32 @@ private:
 
   
   // hit information
-  unsigned int nhits;
-  int nsinglemu;
-  std::vector<FTKRawHit> orig_hits;
-  std::vector<FTKTruthTrack> truth_track;
+  unsigned int m_nhits;
+  std::vector<FTKTruthTrack> m_truth_track;
   std::vector<FTKTruthTrack> m_trainingtracks; // list of good training tracks
-  std::vector<FTKHit> hitslist;//use hit infomation
+  std::vector<FTKHit> m_hitslist;//use hit infomation
   std::map<int, std::vector<FTKHit> > m_maphits;// map of the hits according the barcode
   
   // definitions of truth track 
   float m_PT_THRESHOLD;
   int m_TRAIN_PDG;
   
-  int *p_ss;
-  int *p_hashss;
-  double *tmphitc;
+  int *m_p_ss;
+  int *m_p_hashss;
+  double *m_tmphitc;
   
-  double *tmpxC;
-  double *tmpxD;
-  double *tmpxPhi;
-  double *tmpxCoto;
-  double *tmpxZ;
-  double *tmpcovx;
+  double *m_tmpxC2;
+  double *m_tmpxD2;
+  double *m_tmpxPhi2;
+  double *m_tmpxCoto2;
+  double *m_tmpxZ2;
+  double *m_tmpcovx2;
      
-  int addPattReturnCode;
+  int m_addPattReturnCode;
 
   //track parameter
-  double x0,y0;
-  double c,d,phi,z0,coto;
+  double m_x0,m_y0;
+  double m_c,m_d,m_phi,m_z0,m_coto;
    
   int m_nsector;
   float m_nhit;
@@ -245,39 +243,32 @@ private:
   double *m_tmpxZ;
   double *m_tmpcovx;
   
-  matrix Mtmp;
+  matrix m_Mtmp;
 
   //event definitions  
-  bool GoodTrack;
-  bool doPattgen;
+  bool m_GoodTrack;
+  bool m_doPattgen;
     
-  int tmp_sectorID;
-  int the_sectorID;
-  int *tmp_ssID; //TODO std::vector<int> tmp_SSID;
-  int *tmp_hashID; //TODO std::vector<int> tmp_SSID;
+  int m_tmp_sectorID;
+  int m_the_sectorID;
+  int *m_tmp_ssID; //TODO std::vector<int> tmp_SSID;
+  int *m_tmp_hashID; //TODO std::vector<int> tmp_SSID;
 
-  //for culcurate resolution
-  double dC;
-  double dD;
-  double dPhi;
-  double dZ0;
-  double dCoto;
+  ofstream m_file_resolution;
+  ofstream m_file_truthpar;
+  ofstream m_file_recpar;
+  ofstream m_file_coverage;
 
-  ofstream file_resolution;
-  ofstream file_truthpar;
-  ofstream file_recpar;
-  ofstream file_coverage;
+  char m_str_gcon_file_name[200];
+  char m_str_sector_file_name[200];
+  string m_gcon_path;
 
-  char str_gcon_file_name[200];
-  char str_sector_file_name[200];
-  string gcon_path;
-
-   FTKTrack base_trk;
+   FTKTrack m_base_trk;
    FTKConstantBank **m_constant; // constant banks
    bool m_const_test_mode;
 
-  double header[2];
-  double dummy;
+  double m_header[2];
+  double m_dummy;
 
   std::bitset<128> m_compsecbitmask;
 };
