@@ -6,7 +6,7 @@
 
 // $Id: DataLinkBase.h 783590 2016-11-11 00:38:09Z ssnyder $
 /**
- * @file AthLinks/DataLinkBase.h
+ * @file AthLinks/AthLinks/DataLinkBase.h
  * @author scott snyder <snyder@bnl.gov>
  * @date Nov, 2013
  * @brief Type-independent part of @c DataLink; holds the persistent state.

@@ -1,5 +1,5 @@
 // emacs: this is -*- c++ -*-
-/** @file Track.h */
+/** @file TrigInDetAnalysis/Track.h */
 
 #ifndef TIDA_TRACK_H
 #define TIDA_TRACK_H

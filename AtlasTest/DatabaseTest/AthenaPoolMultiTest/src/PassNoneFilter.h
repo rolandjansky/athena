@@ -7,7 +7,7 @@
 #ifndef ATHENAPOOLMULTITEST_PASSNONEFILTER_H
 #define ATHENAPOOLMULTITEST_PASSNONEFILTER_H
 /**
- * @file PassNoneFilter.h
+ * @file AthenaPoolMultiTest/src/PassNoneFilter.h
  * @brief class definition for PassNoneFilter
  */
  

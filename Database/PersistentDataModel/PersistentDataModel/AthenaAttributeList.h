@@ -3,7 +3,7 @@
 */
 
 /**
- * @file AthenaAttributeList.h
+ * @file PersistentDataModel/AthenaAttributeList.h
  *
  * @brief An AttributeList represents a logical row of attributes in a
  * metadata table.  The name and type of each attribute is given in an
