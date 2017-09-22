@@ -36,6 +36,7 @@
 #include <iostream>
 #include <exception>
 #include <map>
+#include <memory>
 #include <cmath>
 
 namespace CP {
@@ -67,7 +68,7 @@ namespace CP {
             HistHandler(const HistHandler & other);
             void Copy(const HistHandler & other);
         private:
-            TH1* m_H;
+            std::unique_ptr<TH1> m_H;
 
     };
 
@@ -100,7 +101,7 @@ namespace CP {
             virtual std::string GetBinName(unsigned int bin) const;
 
             virtual CorrectionCode FindBin(const xAOD::Muon & muon, int & bin) const;
-            private:
+        private:
             TH2* m_h;
             AxisHandler *m_x_handler;
             AxisHandler *m_y_handler;

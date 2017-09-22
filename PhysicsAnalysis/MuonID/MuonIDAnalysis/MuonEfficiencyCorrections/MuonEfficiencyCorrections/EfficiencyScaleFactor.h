@@ -40,8 +40,14 @@
 #include <exception>
 #include <map>
 #include <cmath>
+#include <memory>
 
 namespace CP {
+    typedef std::shared_ptr<HistHandler> HistHandler_Ptr;
+    typedef std::shared_ptr<IKinematicSystHandler> IKinematicSystHandler_Ptr;
+
+
+
     class SystematicSet;
     class EfficiencyScaleFactor {
 
@@ -66,7 +72,7 @@ namespace CP {
 
             /// Read SF histrograms from a given input file.
             bool ReadFromFile(std::string file, std::string time_unit);
-            HistHandler* ReadHistFromFile(std::string name, TFile* f, std::string time_unit);
+            HistHandler_Ptr ReadHistFromFile(std::string name, TFile* f, std::string time_unit);
 
             // mangle the histograms as required by the systematic being run
             void ApplySysVariation();
@@ -109,50 +115,52 @@ namespace CP {
         private:
 
             // use some maps for easy histo loading / arithmetics by name
-            typedef std::vector<HistHandler*> SFvec;
-            typedef std::vector<HistHandler*>::iterator iSFvec;
-            typedef std::vector<HistHandler*>::const_iterator ciSFvec;
+
+
+            typedef std::vector<HistHandler_Ptr> SFvec;
+            typedef std::vector<HistHandler_Ptr>::iterator iSFvec;
+            typedef std::vector<HistHandler_Ptr>::const_iterator ciSFvec;
 
             /// read the content of the correct bin in one of my histos. MCefficiencies actually do  not need a pt-dependet systematic
-            CorrectionCode GetContentFromHist(HistHandler* Hist, IKinematicSystHandler* PtDepHist, const xAOD::Muon& mu, float & SF, bool PtDepHistNeeded) const;
+            CorrectionCode GetContentFromHist(HistHandler_Ptr Hist, IKinematicSystHandler_Ptr PtDepHist, const xAOD::Muon& mu, float & SF, bool PtDepHistNeeded) const;
             /// read a vector of replica contents in the correct bin in one of my histos
             CorrectionCode GetContentReplicasFromHist(EfficiencyScaleFactor::SFvec &replicas, const xAOD::Muon& mu, std::vector<float> & SF);
 
             // adds weight*staterr to each bin (used for systematics)
             void AddStatErrors(float weight);
-            void AddStatErrors_histo(HistHandler* h, float weight);
+            void AddStatErrors_histo(HistHandler_Ptr h, float weight);
             // adds weight*syserr to each bin (used for systematics)
             void AddSysErrors(float weight);
-            void AddSysErrors_histo(HistHandler* h, HistHandler* hsys, float weight);
-            void AddSysErrors_vector(EfficiencyScaleFactor::SFvec &Vec, HistHandler* hsys, float weight);
+            void AddSysErrors_histo(HistHandler_Ptr h, HistHandler_Ptr hsys, float weight);
+            void AddSysErrors_vector(EfficiencyScaleFactor::SFvec &Vec, HistHandler_Ptr hsys, float weight);
             // package a TH1 in a HistHandler
-            HistHandler *package_histo(TH1* h);
+            HistHandler_Ptr package_histo(TH1* h);
 
             /// two more auxiliary methods that handle adding and scaling for
             /// any histo type, including the dreadful TH2Poly...
-            void AddHistos(HistHandler* & add_to, HistHandler* add_this, float weight);
-            void ScaleHisto(HistHandler* & h, float weight);
+            void AddHistos(HistHandler_Ptr & add_to, HistHandler_Ptr add_this, float weight);
+            void ScaleHisto(HistHandler_Ptr & h, float weight);
 
             // replica generation
             void GenerateReplicas(int nrep, int seed);
-            void GenerateReplicasFromHist(HistHandler* h, int nrep, int seed, EfficiencyScaleFactor::SFvec &repVector);
+            void GenerateReplicasFromHist(HistHandler_Ptr h, int nrep, int seed, EfficiencyScaleFactor::SFvec &repVector);
 
             //Some functions to clean up and copy the data
             void Clear();
             void DeleteOldReplicas(EfficiencyScaleFactor::SFvec &Vec, bool ClearVec = false);
             void CopyContent(const EfficiencyScaleFactor &other);
-            void CopyHistHandler(HistHandler* &own, const HistHandler* other);
+            void CopyHistHandler(HistHandler_Ptr &own, const HistHandler_Ptr other);
             void CopyReplicaVec(EfficiencyScaleFactor::SFvec &own, const EfficiencyScaleFactor::SFvec &other);
             /// the histograms needed to run
-            HistHandler* m_sf;
-            HistHandler* m_eff;
-            HistHandler* m_mc_eff;
-            HistHandler* m_sf_sys;
-            HistHandler* m_eff_sys;
-            HistHandler* m_mc_eff_sys;
+            HistHandler_Ptr m_sf;
+            HistHandler_Ptr m_eff;
+            HistHandler_Ptr m_mc_eff;
+            HistHandler_Ptr m_sf_sys;
+            HistHandler_Ptr m_eff_sys;
+            HistHandler_Ptr m_mc_eff_sys;
             // these are for the continuous pt dependent systematic if we have one
-            IKinematicSystHandler* m_sf_KineDepsys;
-            IKinematicSystHandler* m_eff_KineDepsys;
+            IKinematicSystHandler_Ptr m_sf_KineDepsys;
+            IKinematicSystHandler_Ptr m_eff_KineDepsys;
 
             // replicas, in case we use them
             SFvec m_sf_replicas;

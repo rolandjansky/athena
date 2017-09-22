@@ -67,21 +67,15 @@ namespace CP {
         if (this == &other) {
             return;
         }
-        if (m_H) {
-            delete m_H;
-        }
         if (other.m_H) {
-            m_H = dynamic_cast<TH1*>(other.m_H->Clone(Form("CloneOf_%s", m_H->GetName())));
+            m_H = std::unique_ptr<TH1>(dynamic_cast<TH1*>(other.m_H->Clone(Form("CloneOf_%s", m_H->GetName()))));
         }
     }
     HistHandler::HistHandler(const HistHandler & other) :
-                m_H(nullptr) {
+                m_H() {
         Copy(other);
     }
     HistHandler::~HistHandler() {
-        if (m_H) {
-            delete m_H;
-        }
     }
     double HistHandler::GetBinContent(int bin) const {
         if (!m_H) {
@@ -107,7 +101,7 @@ namespace CP {
     }
 
     TH1* HistHandler::GetHist() const {
-        return m_H;
+        return m_H.get();
     }
 
     //###########################################################################################################
