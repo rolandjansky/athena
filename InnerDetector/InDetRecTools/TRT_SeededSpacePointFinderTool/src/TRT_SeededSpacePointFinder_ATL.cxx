@@ -38,6 +38,8 @@
 //
 #include "TrkToolInterfaces/IPRD_AssociationTool.h"
 
+#include "StoreGate/ReadHandle.h"
+
 using namespace std;
 
 ///////////////////////////////////////////////////////////////////
@@ -48,10 +50,7 @@ InDet::TRT_SeededSpacePointFinder_ATL::TRT_SeededSpacePointFinder_ATL
 (const std::string& t,const std::string& n,const IInterface* p)
   : AthAlgTool(t,n,p),
     m_fieldServiceHandle("AtlasFieldSvc",n),
-    m_assotool("InDet::InDetPRD_AssociationToolGangedPixels"),
-    m_spacepointsPix("PixelSpacePoints"),
-    m_spacepointsSCT("SCT_SpacePoints"),
-    m_spacepointsOverlap("OverlapSpacePoints")
+    m_assotool("InDet::InDetPRD_AssociationToolGangedPixels")
 {
   m_fieldmode = "MapSolenoid"              ;
   m_ptmin     =   500.  ;  //Lowest pT of track.Up to 2000MeV bending in (r,phi) is +-4
@@ -77,9 +76,7 @@ InDet::TRT_SeededSpacePointFinder_ATL::TRT_SeededSpacePointFinder_ATL
   m_loadFull  = true    ;  //Load all the Si space points, otherwise only from the last 3 SCT layers
   m_doCosmics = false   ;  //Disable seed selection cuts when reconstructing cosmics tracks
 
-  //m_spacepointsSCT         = 0                   ;
-  //m_spacepointsOverlap     = 0                   ;
-
+  
   declareInterface<ITRT_SeededSpacePointFinder>(this);
 
   declareProperty("MagneticTool"          ,m_fieldServiceHandle    );
@@ -93,9 +90,6 @@ InDet::TRT_SeededSpacePointFinder_ATL::TRT_SeededSpacePointFinder_ATL
   declareProperty("Xi2C"                  ,m_xiC                   );
   declareProperty("Xi2TC"                 ,m_xiTC                  );
   declareProperty("Xi2FC"                 ,m_xiFC                  );
-  declareProperty("SpacePointsSCTName"    ,m_spacepointsSCT    );
-  declareProperty("SpacePointsPixelName"  ,m_spacepointsPix  );
-  declareProperty("SpacePointsOverlapName",m_spacepointsOverlap);
 
 }
 
@@ -156,9 +150,9 @@ StatusCode InDet::TRT_SeededSpacePointFinder_ATL::initialize()
   //
   if(msgLvl(MSG::DEBUG)){m_nprint=0; msg(MSG::DEBUG) << (*this) << endmsg;}
 
-  ATH_CHECK(m_spacepointsPix.initialize());
-  ATH_CHECK(m_spacepointsSCT.initialize());
-  ATH_CHECK(m_spacepointsOverlap.initialize()); 
+  ATH_CHECK(m_spacepointsPixname.initialize());
+  ATH_CHECK(m_spacepointsSCTname.initialize());
+  ATH_CHECK(m_spacepointsOverlapname.initialize()); 
 
   return sc;
 }
@@ -186,7 +180,7 @@ void InDet::TRT_SeededSpacePointFinder_ATL::newEvent ()
   if(m_loadFull){
     // Get pixel space points containers from store gate 
     //
-
+    SG::ReadHandle<SpacePointContainer> m_spacepointsPix(m_spacepointsPixname);
     if (m_spacepointsPix.isValid()) {
      SpacePointContainer::const_iterator spc =  m_spacepointsPix->begin  (); 
       SpacePointContainer::const_iterator spce =  m_spacepointsPix->end  ();
@@ -210,7 +204,7 @@ void InDet::TRT_SeededSpacePointFinder_ATL::newEvent ()
 
   // Get sct space points containers from store gate 
   //
-
+  SG::ReadHandle<SpacePointContainer> m_spacepointsSCT(m_spacepointsSCTname);
   if (m_spacepointsSCT.isValid()) {
 
     SpacePointContainer::const_iterator spc  =  m_spacepointsSCT->begin();
@@ -242,6 +236,7 @@ void InDet::TRT_SeededSpacePointFinder_ATL::newEvent ()
 
   // Get sct overlap space points containers from store gate 
   //
+  SG::ReadHandle<SpacePointOverlapCollection> m_spacepointsOverlap(m_spacepointsOverlapname);
   if (m_spacepointsOverlap.isValid()) {
     SpacePointOverlapCollection::const_iterator sp  = m_spacepointsOverlap->begin();
     SpacePointOverlapCollection::const_iterator spe = m_spacepointsOverlap->end  ();
@@ -281,7 +276,7 @@ void InDet::TRT_SeededSpacePointFinder_ATL::newRegion
   if(m_loadFull && vPixel.size()){
     // Get pixel space points containers from store gate 
     //
-
+    SG::ReadHandle<SpacePointContainer> m_spacepointsPix(m_spacepointsPixname);
     if (m_spacepointsPix.isValid()) {
       SpacePointContainer::const_iterator spce =  m_spacepointsPix->end  ();
 
@@ -314,7 +309,7 @@ void InDet::TRT_SeededSpacePointFinder_ATL::newRegion
   //
   if(vSCT.size()) {
 
-
+    SG::ReadHandle<SpacePointContainer> m_spacepointsSCT(m_spacepointsSCTname);
     if (m_spacepointsSCT.isValid()) {
 
       //SpacePointContainer::const_iterator spc  =  m_spacepointsSCT->begin();
@@ -408,9 +403,9 @@ MsgStream& InDet::TRT_SeededSpacePointFinder_ATL::dumpConditions( MsgStream& out
 {
   int n = 42-m_fieldServiceHandle.type().size();
   std::string s1; for(int i=0; i<n; ++i) s1.append(" "); s1.append("|");
-  n     = 42-m_spacepointsSCT.key().size();
+  n     = 42-m_spacepointsSCTname.key().size();
   std::string s3; for(int i=0; i<n; ++i) s3.append(" "); s3.append("|");
-  n     = 42-m_spacepointsOverlap.key().size();
+  n     = 42-m_spacepointsOverlapname.key().size();
   std::string s4; for(int i=0; i<n; ++i) s4.append(" "); s4.append("|");
   n     = 42-m_assotool.type().size();
   std::string s2; for(int i=0; i<n; ++i) s2.append(" "); s2.append("|");
@@ -431,9 +426,9 @@ MsgStream& InDet::TRT_SeededSpacePointFinder_ATL::dumpConditions( MsgStream& out
      <<std::endl;
   out<<"| Association tool        | "<<m_assotool.type()<<s2
      <<std::endl;
-  out<<"| SCT      space points   | "<<m_spacepointsSCT.key()<<s3
+  out<<"| SCT      space points   | "<<m_spacepointsSCTname.key()<<s3
      <<std::endl;
-  out<<"| Overlap  space points   | "<<m_spacepointsOverlap.key()<<s4
+  out<<"| Overlap  space points   | "<<m_spacepointsOverlapname.key()<<s4
      <<std::endl;
   out<<"| Magnetic field mode     | "<<fieldmode[mode]<<s5
      <<std::endl;

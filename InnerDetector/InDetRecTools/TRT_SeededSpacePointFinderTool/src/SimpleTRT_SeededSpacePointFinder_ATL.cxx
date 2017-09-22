@@ -43,8 +43,6 @@ InDet::SimpleTRT_SeededSpacePointFinder_ATL::SimpleTRT_SeededSpacePointFinder_AT
     m_directionEtaCut(0.5),
     m_positionPhiCut(5.),
     m_positionZ_Cut(250.),
-    m_spacepointsSCT("SCT_SpacePoints"),
-    m_spacepointsOverlap("OverlapSpacePoints"),
     m_pRegionSelector("RegSelSvc",n)
 {
 
@@ -53,8 +51,6 @@ InDet::SimpleTRT_SeededSpacePointFinder_ATL::SimpleTRT_SeededSpacePointFinder_AT
 
   declareProperty("RestrictROI"           ,m_useROI                );
   declareProperty("AssociationTool"       ,m_assoTool              );
-  declareProperty("SpacePointsSCTName"    ,m_spacepointsSCT        );                                                      
-  declareProperty("SpacePointsOverlapName",m_spacepointsOverlap    );
   declareProperty("MaxLayers"             ,m_maxLayers             );
   declareProperty("MaxHoles"              ,m_maxHoles              );
   declareProperty("PerigeeCut"            ,m_perigeeCut            );
@@ -124,8 +120,8 @@ StatusCode InDet::SimpleTRT_SeededSpacePointFinder_ATL::initialize()
 
   setupLookUpTable();
 
-  ATH_CHECK(m_spacepointsSCT.initialize());
-  ATH_CHECK(m_spacepointsOverlap.initialize());
+  ATH_CHECK(m_spacepointsSCTname.initialize());
+  ATH_CHECK(m_spacepointsOverlapname.initialize());
 
   return sc;
 }
@@ -294,7 +290,7 @@ void InDet::SimpleTRT_SeededSpacePointFinder_ATL::getSpacePointsInROI(std::set<I
   const std::set<IdentifierHash>::const_iterator endSCT_Hashes = setOfSCT_Hashes.end();
   
   // retrieve SP Container
- 
+  SG::ReadHandle<SpacePointContainer> m_spacepointsSCT(m_spacepointsSCTname);
   if(m_spacepointsSCT.isValid()) 
     {
       // loop over SP collections in SP container
@@ -371,7 +367,7 @@ void InDet::SimpleTRT_SeededSpacePointFinder_ATL::getSpacePointsInROI(std::set<I
     }
 
   // retrieve the overlap collection
-
+  SG::ReadHandle<SpacePointOverlapCollection> m_spacepointsOverlap(m_spacepointsOverlapname);
   if(m_spacepointsOverlap.isValid()) 
     {
 

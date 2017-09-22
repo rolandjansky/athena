@@ -117,8 +117,8 @@ namespace InDet{
       ///////////////////////////////////////////////////////////////////
 
 
-      SG::ReadHandle<SpacePointContainer>         m_spacepointsSCT            ;
-      SG::ReadHandle<SpacePointOverlapCollection> m_spacepointsOverlap        ;
+      SG::ReadHandleKey<SpacePointContainer>         m_spacepointsSCTname {this,"SpacePointsSCTName","SCT_SpacePoints","RHK to retrieve SCT SpacePointContainer"}            ;
+      SG::ReadHandleKey<SpacePointOverlapCollection> m_spacepointsOverlapname {this,"SpacePointsSCTName","OverlapSpacePoints","RHK to retrieve OverlapCollection"}        ;
 
 
 
