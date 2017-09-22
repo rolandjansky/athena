@@ -32,12 +32,12 @@ namespace TrigConf {
    
    class L1PSNumber {
    private:
-      unsigned int n;
-      unsigned int m;
-      unsigned int d;
-      int s;
-      float psFloat;
-      int64_t psLong;
+      unsigned int m_n;
+      unsigned int m_m;
+      unsigned int m_d;
+      int m_s;
+      float m_psFloat;
+      int64_t m_psLong;
       // CONSTANT MASKs
       static const uint32_t NMASK = 0x00FFFFFF;
       static const uint32_t MMASK = 0xF0000000;
@@ -52,8 +52,8 @@ namespace TrigConf {
       static int64_t makeLong(unsigned int n, unsigned int m, unsigned int d);
 
       // private constant for decoding floats
-      static const int auxLength = 79;
-      static const unsigned int psAuxValues[79][2];
+      static const int s_auxLength = 79;
+      static const unsigned int s_psAuxValues[79][2];
 
    public:
       L1PSNumber();
@@ -71,13 +71,13 @@ namespace TrigConf {
       std::string write();
 
       // Getters
-      unsigned int getN() const { return n; };
-      unsigned int getM() const { return m; };
-      unsigned int getD() const { return d; };
-      int          getSign() const { return s; };
-      float        getFloatPrescale() const { return psFloat; };
-      int64_t      getInt64() const { return psLong; };
-      int          getInt32() const { return n*s; };
+      unsigned int getN() const { return m_n; };
+      unsigned int getM() const { return m_m; };
+      unsigned int getD() const { return m_d; };
+      int          getSign() const { return m_s; };
+      float        getFloatPrescale() const { return m_psFloat; };
+      int64_t      getInt64() const { return m_psLong; };
+      int          getInt32() const { return m_n*m_s; };
 
    };
 }
