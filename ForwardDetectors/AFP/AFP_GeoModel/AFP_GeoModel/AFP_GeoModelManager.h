@@ -33,7 +33,7 @@ class AFP_GeoModelManager : public GeoVDetectorManager  {
 
   const AFP_GeoModelManager & operator=(const AFP_GeoModelManager &right);
   AFP_GeoModelManager(const AFP_GeoModelManager &right);
-  std::vector<PVLink> volume;
+  std::vector<PVLink> m_volume;
 };
 
 // Class AFP_GeoModelManager
