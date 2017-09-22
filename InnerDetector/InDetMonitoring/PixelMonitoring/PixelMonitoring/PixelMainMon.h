@@ -46,7 +46,10 @@ class TProfile2D;
 class TProfile_LW;
 class TProfile2D_LW;
 namespace InDetDD{ class PixelDetectorManager;}
-namespace InDet{ class PixelCluster;}
+namespace InDet{ 
+  class PixelCluster;
+  class IInDetTrackSelectionTool;
+}
 namespace Trk{ 
    class SpacePoint;
    class ITrackHoleSearchTool;
@@ -179,6 +182,7 @@ private:
    ServiceHandle <IPixelCablingSvc> m_pixelCableSvc;
    ServiceHandle <IBLParameterSvc> m_IBLParameterSvc;
    ToolHandle<Trk::ITrackHoleSearchTool>     m_holeSearchTool;
+   ToolHandle<InDet::IInDetTrackSelectionTool> m_trackSelTool;
    ToolHandle<ILuminosityTool> m_lumiTool;
 
    //IPixelByteStreamErrorsSvc* m_ErrorSvc;
