@@ -44,7 +44,6 @@
 + Control/DataModelRoot
 + Control/GaudiSequencer
 + Control/IOVSvc
-+ Control/MinimalRunTime
 + Control/Navigation
 + Control/PerformanceMonitoring/PerfMonAna
 + Control/PerformanceMonitoring/PerfMonComps
@@ -157,7 +156,6 @@
 + Event/xAOD/xAODTruthCnv
 + External/AtlasDataArea
 + External/AtlasPyFwdBwdPorts
-+ External/CheckerGccPlugins
 + External/pyAMI
 + Generators/GenInterfaces
 + Generators/GeneratorObjects
@@ -307,7 +305,6 @@
 + Simulation/ISF/ISF_Geant4/ISF_Geant4Services
 + Simulation/ISF/ISF_Geant4/ISF_Geant4Tools
 + Simulation/ISF/ISF_HepMC/ISF_HepMC_Interfaces
-+ Simulation/ISF/ISF_HepMC/ISF_HepMC_Services
 + Simulation/ISF/ISF_HepMC/ISF_HepMC_Tools
 + Simulation/ISF/ISF_SimulationSelectors
 + Simulation/ISF/ISF_Tracking/ISF_TrackingInterfaces
