@@ -150,7 +150,6 @@ namespace InDet {
     Amg::Vector3D m_vertex;
     ServiceHandle<IBeamCondSvc> m_iBeamCondSvc; 
 
-    Event* m_event;
     int m_numberOfEvents;
     const InDetDD::SCT_DetectorManager* m_manager; 
     // const InDetDD::PixelDetectorManager* m_managerPixel;     // unused

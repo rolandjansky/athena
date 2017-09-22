@@ -64,7 +64,6 @@ namespace InDet {
     m_yVertex(0.),
     m_zVertex(0.),
     m_iBeamCondSvc("BeamCondSvc",name),
-    m_event(nullptr),
     m_numberOfEvents(0),
     m_manager(0),
     m_idHelper(nullptr),

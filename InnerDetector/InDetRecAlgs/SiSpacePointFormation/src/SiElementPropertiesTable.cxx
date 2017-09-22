@@ -19,7 +19,7 @@ namespace InDet{
 SiElementPropertiesTable::SiElementPropertiesTable(const SCT_ID&  idHelper,
     const InDetDD::SiDetectorElementCollection& elements,
     float   epsilonWidth) 
-    : m_elements(elements),m_epsilonWidth(epsilonWidth){
+    : m_elements(elements){
   m_maxSCT = idHelper.wafer_hash_max();
   m_properties.reserve(m_maxSCT);
   for (int i = 0; i < m_maxSCT; ++i){
