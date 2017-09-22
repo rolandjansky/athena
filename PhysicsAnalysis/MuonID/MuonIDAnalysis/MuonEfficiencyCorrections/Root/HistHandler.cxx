@@ -122,16 +122,11 @@ namespace CP {
             return *this;
         }
         Copy(other);
-        if (m_x_handler) {
-            delete m_x_handler;
-        }
-        m_x_handler = (other.GetHist() == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.GetHist()->GetXaxis()));
+        m_x_handler = AxisHandler_Ptr(other.GetHist() == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.GetHist()->GetXaxis()));
         return *this;
     }
     HistHandler_TH1::~HistHandler_TH1() {
-        if (m_x_handler) {
-            delete m_x_handler;
-        }
+
     }
     int HistHandler_TH1::NBins() const {
         return GetHist()->GetNbinsX() + 2;
@@ -194,20 +189,11 @@ namespace CP {
         if (this == &other) {
             return *this;
         }
-
-        if (m_x_handler) {
-            delete m_x_handler;
-        }
-        if (m_y_handler) {
-            delete m_y_handler;
-        }
-        m_x_handler = (other.GetHist() == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.GetHist()->GetXaxis()));
-        m_y_handler = (other.GetHist() == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.GetHist()->GetYaxis()));
+        m_x_handler = AxisHandler_Ptr(other.GetHist() == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.GetHist()->GetXaxis()));
+        m_y_handler = AxisHandler_Ptr(other.GetHist() == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.GetHist()->GetYaxis()));
         return *this;
     }
     HistHandler_TH2::~HistHandler_TH2() {
-        if (m_x_handler) delete m_x_handler;
-        if (m_y_handler) delete m_y_handler;
     }
     HistHandler_TH2::HistHandler_TH2(const HistHandler_TH2 & other) :
                 HistHandler(other),
@@ -221,7 +207,7 @@ namespace CP {
         TAxis* xAx = GetHist()->GetXaxis();
         TAxis* yAx = GetHist()->GetYaxis();
         return Form("%s_%.2f-%.2f--%s_%.2f-%.2f",
-        //xAxis
+               //xAxis
                 xAx->GetTitle(), xAx->GetBinLowEdge(x), xAx->GetBinUpEdge(x),
                 //yAxis
                 yAx->GetTitle(), yAx->GetBinLowEdge(y), yAx->GetBinUpEdge(y)
@@ -251,33 +237,15 @@ namespace CP {
     }
 
     HistHandler_TH3::~HistHandler_TH3() {
-        if (m_x_handler) {
-            delete m_x_handler;
-        }
-        if (m_y_handler) {
-            delete m_y_handler;
-        }
-        if (m_z_handler) {
-            delete m_z_handler;
-        }
     }
     HistHandler_TH3 & HistHandler_TH3::operator =(const HistHandler_TH3 & other) {
         if (this == &other) {
             return *this;
         }
         Copy(other);
-        if (m_x_handler) {
-            delete m_x_handler;
-        }
-        if (m_y_handler) {
-            delete m_y_handler;
-        }
-        if (m_z_handler) {
-            delete m_z_handler;
-        }
-        m_x_handler = (other.m_h == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.m_h->GetXaxis()));
-        m_y_handler = (other.m_h == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.m_h->GetYaxis()));
-        m_z_handler = (other.m_h == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.m_h->GetZaxis()));
+        m_x_handler = AxisHandler_Ptr(other.m_h == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.m_h->GetXaxis()));
+        m_y_handler = AxisHandler_Ptr(other.m_h == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.m_h->GetYaxis()));
+        m_z_handler = AxisHandler_Ptr(other.m_h == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.m_h->GetZaxis()));
         return *this;
     }
     int HistHandler_TH3::NBins() const {
@@ -345,25 +313,12 @@ namespace CP {
             return *this;
         }
         Copy(other);
-        if (m_x_handler) {
-            delete m_x_handler;
-        }
-        if (m_y_handler) {
-            delete m_y_handler;
-        }
-        m_x_handler = (other.m_h == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.m_h->GetXaxis()));
-        m_y_handler = (other.m_h == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.m_h->GetYaxis()));
+        m_x_handler = AxisHandler_Ptr(other.m_h == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.m_h->GetXaxis()));
+        m_y_handler = AxisHandler_Ptr(other.m_h == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.m_h->GetYaxis()));
         return *this;
     }
 
     HistHandler_TH2Poly::~HistHandler_TH2Poly() {
-        if (m_x_handler) {
-            delete m_x_handler;
-        }
-        if (m_y_handler) {
-            delete m_y_handler;
-        }
-
     }
     int HistHandler_TH2Poly::NBins() const {
         return m_h->GetNumberOfBins() + 1;

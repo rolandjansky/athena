@@ -42,6 +42,7 @@
 namespace CP {
 
     class AxisHandler;
+    typedef std::unique_ptr<AxisHandler> AxisHandler_Ptr;
     class HistHandler {
             /// @class HistHandler
             /// @brief  utility class to avoid having to determine the input histo at every single
@@ -85,7 +86,7 @@ namespace CP {
             virtual std::string GetBinName(unsigned int bin) const;
             virtual CorrectionCode FindBin(const xAOD::Muon & muon, int & bin) const;
         private:
-            AxisHandler *m_x_handler;
+            AxisHandler_Ptr m_x_handler;
     };
 
     class HistHandler_TH2: public HistHandler {
@@ -103,8 +104,8 @@ namespace CP {
             virtual CorrectionCode FindBin(const xAOD::Muon & muon, int & bin) const;
         private:
             TH2* m_h;
-            AxisHandler *m_x_handler;
-            AxisHandler *m_y_handler;
+            AxisHandler_Ptr m_x_handler;
+            AxisHandler_Ptr m_y_handler;
     };
 
     class HistHandler_TH3: public HistHandler {
@@ -123,9 +124,9 @@ namespace CP {
 
         private:
             TH3* m_h;
-            AxisHandler *m_x_handler;
-            AxisHandler *m_y_handler;
-            AxisHandler *m_z_handler;
+            AxisHandler_Ptr m_x_handler;
+            AxisHandler_Ptr m_y_handler;
+            AxisHandler_Ptr m_z_handler;
     };
 
     class HistHandler_TH2Poly: public HistHandler {
@@ -144,8 +145,8 @@ namespace CP {
 
         private:
             TH2Poly* m_h;
-            AxisHandler *m_x_handler;
-            AxisHandler *m_y_handler;
+            AxisHandler_Ptr m_x_handler;
+            AxisHandler_Ptr m_y_handler;
     };
 
     class AxisHandler {
@@ -156,7 +157,7 @@ namespace CP {
     };
     class AxisHandlerProvider {
         public:
-            static AxisHandler *GetAxisHandler(const TAxis* axis);
+            static AxisHandler* GetAxisHandler(const TAxis* axis);
             static std::string EraseWhiteSpaces(std::string str);
     };
 
