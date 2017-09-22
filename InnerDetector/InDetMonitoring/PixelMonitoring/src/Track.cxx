@@ -35,6 +35,7 @@
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkTrackSummary/InDetTrackSummary.h"
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
+#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 #include "PixelMonitoring/Components.h"
 #include "PixelMonitoring/PixelMon2DMapsLW.h"
 #include "PixelMonitoring/PixelMon2DProfilesLW.h"
@@ -165,27 +166,19 @@ StatusCode PixelMainMon::FillTrackMon(void)
   ///
   /// Track Loop
   ///
-  for (int i=0; i<(int)m_tracks->size(); i++) 
+  TrackCollection::const_iterator itrack = m_tracks->begin();
+  TrackCollection::const_iterator itrack_end = m_tracks->end();
+  for ( ; itrack!= itrack_end; ++itrack)
     {
-      const Trk::Track *track0=(*m_tracks)[i];
-      if (track0 == 0) {
-	ATH_MSG_ERROR("no valid pointer to track!!!");
-	break;
-      }
+      const Trk::Track *track0=(*itrack);
+      if ( track0 ==0 || track0->perigeeParameters() == 0 || track0->trackSummary()==0 || track0->trackSummary()->get(Trk::numberOfPixelHits)==0 )
+        {
+	  ATH_MSG_DEBUG( "Track either invalid or it does not contain pixel hits, continuing..." );
+	  continue;
+        }
 
       const Trk::TrackSummary* summary = track0->trackSummary();
       const Trk::Perigee *measPerigee = dynamic_cast< const Trk::Perigee *>(track0->perigeeParameters());
-
-      ///
-      /// Check the track summary if it exists to see if there are pixel hits on this track.
-      /// if no hits, skip ahead
-      if (summary) {
-      	if (summary->get(Trk::numberOfPixelHits)==0) continue;
-      } else {
-      	ATH_MSG_INFO("No Track Summary Found"); 
-	continue;
-      }
-
       const Trk::Track* track = track0;
       int nbadclus=0;
       int ngoodclus=0;
@@ -207,6 +200,11 @@ StatusCode PixelMainMon::FillTrackMon(void)
 
       if ( measPerigee->pT()/1000.0 > 5.0 && fabs(measPerigee->eta()) < 2.5) passQualityCut = true;
 
+      if ( m_trackSelTool->accept(*track0) )
+        {
+	  passTightCut = true;
+        }
+      /*
       if ( ((fabs(measPerigee->eta()) <= 1.65 && summary->get(Trk::numberOfPixelHits)+summary->get(Trk::numberOfSCTHits) >= 9) ||
 	    (fabs(measPerigee->eta()) >  1.65 && summary->get(Trk::numberOfPixelHits)+summary->get(Trk::numberOfSCTHits) >= 11) ) &&
 	   (summary->get(Trk::numberOfNextToInnermostPixelLayerHits)+summary->get(Trk::numberOfInnermostPixelLayerHits ) > 0 ) &&
@@ -215,7 +213,7 @@ StatusCode PixelMainMon::FillTrackMon(void)
 	   (fabs(measPerigee->parameters()[Trk::z0]) < 150.0) ){
 	passTightCut = true;
       }
-
+      */
       if ( measPerigee->pT()/1000.0 > 5.0 &&
 	   ((fabs(measPerigee->eta()) <= 1.65 && summary->get(Trk::numberOfPixelHits)+summary->get(Trk::numberOfSCTHits) >= 9) ||
 	    (fabs(measPerigee->eta()) >  1.65 && summary->get(Trk::numberOfPixelHits)+summary->get(Trk::numberOfSCTHits) >= 11) ) &&
@@ -264,9 +262,7 @@ StatusCode PixelMainMon::FillTrackMon(void)
 	    ATH_MSG_INFO("pointer of TSOS to track parameters or associated surface is null");
 	    continue;
 	  }
-	  if ((*trackStateOnSurfaceIterator)->trackParameters()->associatedSurface()) {
-	    surfaceID = (*trackStateOnSurfaceIterator)->trackParameters()->associatedSurface().associatedDetectorElementIdentifier();
-	  }
+	  surfaceID = (*trackStateOnSurfaceIterator)->trackParameters()->associatedSurface().associatedDetectorElementIdentifier();
 	}
 
 	if ( !m_idHelper->is_pixel(surfaceID)) continue;
