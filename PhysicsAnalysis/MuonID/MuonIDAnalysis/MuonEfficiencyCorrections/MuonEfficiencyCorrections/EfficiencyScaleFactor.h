@@ -43,7 +43,7 @@
 #include <memory>
 
 namespace CP {
-    typedef std::shared_ptr<HistHandler> HistHandler_Ptr;
+
     typedef std::shared_ptr<IKinematicSystHandler> IKinematicSystHandler_Ptr;
 
 

@@ -73,6 +73,9 @@ namespace CP {
 
     };
 
+    typedef std::shared_ptr<HistHandler> HistHandler_Ptr;
+
+
     class HistHandler_TH1: public HistHandler {
 
         public:
