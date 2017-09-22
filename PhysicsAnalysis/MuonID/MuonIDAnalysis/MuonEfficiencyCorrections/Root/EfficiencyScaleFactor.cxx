@@ -25,7 +25,6 @@ namespace CP {
                 m_sf_replicas(),
                 m_eff_replicas(),
                 m_mc_eff_replicas(),
-                m_etaphi(),
                 m_sysType(),
                 m_is_lowpt(false),
                 m_respond_to_kineDepSyst(false),
@@ -172,7 +171,7 @@ namespace CP {
             return 0;
         }
         // replace the histos by clones so that we can close the files again
-        HistHandler_Ptr out = package_histo((TH1*) (histHolder->Clone(Form("%s_%s_%s%s", name.c_str(), f->GetName(), time_unit.c_str(), sysname().c_str()))));
+        HistHandler_Ptr out = package_histo((TH1*) (histHolder->Clone(Form("%s_%s_%s%s", name.c_str(), EfficiencyTypeName(m_Type).c_str(), time_unit.c_str(), sysname().c_str()))));
         if (histHolder) delete histHolder;
         return out;
     }
@@ -309,6 +308,7 @@ namespace CP {
         return res;
     }
     EfficiencyScaleFactor::~EfficiencyScaleFactor() {
+        std::cout<<"Dafuq"<<std::endl;
         Clear();
     }
     void EfficiencyScaleFactor::DeleteOldReplicas(EfficiencyScaleFactor::SFvec &Vec, bool ClearVec) {
@@ -318,6 +318,7 @@ namespace CP {
         if (ClearVec) Vec.clear();
     }
     void EfficiencyScaleFactor::Clear() {
+
         DeleteOldReplicas(m_sf_replicas, true);
         DeleteOldReplicas(m_eff_replicas, true);
         DeleteOldReplicas(m_mc_eff_replicas, true);
@@ -327,6 +328,7 @@ namespace CP {
         m_mc_eff.reset();
         m_mc_eff_sys.reset();
         m_sf_sys.reset();
+
         m_eff_sys.reset();
         m_sf_KineDepsys.reset();
         m_eff_KineDepsys.reset();

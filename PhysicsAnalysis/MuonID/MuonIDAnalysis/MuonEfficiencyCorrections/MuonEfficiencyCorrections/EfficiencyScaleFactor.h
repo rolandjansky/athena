@@ -167,9 +167,6 @@ namespace CP {
             SFvec m_eff_replicas;
             SFvec m_mc_eff_replicas;
 
-            // utility class to work with a fine eta phi binning
-            fineEtaPhiBinning m_etaphi;
-
             // the systematic variation type associated with this instance
             MuonEfficiencySystType m_sysType;
 

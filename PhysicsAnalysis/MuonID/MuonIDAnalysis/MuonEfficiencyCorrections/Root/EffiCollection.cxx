@@ -9,7 +9,8 @@
  *      Author: goblirsc
  */
 
-#include "MuonEfficiencyCorrections/EffiCollection.h"
+#include <MuonEfficiencyCorrections/EffiCollection.h>
+#include <MuonEfficiencyCorrections/EfficiencyScaleFactor.h>
 #include <TTree.h>
 namespace CP {
     std::vector<std::string> ToRemove { "GeV", "MeV", "[", "]", "{", "}", "(", ")", "#", " " };
@@ -116,12 +117,12 @@ namespace CP {
         m_lowpt_central_eff.reset();
         m_lowpt_calo_eff.reset();
 
-        m_central_eff = CollectionContainer_Ptr (new CP::EffiCollection::CollectionContainer(*(other.m_central_eff)));
-        m_calo_eff = CollectionContainer_Ptr (new CP::EffiCollection::CollectionContainer(*(other.m_calo_eff)));
-        m_forward_eff =CollectionContainer_Ptr (new CP::EffiCollection::CollectionContainer(*(other.m_forward_eff)));
+        m_central_eff = CollectionContainer_Ptr(new CP::EffiCollection::CollectionContainer(*(other.m_central_eff)));
+        m_calo_eff = CollectionContainer_Ptr(new CP::EffiCollection::CollectionContainer(*(other.m_calo_eff)));
+        m_forward_eff = CollectionContainer_Ptr(new CP::EffiCollection::CollectionContainer(*(other.m_forward_eff)));
         if (m_lowpt_transition > 0) {
-            m_lowpt_central_eff = CollectionContainer_Ptr (new CP::EffiCollection::CollectionContainer(*(other.m_lowpt_central_eff)));
-            m_lowpt_calo_eff = CollectionContainer_Ptr (new CP::EffiCollection::CollectionContainer(*(other.m_lowpt_calo_eff)));
+            m_lowpt_central_eff = CollectionContainer_Ptr(new CP::EffiCollection::CollectionContainer(*(other.m_lowpt_central_eff)));
+            m_lowpt_calo_eff = CollectionContainer_Ptr(new CP::EffiCollection::CollectionContainer(*(other.m_lowpt_calo_eff)));
         }
         return *this;
 
@@ -226,6 +227,17 @@ namespace CP {
         return false;
     }
     EffiCollection::~EffiCollection() {
+
+        std::cout << "Lalalala" << std::endl;
+        m_central_eff.reset();
+        m_calo_eff.reset();
+
+        m_forward_eff.reset();
+
+        m_lowpt_central_eff.reset();
+        m_lowpt_calo_eff.reset();
+
+        std::cout << "Effi Collectiion destructor" << std::endl;
     }
     std::string EffiCollection::FileTypeName(EffiCollection::CollectionType T) {
         if (T == CollectionType::Central) return "Central ";
@@ -363,7 +375,13 @@ namespace CP {
         return m_SF.begin()->second->sysname();
     }
     EffiCollection::CollectionContainer::~CollectionContainer() {
+        std::cout << "Collection container destructor" << std::endl;
+        for (auto& SF : m_SF) {
+            std::cout << "Kaffee" << std::endl;
+            SF.second = EfficiencyScaleFactor_Ptr();
+        }
         m_SF.clear();
+        std::cout << "Go we here?!" << std::endl;
     }
 
     CP::EffiCollection::CollectionContainer& EffiCollection::CollectionContainer::operator =(const EffiCollection::CollectionContainer & other) {
@@ -377,7 +395,8 @@ namespace CP {
         m_currentSF = m_SF.end();
         return *this;
     }
-    EffiCollection::CollectionContainer::CollectionContainer(const CollectionContainer & other) {
+    EffiCollection::CollectionContainer::CollectionContainer(const CollectionContainer & other) :
+                m_FileType(other.m_FileType) {
         for (auto& period : other.m_SF) {
             m_SF[period.first] = std::shared_ptr < EfficiencyScaleFactor > (new EfficiencyScaleFactor(*period.second));
         }

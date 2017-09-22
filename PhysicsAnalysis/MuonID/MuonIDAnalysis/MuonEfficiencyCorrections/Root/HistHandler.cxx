@@ -8,6 +8,18 @@
 #include <cstdint>
 #include <cstring>
 
+#include <TH1.h>
+#include <TH2.h>
+#include <TH3.h>
+
+#include <TH1F.h>
+#include <TH2F.h>
+#include <TH3F.h>
+
+#include <TH1D.h>
+#include <TH2D.h>
+#include <TH3D.h>
+
 namespace CP {
 
     //###########################################################################################################
@@ -60,7 +72,7 @@ namespace CP {
     //###########################################################################################################
     HistHandler::HistHandler(TH1* Hist) :
                 m_H(Hist) {
-        if (m_H) m_H->SetDirectory(0);
+        if (m_H.get() != nullptr) m_H->SetDirectory(nullptr);
     }
 
     void HistHandler::Copy(const HistHandler & other) {
@@ -68,7 +80,7 @@ namespace CP {
             return;
         }
         if (other.m_H) {
-            m_H = std::unique_ptr<TH1>(dynamic_cast<TH1*>(other.m_H->Clone(Form("CloneOf_%s", m_H->GetName()))));
+            m_H = std::unique_ptr < TH1 > (dynamic_cast<TH1*>(other.m_H->Clone(Form("CloneOf_%s", m_H->GetName()))));
         }
     }
     HistHandler::HistHandler(const HistHandler & other) :
@@ -76,6 +88,12 @@ namespace CP {
         Copy(other);
     }
     HistHandler::~HistHandler() {
+        std::cout << m_H.get()->GetName() << std::endl;
+        std::unique_ptr<TH1>* Komisch = new std::unique_ptr<TH1>();
+        Komisch->swap(m_H);
+        m_H = std::unique_ptr < TH1 > (nullptr);
+
+        std::cout << "Wieso" << std::endl;
     }
     double HistHandler::GetBinContent(int bin) const {
         if (!m_H) {
@@ -207,7 +225,7 @@ namespace CP {
         TAxis* xAx = GetHist()->GetXaxis();
         TAxis* yAx = GetHist()->GetYaxis();
         return Form("%s_%.2f-%.2f--%s_%.2f-%.2f",
-               //xAxis
+        //xAxis
                 xAx->GetTitle(), xAx->GetBinLowEdge(x), xAx->GetBinUpEdge(x),
                 //yAxis
                 yAx->GetTitle(), yAx->GetBinLowEdge(y), yAx->GetBinUpEdge(y)

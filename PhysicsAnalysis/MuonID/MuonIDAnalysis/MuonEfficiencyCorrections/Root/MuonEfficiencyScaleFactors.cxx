@@ -11,6 +11,8 @@
 
 #include "MuonEfficiencyCorrections/MuonEfficiencyScaleFactors.h"
 #include "MuonEfficiencyCorrections/MuonEfficiencyType.h"
+#include "MuonEfficiencyCorrections/EffiCollection.h"
+
 
 #include "PATInterfaces/SystematicCode.h"
 #include "PATInterfaces/SystematicRegistry.h"
@@ -24,15 +26,13 @@ namespace CP {
                 asg::AsgTool(name),
                 m_wp("Medium"),
                 m_sf_sets(),
-                m_current_sf(0),
+                m_current_sf(),
                 m_custom_dir(),
                 m_custom_file_Combined(),
                 m_custom_file_Calo(),
                 m_custom_file_HighEta(),
                 m_custom_file_LowPt(),
                 m_custom_file_LowPtCalo(),
-                m_version_string(),
-                m_sys_string(),
                 m_filtered_sys_sets(),
                 m_efficiency_decoration_name_data(),
                 m_efficiency_decoration_name_mc(),
@@ -84,7 +84,11 @@ namespace CP {
     }
 
     MuonEfficiencyScaleFactors::~MuonEfficiencyScaleFactors() {
-   
+        m_sf_sets.clear();
+        std::cout<<"Detructor called"<<std::endl;
+
+
+
     }
 
     StatusCode MuonEfficiencyScaleFactors::initialize() {
@@ -543,8 +547,6 @@ namespace CP {
         m_custom_file_HighEta = toCopy.m_custom_file_HighEta;
         m_custom_file_LowPt = toCopy.m_custom_file_LowPt;
         m_custom_file_LowPtCalo = toCopy.m_custom_file_LowPtCalo;
-        m_version_string = toCopy.m_version_string;
-        m_sys_string = toCopy.m_sys_string;
         m_filtered_sys_sets = toCopy.m_filtered_sys_sets;
         m_efficiency_decoration_name_data = toCopy.m_efficiency_decoration_name_data;
         m_efficiency_decoration_name_mc = toCopy.m_efficiency_decoration_name_mc;

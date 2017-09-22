@@ -127,10 +127,6 @@ namespace CP {
             std::string m_custom_file_LowPt;
             std::string m_custom_file_LowPtCalo;
 
-            // info to apply to the muon when in audit mode
-            std::string m_version_string;
-            std::string m_sys_string;
-
             std::map<CP::SystematicSet, CP::SystematicSet> m_filtered_sys_sets;
 
             std::string m_efficiency_decoration_name_data;

@@ -16,17 +16,19 @@
 /// @brief Utility class to collect the separate histos
 /// for Calo, Central and High Eta muon SF
 
-#include <MuonEfficiencyCorrections/EfficiencyScaleFactor.h>
+
 #include <MuonEfficiencyCorrections/MuonEfficiencyType.h>
 
-#include "PATInterfaces/ISystematicsTool.h"
+
 #include "xAODMuon/Muon.h"
-#include <boost/unordered_map.hpp>
+
 #include <map>
 #include <string>
 #include <iostream>
 
 namespace CP {
+    class EfficiencyScaleFactor;
+
     typedef std::shared_ptr<EfficiencyScaleFactor> EfficiencyScaleFactor_Ptr;
 
     class EffiCollection {
