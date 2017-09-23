@@ -248,20 +248,21 @@ def cherry_pick_mr(merge_commit,source_branch,target_branch_rules,project,dry_ru
                 new_mr.notes.create({'body': notification_text})
 
     # compile comment about sweep results
-    comment = "**Sweep summary**  \n"
-    if good_branches:
-        comment += "successful:  \n* " + "\n* ".join(sorted(good_branches)) + "  \n  \n"
-    if failed_branches:
-        comment += "failed:  \n* " + "\n* ".join(sorted(failed_branches))
-        # add label to original MR indicating cherry-pick problem
-        mr_handle.labels = list(set(mr_handle.labels) | {"sweep:failed"})
-        mr_handle.save()
+    if len(target_branches) > 0:
+        comment = "**Sweep summary**  \n"
+        if good_branches:
+            comment += "successful:  \n* " + "\n* ".join(sorted(good_branches)) + "  \n  \n"
+        if failed_branches:
+            comment += "failed:  \n* " + "\n* ".join(sorted(failed_branches))
+            # add label to original MR indicating cherry-pick problem
+            mr_handle.labels = list(set(mr_handle.labels) | {"sweep:failed"})
+            mr_handle.save()
 
-    # add sweep summary to MR in Gitlab
-    try:
-        mr_handle.notes.create({'body': comment})
-    except GitlabCreateError as e:
-        logging.critical("failed to add comment with sweep summary with\n{0:s}".format(e.error_message))
+        # add sweep summary to MR in Gitlab
+        try:
+            mr_handle.notes.create({'body': comment})
+        except GitlabCreateError as e:
+            logging.critical("failed to add comment with sweep summary with\n{0:s}".format(e.error_message))
 
 def main():
     parser = argparse.ArgumentParser(description="GitLab merge request commentator",formatter_class=argparse.ArgumentDefaultsHelpFormatter)
