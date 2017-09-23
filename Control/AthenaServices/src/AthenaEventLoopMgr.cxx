@@ -635,8 +635,7 @@ StatusCode AthenaEventLoopMgr::executeAlgorithms(const EventContext& ctx) {
     // this duplicates what is already done in Algorithm::sysExecute, which
     // calls Algorithm::setExecuted, but eventually we plan to remove that 
     // function
-    m_aess->algExecState(*ita,ctx).setExecuted(true);
-    m_aess->algExecState(*ita,ctx).setExecStatus(sc);
+    m_aess->algExecState(*ita,ctx).setState(AlgExecState::State::Done, sc);
     if ( !sc.isSuccess() ) {
       m_msg << MSG::INFO  << "Execution of algorithm "
 	    << (*ita)->name() << " failed with StatusCode::" << sc

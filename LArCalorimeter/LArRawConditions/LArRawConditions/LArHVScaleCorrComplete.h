@@ -34,4 +34,13 @@ class LArHVScaleCorrComplete: public ILArHVScaleCorr ,
 
 };
 CLASS_DEF( LArHVScaleCorrComplete, 220593802,1)
+
+// SG_BASE(LArHVScaleCorrComplete, ILArHVScaleCorr);
+
+#include "AthenaKernel/CondCont.h"
+CONDCONT_BASE(LArHVScaleCorrComplete, ILArHVScaleCorr);
+CLASS_DEF( CondCont<LArHVScaleCorrComplete> , 84955454 , 1 )
+
+REGISTER_CC( LArHVScaleCorrComplete )
+
 #endif 
