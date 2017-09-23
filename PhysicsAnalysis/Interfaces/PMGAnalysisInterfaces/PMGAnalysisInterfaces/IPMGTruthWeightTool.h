@@ -31,9 +31,6 @@ namespace PMGTools
     ASG_TOOL_INTERFACE(xAOD::IPMGTruthWeightTool)
 
   public:
-    /// Create an instance of the index retriever
-    virtual std::shared_ptr<IPMGTruthWeightIndexRetriever> spawnTruthWeightIndexRetriever(std::string weightName) const = 0;
-
     /// Return vector of weight names (descriptions) from meta data
     virtual const std::vector<std::string>& getWeightNames() const = 0;
 
@@ -48,6 +45,11 @@ namespace PMGTools
 
     /// Check if a weight with the current name exists
     virtual bool hasWeight(const std::string& weightName) const = 0;
+
+  protected:
+    /// Create an instance of the index retriever
+    virtual std::shared_ptr<IPMGTruthWeightIndexRetriever> spawnTruthWeightIndexRetriever(std::string weightName) const = 0;
+
   }; // class IPMGTruthWeightTool
 
 } // namespace xAOD

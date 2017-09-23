@@ -35,9 +35,8 @@ atlas_add_library( PMGToolsLib
    PMGTools/*.h Root/*.cxx
    PUBLIC_HEADERS PMGTools
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools PATInterfaces
-   PRIVATE_LINK_LIBRARIES FourMomUtils xAODEventInfo xAODJet xAODTruth
-   PathResolver )
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools PATInterfaces xAODTruth
+   PRIVATE_LINK_LIBRARIES FourMomUtils PathResolver xAODEventInfo xAODJet )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( PMGTools
@@ -55,8 +54,8 @@ if( NOT XAOD_STANDALONE )
    atlas_add_executable( MyPMGApp
       test/MyPMGApp.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} AthAnalysisBaseCompsLib POOLRootAccessLib
-      AsgTools xAODJet xAODTruth FourMomUtils PATInterfaces )
+      LINK_LIBRARIES ${ROOT_LIBRARIES}
+      AsgTools AthAnalysisBaseCompsLib FourMomUtils PATInterfaces POOLRootAccessLib xAODJet xAODTruth )
 endif()
 
 # Test(s) in the package:
@@ -64,14 +63,12 @@ if( XAOD_STANDALONE )
    atlas_add_test( ut_PMGSherpa22VJetsWeightTool_test
       SOURCES test/ut_PMGSherpa22VJetsWeightTool_test.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODRootAccess PATInterfaces
-      PMGToolsLib )
+      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools PATInterfaces PMGToolsLib xAODRootAccess )
 
    atlas_add_test( ut_PMGSherpaVjetsSysTool_test
       SOURCES test/ut_PMGSherpaVjetsSysTool_test.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODRootAccess PATInterfaces
-      PMGToolsLib )
+      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools PATInterfaces PMGToolsLib xAODRootAccess )
 else()
    atlas_add_test( ut_PMGTruthWeightTool_test
       SOURCES test/ut_PMGTruthWeightTool_test.cxx

@@ -20,7 +20,10 @@ namespace PMGTools
   {
   public:
     /// Default constructor
-    IPMGTruthWeightIndexRetriever() : m_isValid(false) {};
+    IPMGTruthWeightIndexRetriever() {};
+
+    /// Default destructor
+    virtual ~IPMGTruthWeightIndexRetriever() {};
 
     /// Update indices from truth meta data
     virtual void update(const xAOD::TruthMetaData* const) = 0;
@@ -31,16 +34,10 @@ namespace PMGTools
     /// Return weight index
     virtual size_t getIndex() = 0;
 
-    /// Check whether the interface is valid
-    virtual bool isValid() {return m_isValid;}
+    /// Check whether the weight has an index in this event
+    virtual bool isValid() = 0;
 
   protected:
-    /// Default destructor
-    virtual ~IPMGTruthWeightIndexRetriever() {};
-
-    /// Switch to determine whether the interface has been initialised
-    bool m_isValid;
-
     /// Index of current weight
     size_t m_currentIndex;
   };

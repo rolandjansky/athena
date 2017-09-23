@@ -34,10 +34,7 @@ namespace PMGTools
 
   public:
     /// Create a constructor for standalone usage
-    PMGTruthWeightTool(const std::string& name = "PMGTools::PMGTruthWeightTool");
-
-    /// Default dtor
-    ~PMGTruthWeightTool() = default;
+    PMGTruthWeightTool(const std::string& name);
 
     /// @name Function(s) implementing the asg::IAsgTool interface
     /// @{
@@ -49,9 +46,6 @@ namespace PMGTools
 
     /// @name Function(s) implementing the IPMGTruthWeightTool interface
     /// @{
-
-    /// Implements interface from IPMGTruthWeightTool
-    virtual std::shared_ptr<IPMGTruthWeightIndexRetriever> spawnTruthWeightIndexRetriever(std::string weightName) const;
 
     /// Implements interface from IPMGTruthWeightTool
     const std::vector<std::string>& getWeightNames() const;
@@ -71,6 +65,14 @@ namespace PMGTools
     /// @}
 
   protected:
+    /// @name Function(s) implementing the IPMGTruthWeightTool interface
+    /// @{
+
+    /// Implements interface from IPMGTruthWeightTool
+    virtual std::shared_ptr<IPMGTruthWeightIndexRetriever> spawnTruthWeightIndexRetriever(std::string weightName) const;
+
+    /// @}
+
     /// @name Callback function(s) from AsgMetadataTool
     /// @{
 
@@ -98,7 +100,7 @@ namespace PMGTools
     mutable std::map<std::string, std::weak_ptr<IPMGTruthWeightIndexRetriever> > m_indexRetrievers;
 
     /// Previous MC channel number
-    uint32_t m_mcChanNo;
+    uint32_t m_mcChannelNumber;
 
     /// Flag to check if we actaully processed a previous event
     bool m_uninitialized;

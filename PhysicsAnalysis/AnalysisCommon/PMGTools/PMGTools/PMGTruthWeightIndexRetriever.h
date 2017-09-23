@@ -39,9 +39,12 @@ namespace PMGTools
     /// Implements interface from IPMGTruthWeightIndexRetriever
     virtual size_t getIndex();
 
+    /// Implements interface from IPMGTruthWeightIndexRetriever
+    virtual bool isValid();
+
   protected:
-    /// Default destructor
-    PMGTruthWeightIndexRetriever();
+    /// Switch to determine whether the interface has been initialised
+    bool m_isValid;
 
     /// Name of weight
     const std::string m_weightName;

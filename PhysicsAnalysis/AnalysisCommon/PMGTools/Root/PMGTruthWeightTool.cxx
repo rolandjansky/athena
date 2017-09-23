@@ -26,7 +26,7 @@ namespace PMGTools
   }
 
   StatusCode PMGTruthWeightTool::initialize() {
-    ATH_MSG_DEBUG("Initialising... ");
+    ATH_MSG_DEBUG("Initialising...");
     return StatusCode::SUCCESS;
   }
 
@@ -94,22 +94,22 @@ namespace PMGTools
     m_metaDataContainer = nullptr;
     m_poolWeightNames.clear();
 
-    if (inputMetaStore()->retrieve(m_metaDataContainer, m_metaName).isFailure()) {
+    // Check whether metadata exists in the store
+    if (inputMetaStore()->contains<xAOD::TruthMetaDataContainer>(m_metaName)) {
+      ATH_CHECK(inputMetaStore()->retrieve(m_metaDataContainer, m_metaName));
+    } else {
 #ifdef XAOD_STANDALONE
       // it's all over for eventloop release
       throw std::runtime_error("Cannot access metadata: " + m_metaName);
       return StatusCode::FAILURE;
-
 #else
       // for athena release, one more try ... the POOL metadata!
       // See https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/AthAnalysisBase#How_to_read_the_truth_weight_nam
       std::map<std::string, int> weightNamesMap;
 
-      if (AAH::retrieveMetadata("/Generation/Parameters", "HepMCWeightNames", weightNamesMap,
-                                inputMetaStore()).isFailure()) {
-        //ok now it really is all over
-        throw std::runtime_error(
-                name() + " : Cannot access metadata: " + m_metaName + " and failed to get names from IOVMetadata");
+      if (AAH::retrieveMetadata("/Generation/Parameters", "HepMCWeightNames", weightNamesMap, inputMetaStore()).isFailure()) {
+        // ok now it really is all over
+        throw std::runtime_error(name() + " : Cannot access metadata: " + m_metaName + " and failed to get names from IOVMetadata");
         return StatusCode::FAILURE;
       }
 
@@ -124,13 +124,11 @@ namespace PMGTools
 #endif
     }
 
-    if (m_metaDataContainer == nullptr) {
-      throw std::runtime_error("Cannot access metadata: " + m_metaName);
-    }
+
 
     // Set the current MC channel number to a large number to force updating
     // the meta data on the first event of the new file
-    m_mcChanNo = 999999999;
+    m_mcChannelNumber = 999999999;
     return StatusCode::SUCCESS;
   }
 
@@ -148,11 +146,11 @@ namespace PMGTools
       return StatusCode::FAILURE;
     }
 
-    if (m_uninitialized || (mcChannelNumber != m_mcChanNo)) {
+    if (m_uninitialized || (mcChannelNumber != m_mcChannelNumber)) {
       for (auto metaData : *m_metaDataContainer) {
         if (metaData->mcChannelNumber() == mcChannelNumber) {
           m_uninitialized = false;
-          m_mcChanNo = mcChannelNumber;
+          m_mcChannelNumber = mcChannelNumber;
           m_metaData = metaData;
           this->onNewMetaData();
           return StatusCode::SUCCESS;

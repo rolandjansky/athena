@@ -8,7 +8,9 @@
 namespace PMGTools
 {
   PMGTruthWeightIndexRetriever::PMGTruthWeightIndexRetriever(const std::string& weightName) :
-    m_weightName(weightName) {}
+    m_isValid(false),
+    m_weightName(weightName)
+  {}
 
 
   void PMGTruthWeightIndexRetriever::update(const xAOD::TruthMetaData* const truthMetaData) {
@@ -40,4 +42,9 @@ namespace PMGTools
     }
     return m_currentIndex;
   }
+
+  bool PMGTruthWeightIndexRetriever::isValid() {
+    return m_isValid;
+  }
+
 } // namespace PMGTools
