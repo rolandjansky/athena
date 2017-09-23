@@ -3130,6 +3130,7 @@ def setupMenu():
         ['mb_sptrk_noisesup_L1RD0_EMPTY',   'L1_RD0_EMPTY', [], ['MinBias'], ["RATE:Cosmic_MinBias", "BW:MinBias"], -1],
         
         #For Xe run
+        ['mb_sptrk_L1MBTS_1',   'L1_MBTS_1', [], ['MinBias'], ["RATE:MinBias", "BW:MinBias"], -1],
         ['mb_sptrk_L1MBTS_1_VTE2',   'L1_MBTS_1_VTE2', [], ['MinBias'], ["RATE:MinBias", "BW:MinBias"], -1],
         ['mb_sptrk_L1MBTS_1_VTE3',   'L1_MBTS_1_VTE3', [], ['MinBias'], ["RATE:MinBias", "BW:MinBias"], -1],
         ['mb_sptrk_L1MBTS_1_VTE4',   'L1_MBTS_1_VTE4', [], ['MinBias'], ["RATE:MinBias", "BW:MinBias"], -1],
@@ -5192,6 +5193,7 @@ chain_list=[
     'mb_sptrk_vetombts2in_L1ZDC_A_C',
     'mb_sptrk_trk80_L1MBTS_2',
     'mb_sptrk_pt2_L1MBTS_2',
+    'mb_sptrk_L1MBTS_1',
     'mb_sptrk_L1MBTS_1_VTE2',
     'mb_sptrk_L1MBTS_1_VTE3',
     'mb_sptrk_L1MBTS_1_VTE4',
