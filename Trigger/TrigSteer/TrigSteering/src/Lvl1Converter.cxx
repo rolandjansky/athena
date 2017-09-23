@@ -212,12 +212,6 @@ ErrorCode Lvl1Converter::hltExecute(std::vector<HLT::SteeringChain*>& chainsToRu
       return HLT::NO_LVL1_ITEMS;
    }
 
-   struct SeedingBits {
-     bool TAV{ false };
-     bool TBP{ false };
-   };
-   std::map<HLT::SteeringChain*, SeedingBits > seedingMap;
-
    for (const LVL1CTP::Lvl1Item* item : items) {
 
       bool l1BeforePrescale = item->isPassedBeforePrescale();
@@ -225,14 +219,12 @@ ErrorCode Lvl1Converter::hltExecute(std::vector<HLT::SteeringChain*>& chainsToRu
 
       if ( m_ignoreL1Prescales ) // undo L1 prescaling (only when JO says so)
          l1Passed = l1BeforePrescale;
-            
+
       // search for corresponding configured HLT chain(s):
       for(HLT::SteeringChain* chain : m_chainIdMap[ item->hashId() ]) {
-	       
+         // activate and push into vector of active chains
          if (chain) {
-	   auto & bits = seedingMap[chain]; // use the ref. as we want to modify the bits w/o indeksing map multiple times seedingMap[chain].second.TAV = seedingMap[chain].second.TAV or l1Passed;
-	   bits.TAV = bits.TAV or l1Passed;
-	   bits.TBP = bits.TBP or l1BeforePrescale;	   
+            addChain(chains, chain, l1Passed, l1BeforePrescale);
          } else {
             ATH_MSG_WARNING("No configured chain found,  that would match LVL1 item from previous level, this should not happen at thsi stage " << item->name());
          }
@@ -240,10 +232,6 @@ ErrorCode Lvl1Converter::hltExecute(std::vector<HLT::SteeringChain*>& chainsToRu
       // some debug output
       ATH_MSG_DEBUG( "Used LVL1 item " << item->name() << " (" << item->hashId() << ") "
                      << "TBP: "  <<  item->isPassedBeforePrescale() << " TAP: " << item->isPassedAfterPrescale()  << " TAV: " << item->isPassedAfterVeto());
-   }
-
-   for ( auto i : seedingMap ) {
-     addChain( chains, i.first, i.second.TAV, i.second.TBP );
    }
 
 

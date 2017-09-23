@@ -113,9 +113,9 @@ elif l1SeedingTest:
     ctpbits = "106:1,0 120:1,1\n" 
     ctpbits += "106:1,1 120:0,0 121:1,1\n" # L1_MU21 active
     ctpbits += "106:1,0 120:1,1 121:0,0\n"  # L1_MU20 acts ( the other is inactive )
-    ctpbits += "106:1,1 120:1,0 121:0,0\n" # MU_20 passed BP so re-run
-    ctpbits += "106:1,1 120:1,0 121:1,0\n" # both ok BP so re-run 
-    ctpbits += "106:1,1 120:0,0 121:0,0\n" # nothing is active, OR seeded chain should not be activated
+    ctpbits += "106:1,1 120:1,1 121:0,0\n"
+    ctpbits += "106:1,1 120:1,1 121:0,0\n"
+    ctpbits += "106:1,1 120:1,1 121:0,0\n"
     ctpbits += "106:1,1 120:1,0 121:0,0\n" # L1_MU20 activated but prescaled
 
     ctpfile=open("Lvl1CTPResults.txt", "w")
