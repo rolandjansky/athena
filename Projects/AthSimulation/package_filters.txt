@@ -356,7 +356,6 @@
 + Tracking/TrkDetDescr/TrkSurfaces
 + Tracking/TrkEvent/TrkEventPrimitives
 + Tracking/TrkEvent/TrkNeutralParameters
-+ Tracking/TrkEvent/TrkParameters
 + Tracking/TrkEvent/TrkParametersBase
 + Tracking/TrkEvent/TrkTrackLink
 
