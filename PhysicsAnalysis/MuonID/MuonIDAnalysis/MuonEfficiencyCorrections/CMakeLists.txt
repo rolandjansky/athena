@@ -22,7 +22,6 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODEventInfo
    Event/xAOD/xAODMuon
    PhysicsAnalysis/AnalysisCommon/PATInterfaces
-   PhysicsAnalysis/AnalysisCommon/PileupReweighting
    PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
    PhysicsAnalysis/Interfaces/MuonAnalysisInterfaces
    PRIVATE
@@ -35,13 +34,13 @@ atlas_depends_on_subdirs(
 find_package( Boost )
 find_package( ROOT COMPONENTS Core Tree RIO Hist Physics )
 
+
 # Libraries in the package:
 atlas_add_library( MuonEfficiencyCorrectionsLib
    MuonEfficiencyCorrections/*.h Root/*.cxx
    PUBLIC_HEADERS MuonEfficiencyCorrections
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AsgTools xAODEventInfo MuonAnalysisInterfacesLib
-   xAODMuon PATInterfaces
+   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AsgTools xAODMuon xAODEventInfo MuonAnalysisInterfacesLib PATInterfaces
    PRIVATE_LINK_LIBRARIES xAODTrigger PathResolver )
 
 if( NOT XAOD_STANDALONE )
