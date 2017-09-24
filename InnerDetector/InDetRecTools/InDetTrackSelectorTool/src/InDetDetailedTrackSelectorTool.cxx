@@ -983,7 +983,9 @@ namespace InDet
     //**-----------------------------------------------------------------------
 
     if(m_usePtDependentCuts) {
-      return false;
+      if (!track) {
+         return false;
+      }
       const AmgVector(5)& perigeeParms = track->parameters();
       double p = fabs(1./perigeeParms[Trk::qOverP]);  
       double pt = p*sin(perigeeParms[Trk::theta]);
