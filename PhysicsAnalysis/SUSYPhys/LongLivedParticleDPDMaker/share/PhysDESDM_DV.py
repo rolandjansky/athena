@@ -150,25 +150,25 @@ ToolSvc+=DVCombinedTracklessJetFilterToolForPhoton
 
 
 # Muon d0
-from LongLivedParticleDPDMaker.LongLivedParticleDPDMakerConf import DerivationFramework__RpvMuonD0Tool
-DVMuonD0 = DerivationFramework__RpvMuonD0Tool( name = "DVMuonD0",
-                                               CollectionName = muonContainer,
-                                               SGPrefix = "DV"+muonContainer,
-                                               )
-ToolSvc += DVMuonD0
-
-# Kernel for the augmentation tools
+#from LongLivedParticleDPDMaker.LongLivedParticleDPDMakerConf import DerivationFramework__RpvMuonD0Tool
+#DVMuonD0 = DerivationFramework__RpvMuonD0Tool( name = "DVMuonD0",
+#                                               CollectionName = muonContainer,
+#                                               SGPrefix = "DV"+muonContainer,
+#                                               )
+#ToolSvc += DVMuonD0
+#
+## Kernel for the augmentation tools
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-topSequence += DerivationFramework__DerivationKernel(
-    "RPVLL_DVAugmentationKernel",
-    AugmentationTools = [DVMuonD0],
-    )
+#topSequence += DerivationFramework__DerivationKernel(
+#    "RPVLL_DVAugmentationKernel",
+#    AugmentationTools = [DVMuonD0],
+#    )
 
 DVMuonTriggerFilter = skimtool( name = "DVMuonTriggerFilter",
                                 expression = DVTriggerSelectionString(primRPVLLDESDM.DV_MuonFilterFlags)
                                 )
 ToolSvc+=DVMuonTriggerFilter
-muonFilterExpression = "count("+muonContainer+".pt > "+str(primRPVLLDESDM.DV_MuonFilterFlags.cutEtMin)+" && (DV"+muonContainer+"isCombined==0 || abs(DV"+muonContainer+"D0)>1.5) )>0"
+muonFilterExpression = "count("+muonContainer+".pt > "+str(primRPVLLDESDM.DV_MuonFilterFlags.cutEtMin)+")>0"
 
 DVMuonFilterTool = skimtool( name = "DVMuonFilterTool",
                              expression = muonFilterExpression)
