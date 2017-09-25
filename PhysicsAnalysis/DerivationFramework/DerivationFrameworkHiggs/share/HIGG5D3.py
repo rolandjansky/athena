@@ -331,9 +331,6 @@ if not "HIGG5D3Jets" in OutputJets:
       #AntiKt4TruthJets
       addStandardJets("AntiKt", 0.4, "Truth", 5000, mods="truth_ungroomed", algseq=higg5d3Seq, outputGroup="HIGG5D3Jets")
       OutputJets["HIGG5D3Jets"].append("AntiKt4TruthJets")
-      #AntiKt4TruthWZJets
-      addStandardJets("AntiKt", 0.4, "TruthWZ", 5000, mods="truth_ungroomed", algseq=higg5d3Seq, outputGroup="HIGG5D3Jets")
-      OutputJets["HIGG5D3Jets"].append("AntiKt4TruthWZJets")
 
 higg5d3Seq += CfgMgr.DerivationFramework__DerivationKernel(
     "HIGG5D3Kernel",
