@@ -111,7 +111,6 @@ namespace CP {
             m_H->SetBinError(bin, val);
         }
     }
-
     TH1* HistHandler::GetHist() const {
         return m_H.get();
     }
@@ -138,7 +137,6 @@ namespace CP {
         return *this;
     }
     HistHandler_TH1::~HistHandler_TH1() {
-
     }
     int HistHandler_TH1::NBins() const {
         return GetHist()->GetNbinsX() + 2;
@@ -147,7 +145,6 @@ namespace CP {
         TAxis* xAx = GetHist()->GetXaxis();
         return Form("%s_%.2f-%.2f", xAx->GetTitle(), xAx->GetBinLowEdge(bin), xAx->GetBinUpEdge(bin));
     }
-
     CorrectionCode HistHandler_TH1::FindBin(const xAOD::Muon & muon, int & bin) const {
         if (!GetHist()) {
             bin = -1;
