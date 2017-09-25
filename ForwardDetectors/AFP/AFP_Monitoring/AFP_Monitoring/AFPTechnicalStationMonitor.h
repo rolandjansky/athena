@@ -15,7 +15,7 @@ class LWHist2D;
 
 class AFPTechnicalMonitorTool;
 class AFPTechnicalLayerMonitor;
-class AFP_SiRawData;
+class AFP_RawData;
 
 class AFPTechnicalStationMonitor
 {
@@ -26,7 +26,7 @@ public:
 
   //  void bookHistogramsRecurrent(ManagedMonitorToolBase* toolToStoreHistograms);
   void bookHistograms(AFPTechnicalMonitorTool* toolToStoreHistograms);
-  void fillHistograms(const AFP_SiRawData& hit);
+  void fillHistograms(const AFP_RawData& hit);
   void eventEnd();		///< method to call eventEnd in layers
 
   void endOfLumiBlock(AFPTechnicalMonitorTool* toolToStoreHistograms); ///< process histograms at the end of lumi block

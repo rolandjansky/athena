@@ -14,10 +14,8 @@ const InterfaceID &AFP_RawDataProviderTool::interfaceID() {
 AFP_RawDataProviderTool::AFP_RawDataProviderTool(const std::string &type,
                                                  const std::string &name,
                                                  const IInterface *parent)
-    : AthAlgTool(type, name, parent),
-      m_decoder("AFP_ByteStream2RawCnv"),
-      m_robIdSet()
-{
+    : AthAlgTool(type, name, parent), m_decoder("AFP_ByteStream2RawCnv"),
+      m_robIdSet() {
   declareProperty("AFP_ByteStream2RawCnv", m_decoder);
   declareInterface<AFP_RawDataProviderTool>(this);
 }
@@ -28,7 +26,7 @@ StatusCode AFP_RawDataProviderTool::initialize() {
   ATH_MSG_INFO("Initializing " << name() << "...");
 
   StatusCode sc = AthAlgTool::initialize();
-  ATH_MSG_DEBUG("INITIALIZE AFP_RawDataProviderTool");
+  ATH_MSG_DEBUG("INITIALIZE AFP+RawDataProviderTool");
   if (sc.isFailure()) {
     ATH_MSG_WARNING(" Failed to init baseclass");
     return StatusCode::SUCCESS;
@@ -44,13 +42,15 @@ StatusCode AFP_RawDataProviderTool::initialize() {
 }
 
 StatusCode
-AFP_RawDataProviderTool::convert(std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment *> &vecRobs,
-                                 AFP_RawContainer *rawContainer)
+AFP_RawDataProviderTool::convert(std::vector<const ROBFragment *> &vecRobs,
+                                 AFP_RawDataContainer *rdoCont)
+
 {
+
   static uint32_t LastLvl1ID = 0xffffffff;
 
-  if (!rawContainer) {
-    ATH_MSG_WARNING("NULL pointer passed in rawContainer.");
+  if (!rdoCont) {
+    ATH_MSG_WARNING("NULL pointer passed in rdoCont.");
     return StatusCode::SUCCESS;
   }
 
@@ -59,20 +59,20 @@ AFP_RawDataProviderTool::convert(std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::
     return StatusCode::SUCCESS;
   }
 
-  // clear containers
-  const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* firstROB = vecRobs.front();
-  if (firstROB->rod_lvl1_id() != LastLvl1ID) {
-    LastLvl1ID = firstROB->rod_lvl1_id();
+  std::vector<const ROBFragment *>::const_iterator rob_it = vecRobs.begin();
+
+  if (((*rob_it)->rod_lvl1_id()) != LastLvl1ID) {
+    LastLvl1ID = ((*rob_it)->rod_lvl1_id());
     m_robIdSet.clear();
-    rawContainer->clear();
+    rdoCont->clear();
   }
 
-  // Loop over robs and fill rawContainer
-  for (const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* rob : vecRobs) {
-    const uint32_t robId = rob->rod_source_id();
+  const std::vector<const ROBFragment *>::const_iterator robEnd = vecRobs.end();
+  for (; rob_it != robEnd; ++rob_it) {
+    uint32_t robid = (*rob_it)->rod_source_id();
 
-    if (m_robIdSet.insert(robId).second) {
-      StatusCode sc = m_decoder->fillCollection(rob, rawContainer);
+    if (m_robIdSet.insert(robid).second) {
+      StatusCode sc = m_decoder->fillCollection(&**rob_it, rdoCont);
       if (sc.isFailure()) {
         ATH_MSG_WARNING("Failed filling collection");
         return StatusCode::SUCCESS;
