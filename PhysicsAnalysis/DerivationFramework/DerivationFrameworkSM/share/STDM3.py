@@ -47,7 +47,7 @@ from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 STDM3ThinningHelper = ThinningHelper( "STDM3ThinningHelper" )
 
 #trigger navigation content
-STDM3ThinningHelper.TriggerChains = 'HLT_e.*|HLT_2e.*|HLT_mu.*|HLT_2mu.*'
+STDM3ThinningHelper.TriggerChains = 'HLT_e.*|HLT_2e.*|HLT_mu.*|HLT_2mu.*|HLT_2g10_loose_mu20'
 STDM3ThinningHelper.AppendToStream( STDM3Stream )
 
 #===================== 
@@ -157,7 +157,6 @@ if isMC:
                                                                     ParticlesKey            = "STDMTruthPhotons",
                                                                     ParticleSelectionString = STDMphotonthinningexpr)
 
-    
     ToolSvc += STDM3TruthLepTool
     ToolSvc += STDM3TruthBosTool
     ToolSvc += STDM3TruthThinning
@@ -190,7 +189,8 @@ offlineexpression = " || ".join([muonOnlySelection,electronOnlySelection,electro
 
 diElectronTriggerRequirement = '( HLT_2e12_loose_L12EM10VH || HLT_2e15_loose_L12EM13VH || HLT_2e17_loose || HLT_2e17_loose_L12EM15 || HLT_2e12_lhloose_L12EM10VH || HLT_2e15_lhloose_L12EM13VH || HLT_2e17_lhloose || HLT_2e17_lhloose_L12EM15 || HLT_2e12_lhvloose_L12EM10VH || HLT_2e17_lhvloose_nod0)'
 diMuonTriggerRequirement='(HLT_2mu10 || HLT_2mu14 || HLT_mu24_mu8noL1 || HLT_mu22_mu8noL1 || HLT_mu20_mu8noL1)'
-triggerRequirement='('+diElectronTriggerRequirement+'||'+diMuonTriggerRequirement+')'
+lggTriggerRequirement = '( HLT_e20_lhmedium_nod0_2g10_loose || HLT_e20_lhmedium_nod0_2g10_loose_L1EM15VH_3EM8VH || HLT_e24_lhmedium_nod0_2g12_loose || HLT_e24_lhmedium_nod0_2g12_medium || HLT_2g10_loose_mu20)'
+triggerRequirement='('+diElectronTriggerRequirement+'||'+diMuonTriggerRequirement+"||"+ lggTriggerRequirement+')'
 
 expression = triggerRequirement+' || '+offlineexpression
 
