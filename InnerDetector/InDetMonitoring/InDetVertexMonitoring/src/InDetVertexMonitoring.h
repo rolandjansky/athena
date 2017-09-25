@@ -10,6 +10,10 @@
 
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "GaudiKernel/StatusCode.h"
+#include "StoreGate/ReadHandleKey.h"
+
+#include "xAODEventInfo/EventInfo.h"
+#include "xAODTracking/VertexContainer.h"
 
 #include "LWHists/TH1F_LW.h"
 #include "LWHists/TH2F_LW.h"
@@ -40,11 +44,16 @@ class InDetVertexMonitoring : public ManagedMonitorToolBase  {
   TH2F_LW* m_h_deltaZpairs;
 
   private:
-   bool m_doControlPlots;
+
+   Gaudi::Property<bool> m_doControlPlots { this, "DoControlPlots", false, "Enable control plots" };
    
-   StoreGateSvc* m_storeGate;
-   std::string m_VxContainerName;
-   std::string m_histFolder;
+   Gaudi::Property<std::string> m_histFolder 
+   { this, "histFolder", "InDetGlobal/PrimaryVertexMultiplicity", "ROOT histogram path" };
+
+   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo { this, "EvtInfo", "EventInfo", "EventInfo name" };
+   
+   SG::ReadHandleKey<xAOD::VertexContainer> m_vertexContainer 
+   { this, "VertexContainer", "PrimaryVertices", "Vertex container key" };
 
 };
 
