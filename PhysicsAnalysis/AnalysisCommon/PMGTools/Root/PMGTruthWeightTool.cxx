@@ -34,8 +34,8 @@ namespace PMGTools
 
   const std::vector<std::string>& PMGTruthWeightTool::getWeightNames() const {
     if (m_uninitialized) {
-      ATH_MSG_ERROR("Weight name not found in event, is the meta data already loaded?");
-      throw std::runtime_error("Weight name not found in event, is the meta data already loaded?");
+      ATH_MSG_ERROR("Cannot access MC weight names. Tool is not properly initialized. Is the meta data already loaded?");
+      throw std::runtime_error(name() + ": Cannot access MC weight names. Tool is not properly initialized. Is the meta data already loaded?");
     }
 
     if (m_poolWeightNames.size()) {
@@ -49,15 +49,15 @@ namespace PMGTools
   const std::vector<float>& PMGTruthWeightTool::getWeights() const {
     if (m_uninitialized) {
       ATH_MSG_ERROR("Cannot access MC weights. Tool is not properly initialized.");
-      throw std::runtime_error("Cannot access MC weights. Tool is not properly initialized.");
+      throw std::runtime_error(name() + ": Cannot access MC weights. Tool is not properly initialized.");
     }
 
     if (m_evtInfo == nullptr) {
       ATH_MSG_ERROR("Cannot access MC weights as EventInfo could not be read.");
-      throw std::runtime_error("Cannot access MC weights as EventInfo could not be read.");
+      throw std::runtime_error(name() + ": Cannot access MC weights as EventInfo could not be read.");
     }
 
-    // Read weights from EventInfo which should be identical to the TruthEvent
+    // Read weights from EventInfo: this should be identical to the TruthEvent
     return m_evtInfo->mcEventWeights();
   }
 
@@ -97,7 +97,7 @@ namespace PMGTools
     } else {
 #ifdef XAOD_STANDALONE
       // it's all over for AnalysisBase release
-      throw std::runtime_error("Cannot access metadata: " + m_metaName);
+      throw std::runtime_error(name() + ": Cannot access xAOD::TruthMetaDataContainer named " + m_metaName);
       return StatusCode::FAILURE;
 #else
       // for AthAnalysisBase release, one more try ... the POOL metadata!
@@ -133,15 +133,18 @@ namespace PMGTools
     ATH_CHECK(evtStore()->retrieve(m_evtInfo, "EventInfo"));
     uint32_t mcChannelNumber = m_evtInfo->mcChannelNumber();
 
+    // If weights have already been read from metadata, use these
     if (m_poolWeightNames.size()) {
       m_uninitialized = false;
       return StatusCode::SUCCESS;
     }
 
+    // If TruthMetaDataContainer cannot be found, return failure
     if (!m_metaDataContainer) {
       return StatusCode::FAILURE;
     }
 
+    // Update on new metadata
     if (m_uninitialized || (mcChannelNumber != m_mcChannelNumber)) {
       for (auto metaData : *m_metaDataContainer) {
         if (metaData->mcChannelNumber() == mcChannelNumber) {

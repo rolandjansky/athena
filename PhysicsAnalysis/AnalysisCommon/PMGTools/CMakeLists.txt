@@ -7,11 +7,27 @@ atlas_subdir( PMGTools )
 
 # Extra dependencies based on the build environment:
 set( extra_deps )
+# ... for AnalysisBase
 if( XAOD_STANDALONE )
-   set( extra_deps Control/xAODRootAccess )
+   set( extra_deps PhysicsAnalysis/POOLRootAccess )
+# ... for AthAnalysisBase/Athena
 else()
-   set( extra_deps Control/AthAnalysisBaseComps PhysicsAnalysis/POOLRootAccess GaudiKernel )
+   set( extra_deps Control/AthAnalysisBaseComps GaudiKernel PhysicsAnalysis/POOLRootAccess )
 endif()
+
+# Extra libraries based on the build environment:
+set( extra_libs )
+# ... for AnalysisBase
+if( XAOD_STANDALONE )
+   set( extra_libs )
+# ... for AthAnalysisBase
+elseif( XAOD_ANALYSIS AND NOT XAOD_STANDALONE )
+   set( extra_libs POOLRootAccessLib )
+# ... for Athena
+else()
+   set( extra_libs POOLRootAccess )
+endif()
+
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs(
@@ -20,6 +36,7 @@ atlas_depends_on_subdirs(
    PhysicsAnalysis/AnalysisCommon/PATInterfaces
    PhysicsAnalysis/Interfaces/PMGAnalysisInterfaces
    PRIVATE
+   Control/xAODRootAccess
    Event/FourMomUtils
    Event/xAOD/xAODEventInfo
    Event/xAOD/xAODJet
@@ -49,17 +66,18 @@ atlas_add_dictionary( PMGToolsDict
    PMGTools/selection.xml
    LINK_LIBRARIES PMGToolsLib )
 
-# Executable(s) in the package:
+## Executable(s) in the package:
+# ... for AthAnalysisBase/Athena
 if( NOT XAOD_STANDALONE )
    atlas_add_executable( MyPMGApp
       test/MyPMGApp.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES}
-      AsgTools AthAnalysisBaseCompsLib FourMomUtils PATInterfaces POOLRootAccessLib xAODJet xAODTruth )
+      LINK_LIBRARIES ${ROOT_LIBRARIES} ${extra_libs} AsgTools AthAnalysisBaseCompsLib GaudiKernel PMGToolsLib xAODJet )
 endif()
 
 # Test(s) in the package:
 #
+# ... for AnalysisBase
 if( XAOD_STANDALONE )
    atlas_add_test( ut_PMGSherpa22VJetsWeightTool_test
       SOURCES test/ut_PMGSherpa22VJetsWeightTool_test.cxx
@@ -70,13 +88,13 @@ if( XAOD_STANDALONE )
       SOURCES test/ut_PMGSherpaVjetsSysTool_test.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools PATInterfaces PMGToolsLib xAODRootAccess )
+# ... for AthAnalysisBase/Athena
 else()
    atlas_add_test( ut_PMGTruthWeightTool_test
       SOURCES test/ut_PMGTruthWeightTool_test.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} PMGToolsLib POOLRootAccessLib )
+      LINK_LIBRARIES ${ROOT_LIBRARIES} ${extra_libs} PMGToolsLib )
 endif()
-
 
 # Install files from the package:
 atlas_install_data( data/*.txt share/*.txt )
