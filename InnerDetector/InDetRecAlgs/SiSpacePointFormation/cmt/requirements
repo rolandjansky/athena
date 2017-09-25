@@ -9,7 +9,7 @@ use AtlasPolicy          AtlasPolicy-*
 #use AtlasCLHEP           AtlasCLHEP-*              External
 use GaudiInterface       GaudiInterface-*          External
 use AthenaBaseComps      AthenaBaseComps-*         Control
-use DataModel            DataModel-*               Control
+use AthContainers        AthContainers-*           Control
 use Identifier           Identifier-*              DetectorDescription
 use InDetReadoutGeometry InDetReadoutGeometry-*    InnerDetector/InDetDetDescr
 use SiSpacePointTool     SiSpacePointTool-*        InnerDetector/InDetRecTools
