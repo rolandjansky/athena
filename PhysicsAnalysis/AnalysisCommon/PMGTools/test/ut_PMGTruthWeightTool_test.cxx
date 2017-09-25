@@ -38,11 +38,11 @@ int main(int argc, char *argv[])
   if (argc < 2) {
     ANA_MSG_WARNING("No file name received, using " << fileName);
   } else {
-   fileName = argv[1]; //use the user provided file
+    fileName = argv[1]; // use the user provided file
   }
 
   // Initialise TEvent reading
-  POOL::TEvent::EReadMode mode = POOL::TEvent::kClassAccess; //Class Access is faster than full POOL Access
+  POOL::TEvent::EReadMode mode = POOL::TEvent::kClassAccess; // Class Access is faster than full POOL Access
   POOL::TEvent evt(mode);
   evt.readFrom(fileName);
 

@@ -25,26 +25,12 @@ namespace PMGTools
     declareProperty("MetaObjectName", m_metaName = "TruthMetaData");
   }
 
+
   StatusCode PMGTruthWeightTool::initialize() {
     ATH_MSG_DEBUG("Initialising...");
     return StatusCode::SUCCESS;
   }
 
-  std::shared_ptr<IPMGTruthWeightIndexRetriever> PMGTruthWeightTool::spawnTruthWeightIndexRetriever(
-    std::string weightName) const {
-    auto sp = m_indexRetrievers[weightName].lock();
-
-    if (!sp) {
-      m_indexRetrievers[weightName] = sp = std::make_shared<PMGTruthWeightIndexRetriever>(weightName);
-      if (!m_metaData) {
-        sp->update(m_poolWeightNames);
-      } else {
-        sp->update(m_metaData);
-      }
-    }
-
-    return sp;
-  }
 
   const std::vector<std::string>& PMGTruthWeightTool::getWeightNames() const {
     if (m_uninitialized) {
@@ -59,18 +45,27 @@ namespace PMGTools
     return m_metaData->weightNames();
   }
 
+
   const std::vector<float>& PMGTruthWeightTool::getWeights() const {
-    if (m_uninitialized || m_evtInfo == nullptr) {
+    if (m_uninitialized) {
+      ATH_MSG_ERROR("Cannot access MC weights. Tool is not properly initialized.");
       throw std::runtime_error("Cannot access MC weights. Tool is not properly initialized.");
     }
 
-    // TODO: first check truth event. Else take from EventInfo. Check number of weights
+    if (m_evtInfo == nullptr) {
+      ATH_MSG_ERROR("Cannot access MC weights as EventInfo could not be read.");
+      throw std::runtime_error("Cannot access MC weights as EventInfo could not be read.");
+    }
+
+    // Read weights from EventInfo which should be identical to the TruthEvent
     return m_evtInfo->mcEventWeights();
   }
+
 
   float PMGTruthWeightTool::getWeight(const std::string& weightName) const {
     return getWeights().at(getWeightIndex(weightName));
   }
+
 
   size_t PMGTruthWeightTool::getWeightIndex(const std::string& weightName) const {
     auto sp = this->spawnTruthWeightIndexRetriever(weightName);
@@ -83,11 +78,13 @@ namespace PMGTools
     return sp->getIndex();
   }
 
+
   bool PMGTruthWeightTool::hasWeight(const std::string& weightName) const {
     const std::vector<std::string>& wns = getWeightNames();
 
     return std::find(wns.begin(), wns.end(), weightName) != wns.end();
   }
+
 
   StatusCode PMGTruthWeightTool::beginInputFile() {
     ATH_MSG_DEBUG("Retrieving truth meta data from a new file");
@@ -99,11 +96,11 @@ namespace PMGTools
       ATH_CHECK(inputMetaStore()->retrieve(m_metaDataContainer, m_metaName));
     } else {
 #ifdef XAOD_STANDALONE
-      // it's all over for eventloop release
+      // it's all over for AnalysisBase release
       throw std::runtime_error("Cannot access metadata: " + m_metaName);
       return StatusCode::FAILURE;
 #else
-      // for athena release, one more try ... the POOL metadata!
+      // for AthAnalysisBase release, one more try ... the POOL metadata!
       // See https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/AthAnalysisBase#How_to_read_the_truth_weight_nam
       std::map<std::string, int> weightNamesMap;
 
@@ -124,13 +121,12 @@ namespace PMGTools
 #endif
     }
 
-
-
     // Set the current MC channel number to a large number to force updating
     // the meta data on the first event of the new file
     m_mcChannelNumber = 999999999;
     return StatusCode::SUCCESS;
   }
+
 
   StatusCode PMGTruthWeightTool::beginEvent() {
     m_evtInfo = nullptr;
@@ -164,9 +160,9 @@ namespace PMGTools
     return StatusCode::SUCCESS;
   }
 
+
   void PMGTruthWeightTool::onNewMetaData() {
     ATH_MSG_DEBUG("Updating all spawned index retrievers");
-
     for (auto& indexRetriever : m_indexRetrievers) {
       auto sp = indexRetriever.second.lock();
       if (sp) {
@@ -174,4 +170,21 @@ namespace PMGTools
       }
     }
   }
+
+
+  std::shared_ptr<IPMGTruthWeightIndexRetriever> PMGTruthWeightTool::spawnTruthWeightIndexRetriever(std::string weightName) const {
+    auto sp = m_indexRetrievers[weightName].lock();
+
+    if (!sp) {
+      m_indexRetrievers[weightName] = sp = std::make_shared<PMGTruthWeightIndexRetriever>(weightName);
+      if (!m_metaData) {
+        sp->update(m_poolWeightNames);
+      } else {
+        sp->update(m_metaData);
+      }
+    }
+
+    return sp;
+  }
+
 } // namespace PMGTools

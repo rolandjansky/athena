@@ -59,6 +59,7 @@ if( NOT XAOD_STANDALONE )
 endif()
 
 # Test(s) in the package:
+#
 if( XAOD_STANDALONE )
    atlas_add_test( ut_PMGSherpa22VJetsWeightTool_test
       SOURCES test/ut_PMGSherpa22VJetsWeightTool_test.cxx

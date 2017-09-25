@@ -65,14 +65,6 @@ namespace PMGTools
     /// @}
 
   protected:
-    /// @name Function(s) implementing the IPMGTruthWeightTool interface
-    /// @{
-
-    /// Implements interface from IPMGTruthWeightTool
-    virtual std::shared_ptr<IPMGTruthWeightIndexRetriever> spawnTruthWeightIndexRetriever(std::string weightName) const;
-
-    /// @}
-
     /// @name Callback function(s) from AsgMetadataTool
     /// @{
 
@@ -86,6 +78,9 @@ namespace PMGTools
 
     /// Function called when new meta data is available
     virtual void onNewMetaData();
+
+    /// Create an instance of the index retriever
+    virtual std::shared_ptr<IPMGTruthWeightIndexRetriever> spawnTruthWeightIndexRetriever(std::string weightName) const;
 
     /// Stores the meta data record name
     std::string m_metaName;

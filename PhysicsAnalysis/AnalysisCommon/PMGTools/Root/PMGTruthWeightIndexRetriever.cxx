@@ -21,6 +21,7 @@ namespace PMGTools
     update(truthMetaData->weightNames());
   }
 
+
   void PMGTruthWeightIndexRetriever::update(const std::vector<std::string>& weightNameVec) {
     if (!weightNameVec.size()) {
       m_isValid = false;
@@ -36,12 +37,14 @@ namespace PMGTools
     }
   }
 
+
   size_t PMGTruthWeightIndexRetriever::getIndex() {
     if (!m_isValid) {
       throw std::runtime_error("Weight \"" + m_weightName + "\" not found in event");
     }
     return m_currentIndex;
   }
+
 
   bool PMGTruthWeightIndexRetriever::isValid() {
     return m_isValid;
