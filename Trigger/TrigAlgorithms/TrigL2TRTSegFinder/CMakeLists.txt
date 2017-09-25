@@ -31,7 +31,6 @@ atlas_depends_on_subdirs( PUBLIC
 # Component(s) in the package:
 atlas_add_component( TrigL2TRTSegFinder
                      src/TrigTRTSegFinder.cxx
-                     src/components/TrigL2TRTSegFinder_load.cxx
                      src/components/TrigL2TRTSegFinder_entries.cxx
                      LINK_LIBRARIES AthenaBaseComps RegionSelectorLib ByteStreamCnvSvcBaseLib GaudiKernel InDetPrepRawData InDetRecToolInterfaces TrkGeometry TrkSegment TrkExInterfaces TrigInDetEvent TrigInterfacesLib TrigTimeAlgsLib IRegionSelector InDetRIO_OnTrack MagFieldInterfaces TrkSurfaces TrkParameters TrigSteeringEvent )
 
