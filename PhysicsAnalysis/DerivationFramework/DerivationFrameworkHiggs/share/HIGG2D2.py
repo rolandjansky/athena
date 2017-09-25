@@ -241,7 +241,7 @@ from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramew
 higg2d2Seq += CfgMgr.DerivationFramework__DerivationKernel("HIGG2D2Kernel",
                                                            SkimmingTools = [SkimmingToolHIGG2D2],
                                                            ThinningTools = thinningTools,
-                                                           AugmentationTools = augmentationTools
+                                                           AugmentationTools = augmentationTools)
 
 DerivationFrameworkJob += higg2d2Seq
 
