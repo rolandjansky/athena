@@ -8,6 +8,7 @@
 #include "AthenaInterprocess/Incidents.h"
 
 #include "AthenaKernel/IEventSeek.h"
+#include "AthenaKernel/IEvtSelectorSeek.h"
 #include "AthenaKernel/IEventShare.h"
 #include "AthenaKernel/IDataShare.h"
 #include "GaudiKernel/IEvtSelector.h"
@@ -42,6 +43,8 @@ SharedEvtQueueConsumer::SharedEvtQueueConsumer(const std::string& type
   , m_rankId(-1)
   , m_chronoStatSvc("ChronoStatSvc", name)
   , m_evtSeek(0)
+  , m_evtSelSeek(0)
+  , m_evtContext(0)
   , m_evtShare(0)
   , m_dataShare(0)
   , m_sharedEventQueue(0)
@@ -93,11 +96,12 @@ StatusCode SharedEvtQueueConsumer::initialize()
     }
   }
   else {
-    sc = serviceLocator()->service(m_evtSelName,m_evtSeek);
-    if(sc.isFailure() || m_evtSeek==0) {
-      ATH_MSG_ERROR("Error retrieving IEventSeek");
+    sc = serviceLocator()->service(m_evtSelName,m_evtSelSeek);
+    if(sc.isFailure() || m_evtSelSeek==0) {
+      ATH_MSG_ERROR("Error retrieving IEvtSelectorSeek");
       return StatusCode::FAILURE;
     }
+    ATH_CHECK( evtSelector()->createContext (m_evtContext) );
   }
 
   sc = serviceLocator()->service(m_evtSelName,m_evtShare);
@@ -169,6 +173,11 @@ StatusCode SharedEvtQueueConsumer::finalize()
     }
     fs.close();
   } // if(getpid()==m_masterPid)
+
+  if (m_evtContext) {
+    ATH_CHECK( evtSelector()->releaseContext (m_evtContext) );
+    m_evtContext = nullptr;
+  }
 
   delete m_sharedRankQueue;
   return StatusCode::SUCCESS;
@@ -392,7 +401,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueConsumer::boots
   }
 
   // ________________________ Event selector restart ________________________
-  IService* evtSelSvc = dynamic_cast<IService*>(m_evtSelector);
+  IService* evtSelSvc = dynamic_cast<IService*>(evtSelector());
   if(!evtSelSvc) {
     ATH_MSG_ERROR("Failed to dyncast event selector to IService");
     return outwork;
@@ -411,7 +420,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueConsumer::boots
       itSvcLast = service_list.end();
     for(;itSvc!=itSvcLast;++itSvc) {
       IEvtSelector* evtsel = dynamic_cast<IEvtSelector*>(*itSvc);
-      if(evtsel && (evtsel != m_evtSelector)) {
+      if(evtsel && (evtsel != evtSelector())) {
 	if((*itSvc)->start().isSuccess())
 	  ATH_MSG_DEBUG("Restarted event selector " << (*itSvc)->name());
 	else {
@@ -480,7 +489,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueConsumer::exec_
 
   // Get the value of SkipEvent
   int skipEvents(0);
-  IProperty* propertyServer = dynamic_cast<IProperty*>(m_evtSelector);
+  IProperty* propertyServer = dynamic_cast<IProperty*>(evtSelector());
   if(propertyServer==0) {
     ATH_MSG_ERROR("Unable to cast event selector to IProperty");
     all_ok = false;
@@ -503,15 +512,20 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueConsumer::exec_
   // by EventsBeforeFork+SkipEvents and only after that start seeking on the PileUpEventLoopMgr
   // **
   if(m_isPileup && all_ok) {
-    IEventSeek* evtSeek(0);
-    StatusCode sc = serviceLocator()->service(m_evtSelName,evtSeek);
-    if(sc.isFailure() || evtSeek==0) {
-      ATH_MSG_ERROR("Error retrieving Event Selector with IEventSeek interface for PileUp job");
-      all_ok = false;
+    if (!m_evtSelSeek) {
+      StatusCode sc = serviceLocator()->service(m_evtSelName,m_evtSelSeek);
+      if(sc.isFailure() || m_evtSelSeek==0) {
+        ATH_MSG_ERROR("Error retrieving Event Selector with IEvtSelectorSeek interface for PileUp job");
+        all_ok = false;
+      }
+      if (evtSelector()->createContext (m_evtContext).isFailure()) {
+        ATH_MSG_ERROR("Error creating IEventSelector context.");
+        all_ok = false;
+      }
     }
-    else {
+    if (all_ok) {
       if((m_nEventsBeforeFork+skipEvents)
-	 && evtSeek->seek(m_nEventsBeforeFork+skipEvents).isFailure()) {
+	 && m_evtSelSeek->seek(*m_evtContext, m_nEventsBeforeFork+skipEvents).isFailure()) {
 	ATH_MSG_ERROR("Unable to seek to " << m_nEventsBeforeFork+skipEvents);
 	all_ok = false;
       }
@@ -610,7 +624,12 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueConsumer::exec_
       }
       else {
 	m_chronoStatSvc->chronoStart("AthenaMP_seek");
-	sc=m_evtSeek->seek(evtnum);
+        if (m_evtSeek) {
+          sc=m_evtSeek->seek(evtnum);
+        }
+        else {
+          sc=m_evtSelSeek->seek(*m_evtContext, evtnum);
+        }
 	if(sc.isFailure()){
 	  ATH_MSG_ERROR("Unable to seek to " << evtnum);
 	  all_ok=false;
@@ -647,7 +666,14 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedEvtQueueConsumer::exec_
       all_ok=false;
     }
     else if(!m_useSharedReader) {
-      if(m_evtSeek->seek(evtnumAndChunk+skipEvents).isFailure()) {
+      StatusCode sc;
+      if (m_evtSeek) {
+        sc = m_evtSeek->seek(evtnumAndChunk+skipEvents);
+      }
+      else {
+        sc = m_evtSelSeek->seek(*m_evtContext, evtnumAndChunk+skipEvents);
+      }
+      if(sc.isFailure()) {
 	ATH_MSG_WARNING("Seek past maxevt to " << evtnumAndChunk+skipEvents << " returned failure.");
       }
     }
