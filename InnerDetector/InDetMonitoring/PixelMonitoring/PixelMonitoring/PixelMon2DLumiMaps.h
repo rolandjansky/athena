@@ -45,7 +45,7 @@ class PixelMon2DLumiMaps : public PixMon::HolderTemplate<TH2F_LW> {
    *        into readable info (e.g. eta/phi module index)
    * @param weight: optional weighting factor
    */
-  void Fill(double LB, Identifier &id, const PixelID* pixID, float weight = 1.0);
+  void fill(double LB, Identifier &id, const PixelID* pixID, float weight = 1.0);
 
   //! Formatting function for histograms (reimplemented from template)
   virtual void formatHist() override;
