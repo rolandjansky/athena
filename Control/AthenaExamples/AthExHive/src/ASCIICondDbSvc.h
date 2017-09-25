@@ -43,7 +43,8 @@ private:
 
   StatusCode readDbFile(const std::string&);
 
-  std::string m_file;
+  Gaudi::Property<std::string> m_file{this, "CondFile", "", "cond db file name"};
+  Gaudi::Property<unsigned int> m_lbn{this, "LBN", 1, "explicit lumi block number"};
 
   typedef std::map<std::string, std::vector<IOVEntryT<IASCIICondDbSvc::dbData_t>>> registry_t;
   registry_t m_registry;

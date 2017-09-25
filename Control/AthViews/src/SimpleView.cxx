@@ -10,13 +10,15 @@ using namespace std;
 
 SimpleView::SimpleView() :
 	m_store( "StoreGateSvc", "SimpleView" ),
-	m_name( "SimpleView" )
+	m_name( "SimpleView" ),
+  m_allowFallThrough( false )
 {
 }
 
-SimpleView::SimpleView( std::string Name ) :
+SimpleView::SimpleView( std::string Name, bool AllowFallThrough ) :
 	m_store( "StoreGateSvc", "SimpleView" ),
-	m_name( Name )
+	m_name( Name ),
+  m_allowFallThrough( AllowFallThrough )
 {
 }
 
@@ -70,6 +72,13 @@ SG::DataProxy * SimpleView::proxy( const CLID& id, const std::string& key ) cons
 	    throw std::runtime_error("Duplicate object CLID:"+ std::to_string(id) + " key: " + key + " found in views: " + name()+ " and parent " + parent->name() );
 	  } // else search further
 	}
+
+  //Look in the default store - change to fix IDC
+  if ( m_allowFallThrough and not local )
+  {
+    return m_store->proxy( id, key );
+  }
+
 	return local; // can be the nullptr still
 }
 

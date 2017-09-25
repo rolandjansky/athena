@@ -5,6 +5,12 @@
 #include "GaudiKernel/Property.h"
 #include "TrigL2ElectronHypoAlg.h"
 
+using TrigCompositeUtils::DecisionContainer;
+using TrigCompositeUtils::DecisionAuxContainer;
+using TrigCompositeUtils::DecisionIDContainer;
+using TrigCompositeUtils::decisionIDs;
+using TrigCompositeUtils::newDecisionIn;
+using TrigCompositeUtils::linkToPrevious;
 
 
 TrigL2ElectronHypoAlg::TrigL2ElectronHypoAlg( const std::string& name, 

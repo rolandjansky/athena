@@ -22,6 +22,8 @@
 #include "SGTools/DataProxy.h"
 #include "SGTools/ProxyMap.h"
 
+#include "CxxUtils/checker_macros.h"
+
 // Forward declaration
 
 
@@ -32,7 +34,7 @@
  * speed-up subsequent accesses.
  * It can be reset by the store for asynchronous updates (IOVSvc)
  */
-class DataHandleBase : public IResetable
+class ATLAS_NOT_THREAD_SAFE DataHandleBase : public IResetable
 { 
 
   /////////////////////////////////////////////////////////////////// 

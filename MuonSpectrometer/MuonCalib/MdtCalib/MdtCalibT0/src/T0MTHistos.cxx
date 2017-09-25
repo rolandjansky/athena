@@ -2,8 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-using namespace std;
-
 #include "MdtCalibT0/T0MTHistos.h"
 #include "MdtCalibT0/MTT0PatternRecognition.h"
 #include "MdtCalibT0/MTTmaxPatternRecognition.h"
@@ -18,6 +16,8 @@ using namespace std;
 #include "TRandom.h"
 #include "list"
 #include <cmath>
+
+using namespace std;
 
 namespace MuonCalib {
 

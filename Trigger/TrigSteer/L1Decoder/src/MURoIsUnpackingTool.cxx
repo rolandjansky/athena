@@ -99,14 +99,22 @@ StatusCode MURoIsUnpackingTool::unpack( const EventContext& ctx,
     ATH_MSG_DEBUG( "RoI word: 0x" << MSG::hex << std::setw( 8 ) << roIWord );
     
     auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput.get() );
+    decision->setObjectLink( "initialRoI", ElementLink<TrigRoiDescriptorCollection>( m_trigRoIsKey.key(), trigRoIs->size()-1 ) );
+    decision->setObjectLink( "initialRecRoI", ElementLink<DataVector<LVL1::RecMuonRoI>>( m_recRoIsKey.key(), recRoIs->size()-1 ) );
     
     for ( auto th: m_muonThresholds ) {
       if ( th->thresholdNumber() <= thresholdNumber )  { // TODO verify if here should be <= or <
 	// this code suggests <= https://gitlab.cern.ch/atlas/athena/blob/master/Trigger/TrigSteer/TrigSteering/src/Lvl1ResultAccessTool.cxx#L654
-	addChainsToDecision( HLT::Identifier( th->name() ), decision, activeChains );
 	ATH_MSG_DEBUG( "Threshold passed: " << th->name() );
+	addChainsToDecision( HLT::Identifier( th->name() ), decision, activeChains );
+	ATH_MSG_DEBUG( "Labeled object with chains: " << [&](){ 
+	    TrigCompositeUtils::DecisionIDContainer ids; 
+	    TrigCompositeUtils::decisionIDs( decision, ids ); 
+	    return std::vector<TrigCompositeUtils::DecisionID>( ids.begin(), ids.end() ); }() );
+	
       }
     }
+
   }
   // monitoring
   {
@@ -127,7 +135,7 @@ StatusCode MURoIsUnpackingTool::unpack( const EventContext& ctx,
   }
   {
     auto handle = SG::makeHandle(  m_decisionsKey, ctx );
-    CHECK( handle.record( std::move( decisionOutput ) ) );
+    CHECK( handle.record( std::move( decisionOutput ), std::move( decisionAux ) ) );
   }
   return StatusCode::SUCCESS;
 }

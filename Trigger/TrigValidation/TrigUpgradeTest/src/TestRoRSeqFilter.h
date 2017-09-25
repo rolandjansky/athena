@@ -9,6 +9,7 @@
 #include "DecisionHandling/TrigCompositeUtils.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 
+using namespace TrigCompositeUtils;
 namespace HLTTest {
 
   /**
@@ -38,15 +39,14 @@ namespace HLTTest {
     std::vector<std::string> m_outputs;
     
     std::vector<std::string> m_chainsProperty;
-    TrigCompositeUtils::DecisionIDContainer  m_chains; // this is the set of chains we care about in this filter
+    DecisionIDContainer  m_chains; // this is the set of chains we care about in this filter
     bool m_alwaysPass = false; // override decision 
     
     /*
       @brief fills the output with decision objects lining back to the succesfully passing objs
       NB> The positive/negative decision can be red from the output.size()
     */
-    void copyPassing(const std::string& inputKey,
-                     TrigCompositeUtils::DecisionContainer* output) const;
+    void copyPassing(const std::string& inputKey, DecisionContainer* output) const;
   }; 
   
 } //> end namespace HLTTest

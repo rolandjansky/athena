@@ -45,7 +45,7 @@ StatusCode DataStore::setSvcLoc(){
   return sc;
 }
 
-void DataStore::setSGAudSvc() const { //m_noAudSvc and m_pSGAudSvc are mutable 
+void DataStore::setSGAudSvc() {
   if (0 == m_pSGAudSvc) {
     //try once to get the service
     const bool DONOTCREATE(false);
@@ -132,24 +132,23 @@ DataStore::addToStore(const CLID& id, DataProxy* dp)
 {
   StatusCode sc(StatusCode::FAILURE);
   if (0 != dp) {
-    TransientAddress* tad = dp->transientAddress();
 
-    if (id == 0 && tad->clID() == 0 && tad->sgkey() != 0) {
+    if (id == 0 && dp->clID() == 0 && dp->sgkey() != 0) {
       // Handle a dummied proxy.
-      m_keyMap[tad->sgkey()] = dp;
+      m_keyMap[dp->sgkey()] = dp;
     }
     else {
       ProxyMap& pmap = m_storeMap[id];
 
       // Set the primary key.
-      sgkey_t primary_sgkey = m_pool.stringToKey (tad->name(), tad->clID());
-      tad->setSGKey (primary_sgkey);
+      sgkey_t primary_sgkey = m_pool.stringToKey (dp->name(), dp->clID());
+      dp->setSGKey (primary_sgkey);
 
       pmap.insert(ProxyMap::value_type(dp->name(), dp));
 
       sgkey_t sgkey = primary_sgkey;
-      if (id != tad->clID())
-        sgkey = m_pool.stringToKey (tad->name(), id);
+      if (id != dp->clID())
+        sgkey = m_pool.stringToKey (dp->name(), id);
       m_keyMap[sgkey] = dp;
     }
 
@@ -186,7 +185,7 @@ DataStore::removeProxy(DataProxy* proxy, bool forceRemove, bool hard)
     
     SG::DataProxy::CLIDCont_t clids = proxy->transientID();
     std::string name = proxy->name();
-    sgkey_t primary_sgkey = proxy->transientAddress()->sgkey();
+    sgkey_t primary_sgkey = proxy->sgkey();
 
     StoreIterator storeIter = m_storeMap.find(proxy->clID());
     if (storeIter != m_storeMap.end()) {
@@ -242,7 +241,7 @@ DataStore::addSymLink(const CLID& linkid, DataProxy* dp)
     return StatusCode::FAILURE;
   }
 
-  dp->transientAddress()->setTransientID(linkid); 
+  dp->setTransientID(linkid); 
   return addToStore(linkid, dp);
 }
 //---------------------------------------------------------------//
@@ -260,11 +259,11 @@ DataStore::addAlias(const std::string& aliasKey, DataProxy* dp)
   ConstProxyIterator p_iter = pmap.find(aliasKey);
   if (p_iter != pmap.end() && dp->clID() == p_iter->second->clID()) {
     if (dp->name() == p_iter->second->name()) return StatusCode::SUCCESS;
-    p_iter->second->transientAddress()->removeAlias(aliasKey);
+    p_iter->second->removeAlias(aliasKey);
     p_iter->second->release();
   }
   // set alias in proxy
-  dp->transientAddress()->setAlias(aliasKey);
+  dp->setAlias(aliasKey);
   dp->addRef();
   pmap[aliasKey] = dp;
   m_keyMap[m_pool.stringToKey (aliasKey, dp->clID())] = dp;
@@ -318,7 +317,7 @@ DataProxy* DataStore::proxy(const CLID& id, const std::string& key) const
         ConstProxyIterator p_match = pmap.end();
         size_t nmatch = 0;
         for (p_iter = pmap.begin(); p_iter != pmap.end(); ++p_iter) {
-          if (p_iter->second->transientAddress()->clID() == id) {
+          if (p_iter->second->clID() == id) {
             ++nmatch;
             if (p_match == pmap.end()) p_match = p_iter;
           }
@@ -343,8 +342,8 @@ DataProxy* DataStore::proxy(const CLID& id, const std::string& key) const
     p = const_cast<DataStore*>(this)->findDummy (id, key);
   }
 
-  if (p && doAudit()) 
-    m_pSGAudSvc->SGAudit(p->transientAddress()->name(), id, 0, m_storeID);
+  if (p && m_pSGAudSvc) 
+    m_pSGAudSvc->SGAudit(p->name(), id, 0, m_storeID);
 
   return p;
 }
@@ -373,7 +372,7 @@ DataProxy* DataStore::findDummy (CLID id, const std::string& key)
   sgkey_t sgkey = m_pool.stringToKey (key, id);
   DataProxy* p = proxy_exact (sgkey);
   if (p) {
-    p->transientAddress()->setID (id, key);
+    p->setID (id, key);
     ProxyMap& pmap = m_storeMap[id];
     if (!pmap.insert(ProxyMap::value_type(key, p)).second) {
       // This shouldn't happen.
@@ -389,7 +388,7 @@ DataProxy* DataStore::findDummy (CLID id, const std::string& key)
 /// the key must match exactly (no wild carding for the default key)
 DataProxy* DataStore::proxy_exact(sgkey_t sgkey) const
 {
-  if (doAudit()) {
+  if (m_pSGAudSvc) {
     CLID clid;
     const std::string* strkey = m_pool.keyToString (sgkey, clid);
     if (strkey)

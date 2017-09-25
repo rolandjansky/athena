@@ -32,7 +32,7 @@ svcMgr.ForwardSchedulerSvc.ShowControlFlow=True
 # topSequence += SGInputLoader( OutputLevel=INFO, ShowEventDump=False )
 # topSequence.SGInputLoader.Load = [ ('ROIB::RoIBResult','RoIBResult') ]
 
-from AthenaCommon.CFElements import stepSeq
+#from AthenaCommon.CFElements import stepSeq
 
 
 data = {'noreco': [';', ';', ';']}  # in the lists there are the events
@@ -94,30 +94,45 @@ include("TrigUpgradeTest/HLTCF.py")
 
 from TrigUpgradeTest.HLTCFConfig import *
 
-muStep1 = Sequence("Step1MuHypo", Algs=["muMSRecAlg:msmu.dat"], Hypo="Step1MuHypo")
-MuChains  = [ Chain(name='HLT_mu20', Seed="L1MU10",   ChainSteps=[ChainStep("Step1Mu20", Sequence=muStep1, Threshold="pt20")]),
-            Chain(name='HLT_mu8',  Seed="L1MU6",    ChainSteps=[ChainStep("Step1Mu8",  Sequence=muStep1, Threshold="pt8")]) ]
-                                                                                                                            
-
-elStep1 = Sequence("Step1ElGamHypo", Algs=["CaloClustering:emclusters.dat"], Hypo="Step1ElGamHypo")
-ElChains  = [ Chain(name='HLT_e20' , Seed="L1EM10", ChainSteps=[ChainStep("Step1E20",  Sequence=elStep1, Threshold="et20")])  ]
-
-
-#CombChains =[ Chain(name='HLT_mu8_e8' , Seed="L1EM6MU6", ChainSteps=[ChainStep("Step1E6Mu6",  Sequence=elStep1, Threshold="et20")]) ]
+# muon chains
+muRecoSeq1 = RecoSequence("muRecoSeq1", Seed="MU", Algs = [ RecoAlg("muMSRecAlg", FileName="msmu.dat") ])
+muStep1 = Sequence("Step1MuHypo",  Hypo = HypoAlg("Step1MuHypo"), RecoSeq=[muRecoSeq1] )
+MuChains  = [
+    Chain(name='HLT_mu20', Seed="L1_MU10",   ChainSteps=[ChainStep("Step1_mu20", [SequenceThreshold(muStep1,"mu20")])]),
+    Chain(name='HLT_mu8',  Seed="L1_MU6",    ChainSteps=[ChainStep("Step1_mu8",  [SequenceThreshold(muStep1,"mu8")] )])
+    ]
 
 
+#electron chains
+elRecoSeq1 = RecoSequence("elRecoSeq1", Seed="EM", Algs=[RecoAlg("CaloClustering", FileName="emclusters.dat")] )
+elStep1 = Sequence("Step1ElGamHypo", Hypo=HypoAlg("Step1ElGamHypo"),  RecoSeq=[elRecoSeq1])
 
-group_of_chains = MuChains + ElChains  
+ElChains  = [
+    Chain(name='HLT_e20' , Seed="L1_EM10", ChainSteps=[ChainStep("Step1_e20",  [SequenceThreshold(elStep1,"e20")])])
+    ]
+
+
+# combined chain
+muelStep1 = Sequence("Step1MuEHypo", Hypo=HypoAlg("Step1ComboMuEHypo"),RecoSeq=[muRecoSeq1, elRecoSeq1])
+
+CombChains =[
+    Chain(name='HLT_mu8_e8' , Seed="L1_EM6_MU6", ChainSteps=[ChainStep("Step1_mu8_e8",  [SequenceThreshold(muelStep1,"mu8_e8")])])
+    ]
+
+
+
+
+group_of_chains = MuChains + ElChains + CombChains
 
 
 #decide the number of steps, starting from 1
 NSTEPS=1
-group_of_steps = { "Step%i"%(i+1) :  parOR("Step%i" %(i+1)) for i in range(NSTEPS)}
 
 
 #loop over chains to configure
 count_steps=0
-for stepCF_name, stepCF in group_of_steps.iteritems():
+for nstep in range(0, NSTEPS):
+    stepCF_name =  "Step%i"%(nstep+1)
     step_list = []
 
     for chain in group_of_chains:
@@ -125,134 +140,147 @@ for stepCF_name, stepCF in group_of_steps.iteritems():
         print "\n*******Filling stepCF %s for chain  %s"%(stepCF_name, chain.name)
       
         chain_step=chain.steps[count_steps]
-        sequence=chain_step.sequence
-        step_name= sequence.name
+        sequenceThresholds=chain_step.sequenceThresholds
+        step_cfseq=[]
+        for st in sequenceThresholds:
+            sequence=st.sequence
+            threshold=st.threshold
+            step_name= sequence.name
+            hypotool=HypoTool(threshold)
 
-        #define sequence input
-        if count_steps == 0: # seeding
-            previous_sequence=chain.group_seed
-            sequence_input = chain.group_seed
-        else:
-            # from previous step
-            previous_sequence=chain.steps[count_steps-1].sequence
-            sequence_input=previous_sequence.outputs
-
-        # one filter per previous sequence at the start of the sequence: check if it exists or create a new one        
-        # if the hypo has more than one output, try to get all of them
-        filter_name="Filter%s%s"%(stepCF_name,previous_sequence)
-        filter_out="%s_out"%filter_name
-        filter_already_exists=False
-        findFilter= [step.filter for step in step_list if step.filter.name in filter_name]
-        
-        if len(findFilter):
-            print "Filter %s already exists"%(filter_name)
-            filter_already_exists=True
-            sfilter=findFilter[0]
-
-        else:
-            sfilter = SequenceFilter( filter_name, Inputs=[], Outputs=[], Chains=[] )
-            sfilter.addOutput(filter_out)            
-
-
-        sfilter.addChain(chain.name)
-        sfilter.addInput(sequence_input)
-        print "Filter Done: %s"%(sfilter)        
-
-        #was this sequence already used in other steps? Find if the step exists
-        step_already_exists=False        
-        findStep= [step for step in step_list if step.name in step_name]
-        #findStep= [step.name for seq in seq_list if seq.name in sequence.name]
-        if len(findStep):
-            step_already_exists=True
-        
-       
-        #make the step
-        if  step_already_exists:
-            print "  Step %s already exists"%(step_name)
-            step=findStep[0]
-            #get the hypo
-            hypoAlg= step.hypo
-            if not hypoAlg:
-                print "Error %s not found in existing sequence %s"%(sequence.hypo,sequence.name)
+            print "Going through sequence %s with threhold %s"%(sequence.name, threshold)
+            #define sequence input
+            if count_steps == 0: # seeding
+                print chain.group_seed
+                previous_sequence="".join(chain.group_seed)
+                sequence_input = chain.group_seed
             else:
-                print "Found HypoAlg %s"%(hypoAlg.name)
-        else:
-            print "  Making new step %s from sequence %s"%(step_name,sequence.name)
-            # first create the InputMaker
-            # imaker_out="IMaker%s_out"%chain_step_name
-            # last_output = imaker_out
-            #fill the step sequence with algorithms
-            algs=sequence.algs_name
-            last_output = sequence_input #filter_out #tmp, no InputMaker
-            list_of_algs = []
-            for alg in algs:
-                name_file=alg.split(":")
-                input=last_output
-                input_list = []
-                input_list.append(input)
-                output="R%s_out"%(name_file[0])
-                output_list = []
-                output_list.append(output)
+                # from previous step
+                previous_sequence=chain.steps[count_steps-1].sequence
+                sequence_input=previous_sequence.outputs
 
-                reco_alg = RecoAlg(name_file[0], Output=output_list,  FileName=name_file[1], Input=input_list)  
-                print "   added %s for this sequence %s"%(reco_alg,sequence.name)
-                list_of_algs.append(reco_alg)
-                last_output= output
 
-            #make the hypo
-            hypo=sequence.hypo
-            input_list = []
-            input_list.append(last_output)            
-            sequence_out = "Sequence%s_out"%sequence
-            output_list = []
-            output_list.append(sequence_out)
-            hypoAlg = HypoAlg(hypo, Input=input_list, Output=output_list)
-            print "Create HypoAlg %s, and create the Decision Step -> %s"%(hypo,step_name)
+            #was this sequence/hypo already used in other steps? Find if the step exists
+            # the step already exista if there are chains that differ only for thresholds
+            step_already_exists=False        
+            foundStep= [step for step in step_list if step.name in step_name]
+            if len(foundStep):
+                step_already_exists=True
+
+            if step_already_exists:
+                sfilter= foundStep[0].filter
+                sfilter.addChain(chain.name)
+                #get the hypo
+                hypoAlg= foundStep[0].hypo                
+                print "Adding %s to %s"%(threshold,hypoAlg.name)
+                hypoAlg.addHypoTool(hypotool)
+                continue
+
             
+            print "Creating new step (sequence+IM+filter) %s"%sequence.name
+            #make the hypo
+            hypoAlg=sequence.hypo                            
+          
+            print "Adding %s to %s"%(threshold,hypoAlg.name)
+            hypoAlg.addHypoTool(hypotool)
+            
+            #### FILTER
+            # one filter per previous sequence at the start of the sequence: check if it exists or create a new one        
+            # if the previous hypo has more than one output, try to get all of them
+
+            filter_name="Filter_%s%s"%(stepCF_name,previous_sequence)
+            filter_out=["%s_%s_out"%(filter_name,i) for i in sequence_input]
+            filter_already_exists=False
+            findFilter= [step.filter for step in step_list if filter_name in step.filter.name]        
+            if len(findFilter):
+                print "Filter %s already exists"%(filter_name)
+                filter_already_exists=True
+                sfilter=findFilter[0]
+            else:
+                sfilter = SequenceFilter( filter_name) 
+                for o in filter_out: sfilter.addOutput(o)            
+                for i in sequence_input: sfilter.addInput(i)
+                print "Filter Done: %s"%(sfilter)        
+
+            sfilter.addChain(chain.name)
+
+            
+            # loop over RecoSequences of this sequence
+            for recoSeq in sequence.recoSeq:
+                seed=recoSeq.seed
+                #### INPUT MAKER
+                input_maker_name = "IM_"+recoSeq.name
+                print "Search %s"%input_maker_name
+                  #TMP: now run InputMaker with sequence input, until InputMaker has inplicit DH
+                input_maker_input= (inp for inp in sequence_input if seed in inp)
+                input_maker_exists=False
+                for step in step_list:
+                    for seq in step.cfRecoSequences:
+                        if input_maker_name in seq.inputMaker.name:
+                            print "IM alg %s already exist: add inputs only"%(input_maker_name)
+                            for i in input_maker_input: seq.inputMaker.addInput(i)
+                            input_maker_exists=True
+                            break
+                
+                # check if the RecoSequence already exists: for example e+mu use the same Recoseuqneces
+                recoseq_already_exists=False
+                cfRecoSequence_name = "CF"+recoSeq.name
+                findRecoSeq=[seq for step in step_list for seq in step.cfRecoSequences if cfRecoSequence_name in seq.name]
+                if len(findRecoSeq):
+                    if len(findRecoSeq) == 1:
+                        cfRecoSequence=findRecoSeq[0]
+                        print " This RecoSequence %s already exists, add hypo inputs and outputs only"%(cfRecoSequence.name)
+                        for i in cfRecoSequence.outputs: hypoAlg.addInput(i)
+                        for i in cfRecoSequence.outputs: hypoAlg.addOutput("Sequence%s_%s_out"%(cfRecoSequence.name,i))
+                        if not input_maker_exists:                       
+                            print "ERROR! Input maker %s not found for this sequence: %s"%(input_maker_name, recoSeq.name)
+                    else:
+                        print "ERROR: found more than one reco sequences with name %s"%cfRecoSequence_name
+                else:
+                    print "Making new reco sequence %s"%(recoSeq.name)
+                    algs=recoSeq.algs
+                    first_alg = algs[0]
+                    first_alg_input= first_alg.name+"_in"                                        
+                    if  input_maker_exists:
+                        print "ERROR: why the recoseq exists and the IM not??"
+                    else:
+                        input_maker = InputMaker(input_maker_name)
+                        print input_maker
+                        for i in input_maker_input: input_maker.addInput(i)
+                        input_maker.addOutput(first_alg_input)
+
+                    last_output = first_alg_input 
+                    for alg in recoSeq.algs:
+                        input=last_output
+                        output="%s_out"%(alg.name) 
+                        alg.addInput(input)
+                        alg.addOutput(output)
+                        print "   Added connections for %s in sequence %s"%(alg,sequence.name)
+                        last_output= output
+                    cfRecoSequence=CFRecoSequence(cfRecoSequence_name, recoSeq, input_maker)
+                    hypoAlg.addInput(last_output)
+                    sequence_out = "Sequence%s_out"%recoSeq.name
+                    hypoAlg.addOutput(sequence_out)
+
+                # append cfrecosequence to the list
+                step_cfseq.append(cfRecoSequence)                    
+                             
+
+            #end of reco sequence loop                        
             #make the decision step                        
-            step_seq = Step( step_name, FilterAlg=sfilter, RecoAlgs=list_of_algs, Hypo=hypoAlg)
+            step_seq = Step( step_name, FilterAlg=sfilter, CFRecoSequences=step_cfseq, Hypo=hypoAlg) 
+            print step_seq
             step_list.append(step_seq)
            
-
-        # fill hypoTools for each chain       
-        threshold=chain_step.threshold
-        hypotool_name=chain.name
-        print "Adding %s to %s"%(threshold,hypoAlg.name)
-        hypoAlg.addHypoTool(threshold)
+        #end of sequence/threshold
 
     #end of this step configuration, now implement CF:
  
     print "\n******** instantiate algorithms in CF"
-    print "There are %d steps in this CFStep"%(len(step_list))
-    for step in step_list:
-        print "\n Create Step %s"%(step.name)
-        filt=step.filter
-        print "Create seqFilter %s"%filt
-        filterAlg=seqFilter(filt.name, Inputs=filt.inputs, Outputs=filt.outputs, Chains=filt.chains)
-        #make algos:
-        algos = []
-        for alg in step.algs:
-            print "Crate Algo %s"%alg
-            algAlg= TestRecoAlg(alg.name, FileName=alg.filename, Output=alg.outputs[0], Input=alg.inputs[0])
-            algos.append(algAlg)
+    stepCF = create_StepCF(stepCF_name, step_list, dump=1)
+    stepCF_DataFlow_to_dot(stepCF_name, step_list)
+    stepCF_ControlFlow_to_dot(stepCF)
 
-        hypo=step.hypo
-        print "Crate HypoAlgo %s"%hypo.name
-        hypoAlg=TestHypoAlg(hypo.name, Input=hypo.inputs[0], Output=hypo.outputs[0])
-        algos.append(hypoAlg)
-        tools=hypo.tools
-        htool_list = []
-        for tool in tools:
-            print "Crate HypoTool %s"%tool
-            prop = ''.join(filter(lambda x: x.isalpha(), tool))
-            hypotoolTool=TestHypoTool(tool, prop)
-            htool_list.append(hypotoolTool)
-            
-        hypoAlg.HypoTools =htool_list
-        print "Crate StepSeq %s"%step.name
-        step_seq = stepSeq( step.name, filterAlg=filterAlg, rest=algos)       
-        print "Add this step %s to %s"%(step.name,stepCF_name)
-        stepCF += step_seq
 
     print "Add stepCF %s to the root"%stepCF_name
     TopHLTSeq += addSteps(stepCF)
@@ -260,6 +288,8 @@ for stepCF_name, stepCF in group_of_steps.iteritems():
     print "************* End of step %s"%stepCF_name
     # end of steps
 
+    #from AthenaCommon.AlgSequence import dumpMasterSequence
+    #dumpMasterSequence()
 
 theApp.EvtMax = 3
 

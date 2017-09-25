@@ -45,8 +45,8 @@ using namespace std;
 HFOR_Truth::HFOR_Truth() {
   m_debug = false;
   //You will need to configure the tool to the HFOR strategy you want
-  angularBased_HFOR = false;
-  jetBased_HFOR = false;
+  m_angularBased_HFOR = false;
+  m_jetBased_HFOR = false;
 
   m_matchCone = 0.4 ;
   m_jetBasedHFOR_pT_min = 5000.; //5 GeV is the lower limit of AntiKt4Jets reclustering
@@ -169,9 +169,9 @@ HFORType HFOR_Truth::findOverlap(const xAOD::TruthEventContainer& truthEvent,
 
   findHFQuarks(fsQuarksMap) ;
 
-  if(angularBased_HFOR){ //Perform an angular based removal action
+  if(m_angularBased_HFOR){ //Perform an angular based removal action
     action = angularBasedRemoval() ;
-  } else if (jetBased_HFOR) {
+  } else if (m_jetBased_HFOR) {
 
     if(jets) action = jetBasedRemoval(jets);
     else Warning("HFOR_Truth::findOverlap()","No JetContainer passed to jet-based HFOR!");

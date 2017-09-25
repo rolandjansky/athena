@@ -20,10 +20,6 @@ ISF::SimHitTreeCreator::SimHitTreeCreator( const std::string& name, ISvcLocator*
   , m_thistSvc("THistSvc",name)
   , m_validationStream("ISFSimHit")
   , m_t_simHits(nullptr)
-  , m_mdt_n(-1)
-  , m_rpc_n(-1)
-  , m_tgc_n(-1)
-  , m_csc_n(-1)
   , m_pileup(-1)
   , m_type(-1)
   , m_id(-1)
@@ -110,10 +106,6 @@ StatusCode ISF::SimHitTreeCreator::createSimHitsTree() {
   const char *treeName="simhits";
   const std::string prefix = "/" + m_validationStream + "/"+ treeName;
   m_t_simHits = new TTree( treeName, treeName );
-  //m_t_simHits->Branch("mdtHits"    , &m_mdt_n    , "mdtHits/I"  );
-  //m_t_simHits->Branch("rpcHits"    , &m_rpc_n    , "rpcHits/I"  );
-  //m_t_simHits->Branch("tgcHits"    , &m_tgc_n    , "tgcHits/I"  );
-  //m_t_simHits->Branch("cscHits"    , &m_csc_n    , "cscHits/I"  );
   m_t_simHits->Branch("pileup"     , &m_pileup   , "pileup/I"   );
   m_t_simHits->Branch("type"       , &m_type     , "type/I"     );
   m_t_simHits->Branch("id"         , &m_id       , "id/I"       );

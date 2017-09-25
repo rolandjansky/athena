@@ -10,8 +10,8 @@
 
 HiveAlgL3::HiveAlgL3( const std::string& name, 
                       ISvcLocator* pSvcLocator ) : 
-  ::HiveAlgBase( name, pSvcLocator ),
-  m_udh1("l1")
+  ::HiveAlgBase( name, pSvcLocator )
+  ,m_udh1("l1")
 {
   
   declareProperty("Key_U1",m_udh1);

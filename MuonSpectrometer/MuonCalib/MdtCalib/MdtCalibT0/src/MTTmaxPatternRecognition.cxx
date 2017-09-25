@@ -2,8 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-using namespace std;
-
 #include "MdtCalibT0/MTTmaxPatternRecognition.h"
 
 //root
@@ -12,6 +10,8 @@ using namespace std;
 #include "TGraph.h"
 #include "TH1.h"
 #include <cmath>
+
+using namespace std;
 
 namespace MuonCalib{
 

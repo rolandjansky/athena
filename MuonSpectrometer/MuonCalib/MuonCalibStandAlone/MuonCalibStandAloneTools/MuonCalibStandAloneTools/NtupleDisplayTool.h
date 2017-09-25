@@ -113,7 +113,7 @@ class NtupleDisplayTool : public AthAlgTool, virtual public NtupleCalibrationToo
             // calibration region //
 	    ServiceHandle<RegionSelectionSvc> m_reg_sel_svc;
             // line reconstruction //
-            IMdtPatRecFitter *qfitter;    
+            IMdtPatRecFitter *m_qfitter;    
             
             // numbers //
             int m_nb_multilayers;

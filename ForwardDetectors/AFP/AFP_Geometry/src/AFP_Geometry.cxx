@@ -158,6 +158,7 @@ HepGeom::Transform3D AFP_Geometry::GetSIDTransform(const eSIDTransformType eType
             break;
         case ESTT_SENSORLOCAL:
             ReqTransform=TotTransSIDInWorld.inverse();
+            break;
         case ESTT_SENSORGLOBAL:
             ReqTransform=TotTransSIDInWorld;
             break;

@@ -66,6 +66,7 @@ atlas_add_test( ut_static_bunch_tool_test
    Root/BunchTrain.cxx
    Root/BunchCrossingToolBase.cxx
    Root/StaticBunchCrossingTool.cxx
+   Root/count_bunch_neighbors.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODTrigger
    TrigConfL1Data )
@@ -77,6 +78,7 @@ atlas_add_test( ut_web_bunch_tool_test
    Root/BunchTrain.cxx
    Root/BunchCrossingToolBase.cxx
    Root/WebBunchCrossingTool.cxx
+   Root/count_bunch_neighbors.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODTrigger
    TrigConfL1Data )

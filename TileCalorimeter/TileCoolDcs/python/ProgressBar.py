@@ -9,12 +9,12 @@ class progressBar:
         self.span = maxValue - minValue
         self.amount = 0       # When amount == max, we are 100% done
         self.nextUpdate = minValue+float(self.span/100.0)
-        self.update(0)  # Build progress bar string
         if len(prefix): self.prefix=prefix+" ["
         else: self.prefix="["
         if len(suffix): self.suffix="] " + suffix
         else: self.suffix="]"
         self.width = totalWidth - len(self.prefix) - len(self.suffix)
+        self.update(0)  # Build progress bar string
 
     def update(self, newAmount = 0):
         if newAmount < self.min: newAmount = self.min
@@ -27,7 +27,7 @@ class progressBar:
 
         # Figure out the new percent done, round to an integer
         diffFromMin = float(self.amount - self.min)
-        percentDone = (diffFromMin / float(self.span)) * 100.0
+        percentDone = (diffFromMin / float(self.span)) * 100.0 if self.span>0 else 100.
         percentDone = round(percentDone)
         percentDone = int(percentDone)
 

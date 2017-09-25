@@ -53,10 +53,10 @@ class HFOR_Truth
   std::string getSampleName() ;
 
   //Calling this tells the method we want to do jet based removal
-  void        setJetBasedHFOR(){jetBased_HFOR = true; angularBased_HFOR = false; } ;
+  void        setJetBasedHFOR(){m_jetBased_HFOR = true; m_angularBased_HFOR = false; } ;
 
   //Calling this tells the method we want to do angular based removal
-  void        setAngularBasedHFOR(){jetBased_HFOR = false; angularBased_HFOR = true; } ;
+  void        setAngularBasedHFOR(){m_jetBased_HFOR = false; m_angularBased_HFOR = true; } ;
 
   //Set the size of the cone to be used in the heavy quark classification
   void        setMatchConeSize(double deltaR) ;
@@ -78,8 +78,8 @@ class HFOR_Truth
   double m_jetBasedHFOR_pT_min;
   double m_jetBasedHFOR_eta_max;
 
-  bool angularBased_HFOR;
-  bool jetBased_HFOR;
+  bool m_angularBased_HFOR;
+  bool m_jetBased_HFOR;
 
   double       m_matchCone ;
   std::string  m_sampleName ;
