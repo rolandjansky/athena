@@ -63,16 +63,16 @@ namespace CP {
             /// default constructor - will create the histos as NULL pointers
             EfficiencyScaleFactor();
             /// constructor to use in real life - will read in the histos from the given file
-            EfficiencyScaleFactor(const std::string &file, const std::string &time_unit, MuonEfficiencySystType sysType, CP::MuonEfficiencyType effType, bool is_lowpt = false, bool hasPtDepSys = false);
+            EfficiencyScaleFactor(const  std::string& toolname, const std::string &file, const std::string &time_unit, MuonEfficiencySystType sysType, CP::MuonEfficiencyType effType, bool is_lowpt = false, bool hasPtDepSys = false);
             //Constructor to connect the EfficiencyScaleFactor with the Nominal Version
-            EfficiencyScaleFactor(EfficiencyScaleFactor* Nominal, const std::string &file, const std::string &time_unit, MuonEfficiencySystType sysType, CP::MuonEfficiencyType effType, bool is_lowpt = false, bool hasPtDepSys = false);
+            EfficiencyScaleFactor(EfficiencyScaleFactor* Nominal, const std::string& toolname, const std::string &file, const std::string &time_unit, MuonEfficiencySystType sysType, CP::MuonEfficiencyType effType, bool is_lowpt = false, bool hasPtDepSys = false);
 
             EfficiencyScaleFactor(const EfficiencyScaleFactor & other);
             EfficiencyScaleFactor & operator =(const EfficiencyScaleFactor & other);
 
             /// Read SF histrograms from a given input file.
-            bool ReadFromFile(std::string file, std::string time_unit);
-            HistHandler_Ptr ReadHistFromFile(std::string name, TFile* f, std::string time_unit);
+            bool ReadFromFile(const std::string &file, const std::string& time_unit);
+            HistHandler_Ptr ReadHistFromFile(const std::string& name, TFile* f, const std::string& time_unit);
 
             // mangle the histograms as required by the systematic being run
             void ApplySysVariation();
@@ -111,9 +111,9 @@ namespace CP {
 
             // a string name assigned to each sys variation
             std::string sysname() const;
+            std::string toolname() const;
 
         private:
-
             // use some maps for easy histo loading / arithmetics by name
 
 
@@ -151,6 +151,9 @@ namespace CP {
             void CopyContent(const EfficiencyScaleFactor &other);
             void CopyHistHandler(HistHandler_Ptr &own, const HistHandler_Ptr other);
             void CopyReplicaVec(EfficiencyScaleFactor::SFvec &own, const EfficiencyScaleFactor::SFvec &other);
+
+            // Some unique toolname in order not to clash with ROOT memory management
+            std::string m_toolname;
             /// the histograms needed to run
             HistHandler_Ptr m_sf;
             HistHandler_Ptr m_eff;

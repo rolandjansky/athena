@@ -25,35 +25,35 @@ namespace CP {
                 m_sfType(CP::MuonEfficiencyType::Undefined) {
     }
 
-    EffiCollection::EffiCollection(const std::string &file_central, const std::string &file_calo, const std::string &file_forward, const std::string &file_lowpt_central, const std::string &file_lowpt_calo, MuonEfficiencySystType sysType, CP::MuonEfficiencyType effType, double lowPtTransition) :
+    EffiCollection::EffiCollection(const asg::AsgTool* ref_asg_tool, const std::string &file_central, const std::string &file_calo, const std::string &file_forward, const std::string &file_lowpt_central, const std::string &file_lowpt_calo, MuonEfficiencySystType sysType, CP::MuonEfficiencyType effType, double lowPtTransition) :
                 EffiCollection() {
         m_lowpt_transition = lowPtTransition;
         m_sfType = effType;
         bool KineSyst = effType == CP::MuonEfficiencyType::Reco || effType == CP::MuonEfficiencyType::BadMuonVeto;
-        m_central_eff = CollectionContainer_Ptr(new CollectionContainer(file_central, sysType, m_sfType, CollectionType::Central, false, KineSyst));
-        m_calo_eff = CollectionContainer_Ptr(new CollectionContainer(file_calo, sysType, m_sfType, CollectionType::Calo, false, KineSyst));
-        m_forward_eff = CollectionContainer_Ptr(new CollectionContainer(file_forward, sysType, m_sfType, CollectionType::Forward));
+        m_central_eff = CollectionContainer_Ptr(new CollectionContainer(ref_asg_tool, file_central, sysType, m_sfType, CollectionType::Central, false, KineSyst));
+        m_calo_eff = CollectionContainer_Ptr(new CollectionContainer(ref_asg_tool, file_calo, sysType, m_sfType, CollectionType::Calo, false, KineSyst));
+        m_forward_eff = CollectionContainer_Ptr(new CollectionContainer(ref_asg_tool, file_forward, sysType, m_sfType, CollectionType::Forward));
 
         // last argument tells this to respond to dedicated low pt systematic variations
         if (m_lowpt_transition > 0) {
-            m_lowpt_central_eff = CollectionContainer_Ptr(new CollectionContainer(file_lowpt_central, sysType, m_sfType, CollectionType::CentralLowPt, true));
-            m_lowpt_calo_eff = CollectionContainer_Ptr(new CollectionContainer(file_lowpt_calo, sysType, m_sfType, CollectionType::CaloLowPt, true));
+            m_lowpt_central_eff = CollectionContainer_Ptr(new CollectionContainer(ref_asg_tool, file_lowpt_central, sysType, m_sfType, CollectionType::CentralLowPt, true));
+            m_lowpt_calo_eff = CollectionContainer_Ptr(new CollectionContainer(ref_asg_tool,file_lowpt_calo, sysType, m_sfType, CollectionType::CaloLowPt, true));
         }
     }
 
-    EffiCollection::EffiCollection(const EffiCollection* Nominal, const std::string &file_central, const std::string &file_calo, const std::string &file_forward, const std::string &file_lowpt_central, const std::string &file_lowpt_calo, MuonEfficiencySystType sysType, CP::MuonEfficiencyType effType, double lowPtTransition) :
+    EffiCollection::EffiCollection(const EffiCollection* Nominal, const asg::AsgTool* ref_asg_tool, const std::string &file_central, const std::string &file_calo, const std::string &file_forward, const std::string &file_lowpt_central, const std::string &file_lowpt_calo, MuonEfficiencySystType sysType, CP::MuonEfficiencyType effType, double lowPtTransition) :
                 EffiCollection() {
         m_lowpt_transition = lowPtTransition;
         m_sfType = effType;
         bool KineSyst = effType == CP::MuonEfficiencyType::Reco || effType == CP::MuonEfficiencyType::BadMuonVeto;
-        m_central_eff = CollectionContainer_Ptr(new CollectionContainer(Nominal->retrieveContainer(CollectionType::Central), file_central, sysType, m_sfType, CollectionType::Central, false, KineSyst));
-        m_calo_eff = CollectionContainer_Ptr(new CollectionContainer(Nominal->retrieveContainer(CollectionType::Calo), file_calo, sysType, m_sfType, CollectionType::Calo, false, KineSyst));
-        m_forward_eff = CollectionContainer_Ptr(new CollectionContainer(Nominal->retrieveContainer(CollectionType::Forward), file_forward, sysType, m_sfType, CollectionType::Forward));
+        m_central_eff = CollectionContainer_Ptr(new CollectionContainer(Nominal->retrieveContainer(CollectionType::Central), ref_asg_tool, file_central, sysType, m_sfType, CollectionType::Central, false, KineSyst));
+        m_calo_eff = CollectionContainer_Ptr(new CollectionContainer(Nominal->retrieveContainer(CollectionType::Calo), ref_asg_tool, file_calo, sysType, m_sfType, CollectionType::Calo, false, KineSyst));
+        m_forward_eff = CollectionContainer_Ptr(new CollectionContainer(Nominal->retrieveContainer(CollectionType::Forward), ref_asg_tool, file_forward, sysType, m_sfType, CollectionType::Forward));
 
         // last argument tells this to respond to dedicated low pt systematic variations
         if (m_lowpt_transition > 0) {
-            m_lowpt_central_eff = CollectionContainer_Ptr(new CollectionContainer(Nominal->retrieveContainer(CollectionType::CentralLowPt), file_lowpt_central, sysType, m_sfType, CollectionType::CentralLowPt, true));
-            m_lowpt_calo_eff = CollectionContainer_Ptr(new CollectionContainer(Nominal->retrieveContainer(CollectionType::CaloLowPt), file_lowpt_calo, sysType, m_sfType, CollectionType::CaloLowPt, true));
+            m_lowpt_central_eff = CollectionContainer_Ptr(new CollectionContainer(Nominal->retrieveContainer(CollectionType::CentralLowPt), ref_asg_tool, file_lowpt_central, sysType, m_sfType, CollectionType::CentralLowPt, true));
+            m_lowpt_calo_eff = CollectionContainer_Ptr(new CollectionContainer(Nominal->retrieveContainer(CollectionType::CaloLowPt), ref_asg_tool, file_lowpt_calo, sysType, m_sfType, CollectionType::CaloLowPt, true));
         }
     }
     EffiCollection::CollectionContainer_Ptr EffiCollection::retrieveContainer(CollectionType Type) const {
@@ -291,11 +291,11 @@ namespace CP {
     //################################################################################
     //                               EffiCollection::CollectionContainer
     //################################################################################
-    EffiCollection::CollectionContainer::CollectionContainer(const std::string &FileName, MuonEfficiencySystType sysType, CP::MuonEfficiencyType effType, EffiCollection::CollectionType FileType, bool isLowPt, bool hasPtDepSys) :
-                CollectionContainer(CollectionContainer_Ptr(), FileName, sysType, effType, FileType, isLowPt, hasPtDepSys) {
+    EffiCollection::CollectionContainer::CollectionContainer(const asg::AsgTool* ref_asg_tool,const std::string &FileName, MuonEfficiencySystType sysType, CP::MuonEfficiencyType effType, EffiCollection::CollectionType FileType, bool isLowPt, bool hasPtDepSys) :
+                CollectionContainer(CollectionContainer_Ptr(),ref_asg_tool, FileName, sysType, effType, FileType, isLowPt, hasPtDepSys) {
     }
 
-    EffiCollection::CollectionContainer::CollectionContainer(CollectionContainer_Ptr Nominal, const std::string &FileName, MuonEfficiencySystType sysType, CP::MuonEfficiencyType effType, EffiCollection::CollectionType FileType, bool isLowPt, bool hasPtDepSys) :
+    EffiCollection::CollectionContainer::CollectionContainer(CollectionContainer_Ptr Nominal, const asg::AsgTool* ref_asg_tool, const std::string &FileName, MuonEfficiencySystType sysType, CP::MuonEfficiencyType effType, EffiCollection::CollectionType FileType, bool isLowPt, bool hasPtDepSys) :
                 m_SF(),
                 m_currentSF(m_SF.end()),
                 m_FileType(FileType) {
@@ -325,9 +325,9 @@ namespace CP {
         delete fin;
         for (auto& period : map) {
             if (!Nominal) {
-                m_SF.insert(std::pair<RunRanges, std::shared_ptr<EfficiencyScaleFactor>>(period.second, std::shared_ptr < EfficiencyScaleFactor > (new EfficiencyScaleFactor(FileName, period.first, sysType, effType, isLowPt, hasPtDepSys))));
+                m_SF.insert(std::pair<RunRanges, std::shared_ptr<EfficiencyScaleFactor>>(period.second, std::shared_ptr < EfficiencyScaleFactor > (new EfficiencyScaleFactor(ref_asg_tool->name()+FileTypeName(m_FileType), FileName, period.first, sysType, effType, isLowPt, hasPtDepSys))));
             } else {
-                m_SF.insert(std::pair<RunRanges, std::shared_ptr<EfficiencyScaleFactor>>(period.second, std::shared_ptr < EfficiencyScaleFactor > (new EfficiencyScaleFactor(Nominal->retrieve(period.second.first).get(), FileName, period.first, sysType, effType, isLowPt, hasPtDepSys))));
+                m_SF.insert(std::pair<RunRanges, std::shared_ptr<EfficiencyScaleFactor>>(period.second, std::shared_ptr < EfficiencyScaleFactor > (new EfficiencyScaleFactor(Nominal->retrieve(period.second.first).get(),ref_asg_tool->name()+FileTypeName(m_FileType), FileName, period.first, sysType, effType, isLowPt, hasPtDepSys))));
             }
         }
         for (auto& period : m_SF)

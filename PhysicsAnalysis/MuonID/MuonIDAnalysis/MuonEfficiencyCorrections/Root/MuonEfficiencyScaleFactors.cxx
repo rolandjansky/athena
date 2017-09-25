@@ -391,10 +391,10 @@ namespace CP {
         }
         EffiCollection* ec = nullptr;
         if (!m_seperateSystBins || IsSystVariation(sysType) || sysType == MuonEfficiencySystType::Nominal) {
-            ec = new EffiCollection(filename_Central(), filename_Calo(), filename_HighEta(), filename_LowPt(), filename_LowPtCalo(), sysType, m_Type, m_lowpt_threshold);
+            ec = new EffiCollection(this,filename_Central(), filename_Calo(), filename_HighEta(), filename_LowPt(), filename_LowPtCalo(), sysType, m_Type, m_lowpt_threshold);
         } else {
             //Parse nominal EffiCollection as fallback for all bins except for the current syst bin
-            ec = new EffiCollection(m_sf_sets.at(MuonEfficiencySystType::Nominal).get(), filename_Central(), filename_Calo(), filename_HighEta(), filename_LowPt(), filename_LowPtCalo(), sysType, m_Type, m_lowpt_threshold);
+            ec = new EffiCollection(m_sf_sets.at(MuonEfficiencySystType::Nominal).get(), this, filename_Central(), filename_Calo(), filename_HighEta(), filename_LowPt(), filename_LowPtCalo(), sysType, m_Type, m_lowpt_threshold);
         }
         m_sf_sets.insert(std::make_pair(sysType, EffiCollection_Ptr(ec)));
 

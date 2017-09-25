@@ -73,6 +73,7 @@ namespace CP {
     HistHandler::HistHandler(TH1* Hist) :
                 m_H(Hist) {
         if (m_H.get() != nullptr) m_H->SetDirectory(nullptr);
+
     }
 
     void HistHandler::Copy(const HistHandler & other) {
@@ -80,7 +81,7 @@ namespace CP {
             return;
         }
         if (other.m_H) {
-            m_H = std::unique_ptr < TH1 > (dynamic_cast<TH1*>(other.m_H->Clone(Form("CloneOf_%s", m_H->GetName()))));
+            m_H = Histo_Ptr(dynamic_cast<TH1*>(other.m_H->Clone(Form("CloneOf_%s", m_H->GetName()))));
         }
     }
     HistHandler::HistHandler(const HistHandler & other) :
@@ -96,6 +97,7 @@ namespace CP {
         return m_H->GetBinContent(bin);
     }
     void HistHandler::SetBinContent(int bin, float val) const {
+
         if (m_H) {
             m_H->SetBinContent(bin, val);
         }
@@ -111,8 +113,8 @@ namespace CP {
             m_H->SetBinError(bin, val);
         }
     }
-    TH1* HistHandler::GetHist() const {
-        return m_H.get();
+    Histo_Ptr HistHandler::GetHist() const {
+        return m_H;
     }
 
     //###########################################################################################################
@@ -168,9 +170,8 @@ namespace CP {
     //###########################################################################################################
     HistHandler_TH2::HistHandler_TH2(TH2 * h) :
                 HistHandler(h),
-                m_h(h),
-                m_x_handler(m_h == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(h->GetXaxis())),
-                m_y_handler(m_h == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(h->GetYaxis())) {
+                m_x_handler(h == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(h->GetXaxis())),
+                m_y_handler(h == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(h->GetYaxis())) {
 
     }
     int HistHandler_TH2::NBins() const {
@@ -185,12 +186,12 @@ namespace CP {
         if (foundx == CorrectionCode::Error || foundy == CorrectionCode::Error) {
             return CorrectionCode::Error;
         } else {
-            int binx = m_h->GetXaxis()->FindBin(parx);
-            int biny = m_h->GetYaxis()->FindBin(pary);
-            if (binx < 1 || binx > m_h->GetNbinsX() || biny < 1 || biny > m_h->GetNbinsY()) {
+            int binx = GetHist()->GetXaxis()->FindBin(parx);
+            int biny = GetHist()->GetYaxis()->FindBin(pary);
+            if (binx < 1 || binx > GetHist()->GetNbinsX() || biny < 1 || biny > GetHist()->GetNbinsY()) {
                 return CorrectionCode::OutOfValidityRange;
             }
-            bin = m_h->GetBin(binx, biny);
+            bin = GetHist()->GetBin(binx, biny);
         }
         return CorrectionCode::Ok;
     }
@@ -206,9 +207,8 @@ namespace CP {
     }
     HistHandler_TH2::HistHandler_TH2(const HistHandler_TH2 & other) :
                 HistHandler(other),
-                m_h(other.m_h),
-                m_x_handler(other.m_h == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.m_h->GetXaxis())),
-                m_y_handler(other.m_h == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.m_h->GetYaxis())) {
+                m_x_handler(other.GetHist() == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.GetHist()->GetXaxis())),
+                m_y_handler(other.GetHist() == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.GetHist()->GetYaxis())) {
     }
     std::string HistHandler_TH2::GetBinName(unsigned int bin) const {
         int x(0), y(0), z(0);
@@ -230,18 +230,16 @@ namespace CP {
 
     HistHandler_TH3::HistHandler_TH3(TH3 * h) :
                 HistHandler(h),
-                m_h(h),
-                m_x_handler(m_h == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(h->GetXaxis())),
-                m_y_handler(m_h == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(h->GetYaxis())),
-                m_z_handler(m_h == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(h->GetZaxis())) {
+                m_x_handler(GetHist() == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(h->GetXaxis())),
+                m_y_handler(GetHist() == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(h->GetYaxis())),
+                m_z_handler(GetHist() == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(h->GetZaxis())) {
 
     }
     HistHandler_TH3::HistHandler_TH3(const HistHandler_TH3 & other) :
                 HistHandler(other),
-                m_h(other.m_h),
-                m_x_handler(other.m_h == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.m_h->GetXaxis())),
-                m_y_handler(other.m_h == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.m_h->GetYaxis())),
-                m_z_handler(other.m_h == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.m_h->GetZaxis())) {
+                m_x_handler(other.GetHist() == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.GetHist()->GetXaxis())),
+                m_y_handler(other.GetHist() == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.GetHist()->GetYaxis())),
+                m_z_handler(other.GetHist() == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.GetHist()->GetZaxis())) {
 
     }
 
@@ -252,9 +250,9 @@ namespace CP {
             return *this;
         }
         Copy(other);
-        m_x_handler = AxisHandler_Ptr(other.m_h == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.m_h->GetXaxis()));
-        m_y_handler = AxisHandler_Ptr(other.m_h == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.m_h->GetYaxis()));
-        m_z_handler = AxisHandler_Ptr(other.m_h == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.m_h->GetZaxis()));
+        m_x_handler = AxisHandler_Ptr(other.GetHist() == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.GetHist()->GetXaxis()));
+        m_y_handler = AxisHandler_Ptr(other.GetHist() == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.GetHist()->GetYaxis()));
+        m_z_handler = AxisHandler_Ptr(other.GetHist() == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.GetHist()->GetZaxis()));
         return *this;
     }
     int HistHandler_TH3::NBins() const {
@@ -271,13 +269,13 @@ namespace CP {
         CorrectionCode foundz = m_z_handler->GetBinningParameter(muon, parz);
         if (foundx == CorrectionCode::Error || foundy == CorrectionCode::Error || foundz == CorrectionCode::Error) return CorrectionCode::Error;
         else {
-            int binx = m_h->GetXaxis()->FindBin(parx);
-            int biny = m_h->GetYaxis()->FindBin(pary);
-            int binz = m_h->GetZaxis()->FindBin(parz);
-            if (binx < 1 || binx > m_h->GetNbinsX() || biny < 1 || biny > m_h->GetNbinsY() || binz < 1 || binz > m_h->GetNbinsZ()) {
+            int binx = GetHist()->GetXaxis()->FindBin(parx);
+            int biny = GetHist()->GetYaxis()->FindBin(pary);
+            int binz = GetHist()->GetZaxis()->FindBin(parz);
+            if (binx < 1 || binx > GetHist()->GetNbinsX() || biny < 1 || biny > GetHist()->GetNbinsY() || binz < 1 || binz > GetHist()->GetNbinsZ()) {
                 return CorrectionCode::OutOfValidityRange;
             }
-            bin = m_h->GetBin(binx, biny, binz);
+            bin = GetHist()->GetBin(binx, biny, binz);
         }
         return CorrectionCode::Ok;
     }
@@ -304,16 +302,16 @@ namespace CP {
     HistHandler_TH2Poly::HistHandler_TH2Poly(TH2Poly * h) :
                 HistHandler(h),
                 m_h(h),
-                m_x_handler(m_h == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(h->GetXaxis())),
-                m_y_handler(m_h == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(h->GetYaxis())) {
+                m_x_handler(GetHist() == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(h->GetXaxis())),
+                m_y_handler(GetHist() == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(h->GetYaxis())) {
 
     }
 
     HistHandler_TH2Poly::HistHandler_TH2Poly(const HistHandler_TH2Poly & other) :
                 HistHandler(other),
                 m_h(other.m_h),
-                m_x_handler(other.m_h == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.m_h->GetXaxis())),
-                m_y_handler(other.m_h == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.m_h->GetYaxis())) {
+                m_x_handler(other.GetHist() == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.m_h->GetXaxis())),
+                m_y_handler(other.GetHist() == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.m_h->GetYaxis())) {
 
     }
 
@@ -322,8 +320,9 @@ namespace CP {
             return *this;
         }
         Copy(other);
-        m_x_handler = AxisHandler_Ptr(other.m_h == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.m_h->GetXaxis()));
-        m_y_handler = AxisHandler_Ptr(other.m_h == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.m_h->GetYaxis()));
+        m_h = other.m_h;
+        m_x_handler = AxisHandler_Ptr(other.GetHist() == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.m_h->GetXaxis()));
+        m_y_handler = AxisHandler_Ptr(other.GetHist() == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.m_h->GetYaxis()));
         return *this;
     }
 
@@ -340,7 +339,7 @@ namespace CP {
         CorrectionCode foundy = m_y_handler->GetBinningParameter(muon, pary);
         if (foundx == CorrectionCode::Error || foundy == CorrectionCode::Error) return CorrectionCode::Error;
         else {
-            bin = m_h->FindBin(parx, pary);
+            bin = GetHist()->FindBin(parx, pary);
             if (bin < 0) {
                 return CorrectionCode::OutOfValidityRange;
             }

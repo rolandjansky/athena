@@ -7,20 +7,14 @@
 
 // EDM include(s):
 #include "xAODMuon/Muon.h"
-// Infrastructure include(s):
-#ifdef ROOTCORE
-#   include "xAODRootAccess/Init.h"
-#   include "xAODRootAccess/TEvent.h"
-#endif // ROOTCORE
-
-// EDM include(s):
-#include "xAODEventInfo/EventInfo.h"
-#include "xAODMuon/MuonContainer.h"
 
 // supported SF histogram types
 #include <TH1F.h>
 #include <TH2F.h>
 #include <TH3F.h>
+#include <TH1D.h>
+#include <TH2D.h>
+#include <TH3D.h>
 #include <TH2Poly.h>
 
 #include "PATInterfaces/CorrectionCode.h"
@@ -43,6 +37,8 @@ namespace CP {
 
     class AxisHandler;
     typedef std::unique_ptr<AxisHandler> AxisHandler_Ptr;
+    typedef std::shared_ptr<TH1> Histo_Ptr;
+
     class HistHandler {
             /// @class HistHandler
             /// @brief  utility class to avoid having to determine the input histo at every single
@@ -56,7 +52,7 @@ namespace CP {
             void SetBinContent(int bin, float val) const;
             double GetBinError(int bin) const;
             void SetBinError(int bin, float val) const;
-            TH1* GetHist() const;
+            Histo_Ptr GetHist() const;
 
             //Function that changes from Implementation to implementation
             virtual CorrectionCode FindBin(const xAOD::Muon & muon, int & bin) const = 0;
@@ -69,7 +65,7 @@ namespace CP {
             HistHandler(const HistHandler & other);
             void Copy(const HistHandler & other);
         private:
-            std::unique_ptr<TH1> m_H;
+            Histo_Ptr m_H;
 
     };
 
@@ -105,7 +101,6 @@ namespace CP {
 
             virtual CorrectionCode FindBin(const xAOD::Muon & muon, int & bin) const;
         private:
-            TH2* m_h;
             AxisHandler_Ptr m_x_handler;
             AxisHandler_Ptr m_y_handler;
     };
@@ -125,7 +120,6 @@ namespace CP {
             virtual CorrectionCode FindBin(const xAOD::Muon & muon, int & bin) const;
 
         private:
-            TH3* m_h;
             AxisHandler_Ptr m_x_handler;
             AxisHandler_Ptr m_y_handler;
             AxisHandler_Ptr m_z_handler;
