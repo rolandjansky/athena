@@ -22,7 +22,7 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 
 #include <vector>
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 
