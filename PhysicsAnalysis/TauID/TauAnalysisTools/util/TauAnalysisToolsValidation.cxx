@@ -72,31 +72,39 @@ int main( int argc, char* argv[] )
 
   xAOD::TReturnCode::enableFailure();
 
-  std::string sNominalNames[2]     = {"TauScaleFactorReconstructionHadTau", "TauScaleFactorJetIDHadTau"};
-  std::string sSystematicsNames[4] = {"TAUS_TRUEHADTAU_EFF_RECO_TOTAL__1up", "TAUS_TRUEHADTAU_EFF_RECO_HIGHPT__1up", 
-                                      "TAUS_TRUEHADTAU_EFF_JETID_TOTAL__1up", "TAUS_TRUEHADTAU_EFF_JETID_HIGHPT__1up"};
+  std::string sNominalNames[3]     = {"TauScaleFactorReconstructionHadTau", 
+                                      "TauScaleFactorJetIDHadTau", 
+                                      "TESScaleFactorHadTau"};
+  std::string sSystematicsNames[10] = {"TAUS_TRUEHADTAU_EFF_RECO_TOTAL__1up", 
+                                      "TAUS_TRUEHADTAU_EFF_RECO_HIGHPT__1up", 
+                                      "TAUS_TRUEHADTAU_EFF_JETID_TOTAL__1up",
+                                      "TAUS_TRUEHADTAU_EFF_JETID_HIGHPT__1up",
+                                      "TAUS_TRUEHADTAU_SME_TES_DETECTOR__1down", 
+                                      "TAUS_TRUEHADTAU_SME_TES_DETECTOR__1up", 
+                                      "TAUS_TRUEHADTAU_SME_TES_INSITU__1down",
+                                      "TAUS_TRUEHADTAU_SME_TES_INSITU__1up",
+                                      "TAUS_TRUEHADTAU_SME_TES_MODEL__1down",
+                                      "TAUS_TRUEHADTAU_SME_TES_MODEL__1up"};
 
-  double bins[7] = {20,30,40,60,100,300,1000};
+  double ptBins[7] = {20,30,40,60,100,300,1000};
+  double etaBins[10] = {-2.5, -1.6, -1.3, -0.8, -0.3, 0.3, 0.8, 1.3, 1.6, 2.5};
   for (auto s: sNominalNames)
   {
-    mTH2F[s+"__1p__pt"]     = new TH2F((s+"__1p__pt").c_str(),    (s+"__1p__pt").c_str(),   20,  0, 500, 160, 0.8, 1.2);
-    mTH2F[s+"__3p__pt"]     = new TH2F((s+"__3p__pt").c_str(),    (s+"__3p__pt").c_str(),   20,  0, 500, 160, 0.8, 1.2);
-    mTH2F[s+"__1p__log_pt"] = new TH2F((s+"__1p__log_pt").c_str(),(s+"__1p__log_pt").c_str(),6,  bins,   160, 0.8, 1.2);
-    mTH2F[s+"__3p__log_pt"] = new TH2F((s+"__3p__log_pt").c_str(),(s+"__3p__log_pt").c_str(),6,  bins,   160, 0.8, 1.2);
-    mTH2F[s+"__1p__eta"]    = new TH2F((s+"__1p__eta").c_str(),   (s+"__1p__eta").c_str(),  24, -3,   3, 160, 0.8, 1.2);
-    mTH2F[s+"__3p__eta"]    = new TH2F((s+"__3p__eta").c_str(),   (s+"__3p__eta").c_str(),  24, -3,   3, 160, 0.8, 1.2); 
+    mTH2F[s+"__1p__pt"]  = new TH2F((s+"__1p__pt").c_str(),  (s+"__1p__pt").c_str(),  6, ptBins,  201, 0.8, 1.2);
+    mTH2F[s+"__3p__pt"]  = new TH2F((s+"__3p__pt").c_str(),  (s+"__3p__pt").c_str(),  6, ptBins,  201, 0.8, 1.2);
+    mTH2F[s+"__1p__eta"] = new TH2F((s+"__1p__eta").c_str(), (s+"__1p__eta").c_str(), 9, etaBins, 201, 0.8, 1.2);
+    mTH2F[s+"__3p__eta"] = new TH2F((s+"__3p__eta").c_str(), (s+"__3p__eta").c_str(), 9, etaBins, 201, 0.8, 1.2); 
   }
    
   for (auto s: sSystematicsNames)
   {
-    mTH2F[s+"__1p__pt"]     = new TH2F((s+"__1p__pt").c_str(),    (s+"__1p__pt").c_str(),   20,  0, 500, 160, -0.2, 0.2);
-    mTH2F[s+"__3p__pt"]     = new TH2F((s+"__3p__pt").c_str(),    (s+"__3p__pt").c_str(),   20,  0, 500, 160, -0.2, 0.2);
-    mTH2F[s+"__1p__log_pt"] = new TH2F((s+"__1p__log_pt").c_str(),(s+"__1p__log_pt").c_str(),6,  bins,   160, -0.2, 0.2);
-    mTH2F[s+"__3p__log_pt"] = new TH2F((s+"__3p__log_pt").c_str(),(s+"__3p__log_pt").c_str(),6,  bins,   160, -0.2, 0.2);
-    mTH2F[s+"__1p__eta"]    = new TH2F((s+"__1p__eta").c_str(),   (s+"__1p__eta").c_str(),  24, -3,   3, 160, -0.2, 0.2);
-    mTH2F[s+"__3p__eta"]    = new TH2F((s+"__3p__eta").c_str(),   (s+"__3p__eta").c_str(),  24, -3,   3, 160, -0.2, 0.2);
+    mTH2F[s+"__1p__pt"]  = new TH2F((s+"__1p__pt").c_str(),  (s+"__1p__pt").c_str(),  6, ptBins,  201, -0.2, 0.2);
+    mTH2F[s+"__3p__pt"]  = new TH2F((s+"__3p__pt").c_str(),  (s+"__3p__pt").c_str(),  6, ptBins,  201, -0.2, 0.2);
+    mTH2F[s+"__1p__eta"] = new TH2F((s+"__1p__eta").c_str(), (s+"__1p__eta").c_str(), 9, etaBins, 201, -0.2, 0.2);
+    mTH2F[s+"__3p__eta"] = new TH2F((s+"__3p__eta").c_str(), (s+"__3p__eta").c_str(), 9, etaBins, 201, -0.2, 0.2);
   }
- 
+
+
   // Check if we received a file name:
   if( argc < 2 )
   {
@@ -181,7 +189,7 @@ int main( int argc, char* argv[] )
   // ===========================================================================
   TauAnalysisTools::TauSmearingTool TauSmeTool( "TauSmearingTool" );
   TauSmeTool.msg().setLevel( MSG::INFO );
-  CHECK(TauSmeTool.setProperty("ApplyMVATES", true ));
+  CHECK(TauSmeTool.setProperty("ApplyMVATES", false ));
   CHECK(TauSmeTool.initialize());
 
   // restructure all recommended systematic variations for smearing tool
@@ -213,27 +221,6 @@ int main( int argc, char* argv[] )
     vEfficiencyCorrectionsSystematicSet.back().insert(SystematicsVariation);
   }
 
-
-  // ===========================================================================
-  // TauEfficiencyCorrectionsTriggerTool
-  // ===========================================================================
-  // TauAnalysisTools::TauEfficiencyCorrectionsTool TauEffTrigTool( "TauEfficiencyCorrectionsTriggerTool" );
-  // TauEffTrigTool.msg().setLevel( MSG::INFO );
-  // CHECK(TauEffTrigTool.setProperty("EfficiencyCorrectionTypes", std::vector<int>({SFTriggerHadTau}) ));
-  // CHECK(TauEffTrigTool.setProperty("TriggerName", "HLT_tau25_medium1_tracktwo" ));
-  // CHECK(TauEffTrigTool.setProperty("IDLevel", (int)JETIDBDTTIGHT ));
-  // CHECK(TauEffTrigTool.setProperty("PileupReweightingTool", m_tPRWToolHandle ));
-  // CHECK(TauEffTrigTool.setProperty("TriggerSFMeasurement", "combined"));
-  // CHECK(TauEffTrigTool.initialize());
-
-  // restructure all recommended systematic variations for efficiency tools
-  // std::vector<CP::SystematicSet> vEfficiencyCorrectionsTriggerSystematicSet;
-  // vEfficiencyCorrectionsTriggerSystematicSet.push_back(CP::SystematicSet());
-  // for (auto SystematicsVariation : TauEffTrigTool.recommendedSystematics())
-  // {
-  //   vEfficiencyCorrectionsTriggerSystematicSet.push_back(CP::SystematicSet());
-  //   vEfficiencyCorrectionsTriggerSystematicSet.back().insert(SystematicsVariation);
-  // }
 
   // ===========================================================================
   // TauTruthMatchingTool
@@ -274,17 +261,31 @@ int main( int argc, char* argv[] )
       // perform truth matching
       auto xTruthTau = T2MT.getTruth(*xTau);
 
-      for (auto sSystematicSet: vSmearingSystematicSet)
-      {
-        CHECK( TauSmeTool.applySystematicVariation(sSystematicSet)) ;
-        CHECK( TauSmeTool.applyCorrection(*xTau) );
-      }
+      // skip tau candidates that are not true hadronic decays
+      if (!(bool)xTau->auxdata<char>("IsTruthMatched") or !(bool)xTruthTau->auxdata<char>("IsHadronicTau")) continue;
 
       // Select "good" taus:
       if( ! TauSelTool->accept( *xTau ) ) continue;
 
-      // skip tau candidates that are not true hadronic decays
-      if (!(bool)xTau->auxdata<char>("IsTruthMatched") or !(bool)xTruthTau->auxdata<char>("IsHadronicTau")) continue;
+      double originalPt = xTau->pt();
+      CHECK(TauSmeTool.applySystematicVariation(CP::SystematicSet())) ;
+      CHECK(TauSmeTool.applyCorrection(*xTau));
+
+      double sfNominalTES = xTau->pt() / originalPt;
+      double sfVarTES = 0;
+      fillHistograms("TESScaleFactorHadTau", *xTau, sfNominalTES);
+
+      xTau->setP4( originalPt, xTau->eta(), xTau->phi(), xTau->m());
+      for (auto sSystematicSet: vSmearingSystematicSet)
+      {
+        CHECK( TauSmeTool.applySystematicVariation(sSystematicSet)) ;
+        CHECK( TauSmeTool.applyCorrection(*xTau) );
+        sfVarTES = xTau->pt()/originalPt;
+        fillHistograms(sSystematicSet.name().c_str(), *xTau, (sfVarTES-sfNominalTES)/sfNominalTES);
+
+        // reset tau pt 
+        xTau->setP4( originalPt, xTau->eta(), xTau->phi(), xTau->m());
+      }
 
       // apply efficiency corrections and fill validation plots
       double sfNominalReco = 0;
@@ -317,17 +318,6 @@ int main( int argc, char* argv[] )
       CHECK( TauEffCorrTool.applyEfficiencyScaleFactor(*xTau) );
       sfVar = xTau->auxdata< double >("TauScaleFactorJetIDHadTau");
       fillHistograms("TAUS_TRUEHADTAU_EFF_JETID_HIGHPT__1up", *xTau, sfVar-sfNominalID);
-
-
-      // for (auto sSystematicSet: vEfficiencyCorrectionsTriggerSystematicSet)
-      // {
-      //   CHECK( TauEffTrigTool.applySystematicVariation(sSystematicSet));
-      //   CHECK( TauEffTrigTool.applyEfficiencyScaleFactor(*xTau) );
-      //   Info( "TauAnalysisToolsValidation",
-      //         "SystType %s: Trigger: %g",
-      //         sSystematicSet.name().c_str(),
-      //         xTau->auxdata< double >( "TauScaleFactorTriggerHadTau" ));
-      // }
 
     }
     if (xTauJetContainer->empty())
@@ -362,13 +352,11 @@ void fillHistograms( std::string sBaseName, const xAOD::TauJet& xTau, double val
   if (xTau.nTracks() == 1)
   {
     mTH2F[sBaseName+"__1p__pt"]->Fill(xTau.pt()/1000, val, ev_weight);
-    mTH2F[sBaseName+"__1p__log_pt"]->Fill(xTau.pt()/1000, val, ev_weight);
     mTH2F[sBaseName+"__1p__eta"]->Fill(xTau.eta(), val, ev_weight);
   }
   else if (xTau.nTracks() == 3)
   {
     mTH2F[sBaseName+"__3p__pt"]->Fill(xTau.pt()/1000, val, ev_weight);
-    mTH2F[sBaseName+"__3p__log_pt"]->Fill(xTau.pt()/1000, val, ev_weight);
     mTH2F[sBaseName+"__3p__eta"]->Fill(xTau.eta(), val, ev_weight);
   }
 }
