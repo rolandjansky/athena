@@ -49,11 +49,9 @@ const std::array<std::string, kNumModulesBarrel> ModulesBarrel = {{
 
 
 // Definitions for end-caps and DBM
-const std::array<std::string, kNumLayersDisk> LayersDisk = {{
-  "Disk 1", "Disk 2", "Disk 3"}};
+const std::array<std::string, kNumLayersDisk> LayersDisk = {{"Disk 1", "Disk 2", "Disk 3"}};
 
-const std::array<std::string, kNumLayersDBM> LayersDBM = {{
-  "Layer 0", "Layer 1", "Layer 2"}};
+const std::array<std::string, kNumLayersDBM> LayersDBM = {{"Layer 0", "Layer 1", "Layer 2"}};
 
 const std::array<std::string, kNumModulesDisk> ModulesECA = {{
     "B01_S2_M1", "B01_S2_M6", "B01_S2_M2", "B01_S2_M5", "B01_S2_M3",
@@ -79,37 +77,36 @@ const std::array<std::string, kNumModulesDisk> ModulesECC = {{
     "B04_S2_M6", "B04_S2_M1", "B01_S1_M4", "B01_S1_M3", "B01_S1_M5",
     "B01_S1_M2", "B01_S1_M6", "B01_S1_M1"}};
 
-const std::array<std::string, kNumModulesDBM> ModulesDBM = {{
-    "M3", "M4", "M1", "M2"}};
+const std::array<std::string, kNumModulesDBM> ModulesDBM = {{"M3", "M4", "M1", "M2"}};
 
 bool HasComponent(const HistConf& config, const LayerIBL2D3DDBM& component) {
-   if (component >= LayerIBL2D3DDBM::COUNT) {
-      // return here if we are out of scope
-      return false;
-   } else if (config == HistConf::kPix && component <= LayerIBL2D3DDBM::kB2) {
-      return true;
-   } else if (config == HistConf::kPixIBL && (component <= LayerIBL2D3DDBM::kB2 || component == LayerIBL2D3DDBM::kIBL)) {
-      return true;
-   } else if (config == HistConf::kPixIBL2D3D && (component <= LayerIBL2D3DDBM::kB2 || component >= LayerIBL2D3DDBM::kIBL)) {
-      return true;
-   } else if (config == HistConf::kPixDBM && component <= LayerIBL2D3DDBM::kDBMC) {
-      return true;
-   } else if (config == HistConf::kPixDBMIBL && component <= LayerIBL2D3DDBM::kIBL) {
-      return true;
-   } else if (config == HistConf::kPixDBMIBL2D3D) {
-      return true;
-   } else if (config == HistConf::kDBM && (component == LayerIBL2D3DDBM::kDBMA || component == LayerIBL2D3DDBM::kDBMC)) {
-      return true;
-   } else if (config == HistConf::kDBMIBL && component >= LayerIBL2D3DDBM::kDBMA && component <= LayerIBL2D3DDBM::kIBL) {
-      return true;
-   } else if (config == HistConf::kDBMIBL2D3D && component >= LayerIBL2D3DDBM::kDBMA) {
-      return true;
-   } else if (config == HistConf::kIBL && component == LayerIBL2D3DDBM::kIBL) {
-      return true;
-   } else if (config == HistConf::kIBL2D3D && component >= LayerIBL2D3DDBM::kIBL) {
-      return true;
-   } else {
-      return false;
-   }
+  if (component >= LayerIBL2D3DDBM::COUNT) {
+    // return here if we are out of scope
+    return false;
+  } else if (config == HistConf::kPix && component <= LayerIBL2D3DDBM::kB2) {
+    return true;
+  } else if (config == HistConf::kPixIBL && (component <= LayerIBL2D3DDBM::kB2 || component == LayerIBL2D3DDBM::kIBL)) {
+    return true;
+  } else if (config == HistConf::kPixIBL2D3D && (component <= LayerIBL2D3DDBM::kB2 || component >= LayerIBL2D3DDBM::kIBL)) {
+    return true;
+  } else if (config == HistConf::kPixDBM && component <= LayerIBL2D3DDBM::kDBMC) {
+    return true;
+  } else if (config == HistConf::kPixDBMIBL && component <= LayerIBL2D3DDBM::kIBL) {
+    return true;
+  } else if (config == HistConf::kPixDBMIBL2D3D) {
+    return true;
+  } else if (config == HistConf::kDBM && (component == LayerIBL2D3DDBM::kDBMA || component == LayerIBL2D3DDBM::kDBMC)) {
+    return true;
+  } else if (config == HistConf::kDBMIBL && component >= LayerIBL2D3DDBM::kDBMA && component <= LayerIBL2D3DDBM::kIBL) {
+    return true;
+  } else if (config == HistConf::kDBMIBL2D3D && component >= LayerIBL2D3DDBM::kDBMA) {
+    return true;
+  } else if (config == HistConf::kIBL && component == LayerIBL2D3DDBM::kIBL) {
+    return true;
+  } else if (config == HistConf::kIBL2D3D && component >= LayerIBL2D3DDBM::kIBL) {
+    return true;
+  } else {
+    return false;
+  }
 }
 }  // namespace PixMon
