@@ -23,7 +23,7 @@ namespace Trk {
                  float xrange, float yrange, float zrange, bool inplace=true );
 
     // Default constructor (won't produce useable image), but used to keep image as member setup during init
-    VertexImage() {}
+    VertexImage();
 
     // Direct access to the histogram array
     const float * getHist() const { return m_hist_3d; }
