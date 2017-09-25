@@ -180,10 +180,10 @@ void InDet::TRT_SeededSpacePointFinder_ATL::newEvent ()
   if(m_loadFull){
     // Get pixel space points containers from store gate 
     //
-    SG::ReadHandle<SpacePointContainer> m_spacepointsPix(m_spacepointsPixname);
-    if (m_spacepointsPix.isValid()) {
-     SpacePointContainer::const_iterator spc =  m_spacepointsPix->begin  (); 
-      SpacePointContainer::const_iterator spce =  m_spacepointsPix->end  ();
+    SG::ReadHandle<SpacePointContainer> spacepointsPix(m_spacepointsPixname);
+    if (spacepointsPix.isValid()) {
+     SpacePointContainer::const_iterator spc =  spacepointsPix->begin  (); 
+      SpacePointContainer::const_iterator spce =  spacepointsPix->end  ();
 
       for(; spc != spce; ++spc) {
 
@@ -204,11 +204,11 @@ void InDet::TRT_SeededSpacePointFinder_ATL::newEvent ()
 
   // Get sct space points containers from store gate 
   //
-  SG::ReadHandle<SpacePointContainer> m_spacepointsSCT(m_spacepointsSCTname);
-  if (m_spacepointsSCT.isValid()) {
+  SG::ReadHandle<SpacePointContainer> spacepointsSCT(m_spacepointsSCTname);
+  if (spacepointsSCT.isValid()) {
 
-    SpacePointContainer::const_iterator spc  =  m_spacepointsSCT->begin();
-    SpacePointContainer::const_iterator spce =  m_spacepointsSCT->end  ();
+    SpacePointContainer::const_iterator spc  =  spacepointsSCT->begin();
+    SpacePointContainer::const_iterator spce =  spacepointsSCT->end  ();
 
     for(; spc != spce; ++spc) {
 
@@ -236,10 +236,10 @@ void InDet::TRT_SeededSpacePointFinder_ATL::newEvent ()
 
   // Get sct overlap space points containers from store gate 
   //
-  SG::ReadHandle<SpacePointOverlapCollection> m_spacepointsOverlap(m_spacepointsOverlapname);
-  if (m_spacepointsOverlap.isValid()) {
-    SpacePointOverlapCollection::const_iterator sp  = m_spacepointsOverlap->begin();
-    SpacePointOverlapCollection::const_iterator spe = m_spacepointsOverlap->end  ();
+  SG::ReadHandle<SpacePointOverlapCollection> spacepointsOverlap(m_spacepointsOverlapname);
+  if (spacepointsOverlap.isValid()) {
+    SpacePointOverlapCollection::const_iterator sp  = spacepointsOverlap->begin();
+    SpacePointOverlapCollection::const_iterator spe = spacepointsOverlap->end  ();
 
     for (; sp!=spe; ++sp) {
 
@@ -276,9 +276,9 @@ void InDet::TRT_SeededSpacePointFinder_ATL::newRegion
   if(m_loadFull && vPixel.size()){
     // Get pixel space points containers from store gate 
     //
-    SG::ReadHandle<SpacePointContainer> m_spacepointsPix(m_spacepointsPixname);
-    if (m_spacepointsPix.isValid()) {
-      SpacePointContainer::const_iterator spce =  m_spacepointsPix->end  ();
+    SG::ReadHandle<SpacePointContainer> spacepointsPix(m_spacepointsPixname);
+    if (spacepointsPix.isValid()) {
+      SpacePointContainer::const_iterator spce =  spacepointsPix->end  ();
 
       std::vector<IdentifierHash>::const_iterator l = vPixel.begin(), le = vPixel.end();
 
@@ -286,7 +286,7 @@ void InDet::TRT_SeededSpacePointFinder_ATL::newRegion
       //
       for(; l!=le; ++l) {
 	
-	SpacePointContainer::const_iterator  w =  m_spacepointsPix->indexFind((*l));
+	SpacePointContainer::const_iterator  w =  spacepointsPix->indexFind((*l));
 	if(w==spce) continue;
 
 
@@ -309,11 +309,11 @@ void InDet::TRT_SeededSpacePointFinder_ATL::newRegion
   //
   if(vSCT.size()) {
 
-    SG::ReadHandle<SpacePointContainer> m_spacepointsSCT(m_spacepointsSCTname);
-    if (m_spacepointsSCT.isValid()) {
+    SG::ReadHandle<SpacePointContainer> spacepointsSCT(m_spacepointsSCTname);
+    if (spacepointsSCT.isValid()) {
 
       //SpacePointContainer::const_iterator spc  =  m_spacepointsSCT->begin();
-      SpacePointContainer::const_iterator spce =  m_spacepointsSCT->end  ();
+      SpacePointContainer::const_iterator spce =  spacepointsSCT->end  ();
 
       std::vector<IdentifierHash>::const_iterator l = vSCT.begin(), le = vSCT.end();
 
@@ -321,7 +321,7 @@ void InDet::TRT_SeededSpacePointFinder_ATL::newRegion
       //
       for(; l!=le; ++l) {
 
-	SpacePointContainer::const_iterator  w =  m_spacepointsSCT->indexFind((*l));
+	SpacePointContainer::const_iterator  w =  spacepointsSCT->indexFind((*l));
 	if(w==spce) continue;
 
         SpacePointCollection::const_iterator sp  = (*w)->begin();

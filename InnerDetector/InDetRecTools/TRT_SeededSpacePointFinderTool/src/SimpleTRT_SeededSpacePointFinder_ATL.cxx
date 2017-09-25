@@ -290,12 +290,12 @@ void InDet::SimpleTRT_SeededSpacePointFinder_ATL::getSpacePointsInROI(std::set<I
   const std::set<IdentifierHash>::const_iterator endSCT_Hashes = setOfSCT_Hashes.end();
   
   // retrieve SP Container
-  SG::ReadHandle<SpacePointContainer> m_spacepointsSCT(m_spacepointsSCTname);
-  if(m_spacepointsSCT.isValid()) 
+  SG::ReadHandle<SpacePointContainer> spacepointsSCT(m_spacepointsSCTname);
+  if(spacepointsSCT.isValid()) 
     {
       // loop over SP collections in SP container
-      SpacePointContainer::const_iterator itCont  =  m_spacepointsSCT->begin();
-      SpacePointContainer::const_iterator endCont =  m_spacepointsSCT->end  ();
+      SpacePointContainer::const_iterator itCont  =  spacepointsSCT->begin();
+      SpacePointContainer::const_iterator endCont =  spacepointsSCT->end  ();
       for(; itCont != endCont; ++itCont) 
 	{
 	  bool acceptCollection = true;
@@ -367,13 +367,13 @@ void InDet::SimpleTRT_SeededSpacePointFinder_ATL::getSpacePointsInROI(std::set<I
     }
 
   // retrieve the overlap collection
-  SG::ReadHandle<SpacePointOverlapCollection> m_spacepointsOverlap(m_spacepointsOverlapname);
-  if(m_spacepointsOverlap.isValid()) 
+  SG::ReadHandle<SpacePointOverlapCollection> spacepointsOverlap(m_spacepointsOverlapname);
+  if(spacepointsOverlap.isValid()) 
     {
 
       // Loop over Overlap SP
-      SpacePointOverlapCollection::const_iterator  itColl  = m_spacepointsOverlap->begin();
-      SpacePointOverlapCollection::const_iterator endColl = m_spacepointsOverlap->end  ();
+      SpacePointOverlapCollection::const_iterator  itColl  = spacepointsOverlap->begin();
+      SpacePointOverlapCollection::const_iterator endColl = spacepointsOverlap->end  ();
       for (; itColl != endColl; ++itColl) 
 	{
 	  // check if SP is in ROI
