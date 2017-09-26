@@ -41,9 +41,6 @@ class SCT_TestDistortionsTool:public AthAlgorithm{
     
   private:
     ToolHandle<ISCT_ModuleDistortionsTool> m_SCTDistoTool;
-    const InDetDD::SiDetectorManager * m_detManager;
-
-    StoreGateSvc* m_storeGate;
 
     TH2F* ZvsX;
     TH2F* ZvsY;
