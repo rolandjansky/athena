@@ -26,6 +26,8 @@
 #include "xAODCutFlow/CutBookkeeper.h"
 #include "xAODCutFlow/CutBookkeeperContainer.h"
 #include "xAODCutFlow/CutBookkeeperAuxContainer.h"
+#include "EventBookkeeperMetaData/EventBookkeeperCollection.h"
+#include "EventBookkeeperMetaData/EventBookkeeper.h"
 #include "xAODEventInfo/EventInfo.h"
 
 
@@ -122,6 +124,8 @@ CutFlowSvc::initialize()
 
   // Determine the skimming cycle number that we should use now from the input file
   ATH_MSG_VERBOSE("Have currently the cycle number = " << m_skimmingCycle );
+  ATH_CHECK( this->determineCycleNumberFromOldInput("EventBookkeepers") );
+  ATH_CHECK( this->determineCycleNumberFromOldInput("IncompleteEventBookkeepers") );
   ATH_CHECK( this->determineCycleNumberFromInput(m_completeCollName) );
   ATH_CHECK( this->determineCycleNumberFromInput(m_incompleteCollName) );
   ATH_MSG_VERBOSE("Will use as currently cycle number = " << m_skimmingCycle );
@@ -143,47 +147,66 @@ StatusCode CutFlowSvc::determineCycleNumberFromInput( const std::string& collNam
 
     // There can always only be a single object in the input store. As the store
     // is connected to just a single input file.
-    //const xAOD::CutBookkeeperContainer* constColl = 0;
-    std::list<SG::ObjectWithVersion<xAOD::CutBookkeeperContainer> > constColl;
-    //ATH_CHECK( m_inMetaDataStore->retrieve( constColl, collName ) );
-    ATH_CHECK( m_inMetaDataStore->retrieveAllVersions( constColl, collName ) );
-    for (auto tColl = constColl.begin(); tColl != constColl.end(); ++tColl) {
-      //
-      const xAOD::CutBookkeeperContainer* tColl_do = tColl->dataObject;
-      if (tColl_do!=nullptr) {
-        xAOD::CutBookkeeperContainer* tmpColl = const_cast<xAOD::CutBookkeeperContainer*>(tColl_do);
-        if ( !(tmpColl->hasStore()) ) {
-          ATH_MSG_VERBOSE("Setting store of xAOD::CutBookkeeperContainer");
-          // Get also the auxilliary store
-          // const SG::IConstAuxStore* auxColl = 0;
-          //const xAOD::CutBookkeeperAuxContainer* auxColl = 0;
-          std::list<SG::ObjectWithVersion<xAOD::CutBookkeeperAuxContainer> > auxColl;
-          ATH_CHECK( m_inMetaDataStore->retrieveAllVersions(auxColl, collName+"Aux.") );
-          for (auto aColl = auxColl.begin(); 
-                    aColl != auxColl.end(); aColl++) {
-            tmpColl->setConstStore( aColl->dataObject );
-          }
-        }
-        // Now, iterate over all CutBookkeepers and search for the highest cycle number
-        int maxCycle=0;
-        for ( std::size_t i=0; i<tmpColl->size(); ++i ) {
-          // Get the current old EBK
-          const xAOD::CutBookkeeper* cbk = tmpColl->at(i);
-          int inCycle = cbk->cycle();
-          if (inCycle > maxCycle) maxCycle = inCycle;
-        }
-        m_skimmingCycle = std::max(m_skimmingCycle,maxCycle+1);
-      } else {
-        ATH_MSG_WARNING("Retrieved nullptr from StoreGate for CutBookkeeper");
-        m_skimmingCycle = 0;
-      }
+    const xAOD::CutBookkeeperContainer* constColl = 0;
+    ATH_CHECK( m_inMetaDataStore->retrieve( constColl, collName ) );
+    xAOD::CutBookkeeperContainer* tmpColl = const_cast<xAOD::CutBookkeeperContainer*>(constColl);
+    if ( !(tmpColl->hasStore()) ) {
+      ATH_MSG_VERBOSE("Setting store of xAOD::CutBookkeeperContainer");
+      // Get also the auxilliary store
+      // const SG::IConstAuxStore* auxColl = 0;
+      const xAOD::CutBookkeeperAuxContainer* auxColl = 0;
+      ATH_CHECK( m_inMetaDataStore->retrieve(auxColl, collName+"Aux.") );
+      tmpColl->setConstStore( auxColl );
     }
+    // Now, iterate over all CutBookkeepers and search for the highest cycle number
+    int maxCycle=0;
+    for ( std::size_t i=0; i<tmpColl->size(); ++i ) {
+      // Get the current old EBK
+      const xAOD::CutBookkeeper* cbk = tmpColl->at(i);
+      int inCycle = cbk->cycle();
+      if (inCycle > maxCycle) maxCycle = inCycle;
+    }
+    m_skimmingCycle = std::max(m_skimmingCycle,maxCycle+1);
   }
 
   ATH_MSG_DEBUG("done calling determineCycleNumberFromInput('" << collName
                   << "')... have now cycle number = " << m_skimmingCycle );
   return StatusCode::SUCCESS;
 }
+
+
+StatusCode CutFlowSvc::determineCycleNumberFromOldInput( const std::string& collName )
+{
+  ATH_MSG_DEBUG("calling determineCycleNumberFromOldInput('" << collName
+                  << "')... have currently cycle number = " << m_skimmingCycle );
+  // Now check if there are old-style EventBookkeepers in the input file, using the old default name
+  if ( m_inMetaDataStore->contains< ::EventBookkeeperCollection >(collName) ) {
+    //get list of input metadata stores(!)
+    std::list<SG::ObjectWithVersion< ::EventBookkeeperCollection > > allVersions;
+    ATH_CHECK( m_inMetaDataStore->retrieveAllVersions(allVersions, collName) );
+
+    //now get all corresponding lists...
+    for ( std::list<SG::ObjectWithVersion< ::EventBookkeeperCollection> >::const_iterator
+          iter = allVersions.begin();
+          iter != allVersions.end();
+          ++iter ) {
+      //const DataHandle<xAOD::CutBookkeeperContainer> tmpColl = iter->dataObject;
+      const ::EventBookkeeperCollection* tmpColl = iter->dataObject;
+      // Now, iterate over all old-style EventBookkeepers and search for the highest cycle number
+      for ( std::size_t i=0; i<tmpColl->size(); ++i ) {
+        // Get the current old EBK
+        const ::EventBookkeeper* oldEBK = tmpColl->at(i);
+        int inCycle = oldEBK->getCycle();
+        if ( inCycle > m_skimmingCycle ){ m_skimmingCycle = inCycle + 1; }
+      }
+    }
+  }
+
+  ATH_MSG_DEBUG("done calling determineCycleNumberFromOldInput('" << collName
+                  << "')... have now cycle number = " << m_skimmingCycle );
+  return StatusCode::SUCCESS;
+}
+
 
 
 
@@ -587,29 +610,63 @@ CutFlowSvc::updateCollFromInputStore(xAOD::CutBookkeeperContainer* coll,
 
     // There can always only be a single object in the input store. As the store
     // is connected to just a single input file.
-    //const xAOD::CutBookkeeperContainer* tmpColl = 0;
-    std::list<SG::ObjectWithVersion<xAOD::CutBookkeeperContainer> > tmpColl;
-    ATH_CHECK( m_inMetaDataStore->retrieveAllVersions( tmpColl, collName ) );
-    for (auto tColl = tmpColl.begin(); tColl != tmpColl.end(); tColl++) {
+    const xAOD::CutBookkeeperContainer* tmpColl = 0;
+    ATH_CHECK( m_inMetaDataStore->retrieve( tmpColl, collName ) );
 
-      // Check that we succeeded:
-      const xAOD::CutBookkeeperContainer* sColl = tColl->dataObject;
-      if (sColl != 0) {
-        if( ! sColl->hasStore() ) {
-          ATH_MSG_FATAL( "Object doesn't have an auxiliary store" );
-          return StatusCode::FAILURE;
-        }
+    // Check that we succeeded:
+    if( ! tmpColl->hasStore() ) {
+       ATH_MSG_FATAL( "Object doesn't have an auxiliary store" );
+       return StatusCode::FAILURE;
+    }
 
+    //...and update coll with each list.
+    ATH_CHECK( this->updateContainer(coll, tmpColl) );
+  }
+  // Now check if there are old-style EventBookkeepers in the input file
+  else if ( m_inMetaDataStore->contains< ::EventBookkeeperCollection >(collName) ) {
+    ATH_MSG_VERBOSE("Input MetaData contains type EventBookkeeperCollection with name" << collName);
+    //get list of input metadata stores(!)
+    std::list<SG::ObjectWithVersion< ::EventBookkeeperCollection > > allVersions;
+    ATH_CHECK( m_inMetaDataStore->retrieveAllVersions(allVersions, collName) );
+
+    //now get all corresponding lists...
+    for ( std::list<SG::ObjectWithVersion< ::EventBookkeeperCollection> >::const_iterator
+            iter = allVersions.begin();
+          iter != allVersions.end();
+          ++iter ) {
+      //const DataHandle<xAOD::CutBookkeeperContainer> tmpColl = iter->dataObject;
+      const ::EventBookkeeperCollection* tmpColl = iter->dataObject;
+      //...and update coll with each list.
+      ATH_CHECK( this->updateContainerFromOldEDM(coll, tmpColl) );
+    }
+  }
+  // Now check if there are old-style EventBookkeepers in the input file, using the old default name
+  else if ( m_inMetaDataStore->contains< ::EventBookkeeperCollection >("EventBookkeepers") ) {
+    if (!m_alreadyCopiedEventBookkeepers) {
+      ATH_MSG_VERBOSE("Input MetaData contains type EventBookkeeperCollection with name EventBookkeepers");
+      m_alreadyCopiedEventBookkeepers = true;
+      //get list of input metadata stores(!)
+      std::list<SG::ObjectWithVersion< ::EventBookkeeperCollection > > allVersions;
+      ATH_CHECK( m_inMetaDataStore->retrieveAllVersions(allVersions, "EventBookkeepers") );
+
+      //now get all corresponding lists...
+      for ( std::list<SG::ObjectWithVersion< ::EventBookkeeperCollection> >::const_iterator
+            iter = allVersions.begin();
+            iter != allVersions.end();
+            ++iter ) {
+        //const DataHandle<xAOD::CutBookkeeperContainer> tmpColl = iter->dataObject;
+        const ::EventBookkeeperCollection* tmpColl = iter->dataObject;
         //...and update coll with each list.
-        ATH_CHECK( this->updateContainer(coll, sColl) );
-      } else {
-        ATH_MSG_WARNING("Retrieved nullptr from StoreGate for CutBookkeeper");
-        return StatusCode::FAILURE;
+        ATH_CHECK( this->updateContainerFromOldEDM(coll, tmpColl) );
       }
+    }
+    else {
+      ATH_MSG_VERBOSE("Already copied EventBookkeeperCollection with name EventBookkeepers for this input file");
     }
   }
   else {
-      ATH_MSG_INFO( "Cannot find xAOD::CutBookkeeperContainer "
+    ATH_MSG_INFO( "Cannot find xAOD::CutBookkeeperContainer "
+                  << "or an old-style EventBookkeeperCollection "
                   << "with name " << collName << " in the input file.");
   }
   return StatusCode::SUCCESS;
@@ -748,6 +805,98 @@ CutFlowSvc::updateContainer( xAOD::CutBookkeeperContainer* contToUpdate,
     } // Done fixing siblings
     ebkToModify->setSiblings (newSiblings);
   } // Done fixing all cross references
+  return StatusCode::SUCCESS;
+}
+
+
+
+
+StatusCode CutFlowSvc::updateContainerFromOldEDM( xAOD::CutBookkeeperContainer* contToUpdate,
+                                                  const EventBookkeeperCollection* otherContOldEDM ) {
+  // Helper class to update a container with information from another one from the old EDM
+  ATH_MSG_DEBUG("calling updateContainerFromOldEDM(contToUpdate, otherContOldEDM)"
+                << " with sizes=(" << contToUpdate->size() << "," << otherContOldEDM->size() << ")");
+
+  // Create a new CutBookkeeperContainer to hold the transferred objects
+  // Note, do not sg->record, this is internal
+  xAOD::CutBookkeeperContainer otherCont;
+  // Take care of the peculiarities of the new xAOD EDM, i.e., create the needed AuxStore...
+  xAOD::CutBookkeeperAuxContainer otherAuxCont;
+  // ...and connect both
+  otherCont.setStore( &otherAuxCont );
+
+  // Now, iterate over all old-style EventBookkeepers and create new ones
+  for ( std::size_t i=0; i<otherContOldEDM->size(); ++i ) {
+    // Get the current old EBK
+    const ::EventBookkeeper* oldEBK = otherContOldEDM->at(i);
+
+    // Create a new CutBookkeeper
+    xAOD::CutBookkeeper* newEBK = new xAOD::CutBookkeeper();
+    otherCont.push_back( newEBK );
+
+    // Update the container
+    ATH_CHECK( this->updateContainerFromOldEDM( &otherCont, newEBK, oldEBK ) );
+  }
+
+  // Now, we can pass this one on to the standard merging method
+  ATH_CHECK( this->updateContainer( contToUpdate, &otherCont ) );
+  ATH_MSG_VERBOSE("Resulting size of contToUpdate=" << contToUpdate->size() << ", and of otherCont=" << otherCont.size() );
+
+  return StatusCode::SUCCESS;
+}
+
+
+
+
+StatusCode CutFlowSvc::updateContainerFromOldEDM( xAOD::CutBookkeeperContainer* contToUpdate,
+                                                  xAOD::CutBookkeeper* newEBK,
+                                                  const EventBookkeeper* oldEBK,
+                                                  const xAOD::CutBookkeeper* parentEBK ) {
+  // Helper class to update a container with information from another one from the old EDM
+  ATH_MSG_DEBUG("calling updateContainerFromOldEDM(contToUpdate, newEBK, oldEBK, parentEBK)" );
+  ATH_MSG_VERBOSE("Old EBK has: name=" << oldEBK->getName()
+                  << ", cycle=" << oldEBK->getCycle()
+                  << ", nAcceptedEvents=" << oldEBK->getNAcceptedEvents()
+                  << ", inputStream=" << oldEBK->getInputStream()
+                  << ", outputStream=" << oldEBK->getOutputStream() );
+
+  // Set all the properties of this new CutBookkeeper
+  newEBK->setName( oldEBK->getName() );
+  newEBK->setDescription( oldEBK->getDescription() );
+  newEBK->setInputStream( oldEBK->getInputStream() );
+  newEBK->addOutputStream( oldEBK->getOutputStream() );
+  newEBK->setCycle( oldEBK->getCycle() );
+  newEBK->setNAcceptedEvents( oldEBK->getNAcceptedEvents() );
+  newEBK->setSumOfEventWeights( oldEBK->getNWeightedAcceptedEvents() );
+  if ( parentEBK ) { newEBK->setParent( parentEBK ); }
+
+  // Deal with the translation of the logic
+  const std::string& oldLogic = oldEBK->getLogic();
+  if ( oldLogic == "Accept" ) { newEBK->setCutLogic( xAOD::CutBookkeeper::CutLogic::ACCEPT ); }
+  else if ( oldLogic == "Require" ) { newEBK->setCutLogic( xAOD::CutBookkeeper::CutLogic::REQUIRE ); }
+  else if ( oldLogic == "Veto" ) { newEBK->setCutLogic( xAOD::CutBookkeeper::CutLogic::VETO ); }
+  else if ( oldLogic == "Other" ) { newEBK->setCutLogic( xAOD::CutBookkeeper::CutLogic::OTHER ); }
+  else if ( oldLogic == "AllEvents" ) { newEBK->setCutLogic( xAOD::CutBookkeeper::CutLogic::ALLEVENTSPROCESSED ); }
+  else { newEBK->setCutLogic( xAOD::CutBookkeeper::CutLogic::UNKNOWN ); }
+
+  // Deal with the translation of the old children to the new used others
+  const std::vector<EventBookkeeper*>* oldChildren = oldEBK->getChildrenEventBookkeepers();
+  for ( std::size_t i=0; i<oldChildren->size(); ++i ) {
+    ATH_MSG_VERBOSE("Updating child number " << i);
+    // Get the current old child
+    const ::EventBookkeeper* oldChild = oldChildren->at(i);
+
+    // Create a new CutBookkeeper
+    xAOD::CutBookkeeper* newOther = new xAOD::CutBookkeeper();
+    contToUpdate->push_back( newOther );
+
+    // Add this new other to the existing CutBookkeeper
+    newEBK->addUsedOther( newOther );
+
+    // Do this iteratively
+    ATH_CHECK( this->updateContainerFromOldEDM( contToUpdate, newOther, oldChild, newEBK ) );
+  }
+  ATH_MSG_DEBUG("Done with calling updateContainerFromOldEDM(contToUpdate, newEBK, oldEBK, parentEBK)" );
   return StatusCode::SUCCESS;
 }
 

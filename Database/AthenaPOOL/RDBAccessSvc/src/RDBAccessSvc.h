@@ -57,7 +57,7 @@ typedef std::map<std::string, TagNameIdByNode*> GlobalTagLookupMap; // Key - <Gl
  *
  */
 
-class RDBAccessSvc : public AthService, virtual public IRDBAccessSvc 
+class RDBAccessSvc final : public AthService, virtual public IRDBAccessSvc 
 {
   friend class RDBRecordset;
 
@@ -70,16 +70,16 @@ class RDBAccessSvc : public AthService, virtual public IRDBAccessSvc
   /// If this method is called for already open connection the connection
   /// counter is incremented.
   /// @return success/failure
-  virtual bool connect(const std::string& connName);
+  bool connect(const std::string& connName) override;
 
   /// If the counnection counter==1 closes the connection.
   /// Decrements the connection counter value otherwise.
   /// @return success/failure
-  virtual bool disconnect(const std::string& connName);
+  bool disconnect(const std::string& connName) override;
 
  /// Closes the connection regardless of the counter value.
   /// @return success/failure
-  virtual bool shutdown(const std::string& connName);
+  bool shutdown(const std::string& connName) override;
 
   /// Provides access to the Recordset object containing HVS-tagged data.
   /// @param node [IN] name of the leaf HVS node
@@ -87,10 +87,10 @@ class RDBAccessSvc : public AthService, virtual public IRDBAccessSvc
   /// tag of the HVS branch node specified by tag2node otherwise
   /// @param tag2node [IN] some parent of the HVS leaf node specified by node parameter
   /// @return pointer to the recordset object
-  virtual IRDBRecordset_ptr getRecordsetPtr(const std::string& node,
+  IRDBRecordset_ptr getRecordsetPtr(const std::string& node,
 					    const std::string& tag,
 					    const std::string& tag2node="",
-					    const std::string& connName = "ATLASDD");
+					    const std::string& connName = "ATLASDD") override;
 
   /// Gets the tag name for the node by giving its parent node tag
   /// @param childNode [IN] name of the child node
@@ -98,28 +98,28 @@ class RDBAccessSvc : public AthService, virtual public IRDBAccessSvc
   /// @param parentNode [IN] name of the parent node
   /// @param fetchData [IN] if true fetch the corresponding data
   /// this parameter has no sence if child is the branch node
-  virtual std::string getChildTag(const std::string& childNode,
+  std::string getChildTag(const std::string& childNode,
 				  const std::string& parentTag,
 				  const std::string& parentNode,
 				  bool fetchData,
-				  const std::string& connName);
+				  const std::string& connName) override;
 
-  virtual IRDBQuery* getQuery(const std::string& node,
+  IRDBQuery* getQuery(const std::string& node,
 			      const std::string& tag,
 			      const std::string& tag2node,
-			      const std::string& connName);
+			      const std::string& connName) override;
 
-  virtual RDBTagDetails getTagDetails(const std::string& tag,
-				      const std::string& connName = "ATLASDD");
+  RDBTagDetails getTagDetails(const std::string& tag,
+				      const std::string& connName = "ATLASDD") override;
 
   void getAllLeafNodes(std::vector<std::string>& list,
 		       const std::string& connName = "ATLASDD");
 
   inline MsgStream& msgStream() { return msg(); }
 
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
-  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
+  StatusCode initialize() override;
+  StatusCode finalize() override;
+  StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface ) override;
 
  protected:
 
@@ -129,7 +129,7 @@ class RDBAccessSvc : public AthService, virtual public IRDBAccessSvc
   RDBAccessSvc(const std::string& name, ISvcLocator* svc);
 
   /// Standard Service Destructor
-  virtual ~RDBAccessSvc();
+  ~RDBAccessSvc() override;
 
 private:
   SessionMap m_sessions;

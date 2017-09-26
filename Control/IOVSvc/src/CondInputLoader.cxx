@@ -244,15 +244,13 @@ CondInputLoader::execute()
   }
 
   // For a MC event, the run number we need to use to look up the conditions
-  // may be different from that of the event itself.  If we have
-  // a ConditionsRun attribute defined, use that to override
-  // the event number.
-  SG::ReadHandleKey<AthenaAttributeList> inputKey ("Input");
-  ATH_CHECK( inputKey.initialize() );
-  SG::ReadHandle<AthenaAttributeList> input (inputKey, getContext());
-  if (input.isValid()) {
-    if (input->exists ("ConditionsRun"))
-      now.set_run_number ((*input)["ConditionsRun"].data<unsigned int>());
+  // may be different from that of the event itself.  Override the run
+  // number with the conditions run number from the event context,
+  // if it is defined.
+  EventIDBase::number_type conditionsRun =
+    getContext().template getExtension<Atlas::ExtendedEventContext>()->conditionsRun();
+  if (conditionsRun != EventIDBase::UNDEFNUM) {
+    now.set_run_number (conditionsRun);
   }
 
   IOVTime t(now.run_number(), now.lumi_block(), now.time_stamp());

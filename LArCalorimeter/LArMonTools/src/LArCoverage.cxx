@@ -294,7 +294,7 @@ LArCoverage::bookHistograms()
       phiEMEndcap[it]= new float[nbinsphiEMEndcap[it]+1];
 
     // Sampling 0 
-    for(int ibin=0;ibin<=64;ibin++) phiEMEndcap[0][ibin] = -TMath::Pi()+ ibin*2*TMath::Pi()/64;
+    for(int ibin=0;ibin<=64;ibin++) phiEMEndcap[0][ibin] = -TMath::Pi()+ ibin*(2*M_PI/64);
     for(int ibin=0;ibin<=12;ibin++) etaEMEndcapA[0][ibin] = 1.5+ibin*0.025; 
     for(int ibin=0;ibin<=12;ibin++) etaEMEndcapC[0][ibin] = -(1.5+ibin*0.025); 
     sort(etaEMEndcapC[0],etaEMEndcapC[0]+nbinsetaEMEndcap[0]+1);

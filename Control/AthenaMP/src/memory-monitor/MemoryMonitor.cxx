@@ -7,10 +7,11 @@
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
 #include "rapidjson/filewritestream.h"
+#include <math.h>
 
 using namespace rapidjson;
 
-int ReadProcs(pid_t mother_pid, unsigned long values[8], bool verbose){
+int ReadProcs(pid_t mother_pid, unsigned long values[4], unsigned long long valuesIO[4], bool verbose){
 
   //Get child process IDs
       std::vector<pid_t> cpids;
@@ -41,46 +42,46 @@ int ReadProcs(pid_t mother_pid, unsigned long values[8], bool verbose){
             cpids.push_back(pt);} } } 
       pclose(pipe);
 
-      long tsize(0);
-      long trss(0);
-      long tpss(0);
-      long tswap(0);
+      unsigned long tsize(0);
+      unsigned long trss(0);
+      unsigned long tpss(0);
+      unsigned long tswap(0);
 
-      long trchar(0);
-      long twchar(0);
-      long trbyte(0);
-      long twbyte(0);
+      unsigned long long trchar(0);
+      unsigned long long twchar(0);
+      unsigned long long trbyte(0);
+      unsigned long long twbyte(0);
 
       std::vector<std::string> openFails;
 
       for(std::vector<pid_t>::const_iterator it=cpids.begin(); it!=cpids.end(); ++it) {
-        snprintf(smaps_buffer,64,"/proc/%ld/smaps",(long)*it);
+        snprintf(smaps_buffer,64,"/proc/%lu/smaps",(unsigned long)*it);
        
         FILE *file = fopen(smaps_buffer,"r");
         if(file==0) {
           openFails.push_back(std::string(smaps_buffer));} 
         else { 
           while(fgets(buffer,256,file)) {
-            if(sscanf(buffer,"Size: %80ld kB",&tsize)==1) values[0]+=tsize;
-            if(sscanf(buffer,"Pss: %80ld kB", &tpss)==1)  values[1]+=tpss;
-            if(sscanf(buffer,"Rss: %80ld kB", &trss)==1)  values[2]+=trss;
-            if(sscanf(buffer,"Swap: %80ld kB",&tswap)==1) values[3]+=tswap; } 
+            if(sscanf(buffer,"Size: %80lu kB",&tsize)==1) values[0]+=tsize;
+            if(sscanf(buffer,"Pss: %80lu kB", &tpss)==1)  values[1]+=tpss;
+            if(sscanf(buffer,"Rss: %80lu kB", &trss)==1)  values[2]+=trss;
+            if(sscanf(buffer,"Swap: %80lu kB",&tswap)==1) values[3]+=tswap; } 
           fclose(file);
 	}
 
 
-        snprintf(io_buffer,64,"/proc/%ld/io",(long)*it);
+        snprintf(io_buffer,64,"/proc/%llu/io",(unsigned long long)*it);
        
         FILE *file2 = fopen(io_buffer,"r");
         if(file2==0) {
           openFails.push_back(std::string(io_buffer));} 
         else { 
           while(fgets(buffer,256,file2)) {
-            if(sscanf(buffer,      "rchar: %80ld kB", &trchar)==1) values[4]+=trchar; 
-            if(sscanf(buffer,      "wchar: %80ld kB", &twchar)==1) values[5]+=twchar; 
-            if(sscanf(buffer, "read_bytes: %80ld kB", &trbyte)==1) values[6]+=trbyte; 
-            if(sscanf(buffer,"write_bytes: %80ld kB", &twbyte)==1) values[7]+=twbyte; } 
-          fclose(file2);
+            if(sscanf(buffer,      "rchar: %80llu", &trchar)==1) valuesIO[0]+=trchar; 
+            if(sscanf(buffer,      "wchar: %80llu", &twchar)==1) valuesIO[1]+=twchar; 
+            if(sscanf(buffer, "read_bytes: %80llu", &trbyte)==1) valuesIO[2]+=trbyte; 
+            if(sscanf(buffer,"write_bytes: %80llu", &twbyte)==1) valuesIO[3]+=twbyte; } 
+          fclose(file);
 	}
 
       } 
@@ -101,12 +102,19 @@ int MemoryMonitor(pid_t mpid, char* filename, char* jsonSummary, unsigned int in
      
      signal(SIGUSR1, SignalCallbackHandler);
 
-     unsigned long    values[8] = {0,0,0,0,0,0,0,0};
-     unsigned long maxValues[8] = {0,0,0,0,0,0,0,0};
-     unsigned long avgValues[8] = {0,0,0,0,0,0,0,0};
-     unsigned long oldValues[8] = {0,0,0,0,0,0,0,0};
+     unsigned long    values[4] = {0,0,0,0};
+     unsigned long maxValues[4] = {0,0,0,0};
+     unsigned long avgValues[4] = {0,0,0,0};
+
+
+     unsigned long long    valuesIO[4] = {0,0,0,0};
+     unsigned long long maxValuesIO[4] = {0,0,0,0};
+     unsigned long long avgValuesIO[4] = {0,0,0,0};
+
+
      int iteration = 0;
      time_t lastIteration = time(0) - interval;
+     time_t startTime;
      time_t currentTime;
 
      // Open iteration output file     
@@ -131,6 +139,7 @@ int MemoryMonitor(pid_t mpid, char* filename, char* jsonSummary, unsigned int in
      Value& v1 = d["Max"];
      Value& v2 = d["Avg"];
 
+     startTime = time(0);
      // Monitoring loop until process exits
      while(kill(mpid, 0) == 0 && sigusr1 == false){
 
@@ -138,7 +147,7 @@ int MemoryMonitor(pid_t mpid, char* filename, char* jsonSummary, unsigned int in
         if (time(0) - lastIteration > interval){         
  
           iteration = iteration + 1;
-          ReadProcs( mpid, values);
+          ReadProcs( mpid, values, valuesIO);
 
           currentTime = time(0);
           file << currentTime << "\t" 
@@ -146,50 +155,47 @@ int MemoryMonitor(pid_t mpid, char* filename, char* jsonSummary, unsigned int in
 	       << values[1]   << "\t" 
 	       << values[2]   << "\t" 
 	       << values[3]   << "\t" 
-	       << (int) (values[4] - oldValues[4])    << "\t" 
-	       << (int) (values[5] - oldValues[5])    << "\t" 
-	       << (int) (values[6] - oldValues[6])    << "\t" 
-	       << (int) (values[7] - oldValues[7])    << std::endl;  
+	       << valuesIO[0]   << "\t" 
+	       << valuesIO[1]   << "\t" 
+	       << valuesIO[2]   << "\t" 
+	       << valuesIO[3]   << std::endl;  
 
           // Compute statistics
           for(int i=0;i<4;i++){
              avgValues[i] = avgValues[i] + values[i];
              if (values[i] > maxValues[i])
                maxValues[i] = values[i];
-	     //	     values[i] = 0;
-             lastIteration = time(0);}
+             lastIteration = time(0);
 
-          for(int i=4;i<8;i++){
+             if (valuesIO[i] > maxValuesIO[i])
+               maxValuesIO[i] = valuesIO[i];
 
-	    avgValues[i] =  avgValues[i] + (int) (values[i] - oldValues[i]) / ((float) interval) ;
-             if (values[i] > maxValues[i])
-               maxValues[i] = values[i];
-	     //             values[i] = 0;
-             lastIteration = time(0);}
+	     avgValuesIO[i] =  (unsigned long long) maxValuesIO[i] / (currentTime-startTime) ;
+
+	  }
+
 
           // Reset buffer
           buffer.Clear();
           writer.Reset(buffer);
 
-	  oldValues[0] = values[0];
-	  oldValues[1] = values[1];
-	  oldValues[2] = values[2];
-	  oldValues[3] = values[3];
-	  oldValues[4] = values[4];
-	  oldValues[5] = values[5];
-	  oldValues[6] = values[6];
-	  oldValues[7] = values[7];
-
-          for(int i=0;i<8;i++) values[i]=0;
+          for(int i=0;i<4;i++) { 
+	    values[i]=0;
+	    valuesIO[i]=0;
+	  }
 
           // Create JSON realtime summary
           for (std::pair<Value::MemberIterator, Value::MemberIterator> i= std::make_pair(v1.MemberBegin(), v2.MemberBegin()); 
 	       i.first != v1.MemberEnd() && i.second != v2.MemberEnd(); 
 	       ++i.first, ++i.second){
 
-	    if (tmp < 8) {
-             i.first->value.SetUint(maxValues[tmp]);
-             i.second->value.SetUint(avgValues[tmp]/iteration);
+	    if (tmp < 4) {
+             i.first->value.SetUint64(maxValues[tmp]);
+             i.second->value.SetUint64(avgValues[tmp]/iteration);
+	    }
+	    else if (tmp < 8) {
+             i.first->value.SetUint64(maxValuesIO[tmp-4]);
+             i.second->value.SetUint64(avgValuesIO[tmp-4]);
 	    }
              tmp += 1;
 
@@ -202,7 +208,7 @@ int MemoryMonitor(pid_t mpid, char* filename, char* jsonSummary, unsigned int in
           file2 << buffer.GetString() << std::endl;
           file2.close();
           wroteFile = true;
-       }
+	}
   
        // Move temporary file to new file
        if (wroteFile) {

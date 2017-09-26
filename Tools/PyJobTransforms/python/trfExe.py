@@ -1040,7 +1040,7 @@ class athenaExecutor(scriptExecutor):
             skipFileChecks=False
             if 'eventService' in self.conf.argdict and self.conf.argdict['eventService'].value:
                 skipFileChecks=True
-            athenaMPOutputHandler(self._athenaMPFileReport, self._athenaMPWorkerTopDir, outputDataDictionary, self._athenaMP, skipFileChecks)
+            athenaMPOutputHandler(self._athenaMPFileReport, self._athenaMPWorkerTopDir, outputDataDictionary, self._athenaMP, skipFileChecks, self.conf.argdict)
             for dataType in self._output:
                 if self.conf.dataDictionary[dataType].io == "output" and len(self.conf.dataDictionary[dataType].value) > 1:
                     self._smartMerge(self.conf.dataDictionary[dataType])
@@ -1871,11 +1871,9 @@ class tagMergeExecutor(scriptExecutor):
 ## @brief Archive transform - use tar
 class archiveExecutor(scriptExecutor):
 
-    def __init__(self, name = 'Archiver', exe = 'zip'):
-        super(archiveExecutor, self).__init__(name=name, exe=exe, memMonitor=False)
-
     def preExecute(self, input = set(), output = set()):
         self.setPreExeStart()
+        self._memMonitor = False
 
         if 'exe' in self.conf.argdict:
             self._exe = self.conf.argdict['exe']

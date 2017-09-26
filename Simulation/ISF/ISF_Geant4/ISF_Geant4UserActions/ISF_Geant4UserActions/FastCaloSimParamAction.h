@@ -13,6 +13,7 @@
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "LArG4Code/ILArCalculatorSvc.h"
+#include "StoreGate/WriteHandle.h"
 #include "TileG4Interfaces/ITileCalculator.h"
 
 // CLHEP include for Hep3Vector
@@ -76,6 +77,7 @@ namespace G4UA{
     {
       bool shift_lar_subhit=true;
       bool shorten_lar_step=false;
+      std::string stepInfoCollName="EventSteps";
       // calculators
       ServiceHandle<ILArCalculatorSvc> calculator_EMECIW_pos=ServiceHandle<ILArCalculatorSvc>("EMECPosInnerWheelCalculator", "FastCaloSimParamAction");            //!< handle to EMEC positive inner wheel calculator
       ServiceHandle<ILArCalculatorSvc> calculator_EMECIW_neg=ServiceHandle<ILArCalculatorSvc>("EMECNegInnerWheelCalculator", "FastCaloSimParamAction");            //!< handle to EMEC negative inner wheel calculator
@@ -118,8 +120,6 @@ namespace G4UA{
     Config m_config;
 
     typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
-    /// Pointer to StoreGate (event store by default)
-    mutable StoreGateSvc_t m_evtStore;
     /// Pointer to StoreGate (detector store by default)
     mutable StoreGateSvc_t m_detStore;
 
@@ -141,7 +141,7 @@ namespace G4UA{
     void update_map(const CLHEP::Hep3Vector & l_vec, const Identifier & l_cell, double l_energy, double l_time, bool l_valid, int l_detector);
     std::map< Identifier , std::vector< ISF_FCS_Parametrization::FCS_StepInfo* >* > m_hit_map;
 
-    ISF_FCS_Parametrization::FCS_StepInfoCollection *m_eventSteps;    //!< collection of StepInfo
+    SG::WriteHandle<ISF_FCS_Parametrization::FCS_StepInfoCollection> m_eventSteps;    //!< collection of StepInfo
     std::map<std::string,int> m_detectormap;
     std::set<std::string> m_unuseddetector;
     int m_ndetectors;

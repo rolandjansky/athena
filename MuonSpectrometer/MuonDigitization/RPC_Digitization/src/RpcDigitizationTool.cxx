@@ -229,11 +229,6 @@ StatusCode RpcDigitizationTool::initialize() {
     return result; 
   } 
 
-  if(!rdbAccess->connect()) { 
-    ATH_MSG_ERROR("Unable to connect to the Geometry DB"); 
-    return StatusCode::FAILURE; 
-  } 
-
   bool m_run1 = true;
   std::string configVal = "";
   const IGeoModelSvc* geoModel = 0; 

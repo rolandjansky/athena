@@ -51,13 +51,9 @@ void LUCID_RDBAccess::ReadDB() {
   DecodeVersionKey atlasVersion("ATLAS");
   std::string AtlasVersion = atlasVersion.tag();
   
-  iAccessSvc->connect();
-  
   lucidParams = iAccessSvc->getRecordsetPtr("LucidParams", AtlasVersion, "ATLAS");
   
   if (!lucidParams->size()) std::cerr << " ERROR: Unable to retrieve LucidParams data "<< std::endl;
-
-  iAccessSvc->disconnect();
   
   log << MSG::INFO << " LUCID data corresponding to " << AtlasVersion << " fetched " << endmsg;
 }

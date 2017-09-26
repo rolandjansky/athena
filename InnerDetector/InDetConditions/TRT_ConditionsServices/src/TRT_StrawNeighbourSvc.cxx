@@ -110,8 +110,6 @@ StatusCode TRT_StrawNeighbourSvc::initialize()
     throw GaudiException("Could not initalize RDBAccessSvc","TRT_GeoModel",StatusCode::FAILURE);
   }
   
-  iAccessSvc->connect();
-
   IGeoModelSvc *geoModel;
   result = svcLocator->service ("GeoModelSvc",geoModel);
   if ( result.isFailure()) {
@@ -276,7 +274,6 @@ StatusCode TRT_StrawNeighbourSvc::initialize()
     m_pad_to_straw.push_back(dummy3);
     m_chip_to_straw.push_back(dumdumdum3);
     
-    iAccessSvc->disconnect();
   
 
   ATH_MSG_DEBUG("TRT_StrawNeighbourSvc initialized ");

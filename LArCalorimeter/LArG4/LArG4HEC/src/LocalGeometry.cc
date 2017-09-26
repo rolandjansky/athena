@@ -129,8 +129,6 @@ namespace LArG4 {
       ATH_CHECK(m_AccessSvc.retrieve());
 
       // Obtain the geometry version information:
-      m_AccessSvc->connect();
-
       std::string AtlasVersion = m_geoModel->atlasVersion();
       std::string LArVersion = m_geoModel->LAr_VersionOverride();
 

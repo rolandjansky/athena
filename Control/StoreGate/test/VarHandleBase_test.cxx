@@ -716,7 +716,10 @@ int main()
 {
   errorcheck::ReportMessage::hideErrorLocus();
   ISvcLocator* svcloc;
-  Athena_test::initGaudi("VarHandleBase_test.txt", svcloc); //need MessageSvc
+  //need MessageSvc
+  if (!Athena_test::initGaudi("VarHandleBase_test.txt", svcloc)) {
+    return 1;
+  }
 
   test1();
   test2();

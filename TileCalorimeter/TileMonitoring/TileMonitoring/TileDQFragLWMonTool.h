@@ -16,6 +16,8 @@
 
 #include "TileMonitoring/TileFatherMonTool.h"
 
+#include <array>
+
 class ITileBadChanTool;
 class TileDCSSvc;
 class TileBeamInfoProvider;
@@ -103,6 +105,8 @@ class TileDQFragLWMonTool: public TileFatherMonTool {
     TH2I_LW* m_errors[4][64];
     TProfile_LW* m_errorsLB[4][64];
 
+    std::array<TH2I_LW*, 4> m_badPulseQuality;
+
     std::vector<std::string> m_errorsLabels;
     std::vector<std::string> m_partitionsLabels;
     std::vector<std::string> m_moduleLabel[NumPart]; // array of module names
@@ -118,7 +122,7 @@ class TileDQFragLWMonTool: public TileFatherMonTool {
     static const int NDMU = 16;
 
     int m_nLumiblocks;
-
+    float m_qualityCut;
     /*---------------------------------------------------------*/
 
 };

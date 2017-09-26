@@ -309,8 +309,19 @@ FileCutFlowSvc::addEvent( CutIdentifier cutID )
 {
   ATH_MSG_INFO("calling addEvent(" << cutID << ")" );
 
-  // Assume weight is nominal
   double evtWeight=1.0;
+
+  const xAOD::EventInfo* evtInfo = 0;
+  StatusCode sc = m_eventStore->retrieve(evtInfo);
+  if ( sc.isFailure() || NULL == evtInfo ) {
+    ATH_MSG_WARNING("Could not retrieve EventInfo from StoreGate  ");
+    evtWeight=-1000.;
+  } else {
+    // Only try to access the mcEventWeight is we are running on Monte Carlo, duhhh!
+    if ( evtInfo->eventType(xAOD::EventInfo::IS_SIMULATION) ) {
+      evtWeight = evtInfo->mcEventWeight();
+    }
+  }
 
   addEvent(cutID,evtWeight);
 

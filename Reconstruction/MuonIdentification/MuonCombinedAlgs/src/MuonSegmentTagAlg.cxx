@@ -11,8 +11,6 @@ MuonSegmentTagAlg::MuonSegmentTagAlg(const std::string& name, ISvcLocator* pSvcL
   m_muonSegmentTagTool("MuonCombined::MuonSegmentTagTool/MuonSegmentTagTool")
 {  
   declareProperty("MuonSegmentTagTool",m_muonSegmentTagTool);
-  declareProperty("InDetCandidateLocation",m_indetCandidateCollectionName = "InDetCandidates" );
-  declareProperty("MuonSegmentLocation", m_muonSegmenteCollectionName = "MuonSegments" );
 }
 
 MuonSegmentTagAlg::~MuonSegmentTagAlg(){}
@@ -22,6 +20,7 @@ StatusCode MuonSegmentTagAlg::initialize()
   
   ATH_CHECK(m_muonSegmentTagTool.retrieve());
   ATH_CHECK(m_indetCandidateCollectionName.initialize());
+  ATH_CHECK(m_muonSegmentCollectionName.initialize());
   
   return StatusCode::SUCCESS; 
 }
@@ -34,18 +33,19 @@ StatusCode MuonSegmentTagAlg::execute()
     ATH_MSG_ERROR("Could not read "<< m_indetCandidateCollectionName);
     return StatusCode::FAILURE;
   }
-
-  const xAOD::MuonSegmentContainer* segments = 0;
-  if(evtStore()->contains<xAOD::MuonSegmentContainer>(m_muonSegmenteCollectionName)) {
-    if(evtStore()->retrieve(segments,m_muonSegmenteCollectionName).isFailure()) {
-      ATH_MSG_FATAL( "Unable to retrieve " << m_muonSegmenteCollectionName );
-      return StatusCode::FAILURE;
-    }
-  }
-  
-  if( !segments ){
-    ATH_MSG_WARNING("MuonSegments not found in StoreGate");
+  if(!indetCandidateCollection.isPresent()){
+    ATH_MSG_WARNING(m_indetCandidateCollectionName<<" not found in StoreGate");
     return StatusCode::SUCCESS;
+  }
+
+  SG::ReadHandle<xAOD::MuonSegmentContainer>segments(m_muonSegmentCollectionName);
+  if(!segments.isPresent()){
+    ATH_MSG_WARNING(m_muonSegmentCollectionName<<" not found in StoreGate");
+    return StatusCode::SUCCESS;
+  }
+  if(!segments.isValid()){
+    ATH_MSG_FATAL( "Unable to retrieve " << m_muonSegmentCollectionName );
+    return StatusCode::FAILURE;
   }
 
   m_muonSegmentTagTool->tag(*indetCandidateCollection,*segments);

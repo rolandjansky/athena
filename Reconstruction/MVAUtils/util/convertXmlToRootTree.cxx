@@ -192,13 +192,6 @@ int main(int argc, char** argv){
   MVAUtils::BDT* bdt = new MVAUtils::BDT( method_bdt, isRegression || isGrad, useYesNoLeaf);
   bdt->SetPointers(m_vars);
 
-  // {
-  //   auto tree_itr = method_bdt->GetForest().begin();
-  //   const vector<float*>* p_vars(&m_vars);
-  //   TMVA::Event event( p_vars, m_vars.size() );
-  //   cout << "Verbose: " << (*tree_itr)->CheckEvent( &event, 0 ) << " " << bdt->GetTreeResponse(m_vars, bdt->m_forest[0]) << endl;
-  // }
-
 
   cout << endl << "Testing MVA produced from TMVA::Reader " << endl;
 
@@ -228,8 +221,14 @@ int main(int argc, char** argv){
 
 
   cout << endl << "Reading BDT from root file and testing " << outFileName << endl;
+
   f = TFile::Open(outFileName, "READ");
   TTree* bdt_tree = dynamic_cast<TTree*> (f->Get("BDT"));
+  if(!bdt_tree){
+    cerr <<"Could not Retrieve BDT TTree from file , should not happen" <<endl;
+    return 0;
+  }
+  
   bdt = new MVAUtils::BDT(bdt_tree);
   bdt->SetPointers(m_vars);
   cout << bdt->GetResponse() << endl;

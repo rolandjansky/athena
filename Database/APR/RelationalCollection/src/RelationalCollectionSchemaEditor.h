@@ -66,6 +66,9 @@ namespace pool {
       /// Default constructor.
       ~RelationalCollectionSchemaEditor();
 
+      RelationalCollectionSchemaEditor (const RelationalCollectionSchemaEditor&) = delete;
+      RelationalCollectionSchemaEditor& operator= (const RelationalCollectionSchemaEditor&) = delete;
+
       /**
        * Sets the name of the event reference Token column. Otherwise a default name is used.
        *

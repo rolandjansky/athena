@@ -1,8 +1,7 @@
 #
 #  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #
-from AthenaMonitoring.AthenaMonitoringConf import GenericMonitoringTool
-from AthenaMonitoring.DefineHistogram import defineHistogram
+from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
 import math
 
 def CTPUnpackingMonitoring( maxItems, maxChains ):

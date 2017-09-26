@@ -102,12 +102,6 @@ StatusCode DetDescrDBEnvelopeSvc::initialize()
     if ( !enableFallback()) return StatusCode::FAILURE;
   }
 
-  // connect to DDDB
-  if ( !m_doFallback && m_dbAccess->connect()==false) {
-    ATH_MSG_ERROR("Unable not connect to ATLASDD Database");
-    if ( !enableFallback()) return StatusCode::FAILURE;
-  }
-
   // retrieve the GeoModelSvc
   if ( !m_doFallback && svcLocator->service("GeoModelSvc", m_geoModel).isFailure()) {
     ATH_MSG_ERROR("Could not locate GeoModelSvc");
@@ -135,8 +129,6 @@ StatusCode DetDescrDBEnvelopeSvc::initialize()
       }
     }
 
-    // disconnect the DB access svc
-    m_dbAccess->disconnect();
   }
 
   // (#) or use the fallback solution right away
