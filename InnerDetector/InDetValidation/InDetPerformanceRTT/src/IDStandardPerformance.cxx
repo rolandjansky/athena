@@ -110,8 +110,7 @@ IDStandardPerformance::IDStandardPerformance( const std::string & type, const st
               m_doTruth(true), //CB
               m_doHitBasedMatching(true),
 	      m_PixeltracksName("ResolvedPixelTracks"),
-	      m_SCTtracksName(std::string("ResolvedSCTTracks")),
-	      m_TRTtracksName("StandaloneTRTTracks")
+	      m_SCTtracksName(std::string("ResolvedSCTTracks"))
 {
   declareProperty("TruthToTrackTool",         m_truthToTrack);
   declareProperty("SummaryTool",              m_trkSummaryTool);
@@ -162,7 +161,6 @@ IDStandardPerformance::IDStandardPerformance( const std::string & type, const st
   declareProperty("doHitBasedMatching",       m_doHitBasedMatching);
   declareProperty("PixeltracksName",          m_PixeltracksName);
   declareProperty("SCTtracksName",            m_SCTtracksName);
-  declareProperty("TRTtracksName",            m_TRTtracksName);
   m_UpdatorWarning = false;
   m_isUnbiased = 0;
 }
@@ -312,6 +310,7 @@ StatusCode IDStandardPerformance::initialize()
 
   // Read Handle Key
   ATH_CHECK(m_SCTtracksName.initialize(m_doHitBasedMatching));
+  ATH_CHECK( m_TRTtracksKey.initialize(m_doHitBasedMatching) );
 
   sc = ManagedMonitorToolBase::initialize();
   return sc;
@@ -1701,9 +1700,10 @@ StatusCode IDStandardPerformance::fillHistograms()
     }
 
     // get TRT tracklet collection
-    if (evtStore()->contains< DataVector<Trk::Track> >(m_TRTtracksName) &&
-        StatusCode::SUCCESS==evtStore()->retrieve(trt_trks,m_TRTtracksName)) {
-      if (msgLvl(MSG::VERBOSE)) msg() << "Track Collection with name " << m_TRTtracksName << " with size " << trt_trks->size() <<" found in StoreGate" << endmsg;
+    SG::ReadHandle<TrackCollection> h_trt_trks( m_TRTtracksKey );
+    if ( h_trt_trks.isValid() ) {
+      trt_trks = h_trt_trks.cptr();
+      if (msgLvl(MSG::VERBOSE)) msg() << "Track Collection with name " << m_TRTtracksKey.key() << " with size " << trt_trks->size() <<" found in StoreGate" << endmsg;
     }
   }
 
