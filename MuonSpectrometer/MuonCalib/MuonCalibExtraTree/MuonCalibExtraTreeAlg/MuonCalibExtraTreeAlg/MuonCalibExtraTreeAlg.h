@@ -81,7 +81,6 @@ class  ISegmentOnTrackSelector;
     ToolHandleArray<IExtraTreeFillerTool> m_track_fillers;
     ToolHandle<IIdToFixedIdTool> m_idToFixedIdTool;
     ToolHandle<ISegmentOnTrackSelector> m_segmentOnTrackSelector;
-    TFile*      m_file;                         
     TDirectory* m_dir;
     TTree*      m_tree; 
 
