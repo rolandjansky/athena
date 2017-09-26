@@ -502,7 +502,7 @@ namespace NSWL1 {
 	    ATH_MSG_DEBUG("StripTdsOfflineTool:NO MATCH ALL \n" <<
 			 "wedge:" << strip->wedge() << "\n"
 			 <<"layer:"<< strip->layer() << "\n"
-			 <<"loc_y:"<< strip->locX()<< "\n");
+			 <<"loc_y:"<< strip->locY()<< "\n");
 	  }
 
 	  strip->set_readStrip(read_strip);
@@ -568,7 +568,9 @@ namespace NSWL1 {
     int layer_index=strip->layer() -1;
 
     sTGCDetectorDescription *sTGC=0;
-    sTGC = sTGC_helper.Get_sTGCDetector(type,strip->moduleId(),strip->sectorId(),strip->wedge(),side);
+    //Get_sTGCDetector's 2nd input value can range from eta=1 to eta=3
+    //moduleID() provides the values -1 to -3 and 1 to 3, so we need abs value
+    sTGC = sTGC_helper.Get_sTGCDetector(type,std::abs(strip->moduleId()),strip->sectorId(),strip->wedge(),side);
     //sTGCDetectorDescription *sTGC = sTGC_helper.Get_sTGCDetector(strip->stationName());
 
     if (!sTGC){
@@ -584,7 +586,7 @@ namespace NSWL1 {
     ATH_MSG_DEBUG("StripTdsOfflineTool:Strip: \n" <<
 		 "wedge:" << strip->wedge() << "\n"
 		 <<"layer:"<< strip->layer() << "\n"
-		 <<"loc_y:"<< strip->locX()<< "\n");
+		 <<"loc_y:"<< strip->locY()<< "\n");
 
     for( auto pad_data: pad_strip_info){
       if (pad_data.size()!=4)
@@ -606,7 +608,7 @@ namespace NSWL1 {
 
       if (wedge != strip->wedge()) continue;
       if (layer != strip->layer()) continue;
-      if (strip->locX() > loc_max_y || strip->locX()< loc_min_y) continue; //For some reason the X-Y translation dosen't seem to work for strips?
+      if (strip->locY() > loc_max_y || strip->locY()< loc_min_y) continue; 
       strip->setBandId((int) bandID);
 
       ATH_MSG_DEBUG("StripTdsOfflineTool:MATCH");
