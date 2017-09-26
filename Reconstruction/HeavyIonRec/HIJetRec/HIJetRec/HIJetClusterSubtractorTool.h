@@ -22,6 +22,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "HIJetRec/HIJetSubtractorToolBase.h"
+#include <map>
 #include "AsgTools/AsgTool.h"
 
 
@@ -40,25 +41,31 @@ public:
   /// the subtracted kinematics of the IParticle passed in the second arg
   /// Method expects cl_in to be a cluster
   HIJetClusterSubtractorTool(const std::string& myname);
-  virtual void Subtract(xAOD::IParticle::FourMom_t&, const xAOD::IParticle*, const xAOD::HIEventShapeContainer*, const HIEventShapeIndex*, const ToolHandle<IHIUEModulatorTool>& ) override;
-  virtual void SubtractWithMoments(xAOD::CaloCluster*, const xAOD::HIEventShapeContainer*, const HIEventShapeIndex* index, const ToolHandle<IHIUEModulatorTool>& ) override;  
-  virtual void UpdateUsingCluster(xAOD::HIEventShapeContainer* shape, const HIEventShapeIndex* index, const xAOD::CaloCluster* cl) override;
-  
+  virtual void Subtract(xAOD::IParticle::FourMom_t&, const xAOD::IParticle*, const xAOD::HIEventShapeContainer*, const HIEventShapeIndex*, const ToolHandle<IHIUEModulatorTool>&, const xAOD::HIEventShape* eshape) const override;
+  virtual void SubtractWithMoments(xAOD::CaloCluster*, const xAOD::HIEventShapeContainer*, const HIEventShapeIndex* index, const ToolHandle<IHIUEModulatorTool>&, const xAOD::HIEventShape* eshape ) const override;  
+  virtual void UpdateUsingCluster(xAOD::HIEventShapeContainer* shape, const HIEventShapeIndex* index, const xAOD::CaloCluster* cl) const override;
 
-private:
+  virtual StatusCode initialize() override;
+  virtual StatusCode initializeTool();
+
+  private:
 
   bool m_init;
-  StatusCode initializeTool();
+
   float getWeight(float eta, float phi, int sample) const;
   float getWeightEta(float eta, float phi, int sample) const;
   float getWeightPhi(float eta, float phi, int sample) const;
+  void updateSlice(xAOD::HIEventShape* slice, float ET, float phi0, float area_cluster) const;
 
   std::string m_input_file;
   std::string m_config_dir;
   TH3F* m_h3_w;
   TH3F* m_h3_eta;
   TH3F* m_h3_phi;
-  
+
+  bool m_use_samplings;
+
+
 };
 
 #endif
