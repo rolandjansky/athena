@@ -58,6 +58,7 @@ TrigEFBMuMuXHypo::TrigEFBMuMuXHypo(const std::string & name, ISvcLocator* pSvcLo
 ,m_countPassedBcDstar(0)
 ,m_countPassedBcD0(0)
 {
+  declareProperty("bphysCollectionKey", m_bphysCollectionKey  = "EFBMuMuXFex" );
   declareProperty("AcceptAll",    m_acceptAll=true); // Should we just accept all events
   
   declareProperty("AcceptBplus",    m_acceptBplus=true); 
@@ -245,7 +246,7 @@ HLT::ErrorCode TrigEFBMuMuXHypo::hltExecute(const HLT::TriggerElement* outputTE,
     const xAOD::TrigBphysContainer * xAODTrigBphysColl(0);
     
   // get vector of TrigEFBphys particles from outputTE
-  HLT::ErrorCode status = getFeature(outputTE, xAODTrigBphysColl, "EFBMuMuXFex");
+  HLT::ErrorCode status = getFeature(outputTE, xAODTrigBphysColl, m_bphysCollectionKey);
   if ( status != HLT::OK ) {
     if ( msgLvl() <= MSG::WARNING )
       msg() << MSG::WARNING << "Failed to get xAODTrigBphysColl collection" << endmsg;

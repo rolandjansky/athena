@@ -101,6 +101,7 @@ HLT::ComboAlgo(name, pSvcLocator)
     declareProperty("TrigBphysHelperTool", m_bphysHelperTool);
     declareProperty("VertexFitterTool", m_fitterSvc);
     
+    declareProperty("bphysCollectionKey", m_bphysCollectionKey  = "EFBEEXFex" );
     declareProperty("AcceptAll",    m_acceptAll=true); // Should we just accept all events
     
     declareProperty("TrackCollection",m_input_trackCollectionKey="InDetTrigTrackingxAODCnv_Bphysics_IDTrig");
@@ -1313,7 +1314,7 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
 
 
 	        
-        sc = attachFeature(outputTE, m_TrigBphysColl_b, "EFBEEXFex" );
+        sc = attachFeature(outputTE, m_TrigBphysColl_b, m_bphysCollectionKey );
         if(sc != HLT::OK) {
             msg() << MSG::WARNING << "Failed to store trigBphys Collection in outputTE" << endmsg;
             m_mon_Errors.push_back(ERROR_BphysCollStore_Fails);
