@@ -798,7 +798,7 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::mapStrawsProduction()
   m_islope   = new          int[n];
   m_slope    = new float       [n];
   m_cirsize  = m_nstraws[0]+m_nstraws[1];
-  m_circles  = new TRT_DriftCircleLink_xk[m_cirsize];
+  m_circles  = new TRT_DriftCircleLinkN_xk[m_cirsize];
 
   n          = 0;
   for(int b=0; b!=4; ++b) {
