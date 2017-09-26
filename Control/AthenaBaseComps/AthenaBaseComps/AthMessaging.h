@@ -20,6 +20,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Property.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include <boost/thread/tss.hpp>
 
 /** @class AthMessaging AthMessaging.h AthenaBaseComps/AthMessaging.h
  *
@@ -41,9 +42,6 @@ class AthMessaging
 
   /// Constructor with parameters: 
   AthMessaging (IMessageSvc* msgSvc, const std::string& name);
-
-  /// Constructor, from an explicit existing stream.
-  AthMessaging (MsgStream& msg);
 
   /// Destructor: 
   virtual ~AthMessaging(); 
@@ -93,7 +91,10 @@ class AthMessaging
  private: 
 
   /// MsgStream instance (a std::cout like with print-out levels)
-  mutable MsgStream m_msg;
+  mutable boost::thread_specific_ptr<MsgStream> m_msg_tls;
+
+  IMessageSvc* m_imsg { nullptr };
+  std::string m_nm;
 }; 
 
 /////////////////////////////////////////////////////////////////// 
@@ -105,23 +106,29 @@ inline
 bool
 AthMessaging::msgLvl (const MSG::Level lvl) const
 {
- if (m_msg.level() <= lvl) {
-   m_msg << lvl;
-   return true;
- } else {
-   return false;
- }
+  if (msg().level() <= lvl) {
+    msg() << lvl;
+    return true;
+  } else {
+    return false;
+  }
 }
 
 inline
 MsgStream&
 AthMessaging::msg() const 
-{ return m_msg; }
+{
+  if (!m_msg_tls.get()) {
+    m_msg_tls.reset( new MsgStream(m_imsg,m_nm) );
+  }
+
+  return *m_msg_tls;
+}
 
 inline
 MsgStream&
 AthMessaging::msg (const MSG::Level lvl) const 
-{ return m_msg << lvl; }
+{ return msg() << lvl; }
 
 
 #endif //> !ATHENABASECOMPS_ATHMESSAGING_H
