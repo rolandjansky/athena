@@ -47,7 +47,6 @@ if hasattr(runArgs,"inputBSFile"):
 
 if hasattr(runArgs,"inputAODFile"):
     rec.readAOD.set_Value_and_Lock(True)
-<<<<<<< HEAD
     rec.readRDO.set_Value_and_Lock(False)
 
     globalflags.InputFormat.set_Value_and_Lock('pool')
