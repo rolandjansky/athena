@@ -175,7 +175,7 @@ class TestSUSYTools(unittest.TestCase):
 
     theSample = os.environ['ASG_TEST_FILE_MC']
 
-    theTest = 'SUSYToolsTester %s 10 isData=0 isAtlfast=0 Debug=0 NoSyst=0 ConfigFile=%s ' % (theSample, theConfig)
+    theTest = 'SUSYToolsTester %s maxEvents=10 isData=0 isAtlfast=0 Debug=0 NoSyst=0 ConfigFile=%s ' % (theSample, theConfig)
 
     #guess the MC campaign for the prw file if needed
     theTest += ' PRWFile=/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/SUSYTools/merged_prw_mc15c_latest.root'
