@@ -126,6 +126,7 @@ class TrigTauRecMerged_Tau2012 (TrigTauRecMerged) :
 
 
 class TrigTauRecMerged_TauPreselection (TrigTauRecMerged) :
+
         __slots__ = [ '_mytools']
         def __init__(self, name = "TrigTauRecMerged_TauPreselection"):
             super( TrigTauRecMerged_TauPreselection , self ).__init__( name )
@@ -191,7 +192,54 @@ class TrigTauRecMerged_TauPreselection (TrigTauRecMerged) :
             from AthenaCommon.BeamFlags import jobproperties
             self.BeamType = jobproperties.Beam.beamType()
             
+class TrigTauRecMerged_TauPreselectionMva (TrigTauRecMerged) :
+
+        __slots__ = [ '_mytools']
+        def __init__(self, name = "TrigTauRecMerged_TauPreselectionMva"):
+            super( TrigTauRecMerged_TauPreselectionMva , self ).__init__( name )
+            self._mytools = []
             
+            # monitoring part. To switch off do in topOption TriggerFlags.enableMonitoring = []
+            from TrigTauRec.TrigTauRecMonitoring import TrigTauRecValidationMonitoring, TrigTauRecOnlineMonitoring 
+            validation = TrigTauRecValidationMonitoring()        
+            online     = TrigTauRecOnlineMonitoring()
+                
+            from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
+            time = TrigTimeHistToolConfig("Time")
+            self.AthenaMonTools = [ time, validation, online ]
+
+            import TrigTauRec.TrigTauAlgorithmsHolder as taualgs
+            tools = []
+
+            taualgs.setPrefix("TrigTauPreselectionMva_")
+            
+            # Collection name
+            self.OutputCollection = "TrigTauRecPreselection"
+            
+            # Only include tools needed for pre-selection
+            
+            tools.append(taualgs.getJetSeedBuilder())
+            tools.append(taualgs.getTauAxis())
+            tools.append(taualgs.getTauTrackFinder(applyZ0cut=True, maxDeltaZ0=1, prefix="TrigTauPreselection_", noSelector=False))
+            tools.append(taualgs.getTauTrackClassifier())
+            tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix='_onlyEnergy'))
+            tools.append(taualgs.getCellVariables(cellConeSize=0.2, prefix="TrigTauPreselection_"))
+            tools.append(taualgs.getTauCommonCalcVars())
+            tools.append(taualgs.getTauSubstructure())
+            tools.append(taualgs.getPileUpCorrection())
+
+
+            for tool in tools:
+                tool.inTrigger = True
+                tool.calibFolder = 'TrigTauRec/00-11-01/'
+                pass
+
+            self.Tools = tools
+                
+            from AthenaCommon.BeamFlags import jobproperties
+            self.BeamType = jobproperties.Beam.beamType()
+            
+
 class TrigTauRecMerged_TauFTK (TrigTauRecMerged) :
         __slots__ = [ '_mytools']
         def __init__(self, name = "TrigTauRecMerged_TauFTK"):
