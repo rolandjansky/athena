@@ -19,13 +19,13 @@
 
 #include "JetInterface/IJetModifier.h"
 #include "JetInterface/IJetUpdateJvt.h"
-#include "xAODBTaggingEfficiency/IBTaggingSelectionTool.h"
+#include "FTagAnalysisInterfaces/IBTaggingSelectionTool.h"
 #include "xAODJet/JetContainer.h"
 
 namespace DerivationFramework {
 
   class JetAugmentationTool : public AthAlgTool, public IAugmentationTool {
-  public: 
+  public:
     JetAugmentationTool(const std::string& t, const std::string& n, const IInterface* p);
 
     StatusCode initialize();
@@ -59,14 +59,14 @@ namespace DerivationFramework {
     bool m_dobtag;
     /// Athena configured tools
     ToolHandleArray<IBTaggingSelectionTool> m_btagSelTools;
-    
+
     //TrackSumMass and TrackSumPt for calo-jets built in Tier-0
     //@author: nurfikri.bin.norjoharuddeen@cern.ch
     ToolHandle<IJetModifier> m_jetTrackSumMomentsTool;
     bool m_decoratetracksum;
     SG::AuxElement::Decorator<float>* dec_tracksummass;
     SG::AuxElement::Decorator<float>* dec_tracksumpt;
-  }; 
+  };
 }
 
 #endif // DERIVATIONFRAMEWORK_JETAUGMENTATIONTOOL_H
