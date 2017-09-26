@@ -213,10 +213,11 @@ StatusCode SUSYObjDef_xAOD::FillMuon(xAOD::Muon& input, float ptcut, float etacu
 
   dec_baseline(input) = true;
   dec_selected(input) = 2;
+
+  dec_isol(input) = m_isoTool->accept(input);
   
   if (!(dec_passSignalID(input) = m_muonSelectionTool->accept(input))) return StatusCode::SUCCESS;
   
-  dec_isol(input) = m_isoTool->accept(input);
   
   ATH_MSG_VERBOSE("FillMuon: passed baseline selection");
   return StatusCode::SUCCESS;
