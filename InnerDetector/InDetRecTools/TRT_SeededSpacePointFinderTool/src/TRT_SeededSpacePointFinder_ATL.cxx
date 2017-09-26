@@ -14,6 +14,8 @@
 #include <iomanip>
 #include <set>
 #include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 #include "CLHEP/Vector/ThreeVector.h"
 #include "TrkSpacePoint/SpacePointCLASS_DEF.h" 
 #include "TRT_SeededSpacePointFinderTool/TRT_SeededSpacePointFinder_ATL.h"
@@ -35,6 +37,8 @@
 //Association tool
 //
 #include "TrkToolInterfaces/IPRD_AssociationTool.h"
+
+#include "StoreGate/ReadHandle.h"
 
 using namespace std;
 
@@ -72,20 +76,13 @@ InDet::TRT_SeededSpacePointFinder_ATL::TRT_SeededSpacePointFinder_ATL
   m_loadFull  = true    ;  //Load all the Si space points, otherwise only from the last 3 SCT layers
   m_doCosmics = false   ;  //Disable seed selection cuts when reconstructing cosmics tracks
 
-  m_spacepointsPixname     = "PixelSpacePoints"  ;  //Name of Pixel space point container
-  m_spacepointsSCTname     = "SCT_SpacePoints"   ;  //Name of SCT space point container
-  m_spacepointsOverlapname = "OverlapSpacePoints";  //Name of SCT overlap space point container
-  m_spacepointsSCT         = 0                   ;
-  m_spacepointsOverlap     = 0                   ;
-
+  
   declareInterface<ITRT_SeededSpacePointFinder>(this);
 
   declareProperty("MagneticTool"          ,m_fieldServiceHandle    );
   declareProperty("AssociationTool"       ,m_assotool              );
   declareProperty("MagneticFieldMode"     ,m_fieldmode             );
   declareProperty("pTmin"                 ,m_ptmin                 );
-  declareProperty("SpacePointsSCTName"    ,m_spacepointsSCTname    );
-  declareProperty("SpacePointsOverlapName",m_spacepointsOverlapname);
   declareProperty("UseAssociationTool"    ,m_useasso               );
   declareProperty("NeighborSearch"        ,m_search                );
   declareProperty("LoadFull"              ,m_loadFull              );
@@ -93,6 +90,7 @@ InDet::TRT_SeededSpacePointFinder_ATL::TRT_SeededSpacePointFinder_ATL
   declareProperty("Xi2C"                  ,m_xiC                   );
   declareProperty("Xi2TC"                 ,m_xiTC                  );
   declareProperty("Xi2FC"                 ,m_xiFC                  );
+
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -152,6 +150,10 @@ StatusCode InDet::TRT_SeededSpacePointFinder_ATL::initialize()
   //
   if(msgLvl(MSG::DEBUG)){m_nprint=0; msg(MSG::DEBUG) << (*this) << endmsg;}
 
+  ATH_CHECK(m_spacepointsPixname.initialize());
+  ATH_CHECK(m_spacepointsSCTname.initialize());
+  ATH_CHECK(m_spacepointsOverlapname.initialize()); 
+
   return sc;
 }
 
@@ -178,12 +180,10 @@ void InDet::TRT_SeededSpacePointFinder_ATL::newEvent ()
   if(m_loadFull){
     // Get pixel space points containers from store gate 
     //
-    m_spacepointsPix = 0;
-    StatusCode sc1 = evtStore()->retrieve(m_spacepointsPix,m_spacepointsPixname);
-    if(!sc1.isFailure() && m_spacepointsPix) {
-
-     SpacePointContainer::const_iterator spc =  m_spacepointsPix->begin  (); 
-      SpacePointContainer::const_iterator spce =  m_spacepointsPix->end  ();
+    SG::ReadHandle<SpacePointContainer> spacepointsPix(m_spacepointsPixname);
+    if (spacepointsPix.isValid()) {
+     SpacePointContainer::const_iterator spc =  spacepointsPix->begin  (); 
+      SpacePointContainer::const_iterator spce =  spacepointsPix->end  ();
 
       for(; spc != spce; ++spc) {
 
@@ -204,12 +204,11 @@ void InDet::TRT_SeededSpacePointFinder_ATL::newEvent ()
 
   // Get sct space points containers from store gate 
   //
-  m_spacepointsSCT = 0;
-  StatusCode sc = evtStore()->retrieve(m_spacepointsSCT,m_spacepointsSCTname);
-  if(!sc.isFailure() && m_spacepointsSCT) {
+  SG::ReadHandle<SpacePointContainer> spacepointsSCT(m_spacepointsSCTname);
+  if (spacepointsSCT.isValid()) {
 
-    SpacePointContainer::const_iterator spc  =  m_spacepointsSCT->begin();
-    SpacePointContainer::const_iterator spce =  m_spacepointsSCT->end  ();
+    SpacePointContainer::const_iterator spc  =  spacepointsSCT->begin();
+    SpacePointContainer::const_iterator spce =  spacepointsSCT->end  ();
 
     for(; spc != spce; ++spc) {
 
@@ -237,12 +236,10 @@ void InDet::TRT_SeededSpacePointFinder_ATL::newEvent ()
 
   // Get sct overlap space points containers from store gate 
   //
-  m_spacepointsOverlap = 0;
-  sc = evtStore()->retrieve(m_spacepointsOverlap,m_spacepointsOverlapname);
-  if(!sc.isFailure() && m_spacepointsOverlap) {
-
-    SpacePointOverlapCollection::const_iterator sp  = m_spacepointsOverlap->begin();
-    SpacePointOverlapCollection::const_iterator spe = m_spacepointsOverlap->end  ();
+  SG::ReadHandle<SpacePointOverlapCollection> spacepointsOverlap(m_spacepointsOverlapname);
+  if (spacepointsOverlap.isValid()) {
+    SpacePointOverlapCollection::const_iterator sp  = spacepointsOverlap->begin();
+    SpacePointOverlapCollection::const_iterator spe = spacepointsOverlap->end  ();
 
     for (; sp!=spe; ++sp) {
 
@@ -279,11 +276,9 @@ void InDet::TRT_SeededSpacePointFinder_ATL::newRegion
   if(m_loadFull && vPixel.size()){
     // Get pixel space points containers from store gate 
     //
-    m_spacepointsPix = 0;
-    StatusCode sc1 = evtStore()->retrieve(m_spacepointsPix,m_spacepointsPixname);
-    if(!sc1.isFailure() && m_spacepointsPix) {
-
-      SpacePointContainer::const_iterator spce =  m_spacepointsPix->end  ();
+    SG::ReadHandle<SpacePointContainer> spacepointsPix(m_spacepointsPixname);
+    if (spacepointsPix.isValid()) {
+      SpacePointContainer::const_iterator spce =  spacepointsPix->end  ();
 
       std::vector<IdentifierHash>::const_iterator l = vPixel.begin(), le = vPixel.end();
 
@@ -291,7 +286,7 @@ void InDet::TRT_SeededSpacePointFinder_ATL::newRegion
       //
       for(; l!=le; ++l) {
 	
-	SpacePointContainer::const_iterator  w =  m_spacepointsPix->indexFind((*l));
+	SpacePointContainer::const_iterator  w =  spacepointsPix->indexFind((*l));
 	if(w==spce) continue;
 
 
@@ -314,12 +309,11 @@ void InDet::TRT_SeededSpacePointFinder_ATL::newRegion
   //
   if(vSCT.size()) {
 
-    m_spacepointsSCT = 0;
-    StatusCode sc = evtStore()->retrieve(m_spacepointsSCT,m_spacepointsSCTname);
-    if(!sc.isFailure() && m_spacepointsSCT) {
+    SG::ReadHandle<SpacePointContainer> spacepointsSCT(m_spacepointsSCTname);
+    if (spacepointsSCT.isValid()) {
 
       //SpacePointContainer::const_iterator spc  =  m_spacepointsSCT->begin();
-      SpacePointContainer::const_iterator spce =  m_spacepointsSCT->end  ();
+      SpacePointContainer::const_iterator spce =  spacepointsSCT->end  ();
 
       std::vector<IdentifierHash>::const_iterator l = vSCT.begin(), le = vSCT.end();
 
@@ -327,7 +321,7 @@ void InDet::TRT_SeededSpacePointFinder_ATL::newRegion
       //
       for(; l!=le; ++l) {
 
-	SpacePointContainer::const_iterator  w =  m_spacepointsSCT->indexFind((*l));
+	SpacePointContainer::const_iterator  w =  spacepointsSCT->indexFind((*l));
 	if(w==spce) continue;
 
         SpacePointCollection::const_iterator sp  = (*w)->begin();
@@ -409,9 +403,9 @@ MsgStream& InDet::TRT_SeededSpacePointFinder_ATL::dumpConditions( MsgStream& out
 {
   int n = 42-m_fieldServiceHandle.type().size();
   std::string s1; for(int i=0; i<n; ++i) s1.append(" "); s1.append("|");
-  n     = 42-m_spacepointsSCTname.size();
+  n     = 42-m_spacepointsSCTname.key().size();
   std::string s3; for(int i=0; i<n; ++i) s3.append(" "); s3.append("|");
-  n     = 42-m_spacepointsOverlapname.size();
+  n     = 42-m_spacepointsOverlapname.key().size();
   std::string s4; for(int i=0; i<n; ++i) s4.append(" "); s4.append("|");
   n     = 42-m_assotool.type().size();
   std::string s2; for(int i=0; i<n; ++i) s2.append(" "); s2.append("|");
@@ -432,9 +426,9 @@ MsgStream& InDet::TRT_SeededSpacePointFinder_ATL::dumpConditions( MsgStream& out
      <<std::endl;
   out<<"| Association tool        | "<<m_assotool.type()<<s2
      <<std::endl;
-  out<<"| SCT      space points   | "<<m_spacepointsSCTname<<s3
+  out<<"| SCT      space points   | "<<m_spacepointsSCTname.key()<<s3
      <<std::endl;
-  out<<"| Overlap  space points   | "<<m_spacepointsOverlapname<<s4
+  out<<"| Overlap  space points   | "<<m_spacepointsOverlapname.key()<<s4
      <<std::endl;
   out<<"| Magnetic field mode     | "<<fieldmode[mode]<<s5
      <<std::endl;
