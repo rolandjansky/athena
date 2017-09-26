@@ -39,6 +39,7 @@
 #include <Inventor/nodes/SoEnvironment.h>
 #include <Inventor/actions/SoSearchAction.h>
 #include <Inventor/nodekits/SoBaseKit.h>
+#include <Inventor/SoSceneManager.h>
 
 #include <QBuffer>
 #include <QByteArray>
@@ -1207,7 +1208,7 @@ SoSphere * VP1ExaminerViewer::Imp::getRegionSphere(REGION region,bool perspectiv
 //____________________________________________________________________
 void VP1ExaminerViewer::Imp::grabFocus()
 {
-//	VP1Msg::messageVerbose("VP1ExaminerViewer::Imp::grabFocus()");
+    VP1Msg::messageVerbose("VP1ExaminerViewer::Imp::grabFocus()");
 	QWidget * w = theclass->getGLWidget();
 	if (w)
 		w->setFocus(Qt::OtherFocusReason);
@@ -1636,25 +1637,58 @@ void VP1ExaminerViewer::setBufferingType(SoQtViewer::BufferType bt)
 //____________________________________________________________________
 void VP1ExaminerViewer::setAntialiasing(SbBool smoothing, int numPasses)
 {
-	SoQtExaminerViewer::setAntialiasing(smoothing, numPasses); // Needed for offscreen rendering (i.e. snapshots).
-	if (smoothing)
-		VP1Msg::message("VP1ExaminerViewer: turning AA on.");
-	else
-		VP1Msg::message("VP1ExaminerViewer: turning AA off.");
-	VP1Msg::message(" AA is now done using a new technique so please let hn-atlas-vp1-help@cern.ch know of any problems. Mac users: if the display goes blank, please try resizing the main VP1 window.");
-	//FIXME - remove above messages at some point? EJWM.
+    VP1Msg::messageDebug("VP1ExaminerViewer::setAntialiasing()");
 
-	QGLWidget* qglw = (QGLWidget*)getGLWidget();
-	QGLFormat fmt = qglw->format();
-	fmt.setSampleBuffers(smoothing);
-	fmt.setSamples(numPasses);
-	qglw->setFormat(fmt);    // note: this is supposedly deprecated..
-	qglw->makeCurrent();
-	if(smoothing && numPasses > 1)
-		glEnable(GL_MULTISAMPLE);
-	else
-		glDisable(GL_MULTISAMPLE);
-	d->isantialias=smoothing;
+    SoQtExaminerViewer::setAntialiasing(smoothing, numPasses); // Needed for offscreen rendering (i.e. snapshots).
+
+    // --- OLD AA method ---
+    //	QGLWidget* qglw = (QGLWidget*)getGLWidget();
+    //	QGLFormat fmt = qglw->format();
+    //	fmt.setSampleBuffers(smoothing);
+    //	fmt.setSamples(numPasses);
+    //	qglw->setFormat(fmt);    // note: this is supposedly deprecated..
+    //	qglw->makeCurrent();
+
+    //    if(smoothing && numPasses > 1)
+    //        glEnable(GL_MULTISAMPLE);
+    //    else
+    //        glDisable(GL_MULTISAMPLE);
+
+    // --- NEW AA method (26Sep2017) ---
+    if (smoothing) {
+		VP1Msg::message("VP1ExaminerViewer: turning AA on.");
+
+        VP1Msg::message("Sep 2017: AA is now done using a new technique so please let hn-atlas-vp1-help@cern.ch know of any problems.");
+        //FIXME - remove above messages at some point? EJWM.
+
+        if (getGLRenderAction()->isSmoothing() != smoothing)
+                getGLRenderAction()->setSmoothing(smoothing); // --> quite ugly outcome!
+
+        int buffers = 4;
+        #if SOQT_MAJOR_VERSION > 1 || (SOQT_MAJOR_VERSION == 1 && SOQT_MINOR_VERSION >= 5)
+            if (getSampleBuffers() != buffers)
+                setSampleBuffers(buffers);
+        #else
+            if (buffers > 1)
+                VP1Msg::message("Multisampling is not supported by SoQT < 1.5, this anti-aliasing mode is disabled");
+        #endif
+    }
+    else {
+		VP1Msg::message("VP1ExaminerViewer: turning AA off.");
+        getGLRenderAction()->setSmoothing(smoothing);
+        setSampleBuffers(0);
+    }
+
+
+
+
+    d->isantialias=smoothing;
+
+
+
+
+
+
 }
 
 //____________________________________________________________________
@@ -1683,6 +1717,7 @@ void VP1ExaminerViewer::setAntiAlias(bool b)
 {
 	d->isantialias=b;
 	b ? setAntialiasing(true,4) : setAntialiasing(false,1);
+    std::cout << "antiAliasing set." << std::endl;
 }
 
 //____________________________________________________________________
@@ -2415,18 +2450,19 @@ void VP1ExaminerViewer::showPopupMenu()
 	}
 	if ( selAct == d->popup_antiAliasAction ) {
 		VP1Msg::messageVerbose("VP1ExaminerViewer::showPopupMenu anti aliasing changed to "+VP1Msg::str(d->popup_antiAliasAction->isChecked()));
-		setAntiAlias(d->popup_antiAliasAction->isChecked());
-		d->grabFocus();//Needed since the GL calls triggered when setting antialiasing makes us loose focus (we obviusly just had it).
-		return;
+        setAntiAlias(d->popup_antiAliasAction->isChecked());
+        d->grabFocus();//Needed since the GL calls triggered when setting antialiasing makes us loose focus (we obviusly just had it).
+        VP1Msg::messageVerbose("Anti-aliasing, done.");
+        return;
 	}
 	if ( selAct == d->popup_dumpSceneAction ) {
-		VP1Msg::messageVerbose("VP1ExaminerViewer::showPopupMenu Dump scene to file");
+        VP1Msg::messageVerbose("VP1ExaminerViewer::showPopupMenu Dump scene to an *.iv (OpenInventor) file");
 		dumpSceneToFile();
 		return;
 	}
 	
 	if ( selAct == d->popup_dumpSceneVRMLAction ) {
-		VP1Msg::messageVerbose("VP1ExaminerViewer::showPopupMenu Dump scene to file");
+        VP1Msg::messageVerbose("VP1ExaminerViewer::showPopupMenu Dump scene to a *.wrl (VRML) file");
 		dumpSceneToVRMLFile();
 		return;
 	}
