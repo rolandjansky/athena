@@ -12,14 +12,14 @@
 // Version 1.0 3/10/2004 I.Gavrilenko
 /////////////////////////////////////////////////////////////////////////////////
 
-#ifndef TRT_DriftCircleLink_xk_H
-#define TRT_DriftCircleLink_xk_H
+#ifndef TRT_DriftCircleLinkN_xk_H
+#define TRT_DriftCircleLinkN_xk_H
 
 #include "InDetPrepRawData/TRT_DriftCircle.h"
 
 namespace InDet{
 
-  class TRT_DriftCircleLink_xk
+  class TRT_DriftCircleLinkN_xk
     {
       ///////////////////////////////////////////////////////////////////
       // Public methods:
@@ -27,10 +27,10 @@ namespace InDet{
       
     public:
       
-      TRT_DriftCircleLink_xk();
-      TRT_DriftCircleLink_xk(const TRT_DriftCircleLink_xk&);
-      ~TRT_DriftCircleLink_xk();
-      TRT_DriftCircleLink_xk& operator  = (const TRT_DriftCircleLink_xk&);
+      TRT_DriftCircleLinkN_xk();
+      TRT_DriftCircleLinkN_xk(const TRT_DriftCircleLinkN_xk&);
+      ~TRT_DriftCircleLinkN_xk();
+      TRT_DriftCircleLinkN_xk& operator  = (const TRT_DriftCircleLinkN_xk&);
 
       ///////////////////////////////////////////////////////////////////
       // Main methods
@@ -63,20 +63,20 @@ namespace InDet{
   // Inline methods
   /////////////////////////////////////////////////////////////////////////////////
 
-  inline TRT_DriftCircleLink_xk::TRT_DriftCircleLink_xk()
+  inline TRT_DriftCircleLinkN_xk::TRT_DriftCircleLinkN_xk()
     {
       m_circle =  0 ;
       m_phi     = 0.;
       m_address = 0 ;
     }
 
-  inline TRT_DriftCircleLink_xk::TRT_DriftCircleLink_xk(const TRT_DriftCircleLink_xk& L)
+  inline TRT_DriftCircleLinkN_xk::TRT_DriftCircleLinkN_xk(const TRT_DriftCircleLinkN_xk& L)
     {
       *this = L;
     }
   
-  inline TRT_DriftCircleLink_xk& TRT_DriftCircleLink_xk::operator = 
-    (const TRT_DriftCircleLink_xk& L) 
+  inline TRT_DriftCircleLinkN_xk& TRT_DriftCircleLinkN_xk::operator = 
+    (const TRT_DriftCircleLinkN_xk& L) 
     {
       if(&L!=this) {
 	m_circle  = L.m_circle ;
@@ -86,9 +86,9 @@ namespace InDet{
       return(*this);
     }
 
-  inline TRT_DriftCircleLink_xk::~TRT_DriftCircleLink_xk() {}
+  inline TRT_DriftCircleLinkN_xk::~TRT_DriftCircleLinkN_xk() {}
 
-  inline void TRT_DriftCircleLink_xk::set
+  inline void TRT_DriftCircleLinkN_xk::set
     (const TRT_DriftCircle* const& d, const float& p, const unsigned int& a) 
     {
       m_circle  = d;
@@ -98,6 +98,6 @@ namespace InDet{
 
 } // end of name space
 
-#endif // TRT_DriftCircleLink_xk
+#endif // TRT_DriftCircleLinkN_xk
 
 
