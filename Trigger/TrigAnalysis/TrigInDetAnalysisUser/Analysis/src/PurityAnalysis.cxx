@@ -100,20 +100,20 @@ void PurityAnalysis::initialise() {
 
   std::cout << "PurityAnalysis::initialize() Directory " << gDirectory->GetName() << " package directory, " << name() << std::endl;
 
-  int Nptbins = 6;
-  double _ptlims[7] = { 0, 500, 1000, 1500, 2000, 5000, 10000 };
+  //  int Nptbins = 6;
+  //  double _ptlims[7] = { 0, 500, 1000, 1500, 2000, 5000, 10000 };
 
-  TH2F* effpt2d  = new TH2F("pteta2d", "pteta", Nptbins,   _ptlims,  40, -tmp_maxEta, tmp_maxEta ); 
-  TH2F* effeta2d = new TH2F("etapt2d", "pteta", ptnbins, ptbinlims,   6, -tmp_maxEta, tmp_maxEta ); 
+  //  TH2F* effpt2d  = new TH2F("pteta2d", "pteta", Nptbins,   _ptlims,  40, -tmp_maxEta, tmp_maxEta ); 
+  //  TH2F* effeta2d = new TH2F("etapt2d", "pteta", ptnbins, ptbinlims,   6, -tmp_maxEta, tmp_maxEta ); 
 
-  eff_pteta = new Efficiency2D( effpt2d,  "pteta" );
-  eff_etapt = new Efficiency2D( effeta2d, "etapt" );
+  //  eff_pteta = new Efficiency2D( effpt2d,  "pteta" );
+  //  eff_etapt = new Efficiency2D( effeta2d, "etapt" );
 
-  effpt2d->SetDirectory(0);
-  effeta2d->SetDirectory(0);
+  //  effpt2d->SetDirectory(0);
+  //  effeta2d->SetDirectory(0);
 
-  delete effpt2d;
-  delete effeta2d;
+  //  delete effpt2d;
+  //  delete effeta2d;
 
   Efficiency* heff[8];  
   Efficiency* hpurity[6]; 
@@ -251,12 +251,12 @@ void PurityAnalysis::finalise() {
 
   //  std::cout << "DBG >" << purity_pt->Hist()->GetName() << "< DBG" << std::endl;
 
-  eff_pteta->finalise(); eff_pteta->Write("eta_efficiency_binned_pt", "x"); 
+  //  eff_pteta->finalise(); eff_pteta->Write("eta_efficiency_binned_pt", "x"); 
   //  for ( int i=1 ; i<=eff_pteta->GetNbinsX() ; i++ ) {
   //   TH1F* h = eff_pteta->SliceX(i);
   // }
 
-  eff_etapt->finalise(); eff_etapt->Write("pt_efficieny_binned_eta", "y");
+  //  eff_etapt->finalise(); eff_etapt->Write("pt_efficieny_binned_eta", "y");
   // for ( int i=1 ; i<=eff_etapt->GetNbinsY() ; i++ ) {
   //  TH1F* h = eff_etapt->SliceY(i);
   // }
@@ -429,8 +429,8 @@ void PurityAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
        // in this loop over the reference tracks, could fill efficiency 
        // histograms
 
-       eff_pteta->Fill( pTt, etat ); 
-       eff_etapt->Fill( pTt, etat ); 
+       //       eff_pteta->Fill( pTt, etat ); 
+       //       eff_etapt->Fill( pTt, etat ); 
 
        /// matched track distributions
        
@@ -483,8 +483,8 @@ void PurityAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
 #endif
 
 	
-       eff_pteta->FillDenom( pTt, etat ); 
-       eff_etapt->FillDenom( pTt, etat );
+       //       eff_pteta->FillDenom( pTt, etat ); 
+       //       eff_etapt->FillDenom( pTt, etat );
        
      }
      

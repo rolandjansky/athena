@@ -89,6 +89,8 @@ std::vector<double> findxrangeuser(TH1* h, bool symmetric=false );
 
 void xrange(TH1* h, bool symmetric=true );
 
+/// copy the TTree of release info from one directory to another
+void copyReleaseInfo( TFile* finput, TFile* foutdir );
 
 
 /// class to store information about axes, limits, whether it is 

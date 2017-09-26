@@ -85,57 +85,77 @@ std::ostream& operator<<( std::ostream& s, const threshold& t ) {
 }
 
 
-int usage() { 
-  std::cout << "Usage: " << std::endl;
-  return -1;
+int usage( int , char** argv, int i=0 ) { 
+  if ( i!=0 ) std::cout << "error " << i << "\n\n"; 
+
+  std::cout << "Usage: " << argv[0] << " FILE SLICE [OPTIONS] file\n\n";
+
+  std::cout << "\t decodes which chains are available from a HIST file log\n";
+  std::cout << "\t by default, sorts chains by threshold\n";
+
+  std::cout << "Options:\n";
+  std::cout << "   -all                     \t list all chains\n";
+  std::cout << "   -cr, --return            \t separate chains with a return\n";
+  std::cout << "   -c,  --counts            \t sort by counts rather than threshold\n";
+  std::cout << "   -t,  --thresh value      \t require at least value entries - default is 100\n";
+  std::cout << "   -n            value      \t report only n chains - default is 4\n\n";
+
+  std::cout << "   -k            expression \t match any chain containing expression\n";
+  std::cout << "   -K            expression \t match only chains containing expression\n";
+  std::cout << "        --veto   expression \t veto all chains containing \"expression\"\n";
+  std::cout << "   -x, --excluded           \t also include usually excluded entries\n\n";
+  std::cout << "   -s, --sig     sig pat    \t add a new signature, sig, to the expected list with the pattern definied by pat\n";
+
+  std::cout << "   -v,  --verbose           \t verbose output\n\n";
+  std::cout << "   -h,  --help              \t this help\n" << std::endl;
+
+  return i;
 }
+
 
 int main( int argc, char** argv ) {
   
-  if ( argc<3 ) return -1;
-
-  std::ifstream file( argv[1] );
-
-  std::vector<std::vector<std::string> > block(1,std::vector<std::string>() );  
-
-  std::string line;
-
-  std::vector<int> position(1, 0);
-
-  std::string slice = "/";
-  slice += argv[2];
-  slice += "/";
+  if ( argc<3 ) return usage( argc, argv, 1 );
 
   bool allflag = false;
 
   std::vector<std::string> keys;
 
-  keys.push_back( "IDTrig" );
-
+  //  keys.push_back( "IDTrig" );
   bool nokeys = true;
 
-
   std::vector<std::string> Keys;
-
   bool noKeys = true;
-
 
   std::vector<std::string> veto;
 
   std::string creturn = "";
 
   bool verbose = false;
+  bool usecounts = false;
+  bool excluded  = false;
 
   unsigned n = 4;
 
-  bool usecounts = false;
+  std::string  afile = "";
+  std::string aslice = "";
+  
+  double userthreshold = 100;
 
-  for ( int i=3 ; i<argc ; i++ ) { 
+  std::string sig="";
+  std::string pat="";
+
+
+  for ( int i=1 ; i<argc ; i++ ) { 
     std::string arg = argv[i];
     if      ( arg=="-all" ) allflag = true; 
-    else if ( arg=="--verbose" ) verbose = true;
+    else if ( arg=="-v" || arg=="--verbose" ) verbose = true;
+    else if ( arg=="-t" || arg=="--threshold" ) { 
+      if ( ++i<argc ) 	userthreshold = std::atof(argv[i]);
+      else            return usage( argc, argv, 1 );
+    }
     else if ( arg=="-cr" )       creturn = "\n";
-    else if ( arg=="--counts" )  usecounts = true;
+    else if ( arg=="-c" || arg=="--counts" )  usecounts = true;
     else if ( arg=="-k" ) {
       if ( ++i<argc ) {
 	if ( nokeys ) { 
@@ -144,7 +164,7 @@ int main( int argc, char** argv ) {
 	}
 	keys.push_back(argv[i]);
       }
-      else return usage();
+      else return usage( argc, argv, 2 );
     } 
     else if ( arg=="-K" ) {
       if ( ++i<argc ) {
@@ -154,19 +174,46 @@ int main( int argc, char** argv ) {
 	}
 	Keys.push_back(argv[i]);
       }
-      else return usage();
+      else return usage( argc, argv, 3 );
     } 
     else if ( arg=="--veto" ) {
       if ( ++i<argc ) veto.push_back(argv[i]);
-      else return usage();
+      else return usage( argc, argv, 4 );
     } 
     else if ( arg=="-n" ) {
       if ( ++i<argc ) n = std::atoi(argv[i]);
-      else return usage();
+      else return usage( argc, argv, 5 );
     } 
+    else if (  arg=="-h" || arg=="--help" )     return usage( argc, argv, 6 );
+    else if (  arg=="-x" || arg=="--excluded" ) excluded = true;
+    else if (  arg=="-s" || arg=="--sig" ) { 
+      if ( ++i<argc ) sig = argv[i];
+      else            return usage( argc, argv, 1 );
+      if ( ++i<argc ) pat = argv[i];
+      else            return usage( argc, argv, 1 );
+    }
+    else { 
+      if      (  afile=="" )  afile=arg;
+      else if ( aslice=="" ) aslice=arg;
+      else  return usage( argc, argv, 7 );
+    }
   }
 
-  std::string rawslice = argv[2];
+  if ( afile=="" ) return usage( argc, argv, 8 );
+
+  std::ifstream file( afile.c_str() );
+
+  std::vector<std::vector<std::string> > block(1,std::vector<std::string>() );  
+
+  std::string line;
+
+  std::vector<int> position(1, 0);
+
+  if ( aslice=="" ) return usage( argc, argv, 9 ); 
+
+  std::string slice = "/" + aslice + "/";
+
+  std::string rawslice = aslice;
 
   std::map<std::string, std::string> chains;
 
@@ -176,22 +223,36 @@ int main( int argc, char** argv ) {
   chains.insert( chain_map::value_type( "Muon",     "_mu" ) );
   chains.insert( chain_map::value_type( "Tau",      "_tau" ) );
   chains.insert( chain_map::value_type( "Bjet",     "_j" ) );
+  chains.insert( chain_map::value_type( "FTK",      "_FTK" ) );
+  chains.insert( chain_map::value_type( "BjetVtx",  "" ) );
 
-  chain_map::const_iterator itr = chains.find( argv[2] );
+  chains.insert( chain_map::value_type( "EgammaPurity",   "_e" ) );
+  chains.insert( chain_map::value_type( "MuonPurity",     "_mu" ) );
+  chains.insert( chain_map::value_type( "TauPurity",      "_tau" ) );
+  chains.insert( chain_map::value_type( "BjetPurity",     "_j" ) );
+
+  if ( sig != "" ) chains.insert( chain_map::value_type( sig, pat ) );
+
+  chain_map::const_iterator itr = chains.find( rawslice );
 
   if ( itr==chains.end() ) { 
-    std::cerr << "con not process type " << argv[2] << std::endl;
+    std::cerr << "can not process type " << rawslice << std::endl;
     return -1;
   }
 	
-  std::string tag = "HLT";
-  tag += itr->second;
+  std::string tag = "";
+  if ( itr->second != "" ) { 
+    tag = "HLT";
+    tag += itr->second;
+  }
 
   std::vector<threshold> thresholds;
 
   std::string fullpath = "";
 
   /// read through and parse chain list file
+
+  bool purity = contains( slice, "Purity" );
 
   while( getline( file, line ) && !file.fail() ) {
 
@@ -207,12 +268,9 @@ int main( int argc, char** argv ) {
 
     if      ( expl[2] == "IDMon" ) expected_size = 6;
     else if ( expl[2] == "TRIDT" ) { 
-      if      ( expl[4] == "Expert"  ) expected_size = 7;
-      else if ( expl[4] == "Shifter" ) {
-	//	shifter = true;
-	//	std::cout << "shifter histogram setting not yet available: " << shifter << std::endl;
-	expected_size = 6;
-      }
+      if      ( expl[4] == "Expert"  && !purity ) expected_size = 7;
+      else if ( expl[4] == "Shifter" && contains(expl[3],"etVtx") ) expected_size = 7;
+      else if ( expl[4] == "Shifter" ||  purity ) expected_size = 6;
       else { 
 	std::cerr << "unknown HIST type" << std::endl;
 	return 1;
@@ -227,23 +285,20 @@ int main( int argc, char** argv ) {
 
       int counts = std::atoi(expl[expected_size].c_str());
 
-      //      std::cout << expl[4] << "\t" << expl[5] << "\t:" << counts << std::endl;
-
       /// ignore chains with no entries ( could print out as problem chains if required)
-      if ( counts > 100 ) { 
-	// if ( true ) { 
+      if ( counts >= userthreshold ) { 
 
 	std::string tmp = expl[expected_size-2];
 
-	if ( !contains( tmp, tag ) ) continue;
+        if ( tag != "" ) { 
+          if ( contains( tmp, tag ) ) tmp.replace( tmp.find(tag), tag.size(), "" ); 
 
-	tmp.replace( tmp.find(tag), tag.size(), "" ); 
+          size_t pos = tmp.find("_");
+          if ( pos!=std::string::npos ) tmp.replace( pos, tmp.size()-pos, "" );
+        }
 
-	size_t pos = tmp.find("_");
-	if ( pos!=std::string::npos ) tmp.replace( pos, tmp.size()-pos, "" );
-
-	bool condition = false;
-
+        bool condition = false;
+          
 	if ( keys.size()>0 ) for ( size_t ik=keys.size() ; ik-- ; ) condition |= contains( expl[expected_size-2], keys[ik] ) ||  contains( expl[expected_size-1], keys[ik] );
 	else  condition = true;
 
@@ -251,17 +306,16 @@ int main( int argc, char** argv ) {
 	
 	if ( veto.size()>0 ) for ( size_t iv=veto.size() ;  iv-- ; )  condition &= !( contains( expl[expected_size-2], veto[iv] ) ||  contains( expl[expected_size-1], veto[iv] ) );
 
-	if ( !contains( expl[5], "EFID" )   && !contains( expl[4], "gsc" )   &&
-	     !contains( expl[4], "medium" ) && !contains( expl[4], "loose" ) && 
-	     !contains( expl[4], "2015" )   &&  !contains( expl[4], "_r1_" ) && 
-	     !( contains( expl[4], "_track" ) && !contains( expl[4], "tracktwo") ) &&  
-	     !contains( expl[4], "L2Star" )   && 
-	      condition ) {  
-	 	
+	if ( ( excluded || ( !contains( expl[5], "EFID" )   && !contains( expl[4], "gsc" )   &&
+			     !contains( expl[4], "medium" ) && !contains( expl[4], "loose" ) && 
+			     !contains( expl[4], "2015" )   &&  !contains( expl[4], "_r1_" ) && 
+			     !( contains( expl[4], "_track" ) && !contains( expl[4], "tracktwo") )&&  
+			     !contains( expl[4], "L2Star" ) && !contains( expl[4], "Shifter" ) ) ) && 
+	     condition ) {  
 	  
 	  double thresh_var = std::atof( tmp.c_str() );
 	  int    counts_var = counts;
-
+	  
 	  if ( usecounts ) { 
 	    counts_var = int(thresh_var);
 	    thresh_var = counts;
@@ -271,30 +325,24 @@ int main( int argc, char** argv ) {
 
 	    threshold t( thresh_var, it++, expl[expected_size-2], expl[expected_size-1], counts_var );
 
-	    // std::cout << "expected size " << expected_size << std::endl;
-	    
 	    if ( verbose && fullpath=="" ) for ( unsigned ip=0 ; ip<expected_size-2 ; ip++ )  fullpath += expl[ip]+"/";
 	    
-	    //	  std::cout << "fullpath " << fullpath << std::endl;
-	    //	  std::cout << t << "\t" << contains( expl[4], "_track_" ) << std::endl;
-	    //	  std::cout << "adding: " << t << std::endl;
+	    //    std::cout << "\tfullpath " << fullpath << std::endl;
+	    //	  std::cout << "\t" << t << "\t" << contains( expl[4], "_track_" ) << std::endl;
+	    //    std::cout << "\tadding: " << t << std::endl;
 	    
 	    thresholds.push_back( t );
 	  }
-	}    
+	}
       }
     }
   }
-
-
-  //  std::cout << "thresholds " << thresholds.size() << std::endl;
-
+  
+  
   /// sort all the selected thresholds into order
 
   if ( usecounts ) sort( thresholds.rbegin(), thresholds.rend() );
   else             sort( thresholds.begin(), thresholds.end() );
-
-  //  std::cout << thresholds << std::endl;
 
 
   /// vector of indices into the threshold vector
@@ -332,11 +380,14 @@ int main( int argc, char** argv ) {
     if ( rawslice=="Bjet" ) { 
       for ( size_t i=0 ; i<thresholds.size() ; i++ ) { 
 	ind[0] = i;
-	if ( thresholds[i].thresh > 30 ) break;
+	/// not sure what this is really doing now ....
+	/// was originally for consistency with the 30 GeV vtx tracking 
+	if ( thresholds[i].thresh > 30 ) break;   
       }
     }
     
     for ( size_t i=thresholds.size() ; i-- ;  ) { 
+      //    if ( thresholds[i].counts > 0.05*thresholds[ind[0]].counts ) { 
       if ( thresholds[i].counts > 0.05*thresholds[ind[0]].counts ) { 
 	ind[n-1] = i;
 	break;
