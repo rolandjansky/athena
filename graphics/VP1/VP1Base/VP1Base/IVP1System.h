@@ -108,7 +108,7 @@ private:
   IVP1System & operator= ( const IVP1System & );
 
   class Imp;
-  Imp * d;
+  Imp * m_d;
   friend class VP1ExecutionScheduler;
   friend class VP1Prioritiser;
   friend class IVP1ChannelWidget;

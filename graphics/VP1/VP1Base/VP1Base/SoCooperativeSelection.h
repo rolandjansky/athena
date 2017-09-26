@@ -64,11 +64,11 @@ private:
   //Helper method:
   SoCooperativeSelection * getLastActiveSoSelectionFromPath(SoPath*) const;
 
-  SoCallbackList *clickoutsideCBList;
+  SoCallbackList *m_clickoutsideCBList;
 
   //Common code for both constructors:
   void init();
-  static bool needsinit;
+  static bool s_needsinit;
 };
 
 #endif

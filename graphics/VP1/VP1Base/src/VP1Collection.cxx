@@ -35,14 +35,14 @@ public:
 
 //____________________________________________________________________
 VP1Collection::VP1Collection(IVP1System * sys,const QString& helperClassName)
-  : VP1HelperClassBase(sys,helperClassName), d(new Imp)
+  : VP1HelperClassBase(sys,helperClassName), m_d(new Imp)
 {
 }
 
 //____________________________________________________________________
 VP1Collection::~VP1Collection()
 {
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________
@@ -50,42 +50,42 @@ QByteArray VP1Collection::persistifiableID() const
 {
 	VP1Msg::messageDebug("VP1Collection::persistifiableID()");
 
-  if (!d->persistIDProvided) {
-    d->persistIDProvided = true;
-    d->persistID = providePersistifiableID().toHex();//toHex() necessary for some unknown reason!
+  if (!m_d->persistIDProvided) {
+    m_d->persistIDProvided = true;
+    m_d->persistID = providePersistifiableID().toHex();//toHex() necessary for some unknown reason!
                                                      //Without it keys in maps are apparently considered similar! (Qt bug??)
   }
-  return d->persistID;
+  return m_d->persistID;
 }
 
 //____________________________________________________________________
 QList<QWidget*> VP1Collection::widgetsForGuiRow() const
 {
-  if (!d->widgetsForGuiRowProvided) {
-    d->widgetsForGuiRowProvided = true;
-    d->widgetsForGuiRow = provideWidgetsForGuiRow();
+  if (!m_d->widgetsForGuiRowProvided) {
+    m_d->widgetsForGuiRowProvided = true;
+    m_d->widgetsForGuiRow = provideWidgetsForGuiRow();
   }
-  return d->widgetsForGuiRow;
+  return m_d->widgetsForGuiRow;
 }
 
 //____________________________________________________________________
 QString VP1Collection::section() const
 {
-  if (!d->sectionProvided) {
-    d->sectionProvided = true;
-    d->section = provideSection();
+  if (!m_d->sectionProvided) {
+    m_d->sectionProvided = true;
+    m_d->section = provideSection();
   }
-  return d->section;
+  return m_d->section;
 }
 
 //____________________________________________________________________
 QString VP1Collection::sectionToolTip() const
 {
-  if (!d->sectionToolTipProvided) {
-    d->sectionToolTipProvided = true;
-    d->sectionToolTip = provideSectionToolTip();
+  if (!m_d->sectionToolTipProvided) {
+    m_d->sectionToolTipProvided = true;
+    m_d->sectionToolTip = provideSectionToolTip();
   }
-  return d->sectionToolTip;
+  return m_d->sectionToolTip;
 }
 
 //____________________________________________________________________

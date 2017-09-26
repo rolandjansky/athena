@@ -124,7 +124,7 @@ protected:
 private:
 
 	class Imp;
-	Imp * d;
+	Imp * m_d;
 	friend class VP1ExaminerViewer_SignalCatcher;
 
 };
@@ -134,7 +134,7 @@ class VP1ExaminerViewer_SignalCatcher : public QObject {
 	private slots:
 	void catchSignal();
 	private:
-	VP1ExaminerViewer::Imp * d;
+	VP1ExaminerViewer::Imp * m_d;
 	friend class VP1ExaminerViewer::Imp;
 };
 
