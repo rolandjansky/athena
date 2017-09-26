@@ -10,10 +10,8 @@ class ISimTestTool : virtual public IAlgTool{
 public:
   virtual StatusCode processEvent() = 0;
 
-  static const InterfaceID& interfaceID() {
-    static const InterfaceID _IID( "ISimTestTool", 1, 0 );
-    return _IID;
-  }
+  /// Creates the InterfaceID and interfaceID() method
+  DeclareInterfaceID(ISimTestTool, 1, 0);
 
 };
 

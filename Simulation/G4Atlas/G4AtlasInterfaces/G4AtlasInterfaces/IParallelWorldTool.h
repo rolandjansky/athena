@@ -21,13 +21,12 @@ class G4VPhysicalVolume;
  *  @date   2015-03-20
  */
 
-static const InterfaceID IID_IParallelWorldTool( "IParallelWorldTool" , 1 , 0 ) ;
-
 class IParallelWorldTool : public G4VUserParallelWorld, virtual public IAlgTool {
  public:
   IParallelWorldTool(std::string n):G4VUserParallelWorld(n) {;}
  
-  static const InterfaceID& interfaceID() { return IID_IParallelWorldTool ; }
+  /// Creates the InterfaceID and interfaceID() method
+  DeclareInterfaceID(IParallelWorldTool, 1, 0);
   
 // from G4VUserParallelWorld 
 
