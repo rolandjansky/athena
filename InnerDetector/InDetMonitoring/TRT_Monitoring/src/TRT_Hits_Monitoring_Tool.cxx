@@ -64,16 +64,16 @@ StatusCode TRT_Hits_Monitoring_Tool::fillHistograms() {
 	if (now - m_lastPublishTime < sleepTime) return StatusCode::SUCCESS; // do not publish results too often
 
 	/*
-	if (!evtStore()->contains<TRT_RDO_Container>(m_rawDataObjectName)) {
-		ATH_MSG_ERROR("StoreGate contains no TRT_RDO_Container named " << m_rawDataObjectName);
-		return StatusCode::FAILURE;
-	}
-	TRT_RDO_Container *rdoContainer = 0;
-	StatusCode sc = evtStore()->retrieve(rdoContainer, m_rawDataObjectName); // get TRT Raw Data Objects (all TRT hits)
-	if (sc.isFailure() || !rdoContainer) {
-		ATH_MSG_ERROR("Could not retrieve TRT_RDO_Container named " << m_rawDataObjectName);
-		return StatusCode::FAILURE;
-	}	*/
+	  if (!evtStore()->contains<TRT_RDO_Container>(m_rawDataObjectName)) {
+	  ATH_MSG_ERROR("StoreGate contains no TRT_RDO_Container named " << m_rawDataObjectName);
+	  return StatusCode::FAILURE;
+	  }
+	  TRT_RDO_Container *rdoContainer = 0;
+	  StatusCode sc = evtStore()->retrieve(rdoContainer, m_rawDataObjectName); // get TRT Raw Data Objects (all TRT hits)
+	  if (sc.isFailure() || !rdoContainer) {
+	  ATH_MSG_ERROR("Could not retrieve TRT_RDO_Container named " << m_rawDataObjectName);
+	  return StatusCode::FAILURE;
+	  }	*/
 
 	SG::ReadHandle<TRT_RDO_Container> rdoContainer(m_rdoContainer);
 	if (!rdoContainer.isValid()) {

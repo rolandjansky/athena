@@ -27,7 +27,7 @@ public:
 
 	virtual StatusCode initialize();
 	virtual StatusCode bookHistogramsRecurrent();
-	virtual StatusCode fillHistograms();  
+	virtual StatusCode fillHistograms();
 	virtual StatusCode procHistograms();
 
 private:
@@ -48,9 +48,9 @@ private:
 	std::string m_nameEC_longToT;
 
 	//	std::string m_rawDataObjectName;
-	std::string m_partition;    
+	std::string m_partition;
 	std::string m_server;
-	std::string m_name;      
+	std::string m_name;
 
 	float m_longToTCut;
 	unsigned int m_sleepTime; // milliseconds
