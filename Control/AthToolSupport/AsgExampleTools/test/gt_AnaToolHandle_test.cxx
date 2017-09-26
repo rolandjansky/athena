@@ -489,7 +489,7 @@ namespace asg
 
 #ifndef NDEBUG
   // check get() (and by implication * and ->)
-  TEST_F (AnaToolHandleMakeTest, get)
+  TEST_F (AnaToolHandleMakeTest, DISABLED_get)
   {
     ASSERT_DEATH (tool.get(), "");
   }
