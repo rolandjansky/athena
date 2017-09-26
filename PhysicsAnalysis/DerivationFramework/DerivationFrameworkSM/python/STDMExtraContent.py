@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 #Content included in addition to the Smart Slimming Content
-ExtraContentElectrons=["Electrons.topoetcone20.topoetcone30.topoetcone40.ptcone20.ptcone30.ptcone40.Loose.Medium.Tight.DFCommonElectronsLHLoose.DFCommonElectronsLHMedium.DFCommonElectronsLHTight.DFCommonElectronsML.author.OQ.LHLoose.LHMedium.LHTight.LHValue","egammaClusters.PHI2CALOFRAME.ETA2CALOFRAME"]
+ExtraContentElectrons=["Electrons.topoetcone20.topoetcone30.topoetcone40.ptcone20.ptcone30.ptcone40.Loose.Medium.Tight.DFCommonElectronsLHLoose.DFCommonElectronsLHMedium.DFCommonElectronsLHTight.DFCommonElectronsML.author.OQ.LHLoose.LHMedium.LHTight.LHValue","egammaClusters.PHI2CALOFRAME.ETA2CALOFRAME.phi_sampl"]
 
 ExtraContentPhotons=["Photons.topoetcone20.topoetcone30.topoetcone40.ptcone20.ptcone30.ptcone40.Loose.Medium.Tight.author.OQ.f3.f3core"]+["egammaTopoSeededClusters.calE.calEta.calPhi.e_sampl.eta_sampl.ETACALOFRAME.PHICALOFRAME.eta"]
 
