@@ -12,7 +12,7 @@ atlas_depends_on_subdirs(
    PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/CalibrationDataInterface )
 
 # Component(s) in the package:
-atlas_add_library( MuonAnalysisInterfacesLib
+atlas_add_library( FTagAnalysisInterfacesLib
    FTagAnalysisInterfaces/*.h
    INTERFACE
    PUBLIC_HEADERS FTagAnalysisInterfaces
