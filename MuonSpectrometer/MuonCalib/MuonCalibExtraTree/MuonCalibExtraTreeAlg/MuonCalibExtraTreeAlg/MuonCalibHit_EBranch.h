@@ -35,27 +35,27 @@ namespace MuonCalib {
     MuonCalibHit_EBranch(std::string branchName = "trkHit_");          //!< default constructor 
     bool fillBranch(const MuonCalibHit_E &hit, const double drifttime, const int track_index); //!< fill content of hit into branch 
     bool createBranch(TTree* tree);                                    //!< create branch structure in tree 
-    void reset() { index = 0; }                                        //!< set hit_index to zero 
-    int getBranchEntries() { return index; }                           //!< returns the number of hits currently in the branch 
+    void reset() { m_index = 0; }                                        //!< set hit_index to zero 
+    int getBranchEntries() { return m_index; }                           //!< returns the number of hits currently in the branch 
   
   private:
     std::string m_branchName;           //!< name of branch in tree, per default prepended to variable names 
-    bool branchesInit;                  //!< flag to check whether branches were initialized 
+    bool m_branchesInit;                //!< flag to check whether branches were initialized 
     bool m_first;                       //!< flag to make sure that overflow message is only printed once
-    static const int blockSize = 3000;  //!< quantities stored in the tree 
-    int  index;                         //!< counter keeping track on the number of MuonCalib::MuonCalibHit_E s stored in the event
+    static const int s_blockSize = 3000;  //!< quantities stored in the tree 
+    int  m_index;                         //!< counter keeping track on the number of MuonCalib::MuonCalibHit_E s stored in the event
 
-    int   trackIndex[blockSize];
-    unsigned int id[blockSize];
-    float posX[blockSize];
-    float posY[blockSize];
-    float posZ[blockSize];
-    float driftRadius[blockSize];
-    float driftTime[blockSize];
-    float error[blockSize];
-    float resi[blockSize];
-    float pull[blockSize];
-    int   measType[blockSize];
+    int   m_trackIndex[s_blockSize];
+    unsigned int m_id[s_blockSize];
+    float m_posX[s_blockSize];
+    float m_posY[s_blockSize];
+    float m_posZ[s_blockSize];
+    float m_driftRadius[s_blockSize];
+    float m_driftTime[s_blockSize];
+    float m_error[s_blockSize];
+    float m_resi[s_blockSize];
+    float m_pull[s_blockSize];
+    int   m_measType[s_blockSize];
   };
 }// namespace MuonCalib
 

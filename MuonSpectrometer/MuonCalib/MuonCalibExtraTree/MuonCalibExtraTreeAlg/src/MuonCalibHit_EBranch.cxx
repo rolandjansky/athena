@@ -15,38 +15,38 @@
 namespace MuonCalib {
 
 MuonCalibHit_EBranch::MuonCalibHit_EBranch(std::string branchName) : 
-  m_branchName(branchName), branchesInit(false), m_first(true), index(0) {
+  m_branchName(branchName), m_branchesInit(false), m_first(true), m_index(0) {
 }
 
 bool  MuonCalibHit_EBranch::fillBranch(const MuonCalibHit_E &hit, double drifttime, const int track_index) {
   // check if branches were initialized
-  if( !branchesInit ) {
+  if( !m_branchesInit ) {
     return false;    
   }
 
   // check if index not out of range 
-  if( index >= blockSize || index < 0 ) {
+  if( m_index >= s_blockSize || m_index < 0 ) {
     if (m_first == true) {
       m_first = false;
     }
     return false;
   }
 
-  trackIndex[index] = track_index;
+  m_trackIndex[m_index] = track_index;
 
-  id[index]    = (hit.identify()).getIdInt();
-  posX[index]  = hit.position().x();
-  posY[index]  = hit.position().y();
-  posZ[index]  = hit.position().z();
-  driftTime[index]   = drifttime;
-  driftRadius[index] = hit.driftRadius();
-  error[index] = hit.error();
-  resi[index]  = hit.residual();
-  pull[index]  = hit.pull();
-  measType[index] = hit.type();
+  m_id[m_index]    = (hit.identify()).getIdInt();
+  m_posX[m_index]  = hit.position().x();
+  m_posY[m_index]  = hit.position().y();
+  m_posZ[m_index]  = hit.position().z();
+  m_driftTime[m_index]   = drifttime;
+  m_driftRadius[m_index] = hit.driftRadius();
+  m_error[m_index] = hit.error();
+  m_resi[m_index]  = hit.residual();
+  m_pull[m_index]  = hit.pull();
+  m_measType[m_index] = hit.type();
 
   // increment hit index
-  ++index;
+  ++m_index;
   
   return true;
 }  //end MuonCalibHit_EBranch::fillBranch
@@ -65,25 +65,25 @@ bool MuonCalibHit_EBranch::createBranch(TTree* tree) {
   std::string index_name = "nHits";
 
   // create a branch for every data member
-  branchCreator.createBranch( tree, index_name, &index, "/I");
+  branchCreator.createBranch( tree, index_name, &m_index, "/I");
 
   // all entries of same size, the number of hits in the event
   std::string array_size( std::string("[") + m_branchName + index_name + std::string("]") );
 
   // create the branches
-  branchCreator.createBranch( tree, "trackIndex",  &trackIndex,  array_size + "/I" );
-  branchCreator.createBranch( tree, "id",          &id,          array_size + "/i" );
-  branchCreator.createBranch( tree, "posX",        &posX,        array_size + "/F" );
-  branchCreator.createBranch( tree, "posY",        &posY,        array_size + "/F" );
-  branchCreator.createBranch( tree, "posZ",        &posZ,        array_size + "/F" );
-  branchCreator.createBranch( tree, "driftTime",   &driftTime,   array_size + "/F" );
-  branchCreator.createBranch( tree, "driftRadius", &driftRadius, array_size + "/F" );
-  branchCreator.createBranch( tree, "error",       &error,       array_size + "/F" );
-  branchCreator.createBranch( tree, "resi",        &resi,        array_size + "/F" );
-  branchCreator.createBranch( tree, "pull",        &pull,        array_size + "/F" );
-  branchCreator.createBranch( tree, "type",        &measType,    array_size + "/I" );
+  branchCreator.createBranch( tree, "trackIndex",  &m_trackIndex,  array_size + "/I" );
+  branchCreator.createBranch( tree, "id",          &m_id,          array_size + "/i" );
+  branchCreator.createBranch( tree, "posX",        &m_posX,        array_size + "/F" );
+  branchCreator.createBranch( tree, "posY",        &m_posY,        array_size + "/F" );
+  branchCreator.createBranch( tree, "posZ",        &m_posZ,        array_size + "/F" );
+  branchCreator.createBranch( tree, "driftTime",   &m_driftTime,   array_size + "/F" );
+  branchCreator.createBranch( tree, "driftRadius", &m_driftRadius, array_size + "/F" );
+  branchCreator.createBranch( tree, "error",       &m_error,       array_size + "/F" );
+  branchCreator.createBranch( tree, "resi",        &m_resi,        array_size + "/F" );
+  branchCreator.createBranch( tree, "pull",        &m_pull,        array_size + "/F" );
+  branchCreator.createBranch( tree, "type",        &m_measType,    array_size + "/I" );
 
-  branchesInit = true;
+  m_branchesInit = true;
   
   // reset branch
   reset();
