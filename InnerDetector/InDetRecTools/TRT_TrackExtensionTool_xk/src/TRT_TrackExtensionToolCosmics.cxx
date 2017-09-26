@@ -222,8 +222,8 @@ void InDet::TRT_TrackExtensionToolCosmics::newEvent()
     t = new Amg::Transform3D(r * Amg::Translation3D(Amg::Vector3D(0.,0.,-3000)));
     m_trtdiscC   = new Trk::DiscSurface    (t,1.,1200.);
   }
-  SG::ReadHandle<TRT_DriftCircleContainer> m_trtcontainer(m_trtname);
-  if(not m_trtcontainer.isValid() && m_outputlevel<=0) {
+  SG::ReadHandle<TRT_DriftCircleContainer> trtcontainer(m_trtname);
+  if(not trtcontainer.isValid() && m_outputlevel<=0) {
     msg(MSG::DEBUG)<<"Could not get TRT_DriftCircleContainer"<<endmsg;
   }
 }
@@ -237,8 +237,8 @@ InDet::TRT_TrackExtensionToolCosmics::extendTrack(const Trk::Track& Tr)
 { 
   m_measurement.erase(m_measurement.begin(), m_measurement.end());
 
-  SG::ReadHandle<TRT_DriftCircleContainer> m_trtcontainer(m_trtname);
-  if(not m_trtcontainer.isValid()) return m_measurement;
+  SG::ReadHandle<TRT_DriftCircleContainer> trtcontainer(m_trtname);
+  if(not trtcontainer.isValid()) return m_measurement;
 
   const DataVector<const Trk::TrackStateOnSurface>* 
     tsos = Tr.trackStateOnSurfaces();
@@ -270,8 +270,8 @@ void InDet::TRT_TrackExtensionToolCosmics::analyze_tpars(const std::vector<const
 {
   msg(MSG::DEBUG)<<"Number of tpars: "<<tpars->size()<<endmsg;
 
-  SG::ReadHandle<TRT_DriftCircleContainer> m_trtcontainer(m_trtname);
-  if (!m_trtcontainer.isValid()) {
+  SG::ReadHandle<TRT_DriftCircleContainer> trtcontainer(m_trtname);
+  if (!trtcontainer.isValid()) {
     return;
   }
   
@@ -316,9 +316,9 @@ void InDet::TRT_TrackExtensionToolCosmics::analyze_tpars(const std::vector<const
 	  
 	  //check if this PRD exists
 	  // get the driftCircleCollection belonging to this id
-	  InDet::TRT_DriftCircleContainer::const_iterator containerIterator = m_trtcontainer->indexFind(detElements[i+1]);
+	  InDet::TRT_DriftCircleContainer::const_iterator containerIterator = trtcontainer->indexFind(detElements[i+1]);
 	  
-	  if(containerIterator==m_trtcontainer->end()) {
+	  if(containerIterator==trtcontainer->end()) {
 	    msg(MSG::DEBUG)<<"for the current detectorElement no DriftCircleContainer seems to exist: "<<m_trtid->show_to_string(m_trtid->layer_id(detElements[i+1]))<<endmsg;
 	    continue;
 	  }
@@ -414,13 +414,13 @@ const Trk::Perigee *per=dynamic_cast<const Trk::Perigee *>(&par);
     return m_measurement;
   }
 
-  SG::ReadHandle<TRT_DriftCircleContainer> m_trtcontainer(m_trtname);
-  if (!m_trtcontainer.isValid()) {
+  SG::ReadHandle<TRT_DriftCircleContainer> trtcontainer(m_trtname);
+  if (!trtcontainer.isValid()) {
     return m_measurement;
   }
 
 InDet::TRT_DriftCircleContainer::const_iterator
-   w = m_trtcontainer->begin(),we = m_trtcontainer->end();
+   w = trtcontainer->begin(),we = trtcontainer->end();
    for(; w!=we; ++w) {
      if ((**w).empty()) continue; 
      const Trk::Surface &surf=(**(**w).begin()).detectorElement()->surface();

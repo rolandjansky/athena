@@ -341,8 +341,8 @@ std::ostream& InDet::operator <<
 
 void InDet::TRT_TrackExtensionTool_xk::newEvent()
 {
-  SG::ReadHandle<TRT_DriftCircleContainer> m_trtcontainer(m_trtname);
-  if((not m_trtcontainer.isValid()) && m_outputlevel<=0) {
+  SG::ReadHandle<TRT_DriftCircleContainer> trtcontainer(m_trtname);
+  if((not trtcontainer.isValid()) && m_outputlevel<=0) {
     msg(MSG::DEBUG)<<"Could not get TRT_DriftCircleContainer"<<endmsg;
   }
 }
@@ -356,8 +356,8 @@ InDet::TRT_TrackExtensionTool_xk::extendTrack(const Trk::Track& Tr)
 { 
   m_measurement.clear();
 
-  SG::ReadHandle<TRT_DriftCircleContainer> m_trtcontainer(m_trtname);
-  if (not m_trtcontainer.isValid()) return m_measurement;
+  SG::ReadHandle<TRT_DriftCircleContainer> trtcontainer(m_trtname);
+  if (not trtcontainer.isValid()) return m_measurement;
 
   const DataVector<const Trk::TrackStateOnSurface>* 
     tsos = Tr.trackStateOnSurfaces();
@@ -425,9 +425,9 @@ InDet::TRT_TrackExtensionTool_xk::findSegment(const Trk::TrackParameters& par)
   //
   
   const TRT_DriftCircleContainer* mjo_trtcontainer = 0;
-  SG::ReadHandle<TRT_DriftCircleContainer> m_trtcontainer(m_trtname);
-  if (m_trtcontainer.isValid()){
-    mjo_trtcontainer = m_trtcontainer.cptr();
+  SG::ReadHandle<TRT_DriftCircleContainer> trtcontainer(m_trtname);
+  if (trtcontainer.isValid()){
+    mjo_trtcontainer = trtcontainer.cptr();
   } 
 
   m_trajectory.initiateForTRTSeed(gpos,DE,mjo_trtcontainer,Tp);
@@ -544,9 +544,9 @@ bool InDet::TRT_TrackExtensionTool_xk::isGoodExtension(const Trk::TrackParameter
   // Initiate trajectory
   //
   const TRT_DriftCircleContainer* mjo_trtcontainer = 0;
-  SG::ReadHandle<TRT_DriftCircleContainer> m_trtcontainer(m_trtname);
-  if (m_trtcontainer.isValid()){
-    mjo_trtcontainer = m_trtcontainer.cptr();
+  SG::ReadHandle<TRT_DriftCircleContainer> trtcontainer(m_trtname);
+  if (trtcontainer.isValid()){
+    mjo_trtcontainer = trtcontainer.cptr();
   }
 
   
@@ -576,8 +576,8 @@ bool InDet::TRT_TrackExtensionTool_xk::isGoodExtension(const Trk::TrackParameter
 Trk::Track* InDet::TRT_TrackExtensionTool_xk::newTrack(const Trk::Track& Tr)
 { 
 
-  SG::ReadHandle<TRT_DriftCircleContainer> m_trtcontainer(m_trtname);
-  if (not m_trtcontainer.isValid()) return 0;
+  SG::ReadHandle<TRT_DriftCircleContainer> trtcontainer(m_trtname);
+  if (not trtcontainer.isValid()) return 0;
 
   const DataVector<const Trk::TrackStateOnSurface>* 
     tsos = Tr.trackStateOnSurfaces();
