@@ -45,14 +45,41 @@ namespace Trig{
       return sc;
     }
 
-    // EXAMPLE OF CONFIGURATION OF ADDITIONAL EMULATED CHAINS
-    m_toBeEmulatedTriggers.push_back("L1_MJJ-400");
+    // CHAIN CONFIGURATION IN ATHENA IS PERFORMED VIA JOB OPTION
+    // EXAMPLE OF CONFIGURATION OF ADDITIONAL EMULATED CHAINS IN ROOTCORE, ONLY VIA SET PROPERTY
+    m_toBeEmulatedTriggers.push_back("L1_MJJ-100");
+    m_toBeEmulatedTriggers.push_back("HLT_10j40_L14J15");
+    m_toBeEmulatedTriggers.push_back("HLT_2j15_gsc35_bmv2c1070_split_2j15_gsc35_bmv2c1085_split_L14J15.0ETA25");
+
+#ifdef XAOD_STANDALONE
+    std::vector< std::vector< std::string > > emulatedChainDescription; 
     {
       std::vector< std::string > test;
-      test.push_back("L1_MJJ-400");
-      test.push_back("EMUL_L1_MJJ-400");
-      m_emulationTool->addEmulatedChain( test );
+      test.push_back("L1_MJJ-100");
+      test.push_back("EMUL_L1_MJJ-100");
+      emulatedChainDescription.push_back( test );
     }
+    {
+      std::vector< std::string > test;
+      test.push_back("HLT_10j40_L14J15");
+      test.push_back("EMUL_L1_4J15");
+      test.push_back("EMUL_HLT_10j40");
+      emulatedChainDescription.push_back( test );
+    }
+    {
+      std::vector< std::string > test;
+      test.push_back("HLT_2j15_gsc35_bmv2c1070_split_2j15_gsc35_bmv2c1085_split_L14J15.0ETA25");
+      test.push_back("EMUL_L1_4J15.0ETA25");
+      test.push_back("EMUL_2j15_gsc35_bmv2c1070_split");
+      test.push_back("EMUL_4j15_gsc35_bmv2c1085_split");
+      emulatedChainDescription.push_back( test );
+    }
+
+    if( m_emulationTool->setProperty("EmulatedChainDefinitions",emulatedChainDescription).isFailure() ) {
+      ATH_MSG_ERROR( "Unable to add Trigger Chains to TrigBtagEmulation Tool" );
+      return sc;
+    }
+#endif
 
     for (unsigned int index(0); index < m_toBeEmulatedTriggers.size(); index++)
       {
@@ -97,13 +124,6 @@ namespace Trig{
   StatusCode TrigBtagValidationTest::execute() {
 
     ATH_MSG_DEBUG("TrigBtagEmulationTool::execute()");
-
-    // EXECUTE TOOL
-    if( m_emulationTool->execute().isFailure() )
-      {
-	ATH_MSG_ERROR( "Unable to execute TrigBtagEmulationTool" );
-	return StatusCode::FAILURE;
-      }
 
     // CHECK RESUT FOR INDIVIDUAL CHAINS
     for (unsigned int index(0); index < m_toBeEmulatedTriggers.size(); index++)

@@ -29,16 +29,22 @@ atlas_depends_on_subdirs( PUBLIC
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
-find_package( CLHEP )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 # Component(s) in the package:
+atlas_add_library( TrigBtagEmulationToolLib
+		   TrigBtagEmulationTool/ITrigBtagEmulationTool.h
+		   INTERFACE
+		   PUBLIC_HEADERS TrigBtagEmulationTool
+		   LINK_LIBRARIES GaudiKernel )		   
+
 atlas_add_component( TrigBtagEmulationTool
                      src/*.cxx
                      Root/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} AthContainers StoreGateLib AsgTools xAODBTagging xAODEventInfo xAODJet xAODTracking xAODTrigger PATCoreLib ParticleJetTools TrigDecisionToolLib TrigConfHLTData TrigSteeringEvent BTagging AthenaBaseComps EventPrimitives GaudiKernel )
+                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} 
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} AthContainers StoreGateLib AsgTools xAODBTagging xAODEventInfo xAODJet xAODTracking xAODTrigger PATCoreLib ParticleJetTools TrigDecisionToolLib TrigConfHLTData TrigSteeringEvent BTaggingLib AthenaBaseComps EventPrimitives GaudiKernel )
+
 
 # Install files from the package:
 atlas_install_headers( TrigBtagEmulationTool )

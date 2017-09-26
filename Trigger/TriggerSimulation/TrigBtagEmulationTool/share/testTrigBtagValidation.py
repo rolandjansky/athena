@@ -106,6 +106,17 @@ emulator.BTagSecVertexing   = BTagConfig.getJetCollectionSecVertexingTool("AntiK
 emulator.UseTriggerNavigation = True
 emulator.TagOfflineWeights = False
 emulator.TagOnlineWeights = False
+emulator.EmulatedChainDefinitions = [
+    ["L1_MJJ-100",
+     "EMUL_L1_MJJ-100"],
+    ["HLT_10j40_L14J15",
+     "EMUL_L1_4J15",
+     "EMUL_HLT_10j40"],
+    ["HLT_2j15_gsc35_bmv2c1070_split_2j15_gsc35_bmv2c1085_split_L14J15.0ETA25",
+     "EMUL_L1_4J15.0ETA25",
+     "EMUL_HLT_2j15_gsc35_bmv2c1070_split",
+     "EMUL_HLT_4j15_gsc35_bmv2c1085_split"]
+]
 ToolSvc += emulator
 
 # TEST ALGORITHM

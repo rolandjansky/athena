@@ -23,9 +23,8 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #include "TSystem.h"
 
 // FrameWork includes
-#ifndef ROOTCORE
+#ifndef XAOD_STANDALONE
 #include "GaudiKernel/Property.h"
-#include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
 #else
 #include "TrigConfxAOD/xAODConfigTool.h"
 #include <AsgTools/MessageCheck.h>
@@ -393,7 +392,7 @@ bool TrigBtagEmulationTool::checkTriggerChain(const std::vector<std::string>& to
 TrigBtagEmulationTool::TrigBtagEmulationTool( const std::string& name )
   : AsgTool(name),
     m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
-#ifndef ROOTCORE
+#ifndef XAOD_STANDALONE
     m_storeGate("StoreGateSvc", name),
     m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name),
     m_dsSvc("TrigConf::DSConfigSvc/DSConfigSvc", name),
@@ -404,6 +403,7 @@ TrigBtagEmulationTool::TrigBtagEmulationTool( const std::string& name )
     m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc"),
     m_dsSvc("TrigConf::DSConfigSvc/DSConfigSvc"),
 #endif
+    m_previousEvent(0),
     m_manager_ef(nullptr),
     m_manager_split(nullptr),
     m_manager_gsc(nullptr),
@@ -415,7 +415,7 @@ TrigBtagEmulationTool::TrigBtagEmulationTool( const std::string& name )
     m_gscTrigger(false)
 {
 
-#ifndef ROOTCORE
+#ifndef XAOD_STANDALONE
   declareProperty("BTagTool",            m_bTagTool);
   declareProperty("BTagTrackAssocTool",  m_bTagTrackAssocTool);
   declareProperty("BTagSecVertexing",    m_bTagSecVtxTool);
@@ -458,7 +458,7 @@ TrigBtagEmulationTool::TrigBtagEmulationTool( const std::string& name )
 
   declareProperty("Verbosity",            m_verbosity=0);
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
   declareProperty("TrigDecisionToolName", m_TrigDecToolName = "Trig::TrigDecisionTool/TrigDecisionTool");
   declareProperty("xAODConfigToolName"  , m_xAODConfToolName = "TrigConf::xAODConfigTool");
 #endif
@@ -475,7 +475,7 @@ StatusCode TrigBtagEmulationTool::initialize() {
   
   StatusCode sc;
 
-#ifndef ROOTCORE
+#ifndef XAOD_STANDALONE
   sc = m_storeGate.retrieve();
   if ( sc.isFailure() ) {
     ATH_MSG_ERROR( "Could not retrieve StoreGateSvc!" );
@@ -521,7 +521,7 @@ StatusCode TrigBtagEmulationTool::initialize() {
 #endif
 
 
-#ifndef ROOTCORE
+#ifndef XAOD_STANDALONE
   // RETRIEVE OFFLINE TOOLS
   // Retrieve the offline track association tool
   if (!m_bTagTrackAssocTool.empty()) {
@@ -554,7 +554,7 @@ StatusCode TrigBtagEmulationTool::initialize() {
     m_emulatedChains.insert(std::make_pair(chain.name(),chain));
   }
 
-#ifndef ROOTCORE
+#ifndef XAOD_STANDALONE
   jetManager::m_bTagTool = &m_bTagTool;
   jetManager::m_bTagTrackAssocTool = &m_bTagTrackAssocTool;
   jetManager::m_bTagSecVtxTool = &m_bTagSecVtxTool;
@@ -566,7 +566,9 @@ StatusCode TrigBtagEmulationTool::initialize() {
       ATH_MSG_ERROR( "Could not initialize lowest unprescaled Trigger Chains!" );
       return StatusCode::FAILURE;
     }
-  if (m_autoconfiguredMenu == "2015Menu" || m_autoconfiguredMenu == "2016Menu" || m_autoconfiguredMenu == "2015+2016Menu")
+  if (m_autoconfiguredMenu == "2015Menu" || m_autoconfiguredMenu == "2016Menu" || m_autoconfiguredMenu == "2017Menu" ||
+      m_autoconfiguredMenu == "2015+2016Menu" ||  m_autoconfiguredMenu == "2015+2017Menu" || m_autoconfiguredMenu == "2016+2017Menu" ||
+      m_autoconfiguredMenu == "2015+2016+2017Menu" )
     {
       ATH_MSG_INFO( Form( "Automatic configuration of Trigger Chains for %s",m_autoconfiguredMenu.c_str()) );
       ATH_MSG_INFO( Form( "For full list of trigger chains automatically loaded look here : '%s'","https://twiki.cern.ch/twiki/bin/view/Atlas/TrigBjetEmulation") );
@@ -589,7 +591,7 @@ StatusCode TrigBtagEmulationTool::execute() {
   std::vector<TrigBtagEmulationJet> l1_jets;
   const xAOD::JetRoIContainer *l1JetContainer = 0;
 
-#ifndef ROOTCORE
+#ifndef XAOD_STANDALONE
   CHECK( evtStore()->retrieve(l1JetContainer,"LVL1JetRoIs") );
 #else
   ANA_CHECK( evtStore()->retrieve(l1JetContainer,"LVL1JetRoIs") );
@@ -764,7 +766,7 @@ StatusCode TrigBtagEmulationTool::execute() {
   
   // RETAG COPYING ORIGINAL WEIGHTS 
   if (!m_useTriggerNavigation || !m_tagOfflineWeights || !m_tagOnlineWeights) {
-#ifndef ROOTCORE
+#ifndef XAOD_STANDALONE
     CHECK( m_manager_ef->retagCopy(m_useTriggerNavigation,m_tagOfflineWeights,m_tagOnlineWeights) );
     CHECK( m_manager_split->retagCopy(m_useTriggerNavigation,m_tagOfflineWeights,m_tagOnlineWeights) );
     CHECK( m_manager_gsc->retagCopy(m_useTriggerNavigation,m_tagOfflineWeights,m_tagOnlineWeights) );
@@ -780,7 +782,7 @@ StatusCode TrigBtagEmulationTool::execute() {
   }
   // RETAG WITH OFFLINE TOOLS    
   if (m_useTriggerNavigation && m_tagOfflineWeights) {
-#ifndef ROOTCORE
+#ifndef XAOD_STANDALONE
     CHECK( m_manager_ef->retagOffline()        );
     CHECK( m_manager_split->retagOffline()     );
     CHECK( m_manager_gsc->retagOffline()       );
@@ -796,7 +798,7 @@ StatusCode TrigBtagEmulationTool::execute() {
   }
   // RETAG WITH ONLINE TOOLS
   if (m_useTriggerNavigation && m_tagOnlineWeights) {
-#ifndef ROOTCORE
+#ifndef XAOD_STANDALONE
     CHECK( m_manager_ef->retagOnline()        );
     CHECK( m_manager_split->retagOnline()     );
     CHECK( m_manager_gsc->retagOnline()       );
@@ -912,7 +914,7 @@ void TrigBtagEmulationTool::addEmulatedChain(const std::vector<std::string>& cha
 //!==========================================================================        
 
 StatusCode TrigBtagEmulationTool::initTriggerChainsMenu() {
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
   const char* inputFileFolder = gSystem->ExpandPathName ("${ROOTCOREBIN}");
 #else
   const char* inputFileFolder = gSystem->ExpandPathName ("${WorkDir_DIR}");
@@ -920,6 +922,7 @@ StatusCode TrigBtagEmulationTool::initTriggerChainsMenu() {
 
   std::string nameFile_2015 = Form("%s/data/TrigBtagEmulationTool/triggerChains_2015Menu.txt",inputFileFolder);
   std::string nameFile_2016 = Form("%s/data/TrigBtagEmulationTool/triggerChains_2016Menu.txt",inputFileFolder);
+  std::string nameFile_2017 = Form("%s/data/TrigBtagEmulationTool/triggerChains_2017Menu.txt",inputFileFolder);
 
   // *** 2015 Chains
   std::ifstream file2015; file2015.open( nameFile_2015.c_str() );
@@ -954,6 +957,24 @@ StatusCode TrigBtagEmulationTool::initTriggerChainsMenu() {
     m_2016Menu[chainName] = chainComponents; 
   }
   file2016.close();
+
+  // *** 2017 Chains
+  std::ifstream file2017; file2017.open( nameFile_2017.c_str() );
+  if (!file2017) {
+    ATH_MSG_ERROR( "Could not load lowest unprescaled Trigger Chains for 2017 !" );
+    return StatusCode::FAILURE;
+  }
+  while ( !file2017.eof() ) {
+    std::string line;
+    getline (file2017,line);
+    if (line.empty()) continue;
+    std::istringstream is_line(line);
+    std::string chainName, chainComponents;
+    is_line >> chainName >> chainComponents;
+    m_2017Menu[chainName] = chainComponents;
+  }
+  file2017.close();
+
   return StatusCode::SUCCESS;
 }
 
@@ -964,12 +985,16 @@ std::vector<std::string> TrigBtagEmulationTool::addEmulatedChain(const std::stri
     configuration.insert( m_2015Menu.begin(),m_2015Menu.end() );
   if ( triggerMenu.find("2016")!=std::string::npos )
     configuration.insert( m_2016Menu.begin(),m_2016Menu.end() );
+  if ( triggerMenu.find("2017")!=std::string::npos )
+    configuration.insert( m_2017Menu.begin(),m_2017Menu.end() );
 
   if ( configuration.size() == 0 ) {
     if ( m_2015Menu.find(triggerMenu) != m_2015Menu.end() )
       configuration[ triggerMenu ] = m_2015Menu.at(triggerMenu);
     else if ( m_2016Menu.find(triggerMenu) != m_2016Menu.end() )
       configuration[ triggerMenu ] = m_2016Menu.at(triggerMenu);
+    else if ( m_2017Menu.find(triggerMenu) != m_2017Menu.end() )
+      configuration[ triggerMenu ] = m_2017Menu.at(triggerMenu);
   }
   
   std::vector<std::string> output;
@@ -990,12 +1015,26 @@ std::vector<std::string> TrigBtagEmulationTool::addEmulatedChain(const std::stri
 
 //!==========================================================================
 bool TrigBtagEmulationTool::isPassed(const std::string &chain) {
-  
-  // Check if chain is defined and return result
+  // CHECK IF THE TOOK HAS ALREADY BEEN EXECUTED FOR THIS EVENT
+  const xAOD::EventInfo* eventInfo = 0;
+  CHECK( evtStore()->retrieve( eventInfo,"EventInfo" ));
+
+  bool isMC = false;
+  if( eventInfo->eventType( xAOD::EventInfo::IS_SIMULATION ) )
+    isMC = true;
+
+  long long int eventID = 0;
+  if (isMC) eventID = eventInfo->mcEventNumber();
+  else eventID = eventInfo->eventNumber();
+
+  if ( eventID != m_previousEvent)
+    this->execute();
+  m_previousEvent = eventID;
+
+  // CHECK IF CHAIN IS DEFINED AND RETURN RESULT
   auto result = m_emulatedChains.find(chain);
   if (result == m_emulatedChains.end()) return false;
   else return result->second.isPassed();
-
 }
 
 
@@ -1019,7 +1058,7 @@ StatusCode TrigBtagEmulationTool::getInputContainerSG(std::vector<const xAOD::Je
   // Get Jet objects
   const xAOD::JetContainer *sgJetContainer = 0;
 
-#ifndef ROOTCORE
+#ifndef XAOD_STANDALONE
   CHECK( evtStore()->retrieve(sgJetContainer,jetName) );
 #else
   ANA_CHECK( evtStore()->retrieve(sgJetContainer,jetName) );

@@ -6,7 +6,7 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 using namespace Trig;
 
-#ifndef ROOTCORE
+#ifndef XAOD_STANDALONE
 ToolHandle< Analysis::IBTagTool > *jetManager::m_bTagTool = nullptr;
 ToolHandle< Analysis::IBTagTrackAssociation > *jetManager::m_bTagTrackAssocTool = nullptr;
 ToolHandle< Analysis::IBTagSecVertexing > *jetManager::m_bTagSecVtxTool = nullptr;
@@ -56,7 +56,7 @@ StatusCode jetManager::retrieveByNavigation()
   return StatusCode::SUCCESS;
 }
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
 StatusCode jetManager::retrieveByContainer(asg::SgTEvent* evtStore) 
 #else
 StatusCode jetManager::retrieveByContainer(ServiceHandle<StoreGateSvc>& evtStore)
@@ -131,7 +131,7 @@ StatusCode jetManager::retrieveByContainer(ServiceHandle<StoreGateSvc>& evtStore
 }
 
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
 StatusCode jetManager::retrieveByContainerWithMatching(asg::SgTEvent* evtStore)
 #else
 StatusCode jetManager::retrieveByContainerWithMatching(ServiceHandle<StoreGateSvc>& evtStore)
@@ -297,7 +297,7 @@ StatusCode jetManager::retagCopy(bool useNavigation,bool tagOffline,bool tagOnli
 
 StatusCode jetManager::retagOffline()
 {
-#ifndef ROOTCORE 
+#ifndef XAOD_STANDALONE
   auto pv  = m_primaryVertex_Containers.begin();
   auto tp  = m_trackParticle_Containers.begin();
   auto out = m_outputJets.begin();

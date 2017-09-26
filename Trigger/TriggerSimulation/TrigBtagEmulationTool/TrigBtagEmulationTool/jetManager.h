@@ -24,7 +24,7 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #include "xAODBTagging/BTaggingContainer.h"
 #include "xAODBTagging/BTagging.h"
 
-#ifndef ROOTCORE
+#ifndef XAOD_STANDALONE
 #include "BTagging/BTagTrackAssociation.h"
 #include "BTagging/BTagSecVertexing.h"
 #include "BTagging/BTagTool.h"
@@ -47,7 +47,7 @@ namespace Trig {
 
     StatusCode retrieveByNavigation();
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
     StatusCode retrieveByContainer(asg::SgTEvent*);
 #else
     StatusCode retrieveByContainer(ServiceHandle<StoreGateSvc>&);
@@ -68,7 +68,7 @@ namespace Trig {
       bool getFromCombo(std::vector<const T*>&,const Trig::Combination&,std::string key="");
     bool getTPfromCombo(std::vector<const xAOD::TrackParticleContainer*>&,const Trig::Combination&,std::string);
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
     StatusCode retrieveByContainerWithMatching(asg::SgTEvent*);
 #else
     StatusCode retrieveByContainerWithMatching(ServiceHandle<StoreGateSvc>&);
@@ -96,7 +96,7 @@ namespace Trig {
   private:
     ToolHandle<Trig::TrigDecisionTool> m_trigDec;
 
-#ifndef ROOTCORE
+#ifndef XAOD_STANDALONE
   public:
     static ToolHandle< Analysis::IBTagTool >* m_bTagTool;
     static ToolHandle< Analysis::IBTagTrackAssociation >* m_bTagTrackAssocTool;

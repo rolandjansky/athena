@@ -158,7 +158,7 @@ feature_invm::~feature_invm() {}
 
 void feature_invm::initLUTs()
 {
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
   const char* inputFileFolder = gSystem->ExpandPathName ("${ROOTCOREBIN}");
 #else
   const char* inputFileFolder = gSystem->ExpandPathName ("${WorkDir_DIR}");

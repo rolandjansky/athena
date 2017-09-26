@@ -42,7 +42,7 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 #include "AsgTools/AsgTool.h"
 
-#ifndef ROOTCORE
+#ifndef XAOD_STANDALONE
 // Offline tools
 #include "BTagging/BTagTrackAssociation.h"
 #include "BTagging/BTagSecVertexing.h"
@@ -169,11 +169,12 @@ namespace Trig {
   private:
     std::map< std::string,std::string > m_2015Menu;
     std::map< std::string,std::string > m_2016Menu;
+    std::map< std::string,std::string > m_2017Menu;
 
     // SERVICES
     ToolHandle<Trig::TrigDecisionTool> m_trigDec;
 
-#ifndef ROOTCORE
+#ifndef XAOD_STANDALONE
     ServiceHandle<StoreGateSvc> m_storeGate;
     ServiceHandle< TrigConf::ITrigConfigSvc > m_configSvc; 
     ServiceHandle< TrigConf::ITrigConfigSvc > m_dsSvc;
@@ -190,7 +191,7 @@ namespace Trig {
     ToolHandle< TrigConf::ITrigConfigSvc > m_dsSvc;
 #endif  
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
     std::string m_TrigDecToolName; //!
     std::string m_xAODConfToolName; //!
 #endif
@@ -222,6 +223,7 @@ namespace Trig {
     std::string m_autoconfiguredMenu;
 
     int m_verbosity;
+    long long int m_previousEvent;
 
     // jet Managers
     Trig::jetManager *m_manager_ef;
