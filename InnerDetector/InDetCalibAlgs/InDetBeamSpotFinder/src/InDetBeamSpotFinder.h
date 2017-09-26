@@ -14,14 +14,14 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "InDetBeamSpotFinder/IInDetBeamSpotTool.h" //for BeamSpot::Event
-//#include "InDetBeamSpotVertex.h"
-//#include "InDetBeamSpotRooFit.h"
-#include "InDetBeamSpotFinder/BeamSpotStatusCode.h" 
-//#include "TTree.h"
+// #include "InDetBeamSpotVertex.h"
+// #include "InDetBeamSpotRooFit.h"
+#include "InDetBeamSpotFinder/BeamSpotStatusCode.h"
 #include "xAODEventInfo/EventInfo.h" //typedef, can't fwd declare
 #include "xAODTracking/VertexContainer.h" //typedef, can't fwd declare
 #include "xAODTracking/TrackingPrimitives.h" //for xAOD::VxType
-//#include "xAODTracking/Vertex.h"
+// #include "xAODTracking/Vertex.h"
+#include "StoreGate/ReadHandleKey.h"
 #include "BeamSpotID.h"
 #include <string>
 #include <vector>
@@ -45,12 +45,18 @@ namespace InDet {
     StatusCode initialize();
     StatusCode execute();
     StatusCode finalize();
-    
+
   private:
     //Reorganize and clean up this section
     ServiceHandle<IToolSvc> m_toolSvc;
     ToolHandleArray<IInDetBeamSpotTool> m_beamSpotToolList;
     ToolHandle<Trig::IBunchCrossingTool> m_bcTool; ///< Handle to the BC tool
+
+    SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo
+      {this, "EvtInfo", "EventInfo", "EventInfo name"};
+    SG::ReadHandleKey<xAOD::VertexContainer> m_vertexContainer
+      {this, "VertexContainer", "PrimaryVertices", "Vertex container name"};
+
     //Beamspot sorting options
     unsigned int m_maxRunsPerFit;
     unsigned int m_maxEventsPerFit;
@@ -118,8 +124,6 @@ namespace InDet {
     double m_maxTransverseError{}; // max transverse vertex resolution
     double m_minVtxProb{}; // probability cut on chi2/ndf
     unsigned int m_minVertexNum{};        //min vertex count for solution
-
-    std::string m_vertexContainerName{};
 
     std::vector<std::string> m_vertexTypeNames{}; //names of vertexTypes
     std::vector<xAOD::VxType::VertexType> m_vertexTypes{};

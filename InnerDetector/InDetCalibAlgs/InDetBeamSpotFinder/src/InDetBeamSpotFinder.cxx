@@ -9,7 +9,6 @@
 #include "InDetBeamSpotRooFit.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "VxVertex/VxCandidate.h"
-#include "xAODEventInfo/EventInfo.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/TrackParticle.h"
 
@@ -42,14 +41,13 @@ InDet::InDetBeamSpotFinder::InDetBeamSpotFinder(const std::string& name, ISvcLoc
   declareProperty( "EventRange"   , m_maxEventsPerFit = 0);
   declareProperty( "UseBCID"     , m_BCIDsToAccept );
   declareProperty( "UseFilledBCIDsOnly", m_useFilledBCIDsOnly = true );
-  declareProperty( "VertexContainer"   , m_vertexContainerName ); 
   declareProperty( "MinTracksPerVtx", m_minTrackNum = 5);
   declareProperty( "MaxTracksPerVtx", m_maxTrackNum = 1000000);
   declareProperty( "MinVtxNum"      , m_minVertexNum = 100);
   declareProperty( "MaxVtxChi2"     , m_maxChi2Vertex = 10);
   declareProperty( "MaxTransverseErr", m_maxTransverseError=1000000);
   declareProperty( "VertexTypes"       , m_vertexTypeNames);
-  declareProperty( "MinVtxProb"     , m_minVtxProb=0.001); 
+  declareProperty( "MinVtxProb"     , m_minVtxProb=0.001);
   declareProperty( "GroupFitsBy"       , m_fitSortingKey = "none");
   declareProperty( "VertexNtuple" , m_writeVertexNtuple = true);
   declareProperty( "WriteAllVertices"  , m_writeAllVertices=false);
@@ -63,9 +61,13 @@ StatusCode InDet::InDetBeamSpotFinder::initialize() {
     ATH_MSG_FATAL("FATAL ERROR: must provide at least one beamspot tool in beamSpotToolList");
     return StatusCode::FAILURE;
   }
+
   ATH_CHECK( service("THistSvc",m_thistSvc) );
   ATH_CHECK( m_toolSvc.retrieve() );
   ATH_CHECK( m_bcTool.retrieve() );
+  ATH_CHECK( m_eventInfo.initialize() );
+  ATH_CHECK( m_vertexContainer.initialize() );
+
   for ( unsigned int i = 0; i < m_beamSpotToolList.size(); i++){ ATH_CHECK( m_beamSpotToolList[i].retrieve() );}
   if( m_writeVertexNtuple ){ ATH_CHECK(setupVertexTree()); }
   ATH_CHECK( setupBeamSpotTree() );
@@ -74,10 +76,9 @@ StatusCode InDet::InDetBeamSpotFinder::initialize() {
 }
 
 StatusCode InDet::InDetBeamSpotFinder::execute(){
-  const xAOD::EventInfo* eventInfo = nullptr;
-  const xAOD::VertexContainer* vertexContainer = nullptr;
-  ATH_CHECK(evtStore()->retrieve(eventInfo));
-  ATH_CHECK(evtStore()->retrieve(vertexContainer, m_vertexContainerName) );
+  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfo);
+  SG::ReadHandle<xAOD::VertexContainer> vertexContainer(m_vertexContainer);
+
   if ( !passEventSelection( *eventInfo ) ) return StatusCode::SUCCESS;
   BeamSpot::Event currentEvent = readEvent(*eventInfo, *vertexContainer);
   m_eventList.push_back( currentEvent );
