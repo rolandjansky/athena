@@ -173,8 +173,8 @@ void initPattTree(int nbanks, int nplanes,int ndims);
 void finishPattTree();
 int addKDPattern(unsigned int bank, bool const_test_mode, int* pattern, int *hashID, int mult,matrix Mtmp,double* hitc,
 		 double* xC,double* xD,double* xPhi,double* xCoto,double* xZ,double* covx,
-		 vector<short> int_c,vector<short> int_phi,vector<short> int_d0,
-		 vector<short> int_z0,vector<short> int_eta);
+		 std::vector<short> int_c,std::vector<short> int_phi,std::vector<short> int_d0,
+		 std::vector<short> int_z0,std::vector<short> int_eta);
 
 int loadPatterns(unsigned int bank, FILE *infile, int npatterns);
 int isTherePatt(unsigned int bank, int* pattern);
