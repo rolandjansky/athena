@@ -90,7 +90,7 @@ private:
   ToolHandle<CP::IIsolationSelectionTool> m_fixedcut_tight_isolation;//!
 
   /** calib tool */
-  ToolHandle<CP::IEgammaCalibrationAndSmearingTool> m_EgammaCalibrationAndSmearingTool;
+  //  ToolHandle<CP::IEgammaCalibrationAndSmearingTool> m_EgammaCalibrationAndSmearingTool;
 
  };
 

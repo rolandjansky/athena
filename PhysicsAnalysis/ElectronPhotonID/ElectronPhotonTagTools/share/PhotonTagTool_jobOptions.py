@@ -97,6 +97,5 @@ PhotonTagTool = ConfiguredPhotonTagTool(
     FixedCutTightIsoTool         = FixedCutTightIsoTool
     )
 
-PhotonTagTool.EgammaCalibrationAndSmearingTool.ESModel =  "es2015PRE"
-
-ToolSvc += PhotonTagTool
+#PhotonTagTool.EgammaCalibrationAndSmearingTool.ESModel =  "es2015PRE"
+#ToolSvc += PhotonTagTool
