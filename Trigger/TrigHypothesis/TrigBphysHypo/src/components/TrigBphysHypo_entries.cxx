@@ -7,6 +7,7 @@
 #include "../TrigL2BMuMuFex.h"
 #include "../TrigEFBMuMuXHypo.h"
 #include "../TrigEFBMuMuXFex.h"
+#include "../TrigEFBEEXFex.h"
 #include "../TrigEFBMuMuHypo.h"
 #include "../TrigEFMultiMuHypo.h"
 //#include "../TrigL2DiMuHypo.h"
@@ -42,6 +43,7 @@ DECLARE_ALGORITHM_FACTORY( TrigL2MultiMuHypo )
 DECLARE_ALGORITHM_FACTORY( TrigL2MultiMuFex )
 DECLARE_ALGORITHM_FACTORY( TrigEFBMuMuXHypo )
 DECLARE_ALGORITHM_FACTORY( TrigEFBMuMuXFex )
+DECLARE_ALGORITHM_FACTORY( TrigEFBEEXFex )
 DECLARE_ALGORITHM_FACTORY( TrigEFBMuMuHypo )
 DECLARE_ALGORITHM_FACTORY( TrigEFMultiMuHypo )
 //DECLARE_ALGORITHM_FACTORY( TrigL2DiMuHypo )
@@ -73,6 +75,7 @@ DECLARE_FACTORY_ENTRIES( TrigBphysHypo ) {
     DECLARE_ALGORITHM( TrigL2BMuMuFex )
     DECLARE_ALGORITHM( TrigEFBMuMuXHypo )
     DECLARE_ALGORITHM( TrigEFBMuMuXFex )
+    DECLARE_ALGORITHM( TrigEFBEEXFex )
     DECLARE_ALGORITHM( TrigEFBMuMuHypo )
     DECLARE_ALGORITHM( TrigEFMultiMuHypo )
 //    DECLARE_ALGORITHM( TrigL2DiMuHypo )
