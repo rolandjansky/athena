@@ -36,7 +36,7 @@
 #include "TauAnalysisTools/TauTruthTrackMatchingTool.h"
 #include "TauAnalysisTools/TauOverlappingElectronLLHDecorator.h"
 
-#include "PileupReweighting/PileupReweightingTool.h"
+// #include "PileupReweighting/PileupReweightingTool.h"
 
 using namespace TauAnalysisTools;
 
@@ -160,12 +160,12 @@ int main( int argc, char* argv[] )
   const xAOD::EventInfo* xEventInfo = 0;
   const xAOD::TauJetContainer* xTauJetContainer = 0;
 
-  CP::PileupReweightingTool* m_tPRWTool = new CP::PileupReweightingTool("PileupReweightingTool");
-  std::vector<std::string> vLumiCalcFiles = {"/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/ilumicalc_histograms_HLT_e24_lhvloose_nod0_L1EM20VH_297730-304494_OflLumi-13TeV-005.root"};
-  CHECK(m_tPRWTool->setProperty("LumiCalcFiles", vLumiCalcFiles));
-  // CHECK(m_tPRWTool->setProperty("DefaultChannel", "" ));
-  CHECK(m_tPRWTool->initialize());
-  ToolHandle<CP::IPileupReweightingTool> m_tPRWToolHandle = m_tPRWTool;
+  // CP::PileupReweightingTool* m_tPRWTool = new CP::PileupReweightingTool("PileupReweightingTool");
+  // std::vector<std::string> vLumiCalcFiles = {"/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/ilumicalc_histograms_HLT_e24_lhvloose_nod0_L1EM20VH_297730-304494_OflLumi-13TeV-005.root"};
+  // CHECK(m_tPRWTool->setProperty("LumiCalcFiles", vLumiCalcFiles));
+  // // CHECK(m_tPRWTool->setProperty("DefaultChannel", "" ));
+  // CHECK(m_tPRWTool->initialize());
+  // ToolHandle<CP::IPileupReweightingTool> m_tPRWToolHandle = m_tPRWTool;
 
   // ===========================================================================
   // TauSelectionTool
@@ -302,22 +302,22 @@ int main( int argc, char* argv[] )
       CHECK( TauEffCorrTool.applySystematicVariation(mSysSet["TAUS_TRUEHADTAU_EFF_RECO_TOTAL__1up"]));
       CHECK( TauEffCorrTool.applyEfficiencyScaleFactor(*xTau) );
       sfVar = xTau->auxdata< double >("TauScaleFactorReconstructionHadTau");
-      fillHistograms("TAUS_TRUEHADTAU_EFF_RECO_TOTAL__1up", *xTau, sfVar-sfNominalReco);
+      fillHistograms("TAUS_TRUEHADTAU_EFF_RECO_TOTAL__1up", *xTau, (sfVar-sfNominalReco)/sfNominalReco);
 
       CHECK( TauEffCorrTool.applySystematicVariation(mSysSet["TAUS_TRUEHADTAU_EFF_RECO_HIGHPT__1up"]));
       CHECK( TauEffCorrTool.applyEfficiencyScaleFactor(*xTau) );
       sfVar = xTau->auxdata< double >("TauScaleFactorReconstructionHadTau");
-      fillHistograms("TAUS_TRUEHADTAU_EFF_RECO_HIGHPT__1up", *xTau, sfVar-sfNominalReco);
+      fillHistograms("TAUS_TRUEHADTAU_EFF_RECO_HIGHPT__1up", *xTau, (sfVar-sfNominalReco)/sfNominalReco);
 
       CHECK( TauEffCorrTool.applySystematicVariation(mSysSet["TAUS_TRUEHADTAU_EFF_JETID_TOTAL__1up"]));
       CHECK( TauEffCorrTool.applyEfficiencyScaleFactor(*xTau) );
       sfVar = xTau->auxdata< double >("TauScaleFactorJetIDHadTau");
-      fillHistograms("TAUS_TRUEHADTAU_EFF_JETID_TOTAL__1up", *xTau, sfVar-sfNominalID);
+      fillHistograms("TAUS_TRUEHADTAU_EFF_JETID_TOTAL__1up", *xTau, (sfVar-sfNominalID)/sfNominalID);
 
       CHECK( TauEffCorrTool.applySystematicVariation(mSysSet["TAUS_TRUEHADTAU_EFF_JETID_HIGHPT__1up"]));
       CHECK( TauEffCorrTool.applyEfficiencyScaleFactor(*xTau) );
       sfVar = xTau->auxdata< double >("TauScaleFactorJetIDHadTau");
-      fillHistograms("TAUS_TRUEHADTAU_EFF_JETID_HIGHPT__1up", *xTau, sfVar-sfNominalID);
+      fillHistograms("TAUS_TRUEHADTAU_EFF_JETID_HIGHPT__1up", *xTau, (sfVar-sfNominalID)/sfNominalID);
 
     }
     if (xTauJetContainer->empty())
