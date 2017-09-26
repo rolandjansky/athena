@@ -17,7 +17,7 @@
 #ifndef CPBTAGGINGSELECTIONTOOL_H
 #define CPBTAGGINGSELECTIONTOOL_H
 
-#include "xAODBTaggingEfficiency/IBTaggingSelectionTool.h"
+#include "FTagAnalysisInterfaces/IBTaggingSelectionTool.h"
 #include "xAODBTagging/BTagging.h"
 
 #include "AsgTools/AsgTool.h"
