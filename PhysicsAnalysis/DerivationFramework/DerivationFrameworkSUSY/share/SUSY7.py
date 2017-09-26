@@ -44,16 +44,15 @@ SUSY7ThinningHelper.AppendToStream( SUSY7Stream )
 # THINNING TOOL 
 #====================================================================\
 
-# MET/Jet tracks -> no longer needed, 11.05.2015
-
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 
-SUSY7TPThinningTool = DerivationFramework__TrackParticleThinning(name = "SUSY7TPThinningTool",
-								 ThinningService	 = SUSY7ThinningHelper.ThinningSvc(),
-								 SelectionString	 = "InDetTrackParticles.pt > 10*GeV",
-								 InDetTrackParticlesKey  = "InDetTrackParticles")
-ToolSvc += SUSY7TPThinningTool
-thinningTools.append(SUSY7TPThinningTool)
+# B.M.: likely not used
+#SUSY7TPThinningTool = DerivationFramework__TrackParticleThinning(name = "SUSY7TPThinningTool",
+#								 ThinningService	 = SUSY7ThinningHelper.ThinningSvc(),
+#								 SelectionString	 = "InDetTrackParticles.pt > 10*GeV",
+#								 InDetTrackParticlesKey  = "InDetTrackParticles")
+#ToolSvc += SUSY7TPThinningTool
+#thinningTools.append(SUSY7TPThinningTool)
 
 # TrackParticles associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
@@ -285,8 +284,9 @@ SeqSUSY7 += CfgMgr.DerivationFramework__DerivationKernel(
 OutputJets["SUSY7"] = []
 reducedJetList = [ "AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets" ]
 
-if DerivationFrameworkIsMonteCarlo:
-  reducedJetList += [ "AntiKt4TruthJets", "AntiKt4TruthWZJets" ]
+# now part of MCTruthCommon
+#if DerivationFrameworkIsMonteCarlo:
+#  reducedJetList += [ "AntiKt4TruthJets", "AntiKt4TruthWZJets" ]
 
 # AntiKt2PV0TrackJets is flavour-tagged automatically (AntiKt4PV0TrackJets is not supported in R21)
 replaceAODReducedJets(reducedJetList, SeqSUSY7, "SUSY7")
@@ -298,9 +298,10 @@ FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = SeqSUSY7)
 #==============================================================================
 # Tau truth building/matching
 #==============================================================================
-if DerivationFrameworkIsMonteCarlo:
-  from DerivationFrameworkSUSY.SUSYTruthCommon import addTruthTaus
-  addTruthTaus(AugmentationTools)
+# now part of MCTruthCommon
+#if DerivationFrameworkIsMonteCarlo:
+#  from DerivationFrameworkSUSY.SUSYTruthCommon import addTruthTaus
+#  addTruthTaus(AugmentationTools)
 
 
 #==============================================================================
