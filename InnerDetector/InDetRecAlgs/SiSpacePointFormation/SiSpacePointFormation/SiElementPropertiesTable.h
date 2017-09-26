@@ -37,7 +37,6 @@ public:
 private:
     std::vector<SiElementProperties*>		m_properties;
     const InDetDD::SiDetectorElementCollection&	m_elements; 
-    float					m_epsilonWidth; //tolerance for strip overlap limits.   
     int						m_maxSCT;
     std::vector<SiElementProperties*>::const_iterator m_propertiesBegin;
     
