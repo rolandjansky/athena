@@ -53,7 +53,12 @@ class CorrectPFOTool : public JetConstituentModifierBase{
   bool m_useChargedWeights; //If true, them we make use of the charged PFO weighting scheme
   bool m_useTrackToVertexTool; //If true, use jet tracktovertex tool
   ToolHandle<CP::IWeightPFOTool> m_weightPFOTool;
-  std::string m_trkVtxAssocName; //Name of track-vertex association container
+
+  SG::ReadHandleKey<xAOD::VertexContainer> 
+    m_vertexContainer_key{"PrimaryVertices"};
+
+  SG::ReadHandleKey<jet::TrackVertexAssociation> m_trkVtxAssoc_key;
+  
 };
 
 #endif

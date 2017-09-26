@@ -27,15 +27,20 @@
 #include "xAODPFlow/PFOContainer.h"
 
 
-class JetConstituentModSequence: public asg::AsgTool, virtual public IJetExecuteTool { // Changed from IJetExecute
+class JetConstituentModSequence: public asg::AsgTool, virtual public IJetExecuteTool {
+  // Changed from IJetExecute
   ASG_TOOL_CLASS(JetConstituentModSequence, IJetExecuteTool)
   public:
   JetConstituentModSequence(const std::string &name); // MEN: constructor 
   StatusCode initialize();
   int execute() const;
   void setInputClusterCollection(const xAOD::IParticleContainer* cont);
+  xAOD::IParticleContainer* getOutputClusterCollection();
   
 protected:
+  std::string m_inputContainer = "";
+  std::string m_outputContainer = "";
+
   const xAOD::IParticleContainer* m_trigInputConstits; // used in trigger context only
   mutable xAOD::IParticleContainer* m_trigOutputConstits;
   bool m_trigger;

@@ -81,7 +81,6 @@ StatusCode JetConstituentModSequence::initialize() {
   
 int JetConstituentModSequence::execute() const {
   if (m_trigger){return 0;}
-  xAOD::IParticleContainer* modifiedCont = nullptr;
 
   // Create the shallow copy according to the input type
   switch(m_inputType){

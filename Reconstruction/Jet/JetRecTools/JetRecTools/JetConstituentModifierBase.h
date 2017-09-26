@@ -52,9 +52,6 @@ protected:
   StatusCode setP4(xAOD::IParticle* obj, const xAOD::JetFourMom_t& p4,
 		   const SG::AuxElement::Accessor<float>* weightAcc=nullptr) const;
 
-  std::string m_inputContainer = "";
-  std::string m_outputContainer = ""; // These containers can be empty 
-
   // We need to know the output type so that we can set the p4 appropriately,
   // because IParticle does not specify the p4 encoding.
   // The user must explicitly set what sort of object they modify

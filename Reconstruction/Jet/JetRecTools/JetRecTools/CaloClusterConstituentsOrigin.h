@@ -38,7 +38,7 @@ class CaloClusterConstituentsOrigin: public JetConstituentModifierBase {
   StatusCode process_impl(xAOD::IParticleContainer* cont) const; 
   StatusCode correctToOriginVtx(xAOD::CaloClusterContainer& cont, const xAOD::Vertex& vert) const;
 
-  std::string m_vertexContName = "PrimaryVertices";
+  SG::ReadHandleKey<xAOD::VertexContainer> m_readVertexContainer_key;
   
 };
 

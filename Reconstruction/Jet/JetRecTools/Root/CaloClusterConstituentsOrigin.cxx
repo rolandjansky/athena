@@ -10,7 +10,7 @@
 #include "xAODCaloEvent/CaloVertexedTopoCluster.h"
 
 CaloClusterConstituentsOrigin::CaloClusterConstituentsOrigin(const std::string & name): JetConstituentModifierBase(name) {
-  declareProperty("VertexContainer",m_vertexContName);  
+  declareProperty("VertexContainer",m_readVertexContainer_key);  
 }
 
 StatusCode CaloClusterConstituentsOrigin::initialize() {
@@ -28,7 +28,6 @@ StatusCode CaloClusterConstituentsOrigin::process_impl(xAOD::IParticleContainer*
    auto handle = SG::makeHandle(m_readVertexContainer_key);
    ATH_CHECK(handle.isValid());
    auto vertexContainer = handle.cptr();
-   const xAOD::VertexContainer* vertexContainer=0;
        
    for(const auto& pv : *vertexContainer) {
      // Apply the origin correction iff a PV is identified
@@ -48,8 +47,6 @@ StatusCode CaloClusterConstituentsOrigin::correctToOriginVtx(xAOD::CaloClusterCo
       cl->setEta(corrCL.eta());
       cl->setPhi(corrCL.phi());
     }
-    if(m_saveDetectorEta)
-      cl->auxdecor<float>("DetectorEta") = eta_det;
   }
   return StatusCode::SUCCESS;
 }
