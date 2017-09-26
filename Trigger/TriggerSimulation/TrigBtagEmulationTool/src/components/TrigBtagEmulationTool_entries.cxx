@@ -13,8 +13,6 @@ DECLARE_NAMESPACE_ALGORITHM_FACTORY(Trig,TrigBtagValidationTest)
 
 DECLARE_FACTORY_ENTRIES(TrigBtagEmulationTool) {
   DECLARE_NAMESPACE_TOOL(Trig,TrigBtagEmulationTool)
-    //  DECLARE_NAMESPACE_ALGORITHM(Trig,TrigBtagEmulationToolTest)
-    //  DECLARE_NAMESPACE_ALGORITHM(Trig,TrigBtagValidationTest)
 }
 
 DECLARE_FACTORY_ENTRIES(TrigBtagEmulationTest) {

@@ -43,8 +43,7 @@ atlas_add_component( TrigBtagEmulationTool
                      Root/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} 
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} AthContainers StoreGateLib AsgTools xAODBTagging xAODEventInfo xAODJet xAODTracking xAODTrigger PATCoreLib ParticleJetTools TrigDecisionToolLib TrigConfHLTData TrigSteeringEvent BTaggingLib AthenaBaseComps EventPrimitives GaudiKernel )
-
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} AthContainers StoreGateLib AsgTools xAODBTagging xAODEventInfo xAODJet xAODTracking xAODTrigger PATCoreLib ParticleJetToolsLib TrigDecisionToolLib TrigConfHLTData TrigSteeringEvent BTaggingLib AthenaBaseComps EventPrimitives GaudiKernel)
 
 # Install files from the package:
 atlas_install_headers( TrigBtagEmulationTool )
