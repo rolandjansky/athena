@@ -46,7 +46,7 @@ class PixelMon2DLumiProfiles : public PixMon::HolderTemplate<TProfile2D_LW> {
    *        into readable info (e.g. eta/phi module index)
    * @param weight: optional weighting factor
    */
-  void Fill(double LB, Identifier &id, const PixelID* pixID, double weight = 1.0);
+  void fill(double LB, Identifier &id, const PixelID* pixID, double weight = 1.0);
 
   //! Formatting function for histograms (reimplemented from template)
   void formatHist();
