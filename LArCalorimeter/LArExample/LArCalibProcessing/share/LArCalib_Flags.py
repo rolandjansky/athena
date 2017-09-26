@@ -1,11 +1,15 @@
 include.block("LArCalibProcessing/LArCalib_Flags.py")
 
 from string import *
+from AthenaCommon.GlobalFlags import globalflags
 
 class LArCalib_Flags:
-    
-    globalFlagDB = "LARCALIB-RUN2-00"
-    #globalFlagDB = "LARCALIB-000-02"
+
+    if globalflags.DatabaseInstance() == 'COMP200':
+        globalFlagDB = "LARCALIB-000-02"
+    else:
+        globalFlagDB = "LARCALIB-RUN2-00"
+
     OutputDB     = "sqlite://;schema=myDB200.db;dbname=CONDBR2"
     InputDB      = OutputDB
 
