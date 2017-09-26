@@ -68,13 +68,6 @@ IDataProviderSvc* SG::DataProxy::dataSvc() const
   return nullptr;
 }
 
-/// Retrieve TransientAddress
-inline
-SG::TransientAddress* SG::DataProxy::transientAddress() const
-{
-  return m_tAddress.get();
-}
-
 ///< Get the primary (hashed) SG key.
 inline
 SG::sgkey_t SG::DataProxy::sgkey() const
@@ -289,7 +282,7 @@ DATA* SG::DataProxy_cast(SG::DataProxy* proxy) {
         // stored with, nor it inherits from it. 
         // Before giving up let's check its transient CLIDs
         DataBucketBase* db(0);
-        if (proxy->transientAddress()->transientID(dataID) &&
+        if (proxy->transientID(dataID) &&
             0 != (db = dynamic_cast<DataBucketBase*>(pObject)) )
           {
             //it is a symlink after all. Let's hard cast and keep our fingers Xed
